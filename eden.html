@@ -11,6 +11,7 @@
 		<script src="js/maintainer.js"></script>
 		<script src="js/eden/parser.js"></script>
 		<script src="js/eden.js"></script>
+		<script src="js/models.js"></script>
 
 		<!--<link rel="stylesheet" type="text/css" href="css/reset.css">-->
 		<link rel="stylesheet" type="text/css" href="css/custom-theme/jquery-ui-1.8.12.custom.css" />
@@ -47,6 +48,8 @@
 				eden = new Eden(root);
 
 				eden.loadLocalModelState();
+
+				executeEdenFile("library/eden.eden");
 
 				/*$(root).bind('symbolCreate', function(event, symbol, name) { 
 					$(symbol).bind('symbolMutate', function(event, name) { printSymbolTable(); });

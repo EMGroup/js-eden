@@ -7,7 +7,7 @@ jugA_left is Line(left,base,left,base - (scale * capA));
 jugA_right is Line(left+jugwidth,base,left+jugwidth,base - (scale * capA));
 jugA_base is Line(left,base,left+jugwidth,base);
 
-picture is [jugA_left,jugA_right,jugA_base];
+##picture is [jugA_left,jugA_right,jugA_base];
 
 spacing = 30;
 right is left+jugwidth+spacing;

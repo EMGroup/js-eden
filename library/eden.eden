@@ -1,0 +1,48 @@
+##STRING FUNCTIONS
+
+func str {
+  ${{
+  var a = arguments[0];
+  return (new Number(a)).toString();
+  }}$;
+};
+
+func int {
+  ${{
+  var a = arguments[0];
+  return parseInt(a);
+  }}$;
+};
+
+
+##MISSING FUNCTIONS
+func eager {};
+func time {
+  ${{
+  var now = new Date();
+  return Math.floor(now.getTime() / 1000);
+  }}$;
+};
+
+func writeln {
+  ${{
+  var t = arguments[0];
+  console.log(t);
+  }}$;
+};
+
+func substr {
+
+};
+
+true = 1;
+false = 0;
+
+func include {
+${{
+executeEdenFile(arguments[0]);
+printSymbolTable();
+}}$;
+}
+
+include("library/drawing.eden");

@@ -271,7 +271,7 @@ Symbol.prototype.fireActions = function(actions_to_fire) {
 		var action = actions_to_fire[action_name];
 		// if one action fails, it shouldn't prevent all the other
 		// scheduled actions from firing
-		action.trigger();
+		if (action != undefined) { action.trigger(); }
 	}
 };
 
