@@ -1,0 +1,67 @@
+body, html {
+	margin: 0;
+	height: 100%;
+}
+ul li {
+	font-size: 12px;
+	list-style-type: square;
+}
+
+h2, ul li {
+	font-family: Arial, Arial, Helvetica, sans-serif;
+	font-weight: lighter;
+	color: #9C9C9C;
+}
+
+#header h1 {
+	margin: 0;
+	font-family: Arial, Arial, Helvetica, sans-serif;
+	font-size: 24pt;
+	color: #9C9C9C;
+	padding: 20px;
+	font-weight: lighter;
+}
+
+#symbol-table-area {
+	padding: 20px;
+}
+
+#symbol-table-area ul {
+	margin: 0;
+}
+
+body {
+	/* thanks to http://blog.fakedarren.com/2010/01/cross-browser-css-gradients/ */
+	/* and http://www.puremango.co.uk/2010/04/css-gradient/ */
+	/* fallback (Opera) */
+	background: #FFFFFF;
+
+	/* Mozilla: */
+	background: -moz-linear-gradient(top, #FFFFFF, #E8E8E8);
+
+	/* Chrome, Safari:*/
+	background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#E8E8E8));
+
+	/* MSIE */
+	filter: progid:DXImageTransform.Microsoft.Gradient(
+	StartColorStr='#FFFFFF', EndColorStr='#E8E8E8', GradientType=0);
+
+}
+
+textarea.code-entry {
+	font-family: monospace;
+	height: 99%;
+	width: 100%;
+	box-sizing: border-box;
+	-webkit-box-sizing:border-box;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+}
+
+#error-window {
+	white-space: pre-wrap;       /* CSS-3                  */
+	white-space: -moz-pre-wrap;  /* Mozilla, since 1999    */
+	white-space: -pre-wrap;      /* Opera 4-6              */
+	white-space: -o-pre-wrap;    /* Opera 7                */
+	word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}

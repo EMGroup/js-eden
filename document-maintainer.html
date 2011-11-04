@@ -1,0 +1,47 @@
+<html>
+	<head>
+		<script src="js/dummyconsole.js"></script>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+		<script src="js/eden/parser.js"></script>
+		<script src="js/test.js"></script>
+		<script src="js/maintainer.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			var Eden = {
+				execute: function(s) { eval(translateEdenToJavaScript(s)); }
+			};
+			
+			function maintainDocument(context, element) {
+				var id = 0;
+
+				$.each($('formula', element), function(i,e) {
+					Eden.execute("formulaElement" + i + " is " + $(e).text() + ";");
+					
+					context.lookup("formulaElement" + i + "Watcher").define(function(context) {
+						return function() {
+							$(e).text(context.lookup("formulaElement" + i).value());
+						};
+					}).observe(["formulaElement" + i]);
+					
+					id++;
+				});
+			}
+			
+			var root;
+			$(document).ready(function() {
+				root = new Folder();
+				maintainDocument(root, document.body);
+				
+				var $input = $('#xInput');
+				$input.change(function() {
+					root.lookup('x').assign(Number($input.val()));
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<h1>dependency demo</h1>
+		<p>the current value of x + 1 is <formula>x + 1</formula></p>
+		<p>the current value of x + 2 is <formula>x + 2</formula></p>
+		<p>feel free to modify x here: <input type="text" id="xInput"/></p>
+	</body>
+</html>

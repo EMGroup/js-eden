@@ -1,0 +1,187 @@
+${{
+Line = function(x1, y1, x2, y2, colour) {
+  this.x1 = x1;
+  this.y1 = y1;
+  this.x2 = x2;
+  this.y2 = y2;
+  this.colour = colour;
+}
+}}$;
+
+${{
+Rectangle = function(x1, y1, x2, y2, colour) {
+  this.x1 = x1;
+  this.y1 = y1;
+  this.x2 = x2;
+  this.y2 = y2;
+  this.colour = colour;
+}
+}}$;
+
+${{
+Text = function(txt, x, y, colour) {
+  this.x = x;
+  this.y = y;
+  this.text = txt;
+  this.colour = colour;
+}
+}}$;
+
+func Text { ${{
+  var x = arguments[1];
+  var y = arguments[2];
+  var text = arguments[0];
+  var colour = arguments[3];
+  if (colour == null) { colour = "black"; }
+  return new Text(text, x, y, colour);
+}}$; }
+
+func Line { ${{
+  var x1 = arguments[0];
+  var y1 = arguments[1];
+  var x2 = arguments[2];
+  var y2 = arguments[3];
+  var colour = arguments[4];
+  if (colour == null) { colour = "black"; }
+  return new Line(x1, y1, x2, y2, colour);
+}}$; }
+
+func Rectangle { ${{
+  var x1 = arguments[0];
+  var y1 = arguments[1];
+  var x2 = arguments[2];
+  var y2 = arguments[3];
+  var colour = arguments[4];
+  if (colour == null) { colour = "black"; }
+  return new Rectangle(x1, y1, x2, y2, colour);
+}}$; }
+
+line2 = Line(0, 0, 50, 30, "red");
+line2.x1 = 30;
+
+picture is [line2];
+
+${{
+Line.prototype.draw = function(context) {
+  context.beginPath();
+  context.strokeStyle = this.colour;
+  context.moveTo(this.x1, this.y1);
+  context.lineTo(this.x2, this.y2);
+  context.stroke();
+};
+}}$;
+
+${{
+Rectangle.prototype.draw = function(context) {
+  context.fillStyle = this.colour;
+  context.fillRect(this.x1,this.y1,this.x2,this.y2);
+};
+}}$;
+
+${{
+Text.prototype.draw = function(context) {
+  context.strokeStyle = this.colour;
+  context.strokeText(this.text,this.x, this.y);
+};
+}}$;
+
+proc clearCanvas { ${{
+  var canvas = document.getElementById("d1canvas");
+  canvas.width = canvas.width;
+}}$; }
+
+proc drawPicture : picture { 
+  clearCanvas();
+  ${{
+  var picture = context.lookup('picture').value();
+  var canvas = document.getElementById("d1canvas").getContext('2d');
+
+  for (var i = 0; i < picture.length; ++i) {
+    picture[i].draw(canvas);
+  }
+  }}$; 
+}
+
+##STRING FUNCTIONS
+
+func str {
+  ${{
+  var a = arguments[0];
+  return (new Number(a)).toString();
+  }}$;
+};
+
+func int {
+  ${{
+  var a = arguments[0];
+  return parseInt(a);
+  }}$;
+};
+
+
+##MISSING FUNCTIONS
+func eager {};
+func time {
+  ${{
+  var now = new Date();
+  return Math.floor(now.getTime() / 1000);
+  }}$;
+};
+
+func writeln {
+  ${{
+  var t = arguments[0];
+  console.log(t);
+  }}$;
+};
+
+func substr {
+
+};
+
+true = 1;
+false = 0;
+
+##Buttons
+
+${{
+Button = function (name, label, x, y, enabled) {
+	this.name = name;
+	this.label = label;
+	this.x = x;
+	this.y = y;
+	this.enabled = enabled;
+}
+}}$;
+
+func Button { ${{
+  var name = arguments[0];
+  var label = arguments[1];
+  var x = arguments[2];
+  var y = arguments[3];
+  var enabled = arguments[4];
+  return new Button(name, label, x, y, enabled);
+}}$; }
+
+${{
+Button.prototype.draw = function(context) {
+  var but = document.getElementById(this.name);
+  if (but == null) {
+	var dis = "";
+	if (this.enabled == true) { dis = ""; }
+	else { dis = "disabled=\"true\""; }
+
+	var can = document.getElementById("donald-window");
+	can.innerHTML = can.innerHTML + "<input type=\"button\" id=\"" + this.name + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\" onclick=\"root.lookup('" + this.name + "_clicked" + "').assign(true); root.lookup('" + this.name + "_clicked" + "').assign(false);\">";
+  } else {
+	but.value = this.label;
+	if (this.enabled == true) { but.disabled = false; }
+	else { but.disabled = true; }
+	but.style.left = "" + this.x + "px";
+	but.style.right = "" + this.y + "px";
+  }
+};
+}}$;
+
+
+drawPicture();

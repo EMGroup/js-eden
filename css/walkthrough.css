@@ -1,0 +1,35 @@
+h1,h2 {
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.symbolTable {
+	border-color: gray;
+	border-width: 1px;
+	border-style: solid;
+	max-width: 400px;
+	overflow: auto;
+	padding: 5px;
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	background-color: #CCF1FF;
+}
+
+.code {
+	border-color: gray;
+	border-width: 1px;
+	border-style: solid;
+	max-width: 400px;
+	overflow: auto;
+	padding: 5px;
+}
+
+.add-item {
+	height: 5px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.add-item:hover {
+	background-color: #69C3FF;
+}

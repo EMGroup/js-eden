@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Definitive Statements Translated To JavaScript</title>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"></script>
+
+		<script src="js/dummyconsole.js"></script>
+		<script src="js/json2.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/test.js"></script>
+		<script src="js/maintainer.js"></script>
+		<script src="js/eden/parser.js"></script>
+		<script src="js/eden.js"></script>
+
+		<!--<link rel="stylesheet" type="text/css" href="css/reset.css">-->
+		<link rel="stylesheet" type="text/css" href="css/custom-theme/jquery-ui-1.8.12.custom.css" />
+		<link rel="stylesheet" type="text/css" href="css/eden.css" />
+
+		<script type="text/javascript">
+			var $dialog;
+			var root;
+			var eden;
+			var stored_script;
+
+			// XXX: need to get rid of this function, much more sensible to have observation of the symbol table
+			// and add entries as they are added
+			function printSymbolTable() {
+				$('#symbol-table').html('');
+				$.each(root.symbols, function(name,symbol) { 
+					if (symbol.definition !== undefined) {
+						$('<li></li>').text(symbol.eden_definition + '; = ' + symbol.value()).appendTo($('#symbol-table')).click(function() { $('#source').text(symbol.eden_definition + ';'); });
+					} else {
+						$('<li></li>').text(name + ' = ').append(
+							$('<input type="text" />').val(symbol.value()).change(function(e) {
+								var $input = $(this);
+								symbol.assign(Number($input.val()));
+								setTimeout(printSymbolTable);
+							})
+						).appendTo($('#symbol-table'));
+					}
+				});
+			}
+
+			$(document).ready(function() {
+				runTests(all_the_tests);
+				root = new Folder();
+				eden = new Eden(root);
+
+				eden.loadLocalModelState();
+
+				/*$(root).bind('symbolCreate', function(event, symbol, name) { 
+					$(symbol).bind('symbolMutate', function(event, name) { printSymbolTable(); });
+					$(symbol).bind('symbolDefine', function(event, name) { printSymbolTable(); });
+					$(symbol).bind('symbolAssign', function(event, name) { printSymbolTable(); });
+					printSymbolTable(); 
+				});*/
+
+				$code_entry = $('<textarea rows="10" class="code-entry"></textarea>');
+				$dialog = $('<div id="interpreter-window"></div>')
+					.html($code_entry)
+					.dialog({
+						title: "EDEN Interpreter Window", 
+						width: "400px",
+						buttons: {
+							Submit: function() {
+								try {
+									eval(translateEdenToJavaScript($code_entry.val()));
+									$code_entry.val('');
+									printSymbolTable();
+									//eden.saveLocalModelState();
+								} catch(e) {
+									$('#error-window').addClass('ui-state-error').append(e.message + "\r\n\r\n").dialog({title:"EDEN Errors"});
+								}
+							}
+						}
+					});
+
+				$donald_entry = $('<canvas id="d1canvas" width=500 height=500 style="border-color: black; border-width: 1px; border-style: solid;"></canvas>');
+				$donald = $('<div id="donald-window"></div>')
+					.html($donald_entry)
+					.dialog({
+						width: "530px",
+						title: "DONALD", 
+					});
+				
+				$('.ui-dialog-titlebar a', $dialog.parent()).remove();
+				$('<pre id="error-window" style="font-family:monospace;"></pre>').appendTo($('body'));
+			});
+		</script>
+	</head>
+	<body>
+		<div id="header">
+			<h1>[eden::javascript]</h1>
+		</div>
+		<div id="symbol-table-area">
+			<h2>Current Symbol Table</h2>
+			<ul id="symbol-table">
+			</ul>
+		</div>
+	</body>
+</html>
