@@ -135,7 +135,7 @@ Button.prototype.draw = function(context) {
 	if (this.enabled == true) { but.disabled = false; }
 	else { but.disabled = true; }
 	but.style.left = "" + this.x + "px";
-	but.style.right = "" + this.y + "px";
+	but.style.top = "" + this.y + "px";
   }
 };
 }}$;
