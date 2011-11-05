@@ -40,7 +40,7 @@ false = 0;
 
 func include {
 ${{
-executeEdenFile(arguments[0]);
+Eden.executeFile(arguments[0]);
 printSymbolTable();
 }}$;
 }

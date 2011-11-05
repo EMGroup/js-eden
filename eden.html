@@ -2,19 +2,23 @@
 <html>
 	<head>
 		<title>Definitive Statements Translated To JavaScript</title>
-		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"></script>
-
 		<script src="js/dummyconsole.js"></script>
+
+		<!-- third party libraries -->
+		<link rel="stylesheet" type="text/css" href="css/custom-theme/jquery-ui-1.8.12.custom.css" />
+		<!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script> -->
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"></script>
 		<script src="js/json2.js" type="text/javascript" charset="utf-8"></script>
-		<script src="js/test.js"></script>
+
+		<!-- dependency maintenance -->
 		<script src="js/maintainer.js"></script>
+
+		<!-- EDEN -->
 		<script src="js/eden/parser.js"></script>
 		<script src="js/eden.js"></script>
 		<script src="js/models.js"></script>
 
-		<!--<link rel="stylesheet" type="text/css" href="css/reset.css">-->
-		<link rel="stylesheet" type="text/css" href="css/custom-theme/jquery-ui-1.8.12.custom.css" />
 		<link rel="stylesheet" type="text/css" href="css/eden.css" />
 
 		<script type="text/javascript">
@@ -43,13 +47,12 @@
 			}
 
 			$(document).ready(function() {
-				runTests(all_the_tests);
 				root = new Folder();
 				eden = new Eden(root);
 
 				eden.loadLocalModelState();
 
-				executeEdenFile("library/eden.eden");
+				Eden.executeFile("library/eden.eden");
 
 				/*$(root).bind('symbolCreate', function(event, symbol, name) { 
 					$(symbol).bind('symbolMutate', function(event, name) { printSymbolTable(); });
@@ -67,7 +70,7 @@
 						buttons: {
 							Submit: function() {
 								try {
-									eval(translateEdenToJavaScript($code_entry.val()));
+									eval(Eden.translateToJavaScript($code_entry.val()));
 									$code_entry.val('');
 									printSymbolTable();
 									//eden.saveLocalModelState();

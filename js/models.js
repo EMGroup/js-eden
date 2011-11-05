@@ -65,7 +65,7 @@ function WMAjaxObject(callback) {
 
 function executeEdenFile(url) {
 	new WMAjaxObject(function(txt) {
-			eval(translateEdenToJavaScript(this.responseText));
+			eval(Eden.translateToJavaScript(this.responseText));
 		}
 	).getHttp(url);
 }
