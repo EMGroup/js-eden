@@ -2,17 +2,21 @@
 	<head>
 		<title>Definitive Statements Translated To JavaScript</title>
 		<script src="js/dummyconsole.js" type="text/javascript" charset="utf-8"></script>
+
+		<!-- third party libraries -->
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script> 
 		<script src="js/json2.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/beautify.js" type="text/javascript" charset="utf-8"></script>
-		<script src="js/maintainer.js"></script>
-		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script> 
 		<script src="js/jison.js"></script>
+
+		<!-- code for this page -->
+		<script src="js/maintainer.js"></script>
 		<script src="js/try.js"></script>
-		<script src="js/test.js"></script>
+
 		<script type="text/javascript">
 			var root;
+
 			$(document).ready(function() {
-				runTests(accessor_tests);
 				root = new Folder();
 				$('#execute_btn').click(function() {
 					eval($('#out').text());
