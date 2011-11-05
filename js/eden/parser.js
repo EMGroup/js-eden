@@ -122,7 +122,7 @@ case 63: this.$ = $$[$0-2] + ': ' + $$[$0];
 break;
 case 64: this.$ = $$[$0] + '.value()'; 
 break;
-case 65: this.$ = '' + $$[$0-3] + '.call(this, ' + $$[$0-1] + ')'; 
+case 65: this.$ = '' + $$[$0-3] + '.call('+ ['this'].concat($$[$0-1]) + ')'; 
 break;
 case 66: this.$ = $$[$0-1] + ';'; 
 break;

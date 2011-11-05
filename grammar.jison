@@ -345,7 +345,7 @@ primary-expression
     : lvalue
         { $$ = $lvalue + '.value()'; }
     | primary-expression '(' expression-list-opt ')'
-        { $$ = '' + $1 + '.call(this, ' + $3 + ')'; }
+        { $$ = '' + $1 + '.call('+ ['this'].concat($3) + ')'; }
     ;
 
 statement
