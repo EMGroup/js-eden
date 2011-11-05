@@ -11,6 +11,8 @@
 
 		<!-- code for this page -->
 		<script src="js/maintainer.js"></script>
+		<script src="js/eden/parser.js"></script>
+		<script src="js/eden.js"></script>
 		<script src="js/try.js"></script>
 
 		<script type="text/javascript">
