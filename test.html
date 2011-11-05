@@ -144,9 +144,9 @@
 "insert"              return 'INSERT'
 "append"              return 'APPEND'
 "shift"               return 'SHIFT'
+"after"               return 'AFTER'
 "if"                  return 'IF'
 "else"                return 'ELSE'
-"after"               return 'AFTER'  /* NICK: Added by EAGER */
 "for"                 return 'FOR'
 "while"               return 'WHILE'
 "do"                  return 'DO'
@@ -456,8 +456,8 @@ statement
     | dependency-link
     | query-command
     | compound-statement
-    | AFTER '(' expression ')' statement /* NICK: Alternative to EAGER */
-        { $$ = 'setTimeout(function() {' + $statement + '}, ' + $expression + ');' }
+    | AFTER '(' expression ')' statement
+        { $$ = 'setTimeout(function() ' + $statement + ', ' + $expression + ');' }
     | IF '(' expression ')' statement else-opt
         { $$ = 'if (' + $expression + ') ' + $statement + $6; }
     | WHILE '(' expression ')' statement
