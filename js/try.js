@@ -2,6 +2,8 @@ var assignmentHelper;
 
 (function ($) {
 
+var GrammarPage = {};
+
 var Jison = require('jison'),
     bnf = require('jison/bnf');
 
@@ -69,81 +71,22 @@ function processGrammar () {
         $("#gen_out").append(r.msg+"\n"+"("+r.s+", "+r.r+") -> "+r.action);
     });
 
-    parser2 = parser.createParser();
+	var generatedParser = parser.createParser();
+	GrammarPage.edenParser = Eden.parserWithInitialisation(generatedParser);
 }
 
 function runParser () {
-    if (!parser) processGrammer();
-    printOut("Parsing...");
-    var source = $("#source").val();
-	
-	var in_definition = false;
-	var dependencies = {};
+	if (!parser) processGrammer();
+	printOut("Parsing...");
+	var source = $("#source").val();
 
-	var original_input = source;
-
-	parser2.yy.extractEdenDefinition = function(first_line, first_column, last_line, last_column) {
-		var definition_lines = original_input.split('\n').slice(first_line - 1, last_line);
-		var definition = "";
-
-		for (var i = 0; i < definition_lines.length; ++i) {
-			var line = definition_lines[i];
-
-			if (i === 0) {
-				var start = first_column;
-			} else {
-				var start = 0;
-			}
-
-			if (i === definition_lines.length - 1) {
-				var end = last_column;
-			} else {
-				var end = line.length;
-			}
-
-			definition += line.slice(start, end);
-		}
-		console.log("def: ", definition);
-
-		return definition;
+	try {
+		$("#out").removeClass("bad").addClass('good');
+		printOut(js_beautify(GrammarPage.edenParser(source)));
+	} catch(e) {
+		$("#out").removeClass("good").addClass('bad');
+		printOut(e.message || e);
 	}
-	
-	parser2.yy.enterDefinition = function() {
-		dependencies = {};
-		in_definition = true;
-	};
-	
-	parser2.yy.leaveDefinition = function() {
-		in_definition = false;
-	};
-	
-	parser2.yy.inDefinition = function() {
-		return in_definition;
-	};
-	
-	parser2.yy.addDependency = function(name) {
-		dependencies[name] = 1;
-	};
-	
-	parser2.yy.getDependencies = function() {
-		var dependency_list = [];
-		for (p in dependencies) {
-			dependency_list.push(p);
-		}
-		return dependency_list;
-	};
-
-	parser2.yy.locals = [];
-	parser2.yy.paras = [];
-
-    try {
-        $("#out").removeClass("bad").addClass('good');
-		console.log("BEAUTY");
-        printOut(js_beautify(parser2.parse(source)));
-    } catch(e) {
-        $("#out").removeClass("good").addClass('bad');
-        printOut(e.message || e);
-    }
 }
 
 })(jQuery);
