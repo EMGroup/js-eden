@@ -1,0 +1,50 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="css/walkthrough.css" />
+
+		<!-- other libs -->
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+		<script type="text/javascript" src="lib/beautify.js"></script>
+		<script type="text/javascript" charset="utf-8" src="lib/json2.js"></script>
+		<script src="js/dummyconsole.js"></script>
+
+		<!-- codemirror -->
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/codemirror.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/runmode.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/mode/javascript/javascript.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/mode/eden/eden.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/mode/xml/xml.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/mode/markdown/markdown.js"></script>
+		<link rel="stylesheet" href="js/codemirror/codemirror.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="js/codemirror/theme/default.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="js/codemirror/theme/night.css" type="text/css" media="screen" charset="utf-8">
+
+		<!-- dependency/eden stuff -->
+		<script type="text/javascript" src="js/maintainer.js"></script>
+		<script type="text/javascript" src="js/eden.js"></script>
+		<script type="text/javascript" src="js/eden/parser.js"></script>
+		<script type="text/javascript" src="js/test.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/symboltable.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/edenpage.js"></script>
+
+		<script type="text/javascript" charset="utf-8">
+			var root;
+
+			$(document).ready(function() {
+				root = new Folder();
+				addSymbolTable(root);
+				convertToEdenPage('#model-body');
+			});
+		</script>
+	</head>
+	<body>
+		<div id="model-header">
+		</div>
+		<div id="model-body">
+			<h1>Template Page</h1>
+			<pre class="eden exec">text is "Any &lt;pre&gt; section gets converted to an editor";</pre>
+			<p>Areas with class="eden exec"; act as EDEN areas, class="exec" are for JavaScript</p>
+			<pre class="exec">root.lookup('text').assign("this is a JavaScript section");</pre>
+		</div>
+	</body>
+</html>

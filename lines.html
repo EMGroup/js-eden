@@ -1,0 +1,209 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="css/walkthrough.css" />
+
+		<!-- other libs -->
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+		<script type="text/javascript" src="js/beautify.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/json2.js"></script>
+		<script src="js/dummyconsole.js"></script>
+
+		<!-- codemirror -->
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/codemirror.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/runmode.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/mode/javascript/javascript.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/mode/eden/eden.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/mode/xml/xml.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/mode/markdown/markdown.js"></script>
+		<link rel="stylesheet" href="js/codemirror/codemirror.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="js/codemirror/theme/default.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="js/codemirror/theme/night.css" type="text/css" media="screen" charset="utf-8">
+
+		<!-- dependency/eden stuff -->
+		<script type="text/javascript" src="js/maintainer.js"></script>
+		<script type="text/javascript" src="js/eden.js"></script>
+		<script type="text/javascript" src="js/eden/parser.js"></script>
+		<script type="text/javascript" src="js/test.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/symboltable.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/edenpage.js"></script>
+
+		<script type="text/javascript" charset="utf-8">
+			var root;
+
+			$(document).ready(function() {
+				root = new Folder();
+				addSymbolTable(root);
+				convertToEdenPage('#model-body');
+			});
+		</script>
+	</head>
+	<body>
+		<div id="model-header">
+		</div>
+		<div id="model-body">
+			<h2>Modelling a collection of lines</h2>
+			<p>We can model a line using a JavaScript data structure. The following defines Line, which is a function to construct lines.</p>
+			<pre class="exec">Line = function(x1, y1, x2, y2) {
+  this.x1 = x1;
+  this.y1 = y1;
+  this.x2 = x2;
+  this.y2 = y2;
+}</pre>
+
+			<p>As well as this we associate a method that is used to get the string representation for lines, this will make it easier to understand in the symbol table:</p>
+
+<pre class="exec">Line.prototype.toString = function() {
+  return "[(" + this.x1 + "," + this.y1 + "), (" + this.x2 + "," + this.y2 + ")]";
+};</pre>
+			<p>We can now store these in our symbol table</p>
+
+			<pre class="exec">root.lookup('line1').assign(new Line(0, 0, 30, 50));</pre>
+
+			<p>Or using the EDEN notation (somewhat)</p>
+
+			<pre class="eden exec">func Line { ${{
+  var x1 = arguments[0];
+  var y1 = arguments[1];
+  var x2 = arguments[2];
+  var y2 = arguments[3];
+  return new Line(x1, y1, x2, y2);
+}}$; }</pre>
+
+			<pre class="eden exec">line2 = Line(0, 0, 50, 30);
+line2.x1 = 30;</pre>
+
+			<h2>Creating a simple visualisation with lines</h2>
+			<p>Let's create a window dedicated to the visualisation. The browser provides the <code>window</code> object, which has an API for creating a new window:</p>
+
+			<pre class="exec">var strWindowFeatures = "resizable=yes,scrollbars=yes,status=yes";
+window.popup = window.open('', '', strWindowFeatures);</pre>
+
+			<p>Note that the above attaches the popup to the predefined global <code>window</code>, so that it can be accessed later. We can now add content to this popup using JavaScript:</p>
+
+			<pre class="exec">window.popup.document.body.innerHTML = "&lt;p&gt;Hello World&lt;/p&gt;";</pre>
+
+			<p>the $ function (provided by a popular library called <a href="http://jquery.com">jQuery</a>) allows us better abstractions for page manipulation:</p>
+
+			<pre class="exec">var $body = $(window.popup.document.body);
+$body.append('&lt;p&gt;one&lt;/p&gt;');
+$body.append('&lt;p&gt;two&lt;/p&gt;');</pre>
+
+			<p>The HTML <code>&lt;canvas&gt;</code> element allows for procedural line drawing.</p>
+
+			<pre class="exec">var $body = $(window.popup.document.body);
+$body.append('&lt;canvas width=500 height=500 style="border-color: black; border-width: 1px; border-style: solid;"&gt;&lt;/canvas&gt;');</pre>
+
+			<p>Model a picture using an EDEN list</p>
+
+			<pre class="eden exec">picture is [line1, line2];</pre>
+
+			<p>We can attach a routine for drawing these lines in a HTML canvas</p>
+
+			<pre class="exec">Line.prototype.draw = function(context) {
+  context.beginPath();
+  context.moveTo(this.x1, this.y1);
+  context.lineTo(this.x2, this.y2);
+  context.stroke();
+};</pre>
+
+			<p>Setup an agent to draw each element in the picture</p>
+
+			<pre class="eden exec">
+proc clearCanvas { ${{
+  var canvas = $('canvas', window.popup.document).get(0);
+  canvas.width = canvas.width;
+}}$; }
+
+proc drawPicture : picture { 
+  clearCanvas();
+  ${{
+  var picture = context.lookup('picture').value();
+  var canvas = $('canvas', window.popup.document).get(0).getContext('2d');
+
+  for (var i = 0; i < picture.length; ++i) {
+    picture[i].draw(canvas);
+  }
+  }}$; 
+}
+
+drawPicture();
+
+</pre>
+
+			<p>Now we can move the lines around:</p>
+
+			<pre class="eden exec">line2.x2 = 100;</pre>
+			<pre class="eden exec">line2.y2 = 300;</pre>
+			<pre class="eden exec">line2.y1 = 130;</pre>
+
+			<h2>Adding More Shape Types</h2>
+
+			<pre class="exec">Box = function(x1, y1, x2, y2) {
+  this.x1 = x1;
+  this.y1 = y1;
+  this.x2 = x2;
+  this.y2 = y2;
+}</pre>
+
+			<p>As well as this we associate a method that is used to get the string representation for lines, this will make it easier to understand in the symbol table:</p>
+
+<pre class="exec">Box.prototype.toString = function() {
+  return "Box [(" + this.x1 + "," + this.y1 + "), (" + this.x2 + "," + this.y2 + ")]";
+};</pre>
+
+			<pre class="exec">Box.prototype.draw = function(context) {
+  context.fillStyle = 'black';
+  context.fillRect(this.x1, this.y1, this.x2, this.y2);
+};</pre>
+
+			<p>We can now store these in our symbol table</p>
+
+			<pre class="exec">root.lookup('box1').assign(new Box(10, 20, 30, 50));</pre>
+
+			<p>Or using the EDEN notation (somewhat)</p>
+
+			<pre class="exec">Box = function(x1, y1, x2, y2) {
+  this.x1 = x1;
+  this.y1 = y1;
+  this.x2 = x2;
+  this.y2 = y2;
+}</pre>
+
+			<pre class="eden exec">func Box { ${{
+  var x1 = arguments[0];
+  var y1 = arguments[1];
+  var x2 = arguments[2];
+  var y2 = arguments[3];
+  return new Box(x1, y1, x2, y2);
+}}$; }</pre>
+
+			<pre class="eden exec">box2 = Box(0, 30, 20, 30);
+box2.x1 = 100;</pre>
+
+			<h2>Adding more properties</h2>
+			<pre class="exec">root.lookup('box1').assign(new Box(10, 20, 30, 50));</pre>
+
+			<!--root.lookup('sentence');
+
+			When using JavaScript in a browser, there are certain global variables you can use for interacting with the browser. The window variable is one of these. You can call window.open() in order to create a popup window:
+
+			var popup = window.open();
+
+			The popup window contains a HTML document. We can modify the contents of this by using the document property of the popup:
+
+			popup.document.body.innerHTML = “Hello, World!”;
+
+			The “.” symbol is used to lookup named properties of each value. Essentially the above reads “change the inner HTML of the body of the document of the popup to ‘Hello, World!’. 
+
+
+
+			This guide is meant to get you up and runn
+
+			About JavaScript
+
+
+
+			Intro to JavaScript Objects-->
+		</div>
+	</body>
+</html>

@@ -1,5 +1,9 @@
-h1,h2 {
+h1,h2,h3 {
 	font-family: Arial, Helvetica, sans-serif;
+}
+
+.symbolTable ul {
+	padding: 0;
 }
 
 .symbolTable {
@@ -9,19 +13,58 @@ h1,h2 {
 	max-width: 400px;
 	overflow: auto;
 	padding: 5px;
-	position: fixed;
+	float: right;
 	top: 0px;
 	right: 0px;
 	background-color: #CCF1FF;
+}
+
+.symbolDefinition {
+	background-color: white;
+	border-color: black;
+	border-width: 1px;
+	border-style: solid;
+}
+
+.symbolTable li {
+	list-style: none;
+	border-width: 1px;
+	border-color: gray;
+	/*border-style: solid;*/
+	margin-bottom: 1px;
+	overflow: auto;
+}
+
+.symbolTable p {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+.symbolTable .name {
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+}
+
+.symbolTable pre {
+	margin: 0;
+}
+
+.symbolTable .assignedValue {
+	background-color: #1BE050;
+}
+
+.symbolTable .derivedValue {
+	background-color: yellow;
 }
 
 .code {
 	border-color: gray;
 	border-width: 1px;
 	border-style: solid;
-	max-width: 400px;
+	max-width: 600px;
 	overflow: auto;
 	padding: 5px;
+	margin: 10px;
 }
 
 .add-item {
@@ -32,4 +75,9 @@ h1,h2 {
 
 .add-item:hover {
 	background-color: #69C3FF;
+}
+
+#model-body {
+	max-width: 800px;
+	margin: 0;
 }
