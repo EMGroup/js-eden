@@ -84,6 +84,22 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 			return dependency_list;
 		};
 
+		var observables = {};
+
+		parser.yy.observable = function(name) {
+			observables[name] = 1;
+			return "o_" + name;
+		}
+
+		parser.yy.printObservableDeclarations = function() {
+			var javascript_declarations = [];
+			for (var observable_name in observables) {
+				javascript_declarations.push("var o_" + observable_name + " = context.lookup('" + observable_name + "');");
+			}
+
+			return javascript_declarations.join("\n");
+		}
+
 		parser.yy.locals = [];
 		parser.yy.paras = [];
 

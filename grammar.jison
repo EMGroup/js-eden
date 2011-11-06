@@ -147,7 +147,7 @@
  */
 
 script
-    : statement-list-opt EOF { return '(function(context) { ' + $1 + ' })(root);'; }
+    : statement-list-opt EOF { return '(function(context) { ' + yy.printObservableDeclarations() + $1 + ' })(root);'; }
     ;
 
 lvalue
@@ -155,12 +155,12 @@ lvalue
     %{
     if (yy.paras.length !== 0 && yy.paras[0][$1] !== undefined) {
         $$ = "args.get(" + yy.paras[0][$1] + ")";
-    } else if (yy.locals.length !== 0 && yy.locals[0][$1] !== undefined) { 
-        $$ = "local_" + $1; 
-    } else { 
-        if (yy.inDefinition()) yy.addDependency($1); 
-        $$ = "context.lookup('" + $1 + "')"; 
-    } 
+    } else if (yy.locals.length !== 0 && yy.locals[0][$1] !== undefined) {
+        $$ = "local_" + $1;
+    } else {
+        if (yy.inDefinition()) yy.addDependency($1);
+        $$ = yy.observable($1);
+    }
     %}
     | '$ARGS'
         { $$ = "args"; }
@@ -401,7 +401,7 @@ else-opt
 
 expression-opt
     : expression
-    | 
+    |
         { $$ = ""; }
     ;
 
@@ -425,9 +425,9 @@ query-command
 
 function-definition
     : function-declarator function-body
-        { 
-        var eden_definition = JSON.stringify(yy.extractEdenDefinition(@1.first_line, @1.first_column, @2.last_line, @2.last_column)); 
-        yy.paras.pop(); 
+        {
+        var eden_definition = JSON.stringify(yy.extractEdenDefinition(@1.first_line, @1.first_column, @2.last_line, @2.last_column));
+        yy.paras.pop();
         yy.locals.pop();
         $$ = "context.lookup('" + $1 + "').define(function(context) { return " + $2 + "}).eden_definition = " + eden_definition + ";"; }
     ;
@@ -512,10 +512,25 @@ statement-list
 
 formula-definition
     : OBSERVABLE IS expression ';'
-        %{ 
-        var eden_definition = JSON.stringify(yy.extractEdenDefinition(@1.first_line, @1.first_column, @3.last_line, @3.last_column));
-        yy.leaveDefinition(); 
-        $$ = "context.lookup('" + $1 + "').define(function(context) { return " + $3 + "; }).subscribe(" + 
-            JSON.stringify(yy.getDependencies()) + ").eden_definition = " + eden_definition + ";";
+        %{
+        var eden_definition = JSON.stringify(
+          yy.extractEdenDefinition(
+            @1.first_line,
+            @1.first_column,
+            @3.last_line,
+            @3.last_column
+          )
+        );
+
+        yy.leaveDefinition();
+        $$ = "(" +
+               yy.observable($1) +
+                 ".eden_definition = " + eden_definition + ", " +
+
+               yy.observable($1) +
+                 ".define(function(context) { return " + $3 + "; })" +
+
+               ".subscribe(" + JSON.stringify(yy.getDependencies()) + ")" +
+             ");"
         %}
     ;

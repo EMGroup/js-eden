@@ -9,17 +9,17 @@ performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
 
 var $0 = $$.length - 1;
 switch (yystate) {
-case 1: return '(function(context) { ' + $$[$0-1] + ' })(root);'; 
+case 1: return '(function(context) { ' + yy.printObservableDeclarations() + $$[$0-1] + ' })(root);'; 
 break;
 case 2:
     if (yy.paras.length !== 0 && yy.paras[0][$$[$0]] !== undefined) {
         this.$ = "args.get(" + yy.paras[0][$$[$0]] + ")";
-    } else if (yy.locals.length !== 0 && yy.locals[0][$$[$0]] !== undefined) { 
-        this.$ = "local_" + $$[$0]; 
-    } else { 
-        if (yy.inDefinition()) yy.addDependency($$[$0]); 
-        this.$ = "context.lookup('" + $$[$0] + "')"; 
-    } 
+    } else if (yy.locals.length !== 0 && yy.locals[0][$$[$0]] !== undefined) {
+        this.$ = "local_" + $$[$0];
+    } else {
+        if (yy.inDefinition()) yy.addDependency($$[$0]);
+        this.$ = yy.observable($$[$0]);
+    }
     
 break;
 case 3: this.$ = "args"; 
@@ -172,9 +172,9 @@ case 97: this.$ = [];
 break;
 case 98: this.$ = "console.log(" + $$[$0-1] + ")" 
 break;
-case 99: 
-        var eden_definition = JSON.stringify(yy.extractEdenDefinition(_$[$0-1].first_line, _$[$0-1].first_column, _$[$0].last_line, _$[$0].last_column)); 
-        yy.paras.pop(); 
+case 99:
+        var eden_definition = JSON.stringify(yy.extractEdenDefinition(_$[$0-1].first_line, _$[$0-1].first_column, _$[$0].last_line, _$[$0].last_column));
+        yy.paras.pop();
         yy.locals.pop();
         this.$ = "context.lookup('" + $$[$0-1] + "').define(function(context) { return " + $$[$0] + "}).eden_definition = " + eden_definition + ";"; 
 break;
@@ -211,11 +211,26 @@ case 116: this.$ = '{ ' + $$[$0-1] + ' }';
 break;
 case 118: this.$ = $$[$0-1] + ' ' + $$[$0]; 
 break;
-case 119: 
-        var eden_definition = JSON.stringify(yy.extractEdenDefinition(_$[$0-3].first_line, _$[$0-3].first_column, _$[$0-1].last_line, _$[$0-1].last_column));
-        yy.leaveDefinition(); 
-        this.$ = "context.lookup('" + $$[$0-3] + "').define(function(context) { return " + $$[$0-1] + "; }).subscribe(" + 
-            JSON.stringify(yy.getDependencies()) + ").eden_definition = " + eden_definition + ";";
+case 119:
+        var eden_definition = JSON.stringify(
+          yy.extractEdenDefinition(
+            _$[$0-3].first_line,
+            _$[$0-3].first_column,
+            _$[$0-1].last_line,
+            _$[$0-1].last_column
+          )
+        );
+
+        yy.leaveDefinition();
+        this.$ = "(" +
+               yy.observable($$[$0-3]) +
+                 ".eden_definition = " + eden_definition + ", " +
+
+               yy.observable($$[$0-3]) +
+                 ".define(function(context) { return " + $$[$0-1] + "; })" +
+
+               ".subscribe(" + JSON.stringify(yy.getDependencies()) + ")" +
+             ");"
         
 break;
 }
