@@ -4,7 +4,7 @@
 		<script src="js/dummyconsole.js" type="text/javascript" charset="utf-8"></script>
 
 		<!-- third party libraries -->
-		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script> 
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 		<script src="js/json2.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/beautify.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/jison.js"></script>
@@ -27,7 +27,7 @@
 
 				function printSymbolTable() {
 					$('#symbolTable').html('');
-					$.each(root.symbols, function(name,symbol) { 
+					$.each(root.symbols, function(name,symbol) {
 						if (symbol.definition !== undefined) {
 							$('<li></li>').text(symbol.eden_definition + '; = ' + symbol.value()).appendTo($('#symbolTable')).click(function() { $('#source').text(name + ' is ' + symbol.eden_definition + ';'); });
 						} else {
@@ -41,12 +41,12 @@
 						}
 					});
 				}
-				
+
 				var samples = [
 					["Control Flow and Lists", [
 						"list = [1,2,3];",
 						"sum = 0;",
-						"for (i = 1; i < list#; i = i + 1) {",
+						"for (i = 1; i <= list#; i = i + 1) {",
 						"  sum = sum + list[i];",
 						"}"
 					].join("\n")],
@@ -88,11 +88,11 @@
 						"boxH = 30;"
 					].join("\n")]
 				];
-					
+
 				$.each(samples, function(i,sample) {
 					$('#sample_select').append('<option value="' + i + '">' + sample[0] + '</option>');
 				});
-				
+
 				$('#load_sample_btn').click(function(event) {
 					$('#source').val(samples[$('#sample_select').val()][1]);
 				});
