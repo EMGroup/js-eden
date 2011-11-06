@@ -97,30 +97,32 @@ Symbol.prototype.value = function() {
 };
 
 Symbol.prototype.clearObservees = function() {
-	$.each(this.observees, function(name, symbol) {
+	for (var name in this.observees) {
+		var symbol = this.observees[name];
 		symbol.removeObserver(this.name);
-	});
+	};
 	this.observees = {};
 };
 
 Symbol.prototype.subscribe = function() {
 	var dependencies = Utils.flatten(arguments);
-	var me = this;
-	$.each(dependencies, function(i,dependency) {
-		var symbol = me.context.lookup(dependency);
-		symbol.addSubscriber(me.name, me);
-		me.dependencies[symbol.name] = symbol;
-	});
+
+	for (var i = 0; i < dependencies.length; ++i) {
+		var dependency = dependencies[i];
+		var symbol = this.context.lookup(dependency);
+
+		symbol.addSubscriber(this.name, this);
+		this.dependencies[symbol.name] = symbol;
+	};
 
 	return this;
 };
 
 Symbol.prototype.clearDependencies = function() {
-	var me = this;
-
-	$.each(this.dependencies, function(i, dependency) {
-		dependency.removeSubscriber(me.name);
-	});
+	for (var name in this.dependencies) {
+		var dependency = this.dependencies[name];
+		dependency.removeSubscriber(this.name);
+	};
 
 	this.dependencies = {};
 };
@@ -161,11 +163,12 @@ Symbol.prototype.define = function(definition, modifying_agent) {
 Symbol.prototype.observe = function() {
 	var symbol_names = Utils.flatten(arguments);
 	var me = this;
-	$.each(symbol_names, function(i,symbol_name) {
-		var symbol = me.context.lookup(symbol_name);
-		me.observees[symbol.name] = symbol;
+
+	for (var i = 0; i < symbol_names.length; ++i) {
+		var symbol = this.context.lookup(symbol_names[i]);
+		this.observees[symbol.name] = symbol;
 		symbol.addObserver(me.name, me);
-	});
+	};
 
 	return this;
 };
@@ -278,16 +281,19 @@ Symbol.prototype.fireActions = function(actions_to_fire) {
 /**
  * Mark this symbol as out of date, and notify all formulas and observers of
  * this change
+ * @param {object} a set to accumulate all the actions that should be notified about this expiry
  */
 Symbol.prototype.expire = function(actions_to_fire) {
 	var me = this;
 	this.up_to_date = false;
 
-	$.each(this.subscribers, function(subscriber_name, subscriber) {
+	for (var subscriber_name in this.subscribers) {
+		var subscriber = this.subscribers[subscriber_name];
+		// XXX: why should this ever be undefined?
 		if (subscriber !== undefined) {
 			subscriber.expire(actions_to_fire);
 		}
-	});
+	};
 
 	for (var observer_name in this.observers) {
 		actions_to_fire[observer_name] = this.observers[observer_name];
