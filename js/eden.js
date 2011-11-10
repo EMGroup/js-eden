@@ -7,6 +7,9 @@ function Eden(context) {
 	this.storage_script_key = "script";
 }
 
+modelbase = "";
+
+
 /*
  * asynchronously loads an EDEN file from the server,
  * translates it to JavaScript then evals it when it's done
