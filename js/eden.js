@@ -12,7 +12,7 @@ function Eden(context) {
  * translates it to JavaScript then evals it when it's done
  */
 Eden.executeFile = function (path) {
-	$.get(path, function(data) {
+	$.get(modelbase+path, function(data) {
 		eval(Eden.translateToJavaScript(data));
 	});
 };
