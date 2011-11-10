@@ -68,14 +68,22 @@
 						title: "EDEN Interpreter Window", 
 						width: "400px",
 						buttons: {
+							Previous: function() {
+								$code_entry.val(eden.previousHistory());
+							},
+							Next: function() {
+								$code_entry.val(eden.nextHistory());
+							},
 							Submit: function() {
 								try {
+									eden.addHistory($code_entry.val());
 									eval(Eden.translateToJavaScript($code_entry.val()));
 									$code_entry.val('');
 									printSymbolTable();
 									//eden.saveLocalModelState();
 								} catch(e) {
-									$('#error-window').addClass('ui-state-error').append(e.message + "\r\n\r\n").dialog({title:"EDEN Errors"});
+									$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>\n" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
+									eden.errornumber = eden.errornumber + 1;
 								}
 							}
 						}

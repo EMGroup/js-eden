@@ -5,10 +5,46 @@
 function Eden(context) {
 	this.context = context || new Folder();
 	this.storage_script_key = "script";
+	this.history = new Array();
+	this.index = 0;
+	this.errornumber = 0;
 }
 
 modelbase = "";
 
+
+Eden.prototype.addHistory = function(data) {
+	this.history.push(data);
+	this.index = this.history.length-1;
+}
+
+Eden.prototype.getHistory = function(index) {
+	if (this.history.length == 0) {
+		return "";
+	} else {
+		return this.history[index];
+	}
+}
+
+Eden.prototype.previousHistory = function() {
+	if (this.index < 0) {
+		this.index = 0;
+	}
+	if (this.index >= this.history.length) {
+		this.index = this.history.length-1;
+	}
+	return this.getHistory(this.index--);
+}
+
+Eden.prototype.nextHistory = function() {
+	if (this.index < 0) {
+		this.index = 0;
+	}
+	if (this.index >= this.history.length) {
+		return "";
+	}
+	return this.getHistory(this.index++);
+}
 
 /*
  * asynchronously loads an EDEN file from the server,
@@ -88,16 +124,28 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 		};
 
 		var observables = {};
+		var dobservables = {};
+		var varnum = 0;
 
 		parser.yy.observable = function(name) {
 			observables[name] = 1;
 			return "o_" + name;
 		}
 
+		parser.yy.dobservable = function(f) {
+			varnum = varnum + 1;
+			dobservables[Number(varnum).toString()] = f;
+			return "d_" + Number(varnum).toString();
+		}
+
 		parser.yy.printObservableDeclarations = function() {
 			var javascript_declarations = [];
 			for (var observable_name in observables) {
 				javascript_declarations.push("var o_" + observable_name + " = context.lookup('" + observable_name + "');");
+			}
+
+			for (var dobservable_name in dobservables) {
+				javascript_declarations.push("var d_" + dobservable_name + " = context.lookup(" + dobservables[dobservable_name] + ");");
 			}
 
 			return javascript_declarations.join("\n");

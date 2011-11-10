@@ -58,7 +58,16 @@ textarea.code-entry {
 	-ms-box-sizing: border-box;
 }
 
+div.error-item {
+	border-top-style: solid;
+	border-top-width: 1px;
+	border-top-color: silver;
+	padding: 4px;
+	width: 450px;
+}
+
 #error-window {
+	max-height: 250px;
 	white-space: pre-wrap;       /* CSS-3                  */
 	white-space: -moz-pre-wrap;  /* Mozilla, since 1999    */
 	white-space: -pre-wrap;      /* Opera 4-6              */

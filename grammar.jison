@@ -110,6 +110,7 @@
 ")"                   return ')'
 
 "."                  return '.'
+"`"                   return '`'
 
 "$"[0-9]+             return '$ARG'
 "$"                   return '$ARGS'
@@ -172,6 +173,8 @@ lvalue
         { $$ = $1 + '.get("' + $3 + '")' }
     | '(' lvalue ')'
         { $$ = $2; }
+    | '`' expression '`'
+        { $$ = yy.dobservable($2); }
 
 // XXX: this introduces some shift reduce conflicts apparently, but not sure what the conflict output means
 // so not sure where to look for problems
