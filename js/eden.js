@@ -47,12 +47,17 @@ Eden.prototype.nextHistory = function() {
 }
 
 /*
- * asynchronously loads an EDEN file from the server,
+ * synchronously loads an EDEN file from the server,
  * translates it to JavaScript then evals it when it's done
  */
 Eden.executeFile = function (path) {
-	$.get(modelbase+path, function(data) {
-		eval(Eden.translateToJavaScript(data));
+	$.ajax({
+		url: modelbase+path,
+		success: function(data) {
+			eval(Eden.translateToJavaScript(data));
+		},
+		cache: false,
+		async: false
 	});
 };
 
