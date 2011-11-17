@@ -139,8 +139,8 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 
 		parser.yy.dobservable = function(f) {
 			varnum = varnum + 1;
-			dobservables[Number(varnum).toString()] = f;
-			return "d_" + Number(varnum).toString();
+			//dobservables[Number(varnum).toString()] = f;
+			return "var d_" + Number(varnum).toString() + " = context.lookup(" + f + "); d_" + Number(varnum).toString();
 		}
 
 		parser.yy.printObservableDeclarations = function() {
@@ -149,9 +149,9 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 				javascript_declarations.push("var o_" + observable_name + " = context.lookup('" + observable_name + "');");
 			}
 
-			for (var dobservable_name in dobservables) {
-				javascript_declarations.push("var d_" + dobservable_name + " = context.lookup(" + dobservables[dobservable_name] + ");");
-			}
+			//for (var dobservable_name in dobservables) {
+			//	javascript_declarations.push("var d_" + dobservable_name + " = context.lookup(" + dobservables[dobservable_name] + ");");
+			//}
 
 			return javascript_declarations.join("\n");
 		}

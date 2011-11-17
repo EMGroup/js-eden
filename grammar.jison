@@ -19,9 +19,9 @@
 "/*"                  { this.begin('BLOCKCOMMENT'); }
 
 
-<LINECOMMENT>[\n\r]   { console.log('endlinecomment'); this.popState(); }
+<LINECOMMENT>[\n\r]   { this.popState(); }
 <LINECOMMENT>.        {}
-"##"                  { console.log('beginlinecomment'); this.begin('LINECOMMENT'); }
+"##"                  { this.begin('LINECOMMENT'); }
 
 "${{"                 { this.begin('JS'); return "OPENJS"; }
 <JS>"}}$"             { this.popState(); return 'ENDJS'; }
@@ -396,7 +396,7 @@ statement
     ;
 
 else-opt
-    : 'ELSE' statement
+    : ELSE statement
         { $$ = ' else ' + $statement; }
     |
         { $$ = ''; }

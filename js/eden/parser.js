@@ -1,5 +1,6 @@
 /* Jison generated parser */
 var parser = (function(){
+
 var parser = {trace: function trace() { },
 yy: {},
 symbols_: {"error":2,"script":3,"statement-list-opt":4,"EOF":5,"lvalue":6,"OBSERVABLE":7,"$ARGS":8,"$ARG":9,"[":10,"expression":11,"]":12,".":13,"(":14,")":15,"`":16,"*":17,"primary-expression":18,"statement-list":19,"literal":20,"-":21,"!":22,"&":23,"#":24,"+":25,"/":26,"%":27,">":28,"<":29,">=":30,"<=":31,"==":32,"!=":33,"&&":34,"AND":35,"||":36,"OR":37,"//":38,"=":39,"+=":40,"-=":41,"++":42,"--":43,"?":44,":":45,"OPENJS":46,"javascript":47,"ENDJS":48,"JSCODE":49,"NUMBER":50,"UNDEFINED":51,"list-literal":52,"object-literal":53,"string-literal":54,"char-literal":55,"'":56,"STRINGCHARACTER":57,"\"":58,"string-contents-opt":59,"string-contents":60,"expression-list-opt":61,"{":62,"pair-list-opt":63,"}":64,"pair-list":65,"pair":66,",":67,"statement":68,";":69,"function-definition":70,"formula-definition":71,"action-specification":72,"dependency-link":73,"query-command":74,"compound-statement":75,"AFTER":76,"IF":77,"else-opt":78,"WHILE":79,"DO":80,"FOR":81,"expression-opt":82,"SWITCH":83,"BREAK":84,"CONTINUE":85,"RETURN":86,"INSERT":87,"DELETE":88,"APPEND":89,"SHIFT":90,"CASE":91,"DEFAULT":92,"ELSE":93,"expression-list":94,"function-declarator":95,"function-body":96,"FUNC":97,"PROC":98,"identifier-list-opt":99,"identifier-list":100,"local-var-decl":101,"AUTO":102,"local-var-decl-opt":103,"para-alias-opt":104,"para-alias":105,"PARA":106,"dependency-list":107,"~>":108,"IS":109,"$accept":0,"$end":1},
@@ -310,7 +311,7 @@ parse: function parse(input) {
                 }
                 var errStr = '';
                 if (this.lexer.showPosition) {
-                    errStr = 'Parse error on line '+(yylineno+1)+":\n"+this.lexer.showPosition()+'\nExpecting '+expected.join(', ');
+                    errStr = 'Parse error on line '+(yylineno+1)+":\n"+this.lexer.showPosition()+'\nExpecting '+expected.join(', ') + ", got '" + this.terminals_[symbol]+ "'";
                 } else {
                     errStr = 'Parse error on line '+(yylineno+1)+": Unexpected " +
                                   (symbol == 1 /*EOF*/ ? "end of input" :
@@ -425,7 +426,9 @@ parse: function parse(input) {
 
     return true;
 }};/* Jison generated lexer */
-var lexer = (function(){var lexer = ({EOF:1,
+var lexer = (function(){
+
+var lexer = ({EOF:1,
 parseError:function parseError(str, hash) {
         if (this.yy.parseError) {
             this.yy.parseError(str, hash);
@@ -547,11 +550,11 @@ case 1:
 break;
 case 2: this.begin('BLOCKCOMMENT'); 
 break;
-case 3: console.log('endlinecomment'); this.popState(); 
+case 3: this.popState(); 
 break;
 case 4:
 break;
-case 5: console.log('beginlinecomment'); this.begin('LINECOMMENT'); 
+case 5: this.begin('LINECOMMENT'); 
 break;
 case 6: this.begin('JS'); return "OPENJS"; 
 break;
@@ -712,7 +715,7 @@ break;
 }
 };
 lexer.rules = [/^\*\//,/^./,/^\/\*/,/^[\n\r]/,/^./,/^##/,/^\$\{\{/,/^\}\}\$/,/^([\n\r]|.)/,/^\\"/,/^"/,/^(.|\n)/,/^"/,/^\\./,/^'/,/^./,/^'/,/^\s+/,/^@/,/^[0-9]+(\.[0-9]+)?\b/,/^is\b/,/^delete\b/,/^insert\b/,/^append\b/,/^shift\b/,/^after\b/,/^if\b/,/^else\b/,/^for\b/,/^while\b/,/^do\b/,/^switch\b/,/^case\b/,/^default\b/,/^break\b/,/^continue\b/,/^return\b/,/^func\b/,/^proc\b/,/^auto\b/,/^para\b/,/^[a-zA-Z_][a-zA-Z_0-9]*/,/^\?/,/^\/\//,/^<=/,/^>=/,/^</,/^>/,/^==/,/^!=/,/^and\b/,/^or\b/,/^\|\|/,/^&&/,/^!/,/^=/,/^\+=/,/^-=/,/^\+\+/,/^--/,/^&/,/^\*/,/^\//,/^%/,/^-/,/^\+/,/^;/,/^\?/,/^:/,/^,/,/^~>/,/^\[/,/^\]/,/^\{/,/^\}/,/^\(/,/^\)/,/^\./,/^`/,/^\$[0-9]+/,/^\$/,/^#/,/^$/,/^./];
-lexer.conditions = {"JS":{"rules":[2,5,6,7,8,12,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83],"inclusive":true},"D":{"rules":[2,5,6,9,10,11,12,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83],"inclusive":true},"QUOTE":{"rules":[2,5,6,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83],"inclusive":true},"LINECOMMENT":{"rules":[2,3,4,5,6,12,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83],"inclusive":true},"BLOCKCOMMENT":{"rules":[0,1,2,5,6,12,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83],"inclusive":true},"INITIAL":{"rules":[2,5,6,12,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83],"inclusive":true}};return lexer;})()
+lexer.conditions = {"BLOCKCOMMENT":{"rules":[0,1,2,5,6,12,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83],"inclusive":true},"LINECOMMENT":{"rules":[2,3,4,5,6,12,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83],"inclusive":true},"QUOTE":{"rules":[2,5,6,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83],"inclusive":true},"D":{"rules":[2,5,6,9,10,11,12,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83],"inclusive":true},"JS":{"rules":[2,5,6,7,8,12,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83],"inclusive":true},"INITIAL":{"rules":[2,5,6,12,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83],"inclusive":true}};return lexer;})()
 parser.lexer = lexer;
 return parser;
 })();
