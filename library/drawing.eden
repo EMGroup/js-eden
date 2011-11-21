@@ -128,7 +128,7 @@ Button.prototype.draw = function(context) {
 	if (this.enabled == true) { dis = ""; }
 	else { dis = "disabled=\"true\""; }
 
-	var can = document.getElementById("donald-window");
+	var can = document.getElementById("eden-content");
 	can.innerHTML = can.innerHTML + "<input type=\"button\" id=\"" + this.name + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\" onclick=\"root.lookup('" + this.name + "_clicked" + "').assign(true); root.lookup('" + this.name + "_clicked" + "').assign(false);\">";
   } else {
 	but.value = this.label;

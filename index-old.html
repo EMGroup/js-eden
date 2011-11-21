@@ -1,0 +1,109 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="css/walkthrough.css" />
+
+		<!-- other libs -->
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+		<script type="text/javascript" src="js/beautify.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/json2.js"></script>
+		<script src="js/dummyconsole.js"></script>
+
+		<!-- codemirror -->
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/codemirror.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/runmode.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/mode/javascript/javascript.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/mode/eden/eden.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/mode/xml/xml.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/codemirror/mode/markdown/markdown.js"></script>
+		<link rel="stylesheet" href="js/codemirror/codemirror.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="js/codemirror/theme/default.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="js/codemirror/theme/night.css" type="text/css" media="screen" charset="utf-8">
+
+		<!-- dependency/eden stuff -->
+		<script type="text/javascript" src="js/maintainer.js"></script>
+		<script type="text/javascript" src="js/eden/parser.js"></script>
+		<script type="text/javascript" src="js/eden.js"></script>
+		<script type="text/javascript" src="js/test.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/symboltable.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/edenpage.js"></script>
+
+		<script type="text/javascript" charset="utf-8">
+			var root;
+
+			$(document).ready(function() {
+				root = new Folder();
+				addSymbolTable(root);
+				convertToEdenPage('#model-body');
+			});
+		</script>
+	</head>
+	<body>
+		<div id="model-header">
+		</div>
+		<div id="model-body">
+			<h1>A framework for observation and experiment with JavaScript</h1>
+			<p>For my MSc dissertation I wrote a maintainer for data dependencies in JavaScript. Along with this I wrote a translator for EDEN syntax to JavaScript that allows for interacting with the maintainer through EDEN:</p>
+			<pre class="eden exec">
+func join {
+    para list, joiner;
+    auto i, joined;
+
+    if ($# &lt; 2) {
+        joiner = " ";
+    }
+
+    if (list# &gt; 0) {
+      joined = list[1];
+      for (i = 2; i &lt;= list#; ++i) {
+        joined = joined // joiner // list[i];
+      }
+      return joined;
+    }
+}
+
+lastModified = "2nd October, 2011";
+
+names = ["Tim", "Monks"];
+author is join(names);</pre>
+
+			<h2>Why JavaScript?</h2>
+			<ul>
+				<li>HTML and JavaScript applications are accessible to anyone with a modern browser, so hopefully this can make it easier to demonstrate EM principles to others.</li>
+				<li>TkEden and Cadence are potentially more fine tuned to this sort of application, however I think that this system might be more accessible to the students at Warwick from a development point of view. This stems from:
+					<ul>
+						<li>The small size of this system code wise.</li>
+						<li>The ease of deployment for JavaScript applications.</li>
+						<li>Rich set of browser APIs for visualisation.</li>
+					</ul>
+				</li>
+			</ul>
+
+			<h2>What's this page meant for</h2>
+			<ul>
+				<li>Collate examples of using JsEden.</li>
+				<li>Inspire students to have a go!</li>
+			</ul>
+
+			<h2>Some examples</h2>
+			<ul>
+				<li><a href="timer.html">An example with a clock</a></li>
+				<li><a href="lines.html">An example of using a &lt;canvas&gt; tag for line drawing</a></li>
+				<li><a href="edenpage-template.html">A template for creating pages like this</a></li>
+			</ul>
+
+			<h2>Some thoughts on where it's going</h2>
+			<p>A major thing that needs to be done is getting more functionality for creating interesting visualisations/interfaces set up for you. I'm working on this myself from time to time, but would be happy to support a few students who were interested in the platform for whatever reason if they were willing to accept the occasional bug/difficulty! I think that having more of this sort of functionality "out of the box" will be important for making it usable by non-expert programmers.</p>
+
+			<p>I think there are a lot of other interesting avenues that I can't be bothered to write about right now.</p>
+
+			<h2>Where's the code?</h2>
+			<p>Currently hosted in a big messy git repository, really needs sorting out - e.g. seperating 3rd party libraries. For now you can get a snapshot of this big mess at <a href="http://trmonks.me.uk/gitw/?p=js-dependency.git;a=summary">my gitweb instance</a>. If you have git installed you can run:</p>
+			
+			<p><code>git clone http://trmonks.me.uk/git/js-dependency.git</code></p>
+			<h2>A few other resources</h2>
+			<p><a href="eden.html">A prototype of what a version of an environment for using EDEN might look like in the browser</a></p>
+			<p><a href="test.html">The page used for developing the EDEN to JavaScript translator</a></p>
+			<p><a href="document-maintainer.html">A page which uses formulas in HTML markup and an underlying model</a></p>
+		</div>
+	</body>
+</html>

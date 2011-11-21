@@ -81,12 +81,10 @@ proc pour :  step
 			writeln("option = ", option);
 			return;
 		}
-		##eager();
-		##delay(viscosity);
 
-		${{setTimeout(function(){}}$;
-		step++;
-		${{}, root.lookup("viscosity").value());}}$;
+		after (viscosity) {
+			step++;
+		}
 	} else {
                 contentA = contentA;
                 contentB = contentB;

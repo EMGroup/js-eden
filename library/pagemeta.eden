@@ -1,0 +1,8 @@
+proc meta : meta_model_title, meta_model_author, meta_model_caption, meta_model_date {
+	${{
+	$('#model-title').text(root.lookup('meta_model_title').value());
+	$('#model-author').text(root.lookup('meta_model_author').value());
+	$('#model-date').text(root.lookup('meta_model_date').value());
+	$('#model-caption').text(root.lookup('meta_model_caption').value());
+	}}$;
+}

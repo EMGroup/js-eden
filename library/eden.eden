@@ -41,8 +41,9 @@ false = 0;
 func include {
 ${{
 Eden.executeFile(arguments[0]);
-printSymbolTable();
+printAllUpdates();
 }}$;
 }
 
 include("library/drawing.eden");
+include("library/pagemeta.eden");
