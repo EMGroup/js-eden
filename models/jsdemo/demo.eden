@@ -1,0 +1,40 @@
+func show_demo_tip {
+	${{
+	var name = arguments[0];
+	var parent = arguments[1];
+	var x = arguments[2];
+	var y = arguments[3];
+	var text = arguments[4];
+
+	var ele = $("#demotip_"+name);
+	if (ele.length == 0) {
+		ele = $('<div id="demotip_'+name+'" class="demotip"></div>');
+		ele.appendTo(parent);
+	}
+
+	ele.text(text);
+	ele.css("left",""+x+"px");
+	ele.css("top",""+y+"px");
+	}}$;
+};
+
+func hide_demo_tip {
+	${{
+	var name = arguments[0];
+	$('#demotip_'+name).remove();
+	}}$;
+};
+
+proc demo_show : show_demo_tips {
+	if (show_demo_tips == true) {
+		show_demo_tip("canvas","#eden-content",10,10,"EDEN Drawing Canvas");
+		show_demo_tip("input","#eden-input", 20, 110, "Eden Input Window");
+		show_demo_tip("side","body", 10, 130, "Symbol Table");
+	} else {
+		hide_demo_tip("canvas");
+		hide_demo_tip("input");
+		hide_demo_tip("side");
+	}
+}
+
+show_demo_tips = true;

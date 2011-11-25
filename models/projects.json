@@ -6,6 +6,13 @@
 			"year": "1998",
 			"description": "Original jugs model converted into JS-Eden form",
 			"runfile": "models/jugs/run.e"
+		},
+		{
+			"name": "JS-Demo",
+			"author": "Nick Pope",
+			"year": "2011",
+			"description": "Installs an information and demonstration layer onto JS-Eden",
+			"runfile": "models/jsdemo/demo.eden"
 		}
 	]
 }
