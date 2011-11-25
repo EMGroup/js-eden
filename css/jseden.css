@@ -156,6 +156,14 @@ div#model-title {
 	left: 300px;
 }
 
+div.demotip {
+	position: absolute;
+	font-size: 14pt;
+	font-weight: bold;
+	color: #ab0000;
+	opacity: 0.5;
+}
+
 div#observable-info {
 	position: absolute;
 	display: hidden;

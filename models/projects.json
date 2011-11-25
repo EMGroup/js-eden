@@ -13,6 +13,13 @@
 			"year": "2011",
 			"description": "Installs an information and demonstration layer onto JS-Eden",
 			"runfile": "models/jsdemo/demo.eden"
+		},
+		{
+			"name": "OXO",
+			"author": "Mike Joy",
+			"year": "1994",
+			"description": "OXO Model",
+			"runfile": "models/oxo/run.e"
 		}
 	]
 }

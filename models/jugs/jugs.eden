@@ -28,7 +28,7 @@ jugB_water is Rectangle(right+linewidth,base - (scale * contentB),jugwidth-(2*li
 
 picture is [jugA_left,jugA_right,jugA_base,jugB_left,jugB_right,jugB_base,jugA_water,jugB_water];
 
-statuslabel is Text(targ+" "+totstat, 250, base - ((capB * scale) / 2), "black");
+statuslabel is Text(targ // " " // totstat, 250, base - ((capB * scale) / 2), "black");
 
 picture is [jugA_left,jugA_right,jugA_base,jugB_left,jugB_right,jugB_base,jugA_water,jugB_water,statuslabel];
 

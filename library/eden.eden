@@ -15,6 +15,16 @@ func int {
 };
 
 
+##HTML Output
+func html {
+	${{
+	var text = arguments[0];
+	var me = $("#eden-content");
+	me.html(text);
+	}}$;
+};
+
+
 ##MISSING FUNCTIONS
 func eager {};
 
