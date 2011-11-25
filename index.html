@@ -37,6 +37,7 @@
 	<script src="js-cadence/js/cadence_agents.js" type="text/javascript"></script-->
 
 	<script src="js/em.js" type="text/javascript"></script>
+	<script src="js/edenpage.js" type="text/javascript"></script>
 
 </head>
 <body>
@@ -67,10 +68,28 @@
 <ul id="symbol-table"></ul>
 </div>
 
+<div id="eden-input"><div></div>
+<pre class="eden exec"></pre>
+<div id="eden-console"></div>
+</div>
+
+
 <div id="side-bar">
-<div class="side-bar-topic" id="symbol-search" style="margin-top: 50px">
-	<div class="side-bar-topic-title">Observables</div>
+<div class="side-bar-topic" style="margin-top: 50px">
+	<div class="side-bar-topic-title">Projects</div>
 	<div class="side-bar-topic-content" style="height: 300px">
+		<div class="search-box-outer">
+			<input type="text" class="search-box" id="project-search"></input>
+			<div class="search-button"></div>
+		</div>
+		<div id="project-scrollup" class="scrollup"></div>
+		<div style="max-height: 224px; overflow: hidden;"><div id="project-results"></div></div>
+		<div id="project-scrolldown" class="scrolldown"></div>
+	</div>
+</div>
+<div class="side-bar-topic" id="symbol-search">
+	<div class="side-bar-topic-title">Observables</div>
+	<div class="side-bar-topic-content">
 		<div class="search-box-outer">
 			<input type="text" class="search-box" id="observable-search"></input>
 			<div class="search-button"></div>

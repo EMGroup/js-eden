@@ -29,7 +29,8 @@ function Folder(name, parent, root) {
 	this.name = name || "/";
 	this.parent = parent || this;
 	this.root = root || this;
-    this.symbols = {};
+    	this.symbols = {};
+	this.globalobservers = new Array();
 }
 
 /**
@@ -43,9 +44,22 @@ Folder.prototype.lookup = function(name) {
         this.symbols[name] = new Symbol(this, this.name + name, this.root);
 
 		setTimeout(function() { $(me).trigger('symbolCreate', [me.symbols[name], name])});
+		this.notifyGlobals(this.symbols[name],true);
     }
 
     return this.symbols[name];
+};
+
+Folder.prototype.addGlobal = function(f) {
+	this.globalobservers.push(f);
+};
+
+Folder.prototype.notifyGlobals = function(symbol, create) {
+	for (var i=0; i < this.globalobservers.length; i++) {
+		if (this.globalobservers[i] !== undefined) {
+			this.globalobservers[i].call(this,symbol,create);
+		}
+	}
 };
 
 /**
@@ -152,7 +166,10 @@ Symbol.prototype.define = function(definition, modifying_agent) {
 	var actions_to_fire = {};
 	this.expire(actions_to_fire);
 	this.fireActions(actions_to_fire);
-	setTimeout(function() { $(me).trigger('symbolDefine')});
+	setTimeout(function() { $(me).trigger('symbolDefine'); });
+	if (this.context !== undefined) {
+		this.context.notifyGlobals(this,false);
+	}
 	return me;
 };
 
@@ -202,9 +219,11 @@ Symbol.prototype.assign = function(value, modifying_agent) {
 	this.expire(actions_to_fire);
 	this.up_to_date = true;
 
-	setTimeout(function() { $(me).trigger('symbolAssign', value)});
+	setTimeout(function() { $(me).trigger('symbolAssign', value); });
 	this.fireActions(actions_to_fire);
-
+	if (this.context !== undefined) {
+		this.context.notifyGlobals(this,false);
+	}
 	return this;
 };
 
@@ -241,7 +260,9 @@ Symbol.prototype.mutate = function(mutator, modifying_agent) {
 
 	// accumulate a set of agents to trigger in expire, then trigger each of them
 	this.fireActions(actions_to_fire);
-
+	if (this.context !== undefined) {
+		this.context.notifyGlobals(this,false);
+	}
 	return this;
 };
 
@@ -298,6 +319,12 @@ Symbol.prototype.expire = function(actions_to_fire) {
 	for (var observer_name in this.observers) {
 		actions_to_fire[observer_name] = this.observers[observer_name];
 	}
+
+	setTimeout(function() {
+		if (me.context !== undefined) {
+			me.context.notifyGlobals(me,false);
+		}
+	});
 };
 
 /**

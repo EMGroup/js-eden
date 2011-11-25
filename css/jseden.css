@@ -71,7 +71,7 @@ input.search-box {
 div.search-button {
 	position: absolute;
 	right: 0px;
-	background-image: url('images/search-blue.png');
+	background-image: url('../images/search-blue.png');
 	width: 24px;
 	height: 22px;
 	top: 0px;
@@ -88,27 +88,25 @@ div.search-button {
 }
 
 div.search-button-hightlight {
-	background-image: url('images/search-blue.png');
+	background-image: url('../images/search-blue.png');
 }
 
 div#observable-results {
 	overflow-y: hidden;
 	font-size: 12px;
-	margin-left: 15px;
-	margin-right: 15px;
 	bottom: 0px;
 }
 
 
 div.scrollup {
-	background-image: url('images/scrollup.png');
+	background-image: url('../images/scrollup.png');
 	background-repeat: no-repeat;
 	background-position: top center;
 	height: 10px;
 }
 
 div.scrolldown {
-	background-image: url('images/scrolldown.png');
+	background-image: url('../images/scrolldown.png');
 	background-repeat: no-repeat;
 	background-position: top center;
 	height: 10px;
@@ -118,36 +116,41 @@ div.scrolldown {
 div#function-results {
 	overflow-y: hidden;
 	font-size: 12px;
-	margin-left: 15px;
-	margin-right: 15px;
 	bottom: 0px;
 }
 
 div#procedure-results {
 	overflow-y: hidden;
 	font-size: 12px;
-	margin-left: 15px;
-	margin-right: 15px;
 	bottom: 0px;
 }
+
+div#project-results {
+	overflow-y: hidden;
+	font-size: 12px;
+	bottom: 0px;
+}
+
 
 div.result-element {
 	/*border-bottom-width: 1px;
 	border-bottom-style: solid;
 	border-bottom-color: #d0d0d0;*/
-	width: 100%;
+	position: relative;
+	left: 0px;
+	right: 0px;
 	height: 16px;
 	cursor: pointer;
 	overflow: hidden;
 	position: relative;
+	padding-left: 15px;
+	padding-right: 15px;
 }
 
 div#model-title {
 	font-size: 20pt;
-	font-family: 'Arial';background-image: url('images/scrolldown.png');
-	background-repeat: no-repeat;
-	background-position: top center;
-	font-weight: bold;0pt
+	font-family: 'Arial';
+	font-weight: bold;
 	position: absolute;
 	top: 20px;
 	left: 300px;
@@ -156,9 +159,9 @@ div#model-title {
 div#observable-info {
 	position: absolute;
 	display: hidden;
-	width: 200px;
+	min-width: 200px;
+	max-width: 450px;
 	min-height: 30px;
-	overflow: hidden;
 	font-size: 12pt;
 }
 
@@ -167,21 +170,16 @@ div#observable-info-point {
 	top: 0px;
 	left: 0px;
 	width: 10px;
-	bottom: 0px;div.scrollup {
-	background-color: red;
-	height: 6px;
-}
-	background-image: url('images/point-edge.png');
+	bottom: 0px;
+	background-image: url('../images/point-edge.png');
 	background-repeat: no-repeat;
 	background-position: left center;
 }
 
 div#observable-info-content {
 	position: absolute;
-	top: 0px;
 	left: 8px;
-	right: 0px;
-	bottom: 0px;
+	min-height: 30px;
 	background-color: #fafafa;
 	border-width: 1px;
 	border-color: #117fe5;
@@ -190,10 +188,10 @@ div#observable-info-content {
 }
 
 div#observable-info-name {
-	font-size: 10pt;
+	font-size: 12px;
 	font-family: 'Courier New';
-	margin: 5px;
-	margin-left: 10px;
+	margin: 2px;
+	margin-left: 4px;
 }
 
 span.result_value {
@@ -218,7 +216,50 @@ span.result_value {
 	color: red;
 }
 
+.hasdef_text {
+	color: #0000ab;
+}
+
 textarea#observable-info-definition {
-	
-	
+		
+}
+
+div#eden-input {
+	position: absolute;
+	bottom: 0px;
+	height: 200px;
+	left: 250px;
+	right: 0px;
+	background-color: #eaeaea;
+	border-top-style: solid;
+	border-top-width: 2px;
+	border-top-color: #d0d0d0;
+}
+
+.code {
+	position: relative;
+	border-color: #117fe5;
+	border-width: 1px;
+	border-style: solid;
+	max-width: 600px;
+	height: 150px;
+	overflow: auto;
+	padding: 5px;
+	margin: 10px;
+	background-color: white;
+	cursor: text;
+}
+
+.code_buttons {
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	background-color: #eaeaea;
+	border-top-width: 1px;
+	border-top-color: #117fe5;
+	border-top-style: solid;
+	width: 600px;
+	padding: 5px;
+	cursor: auto;
 }

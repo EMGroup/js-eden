@@ -19,6 +19,16 @@ Rectangle = function(x1, y1, x2, y2, colour) {
 }}$;
 
 ${{
+Circle = function(x, y, radius, fillcolour, outlinecolour) {
+  this.x = x;
+  this.y = y;
+  this.radius = radius;
+  this.fillcolour = fillcolour;
+  this.outlinecolour = outlinecolour;
+}
+}}$;
+
+${{
 Text = function(txt, x, y, colour) {
   this.x = x;
   this.y = y;
@@ -56,6 +66,17 @@ func Rectangle { ${{
   return new Rectangle(x1, y1, x2, y2, colour);
 }}$; }
 
+func Circle { ${{
+  var x = arguments[0];
+  var y = arguments[1];
+  var radius = arguments[2];
+  var fillcolour = arguments[3];
+  var outlinecolour = arguments[4];
+  if (fillcolour == null) { fillcolour = "black"; }
+  if (outlinecolour == null) { outlinecolour = "black"; }
+  return new Circle(x, y, radius, fillcolour, outlinecolour);
+}}$; }
+
 
 ${{
 Line.prototype.draw = function(context) {
@@ -71,6 +92,21 @@ ${{
 Rectangle.prototype.draw = function(context) {
   context.fillStyle = this.colour;
   context.fillRect(this.x1,this.y1,this.x2,this.y2);
+};
+}}$;
+
+${{
+Circle.prototype.draw = function(context) {
+  context.beginPath();
+  context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
+ 
+  context.fillStyle = this.fillcolour;
+  context.fill();
+  context.lineWidth = 2;
+  context.strokeStyle = this.outlinecolour;
+  context.stroke();
+  context.closePath();
+
 };
 }}$;
 
@@ -122,14 +158,17 @@ func Button { ${{
 
 ${{
 Button.prototype.draw = function(context) {
+  var me = this.name;
   var but = document.getElementById(this.name);
   if (but == null) {
 	var dis = "";
 	if (this.enabled == true) { dis = ""; }
 	else { dis = "disabled=\"true\""; }
 
-	var can = document.getElementById("eden-content");
-	can.innerHTML = can.innerHTML + "<input type=\"button\" id=\"" + this.name + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\" onclick=\"root.lookup('" + this.name + "_clicked" + "').assign(true); root.lookup('" + this.name + "_clicked" + "').assign(false);\">";
+	var can = $("#eden-content");
+	var buthtml = $("<input type=\"button\" id=\"" + this.name + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
+		root.lookup(me + "_clicked").assign(true); root.lookup(me + "_clicked").assign(false);
+	}).appendTo(can);
   } else {
 	but.value = this.label;
 	if (this.enabled == true) { but.disabled = false; }
@@ -139,6 +178,9 @@ Button.prototype.draw = function(context) {
   }
 };
 }}$;
+
+
+##Combobox
 
 
 ##line2 = Line(0, 0, 50, 30, "red");

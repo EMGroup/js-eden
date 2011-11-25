@@ -17,6 +17,7 @@ func int {
 
 ##MISSING FUNCTIONS
 func eager {};
+
 func time {
   ${{
   var now = new Date();
@@ -29,6 +30,16 @@ func writeln {
   var t = arguments[0];
   console.log(t);
   }}$;
+};
+
+func rand {
+  ${{
+	return Math.floor(Math.random()*32767);
+  }}$;
+};
+
+func srand {
+
 };
 
 func substr {

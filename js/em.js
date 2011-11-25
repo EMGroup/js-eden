@@ -1,26 +1,3 @@
-function convertToEdenPage(page) {
-	$('.exec', page).each(function() {
-		var $area = $('<div class="code"></div>');
-		var $previous = $(this).prev();
-		var $code = $(this).clone();
-
-		$(this).remove();
-		$area.insertAfter($previous);
-		var editor;
-		if ($code.hasClass('eden')) {
-			editor = CodeMirror($area.get(0), {
-				value: $code.text(),
-				mode: "eden"
-			});
-		} else {
-			editor = CodeMirror($area.get(0), {
-				value: $code.text(),
-				mode: "javascript"
-			});
-		}
-	});
-}
-
 
 // XXX: need to get rid of this function, much more sensible to have observation of the symbol table
 // and add entries as they are added
@@ -40,6 +17,8 @@ function printSymbolTable() {
 		}
 	});
 }
+
+var selected_observable = null;
 
 function printObservables(pattern) {
 	obspos = 0;
@@ -61,36 +40,47 @@ function printObservables(pattern) {
 		else if (typeof val == "number") { valhtml = "<span class='numeric_text'>"+val+"</span>"; }
 		else { valhtml = val; }
 
-		var ele = $('<div class="result-element"></div>');
-		ele.html(name + "<span class='result_value'> = " + valhtml + "</span>").appendTo($('#observable-results'));
+		var namehtml;
+		if (symbol.definition !== undefined) {
+			namehtml = "<span class=\"hasdef_text\">"+name+"</span>";
+		} else {
+			namehtml = name;
+		}
+
+		var ele = $('<div id="sbobs_' + name + '" class="result-element"></div>');
+		ele.html(namehtml + "<span class='result_value'> = " + valhtml + "</span>").appendTo($('#observable-results'));
 		ele.get(0).symbol = symbol;
 	});
 
 	$("#observable-results > div").hover(
 		function() {
-			$(this).animate({backgroundColor: "#eaeaea"}, 100);
-
-			/*var info = $('#observable-info');
-			var iname = info.find('#observable-info-name');
-			var val = this.symbol.value();
-			iname.removeClass();
-			if (val === undefined) {
-				iname.addClass("error_text");
-				iname.text("undefined");
-			} else {
-				if (typeof val == "boolean") { iname.addClass("special_text"); }
-				else if (typeof val == "number") { iname.addClass("numeric_text"); }
-				else if (typeof val == "string") { iname.addClass("string_text"); }
-				iname.text(val);
+			if (this != selected_observable) {
+				$(this).animate({backgroundColor: "#eaeaea"}, 100);
 			}
-			info.css("left", "" + (this.offsetLeft + this.offsetWidth - 50) + "px");
-			info.css("top", "" + (this.offsetTop + 125 - ((info[0].offsetHeight / 2) - 8)) + "px");
-			info.show();*/
+			var info = $('#observable-info');
+
+			if (this.symbol.definition !== undefined) {
+				var iname = info.find('#observable-info-name');
+				iname.text(this.symbol.eden_definition);
+				info.css("left", "" + (this.offsetLeft + this.offsetWidth - 50) + "px");
+				info.css("top", "" + (this.offsetTop + 125 - 8 - ((info[0].offsetHeight / 2))) + "px");
+				info.show();
+			} else {
+				info.hide();
+			}
 		}, function() {
-			$(this).animate({backgroundColor: "white"}, 100);
+			$('#observable-info').hide();
+			if (this != selected_observable) {
+				$(this).animate({backgroundColor: "white"}, 100);
+			}
 		}	
-		).click(function() {
-		});
+	).click(function() {
+		if (selected_observable != null) {
+			$(selected_observable).animate({backgroundColor: "white"}, 100);
+		}
+		selected_observable = this;
+		$(this).animate({backgroundColor: "#ffebc9"}, 100);
+	});
 
 	if ($('#observable-results')[0].offsetHeight > (14*16)) {
 		$('#observable-scrollup').show();
@@ -165,8 +155,55 @@ function printProcedures(pattern) {
 	}
 }
 
+var selected_project = null;
+
+function printProjects(pattern) {
+	procspos = 0;
+
+	$('#project-results').html('');
+	var reg = new RegExp("^"+pattern+".*");
+	var i = 0;
+	while (projects.projects[i] !== undefined) {
+		if (projects.projects[i].name.search(reg) == -1) { i = i + 1; continue; }
+
+		var proj = $('<div class="result-element"></div>');
+		proj[0].project = projects.projects[i];
+		proj.html(projects.projects[i].name  + "<span class='result_value'> by " + projects.projects[i].author + " (" + projects.projects[i].year + ")</span>").appendTo($('#project-results'));
+
+		i = i + 1;
+	}
+
+	$("#project-results > div").hover(
+		function() {
+			if (this != selected_project) {
+				$(this).animate({backgroundColor: "#eaeaea"}, 100);
+			}
+		}, function() {
+			if (this != selected_project) {
+				$(this).animate({backgroundColor: "white"}, 100);
+			}
+		}	
+	).click(function () {
+		if (selected_project != null) {
+			$(selected_project).animate({backgroundColor: "white"}, 100);
+		}
+		selected_project = this;
+		$(this).animate({backgroundColor: "#ffebc9"}, 100);
+		Eden.executeFile(this.project.runfile);
+		printAllUpdates();
+	});
+
+	if ($('#project-results')[0].offsetHeight > (14*16)) {
+		$('#project-scrollup').show();
+		$('#project-scrolldown').show();
+	} else {
+		$('#project-scrollup').hide();
+		$('#project-scrolldown').hide();
+	}
+}
+
 function printAllUpdates() {
-	printObservables($('#observable-search')[0].value);
+	//printObservables($('#observable-search')[0].value);
 	printFunctions($('#function-search')[0].value);
 	printProcedures($('#procedure-search')[0].value);
 }
@@ -178,8 +215,19 @@ var stored_script;
 var obspos = 0;
 var procspos = 0;
 var funcspos = 0;
+var projects;
 
 function js_eden_init() {
+
+	$.ajax({
+		url: "models/projects.json",
+		success: function(data) {
+			projects = JSON.parse(data);
+			printProjects("");
+		},
+		cache: false,
+		async: true
+	});
 
 	$(document).ready(function() {
 		//runTests(all_the_tests);
@@ -189,6 +237,8 @@ function js_eden_init() {
 		modelbase = "";
 
 		Eden.executeFile("library/eden.eden");
+
+		convertToEdenPageNew('#eden-input');
 
 		$("#observable-info").hide();
 
@@ -294,7 +344,35 @@ function js_eden_init() {
 		});
 		printProcedures("");
 
+		root.addGlobal(function (sym, create) {
+			//console.log("Obs changed: " + sym.name.substr(1));
 
+			if (create) {
+				printObservables($('#observable-search')[0].value);
+				return;
+			}
+
+			var me = $("#sbobs_"+sym.name.substr(1));
+			if (me === undefined) { return; }
+			
+			var namehtml;
+			if (sym.definition !== undefined) {
+				namehtml = "<span class=\"hasdef_text\">"+sym.name.substr(1)+"</span>";
+			} else {
+				namehtml = sym.name.substr(1);
+			}
+
+			var val = sym.value();
+			var valhtml;
+			if (typeof val == "boolean") { valhtml = "<span class='special_text'>"+val+"</span>"; }
+			else if (typeof val == "undefined") { valhtml = "<span class='error_text'>undefined</span>"; }
+			else if (typeof val == "string") { valhtml = "<span class='string_text'>\""+val+"\"</span>"; }
+			else if (typeof val == "number") { valhtml = "<span class='numeric_text'>"+val+"</span>"; }
+			else { valhtml = val; }
+
+
+			me.html(namehtml + "<span class='result_value'> = " + valhtml + "</span>");
+		});
 
 
 		/*$(root).bind('symbolCreate', function(event, symbol, name) { 
@@ -304,7 +382,7 @@ function js_eden_init() {
 			printSymbolTable(); 
 		});*/
 
-		$code_entry = $('<textarea spellcheck="false" rows="10" class="code-entry"></textarea>');
+		/*$code_entry = $('<textarea spellcheck="false" rows="10" class="code-entry"></textarea>');
 		$dialog = $('<div id="interpreter-window"></div>')
 			.html($code_entry)
 			.dialog({
@@ -331,7 +409,7 @@ function js_eden_init() {
 						}
 					}
 				}
-			});
+			});*/
 
 		//convertToEdenPage('#interpreter-window');
 
@@ -341,9 +419,9 @@ function js_eden_init() {
 			.dialog({
 				width: "530px",
 				title: "DONALD", 
-			});*/
+			});
 		
-		$('.ui-dialog-titlebar a', $dialog.parent()).remove();
+		$('.ui-dialog-titlebar a', $dialog.parent()).remove();*/
 		$('<pre id="error-window" style="font-family:monospace;"></pre>').appendTo($('body'));
 	});
 }
