@@ -1,2 +1,2 @@
-include("models/jugs/jugs.e");
-include("models/jugs/jugs.eden");
+include("models/jugs/jugs.jse");
+include("models/jugs/display.jse");
