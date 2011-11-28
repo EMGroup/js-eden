@@ -10,7 +10,7 @@ CodeMirror.defineMode("eden", function(config, parserConfig) {
     var operator = kw("operator"), atom = {type: "atom", style: "atom"};
     return {
       "is": {type: "is", style: "is"},
-      "if": A, "while": A, "with": A, "else": B, "do": B, "try": B, "finally": B,
+      "if": A, "while": A, "after": A, "with": A, "else": B, "do": B, "try": B, "finally": B,
       "return": C, "break": C, "continue": C, "new": C, "delete": C, "throw": C,
       "var": kw("var"), "func": kw("func"), "proc": kw("proc"), "auto": kw("auto"), "para": kw("para"), "catch": kw("catch"),
       "for": kw("for"), "switch": kw("switch"), "case": kw("case"), "default": kw("default"),

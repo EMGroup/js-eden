@@ -34,12 +34,14 @@ function convertToEdenPage(page) {
 }
 
 function convertToEdenPageNew(page) {
+	var editor;
 	$('.exec', page).each(function() {
 		var $area = $('<div class="code"></div>');
 		var $previous = $(this).prev();
 		var $code = $(this).clone();
 
 		$(this).remove();
+		//var editor;
 		$area.insertAfter($previous);
 		if ($code.hasClass('eden')) {
 			editor = CodeMirror($area.get(0), {
@@ -102,4 +104,5 @@ function convertToEdenPageNew(page) {
 		}
 		$buttonarea.append($button);*/
 	});
+	return editor;
 }

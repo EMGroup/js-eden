@@ -25,6 +25,7 @@ function printObservables(pattern) {
 
 	$('#observable-results').html('');
 	var reg = new RegExp("^"+pattern+".*");
+	var myeditor;
 	$.each(root.symbols, function(name,symbol) { 
 		if (name.search(reg) == -1) { return; }
 		if (symbol.definition !== undefined) {
@@ -81,11 +82,11 @@ function printObservables(pattern) {
 		selected_observable = this;
 		$(this).animate({backgroundColor: "#ffebc9"}, 100);
 
-		$code_html = '<div class="obs_inspector"><pre class="eden exec">';
+		$code_html = '<div id="obs_inspector_' + this.symbol.name.substr(1) + '" class="obs_inspector"><div></div><pre class="eden exec">';
 		if (this.symbol.definition === undefined) {
-			$code_html = $code_html + this.symbol.name.substr(1) + " = " + this.symbol.value();
+			$code_html = $code_html + this.symbol.name.substr(1) + " = " + this.symbol.value() + ';';
 		} else {
-			$code_html = $code_html + this.symbol.eden_definition;
+			$code_html = $code_html + this.symbol.eden_definition + ';';
 		}
 		$code_html = $code_html + "</pre></div>";
 
@@ -94,10 +95,27 @@ function printObservables(pattern) {
 		$dialog.dialog({
 			title: 'Observable: ' + this.symbol.name.substr(1),
 			width: 300,
-			height: 200,
+			height: 240,
 			minWidth: 200,
-			minHeight: 200,
+			minHeight: 240,
+			buttons: {
+					Save: function() {
+						try {
+							eden.addHistory(myeditor.getValue());
+							eval(Eden.translateToJavaScript(myeditor.getValue()));
+							myeditor.setValue("");
+							//printSymbolTable();
+							printAllUpdates();
+							//eden.saveLocalModelState();
+						} catch(e) {
+							$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>\n" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
+							eden.errornumber = eden.errornumber + 1;
+						}
+					}
+				}
 		});
+
+		myeditor = convertToEdenPageNew('#obs_inspector_'+this.symbol.name.substr(1));
 
 		
 	});
@@ -400,6 +418,8 @@ function js_eden_init() {
 			printSymbolTable(); 
 		});*/
 
+		var myeditor;
+
 		$code_entry = $('<div id="eden-input"><div></div><pre class="eden exec"></pre></div>');
 		$dialog = $('<div id="interpreter-window"></div>')
 			.html($code_entry)
@@ -413,9 +433,9 @@ function js_eden_init() {
 				buttons: {
 					Submit: function() {
 						try {
-							eden.addHistory(editor.getValue());
-							eval(Eden.translateToJavaScript(editor.getValue()));
-							editor.setValue("");
+							eden.addHistory(myeditor.getValue());
+							eval(Eden.translateToJavaScript(myeditor.getValue()));
+							myeditor.setValue("");
 							//printSymbolTable();
 							printAllUpdates();
 							//eden.saveLocalModelState();
@@ -425,15 +445,15 @@ function js_eden_init() {
 						}
 					},
 					Previous: function() {
-						editor.setValue(eden.previousHistory());
+						myeditor.setValue(eden.previousHistory());
 					},
 					Next: function() {
-						editor.setValue(eden.nextHistory());
+						myeditor.setValue(eden.nextHistory());
 					}
 				}
 			});
 
-		convertToEdenPageNew('#eden-input');
+		myeditor = convertToEdenPageNew('#eden-input');
 
 		//convertToEdenPage('#interpreter-window');
 
