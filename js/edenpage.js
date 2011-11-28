@@ -33,10 +33,10 @@ function convertToEdenPage(page) {
 	});
 }
 
-function convertToEdenPageNew(page) {
+function convertToEdenPageNew(page,cclass) {
 	var editor;
 	$('.exec', page).each(function() {
-		var $area = $('<div class="code"></div>');
+		var $area = $('<div class="'+cclass+'"></div>');
 		var $previous = $(this).prev();
 		var $code = $(this).clone();
 

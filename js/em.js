@@ -94,18 +94,18 @@ function printObservables(pattern) {
 		$dialog.html($code_html);
 		$dialog.dialog({
 			title: 'Observable: ' + this.symbol.name.substr(1),
-			width: 300,
-			height: 240,
-			minWidth: 200,
-			minHeight: 240,
+			width: 350,
+			height: 150,
+			minWidth: 250,
+			minHeight: 150,
 			buttons: {
 					Save: function() {
 						try {
 							eden.addHistory(myeditor.getValue());
 							eval(Eden.translateToJavaScript(myeditor.getValue()));
-							myeditor.setValue("");
+							//myeditor.setValue("");
 							//printSymbolTable();
-							printAllUpdates();
+							//printAllUpdates();
 							//eden.saveLocalModelState();
 						} catch(e) {
 							$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>\n" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
@@ -115,7 +115,7 @@ function printObservables(pattern) {
 				}
 		});
 
-		myeditor = convertToEdenPageNew('#obs_inspector_'+this.symbol.name.substr(1));
+		myeditor = convertToEdenPageNew('#obs_inspector_'+this.symbol.name.substr(1),'defedit');
 
 		
 	});
@@ -453,7 +453,7 @@ function js_eden_init() {
 				}
 			});
 
-		myeditor = convertToEdenPageNew('#eden-input');
+		myeditor = convertToEdenPageNew('#eden-input','code');
 
 		//convertToEdenPage('#interpreter-window');
 

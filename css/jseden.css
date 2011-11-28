@@ -257,6 +257,21 @@ div#eden-input {
 	cursor: text;
 }
 
+.defedit {
+	position: relative;
+	border-color: #117fe5;
+	border-width: 1px;
+	border-style: solid;
+	/*max-width: 600px;*/
+	height: 50px;
+	overflow: auto;
+	margin-top: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+	background-color: white;
+	cursor: text;
+}
+
 .code_buttons {
 	position: relative;
 	margin-left: 10px;
