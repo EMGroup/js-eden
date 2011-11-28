@@ -41,7 +41,6 @@ function convertToEdenPageNew(page) {
 
 		$(this).remove();
 		$area.insertAfter($previous);
-		var editor;
 		if ($code.hasClass('eden')) {
 			editor = CodeMirror($area.get(0), {
 				value: $code.text(),
@@ -58,8 +57,17 @@ function convertToEdenPageNew(page) {
 			editor.focus();
 		});
 
-		var $buttonarea = $('<div class="code_buttons"></div');
-		$area.append($buttonarea);
+		/* DOES NOT WORK */
+		$area.bind('keyup','alt+n', function() {
+			editor.setValue(eden.nextHistory());
+		});
+		$area.bind('keyup','alt+p', function() {
+			editor.setValue(eden.previousHistory());
+		});
+
+		/*var $buttonarea = $('<div class="code_buttons"></div');
+		//$area.append($buttonarea);
+		$buttonarea.insertAfter($area);
 
 		$buttonarea.append($('<button>Previous</button>').click(function() {
 			editor.setValue(eden.previousHistory());
@@ -92,6 +100,6 @@ function convertToEdenPageNew(page) {
 				eval(editor.getValue());
 			});
 		}
-		$buttonarea.append($button);
+		$buttonarea.append($button);*/
 	});
 }
