@@ -80,6 +80,26 @@ function printObservables(pattern) {
 		}
 		selected_observable = this;
 		$(this).animate({backgroundColor: "#ffebc9"}, 100);
+
+		$code_html = '<div class="obs_inspector"><pre class="eden exec">';
+		if (this.symbol.definition === undefined) {
+			$code_html = $code_html + this.symbol.name.substr(1) + " = " + this.symbol.value();
+		} else {
+			$code_html = $code_html + this.symbol.eden_definition;
+		}
+		$code_html = $code_html + "</pre></div>";
+
+		$dialog = $('<div></div>');
+		$dialog.html($code_html);
+		$dialog.dialog({
+			title: 'Observable: ' + this.symbol.name.substr(1),
+			width: 300,
+			height: 200,
+			minWidth: 200,
+			minHeight: 200,
+		});
+
+		
 	});
 
 	if ($('#observable-results')[0].offsetHeight > (14*16)) {
@@ -238,8 +258,6 @@ function js_eden_init() {
 
 		Eden.executeFile("library/eden.eden");
 
-		convertToEdenPageNew('#eden-input');
-
 		$("#observable-info").hide();
 
 		$(".side-bar-topic-title").hover(function() {
@@ -382,24 +400,22 @@ function js_eden_init() {
 			printSymbolTable(); 
 		});*/
 
-		/*$code_entry = $('<textarea spellcheck="false" rows="10" class="code-entry"></textarea>');
+		$code_entry = $('<div id="eden-input"><div></div><pre class="eden exec"></pre></div>');
 		$dialog = $('<div id="interpreter-window"></div>')
 			.html($code_entry)
 			.dialog({
 				title: "EDEN Interpreter Window", 
-				width: "400px",
+				width: 450,
+				height: 240,
+				minHeight: 240,
+				minWidth: 400,
+				position: ['right','bottom'],
 				buttons: {
-					Previous: function() {
-						$code_entry.val(eden.previousHistory());
-					},
-					Next: function() {
-						$code_entry.val(eden.nextHistory());
-					},
 					Submit: function() {
 						try {
-							eden.addHistory($code_entry.val());
-							eval(Eden.translateToJavaScript($code_entry.val()));
-							$code_entry.val('');
+							eden.addHistory(editor.getValue());
+							eval(Eden.translateToJavaScript(editor.getValue()));
+							editor.setValue("");
 							//printSymbolTable();
 							printAllUpdates();
 							//eden.saveLocalModelState();
@@ -407,9 +423,17 @@ function js_eden_init() {
 							$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>\n" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
 							eden.errornumber = eden.errornumber + 1;
 						}
+					},
+					Previous: function() {
+						editor.setValue(eden.previousHistory());
+					},
+					Next: function() {
+						editor.setValue(eden.nextHistory());
 					}
 				}
-			});*/
+			});
+
+		convertToEdenPageNew('#eden-input');
 
 		//convertToEdenPage('#interpreter-window');
 
@@ -419,9 +443,9 @@ function js_eden_init() {
 			.dialog({
 				width: "530px",
 				title: "DONALD", 
-			});
+			});*/
 		
-		$('.ui-dialog-titlebar a', $dialog.parent()).remove();*/
+		//$('.ui-dialog-titlebar a', $dialog.parent()).remove();
 		$('<pre id="error-window" style="font-family:monospace;"></pre>').appendTo($('body'));
 	});
 }

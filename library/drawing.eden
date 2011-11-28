@@ -182,6 +182,59 @@ Button.prototype.draw = function(context) {
 
 ##Combobox
 
+${{
+Combobox = function (name, options, x, y, enabled) {
+	this.name = name;
+	this.options = options;
+	this.x = x;
+	this.y = y;
+	this.enabled = enabled;
+}
+
+function makeoptionshtml(opts) {
+	var html = "";
+	for (x in opts) {
+		html = html + "\n<option value=\""+ opts[x] + "\">"+ opts[x] + "</option>";
+	}
+	return html;
+}
+}}$;
+
+func Combobox { ${{
+  var name = arguments[0];
+  var options = arguments[1];
+  var x = arguments[2];
+  var y = arguments[3];
+  var enabled = arguments[4];
+  return new Combobox(name, options, x, y, enabled);
+}}$; }
+
+${{
+Combobox.prototype.draw = function(context) {
+  var me = this.name;
+  var box = document.getElementById(this.name);
+  if (box == null) {
+	var dis = "";
+	if (this.enabled == true) { dis = ""; }
+	else { dis = "disabled=\"true\""; }
+
+	var can = $("#eden-content");
+	var boxhtml = $("<select id=\"" + this.name + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
+
+	boxhtml.html(makeoptionshtml(this.options));
+
+	boxhtml.change(function() {
+		root.lookup(me + "_value").assign(boxhtml.get(0).value);
+	}).appendTo(can);
+  } else {
+	box.html(makeoptionshtml(this.options));
+	if (this.enabled == true) { box.disabled = false; }
+	else { box.disabled = true; }
+	box.style.left = "" + this.x + "px";
+	box.style.top = "" + this.y + "px";
+  }
+};
+}}$;
 
 ##line2 = Line(0, 0, 50, 30, "red");
 ##line2.x1 = 30;

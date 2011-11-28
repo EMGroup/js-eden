@@ -192,6 +192,7 @@ div#observable-info-content {
 	border-width: 1px;
 	border-color: #117fe5;
 	border-style: solid;
+	-moz-border-radius: 5px;
 	border-radius: 5px;
 }
 
@@ -235,13 +236,10 @@ textarea#observable-info-definition {
 div#eden-input {
 	position: absolute;
 	bottom: 0px;
-	height: 200px;
-	left: 250px;
+	top: 0px;
 	right: 0px;
-	background-color: #eaeaea;
-	border-top-style: solid;
-	border-top-width: 2px;
-	border-top-color: #d0d0d0;
+	left: 0px;
+	background-color: #fafafa;
 }
 
 .code {
@@ -249,25 +247,33 @@ div#eden-input {
 	border-color: #117fe5;
 	border-width: 1px;
 	border-style: solid;
-	max-width: 600px;
-	height: 150px;
+	/*max-width: 600px;*/
+	height: 130px;
 	overflow: auto;
-	padding: 5px;
-	margin: 10px;
+	margin-top: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
 	background-color: white;
 	cursor: text;
 }
 
 .code_buttons {
-	position: absolute;
-	left: 0px;
+	position: relative;
+	margin-left: 10px;
 	right: 0px;
 	bottom: 0px;
 	background-color: #eaeaea;
-	border-top-width: 1px;
-	border-top-color: #117fe5;
-	border-top-style: solid;
-	width: 600px;
-	padding: 5px;
 	cursor: auto;
+	font-size: 10pt;
+}
+
+div.obs_inspector {
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+	background-color: #fafafa;
+	font-size: 12px;
+	padding: 5px;
 }
