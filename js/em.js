@@ -83,7 +83,7 @@ function printObservables(pattern) {
 		selected_observable = this;
 		$(this).animate({backgroundColor: "#ffebc9"}, 100);
 
-		observable_dialog(this.symbol);
+		this.dialog = observable_dialog(this.symbol, this.dialog);
 	});
 
 	if ($('#observable-results')[0].offsetHeight > (14*16)) {
@@ -158,7 +158,7 @@ function printFunctions(pattern) {
 		selected_function = this;
 		$(this).animate({backgroundColor: "#ffebc9"}, 100);
 
-		function_dialog(this.symbol);
+		this.dialog = function_dialog(this.symbol, this.dialog);
 	});
 
 	if ($('#function-results')[0].offsetHeight > (14*16)) {
@@ -399,6 +399,10 @@ function js_eden_init() {
 			printProcedures(this.value);
 		});
 		printProcedures("");
+
+		$("#project-search").keyup(function() {
+			printProjects(this.value);
+		});
 
 		root.addGlobal(function (sym, create) {
 			//console.log("Obs changed: " + sym.name.substr(1));
