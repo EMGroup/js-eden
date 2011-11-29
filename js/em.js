@@ -63,7 +63,7 @@ function printObservables(pattern) {
 			if (this.symbol.definition !== undefined) {
 				var iname = info.find('#observable-info-name');
 				iname.text(this.symbol.eden_definition);
-				info.css("left", "" + (this.offsetLeft + this.offsetWidth - 50) + "px");
+				info.css("left", "" + (this.offsetLeft + this.offsetWidth) + "px");
 				info.css("top", "" + (this.offsetTop + 125 - 8 - ((info[0].offsetHeight / 2))) + "px");
 				info.show();
 			} else {
@@ -135,7 +135,7 @@ function printFunctions(pattern) {
 			if (this.details !== undefined) {
 				var iname = info.find('#observable-info-name');
 				iname.text(this.details.description);
-				info.css("left", "" + (this.offsetLeft + this.offsetWidth - 50) + "px");
+				info.css("left", "" + (this.offsetLeft + this.offsetWidth) + "px");
 				info.css("top", "" + (this.offsetTop + 125 - 8 - ((info[0].offsetHeight / 2))) + "px");
 				info.show();
 			} else {
@@ -263,16 +263,6 @@ function js_eden_init() {
 		async: true
 	});
 
-	$.ajax({
-		url: "library/functions.json",
-		success: function(data) {
-			edenfunctions = JSON.parse(data);
-			printFunctions("");
-		},
-		cache: false,
-		async: true
-	});
-
 	$(document).ready(function() {
 		//runTests(all_the_tests);
 		root = new Folder();
@@ -283,6 +273,16 @@ function js_eden_init() {
 		Eden.executeFile("library/eden.eden");
 
 		$("#observable-info").hide();
+
+		$.ajax({
+			url: "library/functions.json",
+			success: function(data) {
+				edenfunctions = JSON.parse(data);
+				printFunctions("");
+			},
+			cache: false,
+			async: true
+		});
 
 		$(".side-bar-topic-title").hover(function() {
 			$(this).animate({backgroundColor: "#ab0000"}, 100);
