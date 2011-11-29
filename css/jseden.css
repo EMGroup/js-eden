@@ -243,12 +243,15 @@ div#eden-input {
 }
 
 .code {
-	position: relative;
+	position: absolute;
 	border-color: #117fe5;
 	border-width: 1px;
 	border-style: solid;
 	/*max-width: 600px;*/
-	height: 130px;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
 	overflow: auto;
 	margin-top: 10px;
 	margin-left: 10px;
@@ -258,12 +261,16 @@ div#eden-input {
 }
 
 .defedit {
-	position: relative;
+	position: absolute;
 	border-color: #117fe5;
 	border-width: 1px;
 	border-style: solid;
 	/*max-width: 600px;*/
-	height: 50px;
+	/*height: 50px;*/
+	bottom: 0px;
+	top: 0px;
+	left: 0px;
+	right: 0px;
 	overflow: auto;
 	margin-top: 10px;
 	margin-left: 10px;
