@@ -182,7 +182,10 @@ function printProcedures(pattern) {
 		var subs = symbol.eden_definition.substring(0,4);
 		if (subs != "proc") { return; }
 
-		$('<div class="result-element"></div>').text(name).appendTo($('#procedure-results'));
+		var proc = $('<div class="result-element"></div>');
+		proc.text(name).appendTo($('#procedure-results'));
+
+		proc.get(0).symbol = symbol;
 	});
 
 	$("#procedure-results > div").hover(
@@ -191,7 +194,10 @@ function printProcedures(pattern) {
 		}, function() {
 			$(this).animate({backgroundColor: "white"}, 100);
 		}	
-		);
+		).click(function() {
+		
+		this.dialog = procedure_dialog(this.symbol, this.dialog);
+	});
 
 	if ($('#procedure-results')[0].offsetHeight > (14*16)) {
 		$('#procedure-scrollup').show();

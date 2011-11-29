@@ -21,6 +21,6 @@ proc play : end_of_game, o_to_play, x_to_play {
 	else if (x_to_play) {
 		mvsq = "s" // str(maxindex) ;
 		`mvsq` = x;
-		writeln("I move to square ", mvsq);
+		writeln("I move to square " // mvsq);
 		}
 	}
