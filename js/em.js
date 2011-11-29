@@ -111,10 +111,14 @@ function printFunctions(pattern) {
 		if (edenfunctions.functions != undefined && edenfunctions.functions[name] !== undefined) {
 			details = edenfunctions.functions[name];
 			funchtml = funchtml + "<span class='result_value'> ( ";
-			for (x in edenfunctions.functions[name].parameters) {
-				funchtml = funchtml + x + ", ";
+			if (edenfunctions.functions[name].parameters !== undefined) {
+				for (x in edenfunctions.functions[name].parameters) {
+					funchtml = funchtml + x + ", ";
+				}
+				funchtml = funchtml.substr(0,funchtml.length-2) + " )</span>";
+			} else {
+				funchtml = funchtml + " )</span>";
 			}
-			funchtml = funchtml.substr(0,funchtml.length-2) + " )</span>";
 		}
 
 		var resel = $('<div class="result-element"></div>');

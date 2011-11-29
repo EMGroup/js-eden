@@ -28,6 +28,21 @@
 			"return": "No return value",
 			"description": "Displays HTML on the canvas"
 		},
+		"time": {
+			"return": "Integer number of seconds",
+			"description": "Get current time in seconds since 1/1/1970"
+		},
+		"writeln": {
+			"parameters": {
+				"text": "A string"
+			},
+			"return": "No return value",
+			"description": "Prints a string to the browser console"
+		},
+		"rand": {
+			"return": "Random integer",
+			"description": "Generates a random integer between 0 and 32767"
+		},
 		"Text": {
 			"parameters": {
 				"text": "Text string to display",
