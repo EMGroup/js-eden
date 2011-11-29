@@ -19,6 +19,7 @@ function printSymbolTable() {
 }
 
 var selected_observable = null;
+var selected_function = null;
 
 function printObservables(pattern) {
 	obspos = 0;
@@ -124,11 +125,14 @@ function printFunctions(pattern) {
 		var resel = $('<div class="result-element"></div>');
 		resel.html(funchtml).appendTo($('#function-results'));
 		resel.get(0).details = details;
+		resel.get(0).symbol = symbol;
 	});
 
 	$("#function-results > div").hover(
 		function() {
-			$(this).animate({backgroundColor: "#eaeaea"}, 100);
+			if (this != selected_function) {
+				$(this).animate({backgroundColor: "#eaeaea"}, 100);
+			}
 
 			var info = $('#observable-info');
 
@@ -143,9 +147,19 @@ function printFunctions(pattern) {
 			}
 		}, function() {
 			$('#observable-info').hide();
-			$(this).animate({backgroundColor: "white"}, 100);
+			if (this != selected_function) {
+				$(this).animate({backgroundColor: "white"}, 100);
+			}
 		}	
-		);
+		).click(function() {
+		if (selected_function != null) {
+			$(selected_function).animate({backgroundColor: "white"}, 100);
+		}
+		selected_function = this;
+		$(this).animate({backgroundColor: "#ffebc9"}, 100);
+
+		function_dialog(this.symbol);
+	});
 
 	if ($('#function-results')[0].offsetHeight > (14*16)) {
 		$('#function-scrollup').show();
