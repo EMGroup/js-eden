@@ -82,42 +82,7 @@ function printObservables(pattern) {
 		selected_observable = this;
 		$(this).animate({backgroundColor: "#ffebc9"}, 100);
 
-		$code_html = '<div id="obs_inspector_' + this.symbol.name.substr(1) + '" class="obs_inspector"><div></div><pre class="eden exec">';
-		if (this.symbol.definition === undefined) {
-			$code_html = $code_html + this.symbol.name.substr(1) + " = " + this.symbol.value() + ';';
-		} else {
-			$code_html = $code_html + this.symbol.eden_definition + ';';
-		}
-		$code_html = $code_html + "</pre></div>";
-
-		$dialog = $('<div></div>');
-		$dialog.html($code_html);
-		$dialog.dialog({
-			title: 'Observable: ' + this.symbol.name.substr(1),
-			width: 350,
-			height: 150,
-			minWidth: 250,
-			minHeight: 150,
-			buttons: {
-					Save: function() {
-						try {
-							eden.addHistory(myeditor.getValue());
-							eval(Eden.translateToJavaScript(myeditor.getValue()));
-							//myeditor.setValue("");
-							//printSymbolTable();
-							//printAllUpdates();
-							//eden.saveLocalModelState();
-						} catch(e) {
-							$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>\n" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
-							eden.errornumber = eden.errornumber + 1;
-						}
-					}
-				}
-		});
-
-		myeditor = convertToEdenPageNew('#obs_inspector_'+this.symbol.name.substr(1),'defedit');
-
-		
+		observable_dialog(this.symbol);
 	});
 
 	if ($('#observable-results')[0].offsetHeight > (14*16)) {
@@ -141,13 +106,39 @@ function printFunctions(pattern) {
 		var subs = symbol.eden_definition.substring(0,4);
 		if (subs != "func") { return; }
 
-		$('<div class="result-element"></div>').text(name).appendTo($('#function-results'));
+		var funchtml = name;
+		var details;
+		if (edenfunctions.functions != undefined && edenfunctions.functions[name] !== undefined) {
+			details = edenfunctions.functions[name];
+			funchtml = funchtml + "<span class='result_value'> ( ";
+			for (x in edenfunctions.functions[name].parameters) {
+				funchtml = funchtml + x + ", ";
+			}
+			funchtml = funchtml.substr(0,funchtml.length-2) + " )</span>";
+		}
+
+		var resel = $('<div class="result-element"></div>');
+		resel.html(funchtml).appendTo($('#function-results'));
+		resel.get(0).details = details;
 	});
 
 	$("#function-results > div").hover(
 		function() {
 			$(this).animate({backgroundColor: "#eaeaea"}, 100);
+
+			var info = $('#observable-info');
+
+			if (this.details !== undefined) {
+				var iname = info.find('#observable-info-name');
+				iname.text(this.details.description);
+				info.css("left", "" + (this.offsetLeft + this.offsetWidth - 50) + "px");
+				info.css("top", "" + (this.offsetTop + 125 - 8 - ((info[0].offsetHeight / 2))) + "px");
+				info.show();
+			} else {
+				info.hide();
+			}
 		}, function() {
+			$('#observable-info').hide();
 			$(this).animate({backgroundColor: "white"}, 100);
 		}	
 		);
@@ -254,6 +245,7 @@ var obspos = 0;
 var procspos = 0;
 var funcspos = 0;
 var projects;
+var edenfunctions = {};
 
 function js_eden_init() {
 
@@ -262,6 +254,16 @@ function js_eden_init() {
 		success: function(data) {
 			projects = JSON.parse(data);
 			printProjects("");
+		},
+		cache: false,
+		async: true
+	});
+
+	$.ajax({
+		url: "library/functions.json",
+		success: function(data) {
+			edenfunctions = JSON.parse(data);
+			printFunctions("");
 		},
 		cache: false,
 		async: true

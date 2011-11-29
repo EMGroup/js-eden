@@ -1,0 +1,97 @@
+{
+	"functions": {
+		"include": {
+			"parameters": {
+				"file": "Script file to load"
+			},
+			"return": "No return value",
+			"description": "Loads and executes a JS-Eden script file"
+		},
+		"str": {
+			"parameters": {
+				"object": "A number or list to be converted"
+			},
+			"return": "A string",
+			"description": "Converts a number or list to a string"
+		},
+		"int": {
+			"parameters": {
+				"string": "String to convert"
+			},
+			"return": "An integer",
+			"description": "Converts a string to an integer"
+		},
+		"html": {
+			"parameters": {
+				"code": "HTML code string"
+			},
+			"return": "No return value",
+			"description": "Displays HTML on the canvas"
+		},
+		"Text": {
+			"parameters": {
+				"text": "Text string to display",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"colour": "Text colour in HTML form"
+			},
+			"return": "Text object",
+			"description": "Creates a text element for display on the canvas"
+		},
+		"Line": {
+			"parameters": {
+				"x1": "X-coordinate for start",
+				"y1": "Y-coordinate for start",
+				"x2": "X-coordinate for end",
+				"y2": "Y-coordinate for end",
+				"colour": "Colour of the line in HTML form"
+			},
+			"return": "Line object",
+			"description": "Creates a line element for display on the canvas"
+		},
+		"Rectangle": {
+			"parameters": {
+				"x1": "X-coordinate for top left",
+				"y1": "Y-coordinate for top left",
+				"x2": "X-coordinate for bottom right",
+				"y2": "Y-coordinate for bottom right",
+				"colour": "Colour of the rectangle (fill) in HTML form"
+			},
+			"return": "Rectangle object",
+			"description": "Creates a rectangle element for display on the canvas"
+		},
+		"Circle": {
+			"parameters": {
+				"x": "Centre X-coordinate",
+				"y": "Centre Y-coordinate",
+				"radius": "Circle radius from centre",
+				"fillcolour": "Fill colour for the circle in HTML form",
+				"outlinecolour": "Outline colour of the circle in HTML form"
+			},
+			"return": "Circle object",
+			"description": "Creates a circle element for display on the canvas"
+		},
+		"Button": {
+			"parameters": {
+				"name": "for [name]_clicked",
+				"label": "Text for the button",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"enabled": "Boolean for button enabled"
+			},
+			"return": "Button object",
+			"description": "Creates a button element for display on the canvas"
+		},
+		"Combobox": {
+			"parameters": {
+				"name": "for [name]_clicked",
+				"options": "A list of strings providing the options",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"enabled": "Boolean for combobox enabled"
+			},
+			"return": "Combobox object",
+			"description": "Creates a drop-down select box for the canvas"
+		}
+	}
+}
