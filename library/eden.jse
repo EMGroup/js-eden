@@ -71,7 +71,18 @@ ${{
 Eden.executeFile(arguments[0]);
 printAllUpdates();
 }}$;
-}
+};
 
-include("library/drawing.eden");
-include("library/pagemeta.eden");
+func execute {
+${{
+  try {
+	eval(Eden.translateToJavaScript(arguments[0]));
+  } catch(e) {
+	$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\"># ERROR number " + eden.errornumber + ":<br># Execute<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
+				eden.errornumber = eden.errornumber + 1;
+  }
+}}$;
+};
+
+include("library/drawing.jse");
+include("library/pagemeta.jse");

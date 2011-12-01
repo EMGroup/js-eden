@@ -97,7 +97,7 @@ totstat is (finish) ? "Success!" : status;
 targ is ("Target is " // str(target) // " : ");
 
 
-viscosity = 1000;
+viscosity = 100;
 
 autocalc = 1;
 

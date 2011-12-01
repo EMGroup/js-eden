@@ -103,6 +103,7 @@ function printFunctions(pattern) {
 	$.each(root.symbols, function(name,symbol) { 
 		if (name.search(reg) == -1) { return; }
 		if (symbol.definition === undefined) { return; }
+		if (symbol.eden_definition === undefined) { return; }
 
 		var subs = symbol.eden_definition.substring(0,4);
 		if (subs != "func") { return; }
@@ -178,6 +179,7 @@ function printProcedures(pattern) {
 	$.each(root.symbols, function(name,symbol) { 
 		if (name.search(reg) == -1) { return; }
 		if (symbol.definition === undefined) { return; }
+		if (symbol.eden_definition === undefined) { return; }
 
 		var subs = symbol.eden_definition.substring(0,4);
 		if (subs != "proc") { return; }
@@ -289,8 +291,6 @@ function js_eden_init() {
 		eden = new Eden(root);
 
 		modelbase = "";
-
-		Eden.executeFile("library/eden.eden");
 
 		$("#observable-info").hide();
 
@@ -470,7 +470,7 @@ function js_eden_init() {
 							printAllUpdates();
 							//eden.saveLocalModelState();
 						} catch(e) {
-							$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>\n" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
+							$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
 							eden.errornumber = eden.errornumber + 1;
 						}
 					},
@@ -497,5 +497,7 @@ function js_eden_init() {
 		
 		//$('.ui-dialog-titlebar a', $dialog.parent()).remove();
 		$('<pre id="error-window" style="font-family:monospace;"></pre>').appendTo($('body'));
+
+		Eden.executeFile("library/eden.jse");
 	});
 }

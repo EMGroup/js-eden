@@ -44,7 +44,7 @@ func Text { ${{
   var colour = arguments[3];
   if (colour == null) { colour = "black"; }
   return new Text(text, x, y, colour);
-}}$; }
+}}$; };
 
 func Line { ${{
   var x1 = arguments[0];
@@ -52,9 +52,9 @@ func Line { ${{
   var x2 = arguments[2];
   var y2 = arguments[3];
   var colour = arguments[4];
-  if (colour == null) { colour = "black"; }
+  if (colour === undefined) { colour = "black"; }
   return new Line(x1, y1, x2, y2, colour);
-}}$; }
+}}$; };
 
 func Rectangle { ${{
   var x1 = arguments[0];
@@ -62,9 +62,9 @@ func Rectangle { ${{
   var x2 = arguments[2];
   var y2 = arguments[3];
   var colour = arguments[4];
-  if (colour == null) { colour = "black"; }
+  if (colour === undefined) { colour = "black"; }
   return new Rectangle(x1, y1, x2, y2, colour);
-}}$; }
+}}$; };
 
 func Circle { ${{
   var x = arguments[0];
@@ -75,7 +75,7 @@ func Circle { ${{
   if (fillcolour == null) { fillcolour = "black"; }
   if (outlinecolour == null) { outlinecolour = "black"; }
   return new Circle(x, y, radius, fillcolour, outlinecolour);
-}}$; }
+}}$; };
 
 
 ${{
@@ -124,7 +124,7 @@ proc clearCanvas { ${{
   $("#eden-content > :input").each(function() {
 	this.togarbage = true;
   });
-}}$; }
+}}$; };
 
 proc cleanupCanvas { ${{
   $("#eden-content > :input").each(function() {
@@ -132,20 +132,24 @@ proc cleanupCanvas { ${{
 		$(this).remove();
 	}
   });
-}}$; }
+}}$; };
+
+picture = [];
 
 proc drawPicture : picture { 
   clearCanvas();
   ${{
   var picture = context.lookup('picture').value();
-  var canvas = document.getElementById("d1canvas").getContext('2d');
+  var canvas = $("#d1canvas").get(0).getContext('2d');
 
-  for (var i = 0; i < picture.length; ++i) {
+  if (picture === undefined) { return; }
+
+  for (var i = 0; i < picture.length; i++) {
     picture[i].draw(canvas);
   }
   }}$;
   cleanupCanvas(); 
-}
+};
 
 
 ##Buttons
@@ -263,9 +267,4 @@ Combobox.prototype.draw = function(context) {
 };
 }}$;
 
-##line2 = Line(0, 0, 50, 30, "red");
-##line2.x1 = 30;
 
-##picture is [line2];
-
-##drawPicture();

@@ -54,7 +54,12 @@ Eden.executeFile = function (path) {
 	$.ajax({
 		url: modelbase+path,
 		success: function(data) {
-			eval(Eden.translateToJavaScript(data));
+			try {
+				eval(Eden.translateToJavaScript(data));
+			} catch(e) {
+				$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>## " + path + "<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
+				eden.errornumber = eden.errornumber + 1;
+			  }
 		},
 		cache: false,
 		async: false

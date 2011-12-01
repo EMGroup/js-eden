@@ -39,6 +39,13 @@
 			"return": "No return value",
 			"description": "Prints a string to the browser console"
 		},
+		"execute": {
+			"parameters": {
+				"code": "A string"
+			},
+			"return": "No return value",
+			"description": "Evaluates a string as an Eden script"
+		},
 		"rand": {
 			"return": "Random integer",
 			"description": "Generates a random integer between 0 and 32767"
