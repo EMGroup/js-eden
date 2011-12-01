@@ -292,6 +292,8 @@ function js_eden_init() {
 
 		modelbase = "";
 
+		$("#tabs").tabs();
+
 		$("#observable-info").hide();
 
 		$.ajax({

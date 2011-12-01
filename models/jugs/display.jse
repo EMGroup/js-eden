@@ -1,3 +1,5 @@
+active_tab = "canvas";
+
 jugwidth = 60;
 base = 200;
 scale = 20;

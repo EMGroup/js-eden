@@ -2,7 +2,7 @@ div#side-bar {
 	position: absolute;
 	width: 250px;
 	background-color: #117fe5;
-	top: 125px;
+	top: 105px;
 	bottom: 0px;
 }
 
@@ -17,12 +17,11 @@ div#eden-logo {
 	z-index: 2;
 }
 
-div#eden-content {
+div#tabs {
 	position: absolute;
-	top: 125px;
+	top: 105px;
 	left: 250px;
 	right: 0px;
-	padding: 10px;
 	background-color: white;
 	border-top-style: solid;
 	border-top-width: 2px;
@@ -31,6 +30,28 @@ div#eden-content {
 	border-left-width: 2px;
 	border-left-color: black;
 	bottom: 0px;
+}
+
+div#eden-content {
+	position: relative;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	padding: 10px;
+	font-size: 10pt;
+}
+
+div#tty-content {
+	font-family: "Courier New";
+	font-size: 12pt;
+	position: absolute;
+	top: 45px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	padding: 10px;
+	overflow-y: scroll;
 }
 
 div.side-bar-topic {

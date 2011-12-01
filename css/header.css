@@ -40,7 +40,7 @@ div#title_bar {
 	left: 0px;
 	right: 0px;
 	top: 25px;
-	height: 100px;
+	height: 80px;
 	background-color: #117fe5;
 	border-bottom-style: solid;
 	border-bottom-width: 2px;
@@ -50,7 +50,7 @@ div#title_bar {
 div#title_text {
 	position: absolute;
 	left: 280px;
-	top: 25px;
+	top: 20px;
 	font-family: 'arial';
 	font-size: 40px;
 	font-weight: bold;

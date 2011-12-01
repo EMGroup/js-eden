@@ -1,4 +1,5 @@
 /* display.e */
+active_tab = "tty";
 
 x = 1; o = -1; u = 0;
 
