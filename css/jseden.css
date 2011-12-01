@@ -1,9 +1,20 @@
 div#side-bar {
 	position: absolute;
 	width: 250px;
-	background-color: #eaeaea;
+	background-color: #117fe5;
 	top: 125px;
 	bottom: 0px;
+}
+
+div#eden-logo {
+	position: absolute;
+	top: 35px;
+	left: 10px;
+	background-image: url('../images/em-logo.png');
+	background-repeat: no-repeat;
+	width: 250px;
+	height: 158px;
+	z-index: 2;
 }
 
 div#eden-content {
@@ -15,10 +26,10 @@ div#eden-content {
 	background-color: white;
 	border-top-style: solid;
 	border-top-width: 2px;
-	border-top-color: #d0d0d0;
+	border-top-color: black;
 	border-left-style: solid;
 	border-left-width: 2px;
-	border-left-color: #d0d0d0;
+	border-left-color: black;
 	bottom: 0px;
 }
 
@@ -148,12 +159,13 @@ div.result-element {
 }
 
 div#model-title {
-	font-size: 20pt;
+	font-size: 18pt;
 	font-family: 'Arial';
 	font-weight: bold;
 	position: absolute;
-	top: 20px;
-	left: 300px;
+	color: white;
+	top: 30px;
+	left: 490px;
 }
 
 div.demotip {

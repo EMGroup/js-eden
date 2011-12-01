@@ -41,7 +41,7 @@ div#title_bar {
 	right: 0px;
 	top: 25px;
 	height: 100px;
-	background-color: #eaeaea;
+	background-color: #117fe5;
 	border-bottom-style: solid;
 	border-bottom-width: 2px;
 	border-bottom-color: #e0e0e0;
@@ -49,12 +49,13 @@ div#title_bar {
 
 div#title_text {
 	position: absolute;
-	left: 50px;
+	left: 280px;
 	top: 25px;
 	font-family: 'arial';
 	font-size: 40px;
 	font-weight: bold;
-	color: #404040;
+	color: white;
+	z-index: 3;
 }
 
 div#content {
