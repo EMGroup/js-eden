@@ -158,17 +158,21 @@ func Button { ${{
 
 ${{
 Button.prototype.draw = function(context) {
-  var me = this.name;
-  var but = document.getElementById(this.name);
-  if (but == null) {
+  var me = "canvas_" + this.name;
+  var me2 = this.name;
+  var but = $(me).get(0);
+  if (but === undefined) {
 	var dis = "";
 	if (this.enabled == true) { dis = ""; }
 	else { dis = "disabled=\"true\""; }
 
 	var can = $("#eden-content");
-	var buthtml = $("<input type=\"button\" id=\"" + this.name + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
-		root.lookup(me + "_clicked").assign(true); root.lookup(me + "_clicked").assign(false);
+	var buthtml = $("<input type=\"button\" id=\"" + me + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
+		root.lookup(me2 + "_clicked").assign(true); root.lookup(me2 + "_clicked").assign(false);
 	}).appendTo(can);
+
+	//Initialise
+	root.lookup(me2 + "_clicked").assign(false);
   } else {
 	but.value = this.label;
 	if (this.enabled == true) { but.disabled = false; }
@@ -211,21 +215,25 @@ func Combobox { ${{
 
 ${{
 Combobox.prototype.draw = function(context) {
-  var me = this.name;
-  var box = document.getElementById(this.name);
-  if (box == null) {
+  var me = "canvas_" + this.name;
+  var me2 = this.name;
+  var box = $(me).get(0);
+  if (box === undefined) {
 	var dis = "";
 	if (this.enabled == true) { dis = ""; }
 	else { dis = "disabled=\"true\""; }
 
 	var can = $("#eden-content");
-	var boxhtml = $("<select id=\"" + this.name + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
+	var boxhtml = $("<select id=\"" + me + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
 
 	boxhtml.html(makeoptionshtml(this.options));
 
 	boxhtml.change(function() {
-		root.lookup(me + "_value").assign(boxhtml.get(0).value);
+		root.lookup(me2 + "_value").assign(boxhtml.get(0).value);
 	}).appendTo(can);
+
+	//Initialise
+	root.lookup(me2 + "_value").assign(this.options[0]);
   } else {
 	box.html(makeoptionshtml(this.options));
 	if (this.enabled == true) { box.disabled = false; }
