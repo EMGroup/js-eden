@@ -56,6 +56,13 @@ func substr {
 
 };
 
+func forget {
+	${{
+	var o = arguments[0];
+	delete root.symbols[o];
+	}}$;
+};
+
 true = 1;
 false = 0;
 
