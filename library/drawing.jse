@@ -145,6 +145,7 @@ proc drawPicture : picture {
   if (picture === undefined) { return; }
 
   for (var i = 0; i < picture.length; i++) {
+    if (picture[i] === undefined) { continue; }
     picture[i].draw(canvas);
   }
   }}$;
@@ -177,7 +178,7 @@ ${{
 Button.prototype.draw = function(context) {
   var me = "canvas_" + this.name;
   var me2 = this.name;
-  var but = $(me).get(0);
+  var but = $("#"+me).get(0);
   if (but === undefined) {
 	var dis = "";
 	if (this.enabled == true) { dis = ""; }
@@ -237,7 +238,7 @@ ${{
 Combobox.prototype.draw = function(context) {
   var me = "canvas_" + this.name;
   var me2 = this.name;
-  var box = $(me).get(0);
+  var box = $("#"+me).get(0);
   if (box === undefined) {
 	var dis = "";
 	if (this.enabled == true) { dis = ""; }
