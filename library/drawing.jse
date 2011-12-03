@@ -258,7 +258,7 @@ Combobox.prototype.draw = function(context) {
 	//Initialise
 	root.lookup(me2 + "_value").assign(this.options[0]);
   } else {
-	box.html(makeoptionshtml(this.options));
+	$(box).html(makeoptionshtml(this.options));
 	box.togarbage = false;
 	if (this.enabled == true) { box.disabled = false; }
 	else { box.disabled = true; }
