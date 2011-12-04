@@ -20,6 +20,13 @@
 			"year": "1994",
 			"description": "OXO Model",
 			"runfile": "models/oxo/run.e"
+		},
+		{
+			"name": "Number-Line Port",
+			"author": "Jess Nickson",
+			"year": "2011",
+			"description": "Port of 'The Inequality Game' game by Antony Harfield to JS-Eden",
+			"runfile": "models/numberLine/run.e"
 		}
 	]
 }
