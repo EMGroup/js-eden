@@ -297,6 +297,15 @@ function js_eden_init() {
 		$("#observable-info").hide();
 
 		$.ajax({
+			url: "version.bin",
+			success: function(data) {
+				$('#version-number').html("js-eden "+data);
+			},
+			cache: false,
+			async: true
+		});
+
+		$.ajax({
 			url: "library/functions.json",
 			success: function(data) {
 				edenfunctions = JSON.parse(data);

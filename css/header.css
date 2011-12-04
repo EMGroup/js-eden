@@ -58,6 +58,13 @@ div#title_text {
 	z-index: 3;
 }
 
+div#version-number {
+	position: absolute;
+	right: 10px;
+	top: 55px;
+	color: white;
+}
+
 div#content {
 	position: absolute;
 	top: 125px;
