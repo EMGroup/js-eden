@@ -112,8 +112,9 @@ Circle.prototype.draw = function(context) {
 
 ${{
 Text.prototype.draw = function(context) {
-  context.strokeStyle = this.colour;
-  context.strokeText(this.text,this.x, this.y);
+  context.fillStyle = this.colour;
+  context.lineWidth = 1;
+  context.fillText(this.text,this.x, this.y);
 };
 }}$;
 
