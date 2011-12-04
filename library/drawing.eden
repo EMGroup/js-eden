@@ -227,7 +227,7 @@ Combobox.prototype.draw = function(context) {
 		root.lookup(me + "_value").assign(boxhtml.get(0).value);
 	}).appendTo(can);
   } else {
-	box.html(makeoptionshtml(this.options));
+	box.innerHTML = makeoptionshtml(this.options);
 	if (this.enabled == true) { box.disabled = false; }
 	else { box.disabled = true; }
 	box.style.left = "" + this.x + "px";
