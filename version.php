@@ -1,4 +1,4 @@
-<?
+<?php
 
 if (strpos($_SERVER['SERVER_NAME'],".dcs.",0) == FALSE)
 	system("git describe --abbrev=4 HEAD");
