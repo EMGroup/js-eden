@@ -297,7 +297,7 @@ function js_eden_init() {
 		$("#observable-info").hide();
 
 		$.ajax({
-			url: "version.bin",
+			url: "version.php",
 			success: function(data) {
 				$('#version-number').html("js-eden "+data);
 			},

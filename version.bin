@@ -1,6 +1,0 @@
-#!/bin/sh
-
-echo "Content-type: text/plain"
-echo ""
-git describe --abbrev=4 HEAD
-

@@ -26,3 +26,5 @@ proc _active_tab_agent : active_tab {
 	}
 	}}$;
 };
+
+active_tab = "canvas";
