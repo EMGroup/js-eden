@@ -8,49 +8,50 @@ timerRunning = false;
 
 takeALook is Text("Take a look at this number line...", 50, 90, "black");
 
-leftMargin is 50;
-timeLineFinishLoc is 530;
+leftMargin = 50;
+timeLineTop = 140;
+timeLineFinishLoc = 530;
 
 /* Draw the numberline */
-timeLine is Line(leftMargin, 140, timeLineFinishLoc, 140, "black");
-dashm6 is Line(leftMargin, 150, leftMargin, 140, "black");
-dashm5 is Line(90, 150, 90, 140, "black");
-dashm4 is Line(130, 150, 130, 140, "black");
-dashm3 is Line(170, 150, 170, 140, "black");
-dashm2 is Line(210, 150, 210, 140, "black");
-dashm1 is Line(250, 150, 250, 140, "black");
-dash0 is Line(290, 150, 290, 140, "black");
-dash1 is Line(330, 150, 330, 140, "black");
-dash2 is Line(370, 150, 370, 140, "black");
-dash3 is Line(410, 150, 410, 140, "black");
-dash4 is Line(450, 150, 450, 140, "black");
-dash5 is Line(490, 150, 490, 140, "black");
-dash6 is Line(530, 150, 530, 140, "black");
+timeLine is Line(leftMargin, timeLineTop, timeLineFinishLoc, timeLineTop, "black");
+dashm6 is Line(leftMargin, timeLineTop-10, leftMargin, timeLineTop, "black");
+dashm5 is Line(leftMargin+40, timeLineTop-10, leftMargin+40, timeLineTop, "black");
+dashm4 is Line(leftMargin+80, timeLineTop-10, leftMargin+80, timeLineTop, "black");
+dashm3 is Line(leftMargin+120, timeLineTop-10, leftMargin+120, timeLineTop, "black");
+dashm2 is Line(leftMargin+160, timeLineTop-10, leftMargin+160, timeLineTop, "black");
+dashm1 is Line(leftMargin+200, timeLineTop-10, leftMargin+200, timeLineTop, "black");
+dash0 is Line(leftMargin+240, timeLineTop-10, leftMargin+240, timeLineTop, "black");
+dash1 is Line(leftMargin+280, timeLineTop-10, leftMargin+280, timeLineTop, "black");
+dash2 is Line(leftMargin+320, timeLineTop-10, leftMargin+320, timeLineTop, "black");
+dash3 is Line(leftMargin+360, timeLineTop-10, leftMargin+360, timeLineTop, "black");
+dash4 is Line(leftMargin+400, timeLineTop-10, leftMargin+400, timeLineTop, "black");
+dash5 is Line(leftMargin+440, timeLineTop-10, leftMargin+440, timeLineTop, "black");
+dash6 is Line(leftMargin+480, timeLineTop-10, leftMargin+480, timeLineTop, "black");
 
 /* Add labels to the line */
-textm6 is Text("-6", 43, 170);
-textm5 is Text("-5", 83, 170);
-textm4 is Text("-4", 123, 170);
-textm3 is Text("-3", 164, 170);
-textm2 is Text("-2", 204, 170);
-textm1 is Text("-1", 244, 170);
-text0 is Text("0", 286, 170);
-text1 is Text("1", 326, 170);
-text2 is Text("2", 366, 170);
-text3 is Text("3", 406, 170);
-text4 is Text("4", 448, 170);
-text5 is Text("5", 488, 170);
-text6 is Text("6", 528, 170);
+textm6 is Text("-6", 43, timeLineTop+30);
+textm5 is Text("-5", 83, timeLineTop+30);
+textm4 is Text("-4", 123, timeLineTop+30);
+textm3 is Text("-3", 164, timeLineTop+30);
+textm2 is Text("-2", 204, timeLineTop+30);
+textm1 is Text("-1", 244, timeLineTop+30);
+text0 is Text("0", 286, timeLineTop+30);
+text1 is Text("1", 326, timeLineTop+30);
+text2 is Text("2", 366, timeLineTop+30);
+text3 is Text("3", 406, timeLineTop+30);
+text4 is Text("4", 448, timeLineTop+30);
+text5 is Text("5", 488, timeLineTop+30);
+text6 is Text("6", 528, timeLineTop+30);
 
 whatIs is Text("What is the inequality?", leftMargin, 220);
 xText is Text("X", leftMargin, 250);
 
-equalitySigns is ["[sign]","<","<=",">",">="];
-eqSignCombo is Combobox("equality", equalitySigns, leftMargin+30, 245,true);
-valueCombo is Combobox("numberValue", ["[value]","-6","-5","-4","-3","-2","-1","0","1","2","3","4","5","6"], leftMargin+100, 245,true);
+inequalitySignOptions is ["[sign]","<","<=",">",">="];
+inequalitySignCombo is Combobox("inequalityCombo", inequalitySignOptions, leftMargin+30, 245,true);
+valueCombo is Combobox("numberValueCombo", ["[value]","-6","-5","-4","-3","-2","-1","0","1","2","3","4","5","6"], leftMargin+100, 245,true);
 
-submitAnswer is Button("submitAnswer", "Submit", leftMargin+10, 280, true);
-submitAnswer_clicked is false;
+submitAnswerButton is Button("submitAnswerButton", "Submit", leftMargin+10, 280, true);
+submitAnswerButton_clicked is false;
 submitted = false;
 
 yourAnswerIs is Text("Your answer is: ", leftMargin, 320); 
@@ -76,18 +77,18 @@ circBg is "blue";
 circBg is ((numberLineSignIndex==2 || numberLineSignIndex==4))? "white" : "blue";
 lineDirection is (numberLineSignIndex > 3)? timeLineFinishLoc : leftMargin;
 
-lineArrow is Line(circX, 120, lineDirection, 120, "blue");
-circle is Circle(circX, 120, 10, circBg, "blue");
+lineArrow is Line(circX, timeLineTop-20, lineDirection, timeLineTop-20, "blue");
+circle is Circle(circX, timeLineTop-20, 10, circBg, "blue");
 
-numberLineSign is equalitySigns[numberLineSignIndex];
-comboInequality is equality_value;
-comboNumber is numberValue_value;
+numberLineSign is inequalitySignOptions[numberLineSignIndex];
+comboInequality is inequalityCombo_value;
+comboNumber is numberValueCombo_value;
 isAnswerCorrect is (comboInequality==numberLineSign && comboNumber==numberLineValue);
 oldScore = yourScore;
 
 answerValue is (oldAnswerCorrect && submitted)? "Correct! :)" : "Wrong!";
 displayAnswerValue is (submitted)? answerValue : "";
-answerCorrect is Text(displayAnswerValue, 135, 320); 
+answerCorrect is Text(displayAnswerValue, leftMargin+85, 320); 
 
 proc timer {
     after (1000) {
@@ -95,7 +96,7 @@ proc timer {
         if (tick < timeLimit) {
 			timer();
 		} else { 
-			${{alert("Game over! Your score was: "+root.lookup('yourScore').value())}}$; 
+			${{alert("Game over! Your score was..."+root.lookup('yourScore').value())}}$; 
 			timerRunning = false;
 		};
     }
@@ -113,8 +114,8 @@ proc alertStart : startButton_clicked {
 		newQuestion();
 	}
 }
-proc alertSubmit : submitAnswer_clicked {
-	if(start){
+proc alertSubmit : submitAnswerButton_clicked {
+	if(start && submitAnswerButton_clicked){
 		submitted = true;
 		oldScore = yourScore;
 		oldAnswerCorrect = isAnswerCorrect;
@@ -144,9 +145,9 @@ picture is [
 	
 	whatIs,	xText,
 	
-	eqSignCombo, valueCombo,
+	inequalitySignCombo, valueCombo,
 	
-	submitAnswer,
+	submitAnswerButton,
 	
 	yourAnswerIs, answerCorrect,
 	

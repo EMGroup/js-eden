@@ -1,0 +1,154 @@
+startButton is Button("startButton","Start Game", 60, 50, true);
+startButton_clicked is false;
+start = false;
+
+timeLimit = 60;
+tick = -1;
+timerRunning = false;
+
+takeALook is Text("Take a look at this number line...", 50, 90, "black");
+
+leftMargin is 50;
+timeLineFinishLoc is 530;
+
+/* Draw the numberline */
+timeLine is Line(leftMargin, 140, timeLineFinishLoc, 140, "black");
+dashm6 is Line(leftMargin, 150, leftMargin, 140, "black");
+dashm5 is Line(90, 150, 90, 140, "black");
+dashm4 is Line(130, 150, 130, 140, "black");
+dashm3 is Line(170, 150, 170, 140, "black");
+dashm2 is Line(210, 150, 210, 140, "black");
+dashm1 is Line(250, 150, 250, 140, "black");
+dash0 is Line(290, 150, 290, 140, "black");
+dash1 is Line(330, 150, 330, 140, "black");
+dash2 is Line(370, 150, 370, 140, "black");
+dash3 is Line(410, 150, 410, 140, "black");
+dash4 is Line(450, 150, 450, 140, "black");
+dash5 is Line(490, 150, 490, 140, "black");
+dash6 is Line(530, 150, 530, 140, "black");
+
+/* Add labels to the line */
+textm6 is Text("-6", 43, 170);
+textm5 is Text("-5", 83, 170);
+textm4 is Text("-4", 123, 170);
+textm3 is Text("-3", 164, 170);
+textm2 is Text("-2", 204, 170);
+textm1 is Text("-1", 244, 170);
+text0 is Text("0", 286, 170);
+text1 is Text("1", 326, 170);
+text2 is Text("2", 366, 170);
+text3 is Text("3", 406, 170);
+text4 is Text("4", 448, 170);
+text5 is Text("5", 488, 170);
+text6 is Text("6", 528, 170);
+
+whatIs is Text("What is the inequality?", leftMargin, 220);
+xText is Text("X", leftMargin, 250);
+
+equalitySigns is ["[sign]","<","<=",">",">="];
+eqSignCombo is Combobox("equality", equalitySigns, leftMargin+30, 245,true);
+valueCombo is Combobox("numberValue", ["[value]","-6","-5","-4","-3","-2","-1","0","1","2","3","4","5","6"], leftMargin+100, 245,true);
+
+submitAnswer is Button("submitAnswer", "Submit", leftMargin+10, 280, true);
+submitAnswer_clicked is false;
+submitted = false;
+
+yourAnswerIs is Text("Your answer is: ", leftMargin, 320); 
+answerValue is "";
+yourScore = 0;
+oldScore = 0;
+yourScoreIs is Text("Your score is: ", leftMargin, 340);
+yourScoreIsValue is Text(yourScore, leftMargin+85, 340);
+
+
+/* Generate new question parameters (number, whether it is positive and which inequality numberLineSignIndex to use)*/
+func newQuestion {
+	posNumber = ${{Math.floor(Math.random()*6)}}$;
+	positive = ${{Math.round(Math.random())}}$;
+	numberLineSignIndex = ${{Math.floor(Math.random()*4)+2}}$;	
+}
+
+numberLineValue is (positive==0)? posNumber*-1 : posNumber;
+
+circX is 290+40*numberLineValue;
+circBg is "blue";
+
+circBg is ((numberLineSignIndex==2 || numberLineSignIndex==4))? "white" : "blue";
+lineDirection is (numberLineSignIndex > 3)? timeLineFinishLoc : leftMargin;
+
+lineArrow is Line(circX, 120, lineDirection, 120, "blue");
+circle is Circle(circX, 120, 10, circBg, "blue");
+
+numberLineSign is equalitySigns[numberLineSignIndex];
+comboInequality is equality_value;
+comboNumber is numberValue_value;
+isAnswerCorrect is (comboInequality==numberLineSign && comboNumber==numberLineValue);
+oldScore = yourScore;
+
+answerValue is (oldAnswerCorrect && submitted)? "Correct! :)" : "Wrong!";
+displayAnswerValue is (submitted)? answerValue : "";
+answerCorrect is Text(displayAnswerValue, 135, 320); 
+
+proc timer {
+    after (1000) {
+		tick++;
+        if (tick < timeLimit) {
+			timer();
+		} else { 
+			${{alert("Game over! Your score was: "+root.lookup('yourScore').value())}}$; 
+			timerRunning = false;
+		};
+    }
+}
+
+proc alertStart : startButton_clicked {
+	if(startButton_clicked){
+		start = true;
+		yourScore = 0;
+		tick = 0;
+		if(!timerRunning) {
+			timerRunning = true;
+			timer(); 
+		}
+		newQuestion();
+	}
+}
+proc alertSubmit : submitAnswer_clicked {
+	if(start){
+		submitted = true;
+		oldScore = yourScore;
+		oldAnswerCorrect = isAnswerCorrect;
+		
+		after(10) {
+			yourScore = (oldAnswerCorrect && submitted)? oldScore+1 : oldScore;
+			newQuestion();
+		}
+		after(2000){
+			submitted = false;
+		}
+	}
+}
+
+picture is [
+	startButton,
+	takeALook,
+	
+	timeLine,
+	lineArrow, circle, 
+	
+	dashm6,	dashm5,	dashm4,	dashm3,	dashm2,	dashm1,
+	dash0,	dash1,	dash2,	dash3,	dash4,	dash5,	dash6,
+	
+	textm6,	textm5,	textm4,	textm3,	textm2,	textm1,
+	text0,	text1,	text2,	text3,	text4,	text5,	text6,
+	
+	whatIs,	xText,
+	
+	eqSignCombo, valueCombo,
+	
+	submitAnswer,
+	
+	yourAnswerIs, answerCorrect,
+	
+	yourScoreIs, yourScoreIsValue
+];
