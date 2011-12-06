@@ -14,19 +14,19 @@ timeLineFinishLoc = 530;
 
 /* Draw the numberline */
 timeLine is Line(leftMargin, timeLineTop, timeLineFinishLoc, timeLineTop, "black");
-dashm6 is Line(leftMargin, timeLineTop-10, leftMargin, timeLineTop, "black");
-dashm5 is Line(leftMargin+40, timeLineTop-10, leftMargin+40, timeLineTop, "black");
-dashm4 is Line(leftMargin+80, timeLineTop-10, leftMargin+80, timeLineTop, "black");
-dashm3 is Line(leftMargin+120, timeLineTop-10, leftMargin+120, timeLineTop, "black");
-dashm2 is Line(leftMargin+160, timeLineTop-10, leftMargin+160, timeLineTop, "black");
-dashm1 is Line(leftMargin+200, timeLineTop-10, leftMargin+200, timeLineTop, "black");
-dash0 is Line(leftMargin+240, timeLineTop-10, leftMargin+240, timeLineTop, "black");
-dash1 is Line(leftMargin+280, timeLineTop-10, leftMargin+280, timeLineTop, "black");
-dash2 is Line(leftMargin+320, timeLineTop-10, leftMargin+320, timeLineTop, "black");
-dash3 is Line(leftMargin+360, timeLineTop-10, leftMargin+360, timeLineTop, "black");
-dash4 is Line(leftMargin+400, timeLineTop-10, leftMargin+400, timeLineTop, "black");
-dash5 is Line(leftMargin+440, timeLineTop-10, leftMargin+440, timeLineTop, "black");
-dash6 is Line(leftMargin+480, timeLineTop-10, leftMargin+480, timeLineTop, "black");
+dashm6 is Line(leftMargin, timeLineTop+10, leftMargin, timeLineTop, "black");
+dashm5 is Line(leftMargin+40, timeLineTop+10, leftMargin+40, timeLineTop, "black");
+dashm4 is Line(leftMargin+80, timeLineTop+10, leftMargin+80, timeLineTop, "black");
+dashm3 is Line(leftMargin+120, timeLineTop+10, leftMargin+120, timeLineTop, "black");
+dashm2 is Line(leftMargin+160, timeLineTop+10, leftMargin+160, timeLineTop, "black");
+dashm1 is Line(leftMargin+200, timeLineTop+10, leftMargin+200, timeLineTop, "black");
+dash0 is Line(leftMargin+240, timeLineTop+10, leftMargin+240, timeLineTop, "black");
+dash1 is Line(leftMargin+280, timeLineTop+10, leftMargin+280, timeLineTop, "black");
+dash2 is Line(leftMargin+320, timeLineTop+10, leftMargin+320, timeLineTop, "black");
+dash3 is Line(leftMargin+360, timeLineTop+10, leftMargin+360, timeLineTop, "black");
+dash4 is Line(leftMargin+400, timeLineTop+10, leftMargin+400, timeLineTop, "black");
+dash5 is Line(leftMargin+440, timeLineTop+10, leftMargin+440, timeLineTop, "black");
+dash6 is Line(leftMargin+480, timeLineTop+10, leftMargin+480, timeLineTop, "black");
 
 /* Add labels to the line */
 textm6 is Text("-6", 43, timeLineTop+30);
