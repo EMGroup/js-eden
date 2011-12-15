@@ -4,7 +4,6 @@
 		<script src="js/dummyconsole.js" type="text/javascript" charset="utf-8"></script>
 
 		<!-- third party libraries -->
-		<script type="text/javascript" src="js/webtoolkit.js"></script>
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 		<script src="js/json2.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/beautify.js" type="text/javascript" charset="utf-8"></script>
@@ -125,9 +124,9 @@
 "/*"                  { this.begin('BLOCKCOMMENT'); }
 
 
-<LINECOMMENT>[\n\r]   { console.log('endlinecomment'); this.popState(); }
+<LINECOMMENT>[\n\r]   { this.popState(); }
 <LINECOMMENT>.        {}
-"##"                  { console.log('beginlinecomment'); this.begin('LINECOMMENT'); }
+"##"                  { this.begin('LINECOMMENT'); }
 
 "${{"                 { this.begin('JS'); return "OPENJS"; }
 <JS>"}}$"             { this.popState(); return 'ENDJS'; }
@@ -216,6 +215,7 @@
 ")"                   return ')'
 
 "."                  return '.'
+"`"                   return '`'
 
 "$"[0-9]+             return '$ARG'
 "$"                   return '$ARGS'
@@ -278,6 +278,8 @@ lvalue
         { $$ = $1 + '.get("' + $3 + '")' }
     | '(' lvalue ')'
         { $$ = $2; }
+    | '`' expression '`'
+        { $$ = yy.dobservable($2); }
 
 // XXX: this introduces some shift reduce conflicts apparently, but not sure what the conflict output means
 // so not sure where to look for problems
@@ -352,7 +354,7 @@ expression
 
 // XXX: introduces a TON of SR conflicts and I have no idea why!
     | expression '//' expression
-        { $$ = $1 + ' + ' + $3; }
+        { $$ = $1 + '.concat(' + $3 +')'; }
 
     //
     // assignment operators
@@ -499,7 +501,7 @@ statement
     ;
 
 else-opt
-    : 'ELSE' statement
+    : ELSE statement
         { $$ = ' else ' + $statement; }
     |
         { $$ = ''; }
@@ -650,14 +652,12 @@ formula-definition
     <div id="productions"></div> 
     <div id="table"></div>
 
-
 	<h2>Test the parser</h2>
 	<textarea id="source" rows="8" cols="80"></textarea>
 	<p>
 		<button id="parse_btn">Parse</button>
 		<select id="sample_select"></select>
 		<button id="load_sample_btn">Load Sample</button>
-		<button id="download_btn">Download parser</button>
 	</p>
 
 	<h2>Generated JavaScript</h2>
