@@ -1,0 +1,55 @@
+func abs {
+  return ${{ Math.abs(arguments[0]); }}$;
+}
+
+func acos {
+  return ${{ Math.acos(arguments[0])*180/Math.PI; }}$;
+}
+
+func asin {
+  return ${{ Math.asin(arguments[0])*180/Math.PI; }}$;
+}
+
+func atan {
+  return ${{ Math.atan(arguments[0])*180/Math.PI; }}$;
+}
+
+func ceil {
+  return ${{ Math.ceil(arguments[0]); }}$;
+}
+
+func cos {
+  return ${{ Math.cos(arguments[0]*Math.PI/180); }}$;
+}
+
+func exp {
+  return ${{ Math.exp(arguments[0]); }}$;
+}
+
+func floor {
+  return ${{ Math.floor(arguments[0]); }}$;
+}
+
+func log {
+  return ${{ Math.log(arguments[0]); }}$;
+}
+
+func pow {
+  return ${{ Math.pow(arguments[0],arguments[1]); }}$;
+}
+
+func random {
+  return ${{ Math.random(); }}$;
+}
+
+func sin {
+  return ${{ Math.sin(arguments[0]*Math.PI/180); }}$;
+}
+
+func sqrt {
+  return ${{ Math.sqrt(arguments[0]); }}$;
+}
+
+func tan {
+  return ${{ Math.tan(arguments[0]*Math.PI/180); }}$;
+}
