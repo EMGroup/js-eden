@@ -14,6 +14,7 @@
 		<button id="parse_btn">Parse</button>
 		<select id="sample_select"></select>
 		<button id="load_sample_btn">Load Sample</button>
+		<button id="download_btn">Download parser</button>
 	</p>
 
 	<h2>Generated JavaScript</h2>
