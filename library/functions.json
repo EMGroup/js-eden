@@ -82,6 +82,14 @@
 			"return": "Rectangle object",
 			"description": "Creates a rectangle element for display on the canvas"
 		},
+                "Polygon": {
+                        "parameters": {
+                                "[points]": "List of coordinates in the form [ x1,y1 , x2,y2 ] from the top left corner",
+                                "colour": "Colour of the polygon (fill) in HTML form"
+                        },
+                        "return": "Polygon object",
+                        "description": "Creates a polygon element for display on the canvas"
+                },
 		"Circle": {
 			"parameters": {
 				"x": "Centre X-coordinate",
