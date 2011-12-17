@@ -249,7 +249,7 @@ expression
 
 // XXX: introduces a TON of SR conflicts and I have no idea why!
     | expression '//' expression
-        { $$ = $1 + ' + ' + $3; }
+        { $$ = $1 + '.concat(' + $3 +')'; }
 
     //
     // assignment operators

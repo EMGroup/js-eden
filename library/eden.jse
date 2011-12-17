@@ -91,4 +91,5 @@ ${{
 };
 
 include("library/drawing.jse");
+include("library/maths.jse");
 include("library/pagemeta.jse");

@@ -4,6 +4,7 @@
 		<script src="js/dummyconsole.js" type="text/javascript" charset="utf-8"></script>
 
 		<!-- third party libraries -->
+		<script type="text/javascript" src="js/webtoolkit.js"></script>
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 		<script src="js/json2.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/beautify.js" type="text/javascript" charset="utf-8"></script>
