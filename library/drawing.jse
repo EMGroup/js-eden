@@ -101,11 +101,21 @@ Line.prototype.draw = function(context) {
   context.stroke();
 };
 }}$;
+${{
+Line.prototype.toString = function() {
+  return "Line(" + this.x1 + ", " + this.y1 + ", " + this.x2 + ", "+this.y2+", "+this.colour+")";
+};
+}}$;
 
 ${{
 Rectangle.prototype.draw = function(context) {
   context.fillStyle = this.colour;
   context.fillRect(this.x1,this.y1,this.x2,this.y2);
+};
+}}$;
+${{
+Rectangle.prototype.toString = function() {
+  return "Rectangle(" + this.x1 + ", " + this.y1 + ", " + this.x2 + ", "+this.y2+", "+this.colour+")";
 };
 }}$;
 
@@ -136,7 +146,11 @@ Circle.prototype.draw = function(context) {
   context.strokeStyle = this.outlinecolour;
   context.stroke();
   context.closePath();
-
+};
+}}$;
+${{
+Circle.prototype.toString = function() {
+  return "Line(" + this.x + ", " + this.y + ", " + this.radius + ", "+this.fillcolour+", "+this.outlinecolour+")";
 };
 }}$;
 
@@ -145,6 +159,11 @@ Text.prototype.draw = function(context) {
   context.fillStyle = this.colour;
   context.lineWidth = 1;
   context.fillText(this.text,this.x, this.y);
+};
+}}$;
+${{
+Text.prototype.toString = function() {
+  return "Text(" + this.x + ", " + this.y + ", '" + this.text + "', "+this.colour+")";
 };
 }}$;
 
@@ -234,6 +253,11 @@ Button.prototype.draw = function(context) {
   }
 };
 }}$;
+${{
+Button.prototype.toString = function() {
+  return "Button(" + this.name + ", " + this.label + ", " + this.x + ", "+this.y+", "+this.enabled+")";
+};
+}}$;
 
 
 ##Combobox
@@ -291,6 +315,7 @@ Combobox.prototype.draw = function(context) {
   } else {
 	$(box).html(makeoptionshtml(this.options));
 	box.togarbage = false;
+
 	if (this.enabled == true) { box.disabled = false; }
 	else { box.disabled = true; }
 	box.style.left = "" + this.x + "px";
@@ -298,5 +323,9 @@ Combobox.prototype.draw = function(context) {
   }
 };
 }}$;
-
+${{
+Combobox.prototype.toString = function() {
+  return "Combobox(" + this.name + ", " + this.options + ", " + this.x + ", "+this.y+", "+this.enabled+")";
+};
+}}$;
 
