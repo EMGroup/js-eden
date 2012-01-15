@@ -272,6 +272,7 @@ var procspos = 0;
 var funcspos = 0;
 var projects;
 var edenfunctions = {};
+var side_bar_height = 300;
 
 function js_eden_init() {
 
@@ -288,6 +289,9 @@ function js_eden_init() {
 	$(window).resize(function() {
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
 		$("#d1canvas").attr("height", $("#tabs").height()-80);
+		side_bar_height = $(window).height() - 105 - 250;
+		$(".results-lim").css("max-height",""+ (side_bar_height-76)+"px");
+
 	});
 
 	$(document).ready(function() {
@@ -297,6 +301,8 @@ function js_eden_init() {
 
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
 		$("#d1canvas").attr("height", $("#tabs").height()-80);
+		side_bar_height = $(window).height() - 105 - 250;
+		$(".results-lim").css("max-height",""+ (side_bar_height-76)+"px");
 
 		modelbase = "";
 
@@ -331,9 +337,12 @@ function js_eden_init() {
 
 		$(".side-bar-topic").each(function() {
 			var me = $(this).find(".side-bar-topic-content");
+			if (me.height() != 0) {
+				me.height(side_bar_height);
+			}
 
 			$(this).find(".side-bar-topic-title").click( function() {
-				me.animate({height: "300px"}, 100);
+				me.animate({height: ""+side_bar_height+"px"}, 100);
 				$(".side-bar-topic-content").each(function() {
 					if (this != me[0]) {
 						$(this).animate({height: "0px"}, 100);

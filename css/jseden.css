@@ -206,6 +206,10 @@ div#observable-info {
 	font-size: 12pt;
 }
 
+div.results-lim {
+	overflow: hidden;
+}
+
 div#observable-info-point {
 	position: absolute;
 	top: 0px;
