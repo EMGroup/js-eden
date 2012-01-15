@@ -285,10 +285,18 @@ function js_eden_init() {
 		async: true
 	});
 
+	$(window).resize(function() {
+		$("#d1canvas").attr("width", $("#eden-content").width()-40);
+		$("#d1canvas").attr("height", $("#tabs").height()-80);
+	});
+
 	$(document).ready(function() {
 		//runTests(all_the_tests);
 		root = new Folder();
 		eden = new Eden(root);
+
+		$("#d1canvas").attr("width", $("#eden-content").width()-40);
+		$("#d1canvas").attr("height", $("#tabs").height()-80);
 
 		modelbase = "";
 
