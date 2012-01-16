@@ -273,6 +273,7 @@ var funcspos = 0;
 var projects;
 var edenfunctions = {};
 var side_bar_height = 300;
+var input_dialog;
 
 function js_eden_init() {
 
@@ -289,7 +290,7 @@ function js_eden_init() {
 	$(window).resize(function() {
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
 		$("#d1canvas").attr("height", $("#tabs").height()-80);
-		side_bar_height = $(window).height() - 105 - 250;
+		side_bar_height = $(window).height() - 105 - 260;
 		$(".results-lim").css("max-height",""+ (side_bar_height-76)+"px");
 
 	});
@@ -301,10 +302,18 @@ function js_eden_init() {
 
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
 		$("#d1canvas").attr("height", $("#tabs").height()-80);
-		side_bar_height = $(window).height() - 105 - 250;
+		side_bar_height = $(window).height() - 105 - 260;
 		$(".results-lim").css("max-height",""+ (side_bar_height-76)+"px");
 
 		modelbase = "";
+
+		$("#show-input").click(function() {
+			input_dialog.dialog("open");
+		}).hover(function() {
+			$(this).css("backgroundImage", "url('images/input-icon-sel.png')");
+		}, function() {
+			$(this).css("backgroundImage", "url('images/input-icon.png')");
+		});
 
 		$("#tabs").tabs();
 
@@ -482,6 +491,7 @@ function js_eden_init() {
 		$dialog = $('<div id="interpreter-window"></div>')
 			.html($code_entry)
 			.dialog({
+				autoOpen: false,
 				title: "EDEN Interpreter Window", 
 				width: 450,
 				height: 240,
@@ -510,6 +520,7 @@ function js_eden_init() {
 					}
 				}
 			});
+		input_dialog = $dialog;
 
 		myeditor = convertToEdenPageNew('#eden-input','code');
 
