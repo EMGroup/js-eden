@@ -485,8 +485,8 @@ function js_eden_init() {
 				title: "EDEN Interpreter Window", 
 				width: 450,
 				height: 240,
-				minHeight: 240,
-				minWidth: 400,
+				minHeight: 120,
+				minWidth: 230,
 				position: ['right','bottom'],
 				buttons: {
 					Submit: function() {
