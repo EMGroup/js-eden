@@ -1,0 +1,13 @@
+${{
+	$('body').delegate("#d1canvas", "mousemove", function(e) {
+		root.lookup('mouseX').assign(e.pageX-265);
+		root.lookup('mouseY').assign(e.pageY-154);
+	});
+}}$;
+
+${{
+	$('body').delegate("#d1canvas", "click", function(e) {
+		root.lookup('mouseClickX').assign(e.pageX-265);
+		root.lookup('mouseClickY').assign(e.pageY-154);
+	});
+}}$;
