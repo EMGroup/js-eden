@@ -50,8 +50,16 @@ function printObservables(pattern) {
 		}
 
 		var ele = $('<div id="sbobs_' + name + '" class="result-element"></div>');
-		ele.html(namehtml + "<span class='result_value'> = " + valhtml + "</span>").appendTo($('#observable-results'));
+		ele.html("<input class=\"obs-watch-check\" type=\"checkbox\" value=\"\"/>" + namehtml + "<span class='result_value'> = " + valhtml + "</span>").appendTo($('#observable-results'));
 		ele.get(0).symbol = symbol;
+	});
+
+	$(".obs-watch-check").change(function() {
+		if (this.checked == true) {
+			current_view.push($(this).parent().get(0).symbol);
+		} else {
+			//Need to remove it from the view.
+		}
 	});
 
 	$("#observable-results > div").hover(
@@ -274,6 +282,7 @@ var projects;
 var edenfunctions = {};
 var side_bar_height = 300;
 var input_dialog;
+var current_view = new Array();
 
 function js_eden_init() {
 
@@ -491,7 +500,6 @@ function js_eden_init() {
 		$dialog = $('<div id="interpreter-window"></div>')
 			.html($code_entry)
 			.dialog({
-				autoOpen: false,
 				title: "EDEN Interpreter Window", 
 				width: 450,
 				height: 240,

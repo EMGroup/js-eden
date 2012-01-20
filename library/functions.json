@@ -112,6 +112,18 @@
 			"return": "Button object",
 			"description": "Creates a button element for display on the canvas"
 		},
+		"Div": {
+			"parameters": {
+				"name": "currently unused",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"width": "Width in pixels",
+				"height": "Height in pixels",
+				"html": "HTML content"
+			},
+			"return": "Div object",
+			"description": "Creates a html element for display on the canvas"
+		},
 		"Combobox": {
 			"parameters": {
 				"name": "for [name]_clicked",
