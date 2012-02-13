@@ -283,6 +283,69 @@ var edenfunctions = {};
 var side_bar_height = 300;
 var input_dialog;
 var current_view = new Array();
+var session_id = 0;
+var session_changes = {};
+var session_timestamp = "2012-02-13 13:00:00";
+
+function session_connect(id) {
+	session_id = id;
+	session_timestamp = "2012-02-10 13:00:00";
+	session_changes = {};
+	session_observables = {};
+}
+
+function session_update() {
+	var sym;
+	var changestr = "<jse>\n";
+
+	if (session_id != 0) {
+		for (var key in session_changes) {
+			var sym = root.lookup(key);
+			if (sym.definition === undefined) {
+				if (sym.value() !== undefined) {
+					changestr += "<observable><name>"+key+"</name><value>"+sym.value()+"</value></observable>\n";
+				}
+			} else {
+				changestr += "<observable><name>"+key+"</name><definition><![CDATA["+sym.eden_definition+"]]></definition></observable>\n";
+			}
+		}
+	}
+	changestr += "</jse>";
+
+	$.ajax({
+		url: "server/jse.rhtml",
+		type: 'POST',
+		data: "sid=" + session_id + "&timestamp=" + session_timestamp+"&xml="+encodeURIComponent(changestr),
+		dataType: 'text',
+		success: function(data) {
+			session_observables = JSON.parse(data);
+
+			for (var key in session_observables) {
+				if (key == "timestamp") {
+					session_timestamp = session_observables[key];
+					continue;
+				} else if (key == "error") {
+					console.log(session_observables[key]);
+					continue;
+				}
+				sym = root.lookup(key);
+				var newsym = session_observables[key];
+				if (newsym['definition']) {
+					eval(Eden.translateToJavaScript(decodeURIComponent(newsym.definition)+";"));
+				} else {
+					sym.assign(newsym.value);
+				}
+				session_changes[key] = false;
+			}
+
+			setTimeout(session_update,2000);
+		},
+		cache: false,
+		async: true
+	});
+
+	session_changes = {};
+}
 
 function js_eden_init() {
 
@@ -295,6 +358,8 @@ function js_eden_init() {
 		cache: false,
 		async: true
 	});
+
+	setTimeout(session_update,2000);
 
 	$(window).resize(function() {
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
@@ -458,6 +523,9 @@ function js_eden_init() {
 
 		root.addGlobal(function (sym, create) {
 			//console.log("Obs changed: " + sym.name.substr(1));
+
+			session_changes[sym.name.substr(1)] = true;
+
 
 			if (create) {
 				printObservables($('#observable-search')[0].value);
