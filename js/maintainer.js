@@ -31,6 +31,8 @@ function Folder(name, parent, root) {
 	this.root = root || this;
     	this.symbols = {};
 	this.globalobservers = new Array();
+	this.autocalc_state = true;
+	this.todoactions = new Array();
 }
 
 /**
@@ -58,6 +60,29 @@ Folder.prototype.notifyGlobals = function(symbol, create) {
 	for (var i=0; i < this.globalobservers.length; i++) {
 		if (this.globalobservers[i] !== undefined) {
 			this.globalobservers[i].call(this,symbol,create);
+		}
+	}
+};
+
+Folder.prototype.autocalc = function(state) {
+	if ((state == true) && (this.autocalc_state == false)) {
+		this.autocalc_state = true;
+		this.fireAllActions(this.todoactions);
+	} else if ((state == false) && (this.autocalc_state == true)) {
+		this.todoactions = new Array();
+		this.autocalc_state = false;
+	}
+};
+
+Folder.prototype.fireAllActions = function(actions) {
+	//console.log("Processing " + actions.length + " actions.");
+	for (var i=0; i < actions.length; i++) {
+		var actions_to_fire = actions[i];
+		for (var action_name in actions_to_fire) {
+			var action = actions_to_fire[action_name];
+			// if one action fails, it shouldn't prevent all the other
+			// scheduled actions from firing
+			if (action != undefined) { action.trigger(); }
 		}
 	}
 };
@@ -165,7 +190,18 @@ Symbol.prototype.define = function(definition, modifying_agent) {
 
 	var actions_to_fire = {};
 	this.expire(actions_to_fire);
-	this.fireActions(actions_to_fire);
+
+	//Needs to be conditional on autocalc
+	if (this.context !== undefined) {
+		if (this.context.autocalc_state == true) {
+			this.fireActions(actions_to_fire);
+		} else {
+			this.context.todoactions.push(actions_to_fire);
+		}
+	} else {
+		this.fireActions(actions_to_fire);
+	}
+
 	setTimeout(function() { $(me).trigger('symbolDefine'); });
 	if (this.context !== undefined) {
 		this.context.notifyGlobals(this,false);
@@ -220,7 +256,18 @@ Symbol.prototype.assign = function(value, modifying_agent) {
 	this.up_to_date = true;
 
 	setTimeout(function() { $(me).trigger('symbolAssign', value); });
-	this.fireActions(actions_to_fire);
+
+	//Needs to be conditional on autocalc
+	if (this.context !== undefined) {
+		if (this.context.autocalc_state == true) {
+			this.fireActions(actions_to_fire);
+		} else {
+			this.context.todoactions.push(actions_to_fire);
+		}
+	} else {
+		this.fireActions(actions_to_fire);
+	}
+
 	if (this.context !== undefined) {
 		this.context.notifyGlobals(this,false);
 	}
@@ -242,7 +289,7 @@ Symbol.prototype.mutate = function(mutator, modifying_agent) {
 		this.last_modified_by = modifying_agent ? modifying_agent.name : 'unknown';
 	}
 
-	// XXX: need to make sure the cached value exists before mutation
+	// XXX: need to make sure the cacexpirehed value exists before mutation
 	// which frequently relies on modifying the cached value
 	this.value();
 
@@ -259,7 +306,17 @@ Symbol.prototype.mutate = function(mutator, modifying_agent) {
 	setTimeout(function() { $(me).trigger('symbolMutate')});
 
 	// accumulate a set of agents to trigger in expire, then trigger each of them
-	this.fireActions(actions_to_fire);
+	//Needs to be conditional on autocalc
+	if (this.context !== undefined) {
+		if (this.context.autocalc_state == true) {
+			this.fireActions(actions_to_fire);
+		} else {
+			this.context.todoactions.push(actions_to_fire);
+		}
+	} else {
+		this.fireActions(actions_to_fire);
+	}
+
 	if (this.context !== undefined) {
 		this.context.notifyGlobals(this,false);
 	}
