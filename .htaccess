@@ -1,1 +1,1 @@
-AddHandler cgi-script .bin
+AddHandler cgi-script .bin .rhtml

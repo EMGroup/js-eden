@@ -329,7 +329,7 @@ function js_eden_init() {
 		$("#observable-info").hide();
 
 		$.ajax({
-			url: "version.php",
+			url: "version.rhtml",
 			success: function(data) {
 				$('#version-number').html("js-eden "+data);
 			},
