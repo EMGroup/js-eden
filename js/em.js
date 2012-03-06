@@ -50,7 +50,7 @@ function printObservables(pattern) {
 		}
 
 		var ele = $('<div id="sbobs_' + name + '" class="result-element"></div>');
-		ele.html("<input class=\"obs-watch-check\" type=\"checkbox\" value=\"\"/>" + namehtml + "<span class='result_value'> = " + valhtml + "</span>").appendTo($('#observable-results'));
+		ele.html(namehtml + "<span class='result_value'> = " + valhtml + "</span>").appendTo($('#observable-results'));
 		ele.get(0).symbol = symbol;
 	});
 
@@ -289,7 +289,8 @@ function js_eden_init() {
 	$.ajax({
 		url: "models/projects.json",
 		success: function(data) {
-			projects = JSON.parse(data);
+			//projects = JSON.parse(data);
+			projects = data;
 			printProjects("");
 		},
 		cache: false,
@@ -340,7 +341,8 @@ function js_eden_init() {
 		$.ajax({
 			url: "library/functions.json",
 			success: function(data) {
-				edenfunctions = JSON.parse(data);
+				//edenfunctions = JSON.parse(data);
+				edenfunctions = data;
 				printFunctions("");
 			},
 			cache: false,
