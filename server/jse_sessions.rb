@@ -18,7 +18,7 @@ module JSE
 		
 		def self.queryUpdated(sessionid, timestamp)
 			memArray = Array.new
-			res = $dbh.query("SELECT sid,observable FROM jse_observables WHERE sid = '#{sessionid}' AND updated > '#{timestamp}';")
+			res = $dbh.query("SELECT sid,observable FROM jse_observables WHERE sid = '#{sessionid}' AND updated >= '#{timestamp}';")
 			row = res.fetch_row
 			while row
 				cex = JSE::Observable.new(sessionid,row[1])

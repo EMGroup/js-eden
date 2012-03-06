@@ -306,7 +306,12 @@ function session_update() {
 					changestr += "<observable><name>"+key+"</name><value>"+sym.value()+"</value></observable>\n";
 				}
 			} else {
-				changestr += "<observable><name>"+key+"</name><definition><![CDATA["+sym.eden_definition+"]]></definition></observable>\n";
+				if (sym.eden_definition !== undefined) {
+					var subs = sym.eden_definition.substring(0,4);
+					if (subs != "proc") {
+						changestr += "<observable><name>"+key+"</name><definition><![CDATA["+sym.eden_definition+"]]></definition></observable>\n";
+					}
+				}
 			}
 		}
 	}
@@ -320,6 +325,8 @@ function session_update() {
 		success: function(data) {
 			session_observables = JSON.parse(data);
 
+			root.autocalc(false);
+
 			for (var key in session_observables) {
 				if (key == "timestamp") {
 					session_timestamp = session_observables[key];
@@ -331,12 +338,23 @@ function session_update() {
 				sym = root.lookup(key);
 				var newsym = session_observables[key];
 				if (newsym['definition']) {
-					eval(Eden.translateToJavaScript(decodeURIComponent(newsym.definition)+";"));
+					//only change definition if it has changed.
+					if (sym.eden_definition != newsym.definition) {
+						eval(Eden.translateToJavaScript(decodeURIComponent(newsym.definition)+";"));
+						//sym.assignKeepDef(newsym.value);
+						//sym.current_value = newsym.value;
+					} else {
+						//change current value and notify.
+						//sym.assignKeepDef(newsym.value);
+						//sym.current_value = newsym.value;
+					}
 				} else {
 					sym.assign(newsym.value);
 				}
 				session_changes[key] = false;
 			}
+
+			root.autocalc(true);
 
 			setTimeout(session_update,2000);
 		},
@@ -359,7 +377,7 @@ function js_eden_init() {
 		async: true
 	});
 
-	setTimeout(session_update,2000);
+	setTimeout(session_update,1000);
 
 	$(window).resize(function() {
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
@@ -524,7 +542,9 @@ function js_eden_init() {
 		root.addGlobal(function (sym, create) {
 			//console.log("Obs changed: " + sym.name.substr(1));
 
-			session_changes[sym.name.substr(1)] = true;
+			//if (root.autocalc_state == true) {
+				session_changes[sym.name.substr(1)] = true;
+			//}
 
 
 			if (create) {

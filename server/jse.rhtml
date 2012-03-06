@@ -17,20 +17,6 @@ $dbh = Mysql.real_connect("localhost", "knicos", $jse_db_password, "knicos")
 puts "{"
 
 begin
-	newobs = REXML::Document.new($cgi['xml'])
-	newobs.elements.each('jse/observable') { |x|
-		if (x.elements['definition'])
-			JSE::Observable.updateD($cgi['sid'], x.elements['name'].text, x.elements['definition'].text)
-		elsif (x.elements['value'])
-			JSE::Observable.updateV($cgi['sid'], x.elements['name'].text, x.elements['value'].text)
-		end
-	}
-
-rescue Exception => e
-	puts "\"error\": \"#{e.message}\","
-end
-
-begin
 	obs = JSE::Observable.queryUpdated($cgi['sid'],$cgi['timestamp'])
 	obs.each {|x|
 		puts "\"#{x.observable}\": {"
@@ -45,6 +31,20 @@ begin
 		end
 		puts "},"
 	}
+rescue Exception => e
+	puts "\"error\": \"#{e.message}\","
+end
+
+begin
+	newobs = REXML::Document.new($cgi['xml'])
+	newobs.elements.each('jse/observable') { |x|
+		if (x.elements['definition'])
+			JSE::Observable.updateD($cgi['sid'], x.elements['name'].text, x.elements['definition'].text)
+		elsif (x.elements['value'])
+			JSE::Observable.updateV($cgi['sid'], x.elements['name'].text, x.elements['value'].text)
+		end
+	}
+
 rescue Exception => e
 	puts "\"error\": \"#{e.message}\","
 end
