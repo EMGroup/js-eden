@@ -27,6 +27,63 @@
 			"year": "2011",
 			"description": "Port of 'The Inequality Game' game by Antony Harfield to JS-Eden",
 			"runfile": "models/numberLine/run.e"
+		},
+		{
+			"name": "Malaria1",
+			"author": "Meurig and Will Beynon",
+			"year": "2012",
+			"description": "Stages in the malaria parasite life cycle",
+			"runfile": "models/malaria/malaria1.jse"
+		},
+		{
+                        "name": "Malaria2",
+                        "author": "Meurig and Will Beynon",
+                        "year": "2012",
+                        "description": "A construal of Plasmodium Vivax infection",
+                        "runfile": "models/malaria/malaria2.jse"
+                },
+		{
+
+                        "name": "Malaria2a",
+                        "author": "Meurig and Will Beynon",
+                        "year": "2012",
+                        "description": "A simple construal for the cycle of Plasmodium Vivax infection",
+                        "runfile": "models/malaria/malaria2a.jse"
+                },
+		{
+			"name": "2-Ball Eightball",
+			"author": "Jess Nickson",
+			"year": "2012",
+			"description": "Initial shot for a game of Eightball",
+			"runfile": "models/poolTable/2Ball/run.e"
+		},
+		{
+			"name": "7-Ball Eightball",
+			"author": "Jess Nickson",
+			"year": "2012",
+			"description": "Initial shot for a game of Eightball",
+			"runfile": "models/poolTable/7Ball/run.e"
+		},
+		{
+			"name": "16-Ball Eightball",
+			"author": "Jess Nickson",
+			"year": "2012",
+			"description": "Initial shot for a game of Eightball",
+			"runfile": "models/poolTable/16Ball/run.e"
+		},
+		{
+			"name": "Battleship",
+			"author": "Dave Yip",
+			"year": "2012",
+			"description": "Battleship Game",
+			"runfile": "models/battleship/run.jse"
+		},
+		{
+			"name": "Parallel Parking",
+			"author": "Matt Cranham",
+			"year": "2012",
+			"description": "Parallel parking model",
+			"runfile": "models/parpar/parpar.jse"
 		}
 	]
 }

@@ -1,0 +1,384 @@
+func Ball {
+	${{
+		function Ball (x, y, radius, colour, velocityX, velocityY) {
+			this.initialX = x;
+			this.initialY = y;
+			this.x = x;
+			this.y = y;
+			this.radius = radius;
+			this.colour = colour;
+			this.velocityX = velocityX;
+			this.velocityY = velocityY;
+			this.pocketed = false;
+		}
+	
+		Ball.prototype.toString = function() {
+			return "Ball(" + this.x + ", " + this.y + ", " + this.radius + ", "+this.velocityX+", "+this.velocityY+")";
+		};
+		
+		var initialX = arguments[0];
+		var initialY = arguments[1];
+		var x = arguments[2];
+		var y = arguments[3];
+		var radius = arguments[4];
+		var colour = arguments[5];
+		var velocityX = arguments[6];
+		var velocityY = arguments[7];
+		var pocketed = arguments[8];
+		return new Ball(initialX, initialY, x, y, radius, colour, velocityX, velocityY, pocketed);
+	}}$;
+};
+
+/* JQuery event handler used to updates observables that monitor mouse movement */
+${{
+	$('body').delegate("#d1canvas", "mousemove", function(e) {
+		root.lookup('mouseX').assign(e.pageX-265);
+		root.lookup('mouseY').assign(e.pageY-154);
+		if(!root.lookup('cuePositionSet').value()){
+			root.lookup('mousePointX').assign(e.pageX-265);
+			root.lookup('mousePointY').assign(e.pageY-154);
+		}
+	});
+}}$;
+/* JQuery event handler used to updates observables that monitor locations of mouse clicks */
+${{
+	$('body').delegate("#d1canvas", "click", function(e) {
+	if(!root.lookup('initialHitTaken').value()) {
+		if(root.lookup('cuePositionSet').value()){
+			root.lookup('cuePositionSet').assign(false);
+		} else {
+			root.lookup('cuePositionSet').assign(true);
+			root.lookup('mousePointX').assign(e.pageX-265);
+			root.lookup('mousePointY').assign(e.pageY-154);
+		}
+	}
+	});
+}}$;
+
+/* Initialising observables */
+mouseX = 0;
+mouseY = 0;
+mousePointX = 131;
+mousePointY = 448;
+
+ballWidth = 14;
+frontCentreBallX = 135;
+frontCentreBallY = 200;
+xSpacing = 16;
+ySpacing = 30;
+friction = 0.004;
+
+cuePositionSet = false;
+initialHitTaken = false;
+endGame = false;
+
+tableCushions = Rectangle(10, 10, 250, 500, "orange");
+table = Rectangle(30, 30, 210, 460, "green");
+
+
+/* Initialise table pockets */
+hole1 = Circle(35, 35, 15, "black", "black");
+hole2 = Circle(35, 250, 15, "black", "black");
+hole3 = Circle(35, 485, 15, "black", "black");
+hole4 = Circle(235, 35, 15, "black", "black");
+hole5 = Circle(235, 250, 15, "black", "black");
+hole6 = Circle(235, 485, 15, "black", "black");
+
+holes = [hole1, hole2, hole3, hole4, hole5, hole6];
+
+
+/* Initialise balls (x, y, radius, colour, x velocity, y velocity) */
+ball1 = Ball(frontCentreBallX, frontCentreBallY+200, ballWidth, "white", 0, 0);
+
+ball2 = Ball(frontCentreBallX, frontCentreBallY, ballWidth, "red", 0, 0);
+ball3 = Ball(frontCentreBallX+xSpacing, frontCentreBallY-1*ySpacing, ballWidth, "yellow", 0, 0);
+ball4 = Ball(frontCentreBallX-xSpacing, frontCentreBallY-1*ySpacing, ballWidth, "red", 0, 0);
+ball5 = Ball(frontCentreBallX+2*xSpacing, frontCentreBallY-2*ySpacing, ballWidth, "red", 0, 0);
+ball6 = Ball(frontCentreBallX, frontCentreBallY-2*ySpacing, ballWidth, "black", 0, 0);
+ball7 = Ball(frontCentreBallX-2*xSpacing, frontCentreBallY-2*ySpacing, ballWidth, "yellow", 0, 0);
+ball8 = Ball(frontCentreBallX+3*xSpacing, frontCentreBallY-3*ySpacing, ballWidth, "yellow", 0, 0);
+ball9 = Ball(frontCentreBallX+1*xSpacing, frontCentreBallY-3*ySpacing, ballWidth, "red", 0, 0);
+ball10 = Ball(frontCentreBallX-1*xSpacing, frontCentreBallY-3*ySpacing, ballWidth, "yellow", 0, 0);
+ball11 = Ball(frontCentreBallX-3*xSpacing, frontCentreBallY-3*ySpacing, ballWidth, "red", 0, 0);
+ball12 = Ball(frontCentreBallX+4*xSpacing, frontCentreBallY-4*ySpacing, ballWidth, "red", 0, 0);
+ball13 = Ball(frontCentreBallX+2*xSpacing, frontCentreBallY-4*ySpacing, ballWidth, "yellow", 0, 0);
+ball14 = Ball(frontCentreBallX, frontCentreBallY-4*ySpacing, ballWidth, "red", 0, 0);
+ball15 = Ball(frontCentreBallX-2*xSpacing, frontCentreBallY-4*ySpacing, ballWidth, "yellow", 0, 0);
+ball16 = Ball(frontCentreBallX-4*xSpacing, frontCentreBallY-4*ySpacing, ballWidth, "yellow", 0, 0);
+
+poolBalls = [
+ball1,
+ball2,ball3,
+ball4,ball5,ball6,
+ball7,ball8,ball9,ball10,
+ball11,ball12,ball13,ball14,ball15,ball16];
+
+
+/* Draw triangle for storing pocketed balls */
+triangle = Text("pocketed balls:", 320, 150, "black");
+triangleSide1 = Line(frontCentreBallX+300, frontCentreBallY+ballWidth*2+100, frontCentreBallX-4*xSpacing-ballWidth*2+300, frontCentreBallY-4*ySpacing-ballWidth-5+100);
+triangleSide2 = Line(frontCentreBallX+300, frontCentreBallY+ballWidth*2+100, frontCentreBallX+4*xSpacing+ballWidth*2+300, frontCentreBallY-4*ySpacing-ballWidth-5+100);
+triangleSide3 = Line(frontCentreBallX-4*xSpacing-ballWidth*2+300, frontCentreBallY-4*ySpacing-ballWidth-5+100, frontCentreBallX+4*xSpacing+ballWidth*2+300, frontCentreBallY-4*ySpacing-ballWidth-5+100);
+
+
+/* Define Circls so balls can be drawn */
+ball1C is Circle(poolBalls[1].x, poolBalls[1].y, poolBalls[1].radius, poolBalls[1].colour, "black");
+
+ball2C is Circle(poolBalls[2].x, poolBalls[2].y, poolBalls[2].radius, poolBalls[2].colour, "black");
+ball3C is Circle(poolBalls[3].x, poolBalls[3].y, poolBalls[3].radius, poolBalls[3].colour, "black");
+ball4C is Circle(poolBalls[4].x, poolBalls[4].y, poolBalls[4].radius, poolBalls[4].colour, "black");
+ball5C is Circle(poolBalls[5].x, poolBalls[5].y, poolBalls[5].radius, poolBalls[5].colour, "black");
+ball6C is Circle(poolBalls[6].x, poolBalls[6].y, poolBalls[6].radius, poolBalls[6].colour, "black");
+ball7C is Circle(poolBalls[7].x, poolBalls[7].y, poolBalls[7].radius, poolBalls[7].colour, "black");
+ball8C is Circle(poolBalls[8].x, poolBalls[8].y, poolBalls[8].radius, poolBalls[8].colour, "black");
+ball9C is Circle(poolBalls[9].x, poolBalls[9].y, poolBalls[9].radius, poolBalls[9].colour, "black");
+ball10C is Circle(poolBalls[10].x, poolBalls[10].y, poolBalls[10].radius, poolBalls[10].colour, "black");
+ball11C is Circle(poolBalls[11].x, poolBalls[11].y, poolBalls[11].radius, poolBalls[11].colour, "black");
+ball12C is Circle(poolBalls[12].x, poolBalls[12].y, poolBalls[12].radius, poolBalls[12].colour, "black");
+ball13C is Circle(poolBalls[13].x, poolBalls[13].y, poolBalls[13].radius, poolBalls[13].colour, "black");
+ball14C is Circle(poolBalls[14].x, poolBalls[14].y, poolBalls[14].radius, poolBalls[14].colour, "black");
+ball15C is Circle(poolBalls[15].x, poolBalls[15].y, poolBalls[15].radius, poolBalls[15].colour, "black");
+ball16C is Circle(poolBalls[16].x, poolBalls[16].y, poolBalls[16].radius, poolBalls[16].colour, "black");
+
+
+/* Draw cue */
+cue is Line(ball1.x,ball1.y, mousePointX, mousePointY, "brown");
+hypotenuseX is cue.x1 - cue.x2;
+hypotenuseY is cue.y1 - cue.y2;
+
+/* Text section (instructions and buttons) */
+instructions1 = Text("Instructions:", 320, 30, "black");
+instructions2 = Text("1. Move mouse to change direction of cue", 330, 45, "black");
+instructions3 = Text("2. Click to set cue positiont (clicking again will un-set it)", 330, 55, "black");
+instructions4 = Text("3. When ready press 'Start'", 330, 65, "black");
+playGameBtn = Button("playGameBtn", "Start", 350, 80, true);
+playGameBtn_clicked is false;
+resetGameBtn = Button("resetGameBtn", "Reset", 350, 110, true);
+resetGameBtn_clicked is false;
+
+
+/* Procedures for dealing with when buttons are clicked */
+proc gameStarted : playGameBtn_clicked {
+	if(playGameBtn_clicked && cuePositionSet && !initialHitTaken) {
+		initialHitTaken = true;
+		poolBalls[1].velocityX = hypotenuseX;
+		poolBalls[1].velocityY = hypotenuseY;
+		moveBalls(poolBalls);
+	}
+}
+proc gameReset : resetGameBtn_clicked {
+	auto i;
+	initialHitTaken = false;
+	for(i=1; i<=poolBalls#; i++) {
+		poolBalls[i].pocketed = false;
+		poolBalls[i].x = poolBalls[i].initialX;
+		poolBalls[i].y = poolBalls[i].initialY;
+		poolBalls[i].velocityX = 0;
+		poolBalls[i].velocityY = 0;
+	}
+}
+
+/* Log function used to help debug model. Prints arguments to the javascript console
+ * use: log(argument1, argument2 ..., argumentn);
+ */
+func log {
+	${{ console.log.apply(console, arguments); }}$;
+}
+func abs { 
+	return ${{ Math.abs.apply(this, arguments); }}$; 
+}
+
+/* Check for collisions with holes (if the ball has been pocketed) */
+func pocketed {
+	auto k,distanceFromHoleX,distanceFromHoleY;
+	ball = $1;
+	
+	/* Determine how far ball is from each pocket */
+	for(k=1; k<=holes#; k++) {
+		distanceFromHoleX = abs(ball.x - holes[k].x);
+		distanceFromHoleY = abs(ball.y - holes[k].y);
+
+		/* If too close to pocket (there is overlap between ball and pocket) then balls is pocketed */
+		if(distanceFromHoleX < ballWidth && distanceFromHoleY < ballWidth) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/* Check for collisions with table (vertical sides)
+ * returns 0 for no collision, 1 for collision with right cushion and 2 for collision with left 
+ */
+func verticalCollision {
+	ball = $1;
+	if(ball.x >= 240-ball.radius) {
+		return 1;
+	} else if(ball.x <= 30 + ball.radius) {
+		return 2;
+	}
+	
+	return 0;
+}
+
+/* Check for collisions with table (horizontal sides)
+ * returns 0 for no collision, 1 for collision with bottom cushion and 2 for collision with top 
+ */
+func horizontalCollision {
+	ball = $1;
+	if(ball.y >= 490-ball.radius) {
+		return 1;
+	} else if(ball.y <= 30 + ball.radius) {
+		return 2;
+	}
+	
+	return 0;
+}
+
+/* Iterates over each ball and updates its location where necessary */
+proc moveBalls {
+	auto i, j, k, ispocketed, isVerticalCollision, isHorizontalCollision, 
+		xDiff, yDiff, dist, xVelocityDifference, yVelocityDifference,
+		dotProduct, collisionScale, xCollision, yCollision,
+		combinedMass, collisionWeightA, collisionWeightB;
+	poolBalls = $1;
+
+	for(i=1; i<=poolBalls#; i++)
+	{
+		/* Limit ball velocity to between -200 and 200 */
+		if(poolBalls[i].velocityX > 200) {
+			poolBalls[i].velocityX = 200;
+		} else if(poolBalls[i].velocityX < -200) {
+			poolBalls[i].velocityX = -200;
+		}
+		if(poolBalls[i].velocityY > 200) {
+			poolBalls[i].velocityY = 200;
+		} else if(poolBalls[i].velocityY < -200) {
+			poolBalls[i].velocityY = -200;
+		}
+		
+		/* If ball hasn't already been pocketed... */
+		if(!poolBalls[i].pocketed) {
+		
+			/* Check if its about to be pocketed */
+			ispocketed = pocketed(poolBalls[i]);
+			
+			if(ispocketed) {
+				poolBalls[i].pocketed = true;
+				poolBalls[i].x = poolBalls[i].initialX + 300;
+				poolBalls[i].y = poolBalls[i].initialY + 100;
+				poolBalls[i].velocityX = 0;
+				poolBalls[i].velocityY = 0;
+			} else {
+				/* Check for collisions with table (vertical sides)*/
+				isVerticalCollision = verticalCollision(poolBalls[i]);
+				if(isVerticalCollision != 0) {
+					poolBalls[i].velocityX = poolBalls[i].velocityX * -1;
+					
+					if(isVerticalCollision == 1) {
+						poolBalls[i].x = 240-(poolBalls[i].radius+1);
+					} else {
+						poolBalls[i].x = 30 + (poolBalls[i].radius+1);
+					}
+				}
+				
+				/* Check for collisions with table (horizontal sides)*/
+				isHorizontalCollision = horizontalCollision(poolBalls[i]);
+				if(isHorizontalCollision != 0) {
+					poolBalls[i].velocityY = poolBalls[i].velocityY*-1;
+					
+					if(isHorizontalCollision == 1) {
+						poolBalls[i].y = 490-(poolBalls[i].radius+1);
+					} else {
+						poolBalls[i].y = 30 + (poolBalls[i].radius+1);
+					}
+				}
+				
+				/* Check to see if ball i is colliding with any other ball */
+				for(j=1; j<=poolBalls#; j++) {
+					if(i != j) {				
+						xDiff = poolBalls[i].x - poolBalls[j].x;
+						yDiff = poolBalls[i].y - poolBalls[j].y;
+						
+						/* Are balls i and j within collision distance? */
+						if(abs(xDiff) <= 2*ballWidth-2 && abs(yDiff) <= 2*ballWidth-2) {					
+
+							/* All the calculations needed to calculate velocities after collision */
+							dist = xDiff*xDiff + yDiff*yDiff;
+
+							xVelocityDifference = poolBalls[j].velocityX - poolBalls[i].velocityX;
+							yVelocityDifference = poolBalls[j].velocityY - poolBalls[i].velocityY;
+
+							dotProduct = xDiff * xVelocityDifference + yDiff * yVelocityDifference;
+							
+							if(dotProduct > 0) {
+								collisionScale = dotProduct / dist;
+								xCollision = xDiff * collisionScale;
+								yCollision = yDiff * collisionScale;
+								
+								combinedMass = 1 + 1;
+								collisionWeightA = 2 * 1/combinedMass;
+								collisionWeightB = 2 * 1/combinedMass;
+								
+								poolBalls[i].velocityX += collisionWeightA * xCollision;
+								poolBalls[i].velocityY += collisionWeightA * yCollision;
+								poolBalls[j].velocityX -= collisionWeightB * xCollision;
+								poolBalls[j].velocityY -= collisionWeightB * yCollision;
+							}						
+						}			
+					}
+				}		
+			}
+			/* Move the ball */
+			poolBalls[i].velocityX = poolBalls[i].velocityX-poolBalls[i].velocityX*friction;
+			poolBalls[i].velocityY = poolBalls[i].velocityY-poolBalls[i].velocityY*friction;
+			poolBalls[i].x += poolBalls[i].velocityX/80;
+			poolBalls[i].y += poolBalls[i].velocityY/80;
+		}
+	}
+	
+	after(1) {
+		/* If at least one ball is still moving with a velocity >20, re-call the procedure */
+		if(!endGame) {
+			moveBalls(poolBalls);
+		}
+	}
+}
+
+
+/* Check to see if all of the balls have stopped moving */
+func checkForEndGame {
+	auto i;
+	poolBalls = $1;
+	
+	if(initialHitTaken) {
+		for(i=1; i<poolBalls#; i++){	
+			if(abs(poolBalls[i].velocityX) > 20  || abs(poolBalls[i].velocityY) > 20) {
+				return false;
+			}
+		}
+	} else if(!initialHitTaken) {
+		return false;
+	}
+	return true;
+}
+endGame is checkForEndGame(poolBalls);
+
+
+
+picture is [
+tableCushions,table, hole1,hole2,hole3,hole4,hole5,hole6,
+triangle,
+triangleSide1, triangleSide2, triangleSide3,
+
+cue,
+
+ball1C,
+ball2C,ball3C,
+ball4C,ball5C,ball6C,
+ball7C,ball8C,ball9C,ball10C,
+ball11C,ball12C,ball13C,ball14C,ball15C,ball16C,
+
+instructions1, instructions2, instructions3, instructions4,
+playGameBtn, resetGameBtn
+];
+

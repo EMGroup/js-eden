@@ -1,0 +1,369 @@
+
+## Define the car
+car = [175,145,200,145,175,180,200,180];
+
+throttle_value = 0;
+steeringangle_value = 0;
+
+## Defines the corners of the car
+flcorner is [car[1],car[2]];
+frcorner is [car[3],car[4]];
+rlcorner is [car[5],car[6]];
+rrcorner is [car[7],car[8]];
+
+## Draw car
+faxle is Line(flcorner[1],flcorner[2],frcorner[1],frcorner[2],"black");
+raxle is Line(rlcorner[1],rlcorner[2],rrcorner[1],rrcorner[2],"black");
+centrerod is Line((flcorner[1]+frcorner[1])/2,(flcorner[2]+frcorner[2])/2,(rlcorner[1]+rrcorner[1])/2,(rlcorner[2]+rrcorner[2])/2,"black");
+
+## Length of the rear axle
+raxlelength is sqrt(pow(rrcorner[2]-rlcorner[2],2) + pow(rrcorner[1]-rlcorner[1],2));
+
+## Wheel properties
+twidth = 2.5;
+tlength = 7.5;
+topp is frcorner[2] - flcorner[2];
+tadj is frcorner[1] - flcorner[1];
+tscalew is twidth/raxlelength;
+tscalel is tlength/wheelbase;
+
+## Car properties
+wheelbase is sqrt(pow(flcorner[2]-rlcorner[2],2)+pow(flcorner[1]-rlcorner[1],2));
+srodlength is tlength;
+
+## Steering properties
+ackangle = atan(((frcorner[1]-flcorner[1])/2)/wheelbase);
+tierodlength is sqrt(pow(frcorner[1]-flcorner[1],2) + pow(frcorner[2]-flcorner[2],2)) - 2*srodlength*sin(ackangle);
+
+lrodpoint is rotate([srodlength*sin(ackangle-steeringangle)+flcorner[1],srodlength*cos(ackangle-steeringangle)+flcorner[2]],flcorner,carangle);
+rrodpoint is rotate([frcorner[1]-srodlength*sin(ackangle+steeringangle),frcorner[2]+srodlength*cos(ackangle+steeringangle)],frcorner,carangle);
+
+tierod is Line(lrodpoint[1],lrodpoint[2],rrodpoint[1],rrodpoint[2],"blue");
+rrod is Line(flcorner[1],flcorner[2],lrodpoint[1],lrodpoint[2],"blue");
+lrod is Line(frcorner[1],frcorner[2],rrodpoint[1],rrodpoint[2],"blue");
+
+## Angle of the car for tierods
+carangle is -atan2((rlcorner[1]-flcorner[1]),(rlcorner[2]-flcorner[2]));
+
+## Initially car points forward so wheels point forward as well
+flwheelpoints = [flcorner[1]-twidth,flcorner[2]-tlength,flcorner[1],flcorner[2]-tlength,flcorner[1],flcorner[2]+tlength,flcorner[1]-twidth,flcorner[2]+tlength];
+frwheelpoints = [frcorner[1],frcorner[2]-tlength,frcorner[1]+twidth,frcorner[2]-tlength,frcorner[1]+twidth,frcorner[2]+tlength,frcorner[1],frcorner[2]+tlength];
+rrwheelpoints = [rrcorner[1],rrcorner[2]-tlength,rrcorner[1]+twidth,rrcorner[2]-tlength,rrcorner[1]+twidth,rrcorner[2]+tlength,rrcorner[1],rrcorner[2]+tlength];
+rlwheelpoints = [rlcorner[1]-twidth,rlcorner[2]-tlength,rlcorner[1],rlcorner[2]-tlength,rlcorner[1],rlcorner[2]+tlength,rlcorner[1]-twidth,rlcorner[2]+tlength];
+
+flwheel is Polygon(flwheelpoints,"black");
+frwheel is Polygon(frwheelpoints,"black");
+rrwheel is Polygon(rrwheelpoints,"black");
+rlwheel is Polygon(rlwheelpoints,"black");
+
+func calcSteering {
+  para rodpoint, corner;
+  auto E, AD, AE, DE, BE, BD, K, G, angle;
+  
+  E = perpendintersect(flcorner,frcorner,rodpoint);
+  AD = sqrt(pow(frcorner[1] - flcorner[1],2) + pow(frcorner[2] - flcorner[2],2));
+  AE = sqrt(pow(E[1] - corner[1],2) + pow(E[2] - corner[2],2));
+  DE = AD - AE;
+  BE = sqrt(pow(rodpoint[2] - E[2],2) + pow(rodpoint[1] - E[1],2));
+  BD = sqrt(pow(BE,2)+pow(DE,2));
+  K = atan(BE/DE);
+  G = acos((pow(BD,2)+pow(srodlength,2)-pow(tierodlength,2))/(2*(BD)*(srodlength)));
+  angle = K + G + ackangle - 90;
+
+  return angle;
+}
+
+## Find centre of turn
+func centreofturn {
+  auto hyp, opp, adj, scale, centrex, centrey;
+  
+  hyp = (raxlelength/2) + wheelbase/(sin(abs(steeringangle)));
+  opp = rrcorner[2] - rlcorner[2];
+  adj = rrcorner[1] - rlcorner[1];
+  
+  scale = hyp/raxlelength;
+  if (steeringangle < 0) {
+    centrey = rlcorner[2] - scale*opp;
+    centrex = rlcorner[1] - scale*adj;
+  } else if (steeringangle > 0) {
+    centrey = rrcorner[2] + scale*opp;
+    centrex = rrcorner[1] + scale*adj;
+  }
+  
+  return [centrex, centrey];
+}
+
+func drawSteering {
+  CoT is centreofturn();
+  circ is Circle(CoT[1], CoT[2],2,"blue","red");
+  circlabel is Text("Centre of turn",CoT[1]-35,CoT[2]+15,"black");
+  flwheelline is Line(flcorner[1],flcorner[2],CoT[1],CoT[2],"red");
+  frwheelline is Line(frcorner[1],frcorner[2],CoT[1],CoT[2],"red");
+  rwheelline is Line(rlcorner[1],rlcorner[2],CoT[1],CoT[2],"red");
+}
+
+## Controls the steering of each wheel
+proc _steeringangle : steeringangle {
+  if (steeringangle < 0) {
+    ## Turning left
+    steeranglerightwheel = calcSteering(lrodpoint, flcorner);
+    flwheel is Polygon(rotate(flwheelpoints,flcorner,steeringangle),"black");
+    frwheel is Polygon(rotate(frwheelpoints,frcorner,-steeranglerightwheel),"black");
+  } else if (steeringangle > 0) {
+    ## Turning right
+    steerangleleftwheel = calcSteering(rrodpoint, frcorner);
+    flwheel is Polygon(rotate(flwheelpoints,flcorner,steerangleleftwheel),"black");
+    frwheel is Polygon(rotate(frwheelpoints,frcorner,steeringangle),"black");
+  }
+}
+
+## Finds the point of intersection of a line formed by point1 to point2 with a line from point3 perpendicular to this
+func perpendintersect {
+  para point1, point2, point3;
+  auto m1, m2, c1, c2, t1, t2, x, y;
+
+  t1 = point2[1] - point1[1];
+  t2 = point2[2] - point1[2];
+
+  if (t2 == 0) {
+    x = point3[1];
+    y = point2[2];
+  } else if (t1 == 0) {
+    x = point2[1];
+    y = point3[2];
+  } else {
+    m1 = t2/t1;
+    c1 = point2[2] - m1*point2[1];
+    m2 = -1/m1;
+    c2 = point3[2] - m2*point3[1];
+
+    x = (c2 - c1)/(m1 - m2);
+    y = m1*x + c1;
+  }
+
+  return [x,y];
+};
+
+steeringangle is steeringangle_value;
+
+turningradius is (raxlelength/2) + wheelbase/(sin(abs(steeringangle)));
+
+state is [car, steeringangle, throttle_value];
+
+${{ $('html').keydown(function(e) {
+  if ($('.ui-state-active').children().html() === "Canvas") {
+    if ($('input:focus').size() === 0) {
+      if (e.which == 37 && root.lookup('steeringangle_value').value() > -50) {
+        e.preventDefault();
+        root.lookup('steeringangle_value').assign(root.lookup('steeringangle_value').value()-1);
+      } else if (e.which == 38 && root.lookup('throttle_value').value() < 5) {
+        e.preventDefault();
+        root.lookup('throttle_value').assign(root.lookup('throttle_value').value()+1);
+      } else if (e.which == 39 && root.lookup('steeringangle_value').value() < 50) {
+        e.preventDefault();
+        root.lookup('steeringangle_value').assign(root.lookup('steeringangle_value').value()+1);
+      } else if (e.which == 40 && root.lookup('throttle_value').value() > -5) {
+        e.preventDefault();
+        root.lookup('throttle_value').assign(root.lookup('throttle_value').value()-1);
+      }
+    }
+  }
+}); }}$;
+
+## Driving the car
+proc _drive : state {
+  after (100) {
+    if (throttle_value < 0 && steeringangle < 0) {
+      ## Reverse and turning left
+      turn = centreofturn();
+      if (!!(turn[1])) {
+        angle = 250/turningradius * abs(throttle_value)/5;
+        car = rotate(car,turn,angle);
+        flwheelpoints = rotate(flwheelpoints,turn,angle);
+        frwheelpoints = rotate(frwheelpoints,turn,angle);
+        rlwheelpoints = rotate(rlwheelpoints,turn,angle);
+        rrwheelpoints = rotate(rrwheelpoints,turn,angle);
+      }
+    } else if (throttle_value < 0 && steeringangle == 0) {
+      ## Reverse straight
+      move = rotate([0,-(throttle_value*1)],[0,0],carangle);
+      car = translate(car,move);
+      flwheelpoints = translate(flwheelpoints,move);
+      frwheelpoints = translate(frwheelpoints,move);
+      rlwheelpoints = translate(rlwheelpoints,move);
+      rrwheelpoints = translate(rrwheelpoints,move);
+    } else if (throttle_value < 0 && steeringangle > 0) {
+      ## Reverse and turning right
+      turn = centreofturn();
+      if (!!(turn[1])) {
+        angle = 250/turningradius * abs(throttle_value)/5;
+        car = rotate(car,turn,-angle);
+        flwheelpoints = rotate(flwheelpoints,turn,-angle);
+        frwheelpoints = rotate(frwheelpoints,turn,-angle);
+        rlwheelpoints = rotate(rlwheelpoints,turn,-angle);
+        rrwheelpoints = rotate(rrwheelpoints,turn,-angle);
+      }
+    } else if (throttle_value == 0) {
+      ## Stopped
+    } else if (throttle_value > 0 && steeringangle < 0) {
+      ## Forward and turning left
+      turn = centreofturn();
+      if (!!(turn[1])) {
+        angle = 250/turningradius * abs(throttle_value)/5;
+        car = rotate(car,turn,-angle);
+        flwheelpoints = rotate(flwheelpoints,turn,-angle);
+        frwheelpoints = rotate(frwheelpoints,turn,-angle);
+        rlwheelpoints = rotate(rlwheelpoints,turn,-angle);
+        rrwheelpoints = rotate(rrwheelpoints,turn,-angle);
+      }
+    } else if (throttle_value > 0 && steeringangle == 0) {
+      ## Forward straight
+      move = rotate([0,-(throttle_value*1)],[0,0],carangle);
+      car = translate(car,move);
+      flwheelpoints = translate(flwheelpoints,move);
+      frwheelpoints = translate(frwheelpoints,move);
+      rlwheelpoints = translate(rlwheelpoints,move);
+      rrwheelpoints = translate(rrwheelpoints,move);
+    } else {
+      ## Forward and turning right
+      turn = centreofturn();
+      if (!!(turn[1])) {
+        angle = 250/turningradius * abs(throttle_value)/5;
+        car = rotate(car,turn,angle);
+        flwheelpoints = rotate(flwheelpoints,turn,angle);
+        frwheelpoints = rotate(frwheelpoints,turn,angle);
+        rlwheelpoints = rotate(rlwheelpoints,turn,angle);
+        rrwheelpoints = rotate(rrwheelpoints,turn,angle);
+      }
+    }
+  }
+  drawSteering();
+}
+
+## Slider labels
+##steeringlabel is Text("Steering Control",80,40,"black");
+##throttlelabel is Text("Throttle Control",30,110,"black");
+## p1 prefixes relate to 1st car
+## p2 prefixes relate to 2nd car
+
+p1car = [225,160,250,160,225,195,250,195];
+p2car is translate(p1car,[0,60-dist_value]);
+dist_value = 0;
+
+## Defines the corners of the cars
+p1flcorner is [p1car[1],p1car[2]];
+p1frcorner is [p1car[3],p1car[4]];
+p1rlcorner is [p1car[5],p1car[6]];
+p1rrcorner is [p1car[7],p1car[8]];
+
+p2flcorner is [p2car[1],p2car[2]];
+p2frcorner is [p2car[3],p2car[4]];
+p2rlcorner is [p2car[5],p2car[6]];
+p2rrcorner is [p2car[7],p2car[8]];
+
+## Draw parked cars
+p1faxle is Line(p1flcorner[1],p1flcorner[2],p1frcorner[1],p1frcorner[2],"black");
+p1raxle is Line(p1rlcorner[1],p1rlcorner[2],p1rrcorner[1],p1rrcorner[2],"black");
+p1centrerod is Line((p1flcorner[1]+p1frcorner[1])/2,(p1flcorner[2]+p1frcorner[2])/2,(p1rlcorner[1]+p1rrcorner[1])/2,(p1rlcorner[2]+p1rrcorner[2])/2,"black");
+
+p2faxle is Line(p2flcorner[1],p2flcorner[2],p2frcorner[1],p2frcorner[2],"black");
+p2raxle is Line(p2rlcorner[1],p2rlcorner[2],p2rrcorner[1],p2rrcorner[2],"black");
+p2centrerod is Line((p2flcorner[1]+p2frcorner[1])/2,(p2flcorner[2]+p2frcorner[2])/2,(p2rlcorner[1]+p2rrcorner[1])/2,(p2rlcorner[2]+p2rrcorner[2])/2,"black");
+
+## Initially car points forward so wheels point forward as well
+p1flwheelpoints is [p1flcorner[1]-twidth,p1flcorner[2]-tlength,p1flcorner[1],p1flcorner[2]-tlength,p1flcorner[1],p1flcorner[2]+tlength,p1flcorner[1]-twidth,p1flcorner[2]+tlength];
+p1frwheelpoints is [p1frcorner[1],p1frcorner[2]-tlength,p1frcorner[1]+twidth,p1frcorner[2]-tlength,p1frcorner[1]+twidth,p1frcorner[2]+tlength,p1frcorner[1],p1frcorner[2]+tlength];
+p1rrwheelpoints is [p1rrcorner[1],p1rrcorner[2]-tlength,p1rrcorner[1]+twidth,p1rrcorner[2]-tlength,p1rrcorner[1]+twidth,p1rrcorner[2]+tlength,p1rrcorner[1],p1rrcorner[2]+tlength];
+p1rlwheelpoints is [p1rlcorner[1]-twidth,p1rlcorner[2]-tlength,p1rlcorner[1],p1rlcorner[2]-tlength,p1rlcorner[1],p1rlcorner[2]+tlength,p1rlcorner[1]-twidth,p1rlcorner[2]+tlength];
+
+p2flwheelpoints is [p2flcorner[1]-twidth,p2flcorner[2]-tlength,p2flcorner[1],p2flcorner[2]-tlength,p2flcorner[1],p2flcorner[2]+tlength,p2flcorner[1]-twidth,p2flcorner[2]+tlength];
+p2frwheelpoints is [p2frcorner[1],p2frcorner[2]-tlength,p2frcorner[1]+twidth,p2frcorner[2]-tlength,p2frcorner[1]+twidth,p2frcorner[2]+tlength,p2frcorner[1],p2frcorner[2]+tlength];
+p2rrwheelpoints is [p2rrcorner[1],p2rrcorner[2]-tlength,p2rrcorner[1]+twidth,p2rrcorner[2]-tlength,p2rrcorner[1]+twidth,p2rrcorner[2]+tlength,p2rrcorner[1],p2rrcorner[2]+tlength];
+p2rlwheelpoints is [p2rlcorner[1]-twidth,p2rlcorner[2]-tlength,p2rlcorner[1],p2rlcorner[2]-tlength,p2rlcorner[1],p2rlcorner[2]+tlength,p2rlcorner[1]-twidth,p2rlcorner[2]+tlength];
+
+p1flwheel is Polygon(p1flwheelpoints,"black");
+p1frwheel is Polygon(p1frwheelpoints,"black");
+p1rrwheel is Polygon(p1rrwheelpoints,"black");
+p1rlwheel is Polygon(p1rlwheelpoints,"black");
+
+p2flwheel is Polygon(p2flwheelpoints,"black");
+p2frwheel is Polygon(p2frwheelpoints,"black");
+p2rrwheel is Polygon(p2rrwheelpoints,"black");
+p2rlwheel is Polygon(p2rlwheelpoints,"black");
+
+## Slider to control gap between the cars
+dist is Slider("dist",-250,0,1,0,"vertical",320,125);
+distlabel is Text("Distance Control",330,175,"black");
+winareapoints is [p1rlcorner[1]-3.5,p1rlcorner[2]+10,p1rrcorner[1]+3.5,p1rrcorner[2]+10,p2frcorner[1]+3.5,p2frcorner[2]-10,p2flcorner[1]-3.5,p2flcorner[2]-10];
+winarea is Polygon(winareapoints, "#00FF00");
+
+proc _car : car {
+  if (
+    (pt_betwn_pts([winareapoints[1],winareapoints[2]],flcorner,[winareapoints[5],winareapoints[6]])) &&	## Front left corner of car in winning area
+    (pt_betwn_pts([winareapoints[1],winareapoints[2]],frcorner,[winareapoints[5],winareapoints[6]])) && ## Front right corner of car in winning area
+    (pt_betwn_pts([winareapoints[1],winareapoints[2]],rlcorner,[winareapoints[5],winareapoints[6]])) &&	## Rear left corner of car in winning area
+    (pt_betwn_pts([winareapoints[1],winareapoints[2]],rrcorner,[winareapoints[5],winareapoints[6]]))) {	## Rear right corner of car in winning area
+      ## Win condition successful parking
+      ${{ alert("YOU'RE WINNER!"); }}$;
+      throttle_value = 0;
+  } else if (
+    (pt_betwn_pts(p1flcorner,flcorner,p1rrcorner)) ||	## Front left collides with 1st parked car
+    (pt_betwn_pts(p1flcorner,frcorner,p1rrcorner)) ||   ## Front right collides with 1st parked car
+    (pt_betwn_pts(p1flcorner,rlcorner,p1rrcorner)) ||   ## Rear left collides with 1st parked car
+    (pt_betwn_pts(p1flcorner,rrcorner,p1rrcorner)) ||   ## Rear right collides with 1st parked car
+    (pt_betwn_pts(p2flcorner,flcorner,p2rrcorner)) ||   ## Front left collides with 2nd parked car
+    (pt_betwn_pts(p2flcorner,frcorner,p2rrcorner)) ||   ## Front right collides with 2nd parked car
+    (pt_betwn_pts(p2flcorner,rlcorner,p2rrcorner)) ||   ## Rear left collides with 2nd parked car
+    (pt_betwn_pts(p2flcorner,rrcorner,p2rrcorner))) {   ## Rear right collides with 2nd parked car
+      ## Lose condition collision with parked car
+      ${{ alert("YOU'RE LOSER!"); }}$;
+      throttle_value = 0;
+  }
+}
+
+func pt_betwn_pts {
+  para tlpoint, point, brpoint;
+
+  return (
+    (tlpoint[1] <= point[1]) && (point[1] <= brpoint[1]) &&	## Check x is within range
+    (tlpoint[2] <= point[2]) && (point[2] <= brpoint[2])); 	## Check y is within range
+}
+
+swheelcent = [350,60];
+swheelouter is Circle(swheelcent[1],swheelcent[2],40,"white","black");
+
+swheelrightp is rotate([swheelcent[1]+40,swheelcent[2]],swheelcent,9*steeringangle);
+swheelleftp is rotate([swheelcent[1]-40,swheelcent[2]],swheelcent,9*steeringangle);
+swheelbottomp is rotate([swheelcent[1],swheelcent[2]+40],swheelcent,9*steeringangle);
+
+swheelright is Line(swheelcent[1],swheelcent[2],swheelrightp[1],swheelrightp[2]);
+swheelleft is Line(swheelcent[1],swheelcent[2],swheelleftp[1],swheelleftp[2]);
+swheelbottom is Line(swheelcent[1],swheelcent[2],swheelbottomp[1],swheelbottomp[2]);
+## include("models/parpar/car.jse");
+## include("models/parpar/parkedcars.jse");
+## include("models/parpar/parking.jse");
+
+## Draw everything to screen from here
+picture is [
+	winarea,							## Area to park into for win
+
+	swheelouter, swheelleft, swheelright, swheelbottom,
+
+	circ,s,throttle,steeringlabel,throttlelabel,circlabel,engine,	## Properties of moving car
+
+	faxle,raxle,flwheel,frwheel,rlwheel,rrwheel,centrerod,		## Moving car
+
+	tierod,rrod,lrod,						## Steering of moving car
+
+	flwheelline,frwheelline,rwheelline,				## Centre of turn of moving car
+
+	p1faxle, p1raxle, p1centrerod,					## Parked Car 1
+
+	p1flwheel, p1frwheel, p1rlwheel, p1rrwheel,
+
+	p2faxle, p2raxle, p2centrerod, 					## Parked Car 2
+
+	p2flwheel, p2frwheel, p2rlwheel, p2rrwheel,
+
+	dist, distlabel								## Slider for distance between cars
+];

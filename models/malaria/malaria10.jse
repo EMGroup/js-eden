@@ -1,0 +1,551 @@
+/*
+
+This file is the source for a construal of Plasmodium Vivax Malarial Infection ('the PVMI construal')
+generated for illustrative purposes in connection with the abstract:
+
+'A conception of computing with promise for medical education'
+
+by Meurig Beynon and Will Beynon, as submitted to the 5th International Online Medical Conference (IOMC 2012).
+
+To execute the construal, direct an up-to-date version of the Firefox browser at the url:
+
+http://www.dcs.warwick.ac.uk/~wmb/JsEden/js-eden
+
+paste the contents of the file into the Eden Interpreter Window, and press 'Submit'.
+
+(It may be necessary to instruct the browser to 'Continue' the loading of the script, should it report
+an 'Unresponsive script'.)
+
+When the file is loaded, a visualisation will be displayed on the Canvas and accompanying documentation
+will be accessible via the 'HTML Output' tab. 
+
+*/
+
+
+liver is Rectangle(25,215,70,70,"brown");
+## blood is Rectangle(40,40,580,100,"red");
+blood is Circle(250,250,200,"red", "red");
+organs is Circle(250,250,180,"white", "white");
+sporozoites is Circle(600,90, 5,"green","white");
+livercentre is [60, 250];
+livercell is Circle(livercentre[1],livercentre[2], 15, "yellow", "black");
+
+## library functions ...
+
+PI = 3.14159265358979;
+
+func sin {
+  ${{
+  var x1 = arguments[0];
+ 	return Math.sin(x1);      
+  }}$;
+  
+};
+
+func cos {
+  ${{
+  var x1 = arguments[0];
+ 	return Math.cos(x1);      
+  }}$;
+  
+};
+
+## picture is [blood, liver, sporozoites, livercell];
+
+## get sporozoites to migrate
+
+loc0 = [460,250];
+sporolocx is loc0[1]; sporolocy is loc0[2]; spororad = 5;
+sporozoites is Circle(sporolocx, sporolocy, spororad, "green","white");
+
+/*
+## when sporozoites are in circulation ...
+phi is theta - ... ;
+loc0 is [centtarget[1]+ 190*cos(phi), centtarget[2]- 190*sin(phi)];
+*/
+
+## sporozoites circulate in the blood
+
+centtarget = [250,250]; 
+theta = 0;
+
+cyclepoint is Text("*", centtarget[1]+ 150*cos(15*PI/15+theta), centtarget[2]- 150*sin(15*PI/15+theta), "black");
+
+loc1 is [centtarget[1]+ 190*cos(2*PI/15+theta), centtarget[2]- 190*sin(2*PI/15+theta)];
+loc2 is [centtarget[1]+ 190*cos(4*PI/15+theta), centtarget[2]- 190*sin(4*PI/15+theta)];
+loc3 is [centtarget[1]+ 190*cos(6*PI/15+theta), centtarget[2]- 190*sin(6*PI/15+theta)];
+loc4 is [centtarget[1]+ 190*cos(8*PI/15+theta), centtarget[2]- 190*sin(8*PI/15+theta)];
+
+loc5 is [centtarget[1]+ 190*cos(10*PI/15+theta), centtarget[2]- 190*sin(10*PI/15+theta)];
+loc6 is [centtarget[1]+ 190*cos(12*PI/15+theta), centtarget[2]- 190*sin(12*PI/15+theta)];
+loc7 is [centtarget[1]+ 190*cos(14*PI/15+theta), centtarget[2]- 190*sin(14*PI/15+theta)];
+loc8 is [centtarget[1]+ 190*cos(16*PI/15+theta), centtarget[2]- 190*sin(16*PI/15+theta)];
+loc9 is [centtarget[1]+ 190*cos(18*PI/15+theta), centtarget[2]- 190*sin(18*PI/15+theta)];
+
+loc10 is [centtarget[1]+ 190*cos(20*PI/15+theta), centtarget[2]- 190*sin(20*PI/15+theta)];
+loc11 is [centtarget[1]+ 190*cos(22*PI/15+theta), centtarget[2]- 190*sin(22*PI/15+theta)];
+loc12 is [centtarget[1]+ 190*cos(24*PI/15+theta), centtarget[2]- 190*sin(24*PI/15+theta)];
+loc13 is [centtarget[1]+ 190*cos(26*PI/15+theta), centtarget[2]- 190*sin(26*PI/15+theta)];
+loc14 is [centtarget[1]+ 190*cos(28*PI/15+theta), centtarget[2]- 190*sin(28*PI/15+theta)];
+
+loc15 is [centtarget[1]+ 190*cos(30*PI/15+theta), centtarget[2]- 190*sin(30*PI/15+theta)];
+
+bcrad = 6;
+
+bloodcorp1 is Circle(loc1[1], loc1[2], bcrad, "pink", "grey");
+bloodcorp2 is Circle(loc2[1], loc2[2], bcrad, "pink", "grey");
+bloodcorp3 is Circle(loc3[1], loc3[2], bcrad, "pink", "grey");
+bloodcorp4 is Circle(loc4[1], loc4[2], bcrad, "pink", "grey");
+bloodcorp5 is Circle(loc5[1], loc5[2], bcrad, "pink", "grey");
+bloodcorp6 is Circle(loc6[1], loc6[2], bcrad, "pink", "grey");
+
+bloodcorp7 is Circle(loc7[1], loc7[2], bcrad, "pink", "grey");
+bloodcorp8 is Circle(loc8[1], loc8[2], bcrad, "pink", "grey");
+bloodcorp9 is Circle(loc9[1], loc9[2], bcrad, "pink", "grey");
+bloodcorp10 is Circle(loc10[1], loc10[2], bcrad, "pink", "grey");
+bloodcorp11 is Circle(loc11[1], loc11[2], bcrad, "pink", "grey");
+bloodcorp12 is Circle(loc12[1], loc12[2], bcrad, "pink", "grey");
+
+bloodcorp13 is Circle(loc13[1], loc13[2], bcrad, "pink", "grey");
+bloodcorp14 is Circle(loc14[1], loc14[2], bcrad, "pink", "grey");
+bloodcorp15 is Circle(loc15[1], loc15[2], bcrad, "pink", "grey");
+
+
+picture is [blood, organs, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15];
+
+bloodspeed = 10;
+## higher value means slower circulation rate
+
+bloodspeed = 100;
+
+steps = 0;
+proc bloodcirc {
+	after (bloodspeed) {
+		steps++;
+		bloodcirc();
+	}
+}
+
+theta is (steps % 300) * 2 * PI/300;
+
+bloodcirc();
+
+mosquitobite is Button("bite", ((loc0[1] == 460) ? "Mosquito bites" : "Mosquito has bitten"), 480, 250, loc0[1]==460);
+
+picture is (spororad < 15) ? [explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15] : [explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15, merozoite1, merozoite2, merozoite3, merozoite4];
+
+proc bitten : bite_clicked {
+	auto theta0;
+	if (bite_clicked) {
+		theta0 = theta;
+		phi is theta - theta0;
+		loc0 is [centtarget[1]+ 190*cos(phi), centtarget[2]- 190*sin(phi)];
+	}
+}
+
+func ptsnear {
+	para p, q, near;
+	auto result;
+	result = (((p[1]-q[1])*(p[1]-q[1])+(p[2]-q[2])*(p[2]-q[2]))<(near*near));
+	return result;	
+}
+
+sporoinliver is ptsnear(livercentre,loc0,10);
+
+proc mksporogrow : sporoinliver {
+	if (sporoinliver&&(loc0!=livercentre)) {
+		loc0 = livercentre;
+	}
+}
+
+sporesgrow is Button("sporesgrow", ((spororad == 5) ? "Spores become active" : "Growth of spores has been triggered"), 130, 250, (spororad == 5)&&(loc0==livercentre));
+
+proc sporogrow : sporesgrow_clicked {
+	if (loc0 == livercentre) {
+		after (1000) {
+			if (spororad < 15) {
+				spororad++;
+				sporogrow();
+			}
+		}
+	}
+}
+
+currentstate is (sporolocx == 460) ? "Body is free of infection" : (!sporoinliver) ? "Stage 1: Sporozoites travel to the liver" : 
+	((sporoinliver && (spororad<15)) ? "Stage 2: Sporozoites invade liver cells and - when activated - grow and divide to produce merozoites" : "Stage 3: Merozoites exit the liver calls"   );
+	
+explanation is Text(currentstate, 20, 30, "black");
+
+merodisp = 5;
+merorad = 4;
+mero1x is livercentre[1]+merodisp;
+mero1y is livercentre[2]+merodisp;
+mero2x is livercentre[1]-merodisp;
+mero2y is livercentre[2]+merodisp;
+mero3x is livercentre[1]-merodisp;
+mero3y is livercentre[2]-merodisp;
+mero4x is livercentre[1]+merodisp;
+mero4y is livercentre[2]-merodisp;
+
+merozoites is [merozoite1, merozoite2, merozoite3, merozoite4];
+merozoite1 is Circle(mero1x, mero1y, merorad, "blue", "blue");
+merozoite2 is Circle(mero2x, mero2y, merorad, "blue", "blue");
+merozoite3 is Circle(mero3x, mero3y, merorad, "blue", "blue");
+merozoite4 is Circle(mero4x, mero4y, merorad, "blue", "blue");
+
+
+##############################################
+
+totalnumrbcs = 30000000000000;
+
+noofinfectablebcs0 = 900000000000;
+noofinfectablebcs = noofinfectablebcs0;
+
+propinfbcs is bcinfnum / totalnumrbcs;
+
+freeinblood is (spororad==15) ? 2000 : 0;
+
+bcinfnum = 0.0;
+bcsinfpercluster is int(bcinfnum/15);
+
+bcinfection is [bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster];
+
+merocount is freeinblood + bcinfnum;
+circuits = 0;
+
+func powerof2 {
+	para n;
+	auto result;
+	result = 1;
+	while (n>0) {
+		result = 2 * result;
+		n--;
+	}
+	return result;
+}
+
+alpha = 0.930;
+
+beta = 0.5;
+
+gamma = 0.2;
+
+divisionstage = -1;
+nohostcellsfordiv = 0;
+
+merotobekilled = false;
+
+onetoabc is int(bcinfnum * alpha);
+
+dividing is (divisionstage>=0) ? int(bcinfnum * (1-alpha) * powerof2(divisionstage)) : 0;
+
+textnumofinfectablerbcs is Text("Number of infectable RBCs: " // str(noofinfectablebcs),20,20, "red");
+
+textfreeinblood is Text("Number of merozoites free in blood: " // str(freeinblood), 20,40, "blue");
+
+textinbcs is Text("Number of merozoites sited one to a blood cell: " // str(onetoabc), 20,60, "blue");
+
+textdividing is Text("Number of merozoites generated by division in " // str(nohostcellsfordiv) // " blood cells: " // str(dividing), 20, 80, "blue");
+
+buttenterbc is Button("RBCEntry", "Proportion " // str(beta) // " of free merozoites enter bcs", 20, 120, divisionstage==-1);
+
+buttkillinf is Button("MeroKill", "Proportion " // str(1.00-gamma) // " of free merozoites killed", 20, 150, merotobekilled);
+
+buttmerodiv is Button("MeroDiv", "Proportion " // str((100 - 100*alpha)/100) // " of embedded merozoites divide stage-by-stage", 20, 180, divisionstage>=0);
+
+
+## buttnewbcsgen is Button("GenBCs", "Introduce " // str(noofinfectablebcs0) // " new blood cells, together with " // str(int((1.000-alpha)*bcinfnum)) // " to replace the exploded cells, that can be infected", 20, 210, divisionstage==-1);
+
+## picture is [textnumofinfectablerbcs, textfreeinblood, textinbcs, textdividing, buttenterbc, buttkillinf, buttmerodiv, buttnewbcsgen];
+
+## picture is [textnumofinfectablerbcs, textfreeinblood, textinbcs, textdividing, buttenterbc, buttkillinf, buttmerodiv];
+
+proc infectRBCs : RBCEntry_clicked {
+	if (RBCEntry_clicked) {
+		bcinfnum = bcinfnum + int(beta * freeinblood);
+		freeinblood = int((1-beta) * freeinblood);
+		divisionstage = 0;
+		nohostcellsfordiv = dividing;
+		merotobekilled = true; 
+	}
+} 
+
+proc killmeros : MeroKill_clicked {
+	if (MeroKill_clicked) {
+		freeinblood = int(gamma * freeinblood);
+		merotobekilled = false;
+	}
+} 
+
+proc merosdivide : MeroDiv_clicked {
+	if (MeroDiv_clicked) {
+		if ((divisionstage>=0) && (divisionstage < 4)) divisionstage++;
+		else 
+		if (divisionstage == 4){
+			bcinfnum = onetoabc;
+			freeinblood = freeinblood + dividing;
+			divisionstage = -1;
+			noofinfectablebcs = noofinfectablebcs0 + nohostcellsfordiv;
+			nohostcellsfordiv = 0;
+		}
+	}
+} 
+
+circuits = 0;
+
+proc simulatestep {
+	RBCEntry_clicked = true;
+	MeroKill_clicked = true;
+	merodivide();
+	circuits++;
+}
+
+proc merodivide {
+	if (divisionstage != -1) {
+		MeroDiv_clicked = true;
+		merodivide();
+	}
+}
+
+proc simulateproc {
+	after (100) {
+		simulatestep();
+		if (freeinblood < noofinfectablebcs) simulateproc();
+	}
+}
+
+
+
+################################
+
+proc onecircuit : steps {
+	if ((spororad==15)&&(steps == (int(steps/300)*300)) && (infpercentage<3)) simulatestep();
+};
+
+
+## visualise according to number of decimal digits in the merozoite count
+
+func ntodecls {
+	para n;
+	auto result;
+	result = [];
+	while (n>0) {
+		result = result // [int(n%10)];
+		n = int(n/10);
+	}
+	return result;
+}
+
+bcsinfdiglen is ntodecls(bcsinfpercluster);
+
+bloodcorpinf1 is Circle(loc1[1], loc1[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf2 is Circle(loc2[1], loc2[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf3 is Circle(loc3[1], loc3[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf4 is Circle(loc4[1], loc4[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf5 is Circle(loc5[1], loc5[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf6 is Circle(loc6[1], loc6[2], bcsinfdiglen#, "blue", "blue");
+
+bloodcorpinf7 is Circle(loc7[1], loc7[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf8 is Circle(loc8[1], loc8[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf9 is Circle(loc9[1], loc9[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf10 is Circle(loc10[1], loc10[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf11 is Circle(loc11[1], loc11[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf12 is Circle(loc12[1], loc12[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf13 is Circle(loc13[1], loc13[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf14 is Circle(loc14[1], loc14[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf15 is Circle(loc15[1], loc15[2], bcsinfdiglen#, "blue", "blue");
+
+rbccount = totalnumrbcs;
+unitrbc is rbccount / 15; ## have visualised 15 groups of rbc's
+
+## for P Vivax a high level of infection would be 3% - say 1 trillion rbc infected
+## 2 to the power 40 is around a trillion
+
+infpercentage is (merocount * 100)/rbccount;
+
+picture is (spororad < 15) ? [cyclepoint, explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15] : [cyclepoint, explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15, bloodcorpinf1, bloodcorpinf2, bloodcorpinf3, bloodcorpinf4, bloodcorpinf5, bloodcorpinf6, bloodcorpinf7, bloodcorpinf8, bloodcorpinf9, bloodcorpinf10, bloodcorpinf11, bloodcorpinf12, bloodcorpinf13, bloodcorpinf14, bloodcorpinf15, merozoite1, merozoite2, merozoite3, merozoite4];
+
+## additions 29/12/2011
+
+blood is Circle(250,250,205,"red", "red");
+organs is Circle(250,250,175,"white", "red");
+
+## makes blood band 30 pixels wide, and makes inner rim of blood band red
+
+bcrad = 11;
+## this radius gives room to visualise the biggest levels of infection that make sense
+
+## if we visualise only the vulnerable RBCs, then this number may increase as the simulation goes on
+## - proportion of young RBCs increases
+
+func char {
+  ${{
+  var x1 = arguments[0];
+  s = "%" + (Number(x1).toString(16));
+  return unescape(s);
+  }}$;
+};
+
+func octaltr {
+	para n;
+	if (n<10) return(str(n));
+	else return char(97 + n - 10);
+}
+
+## function round() doesn't exist in JS-Eden 
+
+func round {
+	para x;
+	return ((x - int(x))>=0.5) ? int(x)+1 : int(x);
+}
+
+func rgb2color {
+  para redval, greenval, blueval;
+  auto s, i;
+
+  ## check values are in allowable 0-255 range
+  if ((redval<0)||(greenval<0)||(blueval<0)||
+      (redval>255)||(greenval>255)||(blueval>255))
+    error("colour out of range");
+
+  ## round to nearest integer - need to have each component as a strict 2 + character length hex number - can't deal with real numbers directly, and don't need to?
+  redval = round(redval);
+  greenval = round(greenval);
+  blueval = round(blueval);
+
+  ## use the c func to get the string back 
+##  s = "";
+##  sprintf(s,"#%02x%02x%02x",redval,greenval,blueval);
+  s = "#" // octaltr(int(redval/16)) // octaltr(int(redval - int(redval/16)*16))
+		// octaltr(int(greenval/16)) // octaltr(int(greenval - int(greenval/16)*16))
+		// octaltr(int(blueval/16)) // octaltr(int(blueval - int(blueval/16)*16));
+  return s;
+}
+
+## changing the colour of the blood ...
+
+blood is Circle(250,250,205,rgb2color(255,255,0), "red");
+rb = 255; gb = 0; bb = 0;
+blood is Circle(250,250,205,rgb2color(rb,gb,bb), "red");
+
+rb is 255 - 10 * ntodecls(freeinblood)#;
+gb is 15 * ntodecls(freeinblood)#;
+
+#################################
+
+gametes = 0;
+
+
+buttmerodiv is Button("MeroDiv", "Proportion " // str((100 - 100*alpha)/100) // " of embedded merozoites divide stage-by-stage and are released into the bloodstream; others mature and are released as gametocytes", 20, 180, divisionstage>=0);
+
+proc merosdivide : MeroDiv_clicked {
+	if (MeroDiv_clicked) {
+		if ((divisionstage>=0) && (divisionstage < 4)) divisionstage++;
+		else 
+		if (divisionstage == 4){
+			bcinfnum = onetoabc - int(nohostcellsfordiv/64 * 3);
+			freeinblood = freeinblood + dividing;
+			gametes = gametes + int(nohostcellsfordiv/64 * 3);
+			divisionstage = -1;
+			noofinfectablebcs = noofinfectablebcs0 + int(nohostcellsfordiv * (1 + 3/64));
+			nohostcellsfordiv = 0;
+		}
+	}
+} 
+
+textgametesinblood is Text("Number of gametes free in blood: " // str(gametes), 20,100, "blue");
+
+ratiogammero is gametes / freeinblood;
+
+picture is [textnumofinfectablerbcs, textfreeinblood, textinbcs, textdividing, textgametesinblood, buttenterbc, buttkillinf, buttmerodiv];
+
+###################################################
+
+gametespercluster is int(gametes/15);
+
+mgametecol is "black";
+fgametecol is "white";
+
+gametediglen is ntodecls(gametespercluster);
+
+gamete1 is Circle((loc1[1]+loc2[1])/2, (loc1[2]+loc2[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete2 is Circle((loc2[1]+loc3[1])/2, (loc2[2]+loc3[2])/2, gametediglen#, fgametecol,fgametecol);
+gamete3 is Circle((loc3[1]+loc4[1])/2, (loc3[2]+loc4[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete4 is Circle((loc4[1]+loc5[1])/2, (loc4[2]+loc5[2])/2, gametediglen#, fgametecol, fgametecol);
+gamete5 is Circle((loc5[1]+loc6[1])/2, (loc5[2]+loc6[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete6 is Circle((loc6[1]+loc7[1])/2, (loc6[2]+loc7[2])/2, gametediglen#, fgametecol, fgametecol);
+gamete7 is Circle((loc7[1]+loc8[1])/2, (loc7[2]+loc8[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete8 is Circle((loc8[1]+loc9[1])/2, (loc8[2]+loc9[2])/2, gametediglen#, fgametecol, fgametecol);
+gamete9 is Circle((loc9[1]+loc10[1])/2, (loc9[2]+loc10[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete10 is Circle((loc10[1]+loc11[1])/2, (loc10[2]+loc11[2])/2, gametediglen#, fgametecol, fgametecol);
+gamete11 is Circle((loc11[1]+loc12[1])/2, (loc11[2]+loc12[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete12 is Circle((loc12[1]+loc13[1])/2, (loc12[2]+loc13[2])/2, gametediglen#, fgametecol, fgametecol);
+gamete13 is Circle((loc13[1]+loc14[1])/2, (loc13[2]+loc14[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete14 is Circle((loc14[1]+loc15[1])/2, (loc14[2]+loc15[2])/2, gametediglen#, fgametecol, fgametecol);
+gamete15 is Circle((loc15[1]+loc1[1])/2, (loc15[2]+loc1[2])/2, gametediglen#, mgametecol, mgametecol);
+
+picture is (spororad < 15) ? [cyclepoint, explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15] : [cyclepoint, explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15, bloodcorpinf1, bloodcorpinf2, bloodcorpinf3, bloodcorpinf4, bloodcorpinf5, bloodcorpinf6, bloodcorpinf7, bloodcorpinf8, bloodcorpinf9, bloodcorpinf10, bloodcorpinf11, bloodcorpinf12, bloodcorpinf13, bloodcorpinf14, bloodcorpinf15, gamete1, gamete2, gamete3, gamete4, gamete5, gamete6, gamete7, gamete8, gamete9, gamete10, gamete11, gamete12, gamete13, gamete14, gamete15, merozoite1, merozoite2, merozoite3, merozoite4];
+
+html("
+
+<br><br><br><br>
+<b>An EM construal of <i>Plasmodium Vivax</i> malarial infection</b>
+<p>
+The associated construal ('the PVMI construal') is intended to trace the stages in the development of a <i>P Vivax</i> malarial infection from the point at which the sporozoites first enter the body to the point where the infection takes full hold over it. At this preliminary stage, the construal is still only provisonal and incomplete - there are many ways in which it may be developed to add details and address limitations. Only very basic medical science and an easily accessible understanding of vivax malaria has so far been taken into account and applied. The aspiration for construals such as this - as is characteristic of Empirical Modelling (EM) - is that they may be extended and refined in an open-ended manner by interested participants. These might include (among others) medical students and educators, researchers with an interest in more in-depth modelling of malaria, and computer scientists able to enhance the construal in technical respects. By way of useful orientation, and potential justification for the imperfect nature of any initial construal, see F.E. McKenzie's paper <i>Why Model Malaria?</i> at the url: <b>http://www.sciencedirect.com/science/article/pii/S0169475800017890</b>.
+</p>
+<p>
+The generic stages of the lifecycle of the malaria parasite to which the construal relates are described by the National Institute of Allergy and Infectious Diseases (NIAID) (see the url: <b>http://www.niaid.nih.gov/topics/Malaria/Pages/lifecycle.aspx</b>) as follows:
+<ol>
+<i>
+<li>A female Anopheles mosquito carrying malaria-causing parasites feeds on a human and injects the parasites in the form of sporozoites into the bloodstream. The sporozoites travel to the liver and invade liver cells.
+</li><br>
+<li>Over 5-16 days*, the sporozoites grow, divide, and produce tens of thousands of haploid forms, called merozoites, per liver cell. Some malaria parasite species remain dormant for extended periods in the liver, causing relapses weeks or months later.
+</li><br>
+<li>The merozoites exit the liver cells and re-enter the bloodstream, beginning a cycle of invasion of red blood cells, asexual replication, and release of newly formed merozoites from the red blood cells repeatedly over 1-3 days*. This multiplication can result in thousands of parasite-infected cells in the host bloodstream, leading to illness and complications of malaria that can last for months if not treated.
+</li><br>
+<li>Some of the merozoite-infected blood cells leave the cycle of asexual multiplication. Instead of replicating, the merozoites in these cells develop into sexual forms of the parasite, called male and female gametocytes, that circulate in the bloodstream.</li>
+</i>
+</ol>
+The asterisks indicate that the time-frame depends on the malaria parasite species.
+</p>
+<p>
+In making the PVMI construal, we have focussed on the <i>P Vivax</i> species, and elaborated the generic account of infection above accordingly. This higher level of specificity is desirable in making an EM construal, as the idea is that the current state of the construal should at all times reflect the current 'actual situation' to which it refers, and greater specificity gives wider scope for elaboration and refinement. (A variant of the construal directed at a <i>generic</i> malarial infection can be derived by pasting in the contents of the extension file 'extmalaria10.jse' from the same online directory.) From the point of the model-builder, this means that - in looking at the construal - it makes sense at all times to make present-tense assertions about what is happening in the actual situation. So, for instance, the construal is first presented in a state where we can say 'at this moment the human victim has not yet been infected', and in a subsequent state we may be able to say 'this is the moment at which the first gametocyte enters the bloodstream'. (Contrast this - e.g. - with the NIAID depiction of the parasite lifecycle cited above, which can also be regarded as a form of 'visual model', where the dynamically changing correspondence between the static image and situations in the progress of an infection would be associated with pointing at different visual elements of the image.) The 'present-tense' correspondence between a construal and its referent gives EM a distinctive character as a mode of 'live modelling'. As in all live encounters, meaning is latent in the possible sensible interactions with which we become familiar. This allows the modeller to return to states of the construal at any point and revise the construal to take fuller account of the situation to which it refers e.g. by refining the visualisation or the interface for interaction, or by exploring new avenues for interaction and interpretation that can be incorporated into the repertoire of sense-making activities associated with the construal.  
+</p>
+<p>
+Some key facts regarding <i>P Vivax</i> infection that have informed the construal are:
+<ol>
+<li>that at stage 3 above <i>P Vivax</i> only enters 'young' blood cells, and accordingly rarely affects more than 2% of the total red blood cells (see www.malariasite.com/malaria/Pathology.htm).</li>
+<br>
+<li>that at all times 'almost all' the infected red blood cells host a single merozoite and in those where parasites reproduce asexually by subdivision (schizonts) there are about sixteen merozoites.</li>
+<br>
+<li>that <i>P Vivax</i> generates gametes (cf. stage 4) at the early stages of infection, in conjunction with asexual reproduction of merozoites through subdivision (see the Discussion in http://www.ajtmh.org/content/79/3/378.full) but that the number of gametes in the bloodstream is very much smaller than the number of merozoites (see the 'Relationship between <i>P. Vivax</i> sexual and asexual parasitemia' discussed at http://www.ajtmh.org/content/79/3/378.full, where empirical studies disclose that 'the median (range) ratio of sexual to asexual parasites was 0.3% (0.07-6.2%)').</li>
+</ol>
+The way in which these facts are reflected in the construal will be explained in more detail below.
+</p>
+<p>
+In accordance with EM principles, the construal is developed by identifying <i>observables</i> in the referent and finding ways to give these counterparts in the construal. For the PVMI construal, examples of observables are: whether or not the human subject has been bitten, the location of the sporozoites in the body, the number of merozoites in the bloodstream, the number of infected red blood cells, the number of gametes present in the blood. The observables in the model can be listed by opening the 'Observables' tab on the left of this webpage. (Specific subsets of observables can be selected by typing a 'regular expression' that pattern matches with specific observables into the search box at the top of the Observables panel.) Observables are subject to <i>dependency relations</i> (cf. the relationships between cells in a spreadsheet) that are also to be identified in the referent and reflected in the construal. In effect, changing the value of an observable in a 'live' interaction with the construal will automatically change the values of all observables that are dependent upon it. (You can inspect the dependencies in the model by hovering over observables whose names are highlighted in blue in the Observables panel, when the definitions of these observables are displayed.) As examples of dependency relations in the PVMI construal: the ratio of gametes to merozoites in the bloodstream depends on the number of gametes and merozoites, and the stage of the infection depends upon the current status of the parasite. 
+</p>
+<p>
+An EM construal captures the characteristics of its referent through presenting the modeller with observables that directly express or 'mimic' the qualities of the observables in the referent and the dependencies to which they are subject. This mode of capturing qualities of a referent differs from a formal representation and takes an <i>experiential</i> form. What is currently presented in the construal is experienced as 'metaphorically' representing what is experienced in the referent. In the PVMI construal, the process of developing suitable metaphors is exceptionally challenging. There are 30 trillion red blood cells for instance and at most a few million pixels on a standard computer screen. The timescale on which blood circulates round the body (once every 20 seconds) is quite different from the scale on which the <i>P. Vivax</i> parasite 
+multiplies (once about every 48 hours) and the construal has to present state-transitions at an acceptable rate for the human viewer. In view of key fact 1 above, it might be helpful to distinguish the blood cells that are young enough to be infected from the rest, but there are about a trillion of these, and most of the older blood cells play no significant role in modelling the infection since red blood cells are renewed over a period of 120 days, and this is a much longer period than that for which the infection is being tracked in this construal.</p>
+</p>
+<p>
+To interpret the construal, the viewer needs to appreciate the metaphors that have been used. The model has a dynamic circulatory behaviour to reflect the notion that the malarial infection is a cyclic and progressive activity. One cycle corresponds metaphorically to a period in the development of the <i>P Vivax</i> parasite originating with the entry of merozoites into blood cells and terminating with the release of a cluster of merozoites from a schizoid or the emergence of gametes. This leads to a dramatic increase in the number of merozoites in the bloodstream, which in turn initiates the next surge of infection of blood cells.
+</p>
+<p>
+The red annulus in the construal metaphorically represents the blood within the circulatory system and the pink circles within it clusters of red blood cells. Each of the fifteen circles represents a fifteenth part of the approximately one trillion cells that are vulnerable to infection by merozoites in the light of key fact 1. There is no visual counterpart in the model for red blood cells that, because of their age, are not vulnerable within the period of the infection being simulated. The presence of merozoites within each of the fifteen clusters of red blood cells is metaphorically represented by blue circles that are placed on top of these pink circles. Like the red blood cells, the merozoites are so numerous that they cannot be visually depicted in a strictly proportionate manner. To overcome this problem, a logarithmic scale is used in the display. Each pink circle has radius 11 to indicate that it contains of the order of 10 to the power 11 cells. The radius of the blue circle that is superimposed is similarly specified according to the number of merozoites embedded within cells of the cluster. 
+</p>
+<p>
+Another significant ingredient of the infection process is the presence of merozoites and gametes within the blood stream. The same logarithmic  convention that is used to depict red blood cells and merozoites is adopted to display the male and female gametes that are produced as the infection develops: these appear as black and white circles within the red annulus. A different metaphor is used to reflect the density of the merozoites free within the blood stream. The colour of the 'blood' within the annulus is modified as the number of merozoites increases, so that when the number of free merozoites is an N digit decimal number the 'blood colour' has a red component of 255-N*10 and a green component of N*15.
+</p>
+<p>
+The mechanism that is used to update the infection status is invoked at the end of each cycle of infection. At this point, merozoites are released into the bloodstream from schizonts and gametes emerge from other cells. In the course of a cycle, it is assumed that a certain proportion (1-gamma) of the merozoites are eliminated by the immune system, and that of the remainder a proportion (beta) enter the blood cells. Of those that enter blood cells, a small proportion (1-alpha) subdivide to form schizonts and even fewer generate gametocytes. The supply of young blood cells is also replenished. The way in which this mechanism has been constructed and the specific parameters used (which have been chosen - somewhat arbitrarily - but so as to be in accordance with key facts above) can be inspected by redefining the screen display thus:
+<p>
+picture is [textnumofinfectablerbcs, textfreeinblood, textinbcs, textdividing, textgametesinblood, buttenterbc, buttkillinf, buttmerodiv];
+</p>
+To restore the original display, the following definition should be reintroduced:
+<p>
+picture is (spororad < 15) ? [cyclepoint, explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15] : [cyclepoint, explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15, bloodcorpinf1, bloodcorpinf2, bloodcorpinf3, bloodcorpinf4, bloodcorpinf5, bloodcorpinf6, bloodcorpinf7, bloodcorpinf8, bloodcorpinf9, bloodcorpinf10, bloodcorpinf11, bloodcorpinf12, bloodcorpinf13, bloodcorpinf14, bloodcorpinf15, gamete1, gamete2, gamete3, gamete4, gamete5, gamete6, gamete7, gamete8, gamete9, gamete10, gamete11, gamete12, gamete13, gamete14, gamete15, merozoite1, merozoite2, merozoite3, merozoite4];
+</p>
+</p>
+");

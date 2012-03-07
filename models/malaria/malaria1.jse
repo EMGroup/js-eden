@@ -1,0 +1,851 @@
+
+
+liver is Rectangle(25,215,70,70,"brown");
+## blood is Rectangle(40,40,580,100,"red");
+blood is Circle(250,250,200,"red", "red");
+organs is Circle(250,250,180,"white", "white");
+
+
+bloodrad = 200;
+bloodwidth = 20;
+
+blood is Circle(250,250,bloodrad,"red", "red");
+organs is Circle(250,250,bloodrad-bloodwidth,"white", "red");
+
+sporozoites is Circle(600,90, 5,"green","white");
+livercentre is [60, 250];
+livercell is Circle(livercentre[1],livercentre[2], 15, "yellow", "black");
+
+
+## library functions ...
+
+PI = 3.14159265358979;
+
+func sin {
+  ${{
+  var x1 = arguments[0];
+ 	return Math.sin(x1);      
+  }}$;
+  
+};
+
+func cos {
+  ${{
+  var x1 = arguments[0];
+ 	return Math.cos(x1);      
+  }}$;
+  
+};
+
+## picture is [blood, liver, sporozoites, livercell];
+
+## get sporozoites to migrate
+
+loc0 = [460,250];
+sporolocx is loc0[1]; sporolocy is loc0[2]; spororad = 5;
+sporozoites is Circle(sporolocx, sporolocy, spororad, "green","white");
+
+/*
+## when sporozoites are in circulation ...
+phi is theta - ... ;
+loc0 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(phi), centtarget[2]- (bloodrad-bloodwidth/2)*sin(phi)];
+*/
+
+## sporozoites circulate in the blood
+
+centtarget = [250,250]; 
+theta = 0;
+
+cyclepoint is Text("*", centtarget[1]+ 150*cos(15*PI/15+theta), centtarget[2]- 150*sin(15*PI/15+theta), "black");
+
+loc1 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(2*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(2*PI/15+theta)];
+loc2 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(4*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(4*PI/15+theta)];
+loc3 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(6*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(6*PI/15+theta)];
+loc4 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(8*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(8*PI/15+theta)];
+
+loc5 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(10*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(10*PI/15+theta)];
+loc6 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(12*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(12*PI/15+theta)];
+loc7 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(14*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(14*PI/15+theta)];
+loc8 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(16*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(16*PI/15+theta)];
+loc9 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(18*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(18*PI/15+theta)];
+
+loc10 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(20*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(20*PI/15+theta)];
+loc11 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(22*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(22*PI/15+theta)];
+loc12 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(24*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(24*PI/15+theta)];
+loc13 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(26*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(26*PI/15+theta)];
+loc14 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(28*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(28*PI/15+theta)];
+
+loc15 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(30*PI/15+theta), centtarget[2]- (bloodrad-bloodwidth/2)*sin(30*PI/15+theta)];
+
+bcrad = 6;
+
+bloodcorp1 is Circle(loc1[1], loc1[2], bcrad, "pink", "grey");
+bloodcorp2 is Circle(loc2[1], loc2[2], bcrad, "pink", "grey");
+bloodcorp3 is Circle(loc3[1], loc3[2], bcrad, "pink", "grey");
+bloodcorp4 is Circle(loc4[1], loc4[2], bcrad, "pink", "grey");
+bloodcorp5 is Circle(loc5[1], loc5[2], bcrad, "pink", "grey");
+bloodcorp6 is Circle(loc6[1], loc6[2], bcrad, "pink", "grey");
+
+bloodcorp7 is Circle(loc7[1], loc7[2], bcrad, "pink", "grey");
+bloodcorp8 is Circle(loc8[1], loc8[2], bcrad, "pink", "grey");
+bloodcorp9 is Circle(loc9[1], loc9[2], bcrad, "pink", "grey");
+bloodcorp10 is Circle(loc10[1], loc10[2], bcrad, "pink", "grey");
+bloodcorp11 is Circle(loc11[1], loc11[2], bcrad, "pink", "grey");
+bloodcorp12 is Circle(loc12[1], loc12[2], bcrad, "pink", "grey");
+
+bloodcorp13 is Circle(loc13[1], loc13[2], bcrad, "pink", "grey");
+bloodcorp14 is Circle(loc14[1], loc14[2], bcrad, "pink", "grey");
+bloodcorp15 is Circle(loc15[1], loc15[2], bcrad, "pink", "grey");
+
+
+picture is [blood, organs, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15];
+
+bloodspeed = 10;
+## higher value means slower circulation rate
+
+bloodspeed = 100;
+
+steps = 0;
+proc bloodcirc {
+	after (bloodspeed) {
+		steps++;
+		bloodcirc();
+	}
+}
+
+theta is (steps % 300) * 2 * PI/300;
+
+bloodcirc();
+
+mosquitobite is Button("bite", ((loc0[1] == 460) ? "Mosquito bites" : "Mosquito has bitten"), 480, 250, loc0[1]==460);
+
+picture is (spororad < 15) ? [explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15] : [explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15, merozoite1, merozoite2, merozoite3, merozoite4];
+
+proc bitten : bite_clicked {
+	auto theta0;
+	if (bite_clicked) {
+		theta0 = theta;
+		phi is theta - theta0;
+		loc0 is [centtarget[1]+ (bloodrad-bloodwidth/2)*cos(phi), centtarget[2]- (bloodrad-bloodwidth/2)*sin(phi)];
+	}
+}
+
+func ptsnear {
+	para p, q, near;
+	auto result;
+	result = (((p[1]-q[1])*(p[1]-q[1])+(p[2]-q[2])*(p[2]-q[2]))<(near*near));
+	return result;	
+}
+
+sporoinliver is ptsnear(livercentre,loc0,10);
+
+proc mksporogrow : sporoinliver {
+	if (sporoinliver&&(loc0!=livercentre)) {
+		loc0 = livercentre;
+	}
+}
+
+sporesgrow is Button("sporesgrow", ((spororad == 5) ? "Spores become active" : "Growth of spores has been triggered"), 130, 250, (spororad == 5)&&(loc0==livercentre));
+
+proc sporogrow : sporesgrow_clicked {
+	if (loc0 == livercentre) {
+		after (1000) {
+			if (spororad < 15) {
+				spororad++;
+				sporogrow();
+			}
+		}
+	}
+}
+
+currentstate is (sporolocx == 460) ? "Body is free of infection" : (!sporoinliver) ? "Stage 1: Sporozoites travel to the liver" : 
+	((sporoinliver && (spororad<15)) ? "Stage 2: Sporozoites invade liver cells and - when activated - grow and divide to produce merozoites" : "Stage 3: Merozoites exit the liver calls"   );
+	
+explanation is Text(currentstate, 20, 40, "black");
+
+merodisp = 5;
+merorad = 4;
+mero1x is livercentre[1]+merodisp;
+mero1y is livercentre[2]+merodisp;
+mero2x is livercentre[1]-merodisp;
+mero2y is livercentre[2]+merodisp;
+mero3x is livercentre[1]-merodisp;
+mero3y is livercentre[2]-merodisp;
+mero4x is livercentre[1]+merodisp;
+mero4y is livercentre[2]-merodisp;
+
+merozoites is [merozoite1, merozoite2, merozoite3, merozoite4];
+merozoite1 is Circle(mero1x, mero1y, merorad, "blue", "blue");
+merozoite2 is Circle(mero2x, mero2y, merorad, "blue", "blue");
+merozoite3 is Circle(mero3x, mero3y, merorad, "blue", "blue");
+merozoite4 is Circle(mero4x, mero4y, merorad, "blue", "blue");
+
+
+##############################################
+
+totalnumrbcs = 30000000000000;
+
+noofinfectablebcs0 = 900000000000;
+noofinfectablebcs = noofinfectablebcs0;
+
+propinfbcs is bcinfnum / totalnumrbcs;
+
+freeinblood is (spororad==15) ? 2000 : 0;
+
+bcinfnum = 0.0;
+bcsinfpercluster is int(bcinfnum/15);
+
+bcinfection is [bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster,bcsinfpercluster];
+
+merocount is freeinblood + bcinfnum;
+circuits = 0;
+
+func powerof2 {
+	para n;
+	auto result;
+	result = 1;
+	while (n>0) {
+		result = 2 * result;
+		n--;
+	}
+	return result;
+}
+
+alpha = 0.930;
+
+beta = 0.5;
+
+gamma = 0.2;
+
+divisionstage = -1;
+nohostcellsfordiv = 0;
+
+merotobekilled = false;
+
+onetoabc is int(bcinfnum * alpha);
+
+dividing is (divisionstage>=0) ? int(bcinfnum * (1-alpha) * powerof2(divisionstage)) : 0;
+
+textnumofinfectablerbcs is Text("Number of infectable RBCs: " // str(noofinfectablebcs),20,20, "red");
+
+textfreeinblood is Text("Number of merozoites free in blood: " // str(freeinblood), 20,40, "blue");
+
+textinbcs is Text("Number of merozoites sited one to a blood cell: " // str(onetoabc), 20,60, "blue");
+
+textdividing is Text("Number of merozoites generated by division in " // str(nohostcellsfordiv) // " blood cells: " // str(dividing), 20, 80, "blue");
+
+buttenterbc is Button("RBCEntry", "Proportion " // str(beta) // " of free merozoites enter bcs", 20, 120, divisionstage==-1);
+
+buttkillinf is Button("MeroKill", "Proportion " // str(1.00-gamma) // " of free merozoites killed", 20, 150, merotobekilled);
+
+buttmerodiv is Button("MeroDiv", "Proportion " // str((100 - 100*alpha)/100) // " of embedded merozoites divide stage-by-stage", 20, 180, divisionstage>=0);
+
+
+## buttnewbcsgen is Button("GenBCs", "Introduce " // str(noofinfectablebcs0) // " new blood cells, together with " // str(int((1.000-alpha)*bcinfnum)) // " to replace the exploded cells, that can be infected", 20, 210, divisionstage==-1);
+
+## picture is [textnumofinfectablerbcs, textfreeinblood, textinbcs, textdividing, buttenterbc, buttkillinf, buttmerodiv, buttnewbcsgen];
+
+## picture is [textnumofinfectablerbcs, textfreeinblood, textinbcs, textdividing, buttenterbc, buttkillinf, buttmerodiv];
+
+proc infectRBCs : RBCEntry_clicked {
+	if (RBCEntry_clicked) {
+		bcinfnum = bcinfnum + int(beta * freeinblood);
+		freeinblood = int((1-beta) * freeinblood);
+		divisionstage = 0;
+		nohostcellsfordiv = dividing;
+		merotobekilled = true; 
+	}
+} 
+
+proc killmeros : MeroKill_clicked {
+	if (MeroKill_clicked) {
+		freeinblood = int(gamma * freeinblood);
+		merotobekilled = false;
+	}
+} 
+
+proc merosdivide : MeroDiv_clicked {
+	if (MeroDiv_clicked) {
+		if ((divisionstage>=0) && (divisionstage < 4)) divisionstage++;
+		else 
+		if (divisionstage == 4){
+			bcinfnum = onetoabc;
+			freeinblood = freeinblood + dividing;
+			divisionstage = -1;
+			noofinfectablebcs = noofinfectablebcs0 + nohostcellsfordiv;
+			nohostcellsfordiv = 0;
+		}
+	}
+} 
+
+circuits = 0;
+
+proc simulatestep {
+	RBCEntry_clicked = true;
+	MeroKill_clicked = true;
+	merodivide();
+	circuits++;
+}
+
+proc merodivide {
+	if (divisionstage != -1) {
+		MeroDiv_clicked = true;
+		merodivide();
+	}
+}
+
+proc simulateproc {
+	after (100) {
+		simulatestep();
+		if (freeinblood < noofinfectablebcs) simulateproc();
+	}
+}
+
+
+
+################################
+
+proc onecircuit : steps {
+	if ((spororad==15)&&(steps == (int(steps/300)*300)) && (infpercentage<3)) simulatestep();
+};
+
+
+## visualise according to number of decimal digits in the merozoite count
+
+func ntodecls {
+	para n;
+	auto result;
+	result = [];
+	while (n>0) {
+		result = result // [int(n%10)];
+		n = int(n/10);
+	}
+	return result;
+}
+
+bcsinfdiglen is ntodecls(bcsinfpercluster);
+
+bloodcorpinf1 is Circle(loc1[1], loc1[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf2 is Circle(loc2[1], loc2[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf3 is Circle(loc3[1], loc3[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf4 is Circle(loc4[1], loc4[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf5 is Circle(loc5[1], loc5[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf6 is Circle(loc6[1], loc6[2], bcsinfdiglen#, "blue", "blue");
+
+bloodcorpinf7 is Circle(loc7[1], loc7[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf8 is Circle(loc8[1], loc8[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf9 is Circle(loc9[1], loc9[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf10 is Circle(loc10[1], loc10[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf11 is Circle(loc11[1], loc11[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf12 is Circle(loc12[1], loc12[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf13 is Circle(loc13[1], loc13[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf14 is Circle(loc14[1], loc14[2], bcsinfdiglen#, "blue", "blue");
+bloodcorpinf15 is Circle(loc15[1], loc15[2], bcsinfdiglen#, "blue", "blue");
+
+rbccount = totalnumrbcs;
+unitrbc is rbccount / 15; ## have visualised 15 groups of rbc's
+
+## for P Vivax a high level of infection would be 3% - say 1 trillion rbc infected
+## 2 to the power 40 is around a trillion
+
+infpercentage is (merocount * 100)/rbccount;
+
+picture is (spororad < 15) ? [cyclepoint, explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15] : [cyclepoint, explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15, bloodcorpinf1, bloodcorpinf2, bloodcorpinf3, bloodcorpinf4, bloodcorpinf5, bloodcorpinf6, bloodcorpinf7, bloodcorpinf8, bloodcorpinf9, bloodcorpinf10, bloodcorpinf11, bloodcorpinf12, bloodcorpinf13, bloodcorpinf14, bloodcorpinf15, merozoite1, merozoite2, merozoite3, merozoite4];
+
+## additions 29/12/2011
+
+## blood is Circle(250,250,200,"red", "red");
+## organs is Circle(250,250,180,"white", "white");
+
+bloodrad = 205;
+bloodwidth = 30;
+
+blood is Circle(250,250,bloodrad,"red", "red");
+organs is Circle(250,250,bloodrad-bloodwidth,"white", "red");
+
+## makes blood band 30 pixels wide, and makes inner rim of blood band red
+
+bcrad = 11;
+## this radius gives room to visualise the biggest levels of infection that make sense
+
+## if we visualise only the vulnerable RBCs, then this number may increase as the simulation goes on
+## - proportion of young RBCs increases
+
+func char {
+  ${{
+  var x1 = arguments[0];
+  s = "%" + (Number(x1).toString(16));
+  return unescape(s);
+  }}$;
+};
+
+func octaltr {
+	para n;
+	if (n<10) return(str(n));
+	else return char(97 + n - 10);
+}
+
+## function round() doesn't exist in JS-Eden 
+
+func round {
+	para x;
+	return ((x - int(x))>=0.5) ? int(x)+1 : int(x);
+}
+
+func rgb2color {
+  para redval, greenval, blueval;
+  auto s, i;
+
+  ## check values are in allowable 0-255 range
+  if ((redval<0)||(greenval<0)||(blueval<0)||
+      (redval>255)||(greenval>255)||(blueval>255))
+    error("colour out of range");
+
+  ## round to nearest integer - need to have each component as a strict 2 + character length hex number - can't deal with real numbers directly, and don't need to?
+  redval = round(redval);
+  greenval = round(greenval);
+  blueval = round(blueval);
+
+  ## use the c func to get the string back 
+##  s = "";
+##  sprintf(s,"#%02x%02x%02x",redval,greenval,blueval);
+  s = "#" // octaltr(int(redval/16)) // octaltr(int(redval - int(redval/16)*16))
+		// octaltr(int(greenval/16)) // octaltr(int(greenval - int(greenval/16)*16))
+		// octaltr(int(blueval/16)) // octaltr(int(blueval - int(blueval/16)*16));
+  return s;
+}
+
+## changing the colour of the blood ...
+
+## blood is Circle(250,250,205,rgb2color(255,255,0), "red");
+rb = 255; gb = 0; bb = 0;
+## blood is Circle(250,250,205,rgb2color(rb,gb,bb), "red");
+blood is Circle(250,250,bloodrad,rgb2color(rb,gb,bb), "red");
+
+rb is 255 - 10 * ntodecls(freeinblood)#;
+gb is 15 * ntodecls(freeinblood)#;
+
+#################################
+
+gametes = 0;
+
+
+buttmerodiv is Button("MeroDiv", "Proportion " // str((100 - 100*alpha)/100) // " of embedded merozoites divide stage-by-stage and are released into the bloodstream; others mature and are released as gametocytes", 20, 180, divisionstage>=0);
+
+proc merosdivide : MeroDiv_clicked {
+	if (MeroDiv_clicked) {
+		if ((divisionstage>=0) && (divisionstage < 4)) divisionstage++;
+		else 
+		if (divisionstage == 4){
+			bcinfnum = onetoabc - int(nohostcellsfordiv/64 * 3);
+			freeinblood = freeinblood + dividing;
+			gametes = gametes + int(nohostcellsfordiv/64 * 3);
+			divisionstage = -1;
+			noofinfectablebcs = noofinfectablebcs0 + int(nohostcellsfordiv * (1 + 3/64));
+			nohostcellsfordiv = 0;
+		}
+	}
+} 
+
+textgametesinblood is Text("Number of gametes free in blood: " // str(gametes), 20,100, "blue");
+
+ratiogammero is gametes / freeinblood;
+
+picture is [textnumofinfectablerbcs, textfreeinblood, textinbcs, textdividing, textgametesinblood, buttenterbc, buttkillinf, buttmerodiv];
+
+###################################################
+
+gametespercluster is int(gametes/15);
+
+mgametecol is "black";
+fgametecol is "white";
+
+gametediglen is ntodecls(gametespercluster);
+
+gamete1 is Circle((loc1[1]+loc2[1])/2, (loc1[2]+loc2[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete2 is Circle((loc2[1]+loc3[1])/2, (loc2[2]+loc3[2])/2, gametediglen#, fgametecol,fgametecol);
+gamete3 is Circle((loc3[1]+loc4[1])/2, (loc3[2]+loc4[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete4 is Circle((loc4[1]+loc5[1])/2, (loc4[2]+loc5[2])/2, gametediglen#, fgametecol, fgametecol);
+gamete5 is Circle((loc5[1]+loc6[1])/2, (loc5[2]+loc6[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete6 is Circle((loc6[1]+loc7[1])/2, (loc6[2]+loc7[2])/2, gametediglen#, fgametecol, fgametecol);
+gamete7 is Circle((loc7[1]+loc8[1])/2, (loc7[2]+loc8[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete8 is Circle((loc8[1]+loc9[1])/2, (loc8[2]+loc9[2])/2, gametediglen#, fgametecol, fgametecol);
+gamete9 is Circle((loc9[1]+loc10[1])/2, (loc9[2]+loc10[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete10 is Circle((loc10[1]+loc11[1])/2, (loc10[2]+loc11[2])/2, gametediglen#, fgametecol, fgametecol);
+gamete11 is Circle((loc11[1]+loc12[1])/2, (loc11[2]+loc12[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete12 is Circle((loc12[1]+loc13[1])/2, (loc12[2]+loc13[2])/2, gametediglen#, fgametecol, fgametecol);
+gamete13 is Circle((loc13[1]+loc14[1])/2, (loc13[2]+loc14[2])/2, gametediglen#, mgametecol, mgametecol);
+gamete14 is Circle((loc14[1]+loc15[1])/2, (loc14[2]+loc15[2])/2, gametediglen#, fgametecol, fgametecol);
+gamete15 is Circle((loc15[1]+loc1[1])/2, (loc15[2]+loc1[2])/2, gametediglen#, mgametecol, mgametecol);
+
+picture is (spororad < 15) ? [cyclepoint, explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15] : [cyclepoint, explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15, bloodcorpinf1, bloodcorpinf2, bloodcorpinf3, bloodcorpinf4, bloodcorpinf5, bloodcorpinf6, bloodcorpinf7, bloodcorpinf8, bloodcorpinf9, bloodcorpinf10, bloodcorpinf11, bloodcorpinf12, bloodcorpinf13, bloodcorpinf14, bloodcorpinf15, gamete1, gamete2, gamete3, gamete4, gamete5, gamete6, gamete7, gamete8, gamete9, gamete10, gamete11, gamete12, gamete13, gamete14, gamete15, merozoite1, merozoite2, merozoite3, merozoite4];
+
+
+blood is Circle(250,250,200,"red", "red");
+
+blood is Circle(250,250,200,rgb2color(rb,gb,bb), "red");
+
+
+freeinblood is (spororad==15) ? 10 : 0;
+
+rb is 255 - 4 * freeinblood;
+gb is 4 * freeinblood;
+
+organs is Circle(250,250,180,"white", "red");
+bcrad = 6;
+
+## cyclepoint is Text("*", centtarget[1]+ 150*cos(15*PI/15+theta), centtarget[2]- 150*sin(15*PI/15+theta), "black");
+cyclepoint is Text("", centtarget[1]+ 150*cos(15*PI/15+theta), centtarget[2]- 150*sin(15*PI/15+theta), "black");
+
+
+bcinfection is [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+
+randnum = 0;
+
+func ntobool15ls {
+	para n;
+	auto result;
+	result = [];
+	n = n+32768;
+	while (n>0) {
+		result = result // [int(n%2)];
+		n = int(n/2);
+	}
+	return result;
+}
+
+randls is ntobool15ls(randnum);
+
+drand1 is  int(randls[1]) * int(randls[2]) * int(randls[3]);
+drand2 is int(randls[2]) * int(randls[3]) * int(randls[4]);
+drand3 is int(randls[3]) * int(randls[4]) * int(randls[5]);
+drand4 is int(randls[4]) * int(randls[5]) * int(randls[6]);
+drand5 is int(randls[5]) * int(randls[6]) * int(randls[7]);
+drand6 is int(randls[6]) * int(randls[7]) * int(randls[8]);
+drand7 is int(randls[7]) * int(randls[8]) * int(randls[9]);
+drand8 is int(randls[8]) * int(randls[9]) * int(randls[10]);
+drand9 is int(randls[9]) * int(randls[10]) * int(randls[11]);
+drand10 is int(randls[10]) * int(randls[11]) * int(randls[12]);
+drand11 is int(randls[11]) * int(randls[12]) * int(randls[13]);
+drand12 is int(randls[12]) * int(randls[13]) * int(randls[14]);
+drand13 is int(randls[13]) * int(randls[14]) * int(randls[15]);
+drand14 is int(randls[14]) * int(randls[15]) * int(randls[1]);
+drand15 is int(randls[15]) * int(randls[1]) * int(randls[2]);
+
+rand1 is  int(randls[1]) * int(randls[2]);
+rand2 is int(randls[2]) * int(randls[3]);
+rand3 is int(randls[3]) * int(randls[4]);
+rand4 is int(randls[4]) * int(randls[5]);
+rand5 is int(randls[5]) * int(randls[6]);
+rand6 is int(randls[6]) * int(randls[7]);
+rand7 is int(randls[7]) * int(randls[8]);
+rand8 is int(randls[8]) * int(randls[9]);
+rand9 is int(randls[9]) * int(randls[10]);
+rand10 is int(randls[10]) * int(randls[11]);
+rand11 is int(randls[11]) * int(randls[12]);
+rand12 is int(randls[12]) * int(randls[13]);
+rand13 is int(randls[13]) * int(randls[14]);
+rand14 is int(randls[14]) * int(randls[15]);
+rand15 is int(randls[15]) * int(randls[1]);
+
+grand1 is rand1 * rand8;
+grand2 is rand2 * rand9;
+grand3 is rand3 * rand10;
+grand4 is rand4 * rand11;
+grand5 is rand5 * rand12;
+grand6 is rand6 * rand13;
+grand7 is rand7 * rand14;
+grand8 is rand8 * rand15;
+grand9 is rand9 * rand1;
+grand10 is rand10 * rand2;
+grand11 is rand11 * rand3;
+grand12 is rand12 * rand4;
+grand13 is rand13 * rand5;
+grand14 is rand14 * rand6;
+grand15 is rand15 * rand7;
+
+bcinfection is [rand1, rand2, rand3, rand4, rand5, rand6, rand7, rand8, rand9, rand10, rand11, rand12, rand13, rand14, rand15];
+
+## freeinblood = 2000;
+
+bcinfnum1 is bcinfection[1];
+bcinfnum2 is bcinfection[2];
+bcinfnum3 is bcinfection[3];
+bcinfnum4 is bcinfection[4];
+bcinfnum5 is bcinfection[5];
+bcinfnum6 is bcinfection[6];
+bcinfnum7 is bcinfection[7];
+bcinfnum8 is bcinfection[8];
+bcinfnum9 is bcinfection[9];
+bcinfnum10 is bcinfection[10];
+bcinfnum11 is bcinfection[11];
+bcinfnum12 is bcinfection[12];
+bcinfnum13 is bcinfection[13];
+bcinfnum14 is bcinfection[14];
+bcinfnum15 is bcinfection[15];
+
+merocount is freeinblood + bcinfection[1]+bcinfection[2]+bcinfection[3]+bcinfection[4]+bcinfection[5]+bcinfection[6]+bcinfection[7]+bcinfection[8]+bcinfection[9]+bcinfection[10]+bcinfection[11]+bcinfection[12]+bcinfection[13]+bcinfection[14]+bcinfection[15];
+
+stage1 = -1;
+stage2 = -1;
+stage3 = -1;
+stage4 = -1;
+stage5 = -1;
+stage6 = -1;
+stage7 = -1;
+stage8 = -1;
+stage9 = -1;
+stage10 = -1;
+stage11 = -1;
+stage12 = -1;
+stage13 = -1;
+stage14 = -1;
+stage15 = -1;
+
+currbcinfnum1 = 0;
+currbcinfnum2 = 0;
+currbcinfnum3 = 0;
+currbcinfnum4 = 0;
+currbcinfnum5 = 0;
+currbcinfnum6 = 0;
+currbcinfnum7 = 0;
+currbcinfnum8 = 0;
+currbcinfnum9 = 0;
+currbcinfnum10 = 0;
+currbcinfnum11 = 0;
+currbcinfnum12 = 0;
+currbcinfnum13 = 0;
+currbcinfnum14 = 0;
+currbcinfnum15 = 0;
+
+currgrand1 = 0;
+currgrand2 = 0;
+currgrand3 = 0;
+currgrand4 = 0;
+currgrand5 = 0;
+currgrand6 = 0;
+currgrand7 = 0;
+currgrand8 = 0;
+currgrand9 = 0;
+currgrand10 = 0;
+currgrand11 = 0;
+currgrand12 = 0;
+currgrand13 = 0;
+currgrand14 = 0;
+currgrand15 = 0;
+
+bloodcorpinf1 is Circle(loc1[1], loc1[2], currbcinfnum1 + stage1 + 1, "blue", "blue");
+bloodcorpinf2 is Circle(loc2[1], loc2[2], currbcinfnum2 + stage2 + 1, "blue", "blue");
+bloodcorpinf3 is Circle(loc3[1], loc3[2], currbcinfnum3 + stage3 + 1, "blue", "blue");
+bloodcorpinf4 is Circle(loc4[1], loc4[2], currbcinfnum4 + stage4 + 1, "blue", "blue");
+bloodcorpinf5 is Circle(loc5[1], loc5[2], currbcinfnum5 + stage5 + 1, "blue", "blue");
+bloodcorpinf6 is Circle(loc6[1], loc6[2], currbcinfnum6 + stage6 + 1, "blue", "blue");
+bloodcorpinf7 is Circle(loc7[1], loc7[2], currbcinfnum7 + stage7 + 1, "blue", "blue");
+bloodcorpinf8 is Circle(loc8[1], loc8[2], currbcinfnum8 + stage8 + 1, "blue", "blue");
+bloodcorpinf9 is Circle(loc9[1], loc9[2], currbcinfnum9 + stage9 + 1, "blue", "blue");
+bloodcorpinf10 is Circle(loc10[1], loc10[2], currbcinfnum10 + stage10 + 1, "blue", "blue");
+bloodcorpinf11 is Circle(loc11[1], loc11[2], currbcinfnum11 + stage11 + 1, "blue", "blue");
+bloodcorpinf12 is Circle(loc12[1], loc12[2], currbcinfnum12 + stage12 + 1, "blue", "blue");
+bloodcorpinf13 is Circle(loc13[1], loc13[2], currbcinfnum13 + stage13 + 1, "blue", "blue");
+bloodcorpinf14 is Circle(loc14[1], loc14[2], currbcinfnum14 + stage14 + 1, "blue", "blue");
+bloodcorpinf15 is Circle(loc15[1], loc15[2], currbcinfnum15 + stage15 + 1, "blue", "blue");
+
+gamete1 is Circle((loc1[1]+loc2[1])/2, (loc1[2]+loc2[2])/2, currgrand1, mgametecol, mgametecol);
+gamete2 is Circle((loc2[1]+loc3[1])/2, (loc2[2]+loc3[2])/2, currgrand2, fgametecol,fgametecol);
+gamete3 is Circle((loc3[1]+loc4[1])/2, (loc3[2]+loc4[2])/2, currgrand3, mgametecol, mgametecol);
+gamete4 is Circle((loc4[1]+loc5[1])/2, (loc4[2]+loc5[2])/2, currgrand4, fgametecol, fgametecol);
+gamete5 is Circle((loc5[1]+loc6[1])/2, (loc5[2]+loc6[2])/2, currgrand5, mgametecol, mgametecol);
+gamete6 is Circle((loc6[1]+loc7[1])/2, (loc6[2]+loc7[2])/2, currgrand6, fgametecol, fgametecol);
+gamete7 is Circle((loc7[1]+loc8[1])/2, (loc7[2]+loc8[2])/2, currgrand7, mgametecol, mgametecol);
+gamete8 is Circle((loc8[1]+loc9[1])/2, (loc8[2]+loc9[2])/2, currgrand8, fgametecol, fgametecol);
+gamete9 is Circle((loc9[1]+loc10[1])/2, (loc9[2]+loc10[2])/2, currgrand9, mgametecol, mgametecol);
+gamete10 is Circle((loc10[1]+loc11[1])/2, (loc10[2]+loc11[2])/2, currgrand10, fgametecol, fgametecol);
+gamete11 is Circle((loc11[1]+loc12[1])/2, (loc11[2]+loc12[2])/2, currgrand11, mgametecol, mgametecol);
+gamete12 is Circle((loc12[1]+loc13[1])/2, (loc12[2]+loc13[2])/2, currgrand12, fgametecol, fgametecol);
+gamete13 is Circle((loc13[1]+loc14[1])/2, (loc13[2]+loc14[2])/2, currgrand13, mgametecol, mgametecol);
+gamete14 is Circle((loc14[1]+loc15[1])/2, (loc14[2]+loc15[2])/2, currgrand14, fgametecol, fgametecol);
+gamete15 is Circle((loc15[1]+loc1[1])/2, (loc15[2]+loc1[2])/2, currgrand15, mgametecol, mgametecol);
+
+steps = 0;
+
+proc onecircuit : steps {
+	if ((spororad==15)&&(steps == (int(steps/300)*300))&&(infpercentage<10)) {
+		randnum = rand();
+		currbcinfnum1 = (currbcinfnum1 == 0) ? currbcinfnum1 + rand1 : 1;
+		currbcinfnum2 = (currbcinfnum2 == 0) ? currbcinfnum2 + rand2 : 1;
+		currbcinfnum3 = (currbcinfnum3 == 0) ? currbcinfnum3 + rand3 : 1;
+		currbcinfnum4 = (currbcinfnum4 == 0) ? currbcinfnum4 + rand4 : 1;
+		currbcinfnum5 = (currbcinfnum5 == 0) ? currbcinfnum5 + rand5 : 1;
+		currbcinfnum6 = (currbcinfnum6 == 0) ? currbcinfnum6 + rand6 : 1;
+		currbcinfnum7 = (currbcinfnum7 == 0) ? currbcinfnum7 + rand7 : 1;
+		currbcinfnum8 = (currbcinfnum8 == 0) ? currbcinfnum8 + rand8 : 1;
+		currbcinfnum9 = (currbcinfnum9 == 0) ? currbcinfnum9 + rand9 : 1;
+		currbcinfnum10 = (currbcinfnum10 == 0) ? currbcinfnum10 + rand10 : 1;
+		currbcinfnum11 = (currbcinfnum11 == 0) ? currbcinfnum11 + rand11 : 1;
+		currbcinfnum12 = (currbcinfnum12 == 0) ? currbcinfnum12 + rand12 : 1;
+		currbcinfnum13 = (currbcinfnum13 == 0) ? currbcinfnum13 + rand13 : 1;
+		currbcinfnum14 = (currbcinfnum14 == 0) ? currbcinfnum14 + rand14 : 1;
+		currbcinfnum15 = (currbcinfnum15 == 0) ? currbcinfnum15 + rand15 : 1;
+		
+		currgrand1 = (currgrand1 == 0) ? currgrand1 + grand1 : 1;
+		currgrand2 = (currgrand2 == 0) ? currgrand2 + grand2 : 1;
+		currgrand3 = (currgrand3 == 0) ? currgrand3 + grand3 : 1;
+		currgrand4 = (currgrand4 == 0) ? currgrand4 + grand4 : 1;
+		currgrand5 = (currgrand5 == 0) ? currgrand5 + grand5 : 1;
+		currgrand6 = (currgrand6 == 0) ? currgrand6 + grand6 : 1;
+		currgrand7 = (currgrand7 == 0) ? currgrand7 + grand7 : 1;
+		currgrand8 = (currgrand8 == 0) ? currgrand8 + grand8 : 1;
+		currgrand9 = (currgrand9 == 0) ? currgrand9 + grand9 : 1;
+		currgrand10 = (currgrand10 == 0) ? currgrand10 + grand10 : 1;
+		currgrand11 = (currgrand11 == 0) ? currgrand11 + grand11 : 1;
+		currgrand12 = (currgrand12 == 0) ? currgrand12 + grand12 : 1;
+		currgrand13 = (currgrand13 == 0) ? currgrand13 + grand13 : 1;
+		currgrand14 = (currgrand14 == 0) ? currgrand14 + grand14 : 1;
+		currgrand15 = (currgrand15 == 0) ? currgrand15 + grand15 : 1;
+		
+		if ((drand1==1)||stage1>=0) stage1++;
+		if ((drand2==1)||stage2>=0) stage2++;
+		if ((drand3==1)||stage3>=0) stage3++;
+		if ((drand4==1)||stage4>=0) stage4++;
+		if ((drand5==1)||stage5>=0) stage5++;
+		if ((drand6==1)||stage6>=0) stage6++;
+		if ((drand7==1)||stage7>=0) stage7++;
+		if ((drand8==1)||stage8>=0) stage8++;
+		if ((drand9==1)||stage9>=0) stage9++;
+		if ((drand10==1)||stage10>=0) stage10++;
+		if ((drand11==1)||stage11>=0) stage11++;
+		if ((drand12==1)||stage12>=0) stage12++;
+		if ((drand13==1)||stage13>=0) stage13++;
+		if ((drand14==1)||stage14>=0) stage14++;
+		if ((drand15==1)||stage15>=0) stage15++;
+		
+		if (stage1 == 4) { stage1 = -1; currbcinfnum1 = 0; freeinblood++;};
+		if (stage2 == 4) { stage2 = -1; currbcinfnum2 = 0; freeinblood++;};
+		if (stage3 == 4) { stage3 = -1; currbcinfnum3 = 0; freeinblood++;};
+		if (stage4 == 4) { stage4 = -1; currbcinfnum4 = 0; freeinblood++;};
+		if (stage5 == 4) { stage5 = -1; currbcinfnum5 = 0; freeinblood++;};
+		if (stage6 == 4) { stage6 = -1; currbcinfnum6 = 0; freeinblood++;};
+		if (stage7 == 4) { stage7 = -1; currbcinfnum7 = 0; freeinblood++;};
+		if (stage8 == 4) { stage8 = -1; currbcinfnum8 = 0; freeinblood++;};
+		if (stage9 == 4) { stage9 = -1; currbcinfnum9 = 0; freeinblood++;};
+		if (stage10 == 4) { stage10 = -1; currbcinfnum10 = 0; freeinblood++;};
+		if (stage11 == 4) { stage11 = -1; currbcinfnum11 = 0; freeinblood++;};
+		if (stage12 == 4) { stage12 = -1; currbcinfnum12 = 0; freeinblood++;};
+		if (stage13 == 4) { stage13 = -1; currbcinfnum13 = 0; freeinblood++;};
+		if (stage14 == 4) { stage14 = -1; currbcinfnum14 = 0; freeinblood++;};
+		if (stage15 == 4) { stage15 = -1; currbcinfnum15 = 0; freeinblood++;};
+	}
+};
+
+gametes is currgrand1 +  currgrand2 + currgrand3 + currgrand4 + currgrand5 + currgrand6 + currgrand7 + currgrand8 + currgrand9 + currgrand10 + currgrand11 + currgrand12 + currgrand13 + currgrand14 + currgrand15;
+
+title is Div("title", 20,15,600,20,"<b>A simple construal of stages in the malaria parasite life cycle</b>");
+
+blood is Circle(centtarget[1],centtarget[2],bloodrad,rgb2color(rb,gb,bb),"red");
+organs is Circle(centtarget[1],centtarget[2],bloodrad-bloodwidth,"white", "red");
+
+currentstate is (sporolocx == centtarget[1]+bloodrad+5) ? "Body is free of infection" : (!sporoinliver) ? "Stage 1: Sporozoites travel to the liver" : ((sporoinliver && (spororad<15)) ? "Stage 2: Sporozoites invade liver cells and - when activated - grow and divide to produce merozoites" : ((gametes == 0) ? "Stage 3: Merozoites exit the liver calls to cyclically invade red blood cells" : "Stage 4: Some infected blood cells leave the cycle of asexual multiplication"  ));
+
+centtarget = [230,250];
+
+bloodrad = 180;
+bloodwidth = 20;
+bcrad = 6;
+
+explanation is Text(currentstate, 20, 45, "black");
+
+loc0 is [centtarget[1]+bloodrad+5, centtarget[2]];
+
+/*
+bloodrad = 185;
+bloodwidth = 30;
+bcrad = 11;
+*/
+
+mosquitobite is Button("bite", ((loc0[1] == centtarget[1]+bloodrad+5) ? "Mosquito bites" : "Mosquito has bitten"), centtarget[1]+bloodrad+25, centtarget[2], loc0[1]==centtarget[1]+bloodrad+5);
+livercentre is [60, centtarget[2]];
+liver is Rectangle(25,centtarget[2]-35,70,70,"brown");
+sporesgrow is Button("sporesgrow", ((spororad == 5) ? "Spores become active" : "Growth of spores has been triggered"), 130, centtarget[2], (spororad == 5)&&(loc0==livercentre));
+
+picture is (spororad < 15) ? [title,cyclepoint, explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15] : [title, cyclepoint, explanation, mosquitobite, blood, organs, cyclepoint, sporesgrow, liver, livercell, sporozoites, bloodcorp1, bloodcorp2, bloodcorp3, bloodcorp4, bloodcorp5, bloodcorp6, bloodcorp7, bloodcorp8, bloodcorp9, bloodcorp10, bloodcorp11, bloodcorp12, bloodcorp13, bloodcorp14, bloodcorp15, bloodcorpinf1, bloodcorpinf2, bloodcorpinf3, bloodcorpinf4, bloodcorpinf5, bloodcorpinf6, bloodcorpinf7, bloodcorpinf8, bloodcorpinf9, bloodcorpinf10, bloodcorpinf11, bloodcorpinf12, bloodcorpinf13, bloodcorpinf14, bloodcorpinf15, gamete1, gamete2, gamete3, gamete4, gamete5, gamete6, gamete7, gamete8, gamete9, gamete10, gamete11, gamete12, gamete13, gamete14, gamete15, merozoite1, merozoite2, merozoite3, merozoite4];
+
+merototal is (merocount==0) ? 0 : powerof2(merocount);
+gametestotal is (gametes==0) ? 0 : powerof2(gametes);
+freeinbloodtotal is (freeinblood==0) ? 0 : powerof2(freeinblood);
+
+infpercentage is (merototal * 100)/rbccount;
+
+/*
+Tell the story
+
+merocount|gametes$|^freeinblood
+
+merocount|gametes$|^freeinblood|.*total$
+merocount|gametes$|^freeinblood|.*total$|infpercen|rbcc
+
+constrain to sensible behaviour in some way
+fix the stages - the explanation observable
+
+*/
+
+
+
+html("
+<b>Notes on a simple construal of stages in the life-cycle of a malaria parasite</b>
+<p>
+This animation is primarily designed to show the key stages in the life cycle of a malarial parasite. It corresponds only to the human phase of the life-cycle of the parasite.
+</p>
+<p>To exercise the construal, press the buttons:
+<ol>
+<li>to simulate a mosquito bite</li>
+<li>to render the sporozoites active when they reach the liver.</li>
+</ol>
+</p>
+<p>
+Some observables that can be monitored are:
+<br>
+<table border = \"1\">
+  <tr>
+    <th>Name</th>
+    <th>Interpretation</th>
+	<th>Definition</th>
+  </tr>
+  <tr>
+    <td>rbccount</td>
+    <td>The total number of red blood corpuscles</td>
+	<td>30000000000000</td>
+  </tr>
+  <tr>
+    <td>rb</td>
+    <td>The red component of the colour used to depict the bloodstream</td>
+	<td>255 - 4 * freeinblood</td>
+  </tr>
+  <tr>
+    <td>gb</td>
+    <td>The green component of the colour used to depict the bloodstream</td>
+	<td>4 * freeinblood;</td>
+  </tr>
+  <tr>
+    <td>freeinblood</td>
+    <td>The total number of merozoites free in the blood on a logarithmic scale</td>
+	<td><i>Explicitly computed</i></td>
+  </tr>
+  <tr>
+    <td>gametes</td>
+    <td>The total number of gametes in the blood on a logarithmic scale</td>
+	<td><i>Explicitly computed</i></td>
+  </tr>
+</table> 
+</p>
+<p>These observables can be inspected by pasting the following regular expression into the Search Box at the top of the Observables panel:
+</p>
+<p>
+<b>bcinfnum2|^rb|gb|gam.*s$|^f.*d$</b>
+</p>
+<p>
+or less cryptically, but less succintly:
+</p>
+<p>
+<b>bcinfnum2|^rb|gb|gametes$|^freeinblood$</b>
+</p>
+");

@@ -1,0 +1,258 @@
+/*
+each cell on the board represented by number
+
+0 = empty ( white )
+1 = ship occupied but hitted (red)
+2 = ship occupied (blue)
+3 = fired but missed (black)
+4 = fired and hit (green)
+5 = been shoted at but missed (yellow)
+*/
+
+
+currentplayer = 1;
+isfired = false;
+
+/*
+game type
+1 player vs player
+2 player vs ai
+3 ai vs ai
+*/
+gametpye = 1;
+
+p1sboard = [
+[2,0,0,0,0,0,0,0,0,0],
+[2,0,0,0,0,0,0,0,0,0],
+[2,0,0,0,0,2,0,0,0,0],
+[2,0,0,0,0,2,0,0,0,0],
+[0,0,0,0,0,0,0,2,0,0],
+[0,0,0,0,0,0,0,2,0,0],
+[0,0,2,2,2,2,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,2,2,0,0]];
+
+p1tboard = [
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0]];
+
+p2sboard = [
+[0,0,0,0,0,0,0,0,0,0],
+[2,0,0,0,2,2,2,2,0,0],
+[2,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,2,0,0],
+[0,0,0,0,2,2,0,2,0,0],
+[0,0,0,0,0,0,0,2,0,0],
+[0,0,0,0,0,0,0,2,0,0],
+[0,2,2,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0]];
+
+p2tboard = [
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0]];
+
+/*
+observables for AI
+*/
+firsthitcell = [0,0];
+nextshot = [0,0];
+ishit = false;
+up = [0,-1];
+down = [0,1];
+left = [-1,0];
+right = [1,0];
+shoted  = [];
+testup = false;
+testdown = false;
+testright = false;
+testleft = false;
+canup = true;
+candown = true;
+canright = true;
+canleft = true;
+numhit = 0;
+quitsunkmode = true;
+freecells = [
+[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],
+[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],
+[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],
+[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],
+[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],
+[6,1],[6,2],[9,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],
+[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],
+[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],
+[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],
+[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]];
+freecellsize is freecells#;
+
+proc shot {
+	para x,y;
+	auto s,t,result;
+	
+		switch(currentplayer) {
+		case 1:
+			t = p1tboard;
+			s = p2sboard;
+			if(t[x][y] == 3 ||t[x][y] == 4) {
+				if(gametype != 3) {
+					${{
+					alert("You have fired at this location before.");
+					}}$;
+				}
+			}
+			else if(s[x][y] == 2) {
+				s[x][y] = 1;
+				t[x][y] = 4;
+				
+				if(gametype != 3) {			
+					${{
+					alert("Hit!!");
+					}}$;
+				}
+			}
+			else {
+				s[x][y] = 3;
+				t[x][y] = 3;
+			}
+			p1tboard = t;
+			p2sboard = s;
+			break;
+		case 2 :
+			t = p2tboard;
+			s = p1sboard;
+			if(s[x][y] == 2) {
+				s[x][y] = 1;
+				t[x][y] = 4;				
+				if(gametype == 1) {
+					${{
+						alert("Hit!!");
+					}}$;
+				}
+				else {
+					ishit = true;
+					firsthitcell = [x,y];
+				}
+			}
+			else {
+				s[x][y] = 5;
+				t[x][y] = 3;
+				ishit = false;
+			}
+			p2tboard = t;
+			p1sboard = s;
+			break;
+		}
+};
+
+func randcellindex {
+	${{
+		var size = arguments[0];
+		return Math.floor(Math.random()* size);
+	}}$;
+};
+
+proc AIturn {
+	if(!ishit) {
+		AItrialShot();
+	}
+	else {
+		AISunkShot();
+	}
+};
+
+proc AISunkShot {
+	auto i, index;
+	i = 1;
+	/*
+	if(nextshot != [0,0]) {
+		if(nextshot[1] == 1) {
+			canleft = false;
+		}
+		if(nextshot[1] == 10) {
+			canright = false;
+		}
+		if(nextshot[2] == 1) {
+			canup = false;
+		}
+		if(nextshot[2] == 10) {
+			candown = false;
+		}
+	}
+	else {
+		if(firsthitcell[1] == 1) {
+			canleft = false;
+		}
+		if(firsthitcell[1] == 10) {
+			canright = false;
+		}
+		if(firsthitcell[2] == 1) {
+			canup = false;
+		}
+		if(firsthitcell[2] == 10) {
+			candown = false;
+		}
+	}
+	*/
+	
+	if(!testleft) {
+		nextshot[1] = firsthitcell[1] + left[1];
+		nextshot[2] = firsthitcell[2] + left[2];
+		testleft = true;
+	}
+	else if(!testright) {
+		nextshot[1] = firsthitcell[1] + right[1];
+		nextshot[2] = firsthitcell[2] + right[2];
+		testright = true;
+	}
+	else if(!testup) {
+		nextshot[1] = firsthitcell[1] + up[1];
+		nextshot[2] = firsthitcell[2] + up[2];
+		testup = true;
+	}
+	else if(!testdown) {
+		nextshot[1] = firsthitcell[1] + down[1];
+		nextshot[2] = firsthitcell[2] + down[2];
+		testdown = true;
+	}
+	
+	if(nextshot[1] > 0 && nextshot[2] > 0) {
+		shot(nextshot[1],nextshot[2]);
+		for(i = 1; i <= freecells# ; i++ ) {
+			if(freecells[i][1] == nextshot[1] && freecells[i][2] == nextshot[2]) {
+				index = i;
+			}
+		}
+		delete freecells, index - 1;
+	}
+	currentplayer = 1;
+}
+
+proc AItrialShot {
+	auto target,cellindex;
+	cellindex = randcellindex(freecellsize) + 1;
+	target = freecells[cellindex];
+	if(currentplayer == 2) {
+			shot(target[1],target[2]);
+			delete freecells, cellindex - 1;
+	}
+	currentplayer = 1;
+	##update(3);
+};
