@@ -29,28 +29,6 @@
 			"runfile": "models/numberLine/run.e"
 		},
 		{
-			"name": "Malaria1",
-			"author": "Meurig and Will Beynon",
-			"year": "2012",
-			"description": "Stages in the malaria parasite life cycle",
-			"runfile": "models/malaria/malaria1.jse"
-		},
-		{
-                        "name": "Malaria2",
-                        "author": "Meurig and Will Beynon",
-                        "year": "2012",
-                        "description": "A construal of Plasmodium Vivax infection",
-                        "runfile": "models/malaria/malaria2.jse"
-                },
-		{
-
-                        "name": "Malaria2a",
-                        "author": "Meurig and Will Beynon",
-                        "year": "2012",
-                        "description": "A simple construal for the cycle of Plasmodium Vivax infection",
-                        "runfile": "models/malaria/malaria2a.jse"
-                },
-		{
 			"name": "2-Ball Eightball",
 			"author": "Jess Nickson",
 			"year": "2012",
