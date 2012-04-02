@@ -171,13 +171,14 @@ proc clearCanvas { ${{
   var canvas = document.getElementById("d1canvas");
   canvas.width = canvas.width;
 
-  $("#eden-content > :input").each(function() {
+  $("#eden-content > :not(canvas)").each(function() {
 	this.togarbage = true;
   });
+
 }}$; };
 
 proc cleanupCanvas { ${{
-  $("#eden-content > :input").each(function() {
+  $("#eden-content > :not(canvas)").each(function() {
 	if (this.togarbage == true) {
 		$(this).remove();
 	}
@@ -191,6 +192,8 @@ proc drawPicture : picture {
   ${{
   var picture = context.lookup('picture').value();
   var canvas = $("#d1canvas").get(0).getContext('2d');
+
+  console.log("DRAWING");
 
   if (picture === undefined) { return; }
 
@@ -358,6 +361,9 @@ Div.prototype.draw = function(context) {
   var me = "canvas_" + this.name;
   var me2 = this.name;
   var but = $("#"+me).get(0);
+
+	content.log("Drawing a DIV");
+
   if (but === undefined) {
 	var dis = "";
 	if (this.enabled == true) { dis = ""; }

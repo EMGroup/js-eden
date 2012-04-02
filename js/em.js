@@ -378,7 +378,7 @@ function js_eden_init() {
 		async: true
 	});
 
-	setTimeout(session_update,1000);
+	//setTimeout(session_update,1000);
 
 	$(window).resize(function() {
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
