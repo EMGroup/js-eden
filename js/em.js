@@ -1,23 +1,3 @@
-
-// XXX: need to get rid of this function, much more sensible to have observation of the symbol table
-// and add entries as they are added
-function printSymbolTable() {
-	$('#symbol-table').html('');
-	$.each(root.symbols, function(name,symbol) { 
-		if (symbol.definition !== undefined) {
-			$('<li></li>').text(symbol.eden_definition + '; = ' + symbol.value()).appendTo($('#symbol-table')).click(function() { $('#source').text(symbol.eden_definition + ';'); });
-		} else {
-			$('<li></li>').text(name + ' = ').append(
-				$('<input type="text" />').val(symbol.value()).change(function(e) {
-					var $input = $(this);
-					symbol.assign(Number($input.val()));
-					setTimeout(printSymbolTable);
-				})
-			).appendTo($('#symbol-table'));
-		}
-	});
-}
-
 var selected_observable = null;
 var selected_function = null;
 
@@ -31,68 +11,20 @@ function printObservables(pattern) {
 		if (name.search(reg) == -1) { return; }
 		if (symbol.definition !== undefined) {
 			var subs = symbol.eden_definition.substring(0,4);
-			if (subs == "proc" || subs == "func") { return; }
-		}
-
-		var val = symbol.value();
-		var valhtml;
-		if (typeof val == "boolean") { valhtml = "<span class='special_text'>"+val+"</span>"; }
-		else if (typeof val == "undefined") { valhtml = "<span class='error_text'>undefined</span>"; }
-		else if (typeof val == "string") { valhtml = "<span class='string_text'>\""+val+"\"</span>"; }
-		else if (typeof val == "number") { valhtml = "<span class='numeric_text'>"+val+"</span>"; }
-		else { valhtml = val; }
-
-		var namehtml;
-		if (symbol.definition !== undefined) {
-			namehtml = "<span class=\"hasdef_text\">"+name+"</span>";
-		} else {
-			namehtml = name;
-		}
-
-		var ele = $('<div id="sbobs_' + name + '" class="result-element"></div>');
-		ele.html(namehtml + "<span class='result_value'> = " + valhtml + "</span>").appendTo($('#observable-results'));
-		ele.get(0).symbol = symbol;
-	});
-
-	$(".obs-watch-check").change(function() {
-		if (this.checked == true) {
-			current_view.push($(this).parent().get(0).symbol);
-		} else {
-			//Need to remove it from the view.
-		}
-	});
-
-	$("#observable-results > div").hover(
-		function() {
-			if (this != selected_observable) {
-				$(this).animate({backgroundColor: "#eaeaea"}, 100);
-			}
-			var info = $('#observable-info');
-
-			if (this.symbol.definition !== undefined) {
-				var iname = info.find('#observable-info-name');
-				iname.text(this.symbol.eden_definition);
-				info.css("left", "" + (this.offsetLeft + this.offsetWidth) + "px");
-				info.css("top", "" + (this.offsetTop + 125 - 8 - ((info[0].offsetHeight / 2))) + "px");
-				info.show();
+			if (subs == "proc") {
+				add_procedure(symbol, name);
+				//return;
+			} else if (subs == "func") {
+				add_function(symbol, name);
+				//return;
 			} else {
-				info.hide();
+				add_observable(symbol,name);
 			}
-		}, function() {
-			$('#observable-info').hide();
-			if (this != selected_observable) {
-				$(this).animate({backgroundColor: "white"}, 100);
-			}
-		}	
-	).click(function() {
-		if (selected_observable != null) {
-			$(selected_observable).animate({backgroundColor: "white"}, 100);
+		} else {
+			add_observable(symbol, name);
 		}
-		selected_observable = this;
-		$(this).animate({backgroundColor: "#ffebc9"}, 100);
-
-		this.dialog = observable_dialog(this.symbol, this.dialog);
 	});
+
 
 	if ($('#observable-results')[0].offsetHeight > (14*16)) {
 		$('#observable-scrollup').show();
@@ -103,120 +35,6 @@ function printObservables(pattern) {
 	}
 }
 
-function printFunctions(pattern) {
-	funcspos = 0;
-
-	$('#function-results').html('');
-	var reg = new RegExp(pattern+".*");
-	$.each(root.symbols, function(name,symbol) { 
-		if (name.search(reg) == -1) { return; }
-		if (symbol.definition === undefined) { return; }
-		if (symbol.eden_definition === undefined) { return; }
-
-		var subs = symbol.eden_definition.substring(0,4);
-		if (subs != "func") { return; }
-
-		var funchtml = name;
-		var details;
-		if (edenfunctions.functions != undefined && edenfunctions.functions[name] !== undefined) {
-			details = edenfunctions.functions[name];
-			funchtml = funchtml + "<span class='result_value'> ( ";
-			if (edenfunctions.functions[name].parameters !== undefined) {
-				for (x in edenfunctions.functions[name].parameters) {
-					funchtml = funchtml + x + ", ";
-				}
-				funchtml = funchtml.substr(0,funchtml.length-2) + " )</span>";
-			} else {
-				funchtml = funchtml + " )</span>";
-			}
-		}
-
-		var resel = $('<div class="result-element"></div>');
-		resel.html(funchtml).appendTo($('#function-results'));
-		resel.get(0).details = details;
-		resel.get(0).symbol = symbol;
-	});
-
-	$("#function-results > div").hover(
-		function() {
-			if (this != selected_function) {
-				$(this).animate({backgroundColor: "#eaeaea"}, 100);
-			}
-
-			var info = $('#observable-info');
-
-			if (this.details !== undefined) {
-				var iname = info.find('#observable-info-name');
-				iname.text(this.details.description);
-				info.css("left", "" + (this.offsetLeft + this.offsetWidth) + "px");
-				info.css("top", "" + (this.offsetTop + 125 - 8 - ((info[0].offsetHeight / 2))) + "px");
-				info.show();
-			} else {
-				info.hide();
-			}
-		}, function() {
-			$('#observable-info').hide();
-			if (this != selected_function) {
-				$(this).animate({backgroundColor: "white"}, 100);
-			}
-		}	
-		).click(function() {
-		if (selected_function != null) {
-			$(selected_function).animate({backgroundColor: "white"}, 100);
-		}
-		selected_function = this;
-		$(this).animate({backgroundColor: "#ffebc9"}, 100);
-
-		this.dialog = function_dialog(this.symbol, this.dialog);
-	});
-
-	if ($('#function-results')[0].offsetHeight > (14*16)) {
-		$('#function-scrollup').show();
-		$('#function-scrolldown').show();
-	} else {
-		$('#function-scrollup').hide();
-		$('#function-scrolldown').hide();
-	}
-}
-
-function printProcedures(pattern) {
-	procspos = 0;
-
-	$('#procedure-results').html('');
-	var reg = new RegExp(pattern+".*");
-	$.each(root.symbols, function(name,symbol) { 
-		if (name.search(reg) == -1) { return; }
-		if (symbol.definition === undefined) { return; }
-		if (symbol.eden_definition === undefined) { return; }
-
-		var subs = symbol.eden_definition.substring(0,4);
-		if (subs != "proc") { return; }
-
-		var proc = $('<div class="result-element"></div>');
-		proc.text(name).appendTo($('#procedure-results'));
-
-		proc.get(0).symbol = symbol;
-	});
-
-	$("#procedure-results > div").hover(
-		function() {
-			$(this).animate({backgroundColor: "#eaeaea"}, 100);
-		}, function() {
-			$(this).animate({backgroundColor: "white"}, 100);
-		}	
-		).click(function() {
-		
-		this.dialog = procedure_dialog(this.symbol, this.dialog);
-	});
-
-	if ($('#procedure-results')[0].offsetHeight > (14*16)) {
-		$('#procedure-scrollup').show();
-		$('#procedure-scrolldown').show();
-	} else {
-		$('#procedure-scrollup').hide();
-		$('#procedure-scrolldown').hide();
-	}
-}
 
 var selected_project = null;
 
@@ -266,9 +84,7 @@ function printProjects(pattern) {
 }
 
 function printAllUpdates() {
-	//printObservables($('#observable-search')[0].value);
-	printFunctions($('#function-search')[0].value);
-	printProcedures($('#procedure-search')[0].value);
+	printObservables($('#observable-search')[0].value);
 }
 
 var $dialog;
@@ -426,7 +242,7 @@ function js_eden_init() {
 			success: function(data) {
 				//edenfunctions = JSON.parse(data);
 				edenfunctions = data;
-				printFunctions("");
+				printObservables("");
 			},
 			cache: false,
 			async: true
@@ -487,55 +303,7 @@ function js_eden_init() {
 		});
 		printObservables("");
 
-		$('#function-scrollup').click(function() {
-			funcspos = funcspos + (14*16);
-			if (funcspos > 0) { funcspos = 0; }
-			$('#function-results > div').animate({top: ""+funcspos+"px"},300);
-		}).hover(function() {
-			$(this).animate({backgroundColor: "#fafafa"}, 100);
-		}, function() {
-			$(this).animate({backgroundColor: "white"}, 100);
-		});
-
-		$('#function-scrolldown').click(function() {
-			funcspos = funcspos - (14*16);
-			if (funcspos <= 0 - ($('#function-results')[0].offsetHeight)) { funcspos = funcspos + (14*16); }
-			$('#function-results > div').animate({top: ""+funcspos+"px"},300);
-		}).hover(function() {
-			$(this).animate({backgroundColor: "#fafafa"}, 100);
-		}, function() {
-			$(this).animate({backgroundColor: "white"}, 100);
-		});
-
-		$("#function-search").keyup(function() {
-			printFunctions(this.value);
-		});
-		printFunctions("");
-
-		$('#procedure-scrollup').click(function() {
-			procspos = procspos + (14*16);
-			if (procspos > 0) { procspos = 0; }
-			$('#procedure-results > div').animate({top: ""+procspos+"px"},300);
-		}).hover(function() {
-			$(this).animate({backgroundColor: "#fafafa"}, 100);
-		}, function() {
-			$(this).animate({backgroundColor: "white"}, 100);
-		});
-
-		$('#procedure-scrolldown').click(function() {
-			procspos = procspos - (14*16);
-			if (procspos <= 0 - ($('#procedure-results')[0].offsetHeight)) { procspos = procspos + (14*16); }
-			$('#procedure-results > div').animate({top: ""+procspos+"px"},300);
-		}).hover(function() {
-			$(this).animate({backgroundColor: "#fafafa"}, 100);
-		}, function() {
-			$(this).animate({backgroundColor: "white"}, 100);
-		});
-
-		$("#procedure-search").keyup(function() {
-			printProcedures(this.value);
-		});
-		printProcedures("");
+		
 
 		$("#project-search").keyup(function() {
 			printProjects(this.value);
@@ -573,7 +341,7 @@ function js_eden_init() {
 			else { valhtml = val; }
 
 
-			me.html(namehtml + "<span class='result_value'> = " + valhtml + "</span>");
+			me.html("<li class=\"type-observable\">" + namehtml + "<span class='result_value'> = " + valhtml + "</span></li>");
 		});
 
 

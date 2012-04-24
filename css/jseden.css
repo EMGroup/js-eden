@@ -1,3 +1,15 @@
+li.type-function {
+	list-style-image: url('../images/type-function.png');
+}
+
+li.type-observable {
+	list-style-image: url('../images/type-observable.png');
+}
+
+li.type-procedure {
+	list-style-image: url('../images/type-agent.png');
+}
+
 div#side-bar {
 	position: absolute;
 	width: 250px;
@@ -192,6 +204,7 @@ div.result-element {
 	position: relative;
 	padding-left: 15px;
 	padding-right: 15px;
+	margin-bottom: 2px;
 }
 
 div#model-title {
