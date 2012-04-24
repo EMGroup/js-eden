@@ -239,7 +239,7 @@ Button.prototype.draw = function(context) {
 
 	var can = $("#eden-content");
 	var buthtml = $("<input type=\"button\" id=\"" + me + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
-		root.lookup(me2 + "_clicked").assign(true); root.lookup(me2 + "_clicked").assign(false);
+		root.lookup(me2 + "_clicked").assign(true);
 	}).appendTo(can);
 
 	buthtml.get(0).togarbage = false;

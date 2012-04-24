@@ -94,13 +94,13 @@ ${{
 ##Autocalc compatibility
 autocalc = 1;
 
-proc _autocalc_agent : autocalc {
-	if (autocalc == 1) {
-		${{root.autocalc(true);}}$;
-	} else {
-		${{root.autocalc(false);}}$;
-	}
-}
+##proc _autocalc_agent : autocalc {
+##	if (autocalc == 1) {
+##		${{root.autocalc(true);}}$;
+##	} else {
+##		${{root.autocalc(false);}}$;
+##	}
+##}
 
 ##Include the rest of the library
 

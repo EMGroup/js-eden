@@ -283,7 +283,7 @@ parse: function parse(input) {
             token = self.symbols_[token] || token;
         }
         return token;
-    }
+    };
 
     var symbol, preErrorSymbol, state, action, a, r, yyval={},p,len,newState, expected;
     while (true) {
@@ -301,7 +301,6 @@ parse: function parse(input) {
         }
 
         // handle parse error
-        _handle_error:
         if (typeof action === 'undefined' || !action.length || !action[0]) {
 
             if (!recovering) {
@@ -312,7 +311,7 @@ parse: function parse(input) {
                 }
                 var errStr = '';
                 if (this.lexer.showPosition) {
-                    errStr = 'Parse error on line '+(yylineno+1)+":\n"+this.lexer.showPosition()+"\nExpecting "+expected.join(', ') + ", got '" + this.terminals_[symbol]+ "'";
+                    errStr = 'Parse error on line '+(yylineno+1)+":\n"+this.lexer.showPosition()+'\nExpecting '+expected.join(', ') + ", got '" + this.terminals_[symbol]+ "'";
                 } else {
                     errStr = 'Parse error on line '+(yylineno+1)+": Unexpected " +
                                   (symbol == 1 /*EOF*/ ? "end of input" :
@@ -540,12 +539,6 @@ popState:function popState() {
     },
 _currentRules:function _currentRules() {
         return this.conditions[this.conditionStack[this.conditionStack.length-1]].rules;
-    },
-topState:function () {
-        return this.conditionStack[this.conditionStack.length-2];
-    },
-pushState:function begin(condition) {
-        this.begin(condition);
     }});
 lexer.performAction = function anonymous(yy,yy_,$avoiding_name_collisions,YY_START) {
 
@@ -733,7 +726,7 @@ exports.main = function commonjsMain(args) {
     if (!args[1])
         throw new Error('Usage: '+args[0]+' FILE');
     if (typeof process !== 'undefined') {
-        var source = require('fs').readFileSync(require('path').join(process.cwd(), args[1]), "utf8");
+        var source = require("fs").readFileSync(require("path").join(process.cwd(), args[1]), "utf8");
     } else {
         var cwd = require("file").path(require("file").cwd());
         var source = cwd.join(args[1]).read({charset: "utf-8"});
