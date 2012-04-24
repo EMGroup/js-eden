@@ -55,6 +55,7 @@ Eden.executeFile = function (path) {
 		url: modelbase+path,
 		success: function(data) {
 			try {
+				console.log(data);
 				eval(Eden.translateToJavaScript(data));
 			} catch(e) {
 				$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>## " + path + "<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
