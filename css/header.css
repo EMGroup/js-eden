@@ -59,10 +59,11 @@ div#title_text {
 }
 
 div#version-number {
-	position: absolute;
-	right: 10px;
-	top: 55px;
+	position: relative;
+	left: 10px;
+	top: 10px;
 	color: white;
+	font-size: 10px;
 }
 
 div#content {

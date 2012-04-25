@@ -120,10 +120,12 @@ input.obs-watch-check {
 }
 
 div#show-input {
+	position: absolute;
+	left: 300px;
+	top: 30px;
 	width: 32px;
 	height: 32px;
 	background-image: url('../images/input-icon.png');
-	margin: 20px;
 	cursor: pointer;
 }
 
@@ -326,20 +328,19 @@ div#eden-input {
 }
 
 .defedit {
-	position: absolute;
+	position: relative;
 	border-color: #117fe5;
 	border-width: 1px;
 	border-style: solid;
 	/*max-width: 600px;*/
 	/*height: 50px;*/
-	bottom: 0px;
-	top: 0px;
-	left: 0px;
-	right: 0px;
+	bottom: auto;
+	left: auto;
+	right: auto;
 	overflow: auto;
 	margin-top: 10px;
-	margin-left: 10px;
-	margin-right: 10px;
+	margin-left: 0px;
+	margin-right: 0px;
 	background-color: white;
 	cursor: text;
 }
@@ -354,12 +355,13 @@ div#eden-input {
 	font-size: 10pt;
 }
 
+div.obs_stats {
+	background-color: #fafafa;
+	font-size: 12px;
+	margin-bottom: 10px;
+}
+
 div.obs_inspector {
-	position: absolute;
-	left: 0px;
-	right: 0px;
-	top: 0px;
-	bottom: 0px;
 	background-color: #fafafa;
 	font-size: 12px;
 	padding: 5px;

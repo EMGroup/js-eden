@@ -128,7 +128,7 @@ function add_observable(symbol, name) {
 function observable_dialog(symbol,existing) {
 	var myeditor;
 
-	$code_html = '<div id="obs_inspector_' + symbol.name.substr(1) + '" class="obs_inspector"><div></div><pre class="eden exec">';
+	$code_html = '<div class="obs_stats">Current Value: ' + symbol.value() + '</div><div id="obs_inspector_' + symbol.name.substr(1) + '" class="obs_inspector"><div></div><pre class="eden exec">';
 	if (symbol.definition === undefined) {
 		$code_html = $code_html + symbol.name.substr(1) + " = " + symbol.value() + ';';
 	} else {

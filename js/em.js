@@ -213,6 +213,7 @@ function js_eden_init() {
 		root = new Folder();
 		eden = new Eden(root);
 
+		//Make sure canvas and side-bar are the correct height.
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
 		$("#d1canvas").attr("height", $("#tabs").height()-80);
 		side_bar_height = $(window).height() - 35 - 200;
@@ -220,6 +221,7 @@ function js_eden_init() {
 
 		modelbase = "";
 
+		//Button to display the input window.
 		$("#show-input").click(function() {
 			input_dialog.dialog("open");
 		}).hover(function() {

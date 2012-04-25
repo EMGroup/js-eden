@@ -193,16 +193,20 @@ proc drawPicture : picture {
   var picture = context.lookup('picture').value();
   var canvas = $("#d1canvas").get(0).getContext('2d');
 
-  console.log("DRAWING");
-
   if (picture === undefined) { return; }
 
+	console.log("DRAWING");
+
   for (var i = 0; i < picture.length; i++) {
+	console.log(picture[i]);
     if (picture[i] === undefined) { continue; }
     picture[i].draw(canvas);
+	console.log("DRAW");
   }
   }}$;
   cleanupCanvas(); 
+
+	console.log("DRAW COMPLETE");
 };
 
 
@@ -362,7 +366,7 @@ Div.prototype.draw = function(context) {
   var me2 = this.name;
   var but = $("#"+me).get(0);
 
-	content.log("Drawing a DIV");
+	console.log("Drawing a DIV");
 
   if (but === undefined) {
 	var dis = "";
