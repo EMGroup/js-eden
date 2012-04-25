@@ -20,12 +20,12 @@ div#side-bar {
 
 div#eden-logo {
 	position: absolute;
-	top: 35px;
+	top: 30px;
 	left: 10px;
 	background-image: url('../images/em-logo.png');
 	background-repeat: no-repeat;
 	width: 250px;
-	height: 140px;
+	height: 70px;
 	z-index: 2;
 }
 

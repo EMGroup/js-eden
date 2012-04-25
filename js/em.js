@@ -10,13 +10,17 @@ function printObservables(pattern) {
 	$.each(root.symbols, function(name,symbol) { 
 		if (name.search(reg) == -1) { return; }
 		if (symbol.definition !== undefined) {
-			var subs = symbol.eden_definition.substring(0,4);
-			if (subs == "proc") {
-				add_procedure(symbol, name);
-				//return;
-			} else if (subs == "func") {
-				add_function(symbol, name);
-				//return;
+			if (symbol.eden_definition !== undefined) {
+				var subs = symbol.eden_definition.substring(0,4);
+				if (subs == "proc") {
+					add_procedure(symbol, name);
+					//return;
+				} else if (subs == "func") {
+					add_function(symbol, name);
+					//return;
+				} else {
+					add_observable(symbol,name);
+				}
 			} else {
 				add_observable(symbol,name);
 			}
@@ -194,12 +198,12 @@ function js_eden_init() {
 		async: true
 	});
 
-	//setTimeout(session_update,1000);
+	setTimeout(session_update,1000);
 
 	$(window).resize(function() {
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
 		$("#d1canvas").attr("height", $("#tabs").height()-80);
-		side_bar_height = $(window).height() - 105 - 260;
+		side_bar_height = $(window).height() - 35 - 200;
 		$(".results-lim").css("max-height",""+ (side_bar_height-76)+"px");
 
 	});
@@ -211,7 +215,7 @@ function js_eden_init() {
 
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
 		$("#d1canvas").attr("height", $("#tabs").height()-80);
-		side_bar_height = $(window).height() - 105 - 260;
+		side_bar_height = $(window).height() - 35 - 200;
 		$(".results-lim").css("max-height",""+ (side_bar_height-76)+"px");
 
 		modelbase = "";

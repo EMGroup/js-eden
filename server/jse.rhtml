@@ -6,13 +6,12 @@ require 'uri'
 require 'cgi'
 require 'mysql'
 require './jse_sessions.rb'
-require './jse_config.rb'
 
 $cgi = CGI.new("html4")
 puts "Content-type: text/plain"
 puts ""
 
-$dbh = Mysql.real_connect("localhost", "knicos", $jse_db_password, "knicos")
+$dbh = Mysql.real_connect(host = "localhost", user = "jseden", passwd = "emgroup", db = "jseden")
 
 puts "{"
 

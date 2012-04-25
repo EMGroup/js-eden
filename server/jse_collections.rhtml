@@ -1,0 +1,27 @@
+#!/dcs/emp/jseden/bin/ruby
+
+require 'rexml/document'
+require 'erb'
+require 'uri'
+require 'cgi'
+require 'mysql'
+require './jse_sessions.rb'
+
+$cgi = CGI.new("html4")
+puts "Content-type: text/plain"
+puts ""
+
+$dbh = Mysql.real_connect(host = "localhost", user = "jseden", passwd = "emgroup", db = "jseden")
+
+puts "{ \"collections\" : ["
+
+begin
+	obs = JSE::Session.queryAll()
+	obs.each {|x|
+		puts "{"
+		puts "\"title\" : \"" + x.title + "\""
+		puts "},"
+	}
+rescue Exception => e
+	puts "\"error\": \"#{e.message}\","
+end
