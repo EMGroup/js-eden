@@ -15,7 +15,7 @@ modelbase = "";
 
 Eden.prototype.addHistory = function(data) {
 	this.history.push(data);
-	this.index = this.history.length-1;
+	this.index = this.history.length;
 }
 
 Eden.prototype.getHistory = function(index) {
@@ -27,23 +27,24 @@ Eden.prototype.getHistory = function(index) {
 }
 
 Eden.prototype.previousHistory = function() {
-	if (this.index < 0) {
-		this.index = 0;
+	if (this.index <= 0) {
+		this.index = 1;
 	}
-	if (this.index >= this.history.length) {
-		this.index = this.history.length-1;
+	if (this.index > this.history.length) {
+		this.index = this.history.length;
 	}
-	return this.getHistory(this.index--);
+	return this.getHistory(--this.index);
 }
 
 Eden.prototype.nextHistory = function() {
 	if (this.index < 0) {
 		this.index = 0;
 	}
-	if (this.index >= this.history.length) {
+	if (this.index >= this.history.length-1) {
+		this.index++;
 		return "";
 	}
-	return this.getHistory(this.index++);
+	return this.getHistory(++this.index);
 }
 
 /*
@@ -55,7 +56,6 @@ Eden.executeFile = function (path) {
 		url: modelbase+path,
 		success: function(data) {
 			try {
-				console.log(data);
 				eval(Eden.translateToJavaScript(data));
 			} catch(e) {
 				$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>## " + path + "<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});

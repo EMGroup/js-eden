@@ -42,50 +42,7 @@ function printObservables(pattern) {
 
 var selected_project = null;
 
-function printProjects(pattern) {
-	procspos = 0;
 
-	$('#project-results').html('');
-	var reg = new RegExp("^"+pattern+".*");
-	var i = 0;
-	while (projects.projects[i] !== undefined) {
-		if (projects.projects[i].name.search(reg) == -1) { i = i + 1; continue; }
-
-		var proj = $('<div class="result-element"></div>');
-		proj[0].project = projects.projects[i];
-		proj.html(projects.projects[i].name  + "<span class='result_value'> by " + projects.projects[i].author + " (" + projects.projects[i].year + ")</span>").appendTo($('#project-results'));
-
-		i = i + 1;
-	}
-
-	$("#project-results > div").hover(
-		function() {
-			if (this != selected_project) {
-				$(this).animate({backgroundColor: "#eaeaea"}, 100);
-			}
-		}, function() {
-			if (this != selected_project) {
-				$(this).animate({backgroundColor: "white"}, 100);
-			}
-		}	
-	).click(function () {
-		if (selected_project != null) {
-			$(selected_project).animate({backgroundColor: "white"}, 100);
-		}
-		selected_project = this;
-		$(this).animate({backgroundColor: "#ffebc9"}, 100);
-		Eden.executeFile(this.project.runfile);
-		printAllUpdates();
-	});
-
-	if ($('#project-results')[0].offsetHeight > (14*16)) {
-		$('#project-scrollup').show();
-		$('#project-scrolldown').show();
-	} else {
-		$('#project-scrollup').hide();
-		$('#project-scrolldown').hide();
-	}
-}
 
 function printAllUpdates() {
 	printObservables($('#observable-search')[0].value);
@@ -103,102 +60,27 @@ var edenfunctions = {};
 var side_bar_height = 300;
 var input_dialog;
 var current_view = new Array();
-var session_id = 0;
-var session_changes = {};
-var session_timestamp = "2012-02-13 13:00:00";
 
-function session_connect(id) {
-	session_id = id;
-	session_timestamp = "2012-02-10 13:00:00";
-	session_changes = {};
-	session_observables = {};
-}
-
-function session_update() {
-	var sym;
-	var changestr = "<jse>\n";
-
-	if (session_id != 0) {
-		for (var key in session_changes) {
-			var sym = root.lookup(key);
-			if (sym.definition === undefined) {
-				if (sym.value() !== undefined) {
-					changestr += "<observable><name>"+key+"</name><value>"+sym.value()+"</value></observable>\n";
-				}
-			} else {
-				if (sym.eden_definition !== undefined) {
-					var subs = sym.eden_definition.substring(0,4);
-					if (subs != "proc") {
-						changestr += "<observable><name>"+key+"</name><definition><![CDATA["+sym.eden_definition+"]]></definition></observable>\n";
-					}
-				}
-			}
-		}
-	}
-	changestr += "</jse>";
-
-	$.ajax({
-		url: "server/jse.rhtml",
-		type: 'POST',
-		data: "sid=" + session_id + "&timestamp=" + session_timestamp+"&xml="+encodeURIComponent(changestr),
-		dataType: 'text',
-		success: function(data) {
-			session_observables = JSON.parse(data);
-
-			root.autocalc(false);
-
-			for (var key in session_observables) {
-				if (key == "timestamp") {
-					session_timestamp = session_observables[key];
-					continue;
-				} else if (key == "error") {
-					console.log(session_observables[key]);
-					continue;
-				}
-				sym = root.lookup(key);
-				var newsym = session_observables[key];
-				if (newsym['definition']) {
-					//only change definition if it has changed.
-					if (sym.eden_definition != newsym.definition) {
-						eval(Eden.translateToJavaScript(decodeURIComponent(newsym.definition)+";"));
-						//sym.assignKeepDef(newsym.value);
-						//sym.current_value = newsym.value;
-					} else {
-						//change current value and notify.
-						//sym.assignKeepDef(newsym.value);
-						//sym.current_value = newsym.value;
-					}
-				} else {
-					sym.assign(newsym.value);
-				}
-				session_changes[key] = false;
-			}
-
-			root.autocalc(true);
-
-			setTimeout(session_update,2000);
-		},
-		cache: false,
-		async: true
-	});
-
-	session_changes = {};
-}
 
 function js_eden_init() {
 
+	//Get a list of projects
 	$.ajax({
 		url: "models/projects.json",
 		success: function(data) {
 			//projects = JSON.parse(data);
 			projects = data;
-			printProjects("");
+			printCollections("");
 		},
 		cache: false,
 		async: true
 	});
 
-	setTimeout(session_update,1000);
+	//Get a list of sessions
+	get_collections();
+
+	//Initialise Sessions
+	session_init();
 
 	$(window).resize(function() {
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
@@ -234,6 +116,7 @@ function js_eden_init() {
 
 		$("#observable-info").hide();
 
+		//Get the current JS-Eden version number
 		$.ajax({
 			url: "version.rhtml",
 			success: function(data) {
@@ -243,6 +126,7 @@ function js_eden_init() {
 			async: true
 		});
 
+		//Obtain function meta data from server
 		$.ajax({
 			url: "library/functions.json",
 			success: function(data) {
@@ -312,7 +196,7 @@ function js_eden_init() {
 		
 
 		$("#project-search").keyup(function() {
-			printProjects(this.value);
+			printCollections(this.value);
 		});
 
 		root.addGlobal(function (sym, create) {
@@ -370,29 +254,39 @@ function js_eden_init() {
 				minHeight: 120,
 				minWidth: 230,
 				position: ['right','bottom'],
-				buttons: {
-					Submit: function() {
-						try {
-							eden.addHistory(myeditor.getValue());
-							eval(Eden.translateToJavaScript(myeditor.getValue()));
-							myeditor.setValue("");
-							//printSymbolTable();
-							printAllUpdates();
-							//eden.saveLocalModelState();
-						} catch(e) {
-							$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
-							eden.errornumber = eden.errornumber + 1;
+				buttons: [{
+					id : "btn-submit",
+					text : "Submit",
+					click : function() {
+							try {
+								eden.addHistory(myeditor.getValue());
+								eval(Eden.translateToJavaScript(myeditor.getValue()));
+								myeditor.setValue("");
+								//printSymbolTable();
+								printAllUpdates();
+								//eden.saveLocalModelState();
+							} catch(e) {
+								$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
+								eden.errornumber = eden.errornumber + 1;
+							}
 						}
 					},
-					Previous: function() {
-						myeditor.setValue(eden.previousHistory());
+					{
+					text : "Previous",
+					click : function() {
+							myeditor.setValue(eden.previousHistory());
+						}
 					},
-					Next: function() {
-						myeditor.setValue(eden.nextHistory());
+					{
+					text : "Next",
+					click : function() {
+							myeditor.setValue(eden.nextHistory());
+						}
 					}
-				}
+				]
 			});
 		input_dialog = $dialog;
+		$("#btn-submit").css("margin-right", "30px");
 
 		myeditor = convertToEdenPageNew('#eden-input','code');
 

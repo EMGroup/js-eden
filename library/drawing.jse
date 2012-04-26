@@ -195,18 +195,12 @@ proc drawPicture : picture {
 
   if (picture === undefined) { return; }
 
-	console.log("DRAWING");
-
   for (var i = 0; i < picture.length; i++) {
-	console.log(picture[i]);
     if (picture[i] === undefined) { continue; }
     picture[i].draw(canvas);
-	console.log("DRAW");
   }
   }}$;
   cleanupCanvas(); 
-
-	console.log("DRAW COMPLETE");
 };
 
 
@@ -365,8 +359,6 @@ Div.prototype.draw = function(context) {
   var me = "canvas_" + this.name;
   var me2 = this.name;
   var but = $("#"+me).get(0);
-
-	console.log("Drawing a DIV");
 
   if (but === undefined) {
 	var dis = "";
