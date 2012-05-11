@@ -119,10 +119,23 @@
 				"y": "Y-coordinate",
 				"width": "Width in pixels",
 				"height": "Height in pixels",
-				"html": "HTML content"
+				"html": "HTML content",
+				"[style]" : "An optional CSS style string"
 			},
 			"return": "Div object",
 			"description": "Creates a html element for display on the canvas"
+		},
+		"Image": {
+			"parameters": {
+				"name": "not used",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"width": "Width in pixels",
+				"height": "Height in pixels",
+				"src": "Source file for the image"
+			},
+			"return": "Image object",
+			"description": "Creates a html image element for display on the canvas"
 		},
 		"Combobox": {
 			"parameters": {

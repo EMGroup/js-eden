@@ -1,3 +1,21 @@
+div#hide-side {
+	position: absolute;
+	left: 5px;
+	top: 115px;
+	width: 20px;
+	height: 20px;
+	background-image: url('../images/hide-hor-icon.png');
+}
+
+div#hide-top {
+	position: absolute;
+	right: 5px;
+	top: 80px;
+	width: 20px;
+	height: 20px;
+	background-image: url('../images/hide-ver-icon.png');
+}
+
 li.type-function {
 	list-style-image: url('../images/type-function.png');
 }
@@ -24,12 +42,13 @@ div#side-bar {
 	background-color: #117fe5;
 	top: 105px;
 	bottom: 0px;
+	overflow: hidden;
 }
 
 div#eden-logo {
 	position: absolute;
-	top: 30px;
-	left: 10px;
+	top: 5px;
+	left: 30px;
 	background-image: url('../images/em-logo.png');
 	background-repeat: no-repeat;
 	width: 250px;
@@ -128,12 +147,18 @@ input.obs-watch-check {
 }
 
 div#show-input {
-	position: absolute;
-	left: 300px;
-	top: 30px;
-	width: 32px;
-	height: 32px;
 	background-image: url('../images/input-icon.png');
+	left: 300px;
+}
+
+div.top-button {
+	position: absolute;
+	top: 30px;
+	width: 70px;
+	height: 35px;
+	background-color: #036dcf;
+	background-repeat: no-repeat;
+	background-position: center;
 	cursor: pointer;
 }
 

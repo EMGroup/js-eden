@@ -103,6 +103,60 @@ function js_eden_init() {
 
 		modelbase = "";
 
+		//Button to hide side bar.
+		$("#hide-side").click(function() {
+			if ($(this).css("top") == "115px") {
+				$("#side-bar").animate({width: "0px"},100);
+				$("#tabs").animate({left: "0px"},100);
+				$(this).css("top", "80px");
+				$("#d1canvas").attr("width", $("#eden-content").width()-40);
+			} else {
+				$("#side-bar").animate({width: "250px"},100);
+				$("#tabs").animate({left: "250px"},100);
+				$(this).css("top", "115px");
+				$("#d1canvas").attr("width", $("#eden-content").width()-40);
+			}
+		}).hover(function() {
+			if ($(this).css("top") == "115px") {
+				$(this).css("backgroundImage", "url('images/hide-hor-icon-sel.png')");
+			} else {
+				$(this).css("backgroundImage", "url('images/show-hor-icon-sel.png')");
+			}
+		}, function() {
+			if ($(this).css("top") == "115px") {
+				$(this).css("backgroundImage", "url('images/hide-hor-icon.png')");
+			} else {
+				$(this).css("backgroundImage", "url('images/show-hor-icon.png')");
+			}
+		});
+
+		//Button to hide top bar.
+		$("#hide-top").click(function() {
+			if ($(this).css("top") == "80px") {
+				$("#title-bar").animate({height: "0px"},100);
+				$("#tabs").animate({top: "25px"},100);
+				$(this).css("top", "0px");
+				$("#d1canvas").attr("height", $("#tabs").height()-80);
+			} else {
+				$("#title-bar").animate({height: "80px"},100);
+				$("#tabs").animate({top: "105px"},100);
+				$(this).css("top", "80px");
+				$("#d1canvas").attr("height", $("#tabs").height()-80);
+			}
+		}).hover(function() {
+			if ($(this).css("top") == "80px") {
+				$(this).css("backgroundImage", "url('images/hide-ver-icon-sel.png')");
+			} else {
+				$(this).css("backgroundImage", "url('images/show-ver-icon-sel.png')");
+			}
+		}, function() {
+			if ($(this).css("top") == "80px") {
+				$(this).css("backgroundImage", "url('images/hide-ver-icon.png')");
+			} else {
+				$(this).css("backgroundImage", "url('images/show-ver-icon.png')");
+			}
+		});
+
 		//Button to display the input window.
 		$("#show-input").click(function() {
 			input_dialog.dialog("open");

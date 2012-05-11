@@ -334,13 +334,14 @@ Combobox.prototype.toString = function() {
 ##DIV
 
 ${{
-Div = function (name, x, y, width, height, html) {
+Div = function (name, x, y, width, height, html, style) {
 	this.name = name;
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
 	this.html = html;
+	this.style = style;
 }
 }}$;
 
@@ -351,7 +352,8 @@ func Div { ${{
   var width = arguments[3];
   var height = arguments[4];
   var html = arguments[5];
-  return new Div(name, x, y, width, height, html);
+  var style = arguments[6];
+  return new Div(name, x, y, width, height, html, style);
 }}$; }
 
 ${{
@@ -366,7 +368,11 @@ Div.prototype.draw = function(context) {
 	else { dis = "disabled=\"true\""; }
 
 	var can = $("#eden-content");
-	var buthtml = $("<div id=\"" + me + "\" style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;\">" + this.html + "</div>").appendTo(can);
+	var divstyle = "position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;";
+	if (this.style !== undefined) {
+		divstyle = divstyle + this.style;
+	}
+	var buthtml = $("<div id=\"" + me + "\" style=\""+divstyle+"\">" + this.html + "</div>").appendTo(can);
 
 	//.click(function() {
 	//	root.lookup(me2 + "_clicked").assign(true); root.lookup(me2 + "_clicked").assign(false);
@@ -390,6 +396,87 @@ Div.prototype.draw = function(context) {
 ${{
 Div.prototype.toString = function() {
   return "Div(" + this.name + ", " + this.x + ", "+this.y+", ...)";
+};
+}}$;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##IMAGE
+
+${{
+Image = function (name, x, y, width, height, file) {
+	this.name = name;
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.file = file;
+}
+}}$;
+
+func Image { ${{
+  var name = arguments[0];
+  var x = arguments[1];
+  var y = arguments[2];
+  var width = arguments[3];
+  var height = arguments[4];
+  var file = arguments[5];
+  return new Image(name, x, y, width, height, file);
+}}$; }
+
+${{
+Image.prototype.draw = function(context) {
+  var me = "canvas_" + this.name;
+  var me2 = this.name;
+  var but = $("#"+me).get(0);
+
+  if (but === undefined) {
+	var dis = "";
+	if (this.enabled == true) { dis = ""; }
+	else { dis = "disabled=\"true\""; }
+
+	var can = $("#eden-content");
+	var buthtml = $("<img id=\"" + me + "\" style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;\" src=\"" + this.file + "\"></img>").appendTo(can);
+
+	//.click(function() {
+	//	root.lookup(me2 + "_clicked").assign(true); root.lookup(me2 + "_clicked").assign(false);
+	//}).appendTo(can);
+
+	buthtml.get(0).togarbage = false;
+
+	//Initialise
+	//root.lookup(me2 + "_clicked").assign(false);
+  } else {
+	//but.value = this.label;
+	//but.innerHTML = this.html;
+	but.togarbage = false;
+	but.style.width = "" + this.width + "px";
+	but.style.height = "" + this.height + "px";
+	but.style.left = "" + this.x + "px";
+	but.style.top = "" + this.y + "px";
+  }
+};
+}}$;
+${{
+Image.prototype.toString = function() {
+  return "Image(" + this.name + ", " + this.x + ", "+this.y+", ...)";
 };
 }}$;
 

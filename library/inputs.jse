@@ -1,13 +1,15 @@
 ${{
-	$('body').delegate("#d1canvas", "mousemove", function(e) {
-		root.lookup('mouseX').assign(e.pageX-265);
-		root.lookup('mouseY').assign(e.pageY-154);
+	$('body').delegate("#tabs", "mousemove", function(e) {
+		var tabs = $('#tabs');
+		root.lookup('mouseX').assign(e.pageX-parseInt(tabs.css("left")));
+		root.lookup('mouseY').assign(e.pageY-parseInt(tabs.css("top")));
 	});
 }}$;
 
 ${{
-	$('body').delegate("#d1canvas", "click", function(e) {
-		root.lookup('mouseClickX').assign(e.pageX-265);
-		root.lookup('mouseClickY').assign(e.pageY-154);
+	$('body').delegate("#tabs", "click", function(e) {
+		var tabs = $('#tabs');
+		root.lookup('mouseClickX').assign(e.pageX-parseInt(tabs.css("left")));
+		root.lookup('mouseClickY').assign(e.pageY-parseInt(tabs.css("top")));
 	});
 }}$;
