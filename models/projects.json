@@ -61,7 +61,7 @@
 			"author": "Matt Cranham",
 			"year": "2012",
 			"description": "Parallel parking model",
-			"runfile": "models/parpar/parpar.jse"
+			"runfile": "models/parpar/run.jse"
 		}
 	]
 }

@@ -1,0 +1,58 @@
+func centre {
+  para points;
+  auto i, x, y;
+  
+  x = 0;
+  y = 0;
+  i = 0;
+  
+  for(i = 1; i < points#; i = i + 2) {
+    x = x + points[i];
+    y = y + points[i+1];
+  }
+  
+  x = x / (points# / 2);
+  y = y / (points# / 2);
+  
+  return [x,y];
+}
+
+func translate {
+  para points, vector;
+  auto i, tpoints;
+  
+  i = 0;
+  tpoints = [];
+  
+  for(i = 1; i < points#; i = i + 2) {
+    append tpoints, points[i] + vector[1];
+    append tpoints, points[i+1] + vector[2];
+  }
+  
+  return tpoints;
+}
+
+func rotate {
+  para points, origin, degrees;
+  auto i, c, s, x, y, rpoints;
+  
+  /* Translate to origin */
+  rpoints = translate(points, [-origin[1],-origin[2]]);
+
+  c = cos(degrees);
+  s = sin(degrees);
+  
+  /* Rotate clockwise about origin */
+  for(i = 1; i < points#; i = i + 2) {
+    x = rpoints[i];
+    y = rpoints[i+1];
+    rpoints[i] = x*c - y*s;
+    rpoints[i+1] = x*s + y*c;
+  }
+  
+  /* Tranlate to original location */
+  rpoints = translate(rpoints, [origin[1],origin[2]]);
+  
+  return rpoints;
+  
+}

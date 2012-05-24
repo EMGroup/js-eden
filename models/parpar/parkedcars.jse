@@ -1,0 +1,51 @@
+## p1 prefixes relate to 1st car
+## p2 prefixes relate to 2nd car
+
+p1car = [225,160,250,160,225,195,250,195];
+p2car is translate(p1car,[0,60-dist_value]);
+dist_value = 0;
+
+## Defines the corners of the cars
+p1flcorner is [p1car[1],p1car[2]];
+p1frcorner is [p1car[3],p1car[4]];
+p1rlcorner is [p1car[5],p1car[6]];
+p1rrcorner is [p1car[7],p1car[8]];
+
+p2flcorner is [p2car[1],p2car[2]];
+p2frcorner is [p2car[3],p2car[4]];
+p2rlcorner is [p2car[5],p2car[6]];
+p2rrcorner is [p2car[7],p2car[8]];
+
+## Draw parked cars
+p1faxle is Line(p1flcorner[1],p1flcorner[2],p1frcorner[1],p1frcorner[2],"black");
+p1raxle is Line(p1rlcorner[1],p1rlcorner[2],p1rrcorner[1],p1rrcorner[2],"black");
+p1centrerod is Line((p1flcorner[1]+p1frcorner[1])/2,(p1flcorner[2]+p1frcorner[2])/2,(p1rlcorner[1]+p1rrcorner[1])/2,(p1rlcorner[2]+p1rrcorner[2])/2,"black");
+
+p2faxle is Line(p2flcorner[1],p2flcorner[2],p2frcorner[1],p2frcorner[2],"black");
+p2raxle is Line(p2rlcorner[1],p2rlcorner[2],p2rrcorner[1],p2rrcorner[2],"black");
+p2centrerod is Line((p2flcorner[1]+p2frcorner[1])/2,(p2flcorner[2]+p2frcorner[2])/2,(p2rlcorner[1]+p2rrcorner[1])/2,(p2rlcorner[2]+p2rrcorner[2])/2,"black");
+
+## Initially car points forward so wheels point forward as well
+p1flwheelpoints is [p1flcorner[1]-twidth,p1flcorner[2]-tlength,p1flcorner[1],p1flcorner[2]-tlength,p1flcorner[1],p1flcorner[2]+tlength,p1flcorner[1]-twidth,p1flcorner[2]+tlength];
+p1frwheelpoints is [p1frcorner[1],p1frcorner[2]-tlength,p1frcorner[1]+twidth,p1frcorner[2]-tlength,p1frcorner[1]+twidth,p1frcorner[2]+tlength,p1frcorner[1],p1frcorner[2]+tlength];
+p1rrwheelpoints is [p1rrcorner[1],p1rrcorner[2]-tlength,p1rrcorner[1]+twidth,p1rrcorner[2]-tlength,p1rrcorner[1]+twidth,p1rrcorner[2]+tlength,p1rrcorner[1],p1rrcorner[2]+tlength];
+p1rlwheelpoints is [p1rlcorner[1]-twidth,p1rlcorner[2]-tlength,p1rlcorner[1],p1rlcorner[2]-tlength,p1rlcorner[1],p1rlcorner[2]+tlength,p1rlcorner[1]-twidth,p1rlcorner[2]+tlength];
+
+p2flwheelpoints is [p2flcorner[1]-twidth,p2flcorner[2]-tlength,p2flcorner[1],p2flcorner[2]-tlength,p2flcorner[1],p2flcorner[2]+tlength,p2flcorner[1]-twidth,p2flcorner[2]+tlength];
+p2frwheelpoints is [p2frcorner[1],p2frcorner[2]-tlength,p2frcorner[1]+twidth,p2frcorner[2]-tlength,p2frcorner[1]+twidth,p2frcorner[2]+tlength,p2frcorner[1],p2frcorner[2]+tlength];
+p2rrwheelpoints is [p2rrcorner[1],p2rrcorner[2]-tlength,p2rrcorner[1]+twidth,p2rrcorner[2]-tlength,p2rrcorner[1]+twidth,p2rrcorner[2]+tlength,p2rrcorner[1],p2rrcorner[2]+tlength];
+p2rlwheelpoints is [p2rlcorner[1]-twidth,p2rlcorner[2]-tlength,p2rlcorner[1],p2rlcorner[2]-tlength,p2rlcorner[1],p2rlcorner[2]+tlength,p2rlcorner[1]-twidth,p2rlcorner[2]+tlength];
+
+p1flwheel is Polygon(p1flwheelpoints,"black");
+p1frwheel is Polygon(p1frwheelpoints,"black");
+p1rrwheel is Polygon(p1rrwheelpoints,"black");
+p1rlwheel is Polygon(p1rlwheelpoints,"black");
+
+p2flwheel is Polygon(p2flwheelpoints,"black");
+p2frwheel is Polygon(p2frwheelpoints,"black");
+p2rrwheel is Polygon(p2rrwheelpoints,"black");
+p2rlwheel is Polygon(p2rlwheelpoints,"black");
+
+## Slider to control gap between the cars
+dist is Slider("dist",-250,0,1,0,"vertical",320,125);
+distlabel is Text("Distance Control",330,175,"black");

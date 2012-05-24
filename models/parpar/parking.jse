@@ -1,0 +1,45 @@
+winareapoints is [p1rlcorner[1]-3.5,p1rlcorner[2]+10,p1rrcorner[1]+3.5,p1rrcorner[2]+10,p2frcorner[1]+3.5,p2frcorner[2]-10,p2flcorner[1]-3.5,p2flcorner[2]-10];
+winarea is Polygon(winareapoints, "#00FF00");
+
+proc _car : car {
+  if (
+    (pt_betwn_pts([winareapoints[1],winareapoints[2]],flcorner,[winareapoints[5],winareapoints[6]])) &&	## Front left corner of car in winning area
+    (pt_betwn_pts([winareapoints[1],winareapoints[2]],frcorner,[winareapoints[5],winareapoints[6]])) && ## Front right corner of car in winning area
+    (pt_betwn_pts([winareapoints[1],winareapoints[2]],rlcorner,[winareapoints[5],winareapoints[6]])) &&	## Rear left corner of car in winning area
+    (pt_betwn_pts([winareapoints[1],winareapoints[2]],rrcorner,[winareapoints[5],winareapoints[6]]))) {	## Rear right corner of car in winning area
+      ## Win condition successful parking
+      ${{ alert("YOU'RE WINNER!"); }}$;
+      throttle_value = 0;
+  } else if (
+    (pt_betwn_pts(p1flcorner,flcorner,p1rrcorner)) ||	## Front left collides with 1st parked car
+    (pt_betwn_pts(p1flcorner,frcorner,p1rrcorner)) ||   ## Front right collides with 1st parked car
+    (pt_betwn_pts(p1flcorner,rlcorner,p1rrcorner)) ||   ## Rear left collides with 1st parked car
+    (pt_betwn_pts(p1flcorner,rrcorner,p1rrcorner)) ||   ## Rear right collides with 1st parked car
+    (pt_betwn_pts(p2flcorner,flcorner,p2rrcorner)) ||   ## Front left collides with 2nd parked car
+    (pt_betwn_pts(p2flcorner,frcorner,p2rrcorner)) ||   ## Front right collides with 2nd parked car
+    (pt_betwn_pts(p2flcorner,rlcorner,p2rrcorner)) ||   ## Rear left collides with 2nd parked car
+    (pt_betwn_pts(p2flcorner,rrcorner,p2rrcorner))) {   ## Rear right collides with 2nd parked car
+      ## Lose condition collision with parked car
+      ${{ alert("YOU'RE Loser!"); }}$;
+      throttle_value = 0;
+  }
+}
+
+func pt_betwn_pts {
+  para tlpoint, point, brpoint;
+
+  return (
+    (tlpoint[1] <= point[1]) && (point[1] <= brpoint[1]) &&	## Check x is within range
+    (tlpoint[2] <= point[2]) && (point[2] <= brpoint[2])); 	## Check y is within range
+}
+
+swheelcent = [350,60];
+swheelouter is Circle(swheelcent[1],swheelcent[2],40,"white","black");
+
+swheelrightp is rotate([swheelcent[1]+40,swheelcent[2]],swheelcent,9*steeringangle);
+swheelleftp is rotate([swheelcent[1]-40,swheelcent[2]],swheelcent,9*steeringangle);
+swheelbottomp is rotate([swheelcent[1],swheelcent[2]+40],swheelcent,9*steeringangle);
+
+swheelright is Line(swheelcent[1],swheelcent[2],swheelrightp[1],swheelrightp[2]);
+swheelleft is Line(swheelcent[1],swheelcent[2],swheelleftp[1],swheelleftp[2]);
+swheelbottom is Line(swheelcent[1],swheelcent[2],swheelbottomp[1],swheelbottomp[2]);
