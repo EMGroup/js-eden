@@ -347,6 +347,8 @@ pair
 primary-expression
     : lvalue
         { $$ = $lvalue + '.value()'; }
+    | lvalue '.' OBSERVABLE '(' expression-list-opt ')'
+        { $$ = $lvalue + '.value().' + $3 + '(' + $5 + ')'; }
     | primary-expression '(' expression-list-opt ')'
         { $$ = '' + $1 + '.call('+ ['this'].concat($3) + ')'; }
     ;
@@ -537,3 +539,4 @@ formula-definition
              ");"
         %}
     ;
+	

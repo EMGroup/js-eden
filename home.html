@@ -1,1 +1,31 @@
-JS-Eden Documentation to go here.
+<html>
+<p>
+The basic components of the JS-EDEN environment are
+<ul>
+<li>the <i>display</i> panel, which can be switched between displaying this documentation, the canvas on which construals are visualised, and documentation specific to the model. There are arrows (&lt;&lt;) that can be clicked in order to enlarge the display panel so that it takes up the whole screen.</li>
+<li>the <i>Eden Interpreter Window</i> through which JS-EDEN code can be entered. This can be displayed and hidden by clicking on the rectangular icon displayed above the display panel.</li>
+<li>the information panels to the left of the display panel, where information about available construals and the observables within the currenty loaded construal can be obtained. (Currently only the <i>Observables & Agents</i> panel contains useful information - the <i>Watches</i> and <i>History</i> have yet to be implemented.)</li>
+</ul>
+</p>
+<p>
+In using the JS-EDEN environment in its current form, it is most appropriate to use an external text editor (such as Notepad++ on Windows) to create JS-EDEN input, and cut-and-paste this into the Eden Interpreter Window. Note that if you refresh the webpage the input you have given may otherwise be lost! 
+</p>
+<p>
+You can inspect the observables and agents in the current construal via the <i>Observables & Agents</i> panel. To use this most effectively, you need to select specific observables by typing a regular expression (RE) into the search box at the top of the panel. (By default, this panel displays <i>all</i> the observables and agents in the JS-EDEN environment, only some of which are specific to the construal of current interest.) There are two ways in which you can interact with the observables in a construal via the <i>Observables & Agents</i> panel. If you hover over the name of an observable whose value is implicitly defined, its definition will be displayed. If you click on the name of an observable, this will bring up a textbox in which you can edit its definition. 
+</p>
+<p>
+The content of the <i>Model Readme</i> is determined by an HTML source that you specify by entering a command of the following form into the Eden Interpreter Window:
+</p>
+<p>
+<code>html(<i>HTML source within quotation marks ("")</i>);</code>
+</p>
+<p>
+For instance, you can enter:
+</p>
+<p>
+<code>html("<b>Model Readme"</b>);</code>
+</p>
+<p>
+to generate a heading for your Model Readme.
+</p>
+</html>
