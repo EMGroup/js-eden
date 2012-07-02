@@ -480,3 +480,25 @@ Image.prototype.toString = function() {
 };
 }}$;
 
+
+## Sylvester library object wrappers
+## Unsure about Line so ignored for now
+
+## Vector
+
+func Vector { ${{
+  return $V(arguments[0]);
+}}$; };
+
+
+## Matrix
+
+func Matrix { ${{
+  return $M(arguments[0]);
+}}$; };
+
+## Plane
+
+func Plane { ${{
+  return $P(arguments[0]);
+}}$; };
