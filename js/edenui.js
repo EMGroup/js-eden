@@ -1,6 +1,6 @@
 function add_procedure(symbol, name) {
 	var proc = $('<div class="result-element"></div>');
-	proc.html("<li class=\"type-procedure\"><span class=\"result_name\">" + name + "</span></li>").appendTo($('#observable-results'));
+	proc.html("<li class=\"type-procedure\"><span class=\"result_name\">" + name + "</span></li>").appendTo($('#procedure-results'));
 
 	proc.get(0).symbol = symbol;
 
@@ -34,7 +34,7 @@ function add_function(symbol, name) {
 	funchtml = funchtml + "</li>";
 
 	var resel = $('<div class="result-element"></div>');
-	resel.html(funchtml).appendTo($('#observable-results'));
+	resel.html(funchtml).appendTo($('#function-results'));
 	resel.get(0).details = details;
 	resel.get(0).symbol = symbol;
 

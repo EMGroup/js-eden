@@ -5,6 +5,8 @@ function printObservables(pattern) {
 	obspos = 0;
 
 	$('#observable-results').html('');
+	$('#function-results').html('');
+	$('#procedure-results').html('');
 	var reg = new RegExp("^"+pattern+".*");
 	var myeditor;
 	$.each(root.symbols, function(name,symbol) { 
