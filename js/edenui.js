@@ -1,6 +1,6 @@
 function add_procedure(symbol, name) {
 	var proc = $('<div class="result-element"></div>');
-	proc.html("<li class=\"type-procedure\">" + name + "</li>").appendTo($('#observable-results'));
+	proc.html("<li class=\"type-procedure\"><span class=\"result_name\">" + name + "</span></li>").appendTo($('#observable-results'));
 
 	proc.get(0).symbol = symbol;
 
@@ -17,7 +17,7 @@ function add_procedure(symbol, name) {
 };
 
 function add_function(symbol, name) {
-	var funchtml = "<li class=\"type-function\">" + name;
+	var funchtml = "<li class=\"type-function\"><span class=\"result_name\">" + name + "</span>";
 	var details;
 	if (edenfunctions.functions != undefined && edenfunctions.functions[name] !== undefined) {
 		details = edenfunctions.functions[name];
@@ -89,7 +89,7 @@ function add_observable(symbol, name) {
 	}
 
 	var ele = $('<div id="sbobs_' + name + '" class="result-element"></div>');
-	ele.html("<li class=\"type-observable\">" + namehtml + "<span class='result_value'> = " + valhtml + "</span></li>").appendTo($('#observable-results'));
+	ele.html("<li class=\"type-observable\"><span class=\"result_name\">" + namehtml + "</span><span class='result_value'> = " + valhtml + "</span></li>").appendTo($('#observable-results'));
 	ele.get(0).symbol = symbol;
 
 	ele.hover(

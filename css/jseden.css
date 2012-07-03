@@ -303,10 +303,15 @@ div#observable-info-name {
 	margin-left: 4px;
 }
 
+span.result_name {
+	vertical-align: 4px;
+}
+
 span.result_value {
 	opacity: 0.5;
 	white-space: nowrap;
 	overflow: hidden;
+	vertical-align: 4px;
 }
 
 .error_text {

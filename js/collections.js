@@ -26,7 +26,7 @@ function printCollections(pattern) {
 
 		var proj = $('<div class="result-element"></div>');
 		proj[0].project = projects.projects[i];
-		proj.html("<li class=\"type-project\">" + projects.projects[i].name  + "<span class='result_value'> by " + projects.projects[i].author + " (" + projects.projects[i].year + ")</span></li>").appendTo($('#project-results'));
+		proj.html("<li class=\"type-project\"><span class=\"result_name\">" + projects.projects[i].name  + "</span><span class='result_value'> by " + projects.projects[i].author + " (" + projects.projects[i].year + ")</span></li>").appendTo($('#project-results'));
 
 		i = i + 1;
 	}
@@ -38,7 +38,7 @@ function printCollections(pattern) {
 
 		var sess = $('<div class="result-element"></div>');
 		sess[0].session = collections.sessions[i];
-		sess.html("<li class=\"type-session\">" + collections.sessions[i].title + "</li>").appendTo($('#project-results'));
+		sess.html("<li class=\"type-session\"><span class=\"result_name\">" + collections.sessions[i].title + "</span></li>").appendTo($('#project-results'));
 
 		i = i + 1;
 	}
