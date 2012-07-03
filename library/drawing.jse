@@ -480,6 +480,40 @@ Image.prototype.toString = function() {
 };
 }}$;
 
+## Arc
+
+${{
+Arc = function(x, y, r, sAngle, eAngle, clockwise) {
+  this.x = x;
+  this.y = y;
+  this.r = r;
+  this.sAngle = sAngle;
+  this.eAngle = eAngle;
+  this.clockwise = clockwise;
+}
+}}$;
+
+func Arc { ${{
+  var x = arguments[0];
+  var y = arguments[1];
+  var r = arguments[2];
+  var sAngle = arguments[3];
+  var eAngle = arguments[4];
+  var clockwise = arguments[5];
+  return new Arc(x, y, r, sAngle, eAngle, clockwise);
+}}$; };
+
+${{
+Arc.prototype.draw = function(context) {
+  context.beginPath();
+  context.arc(this.x, this.y, this.r, this.sAngle, this.eAngle, this.clockwise);
+  context.stroke();
+};
+
+Arc.prototype.toString = function() {
+  return "Arc(" + this.x + "," + this.y + "," + this.r + "," + this.sAngle + "," + this.eAngle + "," + this.clockwise + ")";
+}
+}}$;
 
 ## Sylvester library object wrappers
 ## Unsure about Line so ignored for now
