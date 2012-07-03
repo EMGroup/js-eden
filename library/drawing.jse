@@ -490,12 +490,24 @@ func Vector { ${{
   return $V(arguments[0]);
 }}$; };
 
+${{
+Vector.prototype.toString = function() {
+  return this.inspect();
+};
+
+}}$;
 
 ## Matrix
 
 func Matrix { ${{
   return $M(arguments[0]);
 }}$; };
+
+${{  
+Matrix.prototype.toString = function() {
+  return "[" + this.inspect() + "]";
+};
+}}$;
 
 ## Plane
 
