@@ -219,6 +219,12 @@ div#procedure-results {
 	bottom: 0px;
 }
 
+div#drawable-results {
+	overflow-y: hidden;
+        font-size: 12px;
+        bottom: 0px;
+}
+
 div#project-results {
 	overflow-y: hidden;
 	font-size: 12px;

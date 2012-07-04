@@ -32,9 +32,11 @@ function add_function(symbol, name) {
 		}
 	}
 	funchtml = funchtml + "</li>";
-
 	var resel = $('<div class="result-element"></div>');
-	resel.html(funchtml).appendTo($('#function-results'));
+	
+	// Bit of a hack, need to check if the function actually has a draw() method instead of just checking that the function starts with a capital letter
+	(/^[A-Z]/.test(name)) ? resel.html(funchtml).appendTo($('#drawable-results')) : resel.html(funchtml).appendTo($('#function-results'));
+//	resel.html(funchtml).appendTo($('#function-results'));
 	resel.get(0).details = details;
 	resel.get(0).symbol = symbol;
 

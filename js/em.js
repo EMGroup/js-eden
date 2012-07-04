@@ -6,6 +6,7 @@ function printObservables(pattern) {
 
 	$('#observable-results').html('');
 	$('#function-results').html('');
+	$('#drawable-results').html('');
 	$('#procedure-results').html('');
 	var reg = new RegExp("^"+pattern+".*");
 	var myeditor;
