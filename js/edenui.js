@@ -35,7 +35,7 @@ function add_function(symbol, name) {
 	var resel = $('<div class="result-element"></div>');
 	
 	// Bit of a hack, need to check if the function actually has a draw() method instead of just checking that the function starts with a capital letter
-	(/^[A-Z]/.test(name)) ? resel.html(funchtml).appendTo($('#drawable-results')) : resel.html(funchtml).appendTo($('#function-results'));
+	(/^[A-Z]/.test(name)) ? resel.html(funchtml).appendTo($('#drawable-results')) : resel.html(funchtml).appendTo($('#functions-results'));
 //	resel.html(funchtml).appendTo($('#function-results'));
 	resel.get(0).details = details;
 	resel.get(0).symbol = symbol;
@@ -46,10 +46,10 @@ function add_function(symbol, name) {
 				$(this).animate({backgroundColor: "#eaeaea"}, 100);
 			}
 
-			var info = $('#observable-info');
+			var info = $('#functions-info');
 
 			if (this.details !== undefined) {
-				var iname = info.find('#observable-info-name');
+				var iname = info.find('#functions-info-name');
 				iname.text(this.details.description);
 				info.css("left", "" + (this.offsetLeft + this.offsetWidth) + "px");
 				info.css("top", "" + (this.offsetTop + 125 - 8 - 16 - ((info[0].offsetHeight / 2))) + "px");
@@ -58,7 +58,7 @@ function add_function(symbol, name) {
 				info.hide();
 			}
 		}, function() {
-			$('#observable-info').hide();
+			$('#functions-info').hide();
 			if (this != selected_function) {
 				$(this).animate({backgroundColor: "white"}, 100);
 			}

@@ -5,7 +5,7 @@ function printObservables(pattern) {
 	obspos = 0;
 
 	$('#observable-results').html('');
-	$('#function-results').html('');
+	$('#functions-results').html('');
 	$('#drawable-results').html('');
 	$('#procedure-results').html('');
 	var reg = new RegExp("^"+pattern+".*");
@@ -40,6 +40,15 @@ function printObservables(pattern) {
 		$('#observable-scrollup').hide();
 		$('#observable-scrolldown').hide();
 	}
+
+	if ($('#functions-results')[0].offsetHeight > (14*16)) {
+                $('#functions-scrollup').show();
+                $('#functions-scrolldown').show();
+        } else {
+                $('#functions-scrollup').hide();
+                $('#functions-scrolldown').hide();
+        }
+
 }
 
 
@@ -248,6 +257,35 @@ function js_eden_init() {
 		$("#observable-search").keyup(function() {
 			printObservables(this.value);
 		});
+
+		 $('#functions-scrollup').click(function() {
+                        obspos = obspos + (14*16);
+                        if (obspos > 0) { obspos = 0; }
+                        $('#functions-results > div').animate({top: ""+obspos+"px"},300);
+                }).hover(function() {
+                        $(this).animate({backgroundColor: "#fafafa"}, 100);
+                        $(this).css("backgroundImage", "url('images/scrollup-sel.png')");
+                }, function() {
+                        $(this).animate({backgroundColor: "white"}, 100);
+                        $(this).css("backgroundImage", "url('images/scrollup.png')");
+                });
+
+                $('#functions-scrolldown').click(function() {
+                        obspos = obspos - (14*16);
+                        if (obspos <= 0 - ($('#functions-results')[0].offsetHeight)) { obspos = obspos + (14*16); }
+                        $('#functions-results > div').animate({top: ""+obspos+"px"},300);
+                }).hover(function() {
+                        $(this).animate({backgroundColor: "#fafafa"}, 100);
+                        $(this).css("backgroundImage", "url('images/scrolldown-sel.png')");
+                }, function() {
+                        $(this).animate({backgroundColor: "white"}, 100);
+                        $(this).css("backgroundImage", "url('images/scrolldown.png')");
+                });
+
+		$("#functions-search").keyup(function() {
+			printObservables(this.value);
+		});
+
 		printObservables("");
 
 		
