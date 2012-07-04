@@ -7,7 +7,7 @@ ${{
 }}$;
 
 ${{
-	$('body').delegate("#tabs", "click", function(e) {
+	$('#eden-content').delegate("#d1canvas", "click", function(e) {
 		var tabs = $('#tabs');
 		root.lookup('mouseClickX').assign(e.pageX-parseInt(tabs.css("left"))-15);
 		root.lookup('mouseClickY').assign(e.pageY-parseInt(tabs.css("top"))-50);
