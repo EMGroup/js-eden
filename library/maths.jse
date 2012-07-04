@@ -42,6 +42,23 @@ func random {
   return ${{ Math.random(); }}$;
 }
 
+func round {
+  para num, places;
+  auto i;
+
+  for (i = 1; i <= places; i++) {
+    num = num*10;
+  }
+
+  num = int(num);
+
+  for (i = 1; i <= places; i++) {
+    num = num/10;
+  }
+
+  return num;
+}
+
 func sin {
   return ${{ Math.sin(arguments[0]*Math.PI/180); }}$;
 }
