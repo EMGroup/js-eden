@@ -1,15 +1,15 @@
 ${{
 	$('body').delegate("#tabs", "mousemove", function(e) {
 		var tabs = $('#tabs');
-		root.lookup('mouseX').assign(e.pageX-parseInt(tabs.css("left")));
-		root.lookup('mouseY').assign(e.pageY-parseInt(tabs.css("top")));
+		root.lookup('mouseX').assign(e.pageX-parseInt(tabs.css("left"))-15);
+		root.lookup('mouseY').assign(e.pageY-parseInt(tabs.css("top"))-50);
 	});
 }}$;
 
 ${{
 	$('body').delegate("#tabs", "click", function(e) {
 		var tabs = $('#tabs');
-		root.lookup('mouseClickX').assign(e.pageX-parseInt(tabs.css("left")));
-		root.lookup('mouseClickY').assign(e.pageY-parseInt(tabs.css("top")));
+		root.lookup('mouseClickX').assign(e.pageX-parseInt(tabs.css("left"))-15);
+		root.lookup('mouseClickY').assign(e.pageY-parseInt(tabs.css("top"))-50);
 	});
 }}$;
