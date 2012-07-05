@@ -247,6 +247,9 @@ expression
     | expression OR expression
         { $$ = '' + $1 + ' || ' + $3; }
 
+    | '{' expression ',' expression '}'
+        { $$ = "context.lookup('Point').value().call(this, " + $2 +"," + $4 +")" }
+
 // XXX: introduces a TON of SR conflicts and I have no idea why!
     | expression '//' expression
         { $$ = $1 + '.concat(' + $3 +')'; }
@@ -539,4 +542,5 @@ formula-definition
              ");"
         %}
     ;
+	
 	
