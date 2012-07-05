@@ -95,11 +95,8 @@ function js_eden_init() {
 	session_init();
 
 	$(window).resize(function() {
-//		$("#d1canvas").attr("width", $("#eden-content").width()-40);
-
 		$("#d1canvas").attr("height", $("#tabs").height()-80);
-$("#d1canvas").attr("width", root.lookup('canvas').value().width);
-$("#jspe").css("height", $("#d1canvas").height());
+		$("#d1canvas").attr("width", root.lookup('canvas').value().width);
 		side_bar_height = $(window).height() - 35 - 200;
 		$(".results-lim").css("max-height",""+ (side_bar_height-76)+"px");
 
