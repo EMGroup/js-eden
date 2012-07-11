@@ -151,6 +151,7 @@ function observable_dialog(symbol,existing) {
 					Save: function() {
 						try {
 							eden.addHistory(myeditor.getValue());
+							$('#history-content').append('<div id="history-'+eden.history.length+'">'+myeditor.getValue()+'<hr /></div>');
 							eval(Eden.translateToJavaScript(myeditor.getValue()));
 							//myeditor.setValue("");
 							//printSymbolTable();
@@ -158,6 +159,8 @@ function observable_dialog(symbol,existing) {
 							//eden.saveLocalModelState();
 						} catch(e) {
 							$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>\n" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
+                                                        var contents = $('#history-'+eden.history.length).html();
+                                                        $('#history-'+eden.history.length).attr('class','history-error').html('## '+contents);
 							eden.errornumber = eden.errornumber + 1;
 						}
 					}

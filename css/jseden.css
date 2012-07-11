@@ -453,3 +453,7 @@ div.obs_inspector {
 	font-size: 12px;
 	padding: 5px;
 }
+
+div.history-error {
+	color: red;
+}

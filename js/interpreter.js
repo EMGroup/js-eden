@@ -1,5 +1,4 @@
 function make_interpreter(name, mtitle, edenparser) {
-
 	var myeditor;
 
 	$code_entry = $('<div id="'+name+'-input"><div></div><pre class="eden exec"></pre></div>');
@@ -19,7 +18,7 @@ function make_interpreter(name, mtitle, edenparser) {
 						try {
 							var myvalue;
 							eden.addHistory(myeditor.getValue());
-							
+							$('#history-content').append('<div id="history-'+eden.history.length+'">'+myeditor.getValue()+'<hr /></div>');
 							if (edenparser !== undefined) {
 							      //Parse special notation to eden
 							} else {
@@ -33,6 +32,8 @@ function make_interpreter(name, mtitle, edenparser) {
 							//eden.saveLocalModelState();
 						} catch(e) {
 							$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
+							var contents = $('#history-'+eden.history.length).html();
+							$('#history-'+eden.history.length).attr('class','history-error').html('## '+contents);
 							eden.errornumber = eden.errornumber + 1;
 						}
 					}
