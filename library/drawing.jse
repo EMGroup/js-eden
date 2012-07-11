@@ -205,7 +205,7 @@ proc clearCanvas { ${{
   canvas.width = canvas.width;
 
   $("#eden-content > :not(canvas)").each(function() {
-	if(/canvas_/.test(this.name)) {
+	if(/canvas_/.test(this.id)) {
 		this.togarbage = true;
 	}
   });
