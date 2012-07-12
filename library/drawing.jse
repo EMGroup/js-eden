@@ -566,7 +566,7 @@ func Vector { ${{
 
 ${{
 Vector.prototype.toString = function() {
-  return this.inspect();
+  return "Vector("+this.inspect()+")";
 };
 
 }}$;
