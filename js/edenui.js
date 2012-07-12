@@ -131,7 +131,7 @@ function observable_dialog(symbol,existing) {
 	var myeditor;
 
 	$code_html = '<div class="obs_stats">Current Value: ' + symbol.value() + '</div><div id="obs_inspector_' + symbol.name.substr(1) + '" class="obs_inspector"><div></div><pre class="eden exec">';
-	if (symbol.definition === undefined) {
+	if (symbol.definition === undefined || symbol.eden_definition === "") {
 		$code_html = $code_html + symbol.name.substr(1) + " = " + symbol.value() + ';';
 	} else {
 		$code_html = $code_html + symbol.eden_definition + ';';
@@ -171,7 +171,7 @@ function observable_dialog(symbol,existing) {
 		return $dialog;
 	} else {
 		$code_html = "";
-		if (symbol.definition === undefined) {
+		if (symbol.definition === undefined || symbol.eden_definition === "") {
 			$code_html = $code_html + symbol.name.substr(1) + " = " + symbol.value() + ';';
 		} else {
 			$code_html = $code_html + symbol.eden_definition + ';';
