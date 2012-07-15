@@ -151,8 +151,8 @@ function observable_dialog(symbol,existing) {
 					Save: function() {
 						try {
 							eden.addHistory(myeditor.getValue());
-							var encodedhtml = myeditor.getValue().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-							$('#history-content').append('<div id="history-'+eden.history.length+'">'+encodedhtml+'<hr /></div>');
+                                                        $('#history-content').append('<div id="history-'+eden.history.length+'"></div><hr />');
+                                                        $('#history-'+eden.history.length).text(myeditor.getValue());
 							eval(Eden.translateToJavaScript(myeditor.getValue()));
 							//myeditor.setValue("");
 							//printSymbolTable();
