@@ -18,7 +18,8 @@ function make_interpreter(name, mtitle, edenparser) {
 						try {
 							var myvalue;
 							eden.addHistory(myeditor.getValue());
-							$('#history-content').append('<div id="history-'+eden.history.length+'">'+myeditor.getValue()+'<hr /></div>');
+							var encodedhtml = myeditor.getValue().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+							$('#history-content').append('<div id="history-'+eden.history.length+'">'+encodedhtml+'<hr /></div>');
 							if (edenparser !== undefined) {
 							      //Parse special notation to eden
 							} else {
