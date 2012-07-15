@@ -13,3 +13,20 @@ ${{
 		root.lookup('mouseClickY').assign(e.pageY-parseInt(tabs.css("top"))-50);
 	});
 }}$;
+
+
+${{
+        $('#eden-content').delegate("#d1canvas", "mousedown", function(e) {
+                var tabs = $('#tabs');
+                root.lookup('mousePressed').assign(true);
+		root.lookup('mouseDown').assign(root.lookup('Point').value().call(this, e.pageX-parseInt(tabs.css("left"))-15, e.pageY-parseInt(tabs.css("top"))-50), this).value();
+        });
+}}$;
+
+${{
+        $('#eden-content').delegate("#d1canvas", "mouseup", function(e) {
+                var tabs = $('#tabs');
+		root.lookup('mousePressed').assign(false);
+		root.lookup('mouseUp').assign(root.lookup('Point').value().call(this, e.pageX-parseInt(tabs.css("left"))-15, e.pageY-parseInt(tabs.css("top"))-50), this).value();
+        });
+}}$;
