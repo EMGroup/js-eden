@@ -1,3 +1,18 @@
+Global Hotkeys
+==============
+* `alt+i` Focus interpreter window
+* `alt+shift+i` Hide interpreter window
+* `alt+a` Submit contents of interpreter window
+* `alt+o` Focus observable search box
+* `alt+p` Load older entered EDEN code into interpreter window
+* `alt+n` Load newer code into the interpeter window
+
+Developing locally
+==================
+You'll need to install ruby (probably ruby 1.9) as jseden currently requires a webserver for a few things.
+
+Once you've done that, just run `ruby dev_server.rb` and open `localhost:9090` in your browser.
+
 What are all the files?
 =======================
 build.sh - build the Eden -> JavaScript translator from grammar.jison and build the grammar testing page
