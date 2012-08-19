@@ -1,3 +1,63 @@
+function submitEdenCode(options) {
+	var editor = options.editor;
+	var edenparser = options.edenparser;
+	try {
+		var myvalue;
+		eden.addHistory(editor.getValue());
+		
+		if (edenparser !== undefined) {
+			//Parse special notation to eden
+		} else {
+			myvalue = editor.getValue();
+		}
+		
+		eval(Eden.translateToJavaScript(myvalue));
+		editor.setValue("");
+		printAllUpdates();
+	} catch(e) {
+		$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
+		eden.errornumber = eden.errornumber + 1;
+	}
+}
+
+function closeInput(options) {
+	var $dialog = options.$dialog;
+	$dialog.dialog('close');
+}
+
+function openInput(options) {
+	var $dialog = options.$dialog;
+
+	$dialog.dialog('open');
+	$(options.editor.getInputField()).focus();
+}
+
+function openObservablesAndAgents(options) {
+	$('#symbol-search > .side-bar-topic-title').click();
+	$('#observable-search').focus();
+}
+
+var KEYBINDINGS = {
+	'alt+shift+i': closeInput,
+	'alt+i': openInput,
+	'alt+a': submitEdenCode,
+	'alt+o': openObservablesAndAgents
+};
+
+function setupKeyBind(options, keyCombo, callback) {
+	$.each([document, options.editor.getInputField()], function () {
+		$(this).bind('keydown', keyCombo, function () {
+			callback && callback(options);
+		});
+	});
+}
+
+function setupAllKeyBinds(options) {
+	for (var keyCombo in KEYBINDINGS) {
+		setupKeyBind(options, keyCombo, KEYBINDINGS[keyCombo]);
+	}
+}
+
 function make_interpreter(name, mtitle, edenparser) {
 
 	var myeditor;
@@ -6,53 +66,43 @@ function make_interpreter(name, mtitle, edenparser) {
 	$dialog = $('<div id="'+name+'interpreter-window"></div>')
 		.html($code_entry)
 		.dialog({
-			title: mtitle, 
+			title: mtitle,
 			width: 450,
 			height: 240,
 			minHeight: 120,
 			minWidth: 230,
 			position: ['right','bottom'],
-			buttons: [{
-				id : "btn-submit",
-				text : "Submit",
-				click : function() {
-						try {
-							var myvalue;
-							eden.addHistory(myeditor.getValue());
-							
-							if (edenparser !== undefined) {
-							      //Parse special notation to eden
-							} else {
-							    myvalue = myeditor.getValue();
-							}
-							
-							eval(Eden.translateToJavaScript(myvalue));
-							myeditor.setValue("");
-							//printSymbolTable();
-							printAllUpdates();
-							//eden.saveLocalModelState();
-						} catch(e) {
-							$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
-							eden.errornumber = eden.errornumber + 1;
-						}
+			buttons: [
+				{
+					id: "btn-submit",
+					text: "Submit",
+					click: function() {
+						submitEdenCode({editor: myeditor});
 					}
 				},
 				{
-				text : "Previous",
-				click : function() {
+					text: "Previous",
+					click: function() {
 						myeditor.setValue(eden.previousHistory());
 					}
 				},
 				{
-				text : "Next",
-				click : function() {
+					text: "Next",
+					click: function() {
 						myeditor.setValue(eden.nextHistory());
 					}
 				}
 			]
 		});
 	input_dialog = $dialog;
+
 	$("#btn-submit").css("margin-right", "30px");
 
-	myeditor = convertToEdenPageNew('#'+name+'-input','code'); 
+	myeditor = convertToEdenPageNew('#'+name+'-input','code');
+
+	setupAllKeyBinds({
+		$dialog: $dialog,
+		editor: myeditor,
+		edenparser: edenparser
+	});
 }
