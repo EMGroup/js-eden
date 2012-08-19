@@ -1,3 +1,11 @@
+function loadPreviousEdenCode(options) {
+	options.editor.setValue(eden.previousHistory());
+}
+
+function loadNextEdenCode(options) {
+	options.editor.setValue(eden.nextHistory());
+}
+
 function submitEdenCode(options) {
 	var editor = options.editor;
 	var edenparser = options.edenparser;
@@ -41,14 +49,14 @@ var KEYBINDINGS = {
 	'alt+shift+i': closeInput,
 	'alt+i': openInput,
 	'alt+a': submitEdenCode,
-	'alt+o': openObservablesAndAgents
+	'alt+o': openObservablesAndAgents,
+	'alt+p': loadPreviousEdenCode,
+	'alt+n': loadNextEdenCode
 };
 
 function setupKeyBind(options, keyCombo, callback) {
-	$.each([document, options.editor.getInputField()], function () {
-		$(this).bind('keydown', keyCombo, function () {
-			callback && callback(options);
-		});
+	$(document).bind('keydown', keyCombo, function () {
+		callback && callback(options);
 	});
 }
 
@@ -83,13 +91,13 @@ function make_interpreter(name, mtitle, edenparser) {
 				{
 					text: "Previous",
 					click: function() {
-						myeditor.setValue(eden.previousHistory());
+						loadPreviousEdenCode({editor: myeditor});
 					}
 				},
 				{
 					text: "Next",
 					click: function() {
-						myeditor.setValue(eden.nextHistory());
+						loadNextEdenCode({editor: myeditor});
 					}
 				}
 			]
