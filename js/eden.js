@@ -34,7 +34,7 @@ Eden.prototype.previousHistory = function() {
 		this.index = this.history.length;
 	}
 	return this.getHistory(--this.index);
-}
+};
 
 Eden.prototype.nextHistory = function() {
 	if (this.index < 0) {
@@ -45,7 +45,24 @@ Eden.prototype.nextHistory = function() {
 		return "";
 	}
 	return this.getHistory(++this.index);
-}
+};
+
+Eden.formatError = function (e, options) {
+	options = options || {};
+	return "<div class=\"error-item\">"+
+		"## ERROR number " + eden.errornumber + ":<br>"+
+		(options.path ? "## " + options.path + "<br>" : "")+
+		e.message+
+		"</div>\r\n\r\n";
+};
+
+Eden.reportError = function (e, options) {
+	$('#error-window')
+		.addClass('ui-state-error')
+		.prepend(Eden.formatError(e, options))
+		.dialog({title:"EDEN Errors"});
+	eden.errornumber = eden.errornumber + 1;
+};
 
 /*
  * synchronously loads an EDEN file from the server,
@@ -54,13 +71,12 @@ Eden.prototype.nextHistory = function() {
 Eden.executeFile = function (path) {
 	$.ajax({
 		url: modelbase+path,
-		success: function(data) {
+		success: function (data) {
 			try {
 				eval(Eden.translateToJavaScript(data));
-			} catch(e) {
-				$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>## " + path + "<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
-				eden.errornumber = eden.errornumber + 1;
-			  }
+			} catch (e) {
+				Eden.reportError(e, {path: path});
+			}
 		},
 		cache: false,
 		async: false

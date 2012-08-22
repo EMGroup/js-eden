@@ -148,24 +148,19 @@ function observable_dialog(symbol,existing) {
 			minWidth: 250,
 			minHeight: 150,
 			buttons: {
-					Save: function() {
-						try {
-							eden.addHistory(myeditor.getValue());
-                                                        $('#history-content').append('<div id="history-'+eden.history.length+'"></div><hr />');
-                                                        $('#history-'+eden.history.length).text(myeditor.getValue());
-							eval(Eden.translateToJavaScript(myeditor.getValue()));
-							//myeditor.setValue("");
-							//printSymbolTable();
-							//printAllUpdates();
-							//eden.saveLocalModelState();
-						} catch(e) {
-							$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>\n" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
-                                                        var contents = $('#history-'+eden.history.length).html();
-                                                        $('#history-'+eden.history.length).attr('class','history-error').html('## '+contents);
-							eden.errornumber = eden.errornumber + 1;
-						}
+				Save: function() {
+					try {
+						eden.addHistory(myeditor.getValue());
+						$('#history-content').append('<div id="history-'+eden.history.length+'"></div><hr />');
+						$('#history-'+eden.history.length).text(myeditor.getValue());
+						eval(Eden.translateToJavaScript(myeditor.getValue()));
+					} catch (e) {
+                        var contents = $('#history-'+eden.history.length).html();
+                        $('#history-'+eden.history.length).attr('class','history-error').html('## '+contents);
+						Eden.reportError(e);
 					}
 				}
+			}
 		});
 		myeditor = convertToEdenPageNew('#obs_inspector_'+symbol.name.substr(1),'defedit');
 		$dialog.get(0).editor = myeditor;
@@ -184,7 +179,7 @@ function observable_dialog(symbol,existing) {
 	}
 
 	
-};
+}
 
 function function_dialog(symbol, existing) {
 	var myeditor;
@@ -207,17 +202,12 @@ function function_dialog(symbol, existing) {
 			minWidth: 250,
 			minHeight: 150,
 			buttons: {
-					Save: function() {
+					Save: function () {
 						try {
 							eden.addHistory(myeditor.getValue());
 							eval(Eden.translateToJavaScript(myeditor.getValue()));
-							//myeditor.setValue("");
-							//printSymbolTable();
-							//printAllUpdates();
-							//eden.saveLocalModelState();
-						} catch(e) {
-							$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>\n" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
-							eden.errornumber = eden.errornumber + 1;
+						} catch (e) {
+							Eden.reportError(e);
 						}
 					}
 				}
@@ -237,7 +227,7 @@ function function_dialog(symbol, existing) {
 		existing.get(0).editor.setValue($code_html);
 		return existing;
 	}
-};
+}
 
 function procedure_dialog(symbol, existing) {
 	var myeditor;
@@ -264,13 +254,8 @@ function procedure_dialog(symbol, existing) {
 						try {
 							eden.addHistory(myeditor.getValue());
 							eval(Eden.translateToJavaScript(myeditor.getValue()));
-							//myeditor.setValue("");
-							//printSymbolTable();
-							//printAllUpdates();
-							//eden.saveLocalModelState();
-						} catch(e) {
-							$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>\n" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
-							eden.errornumber = eden.errornumber + 1;
+						} catch (e) {
+							Eden.reportError(e);
 						}
 					}
 				}

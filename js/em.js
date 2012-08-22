@@ -347,27 +347,8 @@ function js_eden_init() {
 			me.html("<li class=\"type-observable\"><span class=\"result_name\">" + namehtml + "</span><span class='result_value'> = " + valhtml + "</span></li>");
 		});
 
-
-		/*$(root).bind('symbolCreate', function(event, symbol, name) { 
-			$(symbol).bind('symbolMutate', function(event, name) { printSymbolTable(); });
-			$(symbol).bind('symbolDefine', function(event, name) { printSymbolTable(); });
-			$(symbol).bind('symbolAssign', function(event, name) { printSymbolTable(); });
-			printSymbolTable(); 
-		});*/
-
 		make_interpreter("eden","EDEN Interpreter Window");
 
-		//convertToEdenPage('#interpreter-window');
-
-		/*$donald_entry = $('<canvas id="d1canvas" width=500 height=500 style="border-color: black; border-width: 1px; border-style: solid;"></canvas>');
-		$donald = $('<div id="donald-window"></div>')
-			.html($donald_entry)
-			.dialog({
-				width: "530px",
-				title: "DONALD", 
-			});*/
-		
-		//$('.ui-dialog-titlebar a', $dialog.parent()).remove();
 		$('<pre id="error-window" style="font-family:monospace;"></pre>').appendTo($('body'));
 
 		Eden.executeFile("library/eden.jse");
