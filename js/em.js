@@ -1,33 +1,50 @@
 var selected_observable = null;
 var selected_function = null;
 
-function printObservables(pattern) {
+var SYMBOL_TYPES = {
+	observable: true,
+	functions: true,
+	drawable: true,
+	procedure: true
+};
+
+function makeSearchRegexes(types) {
+	var regexes = {};
+	for (var t in types) {
+		var pattern = $('#'+t+'-search').val();
+		regexes[t] = pattern ? new RegExp("^"+pattern+".*") : undefined;
+	}
+	return regexes;
+}
+
+function shouldAdd(maybeRegex, name) {
+	return !maybeRegex || name.search(maybeRegex) != -1;
+}
+
+function printObservables() {
 	obspos = 0;
+
+	var regexes = makeSearchRegexes(SYMBOL_TYPES);
 
 	$('#observable-results').html('');
 	$('#functions-results').html('');
 	$('#drawable-results').html('');
 	$('#procedure-results').html('');
-	var reg = new RegExp("^"+pattern+".*");
-	var myeditor;
-	$.each(root.symbols, function(name,symbol) { 
-		if (name.search(reg) == -1) { return; }
-		if (symbol.definition !== undefined) {
-			if (symbol.eden_definition !== undefined) {
-				var subs = symbol.eden_definition.substring(0,4);
-				if (subs == "proc") {
-					add_procedure(symbol, name);
-					//return;
-				} else if (subs == "func") {
-					add_function(symbol, name);
-					//return;
-				} else {
-					add_observable(symbol,name);
-				}
-			} else {
-				add_observable(symbol,name);
+
+	$.each(root.symbols, function (name, symbol) {
+		if (!symbol.definition || !symbol.eden_definition) {
+			if (shouldAdd(regexes.observable, name)) {
+				add_observable(symbol, name);
 			}
-		} else {
+			return;
+		}
+
+		var subs = symbol.eden_definition.substring(0,4);
+		if (subs == "proc" && shouldAdd(regexes.procedure, name)) {
+			add_procedure(symbol, name);
+		} else if (subs == "func" && shouldAdd(regexes.functions, name)) {
+			add_function(symbol, name);
+		} else if (shouldAdd(regexes.observable, name)) {
 			add_observable(symbol, name);
 		}
 	});
