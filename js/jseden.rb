@@ -14,7 +14,24 @@ if ARGV[0] != "--nocgi"
 	puts ""
 end
 
-scripts = ["jquery.color.js","jquery.hotkeys.js","dummyconsole.js","json2.js","test.js","maintainer.js","eden/parser.js","eden.js","edenui.js","models.js","collections.js","sessions.js","interpreter.js","em.js","edenpage.js"]
+scripts = [
+	"lib/jquery.color.js",
+	"lib/jquery.hotkeys.js",
+	"lib/json2.js",
+
+	"dummyconsole.js",
+	"test.js",
+	"maintainer.js",
+	"eden/parser.js",
+	"eden.js",
+	"edenui.js",
+	"models.js",
+	"collections.js",
+	"sessions.js",
+	"interpreter.js",
+	"em.js",
+	"edenpage.js"
+]
 
 scripts.each do |x|
 	#puts x
