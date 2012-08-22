@@ -23,10 +23,9 @@ function submitEdenCode(options) {
 		editor.setValue("");
 		printAllUpdates();
 	} catch (e) {
-		$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\">## ERROR number " + eden.errornumber + ":<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
 		var contents = $('#history-'+eden.history.length).html();
 		$('#history-'+eden.history.length).attr('class','history-error').html('## '+contents);
-		eden.errornumber = eden.errornumber + 1;
+		Eden.reportError(e);
 	}
 }
 
