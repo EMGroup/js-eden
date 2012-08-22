@@ -14,15 +14,31 @@ if ARGV[0] != "--nocgi"
 	puts ""
 end
 
-# scripts = ["jquery.color.js","jquery.hotkeys.js","dummyconsole.js","json2.js","test.js","maintainer.js","eden/parser.js","eden.js","edenui.js","models.js","collections.js","sessions.js","interpreter.js","em.js","edenpage.js","sylvester.js", "raphael-min.js", "dracula_graffle.js",  "dracula_graph.js", "Curry-1.0.1.js", "dracula_algorithms.js", "dracula_graph.js", "jquery-1.4.2.min.js", "seedrandom.js"]
+scripts = [
+	"lib/jquery.color.js",
+	"lib/jquery.hotkeys.js",
+	"lib/json2.js",
 
-# scripts = ["jquery.color.js","jquery.hotkeys.js","dummyconsole.js","json2.js","test.js","maintainer.js","eden/parser.js","eden.js","edenui.js","models.js","collections.js","sessions.js","interpreter.js","em.js","edenpage.js","sylvester.js"]
+	"dummyconsole.js",
+	"test.js",
+	"maintainer.js",
+	"eden/parser.js",
+	"eden.js",
+	"edenui.js",
+	"models.js",
+	"collections.js",
+	"sessions.js",
+	"interpreter.js",
+	"em.js",
+	"edenpage.js",
 
-scripts = ["jquery.color.js","jquery.hotkeys.js","dummyconsole.js","json2.js","test.js","maintainer.js","eden/parser.js","eden.js","edenui.js","models.js","collections.js","sessions.js","interpreter.js","em.js","edenpage.js","sylvester.js", "raphael-min.js", "dracula_graffle.js",  "dracula_graph.js"]
-
+	"sylvester.js",
+	"raphael-min.js",
+	"dracula_graffle.js",
+	"dracula_graph.js",
+]
 
 scripts.each do |x|
-	#puts x
 	file = File.new(x, "r")
 	while (line = file.gets)
 		puts line

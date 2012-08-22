@@ -13,26 +13,34 @@ You'll need to install ruby (probably ruby 1.9) as jseden currently requires a w
 
 Once you've done that, just run `ruby dev_server.rb` and open `localhost:9090` in your browser.
 
+EDEN to JavaScript translator
+=============================
+The translator is itself written in JavaScript so that it can execute in the browser.
+
+WIP changes to the translator
+-----------------------------
+In order to improve code generation and ability to reuse the EDEN parser, the Jison parser could. 
+
 What are all the files?
 =======================
-build.sh - build the Eden -> JavaScript translator from grammar.jison and build the grammar testing page
-grammar.jison - contains the grammar for the Eden -> JavaScript translator
-test.html.top, test.html.bottom - the static content used to build the grammar testing page
+* build.sh - build the Eden -> JavaScript translator from grammar.jison and build the grammar testing page
+* grammar.jison - contains the grammar for the Eden -> JavaScript translator
+* test.html.top, test.html.bottom - the static content used to build the grammar testing page
 
-test.html - the grammar development and testing page
-eden.html - a prototype JsEden environment
+* test.html - the grammar development and testing page
+* eden.html - a prototype JsEden environment
 
-js/maintainer.js - the definition maintainer for JavaScript
-js/try.js - the logic for the grammar testing page
-js/test.js - logic for writing testcases for the translator
+* js/maintainer.js - the definition maintainer for JavaScript
+* js/try.js - the logic for the grammar testing page
+* js/test.js - logic for writing testcases for the translator
 
 libraries & utils
 -----------------
 
-js/json2.js
-js/jison.js
-js/dummyconsole.js
-js/beautify.js
+* js/json2.js
+* js/jison.js
+* js/dummyconsole.js
+* js/beautify.js
 
 Requirements to build everything
 ================================
