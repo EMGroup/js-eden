@@ -81,6 +81,10 @@ div#eden-content {
 	font-size: 10pt;
 }
 
+#eden-content input {
+	z-index: 100;
+}
+
 div#tty-content {
 	font-family: "Courier New";
 	font-size: 12pt;

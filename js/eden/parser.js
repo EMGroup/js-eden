@@ -9,7 +9,7 @@ performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
 
 var $0 = $$.length - 1;
 switch (yystate) {
-case 1: return '(function(context) { ' + yy.printObservableDeclarations() + $$[$0-1] + ' })(root);'; 
+case 1: return '(function(context, rt) { ' + yy.printObservableDeclarations() + $$[$0-1] + ' })(root, rt);'; 
 break;
 case 2:
     if (yy.paras.length !== 0 && yy.paras[0][$$[$0]] !== undefined) {
@@ -46,7 +46,7 @@ case 16: this.$ = '!' + $$[$0];
 break;
 case 17: this.$ = $$[$0]; 
 break;
-case 18: this.$ = $$[$0-1] + '.length'; 
+case 18: this.$ = 'rt.length('+$$[$0-1]+')'; 
 break;
 case 19: this.$ = '' + $$[$0-2] + ' + ' + $$[$0]; 
 break;
