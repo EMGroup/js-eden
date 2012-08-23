@@ -148,7 +148,7 @@
  */
 
 script
-    : statement-list-opt EOF { return '(function(context) { ' + yy.printObservableDeclarations() + $1 + ' })(root);'; }
+    : statement-list-opt EOF { return '(function(context, rt) { ' + yy.printObservableDeclarations() + $1 + ' })(root, rt);'; }
     ;
 
 lvalue
@@ -206,7 +206,7 @@ expression
 // XXX: Lots of SR conflicts :(
 // no idea if any of the resolutions behave in a way that would bother us though...
     | expression '#' %prec LENGTH
-        { $$ = $1 + '.length'; }
+        { $$ = 'rt.length('+$1+')'; }
 
     //
     // binary operators

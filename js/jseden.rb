@@ -19,6 +19,7 @@ scripts = [
 	"lib/jquery.hotkeys.js",
 	"lib/json2.js",
 
+	"runtime.js",
 	"dummyconsole.js",
 	"test.js",
 	"maintainer.js",
