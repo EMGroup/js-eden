@@ -50,6 +50,12 @@ Vagrant::Config.run do |config|
   config.vm.provision :chef_solo do |chef|
     chef.cookbooks_path = "chef/cookbooks"
     chef.add_recipe("jseden_main")
+    chef.json = {
+      :mysql => {
+        :server_root_password => 'root',
+        :bind_address => '127.0.0.1'
+      }
+    }
   end
 
 end

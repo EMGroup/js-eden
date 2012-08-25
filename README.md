@@ -13,6 +13,9 @@ You'll need to install ruby (probably ruby 1.9) as jseden currently requires a w
 
 Once you've done that, just run `ruby dev_server.rb` and open `localhost:9090` in your browser.
 
+Nice introduction to vagrant/chef here:
+http://iostudio.github.com/LunchAndLearn/2012/03/21/vagrant.html
+
 EDEN to JavaScript translator
 =============================
 The translator is itself written in JavaScript so that it can execute in the browser.
