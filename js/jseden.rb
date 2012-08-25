@@ -1,18 +1,6 @@
 #!/dcs/emp/jseden/bin/ruby
 # Concatenates and serves all the required scripts for jseden.
-# If called with --nocgi, just outputs to stdout without waiting for CGI input.
-
-require 'erb'
-require 'uri'
-require 'cgi'
-
-
-if ARGV[0] != "--nocgi"
-	$cgi = CGI.new("html4")
-
-	puts "Content-type: application/x-javascript"
-	puts ""
-end
+puts "Content-type: application/x-javascript\n\n"
 
 scripts = [
 	"lib/jquery.color.js",
@@ -42,4 +30,3 @@ scripts.each do |x|
 	end
 	file.close
 end
-
