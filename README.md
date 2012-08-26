@@ -20,6 +20,12 @@ EDEN to JavaScript translator
 =============================
 The translator is itself written in JavaScript so that it can execute in the browser.
 
+Note about end of lines
+-----------------------
+The translator fails to extract EDEN definitions from the source code if DOS newlines are present (CRLF).
+Currently we work around this by just doing a search and replace for CRLF into LF before feeding it into the
+parser.
+
 WIP changes to the translator
 -----------------------------
 In order to improve code generation and ability to reuse the EDEN parser, the Jison parser could. 

@@ -91,6 +91,7 @@ Eden.executeFile = function (path) {
  */
 Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 	return function(source) {
+		source = source.replace(/\r\n/g, '\n');
 		var in_definition = false;
 		var dependencies = {};
 
