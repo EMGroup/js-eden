@@ -4,8 +4,8 @@ var assignmentHelper;
 
 var GrammarPage = {};
 
-var Jison = require('./lib/jison'),
-    bnf = require('./lib/jison/bnf');
+var Jison = require('jison'),
+    bnf = require('jison/bnf');
 
 var parser,
     parser2;
