@@ -221,10 +221,24 @@ Symbol.prototype.observe = function() {
 		var symbol = this.context.lookup(symbol_names[i]);
 		this.observees[symbol.name] = symbol;
 		symbol.addObserver(me.name, me);
-	};
+	}
 
 	return this;
 };
+
+Symbol.prototype.observeSymbols = function() {
+	var symbols = Utils.flatten(arguments);
+	var me = this;
+
+	for (var i = 0; i < symbols.length; ++i) {
+		var symbol = symbols[i];
+		this.observees[symbol.name] = symbol;
+		symbol.addObserver(me.name, me);
+	}
+
+	return this;
+};
+
 
 Symbol.prototype.stopObserving = function(symbol_name) {
 	this.observees[symbol_name].removeObserver(this.name);

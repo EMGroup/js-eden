@@ -6,6 +6,7 @@
 
 	<script type="text/javascript" src="js/lib/jquery-1.7.1.min.js"></script>
 	<script type="text/javascript" src="js/lib/jquery-ui-1.8.12.min.js"></script>
+	<script type="text/javascript" src="js/lib/underscore.js"></script>
 
 	<!-- codemirror -->
 	<script type="text/javascript" charset="utf-8" src="js/lib/codemirror/codemirror.js"></script>
@@ -22,6 +23,11 @@
 	<link rel="stylesheet" type="text/css" href="css/eden.css" />
 
 	<script src="js/jseden.rb" type="text/javascript"></script>
+
+	<link rel="stylesheet" href="css/symbolviewer.css">
+	<script src="js/symbolviewer.js" type="text/javascript"></script>
+	<script type="text/javascript">
+	</script>
 
 </head>
 <body>
@@ -48,6 +54,15 @@
 
 <script type="text/javascript">
 	js_eden_init();
+	$(function () {
+		window.viewer = new SymbolViewer(window.root, $('#symbol-viewer'));
+		viewer.render();
+		window.root.addGlobal(function (sym, create) {
+			if (create) {
+				viewer.addEntry(sym);
+			}
+		});
+	});
 </script>
 
 <div id="tabs">
@@ -63,11 +78,17 @@
 </div>
 
 <div id="side-bar">
+
+<div class="side-bar-topic">
+	<div class="symbol-viewer" id="symbol-viewer">
+	</div>
+</div>
+
 <div class="side-bar-topic" style="margin-top: 30px">
 	<div class="side-bar-topic-title">Projects &amp; Sessions</div>
 	<div class="side-bar-topic-content" style="height: 300px">
 		<div class="search-box-outer">
-			<input type="text" class="search-box" id="project-search"></input>
+			<input type="text" class="search-box" id="project-search">
 			<div class="search-button"></div>
 		</div>
 		<div id="project-scrollup" class="scrollup"></div>
@@ -75,38 +96,12 @@
 		<div id="project-scrolldown" class="scrolldown"></div>
 	</div>
 </div>
-<div class="side-bar-topic" id="symbol-search">
-	<div class="side-bar-topic-title">Observables &amp; Agents</div>
-	<div class="side-bar-topic-content">
-		<div class="search-box-outer">
-			<input type="text" class="search-box" id="observable-search"></input>
-			<div class="search-button"></div>
-		</div>
-		<div id="observable-scrollup" class="scrollup"></div>
-		<div class="results-lim"><div id="observable-results"></div></div>
-		<div id="observable-scrolldown" class="scrolldown"></div>
-	</div>
-</div>
-<div class="side-bar-topic" id="watches">
-	<div class="side-bar-topic-title">Watches</div>
-	<div class="side-bar-topic-content"></div>
-</div>
-<div class="side-bar-topic" id="history">
-	<div class="side-bar-topic-title">History</div>
-	<div class="side-bar-topic-content"></div>
-</div>
 
 <div id="version-number"></div>
 
 </div>
 <div id="hide-side"></div>
 
-<div id="observable-info">
-<div id="observable-info-content">
-<div id="observable-info-name"></div>
-</div>
-<div id="observable-info-point"></div>
-</div>
 
 
 

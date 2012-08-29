@@ -37,12 +37,8 @@ li.type-project {
 }
 
 div#side-bar {
-	position: absolute;
-	width: 250px;
+	width: 300px;
 	background-color: #117fe5;
-	top: 105px;
-	bottom: 0px;
-	overflow: hidden;
 }
 
 div#eden-logo {
@@ -97,13 +93,10 @@ div#tty-content {
 	overflow-y: scroll;
 }
 
-div.side-bar-topic {
-	width: 250px;
-}
 
 div.side-bar-topic-title {
 	background-color: #3f3f3f;
-	heighhandt: 20px;
+	height: 20px;
 	font-family: 'Arial';
 	font-size: 10pt;
 	font-weight: bold;
@@ -234,16 +227,16 @@ div.result-element {
 	/*border-bottom-width: 1px;
 	border-bottom-style: solid;
 	border-bottom-color: #d0d0d0;*/
-	position: relative;
-	left: 0px;
-	right: 0px;
-	height: 16px;
+	/*position: relative;*/
+	/*left: 0px;*/
+	/*right: 0px;*/
+	/*height: 16px;*/
 	cursor: pointer;
-	overflow: hidden;
-	position: relative;
-	padding-left: 15px;
-	padding-right: 15px;
-	margin-bottom: 2px;
+	/*overflow: hidden;*/
+	/*position: relative;*/
+	/*padding-left: 15px;*/
+	/*padding-right: 15px;*/
+	/*margin-bottom: 2px;*/
 }
 
 div#model-title {

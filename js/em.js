@@ -2,6 +2,7 @@ var selected_observable = null;
 var selected_function = null;
 
 function printObservables(pattern) {
+	return;
 	obspos = 0;
 
 	$('#observable-results').html('');
@@ -45,6 +46,7 @@ var selected_project = null;
 
 
 function printAllUpdates() {
+	return;
 	printObservables($('#observable-search')[0].value);
 }
 
@@ -187,6 +189,7 @@ function js_eden_init() {
 				//edenfunctions = JSON.parse(data);
 				edenfunctions = data;
 				printObservables("");
+				window.viewer.setDocs(edenfunctions);
 			},
 			cache: false,
 			async: true
@@ -254,6 +257,7 @@ function js_eden_init() {
 		});
 
 		root.addGlobal(function (sym, create) {
+			return;
 			//console.log("Obs changed: " + sym.name.substr(1));
 
 			//if (root.autocalc_state == true) {
