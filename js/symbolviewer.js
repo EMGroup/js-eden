@@ -33,7 +33,7 @@
 	};
 
 	SymbolViewer.prototype._createTooltip = function () {
-		return $('<div class="symbol-info"></div>').appendTo('body');
+		return $('<div class="symbol-info"></div>').css('display', 'none').appendTo('body');
 	};
 
 	SymbolViewer.prototype._showInfo = function (node) {
