@@ -7,6 +7,7 @@
 	<script type="text/javascript" src="js/lib/jquery-1.7.1.min.js"></script>
 	<script type="text/javascript" src="js/lib/jquery-ui-1.8.12.min.js"></script>
 	<script type="text/javascript" src="js/lib/underscore.js"></script>
+	<script type="text/javascript" src="js/util.js"></script>
 
 	<!-- codemirror -->
 	<script type="text/javascript" charset="utf-8" src="js/lib/codemirror/codemirror.js"></script>
@@ -35,8 +36,18 @@
 	$('#observable-search').live('keyup', function () {
 		window.viewer.setFilter($(this).val());
 	});
+	var symbolDialog;
+	function createSymbolDialog(symbol) {
+		if (util.isFunc(symbol)) {
+			symbolDialog = function_dialog(symbol, symbolDialog);
+		} else if (util.isProc(symbol)) {
+			symbolDialog = procedure_dialog(symbol, symbolDialog);
+		} else {
+			symbolDialog = observable_dialog(symbol, symbolDialog);
+		}
+	}
 	$(function () {
-		window.viewer = new SymbolViewer(window.root, $('#symbol-viewer'));
+		window.viewer = new SymbolViewer(window.root, $('#symbol-viewer'), createSymbolDialog);
 		viewer.render();
 		window.root.addGlobal(function (sym, create) {
 			if (create) {

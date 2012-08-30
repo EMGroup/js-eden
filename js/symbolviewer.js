@@ -4,7 +4,7 @@
 		return parts[parts.length - 1];
 	}
 
-	function SymbolViewer(context, el) {
+	function SymbolViewer(context, el, dialog) {
 		this._context = context;
 		this._filter = null;
 		this._docs = {functions: {}};
@@ -12,6 +12,7 @@
 		this._list = this._createListView();
 		this._tooltip = this._createTooltip();
 		this._symbolIndexes = {};
+		this._dialog = dialog;
 	}
 
 	SymbolViewer.prototype.setDocs = function (docs) {
@@ -93,10 +94,6 @@
 		}
 	};
 
-	SymbolViewer.prototype.updateEntry = function (symbol) {
-
-	};
-
 	SymbolViewer.prototype._renderValue = function (symbol) {
 		var name = _shortName(symbol);
 		var val = symbol.value();
@@ -110,7 +107,7 @@
 
 		valhtml = " = " + valhtml;
 
-		if (this._isProc(symbol)) {
+		if (util.isProc(symbol)) {
 			if (_(symbol.observees).isEmpty()) {
 				valhtml = "";
 			} else {
@@ -118,21 +115,13 @@
 			}
 		}
 
-		else if (this._isFunc(symbol)) {
+		else if (util.isFunc(symbol)) {
 			var functionDetails = this._docs.functions[name] || {};
 			var parameters = functionDetails.parameters || {"...": 1};
 			valhtml = "(" + _(parameters).keys().join(", ") + ")";
 		}
 
 		return '<span class="result_value">'+valhtml+'</span>';
-	};
-
-	SymbolViewer.prototype._isFunc = function (symbol) {
-		return typeof symbol.value() == "function";
-	};
-
-	SymbolViewer.prototype._isProc = function (symbol) {
-		return symbol.eden_definition && symbol.eden_definition.substring(0, 4) === "proc";
 	};
 
 	SymbolViewer.prototype._renderName = function (symbol) {
@@ -164,11 +153,12 @@
 	};
 
 	SymbolViewer.prototype._renderEntry = function (symbol) {
+		var me = this;
 		var $node = $('<li class="'+this._classes(symbol)+'"><div class="result-element">'+this._renderName(symbol)+this._renderValue(symbol)+'</div></li>')
 			.hover(this._hoverOn(), this._hoverOff())
+			.click(function () { me._dialog(symbol); })
 			.data('symbol', symbol);
 
-		var me = this;
 		new Symbol(undefined, 'symbolviewer/'+_shortName(symbol)).assign(function () {me._update($node);}).observeSymbols(symbol);
 		return $node;
 	};
