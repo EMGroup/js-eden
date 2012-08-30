@@ -58,7 +58,6 @@ var obspos = 0;
 var procspos = 0;
 var funcspos = 0;
 var projects;
-var edenfunctions = {};
 var side_bar_height = 300;
 var input_dialog;
 var current_view = new Array();
@@ -185,11 +184,9 @@ function js_eden_init() {
 		//Obtain function meta data from server
 		$.ajax({
 			url: "library/functions.json",
+			dataType: "json",
 			success: function(data) {
-				//edenfunctions = JSON.parse(data);
-				edenfunctions = data;
-				printObservables("");
-				window.viewer.setDocs(edenfunctions);
+				window.viewer.setDocs(data);
 			},
 			cache: false,
 			async: true
