@@ -1,118 +1,37 @@
-div#hide-side {
+html, body {
+	height: 100%;
+}
+
+.main {
 	position: absolute;
-	left: 5px;
-	top: 115px;
-	width: 20px;
-	height: 20px;
-	background-image: url('../images/hide-hor-icon.png');
-}
-
-div#hide-top {
-	position: absolute;
-	right: 5px;
-	top: 80px;
-	width: 20px;
-	height: 20px;
-	background-image: url('../images/hide-ver-icon.png');
-}
-
-li.type-function {
-	list-style-image: url('../images/type-function.png');
-}
-
-li.type-observable {
-	list-style-image: url('../images/type-observable.png');
-}
-
-li.type-procedure {
-	list-style-image: url('../images/type-agent.png');
-}
-
-li.type-session {
-	list-style-image: url('../images/type-sessions.png');
-}
-
-li.type-project {
-	list-style-image: url('../images/type-project.png');
-}
-
-div#side-bar {
-	width: 300px;
-	background-color: #117fe5;
-}
-
-div#eden-logo {
-	position: absolute;
-	top: 5px;
-	left: 30px;
-	background-image: url('../images/em-logo.png');
-	background-repeat: no-repeat;
-	width: 250px;
-	height: 70px;
-	z-index: 2;
-}
-
-div#tabs {
-	position: absolute;
-	top: 105px;
-	left: 250px;
-	right: 0px;
-	background-color: white;
+	left: 300px;
+	right: 0;
+	top: 0;
+	bottom: 0;
 	border-top-style: solid;
 	border-top-width: 2px;
 	border-top-color: black;
 	border-left-style: solid;
 	border-left-width: 2px;
 	border-left-color: black;
-	bottom: 0px;
 }
 
-div#eden-content {
-	position: relative;
-	top: 0px;
-	left: 0px;
-	right: 0px;
-	bottom: 0px;
+.side-bar {
+	width: 300px;
+	height: 100%;
+}
+
+#tabs {
+	background-color: white;
+}
+
+#eden-content {
 	padding: 10px;
 	font-size: 10pt;
 }
 
 #eden-content input {
 	z-index: 100;
-}
-
-div#tty-content {
-	font-family: "Courier New";
-	font-size: 12pt;
-	position: absolute;
-	top: 45px;
-	left: 0px;
-	right: 0px;
-	bottom: 0px;
-	padding: 10px;
-	overflow-y: scroll;
-}
-
-
-div.side-bar-topic-title {
-	background-color: #3f3f3f;
-	height: 20px;
-	font-family: 'Arial';
-	font-size: 10pt;
-	font-weight: bold;
-	color: white;
-	width: 242px;
-	border-bottom-style: solid;
-	border-bottom-width: 1px;
-	border-bottom-color: #5f5f5f;
-	padding-left: 10px;
-	cursor: pointer;
-}
-
-div.side-bar-topic-content {
-	background-color: white;
-	overflow: hidden;
-	height: 0px;
 }
 
 div.search-box-outer {
@@ -123,11 +42,6 @@ div.search-box-outer {
 }
 
 input.search-box {
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	width: 196px;
-	height: 24px;
 	border-style: solid;
 	border-width: 1px;
 	border-color: #117fe5;
@@ -141,11 +55,6 @@ input.obs-watch-check {
 	left: -10px;
 	top: 0px;
 	margin: 0px;
-}
-
-div#show-input {
-	background-image: url('../images/input-icon.png');
-	left: 300px;
 }
 
 div.top-button {
@@ -255,79 +164,6 @@ div.demotip {
 	font-weight: bold;
 	color: #ab0000;
 	opacity: 0.5;
-}
-
-div#observable-info {
-	position: absolute;
-	display: hidden;
-	min-width: 200px;
-	max-width: 450px;
-	min-height: 30px;
-	font-size: 12pt;
-}
-
-div.results-lim {
-	overflow: hidden;
-}
-
-div#observable-info-point {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 10px;
-	bottom: 0px;
-	background-image: url('../images/point-edge.png');
-	background-repeat: no-repeat;
-	background-position: left center;
-}
-
-div#observable-info-content {
-	position: absolute;
-	left: 8px;
-	min-height: 30px;
-	background-color: #fafafa;
-	border-width: 1px;
-	border-color: #117fe5;
-	border-style: solid;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-}
-
-div#observable-info-name {
-	font-size: 12px;
-	font-family: 'Courier New';
-	margin: 2px;
-	margin-left: 4px;
-}
-
-span.result_value {
-	opacity: 0.5;
-	white-space: nowrap;
-	overflow: hidden;
-}
-
-.error_text {
-	color: red;
-}
-
-.special_text {
-	font-weight: bold;
-}
-
-.numeric_text {
-	color: blue;
-}
-
-.string_text {
-	color: red;
-}
-
-.hasdef_text {
-	color: #0000ab;
-}
-
-textarea#observable-info-definition {
-		
 }
 
 div#eden-input {

@@ -7,7 +7,7 @@
 	function SymbolViewer(context, el) {
 		this._context = context;
 		this._filter = null;
-		this._docs = null;
+		this._docs = {functions: {}};
 		this._el = el;
 		this._list = this._createListView();
 		this._tooltip = this._createTooltip();
@@ -33,19 +33,26 @@
 	};
 
 	SymbolViewer.prototype._createTooltip = function () {
-		return $('<div class="symbol-info"></div>').appendTo(this._el);
+		return $('<div class="symbol-info"></div>').appendTo('body');
 	};
 
 	SymbolViewer.prototype._showInfo = function (node) {
 		var $node = $(node);
 		var symbol = $node.data('symbol');
-		var details;
-		if (this._docs) {
-			details = this._docs.functions[_shortName(symbol)];
-		}
+		var details = {
+			docs: this._docs.functions[_shortName(symbol)],
+			definition: symbol.eden_definition
+		};
 
-		if (details) {
-			this._tooltip.text(details.description);
+		if (details.docs || details.definition) {
+			this._tooltip.html('');
+			this._tooltip.append('<div class="symbol-name">'+_shortName(symbol)+'</div>');
+			if (details.docs) {
+				this._tooltip.append('<div>'+details.docs.description+'</div>');
+			}
+			if (details.definition) {
+				this._tooltip.append('<pre class="ellipsis">'+details.definition+'</pre>');
+			}
 			var left = (node.offsetLeft + node.offsetWidth) + "px";
 			var top = node.offsetTop + "px";
 			this._tooltip.css("left", left);
@@ -93,6 +100,7 @@
 	SymbolViewer.prototype._renderValue = function (symbol) {
 		var name = _shortName(symbol);
 		var val = symbol.value();
+		var valhtml;
 		
 		if (typeof val == "boolean") { valhtml = "<span class='special_text'>"+val+"</span>"; }
 		else if (typeof val == "undefined") { valhtml = "<span class='error_text'>undefined</span>"; }
@@ -102,14 +110,29 @@
 
 		valhtml = " = " + valhtml;
 
-		if (this._docs && this._docs.functions) {
-			var functionDetails = window.edenfunctions.functions[name];
-			if (functionDetails && functionDetails.parameters) {
-				valhtml = "(" + _(functionDetails.parameters).keys().join(", ") + ")";
+		if (this._isProc(symbol)) {
+			if (_(symbol.observees).isEmpty()) {
+				valhtml = "";
+			} else {
+				valhtml = " : " + _(symbol.observees).keys().join(", ");
 			}
 		}
 
+		else if (this._isFunc(symbol)) {
+			var functionDetails = this._docs.functions[name] || {};
+			var parameters = functionDetails.parameters || {"...": 1};
+			valhtml = "(" + _(parameters).keys().join(", ") + ")";
+		}
+
 		return '<span class="result_value">'+valhtml+'</span>';
+	};
+
+	SymbolViewer.prototype._isFunc = function (symbol) {
+		return typeof symbol.value() == "function";
+	};
+
+	SymbolViewer.prototype._isProc = function (symbol) {
+		return symbol.eden_definition && symbol.eden_definition.substring(0, 4) === "proc";
 	};
 
 	SymbolViewer.prototype._renderName = function (symbol) {
@@ -119,6 +142,14 @@
 	SymbolViewer.prototype._classes = function (symbol) {
 		var classes = [];
 		if (typeof symbol.value() === "function") {
+			if (symbol.eden_definition) {
+				var subs = symbol.eden_definition.substring(0, 4);
+				if (subs === "proc") {
+					classes.push("type-procedure");
+				} else {
+					classes.push("type-function");
+				}
+			}
 			classes.push("type-function");
 		} else {
 			classes.push("type-observable");
@@ -128,6 +159,7 @@
 
 	SymbolViewer.prototype._update = function ($node) {
 		var symbol = $node.data('symbol');
+		$node.attr('class', this._classes(symbol));
 		$node.html('<div class="result-element">'+this._renderName(symbol)+this._renderValue(symbol)+'</div>');
 	};
 
@@ -142,7 +174,7 @@
 	};
 
 	SymbolViewer.prototype.setFilter = function (pattern) {
-		this._filter = new RegExp('^'+pattern);
+		this._filter = new RegExp('^(?:'+pattern+')', "i");
 		this.render();
 	};
 

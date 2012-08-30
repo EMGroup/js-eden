@@ -1,9 +1,4 @@
 div#main_menu {
-	position: absolute;
-	left: 0px;
-	right: 0px;
-	top: 0px;
-	height: 25px;
 	background-color: black;
 	color:	white;
 	font-size: 14px;
@@ -21,6 +16,14 @@ a.main_menu_item {
 	font-size: 12px;
 	font-family: 'arial';
 	color: #dadada;
+}
+
+#main_menu > div {
+	display: block;
+}
+
+#version-number {
+	float: right;
 }
 
 a.main_menu_item_sel {
@@ -56,14 +59,6 @@ div#title_text {
 	font-weight: bold;
 	color: white;
 	z-index: 3;
-}
-
-div#version-number {
-	position: relative;
-	left: 10px;
-	top: 10px;
-	color: white;
-	font-size: 10px;
 }
 
 div#content {

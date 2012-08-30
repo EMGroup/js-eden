@@ -2,8 +2,15 @@
 	background: white;
 	font-family: Verdana;
 	font-size: 8pt;
-	position: relative;
 	z-index: 2;
+	overflow: auto;
+	height: 100%;
+}
+
+.ellipsis {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	/*white-space: nowrap;*/
 }
 
 .symbol-info {
@@ -12,13 +19,66 @@
 	border-style: solid;
 	border-color: black;
 	min-width: 200px;
+	/*max-width: 450px;*/
 	max-width: 450px;
 	min-height: 30px;
 	background: white;
+	padding: 10px;
+	font-size: 12pt;
 }
 
-.symbol-viewer .result-element {
+.symbol-info .symbol-name {
+	font-weight: bold;
+}
+
+.result-element {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
+}
+
+.type-function {
+	list-style-image: url('../images/type-function.png');
+}
+
+.type-observable {
+	list-style-image: url('../images/type-observable.png');
+}
+
+.type-procedure {
+	list-style-image: url('../images/type-agent.png');
+}
+
+.type-session {
+	list-style-image: url('../images/type-sessions.png');
+}
+
+.type-project {
+	list-style-image: url('../images/type-project.png');
+}
+
+.result_value {
+	opacity: 0.5;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.error_text {
+	color: red;
+}
+
+.special_text {
+	font-weight: bold;
+}
+
+.numeric_text {
+	color: blue;
+}
+
+.string_text {
+	color: red;
+}
+
+.hasdef_text {
+	color: #0000ab;
 }

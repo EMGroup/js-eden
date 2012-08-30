@@ -26,34 +26,15 @@
 
 	<link rel="stylesheet" href="css/symbolviewer.css">
 	<script src="js/symbolviewer.js" type="text/javascript"></script>
-	<script type="text/javascript">
-	</script>
 
 </head>
 <body>
 
-<div id="main_menu">
-<a class="main_menu_item" href="/" onmouseover="this.style.backgroundColor = '#5a5a5a';" onmouseout="this.style.backgroundColor = 'transparent';">Home</a>
-<a class="main_menu_item" href="/projects" onmouseover="this.style.backgroundColor = '#5a5a5a';" onmouseout="this.style.backgroundColor = 'transparent';">Projects</a>
-<a class="main_menu_item_sel" href="" onmouseover="this.style.backgroundColor = '#5a5a5a';" onmouseout="this.style.backgroundColor = 'transparent';">JS-EDEN</a>
-<a class="main_menu_item" href="/js-cadence" onmouseover="this.style.backgroundColor = '#5a5a5a';" onmouseout="this.style.backgroundColor = 'transparent';">JS-Cadence</a>
-</div>
-
-<div id="title_bar">
-<div id="eden-logo"></div>
-<div id="title_text"></div>
-<div id="model-title"></div>
-<div id="model-caption"></div>
-<div id="model-author"></div>
-<div id="model-date"></div>
-<div id="show-input" class="top-button"></div>
-<div class="top-button" style="left: 400px"></div>
-</div>
-
-<div id="hide-top"></div>
-
 <script type="text/javascript">
 	js_eden_init();
+	$('#observable-search').live('keyup', function () {
+		window.viewer.setFilter($(this).val());
+	});
 	$(function () {
 		window.viewer = new SymbolViewer(window.root, $('#symbol-viewer'));
 		viewer.render();
@@ -65,45 +46,34 @@
 	});
 </script>
 
-<div id="tabs">
-<ul>
-	<li><a href="home.html">Documentation</a></li>
-	<li><a href="#eden-content">Canvas</a></li>
-	<li><a href="#html-content">Model Readme</a></li>
-</ul>
-<div id="eden-content">
-<canvas id="d1canvas" width="100%" height="100%"></canvas>
-</div>
-<div id="html-content"></div>
+<div class="main">
+	<div id="main_menu">
+		<a class="main_menu_item" href="/" onmouseover="this.style.backgroundColor = '#5a5a5a';" onmouseout="this.style.backgroundColor = 'transparent';">Home</a>
+		<a class="main_menu_item_sel" href="" onmouseover="this.style.backgroundColor = '#5a5a5a';" onmouseout="this.style.backgroundColor = 'transparent';">JS-EDEN</a>
+		<div id="version-number"></div>
+	</div>
+
+	<div id="tabs">
+	<ul>
+		<li><a href="home.html">Documentation</a></li>
+		<li><a href="#eden-content">Canvas</a></li>
+		<li><a href="#html-content">Model Readme</a></li>
+	</ul>
+	</div>
+	<div id="eden-content">
+		<canvas id="d1canvas" width="100%" height="100%"></canvas>
+	</div>
+
+	<div id="html-content">
+	</div>
 </div>
 
-<div id="side-bar">
-
-<div class="side-bar-topic">
+<div class="side-bar">
 	<div class="symbol-viewer" id="symbol-viewer">
+		<input type="text" id="observable-search" style="position:fixed; width:280px; z-index: 10">
+		<div style="height: 25px;"></div>
 	</div>
 </div>
-
-<div class="side-bar-topic" style="margin-top: 30px">
-	<div class="side-bar-topic-title">Projects &amp; Sessions</div>
-	<div class="side-bar-topic-content" style="height: 300px">
-		<div class="search-box-outer">
-			<input type="text" class="search-box" id="project-search">
-			<div class="search-button"></div>
-		</div>
-		<div id="project-scrollup" class="scrollup"></div>
-		<div  class="results-lim"><div id="project-results"></div></div>
-		<div id="project-scrolldown" class="scrolldown"></div>
-	</div>
-</div>
-
-<div id="version-number"></div>
-
-</div>
-<div id="hide-side"></div>
-
-
-
 
 </body>
 </html>

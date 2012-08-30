@@ -14,6 +14,7 @@ function get_collections() {
 }
 
 function printCollections(pattern) {
+	return;
 	if (collections === undefined) return;
 
 	procspos = 0;
