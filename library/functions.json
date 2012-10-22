@@ -77,7 +77,8 @@
 				"y1": "Y-coordinate for top left",
 				"x2": "X-coordinate for bottom right",
 				"y2": "Y-coordinate for bottom right",
-				"colour": "Colour of the rectangle (fill) in HTML form"
+				"flllcolour": "Colour of the rectangle (fill) in HTML form"
+				"strokecolour": "Colour of the rectangle (stroke) in HTML form"
 			},
 			"return": "Rectangle object",
 			"description": "Creates a rectangle element for display on the canvas"

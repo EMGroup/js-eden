@@ -16,12 +16,13 @@ Point = function(x, y) {
 }}$;
 
 ${{
-Rectangle = function(x1, y1, x2, y2, colour) {
+Rectangle = function(x1, y1, x2, y2, fillcolour, outlinecolour) {
   this.x1 = x1;
   this.y1 = y1;
   this.x2 = x2;
   this.y2 = y2;
-  this.colour = colour;
+  this.fillcolour = fillcolour;
+  this.outlinecolour = outlinecolour;
 }
 }}$;
 
@@ -142,8 +143,10 @@ Point.prototype.draw = function(context) {
 
 ${{
 Rectangle.prototype.draw = function(context) {
-  context.fillStyle = this.colour;
+  context.fillStyle = this.fillcolour;
+  context.strokeStyle = this.outlincolour;
   context.fillRect(this.x1,this.y1,this.x2,this.y2);
+  context.strokeRect(this.x1,this.y1,this.x2,this.y2);
 };
 }}$;
 ${{
