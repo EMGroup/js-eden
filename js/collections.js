@@ -1,21 +1,5 @@
-var collections;
-
-function get_collections() {
-	$.ajax({
-		url: "server/jse_collections.rhtml",
-		success: function(data) {
-			collections = JSON.parse(data);
-			//collections = data;
-			printCollections("");
-		},
-		cache: false,
-		async: true
-	});
-}
 
 function printCollections(pattern) {
-	if (collections === undefined) return;
-
 	procspos = 0;
 
 	$('#project-results').html('');
@@ -27,18 +11,6 @@ function printCollections(pattern) {
 		var proj = $('<div class="result-element"></div>');
 		proj[0].project = projects.projects[i];
 		proj.html("<li class=\"type-project\">" + projects.projects[i].name  + "<span class='result_value'> by " + projects.projects[i].author + " (" + projects.projects[i].year + ")</span></li>").appendTo($('#project-results'));
-
-		i = i + 1;
-	}
-
-	//Now display sessions
-	i = 0;
-	while (collections.sessions[i] !== undefined) {
-		if (collections.sessions[i].title.search(reg) == -1) { i = i + 1; continue; }
-
-		var sess = $('<div class="result-element"></div>');
-		sess[0].session = collections.sessions[i];
-		sess.html("<li class=\"type-session\">" + collections.sessions[i].title + "</li>").appendTo($('#project-results'));
 
 		i = i + 1;
 	}
@@ -63,7 +35,7 @@ function printCollections(pattern) {
 		if (this.project !== undefined) {
 			Eden.executeFile(this.project.runfile);
 		} else {
-			session_connect(this.session.cid);
+			//session_connect(this.session.cid);
 		}
 		printAllUpdates();
 	});
