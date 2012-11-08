@@ -68,13 +68,19 @@ function js_eden_init() {
 	$.ajax({
 		url: "models/projects.json",
 		success: function(data) {
-			projects = JSON.parse(data);
-			//projects = data;
+			//projects = JSON.parse(data);
+			projects = data;
 			printCollections("");
 		},
 		cache: false,
 		async: true
 	});
+
+	//Get a list of sessions
+	get_collections();
+
+	//Initialise Sessions
+	session_init();
 
 	$(window).resize(function() {
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
@@ -250,6 +256,9 @@ function js_eden_init() {
 		root.addGlobal(function (sym, create) {
 			//console.log("Obs changed: " + sym.name.substr(1));
 
+			//if (root.autocalc_state == true) {
+				session_changes[sym.name.substr(1)] = true;
+			//}
 
 
 			if (create) {

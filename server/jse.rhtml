@@ -1,0 +1,54 @@
+#!/dcs/emp/jseden/bin/ruby
+
+require 'rexml/document'
+require 'erb'
+require 'uri'
+require 'cgi'
+require 'mysql'
+require './jse_sessions.rb'
+
+$cgi = CGI.new("html4")
+puts "Content-type: text/plain"
+puts ""
+
+$dbh = Mysql.real_connect(host = "localhost", user = "jseden", passwd = "emgroup", db = "jseden")
+
+puts "{"
+
+begin
+	obs = JSE::Observable.queryUpdated($cgi['sid'],$cgi['timestamp'])
+	obs.each {|x|
+		puts "\"#{x.observable}\": {"
+		if (x.definition == nil)
+			if (/^[\d]+(\.[\d]+){0,1}$/ === x.value)
+				puts "\"value\": #{x.value}"
+			else
+				puts "\"value\": \"#{x.value}\""
+			end
+		else
+			puts "\"definition\": \"#{URI.escape(x.definition, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))}\""
+		end
+		puts "},"
+	}
+rescue Exception => e
+	puts "\"error\": \"#{e.message}\","
+end
+
+begin
+	newobs = REXML::Document.new($cgi['xml'])
+	newobs.elements.each('jse/observable') { |x|
+		if (x.elements['definition'])
+			JSE::Observable.updateD($cgi['sid'], x.elements['name'].text, x.elements['definition'].text)
+		elsif (x.elements['value'])
+			JSE::Observable.updateV($cgi['sid'], x.elements['name'].text, x.elements['value'].text)
+		end
+	}
+
+rescue Exception => e
+	puts "\"error\": \"#{e.message}\","
+end
+
+puts "\"timestamp\": \"#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}\"}"
+
+
+$dbh.close if $dbh
