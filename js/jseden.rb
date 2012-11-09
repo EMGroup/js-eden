@@ -16,7 +16,6 @@ scripts = [
 	"edenui.js",
 	"models.js",
 	"collections.js",
-	"sessions.js",
 	"interpreter.js",
 	"em.js",
 	"edenpage.js"
