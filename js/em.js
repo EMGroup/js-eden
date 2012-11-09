@@ -67,9 +67,9 @@ function js_eden_init() {
 	//Get a list of projects
 	$.ajax({
 		url: "models/projects.json",
+		dataType: 'json',
 		success: function(data) {
-			projects = JSON.parse(data);
-			//projects = data;
+			projects = data;
 			printCollections("");
 		},
 		cache: false,
@@ -177,8 +177,8 @@ function js_eden_init() {
 		//Obtain function meta data from server
 		$.ajax({
 			url: "library/functions.json",
+			dataType: 'json',
 			success: function(data) {
-				//edenfunctions = JSON.parse(data);
 				edenfunctions = data;
 				printObservables("");
 			},
