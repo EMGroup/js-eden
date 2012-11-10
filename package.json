@@ -1,0 +1,20 @@
+{
+  "author": "",
+  "name": "js-eden",
+  "description": "JavaScript EDEN",
+  "version": "0.0.1",
+  "homepage": "jseden.dcs.warwick.ac.uk",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/EMGroup/js-eden.git"
+  },
+  "scripts": {
+    "test": "node ./qunit_tests.js"
+  },
+  "dependencies": {},
+  "devDependencies": {"qunit": "0.5.7"},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}

@@ -507,3 +507,9 @@ SymbolCopy.prototype.mutate = function() {
 	this.cached_value = Utils.copy(this.cached_value);
 	Symbol.prototype.mutate.apply(this, Array.prototype.slice(arguments));
 };
+
+if (typeof module != 'undefined' && module.exports) {
+	module.exports = {
+		Folder: Folder
+	};
+}
