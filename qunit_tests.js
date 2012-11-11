@@ -9,4 +9,8 @@ qunit.run({
 		path: 'js/maintainer.js'
 	},
 	tests: ['js/test_maintainer.js']
+}, function (err, report) {
+	if (report.failed) {
+		process.exit(1);
+	}
 });
