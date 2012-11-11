@@ -69,15 +69,28 @@ test("Defining an observable in terms of a constant causes it's value to be the 
 	equal(A.value(), 9001);
 });
 
-// XXX
-test("should fail if a circular dependency introduced", 1, function (assert) {
+test("should raise if a circular dependency introduced", 1, function (assert) {
 	var root = new Folder();
 	var A = root.lookup('A'),
 		B = root.lookup('B');
 
+	A.subscribe('B');
+	raises(function () {
+		B.subscribe('A');
+	});
+});
+
+test("should raise if indirect circular dependency introduced", 1, function (assert) {
+	var root = new Folder();
+	var A = root.lookup('A'),
+		B = root.lookup('B'),
+		C = root.lookup('C');
+		
+		B.subscribe('C');
+		C.subscribe('A');
+
 	raises(function () {
 		A.subscribe('B');
-		B.subscribe('A');
 	});
 });
 

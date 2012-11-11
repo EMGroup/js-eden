@@ -30,7 +30,7 @@
 		this.name = name || "/";
 		this.parent = parent || this;
 		this.root = root || this;
-	    this.symbols = {};
+		this.symbols = {};
 		this.globalobservers = new Array();
 		this.autocalc_state = true;
 		this.todoactions = new Array();
@@ -43,14 +43,14 @@
 	 */
 	Folder.prototype.lookup = function(name) {
 		var me = this;
-	    if (this.symbols[name] === undefined) {
-	        this.symbols[name] = new Symbol(this, this.name + name, this.root);
+		if (this.symbols[name] === undefined) {
+			this.symbols[name] = new Symbol(this, this.name + name, this.root);
 
 			setTimeout(function() { $(me).trigger('symbolCreate', [me.symbols[name], name])});
 			this.notifyGlobals(this.symbols[name],true);
-	    }
+		}
 
-	    return this.symbols[name];
+		return this.symbols[name];
 	};
 
 	Folder.prototype.addGlobal = function(f) {
@@ -99,9 +99,9 @@
 		this.context = context;
 		this.name = name;
 
-	    this.definition = undefined;
+		this.definition = undefined;
 		this.cached_value = undefined;
-	    this.up_to_date = false;
+		this.up_to_date = false;
 
 		// need to keep track of who we subscribe to so
 		// that we can unsubscribe from them when our definition changes
@@ -109,10 +109,10 @@
 
 		// need to keep track of what symbols subscribe to us
 		// so that we can notify them of a change in value
-	    this.subscribers = {};
+		this.subscribers = {};
 
 		// need to keep track of observers so we can notify those also
-	    this.observers = {};
+		this.observers = {};
 
 		this.observees = {};
 
@@ -125,15 +125,15 @@
 	 * @return {number|string|list}
 	 */
 	Symbol.prototype.value = function() {
-	    if (!this.up_to_date) {
+		if (!this.up_to_date) {
 			if (this.definition === undefined) {
 				this.cached_value = undefined;
 			} else {
 				this.cached_value = this.definition(this.context);
 			}
-	        this.up_to_date = true;
-	    }
-	    return this.cached_value;
+			this.up_to_date = true;
+		}
+		return this.cached_value;
 	};
 
 	Symbol.prototype.clearObservees = function() {
@@ -371,7 +371,7 @@
 			if (subscriber !== undefined) {
 				subscriber.expire(actions_to_fire);
 			}
-		};
+		}
 
 		for (var observer_name in this.observers) {
 			actions_to_fire[observer_name] = this.observers[observer_name];
@@ -384,16 +384,28 @@
 		});
 	};
 
+	Symbol.prototype.assertNotDependentOn = function (name) {
+		if (this.dependencies[name]) {
+			throw new Error("Cyclic dependency detected");
+		}
+
+		for (var d in this.dependencies) {
+			var symbol = this.dependencies[d];
+			symbol.assertNotDependentOn(name);
+		}
+	};
+
 	/**
 	 * Add a subscriber to notify on changes to the stored value
 	 * @param {string} name The name of the subscribing symbol
 	 */
 	Symbol.prototype.addSubscriber = function(name, symbol) {
-	    this.subscribers[name] = symbol;
+		this.assertNotDependentOn(name);
+		this.subscribers[name] = symbol;
 	};
 
 	Symbol.prototype.removeSubscriber = function(name) {
-	    this.subscribers[name] = undefined;
+		this.subscribers[name] = undefined;
 	};
 
 	/**
@@ -401,11 +413,11 @@
 	 * @param {string} name The name of the subscribing symbol
 	 */
 	Symbol.prototype.addObserver = function(name, symbol) {
-	    this.observers[name] = symbol;
+		this.observers[name] = symbol;
 	};
 
 	Symbol.prototype.removeObserver = function(name) {
-	    this.observers[name] = undefined;
+		this.observers[name] = undefined;
 	};
 
 	var Utils = {
