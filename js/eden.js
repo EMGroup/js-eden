@@ -71,6 +71,7 @@ Eden.reportError = function (e, options) {
 Eden.executeFile = function (path) {
 	$.ajax({
 		url: modelbase+path,
+		dataType: 'text',
 		success: function (data) {
 			try {
 				eval(Eden.translateToJavaScript(data));
