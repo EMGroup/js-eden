@@ -1,30 +1,50 @@
 var selected_observable = null;
 var selected_function = null;
 
-function printObservables(pattern) {
+var SYMBOL_TYPES = {
+	observable: true,
+	functions: true,
+	drawable: true,
+	procedure: true
+};
+
+function makeSearchRegexes(types) {
+	var regexes = {};
+	for (var t in types) {
+		var pattern = $('#'+t+'-search').val();
+		regexes[t] = pattern ? new RegExp("^"+pattern+".*") : undefined;
+	}
+	return regexes;
+}
+
+function shouldAdd(maybeRegex, name) {
+	return !maybeRegex || name.search(maybeRegex) != -1;
+}
+
+function printObservables() {
 	obspos = 0;
 
+	var regexes = makeSearchRegexes(SYMBOL_TYPES);
+
 	$('#observable-results').html('');
-	var reg = new RegExp("^"+pattern+".*");
-	var myeditor;
-	$.each(root.symbols, function(name,symbol) { 
-		if (name.search(reg) == -1) { return; }
-		if (symbol.definition !== undefined) {
-			if (symbol.eden_definition !== undefined) {
-				var subs = symbol.eden_definition.substring(0,4);
-				if (subs == "proc") {
-					add_procedure(symbol, name);
-					//return;
-				} else if (subs == "func") {
-					add_function(symbol, name);
-					//return;
-				} else {
-					add_observable(symbol,name);
-				}
-			} else {
-				add_observable(symbol,name);
+	$('#functions-results').html('');
+	$('#drawable-results').html('');
+	$('#procedure-results').html('');
+
+	$.each(root.symbols, function (name, symbol) {
+		if (!symbol.definition || !symbol.eden_definition) {
+			if (shouldAdd(regexes.observable, name)) {
+				add_observable(symbol, name);
 			}
-		} else {
+			return;
+		}
+
+		var subs = symbol.eden_definition.substring(0,4);
+		if (subs == "proc" && shouldAdd(regexes.procedure, name)) {
+			add_procedure(symbol, name);
+		} else if (subs == "func" && shouldAdd(regexes.functions, name)) {
+			add_function(symbol, name);
+		} else if (shouldAdd(regexes.observable, name)) {
 			add_observable(symbol, name);
 		}
 	});
@@ -37,6 +57,15 @@ function printObservables(pattern) {
 		$('#observable-scrollup').hide();
 		$('#observable-scrolldown').hide();
 	}
+
+	if ($('#functions-results')[0].offsetHeight > (14*16)) {
+                $('#functions-scrollup').show();
+                $('#functions-scrolldown').show();
+        } else {
+                $('#functions-scrollup').hide();
+                $('#functions-scrolldown').hide();
+        }
+
 }
 
 
@@ -77,8 +106,8 @@ function js_eden_init() {
 	});
 
 	$(window).resize(function() {
-		$("#d1canvas").attr("width", $("#eden-content").width()-40);
 		$("#d1canvas").attr("height", $("#tabs").height()-80);
+		$("#d1canvas").attr("width", root.lookup('canvas').value().width);
 		side_bar_height = $(window).height() - 35 - 200;
 		$(".results-lim").css("max-height",""+ (side_bar_height-76)+"px");
 
@@ -239,6 +268,35 @@ function js_eden_init() {
 		$("#observable-search").keyup(function() {
 			printObservables(this.value);
 		});
+
+		 $('#functions-scrollup').click(function() {
+                        obspos = obspos + (14*16);
+                        if (obspos > 0) { obspos = 0; }
+                        $('#functions-results > div').animate({top: ""+obspos+"px"},300);
+                }).hover(function() {
+                        $(this).animate({backgroundColor: "#fafafa"}, 100);
+                        $(this).css("backgroundImage", "url('images/scrollup-sel.png')");
+                }, function() {
+                        $(this).animate({backgroundColor: "white"}, 100);
+                        $(this).css("backgroundImage", "url('images/scrollup.png')");
+                });
+
+                $('#functions-scrolldown').click(function() {
+                        obspos = obspos - (14*16);
+                        if (obspos <= 0 - ($('#functions-results')[0].offsetHeight)) { obspos = obspos + (14*16); }
+                        $('#functions-results > div').animate({top: ""+obspos+"px"},300);
+                }).hover(function() {
+                        $(this).animate({backgroundColor: "#fafafa"}, 100);
+                        $(this).css("backgroundImage", "url('images/scrolldown-sel.png')");
+                }, function() {
+                        $(this).animate({backgroundColor: "white"}, 100);
+                        $(this).css("backgroundImage", "url('images/scrolldown.png')");
+                });
+
+		$("#functions-search").keyup(function() {
+			printObservables(this.value);
+		});
+
 		printObservables("");
 
 		
@@ -276,7 +334,8 @@ function js_eden_init() {
 			else { valhtml = val; }
 
 
-			me.html("<li class=\"type-observable\">" + namehtml + "<span class='result_value'> = " + valhtml + "</span></li>");
+			//me.html("<li class=\"type-observable\">" + namehtml + "<span class='result_value'> = " + valhtml + "</span></li>");
+			me.html("<li class=\"type-observable\"><span class=\"result_name\">" + namehtml + "</span><span class='result_value'> = " + valhtml + "</span></li>");
 		});
 
 		make_interpreter("eden","EDEN Interpreter Window");

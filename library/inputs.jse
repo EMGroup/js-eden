@@ -1,15 +1,32 @@
 ${{
 	$('body').delegate("#tabs", "mousemove", function(e) {
 		var tabs = $('#tabs');
-		root.lookup('mouseX').assign(e.pageX-parseInt(tabs.css("left")));
-		root.lookup('mouseY').assign(e.pageY-parseInt(tabs.css("top")));
+		root.lookup('mouseX').assign(e.pageX-parseInt(tabs.css("left"))-15);
+		root.lookup('mouseY').assign(e.pageY-parseInt(tabs.css("top"))-50);
 	});
 }}$;
 
 ${{
-	$('body').delegate("#tabs", "click", function(e) {
+	$('#eden-content').delegate("#d1canvas", "click", function(e) {
 		var tabs = $('#tabs');
-		root.lookup('mouseClickX').assign(e.pageX-parseInt(tabs.css("left")));
-		root.lookup('mouseClickY').assign(e.pageY-parseInt(tabs.css("top")));
+		root.lookup('mouseClickX').assign(e.pageX-parseInt(tabs.css("left"))-15);
+		root.lookup('mouseClickY').assign(e.pageY-parseInt(tabs.css("top"))-50);
 	});
+}}$;
+
+
+${{
+        $('#eden-content').delegate("#d1canvas", "mousedown", function(e) {
+                var tabs = $('#tabs');
+                root.lookup('mousePressed').assign(true);
+		root.lookup('mouseDown').assign(root.lookup('Point').value().call(this, e.pageX-parseInt(tabs.css("left"))-15, e.pageY-parseInt(tabs.css("top"))-50), this).value();
+        });
+}}$;
+
+${{
+        $('#eden-content').delegate("#d1canvas", "mouseup", function(e) {
+                var tabs = $('#tabs');
+		root.lookup('mousePressed').assign(false);
+		root.lookup('mouseUp').assign(root.lookup('Point').value().call(this, e.pageX-parseInt(tabs.css("left"))-15, e.pageY-parseInt(tabs.css("top"))-50), this).value();
+        });
 }}$;

@@ -9,6 +9,13 @@ Line = function(x1, y1, x2, y2, colour) {
 }}$;
 
 ${{
+Point = function(x, y) {
+  this.x = x;
+  this.y = y;
+}
+}}$;
+
+${{
 Rectangle = function(x1, y1, x2, y2, colour) {
   this.x1 = x1;
   this.y1 = y1;
@@ -63,6 +70,12 @@ func Line { ${{
   return new Line(x1, y1, x2, y2, colour);
 }}$; };
 
+func Point { ${{
+  var x = arguments[0];
+  var y = arguments[1];
+  return new Point(x, y);
+}}$; };
+
 func Rectangle { ${{
   var x1 = arguments[0];
   var y1 = arguments[1];
@@ -104,6 +117,26 @@ Line.prototype.draw = function(context) {
 ${{
 Line.prototype.toString = function() {
   return "Line(" + this.x1 + ", " + this.y1 + ", " + this.x2 + ", "+this.y2+", "+this.colour+")";
+};
+}}$;
+
+${{
+Point.prototype.toString = function() {
+  return "{" + this.x + ", " + this.y + "}";
+};
+}}$;
+
+${{
+Point.prototype.draw = function(context) {
+  context.beginPath();
+  context.arc(this.x, this.y, 1, 0, 2 * Math.PI, false);
+
+  context.fillStyle = "black";
+  context.fill();
+  context.lineWidth = 2;
+  context.strokeStyle = "black";
+  context.stroke();
+  context.closePath();
 };
 }}$;
 
@@ -172,7 +205,9 @@ proc clearCanvas { ${{
   canvas.width = canvas.width;
 
   $("#eden-content > :not(canvas)").each(function() {
-	this.togarbage = true;
+	if(/canvas_/.test(this.id)) {
+		this.togarbage = true;
+	}
   });
 
 }}$; };
@@ -480,3 +515,172 @@ Image.prototype.toString = function() {
 };
 }}$;
 
+## Arc
+
+${{
+Arc = function(x, y, r, sAngle, eAngle, clockwise, colour) {
+  this.x = x;
+  this.y = y;
+  this.r = r;
+  this.sAngle = sAngle;
+  this.eAngle = eAngle;
+  this.clockwise = clockwise;
+  this.colour = colour
+}
+}}$;
+
+func Arc { ${{
+  var x = arguments[0];
+  var y = arguments[1];
+  var r = arguments[2];
+  var sAngle = arguments[3];
+  var eAngle = arguments[4];
+  var clockwise = arguments[5];
+  var colour = arguments[6];
+  if (colour === undefined) { colour = "black"; }
+  return new Arc(x, y, r, sAngle, eAngle, clockwise, colour);
+}}$; };
+
+${{
+Arc.prototype.draw = function(context) {
+  context.beginPath();
+  context.arc(this.x, this.y, this.r, this.sAngle, this.eAngle, this.clockwise);
+  context.strokeStyle = this.colour;
+  context.stroke();
+  context.closePath();
+};
+
+Arc.prototype.toString = function() {
+  return "Arc(" + this.x + "," + this.y + "," + this.r + "," + this.sAngle + "," + this.eAngle + "," + this.clockwise + "," +this.colour+")";
+}
+}}$;
+
+## Sylvester library object wrappers
+## Unsure about Line so ignored for now
+
+## Vector
+
+func Vector { ${{
+  return $V(arguments[0]);
+}}$; };
+
+${{
+Vector.prototype.toString = function() {
+  return "Vector("+this.inspect()+")";
+};
+
+}}$;
+
+## Matrix
+
+func Matrix { ${{
+  return $M(arguments[0]);
+}}$; };
+
+${{  
+Matrix.prototype.toString = function() {
+  return "[" + this.inspect() + "]";
+};
+}}$;
+
+## Plane
+
+func Plane { ${{
+  return $P(arguments[0]);
+}}$; };
+
+## Canvas stuff
+canvas is ${{ {width: $('#eden-content').width()-40, height:$('#tabs').height()-80}; }}$;
+
+## When the user updates the canvas observable, the canvas gets resized
+proc updateCanvas : canvas { ${{
+	$("#d1canvas").attr("width", root.lookup("canvas").value().width);
+        $("#d1canvas").attr("height", root.lookup("canvas").value().height);
+//        $("#d1canvas").attr("width", root.lookup("canvas").value().width);
+//        $("#d1canvas").attr("width", root.lookup("canvas").value().width);
+}}$;
+}
+
+
+##Slider
+
+${{
+Slider = function(name, min, max, step, value, orientation, x, y) {
+  this.name = name;
+  this.min = min;
+  this.max = max;
+  this.step = step;
+  this.value = value;
+  this.orientation = orientation;
+  this.x = x;
+  this.y = y;
+}
+}}$;
+
+func Slider { ${{
+  var name = arguments[0];
+  var min = arguments[1];
+  var max = arguments[2];
+  var step = arguments[3];
+  var value = arguments[4];
+  var orientation = arguments[5];
+  var x = arguments[6];
+  var y = arguments[7];
+  return new Slider(name, min, max, step, value, orientation, x, y);
+}}$; }
+
+${{
+Slider.prototype.draw = function(context) {
+  var me = "canvas_" + this.name;
+  var me2 = this.name;
+  var sli = $("#"+me).get(0);
+
+  var value = this.value;
+  var max = this.max;
+  var min = this.min
+  var step = this.step;
+  var orientation = this.orientation;
+
+  if (sli === undefined) {
+    var can = $("#eden-content");
+    var slihtml = $('<div id="'+me+'" style="position: absolute; left: '+ this.x +'px; top: '+ this.y +'px;"><label for="'+me+'-amount">'+this.name+':</label><input type="text" id="'+me+'-amount" style="border:0; color:#f6931f; font-weight:bold;" /><div id="'+me+'-slider-range"></div></div>').appendTo(can);
+
+    $(function() {
+      $( "#"+me+"-slider-range" ).slider({
+        slide: function( event, ui ) {
+          $( "#"+me+"-amount" ).val( ui.value );
+          root.lookup(me2 + "_value").assign(ui.value);
+      }});
+      $( "#"+me+"-slider-range" ).slider( "option", "max", max );
+      $( "#"+me+"-slider-range" ).slider( "option", "min", min );
+      $( "#"+me+"-slider-range" ).slider( "option", "step", step );
+      $( "#"+me+"-slider-range" ).slider( "option", "value", value );
+      $( "#"+me+"-slider-range" ).slider( "option", "orientation", orientation );
+      $( "#"+me+"-amount" ).val( "$" + $( "#"+me+"slider-range" ).slider( "values", 0 ) );
+    });
+
+    slihtml.get(0).togarbage = false;
+
+    //Initialise
+    root.lookup(me2 + "_value").assign(value);
+    $( "#"+me+"-amount" ).val( value );
+  } else {
+    sli.togarbage = false;
+    sli.value = $( "#"+me+"slider-range" ).slider( "values", 0 );
+    $( "#"+me+"-slider-range" ).slider( "option", "max", max );
+    $( "#"+me+"-slider-range" ).slider( "option", "min", min );
+    $( "#"+me+"-slider-range" ).slider( "option", "step", step );
+    // $( "#"+me+"-slider-range" ).slider( "option", "value", value );
+    $( "#"+me+"-slider-range" ).slider( "option", "orientation", orientation );
+    sli.style.left = "" + this.x + "px";
+    sli.style.top = "" + this.y + "px";
+  }
+
+};
+}}$;
+
+${{
+Slider.prototype.toString = function() {
+  return "Slider("+this.name+", "+this.min+", "+this.max+", "+this.step+", "+this.default+", "+this.orientation+", "+this.x+", "+this.y+")";
+};
+}}$;

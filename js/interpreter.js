@@ -23,6 +23,8 @@ function submitEdenCode(options) {
 		editor.setValue("");
 		printAllUpdates();
 	} catch (e) {
+		var contents = $('#history-'+eden.history.length).html();
+		$('#history-'+eden.history.length).attr('class','history-error').html('## '+contents);
 		Eden.reportError(e);
 	}
 }
@@ -66,7 +68,6 @@ function setupAllKeyBinds(options) {
 }
 
 function make_interpreter(name, mtitle, edenparser) {
-
 	var myeditor;
 
 	$code_entry = $('<div id="'+name+'-input"><div></div><pre class="eden exec"></pre></div>');
@@ -79,6 +80,7 @@ function make_interpreter(name, mtitle, edenparser) {
 			minHeight: 120,
 			minWidth: 230,
 			position: ['right','bottom'],
+
 			buttons: [
 				{
 					id: "btn-submit",

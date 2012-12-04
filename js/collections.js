@@ -10,7 +10,7 @@ function printCollections(pattern) {
 
 		var proj = $('<div class="result-element"></div>');
 		proj[0].project = projects.projects[i];
-		proj.html("<li class=\"type-project\">" + projects.projects[i].name  + "<span class='result_value'> by " + projects.projects[i].author + " (" + projects.projects[i].year + ")</span></li>").appendTo($('#project-results'));
+		proj.html("<li class=\"type-project\"><span class=\"result_name\">" + projects.projects[i].name  + "</span><span class='result_value'> by " + projects.projects[i].author + " (" + projects.projects[i].year + ")</span></li>").appendTo($('#project-results'));
 
 		i = i + 1;
 	}

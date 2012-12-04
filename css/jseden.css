@@ -211,7 +211,7 @@ div.scrolldown {
 	margin-bottom: 5px;
 }
 
-div#function-results {
+div#functions-results {
 	overflow-y: hidden;
 	font-size: 12px;
 	bottom: 0px;
@@ -221,6 +221,12 @@ div#procedure-results {
 	overflow-y: hidden;
 	font-size: 12px;
 	bottom: 0px;
+}
+
+div#drawable-results {
+	overflow-y: hidden;
+        font-size: 12px;
+        bottom: 0px;
 }
 
 div#project-results {
@@ -273,6 +279,15 @@ div#observable-info {
 	font-size: 12pt;
 }
 
+div#functions-info {
+        position: absolute;
+        display: hidden;
+        min-width: 200px;
+        max-width: 450px;
+        min-height: 30px;
+        font-size: 12pt;
+}
+
 div.results-lim {
 	overflow: hidden;
 }
@@ -307,10 +322,45 @@ div#observable-info-name {
 	margin-left: 4px;
 }
 
+div#functions-info-point {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 10px;
+        bottom: 0px;
+        background-image: url('../images/point-edge.png');
+        background-repeat: no-repeat;
+        background-position: left center;
+}
+
+div#functions-info-content {
+        position: absolute;
+        left: 8px;
+        min-height: 30px;
+        background-color: #fafafa;
+        border-width: 1px;
+        border-color: #117fe5;
+        border-style: solid;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+}
+
+div#functions-info-name {
+        font-size: 12px;
+        font-family: 'Courier New';
+        margin: 2px;
+        margin-left: 4px;
+}
+
+span.result_name {
+	vertical-align: 4px;
+}
+
 span.result_value {
 	opacity: 0.5;
 	white-space: nowrap;
 	overflow: hidden;
+	vertical-align: 4px;
 }
 
 .error_text {
@@ -335,6 +385,10 @@ span.result_value {
 
 textarea#observable-info-definition {
 		
+}
+
+textarea#functions-info-definition {
+
 }
 
 div#eden-input {
@@ -402,4 +456,8 @@ div.obs_inspector {
 	background-color: #fafafa;
 	font-size: 12px;
 	padding: 5px;
+}
+
+div.history-error {
+	color: red;
 }

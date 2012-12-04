@@ -1,6 +1,6 @@
 function add_procedure(symbol, name) {
 	var proc = $('<div class="result-element"></div>');
-	proc.html("<li class=\"type-procedure\">" + name + "</li>").appendTo($('#observable-results'));
+	proc.html("<li class=\"type-procedure\"><span class=\"result_name\">" + name + "</span></li>").appendTo($('#procedure-results'));
 
 	proc.get(0).symbol = symbol;
 
@@ -17,7 +17,7 @@ function add_procedure(symbol, name) {
 };
 
 function add_function(symbol, name) {
-	var funchtml = "<li class=\"type-function\">" + name;
+	var funchtml = "<li class=\"type-function\"><span class=\"result_name\">" + name + "</span>";
 	var details;
 	if (edenfunctions.functions != undefined && edenfunctions.functions[name] !== undefined) {
 		details = edenfunctions.functions[name];
@@ -32,9 +32,11 @@ function add_function(symbol, name) {
 		}
 	}
 	funchtml = funchtml + "</li>";
-
 	var resel = $('<div class="result-element"></div>');
-	resel.html(funchtml).appendTo($('#observable-results'));
+	
+	// Bit of a hack, need to check if the function actually has a draw() method instead of just checking that the function starts with a capital letter
+	(/^[A-Z]/.test(name)) ? resel.html(funchtml).appendTo($('#drawable-results')) : resel.html(funchtml).appendTo($('#functions-results'));
+//	resel.html(funchtml).appendTo($('#function-results'));
 	resel.get(0).details = details;
 	resel.get(0).symbol = symbol;
 
@@ -44,10 +46,10 @@ function add_function(symbol, name) {
 				$(this).animate({backgroundColor: "#eaeaea"}, 100);
 			}
 
-			var info = $('#observable-info');
+			var info = $('#functions-info');
 
 			if (this.details !== undefined) {
-				var iname = info.find('#observable-info-name');
+				var iname = info.find('#functions-info-name');
 				iname.text(this.details.description);
 				info.css("left", "" + (this.offsetLeft + this.offsetWidth) + "px");
 				info.css("top", "" + (this.offsetTop + 125 - 8 - 16 - ((info[0].offsetHeight / 2))) + "px");
@@ -56,7 +58,7 @@ function add_function(symbol, name) {
 				info.hide();
 			}
 		}, function() {
-			$('#observable-info').hide();
+			$('#functions-info').hide();
 			if (this != selected_function) {
 				$(this).animate({backgroundColor: "white"}, 100);
 			}
@@ -89,7 +91,7 @@ function add_observable(symbol, name) {
 	}
 
 	var ele = $('<div id="sbobs_' + name + '" class="result-element"></div>');
-	ele.html("<li class=\"type-observable\">" + namehtml + "<span class='result_value'> = " + valhtml + "</span></li>").appendTo($('#observable-results'));
+	ele.html("<li class=\"type-observable\"><span class=\"result_name\">" + namehtml + "</span><span class='result_value'> = " + valhtml + "</span></li>").appendTo($('#observable-results'));
 	ele.get(0).symbol = symbol;
 
 	ele.hover(
@@ -129,7 +131,7 @@ function observable_dialog(symbol,existing) {
 	var myeditor;
 
 	$code_html = '<div class="obs_stats">Current Value: ' + symbol.value() + '</div><div id="obs_inspector_' + symbol.name.substr(1) + '" class="obs_inspector"><div></div><pre class="eden exec">';
-	if (symbol.definition === undefined) {
+	if (symbol.definition === undefined || symbol.eden_definition === "") {
 		$code_html = $code_html + symbol.name.substr(1) + " = " + symbol.value() + ';';
 	} else {
 		$code_html = $code_html + symbol.eden_definition + ';';
@@ -146,22 +148,26 @@ function observable_dialog(symbol,existing) {
 			minWidth: 250,
 			minHeight: 150,
 			buttons: {
-					Save: function() {
-						try {
-							eden.addHistory(myeditor.getValue());
-							eval(Eden.translateToJavaScript(myeditor.getValue()));
-						} catch(e) {
-							Eden.reportError(e);
-						}
+				Save: function() {
+					try {
+						eden.addHistory(myeditor.getValue());
+						$('#history-content').append('<div id="history-'+eden.history.length+'"></div><hr />');
+						$('#history-'+eden.history.length).text(myeditor.getValue());
+						eval(Eden.translateToJavaScript(myeditor.getValue()));
+					} catch (e) {
+                        var contents = $('#history-'+eden.history.length).html();
+                        $('#history-'+eden.history.length).attr('class','history-error').html('## '+contents);
+						Eden.reportError(e);
 					}
 				}
+			}
 		});
 		myeditor = convertToEdenPageNew('#obs_inspector_'+symbol.name.substr(1),'defedit');
 		$dialog.get(0).editor = myeditor;
 		return $dialog;
 	} else {
 		$code_html = "";
-		if (symbol.definition === undefined) {
+		if (symbol.definition === undefined || symbol.eden_definition === "") {
 			$code_html = $code_html + symbol.name.substr(1) + " = " + symbol.value() + ';';
 		} else {
 			$code_html = $code_html + symbol.eden_definition + ';';

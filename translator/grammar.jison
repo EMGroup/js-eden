@@ -247,6 +247,9 @@ expression
     | expression OR expression
         { $$ = '' + $1 + ' || ' + $3; }
 
+    | '{' expression ',' expression '}'
+        { $$ = "context.lookup('Point').value().call(this, " + $2 +"," + $4 +")" }
+
 // XXX: introduces a TON of SR conflicts and I have no idea why!
     | expression '//' expression
         { $$ = $1 + '.concat(' + $3 +')'; }
@@ -347,6 +350,8 @@ pair
 primary-expression
     : lvalue
         { $$ = $lvalue + '.value()'; }
+    | lvalue '.' OBSERVABLE '(' expression-list-opt ')'
+        { $$ = $lvalue + '.value().' + $3 + '(' + $5 + ')'; }
     | primary-expression '(' expression-list-opt ')'
         { $$ = '' + $1 + '.call('+ ['this'].concat($3) + ')'; }
     ;
@@ -537,3 +542,5 @@ formula-definition
              ");"
         %}
     ;
+	
+	

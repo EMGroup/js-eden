@@ -18,11 +18,15 @@ scripts = [
 	"collections.js",
 	"interpreter.js",
 	"em.js",
-	"edenpage.js"
+	"edenpage.js",
+
+	"sylvester.js",
+	"raphael-min.js",
+	"dracula_graffle.js",
+	"dracula_graph.js",
 ]
 
 scripts.each do |x|
-	#puts x
 	file = File.new(x, "r")
 	while (line = file.gets)
 		puts line
