@@ -72,7 +72,7 @@ Eden.executeFile = function (path) {
 	$.ajax({
 		url: modelbase+path,
 		dataType: 'text',
-		success: function (data) {
+		success: function(data) {
 			try {
 				eval(Eden.translateToJavaScript(data));
 			} catch (e) {
