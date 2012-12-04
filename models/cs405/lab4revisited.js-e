@@ -1,0 +1,160 @@
+
+include("jspe.jse");
+
+s1 is Slide("<h3>Lab 4 revisited</h3>
+Here is a walkthrough showing some of the basic actions carried out in Lab 4, with commentary.</p>            
+<jseden>a is 5; b is a*a;</jseden>
+<jseden>
+myLine is Line(10,100,10+a,100);
+picture is [myLine];
+a = 23;
+</jseden>
+<jseden>
+linecol is (mousePressed)? \"red\" : \"blue\";
+myLine is Line(mouseClickX, mouseClickY,10+a,100, linecol);
+</jseden>
+<jseden>
+myCircle is Circle(mouseClickX, mouseClickY, 50, \"orange\", \"black\");
+picture is [myLine, myCircle];
+</jseden>
+<p>
+The interactions posed no problems to this point,
+but here the width of the canvas was reduced unexpectedly.
+This is a known, but as yet unresolved bug in emile.           
+</p>
+<p>
+Should you encounter this problem, you can reset the canvas size by (e.g.):
+<jseden>
+canvas.width = 1000;
+</jseden>
+</p>
+<p>
+Perhaps a more common problem is that resizing the window, as you can do
+using the F11 key (it is often useful to do this twice), leads to a
+blank canvas. This can be overcome by re-entering the picture definition. 
+</p>             
+");
+
+s2 is Slide("
+<p>
+Note that in this demonstration of JS-EDEN use, observables are being introduced in such a way that 
+every observable that appears on the RHS of a definition has
+itself already been introduced. This is always possible, since dependencies
+are acyclic, but it is an annoyance to have to consider this, and detracts
+from the spirit of EM. Not observing this convention can lead to problems
+in evaluation in emile.
+</p>
+<p>
+In the next code extract, note that the execute option doesn't work because there
+are some glitches in the way in which the presentation
+environment processes inequality symbols, so you must use copy to
+input and edit the html-encoded version of key symbols.
+</p>
+<jseden>
+circleCol is (mouseClickX > 375) ? \"green\" : \"yellow\" ;
+myCircle is Circle(mouseClickX, mouseClickY, 50, circleCol, \"black\");
+midline is Line(375,0,375, 1000);
+picture is [myLine, myCircle, midline];
+</jseden>
+<p>
+<b>Note:</b> The value 375 is an estimate for the middle of the canvas.
+To get an accurate value, you can consult the Chrome console
+environment.
+To access this, type Ctrl-Shift-J, and inspect the cached_value field
+of the Symbol returned when you type root.lookup(\"canvas\").
+More generally, you can find details of the current value and
+definition of any EDEN observable in this manner.
+Additional information accessible includes the list of
+observables that depend on the observable (see the subscribers field).
+</p>
+");
+
+s3 is Slide("
+<p>
+The next few definitions do not work as they ideally should.
+The first problem (as before) is that the execute option doesn't work and you must use copy to
+input and edit the html-encoded version of key symbols.
+</p>
+<p>
+This isn't the real issue for Lab 4. It seems that Rectangle()
+isn't correctly calibrated, and the actual dimensions don't
+match the specification. For instance, just considering the
+constraint for inclusion in the x-dimension, experimenting reveals
+some error in the implementation of Rectangle().
+</p>
+<jseden>
+rectFill = \"clear\";
+myRect is Rectangle(20,20,220,200, rectFill, \"black\");
+myCircle is Circle(mouseClickX, mouseClickY, 50, \"orange\", \"black\");
+picture is [myRect, myCircle];
+isinRectangle is ((mouseClickX > 70)&&(170 > mouseClickX));
+</jseden>
+<p>
+Perhaps more accurate is:
+</p>
+<jseden>
+isinRectangle is ((mouseClickX>70)&&(195 > mouseClickX));
+</jseden>
+<p>
+For these tests, you can consult the values of the key observables
+by entering the RE \"isinRectangle|mouse\" into the Observables & Agents
+search box. To add an action to change the background of the
+rectangle, you can use:
+<jseden>
+proc changeRectCol: isinRectangle {
+	if (isinRectangle) rectFill = \"red\"; else rectFill = \"blue\";
+}
+</jseden>
+</p>
+");
+
+s4 is Slide("
+<p>
+The introduction of Text and Div components can be achieved as follows: 
+</p>
+<jseden>
+myText is Text(\"Hello\", 50,50, \"black\");
+myDiv is Div(\"myDiv\", 20, 100, 300, 200, \"&lt;h1>Title&lt;/h1>&lt;p>Some text&lt;/p>\", \"\");
+picture is [myLine, myCircle, midline, myRect, myText, myDiv];
+</jseden>
+<p>
+Note that this interferes with the interactions involving the circle
+and rectangle that were demonstrated on the previous slide.
+This is because myDiv has its own (invisible) canvas with dimensions specified
+as 300 by 200, and this prevents certain mouse clicks from being
+registered.
+In general, you need to experiment to find out how much space a Div 
+component needs, and ensure that its canvas is large enough without
+being so large that it is obstructive.
+[The use of JQuery may offer a solution to this, but this is yet to be explored.] 
+</p>
+");
+
+s5 is Slide("
+<p>
+The introduction of buttons and sliders seem to be quite unproblematic.
+By way of illustration, here are examples of their use:
+<jseden>
+myButton is Button(\"myButton\", \"Press me\", 50, 300, true); 
+proc myButtonAction : myButton_clicked {
+	myText = Text(\"Button was clicked\", 50, 50, \"red\");
+}
+picture is [myDiv, myLine, myCircle, midline, myText, myButton];
+</jseden>
+<jseden>
+mySlider is Slider(\"mySlider\", 0, 200,1,0,0,30,400);
+picture is [myDiv, myLine, myCircle, midline, myText, myButton, mySlider];
+myRadius is mySlider_value;
+myCircle is Circle(mouseClickX, mouseClickY, myRadius, \"orange\", \"black\");
+</jseden>
+<jseden>
+mySlider is Slider(\"mySlider\", 0, 360,1,0,0,30,400);
+radLine is Line(mouseClickX, mouseClickY, mouseClickX + myRadius * cos(mySlider_value), mouseClickY + myRadius * sin(mySlider_value));
+picture is [myDiv, myLine, myCircle, midline, myText, myButton, mySlider, radLine];
+</jseden>
+</p>
+");
+
+slideList is [s1, s2, s3, s4, s5];
+
+

@@ -1,0 +1,532 @@
+﻿## to protect against loss of information whilst constructing patterns
+
+${{
+  
+var workIsDone = false;
+window.onbeforeunload = confirmBrowseAway;
+
+function confirmBrowseAway()
+{
+  if (!workIsDone) {
+    return "Are you sure? If you leave this page now, your work will NOT be saved.";
+  }
+};
+  
+}}$;
+
+## to allow JS-EDEN to handle the Greek characters a-?
+
+${{
+parser.lexer.rules = [/^\*\//,/^./,/^\/\*/,/^[\n\r]/,/^./,/^\u0023\u0023/,/^\$\{\{/,/^\}\}\$/,/^([\n\r]|.)/,/^\\"/,/^"/,/^(.|\n)/,/^"/,/^\\./,/^'/,/^./,/^'/,/^\s+/,/^@/,/^[0-9]+(\.[0-9]+)?\b/,/^is\b/,/^delete\b/,/^insert\b/,/^append\b/,/^shift\b/,/^after\b/,/^if\b/,/^else\b/,/^for\b/,/^while\b/,/^do\b/,/^switch\b/,/^case\b/,/^default\b/,/^break\b/,/^continue\b/,/^return\b/,/^func\b/,/^proc\b/,/^auto\b/,/^para\b/,/^[a-zA-Z\u03B1-\u03C9_a-d][a-zA-Z\u03B1-\u03C9_0-9]*/,/^\?/,/^\/\//,/^<=/,/^>=/,/^</,/^>/,/^==/,/^!=/,/^and\b/,/^or\b/,/^\|\|/,/^&&/,/^!/,/^=/,/^\+=/,/^-=/,/^\+\+/,/^--/,/^&/,/^\*/,/^\//,/^%/,/^-/,/^\+/,/^;/,/^\?/,/^:/,/^,/,/^~>/,/^\[/,/^\]/,/^\{/,/^\}/,/^\(/,/^\)/,/^\./,/^`/,/^\$[0-9]+/,/^\$/,/^#/,/^$/,/^./];
+}}$;
+
+## the instance of '##' in the above RE definition 
+## has been replaced by '^\u0023\u0023'
+## this means that it can be accepted via the EDEN
+## interface, but needs to be interpreted before
+## Greek characters in the file can be interpreted.
+
+/*
+valrange	α	β	γ	δ	ε	ζ	η	θ	ι	κ	λ	μ	ν	ξ	ο	π	ρ	ς	σ	τ	υ	φ	χ	ψ	ω
+03B0		01	02	03	04	05	06	07	08	09	0A	0B	0C	0D	0E	0F	
+03C0																00	01	02	03	04	05	06	07	08	09
+
+*/
+
+## ideally this extension to the parser should be more "call-by-need" - only implemented in the script factory environment
+
+## from Tim Monks - procedure for manipulating REs in the search box:
+
+proc showObservables { ${{
+   $('#symbol-search > .side-bar-topic-title').click();
+   $('#observable-search').val(arguments[0]);
+}}$; }
+
+proc showFunctions { ${{
+   $('#functions > .side-bar-topic-title').click();
+   $('#functions-search').val(arguments[0]);
+}}$; }
+
+func split {
+  ${{
+  	var str = arguments[0];
+  	var patt = arguments[1];
+  	return str.split(patt);
+  }}$;
+}
+
+###########
+## preliminary set up to this point ...
+###########
+
+## astr is the source string to be transformed:
+
+astr = "";
+
+## create a Div that displays the string colour-coded
+## so as to reflect a selection of segments and a selected scriptvar
+
+segcolarr is ["red", "green", "brown", "seablue", "red", "green", "brown", "seablue","red", "green", "brown", "seablue","red", "green", "brown", "seablue" ];
+
+currscriptvarix = 1;
+segcol is segcolarr[currscriptvarix];
+fontsegbra is "<font color='"// segcol // "'>";
+fontsegket = "</font>";
+
+func sumls {
+	para sls;
+	auto i, result;
+	result = 0;
+	for (i=1; i<=sls#; i++) {
+		result = result + sls[i]#;
+	}
+	return result;
+};
+
+func mkxtr {
+	para sls, lenmatch;
+	auto i, j, result;
+	result = [0];
+	for (i=1; i<=sls#; i++) {
+		for (j=1; j<=sls[i]#; j++) result = result // [0];
+		if (result# <= sumls(sls) + (sls#-1)*lenmatch) {
+			for (j=1; j<=lenmatch; j++) result = result // [j]; 
+		}
+	}
+	return result // [0];
+};
+
+strtomatch = "";
+lenmatch is strtomatch#;
+matcharr is (strtomatch=="") ? [astr] : split(astr, strtomatch);
+xstr is mkxtr(matcharr, lenmatch);
+
+func mksegdispstr {
+	para srcstr, selpatt, fbra, fket;
+	auto i, selpattil, selpattir, result;
+	result = "";
+  	if ((srcstr#!=0) && (selpatt#>2)) {
+	  for (i=1; i<=srcstr#; i++) {
+		selpattil = selpatt[i];
+		selpattir = selpatt[i+1];
+		if ((selpattil==0) && (selpattir==1)) {
+			result = result // fbra // srcstr[i];
+		}
+		else
+		if ((selpattir==0) && (selpattil > selpattir)) {
+				result = result // fket // srcstr[i];
+		}
+		else result = result // srcstr[i];
+	  }
+	}
+	return result;
+};
+
+segdispstr is mksegdispstr(astr, xstr, fontsegbra, fontsegket);
+
+vertpos2 = 370;
+
+## the Div segdisp lays out the left-hand corner of the display 
+## to show the pattern var id, match segment and template text 
+
+segdisp is Div("", 10, vertpos2, 800, vertpos2, "
+<div id='forinput'>
+<pre>
+  Pattern var id: <input type='text' id='scriptvid' /><br />
+  Match segment : <input type='text' id='matchseg' /><br />
+  Template text : <textarea id='srcstring'  rows='15' cols='80'></textarea><br />
+</pre>
+</div>");
+
+## picture is [segdisp];
+
+showObservables("astr|curr|seg|font|strtom|len|match|xstr|vertpos2");
+showFunctions("sum|mkx|mkseg");
+
+##################################
+
+## mkpattable Div includes radio buttons for Greek chars
+## also includes table displaying script var, patt varid
+## template, match str and pattern resulting
+
+## for defining scriptvar
+
+func unicode { ${{
+  var x = arguments[0];
+  return String.fromCharCode(x + 944);
+}}$; };
+
+scriptvar is fontsegbra + unicode(currscriptvarix) + fontsegket;
+
+## for defining pattvarid
+
+allgkch is ["α","β","γ","δ","ε","ζ","η","θ","ι","κ","λ","μ","ν","ξ","ο"];
+
+func subststar {
+  ${{
+	var s = arguments[0];
+	var lsgkch = arguments[1];
+	var i, gkch, repstr;
+	for (i=0; i<lsgkch.length; i++) {
+        gkch = lsgkch[i];
+		repstr = root.lookup(gkch).cached_value;
+		s=s.replace(RegExp(gkch,"g"),repstr);
+	}
+	return s;
+  }}$;
+}
+
+scriptvarid = ""; 
+## part of pattvarid supplied by the modeller
+
+func mkstr { ${{
+  var x1 = arguments[0];
+  var y1 = arguments[1];
+  var i;
+  var result = (x1.length>0) ? x1[0] : "";
+  if (x1.length>0) {
+	for (i=1; i<x1.length; i++) {
+		result += y1 + x1[i];	 
+	}
+  }
+  return result;
+}}$;
+};
+
+pattstr is mkstr(matcharr, unicode(currscriptvarix));
+
+αpresent is split(pattstr,"α")# > 1;
+βpresent is split(pattstr,"β")# > 1;
+γpresent is split(pattstr,"γ")# > 1;
+δpresent is split(pattstr,"δ")# > 1;
+εpresent is split(pattstr,"ε")# > 1;
+ζpresent is split(pattstr,"ζ")# > 1;
+ηpresent is split(pattstr,"η")# > 1;
+θpresent is split(pattstr,"θ")# > 1;
+ιpresent is split(pattstr,"ι")# > 1;
+κpresent is split(pattstr,"κ")# > 1;
+λpresent is split(pattstr,"λ")# > 1;
+μpresent is split(pattstr,"μ")# > 1;
+νpresent is split(pattstr,"ν")# > 1;
+ξpresent is split(pattstr,"ξ")# > 1;
+οpresent is split(pattstr,"ο")# > 1;
+
+prefixpattvarid is ((αpresent) ? "α" : "") // ((βpresent) ? "β" : "") // ((γpresent) ? "γ" : "") // ((δpresent) ? "δ" : "") // ((εpresent) ? "ε" : "") // ((ζpresent) ? "ζ" : "") // ((ηpresent) ? "η" : "") // ((θpresent) ? "θ" : "") // ((ιpresent) ? "ι" : "") // ((κpresent) ? "κ" : "") // ((λpresent) ? "λ" : "") // ((μpresent) ? "μ" : "") // ((νpresent) ? "ν" : "") // ((ξpresent) ? "ξ" : "") // ((οpresent) ? "ο" : "");
+
+pattvarid is prefixpattvarid // "_" // subststar(scriptvarid, allgkch);
+
+## for defining createdstr
+
+func compose { ${{
+  var x1 = arguments[0];
+  var y1 = arguments[1];
+  var fcol = arguments[2];
+  var i, result;
+  if (x1.length < 1) {
+	result = "";
+  }
+  else {
+	result = x1[0];
+	for (i=1; i<x1.length; i++) {
+		result += y1 + x1[i];	 
+	}
+  }
+  return result;
+}}$;
+};
+
+createdstr is compose(matcharr, scriptvar, segcol);
+
+## simplification here: 26th Sept had "subststr is scriptvar;"
+## and used subststr as a parameter to compose()
+
+## now have ingredients for displaying mkpatttable
+## which shows script var, patt var id, template, match and pattern
+
+vertpos = 15;
+
+mkpatttable is Div("Selection table", 10,vertpos, 800, 100, "
+	<div action='' id='selscriptvar'>
+	\u03B1 <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(1);'/> &nbsp;&nbsp;&nbsp;
+	\u03B2 <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(2)'/> &nbsp;&nbsp;&nbsp;
+	\u03B3 <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(3)'/> &nbsp;&nbsp;&nbsp;
+	\u03B4 <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(4)'/>  &nbsp;&nbsp;&nbsp;
+	\u03B5 <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(5)'/> &nbsp;&nbsp;&nbsp;
+	\u03B6 <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(6)'/> &nbsp;&nbsp;&nbsp;
+	\u03B7 <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(7)'/> &nbsp;&nbsp;&nbsp;
+	\u03B8 <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(8)'/>  &nbsp;&nbsp;&nbsp;
+	\u03B9 <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(9)'/> &nbsp;&nbsp;&nbsp;
+	\u03BA <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(10)'/> &nbsp;&nbsp;&nbsp;
+	\u03BB <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(11)'/> &nbsp;&nbsp;&nbsp;
+	\u03BC <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(12)'/>  &nbsp;&nbsp;&nbsp;
+	\u03BD <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(13);'/> &nbsp;&nbsp;&nbsp;
+	\u03BE <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(14)'/> &nbsp;&nbsp;&nbsp;
+	\u03BF <input type='radio' id='currscriptvar' onclick = 'updatescriptvar(15)'/> &nbsp;&nbsp;&nbsp;
+	</div>
+	<br>
+	<table border='1'  style='text-align:center; font-size:12pt; background-color:lightgrey; color:black'>
+	  <tr>
+	    <th>Script Variable</th>
+	    <th>Pattern Var id</th>
+	    <th>Template</th>
+	    <th>Match</th>
+	    <th>Pattern</th>
+	  </tr>
+	  <tr>
+		<td>" + scriptvar + "</td>
+	    <td><pre>" + pattvarid + "</pre></td>
+	    <td style='text-align:left'><pre>" + segdispstr + "</pre></td>
+		<td><pre>" + strtomatch + "</pre></td>
+		<td style='text-align:left'><pre>" + createdstr + "</pre></td>
+	  </tr>
+	</table>"
+	
+);
+
+## picture is [segdisp, mkpatttable];
+
+showObservables("mkp|segdisps|.*pres|pref|pattv|patts|scriptva|all|cre|vertpos$");
+showFunctions("compose|substst|mkstr|unic");
+
+## defining the auxscriptdisp where context for pattern is specified
+
+auxscriptdisp is Div("scriptdiv", 810, vertpos2, 1700, vertpos2, "
+<div id='forscriptinput'>
+<pre>
+  <textarea id='auxscript'  rows='20' cols='80'></textarea><br />
+</pre>
+</div>");
+
+pattcontext = "";
+
+picture is [segdisp, mkpatttable, auxscriptdisp];
+
+showObservables("auxs|pattc");
+
+############
+
+## The substantive state information is defined at this point
+## need actions and buttons for maintenance - versions here use JQuery
+## actions are essentially the same (?) but one is EDEN, one JS
+
+proc maintainforinput {
+	${{
+		$("#scriptvid")[0].value = root.lookup("scriptvarid").cached_value;
+		$("#matchseg")[0].value = root.lookup("strtomatch").cached_value;
+		$("#srcstring")[0].value = root.lookup("astr").cached_value;
+		$("#auxscript")[0].value = root.lookup("pattcontext").cached_value;
+		$("#selscriptvar")[0].children[root.lookup("currscriptvarix").cached_value-1].checked = "true";
+	}}$;
+};
+
+
+${{
+
+window.updatescriptvar = function updatescriptvar(ix)
+{
+	(root.lookup("currscriptvarix")).assign(ix, this).value();
+	$("#selscriptvar")[0].children[ix-1].checked = true;
+    $("#scriptvid")[0].value = root.lookup("scriptvarid").cached_value; 
+    $("#matchseg")[0].value = root.lookup("strtomatch").cached_value; 
+    $("#srcstring")[0].value = root.lookup("astr").cached_value; 
+	$("#auxscript")[0].value = root.lookup("pattcontext").cached_value;
+}
+
+}}$;
+
+## useful to call maintainforinput at this point to initialise display
+
+maintainforinput();
+
+############
+
+## eventual display content is:
+
+## picture is [segdisp, mkpatttable, update1, update2, update3, recordpatt, resetpatt, auxscriptdisp, recordcontext, toggleinterpret];
+
+## defining the buttons that manage the display:
+## update1, update2, update3, recordpatt,
+## resetpatt, recordcontext, toggleinterpret
+
+update1 is Button("setval1", "Update patt id", 320, vertpos2+13, true);
+update2 is Button("setval2", "Update match", 320, vertpos2 + 53, true);
+update3 is Button("setval3", "Update template", 20, vertpos2+100, true);
+
+## update buttons simply register in EDEN the string values latent in display
+
+proc updateval1 : setval1_clicked {
+  if (setval1_clicked) {
+	${{
+	 (root.lookup("scriptvarid")).assign($("#scriptvid")[0].value, this).value();
+	}}$;
+	maintainforinput();
+  }
+};
+
+proc updateval2 : setval2_clicked {
+  if (setval2_clicked) {
+    ${{
+	 (root.lookup("strtomatch")).assign($("#matchseg")[0].value, this).value();
+    }}$;
+	maintainforinput();
+  }
+};
+
+proc updateval3 : setval3_clicked {
+	if (setval3_clicked) {
+		${{	 
+		(root.lookup("astr")).assign($("#srcstring")[0].value, this).value();
+		}}$;
+		maintainforinput();
+	}
+}
+
+##  picture is [segdisp, mkpatttable, auxscriptdisp, update1, update2, update3];
+
+## the record context button processes the script entered via auxscriptdisp
+
+recordcontext is Button("recctxt", "Record\ncontext", 760, vertpos2+13, true);
+
+## updatectxt needs auxiliary functions strtols, getlscomp and mkobsdefexp
+
+## original updatectxt seems to have an unnecessary use of both
+## local and contextual EDEN observables for pattcontextarr
+## cf. pattcntxtarr in 26th Sept which is not in the local scope
+## opt for local here but of course may be desirable to expose via script
+## cf discussion around line 1050 in 26th Sept version
+
+## also using .length in EDEN context - unnec / undesirable 
+
+func strtols {
+	${{
+		var nls = arguments[0];
+		var result = new Array();
+		return result = nls.split("\n");
+	}}$;
+}
+
+## pattcntxtarr is strtols(pattcontext);
+
+func mkobsdefexp {
+${{
+	var n = arguments[0];
+	var obseq, obs, defexp;
+	obseq = n.match(/^([^=]*)=\s*/)[0];
+	obs = n.match(/^([^=\s]*)\s*=\s*/)[1];
+	## console.log(obs);
+	defexp = n.replace(/^[^=]*=[\s]*/,"");
+	defexp = defexp.replace(/\s*;$/,"");
+  	return [obs, defexp];
+  }}$;
+}
+
+## helper function addressing problems of parsing lsfn(par)[i] expression
+## to specify components of list returned by a function
+
+func getlscomp {
+  return $1[$2];
+}
+
+/*
+
+## old version unnecessarily complicated semantically?
+
+proc updatectxt : recctxt_clicked {
+  auto pattcontextarr, i, obs, defexp;
+  if (recctxt_clicked) {
+	${{
+	(root.lookup("pattcontext")).assign($("#auxscript")[0].value, this).value();
+	}}$;
+	pattcontextarr = strtols(pattcontext);
+	## writeln("From updatectxt:\n");
+	for (i=1; i<=pattcontextarr#; i++) {
+		## writeln(pattcontextarr[i]);
+		obs = getlscomp(mkobsdefexp(pattcontextarr[i]),1);
+        if (pattcontextarr[i]#>1){
+            defexp = getlscomp(mkobsdefexp(pattcontextarr[i]),2);
+			## writeln(defexp);
+            ## writeln(subststar(defexp,allgkch));
+        }  
+		execute(obs // " = " // subststar(defexp, allgkch) // ";");
+	}
+	maintainforinput();
+  }
+};
+*/
+
+proc updatectxt : recctxt_clicked {
+  if (recctxt_clicked) {
+	${{
+	(root.lookup("pattcontext")).assign($("#auxscript")[0].value, this).value();
+	}}$;
+	execute(pattcontext);
+	maintainforinput();
+  }
+};
+
+##  picture is [segdisp, mkpatttable, auxscriptdisp, update1, update2, update3, recordcontext];
+
+## updating current pattern instance is associated with updating context
+
+allgkchtrigger is [α,β,γ,δ,ε,ζ,η,θ,ι,κ,λ,μ,ν,ξ,ο];
+pattinstance is subststar(pattstr, allgkch, allgkchtrigger);
+
+## actions to manage the list of recorded patterns
+
+## requires control over whether EDEN interpretation is ventured
+
+## defining toggleinterpret
+
+readytointerpret = 0;
+
+toggleinterpret is Button("settointerpret", (!readytointerpret) ? "Interpret OFF" : "Interpret ON", 600, vertpos2+13, true);
+
+## without the if-clause it seems that this procedure can be triggered
+## when the button is redrawn, whether or not it's been clicked
+
+proc setforinterpret : settointerpret_clicked {
+  if (settointerpret_clicked) {
+	readytointerpret = 1 - readytointerpret;
+	maintainforinput();
+  }
+}
+
+##  picture is [segdisp, mkpatttable, auxscriptdisp, update1, update2, update3, recordcontext, toggleinterpret];
+
+recordpatt is Button("recpatt", "Record pattern", 490, vertpos2+13, true);
+
+## needs pattlist in place:
+
+pattlist = [];
+
+proc updatepattlist : recpatt_clicked {
+  if (recpatt_clicked) {
+	execute(pattvarid + " is [pattcontext, pattstr];");
+##	writeln("pattlist = pattlist // [" + pattvarid + "];");
+	execute("pattlist = pattlist // [" + pattvarid + "];");
+	writeln(pattlist);
+	if (readytointerpret) {
+		##	execute(pattcontext); 
+		execute(pattinstance);
+		## assumes that pattinstance is executable! 
+		## maybe good idea to link this action to status of 'Interpret ON'
+	}
+	maintainforinput();
+  }
+}
+
+##  picture is [segdisp, mkpatttable, auxscriptdisp, update1, update2, update3, recordcontext, toggleinterpret, recordpatt];
+
+resetpatt is Button("resetpattls", "Reset pattern list " // pattlist#, 550, vertpos2+53, pattlist#!=0);
+
+proc resetpattlist : resetpattls_clicked {
+  if (resetpattls_clicked) {
+	pattlist = [];
+	maintainforinput();
+  }
+}
+
+picture is [segdisp, mkpatttable, auxscriptdisp, update1, update2, update3, recordcontext, toggleinterpret, recordpatt, resetpatt];
+
+showObservables("upd|rec|setv|allgkcht|patti|pattl|ready|togg|reset");
+showFunctions("strtols|getlscomp|mkobsdefexp");

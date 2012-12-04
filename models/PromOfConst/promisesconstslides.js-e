@@ -1,0 +1,171 @@
+
+func mkTextblock {
+	para kword, indexpara, arrsel;
+	return concatsentences(filter(splitintosentences(getlscomp(findwordparatext(kword, allparasplusslides),indexpara)), arrsel));
+}
+
+paraSlide1 is "<i>" // mkTextblock("", 1, [1,2,3,4])	// "</i>"; 
+paraSlide2 is "<i>" // mkTextblock("", 1, [5,6,7])	// "</i>";
+
+paraSlide3 is "<i>" // mkTextblock("", 2, [1,2,3])	// "</i>"; 
+paraSlide4 is "<i>" // mkTextblock("", 2, [4,5,6])	// "</i>"; 
+
+paraSlide5 is "<i>" // mkTextblock("", 3, [1,2,3,4])	// "</i>"; 
+paraSlide6 is "<i>" // mkTextblock("", 3, [5,6,7,8])	// "</i>"; 
+
+paraSlide7 is "<i>" // mkTextblock("", 4, [1,2,3,4])	// "</i>"; 
+paraSlide8 is "<i>" // mkTextblock("", 4, [5,6,7])	// "</i>"; 
+
+paraSlide9 is "<i>" // mkTextblock("", 5, [1,2,3,4])	// "</i>"; 
+paraSlide10 is "<i>" // mkTextblock("", 5, [5,6])	// "</i>"; 
+
+paraSlides = [titleheader, paraSlide1, paraSlide2, paraSlide3, paraSlide4, paraSlide5, paraSlide6, paraSlide7, paraSlide8, paraSlide9, paraSlide10];
+
+paraSlideAux1 is "<b>Guarantee 1: In making the connection between personal knowing and objective knowledge, some things need to be acknowledged as beyond question </b>
+<p>Contexts in which personal and objective perspectives co-exist are subject to essential guarantees about stability and discretionary restraint.
+</p><p>
+All observables are discretionary in character. They rely on context.
+</p><p>More than this -  to be able to simultaneously adopt personal and objective perspectives, there has to be some contextual constraint. cf. Dead Parrot Sketch.
+</p><p>
+Probably can't have a great impressionists art exhibition in a sauna / foundry or a piano recital in a swimming pool when a gala is taking place.
+</p><p>
+The fact that something is meaningful to me (i.e makes a connection in my own experience - however vivid) is no guarantee that it will in yours.
+</p>";
+
+paraSlideAux2 is "
+<b>Guarantee 1: In making the connection between personal knowing and objective knowledge, some things need to be acknowledged as beyond question </b>
+<p>
+<b>Deconstruction</b> is an activity that seeks to expose the vulnerability of knowledge to change of context. Taken to an extreme, it undermines all pretence to knowledge.
+</p><p>
+Interesting/sophisticated observables typically require us to establish a context for their observation (consider the Higgs boson particle / the university degree / what is a home student? / the way in which the shadow of an aeroplane can sometimes be seen in a complete circular rainbow).
+</p><p>Why do we ask whether staff have any personal involvement with students at exam boards? </p><p>
+Do you believe me when I recount a recent journey all by myself via the Butts and Albany Road on the 12 bus?<p>";
+
+paraSlideAux3 is "
+<b>Guarantee 2: Since all objective knowledge is rooted in personal knowing, all knowledge is potentially subject to revision </b>
+<p>We want to be able to shift perspective e.g. to take account of more than we have agreed as objective
+</p><p>
+e.g. personality more than physical measurements can capture
+</p><p>
+cf. magnetic field was not fixed, speed of light probably has been
+</p><p>
+continental drift? reversing earth?
+</p><p>";
+
+paraSlideAux4 is "<b>Guarantee 2: Since all objective knowledge is rooted in personal knowing, all knowledge is potentially subject to revision </b>
+<p>'realism' not a prerequisite for significance - cf. power of fiction
+</p><p>
+categorical objection for those who subscribe to a special quality of 'the absolute'
+</p><p>
+fundamentalism in Latour's sense - \"constructivism may be our only defence against fundamentalism ...\"
+</p>
+";
+
+paraSlideAux5 is "
+<b>Guarantee 3: \"The common world is not given once and for all, but is composed progressively\"</b>
+<p>
+question re extent to which science is based on what only the most able scientists can testify to
+</p><p>
+cf. experts in any field, as in history or humanities
+</p><p>
+our perception of what is real is shaped by our experience: what is to have the quality of objective reality has to be something about which we can be persuasive for all (even those who can't / can't yet / can't any longer validate in their own experience)
+</p><p>
+needs an account (cf. understanding as familiarity with experiences of interacting and interpreting) not merely a statement";
+
+paraSlideAux6 is "
+<b>Guarantee 3: \"the common world is not given once and for all, but is composed progressively\"</b>
+<p>
+connected with the notion of inexhaustability of interaction with construal
+</p><p>
+a mathematical theorem is much more than its statement
+- contextualisation is essential for appreciation/interpretation and proof</p>
+";
+
+paraSlideAux7 is "
+<b>
+Guarantee 4: \"Humans and non-humans engaged in a history that should render their history inseparable\"
+</b>
+<p>
+knowledge as rooted in personal experience means that human element cannot be discounted
+</p><p>
+conceive roles of non-human agents in anthropomorphic terms
+</p><p>
+cf. the story of the ficts - what we can do colours what we project upon other agents etc
+</p>
+";
+
+paraSlideAux8 is "
+<b>
+Guarantee 4: \"Humans and non-humans engaged in a history that should render their history inseparable\"
+</b>
+<p>
+contrast extreme varieties of computationalism 
+</p><p>
+creativity as something that can be modelled computationally?
+</p><p>
+aesthetic responses as 'a romantic notion' 
+</p>
+";
+
+paraSlideAux9 is "
+<b>
+Guarantee 5: Need some form of \"quality assurance\" for construction
+</b>
+<p>
+issue for alternative proposals for a hermeneutic stance such as <i>object thinking</i>
+</p><p>
+who is to say what is a good object model? - quite a minefield
+</p><p>
+appeal to perception in experience as derived from ODA framework is a way to achieve this, but only goes so far in assurance
+</p><p>
+consider how much we take on trust - \"what the expert / trusted source says\"
+</p>";
+
+paraSlideAux10 is "
+<b>
+Guarantee 5: Need some form of \"quality assurance\" for construction
+</b>
+<p>
+meta-observation
+<!--
+<ul>
+<li>don't know / don't understand / can't observe in detail what an agent does</li>
+<li>an agent has been reliable in the past - cf. observing contracts</li>
+</ul>
+-->
+</p><p>
+- don't know / don't understand / can't observe in detail what an agent does
+<br>
+- but an agent has been reliable in the past - cf. observing contracts
+</p>
+<p>
+cf. recommender systems - evidence that we can trust
+</p>
+<p>
+<!--
+<ul>
+<li>how do you know what I *can't* do / see?</li>
+<li>have to consider why I wouldn't do what I would certainly be motivated to do</li>
+<li>how do *I* know what I *can't* do / see?</li>
+</ul>
+-->
+<p>
+- how do you know what I <i>can't</i> do / see?
+<br>- have to consider why I wouldn't do what I would certainly be motivated to do
+</p>
+<p>- how do <i>I</i> know what I <i>can't</i> do / see?
+</p>
+<p>
+Emanuel Lasker's winning chess move - but was it really a <b>good</b> move?
+</p>";
+
+
+paraSlideLogicExp is "<p><img src='http://www2.warwick.ac.uk/fac/sci/dcs/research/em/LogicExp.gif'>";
+
+paraSlideFormHerm is "<p><img src='http://www2.warwick.ac.uk/fac/sci/dcs/research/em/formheum2.gif'>";
+
+paraSlideEMconstrual is "<p><img src='http://www2.warwick.ac.uk/fac/sci/dcs/research/em/basicconstrual.gif'>";
+
+paraSlideAux = [paraSlideAux1, paraSlideAux2, paraSlideAux3, paraSlideAux4, paraSlideAux5, paraSlideAux6, paraSlideAux7, paraSlideAux8, paraSlideAux9, paraSlideAux10, paraSlideLogicExp, paraSlideFormHerm];
+
+slideStream3 is Slide(paraSlideEMconstrual);
