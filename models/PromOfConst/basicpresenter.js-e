@@ -27,7 +27,7 @@ proc showFunctions { ${{
    $('#functions-search').val(arguments[0]);
 }}$; }
 
-include("jspe.jse");
+include("jspe.js-e");
 
 
 paragraph0 is "This is a default paragraph. It has more than one sentence. ";
