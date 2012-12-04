@@ -136,7 +136,7 @@ ${{
 
   execute = function(e) {
 	// Evaluates and stores in the symbol table
-	eval(Eden.translateToJavaScript($(e).siblings('pre').txt()));
+	eval(Eden.translateToJavaScript($(e).siblings('pre').text()));
 	// this line (fixed by Nick Pope 30-11-2012) used to read: 
 	// eval(Eden.translateToJavaScript($(e).siblings('pre').html()));
   }
