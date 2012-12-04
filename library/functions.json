@@ -7,6 +7,20 @@
 			"return": "No return value",
 			"description": "Loads and executes a JS-Eden script file"
 		},
+		"include_js": {
+			"parameters": {
+				"file": "JavaScript file to load"
+			},
+			"return": "No return value",
+			"description": "Loads and executes an external javascript file"
+		},
+		"include_css": {
+			"parameters": {
+				"file": "CSS file to load"
+			},
+			"return": "No return value",
+			"description": "Load an external style sheet"
+		},
 		"str": {
 			"parameters": {
 				"object": "A number or list to be converted"
