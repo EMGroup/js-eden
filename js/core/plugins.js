@@ -14,7 +14,7 @@ Eden.prototype.loadPlugin = function(name) {
 	}
 };
 
-Eden.prototype.showDialog(name) {
+Eden.prototype.showDialog = function(name) {
 	this.views[name].dialog(this.views[name].title);
-}
+};
 
