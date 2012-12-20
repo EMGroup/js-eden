@@ -1,0 +1,16 @@
+.projectlist-result-element {
+	/*border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #d0d0d0;*/
+	position: relative;
+	left: 0px;
+	right: 0px;
+	height: 16px;
+	cursor: pointer;
+	overflow: hidden;
+	position: relative;
+	padding-left: 15px;
+	padding-right: 15px;
+	margin-bottom: 2px;
+}
+

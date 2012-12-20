@@ -133,14 +133,13 @@ input.search-box {
 	position: absolute;
 	left: 0px;
 	top: 0px;
-	width: 196px;
+	/*width: 196px;*/
 	height: 24px;
 	border-style: solid;
 	border-width: 1px;
 	border-color: #117fe5;
 	background-color: white;
 	padding: 2px;
-	border-right-width: 0px;
 }
 
 input.obs-watch-check {

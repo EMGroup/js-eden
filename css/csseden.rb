@@ -7,6 +7,7 @@ scripts = [
 	"jseden.css",
 	"jquery-ui-1.8.16.flick.css",
 	"eden.css",
+	"../plugins/project-listing/project-listing.css",
 ]
 
 scripts.each do |x|
