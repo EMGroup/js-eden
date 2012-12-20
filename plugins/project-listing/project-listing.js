@@ -9,13 +9,13 @@
 Eden.plugins.ProjectList = function(context) {
 	var me = this;
 
-	/** @private */
-	var instances = new Array();
+	/** @public */
+	this.instances = new Array();
 
 	/** @private */
 	var updateAllCollections = function(pattern) {
-		for (x in instances) {
-			updateCollection(instances[x],pattern);
+		for (x in me.instances) {
+			updateCollection(me.instances[x],pattern);
 		}
 	}
 
@@ -118,8 +118,8 @@ Eden.plugins.ProjectList = function(context) {
 				//position: ['right','bottom'],
 			});
 
-		instances.push(code_entry[0]);
-		code_entry.find("* > .projectlist-search").keyup(function() {
+		me.instances.push(code_entry[0]);
+		code_entry.find(".search-box-outer > .projectlist-search").keyup(function() {
 			updateCollection(code_entry[0],this.value);
 		});
 	}
