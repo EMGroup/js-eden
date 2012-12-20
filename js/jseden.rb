@@ -6,6 +6,12 @@ scripts = [
 	"lib/jquery.color.js",
 	"lib/jquery.hotkeys.js",
 	"lib/json2.js",
+	"lib/codemirror/codemirror.js",
+	"lib/codemirror/runmode.js",
+	"lib/codemirror/mode/javascript/javascript.js",
+	"lib/codemirror/mode/eden/eden.js",
+	"lib/codemirror/mode/xml/xml.js",
+	"lib/codemirror/mode/markdown/markdown.js",
 
 	"runtime.js",
 	"dummyconsole.js",
