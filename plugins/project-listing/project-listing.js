@@ -10,6 +10,16 @@ Eden.plugins.ProjectList = function(context) {
 	var me = this;
 
 	/** @private */
+	var instances = new Array();
+
+	/** @private */
+	var updateAllCollections = function(pattern) {
+		for (x in instances) {
+			updateCollection(instances[x],pattern);
+		}
+	}
+
+	/** @private */
 	var updateCollection = function(element,pattern) {
 		procspos = 0;
 
@@ -108,6 +118,7 @@ Eden.plugins.ProjectList = function(context) {
 				//position: ['right','bottom'],
 			});
 
+		instances.push(code_entry[0]);
 		code_entry.find("* > .projectlist-search").keyup(function() {
 			updateCollection(code_entry[0],this.value);
 		});
