@@ -24,7 +24,7 @@ Eden.plugins.ProjectList = function(context) {
 		procspos = 0;
 
 		//Clear any existing project search results.
-		var projresults = $(element).find(".projectlist-results");
+		var projresults = $(element).find(".results-lim > .projectlist-results");
 		projresults.html('');
 
 		//Search through projects to find those matching the query.
