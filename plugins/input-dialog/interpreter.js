@@ -142,11 +142,11 @@ Eden.plugins.InputWindow = function(context) {
 	}
 
 	/** @public */
-	this.createDialog = function(name, mtitle, edenparser) {
+	this.createDialog = function(mtitle, edenparser) {
 		var myeditor;
 
-		$code_entry = $('<div id="'+name+'-input"><div></div><pre class="eden exec"></pre></div>');
-		$dialog = $('<div id="'+name+'interpreter-window"></div>')
+		$code_entry = $('<div id="eden-input"><div></div><pre class="eden exec"></pre></div>');
+		$dialog = $('<div></div>')
 			.html($code_entry)
 			.dialog({
 				title: mtitle,
@@ -182,7 +182,7 @@ Eden.plugins.InputWindow = function(context) {
 
 		$("#btn-submit").css("margin-right", "30px");
 
-		myeditor = convertToEdenPageNew('#'+name+'-input','code');
+		myeditor = convertToEdenPageNew('#eden-input','code');
 
 		setupAllKeyBinds({
 			$dialog: $dialog,
@@ -191,11 +191,17 @@ Eden.plugins.InputWindow = function(context) {
 		});
 	}
 
-	// Construct the actual default input window.
-	//this.createDialog("eden_input_window","EDEN Input Window");
-
-	//Put plugin functions in main context
-	context.embedInputWindow = this.createEmbedded;
-	context.createInputWindow = this.createDialog;
+	//Add views.
+	context.views.InputWindow = {
+		dialog: this.createDialog,
+		embed: this.createEmbedded,
+		title: "JS-Eden Input Window"
+	};
+	//Make history available in the main context.
 	context.history = this.history;
 };
+
+/* Plugin meta information */
+Eden.plugins.InputWindow.title = "Input Window";
+Eden.plugins.InputWindow.description = "EDEN style script input window";
+Eden.plugins.InputWindow.author = "Nicolas Pope and Tim Monks";

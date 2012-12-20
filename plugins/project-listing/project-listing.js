@@ -102,11 +102,11 @@ Eden.plugins.ProjectList = function(context) {
 	}
 
 	/** @public */
-	this.createDialog = function(name, mtitle) {
+	this.createDialog = function(mtitle) {
 		code_entry = $('<div></div>');
 		code_entry.html(generateHTML());
 
-		$dialog = $('<div id="'+name+'projectlist"></div>')
+		$dialog = $('<div></div>')
 			.html(code_entry)
 			.dialog({
 				title: mtitle,
@@ -137,6 +137,11 @@ Eden.plugins.ProjectList = function(context) {
 		async: true
 	});
 
-	//Add methods to main context
-	context.createProjectList = this.createDialog;
+	//Add views supported by this plugin.
+	context.views["ProjectList"] = {dialog: this.createDialog, title: "Project List"};
 };
+
+/* Plugin meta information */
+Eden.plugins.ProjectList.title = "Project List";
+Eden.plugins.ProjectList.description = "Display list of available projects";
+Eden.plugins.ProjectList.author = "Nicolas Pope";
