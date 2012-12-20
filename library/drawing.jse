@@ -687,3 +687,7 @@ Slider.prototype.toString = function() {
   return "Slider("+this.name+", "+this.min+", "+this.max+", "+this.step+", "+this.default+", "+this.orientation+", "+this.x+", "+this.y+")";
 };
 }}$;
+
+func TestDraw {
+	return 77;
+}
