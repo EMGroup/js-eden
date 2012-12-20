@@ -1,0 +1,131 @@
+/**
+ * JS-Eden Project Listing Plugin.
+ * A plugin to display a list of models hosted on the server. The list can
+ * either be displayed in a dialog using createProjectList or be displayed
+ * in an existing div element using embedProjectList. It includes a search box
+ * to allow searching of the projects available.
+ * @class ProjectList Plugin
+ */
+Eden.plugins.ProjectList = function(context) {
+	var me = this;
+
+	/** @private */
+	var updateCollection = function(element,pattern) {
+		procspos = 0;
+
+		//Clear any existing project search results.
+		var projresults = $(element).find(".projectlist-results");
+		projresults.html('');
+
+		//Search through projects to find those matching the query.
+		var reg = new RegExp("^"+pattern+".*");
+		var i = 0;
+		while (me.projects.projects[i] !== undefined) {
+			//If not a match then skip to next project
+			if (me.projects.projects[i].name.search(reg) == -1) { i = i + 1; continue; }
+
+			//Generate the html element for the project
+			var proj = $('<div class="projectlist-result-element"></div>');
+			//Optimise by putting project details into html element.
+			proj[0].project = projects.projects[i];
+
+			proj.html(
+				"<li class=\"type-project\"><span class=\"result_name\">"
+				+ me.projects.projects[i].name
+				+ "</span><span class='result_value'> by "
+				+ me.projects.projects[i].author
+				+ " ("
+				+ me.projects.projects[i].year
+				+ ")</span></li>"
+			).appendTo(projresults);
+
+			i = i + 1;
+		}
+
+		//Now add animations to each project result
+		projresults.find(".projectlist-result-element").hover(
+			function() {
+				if (this != me.selected_project) {
+					$(this).animate({backgroundColor: "#eaeaea"}, 100);
+				}
+			}, function() {
+				if (this != me.selected_project) {
+					$(this).animate({backgroundColor: "white"}, 100);
+				}
+			}	
+
+		//Also add mouse click functionality (load the project).
+		).click(function () {
+			if (me.selected_project != null) {
+				$(me.selected_project).animate({backgroundColor: "white"}, 100);
+			}
+			me.selected_project = this;
+			$(this).animate({backgroundColor: "#ffebc9"}, 100);
+
+			if (this.project !== undefined) {
+				//Actually load the project by executing js-e file.
+				Eden.executeFile(this.project.runfile);
+			} else {
+				//session_connect(this.session.cid);
+			}
+			//printAllUpdates();
+		});
+
+		//Add scroll buttons if they are needed.
+		if (projresults[0].offsetHeight > (14*16)) {
+			$(element).find('.projectlist-scrollup').show();
+			$(element).find('.projectlist-scrolldown').show();
+		} else {
+			$(element).find('.projectlist-scrollup').hide();
+			$(element).find('.projectlist-scrolldown').hide();
+		}
+	}
+
+	/** @private */
+	var generateHTML = function() {
+		return "<div class=\"search-box-outer\">\
+			<input type=\"text\" class=\"projectlist-search search-box\"></input>\
+			<div class=\"search-button\"></div>\
+		</div>\
+		<div class=\"projectlist-scrollup scrollup\"></div>\
+		<div class=\"results-lim\"><div class=\"projectlist-results\"></div></div>\
+		<div class=\"scrolldown project-scrolldown\"</div>";
+	}
+
+	/** @public */
+	this.createDialog = function(name, mtitle) {
+		code_entry = $('<div></div>');
+		code_entry.html(generateHTML());
+
+		$dialog = $('<div id="'+name+'projectlist"></div>')
+			.html(code_entry)
+			.dialog({
+				title: mtitle,
+				width: 450,
+				height: 400,
+				minHeight: 120,
+				minWidth: 230,
+				//position: ['right','bottom'],
+			});
+
+		code_entry.find("* > .projectlist-search").keyup(function() {
+			updateCollection(code_entry[0],this.value);
+		});
+	}
+
+	//Get a list of projects
+	$.ajax({
+		url: "models/projects.json",
+		dataType: 'json',
+		success: function(data) {
+			me.projects = data;
+			context.projects = me.projects;
+			updateAllCollections("");
+		},
+		cache: false,
+		async: true
+	});
+
+	//Add methods to main context
+	context.createProjectList = this.createDialog;
+};

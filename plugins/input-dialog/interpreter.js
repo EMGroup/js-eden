@@ -1,11 +1,12 @@
 /**
  * JS-Eden InputWindow Plugin.
- * When the plugin loads it automatically creates and displays an Eden style
- * input window. The plugin provides public methods for controlling the
- * visability of the window, along with access to its history.
+ * This plugin provides createInputWindow and embedInputWindow methdods which
+ * respectively create an input window dialog for entering JS-Eden code or
+ * embed an input window into an existing div element. A history is also
+ * kept of all inputs (in all input windows).
  * @class InputWindow Plugin
  */
-Eden.plugins.InputWindow = function() {
+Eden.plugins.InputWindow = function(context) {
 	var me = this;
 	/**
 	 * Record of the input history for this window.
@@ -136,7 +137,12 @@ Eden.plugins.InputWindow = function() {
 	}
 
 	/** @public */
-	this.create = function(name, mtitle, edenparser) {
+	this.createEmbedded = function(name, edenparser) {
+
+	}
+
+	/** @public */
+	this.createDialog = function(name, mtitle, edenparser) {
 		var myeditor;
 
 		$code_entry = $('<div id="'+name+'-input"><div></div><pre class="eden exec"></pre></div>');
@@ -186,5 +192,10 @@ Eden.plugins.InputWindow = function() {
 	}
 
 	// Construct the actual default input window.
-	this.create("eden_input_window","EDEN Input Window");
+	//this.createDialog("eden_input_window","EDEN Input Window");
+
+	//Put plugin functions in main context
+	context.embedInputWindow = this.createEmbedded;
+	context.createInputWindow = this.createDialog;
+	context.history = this.history;
 };

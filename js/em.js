@@ -94,17 +94,7 @@ var current_view = new Array();
 
 function js_eden_init() {
 
-	//Get a list of projects
-	$.ajax({
-		url: "models/projects.json",
-		dataType: 'json',
-		success: function(data) {
-			projects = data;
-			printCollections("");
-		},
-		cache: false,
-		async: true
-	});
+	
 
 	$(window).resize(function() {
 		$("#d1canvas").attr("height", $("#tabs").height()-80);
@@ -302,9 +292,7 @@ function js_eden_init() {
 
 		
 
-		$("#project-search").keyup(function() {
-			printCollections(this.value);
-		});
+		
 
 		root.addGlobal(function (sym, create) {
 			//console.log("Obs changed: " + sym.name.substr(1));

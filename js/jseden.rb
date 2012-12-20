@@ -29,6 +29,7 @@ scripts = [
 	"lib/sylvester.js",
 
 	"../plugins/input-dialog/interpreter.js",
+	"../plugins/project-listing/project-listing.js",
 ]
 
 scripts.each do |x|

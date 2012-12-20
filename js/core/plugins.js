@@ -5,5 +5,6 @@ Eden.prototype.loadPlugin = function(name) {
 		this.plugins = {};
 	}
 
-	this.plugins[name] = new Eden.plugins[name]();
+	this.plugins[name] = new Eden.plugins[name](this);
 };
+
