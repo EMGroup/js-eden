@@ -5,7 +5,7 @@ puts "Content-type: text/css\n\n"
 scripts = [
 	"header.css",
 	"jseden.css",
-	"flick/jquery-ui-1.8.16.custom.css",
+	"jquery-ui-1.8.16.flick.css",
 	"eden.css",
 ]
 
