@@ -1,5 +1,6 @@
 var selected_observable = null;
 var selected_function = null;
+var delayed_creation_timeout = false;
 
 var SYMBOL_TYPES = {
 	observable: true,
@@ -312,7 +313,15 @@ function js_eden_init() {
 			if ($("#symbol-search > .side-bar-topic-content").css("height") == "0px") return;
 
 			if (create) {
-				printObservables($('#observable-search')[0].value);
+				//TODO: This needs to be delayed with a timeout to increase
+				//performance when loading scripts
+				if (delayed_creation_timeout == false) {
+					delayed_creation_timeout = true;
+					setTimeout(function () {
+						printObservables($('#observable-search')[0].value);
+						delayed_creation_timeout = false;
+					}, 500);
+				}
 				return;
 			}
 
