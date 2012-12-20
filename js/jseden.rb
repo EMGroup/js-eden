@@ -15,7 +15,7 @@ scripts = [
 
 	"core/runtime.js",
 	"dummyconsole.js",
-	"test.js",
+	"test/test.js",
 	"core/maintainer.js",
 	"core/eden/parser.js",
 	"core/eden.js",
@@ -23,13 +23,12 @@ scripts = [
 	"edenui.js",
 	"models.js",
 	"collections.js",
-	"interpreter.js",
 	"em.js",
 	"edenpage.js",
 
 	"lib/sylvester.js",
 
-	"../plugins/input-window/interpreter.js",
+	"../plugins/input-dialog/interpreter.js",
 ]
 
 scripts.each do |x|
