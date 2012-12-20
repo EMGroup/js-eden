@@ -15,3 +15,5 @@ def includeScript(script)
 	file.close
 end
 
+includeScript("eden.jse")
+
