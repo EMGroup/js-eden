@@ -342,6 +342,6 @@ function js_eden_init() {
 
 		$('<pre id="error-window" style="font-family:monospace;"></pre>').appendTo($('body'));
 
-		Eden.executeFile("library/eden.jse");
+		Eden.executeFile("library/libeden.rb");
 	});
 }
