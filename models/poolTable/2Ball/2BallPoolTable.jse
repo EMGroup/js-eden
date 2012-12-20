@@ -152,7 +152,7 @@ proc gameReset : resetGameBtn_clicked {
  * use: log(argument1, argument2 ..., argumentn);
  */
 func log {
-	${{ console.log.apply(console, arguments); }}$;
+	##${{ console.log.apply(console, arguments); }}$;
 }
 func abs { 
 	return ${{ Math.abs.apply(this, arguments); }}$; 

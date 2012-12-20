@@ -119,7 +119,7 @@ Eden.plugins.ProjectList = function(context) {
 			});
 
 		me.instances.push(code_entry[0]);
-		updateCollection(code_entry[0],this.value);
+		updateCollection(code_entry[0],"");
 		code_entry.find(".search-box-outer > .projectlist-search").keyup(function() {
 			updateCollection(code_entry[0],this.value);
 		});
