@@ -102,11 +102,11 @@ Eden.plugins.ProjectList = function(context) {
 	}
 
 	/** @public */
-	this.createDialog = function(mtitle) {
+	this.createDialog = function(name,mtitle) {
 		code_entry = $('<div></div>');
 		code_entry.html(generateHTML());
 
-		$dialog = $('<div></div>')
+		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
 			.dialog({
 				title: mtitle,

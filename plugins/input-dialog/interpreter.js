@@ -142,11 +142,11 @@ Eden.plugins.InputWindow = function(context) {
 	}
 
 	/** @public */
-	this.createDialog = function(mtitle, edenparser) {
+	this.createDialog = function(name, mtitle, edenparser) {
 		var myeditor;
 
-		$code_entry = $('<div id="eden-input"><div></div><pre class="eden exec"></pre></div>');
-		$dialog = $('<div></div>')
+		$code_entry = $('<div id="'+name+'-input"><div></div><pre class="eden exec"></pre></div>');
+		$dialog = $('<div id="'+name+'"></div>')
 			.html($code_entry)
 			.dialog({
 				title: mtitle,
@@ -182,7 +182,7 @@ Eden.plugins.InputWindow = function(context) {
 
 		$("#btn-submit").css("margin-right", "30px");
 
-		myeditor = convertToEdenPageNew('#eden-input','code');
+		myeditor = convertToEdenPageNew('#'+name+'-input','code');
 
 		setupAllKeyBinds({
 			$dialog: $dialog,
