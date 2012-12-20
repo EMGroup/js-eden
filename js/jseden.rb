@@ -1,4 +1,4 @@
-#!/dcs/emp/jseden/bin/ruby
+#!/usr/bin/ruby
 # Concatenates and serves all the required scripts for jseden.
 puts "Content-type: application/x-javascript\n\n"
 
