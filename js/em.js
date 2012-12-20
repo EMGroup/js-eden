@@ -308,7 +308,8 @@ function js_eden_init() {
 		root.addGlobal(function (sym, create) {
 			//console.log("Obs changed: " + sym.name.substr(1));
 
-
+			//Cannot see so doesn't matter
+			if ($("#symbol-search > .side-bar-topic-content").css("height") == "0px") return;
 
 			if (create) {
 				printObservables($('#observable-search')[0].value);
