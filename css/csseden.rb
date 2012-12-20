@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 # Concatenates and serves all the required scripts for jseden.
 puts "Content-type: text/css\n\n"
 
