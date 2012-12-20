@@ -13,12 +13,13 @@ scripts = [
 	"lib/codemirror/mode/xml/xml.js",
 	"lib/codemirror/mode/markdown/markdown.js",
 
-	"runtime.js",
+	"core/runtime.js",
 	"dummyconsole.js",
 	"test.js",
-	"maintainer.js",
-	"eden/parser.js",
-	"eden.js",
+	"core/maintainer.js",
+	"core/eden/parser.js",
+	"core/eden.js",
+	"core/plugins.js",
 	"edenui.js",
 	"models.js",
 	"collections.js",
@@ -26,10 +27,9 @@ scripts = [
 	"em.js",
 	"edenpage.js",
 
-	"sylvester.js",
-	"raphael-min.js",
-	"dracula_graffle.js",
-	"dracula_graph.js",
+	"lib/sylvester.js",
+
+	"../plugins/input-window/interpreter.js",
 ]
 
 scripts.each do |x|
