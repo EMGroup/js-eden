@@ -129,9 +129,14 @@
 			if (this.definition === undefined) {
 				this.cached_value = undefined;
 			} else {
-				this.cached_value = this.definition(this.context);
+				try {
+					this.cached_value = this.definition(this.context);
+					this.up_to_date = true;
+				} catch(e) {
+					this.cached_value = undefined;
+					this.up_to_data = false;
+				}
 			}
-			this.up_to_date = true;
 		}
 		return this.cached_value;
 	};
