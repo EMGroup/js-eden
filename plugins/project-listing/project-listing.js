@@ -37,7 +37,7 @@ Eden.plugins.ProjectList = function(context) {
 			//Generate the html element for the project
 			var proj = $('<div class="projectlist-result-element"></div>');
 			//Optimise by putting project details into html element.
-			proj[0].project = projects.projects[i];
+			proj[0].project = me.projects.projects[i];
 
 			proj.html(
 				"<li class=\"type-project\"><span class=\"result_name\">"
@@ -119,6 +119,7 @@ Eden.plugins.ProjectList = function(context) {
 			});
 
 		me.instances.push(code_entry[0]);
+		updateCollection(code_entry[0],this.value);
 		code_entry.find(".search-box-outer > .projectlist-search").keyup(function() {
 			updateCollection(code_entry[0],this.value);
 		});
