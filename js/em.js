@@ -348,7 +348,7 @@ function js_eden_init() {
 			me.html("<li class=\"type-observable\"><span class=\"result_name\">" + namehtml + "</span><span class='result_value'> = " + valhtml + "</span></li>");
 		});
 
-		make_interpreter("eden","EDEN Interpreter Window");
+		//make_interpreter("eden","EDEN Interpreter Window");
 
 		$('<pre id="error-window" style="font-family:monospace;"></pre>').appendTo($('body'));
 
