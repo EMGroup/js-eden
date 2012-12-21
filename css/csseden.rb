@@ -9,6 +9,7 @@ scripts = [
 	"eden.css",
 	"../plugins/project-listing/project-listing.css",
 	"../plugins/menu-bar/menu-bar.css",
+	"../plugins/symbol-viewer/symbol-viewer.css",
 ]
 
 scripts.each do |x|

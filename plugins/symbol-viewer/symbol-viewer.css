@@ -1,0 +1,42 @@
+li.type-function {
+	list-style-image: url('../images/type-function.png');
+}
+
+li.type-observable {
+	list-style-image: url('../images/type-observable.png');
+}
+
+li.type-procedure {
+	list-style-image: url('../images/type-agent.png');
+}
+
+li.type-session {
+	list-style-image: url('../images/type-sessions.png');
+}
+
+li.type-project {
+	list-style-image: url('../images/type-project.png');
+}
+
+.procedure-results {
+	overflow-y: hidden;
+	font-size: 12px;
+	bottom: 0px;
+}
+
+.symbollist-result-element {
+	/*border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #d0d0d0;*/
+	position: relative;
+	left: 0px;
+	right: 0px;
+	height: 16px;
+	cursor: pointer;
+	overflow: hidden;
+	position: relative;
+	padding-left: 15px;
+	padding-right: 15px;
+	margin-bottom: 2px;
+	font-size: 10pt;
+}

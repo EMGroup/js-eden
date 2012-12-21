@@ -22,25 +22,54 @@ Eden.plugins.SymbolViewer = function(context) {
 		
 	}
 
+	/** @private */
+	var generateHTML = function() {
+		return "<div class=\"search-box-outer\">\
+			<input type=\"text\" class=\"symbollist-search search-box\"></input>\
+		</div>\
+		<div class=\"symbollist-scrollup scrollup\"></div>\
+		<div class=\"results-lim\"><div class=\"symbollist-results\"></div></div>\
+		<div class=\"scrolldown symbollist-scrolldown\"</div>";
+	}
+
 	/** @public */
 	this.createDialog = function(name,mtitle,type) {
-		
+		code_entry = $('<div></div>');
+		code_entry.html(generateHTML());
+
+		$dialog = $('<div id="'+name+'"></div>')
+			.html(code_entry)
+			.dialog({
+				title: mtitle,
+				width: 350,
+				height: 400,
+				minHeight: 120,
+				minWidth: 230,
+				//position: ['right','bottom'],
+			});
+
+		me.instances.push(code_entry[0]);
+		code_entry[0].symboltype = type;
+		updateViewer(code_entry[0],"");
+		code_entry.find(".search-box-outer > .symbollist-search").keyup(function() {
+			updateViewer(code_entry[0],this.value);
+		});
 	}
 
 	this.createObservableDialog = function(name,mtitle) {
-
+		return me.createDialog(name,mtitle,"obs");
 	}
 
 	this.createFunctionDialog = function(name,mtitle) {
-
+		return me.createDialog(name,mtitle,"func");
 	}
 
 	this.createAgentDialog = function(name,mtitle) {
-
+		return me.createDialog(name,mtitle,"agent");
 	}
 
 	this.createSymbolDialog = function(name,mtitle) {
-
+		return me.createDialog(name,mtitle,"all");
 	}
 
 
