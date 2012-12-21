@@ -18,7 +18,7 @@ Eden.plugins.MenuBar = function(context) {
 		$("#menubar-mainitem-"+name).menu().hide();
 		menuitem.click(function() {
 			$("#menubar-mainitem-"+name).show();
-		}
+		});
 	};
 
 	addMainItem("jseden","JS-Eden");
