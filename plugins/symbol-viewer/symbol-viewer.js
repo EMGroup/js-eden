@@ -36,6 +36,7 @@ Eden.plugins.SymbolViewer = function(context) {
 
 		ele.hover(
 			function() {
+				$(this).animate({backgroundColor: "#eaeaea"}, 100);
 				//if (this != selected_observable) {
 				//	$(this).animate({backgroundColor: "#eaeaea"}, 100);
 				//}
@@ -51,6 +52,7 @@ Eden.plugins.SymbolViewer = function(context) {
 				//	info.hide();
 				//}
 			}, function() {
+				$(this).animate({backgroundColor: "white"}, 100);
 				//$('#observable-info').hide();
 				//if (this != selected_observable) {
 				//	$(this).animate({backgroundColor: "white"}, 100);
@@ -108,26 +110,25 @@ Eden.plugins.SymbolViewer = function(context) {
 
 		//For every js-eden symbol
 		$.each(root.symbols, function (name, symbol) {
-			if (!shouldAdd(reg,name)) {
-				return;
-			}
-
-			//Does the symbol have a definition
-			if (!symbol.definition || !symbol.eden_definition) {
-				if ((type == "obs") || (type == "all")) {
-					add_observable(symresults,symbol, name);
-					return;
-				}
-			} else {
-				//Find out what kind of definition it is (proc, func or plain)
-				var subs = symbol.eden_definition.substring(0,4);
+			if (shouldAdd(reg,name)) {
+				//Does the symbol have a definition
+				if (!symbol.definition || !symbol.eden_definition) {
+					if ((type == "obs") || (type == "all")) {
+						add_observable(symresults,symbol, name);
+						//return;
+					}
+				} else {
+					//Find out what kind of definition it is (proc, func or plain)
+					var subs = symbol.eden_definition.substring(0,4);
 			
-				if (subs == "proc" && ((type == "agent") || (type == "all"))) {
-					add_procedure(symresults,symbol, name);
-				} else if (subs == "func" && ((type == "func") || (type == "all"))) {
-					add_function(symresults,symbol, name);
-				} else if ((type == "obs") || (type == "all")) {
-					add_observable(symresults,symbol, name);
+					if (subs == "proc" && ((type == "agent") || (type == "all"))) {
+						add_procedure(symresults,symbol, name);
+					} else if (subs == "func" && ((type == "func") || (type == "all"))) {
+						add_function(symresults,symbol, name);
+					} else if (subs != "proc" && subs != "func" && (type == "obs") || (type == "all")) {
+						console.log(subs);
+						add_observable(symresults,symbol, name);
+					}
 				}
 			}
 		});
