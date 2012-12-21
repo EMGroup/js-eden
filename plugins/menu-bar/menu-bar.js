@@ -15,7 +15,11 @@ Eden.plugins.MenuBar = function(context) {
 		var menuitem = $("<div class=\"menubar-mainitem\"></div>");
 		menuitem.html(title+"<ul id=\"menubar-mainitem-"+name+"\"></ul>");
 		menuitem.appendTo(menudiv);
-		$("#menubar-mainitem-"+name).menu().hide();
+		$("#menubar-mainitem-"+name).menu({
+			blur: function(event,ui) {
+				ui.hide();
+			}
+		}).hide();
 		menuitem.click(function() {
 			$("#menubar-mainitem-"+name).show();
 		});
