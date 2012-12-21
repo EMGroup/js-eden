@@ -30,6 +30,11 @@ Eden.plugins.ProjectList = function(context) {
 		//Search through projects to find those matching the query.
 		var reg = new RegExp("^"+pattern+".*");
 		var i = 0;
+
+		if (me.projects === undefined) {
+			return;
+		}
+
 		while (me.projects.projects[i] !== undefined) {
 			//If not a match then skip to next project
 			if (me.projects.projects[i].name.search(reg) == -1) { i = i + 1; continue; }
