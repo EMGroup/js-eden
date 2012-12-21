@@ -31,6 +31,7 @@ scripts = [
 	"../plugins/input-dialog/interpreter.js",
 	"../plugins/project-listing/project-listing.js",
 	"../plugins/menu-bar/menu-bar.js",
+	"../plugins/canvas-html5/canvas.js",
 ]
 
 scripts.each do |x|

@@ -10,6 +10,7 @@
 	font-family: 'arial';
 	padding-left: 20px;
 	padding-top: 4px;
+	padding-right: 20px;
 }
 
 .menubar-mainitem {
@@ -36,6 +37,7 @@
 #menubar-version-number {
 	position: relative;
 	float: right;
-	color: white;
+	padding-top: 4px;
+	color: #e0e0e0;
 	font-size: 10px;
 }

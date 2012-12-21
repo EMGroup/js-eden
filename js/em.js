@@ -23,6 +23,7 @@ function shouldAdd(maybeRegex, name) {
 }
 
 function printObservables() {
+	return;
 	obspos = 0;
 
 	var regexes = makeSearchRegexes(SYMBOL_TYPES);
