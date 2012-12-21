@@ -122,7 +122,7 @@ function js_eden_init() {
 		modelbase = "";
 
 		//Button to hide side bar.
-		$("#hide-side").click(function() {
+		/*$("#hide-side").click(function() {
 			if ($(this).css("top") == "115px") {
 				$("#side-bar").animate({width: "0px"},100);
 				$("#tabs").animate({left: "0px"},100);
@@ -196,7 +196,7 @@ function js_eden_init() {
 			},
 			cache: false,
 			async: true
-		});
+		});*/
 
 		//Obtain function meta data from server
 		$.ajax({
@@ -210,7 +210,7 @@ function js_eden_init() {
 			async: true
 		});
 
-		$(".side-bar-topic-title").hover(function() {
+		/*$(".side-bar-topic-title").hover(function() {
 			$(this).animate({backgroundColor: "#ab0000"}, 100);
 		}, function() {
 			$(this).animate({backgroundColor: "#3f3f3f"}, 100);
@@ -294,7 +294,7 @@ function js_eden_init() {
 
 		printObservables("");
 
-		
+		*/
 
 		
 
@@ -337,7 +337,7 @@ function js_eden_init() {
 
 
 			//me.html("<li class=\"type-observable\">" + namehtml + "<span class='result_value'> = " + valhtml + "</span></li>");
-			me.html("<li class=\"type-observable\"><span class=\"result_name\">" + namehtml + "</span><span class='result_value'> = " + valhtml + "</span></li>");
+			//me.html("<li class=\"type-observable\"><span class=\"result_name\">" + namehtml + "</span><span class='result_value'> = " + valhtml + "</span></li>");
 		});
 
 		//make_interpreter("eden","EDEN Interpreter Window");
