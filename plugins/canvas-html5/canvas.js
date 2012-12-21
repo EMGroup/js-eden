@@ -6,7 +6,7 @@
 Eden.plugins.CanvasHTML5 = function(context) {
 	this.createDialog = function(name,mtitle) {
 		code_entry = $('<div id=\"eden-content\"></div>');
-		code_entry.html("<canvas id=\""+"d1canvas"+"\" width=\"100%\" height=\"100%\"></canvas>");
+		code_entry.html("<canvas id=\""+"d1canvas"+"\" width=\"550px\" height=\"380px\"></canvas>");
 
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
@@ -18,11 +18,15 @@ Eden.plugins.CanvasHTML5 = function(context) {
 				minWidth: 230,
 				resizeStop: function(event,ui) {
 					console.log(ui.size);
-					$("#d1canvas").attr("width", (ui.size.width-20)+"px").attr("height", (ui.size.height-20)+"px");
+					$("#d1canvas").attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
 
 					//Now need to redraw the canvas.
 					//TODO: Dont use eden
-					eval(Eden.translateToJavaScript("drawPicture();"));
+					try {
+						eval(Eden.translateToJavaScript("drawPicture();"));
+					} catch(e) {
+						console.error(e);
+					}
 				},
 			});
 	}
