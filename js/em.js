@@ -76,7 +76,7 @@ var selected_project = null;
 
 
 function printAllUpdates() {
-	printObservables($('#observable-search')[0].value);
+	//printObservables($('#observable-search')[0].value);
 }
 
 var $dialog;
@@ -97,13 +97,13 @@ function js_eden_init() {
 
 	
 
-	$(window).resize(function() {
-		$("#d1canvas").attr("height", $("#tabs").height()-80);
-		$("#d1canvas").attr("width", root.lookup('canvas').value().width);
-		side_bar_height = $(window).height() - 35 - 200;
-		$(".results-lim").css("max-height",""+ (side_bar_height-76)+"px");
+	//$(window).resize(function() {
+	//	$("#d1canvas").attr("height", $("#tabs").height()-80);
+	//	$("#d1canvas").attr("width", root.lookup('canvas').value().width);
+	//	side_bar_height = $(window).height() - 35 - 200;
+	//	$(".results-lim").css("max-height",""+ (side_bar_height-76)+"px");
 
-	});
+	//});
 
 	$(document).ready(function() {
 		//runTests(all_the_tests);
@@ -115,14 +115,14 @@ function js_eden_init() {
 
 
 		//Make sure canvas and side-bar are the correct height.
-		$("#d1canvas").attr("width", $("#eden-content").width()-40);
-		$("#d1canvas").attr("height", $("#tabs").height()-80);
+		//$("#d1canvas").attr("width", $("#eden-content").width()-40);
+		//$("#d1canvas").attr("height", $("#tabs").height()-80);
 		//side_bar_height = $(window).height() - 35 - 200;
 		//$(".results-lim").css("max-height",""+ (side_bar_height-76)+"px");
 
 		modelbase = "";
 
-		$("#tabs").tabs();
+		//$("#tabs").tabs();
 
 		//Button to hide side bar.
 		/*$("#hide-side").click(function() {

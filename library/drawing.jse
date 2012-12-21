@@ -1,441 +1,57 @@
-${{
-Line = function(x1, y1, x2, y2, colour) {
-  this.x1 = x1;
-  this.y1 = y1;
-  this.x2 = x2;
-  this.y2 = y2;
-  this.colour = colour;
-}
-}}$;
-
-${{
-Point = function(x, y) {
-  this.x = x;
-  this.y = y;
-}
-}}$;
-
-${{
-Rectangle = function(x1, y1, x2, y2, fillcolour, outlinecolour) {
-  this.x1 = x1;
-  this.y1 = y1;
-  this.x2 = x2;
-  this.y2 = y2;
-  this.fillcolour = fillcolour;
-  this.outlinecolour = outlinecolour;
-}
-}}$;
-
-${{
-Polygon = function(points, colour) {
-  this.points = points;
-  this.colour = colour;
-}
-}}$;
-
-${{
-Circle = function(x, y, radius, fillcolour, outlinecolour) {
-  this.x = x;
-  this.y = y;
-  this.radius = radius;
-  this.fillcolour = fillcolour;
-  this.outlinecolour = outlinecolour;
-}
-}}$;
-
-${{
-Text = function(txt, x, y, colour) {
-  this.x = x;
-  this.y = y;
-  this.text = txt;
-  this.colour = colour;
-}
-}}$;
-
-func Text { ${{
-  var x = arguments[1];
-  var y = arguments[2];
-  var text = arguments[0];
-  var colour = arguments[3];
-  if (colour == null) { colour = "black"; }
-  return new Text(text, x, y, colour);
-}}$; };
-
-func Line { ${{
-  var x1 = arguments[0];
-  var y1 = arguments[1];
-  var x2 = arguments[2];
-  var y2 = arguments[3];
-  var colour = arguments[4];
-  if (colour === undefined) { colour = "black"; }
-  return new Line(x1, y1, x2, y2, colour);
-}}$; };
-
-func Point { ${{
-  var x = arguments[0];
-  var y = arguments[1];
-  return new Point(x, y);
-}}$; };
-
-func Rectangle { ${{
-  var x1 = arguments[0];
-  var y1 = arguments[1];
-  var x2 = arguments[2];
-  var y2 = arguments[3];
-  var colour = arguments[4];
-  if (colour === undefined) { colour = "black"; }
-  return new Rectangle(x1, y1, x2, y2, colour);
-}}$; };
-
-func Polygon { ${{
-  var points = arguments[0];
-  var colour = arguments[1];
-  if (colour === undefined) { colour = "black"; }
-  return new Polygon(points, colour);
-}}$; };
-
-func Circle { ${{
-  var x = arguments[0];
-  var y = arguments[1];
-  var radius = arguments[2];
-  var fillcolour = arguments[3];
-  var outlinecolour = arguments[4];
-  if (fillcolour == null) { fillcolour = "black"; }
-  if (outlinecolour == null) { outlinecolour = "black"; }
-  return new Circle(x, y, radius, fillcolour, outlinecolour);
-}}$; };
 
 
-${{
-Line.prototype.draw = function(context) {
-  context.beginPath();
-  context.strokeStyle = this.colour;
-  context.moveTo(this.x1, this.y1);
-  context.lineTo(this.x2, this.y2);
-  context.stroke();
-};
-}}$;
-${{
-Line.prototype.toString = function() {
-  return "Line(" + this.x1 + ", " + this.y1 + ", " + this.x2 + ", "+this.y2+", "+this.colour+")";
-};
-}}$;
 
-${{
-Point.prototype.toString = function() {
-  return "{" + this.x + ", " + this.y + "}";
-};
-}}$;
 
-${{
-Point.prototype.draw = function(context) {
-  context.beginPath();
-  context.arc(this.x, this.y, 1, 0, 2 * Math.PI, false);
 
-  context.fillStyle = "black";
-  context.fill();
-  context.lineWidth = 2;
-  context.strokeStyle = "black";
-  context.stroke();
-  context.closePath();
-};
-}}$;
 
-${{
-Rectangle.prototype.draw = function(context) {
-  context.fillStyle = this.fillcolour;
-  context.strokeStyle = this.outlincolour;
-  context.fillRect(this.x1,this.y1,this.x2,this.y2);
-  context.strokeRect(this.x1,this.y1,this.x2,this.y2);
-};
-}}$;
-${{
-Rectangle.prototype.toString = function() {
-  return "Rectangle(" + this.x1 + ", " + this.y1 + ", " + this.x2 + ", "+this.y2+", "+this.colour+")";
-};
-}}$;
 
-${{
-Polygon.prototype.draw = function(context) {
-  context.fillStyle = this.colour;
 
-  context.beginPath();
-  context.moveTo(this.points[0], this.points[1]);
-  
-  for (i = 2; i < this.points.length-1; i +=2) {
-    context.lineTo(this.points[i], this.points[i+1]);
-  }
 
-  context.closePath();
-  context.fill();
-};
-}}$;
 
-${{
-Circle.prototype.draw = function(context) {
-  context.beginPath();
-  context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
- 
-  context.fillStyle = this.fillcolour;
-  context.fill();
-  context.lineWidth = 2;
-  context.strokeStyle = this.outlinecolour;
-  context.stroke();
-  context.closePath();
-};
-}}$;
-${{
-Circle.prototype.toString = function() {
-  return "Circle(" + this.x + ", " + this.y + ", " + this.radius + ", "+this.fillcolour+", "+this.outlinecolour+")";
-};
-}}$;
 
-${{
-Text.prototype.draw = function(context) {
-  context.fillStyle = this.colour;
-  context.lineWidth = 1;
-  context.fillText(this.text,this.x, this.y);
-};
-}}$;
-${{
-Text.prototype.toString = function() {
-  return "Text(" + this.x + ", " + this.y + ", '" + this.text + "', "+this.colour+")";
-};
-}}$;
 
-proc clearCanvas { ${{
-  var canvas = document.getElementById("d1canvas");
-  canvas.width = canvas.width;
 
-  $("#eden-content > :not(canvas)").each(function() {
-	if(/canvas_/.test(this.id)) {
-		this.togarbage = true;
-	}
-  });
 
-}}$; };
 
-proc cleanupCanvas { ${{
-  $("#eden-content > :not(canvas)").each(function() {
-	if (this.togarbage == true) {
-		$(this).remove();
-	}
-  });
-}}$; };
 
-picture = [];
 
-proc drawPicture : picture { 
-  clearCanvas();
-  ${{
-  var picture = context.lookup('picture').value();
-  var canvas = $("#d1canvas").get(0).getContext('2d');
 
-  if (picture === undefined) { return; }
 
-  for (var i = 0; i < picture.length; i++) {
-    if (picture[i] === undefined) { continue; }
-    picture[i].draw(canvas);
-  }
-  }}$;
-  cleanupCanvas(); 
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ##Buttons
 
-${{
-Button = function (name, label, x, y, enabled) {
-	this.name = name;
-	this.label = label;
-	this.x = x;
-	this.y = y;
-	this.enabled = enabled;
-}
-}}$;
 
-func Button { ${{
-  var name = arguments[0];
-  var label = arguments[1];
-  var x = arguments[2];
-  var y = arguments[3];
-  var enabled = arguments[4];
-  return new Button(name, label, x, y, enabled);
-}}$; }
-
-${{
-Button.prototype.draw = function(context) {
-  var me = "canvas_" + this.name;
-  var me2 = this.name;
-  var but = $("#"+me).get(0);
-  if (but === undefined) {
-	var dis = "";
-	if (this.enabled == true) { dis = ""; }
-	else { dis = "disabled=\"true\""; }
-
-	var can = $("#eden-content");
-	var buthtml = $("<input type=\"button\" id=\"" + me + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
-		root.lookup(me2 + "_clicked").assign(true);
-	}).appendTo(can);
-
-	buthtml.get(0).togarbage = false;
-
-	//Initialise
-	root.lookup(me2 + "_clicked").assign(false);
-  } else {
-	but.value = this.label;
-	but.togarbage = false;
-	if (this.enabled == true) { but.disabled = false; }
-	else { but.disabled = true; }
-	but.style.left = "" + this.x + "px";
-	but.style.top = "" + this.y + "px";
-  }
-};
-}}$;
-${{
-Button.prototype.toString = function() {
-  return "Button(" + this.name + ", " + this.label + ", " + this.x + ", "+this.y+", "+this.enabled+")";
-};
-}}$;
 
 
 ##Combobox
 
-${{
-Combobox = function (name, options, x, y, enabled) {
-	this.name = name;
-	this.options = options;
-	this.x = x;
-	this.y = y;
-	this.enabled = enabled;
-}
 
-function makeoptionshtml(opts) {
-	var html = "";
-	for (x in opts) {
-		html = html + "\n<option value=\""+ opts[x] + "\">"+ opts[x] + "</option>";
-	}
-	return html;
-}
-}}$;
-
-func Combobox { ${{
-  var name = arguments[0];
-  var options = arguments[1];
-  var x = arguments[2];
-  var y = arguments[3];
-  var enabled = arguments[4];
-  return new Combobox(name, options, x, y, enabled);
-}}$; }
-
-${{
-Combobox.prototype.draw = function(context) {
-  var me = "canvas_" + this.name;
-  var me2 = this.name;
-  var box = $("#"+me).get(0);
-  if (box === undefined) {
-	var dis = "";
-	if (this.enabled == true) { dis = ""; }
-	else { dis = "disabled=\"true\""; }
-
-	var can = $("#eden-content");
-	var boxhtml = $("<select id=\"" + me + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
-
-	boxhtml.html(makeoptionshtml(this.options));
-
-	boxhtml.change(function() {
-		root.lookup(me2 + "_value").assign(boxhtml.get(0).value);
-	}).appendTo(can);
-
-	boxhtml.get(0).togarbage = false;
-
-	//Initialise
-	root.lookup(me2 + "_value").assign(this.options[0]);
-  } else {
-	$(box).html(makeoptionshtml(this.options));
-	box.togarbage = false;
-
-	if (this.enabled == true) { box.disabled = false; }
-	else { box.disabled = true; }
-	box.style.left = "" + this.x + "px";
-	box.style.top = "" + this.y + "px";
-  }
-};
-}}$;
-${{
-Combobox.prototype.toString = function() {
-  return "Combobox(" + this.name + ", " + this.options + ", " + this.x + ", "+this.y+", "+this.enabled+")";
-};
-}}$;
 
 
 ##DIV
 
-${{
-Div = function (name, x, y, width, height, html, style) {
-	this.name = name;
-	this.x = x;
-	this.y = y;
-	this.width = width;
-	this.height = height;
-	this.html = html;
-	this.style = style;
-}
-}}$;
 
-func Div { ${{
-  var name = arguments[0];
-  var x = arguments[1];
-  var y = arguments[2];
-  var width = arguments[3];
-  var height = arguments[4];
-  var html = arguments[5];
-  var style = arguments[6];
-  return new Div(name, x, y, width, height, html, style);
-}}$; }
-
-${{
-Div.prototype.draw = function(context) {
-  var me = "canvas_" + this.name;
-  var me2 = this.name;
-  var but = $("#"+me).get(0);
-
-  if (but === undefined) {
-	var dis = "";
-	if (this.enabled == true) { dis = ""; }
-	else { dis = "disabled=\"true\""; }
-
-	var can = $("#eden-content");
-	var divstyle = "position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;";
-	if (this.style !== undefined) {
-		divstyle = divstyle + this.style;
-	}
-	var buthtml = $("<div id=\"" + me + "\" style=\""+divstyle+"\">" + this.html + "</div>").appendTo(can);
-
-	//.click(function() {
-	//	root.lookup(me2 + "_clicked").assign(true); root.lookup(me2 + "_clicked").assign(false);
-	//}).appendTo(can);
-
-	buthtml.get(0).togarbage = false;
-
-	//Initialise
-	//root.lookup(me2 + "_clicked").assign(false);
-  } else {
-	//but.value = this.label;
-	but.innerHTML = this.html;
-	but.togarbage = false;
-	but.style.width = "" + this.width + "px";
-	but.style.height = "" + this.height + "px";
-	but.style.left = "" + this.x + "px";
-	but.style.top = "" + this.y + "px";
-  }
-};
-}}$;
-${{
-Div.prototype.toString = function() {
-  return "Div(" + this.name + ", " + this.x + ", "+this.y+", ...)";
-};
-}}$;
 
 
 
@@ -458,105 +74,11 @@ Div.prototype.toString = function() {
 
 ##IMAGE
 
-${{
-Image = function (name, x, y, width, height, file) {
-	this.name = name;
-	this.x = x;
-	this.y = y;
-	this.width = width;
-	this.height = height;
-	this.file = file;
-}
-}}$;
 
-func Image { ${{
-  var name = arguments[0];
-  var x = arguments[1];
-  var y = arguments[2];
-  var width = arguments[3];
-  var height = arguments[4];
-  var file = arguments[5];
-  return new Image(name, x, y, width, height, file);
-}}$; }
-
-${{
-Image.prototype.draw = function(context) {
-  var me = "canvas_" + this.name;
-  var me2 = this.name;
-  var but = $("#"+me).get(0);
-
-  if (but === undefined) {
-	var dis = "";
-	if (this.enabled == true) { dis = ""; }
-	else { dis = "disabled=\"true\""; }
-
-	var can = $("#eden-content");
-	var buthtml = $("<img id=\"" + me + "\" style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;\" src=\"" + this.file + "\"></img>").appendTo(can);
-
-	//.click(function() {
-	//	root.lookup(me2 + "_clicked").assign(true); root.lookup(me2 + "_clicked").assign(false);
-	//}).appendTo(can);
-
-	buthtml.get(0).togarbage = false;
-
-	//Initialise
-	//root.lookup(me2 + "_clicked").assign(false);
-  } else {
-	//but.value = this.label;
-	//but.innerHTML = this.html;
-	but.togarbage = false;
-	but.style.width = "" + this.width + "px";
-	but.style.height = "" + this.height + "px";
-	but.style.left = "" + this.x + "px";
-	but.style.top = "" + this.y + "px";
-  }
-};
-}}$;
-${{
-Image.prototype.toString = function() {
-  return "Image(" + this.name + ", " + this.x + ", "+this.y+", ...)";
-};
-}}$;
 
 ## Arc
 
-${{
-Arc = function(x, y, r, sAngle, eAngle, clockwise, colour) {
-  this.x = x;
-  this.y = y;
-  this.r = r;
-  this.sAngle = sAngle;
-  this.eAngle = eAngle;
-  this.clockwise = clockwise;
-  this.colour = colour
-}
-}}$;
 
-func Arc { ${{
-  var x = arguments[0];
-  var y = arguments[1];
-  var r = arguments[2];
-  var sAngle = arguments[3];
-  var eAngle = arguments[4];
-  var clockwise = arguments[5];
-  var colour = arguments[6];
-  if (colour === undefined) { colour = "black"; }
-  return new Arc(x, y, r, sAngle, eAngle, clockwise, colour);
-}}$; };
-
-${{
-Arc.prototype.draw = function(context) {
-  context.beginPath();
-  context.arc(this.x, this.y, this.r, this.sAngle, this.eAngle, this.clockwise);
-  context.strokeStyle = this.colour;
-  context.stroke();
-  context.closePath();
-};
-
-Arc.prototype.toString = function() {
-  return "Arc(" + this.x + "," + this.y + "," + this.r + "," + this.sAngle + "," + this.eAngle + "," + this.clockwise + "," +this.colour+")";
-}
-}}$;
 
 ## Sylvester library object wrappers
 ## Unsure about Line so ignored for now
@@ -607,86 +129,7 @@ proc updateCanvas : canvas { ${{
 
 ##Slider
 
-${{
-Slider = function(name, min, max, step, value, orientation, x, y) {
-  this.name = name;
-  this.min = min;
-  this.max = max;
-  this.step = step;
-  this.value = value;
-  this.orientation = orientation;
-  this.x = x;
-  this.y = y;
-}
-}}$;
 
-func Slider { ${{
-  var name = arguments[0];
-  var min = arguments[1];
-  var max = arguments[2];
-  var step = arguments[3];
-  var value = arguments[4];
-  var orientation = arguments[5];
-  var x = arguments[6];
-  var y = arguments[7];
-  return new Slider(name, min, max, step, value, orientation, x, y);
-}}$; }
-
-${{
-Slider.prototype.draw = function(context) {
-  var me = "canvas_" + this.name;
-  var me2 = this.name;
-  var sli = $("#"+me).get(0);
-
-  var value = this.value;
-  var max = this.max;
-  var min = this.min
-  var step = this.step;
-  var orientation = this.orientation;
-
-  if (sli === undefined) {
-    var can = $("#eden-content");
-    var slihtml = $('<div id="'+me+'" style="position: absolute; left: '+ this.x +'px; top: '+ this.y +'px;"><label for="'+me+'-amount">'+this.name+':</label><input type="text" id="'+me+'-amount" style="border:0; color:#f6931f; font-weight:bold;" /><div id="'+me+'-slider-range"></div></div>').appendTo(can);
-
-    $(function() {
-      $( "#"+me+"-slider-range" ).slider({
-        slide: function( event, ui ) {
-          $( "#"+me+"-amount" ).val( ui.value );
-          root.lookup(me2 + "_value").assign(ui.value);
-      }});
-      $( "#"+me+"-slider-range" ).slider( "option", "max", max );
-      $( "#"+me+"-slider-range" ).slider( "option", "min", min );
-      $( "#"+me+"-slider-range" ).slider( "option", "step", step );
-      $( "#"+me+"-slider-range" ).slider( "option", "value", value );
-      $( "#"+me+"-slider-range" ).slider( "option", "orientation", orientation );
-      $( "#"+me+"-amount" ).val( "$" + $( "#"+me+"slider-range" ).slider( "values", 0 ) );
-    });
-
-    slihtml.get(0).togarbage = false;
-
-    //Initialise
-    root.lookup(me2 + "_value").assign(value);
-    $( "#"+me+"-amount" ).val( value );
-  } else {
-    sli.togarbage = false;
-    sli.value = $( "#"+me+"slider-range" ).slider( "values", 0 );
-    $( "#"+me+"-slider-range" ).slider( "option", "max", max );
-    $( "#"+me+"-slider-range" ).slider( "option", "min", min );
-    $( "#"+me+"-slider-range" ).slider( "option", "step", step );
-    // $( "#"+me+"-slider-range" ).slider( "option", "value", value );
-    $( "#"+me+"-slider-range" ).slider( "option", "orientation", orientation );
-    sli.style.left = "" + this.x + "px";
-    sli.style.top = "" + this.y + "px";
-  }
-
-};
-}}$;
-
-${{
-Slider.prototype.toString = function() {
-  return "Slider("+this.name+", "+this.min+", "+this.max+", "+this.step+", "+this.default+", "+this.orientation+", "+this.x+", "+this.y+")";
-};
-}}$;
 
 func TestDraw {
 	return 77;

@@ -1,0 +1,37 @@
+${{
+Arc = function(x, y, r, sAngle, eAngle, clockwise, colour) {
+  this.x = x;
+  this.y = y;
+  this.r = r;
+  this.sAngle = sAngle;
+  this.eAngle = eAngle;
+  this.clockwise = clockwise;
+  this.colour = colour
+}
+}}$;
+
+func Arc { ${{
+  var x = arguments[0];
+  var y = arguments[1];
+  var r = arguments[2];
+  var sAngle = arguments[3];
+  var eAngle = arguments[4];
+  var clockwise = arguments[5];
+  var colour = arguments[6];
+  if (colour === undefined) { colour = "black"; }
+  return new Arc(x, y, r, sAngle, eAngle, clockwise, colour);
+}}$; };
+
+${{
+Arc.prototype.draw = function(context) {
+  context.beginPath();
+  context.arc(this.x, this.y, this.r, this.sAngle, this.eAngle, this.clockwise);
+  context.strokeStyle = this.colour;
+  context.stroke();
+  context.closePath();
+};
+
+Arc.prototype.toString = function() {
+  return "Arc(" + this.x + "," + this.y + "," + this.r + "," + this.sAngle + "," + this.eAngle + "," + this.clockwise + "," +this.colour+")";
+}
+}}$;

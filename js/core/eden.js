@@ -77,6 +77,7 @@ Eden.executeFile = function (path) {
 				eval(Eden.translateToJavaScript(data));
 			} catch (e) {
 				Eden.reportError(e, {path: path});
+				console.error(e);
 			}
 		},
 		cache: false,

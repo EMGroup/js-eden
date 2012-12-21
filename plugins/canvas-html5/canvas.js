@@ -5,7 +5,7 @@
  */
 Eden.plugins.CanvasHTML5 = function(context) {
 	this.createDialog = function(name,mtitle) {
-		code_entry = $('<div></div>');
+		code_entry = $('<div id=\"eden-content\"></div>');
 		code_entry.html("<canvas id=\""+"d1canvas"+"\" width=\"100%\" height=\"100%\"></canvas>");
 
 		$dialog = $('<div id="'+name+'"></div>')
@@ -22,6 +22,8 @@ Eden.plugins.CanvasHTML5 = function(context) {
 
 	//Supported canvas views
 	context.views["CanvasHTML5"] = {dialog: this.createDialog, title: "Canvas HTML5"};
+
+	Eden.executeFile("plugins/canvas-html5/canvas.js-e");
 };
 
 Eden.plugins.CanvasHTML5.title = "Canvas HTML5";

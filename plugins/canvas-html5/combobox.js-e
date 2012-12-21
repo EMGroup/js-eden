@@ -1,0 +1,66 @@
+${{
+Combobox = function (name, options, x, y, enabled) {
+	this.name = name;
+	this.options = options;
+	this.x = x;
+	this.y = y;
+	this.enabled = enabled;
+}
+
+function makeoptionshtml(opts) {
+	var html = "";
+	for (x in opts) {
+		html = html + "\n<option value=\""+ opts[x] + "\">"+ opts[x] + "</option>";
+	}
+	return html;
+}
+}}$;
+
+func Combobox { ${{
+  var name = arguments[0];
+  var options = arguments[1];
+  var x = arguments[2];
+  var y = arguments[3];
+  var enabled = arguments[4];
+  return new Combobox(name, options, x, y, enabled);
+}}$; }
+
+${{
+Combobox.prototype.draw = function(context) {
+  var me = "canvas_" + this.name;
+  var me2 = this.name;
+  var box = $("#"+me).get(0);
+  if (box === undefined) {
+	var dis = "";
+	if (this.enabled == true) { dis = ""; }
+	else { dis = "disabled=\"true\""; }
+
+	var can = $("#eden-content");
+	var boxhtml = $("<select id=\"" + me + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
+
+	boxhtml.html(makeoptionshtml(this.options));
+
+	boxhtml.change(function() {
+		root.lookup(me2 + "_value").assign(boxhtml.get(0).value);
+	}).appendTo(can);
+
+	boxhtml.get(0).togarbage = false;
+
+	//Initialise
+	root.lookup(me2 + "_value").assign(this.options[0]);
+  } else {
+	$(box).html(makeoptionshtml(this.options));
+	box.togarbage = false;
+
+	if (this.enabled == true) { box.disabled = false; }
+	else { box.disabled = true; }
+	box.style.left = "" + this.x + "px";
+	box.style.top = "" + this.y + "px";
+  }
+};
+}}$;
+${{
+Combobox.prototype.toString = function() {
+  return "Combobox(" + this.name + ", " + this.options + ", " + this.x + ", "+this.y+", "+this.enabled+")";
+};
+}}$;

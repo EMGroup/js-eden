@@ -1,0 +1,34 @@
+${{
+Line = function(x1, y1, x2, y2, colour) {
+  this.x1 = x1;
+  this.y1 = y1;
+  this.x2 = x2;
+  this.y2 = y2;
+  this.colour = colour;
+}
+}}$;
+
+func Line { ${{
+  var x1 = arguments[0];
+  var y1 = arguments[1];
+  var x2 = arguments[2];
+  var y2 = arguments[3];
+  var colour = arguments[4];
+  if (colour === undefined) { colour = "black"; }
+  return new Line(x1, y1, x2, y2, colour);
+}}$; };
+
+${{
+Line.prototype.draw = function(context) {
+  context.beginPath();
+  context.strokeStyle = this.colour;
+  context.moveTo(this.x1, this.y1);
+  context.lineTo(this.x2, this.y2);
+  context.stroke();
+};
+}}$;
+${{
+Line.prototype.toString = function() {
+  return "Line(" + this.x1 + ", " + this.y1 + ", " + this.x2 + ", "+this.y2+", "+this.colour+")";
+};
+}}$;

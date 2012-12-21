@@ -1,0 +1,32 @@
+${{
+Point = function(x, y) {
+  this.x = x;
+  this.y = y;
+}
+}}$;
+
+func Point { ${{
+  var x = arguments[0];
+  var y = arguments[1];
+  return new Point(x, y);
+}}$; };
+
+${{
+Point.prototype.toString = function() {
+  return "{" + this.x + ", " + this.y + "}";
+};
+}}$;
+
+${{
+Point.prototype.draw = function(context) {
+  context.beginPath();
+  context.arc(this.x, this.y, 1, 0, 2 * Math.PI, false);
+
+  context.fillStyle = "black";
+  context.fill();
+  context.lineWidth = 2;
+  context.strokeStyle = "black";
+  context.stroke();
+  context.closePath();
+};
+}}$;
