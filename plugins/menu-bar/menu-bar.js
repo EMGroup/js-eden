@@ -57,6 +57,8 @@ Eden.plugins.MenuBar = function(context) {
 	this.updateViewsMenu = function() {
 		var views = $("#menubar-mainitem-views");
 		views.html("");
+
+		//First add supported view types
 		for (x in context.views) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
 			viewentry.html(context.views[x].title);
@@ -69,6 +71,20 @@ Eden.plugins.MenuBar = function(context) {
 				index = index + 1;
 			});
 			viewentry[0].view = x;
+		}
+
+		//Now add actually active view.
+		$("<hr></hr>").appendTo(views);
+		for (x in context.active_dialogs) {
+			viewentry = $("<div class=\"menubar-item\"></div>");
+			viewentry.html(x + " ["+context.active_dialogs[x]+"]");
+
+			viewentry.appendTo(views);
+			viewentry.bind("click",function() {
+				console.log("Show View: "+ this.viewname);
+				context.showView(this.viewname);
+			});
+			viewentry[0].viewname = x;
 		}
 	};
 

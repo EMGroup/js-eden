@@ -15,7 +15,11 @@ Eden.prototype.loadPlugin = function(name) {
 };
 
 Eden.prototype.createView = function(name, type) {
-	this.views[type].dialog(name+"-dialog", this.views[type].title);
+	if (this.active_dialogs === undefined) {
+		this.active_dialogs = {};
+	}
+	this.views[type].dialog(name+"-dialog", this.views[type].title + " ["+name+"]");
+	this.active_dialogs[name] = type;
 };
 
 Eden.prototype.showView = function(name) {
