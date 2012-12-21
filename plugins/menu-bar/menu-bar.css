@@ -23,3 +23,10 @@
 	color: #dadada;
 	float: left;
 }
+
+.menubar-menu {
+	background-color: white;
+	border-color: silver;
+	border-style: solid;
+	border-width: 1px;
+}

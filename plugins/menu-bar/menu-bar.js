@@ -11,19 +11,52 @@ Eden.plugins.MenuBar = function(context) {
 	var menudiv = $("<div id=\"menubar-main\"></div>");
 	menudiv.appendTo($("body"));
 
+	/** @private */
 	var addMainItem = function(name, title) {
 		var menuitem = $("<div class=\"menubar-mainitem\"></div>");
-		menuitem.html(title+"<ul id=\"menubar-mainitem-"+name+"\" class=\"menubar-menu\"></ul>");
+		menuitem.html(title+"<div id=\"menubar-mainitem-"+name+"\" class=\"menubar-menu\"></div>");
 		menuitem.appendTo(menudiv);
-		$("#menubar-mainitem-"+name).menu().hide();
+		$("#menubar-mainitem-"+name).hide();
 		menuitem.click(function() {
 			$(".menubar-menu").hide();
 			$("#menubar-mainitem-"+name).show();
 		});
 	};
 
+	/** @public */
+	this.updatePluginsMenu = function() {
+		var plugins = $("#menubar-mainitem-plugins");
+		plugins.html("");
+		for (x in Eden.plugins) {
+			pluginentry = $("<div></div>");
+			if (context.plugins[x] === undefined) {
+				pluginentry.html(Eden.plugins[x].title);
+			} else {
+				pluginentry.html("<b>"+Eden.plugins[x].title+"</b>");
+			}
+			pluginentry.appendTo(plugins);
+			pluginentry.click(function() {
+				console.log("Load Plugin: " + x);
+				context.loadPlugin(x);
+			});
+		}
+		//plugins.menu();
+	};
+
+	//Add main menu items.
 	addMainItem("jseden","JS-Eden");
 	addMainItem("plugins","Plugins");
 	addMainItem("views","Views");
 	addMainItem("help","Help");
+
+	//Hide all menus on click.
+	$(document).mouseup(function() {
+		$(".menubar-menu").hide();
+	});
+
+	this.updatePluginsMenu();
 };
+
+Eden.plugins.MenuBar.title = "Menu Bar";
+Eden.plugins.MenuBar.description = "Provides main menu for plugin and view management";
+Eden.plugins.MenuBar.author = "Nicolas Pope";
