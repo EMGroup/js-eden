@@ -13,14 +13,11 @@ Eden.plugins.MenuBar = function(context) {
 
 	var addMainItem = function(name, title) {
 		var menuitem = $("<div class=\"menubar-mainitem\"></div>");
-		menuitem.html(title+"<ul id=\"menubar-mainitem-"+name+"\"></ul>");
+		menuitem.html(title+"<ul id=\"menubar-mainitem-"+name+"\" class=\"menubar-menu\"></ul>");
 		menuitem.appendTo(menudiv);
-		$("#menubar-mainitem-"+name).menu({
-			blur: function(event,ui) {
-				$(ui).hide();
-			}
-		}).hide();
+		$("#menubar-mainitem-"+name).menu().hide();
 		menuitem.click(function() {
+			$(".menubar-menu").hide();
 			$("#menubar-mainitem-"+name).show();
 		});
 	};
