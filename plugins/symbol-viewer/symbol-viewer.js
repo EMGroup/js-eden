@@ -100,7 +100,7 @@ Eden.plugins.SymbolViewer = function(context) {
 	/** @private */
 	var initialiseViewer = function(element,pattern) {
 		//Clear existing results and start again
-		var symresults = $(element).find(".results-lim > .symbollist-results");
+		var symresults = $(element).find(".symbollist-results");
 		symresults.html('');
 
 		var type = element.symboltype;
@@ -122,11 +122,11 @@ Eden.plugins.SymbolViewer = function(context) {
 				//Find out what kind of definition it is (proc, func or plain)
 				var subs = symbol.eden_definition.substring(0,4);
 			
-				if (subs == "proc" && (type == "agent" || type == "all")) {
+				if (subs == "proc" && ((type == "agent") || (type == "all"))) {
 					add_procedure(symresults,symbol, name);
-				} else if (subs == "func" && (type == "func" || type == "all")) {
+				} else if (subs == "func" && ((type == "func") || (type == "all"))) {
 					add_function(symresults,symbol, name);
-				} else if (type == "obs" || type == "all") {
+				} else if ((type == "obs") || (type == "all")) {
 					add_observable(symresults,symbol, name);
 				}
 			}
@@ -138,9 +138,7 @@ Eden.plugins.SymbolViewer = function(context) {
 		return "<div class=\"search-box-outer\">\
 			<input type=\"text\" class=\"symbollist-search search-box\"></input>\
 		</div>\
-		<div class=\"symbollist-scrollup scrollup\"></div>\
-		<div class=\"results-lim\"><div class=\"symbollist-results\"></div></div>\
-		<div class=\"scrolldown symbollist-scrolldown\"</div>";
+		<div class=\"symbollist-results\"></div>";
 	};
 
 	/** @public */
