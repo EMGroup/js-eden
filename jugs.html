@@ -31,6 +31,9 @@
 		eden.createView("d1canv","CanvasHTML5");
 		//eden.showView("d1canv");
 
+		//Force manual refresh of views menu.
+		eden.plugins.MenuBar.updateViewsMenu();
+
 		Eden.executeFile("models/jugs/run.e");
 	});
 </script>
