@@ -34,9 +34,10 @@ Eden.plugins.MenuBar = function(context) {
 			} else {
 				pluginentry.html("<b>"+Eden.plugins[x].title+"</b>");
 			}
+			pluginentry[0].plugin = x;
 			pluginentry.click(function() {
-				console.log("Load Plugin: "+x);
-				context.loadPlugin(x);
+				console.log("Load Plugin: "+ this.plugin);
+				context.loadPlugin(this.plugin);
 			});
 			pluginentry.appendTo(plugins);
 		}
