@@ -151,7 +151,7 @@ Eden.plugins.SymbolViewer = function(context) {
 			.html(code_entry)
 			.dialog({
 				title: mtitle,
-				width: 350,
+				width: 245,
 				height: 400,
 				minHeight: 120,
 				minWidth: 230,
@@ -162,7 +162,7 @@ Eden.plugins.SymbolViewer = function(context) {
 		code_entry[0].symboltype = type;
 		initialiseViewer(code_entry[0],"");
 		code_entry.find(".search-box-outer > .symbollist-search").keyup(function() {
-			initialiseViewer(code_entry[0],this.value);
+			initialiseViewer($(this).parent().parent()[0],this.value);
 		});
 	}
 
