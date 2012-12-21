@@ -67,7 +67,7 @@ Eden.plugins.SymbolViewer = function(context) {
 		});
 	};
 
-	var add_procedure = function(symresult, symbol, name) {
+	var add_procedure = function(symresults, symbol, name) {
 		var proc = $('<div class="symbollist-result-element"></div>');
 		proc.html("<li class=\"type-procedure\"><span class=\"result_name\">" + name + "</span></li>").appendTo(symresults);
 
