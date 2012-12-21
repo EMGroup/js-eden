@@ -99,7 +99,7 @@ Eden.plugins.MenuBar = function(context) {
 	$.ajax({
 		url: "version.rhtml",
 		success: function(data) {
-			$('#menubar-version-number').html("js-eden "+data).appendTo($("#menubar-main"));
+			$('<div id="menubar-version-number"></div>').html("js-eden "+data).appendTo($("#menubar-main"));
 		},
 		cache: false,
 		async: true
