@@ -16,7 +16,14 @@ Eden.plugins.CanvasHTML5 = function(context) {
 				height: 450,
 				minHeight: 120,
 				minWidth: 230,
-				//position: ['right','bottom'],
+				resizeStop: function(event,ui) {
+					console.log(ui.size);
+					$("#d1canvas").attr("width", (ui.size.width-20)+"px").attr("height", (ui.size.height-20)+"px");
+
+					//Now need to redraw the canvas.
+					//TODO: Dont use eden
+					eval(Eden.translateToJavaScript("drawPicture();"));
+				},
 			});
 	}
 
