@@ -33,6 +33,7 @@ scripts = [
 	"../plugins/project-listing/project-listing.js",
 	"../plugins/menu-bar/menu-bar.js",
 	"../plugins/canvas-html5/canvas.js",
+	"../plugins/symbol-viewer/symbol-viewer.js",
 ]
 
 scripts.each do |x|

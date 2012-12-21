@@ -47,13 +47,12 @@ div#side-bar {
 
 div#eden-logo {
 	position: absolute;
-	top: 5px;
+	top: 50px;
 	left: 30px;
 	background-image: url('../images/em-logo.png');
 	background-repeat: no-repeat;
 	width: 250px;
 	height: 70px;
-	z-index: 2;
 }
 
 div#tabs {
