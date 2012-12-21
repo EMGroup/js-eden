@@ -32,3 +32,10 @@
 	color: black;
 	padding: 8px;
 }
+
+#version-number {
+	position: relative;
+	float: right;
+	color: white;
+	font-size: 10px;
+}

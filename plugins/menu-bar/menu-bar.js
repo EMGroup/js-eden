@@ -95,6 +95,16 @@ Eden.plugins.MenuBar = function(context) {
 	addMainItem("views","Views");
 	addMainItem("help","Help");
 
+	//Put js-eden version in right corner
+	$.ajax({
+		url: "version.rhtml",
+		success: function(data) {
+			$('#menubar-version-number').html("js-eden "+data).appendTo($("#menubar-main"));
+		},
+		cache: false,
+		async: true
+	});
+
 	//Hide all menus on click.
 	//$(document).mouseup(function() {
 	//	$(".menubar-menu").hide();

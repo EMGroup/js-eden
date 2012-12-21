@@ -34,13 +34,7 @@ div#title_text {
 	z-index: 3;
 }
 
-div#version-number {
-	position: relative;
-	left: 10px;
-	top: 10px;
-	color: white;
-	font-size: 10px;
-}
+
 
 div#content {
 	position: absolute;
