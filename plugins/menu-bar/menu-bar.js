@@ -69,6 +69,7 @@ Eden.plugins.MenuBar = function(context) {
 				context.createView("view-"+index, this.view);
 				context.showView("view"+index);
 				index = index + 1;
+				me.updateViewsMenu();
 			});
 			viewentry[0].view = x;
 		}

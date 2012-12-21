@@ -23,10 +23,10 @@ Eden.prototype.createView = function(name, type) {
 };
 
 Eden.prototype.showView = function(name) {
-	$("#"+name+"-dialog").show();
+	$("#"+name+"-dialog").dialog("open");
 }
 
 Eden.prototype.hideView = function(name) {
-	$("#"+name+"-dialog").hide();
+	$("#"+name+"-dialog").dialog("close");
 }
 
