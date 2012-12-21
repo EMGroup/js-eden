@@ -17,7 +17,7 @@ Eden.plugins.MenuBar = function(context) {
 		menuitem.appendTo(menudiv);
 		$("#menubar-mainitem-"+name).menu({
 			blur: function(event,ui) {
-				ui.hide();
+				$(ui).hide();
 			}
 		}).hide();
 		menuitem.click(function() {
