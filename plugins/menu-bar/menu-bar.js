@@ -7,6 +7,9 @@
  * @class MenuBar Plugin
  */
 Eden.plugins.MenuBar = function(context) {
+	var me = this;
+	var index = 0;
+
 	/** @private */
 	var menudiv = $("<div id=\"menubar-main\"></div>");
 	menudiv.appendTo($("body"));
@@ -18,8 +21,12 @@ Eden.plugins.MenuBar = function(context) {
 		menuitem.appendTo(menudiv);
 		$("#menubar-mainitem-"+name).hide();
 		menuitem.click(function() {
-			$(".menubar-menu").hide();
-			$("#menubar-mainitem-"+name).show();
+			if ($("#menubar-mainitem-"+name).css("display") != "block") {
+				$(".menubar-menu").hide();
+				$("#menubar-mainitem-"+name).show();
+			} else {
+				$(".menubar-menu").hide();
+			}
 		});
 	};
 
@@ -34,14 +41,35 @@ Eden.plugins.MenuBar = function(context) {
 			} else {
 				pluginentry.html("<b>"+Eden.plugins[x].title+"</b>");
 			}
-			pluginentry[0].plugin = x;
-			pluginentry.click(function() {
+			pluginentry.appendTo(plugins);
+			pluginentry.bind("click",function() {
 				console.log("Load Plugin: "+ this.plugin);
 				context.loadPlugin(this.plugin);
+				me.updatePluginsMenu();
+				me.updateViewsMenu();
 			});
-			pluginentry.appendTo(plugins);
+			pluginentry[0].plugin = x;
 		}
 		//plugins.menu();
+	};
+
+	/** @public */
+	this.updateViewsMenu = function() {
+		var views = $("#menubar-mainitem-views");
+		views.html("");
+		for (x in context.views) {
+			viewentry = $("<div class=\"menubar-item\"></div>");
+			viewentry.html(context.views[x].title);
+
+			viewentry.appendTo(views);
+			viewentry.bind("click",function() {
+				console.log("Create and Show View: "+ this.view);
+				context.createView("view-"+index, this.view);
+				context.showView("view"+index);
+				index = index + 1;
+			});
+			viewentry[0].view = x;
+		}
 	};
 
 	//Add main menu items.
@@ -56,6 +84,7 @@ Eden.plugins.MenuBar = function(context) {
 	//});
 
 	this.updatePluginsMenu();
+	this.updateViewsMenu();
 };
 
 Eden.plugins.MenuBar.title = "Menu Bar";
