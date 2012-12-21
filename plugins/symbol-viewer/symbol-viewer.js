@@ -130,7 +130,7 @@ Eden.plugins.SymbolViewer = function(context) {
 					add_observable(symresults,symbol, name);
 				}
 			}
-		}
+		});
 	}
 
 	/** @private */
@@ -141,7 +141,7 @@ Eden.plugins.SymbolViewer = function(context) {
 		<div class=\"symbollist-scrollup scrollup\"></div>\
 		<div class=\"results-lim\"><div class=\"symbollist-results\"></div></div>\
 		<div class=\"scrolldown symbollist-scrolldown\"</div>";
-	}
+	};
 
 	/** @public */
 	this.createDialog = function(name,mtitle,type) {
