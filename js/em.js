@@ -116,10 +116,12 @@ function js_eden_init() {
 		//Make sure canvas and side-bar are the correct height.
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
 		$("#d1canvas").attr("height", $("#tabs").height()-80);
-		side_bar_height = $(window).height() - 35 - 200;
-		$(".results-lim").css("max-height",""+ (side_bar_height-76)+"px");
+		//side_bar_height = $(window).height() - 35 - 200;
+		//$(".results-lim").css("max-height",""+ (side_bar_height-76)+"px");
 
 		modelbase = "";
+
+		$("#tabs").tabs();
 
 		//Button to hide side bar.
 		/*$("#hide-side").click(function() {
@@ -184,8 +186,6 @@ function js_eden_init() {
 			$(this).css("backgroundImage", "url('images/input-icon.png')");
 		});
 
-		$("#tabs").tabs();
-
 		$("#observable-info").hide();
 
 		//Get the current JS-Eden version number
@@ -204,7 +204,7 @@ function js_eden_init() {
 			dataType: 'json',
 			success: function(data) {
 				edenfunctions = data;
-				printObservables("");
+				//printObservables("");
 			},
 			cache: false,
 			async: true
@@ -300,6 +300,8 @@ function js_eden_init() {
 
 		root.addGlobal(function (sym, create) {
 			//console.log("Obs changed: " + sym.name.substr(1));
+
+			return;
 
 			//Cannot see so doesn't matter
 			if ($("#symbol-search > .side-bar-topic-content").css("height") == "0px") return;
