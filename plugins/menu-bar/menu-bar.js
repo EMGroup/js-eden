@@ -28,17 +28,17 @@ Eden.plugins.MenuBar = function(context) {
 		var plugins = $("#menubar-mainitem-plugins");
 		plugins.html("");
 		for (x in Eden.plugins) {
-			pluginentry = $("<div></div>");
+			pluginentry = $("<div class=\"menubar-item\"></div>");
 			if (context.plugins[x] === undefined) {
 				pluginentry.html(Eden.plugins[x].title);
 			} else {
 				pluginentry.html("<b>"+Eden.plugins[x].title+"</b>");
 			}
-			pluginentry.appendTo(plugins);
 			pluginentry.click(function() {
-				console.log("Load Plugin: " + x);
+				console.log("Load Plugin: "+x);
 				context.loadPlugin(x);
 			});
+			pluginentry.appendTo(plugins);
 		}
 		//plugins.menu();
 	};
@@ -50,9 +50,9 @@ Eden.plugins.MenuBar = function(context) {
 	addMainItem("help","Help");
 
 	//Hide all menus on click.
-	$(document).mouseup(function() {
-		$(".menubar-menu").hide();
-	});
+	//$(document).mouseup(function() {
+	//	$(".menubar-menu").hide();
+	//});
 
 	this.updatePluginsMenu();
 };
