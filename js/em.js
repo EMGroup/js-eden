@@ -109,6 +109,10 @@ function js_eden_init() {
 		root = new Folder();
 		eden = new Eden(root);
 
+		//Load menubar as standard
+		eden.loadPlugin("MenuBar");
+
+
 		//Make sure canvas and side-bar are the correct height.
 		$("#d1canvas").attr("width", $("#eden-content").width()-40);
 		$("#d1canvas").attr("height", $("#tabs").height()-80);

@@ -34,17 +34,17 @@ body {
 	/* thanks to http://blog.fakedarren.com/2010/01/cross-browser-css-gradients/ */
 	/* and http://www.puremango.co.uk/2010/04/css-gradient/ */
 	/* fallback (Opera) */
-	background: #FFFFFF;
+	background: #09284B;
 
 	/* Mozilla: */
-	background: -moz-linear-gradient(top, #FFFFFF, #E8E8E8);
+	background: -moz-linear-gradient(top, #09284B, #000000);
 
 	/* Chrome, Safari:*/
-	background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#E8E8E8));
+	background: -webkit-gradient(linear, left top, left bottom, from(#09284B), to(#000000));
 
 	/* MSIE */
 	filter: progid:DXImageTransform.Microsoft.Gradient(
-	StartColorStr='#FFFFFF', EndColorStr='#E8E8E8', GradientType=0);
+	StartColorStr='#09284B', EndColorStr='#000000', GradientType=0);
 
 }
 
