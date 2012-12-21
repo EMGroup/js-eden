@@ -14,6 +14,7 @@ Eden.plugins.MenuBar = function(context) {
 	var addMainItem = function(name, title) {
 		var menuitem = $("<div class=\"menubar-mainitem\"></div>");
 		menuitem.html(title+"<ul id=\"menubar-mainitem-"+name+"\"></ul>");
+		menuitem.appendTo(menudiv);
 	};
 
 	addMainItem("jseden","JS-Eden");
