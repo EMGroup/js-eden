@@ -1,0 +1,24 @@
+#menubar-main {
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	height: 25px;
+	background-color: black;
+	color:	white;
+	font-size: 14px;
+	font-family: 'arial';
+	padding-left: 20px;
+	padding-top: 4px;
+}
+
+.menubar-mainitem {
+	padding-top: 4px;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-bottom: 8px;
+	text-decoration: none;
+	font-size: 12px;
+	font-family: 'arial';
+	color: #dadada;
+}

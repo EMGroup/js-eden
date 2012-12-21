@@ -8,6 +8,7 @@ scripts = [
 	"jquery-ui-1.8.16.flick.css",
 	"eden.css",
 	"../plugins/project-listing/project-listing.css",
+	"../plugins/menu-bar/menu-bar.css",
 ]
 
 scripts.each do |x|
