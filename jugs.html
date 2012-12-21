@@ -14,83 +14,6 @@
 </head>
 <body>
 
-<!--div id="tabs">
-<ul>
-	<li><a href="home.html">Documentation</a></li>
-	<li><a href="#eden-content">Canvas</a></li>
-	<li><a href="#html-content">Model Readme</a></li>
-	<li><a href="#history-content">History</a></li>
-</ul>
-<div id="eden-content">
-<canvas id="d1canvas" width="100%" height="100%"></canvas>
-</div>
-<div id="html-content"></div>
-<div id="history-content"></div>
-</div-->
-
-<!--div id="side-bar">
-<div class="side-bar-topic" style="margin-top: 30px">
-	<div class="side-bar-topic-title">Projects</div>
-	<div class="side-bar-topic-content" style="height: 300px">
-		
-	</div>
-</div>
-<div class="side-bar-topic" id="symbol-search">
-	<div class="side-bar-topic-title">Observables &amp; Agents</div>
-	<div class="side-bar-topic-content">
-		<div class="search-box-outer">
-			<input type="text" class="search-box" id="observable-search"></input>
-			<div class="search-button"></div>
-		</div>
-		<div id="observable-scrollup" class="scrollup"></div>
-		<div class="results-lim"><div id="observable-results"></div></div>
-		<div id="observable-scrolldown" class="scrolldown"></div>
-	</div>
-</div>
-<div class="side-bar-topic" id="functions">
-        <div class="side-bar-topic-title">Functions</div>
-        <div class="side-bar-topic-content">
-                <div class="search-box-outer">
-                        <input type="text" class="search-box" id="functions-search"></input>
-                        <div class="search-button"></div>
-                </div>
-                <div id="functions-scrollup" class="scrollup"></div>
-                <div class="results-lim"><div id="functions-results"></div></div>
-		<div id="functions-scrolldown" class="scrolldown"></div>
-        </div>
-</div>
-<div class="side-bar-topic" id="drawable">
-        <div class="side-bar-topic-title">Drawable</div>
-        <div class="side-bar-topic-content">
-                <div class="results-lim"><div id="drawable-results"></div></div>
-        </div>
-</div>
-<div class="side-bar-topic" id="procedures">
-        <div class="side-bar-topic-title">Procedures</div>
-        <div class="side-bar-topic-content">
-		<div class="results-lim"><div id="procedure-results"></div></div>
-	</div>
-</div>
-
-<div id="version-number"></div>
-
-</div>
-<div id="hide-side"></div>
-
-<div id="observable-info">
-<div id="observable-info-content">
-<div id="observable-info-name"></div>
-</div>
-<div id="observable-info-point"></div>
-</div>
-
-<div id="functions-info">
-<div id="functions-info-content">
-<div id="functions-info-name"></div>
-</div>
-<div id="functions-info-point"></div>
-</div-->
-
 <script src="js/jseden.rb" type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -101,12 +24,12 @@
 		eden.loadPlugin("InputWindow");
 		eden.loadPlugin("CanvasHTML5");
 
-		eden.createView("view-0","ProjectList");
-		eden.showView("view-0");
-		eden.createView("view-1","InputWindow");
-		eden.showView("view-1");
-		eden.createView("view-2","CanvasHTML5");
-		eden.showView("view-2");
+		eden.createView("projects","ProjectList");
+		eden.showView("projects");
+		eden.createView("interp","InputWindow");
+		eden.showView("interp");
+		eden.createView("d1canv","CanvasHTML5");
+		eden.showView("d1canv");
 
 		Eden.executefile("models/jugs/run.e");
 	});
