@@ -24,6 +24,7 @@ scripts = [
 	"models.js",
 	"collections.js",
 	"em.js",
+	"core/initialise.js",
 	"edenpage.js",
 
 	"lib/sylvester.js",

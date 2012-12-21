@@ -94,7 +94,10 @@
 <script src="js/jseden.rb" type="text/javascript"></script>
 
 <script type="text/javascript">
-	js_eden_init();
+	JS_Eden_Initialise(function() {
+		//Load menubar as standard
+		eden.loadPlugin("MenuBar");
+	});
 </script>
 
 </body>
