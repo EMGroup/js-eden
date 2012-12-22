@@ -24,15 +24,15 @@
 	margin: 15px;
 	position: relative;
 	height: 24px;
-	margin-bottom: 10px;
+	margin-bottom: 20px;
 	font-size: 10pt;
-	width: 200px;
+	width: 100%;
 }
 
 .projectlist-search-box {
-	position: absolute;
+	/*position: absolute;
 	left: 0px;
-	top: 0px;
+	top: 0px;*/
 	/*width: 196px;*/
 	height: 24px;
 	border-style: solid;
