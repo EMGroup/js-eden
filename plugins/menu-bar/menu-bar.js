@@ -27,6 +27,10 @@ Eden.plugins.MenuBar = function(context) {
 			} else {
 				$(".menubar-menu").hide();
 			}
+		}).hover(function() {
+			$(this).css("font-weight","bold");
+		},function() {
+			$(this).css("font-weight","normal");
 		});
 	};
 
