@@ -105,6 +105,9 @@
 		eden.createView("inputwindow","InputWindow");
 		eden.moveView("inputwindow",100,300);
 		eden.createView("projects","ProjectList");
+
+		//Force manual refresh of views menu.
+		eden.plugins.MenuBar.updateViewsMenu();
 	});
 </script>
 
