@@ -27,7 +27,7 @@ def includeScript(script)
 			includeScript("#{comps[1]}")
 		else
 			if $callback != ""
-				newline = line.gsub(/"/,"\"")
+				newline = line.gsub(/\"/,"\"").chomp
 				puts "#{newline}\\"
 			else
 				puts line
