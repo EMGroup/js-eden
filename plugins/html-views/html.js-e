@@ -1,0 +1,8 @@
+##HTML Output
+func html {
+	${{
+	var text = arguments[0];
+	var me = $("#html-content");
+	me.html(text);
+	}}$;
+};

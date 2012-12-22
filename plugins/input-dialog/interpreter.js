@@ -154,7 +154,7 @@ Eden.plugins.InputWindow = function(context) {
 				height: 240,
 				minHeight: 120,
 				minWidth: 230,
-				position: ['right','bottom'],
+				//position: ['right','bottom'],
 
 				buttons: [
 					{

@@ -1,0 +1,19 @@
+func require {
+  ${{
+  var lib = arguments[0];
+  eden.loadPlugin(lib);
+  }}$;
+};
+
+func createView {
+	${{
+	var name = arguments[0];
+	var type = arguments[1];
+	eden.createView(name,type);
+	}}$;
+};
+
+func includeSSI {
+
+};
+

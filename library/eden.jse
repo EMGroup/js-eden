@@ -15,16 +15,6 @@ func int {
 };
 
 
-##HTML Output
-func html {
-	${{
-	var text = arguments[0];
-	var me = $("#html-content");
-	me.html(text);
-	}}$;
-};
-
-
 ##MISSING FUNCTIONS
 
 func eager {};
@@ -76,7 +66,6 @@ false = 0;
 func include {
 ${{
 Eden.executeFile(arguments[0]);
-printAllUpdates();
 }}$;
 };
 
@@ -104,6 +93,7 @@ autocalc = 1;
 
 ##Include the rest of the library
 
+include("library/core.js-e");
 include("library/drawing.jse");
 include("library/maths.jse");
 include("library/pagemeta.jse");
