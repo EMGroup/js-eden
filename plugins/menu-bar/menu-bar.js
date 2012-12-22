@@ -23,7 +23,7 @@ Eden.plugins.MenuBar = function(context) {
 		menuitem.click(function() {
 			if ($("#menubar-mainitem-"+name).css("display") != "block") {
 				$(".menubar-menu").hide();
-				$("#menubar-mainitem-"+name).show();
+				$("#menubar-mainitem-"+name).show(200);
 			} else {
 				$(".menubar-menu").hide();
 			}
@@ -43,7 +43,7 @@ Eden.plugins.MenuBar = function(context) {
 			}
 			pluginentry.appendTo(plugins);
 			pluginentry.bind("click",function() {
-				console.log("Load Plugin: "+ this.plugin);
+				//console.log("Load Plugin: "+ this.plugin);
 				context.loadPlugin(this.plugin);
 				me.updatePluginsMenu();
 				me.updateViewsMenu();
@@ -65,7 +65,7 @@ Eden.plugins.MenuBar = function(context) {
 
 			viewentry.appendTo(views);
 			viewentry.bind("click",function() {
-				console.log("Create and Show View: "+ this.view);
+				//console.log("Create and Show View: "+ this.view);
 				context.createView("view-"+index, this.view);
 				context.showView("view"+index);
 				index = index + 1;
@@ -82,7 +82,7 @@ Eden.plugins.MenuBar = function(context) {
 
 			viewentry.appendTo(views);
 			viewentry.bind("click",function() {
-				console.log("Show View: "+ this.viewname);
+				//console.log("Show View: "+ this.viewname);
 				context.showView(this.viewname);
 			});
 			viewentry[0].viewname = x;

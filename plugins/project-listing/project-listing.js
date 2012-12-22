@@ -91,7 +91,7 @@ Eden.plugins.ProjectList = function(context) {
 
 			if (this.project !== undefined) {
 				//Actually load the project by executing js-e file.
-				Eden.executeFile(this.project.runfile);
+				Eden.executeFileSSI(this.project.runfile);
 			} else {
 				//session_connect(this.session.cid);
 			}
