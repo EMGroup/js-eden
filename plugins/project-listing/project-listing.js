@@ -12,14 +12,24 @@ Eden.plugins.ProjectList = function(context) {
 	/** @public */
 	this.instances = new Array();
 
-	/** @private */
+	/**
+	 * Update all project list views. Used when the projects.json file gets
+	 * loaded to make sure projects are being listed correctly.
+	 * TODO: The search input of each view gets ignored.
+	 * @private
+	 */
 	var updateAllCollections = function(pattern) {
 		for (x in me.instances) {
 			updateCollection(me.instances[x],pattern);
 		}
 	}
 
-	/** @private */
+	/**
+	 * Update a particular project list with the specified search expression.
+	 * This gets called whenever the search input gets changed. It clears the
+	 * existing project list and generates new results matching the pattern.
+	 * @private
+	 */
 	var updateCollection = function(element,pattern) {
 		procspos = 0;
 
@@ -87,25 +97,35 @@ Eden.plugins.ProjectList = function(context) {
 			}
 			//printAllUpdates();
 		});
+	}
 
-		//Add scroll buttons if they are needed.
-		//if (projresults[0].offsetHeight > (14*16)) {
-		//	$(element).find('.projectlist-scrollup').show();
-		//	$(element).find('.projectlist-scrolldown').show();
-		//} else {
-		//	$(element).find('.projectlist-scrollup').hide();
-		//	$(element).find('.projectlist-scrolldown').hide();
-		//}
+	/**
+	 * Generate the base HTML structure of a project list dialog. Includes
+	 * the initially invisible project details and config views.
+	 * @private
+	 */
+	var generateHTML = function() {
+		return "\
+<div class=\"projectlist-listing\">\
+	<div class=\"projectlist-search-box-outer\">\
+		<div class=\"projectlist-search-icon\"></div>\
+				<input type=\"text\" class=\"projectlist-search\"></input>\
+		<div class=\"projectlist-config-icon\"></div>\
+	</div>\
+	<div class=\"projectlist-results\"></div>\
+</div><div style=\"display: none;\" class=\"projectlist-config\">\
+</div><div style=\"display: none;\" class=\"projectlist-details\">\
+</div>";
 	}
 
 	/** @private */
-	var generateHTML = function() {
-		return "<div class=\"projectlist-search-box-outer\">\
-			<div class=\"projectlist-search-icon\"></div>\
-			<input type=\"text\" class=\"projectlist-search search-box\"></input>\
-			<div class=\"projectlist-config-icon\"></div>\
-		</div>\
-		<div class=\"projectlist-results\"></div>";
+	var generateConfig = function() {
+
+	}
+
+	/** @private */
+	var generateDetails = function(project) {
+
 	}
 
 	/** @public */
@@ -126,12 +146,12 @@ Eden.plugins.ProjectList = function(context) {
 
 		me.instances.push(code_entry[0]);
 		updateCollection(code_entry[0],"");
-		code_entry.find(".search-box-outer > .projectlist-search").keyup(function() {
+		code_entry.find(".projectlist-search-box-outer > .projectlist-search").keyup(function() {
 			updateCollection(code_entry[0],this.value);
 		});
 	}
 
-	//Get a list of projects
+	//Get a list of projects from the server.
 	$.ajax({
 		url: "models/projects.json",
 		dataType: 'json',
