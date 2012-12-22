@@ -1,16 +1,13 @@
 li.type-function {
 	list-style-image: url('../images/type-function.png');
-	height: 16px;
 }
 
 li.type-observable {
 	list-style-image: url('../images/type-observable.png');
-	height: 16px;
 }
 
 li.type-procedure {
 	list-style-image: url('../images/type-agent.png');
-	height: 16px;
 }
 
 li.type-session {
@@ -30,7 +27,7 @@ li.type-session {
 	position: relative;
 	left: 0px;
 	right: 0px;
-	height: 16px;
+	height: 20px;
 	cursor: pointer;
 	overflow: hidden;
 	position: relative;
