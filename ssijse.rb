@@ -13,8 +13,8 @@ puts "Content-type: text/javascript"
 puts ""
 
 # JSONP Support
-callback = $cgi['callback']
-if callback != ""
+$callback = $cgi['callback']
+if $callback != ""
 	print "#{callback}(\""
 end
 
@@ -26,7 +26,7 @@ def includeScript(script)
 			comps = line.split("\"")
 			includeScript("#{comps[1]}")
 		else
-			if callback != ""
+			if $callback != ""
 				newline = line.gsub(/"/,"\"")
 				puts "#{newline}\\"
 			else
@@ -46,7 +46,7 @@ end
 
 includeScript(scriptfile)
 
-if callback != ""
+if $callback != ""
 	print "\");\n"
 else
 	print "\n"
