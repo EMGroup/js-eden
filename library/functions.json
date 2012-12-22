@@ -161,6 +161,88 @@
 			},
 			"return": "Combobox object",
 			"description": "Creates a drop-down select box for the canvas"
-		}
+		},
+		"cos": {
+			"parameters": {
+				"angle": "Angle in radians"
+			},
+			"return": "Cosine of the angle",
+			"description": "Cosine"
+		},
+		"sin": {
+			"parameters": {
+				"angle": "Angle in radians"
+			},
+			"return": "Sine of the angle",
+			"description": "Sine"
+		},
+		"abs": {
+			"parameters": {
+				"value": "A number"
+			},
+			"return": "The absolute magnitude",
+			"description": "Removes the sign from a number to return its absolute magnitude"
+		},
+		"acos": {
+			"parameters": {
+				"value": "Number between -1 and 1"
+			},
+			"return": "Arc cosine of value in radians",
+			"description": "Arc cosine, inverse of cosine."
+		},
+		"asin": {
+			"parameters": {
+				"value": "Number between -1 and 1"
+			},
+			"return": "Arc sine of value in radians",
+			"description": "Arc sine, inverse of sine."
+		},
+		"atan": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "Arc tan in radians",
+			"description": "Arc tan, inverse of tan."
+		},
+		"ceil": {
+			"parameters": {
+				"number": "Floating point number"
+			},
+			"return": "Nearest integer, rounded up",
+			"description": "Finds the nearest integer that is not less than the number"
+		},
+		"exp": {
+			"parameters": {
+				"number": "Exponent"
+			},
+			"return": "e to the power of number",
+			"description": "Base-e exponential."
+		},
+		"floor": {
+			"parameters": {
+				"number": "Floating point number"
+			},
+			"return": "Nearest integer, rounded down",
+			"description": "Finds the nearest integer by rounding down"
+		},
+		"log": {
+			"parameters": {
+				"number": ""
+			},
+			"return": "Logarithm of the number",
+			"description": "Log function"
+		},
+		"random": {
+			"parameters": {},
+			"return": "Random number",
+			"description": "Generates a random number between 0 and 1"
+		},
+		"forget": {
+			"parameters": {
+				"symbol": "Symbol name"
+			},
+			"return": "",
+			"description": "Removes a symbol from the symbol table"
+		},
 	}
 }

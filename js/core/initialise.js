@@ -111,17 +111,7 @@ function JS_Eden_Initialise(callback) {
 			async: true
 		});*/
 
-		//Obtain function meta data from server
-		$.ajax({
-			url: "library/functions.json",
-			dataType: 'json',
-			success: function(data) {
-				edenfunctions = data;
-				//printObservables("");
-			},
-			cache: false,
-			async: true
-		});
+		
 
 		/*$(".side-bar-topic-title").hover(function() {
 			$(this).animate({backgroundColor: "#ab0000"}, 100);
