@@ -5,7 +5,7 @@
 	position: relative;
 	left: 0px;
 	right: 0px;
-	height: 16px;
+	/*height: 16px;*/
 	cursor: pointer;
 	overflow: hidden;
 	position: relative;
@@ -14,5 +14,10 @@
 	margin-bottom: 2px;
 	font-size: 10pt;
 	background-color: #d0d0d0;
+}
+
+.projectlist-search {
+	font-size: 10pt;
+	width: 200px;
 }
 
