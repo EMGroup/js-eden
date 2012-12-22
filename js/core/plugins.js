@@ -18,6 +18,12 @@ Eden.prototype.createView = function(name, type) {
 	if (this.active_dialogs === undefined) {
 		this.active_dialogs = {};
 	}
+
+	if (this.active_dialogs[name] !== undefined) {
+		this.showView(name);
+		return;
+	}
+
 	this.views[type].dialog(name+"-dialog", this.views[type].title + " ["+name+"]");
 	this.active_dialogs[name] = type;
 };

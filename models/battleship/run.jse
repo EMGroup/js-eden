@@ -2,6 +2,10 @@
 edit this file to include the correct path
 */
 
+require("CanvasHTML5");
+createView("defaultcanvas","CanvasHTML5");
+hideView("projects");
+
 include("models/battleship/game.jse");
 include("models/battleship/gamecontrol.jse");
 include("models/battleship/Boarddisplay.jse");

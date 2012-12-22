@@ -1,5 +1,5 @@
 require("CanvasHTML5");
-createView("jugscanvas","CanvasHTML5");
+createView("defaultcanvas","CanvasHTML5");
 hideView("projects");
 
 include("models/jugs/jugs.jse");
