@@ -45,11 +45,11 @@ Eden.plugins.ProjectList = function(context) {
 			proj[0].project = me.projects.projects[i];
 
 			proj.html(
-				"<li class=\"type-project\"><span class=\"result_name\">"
+				"<li class=\"type-project\"><span class=\"projectlist-result_name\">"
 				+ me.projects.projects[i].name
-				+ "</span><br><span class='result_value'>"
+				+ "</span><br><span class='projectlist-result_value'>"
 				+ me.projects.projects[i].description
-				+ "<br><span class='result_value'> by "
+				+ "<br><span class='projectlist-result_value'> by "
 				+ me.projects.projects[i].author
 				+ " ("
 				+ me.projects.projects[i].year
@@ -63,11 +63,11 @@ Eden.plugins.ProjectList = function(context) {
 		projresults.find(".projectlist-result-element").hover(
 			function() {
 				if (this != me.selected_project) {
-					$(this).animate({backgroundColor: "#eaeaea"}, 100);
+					$(this).animate({backgroundColor: "white"}, 100);
 				}
 			}, function() {
 				if (this != me.selected_project) {
-					$(this).animate({backgroundColor: "white"}, 100);
+					$(this).animate({backgroundColor: "#eaeaea"}, 100);
 				}
 			}	
 
@@ -89,18 +89,18 @@ Eden.plugins.ProjectList = function(context) {
 		});
 
 		//Add scroll buttons if they are needed.
-		if (projresults[0].offsetHeight > (14*16)) {
-			$(element).find('.projectlist-scrollup').show();
-			$(element).find('.projectlist-scrolldown').show();
-		} else {
-			$(element).find('.projectlist-scrollup').hide();
-			$(element).find('.projectlist-scrolldown').hide();
-		}
+		//if (projresults[0].offsetHeight > (14*16)) {
+		//	$(element).find('.projectlist-scrollup').show();
+		//	$(element).find('.projectlist-scrolldown').show();
+		//} else {
+		//	$(element).find('.projectlist-scrollup').hide();
+		//	$(element).find('.projectlist-scrolldown').hide();
+		//}
 	}
 
 	/** @private */
 	var generateHTML = function() {
-		return "<div class=\"search-box-outer\">\
+		return "<div class=\"projectlist-search-box-outer\">\
 			<input type=\"text\" class=\"projectlist-search search-box\"></input>\
 		</div>\
 		<div class=\"projectlist-results\"></div>";

@@ -13,11 +13,42 @@
 	padding-right: 15px;
 	margin-bottom: 2px;
 	font-size: 10pt;
-	background-color: #d0d0d0;
+	background-color: #eaeaea;
 }
 
 .projectlist-search {
 	font-size: 10pt;
 	width: 200px;
+}
+
+.projectlist-search-box-outer {
+	margin: 15px;
+	position: relative;
+	height: 24px;
+	margin-bottom: 10px;
+}
+
+.projectlist-search-box {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	/*width: 196px;*/
+	height: 24px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #117fe5;
+	background-color: white;
+	padding: 2px;
+}
+
+span.projectlist-result_name {
+	vertical-align: 4px;
+}
+
+span.projectlist-result_value {
+	color: #d0d0d0;
+	white-space: nowrap;
+	overflow: hidden;
+	vertical-align: 4px;
 }
 
