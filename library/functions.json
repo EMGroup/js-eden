@@ -243,6 +243,6 @@
 			},
 			"return": "",
 			"description": "Removes a symbol from the symbol table"
-		},
+		}
 	}
 }

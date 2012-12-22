@@ -8,7 +8,7 @@ Eden.plugins.SymbolViewer = function(context) {
 	var me = this;
 
 	/** @private */
-	var edenfunctions = undefined;
+	var edenfunctions = {};
 
 	//Obtain function meta data from server
 	$.ajax({
