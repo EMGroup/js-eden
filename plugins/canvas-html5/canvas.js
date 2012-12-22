@@ -34,7 +34,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 	//Supported canvas views
 	context.views["CanvasHTML5"] = {dialog: this.createDialog, title: "Canvas HTML5"};
 
-	Eden.executeFile("plugins/canvas-html5/canvas.js-e");
+	Eden.executeFileSSI("plugins/canvas-html5/canvas.js-e");
 };
 
 Eden.plugins.CanvasHTML5.title = "Canvas HTML5";

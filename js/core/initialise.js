@@ -249,7 +249,7 @@ function JS_Eden_Initialise(callback) {
 
 		$('<pre id="error-window" style="font-family:monospace;"></pre>').appendTo($('body'));
 
-		Eden.executeFile("library/libeden.rb");
+		Eden.executeFileSSI("library/eden.jse");
 
 		callback();
 	});

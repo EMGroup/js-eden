@@ -32,7 +32,12 @@ def includeScript(script)
 	file.close
 end
 
-includeScript($cgi['script'])
+scriptfile = $cgi['script']
+# Protect file system
+scriptfile.gsub!(/\./,"_")
+scriptfile.gsub!(/^\//,"_")
+
+includeScript(scriptfile)
 
 if callback != ""
 	print ");\n"
