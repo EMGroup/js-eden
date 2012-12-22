@@ -100,7 +100,11 @@
 		//Load menubar as standard
 		eden.loadPlugin("MenuBar");
 		eden.loadPlugin("InputWindow");
+		eden.loadPlugin("ProjectList");
+
 		eden.createView("inputwindow","InputWindow");
+		eden.moveView("inputwindow",100,300);
+		eden.createView("projects","ProjectList");
 	});
 </script>
 
