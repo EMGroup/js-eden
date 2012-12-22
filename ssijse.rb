@@ -34,8 +34,10 @@ end
 
 scriptfile = $cgi['script']
 # Protect file system
-scriptfile.gsub!(/\./,"_")
-scriptfile.gsub!(/^\//,"_")
+scriptfile.gsub!(/\.\./,"_")
+if scriptfile[0] == "/"
+	exit 1
+end
 
 includeScript(scriptfile)
 
