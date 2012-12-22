@@ -93,8 +93,8 @@ Eden.executeFile = function (path) {
  */
 Eden.executeFileSSI = function (path) {
 	$.ajax({
-		url: "/ssijse.rb?script="+path+"&callback=?",
-		dataType: 'json',
+		url: "/ssijse.rb?script="+path,
+		dataType: 'text',
 		type: 'GET',
 		success: function(data) {
 			try {
