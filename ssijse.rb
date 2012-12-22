@@ -15,7 +15,7 @@ puts ""
 # JSONP Support
 callback = $cgi['callback']
 if callback != ""
-	print "#{callback}("
+	print "#{callback}(\""
 end
 
 # Print all lines and recursively expand any includes.
@@ -26,7 +26,11 @@ def includeScript(script)
 			comps = line.split("\"")
 			includeScript("#{comps[1]}")
 		else
-			puts line
+			if callback != ""
+				print line.gsub(/\"/,"\"") + "\\\n"
+			else
+				puts line
+			end
 		end
 	end
 	file.close
@@ -42,7 +46,7 @@ end
 includeScript(scriptfile)
 
 if callback != ""
-	print ");\n"
+	print "\");\n"
 else
 	print "\n"
 end
