@@ -63,7 +63,7 @@ Eden.plugins.ProjectList = function(context) {
 		projresults.find(".projectlist-result-element").hover(
 			function() {
 				if (this != me.selected_project) {
-					$(this).animate({backgroundColor: "white"}, 100);
+					$(this).animate({backgroundColor: "#f2f2f2"}, 100);
 				}
 			}, function() {
 				if (this != me.selected_project) {
@@ -77,7 +77,7 @@ Eden.plugins.ProjectList = function(context) {
 				$(me.selected_project).animate({backgroundColor: "white"}, 100);
 			}
 			me.selected_project = this;
-			$(this).animate({backgroundColor: "#ffebc9"}, 100);
+			$(this).animate({backgroundColor: "#dbe5f1"}, 100);
 
 			if (this.project !== undefined) {
 				//Actually load the project by executing js-e file.

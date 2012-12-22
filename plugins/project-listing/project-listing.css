@@ -56,3 +56,7 @@ span.projectlist-result_value {
 	vertical-align: 4px;
 }
 
+li.type-project {
+	list-style-image: url('../images/Objects_Icon_32.png');
+}
+
