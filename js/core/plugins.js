@@ -30,3 +30,11 @@ Eden.prototype.hideView = function(name) {
 	$("#"+name+"-dialog").dialog("close");
 }
 
+Eden.prototype.moveView = function(name, x,y) {
+	$("#"+name+"-dialog").dialog("option","position",[x,y]);
+}
+
+Eden.prototype.resizeView = function(name, x,y) {
+	$("#"+name+"-dialog").dialog("option","width",x).dialog("option","height",y);
+}
+

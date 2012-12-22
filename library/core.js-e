@@ -13,6 +13,31 @@ func createView {
 	}}$;
 };
 
+func hideView {
+	${{
+	var name = arguments[0];
+	eden.hideView(name,type);
+	}}$;
+};
+
+func moveView {
+	${{
+	var name = arguments[0];
+	var x = arguments[1];
+	var y = arguments[2];
+	eden.moveView(name,x,y);
+	}}$;
+};
+
+func resizeView {
+	${{
+	var name = arguments[0];
+	var x = arguments[1];
+	var y = arguments[2];
+	eden.resizeView(name,x,y);
+	}}$;
+};
+
 func includeSSI {
 
 };
