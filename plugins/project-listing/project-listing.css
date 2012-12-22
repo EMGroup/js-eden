@@ -60,3 +60,20 @@ li.type-project {
 	list-style-image: url('../images/Objects_Icon_32.png');
 }
 
+.projectlist-search-icon {
+	background-image: url('../images/Search_Icon_32.png');
+	height: 32px;
+	width: 32px;
+	background-repeat: no-repeat;
+	float: left;
+}
+
+.projectlist-config-icon {
+	background-image: url('../images/Configuration_Settings_Icon_32.png');
+	height: 32px;
+	width: 32px;
+	background-repeat: no-repeat;
+	float: right;
+	cursor: pointer;
+}
+

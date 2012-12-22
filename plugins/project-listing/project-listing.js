@@ -100,9 +100,9 @@ Eden.plugins.ProjectList = function(context) {
 
 	/** @private */
 	var generateHTML = function() {
-		return "<div class=\"projectlist-search-box-outer\">\
+		return "<div class=\"projectlist-search-icon\"></div><div class=\"projectlist-search-box-outer\">\
 			<input type=\"text\" class=\"projectlist-search search-box\"></input>\
-		</div>\
+		</div><div class=\"projectlist-config-icon\"></div>\
 		<div class=\"projectlist-results\"></div>";
 	}
 
