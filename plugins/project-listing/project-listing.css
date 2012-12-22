@@ -17,8 +17,7 @@
 }
 
 .projectlist-search {
-	font-size: 10pt;
-	width: 200px;
+
 }
 
 .projectlist-search-box-outer {
@@ -26,6 +25,8 @@
 	position: relative;
 	height: 24px;
 	margin-bottom: 10px;
+	font-size: 10pt;
+	width: 200px;
 }
 
 .projectlist-search-box {
@@ -43,10 +44,13 @@
 
 span.projectlist-result_name {
 	vertical-align: 4px;
+	font-family: "Arial";
+	font-weight: bold;
+	font-size: 12pt;
 }
 
 span.projectlist-result_value {
-	color: #d0d0d0;
+	color: #909090;
 	white-space: nowrap;
 	overflow: hidden;
 	vertical-align: 4px;
