@@ -24,7 +24,7 @@ Eden.plugins.ProjectList = function(context) {
 		procspos = 0;
 
 		//Clear any existing project search results.
-		var projresults = $(element).find(".results-lim > .projectlist-results");
+		var projresults = $(element).find(".projectlist-results");
 		projresults.html('');
 
 		//Search through projects to find those matching the query.
@@ -47,7 +47,9 @@ Eden.plugins.ProjectList = function(context) {
 			proj.html(
 				"<li class=\"type-project\"><span class=\"result_name\">"
 				+ me.projects.projects[i].name
-				+ "</span><span class='result_value'> by "
+				+ "</span><br><span class='result_value'>"
+				+ me.projects.projects[i].description
+				+ "<br><span class='result_value'> by "
 				+ me.projects.projects[i].author
 				+ " ("
 				+ me.projects.projects[i].year
@@ -101,9 +103,7 @@ Eden.plugins.ProjectList = function(context) {
 		return "<div class=\"search-box-outer\">\
 			<input type=\"text\" class=\"projectlist-search search-box\"></input>\
 		</div>\
-		<div class=\"projectlist-scrollup scrollup\"></div>\
-		<div class=\"results-lim\"><div class=\"projectlist-results\"></div></div>\
-		<div class=\"scrolldown project-scrolldown\"</div>";
+		<div class=\"projectlist-results\"></div>";
 	}
 
 	/** @public */
