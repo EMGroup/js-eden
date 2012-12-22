@@ -16,7 +16,7 @@ func createView {
 func hideView {
 	${{
 	var name = arguments[0];
-	eden.hideView(name,type);
+	eden.hideView(name);
 	}}$;
 };
 
