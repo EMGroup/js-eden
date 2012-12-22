@@ -27,7 +27,8 @@ def includeScript(script)
 			includeScript("#{comps[1]}")
 		else
 			if callback != ""
-				print line.gsub(/\"/,"\"") + "\\\n"
+				newline = line.gsub(/"/,"\"")
+				puts "#{newline}\\"
 			else
 				puts line
 			end
