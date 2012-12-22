@@ -15,7 +15,7 @@ puts ""
 # JSONP Support
 $callback = $cgi['callback']
 if $callback != ""
-	print "#{callback}(\""
+	print "#{$callback}(\""
 end
 
 # Print all lines and recursively expand any includes.
