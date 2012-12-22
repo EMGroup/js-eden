@@ -24,6 +24,11 @@
 	color: #dadada;
 	float: left;
 	width: 120px;
+	cursor: pointer;
+}
+
+.menubar-item {
+	cursor: pointer;
 }
 
 .menubar-menu {
@@ -33,6 +38,7 @@
 	border-width: 1px;
 	color: black;
 	padding: 8px;
+	width: 200px;
 }
 
 #menubar-version-number {
