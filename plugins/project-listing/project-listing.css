@@ -40,6 +40,7 @@
 	border-color: #117fe5;
 	background-color: white;
 	padding: 2px;
+	float: left;
 }
 
 span.projectlist-result_name {
@@ -75,5 +76,6 @@ li.type-project {
 	background-repeat: no-repeat;
 	float: right;
 	cursor: pointer;
+	margin-right: 10px;
 }
 
