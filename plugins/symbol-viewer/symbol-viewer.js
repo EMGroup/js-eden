@@ -47,6 +47,8 @@ Eden.plugins.SymbolViewer = function(context) {
 			}
 		}
 
+		element.get(0).details = details;
+
 		funchtml = funchtml + "</li>";
 		element.html(funchtml);
 	}
@@ -66,7 +68,6 @@ Eden.plugins.SymbolViewer = function(context) {
 		// Bit of a hack, need to check if the function actually has a draw() method instead of just checking that the function starts with a capital letter
 		//(/^[A-Z]/.test(name)) ? resel.html(funchtml).appendTo($('#drawable-results')) : resel.html(funchtml).appendTo(symresults);
 		//	resel.html(funchtml).appendTo($('#function-results'));
-		resel.get(0).details = details;
 		resel.get(0).symbol = symbol;
 
 		update_function(resel,symbol,name);
