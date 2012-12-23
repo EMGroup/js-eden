@@ -268,7 +268,7 @@ function JS_Eden_Initialise(callback) {
 		//Process query string for plugins and models to load
 		var plugins = getParameterByName("p").split(",");
 		var views = getParameterByName("v").split(",");
-		var models = getParameterByNAme("m").split(",");
+		var models = getParameterByName("m").split(",");
 
 		for (x in plugins) {
 			eden.loadPlugin(plugins[x]);
