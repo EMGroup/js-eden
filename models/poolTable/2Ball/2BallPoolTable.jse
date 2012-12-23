@@ -30,7 +30,7 @@ func Ball {
 };
 
 proc cueMove : mouseX,mouseY {
-	if (cuePositionSet == true) {
+	if (cuePositionSet == false) {
 		mousePointX = mouseX;
 		mousePointY = mouseY;
 	}
