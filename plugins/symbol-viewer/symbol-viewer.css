@@ -36,3 +36,20 @@ li.type-session {
 	margin-bottom: 2px;
 	font-size: 10pt;
 }
+
+.symbollist-search-icon {
+	background-image: url('../images/Search_Icon_32.png');
+	height: 32px;
+	width: 32px;
+	background-repeat: no-repeat;
+	float: left;
+}
+
+.symbollist-config-icon {
+	background-image: url('../images/Configuration_Settings_Icon_32.png');
+	height: 32px;
+	width: 32px;
+	background-repeat: no-repeat;
+	float: right;
+	cursor: pointer;
+}

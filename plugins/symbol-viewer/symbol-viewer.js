@@ -295,7 +295,9 @@ Eden.plugins.SymbolViewer = function(context) {
 	/** @private */
 	var generateHTML = function() {
 		return "<div class=\"search-box-outer\">\
+			<div class=\"symbollist-search-icon\"></div>\
 			<input type=\"text\" class=\"symbollist-search search-box\"></input>\
+			<div class=\"symbollist-config-icon\"></div>\
 		</div>\
 		<div class=\"symbollist-results\"></div>";
 	};
@@ -309,7 +311,7 @@ Eden.plugins.SymbolViewer = function(context) {
 			.html(code_entry)
 			.dialog({
 				title: mtitle,
-				width: 280,
+				width: 300,
 				height: 400,
 				minHeight: 120,
 				minWidth: 230,
