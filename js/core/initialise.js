@@ -11,6 +11,20 @@ var side_bar_height = 300;
 var input_dialog;
 var current_view = new Array();
 
+/**
+ * Utility function to extract URL query string parameters.
+ */
+function getParameterByName( name )
+{
+  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+  var regexS = "[\\?&]"+name+"=([^&#]*)";
+  var regex = new RegExp( regexS );
+  var results = regex.exec( window.location.href );
+  if( results == null )
+    return "";
+  else
+    return decodeURIComponent(results[1].replace(/\+/g, " "));
+}
 
 function JS_Eden_Initialise(callback) {
 	//$(window).resize(function() {
@@ -250,6 +264,23 @@ function JS_Eden_Initialise(callback) {
 		$('<pre id="error-window" style="font-family:monospace;"></pre>').appendTo($('body'));
 
 		Eden.executeFileSSI("library/eden.jse");
+
+		//Process query string for plugins and models to load
+		var plugins = getParameterByName("p").split(",");
+		var views = getParameterByName("v").split(",");
+		var models = getParameterByNAme("m").split(",");
+
+		for (x in plugins) {
+			eden.loadPlugin(plugins[x]);
+		}
+		var viewcount = 0;
+		for (x in views) {
+			eden.createView("view-"+viewcount,views[x]);
+			viewcount = viewcount + 1;
+		}
+		for (x in models) {
+			Eden.executeFileSSI(models[x]);
+		}
 
 		callback();
 	});
