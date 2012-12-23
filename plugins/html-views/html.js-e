@@ -1,8 +1,13 @@
 ##HTML Output
 func html {
 	${{
-	var text = arguments[0];
-	var me = $("#html-content");
-	me.html(text);
+	var arg0 = arguments[0];
+	var arg1 = arguments[1];
+
+	if (arg1 === undefined) {
+		eden.plugins.HTMLViews.html("DEFAULT",arg0);
+	} else {
+		eden.plugins.HTMLViews.html(arg0,arg1);
+	}
 	}}$;
 };

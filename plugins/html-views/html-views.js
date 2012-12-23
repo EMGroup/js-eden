@@ -4,6 +4,37 @@
  * @class HTMLViews Plugin
  */
 Eden.plugins.HTMLViews = function(context) {
+	var me = this;
+	var defaultview = "";
+
+	this.html = function(name,content) {
+		if (name == "DEFAULT") {
+			if (defaultview == "") {
+				this.createDialog(name,"Default HTML");
+			} else {
+				name = defaultview;
+			}
+		}
+		$("#"+name+"-content").html(content);
+	}
+
+	this.createDialog = function(name,mtitle) {
+		if (defaultview == "") {
+			defaultview = name;
+		}
+
+		code_entry = $('<div id=\"'+name+'-content\"></div>');
+
+		$dialog = $('<div id="'+name+'"></div>')
+			.html(code_entry)
+			.dialog({
+				title: mtitle,
+				width: 600,
+				height: 450,
+				minHeight: 120,
+				minWidth: 230
+			});
+	}
 
 	//Register the HTML view options
 	context.views["PlainHTML"] = {dialog: this.createDialog, title: "Plain HTML View"};
