@@ -16,6 +16,8 @@ Eden.plugins.SymbolViewer = function(context) {
 		dataType: 'json',
 		success: function(data) {
 			edenfunctions = data;
+			//NOTE: Line below shouldn't be needed unless views are created
+			//before this callback has been called.
 			//initialiseAllViewers("");
 		},
 		cache: false,
@@ -25,11 +27,15 @@ Eden.plugins.SymbolViewer = function(context) {
 	/** @public */
 	this.instances = new Array();
 
-	var add_function = function(symresults, symbol, name) {
+	/** @private */
+	var update_function = function(element,symbol,name) {
 		var funchtml = "<li class=\"type-function\"><span class=\"result_name\">" + name + "</span>";
 		var details;
+
+		//If there are details for this function in the function meta data
 		if (edenfunctions.functions != undefined && edenfunctions.functions[name] !== undefined) {
 			details = edenfunctions.functions[name];
+			//Extract parameters for display.
 			funchtml = funchtml + "<span class='result_value'> ( ";
 			if (edenfunctions.functions[name].parameters !== undefined) {
 				for (x in edenfunctions.functions[name].parameters) {
@@ -40,17 +46,38 @@ Eden.plugins.SymbolViewer = function(context) {
 				funchtml = funchtml + " )</span>";
 			}
 		}
+
 		funchtml = funchtml + "</li>";
+		element.html(funchtml);
+	}
+
+	/**
+	 * Add a symbol of type function to the specified results list. It extracts
+	 * any relevant information from the function meta data about parameters
+	 * and so on. It also attempts to detect the type of function that it is:
+	 *   * Side-effect free function for use in dependencies.
+	 *   * Function with side-effects that should only be used in procedures.
+	 *   * A drawable item for the canvas.
+	 * @private
+	 */
+	var add_function = function(symresults, symbol, name) {
 		var resel = $('<div class="symbollist-result-element"></div>');
 	
 		// Bit of a hack, need to check if the function actually has a draw() method instead of just checking that the function starts with a capital letter
-		(/^[A-Z]/.test(name)) ? resel.html(funchtml).appendTo($('#drawable-results')) : resel.html(funchtml).appendTo(symresults);
-	//	resel.html(funchtml).appendTo($('#function-results'));
+		//(/^[A-Z]/.test(name)) ? resel.html(funchtml).appendTo($('#drawable-results')) : resel.html(funchtml).appendTo(symresults);
+		//	resel.html(funchtml).appendTo($('#function-results'));
 		resel.get(0).details = details;
 		resel.get(0).symbol = symbol;
 
+		update_function(resel,symbol,name);
+		resel.appendTo(symresults);
+
+		//XXX For update performance, but does use more memory.
+		symresults[0].symbols[name] = resel;
+
 		resel.hover(
 			function() {
+				$(this).animate({backgroundColor: "#eaeaea"}, 100);
 				//if (this != selected_function) {
 				//	$(this).animate({backgroundColor: "#eaeaea"}, 100);
 				//}
@@ -67,6 +94,7 @@ Eden.plugins.SymbolViewer = function(context) {
 				//	info.hide();
 				//}
 			}, function() {
+				$(this).animate({backgroundColor: "white"}, 100);
 				//$('#functions-info').hide();
 				//if (this != selected_function) {
 				//	$(this).animate({backgroundColor: "white"}, 100);
@@ -84,9 +112,17 @@ Eden.plugins.SymbolViewer = function(context) {
 		);
 	}
 
-	var add_observable = function(symresults, symbol, name) {
+	/**
+	 * Generate the HTML for an observable and update the result element
+	 * accordingly.
+	 * @private
+	 */
+	var update_observable = function(element, symbol, name) {
+		/* XXX Does cause all dependencies to be evaluated which removes any
+		   performance gains of eval-on-use-when-out-of-date. */
 		var val = symbol.value();
 		var valhtml;
+
 		if (typeof val == "boolean") { valhtml = "<span class='special_text'>"+val+"</span>"; }
 		else if (typeof val == "undefined") { valhtml = "<span class='error_text'>undefined</span>"; }
 		else if (typeof val == "string") { valhtml = "<span class='string_text'>\""+val+"\"</span>"; }
@@ -100,9 +136,27 @@ Eden.plugins.SymbolViewer = function(context) {
 			namehtml = name;
 		}
 
+		element.html("<li class=\"type-observable\"><span class=\"result_name\">"
+			+ namehtml
+			+ "</span><span class='result_value'> = "
+			+ valhtml
+			+ "</span></li>"
+		);
+	}
+
+	/**
+	 * Add a plain observable to a results list. Extract type, value and
+	 * definition for display.
+	 * @private
+	 */
+	var add_observable = function(symresults, symbol, name) {
 		var ele = $('<div id="sbobs_' + name + '" class="symbollist-result-element"></div>');
-		ele.html("<li class=\"type-observable\"><span class=\"result_name\">" + namehtml + "</span><span class='result_value'> = " + valhtml + "</span></li>").appendTo(symresults);
+		update_observable(ele,symbol,name);
+		ele.appendTo(symresults);
 		ele.get(0).symbol = symbol;
+
+		//XXX For update performance, but does use more memory.
+		symresults[0].symbols[name] = ele;
 
 		ele.hover(
 			function() {
@@ -139,9 +193,17 @@ Eden.plugins.SymbolViewer = function(context) {
 		});
 	};
 
+	var update_procedure = function(element, symbol, name) {
+		element.html("<li class=\"type-procedure\"><span class=\"result_name\">" + name + "</span></li>");
+	}
+
 	var add_procedure = function(symresults, symbol, name) {
 		var proc = $('<div class="symbollist-result-element"></div>');
-		proc.html("<li class=\"type-procedure\"><span class=\"result_name\">" + name + "</span></li>").appendTo(symresults);
+		update_procedure(proc,symbol,name);
+		proc.appendTo(symresults);
+
+		//XXX For update performance, but does use more memory.
+		symresults[0].symbols[name] = ele;
 
 		proc.get(0).symbol = symbol;
 
@@ -170,36 +232,62 @@ Eden.plugins.SymbolViewer = function(context) {
 	}
 
 	/** @private */
+	var addSymbol = function(symresults, symbol, name, type) {
+		//Does the symbol have a definition
+		if (!symbol.definition || !symbol.eden_definition) {
+			if ((type == "obs") || (type == "all")) {
+				add_observable(symresults,symbol, name);
+				//return;
+			}
+		} else {
+			//Find out what kind of definition it is (proc, func or plain)
+			var subs = symbol.eden_definition.substring(0,4);
+		
+			if (subs == "proc" && ((type == "agent") || (type == "all"))) {
+				add_procedure(symresults,symbol, name);
+			} else if (subs == "func" && ((type == "func") || (type == "all"))) {
+				add_function(symresults,symbol, name);
+			} else if (subs != "proc" && subs != "func" && (type == "obs") || (type == "all")) {
+				add_observable(symresults,symbol, name);
+			}
+		}
+	}
+
+	/** @private */
+	var updateSymbol = function(element, symbol, name) {
+		//Does the symbol have a definition
+		if (!symbol.definition || !symbol.eden_definition) {
+			update_observable(element,symbol, name);
+		} else {
+			//Find out what kind of definition it is (proc, func or plain)
+			var subs = symbol.eden_definition.substring(0,4);
+		
+			if (subs == "proc") {
+				update_procedure(element,symbol, name);
+			} else if (subs == "func") {
+				update_function(element,symbol, name);
+			} else if (subs != "proc") {
+				update_observable(element,symbol, name);
+			}
+		}
+	}
+
+	/** @private */
 	var initialiseViewer = function(element,pattern) {
 		//Clear existing results and start again
 		var symresults = $(element).find(".symbollist-results");
 		symresults.html('');
+		symresults[0].symbols = {};
 
 		var type = element.symboltype;
 		var reg = new RegExp("^"+pattern+".*");
+		element.pattern = pattern;
 
 		//For every js-eden symbol
+		//TODO: Sort the symbols by name?
 		$.each(root.symbols, function (name, symbol) {
 			if (shouldAdd(reg,name)) {
-				//Does the symbol have a definition
-				if (!symbol.definition || !symbol.eden_definition) {
-					if ((type == "obs") || (type == "all")) {
-						add_observable(symresults,symbol, name);
-						//return;
-					}
-				} else {
-					//Find out what kind of definition it is (proc, func or plain)
-					var subs = symbol.eden_definition.substring(0,4);
-			
-					if (subs == "proc" && ((type == "agent") || (type == "all"))) {
-						add_procedure(symresults,symbol, name);
-					} else if (subs == "func" && ((type == "func") || (type == "all"))) {
-						add_function(symresults,symbol, name);
-					} else if (subs != "proc" && subs != "func" && (type == "obs") || (type == "all")) {
-						console.log(subs);
-						add_observable(symresults,symbol, name);
-					}
-				}
+				addSymbol(symresults, symbol, name, type);
 			}
 		});
 	}
@@ -252,8 +340,31 @@ Eden.plugins.SymbolViewer = function(context) {
 		return me.createDialog(name,mtitle,"all");
 	}
 
+	/**
+	 * Called every time a symbol is changed or created. Then proceeds to
+	 * update all visible symbol lists.
+	 */
 	var symbolChanged = function(sym, create) {
+		name = sym.name.substr(1);
 
+		//For every viewer
+		for (x in me.instances) {
+			if (create) {
+				var reg = new RegExp("^"+me.instances[x].pattern+".*");
+				if (shouldAdd(reg,name)) {
+					var symresults = $(me.instances[x]).find(".symbollist-results");
+					addSymbol(symresults, sym, name, me.instances[x].symboltype);
+				}
+			} else {
+			
+				//If that viewer is showing this symbol
+				var symresults = $(me.instances[x]).find(".symbollist-results")[0];
+				if (symresults.symbols[name] !== undefined) {
+					//Make sure it gets updated.
+					updateSymbol(symresults.symbols[name], sym, name);
+				}
+			}
+		}
 	}
 
 	//Register event handler for symbol changes.
