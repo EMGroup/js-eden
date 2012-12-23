@@ -270,16 +270,24 @@ function JS_Eden_Initialise(callback) {
 		var views = getParameterByName("v").split(",");
 		var models = getParameterByName("m").split(",");
 
-		for (x in plugins) {
-			eden.loadPlugin(plugins[x]);
+		console.log(plugins);
+
+		if (plugins[0] != "") {
+			for (x in plugins) {
+				eden.loadPlugin(plugins[x]);
+			}
 		}
-		var viewcount = 0;
-		for (x in views) {
-			eden.createView("view-"+viewcount,views[x]);
-			viewcount = viewcount + 1;
+		if (views[0] != "") {
+			var viewcount = 0;
+			for (x in views) {
+				eden.createView("view-"+viewcount,views[x]);
+				viewcount = viewcount + 1;
+			}
 		}
-		for (x in models) {
-			Eden.executeFileSSI(models[x]);
+		if (models[0] != "") {
+			for (x in models) {
+				Eden.executeFileSSI(models[x]);
+			}
 		}
 
 		callback();
