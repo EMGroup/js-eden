@@ -203,7 +203,7 @@ Eden.plugins.SymbolViewer = function(context) {
 		proc.appendTo(symresults);
 
 		//XXX For update performance, but does use more memory.
-		symresults[0].symbols[name] = ele;
+		symresults[0].symbols[name] = proc;
 
 		proc.get(0).symbol = symbol;
 
