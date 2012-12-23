@@ -11,22 +11,26 @@ Eden.plugins.CanvasHTML5 = function(context) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			console.log("Mousedown: " + x + "," + y);
+			context.context.lookup('mousePressed').assign(true);
+			context.context.lookup('mouseDown').assign(root.lookup('Point').value().call(this, x, y), this);
 		}).on("mouseup",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			console.log("Mouseup: " + x + "," + y);
+			context.context.lookup('mousePressed').assign(false);
+			context.context.lookup('mouseUp').assign(root.lookup('Point').value().call(this, x, y), this);
 		}).on("mousemove",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			console.log("Mousemove: " + x + "," + y);
+			context.context.lookup('mouseX').assign(x);
+			context.context.lookup('mouseY').assign(y);
 		}).on("click",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			console.log("Click: " + x + "," + y);
+			context.context.lookup('mouseClickX').assign(x);
+			context.context.lookup('mouseClickY').assign(y);
 		});
 
 		$dialog = $('<div id="'+name+'"></div>')
