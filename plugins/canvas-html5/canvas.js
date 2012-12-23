@@ -6,8 +6,8 @@
 Eden.plugins.CanvasHTML5 = function(context) {
 	this.createDialog = function(name,mtitle) {
 		code_entry = $('<div id=\"eden-content\"></div>');
-		code_entry.html("<canvas id=\""+"d1canvas"+"\" width=\"550px\" height=\"380px\"></canvas>");
-		code_entry.on("mousedown",function(e) {
+		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+"d1canvas"+"\" width=\"550px\" height=\"380px\"></canvas>");
+		code_entry.find(".canvashtml-canvas").on("mousedown",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;

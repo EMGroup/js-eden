@@ -37,12 +37,14 @@ proc cueMove : mouseX,mouseY {
 };
 
 proc cueSet : mouseClickX {
-	if (cuePositionSet == true) {
-		cuePositionSet = false;
-	} else {
-		cuePositionSet = true;
-		mousePointX = mouseClickX;
-		mousePointY = mouseClickY;
+	if (initialHitTaken == false) {
+		if (cuePositionSet == true) {
+			cuePositionSet = false;
+		} else {
+			cuePositionSet = true;
+			mousePointX = mouseClickX;
+			mousePointY = mouseClickY;
+		}
 	}
 };
 
