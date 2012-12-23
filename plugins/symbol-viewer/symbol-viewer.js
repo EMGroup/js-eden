@@ -311,10 +311,10 @@ Eden.plugins.SymbolViewer = function(context) {
 			.html(code_entry)
 			.dialog({
 				title: mtitle,
-				width: 300,
+				width: 350,
 				height: 400,
-				minHeight: 120,
-				minWidth: 230,
+				minHeight: 200,
+				minWidth: 350,
 				//position: ['right','bottom'],
 			});
 

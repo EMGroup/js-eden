@@ -13,6 +13,7 @@ Eden.plugins.MenuBar = function(context) {
 	/** @private */
 	var menudiv = $("<div id=\"menubar-main\"></div>");
 	menudiv.appendTo($("body"));
+	$("<div id=\"menubar-bottom\"></div>").appendTo($("body"));
 
 	/** @private */
 	var addMainItem = function(name, title) {
