@@ -10,7 +10,8 @@ Eden.plugins.HTMLViews = function(context) {
 	this.html = function(name,content) {
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
-				this.createDialog(name+"-dialog","Default HTML");
+				//this.createDialog(name+"-dialog","Default HTML");
+				context.createView(name,"PlainHTML");
 			}
 			$("#"+defaultview+"-content").html(content);
 		} else {
@@ -23,7 +24,7 @@ Eden.plugins.HTMLViews = function(context) {
 			defaultview = name;
 		}
 
-		code_entry = $('<div id=\"'+name+'-content\"></div>');
+		code_entry = $('<div id=\"'+name+'-content\" class=\"htmlviews-content\"></div>');
 
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)

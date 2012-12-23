@@ -93,11 +93,24 @@ Eden.plugins.MenuBar = function(context) {
 		}
 	};
 
+	/** @private */
+	var addMenuItem = function(menu,text,click) {
+		var menu = $("#menubar-mainitem-"+menu);
+		var entry = $("<div class=\"menubar-item\"></div>");
+		entry.html(text);
+		entry.click(click);
+		entry.appendTo(menu);
+	}
+
 	//Add main menu items.
 	addMainItem("jseden","JS-Eden");
 	addMainItem("plugins","Plugins");
 	addMainItem("views","Views");
 	addMainItem("help","Help");
+
+	addMenuItem("jseden","Error Log", function() {
+		$('#error-window').dialog("open");
+	});
 
 	//Put js-eden version in right corner
 	$.ajax({
