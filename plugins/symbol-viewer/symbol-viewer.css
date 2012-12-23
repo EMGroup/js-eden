@@ -37,6 +37,21 @@ li.type-session {
 	font-size: 10pt;
 }
 
+.projectlist-search {
+	/*position: absolute;
+	left: 0px;
+	top: 0px;*/
+	/*width: 196px;*/
+	height: 24px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #117fe5;
+	background-color: white;
+	padding: 2px;
+	float: left;
+	margin-left: 5px;
+}
+
 .symbollist-search-icon {
 	background-image: url('../images/Search_Icon_32.png');
 	height: 32px;

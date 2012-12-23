@@ -296,7 +296,7 @@ Eden.plugins.SymbolViewer = function(context) {
 	var generateHTML = function() {
 		return "<div class=\"search-box-outer\">\
 			<div class=\"symbollist-search-icon\"></div>\
-			<input type=\"text\" class=\"symbollist-search search-box\"></input>\
+			<input type=\"text\" class=\"symbollist-search\"></input>\
 			<div class=\"symbollist-config-icon\"></div>\
 		</div>\
 		<div class=\"symbollist-results\"></div>";
