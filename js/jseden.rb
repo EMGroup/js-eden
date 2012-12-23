@@ -21,7 +21,6 @@ scripts = [
 	"core/eden.js",
 	"core/plugins.js",
 	"edenui.js",
-	"models.js",
 	"collections.js",
 	"em.js",
 	"core/initialise.js",

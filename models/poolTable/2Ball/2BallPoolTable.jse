@@ -29,31 +29,22 @@ func Ball {
 	}}$;
 };
 
-/* JQuery event handler used to updates observables that monitor mouse movement */
-${{
-	$('body').delegate("#d1canvas", "mousemove", function(e) {
-		root.lookup('mouseX').assign(e.pageX-265);
-		root.lookup('mouseY').assign(e.pageY-154);
-		if(!root.lookup('cuePositionSet').value()){
-			root.lookup('mousePointX').assign(e.pageX-265);
-			root.lookup('mousePointY').assign(e.pageY-154);
-		}
-	});
-}}$;
-/* JQuery event handler used to updates observables that monitor locations of mouse clicks */
-${{
-	$('body').delegate("#d1canvas", "click", function(e) {
-	if(!root.lookup('initialHitTaken').value()) {
-		if(root.lookup('cuePositionSet').value()){
-			root.lookup('cuePositionSet').assign(false);
-		} else {
-			root.lookup('cuePositionSet').assign(true);
-			root.lookup('mousePointX').assign(e.pageX-265);
-			root.lookup('mousePointY').assign(e.pageY-154);
-		}
+proc cueMove : mouseX,mouseY {
+	if (cuePositionSet == true) {
+		mousePointX = mouseX;
+		mousePointY = mouseY;
 	}
-	});
-}}$;
+};
+
+proc cueSet : mouseClickX {
+	if (cuePositionSet == true) {
+		cuePositionSet = false;
+	} else {
+		cuePositionSet = true;
+		mousePointX = mouseClickX;
+		mousePointY = mouseClickY;
+	}
+};
 
 /* Initialising observables */
 mouseX = 0;
