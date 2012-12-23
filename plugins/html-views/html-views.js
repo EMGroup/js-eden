@@ -10,12 +10,12 @@ Eden.plugins.HTMLViews = function(context) {
 	this.html = function(name,content) {
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
-				this.createDialog(name,"Default HTML");
+				this.createDialog(name+"-dialog","Default HTML");
 			} else {
 				name = defaultview;
 			}
 		}
-		$("#"+name+"-content").html(content);
+		$("#"+name+"-dialog-content").html(content);
 	}
 
 	this.createDialog = function(name,mtitle) {
