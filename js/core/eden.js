@@ -69,6 +69,7 @@ Eden.reportError = function (e, options) {
  * translates it to JavaScript then evals it when it's done
  */
 Eden.executeFile = function (path) {
+	console.warning("Calls to executeFile should be deprecated");
 	$.ajax({
 		url: modelbase+path,
 		dataType: 'text',
