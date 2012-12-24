@@ -49,7 +49,7 @@ ${{
 		if (style.left != x) {
 			style.left = x;
 		}
-		if (style.right != y) {
+		if (style.top != y) {
 			style.top = y;
 		}
 	  }
