@@ -21,19 +21,27 @@ Eden.plugins.CanvasHTML5 = function(context) {
 		});
 	}
 
+	var canvases = {};
+	var contents = {};
+
 	this.drawPicture = function(canvasname, pictureobs) {
 		var picture = context.context.lookup(pictureobs).value();
-		var canvas = $("#"+canvasname+"-dialog-canvas");
-		if (canvas.length == 0) {
+		//var canvas = $("#"+canvasname+"-dialog-canvas");
+		var canvas = canvases[canvasname];
+		if (canvas === undefined) {
 			//Need to make the canvas view first
 			eden.createView(canvasname,"CanvasHTML5");
-			canvas = $("#"+canvasname+"-dialog-canvas");
+			
+			canvases[canvasname] = $("#"+canvasname+"-dialog-canvas")[0];
+			contents[canvasname] = $("#"+canvasname+"-dialog-canvascontent")[0];
+			canvas = canvases[canvasname];
 		}
-		canvas = canvas.get(0);
+		//canvas = canvas.get(0);
 		//To clear canvas.
 		canvas.width = canvas.width;
 		canvas = canvas.getContext('2d');
-		content = $("#"+canvasname+"-dialog-canvascontent")[0];
+		//var content = $("#"+canvasname+"-dialog-canvascontent")[0];
+		var content = contents[canvasname];
 
 		if (picture === undefined) { return; }
 

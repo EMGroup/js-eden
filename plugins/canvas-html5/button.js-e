@@ -16,7 +16,8 @@ func Button { ${{
 	Button.prototype.draw = function(context, content) {
 	  var me = "canvas_" + this.name;
 	  var me2 = this.name;
-	  var but = $("#"+me).get(0);
+	  var but = $("#"+me,content).get(0);
+
 	  if (but === undefined) {
 		var dis = "";
 		if (this.enabled == true) { dis = ""; }
