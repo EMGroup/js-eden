@@ -143,13 +143,14 @@ function JS_Eden_Initialise(callback) {
 			}
 		}
 
-		tileViews();
-
 		if (models[0] != "") {
 			for (x in models) {
 				Eden.executeFileSSI(models[x]);
 			}
 		}
+
+		//Layout the dialogs as best as we can
+		tileViews();
 
 		callback();
 	});
