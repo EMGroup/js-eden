@@ -100,6 +100,7 @@
 		this.name = name;
 
 		this.definition = undefined;
+		this.eden_definition = undefined;
 		this.cached_value = undefined;
 		this.up_to_date = false;
 

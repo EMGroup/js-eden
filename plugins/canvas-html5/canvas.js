@@ -4,8 +4,8 @@
  * @class CanvasHTML5 Plugin
  */
 Eden.plugins.CanvasHTML5 = function(context) {
-	this.clearCanvas = function(canvasname) {
-		$("#"+canvasname+"-dialog-canvascontent > :not(canvas)").each(function() {
+	var clearCanvas = function(content) {
+		$(":not(canvas)",content).each(function() {
 			//XXX What is this check for??
 			//if(/canvas_/.test(this.id)) {
 				this.togarbage = true;
@@ -13,8 +13,8 @@ Eden.plugins.CanvasHTML5 = function(context) {
 		});
 	}
 
-	this.cleanupCanvas = function(canvasname) {
-		$("#"+canvasname+"-dialog-canvascontent > :not(canvas)").each(function() {
+	var cleanupCanvas = function(content) {
+		$(":not(canvas)",content).each(function() {
 			if (this.togarbage == true) {
 				$(this).remove();
 			}
@@ -43,12 +43,16 @@ Eden.plugins.CanvasHTML5 = function(context) {
 		//var content = $("#"+canvasname+"-dialog-canvascontent")[0];
 		var content = contents[canvasname];
 
+		clearCanvas(content);
+
 		if (picture === undefined) { return; }
 
 		for (var i = 0; i < picture.length; i++) {
 			if (picture[i] === undefined) { continue; }
 				picture[i].draw(canvas,content);
 		}
+
+		cleanupCanvas(content);
 	};
 
 	this.createDialog = function(name,mtitle) {

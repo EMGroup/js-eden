@@ -1,18 +1,8 @@
-func clearCanvas {
-	${{
-		var canvas = arguments[0];
-		eden.plugins.CanvasHTML5.clearCanvas(canvas);
-		eden.plugins.CanvasHTML5.cleanupCanvas(canvas);
-	}}$;
-};
-
 func CanvasHTML5_DrawPicture {
 	${{
 	var canvas = arguments[0];
 	var picture = arguments[1];
-	eden.plugins.CanvasHTML5.clearCanvas(canvas);
 	eden.plugins.CanvasHTML5.drawPicture(canvas,picture);
-	eden.plugins.CanvasHTML5.cleanupCanvas(canvas);
 	}}$;
 };
 
