@@ -1,8 +1,6 @@
 ## %eden
 
 require("CanvasHTML5");
-createView("defaultcanvas","CanvasHTML5");
-hideView("projects");
 
 /* game.e */
 
