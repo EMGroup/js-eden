@@ -36,11 +36,10 @@ Eden.plugins.CanvasHTML5 = function(context) {
 			contents[canvasname] = $("#"+canvasname+"-dialog-canvascontent")[0];
 			canvas = canvases[canvasname];
 		}
-		//canvas = canvas.get(0);
+
 		//To clear canvas.
 		canvas.width = canvas.width;
 		canvas = canvas.getContext('2d');
-		//var content = $("#"+canvasname+"-dialog-canvascontent")[0];
 		var content = contents[canvasname];
 
 		clearCanvas(content);
@@ -49,7 +48,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 
 		for (var i = 0; i < picture.length; i++) {
 			if (picture[i] === undefined) { continue; }
-				picture[i].draw(canvas,content);
+			picture[i].draw(canvas,content);
 		}
 
 		cleanupCanvas(content);

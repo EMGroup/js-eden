@@ -18,7 +18,6 @@ ${{
 	};
 
 	Button.prototype.draw = function(context, content) {
-	  var me = "canvas_" + this.name;
 	  var me2 = this.name;
 	  var but = this.element;
 
@@ -28,7 +27,7 @@ ${{
 		else { dis = "disabled=\"true\""; }
 
 		var can = $(content);
-		var buthtml = $("<input type=\"button\" id=\"" + me + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
+		var buthtml = $("<input type=\"button\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
 			root.lookup(me2 + "_clicked").assign(true);
 		}).appendTo(can);
 
@@ -44,8 +43,15 @@ ${{
 		if (this.enabled == true) { but.disabled = false; }
 		else { but.disabled = true; }
 		//XXX This might have a performance hit...
-		but.style.left = "" + this.x + "px";
-		but.style.top = "" + this.y + "px";
+		var x = ""+this.x+"px";
+		var y = ""+this.y+"px";
+		var style = but.style;
+		if (style.left != x) {
+			style.left = x;
+		}
+		if (style.right != y) {
+			style.top = y;
+		}
 	  }
 	};
 
