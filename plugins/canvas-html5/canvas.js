@@ -22,13 +22,14 @@ Eden.plugins.CanvasHTML5 = function(context) {
 
 	this.drawPicture = function(canvasname, pictureobs) {
 		var picture = context.lookup(pictureobs).value();
-		var canvas = $("#"+canvasname+"-canvas").get(0);
-		if (canvas === undefined) {
+		var canvas = $("#"+canvasname+"-canvas");
+		if (canvas.length == 0) {
 			//Need to make the canvas view first
+			console.log("Making a new canvas: "+canvasname);
 			eden.createView(canvasname,"CanvasHTML5");
-			canvas = $("#"+canvasname+"-canvas").get(0);
+			canvas = $("#"+canvasname+"-canvas");
 		}
-		canvas = canvas.getContext('2d');
+		canvas = canvas.get(0).getContext('2d');
 
 		if (picture === undefined) { return; }
 
