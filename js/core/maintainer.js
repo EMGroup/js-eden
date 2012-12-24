@@ -46,7 +46,7 @@
 		if (this.symbols[name] === undefined) {
 			this.symbols[name] = new Symbol(this, this.name + name, this.root);
 
-			setTimeout(function() { $(me).trigger('symbolCreate', [me.symbols[name], name])});
+			//setTimeout(function() { $(me).trigger('symbolCreate', [me.symbols[name], name])});
 			this.notifyGlobals(this.symbols[name],true);
 		}
 
@@ -211,7 +211,7 @@
 			this.fireActions(actions_to_fire);
 		}
 
-		setTimeout(function() { $(me).trigger('symbolDefine'); });
+		//setTimeout(function() { $(me).trigger('symbolDefine'); });
 		if (this.context !== undefined) {
 			this.context.notifyGlobals(this,false);
 		}
@@ -260,7 +260,7 @@
 		this.expire(actions_to_fire);
 		this.up_to_date = true;
 
-		setTimeout(function() { $(me).trigger('symbolAssign', value); });
+		//setTimeout(function() { $(me).trigger('symbolAssign', value); });
 
 		//Needs to be conditional on autocalc
 		if (this.context !== undefined) {
@@ -308,7 +308,7 @@
 		this.expire(actions_to_fire);
 
 		this.up_to_date = true;
-		setTimeout(function() { $(me).trigger('symbolMutate')});
+		//setTimeout(function() { $(me).trigger('symbolMutate')});
 
 		// accumulate a set of agents to trigger in expire, then trigger each of them
 		//Needs to be conditional on autocalc
