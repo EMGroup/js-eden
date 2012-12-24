@@ -105,7 +105,7 @@ Eden.executeFileSSI = function (path) {
 			}
 		},
 		cache: false,
-		async: false
+		async: true
 	});
 };
 
