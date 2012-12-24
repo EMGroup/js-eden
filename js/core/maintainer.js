@@ -383,11 +383,11 @@
 			actions_to_fire[observer_name] = this.observers[observer_name];
 		}
 
-		//setTimeout(function() {
+		setTimeout(function() {
 			if (me.context !== undefined) {
 				me.context.notifyGlobals(me,false);
 			}
-		//});
+		});
 	};
 
 	Symbol.prototype.assertNotDependentOn = function (name) {
