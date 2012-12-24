@@ -92,7 +92,7 @@ function tileViews() {
 	views = makeViewArray();
 	views.sort(sortArea);
 	overflow = new Array();
-	spacing = 20;
+	spacing = 50;
 
 	while (totalWidth(views) > ($(document).width() + (spacing * (views.length+1)))) {
 		//Overflow by removing smallest height item.
@@ -142,6 +142,9 @@ function JS_Eden_Initialise(callback) {
 				viewcount = viewcount + 1;
 			}
 		}
+
+		tileViews();
+
 		if (models[0] != "") {
 			for (x in models) {
 				Eden.executeFileSSI(models[x]);
