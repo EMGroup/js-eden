@@ -188,6 +188,10 @@
 	Symbol.prototype.define = function(definition, modifying_agent) {
 		var me = this;
 
+		//Optimise for identical redefines
+		//XXX Assumes definition object is also the same...!!
+		if (definition == this.definition) {return me;}
+
 		// XXX: not sure if we really want to have lastModifiedBy set
 		// in the mutation methods
 		//
