@@ -33,6 +33,8 @@ Eden.plugins.CanvasHTML5 = function(context) {
 			canvas = $("#"+canvasname+"-dialog-canvas");
 		}
 		canvas = canvas.get(0).getContext('2d');
+		//To clear canvas.
+		canvas.width = canvas.width;
 		content = $("#"+canvasname+"-dialog-canvascontent")[0];
 
 		if (picture === undefined) { return; }
@@ -44,7 +46,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 	};
 
 	this.createDialog = function(name,mtitle) {
-		code_entry = $('<div id=\"'+name+'-canvascontent\"></div>');
+		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');
 		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" width=\"550px\" height=\"380px\"></canvas>");
 		code_entry.find(".canvashtml-canvas").on("mousedown",function(e) {
 			pos = $(this).offset();
