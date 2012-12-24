@@ -5,7 +5,7 @@
  */
 Eden.plugins.CanvasHTML5 = function(context) {
 	this.clearCanvas = function(canvasname) {
-		$("#"+canvasname+"-canvascontent > :not(canvas)").each(function() {
+		$("#"+canvasname+"-dialog-canvascontent > :not(canvas)").each(function() {
 			if(/canvas_/.test(this.id)) {
 				this.togarbage = true;
 			}
@@ -13,7 +13,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 	}
 
 	this.cleanupCanvas = function(canvasname) {
-		$("#"+canvasname+"-canvascontent > :not(canvas)").each(function() {
+		$("#"+canvasname+"-dialog-canvascontent > :not(canvas)").each(function() {
 			if (this.togarbage == true) {
 				$(this).remove();
 			}
@@ -22,12 +22,12 @@ Eden.plugins.CanvasHTML5 = function(context) {
 
 	this.drawPicture = function(canvasname, pictureobs) {
 		var picture = context.lookup(pictureobs).value();
-		var canvas = $("#"+canvasname+"-canvas");
+		var canvas = $("#"+canvasname+"-dialog-canvas");
 		if (canvas.length == 0) {
 			//Need to make the canvas view first
 			console.log("Making a new canvas: "+canvasname);
 			eden.createView(canvasname,"CanvasHTML5");
-			canvas = $("#"+canvasname+"-canvas");
+			canvas = $("#"+canvasname+"-dialog-canvas");
 		}
 		canvas = canvas.get(0).getContext('2d');
 
