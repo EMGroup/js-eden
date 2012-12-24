@@ -4,6 +4,8 @@
  * @class CanvasHTML5 Plugin
  */
 Eden.plugins.CanvasHTML5 = function(context) {
+	var me = this;
+
 	var clearCanvas = function(content) {
 		$(":not(canvas)",content).each(function() {
 			//XXX What is this check for??
