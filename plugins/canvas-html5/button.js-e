@@ -1,53 +1,54 @@
 ${{
-Button = function (name, label, x, y, enabled) {
-	this.name = name;
-	this.label = label;
-	this.x = x;
-	this.y = y;
-	this.enabled = enabled;
-}
+
 }}$;
 
 func Button { ${{
-  var name = arguments[0];
-  var label = arguments[1];
-  var x = arguments[2];
-  var y = arguments[3];
-  var enabled = arguments[4];
-  return new Button(name, label, x, y, enabled);
+	var name = arguments[0];
+	var label = arguments[1];
+	var x = arguments[2];
+	var y = arguments[3];
+	var enabled = arguments[4];
+
+	var Button = function (name, label, x, y, enabled) {
+		this.name = name;
+		this.label = label;
+		this.x = x;
+		this.y = y;
+		this.enabled = enabled;
+	};
+
+	Button.prototype.draw = function(context, content) {
+	  var me = "canvas_" + this.name;
+	  var me2 = this.name;
+	  var but = $("#"+me).get(0);
+	  if (but === undefined) {
+		var dis = "";
+		if (this.enabled == true) { dis = ""; }
+		else { dis = "disabled=\"true\""; }
+
+		var can = $(content);
+		var buthtml = $("<input type=\"button\" id=\"" + me + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
+			root.lookup(me2 + "_clicked").assign(true);
+		}).appendTo(can);
+
+		buthtml.get(0).togarbage = false;
+
+		//Initialise
+		root.lookup(me2 + "_clicked").assign(false);
+	  } else {
+		but.value = this.label;
+		but.togarbage = false;
+		if (this.enabled == true) { but.disabled = false; }
+		else { but.disabled = true; }
+		but.style.left = "" + this.x + "px";
+		but.style.top = "" + this.y + "px";
+	  }
+	};
+
+	Button.prototype.toString = function() {
+	  return "Button(" + this.name + ", " + this.label + ", " + this.x + ", "+this.y+", "+this.enabled+")";
+	};
+
+	return new Button(name, label, x, y, enabled);
 }}$; }
 
-${{
-Button.prototype.draw = function(context) {
-  var me = "canvas_" + this.name;
-  var me2 = this.name;
-  var but = $("#"+me).get(0);
-  if (but === undefined) {
-	var dis = "";
-	if (this.enabled == true) { dis = ""; }
-	else { dis = "disabled=\"true\""; }
-
-	var can = $("#eden-content");
-	var buthtml = $("<input type=\"button\" id=\"" + me + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
-		root.lookup(me2 + "_clicked").assign(true);
-	}).appendTo(can);
-
-	buthtml.get(0).togarbage = false;
-
-	//Initialise
-	root.lookup(me2 + "_clicked").assign(false);
-  } else {
-	but.value = this.label;
-	but.togarbage = false;
-	if (this.enabled == true) { but.disabled = false; }
-	else { but.disabled = true; }
-	but.style.left = "" + this.x + "px";
-	but.style.top = "" + this.y + "px";
-  }
-};
-}}$;
-${{
-Button.prototype.toString = function() {
-  return "Button(" + this.name + ", " + this.label + ", " + this.x + ", "+this.y+", "+this.enabled+")";
-};
-}}$;

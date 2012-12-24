@@ -6,9 +6,10 @@
 Eden.plugins.CanvasHTML5 = function(context) {
 	this.clearCanvas = function(canvasname) {
 		$("#"+canvasname+"-dialog-canvascontent > :not(canvas)").each(function() {
-			if(/canvas_/.test(this.id)) {
+			//XXX What is this check for??
+			//if(/canvas_/.test(this.id)) {
 				this.togarbage = true;
-			}
+			//}
 		});
 	}
 
@@ -32,12 +33,13 @@ Eden.plugins.CanvasHTML5 = function(context) {
 			canvas = $("#"+canvasname+"-dialog-canvas");
 		}
 		canvas = canvas.get(0).getContext('2d');
+		content = $("#"+canvasname+"-dialog-canvascontent")[0];
 
 		if (picture === undefined) { return; }
 
 		for (var i = 0; i < picture.length; i++) {
 			if (picture[i] === undefined) { continue; }
-				picture[i].draw(canvas);
+				picture[i].draw(canvas,content);
 		}
 	};
 
