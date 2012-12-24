@@ -4,9 +4,43 @@
  * @class CanvasHTML5 Plugin
  */
 Eden.plugins.CanvasHTML5 = function(context) {
+	this.clearCanvas = function(canvasname) {
+		$("#"+canvasname+"-canvascontent > :not(canvas)").each(function() {
+			if(/canvas_/.test(this.id)) {
+				this.togarbage = true;
+			}
+		});
+	}
+
+	this.cleanupCanvas = function(canvasname) {
+		$("#"+canvasname+"-canvascontent > :not(canvas)").each(function() {
+			if (this.togarbage == true) {
+				$(this).remove();
+			}
+		});
+	}
+
+	this.drawPicture = function(canvasname, pictureobs) {
+		var picture = context.lookup(pictureobs).value();
+		var canvas = $("#"+canvasname+"-canvas").get(0);
+		if (canvas === undefined) {
+			//Need to make the canvas view first
+			eden.createView(canvasname,"CanvasHTML5");
+			canvas = $("#"+canvasname+"-canvas").get(0);
+		}
+		canvas = canvas.getContext('2d');
+
+		if (picture === undefined) { return; }
+
+		for (var i = 0; i < picture.length; i++) {
+			if (picture[i] === undefined) { continue; }
+				picture[i].draw(canvas);
+		}
+	};
+
 	this.createDialog = function(name,mtitle) {
-		code_entry = $('<div id=\"eden-content\"></div>');
-		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+"d1canvas"+"\" width=\"550px\" height=\"380px\"></canvas>");
+		code_entry = $('<div id=\"'+name+'-canvascontent\"></div>');
+		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" width=\"550px\" height=\"380px\"></canvas>");
 		code_entry.find(".canvashtml-canvas").on("mousedown",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
