@@ -32,9 +32,10 @@ Eden.plugins.CanvasHTML5 = function(context) {
 			eden.createView(canvasname,"CanvasHTML5");
 			canvas = $("#"+canvasname+"-dialog-canvas");
 		}
-		canvas = canvas.get(0).getContext('2d');
+		canvas = canvas.get(0);
 		//To clear canvas.
 		canvas.width = canvas.width;
+		canvas = canvas.getContext('2d');
 		content = $("#"+canvasname+"-dialog-canvascontent")[0];
 
 		if (picture === undefined) { return; }
