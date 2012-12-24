@@ -22,13 +22,10 @@ Eden.plugins.CanvasHTML5 = function(context) {
 	}
 
 	this.drawPicture = function(canvasname, pictureobs) {
-		console.log("DrawPicture: " + canvasname);
-
 		var picture = context.context.lookup(pictureobs).value();
 		var canvas = $("#"+canvasname+"-dialog-canvas");
 		if (canvas.length == 0) {
 			//Need to make the canvas view first
-			console.log("Making a new canvas: "+canvasname);
 			eden.createView(canvasname,"CanvasHTML5");
 			canvas = $("#"+canvasname+"-dialog-canvas");
 		}
@@ -85,7 +82,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 				minWidth: 230,
 				resizeStop: function(event,ui) {
 					console.log(ui.size);
-					$("#d1canvas").attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
+					$("#"+name+"-canvas").attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
 
 					//Now need to redraw the canvas.
 					//TODO: Dont use eden
