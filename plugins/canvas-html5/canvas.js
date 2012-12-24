@@ -24,6 +24,8 @@ Eden.plugins.CanvasHTML5 = function(context) {
 	var canvases = {};
 	var contents = {};
 
+	this.delay = 50;
+
 	this.drawPicture = function(canvasname, pictureobs) {
 		var canvas = canvases[canvasname];
 		if (canvas === undefined) {
@@ -57,7 +59,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 			}
 
 			cleanupCanvas(content);
-		},50);
+		},me.delay);
 		}
 	};
 

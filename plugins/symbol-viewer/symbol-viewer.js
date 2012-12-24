@@ -343,30 +343,64 @@ Eden.plugins.SymbolViewer = function(context) {
 		return me.createDialog(name,mtitle,"all");
 	}
 
-	/**
-	 * Called every time a symbol is changed or created. Then proceeds to
-	 * update all visible symbol lists.
-	 */
-	var symbolChanged = function(sym, create) {
-		name = sym.name.substr(1);
+	var symbol_update_queue = {};
+	var symbol_create_queue = {};
+	var sym_update_to = false;
+
+	this.delay = 30;
+
+	var sym_changed_to = function() {
 
 		//For every viewer
 		for (x in me.instances) {
-			if (create) {
-				var reg = new RegExp("^"+me.instances[x].pattern+".*");
+			var reg = new RegExp("^"+me.instances[x].pattern+".*");
+			var symresults = $(me.instances[x]).find(".symbollist-results");
+
+			symresults.detach();
+
+			for (var name in symbol_create_queue) {
+				var sym = symbol_create_queue[name];
 				if (shouldAdd(reg,name)) {
-					var symresults = $(me.instances[x]).find(".symbollist-results");
 					addSymbol(symresults, sym, name, me.instances[x].symboltype);
 				}
-			} else {
-			
+			}
+
+			var oldsymres = symresults;
+			symresults = symresults[0];
+
+			for (var name in symbol_update_queue) {			
 				//If that viewer is showing this symbol
-				var symresults = $(me.instances[x]).find(".symbollist-results")[0];
+				var sym = symbol_update_queue[name];
+				
 				if (symresults.symbols[name] !== undefined) {
 					//Make sure it gets updated.
 					updateSymbol(symresults.symbols[name], sym, name);
 				}
 			}
+
+			oldsymres.appendTo(me.instances[x]);
+		}
+		symbol_update_queue = {};
+		symbol_create_queue = {};
+		sym_update_to = false;
+	}
+
+	/**
+	 * Called every time a symbol is changed or created. Then proceeds to
+	 * update all visible symbol lists.
+	 */
+	var symbolChanged = function(sym, create) {
+		var name = sym.name.substr(1);
+
+		if (create) {
+			symbol_create_queue[name] = sym;
+		} else {
+			symbol_update_queue[name] = sym;
+		}
+
+		if (!sym_update_to) {
+			sym_update_to = true;
+			setTimeout(sym_changed_to,me.delay);
 		}
 	}
 
