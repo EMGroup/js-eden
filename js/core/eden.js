@@ -85,28 +85,42 @@ Eden.executeFile = function (path) {
 	});
 };
 
+Eden.loadqueue = new Array();
+
 /*
- * synchronously loads an EDEN file from the server,
+ * Async loads an EDEN file from the server,
  * translates it to JavaScript then evals it when it's done.
  * This variation performs a server side include of all sub-scripts. It is also
  * possible to use this version across domains to load scripts on other servers.
  */
 Eden.executeFileSSI = function (path) {
-	$.ajax({
-		url: "/ssijse.rb?script="+path,
-		dataType: 'text',
-		type: 'GET',
-		success: function(data) {
-			try {
-				eval(Eden.translateToJavaScript(data));
-			} catch (e) {
-				Eden.reportError(e, {path: path});
-				console.error(e);
-			}
-		},
-		cache: false,
-		async: true
-	});
+	var ajaxfunc = function(path2) {
+		$.ajax({
+			url: "/ssijse.rb?script="+path2,
+			dataType: 'text',
+			type: 'GET',
+			success: function(data) {
+				try {
+					eval(Eden.translateToJavaScript(data));
+				} catch (e) {
+					Eden.reportError(e, {path: path2});
+					console.error(e);
+				}
+
+				if (Eden.loadqueue.length > 0) {
+					ajaxfunc(Eden.loadqueue.pop());
+				}
+			},
+			cache: false,
+			async: true
+		});
+	};
+
+	if (Eden.loadqueue.length == 0) {
+		ajaxfunc(path);
+	} else {
+		Eden.loadqueue.unshift(path);
+	}
 };
 
 Eden.execute = function(code) {
