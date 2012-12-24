@@ -81,8 +81,6 @@ Eden.plugins.InputWindow = function(context) {
 		
 			eval(Eden.translateToJavaScript(myvalue));
 			editor.setValue("");
-			//TODO: This should be somewhere else.
-			printAllUpdates();
 		} catch (e) {
 			//var contents = $('#history-'+this.history.length).html();
 			//$('#history-'+eden.history.length).attr('class','history-error').html('## '+contents);

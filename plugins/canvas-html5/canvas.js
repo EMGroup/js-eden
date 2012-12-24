@@ -21,7 +21,9 @@ Eden.plugins.CanvasHTML5 = function(context) {
 	}
 
 	this.drawPicture = function(canvasname, pictureobs) {
-		var picture = context.lookup(pictureobs).value();
+		console.log("DrawPicture: " + canvasname);
+
+		var picture = context.context.lookup(pictureobs).value();
 		var canvas = $("#"+canvasname+"-dialog-canvas");
 		if (canvas.length == 0) {
 			//Need to make the canvas view first
