@@ -26,7 +26,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 	var canvases = {};
 	var contents = {};
 
-	this.delay = 50;
+	this.delay = 40;
 
 	this.drawPicture = function(canvasname, pictureobs) {
 		var canvas = canvases[canvasname];

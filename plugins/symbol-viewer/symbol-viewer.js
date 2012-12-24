@@ -347,7 +347,7 @@ Eden.plugins.SymbolViewer = function(context) {
 	var symbol_create_queue = {};
 	var sym_update_to = false;
 
-	this.delay = 30;
+	this.delay = 100;
 
 	var sym_changed_to = function() {
 
