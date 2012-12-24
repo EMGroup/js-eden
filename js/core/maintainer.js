@@ -248,9 +248,6 @@
 	Symbol.prototype.assign = function(value, modifying_agent) {
 		var me = this;
 
-		//Does this speed things up without breaking anything?
-		if (this.cached_value == value) { return me; }
-
 		// XXX: not sure if we really want to have last_modified_by set
 		// in the mutation methods
 		this._setLastModifiedBy(modifying_agent);
