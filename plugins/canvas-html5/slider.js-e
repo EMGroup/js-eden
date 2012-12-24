@@ -24,7 +24,7 @@ func Slider { ${{
 }}$; }
 
 ${{
-Slider.prototype.draw = function(context) {
+Slider.prototype.draw = function(context,content) {
   var me = "canvas_" + this.name;
   var me2 = this.name;
   var sli = $("#"+me).get(0);
@@ -36,7 +36,7 @@ Slider.prototype.draw = function(context) {
   var orientation = this.orientation;
 
   if (sli === undefined) {
-    var can = $("#eden-content");
+    var can = $(content);
     var slihtml = $('<div id="'+me+'" style="position: absolute; left: '+ this.x +'px; top: '+ this.y +'px;"><label for="'+me+'-amount">'+this.name+':</label><input type="text" id="'+me+'-amount" style="border:0; color:#f6931f; font-weight:bold;" /><div id="'+me+'-slider-range"></div></div>').appendTo(can);
 
     $(function() {

@@ -22,7 +22,7 @@ func Div { ${{
 }}$; }
 
 ${{
-Div.prototype.draw = function(context) {
+Div.prototype.draw = function(context,content) {
   var me = "canvas_" + this.name;
   var me2 = this.name;
   var but = $("#"+me).get(0);
@@ -32,7 +32,7 @@ Div.prototype.draw = function(context) {
 	if (this.enabled == true) { dis = ""; }
 	else { dis = "disabled=\"true\""; }
 
-	var can = $("#eden-content");
+	var can = $(content);
 	var divstyle = "position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;";
 	if (this.style !== undefined) {
 		divstyle = divstyle + this.style;

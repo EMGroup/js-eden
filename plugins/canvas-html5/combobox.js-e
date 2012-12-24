@@ -26,7 +26,7 @@ func Combobox { ${{
 }}$; }
 
 ${{
-Combobox.prototype.draw = function(context) {
+Combobox.prototype.draw = function(context,content) {
   var me = "canvas_" + this.name;
   var me2 = this.name;
   var box = $("#"+me).get(0);
@@ -35,7 +35,7 @@ Combobox.prototype.draw = function(context) {
 	if (this.enabled == true) { dis = ""; }
 	else { dis = "disabled=\"true\""; }
 
-	var can = $("#eden-content");
+	var can = $(content);
 	var boxhtml = $("<select id=\"" + me + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
 
 	boxhtml.html(makeoptionshtml(this.options));

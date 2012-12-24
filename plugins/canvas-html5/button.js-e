@@ -1,7 +1,3 @@
-${{
-
-}}$;
-
 func Button { ${{
 	var name = arguments[0];
 	var label = arguments[1];
