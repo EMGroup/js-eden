@@ -2,7 +2,7 @@ func CanvasHTML5_DrawPicture {
 	${{
 	var canvas = arguments[0];
 	var picture = arguments[1];
-	setTimeout(function(){eden.plugins.CanvasHTML5.drawPicture(canvas,picture);},0);
+	eden.plugins.CanvasHTML5.drawPicture(canvas,picture);
 	}}$;
 };
 

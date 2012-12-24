@@ -25,8 +25,6 @@ Eden.plugins.CanvasHTML5 = function(context) {
 	var contents = {};
 
 	this.drawPicture = function(canvasname, pictureobs) {
-		var picture = context.context.lookup(pictureobs).value();
-		//var canvas = $("#"+canvasname+"-dialog-canvas");
 		var canvas = canvases[canvasname];
 		if (canvas === undefined) {
 			//Need to make the canvas view first
@@ -35,23 +33,32 @@ Eden.plugins.CanvasHTML5 = function(context) {
 			canvases[canvasname] = $("#"+canvasname+"-dialog-canvas")[0];
 			contents[canvasname] = $("#"+canvasname+"-dialog-canvascontent")[0];
 			canvas = canvases[canvasname];
+			canvas.drawing = false;
 		}
 
-		//To clear canvas.
-		canvas.width = canvas.width;
-		canvas = canvas.getContext('2d');
-		var content = contents[canvasname];
+		if (!canvas.drawing) {
+		canvas.drawing = true;
+		setTimeout(function(){
+			canvas.drawing = false;
+			var picture = context.context.lookup(pictureobs).value();
 
-		clearCanvas(content);
+			//To clear canvas.
+			canvas.width = canvas.width;
+			canvas = canvas.getContext('2d');
+			var content = contents[canvasname];
 
-		if (picture === undefined) { return; }
+			clearCanvas(content);
 
-		for (var i = 0; i < picture.length; i++) {
-			if (picture[i] === undefined) { continue; }
-			picture[i].draw(canvas,content);
+			if (picture === undefined) { return; }
+
+			for (var i = 0; i < picture.length; i++) {
+				if (picture[i] === undefined) { continue; }
+				picture[i].draw(canvas,content);
+			}
+
+			cleanupCanvas(content);
+		},50);
 		}
-
-		cleanupCanvas(content);
 	};
 
 	this.createDialog = function(name,mtitle) {
