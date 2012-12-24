@@ -83,7 +83,7 @@ function placeViews(views,top,spacing) {
 	left = spacing;
 	for (x in views) {
 		$(views[x]).dialog("option","position",[left,top]);
-		left = $(views[x]).dialog("option","width")+spacing;
+		left = left + $(views[x]).dialog("option","width") + spacing;
 	}
 	return top + heighest + spacing;
 }
