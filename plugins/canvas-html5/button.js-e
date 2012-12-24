@@ -4,19 +4,23 @@ func Button { ${{
 	var x = arguments[2];
 	var y = arguments[3];
 	var enabled = arguments[4];
+	return new Button(name, label, x, y, enabled);
+}}$; };
 
+${{
 	var Button = function (name, label, x, y, enabled) {
 		this.name = name;
 		this.label = label;
 		this.x = x;
 		this.y = y;
 		this.enabled = enabled;
+		this.element = undefined;
 	};
 
 	Button.prototype.draw = function(context, content) {
 	  var me = "canvas_" + this.name;
 	  var me2 = this.name;
-	  var but = $("#"+me,content).get(0);
+	  var but = this.element;
 
 	  if (but === undefined) {
 		var dis = "";
@@ -28,7 +32,9 @@ func Button { ${{
 			root.lookup(me2 + "_clicked").assign(true);
 		}).appendTo(can);
 
-		buthtml.get(0).togarbage = false;
+		but = buthtml.get(0);
+		this.element = but;
+		but.togarbage = false;
 
 		//Initialise
 		root.lookup(me2 + "_clicked").assign(false);
@@ -37,6 +43,7 @@ func Button { ${{
 		but.togarbage = false;
 		if (this.enabled == true) { but.disabled = false; }
 		else { but.disabled = true; }
+		//XXX This might have a performance hit...
 		but.style.left = "" + this.x + "px";
 		but.style.top = "" + this.y + "px";
 	  }
@@ -45,7 +52,5 @@ func Button { ${{
 	Button.prototype.toString = function() {
 	  return "Button(" + this.name + ", " + this.label + ", " + this.x + ", "+this.y+", "+this.enabled+")";
 	};
-
-	return new Button(name, label, x, y, enabled);
-}}$; }
+}}$;
 
