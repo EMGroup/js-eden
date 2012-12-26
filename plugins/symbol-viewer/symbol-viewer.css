@@ -35,6 +35,7 @@ li.type-session {
 	padding-right: 15px;
 	margin-bottom: 2px;
 	font-size: 10pt;
+	white-space: nowrap;
 }
 
 .symbollist-search-box-outer {
