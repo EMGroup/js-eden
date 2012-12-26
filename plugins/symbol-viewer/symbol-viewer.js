@@ -213,7 +213,7 @@ Eden.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function(symbol, name
 		} else if (subs == "func") {
 			type = "function";
 		} else {
-			type = "observable;
+			type = "observable";
 		}
 	}
 
