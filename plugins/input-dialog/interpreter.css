@@ -8,3 +8,7 @@
 	border-bottom-color: #eaeaea;
 	margin-bottom: 10px;
 }
+
+.error {
+	color: red;
+}

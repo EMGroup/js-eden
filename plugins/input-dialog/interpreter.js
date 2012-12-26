@@ -65,13 +65,15 @@ Eden.plugins.InputWindow = function(context) {
 		options.editor.setValue(nextHistory());
 	}
 
+	var historydialog = undefined;
+
 	/** @private */
 	var submitEdenCode = function(options) {
 		var editor = options.editor;
 		var edenparser = options.edenparser;
+		addHistory(editor.getValue());
 		try {
 			var myvalue;
-			addHistory(editor.getValue());
 		
 			if (edenparser !== undefined) {
 				//Parse special notation to eden
@@ -82,10 +84,12 @@ Eden.plugins.InputWindow = function(context) {
 			eval(Eden.translateToJavaScript(myvalue));
 			editor.setValue("");
 		} catch (e) {
-			//var contents = $('#history-'+this.history.length).html();
-			//$('#history-'+eden.history.length).attr('class','history-error').html('## '+contents);
-			//TODO: Add error to history entry
+			me.history[index-1].error = e;
 			Eden.reportError(e);
+		}
+
+		if (historydialog !== undefined) {
+			historydialog.html(generateHistory());
 		}
 	}
 
@@ -142,14 +146,18 @@ Eden.plugins.InputWindow = function(context) {
 	var generateHistory = function() {
 		result = "";
 		for (var i=0; i<me.history.length; i++) {
-			result = result + "<div class=\"inputwindow-history-line\">" + me.history[i].input + "</div>";
+			var theclass = "inputwindow-history-line";
+			if (me.history[i].error !== undefined) {
+				theclass = theclass + " error";
+			}
+			result = result + "<div class=\""+theclass+"\">" + me.history[i].input + "</div>";
 		}
 		return result;
 	}
 
 	this.createHistory = function(name,mtitle) {
-		$dialog = $('<div id="'+name+'"></div>')
-			.html(generateHistory())
+		historydialog = $('<div id="'+name+'"></div>')
+			.html("<div class=\"history\">"+generateHistory()+"</div>")
 			.dialog({
 				title: mtitle,
 				width: 600,
@@ -166,7 +174,7 @@ Eden.plugins.InputWindow = function(context) {
 						}
 					}
 				]
-			});
+			}).find(".history");
 	}
 
 	/** @public */
