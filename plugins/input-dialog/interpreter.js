@@ -139,6 +139,36 @@ Eden.plugins.InputWindow = function(context) {
 
 	}
 
+	var generateHistory = function() {
+		result = "";
+		for (var i=0; i<me.history.length; i++) {
+			result = result + "<div class=\"inputwindow-history-line\">" + me.history[i].input + "</div>";
+		}
+		return result;
+	}
+
+	this.createHistory = function(name,mtitle) {
+		$dialog = $('<div id="'+name+'"></div>')
+			.html(generateHistory())
+			.dialog({
+				title: mtitle,
+				width: 600,
+				height: 400,
+				minHeight: 200,
+				minWidth: 400,
+				//position: ['right','bottom'],
+
+				buttons: [
+					{
+						text: "Save",
+						click: function() {
+							//loadNextEdenCode({editor: myeditor});
+						}
+					}
+				]
+			});
+	}
+
 	/** @public */
 	this.createDialog = function(name, mtitle, edenparser) {
 		var myeditor;
@@ -194,6 +224,10 @@ Eden.plugins.InputWindow = function(context) {
 		dialog: this.createDialog,
 		embed: this.createEmbedded,
 		title: "JS-Eden Input Window"
+	};
+	context.views.History = {
+		dialog: this.createHistory,
+		title: "Input History"
 	};
 	//Make history available in the main context.
 	context.history = this.history;

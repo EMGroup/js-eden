@@ -11,6 +11,7 @@ scripts = [
 	"../plugins/menu-bar/menu-bar.css",
 	"../plugins/symbol-viewer/symbol-viewer.css",
 	"../plugins/canvas-html5/canvas.css",
+	"../plugins/input-dialog/interpreter.css",
 ]
 
 scripts.each do |x|

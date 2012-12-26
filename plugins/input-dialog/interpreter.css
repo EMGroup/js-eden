@@ -1,0 +1,10 @@
+.inputwindow-history-line {
+	font-family: 'Courier New';
+	font-size: 10pt;
+	color: black;
+	width: 100%;
+	border-bottom-style: solid;
+	border-bottom-width: 1px;
+	border-bottom-color: #eaeaea;
+	margin-bottom: 10px;
+}
