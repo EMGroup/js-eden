@@ -34,7 +34,7 @@ Eden.plugins.SymbolViewer = function(context) {
 
 	/** @private */
 	var generateHTML = function() {
-		return "<div class=\"search-box-outer\">\
+		return "<div class=\"symbollist-search-box-outer\">\
 			<div class=\"symbollist-search-icon\"></div>\
 			<input type=\"text\" class=\"symbollist-search\"></input>\
 			<div class=\"symbollist-config-icon\"></div>\
@@ -71,7 +71,7 @@ Eden.plugins.SymbolViewer = function(context) {
 		symbollist.search("");
 
 		//Make changes in search box update the list.
-		code_entry.find(".search-box-outer > .symbollist-search").keyup(function() {
+		code_entry.find(".symbollist-search-box-outer > .symbollist-search").keyup(function() {
 			symbollist.search(this.value);
 		});
 	}

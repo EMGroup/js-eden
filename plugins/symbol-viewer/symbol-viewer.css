@@ -37,7 +37,15 @@ li.type-session {
 	font-size: 10pt;
 }
 
-.projectlist-search {
+.symbollist-search-box-outer {
+	margin: 15px;
+	position: relative;
+	height: 24px;
+	margin-bottom: 20px;
+	font-size: 10pt;
+}
+
+.symbollist-search {
 	/*position: absolute;
 	left: 0px;
 	top: 0px;*/
