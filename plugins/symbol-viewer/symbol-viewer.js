@@ -57,6 +57,7 @@ Eden.plugins.SymbolViewer = function(context) {
 			});
 
 		me.instances.push(symbollist);
+		symbollist.search("");
 
 		code_entry.find(".search-box-outer > .symbollist-search").keyup(function() {
 			symbollist.search(this.value);
@@ -102,8 +103,9 @@ Eden.plugins.SymbolViewer = function(context) {
 			var instance = me.instances[x];
 			
 			//Remove symbol list from DOM to speed up manipulations
-			var parent = instance.symresults.parent();
-			$(instance.symresults).detach();
+			var symresults = $(instance.symresults);
+			var parent = symresults.parent();
+			symresults.detach();
 
 			//For every recently created symbol
 			for (var name in symbol_create_queue) {
@@ -117,7 +119,7 @@ Eden.plugins.SymbolViewer = function(context) {
 			}
 
 			//Add symbol list back into the DOM for display.
-			$(instance.symresults).appendTo(parent);
+			symresults.appendTo(parent);
 		}
 
 		symbol_update_queue = {};
