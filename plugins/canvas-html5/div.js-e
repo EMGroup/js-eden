@@ -7,6 +7,7 @@ Div = function (name, x, y, width, height, html, style) {
 	this.height = height;
 	this.html = html;
 	this.style = style;
+	this.element = undefined;
 }
 }}$;
 
@@ -25,7 +26,7 @@ ${{
 Div.prototype.draw = function(context,content) {
   var me = "canvas_" + this.name;
   var me2 = this.name;
-  var but = $("#"+me).get(0);
+  var but = this.element;
 
   if (but === undefined) {
 	var dis = "";
@@ -44,6 +45,7 @@ Div.prototype.draw = function(context,content) {
 	//}).appendTo(can);
 
 	buthtml.get(0).togarbage = false;
+	this.element = buthtml.get(0);
 
 	//Initialise
 	//root.lookup(me2 + "_clicked").assign(false);

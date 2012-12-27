@@ -1,0 +1,6 @@
+func status {
+	${{
+	var text = arguments[0];
+	eden.plugins.MenuBar.updateStatus(text);
+	}}$;
+}

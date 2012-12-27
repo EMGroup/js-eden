@@ -136,6 +136,8 @@ Eden.plugins.MenuBar = function(context) {
 
 	this.updatePluginsMenu();
 	this.updateViewsMenu();
+
+	Eden.executeFileSSI("plugins/menu-bar/menu-bar.js-e");
 };
 
 Eden.plugins.MenuBar.title = "Menu Bar";

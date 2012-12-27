@@ -93,7 +93,6 @@ autocalc = 1;
 include("library/core.js-e");
 include("library/drawing.jse");
 include("library/maths.jse");
-include("library/pagemeta.jse");
 include("library/algebra.jse");
 include("library/include_js.js-e");
 include("library/declarevar.js-e");
