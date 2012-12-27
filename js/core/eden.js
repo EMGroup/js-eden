@@ -111,7 +111,7 @@ Eden.executeFileSSI = function (path) {
 					}
 					eval(Eden.translateToJavaScript(data));
 					if (eden.plugins.MenuBar) {
-						eden.plugins.MenuBar.updateStatus("Parsing "+path2+"... complete");
+						eden.plugins.MenuBar.appendStatus(" [complete]");
 					}
 				} catch (e) {
 					Eden.reportError(e, {path: path2});

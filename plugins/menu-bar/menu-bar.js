@@ -21,6 +21,10 @@ Eden.plugins.MenuBar = function(context) {
 		menustatus.html(text);
 	}
 
+	this.appendStatus = function(text) {
+		menustatus.html(menustatus.html()+text);
+	}
+
 	/** @private */
 	var addMainItem = function(name, title) {
 		var menuitem = $("<div class=\"menubar-mainitem\"></div>");
@@ -117,6 +121,15 @@ Eden.plugins.MenuBar = function(context) {
 
 	addMenuItem("jseden","Error Log", function() {
 		$('#error-window').dialog("open");
+	});
+	addMenuItem("help","Eden Syntax", function() {
+		
+	});
+	addMenuItem("help","Javascript Internals", function() {
+		
+	});
+	addMenuItem("help","About", function() {
+		
 	});
 
 	//Put js-eden version in right corner

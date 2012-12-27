@@ -11,6 +11,10 @@ Eden.prototype.loadPlugin = function(name) {
 	//If not already loaded then load.
 	if (this.plugins[name] === undefined) {
 		this.plugins[name] = new Eden.plugins[name](this);
+
+		if (this.plugins.MenuBar) {
+			this.plugins.MenuBar.updatePluginsMenu();
+		}
 	}
 };
 
@@ -26,6 +30,9 @@ Eden.prototype.createView = function(name, type) {
 
 	this.views[type].dialog(name+"-dialog", this.views[type].title + " ["+name+"]");
 	this.active_dialogs[name] = type;
+	if (this.plugins.MenuBar) {
+		this.plugins.MenuBar.updateViewsMenu();
+	}
 };
 
 Eden.prototype.showView = function(name) {
