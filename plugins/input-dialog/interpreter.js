@@ -94,7 +94,7 @@ Eden.plugins.InputWindow = function(context) {
 		}
 
 		if (eden.plugins.MenuBar) {
-			eden.plugins.MenuBar.updateStatus("Parsing input... complete");
+			eden.plugins.MenuBar.appendStatus(" [complete]");
 		}
 
 		if (historydialog !== undefined) {
