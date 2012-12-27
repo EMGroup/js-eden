@@ -149,9 +149,9 @@ function JS_Eden_Initialise(callback) {
 			}
 		}
 
+		callback();
+
 		//Layout the dialogs as best as we can
 		tileViews();
-
-		callback();
 	});
 }
