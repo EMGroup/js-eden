@@ -8,6 +8,7 @@ function Eden(context) {
 	this.history = new Array();
 	this.index = 0;
 	this.errornumber = 0;
+	this.plugins = {};
 }
 
 modelbase = "";
