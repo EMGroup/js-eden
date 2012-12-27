@@ -12,7 +12,7 @@
 	padding-left: 15px;
 	padding-right: 15px;
 	margin-bottom: 2px;
-	font-size: 10pt;
+	font-size: 8pt;
 	background-color: #eaeaea;
 }
 
@@ -57,7 +57,7 @@ span.projectlist-result_name {
 	vertical-align: 4px;
 	font-family: "Arial";
 	font-weight: bold;
-	font-size: 12pt;
+	font-size: 10pt;
 }
 
 span.projectlist-result_value {

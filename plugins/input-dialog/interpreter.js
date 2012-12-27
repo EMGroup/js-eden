@@ -181,7 +181,7 @@ Eden.plugins.InputWindow = function(context) {
 	this.createDialog = function(name, mtitle, edenparser) {
 		var myeditor;
 
-		$code_entry = $('<div id="'+name+'-input"><div></div><pre class="eden exec"></pre></div>');
+		$code_entry = $('<div id="'+name+'-input" class=\"inputwindow-code\"><div></div><pre class="eden exec"></pre></div>');
 		$dialog = $('<div id="'+name+'"></div>')
 			.html($code_entry)
 			.dialog({
