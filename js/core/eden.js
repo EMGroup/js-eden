@@ -107,11 +107,11 @@ Eden.executeFileSSI = function (path) {
 			success: function(data) {
 				try {
 					if (eden.plugins.MenuBar) {
-						eden.plugins.MenuBar.updateStatus("Parsing script...");
+						eden.plugins.MenuBar.updateStatus("Parsing "+path2+"...");
 					}
 					eval(Eden.translateToJavaScript(data));
 					if (eden.plugins.MenuBar) {
-						eden.plugins.MenuBar.updateStatus("Parsing script... complete");
+						eden.plugins.MenuBar.updateStatus("Parsing "+path2+"... complete");
 					}
 				} catch (e) {
 					Eden.reportError(e, {path: path2});
@@ -121,7 +121,7 @@ Eden.executeFileSSI = function (path) {
 				if (Eden.loadqueue.length > 0) {
 					var pathtoload = Eden.loadqueue.pop();
 					if (eden.plugins.MenuBar) {
-						eden.plugins.MenuBar.updateStatus("Loading - "+pathtoload);
+						eden.plugins.MenuBar.updateStatus("Loading "+pathtoload);
 					}
 					ajaxfunc(pathtoload);
 				}

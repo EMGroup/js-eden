@@ -74,7 +74,7 @@ Eden.plugins.InputWindow = function(context) {
 		addHistory(editor.getValue());
 
 		if (eden.plugins.MenuBar) {
-			eden.plugins.MenuBar.updateStatus("Parsing script...");
+			eden.plugins.MenuBar.updateStatus("Parsing input...");
 		}
 
 		try {
@@ -94,7 +94,7 @@ Eden.plugins.InputWindow = function(context) {
 		}
 
 		if (eden.plugins.MenuBar) {
-			eden.plugins.MenuBar.updateStatus("Parsing script... complete");
+			eden.plugins.MenuBar.updateStatus("Parsing input... complete");
 		}
 
 		if (historydialog !== undefined) {
