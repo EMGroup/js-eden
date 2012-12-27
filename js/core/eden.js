@@ -9,9 +9,20 @@ function Eden(context) {
 	this.index = 0;
 	this.errornumber = 0;
 	this.plugins = {};
+	this.internals = {};
 }
 
 modelbase = "";
+
+Eden.prototype.internal = function(name) {
+	this.internals.__defineGetter__(name, function(){
+        return (root.lookup(name)).value();
+    });
+    
+    this.internals.__defineSetter__(name, function(val){
+        root.lookup(name).assign(val);
+    });
+}
 
 
 //Eden.prototype.addHistory = function(data) {

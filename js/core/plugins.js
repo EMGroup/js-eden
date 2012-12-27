@@ -34,10 +34,11 @@ Eden.prototype.createView = function(name, type) {
 		this.plugins.MenuBar.updateViewsMenu();
 	}
 
+	this.internal("_view_"+name+"_x");
+	this.internal("_view_"+name+"_y");
+
 	//Now construct eden agents and observables for dialog control.
-	Eden.execute("_view_"+name+"_x = "+$("#"+name+"-dialog").dialog("option","position").left+";");
-	Eden.execute("_view_"+name+"_y = "+$("#"+name+"-dialog").dialog("option","position").top+";");
-	Eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ var x = root.lookup(\"_view_"+name+"_x\").value(); var y = root.lookup(\"_view_"+name+"_y\").value(); eden.moveView("+name+",x,y); }}$; };");
+	Eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ eden.moveView(\""+name+"\"); }}$; };");
 };
 
 Eden.prototype.showView = function(name) {
@@ -48,8 +49,8 @@ Eden.prototype.hideView = function(name) {
 	$("#"+name+"-dialog").dialog("close");
 }
 
-Eden.prototype.moveView = function(name, x,y) {
-	$("#"+name+"-dialog").dialog("option","position",[x,y]);
+Eden.prototype.moveView = function(name) {
+	$("#"+name+"-dialog").dialog("option","position",[this.internals["_view_"+name+"_x"],this.internals["_view_"+name+"_y"]]);
 }
 
 Eden.prototype.resizeView = function(name, x,y) {
