@@ -58,6 +58,9 @@ Eden.formatError = function (e, options) {
 };
 
 Eden.reportError = function (e, options) {
+	if (eden.plugins.MenuBar) {
+		eden.plugins.MenuBar.updateStatus("Error: "+e.message);
+	}
 	$('#error-window')
 		.addClass('ui-state-error')
 		.prepend(Eden.formatError(e, options))
@@ -108,7 +111,7 @@ Eden.executeFileSSI = function (path) {
 					}
 					eval(Eden.translateToJavaScript(data));
 					if (eden.plugins.MenuBar) {
-						eden.plugins.MenuBar.updateStatus("Complete");
+						eden.plugins.MenuBar.updateStatus("Parsing script... complete");
 					}
 				} catch (e) {
 					Eden.reportError(e, {path: path2});

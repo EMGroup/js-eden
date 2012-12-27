@@ -34,6 +34,7 @@
 	float: left;
 	width: 60px;
 	cursor: pointer;
+	z-index: 2;
 }
 
 .menubar-item {
@@ -66,7 +67,6 @@
 	position: absolute;
 	left: 0px;
 	right: 0px;
-	z-index: 2;
 	text-align: center;
 	padding-top: 4px;
 	color: #e0e0e0;
