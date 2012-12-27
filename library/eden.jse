@@ -29,13 +29,10 @@ func time {
 func writeln {
   ${{
   var t = arguments[0];
-  //if (typeof(t) == "string") {
-	//t = t.replace(/\n/g,'<br>');
-  //}
   console.log(t);
-  //var content = $("#tty-content");
-  //content.html(content.html()+t+"<br>");
-  //content.get(0).scrollTop = content.get(0).scrollHeight;
+	if (eden.plugins.MenuBar) {
+		eden.plugins.MenuBar.updateStatus("Output: "+t);
+	}
   }}$;
 };
 
