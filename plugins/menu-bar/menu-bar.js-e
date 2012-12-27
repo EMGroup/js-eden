@@ -1,6 +1,8 @@
-func status {
+_status = "";
+
+proc _MenuBar_Status : _status {
 	${{
-	var text = arguments[0];
+	var text = root.lookup("_status").value();
 	eden.plugins.MenuBar.updateStatus(text);
 	}}$;
-}
+};

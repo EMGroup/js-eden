@@ -81,7 +81,7 @@ Eden.plugins.MenuBar = function(context) {
 			viewentry.appendTo(views);
 			viewentry.bind("click",function() {
 				//console.log("Create and Show View: "+ this.view);
-				context.createView("view-"+index, this.view);
+				context.createView("view_"+index, this.view);
 				context.showView("view"+index);
 				index = index + 1;
 				me.updateViewsMenu();

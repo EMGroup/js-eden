@@ -33,6 +33,11 @@ Eden.prototype.createView = function(name, type) {
 	if (this.plugins.MenuBar) {
 		this.plugins.MenuBar.updateViewsMenu();
 	}
+
+	//Now construct eden agents and observables for dialog control.
+	Eden.execute("_view_"+name+"_x = "+$("#"+name+"-dialog").dialog("option","position").left+";");
+	Eden.execute("_view_"+name+"_y = "+$("#"+name+"-dialog").dialog("option","position").top+";");
+	Eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ var x = root.lookup(\"_view_"+name+"_x\").value(); var y = root.lookup(\"_view_"+name+"_y\").value(); eden.moveView("+name+",x,y); }}$; };");
 };
 
 Eden.prototype.showView = function(name) {

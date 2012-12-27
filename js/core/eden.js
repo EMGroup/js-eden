@@ -147,7 +147,7 @@ Eden.execute = function(code) {
 	} catch(e) {
 		Eden.reportError(e);
 		//$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\"># ERROR number " + eden.errornumber + ":<br># Execute<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
-				eden.errornumber = eden.errornumber + 1;
+		//eden.errornumber = eden.errornumber + 1;
 	}
 }
 
