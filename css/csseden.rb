@@ -5,7 +5,7 @@ puts "Content-type: text/css\n\n"
 scripts = [
 	"header.css",
 	"jseden.css",
-	"jquery-ui-1.9.2.smoothness.css",
+	"jquery-ui-1.9.2.smoothness.min.css",
 	"eden.css",
 	"../plugins/project-listing/project-listing.css",
 	"../plugins/menu-bar/menu-bar.css",
