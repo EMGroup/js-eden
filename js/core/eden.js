@@ -102,14 +102,24 @@ Eden.executeFileSSI = function (path) {
 			type: 'GET',
 			success: function(data) {
 				try {
+					if (eden.plugins.MenuBar) {
+						eden.plugins.MenuBar.updateStatus("Parsing script...");
+					}
 					eval(Eden.translateToJavaScript(data));
+					if (eden.plugins.MenuBar) {
+						eden.plugins.MenuBar.updateStatus("Complete");
+					}
 				} catch (e) {
 					Eden.reportError(e, {path: path2});
 					console.error(e);
 				}
 
 				if (Eden.loadqueue.length > 0) {
-					ajaxfunc(Eden.loadqueue.pop());
+					var pathtoload = Eden.loadqueue.pop();
+					if (eden.plugins.MenuBar) {
+						eden.plugins.MenuBar.updateStatus("Loading - "+pathtoload);
+					}
+					ajaxfunc(pathtoload);
 				}
 			},
 			cache: false,
@@ -118,6 +128,9 @@ Eden.executeFileSSI = function (path) {
 	};
 
 	if (Eden.loadqueue.length == 0) {
+		if (eden.plugins.MenuBar) {
+			eden.plugins.MenuBar.updateStatus("Loading - "+path);
+		}
 		ajaxfunc(path);
 	} else {
 		Eden.loadqueue.unshift(path);
