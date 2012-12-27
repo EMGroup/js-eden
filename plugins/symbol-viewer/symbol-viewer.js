@@ -191,6 +191,8 @@ Eden.plugins.SymbolViewer = function(context) {
 	context.views["FunctionList"] = {dialog: this.createFunctionDialog, title: "Function List"};
 	context.views["AgentList"] = {dialog: this.createAgentDialog, title: "Agent List"};
 	context.views["SymbolList"] = {dialog: this.createSymbolDialog, title: "Symbol List"};
+
+	$(document).tooltip();
 };
 
 /* Plugin meta information */
@@ -395,7 +397,9 @@ Eden.plugins.SymbolViewer.Symbol.prototype.updateObservable = function() {
 
 	var namehtml;
 	if (this.symbol.definition !== undefined) {
-		namehtml = "<span class=\"hasdef_text\">"+this.name+"</span>";
+		namehtml = "<span class=\"hasdef_text\" title=\""
+		+ this.symbol.eden_definition
+		+"\">"+this.name+"</span>";
 	} else {
 		namehtml = this.name;
 	}

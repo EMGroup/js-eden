@@ -120,7 +120,7 @@ function JS_Eden_Initialise(callback) {
 		modelbase = "";
 
 		//Create the error window. Hiden to start with.
-		$('<pre id="error-window" style="font-family:monospace;"></pre>').appendTo($('body'));
+		$('<pre id="error-window" style="font-family:monospace; display: none;"></pre>').appendTo($('body'));
 
 		//Load the Eden library scripts
 		Eden.executeFileSSI("library/eden.jse");
