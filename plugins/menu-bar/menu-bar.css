@@ -64,9 +64,10 @@
 
 #menubar-status {
 	position: absolute;
-	left: auto;
-	right: auto;
-	width: 300px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 400px;
+	text-align: center;
 	padding-top: 4px;
 	color: #e0e0e0;
 	font-size: 8pt;
