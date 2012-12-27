@@ -36,9 +36,12 @@ Eden.prototype.createView = function(name, type) {
 
 	this.internal("_view_"+name+"_x");
 	this.internal("_view_"+name+"_y");
+	this.internal("_view_"+name+"_width");
+	this.internal("_view_"+name+"_height");
 
 	//Now construct eden agents and observables for dialog control.
 	Eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ eden.moveView(\""+name+"\"); }}$; };");
+	Eden.execute("proc _View_"+name+"_size : _view_"+name+"_width,_view_"+name+"_height { ${{ eden.resizeView(\""+name+"\"); }}$; };");
 };
 
 Eden.prototype.showView = function(name) {
@@ -53,7 +56,7 @@ Eden.prototype.moveView = function(name) {
 	$("#"+name+"-dialog").dialog("option","position",[this.internals["_view_"+name+"_x"],this.internals["_view_"+name+"_y"]]);
 }
 
-Eden.prototype.resizeView = function(name, x,y) {
-	$("#"+name+"-dialog").dialog("option","width",x).dialog("option","height",y);
+Eden.prototype.resizeView = function(name) {
+	$("#"+name+"-dialog").dialog("option","width",this.internals["_view_"+name+"_width"]).dialog("option","height",this.internals["_view_"+name+"_height"]);
 }
 
