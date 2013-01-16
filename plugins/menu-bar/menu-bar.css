@@ -43,6 +43,7 @@
 }
 
 .menubar-menu {
+	position: relative;
 	font-weight: normal;
 	margin-top: 6px;
 	background-color: white;
