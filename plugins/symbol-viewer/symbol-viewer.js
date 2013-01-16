@@ -386,6 +386,7 @@ Eden.plugins.SymbolViewer.Symbol.prototype.updateFunction = function() {
 Eden.plugins.SymbolViewer.Symbol.prototype.updateObservable = function() {
 	/* XXX Does cause all dependencies to be evaluated which removes any
 	   performance gains of eval-on-use-when-out-of-date. */
+	var me = this;
 	var val = this.symbol.value();
 	var valhtml;
 
@@ -410,6 +411,28 @@ Eden.plugins.SymbolViewer.Symbol.prototype.updateObservable = function() {
 		+ valhtml
 		+ "</span></li>"
 	);
+
+	//Clicking on the value will allow you to edit it
+	this.element.find(".result_value").click(function(){
+		console.log("value clicked");
+		var editbox = $("<input type=\"text\" value=\""+me.symbol.value()+"\"></input>");
+		editbox.blur(function() {
+			console.log("Execute: " + me.name + " = " + this.value);
+
+			var val = me.symbol.value();
+			var valhtml;
+
+			if (typeof val == "boolean") { valhtml = "<span class='special_text'>"+val+"</span>"; }
+			else if (typeof val == "undefined") { valhtml = "<span class='error_text'>undefined</span>"; }
+			else if (typeof val == "string") { valhtml = "<span class='string_text'>\""+val+"\"</span>"; }
+			else if (typeof val == "number") { valhtml = "<span class='numeric_text'>"+val+"</span>"; }
+			else { valhtml = val; }
+
+			$(this).replaceWith("<span class='result_value'> = "+valhtml+"</span>");
+		});
+		$(this).replaceWith(editbox);
+	
+	});
 }
 
 /**

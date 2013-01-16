@@ -7,8 +7,8 @@ Eden.plugins.CanvasHTML5 = function(context) {
 	var me = this;
 
 	var clearCanvas = function(content) {
-		$(":not(canvas)",content).each(function() {
-			//XXX What is this check for??
+		$(content).children(":not(canvas)").each(function() {
+			//XXX What is this check for?? To prevent destruction of child divs
 			//if(/canvas_/.test(this.id)) {
 				this.togarbage = true;
 			//}
@@ -16,7 +16,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 	}
 
 	var cleanupCanvas = function(content) {
-		$(":not(canvas)",content).each(function() {
+		$(content).children(":not(canvas)").each(function() {
 			if (this.togarbage == true) {
 				$(this).remove();
 			}

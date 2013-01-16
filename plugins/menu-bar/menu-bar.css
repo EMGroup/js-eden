@@ -43,6 +43,7 @@
 }
 
 .menubar-menu {
+	position: relative;
 	font-weight: normal;
 	margin-top: 6px;
 	background-color: white;
@@ -52,7 +53,7 @@
 	color: black;
 	padding: 8px;
 	width: 150px;
-	z-index: 100;
+	z-index: 1100;
 }
 
 #menubar-version-number {
