@@ -112,7 +112,7 @@ Eden.loadqueue = new Array();
 Eden.executeFileSSI = function (path) {
 	var ajaxfunc = function(path2) {
 		$.ajax({
-			url: "/ssijse.rb?script="+path2,
+			url: "ssijse.rb?script="+path2,
 			dataType: 'text',
 			type: 'GET',
 			success: function(data) {
@@ -153,13 +153,23 @@ Eden.executeFileSSI = function (path) {
 };
 
 Eden.execute = function(code) {
+	var result = "";
 	try {
-		eval(Eden.translateToJavaScript(code));
+		result = eval(Eden.translateToJavaScript(code));
 	} catch(e) {
 		Eden.reportError(e);
 		//$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\"># ERROR number " + eden.errornumber + ":<br># Execute<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
 		//eden.errornumber = eden.errornumber + 1;
 	}
+	return result;
+}
+
+function _$() {
+	var code = arguments[0];
+	for (var i=1; i<arguments.length; i++) {
+		code = code.replace("$"+i,arguments[i]);
+	}
+	return Eden.execute(code);
 }
 
 /*
