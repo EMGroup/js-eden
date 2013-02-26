@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
 /**
  * JS-Eden Project Listing Plugin.
  * A plugin to display a list of models hosted on the server. The list can

@@ -1,3 +1,7 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
 
 ## this function declares a JScript as a JS-EDEN observable
 ## the context and which observable it connects to can be optionally specified

@@ -1,3 +1,8 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
 ${{
 Text = function(txt, x, y, colour) {
   this.x = x;

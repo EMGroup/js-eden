@@ -1,4 +1,10 @@
 #!/usr/bin/env ruby
+
+# Copyright (c) 2013, Empirical Modelling Group
+# All rights reserved.
+#
+# See LICENSE.txt
+
 # Concatenates and serves all the required scripts for jseden.
 puts "Content-type: application/x-javascript\n\n"
 

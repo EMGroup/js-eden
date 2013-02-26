@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
 /**
  * JS-Eden Canvas Plugin
  * Allows a html5 canvas to be displayed and used within JS-Eden for drawing.

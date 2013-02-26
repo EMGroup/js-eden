@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
 Eden.plugins = {};
 
 Eden.prototype.loadPlugin = function(name) {

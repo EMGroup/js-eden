@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
 /**
  * JS-Eden InputWindow Plugin.
  * This plugin provides createInputWindow and embedInputWindow methdods which

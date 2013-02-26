@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
 /**
  * XXX: currently this is used as a constructor
  * possibly just want a namespace for EDEN related functions

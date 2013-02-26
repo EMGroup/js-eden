@@ -1,3 +1,8 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
 ${{
 Slider = function(name, min, max, step, value, orientation, x, y) {
   this.name = name;

@@ -1,3 +1,8 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
 ${{
 Circle = function(x, y, radius, fillcolour, outlinecolour) {
   this.x = x;

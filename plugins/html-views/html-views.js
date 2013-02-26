@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
 /**
  * JS-Eden HTML Views Plugin.
  * A simple plugin allowing Eden code to display html within dialogs.
