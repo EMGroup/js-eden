@@ -46,7 +46,11 @@ Eden.prototype.createView = function(name, type) {
 	this.internal("_view_"+name+"_width");
 	this.internal("_view_"+name+"_height");
 
-	$("#"+name+"-dialog").dialog({
+	var diag = $("#"+name+"-dialog");
+	root.lookup("_view_"+name+"_width").assign(diag.dialog("option","width"));
+	root.lookup("_view_"+name+"_height").assign(diag.dialog("option","height"));
+
+	diag.dialog({
 		resizeStop: function(event, ui) {
 			root.lookup("_view_"+name+"_width").assign(ui.size.width);
 			root.lookup("_view_"+name+"_height").assign(ui.size.height);
