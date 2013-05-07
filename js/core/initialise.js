@@ -145,7 +145,7 @@ function JS_Eden_Initialise(callback) {
 		if (views[0] != "") {
 			var viewcount = 0;
 			for (x in views) {
-				eden.createView("view-"+viewcount,views[x]);
+				eden.createView("view_"+viewcount,views[x]);
 				viewcount = viewcount + 1;
 			}
 		}
