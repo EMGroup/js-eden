@@ -46,6 +46,13 @@ Eden.prototype.createView = function(name, type) {
 	this.internal("_view_"+name+"_width");
 	this.internal("_view_"+name+"_height");
 
+	$("#"+name+"-dialog").dialog({
+		resizeStop: function(event, ui) {
+			root.lookup("_view_"+name+"_width").assign(ui.size.width);
+			root.lookup("_view_"+name+"_height").assign(ui.size.height);
+		}
+	});
+
 	//Now construct eden agents and observables for dialog control.
 	Eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ eden.moveView(\""+name+"\"); }}$; };");
 	Eden.execute("proc _View_"+name+"_size : _view_"+name+"_width,_view_"+name+"_height { ${{ eden.resizeView(\""+name+"\"); }}$; };");
@@ -64,6 +71,17 @@ Eden.prototype.moveView = function(name) {
 }
 
 Eden.prototype.resizeView = function(name) {
-	$("#"+name+"-dialog").dialog("option","width",this.internals["_view_"+name+"_width"]).dialog("option","height",this.internals["_view_"+name+"_height"]);
+	var newwidth = this.internals["_view_"+name+"_width"];
+	var newheight = this.internals["_view_"+name+"_height"];
+	var diag = $("#"+name+"-dialog");
+	var oldwidth = diag.dialog("option","width");
+	var oldheight = diag.dialog("option","height");
+
+	if (newwidth-oldwidth != 0) {
+		diag.dialog("option","width",newwidth);
+	}
+	if (newheight-oldheight != 0) {
+		diag.dialog("option","height",newheight);
+	}
 }
 
