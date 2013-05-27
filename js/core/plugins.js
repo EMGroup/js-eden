@@ -50,12 +50,10 @@ Eden.prototype.createView = function(name, type) {
 	root.lookup("_view_"+name+"_width").assign(diag.dialog("option","width"));
 	root.lookup("_view_"+name+"_height").assign(diag.dialog("option","height"));
 
-	diag.dialog({
-		resizeStop: function(event, ui) {
+	diag.on( "dialogresizestop", function(event, ui) {
 			root.lookup("_view_"+name+"_width").assign(ui.size.width);
 			root.lookup("_view_"+name+"_height").assign(ui.size.height);
-		}
-	});
+		});
 
 	//Now construct eden agents and observables for dialog control.
 	Eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ eden.moveView(\""+name+"\"); }}$; };");
