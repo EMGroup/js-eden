@@ -111,7 +111,9 @@ Eden.plugins.CanvasHTML5 = function(context) {
 				minWidth: 230,
 				resizeStop: function(event,ui) {
 					console.log(ui.size);
-					$("#"+name+"-canvas").attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
+					$("#"+name+"-canvas")[0].width = ui.size.width-50;
+					$("#"+name+"-canvas")[0].height = ui.size.height-70;
+					//.attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
 
 					//Now need to redraw the canvas.
 					//TODO: Dont use eden
