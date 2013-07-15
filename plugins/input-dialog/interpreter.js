@@ -59,7 +59,7 @@ Eden.plugins.InputWindow = function(context) {
 			index++;
 			return "";
 		}
-		return getHistory(index);
+		return getHistory(++index);
 	}
 
 	/** @private */
