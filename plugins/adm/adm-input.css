@@ -12,3 +12,36 @@
 	border-botom-color: #eaeaea;
 	margin-bottom: 10px;
 }
+
+.adm-name {
+	height: 24px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #117fe5;
+	background-color: white;
+	padding: 2px;
+	float: right;
+	margin-left: 5px;
+}
+
+.adm-entities {
+	height: 50px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #117fe5;
+	background-color: white;
+	padding: 2px;
+	float: right;
+	margin-left: 5px;
+}
+
+.adm-actions {
+	height: 50px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #117fe5;
+	background-color: white;
+	padding: 2px;
+	float: right;
+	margin-left: 5px;
+}

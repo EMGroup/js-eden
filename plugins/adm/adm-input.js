@@ -7,14 +7,27 @@
 
 Eden.plugins.adm = function(context) {
 	var me = this;
+	
+	/** @private */
+	var generateHTML = function(name) {
+		return '<div id="'+name+'-input" class=\"inputwindow-code\">\
+			<form>\
+				<label>Name: </label><input type=\"text\" class=\"adm-name\"></input><br>\
+				<label>Entities:</label><br><textarea class=\"adm-entities\"></textarea><br>\
+				<label>Actions:</label><br><textarea class=\"adm-actions\"></textarea>\
+			</form>\
+		</div>';
+	};
 		
 	 /** @public */
      this.createDialog = function(name, mtitle) {
 	    var myeditor;
 		
-		$code_entry = $('<div id="'+name+'-input" class=\"inputwindow-code\"><div></div><pre class="eden exec"></pre></div>');
+		var code_entry = $('<div></div>');
+		code_entry.html(generateHTML(name));
+		
 		$dialog = $('<div id="'+name+'"></div>')
-			.html($code_entry)
+			.html(code_entry)
 			.dialog({
 					title: mtitle,
 					width: 360,
@@ -23,8 +36,8 @@ Eden.plugins.adm = function(context) {
 					minWidth: 360,
 				buttons: [
 					{
-						id: "btn-submit",
-						text: "Submit",
+						id: "btn-add",
+						text: "Add Agent",
 						click: function() {
 							//submitAdmCode({editor: myeditor});
 						}
