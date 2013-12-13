@@ -38,6 +38,7 @@ scripts = [
 	"../plugins/canvas-html5/canvas.js",
 	"../plugins/symbol-viewer/symbol-viewer.js",
 	"../plugins/html-views/html-views.js",
+	"../plugins/adm/adm-input.js",
 ]
 
 scripts.each do |x|
