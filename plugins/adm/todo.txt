@@ -1,0 +1,8 @@
+- more templating
+- input boxes adapt to size of window
+- don't completely fail at processing if eden code is invalid (catch exception)
+- allow scrolling through agents, and deletion
+- maybe add a view that is a list of current agents
+- test for conflicting actions
+- fix THEN syntax - just use if (guard) action; straight eden code?
+- process iteratively through steps
