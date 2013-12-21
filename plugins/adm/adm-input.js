@@ -13,14 +13,18 @@ Eden.plugins.adm = function(context) {
 	// Definition store: (probably this isn't needed)
 	this.definitions = new Array();
 	
+	// Holds the index of the agent currently displayed in the input box.
+	this.currIndex = -1;
+	
 	function Pair(guard, action) {
 		this.guard = guard;
 		// TODO actions could be a sequential list.
 		this.action = action;
 	};
 	
-	function Agent(name, actionsArr) {
+	function Agent(name, entities, actionsArr) {
 		this.name = name;
+		this.entities = entities;
 		this.actionsArr = actionsArr;
 	};
 	
@@ -43,7 +47,7 @@ Eden.plugins.adm = function(context) {
 		}
 	};
 	
-	var processActions = function(name, actions) {
+	var processActions = function(name, entities, actions) {
 		var actionsArr = new Array();
 		// Add to some kind of data structure mapping guard to action.
 		for (var i = 0; i < actions.length; i++) {
@@ -53,10 +57,11 @@ Eden.plugins.adm = function(context) {
 				actionsArr.push(new Pair(split[0], split[1]));
 			}
 		}
-		me.agents.push(new Agent(name, actionsArr));
+		me.agents.push(new Agent(name, entities, actionsArr));
 	};
 	
 	var processNewAgent = function(name) {
+		// TODO edit existing agent!
 		// Entities and actions should be separated by \n.
 		var input = document.getElementById('adm-entities'),
 		entities = input.value.split('\n');
@@ -67,7 +72,7 @@ Eden.plugins.adm = function(context) {
 		// Regex the entities to check it is valid.
 		// Probably fine, who needs validation.
 		processEntities(entities);
-		processActions(name, actions);
+		processActions(name, entities, actions);
 	};
 	
 	var validateInput = function() {
@@ -80,6 +85,7 @@ Eden.plugins.adm = function(context) {
 			document.getElementById('adm-name').value = '';
 			document.getElementById('adm-entities').value = '';
 			document.getElementById('adm-actions').value = '';
+			this.currIndex = -1;
 		} else {
 			alert('Please enter a name for this agent.');
 			input.focus();
@@ -98,8 +104,7 @@ Eden.plugins.adm = function(context) {
 				// The guard should be EDEN code! Execute it
 				var action = agent.actionsArr[j];
 				var guardStatement = convertToGuard(action.guard, action.action);
-				var test = Eden.translateToJavaScript(guardStatement);
-				eval(test);
+				eval(Eden.translateToJavaScript(guardStatement));
 			}
 		}
 	};
@@ -107,6 +112,32 @@ Eden.plugins.adm = function(context) {
 	// Nest the guard statement inside an IF in EDEN notation.
 	var convertToGuard = function(guard, action) {
 		return ('if (' + guard + ') ' + action);
+	};
+	
+	var display = function(index) {
+		if (me.agents.length == 0) {
+			return;
+		} else if (index < -1) {
+			index = me.agents.length - 1;
+		} else if (index >= me.agents.length) {
+			index = -1;
+		}
+		
+		if (index == -1) {
+			document.getElementById('adm-name').value = '';
+			document.getElementById('adm-entities').value = '';
+			document.getElementById('adm-actions').value = '';
+		} else {
+			var agent = me.agents[index];
+			document.getElementById('adm-name').value = agent.name;
+			document.getElementById('adm-entities').value = agent.entities;
+			document.getElementById('adm-actions').value = agent.actions;
+		}
+		me.currIndex = index;
+	};
+	
+	var deleteAgent = function(index) {
+	
 	};
 		
 	 /** @public */
@@ -139,15 +170,22 @@ Eden.plugins.adm = function(context) {
 						}
 					},
 					{
+						id: "btn-delete",
+						text: "Delete Agent",
+						click: function() {
+							deleteAgent(me.currIndex);
+						}
+					},
+					{
 						text: "Previous",
 						click: function() {
-							//loadPreviousAdmCode({editor: myeditor});
+							display(me.currIndex-1);
 						}
 					},
 					{
 						text: "Next",
 						click: function() {
-							//loadNextAdmCode({editor: myeditor});
+							display(me.currIndex+1);
 						}
 					}
 				]
