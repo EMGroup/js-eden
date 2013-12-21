@@ -10,7 +10,7 @@ Eden.plugins.adm = function(context) {
 	
 	// TODO make different classes for agents...
 	this.agents = new Array();
-	// Definition store:
+	// Definition store: (probably this isn't needed)
 	this.definitions = new Array();
 	
 	function Pair(guard, action) {
@@ -39,6 +39,7 @@ Eden.plugins.adm = function(context) {
 		for (var i = 0; i < entities.length; i++) {
 			// Submit each as eden code to add to definition store.
 			me.definitions.push(entities[i]);
+			eval(Eden.translateToJavaScript(entities[i]));
 		}
 	};
 	
@@ -90,14 +91,22 @@ Eden.plugins.adm = function(context) {
 		var actions = new Array();
 		alert('process!!!'+me.agents.length);
 		
+		// Find all actions to evaluate and add to the actions array:
 		for (x in me.agents) {
 			var agent = me.agents[x];
-			alert('processing :)' + agent.name);
 			for (var j = 0; j < agent.actionsArr.length; j++) {
 				// The guard should be EDEN code! Execute it
-				alert('checking action '+agent.actionsArr[j]);
+				var action = agent.actionsArr[j];
+				var guardStatement = convertToGuard(action.guard, action.action);
+				var test = Eden.translateToJavaScript(guardStatement);
+				eval(test);
 			}
 		}
+	};
+	
+	// Nest the guard statement inside an IF in EDEN notation.
+	var convertToGuard = function(guard, action) {
+		return ('if (' + guard + ') ' + action);
 	};
 		
 	 /** @public */
