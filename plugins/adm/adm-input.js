@@ -52,7 +52,7 @@ Eden.plugins.adm = function(context) {
 		// Add to some kind of data structure mapping guard to action.
 		for (var i = 0; i < actions.length; i++) {
 			// Actions of the form guard THEN action:
-			var split = actions[i].split('THEN');
+			var split = actions[i].split('-->');
 			if (split.length == 2) {
 				actionsArr.push(new Pair(split[0], split[1]));
 			}
@@ -115,9 +115,7 @@ Eden.plugins.adm = function(context) {
 	};
 	
 	var display = function(index) {
-		if (me.agents.length == 0) {
-			return;
-		} else if (index < -1) {
+		if (index < -1) {
 			index = me.agents.length - 1;
 		} else if (index >= me.agents.length) {
 			index = -1;
@@ -137,7 +135,12 @@ Eden.plugins.adm = function(context) {
 	};
 	
 	var deleteAgent = function(index) {
-	
+		if (index > -1) {
+			alert('deleting agent ' + me.agents[index].name);
+			me.agents.splice(index);
+			me.currIndex = index-1;
+			display(me.currIndex);
+		}
 	};
 		
 	 /** @public */
@@ -157,7 +160,7 @@ Eden.plugins.adm = function(context) {
 				buttons: [
 					{
 						id: "btn-process",
-						text: "Process",
+						text: "Step",
 						click: function() {
 							process();
 						},
