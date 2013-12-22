@@ -42,8 +42,13 @@ Eden.plugins.adm = function(context) {
 	var processEntities = function(entities) {
 		for (var i = 0; i < entities.length; i++) {
 			// Submit each as eden code to add to definition store.
+			try {
+				eval(Eden.translateToJavaScript(entities[i]));
+			} catch (e) {
+				Eden.reportError(e);
+				return -1;
+			}
 			me.definitions.push(entities[i]);
-			eval(Eden.translateToJavaScript(entities[i]));
 		}
 	};
 	
@@ -71,21 +76,27 @@ Eden.plugins.adm = function(context) {
 		
 		// Regex the entities to check it is valid.
 		// Probably fine, who needs validation.
-		processEntities(entities);
-		processActions(name, entities, actions);
+		var returnCode = processEntities(entities);
+		if (returnCode != -1) {
+			processActions(name, entities, actions);
+		}
+		return returnCode;
 	};
 	
 	var validateInput = function() {
 		var input = document.getElementById('adm-name'),
 		agentName = input.value;
 		if (agentName) {
-			processNewAgent(agentName);
-			// TODO also add a list of existing agents
-			alert('Agent was successfully added!');
-			document.getElementById('adm-name').value = '';
-			document.getElementById('adm-entities').value = '';
-			document.getElementById('adm-actions').value = '';
-			this.currIndex = -1;
+			var returnCode = processNewAgent(agentName);
+			
+			if (returnCode != -1) {
+				// TODO also add a list of existing agents
+				alert('Agent was successfully added!');
+				document.getElementById('adm-name').value = '';
+				document.getElementById('adm-entities').value = '';
+				document.getElementById('adm-actions').value = '';
+				this.currIndex = -1;
+			}
 		} else {
 			alert('Please enter a name for this agent.');
 			input.focus();
@@ -104,7 +115,11 @@ Eden.plugins.adm = function(context) {
 				// The guard should be EDEN code! Execute it
 				var action = agent.actionsArr[j];
 				var guardStatement = convertToGuard(action.guard, action.action);
-				eval(Eden.translateToJavaScript(guardStatement));
+				try {
+					eval(Eden.translateToJavaScript(guardStatement));
+				} catch (e) {
+					Eden.reportError(e);
+				}
 			}
 		}
 	};
@@ -129,14 +144,14 @@ Eden.plugins.adm = function(context) {
 			var agent = me.agents[index];
 			document.getElementById('adm-name').value = agent.name;
 			document.getElementById('adm-entities').value = agent.entities;
-			document.getElementById('adm-actions').value = agent.actions;
+			document.getElementById('adm-actions').value = agent.actionsArr;
 		}
 		me.currIndex = index;
 	};
 	
 	var deleteAgent = function(index) {
 		if (index > -1) {
-			alert('deleting agent ' + me.agents[index].name);
+			alert('deleting an instance of agent ' + me.agents[index].name);
 			me.agents.splice(index);
 			me.currIndex = index-1;
 			display(me.currIndex);
