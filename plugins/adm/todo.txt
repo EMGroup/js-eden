@@ -1,6 +1,8 @@
 - more templating
 - input boxes adapt to size of window
-- maybe add a view that is a list of current agents
+- make current agents in list clickable
+- delete agents from list when deleted from adm
+- deal with dupes in list
 - test for conflicting actions
 - process iteratively through steps
-- ability to add instances / edit agent descriptions.
+- ability to edit agent descriptions

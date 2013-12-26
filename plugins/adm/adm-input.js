@@ -29,13 +29,16 @@ Eden.plugins.adm = function(context) {
 	};
 	
 	/** @private */
-	var generateHTML = function(name) {
+	var generateInputHTML = function(name) {
 		return '<div id="'+name+'-input" class=\"inputwindow-code\">\
 			<form>\
 				<label>Name: </label><input id="adm-name" type=\"text\" class=\"adm-name\"></input><br>\
 				<label>Entities:</label><br><textarea id="adm-entities" class=\"adm-entities\"></textarea><br>\
 				<label>Actions:</label><br><textarea id="adm-actions" class=\"adm-actions\"></textarea>\
 			</form>\
+		</div>\
+		<div id="adm-results" class=\"agentlist-results\">\
+			<ul id="results"> </ul>\
 		</div>';
 	};
 	
@@ -90,11 +93,20 @@ Eden.plugins.adm = function(context) {
 			var returnCode = processNewAgent(agentName);
 			
 			if (returnCode != -1) {
-				// TODO also add a list of existing agents
 				alert('Agent was successfully added!');
 				document.getElementById('adm-name').value = '';
 				document.getElementById('adm-entities').value = '';
 				document.getElementById('adm-actions').value = '';
+				
+				// Add a new element for this new result.
+				// TODO dupe names!
+				var newdiv = document.createElement('li');
+				newdiv.setAttribute('id',agentName);
+				newdiv.class = 'agentlist-element';
+				newdiv.innerHTML = '<label>'+agentName+'</label>';
+				var results = document.getElementById('results');
+				results.appendChild(newdiv);
+				
 				this.currIndex = -1;
 			}
 		} else {
@@ -159,10 +171,10 @@ Eden.plugins.adm = function(context) {
 	};
 		
 	 /** @public */
-     this.createDialog = function(name, mtitle) {
+     this.createInputDialog = function(name, mtitle) {
 		var myeditor;
 		var code_entry = $('<div></div>');
-		code_entry.html(generateHTML(name));
+		code_entry.html(generateInputHTML(name));
 		
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
@@ -222,13 +234,13 @@ Eden.plugins.adm = function(context) {
 
 	};
 	
-	context.views.adm = {
-		dialog: this.createDialog,
+	context.views["AdmInput"] = {
+		dialog: this.createInputDialog,
 		embed: this.createEmbedded,
 		title: "ADM Input Window"
 	};
 };
 
-Eden.plugins.adm.title = "ADM Input Window";
-Eden.plugins.adm.description = "ADM input window";
+Eden.plugins.adm.title = "ADM";
+Eden.plugins.adm.description = "Abstract Definitive Machine";
 Eden.plugins.adm.author = "Ruth King";
