@@ -8,7 +8,6 @@
 Eden.plugins.adm = function(context) {
 	var me = this;
 	
-	// TODO make different classes for agents...
 	this.agents = new Array();
 	// Definition store: (probably this isn't needed)
 	this.definitions = new Array();
@@ -16,12 +15,13 @@ Eden.plugins.adm = function(context) {
 	// Holds the index of the agent currently displayed in the input box.
 	this.currIndex = -1;
 	
-	function Pair(guard, action) {
+	// Holds guard / action sequence pairs.
+	function GuardActions(guard, action) {
 		this.guard = guard;
-		// TODO actions could be a sequential list.
 		this.action = action;
 	};
 	
+	// Holds information defining an agent:
 	function Agent(name, entities, actionsArr) {
 		this.name = name;
 		this.entities = entities;
@@ -42,10 +42,12 @@ Eden.plugins.adm = function(context) {
 		</div>';
 	};
 	
+	/* Process the entities of a newly created agent. */
 	var processEntities = function(entities) {
 		for (var i = 0; i < entities.length; i++) {
-			// Submit each as eden code to add to definition store.
+			// Submit each entitiy as eden code to add to definition store.
 			try {
+				// TODO append name of agent instance to entity.
 				eval(Eden.translateToJavaScript(entities[i]));
 			} catch (e) {
 				Eden.reportError(e);
@@ -55,31 +57,31 @@ Eden.plugins.adm = function(context) {
 		}
 	};
 	
+	/* Process the actions of a newly created agent. */
 	var processActions = function(name, entities, actions) {
+		// TODO validate here! e.g. by trying to convert to eden code
 		var actionsArr = new Array();
-		// Add to some kind of data structure mapping guard to action.
 		for (var i = 0; i < actions.length; i++) {
-			// Actions of the form guard THEN action:
+			// Actions of the form guard --> action:
 			var split = actions[i].split('-->');
 			if (split.length == 2) {
-				actionsArr.push(new Pair(split[0], split[1]));
+				actionsArr.push(new GuardActions(split[0], split[1]));
 			}
 		}
 		me.agents.push(new Agent(name, entities, actionsArr));
 	};
 	
 	var processNewAgent = function(name) {
-		// TODO edit existing agent!
+		// TODO add ability to edit existing agent!
+		// TODO append greek letters to agent instances.
 		// Entities and actions should be separated by \n.
 		var input = document.getElementById('adm-entities'),
 		entities = input.value.split('\n');
 		var input = document.getElementById('adm-actions'),
 		actions = input.value.split('\n');
-		//TODO template actions more (not validating atm because this is planned)
 		
-		// Regex the entities to check it is valid.
-		// Probably fine, who needs validation.
 		var returnCode = processEntities(entities);
+		// If entities processed ok, also process actions!
 		if (returnCode != -1) {
 			processActions(name, entities, actions);
 		}
@@ -98,8 +100,7 @@ Eden.plugins.adm = function(context) {
 				document.getElementById('adm-entities').value = '';
 				document.getElementById('adm-actions').value = '';
 				
-				// Add a new element for this new result.
-				// TODO dupe names!
+				// Add a new element in the agent list for this new agent:
 				var newdiv = document.createElement('li');
 				newdiv.setAttribute('id',agentName);
 				newdiv.class = 'agentlist-element';
@@ -118,8 +119,9 @@ Eden.plugins.adm = function(context) {
 	var process = function() {
 		// Array to store the actions we are processing this round.
 		var actions = new Array();
-		alert('process!!!'+me.agents.length);
+		alert('processing ' + me.agents.length + ' agents');
 		
+		// TODO *** Check for conflicts between actions before processing.
 		// Find all actions to evaluate and add to the actions array:
 		for (x in me.agents) {
 			var agent = me.agents[x];
@@ -136,11 +138,12 @@ Eden.plugins.adm = function(context) {
 		}
 	};
 	
-	// Nest the guard statement inside an IF in EDEN notation.
+	/* Nest the guard statement inside an IF in EDEN notation. */
 	var convertToGuard = function(guard, action) {
 		return ('if (' + guard + ') ' + action);
 	};
 	
+	/* Display information about the agent at the current index. */
 	var display = function(index) {
 		if (index < -1) {
 			index = me.agents.length - 1;

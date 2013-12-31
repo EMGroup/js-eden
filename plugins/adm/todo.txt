@@ -1,8 +1,6 @@
-- more templating
 - input boxes adapt to size of window
 - make current agents in list clickable
 - delete agents from list when deleted from adm
-- deal with dupes in list
-- test for conflicting actions
-- process iteratively through steps
+- test for conflicting actions **********
 - ability to edit agent descriptions
+- multiple instances of the same agent need entities to have differing names, and these appended to their entities.
