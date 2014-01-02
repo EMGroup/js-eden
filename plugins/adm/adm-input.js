@@ -20,7 +20,11 @@ Eden.plugins.adm = function(context) {
 		this.guard = guard;
 		this.action = action;
 	};
-	
+
+	GuardActions.prototype.toString = function() {
+		return this.guard + ' --> ' + this.action;
+	};
+
 	// Holds information defining an agent:
 	function Agent(name, entities, actionsArr) {
 		this.name = name;
@@ -117,25 +121,31 @@ Eden.plugins.adm = function(context) {
 	};
 	
 	var process = function() {
-		// Array to store the actions we are processing this round.
-		var actions = new Array();
+		// List to store the actions we are processing this round.
+		eval(Eden.translateToJavaScript('actions = [];'));
 		alert('processing ' + me.agents.length + ' agents');
 		
 		// TODO *** Check for conflicts between actions before processing.
-		// Find all actions to evaluate and add to the actions array:
+		// Find all actions to evaluate and add to the actions list:
 		for (x in me.agents) {
 			var agent = me.agents[x];
 			for (var j = 0; j < agent.actionsArr.length; j++) {
 				// The guard should be EDEN code! Execute it
 				var action = agent.actionsArr[j];
-				var guardStatement = convertToGuard(action.guard, action.action);
+				var statement = convertToStatement(action.guard, action.action);
 				try {
-					eval(Eden.translateToJavaScript(guardStatement));
+					eval(Eden.translateToJavaScript(statement));
 				} catch (e) {
 					Eden.reportError(e);
 				}
 			}
 		}
+		
+		
+	};
+	
+	var convertToStatement = function(guard, action) {
+		return ('if (' + guard + ') append actions, "' + action + '";');
 	};
 	
 	/* Nest the guard statement inside an IF in EDEN notation. */
