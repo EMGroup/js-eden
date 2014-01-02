@@ -1,6 +1,9 @@
 - input boxes adapt to size of window
 - make current agents in list clickable
 - delete agents from list when deleted from adm
-- test for conflicting actions **********
+- test for conflicting actions
 - ability to edit agent descriptions
 - multiple instances of the same agent need entities to have differing names, and these appended to their entities.
+
+*** human perspective ***
+- make actions clickable

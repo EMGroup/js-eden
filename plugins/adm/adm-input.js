@@ -122,35 +122,37 @@ Eden.plugins.adm = function(context) {
 	
 	var process = function() {
 		// List to store the actions we are processing this round.
-		eval(Eden.translateToJavaScript('actions = [];'));
+		var actions = new Array();
 		alert('processing ' + me.agents.length + ' agents');
 		
-		// TODO *** Check for conflicts between actions before processing.
 		// Find all actions to evaluate and add to the actions list:
 		for (x in me.agents) {
 			var agent = me.agents[x];
 			for (var j = 0; j < agent.actionsArr.length; j++) {
 				// The guard should be EDEN code! Execute it
 				var action = agent.actionsArr[j];
-				var statement = convertToStatement(action.guard, action.action);
 				try {
-					eval(Eden.translateToJavaScript(statement));
+					var answer = eval(Eden.translateToJavaScript('return ' + action.guard + ';'));
 				} catch (e) {
 					Eden.reportError(e);
+				}
+				alert(answer);
+				if (answer == true) {
+					actions.push(action.action);
+					// Add action to selectable list of potential actions this step:
+					// TODO make these clickable!
+					var newdiv = document.createElement('li');
+					newdiv.setAttribute('id', action);
+					newdiv.class = 'agentlist-element';
+					newdiv.innerHTML = '<label>'+action.action+'</label>';
+					var results = document.getElementById('available-actions-list');
+					results.appendChild(newdiv);
 				}
 			}
 		}
 		
-		
-	};
-	
-	var convertToStatement = function(guard, action) {
-		return ('if (' + guard + ') append actions, "' + action + '";');
-	};
-	
-	/* Nest the guard statement inside an IF in EDEN notation. */
-	var convertToGuard = function(guard, action) {
-		return ('if (' + guard + ') ' + action);
+		// Somehow extract the dependencies between all actions!!!
+		// Check for conflicts between actions in the list
 	};
 	
 	/* Display information about the agent at the current index. */
@@ -192,11 +194,11 @@ Eden.plugins.adm = function(context) {
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
 			.dialog({
-					title: mtitle,
-					width: 360,
-					height: 400,
-					minHeight: 200,
-					minWidth: 360,
+				title: mtitle,
+				width: 360,
+				height: 400,
+				minHeight: 200,
+				minWidth: 360,
 				buttons: [
 					{
 						id: "btn-process",
@@ -239,7 +241,6 @@ Eden.plugins.adm = function(context) {
 		$("#btn-submit").css("margin-right", "30px");
 		
 		myeditor = convertToEdenPageNew('#'+name+'-input','code');
-
 	};
 	
 	/** @public */
@@ -247,10 +248,35 @@ Eden.plugins.adm = function(context) {
 
 	};
 	
+	/** @public */
+    this.createHumanPerspective = function(name, mtitle) {
+		var code_entry = $('<div></div>');
+		code_entry = $(
+			'<div id=\"'+name+'-human-perspective\" class=\"agentlist-results\">\
+				<ul id = \"available-actions-list\"></ul>\
+			</div>');
+		
+		$dialog = $('<div id="'+name+'"></div>')
+			.html(code_entry)
+			.dialog({
+				title: mtitle,
+				width: 360,
+				height: 400,
+				minHeight: 200,
+				minWidth: 360
+			});
+	};
+	
 	context.views["AdmInput"] = {
 		dialog: this.createInputDialog,
 		embed: this.createEmbedded,
 		title: "ADM Input Window"
+	};
+	
+	context.views["AdmHumanPerspective"] = {
+		dialog: this.createHumanPerspective,
+		embed: this.createEmbedded,
+		title: "ADM Human Perspective"
 	};
 };
 
