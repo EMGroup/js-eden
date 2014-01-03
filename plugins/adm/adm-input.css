@@ -46,12 +46,6 @@
 	margin-left: 5px;
 }
 
-.agentlist-results {
-	overflow-y: hidden;
-	font-size: 12px;
-	bottom: 0px;
-}
-
 .agentlist-element {
 	/*border-bottom-width: 1px;
 	border-bottom-style: solid;
@@ -68,4 +62,8 @@
 	margin-bottom: 2px;
 	font-size: 8pt;
 	white-space: nowrap;
+}
+
+li.type-function {
+	list-style-image: url('../images/type-function.png');
 }

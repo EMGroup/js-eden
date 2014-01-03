@@ -4,9 +4,11 @@
  *
  * See LICENSE.txt
  */
-
-Eden.plugins.adm = function(context) {
+ 
+ Eden.plugins.ADM = function(context) {
 	var me = this;
+	
+	this.actionsList;
 	
 	this.agents = new Array();
 	// Definition store: (probably this isn't needed)
@@ -136,17 +138,12 @@ Eden.plugins.adm = function(context) {
 				} catch (e) {
 					Eden.reportError(e);
 				}
-				alert(answer);
 				if (answer == true) {
 					actions.push(action.action);
+	
 					// Add action to selectable list of potential actions this step:
 					// TODO make these clickable!
-					var newdiv = document.createElement('li');
-					newdiv.setAttribute('id', action);
-					newdiv.class = 'agentlist-element';
-					newdiv.innerHTML = '<label>'+action.action+'</label>';
-					var results = document.getElementById('available-actions-list');
-					results.appendChild(newdiv);
+					me.actionsList.addAction(action.action, actions.length - 1);
 				}
 			}
 		}
@@ -244,17 +241,9 @@ Eden.plugins.adm = function(context) {
 	};
 	
 	/** @public */
-	this.createEmbedded = function(name, edenparser) {
-
-	};
-	
-	/** @public */
     this.createHumanPerspective = function(name, mtitle) {
 		var code_entry = $('<div></div>');
-		code_entry = $(
-			'<div id=\"'+name+'-human-perspective\" class=\"agentlist-results\">\
-				<ul id = \"available-actions-list\"></ul>\
-			</div>');
+		code_entry = $("<div id="+name+"-human-perspective\" class=\"actionlist\"></div>");
 		
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
@@ -265,21 +254,89 @@ Eden.plugins.adm = function(context) {
 				minHeight: 200,
 				minWidth: 360
 			});
+			
+		me.actionsList = new Eden.plugins.ADM.ActionsList(
+			code_entry[0]
+		);
 	};
 	
 	context.views["AdmInput"] = {
 		dialog: this.createInputDialog,
-		embed: this.createEmbedded,
 		title: "ADM Input Window"
 	};
 	
 	context.views["AdmHumanPerspective"] = {
 		dialog: this.createHumanPerspective,
-		embed: this.createEmbedded,
 		title: "ADM Human Perspective"
 	};
 };
+ 
+ Eden.plugins.ADM.ActionsList = function(element) {
+	this.actionresults = element;
+	alert('element is ' + element);
+	this.actions = {};
+}
 
-Eden.plugins.adm.title = "ADM";
-Eden.plugins.adm.description = "Abstract Definitive Machine";
-Eden.plugins.adm.author = "Ruth King";
+Eden.plugins.ADM.ActionsList.prototype.addAction = function(action, index) {
+	var actionElement = new Eden.plugins.ADM.Action(action);
+	actionElement.element.appendTo(this.actionresults);
+	this.actions[index] = actionElement;
+}
+
+Eden.plugins.ADM.Action = function(action) {
+	this.action = action;
+	this.element = $('<div class="agentlist-element"></div>');
+	this.details = undefined;
+	this.update = this.updateAction;
+
+	this.element.hover(
+		function() {
+			$(this).animate({backgroundColor: "#eaeaea"}, 100);
+		}, function() {
+			$(this).animate({backgroundColor: "white"}, 100);
+		}	
+	).click(function() {
+		//Show symbol details dialog
+	});
+
+	this.update();
+}
+
+Eden.plugins.ADM.Action.prototype.updateAction = function() {
+	var me = this;
+
+	var namehtml = "<span class=\"hasdef_text\" title=\""
+		+ this.action
+		+"\">"+this.action+"</span>";
+
+	this.element.html("<li class=\"type-function\"><span class=\"result_name\">"
+		+ namehtml
+		+ "</span></li>"
+	);
+
+	/*//Clicking on the value will allow you to edit it
+	this.element.find(".result_value").click(function(){
+		console.log("value clicked");
+		var editbox = $("<input type=\"text\" value=\""+me.symbol.value()+"\"></input>");
+		editbox.blur(function() {
+			console.log("Execute: " + me.name + " = " + this.value);
+
+			var val = me.symbol.value();
+			var valhtml;
+
+			if (typeof val == "boolean") { valhtml = "<span class='special_text'>"+val+"</span>"; }
+			else if (typeof val == "undefined") { valhtml = "<span class='error_text'>undefined</span>"; }
+			else if (typeof val == "string") { valhtml = "<span class='string_text'>\""+val+"\"</span>"; }
+			else if (typeof val == "number") { valhtml = "<span class='numeric_text'>"+val+"</span>"; }
+			else { valhtml = val; }
+
+			$(this).replaceWith("<span class='result_value'> = "+valhtml+"</span>");
+		});
+		$(this).replaceWith(editbox);
+	
+	});*/
+}
+
+Eden.plugins.ADM.title = "ADM";
+Eden.plugins.ADM.description = "Abstract Definitive Machine";
+Eden.plugins.ADM.author = "Ruth King";
