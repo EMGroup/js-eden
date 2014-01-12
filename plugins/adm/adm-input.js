@@ -128,7 +128,6 @@
 		
 		// List to store the actions we are processing this round.
 		var actions = new Array();
-		alert('processing ' + me.entities.length + ' entities');
 		
 		// Find all actions to evaluate and add to the actions list:
 		for (x in me.entities) {
@@ -243,7 +242,7 @@
 	/** @public */
     this.createHumanPerspective = function(name, mtitle) {
 		var code_entry = $('<div></div>');
-		code_entry = $("<div id="+name+"-human-perspective\" class=\"actionlist\"></div>");
+		code_entry = $("<div id=\"human-perspective\" class=\"actionlist\"></div>");
 		
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
@@ -283,8 +282,8 @@ Eden.plugins.ADM.ActionsList.prototype.addAction = function(action, index) {
 }
 
 Eden.plugins.ADM.ActionsList.prototype.clear = function() {
-	alert('clearing!');
-	this.actions = {};
+	this.actions.length = 0;
+        document.getElementById("human-perspective").innerHTML = "";
 }
 
 Eden.plugins.ADM.Action = function(action) {
