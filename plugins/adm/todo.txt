@@ -1,9 +1,13 @@
 - input boxes adapt to size of window
 - make current agents in list clickable
 - delete agents from list when deleted from adm
-- test for conflicting actions
-- ability to edit agent descriptions
+- ability to edit agent descriptions / templates
 - multiple instances of the same agent need entities to have differing names, and these appended to their entities.
+- rename entities as definitions! Agents -> entities
 
 *** human perspective ***
 - make actions clickable
+- be able to delete other "agents" within actions
+- make templates and parameterisation (parameters for identification)
+- if actions is a list, make it interleavable.
+- maybe make it so you can select multiple actions and execute all at once (spirit of concurrency)

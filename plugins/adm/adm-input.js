@@ -122,7 +122,10 @@
 		}
 	};
 	
-	var process = function() {
+	this.process = function() {
+		// Clear the actions list ready for new available actions.
+		me.actionsList.clear();
+		
 		// List to store the actions we are processing this round.
 		var actions = new Array();
 		alert('processing ' + me.agents.length + ' agents');
@@ -147,9 +150,6 @@
 				}
 			}
 		}
-		
-		// Somehow extract the dependencies between all actions!!!
-		// Check for conflicts between actions in the list
 	};
 	
 	/* Display information about the agent at the current index. */
@@ -201,7 +201,7 @@
 						id: "btn-process",
 						text: "Step",
 						click: function() {
-							process();
+							eden.plugins.ADM.process();
 						},
 					},
 					{
@@ -273,7 +273,6 @@
  
  Eden.plugins.ADM.ActionsList = function(element) {
 	this.actionresults = element;
-	alert('element is ' + element);
 	this.actions = {};
 }
 
@@ -283,10 +282,14 @@ Eden.plugins.ADM.ActionsList.prototype.addAction = function(action, index) {
 	this.actions[index] = actionElement;
 }
 
+Eden.plugins.ADM.ActionsList.prototype.clear = function() {
+	alert('clearing!');
+	this.actions = {};
+}
+
 Eden.plugins.ADM.Action = function(action) {
 	this.action = action;
 	this.element = $('<div class="agentlist-element"></div>');
-	this.details = undefined;
 	this.update = this.updateAction;
 
 	this.element.hover(
@@ -296,7 +299,9 @@ Eden.plugins.ADM.Action = function(action) {
 			$(this).animate({backgroundColor: "white"}, 100);
 		}	
 	).click(function() {
-		//Show symbol details dialog
+		// On click the action should be executed, and the actions list cleared.
+		eval(Eden.translateToJavaScript(action + ';'));
+		eden.plugins.ADM.process();
 	});
 
 	this.update();
@@ -313,28 +318,6 @@ Eden.plugins.ADM.Action.prototype.updateAction = function() {
 		+ namehtml
 		+ "</span></li>"
 	);
-
-	/*//Clicking on the value will allow you to edit it
-	this.element.find(".result_value").click(function(){
-		console.log("value clicked");
-		var editbox = $("<input type=\"text\" value=\""+me.symbol.value()+"\"></input>");
-		editbox.blur(function() {
-			console.log("Execute: " + me.name + " = " + this.value);
-
-			var val = me.symbol.value();
-			var valhtml;
-
-			if (typeof val == "boolean") { valhtml = "<span class='special_text'>"+val+"</span>"; }
-			else if (typeof val == "undefined") { valhtml = "<span class='error_text'>undefined</span>"; }
-			else if (typeof val == "string") { valhtml = "<span class='string_text'>\""+val+"\"</span>"; }
-			else if (typeof val == "number") { valhtml = "<span class='numeric_text'>"+val+"</span>"; }
-			else { valhtml = val; }
-
-			$(this).replaceWith("<span class='result_value'> = "+valhtml+"</span>");
-		});
-		$(this).replaceWith(editbox);
-	
-	});*/
 }
 
 Eden.plugins.ADM.title = "ADM";
