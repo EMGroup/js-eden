@@ -3,7 +3,6 @@
 - delete agents from list when deleted from adm
 - ability to edit agent descriptions / templates
 - multiple instances of the same agent need entities to have differing names, and these appended to their entities.
-- rename entities as definitions! Agents -> entities
 
 *** human perspective ***
 - make actions clickable
