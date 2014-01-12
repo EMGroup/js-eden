@@ -49,17 +49,16 @@
 	};
 	
 	/* Process the definitions of a newly created entity. */
-	var processDefinitions = function(definitions) {
+	var processDefinitions = function(name, definitions) {
 		for (var i = 0; i < definitions.length; i++) {
 			// Submit each definition as eden code to add to definition store.
 			try {
-				// TODO append name of entity instance to definition.
-				eval(Eden.translateToJavaScript(definitions[i]));
+				eval(Eden.translateToJavaScript(name+'_'+definitions[i]));
 			} catch (e) {
 				Eden.reportError(e);
 				return -1;
 			}
-			me.definitions.push(definitions[i]);
+			me.definitions.push(name+'_'+definitions[i]);
 		}
 	};
 	
@@ -79,14 +78,13 @@
 	
 	var processNewEntity = function(name) {
 		// TODO add ability to edit existing entity!
-		// TODO append greek letters to entity instances.
 		// Entities and actions should be separated by \n.
 		var input = document.getElementById('adm-definitions'),
 		definitions = input.value.split('\n');
 		var input = document.getElementById('adm-actions'),
 		actions = input.value.split('\n');
 		
-		var returnCode = processDefinitions(definitions);
+		var returnCode = processDefinitions(name, definitions);
 		// If definitions processed ok, also process actions!
 		if (returnCode != -1) {
 			processActions(name, definitions, actions);
@@ -97,7 +95,15 @@
 	var validateInput = function() {
 		var input = document.getElementById('adm-name'),
 		entityName = input.value;
-		if (entityName) {
+
+		// Ensure entity name is unique
+		var unique = true;
+		for (var i = 0; i < me.entities.length; i++) {
+			var entity = me.entities[i];
+			if (entity.name == entityName) unique = false;
+		}
+
+		if (entityName && unique) {
 			var returnCode = processNewEntity(entityName);
 			
 			if (returnCode != -1) {
@@ -117,7 +123,7 @@
 				this.currIndex = -1;
 			}
 		} else {
-			alert('Please enter a name for this entity.');
+			alert('Please enter a unique name for this entity.');
 			input.focus();
 		}
 	};
