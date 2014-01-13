@@ -145,10 +145,10 @@
 			var firstAction = queueSplit[0];
 			actions.push(firstAction);
 			queueSplit.splice(0, 1);
-			tmpQueue.append(split.join(';'));
+			tmpQueue.push(queueSplit.join(';'));
 			me.actionsList.addAction(firstAction, actions.length - 1);
 		}
-		me.actionsQueue = tmpQueue;
+		me.queuedActions = tmpQueue;
 		
 		// Find all actions to evaluate and add to the actions list:
 		for (x in me.entities) {
@@ -163,13 +163,10 @@
 				}
 				if (answer == true) {
 					var split = guardAction.actions.split(';');
-					for (int i = 0; i < actions.length; i++) {
-					}
 					var firstAction = split[0];
 					actions.push(firstAction);
 					split.splice(0, 1);
-					me.queuedActions.append(split.join(';'));
-					//actions.push(guardAction.actions);
+					me.queuedActions.push(split.join(';'));
 	
 					// Add action to selectable list of potential actions this step:
 					// TODO make these clickable!

@@ -2,9 +2,12 @@
 - make current agents in list clickable
 - delete agents from list when deleted from adm
 - ability to edit agent descriptions / templates
-- multiple instances of the same agent need entities to have differing names, and these appended to their entities.
 
 *** human perspective ***
 - make templates and parameterisation (parameters for identification)
 - in human perspective show actions under agent name they work for
 - maybe make it so you can select multiple actions and execute all at once (spirit of concurrency)
+
+*** bugs
+- cannot specify 0 definitions
+- icon stays on list
