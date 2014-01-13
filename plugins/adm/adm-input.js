@@ -11,20 +11,23 @@
 	this.actionsList;
 	
 	this.entities = new Array();
-	// Definition store: (probably this isn't needed)
+	// Definition store:
 	this.definitions = new Array();
+
+	// This array is to store the next sequential actions which can be executed.
+	this.queuedActions = new Array();
 	
 	// Holds the index of the entity currently displayed in the input box.
 	this.currIndex = -1;
 	
 	// Holds guard / action sequence pairs.
-	function GuardActions(guard, action) {
+	function GuardActions(guard, actions) {
 		this.guard = guard;
-		this.action = action;
+		this.actions = actions;
 	};
 
 	GuardActions.prototype.toString = function() {
-		return this.guard + ' --> ' + this.action;
+		return this.guard + ' --> ' + this.actions;
 	};
 
 	// Holds information defining an entity:
@@ -134,24 +137,43 @@
 		
 		// List to store the actions we are processing this round.
 		var actions = new Array();
+
+		// First add the next sequential items from last round
+		var tmpQueue = [];
+		for (x in me.queuedActions) {
+			var queueSplit = me.queuedActions[x].split(';');
+			var firstAction = queueSplit[0];
+			actions.push(firstAction);
+			queueSplit.splice(0, 1);
+			tmpQueue.append(split.join(';'));
+			me.actionsList.addAction(firstAction, actions.length - 1);
+		}
+		me.actionsQueue = tmpQueue;
 		
 		// Find all actions to evaluate and add to the actions list:
 		for (x in me.entities) {
 			var entity = me.entities[x];
 			for (var j = 0; j < entity.actionsArr.length; j++) {
 				// The guard should be EDEN code! Execute it
-				var action = entity.actionsArr[j];
+				var guardAction = entity.actionsArr[j];
 				try {
-					var answer = eval(Eden.translateToJavaScript('return ' + action.guard + ';'));
+					var answer = eval(Eden.translateToJavaScript('return ' + guardAction.guard + ';'));
 				} catch (e) {
 					Eden.reportError(e);
 				}
 				if (answer == true) {
-					actions.push(action.action);
+					var split = guardAction.actions.split(';');
+					for (int i = 0; i < actions.length; i++) {
+					}
+					var firstAction = split[0];
+					actions.push(firstAction);
+					split.splice(0, 1);
+					me.queuedActions.append(split.join(';'));
+					//actions.push(guardAction.actions);
 	
 					// Add action to selectable list of potential actions this step:
 					// TODO make these clickable!
-					me.actionsList.addAction(action.action, actions.length - 1);
+					me.actionsList.addAction(firstAction, actions.length - 1);
 				}
 			}
 		}

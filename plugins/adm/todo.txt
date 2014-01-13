@@ -6,5 +6,5 @@
 
 *** human perspective ***
 - make templates and parameterisation (parameters for identification)
-- if actions is a list, make it interleavable.
+- in human perspective show actions under agent name they work for
 - maybe make it so you can select multiple actions and execute all at once (spirit of concurrency)
