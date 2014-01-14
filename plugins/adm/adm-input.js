@@ -83,7 +83,7 @@
 		// Entities and actions should be separated by \n.
 		var input = document.getElementById('adm-definitions');
 		var definitions = [];
-		if (input.length > 0) {
+		if (input.value.length > 0) {
 			definitions = input.value.split('\n');
 		} 
 		var input = document.getElementById('adm-actions'),
@@ -309,7 +309,7 @@ Eden.plugins.ADM.ActionsList = function(entityName) {
 	this.actionresults.setAttribute('id', 'actions_'+entityName);
 	this.actionresults.innerHTML = '<label>Actions for '+entityName+':</label>';
 	humanPerspective.appendChild(this.actionresults);
-	this.actions = {};
+	this.actions = new Array();
 	this.entityName = entityName;
 }
 
@@ -320,7 +320,7 @@ Eden.plugins.ADM.ActionsList.prototype.addAction = function(action, index) {
 }
 
 Eden.plugins.ADM.ActionsList.prototype.clear = function() {
-	this.actions.length = 0;
+	this.actions = new Array();
         this.actionresults.innerHTML = '<label>'+this.entityName+'</label>';
 }
 
