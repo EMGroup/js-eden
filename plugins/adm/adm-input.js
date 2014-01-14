@@ -82,12 +82,16 @@
 	var processNewEntity = function(name) {
 		// TODO add ability to edit existing entity!
 		// Entities and actions should be separated by \n.
-		var input = document.getElementById('adm-definitions'),
-		definitions = input.value.split('\n');
+		var input = document.getElementById('adm-definitions');
+		var definitions = [];
+		if (input.length > 0) {
+			definitions = input.value.split('\n');
+		} 
 		var input = document.getElementById('adm-actions'),
 		actions = input.value.split('\n');
 		
 		var returnCode = processDefinitions(name, definitions);
+
 		// If definitions processed ok, also process actions!
 		if (returnCode != -1) {
 			processActions(name, definitions, actions);
