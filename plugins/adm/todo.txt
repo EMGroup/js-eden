@@ -5,7 +5,7 @@
 
 *** human perspective ***
 - make templates and parameterisation (parameters for identification)
-- in human perspective show actions under agent name they work for
+- queue actions per agent
 - maybe make it so you can select multiple actions and execute all at once (spirit of concurrency)
 
 *** bugs
