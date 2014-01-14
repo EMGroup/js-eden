@@ -14,9 +14,6 @@
 	// Definition store:
 	this.definitions = new Array();
 
-	// This array is to store the next sequential actions which can be executed.
-	this.queuedActions = new Array();
-	
 	// Holds the index of the entity currently displayed in the input box.
 	this.currIndex = -1;
 	
@@ -35,6 +32,8 @@
 		this.name = name;
 		this.definitions = definitions;
 		this.actionsArr = actionsArr;
+		// This array is to store the next sequential actions which can be executed.
+		this.queuedActions = new Array();
 	};
 	
 	/** @private */
@@ -147,17 +146,6 @@
 		// List to store the actions we are processing this round.
 		var actions = new Array();
 
-		// First add the next sequential items from last round
-		var tmpQueue = [];
-		for (x in me.queuedActions) {
-			var queueSplit = me.queuedActions[x].split(';');
-			var firstAction = queueSplit[0];
-			actions.push(firstAction);
-			queueSplit.splice(0, 1);
-			tmpQueue.push(queueSplit.join(';'));
-			//me.actionsList.addAction(firstAction, actions.length - 1);
-		}
-		me.queuedActions = tmpQueue;
 		
 		// Find all actions to evaluate and add to the actions list:
 		for (x in me.entities) {
@@ -173,6 +161,18 @@
 				}
 			}
 
+			// First add the next sequential items from last round
+			var tmpQueue = [];
+			for (x in entity.queuedActions) {
+				var queueSplit = entity.queuedActions[x].split(';');
+				var firstAction = queueSplit[0];
+				actions.push(firstAction);
+				queueSplit.splice(0, 1);
+				tmpQueue.push(queueSplit.join(';'));
+				actionList.addAction(firstAction, actions.length - 1);
+			}
+			entity.queuedActions = tmpQueue;
+	
 			for (var j = 0; j < entity.actionsArr.length; j++) {
 				// The guard should be EDEN code! Execute it
 				var guardAction = entity.actionsArr[j];
@@ -186,10 +186,9 @@
 					var firstAction = split[0];
 					actions.push(firstAction);
 					split.splice(0, 1);
-					me.queuedActions.push(split.join(';'));
+					entity.queuedActions.push(split.join(';'));
 	
 					// Add action to selectable list of potential actions this step:
-					// TODO make these clickable!
 					actionList.addAction(firstAction, actions.length - 1);
 				}
 			}

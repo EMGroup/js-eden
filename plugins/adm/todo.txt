@@ -3,9 +3,11 @@
 - delete agents from list when deleted from adm
 - ability to edit agent descriptions / templates
 
+- would really be super if updates happened. maybe add "refresh" button :(
+- make guards eden-ish
+
 *** human perspective ***
 - make templates and parameterisation (parameters for identification)
-- queue actions per agent
 - maybe make it so you can select multiple actions and execute all at once (spirit of concurrency)
 
 *** bugs
