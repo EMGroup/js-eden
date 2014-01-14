@@ -292,7 +292,15 @@
 				width: 360,
 				height: 400,
 				minHeight: 200,
-				minWidth: 360
+				minWidth: 360,
+				buttons: [
+				{
+					id: "btn-refresh",
+					text: "Refresh actions",
+					click: function() {
+						eden.plugins.ADM.process();
+					}
+				}]
 			});
 	};
 	

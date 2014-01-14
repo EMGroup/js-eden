@@ -3,7 +3,7 @@
 - delete agents from list when deleted from adm
 - ability to edit agent descriptions / templates
 
-- would really be super if updates happened. maybe add "refresh" button :(
+- would really be super if updates happened when guards changed value...
 - make guards eden-ish
 
 *** human perspective ***
