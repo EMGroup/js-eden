@@ -9,6 +9,3 @@
 *** human perspective ***
 - make templates and parameterisation (parameters for identification)
 - maybe make it so you can select multiple actions and execute all at once (spirit of concurrency)
-
-*** bugs
-- icon stays on list

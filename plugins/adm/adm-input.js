@@ -166,10 +166,12 @@
 			for (x in entity.queuedActions) {
 				var queueSplit = entity.queuedActions[x].split(';');
 				var firstAction = queueSplit[0];
-				actions.push(firstAction);
-				queueSplit.splice(0, 1);
-				tmpQueue.push(queueSplit.join(';'));
-				actionList.addAction(firstAction, actions.length - 1);
+				if (firstAction.length > 0) {
+					actions.push(firstAction);
+					queueSplit.splice(0, 1);
+					tmpQueue.push(queueSplit.join(';'));
+					actionList.addAction(firstAction, actions.length - 1);
+				}
 			}
 			entity.queuedActions = tmpQueue;
 	
@@ -186,7 +188,9 @@
 					var firstAction = split[0];
 					actions.push(firstAction);
 					split.splice(0, 1);
-					entity.queuedActions.push(split.join(';'));
+					if (split[0].length > 0) {
+						entity.queuedActions.push(split.join(';'));
+					}
 	
 					// Add action to selectable list of potential actions this step:
 					actionList.addAction(firstAction, actions.length - 1);
