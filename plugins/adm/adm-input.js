@@ -101,7 +101,7 @@
 		var template = new Template(name, params, definitions, actionsArr);
 		
 		me.templates.push(template);
-		me.templateList.addEntity(name, params);
+		me.templateList.addTemplate(name, params);
 		return 0;
 	};
 	
@@ -361,6 +361,14 @@
 		return result;
 	};
 
+	// Clear instantiator on successful instantiation
+	var clearInstantiator = function(box, boxes) {
+		box.value = "";
+		for (x in boxes) {
+			boxes[x].value = "";
+		}
+	};
+
 	// Instantiate a selected template with given parameters in instantiator
 	var instantiate = function() {
 		// Find the template we are instantiating
@@ -374,7 +382,8 @@
 			}
 		}
 
-		var name = document.getElementById('entity-name').value;
+		var nameBox = document.getElementById('entity-name');
+		var name = nameBox.value;
 		// Ensure new entity name is unique
 		var unique = true;
 		for (var i = 0; i < me.entities.length; i++) {
@@ -389,11 +398,13 @@
 		var params = $("#instantiate-params");
 		var inputs = params.find("input");
 		var paramIndex = 0;
+		var inputBoxes = new Array();
 		for (x in inputs) {
 			var input = inputs[x];
 			if (input.type == "text") {
 				var param = thisTemplate.parameters[paramIndex];
-				var value = inputs[x].value;
+				var value = input.value;
+				inputBoxes.push(input);
 				eval(Eden.translateToJavaScript(name+'_'+param+'='+value+';'));
 				paramIndex++;
 			}
@@ -412,13 +423,14 @@
 			me.actionLists.push(actionList);
 			processSelected(entity, actionList);
 			alert('Successfully added instantiation of ' + templateName + ' as ' + name);
+			clearInstantiator(nameBox, inputBoxes);
 		}
 	};
 	
 	/** @public */
 	this.createInstantiator = function(name, mtitle) {
 		var code_entry = $('<div></div>');
-		code_entry = $('<div id=\"entity-instantiator\">\
+		code_entry = $('<div id=\"template-instantiator\">\
 					<label>Templates:</label>\
 					<select id=\"template-menu\">\
 					</select><br>\
@@ -445,7 +457,7 @@
 					}
 				}]
 			});
-		me.templateList = new Eden.plugins.ADM.EntityList();
+		me.templateList = new Eden.plugins.ADM.TemplateList();
 	};
 
 	context.views["AdmTemplateCreator"] = {
@@ -460,34 +472,37 @@
 
 	context.views["AdmInstantiator"] = {
 		dialog: this.createInstantiator,
-		title: "ADM Entity Instantiator"
+		title: "ADM Template Instantiator"
 	};
 };
 
-Eden.plugins.ADM.EntityList = function() {
-	this.entityList = document.getElementById('template-menu');
-	this.entityList.style.minWidth="100px";
-	this.entities = new Array();
+Eden.plugins.ADM.TemplateList = function() {
+	this.templateList = document.getElementById('template-menu');
+	this.templateList.style.minWidth="100px";
+	this.templates = new Array();
 }
 
-Eden.plugins.ADM.EntityList.prototype.addEntity = function(entity, params) {
-	var entityElement = new Eden.plugins.ADM.Entity(entity, params);
-	entityElement.element.appendTo(this.entityList);
-	this.entities.push(entityElement);
+Eden.plugins.ADM.TemplateList.prototype.addTemplate = function(template, params) {
+	var templateElement = new Eden.plugins.ADM.Template(template, params);
+	templateElement.element.appendTo(this.templateList);
+	this.templates.push(templateElement);
 }
 
-Eden.plugins.ADM.Entity = function(entity, parameters) {
-	this.entity = entity;
-	this.element = $('<option value='+entity+'>'+entity+'</option>');
+Eden.plugins.ADM.Template = function(template, parameters) {
+	this.template = template;
+	this.element = $('<option value='+template+'>'+template+'</option>');
 	var show = this.showParamInput;
 	var params = parameters;
 	
 	this.element.click(function() {
 		show(parameters);
 	});
+	
+	var instantiator = document.getElementById("instantiate-params");
+	if (instantiator.innerHTML == "") show(parameters);
 }
 
-Eden.plugins.ADM.Entity.prototype.showParamInput = function(params) {
+Eden.plugins.ADM.Template.prototype.showParamInput = function(params) {
 	// Add input boxes for every parameter
 	var instantiator = document.getElementById("instantiate-params");
 	instantiator.innerHTML="";

@@ -2,9 +2,8 @@
 - make current agents in list clickable
 - delete agents from list when deleted from adm
 - ability to edit agent descriptions / templates
-- make instantiator show something before you've clicked
 - make instantiator work for 0 parameters given
-- instantiator with nothing in needs to look less confusing
+- give error if a needed view doesn't exist rather than silently fail
 
 *** eden-ish
 - would really be super if updates happened when guards changed value...
