@@ -2,9 +2,13 @@
 - make current agents in list clickable
 - delete agents from list when deleted from adm
 - ability to edit agent descriptions / templates
+- make instantiator show something before you've clicked
+- instantiator with nothing in needs to look less confusing
 
+*** eden-ish
 - would really be super if updates happened when guards changed value...
 - make guards eden-ish
 
 *** human perspective ***
-- make templates and parameterisation (parameters for identification)
+- allow templates to specify this so agent name can be defined later
+- make entity list view with deleting/editing agents?
