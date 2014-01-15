@@ -82,6 +82,9 @@
 		// TODO add ability to edit existing entity!
 
 		// Get the parameters between the brackets, split by commas:
+		if ((nameParams.split('(')).length < 2) {
+			alert('Format: TemplateName(param1, param2, ...) or TemplateName()'); return -1;
+		}
 		var params = ((nameParams.split('(')[1]).split(')')[0]).split(',');
 		var name = nameParams.split('(')[0];
 
@@ -99,6 +102,7 @@
 		
 		me.templates.push(template);
 		me.templateList.addEntity(name, params);
+		return 0;
 	};
 	
 	var validateInput = function() {
@@ -113,14 +117,16 @@
 		}
 
 		if (templateName && unique) {
-			processNewTemplate(input.value);
+			var returnCode = processNewTemplate(input.value);
 			
-			alert('Template was successfully added!');
-			document.getElementById('adm-name').value = '';
-			document.getElementById('adm-definitions').value = '';
-			document.getElementById('adm-actions').value = '';
+			if (returnCode != -1) {
+				alert('Template was successfully added!');
+				document.getElementById('adm-name').value = '';
+				document.getElementById('adm-definitions').value = '';
+				document.getElementById('adm-actions').value = '';
 				
-			me.currIndex = -1;
+				me.currIndex = -1;
+			}
 		} else {
 			alert('Please enter a unique name for this template.');
 			input.focus();
