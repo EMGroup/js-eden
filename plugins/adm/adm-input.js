@@ -224,12 +224,12 @@
 		me.currIndex = index;
 	};
 	
-	var deleteEntity = function(index) {
+	var deleteTemplate = function(index) {
 		if (index > -1) {
-			/*alert('deleting an instance of entity ' + me.entities[index].name);
-			me.entities.splice(index);
+			alert('deleting template ' + me.templates[index].name);
+			me.templates.splice(index);
 			me.currIndex = index-1;
-			display(me.currIndex);*/
+			display(me.currIndex);
 		}
 	};
 		
@@ -264,16 +264,16 @@
 				buttons: [
 					{
 						id: "btn-add",
-						text: "Add Entity",
+						text: "Add Template",
 						click: function() {
 							validateInput();
 						}
 					},
 					{
 						id: "btn-delete",
-						text: "Delete Entity",
+						text: "Delete Template",
 						click: function() {
-							deleteEntity(me.currIndex);
+							deleteTemplate(me.currIndex);
 						}
 					},
 					{
@@ -355,12 +355,8 @@
 		for (x in guardActions) {
 			var element = guardActions[x];
 			var guard = element.guard.replace("this", name);
-			var actionsArr = new Array();
-			for (y in element.actions) {
-				var action = element.actions[y];
-				actionsArr.push(action.replace("this", name));
-			}
-			result.push(new GuardActions(guard, actionsArr));
+			var actions = element.actions.replace("this", name);
+			result.push(new GuardActions(guard, actions));
 		}
 		return result;
 	};

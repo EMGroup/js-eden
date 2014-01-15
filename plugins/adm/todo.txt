@@ -11,5 +11,4 @@
 - make guards eden-ish
 
 *** human perspective ***
-- fix "this" within actions
 - make entity list view with deleting/editing agents?
