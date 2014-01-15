@@ -8,7 +8,10 @@
  Eden.plugins.ADM = function(context) {
 	var me = this;
 	
+	// This holds the ActionList objects for every entity
 	this.actionLists = new Array();
+	// Array of actions selected to be executed
+	this.actions = new Array();
 	
 	this.entities = new Array();
 	// Definition store:
@@ -135,23 +138,31 @@
 			input.focus();
 		}
 	};
+
+	this.actionPush = function(value) {
+		me.actions.push(value);
+	};
+
+	this.actionRemove = function(value) {
+		var newActions = new Array();
+		for (x in me.actions) {
+			var action = me.actions[x];
+			if (action != value) {
+				newActions.push(action);
+			}
+		}
+		me.actions = newActions;
+	};
 	
 	this.process = function() {
-		// Clear the actions list ready for new available actions.
-		for (x in me.actionLists) {
-			var actionList = me.actionLists[x];
-			actionList.clear();
-		}
-		
 		// List to store the actions we are processing this round.
 		var actions = new Array();
-
 		
 		// Find all actions to evaluate and add to the actions list:
 		for (x in me.entities) {
 			var entity = me.entities[x];
 
-			// Find the ActionsList for this entitiy
+			// Find the ActionsList for this entity and clear it
 			var actionList;
 			for (y in me.actionLists) {
 				var nextActionList = me.actionLists[y];
@@ -160,6 +171,7 @@
 					break;
 				}
 			}
+			actionList.clear();
 
 			// First add the next sequential items from last round
 			var tmpQueue = [];
@@ -279,9 +291,19 @@
 		
 		myeditor = convertToEdenPageNew('#'+name+'-input','code');
 	};
+
+	var step = function() {
+		// Execute all actions currently highlighted!
+		for (x in me.actions) {
+			var action = me.actions[x];
+			eval(Eden.translateToJavaScript(action+';'));
+		}
+		me.actions = new Array();
+		eden.plugins.ADM.process();
+	}
 	
 	/** @public */
-    this.createHumanPerspective = function(name, mtitle) {
+	this.createHumanPerspective = function(name, mtitle) {
 		var code_entry = $('<div></div>');
 		code_entry = $("<div id=\"human-perspective\" class=\"actionlist\"></div>");
 		
@@ -299,6 +321,13 @@
 					text: "Refresh actions",
 					click: function() {
 						eden.plugins.ADM.process();
+					}
+				},
+				{
+					id: "btn-step",
+					text: "Step",
+					click: function() {
+						step();
 					}
 				}]
 			});
@@ -337,20 +366,36 @@ Eden.plugins.ADM.ActionsList.prototype.clear = function() {
 }
 
 Eden.plugins.ADM.Action = function(action) {
+	var action = action;
 	this.action = action;
 	this.element = $('<div class="entitylist-element"></div>');
 	this.update = this.updateAction;
+	var selected = false;
 
 	this.element.hover(
 		function() {
-			$(this).animate({backgroundColor: "#eaeaea"}, 100);
+			if (selected == false) {
+				$(this).animate({backgroundColor: "#eaeaea"}, 100);
+			} else {
+				$(this).animate({backgroundColor: "#66CCCC"}, 100);
+			}
 		}, function() {
-			$(this).animate({backgroundColor: "white"}, 100);
+			if (selected == false) {
+				$(this).animate({backgroundColor: "white"}, 100);
+			} else {
+				$(this).animate({backgroundColor: "#6666CC"}, 100);
+			}
 		}	
 	).click(function() {
-		// On click the action should be executed, and the actions list cleared.
-		eval(Eden.translateToJavaScript(action + ';'));
-		eden.plugins.ADM.process();
+		if (selected == false) {
+			eden.plugins.ADM.actionPush(action);
+			$(this).css("backgroundColor","#6666CC");
+			selected = true;
+		} else {
+			eden.plugins.ADM.actionRemove(action);
+			$(this).css("backgroundColor", "white");
+			selected = false;
+		}
 	});
 
 	this.update();
