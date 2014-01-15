@@ -19,6 +19,9 @@
 
 	// Holds the index of the entity currently displayed in the input box.
 	this.currIndex = -1;
+
+	// Var to hold the list of templates to be instantiated
+	this.templateList;
 	
 	// Holds guard / action sequence pairs.
 	function GuardActions(guard, actions) {
@@ -37,20 +40,6 @@
 		this.actionsArr = actionsArr;
 		// This array is to store the next sequential actions which can be executed.
 		this.queuedActions = new Array();
-	};
-	
-	/** @private */
-	var generateInputHTML = function(name) {
-		return '<div id="'+name+'-input" class=\"inputwindow-code\">\
-			<form>\
-				<label>Name: </label><input id="adm-name" type=\"text\" class=\"adm-name\"></input><br>\
-				<label>Definitions:</label><br><textarea id="adm-definitions" class=\"adm-definitions\"></textarea><br>\
-				<label>Actions:</label><br><textarea id="adm-actions" class=\"adm-actions\"></textarea>\
-			</form>\
-		</div>\
-		<div id="adm-results" class=\"entitylist-results\">\
-			<ul id="results"> </ul>\
-		</div>';
 	};
 	
 	/* Process the definitions of a newly created entity. */
@@ -134,7 +123,8 @@
 				var results = document.getElementById('results');
 				results.appendChild(newdiv);
 				
-				this.currIndex = -1;
+				me.currIndex = -1;
+				me.templateList.addEntity(entityName);
 			}
 		} else {
 			alert('Please enter a unique name for this entity.');
@@ -242,11 +232,25 @@
 		}
 	};
 		
-	 /** @public */
-     this.createInputDialog = function(name, mtitle) {
+	/** @private */
+	var generateTemplateHTML = function(name) {
+		return '<div id="'+name+'-input" class=\"inputwindow-code\">\
+			<form>\
+				<label>Name: </label><input id="adm-name" type=\"text\" class=\"adm-name\"></input><br>\
+				<label>Definitions:</label><br><textarea id="adm-definitions" class=\"adm-definitions\"></textarea><br>\
+				<label>Actions:</label><br><textarea id="adm-actions" class=\"adm-actions\"></textarea>\
+			</form>\
+		</div>\
+		<div id="adm-results" class=\"entitylist-results\">\
+			<ul id="results"> </ul>\
+		</div>';
+	};
+
+	/** @public */
+	this.createTemplateCreator = function(name, mtitle) {
 		var myeditor;
 		var code_entry = $('<div></div>');
-		code_entry.html(generateInputHTML(name));
+		code_entry.html(generateTemplateHTML(name));
 		
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
@@ -334,16 +338,58 @@
 			});
 	};
 	
-	context.views["AdmInput"] = {
-		dialog: this.createInputDialog,
-		title: "ADM Input Window"
+	/** @public */
+	this.createInstantiator = function(name, mtitle) {
+		var code_entry = $('<div></div>');
+		code_entry = $('<div id=\"entity-instantiator\">\
+					<select id=\"template-menu\">\
+					</select>\
+				</div>');
+		
+		$dialog = $('<div id="'+name+'"></div>')
+			.html(code_entry)
+			.dialog({
+				title: mtitle,
+				width: 360,
+				height: 400,
+				minHeight: 200,
+				minWidth: 360,
+			});
+		me.templateList = new Eden.plugins.ADM.EntityList();
+	};
+
+	context.views["AdmTemplateCreator"] = {
+		dialog: this.createTemplateCreator,
+		title: "ADM Template Creator"
 	};
 	
 	context.views["AdmHumanPerspective"] = {
 		dialog: this.createHumanPerspective,
 		title: "ADM Human Perspective"
 	};
+
+	context.views["AdmInstantiator"] = {
+		dialog: this.createInstantiator,
+		title: "ADM Entity Instantiator"
+	};
 };
+
+Eden.plugins.ADM.EntityList = function() {
+	this.entityList = document.getElementById('template-menu');
+	this.entityList.style.minWidth="100px";
+	this.entities = new Array();
+}
+
+Eden.plugins.ADM.EntityList.prototype.addEntity = function(entity) {
+	var entityElement = new Eden.plugins.ADM.Entity(entity);
+	entityElement.element.appendTo(this.entityList);
+	this.entities.push(entityElement);
+}
+
+Eden.plugins.ADM.Entity = function(entity) {
+	this.entity = entity;
+	this.element = $('<option value='+entity+'>'+entity+'</option>');
+}
  
 Eden.plugins.ADM.ActionsList = function(entityName) {
 	var humanPerspective = document.getElementById("human-perspective");
