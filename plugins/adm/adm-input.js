@@ -68,7 +68,7 @@
 	};
 	
 	/* Process the actions of a newly created entity. */
-	var processActions = function(name, definitions, actions) {
+	var processActions = function(name, actions) {
 		// TODO validate here! e.g. by trying to convert to eden code
 		var actionsArr = new Array();
 		for (var i = 0; i < actions.length; i++) {
@@ -78,7 +78,7 @@
 				actionsArr.push(new GuardActions(split[0], split[1]));
 			}
 		}
-		me.entities.push(new Entity(name, definitions, actionsArr));
+		return actionsArr;
 	};
 	
 	var processNewEntity = function(name) {
@@ -96,9 +96,12 @@
 
 		// If definitions processed ok, also process actions!
 		if (returnCode != -1) {
-			processActions(name, definitions, actions);
-			me.actionLists.push(new Eden.plugins.ADM.ActionsList(name));
-			eden.plugins.ADM.process();
+			var actionsArr = processActions(name, actions);
+			var entity = new Entity(name, definitions, actionsArr);
+			me.entities.push(entity);
+			var actionList = new Eden.plugins.ADM.ActionsList(name);
+			me.actionLists.push(actionList);
+			processSelected(entity, actionList);
 		}
 		return returnCode;
 	};
@@ -155,9 +158,6 @@
 	};
 	
 	this.process = function() {
-		// List to store the actions we are processing this round.
-		var actions = new Array();
-		
 		// Find all actions to evaluate and add to the actions list:
 		for (x in me.entities) {
 			var entity = me.entities[x];
@@ -179,34 +179,35 @@
 				var queueSplit = entity.queuedActions[x].split(';');
 				var firstAction = queueSplit[0];
 				if (firstAction.length > 0) {
-					actions.push(firstAction);
 					queueSplit.splice(0, 1);
 					tmpQueue.push(queueSplit.join(';'));
-					actionList.addAction(firstAction, actions.length - 1);
+					actionList.addAction(firstAction);
 				}
 			}
 			entity.queuedActions = tmpQueue;
-	
-			for (var j = 0; j < entity.actionsArr.length; j++) {
-				// The guard should be EDEN code! Execute it
-				var guardAction = entity.actionsArr[j];
-				try {
-					var answer = eval(Eden.translateToJavaScript('return ' + guardAction.guard + ';'));
-				} catch (e) {
-					Eden.reportError(e);
+			processSelected(entity, actionList);
+		}
+	};
+
+	var processSelected = function(entity, actionList) {
+		for (var j = 0; j < entity.actionsArr.length; j++) {
+			// The guard should be EDEN code! Execute it
+			var guardAction = entity.actionsArr[j];
+			try {
+				var answer = eval(Eden.translateToJavaScript('return ' + guardAction.guard + ';'));
+			} catch (e) {
+				Eden.reportError(e);
+			}
+			if (answer == true) {
+				var split = guardAction.actions.split(';');
+				var firstAction = split[0];
+				split.splice(0, 1);
+				if (split[0].length > 0) {
+					entity.queuedActions.push(split.join(';'));
 				}
-				if (answer == true) {
-					var split = guardAction.actions.split(';');
-					var firstAction = split[0];
-					actions.push(firstAction);
-					split.splice(0, 1);
-					if (split[0].length > 0) {
-						entity.queuedActions.push(split.join(';'));
-					}
 	
-					// Add action to selectable list of potential actions this step:
-					actionList.addAction(firstAction, actions.length - 1);
-				}
+				// Add action to selectable list of potential actions this step:
+				actionList.addAction(firstAction);
 			}
 		}
 	};
@@ -354,10 +355,10 @@ Eden.plugins.ADM.ActionsList = function(entityName) {
 	this.entityName = entityName;
 }
 
-Eden.plugins.ADM.ActionsList.prototype.addAction = function(action, index) {
+Eden.plugins.ADM.ActionsList.prototype.addAction = function(action) {
 	var actionElement = new Eden.plugins.ADM.Action(action);
 	actionElement.element.appendTo(this.actionresults);
-	this.actions[index] = actionElement;
+	this.actions.push(actionElement);
 }
 
 Eden.plugins.ADM.ActionsList.prototype.clear = function() {
