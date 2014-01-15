@@ -21,8 +21,10 @@
 	// Holds the index of the entity currently displayed in the input box.
 	this.currIndex = -1;
 
-	// Var to hold the list of templates to be instantiated
+	// Var to hold the TemplateList object
 	this.templateList;
+	// Var to hold the EntityList object
+	this.entityList;
 	
 	// Holds guard / action sequence pairs.
 	function GuardActions(guard, actions) {
@@ -424,6 +426,7 @@
 			processSelected(entity, actionList);
 			alert('Successfully added instantiation of ' + templateName + ' as ' + name);
 			clearInstantiator(nameBox, inputBoxes);
+			me.entityList.addEntity(name);
 		}
 	};
 	
@@ -460,6 +463,23 @@
 		me.templateList = new Eden.plugins.ADM.TemplateList();
 	};
 
+	/** @public */
+	this.createInstanceList = function(name, mtitle) {
+		var code_entry = $('<div></div>');
+		code_entry = $('<div id=\"entity-list\"></div>');
+		
+		$dialog = $('<div id="'+name+'"></div>')
+			.html(code_entry)
+			.dialog({
+				title: mtitle,
+				width: 360,
+				height: 400,
+				minHeight: 200,
+				minWidth: 360,
+			});
+		me.entityList = new Eden.plugins.ADM.EntityList();
+	};
+
 	context.views["AdmTemplateCreator"] = {
 		dialog: this.createTemplateCreator,
 		title: "ADM Template Creator"
@@ -474,7 +494,47 @@
 		dialog: this.createInstantiator,
 		title: "ADM Template Instantiator"
 	};
+
+	context.views["AdmEntityList"] = {
+		dialog: this.createInstanceList,
+		title: "ADM Entity List"
+	};
 };
+
+Eden.plugins.ADM.EntityList = function() {
+	this.entityList = document.getElementById('entity-list');
+	this.entities = new Array();
+}
+
+Eden.plugins.ADM.EntityList.prototype.addEntity = function(entity) {
+	var entityElement = new Eden.plugins.ADM.Entity(entity);
+	entityElement.element.appendTo(this.entityList);
+	this.entities.push(entityElement);
+}
+
+Eden.plugins.ADM.Entity = function(entity) {
+	this.entity = entity;
+	this.element = $('<div class="entitylist-element"></div>');
+	this.update = this.updateEntity;
+
+	this.element.hover(
+		function() {
+			$(this).animate({backgroundColor: "#eaeaea"}, 100);
+		}, function() {
+			$(this).animate({backgroundColor: "white"}, 100);
+		}
+	).click(function() {
+		//Do something
+	});
+
+	this.update();
+}
+
+Eden.plugins.ADM.Entity.prototype.updateEntity = function() {
+	this.element.html("<li class=\"type-function\"><span class=\"result_name\">"
+		+ this.entity + "</span></li>"
+	);
+}
 
 Eden.plugins.ADM.TemplateList = function() {
 	this.templateList = document.getElementById('template-menu');
@@ -577,15 +637,8 @@ Eden.plugins.ADM.Action = function(action) {
 }
 
 Eden.plugins.ADM.Action.prototype.updateAction = function() {
-	var me = this;
-
-	var namehtml = "<span class=\"hasdef_text\" title=\""
-		+ this.action
-		+"\">"+this.action+"</span>";
-
 	this.element.html("<li class=\"type-function\"><span class=\"result_name\">"
-		+ namehtml
-		+ "</span></li>"
+		+ this.action + "</span></li>"
 	);
 }
 
