@@ -339,6 +339,32 @@
 			});
 	};
 
+	// Replace all occurences of "this" in array arr with "name" Strings
+	var replaceThis = function(name, arr) {
+		var result = new Array();
+		for (x in arr) {
+			var element = arr[x];
+			result.push(element.replace("this", name));
+		}
+		return result;
+	};
+
+	// Replace all occurences of "this" in array arr with "name" GuardActions
+	var replaceThisActions = function(name, guardActions) {
+		var result = new Array();
+		for (x in guardActions) {
+			var element = guardActions[x];
+			var guard = element.guard.replace("this", name);
+			var actionsArr = new Array();
+			for (y in element.actions) {
+				var action = element.actions[y];
+				actionsArr.push(action.replace("this", name));
+			}
+			result.push(new GuardActions(guard, actionsArr));
+		}
+		return result;
+	};
+
 	// Instantiate a selected template with given parameters in instantiator
 	var instantiate = function() {
 		// Find the template we are instantiating
@@ -376,10 +402,15 @@
 				paramIndex++;
 			}
 		}
-		// Process definitions and actions
-		var returnCode = processDefinitions(name, thisTemplate.definitions);
+
+		// Replace "this" keyword with entity name in actions and definitions.
+		var entityDefinitions = replaceThis(name, thisTemplate.definitions);
+
+		// Process definitions and actions.
+		var returnCode = processDefinitions(name, entityDefinitions);
 		if (returnCode != -1) {
-			var entity = new Entity(name, thisTemplate.definitions, thisTemplate.actionsArr);
+			var entityActions = replaceThisActions(name, thisTemplate.actionsArr);
+			var entity = new Entity(name, entityDefinitions, entityActions);
 			me.entities.push(entity);
 			var actionList = new Eden.plugins.ADM.ActionsList(name);
 			me.actionLists.push(actionList);
@@ -478,7 +509,6 @@ Eden.plugins.ADM.Entity.prototype.showParamInput = function(params) {
 }
  
 Eden.plugins.ADM.ActionsList = function(entityName) {
-	alert('new action list');
 	var humanPerspective = document.getElementById("human-perspective");
 	this.actionresults = document.createElement('div');
 	this.actionresults.setAttribute('id', 'actions_'+entityName);

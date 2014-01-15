@@ -3,6 +3,7 @@
 - delete agents from list when deleted from adm
 - ability to edit agent descriptions / templates
 - make instantiator show something before you've clicked
+- make instantiator work for 0 parameters given
 - instantiator with nothing in needs to look less confusing
 
 *** eden-ish
@@ -10,5 +11,5 @@
 - make guards eden-ish
 
 *** human perspective ***
-- allow templates to specify this so agent name can be defined later
+- fix "this" within actions
 - make entity list view with deleting/editing agents?
