@@ -103,7 +103,9 @@
 		var template = new Template(name, params, definitions, actionsArr);
 		
 		me.templates.push(template);
-		me.templateList.addTemplate(name, params);
+		if (me.templateList != null) {
+			me.templateList.addTemplate(name, params);
+		}
 		return 0;
 	};
 	
@@ -421,12 +423,16 @@
 			var entityActions = replaceThisActions(name, thisTemplate.actionsArr);
 			var entity = new Entity(name, entityDefinitions, entityActions);
 			me.entities.push(entity);
-			var actionList = new Eden.plugins.ADM.ActionsList(name);
-			me.actionLists.push(actionList);
-			processSelected(entity, actionList);
+			if (me.actionLists != null) {
+				var actionList = new Eden.plugins.ADM.ActionsList(name);
+				me.actionLists.push(actionList);
+				processSelected(entity, actionList);
+			}
+			if (me.entityList != null) {
+				me.entityList.addEntity(name);
+			}
 			alert('Successfully added instantiation of ' + templateName + ' as ' + name);
 			clearInstantiator(nameBox, inputBoxes);
-			me.entityList.addEntity(name);
 		}
 	};
 	
@@ -461,6 +467,10 @@
 				}]
 			});
 		me.templateList = new Eden.plugins.ADM.TemplateList();
+		for (x in me.templates) {
+			var template = me.templates[x];
+			me.templatelist.addTemplate(template.name, template.parameters);
+		}
 	};
 
 	/** @public */
@@ -478,6 +488,10 @@
 				minWidth: 360,
 			});
 		me.entityList = new Eden.plugins.ADM.EntityList();
+		for (x in me.entities) {
+			var entity = me.entities[x];
+			me.entityList.addEntity(entity.name);
+		}
 	};
 
 	context.views["AdmTemplateCreator"] = {
