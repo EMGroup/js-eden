@@ -8,8 +8,6 @@
  Eden.plugins.ADM = function(context) {
 	var me = this;
 	
-	// This holds the ActionList objects for every entity
-	this.actionLists = new Array();
 	// Array of actions selected to be executed
 	this.actions = new Array();
 	
@@ -21,6 +19,8 @@
 	// Holds the index of the entity currently displayed in the input box.
 	this.currIndex = -1;
 
+	// This holds the ActionList objects for every entity
+	this.actionLists;
 	// Var to hold the TemplateList object
 	this.templateList;
 	// Var to hold the EntityList object
@@ -341,6 +341,12 @@
 					}
 				}]
 			});
+		me.actionLists = new Array();
+		for (x in me.entities) {
+			var name = me.entities[x].name;
+			me.actionLists.push(new Eden.plugins.ADM.ActionsList(name));
+		}
+		eden.plugins.ADM.process();
 	};
 
 	// Replace all occurences of "this" in array arr with "name" Strings
@@ -469,7 +475,7 @@
 		me.templateList = new Eden.plugins.ADM.TemplateList();
 		for (x in me.templates) {
 			var template = me.templates[x];
-			me.templatelist.addTemplate(template.name, template.parameters);
+			me.templateList.addTemplate(template.name, template.parameters);
 		}
 	};
 

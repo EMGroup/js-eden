@@ -1,6 +1,5 @@
 - input boxes adapt to size of window
 - make instantiator work for 0 parameters given
-- give error if a needed view doesn't exist rather than silently fail
 
 *** eden-ish
 - would really be super if updates happened when guards changed value...
