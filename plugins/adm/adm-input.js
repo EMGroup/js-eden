@@ -9,7 +9,9 @@
 	var me = this;
 	
 	// Array of actions selected to be executed
-	this.actions = new Array();
+	this.selectedActions = new Array();
+	// Array of entities selected in EntityList
+	this.selectedEntities = new Array();
 	
 	this.templates = new Array();
 	this.entities = new Array();
@@ -137,20 +139,35 @@
 	};
 
 	this.actionPush = function(value) {
-		me.actions.push(value);
+		me.selectedActions.push(value);
 	};
 
 	this.actionRemove = function(value) {
 		var newActions = new Array();
-		for (x in me.actions) {
-			var action = me.actions[x];
+		for (x in me.selectedActions) {
+			var action = me.selectedActions[x];
 			if (action != value) {
 				newActions.push(action);
 			}
 		}
-		me.actions = newActions;
+		me.selectedActions = newActions;
 	};
 	
+	this.entityPush = function(value) {
+		me.selectedEntities.push(value);
+	};
+
+	this.entityRemove = function(value) {
+		var newEntities = new Array();
+		for (x in me.selectedEntities) {
+			var entity = me.selectedEntities[x];
+			if (entity != value) {
+				newEntities.push(entity);
+			}
+		}
+		me.selectedEntities = newEntities;
+	};
+
 	this.process = function() {
 		// Find all actions to evaluate and add to the actions list:
 		for (x in me.entities) {
@@ -324,7 +341,7 @@
 				break;
 			}
 		}
-		if (me.actionLists.size > 0) me.actionLists.splice(index, 1);
+		if (me.actionLists != null) me.actionLists.splice(index, 1);
 		if (me.entityList != null) me.entityList.removeEntity(entityName);
 	};
 
@@ -382,8 +399,8 @@
 
 	var step = function() {
 		// Execute all actions currently highlighted!
-		for (x in me.actions) {
-			var action = me.actions[x];
+		for (x in me.selectedActions) {
+			var action = me.selectedActions[x];
 			/* If the action starts with a alpha it is referring to an entity.
 			This means it needs special treatment, otherwise it is just EDEN code.*/
 			while(action.charCodeAt(0) == 32) {
@@ -413,7 +430,7 @@
 				eval(Eden.translateToJavaScript(action+';'));
 			}
 		}
-		me.actions = new Array();
+		me.selectedActions = new Array();
 		eden.plugins.ADM.process();
 	}
 	
@@ -569,7 +586,10 @@
 	};
 
 	var deleteSelected = function() {
-		// TODO
+		for (x in me.selectedEntities) {
+			processEntityRemove(me.selectedEntities[x]);
+		}
+		me.selectedEntities = new Array();
 	}
 
 	/** @private */
@@ -679,10 +699,12 @@ Eden.plugins.ADM.Entity = function(entity, definitions, actions) {
 					<label>Actions:</label><br>\
 					<textarea disabled>'+actions+'</textarea><br>'
 			this.appendChild(newDiv);
+			eden.plugins.ADM.entityPush(entity);
 			$(this).css("backgroundColor", "#6666CC");
 			selected = true;
 		} else {
 			this.innerHTML = contentHTML;
+			eden.plugins.ADM.entityRemove(entity);
 			$(this).css("backgroundColor", "white");
 			selected = false;
 		}

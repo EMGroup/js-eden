@@ -6,4 +6,5 @@
 - make guards eden-ish
 
 *** human perspective ***
-- add ability to edit/delete entities
+- add ability to edit instantiated entities
+- make it obvious that an action has sequential actions following it
