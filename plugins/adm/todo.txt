@@ -7,4 +7,3 @@
 
 *** human perspective ***
 - add ability to edit/delete entities
-- let entities instantiate new entities

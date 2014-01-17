@@ -326,7 +326,59 @@
 		}
 		if (me.actionLists.size > 0) me.actionLists.splice(index, 1);
 		if (me.entityList != null) me.entityList.removeEntity(entityName);
-	}
+	};
+
+	var findTemplate = function(templateName) {
+		var template;
+		for (x in me.templates) {
+			if (me.templates[x].name == templateName) {
+				template = me.templates[x];
+				break;
+			}
+		}
+		return template;
+	};
+
+	var processEntityInstantiate = function(templateName, params, entityName) {
+		var template = findTemplate(templateName);
+		if (template == null) {
+			alert ('no template with name ' + templateName);
+		}
+
+		var splitParams = params.split(',');
+		if (splitParams.length != template.parameters.length) {
+			alert('not enough parameters to instantiate ' + template);
+			return;
+		}
+		for (x in splitParams) {
+			var param = template.parameters[x];
+			var value = splitParams[x];
+			eval(Eden.translateToJavaScript(entityName+'_'+param+' is '+value+';'));
+		}
+	
+		// Replace "this" keyword with entity name in actions and definitions.
+		var entityDefinitions = replaceThis(entityName, template.definitions);
+
+		// Process definitions and actions.
+		var returnCode = processDefinitions(entityName, entityDefinitions);
+		if (returnCode != -1) {
+			finishInstantiation(entityName, entityDefinitions, template.actionsArr);
+		}
+        };
+
+	var finishInstantiation = function(name, definitions, actions) {
+		var entityActions = replaceThisActions(name, actions);
+		var entity = new Entity(name, definitions, entityActions);
+		me.entities.push(entity);
+		if (me.actionLists != null) {
+			var actionList = new Eden.plugins.ADM.ActionsList(name);
+			me.actionLists.push(actionList);
+			processSelected(entity, actionList);
+		}
+		if (me.entityList != null) {
+			me.entityList.addEntity(name, definitions, entityActions);
+		}
+	};
 
 	var step = function() {
 		// Execute all actions currently highlighted!
@@ -345,9 +397,17 @@
 					entityName = entityName.substring(0, entityName.length - 1);
 					processEntityRemove(entityName);
 				} else if (action[2] == 'i') {
-					// Instantiate a new entity. TODO.
+					// Instantiate a new entity.
+					var templateName = action.split('(')[1];
+					var params = (action.split('(')[2])[0];
+					var entityName = action.split('as')[1];
+					entityName = entityName.substring(0, entityName.length - 1);
+					while(entityName.charCodeAt(0) == 32) {
+						entityName = entityName.substring(1, entityName.length);
+					}
+					processEntityInstantiate(templateName, params, entityName);
 				} else {
-					alert('action on another entity must one of α_remove(entity_name), α_r, α_instantiate(template(param_value)) or α_i');
+					alert('action on another entity must one of α_remove(entity_name), α_r, α_instantiate(template(param_value) as entity_name) or α_i');
 				}
 			} else {
 				eval(Eden.translateToJavaScript(action+';'));
@@ -425,17 +485,11 @@
 	};
 
 	// Instantiate a selected template with given parameters in instantiator
-	var instantiate = function() {
+	var instantiateButton = function() {
 		// Find the template we are instantiating
 		var menu = document.getElementById('template-menu');
 		var templateName = menu.options[menu.selectedIndex].value;
-		for (x in me.templates) {
-			var template = me.templates[x];
-			if (template.name == templateName) {
-				thisTemplate = template;
-				break;
-			}
-		}
+		var thisTemplate = findTemplate(templateName);
 
 		var nameBox = document.getElementById('entity-name');
 		var name = nameBox.value;
@@ -460,7 +514,7 @@
 				var param = thisTemplate.parameters[paramIndex];
 				var value = input.value;
 				inputBoxes.push(input);
-				eval(Eden.translateToJavaScript(name+'_'+param+'='+value+';'));
+				eval(Eden.translateToJavaScript(name+'_'+param+' is '+value+';'));
 				paramIndex++;
 			}
 		}
@@ -471,17 +525,7 @@
 		// Process definitions and actions.
 		var returnCode = processDefinitions(name, entityDefinitions);
 		if (returnCode != -1) {
-			var entityActions = replaceThisActions(name, thisTemplate.actionsArr);
-			var entity = new Entity(name, entityDefinitions, entityActions);
-			me.entities.push(entity);
-			if (me.actionLists != null) {
-				var actionList = new Eden.plugins.ADM.ActionsList(name);
-				me.actionLists.push(actionList);
-				processSelected(entity, actionList);
-			}
-			if (me.entityList != null) {
-				me.entityList.addEntity(name, entityDefinitions, entityActions);
-			}
+			finishInstantiation(name, entityDefinitions, thisTemplate.actionsArr);
 			alert('Successfully added instantiation of ' + templateName + ' as ' + name);
 			clearInstantiator(nameBox, inputBoxes);
 		}
@@ -513,7 +557,7 @@
 					id: "btn-instantiate",
 					text: "Instantiate",
 					click: function() {
-						instantiate();
+						instantiateButton();
 					}
 				}]
 			});
@@ -523,6 +567,10 @@
 			me.templateList.addTemplate(template.name, template.parameters);
 		}
 	};
+
+	var deleteSelected = function() {
+		// TODO
+	}
 
 	/** @private */
 	var generateInstanceListHTML = function() {
@@ -543,10 +591,10 @@
 				minWidth: 360,
 				buttons: [
 				{
-					id: "btn-instantiate",
-					text: "Instantiate",
+					id: "btn-delete",
+					text: "Delete selected",
 					click: function() {
-						instantiate();
+						deleteSelected();
 					}
 				}]
 			});
