@@ -589,13 +589,46 @@
 		for (x in me.selectedEntities) {
 			processEntityRemove(me.selectedEntities[x]);
 		}
+		alert('Entities successfully deleted');
 		me.selectedEntities = new Array();
-	}
+	};
+
+	var saveEntityEdits = function() {
+		for (x in me.selectedEntities) {
+			// Find entity and save its definitions and actions as the ones listed.
+			processEntityEdit(me.selectedEntities[x]);
+		}
+		alert('Edits successfully saved.');
+		me.selectedEntities = new Array();
+		me.entityList.unselectAll();
+	};
+
+	var findEntity = function(entityName) {
+		for (x in me.entities) {
+			if (me.entities[x].name == entityName) return me.entities[x];
+		}
+	};
+
+	var processEntityEdit = function(entityName) {
+		var entity = findEntity(entityName);
+
+		entity.definitions = document.getElementById(entityName + '-definitions');
+		entity.actionsArr = document.getElementById(entityName + '-actions');
+
+		for (x in me.actionLists) {
+			if (me.actionLists[x].entityName == entityName) {
+				me.actionsLists[x] = new Eden.plugins.ADM.ActionsList(entityName);
+				for (x in entity.actionsArr) {
+					me.actionsLists[x].addAction(entity.actionsArr[x]);
+				}
+			}
+		}
+	};
 
 	/** @private */
 	var generateInstanceListHTML = function() {
 		return '<div id=\"entity-list\" class=\"instance-list\"></div>';
-	}
+	};
 
 	/** @public */
 	this.createInstanceList = function(name, mtitle) {
@@ -611,12 +644,19 @@
 				minWidth: 360,
 				buttons: [
 				{
-					id: "btn-delete",
+					id: "btn-delete-entity",
 					text: "Delete selected",
 					click: function() {
 						deleteSelected();
 					}
-				}]
+				},
+				/*{
+					id: "btn-edit-entity",
+					text: "Save edits",
+					click: function() {
+						saveEntityEdits();
+					}
+				}*/]
 			});
 		me.entityList = new Eden.plugins.ADM.EntityList();
 		for (x in me.entities) {
@@ -669,6 +709,12 @@ Eden.plugins.ADM.EntityList.prototype.removeEntity = function(entity) {
 	this.entityList.removeChild(entityElement);
 }
 
+Eden.plugins.ADM.EntityList.prototype.unselectAll = function() {
+	for (x in this.entities) {
+		this.entities[x].unselect();
+	}
+}
+
 Eden.plugins.ADM.Entity = function(entity, definitions, actions) {
 	this.entity = entity;
 	this.element = $('<div class="entitylist-element" id=element-'+entity+'></div>');
@@ -709,6 +755,12 @@ Eden.plugins.ADM.Entity = function(entity, definitions, actions) {
 			selected = false;
 		}
 	});
+}
+
+Eden.plugins.ADM.Entity.prototype.unselect = function() {
+	var contentHTML = "<li class=\"type-function\"><span class=\"result_name\">"
+		+ this.entity + "</span></li>";
+	this.element.html(contentHTML);
 }
 
 Eden.plugins.ADM.TemplateList = function() {
