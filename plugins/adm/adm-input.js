@@ -191,8 +191,12 @@
 				var firstAction = queueSplit[0];
 				if (firstAction.length > 0) {
 					queueSplit.splice(0, 1);
-					tmpQueue.push(queueSplit.join(';'));
-					actionList.addAction(firstAction);
+					var finalAction = true;
+					if (queueSplit[0].length > 0) {
+						tmpQueue.push(queueSplit.join(';'));
+						finalAction = false;
+					}
+					actionList.addAction(firstAction, finalAction);
 				}
 			}
 			entity.queuedActions = tmpQueue;
@@ -212,13 +216,15 @@
 			if (answer == true) {
 				var split = guardAction.actions.split(';');
 				var firstAction = split[0];
+				var finalAction = true;
 				split.splice(0, 1);
 				if (split[0].length > 0) {
 					entity.queuedActions.push(split.join(';'));
+					finalAction = false;
 				}
 	
 				// Add action to selectable list of potential actions this step:
-				actionList.addAction(firstAction);
+				actionList.addAction(firstAction, finalAction);
 			}
 		}
 	};
@@ -619,7 +625,7 @@
 			if (me.actionLists[x].entityName == entityName) {
 				me.actionsLists[x] = new Eden.plugins.ADM.ActionsList(entityName);
 				for (x in entity.actionsArr) {
-					me.actionsLists[x].addAction(entity.actionsArr[x]);
+					//me.actionsLists[x].addAction(entity.actionsArr[x]);
 				}
 			}
 		}
@@ -816,8 +822,8 @@ Eden.plugins.ADM.ActionsList = function(entityName) {
 	this.entityName = entityName;
 }
 
-Eden.plugins.ADM.ActionsList.prototype.addAction = function(action) {
-	var actionElement = new Eden.plugins.ADM.Action(action);
+Eden.plugins.ADM.ActionsList.prototype.addAction = function(action, finalAction) {
+	var actionElement = new Eden.plugins.ADM.Action(action, finalAction);
 	actionElement.element.appendTo(this.actionresults);
 	this.actions.push(actionElement);
 }
@@ -832,7 +838,7 @@ Eden.plugins.ADM.ActionsList.prototype.remove = function() {
 	humanPerspective.removeChild(document.getElementById("actions_"+this.entityName));
 }
 
-Eden.plugins.ADM.Action = function(action) {
+Eden.plugins.ADM.Action = function(action, finalAction) {
 	var action = action;
 	this.action = action;
 	this.element = $('<div class="entitylist-element"></div>');
@@ -865,13 +871,18 @@ Eden.plugins.ADM.Action = function(action) {
 		}
 	});
 
-	this.update();
+	this.update(finalAction);
 }
 
-Eden.plugins.ADM.Action.prototype.updateAction = function() {
-	this.element.html("<li class=\"type-function\"><span class=\"result_name\">"
-		+ this.action + "</span></li>"
-	);
+Eden.plugins.ADM.Action.prototype.updateAction = function(finalAction) {
+	var baseHTML = "<li class=\"type-function\"><span class=\"result_name\">";
+	if (finalAction == true) {
+		baseHTML = baseHTML + this.action + "</span></li>";
+	} else {
+		baseHTML = baseHTML + this.action + " ... </span></li>";
+	}
+	
+	this.element.html(baseHTML);
 }
 
 Eden.plugins.ADM.title = "ADM";

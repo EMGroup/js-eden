@@ -1,10 +1,10 @@
-- input boxes adapt to size of window
+? input boxes adapt to size of window
 - make instantiator work for 0 parameters given
 
 *** eden-ish
-- would really be super if updates happened when guards changed value...
+? would really be super if updates happened when guards changed value...
 - make guards eden-ish
 
 *** human perspective ***
-- add ability to edit instantiated entities
-- make it obvious that an action has sequential actions following it
+? add ability to edit instantiated entities
+? if an action has actions following show these horizontally
