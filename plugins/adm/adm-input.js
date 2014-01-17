@@ -82,7 +82,6 @@
 	
 	var processNewTemplate = function(nameParams) {
 		// TODO add ability to edit existing entity!
-
 		// Get the parameters between the brackets, split by commas:
 		if ((nameParams.split('(')).length < 2) {
 			alert('Format: TemplateName(param1, param2, ...) or TemplateName()'); return -1;
@@ -302,11 +301,57 @@
 		myeditor = convertToEdenPageNew('#'+name+'-input','code');
 	};
 
+	var processEntityRemove = function(entityName) {
+		var entity;
+		var index;
+		for (x in me.entities) {
+			if (me.entities[x].name == entityName) {
+				entity = me.entities[x];
+				index = x;
+				break;
+			}
+		}
+		if (entity == null) {
+			alert(entityName + ' doesn\'t exist to delete.');
+			return;
+		}
+		me.entities.splice(index, 1);
+		// Also remove this entity's ActionList and Entity object
+		for (x in me.actionLists) {
+			if (me.actionLists[x].entityName == entityName) {
+				index = x;
+				me.actionLists[x].remove();
+				break;
+			}
+		}
+		if (me.actionLists.size > 0) me.actionLists.splice(index, 1);
+		if (me.entityList != null) me.entityList.removeEntity(entityName);
+	}
+
 	var step = function() {
 		// Execute all actions currently highlighted!
 		for (x in me.actions) {
 			var action = me.actions[x];
-			eval(Eden.translateToJavaScript(action+';'));
+			/* If the action starts with a alpha it is referring to an entity.
+			This means it needs special treatment, otherwise it is just EDEN code.*/
+			while(action.charCodeAt(0) == 32) {
+				action = action.substring(1, action.length);
+			}
+	
+			if (action.charCodeAt(0) == 945) {
+				if (action[2] == 'r') {
+					// Removing an entity
+					var entityName = action.split('(')[1];
+					entityName = entityName.substring(0, entityName.length - 1);
+					processEntityRemove(entityName);
+				} else if (action[2] == 'i') {
+					// Instantiate a new entity. TODO.
+				} else {
+					alert('action on another entity must one of α_remove(entity_name), α_r, α_instantiate(template(param_value)) or α_i');
+				}
+			} else {
+				eval(Eden.translateToJavaScript(action+';'));
+			}
 		}
 		me.actions = new Array();
 		eden.plugins.ADM.process();
@@ -544,9 +589,21 @@ Eden.plugins.ADM.EntityList.prototype.addEntity = function(entity, defs, actions
 	this.entities.push(entityElement);
 }
 
+Eden.plugins.ADM.EntityList.prototype.removeEntity = function(entity) {
+	var index;
+	for (x in this.entities) {
+		if (this.entities[x].entity == entity) {
+			index = x; break;		
+		}
+	}
+	this.entities.splice(index, 1);
+	var entityElement = document.getElementById('element-'+entity);
+	this.entityList.removeChild(entityElement);
+}
+
 Eden.plugins.ADM.Entity = function(entity, definitions, actions) {
 	this.entity = entity;
-	this.element = $('<div class="entitylist-element"></div>');
+	this.element = $('<div class="entitylist-element" id=element-'+entity+'></div>');
 	var contentHTML = "<li class=\"type-function\"><span class=\"result_name\">"
 		+ this.entity + "</span></li>";
 	this.element.html(contentHTML);
@@ -646,6 +703,11 @@ Eden.plugins.ADM.ActionsList.prototype.addAction = function(action) {
 Eden.plugins.ADM.ActionsList.prototype.clear = function() {
 	this.actions = new Array();
         this.actionresults.innerHTML = '<label>Actions for '+this.entityName+'</label>';
+}
+	
+Eden.plugins.ADM.ActionsList.prototype.remove = function() {
+	var humanPerspective = document.getElementById("human-perspective");
+	humanPerspective.removeChild(document.getElementById("actions_"+this.entityName));
 }
 
 Eden.plugins.ADM.Action = function(action) {
