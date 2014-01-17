@@ -6,5 +6,5 @@
 - make guards eden-ish
 
 *** human perspective ***
-- add ability to view details of and edit/delete entities
+- add ability to edit/delete entities
 - let entities instantiate / delete each other!

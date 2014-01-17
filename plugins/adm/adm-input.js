@@ -435,7 +435,7 @@
 				processSelected(entity, actionList);
 			}
 			if (me.entityList != null) {
-				me.entityList.addEntity(name);
+				me.entityList.addEntity(name, entityDefinitions, entityActions);
 			}
 			alert('Successfully added instantiation of ' + templateName + ' as ' + name);
 			clearInstantiator(nameBox, inputBoxes);
@@ -479,11 +479,15 @@
 		}
 	};
 
+	/** @private */
+	var generateInstanceListHTML = function() {
+		return '<div id=\"entity-list\" class=\"instance-list\"></div>';
+	}
+
 	/** @public */
 	this.createInstanceList = function(name, mtitle) {
 		var code_entry = $('<div></div>');
-		code_entry = $('<div id=\"entity-list\"></div>');
-		
+		code_entry.html(generateInstanceListHTML());
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
 			.dialog({
@@ -492,11 +496,19 @@
 				height: 400,
 				minHeight: 200,
 				minWidth: 360,
+				buttons: [
+				{
+					id: "btn-instantiate",
+					text: "Instantiate",
+					click: function() {
+						instantiate();
+					}
+				}]
 			});
 		me.entityList = new Eden.plugins.ADM.EntityList();
 		for (x in me.entities) {
 			var entity = me.entities[x];
-			me.entityList.addEntity(entity.name);
+			me.entityList.addEntity(entity.name, entity.definitions, entity.actionsArr);
 		}
 	};
 
@@ -526,34 +538,50 @@ Eden.plugins.ADM.EntityList = function() {
 	this.entities = new Array();
 }
 
-Eden.plugins.ADM.EntityList.prototype.addEntity = function(entity) {
-	var entityElement = new Eden.plugins.ADM.Entity(entity);
+Eden.plugins.ADM.EntityList.prototype.addEntity = function(entity, defs, actions) {
+	var entityElement = new Eden.plugins.ADM.Entity(entity, defs, actions);
 	entityElement.element.appendTo(this.entityList);
 	this.entities.push(entityElement);
 }
 
-Eden.plugins.ADM.Entity = function(entity) {
+Eden.plugins.ADM.Entity = function(entity, definitions, actions) {
 	this.entity = entity;
 	this.element = $('<div class="entitylist-element"></div>');
-	this.update = this.updateEntity;
-
-	this.element.hover(
-		function() {
-			$(this).animate({backgroundColor: "#eaeaea"}, 100);
+	var contentHTML = "<li class=\"type-function\"><span class=\"result_name\">"
+		+ this.entity + "</span></li>";
+	this.element.html(contentHTML);
+	var definitions = definitions;
+	var actions = actions;
+	var selected = false;
+	this.element.hover(function() {
+			if (selected == false) {
+				$(this).animate({backgroundColor: "#eaeaea"}, 100);
+			} else {
+				$(this).animate({backgroundColor: "#66CCCC"}, 100);
+			}
 		}, function() {
-			$(this).animate({backgroundColor: "white"}, 100);
+			if (selected == false) {
+				$(this).animate({backgroundColor: "white"}, 100);
+			} else {
+				$(this).animate({backgroundColor: "#6666CC"}, 100);
+			}
 		}
 	).click(function() {
-		//Do something
+		if (this.innerHTML == contentHTML) {
+			var newDiv = document.createElement('div');
+			newDiv.innerHTML = '<label>Definitions:</label><br>\
+					<textarea disabled>'+definitions+'</textarea><br>\
+					<label>Actions:</label><br>\
+					<textarea disabled>'+actions+'</textarea><br>'
+			this.appendChild(newDiv);
+			$(this).css("backgroundColor", "#6666CC");
+			selected = true;
+		} else {
+			this.innerHTML = contentHTML;
+			$(this).css("backgroundColor", "white");
+			selected = false;
+		}
 	});
-
-	this.update();
-}
-
-Eden.plugins.ADM.Entity.prototype.updateEntity = function() {
-	this.element.html("<li class=\"type-function\"><span class=\"result_name\">"
-		+ this.entity + "</span></li>"
-	);
 }
 
 Eden.plugins.ADM.TemplateList = function() {
