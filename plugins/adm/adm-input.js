@@ -680,7 +680,7 @@
 		me.entityList = new Eden.plugins.ADM.EntityList();
 		for (x in me.entities) {
 			var entity = me.entities[x];
-			me.entityList.addEntity(entity.name, entity.definitions, entity.actionsArr);
+			me.entityList.addEntity(entity.name, entity.definitions.join('\n'), entity.actionsArr.join('\n'));
 		}
 	};
 
