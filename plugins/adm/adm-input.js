@@ -29,7 +29,8 @@
 	this.entityList;
 	
 	// Holds guard / action sequence pairs.
-	function GuardActions(guard, actions) {
+	function GuardActions(edenVar, guard, actions) {
+		this.edenVar = edenVar;
 		this.guard = guard;
 		this.actions = actions;
 	};
@@ -68,7 +69,7 @@
 		}
 	};
 	
-	/* Process the actions of a newly created entity. */
+	/* Process the actions of a newly created template. */
 	var processActions = function(name, actions) {
 		// TODO validate here! e.g. by trying to convert to eden code
 		var actionsArr = new Array();
@@ -76,7 +77,8 @@
 			// Actions of the form guard --> action:
 			var split = actions[i].split('-->');
 			if (split.length == 2) {
-				actionsArr.push(new GuardActions(split[0], split[1]));
+				var edenVar = name+'_g'+actionsArr.length;
+				actionsArr.push(new GuardActions(edenVar, split[0], split[1]));
 			}
 		}
 		return actionsArr;
@@ -212,7 +214,7 @@
 			// The guard should be EDEN code! Execute it
 			var guardAction = entity.actionsArr[j];
 			try {
-				var answer = eval(Eden.translateToJavaScript('return ' + guardAction.guard + ';'));
+				var answer = eval(Eden.translateToJavaScript('return ' + guardAction.edenVar + ';'));
 			} catch (e) {
 				Eden.reportError(e);
 			}
@@ -396,6 +398,14 @@
 		var entityActions = replaceThisActions(name, actions);
 		var entity = new Entity(name, definitions, entityActions);
 		me.entities.push(entity);
+
+		// Create all EDEN guard variables
+		for (x in entityActions) {
+			var action = entityActions[x];
+			var statement = action.edenVar + ' is ' + action.guard + ';';
+			eval(Eden.translateToJavaScript(statement));
+		}
+
 		if (me.actionLists != null) {
 			var actionList = new Eden.plugins.ADM.ActionsList(name);
 			me.actionLists.push(actionList);
@@ -485,7 +495,7 @@
 		var result = new Array();
 		for (x in arr) {
 			var element = arr[x];
-			result.push(element.replace("this", name));
+			result.push(element.replace(/this/g, name));
 		}
 		return result;
 	};
@@ -495,9 +505,9 @@
 		var result = new Array();
 		for (x in guardActions) {
 			var element = guardActions[x];
-			var guard = element.guard.replace("this", name);
-			var actions = element.actions.replace("this", name);
-			result.push(new GuardActions(guard, actions));
+			var guard = element.guard.replace(/this/g, name);
+			var actions = element.actions.replace(/this/g, name);
+			result.push(new GuardActions(element.edenVar, guard, actions));
 		}
 		return result;
 	};
