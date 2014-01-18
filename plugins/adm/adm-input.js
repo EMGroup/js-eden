@@ -85,11 +85,14 @@
 	var processNewTemplate = function(nameParams) {
 		// TODO add ability to edit existing entity!
 		// Get the parameters between the brackets, split by commas:
+		var params = new Array();
+		var name;
 		if ((nameParams.split('(')).length < 2) {
-			alert('Format: TemplateName(param1, param2, ...) or TemplateName()'); return -1;
+			name = nameParams;
+		} else {
+			params = ((nameParams.split('(')[1]).split(')')[0]).split(',');
+			name = nameParams.split('(')[0];
 		}
-		var params = ((nameParams.split('(')[1]).split(')')[0]).split(',');
-		var name = nameParams.split('(')[0];
 
 		// Entities and actions should be separated by \n.
 		var input = document.getElementById('adm-definitions');

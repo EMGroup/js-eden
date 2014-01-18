@@ -1,5 +1,4 @@
 ? input boxes adapt to size of window
-- make instantiator work for 0 parameters given
 
 *** eden-ish
 ? would really be super if updates happened when guards changed value...
