@@ -684,6 +684,69 @@
 		}
 	};
 
+	var submitAdmCode = function(options) {
+		var code = options.editor.getValue();
+		// TODO
+		var lines = code.split('\n');
+		var name;
+		var params = new Array();
+		var defs = new Array();
+		var actions = new Array();
+		var parsingTemplate = true;
+		for (x in lines) {
+			var line = lines[x];
+			if (line[0] == '{') {
+				if (parsingTemplate == false) {
+					parsingTemplate = true;
+					// Check if name is included on this line.
+					if (line.indexOf("name:") != -1) {
+						var nameParams = line.split(':')[1];
+						name = nameParams.split('(')[0];
+						if (name.length > 2) {
+							params = ((nameParams.split('(')[1]).split(')')[0]).split(',');
+						}			
+					}
+				} else {
+					
+				}
+			
+			}
+		}
+		
+	};
+	
+	/** @public */
+	this.createAdvancedInput = function(name, mtitle) {
+		var myeditor;
+
+		$code_entry = $('<div id=\"advanced-input\" class=\"inputwindow-code\">\
+					<div></div>\
+					<pre class="adm exec"></pre>\
+				</div>');
+		
+		$dialog = $('<div id="'+name+'"></div>')
+			.html($code_entry)
+			.dialog({
+				title: mtitle,
+				width: 360,
+				height: 400,
+				minHeight: 200,
+				minWidth: 360,
+				buttons: [
+				{
+					id: "btn-submit-advanced",
+					text: "Submit",
+					click: function() {
+						submitAdmCode({editor: myeditor});
+					}
+				}]
+			});
+		input_dialog = $dialog;
+		$("#btn-submit-advanced").css("margin-right", "30px");
+		myeditor = convertToEdenPageNew("#advanced-input", "code");
+	};
+
+
 	context.views["AdmTemplateCreator"] = {
 		dialog: this.createTemplateCreator,
 		title: "ADM Template Creator"
@@ -702,6 +765,11 @@
 	context.views["AdmEntityList"] = {
 		dialog: this.createInstanceList,
 		title: "ADM Entity List"
+	};
+
+	context.views["AdmAdvancedInput"] = {
+		dialog: this.createAdvancedInput,
+		title: "ADM Advanced Input"
 	};
 };
 
