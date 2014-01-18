@@ -46,6 +46,12 @@
 		this.actionsArr = actionsArr;
 	};
 
+	Template.prototype.toString = function() {
+		return this.name+'('+this.parameters.join(',')+
+			')\nDefitions:\n'+this.definitions+
+			'\nActions:\n'+this.actionsArr;
+	};
+
 	// Holds information defining an entity:
 	function Entity(name, definitions, actionsArr) {
 		this.name = name;
@@ -106,12 +112,7 @@
 		actions = input.value.split('\n');
 		
 		var actionsArr = processActions(name, actions);
-		var template = new Template(name, params, definitions, actionsArr);
-		
-		me.templates.push(template);
-		if (me.templateList != null) {
-			me.templateList.addTemplate(name, params);
-		}
+		addTemplate(name, params, defitions, actionsArr);
 		return 0;
 	};
 	
@@ -383,10 +384,10 @@
 			var value = splitParams[x];
 			eval(Eden.translateToJavaScript(entityName+'_'+param+' is '+value+';'));
 		}
-	
+		
 		// Replace "this" keyword with entity name in actions and definitions.
 		var entityDefinitions = replaceThis(entityName, template.definitions);
-
+		
 		// Process definitions and actions.
 		var returnCode = processDefinitions(entityName, entityDefinitions);
 		if (returnCode != -1) {
@@ -422,9 +423,7 @@
 			var action = me.selectedActions[x];
 			/* If the action starts with a alpha it is referring to an entity.
 			This means it needs special treatment, otherwise it is just EDEN code.*/
-			while(action.charCodeAt(0) == 32) {
-				action = action.substring(1, action.length);
-			}
+			action = trim(action);
 	
 			if (action.charCodeAt(0) == 945) {
 				if (action[2] == 'r') {
@@ -437,10 +436,7 @@
 					var templateName = action.split('(')[1];
 					var params = (action.split('(')[2])[0];
 					var entityName = action.split('as')[1];
-					entityName = entityName.substring(0, entityName.length - 1);
-					while(entityName.charCodeAt(0) == 32) {
-						entityName = entityName.substring(1, entityName.length);
-					}
+					entityName = trim(entityName.substring(0, entityName.length - 1));
 					processEntityInstantiate(templateName, params, entityName);
 				} else {
 					alert('action on another entity must one of α_remove(entity_name), α_r, α_instantiate(template(param_value) as entity_name) or α_i');
@@ -684,34 +680,151 @@
 		}
 	};
 
+	var processName = function(line) {
+		var nameParams = line.split(':')[1];
+		return trim(nameParams.split('(')[0]);
+	};
+
+	var processParams = function(line) {
+		var parenthesisSplit = line.split(':')[1].split('(')[1];
+		if (parenthesisSplit.length > 1) {
+			return (parenthesisSplit.split(')')[0]).split(',');
+		} else {
+			return [];
+		}
+	};
+
+	var trim = function(string) {
+		while (string.charCodeAt(0) == 32) {
+			string = string.substring(1, string.length);
+		}
+		while (string.charCodeAt(string.length-1) == 32) {
+			string = removeLastChar(string);
+		}
+		return string;
+	};
+
+	var removeLastChar = function(string) {
+		return string.substring(0, string.length-1);
+	};
+
+	var addTemplate = function(name, params, defsArr, actions) {
+		for (x in me.templates) {
+			if (me.templates[x].name == name) {
+				alert('Templates must have unique names.');
+				return -1;
+			}
+		}
+		var actionsArr = processActions(name, actions);
+		var template = new Template(name, params, defsArr, actionsArr);
+		me.templates.push(template);
+		if (me.templateList != null) {
+			me.templateList.addTemplate(name, params);
+		}
+		return 1;
+	};
+
+	/*
+	 * Parse code in the following format:
+	 * {
+	 * name: template_name(parameters) (can be on above line)
+	 * definitions: {
+	 *   eden_definition;
+	 * }
+	 * actions: {
+	 *   guard --> action;
+	 * }
+	 * }
+	 * template_name(parameter_values) as entity_name
+	 */
 	var submitAdmCode = function(options) {
 		var code = options.editor.getValue();
-		// TODO
 		var lines = code.split('\n');
+		// Variables for new template creation
 		var name;
 		var params = new Array();
+		var processingDefs = false;
 		var defs = new Array();
+		var processingActions = false;
 		var actions = new Array();
-		var parsingTemplate = true;
+		var parsingTemplate = false;
 		for (x in lines) {
 			var line = lines[x];
-			if (line[0] == '{') {
-				if (parsingTemplate == false) {
+			// First trim whitespace from the start of the line.
+			line = trim(line);
+			if (parsingTemplate == false) {
+				if (line[0] == '{') {
+					// This is the first line of a new template
 					parsingTemplate = true;
 					// Check if name is included on this line.
 					if (line.indexOf("name:") != -1) {
-						var nameParams = line.split(':')[1];
-						name = nameParams.split('(')[0];
-						if (name.length > 2) {
-							params = ((nameParams.split('(')[1]).split(')')[0]).split(',');
-						}			
+						name = processName(line);
+						params = processParams(line);
 					}
 				} else {
-					
+					// This is an instantiation.
+					var templateName = line.split('(')[0];
+					var params = line.split('(')[1].split(')')[0];
+					var entityName = removeLastChar(trim(line.split('as')[1]));
+					processEntityInstantiate(templateName, params, entityName);
 				}
-			
+			} else if (processingDefs == true) {
+				// We are currently processing definitions.
+				var brace = line.indexOf('}');
+				if (brace != -1) {
+					line = removeLastChar(line);
+					processingDefs = false;
+				}
+				if (line.length > 0) defs.push(line);
+			} else if (processingActions == true) {
+				var brace = line.indexOf('}');
+				if (brace != -1) {
+					line = removeLastChar(line);
+					processingActions = false;
+				}
+				if (line.length > 0) actions.push(line);
+			} else {
+				// We are waiting for one of name, defs, actions or closing.
+				if (line[0] == '}') {
+					parsingTemplate = false;
+					var returnCode = addTemplate(name, params, defs, actions);
+					if (returnCode == -1) {
+						options.editor.setValue("");
+						return;
+					}
+				} else if (line.indexOf("name:") != -1) {
+					name = processName(line);
+					params = processParams(line);
+				} else if (line.indexOf("definitions:") != -1 || line.indexOf("defs:") != -1) {
+					processingDefs = true;
+					// Line might also contain definitions.
+					line = trim(line);
+					if (line.split('{').length > 1) {
+						var afterBrace = line.split('{')[1];
+						var brace = afterBrace.indexOf('}');
+						if (brace != -1) {
+							afterBrace = removeLastChar(afterBrace);
+							processingDefs = false;
+						}
+						if (afterBrace.length > 0) defs.push(afterBrace);
+					}
+				} else if (line.indexOf("actions:") != -1) {
+					processingActions = true;
+					// Line might also contain actions.
+					line = trim(line);
+					if (line.split('{').length > 1) {
+						var afterBrace = line.split('{')[1];
+						var brace = afterBrace.indexOf('}');
+						if (brace != -1) {
+							afterBrace = removeLastChar(afterBrace);
+							processingActions = false;
+						}
+						if (afterBrace.length > 0) actions.push(afterBrace);
+					}
+				}
 			}
 		}
+		options.editor.setValue("");
 		
 	};
 	

@@ -6,4 +6,3 @@
 *** human perspective ***
 ? add ability to edit instantiated entities
 ? if an action has actions following show these horizontally
-? add advanced input where you can just paste in a script and go
