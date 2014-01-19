@@ -85,7 +85,7 @@
 			// Actions of the form guard --> action:
 			var split = actions[i].split('-->');
 			if (split.length == 2) {
-				var edenVar = name+'_g'+actionsArr.length;
+				var edenVar = 'this_g'+actionsArr.length;
 				actionsArr.push(new GuardActions(edenVar, split[0], split[1]));
 			}
 		}
@@ -517,7 +517,8 @@
 			var element = guardActions[x];
 			var guard = element.guard.replace(/this/g, name);
 			var actions = element.actions.replace(/this/g, name);
-			result.push(new GuardActions(element.edenVar, guard, actions));
+			var edenVar = element.edenVar.replace(/this/g, name);
+			result.push(new GuardActions(edenVar, guard, actions));
 		}
 		return result;
 	};
