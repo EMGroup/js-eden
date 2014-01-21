@@ -558,8 +558,8 @@
 		for (x in inputs) {
 			var input = inputs[x];
 			if (input.type == "text") {
-				var param = thisTemplate.parameters[paramIndex];
-				var value = input.value;
+				var param = trim(thisTemplate.parameters[paramIndex]);
+				var value = trim(input.value);
 				inputBoxes.push(input);
 				eval(Eden.translateToJavaScript(name+'_'+param+' is '+value+';'));
 				paramIndex++;
@@ -710,10 +710,11 @@
 	};
 
 	var trim = function(string) {
-		while (string.charCodeAt(0) == 32) {
+		while (string.charCodeAt(0) == 32 || string.charCodeAt(0) == 9) {
 			string = string.substring(1, string.length);
 		}
-		while (string.charCodeAt(string.length-1) == 32) {
+		while (string.charCodeAt(string.length-1) == 32 
+			|| string.charCodeAt(string.length - 1) == 9) {
 			string = removeLastChar(string);
 		}
 		return string;
