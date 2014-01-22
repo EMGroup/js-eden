@@ -1,0 +1,49 @@
+{
+name: flap()
+defs: {
+    lockPos = 0;
+    pos = 0;
+}
+actions: {
+(cat_pushDir == 1) && (flap_lockPos == 1) --> flap_pos = 1;
+    (cat_pushDir == -1) && (flap_lockPos == -1) --> flap_pos = -1;
+    (cat_pushDir == 0) --> flap_pos = 0;
+
+}
+}
+
+{
+name: man()
+defs: {}
+actions: {
+(flap_pos == 0) --> flap_lockPos = 1;
+(flap_pos == 0) --> flap_lockPos = -1;
+}
+}
+
+{
+name: cat()
+defs: {
+    int = 0;
+    pos = 1;
+    pushDir = 0;
+    engag is cat_pos == 0;
+    obstr is (flap_pos == 0);
+}
+actions: {
+(cat_int == -1) && cat_obstr --> cat_pushDir = -1;
+    (cat_int == -1) && !cat_obstr && cat_pos != -1 --> cat_pos -= 1;
+    (cat_int == 1) && cat_obstr --> cat_pushDir = 1;
+    (cat_int == 1) && !cat_obstr && cat_pos != 1 --> cat_pos += 1;
+    !cat_engag --> cat_pushDir = 0;
+    true --> cat_int = -1;
+    true --> cat_int = 0;
+    true --> cat_int = 1;
+}
+}
+
+flap() as flap;
+man() as man;
+cat() as cat;
+
+

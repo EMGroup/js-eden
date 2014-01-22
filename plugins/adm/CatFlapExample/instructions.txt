@@ -1,0 +1,4 @@
+- turn on CanvasHTML5 and ADM plugins via the menu
+- enter bridge-cat-eden into the JS-Eden input window
+- open an ADM Advanced Input view and enter in bridge-cat-adm code
+- open up ADM Human Perspective
