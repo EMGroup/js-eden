@@ -2,10 +2,9 @@
 	name: time()
 	defs: {
 		t = 0;
-		changed = false;
 	}
 	actions: {
-		!this_changed --> this_t += 1; 
+		true --> this_t += 1;
 	}
 }
 
@@ -19,25 +18,23 @@ time() as time;
 		k is (time_t + 2*this_beta - this_alpha)/3;
 	}
 	actions: {
-		time_t == (this_alpha + this_beta) % 3 --> c? = c? + a? * b?;
+		time_t == (this_alpha + this_beta) % 3 --> c[abs(this_i)+1][abs(this_k)+1] = c[abs(this_i)+1][abs(this_k)+1] + (a[abs(this_i)+1][abs(this_j)+1] * b[abs(this_j)+1][abs(this_k)+1]);
 	}
 }
 
-processor(-1,-1) as "-1-1";
-processor(-1,0) as "-10";
-processor(-1,1) as "-11";
-processor(-1,2) as "-12";
-processor(0,-1) as "0-1";
-processor(0,0) as "00";
-processor(0,1) as "01";
-processor(0,2) as "02";
-processor(1,-1) as "1-1";
-processor(1,0) as "10";
-processor(1,1) as "11";
-processor(1,2) as "12";
-processor(2,-1) as "2-1";
-processor(2,0) as "20";
-processor(2,1) as "21";
-processor(2,2) as "22";
-
-You will also have an action in the (alpha, beta) processor that is invoked when t has the right parity (once every three ticks of t), and makes an assignment based on the current values of its personal i, j and k observables.
+processor(-1,-1) as one;
+processor(-1,0) as two;
+processor(-1,1) as three;
+processor(-1,2) as four;
+processor(0,-1) as five;
+processor(0,0) as six;
+processor(0,1) as seven;
+processor(0,2) as eight;
+processor(1,-1) as nine;
+processor(1,0) as ten;
+processor(1,1) as eleven;
+processor(1,2) as twelve;
+processor(2,-1) as thirteen;
+processor(2,0) as fourteen;
+processor(2,1) as fifteen;
+processor(2,2) as sixteen;
