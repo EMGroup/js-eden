@@ -1,0 +1,43 @@
+{
+	name: time()
+	defs: {
+		t = 0;
+		changed = false;
+	}
+	actions: {
+		!this_changed --> this_t += 1; 
+	}
+}
+
+time() as time;
+
+{
+	name: processor(alpha, beta)
+	defs: {
+		i is (time_t + 2*this_alpha - this_beta)/3;
+		j is (time_t - this_alpha - this_beta)/3;
+		k is (time_t + 2*this_beta - this_alpha)/3;
+	}
+	actions: {
+		time_t == (this_alpha + this_beta) % 3 --> c? = c? + a? * b?;
+	}
+}
+
+processor(-1,-1) as "-1-1";
+processor(-1,0) as "-10";
+processor(-1,1) as "-11";
+processor(-1,2) as "-12";
+processor(0,-1) as "0-1";
+processor(0,0) as "00";
+processor(0,1) as "01";
+processor(0,2) as "02";
+processor(1,-1) as "1-1";
+processor(1,0) as "10";
+processor(1,1) as "11";
+processor(1,2) as "12";
+processor(2,-1) as "2-1";
+processor(2,0) as "20";
+processor(2,1) as "21";
+processor(2,2) as "22";
+
+You will also have an action in the (alpha, beta) processor that is invoked when t has the right parity (once every three ticks of t), and makes an assignment based on the current values of its personal i, j and k observables.
