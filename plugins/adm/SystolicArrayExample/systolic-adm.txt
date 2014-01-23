@@ -18,7 +18,7 @@ time() as time;
 		k is (time_t + 2*this_beta - this_alpha)/3;
 	}
 	actions: {
-		time_t == (this_alpha + this_beta) % 3 --> c[abs(this_i)+1][abs(this_k)+1] = c[abs(this_i)+1][abs(this_k)+1] + (a[abs(this_i)+1][abs(this_j)+1] * b[abs(this_j)+1][abs(this_k)+1]);
+		time_t % 3 == (this_alpha + this_beta) % 3 --> c[abs(this_i)+1][abs(this_k)+1] = c[abs(this_i)+1][abs(this_k)+1] + (a[abs(this_i)+1][abs(this_j)+1] * b[abs(this_j)+1][abs(this_k)+1]);
 	}
 }
 
