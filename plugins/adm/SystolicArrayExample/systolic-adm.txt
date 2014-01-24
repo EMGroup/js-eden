@@ -18,23 +18,23 @@ time() as time;
 		k is (time_t + 2*this_beta - this_alpha)/3;
 	}
 	actions: {
-		time_t % 3 == (this_alpha + this_beta) % 3 --> c[abs(this_i)+1][abs(this_k)+1] = c[abs(this_i)+1][abs(this_k)+1] + (a[abs(this_i)+1][abs(this_j)+1] * b[abs(this_j)+1][abs(this_k)+1]);
+		time_t % 3 == (((this_alpha + this_beta) % 3) + 3) % 3 --> c[abs(this_i)+1][abs(this_k)+1] = abs(c[abs(this_i)+1][abs(this_k)+1]) + (a[abs(this_i)+1][abs(this_j)+1] * b[abs(this_j)+1][abs(this_k)+1]);
 	}
 }
 
-processor(-1,-1) as one;
-processor(-1,0) as two;
-processor(-1,1) as three;
-processor(-1,2) as four;
-processor(0,-1) as five;
-processor(0,0) as six;
-processor(0,1) as seven;
-processor(0,2) as eight;
-processor(1,-1) as nine;
-processor(1,0) as ten;
-processor(1,1) as eleven;
-processor(1,2) as twelve;
-processor(2,-1) as thirteen;
-processor(2,0) as fourteen;
-processor(2,1) as fifteen;
-processor(2,2) as sixteen;
+processor(-1,-2) as one;
+processor(-1,-1) as two;
+processor(-1,0) as three;
+processor(-1,1) as four;
+processor(0,-2) as five;
+processor(0,-1) as six;
+processor(0,0) as seven;
+processor(0,1) as eight;
+processor(1,-2) as nine;
+processor(1,-1) as ten;
+processor(1,0) as eleven;
+processor(1,1) as twelve;
+processor(2,-2) as thirteen;
+processor(2,-1) as fourteen;
+processor(2,0) as fifteen;
+processor(2,1) as sixteen;
