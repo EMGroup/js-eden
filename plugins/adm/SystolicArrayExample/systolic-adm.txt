@@ -1,7 +1,7 @@
 {
 	name: time()
 	defs: {
-		t = 0;
+		t = 1;
 	}
 	actions: {
 		true --> this_t += 1;
@@ -13,12 +13,12 @@ time() as time;
 {
 	name: processor(alpha, beta)
 	defs: {
-		i is (time_t + 2*this_alpha - this_beta)/3;
-		j is (time_t - this_alpha - this_beta)/3;
-		k is (time_t + 2*this_beta - this_alpha)/3;
+		i is abs((time_t + (2*this_alpha) - this_beta)/3) % 4;
+		j is abs((time_t - this_alpha - this_beta)/3) % 4;
+		k is abs((time_t + (2*this_beta) - this_alpha)/3) % 4;
 	}
 	actions: {
-		time_t % 3 == (((this_alpha + this_beta) % 3) + 3) % 3 --> c[abs(this_i)+1][abs(this_k)+1] = abs(c[abs(this_i)+1][abs(this_k)+1]) + (a[abs(this_i)+1][abs(this_j)+1] * b[abs(this_j)+1][abs(this_k)+1]);
+		time_t % 3 == (((this_alpha + this_beta) % 3) + 3) % 3 --> c[this_i+1][this_k+1] = abs(c[this_i+1][this_k+1]) + (a[this_i+1][this_j+1] * b[this_j+1][this_k+1]);
 	}
 }
 
