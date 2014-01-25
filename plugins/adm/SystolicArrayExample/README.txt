@@ -21,3 +21,5 @@ Q_b = 1
 At processor contains definitions for i, j and k, which reference different indexes of the input and output arrays as processor progresses. At each step processors which are active carry out the action:
 C(i,k) = |C(i,k)| + (A(i,j) * B(j,k))
 Processors work diagonally down the input as computation progresses. Unexpectedly the correct answer is only obtained if processors are "wrapped round" and once they reach the bottom of the array they are fed the top of the array. This is achieved by using % 4 on the i, j and k definitions.
+
+
