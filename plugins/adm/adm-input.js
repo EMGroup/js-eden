@@ -5,6 +5,13 @@
  * See LICENSE.txt
  */
  
+/**
+ * JS-EDEN Abstract Definitive Machine Plugin.
+ * This prototype plugin was developed as a coursework project for CS405. It seeks to create a
+ * plugin where entities can be created as collections of definitions and guarded actions.
+ * These can then be instantiated and computation takes place through selections of available
+ * actions made by the human user.
+ */
  Eden.plugins.ADM = function(context) {
 	var me = this;
 	
@@ -28,7 +35,7 @@
 	// Var to hold the EntityList object
 	this.entityList;
 	
-	// Holds guard / action sequence pairs.
+	// Holds guard / action sequence pairs, and the eden var depending on the guard.
 	function GuardActions(edenVar, guard, actions) {
 		this.edenVar = edenVar;
 		this.guard = guard;
@@ -39,6 +46,7 @@
 		return this.guard + ' --> ' + this.actions;
 	};
 
+	// Holds information about a template together.
 	function Template(name, parameters, definitions, actionsArr) {
 		this.name = name;
 		this.parameters = parameters;
@@ -60,26 +68,12 @@
 		// This array is to store the next sequential actions which can be executed.
 		this.queuedActions = new Array();
 	};
+
+	/***** CODE FOR TEMPLATE CREATOR VIEW *****/
 	
-	/* Process the definitions of a newly created entity. */
-	var processDefinitions = function(name, definitions) {
-		name = trim(name);
-		for (var i = 0; i < definitions.length; i++) {
-			// Submit each definition as eden code to add to definition store.
-			var definition = trim(definitions[i]);
-			try {
-				eval(Eden.translateToJavaScript(name+'_'+definition));
-			} catch (e) {
-				Eden.reportError(e);
-				return -1;
-			}
-			me.definitions.push(name+'_'+definition);
-		}
-	};
-	
-	/* Process the actions of a newly created template. */
+	/* Convert the actions of a newly created template to GuardActions objects. */
 	var processActions = function(name, actions) {
-		// TODO validate here! e.g. by trying to convert to eden code
+		// TODO add validation e.g. by trying to convert to eden code
 		var actionsArr = new Array();
 		for (var i = 0; i < actions.length; i++) {
 			// Actions of the form guard --> action:
@@ -92,8 +86,8 @@
 		return actionsArr;
 	};
 	
+	/* Process a template being created. */
 	var processNewTemplate = function(nameParams) {
-		// TODO add ability to edit existing entity!
 		// Get the parameters between the brackets, split by commas:
 		var params = new Array();
 		var name;
@@ -117,8 +111,9 @@
 		addTemplate(name, params, defitions, actionsArr);
 		return 0;
 	};
-	
-	var validateInput = function() {
+
+	/* Validate a new template and then add it. */	
+	var validateTemplate = function() {
 		var input = document.getElementById('adm-name'),
 		templateName = input.value.split('(')[0];
 
@@ -145,97 +140,6 @@
 			input.focus();
 		}
 	};
-
-	this.actionPush = function(value) {
-		me.selectedActions.push(value);
-	};
-
-	this.actionRemove = function(value) {
-		var newActions = new Array();
-		for (x in me.selectedActions) {
-			var action = me.selectedActions[x];
-			if (action != value) {
-				newActions.push(action);
-			}
-		}
-		me.selectedActions = newActions;
-	};
-	
-	this.entityPush = function(value) {
-		me.selectedEntities.push(value);
-	};
-
-	this.entityRemove = function(value) {
-		var newEntities = new Array();
-		for (x in me.selectedEntities) {
-			var entity = me.selectedEntities[x];
-			if (entity != value) {
-				newEntities.push(entity);
-			}
-		}
-		me.selectedEntities = newEntities;
-	};
-
-	this.process = function() {
-		// Find all actions to evaluate and add to the actions list:
-		for (x in me.entities) {
-			var entity = me.entities[x];
-
-			// Find the ActionsList for this entity and clear it
-			var actionList;
-			for (y in me.actionLists) {
-				var nextActionList = me.actionLists[y];
-				if (nextActionList.entityName == entity.name) {
-					actionList = nextActionList;
-					break;
-				}
-			}
-			actionList.clear();
-
-			// First add the next sequential items from last round
-			var tmpQueue = [];
-			for (x in entity.queuedActions) {
-				var queueSplit = entity.queuedActions[x].split(';');
-				var firstAction = queueSplit[0];
-				if (firstAction.length > 0) {
-					queueSplit.splice(0, 1);
-					var finalAction = true;
-					if (queueSplit[0].length > 0) {
-						tmpQueue.push(queueSplit.join(';'));
-						finalAction = false;
-					}
-					actionList.addAction(firstAction, finalAction);
-				}
-			}
-			entity.queuedActions = tmpQueue;
-			processSelected(entity, actionList);
-		}
-	};
-
-	var processSelected = function(entity, actionList) {
-		for (var j = 0; j < entity.actionsArr.length; j++) {
-			// The guard should be EDEN code! Execute it
-			var guardAction = entity.actionsArr[j];
-			try {
-				var answer = eval(Eden.translateToJavaScript('return ' + guardAction.edenVar + ';'));
-			} catch (e) {
-				Eden.reportError(e);
-			}
-			if (answer == true) {
-				var split = guardAction.actions.split(';');
-				var firstAction = split[0];
-				var finalAction = true;
-				split.splice(0, 1);
-				if (split[0].length > 0) {
-					entity.queuedActions.push(split.join(';'));
-					finalAction = false;
-				}
-	
-				// Add action to selectable list of potential actions this step:
-				actionList.addAction(firstAction, finalAction);
-			}
-		}
-	};
 	
 	/* Display information about the entity at the current index. */
 	var display = function(index) {
@@ -252,15 +156,18 @@
 		} else {
 			var template = me.templates[index];
 			document.getElementById('adm-name').value = template.name;
-			document.getElementById('adm-definitions').value = template.definitions.join('\n');
-			document.getElementById('adm-actions').value = template.actionsArr.join('\n');
+			document.getElementById('adm-definitions').value =
+				template.definitions.join('\n');
+			document.getElementById('adm-actions').value =
+				template.actionsArr.join('\n');
 		}
 		me.currIndex = index;
 	};
 	
+	/* Delete the template at the given index. */
 	var deleteTemplate = function(index) {
 		if (index > -1) {
-			alert('deleting template ' + me.templates[index].name);
+			alert('Deleting template ' + me.templates[index].name);
 			me.templates.splice(index);
 			me.currIndex = index-1;
 			display(me.currIndex);
@@ -300,7 +207,7 @@
 						id: "btn-add",
 						text: "Add Template",
 						click: function() {
-							validateInput();
+							validateTemplate();
 						}
 					},
 					{
@@ -332,175 +239,9 @@
 		myeditor = convertToEdenPageNew('#'+name+'-input','code');
 	};
 
-	var processEntityRemove = function(entityName) {
-		var entity;
-		var index;
-		for (x in me.entities) {
-			if (me.entities[x].name == entityName) {
-				entity = me.entities[x];
-				index = x;
-				break;
-			}
-		}
-		if (entity == null) {
-			alert(entityName + ' doesn\'t exist to delete.');
-			return;
-		}
-		me.entities.splice(index, 1);
-		// Also remove this entity's ActionList and Entity object
-		for (x in me.actionLists) {
-			if (me.actionLists[x].entityName == entityName) {
-				index = x;
-				me.actionLists[x].remove();
-				break;
-			}
-		}
-		if (me.actionLists != null) me.actionLists.splice(index, 1);
-		if (me.entityList != null) me.entityList.removeEntity(entityName);
-	};
+	/***** CODE FOR TEMPLATE INSTANTIATOR VIEW *****/
 
-	var findTemplate = function(templateName) {
-		var template;
-		for (x in me.templates) {
-			if (me.templates[x].name == templateName) {
-				template = me.templates[x];
-				break;
-			}
-		}
-		return template;
-	};
-
-	var processEntityInstantiate = function(templateName, params, entityName) {
-		var template = findTemplate(templateName);
-		if (template == null) {
-			alert ('no template with name ' + templateName); return -1;
-		}
-		for (x in me.entities) {
-			if (me.entities[x].name == entityName) {
-				alert('Please enter a unique entity name'); return -1;
-			}
-		}
-		
-		if (params == '') {
-			var splitParams = [];
-		} else if (params.indexOf(',') == -1) {
-			var splitParams = [params];
-		} else {
-			var splitParams = params.split(',');
-		}
-		if (splitParams.length != template.parameters.length) {
-			alert('not enough parameters to instantiate ' + template);
-			return -1;
-		}
-		for (x in splitParams) {
-			var param = trim(template.parameters[x]);
-			var value = trim(splitParams[x]);
-			eval(Eden.translateToJavaScript(entityName+'_'+param+' is '+value+';'));
-		}
-		
-		// Replace "this" keyword with entity name in actions and definitions.
-		var entityDefinitions = replaceThis(entityName, template.definitions);
-		
-		// Process definitions and actions.
-		var returnCode = processDefinitions(entityName, entityDefinitions);
-		if (returnCode != -1) {
-			finishInstantiation(entityName, entityDefinitions, template.actionsArr);
-		}
-		return returnCode;
-        };
-
-	var finishInstantiation = function(name, definitions, actions) {
-		var entityActions = replaceThisActions(name, actions);
-		var entity = new Entity(name, definitions, entityActions);
-		me.entities.push(entity);
-
-		// Create all EDEN guard variables
-		for (x in entityActions) {
-			var action = entityActions[x];
-			var statement = action.edenVar + ' is ' + action.guard + ';';
-			eval(Eden.translateToJavaScript(statement));
-		}
-
-		if (me.actionLists != null) {
-			var actionList = new Eden.plugins.ADM.ActionsList(name);
-			me.actionLists.push(actionList);
-			processSelected(entity, actionList);
-		}
-		if (me.entityList != null) {
-			me.entityList.addEntity(name, definitions, entityActions);
-		}
-	};
-
-	var step = function() {
-		// Execute all actions currently highlighted!
-		for (x in me.selectedActions) {
-			var action = me.selectedActions[x];
-			/* If the action starts with a alpha it is referring to an entity.
-			This means it needs special treatment, otherwise it is just EDEN code.*/
-			action = trim(action);
-	
-			if (action.charCodeAt(0) == 945) {
-				if (action[2] == 'r') {
-					// Removing an entity
-					var entityName = action.split('(')[1];
-					entityName = entityName.substring(0, entityName.length - 1);
-					processEntityRemove(entityName);
-				} else if (action[2] == 'i') {
-					// Instantiate a new entity.
-					var templateName = action.split('(')[1];
-					var params = (action.split('(')[2]).split(')')[0];
-					var entityName = action.split('as')[1];
-					var returnCode = processEntityInstantiate(templateName, params, entityName);
-					if (returnCode == -1) break;
-				} else {
-					alert('action on another entity must one of α_remove(entity_name), α_r, α_instantiate(template(param_value) as entity_name) or α_i');
-				}
-			} else {
-				eval(Eden.translateToJavaScript(action+';'));
-			}
-		}
-		me.selectedActions = new Array();
-		eden.plugins.ADM.process();
-	}
-	
-	/** @public */
-	this.createHumanPerspective = function(name, mtitle) {
-		var code_entry = $('<div></div>');
-		code_entry = $("<div id=\"human-perspective\" class=\"actionlist\"></div>");
-		
-		$dialog = $('<div id="'+name+'"></div>')
-			.html(code_entry)
-			.dialog({
-				title: mtitle,
-				width: 360,
-				height: 400,
-				minHeight: 200,
-				minWidth: 360,
-				buttons: [
-				{
-					id: "btn-refresh",
-					text: "Refresh actions",
-					click: function() {
-						eden.plugins.ADM.process();
-					}
-				},
-				{
-					id: "btn-step",
-					text: "Step",
-					click: function() {
-						step();
-					}
-				}]
-			});
-		me.actionLists = new Array();
-		for (x in me.entities) {
-			var name = me.entities[x].name;
-			me.actionLists.push(new Eden.plugins.ADM.ActionsList(name));
-		}
-		eden.plugins.ADM.process();
-	};
-
-	// Replace all occurences of "this" in array arr with "name" Strings
+	/* Replace all occurences of "this" in array arr with "name" Strings. */
 	var replaceThis = function(name, arr) {
 		var result = new Array();
 		for (x in arr) {
@@ -510,7 +251,7 @@
 		return result;
 	};
 
-	// Replace all occurences of "this" in array arr with "name" GuardActions
+	/* Replace all occurences of "this" in array arr with "name" GuardActions. */
 	var replaceThisActions = function(name, guardActions) {
 		var result = new Array();
 		for (x in guardActions) {
@@ -523,7 +264,7 @@
 		return result;
 	};
 
-	// Clear instantiator on successful instantiation
+	/* Clear instantiator on successful instantiation. */
 	var clearInstantiator = function(box, boxes) {
 		box.value = "";
 		for (x in boxes) {
@@ -531,16 +272,28 @@
 		}
 	};
 
-	// Instantiate a selected template with given parameters in instantiator
+	/* Find the template object with the given name. */
+	var findTemplate = function(templateName) {
+		var template;
+		for (x in me.templates) {
+			if (me.templates[x].name == templateName) {
+				template = me.templates[x];
+				break;
+			}
+		}
+		return template;
+	};
+
+	/* Instantiate a selected template with given parameters in instantiator. */
 	var instantiateButton = function() {
-		// Find the template we are instantiating
+		// Find the template we are instantiating.
 		var menu = document.getElementById('template-menu');
 		var templateName = menu.options[menu.selectedIndex].value;
 		var thisTemplate = findTemplate(templateName);
 
 		var nameBox = document.getElementById('entity-name');
 		var name = nameBox.value;
-		// Ensure new entity name is unique
+		// Ensure new entity name is unique.
 		var unique = true;
 		for (var i = 0; i < me.entities.length; i++) {
 			var entity = me.entities[i];
@@ -550,7 +303,7 @@
 			alert('please enter a unique name for this instantiation'); return;
 		}
 
-		// Instantiate all parameters
+		// Instantiate all parameters as EDEN observables.
 		var params = $("#instantiate-params");
 		var inputs = params.find("input");
 		var paramIndex = 0;
@@ -575,6 +328,22 @@
 			finishInstantiation(name, entityDefinitions, thisTemplate.actionsArr);
 			alert('Successfully added instantiation of ' + templateName + ' as ' + name);
 			clearInstantiator(nameBox, inputBoxes);
+		}
+	};
+	
+	/* Process the definitions of a newly instantiated entity. */
+	var processDefinitions = function(name, definitions) {
+		name = trim(name);
+		for (var i = 0; i < definitions.length; i++) {
+			// Submit each definition as EDEN code to add to definition store.
+			var definition = trim(definitions[i]);
+			try {
+				eval(Eden.translateToJavaScript(name+'_'+definition));
+			} catch (e) {
+				Eden.reportError(e);
+				return -1;
+			}
+			me.definitions.push(name+'_'+definition);
 		}
 	};
 	
@@ -609,20 +378,283 @@
 				}]
 			});
 		me.templateList = new Eden.plugins.ADM.TemplateList();
+		// Show all precreated templates in the dropdown list for instantiation.
 		for (x in me.templates) {
 			var template = me.templates[x];
 			me.templateList.addTemplate(template.name, template.parameters);
 		}
 	};
 
+	/***** CODE FOR HUMAN PERSPECTIVE VIEW *****/
+
+	/* Remove an entity instance with the given name - alpha_r(entityName)*/
+	var processEntityRemove = function(entityName) {
+		var entity;
+		var index;
+		// Find and remove the entity requested for removal
+		for (x in me.entities) {
+			if (me.entities[x].name == entityName) {
+				entity = me.entities[x];
+				index = x;
+				break;
+			}
+		}
+		if (entity == null) {
+			alert(entityName + ' doesn\'t exist to delete.');
+			return;
+		}
+		me.entities.splice(index, 1);
+
+		// Also remove this entity's ActionList and Entity object
+		for (x in me.actionLists) {
+			if (me.actionLists[x].entityName == entityName) {
+				index = x;
+				me.actionLists[x].remove();
+				break;
+			}
+		}
+		if (me.actionLists != null) me.actionLists.splice(index, 1);
+		if (me.entityList != null) me.entityList.removeEntity(entityName);
+	};
+
+	/* Process the instantiation of a new entity -
+	 * alpha_i(templateName(params) as entityName).
+	 */
+	var processEntityInstantiate = function(templateName, params, entityName) {
+		var template = findTemplate(templateName);
+		if (template == null) {
+			alert ('no template with name ' + templateName); return -1;
+		}
+
+		// Ensure the name for the new entity is unique.
+		for (x in me.entities) {
+			if (me.entities[x].name == entityName) {
+				alert('Please enter a unique entity name'); return -1;
+			}
+		}
+		
+		// Process any given parameter values by matching to template parameters.
+		if (params == '') {
+			var splitParams = [];
+		} else if (params.indexOf(',') == -1) {
+			var splitParams = [params];
+		} else {
+			var splitParams = params.split(',');
+		}
+		if (splitParams.length != template.parameters.length) {
+			alert('not enough parameters to instantiate ' + template);
+			return -1;
+		}
+		for (x in splitParams) {
+			var param = trim(template.parameters[x]);
+			var value = trim(splitParams[x]);
+			// Add the parameter definition to the EDEN definition store.
+			eval(Eden.translateToJavaScript(entityName+'_'+param+' is '+value+';'));
+		}
+		
+		// Replace "this" keyword with entity name in actions and definitions.
+		var entityDefinitions = replaceThis(entityName, template.definitions);
+		
+		// Process definitions and actions.
+		var returnCode = processDefinitions(entityName, entityDefinitions);
+		if (returnCode != -1) {
+			finishInstantiation(entityName, entityDefinitions, template.actionsArr);
+		}
+		return returnCode;
+        };
+
+	/* Complete the instantiation of a new entity. */
+	var finishInstantiation = function(name, definitions, actions) {
+		var entityActions = replaceThisActions(name, actions);
+		var entity = new Entity(name, definitions, entityActions);
+		me.entities.push(entity);
+
+		// Create all EDEN guard variables
+		for (x in entityActions) {
+			var action = entityActions[x];
+			var statement = action.edenVar + ' is ' + action.guard + ';';
+			eval(Eden.translateToJavaScript(statement));
+		}
+
+		if (me.actionLists != null) {
+			var actionList = new Eden.plugins.ADM.ActionsList(name);
+			me.actionLists.push(actionList);
+			// Display available actions in the human perspective.
+			refreshEntity(entity, actionList);
+		}
+		// Add to the entity list view.
+		if (me.entityList != null) {
+			me.entityList.addEntity(name, definitions, entityActions);
+		}
+	};
+
+	/* Carry out a single step of computation. */
+	var step = function() {
+		// Execute all actions currently highlighted
+		for (x in me.selectedActions) {
+			var action = me.selectedActions[x];
+			/* If the action starts with a alpha it is referring to an entity.
+			This means it needs special treatment, otherwise it is just EDEN code.*/
+			action = trim(action);
+			if (action.charCodeAt(0) == 945) {
+				if (action[2] == 'r') {
+					// Removing an entity
+					var entityName = action.split('(')[1];
+					entityName = entityName.substring(0, entityName.length - 1);
+					processEntityRemove(entityName);
+				} else if (action[2] == 'i') {
+					// Instantiate a new entity.
+					var templateName = action.split('(')[1];
+					var params = (action.split('(')[2]).split(')')[0];
+					var entityName = action.split('as')[1];
+					var returnCode = processEntityInstantiate(templateName, params, entityName);
+					if (returnCode == -1) break;
+				} else {
+					alert('Action on another entity must one of α_remove(entity_name), α_r, α_instantiate(template(param_value) as entity_name) or α_i');
+				}
+			} else {
+				// Execute any EDEN code normally.
+				eval(Eden.translateToJavaScript(action+';'));
+			}
+		}
+		me.selectedActions = new Array();
+		// Check for the next available actions.
+		eden.plugins.ADM.refreshHumanPerspective();
+	}
+
+	/* Add selected action to list of currently selected actions in human perspective. */
+	this.actionPush = function(action) {
+		me.selectedActions.push(action);
+	};
+
+	/* Remove action from selected list as it has been deselected. */
+	this.actionRemove = function(actionToRemove) {
+		var newActions = new Array();
+		for (x in me.selectedActions) {
+			var action = me.selectedActions[x];
+			if (action != actionToRemove) {
+				newActions.push(action);
+			}
+		}
+		me.selectedActions = newActions;
+	};
+
+	/* Find and display available actions for all instantiated entities in the given
+	   state. */
+	this.refreshHumanPerspective = function() {
+		for (x in me.entities) {
+			var entity = me.entities[x];
+
+			// Find the ActionsList for this entity and clear it
+			var actionList;
+			for (y in me.actionLists) {
+				var nextActionList = me.actionLists[y];
+				if (nextActionList.entityName == entity.name) {
+					actionList = nextActionList;
+					break;
+				}
+			}
+			actionList.clear();
+
+			// First add the next sequential items from last round
+			var tmpQueue = [];
+			for (x in entity.queuedActions) {
+				var queueSplit = entity.queuedActions[x].split(';');
+				var firstAction = queueSplit[0];
+				if (firstAction.length > 0) {
+					queueSplit.splice(0, 1);
+					var finalAction = true;
+					if (queueSplit[0].length > 0) {
+						tmpQueue.push(queueSplit.join(';'));
+						finalAction = false;
+					}
+					actionList.addAction(firstAction, finalAction);
+				}
+			}
+			// Also store the sequential actions to display next step in sequence.
+			entity.queuedActions = tmpQueue;
+			// Check all guards for this entity:
+			refreshEntity(entity, actionList);
+		}
+	};
+
+	/* Check all guards for this entity to refresh its list of available actions in the
+	   human perspective. */
+	var refreshEntity = function(entity, actionList) {
+		for (var j = 0; j < entity.actionsArr.length; j++) {
+			// The guard is an EDEN observable - check its value.
+			var guardAction = entity.actionsArr[j];
+			try {
+				var answer = eval(Eden.translateToJavaScript('return ' + guardAction.edenVar + ';'));
+			} catch (e) {
+				Eden.reportError(e);
+			}
+			// If the guard was true, add the first action in the sequence.
+			if (answer == true) {
+				var split = guardAction.actions.split(';');
+				var firstAction = split[0];
+				var finalAction = true;
+				split.splice(0, 1);
+				if (split[0].length > 0) {
+					entity.queuedActions.push(split.join(';'));
+					finalAction = false;
+				}
+	
+				// Add action to selectable list of actions this step:
+				actionList.addAction(firstAction, finalAction);
+			}
+		}
+	};
+	
+	/** @public */
+	this.createHumanPerspective = function(name, mtitle) {
+		var code_entry = $('<div></div>');
+		code_entry = $("<div id=\"human-perspective\" class=\"actionlist\"></div>");
+		
+		$dialog = $('<div id="'+name+'"></div>')
+			.html(code_entry)
+			.dialog({
+				title: mtitle,
+				width: 360,
+				height: 400,
+				minHeight: 200,
+				minWidth: 360,
+				buttons: [
+				{
+					id: "btn-refresh",
+					text: "Refresh actions",
+					click: function() {
+						eden.plugins.ADM.refreshHumanPerspective();
+					}
+				},
+				{
+					id: "btn-step",
+					text: "Step",
+					click: function() {
+						step();
+					}
+				}]
+			});
+		me.actionLists = new Array();
+		for (x in me.entities) {
+			var name = me.entities[x].name;
+			me.actionLists.push(new Eden.plugins.ADM.ActionsList(name));
+		}
+		eden.plugins.ADM.refreshHumanPerspective();
+	};
+
+	/***** CODE FOR ENTITY LIST VIEW *****/
+
+	/* Delete all currently selected entities. */
 	var deleteSelected = function() {
 		for (x in me.selectedEntities) {
 			processEntityRemove(me.selectedEntities[x]);
 		}
-		alert('Entities successfully deleted');
+		alert('Entities successfully deleted.');
 		me.selectedEntities = new Array();
 	};
 
+	/* Save all edits made to the selected entities.*/
 	var saveEntityEdits = function() {
 		for (x in me.selectedEntities) {
 			// Find entity and save its definitions and actions as the ones listed.
@@ -633,12 +665,14 @@
 		me.entityList.unselectAll();
 	};
 
+	/* Find the Entity with the given name.*/
 	var findEntity = function(entityName) {
 		for (x in me.entities) {
 			if (me.entities[x].name == entityName) return me.entities[x];
 		}
 	};
 
+	/* Process the editing of the entity with the given name.*/
 	var processEntityEdit = function(entityName) {
 		var entity = findEntity(entityName);
 
@@ -653,6 +687,23 @@
 				}
 			}
 		}
+	};
+	
+	/* Add selected entity to list of selected entities. */
+	this.entityPush = function(value) {
+		me.selectedEntities.push(value);
+	};
+
+	/* Remove entity from selected list as it has been deselected. */
+	this.entityRemove = function(value) {
+		var newEntities = new Array();
+		for (x in me.selectedEntities) {
+			var entity = me.selectedEntities[x];
+			if (entity != value) {
+				newEntities.push(entity);
+			}
+		}
+		me.selectedEntities = newEntities;
 	};
 
 	/** @private */
@@ -695,11 +746,16 @@
 		}
 	};
 
+	/***** CODE FOR ADVANCED INPUT VIEW *****/
+
+	/* Given a line "name: templateName" parse out the templateName. */
 	var processName = function(line) {
 		var nameParams = line.split(':')[1];
 		return trim(nameParams.split('(')[0]);
 	};
 
+	/* Given a line "name: templateName(param1,param2,...)" parse out the parameter names.
+	   Return the comma separated parameter names as an array.*/
 	var processParams = function(line) {
 		var parenthesisSplit = line.split(':')[1].split('(')[1];
 		if (parenthesisSplit.length > 1) {
@@ -709,6 +765,7 @@
 		}
 	};
 
+	/* Remove any space or tab characters from the start or end of the given string.*/
 	var trim = function(string) {
 		while (string.charCodeAt(0) == 32 || string.charCodeAt(0) == 9) {
 			string = string.substring(1, string.length);
@@ -720,11 +777,14 @@
 		return string;
 	};
 
+	/* Trim the final character from the given string.*/
 	var removeLastChar = function(string) {
 		return string.substring(0, string.length-1);
 	};
 
+	/* Add a new template with the specified variables.*/
 	var addTemplate = function(name, params, defsArr, actions) {
+		// Ensure the name for the new template is unique.
 		for (x in me.templates) {
 			if (me.templates[x].name == name) {
 				alert('Templates must have unique names.');
@@ -734,6 +794,7 @@
 		var actionsArr = processActions(name, actions);
 		var template = new Template(name, params, defsArr, actionsArr);
 		me.templates.push(template);
+		// Also add the template to the template creator view if it exists.
 		if (me.templateList != null) {
 			me.templateList.addTemplate(name, params);
 		}
@@ -759,16 +820,19 @@
 		// Variables for new template creation
 		var name;
 		var params = new Array();
-		var processingDefs = false;
 		var defs = new Array();
-		var processingActions = false;
 		var actions = new Array();
+		// Variables to keep track of which part of input we are processing
+		var processingDefs = false;
+		var processingActions = false;
 		var parsingTemplate = false;
+
 		for (x in lines) {
 			var line = lines[x];
-			// First trim whitespace from the start of the line.
+			// First trim whitespace from the start and end of the line.
 			line = trim(line);
-			if (line == '') continue; 
+			if (line == '') continue;
+
 			if (parsingTemplate == false) {
 				if (line[0] == '{') {
 					// This is the first line of a new template
@@ -795,6 +859,7 @@
 				}
 				if (line.length > 0) defs.push(line);
 			} else if (processingActions == true) {
+				// We are currently processing actions.
 				var brace = line.indexOf('}');
 				if (brace != -1) {
 					line = removeLastChar(line);
@@ -806,17 +871,19 @@
 				if (line[0] == '}') {
 					parsingTemplate = false;
 					var returnCode = addTemplate(name, params, defs, actions);
+					// Reset the variables ready for a new template.
 					name = "";
 					params = new Array();
 					defs = new Array();
 					actions = new Array();
+					// Stop parsing if there was an error.
 					if (returnCode == -1) return;
 				} else if (line.indexOf("name:") != -1) {
 					name = processName(line);
 					params = processParams(line);
 				} else if (line.indexOf("definitions:") != -1 || line.indexOf("defs:") != -1) {
 					processingDefs = true;
-					// Line might also contain definitions.
+					// Line might also contain the first definition.
 					line = trim(line);
 					if (line.split('{').length > 1) {
 						var afterBrace = trim(line.split('{')[1]);
@@ -828,7 +895,7 @@
 					}
 				} else if (line.indexOf("actions:") != -1) {
 					processingActions = true;
-					// Line might also contain actions.
+					// Line might also contain the first action.
 					line = trim(line);
 					if (line.split('{').length > 1) {
 						var afterBrace = trim(line.split('{')[1]);
@@ -842,6 +909,8 @@
 				}
 			}
 		}
+
+		// Clear the editor to indicate input was successful.
 		options.editor.setValue("");
 		
 	};
@@ -882,15 +951,15 @@
 		dialog: this.createTemplateCreator,
 		title: "ADM Template Creator"
 	};
-	
-	context.views["AdmHumanPerspective"] = {
-		dialog: this.createHumanPerspective,
-		title: "ADM Human Perspective"
-	};
 
 	context.views["AdmInstantiator"] = {
 		dialog: this.createInstantiator,
 		title: "ADM Template Instantiator"
+	};
+	
+	context.views["AdmHumanPerspective"] = {
+		dialog: this.createHumanPerspective,
+		title: "ADM Human Perspective"
 	};
 
 	context.views["AdmEntityList"] = {
@@ -904,6 +973,129 @@
 	};
 };
 
+/* Objects to represent the list of templates in the instantiator.*/
+Eden.plugins.ADM.TemplateList = function() {
+	this.templateList = document.getElementById('template-menu');
+	this.templateList.style.minWidth="100px";
+	this.templates = new Array();
+}
+
+Eden.plugins.ADM.TemplateList.prototype.addTemplate = function(template, params) {
+	var templateElement = new Eden.plugins.ADM.Template(template, params);
+	templateElement.element.appendTo(this.templateList);
+	this.templates.push(templateElement);
+}
+
+/* Each template is selectable in the drop down menu of the view.*/
+Eden.plugins.ADM.Template = function(template, parameters) {
+	this.template = template;
+	this.element = $('<option value='+template+'>'+template+'</option>');
+	var show = this.showParamInput;
+	var params = parameters;
+	
+	this.element.click(function() {
+		show(parameters);
+	});
+	
+	var instantiator = document.getElementById("instantiate-params");
+	if (instantiator.innerHTML == "") show(parameters);
+}
+
+/* Add an input box for every parameter. */
+Eden.plugins.ADM.Template.prototype.showParamInput = function(params) {
+	var instantiator = document.getElementById("instantiate-params");
+	instantiator.innerHTML="";
+	for (x in params) {
+		var param = params[x];
+		var newdiv = document.createElement('label');
+		newdiv.innerHTML = param+":";
+		instantiator.appendChild(newdiv);
+		var newinput = document.createElement('input');
+		newinput.type="text";
+		instantiator.appendChild(newinput);
+		var newbr = document.createElement('br');
+		instantiator.appendChild(newbr);
+	}
+}
+
+
+/* Objects to represent the list of available actions for each entity in the human perspective.*/
+Eden.plugins.ADM.ActionsList = function(entityName) {
+	var humanPerspective = document.getElementById("human-perspective");
+	this.actionresults = document.createElement('div');
+	this.actionresults.setAttribute('id', 'actions_'+entityName);
+	this.actionresults.innerHTML = '<label><b>Actions for '+entityName+':</b></label>';
+	humanPerspective.appendChild(this.actionresults);
+	this.actions = new Array();
+	this.entityName = entityName;
+}
+
+Eden.plugins.ADM.ActionsList.prototype.addAction = function(action, finalAction) {
+	var actionElement = new Eden.plugins.ADM.Action(action, finalAction);
+	actionElement.element.appendTo(this.actionresults);
+	this.actions.push(actionElement);
+}
+
+Eden.plugins.ADM.ActionsList.prototype.clear = function() {
+	this.actions = new Array();
+        this.actionresults.innerHTML = '<label><b>Actions for '+this.entityName+'</b></label>';
+}
+	
+Eden.plugins.ADM.ActionsList.prototype.remove = function() {
+	var humanPerspective = document.getElementById("human-perspective");
+	humanPerspective.removeChild(document.getElementById("actions_"+this.entityName));
+}
+
+Eden.plugins.ADM.Action = function(action, finalAction) {
+	var action = action;
+	this.action = action;
+	this.element = $('<div class="entitylist-element"></div>');
+	this.update = this.updateAction;
+	var selected = false;
+
+	this.element.hover(
+		function() {
+			if (selected == false) {
+				$(this).animate({backgroundColor: "#eaeaea"}, 100);
+			} else {
+				$(this).animate({backgroundColor: "#66CCCC"}, 100);
+			}
+		}, function() {
+			if (selected == false) {
+				$(this).animate({backgroundColor: "white"}, 100);
+			} else {
+				$(this).animate({backgroundColor: "#6666CC"}, 100);
+			}
+		}	
+	).click(function() {
+		// On click select/deselect this action for execution next step.
+		if (selected == false) {
+			eden.plugins.ADM.actionPush(action);
+			$(this).css("backgroundColor","#6666CC");
+			selected = true;
+		} else {
+			eden.plugins.ADM.actionRemove(action);
+			$(this).css("backgroundColor", "white");
+			selected = false;
+		}
+	});
+
+	this.update(finalAction);
+}
+
+Eden.plugins.ADM.Action.prototype.updateAction = function(finalAction) {
+	var baseHTML = "<li class=\"type-function\"><span class=\"result_name\">";
+	if (finalAction == true) {
+		baseHTML = baseHTML + this.action + "</span></li>";
+	} else {
+		baseHTML = baseHTML + this.action + " ... </span></li>";
+	}
+	
+	this.element.html(baseHTML);
+}
+
+
+/* Objects to represent the list of entities. */
 Eden.plugins.ADM.EntityList = function() {
 	this.entityList = document.getElementById('entity-list');
 	this.entities = new Array();
@@ -956,6 +1148,7 @@ Eden.plugins.ADM.Entity = function(entity, definitions, actions) {
 			}
 		}
 	).click(function() {
+		// On click expand and show definitions and actions for this entity.
 		if (this.innerHTML == contentHTML) {
 			var newDiv = document.createElement('div');
 			newDiv.innerHTML = '<label>Definitions:</label><br>\
@@ -981,121 +1174,6 @@ Eden.plugins.ADM.Entity.prototype.unselect = function() {
 	this.element.html(contentHTML);
 }
 
-Eden.plugins.ADM.TemplateList = function() {
-	this.templateList = document.getElementById('template-menu');
-	this.templateList.style.minWidth="100px";
-	this.templates = new Array();
-}
-
-Eden.plugins.ADM.TemplateList.prototype.addTemplate = function(template, params) {
-	var templateElement = new Eden.plugins.ADM.Template(template, params);
-	templateElement.element.appendTo(this.templateList);
-	this.templates.push(templateElement);
-}
-
-Eden.plugins.ADM.Template = function(template, parameters) {
-	this.template = template;
-	this.element = $('<option value='+template+'>'+template+'</option>');
-	var show = this.showParamInput;
-	var params = parameters;
-	
-	this.element.click(function() {
-		show(parameters);
-	});
-	
-	var instantiator = document.getElementById("instantiate-params");
-	if (instantiator.innerHTML == "") show(parameters);
-}
-
-Eden.plugins.ADM.Template.prototype.showParamInput = function(params) {
-	// Add input boxes for every parameter
-	var instantiator = document.getElementById("instantiate-params");
-	instantiator.innerHTML="";
-	for (x in params) {
-		var param = params[x];
-		var newdiv = document.createElement('label');
-		newdiv.innerHTML = param+":";
-		instantiator.appendChild(newdiv);
-		var newinput = document.createElement('input');
-		newinput.type="text";
-		instantiator.appendChild(newinput);
-		var newbr = document.createElement('br');
-		instantiator.appendChild(newbr);
-	}
-}
- 
-Eden.plugins.ADM.ActionsList = function(entityName) {
-	var humanPerspective = document.getElementById("human-perspective");
-	this.actionresults = document.createElement('div');
-	this.actionresults.setAttribute('id', 'actions_'+entityName);
-	this.actionresults.innerHTML = '<label><b>Actions for '+entityName+':</b></label>';
-	humanPerspective.appendChild(this.actionresults);
-	this.actions = new Array();
-	this.entityName = entityName;
-}
-
-Eden.plugins.ADM.ActionsList.prototype.addAction = function(action, finalAction) {
-	var actionElement = new Eden.plugins.ADM.Action(action, finalAction);
-	actionElement.element.appendTo(this.actionresults);
-	this.actions.push(actionElement);
-}
-
-Eden.plugins.ADM.ActionsList.prototype.clear = function() {
-	this.actions = new Array();
-        this.actionresults.innerHTML = '<label><b>Actions for '+this.entityName+'</b></label>';
-}
-	
-Eden.plugins.ADM.ActionsList.prototype.remove = function() {
-	var humanPerspective = document.getElementById("human-perspective");
-	humanPerspective.removeChild(document.getElementById("actions_"+this.entityName));
-}
-
-Eden.plugins.ADM.Action = function(action, finalAction) {
-	var action = action;
-	this.action = action;
-	this.element = $('<div class="entitylist-element"></div>');
-	this.update = this.updateAction;
-	var selected = false;
-
-	this.element.hover(
-		function() {
-			if (selected == false) {
-				$(this).animate({backgroundColor: "#eaeaea"}, 100);
-			} else {
-				$(this).animate({backgroundColor: "#66CCCC"}, 100);
-			}
-		}, function() {
-			if (selected == false) {
-				$(this).animate({backgroundColor: "white"}, 100);
-			} else {
-				$(this).animate({backgroundColor: "#6666CC"}, 100);
-			}
-		}	
-	).click(function() {
-		if (selected == false) {
-			eden.plugins.ADM.actionPush(action);
-			$(this).css("backgroundColor","#6666CC");
-			selected = true;
-		} else {
-			eden.plugins.ADM.actionRemove(action);
-			$(this).css("backgroundColor", "white");
-			selected = false;
-		}
-	});
-
-	this.update(finalAction);
-}
-
-Eden.plugins.ADM.Action.prototype.updateAction = function(finalAction) {
-	var baseHTML = "<li class=\"type-function\"><span class=\"result_name\">";
-	if (finalAction == true) {
-		baseHTML = baseHTML + this.action + "</span></li>";
-	} else {
-		baseHTML = baseHTML + this.action + " ... </span></li>";
-	}
-	
-	this.element.html(baseHTML);
-}
 
 Eden.plugins.ADM.title = "ADM";
 Eden.plugins.ADM.description = "Abstract Definitive Machine";
