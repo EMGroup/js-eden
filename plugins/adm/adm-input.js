@@ -108,7 +108,7 @@
 		actions = input.value.split('\n');
 		
 		var actionsArr = processActions(name, actions);
-		addTemplate(name, params, defitions, actionsArr);
+		addTemplate(name, params, definitions, actionsArr);
 		return 0;
 	};
 
