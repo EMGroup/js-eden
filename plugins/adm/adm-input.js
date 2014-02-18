@@ -76,8 +76,9 @@
 		// TODO add validation e.g. by trying to convert to eden code
 		var actionsArr = new Array();
 		for (var i = 0; i < actions.length; i++) {
+			var action = new String(actions[i]);
 			// Actions of the form guard --> action:
-			var split = actions[i].split('-->');
+			var split = action.split('-->');
 			if (split.length == 2) {
 				var edenVar = 'this_g'+actionsArr.length;
 				actionsArr.push(new GuardActions(edenVar, split[0], split[1]));
