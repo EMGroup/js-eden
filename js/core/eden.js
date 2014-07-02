@@ -101,7 +101,7 @@ joe.log("eden.js: reportError()");
  */
 Eden.executeFile = function (path) {
 joe.log("eden.js: executeFile("+path+")");
-	console.error("Calls to executeFile should be deprecated");
+	//console.error("Calls to executeFile should be deprecated");
 	$.ajax({
 		url: modelbase+path,
 		dataType: 'text',

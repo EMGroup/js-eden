@@ -1,0 +1,40 @@
+#inputwindow-dialog{
+
+	/*min-height:100px;*/
+	overflow:hidden;
+	/*resize: none;*/
+        padding : 4px;
+        padding-right : 7px;
+        padding-bottom : 7px;
+}
+
+#inputCodeArea{
+
+	width:100%;
+	height:100%;
+	font-family: Verdana,Arial,sans-serif;
+	font-size:14px;
+	overflow:hidden;
+
+        border:0px solid blue;
+        box-shadow: 0 0 10px #719ECE;
+}
+
+#buttonsDiv{
+	/*display:block;*/
+        position: absolute;
+        /*height:50px;*/
+        float: left;
+	overflow:hidden;
+        margin-top: -23px;
+        margin-bottom: -23px;
+}
+
+#subButtonsDiv{
+        position: relative;
+        float: right;
+        overflow:hidden;
+        margin-top: -23px;
+        margin-bottom: -23px;
+        margin-right: 10px;
+}

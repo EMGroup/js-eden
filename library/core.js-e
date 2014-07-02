@@ -45,7 +45,18 @@ func resizeView {
 
 func includeSSI {
 ${{
-Eden.executeFileSSI(arguments[0]);
+	Eden.executeFileSSI(arguments[0]);
 }}$;
 };
+
+func showObservables { ${{
+    $('.symbollist-search').val(arguments[0]);
+    $('.symbollist-search').keyup();
+}}$; }
+
+func getInputWindowCode { ${{
+
+    return document.width;
+}}$; }
+
 

@@ -10,13 +10,13 @@
  * Allows a html5 canvas to be displayed and used within JS-Eden for drawing.
  * @class CanvasHTML5 Plugin
  */
-joe.log("canvas.js: READING SCRIPT");
+
 Eden.plugins.CanvasHTML5 = function(context) {
-joe.log("canvas.js: CanvasHTML5()");
+
 	var me = this;
 
 	var clearCanvas = function(content) {
-	joe.log("canvas.js: clearCanvas()");
+
 		$(content).children(":not(canvas)").each(function() {
 			//XXX What is this check for?? To prevent destruction of child divs
 			//if(/canvas_/.test(this.id)) {
@@ -26,13 +26,17 @@ joe.log("canvas.js: CanvasHTML5()");
 	}
 
 	var cleanupCanvas = function(content) {
-	joe.log("canvas.js: cleanupCanvas()");
-		$(content).children(":not(canvas)").each(function() {
-			if (this.togarbage == true) {
-				$(this).remove();
-			}
-		});
+
+	   $(content).children(":not(canvas)").each(function() {
+
+	       if (this.togarbage == true) {
+	           $(this).remove();
+	       }
+
+	   });
+
 	}
+
 
 	var canvases = {};
 	var contents = {};
@@ -40,8 +44,9 @@ joe.log("canvas.js: CanvasHTML5()");
 	this.delay = 40;
 
 	this.drawPicture = function(canvasname, pictureobs) {
-	joe.log("canvas.js: drawPicture()");
-		var canvas = canvases[canvasname];
+
+           var canvas = canvases[canvasname];
+
 		if (canvas === undefined) {
 			//Need to make the canvas view first
 			eden.createView(canvasname,"CanvasHTML5");
@@ -52,27 +57,31 @@ joe.log("canvas.js: CanvasHTML5()");
 			canvas.drawing = false;
 		}
 
-		if (!canvas.drawing) {
-		canvas.drawing = true;
-		setTimeout(function(){
-			canvas.drawing = false;
-			var picture = context.context.lookup(pictureobs).value();
+		if (!canvas.drawing){
 
-			//To clear canvas.
-			canvas.width = canvas.width;
-			canvas = canvas.getContext('2d');
-			var content = contents[canvasname];
+		      canvas.drawing = true;
+		      setTimeout(function(){
 
-			clearCanvas(content);
+		            canvas.drawing = false;
+			    var picture = context.context.lookup(pictureobs).value(); //This works!!
+
+			    //To clear canvas.
+			    canvas.width = canvas.width;
+
+			    canvas = canvas.getContext('2d');
+			    var content = contents[canvasname];
+
+			    clearCanvas(content);
 
 			if (picture === undefined) { return; }
 
 			for (var i = 0; i < picture.length; i++) {
+
 				if (picture[i] === undefined) { continue; }
 				picture[i].draw(canvas,content);
 			}
-
 			cleanupCanvas(content);
+
 		},me.delay);
 		}
 	};

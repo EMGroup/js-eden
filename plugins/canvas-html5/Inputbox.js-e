@@ -1,0 +1,96 @@
+${{
+Inputbox = function (name, titles, x, y) {
+	this.name = name;
+	this.titles = titles;
+	this.x = x;
+	this.y = y;
+
+}
+function maketitleshtml(titles,name) {
+	var html = "";
+	for (x in titles) {
+		html = html + "\n"+ titles[x] + ":"+"<input type=\"text\""+" id ="+name+" style="+"width:50px"+" onfocus = root.lookup(\"focus\").assign("+"\""+name+"\""+");" + " onchange = root.lookup("+"\""+name+"change"+"\""+").assign(1);"+">";
+	}
+	return html;
+}
+}}$;
+
+func Inputbox { ${{
+  var name = arguments[0];
+  var titles = arguments[1];
+  var x = arguments[2];
+  var y = arguments[3];
+  return new Inputbox(name, titles, x, y);
+}}$; }
+
+${{
+Inputbox.prototype.draw = function(context,content) {
+  var me = "canvas_" + this.name;
+  var me2 = this.name;
+  var box = $("#"+me).get(0);
+  var me3 = maketitleshtml(this.titles,me2);
+  if (box === undefined) {
+	var dis = "";
+
+	var can = $(content);
+	var boxhtml = $("<form id=\"" + me + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></form>");
+
+	boxhtml.html(maketitleshtml(this.titles,me2));
+
+	boxhtml.change(function() {
+	
+		root.lookup(me2 + "_value").assign($("#"+me2).get(0).value);
+	}).appendTo(can);
+
+	boxhtml.get(0).togarbage = false;
+
+	//Initialise
+	root.lookup(me2 + "_value").assign($("#"+me2).get(0).value);
+  } else {
+	$(box).html(maketitleshtml(this.titles,me2));
+	//boxhtml.change(function() {
+		
+		//root.lookup(me2 + "_value").assign($("#"+me2).get(0).value);
+	//}).appendTo(can);
+	box.togarbage = false;
+
+	box.style.left = "" + this.x + "px";
+	box.style.top = "" + this.y + "px";
+  }
+};
+}}$;
+${{
+Inputbox.prototype.toString = function() {
+  return "Inputbox(" + this.name + ", " + this.titles + ", " + this.x + ", "+this.y+")";
+};
+}}$;
+proc maintainforinput {
+	${{
+		$("#input").get(0).value = root.lookup("pp_value").cached_value;
+	}}$;
+};
+ /*
+func makeScratchText{
+para state;
+auto i,symlist,result;
+symlist=[];
+result="";
+i=1;
+while(i<=numberofsym){
+if(transitions[state][i][3]!=100)
+{ if(transitions[state][i][2]!="$end")
+symlist=symlist//[transitions[state][i][2]];
+}
+i++;
+}
+
+return symlist;
+
+
+}
+pop is Inputbox("pp",["pig"],10,10);
+
+picture6 is [pop,scratchText];
+
+picture6 is [pop];
+*/

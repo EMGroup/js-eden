@@ -29,3 +29,4 @@ include("plugins/canvas-html5/rectangle.js-e");
 include("plugins/canvas-html5/slider.js-e");
 include("plugins/canvas-html5/text.js-e");
 include("plugins/canvas-html5/point.js-e");
+include("plugins/canvas-html5/Inputbox.js-e");

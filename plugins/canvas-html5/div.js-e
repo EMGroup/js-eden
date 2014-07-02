@@ -62,7 +62,7 @@ Div.prototype.draw = function(context,content) {
 	but.style.height = "" + this.height + "px";
 	but.style.left = "" + this.x + "px";
 	but.style.top = "" + this.y + "px";
-  }
+	$(but).appendTo($(content));  }
 };
 }}$;
 ${{

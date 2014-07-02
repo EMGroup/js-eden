@@ -41,7 +41,7 @@ ${{
 		but.togarbage = false;
 
 		//Initialise
-		root.lookup(me2 + "_clicked").assign(false);
+
 	  } else {
 		but.value = this.label;
 		but.togarbage = false;
@@ -57,11 +57,11 @@ ${{
 		if (style.top != y) {
 			style.top = y;
 		}
+		$(but).appendTo($(content));
 	  }
 	};
 
 	Button.prototype.toString = function() {
-	  return "Button(" + this.name + ", " + this.label + ", " + this.x + ", "+this.y+", "+this.enabled+")";
+	  return "Button(\"" + this.name + "\", \"" + this.label + "\", " + this.x + ", "+this.y+", "+this.enabled+")";
 	};
 }}$;
-

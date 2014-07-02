@@ -416,8 +416,11 @@ SDM.getModelSymbolDetails = function(name){
 
 
 	var sym = root.lookup(name);
-	
+
 	if(sym.eden_definition==undefined){
+		return "MO";
+	}
+	else if(sym.cached_value==undefined){
 		return "MO";
 	}
 	else if(sym.eden_definition.toString().indexOf("proc")==0){
@@ -565,5 +568,8 @@ SDM.systemFunctionNames = [
 	"Slider",
 	"Text",
 	"Point",
-	"html"
+	"html",
+        "Inputbox",
+        "getInputWindowCode",
+        "showObservables"
 ];
