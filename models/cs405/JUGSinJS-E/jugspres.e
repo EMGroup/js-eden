@@ -1,3 +1,6 @@
+include("models/jugs/run.e");
+include("models/jspe/run.e");
+
 ## to protect against loss of information whilst constructing the presentation
 
 ${{
@@ -14,8 +17,6 @@ function confirmBrowseAway()
   
 }}$;
 
-include("models/jugs/run.e");
-include("jspe.js-e");
 
 s1 is Slide("<h3>Introducing the JUGS model</h3> <p>This is a simple introduction to the JUGS model as implemented in JS-EDEN.</p> <p>The JUGS model is displayed on the LHS of the canvas.</p> <p>There are two 'jugs' in the display: Jug A on the left and Jug B on the right. These jugs have capacities 5 and 7 respectively. From a <i>functional</i> perspective, you are intended to achieve the target quantity of liquid specified to the right of the jugs by filling, emptying and pouring.</p> <p>You can exercise the model as a program by pressing the buttons. For instance, there is a sequence of actions to reach the target in which you only ever <i>fill</i> jug A and <i>empty</i> jug B (and vice versa).</p> ");
 

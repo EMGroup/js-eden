@@ -1,0 +1,2 @@
+joe = {};
+joe.log = function(){};

@@ -5,7 +5,7 @@
 	/*resize: none;*/
         padding : 4px;
         padding-right : 7px;
-        padding-bottom : 7px;
+        padding-bottom : 35px;
 }
 
 #inputCodeArea{
@@ -14,27 +14,39 @@
 	height:100%;
 	font-family: Verdana,Arial,sans-serif;
 	font-size:14px;
-	overflow:hidden;
-
+	resize: none;
         border:0px solid blue;
         box-shadow: 0 0 10px #719ECE;
 }
 
 #buttonsDiv{
-	/*display:block;*/
-        position: absolute;
-        /*height:50px;*/
-        float: left;
-	overflow:hidden;
+		top:24px;
+		position: relative;
+		float: right;
+		overflow:hidden;
         margin-top: -23px;
         margin-bottom: -23px;
+		right:10px;
 }
 
 #subButtonsDiv{
+		top:24px;
         position: relative;
-        float: right;
+        float: left;
         overflow:hidden;
         margin-top: -23px;
         margin-bottom: -23px;
         margin-right: 10px;
+}
+#submitButton{
+	height:25px;
+	width:120px;
+}
+#previousButton{
+	height:25px;
+	width:120px;
+}
+#nextButton{
+	height:25px;
+	width:120px;
 }

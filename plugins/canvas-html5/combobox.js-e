@@ -34,20 +34,27 @@ ${{
 Combobox.prototype.draw = function(context,content) {
   var me = "canvas_" + this.name;
   var me2 = this.name;
-  var box = $("#"+me).get(0);
+//  var box = $("#"+me).get(0);
+  var box = this.element;
+console.log("checking: nl");
+console.log(box);
   if (box === undefined) {
+  
 	var dis = "";
 	if (this.enabled == true) { dis = ""; }
 	else { dis = "disabled=\"true\""; }
 
 	var can = $(content);
 	var boxhtml = $("<select id=\"" + me + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
-
+console.log(boxhtml);
 	boxhtml.html(makeoptionshtml(this.options));
 
 	boxhtml.change(function() {
 		root.lookup(me2 + "_value").assign(boxhtml.get(0).value);
 	}).appendTo(can);
+
+        this.element = boxhtml.get(0);
+console.log(boxhtml.get(0));
 
 	boxhtml.get(0).togarbage = false;
 
@@ -57,10 +64,21 @@ Combobox.prototype.draw = function(context,content) {
 	$(box).html(makeoptionshtml(this.options));
 	box.togarbage = false;
 
-	if (this.enabled == true) { box.disabled = false; }
+        $(box).val(root.lookup(this.name+"_value").cached_value);
+
+	if (this.enabled == true) { 
+            box.disabled = false; 
+        }
 	else { box.disabled = true; }
+        
 	box.style.left = "" + this.x + "px";
 	box.style.top = "" + this.y + "px";
+
+	console.log("GOOBY");
+console.log(box);
+console.log(content);
+console.log($(box).appendTo($(content)));
+        $(box).appendTo($(content));
   }
 };
 }}$;

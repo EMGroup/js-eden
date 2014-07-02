@@ -123,7 +123,7 @@ Eden.plugins.InputWindow = function(context) {
 
 		var myeditor;
 
-		code_entry = $('<textarea onblur="eden.plugins.InputWindow.putBackInstructions()" onFocus="eden.plugins.InputWindow.getRidOfInstructions()" onkeyUp="eden.plugins.InputWindow.inputKeypress(event)" id="inputCodeArea">Ctrl+Enter = Submit\nCtrl+Up = Previous\nCtrl+Down = Next</textarea><div id="buttonsDiv"><button onclick="eden.plugins.InputWindow.prev()" >Previous</button><button onclick="eden.plugins.InputWindow.next()" >Next</button></div><div id="subButtonsDiv"><button id="submitButton" onclick="eden.plugins.InputWindow.submit()">Submit</button></div>');
+		code_entry = $('<textarea onkeyUp="eden.plugins.InputWindow.inputKeypress(event)" id="inputCodeArea"></textarea><div id="subButtonsDiv"><button id="submitButton" onclick="eden.plugins.InputWindow.submit()">Submit</button></div><div id="buttonsDiv"><button id="previousButton" onclick="eden.plugins.InputWindow.prev()" >Previous</button><button id="nextButton" onclick="eden.plugins.InputWindow.next()" >Next</button></div>');
 //try removing div: <div id=\"'+name+'-content\" class=\"inputWindow-content\">	</div>
 		//Buttons taken out for new methods of terminal: 
 		
@@ -250,4 +250,24 @@ Eden.deHTML = function(text){
 Eden.plugins.InputWindow.title = "Input Window";
 Eden.plugins.InputWindow.description = "EDEN style script input window";
 Eden.plugins.InputWindow.author = "Joe Butler";
+
+//Make tab do spaces instead of selecting the next element
+$(document).delegate('#inputCodeArea', 'keydown', function(e) {
+  var keyCode = e.keyCode || e.which;
+
+  if (keyCode == 9) {
+    e.preventDefault();
+    var start = $(this).get(0).selectionStart;
+    var end = $(this).get(0).selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    $(this).val($(this).val().substring(0, start)
+                + "\t"
+                + $(this).val().substring(end));
+
+    // put caret at right position again
+    $(this).get(0).selectionStart =
+    $(this).get(0).selectionEnd = start + 1;
+  }
+});
 

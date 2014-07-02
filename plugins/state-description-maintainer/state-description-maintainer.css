@@ -1,4 +1,11 @@
-#SDM{
-	word-wrap:normal;
+table.SDM td{
+
+padding-top:0px;
+padding-bottom:0px;
+padding-left:4px;
+padding-right:4px;
+text-align:left;
+border: 1px solid black;
 
 }
+

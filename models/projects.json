@@ -5,21 +5,28 @@
 			"author": "Meurig Beynon",
 			"year": "1998",
 			"description": "Original jugs model converted into JS-Eden form",
+			"runfile": "models/jugs/run.e"
+		},
+		{
+			"name": "JSPE",
+			"author": "Meurig Beynon / Hui Zhu",
+			"year": "2012",
+			"description": "Installs a presentation environment.",
 			"runfile": "models/jspe/run.e"
 		},
 		{
-			"name": "JS-Demo",
-			"author": "Nick Pope",
-			"year": "2011",
-			"description": "Installs an information and demonstration layer onto JS-Eden",
-			"runfile": "models/jsdemo/demo.eden"
+			"name": "Jugs Presentation",
+			"author": "Meurig Beynon",
+			"year": "2013",
+			"description": "Presents the Jugs Model in the presentation environment JSPE",
+			"runfile": "models/cs405/JUGSinJS-E/jugspres.e"
 		},
 		{
-			"name": "OXO",
-			"author": "Mike Joy",
-			"year": "1994",
-			"description": "OXO Model",
-			"runfile": "models/oxo/run.e"
+			"name": "Malaria",
+			"author": "?",
+			"year": "?",
+			"description": "Modelling Malaria",
+			"runfile": "models/malaria/malariaA.jse"
 		},
 		{
 			"name": "Number-Line Port",
@@ -34,27 +41,6 @@
 			"year": "2012",
 			"description": "Initial shot for a game of Eightball",
 			"runfile": "models/poolTable/2Ball/run.e"
-		},
-		{
-			"name": "7-Ball Eightball",
-			"author": "Jess Nickson",
-			"year": "2012",
-			"description": "Initial shot for a game of Eightball",
-			"runfile": "models/poolTable/7Ball/run.e"
-		},
-		{
-			"name": "16-Ball Eightball",
-			"author": "Jess Nickson",
-			"year": "2012",
-			"description": "Initial shot for a game of Eightball",
-			"runfile": "models/poolTable/16Ball/run.e"
-		},
-		{
-			"name": "Battleship",
-			"author": "Dave Yip",
-			"year": "2012",
-			"description": "Battleship Game",
-			"runfile": "models/battleship/run.jse"
 		},
 		{
 			"name": "Parallel Parking",

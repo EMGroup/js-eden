@@ -153,7 +153,7 @@ joe.log("menu-bar.js: menu-bar()");
 	$.ajax({
 		url: "version.rhtml",
 		success: function(data) {
-			$('<div id="menubar-version-number"></div>').html("js-eden J-version "+data).appendTo($("#menubar-main"));
+			$('<div id="menubar-version-number"></div>').html("js-eden J-version20/11/13 "+data).appendTo($("#menubar-main"));
 		},
 		cache: false,
 		async: true

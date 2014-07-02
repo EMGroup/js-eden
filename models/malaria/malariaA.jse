@@ -1,3 +1,4 @@
 include("models/malaria/malariaB.jse");
 include("models/malaria/extmalaria10.jse");
+resizeView("default",500,500);
 

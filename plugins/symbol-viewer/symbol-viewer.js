@@ -16,9 +16,9 @@ var edenfunctions = {};
  * @constructor
  * @param context The eden context this plugin is being loaded in to.
  */
-joe.log("symbol-viewer.js: READING SCRIPT");
+
 Eden.plugins.SymbolViewer = function(context) {
-joe.log("symbol-viewer.js: SymbolViewer()");
+
 	var me = this;
 
 	//Obtain function meta data from server
@@ -276,7 +276,7 @@ joe.log("symbol-viewer.js: updateSymbol()");
  */
 Eden.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function(symbol, name) {
 joe.log("symbol-viewer.js: addSymbol()");
-	var reg = new RegExp("^"+this.pattern+".*");
+	var reg = new RegExp("^("+this.pattern+").*");
 
 	if (name.search(reg) == -1) {
 		return;

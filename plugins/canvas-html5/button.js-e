@@ -25,7 +25,6 @@ ${{
 	Button.prototype.draw = function(context, content) {
 	  var me2 = this.name;
 	  var but = this.element;
-
 	  if (but === undefined) {
 		var dis = "";
 		if (this.enabled == true) { dis = ""; }

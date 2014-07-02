@@ -1,0 +1,49 @@
+html("
+<html>
+<b>Hui Zhu's Graph Prototype model</b>
+<p>
+Hui Zhu's model demonstrates one way in which the functionality that currently exists in EDEN may be replicated in JS-EDEN. The objective is to enable the construction of graphs in JS-EDEN in something like the way that Charlie Care did by creating a graph.eden add-on (cf. the implementation of the DMT within EDEN, as illustrated in one of the lab sessions). Hui's Graph Prototype model is still at an early stage of development, and uses JS-EDEN in a somewhat experimental way. In its present form, it has limitations. For instance, it is only suitable for specifying a single graph structure (which potentially suffices for an application such as making a DMT within JS-EDEN). It is nonetheless instructive to study the code, and understand some of the issues involved in its construction.
+</p>
+<p>
+To load the model, enter
+<blockquote>
+include(\"models/graphPrototype/run.e\");
+</blockquote>
+into the <b>EDEN Interpreter Window</b>.
+</p>
+<p>
+To test out the model, you can define a graph g as follows:
+<blockquote>
+g is Graph(\"myGraph\");
+</blockquote>
+and add nodes and edges to the graph g by using the addNode and addEdge constructors. For instance:
+<blockquote>
+addNode(g, \"a\");
+addNode(g, \"b\");
+addEdge(g, \"d\", \"b\");
+</blockquote>
+adds nodes a, b and d to the graph g, and connects d to b by a directed edge.
+</p>
+<p>
+Note that these constructors introduce JS-EDEN observables to represent e.g. the x and y coordinates of nodes, and the colour of each edge.
+This makes it possible to set up and manipulate the graph via JS-EDEN without resorting to using JScript directly. For instance:
+</p>
+<blockquote>
+pdx = 100;
+coldb = \"green\";graph
+</blockquote>
+relocates the node d of the graph g, and displays the edge db in green.
+</p>
+<p>
+To inspect the code for the graph prototype model, consult the files at
+<blockquote>
+http://jseden.dcs.warwick.ac.uk/emile/models/graphPrototype/
+</blockquote>
+The file nodeset2.js contains the JScript that supports the JS-EDEN graph structure.
+Much of the complexity in the code for a prototype edge derives from the addition of arrows. 
+The complementary file DrawFuncEden.js-e defines Graph as a drawable object in JS-EDEN and automatically manages the picture observable for the graph.
+The JScript code within the JS-EDEN Graph() function illustrates the use of prototyping from a base graph, but this only clones a pointer to a prototype graph structure, and hence is suitable only for setting up one independent graph structure in JS-EDEN.
+Further exploration, comprehension and refinement these files is left as an optional exercise to the interested reader.
+</p>
+</html>
+");

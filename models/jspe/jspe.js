@@ -125,24 +125,13 @@ Slide.prototype.toString = function() {
 ${{
   copyToInput = function(e) {
 
-	// Copies to EDEN interpreter window
-	//$('#inputwindow-dialog').text($(e).siblings('pre').html());
-	//console.log($('#inputwindow-dialog'));
-	//console.log($('#inputwindow-dialog').text($(e).siblings('pre').html()));
-
-	//console.log(e);
-	//var xstring = e.innerHTML;
-	//var newnode = document.createElement("<span class='cm-variable'>"+xstring+"</span>");
-	//console.log(newnode);
-	//var ele = document.getElementById("inputwindow-dialog").childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].childNodes[0].appendChild(newnode);
-
+	document.getElementById("inputCodeArea").value = $(e).siblings('pre').text();
+	//Copies to EDEN interpreter window
   }
 
   execute = function(e) {
 	// Evaluates and stores in the symbol table
-	eval(Eden.translateToJavaScript($(e).siblings('pre').text()));
- 
-
+	eden.plugins.InputWindow.submitEdenCode($(e).siblings('pre').text());
   }
 }}$;
 

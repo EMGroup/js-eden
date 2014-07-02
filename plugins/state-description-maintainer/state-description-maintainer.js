@@ -10,36 +10,23 @@
  * Put description here
  * @class SDM Plugin
  */
-joe.log("state-description-maintainer.js: READING SCRIPT");
+
 Eden.plugins.SDM = function(context) {
-joe.log("state-description-maintainer.js: SDM()");
+
 	var me = this;
-	var defaultview = "";
 
 	this.html = function(name,content) {
-
-		if (name == "DEFAULT") {
-			if (defaultview == "") {
-				//this.createDialog(name+"-dialog","Default HTML");
-				context.createView(name,"PlainHTML");
-			}
-			$("#"+defaultview+"-content").html(content);
-		} else {
-			$("#"+"SDM"+"-dialog-content").html(content);
-		}
+			$("#"+"SDM").html(content);
 	}
 
 	this.createDialog = function(name,mtitle) {
-	joe.log("state-description-maintainer.js: createDialog()");
-	//name = "SDM"
+
+	name = "SDM"
 	mtitle = "State Description Maintainer [SDM]"
-		if (defaultview == "") {
-			defaultview = name;
-		}
 		
 		var SDMHTML = SDM.generateHTML();
 
-		var code_entry = '<div id=\"'+name+'-content\" class=\"SDM-content\"> '+SDMHTML+'</div>';
+		var code_entry = '<div id=\"SDM\" class=\"SDM-content\"> '+SDMHTML+'</div>';
 		
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
@@ -67,13 +54,8 @@ var SDM = {};
 
 SDM.filterString = "MO";
 //Global String to maintain which buttons are depressed
-
-SDM.generateExport = function(){
-
-	//TODO
-	
-
-}
+SDM.regexString = "";
+SDM.beforeRegex = "";
 
 SDM.printOutModelDatabase = function(){
 //TESTING PURPOSES ONLY
@@ -99,6 +81,9 @@ SDM.printOutModelDatabase = function(){
 }
 
 SDM.filterButton = function(name){
+
+	SDM.regexString = "";
+	SDM.beforeRegex = "";
 
 	if(name=='System'){
 		if(SDM.filterString.indexOf("S") != -1){
@@ -193,10 +178,7 @@ SDM.updateButtons = function(){
 
 SDM.refreshButton = function(){
 
-	var views = document.getElementsByClassName("SDM-content");
-	for(var i=0; i<views.length; i++){
-		views[i].innerHTML = SDM.generateHTML();
-	}
+	document.getElementById("SDM").innerHTML = SDM.generateHTML();;
 	SDM.updateButtons();
 }
 
@@ -205,7 +187,7 @@ SDM.generateHTML = function(){
 	var db = SDM.getFilteredDatabase(SDM.filterString);
 	
 	//table header
-	var HTML = "<th>Name</th><th>Definition</th><th>Current Value</th><th>Dependant On</th><th>Dependant To</th>";
+	var HTML = "<th>Name</th><th>Definition</th><th>Current Value</th><th>Dependant On</th><th>Influences</th>";
 	
 	for(var i=0; i<db.length; i++){
 	
@@ -238,9 +220,35 @@ SDM.generateHTML = function(){
 	
 	//add the buttons
 	
-	HTML = ("<button name='SystemButton' onclick='SDM.filterButton(\"System\")' type='button'>System</button><button name='ModelButton' onclick='SDM.filterButton(\"Model\")' type='button'><b>Model</b></button><button style='float: right'; name='RefreshButton' onclick='SDM.refreshButton()' type='button'>Refresh</button><br/><button name='ObservablesButton' onclick='SDM.filterButton(\"Observables\")' type='button'><b>Observables</b></button><button name='AgentsButton' onclick='SDM.filterButton(\"Agents\")' type='button'>Actions</button><button name='FunctionsButton' onclick='SDM.filterButton(\"Functions\")' type='button'>Functions</button>").concat(HTML);
+	HTML = ("<button name='SystemButton' onclick='SDM.filterButton(\"System\")' type='button'>System</button><button name='ModelButton' onclick='SDM.filterButton(\"Model\")' type='button'><b>Model</b></button><button style='float: right'; name='RefreshButton' onclick='SDM.refreshButton()' type='button'>Refresh</button><br/><button name='ObservablesButton' position=\"relative\" onclick='SDM.filterButton(\"Observables\")' type='button'><b>Observables</b></button><button name='AgentsButton' onclick='SDM.filterButton(\"Agents\")' type='button'>Actions</button><button name='FunctionsButton' onclick='SDM.filterButton(\"Functions\")' type='button'>Functions</button><input id=\"SDMregex\" type=\"text\" onkeyUp=\"SDM.regex(event)\" placeholder=\"regex\" onload=\"setFocus()\" style='float: right';><br/><button style='float: right'; onclick=\"SDM.generateExport()\">Export Model Script</button>").concat(HTML);
 	
 	return HTML;
+}
+
+SDM.regex = function(event){
+
+	if(event.keyCode==13){
+
+		SDM.regexString =  document.getElementById("SDMregex").value;
+
+		if(SDM.regexString!=""){
+			if(SDM.beforeRegex==""){
+				SDM.beforeRegex = SDM.filterString;
+				SDM.filterString = "SMOAF";
+			}else{
+				SDM.filterString = "SMOAF";
+			}
+			document.getElementById("SDM").innerHTML = SDM.generateHTML();
+		}
+		else{
+			SDM.filterString = SDM.beforeRegex
+			SDM.beforeRegex = "";
+
+			document.getElementById("SDM").innerHTML = SDM.generateHTML();
+		}
+		document.getElementById("SDMregex").value = SDM.regexString;
+		SDM.updateButtons();
+	}
 }
 
 SDM.getFilteredDatabase = function(filterBy){
@@ -252,6 +260,8 @@ SDM.getFilteredDatabase = function(filterBy){
 	fdb =fdb.sort(function(a,b){if(a.name > b.name){return 1} else return -1});
 
 	for(var i=0; i<fdb.length; i++){
+	
+		if(SDM.regexString==""){
 
 			if(fdb[i].system){
 				if(filterBy.indexOf("S")==-1){
@@ -295,7 +305,21 @@ SDM.getFilteredDatabase = function(filterBy){
 					continue;
 				}
 			}
+		}
+		else{
+			//If there is a regex string, make all buttons on, and filter by the regex instead
+			var rx = new RegExp("^("+SDM.regexString+").*", "i");
+			if((rx.test(fdb[i].name))){
+			}
+			else{
+					fdb.splice(i,1);
+					i--;
+					continue;
+			}
+			
+		}
 
+		
 	}
 	//Else will not filter by O/F/A ie: will be all
 	
@@ -338,7 +362,7 @@ SDM.getStateDatabase = function(){
 		database.push(dbObject);
 
 	}
-	
+
 	return database;
 }
 
@@ -440,13 +464,9 @@ SDM.getModelSymbolDetails = function(name){
 SDM.isitSystemObservable = function(name){
 
 	var pattern1 = new RegExp("^_view_");
-	var pattern2 = new RegExp("^_View_");
 	var pattern3 = new RegExp("s[0-9]*$");
 
 	if(pattern1.test(name)){
-		return true;
-	}
-	else if(pattern2.test(name)){
 		return true;
 	}
 	
@@ -464,11 +484,16 @@ SDM.isitSystemObservable = function(name){
 
 SDM.isitSystemAgent = function(name){
 
+	var pattern2 = new RegExp("^_View_");
+	if(pattern2.test(name)){
+		return true;
+	}
+
 	for(var j=0; j<SDM.systemAgentNames.length; j++){
 	
 		var pattern = new RegExp("^"+SDM.systemAgentNames[j]+"$");
 
-			if(pattern.exec(name)){
+			if(pattern.test(name)){
 				return true;
 			}
 	}
@@ -481,11 +506,120 @@ SDM.isitSystemFunction = function(name){
 	
 		var pattern = new RegExp("^"+SDM.systemFunctionNames[j]+"$");
 		
-			if(pattern.exec(name)){
+			if(pattern.test(name)){
 				return true;
 			}
 	}
 	return false;
+}
+
+SDM.generateExport = function(){
+
+	var modelObs = SDM.getFilteredDatabase("MO");
+	var modelAct = SDM.getFilteredDatabase("MA");
+	var modelFun = SDM.getFilteredDatabase("MF");
+	
+	var obsDefs = [];
+	var obsAssins = [];
+	var acts = [];
+	var functs = [];
+	
+	var autocalcOn = "autocalc = 1;"
+	var autocalcOff = "autocalc = 0;"
+	var picture = root.lookup("picture").eden_definition;
+	if(picture==undefined){
+		picture = "picture is [];"
+	}
+	else{
+		picture = picture+";";
+	}
+	
+	var comments = [
+		"##Auto-Generated Script of Model by JS-Eden J-version",
+		"##Auto calculation is turned off to until the model has been fully loaded",
+		"##Observable Assignments:",
+		"##Observable Definitions:",
+		"##Action Definitions:",
+		"##Function Definitions:",
+		"##Picture Definition:",
+		"##Auto calculation is turned on and the updating is fired",
+		"##End of Auto-Generated Script"
+	]
+
+	for(var i=0; i<modelObs.length; i++){
+		if((modelObs[i].value==undefined)&&(modelObs[i].definition==undefined)){
+			//If both undefined currently
+			//Dont push it.
+				//console.log("NOT PUSHED: "+modelObs[i].name);
+		}
+		else if(modelObs[i].definition==undefined){
+			//If just definition undefined push as assignment
+				obsAssins.push(modelObs[i].name+" = "+modelObs[i].value+";");
+		}
+		else{
+			//Else its a definition
+			obsDefs.push(modelObs[i].definition+";");
+		}
+	}
+	for(var i=0; i<modelAct.length; i++){
+		acts.push(modelAct[i].definition);
+	}
+	for(var i=0; i<modelFun.length; i++){
+		functs.push(modelFun[i].definition);
+	}
+	
+	
+	//Script Generation
+	var lines = [];
+	
+	lines.push(comments[0]);
+	lines.push("");
+	lines.push(comments[1]);
+	lines.push(autocalcOff);
+	lines.push("");
+	lines.push(comments[2]);
+	lines.push("");
+	for(var i=0; i<obsAssins.length; i++){
+		lines.push(obsAssins[i]);
+	}
+	lines.push("");
+	lines.push(comments[3]);
+	lines.push("");
+	for(var i=0; i<obsDefs.length; i++){
+		lines.push(obsDefs[i]);
+	}
+	lines.push("");
+	lines.push(comments[4]);
+	lines.push("");	
+	for(var i=0; i<acts.length; i++){
+		lines.push(acts[i]);
+		lines.push("");
+	}
+	lines.push("");
+	lines.push(comments[5]);
+	lines.push("");
+	for(var i=0; i<functs.length; i++){
+		lines.push(functs[i]);
+		lines.push("");
+	}
+	lines.push(comments[6]);
+	lines.push(picture);
+	lines.push("");
+	lines.push(comments[7]);
+	lines.push(autocalcOn);
+	lines.push("");
+	lines.push(comments[8]);
+	
+	console.log(lines.join("\n"));
+	
+	eden.loadPlugin("HTMLViews");
+	
+	//setTimeout(5000);
+	eden.createView("ExportModelScript","PlainHTML");
+	document.getElementById("ExportModelScript-dialog").innerHTML = "<pre>"+Eden.deHTML(lines.join("\n"))+"</pre>";
+	
+	//put into a HTMLview;
+
 }
 
 SDM.systemObservableNames = [
@@ -511,6 +645,7 @@ SDM.systemAgentNames = [
 	"drawPicture",
 	"updateCanvas",
 	"_MenuBar_Status",
+	"maintainforinput"
 ];
 
 SDM.systemFunctionNames = [
@@ -569,7 +704,7 @@ SDM.systemFunctionNames = [
 	"Text",
 	"Point",
 	"html",
-        "Inputbox",
-        "getInputWindowCode",
-        "showObservables"
+    "Inputbox",
+    "getInputWindowCode",
+    "showObservables"
 ];
