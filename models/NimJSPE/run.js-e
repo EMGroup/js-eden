@@ -1,0 +1,4 @@
+include("jspe.js-e");
+include("models/NimJSPE/NIM.js-e");
+include("models/NimJSPE/Nimdisplay.js-e");
+include("models/NimJSPE/NimPres.js-e");

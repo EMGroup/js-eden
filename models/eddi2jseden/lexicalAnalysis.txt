@@ -1,0 +1,99 @@
+func substpatt { 
+${{ var th = arguments[0]; 
+	var repatt = arguments[1]; 
+	var reattr = arguments[2]; 
+	var repstr = arguments[3]; 
+	return th.replace(RegExp(repatt, reattr), repstr); 
+	}}$; } 
+
+func findpatt { 
+${{ var th = arguments[0];
+	var repatt = arguments[1];
+	var reattr = arguments[2]; 
+	var result = th.match(RegExp(repatt, reattr));
+	if(result==null)
+        return "";
+        else return result; 
+	}}$; 
+	}
+func getlscomp {
+  return $1[$2];
+}
+	
+	
+	
+inputstr="";
+
+strvals is findpatt(inputstr,"[A-Za-z][a-zA-Z0-9]*","g")//findpatt(inputstr,"[0-9]+","g");
+
+inputstr="";
+
+strvals is findpatt(inputstr,"[A-Za-z][a-zA-Z0-9]*","g")//findpatt(inputstr,"[0-9]+","g");
+
+proc makeinputtext : inputstr{
+InputText=inputstr;
+
+InputText = substpatt(inputstr," ","g","");
+InputText = substpatt(InputText,"[A-Za-z][a-zA-Z0-9]*","g","x");
+
+InputText = substpatt(InputText,"[0-9]+","g","v");
+InputTextEnd = oneline(InputText)//"$";
+InputTextt=InputText//"$";
+
+
+}
+
+
+func makeinputvals {
+para input, val;
+auto i,j,result,found,vals;
+vals=val.slice(0);
+
+j=1;
+
+result=[];
+   for(i=1;i<=input#;i++)
+    { 
+	    
+		if(input[i]=="x")
+		{
+			for(j=1;j<=vals#;j++)
+			{
+
+				if (findpatt(vals[j],"[A-Za-z][a-zA-Z0-9]*","g") != "")
+				{
+					
+					result=result//vals[j];
+					vals[j]="";
+					
+					break;
+					
+				}
+				else writeln("syntax error");
+			
+			}
+		}
+		
+		else if (input[i]=="v")
+		{
+			for(j=1;j<=vals#;j++)
+			{
+				if (findpatt(vals[j],"[0-9]+","g") != "")
+				{
+					result=result//vals[j];
+					vals[j]="";
+					break;
+				}
+			}
+		}
+		else {result=result//[""];}
+    }
+	return result;
+}
+
+
+inputvals is makeinputvals(InputText,strvals);
+
+proc makeinputtvals: inputvals
+{   inputtvals=inputvals;
+}

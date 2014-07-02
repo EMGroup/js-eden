@@ -1,0 +1,8 @@
+include("models/graphPrototype/oldnodeset2.js");
+include("models/graphPrototype/DrawFuncEden.js-e");
+include("models/eddi2jseden/transitionseddi.eden");
+include("models/eddi2jseden/graphbuild.JSE");
+include("models/eddi2jseden/parsingeddi.txt");
+include("models/eddi2jseden/lexicalAnalysis.txt");
+include("models/eddi2jseden/syntaxdirectedtranslation.txt");
+include("models/eddi2jseden/README.html");

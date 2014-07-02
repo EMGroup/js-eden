@@ -1,0 +1,307 @@
+inputtvals=inputvals;
+stackvals is sublist(inputtvals,1,j);
+nextvals is sublist(inputvals,k+1,inputvals#);
+func sublist{
+  ${{
+  var inlist  =arguments[0] ;
+  var beginix =arguments[1] ;
+  var endix = arguments[2] ;
+  return inlist.slice(beginix-1,endix);
+  }}$;
+ }
+
+/*
+proc apprule1: ruleone_mouse_1{
+	   if(ruleone_mouse_1[2]==4) {
+	    autocalc=0;
+		evalrule(1);
+		
+		applyrule(1);
+		autocalc=1;
+	   }
+	}
+
+proc apprule2: ruletwo_mouse_1{
+	   if(ruletwo_mouse_1[2]==4) {
+		evalrule(2);
+				
+		applyrule(2);
+
+	   }
+	}
+proc apprule3: rulethree_mouse_1{
+	   if(rulethree_mouse_1[2]==4) {
+	   autocalc=0;
+		evalrule(3);
+		
+	   applyrule(3);
+	   autocalc=1;
+	   }
+	}
+proc apprule4: rulefour_mouse_1{
+	   if(rulefour_mouse_1[2]==4) {
+		evalrule(4);
+		
+		applyrule(4);
+		
+	   }
+	}
+proc apprule5: rulefive_mouse_1{
+	   if(rulefive_mouse_1[2]==4) {
+		evalrule(5);
+		
+		applyrule(5);
+		
+	   }
+	}
+proc apprule6: rulesix_mouse_1{
+	   if(rulesix_mouse_1[2]==4) {
+		evalrule(6);
+		
+		applyrule(6);
+		
+	   }
+	}
+proc apprule7: ruleseven_mouse_1{
+	   if(ruleseven_mouse_1[2]==4) {
+		evalrule(7);
+		
+		applyrule(7);
+		
+	   }
+	}
+proc apprule8: ruleeight_mouse_1{
+	   if(ruleeight_mouse_1[2]==4) {
+		evalrule(8);
+		
+		applyrule(8);
+		
+	   }
+	}
+proc apprule9: rulenine_mouse_1{
+	   if(rulenine_mouse_1[2]==4) {
+		evalrule(9);
+		
+		applyrule(9);
+		
+	   }
+	}
+proc apprule10: ruleten_mouse_1{
+	   if(ruleten_mouse_1[2]==4) {
+		evalrule(10);
+		
+		applyrule(10);
+		
+	   }
+	}
+proc apprule11: ruleeleven_mouse_1{
+	   if(ruleeleven_mouse_1[2]==4) {
+		evalrule(11);
+		
+		applyrule(11);
+		
+	   }
+	}
+proc apprule12: ruletwelve_mouse_1{
+	   if(ruletwelve_mouse_1[2]==4) {
+		evalrule(12);
+		
+		applyrule(12);
+		
+	   }
+	}
+proc apprule13: rulethirteen_mouse_1{
+	   if(rulethirteen_mouse_1[2]==4) {
+		evalrule(13);	
+		
+		applyrule(13);
+		   
+	}
+	}
+proc apprule14: ruleforteen_mouse_1{
+	   if(ruleforteen_mouse_1[2]==4) {
+		evalrule(14);
+		
+		applyrule(14);
+		
+	   }
+	}
+proc apprule15: rulefifteen_mouse_1{
+	   if(rulefifteen_mouse_1[2]==4) {
+		evalrule(15);
+		
+		applyrule(15);
+		
+	   }
+	}
+*/
+proc evalrule{
+ para ruleno;
+if (ruleno==1)
+	 execute("inputtvals=inputtvals;");
+    else if (ruleno==2)
+	 execute("inputtvals=substituteBEK2(inputtvals);");
+    else if (ruleno==3)
+	 execute("inputtvals=substituteEUE2(inputtvals);");
+    else if (ruleno==4)
+	 execute("inputtvals=substituteEJE2(inputtvals);");
+    else if (ruleno==5)
+	 execute("inputtvals=substituteEDE2(inputtvals);");
+    else if (ruleno==6)
+	 execute("inputtvals=substituteESB2(inputtvals);");
+    else if (ruleno==7)
+	 execute("inputtvals=substituteEPL2(inputtvals);");
+    else if (ruleno==8)
+	 execute("inputtvals=inputtvals;");
+    else if (ruleno==9)
+	 execute("inputtvals=substituteLCA2(inputtvals);");
+    else if (ruleno==10)
+	 execute("inputtvals=substituteEQ2(inputtvals);");
+    else if (ruleno==11)
+	 execute("inputtvals=substituteGT2(inputtvals);");
+    else if (ruleno==12)
+	 execute("inputtvals=substituteLT2(inputtvals);");
+    else if (ruleno==13)
+	 execute("inputtvals=substituteNEQ2(inputtvals);");
+    else if (ruleno==14)
+	 execute("inputtvals=substituteBBK2(inputtvals);");
+    else if (ruleno==15)
+	 execute("inputtvals=substituteACV2(inputtvals);");
+	 else
+	 execute("inputtvals=inputtvals;");
+
+}
+
+
+
+func substituteGT2{	/*the substitution method of LT is the same as this one*/
+	para vals;
+	auto result;
+	if(stackvals#-1>0)
+	result=sublist(vals,1,stackvals#-1)//[">"]//nextvals;
+	else
+	result=[">"]//nextvals;
+	return result;
+}
+func substituteLT2{	
+	para vals;
+	auto result;
+	if(stackvals#-1>0)
+	result=sublist(vals,1,stackvals#-1)//["<"]//nextvals;
+	else
+	result=["<"]//nextvals;
+	return result;
+}
+func substituteEQ2{
+	para vals;
+	auto result;
+	if(stackvals#-1>0)
+	result=sublist(vals,1,stackvals#-1)//["="]//nextvals;
+	else
+	result=["="]//nextvals;
+	return result;
+
+}
+
+
+
+func substituteBEK2{
+	para vals;
+	auto size,calc, result;
+	size=stackvals#-3;
+	calc=j;
+	if(size>0)
+	result=sublist(vals,1,size)//[vals[calc-1]]//nextvals;
+	else
+	result=[vals[calc-1]]//nextvals;
+	return result;
+}
+	
+func substituteEUE2{
+	para vals;
+	auto result;
+	calc=j;
+	if(calc-3>0)
+	result=sublist(vals,1,calc-3)//["union("//vals[calc-2]//","//vals[calc]//")"]//nextvals;
+	else
+	result=["union("//vals[calc-2]//","//vals[calc]//")"]//nextvals;
+	return result;
+}
+
+func substituteEJE2{
+	para vals;
+	auto size, calc,result;
+	calc=j;
+	if(calc-3>0)
+	result=sublist(vals,1,calc-3)//["intersect("//vals[calc-2]//","//vals[calc]//")"]//nextvals;
+	else
+	result=["intersect("//vals[calc-2]//","//vals[calc]//")"]//nextvals;
+	return result;
+}
+func substituteEDE2{
+	para vals;
+	auto size,calc, result;
+	calc=j;
+	if(calc-3>0)
+	result=sublist(vals,1,calc-3)//["difference("//vals[calc-2]//","//vals[calc]//")"]//nextvals;
+	else
+	result=["difference("//vals[calc-2]//","//vals[calc]//")"]//nextvals;
+	return result;
+}
+func substituteESB2{
+	para vals;
+	auto size, result;
+	size=stackvals#-3;
+	if(size>0)
+	result=sublist(vals,1,size)//["restrict("//vals[j-2]//","//vals[j]//")"]//nextvals;
+	else
+	result=["restrict("//vals[j-2]//","//vals[j]//")"]//nextvals;
+	return result;
+}
+func substituteEPL2{
+	para vals;
+	auto size, result;
+	size=stackvals#-3;
+	if(size>0)
+	result=sublist(vals,1,size)//["project("//vals[j-2]//","//vals[j]//")"]//nextvals;
+	else
+	result=["project("//vals[j-2]//","//vals[j]//")"]//nextvals;
+	return result;
+}
+
+
+func substituteLCA2{
+	para vals;
+	auto size, result;
+	size=stackvals#-3;
+	if(size>0)
+	result=sublist(vals,1,size)//[vals[j-2]//","//vals[j]]//nextvals;
+	else
+	result=[vals[j-2]//","//vals[j]]//nextvals;
+	return result;
+}
+
+
+func substituteBBK2{
+	para vals;
+	auto size, result;
+	size=stackvals#-3;
+	if(size>0)
+	result=sublist(vals,1,size)//[vals[j-1]]//nextvals;
+	else
+	result=[vals[j-1]]//nextvals;
+	return result;
+}
+
+func substituteACV2{
+	para vals;
+	auto size, result;
+	result=[];
+	size=stackvals#-3;
+	if(size>0)
+	result=sublist(vals,1,size)//[vals[j-2]//vals[j-1]//str(vals[j])]//nextvals;
+	else
+	result=[vals[j-2]//vals[j-1]//vals[j]]//nextvals;
+	return result;	
+}
+

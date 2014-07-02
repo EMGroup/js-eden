@@ -1,0 +1,2144 @@
+proc incrementor : step {
+
+                after (1) { step++; }
+
+}
+
+step = 0;
+
+
+nextButton = Rectangle( 341,810,40,20, "Green");
+
+prevButton = Rectangle( 279,810,40,20, "Green");
+
+nextarrow1 = Line( 350,820,370,820, "White");
+
+nextarrow2 = Line( 363,813,370,820, "White");
+
+nextarrow3 = Line( 363,827,370,820, "White");
+
+prevarrow1 = Line( 290,820,310,820, "White");
+
+prevarrow2 = Line( 297,813,290,820, "White");
+
+prevarrow3 = Line( 297,827,290,820, "White");
+
+proc NEXT : mousePressed {
+
+    if( !mousePressed ) return;
+
+    if( mouseX < 341 || mouseX > 341 + 40 || mouseY < 810 || mouseY > 810 + 20
+)
+
+        return;
+
+    ##ah so you've clicked then
+    if( slidenumber < 10 ) slidenumber = slidenumber+1;
+
+}
+
+proc PREVIOUS : mousePressed {
+
+    if( !mousePressed ) return;
+
+    if( mouseX < 279 || mouseX > 279 + 40 || mouseY < 810 || mouseY > 810 + 20
+)
+
+        return;
+
+    ##ah so you've clicked then
+    if( slidenumber > 0 ) slidenumber = slidenumber-1;
+
+}
+
+
+slidenumber = 0;
+
+
+picture is [myDiv0, nextButton, nextarrow1,nextarrow2,nextarrow3];
+
+proc slidechanger : slidenumber {
+
+    if( slidenumber == 0 ) picture is [myDiv0, nextButton,
+nextarrow1,nextarrow2,nextarrow3];
+
+    if( slidenumber == 1 ) { timesinceneuronwasinactive = 0; picture is
+[myDiv1a, nextButton, prevButton, prevarrow1, prevarrow2, prevarrow3,
+nextarrow1,nextarrow2,nextarrow3, rectline1, rectline2, rectline3, rectline4,
+cellOff]; }
+
+if( slidenumber == 2) picture is [myDiv2, nextButton,
+nextarrow1,nextarrow2,nextarrow3,  prevButton, prevarrow1, prevarrow2,
+prevarrow3, plainline1, plainline2,cellOffOff];
+
+if( slidenumber == 3) {
+
+picture is [myDiv3, nextButton, prevButton, prevarrow1, prevarrow2,
+prevarrow3, nextarrow1,nextarrow2,nextarrow3,
+basicneuronsrect,basicneuronspoint, albatrossimage]; theta is
+((highlightedneuronX + highlightedneuronY)/2 ) % 180;
+
+phi is theta +180;}
+
+if( slidenumber == 4) {
+
+picture is [myDiv4, nextButton, prevButton, prevarrow1, prevarrow2,
+prevarrow3, nextarrow1,nextarrow2,nextarrow3,
+basicneuronsrect,basicneuronspoint, albatrossimage,singularity1pic,
+singularity2pic]; 
+
+theta is ( 90 + ( (
+angleattribution(highlightedneuronX+20,highlightedneuronY+420,singularity1X,singularity1Y)
+- angleattribution(highlightedneuronX+20,highlightedneuronY+420,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180 ) % 180;
+
+phi is theta +180;}
+
+
+if( slidenumber == 5) {
+
+picture is [myDiv5, nextButton, prevButton, prevarrow1, prevarrow2,
+prevarrow3, nextarrow1,nextarrow2,nextarrow3, basicneuronsrect,
+basicneuronspoint, tile, border, albatrossimage,singularity1pic,
+singularity2pic]; 
+
+phi is
+(angleattribution(highlightedneuronX+20,highlightedneuronY+420,singularity1X,singularity1Y)
++ 112.5) % 180 +
+(angleattribution(highlightedneuronX+20,highlightedneuronY+420,singularity2X,singularity2Y)
++ 112.5 ) % 180;
+
+theta is (phi + 270) % 180;
+
+AlbatrossVirtualX = 0;
+
+AlbatrossVirtualY = 0; 
+
+}
+
+if( slidenumber == 6) { ##no-wrap
+
+picture is [myDiv6, fakedomain, fakeindicator,nextButton, prevButton,
+prevarrow1, prevarrow2, prevarrow3, nextarrow1,nextarrow2,nextarrow3, tile,
+border, albatrossimage, 
+
+crfRect,singularity1pic, singularity2pic, s1thetaline1, s1thetaline2,
+s1thetaline3, s1thetaline4, s2thetaline1, s2thetaline2,s2thetaline3,
+s2thetaline4, s2philine1, s2philine2, s2philine3, s2philine4, s1philine1,
+s1philine2, s1philine3, s1philine4];
+
+theta is fakeindicatorY / 2;
+
+phi is fakeindicatorX;
+
+AlbatrossVirtualX = 0;
+
+AlbatrossVirtualY = 0; }
+
+
+if( slidenumber == 7) { ##pure construals
+
+    theta is (indicatorY - domainY) / 2;
+
+phi is 360 - (indicatorX - domainX + 90) % 360;
+
+picture is [nextButton, prevButton, prevarrow1, prevarrow2, prevarrow3,
+nextarrow1,nextarrow2,nextarrow3, Kleinimage,
+pointimage,domainRect,indicator,tile, border, albatrossimage, 
+
+crfRect,singularity1pic, singularity2pic, s1thetaline1, s1thetaline2,
+s1thetaline3, s1thetaline4, s2thetaline1, s2thetaline2,s2thetaline3,
+s2thetaline4, s2philine1, s2philine2, s2philine3, s2philine4, s1philine1,
+s1philine2, s1philine3, s1philine4];
+
+KBPosition = 0;
+
+AlbatrossVirtualX = 0;
+
+AlbatrossVirtualY = 0; }
+
+
+if( slidenumber == 8) picture is [myDiv8, nextButton, prevButton, prevarrow1,
+prevarrow2, prevarrow3, nextarrow1,nextarrow2,nextarrow3, Kleinanimation,
+Kleinanimation2, Beer];
+
+    if( slidenumber == 9) { ##loops
+
+picture is [myDiv9, nextButton, prevButton, prevarrow1, prevarrow2,
+prevarrow3, nextarrow1,nextarrow2,nextarrow3,Kleinimage, pointimage,
+domainRect, indicator,
+
+crfRect,singularity1pic, singularity2pic, s1thetaline1, s1thetaline2,
+s1thetaline3, s1thetaline4, s2thetaline1, s2thetaline2,s2thetaline3,
+s2thetaline4, s2philine1, s2philine2, s2philine3, s2philine4, s1philine1,
+s1philine2, s1philine3, s1philine4];
+
+KBPosition = 2;
+
+theta is (indicatorY - domainY) / 2;
+
+phi is 360 - (indicatorX - domainX + 90) % 360;}
+
+    if( slidenumber == 10) { ##the reality
+
+picture is [myDiv10, prevButton, prevarrow1,prevarrow2,prevarrow3,tile,
+border, albatrossimage, basicneuronsrect, basicneuronspoint, Kleinimage,
+pointimage,
+
+fs1,fs2,fs3,fs4,fs5];
+
+phi is
+
+( ( angleattribution(highlightedneuronX+20,highlightedneuronY+420, fs1X,fs1Y)
+
+- angleattribution(highlightedneuronX+20,highlightedneuronY+420, fs2X,fs2Y)
+
+- angleattribution(highlightedneuronX+20,highlightedneuronY+420, fs3X,fs3Y)
+
+- angleattribution(highlightedneuronX+20,highlightedneuronY+420, fs4X,fs4Y)
+
++ angleattribution(highlightedneuronX+20,highlightedneuronY+420, fs5X,fs5Y)
+
+) %360 + 360 + 90 ) %360;
+
+theta is (phi + 270) % 180;
+
+KBPosition = 1;
+
+AlbatrossVirtualX = 0;
+
+AlbatrossVirtualY = 0; } 
+
+##also you need to change theta and phi in all these cases
+
+}
+
+
+
+
+
+
+
+##words
+
+myDiv0 is Div("div",20,20,360,360,"<h1>Modelling vision-related
+neurons</h1><h2>By Hamish Todd</h2><p>(please enlarge the window to at least
+800x830!)</p>"); ##maybe have that CRF image and a KB
+
+
+myDiv1a is Div("div1a",20,20,360,360,"<p>When a person or an animal looks at
+something, a specific bunch of neurons in their brain will start flashing.
+There are a lot of patterns connecting what neurons fire in reponse to what
+sights, and these patterns can be very complex. Your head is filled with
+intricate mathematics - whether you feel that way or not.</p>
+
+
+<p>Today we're going to try to understand some of the patterns in your head
+that allow you to perceive things. We'll do this by examining some of the
+neurons, we'll look at some pictures that the neurons will respond to, and
+we'll have 'maps' of the neurons you get in the visual cortex. More
+specifically, we're going to think about a theory developed by Shigeru Tanaka
+regarding neuron responses in the 'visual cortex'.</p>
+
+
+<p>Let's say that that picture down there is a neuron inside your head. It's
+connected to a certain 'sight'. Try and find out what that 'sight' is.</p>");
+
+
+myDiv1b is Div("div1b",20,20,360,360,"<p>When a person or an animal looks at
+something, a specific bunch of neurons in their brain will start flashing.
+There are a lot of patterns connecting what neurons fire in reponse to what
+sights, and these patterns can be very complex. Your head is filled with
+intricate mathematics - whether you feel that way or not.</p>
+
+
+<p>Today we're going to try to understand some of the patterns in your head
+that allow you to perceive things. We're going to examine some neurons, we'll
+look at some pictures that the neurons will respond to, and we'll have 'maps'
+of neurons in the visual cortex. Specifically, we're thinking about a theory
+developed by Shigeru Tanaka regarding neuron responses in the 'visual
+cortex'.</p>
+
+
+<p>Let's say that that picture down there is a neuron inside your head. It's
+connected to a certain 'sight'. Try and find out what that 'sight' is.</p>
+
+
+<p>Great! So it turns out that this neuron fires when there is movement inside
+of the rectangle on the right. The things we're going to look at will work
+like that, except with more neurons, and with different sights.</p> ");
+
+
+
+
+myDiv2 is Div("div2",20,20,360,360,"<p>We're going to look at how neurons
+respond to straight lines, specifically their 'orientation', and later their
+'direction of travel'. Some of the neurons in your brain will only have a
+chance of lighting up when you're looking at a line, like the ones below.
+Before moving on, try and see if you can get them both to light up at the same
+time.</p>
+
+
+<p>In general, neurons that are close to one another will respond to similar
+things, like these two which respond to orientations that are almost the same.
+That's part of the thing that generates the mathematical patterns that you're
+going to experience.</p>
+
+
+<p>Also, we're certainly not just talking about your brain responding to
+boring black lines on a computer screen! The neurons we're talking about here
+are going to be involved in processing the sight of ANY line that you might
+see in your day to day life, like a spinning helicopter blade, or a chopstick
+you're about to put into your mouth, or how about this: a line of black
+feathers going across the wings of a bird...</p>");
+
+
+
+
+myDiv3 is Div("div3",20,20,360,360,"<p>So there's a bird! Your brain perceives
+that strip of feathers as a line, so the neurons that this presentation is
+about will fire when you look at it.</p>
+
+
+<p>We're now looking at things a different way than in the previous slide.
+We're pretending that the square down there is full of neurons, ok? Anywhere
+you click in it will contain a neuron. The orientation of that albatross is
+going to be causing a neuron to flicker - she's going to rotate to a position
+where she's activating the neuron you've chosen.</p>
+
+
+<p>See if you can get her to point East-Northeast. When you've done that, try
+to get her to point straight down - you'll find that you can't go far enough.
+You'll see that this isn't just because of the way I've built the program,
+it's actually a limitation your brain has. If our albatross were pointing
+downwards, *these* neurons would activate exactly the same as if she were
+pointing in the exact opposite direction. They just can't tell 'which way up'
+a line is supposed to be when they see one, so in order for you to sense the
+difference, your brain would probably have to get a bunch of other neurons
+involved. If you want to fully understand this, you might find it helpful to
+go back to the previous page with this in mind: there is actually more than
+one line-orientation that was able to make those two neurons light up. And
+feel free to go back and forth as much as you like by the way!</p> ");
+
+
+
+myDiv4 is Div("div4",20,20,360,360,"<p>Now in actual fact, the neurons are
+laid out in a more complicated way than on that previous 'field'. Again,
+pretend the square below is filled with neurons. When you fiddle with this,
+you'll find that the layout 'loops around' a bit.</p>
+
+
+<p>Remember, by the way, that neurons are really small! Inside your head, the
+field of cells you're clicking around here is about a 1mm wide area.</p>
+
+
+<p>Incidentally, those highlighted points are called 'singularities'; they're
+places where the neuron response is very weird - if there's any response at
+all. If you experiment with this field, you'll realize that any response there
+would be a bit out-of-place. If you want a bit of a challenge, see if you can
+drag from one singularity to another while making the albatross change
+direction as little as possible. Note that this means that a certain
+orientation can have a whole bunch of different neurons that respond to
+it.</p>");
+
+
+
+myDiv5 is Div("div5",20,20,360,360,"<p>Neurons are seldom straightforward
+things, and they often do more than one job. The cell fields we've been
+talking about so far will also light up differently when there's a line
+*travelling* in a certain direction. The field below is the same as before,
+but now the albatross is going to be travelling, as well as turning, with the
+orientation and direction that's bound to the neuron you select.</p>
+
+
+<p>Try to get our albatross to fly in every different direction. Or perhaps
+try to make the albatross fly directly left, then right. You'll find it's a
+bit complicated! And there's a weird dependency between orientation and
+direction for a given neuron.</p>
+
+
+<p>Really we'd prefer to be able to select any orientation and direction and
+see how the neurons respond. So we're going to bring in a mathematical tool
+that'll let us do this.</p> ");
+
+
+
+myDiv6 is Div("div6",20,20,360,360,"<p>Ok now the square down there is still
+the neuron field, but this time, instead of directly choosing a neuron, you're
+going to use that square on the right to control the albatross. The neurons
+are going to be lighting up in response to the albatross's current orientation
+and direction; those wiggly lines are chains of lit-up neurons. The white
+neurons would be responding to the orientation, and yellow ones to the
+direction (if they overlap then that means the neurons are firing like
+crazy!).</p>
+
+
+<p>Try making the albatross do two loops in a row. You'll find you can't do it
+- that's a problem, you ought to be able to! What we need to do is make it so
+  you can cross over the edge of the square, taking you to the other side. In
+other words, we need to glue the sides of the square together - and it turns
+out that if we do this properly, we get a weird shape which you'll see in the
+next slide.</p>
+
+
+<p>So to recap: you're looking at a square that allows you to choose an
+'orientation' and a 'direction' (right); you also have a bird flying with the
+direction and orientation you've chosen; and you have a snapshot of a small
+area of your brain with lit-up neurons (below); and replacing these words,
+you're going to see a connected-up version of your square.</p> ");
+
+
+
+myDiv8 is Div("div8",20,20,360,360,"<p>Klein bottles are really interesting
+objects, for mathematicians. Lots of mathematicians want to know what can
+happen with shapes that are completely 'smooth'. The Klein bottle is special
+because its inside has direct connections to its outside, and all those
+connections are smooth. It's also a shape that can only be seen properly in
+'four dimensions'!</p>
+
+
+<p>For more than a century, the Klein bottle has studied and delighted over by
+mathematicians. And in all that time, it never has had a single use outside of
+mathematics - that was until Shigeru Tanaka came up with this theory about
+neurons! I personally find it very lovely that brains work in these intricate
+ways that studying them requires knowledge of such esoteric objects.</p> ");
+
+
+myDiv9 is Div("div9",20,20,360,360,"<p>There's an important pattern that
+connects the bottle and the singularities; you might be able to work it out.
+Try doing different 'loops' on the rectangle / bottle while looking at what
+happens on the neuron field. Can you work out how to do a loop that will make
+those lines go all the way around around the singularities?</p>
+
+
+<p>A lot of scientists are interested in how, why, and where the singularities
+arise in these neuron fields - using the Klein bottle in this way can help
+answer some of their questions.</p>");
+
+
+
+myDiv10 is Div("div10",20,20,360,360,"<p>It's worth saying that in reality,
+there are waaay more than two singularities. These fields have many thousands
+of neurons, and with loads of singularities among them, about four per
+millimeter. You'll have noticed there are two kinds of singularity, blue and
+orange - can you see what the difference is between them?</p>
+
+
+<p>By the way, the place you move over that causes the albatross to swivel is
+called a 'line singularity' - can you see a relationship between the line
+singularities and the 'point' singularities?</p>
+
+
+<p>That's the end of the presentation now - hope you've enjoyed it!</p>");
+
+
+
+
+
+
+##the first page
+
+rectline1 = Line( 500,500,700,500);
+
+rectline2 = Line( 500,500,500,700);
+
+rectline3 = Line( 700,500,700,700);
+
+rectline4 = Line( 500,700,700,700);
+
+mouseposition is mouseX + mouseY * 800;
+
+timesinceneuronwasinactive = 0;
+
+neuronvictory = 160;
+
+cellOn =
+Image("1on",0,400,400,400,"http://s17.postimg.org/ynp1mocsv/onx.png");
+
+cellOff =
+Image("1off",0,400,400,400,"http://s17.postimg.org/pc2zpq09b/offx.jpg");
+
+proc mousemovinginrect : mouseposition {
+
+    if( mouseX > 500 && mouseY > 500 && mouseX < 700 && mouseY < 700 )
+
+    {
+
+        ##turn over an hourglass that is counted down by step
+
+        timesincemousemovement = 12;
+
+    }
+
+}
+
+proc mousemovementchecker : step {
+
+    ##only do this if we're on the right slide
+
+    if( slidenumber != 1 ) return;
+
+
+    ##This is always being counted down
+
+    timesincemousemovement--;
+
+
+    ##Is the neuron still lit up from the last movement?
+
+    if( timesincemousemovement > 0 ) {
+
+        timesinceneuronwasinactive++;
+
+
+        ##have we won yet? (don't forget to tweak both appearances of this number)
+	##If so, div changes. If not, we still want to see a different picture
+
+        if( timesinceneuronwasinactive > neuronvictory )
+
+            picture is [myDiv1b, nextButton, prevButton, prevarrow1,
+prevarrow2, prevarrow3, nextarrow1,nextarrow2,nextarrow3, rectline1,
+rectline2, rectline3, rectline4,cellOn]; ##plus extra picture
+
+        else ##neuron's lit up but we've not won
+
+            picture is [myDiv1a, nextButton, prevButton, prevarrow1,
+prevarrow2, prevarrow3, nextarrow1,nextarrow2,nextarrow3, rectline1,
+rectline2, rectline3, rectline4,cellOn]; ##plus extra picture
+
+    }
+
+    ##haven't been stimulated for a while, we get the boring picture
+
+    else
+
+    {
+
+        ##neuron's inactive
+
+        if( timesinceneuronwasinactive < neuronvictory ) {
+
+            timesinceneuronwasinactive = 0;
+
+            picture is [myDiv1a, nextButton, prevButton, prevarrow1,
+prevarrow2, prevarrow3, nextarrow1,nextarrow2,nextarrow3, rectline1,
+rectline2, rectline3, rectline4,cellOff];
+
+        }
+
+        else { ##neuron's still inactive, but we've already won and so don't care about that variable
+
+            picture is [myDiv1b, nextButton, prevButton, prevarrow1,
+prevarrow2, prevarrow3, nextarrow1,nextarrow2,nextarrow3, rectline1,
+rectline2, rectline3, rectline4,cellOff];
+
+        }
+
+    }
+
+}
+
+
+
+
+
+
+
+
+##second page
+
+mousedist is sqrt( (600 - mouseX)*(600 - mouseX) + (600 - mouseY)*(600 - mouseY));
+
+cellOffOff =
+Image("2ff",0,400,400,400,"http://s17.postimg.org/p0ljcyjtb/2cells0.png");
+
+cellOnOff =
+Image("2nf",0,400,400,400,"http://s17.postimg.org/rvymjtntb/2cells1.png");
+
+cellOffOn =
+Image("2fn",0,400,400,400,"http://s17.postimg.org/9wzd8uxfz/2cells2.png");
+
+cellOnOn =
+Image("2nn",0,400,400,400,"http://s17.postimg.org/6ouvvtb67/2cells3.png");
+
+plainline1 is Line(600,600, 
+
+    (600+(600-mouseY) / mousedist * 100),
+
+    (600-(600-mouseX) / mousedist * 100));
+
+
+plainline2 is Line(600,600, 
+
+    (600-(600-mouseY) / mousedist * 100),
+
+    (600+(600-mouseX) / mousedist * 100));
+
+plainangle is atan((mouseX - 600)/(mouseY - 600)); ##might need atan2 thing
+
+filteredplainangle is ( plainangle < 0 ) ? 180 + plainangle : plainangle;
+
+proc secondpagemonitor : filteredplainangle {
+
+    if( slidenumber != 2 ) return;
+
+picture is     ( 141.4 <= filteredplainangle && filteredplainangle < 148 ) ?
+[myDiv2, nextButton, prevButton, prevarrow1, prevarrow2, prevarrow3,
+nextarrow1,nextarrow2,nextarrow3, cellOnOff,plainline1,plainline2] :
+
+        ( 134 <= filteredplainangle && filteredplainangle < 140 ) ? [myDiv2,
+nextButton, prevButton, prevarrow1, prevarrow2, prevarrow3,
+nextarrow1,nextarrow2,nextarrow3, cellOffOn,plainline1,plainline2] :
+
+        ( 140 <= filteredplainangle && filteredplainangle < 141.4 ) ? [myDiv2,
+nextButton, prevButton, prevarrow1, prevarrow2, prevarrow3,
+nextarrow1,nextarrow2,nextarrow3, cellOnOn,plainline1,plainline2] :
+
+        [myDiv2, nextButton, prevButton, prevarrow1, prevarrow2, prevarrow3,
+nextarrow1,nextarrow2,nextarrow3,cellOffOff,plainline1,plainline2];
+
+}
+
+
+
+
+
+
+
+##third page
+
+basicneuronsrect = Rectangle(20, 420, 360,360, "Black","Black");
+
+highlightedneuronX = 0;
+
+highlightedneuronY = 0;
+
+basicneuronspoint is  Circle(highlightedneuronX + 20,highlightedneuronY + 420,
+3 + sin( step * 2 ) * 1, "Yellow" );
+
+
+proc neuronmover : mousePressed {
+
+    ##if they've just let go, we fix everything
+
+    if( !mousePressed )
+
+    {
+
+        ##player has just let go of the mouse
+
+        highlightedneuronX = highlightedneuronX;
+
+        highlightedneuronY = highlightedneuronY;
+
+
+        return;
+
+    }
+
+
+    ##if they've just pressed down, we're only interested if it's in the rectangle
+
+    if(       mouseX < 20
+
+            || mouseY < 420
+
+            || mouseX > 20 + 360
+
+            || mouseY > 420 + 360 )
+
+        return;
+
+
+    ##player has just clicked in rectangle. Make indicator follow mouse
+
+    highlightedneuronX is (0<=mouseX - 20 && mouseX - 20 < 360 )? mouseX - 20
+: (mouseX -20 < 0) ? 0 : 360;
+
+    highlightedneuronY is (0 <= mouseY- 420 && mouseY- 420 < 360 )? mouseY -
+420 : (mouseY -420 < 0) ? 0 : 360;
+
+}
+
+
+##here is where you'd change it so that the flip's in right place.
+
+##PUT THIS IN SLIDECHANGER theta is ( highlightedneuronX + highlightedneuronY) / 4;
+
+
+##this one requires step.
+
+
+
+
+
+
+##6th
+
+fakedomain = Rectangle(420,20,360,360, "DeepSkyBlue");
+
+fakeindicatorX = 0;
+
+fakeindicatorY = 0;
+
+fakeindicator is Circle(fakeindicatorX+420,fakeindicatorY+20,indicatorR,
+"White", "White");
+
+
+proc fakeindicatormover : mousePressed {
+
+    ##if they've just let go, we fix everything
+
+    if( !mousePressed )
+
+    {
+
+        ##player has just let go of the mouse
+
+        fakeindicatorX = fakeindicatorX;
+
+        fakeindicatorY = fakeindicatorY;
+
+
+        return;
+
+    }
+
+
+    ##if they've just pressed down, we're only interested if it's in the rectangle
+
+    if(       mouseX < 420
+
+            || mouseY < 20
+
+            || mouseX > 420 + 360
+
+            || mouseY > 20 + 360 )
+
+        return;
+
+
+    ##player has just clicked in rectangle. Make indicator follow mouse
+
+    fakeindicatorX is (0<=mouseX - 420 && mouseX - 420 < 360 )? mouseX - 420 :
+(mouseX -420 < 0) ? 0 : 360;
+
+    fakeindicatorY is (0 <= mouseY- 20 && mouseY- 20 < 360 )? mouseY - 20 :
+(mouseY -20 < 0) ? 0 : 360;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+##7th page
+Kleinanimation = Image("Kleingif",400 + 123, 100, 154, 192,
+"http://s23.postimg.org/ubikf9w8r/imageedit_1_8596514619.gif");
+
+Beer =
+Image("Drink",427,400,345,399,"http://s24.postimg.org/4pkufx9d1/Beer.jpg");
+
+Kleinanimation2 = Image("KG2",123, 504,
+154,192,"http://s28.postimg.org/an5phyril/Mobius_Klein.gif");
+
+
+
+
+##10th
+
+##fs .final singularity.
+
+fs1X = 20 + rand() % 360;
+
+fs1Y = 420 + rand() % 360;
+
+fs2X = 20 + rand() % 360;
+
+fs2Y = 420 + rand() % 360;
+
+fs3X = 20 + rand() % 360;
+
+fs3Y = 420 + rand() % 360;
+
+fs4X = 20 + rand() % 360;
+
+fs4Y = 420 + rand() % 360;
+
+fs5X = 20 + rand() % 360;
+
+fs5Y = 420 + rand() % 360;
+
+fs1 = Image("fsI",fs1X+4,fs1Y-2, 14,14,
+"http://s29.postimg.org/vl947rfqb/Whirlpool_1.png");
+
+fs2 = Image("fsII",fs2X+4,fs2Y-2, 14,14,
+"http://s17.postimg.org/79xhd3ikb/Whirlpool_2.png");
+
+fs3 = Image("fsIII",fs3X+4,fs3Y-2, 14,14,
+"http://s17.postimg.org/79xhd3ikb/Whirlpool_2.png");
+
+fs4 = Image("fsIV",fs4X+4,fs4Y-2, 14,14,
+"http://s17.postimg.org/79xhd3ikb/Whirlpool_2.png");
+
+fs5 = Image("fsV",fs5X+4,fs5Y-2, 14,14,
+"http://s29.postimg.org/vl947rfqb/Whirlpool_1.png");
+
+
+
+
+
+
+
+##general things
+
+func angleattribution {
+
+    para pointX, pointY,singularityX,singularityY;
+
+    auto relativeY, relativeX,orientationangle;
+
+    relativeX = pointX - singularityX;
+
+    relativeY = pointY - singularityY;
+
+    if( relativeX == 0 && relativeY == 0 ) return 0;
+
+    
+
+    if(relativeY < 0 && relativeX >= 0) orientationangle = 0   - 0.5 *
+atan(relativeX/relativeY);
+
+    if(relativeY >= 0 && relativeX > 0) orientationangle = 45  + 0.5 *
+atan(relativeY/relativeX);
+
+    if(relativeY > 0 && relativeX <= 0) orientationangle = 90  - 0.5 *
+atan(relativeX/relativeY);
+
+    if(relativeY <= 0 && relativeX < 0) orientationangle = 135 + 0.5 *
+atan(relativeY/relativeX);
+
+
+    return orientationangle;
+
+}
+
+
+singularity1X = 90 + 20;
+
+singularity1Y = 90 + 420;
+
+singularity2X = 270 + 20;
+
+singularity2Y = 270 + 420;
+
+singularity1pic is
+Image("whirlpool",singularity1X+4,singularity1Y-2,14,14,"http://s29.postimg.org/vl947rfqb/Whirlpool_1.png");
+
+singularity2pic is
+Image("whirlpool2",singularity2X+4,singularity2Y-2,14,14,"http://s17.postimg.org/79xhd3ikb/Whirlpool_2.png");
+
+
+
+domainW = 360;
+
+domainH = 360;
+
+domainX = 420;
+
+domainY = 20;
+
+
+##this is the rectangle with a thing that wraps
+
+domainRect = Rectangle(420,20,360,360,"DeepSkyBlue");
+
+/*
+gridlineH1, gridlineH2, gridlineH3, gridlineH4, gridlineH5, gridlineH6,
+gridlineH7, gridlineH8, gridlineH9, gridlineH10, gridlineH11, gridlineH12,
+gridlineH13, gridlineH14, gridlineH15, gridlineV1, gridlineV2, gridlineV3,
+gridlineV4, gridlineV5, gridlineV6, gridlineV7, gridlineV8, gridlineV9,
+gridlineV10, gridlineV11,gridlineV12, gridlineV13,gridlineV14, gridlineV15,
+*/
+
+
+
+##we have a thing that you pick up and drag
+
+indicatorX = domainY + domainH/2;
+
+indicatorY = domainX + domainW/2;
+
+flythroughcountX = 0;
+
+flythroughcountY = 0;
+
+reflection = 0;
+
+
+##has the player just let go of or presed down the mouse?
+
+proc indicatormover : mousePressed
+
+{
+
+    ##if they've just let go, we fix everything
+
+    if( !mousePressed )
+
+    {
+
+        ##player has just let go of the mouse
+
+        indicatorX = indicatorX;
+
+        indicatorY = indicatorY;
+
+
+        flythroughcountX = flythroughcountX;
+
+        flythroughcountY = flythroughcountY;
+
+        reflection = reflection;
+
+        
+
+        return;
+
+    }
+
+
+    ##if they've just pressed down, we're only interested if it's in the rectangle
+
+    if(       mouseX < domainX
+
+            || mouseY < domainY
+
+            || mouseX > domainX + domainW
+
+            || mouseY > domainY + domainH )
+
+        return;
+
+
+    ##player has just clicked in rectangle. Make indicator follow mouse
+
+indicatorY is mouseY - flythroughcountY * domainH;
+
+    indicatorX is mouseX - flythroughcountX * domainW
+
+            + reflection * ( domainW - (mouseX -domainX - flythroughcountX *
+domainW) 
+
+                        - (mouseX-domainX - flythroughcountX * domainW) );
+                          ##this line combats the normal value
+
+    
+
+    flythroughcountX is (mouseX - domainX - ((mouseX-domainX + 10*domainW) %
+domainW)) / domainW;
+
+    flythroughcountY is (mouseY - domainY - ((mouseY-domainY + 10*domainW) %
+domainW)) / domainW;
+
+    reflection is (flythroughcountY+20) % 2;
+
+}
+
+
+indicatorR = 2;
+
+indicator is Circle(indicatorX,indicatorY,indicatorR, "White", "White");
+
+
+
+
+
+
+
+
+
+
+##h is height of "cone", r is radius of bend, f is height of funnel.
+
+f = 30;
+
+h = 240;
+
+r = 60;
+
+bottlewidth = r;
+
+bottlehight = r / 3;
+
+KBPosition = 0;
+
+bottleOffsetX is ( KBPosition == 0 ) ? 169 : 569;
+
+bottleOffsetY is (KBPosition == 2 ) ? 459 : 59;
+
+spineX = 0;
+
+spineY = 0;
+
+ellipseangle = 0;
+
+
+##this is the spine of the bottle. 0 is at the boundary between the funnel and cone
+##We divide the whole into the four parts.
+
+spineY is
+
+    ##funnel
+
+    (  0 <= theta && theta < 45  ) ? -f * sin(4 * theta) :
+
+    ##cone
+
+    ( 45 <= theta && theta < 90  ) ? h * (theta - 45) / 45 :
+
+    ##bend
+
+    ( 90 <= theta && theta < 135 ) ? h + r * sin( 4 * (theta - 90)) :
+
+    ##pipe
+
+    (135 <= theta && theta < 180 ) ? h * (180 - theta) / 45 :
+
+    0; ##failsafe
+
+    
+
+spineX is
+
+    ##funnel
+
+    (  0 <= theta && theta < 45  ) ? 0 :
+
+    ##cone
+
+    ( 45 <= theta && theta < 90  ) ? 0 :
+
+    ##bend
+
+    ( 90 <= theta && theta < 135 ) ? r - r * cos( 4 * (theta - 90)) :
+
+    ##pipe
+
+    (135 <= theta && theta < 158 ) ? 2 * r - (theta - 135) * (theta - 135) /
+23 / 23 * r :
+
+    (158 <= theta && theta < 180 ) ? (180-theta) * (180-theta) / 22 / 22 * r:
+
+    0; ##failsafe
+
+
+##This is the dimensions of the elliptic cross section. We take the normal dimensions to be width = r, hight = r/3.
+
+bottlewidth is
+
+    ##funnel - hopefully smooth
+
+    (  0 <= theta && theta < 45  ) ? 2 * r - r * cos( 4 * theta )  :
+
+    ##cone - would be nice to make this smoother, ideally using the pipe's curve.
+
+    ( 45 <= theta && theta < 90  ) ? r * ((90-theta) / 23 + 1) :
+
+    ##other
+
+    r;    
+
+
+bottlehight is
+
+    ##funnel - hopefully smooth
+
+    (  0 <= theta && theta < 45  ) ? r / 3 * (theta / 23 + 1)  :
+
+    ##cone
+
+    ( 45 <= theta && theta < 90  ) ? r / 3 * ((90-theta) / 23 + 1) :
+
+    ##bend
+
+    ( 90 <= theta && theta < 135 ) ? r * (225-theta * 2) / 135 :
+
+    ##pipe
+
+    (135 <= theta && theta < 180 ) ? - r / 3 :
+
+    ##other
+
+    r / 3;
+
+##there's also an angling of the ellipse.
+
+ellipseangle is
+
+    ##bend
+
+    ( 90 <= theta && theta < 135 ) ? (theta-90) * 4 :
+
+    ##pipe - we want it to be the angle of the tangent to the line... could take the next point and aim at that
+
+    (135 <= theta && theta < 158 ) ? 180 + atan((theta-135)/23) : ##this was not rigorous
+
+    (158 <= theta && theta < 180 ) ? 180 + atan((180-theta)/22) :
+
+    ##funnel, cone
+
+    0;
+
+
+##the location of the points, with the correct point on the spine taken as the origin.
+
+bottlepointX is bottlewidth / 2 * cos(phi) * cos( ellipseangle) - bottlehight
+/ 2 * sin(phi) * sin(-ellipseangle);
+
+bottlepointY is bottlewidth / 2 * cos(phi) * sin(-ellipseangle) + bottlehight
+/ 2 * sin( phi) * cos( ellipseangle); 
+
+
+finalpointX is bottleOffsetX + spineX + bottlepointX;
+
+finalpointY is bottleOffsetY + spineY + bottlepointY;
+
+Kleinimage is
+Image("Klein",bottleOffsetX-89,bottleOffsetY-51,241,383,"http://s30.postimg.org/5t2h58xdd/KBfinal.png");
+
+proc colorchanger : phi {
+
+    ##maybe you're in the doubly covered part?
+
+    if( ( theta > 154  && 
+
+finalpointY - bottleOffsetY - 153 < (finalpointX - bottleOffsetX  - 52) * -4 )
+|| (theta < 17 &&
+
+finalpointY - bottleOffsetY + 13 > -1 * pow( (finalpointX -
+bottleOffsetX)/13,2) ) )
+
+    { pointimage = Image("pointblue", finalpointX - 2, finalpointY - 2,
+6,6,"http://s17.postimg.org/z2mebuldn/bluepoint.png"); return; }
+
+    ##the funnel is a special case of .front and back.
+
+    if( theta < 45) {
+
+        ##there's kind of an ellipse across the grid?
+
+        if(     theta < 27 || !(180 < phi && phi < 360) ||
+
+theta < 45 - 19 * sqrt( 1 - pow(  ((270-phi)/90),2) ) )
+
+            pointimage = Image("pointwhite", finalpointX - 2, finalpointY - 2,
+6,6,"http://s24.postimg.org/cwgiikyoh/point.png");
+
+        else pointimage = Image("pointblue", finalpointX - 2, finalpointY - 2,
+6,6,"http://s17.postimg.org/z2mebuldn/bluepoint.png");    
+
+        return;
+
+    }
+
+        
+
+    ##we define the .front., ignoring the self intersection because what can you do?
+
+    if( phi > 180 ) pointimage = Image("pointblue", finalpointX - 2,
+finalpointY - 2,  6,6, "http://s17.postimg.org/z2mebuldn/bluepoint.png");
+
+##this back
+
+else pointimage = Image("pointwhite", finalpointX - 2, finalpointY - 2,
+6,6,"http://s24.postimg.org/cwgiikyoh/point.png");
+
+}
+
+
+
+
+
+
+
+
+crfX = 20;
+
+crfY = 420;
+
+crfW = 360;
+
+crfH = 360;
+
+step = 0;
+
+
+crfRect is Rectangle(crfX,crfY,crfW,crfH, "Black", "Black" );
+
+
+intendedtheta is theta;
+
+intendedphi is phi;
+
+
+##this treats top left corner of triangle as origin.
+
+func getXplus360y {
+
+para t;
+
+##how many pixels are there in a triangle? 12 * layer * 22. Possible points? 22 * 12
+
+##we do it .array style. so this function only needs calling once!
+
+if( 0 <= t && t < 22 * 4 )     return t        + 0;
+
+if( 22 * 4 <= t && t < 22 * 8 )     return 22 * 8 -t    + 360 * (t - 22 * 4);
+
+if( 22 * 8 <= t && t < 22 * 12 ) return 0    + 360 * (22 * 4 - (t-22*8));
+
+}
+
+func angleattribution {
+
+    para pointX, pointY,singularityX,singularityY;
+
+    auto relativeY, relativeX,orientationangle;
+
+    relativeX = pointX - singularityX;
+
+    relativeY = pointY - singularityY;
+
+    if( relativeX == 0 && relativeY == 0 ) return 0;
+
+    
+
+##we'd like
+
+    if(relativeY < 0 && relativeX >= 0) orientationangle = 90  - 0.5 *
+atan(relativeX/relativeY);
+
+    if(relativeY >= 0 && relativeX > 0) orientationangle = 135 + 0.5 *
+atan(relativeY/relativeX);
+
+    if(relativeY > 0 && relativeX <= 0) orientationangle = 0   - 0.5 *
+atan(relativeX/relativeY);
+
+    if(relativeY <= 0 && relativeX < 0) orientationangle = 45  + 0.5 *
+atan(relativeY/relativeX);
+
+
+    return (orientationangle + 90) % 180;
+
+}
+
+
+
+
+proc s2phipoint1mover : step {
+    auto layer, distance, clockwise, position;
+    ##there are values these points can't do
+    if( intendedphi > 270 || 90 > intendedphi ) { s2phipoint1X = 0;
+s2phipoint1Y = 0; return; }
+    layer = 1;
+    clockwise = -1;
+
+    ##work out if we want to go clockwise or anti. 
+    distance = s2phipoint1phi - intendedphi; ##s1 has -90
+    if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+    ##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+    ##we do MINUS clockwise because things are mirrored
+    s2phipoint1t = ( (s2phipoint1t - clockwise) % (12 * 22) + (12 * 22) ) %
+(12 * 22);
+    position = getXplus360y( s2phipoint1t );
+    s2phipoint1X = -layer * (-22 + position % 360 );
+    s2phipoint1Y = -layer * (-22 + (position - (position % 360)) / 360 );
+}
+
+s2phipoint1t = 0;
+##could be -90
+s2phipoint1phi is 90 + ( (
+angleattribution(s2phipoint1X+singularity2X,s2phipoint1Y+singularity2Y,singularity1X,singularity1Y)
+- angleattribution(s2phipoint1X+singularity2X,s2phipoint1Y+singularity2Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180;
+
+
+proc s2phipoint2mover : step {
+
+auto layer, distance, clockwise, position;
+
+##there are values these points can't do
+
+if( intendedphi > 270 || 90 > intendedphi ) { s2phipoint2X = 0; s2phipoint2Y =
+0; return; }
+
+layer = 2;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s2phipoint2phi - intendedphi; ##s1 has -90
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+    ##we do MINUS clockwise because things are mirrored
+
+s2phipoint2t = ( (s2phipoint2t - clockwise) % (12 * 22) + (12 * 22) ) % (12 *
+22);
+
+position = getXplus360y( s2phipoint2t );
+
+s2phipoint2X = -layer * (-22 + position % 360 );
+
+s2phipoint2Y = -layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s2phipoint2t = 0;
+
+##could be -90
+
+s2phipoint2phi is 90 + ( (
+angleattribution(s2phipoint2X+singularity2X,s2phipoint2Y+singularity2Y,singularity1X,singularity1Y)
+- angleattribution(s2phipoint2X+singularity2X,s2phipoint2Y+singularity2Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180;
+
+
+proc s2phipoint3mover : step {
+
+auto layer, distance, clockwise, position;
+
+##there are values these points can't do
+
+if( intendedphi > 270 || 90 > intendedphi ) { s2phipoint3X = 0; s2phipoint3Y =
+0; return; }
+
+layer = 3;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s2phipoint3phi - intendedphi; ##s1 has -90
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+    ##we do MINUS clockwise because things are mirrored
+
+s2phipoint3t = ( (s2phipoint3t - clockwise) % (12 * 22) + (12 * 22) ) % (12 *
+22);
+
+position = getXplus360y( s2phipoint3t );
+
+s2phipoint3X = -layer * (-22 + position % 360 );
+
+s2phipoint3Y = -layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s2phipoint3t = 0;
+
+##could be -90
+
+s2phipoint3phi is 90 + ( (
+angleattribution(s2phipoint3X+singularity2X,s2phipoint3Y+singularity2Y,singularity1X,singularity1Y)
+- angleattribution(s2phipoint3X+singularity2X,s2phipoint3Y+singularity2Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180;
+
+
+
+proc s2phipoint4mover : step {
+
+auto layer, distance, clockwise, position;
+
+##there are values these points can't do
+
+if( intendedphi > 270 || 90 > intendedphi ) { s2phipoint4X = 0; s2phipoint4Y =
+0; return; }
+
+layer = 4;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s2phipoint4phi - intendedphi; ##s1 has -90
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+    ##we do MINUS clockwise because things are mirrored
+
+s2phipoint4t = ( (s2phipoint4t - clockwise) % (12 * 22) + (12 * 22) ) % (12 *
+22);
+
+position = getXplus360y( s2phipoint4t );
+
+s2phipoint4X = -layer * (-22 + position % 360 );
+
+s2phipoint4Y = -layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s2phipoint4t = 0;
+
+##could be -90
+
+s2phipoint4phi is 90 + ( (
+angleattribution(s2phipoint4X+singularity2X,s2phipoint4Y+singularity2Y,singularity1X,singularity1Y)
+- angleattribution(s2phipoint4X+singularity2X,s2phipoint4Y+singularity2Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180;
+
+
+
+proc s1phipoint1mover : step {
+
+auto layer, distance, clockwise, position;
+
+##there are values these points can't do
+
+if( 90 <= intendedphi && intendedphi <= 270 ) { s1phipoint1X = 0; s1phipoint1Y
+= 0; return; }
+
+layer = 1;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s1phipoint1phi - intendedphi;
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+##change?
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+s1phipoint1t = ( (s1phipoint1t + clockwise) % (12 * 22) + (12 * 22) ) % (12 *
+22);
+
+position = getXplus360y( s1phipoint1t );
+
+s1phipoint1X = layer * (-22 + position % 360 );
+
+s1phipoint1Y = layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s1phipoint1t = 0;
+
+s1phipoint1phi is ( 270 + ( (
+angleattribution(s1phipoint1X+singularity1X,s1phipoint1Y+singularity1Y,singularity1X,singularity1Y)
+- angleattribution(s1phipoint1X+singularity1X,s1phipoint1Y+singularity1Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180 ) % 360;
+
+
+
+proc s1phipoint2mover : step {
+
+auto layer, distance, clockwise, position;
+
+##there are values these points can't do
+
+if( 90 <= intendedphi && intendedphi <= 270 ) { s1phipoint2X = 0; s1phipoint2Y
+= 0; return; }
+
+layer = 2;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s1phipoint2phi - intendedphi; ##s1 has -90
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+s1phipoint2t = ( (s1phipoint2t + clockwise) % (12 * 22) + (12 * 22) ) % (12 *
+22);
+
+position = getXplus360y( s1phipoint2t );
+
+s1phipoint2X = layer * (-22 + position % 360 );
+
+s1phipoint2Y = layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s1phipoint2t = 0;
+
+s1phipoint2phi is ( 270 + ( (
+angleattribution(s1phipoint2X+singularity1X,s1phipoint2Y+singularity1Y,singularity1X,singularity1Y)
+- angleattribution(s1phipoint2X+singularity1X,s1phipoint2Y+singularity1Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180 ) % 360;
+
+
+
+proc s1phipoint3mover : step {
+
+auto layer, distance, clockwise, position;
+
+##there are values these points can't do
+
+if( 90 <= intendedphi && intendedphi <= 270 ) { s1phipoint3X = 0; s1phipoint3Y
+= 0; return; }
+
+layer = 3;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s1phipoint3phi - intendedphi; ##s1 has -90
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+s1phipoint3t = ( (s1phipoint3t + clockwise) % (12 * 22) + (12 * 22) ) % (12 *
+22);
+
+position = getXplus360y( s1phipoint3t );
+
+s1phipoint3X = layer * (-22 + position % 360 );
+
+s1phipoint3Y = layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s1phipoint3t = 0;
+
+s1phipoint3phi is ( 270 + ( (
+angleattribution(s1phipoint3X+singularity1X,s1phipoint3Y+singularity1Y,singularity1X,singularity1Y)
+- angleattribution(s1phipoint3X+singularity1X,s1phipoint3Y+singularity1Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180 ) % 360;
+
+
+
+proc s1phipoint4mover : step {
+
+auto layer, distance, clockwise, position;
+
+##there are values these points can't do
+
+if( 90 <= intendedphi && intendedphi <= 270 ) { s1phipoint4X = 0; s1phipoint4Y
+= 0; return; }
+
+layer = 4;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s1phipoint4phi - intendedphi; ##s1 has -90
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+s1phipoint4t = ( (s1phipoint4t + clockwise) % (12 * 22) + (12 * 22) ) % (12 *
+22);
+
+position = getXplus360y( s1phipoint4t );
+
+s1phipoint4X = layer * (-22 + position % 360 );
+
+s1phipoint4Y = layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s1phipoint4t = 0;
+
+s1phipoint4phi is ( 270 + ( (
+angleattribution(s1phipoint4X+singularity1X,s1phipoint4Y+singularity1Y,singularity1X,singularity1Y)
+- angleattribution(s1phipoint4X+singularity1X,s1phipoint4Y+singularity1Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180 ) % 360;
+
+
+
+
+proc s2thetapoint1mover : step {
+
+auto layer, distance, clockwise, position;
+
+layer = 1;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s2thetapoint1theta - intendedtheta;
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+    ##we do MINUS clockwise because things are mirrored
+
+s2thetapoint1t = ( (s2thetapoint1t - clockwise) % (12 * 22) + (12 * 22) ) %
+(12 * 22);
+
+position = getXplus360y( s2thetapoint1t );
+
+s2thetapoint1X = -layer * (-22 + position % 360 );
+
+s2thetapoint1Y = -layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s2thetapoint1t = 0;
+
+s2thetapoint1theta is ( (
+angleattribution(s2thetapoint1X+singularity2X,s2thetapoint1Y+singularity2Y,singularity1X,singularity1Y)
+- angleattribution(s2thetapoint1X+singularity2X,s2thetapoint1Y+singularity2Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180;
+
+
+
+proc s2thetapoint2mover : step {
+
+auto layer, distance, clockwise, position;
+
+layer = 2;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s2thetapoint2theta - intendedtheta;
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+    ##we do MINUS clockwise because things are mirrored
+
+s2thetapoint2t = ( (s2thetapoint2t - clockwise) % (12 * 22) + (12 * 22) ) %
+(12 * 22);
+
+position = getXplus360y( s2thetapoint2t );
+
+s2thetapoint2X = -layer * (-22 + position % 360 );
+
+s2thetapoint2Y = -layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s2thetapoint2t = 0;
+
+s2thetapoint2theta is ( (
+angleattribution(s2thetapoint2X+singularity2X,s2thetapoint2Y+singularity2Y,singularity1X,singularity1Y)
+- angleattribution(s2thetapoint2X+singularity2X,s2thetapoint2Y+singularity2Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180;
+
+
+
+proc s2thetapoint3mover : step {
+
+auto layer, distance, clockwise, position;
+
+layer = 3;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s2thetapoint3theta - intendedtheta;
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+    ##we do MINUS clockwise because things are mirrored
+
+s2thetapoint3t = ( (s2thetapoint3t - clockwise) % (12 * 22) + (12 * 22) ) %
+(12 * 22);
+
+position = getXplus360y( s2thetapoint3t );
+
+s2thetapoint3X = -layer * (-22 + position % 360 );
+
+s2thetapoint3Y = -layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s2thetapoint3t = 0;
+
+s2thetapoint3theta is ( (
+angleattribution(s2thetapoint3X+singularity2X,s2thetapoint3Y+singularity2Y,singularity1X,singularity1Y)
+- angleattribution(s2thetapoint3X+singularity2X,s2thetapoint3Y+singularity2Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180;
+
+
+
+proc s2thetapoint4mover : step {
+
+auto layer, distance, clockwise, position;
+
+layer = 4;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s2thetapoint4theta - intendedtheta;
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+    ##we do MINUS clockwise because things are mirrored
+
+s2thetapoint4t = ( (s2thetapoint4t - clockwise) % (12 * 22) + (12 * 22) ) %
+(12 * 22);
+
+position = getXplus360y( s2thetapoint4t );
+
+s2thetapoint4X = -layer * (-22 + position % 360 );
+
+s2thetapoint4Y = -layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s2thetapoint4t = 0;
+
+s2thetapoint4theta is ( (
+angleattribution(s2thetapoint4X+singularity2X,s2thetapoint4Y+singularity2Y,singularity1X,singularity1Y)
+- angleattribution(s2thetapoint4X+singularity2X,s2thetapoint4Y+singularity2Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180;
+
+
+
+
+proc s1thetapoint1mover : step {
+
+auto layer, distance, clockwise, position;
+
+layer = 1;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s1thetapoint1theta - intendedtheta;
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+s1thetapoint1t = ( (s1thetapoint1t + clockwise) % (12 * 22) + (12 * 22) ) %
+(12 * 22);
+
+position = getXplus360y( s1thetapoint1t );
+
+s1thetapoint1X = layer * (-22 + position % 360 );
+
+s1thetapoint1Y = layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s1thetapoint1t = 0;
+
+s1thetapoint1theta is ( (
+angleattribution(s1thetapoint1X+singularity1X,s1thetapoint1Y+singularity1Y,singularity1X,singularity1Y)
+- angleattribution(s1thetapoint1X+singularity1X,s1thetapoint1Y+singularity1Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180;
+
+
+proc s1thetapoint2mover : step {
+
+auto layer, distance, clockwise, position;
+
+layer = 2;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s1thetapoint2theta - intendedtheta;
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+s1thetapoint2t = ( (s1thetapoint2t + clockwise) % (12 * 22) + (12 * 22) ) %
+(12 * 22);
+
+position = getXplus360y( s1thetapoint2t );
+
+s1thetapoint2X = layer * (-22 + position % 360 );
+
+s1thetapoint2Y = layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s1thetapoint2t = 0;
+
+s1thetapoint2theta is ( (
+angleattribution(s1thetapoint2X+singularity1X,s1thetapoint2Y+singularity1Y,singularity1X,singularity1Y)
+- angleattribution(s1thetapoint2X+singularity1X,s1thetapoint2Y+singularity1Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180;
+
+
+proc s1thetapoint3mover : step {
+
+auto layer, distance, clockwise, position;
+
+layer = 3;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s1thetapoint3theta - intendedtheta;
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+s1thetapoint3t = ( (s1thetapoint3t + clockwise) % (12 * 22) + (12 * 22) ) %
+(12 * 22);
+
+position = getXplus360y( s1thetapoint3t );
+
+s1thetapoint3X = layer * (-22 + position % 360 );
+
+s1thetapoint3Y = layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s1thetapoint3t = 0;
+
+s1thetapoint3theta is ( (
+angleattribution(s1thetapoint3X+singularity1X,s1thetapoint3Y+singularity1Y,singularity1X,singularity1Y)
+- angleattribution(s1thetapoint3X+singularity1X,s1thetapoint3Y+singularity1Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180;
+
+
+
+proc s1thetapoint4mover : step {
+
+auto layer, distance, clockwise, position;
+
+layer = 4;
+
+clockwise = -1;
+
+##work out if we want to go clockwise or anti. 
+
+distance = s1thetapoint4theta - intendedtheta;
+
+if( distance > 90 || (distance < 0 && distance > -90) ) clockwise = 1;
+
+##12 happens to be perimeter / distancebetweenlayers (which is 22)
+
+s1thetapoint4t = ( (s1thetapoint4t + clockwise) % (12 * 22) + (12 * 22) ) %
+(12 * 22);
+
+position = getXplus360y( s1thetapoint4t );
+
+s1thetapoint4X = layer * (-22 + position % 360 );
+
+s1thetapoint4Y = layer * (-22 + (position - (position % 360)) / 360 );
+
+}
+
+s1thetapoint4t = 0;
+
+s1thetapoint4theta is ( (
+angleattribution(s1thetapoint4X+singularity1X,s1thetapoint4Y+singularity1Y,singularity1X,singularity1Y)
+- angleattribution(s1thetapoint4X+singularity1X,s1thetapoint4Y+singularity1Y,singularity2X,singularity2Y)
+  ) % 180 + 180 ) %180;
+
+
+
+s1thetaline1 is Line(singularity1X, singularity1Y,
+
+singularity1X+s1thetapoint1X,singularity1Y+s1thetapoint1Y, "White");
+
+s1thetaline2 is
+Line(singularity1X+s1thetapoint1X,singularity1Y+s1thetapoint1Y,
+
+singularity1X+s1thetapoint2X,singularity1Y+s1thetapoint2Y, "White");
+
+s1thetaline3 is
+Line(singularity1X+s1thetapoint2X,singularity1Y+s1thetapoint2Y,
+
+singularity1X+s1thetapoint3X,singularity1Y+s1thetapoint3Y, "White");
+
+s1thetaline4 is
+Line(singularity1X+s1thetapoint3X,singularity1Y+s1thetapoint3Y,
+
+singularity1X+s1thetapoint4X,singularity1Y+s1thetapoint4Y, "White");
+
+
+s2thetaline1 is Line(singularity2X, singularity2Y,
+
+singularity2X+s2thetapoint1X,singularity2Y+s2thetapoint1Y, "White");
+
+s2thetaline2 is
+Line(singularity2X+s2thetapoint1X,singularity2Y+s2thetapoint1Y,
+
+singularity2X+s2thetapoint2X,singularity2Y+s2thetapoint2Y, "White");
+
+s2thetaline3 is
+Line(singularity2X+s2thetapoint2X,singularity2Y+s2thetapoint2Y,
+
+singularity2X+s2thetapoint3X,singularity2Y+s2thetapoint3Y, "White");
+
+s2thetaline4 is
+Line(singularity2X+s2thetapoint3X,singularity2Y+s2thetapoint3Y,
+
+singularity2X+s2thetapoint4X,singularity2Y+s2thetapoint4Y, "White");
+
+
+s2philine1 is Line(singularity2X, singularity2Y,
+
+singularity2X+s2phipoint1X,singularity2Y+s2phipoint1Y, "Yellow");
+
+s2philine2 is Line(singularity2X+s2phipoint1X,singularity2Y+s2phipoint1Y,
+
+singularity2X+s2phipoint2X,singularity2Y+s2phipoint2Y, "Yellow");
+
+s2philine3 is Line(singularity2X+s2phipoint2X,singularity2Y+s2phipoint2Y,
+
+singularity2X+s2phipoint3X,singularity2Y+s2phipoint3Y, "Yellow");
+
+s2philine4 is Line(singularity2X+s2phipoint3X,singularity2Y+s2phipoint3Y,
+
+singularity2X+s2phipoint4X,singularity2Y+s2phipoint4Y, "Yellow");
+
+
+s1philine1 is Line(singularity1X, singularity1Y,
+
+singularity1X+s1phipoint1X,singularity1Y+s1phipoint1Y, "Yellow");
+
+s1philine2 is Line(singularity1X+s1phipoint1X,singularity1Y+s1phipoint1Y,
+
+singularity1X+s1phipoint2X,singularity1Y+s1phipoint2Y, "Yellow");
+
+s1philine3 is Line(singularity1X+s1phipoint2X,singularity1Y+s1phipoint2Y,
+
+singularity1X+s1phipoint3X,singularity1Y+s1phipoint3Y, "Yellow");
+
+s1philine4 is Line(singularity1X+s1phipoint3X,singularity1Y+s1phipoint3Y,
+
+singularity1X+s1phipoint4X,singularity1Y+s1phipoint4Y, "Yellow");
+
+
+
+
+
+
+
+##ought to be that the albatross .skips. the 180 between left and right, if anything
+
+##it's .up to you. whether to add 180 to theta for albatross direction.
+
+##These co ords are absolute and tiles are defined in relation
+
+AlbatrossX = 670;
+
+AlbatrossY = 670;
+
+Vel = 0.3;
+
+
+AlbatrossXvel is Vel * cos(phi+90);
+
+AlbatrossYvel is Vel * sin(phi+90);
+
+
+
+
+##we have a single tile made of four, twice as big as the window.
+
+tileX is AlbatrossX - 90 - AlbatrossVirtualX;
+
+tileY is AlbatrossY - 90 - AlbatrossVirtualY;
+
+
+tile is
+Image("sky",tileX,tileY,360,360,"http://s24.postimg.org/6rynge4xx/bg360.png");
+
+
+##then you also have some white around the edges. The white can't encroach, so
+this thing is small
+
+border is Image("whitewash",400,400, 540, 540,
+"http://s23.postimg.org/9wtj1bqcb/smallborder.png");
+
+
+proc incrementor : step {
+
+               after (1) { step++; }
+
+}
+
+
+AlbatrossVirtualX = 0;
+
+AlbatrossVirtualY = 0; ##THIS PART NEEDS TO BE COPYPASTED IN AGAIN
+
+
+
+proc Albatrossmover : step {
+
+AlbatrossVirtualX = ( AlbatrossVirtualX + AlbatrossXvel + 180) % 180;
+
+AlbatrossVirtualY = ( AlbatrossVirtualY + AlbatrossYvel + 180) % 180;
+
+}
+
+step = 0;
+
+
+
+albatrossimage is
+
+    ( 0 <= theta && theta < 6 ) ? a30 :
+
+    ( 6 <= theta && theta < 12 ) ? a31 :
+
+    ( 12 <= theta && theta < 18 ) ? a32 :
+
+    ( 18 <= theta && theta < 24 ) ? a33 :
+
+    ( 24 <= theta && theta < 30 ) ? a34 :
+
+
+    ( 30 <= theta && theta < 36 ) ? a35 :
+
+    ( 36 <= theta && theta < 42 ) ? a36 :
+
+    ( 42 <= theta && theta < 48 ) ? a37 :
+
+    ( 48 <= theta && theta < 54 ) ? a38 :
+
+    ( 54 <= theta && theta < 60 ) ? a39 :
+
+
+    ( 60 <= theta && theta < 66 ) ? a40 :
+
+    ( 66 <= theta && theta < 72 ) ? a41 :
+
+    ( 72 <= theta && theta < 78 ) ? a42 :
+
+    ( 78 <= theta && theta < 84 ) ? a43 :
+
+    ( 84 <= theta && theta < 90 ) ? a44 :
+
+
+    ( 90 <= theta && theta < 96 ) ? a45 :
+
+    ( 96 <= theta && theta < 102 ) ? a46 :
+
+    ( 102 <= theta && theta < 108 ) ? a47 :
+
+    ( 108 <= theta && theta < 114 ) ? a48 :
+
+    ( 114 <= theta && theta < 120 ) ? a49 :
+
+
+    ( 120 <= theta && theta < 126 ) ? a50 :
+
+    ( 126 <= theta && theta < 132 ) ? a51 :
+
+    ( 132 <= theta && theta < 138 ) ? a52 :
+
+    ( 138 <= theta && theta < 144 ) ? a53 :
+
+    ( 144 <= theta && theta < 150 ) ? a54 :
+
+
+    ( 150 <= theta && theta < 156 ) ? a55 :
+
+    ( 156 <= theta && theta < 162 ) ? a56 :
+
+    ( 162 <= theta && theta < 168 ) ? a57 :
+
+    ( 168 <= theta && theta < 172 ) ? a58 :
+
+                        a59;    
+
+
+
+a30 = Image("30",580,580,180,180,"http://s1.postimg.org/3vb497snf/alb30.png");
+
+a31 = Image("31",580,580,180,180,"http://s1.postimg.org/ejjglss0b/alb31.png");
+
+a32 = Image("32",580,580,180,180,"http://s1.postimg.org/8jvpi577v/alb32.png");
+
+a33 = Image("33",580,580,180,180,"http://s1.postimg.org/9nftu3ruz/alb33.png");
+
+a34 = Image("34",580,580,180,180,"http://s1.postimg.org/iwi0480qz/alb34.png");
+
+
+a35 = Image("35",580,580,180,180,"http://s1.postimg.org/p3te4dwi3/alb35.png");
+
+a36 = Image("36",580,580,180,180,"http://s1.postimg.org/atjtswg5n/alb36.png");
+
+a37 = Image("37",580,580,180,180,"http://s1.postimg.org/lixil5ryj/alb37.png");
+
+a38 = Image("38",580,580,180,180,"http://s1.postimg.org/7y6qm1c5n/alb38.png");
+
+a39 = Image("39",580,580,180,180,"http://s1.postimg.org/eefpc4kp7/alb39.png");
+
+
+a40 = Image("40",580,580,180,180,"http://s1.postimg.org/6crgu81xn/alb40.png");
+
+a41 = Image("41",580,580,180,180,"http://s1.postimg.org/49ln0arij/alb41.png");
+
+a42 = Image("42",580,580,180,180,"http://s1.postimg.org/8b2q5yjt7/alb42.png");
+
+a43 = Image("43",580,580,180,180,"http://s1.postimg.org/pkj74k9mz/alb43.png");
+
+a44 = Image("44",580,580,180,180,"http://s1.postimg.org/5v0ws41qj/alb44.png");
+
+
+a45 = Image("45",580,580,180,180,"http://s1.postimg.org/apulqe023/alb45.png");
+
+a46 = Image("46",580,580,180,180,"http://s1.postimg.org/77iltzz63/alb46.png");
+
+a47 = Image("47",580,580,180,180,"http://s1.postimg.org/8qdzyz5qj/alb47.png");
+
+a48 = Image("48",580,580,180,180,"http://s1.postimg.org/rjzsvz3yj/alb48.png");
+
+a49 = Image("49",580,580,180,180,"http://s1.postimg.org/e4cs6ivgr/alb49.png");
+
+
+a50 = Image("50",580,580,180,180,"http://s1.postimg.org/604o1s91n/alb50.png");
+
+a51 = Image("51",580,580,180,180,"http://s1.postimg.org/bcy3tnmbv/alb51.png");
+
+a52 = Image("52",580,580,180,180,"http://s1.postimg.org/67wwc19e3/alb52.png");
+
+a53 = Image("53",580,580,180,180,"http://s1.postimg.org/hrx4qbt1n/alb53.png");
+
+a54 = Image("54",580,580,180,180,"http://s1.postimg.org/gqww17c23/alb54.png");
+
+
+a55 = Image("55",580,580,180,180,"http://s1.postimg.org/5slmj0ngr/alb55.png");
+
+a56 = Image("56",580,580,180,180,"http://s1.postimg.org/qqrsh3nbf/alb56.png");
+
+a57 = Image("57",580,580,180,180,"http://s1.postimg.org/ym2bvwwy3/alb57.png");
+
+a58 = Image("58",580,580,180,180,"http://s1.postimg.org/gkj6y42x7/alb58.png");
+
+a59 = Image("59",580,580,180,180,"http://s1.postimg.org/j34vysonf/alb59.png");

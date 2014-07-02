@@ -254,7 +254,7 @@ currpath is makepath(currstack);
 currstate is findstate(currpath);
 inputok is (currpath[currpath#] != 100);
 nextsymbol is strplus(substr(InputTextEnd,k+1,k+1),currstate);
-isreduction is (currstate==0)? ((defaultreductions[12]==@)? 100: defaultreductions[11]) : ((defaultreductions[currstate]==@)? 100: defaultreductions[currstate]);
+isreduction is (currstate==0)? ((defaultreductions[numberOfNodes]==@)? 100: defaultreductions[numberOfNodes]) : ((defaultreductions[currstate]==@)? 100: defaultreductions[currstate]);
 currrule is (isreduction==100)? "":isreduction;
 
 
@@ -305,12 +305,16 @@ proc automatic:k,InputTextt,isautomatic{
 	
    if((currrule!="")&&(isautomatic==1)){
      after(speed){
-	if((currrule==3)&&(nextsymbol=="JOIN"))
+	if((currrule==2)&&(nextsymbol=="*"))
   	 k++;
-	else if((currrule==5)&&(nextsymbol=="JOIN"))
-	k++;
-	else if((currrule==7)&&(nextsymbol=="COMMA"))
-	k++;
+	else if((currstate==11)&&(nextsymbol!="*")){
+	evalrule(1);
+	applyrule(1);}
+	else if ((currstate==11)&&(nextsymbol=="*")){
+	k++;}
+	else if(currstate==12){
+	evalrule(3);
+	applyrule(3);}
 	else
 	{
       evalrule(currrule);

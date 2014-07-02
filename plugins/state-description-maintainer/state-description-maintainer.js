@@ -535,15 +535,15 @@ SDM.generateExport = function(){
 	}
 	
 	var comments = [
-		"##Auto-Generated Script of Model by JS-Eden J-version",
-		"##Auto calculation is turned off to until the model has been fully loaded",
-		"##Observable Assignments:",
-		"##Observable Definitions:",
-		"##Action Definitions:",
-		"##Function Definitions:",
-		"##Picture Definition:",
-		"##Auto calculation is turned on and the updating is fired",
-		"##End of Auto-Generated Script"
+		"## Auto-Generated Script of Model by JS-Eden J-version",
+		"## Auto calculation is turned off to until the model has been fully loaded",
+		"## Observable Assignments:",
+		"## Observable Definitions:",
+		"## Action Definitions:",
+		"## Function Definitions:",
+		"## Picture Definition:",
+		"## Auto calculation is turned on and the updating is fired",
+		"## End of Auto-Generated Script"
 	]
 
 	for(var i=0; i<modelObs.length; i++){
@@ -706,5 +706,8 @@ SDM.systemFunctionNames = [
 	"html",
     "Inputbox",
     "getInputWindowCode",
-    "showObservables"
+    "showObservables",
+	"RadioButtons",
+	"Pixel",
+	"Textbox"
 ];

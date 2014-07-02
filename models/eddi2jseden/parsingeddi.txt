@@ -1,0 +1,516 @@
+func substr {
+   ${{
+   var src = arguments[0];
+   var firstix = arguments[1];
+   var lastix = arguments[2];
+   return src.substr(firstix-1, lastix-firstix+1);
+   }}$;
+}
+
+func sublist{
+   ${{
+   var src = arguments[0];
+   var firstix = arguments[1];
+   var lastix = arguments[2];
+
+   return src.slice(firstix-1, lastix);
+   }}$;
+
+}
+
+func getlscomp {
+  return $1[$2];
+}
+
+
+func strplus{
+  para symbol;
+  if (symbol=="$")
+  return "$end";
+  else if (symbol=="+")
+  return"UNION";
+  else if (symbol==".")
+  return "JOIN";
+  else if (symbol=="e")
+  return "expr";
+  else if (symbol=="-")
+  return "DIFF";
+  else if (symbol==":")
+  return "SELECT";
+  else if (symbol=="%")
+  return "PROJECT";
+  else if (symbol==",")
+  return "COMMA";
+  else if (symbol=="=")
+  return "EQ";
+  else if (symbol==">")
+  return "GT";
+  else if (symbol=="<")
+  return "LT";
+  else if (symbol=="!=")
+  return "NEQ";
+  else if (symbol=="l")
+  return "attr_list";
+  else if (symbol=="(")
+  return "BRA";
+  else if (symbol==")")
+  return "KET";
+  else if (symbol=="i")
+  return "TABLEID";
+  else if (symbol=="v")
+  return "VAL";
+  else if (symbol=="c")
+  return "comparator";
+  else if (symbol=="a")
+  return "ATTRID";
+  else if (symbol=="b")
+  return "boolexpr";
+  else
+  return symbol;
+
+
+
+}
+
+
+func stringtolist{
+   para inputstring;
+   auto result,i;
+   result=[];
+   for (i=1;i<= inputstring#; i++)
+    {
+	if ((inputstring[i]=='!')&&(inputstring[i+1]=="="))
+	{
+	  result=result//[strplus(substr(inputstring,i,i+1))];
+	  i++;
+	  
+	}
+	else result=result//[strplus(substr(inputstring,i,i))];
+	
+    }
+   
+    return result;
+}
+
+
+func listtostring{
+	para inputlist;
+	auto result,i;
+	result="";
+	for (i=1;i<=inputlist#;i++)
+	result=result//inputlist[i];
+	return result;
+	}
+	
+func makepath{
+   para inputlist;
+   auto endix,result,i,j;
+   j=1;
+   endix =30;
+   result=[0];
+   while ((inputlist#>=j)&&(endix!=100))
+   {
+		for(i=1;i<=numberofsym;i++)
+		{if(transitions[endix][i][2]==inputlist[j])
+		  {
+				endix = findnext(inputlist[j],endix);
+				j++;
+				result=result//[endix];
+				break;
+		  }
+		
+		}
+    }
+	
+   return result;
+}
+
+func findstate{
+	para pathlist;
+	auto i, result;
+	i=1;
+	result=0;
+	while((i<=pathlist#)&&(pathlist[i]!=100))
+	{
+	  i++;
+	}
+	result =pathlist[i-1];
+	return result;
+	}
+	
+transmax=30;
+
+
+numberofsym=20;	
+
+func findnext{
+    	para symbol,endix;
+	auto i, transfound;
+	i=1;
+   	transfound = 0; ## meaning false
+	while ((i<=numberofsym)&&(!transfound)) {
+         if (transitions[endix][i][2]==symbol) 
+	{transfound = 1;}
+         else i++;
+	}
+	if(transfound==1)
+	result= transitions[endix][i][3];
+	else result = 100;
+	return result;
+}
+
+func makestack{
+
+
+	para inputlist;
+	auto endix,result,i,n,transfound;
+	endix=30;
+	n=1;
+	transfound=0;
+	result=[];
+	while ((inputlist#>=n)&&(endix!=100))
+   	{   	transfound=0;
+		inputlist[n]=strplus(findnextsymbol(inputlist[n],endix));
+		for(i=1;i<=numberofsym;i++){
+			if(transitions[endix][i][2]==inputlist[n])
+			{
+			endix=findnext(inputlist[n],endix);
+			result = result//[inputlist[n]];    	
+			n++;
+			transfound=1;
+			break;
+			}
+			}
+		if(transfound==0)
+		n++;
+		}
+   	return result;
+}
+
+func oneline{
+	para s;
+	return (substr(s,s#,s#)=="\n") ? substr(s,1,s#-1) : s;
+}
+func findnextsymbol{
+    para symbol, state;
+   auto result;
+    if(symbol=="x")
+     {   if((state==0)||(state==1)||(state==9)||(state==8)||(state==10)||(state==30))  ##state=30 means state =0 in the transitions list.
+	result="i";
+         else if ((state==6)||(state==12)||(state==26)||(state==7))
+	result="a";
+    }
+   else result=symbol;
+   return result;
+}
+InputText="";
+InputTextt = InputText//"$";
+k=0;
+InputTextEnd = oneline(InputText)//"$";
+nextpart is substr(InputTextEnd,k+1,InputTextEnd#);
+j is InputTextt#-nextpart#;
+currstack is makestack(stringtolist(substr(InputTextt,1,j)));
+currpath is makepath(currstack);
+currstate is findstate(currpath);
+inputok is (currpath[currpath#] != 100);
+nextsymbol is strplus(findnextsymbol(substr(InputTextEnd,k+1,k+1),currstate));
+##nextpart is strplus(substr(InputText,k+1,InputText#));
+
+
+
+
+isreduction is (currstate==0)? ((defaultreductions[30]==@)? 100: defaultreductions[29]) : ((defaultreductions[currstate]==@)? 100: defaultreductions[currstate]);
+
+
+
+currrule is (isreduction==100)? "":isreduction;
+
+
+
+
+proc applyrule{
+	para ruleno;
+
+	
+    if (ruleno==1)
+	 execute("InputTextt=substituteI(InputTextt);");
+    else if (ruleno==2)
+	 execute("InputTextt=substituteBEK(InputTextt);");
+    else if (ruleno==3)
+	 execute("InputTextt=substituteEUE(InputTextt);");
+    else if (ruleno==4)
+	 execute("InputTextt=substituteEJE(InputTextt);");
+    else if (ruleno==5)
+	 execute("InputTextt=substituteEDE(InputTextt);");
+    else if (ruleno==6)
+	 execute("InputTextt=substituteESB(InputTextt);");
+    else if (ruleno==7)
+	 execute("InputTextt=substituteEPL(InputTextt);");
+    else if (ruleno==8)
+	 execute("InputTextt=substituteA(InputTextt);");
+    else if (ruleno==9)
+	 execute("InputTextt=substituteLCA(InputTextt);");
+    else if (ruleno==10)
+	 execute("InputTextt=substituteEQ(InputTextt);");
+    else if (ruleno==11)
+	 execute("InputTextt=substituteGT(InputTextt);");
+    else if (ruleno==12)
+	 execute("InputTextt=substituteLT(InputTextt);");
+    else if (ruleno==13)
+	 execute("InputTextt=substituteNEQ(InputTextt);");
+    else if (ruleno==14)
+	 execute("InputTextt=substituteBBK(InputTextt);");
+    else if (ruleno==15)
+	 execute("InputTextt=substituteACV(InputTextt);");
+}
+
+func substituteGT{	/*the substitution method of LT is the same as this one*/
+	para cstack;
+	auto result;
+	if(currstack#-1>0)
+	result=substr(cstack,1,currstack#-1)//"c"//nextpart;
+	else
+	result="c"//nextpart;
+	return result;
+}
+func substituteLT{	
+	para cstack;
+	auto result;
+	if(currstack#-1>0)
+	result=substr(cstack,1,currstack#-1)//"c"//nextpart;
+	else
+	result="c"//nextpart;
+	return result;
+}
+func substituteEQ{
+	para cstack;
+	auto result;
+	if(currstack#-1>0)
+	result=substr(cstack,1,currstack#-1)//"c"//nextpart;
+	else
+	result="c"//nextpart;
+	return result;
+
+}
+
+func substituteA {
+	para cstack;
+	auto result;
+	if(currstack#-1>0)
+	result=substr(cstack,1,currstack#-1)//"l"//nextpart;
+	else
+	result="l"//nextpart;
+	return result;
+}
+
+func substituteI{
+	para cstack;
+	auto result;
+	if(currstack#-1>0)
+	result=substr(cstack,1,currstack#-1)//"e"//nextpart;
+	else
+	result="e"//nextpart;
+	return result;
+	}
+func substituteBEK{
+	para cstack;
+	auto size, result;
+	size=currstack#-3;
+	##j=j-2;
+	if(size>0)
+	result=substr(cstack,1,size)//"e"//nextpart;
+	else
+	result="e"//nextpart;
+	return result;
+}
+	
+func substituteEUE{
+	para cstack;
+	auto size, result;
+	size=currstack#-3;
+	##j=j-2;
+	if(size>0)
+	result=substr(cstack,1,size)//"e"//nextpart;
+	else
+	result="e"//nextpart;
+	return result;
+}
+
+func substituteEJE{
+	para cstack;
+	auto size, result;
+	size=currstack#-3;
+	##j=j-2;
+	if(size>0)
+	result=substr(cstack,1,size)//"e"//nextpart;
+	else
+	result="e"//nextpart;
+	return result;
+}
+func substituteEDE{
+	para cstack;
+	auto size, result;
+	size=currstack#-3;
+	##j=j-2;
+	if(size>0)
+	result=substr(cstack,1,size)//"e"//nextpart;
+	else
+	result="e"//nextpart;
+	return result;
+}
+func substituteESB{
+	para cstack;
+	auto size, result;
+	size=currstack#-3;
+	##j=j-2;
+	if(size>0)
+	result=substr(cstack,1,size)//"e"//nextpart;
+	else
+	result="e"//nextpart;
+	return result;
+}
+func substituteEPL{
+	para cstack;
+	auto size, result;
+	size=currstack#-3;
+	##j=j-2;
+	if(size>0)
+	result=substr(cstack,1,size)//"e"//nextpart;
+	else
+	result="e"//nextpart;
+	return result;
+}
+
+
+func substituteLCA{
+	para cstack;
+	auto size, result;
+	size=currstack#-3;
+	##j=j-2;
+	if(size>0)
+	result=substr(cstack,1,size)//"l"//nextpart;
+	else
+	result="l"//nextpart;
+	return result;
+}
+
+
+func substituteBBK{
+	para cstack;
+	auto size, result;
+	size=currstack#-3;
+	##j=j-2;
+	if(size>0)
+	result=substr(cstack,1,size)//"b"//nextpart;
+	else
+	result="b"//nextpart;
+	return result;	
+}
+
+func substituteACV{
+	para cstack;
+	auto size, result;
+	size=currstack#-3;
+	##j=j-2;
+	if(size>0)
+	result=substr(cstack,1,size)//"b"//nextpart;
+	else
+	result="b"//nextpart;
+	return result;		
+}
+
+proc callApprule: apprule_clicked{
+  if(apprule_clicked)
+	{
+	evalrule(rule_value);
+    applyrule(rule_value);
+    }
+}
+
+proc increaseK: nextstep_clicked{
+  if(nextstep_clicked)
+   k++;
+
+
+}
+
+proc copylist {
+${{
+var a = arguments[0];
+var b =arguments[1];
+a = b.slice(0);
+
+}}$;
+}
+
+proc Restart: Reset_clicked{
+   if(Reset_clicked)
+   {
+   InputTextt=InputText//"$";
+    InputTextEnd = oneline(InputText)//"$";
+       isautomatic=0;
+	 k=0;
+	j=0;
+        j is InputTextt#-nextpart#;
+     inputtvals=inputvals;
+	
+   }
+
+}
+isautomatic=0;
+
+
+speed=2000;
+proc automatic:k,InputTextt,isautomatic{
+
+	
+   if((currrule!="")&&(isautomatic==1)){
+     after(speed){
+	if((currrule==3)&&(nextsymbol=="JOIN"))
+  	 k++;
+	else if((currrule==5)&&(nextsymbol=="JOIN"))
+	k++;
+	else if((currrule==7)&&(nextsymbol=="COMMA"))
+	k++;
+	else
+	{
+      evalrule(currrule);
+      applyrule(currrule);
+	}
+      }
+    }
+ 
+ 	
+   if((currrule=="")&&(k<=InputText#)&&(isautomatic==1))
+    {after(speed){ k++;
+		  }
+    }
+ }
+/*
+proc automatic:k,InputTextt,isautomatic{
+
+after(speed){	
+   if((currrule!="")&&(isautomatic==1)){
+     
+	if((currrule==3)&&(nextsymbol=="JOIN"))
+  	 k++;
+	else if((currrule==5)&&(nextsymbol=="JOIN"))
+	k++;
+	else if((currrule==7)&&(nextsymbol=="COMMA"))
+	k++;
+	else
+	{
+      evalrule(currrule);
+      applyrule(currrule);
+	}
+     }
+    }
+ 
+ after(speed){	
+   if((currrule=="")&&(k<=InputText#)&&(isautomatic==1))
+    { k++;
+		  
+    }}
+ }
+*/
+	   

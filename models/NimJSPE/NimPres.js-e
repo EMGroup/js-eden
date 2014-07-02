@@ -1,0 +1,669 @@
+slideList is[s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,s16,s17,s18,s19,s20,s21,s22];
+s1 is Slide("<h3>Exploring and understanding models</h3>
+
+
+
+<b>Examining EDEN models using the EM presentation environment</b>
+
+<p>
+
+This session is based on an EM construal of the game of Nim (called <b>nimLeeke2008</b>) that was initially developed by Matthew Leeke (now a lecturer in Computer Science at Warwick).
+
+To display the construal, you can press the <b>Expand</b> button at the bottom left of the screen. 
+
+</p>
+
+<p>
+
+This model was submitted together with an associated paper to the Warwick Electronic Bulletin on Empirical Modelling (WEB-EM-4) as coursework for the annual <i>Introduction to EM</i> module given at Warwick. 
+
+</p>
+
+<p>
+
+This EMPE presentation is to be read in conjunction with the session handout.
+
+It includes the resources for a number of exercises that illustrate different ways in which the Nim construal can be explored and elaborated.
+
+For instance, it shows how <b>nimLeeke2008</b> can be used to illustrate the winning strategy for Nim, based on the so-called Nim-Sum. Details of this strategy can be found from the Wikipedia entry for Nim.
+
+</p>
+");
+s2 is Slide("
+<b>
+
+Introducing the nimLeeke2008 construal
+
+</b>
+
+<p>
+
+An EM construal provides an interactive envionment in which to explore the way agents interact.
+
+We conceive such interaction in terms of observables to which an agent can respond.
+
+</p>
+
+<p>
+
+Observables include any entity whose current status can be changed by an agent.
+
+</p>
+
+<p>
+
+Possible agents include: the Nim players, the computer - which acts in response to actions on the part of a player, the model-builder.
+
+</p>
+
+<p>
+
+The number of stones in pile 1 is an example of an observable - it is recorded as <b>pileSizeOne</b>. 
+
+Different agents can change the value of <b>pileSizeOne</b> in different ways, according to their roles.
+
+</p>
+");
+s3 is Slide("
+<h3>Kinds of agency</h3>
+
+<p>The model-builder can change the value of <b>pileSizeOne</b> directly.</p>
+<jseden>
+
+pileSizeOne = 4;</jseden>
+</p>
+
+<p>
+
+A Nim player isn't allowed to change  <b>pileSizeOne</b> directly.
+
+They are restricted to instructing the computer to change pileSizeOne by clicking on the \"Take from pile 1\" button.
+
+</p>
+
+<p>
+
+Clicking on this button changes the value of the observable <b>pileButtonOne_mouse_1</b>.
+
+</p>
+");
+s4 is Slide("
+<h3>Automated agency</h3><p>The model includes actions for the computer to execute in response to changes to observables associated with mouse clicks. </p>
+
+<p>
+This is the action that responds to changes to the observable <b>pileButtonOne_mouse_1</b>:
+<jseden>
+
+proc takePile1 : pileButtonOne_mouse_1 {
+	if (pileButtonOne_mouse_1[2] == 4){
+		if (pileSizeOne>0) {
+			if (activePile == 0) {
+				activePile=1;
+				pileSizeOne--;
+			}
+			else
+			if (activePile == 1) {
+				pileSizeOne--;
+			}
+		}
+	}
+}</jseden>
+</p>
+");
+
+s5 is Slide("
+<p><b>Dependency</b> is a key concept in EM construals.</p>
+
+<p>
+
+If, at the start of a turn, a player takes a stone from pile 1, then - as of that moment, without any independent action on the part of the player - it becomes impossible to select from piles 2 and 3.
+
+For the duration of the turn, pile 1 also has a special significance for the player.
+
+</p>
+
+<p>
+
+The observable 'activePile' determines which pile - if any - is currently specially significant.
+
+The colour of the 'Take from pile X' button is determined by dependency via the definition:
+<jseden>pile1able is (activePile == 1) ? 1:0;</jseden>
+</p>
+
+<p>
+
+The action <b>takePile1</b> only removes a stone from pile 1 when <b>activePile</b> has the value 1.
+
+This means that the impact of selecting a stone from pile 1 is instantaneously registered at the interface.
+
+</p>
+
+<p>
+
+The size of pile 1 is displayed in decimal and in binary.
+
+The way these displays depend on <b>pileSizeOne</b> is expressed using definitions that you can find using the symbolviewer (see later). 
+</p>
+");
+s6 is Slide("
+<p>
+
+<h3>The nature of the construal as an interactive environment</h3>
+
+It is interesting to compare the computer environment established
+
+by the model-builder using EM with playing Nim using actual stones.
+
+</p>
+
+<p>
+
+In real-life Nim, the players observe the rules without being explicitly
+
+constrained to obey them.
+
+For instance, it is physically possible to select from more than one pile.
+
+</p>
+
+<p>
+
+Other irregular events might occur. 
+
+Some stones may roll away or split into two.
+
+The players may get distracted and forget whose turn it is.
+
+</p>
+
+<p>
+
+The support that the computer model gives for inspecting the Nim-Sum reflects what goes on in the imagination of the expert player.
+
+</p>
+
+<p>
+
+The EM construal supports all these kinds of activity: things that can accidentally happen in the world, and things that can only be 'realised' in the virtual world. 
+
+</p>
+");
+s7 is Slide("
+<h3>Resources you will need for this session</h3>
+
+<p>
+
+In addition to using the EMPE and referring to the handout for this session, you will also find it useful to have access to a text editor.
+
+This will be necessary in order to inspect files to be introduced in the exercises.
+
+</p>
+
+<p>
+
+The environment includes a basic symbolviewer that can also be used to view the observables in the Nim construal.
+
+This is accessed via the <b>obsdetail</b> display, where you can select Next and Previous observables.
+
+This takes the form of an auxiliary model that is linked by dependency to the Nim construal.
+
+</p>
+
+
+<p>
+
+The Help tab on the EDEN Input Window is a useful source of information about the tkeden notations.
+
+</p>
+");
+s8 is Slide("
+<p>
+
+Nim is a game in which two players take turns to remove stones from piles of stones.
+
+At each turn, a player can take one or more stones from just one of the piles.
+
+The object of the game is to be the player who removes the last stone.   
+
+</p>
+
+
+
+<p>
+
+<b>Exercise 1:</b> Your first exercise is to familiarise yourselves with the game of Nim. For this purpose, you can use the variant of the construal that is derived by including the <b>humanNim.js-e</b> file:
+<jseden>include(\"models/NimJSPE/humanNim.js-e\");</jseden>
+This creates an environment in which there are three piles of stones, each containing up to 15 stones. You can start a game by generating three piles of random size, and use the button interface to remove stones from any one of the three piles.
+
+</p>
+
+
+
+<p>
+
+As part of this exercise, you should reflect on the \'observables\' that are involved - many of which are implicit in the situation.
+
+For instance, the human players hold in their minds the answers to questions such as: Whose turn is it to play? Is the game over? Did my opponent cheat?
+
+</p>
+");
+s9 is Slide("
+<hr>
+
+<hr>
+
+<p>
+
+<b>Exercise 2:</b> Inspect the script that defines the first pile of stones within the <b>humanNim.js-e</b> file. 
+
+<ul>
+
+<li>What mechanisms are used to remove stones from the pile? Why might we say 'apparently removed'?</li>
+
+<li>Why does the visualisation make the word 'pile' inappropriate? Can you improve the visualisation?</li> 
+
+</ul>
+
+</p>
+
+<hr>
+
+<hr>
+
+
+");
+
+s10 is Slide("
+<p>
+
+To restore the construal to its original state, we must re-introduce the initial script. 
+
+Note that the button observables which relate to selecting from piles and starting a new game are common to both scripts.
+
+The actions associated with these observables are modified to reflect the different context in which they are being used.
+
+</p>
+<jseden>
+
+include(\"models/NimJSPE/NIM.js-e\");
+
+include(\"models/NimJSPE/Nimdisplay.js-e\");
+</jseden>
+
+Note the choice the modeller faces when considering whether to regard a modification as \'introducing a different observable / agent\', or \'giving an alternative definition to the same observable / agent\'.
+
+This negotiation of the integrity of observable and agents is characteristic of Empirical Modelling. 
+
+</p>
+");
+
+s11 is Slide("
+<hr>
+
+<hr>
+
+<p>
+
+<b>Exercise 3:</b> Study the way in which the %scout notation is used to specify the layout of the screen in the file Nim.s. Note the implications of making the following redefinitions of the observable 'screen' in %eden:
+<jseden>%eden
+
+screen is [winPileOne, winPileTwo, winPileThree];</jseden>
+
+<jseden>
+pileButton[4] = 130;
+picture is [header, pileLabelOne, pileLabelTwo, pileLabelThree,
+		pileButtonOne, pileButtonTwo, pileButtonThree,
+		currentPlayerHeader, currentPlayerLabel, endTurnButton,
+		winnerHeader, winnerLabel, resetButton,
+		currentBinarySumPileOneHeader, currentBinarySumPileOneLabel, 
+		currentBinarySumPileTwoHeader,currentBinarySumPileTwoLabel,
+		currentBinarySumPileThreeHeader, currentBinarySumPileThreeLabel, 
+		currentBinarySumHeader, currentBinarySumLabel,
+		binarySumHistoryHeader, binarySumHistoryLabel, 
+		resetButton, backBox];</jseden>
+");
+
+s12 is Slide("
+<hr>
+
+<hr>
+
+<p>
+
+<b>Exercise 3 (cont.):</b> Study the way in which the %scout notation is used to specify the layout of the picture in the file Nimdisplay.js-e. Note the implications of making the following redefinitions of the observable \'picture\' :
+<jseden>
+
+picture is [header, pileLabelOne, pileLabelTwo, pileLabelThree,
+		pileButtonOne, pileButtonTwo, pileButtonThree,
+		currentPlayerHeader, currentPlayerLabel, endTurnButton,
+		winnerHeader, winnerLabel, resetButton];</jseden>
+<jseden>
+
+picture is [header, pileLabelOne, pileLabelTwo, pileLabelThree,
+		pileButtonOne, pileButtonTwo, pileButtonThree,
+		currentPlayerHeader, currentPlayerLabel, endTurnButton,
+		winnerHeader, winnerLabel, resetButton, backBox,
+		currentBinarySumPileOneHeader, currentBinarySumPileOneLabel, 
+		currentBinarySumPileTwoHeader,currentBinarySumPileTwoLabel,
+		currentBinarySumPileThreeHeader, currentBinarySumPileThreeLabel, 
+		currentBinarySumHeader, currentBinarySumLabel,
+		binarySumHistoryHeader, binarySumHistoryLabel, 
+		resetButton];</jseden>
+<hr>
+
+<hr>
+");
+s13 is Slide("<p>
+
+<h3>Blending human and automated agency</h3>
+
+<p>
+
+Note the distinction between the environment for playing Nim that <b>humanNim.e</b> supplies and the computer interface that the last of the definitions of screen above affords.
+
+This interface maintains the integrity of the model by imposing program-like constraints on human action rather than relying on human discretion to respect the integrity of state.
+
+This is quite typical of the impact of computing technology on human affairs.
+
+</p>
+
+One of the features of EM is the way in which construals can be blended together by combining their scripts.
+
+This principle is illustrated by the way in which the representation of the piles of stones in <b>humanNim.e</b> can be imported into the Nim construal to replace the digital display of the pile sizes.
+
+</p>
+
+<p>
+
+To this end, the file <b>blendWinPiles.e</b> can be introduced:
+<jseden>include(\"models/NimJSPE/blendWinPiles.js-e\");</jseden>
+</p>
+");
+
+s14 is Slide("
+<p>
+
+<hr>
+
+<hr>
+
+<p>
+
+<b>Exercise 4:</b> Study the file <b>blendWinPiles.e</b> to see how the windows <b>winPileOne</b>, <b>winPileTwo</b> and <b>winPileThree</b> in which the piles of stones are displayed are transformed and relocated so that they can be integrated into the Nim construal. By applying the same principles to the Scout window <b>backBox</b>, as it is used in the last of the screen definitions specified in Exercise 3, introduce an observable <b>displayBinaryRep</b> that can be set to <b>true</b> or <b>false</b> to reveal and hide the information about the binary representations of the pile sizes. 
+
+</p>
+
+<hr>
+
+<hr>
+
+</p>
+");
+
+s15 is Slide("
+<h3>Supporting the mathematical analysis of Nim</h3>
+
+<p>
+
+It is true, but not obvious, that a situation in which the Nim-Sum of the piles is zero is lost with best play.
+
+</p>
+
+<p>
+
+This situation arises when the current player's opponent has just picked up the last stone.
+
+</p>
+
+<p>
+
+To prove that any other situation in which the Nim-Sum is zero is lost, it suffices to show that
+
+<ul>
+
+<li>whatever action is taken in such a situation leads to a non-zero Nim-Sum</li>
+
+<p></p>
+
+<li>in any situation in which the Nim-Sum is non-zero, there is a way to remove stones from a pile so as to achieve Nim-Sum zero.</li>
+
+</ul>
+
+</p>
+
+<p>
+
+This exploits inductive reasoning, whereby best play leads to the losing player being confronted with situations in which the Nim-Sum is zero, each time with fewer stones present than before.
+
+On this basis, the losing player eventually will have no stone left to remove.
+
+</p>
+");
+
+s16 is Slide("
+<h3>Proving the existence of a winning strategy</h3>
+
+<p>
+
+A key observation is that if n numbers have Nim-Sum zero, then the value of each of the numbers can be inferred from the other n-1.
+
+Specifically, the value of the i-th number is that number whose binary representation is the Nim-Sum of the other n-1 numbers. 
+
+</p>
+
+<p>
+
+This observation is enough to show that any action taken when the Nim-Sum is zero renders the Nim-Sum non-zero, since it changes just one of the n numbers.
+
+</p>
+
+<p>
+
+To prove the existence of an action that will transform a situation in which the Nim-Sum is non-zero into a situation where the Nim-Sum is zero, it is enough to show that there is an index i for which the number whose binary representation is the Nim-Sum of the other n-1 numbers is less than or equal to the i-th number.
+
+</p>
+
+<p>
+
+For this purpose, we simple have to locate a number X that has 1 in its binary representation in the leftmost position k in which a 1 appears in the current Nim-Sum.
+
+</p>
+
+<p>
+
+If the Nim-Sum of the n-1 numbers other than X has a 1 in any position to the left of k in its binary representation, then so does X, since the Nim-Sum has a 0 in this position.
+
+</p>
+");
+
+s17 is Slide("
+<h3>Observations that inform the proof</h3>
+
+<p>
+
+Proofs are arrived at by considering many different situations and making observations.
+
+You may be able to follow a proof even though you don\'t know what observations went into its construction.
+
+This is similar to what happens when you use a program - what the user is allowed to explore is constrained by the programmer to be as safe and uncontroversial as possible.
+
+Quite a lot of experience of playing Nim might be required before the significance of zero Nim-Sum could be observed.
+
+This condition is here simply \'pulled-out-of-the-hat\'.
+
+</p>
+
+<p>
+
+The Nim construal is reasonably well-suited to exploring and documenting the contexts for observation that play a role in arriving at a proof.
+
+For instance, we can assign sizes to the piles at will:
+<jseden>%eden 
+
+pileSizeOne = 10; pileSizeTwo =14; pileSizeThree = 5;</jseden>
+</p>
+
+<p>
+
+Limitations are: the interface to the construal is clumsy and relatively inflexible when compared with pencil and paper.
+
+For instance, it would not be easy to generalise the construal to more than 3 piles, and the number of stones in each pile is limited to 15.
+
+Fortunately, the empirical evidence from studying this limited form of Nim is sufficient to infer general principles.
+
+</p>
+");
+
+s18 is Slide("
+<h3>
+
+Assertions relevant to understanding the winning strategy
+
+</h3>
+
+<p>
+
+<b>Exercise 5:</b>
+
+Mathematical proofs are typically constructed through making conjectures and looking for evidence to confirm or refute them.
+
+Here are some assertions that came to mind in formulating a proof of the existence of a Nim winning strategy.
+
+See if you can find out whether they are valid, open questions or misconceptions. 
+
+</p>
+
+<ul>
+
+<li>The number of stones to be removed in making a winning move is the number whose binary representation is the Nim-Sum.
+
+Consider, for instance:
+<jseden>
+
+pileSizeOne = 10; pileSizeTwo =14; pileSizeThree = 6;</jseden>
+</li>
+
+
+<li>Once you know the number of stones to be removed in a winning move, you can take them from any pile that is large enough.</li>
+
+
+
+<li>There may be two or more winning moves, and these do not necessarily involve removing the same number of stones.</li>
+
+</ul>
+
+</h3>
+");
+
+s19 is Slide("
+<p>To access answers to the questions on the previous slide, you can execute the following redefinition:
+<jseden>slidelist=[slide10,slide11,slide12,slide13,slide14,
+
+slide15,slide16,slide17,slide18,slide19,
+
+slide20,slide21,slide22,slide23,slide25,
+
+slide26,slide27,slide28,slide32,slide29,
+
+slide30,slide31];</jseden>
+</p>
+
+<p>To hide answers to the questions on the previous slide, you can execute the following redefinition:
+<jseden>pres_slides=[slide10,slide11,slide12,slide13,slide14,
+
+slide15,slide16,slide17,slide18,slide19,
+
+slide20,slide21,slide22,slide23,slide25,
+
+slide26,slide27,slide28,slide32, slide30,slide31];</jseden>
+</p>
+
+<p>
+
+If appropriate, answers will be shown on the next slide.
+
+</p>
+");
+s20 is Slide("
+<h3>Answers</h3>
+
+The assertions are respectively false, false and true. Consider, for instance:
+<jseden>
+
+pileSizeOne = 11; pileSizeTwo =14; pileSizeThree = 6;</jseden>
+<ul>
+
+<li>You can take 1 stone from pile 2. </li>
+
+<li>You can take 3 stones from pile 1, but you can't take 3 stones from pile 3.</li>
+
+</ul>
+
+<p>
+
+These observations respectively disprove assertions 1 and 2.
+
+Taken together, they prove the validity of assertion 3.
+
+</p>
+");
+
+s21 is Slide("
+<hr>
+
+<hr>
+
+<p>
+
+<b>Exercise 6:</b> 
+
+<ol>
+
+<li>Add a textual annotation of the form \"This situation is won/lost with best play\", linked by dependency to the current Nim-Sum.</li>
+
+<li>Change the background colour of clickable buttons on the interface to distinguish them from mere display panels.</li>
+
+<li>Adapt the interface so that when play is in progress, the text showing the active pile is highlighted in green and the text for the other two piles is red. </li>
+
+<li>Adapt the interface to the windows displaying piles of stones so that you can click on individual stones to remove them.</li>
+
+<li>Dispose the stones in a 8-4-2-1 rather than a 5-4-3-2-1 formation in the <b>winPileOne</b>, <b>winPileTwo</b> and <b>winPileThree</b> windows, and display the stones in a way that reflects the binary representation of the pile size (so that for instance, when there are five stones in a pile, this is displayed as 4+1 stones).</li>
+
+<li>
+
+When the Nim-Sum is non-zero highlight the piles from which stones can be taken to achieve Nim-Sum zero, and display the number of stones to be taken.
+
+</li>
+
+<li>
+
+Automate a Nim player that implements best play.
+
+</li>
+
+</ol>
+
+</p>
+
+<hr>
+
+<hr>
+");
+
+s22 is Slide("
+<h3>Empirical Modelling as disposition</h3>
+
+<p>
+
+Disposing the stones in 8-4-2-1 formation is interesting in cognitive terms.
+
+It makes it much easier to execute the winning strategy when playing Nim.
+
+</p>
+
+<p>
+
+To test this out, you can load the file dispose_8_4_2_1.e which provides a solution to Exercise 6.5.
+<jseden>include(\"dispose_8_4_2_1.e\");</jseden>
+</p>
+");

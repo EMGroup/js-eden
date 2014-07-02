@@ -1,0 +1,61 @@
+${{
+Inputbox = function (name, x, y, enabled) {
+	this.name = name;
+	this.x = x;
+	this.y = y;
+    this.enabled = enabled;
+}
+
+}}$;
+func Inputbox { ${{
+  var name = arguments[0];
+  var x = arguments[1];
+  var y = arguments[2];
+  var enabled = arguments[3];
+  return new Inputbox(name, x, y, enabled);
+}}$; }
+
+
+${{
+Inputbox.prototype.draw = function(context,content) {
+	var canvas_obsname = "canvas_" + this.name;
+	var id = this.name;
+	var check = this.element;
+
+	if(check === undefined){
+
+		//for enabled visibility
+		if (this.enabled == true) { dis = ""; }
+		else { dis = "disabled=\"true\""; }
+
+		var inputhtml = $("<input id=\""+canvas_obsname+"\" "+dis+" style=\"position: absolute; left: "+this.x+"px; top: "+this.y+"px;\" />");
+
+		inputhtml.get(0).value = "";
+		root.lookup(id + "_value").assign(inputhtml.get(0).value);
+
+		inputhtml.change(function(){
+			root.lookup(id + "_value").assign(inputhtml.get(0).value);
+		}).appendTo($(content));
+
+		this.element = inputhtml.get(0);
+
+		inputhtml.get(0).togarbage = false;
+
+		//Assign
+		root.lookup(id + "_value").assign(inputhtml.get(0).value);
+	
+  }
+  else{
+
+		this.element.togarbage = false;
+		content.appendChild(this.element);
+		document.getElementById(canvas_obsname).value = (root.lookup(this.name+"_value").cached_value);
+  }
+};
+}}$;
+
+${{
+Inputbox.prototype.toString = function() {
+  return "Inputbox(" + this.name + "," + this.x + ", "+this.y+", "+this.enabled+")";
+};
+}}$;

@@ -27,11 +27,25 @@ defaultreductions[12]=3;
 
 numberOfNodes=13;
 numberOfSyms=8;
+grammarRuleNo is findNoRules(defaultreductions);
 
+func findNoRules{
+para rl;
+auto result;
+result=0;
+for(i=1;i<=rl#;i++)
+{
+if(rl[i]!=@)
+result++;
+
+}
+return result;
+}
 addNode(mygraph,"s0");
 addNode(mygraph,"s1");
 addNode(mygraph,"s2");
 addNode(mygraph,"s3");
+makeNodeLabel(0);
 makeNodeLabel(1);
 makeNodeLabel(2);
 makeNodeLabel(3);
@@ -50,6 +64,7 @@ addEdge(mygraph,"s2","s5"); makeEdgeLabel(2,5);  addEdge(mygraph,"s3","s7"); mak
 addEdge(mygraph,"s3","s8"); makeEdgeLabel(3,8);  addEdge(mygraph,"s4","s9"); makeEdgeLabel(4,9);
 addEdge(mygraph,"s6","s8"); makeEdgeLabel(6,8); addEdge(mygraph,"s6","s10"); makeEdgeLabel(6,10);  
 addEdge(mygraph,"s8","s11"); makeEdgeLabel(8,11); addEdge(mygraph,"s8","s5"); makeEdgeLabel(8,5);
+addEdge(mygraph,"s8","s1"); makeEdgeLabel(8,1); addEdge(mygraph,"s8","s2"); makeEdgeLabel(8,2);
 addEdge(mygraph,"s9","s1"); makeEdgeLabel(9,1);  addEdge(mygraph,"s9","s2"); makeEdgeLabel(9,2);
 addEdge(mygraph,"s9","s12"); makeEdgeLabel(9,12); addEdge(mygraph,"s11","s9"); makeEdgeLabel(11,9);  
 
@@ -93,7 +108,7 @@ cols6s8 is cts6s8>0 ? "black": defaultcolour(6,8,transitions[6]);
 cols6s10 is cts6s10>0 ? "black": defaultcolour(6,10,transitions[6]);
 cols8s1 is cts8s1>0 ? "black": defaultcolour(8,1,transitions[8]);
 cols8s2 is cts8s2>0 ? "black": defaultcolour(8,2,transitions[8]);
-cols8s5 is cts8s5>0 ? "black": defaultcolour(8,15,transitions[8]);
+cols8s5 is cts8s5>0 ? "black": defaultcolour(8,5,transitions[8]);
 cols8s11 is cts8s11>0 ? "black": defaultcolour(8,11,transitions[8]);
 cols9s1 is cts9s1>0 ? "black": defaultcolour(9,1,transitions[9]);
 cols9s2 is cts9s2>0 ? "black": defaultcolour(9,2,transitions[9]);
@@ -111,8 +126,7 @@ InputTextt=InputText//"$";
 }
 
 
-strvals is findpatt(inputstr,"[A-Za-z][a-zA-Z0-9]*","g")//findpatt(inputstr,"[0-9]+","g");
-
+strvals is findpatt(inputstr,"[A-Za-z][a-zA-Z0-9]*|[1-9][0-9]*","g");
 func makeinputvals {
 para input, val;
 auto i,j,result,found,vals;
@@ -219,37 +233,38 @@ func applyrule{
 	execute("InputTextt=InputTextt;");
 }
 
+
 func substituteEplusT2{
 	para vals;
 	auto calc, result;
 	calc=j;
-	if(size>0)
-	result=sublist(vals,1,size)//[vals[calc-1]]//nextvals;
+	if(calc-3>0)
+	result=sublist(vals,1,calc-3)//[vals[calc-2]//" "//vals[calc]//"+"]//nextvals;
 	else
-	result=[vals[calc-1]]//nextvals;
+	result=[vals[calc-2]//" "//vals[calc]//"+"]//nextvals;
 	return result;
 }
 func substituteTmultiF2{
 	para vals;
 	auto calc, result;
 	calc=j;
-	if(size>0)
-	result=sublist(vals,1,size)//[vals[calc-1]]//nextvals;
+	if(calc-3>0)
+	result=sublist(vals,1,calc-3)//[vals[calc-2]//" "//vals[calc]//"*"]//nextvals;
 	else
-	result=[vals[calc-1]]//nextvals;
+	result=[vals[calc-2]//" "//vals[calc]//"*"]//nextvals;
 	return result;
 }
-
 func substituteEbrackets2{
 	para vals;
 	auto calc, result;
 	calc=j;
-	if(size>0)
-	result=sublist(vals,1,size)//[vals[calc-1]]//nextvals;
+	if(calc-3>0)
+	result=sublist(vals,1,calc-3)//[vals[calc-1]]//nextvals;
 	else
 	result=[vals[calc-1]]//nextvals;
 	return result;
 }	
+	
 
 
 proc evalrule{

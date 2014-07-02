@@ -1,0 +1,38 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+Pixel = function(x, y, r, g, b, a) {
+  this.x = x;
+  this.y = y;
+  this.r = r;
+  this.g = g;
+  this.b = b;
+  this.a = a;
+}
+}}$;
+
+func Pixel { ${{
+  var x = arguments[0];
+  var y = arguments[1];
+  var r = arguments[2];
+  var g = arguments[3];
+  var b = arguments[4];
+  var a = arguments[5];
+  return new Pixel(x, y, r, g, b, a);
+}}$; };
+
+${{
+Pixel.prototype.toString = function() {
+  return 'Pixel(this.x+","+this.y+","+this.r+","+this.g+","+this.b+","+(this.a/255))';
+};
+}}$;
+
+${{
+Pixel.prototype.draw = function(context) {
+  context.fillStyle = "rgba("+this.r+","+this.g+","+this.b+","+(this.a/255)+")";
+  context.fillRect( this.x, this.y, 1, 1 );
+};
+}}$;

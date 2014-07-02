@@ -59,7 +59,7 @@ Eden.plugins.InputWindow = function(context) {
 
 	this.submitEdenCode = function(text) {
 	
-		this.addHistory("(SUCCESS): "+text);
+		this.addHistory(text+" ## (Successful)");
 
 		if (eden.plugins.MenuBar) {
 			eden.plugins.MenuBar.updateStatus("Parsing input...");
@@ -70,8 +70,9 @@ Eden.plugins.InputWindow = function(context) {
 			eval(Eden.translateToJavaScript(text));
 			
 		} catch (e) {
-			me.history[this.index-1] = "(ERROR): "+text;
+			me.history[this.index-1] = text+" ## (Failed)";
 			eden.plugins.MenuBar.updateStatus("Eden Code Unrecognised - Did you forget a semicolon?");
+			alert("Parsing Failed");
 		}
 
 		if (eden.plugins.MenuBar) {
@@ -100,7 +101,7 @@ Eden.plugins.InputWindow = function(context) {
 		result = "";
 		for (var i=0; i<me.history.length; i++) {
 			var theclass = "inputwindow-history-line";
-			result = result + "<div class=\""+theclass+"\"><pre>" + Eden.deHTML(me.history[i]) + "</pre></div>";
+			result = result + "<div class=\""+theclass+"\"><p style=\"word-wrap: break-word;\">" + Eden.deHTML(me.history[i]) + "</p></div>";
 		}
 		return result;
 	}
@@ -137,18 +138,21 @@ Eden.plugins.InputWindow = function(context) {
 				minWidth: 500,
 
 			});
+			input_dialog = $dialog;
 	}
 
 	this.next = function(){
 		var n = eden.plugins.InputWindow.nextHistory();
-		n = n.replace("(ERROR): ", "");
-		n = n.replace("(SUCCESS): ", "");
+		n = n.replace(/\#\# \(Failed\)/g, "");
+		n = n.replace(/\#\# \(Successful\)/g, "");
+		n = n.replace(/ $/g, "");
 		document.getElementById("inputCodeArea").value = n;
 	}
 	this.prev = function(){
 		var p = eden.plugins.InputWindow.previousHistory();
-		p = p.replace("(ERROR): ", "");
-		p = p.replace("(SUCCESS): ", "");
+		p = p.replace(/\#\# \(Failed\)/g, "");
+		p = p.replace(/\#\# \(Successful\)/g, "");
+		p = p.replace(/ $/g, "");
 		document.getElementById("inputCodeArea").value = p;
 	}
 	this.submit = function(){
@@ -156,8 +160,9 @@ Eden.plugins.InputWindow = function(context) {
 		document.getElementById("inputCodeArea").value = "";
 	}
 	this.inputKeypress = function(event){
-//console.log(event.keyCode);
-//console.log(event.ctrlKey);
+	
+		//console.log(event.keyCode);
+		//console.log(event.ctrlKey);
 		if(event.keyCode==13){
 			if(event.ctrlKey){
 				eden.plugins.InputWindow.submit();

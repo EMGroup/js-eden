@@ -1,6 +1,10 @@
-slideList is[slidei, slide1,slide1a, slide2,slide3,slide4,slide5,slide6,slide7,slide8,slide9,slide10,slide11,slide12,slide13,slide14,slide15,slide16,slide17,slide18,slide19,slide20,slide21,slide22,slide23,slide24,slide25];
+slideList is[slidei, slide1,slide1a, slide2,slide2a, slide2b, slide2c, slide2d, slide2e, slide2f, slideii, slide3,slide4,slide5,slide6,slide7,slide8,slide9,slide10,slide11,slide11a,slide12,slide13,slide14,slide15,slide16,slide17,slide18,slide19,slide20,slide21,slide22,slide23];
 
-slidei is Slide("<h3>Hui Zhu's JS-EDEN parsing model: a tutorial</h3> <p> Traditional parsers are often implemented using parser generator tools, such as the UNIX utilities Flex and Bison. The full details of the parsing techniques used by Flex and Bison are beyond the scope of this tutorial, but the general principles will be illustrated by making an EM construal. Before tracing the stages in the development of the construal, we first demonstrate it in operation in a simple application: transforming an arithmetic expression in '+' and '*' into postfix (\"Reverse Polish\") notation.</p>");
+slidei is Slide("<h3>Hui Zhu's JS-EDEN parsing model: a tutorial</h3> <p> Traditional parsers are often implemented using parser generator tools, such as the UNIX utilities Flex and Bison. The full details of the parsing techniques used by Flex and Bison are beyond the scope of this tutorial, but the general principles will be illustrated by making an EM construal. Before tracing the stages in the development of the construal, we first demonstrate it in operation in a simple application: transforming an arithmetic expression in '+' and '*' into postfix (\"Reverse Polish\") notation.</p>
+<p>
+To follow the demonstration, it is helpful to first dispose the panels on the screen so that you can conveniently access this presentation and the EDEN Input Window together with the HTML5 Canvases default, view_3, view_4 and view_5.
+</p>
+");
 
 slide1 is Slide("<h3>Exploring and understanding the JS-EDEN Parsing model</h3>
 
@@ -41,7 +45,7 @@ E &rarr; E+T
 E &rarr; T
 
 
-T &rarr; T+F
+T &rarr; T*F
 T &rarr; F
 
 F &rarr; (E)
@@ -49,31 +53,36 @@ F &rarr; <i>id</i>
 
 </pre> 
 
-In this grammar, the terminal symbol <i>id</i> refers to either to
+In this grammar, the terminal symbol <i>id</i> refers either to
 a specific numerical value or to an identifier which has a numerical value
 associated with it. 
 
 The non-terminal symbol E stands for an arbitrary arithmetic expression
 in + and * in which the operands are numbers or identifiers with an associated
-numerical value. 
+numerical value.
 </p>
+<p>
+Note that this grammar (which is taken from teaching resources published at the University of Alaska Fairbanks at the url http://www.cs.uaf.edu/~cs631/aho/y.output) is rather ill-suited to automated parsing. It is however quite a good example for the purposes of EM construal. 
+</p>
+
+
 ");
 
 
 
 slide2 is Slide("
-<b>
+<h3>
 
-Deriving the FSM from the grammar
+The FSM derived from the grammar
 
-</b>
+</h3>
 
 <p>
 
 The FSM depicted on the default HTML5 Canvas is derived from a textual
 representation that can be produced by Flex and Bison.
 
-To display
+To open an HTML view to display
 <ul>
 <li>the grammar in the form in which it is entered into the Bison
 specification of the parser</li>
@@ -87,47 +96,185 @@ together with
 
 <jseden>
 
-include(\"models/parsingEMPE/funcGrammar.js-e\");
+include(\"models/parsingEMPE/funcGrammarHTML.js-e\");
 </jseden>
+
+</p>
 
 <p>
-To restore the visualisation of the FSM, you should then execute the following 
-code:
+The y.output file spells out the way in which the 13 states of the FSM are linked by transitions associated with the terminal and non-terminal symbols in the grammar.
+These edges are labelled by their corresponding symbols, and are also colour coded accordingly.
+The initial state of the FSM is state 0 and the final state is state 7. The FSM makes transitions
+from state to state as the parse proceeds and in the process builds up a path within the FSM.
+The edges of this path are displayed in black.
+</p>
 
+");
+
+
+
+slide2a is Slide("
+<h3>Exercising the JS-EDEN parsing construal</h3>
+<p>
+We shall illustrate parsing using the construal with a simple example: the conversion of the expression
+a*(b+3*(b+c)) into reverse Polish notation. To follow the parsing process step-by-step, dispose the panels on the display
+so that the finite state machine and the Canvas panels view_3, view_4 and vew_5 are visible. To initialise the parse,
+then execute:
+</p>
 <jseden>
-picture is nodes//edges//nodeLabels//edgeLabels;
-
+inputstr = \"a*(b+3*(b+c))\";
 </jseden>
-
+</p>
+You will notice that the input string is registered in view_5 and (after lexical analysis) is represented as a string of tokens of the form
+\"i*(i+i*(i+i))\", where i here represents an instance of the ID terminal symbol.
+</p>
+<p>
+The parser reads the input string from left to right. There are two basic operations - <b>shift</b> and <b>reduce</b>.
+A shift operation transfers the next symbol from the input string to the stack that is depicted in view_4.
+A reduce operation replaces the top segment of the stack by a single non-terminal symbol in accordance with the grammar rules set out in view_3.
+These operations can be performed manually by pressing the <b>Next Step</b> and <b>Apply Rule</b> buttons, which correspond to shift and reduce respectively.  
 </p>
 
 
 ");
 
-/*
-slide2 is Slide("
+slide2b is Slide("
+<h3>Performing the parse manually</h3>
+<p>
+With the Input String in place, you begin the parse by pressing the <b>Next Step</b> button. This reads the first symbol from the input, which is the identifier 'a'. You will see that this identifier appears on the stack in view_4, together with its associated semantic value, which for the purpose of this translation exercise is the string \"a\". You will also notice that a path in the FSM is initiated - it comprises a single edge, labelled by the token ID, that represents a transition from the initial state 0 to the state 1.
+</p>
+<p>
+The idea behind the parsing method is that a derivation tree for the input string is developed incrementally by identifying the top segment of the stack with the RHS of a grammar rule, and replacing this by the non-terminal symbol on the LHS ('a reduction'). The semantic values associated with the top segment of the stack are simultaneously processed ('syntax-directed translation'). If the parse is to succeed then the entire input string must be processed in such a way that on termination the stack consists of a single symbol - the non-terminal E, which represents a well-formed arithmetic expression.
+</p>
+");
 
+slide2c is Slide ("
+<h3>Completing the manual parse</h3>
+<p>
+When the first input has been read, there are several possible reductions that can be performed. For instance, we could apply rule 6 to reduce ID to F, then apply rule 4 to reduce F to T, then apply rule 2 to T to get E.  
+Given that the next symbol in the input is '*', reference to the Grammar Rules in view_3 shows that there is only one way in which the top segment of the stack can go on to form the RHS of a grammar rule once the '*' has been read. This can only happen through a reduction using rule 3 for which the RHS takes the form 'T*F'. On that basis the initial reduction of the ID must generate a T by invoking rule 6 followed by rule 4, but not applying rule 2. 
+</p>
+<p>
+Following the above reasoning, it follows that the first steps of the manual parse are: Apply Rule 6, Apply Rule 4 then press Next Step. As you can see from inspection of the input, the reduction using rule 3 alluded to above can't in fact take place until the final symbol in the string is read. The next point in the parse at which a reduction is possible is when the leftmost occurrence of the identifier b is read. The procedure to complete the parsing from this point is left as an exercise to the reader.
+</p>
+");
+
+slide2d is Slide("
+<h3>Further observations on the manual parsing process</h3>
+<p>
+There is at all times a direct correspondence between symbols on the stack and the path so far traversed in the FSM. Since the input string, and the stack, can have unbounded length the path necessarily can include cycles - as you will have observed in parsing the specified input.
+</p>
+<p>
+You can interpret the shift and reduce operations in the FSM.
+A shift corresponds to a transition from one state to another in direct response to reading a terminal symbol. A reduction is associated with snipping a segment off the end of the path and replacing it by a single edge labelled by a non-terminal symbol. (This replacement process is associated with the 'go to' constructs in the description of the FSM in y.output.) The current state of the FSM is always the node at the end of the path. 
+</p>
+<p>
+What makes the grammar badly designed for automatic parsing is what makes it a more interesting subject in manual parsing - the fact that there are often choices to be made between possible shift and reduce actions. These are referred to as 'shift-reduce' and reduce-reduce' conflicts.
+</p>
+");
+
+slide2e is Slide("
+<h3>Automating the parsing</h3>
+<p>
+When you have successfully carried out the parse manually, you will recognise a simple set of rules that you can follow in order to automate the process.
+The parsing model is set up in such a way that by setting up a boolean flag 'isautomatic' you can invoke a procedure called 'automatic' that you specify yourself.   
+</p>
+<p>
+A suitable 'automatic' procedure for our example grammar - already loaded in the model, but available here for modification in case you wish to experiment - is specified on the next slide.
+</p>
+<p>
+When you have inspected the automatic procedure you can invoke automatic exection and watch the parsing process being replayed.
+To toggle between manual and automatic execution, you execute the following code:
+<jseden>
+isautomatic = 1- isautomatic;
+</jseden>  
+</p>
+<p>
+In this way, you can in fact intervene in the automated parsing process if you wish.
+</p>
+");
+
+slide2f is Slide ("
+<h3>Automating the parsing procedure</h3>
+<jseden>
+
+speed=2000;
+proc automatic: k,InputTextt,isautomatic {
+
+   if((currrule!=\"\")&&(isautomatic==1)){
+     after(speed){
+	if((currrule==2)&&(nextsymbol==\"*\"))
+  	 k++;
+	else if((currstate==11)&&(nextsymbol!=\"*\")){
+	 evalrule(1);
+	 applyrule(1);}
+	else if ((currstate==11)&&(nextsymbol==\"*\")){
+	 k++;
+	}
+	else if(currstate==12){
+	 evalrule(3);
+	 applyrule(3);}
+	else {
+      	 evalrule(currrule);
+      	 applyrule(currrule);
+	}
+      }
+   }
+  	
+   if((currrule==\"\")&&(k<=InputText#)&&(isautomatic==1)) {
+	after(speed){
+	 k++;
+	}
+   }
+}
+</jseden>
+</p>
 
 ");
-*/
+
+slideii is Slide("
+<h3>How the JS-EDEN parsing construal was constructed</h3>
+<p>
+Having seen how the JS-EDEN parsing model works, you are now in a position to examine its construction in more detail.
+Following standard EM practice, the construction will be traced from beginning to end.
+For this purpose, it will be convenient to restart JS-EDEN and initialise by cutting and pasting the following code into the Input Window:   
+</p>
+<pre>
+include(\"models/parsingEMPE/newrun.js-e\");
+</pre>
+<p>
+This will remove the definitions that specify the parsing model and restore you to the same point in this presentation.
+</p>
+<p>
+Though the reconstruction of the parsing construal is quite detailed and can be
+carried out simply by following through the presentation, there are some additional
+definitions etc that are not explicitly exposed. To examine these, it would be necessary
+to refer to the source of the model itself within the online directory of models associated with the JS-EDEN master.
+</p>
+");
 
 slide3 is Slide("
-<h3>Setting up the Model and Grammar information</h3>
+<h3>How to set up the Model and Grammar information</h3>
 <p>
-In order to achieve this, we can use a list with 12 elements because the finite state machine has 12 states</p>
+To record the structure of the FSM we use a list called 'transitions' with 13 elements because the finite state machine has 13 states.
+Since the states in the FSM are indexed from 0, it is convenient to record the transitions associated with state i
+in the i-th entry of the list for i in the range 1 to 12 and use the 13th entry to record transitions in state 0.
+When there is no meaningful transition defined for a given state-symbol pair we introduce a transition to a dummy state 
+with index '100'.</p>
 
 
 <p>
-For example, from the grammar, we see that in state 1, reading a LPAREN, we should go
-<br/> to state 4. This piece of information will be stored in the list as a 3-tuple element of the first entry,[1,\"LPAREN\",4];
+For example, from the grammar, we see that in state 4, reading a *, we should go
+to state 9. This piece of information will be stored in the list element transitions[4] - itself a list - as a triple [4,\"*\",9].
+Likewise the transition from state 0 to state 5 in response to an F is recorded in transitions[13] as a triple [13, \"F\",5].
 </p>
 <p>
-Even though we can use a list to store grammar information, transforming all the information manually is still a tiresome work. To avoid this, we could use a file mkeden(to be run in 
-sed environment):</p>
-<a href=models/parsingEMPE/mkeden.txt target=_blank>mkeden file</a><br/><br/>
+Constructing the list of transitions manually is tiresome work.
+To avoid this, we could use a UNIX script file for automatic translation of the y.output file.
 
-The mkeden file will transform the grammar information in to an eddi table named transformations. According to the Eddi table, we can make a corresponding EDEN list with 12 states. The list
-should be like
+An example of such a file (to be run in sed environment) can be found here:</p> <a href=models/parsingEMPE/mkeden.txt target=_blank>mkeden file</a><br/><br/>
+
+The mkeden file will transform the grammar information into an EDDI table from which it is easy to derive an EDEN list with 13 states. This list can be displayed in an HTML view by executing the following code: 
 <jseden>include(\"models/parsingEMPE/TransitionsPicture.js-e\");</jseden>
 
 ");
@@ -137,13 +284,13 @@ slide4 is Slide("
 <jseden>include(\"models/parsingEMPE/parsingModelRun.js-e\");</jseden>
 
 <p>
-Now we have a plain canvas. In order to understand how traditional parser works, the next thing to do
+Now we have a plain canvas. In order to understand how the traditional parser works, the next thing to do
 is to make a visualisation of the finite state machine on the canvas.
 </p>
 
 <p>
 We are going to use the graph tool in JS-Eden. Before starting adding something to the canvas,
-we need to set values for two observables: numberOfNodes(number of states) and numberOfSyms(number of symbols appeared in the grammar).
+we need to set values for two observables: numberOfNodes (number of states) and numberOfSyms (number of symbols featuring in the grammar).
 </p>
 
 <jseden>numberOfNodes=13;
@@ -152,19 +299,26 @@ numberOfSyms=8;</jseden>
 ");
 
 slide5 is Slide("
-<p><b>Visualisation of the finite state machine</b>:Nodes
+<h3>Visualisation of the finite state machine: Nodes and Labels</h3>
+<p>
 <jseden>addNode(mygraph,\"s0\");</jseden><br/>
-The red node on the canvas is a graph representation of node 0(state 0).
+The red node on the canvas is a graph representation of node 0 (state 0).
 Of course, we want to have more:<br/>
 <jseden>addNode(mygraph,\"s1\");
 addNode(mygraph,\"s2\");
 addNode(mygraph,\"s3\");</jseden>
+</p>
+<p>
 We will add a label to each node to distinguish the nodes.
+</p>
+<p>
 <jseden>makeNodeLabel(0);
 makeNodeLabel(1);
 makeNodeLabel(2);
 makeNodeLabel(3);</jseden>
-Following this procedure, we can draw all the 12 nodes on the canvas:
+</p>
+<p>
+Following this procedure, we can draw all the 13 nodes on the canvas:
 <jseden>addNode(mygraph,\"s4\");makeNodeLabel(4); addNode(mygraph,\"s5\");makeNodeLabel(5);
 addNode(mygraph,\"s6\");makeNodeLabel(6); addNode(mygraph,\"s7\");makeNodeLabel(7);
 addNode(mygraph,\"s8\");makeNodeLabel(8); addNode(mygraph,\"s9\");makeNodeLabel(9);
@@ -173,19 +327,22 @@ addNode(mygraph,\"s12\");makeNodeLabel(12);</jseden>
 </p>
 
 ");
+
 slide6 is Slide("
 <p>
 
 <h3><b>Visualisation of the finite state machine</b>: Edges</h3>
-Edges mean transitions between states and can be added to the canvas.
+Edges to represent transitions between states can be added to the canvas.
 <jseden>addEdge(mygraph,\"s0\",\"s4\");</jseden><br/>
 We can see an arrowed line pointing from source(s1) to target(s4), which indicates there is an available transition
 from state 0 to state 4.
 <br/>
-A label for an edge means the symbol to be read in order to carry out this transition. From the grammar, we know that
-the symbol for transition from state 1 to state 4 is LPAREN(\"(\").
+A label for an edge designates the symbol to be read in order to carry out this transition. From the grammar, we know that
+the symbol for transition from state 0 to state 4 is \"T\".
 <jseden>makeEdgeLabel(0,4);</jseden>
-Consequently, according to the actual transitions from the grammar, the rest of the edges can be shown on the canvas:
+</p>
+<p>
+Consequently, in accordance with the actual transitions from the grammar, the rest of the edges can be shown on the canvas:
 <jseden>addEdge(mygraph,\"s0\",\"s5\"); makeEdgeLabel(0,5); addEdge(mygraph,\"s0\",\"s3\"); makeEdgeLabel(0,3);
 addEdge(mygraph,\"s0\",\"s2\"); makeEdgeLabel(0,2);  addEdge(mygraph,\"s0\",\"s1\"); makeEdgeLabel(0,1);
 addEdge(mygraph,\"s2\",\"s1\"); makeEdgeLabel(2,1);  addEdge(mygraph,\"s2\",\"s2\"); makeEdgeLabel(2,2);
@@ -194,16 +351,18 @@ addEdge(mygraph,\"s2\",\"s5\"); makeEdgeLabel(2,5);  addEdge(mygraph,\"s3\",\"s7
 addEdge(mygraph,\"s3\",\"s8\"); makeEdgeLabel(3,8);  addEdge(mygraph,\"s4\",\"s9\"); makeEdgeLabel(4,9);
 addEdge(mygraph,\"s6\",\"s8\"); makeEdgeLabel(6,8); addEdge(mygraph,\"s6\",\"s10\"); makeEdgeLabel(6,10);  
 addEdge(mygraph,\"s8\",\"s11\"); makeEdgeLabel(8,11); addEdge(mygraph,\"s8\",\"s5\"); makeEdgeLabel(8,5);
+addEdge(mygraph,\"s8\",\"s1\"); makeEdgeLabel(8,1); addEdge(mygraph,\"s8\",\"s2\"); makeEdgeLabel(8,2);
 addEdge(mygraph,\"s9\",\"s1\"); makeEdgeLabel(9,1);  addEdge(mygraph,\"s9\",\"s2\"); makeEdgeLabel(9,2);
 addEdge(mygraph,\"s9\",\"s12\"); makeEdgeLabel(9,12); addEdge(mygraph,\"s11\",\"s9\"); makeEdgeLabel(11,9);  
 </jseden>
 </p>
 ");
+
 slide7 is Slide("
-<h3>Change the Graph</h3>
+<h3>Laying out the Graph</h3>
 
 <p>
-In addition to displaying nodes and edges on the canvas, you can also moving them by clicking.
+In addition to displaying nodes and edges on the canvas, you can also move them by clicking.
 A procedure is required to move each node on the canvas:
 <jseden>proc mouseMove_s1: mousePressed {
 if(((mouseX-ps1x)*(mouseX-ps1x)<100 )&&((mouseY-ps1y)*(mouseY-ps1y)<100))
@@ -216,24 +375,27 @@ if(((mouseX-ps1x)*(mouseX-ps1x)<100 )&&((mouseY-ps1y)*(mouseY-ps1y)<100))
     }
    }
 }</jseden><br/>
-Now s1 is movable. To move other nodes is routine. Just put the node's name which you like to move
+Now s1 is movable. To move other nodes is routine. Just put the name of the node which you'd like to move
 in place of s1 in the above code. <br/>
-However the whole process does not seem fast, you can try to use
-the tool definition factory(also available in JS-Eden) to save time. In this session, we won't go
+However the whole process is rather slow and tedious! If you wish, you can try to use
+the 'definition factory' (also available in JS-Eden in the emile variant - see Lab 10 from CS405 in 2012) to save time. In this session, we won't go
 further with the use of definition factory, you can explore it yourself. 
-The code to make all the nodes movable:
+</p>
+<p>
+The code to make <i>all</i> the nodes movable is specified here:
 <jseden>include(\"models/parsingEMPE/moveNodes.js-e\");</jseden>
 </p>
 ");
+
 slide8 is Slide("
+<h3>Presenting the graph</h3>
 <p>
-In previous slides, we have stored the grammar information in a JS-Eden list. In addition, we also want 
-it to appear on one window, where we can refer to when trying to parse a string manually. 
+Previous slides explain how to store the grammar information in a JS-Eden list. In addition, we also want this information to be accessible to the learner in a window that they can refer to when trying to parse a string manually.
 </p>
 
 <p>
-<b>parsingrules</b> is a list which stores the grammar information. It is different from <b>transitions</b>, 
-in that each of its entry is one line in the grammar, in the human-readable form  and it does not store any information
+<b>parsingrules</b> is a list which stores the grammar information. It differs from <b>transitions</b>, 
+in that each of its entries is one line in the grammar in a human-readable form and does not store any information
 about the finite state machine.
 <jseden>parsingrules is [line1,line2,line3,line4,line5,line6,line7];
 line1=\"$accept: E $end\";
@@ -248,20 +410,20 @@ line7 =\"6   | ID \";
 In the window named \"CANVAS HTML5 view_3\", you will see the grammar information displayed.
 
 </p>
-<hr>
-The graph adjacent to the slides is the finite state machine, it shows the state of parser at each 
-stage. To distinguish between edges traversed and edges not traversed, we are going to make the 
-traversed edges to be black, and others to remain in their default color.
-
-<p>In order to do this, we need a function which returns how many times each edge has been traversed, 
-and observables responsible for the colours of the edges, then make a dependency on them.
-</p></hr>
+<p>
+In order to make the graph easier to interpret, it is also convenient to associate a default colour with each edge. This colour is to be determined by the label of the edge.
+</p>
 ");
-slide9 is Slide("
-<h4>
-Dependency between the color of the edge and number of times it has been traversed.
-</h4>
 
+slide9 is Slide("
+<h3>Modelling the state of the parser dynamically</h3>
+<p>
+The graph of the finite state machine is intended to represent the state of parser at each 
+stage. To highlight the edges being traversed on the current path, we are going to make the 
+traversed edges black whilst others retain their default color.
+
+<p>In order to do this, we need a function which returns how many times each edge has been traversed and observables to represent the colours of the edges. We then define edge colours by dependency.
+</p></hr>
 <p>
 <ul>
 
@@ -272,16 +434,16 @@ Dependency between the color of the edge and number of times it has been travers
 </ul>
 </p>
 <p>
-Suppose we have an observable <b>cols0s1</b>, which is the color of the edge s0s1, What kind of dependency do we want?<br/>
-We want the color of the edge dependent on the times it has been traversed. Obviously, we need another observable of edge
+Suppose we have an observable <b>cols0s1</b>, which is the color of the edge s0s1 - what kind of dependency do we want?<br/>
+We want the color of the edge dependent on the number of times it has been traversed. Obviously, we need another observable of edge
 s0s1 for the number of times it has been traversed.
 
 </p>
 <p>
-<i>ctxy</i> is a function, which takes three parameters: the start point,the end point of an edge and <i>currpath (observable for current path traversed)</i>,
+<i>ctxy</i> is a function, which takes three parameters: the start point and end point of an edge and the <i>currpath (observable for current path being traversed)</i>,
 and returns the number of times that this edge has been traversed. <br/>
 
-So if we make the colour of the edge depend on the number of times it has been traversed, the colours of the edges together will clearly show the path. For edge s0s1,
+So if we make the colour of the edge depend on the number of times it has been traversed, the colours of the edges together will clearly show the path. For edge s0s1:
 </p>
 <jseden>
 cts0s1 is ctxy(0,1,currpath);
@@ -291,7 +453,8 @@ cols0s1 is cts0s1>0 ? \"black\": defaultcolour(0,1,transitions[13]);
 ");
 
 slide10 is Slide("
-<p> To define the colours of all the edges:</p>
+<h3>Counting the number of traversals of each edge</h3>
+<p> To define the colours of all the edges, we first set up an observable to record how many times it is being traversed in the current path:</p>
 <jseden>
 cts0s1 is ctxy(0,1,currpath);cts0s3 is ctxy(0,3,currpath);
 cts0s2 is ctxy(0,2,currpath);cts0s4 is ctxy(0,4,currpath);
@@ -312,6 +475,7 @@ cts11s9 is ctxy(11,9,currpath);
 
 
 slide11 is Slide("
+<h3>Specifying the colour of each edge</h3>
 <jseden>
 cols0s1 is cts0s1>0 ? \"black\": defaultcolour(0,1,transitions[13]);
 cols0s2 is cts0s2>0 ? \"black\": defaultcolour(0,2,transitions[13]);
@@ -339,9 +503,34 @@ cols11s9 is cts11s9>0 ? \"black\": defaultcolour(11,9,transitions[11]);
 </jseden>
 ");
 
+slide11a is Slide("
+<h3>Refining the visualisation</h3>
+<p>
+The use of the graph prototype saves much work in setting up the FSM, but there are
+still ways in which it has to be improved for readability.
+Having set up the FSM visualisation as above, it is convenient to layout the graph and modify the display of the nodes to make it easier to read. To this end, you can include the following definitions:
+<jseden>
+include(\"models/parsingEMPE/fsminit.js-e\");
+</jseden>
+</p>
+<p>
+These definitions make adjustments to the value of observables that have been generated
+using the graph prototype. The observables concerned specify the explicit coordinates of
+points (e.g. <b>ps0</b>), the background colour of each of the nodes (e.g. <b>cols0</b>,  <b>cols1</b>), and the
+position of the labels of selected nodes (e.g. <b>labs10</b>).
+</p>
+<p>
+Note how this process of modifying the product of a prototyping activity in accordance
+with Empirical Modelling principles highlights the important distinction between tools
+that are developed with prototype-based rather than class-based object-orientation in mind.
+This is an important respect in which JavaScript is well-suited to EM. 
+</p>
+");
+
 
 slide12 is Slide("
-<p>Key Observables:</p>
+<h3>Adding the parsing functionality</h3>
+<p>The key observables in the parsing process construal are:</p>
 <b>currpath</b>     - stores the content on the state stack as a list.<br/>
 
 <b>currstack</b>     - current content on the stack as a list.<br/>
@@ -369,13 +558,16 @@ slide13 is Slide("<p>
 
 <p>
 The observables whose values are subject to be changed directly by an agent action, rather than being defined by a dependency relation, are InputText and k. <br/>
-This network of dependency is derived from the real traditional parsers: The input and how far the parser has read from the beginning defines the look ahead token;<br/>
-The shift action pops a token and a state onto the stack; Based on its current state, the model decides whether it needs a look ahead token to carry out the next action,<br/>
+This network of dependency is derived from the operation of 'real' traditional parsers:<br />
+- The input and how far the parser has read from the beginning defines the look ahead token;<br/>
+- The shift action pops a token and a state onto the stack;
+<br />
+- Based on its current state, the model decides whether it needs a look ahead token to carry out the next action,
 or whether it should reduce.<br/>
-The observable<i>InputTextt</i> has the same initial value as <i>InputText</i> and changes when reduction occurs. An index <i>j</i> is associated to measure how far the parser has read in the<br/>
+The observable <i>InputTextt</i> has the same initial value as <i>InputText</i> and changes when reduction occurs. An index <i>j</i> is used to record how far the parser has read in the
 <i>InputTextt</i>. Like <i>InputText</i>, <i>InputTextt</i> is independent of other observables and the observables <i>currstack</i>, <i>currpath</i>, <i>currstate</i>,etc depend on it.<br\>
 
-The dependencies between key observables:
+The dependencies between key observables are:
 <jseden>
 k=0;
 InputText=\"\";
@@ -396,7 +588,10 @@ nextpart is substr(InputTextEnd,k+1,InputTextEnd#);
 
 slide14 is Slide("
 <p>
-Lexical Analysis</p>
+<b>
+Lexical Analysis
+</b>
+</p>
 <p>
 
 The lexical analysis part of parsing models in JS-EDEN is different from the lexical analysis of the traditional parser. This is done by using the function subpatt, which is an example of embedding JavaScript in EDEN:
@@ -409,7 +604,9 @@ func substpatt {
 	return th.replace(RegExp(repatt, reattr), repstr); 
 }}&#36;; }
 </jseden>
-This function recognizes regular expressions and the set of tokens are defined by regular expressions. 
+</p>
+<p>
+This function recognizes regular expressions and the set of tokens is defined by regular expressions. 
 </p>
 <p>If an input string is given, the model should find IDs and exprs, and mark them as identifiers.</p>
 <jseden>
@@ -436,7 +633,7 @@ Using the subspatt function, we substitute values in the input by lexified token
 
 <p>
 The record of the input values, can be used in the last step of parsing - syntax directed translation. So we make a function named <i>makeinputvals</i>. This function will be different
-for different grammars. It makes uses of the function findpatt(which finds and returns a regular string):</p>
+for different grammars. It makes uses of the function findpatt (which finds and returns a regular string):</p>
 <jseden>
 func findpatt { 
 &#36{{ var th = arguments[0];
@@ -444,17 +641,21 @@ func findpatt {
 	var reattr = arguments[2]; 
 	var result = th.match(RegExp(repatt, reattr));
 	if(result==null)
-        return \"\";
+         return \"\";
         else return result; 
-	}}&#36;;
-	}
+}}&#36;;
+}
 </jseden>
 <p> and analyzes the input to many cases. <i>strvals</i> stores the values of the input string to a list. Below is the definition for <i>strvals</i>.</p> 
 <jseden>
-strvals is findpatt(inputstr,\"[A-Za-z][a-zA-Z0-9]*\",\"g\")//findpatt(inputstr,\"[0-9]+\",\"g\");
+strvals is findpatt(inputstr,\"[A-Za-z][a-zA-Z0-9]*|[1-9][0-9]*\",\"g\");
 </jseden>
-Can you make a <i>makeinputvals</i> function for the func3 grammar? After please include the function in the input window. 
-
+</p>
+<p>
+Can you make a <i>makeinputvals</i> function for the simple expression grammar?
+For test purposes you can include the function via the Input Window. 
+A suitable specification is given on the next slide.
+</p>
 ");
 
 slide16 is Slide("
@@ -480,7 +681,6 @@ j=1;result=[];
 					vals[j]=\"\";
 					break;
 				}
-				else writeln(\"syntax error\");
 			}
 			
          }else {result=result//[\"\"];}				
@@ -500,7 +700,7 @@ When the value of <i>k</i> increases 1, the parsing model reads the next token a
 </p>
 
 <p>
-In grammar, we have 6 reductions rules:</p>
+In grammar, we have 6 reduction rules:</p>
 $accept: E $end\";<br/>
 1 E: E+T;<br/>
 2  | T;<br/>
@@ -512,58 +712,59 @@ $accept: E $end\";<br/>
 </p>
 
 <p>
-The first rule says that if an id on the stack, replace it by expr. The second says that if func3 LPAREN expr COMMA expr COMMA expr RPAREN appears on the stack, replace it by expr.
-The thing to keep in mind is that after changing the value on the stack, we also need to update the values of <i> j</i>.
+The substitution associated with a reduction using rule 6 is as follows:
 
 </p>
 
 <jseden>
-func substituteID{
+func substituteID {
 	para cstack;
 	auto result;
-	if(currstack#-1>0)
-	result=substr(cstack,1,currstack#-1)//\"F\"//nextpart;
+	if (currstack#-1>0)
+	 result=substr(cstack,1,currstack#-1)//\"F\"//nextpart;
 	else
-	result=\"F\"//nextpart;
-	return result;
+	 result=\"F\"//nextpart;
+	 return result;
 	}
 </jseden>
 ");
 slide18 is Slide(" 
+<h3>Implementing the reduction rules ...</h3>
 <jseden>	
-func substituteEplusT{
+func substituteEplusT {
         para cstack;
 	auto result;
-	if(currstack#-3>0)
-	result=substr(cstack,1,currstack#-3)//\"E\"//nextpart;
+	if (currstack#-3>0)
+	 result=substr(cstack,1,currstack#-3)//\"E\"//nextpart;
 	else
-	result=\"E\"//nextpart;
-
-	return result;
+	 result=\"E\"//nextpart;
+	 return result;
 	}
-func substituteT{
+
+func substituteT {
 	para cstack;
 	auto result;
-	if(currstack#-1>0)
-	result=substr(cstack,1,currstack#-1)//\"E\"//nextpart;
+	if (currstack#-1>0)
+	 result=substr(cstack,1,currstack#-1)//\"E\"//nextpart;
 	else
-	result=\"E\"//nextpart;
-
-	return result;
+	 result=\"E\"//nextpart;
+	 return result;
 	}
-func substituteTmultiF{
+
+func substituteTmultiF {
 	para cstack;
 	auto result;
-	if(currstack#-3>0)
-	result=substr(cstack,1,currstack#-3)//\"T\"//nextpart;
+	if (currstack#-3>0)
+ 	 result=substr(cstack,1,currstack#-3)//\"T\"//nextpart;
 	else
-	result=\"T\"//nextpart;
-
-	return result;
+	 result=\"T\"//nextpart;
+	 return result;
 	}
 </jseden>
 ");
+
 slide19 is Slide("
+<h3>Implementing the reduction rules ...</h3>
 <jseden>	
 func substituteF{
 	para cstack;
@@ -588,24 +789,25 @@ func substituteEbrackets{
 </jseden>");
 
 slide20 is Slide("
-<p> Then we need a function to decide which of the substitute function should be called: 
+<h3>Implementing the reduction rules</h3>
+<p> We also need a function to decide which of the substitute function should be called: 
 <jseden>
-func applyrule{
+func applyrule {
 	para ruleno;
        if (ruleno==1)
-	execute(\"InputTextt=substituteEplusT(InputTextt);\");
+	 execute(\"InputTextt=substituteEplusT(InputTextt);\");
 	else if (ruleno==2)
-	execute(\"InputTextt=substituteT(InputTextt);\");
+	 execute(\"InputTextt=substituteT(InputTextt);\");
 	else if (ruleno==3)
-	execute(\"InputTextt=substituteTmultiF(InputTextt);\");
+	 execute(\"InputTextt=substituteTmultiF(InputTextt);\");
 	else if (ruleno==4)
-	execute(\"InputTextt=substituteF(InputTextt);\");
+	 execute(\"InputTextt=substituteF(InputTextt);\");
 	else if (ruleno==5)
-	execute(\"InputTextt=substituteEbrackets(InputTextt);\");
+	 execute(\"InputTextt=substituteEbrackets(InputTextt);\");
 	else if (ruleno==6)
-	execute(\"InputTextt=substituteID(InputTextt);\");
+	 execute(\"InputTextt=substituteID(InputTextt);\");
 	else
-	execute(\"InputTextt=InputTextt;\");
+	 execute(\"InputTextt=InputTextt;\");
 }</jseden>
 ");
 
@@ -618,54 +820,52 @@ When the parsing model reduces by rule 1, the <i> inputvals</i> is not changed. 
 </p>
 <jseden>
 
-func substituteEplusT2{
+func substituteEplusT2 {
 	para vals;
 	auto calc, result;
 	calc=j;
-	if(calc-3>0)
-	result=sublist(vals,1,calc-3)//[vals[calc-2]//\" \"//vals[calc]//\"+\"]//nextvals;
+	if (calc-3>0)
+	 result=sublist(vals,1,calc-3)//[vals[calc-2]//\" \"//vals[calc]//\"+\"]//nextvals;
 	else
-	result=[vals[calc-2]//\" \"//vals[calc]//\"+\"]//nextvals;
-	return result;
+	 result=[vals[calc-2]//\" \"//vals[calc]//\"+\"]//nextvals;
+	 return result;
 }
-func substituteTmultiF2{
+
+func substituteTmultiF2 {
 	para vals;
 	auto calc, result;
 	calc=j;
-	if(calc-3>0)
-	result=sublist(vals,1,calc-3)//[vals[calc-2]//\" \"//vals[calc]//\"*\"]//nextvals;
+	if (calc-3>0)
+	 result=sublist(vals,1,calc-3)//[vals[calc-2]//\" \"//vals[calc]//\"*\"]//nextvals;
 	else
-	result=[vals[calc-2]//\" \"//vals[calc]//\"*\"]//nextvals;
-	return result;
+	 result=[vals[calc-2]//\" \"//vals[calc]//\"*\"]//nextvals;
+	 return result;
 }
 </jseden>");
 slide22 is Slide("
 <jseden>
-func substituteEbrackets2{
+func substituteEbrackets2 {
 	para vals;
 	auto calc, result;
 	calc=j;
-	if(calc-3>0)
-	result=sublist(vals,1,calc-3)//[vals[calc-1]]//nextvals;
+	if (calc-3>0)
+	 result=sublist(vals,1,calc-3)//[vals[calc-1]]//nextvals;
 	else
-	result=[vals[calc-1]]//nextvals;
-	return result;
+	 result=[vals[calc-1]]//nextvals;
+	 return result;
 }	
 
 
 proc evalrule{
- para ruleno;
+para ruleno;
 if ((ruleno==2)||(ruleno==4)||(ruleno==6))
 	 execute(\"inputtvals=inputtvals;\");
     else if (ruleno==1)
 	 execute(\"inputtvals=substituteEplusT2(inputtvals);\");
     else if (ruleno==3)
- 	
 	execute(\"inputtvals=substituteTmultiF2(inputtvals);\");
     else if (ruleno ==5)
         execute(\"inputtvals=substituteEbrackets2(inputtvals);\");
-
-    
 	 }
 </jseden>
 
@@ -676,15 +876,23 @@ slide23 is Slide("
 <p>
 Finally we have set up the environment for parsing. We can try to give some input string and the parser will do the lexical analysis and produce an input text.
 <jseden>
-inputstr=\"f(app1,app2,app3)\";
+inputstr=\"3+5*8*(6+5)\";
 </jseden>
-Above is an input string accepted by the parser. You can also try some input string which is not accepted:
+</p>
+<p>
+The above is an input string accepted by the parser. You can also try some input strings which are not accepted:
+</p>
+<p>
 <jseden>
-inputstr=\"f((app,app2,(app3))\";
+inputstr=\"(a**3)\";
 </jseden>
+</p>
+<p>
 and
+</p>
+<p>
 <jseden>
-inputstr=\"f(f(app,app2,app3)\";
+inputstr=\"p+*9\";
 </jseden>
 </p>
 

@@ -9,7 +9,7 @@
 		},
 		{
 			"name": "JSPE",
-			"author": "Meurig Beynon / Hui Zhu",
+			"author": "Matt Cranham / Hui Zhu",
 			"year": "2012",
 			"description": "Installs a presentation environment.",
 			"runfile": "models/jspe/run.e"
@@ -23,11 +23,18 @@
 		},
 		{
 			"name": "Malaria",
-			"author": "?",
-			"year": "?",
+			"author": "Meurig Beynon / Will Beynon",
+			"year": "2012",
 			"description": "Modelling Malaria",
 			"runfile": "models/malaria/malariaA.jse"
 		},
+		{
+                        "name": "Visual Neuron Modelling",
+                        "author": "Hamish Todd",
+                        "year": "2014",
+                        "description": "Modelling visual-related neurons",
+                        "runfile": "models/1364073-Hamish/Presentation26062014.txt"
+                },
 		{
 			"name": "Number-Line Port",
 			"author": "Jess Nickson",

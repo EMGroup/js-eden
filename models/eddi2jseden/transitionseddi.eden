@@ -1,0 +1,90 @@
+
+transitions=[@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@];
+transitions[1] = [[1, "BRA", 1],[1, "TABLEID", 2],[1,"UNION",100],[1, "expr", 4],[1, "JOIN", 100],[1, "DIFF", 100],[1, "SELECT", 100],[1, "PROJECT", 100],[1, "COMMA", 100],[1, "EQ", 100],[1, "LT", 100],[1, "GT", 100],[1, "NEQ", 100],[1, "KET", 100],[1, "attr_list", 100],[1, "VAL", 100],[1, "ATTRID",100],[1, "comparator", 100],[1, "boolexpr",100],[1,"$end",100]];
+transitions[3] = [[3, "BRA", 100],[3, "TABLEID", 100],[3, "expr", 100],[3, "COMMA", 100],[3, "$end", 5], [3, "SELECT", 6],[3, "PROJECT", 7],[3, "DIFF", 8],[3, "UNION", 9],[3, "JOIN", 10],[3, "EQ", 100],[3, "LT", 100],[3, "GT", 100],[3, "NEQ", 100],[3, "KET", 100],[3, "attr_list", 100],[3, "VAL", 100],[3, "ATTRID",100],[3, "comparator", 100],[3, "boolexpr",100]];
+transitions[4] = [[4, "BRA", 100],[4, "TABLEID", 100],[4, "expr", 100],[4, "COMMA", 100],[4, "EQ", 100],[4, "SELECT", 6],[4, "PROJECT", 7],[4, "DIFF", 8],[4, "UNION", 9],[4, "JOIN", 10],[4, "KET", 11],[4, "GT", 100],[4, "NEQ", 100],[4, "attr_list", 100],[4, "VAL", 100],[4, "ATTRID",100],[4, "comparator", 100],[4, "boolexpr",100],[4, "LT", 100],[4,"$end",100]];
+transitions[6] = [[6, "KET", 100],[6, "SELECT", 100],[6, "PROJECT", 100],[6, "DIFF", 100],[6, "UNION", 100],[6, "JOIN", 100],[6, "TABLEID", 100],[6, "expr", 100],[6, "COMMA", 100],[6, "EQ", 100],[6, "LT", 100],[6, "BRA", 12],[6, "ATTRID", 13],[6, "boolexpr", 14],[6, "KET", 100],[6, "SELECT", 100],[6, "PROJECT", 100],[6, "DIFF", 100],[6, "UNION", 100],[6, "JOIN", 100],[6, "TABLEID", 100],[6, "expr", 100],[6, "COMMA", 100],[6, "EQ", 100],[6, "LT", 100],[6, "GT", 100],[6, "NEQ", 100],[6, "attr_list", 100],[6, "VAL", 100],[6, "comparator", 100],[6,"$end",100]];
+transitions[7] = [[7, "ATTRID", 15],[7, "attr_list", 16],[7, "KET", 100],[7, "SELECT", 100],[7, "PROJECT", 100],[7, "DIFF", 100],[7, "UNION", 100],[7, "JOIN", 100],[7, "BRA", 100],[7, "TABLEID", 100],[7, "expr", 100],[7, "COMMA", 100],[7, "EQ", 100],[7, "LT", 100],[7, "GT", 100],[7, "NEQ", 100],[7, "VAL", 100],[7, "comparator", 100],[7, "boolexpr",100],[7,"$end",100]];
+transitions[8] = [[8, "BRA", 1],[8, "TABLEID", 2],[8, "KET", 100],[8, "SELECT", 100],[8, "PROJECT", 100],[8, "DIFF", 100],[8, "UNION", 100],[8, "JOIN", 100],[8, "COMMA", 100],[8, "EQ", 100],[8, "LT", 100],[8, "GT", 100],[8, "NEQ", 100],[8, "attr_list", 100],[8, "VAL", 100],[8, "ATTRID",100],[8, "expr", 17],[8, "comparator", 100],[8, "boolexpr",100],[8,"$end",100]];
+transitions[9] = [[9, "BRA", 1],[9, "TABLEID", 2],[9, "KET", 100],[9, "SELECT", 100],[9, "PROJECT", 100],[9, "DIFF", 100],[9, "UNION", 100],[9, "JOIN", 100],[9, "COMMA", 100],[9, "EQ", 100],[9, "LT", 100],[9, "GT", 100],[9, "NEQ", 100],[9, "attr_list", 100],[9, "VAL", 100],[9, "ATTRID",100],[9, "comparator", 100],[9, "expr", 18],[9, "boolexpr",100],[9,"$end",100]];
+transitions[10] =[[10, "BRA", 1],[10, "TABLEID", 2],[10, "KET", 100],[10, "SELECT", 100],[10, "PROJECT", 100],[10, "DIFF", 100],[10, "UNION", 100],[10, "JOIN", 100],[10, "COMMA", 100],[10, "EQ", 100],[10, "LT", 100],[10, "GT", 100],[10, "NEQ", 100],[10, "attr_list", 100],[10, "VAL", 100],[10, "ATTRID",100],[10, "comparator", 100],[10, "boolexpr",100],[10, "expr", 19],[10,"$end",100]];
+transitions[12] =[[12, "TABLEID", 100],[12, "expr", 100],[12, "KET", 100],[12, "SELECT", 100],[12, "PROJECT", 100],[12, "DIFF", 100],[12, "UNION", 100],[12, "JOIN", 100],[12, "COMMA", 100],[12, "EQ", 100],[12, "LT", 100],[12, "BRA", 12],[12, "ATTRID", 13],[12, "boolexpr", 20],[12, "GT", 100],[12, "NEQ", 100],[12, "attr_list", 100],[12, "VAL", 100],[12, "comparator", 100],[12,"$end",100]];
+transitions[13] =[[13, "EQ", 21],[13, "GT", 22],[13, "LT", 23],[13, "NEQ", 24],[13, "BRA", 100],[13, "TABLEID", 100],[13, "expr", 100],[13, "KET", 100],[13, "SELECT", 100],[13, "PROJECT", 100],[13, "DIFF", 100],[13, "UNION", 100],[13, "JOIN", 100],[13, "COMMA", 100],[13, "attr_list", 100],[13, "VAL", 100],[13, "ATTRID",100],[13, "boolexpr",100],[13,"$end",100],[13, "comparator", 25]];
+
+
+transitions[16] =[[16, "COMMA", 26],[16, "BRA", 100],[16, "TABLEID", 100],[16, "expr", 100],[16, "KET", 100],[16, "SELECT", 100],[16,  "PROJECT", 100],[16, "DIFF", 100],[16, "UNION", 100],[16, "JOIN", 100],[16, "EQ", 100],[16, "LT", 100],[16, "GT", 100],[16, "NEQ", 100],[16, "attr_list", 100],[16, "VAL", 100],[16, "ATTRID",100],[16, "comparator", 100],[16, "boolexpr",100],[16,"$end",100]];
+
+
+transitions[17]= [[17, "UNION", 9],[17, "JOIN", 10],[17, "BRA", 100],[17, "TABLEID", 100],[17, "expr", 100],[17, "KET", 100],[17, "SELECT", 100],[17, "PROJECT", 100],[17, "DIFF", 100],[17, "COMMA", 100],[17, "EQ", 100],[17, "LT", 100],[17, "GT", 100],[17, "NEQ", 100],[17, "attr_list", 100],[17, "VAL", 100],[17, "ATTRID",100],[17, "comparator", 100],[17, "boolexpr",100],[17,"$end",100]];
+
+
+transitions[18]=[[18, "JOIN", 10],[18, "BRA", 100],[18, "TABLEID", 100],[18, "expr", 100],[18, "KET", 100],[18, "SELECT", 100],[18,  "PROJECT", 100],[18, "DIFF", 100],[18, "UNION", 100],[18, "COMMA", 100],[18, "EQ", 100],[18, "LT", 100],[18, "GT", 100],[18, "NEQ", 100],[18, "attr_list", 100],[18, "VAL", 100],[18, "ATTRID",100],[18, "comparator", 100],[18, "boolexpr",100],[18,"$end",100]];
+
+
+transitions[20]=[[20, "KET", 27],[20, "BRA", 100],[20, "TABLEID", 100],[20, "expr", 100],[20, "SELECT", 100],[20, "PROJECT", 100],[20, "DIFF", 100],[20, "UNION", 100],[20, "JOIN", 100],[20, "COMMA", 100],[20, "EQ", 100],[20, "LT", 100],[20, "GT", 100],[20, "NEQ", 100],[20, "attr_list", 100],[20, "VAL", 100],[20, "ATTRID",100],[20, "comparator", 100],[20, "boolexpr",100],[20,"$end",100]];
+
+
+transitions[25] =[[25, "VAL", 28],[25, "BRA", 100],[25, "TABLEID", 100],[25, "expr", 100],[25, "KET", 100],[25, "SELECT", 100],[25, "PROJECT", 100],[25, "DIFF", 100],[25, "UNION", 100],[25, "JOIN", 100],[25, "COMMA", 100],[25, "EQ", 100],[25, "LT", 100],[25, "GT", 100],[25, "NEQ", 100],[25, "attr_list", 100],[25, "ATTRID",100],[25, "comparator", 100],[25, "boolexpr",100],[25,"$end",100]];
+
+
+transitions[26] =[[26, "ATTRID", 29],[26, "BRA", 100],[26, "TABLEID", 100],[26, "expr", 100],[26, "KET", 100],[26, "SELECT", 100],[26, "PROJECT", 100],[26, "DIFF", 100],[26, "UNION", 100],[26, "JOIN", 100],[26, "COMMA", 100],[26, "EQ", 100],[26, "LT", 100],[26, "GT", 100],[26, "NEQ", 100],[26, "attr_list", 100],[26, "VAL", 100],[26, "comparator", 100],[26, "boolexpr",100],[26,"$end",100]];
+
+
+transitions[30] =[[0, "BRA",1],[0, "TABLEID",2],[0, "expr",3],[0, "KET", 100],[0, "SELECT", 100],[0,"PROJECT", 100],[0, "DIFF", 100],[0, "UNION", 100],[0, "JOIN", 100],[0, "COMMA", 100],[0, "EQ", 100],[0, "LT", 100],[0, "GT", 100],[0, "NEQ", 100],[0, "attr_list", 100],[0, "VAL", 100],[0, "ATTRID",100],[0, "comparator", 100],[0, "boolexpr",100],[0,"$end",100]];
+
+
+transitions[2] =[[2, "BRA",100],[2, "TABLEID",100],[2, "expr",100],[2, "KET", 100],[2, "SELECT", 100],[2, "PROJECT", 100],[2, "DIFF", 100],[2, "UNION", 100],[2, "JOIN", 100],[2, "COMMA", 100],[2, "EQ", 100],[2, "LT", 100],[2, "GT", 100],[2, "NEQ", 100],[2, "attr_list", 100],[2, "VAL", 100],[2, "ATTRID",100],[2, "comparator", 100],[2, "boolexpr",100],[2,"$end",100]];
+
+
+transitions[5] =[[5, "BRA",100],[5, "TABLEID",100],[5, "expr",100],[5, "KET", 100],[5, "SELECT", 100],[5, "PROJECT", 100],[5, "DIFF", 100],[5, "UNION", 100],[5, "JOIN", 100],[5, "COMMA", 100],[5, "EQ", 100],[5, "LT", 100],[5, "GT", 100],[5, "NEQ", 100],[5, "attr_list", 100],[5, "VAL", 100],[5, "ATTRID",100],[5, "comparator", 100],[5, "boolexpr",100],[5,"$end",100]];
+
+
+transitions[11] =[[11, "BRA",100],[11, "TABLEID",100],[11, "expr",100],[11, "KET", 100],[11, "SELECT", 100],[11, "PROJECT", 100],[11, "DIFF", 100],[11, "UNION", 100],[11, "JOIN", 100],[11, "COMMA", 100],[11, "EQ", 100],[11, "LT", 100],[11, "GT", 100],[11, "NEQ", 100],[11, "attr_list", 100],[11, "VAL", 100],[11, "ATTRID",100],[11, "comparator", 100],[11, "boolexpr",100],[11,"$end",100]];
+
+
+transitions[14] =[[14, "BRA",100],[14, "TABLEID",100],[14, "expr",100],[14, "KET", 100],[14, "SELECT", 100],[14, "PROJECT", 100],[14, "DIFF", 100],[14, "UNION", 100],[14, "JOIN", 100],[14, "COMMA", 100],[14, "EQ", 100],[14, "LT", 100],[14, "GT", 100],[14, "NEQ", 100],[14, "attr_list", 100],[14, "VAL", 100],[14, "ATTRID",100],[14, "comparator", 100],[14, "boolexpr",100],[14,"$end",100]];
+
+
+transitions[15] =[[15, "BRA",100],[15, "TABLEID",100],[15, "expr",100],[15, "KET", 100],[15, "SELECT", 100],[15, "PROJECT", 100],[15, "DIFF", 100],[15, "UNION", 100],[15, "JOIN", 100],[15, "COMMA", 100],[15, "EQ", 100],[15, "LT", 100],[15, "GT", 100],[15, "NEQ", 100],[15, "attr_list", 100],[15, "VAL", 100],[15, "ATTRID",100],[15, "comparator", 100],[15, "boolexpr",100],[15,"$end",100]];
+
+
+transitions[19] =[[19, "BRA",100],[19, "TABLEID",100],[19, "expr",100],[19, "KET", 100],[19, "SELECT", 100],[19, "PROJECT", 100],[19, "DIFF", 100],[19, "UNION", 100],[19, "JOIN", 100],[19, "COMMA", 100],[19, "EQ", 100],[19, "LT", 100],[19, "GT", 100],[19, "NEQ", 100],[19, "attr_list", 100],[19, "VAL", 100],[19, "ATTRID",100],[19, "comparator", 100],[19, "boolexpr",100],[19,"$end",100]];
+
+
+
+transitions[21] =[[21, "BRA",100],[21, "TABLEID",100],[21, "expr",100],[21, "KET", 100],[21, "SELECT", 100],[21, "PROJECT", 100],[21, "DIFF", 100],[21, "UNION", 100],[21, "JOIN", 100],[21, "COMMA", 100],[21, "EQ", 100],[21, "LT", 100],[21, "GT", 100],[21, "NEQ", 100],[21, "attr_list", 100],[21, "VAL", 100],[21, "ATTRID",100],[21, "comparator", 100],[21, "boolexpr",100],[21,"$end",100]];
+
+
+transitions[22] = [[22, "BRA",100],[22, "TABLEID",100],[22, "expr",100],[22, "KET", 100],[22, "SELECT", 100],[22, "PROJECT", 100],[22, "DIFF", 100],[22, "UNION", 100],[22, "JOIN", 100],[22, "COMMA", 100],[22, "EQ", 100],[22, "LT", 100],[22, "GT", 100],[22, "NEQ", 100],[22, "attr_list", 100],[22, "VAL", 100],[22, "ATTRID",100],[22, "comparator", 100],[22, "boolexpr",100],[22,"$end",100]];
+
+
+transitions[23] =[[23, "BRA",100],[23, "TABLEID",100],[23, "expr",100],[23, "KET", 100],[23, "SELECT", 100],[23, "PROJECT", 100],[23, "DIFF", 100],[23, "UNION", 100],[23, "JOIN", 100],[23, "COMMA", 100],[23, "EQ", 100],[23, "LT", 100],[23, "GT", 100],[23, "NEQ", 100],[23, "attr_list", 100],[23, "VAL", 100],[23, "ATTRID",100],[23, "comparator", 100],[23, "boolexpr",100],[23,"$end",100]];
+
+
+transitions[24]=[[24, "BRA",100],[24, "TABLEID",100],[24, "expr",100],[24, "KET", 100],[24, "SELECT", 100],[24, "PROJECT", 100],[24, "DIFF", 100],[24, "UNION", 100],[24, "JOIN", 100],[24, "COMMA", 100],[24, "EQ", 100],[24, "LT", 100],[24, "GT", 100],[24, "NEQ", 100],[24, "attr_list", 100],[24, "VAL", 100],[24, "ATTRID",100],[24, "comparator", 100],[24, "boolexpr",100],[24,"$end",100]];
+
+transitions[27]=[[27, "BRA",100],[27, "TABLEID",100],[27, "expr",100],[27, "KET", 100],[27, "SELECT", 100],[27, "PROJECT", 100],[27, "DIFF", 100],[27, "UNION", 100],[27, "JOIN", 100],[27, "COMMA", 100],[27, "EQ", 100],[27, "LT", 100],[27, "GT", 100],[27, "NEQ", 100],[27, "attr_list", 100],[27, "VAL", 100],[27, "ATTRID",100],[27, "comparator", 100],[27, "boolexpr",100],[27,"$end",100]];
+
+
+transitions[28]=[[28, "BRA",100],[28, "TABLEID",100],[28, "expr",100],[28, "KET", 100],[28, "SELECT", 100],[28, "PROJECT", 100],[28, "DIFF", 100],[28, "UNION", 100],[28, "JOIN", 100],[28, "COMMA", 100],[28, "EQ", 100],[28, "LT", 100],[28, "GT", 100],[28, "NEQ", 100],[28, "attr_list", 100],[28, "VAL", 100],[28, "ATTRID",100],[28, "comparator", 100],[28, "boolexpr",100],[28,"$end",100]];
+
+
+transitions[29]=[[29, "BRA",100],[29, "TABLEID",100],[29, "expr",100],[29, "KET", 100],[29, "SELECT", 100],[29, "PROJECT", 100],[29, "DIFF", 100],[29, "UNION", 100],[29, "JOIN", 100],[29, "COMMA", 100],[29, "EQ", 100],[29, "LT", 100],[29, "GT", 100],[29, "NEQ", 100],[29, "attr_list", 100],[29, "VAL", 100],[29, "ATTRID",100],[29, "comparator", 100],[29, "boolexpr",100],[29,"$end",100]];
+
+defaultreductions=[@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@];
+defaultreductions[2]=1;
+defaultreductions[11]=2;
+defaultreductions[14]=6;
+defaultreductions[15]=8;
+defaultreductions[16]=7;
+defaultreductions[17]=5;
+defaultreductions[18]=3;
+defaultreductions[19]=4;
+defaultreductions[21]=10;
+defaultreductions[22]=11;
+defaultreductions[23]=12;
+defaultreductions[24]=13;
+defaultreductions[27]=14;
+defaultreductions[28]=15;
+defaultreductions[29]=9;
+

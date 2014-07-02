@@ -1,0 +1,17 @@
+proc showObservables {
+${{
+    $('input.symbollist-search').val(arguments[0]);
+    $('input.symbollist-search').keyup();
+}}$;
+}
+
+/*
+$._data($('.symbollist-search')[0],'events');
+
+
+
+/*
+
+1 the stringtolist function is not working alone. If the whole project is included, it works.
+
+2

@@ -34,3 +34,22 @@ ps12y = 102.55554962158203;
 	()	- grey
 	Accept	- green
 */
+
+
+coldefault="white";
+cols0 is coldefault;
+cols1 is coldefault;
+cols2 is coldefault;
+cols3 is coldefault;
+cols4 is coldefault;
+cols5 is coldefault;
+cols6 is coldefault;
+cols7 is coldefault;
+cols8 is coldefault;
+cols9 is coldefault;
+cols10 is coldefault;
+cols11 is coldefault;
+cols12 is coldefault;
+
+labs11 is Text("11", ps11x-7.5,ps11y+3.5,"black");
+labs10 is Text("10", ps10x-5.5,ps10y+5.5,"black");

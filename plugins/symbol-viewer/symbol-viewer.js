@@ -43,7 +43,7 @@ Eden.plugins.SymbolViewer = function(context) {
 
 	/** @private */
 	var generateHTML = function() {
-	joe.log("symbol-viewer.js: generateHTML()");
+
 		return "<div class=\"symbollist-search-box-outer\">\
 			<div class=\"symbollist-search-icon\"></div>\
 			<input type=\"text\" class=\"symbollist-search\"></input>\
@@ -61,7 +61,7 @@ Eden.plugins.SymbolViewer = function(context) {
 	 * @param {string} Type of symbols to show: obs,agent,func,all.
 	 */
 	this.createDialog = function(name,mtitle,type) {
-	joe.log("symbol-viewer.js: createDialog()");
+
 		var code_entry = $('<div></div>');
 		code_entry.html(generateHTML());
 		var symbollist = new Eden.plugins.SymbolViewer.SymbolList(
@@ -94,7 +94,7 @@ Eden.plugins.SymbolViewer = function(context) {
 	 * @param {string} mtitle Title for the dialog.
 	 */
 	this.createObservableDialog = function(name,mtitle) {
-	joe.log("symbol-viewer.js: createObservableDialog()");
+
 		return me.createDialog(name,mtitle,"obs");
 	}
 
@@ -105,7 +105,7 @@ Eden.plugins.SymbolViewer = function(context) {
 	 * @param {string} mtitle Title for the dialog.
 	 */
 	this.createFunctionDialog = function(name,mtitle) {
-	joe.log("symbol-viewer.js: createFunctionDialog()");
+
 		return me.createDialog(name,mtitle,"func");
 	}
 
@@ -116,7 +116,7 @@ Eden.plugins.SymbolViewer = function(context) {
 	 * @param {string} mtitle Title for the dialog.
 	 */
 	this.createAgentDialog = function(name,mtitle) {
-	joe.log("symbol-viewer.js: createAgentDialog()");
+
 		return me.createDialog(name,mtitle,"agent");
 	}
 
@@ -127,7 +127,7 @@ Eden.plugins.SymbolViewer = function(context) {
 	 * @param {string} mtitle Title for the dialog.
 	 */
 	this.createSymbolDialog = function(name,mtitle) {
-	joe.log("symbol-viewer.js: createSymbolDialog()");
+
 		return me.createDialog(name,mtitle,"all");
 	}
 
@@ -148,7 +148,7 @@ Eden.plugins.SymbolViewer = function(context) {
 	 * @private
 	 */
 	var sym_changed_to = function() {
-	joe.log("symbol-viewer.js: sym_changed_to()");
+
 
 		//For every viewer
 		for (x in me.instances) {
@@ -184,7 +184,7 @@ Eden.plugins.SymbolViewer = function(context) {
 	 * update all visible symbol lists.
 	 */
 	var symbolChanged = function(sym, create) {
-	joe.log("symbol-viewer.js: symbolChanged()");
+
 		var name = sym.name.substr(1);
 
 		if (create) {
@@ -239,7 +239,6 @@ Eden.plugins.SymbolViewer.SymbolList = function(element,type) {
  * @param pattern A regular expression for symbol names.
  */
 Eden.plugins.SymbolViewer.SymbolList.prototype.search = function(pattern) {
-joe.log("symbol-viewer.js: search()");
 	var me = this;
 	this.pattern = pattern;
 
@@ -261,7 +260,6 @@ joe.log("symbol-viewer.js: search()");
  * @param name Name of the symbol to update.
  */
 Eden.plugins.SymbolViewer.SymbolList.prototype.updateSymbol = function(name) {
-joe.log("symbol-viewer.js: updateSymbol()");
 	if (this.symbols[name] !== undefined) {
 		this.symbols[name].update();
 	}
@@ -275,7 +273,6 @@ joe.log("symbol-viewer.js: updateSymbol()");
  * @param name The name of the given symbol object.
  */
 Eden.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function(symbol, name) {
-joe.log("symbol-viewer.js: addSymbol()");
 	var reg = new RegExp("^("+this.pattern+").*");
 
 	if (name.search(reg) == -1) {
@@ -329,7 +326,6 @@ joe.log("symbol-viewer.js: addSymbol()");
  * @param Already detected type of the symbol: procedure,function,observable.
  */
 Eden.plugins.SymbolViewer.Symbol = function(symbol,name,type) {
-joe.log("symbol-viewer.js: Symbol()");
 	this.symbol = symbol;
 	this.name = name;
 	this.type = type;
@@ -379,7 +375,6 @@ joe.log("symbol-viewer.js: Symbol()");
  * for this function, such as parameters and description.
  */
 Eden.plugins.SymbolViewer.Symbol.prototype.updateFunction = function() {
-joe.log("symbol-viewer.js: updateFunction()");
 	var funchtml = "<li class=\"type-function\"><span class=\"result_name\">" + this.name + "</span>";
 
 	//If there are details for this function in the function meta data
@@ -406,16 +401,16 @@ joe.log("symbol-viewer.js: updateFunction()");
  * of the observable to display its current value correctly.
  */
 Eden.plugins.SymbolViewer.Symbol.prototype.updateObservable = function() {
-joe.log("symbol-viewer.js: updateObservable()");
 	/* XXX Does cause all dependencies to be evaluated which removes any
 	   performance gains of eval-on-use-when-out-of-date. */
 	var me = this;
 	var val = this.symbol.value();
+	stringVal = Eden.deHTML(""+val+"");
 	var valhtml;
 
 	if (typeof val == "boolean") { valhtml = "<span class='special_text'>"+val+"</span>"; }
 	else if (typeof val == "undefined") { valhtml = "<span class='error_text'>undefined</span>"; }
-	else if (typeof val == "string") { valhtml = "<span class='string_text'>\""+val+"\"</span>"; }
+	else if (typeof val == "string") { valhtml = "<span class='string_text'>\""+stringVal+"\"</span>"; }
 	else if (typeof val == "number") { valhtml = "<span class='numeric_text'>"+val+"</span>"; }
 	else { valhtml = val; }
 
@@ -434,7 +429,7 @@ joe.log("symbol-viewer.js: updateObservable()");
 		+ valhtml
 		+ "</span></li>"
 	);
-
+/*
 	//Clicking on the value will allow you to edit it
 	this.element.find(".result_value").click(function(){
 		console.log("value clicked");
@@ -456,12 +451,12 @@ joe.log("symbol-viewer.js: updateObservable()");
 		$(this).replaceWith(editbox);
 	
 	});
+	*/
 }
 
 /**
  * Update the HTML output of a procedure symbol.
  */
 Eden.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function() {
-joe.log("symbol-viewer.js: updateProcedure()");
 	this.element.html("<li class=\"type-procedure\"><span class=\"result_name\">" + this.name + "</span></li>");
 }
