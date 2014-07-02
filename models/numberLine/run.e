@@ -1,5 +1,3 @@
 require("CanvasHTML5");
-createView("defaultcanvas","CanvasHTML5");
-hideView("projects");
-
+createView("default","CanvasHTML5");
 include("models/numberLine/numberLine.jse");

@@ -13,7 +13,10 @@
  * to allow searching of the projects available.
  * @class ProjectList Plugin
  */
+console.log("project-listing.js: READING SCRIPT");
+ 
 Eden.plugins.ProjectList = function(context) {
+console.log("project-listing.js: projectList()");
 	var me = this;
 
 	/** @public */
@@ -26,6 +29,7 @@ Eden.plugins.ProjectList = function(context) {
 	 * @private
 	 */
 	var updateAllCollections = function(pattern) {
+	console.log("project-listing.js: updateAllCollections()");
 		for (x in me.instances) {
 			updateCollection(me.instances[x],pattern);
 		}
@@ -38,6 +42,7 @@ Eden.plugins.ProjectList = function(context) {
 	 * @private
 	 */
 	var updateCollection = function(element,pattern) {
+	console.log("project-listing.js: updateCollection()");
 		procspos = 0;
 
 		//Clear any existing project search results.
@@ -112,6 +117,7 @@ Eden.plugins.ProjectList = function(context) {
 	 * @private
 	 */
 	var generateHTML = function() {
+	console.log("project-listing.js: generateHTML");
 		return "\
 <div class=\"projectlist-listing\">\
 	<div class=\"projectlist-search-box-outer\">\
@@ -127,16 +133,19 @@ Eden.plugins.ProjectList = function(context) {
 
 	/** @private */
 	var generateConfig = function() {
+	joe.log("project-listing.js: generateConfig()");
 
 	}
 
 	/** @private */
 	var generateDetails = function(project) {
-
+	joe.log("project-listing.js: generateDetails");
+	
 	}
 
 	/** @public */
 	this.createDialog = function(name,mtitle) {
+	console.log("project-listing.js: createDialog("+name+","+mtitle+")");
 		code_entry = $('<div></div>');
 		code_entry.html(generateHTML());
 
@@ -158,11 +167,14 @@ Eden.plugins.ProjectList = function(context) {
 		});
 	}
 
+	
+console.log("ajax getting project data");
 	//Get a list of projects from the server.
 	$.ajax({
 		url: "models/projects.json",
 		dataType: 'json',
 		success: function(data) {
+console.log("success");
 			me.projects = data;
 			context.projects = me.projects;
 			updateAllCollections("");

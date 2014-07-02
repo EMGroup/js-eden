@@ -1,4 +1,5 @@
 function add_procedure(symbol, name) {
+joe.log("edenui.js: add_procedure("+symbol+", "+name+")");
 	var proc = $('<div class="result-element"></div>');
 	proc.html("<li class=\"type-procedure\"><span class=\"result_name\">" + name + "</span></li>").appendTo($('#procedure-results'));
 
@@ -17,6 +18,7 @@ function add_procedure(symbol, name) {
 };
 
 function add_function(symbol, name) {
+joe.log("edenui.js: add_function("+symbol+", "+name+")");
 	var funchtml = "<li class=\"type-function\"><span class=\"result_name\">" + name + "</span>";
 	var details;
 	if (edenfunctions.functions != undefined && edenfunctions.functions[name] !== undefined) {
@@ -75,6 +77,7 @@ function add_function(symbol, name) {
 };
 
 function add_observable(symbol, name) {
+joe.log("edenui.js: add_observable "+symbol+","+name);
 	var val = symbol.value();
 	var valhtml;
 	if (typeof val == "boolean") { valhtml = "<span class='special_text'>"+val+"</span>"; }
@@ -128,6 +131,7 @@ function add_observable(symbol, name) {
 };
 
 function observable_dialog(symbol,existing) {
+joe.log("edenui.js: observable_dialog("+symbol+", "+existing+")");
 	var myeditor;
 
 	$code_html = '<div class="obs_stats">Current Value: ' + symbol.value() + '</div><div id="obs_inspector_' + symbol.name.substr(1) + '" class="obs_inspector"><div></div><pre class="eden exec">';
@@ -182,6 +186,7 @@ function observable_dialog(symbol,existing) {
 }
 
 function function_dialog(symbol, existing) {
+joe.log("edenui.js: function_dialog("+symbol+", "+existing+")");
 	var myeditor;
 
 	$code_html = '<div id="obs_inspector_' + symbol.name.substr(1) + '" class="obs_inspector"><div></div><pre class="eden exec">';
@@ -230,6 +235,7 @@ function function_dialog(symbol, existing) {
 }
 
 function procedure_dialog(symbol, existing) {
+joe.log("edenui.js: procedure_dialog("+symbol+", "+existing+")");
 	var myeditor;
 
 	$code_html = '<div id="obs_inspector_' + symbol.name.substr(1) + '" class="obs_inspector"><div></div><pre class="eden exec">';

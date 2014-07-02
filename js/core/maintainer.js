@@ -20,13 +20,17 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+ 
+joe.log("maintainer.js: READING SCRIPT");
 
 (function (global) {
+joe.log("maintainer.js: globalFunction");
 	/**
 	 * A maintainer of definitions
 	 * @constructor
 	 */
 	function Folder(name, parent, root) {
+	joe.log("maintainer.js: Folder("+name+", "+parent+", "+root+")")
 		this.name = name || "/";
 		this.parent = parent || this;
 		this.root = root || this;
@@ -42,8 +46,10 @@
 	 * @return {number|string|array}
 	 */
 	Folder.prototype.lookup = function(name) {
+	//joe.log("maintainer.js: "+this.name+".lookup("+name+")");
 		var me = this;
 		if (this.symbols[name] === undefined) {
+		//joe.log("maintainer.js: lookup: currently undefined");
 			this.symbols[name] = new Symbol(this, this.name + name, this.root);
 
 			//setTimeout(function() { $(me).trigger('symbolCreate', [me.symbols[name], name])});
@@ -54,10 +60,12 @@
 	};
 
 	Folder.prototype.addGlobal = function(f) {
+	joe.log("maintainer.js: addGlobal("+f+")");
 		this.globalobservers.push(f);
 	};
 
 	Folder.prototype.notifyGlobals = function(symbol, create) {
+	//joe.log("maintainer.js: notifyGlobals("+symbol.name+","+create+")");
 		for (var i=0; i < this.globalobservers.length; i++) {
 			if (this.globalobservers[i] !== undefined) {
 				this.globalobservers[i].call(this,symbol,create);
@@ -66,6 +74,7 @@
 	};
 
 	Folder.prototype.autocalc = function(state) {
+	joe.log("maintainer.js: autocalc("+state+")");
 		if ((state == true) && (this.autocalc_state == false)) {
 			this.autocalc_state = true;
 			this.fireAllActions(this.todoactions);
@@ -76,7 +85,7 @@
 	};
 
 	Folder.prototype.fireAllActions = function(actions) {
-		//console.log("Processing " + actions.length + " actions.");
+	joe.log("maintainer.js: Processing " + actions.length + " actions.");
 		for (var i=0; i < actions.length; i++) {
 			var actions_to_fire = actions[i];
 			for (var action_name in actions_to_fire) {
@@ -96,6 +105,7 @@
 	 * @param {Object.<string,function>} observers
 	 */
 	function Symbol(context, name) {
+	joe.log("maintainer.js: Symbol( "+name+")");
 		this.context = context;
 		this.name = name;
 
@@ -118,6 +128,7 @@
 		this.observees = {};
 
 		this.last_modified_by = undefined;
+		
 	}
 
 	/**
@@ -126,6 +137,7 @@
 	 * @return {number|string|list}
 	 */
 	Symbol.prototype.value = function() {
+	joe.log("maintainer.js: "+this.name+".value()");
 		if (!this.up_to_date) {
 			if (this.definition === undefined) {
 				this.cached_value = undefined;
@@ -139,10 +151,12 @@
 				}
 			}
 		}
+	joe.log("maintainer.js: value = +"+this.cached_value+"");
 		return this.cached_value;
 	};
 
 	Symbol.prototype.clearObservees = function() {
+	joe.log("maintainer.js: "+this.name+".clearObservees()");
 		for (var name in this.observees) {
 			var symbol = this.observees[name];
 			symbol.removeObserver(this.name);
@@ -151,6 +165,7 @@
 	};
 
 	Symbol.prototype.subscribe = function() {
+	joe.log("maintainer.js: "+this.name+".subscribe()");
 		var dependencies = Utils.flatten(arguments);
 
 		for (var i = 0; i < dependencies.length; ++i) {
@@ -165,6 +180,7 @@
 	};
 
 	Symbol.prototype.clearDependencies = function() {
+	joe.log("maintainer.js: "+this.name+".clearDependencies()");
 		for (var name in this.dependencies) {
 			var dependency = this.dependencies[name];
 			dependency.removeSubscriber(this.name);
@@ -174,6 +190,7 @@
 	};
 
 	Symbol.prototype._setLastModifiedBy = function(modifying_agent) {
+	joe.log("maintainer.js: "+this.name+"_setLastModifiedBy("+modifying_agent+")");
 		if (modifying_agent === global) {
 			this.last_modified_by = 'input';
 		} else {
@@ -186,6 +203,7 @@
 	 * @param {Array.<string>} dependencies Symbol names for the dependencies
 	 */
 	Symbol.prototype.define = function(definition, modifying_agent) {
+	joe.log("maintainer.js: "+this.name+".define("+definition+")");
 		var me = this;
 
 		// XXX: not sure if we really want to have lastModifiedBy set
@@ -224,19 +242,24 @@
 	 * @param {string} symbol_name A name for the Symbol
 	 */
 	Symbol.prototype.observe = function() {
+	joe.log("maintainer.js: observe()");
+	
 		var symbol_names = Utils.flatten(arguments);
 		var me = this;
-
+		
 		for (var i = 0; i < symbol_names.length; ++i) {
 			var symbol = this.context.lookup(symbol_names[i]);
 			this.observees[symbol.name] = symbol;
+		joe.log("maintainer.js: "+this.name+" observees: "+symbol.name);
 			symbol.addObserver(me.name, me);
+		joe.log("maintainer.js: "+symbol.name+" observes: "+this.name);
 		}
 
 		return this;
 	};
 
 	Symbol.prototype.stopObserving = function(symbol_name) {
+	joe.log("maintainer.js: "+this.name+".stopObserving() "+symbol_name+"");
 		this.observees[symbol_name].removeObserver(this.name);
 		this.observees[symbol_name] = undefined;
 	};
@@ -246,6 +269,7 @@
 	 * @param {any} value
 	 */
 	Symbol.prototype.assign = function(value, modifying_agent) {
+	joe.log("maintainer.js: "+this.name+".assign() value:"+value+"");
 		var me = this;
 
 		// XXX: not sure if we really want to have last_modified_by set
@@ -285,6 +309,7 @@
 	 * @param {function} mutator
 	 */
 	Symbol.prototype.mutate = function(mutator, modifying_agent) {
+	joe.log("maintainer.js: "+this.name+".mutate()");
 		var me = this;
 
 		// XXX: not sure if we really want to have last_modified_by set
@@ -343,6 +368,7 @@
 	};
 
 	Symbol.prototype.trigger = function() {
+	joe.log("maintainer.js: "+this.name+".trigger()");
 		// if one action fails, it shouldn't prevent all the other
 		// scheduled actions from firing
 		try {
@@ -353,9 +379,10 @@
 		}
 	};
 
-	Symbol.prototype.fireActions = function(actions_to_fire) {
+	Symbol.prototype.fireActions = function(actions_to_fire){
 		for (var action_name in actions_to_fire) {
 			var action = actions_to_fire[action_name];
+	joe.log("maintainer.js: "+this.name+".fireAction("+action+")");
 			// if one action fails, it shouldn't prevent all the other
 			// scheduled actions from firing
 			if (action != undefined) { action.trigger(); }
@@ -525,6 +552,7 @@
 		this.cached_value = Utils.copy(this.cached_value);
 		Symbol.prototype.mutate.apply(this, Array.prototype.slice(arguments));
 	};
+	
 
 	// expose API
 	global.Folder = Folder;

@@ -13,7 +13,54 @@
  * kept of all inputs (in all input windows).
  * @class InputWindow Plugin
  */
+
+ joe.log("interpreter.js: READING SCRIPT");
+ 
+Eden.deHTML = function(text){
+//a function to allow the display of HTML in pages directly without the HTML being interpreted
+
+	if(text==undefined){
+		return undefined;
+	}
+
+	var build = [];
+
+	for(var i=0; i<text.length; i++) {
+	
+		if(text[i] == "<")		{
+			build.push("&#60;");	
+		}
+		else if(text[i] == ">"){	
+			build.push("&#62;");	
+		}
+		else if(text[i] == "{"){	
+			build.push("&#123;");	
+		}
+		else if(text[i] == "}"){	
+			build.push("&#125;");	
+		}
+		else if(text[i] == "\\"){	
+			build.push("&#92;");	
+		}
+		else if(text[i] == "\/"){	
+			build.push("&#47;");	
+		}
+		else if(text[i] == "\""){	
+			build.push("&#34;");	
+		}
+		else if(text[i] == "\$"){	
+			build.push("&#36;");	
+		}
+		else{
+			build.push(text[i]);
+		}
+	}
+
+	return build.join("");
+}
+
 Eden.plugins.InputWindow = function(context) {
+joe.log("interpreter.js: InputWindow()");
 	var me = this;
 	/**
 	 * Record of the input history for this window.
@@ -26,12 +73,14 @@ Eden.plugins.InputWindow = function(context) {
 
 	/** @private */
 	var addHistory = function(text) {
+	joe.log("interpreter.js: addHistory()");
 		me.history.push({input: text, time: ((new Date()).getTime())});
 		index = me.history.length;
 	}
 
 	/** @private */
 	var getHistory = function(index) {
+console.log("interpreter.js: getHistory()");
 		if (me.history.length == 0) {
 			return "";
 		} else {
@@ -41,6 +90,7 @@ Eden.plugins.InputWindow = function(context) {
 
 	/** @private */
 	var previousHistory = function() {
+	joe.log("interpreter.js: previousHistory()");
 		if (index <= 0) {
 			index = 1;
 		}
@@ -52,6 +102,7 @@ Eden.plugins.InputWindow = function(context) {
 
 	/** @private */
 	var nextHistory = function() {
+	joe.log("interpreter.js: nextHistory()");
 		if (index < 0) {
 			index = 0;
 		}
@@ -64,11 +115,13 @@ Eden.plugins.InputWindow = function(context) {
 
 	/** @private */
 	var loadPreviousEdenCode = function(options) {
+	joe.log("interpreter.js: loadPreviousEdenCode()");
 		options.editor.setValue(previousHistory());
 	}
 
 	/** @private */
 	var loadNextEdenCode = function(options) {
+	joe.log("interpreter.js: loadNextEdenCode()");
 		options.editor.setValue(nextHistory());
 	}
 
@@ -76,6 +129,7 @@ Eden.plugins.InputWindow = function(context) {
 
 	/** @private */
 	var submitEdenCode = function(options) {
+	joe.log("interpreter.js: submitEdenCode()");
 		var editor = options.editor;
 		var edenparser = options.edenparser;
 		addHistory(editor.getValue());
@@ -92,6 +146,7 @@ Eden.plugins.InputWindow = function(context) {
 			} else {
 				myvalue = editor.getValue();
 			}
+joe.log("interpreter.js: myvalue= "+myvalue);
 		
 			eval(Eden.translateToJavaScript(myvalue));
 			editor.setValue("");
@@ -111,12 +166,14 @@ Eden.plugins.InputWindow = function(context) {
 
 	/** @private */
 	var closeInput = function(options) {
+	joe.log("interpreter.js: closeInput()");
 		var $dialog = options.$dialog;
 		$dialog.dialog('close');
 	}
 
 	/** @private */
 	var openInput = function(options) {
+	joe.log("interpreter.js: openInput()");
 		var $dialog = options.$dialog;
 
 		$dialog.dialog('open');
@@ -142,6 +199,7 @@ Eden.plugins.InputWindow = function(context) {
 
 	/** @private */
 	var setupKeyBind = function(options, keyCombo, callback) {
+	joe.log("interpreter.js: setupKeyBind()");
 		$(document).bind('keydown', keyCombo, function () {
 			callback && callback(options);
 		});
@@ -149,6 +207,7 @@ Eden.plugins.InputWindow = function(context) {
 
 	/** @private */
 	var setupAllKeyBinds = function(options) {
+	joe.log("interpreter.js: setupAllKeyBinds()");
 		for (var keyCombo in KEYBINDINGS) {
 			setupKeyBind(options, keyCombo, KEYBINDINGS[keyCombo]);
 		}
@@ -156,22 +215,24 @@ Eden.plugins.InputWindow = function(context) {
 
 	/** @public */
 	this.createEmbedded = function(name, edenparser) {
-
+		joe.log("interpreter.js: createEmbedded()");
 	}
 
 	var generateHistory = function() {
+	joe.log("interpreter.js: generateHistory()");
 		result = "";
 		for (var i=0; i<me.history.length; i++) {
 			var theclass = "inputwindow-history-line";
 			if (me.history[i].error !== undefined) {
 				theclass = theclass + " error";
 			}
-			result = result + "<div class=\""+theclass+"\">" + me.history[i].input + "</div>";
+			result = result + "<div class=\""+theclass+"\"><pre>" + Eden.deHTML(me.history[i].input) + "</pre></div>";
 		}
 		return result;
 	}
 
 	this.createHistory = function(name,mtitle) {
+	joe.log("interpreter.js: createHistory()");
 		historydialog = $('<div id="'+name+'"></div>')
 			.html("<div class=\"history\">"+generateHistory()+"</div>")
 			.dialog({
@@ -195,6 +256,7 @@ Eden.plugins.InputWindow = function(context) {
 
 	/** @public */
 	this.createDialog = function(name, mtitle, edenparser) {
+	joe.log("interpreter.js: createDialog()");
 		var myeditor;
 
 		$code_entry = $('<div id="'+name+'-input" class=\"inputwindow-code\"><div></div><pre class="eden exec"></pre></div>');

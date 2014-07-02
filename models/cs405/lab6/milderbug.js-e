@@ -1,0 +1,24 @@
+
+## loading this script causes ixsentence to be incremented by 1
+
+ixsentence = 1;
+
+nextsentenabled = (ixsentence < 100);
+nextsentlab is "Test Button" ;
+
+nextsentence is Button("nextsent", nextsentlab, 70, 60, nextsentenabled);
+
+proc readnexts : nextsent_clicked {
+  	writeln(ixsentence);
+        if (ixsentence<100) ixsentence = ixsentence + 1;
+}
+
+picture is [nextsentence];
+
+## subsequently 'redefining' the nextsentence button alone increments ixsentence:
+
+nextsentence is Button("nextsent", nextsentlab, 70, 60, nextsentenabled);
+nextsentence is Button("nextsent", nextsentlab, 70, 60, nextsentenabled);
+nextsentence is Button("nextsent", nextsentlab, 70, 60, nextsentenabled);
+
+

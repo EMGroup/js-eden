@@ -13,7 +13,10 @@
  * plugins.
  * @class MenuBar Plugin
  */
+ 
+joe.log("menu-bar.js: READING SCRIPT");
 Eden.plugins.MenuBar = function(context) {
+joe.log("menu-bar.js: menu-bar()");
 	var me = this;
 	var index = 0;
 
@@ -25,15 +28,18 @@ Eden.plugins.MenuBar = function(context) {
 	$("<div id=\"menubar-bottom\"></div>").appendTo($("body"));
 
 	this.updateStatus = function(text) {
+		joe.log("menu-bar.js: updateStatus()");
 		menustatus.html(text);
 	}
 
 	this.appendStatus = function(text) {
+		joe.log("menu-bar.js: appendStatus("+text+")");
 		menustatus.html(menustatus.html()+text);
 	}
 
 	/** @private */
 	var addMainItem = function(name, title) {
+	joe.log("menu-bar.js: addMainItem("+name+", "+title+")");
 		var menuitem = $("<div class=\"menubar-mainitem\"></div>");
 		menuitem.html(title+"<div id=\"menubar-mainitem-"+name+"\" class=\"menubar-menu\"></div>");
 		menuitem.appendTo(menudiv);
@@ -54,6 +60,7 @@ Eden.plugins.MenuBar = function(context) {
 
 	/** @public */
 	this.updatePluginsMenu = function() {
+	joe.log("menu-bar.js: updatePluginsMenu()");
 		var plugins = $("#menubar-mainitem-plugins");
 		plugins.html("");
 		for (x in Eden.plugins) {
@@ -77,6 +84,7 @@ Eden.plugins.MenuBar = function(context) {
 
 	/** @public */
 	this.updateViewsMenu = function() {
+	joe.log("menu-bar.js: updateViewsMenu");
 		var views = $("#menubar-mainitem-views");
 		views.html("");
 
@@ -113,6 +121,7 @@ Eden.plugins.MenuBar = function(context) {
 
 	/** @private */
 	var addMenuItem = function(menu,text,click) {
+	joe.log("menu-bar.js: addMenuItem("+text+")");
 		var menu = $("#menubar-mainitem-"+menu);
 		var entry = $("<div class=\"menubar-item\"></div>");
 		entry.html(text);
@@ -127,6 +136,7 @@ Eden.plugins.MenuBar = function(context) {
 	//addMainItem("help","Help");
 
 	addMenuItem("jseden","Error Log", function() {
+	joe.log("menu-bar.js: addMenuItemB()");
 		$('#error-window').dialog("open");
 	});
 	//addMenuItem("help","Eden Syntax", function() {

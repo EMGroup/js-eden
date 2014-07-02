@@ -5,9 +5,11 @@ All rights reserved.
 
 See LICENSE.txt
 -->
+
 <html>
 <head>
 	<link rel="stylesheet" type="text/css" href="css/csseden.rb" />
+	<link rel="stylesheet" type="text/css" href="joe/SDM.css" />
 
 	<link rel="stylesheet" href="js/lib/codemirror/codemirror.css" type="text/css" media="screen" charset="utf-8">
 	<link rel="stylesheet" href="js/lib/codemirror/theme/default.css" type="text/css" media="screen" charset="utf-8">
@@ -22,98 +24,57 @@ See LICENSE.txt
 
 <div id="eden-logo"></div>
 
-<!--div id="tabs">
-<ul>
-	<li><a href="home.html">Documentation</a></li>
-	<li><a href="#eden-content">Canvas</a></li>
-	<li><a href="#html-content">Model Readme</a></li>
-	<li><a href="#history-content">History</a></li>
-</ul>
-<div id="eden-content">
-<canvas id="d1canvas" width="100%" height="100%"></canvas>
-</div>
-<div id="html-content"></div>
-<div id="history-content"></div>
-</div-->
-
-<!--div id="side-bar">
-<div class="side-bar-topic" style="margin-top: 30px">
-	<div class="side-bar-topic-title">Projects</div>
-	<div class="side-bar-topic-content" style="height: 300px">
-		
-	</div>
-</div>
-<div class="side-bar-topic" id="symbol-search">
-	<div class="side-bar-topic-title">Observables &amp; Agents</div>
-	<div class="side-bar-topic-content">
-		<div class="search-box-outer">
-			<input type="text" class="search-box" id="observable-search"></input>
-			<div class="search-button"></div>
-		</div>
-		<div id="observable-scrollup" class="scrollup"></div>
-		<div class="results-lim"><div id="observable-results"></div></div>
-		<div id="observable-scrolldown" class="scrolldown"></div>
-	</div>
-</div>
-<div class="side-bar-topic" id="functions">
-        <div class="side-bar-topic-title">Functions</div>
-        <div class="side-bar-topic-content">
-                <div class="search-box-outer">
-                        <input type="text" class="search-box" id="functions-search"></input>
-                        <div class="search-button"></div>
-                </div>
-                <div id="functions-scrollup" class="scrollup"></div>
-                <div class="results-lim"><div id="functions-results"></div></div>
-		<div id="functions-scrolldown" class="scrolldown"></div>
-        </div>
-</div>
-<div class="side-bar-topic" id="drawable">
-        <div class="side-bar-topic-title">Drawable</div>
-        <div class="side-bar-topic-content">
-                <div class="results-lim"><div id="drawable-results"></div></div>
-        </div>
-</div>
-<div class="side-bar-topic" id="procedures">
-        <div class="side-bar-topic-title">Procedures</div>
-        <div class="side-bar-topic-content">
-		<div class="results-lim"><div id="procedure-results"></div></div>
-	</div>
-</div>
-
-<div id="version-number"></div>
-
-</div>
-<div id="hide-side"></div>
-
-<div id="observable-info">
-<div id="observable-info-content">
-<div id="observable-info-name"></div>
-</div>
-<div id="observable-info-point"></div>
-</div>
-
-<div id="functions-info">
-<div id="functions-info-content">
-<div id="functions-info-name"></div>
-</div>
-<div id="functions-info-point"></div>
-</div-->
-
-<script src="js/jseden.rb" type="text/javascript"></script>
+<script src="joe/joe.js"></script>
+<script src="js/lib/jquery.color.js"></script>
+<script src="js/lib/beautify.js"></script>
+<script src="js/lib/jquery.hotkeys.js"></script>
+<script src="js/lib/json2.js"></script>
+<script src="js/lib/codemirror/codemirror.js"></script>
+<script src="js/lib/codemirror/runmode.js"></script>
+<script src="js/lib/codemirror/mode/javascript/javascript.js"></script>
+<script src="js/lib/codemirror/mode/eden/eden.js"></script>
+<script src="js/lib/codemirror/mode/xml/xml.js"></script>
+<script src="js/lib/codemirror/mode/markdown/markdown.js"></script>
+<script src="js/core/runtime.js"></script>
+<script src="js/dummyconsole.js"></script>
+<script src="js/test/test.js"></script>
+<script src="js/core/maintainer.js"></script>
+<script src="js/core/eden/parser.js"></script>
+<script src="js/core/eden.js"></script>
+<script src="js/core/plugins.js"></script>
+<script src="js/edenui.js"></script>
+<script src="js/core/initialise.js"></script>
+<script src="js/edenpage.js"></script>
+<script src="js/lib/sylvester.js"></script>
+<script src="plugins/input-dialog/interpreter.js"></script>
+<script src="plugins/project-listing/project-listing.js"></script>
+<script src="plugins/menu-bar/menu-bar.js"></script>
+<script src="plugins/canvas-html5/canvas.js"></script>
+<script src="plugins/symbol-viewer/symbol-viewer.js"></script>
+<script src="plugins/html-views/html-views.js"></script>
+<script src="plugins/state-description-maintainer/state-description-maintainer.js"></script>
+	
 
 <script type="text/javascript">
+
+//Load Joes Additions
+
 	JS_Eden_Initialise(function() {
+joe.log("index.html: -------------");
+	
+joe.log("index.html: Initialising Page");
 		//Load menubar as standard
 		eden.loadPlugin("MenuBar");
-		eden.loadPlugin("InputWindow");
+ 		eden.loadPlugin("InputWindow");
 		eden.loadPlugin("ProjectList");
-
-		eden.createView("inputwindow","InputWindow");
-		eden.moveView("inputwindow",100,300);
+		eden.loadPlugin("CanvasHTML5");
+		eden.loadPlugin("SymbolViewer");
+		<!--eden.loadPlugin("SDM");
+ 		eden.createView("inputwindow","InputWindow");
 		eden.createView("projects","ProjectList");
-
 		//Force manual refresh of views menu.
 		eden.plugins.MenuBar.updateViewsMenu();
+joe.pageLoaded();
 	});
 </script>
 

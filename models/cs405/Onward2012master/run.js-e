@@ -1,0 +1,4 @@
+include("models/jspe/run.e");
+include("models/Onward2012master/essay.js-e");
+include("models/Onward2012master/presenter.js-e");
+include("models/Onward2012master/shortpres.js-e");

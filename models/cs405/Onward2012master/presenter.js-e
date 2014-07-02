@@ -1,0 +1,417 @@
+﻿
+## to protect against loss of information whilst constructing patterns
+
+${{
+  
+var workIsDone = false;
+window.onbeforeunload = confirmBrowseAway;
+
+function confirmBrowseAway()
+{
+  if (!workIsDone) {
+    return "Are you sure? If you leave this page now, your work will NOT be saved.";
+  }
+};
+  
+}}$;
+
+## from Tim Monks - procedure for manipulating REs in the search box:
+
+/*
+
+proc showObservables { ${{
+   $('#symbol-search > .side-bar-topic-title').click();
+   $('#observable-search').val(arguments[0]);
+}}$; }
+
+proc showFunctions { ${{
+   $('#functions > .side-bar-topic-title').click();
+   $('#functions-search').val(arguments[0]);
+}}$; }
+
+include("jspe.js-e");
+
+*/
+
+proc showObservables { ${{
+   $('.symbollist-search').val(arguments[0]);
+   $('.symbollist-search').keyup();
+}}$; }
+
+proc showFunctions { ${{
+   $('.functionlist-search').val(arguments[0]);
+   $('.functionlist-search').keyup();
+}}$; }
+
+ixpara = 1;
+
+paratext is paragraphs[ixpara];
+
+## make a JS-EDEN function which is written in JScript:
+## useful resource: http://www.regular-expressions.info/javascriptexample.html
+
+## providing for sentences ending in ? or !
+
+func splitintosentences {
+ ${{
+	var paragraph = arguments[0];
+	var result = [];
+	while (/[.?!]\ .*[.?!]/.exec(paragraph)) {
+		result = result.concat(paragraph.replace(/[.?!]\ (.*)/.exec(paragraph)[1], ""));
+		paragraph = /[.?!]\ (.*)/.exec(paragraph)[1];
+	};
+##	console.log(paragraph);
+	return result.concat(paragraph);
+ }}$;
+}
+
+/* OLD VERSION 
+
+func splitintosentences {
+ ${{
+	var paragraph = arguments[0];
+	var result = [];
+	while (/[.?!].*[.?!]/.exec(paragraph)) {
+		result = result.concat(paragraph.replace(/[.?!]\ (.*)/.exec(paragraph)[1], ""));
+		paragraph = /[.?!]\ (.*)/.exec(paragraph)[1];
+	};
+##	console.log(paragraph);
+	return result.concat(paragraph);
+ }}$;
+}
+
+*/
+
+allsentences is splitintosentences(paratext);
+ixsentence = 1;
+sentencessofar is ixsentence % (allsentences# + 1);
+
+## required to compensate for a flaw in the JS-EDEN parser:
+
+func getlscomp {
+  return $1[$2];
+}
+
+func firstksentences {
+  para sentencelist, k;
+  auto i, result;
+  result = "<p>";
+  for (i=1; i<k; i++) {
+   result = result // sentencelist[i] // "</p><p>"; 
+  }
+  result = result // sentencelist[k] // "</p>";
+  return result;
+}
+
+func concatpsentences {
+  para sentencelist;
+  auto i, result;
+  result = "<p>";
+  for (i=1; i<sentencelist#; i++) {
+   result = result // sentencelist[i] // "</p><p>"; 
+  }
+  result = result // sentencelist[sentencelist#] // "</p>";
+  return result;
+}
+
+func concatsentences {
+  para sentencelist;
+  auto i, result;
+  result = "";
+  for (i=1; i<=sentencelist#; i++) {
+   result = result // sentencelist[i]; 
+  };
+  return result;
+}
+
+func filter {
+	para sentencels, subls;
+	auto i, result;
+	result = [];
+	for (i=1; i<=subls#; i++) {
+		result = result // [sentencels[subls[i]]];
+	}
+	return result;
+}
+
+func list1tok {
+	para k;
+	auto i, result;
+	result = [];
+	for (i=1; i<=k; i++) {
+		result = result // [i];
+	}
+	return result;
+}
+
+parasofarread is firstksentences(allsentences,sentencessofar);
+
+func max {
+	para x,y;
+	return (x>y) ? x : y;
+}
+
+func min {
+	para x,y;
+	return (x>y) ? y : x;
+}
+
+## limiting number of sentences on slide:
+numsentences = 6;
+
+numsentences is allsentences#;
+parasofarread is concatpsentences(filter(allsentences,list1tok(min(sentencessofar, numsentences))));
+
+
+
+leftmargin = 20;
+rightmargin = 690;
+
+textdisp is Div("textdisplay", leftmargin,70, rightmargin,500, "<p>" // parasofarread // "</p>");
+
+nextsentencelab is "Reading sentence " // str(sentencessofar) // " of " // str(allsentences#) // " ...";
+
+nextsentenceenabled is (sentencessofar < (allsentences# + 1));
+## above would allow the paragraph to be removed when read - leads to significant state sentencessofar == 0;
+
+## but not using this feature at present
+
+nextsentenceenabled is (sentencessofar < (allsentences#));
+
+
+/*
+
+## taking account of the selection of a subset of sentences:
+
+nextsentencelab is "Reading sentence " // str(ixselsentences[sentencessofar]) // " of " // str(allsentences#) // " ...";
+nextsentenceenabled is (sentencessofar < ixselsentences#);
+
+*/
+
+nextparalab is "Reading paragraph " // str(ixpara) // " of " // str(paragraphs#) // " ...";
+
+nextparaenabled is (ixpara < paragraphs#);
+
+nextsentence is Button("nextsent", nextsentencelab, 760, 60, nextsentenceenabled);
+nextparagraph is Button("nextpara", nextparalab, 710, 30, nextparaenabled);
+
+backbutt is Button("lastpara", "Previous para", 910, 30, ixpara>1);
+
+picture is [textdisp, nextsentence, nextparagraph, backbutt];
+
+proc readnexts : nextsent_clicked {
+	ixsentence = ixsentence + 1;
+}
+
+proc readnextp : nextpara_clicked {
+	ixsentence = 1;
+	ixpara = ixpara + 1;
+}
+
+proc gobackapara : lastpara_clicked {
+	ixsentence = 1;
+	if (ixpara > 1) ixpara = ixpara-1;
+}
+
+## ixpara|paratext|picture|paras
+
+## ix|paratext|picture|paras|allse
+
+sectiontitles is ["Software development and experience", "First experiences of programming", "Hermeneutic and formalist perspectives", "Mathematics and experience", "Beyond computational thinking", "Software development as an experience", "Empirical Modelling", "Retrospect and Prospect"];
+
+currsection is (ixpara == 1) ? "Abstract" : (
+					(ixpara<66) ? sectionheader : (
+						(ixpara<90) ? "Note " // str(ixpara-65): "References"
+					)	
+				);
+
+func findsection {
+	para currixpara;
+	auto result;
+	if (currixpara == 2) result = 1;
+	if ((currixpara > 2) && (currixpara < 10)) result = 2;
+	if ((currixpara >= 10) && (currixpara < 24)) result = 3;
+	if ((currixpara >= 24) && (currixpara < 30)) result = 4;
+	if ((currixpara >= 30) && (currixpara < 37)) result = 5;
+	if ((currixpara >= 37) && (currixpara < 47)) result = 6;
+	if ((currixpara >= 47) && (currixpara < 57)) result = 7;
+	if ((currixpara >= 57) && (currixpara < 66)) result = 8;
+	return result;
+}
+
+sectionnumber is findsection(ixpara);
+sectionheader is "Section " // str(sectionnumber) // ": " // sectiontitles[sectionnumber];
+
+title is Div("title", leftmargin, 10, rightmargin, 50, "<h2>Realising Software Development as a Lived Experience</h2>");
+
+header is Div("header", leftmargin, 42, rightmargin, 50, "<h3>" // currsection // "</h3>");
+
+picture is [textdisp, nextsentence, nextparagraph, backbutt, header, title];
+
+paraSlides = [];
+
+## setting the initial value of paragraphs
+allparasplusslides is allparas // paraSlides;
+
+showObservables("paragraphs|sec|notes|abst|ixpara");
+
+#############################################################
+
+## adapting original textpresenter to work with the JSPE - using as template:
+
+buttonPrev is SlideButton("buttonPrev","Previous Slide", jspeleft, ${{ $('#jspe').height()+15 }}$, buttonPrevEnabled);
+
+nextsentence is Button("nextsent", nextsentencelab, jspeleft-280, ${{ $('#jspe').height()+15 }}$, nextsentenceenabled);
+nextparagraph is Button("nextpara", nextparalab, jspeleft-500, ${{ $('#jspe').height()+15 }}$, nextparaenabled);
+
+backbutt is Button("lastpara", "Previous paragraph", jspeleft-680, ${{ $('#jspe').height()+15 }}$, ixpara>1);
+
+## made several attempts at adding a project button - probably a useful addition
+## issues seem to be: definition will not be triggered for update as a result of
+## update of the height of the slide canvas, which is here specified in JScript via JQuery
+
+## still not quite sure about why button remains on top wherever listed in the picture spec
+## but above definition makes sure the button appears whenever the width of the canvas is tweaked
+
+projectionMode = 0;
+buttonProjLab is ( projectionMode == 1) ? "Withdraw Slide" : "Project Slide"; 
+
+## buttonProj is SlideButton("buttonProj", buttonProjLab, leftmargin, ${{ $('#jspe').height()+15 }}$, true);
+## buttonProj is Button("buttonProj", buttonProjLab, max(jspeleft-1000, leftmargin), ${{ $('#d1canvas').height()+15 }}$, true);
+
+buttonProj is SlideButton("buttonProj", buttonProjLab, max(jspeleft-1000, leftmargin), ${{ $('#jspe').height()+15 }}$, true);
+
+proc projSlide : buttonProj_clicked {
+	if (buttonProj_clicked) {
+		projectionMode = 1 - projectionMode;
+		if (projectionMode) {
+			${{
+				$('#d1canvas').css("border-style", "")			
+				$('#jspe').css("background-color", "lightblue")
+				$('#jspe_slide').css({"background-color":"lightblue", "font-size":"200%"});
+			}}$;
+		}
+		else {
+			${{
+				$('#d1canvas').css("border-style", "solid")
+				$('#jspe').css("background-color", "")
+				$('#jspe_slide').css({"background-color":"", "font-size":"100%"});
+			}}$;
+		}
+		buttonProj_clicked = 0;
+	}	
+}
+
+picture is [textdisp, nextsentence, nextparagraph, backbutt, header, title, buttonProj];
+## picture is [buttonProj, textdisp, nextsentence, nextparagraph, backbutt, header, title];
+
+########################################################
+
+
+## making paragraphs dynamic - e.g. based on selection by containing a key word
+
+func findwordix {
+	${{
+		var target = arguments[0];
+		var paras = root.lookup("allparasplusslides").cached_value;
+		var result = [];
+		for (var ix = 0; ix<paras.length; ix++) {
+			if (RegExp(target).exec(root.lookup("allparasplusslides").cached_value[ix])) {
+				result = result.concat([ix+1]);
+			}
+		}
+		return result;
+	}}$;
+}
+
+
+func findwordparatext {
+	${{
+		var target = arguments[0];
+		var paras = root.lookup("allparasplusslides").cached_value;
+		var result = [];
+		for (var ix = 0; ix<paras.length; ix++) {
+			if (RegExp(target).exec(root.lookup("allparasplusslides").cached_value[ix])) {
+				result = result.concat(paras[ix]);
+			}
+		}
+		return result;
+	}}$;
+}
+
+keyword = "";
+
+## keyword = "construal";
+## keyword = "West";
+
+paragraphs is findwordparatext(keyword, allparasplusslides);
+
+## adding a dummy parameter since otherwise definition not triggered
+## when a slide is added - could probably be improved by making the
+## second parameter into a real parameter to the functions
+## findwordparatext and findwordix
+
+## record the indices of the paragraphs in which the keyword appears:
+parasix is findwordix(keyword, allparasplusslides);
+
+## determine the index of the paragraph that is currently being viewed
+currparaix is parasix[ixpara];
+
+## in this context an appropriate definition for section number is
+sectionnumber is findsection(currparaix);
+
+currsection is (currparaix == 1) ? "Abstract" : (
+					(currparaix<66) ? sectionheader : (
+						(currparaix<90) ? "Note " // str(currparaix-65) : (
+							(currparaix<178) ? "Reference " // str(currparaix-90) 
+											 : "Slide " // str(currparaix-177)
+						)
+					)	
+				);
+
+## now have paragraphs determined by keyword comprising essay paras + slides 
+## needs rethinking if introduce other ways in which 'paragraphs' can be assigned
+
+/*
+
+## appendix with useful JQuery expressions
+
+$('#jspe').css("background-color", "lightblue")
+## jspe refers to the are of the slide itself
+
+## jspe_slide relates to the text area (?) in which the slide content appears
+
+$('#jspe_slide').css("background-color", "red")
+
+${{
+$('#jspe_slide').css({"width":"680","background-color":"lightblue", "font-size":"200%"});
+}}$;
+
+${{
+$('#jspe_slide').css({"width":"680","background-color":"lightblue", "font-size":"200%", "margin-left":"auto", "margin-right":"auto"});
+}}$;
+
+
+${{
+$('#jspe_slide').css({"width":"680","background-color":"lightblue", "font-size":"200%", "text-align":"center"});
+}}$;
+
+proc alignSlides : currentSlide {
+	if (currentSlide == 1) {
+		${{
+			$('#jspe_slide').css("text-align","center");
+		}}$;
+	} 
+	else {
+		${{
+			$('#jspe_slide').css("text-align","left");
+		}}$;
+	
+	}
+}
+
+${{
+		$('#jspe_slide').css("width",(($('#eden-content').width()-40)/2)-20);
+}}$;
+
+*/

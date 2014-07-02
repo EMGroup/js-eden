@@ -10,7 +10,9 @@
  * A simple plugin allowing Eden code to display html within dialogs.
  * @class HTMLViews Plugin
  */
+joe.log("html-views.js: READING SCRIPT");
 Eden.plugins.HTMLViews = function(context) {
+joe.log("html-views.js: HTMLViews()");
 	var me = this;
 	var defaultview = "";
 
@@ -27,6 +29,7 @@ Eden.plugins.HTMLViews = function(context) {
 	}
 
 	this.createDialog = function(name,mtitle) {
+	joe.log("html-views.js: createDialog()");
 		if (defaultview == "") {
 			defaultview = name;
 		}

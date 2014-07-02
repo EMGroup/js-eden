@@ -10,10 +10,13 @@
  * Allows a html5 canvas to be displayed and used within JS-Eden for drawing.
  * @class CanvasHTML5 Plugin
  */
+joe.log("canvas.js: READING SCRIPT");
 Eden.plugins.CanvasHTML5 = function(context) {
+joe.log("canvas.js: CanvasHTML5()");
 	var me = this;
 
 	var clearCanvas = function(content) {
+	joe.log("canvas.js: clearCanvas()");
 		$(content).children(":not(canvas)").each(function() {
 			//XXX What is this check for?? To prevent destruction of child divs
 			//if(/canvas_/.test(this.id)) {
@@ -23,6 +26,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 	}
 
 	var cleanupCanvas = function(content) {
+	joe.log("canvas.js: cleanupCanvas()");
 		$(content).children(":not(canvas)").each(function() {
 			if (this.togarbage == true) {
 				$(this).remove();
@@ -36,6 +40,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 	this.delay = 40;
 
 	this.drawPicture = function(canvasname, pictureobs) {
+	joe.log("canvas.js: drawPicture()");
 		var canvas = canvases[canvasname];
 		if (canvas === undefined) {
 			//Need to make the canvas view first
@@ -73,6 +78,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 	};
 
 	this.createDialog = function(name,mtitle) {
+	joe.log("canvas.js: createDialog()");
 		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');
 		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" width=\"550px\" height=\"380px\"></canvas>");
 		code_entry.find(".canvashtml-canvas").on("mousedown",function(e) {
@@ -110,7 +116,6 @@ Eden.plugins.CanvasHTML5 = function(context) {
 				minHeight: 120,
 				minWidth: 230,
 				resizeStop: function(event,ui) {
-					console.log(ui.size);
 					$("#"+name+"-canvas").attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
 
 					//Now need to redraw the canvas.
