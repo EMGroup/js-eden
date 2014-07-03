@@ -2,6 +2,10 @@
 
 JsEden is a browser based environment for modelling with definitive scripts, the style of modelling supported best by [tkeden](http://www2.warwick.ac.uk/fac/sci/dcs/research/em/software/eden/).
 
+# Questions
+
+Go to the [google group](https://groups.google.com/forum/#!forum/jseden)!
+
 # Development Guide
 
 ## Developing locally
