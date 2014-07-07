@@ -4,11 +4,6 @@
  *
  * See LICENSE.txt
  */
-
-/**
- * XXX: currently this is used as a constructor
- * possibly just want a namespace for EDEN related functions
- */
  
 joe.log("eden.js: READING SCRIPT");
  
@@ -363,3 +358,5 @@ joe.log("eden.js: pushModelState()");
 		}
 	});
 };
+
+this.Eden = Eden;

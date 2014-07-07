@@ -17,3 +17,5 @@ var rt = {
 		return value.length;
 	}
 };
+
+this.rt = rt;
