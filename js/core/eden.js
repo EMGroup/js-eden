@@ -335,6 +335,25 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 		parser.yy.locals = [];
 		parser.yy.paras = [];
 
+		/**
+		 * Used by the parser instead of Array.prototype.map which isn't
+		 * available in some browsers.
+		 *
+		 * @param {Array}
+		 * @returns {Array}
+		 */
+		parser.yy.map = function map(array, f) {
+			if (array.map) {
+				return array.map(function (x, i) { return f(x, i); });
+			}
+
+			var results = [];
+			for (var i = 0; i < array.length; ++i) {
+				results.push(f(array[i], i));
+			}
+			return results;
+		};
+
 		return parser.parse(source);
 	};
 };
