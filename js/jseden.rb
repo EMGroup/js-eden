@@ -21,7 +21,6 @@ scripts = [
 
 	"core/runtime.js",
 	"dummyconsole.js",
-	"test/test.js",
 	"core/maintainer.js",
 	"core/eden/parser.js",
 	"core/eden.js",
