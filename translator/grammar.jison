@@ -455,7 +455,7 @@ identifier-list-opt
 
 local-var-decl
     : AUTO identifier-list-opt ';'
-        { var declarations = $.map($2, function(id) { yy.locals[0][id] = 1; return "var local_" + id + " = new Symbol();"; }).join(" "); $$ = declarations;}
+        { var declarations = yy.map($2, function(id) { yy.locals[0][id] = 1; return "var local_" + id + " = new Symbol();"; }).join(" "); $$ = declarations;}
     ;
 
 local-var-decl-opt
@@ -472,7 +472,7 @@ para-alias-opt
 
 para-alias
     : PARA identifier-list ';'
-        { $.map($2, function(id,i) { yy.paras[0][id] = i; }); $$ = ""; }
+        { yy.map($2, function(id,i) { yy.paras[0][id] = i; }); $$ = ""; }
     ;
 
 function-body
