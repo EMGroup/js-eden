@@ -1,0 +1,8 @@
+#!/bin/sh
+# this script is just to help jseden-dev-server.js execute cgi scripts
+
+set -eux
+
+cd $(dirname $SCRIPT_FILENAME)
+./$(basename $SCRIPT_FILENAME)
+exit $?

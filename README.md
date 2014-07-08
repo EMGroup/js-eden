@@ -16,6 +16,19 @@ There are automated tests for the JavaScript code. To run the tests:
 2) npm install
 3) npm test
 
+## Local development server
+
+As well as a vagrant box there is a script to let you run jseden on your own
+machine. If you're running linux/osx (anything with `/bin/sh`) and you have
+node installed, you can do:
+
+```javascript
+npm install
+node jseden-dev-server.js
+```
+
+Then go to localhost:8000.
+
 ## Developing locally
 
 There's a `Vagrantfile` included for setting up an Ubuntu VM with apache/mysql/ruby configured. You'll need to install both [virtualbox](https://www.virtualbox.org/) and [Vagrant](http://vagrantup.com/) in order to use it. Fortunately both cross platform.
@@ -38,6 +51,7 @@ The main files are `Vagrantfile` and `chef/cookbooks/jseden_main/recipes/default
 
 If you want to change the VM, this reasonably nice introduction to vagrant/chef as well as looking in `jseden_main/recipes/default.rb` should give you an idea of how you can.
 http://iostudio.github.com/LunchAndLearn/2012/03/21/vagrant.html
+
 
 # Usage Guide
 
