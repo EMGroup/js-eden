@@ -16,6 +16,10 @@ qunit.run([
 		tests: 'js/test/test_maintainer.js'
 	},
 	{
+		code: 'js/core/runtime.js',
+		tests: 'js/test/test_runtime.js'
+	},
+	{
 		deps: [
 			'joe/joe.js',
 			'js/core/maintainer.js',
