@@ -8,6 +8,14 @@ Go to the [google group](https://groups.google.com/forum/#!forum/jseden)!
 
 # Development Guide
 
+## Automated testing
+
+There are automated tests for the JavaScript code. To run the tests:
+
+1) install Node.js
+2) npm install
+3) npm test
+
 ## Developing locally
 
 There's a `Vagrantfile` included for setting up an Ubuntu VM with apache/mysql/ruby configured. You'll need to install both [virtualbox](https://www.virtualbox.org/) and [Vagrant](http://vagrantup.com/) in order to use it. Fortunately both cross platform.
