@@ -8,6 +8,21 @@ Go to the [google group](https://groups.google.com/forum/#!forum/jseden)!
 
 # Development Guide
 
+## Developing the parser
+
+Start up the parser development server:
+
+```
+npm install
+grunt
+```
+
+Then go to localhost:9000. This will let you see the generated JS from the
+parser. Changes to the file `translator/grammar.jison` will automatically
+rebuild the parser at `js/core/eden/parser.js` (takes a few seconds) and reload
+the page.
+
+
 ## Automated testing
 
 There are automated tests for the JavaScript code. To run the tests:
