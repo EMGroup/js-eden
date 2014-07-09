@@ -53,7 +53,7 @@
 	color: black;
 	padding: 8px;
 	width: 150px;
-	z-index: 1100;
+	z-index: 2147483647; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */
 }
 
 #menubar-version-number {
