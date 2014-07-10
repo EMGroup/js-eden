@@ -1,3 +1,6 @@
+/**
+ * This script runs all the automated tests written for jseden.
+ */
 var qunit = require('qunit');
 
 qunit.setup({

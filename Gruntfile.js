@@ -1,9 +1,10 @@
 /*
- * grunt-watchify
- * http://github.com/amiorin/grunt-watchify
+ * Used by `grunt` - see gruntjs.com.
  *
- * Copyright (c) 2013 Alberto Miorin, contributors
- * Licensed under the MIT license.
+ * The purpose of this file is to help with working on the eden-js grammar, the
+ * 'jison' task will generate the parser, the default task runs a web server
+ * for testing the grammar and automatically regenerates the parser when the
+ * grammar file changes.
  */
 
 'use strict';
