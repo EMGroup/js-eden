@@ -6,16 +6,206 @@
  */
 
 /**
- * JS-Eden InputWindow Plugin.
- * This plugin provides createInputWindow and embedInputWindow methdods which
- * respectively create an input window dialog for entering JS-Eden code or
- * embed an input window into an existing div element. A history is also
- * kept of all inputs (in all input windows).
- * @class InputWindow Plugin
+ * JS-Eden Interpreter Window Plugin.
+ * Which is better than the one with all the widget cak.
+ * @class Input Window Plugin
  */
 
- joe.log("interpreter.js: READING SCRIPT");
- 
+Eden.plugins.InputWindow = function(context) {
+
+	var me = this;
+	me.edenparser = undefined;
+	this.history = new Array();
+
+	this.index = 0;
+
+	this.addHistory = function(text) {
+		me.history.push(text);
+		this.index = me.history.length;
+	}
+
+	this.getHistory = function(index) {
+		if (me.history.length == 0) {
+			return "";
+		} else {
+			return me.history[this.index];
+		}
+	}
+
+	this.previousHistory = function(){
+	
+		if (this.index <= 0) {
+			this.index = 1;
+		}
+		if (this.index > me.history.length) {
+			this.index = me.history.length;
+		}
+		return this.getHistory(--this.index);
+	}
+
+	this.nextHistory = function(){
+	
+		if (this.index < 0) {
+			this.index = 0;
+		}
+		if (this.index >= me.history.length-1) {
+			this.index++;
+			return "";
+		}
+		return this.getHistory(++this.index);
+	}
+
+	var historydialog = undefined;
+
+	this.submitEdenCode = function(text) {
+	
+		this.addHistory(text+" ## (Successful)");
+
+		if (eden.plugins.MenuBar) {
+			eden.plugins.MenuBar.updateStatus("Parsing input...");
+		}
+
+		try {
+	
+			eval(Eden.translateToJavaScript(text));
+			
+		} catch (e) {
+			me.history[this.index-1] = text+" ## (Failed)";
+			eden.plugins.MenuBar.updateStatus("Eden Code Unrecognised - Did you forget a semicolon?");
+			alert("Parsing Failed");
+		}
+
+		if (eden.plugins.MenuBar) {
+			eden.plugins.MenuBar.appendStatus(" [complete]");
+		}
+
+		if (historydialog !== undefined) {
+			historydialog.html(this.generateHistory());
+		}
+	}
+
+	var closeInput = function(options) {
+		var $dialog = options.$dialog;
+		$dialog.dialog('close');
+	}
+
+	var openInput = function(options) {
+
+		var $dialog = options.$dialog;
+		$dialog.dialog('open');
+		$(options.editor.getInputField()).focus();
+	}
+
+	this.generateHistory = function() {
+
+		result = "";
+		for (var i=0; i<me.history.length; i++) {
+			var theclass = "inputwindow-history-line";
+			result = result + "<div class=\""+theclass+"\"><p style=\"word-wrap: break-word;\">" + Eden.deHTML(me.history[i]) + "</p></div>";
+		}
+		return result;
+	}
+
+	this.createHistory = function(name,mtitle) {
+
+		historydialog = $('<div id="'+name+'"></div>')
+			.html("<div class=\"history\">"+eden.plugins.InputWindow.generateHistory()+"</div>")
+			.dialog({
+				title: mtitle,
+				width: 500,
+				height: 500,
+				minHeight: 300,
+				minWidth: 300
+
+			}).find(".history");
+	}
+
+	this.createDialog = function(name, mtitle, edenparser) {
+
+		var myeditor;
+
+		code_entry = $('<textarea onkeyUp="eden.plugins.InputWindow.inputKeypress(event)" id="inputCodeArea"></textarea><div id="subButtonsDiv"><button id="submitButton" onclick="eden.plugins.InputWindow.submit()">Submit</button></div><div id="buttonsDiv"><button id="previousButton" onclick="eden.plugins.InputWindow.prev()" >Previous</button><button id="nextButton" onclick="eden.plugins.InputWindow.next()" >Next</button></div>');
+//try removing div: <div id=\"'+name+'-content\" class=\"inputWindow-content\">	</div>
+		//Buttons taken out for new methods of terminal: 
+		
+		$dialog = $('<div id="'+name+'"></div>')
+			.html(code_entry)
+			.dialog({
+				title: mtitle,
+				width: 500,
+				height: 200,
+				minHeight: 200,
+				minWidth: 500,
+
+			});
+			input_dialog = $dialog;
+	}
+
+	this.next = function(){
+		var n = eden.plugins.InputWindow.nextHistory();
+		n = n.replace(/\#\# \(Failed\)/g, "");
+		n = n.replace(/\#\# \(Successful\)/g, "");
+		n = n.replace(/ $/g, "");
+		document.getElementById("inputCodeArea").value = n;
+	}
+	this.prev = function(){
+		var p = eden.plugins.InputWindow.previousHistory();
+		p = p.replace(/\#\# \(Failed\)/g, "");
+		p = p.replace(/\#\# \(Successful\)/g, "");
+		p = p.replace(/ $/g, "");
+		document.getElementById("inputCodeArea").value = p;
+	}
+	this.submit = function(){
+		eden.plugins.InputWindow.submitEdenCode(document.getElementById("inputCodeArea").value);
+		document.getElementById("inputCodeArea").value = "";
+	}
+	this.inputKeypress = function(event){
+	
+		//console.log(event.keyCode);
+		//console.log(event.ctrlKey);
+		if(event.keyCode==13){
+			if(event.ctrlKey){
+				eden.plugins.InputWindow.submit();
+			}
+		}
+		else if(event.keyCode==38){
+			if(event.ctrlKey){
+				eden.plugins.InputWindow.prev();
+			}
+		}
+		else if(event.keyCode==40){
+			if(event.ctrlKey){
+				eden.plugins.InputWindow.next();
+			}
+		}	
+	}
+	this.getRidOfInstructions = function(){
+		var x = document.getElementById("inputCodeArea").value;
+		if(x=="Ctrl+Enter = Submit\nCtrl+Up = Previous\nCtrl+Down = Next"){
+			document.getElementById("inputCodeArea").value = "";
+		}
+	}
+	this.putBackInstructions = function(){
+		var x = document.getElementById("inputCodeArea").value;
+		if(x==""){
+			document.getElementById("inputCodeArea").value = "Ctrl+Enter = Submit\nCtrl+Up = Previous\nCtrl+Down = Next";
+		}
+	}
+
+	context.views.InputWindow = {
+		dialog: this.createDialog,
+		embed: this.createEmbedded,
+		title: "JS-Eden Input Window"
+	};
+	context.views.History = {
+		dialog: this.createHistory,
+		title: "Input History"
+	};
+	
+	context.history = this.history;
+	
+};
+
 Eden.deHTML = function(text){
 //a function to allow the display of HTML in pages directly without the HTML being interpreted
 
@@ -27,11 +217,13 @@ Eden.deHTML = function(text){
 
 	for(var i=0; i<text.length; i++) {
 	
-		if(text[i] == "<")		{
-			build.push("&#60;");	
+		if(text[i] == "<"){
+				build.push("&#60;");
 		}
 		else if(text[i] == ">"){	
-			build.push("&#62;");	
+			//if(text[i+1]!="="){
+				build.push("&#62;");
+			//}
 		}
 		else if(text[i] == "{"){	
 			build.push("&#123;");	
@@ -59,267 +251,28 @@ Eden.deHTML = function(text){
 	return build.join("");
 }
 
-Eden.plugins.InputWindow = function(context) {
-joe.log("interpreter.js: InputWindow()");
-	var me = this;
-	/**
-	 * Record of the input history for this window.
-	 * @public
-	 */
-	this.history = new Array();
-
-	/** @private */
-	var index = 0;
-
-	/** @private */
-	var addHistory = function(text) {
-	joe.log("interpreter.js: addHistory()");
-		me.history.push({input: text, time: ((new Date()).getTime())});
-		index = me.history.length;
-	}
-
-	/** @private */
-	var getHistory = function(index) {
-console.log("interpreter.js: getHistory()");
-		if (me.history.length == 0) {
-			return "";
-		} else {
-			return me.history[index].input;
-		}
-	}
-
-	/** @private */
-	var previousHistory = function() {
-	joe.log("interpreter.js: previousHistory()");
-		if (index <= 0) {
-			index = 1;
-		}
-		if (index > me.history.length) {
-			index = me.history.length;
-		}
-		return getHistory(--index);
-	}
-
-	/** @private */
-	var nextHistory = function() {
-	joe.log("interpreter.js: nextHistory()");
-		if (index < 0) {
-			index = 0;
-		}
-		if (index >= me.history.length-1) {
-			index++;
-			return "";
-		}
-		return getHistory(++index);
-	}
-
-	/** @private */
-	var loadPreviousEdenCode = function(options) {
-	joe.log("interpreter.js: loadPreviousEdenCode()");
-		options.editor.setValue(previousHistory());
-	}
-
-	/** @private */
-	var loadNextEdenCode = function(options) {
-	joe.log("interpreter.js: loadNextEdenCode()");
-		options.editor.setValue(nextHistory());
-	}
-
-	var historydialog = undefined;
-
-	/** @private */
-	var submitEdenCode = function(options) {
-	joe.log("interpreter.js: submitEdenCode()");
-		var editor = options.editor;
-		var edenparser = options.edenparser;
-		addHistory(editor.getValue());
-
-		if (eden.plugins.MenuBar) {
-			eden.plugins.MenuBar.updateStatus("Parsing input...");
-		}
-
-		try {
-			var myvalue;
-		
-			if (edenparser !== undefined) {
-				//Parse special notation to eden
-			} else {
-				myvalue = editor.getValue();
-			}
-joe.log("interpreter.js: myvalue= "+myvalue);
-		
-			eval(Eden.translateToJavaScript(myvalue));
-			editor.setValue("");
-		} catch (e) {
-			me.history[index-1].error = e;
-			Eden.reportError(e);
-		}
-
-		if (eden.plugins.MenuBar) {
-			eden.plugins.MenuBar.appendStatus(" [complete]");
-		}
-
-		if (historydialog !== undefined) {
-			historydialog.html(generateHistory());
-		}
-	}
-
-	/** @private */
-	var closeInput = function(options) {
-	joe.log("interpreter.js: closeInput()");
-		var $dialog = options.$dialog;
-		$dialog.dialog('close');
-	}
-
-	/** @private */
-	var openInput = function(options) {
-	joe.log("interpreter.js: openInput()");
-		var $dialog = options.$dialog;
-
-		$dialog.dialog('open');
-		$(options.editor.getInputField()).focus();
-	}
-
-	/** TODO: Move. This does not belong here */
-	/** @private */
-	//var openObservablesAndAgents = function(options) {
-	//	$('#symbol-search > .side-bar-topic-title').click();
-	//	$('#observable-search').focus();
-	//}
-
-	/** @private */
-	var KEYBINDINGS = {
-		'alt+shift+i': closeInput,
-		'alt+i': openInput,
-		'alt+a': submitEdenCode,
-		//'alt+o': openObservablesAndAgents,
-		'alt+p': loadPreviousEdenCode,
-		'alt+n': loadNextEdenCode
-	};
-
-	/** @private */
-	var setupKeyBind = function(options, keyCombo, callback) {
-	joe.log("interpreter.js: setupKeyBind()");
-		$(document).bind('keydown', keyCombo, function () {
-			callback && callback(options);
-		});
-	}
-
-	/** @private */
-	var setupAllKeyBinds = function(options) {
-	joe.log("interpreter.js: setupAllKeyBinds()");
-		for (var keyCombo in KEYBINDINGS) {
-			setupKeyBind(options, keyCombo, KEYBINDINGS[keyCombo]);
-		}
-	}
-
-	/** @public */
-	this.createEmbedded = function(name, edenparser) {
-		joe.log("interpreter.js: createEmbedded()");
-	}
-
-	var generateHistory = function() {
-	joe.log("interpreter.js: generateHistory()");
-		result = "";
-		for (var i=0; i<me.history.length; i++) {
-			var theclass = "inputwindow-history-line";
-			if (me.history[i].error !== undefined) {
-				theclass = theclass + " error";
-			}
-			result = result + "<div class=\""+theclass+"\"><pre>" + Eden.deHTML(me.history[i].input) + "</pre></div>";
-		}
-		return result;
-	}
-
-	this.createHistory = function(name,mtitle) {
-	joe.log("interpreter.js: createHistory()");
-		historydialog = $('<div id="'+name+'"></div>')
-			.html("<div class=\"history\">"+generateHistory()+"</div>")
-			.dialog({
-				title: mtitle,
-				width: 600,
-				height: 400,
-				minHeight: 200,
-				minWidth: 400,
-				//position: ['right','bottom'],
-
-				buttons: [
-					{
-						text: "Save",
-						click: function() {
-							//loadNextEdenCode({editor: myeditor});
-						}
-					}
-				]
-			}).find(".history");
-	}
-
-	/** @public */
-	this.createDialog = function(name, mtitle, edenparser) {
-	joe.log("interpreter.js: createDialog()");
-		var myeditor;
-
-		$code_entry = $('<div id="'+name+'-input" class=\"inputwindow-code\"><div></div><pre class="eden exec"></pre></div>');
-		$dialog = $('<div id="'+name+'"></div>')
-			.html($code_entry)
-			.dialog({
-				title: mtitle,
-				width: 450,
-				height: 240,
-				minHeight: 120,
-				minWidth: 230,
-				//position: ['right','bottom'],
-
-				buttons: [
-					{
-						id: "btn-submit",
-						text: "Submit",
-						click: function() {
-							submitEdenCode({editor: myeditor});
-						}
-					},
-					{
-						text: "Previous",
-						click: function() {
-							loadPreviousEdenCode({editor: myeditor});
-						}
-					},
-					{
-						text: "Next",
-						click: function() {
-							loadNextEdenCode({editor: myeditor});
-						}
-					}
-				]
-			});
-		input_dialog = $dialog;
-
-		$("#btn-submit").css("margin-right", "30px");
-
-		myeditor = convertToEdenPage('#'+name+'-input','code');
-
-		setupAllKeyBinds({
-			$dialog: $dialog,
-			editor: myeditor,
-			edenparser: edenparser
-		});
-	}
-
-	//Add views.
-	context.views.InputWindow = {
-		dialog: this.createDialog,
-		embed: this.createEmbedded,
-		title: "JS-Eden Input Window"
-	};
-	context.views.History = {
-		dialog: this.createHistory,
-		title: "Input History"
-	};
-	//Make history available in the main context.
-	context.history = this.history;
-};
-
 /* Plugin meta information */
 Eden.plugins.InputWindow.title = "Input Window";
 Eden.plugins.InputWindow.description = "EDEN style script input window";
-Eden.plugins.InputWindow.author = "Nicolas Pope and Tim Monks";
+Eden.plugins.InputWindow.author = "Joe Butler";
+
+//Make tab do spaces instead of selecting the next element
+$(document).delegate('#inputCodeArea', 'keydown', function(e) {
+  var keyCode = e.keyCode || e.which;
+
+  if (keyCode == 9) {
+    e.preventDefault();
+    var start = $(this).get(0).selectionStart;
+    var end = $(this).get(0).selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    $(this).val($(this).val().substring(0, start)
+                + "\t"
+                + $(this).val().substring(end));
+
+    // put caret at right position again
+    $(this).get(0).selectionStart =
+    $(this).get(0).selectionEnd = start + 1;
+  }
+});
+
