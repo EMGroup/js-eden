@@ -300,7 +300,7 @@ joe.log("interpreter.js: myvalue= "+myvalue);
 
 		$("#btn-submit").css("margin-right", "30px");
 
-		myeditor = convertToEdenPageNew('#'+name+'-input','code');
+		myeditor = convertToEdenPage('#'+name+'-input','code');
 
 		setupAllKeyBinds({
 			$dialog: $dialog,

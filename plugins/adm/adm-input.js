@@ -237,7 +237,7 @@
 		
 		$("#btn-submit").css("margin-right", "30px");
 		
-		myeditor = convertToEdenPageNew('#'+name+'-input','code');
+		myeditor = convertToEdenPage('#'+name+'-input','code');
 	};
 
 	/***** CODE FOR TEMPLATE INSTANTIATOR VIEW *****/
@@ -944,7 +944,7 @@
 			});
 		input_dialog = $dialog;
 		$("#btn-submit-advanced").css("margin-right", "30px");
-		myeditor = convertToEdenPageNew("#advanced-input", "code");
+		myeditor = convertToEdenPage("#advanced-input", "code");
 	};
 
 

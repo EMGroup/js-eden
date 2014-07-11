@@ -166,7 +166,7 @@ joe.log("edenui.js: observable_dialog("+symbol+", "+existing+")");
 				}
 			}
 		});
-		myeditor = convertToEdenPageNew('#obs_inspector_'+symbol.name.substr(1),'defedit');
+		myeditor = convertToEdenPage('#obs_inspector_'+symbol.name.substr(1),'defedit');
 		$dialog.get(0).editor = myeditor;
 		return $dialog;
 	} else {
@@ -217,7 +217,7 @@ joe.log("edenui.js: function_dialog("+symbol+", "+existing+")");
 					}
 				}
 		});
-		myeditor = convertToEdenPageNew('#obs_inspector_'+symbol.name.substr(1),'defedit');
+		myeditor = convertToEdenPage('#obs_inspector_'+symbol.name.substr(1),'defedit');
 		$dialog.get(0).editor = myeditor;
 		return $dialog;
 	} else {
@@ -266,7 +266,7 @@ joe.log("edenui.js: procedure_dialog("+symbol+", "+existing+")");
 					}
 				}
 		});
-		myeditor = convertToEdenPageNew('#obs_inspector_'+symbol.name.substr(1),'defedit');
+		myeditor = convertToEdenPage('#obs_inspector_'+symbol.name.substr(1),'defedit');
 		$dialog.get(0).editor = myeditor;
 		return $dialog;
 	} else {
