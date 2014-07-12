@@ -25,7 +25,6 @@ scripts = [
 	"core/eden/parser.js",
 	"core/eden.js",
 	"core/plugins.js",
-	"edenui.js",
 	"core/initialise.js",
 	"edenpage.js",
 
