@@ -22,7 +22,7 @@ scripts = [
 	"core/runtime.js",
 	"dummyconsole.js",
 	"core/maintainer.js",
-	"core/eden/parser.js",
+	"core/translator.js",
 	"core/eden.js",
 	"core/plugins.js",
 	"core/initialise.js",

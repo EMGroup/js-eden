@@ -27,7 +27,7 @@ qunit.run([
 			'joe/joe.js',
 			'js/core/maintainer.js',
 			'js/core/runtime.js',
-			'js/core/eden/parser.js',
+			'js/core/translator.js',
 		],
 		code: 'js/core/eden.js',
 		tests: 'js/test/test.js'

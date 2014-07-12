@@ -19,7 +19,7 @@ grunt
 
 Then go to localhost:9000. This will let you see the generated JS from the
 parser. Changes to the file `translator/grammar.jison` will automatically
-rebuild the parser at `js/core/eden/parser.js` (takes a few seconds) and reload
+rebuild the parser at `js/core/translator.js` (takes a few seconds) and reload
 the page.
 
 

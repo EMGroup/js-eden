@@ -17,7 +17,7 @@ module.exports = function (grunt) {
 
     jison: {
       target: {
-        files: { 'js/core/eden/parser.js': 'translator/grammar.jison' }
+        files: { 'js/core/translator.js': 'translator/grammar.jison' }
       }
     },
 

@@ -362,7 +362,7 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
  * This is the entry point for eden to JS translation, which attaches some of the
  * necessary functions/initial state to the translator before running it
  */
-// XXX: require.js for loading eden/parser.js
+// XXX: require.js for loading translator.js
 Eden.translateToJavaScript = Eden.parserWithInitialisation(parser);
 
 Eden.prototype.getDefinition = function(name, symbol) {
