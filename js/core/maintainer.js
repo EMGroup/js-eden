@@ -52,7 +52,6 @@ joe.log("maintainer.js: globalFunction");
 		//joe.log("maintainer.js: lookup: currently undefined");
 			this.symbols[name] = new Symbol(this, this.name + name, this.root);
 
-			//setTimeout(function() { $(me).trigger('symbolCreate', [me.symbols[name], name])});
 			this.notifyGlobals(this.symbols[name],true);
 		}
 
@@ -230,7 +229,6 @@ joe.log("maintainer.js: globalFunction");
 			this.fireActions(actions_to_fire);
 		}
 
-		//setTimeout(function() { $(me).trigger('symbolDefine'); });
 		if (this.context !== undefined) {
 			this.context.notifyGlobals(this,false);
 		}
@@ -285,8 +283,6 @@ joe.log("maintainer.js: globalFunction");
 		this.expire(actions_to_fire);
 		this.up_to_date = true;
 
-		//setTimeout(function() { $(me).trigger('symbolAssign', value); });
-
 		//Needs to be conditional on autocalc
 		if (this.context !== undefined) {
 			if (this.context.autocalc_state == true) {
@@ -334,8 +330,6 @@ joe.log("maintainer.js: globalFunction");
 		this.expire(actions_to_fire);
 
 		this.up_to_date = true;
-		//setTimeout(function() { $(me).trigger('symbolMutate')});
-
 		// accumulate a set of agents to trigger in expire, then trigger each of them
 		//Needs to be conditional on autocalc
 		if (this.context !== undefined) {
