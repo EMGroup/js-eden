@@ -457,40 +457,15 @@ joe.log("maintainer.js: globalFunction");
 		},
 
 		construct: (function() {
-			var temp_ctor = function() {};
+			var temp_ctor = function () {};
 
-			return function(ctor) {
+			return function (ctor) {
 				temp_ctor.prototype = ctor.prototype;
 				var instance = new temp_ctor();
 				ctor.apply(instance, Array.prototype.slice.call(arguments, 1));
 				return instance;
 			};
-
-		})(),
-
-		arrayEquals: function(a, b) {
-			if (a.length !== b.length) {
-				return false;
-			}
-
-			for (var i = 0; i < a.length; ++i) {
-				if (a[i] !== b[i]) {
-					return false;
-				}
-			}
-
-			return true;
-		},
-
-		copy: function(val) {
-			if (typeof val === "object") {
-				// XXX: figure out how to write a universal clone 
-				// method without relying on jQuery
-				return $.extend(true, {}, val);
-			} else {
-				return val;
-			}
-		}
+		})()
 	};
 
 	Symbol.prototype.get = function() {
@@ -531,22 +506,6 @@ joe.log("maintainer.js: globalFunction");
 		var newLookup = this.keys.concat(Array.prototype.slice.call(arguments));
 		return Symbol.prototype.get.apply(this.parent, newLookup);
 	};
-
-	/**
-	 * implements copy on write, assuming writes
-	 * happen through the 'mutate' interface
-	 */
-	function SymbolCopy() {
-		Symbol.call(this, Array.prototype.slice(arguments));
-	}
-
-	SymbolCopy.prototype = new Symbol();
-
-	SymbolCopy.prototype.mutate = function() {
-		this.cached_value = Utils.copy(this.cached_value);
-		Symbol.prototype.mutate.apply(this, Array.prototype.slice(arguments));
-	};
-	
 
 	// expose API
 	global.Folder = Folder;
