@@ -1,0 +1,8 @@
+? input boxes adapt to size of window
+
+*** eden-ish
+? would really be super if updates happened when guards changed value...
+
+*** human perspective ***
+? add ability to edit instantiated entities
+? if an action has actions following show these horizontally

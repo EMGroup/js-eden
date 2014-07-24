@@ -1,0 +1,40 @@
+{
+	name: time()
+	defs: {
+		t = 1;
+	}
+	actions: {
+		true --> this_t += 1;
+	}
+}
+
+time() as time;
+
+{
+	name: processor(alpha, beta)
+	defs: {
+		i is abs((time_t + (2*this_alpha) - this_beta)/3) % 4;
+		j is abs((time_t - this_alpha - this_beta)/3) % 4;
+		k is abs((time_t + (2*this_beta) - this_alpha)/3) % 4;
+	}
+	actions: {
+		time_t % 3 == (((this_alpha + this_beta) % 3) + 3) % 3 --> c[this_i+1][this_k+1] = abs(c[this_i+1][this_k+1]) + (a[this_i+1][this_j+1] * b[this_j+1][this_k+1]);
+	}
+}
+
+processor(-1,-1) as one;
+processor(-1,0) as two;
+processor(-1,1) as three;
+processor(-1,2) as four;
+processor(0,-1) as five;
+processor(0,0) as six;
+processor(0,1) as seven;
+processor(0,2) as eight;
+processor(1,-1) as nine;
+processor(1,0) as ten;
+processor(1,1) as eleven;
+processor(1,2) as twelve;
+processor(2,-1) as thirteen;
+processor(2,0) as fourteen;
+processor(2,1) as fifteen;
+processor(2,2) as sixteen;
