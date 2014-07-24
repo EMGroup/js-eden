@@ -37,4 +37,3 @@ http://iostudio.github.com/LunchAndLearn/2012/03/21/vagrant.html
 * `alt+o` Focus observable search box
 * `alt+p` Load older entered EDEN code into interpreter window
 * `alt+n` Load newer code into the interpeter window
-
