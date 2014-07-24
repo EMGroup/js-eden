@@ -14,9 +14,9 @@
  * @class MenuBar Plugin
  */
  
-joe.log("menu-bar.js: READING SCRIPT");
+
 Eden.plugins.MenuBar = function(context) {
-joe.log("menu-bar.js: menu-bar()");
+
 	var me = this;
 	var index = 0;
 
@@ -28,18 +28,18 @@ joe.log("menu-bar.js: menu-bar()");
 	$("<div id=\"menubar-bottom\"></div>").appendTo($("body"));
 
 	this.updateStatus = function(text) {
-		joe.log("menu-bar.js: updateStatus()");
+		
 		menustatus.html(text);
 	}
 
 	this.appendStatus = function(text) {
-		joe.log("menu-bar.js: appendStatus("+text+")");
+		
 		menustatus.html(menustatus.html()+text);
 	}
 
 	/** @private */
 	var addMainItem = function(name, title) {
-	joe.log("menu-bar.js: addMainItem("+name+", "+title+")");
+	
 		var menuitem = $("<div class=\"menubar-mainitem\"></div>");
 		menuitem.html(title+"<div id=\"menubar-mainitem-"+name+"\" class=\"menubar-menu\"></div>");
 		menuitem.appendTo(menudiv);
@@ -60,7 +60,7 @@ joe.log("menu-bar.js: menu-bar()");
 
 	/** @public */
 	this.updatePluginsMenu = function() {
-	joe.log("menu-bar.js: updatePluginsMenu()");
+	
 		var plugins = $("#menubar-mainitem-plugins");
 		plugins.html("");
 		for (x in Eden.plugins) {
@@ -84,7 +84,7 @@ joe.log("menu-bar.js: menu-bar()");
 
 	/** @public */
 	this.updateViewsMenu = function() {
-	joe.log("menu-bar.js: updateViewsMenu");
+	
 		var views = $("#menubar-mainitem-views");
 		views.html("");
 
@@ -121,7 +121,7 @@ joe.log("menu-bar.js: menu-bar()");
 
 	/** @private */
 	var addMenuItem = function(menu,text,click) {
-	joe.log("menu-bar.js: addMenuItem("+text+")");
+	
 		var menu = $("#menubar-mainitem-"+menu);
 		var entry = $("<div class=\"menubar-item\"></div>");
 		entry.html(text);
@@ -136,7 +136,7 @@ joe.log("menu-bar.js: menu-bar()");
 	//addMainItem("help","Help");
 
 	addMenuItem("jseden","Error Log", function() {
-	joe.log("menu-bar.js: addMenuItemB()");
+	
 		$('#error-window').dialog("open");
 	});
 	//addMenuItem("help","Eden Syntax", function() {
@@ -153,7 +153,7 @@ joe.log("menu-bar.js: menu-bar()");
 	$.ajax({
 		url: "version.rhtml",
 		success: function(data) {
-			$('<div id="menubar-version-number"></div>').html("js-eden J-version 2-12-2013"+data).appendTo($("#menubar-main"));
+			$('<div id="menubar-version-number"></div>').html("js-eden J-version "+data).appendTo($("#menubar-main"));
 		},
 		cache: false,
 		async: true

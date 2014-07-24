@@ -1,0 +1,10 @@
+##=============================================================================
+##Include these lines first.
+
+##Include JavaScript import library.
+include("library/include_js.js-e");
+
+##Include the JavaScript sound library.
+include_js("http://www.dcs.warwick.ac.uk/~wmb/PianoJS/audio.js");
+
+##=============================================================================

@@ -5,12 +5,12 @@
  * See LICENSE.txt
  */
  
-joe.log("plugins.js: READING SCRIPT");
+
 
 Eden.plugins = {};
 
 Eden.prototype.loadPlugin = function(name) {
-joe.log("plugins.js: loadplugin("+name+")");
+
 	if (this.plugins === undefined) {
 		this.plugins = {};
 	}
@@ -29,7 +29,7 @@ joe.log("plugins.js: loadplugin("+name+")");
 };
 
 Eden.prototype.createView = function(name, type) {
-joe.log("plugins.js: createView()");
+
 	if (this.active_dialogs === undefined) {
 		this.active_dialogs = {};
 	}
@@ -65,22 +65,22 @@ joe.log("plugins.js: createView()");
 };
 
 Eden.prototype.showView = function(name) {
-joe.log("plugins.js: showView()");
+
 	$("#"+name+"-dialog").dialog("open");
 }
 
 Eden.prototype.hideView = function(name) {
-joe.log("plugins.js: hideView()");
+
 	$("#"+name+"-dialog").dialog("close");
 }
 
 Eden.prototype.moveView = function(name) {
-joe.log("plugins.js: moveView()");
+
 	$("#"+name+"-dialog").dialog("option","position",[this.internals["_view_"+name+"_x"],this.internals["_view_"+name+"_y"]]);
 }
 
 Eden.prototype.resizeView = function(name) {
-joe.log("plugins.js: resizeView()");
+
 	var newwidth = this.internals["_view_"+name+"_width"];
 	var newheight = this.internals["_view_"+name+"_height"];
 	var diag = $("#"+name+"-dialog");

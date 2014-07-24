@@ -221,9 +221,13 @@
 	Graph.prototype.detachNode = function(node) {
 		var tmpEdges = this.edges.slice();
 		tmpEdges.forEach(function(e) {
+try{		
 			if (e.source.id === node.id || e.target.id === node.id) {
 				this.removeEdge(e);
 			}
+}catch(error){
+debugger;
+}
 		}, this);
 
 		this.notify();

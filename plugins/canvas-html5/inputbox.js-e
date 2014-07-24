@@ -1,9 +1,11 @@
 ${{
-Inputbox = function (name, x, y, enabled) {
+Inputbox = function (name, x, y, enabled, width, value) {
 	this.name = name;
 	this.x = x;
 	this.y = y;
     this.enabled = enabled;
+	this.width = width;
+	this.value = value;
 }
 
 }}$;
@@ -12,12 +14,15 @@ func Inputbox { ${{
   var x = arguments[1];
   var y = arguments[2];
   var enabled = arguments[3];
-  return new Inputbox(name, x, y, enabled);
+  var width = arguments[4];
+  var value = arguments[5];
+  return new Inputbox(name, x, y, enabled, width, value);
 }}$; }
 
 
 ${{
 Inputbox.prototype.draw = function(context,content) {
+
 	var canvas_obsname = "canvas_" + this.name;
 	var id = this.name;
 	var check = this.element;
@@ -28,9 +33,9 @@ Inputbox.prototype.draw = function(context,content) {
 		if (this.enabled == true) { dis = ""; }
 		else { dis = "disabled=\"true\""; }
 
-		var inputhtml = $("<input id=\""+canvas_obsname+"\" "+dis+" style=\"position: absolute; left: "+this.x+"px; top: "+this.y+"px;\" />");
+		var inputhtml = $("<input id=\""+canvas_obsname+"\" "+dis+" style=\"position: absolute; width:"+this.width+"px; left: "+this.x+"px; top: "+this.y+"px;\" />");
 
-		inputhtml.get(0).value = "";
+		inputhtml.get(0).value = this.value;
 		root.lookup(id + "_value").assign(inputhtml.get(0).value);
 
 		inputhtml.change(function(){
@@ -38,7 +43,6 @@ Inputbox.prototype.draw = function(context,content) {
 		}).appendTo($(content));
 
 		this.element = inputhtml.get(0);
-
 		inputhtml.get(0).togarbage = false;
 
 		//Assign

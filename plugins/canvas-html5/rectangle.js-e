@@ -20,14 +20,15 @@ func Rectangle { ${{
   var x2 = arguments[2];
   var y2 = arguments[3];
   var colour = arguments[4];
+  var outlinecolour = arguments[5];
   if (colour === undefined) { colour = "black"; }
-  return new Rectangle(x1, y1, x2, y2, colour);
+  return new Rectangle(x1, y1, x2, y2, colour, outlinecolour);
 }}$; };
 
 ${{
 Rectangle.prototype.draw = function(context) {
   context.fillStyle = this.fillcolour;
-  context.strokeStyle = this.outlincolour;
+  context.strokeStyle = this.outlinecolour;
   context.fillRect(this.x1,this.y1,this.x2,this.y2);
   context.strokeRect(this.x1,this.y1,this.x2,this.y2);
 };

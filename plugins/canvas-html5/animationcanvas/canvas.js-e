@@ -1,0 +1,21 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+include("plugins/canvas-html5/arc.js-e");
+include("plugins/canvas-html5/button.js-e");
+include("plugins/canvas-html5/circle.js-e");
+include("plugins/canvas-html5/combobox.js-e");
+include("plugins/canvas-html5/div.js-e");
+include("plugins/canvas-html5/image.js-e");
+include("plugins/canvas-html5/line.js-e");
+include("plugins/canvas-html5/polygon.js-e");
+include("plugins/canvas-html5/rectangle.js-e");
+include("plugins/canvas-html5/slider.js-e");
+include("plugins/canvas-html5/text.js-e");
+include("plugins/canvas-html5/point.js-e");
+include("plugins/canvas-html5/pixel.js-e");
+include("plugins/canvas-html5/inputbox.js-e");
+include("plugins/canvas-html5/textarea.js-e");
+include("plugins/canvas-html5/radioButtons.js-e");

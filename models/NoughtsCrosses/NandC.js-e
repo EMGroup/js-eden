@@ -1,0 +1,310 @@
+
+autocalc = 0;
+
+## Observable Assignments:
+
+s = "1";
+s1 = 0;
+s2 = 0;
+s3 = 0;
+s4 = 0;
+s5 = 0;
+s6 = 0;
+s7 = 0;
+s8 = 0;
+s9 = 0;
+list_lines = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]];
+board_template = "123
+456
+789
+";
+print_template = ["", "", "", "
+", "", "", "
+", "", "", "
+"];
+x = 1;
+o = -1;
+u = 0;
+badline = -999;
+player = -1;
+square = 5;
+startplayer = -1;
+
+## Observable Definitions:
+
+allsquares is [s1,s2,s3,s4,s5,s6,s7,s8,s9];
+nofsquares is allsquares#;
+lin1 is [s1,s2,s3];
+lin2 is [s4,s5,s6];
+lin3 is [s7,s8,s9];
+lin4 is [s1,s4,s7];
+lin5 is [s2,s5,s8];
+lin6 is [s3,s6,s9];
+lin7 is [s1,s5,s9];
+lin8 is [s3,s5,s7];
+alllines is [lin1,lin2,lin3,lin4,lin5,lin6,lin7,lin8];
+noflines is alllines#;
+linesthru1 is [lin1,lin4,lin7];
+linesthru2 is [lin1,lin5];
+linesthru3 is [lin1,lin6,lin8];
+linesthru4 is [lin2,lin4];
+linesthru5 is [lin2,lin5,lin7,lin8];
+linesthru6 is [lin2,lin6];
+linesthru7 is [lin3,lin4,lin8];
+linesthru8 is [lin3,lin5];
+linesthru9 is [lin3,lin6,lin7];
+linesthru is [linesthru1,linesthru2,linesthru3,linesthru4,linesthru5,linesthru6,
+linesthru7,linesthru8,linesthru9];
+n_squares is 9;
+vis is ((s == "1") || (s == "3")) ? vis13 : vis2;
+board is concatxo(allsquares);
+xwon is checkxwon(alllines);
+owon is checkowon(alllines);
+nofx is nofpieces(allsquares, x);
+nofo is nofpieces(allsquares, o);
+full is (nofx + nofo == nofsquares);
+draw is (! xwon) && (! owon) && full;
+status is (xwon?"X wins ":"") // (owon?"O wins ":"") //
+	(draw?"Draw ":"") // "";
+availsquare is allsquares[square] == u;
+cursqval is sqval(linesthru[square]);
+maxindex is findmaxindex(allsquares);
+end_of_game is xwon || owon || draw;
+x_to_play is (! end_of_game) && (startplayer == x && nofo == nofx) ||
+		nofo > nofx;
+o_to_play is (! end_of_game) && (startplayer == o && nofo == nofx) ||
+		nofx > nofo;
+
+## Action Definitions:
+
+proc displayboard : board {
+	writeln(board);
+	}
+
+proc initAllSquares {
+  auto i;
+
+  autocalc = 0;
+  for (i = 1; i <= nofsquares; i++) {
+    `"s"//str(i)` = u;
+  }
+  autocalc = 1;
+}
+
+proc xwinmess : status {
+	writeln(status);
+	}
+
+proc init_game {
+	initAllSquares();
+	writeln("Who is to start? Respond with either");
+	writeln("startplayer = o;");
+	writeln("    or");
+	writeln("startplayer = x;");
+	}
+
+proc play : end_of_game, o_to_play, x_to_play {
+	if (end_of_game) {
+		writeln("bye bye");
+		}
+	else if (o_to_play) {
+		writeln("Positions are");
+		writeln(board_template);
+		writeln("please play; type");
+		writeln("sn=o;");
+		}
+	else if (x_to_play) {
+		mvsq = "s" // str(maxindex) ;
+		`mvsq` = x;
+		writeln("I move to square " // mvsq);
+		}
+	}
+
+
+## Function Definitions:
+
+func strix {
+	return " " // (($1>9) ? str(int($1/10)) : " ") // str($1 - int($1/10) * 10);
+}
+
+func vis13 {
+##	return ($1==u)?".":(($1==x)?"X":(($1==o)?"O":"?"));
+	return ($1==u)?str($2):(($1==x)?"X":(($1==o)?"O":"?"));
+	}
+
+func vis2 {
+##      return ($1==u)?".":(($1==x)?"X":(($1==o)?"O":"?"));
+        return ($1==u)?strix($2):(($1==x)?" X ":(($1==o)?" O ":"?"));
+        }
+
+func concatxo {
+##	auto i;
+##	auto result;
+	auto i, result; ## JsEden fix
+	result = print_template[1];
+	for (i=1; i<=$1#; i++) {
+		result = result // vis($1[i], i) // print_template[i+1];
+		}
+	return result;
+	}
+
+func xxline {
+	para lline;
+	auto i, b;
+	b = 1;
+	for (i=1; i<=lline#; i++) {
+		b = b && (lline[i] == x);
+		}
+	return b;
+	}
+
+func ooline {
+	para lline;
+	auto i, b;
+	b = 1;
+	for (i=1; i<=lline#; i++) {
+		b = b && (lline[i] == o);
+		}
+	return b;
+	}
+
+func checkxwon {
+	auto i, b;
+	b = 0;
+	for (i=1; i<=$1#; i++) {
+		b = b || xxline($1[i]);
+		}
+	return b;
+	}
+
+func checkowon {
+	auto i, b;
+	b = 0;
+	for (i=1; i<=$1#; i++) {
+		b = b || ooline($1[i]);
+		}
+	return b;
+	}
+
+func nofpieces {
+	auto count, total;
+	total = 0;
+	for (count=1; count <= $1#; count++)
+		if ($1[count] == $2)
+			total++;
+	return total;
+	}
+
+func weighting {
+##	auto xs, os, blanks, plr;
+##	auto players, opponents;
+	auto xs, os, blanks, plr, players, opponents; ## JsEden fix
+	xs = $1[1];
+	os = $1[2];
+	blanks = $1[3];
+	players = (plr == x)?xs:os;
+	opponents = (plr == x)?os:xs;
+	if (players > 0 && opponents > 0)
+		return (-1);
+	if ((opponents == 0) && (blanks == 1))
+		return 100;
+	else if ((players == 0) && (blanks == 1))
+		return 20;
+	else if (opponents == 0)
+		return 3;
+	else if (players == 0)
+		return 1;
+	else return 0;
+	}
+
+func linval {
+	para lline;
+	auto xs, os, i;
+	xs = 0; os = 0;
+	for (i=1; i <=lline#; i++) { 
+		if (lline[i] == x)
+			xs++;
+		else if (lline[i] == o)
+			os++;
+		}
+	return [xs, os, lline#-xs-os ];
+	}
+
+func sqval {
+	para linelist;
+	auto listlen,i,total;
+	listlen = linelist#;
+	total = 0;
+
+	for (i=1; i <= listlen; i++)
+		total += weighting(linval(linelist[i]), player);
+	return total;
+	}
+
+func findmaxindex {
+	auto maxval,foundindex,looping;
+	maxval=0;
+	foundindex=0;
+	square=1;
+	looping=1;
+	while (looping) {
+		if (availsquare && (cursqval >= maxval)) {
+			maxval=cursqval;
+			foundindex = square;
+			}
+		if (square < nofsquares)
+			square++;
+		else if (square == nofsquares)
+			looping = 0;
+		}
+	return foundindex;
+	}
+
+WN is Point(100+size*0.5, 100+size*4.5);
+NW is Point(100+size*2.5, 100+size*6.5);
+NE is Point(100+size*4.5, 100+size*6.5);
+EN is Point(100+size*6.5, 100+size*4.5);
+ES is Point(100+size*6.5, 100+size*2.5);
+SE is Point(100+size*4.5, 100+size*0.5);
+SW is Point(100+size*2.5, 100+size*0.5);
+WS is Point(100+size*0.5, 100+size*2.5);
+sq1 is Point(100+size*1.5, 100+size*5.5);
+sq2 is Point(100+size*3.5, 100+size*5.5);
+sq3 is Point(100+size*5.5, 100+size*5.5);
+sq4 is Point(100+size*1.5, 100+size*3.5);
+sq5 is Point(100+size*3.5, 100+size*3.5);
+sq6 is Point(100+size*5.5, 100+size*3.5);
+sq7 is Point(100+size*1.5, 100+size*1.5);
+sq8 is Point(100+size*3.5, 100+size*1.5);
+sq9 is Point(100+size*5.5, 100+size*1.5);
+WNEN is Line(WN.x,WN.y,EN.x,EN.y);
+WSES is Line(WS.x,WS.y,ES.x,ES.y);
+NWSW is Line(NW.x,NW.y,SW.x,SW.y);
+NESE is Line(NE.x,NE.y,SE.x,SE.y);
+lab1 is (s1 == 0) ? "" : ((s1 == 1) ? "X" : "O");
+piece1 is Text(lab1,sq1.x-10, sq1.y+10, "black", 32);
+lab2 is (s2 == 0) ? "" : ((s2 == 1) ? "X" : "O");
+piece2 is Text(lab2,sq2.x-10, sq2.y+10, "black", 32);
+lab3 is (s3 == 0) ? "" : ((s3 == 1) ? "X" : "O");
+piece3 is Text(lab3,sq3.x-10, sq3.y+10, "black", 32);
+lab4 is (s4 == 0) ? "" : ((s4 == 1) ? "X" : "O");
+piece4 is Text(lab4,sq4.x-10, sq4.y+10, "black", 32);
+lab5 is (s5 == 0) ? "" : ((s5 == 1) ? "X" : "O");
+piece5 is Text(lab5,sq5.x-10, sq5.y+10, "black", 32);
+lab6 is (s6 == 0) ? "" : ((s6 == 1) ? "X" : "O");
+piece6 is Text(lab6,sq6.x-10, sq6.y+10, "black", 32);
+lab7 is (s7 == 0) ? "" : ((s7 == 1) ? "X" : "O");
+piece7 is Text(lab7,sq7.x-10, sq7.y+10, "black", 32);
+lab8 is (s8 == 0) ? "" : ((s8 == 1) ? "X" : "O");
+piece8 is Text(lab8,sq8.x-10, sq8.y+10, "black", 32);
+lab9 is (s9 == 0) ? "" : ((s9 == 1) ? "X" : "O");
+piece9 is Text(lab9,sq9.x-10, sq9.y+10, "black", 32);
+	
+	
+## Picture Definition:
+
+picture is [WNEN, WSES, NWSW, NESE, piece1, piece2, piece3, piece4, piece5, piece6, piece7, piece8, piece9];
+
+
+## Auto calculation is turned on and the updating is fired
+autocalc = 1;

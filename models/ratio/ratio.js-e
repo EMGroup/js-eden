@@ -1,0 +1,86 @@
+## Auto-Generated Script of Model by JS-Eden J-version
+
+## Auto calculation is turned off to until the model has been fully loaded
+autocalc = 0;
+
+## Observable Assignments:
+
+Nmin_value = "0";
+Nmax_value = "100";
+Nstep_value = "1";
+Dmin_value = "0";
+Dmax_value = "100";
+Dstep_value = "1";
+numerator_value = 10;
+numerator_x = 50;
+numerator_y = 75;
+numerator_min = 0;
+numerator_max = 100;
+numerator_step = 1;
+denominator_value = 100;
+denominator_x = 50;
+denominator_y = 205;
+denominator_min = 0;
+denominator_max = 100;
+denominator_step = 1;
+
+## Observable Definitions:
+
+numeratorInputMin is Inputbox("Nmin", 50, 50, true, 50, 0);
+numeratorInputMax is Inputbox("Nmax", 120, 50, true, 50, 100);
+numeratorInputStep is Inputbox("Nstep", 190, 50, true, 50, 1);
+numeratorSlider is Slider("numerator", int(Nmin_value), int(Nmax_value), int(Nstep_value), 10, "horizontal", 50, 75);
+denominatorInputMin is Inputbox("Dmin", 50, 250, true, 50, 0);
+denominatorInputMax is Inputbox("Dmax", 120, 250, true, 50, 100);
+denominatorInputStep is Inputbox("Dstep", 190, 250, true, 50, 1);
+denominatorSlider is Slider("denominator", int(Dmin_value), int(Dmax_value), int(Dstep_value), 100, "horizontal", 50, 205);
+numeratorMinText is Text("min", 52, 42, "black", 12);
+numeratorMaxText is Text("max", 122, 42, "black", 12);
+numeratorStepText is Text("step", 192, 42, "black", 12);
+denominatorMinText is Text("min", 52, 242, "black", 12);
+denominatorMaxText is Text("max", 122, 242, "black", 12);
+denominatorStepText is Text("step", 192, 242, "black", 12);
+numerator is Text(str(numerator_value), 100, 140, "black", 50);
+denominator is Text(str(denominator_value), 100, 190, "black", 50);
+fractionLine is Line(87, 147, 177, 147, "black");
+numberLine is Line(40, 320, 440, 320, "black");
+numberLineOne is Line(((numberLine.x1+numberLine.x2)/2)+20, numberLine.y1-10, ((numberLine.x1+numberLine.x2)/2)+20, numberLine.y1+10, "black");
+numberLineOneText is Text("1", numberLineOne.x1, numberLineOne.y1+30, "black", 12);
+numberLineMid is Line(((numberLine.x1+numberLine.x2)/2), numberLine.y1-10, ((numberLine.x1+numberLine.x2)/2), numberLine.y1+10, "black");
+numberLineMidText is Text("0", numberLineMid.x1, numberLineMid.y1+30, "black", 12);
+numberLineStart is Line(numberLine.x1, numberLine.y1-10, numberLine.x1, numberLine.y1+10, "black");
+numberLineStartText is Text("-10", numberLineStart.x1, numberLineStart.y1+30, "black", 12);
+numberLineEnd is Line(numberLine.x2, numberLine.y2-10, numberLine.x2, numberLine.y2+10, "black");
+numberLineEndText is Text("10", numberLineEnd.x1, numberLineEnd.y1+30, "black", 12);
+decimalValue is (numerator_value / denominator_value);
+numberLineCursor is Circle(240+(decimalValue*20), numberLine.y1, 5, "black", "black");
+numberLineCursorText is Text(str(roundPrecision(decimalValue, 2)), numberLineCursor.x, numberLineCursor.y-10, "black", 12);
+percentage is decimalValue*100;
+percentageText is Text("= "+str(roundPrecision(percentage,0))+"%", 230, 160, "black", 50);
+
+## Action Definitions:
+
+
+## Function Definitions:
+
+func roundPrecision { ${{
+
+	function toFixed(value, precision) {
+    var precision = precision || 0,
+    neg = value < 0,
+    power = Math.pow(10, precision),
+    value = Math.round(value * power),
+    integral = String((neg ? Math.ceil : Math.floor)(value / power)),
+    fraction = String((neg ? -value : value) % power),
+    padding = new Array(Math.max(precision - fraction.length, 0) + 1).join('0');
+
+    return precision ? integral + '.' +  padding + fraction : integral;
+} return toFixed(arguments[0], arguments[1]); }}$; }
+
+## Picture Definition:
+picture is [numberLineOne, numberLineOneText, percentageText, numberLineCursorText, numberLineCursor, numberLineMidText, numberLineEndText, numberLineStartText, numberLineMid, numberLineStart, numberLineEnd, numberLine, fractionLine, denominator, numerator, denominatorStepText, denominatorMaxText, denominatorMinText, numeratorStepText, numeratorMaxText, numeratorMinText, numeratorSlider, denominatorSlider, numeratorInputMin, numeratorInputMax, numeratorInputStep, denominatorInputMin, denominatorInputMax, denominatorInputStep];
+
+## Auto calculation is turned on and the updating is fired
+autocalc = 1;
+
+## End of Auto-Generated Script

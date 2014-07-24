@@ -9,7 +9,7 @@
 		},
 		{
 			"name": "JSPE",
-			"author": "Matt Cranham / Hui Zhu",
+			"author": "Meurig Beynon / Hui Zhu",
 			"year": "2012",
 			"description": "Installs a presentation environment.",
 			"runfile": "models/jspe/run.e"
@@ -22,19 +22,19 @@
 			"runfile": "models/cs405/JUGSinJS-E/jugspres.e"
 		},
 		{
+			"name": "Ratio",
+			"author": "Joe Butler",
+			"year": "2014",
+			"description": "Experiencing the relationship between ratio quantities",
+			"runfile": "models/ratio/run.e"
+		},
+		{
 			"name": "Malaria",
-			"author": "Meurig Beynon / Will Beynon",
-			"year": "2012",
+			"author": "?",
+			"year": "?",
 			"description": "Modelling Malaria",
 			"runfile": "models/malaria/malariaA.jse"
 		},
-		{
-                        "name": "Visual Neuron Modelling",
-                        "author": "Hamish Todd",
-                        "year": "2014",
-                        "description": "Modelling visual-related neurons",
-                        "runfile": "models/1364073-Hamish/Presentation26062014.txt"
-                },
 		{
 			"name": "Number-Line Port",
 			"author": "Jess Nickson",

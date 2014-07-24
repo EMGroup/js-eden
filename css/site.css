@@ -1,0 +1,26 @@
+a#try {
+	position: absolute;
+	top: 120px;
+	left: 50%;
+	margin-left: -250px;
+	width: 200px;
+	height: 200px;
+	background-image: url('../try-img.png');
+	background-repeat: no-repeat;
+}
+
+a.content-menu-item {
+	position: absolute;
+	height: 30px;
+	min-width: 30px;
+	margin-bottom: 5px;
+	position: absolute;
+	left: 50%;
+	margin-left: -20px;
+	background-image: url('../but-img.png');
+	background-repeat: no-repeat;
+	padding-left: 40px;
+	padding-top: 8px;
+	font-size: 14px;
+	font-family: "Arial";
+}

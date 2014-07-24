@@ -1,0 +1,97 @@
+##=============================================================================
+##Built-in EDEN functions not yet built into JS-EDEN.
+
+## TODO: These are in draft form and might produce results inconsistent with
+## EDEN for edge cases.
+
+proc error {
+	${{
+		Eden.reportError(new Error(arguments[0]));
+	}}$;
+}
+
+func substr {
+	${{
+		return arguments[0].slice(arguments[1] - 1, arguments[2]);
+	}}$;
+}
+
+##int("A") incorrectly gives NaN instead of 65, so this is a replacement function.
+func charCode {
+	${{
+		if (arguments[0].length == 1) {
+			return arguments[0].charCodeAt();
+		} else {
+			return undefined;
+		}
+	}}$;
+}
+
+func char {
+	${{
+		if (typeof(arguments[0]) == "number") {
+			return String.fromCharCode(arguments[0]);
+		} else if (typeof(arguments[0]) == "string") {
+			return arguments[0].charAt(0);
+		} else {
+			return undefined;
+		}
+	}}$;
+}
+
+##=============================================================================
+##Useful functions for lists.
+
+##Returns true if the second argument is found somewhere in the list given by
+##the first argument.
+func inList {
+	para list, item;
+	auto i;
+	for (i = 1; i <= list#; i++) {
+		if (list[i] == item) {
+			return true;
+		}
+	}
+	return false;
+}
+
+func map {
+	para f, list;
+	auto result, i;
+	if (list == @) {
+		return @;
+	}
+	
+	result = [];
+	for (i = 1; i <= list#; i++) {
+		result = result // [f(list[i])];
+	}
+	return result;
+}
+
+##=============================================================================
+##Useful functions for strings.
+
+##Returns the string formed by replacing the first instance of the second
+##argument with the string given by the third argument in the strin the string
+##given by the first argument (or all instances if the second argument is a
+##regular expression of the form /.../g instead of a plain string.
+func replace {
+	${{
+		return arguments[0].replace(arguments[1], arguments[2]);
+	}}$;
+}
+
+##=============================================================================
+##Useful functions for numbers.
+
+func max {
+	para a, b;
+	if (a >= b) {
+		return a;
+	} else {
+		return b;
+	}
+}
+
+##=============================================================================

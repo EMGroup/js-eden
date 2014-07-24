@@ -1,0 +1,500 @@
+## This is the original version where the piano key that's been clicked is found
+## by examining the boundaries of every rectangle until the matching one is found.
+
+##=============================================================================
+##Include these lines first.
+
+##Include JavaScript import library.
+include("library/include_js.js-e");
+
+##Include the JavaScript sound library.
+include_js("http://www.dcs.warwick.ac.uk/~wmb/PianoJS/audio.js");
+
+##=============================================================================
+##Built-in EDEN functions not yet built into JS-EDEN.
+
+## TODO: These are in draft form and might produce results inconsistent with
+## EDEN for edge cases.
+
+proc error {
+	${{
+		$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\"># ERROR number 1:<br># Error<br>" + arguments[0] + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
+	}}$;
+}
+
+func substr {
+	${{
+		return arguments[0].slice(arguments[1] - 1, arguments[2]);
+	}}$;
+}
+
+##=============================================================================
+##Useful functions for lists.
+
+##Returns true if the second argument is found somewhere in the list given by
+##the first argument.
+func inList {
+	para list, item;
+	auto i;
+	for (i = 1; i <= list#; i++) {
+		if (list[i] == item) {
+			return true;
+		}
+	}
+	return false;
+}
+
+##=============================================================================
+##Useful functions for strings.
+
+##Returns the string formed by replacing the first instance of the second
+##argument with the string given by the third argument in the strin the string
+##given by the first argument (or all instances if the second argument is a
+##regular expression of the form /.../g instead of a plain string.
+func replace {
+	${{
+		return arguments[0].replace(arguments[1], arguments[2]);
+	}}$;
+}
+
+##=============================================================================
+##Functions and procedures for assisting with the creation and comprehension of
+##definitions created dynamically at runtime from strings.
+
+##Create an aditional JS-EDEN view that logs each definition, function or procedure
+##just after it has been successfully declared using the "execute" procedure.
+##The resulting window displays a script that can be used as a tool for
+##comprending the procedural code that created the definitions.  In simple
+##cases of using "execute" to create many similar definitions the contents of
+##this window could be directly substituted for the procedural code.
+createView("Dynamically_Created_Definitions", "PlainHTML");
+generatedDefinitions = "";
+
+##A drop-in replacement for "execute" that "execute"s its argument and logs the
+##(re-)definition to the log window.
+proc createDefinition {
+	para definition;
+	auto definitionHTML;
+	execute(definition);
+	definitionHTML = definition;
+	definitionHTML = replace(definitionHTML, "<", "&lt;");
+	definitionHTML = replace(definitionHTML, ">", "&gt;");
+	generatedDefinitions = generatedDefinitions // "<div>" // definitionHTML // "</div>\n";
+	html("Dynamically_Created_Definitions", generatedDefinitions);
+}
+
+##This function is the reverse of execute/createDefinition.  Given a string
+##that names an observable it returns the code used to define that
+##observable.
+func definitionOf {
+	${{
+		function edenCodeForValue(value) {
+			var code = "";
+			if (value == null) {
+				code = "@";
+			} else if (Array.isArray(value)) {
+				code = "[";
+				for (var i = 0; i < value.length - 1; i++) {
+					code = code + edenCodeForValue(value[i]) + ", ";
+				}
+				if (value.length > 0) {
+					code = code + edenCodeForValue(value[value.length - 1]);
+				}
+				code = code + "]";
+			} else if (typeof(value) == "string") {
+				code = "\"" + value + "\"";
+			} else {
+				code = value;
+			}
+			return code;
+		}
+
+		var name = arguments[0];
+		var symbol = root.lookup(name);
+		if (symbol.eden_definition != null) {
+			return symbol.eden_definition + ";";
+		} else {
+			return name + " = " + edenCodeForValue(symbol.cached_value) + ";";
+		}
+	}}$;
+}
+
+##=============================================================================
+##Piano
+
+##Map the JavaScript sound library onto some observables.
+${{
+	declare_jse("toneGenerator");
+	var toneGenerator = DataGenerator;
+}}$;
+
+##Convert a music note to its piano key number.  E.g. A4 -> 49
+##Not currently called from anywhere in the model.
+func keyNumber {
+	para noteName;
+	auto noteNameWithoutOctave, octave, keyNumber;
+	if (noteName[2] == "#") {
+		noteNameWithoutOctave = substr(noteName, 1, 2);
+		octave = int(substr(noteName, 3, noteName#));
+	} else {
+		noteNameWithoutOctave = noteName[1];
+		octave = int(substr(noteName, 2, noteName#));	
+	}
+	switch (noteNameWithoutOctave) {
+	case "A":
+		keyNumber = 1;
+		break;
+	case "A#":
+		keyNumber = 2;
+		break;
+	case "B":
+		keyNumber = 3;
+		break;
+	case "C":
+		keyNumber = 4;
+		break;
+	case "C#":
+		keyNumber = 5;
+		break;
+	case "D":
+		keyNumber = 6;
+		break;
+	case "D#":
+		keyNumber = 7;
+		break;
+	case "E":
+		keyNumber = 8;
+		break;
+	case "F":
+		keyNumber = 9;
+		break;
+	case "F#":
+		keyNumber = 10;
+		break;
+	case "G":
+		keyNumber = 11;
+		break;
+	case "G#":
+		keyNumber = 12;
+		break;
+	default:
+		error("Unknown note " // noteName);
+	}
+	
+	if (keyNumber < 4) {
+		keyNumber = keyNumber + octave * 12;
+	} else {
+		keyNumber = keyNumber + (octave - 1) * 12;
+	}
+	return keyNumber;
+}
+
+##Convert a piano key number into the name of the note.  E.g. 50 -> A#4
+func noteName {
+	para keyNumber;
+	auto octave, keyNumberInFirstOctave;
+	keyNumberInFirstOctave = keyNumber % 12;
+	octave = int(keyNumber / 12) + 1;
+	if (keyNumberInFirstOctave < 4) {
+		octave--;
+	}
+	
+	switch (keyNumberInFirstOctave) {
+	case 0:
+		return "G#" // octave;
+	case 1:
+		return "A" // octave;
+	case 2:
+		return "A#" // octave;
+	case 3:
+		return "B" // octave;
+	case 4:
+		return "C" // octave;
+	case 5:
+		return "C#" // octave;
+	case 6:
+		return "D" // octave;
+	case 7:
+		return "D#" // octave;
+	case 8:
+		return "E" // octave;
+	case 9:
+		return "F" // octave;
+	case 10:
+		return "F#" // octave;
+	case 11:
+		return "G" // octave;
+	}
+}
+
+##Piano key dimensions are taken from:
+## http://www.quadibloc.com/other/cnv05.htm
+## http://shusterpiano.com/blog/how-key-length-affects-you/
+pianoPositionX = 0;
+pianoPositionY = 0;
+naturalKeyWidth = 25;
+naturalKeyLength is (5 + 3/8) / (0.864 * 1.066) * naturalKeyWidth;
+sharpKeyWidth is 20 / 35 * naturalKeyWidth;
+sharpKeyLength is 4 / (5 + 3/8) * naturalKeyLength;
+
+##Returns a Drawable that represents the piano key corresponding to a given piano key number.
+func keyVisual {
+	para keyNumber, xOffset, yOffset, whiteKeyWidth, whiteKeyLen, blackKeyWidth, blackKeyLen, highlightColour;
+	auto xPos, keyWidth, keyHeight, colour;
+	xPos = xOffset + int((keyNumber - 1) / 12) * 7 * whiteKeyWidth;
+	switch ((keyNumber - 1) % 12) {
+	case 0: ## A
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 1: ## A#
+		xPos = xPos - 2 * whiteKeyWidth + 5 * blackKeyWidth;
+		keyWidth = blackKeyWidth;
+		keyHeight = blackKeyLen;
+		colour = "black";
+		break;
+	case 2: ## B
+		xPos = xPos + whiteKeyWidth;
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 3: ## C
+		xPos = xPos +  2 * whiteKeyWidth;
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 4: ## C#
+		xPos = xPos +  2 * whiteKeyWidth + blackKeyWidth * 21/20;
+		keyWidth = blackKeyWidth * 21/20;
+		keyHeight = blackKeyLen;
+		colour = "black";
+		break;
+	case 5: ## D
+		xPos = xPos +  3 * whiteKeyWidth;
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 6: ## D#
+		xPos = xPos +  2 * whiteKeyWidth + 3 * blackKeyWidth * 21/20;
+		keyWidth = blackKeyWidth * 21/20;
+		keyHeight = blackKeyLen;
+		colour = "black";
+		break;
+	case 7: ## E
+		xPos = xPos +  4 * whiteKeyWidth;
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 8: ## F
+		xPos = xPos +  5 * whiteKeyWidth;
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 9: ## F#
+		xPos = xPos +  5 * whiteKeyWidth + blackKeyWidth;
+		keyWidth = blackKeyWidth;
+		keyHeight = blackKeyLen;
+		colour = "black";
+		break;
+	case 10: ## G
+		xPos = xPos +  6 * whiteKeyWidth;
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 11: ## G#
+		xPos = xPos +  5 * whiteKeyWidth + 3 * blackKeyWidth;
+		keyWidth = blackKeyWidth;
+		keyHeight = blackKeyLen;
+		colour = "black";
+		break;
+	}
+	if (highlightColour != @) {
+		colour = highlightColour;
+	}
+	return Rectangle(xPos, yOffset, keyWidth, keyHeight, colour);
+}
+
+## The keys currently highlighted on the keyboard are the key names in this list.
+## E.g. highlightedKeys = ["A0"];
+highlightedKeys = [];
+
+## The keys currently highlighted could be shaded in any number of ways.  The
+## function keyHighlight determines how the colours are chosen.  The default shading
+## scheme uses two colours, one for the natural notes and another for the sharps and
+## flats.
+naturalHighlightColour = "aqua";
+sharpHighlightColour = "teal";
+
+func twoToneHighlight {
+	para highlighted, note;
+	if (inList(highlighted, note)) {
+		if (substr(note, 2, 2) == "#") {
+			return sharpHighlightColour;
+		} else {
+			return naturalHighlightColour;
+		}
+	} else {
+		return @;
+	}
+}
+
+keyHighlight = twoToneHighlight;
+
+##This is a fudge.
+proc changeHighlightColour : naturalHighlightColour, sharpHighlightColour {
+	keyHighlight = keyHighlight;
+}
+
+func pianoSound {
+	${{
+		return new Audio(Notes.getDataURI(arguments[0] - 40));
+	}}$;
+}
+
+proc buildKey {
+	para keyNumber;
+	auto note, note, keyDefinition, soundDefinition;
+	note = noteName(keyNumber);
+	note = replace(note, "#", "Sharp");
+
+	keyDefinition = "key" // note // " is keyVisual(" // keyNumber;
+	keyDefinition = keyDefinition // ", pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, \"" // noteName(keyNumber) // "\"));";
+	createDefinition(keyDefinition);
+	
+	soundDefinition = note // "Sound = pianoSound(" // keyNumber;
+	soundDefinition = soundDefinition // ");";
+	createDefinition(soundDefinition);
+}
+
+proc buildKeys {
+	auto keyNumber, octave, keyboardDef, soundsDef;
+	
+	##Define each individual key.
+	for (keyNumber = 1; keyNumber <= 88; keyNumber++) {
+		buildKey(keyNumber);
+	}
+	
+	##Define the order to draw the keys in and the mapping between the drawing order
+	##and piano key number order.
+	keyboardDef = "keyboard is [keyA0, keyB0";
+	keyboardToKey = [1, 3];
+	for (octave = 1; octave <= 7; octave++) {
+		keyboardDef = keyboardDef // ", keyC" // octave;
+		keyboardDef = keyboardDef // ", keyD" // octave;
+		keyboardDef = keyboardDef // ", keyE" // octave;
+		keyboardDef = keyboardDef // ", keyF" // octave;
+		keyboardDef = keyboardDef // ", keyG" // octave;
+		keyboardDef = keyboardDef // ", keyA" // octave;
+		keyboardDef = keyboardDef // ", keyB" // octave;
+		
+		keyboardToKey = keyboardToKey // [
+			(octave - 1) * 12 + 4,  ## C
+			(octave - 1) * 12 + 6,  ## D
+			(octave - 1) * 12 + 8,  ## E
+			(octave - 1) * 12 + 9,  ## F
+			(octave - 1) * 12 + 11, ## G
+			(octave - 1) * 12 + 13, ## A
+			(octave - 1) * 12 + 15  ## B
+		];
+	}
+	
+	keyboardDef = keyboardDef // ", keyASharp0";
+	keyboardToKey = keyboardToKey // [2];
+	
+	for (octave = 1; octave <= 7; octave++) {
+		keyboardDef = keyboardDef // ", keyCSharp" // octave;
+		keyboardDef = keyboardDef // ", keyDSharp" // octave;
+		keyboardDef = keyboardDef // ", keyFSharp" // octave;
+		keyboardDef = keyboardDef // ", keyGSharp" // octave;
+		keyboardDef = keyboardDef // ", keyASharp" // octave;
+
+		keyboardToKey = keyboardToKey // [
+			(octave - 1) * 12 + 5,  ## C#
+			(octave - 1) * 12 + 7,  ## D#
+			(octave - 1) * 12 + 10, ## F#
+			(octave - 1) * 12 + 12, ## G#
+			(octave - 1) * 12 + 14  ## A#
+		];
+	}
+	keyboardDef = keyboardDef // ", keyC8];";
+	keyboardToKey = keyboardToKey // [88];
+	createDefinition(keyboardDef);
+	
+	##List of sounds in piano key order.
+	soundsDef = "pianoKeySounds is [A0Sound, ASharp0Sound, B0";
+	for (octave = 1; octave <= 7; octave++) {
+		soundsDef = soundsDef // "Sound, C" // octave;
+		soundsDef = soundsDef // "Sound, CSharp" // octave;
+		soundsDef = soundsDef // "Sound, D" // octave;
+		soundsDef = soundsDef // "Sound, DSharp" // octave;
+		soundsDef = soundsDef // "Sound, E" // octave;
+		soundsDef = soundsDef // "Sound, F" // octave;
+		soundsDef = soundsDef // "Sound, FSharp" // octave;
+		soundsDef = soundsDef // "Sound, G" // octave;
+		soundsDef = soundsDef // "Sound, GSharp" // octave;
+		soundsDef = soundsDef // "Sound, A" // octave;
+		soundsDef = soundsDef // "Sound, ASharp" // octave;
+		soundsDef = soundsDef // "Sound, B" // octave;
+	}
+	soundsDef = soundsDef // "Sound, C8Sound];";
+	createDefinition(soundsDef);
+}
+
+buildKeys();
+
+picture is keyboard;
+
+##Plays a note and highlights the relevant key when the user clicks on it with
+##the mouse.  Returns the highlighting to its previous state when the user
+##releases the mouse button.
+proc playNoteWhenClicked : mousePressed {
+	auto i;
+	for (i = keyboard#; i > 0; i--) {
+		if ((mouseX >= keyboard[i].x1) && (mouseX <= (keyboard[i].x1 + keyboard[i].x2)) && (mouseY >= keyboard[i].y1) && (mouseY <= (keyboard[i].y1 + keyboard[i].y2))) {
+			if (mousePressed) {
+				highlightedKeysDef = definitionOf("highlightedKeys");
+				highlightedKeys = [noteName(keyboardToKey[i])];
+				pianoKeySounds[keyboardToKey[i]].play();
+			} else {
+				execute(highlightedKeysDef);
+			}
+			break;
+		}
+	}
+}
+
+func lineToNoteName {
+	para bassLineNumber, trebleLineNumber, staveNum;
+	if (staveNum == 0) {
+			switch (trebleLineNumber) {
+			case 0: return "F5";
+			case 1: return "D5";
+			case 2: return "B4";
+			case 3: return "G4";
+			case 4: return "E4";
+			case 5: return "C4";
+			default: error("Incomplete model: ledger line not defined.");
+			}
+	} else {
+			switch (bassLineNumber) {
+			case 0: return "A3";
+			case 1: return "F3";
+			case 2: return "D3";
+			case 3: return "B2";
+			case 4: return "G2";
+			default: error("Incomplete model: ledger line not defined.");
+			}	
+	}
+}
+
+trebleLines = ["F5", "D5", "B4", "G4", "E4"];
+bassLines = ["A3", "F3", "D3", "B2", "G2"];
+
+highlightedKeys is [lineToNoteName(bselnum, tselnum, stavesel)];

@@ -59,7 +59,7 @@ Eden.plugins.InputWindow = function(context) {
 
 	this.submitEdenCode = function(text) {
 	
-		this.addHistory(text+" ## (Successful)");
+		this.addHistory(text);
 
 		if (eden.plugins.MenuBar) {
 			eden.plugins.MenuBar.updateStatus("Parsing input...");
@@ -70,9 +70,9 @@ Eden.plugins.InputWindow = function(context) {
 			eval(Eden.translateToJavaScript(text));
 			
 		} catch (e) {
-			me.history[this.index-1] = text+" ## (Failed)";
-			eden.plugins.MenuBar.updateStatus("Eden Code Unrecognised - Did you forget a semicolon?");
-			alert("Parsing Failed");
+			me.history[this.index-1] = text;
+			//eden.plugins.MenuBar.updateStatus("Eden Code Unrecognised - Did you forget a semicolon?");
+			alert(e);
 		}
 
 		if (eden.plugins.MenuBar) {
@@ -143,16 +143,16 @@ Eden.plugins.InputWindow = function(context) {
 
 	this.next = function(){
 		var n = eden.plugins.InputWindow.nextHistory();
-		n = n.replace(/\#\# \(Failed\)/g, "");
-		n = n.replace(/\#\# \(Successful\)/g, "");
-		n = n.replace(/ $/g, "");
+		//n = n.replace(/\#\# \(Failed\)/g, "");
+		//n = n.replace(/\#\# \(Successful\)/g, "");
+		//n = n.replace(/ $/g, "");
 		document.getElementById("inputCodeArea").value = n;
 	}
 	this.prev = function(){
 		var p = eden.plugins.InputWindow.previousHistory();
-		p = p.replace(/\#\# \(Failed\)/g, "");
-		p = p.replace(/\#\# \(Successful\)/g, "");
-		p = p.replace(/ $/g, "");
+		//p = p.replace(/\#\# \(Failed\)/g, "");
+		//p = p.replace(/\#\# \(Successful\)/g, "");
+		//p = p.replace(/ $/g, "");
 		document.getElementById("inputCodeArea").value = p;
 	}
 	this.submit = function(){

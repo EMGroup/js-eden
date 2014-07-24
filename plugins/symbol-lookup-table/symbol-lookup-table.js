@@ -8,9 +8,9 @@ Eden.plugins.SLT = function(context) {
 			if (defaultview == "") {
 				context.createView(name,"SLT");
 			}
-			$("#"+defaultview+"-content").html(content);
+			$("#"+defaultview+"-content").html(content).onclick;
 		} else {
-			$("#"+name+"-dialog-content").html(content);
+			$("#"+name+"-dialog-content").html(content).onclick;
 		}
 	}
 
@@ -20,7 +20,7 @@ Eden.plugins.SLT = function(context) {
 			defaultview = name;
 		}
 		
-		code_entry = $('<div id=\"'+name+'-content\" class=\"symbol-lookup-table-content\">'+STL.generateAllHTML()+'</div>');
+		code_entry = $('<div id=\"'+name+'-content\" class=\"symbol-lookup-table-content\">'+SLT.generateAllHTML()+'</div>');
 
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
@@ -36,8 +36,8 @@ Eden.plugins.SLT = function(context) {
 	//Register the HTML view options
 	context.views["SLT"] = {dialog: this.createDialog, title: "Symbol Lookup Table"};
 	
-	STL = {};
-	STL.update = function(event){
+	SLT = {};
+	SLT.update = function(event){
 		//Update All SLT with their respective regexs
 		
 		var views = document.getElementsByClassName("SLT");
@@ -46,23 +46,24 @@ Eden.plugins.SLT = function(context) {
 			if(regex==undefined){
 				continue;
 			}
-			views[j].children[1].innerHTML = STL.generateBottomHTML(regex);
+			views[j].children[1].innerHTML = SLT.generateBottomHTML(regex);
 		}
+
 	}
 	
-	STL.generateAllHTML = function(){
+	SLT.generateAllHTML = function(){
 		//generates the regex
-		var regex = "<input class=\"SLTregex\" type=\"text\" onkeyUp=\"STL.update(event)\" placeholder=\"regex\" onload=\"setFocus()\" style='';>";
-		var indiv = "<div class=\"SLT\"><div class=\"upper\" style=\" display:block; \">"+regex+"</div><div class=\"lower\" style=\" display:block; \">"+STL.generateBottomHTML("")+"</div></div>";
+		var regex = "<input class=\"SLTregex\" type=\"text\" onkeyUp=\"SLT.update(event)\" placeholder=\"regex\" onload=\"setFocus()\" style='';>";
+		var indiv = "<div class=\"SLT\"><div class=\"upper\" style=\" display:block; \">"+regex+"</div><div class=\"lower\" style=\" display:block; \">"+SLT.generateBottomHTML("")+"</div></div>";
 		return indiv;
 	}
 	
 	
-	STL.generateBottomHTML = function(regexString){
+	SLT.generateBottomHTML = function(regexString){
 		//generates the content
 
 		var HTML = "<tr><td class=\"lower\"><b>Name</b></td><td class=\"lower\"><b>Definition</b></td><td class=\"lower\"><b>Current Value</b></td><td class=\"lower\"><b>Watches</b></td><td class=\"lower\"><b>Updates</b></td>";
-		var symbolsx = STL.arrayFromObject(root.symbols);
+		var symbolsx = SLT.arrayFromObject(root.symbols);
 		
 		re = new RegExp("^("+regexString+").*$","i");
 		
@@ -79,12 +80,12 @@ Eden.plugins.SLT = function(context) {
 			var value = Eden.deHTML(String(symbolsx[i].cached_value)).replace("/n", "<br/>");
 				if(value=="undefined"){
 					value = blank;
-				}
-			var WATCHES = Eden.deHTML(STL.propertiesFromObject(symbolsx[i].observees).join(", ").replace(/\//g,''));
+				}//!
+			var WATCHES = Eden.deHTML(SLT.propertiesFromObject(symbolsx[i].observees).concat(SLT.propertiesFromObject(symbolsx[i].dependencies)).join(", ").replace(/\//g,''));
 				if(WATCHES==""){
 					WATCHES = blank;
 				}
-			var UPDATES = Eden.deHTML(STL.propertiesFromObject(symbolsx[i].observers).join(", ").replace(/\//g,''));
+			var UPDATES = Eden.deHTML(SLT.propertiesFromObject(symbolsx[i].observers).concat(SLT.propertiesFromObject(symbolsx[i].subscribers)).join(", ").replace(/\//g,''));
 				if(UPDATES==""){
 					UPDATES = blank;
 				}
@@ -109,7 +110,7 @@ Eden.plugins.SLT = function(context) {
 		return "<table>"+HTML+"</table>";
 	}
 	
-	STL.arrayFromObject = function(object){
+	SLT.arrayFromObject = function(object){
 
 		var temp = [];
 
@@ -120,7 +121,7 @@ Eden.plugins.SLT = function(context) {
 		return temp;
 	}
 	
-	STL.propertiesFromObject = function(object){
+	SLT.propertiesFromObject = function(object){
 
 		var temp = [];
 

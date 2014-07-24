@@ -1,0 +1,222 @@
+##Model of two musical staves built from a music theory perspective.
+##Requires a few definitions from the piano model.
+
+##Positions on a stave can be described verbally or textually as, "first line",
+##through to, "fifth line" (https://en.wikipedia.org/wiki/Staff_(music)), and
+##it is these terms on which this model is primarily based.  In order to
+##construct a model of the whole stave the notion of individual stave lines has
+##been extended in various ways that are intuitive but nonetheless seemingly
+##have no name in formal music theory terminology.
+##(1) The model contains observables, local variables and function and procedure
+##    parameters that take the values 1, 2,... rather than the English words,
+##    "first", "second", etc.
+##(2) The model allows "line" numbers 1.5, 2.5,... to represent the positions
+##    on the stave that are formed from the spaces between two successive lines.
+##(3) Line numbers less than 1 represent positions below first line, i.e. ledger
+##    lines and the spaces between them.  Line 0 against a treble clef
+##    represents middle C.
+##(4) Line numbers greater than 5 represent positions above fifth line.
+
+##For reference purposes.
+trebleLines = ["E4", "G4", "B4", "D5", "F5"];
+bassLines = ["G2", "B2", "D3", "F3", "A3"];
+
+##Clefs
+##https://en.wikipedia.org/wiki/Clef
+trebleClef = ["G4", 2];  ##G4 is represented by notes on the second stave line.
+bassClef = ["F3", 4];    ##(The convention is that the bottom line is referred to as "first line".)
+altoClef = ["C4", 3];
+tenorClef = ["C4", 4];
+suboctaveTrebleClef = ["G3", 2];
+superoctaveTrebleClef = ["G5", 2];
+##...there are more and a C, F or G symbol in any position is valid, including
+##clefs positioned on the spaces, but they're very rare.
+
+##Key signatures
+cMajorKey = [];
+gMajorKey is ["F" // sharpSymbol];
+dMajorKey is ["F" // sharpSymbol, "C" // sharpSymbol];
+aMajorKey is ["F" // sharpSymbol, "C" // sharpSymbol, "G" // sharpSymbol];
+eMajorKey is ["F" // sharpSymbol, "C" // sharpSymbol, "G" // sharpSymbol, "D" // sharpSymbol];
+bMajorKey is ["F" // sharpSymbol, "C" // sharpSymbol, "G" // sharpSymbol, "D" // sharpSymbol, "A" // sharpSymbol];
+fSharpMajorKey is ["F" // sharpSymbol, "C" // sharpSymbol, "G" // sharpSymbol, "D" // sharpSymbol, "A" // sharpSymbol, "E" // sharpSymbol];
+cSharpMajorKey is ["F" // sharpSymbol, "C" // sharpSymbol, "G" // sharpSymbol, "D" // sharpSymbol, "A" // sharpSymbol, "E" // sharpSymbol, "B" // sharpSymbol];
+
+aMinorKey is cMajorKey;
+eMinorKey is gMajorKey;
+bMinorKey is dMajorKey;
+fSharpMinorKey is aMajorKey;
+cSharpMinorKey is eMajorKey;
+gSharpMinorKey is bMajorKey;
+dSharpMinorKey is fSharpMajorKey;
+aSharpMinorKey is cSharpMajorKey;
+
+fMajorKey is ["B" // flatSymbol];
+bFlatMajorKey is ["B" // flatSymbol, "E" // flatSymbol];
+eFlatMajorKey is ["B" // flatSymbol, "E" // flatSymbol, "A" // flatSymbol];
+aFlatMajorKey is ["B" // flatSymbol, "E" // flatSymbol, "A" // flatSymbol, "D" // flatSymbol];
+dFlatMajorKey is ["B" // flatSymbol, "E" // flatSymbol, "A" // flatSymbol, "D" // flatSymbol, "G" // flatSymbol];
+gFlatMajorKey is ["B" // flatSymbol, "E" // flatSymbol, "A" // flatSymbol, "D" // flatSymbol, "G" // flatSymbol, "C" // flatSymbol];
+cFlatMajorKey is ["B" // flatSymbol, "E" // flatSymbol, "A" // flatSymbol, "D" // flatSymbol, "G" // flatSymbol, "C" // flatSymbol, "F" // flatSymbol];
+
+dMinorKey is fMajorKey;
+gMinorKey is bFlatMajorKey;
+cMinorKey is eFlatMajorKey;
+fMinorKey is aFlatMajorKey;
+bFlatMinorKey is dFlatMajorKey;
+eFlatMinorKey is gFlatMajorKey;
+aFlatMinorKey is cFlatMajorKey;
+
+##Given the text representing a pitch adjustment, returns the number of
+##semitones that the pitch should be adjusted by, e.g. a sharp symbol
+##represents an increase of 1 semitone.
+func semitoneAdjustment {
+	para accidentalOrKSPart;
+	if (accidentalOrKSPart == @ || accidentalOrKSPart == "" || accidentalOrKSPart == naturalSymbol) {
+		return 0;
+	} else if (accidentalOrKSPart == sharpSymbol) {
+		return 1;
+	} else if (accidentalOrKSPart == flatSymbol) {
+		return -1;
+	} else if (accidentalOrKSPart == doubleSharpSymbol) {
+		return 2;
+	} else if (accidentalOrKSPart == doubleFlatSymbol) {
+		return -2;
+	} else {
+		error("Unknown symbol in key signature or accidental: " // key[i]);
+		return @;
+	}
+}
+
+##Given a small number of semitones, returns the symbol that adjusts the pitch
+##of a note by that amount, e.g. an input of -1 returns the flat symbol.
+func semitonesToAccidental {
+	para semitoneAdjustment;
+	if (semitoneAdjustment == 0) {
+		return naturalSymbol;
+	} else if (semitoneAdjustment == 1) {
+		return sharpSymbol;
+	} else if (semitoneAdjustment == -1) {
+		return flatSymbol;
+	} else if (semitoneAdjustment == 2) {
+		return doubleSharpSymbol;
+	} else if (semitoneAdjustment == -2) {
+		return doubleFlatSymbol;
+	} else {
+		error("Unable to represent a " // str(semitoneAdjustment) // " semitone difference as an accidental.  Use a different note.");
+		return @;
+	}
+}
+
+##Form the name of a note by giving:
+##(1) Its letter.
+##(2) If we intend to form an accidental then the neceassry pitch adjustment
+##    symbol is supplied, otherwise this argument is left undefined (i.e. supply @)
+##    if the intended resulting note is not an accidental.
+##(3) The stave's key signature.
+func keyOrAccidentalAdjustment {
+	para note, optionalAccidentalAnnotation, key;
+	auto i;
+	
+	if (optionalAccidentalAnnotation != @ && optionalAccidentalAnnotation != "") {
+		return semitoneAdjustment(optionalAccidental);
+	}
+	
+	for (i = 1; i <= key#; i++) {
+		if (key[i][1] == note[1]) {
+			return semitoneAdjustment(substr(key[i], 2, key[i]#));
+		}
+	}
+	
+	return 0;
+}
+
+##Transforms a line number on a stave into the name of the notes on that line,
+##in scientific notation.
+func staveLineToNote {
+	para staveLine, optionalAccidentalAnnotation, clef, keySignature;
+	auto diatonicStepsFromC0, octave, basicNote, noteInCorrectKey;
+	diatonicStepsFromC0 = clef[1][2] * 7 + diatonicStepsFromC(clef[1][1]) + (staveLine - clef[2]) * 2;
+	octave = int(diatonicStepsFromC0 / 7);
+	basicNote = diatonicStepsFromCToLetter(diatonicStepsFromC0) // octave;
+	noteInCorrectKey = noteName(pianoKeyNumber(basicNote) + keyOrAccidentalAdjustment(basicNote, optionalAccidentalAnnotation, keySignature));
+	return noteInCorrectKey;
+}
+
+##Checks if a note appears in a key signature.
+func inKeySignature {
+	para signature, note;
+	auto i;
+	for (i = 1; i <= signature#; i++) {
+		if (note[1] == signature[i][1]) {
+			return (note == signature[i]);
+		}
+	}
+	return false;
+}
+
+##Transforms a note (in scientific notation) into a line number on the stave
+##where that note would appear and, if the result is an accidental, the pitch
+##adjustment symbol needed.  The function returns a list containing the two
+##values.
+func noteToStaveLine {
+	para note, clef, keySignature;
+	auto staveLine, accidental, basicNote, adjustment, octave, diatonicStepsFromC0, nextLetterUp, nextLetterDown;
+
+	adjustment = semitoneAdjustment(substr(note, 2, note# - 1));
+	octave = note[note#];
+
+	diatonicStepsFromC0 = octave * 7 + diatonicStepsFromC(basicNote);
+	staveLine = (diatonicStepsFromC0 - (clef[1][2] * 7 + diatonicStepsFromC(clef[1][1]))) / 2 + clef[2];
+	
+	nextLetterUp = diatonicStepsFromCToLetter(diatonicStepsFromC(basicNote) + 1);
+	nextLetterdown = diatonicStepsFromCToLetter(diatonicStepsFromC(basicNote) + 6);
+	
+	if (adjustment == -1 && inKeySignature(keySignature, basicNote // flatSymbol)) {
+		##Our note matches the key signature for this line or space.
+		accidental = @;
+	} else if (adjustment == 1 && inKeySignature(keySignature, basicNote // sharpSymbol)) {
+		##Our note matches the key signature for this line or space.
+		accidental = @;
+	} else if (adjustment == -1 && inKeySignature(keySignature, nextLetterDown // sharpSymbol)) {
+		##Our note is labelled as a flat but the line or space immediately below
+		##this one is annotated with a sharp in the key signature, so we
+		##change the note to its eharmonic equivalent by shifting down one
+		##position on the stave and avoid the need for an accidental.
+		basicNote = nextLetterDown;
+		accidental = @;
+		if (nextLetterDown == "B") {
+			octave--;
+		}
+	} else if (adjustment == 1 && inKeySignature(keySignature, nextLetterUp // flatSymbol)) {
+		basicNote = nextLetterUp;
+		accidental = @;
+		if (nextLetterUp == "C") {
+			octave++;
+		}
+	}
+	
+##TODO Do a first pass to decide if we need to use accidental notation.
+## if <second two cases above but check for accidentals already in effect on those adjacent lines>
+##   ...
+## } else if an accidental is already in effect on the current line {
+##		check if we fall under the same accidental or need a new one
+## } else {
+##		inspect the key signature to find which accidental to use
+##     (or, no accidental: first 2 cases above plus when there's nothing in the signature and the note is natural)
+## }
+
+##Later on (outside of this function) it would be a good idea to analyze the
+##whole bar with a view to minimizing the number of accidentals by possibly
+##turning some single accidentals into double accidentals or vice versa.
+
+	return [staveLine, accidental];
+}
+
+##Create the grand stave.
+stave1Clef is trebleClef;
+stave1KeySignature is cMajorKey;
+stave1Position = Point(0, 0);
+
+stave2Clef is bassClef;
+stave2KeySignature is cMajorKey;

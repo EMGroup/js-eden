@@ -1,0 +1,134 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##Buttons
+
+
+
+
+##Combobox
+
+
+
+
+##DIV
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##IMAGE
+
+
+
+## Arc
+
+
+
+## Sylvester library object wrappers
+## Unsure about Line so ignored for now
+
+## Vector
+
+func Vector { ${{
+  return $V(arguments[0]);
+}}$; };
+
+${{
+Vector.prototype.toString = function() {
+  return "Vector("+this.inspect()+")";
+};
+
+}}$;
+
+## Matrix
+
+func Matrix { ${{
+  return $M(arguments[0]);
+}}$; };
+
+${{  
+Matrix.prototype.toString = function() {
+  return "[" + this.inspect() + "]";
+};
+}}$;
+
+## Plane
+
+func Plane { ${{
+  return $P(arguments[0]);
+}}$; };
+
+
+## When the user updates the canvas observable, the canvas gets resized
+proc updateCanvas : canvas { ${{
+	var canvas = root.lookup('canvas');
+	$("#d1canvas").attr("width", canvas.value().width);
+        $("#d1canvas").attr("height", canvas.value().height);
+}}$;
+	drawPicture();
+}
+
+
+##Slider
+
+
+
+func TestDraw {
+	return 77;
+}
