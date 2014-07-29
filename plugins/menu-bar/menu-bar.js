@@ -151,7 +151,7 @@ joe.log("menu-bar.js: menu-bar()");
 
 	//Put js-eden version in right corner
 	$.ajax({
-		url: "version.rb",
+		url: "version.txt",
 		success: function(data) {
 			$('<div id="menubar-version-number"></div>').html("js-eden J-version 2-12-2013"+data).appendTo($("#menubar-main"));
 		},
