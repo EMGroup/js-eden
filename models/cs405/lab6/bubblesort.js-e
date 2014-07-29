@@ -1,0 +1,231 @@
+
+offsetx = 20;
+offsety = 10;
+arrwinDiv is Div("keyarr", offsetx, offsety, 50, 50, "hello");
+
+picture is [arrwinDiv];
+
+arrwinSpec is "
+<table border = '1'>
+<tbody>
+<tr>
+<th>7</th>
+<th>6</th>
+<th>5</th>
+<th>8</th>
+<th>23</th>
+<th>12</th>
+<th>15</th>
+</tr>
+</tbody>
+</table>";
+
+## arrwinDiv is Div("keyarr", offsetx, offsety, 50, 500, arrwinSpec)
+## problematic - what is the point of the 50 and 500?
+
+ arrwinDiv is Div("keyarr", offsetx, offsety, 50, 50, arrwinSpec);
+
+## possible arrays of keys for sorting
+
+val_set0 = [7,56,19,90,21,3,46];
+val_set1 = [1,3,5,6,8,9,90];
+val_set2 = [100,98,86,76,64,46,29];
+
+## Note that val = val_set0; is implemented as a pointer assignment
+## in JS-EDEN - this means that sorting val also sorts val_set0
+
+## to achieve the assignment that is intended, and that is consistent
+##a with the semantics of the traditional EDEN interpreter, use: 
+
+val = val_set0 // [];
+
+val1 is val[1];
+val2 is val[2];
+val3 is val[3];
+val4 is val[4];
+val5 is val[5];
+val6 is val[6];
+val7 is val[7];
+
+sorted is (val1<=val2) && (val2<=val3) && (val3<=val4) && (val4 <= val5) && (val5 <= val6) && (val6<=val7);
+
+UnsS is (sorted)?"S":"Uns";
+arrwinText is UnsS // "orted array of elements";
+arrwinCaption is Text(arrwinText, 20, 50);
+
+arrwinSpec is "
+<table border = '1'>
+<tbody>
+<tr>
+<th>" // str(val[1]) // "</th>
+<th>" // str(val[2]) // "</th>
+<th>" // str(val[3]) // "</th>
+<th>" // str(val[4]) // "</th>
+<th>" // str(val[5]) // "</th>
+<th>" // str(val[6]) // "</th>
+<th>" // str(val[7]) // "</th>
+</tr>
+</tbody>
+</table>";
+
+offsetx = 30;
+
+arrwinSpec is "
+<table border = '1'>
+<tbody>
+<tr>
+  <th style = background-color:red;color:yellow>" // str(val[1]) // "</th>
+<th>" // str(val[2]) // "</th>
+<th>" // str(val[3]) // "</th>
+<th>" // str(val[4]) // "</th>
+<th>" // str(val[5]) // "</th>
+<th>" // str(val[6]) // "</th>
+<th>" // str(val[7]) // "</th>
+</tr>
+</tbody>
+</table>";
+
+arrwinSpec is "
+<table border = '2'>
+<tbody>
+<tr>
+  <th style =" // A_v1 // ";" // B_v1 // ";" // C_v1 // ">" // str(val[1]) // "</th>
+  <th style =" // A_v2 // ";" // B_v2 // ";" // C_v2 // ">" // str(val[2]) // "</th>
+  <th style =" // A_v3 // ";" // B_v3 // ";" // C_v3 // ">" // str(val[3]) // "</th>
+  <th style =" // A_v4 // ";" // B_v4 // ";" // C_v4 // ">" // str(val[4]) // "</th>
+  <th style =" // A_v5 // ";" // B_v5 // ";" // C_v5 // ">" // str(val[5]) // "</th> 
+  <th style =" // A_v6 // ";" // B_v6 // ";" // C_v6 // ">" // str(val[6]) // "</th>
+  <th style =" // A_v7 // ";" // B_v7 // ";" // C_v7 // ">" // str(val[7]) // "</th>
+</tr>
+</tbody>
+</table>";
+
+first=1;
+last=7;
+func maxfl {
+	para list, f,l;
+	auto i, max;
+
+	max = list[f];
+	for(i=f;i<=l;i++){
+		if (list[i] >= max) {
+			max = list[i];
+		}
+	}
+
+	return max;
+}
+
+func minfl {
+	para list, f,l;
+	auto i, min;
+
+	min = list[f];
+	for(i=f;i<=l;i++){
+		if (list[i] <= min) {
+			min = list[i];
+		}
+	}
+	return min;
+}
+
+
+minelt is minfl(val,first,last);
+maxelt is maxfl(val,first,last);
+
+RED="red";
+GREEN = "green";
+GREEN="blue";
+BLACK="black";
+
+A_v1 is "color:" // (( val1==minelt) ? RED: ((val1==maxelt) ? GREEN: BLACK));
+A_v2 is "color:" // (( val2==minelt) ? RED: ((val2==maxelt) ? GREEN: BLACK));
+A_v3 is "color:" // (( val3==minelt) ? RED: ((val3==maxelt) ? GREEN: BLACK));
+A_v4 is "color:" // (( val4==minelt) ? RED: ((val4==maxelt) ? GREEN: BLACK));
+A_v5 is "color:" // (( val5==minelt) ? RED: ((val5==maxelt) ? GREEN: BLACK));
+A_v6 is "color:" // (( val6==minelt) ? RED: ((val6==maxelt) ? GREEN: BLACK));
+A_v7 is "color:" // (( val7==minelt) ? RED: ((val7==maxelt) ? GREEN: BLACK));
+
+Rmark is 7-bs_pass+1;
+Lmark is bs_pos;
+first = 1;
+last is Rmark;
+
+A_v1 is "color:"// (( val1==minelt) ? RED: ((val1==maxelt) ? GREEN: BLACK));
+A_v2 is "color:"// (( val2==minelt) ? RED: ((val2==maxelt) ? GREEN: BLACK));
+A_v3 is "color:"// (( val3==minelt) ? RED: ((val3==maxelt) ? GREEN: BLACK));
+A_v4 is "color:"// (( val4==minelt) ? RED: ((val4==maxelt) ? GREEN: BLACK));
+A_v5 is "color:"// (( val5==minelt) ? RED: ((val5==maxelt) ? GREEN: BLACK));
+A_v6 is "color:"// (( val6==minelt) ? RED: ((val6==maxelt) ? GREEN: BLACK));
+A_v7 is "color:"// (( val7==minelt) ? RED: ((val7==maxelt) ? GREEN: BLACK));
+
+YELLOW = "yellow"; WHITE = "white";
+
+B_v1 is "background-color:" // (( 1>=1) && (1<=last)) ? YELLOW : WHITE;
+B_v2 is "background-color:" // (( 2>=1) && (2<=last)) ? YELLOW : WHITE;
+B_v3 is "background-color:" // (( 3>=1) && (3<=last)) ? YELLOW : WHITE;
+B_v4 is "background-color:" // (( 4>=1) && (4<=last)) ? YELLOW : WHITE;
+B_v5 is "background-color:" // (( 5>=1) && (5<=last)) ? YELLOW : WHITE;
+B_v6 is "background-color:" // (( 6>=1) && (6<=last)) ? YELLOW : WHITE;
+B_v7 is "background-color:" // (( 7>=1) && (7<=last)) ? YELLOW : WHITE;
+
+
+ORANGE = "orange";
+
+C_v1 is "border-style:solid;border-color:" // (bs_pos==1) ? ORANGE : BLACK;
+C_v2 is "border-style:solid;border-color:" // (bs_pos==2) ? ORANGE : BLACK;
+C_v3 is "border-style:solid;border-color:" // (bs_pos==3) ? ORANGE : BLACK;
+C_v4 is "border-style:solid;border-color:" // (bs_pos==4) ? ORANGE : BLACK;
+C_v5 is "border-style:solid;border-color:" // (bs_pos==5) ? ORANGE : BLACK;
+C_v6 is "border-style:solid;border-color:" // (bs_pos==6) ? ORANGE : BLACK;
+C_v7 is "border-style:solid;border-color:" // (bs_pos==7) ? ORANGE : BLACK;
+
+proc exc {
+        para i,j;
+        auto tmp;
+        tmp = val[i];
+        val[i] = val[j];
+        val[j] = tmp;
+}
+
+
+nexta = 0;
+bs_pass=1;
+bs_pos =1;
+
+proc next_pass: nexta
+{
+        if ((bs_pass <= 6)&&(bs_pos==(7-bs_pass+1))&&(nexta==1)) {
+                bs_pass++; bs_pos=1; nexta=0;
+        }
+}
+
+proc next_pos: nexta
+{
+        if ((bs_pos <= 7-bs_pass)&&(nexta==1)) {
+                if ((val[bs_pos]>val[bs_pos+1])) {
+                        exc(bs_pos, bs_pos+1);
+                }
+                bs_pos++;
+                nexta=0;
+        }
+}
+
+first is 1; last is 7-bs_pass+1;
+
+autosort is Button("incnexta", "Automate sorting step", 20,70, bs_pass<7);
+
+picture is [arrwinDiv, arrwinCaption, autosort];
+
+## to initialise sorting process:
+
+nexta = 0;
+bs_pass = 1;
+bs_pos = 1;
+
+proc updatenexta : incnexta_clicked {
+	nexta++;
+}
+
+sorted is (bs_pass==7) && (val1<=val2) && (val2<=val3) && (val3<=val4) && (val4 <= val5) && (val5 <= val6) && (val6<=val7);
+

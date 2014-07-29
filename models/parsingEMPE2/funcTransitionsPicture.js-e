@@ -1,0 +1,40 @@
+transitionsPictureStr ="<p>
+transitions=[@,@,@,@,@,@,@,@,@,@,@,@];<br/>
+transitions[1]=[[1, \"$end\", 100],[1, \"LPAREN\", 4],[1, \"RPAREN\", 100],[1, \"func\", 100],[1, \"ID\", 100],[1, \"expr\", 100],[1, \"COMMA\", 100]];<br/>
+transitions[3]=[[3, \"$end\", 5],[3, \"LPAREN\", 100],[3, \"RPAREN\", 100],[3, \"expr\", 100],[3, \"func\", 100],[3, \"ID\", 100],[3, \"COMMA\", 100]];<br/>
+transitions[4]=[[4, \"func\", 1], [4, \"ID\", 2],[4, \"RPAREN\", 100],[4, \"LPAREN\", 100],[4, \"expr\", 6],[4, \"COMMA\", 100],[4, \"$end\", 100]];<br/>
+transitions[6]=[[6, \"COMMA\", 7],[6, \"RPAREN\", 100],[6, \"LPAREN\", 100], [6, \"expr\", 100],[6, \"ID\", 100],[6, \"func\", 100],[6, \"$end\", 100]];<br/>
+transitions[7]=[[7, \"func\", 1],[7, \"ID\", 2],[7, \"expr\", 8],[7, \"RPAREN\", 100],[7, \"LPAREN\", 100],[7, \"$end\", 100],[7, \"COMMA\", 100]];<br/>
+transitions[8]=[[8, \"COMMA\", 9],[8, \"RPAREN\", 100],[8, \"LPAREN\", 100],[8, \"ID\", 100],[8, \"$end\", 100],[8, \"func\", 100], [8, \"expr\", 100]];<br/>
+transitions[9]= [[9, \"func\", 1],[9, \"ID\", 2],[9, \"expr\", 10],[9, \"RPAREN\", 100],[9, \"LPAREN\", 100],[9, \"$end\", 100],[9, \"COMMA\", 100]];<br/>
+transitions[10]= [[10, \"RPAREN\", 11],[10, \"LPAREN\", 100],[10, \"$end\", 100],[10, \"ID\", 100],[10, \"func\", 100],[10, \"expr\", 100], [10, \"COMMA\", 100]];<br/>
+transitions[2]=[[2, \"RPAREN\", 100],[2, \"LPAREN\", 100],[2, \"$end\", 100],[2, \"ID\", 100],[2, \"expr\", 100],[2, \"func\", 100],[2, \"COMMA\", 100]];<br/>
+transitions[5]=[[5, \"RPAREN\", 100],[5, \"LPAREN\", 100],[5, \"$end\", 100],[5, \"ID\", 100],[5, \"expr\", 100],[5, \"func\", 100],[5, \"COMMA\", 100]];<br/>
+transitions[11]=[[11, \"COMMA\", 100],[11, \"expr\", 100],[11, \"$end\", 100],[11, \"ID\", 100],[11, \"func\", 100],[11, \"RPAREN\", 100],[11, \"LPAREN\", 100]];<br/>
+transitions[12]=[[12, \"func\", 1],[12, \"ID\", 2],[12, \"expr\", 3],[12, \"RPAREN\",100],[12, \"LPAREN\", 100],[12, \"$end\", 100],[12, \"COMMA\", 100]];
+<br/>
+<br/>
+defaultreductions=[@,@,@,@,@,@,@,@,@,@,@,@];<br/>
+defaultreductions[2]=1;<br/>
+defaultreductions[11]=2;<br/></p>";
+
+transitionsPicture is Div("transitionsPicture",10,10,500,1000,transitionsPictureStr);
+picture is [transitionsPicture];
+
+transitions=[@,@,@,@,@,@,@,@,@,@,@,@];
+transitions[12]=[[12, "func", 1],[12, "ID", 2],[12, "expr", 3],[12, "RPAREN",100],[12, "LPAREN", 100],[12, "$end", 100],[12, "COMMA", 100]];
+transitions[1]=[[1, "$end", 100],[1, "LPAREN", 4],[1, "RPAREN", 100],[1, "func", 100],[1, "ID", 100],[1, "expr", 100],[1, "COMMA", 100]];
+transitions[3]=[[3, "$end", 5],[3, "LPAREN", 100],[3, "RPAREN", 100],[3, "expr", 100],[3, "func", 100],[3, "ID", 100],[3, "COMMA", 100]];
+transitions[4]=[[4, "func", 1], [4, "ID", 2],[4, "RPAREN", 100],[4, "LPAREN", 100],[4, "expr", 6],[4, "COMMA", 100],[4, "$end", 100]];
+transitions[6]=[[6, "COMMA", 7],[6, "RPAREN", 100],[6, "LPAREN", 100], [6, "expr", 100],[6, "ID", 100],[6, "func", 100],[6, "$end", 100]];
+transitions[7]=[[7, "func", 1],[7, "ID", 2],[7, "expr", 8],[7, "RPAREN", 100],[7, "LPAREN", 100],[7, "$end", 100],[7, "COMMA", 100]];
+transitions[8]=[[8, "COMMA", 9],[8, "RPAREN", 100],[8, "LPAREN", 100],[8, "ID", 100],[8, "$end", 100],[8, "func", 100], [8, "expr", 100]];
+transitions[9]= [[9, "func", 1],[9, "ID", 2],[9, "expr", 10],[9, "RPAREN", 100],[9, "LPAREN", 100],[9, "$end", 100],[9, "COMMA", 100]];
+transitions[10]= [[10, "RPAREN", 11],[10, "LPAREN", 100],[10, "$end", 100],[10, "ID", 100],[10, "func", 100],[10, "expr", 100], [10, "COMMA", 100]];
+transitions[2]=[[2, "RPAREN", 100],[2, "LPAREN", 100],[2, "$end", 100],[2, "ID", 100],[2, "expr", 100],[2, "func", 100],[2, "COMMA", 100]];
+transitions[5]=[[5, "RPAREN", 100],[5, "LPAREN", 100],[5, "$end", 100],[5, "ID", 100],[5, "expr", 100],[5, "func", 100],[5, "COMMA", 100]];
+transitions[11]=[[11, "COMMA", 100],[11, "expr", 100],[11, "$end", 100],[11, "ID", 100],[11, "func", 100],[11, "RPAREN", 100],[11, "LPAREN", 100]];
+
+defaultreductions=[@,@,@,@,@,@,@,@,@,@,@,@];
+defaultreductions[2]=1;
+defaultreductions[11]=2;

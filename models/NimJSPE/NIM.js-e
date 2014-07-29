@@ -1,0 +1,328 @@
+include("jspe.jse");
+func rnd{
+   ${{
+   var num =arguments[0];
+   return Math.round(Math.random()*num);
+   
+   }}$;
+}
+
+
+/* The sizes of the three NIM piles */
+		pileSizeOne = rnd(14)+1;
+		pileSizeTwo = rnd(14)+1;
+		pileSizeThree = rnd(14)+1;
+func max{
+   ${{
+   var n1 = arguments[0];
+   var n2 = arguments[1];
+   var n3 = arguments[2];
+   return Math.max(n1,n2,n3);
+   }}$;
+}
+func substr {
+   ${{
+   var src = arguments[0];
+   var firstix = arguments[1];
+   var lastix = arguments[2];
+   return src.substr(firstix-1, lastix-firstix+1);
+   }}$;
+}
+
+func sublist{
+   ${{
+   var src = arguments[0];
+   var firstix = arguments[1];
+   var lastix = arguments[2];
+
+   return src.slice(firstix-1, lastix);
+   }}$;
+
+}
+func strcat{
+  ${{
+		var s1 = arguments[0];
+		var s2 = arguments[1];
+		return s1+s2;
+   }}$;
+}
+pileSizeMax is max(pileSizeOne, pileSizeTwo, pileSizeThree);
+
+/* the displayed sizes of the NIM piles */
+pileLabelOneTxt is str(pileSizeOne);
+pileLabelTwoTxt is str(pileSizeTwo);
+pileLabelThreeTxt is str(pileSizeThree);
+
+/* Which pile is being reduced in the current turn (0 when turn not in progress) */
+activePile = 0;
+
+/* visualisation to show active pile */
+
+pile1able is ((activePile == 1)||(activePile==0)) ? 1: 0;
+pile2able is ((activePile == 2)||(activePile==0)) ? 1 : 0;
+pile3able is ((activePile == 3)||(activePile==0)) ? 1 : 0;
+
+pile1able=1;
+pile2able=1;
+pile3able=1;
+/*The number of turns taken in the round*/
+numberOfTurns = 0;
+
+/*The names of the two players*/
+firstPlayer = "PLAYER 1";
+secondPlayer = "PLAYER 2";
+
+/*Calculates which player needs to take a turn*/
+func establishPlayer {
+
+	para turns, p1, p2;
+	auto player;
+	
+	if (turns%2 == 1) {
+		player = p2;
+		return player;
+	}
+	else {
+		player = p1;
+		return player;
+	}
+}
+/*Normalisation  to ensure that binary strings shown align and
+help to work out the best number to take from a particular pile*/
+func normalise {
+
+	para binaryString, precision;
+	auto paddedbinaryString;
+	
+	prePad = "";
+	preLength = 0;
+
+	for(preLength=0;preLength<precision;preLength++)
+	{
+	    prePad = strcat(prePad, "0");
+	
+	}
+	
+	s1 = strcat(prePad, binaryString);
+	s1 = substr(s1, s1# - precision + 1, s1#);
+	return s1;
+}
+
+/*Returns the Nim sum based upon the tokens remaining in each pile*/
+func nimSum {
+
+	para pileOne, pileTwo, pileThree, nLen;
+	auto nimSumValue, s1, s2, s3;
+
+	sPrefix = "";
+	prefixLength = 0;
+    
+	for(prefixLength=0;prefixLength<nLen;prefixLength++)
+	{
+	   sPrefix = strcat(sPrefix, "0");
+	
+	}
+		
+	s1 = strcat(sPrefix, decimalToBinary(pileOne));
+	s2 = strcat(sPrefix, decimalToBinary(pileTwo));
+	s3 = strcat(sPrefix, decimalToBinary(pileThree));
+	s1 = substr(s1, s1# - nLen + 1, s1#);
+	s2 = substr(s2, s2# - nLen + 1, s2#);
+	s3 = substr(s3, s3# - nLen + 1, s3#);
+	indexCount = s1#;
+	binaryNimSumString = "";
+	
+	while (indexCount>0) {
+
+		c1 = int(str(s1[indexCount]));
+		c2 = int(str(s2[indexCount]));
+		c3 = int(str(s3[indexCount]));
+
+		if (((c1+c2+c3) % 2) == 0) {
+
+			binaryNimSumString = strcat("0", binaryNimSumString);
+		}
+		else {
+
+			binaryNimSumString = strcat("1", binaryNimSumString);
+		}
+		
+		indexCount--;
+	}
+
+	magnitudeIndex = binaryNimSumString#;
+	magnitudeValue = 1;
+	nimSumValue = 0;
+	test = "";
+	
+	while (magnitudeIndex > 0) {
+
+		bChar = binaryNimSumString[magnitudeIndex];
+		
+		if(bChar == '1') {
+
+			nimSumValue = nimSumValue + magnitudeValue;
+		}
+
+		magnitudeValue = magnitudeValue * 2;
+		magnitudeIndex--;
+	}
+
+	return nimSumValue;
+}
+
+/*Returns the binary string representation of a decimal number using the 
+fewest number of bits*/
+func decimalToBinary {
+	para decimal, pad;
+	auto st;
+		
+	st = "";
+    if (decimal==0)
+	st= strcat("0",st);
+	 while (decimal > 0)
+	  {
+		if((decimal % 2) > 0) {
+			st = strcat("1", st); 
+		}
+		else {
+			st = strcat("0", st);
+		}
+	decimal = int(decimal / 2);
+
+	};
+	
+	return st;
+}
+/*The player who needs to take a turn*/
+currentPlayer is establishPlayer(numberOfTurns, firstPlayer, secondPlayer);
+
+/* displaying the current player */
+currentPlayerLabelTxt is currentPlayer;
+
+/* The name of the winning player */
+winnerLabelTxt = "";
+
+/* record of history */
+binarySumHistoryLabelTxt = "";
+
+/*The total number of tokens available from all piles*/
+decimalSum is pileSizeOne + pileSizeTwo + pileSizeThree;
+
+/*The length that the binary strings shown need to be so that they align and
+help to work out the best number to take from a particular pile*/
+nimSumLength is decimalToBinary(pileSizeMax)#;
+
+/*The Nim sum based upon the tokens remaining in each pile*/
+currentNimSum is nimSum(pileSizeOne, pileSizeTwo, pileSizeThree, nimSumLength);
+
+/*Normalisation  to ensure that binary strings shown align and
+help the player to work out the best number to take from a particular pile*/
+pileSizeBinaryStringOne is normalise(decimalToBinary(pileSizeOne), nimSumLength);
+pileSizeBinaryStringTwo is normalise(decimalToBinary(pileSizeTwo), nimSumLength);
+pileSizeBinaryStringThree is normalise(decimalToBinary(pileSizeThree), nimSumLength);
+currentNimSumBinaryString is normalise(decimalToBinary(currentNimSum), nimSumLength);
+
+pileLabelOneTxt is str(pileSizeOne);
+currentBinarySumPileOneLabelTxt is pileSizeBinaryStringOne;
+currentBinarySumPileTwoLabelTxt is pileSizeBinaryStringTwo;
+currentBinarySumPileThreeLabelTxt is pileSizeBinaryStringThree;
+currentBinarySumLabelTxt is currentNimSumBinaryString;
+
+/*The response to a player removing a token from pile number 1*/
+
+proc takePile1 : pileButtonOne_clicked {
+	if (pileButtonOne_clicked==1){
+		if (pileSizeOne>0) {
+			if (activePile == 0) {
+				activePile=1;
+				pileSizeOne--;
+			}
+			else
+			if (activePile == 1) {
+				pileSizeOne--;
+			}
+		}
+	}
+}
+
+/*The response to a player removing a token from pile number 2*/
+
+proc takePile2 : pileButtonTwo_clicked {
+	if (pileButtonTwo_clicked==1){
+		if (pileSizeTwo>0) {
+			if (activePile == 0) {
+				activePile=2;
+				pileSizeTwo--;
+			} 
+			else
+			if (activePile == 2) {
+				pileSizeTwo--;
+			}
+		}
+	}
+}
+
+/*The response to a player removing a token from pile number 3*/
+
+proc takePile3 : pileButtonThree_clicked{
+	if (pileButtonThree_clicked==1){
+		if (pileSizeThree>0) {
+			if (activePile == 0) {
+				activePile=3;
+				pileSizeThree--;
+			}
+			else
+			if (activePile == 3) {
+				pileSizeThree--;
+			}
+		}
+	}
+}
+
+
+
+/*Declares a winner to be the current player if all piles become
+empty during a turn*/
+proc declareWinner : decimalSum {
+	if (decimalSum == 0) {
+		winnerLabelTxt = str(currentPlayer);
+	}
+}
+
+/*The response to a player ending their turn*/
+proc endTurn : endTurnButton_clicked {
+
+	if (endTurnButton_clicked==1) {
+	
+		if (activePile != 0) {
+			activePile = 0;
+			numberOfTurns++;
+			history = binarySumHistoryLabelTxt;
+	
+			if (history == "") {
+				binarySumHistoryLabelTxt = str(currentNimSum);
+			}
+			else {
+				binarySumHistoryLabelTxt = history // "," // str(currentNimSum);
+			}
+		}
+	}
+}
+
+/*The response to a player resetting all piles of tokens*/
+proc resetGame : resetButton_clicked {
+
+	if (resetButton_clicked==1) {
+		pileSizeOne = rnd(14)+1;
+		pileSizeTwo = rnd(14)+1;
+		pileSizeThree = rnd(14)+1;
+		numberOfTurns = 0;
+		activePile = 0;
+		binarySumHistoryLabelTxt = "";
+		winnerLabelTxt = "";
+	}
+}
+
+
+

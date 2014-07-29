@@ -1,0 +1,39 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+Rectangle = function(x1, y1, x2, y2, fillcolour, outlinecolour) {
+  this.x1 = x1;
+  this.y1 = y1;
+  this.x2 = x2;
+  this.y2 = y2;
+  this.fillcolour = fillcolour;
+  this.outlinecolour = outlinecolour;
+}
+}}$;
+
+func Rectangle { ${{
+  var x1 = arguments[0];
+  var y1 = arguments[1];
+  var x2 = arguments[2];
+  var y2 = arguments[3];
+  var colour = arguments[4];
+  if (colour === undefined) { colour = "black"; }
+  return new Rectangle(x1, y1, x2, y2, colour);
+}}$; };
+
+${{
+Rectangle.prototype.draw = function(context) {
+  context.fillStyle = this.fillcolour;
+  context.strokeStyle = this.outlincolour;
+  context.fillRect(this.x1,this.y1,this.x2,this.y2);
+  context.strokeRect(this.x1,this.y1,this.x2,this.y2);
+};
+}}$;
+${{
+Rectangle.prototype.toString = function() {
+  return "Rectangle(" + this.x1 + ", " + this.y1 + ", " + this.x2 + ", "+this.y2+", "+this.colour+")";
+};
+}}$;

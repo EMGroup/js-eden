@@ -1,0 +1,28 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+func include_js {
+${{
+	var source = arguments[0];
+	$.ajax({
+		url: source,
+		dataType: 'script',
+		type: 'GET',
+		success: function(data) {
+		}
+	});
+}}$;
+};
+
+func include_css {
+${{
+	$("<link/>", {
+	   rel: "stylesheet",
+	   type: "text/css",
+	   href: arguments[0]
+	}).appendTo("head");
+}}$;
+};
+

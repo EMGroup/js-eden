@@ -1,0 +1,285 @@
+include("models/jspe/run.e");
+include("models/parsingEMPE/parsingModelRun.js-e");
+include("models/parsingEMPE/moveNodes.js-e");
+transitions=[@,@,@,@,@,@,@,@,@,@,@,@];
+transitions[1]=[[1, "$end", 100],[1, "E", 100],[1, "T", 100],[1, "F", 100],[1, "ID", 100],[1, "(", 100],[1, ")", 100],[1, "+", 100],[1, "*", 100]];
+transitions[3]=[[3, "$end", 7],[3, "(", 100],[3, ")", 100],[3, "E", 100],[3, "F", 100],[3, "ID", 100],[3, "T", 100],[3, "+", 8],[3, "*", 100]];
+transitions[4]=[[4, "F", 100], [4, "ID", 100],[4, ")", 100],[4, "(", 100],[4, "E", 100],[4, "*", 9],[4, "$end", 100],[4, "T", 100],[4, "+", 100]];
+transitions[6]=[[6, "*", 100],[6, ")", 10],[6, "(", 100], [6, "E", 100],[6, "ID", 100],[6, "F", 100],[6, "$end", 100],[6, "+", 8],[6, "T", 100]];
+transitions[7]=[[7, "F", 100],[7, "ID", 100],[7, "E", 100],[7, ")", 100],[7, "(", 100],[7, "$end", 100],[7, "*", 100],[7, "+", 100],[7, "T", 100]];
+transitions[8]=[[8, "*", 100],[8, ")", 100],[8, "(", 2],[8, "ID", 1],[8, "$end", 100],[8, "F", 5], [8, "E", 100],[8, "T", 11],[8, "+", 100]];
+transitions[9]= [[9, "F", 12],[9, "ID", 1],[9, "E", 100],[9, ")", 100],[9, "(", 2],[9, "$end", 100],[9, "*", 100],[9, "T", 100],[9, "+", 100]];
+transitions[10]= [[10, ")", 100],[10, "(", 100],[10, "$end", 100],[10, "ID", 100],[10, "F", 100],[10, "E", 100], [10, "*", 100],[10, "T", 100],[10, "+", 100]];
+transitions[2]=[[2, ")", 100],[2, "(", 2],[2, "$end", 100],[2, "ID", 1],[2, "E", 6],[2, "T", 4],[2, "F", 5],[2, "+", 100],[2, "*", 100]];
+transitions[5]=[[5, ")", 100],[5, "(", 100],[5, "$end", 100],[5, "ID", 100],[5, "E", 100],[5, "F", 100],[5, "*", 100],[5, "T", 100],[5, "+", 100]];
+transitions[11]=[[11, "*", 9],[11, "E", 100],[11, "$end", 100],[11, "ID", 100],[11, "F", 100],[11, ")", 100],[11, "(", 100],[11, "T", 100],[11, "+", 100]];
+transitions[12]=[[12, "F", 100],[12, "ID", 100],[12, "E", 100],[12, ")",100],[12, "(", 100],[12, "$end", 100],[12, "*", 100],[12, "T", 100],[12, "+", 100]];
+transitions[13]=[[13, "F", 5],[13, "ID", 1],[13, "E", 3],[13, ")",100],[13, "(", 2],[13, "$end", 100],[13, "*", 100],[13, "T", 4],[13, "+", 100]];
+
+defaultreductions=[@,@,@,@,@,@,@,@,@,@,@,@];
+defaultreductions[1]=6;
+defaultreductions[4]=2;
+defaultreductions[5]=4;
+defaultreductions[10]=5;
+defaultreductions[11]=1;
+defaultreductions[12]=3;
+
+
+numberOfNodes=13;
+numberOfSyms=8;
+grammarRuleNo is findNoRules(defaultreductions);
+
+func findNoRules{
+para rl;
+auto result;
+result=0;
+for(i=1;i<=rl#;i++)
+{
+if(rl[i]!=@)
+result++;
+
+}
+return result;
+}
+addNode(mygraph,"s0");
+addNode(mygraph,"s1");
+addNode(mygraph,"s2");
+addNode(mygraph,"s3");
+makeNodeLabel(0);
+makeNodeLabel(1);
+makeNodeLabel(2);
+makeNodeLabel(3);
+addNode(mygraph,"s4");makeNodeLabel(4); addNode(mygraph,"s5");makeNodeLabel(5);
+addNode(mygraph,"s6");makeNodeLabel(6); addNode(mygraph,"s7");makeNodeLabel(7);
+addNode(mygraph,"s8");makeNodeLabel(8); addNode(mygraph,"s9");makeNodeLabel(9);
+addNode(mygraph,"s10");makeNodeLabel(10); addNode(mygraph,"s11");makeNodeLabel(11);
+addNode(mygraph,"s12");makeNodeLabel(12);
+
+addEdge(mygraph,"s0","s4");makeEdgeLabel(0,4);
+addEdge(mygraph,"s0","s5"); makeEdgeLabel(0,5); addEdge(mygraph,"s0","s3"); makeEdgeLabel(0,3);
+addEdge(mygraph,"s0","s2"); makeEdgeLabel(0,2);  addEdge(mygraph,"s0","s1"); makeEdgeLabel(0,1);
+addEdge(mygraph,"s2","s1"); makeEdgeLabel(2,1);  addEdge(mygraph,"s2","s2"); makeEdgeLabel(2,2);
+addEdge(mygraph,"s2","s6"); makeEdgeLabel(2,6);  addEdge(mygraph,"s2","s4"); makeEdgeLabel(2,4);
+addEdge(mygraph,"s2","s5"); makeEdgeLabel(2,5);  addEdge(mygraph,"s3","s7"); makeEdgeLabel(3,7);
+addEdge(mygraph,"s3","s8"); makeEdgeLabel(3,8);  addEdge(mygraph,"s4","s9"); makeEdgeLabel(4,9);
+addEdge(mygraph,"s6","s8"); makeEdgeLabel(6,8); addEdge(mygraph,"s6","s10"); makeEdgeLabel(6,10);  
+addEdge(mygraph,"s8","s11"); makeEdgeLabel(8,11); addEdge(mygraph,"s8","s5"); makeEdgeLabel(8,5);
+addEdge(mygraph,"s8","s1"); makeEdgeLabel(8,1); addEdge(mygraph,"s8","s2"); makeEdgeLabel(8,2);
+addEdge(mygraph,"s9","s1"); makeEdgeLabel(9,1);  addEdge(mygraph,"s9","s2"); makeEdgeLabel(9,2);
+addEdge(mygraph,"s9","s12"); makeEdgeLabel(9,12); addEdge(mygraph,"s11","s9"); makeEdgeLabel(11,9);  
+
+parsingrules is [line1,line2,line3,line4,line5,line6,line7];
+line1="$accept: E $end";
+line2="1 E: E+T";
+line3="2  | T";
+line4 ="3 T: T*F";
+line5 ="4   | F";
+line6 ="5 F: (E) ";
+line7 ="6   | ID ";
+
+cts0s1 is ctxy(0,1,currpath);
+cols0s1 is cts0s1>0 ? "black": defaultcolour(0,1,transitions[13]);
+cts0s1 is ctxy(0,1,currpath);cts0s3 is ctxy(0,3,currpath);
+cts0s2 is ctxy(0,2,currpath);cts0s4 is ctxy(0,4,currpath);
+cts0s5 is ctxy(0,5,currpath);cts2s1 is ctxy(2,1,currpath);
+cts2s6 is ctxy(2,6,currpath);cts2s2 is ctxy(2,2,currpath);
+cts2s4 is ctxy(2,4,currpath);cts2s5 is ctxy(2,5,currpath);
+cts3s7 is ctxy(3,7,currpath);cts3s8 is ctxy(3,8,currpath);
+cts4s9 is ctxy(4,9,currpath);cts6s8 is ctxy(6,8,currpath);
+cts6s10 is ctxy(6,10,currpath);cts8s1 is ctxy(8,1,currpath);
+cts8s5 is ctxy(8,5,currpath);cts8s2 is ctxy(8,2,currpath);
+cts8s11 is ctxy(8,11,currpath);cts9s1 is ctxy(9,1,currpath);
+cts9s2 is ctxy(9,2,currpath);cts9s12 is ctxy(9,12,currpath);
+cts11s9 is ctxy(11,9,currpath);
+cols0s1 is cts0s1>0 ? "black": defaultcolour(0,1,transitions[13]);
+cols0s2 is cts0s2>0 ? "black": defaultcolour(0,2,transitions[13]);
+cols0s3 is cts0s3>0 ? "black": defaultcolour(0,3,transitions[13]);
+cols0s4 is cts0s4>0 ? "black": defaultcolour(0,4,transitions[13]);
+cols0s5 is cts0s5>0 ? "black": defaultcolour(0,5,transitions[13]);
+cols2s1 is cts2s1>0 ? "black": defaultcolour(2,1,transitions[2]);
+cols2s2 is cts2s2>0 ? "black": defaultcolour(2,2,transitions[2]);
+cols2s4 is cts2s4>0 ? "black": defaultcolour(2,4,transitions[2]);
+cols2s5 is cts2s5>0 ? "black": defaultcolour(2,5,transitions[2]);
+cols2s6 is cts2s6>0 ? "black": defaultcolour(2,6,transitions[2]);
+cols3s7 is cts3s7>0 ? "black": defaultcolour(3,7,transitions[3]);
+cols3s8 is cts3s8>0 ? "black": defaultcolour(3,8,transitions[3]);
+cols4s9 is cts4s9>0 ? "black": defaultcolour(4,9,transitions[4]);
+cols6s8 is cts6s8>0 ? "black": defaultcolour(6,8,transitions[6]);
+cols6s10 is cts6s10>0 ? "black": defaultcolour(6,10,transitions[6]);
+cols8s1 is cts8s1>0 ? "black": defaultcolour(8,1,transitions[8]);
+cols8s2 is cts8s2>0 ? "black": defaultcolour(8,2,transitions[8]);
+cols8s5 is cts8s5>0 ? "black": defaultcolour(8,5,transitions[8]);
+cols8s11 is cts8s11>0 ? "black": defaultcolour(8,11,transitions[8]);
+cols9s1 is cts9s1>0 ? "black": defaultcolour(9,1,transitions[9]);
+cols9s2 is cts9s2>0 ? "black": defaultcolour(9,2,transitions[9]);
+cols9s12 is cts9s12>0 ? "black": defaultcolour(9,12,transitions[9]);
+cols11s9 is cts11s9>0 ? "black": defaultcolour(11,9,transitions[11]);
+
+
+proc makeinputtext : inputstr{
+InputText=inputstr;
+
+InputText = substpatt(InputText,"[A-Za-z][a-zA-Z0-9]*","g","i");
+InputText = substpatt(InputText,"[0-9]+","g","i");
+InputTextEnd = oneline(InputText)//"$";
+InputTextt=InputText//"$";
+}
+
+
+strvals is findpatt(inputstr,"[A-Za-z][a-zA-Z0-9]*|[1-9][0-9]*","g");
+func makeinputvals {
+para input, val;
+auto i,j,result,found,vals;
+vals=val.slice(0);
+j=1;result=[];
+   for(i=1;i<=input#;i++)
+    {	if(input[i]=="i")
+		{
+			for(j=1;j<=vals#;j++)
+			{  if (findpatt(vals[j],"[A-Za-z][a-zA-Z0-9]*","g") != "")
+				{			
+					result=result//vals[j];
+					vals[j]="";	
+					break;	
+				}
+				else if (findpatt(vals[j],"[0-9]+","g") != "")
+				{
+					result=result//vals[j];
+					vals[j]="";
+					break;
+				}
+				else writeln("syntax error");
+			}
+			
+         }else {result=result//[""];}				
+    }
+	return result;
+}
+func substituteID{
+	para cstack;
+	auto result;
+	if(currstack#-1>0)
+	result=substr(cstack,1,currstack#-1)//"F"//nextpart;
+	else
+	result="F"//nextpart;
+	return result;
+	}
+
+func substituteEplusT{
+        para cstack;
+	auto result;
+	if(currstack#-3>0)
+	result=substr(cstack,1,currstack#-3)//"E"//nextpart;
+	else
+	result="E"//nextpart;
+
+	return result;
+	}
+func substituteT{
+	para cstack;
+	auto result;
+	if(currstack#-1>0)
+	result=substr(cstack,1,currstack#-1)//"E"//nextpart;
+	else
+	result="E"//nextpart;
+
+	return result;
+	}
+func substituteTmultiF{
+	para cstack;
+	auto result;
+	if(currstack#-3>0)
+	result=substr(cstack,1,currstack#-3)//"T"//nextpart;
+	else
+	result="T"//nextpart;
+
+	return result;
+	}
+func substituteF{
+	para cstack;
+	auto result;
+	if(currstack#-1>0)
+	result=substr(cstack,1,currstack#-1)//"T"//nextpart;
+	else
+	result ="T"//nextpart;
+
+	return result;
+	}
+	
+func substituteEbrackets{
+	para cstack;
+	auto result;
+	if (currstack#-3>0)
+	result=substr(cstack,1,currstack#-3)//"F"//nextpart;
+	else
+	result="F"//nextpart;
+	return result;
+	}
+func applyrule{
+	para ruleno;
+       if (ruleno==1)
+	execute("InputTextt=substituteEplusT(InputTextt);");
+	else if (ruleno==2)
+	execute("InputTextt=substituteT(InputTextt);");
+	else if (ruleno==3)
+	execute("InputTextt=substituteTmultiF(InputTextt);");
+	else if (ruleno==4)
+	execute("InputTextt=substituteF(InputTextt);");
+	else if (ruleno==5)
+	execute("InputTextt=substituteEbrackets(InputTextt);");
+	else if (ruleno==6)
+	execute("InputTextt=substituteID(InputTextt);");
+	else
+	execute("InputTextt=InputTextt;");
+}
+
+
+func substituteEplusT2{
+	para vals;
+	auto calc, result;
+	calc=j;
+	if(calc-3>0)
+	result=sublist(vals,1,calc-3)//[vals[calc-2]//" "//vals[calc]//"+"]//nextvals;
+	else
+	result=[vals[calc-2]//" "//vals[calc]//"+"]//nextvals;
+	return result;
+}
+func substituteTmultiF2{
+	para vals;
+	auto calc, result;
+	calc=j;
+	if(calc-3>0)
+	result=sublist(vals,1,calc-3)//[vals[calc-2]//" "//vals[calc]//"*"]//nextvals;
+	else
+	result=[vals[calc-2]//" "//vals[calc]//"*"]//nextvals;
+	return result;
+}
+func substituteEbrackets2{
+	para vals;
+	auto calc, result;
+	calc=j;
+	if(calc-3>0)
+	result=sublist(vals,1,calc-3)//[vals[calc-1]]//nextvals;
+	else
+	result=[vals[calc-1]]//nextvals;
+	return result;
+}	
+	
+
+
+proc evalrule{
+ para ruleno;
+if ((ruleno==2)||(ruleno==4)||(ruleno==6))
+	 execute("inputtvals=inputtvals;");
+    else if (ruleno==1)
+	 execute("inputtvals=substituteEplusT2(inputtvals);");
+    else if (ruleno==3)
+ 	
+	execute("inputtvals=substituteTmultiF2(inputtvals);");
+    else if (ruleno ==5)
+        execute("inputtvals=substituteEbrackets2(inputtvals);");
+
+    
+	 }
+
+

@@ -1,0 +1,118 @@
+boardsize = 10;
+celllength = 20;
+##collabels is ["a","b","c","d","e","f","g","h","i","j"];
+##rowlabels is ["1","2","3","4","5","6","7","8","9","10"];
+collabels is [1,2,3,4,5,6,7,8,9,10];
+rowlabels is [1,2,3,4,5,6,7,8,9,10];
+spacebetweenboard = 60;
+spacebetweenplayer = 100;
+p1tX = 20;
+p1tY = 40;
+p1sX is p1tX;
+p1sY is p1tY + boardsize * celllength + spacebetweenboard;
+p1sText = "Player 1 Ships";
+p1tText = "Player 1 Target";
+
+p2sText = "Player 2 Ships";
+p2tText = "Player 2 Target";
+p2tX is p1tX + boardsize * celllength + spacebetweenplayer;
+p2tY is p1tY;
+p2sX is p2tX;
+p2sY is p2tY + boardsize * celllength + spacebetweenboard;
+
+
+/* 
+Draw board function,
+arg 0 : board title
+arg 1 : board position x
+arg 2 : board position y
+arg 3 : board size
+arg 4 : cell size
+arg 5 : row labels
+arg 6 : col labels
+arg 7 : ship board array
+*/
+
+proc drawShipboard { ${{
+   var canvas = $("#d1canvas").get(0).getContext('2d');
+   var text = arguments[0];
+  var x = arguments[1];
+  var y = arguments[2]
+  var boardSize = arguments[3];
+  var cellSize = arguments[4];
+  var rowtext = arguments[5];
+  var coltext = arguments[6];
+  var shipArray = arguments[7];
+  var boardLength = boardSize * cellSize;
+  var boardWidth = boardSize * cellSize;
+  var title = new Text(text, x, y - 20);
+  title.draw(canvas);
+  for(var i = 0; i <= boardSize; i++) {
+    var hline = new Line(x,y + i * cellSize,x + boardLength, y + i * cellSize);
+    var vline = new Line(x + i * cellSize, y, x + i * cellSize, y + boardWidth);
+    hline.draw(canvas);
+    vline.draw(canvas);
+    if(i < boardSize) {
+      var htext = new Text(rowtext[i],x + i * cellSize + 5, y - 5);
+      var vtext = new Text(coltext[i], x - 10, y + i * cellSize + 10);
+	  vtext.draw(canvas);
+      htext.draw(canvas);
+    }
+  }
+  
+  for(var j = 0; j < shipArray.length; j++) {
+	for(var k = 0; k < shipArray[j].length; k++) {					
+		if(shipArray[j][k] != 0) {	
+			var color;
+			switch(shipArray[j][k]) {					
+			case 1 :
+				color = "red";
+				break;
+			case 2 :
+				color = "blue";
+				break;
+			case 3 :
+				color = "black";
+				break;
+			case 4 :
+				color = "green";
+				break;
+			case 5 :
+				color = "yellow";
+				break;
+		}	
+			var ship = new Rectangle(x + k * cellSize, y + j * cellSize, cellSize,cellSize, color);
+			ship.draw(canvas);
+		}
+	}
+  }
+  
+}}$; };
+
+/* there are few types of update
+1 - draw boards for current player
+2 - draw boards for next player
+3 - draw both player 1 and player 2 boards for testing purpose
+*/
+
+proc update {
+	para player;
+	clearCanvas();
+	switch(player) {
+		case 1 :
+				drawShipboard(p1tText,p1tX,p1tY,boardsize,celllength,collabels,rowlabels,p1tboard);
+				drawShipboard(p1sText,p1sX,p1sY,boardsize,celllength,collabels,rowlabels,p1sboard);
+				
+				break;
+		case 2 :
+				drawShipboard(p2tText,p2tX,p2tY,boardsize,celllength,collabels,rowlabels,p2tboard);
+				drawShipboard(p2sText,p2sX,p2sY,boardsize,celllength,collabels,rowlabels,p2sboard);
+				break;
+		default :
+				drawShipboard(p1tText,p1tX,p1tY,boardsize,celllength,collabels,rowlabels,p1tboard);
+				drawShipboard(p1sText,p1sX,p1sY,boardsize,celllength,collabels,rowlabels,p1sboard);
+				drawShipboard(p2tText,p2tX,p2tY,boardsize,celllength,collabels,rowlabels,p2tboard);
+				drawShipboard(p2sText,p2sX,p2sY,boardsize,celllength,collabels,rowlabels,p2sboard);
+				break;
+	}
+};

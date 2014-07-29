@@ -1,0 +1,11 @@
+inputtvals=inputvals;
+stackvals is sublist(inputtvals,1,j);
+nextvals is sublist(inputvals,k+1,inputvals#);
+func sublist{
+  ${{
+  var inlist  =arguments[0] ;
+  var beginix =arguments[1] ;
+  var endix = arguments[2] ;
+  return inlist.slice(beginix-1,endix);
+  }}$;
+ }

@@ -1,0 +1,331 @@
+func substr {
+   ${{
+   var src = arguments[0];
+   var firstix = arguments[1];
+   var lastix = arguments[2];
+   return src.substr(firstix-1, lastix-firstix+1);
+   }}$;
+}
+
+func sublist{
+   ${{
+   var src = arguments[0];
+   var firstix = arguments[1];
+   var lastix = arguments[2];
+
+   return src.slice(firstix-1, lastix);
+   }}$;
+
+}
+
+func getlscomp {
+  return $1[$2];
+}
+
+
+func strplus{
+  para symbol;
+  if (symbol=="$")
+  return "$end";
+  else if (symbol=="+")
+  return"+";
+  else if (symbol=="*")
+  return "*";
+  else if (symbol=="E")
+  return "E";
+  else if (symbol=="-")
+  return "DIFF";
+  else if (symbol==":")
+  return "SELECT";
+  else if (symbol=="%")
+  return "PROJECT";
+  else if (symbol==",")
+  return "COMMA";
+  else if (symbol=="=")
+  return "EQ";
+  else if (symbol==">")
+  return "GT";
+  else if (symbol=="<")
+  return "LT";
+  else if (symbol=="!=")
+  return "NEQ";
+  else if (symbol=="l")
+  return "attr_list";
+  else if (symbol=="(")
+  return "(";
+  else if (symbol==")")
+  return ")";
+  else if (symbol=="i")
+  return "ID";
+  else if (symbol=="v")
+  return "VAL";
+  else if (symbol=="c")
+  return "comparator";
+  else if (symbol=="a")
+  return "ATTRID";
+  else if (symbol=="b")
+  return "boolexpr";
+  else if (symbol=="F")
+  return "F";
+  else
+  return symbol;
+
+
+
+}
+func strminus{
+para symbol;
+  if (symbol=="$end")
+  return "$";
+  else if (symbol=="UNION")
+  return"+";
+  else if (symbol=="JOIN")
+  return ".";
+  else if (symbol=="expr")
+  return "e";
+  else if (symbol=="DIFF")
+  return "-";
+  else if (symbol=="SELECT")
+  return ":";
+  else if (symbol=="PROJECT")
+  return "%";
+  else if (symbol=="COMMA")
+  return ",";
+  else if (symbol=="EQ")
+  return "=";
+  else if (symbol=="GT")
+  return ">";
+  else if (symbol=="LT")
+  return "<";
+  else if (symbol=="NEQ")
+  return "!=";
+  else if (symbol=="attr_list")
+  return "l";
+  else if (symbol=="LPAREN")
+  return "(";
+  else if (symbol=="RPAREN")
+  return ")";
+  else if (symbol=="TABLEID")
+  return "i";
+  else if (symbol=="VAL")
+  return "v";
+  else if (symbol=="comparator")
+  return "c";
+  else if (symbol=="ATTRID")
+  return "a";
+  else if (symbol=="boolexpr")
+  return "b";
+  else if (symbol=="func")
+  return "f";
+  else if (symbol=="ID")
+  return "i";
+  else
+  return symbol;
+
+
+
+}
+
+func stringtolist{
+   para inputstring;
+   auto result,i;
+   result=[];
+   for (i=1;i<= inputstring#; i++)
+    {
+	if ((inputstring[i]=='!')&&(inputstring[i+1]=="="))
+	{
+	  result=result//[strplus(substr(inputstring,i,i+1))];
+	  i++;
+	  
+	}
+	else result=result//[strplus(substr(inputstring,i,i))];
+	
+    }
+   
+    return result;
+}
+
+
+func listtostring{
+	para inputlist;
+	auto result,i;
+	result="";
+	for (i=1;i<=inputlist#;i++)
+	result=result//inputlist[i];
+	return result;
+	}
+	
+func makepath{
+   para inputlist;
+   auto endix,result,i,j;
+   j=1;
+   endix =13;
+   result=[0];
+   while ((inputlist#>=j)&&(endix!=100))
+   {
+		for(i=1;i<=numberOfSyms;i++)
+		{if(transitions[endix][i][2]==inputlist[j])
+		  {
+				endix = findnext(inputlist[j],endix);
+				j++;
+				result=result//[endix];
+				break;
+		  }
+		
+		}
+    }
+	
+   return result;
+}
+
+func findstate{
+	para pathlist;
+	auto i, result;
+	i=1;
+	result=0;
+	while((i<=pathlist#)&&(pathlist[i]!=100))
+	{
+	  i++;
+	}
+	result =pathlist[i-1];
+	return result;
+	}
+	
+
+
+func findnext{
+    	para symbol,endix;
+	auto i, transfound;
+	i=1;
+   	transfound = 0; ## meaning false
+	while ((i<=numberOfSyms)&&(!transfound)) {
+         if (transitions[endix][i][2]==symbol) 
+	{transfound = 1;}
+         else i++;
+	}
+	if(transfound==1)
+	result= transitions[endix][i][3];
+	else result = 100;
+	return result;
+}
+
+func makestack{
+
+
+	para inputlist;
+	auto endix,result,i,n,transfound;
+	endix=13;
+	n=1;
+	transfound=0;
+	result=[];
+	while ((inputlist#>=n)&&(endix!=100))
+   	{   	transfound=0;
+		inputlist[n]=strplus(inputlist[n],endix);
+		for(i=1;i<=numberOfSyms;i++){
+			if(transitions[endix][i][2]==inputlist[n])
+			{
+			endix=findnext(inputlist[n],endix);
+			result = result//[inputlist[n]];    	
+			n++;
+			transfound=1;
+			break;
+			}
+			}
+		if(transfound==0)
+		n++;
+		}
+   	return result;
+}	
+
+func oneline{
+	para s;
+	return (substr(s,s#,s#)=="\n") ? substr(s,1,s#-1) : s;
+}
+
+
+InputText="";
+InputTextt = InputText//"$";
+k=0;
+InputTextEnd = oneline(InputText)//"$";
+nextpart is substr(InputTextEnd,k+1,InputTextEnd#);
+j is InputTextt#-nextpart#;
+currstack is makestack(stringtolist(substr(InputTextt,1,j)));
+currpath is makepath(currstack);
+currstate is findstate(currpath);
+inputok is (currpath[currpath#] != 100);
+nextsymbol is strplus(substr(InputTextEnd,k+1,k+1),currstate);
+isreduction is (currstate==0)? ((defaultreductions[numberOfNodes]==@)? 100: defaultreductions[numberOfNodes]) : ((defaultreductions[currstate]==@)? 100: defaultreductions[currstate]);
+currrule is (isreduction==100)? "":isreduction;
+
+
+proc copylist {
+${{
+var a = arguments[0];
+var b =arguments[1];
+a = b.slice(0);
+
+}}$;
+}
+
+proc callApprule: apprule_clicked{
+  if(apprule_clicked)
+	{
+	evalrule(rule_value);
+    applyrule(rule_value);
+    }
+}
+
+proc increaseK: nextstep_clicked{
+  if(nextstep_clicked)
+   k++;
+
+
+}
+
+proc Restart: Reset_clicked{
+   if(Reset_clicked)
+   {
+   InputTextt=InputText//"$";
+    InputTextEnd = oneline(InputText)//"$";
+       isautomatic=0;
+	 k=0;
+	j=0;
+        j is InputTextt#-nextpart#;
+     inputtvals=inputvals;
+	
+   }
+
+}
+isautomatic=0;
+
+
+speed=2000;
+proc automatic:k,InputTextt,isautomatic{
+
+	
+   if((currrule!="")&&(isautomatic==1)){
+     after(speed){
+	if((currrule==2)&&(nextsymbol=="*"))
+  	 k++;
+	else if((currstate==11)&&(nextsymbol!="*")){
+	evalrule(1);
+	applyrule(1);}
+	else if ((currstate==11)&&(nextsymbol=="*")){
+	k++;}
+	else if(currstate==12){
+	evalrule(3);
+	applyrule(3);}
+	else
+	{
+      evalrule(currrule);
+      applyrule(currrule);
+	}
+      }
+    }
+ 
+ 	
+   if((currrule=="")&&(k<=InputText#)&&(isautomatic==1))
+    {after(speed){ k++;
+		  }
+    }
+ }

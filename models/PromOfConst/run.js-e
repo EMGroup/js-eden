@@ -1,0 +1,6 @@
+## Include in this order:
+
+include("models/PromOfConst/basicpresenter.js-e");
+include("models/PromOfConst/promisestitlesects.js-e");
+include("models/PromOfConst/promisesconstructivism.js-e");
+include("models/PromOfConst/promisesconstslides.js-e");

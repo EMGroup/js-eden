@@ -1,0 +1,8 @@
+
+
+
+winPileOneNW = [65,85];
+winPileTwoNW = [225,85];
+winPileThreeNW = [380,85];
+
+picture is [stone0,stone1,stone2,stone3,stone4,stone5,stone6,stone7,stone8,stone9,stone10,stone11,stone12,stone13,stone14,p2stone0,p2stone1,p2stone2,p2stone3,p2stone4,p2stone5,p2stone6,p2stone7,p2stone8,p2stone9,p2stone10,p2stone11,p2stone12,p2stone13,p2stone14,p3stone0,p3stone1,p3stone2,p3stone3,p3stone4,p3stone5,p3stone6,p3stone7,p3stone8,p3stone9,p3stone10,p3stone11,p3stone12,p3stone13,p3stone14,header,pileLabelOne,pileLabelTwo,pileLabelThree,pileButtonOne,pileButtonTwo,pileButtonThree,currentPlayerHeader,currentPlayerLabel,endTurnButton,winnerHeader,winnerLabel,resetButton,currentBinarySumPileOneHeader,currentBinarySumPileTwoHeader,currentBinarySumPileThreeHeader,currentBinarySumPileOneLabel,currentBinarySumPileTwoLabel,currentBinarySumPileThreeLabel,currentBinarySumHeader,currentBinarySumLabel,binarySumHistoryHeader,binarySumHistoryLabel];

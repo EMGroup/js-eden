@@ -1,0 +1,87 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+Slider = function(name, min, max, step, value, orientation, x, y) {
+  this.name = name;
+  this.min = min;
+  this.max = max;
+  this.step = step;
+  this.value = value;
+  this.orientation = orientation;
+  this.x = x;
+  this.y = y;
+  this.element = undefined;
+}
+}}$;
+
+func Slider { ${{
+  var name = arguments[0];
+  var min = arguments[1];
+  var max = arguments[2];
+  var step = arguments[3];
+  var value = arguments[4];
+  var orientation = arguments[5];
+  var x = arguments[6];
+  var y = arguments[7];
+  return new Slider(name, min, max, step, value, orientation, x, y);
+}}$; }
+
+${{
+Slider.prototype.draw = function(context,content) {
+  var me = "canvas_" + this.name;
+  var me2 = this.name;
+  var sli = this.element;
+
+  var value = this.value;
+  var max = this.max;
+  var min = this.min
+  var step = this.step;
+  var orientation = this.orientation;
+
+  if (sli === undefined) {
+    var can = $(content);
+    var slihtml = $('<div id="'+me+'" style="position: absolute; left: '+ this.x +'px; top: '+ this.y +'px;"><label for="'+me+'-amount">'+this.name+':</label><input type="text" id="'+me+'-amount" style="border:0; color:#f6931f; font-weight:bold;" /><div id="'+me+'-slider-range"></div></div>').appendTo(can);
+
+	var sliderrange = $("#"+me+"-slider-range" );
+      sliderrange.slider({
+		max: max,
+		min: min,
+		step: step,
+		value: value,
+		orientation: orientation,
+        slide: function( event, ui ) {
+          $( "#"+me+"-amount" ).val( ui.value );
+          root.lookup(me2 + "_value").assign(ui.value);
+      }});
+      $( "#"+me+"-amount" ).val( "$" + $( "#"+me+"slider-range" ).slider( "values", 0 ) );
+
+	this.element = slihtml.get(0);
+    this.element.togarbage = false;
+
+    //Initialise
+    root.lookup(me2 + "_value").assign(value);
+    $( "#"+me+"-amount" ).val( value );
+  } else {
+    sli.togarbage = false;
+    sli.value = $( "#"+me+"slider-range" ).slider( "values", 0 );
+	var range = $( "#"+me+"-slider-range" );
+    range.slider( "option", "max", max );
+    range.slider( "option", "min", min );
+    range.slider( "option", "step", step );
+    // $( "#"+me+"-slider-range" ).slider( "option", "value", value );
+    range.slider( "option", "orientation", orientation );
+    sli.style.left = "" + this.x + "px";
+    sli.style.top = "" + this.y + "px";
+  }
+
+};
+}}$;
+
+${{
+Slider.prototype.toString = function() {
+  return "Slider("+this.name+", "+this.min+", "+this.max+", "+this.step+", "+this.default+", "+this.orientation+", "+this.x+", "+this.y+")";
+};
+}}$;

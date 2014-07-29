@@ -1,0 +1,72 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+Div = function (name, x, y, width, height, html, style) {
+	this.name = name;
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.html = html;
+	this.style = style;
+	this.element = undefined;
+}
+}}$;
+
+func Div { ${{
+  var name = arguments[0];
+  var x = arguments[1];
+  var y = arguments[2];
+  var width = arguments[3];
+  var height = arguments[4];
+  var html = arguments[5];
+  var style = arguments[6];
+  return new Div(name, x, y, width, height, html, style);
+}}$; }
+
+${{
+Div.prototype.draw = function(context,content) {
+  var me = "canvas_" + this.name;
+  var me2 = this.name;
+  var but = this.element;
+
+  if (but === undefined) {
+	var dis = "";
+	if (this.enabled == true) { dis = ""; }
+	else { dis = "disabled=\"true\""; }
+
+	var can = $(content);
+	var divstyle = "position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;";
+	if (this.style !== undefined) {
+		divstyle = divstyle + this.style;
+	}
+	var buthtml = $("<div id=\"" + me + "\" style=\""+divstyle+"\">" + this.html + "</div>").appendTo(can);
+
+	//.click(function() {
+	//	root.lookup(me2 + "_clicked").assign(true); root.lookup(me2 + "_clicked").assign(false);
+	//}).appendTo(can);
+
+	buthtml.get(0).togarbage = false;
+	this.element = buthtml.get(0);
+
+	//Initialise
+	//root.lookup(me2 + "_clicked").assign(false);
+  } else {
+	//but.value = this.label;
+	but.innerHTML = this.html;
+	but.togarbage = false;
+	but.style.width = "" + this.width + "px";
+	but.style.height = "" + this.height + "px";
+	but.style.left = "" + this.x + "px";
+	but.style.top = "" + this.y + "px";
+	$(but).appendTo($(content));  }
+};
+}}$;
+${{
+Div.prototype.toString = function() {
+  return "Div(" + this.name + ", " + this.x + ", "+this.y+", ...)";
+};
+}}$;

@@ -1,0 +1,47 @@
+<html>
+	<head>
+		<title>EDEN to JS translator test page</title>
+
+		<script src="../js/dummyconsole.js"></script>
+		<script src="../js/lib/json2.js"></script>
+
+		<script src="../js/lib/beautify.js"></script>
+
+		<script src="../joe/joe.js"></script>
+		<script src="../js/core/translator.js"></script>
+		<script src="../js/core/eden.js"></script>
+	</head>
+	<body>
+		<h2>Test the parser</h2>
+		<textarea id="parser-input" rows="8" cols="80"></textarea>
+		<p>
+			<button id="parse-btn">Parse</button>
+		</p>
+
+		<h2>Generated JavaScript</h2>
+		<pre id="parser-output"></pre>
+		<script>
+			function translate() {
+				var edenSource = document.getElementById('parser-input').value;
+				window.localStorage.setItem('edenSource', edenSource);
+				var parserOutput;
+				try {
+					parserOutput = js_beautify(Eden.translateToJavaScript(edenSource));
+				} catch (e) {
+					parserOutput = "Parse error: " + (e.message || e);
+				}
+				document.getElementById('parser-output').innerHTML = parserOutput;
+			}
+
+			var previousSource = window.localStorage.getItem('edenSource');
+			if (previousSource) {
+				document.getElementById('parser-input').value = previousSource;
+				translate();
+			}
+
+			document.getElementById('parse-btn').addEventListener('click', function () {
+				translate();
+			});
+		</script>
+	</body>
+<html>

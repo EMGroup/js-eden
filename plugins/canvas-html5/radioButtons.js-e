@@ -1,0 +1,97 @@
+${{
+RadioButtons = function (name, listOfButtonNames, x, y, enabled, horizontal){
+	this.name = name;
+	this.listOfButtonNames = listOfButtonNames;
+	this.x = x;
+	this.y = y;
+    this.enabled = enabled;
+	this.horizontal = horizontal;
+}
+}}$;
+
+func RadioButtons { ${{
+  var name = arguments[0];
+  var listOfButtonNames = arguments[1];
+  var x = arguments[2];
+  var y = arguments[3];
+  var enabled = arguments[4];
+  var horizontal = arguments[5];
+  return (new RadioButtons(name, listOfButtonNames, x, y, enabled, horizontal));
+}}$; }
+
+${{
+RadioButtons.prototype.makeHTML = function(){
+
+	var build = "";
+
+	for(var i=0; i<this.listOfButtonNames.length; i++){
+		if(build==""){
+			build = build + "<input type=\"radio\" name=\""+this.name+"\" value=\""+this.listOfButtonNames[i]+"\">"+this.listOfButtonNames[i];
+		}
+		else{
+			build = build + "<br/><input type=\"radio\" name=\""+this.name+"\" value=\""+this.listOfButtonNames[i]+"\">"+this.listOfButtonNames[i];
+		}
+	}
+
+	
+	if(this.horizontal){
+		return "<div id=\"canvas_"+this.name+"\" style=\" position: absolute; top:"+this.y+"px; left:"+this.x+"px;\"><form style=\"display:inline-flex;\">"+build+"</form></div>";
+	}
+	
+	return "<div id=\"canvas_"+this.name+"\" style=\" position: absolute; top:"+this.y+"px; left:"+this.x+"px;\"><form>"+build+"</form></div>";
+
+};
+}}$;
+
+${{
+RadioButtons.prototype.draw = function(context,content) {
+	var canvas_obsname = "canvas_" + this.name;
+	var id = this.name;
+	var check = this.element;
+	
+	if(check === undefined){
+
+		//Make the HTML
+		var inputhtml = $(this.makeHTML());
+
+		//Assign the value to update the observable if the HTML changes
+		//Uses Jquery.
+
+		inputhtml.change(function(){
+
+			//Find the current value
+
+			for(var i=0; i<inputhtml.get(0).children[0].length; i++){
+				if(inputhtml.get(0).children[0][i].checked){
+					
+					//Assign the selected value to an eden observable
+					root.lookup(id + "_value").assign(inputhtml.get(0).children[0][i].value);
+				}
+			}
+		}).appendTo($(content));
+
+		this.element = inputhtml.get(0);
+
+		inputhtml.get(0).togarbage = false;
+
+  }
+  else{
+
+		this.element.togarbage = false;
+		content.appendChild(this.element);
+		
+		for(var i=0; i<this.listOfButtonNames.length; i++){
+			if(document.getElementById("canvas_"+this.name).children[0][i].value==root.lookup(id + "_value")){
+				document.getElementById("canvas_"+this.name).children[0][i].checked = true;
+				break;
+			}
+		}
+  }
+};
+}}$;
+
+${{
+RadioButtons.prototype.toString = function() {
+  return "RadioButtons(" + this.name + ", [" + this.listOfButtonNames + "], "+this.x+ ", "+this.y+ ", "+this.enabled+", "+this.horizontal+")";
+};
+}}$;

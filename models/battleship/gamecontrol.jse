@@ -1,0 +1,118 @@
+/*
+controls for initlization
+*/
+typecombox is Combobox("type",["Player vs Player","Player vs AI", "AI vs AI"], 300,200,true);
+selectbut is Button("select","Select",300,250,true);
+initcontrol is [typecombox,selectbut];
+picture = initcontrol;
+isFired = false;
+
+proc selectbutagent : select_clicked {
+	if(select_clicked == true) {
+		if(type_value == "Player vs Player") {
+			picture = normalcontrol;
+			${{
+				alert("Player 1 start first");
+			}}$;
+			currentplayer = 1;
+			update(currentplayer);
+			gametype = 1;
+		}
+		else if(type_value == "Player vs AI") {
+			gametype = 2;
+			currentplayer = 1;
+			picture = normalcontrol;
+			${{
+				alert("Player 1 start first");
+			}}$;
+			update(1);
+			
+		}
+		else if(type_value == "AI vs AI") {
+			gametype = 3;
+		}
+	}
+};
+
+
+/*
+Controls for game playing
+*/
+xcombovalues = ["[Pos X]",1,2,3,4,5,6,7,8,9,10];
+ycombovalues = ["[Pos Y]",1,2,3,4,5,6,7,8,9,10];
+xcombo is Combobox("posX",xcombovalues,650,20,true);
+ycombo is Combobox("posY",ycombovalues,750,20,true);
+firebut is Button("fire","Fire",650,60,true);
+rulebut is Button("rule","See Rules",650,100,true);
+finishbut is Button("finish","Finish Turn", 750,60,true);
+
+
+proc firebutagent : fire_clicked {
+  if(fire_clicked == true) {
+	if(posX_value == "[Pos X]" || posY_value == "[Pos Y]") {
+		${{
+			alert("Please selec your target.");
+		}}$;
+	}
+	else {
+		if(!isFired) {		
+			shot(posX_value,posY_value);
+			update(currentplayer);
+			isFired = true;
+		}
+		else {
+			${{
+				alert("You have been fired in this turn, please click on finish turn");
+			}}$;
+		}
+	}
+  }
+};
+
+proc rulebutagent : rule_clicked {
+	if(rule_clicked == true) {
+		${{
+alert("a has been updated");
+}}$;
+	}
+};
+
+proc finishbutagent : finish_clicked {
+	if(finish_clicked == true) {
+		if(gametype == 1) {
+			if(currentplayer == 1) {
+				currentplayer = 2;
+				${{
+					alert("Player 2's turn");
+				}}$;
+				update(currentplayer);
+			}
+			else {
+				${{
+					alert("Player 1's turn");
+				}}$;
+				currentplayer = 1;
+				update(currentplayer);
+			}
+			isFired = false;
+		}
+		else if(gametype == 2) {
+			if(currentplayer == 1) {
+				currentplayer = 2;
+				${{
+					alert("AI's turn");
+				}}$;
+				AIturn();
+				update(1);
+			}
+			isFired = false;
+		}
+	}
+};
+
+normalcontrol is [
+xcombo,ycombo,firebut, rulebut,finishbut];
+
+
+##picture = [xcombo,ycombo,firebut, rulebut,finishbut];
+

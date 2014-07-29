@@ -1,0 +1,33 @@
+header is Text("NIM",200,30,"black");
+pileLabelOne is Text(pileLabelOneTxt,70,140,"black");
+pileLabelTwo is Text(pileLabelTwoTxt,230,140,"black");
+pileLabelThree is Text(pileLabelThreeTxt,385,140,"black");
+pileButtonOne is Button("pileButtonOne","Take from pile 1",30,160,pile1able);
+pileButtonTwo is Button("pileButtonTwo","Take from pile 2",190,160,pile2able);
+pileButtonThree is Button("pileButtonThree","Take from pile 3",350,160,pile3able);
+currentPlayerHeader is Text("It is the turn of:",30,200,"blue");
+currentPlayerLabel is Text(currentPlayerLabelTxt,195,200,"black");
+endTurnButton is Button("endTurnButton","End Turn",315,200,1);
+winnerHeader is Text("The NIM winner is:",30,225,"blue");
+winnerLabel is Text(winnerLabelTxt,195,225,"black");
+resetButton is Button("resetButton","Start New Game",315,225,1);
+currentBinarySumPileOneHeader is Text("Pile 1 in binary:",30,300,"blue");
+currentBinarySumPileTwoHeader is Text("Pile 2 in binary:",30,325,"blue");
+currentBinarySumPileThreeHeader is Text("Pile 3 in binary:",30,350,"blue");
+currentBinarySumPileOneLabel is Text(currentBinarySumPileOneLabelTxt,190,300,"black");
+currentBinarySumPileTwoLabel is Text(currentBinarySumPileTwoLabelTxt,190,325,"black");
+currentBinarySumPileThreeLabel is Text(currentBinarySumPileThreeLabelTxt,190,350,"black");
+currentBinarySumHeader is Text("NimSum in binary:",30,390,"blue");
+currentBinarySumLabel is Text(currentBinarySumLabelTxt,170,390,"black");
+binarySumHistoryHeader is Text("Binary Sum History:",30,450,"blue");
+binarySumHistoryLabel is Text(binarySumHistoryLabelTxt,190,450,"black");
+${{
+$('#d1canvas').css("background-color", "yellow")
+}}$;
+
+${{
+$('#jspe').css("width",487);
+$('#d1canvas').css("width",487);}}$;
+picture is [header,pileLabelOne,pileLabelTwo,pileLabelThree,pileButtonOne,pileButtonTwo,pileButtonThree,currentPlayerHeader,currentPlayerLabel,endTurnButton,winnerHeader,winnerLabel,resetButton,currentBinarySumPileOneHeader,currentBinarySumPileTwoHeader,currentBinarySumPileThreeHeader,currentBinarySumPileOneLabel,currentBinarySumPileTwoLabel,currentBinarySumPileThreeLabel,currentBinarySumHeader,currentBinarySumLabel,binarySumHistoryHeader,binarySumHistoryLabel];
+
+

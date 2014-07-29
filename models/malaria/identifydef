@@ -1,0 +1,14 @@
+#! /bin/bash
+
+# dos2unix $1
+
+cat $1 | sed -n -e '/^\ *'$2'\ / {
+=
+p
+}' > temp
+# cat temp | tr \\n X | sed -e 's/X/\t/g' | sed -e 's/;\t/;\n/g'
+
+cat temp | tr \\n X | sed -e 's/X/\t/g' | sed -e 's/;\t/;\n/g'
+
+# rm temp
+

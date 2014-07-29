@@ -1,0 +1,55 @@
+grammarPictureStr = "<style>
+.one{
+	font-size:8px;
+    }
+</style>
+<hh class=\"one\">
+Grammar<br/><blockquote>0 $accept: expr $end</blockquote>
+   <blockquote> 1 expr: ID</blockquote>
+   <blockquote> 2     | func LPAREN expr COMMA expr COMMA expr RPAREN</blockquote>
+state 0<br/>
+	<blockquote>0 $accept: . expr $end</blockquote>
+   <blockquote> func  shift, and go to state 1</blockquote>
+   <blockquote> ID     shift, and go to state 2</blockquote>
+   <blockquote> expr  go to state 3</blockquote>
+state 1<br/>
+    <blockquote>2 expr: func . LPAREN expr COMMA expr COMMA expr RPAREN</blockquote>
+    <blockquote>LPAREN  shift, and go to state 4</blockquote>
+state 2<br/>
+   <blockquote> 1 expr: ID .</blockquote>
+    <blockquote>$default  reduce using rule 1 (expr)</blockquote>
+state 3<br/>
+   <blockquote> 0 $accept: expr . $end</blockquote>
+   <blockquote> $end  shift, and go to state 5</blockquote>
+state 4<br/>
+   <blockquote> 2 expr: func3 LPAREN . expr COMMA expr COMMA expr RPAREN</blockquote>
+    <blockquote>func  shift, and go to state 1</blockquote>
+    <blockquote>ID     shift, and go to state 2</blockquote>
+    <blockquote>expr  go to state 6</blockquote>
+state 5<br/>
+   <blockquote> 0 $accept: expr $end .</blockquote>
+   <blockquote> $default  accept</blockquote>
+state 6<br/>
+   <blockquote> 2 expr: func LPAREN expr . COMMA expr COMMA expr RPAREN</blockquote>
+    <blockquote>COMMA  shift, and go to state 7</blockquote>
+state 7<br/>
+    <blockquote>2 expr: func LPAREN expr COMMA . expr COMMA expr RPAREN</blockquote>
+    <blockquote>func3  shift, and go to state 1</blockquote>
+    <blockquote>ID     shift, and go to state 2</blockquote>
+   <blockquote> expr  go to state 8</blockquote>
+state 8<br/>
+   <blockquote> 2 expr: func LPAREN expr COMMA expr . COMMA expr RPAREN</blockquote>
+   <blockquote> COMMA  shift, and go to state 9</blockquote>
+state 9<br/>
+   <blockquote> 2 expr: func LPAREN expr COMMA expr COMMA . expr RPAREN</blockquote>
+   <blockquote> func3  shift, and go to state 1</blockquote>
+    <blockquote>ID     shift, and go to state 2</blockquote>
+    <blockquote>expr  go to state 10</blockquote>
+state 10<br/>
+    <blockquote>2 expr: func LPAREN expr COMMA expr COMMA expr . RPAREN</blockquote>
+    <blockquote>RPAREN  shift, and go to state 11</blockquote>
+state 11<br/>
+    <blockquote>2 expr: func LPAREN expr COMMA expr COMMA expr RPAREN .</blockquote>
+    <blockquote>$default  reduce using rule 2 (expr)</blockquote></hh>";
+grammarPicture is Div("grammarPicture",10,10,500,1000,grammarPictureStr);
+picture is [grammarPicture];

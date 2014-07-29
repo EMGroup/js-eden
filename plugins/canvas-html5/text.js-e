@@ -1,0 +1,35 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+Text = function(txt, x, y, colour) {
+  this.x = x;
+  this.y = y;
+  this.text = txt;
+  this.colour = colour;
+}
+}}$;
+
+func Text { ${{
+  var x = arguments[1];
+  var y = arguments[2];
+  var text = arguments[0];
+  var colour = arguments[3];
+  if (colour == null) { colour = "black"; }
+  return new Text(text, x, y, colour);
+}}$; };
+
+${{
+Text.prototype.draw = function(context) {
+  context.fillStyle = this.colour;
+  context.lineWidth = 1;
+  context.fillText(this.text,this.x, this.y);
+};
+}}$;
+${{
+Text.prototype.toString = function() {
+  return "Text(" + this.x + ", " + this.y + ", '" + this.text + "', "+this.colour+")";
+};
+}}$;

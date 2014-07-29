@@ -1,0 +1,71 @@
+/////////////////////////////////////////////////////////////////////////
+					Documentation of the directory:
+/////////////////////////////////////////////////////////////////////////
+
+index.html:
+	Contains the hardcoded master webpage 
+	Calls and executes the following script files:
+		joe/joe.js, js/jseden.rb
+	Loads plugins:
+		MenuBar, InputWindow, Project List
+	Creates a view of:
+		Input Window, Project List
+	Repositions Input window
+	Stands Idle
+	
+ssijse.rb
+	Performs a server side include of all js-e files. This optimises by combining
+	all js-e files into one for a single compressed http request. It also supports
+	jsonp for cross-site loading of js-e files.
+	
+bulk.js
+	This file appears to be a snapshot of what javascript was shown in the console
+	of a webpage that loaded JS-EDEN at one point. It lends no functionality to the
+	application, was probably used for testing purposes.
+	
+jspedemo.jse
+	This file has been written for demonstration purposes and lends no functionality
+	to the application.
+	
+qnit_tests.js
+	Appears to be code for a testing environment for javascript. I believe it is entirely
+	redundant.
+	
+tests/testdeclare.js-e
+	Testing code, amounts to submitting numbers to a javascript data structure and seeing
+	if they remain after calling them. Entirely redundant.
+	
+.htaccess
+	not sure what this does, doesnt appear to affect anything, 
+
+home.html
+	Legacy documentation, redundant.
+
+blank.html
+	A template for an older main html page, redundant.
+	
+Other:
+	
+	html images are contained in
+		images
+	css styling sheets are contained in
+		css
+	legacy documentation from tim about how to interact with basic eden within JS-EDEN is in
+		doc
+	Script files that are of any interest are inlcuded in the following directories:
+		joe, js, library, models, plugins
+	Additionally the parser is generated from files in
+		translator
+	I am assured old parser generating files are in the appropriately named
+		translator2
+	Vagrant is responsible for the following files and directories if they appear:
+		Vagrantfile, .vagrant, chef
+	Github is responsible for the following files and directories if they appear:
+		version.rhtml, .htaccess, .gitignore, .gitattributes
+	License is self explanatory
+	Other files which I am yet to understand and appreciate include:
+		.travis.yml
+		
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////

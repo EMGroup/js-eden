@@ -1,0 +1,248 @@
+{
+	"functions": {
+		"include": {
+			"parameters": {
+				"file": "Script file to load"
+			},
+			"return": "No return value",
+			"description": "Loads and executes a JS-Eden script file"
+		},
+		"include_js": {
+			"parameters": {
+				"file": "JavaScript file to load"
+			},
+			"return": "No return value",
+			"description": "Loads and executes an external javascript file"
+		},
+		"include_css": {
+			"parameters": {
+				"file": "CSS file to load"
+			},
+			"return": "No return value",
+			"description": "Load an external style sheet"
+		},
+		"str": {
+			"parameters": {
+				"object": "A number or list to be converted"
+			},
+			"return": "A string",
+			"description": "Converts a number or list to a string"
+		},
+		"int": {
+			"parameters": {
+				"string": "String to convert"
+			},
+			"return": "An integer",
+			"description": "Converts a string to an integer"
+		},
+		"html": {
+			"parameters": {
+				"code": "HTML code string"
+			},
+			"return": "No return value",
+			"description": "Displays HTML on the canvas"
+		},
+		"time": {
+			"return": "Integer number of seconds",
+			"description": "Get current time in seconds since 1/1/1970"
+		},
+		"writeln": {
+			"parameters": {
+				"text": "A string"
+			},
+			"return": "No return value",
+			"description": "Prints a string to the browser console"
+		},
+		"execute": {
+			"parameters": {
+				"code": "A string"
+			},
+			"return": "No return value",
+			"description": "Evaluates a string as an Eden script"
+		},
+		"rand": {
+			"return": "Random integer",
+			"description": "Generates a random integer between 0 and 32767"
+		},
+		"Text": {
+			"parameters": {
+				"text": "Text string to display",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"colour": "Text colour in HTML form"
+			},
+			"return": "Text object",
+			"description": "Creates a text element for display on the canvas"
+		},
+		"Line": {
+			"parameters": {
+				"x1": "X-coordinate for start",
+				"y1": "Y-coordinate for start",
+				"x2": "X-coordinate for end",
+				"y2": "Y-coordinate for end",
+				"colour": "Colour of the line in HTML form"
+			},
+			"return": "Line object",
+			"description": "Creates a line element for display on the canvas"
+		},
+		"Rectangle": {
+			"parameters": {
+				"x1": "X-coordinate for top left",
+				"y1": "Y-coordinate for top left",
+				"x2": "X-coordinate for bottom right",
+				"y2": "Y-coordinate for bottom right",
+				"outlinecolour": "Colour of the rectangle (stroke) in HTML form"
+			},
+			"return": "Rectangle object",
+			"description": "Creates a rectangle element for display on the canvas"
+		},
+                "Polygon": {
+                        "parameters": {
+                                "[points]": "List of coordinates in the form [ x1,y1 , x2,y2 ] from the top left corner",
+                                "colour": "Colour of the polygon (fill) in HTML form"
+                        },
+                        "return": "Polygon object",
+                        "description": "Creates a polygon element for display on the canvas"
+                },
+		"Circle": {
+			"parameters": {
+				"x": "Centre X-coordinate",
+				"y": "Centre Y-coordinate",
+				"radius": "Circle radius from centre",
+				"fillcolour": "Fill colour for the circle in HTML form",
+				"outlinecolour": "Outline colour of the circle in HTML form"
+			},
+			"return": "Circle object",
+			"description": "Creates a circle element for display on the canvas"
+		},
+		"Button": {
+			"parameters": {
+				"name": "for [name]_clicked",
+				"label": "Text for the button",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"enabled": "Boolean for button enabled"
+			},
+			"return": "Button object",
+			"description": "Creates a button element for display on the canvas"
+		},
+		"Div": {
+			"parameters": {
+				"name": "currently unused",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"width": "Width in pixels",
+				"height": "Height in pixels",
+				"html": "HTML content",
+				"[style]" : "An optional CSS style string"
+			},
+			"return": "Div object",
+			"description": "Creates a html element for display on the canvas"
+		},
+		"Image": {
+			"parameters": {
+				"name": "not used",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"width": "Width in pixels",
+				"height": "Height in pixels",
+				"src": "Source file for the image"
+			},
+			"return": "Image object",
+			"description": "Creates a html image element for display on the canvas"
+		},
+		"Combobox": {
+			"parameters": {
+				"name": "for [name]_clicked",
+				"options": "A list of strings providing the options",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"enabled": "Boolean for combobox enabled"
+			},
+			"return": "Combobox object",
+			"description": "Creates a drop-down select box for the canvas"
+		},
+		"cos": {
+			"parameters": {
+				"angle": "Angle in radians"
+			},
+			"return": "Cosine of the angle",
+			"description": "Cosine"
+		},
+		"sin": {
+			"parameters": {
+				"angle": "Angle in radians"
+			},
+			"return": "Sine of the angle",
+			"description": "Sine"
+		},
+		"abs": {
+			"parameters": {
+				"value": "A number"
+			},
+			"return": "The absolute magnitude",
+			"description": "Removes the sign from a number to return its absolute magnitude"
+		},
+		"acos": {
+			"parameters": {
+				"value": "Number between -1 and 1"
+			},
+			"return": "Arc cosine of value in radians",
+			"description": "Arc cosine, inverse of cosine."
+		},
+		"asin": {
+			"parameters": {
+				"value": "Number between -1 and 1"
+			},
+			"return": "Arc sine of value in radians",
+			"description": "Arc sine, inverse of sine."
+		},
+		"atan": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "Arc tan in radians",
+			"description": "Arc tan, inverse of tan."
+		},
+		"ceil": {
+			"parameters": {
+				"number": "Floating point number"
+			},
+			"return": "Nearest integer, rounded up",
+			"description": "Finds the nearest integer that is not less than the number"
+		},
+		"exp": {
+			"parameters": {
+				"number": "Exponent"
+			},
+			"return": "e to the power of number",
+			"description": "Base-e exponential."
+		},
+		"floor": {
+			"parameters": {
+				"number": "Floating point number"
+			},
+			"return": "Nearest integer, rounded down",
+			"description": "Finds the nearest integer by rounding down"
+		},
+		"log": {
+			"parameters": {
+				"number": ""
+			},
+			"return": "Logarithm of the number",
+			"description": "Log function"
+		},
+		"random": {
+			"parameters": {},
+			"return": "Random number",
+			"description": "Generates a random number between 0 and 1"
+		},
+		"forget": {
+			"parameters": {
+				"symbol": "Symbol name"
+			},
+			"return": "",
+			"description": "Removes a symbol from the symbol table"
+		}
+	}
+}

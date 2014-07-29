@@ -1,0 +1,30 @@
+meta_model_title = "";
+meta_model_author = "";
+meta_model_caption = "";
+meta_model_date = "";
+
+proc _meta : meta_model_title, meta_model_author, meta_model_caption, meta_model_date {
+	${{
+	$('#model-title').text(root.lookup('meta_model_title').value());
+	$('#model-author').text(root.lookup('meta_model_author').value());
+	$('#model-date').text(root.lookup('meta_model_date').value());
+	$('#model-caption').text(root.lookup('meta_model_caption').value());
+	}}$;
+};
+
+active_tab = "doc";
+
+proc _active_tab_agent : active_tab {
+	${{
+	var active_tab = root.lookup("active_tab").value();
+	if (active_tab == "doc") {
+		$("#tabs").tabs("select", 0);
+	} else if (active_tab == "canvas") {
+		$("#tabs").tabs("select", 1);
+	} else if (active_tab == "tty") {
+		$("#tabs").tabs("select", 2);
+	}
+	}}$;
+};
+
+active_tab = "canvas";

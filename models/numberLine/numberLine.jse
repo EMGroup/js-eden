@@ -1,0 +1,155 @@
+startButton is Button("startButton","Start Game", 60, 50, true);
+startButton_clicked is false;
+start = false;
+
+timeLimit = 60;
+tick = -1;
+timerRunning = false;
+
+takeALook is Text("Take a look at this number line...", 50, 90, "black");
+
+leftMargin = 50;
+timeLineTop = 140;
+timeLineFinishLoc = 530;
+
+/* Draw the numberline */
+timeLine is Line(leftMargin, timeLineTop, timeLineFinishLoc, timeLineTop, "black");
+dashm6 is Line(leftMargin, timeLineTop+10, leftMargin, timeLineTop, "black");
+dashm5 is Line(leftMargin+40, timeLineTop+10, leftMargin+40, timeLineTop, "black");
+dashm4 is Line(leftMargin+80, timeLineTop+10, leftMargin+80, timeLineTop, "black");
+dashm3 is Line(leftMargin+120, timeLineTop+10, leftMargin+120, timeLineTop, "black");
+dashm2 is Line(leftMargin+160, timeLineTop+10, leftMargin+160, timeLineTop, "black");
+dashm1 is Line(leftMargin+200, timeLineTop+10, leftMargin+200, timeLineTop, "black");
+dash0 is Line(leftMargin+240, timeLineTop+10, leftMargin+240, timeLineTop, "black");
+dash1 is Line(leftMargin+280, timeLineTop+10, leftMargin+280, timeLineTop, "black");
+dash2 is Line(leftMargin+320, timeLineTop+10, leftMargin+320, timeLineTop, "black");
+dash3 is Line(leftMargin+360, timeLineTop+10, leftMargin+360, timeLineTop, "black");
+dash4 is Line(leftMargin+400, timeLineTop+10, leftMargin+400, timeLineTop, "black");
+dash5 is Line(leftMargin+440, timeLineTop+10, leftMargin+440, timeLineTop, "black");
+dash6 is Line(leftMargin+480, timeLineTop+10, leftMargin+480, timeLineTop, "black");
+
+/* Add labels to the line */
+textm6 is Text("-6", 43, timeLineTop+30);
+textm5 is Text("-5", 83, timeLineTop+30);
+textm4 is Text("-4", 123, timeLineTop+30);
+textm3 is Text("-3", 164, timeLineTop+30);
+textm2 is Text("-2", 204, timeLineTop+30);
+textm1 is Text("-1", 244, timeLineTop+30);
+text0 is Text("0", 286, timeLineTop+30);
+text1 is Text("1", 326, timeLineTop+30);
+text2 is Text("2", 366, timeLineTop+30);
+text3 is Text("3", 406, timeLineTop+30);
+text4 is Text("4", 448, timeLineTop+30);
+text5 is Text("5", 488, timeLineTop+30);
+text6 is Text("6", 528, timeLineTop+30);
+
+whatIs is Text("What is the inequality?", leftMargin, 220);
+xText is Text("X", leftMargin, 250);
+
+inequalitySignOptions is ["[sign]","<","<=",">",">="];
+inequalitySignCombo is Combobox("inequalityCombo", inequalitySignOptions, leftMargin+30, 245,true);
+valueCombo is Combobox("numberValueCombo", ["[value]","-6","-5","-4","-3","-2","-1","0","1","2","3","4","5","6"], leftMargin+100, 245,true);
+
+submitAnswerButton is Button("submitAnswerButton", "Submit", leftMargin+10, 280, true);
+submitAnswerButton_clicked is false;
+submitted = false;
+
+yourAnswerIs is Text("Your answer is: ", leftMargin, 320); 
+answerValue is "";
+yourScore = 0;
+oldScore = 0;
+yourScoreIs is Text("Your score is: ", leftMargin, 340);
+yourScoreIsValue is Text(yourScore, leftMargin+85, 340);
+
+
+/* Generate new question parameters (number, whether it is positive and which inequality numberLineSignIndex to use)*/
+func newQuestion {
+	posNumber = ${{Math.floor(Math.random()*6)}}$;
+	positive = ${{Math.round(Math.random())}}$;
+	numberLineSignIndex = ${{Math.floor(Math.random()*4)+2}}$;	
+}
+
+numberLineValue is (positive==0)? posNumber*-1 : posNumber;
+
+circX is 290+40*numberLineValue;
+circBg is "blue";
+
+circBg is ((numberLineSignIndex==2 || numberLineSignIndex==4))? "white" : "blue";
+lineDirection is (numberLineSignIndex > 3)? timeLineFinishLoc : leftMargin;
+
+lineArrow is Line(circX, timeLineTop-20, lineDirection, timeLineTop-20, "blue");
+circle is Circle(circX, timeLineTop-20, 10, circBg, "blue");
+
+numberLineSign is inequalitySignOptions[numberLineSignIndex];
+comboInequality is inequalityCombo_value;
+comboNumber is numberValueCombo_value;
+isAnswerCorrect is (comboInequality==numberLineSign && comboNumber==numberLineValue);
+oldScore = yourScore;
+
+answerValue is (oldAnswerCorrect && submitted)? "Correct! :)" : "Wrong!";
+displayAnswerValue is (submitted)? answerValue : "";
+answerCorrect is Text(displayAnswerValue, leftMargin+85, 320); 
+
+proc timer {
+    after (1000) {
+		tick++;
+        if (tick < timeLimit) {
+			timer();
+		} else { 
+			${{alert("Game over! Your score was..."+root.lookup('yourScore').value())}}$; 
+			timerRunning = false;
+		};
+    }
+}
+
+proc alertStart : startButton_clicked {
+	if(startButton_clicked){
+		start = true;
+		yourScore = 0;
+		tick = 0;
+		if(!timerRunning) {
+			timerRunning = true;
+			timer(); 
+		}
+		newQuestion();
+	}
+}
+proc alertSubmit : submitAnswerButton_clicked {
+	if(start && submitAnswerButton_clicked){
+		submitted = true;
+		oldScore = yourScore;
+		oldAnswerCorrect = isAnswerCorrect;
+		
+		after(10) {
+			yourScore = (oldAnswerCorrect && submitted)? oldScore+1 : oldScore;
+			newQuestion();
+		}
+		after(2000){
+			submitted = false;
+		}
+	}
+}
+
+picture is [
+	startButton,
+	takeALook,
+	
+	timeLine,
+	lineArrow, circle, 
+	
+	dashm6,	dashm5,	dashm4,	dashm3,	dashm2,	dashm1,
+	dash0,	dash1,	dash2,	dash3,	dash4,	dash5,	dash6,
+	
+	textm6,	textm5,	textm4,	textm3,	textm2,	textm1,
+	text0,	text1,	text2,	text3,	text4,	text5,	text6,
+	
+	whatIs,	xText,
+	
+	inequalitySignCombo, valueCombo,
+	
+	submitAnswerButton,
+	
+	yourAnswerIs, answerCorrect,
+	
+	yourScoreIs, yourScoreIsValue
+];

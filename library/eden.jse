@@ -1,0 +1,103 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+##STRING FUNCTIONS
+
+func str {
+  ${{
+  var a = arguments[0];
+  return (new Number(a)).toString();
+  }}$;
+};
+
+func int {
+  ${{
+  var a = arguments[0];
+  return parseInt(a);
+  }}$;
+};
+
+
+##MISSING FUNCTIONS
+
+func eager {};
+
+func time {
+  ${{
+  var now = new Date();
+  return Math.floor(now.getTime() / 1000);
+  }}$;
+};
+
+func writeln {
+  ${{
+  var t = arguments[0];
+  console.log(t);
+	if (eden.plugins.MenuBar) {
+		eden.plugins.MenuBar.updateStatus("Output: "+t);
+	}
+  }}$;
+};
+
+func rand {
+  ${{
+	return Math.floor(Math.random()*32767);
+  }}$;
+};
+
+func srand {
+
+};
+
+func substr {
+
+};
+
+func forget {
+	${{
+	var o = arguments[0];
+	delete root.symbols[o];
+	}}$;
+};
+
+true = 1;
+false = 0;
+
+func include {
+${{
+Eden.executeFile(arguments[0]);
+}}$;
+};
+
+func execute {
+${{
+  try {
+	eval(Eden.translateToJavaScript(arguments[0]));
+  } catch(e) {
+	$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\"># ERROR number " + eden.errornumber + ":<br># Execute<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
+				eden.errornumber = eden.errornumber + 1;
+  }
+}}$;
+};
+
+##Autocalc compatibility
+autocalc = 1;
+
+##proc _autocalc_agent : autocalc {
+##	if (autocalc == 1) {
+##		${{root.autocalc(true);}}$;
+##	} else {
+##		${{root.autocalc(false);}}$;
+##	}
+##}
+
+##Include the rest of the library
+
+include("library/core.js-e");
+include("library/drawing.jse");
+include("library/maths.jse");
+include("library/algebra.jse");
+include("library/include_js.js-e");
+include("library/declarevar.js-e");

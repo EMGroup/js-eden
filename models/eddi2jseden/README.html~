@@ -1,0 +1,120 @@
+html("
+<html>
+<b>JSEden Parsing Model</b>
+<p>
+To load the model, enter(copy and paste)
+<blockquote>
+include(\"models/eddi2jseden/run.js-e\");
+</blockquote>
+into the <b>JS-Eden Interpreter Window</b>.
+</p>
+<p>
+To set up the model, and give the input a value,  you can enter(copy and paste):
+<blockquote>
+graphscale = 0.4;
+</blockquote>
+<blockquote>
+inputstr = \"(A+BC):width>5 % dim,length\";
+</blockquote>
+</p>
+<p>
+JSEden master version allows users to observe different observables. To do this, first click on the <b>Plugins</b> tab on the top of canvas, and then select <b>Symbol Viewer</b>. 
+After that, select the <b>Views</b> tab beside the <b>Plugins</b> tab, and choose the <b>Observable List</b> and <b>Function List</b>. You will see two new windows named <b>Observable List</b> and <b>Function List</b> appear on the canvas. Inside the
+input box, you can type the names of the observables or regular expressions.
+</p>
+<p>
+The position and size of windows <b>Observable List</b> and <b>Function List</b> are observables, hence we could control these by assigning values to the observables:
+For instance, copy and paste the following code
+<blockquote>
+_view_view_1_x=1150;
+</blockquote>
+<blockquote>
+_view_view_1_y=30;
+</blockquote>
+<blockquote>
+_view_view_1_width=250;
+</blockquote>
+<blockquote>
+_view_view_1_height=350;
+</blockquote>
+<blockquote>
+_view_view_0_x=1150;
+</blockquote>
+<blockquote>
+_view_view_0_y=450;
+</blockquote>
+<blockquote>
+_view_view_0_width=250;
+</blockquote>
+<blockquote>
+_view_view_0_height=350;
+</blockquote>
+into the <b>JS-Eden Intepreter Window</b>.
+</p>
+<p>
+Here is a list of descriptions of key observables of the model, which you may wish to observe:
+<blockquote>
+<b>currpath</b> - stores the content on the state stack as a list.
+</blockquote>
+<blockquote>
+<b>currstack</b>  - current content on the stack as a list.
+</blockquote>
+<blockquote>
+<b>stackvals</b> - current content on the value stack as a list.
+</blockquote>
+<blockquote>
+<b>nextsymbol</b>  -represents the look ahead token.
+</blockquote>
+<blockquote>
+<b>currrule</b>  -the number of the grammar rule the parser determines that all the items on the right-hand side of which have been seen(the production by which the parser reduces).
+</blockquote>
+<blockquote>
+<b>currrstate</b>  -current state of the parser(the last element of the currpath, or the top element on the stack state).
+</blockquote>
+<blockquote>
+<b>InputText</b> -the input string, stays the same all the time.
+</blockquote>
+<blockquote>
+<b>InputTextt</b>  -same as the input string at the beginning, but changes according to the reduction.
+</blockquote>
+<blockquote>
+<b>k</b>			  -the index of the current symbol in the InputText(how far we have read in the InputText).
+</blockquote>
+<blockquote>
+<b>j</b>			  -the index of the current symbol in the InputTextt(how far we have read in the InputTextt).
+</blockquote>
+The observables <b>k</b> and <b>j</b> are used to control how many tokens the parser has read from the input. The values of k and j are increased by 1 every time the \¡°Next Step\" button is clicked.
+</p>
+<p>
+To inspect all of the observables above, you can enter regular expression:
+<blockquote>
+curr|InputT|^k$|^j$|^stackv|^nextsymbol$
+</blockquote>
+into the input window of the <b>Observable List</b>.
+</p>
+</p>
+<p>
+The model can  be controlled manually. Pressing the button <b>Next Step</b> makes the model to read next token
+and in order to reduce, first select a corresponding rule and then press the button <b>Apply Rule</b>. The <b>Reset</b> button makes the model to the start state of parsing.
+</p>
+<p>
+and the model can run automatically, by setting the value of observable <b>isautomatic</b> to be true, For instance:
+<blockquote>
+writeln(isautomatic);
+</blockquote>
+<blockquote>
+isautomatic=1;
+</blockquote>
+The observable <b>speed</b> determines how fast the model runs automatically, and its current value is 2000. The larger the value of speed is, the slower the model runs.
+</p>
+<p>
+To inspect the code for the JSEden parsing model, consult the files at
+<blockquote>
+http://jseden.dcs.warwick.ac.uk/master/models/eddi2jseden
+</blockquote>
+The main functions and observables are included in the file parsingeddi.txt.
+The file transitions.eden stores the information of Eddi Grammar in eden lists.
+The graphbuild.js-e file uses the graphprototype model, and constructs the interface and visualisation of the parsing model.
+</p>
+</html>
+");

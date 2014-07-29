@@ -1,0 +1,412 @@
+
+labvii1 is Slide("
+<h3>A rough guide to JS-EDEN - the 2013 edition ...</h3>
+<p>
+The JS-EDEN interpreter is still a 'work-in-progress'.
+(As you can see, quite apart from the variants of JS-EDEN, even
+the name of the interpreter has taken several forms!)
+CS405 students are not obliged to use it, but some knowledge
+of the issues behind its design and use will be valuable.
+For instance, you can be sure that knowledge of JS-EDEN will be helpful
+when answering examination questions.
+</p>
+<p>
+There are currently many variants of JS-EDEN. The variant that is most topical this
+year is the master variant, which was introduced by Nick Pope in January 2013 and is
+being developed at present with active input from Joe Butler and Jonny Foss. A code
+repository for the interpreter is
+available as an open source project via github:
+<blockquote>
+https://github.com/EMGroup/js-eden
+</blockquote>
+Those who have been involved in development include Tim Monks, Nick Pope,
+Matt Cranham, Jess Nickson and Antony Harfield. If you wish to raise issues
+with them, or want to find out more about - or contribute to - JS-EDEN
+development, you can register for the JS-EDEN Google group at
+<blockquote>
+https://groups.google.com/forum/?fromgroups#!forum/JS-EDEN.
+</blockquote>
+</p>
+<p>
+The purpose of this rough guide is to provide additional information
+and resources that may encourage you to explore JS-EDEN.
+As you shall see, even the guide itself is a work-in-progress and any suggestions for improvement are welcomed.
+For convenience, this guide will refer to the use of the JS-EDEN interpreter in the <b>Chrome</b> browser.
+</p>
+
+");
+
+labvii1a = Slide("
+<h3>About this guide</h3>
+<p>
+There are two aspects to this guide: introducing you to some aspects of JS-EDEN that you may find practically useful, and outlining some of the ways in which JS-EDEN may be further developed as an instrument for EM.
+You may like to begin by reviewing the code of some JS-EDEN models.
+One of the simplest is the JUGS construal that was the subject of one of the introductory sessions in CS405.
+To inspect the text for the JUGS construal, open the browser at the webpage:
+<blockquote>
+http://jseden.dcs.warwick.ac.uk/master/models/jugs/
+</blockquote>
+To inspect the text for the presentation of the JUGS construal, open the browser at the webpage:
+<blockquote>
+http://jseden.dcs.warwick.ac.uk/master/models/cs405/JUGSinJS-E/jugspres.e
+</blockquote>
+To inspect the text for the JS-EDEN presentation environment as originally developed by Matt Cranham, and adapted by Hui Zhu, open the browser at the webpage:
+<blockquote>
+http://jseden.dcs.warwick.ac.uk/master/models/jspe.jse
+</blockquote>
+</p>
+<p>
+Some useful features of JS-EDEN are illustrated in these sources.
+</p>
+");
+
+
+labvii1b is Slide("
+<h3>Some features to note in JS-EDEN models</h3>
+<p>
+You might begin by inspecting the source of the JUGS presentation cited on the previous slide.
+</p>
+<p>
+<ul>
+<li>Note how the first few lines of the file consist of pure JScript enclosed between
+the special brackets \$\{\{ and \}\}\$.
+This is a useful piece of JScript to include when undertaking any substantial development with JS-EDEN, since it guards against inadvertently navigating away from JS-EDEN and potentially losing valuable information.
+You can witness its effect by cutting and pasting these lines into the JS-EDEN Input Window, pressing Submit and then trying to refresh the JS-EDEN interpreter webpage.</li>
+<br>
+<li>
+Note how models can be loaded directly by including appropriate files
+via the Eden Interpreter Window. For instance, to load the JUGS model:
+<JS-EDEN>
+include(\"models/jugs/run.e\");
+</JS-EDEN>
+</li>
+<br>
+<li>The techniques for creating a presentation in which you can embed JS-EDEN code fragments and include images are all illustrated here. For an introduction, you can also refer to the presentation environment demo at http://jseden.dcs.warwick.ac.uk/master/models/jspedemo.js-e. This can be loaded into the master by first selecting the JSPE project, then including the contents of the jspedemo.js-e file.
+You will also find examples of workarounds currently occasionally needed to handle special characters that may otherwise trigger errors in the html.</li>
+<!--
+<li></li>
+<li></li>
+<li></li>
+-->
+</p>
+
+");
+
+labvii1c is Slide("
+<h3>More advanced features of JS-EDEN</h3>
+<p>
+More sophisticated features of JS-EDEN are illustrated in the source for the JS-EDEN presentation environment itself, as cited on an earlier slide.
+A striking feature of the code is the extensive use of raw JScript code that
+is embedded into the script and the EDEN function definitions.
+Most intimidating are the expressions of the form \$\(\"# ... \") that are used liberally
+throughout the text.
+These are instances of JQuery expressions - about which much more can be learnt from popular websites such as http://www.w3schools.com/jquery/
+The basic idea is that elements within the webpage displayed in JS-EDEN can be tagged by the modeller in such a way that their properties can be conveniently referenced and modified via a JQuery expression.
+(This is an alternative to the more long-winded modes of reference that the native Dom model of a webpage supports.)
+For instance, in the presentation environment the tag 'jspe-dialog' references the html canvas  in which the html text you are currently reading is presented, and the tag 'default-dialog' references the canvas on the left hand side.
+The next slide illustrates some simple uses of JQuery.
+");
+
+labvii1d is Slide("
+<h3>More about JQuery</h3>
+<p>
+The following command for changing the style of the text in this presentation illustrates a simple use of Jquery:
+<jseden>
+\$\{\{
+\$('#jspe-dialog').css(\"background-color\", \"lightblue\")
+\}\}\$;
+</jseden>
+</p>
+<p>
+In a similar vein, you can use JQuery to change the characteristics of the text and the text area for the slides - not necessarily appropriately:
+<jseden>
+\$\{\{
+\$('#jspe_slide').css({\"background-color\":\"yellow\",\n \"font-size\":\"120%\", \"text-align\":\"center\"});
+\}\}\$;
+</jseden>
+</p>
+<p>
+Tracing the way in which style characteristics are inherited is tricky, as is illustrated
+by the following attempt (not entirely successful?) to restore the slides to their original state:
+
+<jseden>
+\$\{\{
+\$('#jspe_slide').css({\"background-color\":\$('#jspe-dialog').css(\"background-color\"),\n \"font-size\":\"\", \"text-align\":\"\"});
+\}\}\$;
+</jseden>
+</p>
+<p>
+(In the past, it has been useful to remember that pressing F11 twice will reformat the webpage should the layout get scrambled, but this does not seem to be such an issue with the master variant.)
+</p>
+
+");
+
+
+labvii1e is Slide("
+<h3>Using the Console and Elements tools</h3>
+<p>
+Unless you are new to web development, you are doubtless aware of the alternative access to the webpage that is afforded by the console interface (and other interfaces within the Developer Tools panel in the Chrome browser that expose the way in which the webpage has been constructed).
+</p>
+<p>
+A full discussion of these is beyond the scope of this guide, but here are some brief hints.
+</p>
+<p>
+To access the console in Chrome you type Shift-Ctrl-J.
+You can enter JScript directly via the command line in the console - the effect is almost always equivalent to entering the script between the special JScript brackets via the EDEN Interpreter Window.
+You can gain much useful information by entering the names of JScript variables (or more complex expressions) at the command line and inspecting their values.
+This may involve identifying the names of attributes of objects etc, and becoming familiar with the methods that can be applied to them.
+</p>
+<p>
+EDEN commands such as <code>writeln(v);</code> and <code>?v;</code> deliver their output to the console. (In the master, <code>writeln()</code> also displays its result in a central region at the top of the entire webpage - this is particularly useful for queries that generate concise outputs.)
+To inspect the internal representation of the EDEN observable v (something that becomes useful when trying to exploit JS-EDEN with existing JScript libraries etc), you enter the expression <code>root.lookup(\"v\")</code> at the console.
+The result is an object representing v that has the following components:
+<ul>
+<li>
+cached_value = current value
+</li><li>
+dependencies = what this observable depends directly on
+</li><li>eden_definition = how v is defined in EDEN
+</li><li>subscribers = what observables are directly dependent on the observable
+</ul>
+
+</p>
+<p>
+For the purpose of understanding the use of JQuery, you should also explore the Elements interface that is accessed via the button at the top left of the Developer Tools panel.
+By surveying the html specification displayed, you will be able to correlate display components - such as were referenced using 'jspe-dialog' and 'jspe_slide' - with tagged html entities within the text.
+</p>
+");
+
+labvii1f is Slide("
+<h3>Developing JS-EDEN models</h3>
+<p>
+For the present, in the absence of an integrated development environment, it is advisable (even necessary?)
+to develop JS-EDEN models interactively using a text editor.
+By and large, it is a good policy to build your model (as if) in one continuous stream of thought.
+This means keeping the content of the textfile you are editing closely synchronised with the state currently being realised in the JS-EDEN interpreter.
+This may involve some interactions that are not preconceived and oblige you to think hard from time to time: this is part of what making interesting construals is about.
+It should also make good material for an interesting account of EM activity.
+If you do find it necessary to reload the script, it is a good idea to note the points at which you have observed a good correlation between the construal you have constructed (as realised in JS-EDEN and as recorded in the text file) and the construal you have in mind.
+Note that the Input History view can be helpful in reconstructing the state of a construal, but this does not record any interventions you make via the console, which may be critical!
+It is helpful in the stages of development to focus on specific families of observables and dependencies that you can select by typing a regular expression into the Search Box in a <b>Symbol List</b> view.
+For instance, the RE 'slideList|Slide|slideNumber|labvii' will summarise information about the presentation, and 'content|cap|.*full|target' describes some key parameters in the JUGS model (if this is loaded!).
+To record the views of the construal that you construct in this way within your textfile, you can use the following procedure, which is essentially written in JScript:
+<pre>
+proc showObservables { \$\{\{
+   \$('.symbollist-search').val(arguments[0]);
+   \$('.symbollist-search').keyup();
+\}\}\$; }
+</pre>
+
+
+<p>
+To test this out:
+<jseden>
+showObservables(\"slideList|Slide|slideNumber|labvii\");
+</jseden>
+</p>
+");
+
+labvii1g is Slide("
+<h3>Customising JS-EDEN for specific applications</h3>
+<p>
+One of the problematic aspects of traditional EDEN has been the difficulty of incorporating new kinds of observable.
+To study applications involving music, it is useful to be able to play a midi file and give notifications of when notes are played for instance.
+This activity has been contrived in the past, but involves setting up quite complex configurations of applications that are hard to maintain as software evolves.
+Another potentially interesting application for EM might be concerned with semantic analysis of text, but it has proved non-trivial to link EDEN to otherwise readily accessible resources such as WordNet.
+One of the advantages of JS-EDEN is that is relatively easy to make links with established JScript libraries. For example, applications addressing music and texts could exploit online libraries such as:
+<blockquote>
+mudcu.be/midi-js
+</blockquote>
+<blockquote>
+http://wordvis.com/about.html
+</blockquote>
+
+<blockquote>
+https://github.com/NaturalNode/natural
+</blockquote>
+</p>
+<p>
+The next slide gives more guidance as to how such libraries can be introduced.
+</p>
+
+");
+
+labvii1g is Slide("
+<h3>Adding JScript libraries to JS-EDEN</h3>
+<p>
+In the implementation of JS-EDEN, certain key libraries are loaded on the server when the application starts up.
+For instance, for the EMILE project, it seemed appropriate to preload the Sylvester linear algebra package at http://sylvester.jcoglan.com/ - the Matrix and Vector prototypes cited in the Function List are derived from that source.
+</p>
+<p>
+In some cases, it makes more sense for a library to be loaded on a one-off basis.
+For instance, to make an application that is based on a traditional card game, it may be useful to take advantage of existing JS-EDEN library such as https://github.com/atomantic/JavaScript-Playing-Cards.
+</p>
+<p>
+To this end, you are advised to first make copies of the key resources in a publically accessible web folder.
+By way of illustration, the files at the web address http://jseden.dcs.warwick.ac.uk/playingCards/ have been copied with small adaptations from the above library. They comprise two JScript files
+<b>playingCards.js</b> and <b>playingCards.ui.js</b>, the css file <b>playingCards.ui.css</b>, and the directory <b>img</b> which contains the images required to draw the picture cards (Jack, Queen and King). The only adaptation required ensures that image files are read from the appropriate location. 
+</p>
+<p>
+With these files in place, the following JS-EDEN code can then be used to adjoin a playing card library on-the-fly:
+</p>
+<jseden>
+include_js(\"http://jseden.dcs.warwick.ac.uk/playingCards/playingCards.js\");
+include_js(\"http://jseden.dcs.warwick.ac.uk/playingCards/playingCards.ui.js\");
+include_css(\"http://jseden.dcs.warwick.ac.uk/playingCards/playingCards.ui.css\");
+</jseden>
+</p>
+<p>
+and the following code displays a randomly chosen card:
+</p>
+<p>
+<jseden>
+\$\{\{
+var cardDeck =  new playingCards();
+\}\}\$;
+
+func card { \$\{\{ var cardNo = arguments[0]; return cardDeck.cards[cardNo].getHTML(); \}\}\$ ; }
+
+uipcDIV is Div(\"uicards\", 10, 10, 0, 0, card(0));
+
+picture is [uipcDIV];
+</jseden>
+</p>
+");
+
+labvii1gplus is Slide("
+<h3>Adding JScript libraries to JS-EDEN (cont.)</h3>
+<p>
+The problem with the use of the playing card library on the previous slide is that there is no persistence:
+the variable cardDeck is meaningful only in the context of a single JS-EDEN input.
+A better way of exploiting the library in JS-EDEN involves linking the JavaScript variable cardDeck to a JS-EDEN 'object'
+of the same name using the declare_jse() procedure. 
+With this modifcation, the following alternative JS-EDEN code can then be used to adjoin a playing card library on-the-fly:
+</p>
+<jseden>
+include_js(\"http://jseden.dcs.warwick.ac.uk/playingCards/playingCards.js\");
+include_js(\"http://jseden.dcs.warwick.ac.uk/playingCards/playingCards.ui.js\");
+include_css(\"http://jseden.dcs.warwick.ac.uk/playingCards/playingCards.ui.css\");
+</jseden>
+</p>
+<p>
+followed by:
+</p>
+<p>
+<jseden>
+\$\{\{
+declare_jse(\"cardDeck\");
+cardDeck =  new playingCards();
+\}\}\$;
+
+func card { \$\{\{ var cardNo = arguments[0]; return cardDeck.cards[cardNo].getHTML(); \}\}\$ ; }
+
+uipcDIV is Div(\"uicards\", 10, 10, 0, 0, card(0));
+
+picture is [uipcDIV];
+</jseden>
+</p>
+<p>
+
+This allows us to refer to the cardDeck in subsequent interactions as in:
+
+<jseden>
+cardIndex = 4;
+uipcDIV is Div(\"uicards\", 10, 10, 0, 0, card(cardIndex));
+</jseden>
+
+</p>
+");
+
+
+labvii2 is Slide("
+<h3>Variants of JS-EDEN</h3>
+<p>
+At present, it's unclear to what extent the existence of many variants of
+JS-EDEN is simply a consequence of its immaturity.
+It may be that the wide variety of ways in which JScript can be used in web
+applications will naturally lead to different extensions of JS-EDEN.
+What all these variants at present have in common is construal-building based
+around EDEN-style definitions.
+It is the ways in which these are connected to the broader web environment and
+the libraries they exploit that differ.
+
+</p>
+<p>
+The first prototype for JS-EDEN was devised by Tim Monks.
+Nick Pope has contributed substantially to subsequent development.
+Matt Cranham adapted Pope's version of JS-EDEN for use in a summer project led by Steve Russ and Meurig Beynon in July 2012 (the 'emile' variant).
+Antony Harfield has developed a simpler variant for use in the Thai schools context (see http://harfield.org.uk/JS-EDENcanvas/).
+Any useful changes that are made in your coursework will be incorporated into the interpreter in due course.
+Contributions to the discussions - and/or development - at the JS-EDEN Google group will be helpful in this context.</p>
+
+");
+
+
+labvii3 is Slide("
+<h3>Visions for JS-EDEN</h3>
+<p>
+One of the main motivations for developing JS-EDEN is to promote EM ideas
+in a broader forum.
+The traditional EDEN interpreter has not attracted much external interest, at any
+rate as a potential practical modelling tool.
+Its maintenance is challenging because of its reliance on tk/tcl libraries,
+the hybrid nature of its C/EDEN code and the variety of parsing strategies used
+to support the associated definitive notations.
+Scaling up EDEN models can also be problematic.
+Nick Pope's PhD thesis includes a critique of EDEN that helps to explain some of the
+relevant issues.
+</p>
+");
+
+labvii4 is Slide("
+<h3>Why JS-EDEN may be a good direction for development<h3>
+<p>
+<ul>
+<li>EDEN and JScript have strong syntactic similarities and some deeper affinities.
+It will not be necessary to maintain JScript, or worry about cross-browser compatibility.
+The JS-EDEN interpreter is conceptually much simpler than tkeden.</li>
+<li>Building construals demands good suport for visualisation (or other forms
+of what is traditionally regarded as 'input-output'). The idea of interfacing with JScript rather than focusing on definitive notations essentially based on algebraic data types is in some respects liberating.
+In due course, it seems likely that we shall be able to exploit both the
+pragmatic and the more theoretically oriented approaches to data types.
+For instance, we'd like to be able to translate notations like DoNaLD and Scout into
+JS-EDEN.
+</li>
+<li>The web-platform is well-suited to distributed development.
+Pope has already developed a rudimentary form of database support (via a mySQL server) that can in principle be used to enable session sharing and can also address the significant issue of establishing persistent data.
+This was built-in to the emile version of JS-EDEN deployed in 2012, but does not feature in the master at present.
+</li>
+<li>
+JScript supports a form of prototype-based object modelling.
+By exploiting this, JS-EDEN can promote conceptual models with some of the advantages of object-oriented models.
+For instance, replicating structures in EDEN involves convoluted file organisation and complex syntactic devices.
+Pope makes the case for dispensing with traditional files and textual representations in favour of structures specified as networks of observables and dependencies ('OD-nets').
+This approach has been explored in the Cadence interpreter, and Pope has done the groundwork for developing JS-Cadence.
+In principle, JS-Cadence offers support for much closer integration of browsers, with prospects for supporting the concurrency that is implicit in OD-nets.
+</li>
+
+</ul>
+</p>
+
+");
+
+labvii5 is Slide("
+<h3>Outstanding issues for JS-EDEN</h3>
+<p>
+There are some known problems with JS-EDEN master that still need to be resolved. These include:
+<ul>
+<li>Comparison of JS-EDEN lists does not work. As JS-EDEN is ciurrently implemented, this is related to the fact that in JavaScript the comparison \"[]==[]\" - which compares two distinct pointers - evaluates to false.
+A side-effect of this is that some commonly used EDEN constructs, such as <b>while (l!=[]) { ... ; shift l }</b> do not work in JS-EDEN (indeed they will typically crash the browser).</li>
+<br>
+<li>The management of panels on the master display can be frustrating - for instance, the Views menu does not always display on top of other panels even when selected.
+This is down to the fact that imported libraries have been used to implement these aspects of the interface, and there liberal use of JQuery leads to unnecessarily complex interface components.
+Joe Butler has re-engineered the Input Window, which originally had a similar character (cf. emile): ideally other components require a similar treatment!</li>
+</ul>
+</p>
+
+");
+
+
+slideList is [labvii1, labvii1a, labvii1b, labvii1c, labvii1d, labvii1e, labvii1f, labvii1g, labvii1gplus, labvii2, labvii3, labvii4, labvii5];
+
+

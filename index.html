@@ -1,0 +1,101 @@
+<!doctype html>
+<!--
+Copyright (c) 2013, Empirical Modelling Group
+All rights reserved.
+
+See LICENSE.txt
+-->
+
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="css/header.css">
+	<link rel="stylesheet" type="text/css" href="css/jseden.css">
+	<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.2.custom.min.css">
+	<link rel="stylesheet" type="text/css" href="css/eden.css">
+	<link rel="stylesheet" type="text/css" href="plugins/project-listing/project-listing.css">
+	<link rel="stylesheet" type="text/css" href="plugins/menu-bar/menu-bar.css">
+	<link rel="stylesheet" type="text/css" href="plugins/symbol-viewer/symbol-viewer.css">
+	<link rel="stylesheet" type="text/css" href="plugins/canvas-html5/canvas.css">
+	<link rel="stylesheet" type="text/css" href="plugins/input-dialog/interpreter.css">
+	<link rel="stylesheet" type="text/css" href="plugins/state-description-maintainer/state-description-maintainer.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/symbol-lookup-table/symbol-lookup-table.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/dependency-map/dependency-map.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/input-dialog/interpreter.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/adm/adm-input.css" />
+
+	<link rel="stylesheet" href="js/lib/codemirror/codemirror.css" type="text/css" media="screen" charset="utf-8">
+	<link rel="stylesheet" href="js/lib/codemirror/theme/default.css" type="text/css" media="screen" charset="utf-8">
+	<link rel="stylesheet" href="js/lib/codemirror/theme/night.css" type="text/css" media="screen" charset="utf-8">
+
+
+	<script type="text/javascript" src="js/lib/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery-ui-1.9.2.custom.min.js"></script>
+
+</head>
+<body>
+
+<div id="eden-logo"></div>
+
+<script src="temporary.js"></script>
+<script src="js/lib/jquery.color.js"></script>
+<script src="js/lib/beautify.js"></script>
+<script src="js/lib/jquery.hotkeys.js"></script>
+<script src="js/lib/json2.js"></script>
+<script src="js/lib/codemirror/codemirror.js"></script>
+<script src="js/lib/codemirror/runmode.js"></script>
+<script src="js/lib/codemirror/mode/javascript/javascript.js"></script>
+<script src="js/lib/codemirror/mode/eden/eden.js"></script>
+<script src="js/lib/codemirror/mode/xml/xml.js"></script>
+<script src="js/lib/codemirror/mode/markdown/markdown.js"></script>
+<script src="js/core/runtime.js"></script>
+<script src="js/dummyconsole.js"></script>
+<script src="js/core/maintainer.js"></script>
+<script src="js/core/translator.js"></script>
+<script src="js/core/eden.js"></script>
+<script src="js/core/plugins.js"></script>
+<script src="js/core/initialise.js"></script>
+<script src="js/edenpage.js"></script>
+<script src="js/lib/sylvester.js"></script>
+<script src="plugins/input-dialog/interpreter.js"></script>
+<script src="plugins/project-listing/project-listing.js"></script>
+<script src="plugins/menu-bar/menu-bar.js"></script>
+<script src="plugins/canvas-html5/canvas.js"></script>
+<script src="plugins/symbol-viewer/symbol-viewer.js"></script>
+<script src="plugins/html-views/html-views.js"></script>
+<script src="plugins/adm/adm-input.js"></script>
+
+<script src="plugins/symbol-lookup-table/symbol-lookup-table.js"></script>
+<!--
+<script src="plugins/state-description-maintainer/state-description-maintainer.js"></script>
+<script src="plugins/dependency-map/dependency-map.js"></script>
+<script src="plugins/dependency-map/springy/springy.js"></script>
+<script src="plugins/dependency-map/springy/springyui.js"></script>
+-->
+
+<script type="text/javascript">
+
+//Load Joes Additions
+
+	JS_Eden_Initialise(function() {
+
+		//Load menubar as standard
+		eden.loadPlugin("MenuBar");
+ 		eden.loadPlugin("InputWindow");
+		eden.loadPlugin("ProjectList");
+		eden.loadPlugin("CanvasHTML5");
+		eden.loadPlugin("SymbolViewer");
+		eden.loadPlugin("HTMLViews");
+		<!--eden.loadPlugin("SDM");
+		eden.loadPlugin("SLT");
+		// eden.loadPlugin("ADM");
+ 		eden.createView("inputwindow","InputWindow");
+		eden.createView("projects","ProjectList");
+		<!--eden.createView("SDM","SDM");
+		//Force manual refresh of views menu.
+		eden.plugins.MenuBar.updateViewsMenu();
+	});
+</script>
+
+</body>
+</html>
+

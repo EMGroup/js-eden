@@ -1,0 +1,50 @@
+html("
+<html>
+<b>The Definition Factory model</b>
+<p>
+Like the Graph Prototype model the Definition Factory model is still at an early stage of development, and uses JS-EDEN in a somewhat experimental way. In its present form, it has limitations, especially where the interface is concerned! It is nonetheless instructive to understand the motivation for the model and to study the code, and and some of the issues involved in its construction. Note that the model may be useful as a web resource even in the construction of traditional EDEN models. 
+</p>
+<p>
+To load the model, you should first load a plugin from the <b>emile</b> library:
+<blockquote>
+include(\"library/greek.js-e\");
+</blockquote>
+To load the definition factory, you ideally should then enter:
+<blockquote>
+include(\"models/defnfactory/defnfact_v1.js-e\");
+</blockquote>
+into the <b>EDEN Interpreter Window</b>.
+</p>
+<p>
+For some as yet unknown reason, the layout of the interface is incorrect if the file is included in this manner.
+You should instead - or if you prefer, in addition! - enter the input by cutting-and-pasting the contents of the file at: 
+<blockquote>
+http://jseden.dcs.warwick.ac.uk/emile/models/defnfactory/defnfact_v1.js-e
+</blockquote>
+<p>
+The use of the definition factory will be illustrated with reference to the extending the graph prototype model by enabling
+nodes to be moved using the mouse.
+For the node a, this can be achieved using the following code:
+<pre>
+proc mouseMove: mousePressed {
+if(((mouseX-pax)*(mouseX-pax)<100 )&&((mouseY-pay)*(mouseY-pay)<100))
+ {
+   if(mousePressed) {
+	pax is mouseX;
+	pay is mouseY;
+   } else {
+	pax = mouseX;
+	pay = mouseY;
+   }
+ }
+}
+</pre>
+
+With patience, the definition factory can be used to generate many instances of this segment of code, so that in principle
+it is possible to add the moving functionality to all the nodes of the graph constructed using the graph prototype model.
+</p>
+</p>
+Further exploration, comprehension and refinement of the definition factory is left as an (optional) exercise to the interested reader.
+</p>
+</html>
+");

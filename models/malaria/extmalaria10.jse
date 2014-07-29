@@ -1,0 +1,259 @@
+
+blood is Circle(250,250,200,"red", "red");
+
+blood is Circle(250,250,200,rgb2color(rb,gb,bb), "red");
+
+
+freeinblood is (spororad==15) ? 10 : 0;
+
+rb is 255 - 4 * freeinblood;
+gb is 4 * freeinblood;
+
+organs is Circle(250,250,180,"white", "red");
+bcrad = 6;
+
+## cyclepoint is Text("*", centtarget[1]+ 150*cos(15*PI/15+theta), centtarget[2]- 150*sin(15*PI/15+theta), "black");
+cyclepoint is Text("", centtarget[1]+ 150*cos(15*PI/15+theta), centtarget[2]- 150*sin(15*PI/15+theta), "black");
+
+
+bcinfection is [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+
+randnum = rand();
+
+func ntobool15ls {
+	para n;
+	auto result;
+	result = [];
+	n = n+32768;
+	while (n>0) {
+		result = result // [int(n%2)];
+		n = int(n/2);
+	}
+	return result;
+}
+
+randls is ntobool15ls(randnum);
+
+drand1 is  int(randls[1]) * int(randls[2]) * int(randls[3]);
+drand2 is int(randls[2]) * int(randls[3]) * int(randls[4]);
+drand3 is int(randls[3]) * int(randls[4]) * int(randls[5]);
+drand4 is int(randls[4]) * int(randls[5]) * int(randls[6]);
+drand5 is int(randls[5]) * int(randls[6]) * int(randls[7]);
+drand6 is int(randls[6]) * int(randls[7]) * int(randls[8]);
+drand7 is int(randls[7]) * int(randls[8]) * int(randls[9]);
+drand8 is int(randls[8]) * int(randls[9]) * int(randls[10]);
+drand9 is int(randls[9]) * int(randls[10]) * int(randls[11]);
+drand10 is int(randls[10]) * int(randls[11]) * int(randls[12]);
+drand11 is int(randls[11]) * int(randls[12]) * int(randls[13]);
+drand12 is int(randls[12]) * int(randls[13]) * int(randls[14]);
+drand13 is int(randls[13]) * int(randls[14]) * int(randls[15]);
+drand14 is int(randls[14]) * int(randls[15]) * int(randls[1]);
+drand15 is int(randls[15]) * int(randls[1]) * int(randls[2]);
+
+rand1 is  int(randls[1]) * int(randls[2]);
+rand2 is int(randls[2]) * int(randls[3]);
+rand3 is int(randls[3]) * int(randls[4]);
+rand4 is int(randls[4]) * int(randls[5]);
+rand5 is int(randls[5]) * int(randls[6]);
+rand6 is int(randls[6]) * int(randls[7]);
+rand7 is int(randls[7]) * int(randls[8]);
+rand8 is int(randls[8]) * int(randls[9]);
+rand9 is int(randls[9]) * int(randls[10]);
+rand10 is int(randls[10]) * int(randls[11]);
+rand11 is int(randls[11]) * int(randls[12]);
+rand12 is int(randls[12]) * int(randls[13]);
+rand13 is int(randls[13]) * int(randls[14]);
+rand14 is int(randls[14]) * int(randls[15]);
+rand15 is int(randls[15]) * int(randls[1]);
+
+grand1 is rand1 * rand8;
+grand2 is rand2 * rand9;
+grand3 is rand3 * rand10;
+grand4 is rand4 * rand11;
+grand5 is rand5 * rand12;
+grand6 is rand6 * rand13;
+grand7 is rand7 * rand14;
+grand8 is rand8 * rand15;
+grand9 is rand9 * rand1;
+grand10 is rand10 * rand2;
+grand11 is rand11 * rand3;
+grand12 is rand12 * rand4;
+grand13 is rand13 * rand5;
+grand14 is rand14 * rand6;
+grand15 is rand15 * rand7;
+
+bcinfection is [rand1, rand2, rand3, rand4, rand5, rand6, rand7, rand8, rand9, rand10, rand11, rand12, rand13, rand14, rand15];
+
+## freeinblood = 2000;
+
+bcinfnum1 is bcinfection[1];
+bcinfnum2 is bcinfection[2];
+bcinfnum3 is bcinfection[3];
+bcinfnum4 is bcinfection[4];
+bcinfnum5 is bcinfection[5];
+bcinfnum6 is bcinfection[6];
+bcinfnum7 is bcinfection[7];
+bcinfnum8 is bcinfection[8];
+bcinfnum9 is bcinfection[9];
+bcinfnum10 is bcinfection[10];
+bcinfnum11 is bcinfection[11];
+bcinfnum12 is bcinfection[12];
+bcinfnum13 is bcinfection[13];
+bcinfnum14 is bcinfection[14];
+bcinfnum15 is bcinfection[15];
+
+merocount is freeinblood + bcinfection[1]+bcinfection[2]+bcinfection[3]+bcinfection[4]+bcinfection[5]+bcinfection[6]+bcinfection[7]+bcinfection[8]+bcinfection[9]+bcinfection[10]+bcinfection[11]+bcinfection[12]+bcinfection[13]+bcinfection[14]+bcinfection[15];
+
+stage1 = -1;
+stage2 = -1;
+stage3 = -1;
+stage4 = -1;
+stage5 = -1;
+stage6 = -1;
+stage7 = -1;
+stage8 = -1;
+stage9 = -1;
+stage10 = -1;
+stage11 = -1;
+stage12 = -1;
+stage13 = -1;
+stage14 = -1;
+stage15 = -1;
+
+currbcinfnum1 = 0;
+currbcinfnum2 = 0;
+currbcinfnum3 = 0;
+currbcinfnum4 = 0;
+currbcinfnum5 = 0;
+currbcinfnum6 = 0;
+currbcinfnum7 = 0;
+currbcinfnum8 = 0;
+currbcinfnum9 = 0;
+currbcinfnum10 = 0;
+currbcinfnum11 = 0;
+currbcinfnum12 = 0;
+currbcinfnum13 = 0;
+currbcinfnum14 = 0;
+currbcinfnum15 = 0;
+
+currgrand1 = 0;
+currgrand2 = 0;
+currgrand3 = 0;
+currgrand4 = 0;
+currgrand5 = 0;
+currgrand6 = 0;
+currgrand7 = 0;
+currgrand8 = 0;
+currgrand9 = 0;
+currgrand10 = 0;
+currgrand11 = 0;
+currgrand12 = 0;
+currgrand13 = 0;
+currgrand14 = 0;
+currgrand15 = 0;
+
+bloodcorpinf1 is Circle(loc1[1], loc1[2], currbcinfnum1 + stage1 + 1, "blue", "blue");
+bloodcorpinf2 is Circle(loc2[1], loc2[2], currbcinfnum2 + stage2 + 1, "blue", "blue");
+bloodcorpinf3 is Circle(loc3[1], loc3[2], currbcinfnum3 + stage3 + 1, "blue", "blue");
+bloodcorpinf4 is Circle(loc4[1], loc4[2], currbcinfnum4 + stage4 + 1, "blue", "blue");
+bloodcorpinf5 is Circle(loc5[1], loc5[2], currbcinfnum5 + stage5 + 1, "blue", "blue");
+bloodcorpinf6 is Circle(loc6[1], loc6[2], currbcinfnum6 + stage6 + 1, "blue", "blue");
+bloodcorpinf7 is Circle(loc7[1], loc7[2], currbcinfnum7 + stage7 + 1, "blue", "blue");
+bloodcorpinf8 is Circle(loc8[1], loc8[2], currbcinfnum8 + stage8 + 1, "blue", "blue");
+bloodcorpinf9 is Circle(loc9[1], loc9[2], currbcinfnum9 + stage9 + 1, "blue", "blue");
+bloodcorpinf10 is Circle(loc10[1], loc10[2], currbcinfnum10 + stage10 + 1, "blue", "blue");
+bloodcorpinf11 is Circle(loc11[1], loc11[2], currbcinfnum11 + stage11 + 1, "blue", "blue");
+bloodcorpinf12 is Circle(loc12[1], loc12[2], currbcinfnum12 + stage12 + 1, "blue", "blue");
+bloodcorpinf13 is Circle(loc13[1], loc13[2], currbcinfnum13 + stage13 + 1, "blue", "blue");
+bloodcorpinf14 is Circle(loc14[1], loc14[2], currbcinfnum14 + stage14 + 1, "blue", "blue");
+bloodcorpinf15 is Circle(loc15[1], loc15[2], currbcinfnum15 + stage15 + 1, "blue", "blue");
+
+gamete1 is Circle((loc1[1]+loc2[1])/2, (loc1[2]+loc2[2])/2, currgrand1, mgametecol, mgametecol);
+gamete2 is Circle((loc2[1]+loc3[1])/2, (loc2[2]+loc3[2])/2, currgrand2, fgametecol,fgametecol);
+gamete3 is Circle((loc3[1]+loc4[1])/2, (loc3[2]+loc4[2])/2, currgrand3, mgametecol, mgametecol);
+gamete4 is Circle((loc4[1]+loc5[1])/2, (loc4[2]+loc5[2])/2, currgrand4, fgametecol, fgametecol);
+gamete5 is Circle((loc5[1]+loc6[1])/2, (loc5[2]+loc6[2])/2, currgrand5, mgametecol, mgametecol);
+gamete6 is Circle((loc6[1]+loc7[1])/2, (loc6[2]+loc7[2])/2, currgrand6, fgametecol, fgametecol);
+gamete7 is Circle((loc7[1]+loc8[1])/2, (loc7[2]+loc8[2])/2, currgrand7, mgametecol, mgametecol);
+gamete8 is Circle((loc8[1]+loc9[1])/2, (loc8[2]+loc9[2])/2, currgrand8, fgametecol, fgametecol);
+gamete9 is Circle((loc9[1]+loc10[1])/2, (loc9[2]+loc10[2])/2, currgrand9, mgametecol, mgametecol);
+gamete10 is Circle((loc10[1]+loc11[1])/2, (loc10[2]+loc11[2])/2, currgrand10, fgametecol, fgametecol);
+gamete11 is Circle((loc11[1]+loc12[1])/2, (loc11[2]+loc12[2])/2, currgrand11, mgametecol, mgametecol);
+gamete12 is Circle((loc12[1]+loc13[1])/2, (loc12[2]+loc13[2])/2, currgrand12, fgametecol, fgametecol);
+gamete13 is Circle((loc13[1]+loc14[1])/2, (loc13[2]+loc14[2])/2, currgrand13, mgametecol, mgametecol);
+gamete14 is Circle((loc14[1]+loc15[1])/2, (loc14[2]+loc15[2])/2, currgrand14, fgametecol, fgametecol);
+gamete15 is Circle((loc15[1]+loc1[1])/2, (loc15[2]+loc1[2])/2, currgrand15, mgametecol, mgametecol);
+
+steps = 0;
+
+proc onecircuit : steps {
+	if ((spororad==15)&&(steps == (int(steps/300)*300))) {
+		randnum = rand();
+		currbcinfnum1 = (currbcinfnum1 == 0) ? currbcinfnum1 + rand1 : 1;
+		currbcinfnum2 = (currbcinfnum2 == 0) ? currbcinfnum2 + rand2 : 1;
+		currbcinfnum3 = (currbcinfnum3 == 0) ? currbcinfnum3 + rand3 : 1;
+		currbcinfnum4 = (currbcinfnum4 == 0) ? currbcinfnum4 + rand4 : 1;
+		currbcinfnum5 = (currbcinfnum5 == 0) ? currbcinfnum5 + rand5 : 1;
+		currbcinfnum6 = (currbcinfnum6 == 0) ? currbcinfnum6 + rand6 : 1;
+		currbcinfnum7 = (currbcinfnum7 == 0) ? currbcinfnum7 + rand7 : 1;
+		currbcinfnum8 = (currbcinfnum8 == 0) ? currbcinfnum8 + rand8 : 1;
+		currbcinfnum9 = (currbcinfnum9 == 0) ? currbcinfnum9 + rand9 : 1;
+		currbcinfnum10 = (currbcinfnum10 == 0) ? currbcinfnum10 + rand10 : 1;
+		currbcinfnum11 = (currbcinfnum11 == 0) ? currbcinfnum11 + rand11 : 1;
+		currbcinfnum12 = (currbcinfnum12 == 0) ? currbcinfnum12 + rand12 : 1;
+		currbcinfnum13 = (currbcinfnum13 == 0) ? currbcinfnum13 + rand13 : 1;
+		currbcinfnum14 = (currbcinfnum14 == 0) ? currbcinfnum14 + rand14 : 1;
+		currbcinfnum15 = (currbcinfnum15 == 0) ? currbcinfnum15 + rand15 : 1;
+		
+		currgrand1 = (currgrand1 == 0) ? currgrand1 + grand1 : 1;
+		currgrand2 = (currgrand2 == 0) ? currgrand2 + grand2 : 1;
+		currgrand3 = (currgrand3 == 0) ? currgrand3 + grand3 : 1;
+		currgrand4 = (currgrand4 == 0) ? currgrand4 + grand4 : 1;
+		currgrand5 = (currgrand5 == 0) ? currgrand5 + grand5 : 1;
+		currgrand6 = (currgrand6 == 0) ? currgrand6 + grand6 : 1;
+		currgrand7 = (currgrand7 == 0) ? currgrand7 + grand7 : 1;
+		currgrand8 = (currgrand8 == 0) ? currgrand8 + grand8 : 1;
+		currgrand9 = (currgrand9 == 0) ? currgrand9 + grand9 : 1;
+		currgrand10 = (currgrand10 == 0) ? currgrand10 + grand10 : 1;
+		currgrand11 = (currgrand11 == 0) ? currgrand11 + grand11 : 1;
+		currgrand12 = (currgrand12 == 0) ? currgrand12 + grand12 : 1;
+		currgrand13 = (currgrand13 == 0) ? currgrand13 + grand13 : 1;
+		currgrand14 = (currgrand14 == 0) ? currgrand14 + grand14 : 1;
+		currgrand15 = (currgrand15 == 0) ? currgrand15 + grand15 : 1;
+		
+		if ((drand1==1)||stage1>=0) stage1++;
+		if ((drand2==1)||stage2>=0) stage2++;
+		if ((drand3==1)||stage3>=0) stage3++;
+		if ((drand4==1)||stage4>=0) stage4++;
+		if ((drand5==1)||stage5>=0) stage5++;
+		if ((drand6==1)||stage6>=0) stage6++;
+		if ((drand7==1)||stage7>=0) stage7++;
+		if ((drand8==1)||stage8>=0) stage8++;
+		if ((drand9==1)||stage9>=0) stage9++;
+		if ((drand10==1)||stage10>=0) stage10++;
+		if ((drand11==1)||stage11>=0) stage11++;
+		if ((drand12==1)||stage12>=0) stage12++;
+		if ((drand13==1)||stage13>=0) stage13++;
+		if ((drand14==1)||stage14>=0) stage14++;
+		if ((drand15==1)||stage15>=0) stage15++;
+		
+		if (stage1 == 4) { stage1 = -1; currbcinfnum1 = 0; freeinblood++;};
+		if (stage2 == 4) { stage2 = -1; currbcinfnum2 = 0; freeinblood++;};
+		if (stage3 == 4) { stage3 = -1; currbcinfnum3 = 0; freeinblood++;};
+		if (stage4 == 4) { stage4 = -1; currbcinfnum4 = 0; freeinblood++;};
+		if (stage5 == 4) { stage5 = -1; currbcinfnum5 = 0; freeinblood++;};
+		if (stage6 == 4) { stage6 = -1; currbcinfnum6 = 0; freeinblood++;};
+		if (stage7 == 4) { stage7 = -1; currbcinfnum7 = 0; freeinblood++;};
+		if (stage8 == 4) { stage8 = -1; currbcinfnum8 = 0; freeinblood++;};
+		if (stage9 == 4) { stage9 = -1; currbcinfnum9 = 0; freeinblood++;};
+		if (stage10 == 4) { stage10 = -1; currbcinfnum10 = 0; freeinblood++;};
+		if (stage11 == 4) { stage11 = -1; currbcinfnum11 = 0; freeinblood++;};
+		if (stage12 == 4) { stage12 = -1; currbcinfnum12 = 0; freeinblood++;};
+		if (stage13 == 4) { stage13 = -1; currbcinfnum13 = 0; freeinblood++;};
+		if (stage14 == 4) { stage14 = -1; currbcinfnum14 = 0; freeinblood++;};
+		if (stage15 == 4) { stage15 = -1; currbcinfnum15 = 0; freeinblood++;};
+	}
+};
+
+gametes is currgrand1 +  currgrand2 + currgrand3 + currgrand4 + currgrand5 + currgrand6 + currgrand7 + currgrand8 + currgrand9 + currgrand10 + currgrand11 + currgrand12 + currgrand13 + currgrand14 + currgrand15;
+

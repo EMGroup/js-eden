@@ -1,0 +1,90 @@
+.projectlist-result-element {
+	/*border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #d0d0d0;*/
+	position: relative;
+	left: 0px;
+	right: 0px;
+	/*height: 16px;*/
+	cursor: pointer;
+	overflow: hidden;
+	position: relative;
+	padding-left: 15px;
+	padding-right: 15px;
+	margin-bottom: 2px;
+	font-size: 8pt;
+	background-color: #eaeaea;
+}
+
+.projectlist-search {
+	/*position: absolute;
+	left: 0px;
+	top: 0px;*/
+	/*width: 196px;*/
+	height: 24px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #117fe5;
+	background-color: white;
+	padding: 2px;
+	float: left;
+	margin-left: 5px;
+}
+
+.projectlist-search-box-outer {
+	margin: 15px;
+	position: relative;
+	height: 24px;
+	margin-bottom: 20px;
+	font-size: 10pt;
+}
+
+.projectlist-search-box {
+	/*position: absolute;
+	left: 0px;
+	top: 0px;*/
+	/*width: 196px;*/
+	height: 24px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #117fe5;
+	background-color: white;
+	padding: 2px;
+	float: left;
+}
+
+span.projectlist-result_name {
+	vertical-align: 4px;
+	font-family: "Arial";
+	font-weight: bold;
+	font-size: 10pt;
+}
+
+span.projectlist-result_value {
+	color: #909090;
+	white-space: nowrap;
+	overflow: hidden;
+	vertical-align: 4px;
+}
+
+li.type-project {
+	list-style-image: url('../../images/Objects_Icon_32.png');
+}
+
+.projectlist-search-icon {
+	background-image: url('../../images/Search_Icon_32.png');
+	height: 32px;
+	width: 32px;
+	background-repeat: no-repeat;
+	float: left;
+}
+
+.projectlist-config-icon {
+	background-image: url('../../images/Configuration_Settings_Icon_32.png');
+	height: 32px;
+	width: 32px;
+	background-repeat: no-repeat;
+	float: right;
+	cursor: pointer;
+}
+

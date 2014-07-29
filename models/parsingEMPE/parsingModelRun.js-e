@@ -1,0 +1,4 @@
+include("models/parsingEMPE/parsingc.js-e");
+include("models/parsingEMPE/graphc.js-e");
+include("models/parsingEMPE/syntaxdirectedtranslationc.js-e");
+include("models/parsingEMPE/lexicalAnalysisc.js-e");
