@@ -146,3 +146,10 @@ test("Lists are value types", function () {
 	eval(Eden.translateToJavaScript("x = [1,2,3]; func f { $1 = 9000; } f(x);"));
 	equal(root.lookup('x').value()[0], 1);
 });
+
+test("Scoping for triggered actions", function () {
+	// the parser used to get confused about triggered actions, causing scoping problems
+	var root = new Folder();
+	eval(Eden.translateToJavaScript("x = 1; proc p : z {} func f { para x; } y is x;"));
+	equal(root.lookup('y').value(), 1);
+});
