@@ -275,6 +275,8 @@ case 113: this.$ = 'function() { var args = new Symbol().assign(Array.prototype.
 break;
 case 114:
         var eden_definition = JSON.stringify(yy.extractEdenDefinition(_$[$0-2].first_line, _$[$0-2].first_column, _$[$0].last_line, _$[$0].last_column));
+        yy.paras.pop();
+        yy.locals.pop();
         this.$ = "context.lookup('" + $$[$0-2] + "').define(function(context) { return " + $$[$0] + "; }).observe(" + JSON.stringify($$[$0-1]) + ").eden_definition = " + eden_definition + ";";
         
 break;

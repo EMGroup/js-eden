@@ -486,6 +486,8 @@ action-specification
     : function-declarator dependency-list function-body
         {
         var eden_definition = JSON.stringify(yy.extractEdenDefinition(@1.first_line, @1.first_column, @3.last_line, @3.last_column));
+        yy.paras.pop();
+        yy.locals.pop();
         $$ = "context.lookup('" + $1 + "').define(function(context) { return " + $3 + "; }).observe(" + JSON.stringify($2) + ").eden_definition = " + eden_definition + ";";
         }
     ;
