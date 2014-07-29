@@ -125,7 +125,7 @@ joe.log("eden.js: executeFileSSI()");
 Eden.loadqueue = new Array();
 	var ajaxfunc = function(path2) {
 		$.ajax({
-			url: "ssijse.rb?script="+path2,
+			url: path2,
 			dataType: 'text',
 			type: 'GET',
 			success: function(data) {
