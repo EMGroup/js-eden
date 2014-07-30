@@ -1,6 +1,3 @@
-## This is the original version where the piano key that's been clicked is found
-## by examining the boundaries of every rectangle until the matching one is found.
-
 ##=============================================================================
 ##Include these lines first.
 
@@ -470,6 +467,23 @@ proc playNoteWhenClicked : mousePressed {
 	}
 }
 
+/*
+
+proc playNoteWhenClicked : mousePressed {
+	if (mousePressed) {
+		highlightedKeysDef = definitionOf("highlightedKeys");
+		highlightedKeys = [noteName(pianoKeyHit)];
+		pianoKeySounds[pianoKeyHit].play();
+	} else {
+		execute(highlightedKeysDef);
+	}
+}
+
+*/
+
+##Tidying up of buildKeys
+##Change mouseDown to mouseX & mouseY.
+
 func lineToNoteName {
 	para bassLineNumber, trebleLineNumber, staveNum;
 	if (staveNum == 0) {
@@ -498,3 +512,5 @@ trebleLines = ["F5", "D5", "B4", "G4", "E4"];
 bassLines = ["A3", "F3", "D3", "B2", "G2"];
 
 highlightedKeys is [lineToNoteName(bselnum, tselnum, stavesel)];
+
+picture is bass // treble // [ trebleClef, bassClef, tbnote, selnote, tbsel, leftline] // keyboard;

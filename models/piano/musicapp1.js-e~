@@ -199,4 +199,4 @@ bassClef is Image("bassClef", 27, 95, 28, 33,"http://www.dcs.warwick.ac.uk/~wmb/
 trebleClef is Image("trebleClef", 9, 20, 64, 68,"http://www.dcs.warwick.ac.uk/~wmb/Treble_Clef_Pin.PNG");
 
 framenum = 3;
-fingerFrame is Rectangle(trebleX+125, trebleY+width*framenum, width*2, width*2, "lightgreen");
+fingerFrame is Rectangle(trebleX+125, trebleY+width*framenum, width*2, width*2, "green");
