@@ -15,6 +15,10 @@ var lrSnippet = require('grunt-contrib-livereload/lib/utils').livereloadSnippet;
 module.exports = function (grunt) {
   grunt.initConfig({
 
+    'gh-pages': {
+      src: ['**']
+    },
+
     jison: {
       target: {
         files: { 'js/core/translator.js': 'translator/grammar.jison' }
