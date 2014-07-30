@@ -33,7 +33,7 @@ Eden.plugins.SG = function(context) {
 			});
 	}
 
-	//Register the HTML view options
+	//Register the HTML view options:
 	context.views["SG"] = {dialog: this.createDialog, title: "Script Generator"};
 	
 	SG = {};

@@ -146,7 +146,7 @@ Eden.plugins.DM = function(context){
 		}
 		
 		//Get the edges which are now in the graph
-		//If the set of nodes and edges are different from before
+		//if the set of nodes and edges are different from before
 		if(arrayCompare(graph.previousNodes, graph.newNodes) && arrayCompare(graph.previousEdges, graph.newEdges)){
 			//Don't do anything
 			return;

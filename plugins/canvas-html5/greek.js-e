@@ -7,7 +7,7 @@ parser.lexer.rules =
 ## has been replaced by '^\u0023\u0023'
 ## this means that it can be accepted via the EDEN
 ## interface, but needs to be interpreted before
-## Greek characters in the file can be interpreted.
+## Greek characters in the file can be interpreted
 
 /*
 valrange        a       ß       ?       d       e       ?       ?       ? 
