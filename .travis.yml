@@ -7,9 +7,4 @@ env:
     secure: MOAONWnE1Cqal+qcPD08VoaRYj4izY4x2eHrMr/jM7D7qG7Utcuyc448+DtlS+7Ni0RJeHeklfTk4AnE7ZafbxFrS6UFtEwCTagqDXcwAnkB/+NMLje2QTEtlT8eIV5Iz3jk0P1SSGc/KlueuB73Ew3uDJKh+NlO/lbsNwRESjk=
 before_install: npm install -g grunt-cli
 after_success:
-  - git config --global user.email "bot@travis-ci.org"
-  - git config --global user.name "travis ci auto commit"
-  - git config credential.helper "store --file=.git/credentials"
-  - echo "https://${GH_TOKEN}:@github.com" > .git/credentials
-  - ./write_version.sh
-  - grunt gh-pages
+  - ./travis.sh
