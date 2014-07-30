@@ -1,3 +1,0 @@
-# this file is read by apache to allow execution of any .rb files in this
-# folder as CGI scripts.
-AddHandler cgi-script .rb

@@ -15,6 +15,10 @@ var lrSnippet = require('grunt-contrib-livereload/lib/utils').livereloadSnippet;
 module.exports = function (grunt) {
   grunt.initConfig({
 
+    'gh-pages': {
+      src: ['**']
+    },
+
     jison: {
       target: {
         files: { 'js/core/translator.js': 'translator/grammar.jison' }
@@ -60,6 +64,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-livereload');
+  grunt.loadNpmTasks('grunt-gh-pages');
 
   grunt.registerTask('default', ['connect', 'watch']);
 };
