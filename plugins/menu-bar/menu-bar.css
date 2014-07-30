@@ -64,6 +64,10 @@
 	font-size: 10px;
 }
 
+#menubar-version-number > a {
+	color: #e0e0e0;
+}
+
 #menubar-status {
 	position: absolute;
 	left: 300px;
