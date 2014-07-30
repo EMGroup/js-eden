@@ -40,7 +40,7 @@ Eden.plugins.ST = function(context){
 			
 			document.getElementById(name+"-regex").value = "";
 			
-			//increment the next blank state
+			//Increment the next blank state
 			eden.plugins.ST.ST.nextBlankState++;
 			
 		})).append($('<div id="'+name+'-content-states"></div>'));

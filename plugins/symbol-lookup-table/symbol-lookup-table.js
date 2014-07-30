@@ -52,7 +52,7 @@ Eden.plugins.SLT = function(context) {
 	}
 	
 	SLT.generateAllHTML = function(){
-		//generates the regex
+		//Generates the regex
 		var regex = "<input class=\"SLTregex\" type=\"text\" onkeyUp=\"SLT.update(event)\" placeholder=\"regex\" onload=\"setFocus()\" style='';>";
 		var indiv = "<div class=\"SLT\"><div class=\"upper\" style=\" display:block; \">"+regex+"</div><div class=\"lower\" style=\" display:block; \">"+SLT.generateBottomHTML("")+"</div></div>";
 		return indiv;

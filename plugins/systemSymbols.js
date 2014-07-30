@@ -1,3 +1,4 @@
+//System Symbols
 Eden.systemObservableNames = [
 	"_view*",
 	"true",
