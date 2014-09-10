@@ -12,9 +12,6 @@ qunit.setup({
 
 qunit.run([
 	{
-		deps: [
-			'joe/joe.js'
-		],
 		code: 'js/core/maintainer.js',
 		tests: 'js/test/test_maintainer.js'
 	},
@@ -24,7 +21,6 @@ qunit.run([
 	},
 	{
 		deps: [
-			'joe/joe.js',
 			'js/core/maintainer.js',
 			'js/core/runtime.js',
 			'js/core/translator.js',
