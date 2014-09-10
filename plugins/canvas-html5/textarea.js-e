@@ -1,4 +1,4 @@
-#Textarea
+##Textarea
 ${{
 Textbox = function (name, x, y, enabled) {
 	this.name = name;
