@@ -151,9 +151,11 @@ Eden.plugins.MenuBar = function(context) {
 
 	//Put js-eden version in right corner
 	$.ajax({
-		url: "version.rhtml",
+		url: "version.json",
+		dataType: "json",
 		success: function(data) {
-			$('<div id="menubar-version-number"></div>').html("js-eden J-version "+data).appendTo($("#menubar-main"));
+			var versionHtml = data.tag ? data.tag : '<a href="https://github.com/EMgroup/js-eden/commit/' + data.sha +'">' + data.sha + '</a>';
+			$('<div id="menubar-version-number"></div>').html(versionHtml).appendTo($("#menubar-main"));
 		},
 		cache: false,
 		async: true

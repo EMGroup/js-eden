@@ -4,16 +4,15 @@
  *
  * See LICENSE.txt
  */
- 
-
 
 // functions to act in the same way as EDEN operators
 var rt = {
 	length: function (value) {
-	
-		if (value == undefined) {
+		if (value === null || value === undefined) {
 			return undefined;
 		}
 		return value.length;
 	}
 };
+
+this.rt = rt;

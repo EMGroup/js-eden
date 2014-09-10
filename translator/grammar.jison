@@ -455,7 +455,7 @@ identifier-list-opt
 
 local-var-decl
     : AUTO identifier-list-opt ';'
-        { var declarations = $.map($2, function(id) { yy.locals[0][id] = 1; return "var local_" + id + " = new Symbol();"; }).join(" "); $$ = declarations;}
+        { var declarations = yy.map($2, function(id) { yy.locals[0][id] = 1; return "var local_" + id + " = new Symbol();"; }).join(" "); $$ = declarations;}
     ;
 
 local-var-decl-opt
@@ -472,7 +472,7 @@ para-alias-opt
 
 para-alias
     : PARA identifier-list ';'
-        { $.map($2, function(id,i) { yy.paras[0][id] = i; }); $$ = ""; }
+        { yy.map($2, function(id,i) { yy.paras[0][id] = i; }); $$ = ""; }
     ;
 
 function-body
@@ -486,6 +486,8 @@ action-specification
     : function-declarator dependency-list function-body
         {
         var eden_definition = JSON.stringify(yy.extractEdenDefinition(@1.first_line, @1.first_column, @3.last_line, @3.last_column));
+        yy.paras.pop();
+        yy.locals.pop();
         $$ = "context.lookup('" + $1 + "').define(function(context) { return " + $3 + "; }).observe(" + JSON.stringify($2) + ").eden_definition = " + eden_definition + ";";
         }
     ;

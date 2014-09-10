@@ -62,7 +62,7 @@ li.type-session {
 }
 
 .symbollist-search-icon {
-	background-image: url('../images/Search_Icon_32.png');
+	background-image: url('../../images/Search_Icon_32.png');
 	height: 32px;
 	width: 32px;
 	background-repeat: no-repeat;
@@ -70,7 +70,7 @@ li.type-session {
 }
 
 .symbollist-config-icon {
-	background-image: url('../images/Configuration_Settings_Icon_32.png');
+	background-image: url('../../images/Configuration_Settings_Icon_32.png');
 	height: 32px;
 	width: 32px;
 	background-repeat: no-repeat;
