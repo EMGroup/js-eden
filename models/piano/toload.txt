@@ -1,0 +1,20 @@
+To load the construal, follow these steps:
+
+1. Go to http://jseden.dcs.warwick.ac.uk/master.jbnew/
+
+2. Cut and paste the contents of the files 
+
+preamblejbnew.js-e and additionalfuncs.js-e
+
+into the Input Window and press Submit.
+
+3. Select JSPE from the Project List panel (this will introduce a panel that obscure the Input Window).
+
+4. Cut and paste the contents of the file commentary.js-e into the Input Window and press Submit
+
+5, Follow the instructions for loadng the files  musicapp1.js-e and piano.js-e given on the sec ond slide.
+
+The sequence of slides that follows illustrates some of the principles of making construals, and goes some way
+towards making a working prototype.
+
+

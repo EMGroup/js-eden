@@ -1,0 +1,319 @@
+## slideList is [slide1,slide2, slide3, slide4, slide5, slide6, slide7];
+
+comm1 is Slide("
+<b>I. Towards an Erasmus+ proposal</b><p>
+In order to understand what we can venture in the proposal, it is essential to have sufficient idea of what a <b>construal</b> is, and why it differs from a program. The first seven slides provide this background; the second seven slides then address the proposal itself.
+</p>
+<p>
+An example of a construal for noughts-and-crosses is loaded in this environment, as this will be useful by way of illustration.
+</p>
+<p>
+There are several features of a construal that are fundamental to what we want to do in the project:
+<ol>
+<li> Construals serve as resource from which you can derive programs. They are interactive artefacts that embody understanding that you acquire through interaction. You become familiar with how a construal responds to interaction that is initially experimental in character, and learn to interpret this. [The noughts-and-crosses construal serves as a program to play n+c. It can also be presented as a trace of how this program can be constructed from first-principles.]</li>
+<br>
+<li>Unlike a typical program, a construal supports open-ended interaction that admits many different kinds of interpretation. The steps that are taken in creating a program and the actions that might be taken by a user are all modelled in a similar way within the construal. We intend to exploit this by integrating the contributions of developers, teachers and pupils to create a construal that serves as a teaching and learning resource. [The particular construal of n+c included here is a product of contributions from several people of just this kind. This leads to some errors, points of confusion and redundancy, but coping with this is part of the characteristic function of a construal. Sorting out confusion is a primary inspiration for learning.]</li>
+<br>
+<li>Construals can be the basis for presentations that integrate guided exposition with freedom for the learner not only to respond interactively as instructed, but to explore and extend beyond the scope of what is specified. [This presentation is an example of that.]</li>
+<br>
+<li>The interactions with a construal can be recorded and replayed so as to re-create live states in the process of constructing and exercising the construal. This gives exceptional potential for monitoring and evaluation of the learning process.</li>
+<br>
+<li>The same construal can be adapted very freely and customised for many different contexts and target audiences / learning objectives.
+</li>
+</ol>
+</p>
+");
+
+comm2 is Slide("
+<b>II. About JS-EDEN: the online instrument for making construals</b>
+<p>
+The word 'instrument' suits the role of JS-EDEN better than 'tool'. JS-EDEN is a medium for making journeys of interaction and interpretation. Learning is an incidental by-product of these journeys. Interactions that are sufficiently well-rehearsed can be automated.
+</p>
+<p>
+The current state of the instrument is expressed and manipulated through a family of observables that evolves as the construal is developed and exercised.  
+</p>
+<p>
+Observables have a definition which either assigns them an explicit value (using '=') or a defining formula (using 'is'). An 'is' definition establishes a dependency similar to a relation between spreadsheet cells; the value of an observable changes 'instantly' whenever the value of an observable it depends on is redefined. The current status of observables can be inspected in JS-EDEN using various options from the Views menu:
+</p>
+<p>
+<ul>
+<li>You can get an overall impression of the observables in the n+c construal by invoking the <b>Script Generator</b> option - these are listed under the headings <b>Observable Assignments</b> and <b>Observable Definitions</b>. The observables listed in this way are all the modeller-defined observables as of the instant on which the option is invoked.</li>
+<br>
+<li>You can display lists of observables with their current values by invoking the Observable List option. (Such lists may include observables that are intrinsic to the JS-EDEN instrument itself in addition to those that are introduced by the modeller.) The observables displayed can be customised to suit a specific purpose by typing a regular expression into the search box at the top of the display panel. For instance: the RE 'boardstate|lin[0-9]' will select the current values that define the current state of the n+c board and the various lines that are being monitored by the players.</li>
+<br>
+<li>You can display the full details of the definitions, and dependencies governing observables by invoking a Symbol Lookup Table view. Specific clusters of observables can be displayed by entering an RE such as 'boardstate|lin[0-9]' into the search box.</li>
+</ul>
+</p>
+<p>
+To see the effect of changing the state of the construal, click in the centre of one of the squares in the n+c grid to insert an 'O' into the grid - the computer will respond by entering an 'X' in another square. You will see that this refreshes the Observable List but not the Symbol Lookup Table - to refresh this view, you can 're-enter' the RE pressing Enter at the end of it. 
+</p>
+");
+
+comm3 is Slide("
+<b>III. Definitions, functions and actions in a construals</b>
+<p>
+Construals are comprised of three types of ingredient. In addition to definitions, there are in general <i>actions</i> and <i>functions</i>. You can inspect the actions in the n+c construal by scrolling down a Script Generator view. Actions and functions are specified in a procedural programming language called EDEN that is quite similar syntactically to JavaScript. In fact it is relatively easy to wrap raw JavaScript so that it can be used in place of EDEN code. This is why basic skills in programming serve as a convenient 'base camp' for making construals with JS-EDEN.
+</p>
+<p>
+Functions are defined by the modeller in order to enrich the operators that can be deployed in formulae. As a simple example, there is a function 'nofpieces' that appears in the defining formula of the observable 'nofx', as you can verify from the Symbol Lookup Table.
+</p>
+<p>
+Actions are specified as procedures to be invoked when the values of specified observables are updated. For instance, the action of selecting a square of the grid with the mouse is specified thus:
+
+<pre>
+proc makemove: mousePressed {
+	if ((mousePressed) && (mouseXselect*mouseYselect != 0))
+		boardstate[(mouseYselect-1)*3 + mouseXselect] = player;
+}
+</pre>
+</p>
+<p>
+'Making a construal' has a close connection with the informal idea of 'explaining how something works'. For instance, when we move the handle of a door we know that many levers are moved simultaneously, so that our interaction takes place in the context of many dependencies. In the same spirit, the <b>makemove</b> action occurs in a context defined by several other mouse-related observables, some built-in, like <b>mouseY</b>, and others defined by the modeller in terms of these: 
+<pre>
+mouseYnear1 is ((mouseY-160)*(mouseY-160)&lt;near);
+mouseYnear2 is ((mouseY-240)*(mouseY-240)&lt;near);
+mouseYnear3 is ((mouseY-320)*(mouseY-320)&lt;near);
+mouseYselect is (mouseYnear1 ? 1 : (mouseYnear2 ? 2 : (mouseYnear3 ? 3 : 0)));
+</pre>
+These definitions have been extracted from Symbol Lookup Table after specifying 'mouse' as an RE.
+</p>
+");
+
+comm4 is Slide("
+<b>IV. Construal comprehension</b>
+<p>
+Knowing how to explore a construal is a core skill that is a prerequisite for making construals of your own. You explore in order both to learn about the interactions and interpretations a construal affords and to understand how it has been constructed and can be elaborated. 
+</p>
+<p>
+The exploration that can be done by interacting with the mouse alone is quite limited - it generally corresponds to the kind of interaction that resembles the use of a conventional program. The most appropriate interface for exploration is the <b>JS-Eden Input Window</b> which is incorporated into the display.
+To reset the n+c grid, for instance, you can cut-and-paste the following definition into the Input Window and press 'Submit':
+<pre>
+boardstate = [u,u,u,u,u,u,u,u,u];
+</pre>
+</p>
+<p>
+This presentation environment has a special feature to support such use of the Input Window taht make it convenient to execute definitions or copy them to the input for editing:
+<jseden>
+boardstate = [u,u,u,u,u,u,u,u,u];
+</jseden>
+</p>
+<p>
+There are three observables u, x and o that can appear in the list that defines the value of <b>boardstate</b>: they correspond respectively to squares that are blank, or contain 'X' or 'O'.   
+Submitting the redefinition
+<pre>
+boardstate = [u,u,u,u,u,u,o,u,u];
+</pre>
+(e.g. by using the 'copy to input' option above, and then editing the input before submitting it) has exactly the same effect as entering a 'O' into the grid using the mouse: the computer responds immediately by entering an 'X'. 
+</p>
+<p>
+Though you probably hadn't considered the possibility, you can in fact overwrite the 'X' on the grid ('cheating') by clicking on the middle of the X that the computer has entered. You will observe that 'the computer cheats' in response by playing two moves. 
+</p>
+");
+
+comm5 is Slide("
+<b>
+V. More about construal comprehension
+</b>
+<p>
+Much interaction with the construal takes the form of trying to explain behaviours that are unexpected and/or unintended - it is the most authentic kind of interaction. This is in contrast with programming, where we set out to explicitly specify behaviours and interpretations.
+</p>
+<p>
+To explore why the computer 'cheats' (a concept that is itself <i>a construal</i> - and a very fanciful one at that) we need to identify what observables trigger it to make a move.
+</p>
+<p>
+Reviewing the actions displayed in the Script Generator reveals an action called 'play' that is triggered by the observables 'end_of_game', 'o_to_play' and x_to_play'. More information about these observables can be found by entering the RE 'end_of_game|o_to_play|x_to_play' into the Search Box of the Symbol Lookup Table. This in turn discloses other observables that form part of the context for making a move, such as determine whether the game has been won by 'O' or 'X' for instance. Inspecting the definition of x_to_play explains the rogue behaviour of the computer. It also suggests other ways in which the criterion for X to play could have been defined so as to realise a different behaviour (e.g. by observing who made the last entry into the grid).
+</p>
+<p>
+In making a conventional program from the n+c construal, it would be appropriate to eliminate the possibility of cheating behaviour on the part of the human player - adapting the makemove action so that it prevents overwriting. 
+Another aspect of the move behaviour that we might wish to refine is the speed of the computer response. This can be done by enclosing the body of the play action within the following context:
+<pre>
+after (1000) {  ...
+} 
+</pre>
+which delays the computer's response by a second (a thousand milliseconds).
+</p>
+<p>
+Another characteristic of the interface that can be directly modified from the Input Window is the accuracy with which the human player has to click the mouse. This is determined by the observable 'near'. Making this smaller can be challenging both in respect of gauging where the centre of a square is located and placing the mouse sufficiently near it. This hints at the potential for addressing other target audiences and learning needs. It also suggests another variant of noughts-and-crosses in which physical judgements and skills are involved.
+</p>
+");
+
+comm6 is Slide("
+<b>VI. Further modes of exploration</b>
+<p>
+The n+c construal as it stands is far from satisfactory. It is instructive to inspect the core script in a text editor.
+</p>
+<p>
+Many sources have been blended in making the construal: for instance:
+<ul>
+<li>the original source is oxoJoy1994 from <a href=\"http://empublic.dcs.warwick.ac.uk/projects\" target=\"_blank\">the EM projects archive</a></li>
+<li>a second source is oxoGardner1999 in the same repository</li>
+<li>some adaptations have been made by me so that the construal runs in JS-EDEN</li>
+</ul>
+This blending activity typifies what we'd hope to be able to encourage in our Erasmus+ project.
+</p>
+<p>
+The result of trying to integrate these models is that there are actions that are out-of-place: for instance, the action initAllSquares() which was introduced in oxoJoy1994 would now destroy the integrity of the construal, as it refers to a different way of configuring the dependencies between the contents of squares and the overall content of the grid. There is also a hidden purely textual display interface for the construal; this does still give output via the underlying console of the browser.
+</p>
+<p>
+There are several features of JS-EDEN that can help in analysing, managing and refining the state of the construal:
+<ul>
+<li>The original state of the construal can be restored by reloading the orginal file of definitions at any stage. Particular configurations of state encountered in the modelling process can be recorded and recovered conveniently via the State Timeline utility under Views.</li>
+<br>
+<li>There is a complete record of the state-changes that define the current state of the model in the Input History view.</li>
+<br>
+<li>Graphs that depict the dependencies between observables can be displayed by using the Dependency Map view. When using this feature, the complete names of observables (rather than REs) should be entered into the search box. The local network of dependencies surrounding that observables is then displayed. Viewing dependencies helps to disclose the staus of observables - for instance, it is a convenient way of finding out what observables <b>x_to_play</b> is dependent on, and of identifying the redundancy of the observable <b>list_lines</b>.</li>
+</ul>
+</p>
+<p>
+One of the best ways of sanitising the construal (cf. oxoGardner1999) is to rebuild it stage-by-stage taking account of how observables are layered one on top of the other - so that whether X has won is meaningful only after the observables that specify the board and the rules etc are presently established ('cognitive layering').
+</p>
+");
+
+comm7 is Slide("
+<b>VII. The n+c construal as computer program</b>
+<p>
+The n+c construal has several limitations as a program to play noughts-and-crosses:
+<ul>
+<li>it lacks a friendly and usable interface - though of course all the information and control that a user might require (and potentially more than would normally be expected of a program to play n+c is recorded in the construal, and can be made accessible by adding additional components to the <b>picture</b> observable).</li>
+<br>
+<li>it has bugs (initiate a game using
+<jseden>startplayer=x;</jseden>
+then respond by putting an 'O' in the top left corner and make the appropriate moves to avoid defeat - until X overwrites square 6!)</li>
+<br>
+<li>it has a playing strategy that isn't good enough for best play.</li>  
+</ul>
+The importance of these observations is that it demonstrates how making construals is valuable as a way of dealing with work-in-progress, and highlights how different it is in character from the kind of documentation and prototyping that is characteristic of conventional programming.
+</p>
+<p>
+By carrying through the exercise in construal comprehension these problematic kinds of issues can be addressed by refining and extending the construal.
+Conceptually and semantically, construals and conventional programs are quite distinct in character, however.
+This distinction also has pragmatic implications (for instance, construals are not optimised so as to address specific functional objectives in an efficient way).
+</p>
+");
+
+comm8 is Slide("
+<b>VIII. And finally - about the Erasmus+ proposal!!</b>
+<p>
+The main point of the preceding presentation is to make it clear what can be realistically done within our Erasmus+ project (I hope). Though you don't need to understand everything in detail, some impression of what's involved in making construals is essential in making sense of a proposed work programme.
+</p>
+<p>
+The prerequisite skills and learning objectives relevant to making construals are:
+<ol>
+<li>basic skills in procedural programming (especially JavaScript) are useful and relevant</li>
+<li>skills in construal comprehension need to be learnt (exercising JS-EDEN as discussed)</li>
+<li>understanding how to go about making construals yourself</li>
+</ol>
+</p>
+<p>
+Item 1 is pretty standard material for which we should be able to find resources. At Warwick, we'd plan to recruit colleagues who have established a MOOC for teaching basic programming to teachers. Their resources are Python-oriented, but there is work on introducing JavaScript to teachers in the University of Worcester that we could also factor in. (Both of these initiatives have been funded under the Google CS4HS scheme.) Item 1 is the easiest to cover and can exploit face-to-face teaching supplemented by online resources. Most interesting from the point of view of our project is the possibility of integrating teaching Item 1 with JS-EDEN so that learners get to know EDEN syntax etc - this could be a useful component of the project work.  
+</p>
+<p>
+Items 2 and 3 are more difficult to teach. There are few experts available - we would have to try to recruit and train a few people - and we'd have to rely on giving workshops and supplementing this with laboratory work to be supported online. Suitable resources for this have been deployed in the EM teaching programme at Warwick and at a number of workshops given over the years.  
+</p>
+<p>
+An awkward question is: <i>What would motivate people to take up this agenda?</i>
+</p>
+<p>
+We expect to have interest from master teachers from the <i>Computing at School</i> community because of the prospects of building on basic programming skills to develop materials suitable for more interesting methods of teaching computing at school. A potential problem is that Item 3 involves a totally different orientation from traditional computer programming - and might in fact conflict with accepted wisdom in that regard.
+</p>
+");
+
+comm9 is Slide("
+<b>IX. Who are the target audience? - teachers?</b>
+<p>
+If the 'training in making construals' idea appeals to enough teachers, and turns out to produce materials that can be sufficiently well-aligned to classroom and standard curriculum needs, then teacher training is definitely a good target. A big question is what 'making construals' can achieve - will it help teachers with basic programming skills to gain confidence with more ambitious projects involving computers, or confuse them? Will it be possible to enable teachers to make construals that can be deployed in teaching other topics? From our experience, there will be some who take to the idea of making construals enthusiastically, some who struggle to adapt their approach to thinking about 'programming' the computer, and some who won't engage. Ideally, we can expect more sympathetic engagement from those who are interested in crafts, arts, the humanities, social studies and experimental science than from those who prefer to think of mathematics and computer in abstract terms. We have been lucky to have had exceptionally well-rounded mature computer science students at Warwick who have a broad and imaginative outlook about computer science and good computing skills. 
+</p>
+<p>
+An issue may be how far we can engage school pupils. The gap between having basic programming skills and ability to make challenging applications is definitely conspicuous in computing at school. Scratch seems to have been quite successful up to about secondary school, and thereafter (to my knowledge) there is nothing by way of a bridge to bring pupils up to the level of expertise that is needed for an A-level computing project (unless perhaps educational robotics enables this transition). In our experience, there are quite a few students who can see the potential for doing really interesting things with computers but who find out that this involves activities that don't appeal to them. (Since we have no prerequisite computing requirement at Warwick, we have often attracted some - and for some encountering traditional computer science and programming practices is a demoralising shock.) Promoting the collaborative making of online construals is potentially a way to promote engagement and perhaps stimulate a culture of distributed participatory design, where people with different levels of technical skill can collaborate.
+</p>
+<p>
+It might require quite radical changes to the interface to make interaction with JS-EDEN accessible to primary school children (that said, we do teach children to play musical instruments from an early age). There are certainly many levels at which interaction with construals can be supported, but actually making construals seems to require framing functions and definitions that I think may be too difficult to do in a GUI in the spirit of Scratch. Ideally, developing the JS-EDEN interface in this direction, towards the tablet culture, would be good. Antony Harfield's canvas version of JS-EDEN was envisaged as such a platform and has been deployed on tablets in Thai schools. As the preceding slides have shown, moving towards a small-screen hand-held device is at odds with the demands for many simultaneous views that construal comprehension raises.
+</p>
+");
+
+comm10 is Slide("
+<b>X. Who are the target audience? - others?</b>
+<p>
+There are three other ways in which I could envisage people engaging with making construals:
+<ul>
+<li>Making a construal collaboratively could be a suitable exercise e.g. for groups of trainee teachers, or for students on a digital education module. There would be motivation for coming up with a product, but the investment would be worthwhile whether or not that product could be effectively deployed in the classroom. Getting students of this kind involved might be very helpful in enriching our understanding of what potential learning benefits and limitations there are in making construals. It could be especially helpful for developing the JS-EDEN instrument itself, particularly with a view to monitoring and evaluating the learning process.
+</li>
+<br>
+<li>The JS-EDEN presentation environment has excellent potential as an open-ended interactive learning context. There are already examples of educational applications by way of expositions of e.g. logical flaws in SQL (sqleddiWard2003), 3d projection in computer graphics (cf. graphicspresHarfield2007), problem-solving (Sarah Marshall, 2013), LR parsing (Zhu Hui 2013), modelling vision-related neurons (Hamish Todd 2014), some of which have been deployed in undergraduate teaching. This might be an alternative way in which collaboratively developed construals might lead to useful products - generating OERs for a variety of topics.
+</li>
+<br>
+<li>
+Many students of EM have found the coursework that they do to be the most rewarding aspect of the annual EM CS405 module. The key seems to be that making construals is most interesting when you are personally closely engaged with the subject and are able to see the full richness and subtlety of the observation and agency involved. Ideally, we would like to encourage individual creativity in the spirit of the WEB-EM coursework submission completely outside any specific educational setting. For instance, we could organise an open conference at partner venues in the WEB-EM tradition and invite submissions following the same pattern that has been used so successfully on the module. We could have prizes for this, and also encourage the best contributors to the previous ten instances of WEB-EM to present (if we can contact them and they are interested). As an additional incentive for people to participate, we could also continue the tradition of awarding prizes for best paper, best construal and most original study - but with more substantial prizes. Motivating people to take part, giving them the necessary training, and supporting the reviewing process etc would be the challenges to meet.
+</li>
+</ul>
+</p>
+
+");
+
+comm11 is Slide("
+<b>XI. Evaluation of making construals</b>
+<p>
+One of the biggest problems for making construals in the tradition of EM is that there has been great excitement about developing the instruments and illustrative models but very little attention to evaluation. This is in part because EM has been developed in a Computer Science department. It may also have something to do with the nature of the learning activity which has generally been focused on personal understanding that is acquired through the process of construction. In principle, this means that an intimate acquaintance with what the modeller is doing at all times is desirable and this is something that involves a big investment in time.
+</p>
+<p>
+There is a clear need for more research into how this evaluation of EM can best be done. The modelling instruments themselves in fact provide an unusual trace that should be very well-adapted to analysis - they make it possible to reconstruct states in the modelling process as if they were 'live' for instance. (This was exploited by Antony Harfield who was able to reconstruct the modelling activity carried out some years earlier by Charlie Care in making a planimeter model, and identify a 'eureka' moment to which Charlie had alluded casually.) One approach to evaluation is to exercise the construal in the way that has been illustrated in the previous slides. (By way of illustration: interacting with the n+c construal suggests that the way in which the selection of a move by the computer is implemented is conceptually weak, and should be supported by additional observables and definitions rather than via relatively complex functions such as <b>findmaxindex</b>.) Further instrumentation may also be helpful in assisting evaluation.
+</p>
+<p>
+There are a number of activities within our consortium that are connected with the evaluation theme. I know that Rene has strong interests in this area, and that Emma King at Warwick and colleagues of hers from the MSc in Digital Education at Edinburgh are interested in the issue of how to evaluate active learning that takes place in an online context (cf. <a href=\"http://www2.warwick.ac.uk/fac/sci/dcs/research/em/publications/papers/124/\" target=\"_blank\">EM paper #124</a>). The CaS programme would like its master teachers to be involved in educational research in parallel with their preparation of teaching resources, and this brings additional synergy. I know also of Dimitris's expertise in educational robotics, and note that Ilkka Jormanainen's PhD at UEF involved bringing an EM approach broadly based on observables, dependencies and agency to monitoring (traditional) classroom robotics-with-Lego etc. Ant Harfield has also made some related studies in Thailand.
+</p>
+");
+
+comm12 is Slide("
+<b>XII. The bigger picture: curricula and strategic goals</b>
+<p>
+Making construals is part of a much broader objective: tackling deep problems in programming (cf. <a href=\"http://www.chris-granger.com/\" target=\"_blank\">Chris Granger's recent post on this theme</a>, which has significant points of contact with our research) and software development (see e.g. <a href=\"http://www2.warwick.ac.uk/fac/sci/dcs/research/em/publications/papers/121/\" target=\"_blank\">EM paper #121</a>).
+</p>
+<p>
+There are several levels of understanding associated with making construals:
+
+<p>A. Basic concepts underlying construals (observable, dependency and agency) and skills of construal comprehension</p>
+<p>B. Skill in making construals and appreciation of how this draws on and differs from conventional programming.</p>
+<p>C. Understanding how making construals fits within a bigger picture such as has been set out in the now discontinued Empirical Modelling teaching programme (cf. <a href=\"http://www2.warwick.ac.uk/fac/sci/dcs/research/em/teaching/cs405\" target=\"_blank\">the CS405 module</a> and <a href=\"http://www2.warwick.ac.uk/fac/sci/dcs/research/em/publications/web-em/\" target=\"_blank\">the WEB-EM assignment</a>).</p>
+<p>D. Appreciating the implications for a broader Computer Science curriculum in which computational thinking is complemented by making construals (cf. the link to an <i>EM Perspective on Computing</i> in <a href=\"http://www2.warwick.ac.uk/fac/sci/dcs/research/em/thinkcomp07/\" target=\"_blank\">the <i>Thinking Through Computing</i> workshop</a> and <a href=\"http://www2.warwick.ac.uk/fac/sci/dcs/research/em/publications/papers/\" target=\"_blank\">the EM publications</a>). In the UK, this is related to resolving the unwelcome tension between academic computer science and the ICT cultures.</p>
+<p>E. Appreciating the wider potential implications of making construals to technology enhanced learning and OER. EM provides foundational orientation, concepts and techniques relevant to the constructionist and game-based learning agendas for instance (cf. <a href=\"http://www2.warwick.ac.uk/fac/sci/dcs/research/em/applications/educationaltech/\" target=\"_blank\">Educational technology as an application area for EM</a>)).
+</p>
+</ul>
+</p>
+<p>
+As I see it, the practical project can include A, B and potentially the 'coursework' part of C in which fourth-year MSc/MEng students in Computer Science at Warwick have been choosing a topic of personal interest to them, making a construal and writing a conference-style paper about it. 
+</p>
+<p>
+The remaining material (E, D and the part of C reflected in the written exam for CS405) is outside the scope of our what we could directly 'teach' within the project, though it includes some useful background reading and resources for practical work. It also relates to broader strategic goals. For instance, making construals (in my view) offers a paradigm shift for computing and for technology enhanced learning. Most likely, this is controversial, especially since the spirit of EM is so different from the formal traditions of computing and TEL. It also has links with Latour's constructivist outlook that many scientists view with scepticism.  
+</p>
+");
+
+comm13 is Slide("
+<b>XIII. Dissemination and dialogue</b>
+<p>
+One of the longer-term ideas - if I'm allowed to have such a perspective at my great age! - is that the copious online material for CS405 one day gets to be more widely disseminated. One project highly relevant to this is the extension of JS-EDEN so that it becomes possible to export existing models that currently run (and indeed in some case don't any longer run) on the EDEN desktop version of the EM instrument (cf. the Web EDEN interpreter, which readily supports porting of this kind). Such a project might eventually allow CS405 - which has always relied heavily on discussions of construals of the kind illustrated in this presentation - to be resurrected e.g. as a cMOOC. There is also much interesting thinking about distributed instruments for EM, and models of concurrent agency, that is still highly topical and could be beneficial in the collaborations we have in mind a project. At one time, we were building concurrent system simulations that ran on several connected workstations for example, and there are prospects of doing similar things over the web in due course. Prototyping these sorts of activities might be something to try out independently of the more traditional teaching activities under the auspices of UEF's Scifest and the Warwick International Gateway for Gifted Youth (IGGY).
+</p>
+<p>
+Steve Russ - one of the leading contributors to EM, especially where conceptual matters are concerned - is always eager to emphasise the need to bring EM thinking into connection with other research. Though I recognise the importance of making such links, my own tendency has been to get excited about the prospects of developing EM thinking and practice further. I also think that many problems of comprehension stem from the confusion that results from attempting to force two incompatible cultures together with a single context. (I understand the relationship between the two in terms of a change of viewpoint that enables 'the same' experience to be interpreted in two quite different ways - provided of course that the context is of the appropriate nature for this. So it makes perfect sense to perform one and the same interactions as a genuine experiment in one context and as a confirmatory demonstration of an experimental result in another - what we can't do coherently is entertain both interpretations at one and the same time.) That's why in this project I would prefer to stick with applications in which we're trying to follow EM principles through-and-through. 
+</p>
+<p>
+At the same time, as Steve proved decisively when he organised the <i>Thinking Through Computing</i> workshop at Warwick in 2007, there are lots of people interested in the same issues concerning the relationship between formal logic and everyday experience etc that EM sets out to address. I think we should plan to hold three such workshops under the auspices of our project, one each year and one at each venue, with the aim of exploring how making construals sits alongside other research that is sympathetic to the constructivist stance. WEB-EM could be a strand within this. This would serve the dual purpose of informing us and raising the profile of our project and help to meet the dissemination goals.
+</p>
+");
+
+comm14 is Slide("
+<b>XIV. Logistic issues and <i>Where next?</i></b>
+<p>
+There is very little time to put our proposal together now. For Ilkka at UEF, there is Easter and SciFest to contend with - and perhaps other proposals to be written also.
+</p>
+<p>
+Recruiting personnel who are qualified to assist with this project is a difficult issue. There is quite a significant diaspora of students and collaborators who've been engaged with EM in the past whom I'd like to bring together into some kind of virtual institution (Erasmus+ seems to envisage this in some contexts). Right now there are three students who attended CS405 this year who will be available for the IATL project if this goes ahead, and at least one, possibly two, of these might even be able to work for our project if we got funded for September. One of these, Joe Butler, is currently maintaining and developing JS-EDEN, and many of the features demonstrated in this presentation owe a debt to his dedication and skill. I'm not sure how much funding for people Erasmus+ allows - it seems as if the main emphasis is on a programme of activities and events, though I've not looked at this too carefully.  
+</p>
+<p>
+One role for the virtual EM institution might be to promote the 'independent' strand of construal making that may be hard to motivate. There are amongst EM alumnia and collaborators several people with particularly highly developed interests in the prospects for applying EM to fields such as: medicine, financial modelling, geometric modelling, robotics, music etc who might want to contribute or commission modelling studies suitable for WEB-EM. Trying to consolidate a community of such people would be a way to provide some kind of audience for a project that (in my experience!) will otherwise be in danger of looking only inwards. Perhaps some kind of consortium of people with ideas about how EM can be applied could be established and given a budget and a degree of autonomy to commission projects focused on making construals in a specific field.
+</p>
+<p>
+I don't know how realistic it is to get a proposal together from here. My track record for writing proposals is not a good one - possibly because I find what I'm doing informally here comes much more naturally than carefully weighing the impact of sentences judiciously crafted to meet the sponsor's goals. A good next step might be to go through this presentation and highlight the specific activities for which we'd like to get support. I think that in passing I've said quite a lot about things we could do within the UK, and hinted at one or two activities that could be done by Edumotiva and UEF. It would be helpful here to get an idea of how well my proposals fit in with ideas you have and initiatives that you can establish - bearing in mind that these would have to be negotiated and documented in time for the deadline (and probably a few days sooner knowing the way in which our University submission process works).
+</p>
+");
+
+slideList is [comm1, comm2, comm3, comm4, comm5, comm6, comm7, comm8, comm9, comm10, comm11, comm12, comm13, comm14];

@@ -147,11 +147,11 @@ Eden.plugins.ProjectList = function(context) {
 			.html(code_entry)
 			.dialog({
 				title: mtitle,
-				width: 450,
+				width: 310,
 				height: 400,
 				minHeight: 120,
 				minWidth: 230,
-				//position: ['right','bottom'],
+				position: ['right','bottom'],
 			});
 
 		me.instances.push(code_entry[0]);

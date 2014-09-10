@@ -20,6 +20,7 @@ See LICENSE.txt
 	<link rel="stylesheet" type="text/css" href="plugins/state-description-maintainer/state-description-maintainer.css" />
 	<link rel="stylesheet" type="text/css" href="plugins/symbol-lookup-table/symbol-lookup-table.css" />
 	<link rel="stylesheet" type="text/css" href="plugins/dependency-map/dependency-map.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/state-timeline/state-timeline.css" />
 	<link rel="stylesheet" type="text/css" href="plugins/input-dialog/interpreter.css" />
 	<link rel="stylesheet" type="text/css" href="plugins/adm/adm-input.css" />
 
@@ -33,10 +34,8 @@ See LICENSE.txt
 
 </head>
 <body>
-
 <div id="eden-logo"></div>
 
-<script src="temporary.js"></script>
 <script src="js/lib/jquery.color.js"></script>
 <script src="js/lib/beautify.js"></script>
 <script src="js/lib/jquery.hotkeys.js"></script>
@@ -49,6 +48,7 @@ See LICENSE.txt
 <script src="js/lib/codemirror/mode/markdown/markdown.js"></script>
 <script src="js/core/runtime.js"></script>
 <script src="js/dummyconsole.js"></script>
+<script src="js/arrayCompareFix.js"></script>
 <script src="js/core/maintainer.js"></script>
 <script src="js/core/translator.js"></script>
 <script src="js/core/eden.js"></script>
@@ -62,18 +62,18 @@ See LICENSE.txt
 <script src="plugins/canvas-html5/canvas.js"></script>
 <script src="plugins/symbol-viewer/symbol-viewer.js"></script>
 <script src="plugins/html-views/html-views.js"></script>
-<script src="plugins/adm/adm-input.js"></script>
 
+<script src="plugins/systemSymbols.js"></script>
 <script src="plugins/symbol-lookup-table/symbol-lookup-table.js"></script>
-<!--
-<script src="plugins/state-description-maintainer/state-description-maintainer.js"></script>
-<script src="plugins/dependency-map/dependency-map.js"></script>
+<script src="plugins/script-generator/script-generator.js"></script>
 <script src="plugins/dependency-map/springy/springy.js"></script>
 <script src="plugins/dependency-map/springy/springyui.js"></script>
+<script src="plugins/dependency-map/dependency-map.js"></script>
+<script src="plugins/state-timeline/state-timeline.js"></script>
+<!--
 -->
 
 <script type="text/javascript">
-
 //Load Joes Additions
 
 	JS_Eden_Initialise(function() {
@@ -85,14 +85,21 @@ See LICENSE.txt
 		eden.loadPlugin("CanvasHTML5");
 		eden.loadPlugin("SymbolViewer");
 		eden.loadPlugin("HTMLViews");
-		<!--eden.loadPlugin("SDM");
-		eden.loadPlugin("SLT");
-		// eden.loadPlugin("ADM");
- 		eden.createView("inputwindow","InputWindow");
 		eden.createView("projects","ProjectList");
-		<!--eden.createView("SDM","SDM");
+		eden.createView("default","CanvasHTML5");
+ 		eden.createView("inputwindow","InputWindow");
+		eden.loadPlugin("SLT");
+		eden.loadPlugin("SG");
+		eden.loadPlugin("DM");
+		eden.loadPlugin("ST");
+		//eden.createView("st1","ST");
 		//Force manual refresh of views menu.
 		eden.plugins.MenuBar.updateViewsMenu();
+		Eden.executeFileSSI("library/eden.jse");
+		Eden.executeFileSSI("plugins/canvas-html5/image.js-e");
+		Eden.executeFileSSI("http://jseden.dcs.warwick.ac.uk/master.jbnew/library/eden.jse");
+		Eden.executeFileSSI("http://jseden.dcs.warwick.ac.uk/master.jbnew/library/declarevar.js-e");
+		
 	});
 </script>
 

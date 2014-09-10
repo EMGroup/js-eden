@@ -1,0 +1,1384 @@
+Parsing input... [complete]JS-EdenPluginsViewsjs-eden J-version
+Canvas HTML5 [default]
+close
+
+JS-Eden Input Window [inputwindow]
+close
+SubmitPreviousNext
+Canvas HTML5 [jspe]
+close
+
+Using the construal
+
+One simple application of the construal involves testing whether users can name the randomly generated note highlighted in turquoise. The internal mechanism for selecting this note and resetting the Combobox selection to '?' is as follows:
+
+selnumt = int(random()*3);
+tselnum is 2*selnumt;
+
+selnumb = int(random()*3);
+bselnum is 2*selnumb;
+
+stavesel = int(random()*2);
+
+treblebassNote_value = "?";
+execute copy to input
+Executing the above set of redefinitions then displays a random note and allows the user to try to select its name via the drop-down menu.
+
+To refine this mechanism, we can wrap the above refinitions into a single procedure, removing the redundant redefinitions of tselnum and bselnum which were included above for readability:
+
+proc generaterandnote {
+	selnumt = int(random()*3);
+	selnumb = int(random()*3);
+	stavesel = int(random()*2);
+	treblebassNote_value = "?";
+}
+execute copy to input
+This procedure is in effect a family of definitions that can be invoked through many different kinds of agency.
+
+Plain HTML View [Dynamically_Created_Definitions]
+close
+keyA0 is keyVisual(1, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A0"));
+A0Sound = pianoSound(1);
+keyASharp0 is keyVisual(2, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#0"));
+ASharp0Sound = pianoSound(2);
+keyB0 is keyVisual(3, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B0"));
+B0Sound = pianoSound(3);
+keyC1 is keyVisual(4, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C1"));
+C1Sound = pianoSound(4);
+keyCSharp1 is keyVisual(5, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#1"));
+CSharp1Sound = pianoSound(5);
+keyD1 is keyVisual(6, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D1"));
+D1Sound = pianoSound(6);
+keyDSharp1 is keyVisual(7, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#1"));
+DSharp1Sound = pianoSound(7);
+keyE1 is keyVisual(8, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E1"));
+E1Sound = pianoSound(8);
+keyF1 is keyVisual(9, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F1"));
+F1Sound = pianoSound(9);
+keyFSharp1 is keyVisual(10, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#1"));
+FSharp1Sound = pianoSound(10);
+keyG1 is keyVisual(11, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G1"));
+G1Sound = pianoSound(11);
+keyGSharp1 is keyVisual(12, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#1"));
+GSharp1Sound = pianoSound(12);
+keyA1 is keyVisual(13, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A1"));
+A1Sound = pianoSound(13);
+keyASharp1 is keyVisual(14, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#1"));
+ASharp1Sound = pianoSound(14);
+keyB1 is keyVisual(15, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B1"));
+B1Sound = pianoSound(15);
+keyC2 is keyVisual(16, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C2"));
+C2Sound = pianoSound(16);
+keyCSharp2 is keyVisual(17, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#2"));
+CSharp2Sound = pianoSound(17);
+keyD2 is keyVisual(18, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D2"));
+D2Sound = pianoSound(18);
+keyDSharp2 is keyVisual(19, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#2"));
+DSharp2Sound = pianoSound(19);
+keyE2 is keyVisual(20, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E2"));
+E2Sound = pianoSound(20);
+keyF2 is keyVisual(21, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F2"));
+F2Sound = pianoSound(21);
+keyFSharp2 is keyVisual(22, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#2"));
+FSharp2Sound = pianoSound(22);
+keyG2 is keyVisual(23, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G2"));
+G2Sound = pianoSound(23);
+keyGSharp2 is keyVisual(24, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#2"));
+GSharp2Sound = pianoSound(24);
+keyA2 is keyVisual(25, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A2"));
+A2Sound = pianoSound(25);
+keyASharp2 is keyVisual(26, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#2"));
+ASharp2Sound = pianoSound(26);
+keyB2 is keyVisual(27, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B2"));
+B2Sound = pianoSound(27);
+keyC3 is keyVisual(28, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C3"));
+C3Sound = pianoSound(28);
+keyCSharp3 is keyVisual(29, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#3"));
+CSharp3Sound = pianoSound(29);
+keyD3 is keyVisual(30, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D3"));
+D3Sound = pianoSound(30);
+keyDSharp3 is keyVisual(31, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#3"));
+DSharp3Sound = pianoSound(31);
+keyE3 is keyVisual(32, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E3"));
+E3Sound = pianoSound(32);
+keyF3 is keyVisual(33, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F3"));
+F3Sound = pianoSound(33);
+keyFSharp3 is keyVisual(34, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#3"));
+FSharp3Sound = pianoSound(34);
+keyG3 is keyVisual(35, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G3"));
+G3Sound = pianoSound(35);
+keyGSharp3 is keyVisual(36, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#3"));
+GSharp3Sound = pianoSound(36);
+keyA3 is keyVisual(37, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A3"));
+A3Sound = pianoSound(37);
+keyASharp3 is keyVisual(38, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#3"));
+ASharp3Sound = pianoSound(38);
+keyB3 is keyVisual(39, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B3"));
+B3Sound = pianoSound(39);
+keyC4 is keyVisual(40, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C4"));
+C4Sound = pianoSound(40);
+keyCSharp4 is keyVisual(41, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#4"));
+CSharp4Sound = pianoSound(41);
+keyD4 is keyVisual(42, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D4"));
+D4Sound = pianoSound(42);
+keyDSharp4 is keyVisual(43, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#4"));
+DSharp4Sound = pianoSound(43);
+keyE4 is keyVisual(44, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E4"));
+E4Sound = pianoSound(44);
+keyF4 is keyVisual(45, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F4"));
+F4Sound = pianoSound(45);
+keyFSharp4 is keyVisual(46, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#4"));
+FSharp4Sound = pianoSound(46);
+keyG4 is keyVisual(47, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G4"));
+G4Sound = pianoSound(47);
+keyGSharp4 is keyVisual(48, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#4"));
+GSharp4Sound = pianoSound(48);
+keyA4 is keyVisual(49, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A4"));
+A4Sound = pianoSound(49);
+keyASharp4 is keyVisual(50, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#4"));
+ASharp4Sound = pianoSound(50);
+keyB4 is keyVisual(51, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B4"));
+B4Sound = pianoSound(51);
+keyC5 is keyVisual(52, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C5"));
+C5Sound = pianoSound(52);
+keyCSharp5 is keyVisual(53, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#5"));
+CSharp5Sound = pianoSound(53);
+keyD5 is keyVisual(54, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D5"));
+D5Sound = pianoSound(54);
+keyDSharp5 is keyVisual(55, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#5"));
+DSharp5Sound = pianoSound(55);
+keyE5 is keyVisual(56, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E5"));
+E5Sound = pianoSound(56);
+keyF5 is keyVisual(57, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F5"));
+F5Sound = pianoSound(57);
+keyFSharp5 is keyVisual(58, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#5"));
+FSharp5Sound = pianoSound(58);
+keyG5 is keyVisual(59, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G5"));
+G5Sound = pianoSound(59);
+keyGSharp5 is keyVisual(60, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#5"));
+GSharp5Sound = pianoSound(60);
+keyA5 is keyVisual(61, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A5"));
+A5Sound = pianoSound(61);
+keyASharp5 is keyVisual(62, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#5"));
+ASharp5Sound = pianoSound(62);
+keyB5 is keyVisual(63, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B5"));
+B5Sound = pianoSound(63);
+keyC6 is keyVisual(64, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C6"));
+C6Sound = pianoSound(64);
+keyCSharp6 is keyVisual(65, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#6"));
+CSharp6Sound = pianoSound(65);
+keyD6 is keyVisual(66, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D6"));
+D6Sound = pianoSound(66);
+keyDSharp6 is keyVisual(67, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#6"));
+DSharp6Sound = pianoSound(67);
+keyE6 is keyVisual(68, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E6"));
+E6Sound = pianoSound(68);
+keyF6 is keyVisual(69, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F6"));
+F6Sound = pianoSound(69);
+keyFSharp6 is keyVisual(70, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#6"));
+FSharp6Sound = pianoSound(70);
+keyG6 is keyVisual(71, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G6"));
+G6Sound = pianoSound(71);
+keyGSharp6 is keyVisual(72, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#6"));
+GSharp6Sound = pianoSound(72);
+keyA6 is keyVisual(73, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A6"));
+A6Sound = pianoSound(73);
+keyASharp6 is keyVisual(74, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#6"));
+ASharp6Sound = pianoSound(74);
+keyB6 is keyVisual(75, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B6"));
+B6Sound = pianoSound(75);
+keyC7 is keyVisual(76, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C7"));
+C7Sound = pianoSound(76);
+keyCSharp7 is keyVisual(77, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#7"));
+CSharp7Sound = pianoSound(77);
+keyD7 is keyVisual(78, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D7"));
+D7Sound = pianoSound(78);
+keyDSharp7 is keyVisual(79, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#7"));
+DSharp7Sound = pianoSound(79);
+keyE7 is keyVisual(80, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E7"));
+E7Sound = pianoSound(80);
+keyF7 is keyVisual(81, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F7"));
+F7Sound = pianoSound(81);
+keyFSharp7 is keyVisual(82, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#7"));
+FSharp7Sound = pianoSound(82);
+keyG7 is keyVisual(83, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G7"));
+G7Sound = pianoSound(83);
+keyGSharp7 is keyVisual(84, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#7"));
+GSharp7Sound = pianoSound(84);
+keyA7 is keyVisual(85, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A7"));
+A7Sound = pianoSound(85);
+keyASharp7 is keyVisual(86, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#7"));
+ASharp7Sound = pianoSound(86);
+keyB7 is keyVisual(87, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B7"));
+B7Sound = pianoSound(87);
+keyC8 is keyVisual(88, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C8"));
+C8Sound = pianoSound(88);
+keyboard is [keyA0, keyB0, keyC1, keyD1, keyE1, keyF1, keyG1, keyA1, keyB1, keyC2, keyD2, keyE2, keyF2, keyG2, keyA2, keyB2, keyC3, keyD3, keyE3, keyF3, keyG3, keyA3, keyB3, keyC4, keyD4, keyE4, keyF4, keyG4, keyA4, keyB4, keyC5, keyD5, keyE5, keyF5, keyG5, keyA5, keyB5, keyC6, keyD6, keyE6, keyF6, keyG6, keyA6, keyB6, keyC7, keyD7, keyE7, keyF7, keyG7, keyA7, keyB7, keyASharp0, keyCSharp1, keyDSharp1, keyFSharp1, keyGSharp1, keyASharp1, keyCSharp2, keyDSharp2, keyFSharp2, keyGSharp2, keyASharp2, keyCSharp3, keyDSharp3, keyFSharp3, keyGSharp3, keyASharp3, keyCSharp4, keyDSharp4, keyFSharp4, keyGSharp4, keyASharp4, keyCSharp5, keyDSharp5, keyFSharp5, keyGSharp5, keyASharp5, keyCSharp6, keyDSharp6, keyFSharp6, keyGSharp6, keyASharp6, keyCSharp7, keyDSharp7, keyFSharp7, keyGSharp7, keyASharp7, keyC8];
+pianoKeySounds is [A0Sound, ASharp0Sound, B0Sound, C1Sound, CSharp1Sound, D1Sound, DSharp1Sound, E1Sound, F1Sound, FSharp1Sound, G1Sound, GSharp1Sound, A1Sound, ASharp1Sound, B1Sound, C2Sound, CSharp2Sound, D2Sound, DSharp2Sound, E2Sound, F2Sound, FSharp2Sound, G2Sound, GSharp2Sound, A2Sound, ASharp2Sound, B2Sound, C3Sound, CSharp3Sound, D3Sound, DSharp3Sound, E3Sound, F3Sound, FSharp3Sound, G3Sound, GSharp3Sound, A3Sound, ASharp3Sound, B3Sound, C4Sound, CSharp4Sound, D4Sound, DSharp4Sound, E4Sound, F4Sound, FSharp4Sound, G4Sound, GSharp4Sound, A4Sound, ASharp4Sound, B4Sound, C5Sound, CSharp5Sound, D5Sound, DSharp5Sound, E5Sound, F5Sound, FSharp5Sound, G5Sound, GSharp5Sound, A5Sound, ASharp5Sound, B5Sound, C6Sound, CSharp6Sound, D6Sound, DSharp6Sound, E6Sound, F6Sound, FSharp6Sound, G6Sound, GSharp6Sound, A6Sound, ASharp6Sound, B6Sound, C7Sound, CSharp7Sound, D7Sound, DSharp7Sound, E7Sound, F7Sound, FSharp7Sound, G7Sound, GSharp7Sound, A7Sound, ASharp7Sound, B7Sound, C8Sound];
+Symbol List [view_0]
+close
+
+picture = Line(10, 130, 160, 130, black),Line(10, 120, 160, 120, grey),Line(10, 110, 160, 110, black),Line(10, 100, 160, 100, grey),Line(10, 90, 160, 90, black),Line(10, 70, 160, 70, black),Line(10, 60, 160, 60, grey),Line(10, 50, 160, 50, black),Line(10, 40, 160, 40, grey),Line(10, 30, 160, 30, black),Image(trebleClef, 9, 20, ...),Image(bassClef, 27, 95, ...),Circle(95, 70, 5, aqua, aqua),Circle(95, 80, 0, red, red),Combobox(treblebassNote, ?,E,F,B,A,D,G, 190, 83, 1),Line(10, 30, 10, 130, black),Rectangle(0, 200, 25, 145.8973924675144, undefined),Rectangle(25, 200, 25, 145.8973924675144, undefined),Rectangle(50, 200, 25, 145.8973924675144, undefined),Rectangle(75, 200, 25, 145.8973924675144, undefined),Rectangle(100, 200, 25, 145.8973924675144, undefined),Rectangle(125, 200, 25, 145.8973924675144, undefined),Rectangle(150, 200, 25, 145.8973924675144, undefined),Rectangle(175, 200, 25, 145.8973924675144, undefined),Rectangle(200, 200, 25, 145.8973924675144, undefined),Rectangle(225, 200, 25, 145.8973924675144, undefined),Rectangle(250, 200, 25, 145.8973924675144, undefined),Rectangle(275, 200, 25, 145.8973924675144, undefined),Rectangle(300, 200, 25, 145.8973924675144, undefined),Rectangle(325, 200, 25, 145.8973924675144, undefined),Rectangle(350, 200, 25, 145.8973924675144, undefined),Rectangle(375, 200, 25, 145.8973924675144, undefined),Rectangle(400, 200, 25, 145.8973924675144, undefined),Rectangle(425, 200, 25, 145.8973924675144, undefined),Rectangle(450, 200, 25, 145.8973924675144, undefined),Rectangle(475, 200, 25, 145.8973924675144, undefined),Rectangle(500, 200, 25, 145.8973924675144, undefined),Rectangle(525, 200, 25, 145.8973924675144, undefined),Rectangle(550, 200, 25, 145.8973924675144, undefined),Rectangle(575, 200, 25, 145.8973924675144, undefined),Rectangle(600, 200, 25, 145.8973924675144, undefined),Rectangle(625, 200, 25, 145.8973924675144, undefined),Rectangle(650, 200, 25, 145.8973924675144, undefined),Rectangle(675, 200, 25, 145.8973924675144, undefined),Rectangle(700, 200, 25, 145.8973924675144, undefined),Rectangle(725, 200, 25, 145.8973924675144, undefined),Rectangle(750, 200, 25, 145.8973924675144, undefined),Rectangle(775, 200, 25, 145.8973924675144, undefined),Rectangle(800, 200, 25, 145.8973924675144, undefined),Rectangle(825, 200, 25, 145.8973924675144, undefined),Rectangle(850, 200, 25, 145.8973924675144, undefined),Rectangle(875, 200, 25, 145.8973924675144, undefined),Rectangle(900, 200, 25, 145.8973924675144, undefined),Rectangle(925, 200, 25, 145.8973924675144, undefined),Rectangle(950, 200, 25, 145.8973924675144, undefined),Rectangle(975, 200, 25, 145.8973924675144, undefined),Rectangle(1000, 200, 25, 145.8973924675144, undefined),Rectangle(1025, 200, 25, 145.8973924675144, undefined),Rectangle(1050, 200, 25, 145.8973924675144, undefined),Rectangle(1075, 200, 25, 145.8973924675144, undefined),Rectangle(1100, 200, 25, 145.8973924675144, undefined),Rectangle(1125, 200, 25, 145.8973924675144, undefined),Rectangle(1150, 200, 25, 145.8973924675144, undefined),Rectangle(1175, 200, 25, 145.8973924675144, undefined),Rectangle(1200, 200, 25, 145.8973924675144, undefined),Rectangle(1225, 200, 25, 145.8973924675144, undefined),Rectangle(1250, 200, 25, 145.8973924675144, undefined),Rectangle(21.428571428571416, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(65, 200, 15, 108.57480369675491, undefined),Rectangle(95, 200, 15, 108.57480369675491, undefined),Rectangle(139.28571428571428, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(167.85714285714286, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(196.42857142857142, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(240, 200, 15, 108.57480369675491, undefined),Rectangle(270, 200, 15, 108.57480369675491, undefined),Rectangle(314.2857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(342.85714285714283, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(371.42857142857144, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(415, 200, 15, 108.57480369675491, undefined),Rectangle(445, 200, 15, 108.57480369675491, undefined),Rectangle(489.2857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(517.8571428571429, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(546.4285714285714, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(590, 200, 15, 108.57480369675491, undefined),Rectangle(620, 200, 15, 108.57480369675491, undefined),Rectangle(664.2857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(692.8571428571429, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(721.4285714285714, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(765, 200, 15, 108.57480369675491, undefined),Rectangle(795, 200, 15, 108.57480369675491, undefined),Rectangle(839.2857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(867.8571428571429, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(896.4285714285714, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(940, 200, 15, 108.57480369675491, undefined),Rectangle(970, 200, 15, 108.57480369675491, undefined),Rectangle(1014.2857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(1042.857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(1071.4285714285713, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(1115, 200, 15, 108.57480369675491, undefined),Rectangle(1145, 200, 15, 108.57480369675491, undefined),Rectangle(1189.2857142857142, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(1217.857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(1246.4285714285713, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(1275, 200, 25, 145.8973924675144, undefined)
+bassY = 90
+selnumt = 2
+selnumb = 2
+tbsel = Combobox(treblebassNote, ?,E,F,B,A,D,G, 190, 83, 1)
+treblebassNote_value = "?"
+selnote = Circle(95, 80, 0, red, red)
+tbNotevalue = "?"
+seltreblenote = false
+selbassnote = false
+selnoterad = 0
+pianoPositionX = 0
+pianoPositionY = 200
+naturalKeyWidth = 25
+naturalKeyLength = 145.8973924675144
+naturalHighlightColour = "aqua"
+keyboardToKey = 1,3,4,6,8,9,11,13,15,16,18,20,21,23,25,27,28,30,32,33,35,37,39,40,42,44,45,47,49,51,52,54,56,57,59,61,63,64,66,68,69,71,73,75,76,78,80,81,83,85,87,2,5,7,10,12,14,17,19,22,24,26,29,31,34,36,38,41,43,46,48,50,53,55,58,60,62,65,67,70,72,74,77,79,82,84,86,88
+keyboard = Rectangle(0, 200, 25, 145.8973924675144, undefined),Rectangle(25, 200, 25, 145.8973924675144, undefined),Rectangle(50, 200, 25, 145.8973924675144, undefined),Rectangle(75, 200, 25, 145.8973924675144, undefined),Rectangle(100, 200, 25, 145.8973924675144, undefined),Rectangle(125, 200, 25, 145.8973924675144, undefined),Rectangle(150, 200, 25, 145.8973924675144, undefined),Rectangle(175, 200, 25, 145.8973924675144, undefined),Rectangle(200, 200, 25, 145.8973924675144, undefined),Rectangle(225, 200, 25, 145.8973924675144, undefined),Rectangle(250, 200, 25, 145.8973924675144, undefined),Rectangle(275, 200, 25, 145.8973924675144, undefined),Rectangle(300, 200, 25, 145.8973924675144, undefined),Rectangle(325, 200, 25, 145.8973924675144, undefined),Rectangle(350, 200, 25, 145.8973924675144, undefined),Rectangle(375, 200, 25, 145.8973924675144, undefined),Rectangle(400, 200, 25, 145.8973924675144, undefined),Rectangle(425, 200, 25, 145.8973924675144, undefined),Rectangle(450, 200, 25, 145.8973924675144, undefined),Rectangle(475, 200, 25, 145.8973924675144, undefined),Rectangle(500, 200, 25, 145.8973924675144, undefined),Rectangle(525, 200, 25, 145.8973924675144, undefined),Rectangle(550, 200, 25, 145.8973924675144, undefined),Rectangle(575, 200, 25, 145.8973924675144, undefined),Rectangle(600, 200, 25, 145.8973924675144, undefined),Rectangle(625, 200, 25, 145.8973924675144, undefined),Rectangle(650, 200, 25, 145.8973924675144, undefined),Rectangle(675, 200, 25, 145.8973924675144, undefined),Rectangle(700, 200, 25, 145.8973924675144, undefined),Rectangle(725, 200, 25, 145.8973924675144, undefined),Rectangle(750, 200, 25, 145.8973924675144, undefined),Rectangle(775, 200, 25, 145.8973924675144, undefined),Rectangle(800, 200, 25, 145.8973924675144, undefined),Rectangle(825, 200, 25, 145.8973924675144, undefined),Rectangle(850, 200, 25, 145.8973924675144, undefined),Rectangle(875, 200, 25, 145.8973924675144, undefined),Rectangle(900, 200, 25, 145.8973924675144, undefined),Rectangle(925, 200, 25, 145.8973924675144, undefined),Rectangle(950, 200, 25, 145.8973924675144, undefined),Rectangle(975, 200, 25, 145.8973924675144, undefined),Rectangle(1000, 200, 25, 145.8973924675144, undefined),Rectangle(1025, 200, 25, 145.8973924675144, undefined),Rectangle(1050, 200, 25, 145.8973924675144, undefined),Rectangle(1075, 200, 25, 145.8973924675144, undefined),Rectangle(1100, 200, 25, 145.8973924675144, undefined),Rectangle(1125, 200, 25, 145.8973924675144, undefined),Rectangle(1150, 200, 25, 145.8973924675144, undefined),Rectangle(1175, 200, 25, 145.8973924675144, undefined),Rectangle(1200, 200, 25, 145.8973924675144, undefined),Rectangle(1225, 200, 25, 145.8973924675144, undefined),Rectangle(1250, 200, 25, 145.8973924675144, undefined),Rectangle(21.428571428571416, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(65, 200, 15, 108.57480369675491, undefined),Rectangle(95, 200, 15, 108.57480369675491, undefined),Rectangle(139.28571428571428, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(167.85714285714286, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(196.42857142857142, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(240, 200, 15, 108.57480369675491, undefined),Rectangle(270, 200, 15, 108.57480369675491, undefined),Rectangle(314.2857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(342.85714285714283, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(371.42857142857144, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(415, 200, 15, 108.57480369675491, undefined),Rectangle(445, 200, 15, 108.57480369675491, undefined),Rectangle(489.2857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(517.8571428571429, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(546.4285714285714, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(590, 200, 15, 108.57480369675491, undefined),Rectangle(620, 200, 15, 108.57480369675491, undefined),Rectangle(664.2857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(692.8571428571429, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(721.4285714285714, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(765, 200, 15, 108.57480369675491, undefined),Rectangle(795, 200, 15, 108.57480369675491, undefined),Rectangle(839.2857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(867.8571428571429, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(896.4285714285714, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(940, 200, 15, 108.57480369675491, undefined),Rectangle(970, 200, 15, 108.57480369675491, undefined),Rectangle(1014.2857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(1042.857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(1071.4285714285713, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(1115, 200, 15, 108.57480369675491, undefined),Rectangle(1145, 200, 15, 108.57480369675491, undefined),Rectangle(1189.2857142857142, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(1217.857142857143, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(1246.4285714285713, 200, 14.285714285714285, 108.57480369675491, undefined),Rectangle(1275, 200, 25, 145.8973924675144, undefined)
+keyC1 = Rectangle(50, 200, 25, 145.8973924675144, undefined)
+keyCSharp1 = Rectangle(65, 200, 15, 108.57480369675491, undefined)
+Script Generator [view_1]
+close
+## Auto-Generated Script of Model by JS-Eden J-version
+
+## Auto calculation is turned off to until the model has been fully loaded
+autocalc = 0;
+
+## Observable Assignments:
+
+picture2 = [];
+jspeleft = 11.111083984375;
+currentSlide = 5;
+buttonPrev_clicked = false;
+buttonNext_clicked = true;
+trebleX = 10;
+trebleY = 30;
+width = 10;
+bassX = 10;
+bassY = 90;
+noterad = 5;
+selnumt = 2;
+selnumb = 2;
+permkeys = [2, 3, 1];
+stavesel = 0;
+treblebassNote_value = "?";
+framenum = 3;
+generatedDefinitions = "<div>keyA0 is keyVisual(1, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A0"));</div>
+<div>A0Sound = pianoSound(1);</div>
+<div>keyASharp0 is keyVisual(2, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#0"));</div>
+<div>ASharp0Sound = pianoSound(2);</div>
+<div>keyB0 is keyVisual(3, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B0"));</div>
+<div>B0Sound = pianoSound(3);</div>
+<div>keyC1 is keyVisual(4, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C1"));</div>
+<div>C1Sound = pianoSound(4);</div>
+<div>keyCSharp1 is keyVisual(5, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#1"));</div>
+<div>CSharp1Sound = pianoSound(5);</div>
+<div>keyD1 is keyVisual(6, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D1"));</div>
+<div>D1Sound = pianoSound(6);</div>
+<div>keyDSharp1 is keyVisual(7, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#1"));</div>
+<div>DSharp1Sound = pianoSound(7);</div>
+<div>keyE1 is keyVisual(8, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E1"));</div>
+<div>E1Sound = pianoSound(8);</div>
+<div>keyF1 is keyVisual(9, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F1"));</div>
+<div>F1Sound = pianoSound(9);</div>
+<div>keyFSharp1 is keyVisual(10, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#1"));</div>
+<div>FSharp1Sound = pianoSound(10);</div>
+<div>keyG1 is keyVisual(11, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G1"));</div>
+<div>G1Sound = pianoSound(11);</div>
+<div>keyGSharp1 is keyVisual(12, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#1"));</div>
+<div>GSharp1Sound = pianoSound(12);</div>
+<div>keyA1 is keyVisual(13, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A1"));</div>
+<div>A1Sound = pianoSound(13);</div>
+<div>keyASharp1 is keyVisual(14, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#1"));</div>
+<div>ASharp1Sound = pianoSound(14);</div>
+<div>keyB1 is keyVisual(15, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B1"));</div>
+<div>B1Sound = pianoSound(15);</div>
+<div>keyC2 is keyVisual(16, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C2"));</div>
+<div>C2Sound = pianoSound(16);</div>
+<div>keyCSharp2 is keyVisual(17, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#2"));</div>
+<div>CSharp2Sound = pianoSound(17);</div>
+<div>keyD2 is keyVisual(18, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D2"));</div>
+<div>D2Sound = pianoSound(18);</div>
+<div>keyDSharp2 is keyVisual(19, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#2"));</div>
+<div>DSharp2Sound = pianoSound(19);</div>
+<div>keyE2 is keyVisual(20, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E2"));</div>
+<div>E2Sound = pianoSound(20);</div>
+<div>keyF2 is keyVisual(21, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F2"));</div>
+<div>F2Sound = pianoSound(21);</div>
+<div>keyFSharp2 is keyVisual(22, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#2"));</div>
+<div>FSharp2Sound = pianoSound(22);</div>
+<div>keyG2 is keyVisual(23, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G2"));</div>
+<div>G2Sound = pianoSound(23);</div>
+<div>keyGSharp2 is keyVisual(24, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#2"));</div>
+<div>GSharp2Sound = pianoSound(24);</div>
+<div>keyA2 is keyVisual(25, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A2"));</div>
+<div>A2Sound = pianoSound(25);</div>
+<div>keyASharp2 is keyVisual(26, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#2"));</div>
+<div>ASharp2Sound = pianoSound(26);</div>
+<div>keyB2 is keyVisual(27, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B2"));</div>
+<div>B2Sound = pianoSound(27);</div>
+<div>keyC3 is keyVisual(28, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C3"));</div>
+<div>C3Sound = pianoSound(28);</div>
+<div>keyCSharp3 is keyVisual(29, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#3"));</div>
+<div>CSharp3Sound = pianoSound(29);</div>
+<div>keyD3 is keyVisual(30, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D3"));</div>
+<div>D3Sound = pianoSound(30);</div>
+<div>keyDSharp3 is keyVisual(31, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#3"));</div>
+<div>DSharp3Sound = pianoSound(31);</div>
+<div>keyE3 is keyVisual(32, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E3"));</div>
+<div>E3Sound = pianoSound(32);</div>
+<div>keyF3 is keyVisual(33, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F3"));</div>
+<div>F3Sound = pianoSound(33);</div>
+<div>keyFSharp3 is keyVisual(34, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#3"));</div>
+<div>FSharp3Sound = pianoSound(34);</div>
+<div>keyG3 is keyVisual(35, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G3"));</div>
+<div>G3Sound = pianoSound(35);</div>
+<div>keyGSharp3 is keyVisual(36, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#3"));</div>
+<div>GSharp3Sound = pianoSound(36);</div>
+<div>keyA3 is keyVisual(37, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A3"));</div>
+<div>A3Sound = pianoSound(37);</div>
+<div>keyASharp3 is keyVisual(38, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#3"));</div>
+<div>ASharp3Sound = pianoSound(38);</div>
+<div>keyB3 is keyVisual(39, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B3"));</div>
+<div>B3Sound = pianoSound(39);</div>
+<div>keyC4 is keyVisual(40, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C4"));</div>
+<div>C4Sound = pianoSound(40);</div>
+<div>keyCSharp4 is keyVisual(41, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#4"));</div>
+<div>CSharp4Sound = pianoSound(41);</div>
+<div>keyD4 is keyVisual(42, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D4"));</div>
+<div>D4Sound = pianoSound(42);</div>
+<div>keyDSharp4 is keyVisual(43, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#4"));</div>
+<div>DSharp4Sound = pianoSound(43);</div>
+<div>keyE4 is keyVisual(44, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E4"));</div>
+<div>E4Sound = pianoSound(44);</div>
+<div>keyF4 is keyVisual(45, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F4"));</div>
+<div>F4Sound = pianoSound(45);</div>
+<div>keyFSharp4 is keyVisual(46, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#4"));</div>
+<div>FSharp4Sound = pianoSound(46);</div>
+<div>keyG4 is keyVisual(47, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G4"));</div>
+<div>G4Sound = pianoSound(47);</div>
+<div>keyGSharp4 is keyVisual(48, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#4"));</div>
+<div>GSharp4Sound = pianoSound(48);</div>
+<div>keyA4 is keyVisual(49, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A4"));</div>
+<div>A4Sound = pianoSound(49);</div>
+<div>keyASharp4 is keyVisual(50, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#4"));</div>
+<div>ASharp4Sound = pianoSound(50);</div>
+<div>keyB4 is keyVisual(51, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B4"));</div>
+<div>B4Sound = pianoSound(51);</div>
+<div>keyC5 is keyVisual(52, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C5"));</div>
+<div>C5Sound = pianoSound(52);</div>
+<div>keyCSharp5 is keyVisual(53, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#5"));</div>
+<div>CSharp5Sound = pianoSound(53);</div>
+<div>keyD5 is keyVisual(54, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D5"));</div>
+<div>D5Sound = pianoSound(54);</div>
+<div>keyDSharp5 is keyVisual(55, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#5"));</div>
+<div>DSharp5Sound = pianoSound(55);</div>
+<div>keyE5 is keyVisual(56, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E5"));</div>
+<div>E5Sound = pianoSound(56);</div>
+<div>keyF5 is keyVisual(57, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F5"));</div>
+<div>F5Sound = pianoSound(57);</div>
+<div>keyFSharp5 is keyVisual(58, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#5"));</div>
+<div>FSharp5Sound = pianoSound(58);</div>
+<div>keyG5 is keyVisual(59, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G5"));</div>
+<div>G5Sound = pianoSound(59);</div>
+<div>keyGSharp5 is keyVisual(60, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#5"));</div>
+<div>GSharp5Sound = pianoSound(60);</div>
+<div>keyA5 is keyVisual(61, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A5"));</div>
+<div>A5Sound = pianoSound(61);</div>
+<div>keyASharp5 is keyVisual(62, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#5"));</div>
+<div>ASharp5Sound = pianoSound(62);</div>
+<div>keyB5 is keyVisual(63, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B5"));</div>
+<div>B5Sound = pianoSound(63);</div>
+<div>keyC6 is keyVisual(64, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C6"));</div>
+<div>C6Sound = pianoSound(64);</div>
+<div>keyCSharp6 is keyVisual(65, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#6"));</div>
+<div>CSharp6Sound = pianoSound(65);</div>
+<div>keyD6 is keyVisual(66, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D6"));</div>
+<div>D6Sound = pianoSound(66);</div>
+<div>keyDSharp6 is keyVisual(67, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#6"));</div>
+<div>DSharp6Sound = pianoSound(67);</div>
+<div>keyE6 is keyVisual(68, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E6"));</div>
+<div>E6Sound = pianoSound(68);</div>
+<div>keyF6 is keyVisual(69, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F6"));</div>
+<div>F6Sound = pianoSound(69);</div>
+<div>keyFSharp6 is keyVisual(70, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#6"));</div>
+<div>FSharp6Sound = pianoSound(70);</div>
+<div>keyG6 is keyVisual(71, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G6"));</div>
+<div>G6Sound = pianoSound(71);</div>
+<div>keyGSharp6 is keyVisual(72, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#6"));</div>
+<div>GSharp6Sound = pianoSound(72);</div>
+<div>keyA6 is keyVisual(73, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A6"));</div>
+<div>A6Sound = pianoSound(73);</div>
+<div>keyASharp6 is keyVisual(74, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#6"));</div>
+<div>ASharp6Sound = pianoSound(74);</div>
+<div>keyB6 is keyVisual(75, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B6"));</div>
+<div>B6Sound = pianoSound(75);</div>
+<div>keyC7 is keyVisual(76, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C7"));</div>
+<div>C7Sound = pianoSound(76);</div>
+<div>keyCSharp7 is keyVisual(77, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#7"));</div>
+<div>CSharp7Sound = pianoSound(77);</div>
+<div>keyD7 is keyVisual(78, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D7"));</div>
+<div>D7Sound = pianoSound(78);</div>
+<div>keyDSharp7 is keyVisual(79, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#7"));</div>
+<div>DSharp7Sound = pianoSound(79);</div>
+<div>keyE7 is keyVisual(80, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E7"));</div>
+<div>E7Sound = pianoSound(80);</div>
+<div>keyF7 is keyVisual(81, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F7"));</div>
+<div>F7Sound = pianoSound(81);</div>
+<div>keyFSharp7 is keyVisual(82, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#7"));</div>
+<div>FSharp7Sound = pianoSound(82);</div>
+<div>keyG7 is keyVisual(83, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G7"));</div>
+<div>G7Sound = pianoSound(83);</div>
+<div>keyGSharp7 is keyVisual(84, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#7"));</div>
+<div>GSharp7Sound = pianoSound(84);</div>
+<div>keyA7 is keyVisual(85, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A7"));</div>
+<div>A7Sound = pianoSound(85);</div>
+<div>keyASharp7 is keyVisual(86, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#7"));</div>
+<div>ASharp7Sound = pianoSound(86);</div>
+<div>keyB7 is keyVisual(87, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B7"));</div>
+<div>B7Sound = pianoSound(87);</div>
+<div>keyC8 is keyVisual(88, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C8"));</div>
+<div>C8Sound = pianoSound(88);</div>
+<div>keyboard is [keyA0, keyB0, keyC1, keyD1, keyE1, keyF1, keyG1, keyA1, keyB1, keyC2, keyD2, keyE2, keyF2, keyG2, keyA2, keyB2, keyC3, keyD3, keyE3, keyF3, keyG3, keyA3, keyB3, keyC4, keyD4, keyE4, keyF4, keyG4, keyA4, keyB4, keyC5, keyD5, keyE5, keyF5, keyG5, keyA5, keyB5, keyC6, keyD6, keyE6, keyF6, keyG6, keyA6, keyB6, keyC7, keyD7, keyE7, keyF7, keyG7, keyA7, keyB7, keyASharp0, keyCSharp1, keyDSharp1, keyFSharp1, keyGSharp1, keyASharp1, keyCSharp2, keyDSharp2, keyFSharp2, keyGSharp2, keyASharp2, keyCSharp3, keyDSharp3, keyFSharp3, keyGSharp3, keyASharp3, keyCSharp4, keyDSharp4, keyFSharp4, keyGSharp4, keyASharp4, keyCSharp5, keyDSharp5, keyFSharp5, keyGSharp5, keyASharp5, keyCSharp6, keyDSharp6, keyFSharp6, keyGSharp6, keyASharp6, keyCSharp7, keyDSharp7, keyFSharp7, keyGSharp7, keyASharp7, keyC8];</div>
+<div>pianoKeySounds is [A0Sound, ASharp0Sound, B0Sound, C1Sound, CSharp1Sound, D1Sound, DSharp1Sound, E1Sound, F1Sound, FSharp1Sound, G1Sound, GSharp1Sound, A1Sound, ASharp1Sound, B1Sound, C2Sound, CSharp2Sound, D2Sound, DSharp2Sound, E2Sound, F2Sound, FSharp2Sound, G2Sound, GSharp2Sound, A2Sound, ASharp2Sound, B2Sound, C3Sound, CSharp3Sound, D3Sound, DSharp3Sound, E3Sound, F3Sound, FSharp3Sound, G3Sound, GSharp3Sound, A3Sound, ASharp3Sound, B3Sound, C4Sound, CSharp4Sound, D4Sound, DSharp4Sound, E4Sound, F4Sound, FSharp4Sound, G4Sound, GSharp4Sound, A4Sound, ASharp4Sound, B4Sound, C5Sound, CSharp5Sound, D5Sound, DSharp5Sound, E5Sound, F5Sound, FSharp5Sound, G5Sound, GSharp5Sound, A5Sound, ASharp5Sound, B5Sound, C6Sound, CSharp6Sound, D6Sound, DSharp6Sound, E6Sound, F6Sound, FSharp6Sound, G6Sound, GSharp6Sound, A6Sound, ASharp6Sound, B6Sound, C7Sound, CSharp7Sound, D7Sound, DSharp7Sound, E7Sound, F7Sound, FSharp7Sound, G7Sound, GSharp7Sound, A7Sound, ASharp7Sound, B7Sound, C8Sound];</div>
+";
+pianoPositionX = 0;
+pianoPositionY = 200;
+naturalKeyWidth = 25;
+naturalHighlightColour = "aqua";
+sharpHighlightColour = "teal";
+keyHighlight = function () { var args = new Symbol().assign(Array.prototype.slice.call(arguments));   if (o_inList.value().call(this,args.get(0).value(),args.get(1).value())) { if (o_substr.value().call(this,args.get(1).value(),2,2) == "#") { return o_sharpHighlightColour.value(); } else { return o_naturalHighlightColour.value(); } } else { return undefined; }};
+keyboardToKey = [1, 3, 4, 6, 8, 9, 11, 13, 15, 16, 18, 20, 21, 23, 25, 27, 28, 30, 32, 33, 35, 37, 39, 40, 42, 44, 45, 47, 49, 51, 52, 54, 56, 57, 59, 61, 63, 64, 66, 68, 69, 71, 73, 75, 76, 78, 80, 81, 83, 85, 87, 2, 5, 7, 10, 12, 14, 17, 19, 22, 24, 26, 29, 31, 34, 36, 38, 41, 43, 46, 48, 50, 53, 55, 58, 60, 62, 65, 67, 70, 72, 74, 77, 79, 82, 84, 86, 88];
+trebleLines = ["F5", "D5", "B4", "G4", "E4"];
+bassLines = ["A3", "F3", "D3", "B2", "G2"];
+A0Sound = [object HTMLAudioElement];
+ASharp0Sound = [object HTMLAudioElement];
+B0Sound = [object HTMLAudioElement];
+C1Sound = [object HTMLAudioElement];
+CSharp1Sound = [object HTMLAudioElement];
+D1Sound = [object HTMLAudioElement];
+DSharp1Sound = [object HTMLAudioElement];
+E1Sound = [object HTMLAudioElement];
+F1Sound = [object HTMLAudioElement];
+FSharp1Sound = [object HTMLAudioElement];
+G1Sound = [object HTMLAudioElement];
+GSharp1Sound = [object HTMLAudioElement];
+A1Sound = [object HTMLAudioElement];
+ASharp1Sound = [object HTMLAudioElement];
+B1Sound = [object HTMLAudioElement];
+C2Sound = [object HTMLAudioElement];
+CSharp2Sound = [object HTMLAudioElement];
+D2Sound = [object HTMLAudioElement];
+DSharp2Sound = [object HTMLAudioElement];
+E2Sound = [object HTMLAudioElement];
+F2Sound = [object HTMLAudioElement];
+FSharp2Sound = [object HTMLAudioElement];
+G2Sound = [object HTMLAudioElement];
+GSharp2Sound = [object HTMLAudioElement];
+A2Sound = [object HTMLAudioElement];
+ASharp2Sound = [object HTMLAudioElement];
+B2Sound = [object HTMLAudioElement];
+C3Sound = [object HTMLAudioElement];
+CSharp3Sound = [object HTMLAudioElement];
+D3Sound = [object HTMLAudioElement];
+DSharp3Sound = [object HTMLAudioElement];
+E3Sound = [object HTMLAudioElement];
+F3Sound = [object HTMLAudioElement];
+FSharp3Sound = [object HTMLAudioElement];
+G3Sound = [object HTMLAudioElement];
+GSharp3Sound = [object HTMLAudioElement];
+A3Sound = [object HTMLAudioElement];
+ASharp3Sound = [object HTMLAudioElement];
+B3Sound = [object HTMLAudioElement];
+C4Sound = [object HTMLAudioElement];
+CSharp4Sound = [object HTMLAudioElement];
+D4Sound = [object HTMLAudioElement];
+DSharp4Sound = [object HTMLAudioElement];
+E4Sound = [object HTMLAudioElement];
+F4Sound = [object HTMLAudioElement];
+FSharp4Sound = [object HTMLAudioElement];
+G4Sound = [object HTMLAudioElement];
+GSharp4Sound = [object HTMLAudioElement];
+A4Sound = [object HTMLAudioElement];
+ASharp4Sound = [object HTMLAudioElement];
+B4Sound = [object HTMLAudioElement];
+C5Sound = [object HTMLAudioElement];
+CSharp5Sound = [object HTMLAudioElement];
+D5Sound = [object HTMLAudioElement];
+DSharp5Sound = [object HTMLAudioElement];
+E5Sound = [object HTMLAudioElement];
+F5Sound = [object HTMLAudioElement];
+FSharp5Sound = [object HTMLAudioElement];
+G5Sound = [object HTMLAudioElement];
+GSharp5Sound = [object HTMLAudioElement];
+A5Sound = [object HTMLAudioElement];
+ASharp5Sound = [object HTMLAudioElement];
+B5Sound = [object HTMLAudioElement];
+C6Sound = [object HTMLAudioElement];
+CSharp6Sound = [object HTMLAudioElement];
+D6Sound = [object HTMLAudioElement];
+DSharp6Sound = [object HTMLAudioElement];
+E6Sound = [object HTMLAudioElement];
+F6Sound = [object HTMLAudioElement];
+FSharp6Sound = [object HTMLAudioElement];
+G6Sound = [object HTMLAudioElement];
+GSharp6Sound = [object HTMLAudioElement];
+A6Sound = [object HTMLAudioElement];
+ASharp6Sound = [object HTMLAudioElement];
+B6Sound = [object HTMLAudioElement];
+C7Sound = [object HTMLAudioElement];
+CSharp7Sound = [object HTMLAudioElement];
+D7Sound = [object HTMLAudioElement];
+DSharp7Sound = [object HTMLAudioElement];
+E7Sound = [object HTMLAudioElement];
+F7Sound = [object HTMLAudioElement];
+FSharp7Sound = [object HTMLAudioElement];
+G7Sound = [object HTMLAudioElement];
+GSharp7Sound = [object HTMLAudioElement];
+A7Sound = [object HTMLAudioElement];
+ASharp7Sound = [object HTMLAudioElement];
+B7Sound = [object HTMLAudioElement];
+C8Sound = [object HTMLAudioElement];
+
+## Observable Definitions:
+
+buttonPrevEnabled is (currentSlide <= 1) ? false : true;
+buttonNextEnabled is (currentSlide >= slideList#) ? false : true;
+buttonPrev is SlideButton("buttonPrev","Previous Slide", jspeleft, 
+_view_jspe_height-70, buttonPrevEnabled);
+buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 150, 
+_view_jspe_height-70, buttonNextEnabled);
+slideList is [s1, s2, s2b, s3, s4, s5, s6];
+slides is [buttonPrev, buttonNext, slideNumber, slideList[currentSlide]];
+s1 is Slide("<h3>A construal for reading music on a piano keyboard</h3><p>This presentation describes the development of a construal intended to assist in teaching and learning basic musical concepts.
+This is work-in-progress to which there are several contributors:
+<ul>
+<li>Megan Beynon, who conceived the construal as a way of teaching piano pupils how to read music from the treble and bass staves.</li>
+<br>
+<li>Elizabeth Hudnott, who developed the construal of the keyboard and explored its integration with the construal of the staves
+from the critical perspective of an expert developer with limited musical knowledge.</li>
+<br>
+<li>Meurig Beynon, who initiated the development of the construal with guidance from Megan.
+</li>
+</ul>
+</p>
+");
+s2 is Slide("<h3>Loading the construal</h3><p>To load the construal:
+<ul>
+<li>Invoke the JS-EDEN interpreter at the link: <b>http://jseden.dcs.warwick.ac.uk/master/</b></li>
+<br>
+<li>Use a text editor to open the files: <b>musicapp1.js-e</b> and <b>piano.js-e</b></li>
+<br>
+<li>Cut-and-paste the content of the file <b>musicapp1.js-e</b> into the Input Window and press the Submit button.
+</li>
+<br>
+<li>Cut-and-paste the first ten lines of the file <b>piano.js-e</b> and enter this via the Input Window similarly.</li>
+<br>
+<li>Cut-and-paste the entire contents of the file <b>piano.js-e</b> and enter this via the Input Window similarly.</li>
+</ul>
+The image of the keyboard is initially placed directly on top of the stave, and has to be moved downwards: 
+You can redefine the position of the keyboard by making the new definition:
+<jseden>pianoPositionY = 200;</jseden>
+<p>
+Note that a larger value for its Y coordinate moves an object <i>down</i> the screen.
+</p>
+</p>
+");
+s2b is Slide("<h3>Basic features of the construal</h3><p>
+The construal - as depicted on the HTML5 Canvas panel - has two components: a display of the treble and bass staves, and an associated keyboard.
+The lines of the staves are highlighted in such a way that the top, middle and botton lines of each stave are black and other lines are grey.
+The notes that correspond to the lines displayed in black play an important role in the construal.
+The note on the stave highlighted in turqouise has been generated by selecting one of the black stave lines at random.
+The corresponding key on the keyboard is highlighted in turquoise. 
+</p>
+<p>
+To the right of the staves there is a 'Combobox' widget that allows the 'user' of the construal to select a note name from a drop down menu.
+The six options available correspond one-to-one to notes on the six black stave lines.
+When a selection is made, the corresponding note is displayed in red.
+</p>
+<p>
+The depiction of the treble and bass staves is non-standard: the distance between the treble and bass staves is contrived so that the correspondence between lines and the keyboard is
+easier to understand.
+You can change the distance between the staves by giving different values to the observable bassY:
+<jseden>bassY=90;</jseden>
+</p>
+<p>
+For this purpose, you select <b>copy to input</b>, then edit and submit the definition in the Input Window.
+Note that there is a missing dependency: moving the bass stave does not move the bass clef.
+</p>
+");
+s3 is Slide("<h3>More about the construal</h3><p>
+The construal comprises a family of <b>observables</b> subject to certain <b>dependencies</b>
+that are reconfigurable both directly through the agency of the maker and indirectly through other agencies.
+(For instance, in this particular construal, the observables that make up the piano keyboard have been generated dynamically and are displayed
+in an <b>HTML View</b> panel. Each key on the keyboard is a rectangle defined by supplying different parameters to the function <code>keyVisual()</code>.)</p>
+<p>
+To inspect a sample of the observables in the model, you can instantiate a 'Symbol List' from the <b>Views</b> drop down
+menu, and type a regular expression (RE) in to the search box at the top of the <b>Symbol List</b> panel to select a subset of observables.
+Alternatively, you can display a specific family of observables by executing a showObservables command with a given RE as its argument:
+<jseden>showObservables(\"bassY|keyboard|keyC.*1|pianoPosi|nat|picture$|sel|tbNo|treblebassNote_val|tbsel\");</jseden>
+</p>
+<p>
+In the Symbol List, observables that have explicit values are
+displayed in black, whilst whose values are defined by dependency are displayed in green.
+You can inspect the definitions of observables displayed in green using mouseover.
+To explore the construal further, you can redefine observables freely by entering new definitions for them via the Input Window.
+For instance, you can see how the size of the keyboard is determined by the observable <b>naturalKeyWidth</b>, upon which the observable
+<b>naturalKeyLength</b> depends:
+<jseden>naturalKeyWidth = 15;</jseden>
+</p>
+");
+s4 is Slide("<h3>Modifying the construal</h3><p>
+As a simple exercise in the modifying the construal, we can introduce the 'missing dependency' between the position of the bass clef and the bass stave.
+For this purpose, we can create a <b>Symbol Lookup Table</b> view, and enter the RE 'bass' into the search box at the top of it.
+This gives comprehensive details of the current definitions and values of observables whose names have the form 'bass...'.
+</p>
+<p>
+By inspection, we find the definition of the observable bassClef, viz:
+<jseden>bassClef is Image(\"bassClef\", 27, 95, 28, 33,\"http://www.dcs.warwick.ac.uk/~wmb/bass_clef.png\");</jseden>
+</p>
+<p>
+By refining the search in the <b>Symbol Lookup Table</b> to display the definition of the Image() function, it
+becomes clear that the y-coordinate of the observable <b>bassClef</b> is explicitly defined above to be 95.
+To remedy this, we can introduce an alternative definition to link the y-coordinate of the bass clef to the observable <b>bassY</b>:
+<jseden>bassClef is Image(\"bassClef\", 27, bassY + 5, 28, 33,\"http://www.dcs.warwick.ac.uk/~wmb/bass_clef.png\");</jseden>
+</p>
+");
+s5 is Slide("<h3>Using the construal</h3><p>
+One simple application of the construal involves testing whether users can name the randomly generated note highlighted in turquoise.
+The internal mechanism for selecting this note and resetting the Combobox selection to '?' is as follows:
+<jseden>
+selnumt = int(random()*3);
+tselnum is 2*selnumt;
+
+selnumb = int(random()*3);
+bselnum is 2*selnumb;
+
+stavesel = int(random()*2);
+
+treblebassNote_value = \"?\";</jseden>
+</p>
+<p>
+Executing the above set of redefinitions then displays a random note and allows the user to try to select its name via the drop-down menu.
+</p>
+<p>
+To refine this mechanism, we can wrap the above refinitions into a single procedure, removing the redundant redefinitions of <b>tselnum</b> and <b>bselnum</b>
+which were included above for readability:
+<jseden>
+proc generaterandnote {
+	selnumt = int(random()*3);
+	selnumb = int(random()*3);
+	stavesel = int(random()*2);
+	treblebassNote_value = \"?\";
+}
+</jseden>
+</p>
+<p>
+This procedure is in effect a family of definitions that can be invoked through many different kinds of agency.
+</p>
+");
+s6 is Slide("<h3>Illustrating modes of agency</h3><p>
+The most direct way to generat a new random note is to invoke the <b>generaterandnote</b> procedure directly:
+<jseden>generaterandnote();</jseden>
+</p>
+<p>
+An alternative way is to trigger the procedure from a mouseclick to the right of the generated note in the stave region:
+<jseden>
+proc generaterandnote: mousePressed {
+   if (mousePressed && (mouseX >= trebleX + 55) && (mouseX <= trebleX + 150) && (mouseY >= trebleY) && (mouseY <= bassY + width*4)) {
+	selnumt = int(random()*3);
+	selnumb = int(random()*3);
+	stavesel = int(random()*2);
+	treblebassNote_value = \"?\";
+   }
+}
+</jseden>
+</p>
+<!--
+CRASHES BROWSER
+<p>
+As a further refinement, we can arrange for a new note to be generated when the user has correctly identified the note.
+The observable <b>tbok</b> is defined in such a way as to capture this condition.
+<jseden>
+proc generaterandnote: mousePressed, treblebassNote_value {
+   if (tbok || (mousePressed && (mouseX >= trebleX + 55) && (mouseX <= trebleX + 150) && (mouseY >= trebleY) && (mouseY <= bassY + width*4))) {
+	selnumt = int(random()*3);
+	selnumb = int(random()*3);
+	stavesel = int(random()*2);
+	treblebassNote_value = \"?\";
+   }
+}
+</jseden>
+-->  
+</p>
+");
+trebleF is Line(trebleX, trebleY, trebleX+150, trebleY, "black");
+trebleD is Line(trebleX, trebleY+width, trebleX+150, trebleY+width, "grey");
+trebleB is Line(trebleX, trebleY+width*2, trebleX+150, trebleY+width*2, "black");
+trebleG is Line(trebleX, trebleY+width*3, trebleX+150, trebleY+width*3, "grey");
+trebleE is Line(trebleX, trebleY+width*4, trebleX+150, trebleY+width*4, "black");
+treble is [trebleE,trebleG,trebleB,trebleD,trebleF];
+bassA is Line(bassX, bassY, bassX+150, bassY, "black");
+bassF is Line(bassX, bassY+width, bassX+150, bassY+width, "grey");
+bassD is Line(bassX, bassY+width*2, bassX+150, bassY+width*2, "black");
+bassB is Line(bassX, bassY+width*3, bassX+150, bassY+width*3, "grey");
+bassG is Line(bassX, bassY+width*4, bassX+150, bassY+width*4, "black");
+bass is [bassG,bassB,bassD,bassF,bassA];
+trebleClef is Image("trebleClef", 9, 20, 64, 68,"http://www.dcs.warwick.ac.uk/~wmb/Treble_Clef_Pin.PNG");
+bassClef is Image("bassClef", 27, 95, 28, 33,"http://www.dcs.warwick.ac.uk/~wmb/bass_clef.png");
+bselnum is 2*selnumb;
+bnote is Circle(bassX+85, bassY+width*bselnum, noterad, "aqua", "aqua");
+tselnum is 2*selnumt;
+tnote is Circle(trebleX+85, trebleY+width*tselnum, noterad, "aqua", "aqua");
+tsel is Combobox("trebleNote", topts, trebleX+180, trebleY+width*1.8, true);
+bsel is Combobox("bassNote", bopts, bassX+180, bassY+width*1.8, true);
+intselbnote is chartoint(bassNote_value);
+intseltnote is chartoint(trebleNote_value);
+tok is tnotemap(trebleNote_value)==tselnum;
+bok is bnotemap(bassNote_value)==bselnum;
+tkeys is ["B", "E", "F"];
+tkeyssel is [tkeys[permkeys[1]], tkeys[permkeys[2]], tkeys[permkeys[3]]];
+bkeys is ["G", "A", "D"];
+bkeyssel is [bkeys[permkeys[1]], bkeys[permkeys[2]], bkeys[permkeys[3]]];
+topts is ["?"] // tkeyssel;
+bopts is ["?"] // bkeyssel;
+leftline is Line(trebleX, trebleY, bassX, bassY+width*4, "black");
+tbopts is ["?"] // tkeyssel // bkeyssel;
+tbsel is Combobox("treblebassNote", tbopts, trebleX+180, trebleY+width*5.3, true);
+tbnote is (stavesel==0) ? tnote : bnote;
+tbok is (stavesel == 0) ? tnotemap(treblebassNote_value)==tselnum : bnotemap(treblebassNote_value)==bselnum;
+selnote is (seltreblenote) ? Circle(trebleX+85, trebleY+width*tnotemap(tbNotevalue), selnoterad, "red", "red") : Circle(bassX+85, bassY+width*bnotemap(tbNotevalue), selnoterad, "red", "red");
+tbNotevalue is treblebassNote_value;
+seltreblenote is (tbNotevalue == "F") || (tbNotevalue == "B") || (tbNotevalue == "E");
+selbassnote is (tbNotevalue == "G") || (tbNotevalue == "A") || (tbNotevalue == "D");
+selnoterad is (tbNotevalue == "?") ? 0 : noterad;
+numberFrame is Rectangle(trebleX+125, trebleY+width*framenum, width*2, width*2, "green");
+naturalKeyLength is (5 + 3/8) / (0.864 * 1.066) * naturalKeyWidth;
+sharpKeyWidth is 20 / 35 * naturalKeyWidth;
+sharpKeyLength is 4 / (5 + 3/8) * naturalKeyLength;
+highlightedKeys is [lineToNoteName(bselnum, tselnum, stavesel)];
+keyboard is [keyA0, keyB0, keyC1, keyD1, keyE1, keyF1, keyG1, keyA1, keyB1, keyC2, keyD2, keyE2, keyF2, keyG2, keyA2, keyB2, keyC3, keyD3, keyE3, keyF3, keyG3, keyA3, keyB3, keyC4, keyD4, keyE4, keyF4, keyG4, keyA4, keyB4, keyC5, keyD5, keyE5, keyF5, keyG5, keyA5, keyB5, keyC6, keyD6, keyE6, keyF6, keyG6, keyA6, keyB6, keyC7, keyD7, keyE7, keyF7, keyG7, keyA7, keyB7, keyASharp0, keyCSharp1, keyDSharp1, keyFSharp1, keyGSharp1, keyASharp1, keyCSharp2, keyDSharp2, keyFSharp2, keyGSharp2, keyASharp2, keyCSharp3, keyDSharp3, keyFSharp3, keyGSharp3, keyASharp3, keyCSharp4, keyDSharp4, keyFSharp4, keyGSharp4, keyASharp4, keyCSharp5, keyDSharp5, keyFSharp5, keyGSharp5, keyASharp5, keyCSharp6, keyDSharp6, keyFSharp6, keyGSharp6, keyASharp6, keyCSharp7, keyDSharp7, keyFSharp7, keyGSharp7, keyASharp7, keyC8];
+pianoKeySounds is [A0Sound, ASharp0Sound, B0Sound, C1Sound, CSharp1Sound, D1Sound, DSharp1Sound, E1Sound, F1Sound, FSharp1Sound, G1Sound, GSharp1Sound, A1Sound, ASharp1Sound, B1Sound, C2Sound, CSharp2Sound, D2Sound, DSharp2Sound, E2Sound, F2Sound, FSharp2Sound, G2Sound, GSharp2Sound, A2Sound, ASharp2Sound, B2Sound, C3Sound, CSharp3Sound, D3Sound, DSharp3Sound, E3Sound, F3Sound, FSharp3Sound, G3Sound, GSharp3Sound, A3Sound, ASharp3Sound, B3Sound, C4Sound, CSharp4Sound, D4Sound, DSharp4Sound, E4Sound, F4Sound, FSharp4Sound, G4Sound, GSharp4Sound, A4Sound, ASharp4Sound, B4Sound, C5Sound, CSharp5Sound, D5Sound, DSharp5Sound, E5Sound, F5Sound, FSharp5Sound, G5Sound, GSharp5Sound, A5Sound, ASharp5Sound, B5Sound, C6Sound, CSharp6Sound, D6Sound, DSharp6Sound, E6Sound, F6Sound, FSharp6Sound, G6Sound, GSharp6Sound, A6Sound, ASharp6Sound, B6Sound, C7Sound, CSharp7Sound, D7Sound, DSharp7Sound, E7Sound, F7Sound, FSharp7Sound, G7Sound, GSharp7Sound, A7Sound, ASharp7Sound, B7Sound, C8Sound];
+keyA0 is keyVisual(1, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A0"));
+keyASharp0 is keyVisual(2, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#0"));
+keyB0 is keyVisual(3, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B0"));
+keyC1 is keyVisual(4, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C1"));
+keyCSharp1 is keyVisual(5, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#1"));
+keyD1 is keyVisual(6, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D1"));
+keyDSharp1 is keyVisual(7, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#1"));
+keyE1 is keyVisual(8, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E1"));
+keyF1 is keyVisual(9, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F1"));
+keyFSharp1 is keyVisual(10, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#1"));
+keyG1 is keyVisual(11, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G1"));
+keyGSharp1 is keyVisual(12, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#1"));
+keyA1 is keyVisual(13, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A1"));
+keyASharp1 is keyVisual(14, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#1"));
+keyB1 is keyVisual(15, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B1"));
+keyC2 is keyVisual(16, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C2"));
+keyCSharp2 is keyVisual(17, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#2"));
+keyD2 is keyVisual(18, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D2"));
+keyDSharp2 is keyVisual(19, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#2"));
+keyE2 is keyVisual(20, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E2"));
+keyF2 is keyVisual(21, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F2"));
+keyFSharp2 is keyVisual(22, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#2"));
+keyG2 is keyVisual(23, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G2"));
+keyGSharp2 is keyVisual(24, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#2"));
+keyA2 is keyVisual(25, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A2"));
+keyASharp2 is keyVisual(26, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#2"));
+keyB2 is keyVisual(27, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B2"));
+keyC3 is keyVisual(28, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C3"));
+keyCSharp3 is keyVisual(29, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#3"));
+keyD3 is keyVisual(30, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D3"));
+keyDSharp3 is keyVisual(31, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#3"));
+keyE3 is keyVisual(32, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E3"));
+keyF3 is keyVisual(33, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F3"));
+keyFSharp3 is keyVisual(34, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#3"));
+keyG3 is keyVisual(35, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G3"));
+keyGSharp3 is keyVisual(36, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#3"));
+keyA3 is keyVisual(37, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A3"));
+keyASharp3 is keyVisual(38, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#3"));
+keyB3 is keyVisual(39, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B3"));
+keyC4 is keyVisual(40, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C4"));
+keyCSharp4 is keyVisual(41, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#4"));
+keyD4 is keyVisual(42, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D4"));
+keyDSharp4 is keyVisual(43, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#4"));
+keyE4 is keyVisual(44, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E4"));
+keyF4 is keyVisual(45, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F4"));
+keyFSharp4 is keyVisual(46, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#4"));
+keyG4 is keyVisual(47, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G4"));
+keyGSharp4 is keyVisual(48, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#4"));
+keyA4 is keyVisual(49, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A4"));
+keyASharp4 is keyVisual(50, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#4"));
+keyB4 is keyVisual(51, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B4"));
+keyC5 is keyVisual(52, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C5"));
+keyCSharp5 is keyVisual(53, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#5"));
+keyD5 is keyVisual(54, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D5"));
+keyDSharp5 is keyVisual(55, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#5"));
+keyE5 is keyVisual(56, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E5"));
+keyF5 is keyVisual(57, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F5"));
+keyFSharp5 is keyVisual(58, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#5"));
+keyG5 is keyVisual(59, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G5"));
+keyGSharp5 is keyVisual(60, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#5"));
+keyA5 is keyVisual(61, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A5"));
+keyASharp5 is keyVisual(62, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#5"));
+keyB5 is keyVisual(63, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B5"));
+keyC6 is keyVisual(64, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C6"));
+keyCSharp6 is keyVisual(65, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#6"));
+keyD6 is keyVisual(66, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D6"));
+keyDSharp6 is keyVisual(67, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#6"));
+keyE6 is keyVisual(68, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E6"));
+keyF6 is keyVisual(69, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F6"));
+keyFSharp6 is keyVisual(70, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#6"));
+keyG6 is keyVisual(71, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G6"));
+keyGSharp6 is keyVisual(72, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#6"));
+keyA6 is keyVisual(73, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A6"));
+keyASharp6 is keyVisual(74, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#6"));
+keyB6 is keyVisual(75, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B6"));
+keyC7 is keyVisual(76, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C7"));
+keyCSharp7 is keyVisual(77, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C#7"));
+keyD7 is keyVisual(78, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D7"));
+keyDSharp7 is keyVisual(79, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "D#7"));
+keyE7 is keyVisual(80, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "E7"));
+keyF7 is keyVisual(81, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F7"));
+keyFSharp7 is keyVisual(82, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "F#7"));
+keyG7 is keyVisual(83, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G7"));
+keyGSharp7 is keyVisual(84, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "G#7"));
+keyA7 is keyVisual(85, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A7"));
+keyASharp7 is keyVisual(86, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "A#7"));
+keyB7 is keyVisual(87, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "B7"));
+keyC8 is keyVisual(88, pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, "C8"));
+
+## Action Definitions:
+
+proc clearSlides { ${{
+  var jspe = document.getElementById("jspe-dialog-canvas");
+  jspe.width = jspe.width;
+
+  $("#jspe-dialog-canvascontent > :not(canvas)").each(function() {
+	if(/jspe_/.test(this.id)) {
+		this.togarbage = true;
+	}
+  });
+
+}}$; }
+
+proc cleanupSlides { ${{
+  $("#jspe-dialog-canvascontent > :not(canvas)").each(function() {
+	if (this.togarbage == true) {
+		$(this).remove();
+	}
+  });
+}}$; }
+
+proc drawPicture2 : picture2 { 
+  CanvasHTML5_DrawPicture("jspe","picture2");
+}
+
+proc drawSlides : slides {
+  clearSlides();
+  ${{
+  var slides = context.lookup('slides').value();
+  var jspe = $('#jspe-dialog-canvas').get(0).getContext('2d');
+
+  if (slides === undefined) { return; }
+
+  for (var i = 0; i < slides.length; i++) {
+  if (slides[i] === undefined) { continue; }
+  slides[i].draw(jspe);
+  }
+  }}$;
+  cleanupSlides();
+}
+
+proc disableButtons : currentSlide {
+	buttonPrevEnabled is (currentSlide <= 1) ? false : true;
+	buttonNextEnabled is (currentSlide >= slideList#) ? false : true;
+}
+
+proc prevSlide : buttonPrev_clicked {
+	if (currentSlide > 2) {
+		currentSlide--;
+	} else {
+		currentSlide = 1;
+	}
+}
+
+proc nextSlide : buttonNext_clicked {
+	if (currentSlide < slideList#) {
+		currentSlide++;
+	} else {
+		currentSlide = slideList#;
+	}
+}
+
+proc error {
+	${{
+		$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\"># ERROR number 1:<br># Error<br>" + arguments[0] + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
+	}}$;
+}
+
+proc createDefinition {
+	para definition;
+	auto definitionHTML;
+	execute(definition);
+	definitionHTML = definition;
+	definitionHTML = replace(definitionHTML, "<", "<");
+	definitionHTML = replace(definitionHTML, ">", ">");
+	generatedDefinitions = generatedDefinitions // "<div>" // definitionHTML // "</div>\n";
+	html("Dynamically_Created_Definitions", generatedDefinitions);
+}
+
+proc buildKey {
+	para keyNumber;
+	auto note, note, keyDefinition, soundDefinition;
+	note = noteName(keyNumber);
+	note = replace(note, "#", "Sharp");
+
+	keyDefinition = "key" // note // " is keyVisual(" // keyNumber;
+	keyDefinition = keyDefinition // ", pianoPositionX, pianoPositionY, naturalKeyWidth, naturalKeyLength, sharpKeyWidth, sharpKeyLength, keyHighlight(highlightedKeys, \"" // noteName(keyNumber) // "\"));";
+	createDefinition(keyDefinition);
+	
+	soundDefinition = note // "Sound = pianoSound(" // keyNumber;
+	soundDefinition = soundDefinition // ");";
+	createDefinition(soundDefinition);
+}
+
+proc buildKeys {
+	auto keyNumber, octave, keyboardDef, soundsDef;
+	
+	##Define each individual key.
+	for (keyNumber = 1; keyNumber <= 88; keyNumber++) {
+		buildKey(keyNumber);
+	}
+	
+	##Define the order to draw the keys in and the mapping between the drawing order
+	##and piano key number order.
+	keyboardDef = "keyboard is [keyA0, keyB0";
+	keyboardToKey = [1, 3];
+	for (octave = 1; octave <= 7; octave++) {
+		keyboardDef = keyboardDef // ", keyC" // octave;
+		keyboardDef = keyboardDef // ", keyD" // octave;
+		keyboardDef = keyboardDef // ", keyE" // octave;
+		keyboardDef = keyboardDef // ", keyF" // octave;
+		keyboardDef = keyboardDef // ", keyG" // octave;
+		keyboardDef = keyboardDef // ", keyA" // octave;
+		keyboardDef = keyboardDef // ", keyB" // octave;
+		
+		keyboardToKey = keyboardToKey // [
+			(octave - 1) * 12 + 4,  ## C
+			(octave - 1) * 12 + 6,  ## D
+			(octave - 1) * 12 + 8,  ## E
+			(octave - 1) * 12 + 9,  ## F
+			(octave - 1) * 12 + 11, ## G
+			(octave - 1) * 12 + 13, ## A
+			(octave - 1) * 12 + 15  ## B
+		];
+	}
+	
+	keyboardDef = keyboardDef // ", keyASharp0";
+	keyboardToKey = keyboardToKey // [2];
+	
+	for (octave = 1; octave <= 7; octave++) {
+		keyboardDef = keyboardDef // ", keyCSharp" // octave;
+		keyboardDef = keyboardDef // ", keyDSharp" // octave;
+		keyboardDef = keyboardDef // ", keyFSharp" // octave;
+		keyboardDef = keyboardDef // ", keyGSharp" // octave;
+		keyboardDef = keyboardDef // ", keyASharp" // octave;
+
+		keyboardToKey = keyboardToKey // [
+			(octave - 1) * 12 + 5,  ## C#
+			(octave - 1) * 12 + 7,  ## D#
+			(octave - 1) * 12 + 10, ## F#
+			(octave - 1) * 12 + 12, ## G#
+			(octave - 1) * 12 + 14  ## A#
+		];
+	}
+	keyboardDef = keyboardDef // ", keyC8];";
+	keyboardToKey = keyboardToKey // [88];
+	createDefinition(keyboardDef);
+	
+	##List of sounds in piano key order.
+	soundsDef = "pianoKeySounds is [A0Sound, ASharp0Sound, B0";
+	for (octave = 1; octave <= 7; octave++) {
+		soundsDef = soundsDef // "Sound, C" // octave;
+		soundsDef = soundsDef // "Sound, CSharp" // octave;
+		soundsDef = soundsDef // "Sound, D" // octave;
+		soundsDef = soundsDef // "Sound, DSharp" // octave;
+		soundsDef = soundsDef // "Sound, E" // octave;
+		soundsDef = soundsDef // "Sound, F" // octave;
+		soundsDef = soundsDef // "Sound, FSharp" // octave;
+		soundsDef = soundsDef // "Sound, G" // octave;
+		soundsDef = soundsDef // "Sound, GSharp" // octave;
+		soundsDef = soundsDef // "Sound, A" // octave;
+		soundsDef = soundsDef // "Sound, ASharp" // octave;
+		soundsDef = soundsDef // "Sound, B" // octave;
+	}
+	soundsDef = soundsDef // "Sound, C8Sound];";
+	createDefinition(soundsDef);
+}
+
+proc changeHighlightColour : naturalHighlightColour, sharpHighlightColour {
+	keyHighlight = keyHighlight;
+}
+
+proc playNoteWhenClicked : mousePressed {
+	auto i;
+	for (i = keyboard#; i > 0; i--) {
+		if ((mouseX >= keyboard[i].x1) && (mouseX <= (keyboard[i].x1 + keyboard[i].x2)) && (mouseY >= keyboard[i].y1) && (mouseY <= (keyboard[i].y1 + keyboard[i].y2))) {
+			if (mousePressed) {
+				highlightedKeysDef = definitionOf("highlightedKeys");
+				highlightedKeys = [noteName(keyboardToKey[i])];
+				pianoKeySounds[keyboardToKey[i]].play();
+			} else {
+				execute(highlightedKeysDef);
+			}
+			break;
+		}
+	}
+}
+
+
+## Function Definitions:
+
+func SlideButton { ${{
+  var name = arguments[0];
+  var label = arguments[1];
+  var x = arguments[2];
+  var y = arguments[3];
+  var enabled = arguments[4];
+  return new SlideButton(name, label, x, y, enabled);
+}}$; }
+
+func Slide { ${{
+  var html = arguments[0];
+console.log(html);
+  return new Slide(html);
+}}$; }
+
+func chartoint {
+${{
+	var ch = arguments[0];
+	return ch.charCodeAt(0);
+}}$;
+}
+
+func tnotemap {
+	para tnotename;
+	auto result;
+	result = -1;
+	if (tnotename == "E") result = 4;
+	if (tnotename == "B") result = 2;
+	if (tnotename == "F") result = 0;
+	return result;
+}
+
+func bnotemap {
+	para bnotename;
+	auto result;
+	result = -1;
+	if (bnotename == "G") result = 4;
+	if (bnotename == "D") result = 2;
+	if (bnotename == "A") result = 0;
+	return result;
+}
+
+func perm6 {
+	para ix;
+	auto result, temp, i, ix2, ix3;
+	result = [1,2,3];
+	ix2 = ix%2; ix3 = ix%3;
+	for (i = 0; i<ix2; i++) {
+		temp = result[1];
+		result[1] = result[2];
+		result[2] = temp;
+	}
+	for (i=0; i<ix3; i++) {
+		temp = result[1];
+		result[1] = result[2];
+		result[2] = result[3];
+		result[3] = temp;
+	}
+	return result;
+}
+
+func replace {
+	${{
+		return arguments[0].replace(arguments[1], arguments[2]);
+	}}$;
+}
+
+func inList {
+	para list, item;
+	auto i;
+	for (i = 1; i <= list#; i++) {
+		if (list[i] == item) {
+			return true;
+		}
+	}
+	return false;
+}
+
+func twoToneHighlight {
+	para highlighted, note;
+	if (inList(highlighted, note)) {
+		if (substr(note, 2, 2) == "#") {
+			return sharpHighlightColour;
+		} else {
+			return naturalHighlightColour;
+		}
+	} else {
+		return @;
+	}
+}
+
+func noteName {
+	para keyNumber;
+	auto octave, keyNumberInFirstOctave;
+	keyNumberInFirstOctave = keyNumber % 12;
+	octave = int(keyNumber / 12) + 1;
+	if (keyNumberInFirstOctave < 4) {
+		octave--;
+	}
+	
+	switch (keyNumberInFirstOctave) {
+	case 0:
+		return "G#" // octave;
+	case 1:
+		return "A" // octave;
+	case 2:
+		return "A#" // octave;
+	case 3:
+		return "B" // octave;
+	case 4:
+		return "C" // octave;
+	case 5:
+		return "C#" // octave;
+	case 6:
+		return "D" // octave;
+	case 7:
+		return "D#" // octave;
+	case 8:
+		return "E" // octave;
+	case 9:
+		return "F" // octave;
+	case 10:
+		return "F#" // octave;
+	case 11:
+		return "G" // octave;
+	}
+}
+
+func definitionOf {
+	${{
+		function edenCodeForValue(value) {
+			var code = "";
+			if (value == null) {
+				code = "@";
+			} else if (Array.isArray(value)) {
+				code = "[";
+				for (var i = 0; i < value.length - 1; i++) {
+					code = code + edenCodeForValue(value[i]) + ", ";
+				}
+				if (value.length > 0) {
+					code = code + edenCodeForValue(value[value.length - 1]);
+				}
+				code = code + "]";
+			} else if (typeof(value) == "string") {
+				code = "\"" + value + "\"";
+			} else {
+				code = value;
+			}
+			return code;
+		}
+
+		var name = arguments[0];
+		var symbol = root.lookup(name);
+		if (symbol.eden_definition != null) {
+			return symbol.eden_definition + ";";
+		} else {
+			return name + " = " + edenCodeForValue(symbol.cached_value) + ";";
+		}
+	}}$;
+}
+
+func lineToNoteName {
+	para bassLineNumber, trebleLineNumber, staveNum;
+	if (staveNum == 0) {
+			switch (trebleLineNumber) {
+			case 0: return "F5";
+			case 1: return "D5";
+			case 2: return "B4";
+			case 3: return "G4";
+			case 4: return "E4";
+			case 5: return "C4";
+			default: error("Incomplete model: ledger line not defined.");
+			}
+	} else {
+			switch (bassLineNumber) {
+			case 0: return "A3";
+			case 1: return "F3";
+			case 2: return "D3";
+			case 3: return "B2";
+			case 4: return "G2";
+			default: error("Incomplete model: ledger line not defined.");
+			}	
+	}
+}
+
+func keyNumber {
+	para noteName;
+	auto noteNameWithoutOctave, octave, keyNumber;
+	if (noteName[2] == "#") {
+		noteNameWithoutOctave = substr(noteName, 1, 2);
+		octave = int(substr(noteName, 3, noteName#));
+	} else {
+		noteNameWithoutOctave = noteName[1];
+		octave = int(substr(noteName, 2, noteName#));	
+	}
+	switch (noteNameWithoutOctave) {
+	case "A":
+		keyNumber = 1;
+		break;
+	case "A#":
+		keyNumber = 2;
+		break;
+	case "B":
+		keyNumber = 3;
+		break;
+	case "C":
+		keyNumber = 4;
+		break;
+	case "C#":
+		keyNumber = 5;
+		break;
+	case "D":
+		keyNumber = 6;
+		break;
+	case "D#":
+		keyNumber = 7;
+		break;
+	case "E":
+		keyNumber = 8;
+		break;
+	case "F":
+		keyNumber = 9;
+		break;
+	case "F#":
+		keyNumber = 10;
+		break;
+	case "G":
+		keyNumber = 11;
+		break;
+	case "G#":
+		keyNumber = 12;
+		break;
+	default:
+		error("Unknown note " // noteName);
+	}
+	
+	if (keyNumber < 4) {
+		keyNumber = keyNumber + octave * 12;
+	} else {
+		keyNumber = keyNumber + (octave - 1) * 12;
+	}
+	return keyNumber;
+}
+
+func keyVisual {
+	para keyNumber, xOffset, yOffset, whiteKeyWidth, whiteKeyLen, blackKeyWidth, blackKeyLen, highlightColour;
+	auto xPos, keyWidth, keyHeight, colour;
+	xPos = xOffset + int((keyNumber - 1) / 12) * 7 * whiteKeyWidth;
+	switch ((keyNumber - 1) % 12) {
+	case 0: ## A
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 1: ## A#
+		xPos = xPos - 2 * whiteKeyWidth + 5 * blackKeyWidth;
+		keyWidth = blackKeyWidth;
+		keyHeight = blackKeyLen;
+		colour = "black";
+		break;
+	case 2: ## B
+		xPos = xPos + whiteKeyWidth;
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 3: ## C
+		xPos = xPos +  2 * whiteKeyWidth;
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 4: ## C#
+		xPos = xPos +  2 * whiteKeyWidth + blackKeyWidth * 21/20;
+		keyWidth = blackKeyWidth * 21/20;
+		keyHeight = blackKeyLen;
+		colour = "black";
+		break;
+	case 5: ## D
+		xPos = xPos +  3 * whiteKeyWidth;
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 6: ## D#
+		xPos = xPos +  2 * whiteKeyWidth + 3 * blackKeyWidth * 21/20;
+		keyWidth = blackKeyWidth * 21/20;
+		keyHeight = blackKeyLen;
+		colour = "black";
+		break;
+	case 7: ## E
+		xPos = xPos +  4 * whiteKeyWidth;
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 8: ## F
+		xPos = xPos +  5 * whiteKeyWidth;
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 9: ## F#
+		xPos = xPos +  5 * whiteKeyWidth + blackKeyWidth;
+		keyWidth = blackKeyWidth;
+		keyHeight = blackKeyLen;
+		colour = "black";
+		break;
+	case 10: ## G
+		xPos = xPos +  6 * whiteKeyWidth;
+		keyWidth = whiteKeyWidth;
+		keyHeight = whiteKeyLen;
+		colour = "white";
+		break;
+	case 11: ## G#
+		xPos = xPos +  5 * whiteKeyWidth + 3 * blackKeyWidth;
+		keyWidth = blackKeyWidth;
+		keyHeight = blackKeyLen;
+		colour = "black";
+		break;
+	}
+	if (highlightColour != @) {
+		colour = highlightColour;
+	}
+	return Rectangle(xPos, yOffset, keyWidth, keyHeight, colour);
+}
+
+func pianoSound {
+	${{
+		return new Audio(Notes.getDataURI(arguments[0] - 40));
+	}}$;
+}
+
+## Picture Definition:
+picture is bass // treble // [ trebleClef, bassClef, tbnote, selnote, tbsel, leftline] // keyboard;
+
+## Auto calculation is turned on and the updating is fired
+autocalc = 1;
+
+## End of Auto-Generated Script
+

@@ -1,0 +1,117 @@
+From lizzy.hudnott@gmail.com Mon Jun 16 19:01:59 2014
+Date: Mon, 16 Jun 2014 19:01:44 +0100
+From: Elizabeth Hudnott <lizzy.hudnott@gmail.com>
+To: Meurig Beynon <W.M.Beynon@warwick.ac.uk>
+Subject: More Piano Stuff
+
+Dear Meurig,
+
+I'm loving working on this stuff, though I think I've reached the point where I
+need to put it down for a day or two and attend to my other responsibilities (as
+much as I'd rather not do other things!).  I've attached my latest files.  I
+don't expect you to do anything with them, just for reference.  If you manage to
+read the remainder of this e-mail you'll have got all of the salient points.
+
+I started creating my own stave model that sticks as closely to the music theory
+concepts as possible.  It borrows a few things from the piano model so if you do
+run it then execute that the piano file first.  There's no graphics for the
+stave yet, so a bunch of functions isn't very exciting, but I did come across a
+rich theory of how the clefs came to ascribe the meanings to the lines that they
+do (https://en.wikipedia.org/wiki/Clef) so I incorporated that into the model,
+including such things as "the definition of a treble clef" as being a G clef
+drawn on line 2:
+
+trebleClef = ["G4", 2];  ##G4 is represented by notes on the second stave line.
+
+which makes me very happy!
+
+Also, the lines mean different things depending on which key signature is in
+use, so that's in the model too, eventually culminating in the function:
+
+##Transforms a line number on a stave into the name of the notes on that line,
+##in scientific notation.
+func staveLineToNote {
+para staveLine, optionalAccidentalAnnotation, clef, keySignature;
+        ...
+}
+
+Where the line numbers are not the arbitrary numbers 0, 2, 4, 6 from top to
+bottom but the somewhat more faithful to the domain, 1, 2, 3, 4, 5 from bottom
+to top.  I believe it's more faithful anyway, though I'm not the domain expert
+on music that  I'd like to be so I defer to Megan as to whether the model's
+genuinely as good as I think it is.  And there are still some concepts that
+don't seem to have cleanly named theoretical terms, hence:
+
+##Positions on a stave can be described verbally or textually as, "first line",
+##through to, "fifth line" (https://en.wikipedia.org/wiki/Staff_(music)), and
+##it is these terms on which this model is primarily based.  In order to
+##construct a model of the whole stave the notion of individual stave lines has
+##been extended in various ways that are intuitive but nonetheless seemingly
+##have no name in formal music theory terminology.
+##(1) The model contains observables, local variables and function and procedure
+##    parameters that take the values 1, 2,... rather than the English words,
+##    "first", "second", etc.
+##(2) The model allows "line" numbers 1.5, 2.5,... to represent the positions
+##    on the stave that are formed from the spaces between two successive lines.
+##(3) Line numbers less than 1 represent positions below first line, i.e. ledger
+##    lines and the spaces between them.  Line 0 against a treble clef
+##    represents middle C.
+##(4) Line numbers greater than 5 represent positions above fifth line.
+
+
+The reverse function from note names to stave positions is proving more tricky
+because of the need to account for both the key signature and any accidentals
+that occur earlier in the bar and may go on to affect later notes, but with some
+more time I'll get there.  I think my ultimate goal is to have a fully
+functioning model of at least one full bar of music on the grand stave with all
+of the learning aids that we talked about last time.
+
+None of the stave code has been tested very much.  I wouldn't be surprised if
+there were a few bugs.
+
+The attached piano script is slightly extended version of the previous 2nd style
+variation.  There's nothing new visually, just a tidying up of some things that
+bring its internal workings more  into line with the stave model (e.g. sharp
+notes were sufficient and the concept of a flat note wasn't needed before a
+stave was introduced).
+
+I've uncovered a bug that I'm pretty sure is present in all of the piano models,
+whereby the notes F#7 and above sound lower pitched than they should.  I think
+this occurs because the sampling rate (11,025samples/s)  is too low to
+sufficiently represent such high frequencies (we're probably hearing a harmonic
+of the correct note but not its fundamental frequency!).  At some point I'll
+need to delve more deeply into the audio library and generate some better
+quality sounds.
+
+Also, I've realized that the note names I've used so far are very
+English-centric, though for the purposes of considering the whole piano only the
+scientific labelling scheme (e.g. C4) (and a few other similar schemes) have
+sufficient range to describe the whole piano, and like most science the
+scientific notation always seems to be written in English.  But the presence of
+a single stave narrows note selection down to two octaves (unless we get into
+multiple ledger lines) and at that point it becomes feasible to identify notes
+in ways that are still unique but are also more informal, such as "high F" and
+"low F" instead of F4 and F5, or even Fa instead of F (as in Do, Re, Mi...)  Due
+to the need to use scientific notation when describing the entire piano (or
+physically pointing at which F we mean, but sadly we don't yet have non-textual
+EDEN script recording so for the immediate future everything has to have a
+unique name).  I'm not going to attempt to change the basic model because it'd
+be too complicated to depart from the scientific notation completely, but it'd
+be good to add that kind of informal description as an additional layer on top
+so that, for example, a phrase like "alto Fa" in the presence of a treble clef
+is uniquely recognized as an Italian composer, performer or student referring to
+F5.  As another example, in German musical culture the note they've named B
+refers to our A#! (https://en.wikipedia.org/wiki/Note#12-tone_chromatic_scale)
+
+Best wishes,
+
+Elizabeth
+
+
+
+    [ Part 2, Application/OCTET-STREAM (Name: "piano2.js-e") 24 KB. ]
+    [ Unable to print this part. ]
+
+
+    [ Part 3, Application/OCTET-STREAM (Name: "stave.js-e") 9.4 KB. ]
+    [ Unable to print this part. ]

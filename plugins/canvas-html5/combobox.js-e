@@ -36,8 +36,7 @@ Combobox.prototype.draw = function(context,content) {
   var me2 = this.name;
 //  var box = $("#"+me).get(0);
   var box = this.element;
-console.log("checking: nl");
-console.log(box);
+
   if (box === undefined) {
   
 	var dis = "";
@@ -46,7 +45,7 @@ console.log(box);
 
 	var can = $(content);
 	var boxhtml = $("<select id=\"" + me + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
-console.log(boxhtml);
+
 	boxhtml.html(makeoptionshtml(this.options));
 
 	boxhtml.change(function() {
@@ -54,7 +53,7 @@ console.log(boxhtml);
 	}).appendTo(can);
 
         this.element = boxhtml.get(0);
-console.log(boxhtml.get(0));
+
 
 	boxhtml.get(0).togarbage = false;
 
@@ -74,10 +73,6 @@ console.log(boxhtml.get(0));
 	box.style.left = "" + this.x + "px";
 	box.style.top = "" + this.y + "px";
 
-	console.log("GOOBY");
-console.log(box);
-console.log(content);
-console.log($(box).appendTo($(content)));
         $(box).appendTo($(content));
   }
 };

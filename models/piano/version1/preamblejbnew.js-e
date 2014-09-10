@@ -1,0 +1,5 @@
+include("plugins/canvas-html5/image.js-e");
+include("http://jseden.dcs.warwick.ac.uk/master.jbnew/library/eden.jse");
+
+func random { return ${{ Math.random(); }}$; };
+

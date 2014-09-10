@@ -1,0 +1,15 @@
+/*CSS*/
+.sdt-content{
+
+}
+a.stlinkrestore{
+	color:	green;
+	text-decoration: none;
+}
+a.stlinkdelete{
+	color:	red;
+	text-decoration: none;
+}
+.stdiv{
+	padding-bottom:10px;
+}

@@ -4,28 +4,32 @@
 ## See LICENSE.txt
 
 ${{
-Text = function(txt, x, y, colour) {
+Text = function(txt, x, y, colour, size) {
+  this.text = txt;
   this.x = x;
   this.y = y;
-  this.text = txt;
   this.colour = colour;
+  this.size = size;
 }
 }}$;
 
 func Text { ${{
+  var text = arguments[0];
   var x = arguments[1];
   var y = arguments[2];
-  var text = arguments[0];
   var colour = arguments[3];
+  var size = arguments[4];
   if (colour == null) { colour = "black"; }
-  return new Text(text, x, y, colour);
+  if (size == null) { size = 10; }
+  return new Text(text, x, y, colour, size);
 }}$; };
 
 ${{
 Text.prototype.draw = function(context) {
+  context.font = this.size+"px Arial";
   context.fillStyle = this.colour;
   context.lineWidth = 1;
-  context.fillText(this.text,this.x, this.y);
+  context.fillText(this.text, this.x, this.y);
 };
 }}$;
 ${{

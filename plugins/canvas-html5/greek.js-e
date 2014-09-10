@@ -1,18 +1,21 @@
-## to allow JS-EDEN to handle the Greek characters a-?
-
 ${{
-parser.lexer.rules = [/^\*\//,/^./,/^\/\*/,/^[\n\r]/,/^./,/^\u0023\u0023/,/^\$\{\{/,/^\}\}\$/,/^([\n\r]|.)/,/^\\"/,/^"/,/^(.|\n)/,/^"/,/^\\./,/^'/,/^./,/^'/,/^\s+/,/^@/,/^[0-9]+(\.[0-9]+)?\b/,/^is\b/,/^delete\b/,/^insert\b/,/^append\b/,/^shift\b/,/^after\b/,/^if\b/,/^else\b/,/^for\b/,/^while\b/,/^do\b/,/^switch\b/,/^case\b/,/^default\b/,/^break\b/,/^continue\b/,/^return\b/,/^func\b/,/^proc\b/,/^auto\b/,/^para\b/,/^[a-zA-Z\u03B1-\u03C9_a-d][a-zA-Z\u03B1-\u03C9_0-9]*/,/^\?/,/^\/\//,/^<=/,/^>=/,/^</,/^>/,/^==/,/^!=/,/^and\b/,/^or\b/,/^\|\|/,/^&&/,/^!/,/^=/,/^\+=/,/^-=/,/^\+\+/,/^--/,/^&/,/^\*/,/^\//,/^%/,/^-/,/^\+/,/^;/,/^\?/,/^:/,/^,/,/^~>/,/^\[/,/^\]/,/^\{/,/^\}/,/^\(/,/^\)/,/^\./,/^`/,/^\$[0-9]+/,/^\$/,/^#/,/^$/,/^./];
+parser.lexer.rules = 
+[/^\*\//,/^./,/^\/\*/,/^[\n\r]/,/^./,/^\u0023\u0023/,/^\$\{\{/,/^\}\}\$/,/^([\n\r]|.)/,/^\\"/,/^"/,/^(.|\n)/,/^"/,/^\\./,/^'/,/^./,/^'/,/^\s+/,/^@/,/^[0-9]+(\.[0-9]+)?\b/,/^is\b/,/^delete\b/,/^insert\b/,/^append\b/,/^shift\b/,/^after\b/,/^if\b/,/^else\b/,/^for\b/,/^while\b/,/^do\b/,/^switch\b/,/^case\b/,/^default\b/,/^break\b/,/^continue\b/,/^return\b/,/^func\b/,/^proc\b/,/^auto\b/,/^para\b/,/^[a-zA-Z\u03B1-\u03C9_a-d][a-zA-Z\u03B1-\u03C9_0-9]*/,/^\?/,/^\/\//,/^<=/,/^>=/,/^</,/^>/,/^==/,/^!=/,/^and\b/,/^or\b/,/^\|\|/,/^&&/,/^!/,/^=/,/^\+=/,/^-=/,/^\+\+/,/^--/,/^&/,/^\*/,/^\//,/^%/,/^-/,/^\+/,/^;/,/^\?/,/^:/,/^,/,/^~>/,/^\[/,/^\]/,/^\{/,/^\}/,/^\(/,/^\)/,/^\./,/^`/,/^\$[0-9]+/,/^\$/,/^#/,/^$/,/^./];
 }}$;
 
-## the instance of '##' in the above RE definition 
+## the instance of '##' in the above RE definition
 ## has been replaced by '^\u0023\u0023'
 ## this means that it can be accepted via the EDEN
 ## interface, but needs to be interpreted before
-## Greek characters in the file can be interpreted.
+## Greek characters in the file can be interpreted
 
 /*
-valrange	α	β	γ	δ	ε	ζ	η	θ	ι	κ	λ	μ	ν	ξ	ο	π	ρ	ς	σ	τ	υ	φ	χ	ψ	ω
-03B0		01	02	03	04	05	06	07	08	09	0A	0B	0C	0D	0E	0F	
-03C0																00	01	02	03	04	05	06	07	08	09
+valrange        a       �       ?       d       e       ?       ?       ? 
+?       ?       ?       �       ?       ?       ?       p       ?       ? 
+s       t       ?       f       ?       ?       ?
+03B0            01      02      03      04      05      06      07      08 
+09      0A      0B      0C      0D      0E      0F
+03C0 
+00      01      02      03      04      05      06      07      08      09
 
 */

@@ -1,0 +1,57 @@
+This is the model for OXO-like games as described in the OXO paper
+presented at PPIG in 1994. This directory includes the explicit
+definitive scripts required to play the OXO-like games:
+
+o Standard "noughts and crosses": OXO [oxo]
+
+o OXO in three dimensions, using a 4x4x4 grid (as a game with 3x3x3 is
+  trivial to win for the first player to go). [oxo4]
+
+o OXO on the 7 point finite projective plane over GF(2) (each point is
+  coordinatised by three bits eg 010 and three points lie on a line if
+  their binary sum is 000). [pp7].
+
+To start this model, run
+  ttyeden game.e
+and then choose which variant of OXO you wish to play.
+
+game.e includes files in this order, with the exact names of the first
+two files depending upon which game you want to play.
+
+> /* game.e */
+>
+> include("geomoxo.e");
+> include("oxo.geom");
+>
+> include("display.e");
+> include("initsq");
+> include("status.e");
+> include("sqvals.e");
+> include("play.e");
+> include("gamestate.e");
+> include("control.e");
+
+In this sequence of includes the first two files are specific
+to the OXO game: the others are generic for all OXO_like games. 
+
+Virtually all of the model is captured in the descriptions of the
+views of the board (as geometry, as OX pattern, as OXO position, as
+move-choosing position) that are discussed in detail in the OXO paper
+(PPIG94paper.txt).  The only procedural aspects (or agents) in the
+model are supplied by the 'play' action and the 'init_game' procedure
+in the control.e file.
+
+The main purpose of the OXO-like modelling exercise is to
+illustrate how the conceptual framework associated with playing
+such games can be captured by using Empirical Modelling methods.
+This is best appreciated by experimenting with the scripts e.g.
+by changing the geometry, rules of the game, evaluation strategy,
+or the visualisation, and by investigating how singular behaviour
+that arises in practice - such as memory lapses, or cheating -
+can be emulated.
+
+To start an OXO game, you should type
+	init_game();
+
+A version of standard OXO with a richer visualisation is provided in
+the 'tk' directory.

@@ -4,7 +4,6 @@
  *
  * See LICENSE.txt
  */
-
 var edenfunctions = {};
 
 /**
