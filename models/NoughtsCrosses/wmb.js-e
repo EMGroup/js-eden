@@ -1,0 +1,52 @@
+boardstate = [u,u,u,u,u,u,u,u,u];
+
+near = 15;
+mouseXnear1 is ((mouseX-160)*(mouseX-160)<near);
+mouseXnear2 is ((mouseX-240)*(mouseX-240)<near);
+mouseXnear3 is ((mouseX-320)*(mouseX-320)<near);
+
+mouseYnear1 is ((mouseY-160)*(mouseY-160)<near);
+mouseYnear2 is ((mouseY-240)*(mouseY-240)<near);
+mouseYnear3 is ((mouseY-320)*(mouseY-320)<near); 
+
+mouseXselect is (mouseXnear1 ? 1 : (mouseXnear2 ? 2 : (mouseXnear3 ? 3 : 0)));
+mouseYselect is (mouseYnear1 ? 1 : (mouseYnear2 ? 2 : (mouseYnear3 ? 3 : 0)));
+
+proc makemove: mousePressed {
+	if ((mousePressed) && (mouseXselect*mouseYselect != 0))
+		boardstate[(mouseYselect-1)*3 + mouseXselect] = player;
+}
+
+s1 is boardstate[7];
+s2 is boardstate[8];
+s3 is boardstate[9];
+s4 is boardstate[4];
+s5 is boardstate[5];
+s6 is boardstate[6];
+s7 is boardstate[1];
+s8 is boardstate[2];
+s9 is boardstate[3];
+
+func invsindex {
+	para ix;
+	auto result;
+	result = (ix<4) ? ix+6 : ((ix>6) ? ix-6 : ix);
+	return result;
+}
+
+proc play : end_of_game, o_to_play, x_to_play {
+	if (end_of_game) {
+		writeln("bye bye");
+		}
+	else if (o_to_play) {
+		writeln("Positions are");
+		writeln(board_template);
+		writeln("please play; type");
+		writeln("sn=o;");
+		}
+	else if (x_to_play) {
+		mvsq = "s" // str(maxindex) ;
+		boardstate[invsindex(maxindex)] = x;
+		writeln("I move to square " // mvsq);
+		}
+	}

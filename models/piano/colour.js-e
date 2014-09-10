@@ -1,0 +1,13 @@
+x is Rectangle(0, 0, 100, 100, "#907050");
+picture is [x];
+
+func hexofn {
+	para n;
+	auto result;
+	if (n<10) result=str(n);
+	else 
+}
+
+func rgb2colour {
+para r,g,b;
+auto i;

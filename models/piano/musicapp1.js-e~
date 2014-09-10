@@ -1,0 +1,202 @@
+
+trebleX = 10;
+trebleY = 10;
+width = 10;
+trebleF is Line(trebleX, trebleY, trebleX+150, trebleY, "black");
+trebleD is Line(trebleX, trebleY+width, trebleX+150, trebleY+width, "grey");
+trebleB is Line(trebleX, trebleY+width*2, trebleX+150, trebleY+width*2, "black");
+trebleG is Line(trebleX, trebleY+width*3, trebleX+150, trebleY+width*3, "grey");
+trebleE is Line(trebleX, trebleY+width*4, trebleX+150, trebleY+width*4, "black"); 
+treble is [trebleE,trebleG,trebleB,trebleD,trebleF];
+
+bassX = 10;
+bassY = 80;
+width = 10;
+bassA is Line(bassX, bassY, bassX+150, bassY, "black");
+bassF is Line(bassX, bassY+width, bassX+150, bassY+width, "grey");
+bassD is Line(bassX, bassY+width*2, bassX+150, bassY+width*2, "black");
+bassB is Line(bassX, bassY+width*3, bassX+150, bassY+width*3, "grey");
+bassG is Line(bassX, bassY+width*4, bassX+150, bassY+width*4, "black"); 
+bass is [bassG,bassB,bassD,bassF,bassA];
+
+picture is bass // treble;
+
+trebleClef is Image("trebleClef", 9, 5, 64, 68,"http://www.dcs.warwick.ac.uk/~wmb/Treble_Clef_Pin.PNG");
+## image of treble clef is 642 by 680
+
+bassClef is Image("bassClef", 27, 90, 28, 33,"http://www.dcs.warwick.ac.uk/~wmb/bass_clef.png");
+## image of bass clef is 339 by 400
+
+picture is bass // treble // [trebleClef, bassClef];
+
+## http://www.johnmcgann.com/clefs.html
+
+noterad = 5;
+
+bselnum = 0;
+bnote is Circle(bassX+85, bassY+width*bselnum, noterad, "aqua", "aqua");
+picture is bass // treble // [trebleClef, bassClef, bnote];
+
+tselnum = 0;
+tnote is Circle(trebleX+85, trebleY+width*tselnum, noterad, "aqua", "aqua");
+picture is bass // treble // [trebleClef, bassClef, tnote];
+
+tsel is Combobox("trebleNote", ["?", "B", "E", "F"], trebleX+180, trebleY+width*1.8, true);
+bsel is Combobox("bassNote", ["?", "G", "A", "D"], bassX+180, bassY+width*1.8, true);
+
+picture is bass // treble // [trebleClef, bassClef, tnote, bnote, tsel, bsel];
+
+selnumt = int(random()*3);
+tselnum is 2*selnumt;
+
+selnumb = int(random()*3);
+bselnum is 2*selnumb;
+
+func chartoint {
+${{
+	var ch = arguments[0];
+	return ch.charCodeAt(0);
+}}$;
+};
+
+intselbnote is chartoint(bassNote_value);
+intseltnote is chartoint(trebleNote_value);
+
+func tnotemap {
+	para tnotename;
+	auto result;
+	result = -1;
+	if (tnotename == "E") result = 4;
+	if (tnotename == "B") result = 2;
+	if (tnotename == "F") result = 0;
+	return result;
+}
+
+func bnotemap {
+	para bnotename;
+	auto result;
+	result = -1;
+	if (bnotename == "G") result = 4;
+	if (bnotename == "D") result = 2;
+	if (bnotename == "A") result = 0;
+	return result;
+}
+
+tok is tnotemap(trebleNote_value)==tselnum;
+bok is bnotemap(bassNote_value)==bselnum;
+
+picture is bass // treble // [trebleClef, bassClef, tnote, bnote, tsel, bsel];
+
+func perm6 {
+	para ix;
+	auto result, temp, i, ix2, ix3;
+	result = [1,2,3];
+	ix2 = ix%2; ix3 = ix%3;
+	for (i = 0; i<ix2; i++) {
+		temp = result[1];
+		result[1] = result[2];
+		result[2] = temp;
+	}
+	for (i=0; i<ix3; i++) {
+		temp = result[1];
+		result[1] = result[2];
+		result[2] = result[3];
+		result[3] = temp;
+	}
+	return result;
+}
+
+permkeys = perm6(int(random()*6));
+
+tkeys is ["B", "E", "F"];
+tkeyssel is [tkeys[permkeys[1]], tkeys[permkeys[2]], tkeys[permkeys[3]]];
+
+bkeys is ["G", "A", "D"];
+bkeyssel is [bkeys[permkeys[1]], bkeys[permkeys[2]], bkeys[permkeys[3]]];
+
+topts is ["?"] // tkeyssel;
+bopts is ["?"] // bkeyssel;
+tsel is Combobox("trebleNote", topts, trebleX+180, trebleY+width*1.8, true);
+bsel is Combobox("bassNote", bopts, bassX+180, bassY+width*1.8, true);
+
+/*
+
+showObservables("tok|bok|perm|ix|pict|tok|bok");
+
+*/
+
+leftline is Line(trebleX, trebleY, bassX, bassY+width*4, "black");
+picture is bass // treble // [trebleClef, bassClef, tnote, bnote, tsel, bsel, leftline];
+
+tbopts is ["?"] // tkeyssel // bkeyssel;
+tbsel is Combobox("treblebassNote", tbopts, trebleX+180, trebleY+width*5.3, true);
+
+stavesel = int(random()*2);
+tbnote is (stavesel==0) ? tnote : bnote;
+
+picture is bass // treble // [trebleClef, bassClef, tbnote, tbsel, leftline];
+
+/*
+
+selnumt = int(random()*3);
+tselnum is 2*selnumt;
+
+selnumb = int(random()*3);
+bselnum is 2*selnumb;
+
+stavesel = int(random()*2);
+
+treblebassNote_value = "?";
+
+*/
+
+tbok is (stavesel == 0) ? tnotemap(treblebassNote_value)==tselnum : bnotemap(treblebassNote_value)==bselnum;
+
+/*
+
+showObservables("tsel|tk|stavesel|tn|tok|bok|tbok|treblebass");
+
+*/
+
+/*
+
+seltreblenote is (treblebassNote_value == "F") || (treblebassNote_value == "B") || (treblebassNote_value == "E");
+selbassnote is (treblebassNote_value == "G") || (treblebassNote_value == "A") || (treblebassNote_value == "D");
+
+selnoterad is (treblebassNote_value == "?") ? 0 : noterad; 
+
+selnote is (seltreblenote) ? Circle(trebleX+85, trebleY+width*tnotemap(treblebassNote_value), selnoterad, "red", "red") : Circle(bassX+85, bassY+width*bnotemap(treblebassNote_value), selnoterad, "red", "red");
+
+*/
+		 
+picture is bass // treble // [ trebleClef, bassClef, tbnote, selnote, tbsel, leftline];
+
+tbNotevalue is treblebassNote_value;
+
+seltreblenote is (tbNotevalue == "F") || (tbNotevalue == "B") || (tbNotevalue == "E");
+selbassnote is (tbNotevalue == "G") || (tbNotevalue == "A") || (tbNotevalue == "D");
+
+selnoterad is (tbNotevalue == "?") ? 0 : noterad; 
+
+selnote is (seltreblenote) ? Circle(trebleX+85, trebleY+width*tnotemap(tbNotevalue), selnoterad, "red", "red") : Circle(bassX+85, bassY+width*bnotemap(tbNotevalue), selnoterad, "red", "red");
+			 
+tbsel is Combobox("treblebassNote", tbopts, trebleX+180, trebleY+width*5.3, true);
+			 
+/*
+
+showObservables("treblebass|trebleN|tbok|selnote|bopt");
+
+*/
+
+## fingerFrame is Rectangle(trebleX+100, trebleY, width*2, width*2, "green");
+
+## move the staves down
+trebleY = 30;			## was 10
+
+bassY  = 90;			## was 80
+## bring the staves closer so that they simulate a single stave - unlike a typical piano stave 
+bassClef is Image("bassClef", 27, 95, 28, 33,"http://www.dcs.warwick.ac.uk/~wmb/bass_clef.png");
+trebleClef is Image("trebleClef", 9, 20, 64, 68,"http://www.dcs.warwick.ac.uk/~wmb/Treble_Clef_Pin.PNG");
+
+framenum = 3;
+fingerFrame is Rectangle(trebleX+125, trebleY+width*framenum, width*2, width*2, "green");

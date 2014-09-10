@@ -5,10 +5,10 @@
  * See LICENSE.txt
  */
  
-joe.log("eden.js: READING SCRIPT");
+
  
 function Eden(context) {
-joe.log("eden.js: Eden()");
+
 	this.context = context || new Folder();
 	this.storage_script_key = "script";
 	this.history = new Array();
@@ -21,14 +21,14 @@ joe.log("eden.js: Eden()");
 modelbase = "";
 
 Eden.prototype.internal = function(name) {
-joe.log("eden.js: internal()");
+
 	this.internals.__defineGetter__(name, function(){
-joe.log("eden.js: defineGetter()");
+
         return (root.lookup(name)).value();
     });
     
     this.internals.__defineSetter__(name, function(val){
-joe.log("eden.js: defineSetter()");
+
         root.lookup(name).assign(val);
     });
 }
@@ -69,7 +69,7 @@ joe.log("eden.js: defineSetter()");
 //};
 
 Eden.formatError = function (e, options) {
-joe.log("eden.js: formatError()");
+
 	options = options || {};
 	return "<div class=\"error-item\">"+
 		"## ERROR number " + eden.errornumber + ":<br>"+
@@ -79,7 +79,7 @@ joe.log("eden.js: formatError()");
 };
 
 Eden.reportError = function (e, options) {
-joe.log("eden.js: reportError()");
+
 	if (eden.plugins.MenuBar) {
 		eden.plugins.MenuBar.updateStatus("Error: "+e.message);
 	}
@@ -95,7 +95,7 @@ joe.log("eden.js: reportError()");
  * translates it to JavaScript then evals it when it's done
  */
 Eden.executeFile = function (path) {
-joe.log("eden.js: executeFile("+path+")");
+
 	//console.error("Calls to executeFile should be deprecated");
 	$.ajax({
 		url: modelbase+path,
@@ -121,7 +121,7 @@ joe.log("eden.js: executeFile("+path+")");
  * possible to use this version across domains to load scripts on other servers.
  */
 Eden.executeFileSSI = function (path) {
-joe.log("eden.js: executeFileSSI()");
+
 Eden.loadqueue = new Array();
 	var ajaxfunc = function(path2) {
 		$.ajax({
@@ -166,7 +166,7 @@ Eden.loadqueue = new Array();
 };
 
 Eden.execute = function(code) {
-joe.log("eden.js: execute(code)");
+
 	var result = "";
 	try {
 		result = eval(Eden.translateToJavaScript(code));
@@ -179,7 +179,7 @@ joe.log("eden.js: execute(code)");
 }
 
 function _$() {
-joe.log("eden.js: _$()");
+
 	var code = arguments[0];
 	for (var i=1; i<arguments.length; i++) {
 		code = code.replace("$"+i,arguments[i]);
@@ -366,7 +366,7 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 Eden.translateToJavaScript = Eden.parserWithInitialisation(parser);
 
 Eden.prototype.getDefinition = function(name, symbol) {
-joe.log("eden.js: getDefinition()");
+
 	if (symbol.eden_definition) {
 		return symbol.eden_definition + ";";
 	} else {
@@ -379,7 +379,7 @@ joe.log("eden.js: getDefinition()");
  * some hacking for persisting model state I did. monk
  */
 Eden.prototype.getSerializedState = function() {
-joe.log("eden.js: getSerializedState()");
+
 	var script = "";
 	for (var name in this.context.symbols) {
 		script += this.getDefinition(name, this.context.symbols[name]) + "\n";
@@ -388,13 +388,13 @@ joe.log("eden.js: getSerializedState()");
 };
 
 Eden.prototype.saveLocalModelState = function() {
-joe.log("eden.js: saveLocalModelState()");
+
 	var state_string = this.getSerializedState(this.context);
 	localStorage[this.storage_script_key] = state_string;
 };
 
 Eden.prototype.loadLocalModelState = function() {
-joe.log("eden.js: loadLocalModelState()");
+
 	var stored_script = localStorage[this.storage_script_key];
 	if (stored_script != undefined) {
 		eval(Eden.translateToJavaScript(stored_script));
@@ -404,7 +404,7 @@ joe.log("eden.js: loadLocalModelState()");
 };
 
 Eden.prototype.pushModelState = function() {
-joe.log("eden.js: pushModelState()");
+
 	var uploader_url = 'push-state.php';
 	var state_string = this.getSerializedState(this.context);
 	$.ajax(uploader_url, {

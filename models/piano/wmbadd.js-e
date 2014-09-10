@@ -1,0 +1,16 @@
+proc playNoteWhenClicked : mousePressed {
+	auto i;
+	for (i = keyboard#; i > 0; i--) {
+		if ((mouseX >= keyboard[i].x1) && (mouseX <= (keyboard[i].x1 + keyboard[i].x2)) && (mouseY >= keyboard[i].y1) && (mouseY <= (keyboard[i].y1 + keyboard[i].y2))) {
+			if (mousePressed) {
+				highlightedKeysDef = definitionOf("highlightedKeys");
+				highlightedKeys = [noteName(keyboardToKey[i])];
+				pianoKeySounds[keyboardToKey[i]].play();
+				pianoKeyHit = noteName(keyboardToKey[i]);
+			} else {
+				execute(highlightedKeysDef);
+			}
+			break;
+		}
+	}
+}

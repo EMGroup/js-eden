@@ -46,6 +46,15 @@ module.exports = function(grunt) {
           'tmp/js.calc.js' : 'test/fixtures/calc.jison'
         }
       },
+      withNamespace : {
+        options: {
+          moduleType : 'js',
+          moduleName : 'withNamespace'
+        },
+        files : {
+          'tmp/withNamespace.calc.js' : 'test/fixtures/calc.jison'
+        }
+      },
       amd : {
         options: {
           moduleType : 'amd'

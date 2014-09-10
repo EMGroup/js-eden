@@ -47,6 +47,8 @@ func rand {
   }}$;
 };
 
+func random { return ${{ Math.random(); }}$; };
+
 func srand {
 
 };
@@ -96,7 +98,7 @@ autocalc = 1;
 ##Include the rest of the library
 
 include("library/core.js-e");
-include("library/drawing.jse");
+## include("library/drawing.jse");
 include("library/maths.jse");
 include("library/algebra.jse");
 include("library/include_js.js-e");

@@ -38,6 +38,10 @@ Image.prototype.draw = function(context,content) {
 	var can = $(content);
 	var buthtml = $("<img id=\"" + me + "\" style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;\" src=\"" + this.file + "\"></img>").appendTo(can);
 
+	this.HTMLelement = buthtml[0];
+	
+	context.drawImage(buthtml[0], this.x, this.y, this.width, this.height);
+	
 	//.click(function() {
 	//	root.lookup(me2 + "_clicked").assign(true); root.lookup(me2 + "_clicked").assign(false);
 	//}).appendTo(can);
@@ -47,8 +51,6 @@ Image.prototype.draw = function(context,content) {
 	//Initialise
 	//root.lookup(me2 + "_clicked").assign(false);
   } else {
-	//but.value = this.label;
-	//but.innerHTML = this.html;
 	but.togarbage = false;
 	but.style.width = "" + this.width + "px";
 	but.style.height = "" + this.height + "px";

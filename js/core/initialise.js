@@ -5,7 +5,7 @@
  * See LICENSE.txt
  */
 
-joe.log("initialise.js: READING SCRIPT");
+
  
 var root;
 var eden;
@@ -28,7 +28,7 @@ var current_view = new Array();
  */
 function getParameterByName( name )
 {
-joe.log("initialise.js: getParameterByName("+name+")");
+
   name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
   var regexS = "[\\?&]"+name+"=([^&#]*)";
   var regex = new RegExp( regexS );
@@ -40,7 +40,7 @@ joe.log("initialise.js: getParameterByName("+name+")");
 }
 
 function makeViewArray() {
-joe.log("initialise.js: makeViewArray()");
+
 	result = new Array();
 	for (x in eden.active_dialogs) {
 		result.push($("#"+x+"-dialog")[0]);
@@ -49,7 +49,7 @@ joe.log("initialise.js: makeViewArray()");
 }
 
 function sortArea(a,b) {
-joe.log("initialise.js: sortArea("+a+","+b+")");
+
 	areaA = $(a).dialog("option","width") * $(a).dialog("option","height");
 	areaB = $(b).dialog("option","width") * $(b).dialog("option","height");
 
@@ -57,7 +57,7 @@ joe.log("initialise.js: sortArea("+a+","+b+")");
 }
 
 function removeElement(a,index) {
-joe.log("initialise.js: removeElement()");
+
 	result = new Array();
 	for (x in a) {
 		if (x == index) continue;
@@ -67,7 +67,7 @@ joe.log("initialise.js: removeElement()");
 }
 
 function largestHeight(a) {
-joe.log("initialise.js: largestHeight()");
+
 	largest = 0;
 	index = 0;
 	for (x in a) {
@@ -81,7 +81,7 @@ joe.log("initialise.js: largestHeight()");
 }
 
 function smallestHeight(a) {
-joe.log("initialise.js: smallestHeight()");
+
 	smallest = 1000000;
 	index = 0;
 	for (x in a) {
@@ -95,7 +95,7 @@ joe.log("initialise.js: smallestHeight()");
 }
 
 function totalWidth(a) {
-joe.log("initialise.js: totalWidth("+a+")");
+
 	width = 0;	
 	for (x in a) {
 		width = width + $(a[x]).dialog("option","width");
@@ -104,7 +104,7 @@ joe.log("initialise.js: totalWidth("+a+")");
 }
 
 function placeViews(views,top,spacing) {
-joe.log("initialise.js: placeViews");
+
 	heighest = largestHeight(views);
 
 	left = spacing;
@@ -116,7 +116,7 @@ joe.log("initialise.js: placeViews");
 }
 
 function tileViews() {
-joe.log("initialise.js: tileViews()");
+
 	views = makeViewArray();
 	views.sort(sortArea);
 	overflow = new Array();
@@ -139,7 +139,7 @@ joe.log("initialise.js: tileViews()");
 }
 
 function JS_Eden_Initialise(callback) {
-joe.log("initialise.js: JS_Eden_Initialise(callback)");
+
 	$(document).ready(function() {
 		//runTests(all_the_tests);
 		root = new Folder();

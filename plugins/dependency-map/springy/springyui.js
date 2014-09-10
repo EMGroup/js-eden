@@ -142,6 +142,28 @@ jQuery.fn.springy = function(params) {
 
 	var renderer = this.renderer = new Springy.Renderer(layout,
 		function clear() {
+//!
+//!
+//!
+//!
+//!
+//!
+		
+//Adding scary code here to get jsedens version to work
+
+var contentdiv = canvas.parentNode;
+	canvas.height = contentdiv.clientHeight;
+	canvas.width = contentdiv.clientWidth;
+
+//!
+//!
+//!
+//!
+//!
+//!
+		
+		
+		
 			ctx.clearRect(0,0,canvas.width,canvas.height);
 		},
 		function drawEdge(edge, p1, p2) {
@@ -183,7 +205,7 @@ jQuery.fn.springy = function(params) {
 				intersection = s2;
 			}
 
-			var stroke = (edge.data.color !== undefined) ? edge.data.color : '#000000';
+			var stroke = (edge.data.color !== undefined) ? edge.data.color : '#C0C0C0';
 
 			var arrowWidth;
 			var arrowLength;
@@ -204,6 +226,7 @@ jQuery.fn.springy = function(params) {
 				lineEnd = s2;
 			}
 
+			
 			ctx.strokeStyle = stroke;
 			ctx.beginPath();
 			ctx.moveTo(s1.x, s1.y);
@@ -247,9 +270,9 @@ jQuery.fn.springy = function(params) {
 			var boxWidth = node.getWidth();
 			var boxHeight = node.getHeight();
 
-			// clear background
-			ctx.clearRect(s.x - boxWidth/2, s.y - 10, boxWidth, 20);
-
+			
+//!
+/*			
 			// fill background
 			if (selected !== null && nearest.node !== null && selected.node.id === node.id) {
 				ctx.fillStyle = "#FFFFE0";
@@ -259,13 +282,39 @@ jQuery.fn.springy = function(params) {
 				ctx.fillStyle = "#FFFFFF";
 			}
 			ctx.fillRect(s.x - boxWidth/2, s.y - 10, boxWidth, 20);
-
+*/
 			ctx.textAlign = "left";
 			ctx.textBaseline = "top";
 			ctx.font = "16px Verdana, sans-serif";
-			ctx.fillStyle = "#000000";
-			ctx.font = "16px Verdana, sans-serif";
+//			ctx.font = "16px Verdana, sans-serif";
 			var text = (node.data.label !== undefined) ? node.data.label : node.id;
+			
+//!
+			var symbdef = (root.lookup(text).eden_definition);
+
+			if(symbdef==undefined){
+				ctx.fillStyle = "#0000FF";
+			}
+			else if(((symbdef).toString().indexOf("proc")==0)){
+				//Action
+				ctx.fillStyle = "#FF0000";
+			}
+			else if(((symbdef).toString().indexOf("func")==0)){
+				//Function
+				ctx.fillStyle = "#336600";
+			}
+			else{
+				//Observable
+				ctx.fillStyle = "#0000FF";
+			}
+			
+			if(graph.re.test(text)){			
+				ctx.lineWidth = 1;
+				ctx.strokeStyle = "#000000";
+				ctx.strokeRect(s.x - boxWidth/2, s.y - 10, boxWidth, 20);
+			}
+//!
+			
 			ctx.fillText(text, s.x - boxWidth/2 + 5, s.y - 8);
 
 			ctx.restore();

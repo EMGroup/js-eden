@@ -1,0 +1,52 @@
+
+size = 40;
+
+WN is Point(100+size*0.5, 100+size*4.5);
+NW is Point(100+size*2.5, 100+size*6.5);
+NE is Point(100+size*4.5, 100+size*6.5);
+EN is Point(100+size*6.5, 100+size*4.5);
+ES is Point(100+size*6.5, 100+size*2.5);
+SE is Point(100+size*4.5, 100+size*0.5);
+SW is Point(100+size*2.5, 100+size*0.5);
+WS is Point(100+size*0.5, 100+size*2.5);
+
+sq1 is Point(100+size*1.5, 100+size*5.5);
+sq2 is Point(100+size*3.5, 100+size*5.5);
+sq3 is Point(100+size*5.5, 100+size*5.5);
+sq4 is Point(100+size*1.5, 100+size*3.5);
+sq5 is Point(100+size*3.5, 100+size*3.5);
+sq6 is Point(100+size*5.5, 100+size*3.5);
+sq7 is Point(100+size*1.5, 100+size*1.5);
+sq8 is Point(100+size*3.5, 100+size*1.5);
+sq9 is Point(100+size*5.5, 100+size*1.5);
+
+
+WNEN is Line(WN.x,WN.y,EN.x,EN.y);
+WSES is Line(WS.x,WS.y,ES.x,ES.y);
+NWSW is Line(NW.x,NW.y,SW.x,SW.y);
+NESE is Line(NE.x,NE.y,SE.x,SE.y);
+
+picture is [WNEN, WSES, NWSW, NESE];
+
+piece1 is Text(lab1,sq1.x-10, sq1.y+10, "black", 32);
+piece2 is Text(lab2,sq2.x-10, sq2.y+10, "black", 32);
+piece3 is Text(lab3,sq3.x-10, sq3.y+10, "black", 32);
+piece4 is Text(lab4,sq4.x-10, sq4.y+10, "black", 32);
+piece5 is Text(lab5,sq5.x-10, sq5.y+10, "black", 32);
+piece6 is Text(lab6,sq6.x-10, sq6.y+10, "black", 32);
+piece7 is Text(lab7,sq7.x-10, sq7.y+10, "black", 32);
+piece8 is Text(lab8,sq8.x-10, sq8.y+10, "black", 32);
+piece9 is Text(lab9,sq9.x-10, sq9.y+10, "black", 32);
+
+lab1 is (s1 == 0) ? "" : ((s1 == 1) ? "X" : "O");
+lab2 is (s2 == 0) ? "" : ((s2 == 1) ? "X" : "O");
+lab3 is (s3 == 0) ? "" : ((s3 == 1) ? "X" : "O");
+lab4 is (s4 == 0) ? "" : ((s4 == 1) ? "X" : "O");
+lab5 is (s5 == 0) ? "" : ((s5 == 1) ? "X" : "O");
+lab6 is (s6 == 0) ? "" : ((s6 == 1) ? "X" : "O");
+lab7 is (s7 == 0) ? "" : ((s7 == 1) ? "X" : "O");
+lab8 is (s8 == 0) ? "" : ((s8 == 1) ? "X" : "O");
+lab9 is (s9 == 0) ? "" : ((s9 == 1) ? "X" : "O");
+
+picture is [WNEN, WSES, NWSW, NESE, piece1, piece2, piece3, piece4, piece5, piece6, piece7, piece8, piece9];
+

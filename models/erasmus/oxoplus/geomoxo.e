@@ -1,0 +1,23 @@
+allsquares is [s1,s2,s3,s4,s5,s6,s7,s8,s9];
+nofsquares is allsquares#;
+lin1 is [s1,s2,s3];
+lin2 is [s4,s5,s6];
+lin3 is [s7,s8,s9];
+lin4 is [s1,s4,s7];
+lin5 is [s2,s5,s8];
+lin6 is [s3,s6,s9];
+lin7 is [s1,s5,s9];
+lin8 is [s3,s5,s7];
+alllines is [lin1,lin2,lin3,lin4,lin5,lin6,lin7,lin8];
+noflines is alllines#;
+linesthru1 is [lin1,lin4,lin7];
+linesthru2 is [lin1,lin5];
+linesthru3 is [lin1,lin6,lin8];
+linesthru4 is [lin2,lin4];
+linesthru5 is [lin2,lin5,lin7,lin8];
+linesthru6 is [lin2,lin6];
+linesthru7 is [lin3,lin4,lin8];
+linesthru8 is [lin3,lin5];
+linesthru9 is [lin3,lin6,lin7];
+linesthru is [linesthru1,linesthru2,linesthru3,linesthru4,linesthru5,linesthru6,
+linesthru7,linesthru8,linesthru9];

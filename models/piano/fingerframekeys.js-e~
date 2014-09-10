@@ -1,0 +1,40 @@
+writeln(keyC4.x1); ## 230
+middleClabel is Text("O", keyC4.x1 + 1 + naturalKeyWidth * 3, keyC4.y1 +70, "red"); ## labels F above middle C with 'O'
+
+fingerlabel1 is Text("1", keyC4.x1 + 1, keyC4.y1 + 70, "red");
+fingerlabel2 is Text("2", keyC4.x1 + 1 + naturalKeyWidth * 1, keyC4.y1 + 70, "red");
+fingerlabel3 is Text("3", keyC4.x1 + 1 + naturalKeyWidth * 2, keyC4.y1 + 70, "red");
+fingerlabel4 is Text("4", keyC4.x1 + 1 + naturalKeyWidth * 3, keyC4.y1 + 70, "red");
+fingerlabel5 is Text("5", keyC4.x1 + 1 + naturalKeyWidth * 4, keyC4.y1 + 70, "red");
+
+fingerlabels is [fingerlabel1, fingerlabel2, fingerlabel3, fingerlabel4, fingerlabel5];
+
+
+fingerlabel1 is Text("1", keyC4.x1 + 2, keyC4.y1 +55, "red");
+fingerlabel2 is Text("2", keyC4.x1 + 2 + naturalKeyWidth * 1, keyC4.y1 +55, "red");
+fingerlabel3 is Text("3", keyC4.x1 + 2 + naturalKeyWidth * 2, keyC4.y1 +55, "red");
+fingerlabel4 is Text("4", keyC4.x1 + 2 + naturalKeyWidth * 3, keyC4.y1 +55, "red");
+fingerlabel5 is Text("5", keyC4.x1 + 2 + naturalKeyWidth * 4, keyC4.y1 +55, "red");
+
+fingerlabels is [fingerlabel1, fingerlabel2, fingerlabel3, fingerlabel4, fingerlabel5];
+
+
+picture is  [numberFrame] // bass // treble // [ trebleClef, bassClef, tbnote, selnote, tbsel, leftline] // keyboard // fingerlabels;
+
+fingerlabel1 is Text("1", keyB4.x1 + 2 - naturalKeyWidth * 2 * framenum, keyC4.y1 + 55, "red");
+fingerlabel2 is Text("2", keyB4.x1 + 2 + naturalKeyWidth * (1-2*framenum), keyC4.y1 + 55, "red");
+fingerlabel3 is Text("3", keyB4.x1 + 2 + naturalKeyWidth * (2-2*framenum), keyC4.y1 + 55, "red");
+fingerlabel4 is Text("4", keyB4.x1 + 2 + naturalKeyWidth * (3-2*framenum), keyC4.y1 + 55, "red");
+fingerlabel5 is Text("5", keyB4.x1 + 2 + naturalKeyWidth * (4-2*framenum), keyC4.y1 + 55, "red");
+
+fingerlabels is [fingerlabel1, fingerlabel2, fingerlabel3, fingerlabel4, fingerlabel5];
+
+
+
+fingerlabel1 is Text("5", keyB4.x1 + 2 - naturalKeyWidth * 2 * framenum, keyC4.y1 + 55, "red");
+fingerlabel2 is Text("4", keyB4.x1 + 2 + naturalKeyWidth * (1-2*framenum), keyC4.y1 + 55, "red");
+fingerlabel3 is Text("3", keyB4.x1 + 2 + naturalKeyWidth * (2-2*framenum), keyC4.y1 + 55, "red");
+fingerlabel4 is Text("2", keyB4.x1 + 2 + naturalKeyWidth * (3-2*framenum), keyC4.y1 + 55, "red");
+fingerlabel5 is Text("1", keyB4.x1 + 2 + naturalKeyWidth * (4-2*framenum), keyC4.y1 + 55, "red");
+
+fingerlabels is [fingerlabel1, fingerlabel2, fingerlabel3, fingerlabel4, fingerlabel5];

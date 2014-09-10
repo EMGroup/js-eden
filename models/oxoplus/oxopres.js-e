@@ -1,0 +1,63 @@
+
+slide1 is Slide("<p>Stage 1:
+<jseden>include(\"models/oxo/display.e\");</jseden>
+<p>
+These definitions set up the observables u, x and o.
+They also serve to generate a 'tty' display.
+</p>
+<p>
+<a href=\"models/oxo/display.e\" target=\"_blank\">View definitions</a>
+</p>");
+slide2 is Slide("<p>Stage 2:
+<jseden>include(\"models/oxo/initsq.e\");</jseden>
+<p>
+These definitions initialise the board to blank.
+</p>
+<p>
+<a href=\"models/oxo/initsq.e\" target=\"_blank\">View definitions</a>
+</p>");
+slide3 is Slide("<p>Stage 3:
+<jseden>include(\"models/oxo/status.e\");</jseden>
+<p>
+These definitions establish how a position is interpreted as won, lost or drawn.
+</p>
+<p>
+<a href=\"models/oxo/status.e\" target=\"_blank\">View definitions</a>
+</p>");
+slide4 is Slide("<p>Stage 4:
+<jseden>include(\"models/oxo/sqvals.e\");</jseden>
+<p>
+These definitions attach a value to each square of the OXO grid on the
+assumption that X is to play.
+</p>
+<p>
+<a href=\"models/oxo/sqvals.e\" target=\"_blank\">View definitions</a>
+</p>");
+slide5 is Slide("<p>Stage 5:
+<jseden>include(\"models/oxo/play.e\");</jseden>
+<p>
+These definitions determine where X should play on the basis of
+the static evaluation.
+</p>
+<p>
+<a href=\"models/oxo/play.e\" target=\"_blank\">View definitions</a>
+</p>");
+slide6 is Slide("<p>Stage 6:
+<jseden>include(\"models/oxo/gamestate.e\");</jseden>
+<p>
+These definitions determine the observables that establish the state of the game.
+</p>
+<p>
+<a href=\"models/oxo/gamestate.e\" target=\"_blank\">View definitions</a>
+</p>");
+slide7 is Slide("<p>Stage 7:
+<jseden>include(\"models/oxo/control.e\");</jseden>
+<p>
+These definitions implement the interaction between game playing agent.
+</p>
+<p>
+<a href=\"models/oxo/control.e\" target=\"_blank\">View definitions</a>
+</p>");
+
+
+slideList is [slide1,slide2, slide3, slide4, slide5, slide6, slide7];

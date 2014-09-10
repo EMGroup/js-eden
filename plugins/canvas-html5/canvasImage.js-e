@@ -1,0 +1,52 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+canvasImage = function (name, x, y, width, height, file) {
+	this.name = name;
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.file = file;
+	this.image = new Image();
+	this.loaded = false;
+	this.image.src = this.file;
+	
+	var me = this;
+	
+	this.image.onload = function(){
+		me.loaded = true;
+	}
+}
+}}$;
+
+func canvasImage { ${{
+  var name = arguments[0];
+  var x = arguments[1];
+  var y = arguments[2];
+  var width = arguments[3];
+  var height = arguments[4];
+  var file = arguments[5];
+  return new canvasImage(name, x, y, width, height, file);
+}}$; }
+
+${{
+canvasImage.prototype.draw = function(context,content) {
+	if(this.loaded){
+	console.log("loaded");
+		context.drawImage(this.image, this.x, this.y, this.width, this.height);
+	}
+	else{
+		console.log("notloaded");
+	}
+};
+}}$;
+
+${{
+Image.prototype.toString = function() {
+  return "Image(" + this.name + ", " + this.x + ", "+this.y+", ...)";
+};
+}}$;
