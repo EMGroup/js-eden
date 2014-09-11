@@ -1,5 +1,11 @@
 QUnit.module("Eden.translateToJavaScript");
 
+test("Do while loop", function () {
+	var root = new Folder();
+	eval(Eden.translateToJavaScript("x = 0; do { x++; } while (x < 5);"));
+	equal(root.lookup('x').value(), 5);
+});
+
 test("Assignment sets the correct value", function () {
 	var root = new Folder();
 	eval(Eden.translateToJavaScript("x = 2;"));

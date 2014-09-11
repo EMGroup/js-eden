@@ -372,7 +372,7 @@ statement
     | WHILE '(' expression ')' statement
         { $$ = 'while (' + $expression + ') ' + $statement; }
     | DO statement WHILE '(' expression ')' ';'
-        { $$ = 'do ' + $statement + ' while (' + $e + ');'; }
+        { $$ = 'do ' + $statement + ' while (' + $expression + ');'; }
     | FOR '(' expression-opt ';' expression-opt ';' expression-opt ')' statement
         { $$ = 'for (' + $3 + '; ' + $5 + '; ' + $7 + ') ' + $statement; }
     | SWITCH '(' expression ')' statement
