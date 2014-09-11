@@ -70,15 +70,11 @@ See LICENSE.txt
 <script src="plugins/dependency-map/springy/springyui.js"></script>
 <script src="plugins/dependency-map/dependency-map.js"></script>
 <script src="plugins/state-timeline/state-timeline.js"></script>
-<!--
--->
 
 <script type="text/javascript">
-//Load Joes Additions
+	JS_Eden_Initialise(function () {
 
-	JS_Eden_Initialise(function() {
-
-		//Load menubar as standard
+		// Load menubar as standard
 		eden.loadPlugin("MenuBar");
  		eden.loadPlugin("InputWindow");
 		eden.loadPlugin("ProjectList");
@@ -92,16 +88,15 @@ See LICENSE.txt
 		eden.loadPlugin("SG");
 		eden.loadPlugin("DM");
 		eden.loadPlugin("ST");
-		//eden.createView("st1","ST");
-		//Force manual refresh of views menu.
+
+		// Force manual refresh of views menu.
 		eden.plugins.MenuBar.updateViewsMenu();
+
 		Eden.executeFileSSI("library/eden.jse");
 		Eden.executeFileSSI("plugins/canvas-html5/image.js-e");
 		Eden.executeFileSSI("library/declarevar.js-e");
-		
 	});
 </script>
 
 </body>
 </html>
-
