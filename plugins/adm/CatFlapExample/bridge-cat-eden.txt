@@ -1,0 +1,7 @@
+midLine is Line(200, 0, 200, 100);
+pivot is Circle(200,100,5);
+flap is Line(200,100,200-100*flap_pos,200-100*abs(flap_pos));
+floor is Line(0,200,400,200);
+cat is Rectangle(150-50*(cat_pos),120,100,80,"orange");
+picture is [midLine, pivot, flap, floor, cat];
+
