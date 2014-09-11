@@ -154,7 +154,13 @@ Eden.plugins.MenuBar = function(context) {
 		url: "version.json",
 		dataType: "json",
 		success: function(data) {
-			var versionHtml = data.tag ? data.tag : '<a href="https://github.com/EMgroup/js-eden/commit/' + data.sha +'">' + data.sha + '</a>';
+			var versionHtml = '';
+			if (data.tag) {
+				versionHtml += 'Version ' + data.tag;
+			}
+			if (data.sha) {
+				versionHtml += ' Commit <a href="https://github.com/EMgroup/js-eden/commit/' + data.sha +'">' + data.sha + '</a>';
+			}
 			$('<div id="menubar-version-number"></div>').html(versionHtml).appendTo($("#menubar-main"));
 		},
 		cache: false,
