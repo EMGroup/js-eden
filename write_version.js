@@ -8,16 +8,20 @@ function writeVersion(version) {
 }
 
 exec('git describe --abbrev=0 HEAD', function (error, stdout) {
-  if (error) {
-    exec('git rev-parse HEAD', function (error, stdout) {
-      if (error) {
-        console.error('Failed to write version.txt');
-        process.exit(1);
-      }
-      writeVersion({sha: stdout.replace('\n', '')});
-    });
-    return;
+  var tag;
+  if (!error) {
+    tag = stdout.replace('\n', '');
   }
 
-  writeVersion({tag: stdout.replace('\n', '')});
+  exec('git rev-parse HEAD', function (error, stdout) {
+    if (error) {
+      console.error('Failed to write version.json');
+      process.exit(1);
+    }
+
+    writeVersion({
+      tag: tag,
+      sha: stdout.replace('\n', '')
+    });
+  });
 });
