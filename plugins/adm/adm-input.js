@@ -14,6 +14,12 @@
  */
  Eden.plugins.ADM = function(context) {
 	var me = this;
+	this.html = function () {
+		console.log('HTML');
+	};
+	this.createDialog = function () {
+		console.log('CREATE DIALOG');
+	};
 	
 	// Array of actions selected to be executed
 	this.selectedActions = new Array();
