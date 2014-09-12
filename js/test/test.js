@@ -159,3 +159,26 @@ test("Scoping for triggered actions", function () {
 	eval(Eden.translateToJavaScript("x = 1; proc p : z {} func f { para x; } y is x;"));
 	equal(root.lookup('y').value(), 1);
 });
+
+test("includeJS defers execution", function () {
+	var root = new Folder();
+	var includeJS = rt.includeJS;
+	rt.includeJS = function (url, success) {
+		equal(url, "https://test.com/test.js");
+		setTimeout(function () {
+			equal(root.lookup('x').value(), undefined);
+			// allow script which called "include" to continue
+			success();
+			equal(root.lookup('x').value(), 2);
+			start();
+		}, 0);
+	};
+
+	stop();
+	try {
+		eval(Eden.translateToJavaScript('includeJS "https://test.com/test.js"; x = 2;'));
+	} catch (e) {
+		rt.includeJS = includeJS;
+		throw e;
+	}
+});
