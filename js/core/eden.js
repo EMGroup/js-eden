@@ -206,6 +206,22 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 		 * `parser.yy` object is exposed as `yy` by jison. (See grammar.jison for usage)
 		 */
 
+		var includes = 0;
+		parser.yy.includeJS = function (expression) {
+			includes++;
+			return 'rt.includeJS(' + expression + ', function () {'; 
+		};
+
+		parser.yy.withIncludes = function (statementList) {
+			var closer = "";
+			var i;
+			for (i = 0; i < includes; ++i) {
+				closer += "});";
+			}
+			includes = 0;
+			return statementList + closer;
+		};
+
 		/**
 		 * Extract a string from original eden source.
 		 * @param {Number} firstLine - Index of the line to start extracting.
