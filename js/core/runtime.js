@@ -14,7 +14,7 @@ var rt = {
 		return value.length;
 	},
 	includeJS: function (url, success) {
-		$.getScript(source, success);
+		$.getScript(url, success);
 	}
 };
 
