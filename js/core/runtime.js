@@ -12,6 +12,9 @@ var rt = {
 			return undefined;
 		}
 		return value.length;
+	},
+	includeJS: function (url, success) {
+		$.getScript(source, success);
 	}
 };
 
