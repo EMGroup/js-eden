@@ -1,0 +1,76 @@
+## Copyright (c) 2014, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+##
+## Functions for casting between types, determining the type to which a value
+## belongs, etc.
+
+##Define Boolean values.
+${{
+	root.lookup("true").assign(true, this);
+	root.lookup("false").assign(false, this);
+}}$;
+
+##Casts a value to an int.
+##
+##Improvements (over the previously built-in function of the same name):
+##
+##Strings that don't begin with a digit now return the character code of the
+##first and only character if the string is exactly one character long and zero
+##otherwise.  Previously NaN was returned.
+##
+##Boolean values (belonging to the JavaScript boolean type) are converted into
+##1 and 0.
+##
+##Values belonging to Types other than numbers, strings and Booleans result in
+##undefined being returned instead of NaN.
+##
+##Continuing discrepancies with tkeden:
+##
+##Because JavaScript doesn't have a separate character type distinct from
+##strings, applying this function to a numeral returns a number in the range
+##0-9 (favouring the string interpretation) and not the ASCII character code
+##(the character interpretation).  So int('A') is 65 but int('0') is 0, not 48.
+##
+##Pointer values result in undefined being returned because there is no way to
+##get JavaScript to reveal the memory address of a variable.
+##
+func int {
+	${{
+		if (arguments.length != 1) {
+			Eden.reportError(new Error("int: this function requires exactly one argument."));
+			return undefined;			
+		}
+
+		var value = arguments[0];
+		var type = typeof(value);
+		var number = parseInt(value);
+
+		switch (type) {
+			case "number":
+				return number;
+			case "string":
+				if (!isNaN(number)) {
+					return number;
+				} else if (arguments[0].length == 1) {
+					return value.charCodeAt();
+				} else {
+					return 0;
+				}
+			case "boolean":
+				return value? 1 : 0;
+			default:
+				return undefined;
+		}
+	}}$;
+}
+
+func str {
+  ${{
+  var a = arguments[0];
+  return (new Number(a)).toString();
+  }}$;
+};
+
+##TODO Quite a few more functions soon to be integrated by Elizabeth here.
