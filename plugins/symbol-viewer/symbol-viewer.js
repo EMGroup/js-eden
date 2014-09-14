@@ -16,8 +16,7 @@ var edenfunctions = {};
  * @param context The eden context this plugin is being loaded in to.
  */
 
-Eden.plugins.SymbolViewer = function(context) {
-
+Eden.plugins.SymbolViewer = function (context) {
 	var me = this;
 
 	//Obtain function meta data from server
@@ -199,7 +198,7 @@ Eden.plugins.SymbolViewer = function(context) {
 	}
 
 	//Register event handler for symbol changes.
-	context.context.addGlobal(symbolChanged);
+	root.addGlobal(symbolChanged);
 
 
 	//Add views supported by this plugin.

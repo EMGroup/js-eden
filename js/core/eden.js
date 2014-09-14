@@ -5,8 +5,7 @@
  * See LICENSE.txt
  */
 
-function Eden(context) {
-	this.context = context || new Folder();
+function Eden() {
 	this.index = 0;
 	this.errornumber = 0;
 	this.plugins = {};
