@@ -5,8 +5,6 @@
  * See LICENSE.txt
  */
 
-
- 
 var root;
 var eden;
 
@@ -143,7 +141,7 @@ function JS_Eden_Initialise(callback) {
 	$(document).ready(function() {
 		//runTests(all_the_tests);
 		root = new Folder();
-		eden = new Eden(root);
+		eden = new Eden();
 
 		//XXX don't think this is needed anymore.
 		modelbase = "";
