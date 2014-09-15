@@ -3,23 +3,6 @@
 ##
 ## See LICENSE.txt
 
-##STRING FUNCTIONS
-
-func str {
-  ${{
-  var a = arguments[0];
-  return (new Number(a)).toString();
-  }}$;
-};
-
-func int {
-  ${{
-  var a = arguments[0];
-  return parseInt(a);
-  }}$;
-};
-
-
 ##MISSING FUNCTIONS
 
 func eager {};
@@ -64,9 +47,6 @@ func forget {
 	}}$;
 };
 
-true = 1;
-false = 0;
-
 func include {
 ${{
 Eden.executeFile(arguments[0]);
@@ -97,6 +77,7 @@ autocalc = 1;
 
 ##Include the rest of the library
 
+include("library/types.js-e");
 include("library/core.js-e");
 ## include("library/drawing.jse");
 include("library/maths.jse");
