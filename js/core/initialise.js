@@ -154,7 +154,7 @@ function JS_Eden_Initialise(callback) {
 		var x;
 		var viewcount;
 
-		$.getJSON('/config.json', function (config) {
+		$.getJSON('config.json', function (config) {
 			rt.config = config;
 
 			if (include) {
