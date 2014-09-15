@@ -150,31 +150,40 @@ function JS_Eden_Initialise(callback) {
 		var plugins = getParameterByName("p").split(",");
 		var views = getParameterByName("v").split(",");
 		var models = getParameterByName("m").split(",");
+		var include = getParameterByName("include");
 		var x;
 		var viewcount;
 
-		if (plugins[0] != "") {
-			for (x in plugins) {
-				eden.loadPlugin(plugins[x]);
-			}
-		}
-		if (views[0] != "") {
-			viewcount = 0;
-			for (x in views) {
-				eden.createView("view_" + viewcount, views[x]);
-				viewcount = viewcount + 1;
-			}
-		}
+		$.getJSON('/config.json', function (config) {
+			rt.config = config;
 
-		if (models[0] != "") {
-			for (x in models) {
-				Eden.executeFileSSI(models[x]);
+			if (include) {
+				rt.includeJSE(include);
 			}
-		}
 
-		callback();
+			if (plugins[0] != "") {
+				for (x in plugins) {
+					eden.loadPlugin(plugins[x]);
+				}
+			}
+			if (views[0] != "") {
+				viewcount = 0;
+				for (x in views) {
+					eden.createView("view_" + viewcount, views[x]);
+					viewcount = viewcount + 1;
+				}
+			}
 
-		//Layout the dialogs as best as we can
-		tileViews();
+			if (models[0] != "") {
+				for (x in models) {
+					Eden.executeFileSSI(models[x]);
+				}
+			}
+
+			callback();
+
+			//Layout the dialogs as best as we can
+			tileViews();
+		});
 	});
 }
