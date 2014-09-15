@@ -1,3 +1,0 @@
-include! "library/test2.jse";
-x = y;
-z = 2000;

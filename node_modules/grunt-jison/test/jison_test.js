@@ -36,6 +36,15 @@ exports.tests = {
 
     test.done();
   },
+  withNamespace: function(test) {
+    test.expect(1);
+
+    var actual = grunt.file.read('tmp/withNamespace.calc.js');
+    var expected = grunt.file.read('test/expected/withNamespace.calc.js');
+    test.equal(actual, expected, 'should describe what the default behavior is.');
+
+    test.done();
+  },
   amd: function(test) {
     test.expect(1);
 
