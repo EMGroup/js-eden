@@ -134,12 +134,7 @@ Eden.plugins.CanvasHTML5 = function (context) {
 					$("#"+name+"-canvas").attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
 
 					//Now need to redraw the canvas.
-					//TODO: Dont use eden
-					try {
-						eval(Eden.translateToJavaScript("drawPicture();"));
-					} catch(e) {
-						console.error(e);
-					}
+					Eden.execute("drawPicture();");
 				},
 			});
 	}
