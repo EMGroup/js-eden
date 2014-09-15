@@ -13,61 +13,60 @@ window.onbeforeunload = confirmBrowseAway();
 
 function confirmBrowseAway()
 {
-  if (!workIsDone) {
-    return "Are you sure? If you leave this page now, your work will NOT be saved.";
-  }
+	if (!workIsDone) {
+		return "Are you sure? If you leave this page now, your work will NOT be saved.";
+	}
 };
-
-//XXX what is this?
-var current_view = new Array();
 
 /**
  * Utility function to extract URL query string parameters.
  */
-function getParameterByName( name )
-{
-
-  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-  var regexS = "[\\?&]"+name+"=([^&#]*)";
-  var regex = new RegExp( regexS );
-  var results = regex.exec( window.location.href );
-  if( results == null )
-    return "";
-  else
-    return decodeURIComponent(results[1].replace(/\+/g, " "));
+function getParameterByName(name) {
+	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+	var regexS = "[\\?&]"+name+"=([^&#]*)";
+	var regex = new RegExp( regexS );
+	var results = regex.exec( window.location.href );
+	if (results == null)
+		return "";
+	else
+		return decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
 function makeViewArray() {
-
-	result = new Array();
+	var result = [];
+	var x;
 	for (x in eden.active_dialogs) {
 		result.push($("#"+x+"-dialog")[0]);
 	}
 	return result;
 }
 
-function sortArea(a,b) {
-
-	areaA = $(a).dialog("option","width") * $(a).dialog("option","height");
-	areaB = $(b).dialog("option","width") * $(b).dialog("option","height");
+function sortArea(a, b) {
+	var areaA = $(a).dialog("option", "width") * $(a).dialog("option", "height");
+	var areaB = $(b).dialog("option", "width") * $(b).dialog("option", "height");
 
 	return areaB-areaA;
 }
 
-function removeElement(a,index) {
+function removeElement(a, index) {
+	var result = [];
+	var x;
 
-	result = new Array();
 	for (x in a) {
-		if (x == index) continue;
+		if (x === index) {
+			continue;
+		}
 		result.push(a[x]);
 	}
 	return result;
 }
 
 function largestHeight(a) {
+	var largest = 0;
+	var index = 0;
+	var x;
+	var ele;
 
-	largest = 0;
-	index = 0;
 	for (x in a) {
 		ele = $(a[x]);
 		if (ele.dialog("option","height") > largest) {
@@ -79,9 +78,10 @@ function largestHeight(a) {
 }
 
 function smallestHeight(a) {
+	var smallest = 1000000;
+	var index = 0;
+	var x;
 
-	smallest = 1000000;
-	index = 0;
 	for (x in a) {
 		ele = $(a[x]);
 		if (ele.dialog("option","height") < smallest) {
@@ -93,19 +93,19 @@ function smallestHeight(a) {
 }
 
 function totalWidth(a) {
-
-	width = 0;	
+	var width = 0;	
+	var x;
 	for (x in a) {
 		width = width + $(a[x]).dialog("option","width");
 	}
 	return width;
 }
 
-function placeViews(views,top,spacing) {
+function placeViews(views, top, spacing) {
+	var heighest = largestHeight(views);
 
-	heighest = largestHeight(views);
-
-	left = spacing;
+	var left = spacing;
+	var x;
 	for (x in views) {
 		$(views[x]).dialog("option","position",[left,top]);
 		left = left + $(views[x]).dialog("option","width") + spacing;
@@ -114,11 +114,10 @@ function placeViews(views,top,spacing) {
 }
 
 function tileViews() {
-
-	views = makeViewArray();
+	var views = makeViewArray();
 	views.sort(sortArea);
-	overflow = new Array();
-	spacing = 50;
+	var overflow = new Array();
+	var spacing = 50;
 
 	while (totalWidth(views) > ($(document).width() + (spacing * (views.length+1)))) {
 		//Overflow by removing smallest height item.
@@ -130,21 +129,16 @@ function tileViews() {
 	//TODO Now need to repeat process on overflow incase that exceeds width.
 
 	//Actually position views
-	height = placeViews(views,100,spacing);
+	var height = placeViews(views,100,spacing);
 	if (overflow.length > 0) {
-		placeViews(overflow,height,spacing);
+		placeViews(overflow, height, spacing);
 	}
 }
 
 function JS_Eden_Initialise(callback) {
-
 	$(document).ready(function() {
-		//runTests(all_the_tests);
 		root = new Folder();
 		eden = new Eden();
-
-		//XXX don't think this is needed anymore.
-		modelbase = "";
 
 		//Create the error window. Hiden to start with.
 		$('<pre id="error-window" style="font-family:monospace; display: none;"></pre>').appendTo($('body'));
@@ -156,6 +150,8 @@ function JS_Eden_Initialise(callback) {
 		var plugins = getParameterByName("p").split(",");
 		var views = getParameterByName("v").split(",");
 		var models = getParameterByName("m").split(",");
+		var x;
+		var viewcount;
 
 		if (plugins[0] != "") {
 			for (x in plugins) {
@@ -163,9 +159,9 @@ function JS_Eden_Initialise(callback) {
 			}
 		}
 		if (views[0] != "") {
-			var viewcount = 0;
+			viewcount = 0;
 			for (x in views) {
-				eden.createView("view_"+viewcount,views[x]);
+				eden.createView("view_" + viewcount, views[x]);
 				viewcount = viewcount + 1;
 			}
 		}
