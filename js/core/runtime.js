@@ -12,6 +12,14 @@ var rt = {
 			return undefined;
 		}
 		return value.length;
+	},
+
+	includeJSE: function (url) {
+		$.getScript(rt.config.jseProxyBaseUrl + '?successCallback=Eden.execute&url=' + encodeURIComponent(url));
+	},
+
+	includeJS: function (url, success) {
+		$.getScript(url, success);
 	}
 };
 

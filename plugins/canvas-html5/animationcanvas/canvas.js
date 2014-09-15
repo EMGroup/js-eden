@@ -11,8 +11,7 @@
  * @class CanvasHTML5 Plugin
  */
 
-Eden.plugins.CanvasHTML5 = function(context) {
-
+Eden.plugins.CanvasHTML5 = function (context) {
 	var me = this;
 	q = me;
 

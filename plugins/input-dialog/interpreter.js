@@ -65,16 +65,8 @@ Eden.plugins.InputWindow = function(context) {
 			eden.plugins.MenuBar.updateStatus("Parsing input...");
 		}
 
-		try {
-	
-			eval(Eden.translateToJavaScript(text));
+		Eden.execute(text);
 			
-		} catch (e) {
-			me.history[this.index-1] = text;
-			//eden.plugins.MenuBar.updateStatus("Eden Code Unrecognised - Did you forget a semicolon?");
-			alert(e);
-		}
-
 		if (eden.plugins.MenuBar) {
 			eden.plugins.MenuBar.appendStatus(" [complete]");
 		}

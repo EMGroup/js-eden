@@ -11,8 +11,7 @@
  * @class CanvasHTML5 Plugin
  */
 
-Eden.plugins.CanvasHTML5 = function(context) {
-
+Eden.plugins.CanvasHTML5 = function (context) {
 	var me = this;
 
 	var clearCanvas = function(content) {
@@ -62,7 +61,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 
 			canvas.drawing = false;
 			
-			var picture = context.context.lookup(pictureobs).value(); //This works!!
+			var picture = root.lookup(pictureobs).value();
 
 			//To clear canvas.
 			canvas.width = canvas.width;
@@ -93,26 +92,26 @@ Eden.plugins.CanvasHTML5 = function(context) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			context.context.lookup('mousePressed').assign(true);
-			context.context.lookup('mouseDown').assign(root.lookup('Point').value().call(this, x, y), this);
+			root.lookup('mousePressed').assign(true);
+			root.lookup('mouseDown').assign(root.lookup('Point').value().call(this, x, y), this);
 		}).on("mouseup",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			context.context.lookup('mousePressed').assign(false);
-			context.context.lookup('mouseUp').assign(root.lookup('Point').value().call(this, x, y), this);
+			root.lookup('mousePressed').assign(false);
+			root.lookup('mouseUp').assign(root.lookup('Point').value().call(this, x, y), this);
 		}).on("mousemove",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			context.context.lookup('mouseX').assign(x);
-			context.context.lookup('mouseY').assign(y);
+			root.lookup('mouseX').assign(x);
+			root.lookup('mouseY').assign(y);
 		}).on("click",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			context.context.lookup('mouseClickX').assign(x);
-			context.context.lookup('mouseClickY').assign(y);
+			root.lookup('mouseClickX').assign(x);
+			root.lookup('mouseClickY').assign(y);
 		});
 
 		$dialog = $('<div id="'+name+'"></div>')
@@ -127,12 +126,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 					$("#"+name+"-canvas").attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
 
 					//Now need to redraw the canvas.
-					//TODO: Dont use eden
-					try {
-						eval(Eden.translateToJavaScript("drawPicture();"));
-					} catch(e) {
-						console.error(e);
-					}
+					Eden.execute("drawPicture();");
 				},
 			});
 	}

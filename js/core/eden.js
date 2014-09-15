@@ -4,72 +4,25 @@
  *
  * See LICENSE.txt
  */
- 
 
- 
-function Eden(context) {
-
-	this.context = context || new Folder();
-	this.storage_script_key = "script";
-	this.history = new Array();
+function Eden() {
 	this.index = 0;
 	this.errornumber = 0;
 	this.plugins = {};
 	this.internals = {};
 }
 
-modelbase = "";
+Eden.prototype.internal = function (name) {
+	this.internals.__defineGetter__(name, function () {
+		return (root.lookup(name)).value();
+	});
 
-Eden.prototype.internal = function(name) {
-
-	this.internals.__defineGetter__(name, function(){
-
-        return (root.lookup(name)).value();
-    });
-    
-    this.internals.__defineSetter__(name, function(val){
-
-        root.lookup(name).assign(val);
-    });
-}
-
-
-//Eden.prototype.addHistory = function(data) {
-//	this.history.push(data);
-//	this.index = this.history.length;
-//}
-
-//Eden.prototype.getHistory = function(index) {
-//	if (this.history.length == 0) {
-//		return "";
-//	} else {
-//		return this.history[index];
-//	}
-//}
-
-//Eden.prototype.previousHistory = function() {
-//	if (this.index <= 0) {
-//		this.index = 1;
-//	}
-//	if (this.index > this.history.length) {
-//		this.index = this.history.length;
-//	}
-//	return this.getHistory(--this.index);
-//};
-
-//Eden.prototype.nextHistory = function() {
-//	if (this.index < 0) {
-//		this.index = 0;
-//	}
-//	if (this.index >= this.history.length-1) {
-//		this.index++;
-//		return "";
-//	}
-//	return this.getHistory(++this.index);
-//};
+	this.internals.__defineSetter__(name, function (val) {
+		root.lookup(name).assign(val);
+	});
+};
 
 Eden.formatError = function (e, options) {
-
 	options = options || {};
 	return "<div class=\"error-item\">"+
 		"## ERROR number " + eden.errornumber + ":<br>"+
@@ -79,7 +32,6 @@ Eden.formatError = function (e, options) {
 };
 
 Eden.reportError = function (e, options) {
-
 	if (eden.plugins.MenuBar) {
 		eden.plugins.MenuBar.updateStatus("Error: "+e.message);
 	}
@@ -95,24 +47,16 @@ Eden.reportError = function (e, options) {
  * translates it to JavaScript then evals it when it's done
  */
 Eden.executeFile = function (path) {
-
-	//console.error("Calls to executeFile should be deprecated");
 	$.ajax({
-		url: modelbase+path,
+		url: path,
 		dataType: 'text',
 		success: function(data) {
-			try {
-				eval(Eden.translateToJavaScript(data));
-			} catch (e) {
-				Eden.reportError(e, {path: path});
-				console.error(e);
-			}
+			Eden.execute(data, path);
 		},
 		cache: false,
 		async: false
 	});
 };
-
 
 /*
  * Async loads an EDEN file from the server,
@@ -121,25 +65,20 @@ Eden.executeFile = function (path) {
  * possible to use this version across domains to load scripts on other servers.
  */
 Eden.executeFileSSI = function (path) {
+	Eden.loadqueue = [];
 
-Eden.loadqueue = new Array();
 	var ajaxfunc = function(path2) {
 		$.ajax({
 			url: path2,
 			dataType: 'text',
 			type: 'GET',
 			success: function(data) {
-				try {
-					if (eden.plugins.MenuBar) {
-						eden.plugins.MenuBar.updateStatus("Parsing "+path2+"...");
-					}
-					eval(Eden.translateToJavaScript(data));
-					if (eden.plugins.MenuBar) {
-						eden.plugins.MenuBar.appendStatus(" [complete]");
-					}
-				} catch (e) {
-					Eden.reportError(e, {path: path2});
-					console.error(e);
+				if (eden.plugins.MenuBar) {
+					eden.plugins.MenuBar.updateStatus("Parsing "+path2+"...");
+				}
+				Eden.execute(data, path2);
+				if (eden.plugins.MenuBar) {
+					eden.plugins.MenuBar.appendStatus(" [complete]");
 				}
 
 				if (Eden.loadqueue.length > 0) {
@@ -165,24 +104,28 @@ Eden.loadqueue = new Array();
 	}
 };
 
-Eden.execute = function(code) {
-
-	var result = "";
+Eden.execute = function (code, origin) {
+	var result;
 	try {
 		result = eval(Eden.translateToJavaScript(code));
-	} catch(e) {
-		Eden.reportError(e);
-		//$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\"># ERROR number " + eden.errornumber + ":<br># Execute<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
-		//eden.errornumber = eden.errornumber + 1;
+	} catch (e) {
+		if (origin) {
+			Eden.reportError(e, {path: origin});
+		} else {
+			Eden.reportError(e);
+		}
+		// leaving this alert here because the error window can sometimes be
+		// hidden. this can go away if we can raise the eden error window to the
+		// top.
+		alert(e);
 	}
 	return result;
-}
+};
 
 function _$() {
-
 	var code = arguments[0];
-	for (var i=1; i<arguments.length; i++) {
-		code = code.replace("$"+i,arguments[i]);
+	for (var i = 1; i < arguments.length; i++) {
+		code = code.replace("$"+i, arguments[i]);
 	}
 	return Eden.execute(code);
 }
@@ -205,6 +148,22 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 		 * This function sets up a bunch of state/functions used in the generated parser. The
 		 * `parser.yy` object is exposed as `yy` by jison. (See grammar.jison for usage)
 		 */
+
+		var includes = 0;
+		parser.yy.includeJS = function (expression) {
+			includes++;
+			return 'rt.includeJS(' + expression + ', function () {'; 
+		};
+
+		parser.yy.withIncludes = function (statementList) {
+			var closer = "";
+			var i;
+			for (i = 0; i < includes; ++i) {
+				closer += "});";
+			}
+			includes = 0;
+			return statementList + closer;
+		};
 
 		/**
 		 * Extract a string from original eden source.
@@ -362,68 +321,14 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
  * This is the entry point for eden to JS translation, which attaches some of the
  * necessary functions/initial state to the translator before running it
  */
-// XXX: require.js for loading translator.js
 Eden.translateToJavaScript = Eden.parserWithInitialisation(parser);
 
-Eden.prototype.getDefinition = function(name, symbol) {
-
+Eden.prototype.getDefinition = function (name, symbol) {
 	if (symbol.eden_definition) {
 		return symbol.eden_definition + ";";
 	} else {
 		return name + " = " + symbol.cached_value + ";";
 	}
-};
-
-/*
- * XXX: all this stuff currently isn't used, just represents
- * some hacking for persisting model state I did. monk
- */
-Eden.prototype.getSerializedState = function() {
-
-	var script = "";
-	for (var name in this.context.symbols) {
-		script += this.getDefinition(name, this.context.symbols[name]) + "\n";
-	}
-	return script;
-};
-
-Eden.prototype.saveLocalModelState = function() {
-
-	var state_string = this.getSerializedState(this.context);
-	localStorage[this.storage_script_key] = state_string;
-};
-
-Eden.prototype.loadLocalModelState = function() {
-
-	var stored_script = localStorage[this.storage_script_key];
-	if (stored_script != undefined) {
-		eval(Eden.translateToJavaScript(stored_script));
-	} else {
-		console.log("tried to load local model state but there was nothing stored!");
-	}
-};
-
-Eden.prototype.pushModelState = function() {
-
-	var uploader_url = 'push-state.php';
-	var state_string = this.getSerializedState(this.context);
-	$.ajax(uploader_url, {
-		type: 'POST',
-		data: {
-			state: state_string
-		},
-		timeout: 2000,
-		success: function(data) {
-			console.log("SUCCESSFULLY PUSHED MODEL", data);
-		},
-		error: function(request, status, error) {
-			if (status === "timeout") {
-				console.log("whoops, POST timed out");
-			} else {
-				console.log("something went wrong submitting a question (other than timeout): status " + status);
-			}
-		}
-	});
 };
 
 this.Eden = Eden;
