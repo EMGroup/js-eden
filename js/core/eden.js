@@ -51,12 +51,7 @@ Eden.executeFile = function (path) {
 		url: path,
 		dataType: 'text',
 		success: function(data) {
-			try {
-				eval(Eden.translateToJavaScript(data));
-			} catch (e) {
-				Eden.reportError(e, {path: path});
-				console.error(e);
-			}
+			Eden.execute(data, path);
 		},
 		cache: false,
 		async: false
@@ -78,17 +73,12 @@ Eden.executeFileSSI = function (path) {
 			dataType: 'text',
 			type: 'GET',
 			success: function(data) {
-				try {
-					if (eden.plugins.MenuBar) {
-						eden.plugins.MenuBar.updateStatus("Parsing "+path2+"...");
-					}
-					eval(Eden.translateToJavaScript(data));
-					if (eden.plugins.MenuBar) {
-						eden.plugins.MenuBar.appendStatus(" [complete]");
-					}
-				} catch (e) {
-					Eden.reportError(e, {path: path2});
-					console.error(e);
+				if (eden.plugins.MenuBar) {
+					eden.plugins.MenuBar.updateStatus("Parsing "+path2+"...");
+				}
+				Eden.execute(data, path2);
+				if (eden.plugins.MenuBar) {
+					eden.plugins.MenuBar.appendStatus(" [complete]");
 				}
 
 				if (Eden.loadqueue.length > 0) {
@@ -114,12 +104,20 @@ Eden.executeFileSSI = function (path) {
 	}
 };
 
-Eden.execute = function (code) {
-	var result = "";
+Eden.execute = function (code, origin) {
+	var result;
 	try {
 		result = eval(Eden.translateToJavaScript(code));
-	} catch(e) {
-		Eden.reportError(e);
+	} catch (e) {
+		if (origin) {
+			Eden.reportError(e, {path: origin});
+		} else {
+			Eden.reportError(e);
+		}
+		// leaving this alert here because the error window can sometimes be
+		// hidden. this can go away if we can raise the eden error window to the
+		// top.
+		alert(e);
 	}
 	return result;
 };
