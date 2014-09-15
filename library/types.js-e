@@ -6,11 +6,8 @@
 ## Functions for casting between types, determining the type to which a value
 ## belongs, etc.
 
-##Define Boolean values.
-${{
-	root.lookup("true").assign(true, this);
-	root.lookup("false").assign(false, this);
-}}$;
+true = ${{ true }}$;
+false = ${{ false }}$;
 
 ##Casts a value to an int.
 ##
@@ -23,7 +20,7 @@ ${{
 ##Boolean values (belonging to the JavaScript boolean type) are converted into
 ##1 and 0.
 ##
-##Values belonging to Types other than numbers, strings and Booleans result in
+##Values belonging to types other than numbers, strings and Booleans result in
 ##undefined being returned instead of NaN.
 ##
 ##Continuing discrepancies with tkeden:
@@ -72,5 +69,3 @@ func str {
   return (new Number(a)).toString();
   }}$;
 };
-
-##TODO Quite a few more functions soon to be integrated by Elizabeth here.
