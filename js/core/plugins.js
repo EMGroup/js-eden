@@ -4,13 +4,14 @@
  *
  * See LICENSE.txt
  */
- 
 
-
+/*
+ * Stores plugins that can be loaded. Plugins will modify this directly in
+ * order for them to be loaded later.
+ */
 Eden.plugins = {};
 
-Eden.prototype.loadPlugin = function(name) {
-
+Eden.prototype.loadPlugin = function (name) {
 	if (this.plugins === undefined) {
 		this.plugins = {};
 	}
@@ -18,7 +19,7 @@ Eden.prototype.loadPlugin = function(name) {
 		this.views = {};
 	}
 
-	//If not already loaded then load.
+	// If not already loaded then load.
 	if (this.plugins[name] === undefined) {
 		this.plugins[name] = new Eden.plugins[name](this);
 
@@ -28,8 +29,7 @@ Eden.prototype.loadPlugin = function(name) {
 	}
 };
 
-Eden.prototype.createView = function(name, type) {
-
+Eden.prototype.createView = function (name, type) {
 	if (this.active_dialogs === undefined) {
 		this.active_dialogs = {};
 	}
@@ -39,59 +39,51 @@ Eden.prototype.createView = function(name, type) {
 		return;
 	}
 
-	this.views[type].dialog(name+"-dialog", this.views[type].title + " ["+name+"]");
+	this.views[type].dialog(name+"-dialog", this.views[type].title+" ["+name+"]");
 	this.active_dialogs[name] = type;
 	if (this.plugins.MenuBar) {
 		this.plugins.MenuBar.updateViewsMenu();
 	}
 
-	this.internal("_view_"+name+"_x");
-	this.internal("_view_"+name+"_y");
-	this.internal("_view_"+name+"_width");
-	this.internal("_view_"+name+"_height");
-
 	var diag = $("#"+name+"-dialog");
-	root.lookup("_view_"+name+"_width").assign(diag.dialog("option","width"));
-	root.lookup("_view_"+name+"_height").assign(diag.dialog("option","height"));
+	root.lookup("_view_"+name+"_width").assign(diag.dialog("option", "width"));
+	root.lookup("_view_"+name+"_height").assign(diag.dialog("option", "height"));
 
-	diag.on( "dialogresizestop", function(event, ui) {
-			root.lookup("_view_"+name+"_width").assign(ui.size.width);
-			root.lookup("_view_"+name+"_height").assign(ui.size.height);
-		});
+	diag.on("dialogresizestop", function (event, ui) {
+		root.lookup("_view_"+name+"_width").assign(ui.size.width);
+		root.lookup("_view_"+name+"_height").assign(ui.size.height);
+	});
 
-	//Now construct eden agents and observables for dialog control.
+	// Now construct eden agents and observables for dialog control.
 	Eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ eden.moveView(\""+name+"\"); }}$; };");
 	Eden.execute("proc _View_"+name+"_size : _view_"+name+"_width,_view_"+name+"_height { ${{ eden.resizeView(\""+name+"\"); }}$; };");
 };
 
-Eden.prototype.showView = function(name) {
-
+Eden.prototype.showView = function (name) {
 	$("#"+name+"-dialog").dialog("open");
-}
+};
 
-Eden.prototype.hideView = function(name) {
-
+Eden.prototype.hideView = function (name) {
 	$("#"+name+"-dialog").dialog("close");
-}
+};
 
-Eden.prototype.moveView = function(name) {
+Eden.prototype.moveView = function (name) {
+	var x = root.lookup("_view_"+name+"_x").value();
+	var y = root.lookup("_view_"+name+"_y").value();
+	$("#"+name+"-dialog").dialog("option", "position", [x, y]);
+};
 
-	$("#"+name+"-dialog").dialog("option","position",[this.internals["_view_"+name+"_x"],this.internals["_view_"+name+"_y"]]);
-}
-
-Eden.prototype.resizeView = function(name) {
-
-	var newwidth = this.internals["_view_"+name+"_width"];
-	var newheight = this.internals["_view_"+name+"_height"];
+Eden.prototype.resizeView = function (name) {
+	var newwidth = root.lookup("_view_"+name+"_width").value();
+	var newheight = root.lookup("_view_"+name+"_height").value();
 	var diag = $("#"+name+"-dialog");
-	var oldwidth = diag.dialog("option","width");
-	var oldheight = diag.dialog("option","height");
+	var oldwidth = diag.dialog("option", "width");
+	var oldheight = diag.dialog("option", "height");
 
-	if (newwidth-oldwidth != 0) {
+	if (newwidth - oldwidth !== 0) {
 		diag.dialog("option","width",newwidth);
 	}
-	if (newheight-oldheight != 0) {
-		diag.dialog("option","height",newheight);
+	if (newheight - oldheight !== 0) {
+		diag.dialog("option", "height", newheight);
 	}
-}
-
+};
