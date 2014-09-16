@@ -5,85 +5,143 @@
  * See LICENSE.txt
  */
 
-/*
- * Stores plugins that can be loaded. Plugins will modify this directly in
- * order for them to be loaded later.
- */
-Eden.plugins = {};
-
-Eden.prototype.loadPlugin = function (name) {
-	if (this.plugins === undefined) {
-		this.plugins = {};
-	}
-	if (this.views === undefined) {
-		this.views = {};
+(function () {
+	/**
+	 * Helper to return the Symbol for a view property.
+	 *
+	 * @param {string} viewName
+	 * @param {string} propName
+	 * @return {Symbol} return a Symbol
+	 */
+	function view(viewName, propName) {
+		return root.lookup("_view_"+viewName+"_"+propName);
 	}
 
-	// If not already loaded then load.
-	if (this.plugins[name] === undefined) {
-		this.plugins[name] = new Eden.plugins[name](this);
+	/**
+	 * Helper to find the dialog using jQuery and return it.
+	 *
+	 * @param {string} viewName
+	 * @return {jQuery} A jQuery object with the dialog element in it.
+	 */
+	function dialog(viewName) {
+		return $("#"+dialogName+"-dialog");
+	}
 
-		if (this.plugins.MenuBar) {
-			this.plugins.MenuBar.updatePluginsMenu();
+	/*
+	 * Stores plugins that can be loaded. Plugins will modify this directly in
+	 * order for them to be loaded later.
+	 */
+	Eden.plugins = {};
+
+	/**
+	 * Load a plugin if it is not already loaded. The plugin must have been
+	 * registered first.
+	 *
+	 * @param {string} name - Name of the plugin to load.
+	 */
+	Eden.prototype.loadPlugin = function (name) {
+		if (this.plugins === undefined) {
+			this.plugins = {};
 		}
-	}
-};
+		if (this.views === undefined) {
+			this.views = {};
+		}
 
-Eden.prototype.createView = function (name, type) {
-	if (this.active_dialogs === undefined) {
-		this.active_dialogs = {};
-	}
+		if (this.plugins[name] === undefined) {
+			this.plugins[name] = new Eden.plugins[name](this);
 
-	if (this.active_dialogs[name] !== undefined) {
-		this.showView(name);
-		return;
-	}
+			if (this.plugins.MenuBar) {
+				this.plugins.MenuBar.updatePluginsMenu();
+			}
+		}
+	};
 
-	this.views[type].dialog(name+"-dialog", this.views[type].title+" ["+name+"]");
-	this.active_dialogs[name] = type;
-	if (this.plugins.MenuBar) {
-		this.plugins.MenuBar.updateViewsMenu();
-	}
+	/**
+	 * A view is a window which appears in the JsEden UI.
+	 *
+	 * This inserts an element for the view window, and also creates observables
+	 * and agents that allow for interaction from EDEN.
+	 *
+	 * Afterwards, the {show,hide}View methods can be used to modify the view.
+	 * And the {move,resize}View methods can be used to update a view using the
+	 * current values in the view's observables.
+	 *
+	 * @param {string} name - unique identifier for the view.
+	 * @param {string} type - used to group different types of views.
+	 */
+	Eden.prototype.createView = function (name, type) {
+		if (this.active_dialogs === undefined) {
+			this.active_dialogs = {};
+		}
 
-	var diag = $("#"+name+"-dialog");
-	root.lookup("_view_"+name+"_width").assign(diag.dialog("option", "width"));
-	root.lookup("_view_"+name+"_height").assign(diag.dialog("option", "height"));
+		if (this.active_dialogs[name] !== undefined) {
+			this.showView(name);
+			return;
+		}
 
-	diag.on("dialogresizestop", function (event, ui) {
-		root.lookup("_view_"+name+"_width").assign(ui.size.width);
-		root.lookup("_view_"+name+"_height").assign(ui.size.height);
-	});
+		this.views[type].dialog(name+"-dialog", this.views[type].title+" ["+name+"]");
+		this.active_dialogs[name] = type;
+		if (this.plugins.MenuBar) {
+			this.plugins.MenuBar.updateViewsMenu();
+		}
 
-	// Now construct eden agents and observables for dialog control.
-	Eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ eden.moveView(\""+name+"\"); }}$; };");
-	Eden.execute("proc _View_"+name+"_size : _view_"+name+"_width,_view_"+name+"_height { ${{ eden.resizeView(\""+name+"\"); }}$; };");
-};
+		var diag = dialog(name);
+		view(name, 'width').assign(diag.dialog("option", "width"));
+		view(name, 'height').assign(diag.dialog("option", "height"));
 
-Eden.prototype.showView = function (name) {
-	$("#"+name+"-dialog").dialog("open");
-};
+		diag.on("dialogresizestop", function (event, ui) {
+			view(name, 'width').assign(ui.size.width);
+			view(name, 'height').assign(ui.size.height);
+		});
 
-Eden.prototype.hideView = function (name) {
-	$("#"+name+"-dialog").dialog("close");
-};
+		// Now construct eden agents and observables for dialog control.
+		Eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ eden.moveView(\""+name+"\"); }}$; };");
+		Eden.execute("proc _View_"+name+"_size : _view_"+name+"_width,_view_"+name+"_height { ${{ eden.resizeView(\""+name+"\"); }}$; };");
+	};
 
-Eden.prototype.moveView = function (name) {
-	var x = root.lookup("_view_"+name+"_x").value();
-	var y = root.lookup("_view_"+name+"_y").value();
-	$("#"+name+"-dialog").dialog("option", "position", [x, y]);
-};
+	/**
+	 * Make the window for a view visible.
+	 * @param {string} name - unique identifier for the view.
+	 */
+	Eden.prototype.showView = function (name) {
+		dialog(name).dialog('open');
+	};
 
-Eden.prototype.resizeView = function (name) {
-	var newwidth = root.lookup("_view_"+name+"_width").value();
-	var newheight = root.lookup("_view_"+name+"_height").value();
-	var diag = $("#"+name+"-dialog");
-	var oldwidth = diag.dialog("option", "width");
-	var oldheight = diag.dialog("option", "height");
+	/**
+	 * Hide the window for a view.
+	 * @param {string} name - unique identifier for the view.
+	 */
+	 */
+	Eden.prototype.hideView = function (name) {
+		dialog(name).dialog('close');
+	};
 
-	if (newwidth - oldwidth !== 0) {
-		diag.dialog("option","width",newwidth);
-	}
-	if (newheight - oldheight !== 0) {
-		diag.dialog("option", "height", newheight);
-	}
-};
+	/**
+	 * Move the window for a view base on its EDEN observables.
+	 * @param {string} name - unique identifier for the view.
+	 */
+	Eden.prototype.moveView = function (name) {
+		var x = view(name, 'x').value();
+		var y = view(name, 'y').value();
+		dialog(name).dialog("option", "position", [x, y]);
+	};
+
+	/**
+	 * Resize the window for a view to base on its EDEN observables.
+	 * @param {string} name - unique identifier for the view.
+	 */
+	Eden.prototype.resizeView = function (name) {
+		var newwidth = view(name, 'width').value();
+		var newheight = view(name, 'height').value();
+		var diag = dialog(name);
+		var oldwidth = diag.dialog("option", "width");
+		var oldheight = diag.dialog("option", "height");
+
+		if (newwidth - oldwidth !== 0) {
+			diag.dialog("option", "width", newwidth);
+		}
+		if (newheight - oldheight !== 0) {
+			diag.dialog("option", "height", newheight);
+		}
+	};
+}());
