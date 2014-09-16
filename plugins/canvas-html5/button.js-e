@@ -3,14 +3,16 @@
 ##
 ## See LICENSE.txt
 
-func Button { ${{
+func Button {
+${{
 	var name = arguments[0];
 	var label = arguments[1];
 	var x = arguments[2];
 	var y = arguments[3];
 	var enabled = arguments[4];
 	return new Button(name, label, x, y, enabled);
-}}$; };
+}}$;
+}
 
 ${{
 	var Button = function (name, label, x, y, enabled) {
@@ -22,45 +24,61 @@ ${{
 		this.element = undefined;
 	};
 
-	Button.prototype.draw = function(context, content) {
-	  var me2 = this.name;
-	  var but = this.element;
-	  if (but === undefined){
-		var dis = "";
-		if (this.enabled == true) { dis = ""; }
-		else { dis = "disabled=\"true\""; }
+	Button.prototype.draw = function (context, content) {
+		var name = this.name;
+		var but = this.element;
 
-		var can = $(content);
-		var buthtml = $("<input type=\"button\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
-			root.lookup(me2 + "_clicked").assign(true);
-		}).appendTo(can);
+		if (but === undefined){
+			var dis = "";
 
-		but = buthtml.get(0);
-		this.element = but;
-		but.togarbage = false;
+			if (this.enabled) {
+				dis = "";
+			} else {
+				dis = "disabled=\"true\"";
+			}
 
-		//Initialise
+			var can = $(content);
+			var inputHtml = '<input  type="button"' +
+															'value="' + this.label + '"' +
+															'style="' +
+																'position: absolute;' +
+																'left: ' + this.x + 'px;' +
+																'top: ' + this.y + 'px;"' +
+											'</input>'
 
-	  } else {
-		but.value = this.label;
-		but.togarbage = false;
-		if (this.enabled == true) { but.disabled = false; }
-		else { but.disabled = true; }
-		//XXX This might have a performance hit...
-		var x = ""+this.x+"px";
-		var y = ""+this.y+"px";
-		var style = but.style;
-		if (style.left != x) {
-			style.left = x;
+			var $input = $(inputHtml).click(function () {
+				root.lookup(name + "_clicked").assign(true);
+			}).appendTo(can);
+
+			but = $input.get(0);
+			this.element = but;
+			but.togarbage = false;
+		} else {
+			but.value = this.label;
+			but.togarbage = false;
+
+			if (this.enabled) {
+				but.disabled = false;
+			} else {
+				but.disabled = true;
+			}
+
+			var x = ""+this.x+"px";
+			var y = ""+this.y+"px";
+
+			var style = but.style;
+			if (style.left != x) {
+				style.left = x;
+			}
+			if (style.top != y) {
+				style.top = y;
+			}
+
+			$(but).appendTo($(content));
 		}
-		if (style.top != y) {
-			style.top = y;
-		}
-		$(but).appendTo($(content));
-	  }
 	};
 
-	Button.prototype.toString = function() {
-	  return "Button(\"" + this.name + "\", \"" + this.label + "\", " + this.x + ", "+this.y+", "+this.enabled+")";
+	Button.prototype.toString = function () {
+		return "Button(\"" + this.name + "\", \"" + this.label + "\", " + this.x + ", "+this.y+", "+this.enabled+")";
 	};
 }}$;
