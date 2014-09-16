@@ -40,13 +40,6 @@
 	 * @param {string} name - Name of the plugin to load.
 	 */
 	Eden.prototype.loadPlugin = function (name) {
-		if (this.plugins === undefined) {
-			this.plugins = {};
-		}
-		if (this.views === undefined) {
-			this.views = {};
-		}
-
 		if (this.plugins[name] === undefined) {
 			this.plugins[name] = new Eden.plugins[name](this);
 
