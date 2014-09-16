@@ -45,11 +45,6 @@ Eden.prototype.createView = function (name, type) {
 		this.plugins.MenuBar.updateViewsMenu();
 	}
 
-	this.internal("_view_"+name+"_x");
-	this.internal("_view_"+name+"_y");
-	this.internal("_view_"+name+"_width");
-	this.internal("_view_"+name+"_height");
-
 	var diag = $("#"+name+"-dialog");
 	root.lookup("_view_"+name+"_width").assign(diag.dialog("option", "width"));
 	root.lookup("_view_"+name+"_height").assign(diag.dialog("option", "height"));
@@ -73,12 +68,14 @@ Eden.prototype.hideView = function (name) {
 };
 
 Eden.prototype.moveView = function (name) {
-	$("#"+name+"-dialog").dialog("option", "position", [this.internals["_view_"+name+"_x"], this.internals["_view_"+name+"_y"]]);
+	var x = root.lookup("_view_"+name+"_x").value();
+	var y = root.lookup("_view_"+name+"_y").value();
+	$("#"+name+"-dialog").dialog("option", "position", [x, y]);
 };
 
 Eden.prototype.resizeView = function (name) {
-	var newwidth = this.internals["_view_"+name+"_width"];
-	var newheight = this.internals["_view_"+name+"_height"];
+	var newwidth = root.lookup("_view_"+name+"_width").value();
+	var newheight = root.lookup("_view_"+name+"_height").value();
 	var diag = $("#"+name+"-dialog");
 	var oldwidth = diag.dialog("option", "width");
 	var oldheight = diag.dialog("option", "height");
