@@ -24,7 +24,7 @@
 	 * @return {jQuery} A jQuery object with the dialog element in it.
 	 */
 	function dialog(viewName) {
-		return $("#"+dialogName+"-dialog");
+		return $("#"+viewName+"-dialog");
 	}
 
 	/*
@@ -103,7 +103,6 @@
 	/**
 	 * Hide the window for a view.
 	 * @param {string} name - unique identifier for the view.
-	 */
 	 */
 	Eden.prototype.hideView = function (name) {
 		dialog(name).dialog('close');
