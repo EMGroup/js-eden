@@ -16,7 +16,6 @@
  
 
 Eden.plugins.MenuBar = function(context) {
-
 	var me = this;
 	var index = 0;
 
@@ -106,9 +105,9 @@ Eden.plugins.MenuBar = function(context) {
 
 		//Now add actually active view.
 		$("<hr></hr>").appendTo(views);
-		for (x in context.active_dialogs) {
+		for (x in context.activeDialogs) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
-			viewentry.html(x + " ["+context.active_dialogs[x]+"]");
+			viewentry.html(x + " ["+context.activeDialogs[x]+"]");
 
 			viewentry.appendTo(views);
 			viewentry.bind("click",function() {

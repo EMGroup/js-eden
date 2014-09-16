@@ -35,7 +35,7 @@ function getParameterByName(name) {
 function makeViewArray() {
 	var result = [];
 	var x;
-	for (x in eden.active_dialogs) {
+	for (x in eden.activeDialogs) {
 		result.push($("#"+x+"-dialog")[0]);
 	}
 	return result;

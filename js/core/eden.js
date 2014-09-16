@@ -10,6 +10,7 @@ function Eden() {
 	this.errornumber = 0;
 	this.plugins = {};
 	this.views = {};
+	this.activeDialogs = {};
 }
 
 Eden.formatError = function (e, options) {
