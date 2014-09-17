@@ -100,12 +100,9 @@ Eden.plugins.ProjectList = function(context) {
 			$(this).animate({backgroundColor: "#dbe5f1"}, 100);
 
 			if (this.project !== undefined) {
-				//Actually load the project by executing js-e file.
-				Eden.executeFileSSI(this.project.runfile);
-			} else {
-				//session_connect(this.session.cid);
+				// Actually load the project by executing js-e file.
+				eden.executeFileSSI(this.project.runfile);
 			}
-			//printAllUpdates();
 		});
 	}
 

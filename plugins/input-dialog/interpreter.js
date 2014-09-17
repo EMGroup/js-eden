@@ -65,7 +65,7 @@ Eden.plugins.InputWindow = function(context) {
 			eden.plugins.MenuBar.updateStatus("Parsing input...");
 		}
 
-		Eden.execute(text);
+		eden.execute(text);
 			
 		if (eden.plugins.MenuBar) {
 			eden.plugins.MenuBar.appendStatus(" [complete]");

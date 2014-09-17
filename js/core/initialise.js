@@ -144,7 +144,7 @@ function JS_Eden_Initialise(callback) {
 		$('<pre id="error-window" style="font-family:monospace; display: none;"></pre>').appendTo($('body'));
 
 		//Load the Eden library scripts
-		Eden.executeFileSSI("library/eden.jse");
+		eden.executeFileSSI("library/eden.jse");
 
 		//Process query string for plugins and models to load
 		var plugins = getParameterByName("p").split(",");
@@ -176,7 +176,7 @@ function JS_Eden_Initialise(callback) {
 
 			if (models[0] != "") {
 				for (x in models) {
-					Eden.executeFileSSI(models[x]);
+					eden.executeFileSSI(models[x]);
 				}
 			}
 

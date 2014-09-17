@@ -152,7 +152,7 @@ proc execute_js {
 ##given EDEN code were submitted.
 func compile {
 	${{
-		return Eden.translateToJavaScript(arguments[0]);
+		return eden.translateToJavaScript(arguments[0]);
 	}}$;
 }
 

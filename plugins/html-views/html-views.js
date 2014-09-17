@@ -51,7 +51,7 @@ Eden.plugins.HTMLViews = function(context) {
 	context.views["PlainHTML"] = {dialog: this.createDialog, title: "Plain HTML View"};
 
 	//Load the Eden wrapper functions
-	Eden.executeFile("plugins/html-views/html.js-e");
+	eden.executeFile("plugins/html-views/html.js-e");
 };
 
 /* Plugin meta information */

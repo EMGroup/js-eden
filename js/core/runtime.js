@@ -15,7 +15,7 @@ var rt = {
 	},
 
 	includeJSE: function (url) {
-		$.getScript(rt.config.jseProxyBaseUrl + '?successCallback=Eden.execute&url=' + encodeURIComponent(url));
+		$.getScript(rt.config.jseProxyBaseUrl + '?successCallback=eden.execute&url=' + encodeURIComponent(url));
 	},
 
 	includeJS: function (url, success) {
