@@ -2,8 +2,11 @@ body, html {
 	margin: 0;
 	height: 100%;
 }
+.canvashtml-content{
+	font-size: 1em;
+}
+
 ul li {
-	font-size: 10pt;
 	list-style-type: square;
 }
 

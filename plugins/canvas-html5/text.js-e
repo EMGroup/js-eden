@@ -20,7 +20,7 @@ func Text { ${{
   var colour = arguments[3];
   var size = arguments[4];
   if (colour == null) { colour = "black"; }
-  if (size == null) { size = 10; }
+  if (size == null) { size = "1em"; }
   return new Text(text, x, y, colour, size);
 }}$; };
 
