@@ -134,7 +134,7 @@ Eden.plugins.CanvasHTML5 = function (context) {
 					$("#"+name+"-canvas").attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
 
 					//Now need to redraw the canvas.
-					Eden.execute("drawPicture();");
+					eden.execute("drawPicture();");
 				},
 			});
 	}
@@ -142,7 +142,7 @@ Eden.plugins.CanvasHTML5 = function (context) {
 	//Supported canvas views
 	context.views["CanvasHTML5"] = {dialog: this.createDialog, title: "Canvas HTML5"};
 
-	Eden.executeFileSSI("plugins/canvas-html5/canvas.js-e");
+	eden.executeFileSSI("plugins/canvas-html5/canvas.js-e");
 };
 
 Eden.plugins.CanvasHTML5.title = "Canvas HTML5";

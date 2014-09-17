@@ -166,15 +166,10 @@ Eden.plugins.MenuBar = function(context) {
 		async: true
 	});
 
-	//Hide all menus on click.
-	//$(document).mouseup(function() {
-	//	$(".menubar-menu").hide();
-	//});
-
 	this.updatePluginsMenu();
 	this.updateViewsMenu();
 
-	Eden.executeFileSSI("plugins/menu-bar/menu-bar.js-e");
+	eden.executeFileSSI("plugins/menu-bar/menu-bar.js-e");
 };
 
 Eden.plugins.MenuBar.title = "Menu Bar";
