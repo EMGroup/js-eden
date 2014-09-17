@@ -177,11 +177,9 @@ buttonPrevEnabled is true;
 buttonNextEnabled is true;
 
 
-buttonPrev is SlideButton("buttonPrev","Previous Slide", jspeleft, 
-_view_jspe_height-70, buttonPrevEnabled);
+buttonPrev is SlideButton("buttonPrev","Previous Slide", jspeleft, 0, buttonPrevEnabled);
 
-buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 150, 
-_view_jspe_height-70, buttonNextEnabled);
+buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 150, 0, buttonNextEnabled);
 
 ## buttonSave = SlideButton("buttonSave","Add Slide", int(${{ $('#jspe-dialog-canvas').position().left }}$) + 100, ${{ $('#jspe-dialog-canvas').height()+15 }}$, true);
 
