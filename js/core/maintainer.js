@@ -130,7 +130,7 @@
 	};
 
 	/**
-	 * @param {Array.<Symbol>} actions Actions to trigger in turn.
+	 * @param {Array.<Object.<string, Symbol>>} actions Actions to trigger in turn.
 	 */
 	Folder.prototype.fireAllActions = function (actions) {
 		for (var i = 0; i < actions.length; i++) {
@@ -411,7 +411,7 @@
 	Symbol.prototype.fireActions = function (actions_to_fire){
 		for (var action_name in actions_to_fire) {
 			var action = actions_to_fire[action_name];
-	
+
 			// if one action fails, it shouldn't prevent all the other
 			// scheduled actions from firing
 			if (action) {

@@ -131,7 +131,7 @@ ${{
 
   execute = function(e) {
 	// Evaluates and stores in the symbol table
-	eden.plugins.InputWindow.submitEdenCode($(e).siblings('pre').text());
+	edenUI.plugins.InputWindow.submitEdenCode($(e).siblings('pre').text());
   }
 }}$;
 

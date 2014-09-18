@@ -15,7 +15,7 @@
  */
 
  
-Eden.plugins.ProjectList = function(context) {
+EdenUI.plugins.ProjectList = function(edenUI) {
 
 	var me = this;
 
@@ -101,7 +101,7 @@ Eden.plugins.ProjectList = function(context) {
 
 			if (this.project !== undefined) {
 				// Actually load the project by executing js-e file.
-				eden.executeFileSSI(this.project.runfile);
+				edenUI.eden.executeFileSSI(this.project.runfile);
 			}
 		});
 	}
@@ -166,7 +166,7 @@ Eden.plugins.ProjectList = function(context) {
 		dataType: 'json',
 		success: function(data) {
 			me.projects = data;
-			context.projects = me.projects;
+			edenUI.projects = me.projects;
 			updateAllCollections("");
 		},
 		cache: false,
@@ -174,10 +174,10 @@ Eden.plugins.ProjectList = function(context) {
 	});
 
 	//Add views supported by this plugin.
-	context.views["ProjectList"] = {dialog: this.createDialog, title: "Project List"};
+	edenUI.views["ProjectList"] = {dialog: this.createDialog, title: "Project List"};
 };
 
 /* Plugin meta information */
-Eden.plugins.ProjectList.title = "Project List";
-Eden.plugins.ProjectList.description = "Display list of available projects";
-Eden.plugins.ProjectList.author = "Nicolas Pope";
+EdenUI.plugins.ProjectList.title = "Project List";
+EdenUI.plugins.ProjectList.description = "Display list of available projects";
+EdenUI.plugins.ProjectList.author = "Nicolas Pope";

@@ -1,4 +1,4 @@
-Eden.plugins.SG = function(context) {
+EdenUI.plugins.SG = function(edenUI) {
 
 	var me = this;
 	var defaultview = "";
@@ -6,7 +6,7 @@ Eden.plugins.SG = function(context) {
 	this.html = function(name,content) {
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
-				context.createView(name,"SG");
+				edenUI.createView(name,"SG");
 			}
 			$("#"+defaultview+"-content").html(content).onclick;
 		} else {
@@ -34,7 +34,7 @@ Eden.plugins.SG = function(context) {
 	}
 
 	//Register the HTML view options:
-	context.views["SG"] = {dialog: this.createDialog, title: "Script Generator"};
+	edenUI.views["SG"] = {dialog: this.createDialog, title: "Script Generator"};
 	
 	SG = {};
 	SG.update = function(event){
@@ -262,6 +262,6 @@ Eden.plugins.SG = function(context) {
 
 };
 /* Plugin meta information */
-Eden.plugins.SG.title = "Script Generator (SG)";
-Eden.plugins.SG.description = "A script that represents the model";
-Eden.plugins.SG.author = "Joe Butler";
+EdenUI.plugins.SG.title = "Script Generator (SG)";
+EdenUI.plugins.SG.description = "A script that represents the model";
+EdenUI.plugins.SG.author = "Joe Butler";

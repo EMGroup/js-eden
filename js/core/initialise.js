@@ -139,6 +139,7 @@ function JS_Eden_Initialise(callback) {
 	$(document).ready(function() {
 		root = new Folder();
 		eden = new Eden();
+		edenUI = new EdenUI(eden);
 
 		//Create the error window. Hiden to start with.
 		$('<pre id="error-window" style="font-family:monospace; display: none;"></pre>').appendTo($('body'));

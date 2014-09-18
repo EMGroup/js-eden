@@ -31,7 +31,7 @@
 	 * Stores plugins that can be loaded. Plugins will modify this directly in
 	 * order for them to be loaded later.
 	 */
-	Eden.plugins = {};
+	EdenUI.plugins = {};
 
 	/**
 	 * Load a plugin if it is not already loaded. The plugin must have been
@@ -39,9 +39,9 @@
 	 *
 	 * @param {string} name Name of the plugin to load.
 	 */
-	Eden.prototype.loadPlugin = function (name) {
+	EdenUI.prototype.loadPlugin = function (name) {
 		if (this.plugins[name] === undefined) {
-			this.plugins[name] = new Eden.plugins[name](this);
+			this.plugins[name] = new EdenUI.plugins[name](this);
 
 			if (this.plugins.MenuBar) {
 				this.plugins.MenuBar.updatePluginsMenu();
@@ -62,7 +62,7 @@
 	 * @param {string} name Unique identifier for the view.
 	 * @param {string} type Used to group different types of views.
 	 */
-	Eden.prototype.createView = function (name, type) {
+	EdenUI.prototype.createView = function (name, type) {
 		if (this.activeDialogs[name] !== undefined) {
 			this.showView(name);
 			return;
@@ -84,8 +84,8 @@
 		});
 
 		// Now construct eden agents and observables for dialog control.
-		this.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ eden.moveView(\""+name+"\"); }}$; };");
-		this.execute("proc _View_"+name+"_size : _view_"+name+"_width,_view_"+name+"_height { ${{ eden.resizeView(\""+name+"\"); }}$; };");
+		this.eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ edenUI.moveView(\""+name+"\"); }}$; };");
+		this.eden.execute("proc _View_"+name+"_size : _view_"+name+"_width,_view_"+name+"_height { ${{ edenUI.resizeView(\""+name+"\"); }}$; };");
 	};
 
 	/**
@@ -93,7 +93,7 @@
 	 *
 	 * @param {string} name Unique identifier for the view.
 	 */
-	Eden.prototype.showView = function (name) {
+	EdenUI.prototype.showView = function (name) {
 		dialog(name).dialog('open');
 	};
 
@@ -102,7 +102,7 @@
 	 *
 	 * @param {string} name Unique identifier for the view.
 	 */
-	Eden.prototype.hideView = function (name) {
+	EdenUI.prototype.hideView = function (name) {
 		dialog(name).dialog('close');
 	};
 
@@ -111,7 +111,7 @@
 	 *
 	 * @param {string} name Unique identifier for the view.
 	 */
-	Eden.prototype.moveView = function (name) {
+	EdenUI.prototype.moveView = function (name) {
 		var x = view(name, 'x').value();
 		var y = view(name, 'y').value();
 		dialog(name).dialog("option", "position", [x, y]);
@@ -122,7 +122,7 @@
 	 *
 	 * @param {string} name Unique identifier for the view.
 	 */
-	Eden.prototype.resizeView = function (name) {
+	EdenUI.prototype.resizeView = function (name) {
 		var newwidth = view(name, 'width').value();
 		var newheight = view(name, 'height').value();
 		var diag = dialog(name);
