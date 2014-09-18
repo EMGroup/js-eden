@@ -41,7 +41,7 @@ proc assertEqual {
 		valuesEqual = $[1] == $[2];
 	}
 	if (!valuesEqual) {
-		errorStr = "Assertion Failure! Expected equality.\nLHS = " // edenCode($[1]) // "\nRHS = " // edenCode($[2]);
+		errorStr = "assertEqual:\nAssertion Failure! Expected equality.\nLHS = " // edenCode($[1]) // "\nRHS = " // edenCode($[2]);
 		if (jseTestGroup != @) {
 			errorStr = errorStr // "\nTest Group: " // str(jseTestGroup);
 		}
@@ -56,7 +56,7 @@ proc assertEqual {
 proc expectErrors {
 	${{
 		if (arguments.length != 0) {
-			eden.error("expectErrors: This procedure does not accept any arguments.");
+			eden.error(new Error("expectErrors: This procedure does not accept any arguments."));
 		}
 		eden.reportErrors = false;
 		eden.errorNumber = 0;
@@ -66,37 +66,56 @@ proc expectErrors {
 proc assertErrors {
 	${{
 		eden.reportErrors = true;
-		if (eden.errorNumber == 0) {
-			var errorStr = "Assertion Failure! Expected an EDEN error but no error occurred.";
+		
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("assertErrors: This procedure requires at least 1 argument and at most 2 arguments."));
+		}
+		
+		var errorStr;
+		if (arguments.length < 2 && eden.errorNumber == 0) {
+			errorStr = "assertErrors:\nAssertion Failure! Expected an EDEN error but no error occurred.";
+		} else if (arguments.length == 2 && eden.errorNumber != arguments[0]) {
+			errorStr = "assertErrors:\nAssertion Failure! Expected " + arguments[0].toString() + " EDEN errors but " + eden.errorNumber.toString() + " errors occurred.";
+		}
+		
+		if (errorStr !== undefined) {
 			var jseTestGroup = root.lookup("jseTestGroup").value();
 			if (jseTestGroup !== undefined && jseTestGroup !== null) {
 				errorStr = errorStr + "\nTest Group: " + jseTestGroup.toString();
 			}
-			if (arguments.length == 1) {
-				errorStr = errorStr + "\nTest Case: " + arguments[0];
-			} else {
-				eden.error("assertErrors: This procedure requires exactly 1 argument.");
+			if (arguments.length > 0) {
+				errorStr = errorStr + "\nTest Case: " + arguments[arguments.length - 1];
 			}
-			eden.error(errorStr);
+			eden.error(new Error(errorStr));
 		}
 	}}$;
 }
 
 proc assertErrorsExpectMore {
 	${{
-		if (eden.errorNumber == 0) {
-			eden.reportErrors = true;			
-			var errorStr = "Assertion Failure! Expected an EDEN error but no error occurred.";
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.reportErrors = true;
+			eden.error(new Error("assertErrorsExpectMore: This procedure requires at least 1 argument and at most 2 arguments."));
+		}
+		
+		var errorStr;
+		if (arguments.length < 2 && eden.errorNumber == 0) {
+			errorStr = "assertErrorsExpectMore:\nAssertion Failure! Expected an EDEN error but no error occurred.";
+		} else if (arguments.length == 2 && eden.errorNumber != arguments[0]) {
+			errorStr = "assertErrorsExpectMore:\nAssertion Failure! Expected " + arguments[0].toString() + " EDEN errors but " + eden.errorNumber.toString() + " errors occurred.";
+		}
+		
+		if (errorStr !== undefined) {
+			eden.reportErrors = true;
+			
 			var jseTestGroup = root.lookup("jseTestGroup").value();
 			if (jseTestGroup !== undefined && jseTestGroup !== null) {
 				errorStr = errorStr + "\nTest Group: " + jseTestGroup.toString();
 			}
-			if (arguments.length == 1) {
-				errorStr = errorStr + "\nTest Case: " + arguments[0];
-			} else {
-				eden.error("assertErrors: This procedure requires exactly 1 argument.");
+			if (arguments.length > 0) {
+				errorStr = errorStr + "\nTest Case: " + arguments[arguments.length - 1];
 			}
-			eden.error(errorStr);
+			eden.error(new Error(errorStr));
 			
 			eden.reportErrors = false;
 		}

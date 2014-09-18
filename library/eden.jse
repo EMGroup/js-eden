@@ -56,12 +56,12 @@ eden.executeFile(arguments[0]);
 proc error {
 	${{
 		if (arguments.length > 1) {
-			eden.error("error: This procedure requires at most 1 argument");
+			eden.error(new Error("error: This procedure requires at most 1 argument"));
 		}
 		if (arguments.length == 0) {
-			eden.error("Runtime error", "error");
+			eden.error(new Error("Runtime error"), "error");
 		} else {
-			eden.error(arguments[0], "error");
+			eden.error(new Error(arguments[0]), "error");
 		}
 	}}$;
 }
