@@ -185,6 +185,19 @@
 	};
 
 	/**
+	 * @param {*} error
+	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
+	 */
+	Eden.prototype.error = function (error, origin) {
+		if (origin) {
+			this.emit('executeError', [error, {path: origin, errorNumber: this.errorNumber}]);
+		} else {
+			this.emit('executeError', [error, {errorNumber: this.errorNumber}]);
+		}
+		++this.errorNumber;
+	};
+
+	/**
 	 * @param {string} code
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
 	 * @return {*}
@@ -197,12 +210,7 @@
 			result = eval(this.translateToJavaScript(code));
 			this.emit('executeEnd', [origin]);
 		} catch (e) {
-			if (origin) {
-				this.emit('parseError', [e, {path: origin, errorNumber: this.errorNumber}]);
-			} else {
-				this.emit('parseError', [e, {errorNumber: this.errorNumber}]);
-			}
-			++this.errorNumber;
+			this.error(e, origin);
 		}
 		return result;
 	};
