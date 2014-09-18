@@ -84,7 +84,8 @@ proc assertErrors {
 
 proc assertErrorsExpectMore {
 	${{
-		if (eden.errorNumber == 1) {
+		eden.reportErrors = true;
+		if (eden.errorNumber == 0) {
 			var errorStr = "Assertion Failure! Expected an EDEN error but no error occurred.";
 			var jseTestGroup = root.lookup("jseTestGroup").value();
 			if (jseTestGroup !== undefined && jseTestGroup !== null) {
@@ -97,6 +98,7 @@ proc assertErrorsExpectMore {
 			}
 			eden.error(errorStr);
 		}
+		eden.reportErrors = false;
 		eden.errorNumber = 0;
 	}}$;
 }
