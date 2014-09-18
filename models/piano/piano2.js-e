@@ -24,7 +24,7 @@ include_js("http://www.dcs.warwick.ac.uk/~wmb/PianoJS/audio.js");
 
 proc error {
 	${{
-		Eden.reportError(new Error(arguments[0]));
+		eden.emit('executeError', [new Error(arguments[0])]);
 	}}$;
 }
 

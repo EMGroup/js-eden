@@ -18,8 +18,8 @@ func writeln {
   ${{
   var t = arguments[0];
   console.log(t);
-	if (eden.plugins.MenuBar) {
-		eden.plugins.MenuBar.updateStatus("Output: "+t);
+	if (edenUI.plugins.MenuBar) {
+		edenUI.plugins.MenuBar.updateStatus("Output: "+t);
 	}
   }}$;
 };
@@ -49,18 +49,13 @@ func forget {
 
 func include {
 ${{
-Eden.executeFile(arguments[0]);
+eden.executeFile(arguments[0]);
 }}$;
 };
 
 func execute {
 ${{
-  try {
-	eval(Eden.translateToJavaScript(arguments[0]));
-  } catch(e) {
-	$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\"># ERROR number " + eden.errornumber + ":<br># Execute<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
-				eden.errornumber = eden.errornumber + 1;
-  }
+	eden.execute(arguments[0], "execute");
 }}$;
 };
 

@@ -16,7 +16,7 @@ var edenfunctions = {};
  * @param context The eden context this plugin is being loaded in to.
  */
 
-Eden.plugins.SymbolViewer = function (context) {
+EdenUI.plugins.SymbolViewer = function (edenUI) {
 	var me = this;
 
 	//Obtain function meta data from server
@@ -62,7 +62,7 @@ Eden.plugins.SymbolViewer = function (context) {
 
 		var code_entry = $('<div></div>');
 		code_entry.html(generateHTML());
-		var symbollist = new Eden.plugins.SymbolViewer.SymbolList(
+		var symbollist = new EdenUI.plugins.SymbolViewer.SymbolList(
 			code_entry.find(".symbollist-results")[0],type
 		);
 
@@ -200,20 +200,19 @@ Eden.plugins.SymbolViewer = function (context) {
 	//Register event handler for symbol changes.
 	root.addGlobal(symbolChanged);
 
-
 	//Add views supported by this plugin.
-	context.views["ObservableList"] = {dialog: this.createObservableDialog, title: "Observable List"};
-	context.views["FunctionList"] = {dialog: this.createFunctionDialog, title: "Function List"};
-	context.views["AgentList"] = {dialog: this.createAgentDialog, title: "Agent List"};
-	context.views["SymbolList"] = {dialog: this.createSymbolDialog, title: "Symbol List"};
+	edenUI.views["ObservableList"] = {dialog: this.createObservableDialog, title: "Observable List"};
+	edenUI.views["FunctionList"] = {dialog: this.createFunctionDialog, title: "Function List"};
+	edenUI.views["AgentList"] = {dialog: this.createAgentDialog, title: "Agent List"};
+	edenUI.views["SymbolList"] = {dialog: this.createSymbolDialog, title: "Symbol List"};
 
 	$(document).tooltip();
 };
 
 /* Plugin meta information */
-Eden.plugins.SymbolViewer.title = "Symbol Viewer";
-Eden.plugins.SymbolViewer.description = "Provide various views of the symbol table";
-Eden.plugins.SymbolViewer.author = "Nicolas Pope and Tim Monks";
+EdenUI.plugins.SymbolViewer.title = "Symbol Viewer";
+EdenUI.plugins.SymbolViewer.description = "Provide various views of the symbol table";
+EdenUI.plugins.SymbolViewer.author = "Nicolas Pope and Tim Monks";
 
 /**
  * Class to represent symbol lists. Displays a list of symbol information
@@ -224,7 +223,7 @@ Eden.plugins.SymbolViewer.author = "Nicolas Pope and Tim Monks";
  * @param element An HTML element to put the symbol list into.
  * @param type The type of symbols to include: obs,agent,func,all.
  */
-Eden.plugins.SymbolViewer.SymbolList = function(element,type) {
+EdenUI.plugins.SymbolViewer.SymbolList = function(element,type) {
 	this.pattern = "";
 	this.type = type;
 	this.symresults = element;
@@ -236,7 +235,7 @@ Eden.plugins.SymbolViewer.SymbolList = function(element,type) {
  *
  * @param pattern A regular expression for symbol names.
  */
-Eden.plugins.SymbolViewer.SymbolList.prototype.search = function(pattern) {
+EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function(pattern) {
 	var me = this;
 	this.pattern = pattern;
 
@@ -257,7 +256,7 @@ Eden.plugins.SymbolViewer.SymbolList.prototype.search = function(pattern) {
  *
  * @param name Name of the symbol to update.
  */
-Eden.plugins.SymbolViewer.SymbolList.prototype.updateSymbol = function(name) {
+EdenUI.plugins.SymbolViewer.SymbolList.prototype.updateSymbol = function(name) {
 	if (this.symbols[name] !== undefined) {
 		this.symbols[name].update();
 	}
@@ -270,7 +269,7 @@ Eden.plugins.SymbolViewer.SymbolList.prototype.updateSymbol = function(name) {
  * @param symbol A symbol object for the maintainer.
  * @param name The name of the given symbol object.
  */
-Eden.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function(symbol, name) {
+EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function(symbol, name) {
 	var reg = new RegExp("^("+this.pattern+").*");
 
 	if (name.search(reg) == -1) {
@@ -308,7 +307,7 @@ Eden.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function(symbol, name
 	}
 
 	if (show) {
-		var symele = new Eden.plugins.SymbolViewer.Symbol(symbol,name,type);
+		var symele = new EdenUI.plugins.SymbolViewer.Symbol(symbol,name,type);
 		symele.element.appendTo(this.symresults);
 		this.symbols[name] = symele;
 	}
@@ -323,7 +322,7 @@ Eden.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function(symbol, name
  * @param name Name of the symbol.
  * @param Already detected type of the symbol: procedure,function,observable.
  */
-Eden.plugins.SymbolViewer.Symbol = function(symbol,name,type) {
+EdenUI.plugins.SymbolViewer.Symbol = function(symbol,name,type) {
 	this.symbol = symbol;
 	this.name = name;
 	this.type = type;
@@ -372,7 +371,7 @@ Eden.plugins.SymbolViewer.Symbol = function(symbol,name,type) {
  * Update the HTML output of a function type symbol. Looks for any meta data
  * for this function, such as parameters and description.
  */
-Eden.plugins.SymbolViewer.Symbol.prototype.updateFunction = function() {
+EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function() {
 	var funchtml = "<li class=\"type-function\"><span class=\"result_name\">" + this.name + "</span>";
 
 	//If there are details for this function in the function meta data
@@ -398,7 +397,7 @@ Eden.plugins.SymbolViewer.Symbol.prototype.updateFunction = function() {
  * Update the HTML output of a plain observable symbol. Detects the data type
  * of the observable to display its current value correctly.
  */
-Eden.plugins.SymbolViewer.Symbol.prototype.updateObservable = function() {
+EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function() {
 	/* XXX Does cause all dependencies to be evaluated which removes any
 	   performance gains of eval-on-use-when-out-of-date. */
 	var me = this;
@@ -455,6 +454,6 @@ Eden.plugins.SymbolViewer.Symbol.prototype.updateObservable = function() {
 /**
  * Update the HTML output of a procedure symbol.
  */
-Eden.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function() {
+EdenUI.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function() {
 	this.element.html("<li class=\"type-procedure\"><span class=\"result_name\">" + this.name + "</span></li>");
 }

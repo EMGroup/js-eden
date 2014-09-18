@@ -3,6 +3,6 @@ _status = "";
 proc _MenuBar_Status : _status {
 	${{
 	var text = root.lookup("_status").value();
-	eden.plugins.MenuBar.updateStatus(text);
+	edenUI.plugins.MenuBar.updateStatus(text);
 	}}$;
 };

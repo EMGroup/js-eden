@@ -11,7 +11,7 @@
  * @class Input Window Plugin
  */
 
-Eden.plugins.InputWindow = function(context) {
+EdenUI.plugins.InputWindow = function(edenUI) {
 
 	var me = this;
 	me.edenparser = undefined;
@@ -61,14 +61,14 @@ Eden.plugins.InputWindow = function(context) {
 	
 		this.addHistory(text);
 
-		if (eden.plugins.MenuBar) {
-			eden.plugins.MenuBar.updateStatus("Parsing input...");
+		if (edenUI.plugins.MenuBar) {
+			edenUI.plugins.MenuBar.updateStatus("Parsing input...");
 		}
 
-		eden.execute(text);
+		edenUI.eden.execute(text);
 			
-		if (eden.plugins.MenuBar) {
-			eden.plugins.MenuBar.appendStatus(" [complete]");
+		if (edenUI.plugins.MenuBar) {
+			edenUI.plugins.MenuBar.appendStatus(" [complete]");
 		}
 
 		if (historydialog !== undefined) {
@@ -101,7 +101,7 @@ Eden.plugins.InputWindow = function(context) {
 	this.createHistory = function(name,mtitle) {
 
 		historydialog = $('<div id="'+name+'"></div>')
-			.html("<div class=\"history\">"+eden.plugins.InputWindow.generateHistory()+"</div>")
+			.html("<div class=\"history\">"+edenUI.plugins.InputWindow.generateHistory()+"</div>")
 			.dialog({
 				title: mtitle,
 				width: 500,
@@ -116,7 +116,7 @@ Eden.plugins.InputWindow = function(context) {
 
 		var myeditor;
 
-		code_entry = $('<textarea onkeyUp="eden.plugins.InputWindow.inputKeypress(event)" id="inputCodeArea"></textarea><div id="subButtonsDiv"><button id="submitButton" onclick="eden.plugins.InputWindow.submit()">Submit</button></div><div id="buttonsDiv"><button id="previousButton" onclick="eden.plugins.InputWindow.prev()" >Previous</button><button id="nextButton" onclick="eden.plugins.InputWindow.next()" >Next</button></div>');
+		code_entry = $('<textarea onkeyUp="edenUI.plugins.InputWindow.inputKeypress(event)" id="inputCodeArea"></textarea><div id="subButtonsDiv"><button id="submitButton" onclick="edenUI.plugins.InputWindow.submit()">Submit</button></div><div id="buttonsDiv"><button id="previousButton" onclick="edenUI.plugins.InputWindow.prev()" >Previous</button><button id="nextButton" onclick="edenUI.plugins.InputWindow.next()" >Next</button></div>');
 //try removing div: <div id=\"'+name+'-content\" class=\"inputWindow-content\">	</div>
 		//Buttons taken out for new methods of terminal: 
 		
@@ -134,21 +134,21 @@ Eden.plugins.InputWindow = function(context) {
 	}
 
 	this.next = function(){
-		var n = eden.plugins.InputWindow.nextHistory();
+		var n = edenUI.plugins.InputWindow.nextHistory();
 		//n = n.replace(/\#\# \(Failed\)/g, "");
 		//n = n.replace(/\#\# \(Successful\)/g, "");
 		//n = n.replace(/ $/g, "");
 		document.getElementById("inputCodeArea").value = n;
 	}
 	this.prev = function(){
-		var p = eden.plugins.InputWindow.previousHistory();
+		var p = edenUI.plugins.InputWindow.previousHistory();
 		//p = p.replace(/\#\# \(Failed\)/g, "");
 		//p = p.replace(/\#\# \(Successful\)/g, "");
 		//p = p.replace(/ $/g, "");
 		document.getElementById("inputCodeArea").value = p;
 	}
 	this.submit = function(){
-		eden.plugins.InputWindow.submitEdenCode(document.getElementById("inputCodeArea").value);
+		edenUI.plugins.InputWindow.submitEdenCode(document.getElementById("inputCodeArea").value);
 		document.getElementById("inputCodeArea").value = "";
 	}
 	this.inputKeypress = function(event){
@@ -157,17 +157,17 @@ Eden.plugins.InputWindow = function(context) {
 		//console.log(event.ctrlKey);
 		if(event.keyCode==13){
 			if(event.ctrlKey){
-				eden.plugins.InputWindow.submit();
+				edenUI.plugins.InputWindow.submit();
 			}
 		}
 		else if(event.keyCode==38){
 			if(event.ctrlKey){
-				eden.plugins.InputWindow.prev();
+				edenUI.plugins.InputWindow.prev();
 			}
 		}
 		else if(event.keyCode==40){
 			if(event.ctrlKey){
-				eden.plugins.InputWindow.next();
+				edenUI.plugins.InputWindow.next();
 			}
 		}	
 	}
@@ -184,17 +184,17 @@ Eden.plugins.InputWindow = function(context) {
 		}
 	}
 
-	context.views.InputWindow = {
+	edenUI.views.InputWindow = {
 		dialog: this.createDialog,
 		embed: this.createEmbedded,
 		title: "JS-Eden Input Window"
 	};
-	context.views.History = {
+	edenUI.views.History = {
 		dialog: this.createHistory,
 		title: "Input History"
 	};
 	
-	context.history = this.history;
+	edenUI.history = this.history;
 	
 };
 
@@ -244,9 +244,9 @@ Eden.deHTML = function(text){
 }
 
 /* Plugin meta information */
-Eden.plugins.InputWindow.title = "Input Window";
-Eden.plugins.InputWindow.description = "EDEN style script input window";
-Eden.plugins.InputWindow.author = "Joe Butler";
+EdenUI.plugins.InputWindow.title = "Input Window";
+EdenUI.plugins.InputWindow.description = "EDEN style script input window";
+EdenUI.plugins.InputWindow.author = "Joe Butler";
 
 //Make tab do spaces instead of selecting the next element
 $(document).delegate('#inputCodeArea', 'keydown', function(e) {

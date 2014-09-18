@@ -11,7 +11,7 @@
  * @class CanvasHTML5 Plugin
  */
 
-Eden.plugins.CanvasHTML5 = function (context) {
+EdenUI.plugins.CanvasHTML5 = function (edenUI) {
 	var me = this;
 
 	var clearCanvas = function(content) {
@@ -46,7 +46,7 @@ Eden.plugins.CanvasHTML5 = function (context) {
 
 		if (canvas === undefined) {
 			//Need to make the canvas view first
-			eden.createView(canvasname,"CanvasHTML5");
+			edenUI.createView(canvasname,"CanvasHTML5");
 			
 			canvases[canvasname] = $("#"+canvasname+"-dialog-canvas")[0];
 			contents[canvasname] = $("#"+canvasname+"-dialog-canvascontent")[0];
@@ -126,17 +126,17 @@ Eden.plugins.CanvasHTML5 = function (context) {
 					$("#"+name+"-canvas").attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
 
 					// Now need to redraw the canvas.
-					eden.execute("drawPicture();");
+					edenUI.eden.execute("drawPicture();");
 				},
 			});
 	}
 
 	//Supported canvas views
-	context.views["CanvasHTML5"] = {dialog: this.createDialog, title: "Canvas HTML5"};
+	edenUI.views["CanvasHTML5"] = {dialog: this.createDialog, title: "Canvas HTML5"};
 
-	eden.executeFileSSI("plugins/canvas-html5/canvas.js-e");
+	edenUI.eden.executeFileSSI("plugins/canvas-html5/canvas.js-e");
 };
 
-Eden.plugins.CanvasHTML5.title = "Canvas HTML5";
-Eden.plugins.CanvasHTML5.description = "Provides an Eden drawable HTML5 canvas";
-Eden.plugins.CanvasHTML5.author = "Nicolas Pope et. al.";
+EdenUI.plugins.CanvasHTML5.title = "Canvas HTML5";
+EdenUI.plugins.CanvasHTML5.description = "Provides an Eden drawable HTML5 canvas";
+EdenUI.plugins.CanvasHTML5.author = "Nicolas Pope et. al.";

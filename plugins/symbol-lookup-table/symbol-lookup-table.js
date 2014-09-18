@@ -1,12 +1,11 @@
-Eden.plugins.SLT = function(context) {
-
+EdenUI.plugins.SLT = function (edenui) {
 	var me = this;
 	var defaultview = "";
 
 	this.html = function(name,content) {
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
-				context.createView(name,"SLT");
+				edenui.createView(name,"SLT");
 			}
 			$("#"+defaultview+"-content").html(content).onclick;
 		} else {
@@ -34,7 +33,7 @@ Eden.plugins.SLT = function(context) {
 	}
 
 	//Register the HTML view options
-	context.views["SLT"] = {dialog: this.createDialog, title: "Symbol Lookup Table"};
+	edenui.views["SLT"] = {dialog: this.createDialog, title: "Symbol Lookup Table"};
 	
 	SLT = {};
 	SLT.update = function(event){
@@ -134,6 +133,6 @@ Eden.plugins.SLT = function(context) {
 
 };
 /* Plugin meta information */
-Eden.plugins.SLT.title = "Symbol Lookup Table (SLT)";
-Eden.plugins.SLT.description = "Database of all symbols in the application";
-Eden.plugins.SLT.author = "Joe Butler";
+EdenUI.plugins.SLT.title = "Symbol Lookup Table (SLT)";
+EdenUI.plugins.SLT.description = "Database of all symbols in the application";
+EdenUI.plugins.SLT.author = "Joe Butler";

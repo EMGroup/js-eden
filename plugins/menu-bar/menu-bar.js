@@ -15,7 +15,7 @@
  */
  
 
-Eden.plugins.MenuBar = function(context) {
+EdenUI.plugins.MenuBar = function(edenUI) {
 	var me = this;
 	var index = 0;
 
@@ -62,17 +62,17 @@ Eden.plugins.MenuBar = function(context) {
 	
 		var plugins = $("#menubar-mainitem-plugins");
 		plugins.html("");
-		for (x in Eden.plugins) {
+		for (x in EdenUI.plugins) {
 			pluginentry = $("<div class=\"menubar-item\"></div>");
-			if (context.plugins[x] === undefined) {
-				pluginentry.html(Eden.plugins[x].title);
+			if (edenUI.plugins[x] === undefined) {
+				pluginentry.html(EdenUI.plugins[x].title);
 			} else {
-				pluginentry.html("<b>"+Eden.plugins[x].title+"</b>");
+				pluginentry.html("<b>"+EdenUI.plugins[x].title+"</b>");
 			}
 			pluginentry.appendTo(plugins);
 			pluginentry.bind("click",function() {
 				//console.log("Load Plugin: "+ this.plugin);
-				context.loadPlugin(this.plugin);
+				edenUI.loadPlugin(this.plugin);
 				me.updatePluginsMenu();
 				me.updateViewsMenu();
 			});
@@ -88,15 +88,15 @@ Eden.plugins.MenuBar = function(context) {
 		views.html("");
 
 		//First add supported view types
-		for (x in context.views) {
+		for (x in edenUI.views) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
-			viewentry.html(context.views[x].title);
+			viewentry.html(edenUI.views[x].title);
 
 			viewentry.appendTo(views);
 			viewentry.bind("click",function() {
 				//console.log("Create and Show View: "+ this.view);
-				context.createView("view_"+index, this.view);
-				context.showView("view"+index);
+				edenUI.createView("view_"+index, this.view);
+				edenUI.showView("view"+index);
 				index = index + 1;
 				me.updateViewsMenu();
 			});
@@ -105,14 +105,14 @@ Eden.plugins.MenuBar = function(context) {
 
 		//Now add actually active view.
 		$("<hr></hr>").appendTo(views);
-		for (x in context.activeDialogs) {
+		for (x in edenUI.activeDialogs) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
-			viewentry.html(x + " ["+context.activeDialogs[x]+"]");
+			viewentry.html(x + " ["+edenUI.activeDialogs[x]+"]");
 
 			viewentry.appendTo(views);
 			viewentry.bind("click",function() {
 				//console.log("Show View: "+ this.viewname);
-				context.showView(this.viewname);
+				edenUI.showView(this.viewname);
 			});
 			viewentry[0].viewname = x;
 		}
@@ -169,9 +169,9 @@ Eden.plugins.MenuBar = function(context) {
 	this.updatePluginsMenu();
 	this.updateViewsMenu();
 
-	eden.executeFileSSI("plugins/menu-bar/menu-bar.js-e");
+	edenUI.eden.executeFileSSI("plugins/menu-bar/menu-bar.js-e");
 };
 
-Eden.plugins.MenuBar.title = "Menu Bar";
-Eden.plugins.MenuBar.description = "Provides main menu for plugin and view management";
-Eden.plugins.MenuBar.author = "Nicolas Pope";
+EdenUI.plugins.MenuBar.title = "Menu Bar";
+EdenUI.plugins.MenuBar.description = "Provides main menu for plugin and view management";
+EdenUI.plugins.MenuBar.author = "Nicolas Pope";
