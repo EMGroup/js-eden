@@ -6,8 +6,6 @@
  */
 
 (function (global) {
-	"use strict";
-
 	/**
 	 * @constructor
 	 * @struct
@@ -120,6 +118,7 @@
 		if (!listenersForEvent) {
 			return;
 		}
+		var i;
 		for (i = 0; i < listenersForEvent.length; ++i) {
 			var target = listenersForEvent[i].target;
 			var callback = listenersForEvent[i].callback;
