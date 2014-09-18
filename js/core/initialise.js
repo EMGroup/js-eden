@@ -159,7 +159,7 @@ function JS_Eden_Initialise(callback) {
 			rt.config = config;
 
 			if (include) {
-				rt.includeJS(include);
+				eden.include(include);
 			}
 
 			if (plugins[0] != "") {
