@@ -96,7 +96,7 @@
 		 */
 		this.loadqueue = [];
 
-		/**Setting this to false temporarily prevents Eden.reportError from
+		/**Setting this to false temporarily prevents the error method from
 		 * producing any output.  This is used by the framework for testing EDEN
 		 * code in the scenario when an error is the intended outcome of a test case.
 		 * @see library/assertions.js-e
