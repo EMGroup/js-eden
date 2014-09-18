@@ -1,0 +1,102 @@
+##A framework for testing EDEN code.
+
+##Observables:
+##
+##jseTestGroup The collective name of a group of related test cases.
+
+
+##Temporary hack until list equality is fixed in the interpreter.
+func equalLists {
+	para l1, l2;
+	auto i;
+	if (l1# != l2#) {
+		return false;
+	}
+	for (i = 1; i <= l1#; i++) {
+		if (isList(l1[i])) {
+			if (!isList(l2[i]) || !equalLists(l1[i], l2[i])) {
+				return false;
+			}
+		} else {
+			if (l1[i] != l2[i]) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+##Tests if two values are equal and raises an EDEN if they are not.  This
+##function requires three arguments.  The first and second arguments are the
+##values to be compared.  The third argument is name of the test case.
+proc assertEqual {
+	auto valuesEqual, errorStr;
+	if ($# != 3) {
+		error("assertEqual: This procedure requires exactly 3 arguments");
+		return @;
+	}
+	if (isList($[1])) {
+		valuesEqual = isList($[2]) && equalLists($[1], $[2]);
+	} else {
+		valuesEqual = $[1] == $[2];
+	}
+	if (!valuesEqual) {
+		errorStr = "Assertion Failure! Expected equality.\nLHS = " // edenCode($[1]) // "\nRHS = " // edenCode($[2]);
+		if (jseTestGroup != @) {
+			errorStr = errorStr // "\nTest Group: " // str(jseTestGroup);
+		}
+		errorStr = errorStr // "\nTest Case: " // $[3];
+		error(errorStr);
+	}
+}
+
+##Call this procedure prior to calling code that should generate an EDEN error
+##if the code is performing correctly.  Calling this procedure prevents the
+##error from being displayed in the user interface.
+proc expectErrors {
+	${{
+		if (arguments.length != 0) {
+			eden.error("expectErrors: This procedure does not accept any arguments.");
+		}
+		eden.reportErrors = false;
+		eden.errorNumber = 0;
+	}}$;
+}
+
+proc assertErrors {
+	${{
+		eden.reportErrors = true;
+		if (eden.errorNumber == 0) {
+			var errorStr = "Assertion Failure! Expected an EDEN error but no error occurred.";
+			var jseTestGroup = root.lookup("jseTestGroup").value();
+			if (jseTestGroup !== undefined && jseTestGroup !== null) {
+				errorStr = errorStr + "\nTest Group: " + jseTestGroup.toString();
+			}
+			if (arguments.length == 1) {
+				errorStr = errorStr + "\nTest Case: " + arguments[0];
+			} else {
+				eden.error("assertErrors: This procedure requires exactly 1 argument.");
+			}
+			eden.error(errorStr);
+		}
+	}}$;
+}
+
+proc assertErrorsExpectMore {
+	${{
+		if (eden.errorNumber == 1) {
+			var errorStr = "Assertion Failure! Expected an EDEN error but no error occurred.";
+			var jseTestGroup = root.lookup("jseTestGroup").value();
+			if (jseTestGroup !== undefined && jseTestGroup !== null) {
+				errorStr = errorStr + "\nTest Group: " + jseTestGroup.toString();
+			}
+			if (arguments.length == 1) {
+				errorStr = errorStr + "\nTest Case: " + arguments[0];
+			} else {
+				eden.error("assertErrors: This procedure requires exactly 1 argument.");
+			}
+			eden.error(errorStr);
+		}
+		eden.errorNumber = 0;
+	}}$;
+}

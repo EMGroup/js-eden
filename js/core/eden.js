@@ -80,7 +80,7 @@
 	function Eden() {
 		/**
 		 * @type {number}
-		 * @private
+		 * @public (Inspected and reset by the framework for testing EDEN code.)
 		 */
 		this.errorNumber = 0;
 
@@ -95,6 +95,15 @@
 		 * @private
 		 */
 		this.loadqueue = [];
+
+		/**Setting this to false temporarily prevents Eden.reportError from
+		 * producing any output.  This is used by the framework for testing EDEN
+		 * code in the scenario when an error is the intended outcome of a test case.
+		 * @see library/assertions.js-e
+		 * @type {boolean}
+		 * @public
+		*/
+		this.reportErrors = true;
 	}
 
 	/**
@@ -189,14 +198,16 @@
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
 	 */
 	Eden.prototype.error = function (error, origin) {
-		if (origin) {
-			this.emit('executeError', [error, {path: origin, errorNumber: this.errorNumber}]);
-		} else {
-			this.emit('executeError', [error, {errorNumber: this.errorNumber}]);
+		if (this.reportErrors) {
+			if (origin) {
+				this.emit('executeError', [error, {path: origin, errorNumber: this.errorNumber}]);
+			} else {
+				this.emit('executeError', [error, {errorNumber: this.errorNumber}]);
+			}
 		}
 		++this.errorNumber;
 	};
-
+	
 	/**
 	 * @param {string} code
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".

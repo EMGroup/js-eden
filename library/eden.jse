@@ -53,6 +53,19 @@ eden.executeFile(arguments[0]);
 }}$;
 };
 
+proc error {
+	${{
+		if (arguments.length > 1) {
+			eden.error("error: This procedure requires at most 1 argument");
+		}
+		if (arguments.length == 0) {
+			eden.error("Runtime error", "error");
+		} else {
+			eden.error(arguments[0], "error");
+		}
+	}}$;
+}
+
 func execute {
 ${{
 	eden.execute(arguments[0], "execute");

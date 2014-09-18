@@ -1,0 +1,8 @@
+
+jseTestGroup = "int";
+expectErrors();
+int();
+assertErrorsExpectMore("Produces an error when no argument is provided.");
+int("A", "A");
+assertErrors("Produces an error when more than one argument is provided.");
+assertEqual(int("A"), 65, "Returns the Unicode character code for a single character string");

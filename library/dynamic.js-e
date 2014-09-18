@@ -1,0 +1,60 @@
+##Functions and procedures that allow EDEN code to inspect, manipulate and
+##construct parts of scripts at runtime.
+
+##Given a value, this function returns the string representing the simplest
+##EDEN code that evaluates as that value.  For example, edenCode applied to a
+##string is the string formed by adding quotes to the original string.
+func edenCode {
+	${{
+		if (arguments.length != 1) {
+			eden.error("edenCode: This function requires exactly 1 argument.");
+			return undefined;
+		}
+		var value = arguments[0];
+		var type = typeof(value);
+		var code = "";
+		if (type == "undefined") {
+			code = "@";
+		} else if (value === null) {
+			code = "$" + "{{ null }}" + "$";
+		} else if (type == "string") {
+			code = "\"" + value + "\"";
+		} else if (Array.isArray(value)) {
+			code = "[";
+			for (var i = 0; i < value.length - 1; i++) {
+				code = code + root.lookup("edenCode").definition(root)(value[i]) + ", ";
+			}
+			if (value.length > 0) {
+				code = code + root.lookup("edenCode").definition(root)(value[value.length - 1]);
+			}
+			code = code + "]";
+		} else if (type == "object") {
+			if (value instanceof Symbol) {	
+				code = "&" + value.name.slice(1);
+			} else if (
+				"keys" in value &&
+				Array.isArray(value.keys) &&
+				value.keys.length > 0 &&
+				typeof(value.keys[0]) == "number" &&
+				"parent" in value &&
+				value.parent instanceof Symbol
+			) {
+				code = "&" + value.parent.name.slice(1) + "[" + value.keys[0].toString() + "]";
+			} else {
+				code = "{";
+				for (var key in value) {
+					code = code + key + ": " + root.lookup("edenCode").definition(root)(value[key]) + ", ";
+				}
+				if (code != "{") {
+					code = code.slice(0, -2);
+				}
+				code = code + "}";
+			}
+		} else if (type == "function") {
+			code = "$" +"{{ " + value.toString() + " }}" + "$";
+		} else {
+			code = value.toString();
+		}
+		return code;
+	}}$;
+}
