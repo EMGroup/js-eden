@@ -200,28 +200,46 @@
 	/**
 	 * @param {string} code
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
-	 * @return {*}
+	 * @param {function(*)} success
 	 */
-	Eden.prototype.execute = function (code, origin) {
+	Eden.prototype.execute = function (code, origin, success) {
 		origin = origin || "unknown";
 		var result;
 		this.emit('executeBegin', [origin]);
 		try {
 			result = eval(this.translateToJavaScript(code));
-			this.emit('executeEnd', [origin]);
+			success && success(result);
 		} catch (e) {
 			this.error(e, origin);
+			success && success();
 		}
-		return result;
 	};
 
-	function _$() {
-		var code = arguments[0];
-		for (var i = 1; i < arguments.length; i++) {
-			code = code.replace("$"+i, arguments[i]);
+	Eden.prototype.include = function (url, origin, success) {
+		if (url.match(/.js$/)) {
+			$.getScript(url, success);
+		} else if (url.match(/.jse$/)) {
+			if (url.match(/^http/)) {
+				// cross host
+				$.ajax({
+					url: rt.config.jseProxyBaseUrl,
+					jsonp: "successCallback",
+					dataType: "jsonp",
+					data: {
+						url: url,
+					},
+					success: function (data) {
+						eden.execute(data, success);
+					}
+				});
+			} else {
+				// same host, no need to use JSONP proxy
+				$.get(url, function (data) {
+					eden.execute(data, success);
+				});
+			}
 		}
-		return eden.execute(code);
-	}
+	};
 
 	/**
 	 * This function sets up a bunch of state/functions used in the generated parser. The

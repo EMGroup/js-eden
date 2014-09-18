@@ -15,19 +15,7 @@ var rt = {
 	},
 
 	includeJS: function (url, success) {
-		if (url.match(/.js$/)) {
-			$.getScript(url, success);
-		} else if (url.match(/.jse$/)) {
-			if (url.match(/^http/)) {
-				// cross host
-				$.getScript(rt.config.jseProxyBaseUrl + '?successCallback=eden.execute&url=' + encodeURIComponent(url));
-			} else {
-				// same host, no need to use JSONP proxy
-				$.get(url, function (data) {
-					eden.execute(data);
-				});
-			}
-		}
+		eden.include(url, success);
 	}
 };
 
