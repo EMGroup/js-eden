@@ -22,8 +22,6 @@
  */
 
 (function (global) {
-	"use strict";
-
 	/**
 	 * A maintainer of definitions
 	 *
