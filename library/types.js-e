@@ -60,8 +60,8 @@ func char {
 func int {
 	${{
 		if (arguments.length != 1) {
-			eden.error("int: this function requires exactly one argument.");
-			return undefined;			
+			eden.error(new Error("int: this function requires exactly one argument."));
+			return undefined;
 		}
 
 		var value = arguments[0];

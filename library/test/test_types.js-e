@@ -1,8 +1,4 @@
 
 jseTestGroup = "int";
-expectErrors();
-int();
-assertErrorsExpectMore(1, "Produces an error when no argument is provided.");
-int("A", "A");
-assertErrors(1, "Produces an error when more than one argument is provided.");
+assertChecksNumberOfArgs(&int, 1, "A");
 assertEqual(int("A"), 65, "Returns the Unicode character code for a single character string");

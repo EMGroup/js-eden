@@ -52,7 +52,8 @@ proc assertEqual {
 
 ##Call this procedure prior to calling code that should generate an EDEN error
 ##if the code is performing correctly.  Calling this procedure prevents the
-##error from being displayed in the user interface.
+##error from being displayed in the user interface.  This procedure doesn't
+##have any parameters.
 proc expectErrors {
 	${{
 		if (arguments.length != 0) {
@@ -63,6 +64,10 @@ proc expectErrors {
 	}}$;
 }
 
+##Call this procedure to restore JS-EDEN's error handling to the normal
+##behaviour and raise an error if the expected errors did not occur.  The first
+##parameter is optional and if provided gives the number of errors that should
+##have been raised.  The final argument is the name of the test case.
 proc assertErrors {
 	${{
 		eden.reportErrors = true;
@@ -91,6 +96,7 @@ proc assertErrors {
 	}}$;
 }
 
+##Calling this procedure is equivalent to calling assertErrors followed by expectErrors.
 proc assertErrorsExpectMore {
 	${{
 		if (arguments.length == 0 || arguments.length > 2) {
@@ -121,4 +127,68 @@ proc assertErrorsExpectMore {
 		}
 		eden.errorNumber = 0;
 	}}$;
+}
+
+##Usage: assertChecksNumberOfArgs(funcOrProcPointer, minNumberOfArgs, maxNumberOfArgs,... (the test arguments)...)
+##If maxNumberOfArgs and minNumberOfArgs are equal then maxNumberOfArgs can be omitted.
+##
+##The following tests will be run.
+##(1) The func or proc will be called using the first minNumberOfArgs - 1 of
+##    the test arguments and an error must be raised.
+##(2) The func or proc will be called using minNumberOfArgs and it must not
+##    produce an error.
+##(3) The func or proc will be called using all of the test arguments and it
+##    must not produce an error.
+##(4) The func or proc will be called using all of the test arguments and an
+##    additional nonsense argument and an error must be raised.
+##
+##The func or proc must not modify the state in such a way that the execution
+##of one of these tests prevents a later test from succeeding.
+##
+proc assertChecksNumberOfArgs {
+	auto funcOrProcP, minArgs, maxArgs, fullArgList;
+	if ($# < 2) {
+		error("assertChecksNumberOfArgs: This procedure requires at least 2 arguments.");
+		return;
+	} else if (!isPointer($[1])) {
+		error("assertChecksNumberOfArgs: The first argument must be a pointer to a proc or a func, not a " // type($[1]));
+		return;
+	} else if (!isCallable(*$[1])) {
+		error("assertChecksNumberOfArgs: The first argument must be a pointer to a proc or a func, not a pointer to " // type(*$[1]));
+		return;
+	} else if (!isNumber($[2])) {
+		error("assertChecksNumberOfArgs: The second argument must be a number, not a " // type($[1]));
+		return;
+	} else if ($# == $[2] + 2) {
+		minArgs = $[2];
+		maxArgs = $[2];
+		fullArgList = sublist($, 3, $#);
+	} else if ($# >= 3 && isNumber($[3]) && $# == $[3] + 3) {
+		minArgs = $[2];
+		maxArgs = $[3];
+		fullArgList = sublist($, 4, $#);
+	} else {
+		error("assertChecksNumberOfArgs: Incorrect number of arguments.");
+		return;
+	}
+	funcOrProcP = $[1];
+	
+	if (minArgs == 0) {
+		(*funcOrProcP)();	
+	} else {
+		expectErrors();
+		if (minArgs == 1) {
+			(*funcOrProcP)();
+		} else {
+			apply(*funcOrProcP, sublist(fullArgList, minArgs - 1, fullArgList#));
+		}
+		assertErrors(nameof(funcOrProcP) // " produces an error when fewer than " // str(minArgs) // " arguments are provided.");
+		apply(*funcOrProcP, sublist(fullArgList, 1, minArgs));
+	}
+
+	apply(*funcOrProcP, fullArgList);
+	
+	expectErrors();
+	apply(*funcOrProcP, fullArgList // ["erroneous extra argument"]);
+	assertErrors(nameof(funcOrProcP) // " produces an error when more than " // str(maxArgs) // " arguments are provided.");
 }
