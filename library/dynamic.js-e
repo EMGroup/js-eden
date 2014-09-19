@@ -7,7 +7,7 @@
 func edenCode {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("edenCode: This function requires exactly 1 argument."));
+			eden.error(new Error("edenCode: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		var value = arguments[0];

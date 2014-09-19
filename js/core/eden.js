@@ -198,6 +198,11 @@
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
 	 */
 	Eden.prototype.error = function (error, origin) {
+		if (origin != "error") {
+			//Errors that halt execution are always reported and cause error
+			//handling to be restored to the default behaviour to avoid confusion.
+			this.reportErrors = true;
+		}
 		if (this.reportErrors) {
 			if (origin) {
 				this.emit('executeError', [error, {path: origin, errorNumber: this.errorNumber}]);

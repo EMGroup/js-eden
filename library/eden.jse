@@ -46,7 +46,7 @@ func substr {
 func apply {
 	${{
 		if (arguments.length != 2) {
-			eden.error(new Error("apply: this function requires exactly 2 arguments."));
+			eden.error(new Error("apply: this function requires exactly 2 arguments."), "error");
 			return undefined;			
 		} else if (arguments[0] === undefined || arguments[1] === undefined) {
 			return undefined;
@@ -72,7 +72,7 @@ eden.executeFile(arguments[0]);
 proc error {
 	${{
 		if (arguments.length > 1) {
-			eden.error(new Error("error: This procedure requires at most 1 argument"));
+			eden.error(new Error("error: This procedure requires at most 1 argument"), "error");
 		}
 		if (arguments.length == 0) {
 			eden.error(new Error("Runtime error"), "error");
@@ -91,7 +91,7 @@ ${{
 func nameof {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("nameof: This function requires exactly 1 argument."));
+			eden.error(new Error("nameof: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 
@@ -111,7 +111,7 @@ func nameof {
 		) {
 			return pointer.parent.name.slice(1) + "[" + pointer.keys[0].toString() + "]";
 		} else {
-			eden.error(new Error("nameof: The argument must be a pointer, not a " + typeof(pointer)));
+			eden.error(new Error("nameof: The argument must be a pointer, not a " + typeof(pointer)), "error");
 			return undefined;
 		}
 	}}$;

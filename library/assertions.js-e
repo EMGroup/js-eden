@@ -57,7 +57,7 @@ proc assertEqual {
 proc expectErrors {
 	${{
 		if (arguments.length != 0) {
-			eden.error(new Error("expectErrors: This procedure does not accept any arguments."));
+			eden.error(new Error("expectErrors: This procedure does not accept any arguments."), "error");
 		}
 		eden.reportErrors = false;
 		eden.errorNumber = 0;
@@ -73,7 +73,7 @@ proc assertErrors {
 		eden.reportErrors = true;
 		
 		if (arguments.length == 0 || arguments.length > 2) {
-			eden.error(new Error("assertErrors: This procedure requires at least 1 argument and at most 2 arguments."));
+			eden.error(new Error("assertErrors: This procedure requires at least 1 argument and at most 2 arguments."), "error");
 		}
 		
 		var errorStr;
@@ -91,7 +91,7 @@ proc assertErrors {
 			if (arguments.length > 0) {
 				errorStr = errorStr + "\nTest Case: " + arguments[arguments.length - 1];
 			}
-			eden.error(new Error(errorStr));
+			eden.error(new Error(errorStr), "error");
 		}
 	}}$;
 }
@@ -101,7 +101,7 @@ proc assertErrorsExpectMore {
 	${{
 		if (arguments.length == 0 || arguments.length > 2) {
 			eden.reportErrors = true;
-			eden.error(new Error("assertErrorsExpectMore: This procedure requires at least 1 argument and at most 2 arguments."));
+			eden.error(new Error("assertErrorsExpectMore: This procedure requires at least 1 argument and at most 2 arguments."), "error");
 		}
 		
 		var errorStr;
@@ -121,7 +121,7 @@ proc assertErrorsExpectMore {
 			if (arguments.length > 0) {
 				errorStr = errorStr + "\nTest Case: " + arguments[arguments.length - 1];
 			}
-			eden.error(new Error(errorStr));
+			eden.error(new Error(errorStr), "error");
 			
 			eden.reportErrors = false;
 		}

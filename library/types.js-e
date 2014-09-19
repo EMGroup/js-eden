@@ -22,7 +22,7 @@ Infinity = 1/0;
 func char {
 	${{
 		if (arguments.length != 1) {
-			eden.error("char: this function requires exactly one argument.");
+			eden.error(new Error("char: this function requires exactly one argument."), "error");
 			return undefined;		
 		} else if (typeof(arguments[0]) == "number") {
 			return String.fromCharCode(arguments[0]);
@@ -60,7 +60,7 @@ func char {
 func int {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("int: this function requires exactly one argument."));
+			eden.error(new Error("int: this function requires exactly one argument."), "error");
 			return undefined;
 		}
 
@@ -135,7 +135,7 @@ func str {
 func type {
 	${{
 		if (arguments.length != 1) {
-			eden.error("type: this function requires exactly one argument.");
+			eden.error(new Error("type: this function requires exactly one argument."), "error");
 			return undefined;
 		}
 
@@ -183,7 +183,7 @@ func type {
 func isBoolean {
 	${{
 		if (arguments.length != 1) {
-			eden.error("isBoolean: This function requires exactly 1 argument.");
+			eden.error(new Error("isBoolean: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return typeof(arguments[0]) == "boolean";
@@ -194,7 +194,7 @@ func isBoolean {
 func isCallable {
 	${{
 		if (arguments.length != 1) {
-			eden.error("isCallable: This function requires exactly 1 argument.");
+			eden.error(new Error("isCallable: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return typeof(arguments[0]) == "function";
@@ -205,7 +205,7 @@ func isCallable {
 func isChar {
 	${{
 		if (arguments.length != 1) {
-			eden.error("isChar: This function requires exactly 1 argument.");
+			eden.error(new Error("isChar: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return typeof(arguments[0]) == "string" && arguments[0].length == 1;
@@ -230,7 +230,7 @@ func isChar {
 func isDefined {
 	${{
 		if (arguments.length != 1) {
-			eden.error("isDefined: This function requires exactly 1 argument.");
+			eden.error(new Error("isDefined: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		var v = arguments[0];
@@ -242,7 +242,7 @@ func isDefined {
 func isInt {
 	${{
 		if (arguments.length != 1) {
-			eden.error("isInt: This function requires exactly 1 argument.");
+			eden.error(new Error("isInt: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		var v = arguments[0];
@@ -254,7 +254,7 @@ func isInt {
 func isList {
 	${{
 		if (arguments.length != 1) {
-			eden.error("isList: This function requires exactly 1 argument.");
+			eden.error(new Error("isList: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return Array.isArray(arguments[0]);
@@ -272,7 +272,7 @@ func isNaN {
 func isNumber {
 	${{
 		if (arguments.length != 1) {
-			eden.error("isNumber: This function requires exactly 1 argument.");
+			eden.error(new Error("isNumber: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		var v = arguments[0];
@@ -286,7 +286,7 @@ func isNumber {
 func isObject {
 	${{
 		if (arguments.length != 1) {
-			eden.error("isObject: This function requires exactly 1 argument.");
+			eden.error(new Error("isObject: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return arguments[0] !== null && typeof(arguments[0]) == "object" && !root.lookup("isPointer").definition(root)(arguments[0]);
@@ -297,7 +297,7 @@ func isObject {
 func isPointer {
 	${{
 		if (arguments.length != 1) {
-			eden.error("isPointer: This function requires exactly 1 argument.");
+			eden.error(new Error("isPointer: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		var value = arguments[0];
@@ -316,7 +316,7 @@ func isPointer {
 func isString {
 	${{
 		if (arguments.length != 1) {
-			eden.error("isString: This function requires exactly 1 argument.");
+			eden.error(new Error("isString: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return typeof(arguments[0]) == "string";
