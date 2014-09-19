@@ -24,9 +24,13 @@ func char {
 		if (arguments.length != 1) {
 			eden.error(new Error("char: this function requires exactly one argument."), "error");
 			return undefined;		
-		} else if (typeof(arguments[0]) == "number") {
+		}
+		var type = typeof(arguments[0]);
+		if (type == "boolean") {
+			return arguments[0]? String.fromCharCode(1) : String.fromCharCode(0);
+		} else if (type == "number") {
 			return String.fromCharCode(arguments[0]);
-		} else if (typeof(arguments[0]) == "string") {
+		} else if (type == "string") {
 			return arguments[0].charAt(0);
 		} else {
 			return undefined;
@@ -88,11 +92,20 @@ func int {
 }
 
 func str {
-  ${{
-  var a = arguments[0];
-  return (new Number(a)).toString();
-  }}$;
-};
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("str: this function requires exactly one argument."), "error");
+			return undefined;			
+		}
+
+		if (typeof(arguments[0]) == "string") {
+			return arguments[0];
+		} else {
+			var a = arguments[0];
+			return (new Number(a)).toString();
+		}
+	}}$;
+}
 
 ##=============================================================================
 ##Type testing functions.

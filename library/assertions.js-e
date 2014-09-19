@@ -129,7 +129,7 @@ proc assertErrorsExpectMore {
 	}}$;
 }
 
-##Usage: assertChecksNumberOfArgs(funcOrProcPointer, minNumberOfArgs, maxNumberOfArgs,... (the test arguments)...)
+##Usage: assertChecksNumberOfArgs(funcOrProcPointer, minNumberOfArgs, maxNumberOfArgs, listOfTestArguments)
 ##If maxNumberOfArgs and minNumberOfArgs are equal then maxNumberOfArgs can be omitted.
 ##
 ##The following tests will be run.
@@ -147,8 +147,8 @@ proc assertErrorsExpectMore {
 ##
 proc assertChecksNumberOfArgs {
 	auto funcOrProcP, minArgs, maxArgs, fullArgList;
-	if ($# < 2) {
-		error("assertChecksNumberOfArgs: This procedure requires at least 2 arguments.");
+	if ($# < 2 || ($# == 2 && $[2] > 0) || ($# > 4)) {
+		error("assertChecksNumberOfArgs: This procedure requires at least 3 arguments and at most 4 arguments.");
 		return;
 	} else if (!isPointer($[1])) {
 		error("assertChecksNumberOfArgs: The first argument must be a pointer to a proc or a func, not a " // type($[1]));
@@ -159,19 +159,32 @@ proc assertChecksNumberOfArgs {
 	} else if (!isNumber($[2])) {
 		error("assertChecksNumberOfArgs: The second argument must be a number, not a " // type($[1]));
 		return;
-	} else if ($# == $[2] + 2) {
+	} else if ($# == 2) {
+		minArgs = 0;
+		maxArgs = 0;
+		fullArgList = [];
+	} else if ($# == 3) {
 		minArgs = $[2];
 		maxArgs = $[2];
-		fullArgList = sublist($, 3, $#);
-	} else if ($# >= 3 && isNumber($[3]) && $# == $[3] + 3) {
-		minArgs = $[2];
-		maxArgs = $[3];
-		fullArgList = sublist($, 4, $#);
+		fullArgList = $[3];
 	} else {
-		error("assertChecksNumberOfArgs: Incorrect number of arguments.");
+		minArgs = $[2];
+		fullArgList = $[4];
+		
+		if (isNumber($[3])) {
+			maxArgs = $[3];
+		} else {
+			error("assertChecksNumberOfArgs: The third argument must be a number, not a " // type($[3]));
+			return;
+		}
+	}
+	
+	funcOrProcP = $[1];
+	
+	if (!isList(fullArgList)) {
+		error("assertChecksNumberOfArgs: The final argument must be a list, not a " // type(fullArgList));
 		return;
 	}
-	funcOrProcP = $[1];
 	
 	if (minArgs == 0) {
 		(*funcOrProcP)();	
