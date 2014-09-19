@@ -30,3 +30,17 @@ assertEqual(int(@), @, "Returns undefined 'otherwise'");
 
 jseTestGroup = "str";
 assertChecksNumberOfArgs(&str, 1, [100]);
+assertEqual(str("abc"), "abc", "Returns the same string for a string argument");
+assertEqual(str(@), "@", "Returns \"@\" for an undefined argument");
+assertEqual(str('A'), "A", "Returns a string composed of that one character for a char argument");
+assertEqual(str(12), "12", "Returns the string of digits representing the numeric value of an integer argument");
+assertEqual(str(-12.75), "-12.75", "Returns the string of digits representing the numeric value of a float argument");
+
+jseTestGroup = "type";
+assertChecksNumberOfArgs(&type, 1, [42]);
+assertEqual(type(@), "@", "Returns \"@\" for an undefined argument");
+assertEqual(type(42), "int", "Returns \"int\" for an integer argument");
+assertEqual(type(""), "string", "Returns \"string\" for a string argument");
+assertEqual(type("a"), "string", "Returns \"string\" for a string argument of length 1");
+assertEqual(type(6.5), "float", "Returns \"float\" for a non-integer numeric argument");
+assertEqual(type([]), "list", "Returns \"list\" for a list argument");

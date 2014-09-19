@@ -100,6 +100,8 @@ func str {
 
 		if (typeof(arguments[0]) == "string") {
 			return arguments[0];
+		} else if (arguments[0] === undefined) {
+			return "@";
 		} else {
 			var a = arguments[0];
 			return (new Number(a)).toString();
@@ -119,21 +121,28 @@ func str {
 ##expressions.  JavaScript only has a single numeric type and it's a floating
 ##point type.  This function will check if the value is an integer or not but
 ##type(1.5 + 2.5) incorrectly returns "int".  "@" is returned for NaNs.  tkeden
-##flags expressions such as 0/0 as errors and thus NaNs don't not arise in
-##tkeden.
+##flags expressions such as 0/0 as unrecoverable errors and thus NaNs don't
+##arise in tkeden.
 ##
 ##JavaScript has a dedicated Boolean type and this function will return
 ##"boolean" when applied to Boolean expressions.  This is internally consistent
 ##with JS-EDEN but when this function returns "boolean" tkeden would have
 ##returned "int".
 ##
-##Returns "func" for built-in functions, user-defined functions and procedures.
-##Because the only information being provided to the function is the
-##value itself and not anything more substantial (such as a symbol table name),
-##we can't distinguish between func-s, proc-s and built-ins because the
-##values of all three are just JavaScript values that look like function () {...}
+##Attempts to return "func" for all built-in and user-defined functions and
+##"proc" for all built-in and user-defined procs.  However, the determination
+##of whether a value is a func or a proc is based solely on whether the
+##compiled JavaScript contains a return statement that returns a value.  It is
+##not based on whether the original EDEN definition began with the keyword func
+##or the keyword proc.  Because the only information being provided to this
+##function is the value itself and not anything more substantial (such as a
+##symbol table name), we can't 100% reliably distinguish between func-s, proc-s
+##and built-ins because the values of all three are just JavaScript values that
+##look like function () {...} in JavaScript.
 ##
-##Possible return values are "boolean", "float", "func", "int", "list", "object", "pointer", "string" and "@".
+##Possible return values are:
+## "boolean", "float", "func", "int", "list", "object", "pointer", "proc",
+## "string" and "@".
 ##
 ##This function never returns "char" because JavaScript doesn't have a character
 ##type, only strings of length one.  There seems no obvious reason to prefer
@@ -173,7 +182,15 @@ func type {
 		} else if (Array.isArray(value)) {
 			return "list";
 		} else if (typeName == "function") {
-			return "func";
+			/* Trying to simplify the following expression confuses the JS-EDEN
+			 * parser, which doesn't understand comment characters inside a reg
+			 * exp inside JavaScript inside EDEN code.
+			 */
+			if ((new RegExp("\\breturn\\s+([^\\/;]|(\\/[^\\/" + "*]))")).test(value.toString())) {
+				return "func";
+			} else {
+				return "proc";
+			}
 		} else if (
 			(value instanceof Symbol) || (
 				typeName == "object" &&
@@ -251,6 +268,18 @@ func isDefined {
 	}}$;
 }
 
+##Tests if a value is a func.
+func isFunc {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isFunc: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		var value = arguments[0];
+		return typeof(value) == "function" && (new RegExp("\\breturn\\s+([^\\/;]|(\\/[^\\/" + "*]))")).test(value.toString());
+	}}$;
+}
+
 ##Tests if a value is an integer.
 func isInt {
 	${{
@@ -322,6 +351,18 @@ func isPointer {
 				typeof(value.keys[0]) == "number" &&
 				"parent" in value &&
 				value.parent instanceof Symbol);
+	}}$;
+}
+
+##Tests if a value is a proc.
+func isProc {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isProc: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		var value = arguments[0];
+		return typeof(value) == "function" && !(new RegExp("\\breturn\\s+([^\\/;]|(\\/[^\\/" + "*]))")).test(value.toString());
 	}}$;
 }
 
