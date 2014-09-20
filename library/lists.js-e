@@ -1,0 +1,93 @@
+##Functions that operate on lists.
+
+##This function incorporates both the rules specified by the EDEN Language
+##Guide and JavaScript's rules.
+##
+##sublist(list, from, to)
+##
+##If from > to then the result is [] (from the EDEN Language Guide).
+##
+##If to is greater than the length of the list then the result is padded with
+##a required number of undefined elements (from the EDEN Language Guide).
+##
+##If list is undefined then the result is undefined, which is following what
+##I believe is a general JS-EDEN design principle.  This behaviour is
+##inconsistent with tkeden however.  Nevertheless the Language Guide doesn't
+##explicitly say that an implementation must raise an error.
+##
+##The Language Guide says that the user should not provide a from value less than 1.
+##tkeden produces an error in this case.  The Language Guide suggests that the
+##user is at fault for calling the function with an argument outside of the
+##range permitted by the specification and again the specification does not
+##explicitly demand that the interpreter produces an error message in this case.
+##If one applies a formal methods viewpoint then calling a function with an
+##unsatisfied precondition permits the function's author to handle it in any
+##way that they choose.  If from is less than zero then this implementation applies
+##the JavaScript convention that negative numbers refer to positions counted
+##backward from the end of the list, so the last element of the list can be
+##referred to using the index -1, the penultimate element as -2, etc.  If from
+##is zero and list is defined then an error is raised.  Similarly, if from is
+##negative then this implementation allows to to be negative too, with the same
+##counting back from the end of the list semantics applied to both from and to.
+##
+##If to is undefined then the end of the list is used as the limit, which is another
+##JavaScript rule.  If from is undefined then the results are the same
+##as when from is 1 except that to can be negative and have the counting back
+##from the end of the list semantics.  This is my own rule to mediate the
+##tension between JavaScript's rules and EDEN's rules.
+##
+##If to is omitted then the result is the same as when it is explicitly
+##specified as undefined.
+##
+##In conclusion this function implements EDEN's sublist function with several
+##extensions that ascribe meaningful results in cases when tkeden would baulk
+##with an error messge.
+##
+func sublist {
+	${{
+		if (arguments.length < 2 || arguments.length > 3) {
+			eden.error(new Error("substr: this function requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
+			return undefined;
+		}
+
+		var list = arguments[0];
+		var from = arguments[1];
+		var to = arguments[2];
+		
+		if (list === undefined) {
+			return undefined;
+		}
+		if (!Array.isArray(list)) {
+			eden.error(new Error("sublist: expected list but got " + typeof(list)), "error");
+			return undefined;
+		}
+		if (from === undefined) {
+			from = 1;
+		} else if (from > to) {
+			return [];
+		}
+		if (from > 0) {
+			from = from - 1;
+		} else if (from == 0) {
+			eden.error(new Error("sublist: from cannot be 0."), "error");
+			return undefined;
+		}
+		if (to == 0) {
+			eden.error(new Error("sublist: to cannot be 0."), "error");
+			return undefined;
+		} else if (to < 0) {
+			to = to + 1;
+			if (to == 0) {
+				to = list.length;
+			}
+		}
+		
+		var result = list.slice(from, to);
+		
+		if (to > list.length) {
+			result = result.concat(new Array(to - list.length));
+		}
+		
+		return result;
+	}}$;
+}
