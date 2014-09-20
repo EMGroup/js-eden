@@ -84,8 +84,9 @@
 		});
 
 		// Now construct eden agents and observables for dialog control.
-		this.eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ edenUI.moveView(\""+name+"\"); }}$; };");
-		this.eden.execute("proc _View_"+name+"_size : _view_"+name+"_width,_view_"+name+"_height { ${{ edenUI.resizeView(\""+name+"\"); }}$; };");
+		this.eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ edenUI.moveView(\""+name+"\"); }}$; };", function () {
+			this.eden.execute("proc _View_"+name+"_size : _view_"+name+"_width,_view_"+name+"_height { ${{ edenUI.resizeView(\""+name+"\"); }}$; };");
+		});
 	};
 
 	/**

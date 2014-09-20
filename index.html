@@ -88,9 +88,11 @@ See LICENSE.txt
 		// Force manual refresh of views menu.
 		edenUI.plugins.MenuBar.updateViewsMenu();
 
-		eden.executeFileSSI("library/eden.jse");
-		eden.executeFileSSI("plugins/canvas-html5/image.js-e");
-		eden.executeFileSSI("library/declarevar.js-e");
+		eden.include("library/eden.jse", function () {
+			eden.include("plugins/canvas-html5/image.js-e", function () {
+				eden.include("library/declarevar.js-e");
+			});
+		});
 	});
 </script>
 
