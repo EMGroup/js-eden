@@ -61,7 +61,7 @@ EdenUI.plugins.InputWindow = function(edenUI) {
 	
 		this.addHistory(text);
 
-		edenUI.eden.execute(text, "input");
+		edenUI.eden.execute(text);
 			
 		if (historydialog !== undefined) {
 			historydialog.html(this.generateHistory());
