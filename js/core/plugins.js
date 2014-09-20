@@ -47,6 +47,8 @@
 			if (this.plugins.MenuBar) {
 				this.plugins.MenuBar.updatePluginsMenu();
 			}
+		} else {
+			success && success();
 		}
 	};
 
