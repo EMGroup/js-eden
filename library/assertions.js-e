@@ -26,6 +26,19 @@ func equalLists {
 	return true;
 }
 
+##Temporary hack until a bug in the interpreter is fixed so that lists are
+##assigned by value instead of by reference.  Shallow copying is sufficient for
+##our needs here (though deep copying wouldn't do any harm).
+func shallowListCopy {
+	para list;
+	auto result, i;
+	result = array(list#);
+	for (i = 1; i <= list#; i++) {
+		result[i] = list[i];
+	}
+	return result;
+}
+
 ##Tests if two values are equal and raises an EDEN if they are not.  This
 ##function requires three arguments.  The first and second arguments are the
 ##values to be compared.  The third argument is name of the test case.

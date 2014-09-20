@@ -1,3 +1,14 @@
+##Define set-up
+
+func aFunc {
+	return 1;
+}
+
+proc aProc {
+
+}
+
+aList = [1,2,3];
 
 jseTestGroup = "char";
 assertChecksNumberOfArgs(&char, 1, [65]);
@@ -44,3 +55,12 @@ assertEqual(type(""), "string", "Returns \"string\" for a string argument");
 assertEqual(type("a"), "string", "Returns \"string\" for a string argument of length 1");
 assertEqual(type(6.5), "float", "Returns \"float\" for a non-integer numeric argument");
 assertEqual(type([]), "list", "Returns \"list\" for a list argument");
+assertEqual(type(aFunc), "func", "Returns \"func\" for a function typed argument");
+assertEqual(type(aProc), "proc", "Returns \"proc\" for a procedure typed argument");
+assertEqual(type(&aList), "pointer", "Returns \"pointer\" for a pointer typed argument");
+assertEqual(type(&aList[2]), "pointer", "Returns \"pointer\" for a pointer to a list element");
+assertEqual(type(true)), "boolean", "Returns \"boolean\" for a Boolean argument");
+assertEqual(type({})), "object", "Returns \"object\" for an object argument");
+
+jseTestGroup = "isBoolean";
+assertChecksNumberOfArgs(&isBoolean, 1, [true]);

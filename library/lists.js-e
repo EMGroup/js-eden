@@ -1,5 +1,49 @@
 ##Functions that operate on lists.
 
+##If the first argument is undefined then the result is undefined.
+##If more than two arguments are provided then an error is raised.
+func array {
+	${{
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("array: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;			
+		}
+		
+		var n = arguments[0];
+
+		if (n === undefined) {
+			return undefined;
+		} else if (typeof(n) != "number" || n != parseInt(n)) {
+			eden.error(new Error("array: The first argument must be an int, not a " + typeof(n)), "error");
+			return undefined;
+		}
+		
+		var arr = new Array(n);
+		if (arguments[1] !== undefined) {
+			for (var i = 0; i < n; i++) {
+				arr[i] = arguments[1];
+			}
+		}
+		return arr;
+	}}$;
+}
+
+func listcat {
+	auto result, i;
+	result = [];
+	for (i = 1; i <= $#; i++) {
+		if ($[i] == @) {
+			return @;
+		} else if (isList($[i])) {
+			result = result // $[i];
+		} else {
+			error("listcat: Argument " // str(i) // " must be a list, not a " // type($[i]));
+			return @;
+		}
+	}
+	return result;
+}
+
 ##This function incorporates both the rules specified by the EDEN Language
 ##Guide and JavaScript's rules.
 ##

@@ -46,9 +46,13 @@ func substr {
 func apply {
 	${{
 		if (arguments.length != 2) {
-			eden.error(new Error("apply: this function requires exactly 2 arguments."), "error");
+			eden.error(new Error("apply: This function requires exactly 2 arguments."), "error");
 			return undefined;			
-		} else if (arguments[0] === undefined || arguments[1] === undefined) {
+		} else if (typeof(arguments[0]) != "function") {
+			eden.error(new Error("apply: The first argument must be of type func or type proc, not " + typeof(arguments[0])), "error");
+			return undefined;
+		} else if (!Array.isArray(arguments[1])) {
+			eden.error(new Error("apply: The second argument must be of type list, not " + typeof(arguments[1])), "error");
 			return undefined;
 		} else {
 			return arguments[0].apply(this, arguments[1]);
@@ -105,6 +109,29 @@ func nameof {
 	}}$;
 }
 
+proc todo {
+	auto code;
+	if ($# != 1) {
+		error("todo: This proc requires exactly 1 argument.");
+		return;
+	}
+	
+	code = $[1];
+	
+	if (code == @) {
+		return;
+	} else if (type(code) != "string") {
+		error("todo: The argument must be of type string, not " // type(code));
+		return;
+	}
+	
+	code = code // ";";
+	
+	after (0) {
+		execute(code);
+	}
+}
+
 ##Autocalc compatibility
 autocalc = 1;
 
@@ -123,6 +150,7 @@ include("library/core.js-e");
 include("library/lists.js-e");
 ## include("library/drawing.jse");
 include("library/maths.jse");
+include("library/strings.js-e");
 include("library/algebra.jse");
 include("library/include_js.js-e");
 include("library/declarevar.js-e");
