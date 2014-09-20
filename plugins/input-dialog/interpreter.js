@@ -11,7 +11,7 @@
  * @class Input Window Plugin
  */
 
-EdenUI.plugins.InputWindow = function(edenUI) {
+EdenUI.plugins.InputWindow = function(edenUI, success) {
 
 	var me = this;
 	me.edenparser = undefined;
@@ -188,6 +188,7 @@ EdenUI.plugins.InputWindow = function(edenUI) {
 	
 	edenUI.history = this.history;
 	
+	success();
 };
 
 Eden.deHTML = function(text){

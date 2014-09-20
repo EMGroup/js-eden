@@ -1,4 +1,4 @@
-EdenUI.plugins.SG = function(edenUI) {
+EdenUI.plugins.SG = function(edenUI, success) {
 
 	var me = this;
 	var defaultview = "";
@@ -268,6 +268,7 @@ EdenUI.plugins.SG = function(edenUI) {
 		return returnstring;
 	}
 
+	success();
 };
 /* Plugin meta information */
 EdenUI.plugins.SG.title = "Script Generator (SG)";

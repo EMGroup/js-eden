@@ -1,4 +1,4 @@
-EdenUI.plugins.DM = function(edenUI){
+EdenUI.plugins.DM = function(edenUI, success){
 
 	var me = this;
 	var defaultview = "";
@@ -181,6 +181,7 @@ EdenUI.plugins.DM = function(edenUI){
 	
 	//Register the HTML view options
 	edenUI.views["DM"] = {dialog: this.createDialog, title: "Dependency Map"};
+	success();
 };
 /* Plugin meta information */
 EdenUI.plugins.DM.title = "Dependency Map (DM)";

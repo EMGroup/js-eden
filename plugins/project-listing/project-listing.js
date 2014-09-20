@@ -15,7 +15,7 @@
  */
 
  
-EdenUI.plugins.ProjectList = function(edenUI) {
+EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 	var me = this;
 
@@ -175,6 +175,7 @@ EdenUI.plugins.ProjectList = function(edenUI) {
 
 	//Add views supported by this plugin.
 	edenUI.views["ProjectList"] = {dialog: this.createDialog, title: "Project List"};
+	success();
 };
 
 /* Plugin meta information */

@@ -38,10 +38,11 @@
 	 * registered first.
 	 *
 	 * @param {string} name Name of the plugin to load.
+	 * @param {function()?} success
 	 */
-	EdenUI.prototype.loadPlugin = function (name) {
+	EdenUI.prototype.loadPlugin = function (name, success) {
 		if (this.plugins[name] === undefined) {
-			this.plugins[name] = new EdenUI.plugins[name](this);
+			this.plugins[name] = new EdenUI.plugins[name](this, function () { success && success(); });
 
 			if (this.plugins.MenuBar) {
 				this.plugins.MenuBar.updatePluginsMenu();

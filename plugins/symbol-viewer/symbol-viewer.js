@@ -16,7 +16,7 @@ var edenfunctions = {};
  * @param context The eden context this plugin is being loaded in to.
  */
 
-EdenUI.plugins.SymbolViewer = function (edenUI) {
+EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	var me = this;
 
 	//Obtain function meta data from server
@@ -207,6 +207,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI) {
 	edenUI.views["SymbolList"] = {dialog: this.createSymbolDialog, title: "Symbol List"};
 
 	$(document).tooltip();
+	success();
 };
 
 /* Plugin meta information */
