@@ -41,9 +41,7 @@
 "@"                   return 'UNDEFINED'
 [0-9]+("."[0-9]+)?\b  return 'NUMBER'
 "is"                  { yy.enterDefinition(); return 'IS'; }
-"include"             return 'INCLUDE'
-"execute"             return 'EXECUTE'
-"require"             return 'REQUIRE'
+"includeJS"           return 'INCLUDEJS'
 "delete"              return 'DELETE'
 "insert"              return 'INSERT'
 "append"              return 'APPEND'
@@ -151,7 +149,7 @@
  */
 
 script
-    : statement-list-opt EOF { return '(function (includePrefix, done) { (function(context, rt) { ' + yy.printObservableDeclarations() + yy.withIncludes($1, 'done') + ' })(root, rt); })'; }
+    : statement-list-opt EOF { return '(function(context, rt) { ' + yy.printObservableDeclarations() + yy.withIncludes($1) + ' })(root, rt);'; }
     ;
 
 lvalue
@@ -388,12 +386,8 @@ statement
         { $$ = 'return;'; }
     | RETURN expression ';'
         { $$ = 'return ' + $expression + ';'; }
-    | INCLUDE expression ';'
-        { $$ = yy.async('eden.include', $expression, 'includePrefix'); }
-    | EXECUTE expression ';'
-        { $$ = yy.async('eden.execute', $expression); }
-    | REQUIRE expression ';'
-        { $$ = yy.async('edenUI.loadPlugin', $expression); }
+    | INCLUDEJS expression ';'
+        { $$ = yy.includeJS($expression); }
     | INSERT lvalue ',' expression ',' expression ';'
         { $$ = $lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ', 0, ' + $expression2 + '); });'; }
     | DELETE lvalue ',' expression ';'

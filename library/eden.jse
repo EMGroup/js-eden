@@ -63,6 +63,12 @@ func forget {
 	}}$;
 };
 
+func include {
+${{
+eden.executeFile(arguments[0]);
+}}$;
+};
+
 proc error {
 	${{
 		if (arguments.length > 1) {
@@ -75,6 +81,12 @@ proc error {
 		}
 	}}$;
 }
+
+func execute {
+${{
+	eden.execute(arguments[0], "execute");
+}}$;
+};
 
 func nameof {
 	${{

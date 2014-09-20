@@ -5,31 +5,6 @@
  * See LICENSE.txt
  */
 
-function concatAndResolveUrl(url, concat) {
-	var url1 = url.split('/');
-	var url2 = concat.split('/');
-	var url3 = [ ];
-	for (var i = 0, l = url1.length; i < l; i ++) {
-		if (url1[i] == '..') {
-			url3.pop();
-		} else if (url1[i] == '.') {
-			continue;
-		} else {
-			url3.push(url1[i]);
-		}
-	}
-	for (var i = 0, l = url2.length; i < l; i ++) {
-		if (url2[i] == '..') {
-			url3.pop();
-		} else if (url2[i] == '.') {
-			continue;
-		} else {
-			url3.push(url2[i]);
-		}
-	}
-	return url3.join('/');
-}
-
 (function (global) {
 	/**
 	 * @constructor
@@ -116,10 +91,14 @@ function concatAndResolveUrl(url, concat) {
 		this.listeners = {};
 
 		/**
-		 * Setting this to false temporarily prevents the error method from
+		 * @type {Array.<string>}
+		 * @private
+		 */
+		this.loadqueue = [];
+
+		/**Setting this to false temporarily prevents the error method from
 		 * producing any output.  This is used by the framework for testing EDEN
 		 * code in the scenario when an error is the intended outcome of a test case.
-		 *
 		 * @see library/assertions.js-e
 		 * @type {boolean}
 		 * @public
@@ -157,6 +136,64 @@ function concatAndResolveUrl(url, concat) {
 	};
 
 	/**
+	 * Synchronously loads an EDEN file from the server,
+	 * translates it to JavaScript then evals it when it's done
+	 *
+	 * @param {string} path
+	 */
+	Eden.prototype.executeFile = function (path) {
+		var me = this;
+
+		$.ajax({
+			url: path,
+			dataType: 'text',
+			success: function(data) {
+				me.execute(data, path);
+			},
+			cache: false,
+			async: false
+		});
+	};
+
+	/**
+	 * Async loads an EDEN file from the server,
+	 * translates it to JavaScript then evals it when it's done.
+	 * This variation performs a server side include of all sub-scripts. It is also
+	 * possible to use this version across domains to load scripts on other servers.
+	 *
+	 * @param {string} path
+	 */
+	Eden.prototype.executeFileSSI = function (path) {
+		var me = this;
+
+		var ajaxfunc = function (path2) {
+			console.log('EXECUTE FILE', path2)
+			me.emit('executeFileLoad', [path2]);
+			$.ajax({
+				url: path2,
+				dataType: 'text',
+				type: 'GET',
+				success: function (data) {
+					me.execute(data, path2);
+
+					if (me.loadqueue.length > 0) {
+						var pathtoload = me.loadqueue.pop();
+						ajaxfunc(pathtoload);
+					}
+				},
+				cache: false,
+				async: true
+			});
+		};
+
+		if (me.loadqueue.length == 0) {
+			ajaxfunc(path);
+		} else {
+			me.loadqueue.unshift(path);
+		}
+	};
+
+	/**
 	 * @param {*} error
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
 	 */
@@ -179,50 +216,25 @@ function concatAndResolveUrl(url, concat) {
 	/**
 	 * @param {string} code
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
-	 * @param {string?} prefix Prefix used for relative includes.
 	 * @param {function(*)} success
 	 */
-	Eden.prototype.execute = function (code, origin, prefix, success) {
-		if (arguments.length == 2) {
-			success = origin;
-			origin = 'unknown';
-			prefix = '';
-		}
+	Eden.prototype.execute = function (code, origin, success) {
+		origin = origin || "unknown";
 		var result;
 		this.emit('executeBegin', [origin]);
 		try {
-			eval(this.translateToJavaScript(code))(prefix, function () {
-				success && success();
-			});
+			result = eval(this.translateToJavaScript(code));
+			success && success(result);
 		} catch (e) {
-			this.error(e);
+			this.error(e, origin);
 			success && success();
 		}
 	};
 
-	/**
-	 * @param {string} includePath
-	 * @param {string?} prefix Prefix used for relative includes.
-	 * @param {function()} success Called when include has finished successfully.
-	 */
-	Eden.prototype.include = function (includePath, prefix, success) {
-		if (arguments.length == 2) {
-			success = prefix;
-			prefix = '';
-		}
-		var url;
-		if (includePath.charAt(0) === '.') {
-			url = concatAndResolveUrl(prefix, includePath);
-		} else {
-			url = includePath;
-		}
-		var match = url.match(/(.*)\/([^\/]*?)$/);
-		var newPrefix = match ? match[1] : '';
-		this.emit('executeFileLoad', [url]);
-
+	Eden.prototype.include = function (url, origin, success) {
 		if (url.match(/.js$/)) {
 			$.getScript(url, success);
-		} else {
+		} else if (url.match(/.jse$/)) {
 			if (url.match(/^http/)) {
 				// cross host
 				$.ajax({
@@ -233,13 +245,13 @@ function concatAndResolveUrl(url, concat) {
 						url: url,
 					},
 					success: function (data) {
-						eden.execute(data, url, newPrefix, success);
+						eden.execute(data, success);
 					}
 				});
 			} else {
 				// same host, no need to use JSONP proxy
 				$.get(url, function (data) {
-					eden.execute(data, url, newPrefix, success);
+					eden.execute(data, success);
 				});
 			}
 		}
@@ -258,20 +270,19 @@ function concatAndResolveUrl(url, concat) {
 
 		source = source.replace(/\r\n/g, '\n');
 
-		var asyncs = 0;
-		parser.yy.async = function (asyncFuncName) {
-			asyncs++;
-			var args = Array.prototype.slice.call(arguments, 1);
-			return asyncFuncName + '(' + args + ', function () {'; 
+		var includes = 0;
+		parser.yy.includeJS = function (expression) {
+			includes++;
+			return 'rt.includeJS(' + expression + ', function () {'; 
 		};
 
-		parser.yy.withIncludes = function (statementList, callbackName) {
-			var closer = '' + callbackName + '();';
+		parser.yy.withIncludes = function (statementList) {
+			var closer = "";
 			var i;
-			for (i = 0; i < asyncs; ++i) {
-				closer += '});';
+			for (i = 0; i < includes; ++i) {
+				closer += "});";
 			}
-			asyncs = 0;
+			includes = 0;
 			return statementList + closer;
 		};
 

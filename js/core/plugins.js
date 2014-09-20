@@ -38,17 +38,14 @@
 	 * registered first.
 	 *
 	 * @param {string} name Name of the plugin to load.
-	 * @param {function()?} success
 	 */
-	EdenUI.prototype.loadPlugin = function (name, success) {
+	EdenUI.prototype.loadPlugin = function (name) {
 		if (this.plugins[name] === undefined) {
-			this.plugins[name] = new EdenUI.plugins[name](this, function () { success && success(); });
+			this.plugins[name] = new EdenUI.plugins[name](this);
 
 			if (this.plugins.MenuBar) {
 				this.plugins.MenuBar.updatePluginsMenu();
 			}
-		} else {
-			success && success();
 		}
 	};
 
@@ -87,9 +84,8 @@
 		});
 
 		// Now construct eden agents and observables for dialog control.
-		this.eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ edenUI.moveView(\""+name+"\"); }}$; };", function () {
-			this.eden.execute("proc _View_"+name+"_size : _view_"+name+"_width,_view_"+name+"_height { ${{ edenUI.resizeView(\""+name+"\"); }}$; };");
-		});
+		this.eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ edenUI.moveView(\""+name+"\"); }}$; };");
+		this.eden.execute("proc _View_"+name+"_size : _view_"+name+"_width,_view_"+name+"_height { ${{ edenUI.resizeView(\""+name+"\"); }}$; };");
 	};
 
 	/**

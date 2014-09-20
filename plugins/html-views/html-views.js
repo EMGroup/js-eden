@@ -11,7 +11,7 @@
  * @class HTMLViews Plugin
  */
 
-EdenUI.plugins.HTMLViews = function(edenUI, success) {
+EdenUI.plugins.HTMLViews = function(edenUI) {
 	var me = this;
 	var defaultview = "";
 
@@ -50,7 +50,7 @@ EdenUI.plugins.HTMLViews = function(edenUI, success) {
 	edenUI.views["PlainHTML"] = {dialog: this.createDialog, title: "Plain HTML View"};
 
 	//Load the Eden wrapper functions
-	edenUI.eden.include("plugins/html-views/html.js-e", success);
+	edenUI.eden.executeFile("plugins/html-views/html.js-e");
 };
 
 /* Plugin meta information */

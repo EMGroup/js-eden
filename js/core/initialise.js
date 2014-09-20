@@ -145,46 +145,46 @@ function JS_Eden_Initialise(callback) {
 		$('<pre id="error-window" style="font-family:monospace; display: none;"></pre>').appendTo($('body'));
 
 		//Load the Eden library scripts
-		eden.include("library/eden.jse", function () {
-			//Process query string for plugins and models to load
-			var plugins = getParameterByName("p").split(",");
-			var views = getParameterByName("v").split(",");
-			var models = getParameterByName("m").split(",");
-			var include = getParameterByName("include");
-			var x;
-			var viewcount;
+		eden.executeFileSSI("library/eden.jse");
 
-			$.getJSON('config.json', function (config) {
-				rt.config = config;
+		//Process query string for plugins and models to load
+		var plugins = getParameterByName("p").split(",");
+		var views = getParameterByName("v").split(",");
+		var models = getParameterByName("m").split(",");
+		var include = getParameterByName("include");
+		var x;
+		var viewcount;
 
-				if (include) {
-					eden.include(include);
+		$.getJSON('config.json', function (config) {
+			rt.config = config;
+
+			if (include) {
+				eden.include(include);
+			}
+
+			if (plugins[0] != "") {
+				for (x in plugins) {
+					eden.loadPlugin(plugins[x]);
 				}
-
-				if (plugins[0] != "") {
-					for (x in plugins) {
-						eden.loadPlugin(plugins[x]);
-					}
+			}
+			if (views[0] != "") {
+				viewcount = 0;
+				for (x in views) {
+					eden.createView("view_" + viewcount, views[x]);
+					viewcount = viewcount + 1;
 				}
-				if (views[0] != "") {
-					viewcount = 0;
-					for (x in views) {
-						eden.createView("view_" + viewcount, views[x]);
-						viewcount = viewcount + 1;
-					}
+			}
+
+			if (models[0] != "") {
+				for (x in models) {
+					eden.executeFileSSI(models[x]);
 				}
+			}
 
-				if (models[0] != "") {
-					for (x in models) {
-						eden.include(models[x]);
-					}
-				}
+			callback();
 
-				callback();
-
-				//Layout the dialogs as best as we can
-				tileViews();
-			});
+			//Layout the dialogs as best as we can
+			tileViews();
 		});
 	});
 }
