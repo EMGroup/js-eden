@@ -6,8 +6,37 @@
 ## Functions for casting between types, determining the type to which a value
 ## belongs, etc.
 
+##=============================================================================
+##Constants
+
+##Boolean values
 true = ${{ true }}$;
 false = ${{ false }}$;
+
+##Infinity
+Infinity = 1/0;
+
+##=============================================================================
+##Type casting functions.
+
+func char {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("char: this function requires exactly one argument."), "error");
+			return undefined;		
+		}
+		var type = typeof(arguments[0]);
+		if (type == "boolean") {
+			return arguments[0]? String.fromCharCode(1) : String.fromCharCode(0);
+		} else if (type == "number") {
+			return String.fromCharCode(arguments[0]);
+		} else if (type == "string") {
+			return arguments[0].charAt(0);
+		} else {
+			return undefined;
+		}
+	}}$;
+}
 
 ##Casts a value to an int.
 ##
@@ -17,8 +46,7 @@ false = ${{ false }}$;
 ##first and only character if the string is exactly one character long and zero
 ##otherwise.  Previously NaN was returned.
 ##
-##Boolean values (belonging to the JavaScript boolean type) are converted into
-##1 and 0.
+##Boolean values are converted into 1 and 0.
 ##
 ##Values belonging to types other than numbers, strings and Booleans result in
 ##undefined being returned instead of NaN.
@@ -36,8 +64,8 @@ false = ${{ false }}$;
 func int {
 	${{
 		if (arguments.length != 1) {
-			Eden.reportError(new Error("int: this function requires exactly one argument."));
-			return undefined;			
+			eden.error(new Error("int: this function requires exactly one argument."), "error");
+			return undefined;
 		}
 
 		var value = arguments[0];
@@ -64,8 +92,287 @@ func int {
 }
 
 func str {
-  ${{
-  var a = arguments[0];
-  return (new Number(a)).toString();
-  }}$;
-};
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("str: this function requires exactly one argument."), "error");
+			return undefined;			
+		}
+
+		if (typeof(arguments[0]) == "string") {
+			return arguments[0];
+		} else if (arguments[0] === undefined) {
+			return "@";
+		} else {
+			var a = arguments[0];
+			return (new Number(a)).toString();
+		}
+	}}$;
+}
+
+##=============================================================================
+##Type testing functions.
+
+##type(expr) Determines the type of an expression.
+##
+##Differences from tkeden:
+##Returns "object" if its argument is a JavaScript object or "@" if it's null.
+##
+##JavaScript doesn't make a distinction between integer and floating point
+##expressions.  JavaScript only has a single numeric type and it's a floating
+##point type.  This function will check if the value is an integer or not but
+##type(1.5 + 2.5) incorrectly returns "int".  "@" is returned for NaNs.  tkeden
+##flags expressions such as 0/0 as unrecoverable errors and thus NaNs don't
+##arise in tkeden.
+##
+##JavaScript has a dedicated Boolean type and this function will return
+##"boolean" when applied to Boolean expressions.  This is internally consistent
+##with JS-EDEN but when this function returns "boolean" tkeden would have
+##returned "int".
+##
+##Attempts to return "func" for all built-in and user-defined functions and
+##"proc" for all built-in and user-defined procs.  However, the determination
+##of whether a value is a func or a proc is based solely on whether the
+##compiled JavaScript contains a return statement that returns a value.  It is
+##not based on whether the original EDEN definition began with the keyword func
+##or the keyword proc.  Because the only information being provided to this
+##function is the value itself and not anything more substantial (such as a
+##symbol table name), we can't 100% reliably distinguish between func-s, proc-s
+##and built-ins because the values of all three are just JavaScript values that
+##look like function () {...} in JavaScript.
+##
+##Possible return values are:
+## "boolean", "float", "func", "int", "list", "object", "pointer", "proc",
+## "string" and "@".
+##
+##This function never returns "char" because JavaScript doesn't have a character
+##type, only strings of length one.  There seems no obvious reason to prefer
+##classifying such a value as a character rather than string of length one.
+##(But distinguishing integers from reals where possible has many practical
+##applications.)
+##
+##Use this function to get a string representation of the type to which a value
+##belongs.  To determine if a value belongs to one specific type then the isXXX
+##functions defined below (unavailable in tkeden) execute faster and provide a
+##more lucid form of expression than tests such as, if (type(v) == "string").
+func type {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("type: this function requires exactly one argument."), "error");
+			return undefined;
+		}
+
+		var value = arguments[0];
+		
+		if (value === null) {
+			return "@";
+		}
+		
+		var typeName = typeof(value);
+		
+		if (typeName == "undefined") {
+			return "@";
+		} else if (typeName == "number") {
+			if (isNaN(value)) {
+				return "@";
+			} else if (value == parseInt(value)) {
+				return "int";
+			} else {
+				return "float";
+			}
+		} else if (Array.isArray(value)) {
+			return "list";
+		} else if (typeName == "function") {
+			/* Trying to simplify the following expression confuses the JS-EDEN
+			 * parser, which doesn't understand comment characters inside a reg
+			 * exp inside JavaScript inside EDEN code.
+			 */
+			if ((new RegExp("\\breturn\\s+([^\\/;]|(\\/[^\\/" + "*]))")).test(value.toString())) {
+				return "func";
+			} else {
+				return "proc";
+			}
+		} else if (
+			(value instanceof Symbol) || (
+				typeName == "object" &&
+				"keys" in value &&
+				Array.isArray(value.keys) &&
+				value.keys.length > 0 &&
+				typeof(value.keys[0]) == "number" &&
+				"parent" in value &&
+				value.parent instanceof Symbol
+		)) {
+			return "pointer";
+		} else {
+			//boolean or string
+			return typeName;
+		}
+	}}$;
+}
+
+##Tests if a value is a Boolean value.
+func isBoolean {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isBoolean: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return typeof(arguments[0]) == "boolean";
+	}}$;
+}
+
+##Tests if a value is a func or a proc.
+func isCallable {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isCallable: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return typeof(arguments[0]) == "function";
+	}}$;
+}
+
+##Tests if a value is a char value (string of length 1).
+func isChar {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isChar: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return typeof(arguments[0]) == "string" && arguments[0].length == 1;
+	}}$;
+}
+
+##Tests if a value is defined in the modelling sense.  To be defined a value
+##must not be:
+##	(1) The undefined value
+##		Referred to as @ in EDEN or by the word undefined in JavaScript.
+##	(2) The null object
+##		null can't have properties attached to it or accept standard method
+##		invocations like toString(), unlike all other object-typed values.
+##	(3) NaNs
+##		Although NaNs are part of the JavaScript number type that EDEN
+##		inherits, NaNs are not numbers from a modelling perspective.  An
+##		expression that evaluates to NaN, such as 0/0 has mathematical
+##		conceptions that are something akin to "undefined".  Also, expressions
+##		such as 0/0 == 0/0 evaluate to false because one NaN value is never
+##		equal to another NaN value, which is mathematically queer.
+##
+func isDefined {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isDefined: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		var v = arguments[0];
+		return v !== undefined && v !== null && (typeof(v) != "number" || !isNaN(v));
+	}}$;
+}
+
+##Tests if a value is a func.
+func isFunc {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isFunc: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		var value = arguments[0];
+		return typeof(value) == "function" && (new RegExp("\\breturn\\s+([^\\/;]|(\\/[^\\/" + "*]))")).test(value.toString());
+	}}$;
+}
+
+##Tests if a value is an integer.
+func isInt {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isInt: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		var v = arguments[0];
+		return typeof(v) == "number" && !isNaN(v) && v == parseInt(v);
+	}}$;
+}
+
+##Tests if a value is a list.
+func isList {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isList: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return Array.isArray(arguments[0]);
+	}}$;
+}
+
+##Tests if a value is a NaN.
+func isNaN {
+	${{
+		return isNaN(arguments[0]);
+	}}$;
+}
+
+##Tests if a value is a number (float or int).
+func isNumber {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isNumber: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		var v = arguments[0];
+		return typeof(v) == "number" && !isNaN(v);
+	}}$;
+}
+
+##Tests if a value is an object (non-null).  Although JS-EDEN internally
+##represents pointers as JavaScript objects, pointers are a distinct type as
+##far EDEN is concerned.
+func isObject {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isObject: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return arguments[0] !== null && typeof(arguments[0]) == "object" && !root.lookup("isPointer").definition(root)(arguments[0]);
+	}}$;
+}
+
+##Tests if a value is a pointer.
+func isPointer {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isPointer: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		var value = arguments[0];
+		return (value instanceof Symbol) || (
+				typeof(value) == "object" &&
+				"keys" in value &&
+				Array.isArray(value.keys) &&
+				value.keys.length > 0 &&
+				typeof(value.keys[0]) == "number" &&
+				"parent" in value &&
+				value.parent instanceof Symbol);
+	}}$;
+}
+
+##Tests if a value is a proc.
+func isProc {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isProc: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		var value = arguments[0];
+		return typeof(value) == "function" && !(new RegExp("\\breturn\\s+([^\\/;]|(\\/[^\\/" + "*]))")).test(value.toString());
+	}}$;
+}
+
+##Tests if a value is a string.
+func isString {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isString: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return typeof(arguments[0]) == "string";
+	}}$;
+}
