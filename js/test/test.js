@@ -142,9 +142,9 @@ test("Scoping for triggered actions", function () {
 	equal(root.lookup('y').value(), 1);
 });
 
-test("includeJS defers execution", function () {
-	var includeJS = rt.includeJS;
-	rt.includeJS = function (url, success) {
+test("include defers execution", function () {
+	var include = eden.include;
+	eden.include = function (url, success) {
 		equal(url, "https://test.com/test.js");
 		setTimeout(function () {
 			equal(root.lookup('x').value(), undefined);
@@ -157,9 +157,31 @@ test("includeJS defers execution", function () {
 
 	stop();
 	try {
-		eden.execute('includeJS "https://test.com/test.js"; x = 2;');
+		eden.execute('include("https://test.com/test.js"); x = 2;');
 	} catch (e) {
-		rt.includeJS = includeJS;
+		eden.include = include;
 		throw e;
 	}
 });
+
+// the following tests only work in browser
+if (typeof window !== "undefined") {
+	test("@browser include jse same host", function () {
+		eden.execute('include("test-models/test.jse");', function () {
+			equal(root.lookup('x').value(), 9000);
+			start();
+		});
+		stop();
+	});
+
+	test("@browser include jse different host", function () {
+		rt.config = {
+			"jseProxyBaseUrl": "http://stormy-peak-6294.herokuapp.com/"
+		};
+		eden.execute('include("https://gist.githubusercontent.com/itsmonktastic/29997e30182295a5dbc8/raw/d6cfa96eb2eae3f6dddc1b86f6ee04eb65b24b01/test.jse");', function () {
+			equal(root.lookup('x').value(), 9001);
+			start();
+		});
+		stop();
+	});
+}
