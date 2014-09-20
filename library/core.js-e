@@ -3,6 +3,10 @@
 ##
 ## See LICENSE.txt
 
+func execute {
+	${{ eden.execute(arguments[0]) }}$;
+}
+
 func createView {
 	${{
 	var name = arguments[0];
