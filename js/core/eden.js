@@ -91,14 +91,10 @@
 		this.listeners = {};
 
 		/**
-		 * @type {Array.<string>}
-		 * @private
-		 */
-		this.loadqueue = [];
-
-		/**Setting this to false temporarily prevents the error method from
+		 * Setting this to false temporarily prevents the error method from
 		 * producing any output.  This is used by the framework for testing EDEN
 		 * code in the scenario when an error is the intended outcome of a test case.
+		 *
 		 * @see library/assertions.js-e
 		 * @type {boolean}
 		 * @public
@@ -136,64 +132,6 @@
 	};
 
 	/**
-	 * Synchronously loads an EDEN file from the server,
-	 * translates it to JavaScript then evals it when it's done
-	 *
-	 * @param {string} path
-	 */
-	Eden.prototype.executeFile = function (path) {
-		var me = this;
-
-		$.ajax({
-			url: path,
-			dataType: 'text',
-			success: function(data) {
-				me.execute(data, path);
-			},
-			cache: false,
-			async: false
-		});
-	};
-
-	/**
-	 * Async loads an EDEN file from the server,
-	 * translates it to JavaScript then evals it when it's done.
-	 * This variation performs a server side include of all sub-scripts. It is also
-	 * possible to use this version across domains to load scripts on other servers.
-	 *
-	 * @param {string} path
-	 */
-	Eden.prototype.executeFileSSI = function (path) {
-		var me = this;
-
-		var ajaxfunc = function (path2) {
-			console.log('EXECUTE FILE', path2)
-			me.emit('executeFileLoad', [path2]);
-			$.ajax({
-				url: path2,
-				dataType: 'text',
-				type: 'GET',
-				success: function (data) {
-					me.execute(data, path2);
-
-					if (me.loadqueue.length > 0) {
-						var pathtoload = me.loadqueue.pop();
-						ajaxfunc(pathtoload);
-					}
-				},
-				cache: false,
-				async: true
-			});
-		};
-
-		if (me.loadqueue.length == 0) {
-			ajaxfunc(path);
-		} else {
-			me.loadqueue.unshift(path);
-		}
-	};
-
-	/**
 	 * @param {*} error
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
 	 */
@@ -219,22 +157,28 @@
 	 * @param {function(*)} success
 	 */
 	Eden.prototype.execute = function (code, origin, success) {
-		origin = origin || "unknown";
+		if (arguments.length == 2) {
+			success = origin;
+			origin = "unknown";
+		}
 		var result;
 		this.emit('executeBegin', [origin]);
 		try {
-			result = eval(this.translateToJavaScript(code));
-			success && success(result);
+			eval(this.translateToJavaScript(code))(function () {
+				success && success();
+			});
 		} catch (e) {
-			this.error(e, origin);
+			this.error(e);
 			success && success();
 		}
 	};
 
-	Eden.prototype.include = function (url, origin, success) {
+	Eden.prototype.include = function (url, success) {
+		this.emit('executeFileLoad', [url]);
+
 		if (url.match(/.js$/)) {
 			$.getScript(url, success);
-		} else if (url.match(/.jse$/)) {
+		} else if (url.match(/.(?:js)?-?e$/)) {
 			if (url.match(/^http/)) {
 				// cross host
 				$.ajax({
@@ -270,19 +214,19 @@
 
 		source = source.replace(/\r\n/g, '\n');
 
-		var includes = 0;
-		parser.yy.includeJS = function (expression) {
-			includes++;
-			return 'rt.includeJS(' + expression + ', function () {'; 
+		var asyncs = 0;
+		parser.yy.async = function (asyncFuncName, expression) {
+			asyncs++;
+			return asyncFuncName + '(' + expression + ', function () {'; 
 		};
 
-		parser.yy.withIncludes = function (statementList) {
-			var closer = "";
+		parser.yy.withIncludes = function (statementList, callbackName) {
+			var closer = '' + callbackName + '();';
 			var i;
-			for (i = 0; i < includes; ++i) {
-				closer += "});";
+			for (i = 0; i < asyncs; ++i) {
+				closer += '});';
 			}
-			includes = 0;
+			asyncs = 0;
 			return statementList + closer;
 		};
 

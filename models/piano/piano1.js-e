@@ -8,7 +8,7 @@
 include("library/include_js.js-e");
 
 ##Include the JavaScript sound library.
-include_js("http://www.dcs.warwick.ac.uk/~wmb/PianoJS/audio.js");
+include("http://www.dcs.warwick.ac.uk/~wmb/PianoJS/audio.js");
 
 ##=============================================================================
 ##Built-in EDEN functions not yet built into JS-EDEN.

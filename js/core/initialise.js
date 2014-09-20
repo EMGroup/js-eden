@@ -145,46 +145,46 @@ function JS_Eden_Initialise(callback) {
 		$('<pre id="error-window" style="font-family:monospace; display: none;"></pre>').appendTo($('body'));
 
 		//Load the Eden library scripts
-		eden.executeFileSSI("library/eden.jse");
+		eden.include("library/eden.jse", function () {
+			//Process query string for plugins and models to load
+			var plugins = getParameterByName("p").split(",");
+			var views = getParameterByName("v").split(",");
+			var models = getParameterByName("m").split(",");
+			var include = getParameterByName("include");
+			var x;
+			var viewcount;
 
-		//Process query string for plugins and models to load
-		var plugins = getParameterByName("p").split(",");
-		var views = getParameterByName("v").split(",");
-		var models = getParameterByName("m").split(",");
-		var include = getParameterByName("include");
-		var x;
-		var viewcount;
+			$.getJSON('config.json', function (config) {
+				rt.config = config;
 
-		$.getJSON('config.json', function (config) {
-			rt.config = config;
-
-			if (include) {
-				eden.include(include);
-			}
-
-			if (plugins[0] != "") {
-				for (x in plugins) {
-					eden.loadPlugin(plugins[x]);
+				if (include) {
+					eden.include(include);
 				}
-			}
-			if (views[0] != "") {
-				viewcount = 0;
-				for (x in views) {
-					eden.createView("view_" + viewcount, views[x]);
-					viewcount = viewcount + 1;
+
+				if (plugins[0] != "") {
+					for (x in plugins) {
+						eden.loadPlugin(plugins[x]);
+					}
 				}
-			}
-
-			if (models[0] != "") {
-				for (x in models) {
-					eden.executeFileSSI(models[x]);
+				if (views[0] != "") {
+					viewcount = 0;
+					for (x in views) {
+						eden.createView("view_" + viewcount, views[x]);
+						viewcount = viewcount + 1;
+					}
 				}
-			}
 
-			callback();
+				if (models[0] != "") {
+					for (x in models) {
+						eden.include(models[x]);
+					}
+				}
 
-			//Layout the dialogs as best as we can
-			tileViews();
+				callback();
+
+				//Layout the dialogs as best as we can
+				tileViews();
+			});
 		});
 	});
 }
