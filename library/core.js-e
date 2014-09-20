@@ -43,12 +43,6 @@ func resizeView {
 	}}$;
 };
 
-func includeSSI {
-${{
-	eden.executeFileSSI(arguments[0]);
-}}$;
-};
-
 func showObservables { ${{
     $('.symbollist-search').val(arguments[0]);
     $('.symbollist-search').keyup();

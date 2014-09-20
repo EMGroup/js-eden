@@ -101,7 +101,7 @@ EdenUI.plugins.ProjectList = function(edenUI) {
 
 			if (this.project !== undefined) {
 				// Actually load the project by executing js-e file.
-				edenUI.eden.executeFileSSI(this.project.runfile);
+				edenUI.eden.include(this.project.runfile);
 			}
 		});
 	}

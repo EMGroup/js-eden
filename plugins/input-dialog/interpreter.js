@@ -61,16 +61,8 @@ EdenUI.plugins.InputWindow = function(edenUI) {
 	
 		this.addHistory(text);
 
-		if (edenUI.plugins.MenuBar) {
-			edenUI.plugins.MenuBar.updateStatus("Parsing input...");
-		}
-
-		edenUI.eden.execute(text);
+		edenUI.eden.execute(text, "input");
 			
-		if (edenUI.plugins.MenuBar) {
-			edenUI.plugins.MenuBar.appendStatus(" [complete]");
-		}
-
 		if (historydialog !== undefined) {
 			historydialog.html(this.generateHistory());
 		}

@@ -41,7 +41,8 @@
 "@"                   return 'UNDEFINED'
 [0-9]+("."[0-9]+)?\b  return 'NUMBER'
 "is"                  { yy.enterDefinition(); return 'IS'; }
-"includeJS"           return 'INCLUDEJS'
+"include"             return 'INCLUDE'
+"execute"             return 'EXECUTE'
 "delete"              return 'DELETE'
 "insert"              return 'INSERT'
 "append"              return 'APPEND'
@@ -149,7 +150,7 @@
  */
 
 script
-    : statement-list-opt EOF { return '(function(context, rt) { ' + yy.printObservableDeclarations() + yy.withIncludes($1) + ' })(root, rt);'; }
+    : statement-list-opt EOF { return '(function (done) { (function(context, rt) { ' + yy.printObservableDeclarations() + yy.withIncludes($1, 'done') + ' })(root, rt); })'; }
     ;
 
 lvalue
@@ -386,8 +387,10 @@ statement
         { $$ = 'return;'; }
     | RETURN expression ';'
         { $$ = 'return ' + $expression + ';'; }
-    | INCLUDEJS expression ';'
-        { $$ = yy.includeJS($expression); }
+    | INCLUDE expression ';'
+        { $$ = yy.async('eden.include', $expression); }
+    | EXECUTE expression ';'
+        { $$ = yy.async('eden.execute', $expression); }
     | INSERT lvalue ',' expression ',' expression ';'
         { $$ = $lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ', 0, ' + $expression2 + '); });'; }
     | DELETE lvalue ',' expression ';'
