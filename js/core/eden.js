@@ -5,6 +5,31 @@
  * See LICENSE.txt
  */
 
+function concatAndResolveUrl(url, concat) {
+	var url1 = url.split('/');
+	var url2 = concat.split('/');
+	var url3 = [ ];
+	for (var i = 0, l = url1.length; i < l; i ++) {
+		if (url1[i] == '..') {
+			url3.pop();
+		} else if (url1[i] == '.') {
+			continue;
+		} else {
+			url3.push(url1[i]);
+		}
+	}
+	for (var i = 0, l = url2.length; i < l; i ++) {
+		if (url2[i] == '..') {
+			url3.pop();
+		} else if (url2[i] == '.') {
+			continue;
+		} else {
+			url3.push(url2[i]);
+		}
+	}
+	return url3.join('/');
+}
+
 (function (global) {
 	/**
 	 * @constructor
@@ -187,11 +212,11 @@
 		}
 		var url;
 		if (includePath.charAt(0) === '.') {
-			url = prefix + includePath.substr(1);
+			url = concatAndResolveUrl(prefix, includePath);
 		} else {
 			url = includePath;
 		}
-		var match = url.match(/(.*\/)([^\/]*?)$/);
+		var match = url.match(/(.*)\/([^\/]*?)$/);
 		var newPrefix = match ? match[1] : '';
 		this.emit('executeFileLoad', [url]);
 
