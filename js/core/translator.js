@@ -82,7 +82,7 @@ performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* actio
 
 var $0 = $$.length - 1;
 switch (yystate) {
-case 1: return '(function (done) { (function(context, rt) { ' + yy.printObservableDeclarations() + yy.withIncludes($$[$0-1], 'done') + ' })(root, rt); })'; 
+case 1: return '(function (includePrefix, done) { (function(context, rt) { ' + yy.printObservableDeclarations() + yy.withIncludes($$[$0-1], 'done') + ' })(root, rt); })'; 
 break;
 case 2:
     if (yy.paras.length !== 0 && yy.paras[0][$$[$0]] !== undefined) {
@@ -225,7 +225,7 @@ case 84: this.$ = 'return;';
 break;
 case 85: this.$ = 'return ' + $$[$0-1] + ';'; 
 break;
-case 86: this.$ = yy.async('eden.include', $$[$0-1]); 
+case 86: this.$ = yy.async('eden.include', $$[$0-1], 'includePrefix'); 
 break;
 case 87: this.$ = yy.async('eden.execute', $$[$0-1]); 
 break;

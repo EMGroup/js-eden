@@ -150,7 +150,7 @@
  */
 
 script
-    : statement-list-opt EOF { return '(function (done) { (function(context, rt) { ' + yy.printObservableDeclarations() + yy.withIncludes($1, 'done') + ' })(root, rt); })'; }
+    : statement-list-opt EOF { return '(function (includePrefix, done) { (function(context, rt) { ' + yy.printObservableDeclarations() + yy.withIncludes($1, 'done') + ' })(root, rt); })'; }
     ;
 
 lvalue
@@ -388,7 +388,7 @@ statement
     | RETURN expression ';'
         { $$ = 'return ' + $expression + ';'; }
     | INCLUDE expression ';'
-        { $$ = yy.async('eden.include', $expression); }
+        { $$ = yy.async('eden.include', $expression, 'includePrefix'); }
     | EXECUTE expression ';'
         { $$ = yy.async('eden.execute', $expression); }
     | INSERT lvalue ',' expression ',' expression ';'
