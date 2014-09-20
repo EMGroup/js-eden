@@ -3,12 +3,9 @@
 ##
 ## See LICENSE.txt
 
-func require {
-  ${{
-  var lib = arguments[0];
-  edenUI.loadPlugin(lib);
-  }}$;
-};
+func execute {
+	${{ eden.execute(arguments[0]) }}$;
+}
 
 func createView {
 	${{
@@ -41,12 +38,6 @@ func resizeView {
 	var y = arguments[2];
 	edenUI.resizeView(name,x,y);
 	}}$;
-};
-
-func includeSSI {
-${{
-	eden.executeFileSSI(arguments[0]);
-}}$;
 };
 
 func showObservables { ${{

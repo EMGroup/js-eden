@@ -15,7 +15,7 @@
  */
  
 
-EdenUI.plugins.MenuBar = function(edenUI) {
+EdenUI.plugins.MenuBar = function(edenUI, success) {
 	var me = this;
 	var index = 0;
 
@@ -169,7 +169,7 @@ EdenUI.plugins.MenuBar = function(edenUI) {
 	this.updatePluginsMenu();
 	this.updateViewsMenu();
 
-	edenUI.eden.executeFileSSI("plugins/menu-bar/menu-bar.js-e");
+	edenUI.eden.include("plugins/menu-bar/menu-bar.js-e", success);
 };
 
 EdenUI.plugins.MenuBar.title = "Menu Bar";

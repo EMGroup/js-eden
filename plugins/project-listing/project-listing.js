@@ -15,7 +15,7 @@
  */
 
  
-EdenUI.plugins.ProjectList = function(edenUI) {
+EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 	var me = this;
 
@@ -101,7 +101,7 @@ EdenUI.plugins.ProjectList = function(edenUI) {
 
 			if (this.project !== undefined) {
 				// Actually load the project by executing js-e file.
-				edenUI.eden.executeFileSSI(this.project.runfile);
+				edenUI.eden.include(this.project.runfile);
 			}
 		});
 	}
@@ -175,6 +175,7 @@ EdenUI.plugins.ProjectList = function(edenUI) {
 
 	//Add views supported by this plugin.
 	edenUI.views["ProjectList"] = {dialog: this.createDialog, title: "Project List"};
+	success();
 };
 
 /* Plugin meta information */
