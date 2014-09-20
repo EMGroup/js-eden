@@ -70,28 +70,9 @@ See LICENSE.txt
 
 <script type="text/javascript">
 	JS_Eden_Initialise(function () {
-		// Load menubar as standard
-		edenUI.loadPlugin("MenuBar");
- 		edenUI.loadPlugin("InputWindow");
-		edenUI.loadPlugin("ProjectList");
-		edenUI.loadPlugin("CanvasHTML5");
-		edenUI.loadPlugin("SymbolViewer");
-		edenUI.loadPlugin("HTMLViews");
-		edenUI.createView("projects","ProjectList");
-		edenUI.createView("default","CanvasHTML5");
- 		edenUI.createView("inputwindow","InputWindow");
-		edenUI.loadPlugin("SLT");
-		edenUI.loadPlugin("SG");
-		edenUI.loadPlugin("DM");
-		edenUI.loadPlugin("ST");
-
-		// Force manual refresh of views menu.
-		edenUI.plugins.MenuBar.updateViewsMenu();
-
-		eden.include("library/eden.jse", function () {
-			eden.include("plugins/canvas-html5/image.js-e", function () {
-				eden.include("library/declarevar.js-e");
-			});
+		eden.include("library/initialise.jse", function () {
+			// Force manual refresh of views menu.
+			edenUI.plugins.MenuBar.updateViewsMenu();
 		});
 	});
 </script>
