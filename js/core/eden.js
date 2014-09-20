@@ -154,17 +154,19 @@
 	/**
 	 * @param {string} code
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
+	 * @param {string?} prefix Prefix used for relative includes.
 	 * @param {function(*)} success
 	 */
-	Eden.prototype.execute = function (code, origin, success) {
+	Eden.prototype.execute = function (code, origin, prefix, success) {
 		if (arguments.length == 2) {
 			success = origin;
-			origin = "unknown";
+			origin = 'unknown';
+			prefix = '';
 		}
 		var result;
 		this.emit('executeBegin', [origin]);
 		try {
-			eval(this.translateToJavaScript(code))(function () {
+			eval(this.translateToJavaScript(code))(prefix, function () {
 				success && success();
 			});
 		} catch (e) {
@@ -173,7 +175,24 @@
 		}
 	};
 
-	Eden.prototype.include = function (url, success) {
+	/**
+	 * @param {string} includePath
+	 * @param {string?} prefix Prefix used for relative includes.
+	 * @param {function()} success Called when include has finished successfully.
+	 */
+	Eden.prototype.include = function (includePath, prefix, success) {
+		if (arguments.length == 2) {
+			success = prefix;
+			prefix = '';
+		}
+		var url;
+		if (includePath.charAt(0) === '.') {
+			url = prefix + includePath.substr(1);
+		} else {
+			url = includePath;
+		}
+		var match = url.match(/(.*\/)([^\/]*?)$/);
+		var newPrefix = match ? match[1] : '';
 		this.emit('executeFileLoad', [url]);
 
 		if (url.match(/.js$/)) {
@@ -189,13 +208,13 @@
 						url: url,
 					},
 					success: function (data) {
-						eden.execute(data, success);
+						eden.execute(data, url, newPrefix, success);
 					}
 				});
 			} else {
 				// same host, no need to use JSONP proxy
 				$.get(url, function (data) {
-					eden.execute(data, success);
+					eden.execute(data, url, newPrefix, success);
 				});
 			}
 		}
@@ -215,9 +234,10 @@
 		source = source.replace(/\r\n/g, '\n');
 
 		var asyncs = 0;
-		parser.yy.async = function (asyncFuncName, expression) {
+		parser.yy.async = function (asyncFuncName) {
 			asyncs++;
-			return asyncFuncName + '(' + expression + ', function () {'; 
+			var args = Array.prototype.slice.call(arguments, 1);
+			return asyncFuncName + '(' + args + ', function () {'; 
 		};
 
 		parser.yy.withIncludes = function (statementList, callbackName) {
