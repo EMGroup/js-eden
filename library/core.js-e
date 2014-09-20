@@ -3,13 +3,6 @@
 ##
 ## See LICENSE.txt
 
-func require {
-  ${{
-  var lib = arguments[0];
-  edenUI.loadPlugin(lib);
-  }}$;
-};
-
 func createView {
 	${{
 	var name = arguments[0];

@@ -1,4 +1,4 @@
-EdenUI.plugins.ST = function(edenUI){
+EdenUI.plugins.ST = function(edenUI, success){
 	var me = this;
 	var defaultview = "";
 
@@ -306,6 +306,7 @@ EdenUI.plugins.ST = function(edenUI){
 	
 	//Register the HTML view options
 	edenUI.views["ST"] = {dialog: this.createDialog, title: "State Timeline"};
+	success();
 };
 /* Plugin meta information */
 EdenUI.plugins.ST.title = "State Timeline (ST)";

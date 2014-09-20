@@ -1,4 +1,4 @@
-EdenUI.plugins.SLT = function (edenui) {
+EdenUI.plugins.SLT = function (edenui, success) {
 	var me = this;
 	var defaultview = "";
 
@@ -130,7 +130,8 @@ EdenUI.plugins.SLT = function (edenui) {
 		
 		return temp;
 	}
-
+	
+	success();
 };
 /* Plugin meta information */
 EdenUI.plugins.SLT.title = "Symbol Lookup Table (SLT)";
