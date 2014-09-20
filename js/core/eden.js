@@ -197,7 +197,7 @@
 
 		if (url.match(/.js$/)) {
 			$.getScript(url, success);
-		} else if (url.match(/.(?:js)?-?e$/)) {
+		} else {
 			if (url.match(/^http/)) {
 				// cross host
 				$.ajax({
