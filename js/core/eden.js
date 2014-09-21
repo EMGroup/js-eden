@@ -227,13 +227,13 @@ function concatAndResolveUrl(url, concat) {
 				// cross host
 				$.ajax({
 					url: rt.config.jseProxyBaseUrl,
-					jsonp: "successCallback",
+					jsonp: "callback",
 					dataType: "jsonp",
 					data: {
 						url: url,
 					},
 					success: function (data) {
-						eden.execute(data, url, newPrefix, success);
+						eden.execute(data.success, url, newPrefix, success);
 					}
 				});
 			} else {
