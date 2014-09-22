@@ -105,7 +105,7 @@ case 6: this.$ = $$[$0-2] + '.get("' + $$[$0] + '")'
 break;
 case 7: this.$ = $$[$0-1]; 
 break;
-case 8: this.$ = yy.dobservable($$[$0-1]); 
+case 8: this.$ = 'context.lookup(' + $$[$0-1] + ')'; 
 break;
 case 9: this.$ = $$[$0]; 
 break;
