@@ -378,14 +378,6 @@ function concatAndResolveUrl(url, concat) {
 			return "o_" + name;
 		};
 
-		/** @type {number} */
-		var varNum = 0;
-
-		parser.yy.dobservable = function (name) {
-			varNum = varNum + 1;
-			return "var d_" + varNum + " = context.lookup(" + name + "); d_" + varNum;
-		};
-
 		/**
 		 * Used by the parser to generate 'var' declarations for the whole script.
 		 * These vars store `Symbols` for each observable.

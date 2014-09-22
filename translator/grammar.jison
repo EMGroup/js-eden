@@ -111,7 +111,7 @@
 "("                   return '('
 ")"                   return ')'
 
-"."                  return '.'
+"."                   return '.'
 "`"                   return '`'
 
 "$"[0-9]+             return '$ARG'
@@ -176,7 +176,7 @@ lvalue
     | '(' lvalue ')'
         { $$ = $2; }
     | '`' expression '`'
-        { $$ = yy.dobservable($2); }
+        { $$ = 'context.lookup(' + $expression + ')'; }
 
 // XXX: this introduces some shift reduce conflicts apparently, but not sure what the conflict output means
 // so not sure where to look for problems
