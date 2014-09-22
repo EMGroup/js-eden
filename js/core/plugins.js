@@ -98,7 +98,7 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.showView = function (name) {
-		dialog(name).dialog('open');
+		dialog(name).dialog('open').dialog('moveToTop');
 	};
 
 	/**
