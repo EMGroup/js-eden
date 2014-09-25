@@ -312,9 +312,8 @@ case 124:
                  ".eden_definition = " + eden_definition + ", " +
 
                yy.observable($$[$0-3]) +
-                 ".define(function(context) { return " + $$[$0-1] + "; })" +
-
-               ".subscribe(" + JSON.stringify(yy.getDependencies()) + ")" +
+                 ".define(function(context) { return " + $$[$0-1] + "; }, undefined, " +
+                 JSON.stringify(yy.getDependencies()) + ")" +
              ");"
         
 break;
