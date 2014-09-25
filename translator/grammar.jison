@@ -544,9 +544,8 @@ formula-definition
                  ".eden_definition = " + eden_definition + ", " +
 
                yy.observable($1) +
-                 ".define(function(context) { return " + $3 + "; })" +
-
-               ".subscribe(" + JSON.stringify(yy.getDependencies()) + ")" +
+                 ".define(function(context) { return " + $3 + "; }, undefined, " +
+                 JSON.stringify(yy.getDependencies()) + ")" +
              ");"
         %}
     ;
