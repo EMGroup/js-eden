@@ -48,7 +48,7 @@
 "append"              return 'APPEND'
 "shift"               return 'SHIFT'
 "after"               return 'AFTER'
-"if"                  return 'IF'
+"if"                  %{ yy.nest(); return 'IF'; %}
 "else"                return 'ELSE'
 "for"                 return 'FOR'
 "while"               return 'WHILE'
@@ -150,7 +150,14 @@
  */
 
 script
-    : statement-list-opt EOF { return '(function (includePrefix, done) { (function(context, rt) { ' + yy.printObservableDeclarations() + yy.withIncludes($1, 'done') + ' })(root, rt); })'; }
+    : statement-list-opt EOF
+      { return '(function (includePrefix, done) {' +
+                 '(function(context, rt) { ' +
+                    yy.printObservableDeclarations() +
+                    yy.withIncludes($1.code || $1, 'done') +
+                 '})(root, rt);' +
+               '})';
+      }
     ;
 
 lvalue
@@ -370,7 +377,8 @@ statement
     | AFTER '(' expression ')' statement
         { $$ = 'setTimeout(function() ' + $statement + ', ' + $expression + ');' }
     | IF '(' expression ')' statement else-opt
-        { $$ = 'if (' + $expression + ') ' + $statement + $6; }
+        { $$ = $statement.cps ? yy.async('(function (done) { if (' + $expression + ') ' + yy.withIncludes($statement.code, 'done') + '})')
+                              : 'if (' + $expression + ') ' + $statement + $6; }
     | WHILE '(' expression ')' statement
         { $$ = 'while (' + $expression + ') ' + $statement; }
     | DO statement WHILE '(' expression ')' ';'
@@ -399,8 +407,8 @@ statement
         { $$ = $lvalue + '.mutate(function(s) { s.cached_value.push(' + $expression1 + '); });' }
     | SHIFT lvalue ';'
         { $$ = $lvalue + '.mutate(function(s) { s.cached_value.shift(); });' }
-    | CASE literal ':' statement
-        { $$ = 'case ' + $literal + ': ' + $statement; }
+    | CASE literal ':'
+        { $$ = 'case ' + $literal + ': '; }
     | DEFAULT ':' statement
         { $$ = 'default: ' + $statement; }
     | ';'
@@ -517,13 +525,15 @@ dependency-link
 
 compound-statement
     : '{' statement-list-opt '}'
-        { $$ = '{ ' + $2 + ' }'; }
+        { $$ = $2.cps ? yy.async('(function () { ' + yy.withIncludes($2.code, 'done') + ' })')
+                      : '{ ' + $2 + ' }'; }
     ;
 
 statement-list
     : statement
     | statement statement-list
-        { $$ = $1 + ' ' + $2; }
+        { $$ = $1.cps ? {cps: true, code: $1.code + ' ' + ($2.code || $2)}
+                      : $1 + ' ' + ($2.code || $2); }
     ;
 
 formula-definition
