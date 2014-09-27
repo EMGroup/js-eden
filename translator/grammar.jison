@@ -42,6 +42,7 @@
 [0-9]+("."[0-9]+)?\b  return 'NUMBER'
 "is"                  { yy.enterDefinition(); return 'IS'; }
 "include"             return 'INCLUDE'
+"await"               return 'AWAIT'
 "require"             return 'REQUIRE'
 "delete"              return 'DELETE'
 "insert"              return 'INSERT'
@@ -376,14 +377,23 @@ statement
     | compound-statement
     | AFTER '(' expression ')' statement
         { $$ = yy.sync('setTimeout(function() ' + $statement.code + ', ' + $expression + ');'); }
-    | IF '(' expression ')' statement else-opt
-        { $$ = ($5.cps || $6.cps) ? yy.async('(function (done) {' +
-                                                'if (' + $expression + ') ' +
-                                                  yy.withIncludes($5, 'done') +
-                                                ' else ' +
-                                                  yy.withIncludes($6, 'done') +
-                                             '})')
-                                  : yy.sync('if (' + $expression + ') ' + $statement.code + ' else ' + $6.code); }
+    | IF '(' expression ')' statement
+        { $$ = $5.cps ? yy.async('(function (done) {' +
+                                    'if (' + $expression + ') ' +
+                                      yy.withIncludes($statement, 'done') +
+                                    ' else ' +
+                                      yy.withIncludes(yy.sync(""), 'done') +
+                                 '})')
+                      : yy.sync('if (' + $expression + ') ' + $statement.code); }
+    | IF '(' expression ')' statement ELSE statement
+        { $$ = ($statement1.cps || $statement2.cps) ? yy.async('(function (done) {' +
+                                                                 'if (' + $expression + ') {' +
+                                                                   yy.withIncludes($statement1, 'done') +
+                                                                 '} else {' +
+                                                                   yy.withIncludes($statement2, 'done') +
+                                                                 '}' +
+                                                               '})')
+                                  : yy.sync('if (' + $expression + ') ' + $statement2.code + ' else ' + $statement2.code); }
     | WHILE '(' expression ')' statement
         { $$ = yy.sync('while (' + $expression + ') ' + $statement.code); }
     | DO statement WHILE '(' expression ')' ';'
@@ -404,6 +414,8 @@ statement
         { $$ = yy.async('eden.include', $expression, 'includePrefix'); }
     | REQUIRE expression ';'
         { $$ = yy.async('edenUI.loadPlugin', $expression); }
+    | AWAIT expression ';'
+        { $$ = yy.async($expression + '.callAsync'); }
     | INSERT lvalue ',' expression ',' expression ';'
         { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ', 0, ' + $expression2 + '); });'); }
     | DELETE lvalue ',' expression ';'
@@ -418,13 +430,6 @@ statement
         { $$ = yy.sync('default: '); }
     | ';'
         { $$ = yy.sync(''); }
-    ;
-
-else-opt
-    : ELSE statement
-        { $$ = $2; }
-    |
-        { $$ = yy.sync('{}'); }
     ;
 
 expression-opt
