@@ -48,7 +48,7 @@
 "append"              return 'APPEND'
 "shift"               return 'SHIFT'
 "after"               return 'AFTER'
-"if"                  %{ yy.nest(); return 'IF'; %}
+"if"                  return 'IF'
 "else"                return 'ELSE'
 "for"                 return 'FOR'
 "while"               return 'WHILE'
@@ -154,7 +154,7 @@ script
       { return '(function (includePrefix, done) {' +
                  '(function(context, rt) { ' +
                     yy.printObservableDeclarations() +
-                    yy.withIncludes($1.code || $1, 'done') +
+                    yy.withIncludes($1, 'done') +
                  '})(root, rt);' +
                '})';
       }
@@ -194,7 +194,7 @@ lvalue
 statement-list-opt
     : statement-list
     |
-        { $$ = ""; }
+        { $$ = yy.sync(""); }
     ;
 
 expression
@@ -367,7 +367,7 @@ primary-expression
 
 statement
     : expression ';'
-        { $$ = $1 + ';'; }
+        { $$ = yy.sync($1 + ';'); }
     | function-definition
     | formula-definition
     | action-specification
@@ -377,48 +377,53 @@ statement
     | AFTER '(' expression ')' statement
         { $$ = 'setTimeout(function() ' + $statement + ', ' + $expression + ');' }
     | IF '(' expression ')' statement else-opt
-        { $$ = $statement.cps ? yy.async('(function (done) { if (' + $expression + ') ' + yy.withIncludes($statement.code, 'done') + '})')
-                              : 'if (' + $expression + ') ' + $statement + $6; }
+        { $$ = ($5.cps || $6.cps) ? yy.async('(function (done) {' +
+                                                'if (' + $expression + ') ' +
+                                                  yy.withIncludes($5, 'done') +
+                                                ' else ' +
+                                                  yy.withIncludes($6, 'done') +
+                                             '})')
+                                  : yy.sync('if (' + $expression + ') ' + $statement.code + ' else ' + $6.code); }
     | WHILE '(' expression ')' statement
-        { $$ = 'while (' + $expression + ') ' + $statement; }
+        { $$ = yy.sync('while (' + $expression + ') ' + $statement.code); }
     | DO statement WHILE '(' expression ')' ';'
-        { $$ = 'do ' + $statement + ' while (' + $expression + ');'; }
+        { $$ = yy.sync('do ' + $statement + ' while (' + $expression + ');'); }
     | FOR '(' expression-opt ';' expression-opt ';' expression-opt ')' statement
-        { $$ = 'for (' + $3 + '; ' + $5 + '; ' + $7 + ') ' + $statement; }
+        { $$ = yy.sync('for (' + $3.code + '; ' + $5.code + '; ' + $7.code + ') ' + $statement); }
     | SWITCH '(' expression ')' statement
-        { $$ = 'switch (' + $expression + ') ' + $statement; }
+        { $$ = yy.sync('switch (' + $expression + ') ' + $statement.code); }
     | BREAK ';'
-        { $$ = 'break;'; }
+        { $$ = yy.sync('break;'); }
     | CONTINUE ';'
-        { $$ = 'continue;'; }
+        { $$ = yy.sync('continue;'); }
     | RETURN ';'
-        { $$ = 'return;'; }
+        { $$ = yy.sync('return;'); }
     | RETURN expression ';'
-        { $$ = 'return ' + $expression + ';'; }
+        { $$ = yy.sync('return ' + $expression + ';'); }
     | INCLUDE expression ';'
         { $$ = yy.async('eden.include', $expression, 'includePrefix'); }
     | REQUIRE expression ';'
         { $$ = yy.async('edenUI.loadPlugin', $expression); }
     | INSERT lvalue ',' expression ',' expression ';'
-        { $$ = $lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ', 0, ' + $expression2 + '); });'; }
+        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ', 0, ' + $expression2 + '); });'); }
     | DELETE lvalue ',' expression ';'
-        { $$ = $lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ', 1); });' }
+        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ', 1); });'); }
     | APPEND lvalue ',' expression ';'
-        { $$ = $lvalue + '.mutate(function(s) { s.cached_value.push(' + $expression1 + '); });' }
+        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.push(' + $expression1 + '); });'); }
     | SHIFT lvalue ';'
-        { $$ = $lvalue + '.mutate(function(s) { s.cached_value.shift(); });' }
+        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.shift(); });'); }
     | CASE literal ':'
-        { $$ = 'case ' + $literal + ': '; }
-    | DEFAULT ':' statement
-        { $$ = 'default: ' + $statement; }
+        { $$ = yy.sync('case ' + $literal + ': '); }
+    | DEFAULT ':'
+        { $$ = yy.sync('default: ' + $statement.code); }
     | ';'
     ;
 
 else-opt
     : ELSE statement
-        { $$ = ' else ' + $statement; }
+        { $$ = $2; }
     |
-        { $$ = ''; }
+        { $$ = yy.sync('{}'); }
     ;
 
 expression-opt
@@ -442,7 +447,7 @@ expression-list-opt
 
 query-command
     : '?' lvalue ';'
-        { $$ = "console.log(" + $lvalue + ")" }
+        { $$ = yy.sync("console.log(" + $lvalue + ")"); }
     ;
 
 function-definition
@@ -451,7 +456,7 @@ function-definition
         var eden_definition = JSON.stringify(yy.extractEdenDefinition(@1.first_line, @1.first_column, @2.last_line, @2.last_column));
         yy.paras.pop();
         yy.locals.pop();
-        $$ = "context.lookup('" + $1 + "').define(function(context) { return " + $2 + "}).eden_definition = " + eden_definition + ";"; }
+        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context) { return " + $2 + "}).eden_definition = " + eden_definition + ";"); }
     ;
 
 function-declarator
@@ -491,7 +496,7 @@ para-alias
 
 function-body
     : '{' para-alias-opt local-var-decl-opt statement-list-opt '}'
-        { $$ = 'function() { var args = new Symbol().assign(Array.prototype.slice.call(arguments)); ' + $2 + ' ' + $3 + ' ' + $4 + '}'; }
+        { $$ = 'function() { var args = new Symbol().assign(Array.prototype.slice.call(arguments)); ' + $2 + ' ' + $3 + ' ' + $4.code + '}'; }
     ;
 
 
@@ -502,7 +507,7 @@ action-specification
         var eden_definition = JSON.stringify(yy.extractEdenDefinition(@1.first_line, @1.first_column, @3.last_line, @3.last_column));
         yy.paras.pop();
         yy.locals.pop();
-        $$ = "context.lookup('" + $1 + "').define(function(context) { return " + $3 + "; }).observe(" + JSON.stringify($2) + ").eden_definition = " + eden_definition + ";";
+        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context) { return " + $3 + "; }).observe(" + JSON.stringify($2) + ").eden_definition = " + eden_definition + ";");
         }
     ;
 
@@ -525,15 +530,14 @@ dependency-link
 
 compound-statement
     : '{' statement-list-opt '}'
-        { $$ = $2.cps ? yy.async('(function () { ' + yy.withIncludes($2.code, 'done') + ' })')
-                      : '{ ' + $2 + ' }'; }
+        { $$ = $2.cps ? yy.async('(function () { ' + yy.withIncludes($2, 'done') + ' })')
+                      : yy.sync('{ ' + $2.code + ' }'); }
     ;
 
 statement-list
     : statement
     | statement statement-list
-        { $$ = $1.cps ? {cps: true, code: $1.code + ' ' + ($2.code || $2)}
-                      : $1 + ' ' + ($2.code || $2); }
+        { $$ = yy.code($1.cps + $2.cps, $1.code + ' ' + $2.code) }
     ;
 
 formula-definition
@@ -549,14 +553,14 @@ formula-definition
         );
 
         yy.leaveDefinition();
-        $$ = "(" +
+        $$ = yy.sync("(" +
                yy.observable($1) +
                  ".eden_definition = " + eden_definition + ", " +
 
                yy.observable($1) +
                  ".define(function(context) { return " + $3 + "; }, undefined, " +
                  JSON.stringify(yy.getDependencies()) + ")" +
-             ");"
+             ");");
         %}
     ;
 	

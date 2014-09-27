@@ -258,28 +258,35 @@ function concatAndResolveUrl(url, concat) {
 
 		source = source.replace(/\r\n/g, '\n');
 
-		var asyncs = [0];
 		parser.yy.async = function (asyncFuncExpression) {
-			asyncs[asyncs.length - 1]++;
 			var args = Array.prototype.slice.call(arguments, 1);
-			return {cps: true, code: asyncFuncExpression + '(' + args.concat('function () {')}; 
+			return new Code(1, asyncFuncExpression + '(' + args.concat('function () {')); 
 		};
 
-		parser.yy.nest = function () {
-			asyncs.push(0);
+		function Code(cps, code) {
+			this.cps = cps;
+			this.code = code;
+		}
+
+		Code.prototype.valueOf = function () {
+			throw new Error("Tried to valueOf Code " + this.code);
 		};
 
-		parser.yy.statementList = function (statementList) {
+		parser.yy.sync = function (code) {
+			return new Code(0, code);
 		};
 
-		parser.yy.withIncludes = function (statementList, callbackName) {
+		parser.yy.code = function (cps, code) {
+			return new Code(cps, code);
+		};
+
+		parser.yy.withIncludes = function (code, callbackName) {
 			var closer = '' + callbackName + '();';
 			var i;
-			for (i = 0; i < asyncs[asyncs.length - 1]; ++i) {
+			for (i = 0; i < code.cps; ++i) {
 				closer += '});';
 			}
-			asyncs.pop();
-			return statementList + closer;
+			return code.code + closer;
 		};
 
 		/**
