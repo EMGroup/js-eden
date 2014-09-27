@@ -211,7 +211,7 @@ case 68: this.$ = '' + $$[$0-3] + '.call('+ ['this'].concat($$[$0-1]) + ')';
 break;
 case 69: this.$ = yy.sync($$[$0-1] + ';'); 
 break;
-case 76: this.$ = 'setTimeout(function() ' + $$[$0] + ', ' + $$[$0-2] + ');' 
+case 76: this.$ = yy.sync('setTimeout(function() ' + $$[$0].code + ', ' + $$[$0-2] + ');'); 
 break;
 case 77: this.$ = ($$[$0-1].cps || $$[$0].cps) ? yy.async('(function (done) {' +
                                                 'if (' + $$[$0-3] + ') ' +

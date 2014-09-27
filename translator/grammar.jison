@@ -375,7 +375,7 @@ statement
     | query-command
     | compound-statement
     | AFTER '(' expression ')' statement
-        { $$ = 'setTimeout(function() ' + $statement + ', ' + $expression + ');' }
+        { $$ = yy.sync('setTimeout(function() ' + $statement.code + ', ' + $expression + ');'); }
     | IF '(' expression ')' statement else-opt
         { $$ = ($5.cps || $6.cps) ? yy.async('(function (done) {' +
                                                 'if (' + $expression + ') ' +
