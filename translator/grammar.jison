@@ -389,7 +389,7 @@ statement
     | DO statement WHILE '(' expression ')' ';'
         { $$ = yy.sync('do ' + $statement + ' while (' + $expression + ');'); }
     | FOR '(' expression-opt ';' expression-opt ';' expression-opt ')' statement
-        { $$ = yy.sync('for (' + $3.code + '; ' + $5.code + '; ' + $7.code + ') ' + $statement); }
+        { $$ = yy.sync('for (' + $3.code + '; ' + $5.code + '; ' + $7.code + ') ' + $statement.code); }
     | SWITCH '(' expression ')' statement
         { $$ = yy.sync('switch (' + $expression + ') ' + $statement.code); }
     | BREAK ';'
@@ -417,6 +417,7 @@ statement
     | DEFAULT ':'
         { $$ = yy.sync('default: ' + $statement.code); }
     | ';'
+        { $$ = yy.sync(''); }
     ;
 
 else-opt
