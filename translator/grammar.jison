@@ -415,7 +415,7 @@ statement
     | CASE literal ':'
         { $$ = yy.sync('case ' + $literal + ': '); }
     | DEFAULT ':'
-        { $$ = yy.sync('default: ' + $statement.code); }
+        { $$ = yy.sync('default: '); }
     | ';'
         { $$ = yy.sync(''); }
     ;

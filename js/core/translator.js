@@ -251,7 +251,7 @@ case 91: this.$ = yy.sync($$[$0-1] + '.mutate(function(s) { s.cached_value.shift
 break;
 case 92: this.$ = yy.sync('case ' + $$[$0-1] + ': '); 
 break;
-case 93: this.$ = yy.sync('default: ' + $statement.code); 
+case 93: this.$ = yy.sync('default: '); 
 break;
 case 94: this.$ = yy.sync(''); 
 break;
