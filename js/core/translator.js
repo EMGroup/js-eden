@@ -280,7 +280,7 @@ case 104:
         var eden_definition = JSON.stringify(yy.extractEdenDefinition(_$[$0-1].first_line, _$[$0-1].first_column, _$[$0].last_line, _$[$0].last_column));
         yy.paras.pop();
         yy.locals.pop();
-        this.$ = yy.sync("context.lookup('" + $$[$0-1] + "').define(function(context) { return " + $$[$0] + "}).eden_definition = " + eden_definition + ";"); 
+        this.$ = yy.sync("context.lookup('" + $$[$0-1] + "').define(function(context) { return " + $$[$0] + "}, this).eden_definition = " + eden_definition + ";"); 
 break;
 case 105: this.$ = $$[$0]; 
 break;
@@ -302,7 +302,7 @@ case 116:
         var eden_definition = JSON.stringify(yy.extractEdenDefinition(_$[$0-2].first_line, _$[$0-2].first_column, _$[$0].last_line, _$[$0].last_column));
         yy.paras.pop();
         yy.locals.pop();
-        this.$ = yy.sync("context.lookup('" + $$[$0-2] + "').define(function(context) { return " + $$[$0] + "; }).observe(" + JSON.stringify($$[$0-1]) + ").eden_definition = " + eden_definition + ";");
+        this.$ = yy.sync("context.lookup('" + $$[$0-2] + "').define(function(context) { return " + $$[$0] + "; }, this).observe(" + JSON.stringify($$[$0-1]) + ").eden_definition = " + eden_definition + ";");
         
 break;
 case 117: this.$ = $$[$0]; 
@@ -334,8 +334,11 @@ case 124:
                  ".eden_definition = " + eden_definition + ", " +
 
                yy.observable($$[$0-3]) +
-                 ".define(function(context) { return " + $$[$0-1] + "; }, undefined, " +
-                 JSON.stringify(yy.getDependencies()) + ")" +
+                 ".define(" +
+                   "function(context) { return " + $$[$0-1] + "; }," +
+                   "this, " +
+                   JSON.stringify(yy.getDependencies()) +
+                 ")" +
              ");");
         
 break;
