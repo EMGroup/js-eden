@@ -59,20 +59,23 @@ EdenUI.plugins.SLT = function (edenui, success) {
 	
 	
 	SLT.generateBottomHTML = function(regexString){
-		//generates the content
-
-		var HTML = "<tr><td class=\"lower\"><b>Name</b></td><td class=\"lower\"><b>Definition</b></td><td class=\"lower\"><b>Current Value</b></td><td class=\"lower\"><b>Watches</b></td><td class=\"lower\"><b>Updates</b></td>";
+		var HTML = "<tr>"+
+			"<td class=\"lower\"><b>Name</b></td>"+
+			"<td class=\"lower\"><b>Definition</b></td>"+
+			"<td class=\"lower\"><b>Current Value</b></td>"+
+			"<td class=\"lower\"><b>Watches</b></td>"+
+			"<td class=\"lower\"><b>Updates</b>"+
+			"<td class=\"lower\"><b>Last modified by</b></td>"+
+		"</tr>";
 		var symbolsx = SLT.arrayFromObject(root.symbols);
 		
 		re = new RegExp("^("+regexString+").*$","i");
 		
 		for(var i=0; i<symbolsx.length; i++){
-		
 			var blank = " - ";
 		
 			var name = symbolsx[i].name.replace(/\//g,'');
 			if(!re.test(name)){
-
 				continue;
 			}
 			
@@ -102,9 +105,19 @@ EdenUI.plugins.SLT = function (edenui, success) {
 			else{
 				ofa = "(Observable)";
 			}
+			// slice the "/" off the start of the name
+			var lastModifiedBy = symbolsx[i].last_modified_by ? symbolsx[i].last_modified_by.substr(1) : 'Not yet defined';
 
-			//table cells
-			HTML = HTML.concat("<tr><td class=\"lower\"><p>"+name+"\n"+ofa+"</p></td><td class=\"lower\"><p>"+def+"</p></td><td class=\"lower\"><p>"+value+"</p></td><td class=\"lower\"><p>"+WATCHES+"</p></td><td class=\"lower\"><p>"+UPDATES+"</p></td></tr>");
+			HTML = HTML.concat(
+				"<tr>"+
+					"<td class=\"lower\"><p>"+name+"\n"+ofa+"</p></td>"+
+					"<td class=\"lower\"><p>"+def+"</p></td>"+
+					"<td class=\"lower\"><p>"+value+"</p></td>"+
+					"<td class=\"lower\"><p>"+WATCHES+"</p></td>"+
+					"<td class=\"lower\"><p>"+UPDATES+"</p></td>"+
+					"<td class=\"lower\"><p>"+lastModifiedBy+"</p></td>"+
+				"</tr>"
+			);
 		}
 		return "<table>"+HTML+"</table>";
 	}
