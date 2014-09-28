@@ -228,7 +228,7 @@ case 78: this.$ = ($$[$0-2].cps || $$[$0].cps) ? yy.async('(function (done) {' +
                                                                    yy.withIncludes($$[$0], 'done') +
                                                                  '}' +
                                                                '})')
-                                  : yy.sync('if (' + $$[$0-4] + ') ' + $$[$0].code + ' else ' + $$[$0].code); 
+                                  : yy.sync('if (' + $$[$0-4] + ') ' + $$[$0-2].code + ' else ' + $$[$0].code); 
 break;
 case 79: this.$ = yy.sync('while (' + $$[$0-2] + ') ' + $$[$0].code); 
 break;

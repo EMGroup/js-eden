@@ -393,7 +393,7 @@ statement
                                                                    yy.withIncludes($statement2, 'done') +
                                                                  '}' +
                                                                '})')
-                                  : yy.sync('if (' + $expression + ') ' + $statement2.code + ' else ' + $statement2.code); }
+                                  : yy.sync('if (' + $expression + ') ' + $statement1.code + ' else ' + $statement2.code); }
     | WHILE '(' expression ')' statement
         { $$ = yy.sync('while (' + $expression + ') ' + $statement.code); }
     | DO statement WHILE '(' expression ')' ';'
