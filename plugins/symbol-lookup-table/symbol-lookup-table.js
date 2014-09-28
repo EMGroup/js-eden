@@ -105,8 +105,7 @@ EdenUI.plugins.SLT = function (edenui, success) {
 			else{
 				ofa = "(Observable)";
 			}
-			// slice the "/" off the start of the name
-			var lastModifiedBy = symbolsx[i].last_modified_by ? symbolsx[i].last_modified_by.substr(1) : 'Not yet defined';
+			var lastModifiedBy = symbolsx[i].last_modified_by ? symbolsx[i].last_modified_by : 'Not yet defined';
 
 			HTML = HTML.concat(
 				"<tr>"+

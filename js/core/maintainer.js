@@ -241,7 +241,7 @@
 		if (modifying_agent === global) {
 			this.last_modified_by = 'input';
 		} else {
-			this.last_modified_by = modifying_agent ? modifying_agent.name : 'unknown';
+			this.last_modified_by = modifying_agent ? modifying_agent.name.replace(/^\//, '') : "modifying agent wasn't specified :(";
 		}
 	};
 
