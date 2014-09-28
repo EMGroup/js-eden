@@ -462,7 +462,7 @@ function-definition
         var eden_definition = JSON.stringify(yy.extractEdenDefinition(@1.first_line, @1.first_column, @2.last_line, @2.last_column));
         yy.paras.pop();
         yy.locals.pop();
-        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context) { return " + $2 + "}).eden_definition = " + eden_definition + ";"); }
+        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context) { return " + $2 + "}, this).eden_definition = " + eden_definition + ";"); }
     ;
 
 function-declarator
@@ -513,7 +513,7 @@ action-specification
         var eden_definition = JSON.stringify(yy.extractEdenDefinition(@1.first_line, @1.first_column, @3.last_line, @3.last_column));
         yy.paras.pop();
         yy.locals.pop();
-        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context) { return " + $3 + "; }).observe(" + JSON.stringify($2) + ").eden_definition = " + eden_definition + ";");
+        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context) { return " + $3 + "; }, this).observe(" + JSON.stringify($2) + ").eden_definition = " + eden_definition + ";");
         }
     ;
 
@@ -564,8 +564,11 @@ formula-definition
                  ".eden_definition = " + eden_definition + ", " +
 
                yy.observable($1) +
-                 ".define(function(context) { return " + $3 + "; }, undefined, " +
-                 JSON.stringify(yy.getDependencies()) + ")" +
+                 ".define(" +
+                   "function(context) { return " + $3 + "; }," +
+                   "this, " +
+                   JSON.stringify(yy.getDependencies()) +
+                 ")" +
              ");");
         %}
     ;
