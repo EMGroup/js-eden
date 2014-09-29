@@ -480,11 +480,20 @@ identifier-list-opt
 
 local-var-decl
     : AUTO identifier-list-opt ';'
-        { var declarations = yy.map($2, function(id) { yy.locals[0][id] = 1; return "var local_" + id + " = new Symbol();"; }).join(" "); $$ = declarations;}
+        { $$ = yy.map($2, function(id) {
+                            yy.locals[0][id] = 1;
+                            return "var local_" + id + " = new Symbol();";
+                          }).join(" "); }
     ;
 
-local-var-decl-opt
+local-var-decl-list
     : local-var-decl
+    | local-var-decl local-var-decl-list
+        { $$ = $1 + "; " + $2; }
+    ;
+
+local-var-decl-list-opt
+    : local-var-decl-list
     |
         { $$ = ""; }
     ;
@@ -501,7 +510,7 @@ para-alias
     ;
 
 function-body
-    : '{' para-alias-opt local-var-decl-opt statement-list-opt '}'
+    : '{' para-alias-opt local-var-decl-list-opt statement-list-opt '}'
         { $$ = 'function() { var args = new Symbol().assign(Array.prototype.slice.call(arguments)); ' + $2 + ' ' + $3 + ' ' + $4.code + '}'; }
     ;
 
