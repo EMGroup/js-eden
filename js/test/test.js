@@ -53,6 +53,20 @@ test("Triggered action definition observes a requested symbol", function () {
 	notEqual(root.lookup('p').observees['/x'], undefined);
 });
 
+test("Triggered actions immediately fire if all their observees have been defined", function () {
+	eden.execute("x = @; proc p : x { y = 1; }");
+	equal(root.lookup('y').value(), 1);
+});
+
+test("Triggered actions don't fire until all their observees have been defined", function () {
+	eden.execute("proc p : x, y { z = 1; }");
+	equal(root.lookup('z').value(), undefined);
+	eden.execute("x = @;");
+	equal(root.lookup('z').value(), undefined);
+	eden.execute("y = @;");
+	equal(root.lookup('z').value(), 1);
+});
+
 test("Function calls work", function () {
 	eden.execute("func f { x = 2; } f();");
 	equal(root.lookup('x').value(), 2);

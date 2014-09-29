@@ -291,6 +291,8 @@
 			this.observees[symbol.name] = symbol;
 			symbol.addObserver(this.name, this);
 		}
+
+		this.trigger();
 		return this;
 	};
 
@@ -364,6 +366,13 @@
 	};
 
 	Symbol.prototype.trigger = function () {
+		var name;
+		// only trigger when all observed symbols have been defined by some agent
+		for (name in this.observees) {
+			if (!this.observees[name].last_modified_by) {
+				return;
+			}
+		}
 		// if one action fails, it shouldn't prevent all the other
 		// scheduled actions from firing
 		try {
