@@ -98,6 +98,11 @@ test("Autos work in a function definition", function () {
 	equal(root.lookup('f').value()(), 3);
 });
 
+test("Multiple sets of autos work", function () {
+	eden.execute('func f { auto x; auto y; x = 1; y = 2; return y; }');
+	equal(root.lookup('f').value()(), 2);
+});
+
 test("Autos work in a procedure definition", function () {
 	eden.execute('proc p { auto x; x = 4; return x; }');
 	equal(root.lookup('p').value()(), 4);
