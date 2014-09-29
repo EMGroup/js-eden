@@ -193,6 +193,15 @@
 	Symbol.prototype.value = function () {
 		if (this.definition) {
 			if (!this.up_to_date) {
+				var doEval = true;
+				var name;
+				for (name in this.dependencies) {
+					// only evaluate if all dependencies have been defined by some agent
+					if (!this.dependencies[name].last_modified_by) {
+						this.up_to_date = true;
+						return this.cached_value;
+					}
+				}
 				try {
 					this.cached_value = this.definition(this.context);
 					this.up_to_date = true;
