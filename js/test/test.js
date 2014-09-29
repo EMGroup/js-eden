@@ -149,7 +149,7 @@ test("Scoping for triggered actions", function () {
 
 test("include defers execution", function () {
 	var include = eden.include;
-	eden.include = function (url, success) {
+	eden.include = function (url, prefix, success) {
 		equal(url, "https://test.com/test.js");
 		setTimeout(function () {
 			equal(root.lookup('x').value(), undefined);
