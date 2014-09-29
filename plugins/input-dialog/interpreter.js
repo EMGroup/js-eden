@@ -15,13 +15,19 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 
 	var me = this;
 	me.edenparser = undefined;
-	this.history = new Array();
+	this.history = [];
+	if (window.localStorage) {
+		this.history = JSON.parse(window.localStorage.getItem('history')) || [];
+	}
 
 	this.index = 0;
 
 	this.addHistory = function(text) {
-		me.history.push(text);
+		this.history.push(text);
 		this.index = me.history.length;
+		if (window.localStorage) {
+			localStorage.setItem('history', JSON.stringify(this.history));
+		}
 	}
 
 	this.getHistory = function(index) {
