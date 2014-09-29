@@ -232,7 +232,7 @@ case 78: this.$ = ($$[$0-2].cps || $$[$0].cps) ? yy.async('(function (done) {' +
 break;
 case 79: this.$ = yy.sync('while (' + $$[$0-2] + ') ' + $$[$0].code); 
 break;
-case 80: this.$ = yy.sync('do ' + $$[$0-5] + ' while (' + $$[$0-2] + ');'); 
+case 80: this.$ = yy.sync('do ' + $$[$0-5].code + ' while (' + $$[$0-2] + ');'); 
 break;
 case 81: this.$ = yy.sync('for (' + $$[$0-6].code + '; ' + $$[$0-4].code + '; ' + $$[$0-2].code + ') ' + $$[$0].code); 
 break;

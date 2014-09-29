@@ -397,7 +397,7 @@ statement
     | WHILE '(' expression ')' statement
         { $$ = yy.sync('while (' + $expression + ') ' + $statement.code); }
     | DO statement WHILE '(' expression ')' ';'
-        { $$ = yy.sync('do ' + $statement + ' while (' + $expression + ');'); }
+        { $$ = yy.sync('do ' + $statement.code + ' while (' + $expression + ');'); }
     | FOR '(' expression-opt ';' expression-opt ';' expression-opt ')' statement
         { $$ = yy.sync('for (' + $3.code + '; ' + $5.code + '; ' + $7.code + ') ' + $statement.code); }
     | SWITCH '(' expression ')' statement
