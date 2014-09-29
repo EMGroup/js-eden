@@ -58,6 +58,15 @@ test("Function calls work", function () {
 	equal(root.lookup('x').value(), 2);
 });
 
+test("A formula var is undefined until the terms it depends on have been defined", function () {
+	eden.execute("x is y + z;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("y = 1;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("z = 1;");
+	equal(root.lookup('x').value(), 2);
+});
+
 test("Return statement from a function works", function () {
 	eden.execute("func power { return 9000; }");
 	equal(root.lookup('power').value()(), 9000);
