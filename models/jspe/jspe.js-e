@@ -166,22 +166,15 @@ proc drawSlides : slides {
 
 jspeleft = ${{ $('#jspe-dialog-canvas').position().left }}$;
 
-buttonPrevEnabled is true;
-buttonNextEnabled is true;
-
+buttonPrevEnabled is currentSlide > 1;
+buttonNextEnabled is currentSlide < slideList#;
 
 buttonPrev is SlideButton("buttonPrev","Previous Slide", jspeleft, 0, buttonPrevEnabled);
-
 buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 150, 0, buttonNextEnabled);
 
 ## buttonSave = SlideButton("buttonSave","Add Slide", int(${{ $('#jspe-dialog-canvas').position().left }}$) + 100, ${{ $('#jspe-dialog-canvas').height()+15 }}$, true);
 
 slideList is [];
-
-proc disableButtons : currentSlide {
-	buttonPrevEnabled is (currentSlide <= 1) ? false : true;
-	buttonNextEnabled is (currentSlide >= slideList#) ? false : true;
-}
 
 proc prevSlide : buttonPrev_clicked {
 	if (!buttonPrev_clicked) {
