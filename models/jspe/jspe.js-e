@@ -1,9 +1,3 @@
-picture2=[];
-
-proc drawPicture2 : picture2 { 
-  CanvasHTML5_DrawPicture("jspe","picture2");
-};
-
 _view_default_x=10;
 _view_default_y=50;
 _view_jspe_x=960;
