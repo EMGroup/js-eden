@@ -215,9 +215,9 @@ proc nextSlide : buttonNext_clicked {
 
 
 ## something like an onclick of some kind which 
-slides is [buttonPrev, buttonNext, slideNumber, slideList[currentSlide]];
+slides is [buttonPrev, buttonNext, slideList[currentSlide]];
 
-currentSlide = 0;
+currentSlide = 1;
 ## slideNumber is Div("slidenumber",100,100,100,50,"<h3>Slide Number: "+currentSlide+"</h3>","");
 
 
@@ -225,5 +225,3 @@ ${{
 $('#canvas_buttonPrev').attr('id', 'jspe_buttonPrev');
 $('#canvas_buttonNext').attr('id', 'jspe_buttonNext');
 }}$;
-
-currentSlide = 0;
