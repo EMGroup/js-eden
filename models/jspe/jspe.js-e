@@ -190,6 +190,10 @@ proc disableButtons : currentSlide {
 }
 
 proc prevSlide : buttonPrev_clicked {
+	if (!buttonPrev_clicked) {
+		return;
+	}
+
 	if (currentSlide > 2) {
 		currentSlide--;
 	} else {
@@ -198,6 +202,10 @@ proc prevSlide : buttonPrev_clicked {
 }
 
 proc nextSlide : buttonNext_clicked {
+	if (!buttonNext_clicked) {
+		return;
+	}
+
 	if (currentSlide < slideList#) {
 		currentSlide++;
 	} else {
