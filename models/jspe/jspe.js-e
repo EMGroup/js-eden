@@ -85,7 +85,6 @@ Slide = function (html) {
 
 func Slide { ${{
   var html = arguments[0];
-console.log(html);
   return new Slide(html);
 }}$; }
 
