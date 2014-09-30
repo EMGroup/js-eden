@@ -13,6 +13,12 @@ test("Do while loop", function () {
 	equal(root.lookup('x').value(), 5);
 });
 
+test("For loop", function () {
+	eden.execute("x = 0; for (i = 0; i < 10; ++i) { x++; }");
+	equal(root.lookup('i').value(), 10);
+	equal(root.lookup('x').value(), 10);
+});
+
 test("Assignment sets the correct value", function () {
 	eden.execute("x = 2;");
 	equal(root.lookup('x').value(), 2);
