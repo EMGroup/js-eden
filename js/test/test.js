@@ -176,6 +176,69 @@ test("Scoping for triggered actions", function () {
 	equal(root.lookup('y').value(), 1);
 });
 
+test("autocalc off defers dependency", function () {
+	eden.execute("x is y; y = 1; autocalc = 0; y = 2;");
+	equal(root.lookup('x').value(), 1);
+	eden.execute("autocalc = 1;");
+	equal(root.lookup('x').value(), 2);
+});
+
+test("autocalc off defers agents", function () {
+	eden.execute('x = 0; proc p : y { x++; } autocalc = 0; y = 0; y = 1;');
+	equal(root.lookup('x').value(), 0);
+	eden.execute('autocalc = 1;');
+	equal(root.lookup('x').value(), 1);
+});
+
+test("last modified is undefined by default", function () {
+	equal(root.lookup('x').last_modified_by, undefined);
+});
+
+test("readonly doesn't set last modified by", function () {
+	eden.execute('x = y;');
+	equal(root.lookup('y').last_modified_by, undefined);
+});
+
+test("assignment sets last modified by", function () {
+	eden.execute('x = 1;');
+	equal(root.lookup('x').last_modified_by, 'input');
+});
+
+test("assignment from proc invoked directly sets last modified by", function () {
+	eden.execute('proc p { x = 2; } p();');
+	equal(root.lookup('x').last_modified_by, 'input');
+});
+
+test("assignment from triggered proc sets last modified by", function () {
+	eden.execute('proc p : y { x = 2; } y = 2;');
+	equal(root.lookup('x').last_modified_by, 'p');
+});
+
+test("definition sets last modified by", function () {
+	eden.execute('x is 1;');
+	equal(root.lookup('x').last_modified_by, 'input');
+});
+
+test("definition from proc invoked directly sets last modified by", function () {
+	eden.execute('proc p { x is 2; } p();');
+	equal(root.lookup('x').last_modified_by, 'input');
+});
+
+test("definition from triggered proc sets last modified by", function () {
+	eden.execute('proc p : y { x is 2; } y = 2;');
+	equal(root.lookup('x').last_modified_by, 'p');
+});
+
+test("function definition sets last modified by", function () {
+	eden.execute('func f {}');
+	equal(root.lookup('f').last_modified_by, 'input');
+});
+
+test("proc definition sets last modified by", function () {
+	eden.execute('proc p {}');
+	equal(root.lookup('p').last_modified_by, 'input');
+});
+
 test("include defers execution", function () {
 	var include = eden.include;
 	eden.include = function (url, prefix, success) {
