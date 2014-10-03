@@ -259,6 +259,27 @@ test("list comparison", function () {
 	equal(root.lookup('b').value(), false);
 });
 
+test("assigning a list and modifying", function () {
+	eden.execute("x = y = [1,2,3]; b = x == y;");
+	equal(root.lookup('b').value(), true);
+	eden.execute("x[1]++; b = x == y;");
+	equal(root.lookup('b').value(), false);
+});
+
+test("defining a list and modifying", function () {
+	eden.execute("x is y; y = [1,2,3]; b = x == y;");
+	equal(root.lookup('b').value(), true);
+	eden.execute("x[1] = [2]; b = x == y;");
+	equal(root.lookup('b').value(), false);
+});
+
+test("passing a list and modifying", function () {
+	eden.execute("x = [1,2,3]; proc p { b = $1 == x; } p(x);");
+	equal(root.lookup('b').value(), true);
+	eden.execute("proc p { $1[1] = 2; b = $1 == x; } p(x);");
+	equal(root.lookup('b').value(), false);
+});
+
 test("arithmetic with @ should return @", function () {
 	eden.execute("x = @ + 1;");
 	equal(root.lookup('x').value(), undefined);
