@@ -239,6 +239,26 @@ test("proc definition sets last modified by", function () {
 	equal(root.lookup('p').last_modified_by, 'input');
 });
 
+test("number comparison", function () {
+	eden.execute("b = 1 == 1;");
+	equal(root.lookup('b').value(), true);
+	eden.execute("b = 1 == 2;");
+	equal(root.lookup('b').value(), false);
+});
+
+test("list comparison", function () {
+	eden.execute("b = [1,2,3] == [1,2,3];");
+	equal(root.lookup('b').value(), true);
+	eden.execute("b = [1,2,3] == [1,2,4];");
+	equal(root.lookup('b').value(), false);
+	eden.execute("b = [] == [];");
+	equal(root.lookup('b').value(), true);
+	eden.execute("b = [[1]] == [[1]];");
+	equal(root.lookup('b').value(), true);
+	eden.execute("b = [[1]] == [[2]];");
+	equal(root.lookup('b').value(), false);
+});
+
 test("include defers execution", function () {
 	var include = eden.include;
 	eden.include = function (url, prefix, success) {
