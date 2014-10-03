@@ -22,6 +22,18 @@
  */
 
 (function (global) {
+	function copy(value) {
+		var i, copied;
+		if (value instanceof Array) {
+			copied = value.slice();
+			for (i = 0; i < value.length; ++i) {
+				copied[i] = copy(copied[i]);
+			}
+			return copied;
+		}
+		return value;
+	}
+
 	/**
 	 * A maintainer of definitions
 	 *
@@ -203,7 +215,7 @@
 					}
 				}
 				try {
-					this.cached_value = this.definition(this.context);
+					this.cached_value = copy(this.definition(this.context));
 					this.up_to_date = true;
 				} catch (e) {
 					this.cached_value = undefined;
@@ -308,6 +320,7 @@
 	 * @param {Symbol} modifying_agent
 	 */
 	Symbol.prototype.assign = function (value, modifying_agent) {
+		value = copy(value);
 		if (this.name === "/autocalc") {
 			this.context && this.context.autocalc(value === 1);
 		}
