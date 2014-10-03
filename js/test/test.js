@@ -259,6 +259,25 @@ test("list comparison", function () {
 	equal(root.lookup('b').value(), false);
 });
 
+test("arithmetic with @ should return @", function () {
+	eden.execute("x = @ + 1;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ + @;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ * 1;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ * @;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ / 1;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ / @;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ % 1;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ % @;");
+	equal(root.lookup('x').value(), undefined);
+});
+
 test("include defers execution", function () {
 	var include = eden.include;
 	eden.include = function (url, prefix, success) {

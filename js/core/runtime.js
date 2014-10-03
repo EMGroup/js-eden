@@ -38,6 +38,41 @@ var rt = {
 		return false;
 	},
 
+	add: function (a, b) {
+		if (a === undefined || b === undefined) {
+			return undefined;
+		}
+		return a + b;
+	},
+
+	subtract: function (a, b) {
+		if (a === undefined || b === undefined) {
+			return undefined;
+		}
+		return a - b;
+	},
+
+	multiply: function (a, b) {
+		if (a === undefined || b === undefined) {
+			return undefined;
+		}
+		return a * b;
+	},
+
+	divide: function (a, b) {
+		if (a === undefined || b === undefined) {
+			return undefined;
+		}
+		return a / b;
+	},
+
+	mod: function (a, b) {
+		if (a === undefined || b === undefined) {
+			return undefined;
+		}
+		return a % b;
+	},
+
 	includeJS: function (url, success) {
 		eden.include(url, success);
 	}
