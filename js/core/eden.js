@@ -227,13 +227,13 @@ function concatAndResolveUrl(url, concat) {
 				// cross host
 				$.ajax({
 					url: rt.config.jseProxyBaseUrl,
-					jsonp: "successCallback",
+					jsonp: "callback",
 					dataType: "jsonp",
 					data: {
 						url: url,
 					},
 					success: function (data) {
-						eden.execute(data, url, newPrefix, success);
+						eden.execute(data.success, url, newPrefix, success);
 					}
 				});
 			} else {
@@ -258,21 +258,35 @@ function concatAndResolveUrl(url, concat) {
 
 		source = source.replace(/\r\n/g, '\n');
 
-		var asyncs = 0;
-		parser.yy.async = function (asyncFuncName) {
-			asyncs++;
+		parser.yy.async = function (asyncFuncExpression) {
 			var args = Array.prototype.slice.call(arguments, 1);
-			return asyncFuncName + '(' + args + ', function () {'; 
+			return new Code(1, asyncFuncExpression + '(' + args.concat('function () {')); 
 		};
 
-		parser.yy.withIncludes = function (statementList, callbackName) {
+		function Code(cps, code) {
+			this.cps = cps;
+			this.code = code;
+		}
+
+		Code.prototype.valueOf = function () {
+			throw new Error("Tried to valueOf Code " + this.code);
+		};
+
+		parser.yy.sync = function (code) {
+			return new Code(0, code);
+		};
+
+		parser.yy.code = function (cps, code) {
+			return new Code(cps, code);
+		};
+
+		parser.yy.withIncludes = function (code, callbackName) {
 			var closer = '' + callbackName + '();';
 			var i;
-			for (i = 0; i < asyncs; ++i) {
+			for (i = 0; i < code.cps; ++i) {
 				closer += '});';
 			}
-			asyncs = 0;
-			return statementList + closer;
+			return code.code + closer;
 		};
 
 		/**
@@ -376,14 +390,6 @@ function concatAndResolveUrl(url, concat) {
 		parser.yy.observable = function (name) {
 			observables[name] = 1;
 			return "o_" + name;
-		};
-
-		/** @type {number} */
-		var varNum = 0;
-
-		parser.yy.dobservable = function (name) {
-			varNum = varNum + 1;
-			return "var d_" + varNum + " = context.lookup(" + name + "); d_" + varNum;
 		};
 
 		/**

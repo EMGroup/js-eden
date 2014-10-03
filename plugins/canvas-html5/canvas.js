@@ -93,13 +93,13 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
 			root.lookup('mousePressed').assign(true);
-			root.lookup('mouseDown').assign(root.lookup('Point').value().call(this, x, y), this);
+			root.lookup('mouseDown').assign(root.lookup('Point').value().call(this, x, y));
 		}).on("mouseup",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
 			root.lookup('mousePressed').assign(false);
-			root.lookup('mouseUp').assign(root.lookup('Point').value().call(this, x, y), this);
+			root.lookup('mouseUp').assign(root.lookup('Point').value().call(this, x, y));
 		}).on("mousemove",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;

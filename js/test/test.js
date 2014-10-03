@@ -13,6 +13,12 @@ test("Do while loop", function () {
 	equal(root.lookup('x').value(), 5);
 });
 
+test("For loop", function () {
+	eden.execute("x = 0; for (i = 0; i < 10; ++i) { x++; }");
+	equal(root.lookup('i').value(), 10);
+	equal(root.lookup('x').value(), 10);
+});
+
 test("Assignment sets the correct value", function () {
 	eden.execute("x = 2;");
 	equal(root.lookup('x').value(), 2);
@@ -53,8 +59,31 @@ test("Triggered action definition observes a requested symbol", function () {
 	notEqual(root.lookup('p').observees['/x'], undefined);
 });
 
+test("Triggered actions immediately fire if all their observees have been defined", function () {
+	eden.execute("x = @; proc p : x { y = 1; }");
+	equal(root.lookup('y').value(), 1);
+});
+
+test("Triggered actions don't fire until all their observees have been defined", function () {
+	eden.execute("proc p : x, y { z = 1; }");
+	equal(root.lookup('z').value(), undefined);
+	eden.execute("x = @;");
+	equal(root.lookup('z').value(), undefined);
+	eden.execute("y = @;");
+	equal(root.lookup('z').value(), 1);
+});
+
 test("Function calls work", function () {
 	eden.execute("func f { x = 2; } f();");
+	equal(root.lookup('x').value(), 2);
+});
+
+test("A formula var is undefined until the terms it depends on have been defined", function () {
+	eden.execute("x is y + z;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("y = 1;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("z = 1;");
 	equal(root.lookup('x').value(), 2);
 });
 
@@ -96,6 +125,11 @@ test("Underscores in observable names works", function () {
 test("Autos work in a function definition", function () {
 	eden.execute('func f { auto x; x = 3; return x; }');
 	equal(root.lookup('f').value()(), 3);
+});
+
+test("Multiple sets of autos work", function () {
+	eden.execute('func f { auto x; auto y; x = 1; y = 2; return y; }');
+	equal(root.lookup('f').value()(), 2);
 });
 
 test("Autos work in a procedure definition", function () {
@@ -142,9 +176,132 @@ test("Scoping for triggered actions", function () {
 	equal(root.lookup('y').value(), 1);
 });
 
+test("autocalc off defers dependency", function () {
+	eden.execute("x is y; y = 1; autocalc = 0; y = 2;");
+	equal(root.lookup('x').value(), 1);
+	eden.execute("autocalc = 1;");
+	equal(root.lookup('x').value(), 2);
+});
+
+test("autocalc off defers agents", function () {
+	eden.execute('x = 0; proc p : y { x++; } autocalc = 0; y = 0; y = 1;');
+	equal(root.lookup('x').value(), 0);
+	eden.execute('autocalc = 1;');
+	equal(root.lookup('x').value(), 1);
+});
+
+test("last modified is undefined by default", function () {
+	equal(root.lookup('x').last_modified_by, undefined);
+});
+
+test("readonly doesn't set last modified by", function () {
+	eden.execute('x = y;');
+	equal(root.lookup('y').last_modified_by, undefined);
+});
+
+test("assignment sets last modified by", function () {
+	eden.execute('x = 1;');
+	equal(root.lookup('x').last_modified_by, 'input');
+});
+
+test("assignment from proc invoked directly sets last modified by", function () {
+	eden.execute('proc p { x = 2; } p();');
+	equal(root.lookup('x').last_modified_by, 'input');
+});
+
+test("assignment from triggered proc sets last modified by", function () {
+	eden.execute('proc p : y { x = 2; } y = 2;');
+	equal(root.lookup('x').last_modified_by, 'p');
+});
+
+test("definition sets last modified by", function () {
+	eden.execute('x is 1;');
+	equal(root.lookup('x').last_modified_by, 'input');
+});
+
+test("definition from proc invoked directly sets last modified by", function () {
+	eden.execute('proc p { x is 2; } p();');
+	equal(root.lookup('x').last_modified_by, 'input');
+});
+
+test("definition from triggered proc sets last modified by", function () {
+	eden.execute('proc p : y { x is 2; } y = 2;');
+	equal(root.lookup('x').last_modified_by, 'p');
+});
+
+test("function definition sets last modified by", function () {
+	eden.execute('func f {}');
+	equal(root.lookup('f').last_modified_by, 'input');
+});
+
+test("proc definition sets last modified by", function () {
+	eden.execute('proc p {}');
+	equal(root.lookup('p').last_modified_by, 'input');
+});
+
+test("number comparison", function () {
+	eden.execute("b = 1 == 1;");
+	equal(root.lookup('b').value(), true);
+	eden.execute("b = 1 == 2;");
+	equal(root.lookup('b').value(), false);
+});
+
+test("list comparison", function () {
+	eden.execute("b = [1,2,3] == [1,2,3];");
+	equal(root.lookup('b').value(), true);
+	eden.execute("b = [1,2,3] == [1,2,4];");
+	equal(root.lookup('b').value(), false);
+	eden.execute("b = [] == [];");
+	equal(root.lookup('b').value(), true);
+	eden.execute("b = [[1]] == [[1]];");
+	equal(root.lookup('b').value(), true);
+	eden.execute("b = [[1]] == [[2]];");
+	equal(root.lookup('b').value(), false);
+});
+
+test("assigning a list and modifying", function () {
+	eden.execute("x = y = [1,2,3]; b = x == y;");
+	equal(root.lookup('b').value(), true);
+	eden.execute("x[1]++; b = x == y;");
+	equal(root.lookup('b').value(), false);
+});
+
+test("defining a list and modifying", function () {
+	eden.execute("x is y; y = [1,2,3]; b = x == y;");
+	equal(root.lookup('b').value(), true);
+	eden.execute("x[1] = [2]; b = x == y;");
+	equal(root.lookup('b').value(), false);
+});
+
+test("passing a list and modifying", function () {
+	eden.execute("x = [1,2,3]; proc p { b = $1 == x; } p(x);");
+	equal(root.lookup('b').value(), true);
+	eden.execute("proc p { $1[1] = 2; b = $1 == x; } p(x);");
+	equal(root.lookup('b').value(), false);
+});
+
+test("arithmetic with @ should return @", function () {
+	eden.execute("x = @ + 1;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ + @;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ * 1;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ * @;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ / 1;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ / @;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ % 1;");
+	equal(root.lookup('x').value(), undefined);
+	eden.execute("x = @ % @;");
+	equal(root.lookup('x').value(), undefined);
+});
+
 test("include defers execution", function () {
 	var include = eden.include;
-	eden.include = function (url, success) {
+	eden.include = function (url, prefix, success) {
 		equal(url, "https://test.com/test.js");
 		setTimeout(function () {
 			equal(root.lookup('x').value(), undefined);
@@ -185,3 +342,4 @@ if (typeof window !== "undefined") {
 		stop();
 	});
 }
+
