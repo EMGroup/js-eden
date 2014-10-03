@@ -222,16 +222,16 @@ expression
     // binary operators
     //
     | expression '+' expression
-        { $$ = '' + $1 + ' + ' + $3; }
+        { $$ = 'rt.add(' + $1 + ', ' + $3 + ')'; }
     | expression '-' expression
-        { $$ = '' + $1 + ' - ' + $3; }
+        { $$ = 'rt.subtract(' + $1 + ', ' + $3 + ')'; }
 
     | expression '*' expression
-        { $$ = '' + $1 + ' * ' + $3; }
+        { $$ = 'rt.multiply(' + $1 + ', ' + $3 + ')'; }
     | expression '/' expression
-        { $$ = '' + $1 + ' / ' + $3; }
+        { $$ = 'rt.divide(' + $1 + ', ' + $3 + ')'; }
     | expression '%' expression
-        { $$ = '' + $1 + ' % ' + $3; }
+        { $$ = 'rt.mod(' + $1 + ', ' + $3 + ')'; }
 
     | expression '>' expression
         { $$ = '' + $1 + ' > ' + $3; }
