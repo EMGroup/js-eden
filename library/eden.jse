@@ -120,7 +120,7 @@ proc todo {
 	
 	if (code == @) {
 		return;
-	} else if (type(code) != "string") {
+	} else if (!isString(code)) {
 		error("todo: The argument must be of type string, not " // type(code));
 		return;
 	}
