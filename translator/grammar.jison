@@ -243,9 +243,9 @@ expression
     | expression '<=' expression
         { $$ = '' + $1 + ' <= ' + $3; }
     | expression '==' expression
-        { $$ = '' + $1 + ' == ' + $3; }
+        { $$ = 'rt.equal(' + $1 + ', ' + $3 + ')'; }
     | expression '!=' expression
-        { $$ = '' + $1 + ' != ' + $3; }
+        { $$ = '!rt.equal(' + $1 + ', ' + $3 + ')'; }
 
     | expression '&&' expression
         { $$ = '' + $1 + ' && ' + $3; }
