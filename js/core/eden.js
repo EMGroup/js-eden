@@ -109,6 +109,22 @@ function concatAndResolveUrl(url, concat) {
 		 */
 		this.errorNumber = 0;
 
+		this.polyglot = new Polyglot();
+
+		var me = this;
+		this.polyglot.setDefault('eden');
+		this.polyglot.register('eden', {
+			execute: function (code, origin, prefix, success) {
+				me.executeEden(code, origin, prefix, success);
+			}
+		});
+		this.polyglot.register('js', {
+			execute: function (code, origin, prefix, success) {
+				var result = eval(code);
+				success && success(result);
+			}
+		});
+
 		/**
 		 * @type {Object.<string, Array.<{target: *, callback: function(...[*])}>>}
 		 * @private
@@ -176,6 +192,19 @@ function concatAndResolveUrl(url, concat) {
 		++this.errorNumber;
 	};
 	
+	Eden.prototype.executeEden = function (code, origin, prefix, success) {
+		var result;
+		this.emit('executeBegin', [origin]);
+		try {
+			eval(this.translateToJavaScript(code))(prefix, function () {
+				success && success();
+			});
+		} catch (e) {
+			this.error(e);
+			success && success();
+		}
+	};
+
 	/**
 	 * @param {string} code
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
@@ -188,16 +217,7 @@ function concatAndResolveUrl(url, concat) {
 			origin = 'unknown';
 			prefix = '';
 		}
-		var result;
-		this.emit('executeBegin', [origin]);
-		try {
-			eval(this.translateToJavaScript(code))(prefix, function () {
-				success && success();
-			});
-		} catch (e) {
-			this.error(e);
-			success && success();
-		}
+		this.polyglot.execute(code, origin, prefix, success);
 	};
 
 	/**
