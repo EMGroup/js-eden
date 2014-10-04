@@ -1,6 +1,33 @@
 var root;
 var eden;
 
+QUnit.module("Polyglot#execute", {
+	setup: function () {
+		root = new Folder();
+		eden = new Eden();
+		polyglot = new Polyglot();
+		polyglot.register('eden', eden);
+		polyglot.setDefault('eden');
+		polyglot.register('js', {execute: function (code) { eval(code); }});
+	}
+});
+
+test("No language token", function () {
+	polyglot.execute("x = 2;");
+	equal(root.lookup('x').value(), 2);
+});
+
+test("%eden", function () {
+	polyglot.execute("%eden\nx = 2;");
+	equal(root.lookup('x').value(), 2);
+	polyglot.execute("%eden\nx = 3;%eden");
+	equal(root.lookup('x').value(), 3);
+	polyglot.execute("x = 4;%eden");
+	equal(root.lookup('x').value(), 4);
+	polyglot.execute("%eden\nx = 1;%js\nroot.lookup('x').assign(root.lookup('x').value() + 1);");
+	equal(root.lookup('x').value(), 2);
+});
+
 QUnit.module("Eden#execute", {
 	setup: function () {
 		root = new Folder();
