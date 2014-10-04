@@ -150,7 +150,7 @@
 		for (var symName in symbols_to_force) {
 			// force re-eval
 			var sym = symbols_to_force[symName];
-			sym.value();
+			sym.evaluateIfDependenciesExist();
 		}
 		fireActions(actions_to_fire);
 	};
@@ -198,37 +198,40 @@
 	}
 
 	/**
-	 * Return the current value of this symbol, recalculating it if necessary.
+	 * Return the current value of this symbol, forcing calculation if necessary.
 	 *
 	 * @return {*}
 	 */
 	Symbol.prototype.value = function () {
 		if (this.definition) {
 			if (!this.up_to_date) {
-				var doEval = true;
-				var name;
-				for (name in this.dependencies) {
-					// only evaluate if all dependencies have been defined by some agent
-					if (!this.dependencies[name].last_modified_by) {
-						this.up_to_date = true;
-						return this.cached_value;
-					}
-				}
-				try {
-					this.cached_value = copy(this.definition(this.context));
-					this.up_to_date = true;
-				} catch (e) {
-					this.cached_value = undefined;
-					this.up_to_date = false;
-				}
+				this.evaluate();
 			}
 		}
 		return this.cached_value;
 	};
 
-	/**
-	 *
-	 */
+	Symbol.prototype.evaluateIfDependenciesExist = function () {
+		var name;
+		for (name in this.dependencies) {
+			// only evaluate if all dependencies have been defined by some agent
+			if (!this.dependencies[name].last_modified_by) {
+				return;
+			}
+		}
+		this.evaluate();
+	};
+
+	Symbol.prototype.evaluate = function () {
+		try {
+			this.cached_value = copy(this.definition(this.context));
+			this.up_to_date = true;
+		} catch (e) {
+			this.cached_value = undefined;
+			this.up_to_date = false;
+		}
+	};
+
 	Symbol.prototype.clearObservees = function () {
 		for (var name in this.observees) {
 			var symbol = this.observees[name];
