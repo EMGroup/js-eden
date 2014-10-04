@@ -24,6 +24,7 @@ Polyglot.prototype.execute = function (polyglotCode, origin, prefix, success) {
 		lastChar = firstChar + lastLineMatch;
 	}
 	var section = polyglotCode.slice(firstChar, lastChar);
+	var me = this;
 	this.languages[this.currentLanguage].execute(section, origin, prefix, function () {
 		polyglotCode = polyglotCode.substr(lastChar);
 		if (polyglotCode === '') {
