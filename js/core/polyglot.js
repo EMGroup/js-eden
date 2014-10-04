@@ -38,3 +38,5 @@ Polyglot.prototype.execute = function (polyglotCode, origin, prefix, success) {
 Polyglot.prototype.setDefault = function (languageName) {
 	this.defaultLanguage = languageName;
 };
+
+this.Polyglot = Polyglot;
