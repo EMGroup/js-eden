@@ -2,10 +2,10 @@ var root;
 var eden;
 
 function edenModule(description) {
-	QUnit.module(description, {
+	QUnit.module("foo", {
 		setup: function () {
 			root = new Folder();
-			eden = new Eden();
+			eden = new Eden(root);
 			eden.execute("trace = []; func t { append trace, $1; return $2; }");
 		}
 	});
