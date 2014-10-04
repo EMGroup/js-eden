@@ -237,6 +237,46 @@ test("A formula var is undefined until the terms it depends on have been defined
 	equal(root.lookup('x').value(), 2);
 });
 
+test("A formula var is evaluated after definition if all it's terms are defined", function () {
+	eden.execute('x is 2; y is t("y", x);');
+	deepEqual(root.lookup('trace').value(), ["y"]);
+});
+
+test("A formula var is not evaluated after definition if not all it's terms are defined", function () {
+	eden.execute('y is t("y", x);');
+	deepEqual(root.lookup('trace').value(), []);
+});
+
+test("An unevaluated formula var is evaluated when it is assigned to something else", function () {
+	eden.execute('y is t("y", x); z = y;');
+	deepEqual(root.lookup('trace').value(), ["y"]);
+});
+
+//
+// list formula vars
+//
+edenModule("List formula vars");
+
+test("Unevaluated", function () {
+	eden.execute('l is t("l", [a, b, c]);');
+	deepEqual(root.lookup('trace').value(), []);
+});
+
+test("Length operator forces", function () {
+	eden.execute('l is t("l", [a, b, c]); l#;');
+	deepEqual(root.lookup('trace').value(), ['l']);
+});
+
+test("Using length of list whose parts are not yet defined", function () {
+	eden.execute('l is [a, b, c]; n = l#;');
+	equal(root.lookup('n').value(), 3);
+});
+
+test("Value when parts are not yet defined", function () {
+	eden.execute('l is [a, b, c]; b = l == [@,@,@];');
+	equal(root.lookup('b').value(), true);
+});
+
 //
 // autocalc
 //
