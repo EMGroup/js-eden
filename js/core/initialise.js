@@ -138,7 +138,7 @@ function tileViews() {
 function JS_Eden_Initialise(callback) {
 	$(document).ready(function() {
 		root = new Folder();
-		eden = new Eden();
+		eden = new Eden(root);
 		edenUI = new EdenUI(eden);
 
 		//Create the error window. Hiden to start with.

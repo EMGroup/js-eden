@@ -82,7 +82,7 @@ performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* actio
 
 var $0 = $$.length - 1;
 switch (yystate) {
-case 1: return '(function (includePrefix, done) {' +
+case 1: return '(function (root, eden, includePrefix, done) {' +
                  '(function(context, rt) { ' +
                     yy.printObservableDeclarations() +
                     yy.withIncludes($$[$0-1], 'done') +

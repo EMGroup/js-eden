@@ -152,7 +152,7 @@
 
 script
     : statement-list-opt EOF
-      { return '(function (includePrefix, done) {' +
+      { return '(function (root, eden, includePrefix, done) {' +
                  '(function(context, rt) { ' +
                     yy.printObservableDeclarations() +
                     yy.withIncludes($1, 'done') +

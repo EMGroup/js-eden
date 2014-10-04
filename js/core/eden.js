@@ -102,7 +102,9 @@ function concatAndResolveUrl(url, concat) {
 	 * @constructor
 	 * @struct
 	 */
-	function Eden() {
+	function Eden(root) {
+		this.root = root;
+
 		/**
 		 * @type {number}
 		 * @public (Inspected and reset by the framework for testing EDEN code.)
@@ -196,7 +198,7 @@ function concatAndResolveUrl(url, concat) {
 		var result;
 		this.emit('executeBegin', [origin]);
 		try {
-			eval(this.translateToJavaScript(code))(prefix, function () {
+			eval(this.translateToJavaScript(code))(this.root, this, prefix, function () {
 				success && success();
 			});
 		} catch (e) {
