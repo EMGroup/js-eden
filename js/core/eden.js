@@ -87,16 +87,17 @@ function concatAndResolveUrl(url, concat) {
 				e.message+
 				"</div>\r\n\r\n";
 
-			$('#error-window')
-				.addClass('ui-state-error')
-				.prepend(formattedError)
-				.dialog({title: "EDEN Errors"});
-			// leaving this alert here because the error window can sometimes be
-			// hidden. this can go away if we can raise the eden error window to the
-			// top.
-			alert(e);
+			this.showErrorWindow().prepend(formattedError)
+			this.showErrorWindow().prop('scrollTop', 0);
 		});
 	}
+
+	EdenUI.prototype.showErrorWindow = function () {
+		return $('#error-window')
+			.addClass('ui-state-error')
+			.dialog({title: "EDEN Errors", width: 500})
+			.dialog('moveToTop');
+	};
 
 	/**
 	 * @constructor
