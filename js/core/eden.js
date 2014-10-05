@@ -87,27 +87,46 @@ function concatAndResolveUrl(url, concat) {
 				e.message+
 				"</div>\r\n\r\n";
 
-			$('#error-window')
-				.addClass('ui-state-error')
-				.prepend(formattedError)
-				.dialog({title: "EDEN Errors"});
-			// leaving this alert here because the error window can sometimes be
-			// hidden. this can go away if we can raise the eden error window to the
-			// top.
-			alert(e);
+			this.showErrorWindow().prepend(formattedError)
+			this.showErrorWindow().prop('scrollTop', 0);
 		});
 	}
+
+	EdenUI.prototype.showErrorWindow = function () {
+		return $('#error-window')
+			.addClass('ui-state-error')
+			.dialog({title: "EDEN Errors", width: 500})
+			.dialog('moveToTop');
+	};
 
 	/**
 	 * @constructor
 	 * @struct
 	 */
-	function Eden() {
+	function Eden(root) {
+		this.root = root;
+
 		/**
 		 * @type {number}
 		 * @public (Inspected and reset by the framework for testing EDEN code.)
 		 */
 		this.errorNumber = 0;
+
+		this.polyglot = new Polyglot();
+
+		var me = this;
+		this.polyglot.setDefault('eden');
+		this.polyglot.register('eden', {
+			execute: function (code, origin, prefix, success) {
+				me.executeEden(code, origin, prefix, success);
+			}
+		});
+		this.polyglot.register('js', {
+			execute: function (code, origin, prefix, success) {
+				var result = eval(code);
+				success && success(result);
+			}
+		});
 
 		/**
 		 * @type {Object.<string, Array.<{target: *, callback: function(...[*])}>>}
@@ -176,6 +195,19 @@ function concatAndResolveUrl(url, concat) {
 		++this.errorNumber;
 	};
 	
+	Eden.prototype.executeEden = function (code, origin, prefix, success) {
+		var result;
+		this.emit('executeBegin', [origin]);
+		try {
+			eval(this.translateToJavaScript(code))(this.root, this, prefix, function () {
+				success && success();
+			});
+		} catch (e) {
+			this.error(e);
+			success && success();
+		}
+	};
+
 	/**
 	 * @param {string} code
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
@@ -188,16 +220,7 @@ function concatAndResolveUrl(url, concat) {
 			origin = 'unknown';
 			prefix = '';
 		}
-		var result;
-		this.emit('executeBegin', [origin]);
-		try {
-			eval(this.translateToJavaScript(code))(prefix, function () {
-				success && success();
-			});
-		} catch (e) {
-			this.error(e);
-			success && success();
-		}
+		this.polyglot.execute(code, origin, prefix, success);
 	};
 
 	/**

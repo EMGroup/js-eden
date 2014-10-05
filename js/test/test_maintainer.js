@@ -41,14 +41,6 @@ test("Assigning to a symbol sets the value", function (assert) {
 	equal(A.value(), 10);
 });
 
-
-test("Defining a symbol marks it as not up to date", function (assert) {
-	var root = new Folder();
-	var A = root.lookup('A');
-	A.define(function() { return 2; });
-	equal(A.up_to_date, false);
-});
-
 test("Querying the value of a symbol which relies on a definition should mark it up to date", function (assert) {
 	var root = new Folder();
 	var A = root.lookup('A');
@@ -131,20 +123,6 @@ test("Defining a symbol removes subscriptions from symbols previously subscribed
 	equal(B.subscribers[A.name], undefined);
 });
 
-test("Assigning to a symbol sets its subscribers as not up to date", function (assert) {
-	var root = new Folder();
-	var A = root.lookup('A');
-	var B = root.lookup('B');
-
-	B.assign(2);
-	A.define(function() {});
-	A.subscribe('B');
-	A.value();
-	B.assign(2);
-
-	equal(A.up_to_date, false);
-});
-
 test("Assigning to an observed symbol causes the triggered action to fire", function (assert) {
 	var action = function() {};
 
@@ -186,46 +164,4 @@ test("Defining an observable in terms of a constant causes it's value to be the 
 
 	A.define(function() { return 9001; });
 	equal(A.value(), 9001);
-});
-
-test("Assigning to an array element expires any symbols subscribed to the array", function (assert) {
-	var root = new Folder();
-	var A = root.lookup('A');
-	var B = root.lookup('B');
-
-	A.assign([1,2,3]);
-	B.define(function() { return A.value(); }).subscribe('A');
-	B.value();
-
-	A.get(0).assign(10);
-	equal(B.up_to_date, false);
-});
-
-test("Assigning to a nested array element expires any symbols subscribed to the array", function (assert) {
-	var root = new Folder();
-	var A = root.lookup('A');
-	var B = root.lookup('B');
-
-	A.assign([[1],2,3]);
-	B.define(function() { return A.value(); }).subscribe('A');
-	B.value();
-
-	A.get(0).get(0).assign(10);
-	equal(B.up_to_date, false);
-});
-
-test("Expiration via subscriptions propogates", function (assert) {
-	var root = new Folder();
-	var A = root.lookup('A');
-	var B = root.lookup('B');
-	var C = root.lookup('C');
-
-	A.assign(10);
-	B.define(function() { return A.value(); }).subscribe('A');
-	C.define(function() { return B.value(); }).subscribe('B');
-	C.value();
-
-	A.assign(10);
-
-	equal(C.up_to_date, false);
 });

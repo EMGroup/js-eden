@@ -1,12 +1,116 @@
 var root;
 var eden;
 
-QUnit.module("Eden#execute", {
-	setup: function () {
-		root = new Folder();
-		eden = new Eden();
+function edenModule(description) {
+	QUnit.module("foo", {
+		setup: function () {
+			root = new Folder();
+			eden = new Eden(root);
+			eden.execute("trace = []; func t { append trace, $1; return $2; }");
+		}
+	});
+}
+
+//
+// language switching
+//
+edenModule("Language switching");
+
+test("No language token", function () {
+	eden.execute("x = 2;");
+	equal(root.lookup('x').value(), 2);
+});
+
+test("%eden", function () {
+	eden.execute("%eden\nx = 2;");
+	equal(root.lookup('x').value(), 2);
+	eden.execute("%eden\nx = 3;%eden");
+	equal(root.lookup('x').value(), 3);
+	eden.execute("x = 4;%eden");
+	equal(root.lookup('x').value(), 4);
+	eden.execute("%eden\nx = 1;%js\nroot.lookup('x').assign(root.lookup('x').value() + 1);");
+	equal(root.lookup('x').value(), 2);
+});
+
+//
+// observables
+//
+edenModule("Observables");
+
+test("Underscores in observable names works", function () {
+	eden.execute('x_1 = 20;');
+	equal(root.lookup('x_1').value(), 20);
+});
+
+test("Assignment sets the correct value", function () {
+	eden.execute("x = 2;");
+	equal(root.lookup('x').value(), 2);
+});
+
+//
+// char
+//
+edenModule("Char type");
+
+test("Single quoting a character works", function () {
+	eden.execute("x = 'a';");
+	equal(root.lookup('x').value(), "a");
+});
+
+test("Empty quotes won't parse", function () {
+	try {
+		eden.translateToJavaScript("'';");
+	} catch (e) {
+		ok(true);
 	}
 });
+
+test("Single quoting an escaped quote character works", function () {
+	eden.execute("x = '\\\'';");
+	equal(root.lookup('x').value(), "'");
+});
+
+//
+// string
+//
+edenModule("String type");
+
+test("Nested strings work", function () {
+	eden.execute('x = "\\\"";');
+	equal(root.lookup('x').value(), '"');
+});
+
+test("Multiline strings work", function () {
+	eden.execute('x = "\n\nfoo\n\n";');
+	equal(root.lookup('x').value(), '\n\nfoo\n\n');
+});
+
+//
+// numbers
+//
+edenModule("Number type");
+
+test("Increment results in a value 1 greater", function () {
+	eden.execute("x = 2; x++;");
+	equal(root.lookup('x').value(), 3);
+});
+
+test("+= op works", function () {
+	eden.execute("x = 2; x += 2;");
+	equal(root.lookup('x').value(), 4);
+});
+
+test("number comparison", function () {
+	eden.execute("b = 1 == 1;");
+	equal(root.lookup('b').value(), true);
+	eden.execute("b = 1 == 2;");
+	equal(root.lookup('b').value(), false);
+});
+
+//
+// control flow
+//
+edenModule("Control flow");
 
 test("Do while loop", function () {
 	eden.execute("x = 0; do { x++; } while (x < 5);");
@@ -19,25 +123,10 @@ test("For loop", function () {
 	equal(root.lookup('x').value(), 10);
 });
 
-test("Assignment sets the correct value", function () {
-	eden.execute("x = 2;");
-	equal(root.lookup('x').value(), 2);
-});
-
-test("Increment results in a value 1 greater", function () {
-	eden.execute("x = 2; x++;");
-	equal(root.lookup('x').value(), 3);
-});
-
-test("+= op works", function () {
-	eden.execute("x = 2; x += 2;");
-	equal(root.lookup('x').value(), 4);
-});
-
-test("The value after formula definition is correct", function () {
-	eden.execute("x = 3; a is x;");
-	equal(root.lookup('a').value(), 3);
-});
+//
+// functions and procs
+//
+edenModule("Functions and procs");
 
 test("Function definition stores a function in the symbol table", function () {
 	eden.execute("func f {}");
@@ -47,6 +136,62 @@ test("Function definition stores a function in the symbol table", function () {
 test("Procedure definition stores a function in the symbol table", function () {
 	eden.execute("proc p {}");
 	equal(typeof root.lookup('p').value(), "function");
+});
+
+test("Function calls work", function () {
+	eden.execute("func f { x = 2; } f();");
+	equal(root.lookup('x').value(), 2);
+});
+
+test("Return statement from a function works", function () {
+	eden.execute("func power { return 9000; }");
+	equal(root.lookup('power').value()(), 9000);
+});
+
+test("Function parameters work", function () {
+	eden.execute("func id { return $1; }");
+	equal(root.lookup('id').value()(9001), 9001);
+});
+
+test("Parameter aliases work", function () {
+	eden.execute("func id { para x; return x; }");
+	equal(root.lookup('id').value()(9001), 9001);
+});
+
+test("Multiple function definitions with locals works", function () {
+	eden.execute('func f { auto x; x; } func g { auto y; y; }');
+	ok(true);
+});
+
+test("Autos work in a function definition", function () {
+	eden.execute('func f { auto x; x = 3; return x; }');
+	equal(root.lookup('f').value()(), 3);
+});
+
+test("Multiple sets of autos work", function () {
+	eden.execute('func f { auto x; auto y; x = 1; y = 2; return y; }');
+	equal(root.lookup('f').value()(), 2);
+});
+
+test("Autos work in a procedure definition", function () {
+	eden.execute('proc p { auto x; x = 4; return x; }');
+	equal(root.lookup('p').value()(), 4);
+});
+
+test("Autos protect the outside scope", function () {
+	eden.execute('x = 2; func f { auto x; x = 10; } f();');
+	equal(root.lookup('x').value(), 2);
+});
+
+//
+// triggered actions
+//
+edenModule("Triggered actions");
+
+test("Scoping for triggered actions", function () {
+	// the parser used to get confused about triggered actions, causing scoping problems
+	eden.execute("x = 1; proc p : z {} func f { para x; } y is x;");
+	equal(root.lookup('y').value(), 1);
 });
 
 test("Triggered action definition stores a function in the symbol table", function () {
@@ -73,9 +218,14 @@ test("Triggered actions don't fire until all their observees have been defined",
 	equal(root.lookup('z').value(), 1);
 });
 
-test("Function calls work", function () {
-	eden.execute("func f { x = 2; } f();");
-	equal(root.lookup('x').value(), 2);
+//
+// formula vars
+//
+edenModule("Formula vars");
+
+test("The value after formula definition is correct", function () {
+	eden.execute("x = 3; a is x;");
+	equal(root.lookup('a').value(), 3);
 });
 
 test("A formula var is undefined until the terms it depends on have been defined", function () {
@@ -87,94 +237,50 @@ test("A formula var is undefined until the terms it depends on have been defined
 	equal(root.lookup('x').value(), 2);
 });
 
-test("Return statement from a function works", function () {
-	eden.execute("func power { return 9000; }");
-	equal(root.lookup('power').value()(), 9000);
+test("A formula var is evaluated after definition if all it's terms are defined", function () {
+	eden.execute('x is 2; y is t("y", x);');
+	deepEqual(root.lookup('trace').value(), ["y"]);
 });
 
-test("Function parameters work", function () {
-	eden.execute("func id { return $1; }");
-	equal(root.lookup('id').value()(9001), 9001);
+test("A formula var is not evaluated after definition if not all it's terms are defined", function () {
+	eden.execute('y is t("y", x);');
+	deepEqual(root.lookup('trace').value(), []);
 });
 
-test("Parameter aliases work", function () {
-	eden.execute("func id { para x; return x; }");
-	equal(root.lookup('id').value()(9001), 9001);
+test("An unevaluated formula var is evaluated when it is assigned to something else", function () {
+	eden.execute('y is t("y", x); z = y;');
+	deepEqual(root.lookup('trace').value(), ["y"]);
 });
 
-test("Nested strings work", function () {
-	eden.execute('x = "\\\"";');
-	equal(root.lookup('x').value(), '"');
+//
+// list formula vars
+//
+edenModule("List formula vars");
+
+test("Unevaluated", function () {
+	eden.execute('l is t("l", [a, b, c]);');
+	deepEqual(root.lookup('trace').value(), []);
 });
 
-test("Multiline strings work", function () {
-	eden.execute('x = "\n\nfoo\n\n";');
-	equal(root.lookup('x').value(), '\n\nfoo\n\n');
+test("Length operator forces", function () {
+	eden.execute('l is t("l", [a, b, c]); l#;');
+	deepEqual(root.lookup('trace').value(), ['l']);
 });
 
-test("Multiple function definitions with locals works", function () {
-	eden.execute('func f { auto x; x; } func g { auto y; y; }');
-	ok(true);
+test("Using length of list whose parts are not yet defined", function () {
+	eden.execute('l is [a, b, c]; n = l#;');
+	equal(root.lookup('n').value(), 3);
 });
 
-test("Underscores in observable names works", function () {
-	eden.execute('x_1 = 20;');
-	equal(root.lookup('x_1').value(), 20);
+test("Value when parts are not yet defined", function () {
+	eden.execute('l is [a, b, c]; b = l == [@,@,@];');
+	equal(root.lookup('b').value(), true);
 });
 
-test("Autos work in a function definition", function () {
-	eden.execute('func f { auto x; x = 3; return x; }');
-	equal(root.lookup('f').value()(), 3);
-});
-
-test("Multiple sets of autos work", function () {
-	eden.execute('func f { auto x; auto y; x = 1; y = 2; return y; }');
-	equal(root.lookup('f').value()(), 2);
-});
-
-test("Autos work in a procedure definition", function () {
-	eden.execute('proc p { auto x; x = 4; return x; }');
-	equal(root.lookup('p').value()(), 4);
-});
-
-test("Autos protect the outside scope", function () {
-	eden.execute('x = 2; func f { auto x; x = 10; } f();');
-	equal(root.lookup('x').value(), 2);
-});
-
-test("Single quoting a character works", function () {
-	eden.execute("x = 'a';");
-	equal(root.lookup('x').value(), "a");
-});
-
-test("Empty quotes won't parse", function () {
-	try {
-		eden.translateToJavaScript("'';");
-	} catch (e) {
-		ok(true);
-	}
-});
-
-test("Single quoting an escaped quote character works", function () {
-	eden.execute("x = '\\\'';");
-	equal(root.lookup('x').value(), "'");
-});
-
-test("Lists are 1 indexed", function () {
-	eden.execute("x = [20,30,40]; y = x[1];");
-	equal(root.lookup('y').value(), 20);
-});
-
-test("Lists are value types", function () {
-	eden.execute("x = [1,2,3]; func f { $1 = 9000; } f(x);");
-	equal(root.lookup('x').value()[0], 1);
-});
-
-test("Scoping for triggered actions", function () {
-	// the parser used to get confused about triggered actions, causing scoping problems
-	eden.execute("x = 1; proc p : z {} func f { para x; } y is x;");
-	equal(root.lookup('y').value(), 1);
-});
+//
+// autocalc
+//
+edenModule("Autocalc");
 
 test("autocalc off defers dependency", function () {
 	eden.execute("x is y; y = 1; autocalc = 0; y = 2;");
@@ -189,6 +295,11 @@ test("autocalc off defers agents", function () {
 	eden.execute('autocalc = 1;');
 	equal(root.lookup('x').value(), 1);
 });
+
+//
+// last modified by
+//
+edenModule("Last modified by");
 
 test("last modified is undefined by default", function () {
 	equal(root.lookup('x').last_modified_by, undefined);
@@ -239,24 +350,19 @@ test("proc definition sets last modified by", function () {
 	equal(root.lookup('p').last_modified_by, 'input');
 });
 
-test("number comparison", function () {
-	eden.execute("b = 1 == 1;");
-	equal(root.lookup('b').value(), true);
-	eden.execute("b = 1 == 2;");
-	equal(root.lookup('b').value(), false);
+//
+// lists
+//
+edenModule("List type");
+
+test("Lists are 1 indexed", function () {
+	eden.execute("x = [20,30,40]; y = x[1];");
+	equal(root.lookup('y').value(), 20);
 });
 
-test("list comparison", function () {
-	eden.execute("b = [1,2,3] == [1,2,3];");
-	equal(root.lookup('b').value(), true);
-	eden.execute("b = [1,2,3] == [1,2,4];");
-	equal(root.lookup('b').value(), false);
-	eden.execute("b = [] == [];");
-	equal(root.lookup('b').value(), true);
-	eden.execute("b = [[1]] == [[1]];");
-	equal(root.lookup('b').value(), true);
-	eden.execute("b = [[1]] == [[2]];");
-	equal(root.lookup('b').value(), false);
+test("Lists are value types", function () {
+	eden.execute("x = [1,2,3]; func f { $1 = 9000; } f(x);");
+	equal(root.lookup('x').value()[0], 1);
 });
 
 test("assigning a list and modifying", function () {
@@ -280,6 +386,24 @@ test("passing a list and modifying", function () {
 	equal(root.lookup('b').value(), false);
 });
 
+test("list comparison", function () {
+	eden.execute("b = [1,2,3] == [1,2,3];");
+	equal(root.lookup('b').value(), true);
+	eden.execute("b = [1,2,3] == [1,2,4];");
+	equal(root.lookup('b').value(), false);
+	eden.execute("b = [] == [];");
+	equal(root.lookup('b').value(), true);
+	eden.execute("b = [[1]] == [[1]];");
+	equal(root.lookup('b').value(), true);
+	eden.execute("b = [[1]] == [[2]];");
+	equal(root.lookup('b').value(), false);
+});
+
+//
+// @
+//
+edenModule("@");
+
 test("arithmetic with @ should return @", function () {
 	eden.execute("x = @ + 1;");
 	equal(root.lookup('x').value(), undefined);
@@ -298,6 +422,11 @@ test("arithmetic with @ should return @", function () {
 	eden.execute("x = @ % @;");
 	equal(root.lookup('x').value(), undefined);
 });
+
+//
+// include
+//
+edenModule("Include statement");
 
 test("include defers execution", function () {
 	var include = eden.include;
@@ -342,4 +471,3 @@ if (typeof window !== "undefined") {
 		stop();
 	});
 }
-

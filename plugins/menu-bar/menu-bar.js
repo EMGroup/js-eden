@@ -43,17 +43,15 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		menuitem.html(title+"<div id=\"menubar-mainitem-"+name+"\" class=\"menubar-menu\"></div>");
 		menuitem.appendTo(menudiv);
 		$("#menubar-mainitem-"+name).hide();
-		menuitem.click(function() {
+		menuitem.on('mousedown', function(e) {
 			if ($("#menubar-mainitem-"+name).css("display") != "block") {
 				$(".menubar-menu").hide();
-				$("#menubar-mainitem-"+name).show(200);
+				$("#menubar-mainitem-"+name).show();
 			} else {
-				$(".menubar-menu").hide();
+				if (e.target === this) {
+					$(".menubar-menu").hide();
+				}
 			}
-		}).hover(function() {
-			$(this).css("font-weight","bold");
-		},function() {
-			$(this).css("font-weight","normal");
 		});
 	};
 
@@ -93,12 +91,14 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 			viewentry.html(edenUI.views[x].title);
 
 			viewentry.appendTo(views);
-			viewentry.bind("click",function() {
+			viewentry.bind("click",function(e) {
 				//console.log("Create and Show View: "+ this.view);
 				edenUI.createView("view_"+index, this.view);
 				edenUI.showView("view"+index);
+				$(".menubar-menu").hide();
 				index = index + 1;
 				me.updateViewsMenu();
+				e.preventDefault();
 			});
 			viewentry[0].view = x;
 		}
@@ -110,9 +110,11 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 			viewentry.html(x + " ["+edenUI.activeDialogs[x]+"]");
 
 			viewentry.appendTo(views);
-			viewentry.bind("click",function() {
+			viewentry.bind("click",function(e) {
 				//console.log("Show View: "+ this.viewname);
 				edenUI.showView(this.viewname);
+				$(".menubar-menu").hide();
+				e.preventDefault();
 			});
 			viewentry[0].viewname = x;
 		}
@@ -135,8 +137,8 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 	//addMainItem("help","Help");
 
 	addMenuItem("jseden","Error Log", function() {
-	
-		$('#error-window').dialog("open");
+		edenUI.showErrorWindow();
+		$(".menubar-menu").hide();
 	});
 	//addMenuItem("help","Eden Syntax", function() {
 		

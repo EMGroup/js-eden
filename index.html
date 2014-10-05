@@ -48,6 +48,7 @@ See LICENSE.txt
 <script src="js/dummyconsole.js"></script>
 <script src="js/arrayCompareFix.js"></script>
 <script src="js/core/maintainer.js"></script>
+<script src="js/core/polyglot.js"></script>
 <script src="js/core/translator.js"></script>
 <script src="js/core/eden.js"></script>
 <script src="js/core/plugins.js"></script>
@@ -75,6 +76,23 @@ See LICENSE.txt
 			edenUI.plugins.MenuBar.updateViewsMenu();
 		});
 	});
+	var current = null;
+	var cycleView = function () {
+		var $windows = $('.ui-dialog-content');
+		var i;
+		if (!current) {
+			current = $windows.get(0);
+		} else {
+			for (i = 0; i < $windows.length; ++i) {
+				if ($windows.get(i) === current) {
+					current = $windows.get((i + 1) % $windows.length);
+					break;
+				}
+			}
+		}
+		$(current).dialog('open').dialog('moveToTop');
+	};
+	$(document).on('keydown', null, 'ctrl+m', cycleView);
 </script>
 
 </body>
