@@ -137,8 +137,8 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 	//addMainItem("help","Help");
 
 	addMenuItem("jseden","Error Log", function() {
-	
-		$('#error-window').dialog("open");
+		edenUI.showErrorWindow();
+		$(".menubar-menu").hide();
 	});
 	//addMenuItem("help","Eden Syntax", function() {
 		
