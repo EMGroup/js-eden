@@ -53,22 +53,21 @@
 	float: left;
 }
 
-span.projectlist-result_name {
-	vertical-align: 4px;
+.projectlist-result_name {
 	font-family: "Arial";
 	font-weight: bold;
 	font-size: 10pt;
 }
 
-span.projectlist-result_value {
+.projectlist-result_value {
 	color: #909090;
 	white-space: nowrap;
 	overflow: hidden;
-	vertical-align: 4px;
 }
 
-li.type-project {
-	list-style-image: url('../../images/Objects_Icon_32.png');
+.type-project {
+	list-style-type: none;
+	padding: 10px 0;
 }
 
 .projectlist-search-icon {
@@ -87,4 +86,3 @@ li.type-project {
 	float: right;
 	cursor: pointer;
 }
-
