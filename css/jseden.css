@@ -16,24 +16,6 @@ div#hide-top {
 	background-image: url('../images/hide-ver-icon.png');
 }
 
-li.type-function {
-	list-style-image: url('../images/type-function.png');
-}
-
-li.type-observable {
-	list-style-image: url('../images/type-observable.png');
-}
-
-li.type-procedure {
-	list-style-image: url('../images/type-agent.png');
-}
-
-li.type-session {
-	list-style-image: url('../images/type-sessions.png');
-}
-
-
-
 div#side-bar {
 	position: absolute;
 	width: 250px;
@@ -348,15 +330,10 @@ div#functions-info-name {
         margin-left: 4px;
 }
 
-span.result_name {
-	vertical-align: 4px;
-}
-
-span.result_value {
+.result_value {
 	opacity: 0.5;
 	white-space: nowrap;
 	overflow: hidden;
-	vertical-align: 4px;
 }
 
 .error_text {
