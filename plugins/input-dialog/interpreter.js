@@ -124,7 +124,7 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 
 		var myeditor;
 
-		code_entry = $('<textarea onkeyUp="edenUI.plugins.InputWindow.inputKeypress(event)" id="inputCodeArea"></textarea><div id="subButtonsDiv"><button id="submitButton" onclick="edenUI.plugins.InputWindow.submit()">Submit</button></div><div id="buttonsDiv"><button id="previousButton" onclick="edenUI.plugins.InputWindow.prev()" >Previous</button><button id="nextButton" onclick="edenUI.plugins.InputWindow.next()" >Next</button></div>');
+		code_entry = $('<textarea spellcheck="false" onkeyUp="edenUI.plugins.InputWindow.inputKeypress(event)" id="inputCodeArea"></textarea><div id="subButtonsDiv"><button id="submitButton" onclick="edenUI.plugins.InputWindow.submit()">Submit</button></div><div id="buttonsDiv"><button id="previousButton" onclick="edenUI.plugins.InputWindow.prev()" >Previous</button><button id="nextButton" onclick="edenUI.plugins.InputWindow.next()" >Next</button></div>');
 //try removing div: <div id=\"'+name+'-content\" class=\"inputWindow-content\">	</div>
 		//Buttons taken out for new methods of terminal: 
 		
