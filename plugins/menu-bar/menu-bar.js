@@ -87,6 +87,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 	this.updateViewsMenu = function() {
 	
 		var views = $("#menubar-mainitem-views");
+		var existingViews = $("#menubar-mainitem-existing-views");
 		views.html("");
 
 		//First add supported view types
@@ -108,14 +109,14 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 			viewentry[0].view = x;
 		}
 
+		existingViews.html("");
 		//Now add actually active view.
-		$("<hr></hr>").appendTo(views);
 		for (x in edenUI.activeDialogs) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
 			viewentry.html(x + " ["+edenUI.activeDialogs[x]+"]");
 
-			viewentry.appendTo(views);
-			viewentry.bind("click",function(e) {
+			viewentry.appendTo(existingViews);
+			viewentry.bind("click",function (e) {
 				edenUI.showView(this.viewname);
 				hideMenu();
 				e.preventDefault();
@@ -135,17 +136,8 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 	}
 
 	//Add main menu items.
-	addMainItem("views","Views");
-	//addMainItem("help","Help");
-	//addMenuItem("help","Eden Syntax", function() {
-		
-	//});
-	//addMenuItem("help","Javascript Internals", function() {
-		
-	//});
-	//addMenuItem("help","About", function() {
-		
-	//});
+	addMainItem("views", "New");
+	addMainItem("existing-views", "Windows");
 
 	//Put js-eden version in right corner
 	$.ajax({
