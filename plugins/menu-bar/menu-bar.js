@@ -36,21 +36,43 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		menustatus.html(menustatus.html()+text);
 	}
 
+	var menuShowing = false;
+
+	var hideMenu = function () {
+		$(".menubar-menu").hide();
+		menuShowing = false;
+	};
+
+	var showMenu = function (name) {
+		$("#menubar-mainitem-"+name).show();
+		menuShowing = true;
+	};
+
 	/** @private */
 	var addMainItem = function(name, title) {
 	
 		var menuitem = $("<div class=\"menubar-mainitem\"></div>");
 		menuitem.html(title+"<div id=\"menubar-mainitem-"+name+"\" class=\"menubar-menu\"></div>");
 		menuitem.appendTo(menudiv);
+
 		$("#menubar-mainitem-"+name).hide();
-		menuitem.on('mousedown', function(e) {
-			if ($("#menubar-mainitem-"+name).css("display") != "block") {
-				$(".menubar-menu").hide();
-				$("#menubar-mainitem-"+name).show();
-			} else {
+
+		var toggleMenu = function (e) {
+			if (menuShowing) {
 				if (e.target === this) {
-					$(".menubar-menu").hide();
+					hideMenu();
 				}
+			} else {
+				hideMenu();
+				showMenu(name);
+			}
+		};
+
+		menuitem.on('mousedown', toggleMenu);
+		menuitem.on('mouseover', function () {
+			if (menuShowing) {
+				hideMenu();
+				showMenu(name);
 			}
 		});
 	};
@@ -95,7 +117,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 				//console.log("Create and Show View: "+ this.view);
 				edenUI.createView("view_"+index, this.view);
 				edenUI.showView("view"+index);
-				$(".menubar-menu").hide();
+				hideMenu();
 				index = index + 1;
 				me.updateViewsMenu();
 				e.preventDefault();
@@ -111,9 +133,8 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 
 			viewentry.appendTo(views);
 			viewentry.bind("click",function(e) {
-				//console.log("Show View: "+ this.viewname);
 				edenUI.showView(this.viewname);
-				$(".menubar-menu").hide();
+				hideMenu();
 				e.preventDefault();
 			});
 			viewentry[0].viewname = x;
@@ -138,7 +159,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 
 	addMenuItem("jseden","Error Log", function() {
 		edenUI.showErrorWindow();
-		$(".menubar-menu").hide();
+		hideMenu();
 	});
 	//addMenuItem("help","Eden Syntax", function() {
 		
