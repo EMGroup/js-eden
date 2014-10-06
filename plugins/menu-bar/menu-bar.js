@@ -48,6 +48,10 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		menuShowing = true;
 	};
 
+	$(document.body).on('mousedown', function () {
+		hideMenu();
+	});
+
 	/** @private */
 	var addMainItem = function(name, title) {
 	
@@ -66,6 +70,8 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 				hideMenu();
 				showMenu(name);
 			}
+			e.stopPropagation();
+			e.preventDefault();
 		};
 
 		menuitem.on('mousedown', toggleMenu);
@@ -120,6 +126,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 				hideMenu();
 				index = index + 1;
 				me.updateViewsMenu();
+				e.stopPropagation();
 				e.preventDefault();
 			});
 			viewentry[0].view = x;
