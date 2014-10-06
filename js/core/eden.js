@@ -58,6 +58,12 @@ function concatAndResolveUrl(url, concat) {
 		 */
 		this.plugins = {};
 
+		var me = this;
+		this.views.ErrorWindow = {
+			dialog: function () { me.showErrorWindow(); },
+			title: "Error Window"
+		};
+
 		this.eden.listenTo('executeFileLoad', this, function (path) {
 			if (this.plugins.MenuBar) {
 				this.plugins.MenuBar.updateStatus("Loading "+path);
