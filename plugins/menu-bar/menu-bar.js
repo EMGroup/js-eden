@@ -159,15 +159,9 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 	}
 
 	//Add main menu items.
-	addMainItem("jseden","JS-Eden");
 	addMainItem("plugins","Plugins");
 	addMainItem("views","Views");
 	//addMainItem("help","Help");
-
-	addMenuItem("jseden","Error Log", function() {
-		edenUI.showErrorWindow();
-		hideMenu();
-	});
 	//addMenuItem("help","Eden Syntax", function() {
 		
 	//});
