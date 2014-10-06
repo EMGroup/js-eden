@@ -84,30 +84,6 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 	};
 
 	/** @public */
-	this.updatePluginsMenu = function() {
-	
-		var plugins = $("#menubar-mainitem-plugins");
-		plugins.html("");
-		for (x in EdenUI.plugins) {
-			pluginentry = $("<div class=\"menubar-item\"></div>");
-			if (edenUI.plugins[x] === undefined) {
-				pluginentry.html(EdenUI.plugins[x].title);
-			} else {
-				pluginentry.html("<b>"+EdenUI.plugins[x].title+"</b>");
-			}
-			pluginentry.appendTo(plugins);
-			pluginentry.bind("click",function() {
-				//console.log("Load Plugin: "+ this.plugin);
-				edenUI.loadPlugin(this.plugin);
-				me.updatePluginsMenu();
-				me.updateViewsMenu();
-			});
-			pluginentry[0].plugin = x;
-		}
-		//plugins.menu();
-	};
-
-	/** @public */
 	this.updateViewsMenu = function() {
 	
 		var views = $("#menubar-mainitem-views");
@@ -159,7 +135,6 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 	}
 
 	//Add main menu items.
-	addMainItem("plugins","Plugins");
 	addMainItem("views","Views");
 	//addMainItem("help","Help");
 	//addMenuItem("help","Eden Syntax", function() {
@@ -190,7 +165,6 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		async: true
 	});
 
-	this.updatePluginsMenu();
 	this.updateViewsMenu();
 
 	edenUI.eden.include("plugins/menu-bar/menu-bar.js-e", success);
