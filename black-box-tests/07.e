@@ -14,7 +14,6 @@ proc setup_test {
 setup_test();
 
 ## forcing evaluation propagates
-setup_test();
 x is t("x", y);
 y is t("y", z);
 y;

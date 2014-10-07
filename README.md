@@ -52,6 +52,26 @@ npm install
 npm test
 ```
 
+## Black box tests for tkeden and JS-Eden
+
+In order to check the compatibility of tkeden and JS-Eden, tests written in the
+EDEN language are being developed. These are in the `black-box-tests` folder.
+
+To run an individual test for tkeden, you need to use the `ttyeden` program, e.g.
+
+```shell
+C:\eden-1.73>ttyeden.exe -n "C:\Users\Tim Monks\projects\personal\em\js-eden\black-box-tests\12.e"
+```
+
+On Windows, you need to run `ttyeden` from the directory it is installed into,
+the same might not be true for other operating systems. `ttyeden` is available as part of the EDEN downloads here: http://www2.warwick.ac.uk/fac/sci/dcs/research/em/software/eden/
+
+To run a test for JS-Eden you can use the `ttyeden.js` script:
+
+```shell
+$ node ttyeden.js black-box-tests/12.e
+```
+
 # Usage Guide
 
 ## Input Window Hotkeys
