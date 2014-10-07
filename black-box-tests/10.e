@@ -14,7 +14,6 @@ proc setup_test {
 setup_test();
 
 ## assigning to an observable evaluates it
-setup_test();
 proc p : x { t("p", @); }
 y is t("y", x);
 x = 2;

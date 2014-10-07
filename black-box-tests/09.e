@@ -14,7 +14,6 @@ proc setup_test {
 setup_test();
 
 ## evaluating an observable that hasnt been defined/assigned doesnt evaluate it
-setup_test();
 proc p : x { t("p", @); }
 y is t("y", x);
 x;

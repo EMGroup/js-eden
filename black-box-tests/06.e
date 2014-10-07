@@ -14,7 +14,6 @@ proc setup_test {
 setup_test();
 
 ## formula var with	multiple dependencies
-setup_test();
 x is t("x", y + z);
 x;
 y;
