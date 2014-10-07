@@ -79,3 +79,8 @@ var rt = {
 };
 
 this.rt = rt;
+
+// expose as node.js module
+if (module) {
+	module.exports.rt = rt;
+}

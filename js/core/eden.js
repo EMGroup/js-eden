@@ -5,6 +5,13 @@
  * See LICENSE.txt
  */
 
+// import node.js modules
+if (require) {
+	Polyglot = require('./polyglot.js').Polyglot;
+	parser = require('./translator.js').parser;
+	rt = require('./runtime.js').rt;
+}
+
 function concatAndResolveUrl(url, concat) {
 	var url1 = url.split('/');
 	var url2 = concat.split('/');
@@ -489,4 +496,9 @@ function concatAndResolveUrl(url, concat) {
 	// expose API
 	global.EdenUI = EdenUI;
 	global.Eden = Eden;
+
+	// expose as node.js module
+	if (module) {
+		module.exports.Eden = Eden;
+	}
 }(typeof window !== 'undefined' ? window : global));
