@@ -1,17 +1,5 @@
-li.type-function {
-	list-style-image: url('../images/type-function.png');
-}
-
-li.type-observable {
-	list-style-image: url('../images/type-observable.png');
-}
-
-li.type-procedure {
-	list-style-image: url('../images/type-agent.png');
-}
-
-li.type-session {
-	list-style-image: url('../images/type-sessions.png');
+.symbollist-results li {
+	list-style-type: none;
 }
 
 .procedure-results {
@@ -21,59 +9,14 @@ li.type-session {
 }
 
 .symbollist-result-element {
-	/*border-bottom-width: 1px;
-	border-bottom-style: solid;
-	border-bottom-color: #d0d0d0;*/
-	position: relative;
-	left: 0px;
-	right: 0px;
-	height: 20px;
+	margin-bottom: 3px;
 	cursor: pointer;
 	overflow: hidden;
-	position: relative;
-	padding-left: 15px;
-	padding-right: 15px;
-	margin-bottom: 2px;
 	font-size: 8pt;
+	font-family: monospace;
 	white-space: nowrap;
 }
 
-.symbollist-search-box-outer {
-	margin: 15px;
-	position: relative;
-	height: 24px;
-	margin-bottom: 20px;
-	font-size: 10pt;
-}
-
-.symbollist-search {
-	/*position: absolute;
-	left: 0px;
-	top: 0px;*/
-	/*width: 196px;*/
-	height: 24px;
-	border-style: solid;
-	border-width: 1px;
-	border-color: #117fe5;
-	background-color: white;
-	padding: 2px;
-	float: left;
-	margin-left: 5px;
-}
-
-.symbollist-search-icon {
-	background-image: url('../../images/Search_Icon_32.png');
-	height: 32px;
-	width: 32px;
-	background-repeat: no-repeat;
-	float: left;
-}
-
-.symbollist-config-icon {
-	background-image: url('../../images/Configuration_Settings_Icon_32.png');
-	height: 32px;
-	width: 32px;
-	background-repeat: no-repeat;
-	float: right;
-	cursor: pointer;
+.symbollist-search{
+	width: 100%;
 }

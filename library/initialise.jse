@@ -1,6 +1,7 @@
 ## load the standard plugins and library functions here
 require("MenuBar");
 require("InputWindow");
+require("PluginListing");
 require("ProjectList");
 require("CanvasHTML5");
 require("SymbolViewer");

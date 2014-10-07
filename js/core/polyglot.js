@@ -40,3 +40,8 @@ Polyglot.prototype.setDefault = function (languageName) {
 };
 
 this.Polyglot = Polyglot;
+
+// expose as node.js module
+if (module) {
+	module.exports.Polyglot = Polyglot;
+}

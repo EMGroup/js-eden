@@ -36,53 +36,58 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		menustatus.html(menustatus.html()+text);
 	}
 
+	var menuShowing = false;
+
+	var hideMenu = function () {
+		$(".menubar-menu").hide();
+		menuShowing = false;
+	};
+
+	var showMenu = function (name) {
+		$("#menubar-mainitem-"+name).show();
+		menuShowing = true;
+	};
+
+	$(document.body).on('mousedown', function () {
+		hideMenu();
+	});
+
 	/** @private */
 	var addMainItem = function(name, title) {
 	
 		var menuitem = $("<div class=\"menubar-mainitem\"></div>");
 		menuitem.html(title+"<div id=\"menubar-mainitem-"+name+"\" class=\"menubar-menu\"></div>");
 		menuitem.appendTo(menudiv);
+
 		$("#menubar-mainitem-"+name).hide();
-		menuitem.on('mousedown', function(e) {
-			if ($("#menubar-mainitem-"+name).css("display") != "block") {
-				$(".menubar-menu").hide();
-				$("#menubar-mainitem-"+name).show();
-			} else {
+
+		var toggleMenu = function (e) {
+			if (menuShowing) {
 				if (e.target === this) {
-					$(".menubar-menu").hide();
+					hideMenu();
 				}
+			} else {
+				hideMenu();
+				showMenu(name);
+			}
+			e.stopPropagation();
+			e.preventDefault();
+		};
+
+		menuitem.on('mousedown', toggleMenu);
+		menuitem.on('mouseover', function () {
+			if (menuShowing) {
+				hideMenu();
+				showMenu(name);
 			}
 		});
-	};
-
-	/** @public */
-	this.updatePluginsMenu = function() {
-	
-		var plugins = $("#menubar-mainitem-plugins");
-		plugins.html("");
-		for (x in EdenUI.plugins) {
-			pluginentry = $("<div class=\"menubar-item\"></div>");
-			if (edenUI.plugins[x] === undefined) {
-				pluginentry.html(EdenUI.plugins[x].title);
-			} else {
-				pluginentry.html("<b>"+EdenUI.plugins[x].title+"</b>");
-			}
-			pluginentry.appendTo(plugins);
-			pluginentry.bind("click",function() {
-				//console.log("Load Plugin: "+ this.plugin);
-				edenUI.loadPlugin(this.plugin);
-				me.updatePluginsMenu();
-				me.updateViewsMenu();
-			});
-			pluginentry[0].plugin = x;
-		}
-		//plugins.menu();
 	};
 
 	/** @public */
 	this.updateViewsMenu = function() {
 	
 		var views = $("#menubar-mainitem-views");
+		var existingViews = $("#menubar-mainitem-existing-views");
 		views.html("");
 
 		//First add supported view types
@@ -95,25 +100,25 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 				//console.log("Create and Show View: "+ this.view);
 				edenUI.createView("view_"+index, this.view);
 				edenUI.showView("view"+index);
-				$(".menubar-menu").hide();
+				hideMenu();
 				index = index + 1;
 				me.updateViewsMenu();
+				e.stopPropagation();
 				e.preventDefault();
 			});
 			viewentry[0].view = x;
 		}
 
+		existingViews.html("");
 		//Now add actually active view.
-		$("<hr></hr>").appendTo(views);
 		for (x in edenUI.activeDialogs) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
 			viewentry.html(x + " ["+edenUI.activeDialogs[x]+"]");
 
-			viewentry.appendTo(views);
-			viewentry.bind("click",function(e) {
-				//console.log("Show View: "+ this.viewname);
+			viewentry.appendTo(existingViews);
+			viewentry.bind("click",function (e) {
 				edenUI.showView(this.viewname);
-				$(".menubar-menu").hide();
+				hideMenu();
 				e.preventDefault();
 			});
 			viewentry[0].viewname = x;
@@ -131,24 +136,8 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 	}
 
 	//Add main menu items.
-	addMainItem("jseden","JS-Eden");
-	addMainItem("plugins","Plugins");
-	addMainItem("views","Views");
-	//addMainItem("help","Help");
-
-	addMenuItem("jseden","Error Log", function() {
-		edenUI.showErrorWindow();
-		$(".menubar-menu").hide();
-	});
-	//addMenuItem("help","Eden Syntax", function() {
-		
-	//});
-	//addMenuItem("help","Javascript Internals", function() {
-		
-	//});
-	//addMenuItem("help","About", function() {
-		
-	//});
+	addMainItem("views", "New");
+	addMainItem("existing-views", "Windows");
 
 	//Put js-eden version in right corner
 	$.ajax({
@@ -168,7 +157,6 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		async: true
 	});
 
-	this.updatePluginsMenu();
 	this.updateViewsMenu();
 
 	edenUI.eden.include("plugins/menu-bar/menu-bar.js-e", success);

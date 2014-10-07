@@ -587,4 +587,10 @@
 	// expose API
 	global.Folder = Folder;
 	global.Symbol = Symbol;
+	
+	// expose as node.js module
+	if (module) {
+		module.exports.Folder = Folder;
+		module.exports.Symbol = Symbol;
+	}
 }(typeof window !== 'undefined' ? window : global));

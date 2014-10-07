@@ -43,10 +43,6 @@
 	EdenUI.prototype.loadPlugin = function (name, success) {
 		if (this.plugins[name] === undefined) {
 			this.plugins[name] = new EdenUI.plugins[name](this, function () { success && success(); });
-
-			if (this.plugins.MenuBar) {
-				this.plugins.MenuBar.updatePluginsMenu();
-			}
 		} else {
 			success && success();
 		}

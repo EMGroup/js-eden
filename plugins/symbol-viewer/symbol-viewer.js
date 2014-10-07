@@ -41,11 +41,8 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 	/** @private */
 	var generateHTML = function() {
-
 		return "<div class=\"symbollist-search-box-outer\">\
-			<div class=\"symbollist-search-icon\"></div>\
-			<input type=\"text\" class=\"symbollist-search\"></input>\
-			<div class=\"symbollist-config-icon\"></div>\
+			<input type=\"text\" class=\"symbollist-search\" placeholder=\"Search\"></input>\
 		</div>\
 		<div class=\"symbollist-results\"></div>";
 	};
