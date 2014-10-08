@@ -589,8 +589,8 @@
 	global.Symbol = Symbol;
 	
 	// expose as node.js module
-	if (module) {
-		module.exports.Folder = Folder;
-		module.exports.Symbol = Symbol;
+	if (global.module) {
+		global.module.exports.Folder = Folder;
+		global.module.exports.Symbol = Symbol;
 	}
 }(typeof window !== 'undefined' ? window : global));
