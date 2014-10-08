@@ -36,7 +36,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 */
 	this.instances = [];
 
-	var generateHTML = function() {
+	var generateHTML = function () {
 		return "<div class=\"symbollist-search-box-outer\">\
 			<input type=\"text\" class=\"symbollist-search\" placeholder=\"Search\"></input>\
 		</div>\
@@ -360,6 +360,25 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 	this.element.html(funchtml);
 };
 
+function _formatVal(val) {
+	switch (typeof val) {
+		case "boolean": return "<span class='special_text'>"+val+"</span>";
+		case "undefined": return "<span class='error_text'>undefined</span>";
+		case "string": return "<span class='string_text'>\""+Eden.deHTML(val)+"\"</span>";
+		case "number": return "<span class='numeric_text'>"+val+"</span>";
+	}
+
+	if (val instanceof Array) {
+		var parts = [];
+		for (var i = 0; i < val.length; ++i) {
+			parts.push(_formatVal(val[i]));
+		}
+		return "[" + parts.join(", ") + "]";
+	}
+
+	return val.toString();
+};
+
 /**
  * Update the HTML output of a plain observable symbol. Detects the data type
  * of the observable to display its current value correctly.
@@ -367,14 +386,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 	var me = this;
 	var val = this.symbol.value();
-	stringVal = Eden.deHTML(""+val+"");
-	var valhtml;
-
-	if (typeof val == "boolean") { valhtml = "<span class='special_text'>"+val+"</span>"; }
-	else if (typeof val == "undefined") { valhtml = "<span class='error_text'>undefined</span>"; }
-	else if (typeof val == "string") { valhtml = "<span class='string_text'>\""+stringVal+"\"</span>"; }
-	else if (typeof val == "number") { valhtml = "<span class='numeric_text'>"+val+"</span>"; }
-	else { valhtml = val; }
+	var valhtml = _formatVal(val);
 
 	var namehtml;
 	if (this.symbol.definition !== undefined) {
