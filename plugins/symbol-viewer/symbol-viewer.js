@@ -363,7 +363,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 function _formatVal(val) {
 	switch (typeof val) {
 		case "boolean": return "<span class='special_text'>"+val+"</span>";
-		case "undefined": return "<span class='error_text'>undefined</span>";
+		case "undefined": return "<span class='error_text'>@</span>";
 		case "string": return "<span class='string_text'>\""+Eden.deHTML(val)+"\"</span>";
 		case "number": return "<span class='numeric_text'>"+val+"</span>";
 	}
