@@ -323,13 +323,30 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 		case 'observable': this.update = this.updateObservable; break;
 	};
 
+	var me = this;
 	this.element.hover(
 		function() {
 			$(this).animate({backgroundColor: "#eaeaea"}, 100);
 		}, function() {
 			$(this).animate({backgroundColor: "white"}, 100);
 		}	
-	);
+	).click(function () {
+		edenUI.createView("Edit_" + me.name, "InputWindow");
+		var val;
+		if (typeof symbol.value() === 'function') {
+			val = symbol.eden_definition;
+		} else {
+			if (symbol.definition) {
+				val = symbol.eden_definition + ";";
+			} else {
+				val = me.name + " = " + _toStrVal(symbol.value()) + ";";
+			}
+		}
+
+		$('#Edit_'+me.name+'-dialog').find('textarea').val(
+			val
+		);
+	});
 
 	this.update();
 };
@@ -359,6 +376,25 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 	funchtml = funchtml + "</li>";
 	this.element.html(funchtml);
 };
+
+function _toStrVal(val) {
+	switch (typeof val) {
+		case "boolean": return val;
+		case "undefined": return "@";
+		case "string": return JSON.stringify(val);
+		case "number": return val;
+	}
+
+	if (val instanceof Array) {
+		var parts = [];
+		for (var i = 0; i < val.length; ++i) {
+			parts.push(_toStrVal(val[i]));
+		}
+		return "[" + parts.join(", ") + "]";
+	}
+
+	return val.toString();
+}
 
 function _formatVal(val) {
 	switch (typeof val) {
