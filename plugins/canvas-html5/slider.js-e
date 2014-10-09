@@ -47,10 +47,8 @@ Slider.prototype.draw = function(context,content) {
 	
 	var addinputtodiv = (($('<input id="'+me+'-slider-input" style="'+ori+'" value="'+this.value+'" type="range" name="'+this.name+'" min="'+this.min+'" max="'+this.max+'" step="'+this.step+'"/>')).on("change", function(){root.lookup(me2 + "_value").assign(parseInt(this.value))})).appendTo(div);
 	
-	var slihtml = $(div.appendTo($(content)));
-
-	this.element = slihtml.get(0);
-    slihtml.get(0).togarbage = false;
+	this.element = div.get(0);
+    div.get(0).togarbage = false;
 
     //Assign obs value
     root.lookup(me2 + "_value").assign(this.value);
@@ -64,8 +62,6 @@ Slider.prototype.draw = function(context,content) {
 	//Draw with the values stored in the observables
 	
     this.element.togarbage = false;
-	//append
-	content.appendChild(this.element);
   }
 
 };

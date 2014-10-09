@@ -24,16 +24,14 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 		});
 	}
 
-	var cleanupCanvas = function(content) {
-
-	   $(content).children(":not(canvas)").each(function() {
-	       if (this.togarbage == true) {
-	           $(this).remove();
-	       }
-	   });
-
-	}
-
+	var cleanupCanvas = function (content) {
+		$(content).children(":not(canvas)").each(function () {
+			if (this.togarbage === true) {
+				$(this).remove();
+				this.inpicture = false;
+			}
+		});
+	};
 
 	canvases = {};
 	contents = {};
@@ -76,7 +74,12 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			for (var i = 0; i < picture.length; i++) {
 
 				if (picture[i] === undefined) { continue; }
-				picture[i].draw(canvas,content);
+				picture[i].draw(canvas, content);
+				var htmlEl = picture[i].element;
+				if (htmlEl && !htmlEl.inpicture) {
+					$(content).append(htmlEl);
+					htmlEl.inpicture = true;
+				}
 			}
 			cleanupCanvas(content);
 

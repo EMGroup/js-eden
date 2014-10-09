@@ -35,7 +35,7 @@ Inputbox.prototype.draw = function(context,content) {
 
 		inputhtml.change(function(){
 			root.lookup(id + "_value").assign(inputhtml.get(0).value);
-		}).appendTo($(content));
+		});
 
 		this.element = inputhtml.get(0);
 
@@ -48,8 +48,7 @@ Inputbox.prototype.draw = function(context,content) {
   else{
 
 		this.element.togarbage = false;
-		content.appendChild(this.element);
-		document.getElementById(canvas_obsname).value = (root.lookup(this.name+"_value").cached_value);
+		this.element.value = (root.lookup(this.name+"_value").cached_value);
   }
 };
 }}$;

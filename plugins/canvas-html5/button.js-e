@@ -49,7 +49,7 @@ ${{
 			var $input = $(inputHtml).click(function () {
 				root.lookup(name + "_clicked").assign(true);
 				root.lookup(name + "_clicked").assign(false);
-			}).appendTo(can);
+			});
 
 			but = $input.get(0);
 			this.element = but;
@@ -74,8 +74,6 @@ ${{
 			if (style.top != y) {
 				style.top = y;
 			}
-
-			$(but).appendTo($(content));
 		}
 	};
 

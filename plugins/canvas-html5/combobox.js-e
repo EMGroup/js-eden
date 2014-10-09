@@ -32,53 +32,47 @@ func Combobox { ${{
 
 ${{
 Combobox.prototype.draw = function(context,content) {
-  var me = "canvas_" + this.name;
-  var me2 = this.name;
-//  var box = $("#"+me).get(0);
-  var box = this.element;
+	var me = "canvas_" + this.name;
+	var me2 = this.name;
+	var box = this.element;
 
-  if (box === undefined) {
-  
-	var dis = "";
-	if (this.enabled == true) { dis = ""; }
-	else { dis = "disabled=\"true\""; }
+	if (box === undefined) {
+		var dis = "";
+		if (this.enabled == true) { dis = ""; }
+		else { dis = "disabled=\"true\""; }
 
-	var can = $(content);
-	var boxhtml = $("<select id=\"" + me + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
+		var can = $(content);
+		var boxhtml = $("<select id=\"" + me + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
 
-	boxhtml.html(makeoptionshtml(this.options));
+		boxhtml.html(makeoptionshtml(this.options));
 
-	boxhtml.change(function() {
-		root.lookup(me2 + "_value").assign(boxhtml.get(0).value);
-	}).appendTo(can);
+		boxhtml.change(function() {
+			root.lookup(me2 + "_value").assign(boxhtml.get(0).value);
+		});
 
-        this.element = boxhtml.get(0);
+		this.element = boxhtml.get(0);
 
+		boxhtml.get(0).togarbage = false;
 
-	boxhtml.get(0).togarbage = false;
+		root.lookup(me2 + "_value").assign(this.options[0]);
+	} else {
+		$(box).html(makeoptionshtml(this.options));
+		box.togarbage = false;
 
-	//Initialise
-	root.lookup(me2 + "_value").assign(this.options[0]);
-  } else {
-	$(box).html(makeoptionshtml(this.options));
-	box.togarbage = false;
+		$(box).val(root.lookup(this.name+"_value").cached_value);
 
-        $(box).val(root.lookup(this.name+"_value").cached_value);
+		if (this.enabled == true) { 
+			box.disabled = false; 
+		}
+		else { box.disabled = true; }
 
-	if (this.enabled == true) { 
-            box.disabled = false; 
-        }
-	else { box.disabled = true; }
-        
-	box.style.left = "" + this.x + "px";
-	box.style.top = "" + this.y + "px";
-
-        $(box).appendTo($(content));
-  }
+		box.style.left = "" + this.x + "px";
+		box.style.top = "" + this.y + "px";
+	}
 };
 }}$;
 ${{
 Combobox.prototype.toString = function() {
-  return "Combobox(" + this.name + ", " + this.options + ", " + this.x + ", "+this.y+", "+this.enabled+")";
+	return "Combobox(" + this.name + ", " + this.options + ", " + this.x + ", "+this.y+", "+this.enabled+")";
 };
 }}$;
