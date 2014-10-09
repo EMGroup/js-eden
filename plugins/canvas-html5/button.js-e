@@ -24,6 +24,14 @@ ${{
 		this.element = undefined;
 	};
 
+	Button.prototype.hash = function () {
+		return this.name+"$$"+
+					this.label+"$$"+
+					this.x+"$$"+
+					this.y+"$$"+
+					this.enabled;
+	};
+
 	Button.prototype.draw = function (context, content) {
 		var name = this.name;
 		var but = this.element;
@@ -53,10 +61,8 @@ ${{
 
 			but = $input.get(0);
 			this.element = but;
-			but.togarbage = false;
 		} else {
 			but.value = this.label;
-			but.togarbage = false;
 
 			if (this.enabled) {
 				but.disabled = false;

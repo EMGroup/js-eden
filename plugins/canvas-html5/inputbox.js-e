@@ -8,6 +8,15 @@ Inputbox = function (name, x, y, enabled, width, value) {
 	this.value = value;
 }
 
+Inputbox.prototype.hash = function () {
+	return this.name+"$$"+
+				this.x+"$$"+
+				this.y+"$$"+
+				this.enabled+"$$"+
+				this.width+"$$"+
+				this.value+"$$";
+};
+
 }}$;
 func Inputbox { ${{
   var name = arguments[0];
