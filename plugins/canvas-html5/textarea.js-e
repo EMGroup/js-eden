@@ -7,6 +7,13 @@ Textbox = function (name, x, y, enabled) {
     this.enabled = enabled;
 }
 
+Textbox.prototype.hash = function () {
+	return this.name+"$$"+
+				this.x+"$$"+
+				this.y+"$$"+
+				this.enabled;
+};
+
 }}$;
 func Textbox { ${{
   var name = arguments[0];

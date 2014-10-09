@@ -12,6 +12,14 @@ Combobox = function (name, options, x, y, enabled) {
 	this.enabled = enabled;
 }
 
+Combobox.prototype.hash = function () {
+	return this.name+"$$"+
+				this.options.join("$$")+
+				this.x+"$$"+
+				this.y+"$$"+
+				this.enabled;
+};
+
 function makeoptionshtml(opts) {
 	var html = "";
 	for (x in opts) {
@@ -29,6 +37,7 @@ func Combobox { ${{
   var enabled = arguments[4];
   return new Combobox(name, options, x, y, enabled);
 }}$; }
+
 
 ${{
 Combobox.prototype.draw = function(context,content) {

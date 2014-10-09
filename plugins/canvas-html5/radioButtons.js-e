@@ -8,6 +8,15 @@ RadioButtons = function (name, listOfButtonNames, x, y, enabled, horizontal){
     this.enabled = enabled;
 	this.horizontal = horizontal;
 }
+
+RadioButtons.prototype.hash = function () {
+	return this.name+"$$"+
+				this.listOfButtonNames.join("$$")+
+				this.x+"$$"+
+				this.y+"$$"+
+				this.enabled+"$$"+
+				this.horizontal;
+};
 }}$;
 
 func RadioButtons { ${{

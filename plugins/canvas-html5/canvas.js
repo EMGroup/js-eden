@@ -14,31 +14,30 @@
 EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 	var me = this;
 
-	var clearCanvas = function(content) {
-
-		$(content).children(":not(canvas)").each(function() {
-			//XXX What is this check for?? To prevent destruction of child divs
-			//if(/canvas_/.test(this.id)) {
-				this.togarbage = true;
-			//}
-		});
-	}
-
-	var cleanupCanvas = function (content) {
-		$(content).children(":not(canvas)").each(function () {
-			if (this.togarbage === true) {
-				$(this).remove();
-				this.inpicture = false;
+	var cleanupCanvas = function (canvasElement, previousElements, nextElements) {
+		var hash;
+		for (hash in previousElements) {
+			if (hash in nextElements || !previousElements[hash].togarbage) {
+				continue;
 			}
-		});
+			canvasElement.removeChild(previousElements[hash]);
+		}
 	};
 
 	canvases = {};
 	contents = {};
+	var canvasNameToElements = {};
 
 	this.delay = 40;
 
 	this.drawPicture = function(canvasname, pictureobs) {
+
+		if (!canvasNameToElements[canvasname]) {
+			canvasNameToElements[canvasname] = {};
+		}
+
+		var previousElements = canvasNameToElements[canvasname];
+		var nextElements = {};
 
 		var canvas = canvases[canvasname];
 
@@ -55,7 +54,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 		if (!canvas.drawing){
 
 			canvas.drawing = true;
-			setTimeout(function(){
+			setTimeout(function (){
 
 			canvas.drawing = false;
 			
@@ -67,23 +66,42 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 		    canvas = canvas.getContext('2d');
 		    var content = contents[canvasname];
 
-		    clearCanvas(content);
+			var hash;
+			for (hash in previousElements) {
+				previousElements[hash].togarbage = true;
+			}
 
 			if (picture === undefined) { return; }
 
 			for (var i = 0; i < picture.length; i++) {
 
 				if (picture[i] === undefined) { continue; }
-				picture[i].draw(canvas, content);
+
+				var elHash = picture[i].hash && picture[i].hash();
+				var existingEl = elHash && previousElements[elHash];
+
+				if (existingEl) {
+					// if already existing hash, no need to draw, just set the element
+					picture[i].element = existingEl;
+				} else {
+					// expect draw() method to set .element
+					picture[i].draw(canvas, content);
+				}
+
 				var htmlEl = picture[i].element;
-				if (htmlEl && !htmlEl.inpicture) {
+				if (htmlEl) { htmlEl.togarbage = false; }
+				if (htmlEl && !existingEl) {
 					$(content).append(htmlEl);
-					htmlEl.inpicture = true;
+				}
+
+				if (htmlEl) {
+					nextElements[elHash] = htmlEl;
 				}
 			}
-			cleanupCanvas(content);
+			cleanupCanvas(content, previousElements, nextElements);
+			canvasNameToElements[canvasname] = nextElements;
 
-		},me.delay);
+		}, me.delay);
 		}
 	};
 

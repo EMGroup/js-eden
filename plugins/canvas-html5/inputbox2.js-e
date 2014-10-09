@@ -6,6 +6,14 @@ Inputbox = function (name, x, y, enabled) {
     this.enabled = enabled;
 }
 
+Inputbox.prototype.hash = function () {
+	return this.name+"$$"+
+				this.x+"$$"+
+				this.y+"$$"+
+				this.enabled;
+};
+
+
 }}$;
 func Inputbox { ${{
   var name = arguments[0];

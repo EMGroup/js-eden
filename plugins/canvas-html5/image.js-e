@@ -12,6 +12,15 @@ Image = function (name, x, y, width, height, file) {
 	this.height = height;
 	this.file = file;
 }
+
+Image.prototype.hash = function () {
+	return this.name+"$$"+
+				this.x+"$$"+
+				this.y+"$$"+
+				this.width+"$$"+
+				this.height+"$$"+
+				this.file;
+};
 }}$;
 
 func Image { ${{
