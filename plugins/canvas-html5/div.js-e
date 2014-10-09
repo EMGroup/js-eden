@@ -43,7 +43,7 @@ Div.prototype.draw = function(context,content) {
 	if (this.style !== undefined) {
 		divstyle = divstyle + this.style;
 	}
-	var buthtml = $("<div id=\"" + me + "\" style=\""+divstyle+"\">" + this.html + "</div>").appendTo(can);
+	var buthtml = $("<div id=\"" + me + "\" style=\""+divstyle+"\">" + this.html + "</div>");
 
 	//.click(function() {
 	//	root.lookup(me2 + "_clicked").assign(true); root.lookup(me2 + "_clicked").assign(false);
@@ -62,7 +62,7 @@ Div.prototype.draw = function(context,content) {
 	but.style.height = "" + this.height + "px";
 	but.style.left = "" + this.x + "px";
 	but.style.top = "" + this.y + "px";
-	$(but).appendTo($(content));  }
+	}
 };
 }}$;
 ${{

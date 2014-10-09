@@ -36,7 +36,7 @@ Image.prototype.draw = function(context,content) {
 	else { dis = "disabled=\"true\""; }
 
 	var can = $(content);
-	var buthtml = $("<img id=\"" + me + "\" style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;\" src=\"" + this.file + "\"></img>").appendTo(can);
+	var buthtml = $("<img id=\"" + me + "\" style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;\" src=\"" + this.file + "\"></img>");
 
 	this.HTMLelement = buthtml[0];
 	

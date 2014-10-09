@@ -48,7 +48,7 @@ Combobox.prototype.draw = function(context,content) {
 
 		boxhtml.change(function() {
 			root.lookup(me2 + "_value").assign(boxhtml.get(0).value);
-		}).appendTo(can);
+		});
 
 		this.element = boxhtml.get(0);
 
@@ -68,13 +68,11 @@ Combobox.prototype.draw = function(context,content) {
 
 		box.style.left = "" + this.x + "px";
 		box.style.top = "" + this.y + "px";
-
-		$(box).appendTo($(content));
 	}
 };
 }}$;
 ${{
 Combobox.prototype.toString = function() {
-  return "Combobox(" + this.name + ", " + this.options + ", " + this.x + ", "+this.y+", "+this.enabled+")";
+	return "Combobox(" + this.name + ", " + this.options + ", " + this.x + ", "+this.y+", "+this.enabled+")";
 };
 }}$;
