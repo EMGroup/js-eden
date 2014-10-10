@@ -13,10 +13,11 @@ proc setup_test {
 
 setup_test();
 
-## agent triggers when formula evaluated
+## observing a formula var with autocalc off
 x is t("x", y);
-proc p : x { t("p", @); }
+autocalc = 0;
+check_trace([]);
 x;
-check_trace(["x", "p"]);
+check_trace(["x"]);
 
 exit();

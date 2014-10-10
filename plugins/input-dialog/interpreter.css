@@ -1,54 +1,47 @@
-#inputwindow-dialog{
-
-	/*min-height:100px;*/
-	overflow:hidden;
-	/*resize: none;*/
-        padding : 4px;
-        padding-right : 7px;
-        padding-bottom : 35px;
-}
-
-#inputCodeArea {
+.inputCodeArea {
 	-moz-tab-size: 2;
 	-o-tab-size: 2;
 	tab-size: 2;
-	width:100%;
-	height:100%;
+
+	position: absolute;
+	top: 0px;
+	bottom: 35px;
+	left: 1px;
+	right: 1px;
+	border: 1px solid blue;
 	font-family: monospace;
-	font-size:14px;
+	font-size: 14px;
+}
+
+.inputCodeArea textarea {
+	width: 100%;
+	height: 100%;
 	resize: none;
-        border:0px solid blue;
-        box-shadow: 0 0 10px #719ECE;
+	border: 0;
+	padding: 0;
 }
 
-#buttonsDiv{
-		top:24px;
-		position: relative;
-		float: right;
-		overflow:hidden;
-        margin-top: -23px;
-        margin-bottom: -23px;
-		right:10px;
+.buttonsDiv {
+	position: absolute;
+	bottom: 2px;
+	right: 0px;
 }
 
-#subButtonsDiv{
-		top:24px;
-        position: relative;
-        float: left;
-        overflow:hidden;
-        margin-top: -23px;
-        margin-bottom: -23px;
-        margin-right: 10px;
+.subButtonsDiv{
+	position: absolute;
+	bottom: 2px;
+	left: 0px;
 }
-#submitButton{
+
+.submitButton{
 	height:25px;
 	width:120px;
 }
-#previousButton{
+.previousButton{
 	height:25px;
 	width:120px;
 }
-#nextButton{
+.nextButton{
 	height:25px;
 	width:120px;
 }

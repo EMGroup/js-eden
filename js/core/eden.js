@@ -6,12 +6,6 @@
  */
 
 // import node.js modules
-if (require) {
-	Polyglot = require('./polyglot.js').Polyglot;
-	parser = require('./translator.js').parser;
-	rt = require('./runtime.js').rt;
-}
-
 function concatAndResolveUrl(url, concat) {
 	var url1 = url.split('/');
 	var url2 = concat.split('/');
@@ -38,6 +32,12 @@ function concatAndResolveUrl(url, concat) {
 }
 
 (function (global) {
+	if (global.require) {
+		Polyglot = global.require('./polyglot.js').Polyglot;
+		parser = global.require('./translator.js').parser;
+		rt = global.require('./runtime.js').rt;
+	}
+
 	/**
 	 * @constructor
 	 * @struct
@@ -255,9 +255,15 @@ function concatAndResolveUrl(url, concat) {
 		var match = url.match(/(.*)\/([^\/]*?)$/);
 		var newPrefix = match ? match[1] : '';
 		this.emit('executeFileLoad', [url]);
-
+		var error = function (e) {
+			eden.error(new Error("Failed to include '"+url+"', error: "+JSON.stringify(e)));
+		};
 		if (url.match(/.js$/)) {
-			$.getScript(url, success);
+			$.ajax({
+				url: url,
+				success: success,
+				error: error
+			});
 		} else {
 			if (url.match(/^http/)) {
 				// cross host
@@ -270,12 +276,17 @@ function concatAndResolveUrl(url, concat) {
 					},
 					success: function (data) {
 						eden.execute(data.success, url, newPrefix, success);
-					}
+					},
+					error: error
 				});
 			} else {
 				// same host, no need to use JSONP proxy
-				$.get(url, function (data) {
-					eden.execute(data, url, newPrefix, success);
+				$.ajax({
+					url: url,
+					success: function (data) {
+						eden.execute(data, url, newPrefix, success);
+					},
+					error: error
 				});
 			}
 		}
@@ -498,7 +509,7 @@ function concatAndResolveUrl(url, concat) {
 	global.Eden = Eden;
 
 	// expose as node.js module
-	if (module) {
-		module.exports.Eden = Eden;
+	if (global.module) {
+		global.module.exports.Eden = Eden;
 	}
 }(typeof window !== 'undefined' ? window : global));

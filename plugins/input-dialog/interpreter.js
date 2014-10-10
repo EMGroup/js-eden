@@ -48,7 +48,7 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 		}
 	}
 
-	this.previousHistory = function(){
+	this.previousHistory = function (){
 	
 		if (this.index <= 0) {
 			this.index = 1;
@@ -73,10 +73,8 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 
 	var historydialog = undefined;
 
-	this.submitEdenCode = function(text) {
-	
+	this.submitEdenCode = function (text) {
 		this.addHistory(text);
-
 		edenUI.eden.execute(text);
 			
 		if (historydialog !== undefined) {
@@ -120,16 +118,35 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 			}).find(".history");
 	}
 
-	this.createDialog = function(name, mtitle, edenparser) {
+	this.createDialog = function (name, mtitle, edenparser) {
+		var $dialogContents = $('<div class="inputCodeArea"><textarea spellcheck="false"></textarea></div><div class="subButtonsDiv"><button class="submitButton">Submit</button></div><div class="buttonsDiv"><button class="previousButton">Previous</button><button class="nextButton">Next</button></div>')
+			
+		var textarea = $dialogContents.find('textarea').get(0);
+		$dialogContents.on('keydown', 'textarea', function (e) {
+			if (!e.ctrlKey) {
+				return;
+			}
 
-		var myeditor;
-
-		code_entry = $('<textarea spellcheck="false" onkeyUp="edenUI.plugins.InputWindow.inputKeypress(event)" id="inputCodeArea"></textarea><div id="subButtonsDiv"><button id="submitButton" onclick="edenUI.plugins.InputWindow.submit()">Submit</button></div><div id="buttonsDiv"><button id="previousButton" onclick="edenUI.plugins.InputWindow.prev()" >Previous</button><button id="nextButton" onclick="edenUI.plugins.InputWindow.next()" >Next</button></div>');
-//try removing div: <div id=\"'+name+'-content\" class=\"inputWindow-content\">	</div>
-		//Buttons taken out for new methods of terminal: 
+			if (e.keyCode === 13){
+				// enter
+				me.submit(textarea);
+			} else if (e.keyCode === 38) {
+				// up
+				me.prev(textarea);
+			} else if (e.keyCode === 40) {
+				// down
+				me.next(textarea);
+			}
+		}).on('click', '.submitButton', function (e) {
+			me.submit(textarea);
+		}).on('click', '.previousButton', function (e) {
+			me.prev(textarea);
+		}).on('click', '.nextButton', function (e) {
+			me.next(textarea);
+		});
 		
 		$dialog = $('<div id="'+name+'"></div>')
-			.html(code_entry)
+			.html($dialogContents)
 			.dialog({
 				title: mtitle,
 				width: 500,
@@ -139,64 +156,44 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 
 			});
 			input_dialog = $dialog;
-	}
+	};
 
-	this.next = function(){
+	this.next = function (el) {
 		var n = edenUI.plugins.InputWindow.nextHistory();
-		//n = n.replace(/\#\# \(Failed\)/g, "");
-		//n = n.replace(/\#\# \(Successful\)/g, "");
-		//n = n.replace(/ $/g, "");
-		document.getElementById("inputCodeArea").value = n;
-	}
-	this.prev = function(){
+		el.value = n;
+	};
+
+	this.prev = function (el) {
 		var p = edenUI.plugins.InputWindow.previousHistory();
-		//p = p.replace(/\#\# \(Failed\)/g, "");
-		//p = p.replace(/\#\# \(Successful\)/g, "");
-		//p = p.replace(/ $/g, "");
-		document.getElementById("inputCodeArea").value = p;
-	}
-	this.submit = function(){
-		edenUI.plugins.InputWindow.submitEdenCode(document.getElementById("inputCodeArea").value);
-		document.getElementById("inputCodeArea").value = "";
-	}
-	this.inputKeypress = function(event){
-	
-		//console.log(event.keyCode);
-		//console.log(event.ctrlKey);
-		if(event.keyCode==13){
-			if(event.ctrlKey){
-				edenUI.plugins.InputWindow.submit();
-			}
+		el.value = p;
+	};
+
+	this.submit = function (el) {
+		edenUI.plugins.InputWindow.submitEdenCode(el.value);
+		el.value = "";
+	};
+
+	this.getRidOfInstructions = function () {
+		var x = el.value;
+
+		if (x === "Ctrl+Enter = Submit\nCtrl+Up = Previous\nCtrl+Down = Next") {
+			el.value = "";
 		}
-		else if(event.keyCode==38){
-			if(event.ctrlKey){
-				edenUI.plugins.InputWindow.prev();
-			}
-		}
-		else if(event.keyCode==40){
-			if(event.ctrlKey){
-				edenUI.plugins.InputWindow.next();
-			}
-		}	
-	}
-	this.getRidOfInstructions = function(){
+	};
+
+	this.putBackInstructions = function () {
 		var x = document.getElementById("inputCodeArea").value;
-		if(x=="Ctrl+Enter = Submit\nCtrl+Up = Previous\nCtrl+Down = Next"){
-			document.getElementById("inputCodeArea").value = "";
+		if (x === "") {
+			el.value = "Ctrl+Enter = Submit\nCtrl+Up = Previous\nCtrl+Down = Next";
 		}
-	}
-	this.putBackInstructions = function(){
-		var x = document.getElementById("inputCodeArea").value;
-		if(x==""){
-			document.getElementById("inputCodeArea").value = "Ctrl+Enter = Submit\nCtrl+Up = Previous\nCtrl+Down = Next";
-		}
-	}
+	};
 
 	edenUI.views.InputWindow = {
 		dialog: this.createDialog,
 		embed: this.createEmbedded,
 		title: "JS-Eden Input Window"
 	};
+
 	edenUI.views.History = {
 		dialog: this.createHistory,
 		title: "Input History"
@@ -258,7 +255,7 @@ EdenUI.plugins.InputWindow.description = "EDEN style script input window";
 EdenUI.plugins.InputWindow.author = "Joe Butler";
 
 //Make tab do spaces instead of selecting the next element
-$(document).delegate('#inputCodeArea', 'keydown', function(e) {
+$(document).delegate('.inputCodeArea', 'keydown', function(e) {
   var keyCode = e.keyCode || e.which;
 
   if (keyCode == 9) {
