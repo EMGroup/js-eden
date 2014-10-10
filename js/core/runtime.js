@@ -21,7 +21,7 @@ var rt = {
 			return true;
 		}
 
-		if (a instanceof Array) {
+		if (a instanceof Array && b instanceof Array) {
 			if (a.length !== b.length) {
 				return false;
 			}
