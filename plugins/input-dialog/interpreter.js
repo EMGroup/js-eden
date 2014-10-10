@@ -255,7 +255,7 @@ EdenUI.plugins.InputWindow.description = "EDEN style script input window";
 EdenUI.plugins.InputWindow.author = "Joe Butler";
 
 //Make tab do spaces instead of selecting the next element
-$(document).delegate('.inputCodeArea', 'keydown', function(e) {
+$(document).delegate('.inputCodeArea textarea', 'keydown', function(e) {
   var keyCode = e.keyCode || e.which;
 
   if (keyCode == 9) {
