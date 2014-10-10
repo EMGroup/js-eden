@@ -16,3 +16,4 @@ require("ST");
 include("library/eden.jse");
 include("plugins/canvas-html5/image.js-e");
 include("library/declarevar.js-e");
+include("library/generate_function.js-e");
