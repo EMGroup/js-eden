@@ -412,7 +412,7 @@ function _formatVal(val) {
 		return "[" + parts.join(", ") + "]";
 	}
 
-	return val.toString();
+	return Eden.deHTML(val.toString());
 };
 
 /**
@@ -427,7 +427,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 	var namehtml;
 	if (this.symbol.definition !== undefined) {
 		namehtml = "<span class=\"hasdef_text\" title=\""
-		+ this.symbol.eden_definition
+		+ Eden.deHTML(this.symbol.eden_definition)
 		+"\">"+this.name+"</span>";
 	} else {
 		namehtml = this.name;
