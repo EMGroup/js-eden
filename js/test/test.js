@@ -397,6 +397,8 @@ test("list comparison", function () {
 	equal(root.lookup('b').value(), true);
 	eden.execute("b = [[1]] == [[2]];");
 	equal(root.lookup('b').value(), false);
+	eden.execute("b = [] == @;");
+	equal(root.lookup('b').value(), false);
 });
 
 //
