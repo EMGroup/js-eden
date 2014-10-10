@@ -44,6 +44,7 @@ Combobox.prototype.draw = function(context,content) {
 	var me = "canvas_" + this.name;
 	var me2 = this.name;
 	var box = this.element;
+	var that = this;
 
 	if (box === undefined) {
 		var dis = "";
@@ -64,7 +65,7 @@ Combobox.prototype.draw = function(context,content) {
 		boxhtml.get(0).togarbage = false;
 
 		setTimeout(function () {
-			root.lookup(me2 + "_value").assign(this.options[0]);
+			root.lookup(me2 + "_value").assign(that.options[0]);
 		}, 0);
 	} else {
 		$(box).html(makeoptionshtml(this.options));

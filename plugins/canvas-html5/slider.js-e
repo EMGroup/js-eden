@@ -44,6 +44,7 @@ Slider.prototype.draw = function(context,content) {
 
 	var me = "canvas_" + this.name;
 	var me2 = this.name;
+	var that = this;
 	var sli = this.element;
 
 	if (sli === undefined) {
@@ -63,12 +64,12 @@ Slider.prototype.draw = function(context,content) {
 
 		setTimeout(function () {
 			//Assign obs value
-			root.lookup(this.name + "_value").assign(this.value);
-			root.lookup(this.name + "_x").assign(this.x);
-			root.lookup(this.name + "_y").assign(this.y);
-			root.lookup(this.name + "_min").assign(this.min);
-			root.lookup(this.name + "_max").assign(this.max);
-			root.lookup(this.name + "_step").assign(this.step);
+			root.lookup(me2 + "_value").assign(that.value);
+			root.lookup(me2 + "_x").assign(that.x);
+			root.lookup(me2 + "_y").assign(that.y);
+			root.lookup(me2 + "_min").assign(that.min);
+			root.lookup(me2 + "_max").assign(that.max);
+			root.lookup(me2 + "_step").assign(that.step);
 		}, 0);
 
 
