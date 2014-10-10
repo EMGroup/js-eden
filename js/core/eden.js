@@ -255,9 +255,15 @@ function concatAndResolveUrl(url, concat) {
 		var match = url.match(/(.*)\/([^\/]*?)$/);
 		var newPrefix = match ? match[1] : '';
 		this.emit('executeFileLoad', [url]);
-
+		var error = function (e) {
+			eden.error(new Error("Failed to include '"+url+"', error: "+JSON.stringify(e)));
+		};
 		if (url.match(/.js$/)) {
-			$.getScript(url, success);
+			$.ajax({
+				url: url,
+				success: success,
+				error: error
+			});
 		} else {
 			if (url.match(/^http/)) {
 				// cross host
@@ -270,12 +276,17 @@ function concatAndResolveUrl(url, concat) {
 					},
 					success: function (data) {
 						eden.execute(data.success, url, newPrefix, success);
-					}
+					},
+					error: error
 				});
 			} else {
 				// same host, no need to use JSONP proxy
-				$.get(url, function (data) {
-					eden.execute(data, url, newPrefix, success);
+				$.ajax({
+					url: url,
+					success: function (data) {
+						eden.execute(data, url, newPrefix, success);
+					},
+					error: error
 				});
 			}
 		}

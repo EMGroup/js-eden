@@ -83,7 +83,7 @@ circle is Circle(circX, timeLineTop-20, 10, circBg, "blue");
 numberLineSign is inequalitySignOptions[numberLineSignIndex];
 comboInequality is inequalityCombo_value;
 comboNumber is numberValueCombo_value;
-isAnswerCorrect is (comboInequality==numberLineSign && comboNumber==numberLineValue);
+isAnswerCorrect is (comboInequality==numberLineSign && comboNumber==str(numberLineValue));
 oldScore = yourScore;
 
 answerValue is (oldAnswerCorrect && submitted)? "Correct! :)" : "Wrong!";
