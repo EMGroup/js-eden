@@ -61,13 +61,16 @@ Slider.prototype.draw = function(context,content) {
 		this.element = div.get(0);
 		div.get(0).togarbage = false;
 
-		//Assign obs value
-		root.lookup(me2 + "_value").assign(this.value);
-		root.lookup(me2 + "_x").assign(this.x);
-		root.lookup(me2 + "_y").assign(this.y);
-		root.lookup(me2 + "_min").assign(this.min);
-		root.lookup(me2 + "_max").assign(this.max);
-		root.lookup(me2 + "_step").assign(this.step);
+		setTimeout(function () {
+			//Assign obs value
+			root.lookup(this.name + "_value").assign(this.value);
+			root.lookup(this.name + "_x").assign(this.x);
+			root.lookup(this.name + "_y").assign(this.y);
+			root.lookup(this.name + "_min").assign(this.min);
+			root.lookup(this.name + "_max").assign(this.max);
+			root.lookup(this.name + "_step").assign(this.step);
+		}, 0);
+
 
 	} else {
 		//Draw with the values stored in the observables
