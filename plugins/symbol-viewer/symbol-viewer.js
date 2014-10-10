@@ -351,6 +351,21 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 	this.update();
 };
 
+function _keys(obj) {
+	if (Object.keys) {
+		return Object.keys.apply(this, arguments);
+	}
+
+	var result = [];
+	var p;
+	for (p in obj) {
+		if (obj.hasOwnProperty(p)) {
+			result.push(p);
+		}
+	}
+	return result;
+}
+
 /**
  * Update the HTML output of a function type symbol. Looks for any meta data
  * for this function, such as parameters and description.
@@ -362,15 +377,8 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 	if (edenfunctions.functions != undefined && edenfunctions.functions[this.name] !== undefined) {
 		this.details = edenfunctions.functions[this.name];
 		// Extract parameters for display.
-		funchtml = funchtml + "<span class='result_value'> ( ";
-		if (this.details.parameters !== undefined) {
-			for (x in this.details.parameters) {
-				funchtml = funchtml + x + ", ";
-			}
-			funchtml = funchtml.substr(0,funchtml.length-2) + " )</span>";
-		} else {
-			funchtml = funchtml + " )</span>";
-		}
+		var params = _keys(this.details.parameters || {});
+		funchtml = funchtml + "<span class='result_value'> ( " + params.join(", ") + " )</span>";
 	}
 
 	funchtml = funchtml + "</li>";
