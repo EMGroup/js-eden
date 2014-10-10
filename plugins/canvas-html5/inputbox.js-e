@@ -45,7 +45,9 @@ Inputbox.prototype.draw = function(context,content) {
 		var inputhtml = $("<input id=\""+canvas_obsname+"\" "+dis+" style=\"position: absolute; width:"+this.width+"px; left: "+this.x+"px; top: "+this.y+"px;\" />");
 
 		inputhtml.get(0).value = this.value;
-		root.lookup(id + "_value").assign(inputhtml.get(0).value);
+		setTimeout(function () {
+			root.lookup(id + "_value").assign(inputhtml.get(0).value);
+		}, 0);
 
 		inputhtml.change(function(){
 			root.lookup(id + "_value").assign(inputhtml.get(0).value);
@@ -53,9 +55,6 @@ Inputbox.prototype.draw = function(context,content) {
 
 		this.element = inputhtml.get(0);
 		inputhtml.get(0).togarbage = false;
-
-		//Assign
-		root.lookup(id + "_value").assign(inputhtml.get(0).value);
 	
   }
   else{
