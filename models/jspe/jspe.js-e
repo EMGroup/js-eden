@@ -118,7 +118,7 @@ Slide.prototype.toString = function() {
 ${{
   copyToInput = function(e) {
 
-	document.getElementById("inputCodeArea").value = $(e).siblings('pre').text();
+	edenUI.createView("inputwindow", "InputWindow").setValue($(e).siblings('pre').text());
 	//Copies to EDEN interpreter window
   }
 

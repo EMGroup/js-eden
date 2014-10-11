@@ -55,6 +55,8 @@ function concatAndResolveUrl(url, concat) {
 		 */
 		this.views = {};
 
+		this.viewInstances = {};
+
 		/**
 		 * @type {Object.<string,*>}
 		 */

@@ -64,10 +64,10 @@
 	EdenUI.prototype.createView = function (name, type) {
 		if (this.activeDialogs[name] !== undefined) {
 			this.showView(name);
-			return;
+			return this.viewInstances[name];
 		}
 
-		this.views[type].dialog(name+"-dialog", this.views[type].title+" ["+name+"]");
+		this.viewInstances[name] = this.views[type].dialog(name+"-dialog", this.views[type].title+" ["+name+"]");
 		this.activeDialogs[name] = type;
 		if (this.plugins.MenuBar) {
 			this.plugins.MenuBar.updateViewsMenu();
@@ -86,6 +86,7 @@
 		this.eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ edenUI.moveView(\""+name+"\"); }}$; };", function () {
 			this.eden.execute("proc _View_"+name+"_size : _view_"+name+"_width,_view_"+name+"_height { ${{ edenUI.resizeView(\""+name+"\"); }}$; };");
 		});
+		return this.viewInstances[name];
 	};
 
 	/**
@@ -95,6 +96,7 @@
 	 */
 	EdenUI.prototype.showView = function (name) {
 		dialog(name).dialog('open').dialog('moveToTop');
+		return this.activeDialogs[name];
 	};
 
 	/**
