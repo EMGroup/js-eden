@@ -129,14 +129,14 @@ proc todo {
 }
 
 ##A new JS-EDEN specific function.
-func valueOrDefault {
+func doDefault {
 	para value, defaultValue;
 	if ($# != 2) {
-		error("valueOrDefault: This function requires exactly 2 arguments.");
+		error("doDefault: This function requires exactly 2 arguments.");
 	}
 	if (value == @) {
 		if (defaultValue == @) {
-			error("valueOrDefault: The default value cannot be undefined.");
+			error("doDefault: The default value cannot be undefined.");
 		} else {
 			return defaultValue;
 		}
