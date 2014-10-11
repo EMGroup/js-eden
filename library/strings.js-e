@@ -1,4 +1,76 @@
+## Copyright (c) 2014, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+##
 ##Functions that operate on strings.
+
+##Concatenates a collection of strings, separating each one by a given
+##separator string.  The strings can either be provided as multiple arguments
+##or alternatively as a single list type argument.
+##
+##Also works on lists.  Basically pass to this function any list of values that
+##you want to munge together and it will attempt to figure out what you meant.
+func concat {
+	auto separator, concatStrings, list, i, item, result;
+	if ($# < 1) {
+		error("concat: This function requires at least one argument.");
+		return @;
+	}
+
+	if ($# == 2 && type($[2]) == "list") {
+		list = $[2];
+	} else {
+		list = sublist($, 2, $#);
+	}
+	
+	if (list# == 0) {
+		return "";
+	}
+	
+	separator = $[1];
+	concatStrings = false;
+	for (i = 1; i <= list#; i++) {
+		if (list[i] == @) {
+			return @;
+		} else if (!isList(list[i])) {
+			concatStrings = true;
+			break;
+		}
+	}
+	
+	if (concatStrings) {
+		if (separator == @) {
+			if (list# > 1) {
+				return @;
+			}
+		} else {
+			separator = str(separator);
+		}
+		result = "";
+	} else {
+		separator = [separator];
+		result = [];
+	}
+	
+	for (i = 1; i < list#; i++) {
+		if (concatStrings) {
+			item = str(list[i]);
+		} else {
+			item = list[i];
+		}
+		result = result // item // separator;
+	}
+	if (list# > 0) {
+		if (concatStrings) {
+			item = str(list[list#]);
+		} else {
+			item = list[list#];
+		}
+		result = result // item;
+	}
+	return result;
+}
 
 func strcat {
 	auto result, i;
@@ -9,14 +81,14 @@ func strcat {
 		} else if (isString($[i])) {
 			result = result // $[i];
 		} else {
-			error("strcat: Argument " // str(i) // " must be a list, not a " // type($[i]));
+			error("strcat: Argument " // str(i) // " must be a string, not a " // type($[i]));
 			return @;
 		}
 	}
 	return result;
 }
 
-##The same issues arise as with the sublist function and they're handled in the
+##The same issues arise as with the sublist function (in lists.js-e) and they're handled in the
 ##same way.
 func substr {
 	${{

@@ -1,3 +1,8 @@
+## Copyright (c) 2014, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+##
 ##Functions and procedures that allow EDEN code to inspect, manipulate and
 ##construct parts of scripts at runtime.
 

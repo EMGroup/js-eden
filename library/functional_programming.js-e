@@ -1,0 +1,130 @@
+## Copyright (c) 2014, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+##
+##Functions commonly found in or inspired by functional programming languages.
+
+func map {
+	auto f, list, result, i;
+	if ($# == 0) {
+		error("map: This function requires at least 1 argument.");
+		return @;
+	} else if ($# == 2 && $[2] == @) {
+		return @;
+	} else if ($# == 2 && type($[2]) == "list") {
+		f = $[1];
+		list = $[2];	
+	} else {
+		f = $[1];
+		list = sublist($, 2, $#);
+	}
+
+	if (f == @) {
+		return array(list#);
+	} else if (type(f) != "func") {
+		error("map: The first argument must be a function, not a " // type(f));
+		return @;
+	}
+	
+	result = [];
+	for (i = 1; i <= list#; i++) {
+		append result, f(list[i]);
+	}
+	return result;
+}
+
+func mapPartial {
+	auto f, list, result, i;
+	if ($# == 0) {
+		error("mapPartial: This function requires at least 1 argument.");
+		return @;
+	} else if ($# == 2 && $[2] == @) {
+		return @;
+	} else if ($# == 2 && type($[2]) == "list") {
+		f = $[1];
+		list = $[2];	
+	} else {
+		f = $[1];
+		list = sublist($, 2, $#);
+	}
+
+	if (f == @) {
+		return array(list#);
+	} else if (type(f) != "func") {
+		error("mapPartial: The first argument must be a function, not a " // type(f));
+		return @;
+	}
+	
+	result = [];
+	for (i = 1; i <= list#; i++) {
+		if (list[i] == @) {
+			append result, @;
+		} else {
+			append result, f(list[i]);
+		}
+	}
+	return result;
+}
+
+func foldl {
+	auto f, initialValue, list, i, value;
+	if ($# < 2) {
+		error("foldl: This function requires at least 2 arguments.");
+		return @;
+	} else if ($# == 3 && $[2] == @) {
+		return @;
+	} else if ($# == 3 && type($[2]) == "list") {
+		f = $[1];
+		initialValue = $[2];
+		list = $[3];
+	} else {
+		f = $[1];
+		initialValue = $[2];
+		list = sublist($, 3, $#);
+	}
+	
+	if (f == @) {
+		return @;
+	} else if (type(f) != "func") {
+		error("foldl: The first argument must be a function, not a " // type(f));
+		return @;
+	}
+	
+	value = initialValue;
+	for (i = 1; i <= list#; i++) {
+		value = f(value, list[i]);
+	}
+	return value;
+}
+
+func foldr {
+	auto f, initialValue, list, i, value;
+	if ($# < 2) {
+		error("foldr: This function requires at least 2 arguments.");
+		return @;
+	} else if ($# == 3 && $[2] == @) {
+		return @;
+	} else if ($# == 3 && type($[2]) == "list") {
+		f = $[1];
+		initialValue = $[2];
+		list = $[3];
+	} else {
+		f = $[1];
+		initialValue = $[2];
+		list = sublist($, 3, $#);
+	}
+	
+	if (f == @) {
+		return @;
+	} else if (type(f) != "func") {
+		error("foldr: The first argument must be a function, not a " // type(f));
+		return @;
+	}
+
+	value = initialValue;
+	for (i = list#; i >= 1; i--) {
+		value = f(value, list[i]);
+	}
+	return value;
+}

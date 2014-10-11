@@ -5,30 +5,7 @@
 ##jseTestGroup The collective name of a group of related test cases.
 
 
-##Temporary hack until list equality is fixed in the interpreter.
-func equalLists {
-	para l1, l2;
-	auto i;
-	if (l1# != l2#) {
-		return false;
-	}
-	for (i = 1; i <= l1#; i++) {
-		if (isList(l1[i])) {
-			if (!isList(l2[i]) || !equalLists(l1[i], l2[i])) {
-				return false;
-			}
-		} else {
-			if (l1[i] != l2[i]) {
-				return false;
-			}
-		}
-	}
-	return true;
-}
-
-##Temporary hack until a bug in the interpreter is fixed so that lists are
-##assigned by value instead of by reference.  Shallow copying is sufficient for
-##our needs here (though deep copying wouldn't do any harm).
+##Shallow copying is sufficient for our needs here (though deep copying wouldn't do any harm).
 func shallowListCopy {
 	para list;
 	auto result, i;
@@ -48,11 +25,9 @@ proc assertEqual {
 		error("assertEqual: This procedure requires exactly 3 arguments");
 		return @;
 	}
-	if (isList($[1])) {
-		valuesEqual = isList($[2]) && equalLists($[1], $[2]);
-	} else {
-		valuesEqual = $[1] == $[2];
-	}
+
+	valuesEqual = $[1] == $[2];
+
 	if (!valuesEqual) {
 		errorStr = "assertEqual:\nAssertion Failure! Expected equality.\nLHS = " // edenCode($[1]) // "\nRHS = " // edenCode($[2]);
 		if (jseTestGroup != @) {
