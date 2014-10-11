@@ -156,6 +156,8 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 
 			});
 			input_dialog = $dialog;
+
+		return {setValue: function (value) { textarea.value = value; }};
 	};
 
 	this.next = function (el) {
