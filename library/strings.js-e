@@ -5,12 +5,43 @@
 ##
 ##Functions that operate on strings.
 
-##Concatenates a collection of strings, separating each one by a given
-##separator string.  The strings can either be provided as multiple arguments
-##or alternatively as a single list type argument.
+##Concatenates a collection of values, separating each one by a given
+##separator string or separator element.  The values can either be provided as
+##multiple arguments or alternatively as a single list type argument.
 ##
-##Also works on lists.  Basically pass to this function any list of values that
-##you want to munge together and it will attempt to figure out what you meant.
+##Basically you can pass to this function any list of values that you want to
+##munge together and it will attempt to figure out what you meant.
+##
+##Case 1: separator + a list of strings
+##	The strings are concatenated, separated by the separator.  If the separator
+##	is undefined and there are two more strings then undefined is returned.  If
+##	the separator is defined but is not a string then it is automatically
+##	converted into a string.
+##
+##Case 2: separator + a list of lists
+##	The lists are concatenated, separated by the single separator element.
+##
+##Case 3: separator + a list of things that are not all lists but are all defined
+##	Any list items that are not strings are converted into strings, then as Case 1.
+##
+##Case 4: separator + a list containing the undefined value
+##	Undefined is returned.
+##
+##Case 5: separator + one or more further arguments that are all strings
+##	The strings are concatenated, separated by the separator.
+##
+##Case 6: separator + two or more further arguments that are all lists
+##	The lists are concatenated, separated by the single separator element.
+##
+##Case 7: separator + one or more further arguments that are not all lists but are all defined
+##	Any arguments that are not strings are converted into strings, then as Case 5.
+##
+##Case 8: separator + one or more further arguments, at least one of which is undefined
+##	Undefined is returned.
+##
+##Case 9: separator only (zero further arguments)
+##	The empty string is returned.
+##
 func concat {
 	auto separator, concatStrings, list, i, item, result;
 	if ($# < 1) {
