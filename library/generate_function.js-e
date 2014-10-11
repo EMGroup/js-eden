@@ -15,7 +15,7 @@ function _keys(obj) {
 }
 }}$;
 
-generateFunction = ${{ function generate(name, outputSym, inputs) {
+generate_function is ${{ function generate(name, outputSym, inputs) {
 	var inputSet = {};
 	for (var i = 0; i < inputs.length; ++i) {
 		inputSet[inputs[i]] = true;
