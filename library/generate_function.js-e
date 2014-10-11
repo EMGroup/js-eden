@@ -15,13 +15,14 @@ function _keys(obj) {
 }
 }}$;
 
-generateFunction = ${{ function generate(name, output, inputs) {
+generateFunction = ${{ function generate(name, outputSym, inputs) {
 	var inputSet = {};
 	for (var i = 0; i < inputs.length; ++i) {
 		inputSet[inputs[i]] = true;
 	}
 
-	var todo = ['/'+output];
+	var output = outputSym.name.slice(1);
+	var todo = [outputSym.name];
 	var next;
 	var nextSym;
 	var ordered = [];
