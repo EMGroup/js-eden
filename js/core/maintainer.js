@@ -327,6 +327,7 @@
 		if (this.name === "/autocalc") {
 			this.context && this.context.autocalc(value === 1);
 		}
+		this.eden_definition = undefined;
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = undefined;
 		this.cached_value = value;
