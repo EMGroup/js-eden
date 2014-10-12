@@ -103,6 +103,26 @@ func concat {
 	return result;
 }
 
+func lowercase {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("lowercase: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		
+		var arg = arguments[0];
+		
+		if (arg === undefined) {
+			return undefined;
+		} else if (typeof(arg) == "string") {
+			return arg.toLocaleLowerCase();
+		} else {
+			eden.error(new Error("lowercase: This function cannot be applied to a value of type " + typeof(arg)), "error");
+			return undefined;
+		}
+	}}$;
+}
+
 func strcat {
 	auto result, i;
 	result = "";
@@ -117,6 +137,43 @@ func strcat {
 		}
 	}
 	return result;
+}
+
+##Returns the string formed by replacing the first instance of the second
+##argument with the string given by the third argument in the string the string
+##given by the first argument.
+func replaceFirst {
+	${{
+		if (arguments.length != 3) {
+			eden.error(new Error("replaceFirst: This function requires exactly 3 arguments."), "error");
+		}
+		var source = arguments[0];
+		if (source === undefined) {
+			return undefined;
+		} else if (typeof(source) != "string") {
+			eden.error(new Error("replaceFirst: The first argument must be a string, not a " + typeof(source)), "error");
+		}
+		
+		var search = arguments[1];
+		if (search === undefined) {
+			return undefined;
+		} else if (typeof(search) != "string") {
+			eden.error(new Error("replaceFirst: The second argument must be a string, not a " + typeof(search)), "error");
+		}
+
+		var replacement = arguments[2];
+		if (replacement === undefined) {
+			if (source.indexOf(search) == -1) {
+				return source;
+			} else {
+				return undefined;
+			}
+		} else if (typeof(replacement) != "string") {
+			eden.error(new Error("replaceFirst: The third argument must be a string, not a " + typeof(replacement)), "error");
+		}
+		
+		return source.replace(source, replacement);
+	}}$;
 }
 
 ##The same issues arise as with the sublist function (in lists.js-e) and they're handled in the
@@ -166,5 +223,63 @@ func substr {
 		}
 		
 		return result;
+	}}$;
+}
+
+func trim {
+	${{
+		if (arguments.length < 1 || arguments.length > 2) {
+			eden.error(new Error("trim: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var value = arguments[0];
+		
+		var trimType;
+		if (arguments.length == 1) {
+			trimType = "both";
+		} else {
+			trimType = arguments[1];
+		}
+
+		if (value === undefined) {
+			if (trimType == "left" || trimType == "right" || trimType == "both") {
+				return undefined;
+			}
+		} else if (typeof(value) != "string") {
+			eden.error(new Error("trim: The first argument cannot be of type " + typeof(value)), "error");
+			return undefined;
+		}
+		
+		if (trimType == "left") {
+			return value.replace(/^\s*/, "");
+		} else if (trimType == "right") {
+			return value.replace(/\s*$/, "");
+		} else if (trimType == "both") {
+			return value.replace(/(^\s*)|(\s*$)/g, "");
+		} else {
+			eden.error(new Error("trim: type of trimming must be \"left\", \"right\" or \"both\"."), "error");
+			return undefined;
+		}
+	}}$;
+}
+
+func uppercase {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("uppercase: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		
+		var arg = arguments[0];
+		
+		if (arg === undefined) {
+			return undefined;
+		} else if (typeof(arg) == "string") {
+			return arg.toLocaleUpperCase();
+		} else {
+			eden.error(new Error("upercase: This function cannot be applied to a value of type " + typeof(arg)), "error");
+			return undefined;
+		}
 	}}$;
 }

@@ -103,6 +103,46 @@ func pow {
   return ${{ Math.pow(arguments[0],arguments[1]); }}$;
 }
 
+func randomInteger {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("randomInteger: This function requires exactly 2 arguments"), "error");
+			return undefined;
+		}
+		
+		var lowerBound = arguments[0];
+		var upperBound = arguments[1];
+
+		if (lowerBound === undefined || upperBound === undefined) {
+			return undefined;
+		} else if (typeof(lowerBound) != "number") {
+			eden.error(new Error("randomInteger: The lower bound must be an int, not a " + typeof(lowerBound)), "error");
+			return undefined;
+		} else if (isNaN(lowerBound)) {
+			return undefined;
+		} else if (lowerBound != parseInt(lowerBound)) {
+			eden.error(new Error("randomInteger: The lower bound must be an int, not a float."), "error");
+			return undefined;
+		} else if (typeof(upperBound) != "number") {
+			eden.error(new Error("randomInteger: The upper bound must be an int, not a " + typeof(upperBound)), "error");
+			return undefined;
+		} else if (isNaN(upperBound)) {
+			return undefined;
+		} else if (upperBound != parseInt(upperBound)) {
+			eden.error(new Error("randomInteger: The uppe bound must be an int, not a float."), "error");
+			return undefined;
+		}
+		
+		var n = Math.floor(Math.random() * (upperBound - lowerBound + 1) + lowerBound);
+		if (n > upperBound) {
+			// 1 / 2^62 chance
+			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+			n = upperBound;
+		}
+		return n;
+	}}$;
+}
+
 func random {
   return ${{ Math.random(); }}$;
 }
