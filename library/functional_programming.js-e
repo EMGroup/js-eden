@@ -195,7 +195,7 @@ func partApply {
 			return undefined;
 		} else if (arguments.length == 2) {
 			if (Array.isArray(arguments[1])) {
-				argMap = arguments[1].slice();
+				argMap = arguments[1];
 			} else {
 				eden.error(new Error("partApply: The second argument must be a list or an int, not a " + typeof(arguments[1])), "error");
 				return undefined;			
@@ -254,6 +254,6 @@ func partApply {
 				slot++;
 			}
 			return f.apply(this, fArgs);
-		}
+		};
 	}}$;
 }

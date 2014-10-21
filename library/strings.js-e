@@ -144,14 +144,16 @@ func strcat {
 ##given by the first argument.
 func replaceFirst {
 	${{
-		if (arguments.length != 3) {
-			eden.error(new Error("replaceFirst: This function requires exactly 3 arguments."), "error");
+		if (arguments.length < 3 || arguments.length > 4) {
+			eden.error(new Error("replaceFirst: This function requires a minimum of 3 arguments and a maximum of 4 arguments."), "error");
+			return undefined;
 		}
 		var source = arguments[0];
 		if (source === undefined) {
 			return undefined;
 		} else if (typeof(source) != "string") {
 			eden.error(new Error("replaceFirst: The first argument must be a string, not a " + typeof(source)), "error");
+			return undefined;
 		}
 		
 		var search = arguments[1];
@@ -159,6 +161,7 @@ func replaceFirst {
 			return undefined;
 		} else if (typeof(search) != "string") {
 			eden.error(new Error("replaceFirst: The second argument must be a string, not a " + typeof(search)), "error");
+			return undefined;
 		}
 
 		var replacement = arguments[2];
@@ -170,9 +173,34 @@ func replaceFirst {
 			}
 		} else if (typeof(replacement) != "string") {
 			eden.error(new Error("replaceFirst: The third argument must be a string, not a " + typeof(replacement)), "error");
+			return undefined;
 		}
 		
-		return source.replace(source, replacement);
+		if (arguments.length == 3) {
+			return source.replace(search, replacement);
+		} else {
+			var startPos = arguments[3];
+			if (startPos !== undefined && typeof(startPos) != "number") {
+				eden.error(new Error("replaceFirst: The forth argument must be an int, not a " + typeof(startPos)), "error");
+				return undefined;
+			} else if (startPos === undefined || isNaN(startPos)) {
+				if (source.indexOf(search) == -1) {
+					return source;
+				} else {
+					return undefined;
+				}
+			} else if (startPos != parseInt(startPos)) {
+				eden.error(new Error("replaceFirst: The forth argument must be an int, not a float."), "error");
+				return undefined;
+			} else if (startPos == 0) {
+				eden.error(new Error("replaceFirst: The forth argument must cannot be 0."), "error");
+				return undefined;			
+			} else if (startPos > 0) {
+				return source.slice(0, startPos - 1).concat(source.slice(startPos - 1).replace(search, replacement));
+			} else {
+				return source.slice(0, startPos).concat(source.slice(startPos).replace(search, replacement));			
+			}
+		}
 	}}$;
 }
 

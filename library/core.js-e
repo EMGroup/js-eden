@@ -7,7 +7,7 @@ func execute {
 	${{ eden.execute(arguments[0]) }}$;
 }
 
-func createView {
+proc createView {
 	${{
 	var name = arguments[0];
 	var type = arguments[1];
@@ -15,14 +15,14 @@ func createView {
 	}}$;
 };
 
-func hideView {
+proc hideView {
 	${{
 	var name = arguments[0];
 	edenUI.hideView(name);
 	}}$;
 };
 
-func moveView {
+proc moveView {
 	${{
 	var name = arguments[0];
 	var x = arguments[1];
@@ -31,7 +31,7 @@ func moveView {
 	}}$;
 };
 
-func resizeView {
+proc resizeView {
 	${{
 	var name = arguments[0];
 	var x = arguments[1];
@@ -40,7 +40,7 @@ func resizeView {
 	}}$;
 };
 
-func showObservables { ${{
+proc showObservables { ${{
     $('.symbollist-search').val(arguments[0]);
     $('.symbollist-search').keyup();
 }}$; }

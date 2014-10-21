@@ -1,18 +1,103 @@
 {
 	"functions": {
+		"": {
+			"parameters": {
+				"": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"apply": {
+			"parameters": {
+				"function": "Function to invoke",
+				"argument_list" : "The function's arguments"
+			},
+			"return": "Return value of the function invoked",
+			"description": "Calls the function specified in the first argument with the second argument as its argument list"
+		},
+		"doDefault": {
+			"parameters": {
+				"expression": "Expression to evaluate",
+				"default_value" : "Value to substitute if expression is undefined"
+			},
+			"return": "default_value if expression is undefined, or expression otherwise",
+			"description": "Substitutes a default value in place of undefined"
+		},
+		"error": {
+			"parameters": {
+				"description": "String describing the reason for error"
+			},
+			"return": "No return value",
+			"description": "Raises a user-defined error"
+		},
+		"lowercase": {
+			"parameters": {
+				"str": "String to convert"
+			},
+			"return": "Lowercase form of the string",
+			"description": "Converts a string to lowercase"
+		},
+		"nameof": {
+			"parameters": {
+				"pointer": "Pointer to inspect"
+			},
+			"return": "String representation of the identifier that the pointer points to",
+			"description": "Obtains the name of the identifier that a pointer points to"
+		},
+		"replaceFirst": {
+			"parameters": {
+				"source": "",
+				"find": "String to find",
+				"replace" : "String to replace with",
+				"[begin]" : "Offset to begin search"
+			},
+			"return": "The source string with the search string replaced, or the original string if not found",
+			"description": "Performs a single string replacement"
+		},
+		"strcat": {
+			"parameters": {
+				"strings...": "Strings to concatenate"
+			},
+			"return": "Concatenated string",
+			"description": "Concatenates string-typed arguments"
+		},
+		"substr": {
+			"parameters": {
+				"str": "String to select a substring from",
+				"from": "Start position",
+				"[to]": "End position (may be negative)"
+			},
+			"return": "The selected substring",
+			"description": "Selects a substring given a string and two character indices"
+		},
+		"todo": {
+			"parameters": {
+				"code": "Code to defer execution of, as a string"
+			},
+			"return": "No return value",
+			"description": "Defers execution of some code until the current thread of execution completes"
+		},
+		"trim": {
+			"parameters": {
+				"str": "String to remove whitespace from",
+				"[type]": "\"left\", \"right\" or \"both\" (default)"
+			},
+			"return": "Trimmed version of the string",
+			"description": "Removes initial and trailing whitespace from a string"
+		},
+		"uppercase": {
+			"parameters": {
+				"str": "String to convert"
+			},
+			"return": "Uppercase form of the string",
+			"description": "Converts a string to uppercase"
+		},
 		"include": {
 			"parameters": {
 				"file": "Script file to load"
 			},
 			"return": "No return value",
-			"description": "Loads and executes a JS-Eden script file"
-		},
-		"include_js": {
-			"parameters": {
-				"file": "JavaScript file to load"
-			},
-			"return": "No return value",
-			"description": "Loads and executes an external javascript file"
+			"description": "Loads and executes a file containing JS-EDEN script file or JavaScript"
 		},
 		"include_css": {
 			"parameters": {
@@ -26,21 +111,21 @@
 				"object": "A number or list to be converted"
 			},
 			"return": "A string",
-			"description": "Converts a number or list to a string"
+			"description": "Convert a value to a string"
 		},
 		"int": {
 			"parameters": {
 				"string": "String to convert"
 			},
 			"return": "An integer",
-			"description": "Converts a string to an integer"
+			"description": "Converts a value to an integer"
 		},
 		"html": {
 			"parameters": {
 				"code": "HTML code string"
 			},
 			"return": "No return value",
-			"description": "Displays HTML on the canvas"
+			"description": "Displays a HTML view"
 		},
 		"time": {
 			"return": "Integer number of seconds",
@@ -58,7 +143,7 @@
 				"code": "A string"
 			},
 			"return": "No return value",
-			"description": "Evaluates a string as an Eden script"
+			"description": "Evaluates a string as an EDEN script"
 		},
 		"rand": {
 			"return": "Random integer",

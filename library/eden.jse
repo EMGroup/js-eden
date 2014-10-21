@@ -14,7 +14,7 @@ func time {
   }}$;
 };
 
-func writeln {
+proc writeln {
   ${{
   var t = arguments[0];
   console.log(t);

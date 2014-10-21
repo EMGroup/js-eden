@@ -39,6 +39,30 @@ func log {
   return ${{ Math.log(arguments[0]); }}$;
 }
 
+##The same remarks apply as for min, mutatis mutandis.
+func max {
+	auto list, i, maxSoFar;
+
+	if ($# == 0) {
+		return @;
+	} else if ($# == 1 && type($[1]) == "list") {
+		list = $[1];
+		if (list# == 0) {
+			return @;
+		}
+	} else {
+		list = $;
+	}
+
+	maxSoFar = list[1];	
+	for (i = 2; i <= list#; i++) {
+		if (list[i] > maxSoFar) {
+			maxSoFar = list[i];
+		}
+	}
+	return maxSoFar;
+}
+
 ##If exactly one argument is provided and it is the empty list then undefined
 ##is returned.  tkeden produces an error message.
 ##
@@ -75,28 +99,9 @@ func min {
 	return minSoFar;
 }
 
-##The same remarks apply as for min, mutatis mutandis.
-func max {
-	auto list, i, maxSoFar;
-
-	if ($# == 0) {
-		return @;
-	} else if ($# == 1 && type($[1]) == "list") {
-		list = $[1];
-		if (list# == 0) {
-			return @;
-		}
-	} else {
-		list = $;
-	}
-
-	maxSoFar = list[1];	
-	for (i = 2; i <= list#; i++) {
-		if (list[i] > maxSoFar) {
-			maxSoFar = list[i];
-		}
-	}
-	return maxSoFar;
+func mod {
+	para x, n;
+	return x>=0? x % n : (n + (x % n));
 }
 
 func pow {
@@ -129,7 +134,7 @@ func randomInteger {
 		} else if (isNaN(upperBound)) {
 			return undefined;
 		} else if (upperBound != parseInt(upperBound)) {
-			eden.error(new Error("randomInteger: The uppe bound must be an int, not a float."), "error");
+			eden.error(new Error("randomInteger: The upper bound must be an int, not a float."), "error");
 			return undefined;
 		}
 		

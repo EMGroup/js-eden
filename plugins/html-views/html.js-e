@@ -1,5 +1,5 @@
 ##HTML Output
-func html {
+proc html {
 	${{
 	var arg0 = arguments[0];
 	var arg1 = arguments[1];

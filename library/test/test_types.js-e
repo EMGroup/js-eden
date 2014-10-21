@@ -59,8 +59,8 @@ assertEqual(type(aFunc), "func", "Returns \"func\" for a function typed argument
 assertEqual(type(aProc), "proc", "Returns \"proc\" for a procedure typed argument");
 assertEqual(type(&aList), "pointer", "Returns \"pointer\" for a pointer typed argument");
 assertEqual(type(&aList[2]), "pointer", "Returns \"pointer\" for a pointer to a list element");
-assertEqual(type(true)), "boolean", "Returns \"boolean\" for a Boolean argument");
-assertEqual(type({})), "object", "Returns \"object\" for an object argument");
+assertEqual(type(true), "boolean", "Returns \"boolean\" for a Boolean argument");
+assertEqual(type({}), "object", "Returns \"object\" for an object argument");
 
 jseTestGroup = "isBoolean";
 assertChecksNumberOfArgs(&isBoolean, 1, [true]);

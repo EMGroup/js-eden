@@ -1,20 +1,13 @@
-##A framework for testing EDEN code.
+## Copyright (c) 2014, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+##
+## A framework for testing EDEN code.
 
 ##Observables:
 ##
 ##jseTestGroup The collective name of a group of related test cases.
-
-
-##Shallow copying is sufficient for our needs here (though deep copying wouldn't do any harm).
-func shallowListCopy {
-	para list;
-	auto result, i;
-	result = array(list#);
-	for (i = 1; i <= list#; i++) {
-		result[i] = list[i];
-	}
-	return result;
-}
 
 ##Tests if two values are equal and raises an EDEN if they are not.  This
 ##function requires three arguments.  The first and second arguments are the
