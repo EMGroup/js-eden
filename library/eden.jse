@@ -3,23 +3,6 @@
 ##
 ## See LICENSE.txt
 
-##STRING FUNCTIONS
-
-func str {
-  ${{
-  var a = arguments[0];
-  return (new Number(a)).toString();
-  }}$;
-};
-
-func int {
-  ${{
-  var a = arguments[0];
-  return parseInt(a);
-  }}$;
-};
-
-
 ##MISSING FUNCTIONS
 
 func eager {};
@@ -35,8 +18,8 @@ func writeln {
   ${{
   var t = arguments[0];
   console.log(t);
-	if (eden.plugins.MenuBar) {
-		eden.plugins.MenuBar.updateStatus("Output: "+t);
+	if (edenUI.plugins.MenuBar) {
+		edenUI.plugins.MenuBar.updateStatus("Output: "+t);
 	}
   }}$;
 };
@@ -57,6 +40,22 @@ func substr {
 
 };
 
+##Raises an error if fewer or greater than two arguments are given.
+##Returns undefined if either argument is undefined.
+##tkeden returns strange strings beginning with the word "usage" in these situations.
+func apply {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("apply: this function requires exactly 2 arguments."), "error");
+			return undefined;			
+		} else if (arguments[0] === undefined || arguments[1] === undefined) {
+			return undefined;
+		} else {
+			return arguments[0].apply(this, arguments[1]);
+		}
+	}}$;
+}
+
 func forget {
 	${{
 	var o = arguments[0];
@@ -64,40 +63,56 @@ func forget {
 	}}$;
 };
 
-true = 1;
-false = 0;
+proc error {
+	${{
+		if (arguments.length > 1) {
+			eden.error(new Error("error: This procedure requires at most 1 argument"), "error");
+		}
+		if (arguments.length == 0) {
+			eden.error(new Error("Runtime error"), "error");
+		} else {
+			eden.error(new Error(arguments[0]), "error");
+		}
+	}}$;
+}
 
-func include {
-${{
-Eden.executeFile(arguments[0]);
-}}$;
-};
+func nameof {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("nameof: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
 
-func execute {
-${{
-  try {
-	eval(Eden.translateToJavaScript(arguments[0]));
-  } catch(e) {
-	$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\"># ERROR number " + eden.errornumber + ":<br># Execute<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
-				eden.errornumber = eden.errornumber + 1;
-  }
-}}$;
-};
+		var pointer = arguments[0];
+		
+		if (pointer instanceof Symbol) {	
+			return pointer.name.slice(1);
+		} else if (
+			pointer !== null &&
+			typeof(pointer) == "object" &&
+			"keys" in pointer &&
+			Array.isArray(pointer.keys) &&
+			pointer.keys.length > 0 &&
+			typeof(pointer.keys[0]) == "number" &&
+			"parent" in pointer &&
+			pointer.parent instanceof Symbol
+		) {
+			return pointer.parent.name.slice(1) + "[" + pointer.keys[0].toString() + "]";
+		} else {
+			eden.error(new Error("nameof: The argument must be a pointer, not a " + typeof(pointer)), "error");
+			return undefined;
+		}
+	}}$;
+}
 
 ##Autocalc compatibility
 autocalc = 1;
 
-##proc _autocalc_agent : autocalc {
-##	if (autocalc == 1) {
-##		${{root.autocalc(true);}}$;
-##	} else {
-##		${{root.autocalc(false);}}$;
-##	}
-##}
-
 ##Include the rest of the library
 
+include("library/types.js-e");
 include("library/core.js-e");
+include("library/lists.js-e");
 ## include("library/drawing.jse");
 include("library/maths.jse");
 include("library/algebra.jse");

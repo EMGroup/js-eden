@@ -23,6 +23,7 @@ qunit.run([
 		deps: [
 			'js/core/maintainer.js',
 			'js/core/runtime.js',
+			'js/core/polyglot.js',
 			'js/core/translator.js',
 		],
 		code: 'js/core/eden.js',

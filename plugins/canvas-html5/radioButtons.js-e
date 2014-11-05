@@ -8,6 +8,15 @@ RadioButtons = function (name, listOfButtonNames, x, y, enabled, horizontal){
     this.enabled = enabled;
 	this.horizontal = horizontal;
 }
+
+RadioButtons.prototype.hash = function () {
+	return this.name+"$$"+
+				this.listOfButtonNames.join("$$")+
+				this.x+"$$"+
+				this.y+"$$"+
+				this.enabled+"$$"+
+				this.horizontal;
+};
 }}$;
 
 func RadioButtons { ${{
@@ -69,7 +78,7 @@ RadioButtons.prototype.draw = function(context,content) {
 					root.lookup(id + "_value").assign(inputhtml.get(0).children[0][i].value);
 				}
 			}
-		}).appendTo($(content));
+		});
 
 		this.element = inputhtml.get(0);
 
@@ -79,11 +88,10 @@ RadioButtons.prototype.draw = function(context,content) {
   else{
 
 		this.element.togarbage = false;
-		content.appendChild(this.element);
 		
 		for(var i=0; i<this.listOfButtonNames.length; i++){
-			if(document.getElementById("canvas_"+this.name).children[0][i].value==root.lookup(id + "_value")){
-				document.getElementById("canvas_"+this.name).children[0][i].checked = true;
+			if(this.element.children[0][i].value==root.lookup(id + "_value")){
+				this.element.children[0][i].checked = true;
 				break;
 			}
 		}

@@ -2,8 +2,11 @@ body, html {
 	margin: 0;
 	height: 100%;
 }
+.canvashtml-content{
+	font-size: 1em;
+}
+
 ul li {
-	font-size: 10pt;
 	list-style-type: square;
 }
 
@@ -28,10 +31,6 @@ h2, ul li {
 
 #symbol-table-area ul {
 	margin: 0;
-}
-
-.symbollist-search{
-	width: 70%;
 }
 
 .result_name{

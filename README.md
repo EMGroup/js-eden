@@ -1,21 +1,39 @@
 # JsEden [![Build Status](https://secure.travis-ci.org/EMGroup/js-eden.png?branch=master)](https://travis-ci.org/EMGroup/js-eden)
 
-
 JsEden is a browser based environment for modelling with definitive scripts, the style of modelling supported best by [tkeden](http://www2.warwick.ac.uk/fac/sci/dcs/research/em/software/eden/).
 
-# Questions
+Join the [google group](https://groups.google.com/forum/#!forum/jseden) for
+development updates or if you have any questions!
 
-Go to the [google group](https://groups.google.com/forum/#!forum/jseden)!
+There is currently an instance hosted with [http://emgroup.github.io/js-eden](Github pages).
 
 # Development Guide
+
+## Development pre-requisites
+
+Install Node.js (version >= 0.10.0):
+
+* Windows and Mac can get an installer from: http://nodejs.org/
+* Ubuntu you can install it from a PPA: http://www.ubuntuupdates.org/ppa/chris_lea_nodejs
+
+## Local development server
+
+```shell
+$ npm install
+...
+$ node jseden-dev-server.js
+```
+
+Then go to localhost:8000.
 
 ## Developing the parser
 
 Start up the parser development server:
 
 ```
-npm install
-grunt
+$ npm install
+...
+$ grunt
 ```
 
 Then go to localhost:9000. This will let you see the generated JS from the
@@ -23,60 +41,39 @@ parser. Changes to the file `translator/grammar.jison` will automatically
 rebuild the parser at `js/core/translator.js` (takes a few seconds) and reload
 the page.
 
-
 ## Automated testing
 
 There are automated tests for the JavaScript code. To run the tests:
 
-1) install Node.js
-2) npm install
-3) npm test
-
-## Local development server
-
-As well as a vagrant box there is a script to let you run jseden on your own
-machine. If you're running linux/osx (anything with `/bin/sh`) and you have
-node installed, you can do:
-
-```javascript
+```shell
 npm install
-node jseden-dev-server.js
+npm test
 ```
 
-Then go to localhost:8000.
+## Black box tests for tkeden and JS-Eden
 
-## Developing locally
+In order to check the compatibility of tkeden and JS-Eden, tests written in the
+EDEN language are being developed. These are in the `black-box-tests` folder.
 
-There's a `Vagrantfile` included for setting up an Ubuntu VM with apache/mysql/ruby configured. You'll need to install both [virtualbox](https://www.virtualbox.org/) and [Vagrant](http://vagrantup.com/) in order to use it. Fortunately both cross platform.
+To run an individual test for tkeden, you need to use the `ttyeden` program, e.g.
 
-To start up the VM:
+```shell
+C:\eden-1.73>ttyeden.exe -n "C:\Users\Tim Monks\projects\personal\em\js-eden\black-box-tests\12.e"
+```
 
-```~/js-eden $ vagrant up```
+On Windows, you need to run `ttyeden` from the directory it is installed into,
+the same might not be true for other operating systems. `ttyeden` is available as part of the EDEN downloads here: http://www2.warwick.ac.uk/fac/sci/dcs/research/em/software/eden/
 
-Once it's finished provisioning, you should be able to open your browser at localhost:8080 and see js-eden. You can use `vagrant ssh` (on windows this will just give you some instructions on how to use PuTTY) to ssh into the box. To shut it down you can run `vagrant halt`.
+To run a test for JS-Eden you can use the `ttyeden.js` script:
 
-## Modifying the provisioned VM
-
-Rough idea of how files matter:
-
-* `Vagrantfile` Configuration for the virtualbox VM to be setup, including port forwards.
-* `chef/` Folder containing all the scripts for provisioning services on the VM.
-* `chef/cookbooks/jseden_main` Contains all the jseden specific chef recipes.
-
-The main files are `Vagrantfile` and `chef/cookbooks/jseden_main/recipes/default.rb`. All the cookbooks other than `jseden_main` are written by a third party and downloaded from opscode.
-
-If you want to change the VM, this reasonably nice introduction to vagrant/chef as well as looking in `jseden_main/recipes/default.rb` should give you an idea of how you can.
-http://iostudio.github.com/LunchAndLearn/2012/03/21/vagrant.html
-
+```shell
+$ node ttyeden.js black-box-tests/12.e
+```
 
 # Usage Guide
 
-## Global Hotkeys
+## Input Window Hotkeys
 
-* `alt+i` Focus interpreter window
-* `alt+shift+i` Hide interpreter window
-* `alt+a` Submit contents of interpreter window
-* `alt+o` Focus observable search box
-* `alt+p` Load older entered EDEN code into interpreter window
-* `alt+n` Load newer code into the interpeter window
-
+* `ctrl+enter` Submit contents of interpreter window
+* `ctrl+up` Load older entered EDEN code into interpreter window
+* `ctrl+down` Load newer code into the interpeter window

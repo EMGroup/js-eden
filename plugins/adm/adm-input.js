@@ -315,7 +315,7 @@
 				var param = trim(thisTemplate.parameters[paramIndex]);
 				var value = trim(input.value);
 				inputBoxes.push(input);
-				eval(Eden.translateToJavaScript(name+'_'+param+' is '+value+';'));
+				eval(eden.translateToJavaScript(name+'_'+param+' is '+value+';'));
 				paramIndex++;
 			}
 		}
@@ -339,9 +339,9 @@
 			// Submit each definition as EDEN code to add to definition store.
 			var definition = trim(definitions[i]);
 			try {
-				eval(Eden.translateToJavaScript(name+'_'+definition));
+				eval(eden.translateToJavaScript(name+'_'+definition));
 			} catch (e) {
-				Eden.reportError(e);
+				eden.reportError(e);
 				return -1;
 			}
 			me.definitions.push(name+'_'+definition);
@@ -450,7 +450,7 @@
 			var param = trim(template.parameters[x]);
 			var value = trim(splitParams[x]);
 			// Add the parameter definition to the EDEN definition store.
-			eval(Eden.translateToJavaScript(entityName+'_'+param+' is '+value+';'));
+			eval(eden.translateToJavaScript(entityName+'_'+param+' is '+value+';'));
 		}
 		
 		// Replace "this" keyword with entity name in actions and definitions.
@@ -474,7 +474,7 @@
 		for (x in entityActions) {
 			var action = entityActions[x];
 			var statement = action.edenVar + ' is ' + action.guard + ';';
-			eval(Eden.translateToJavaScript(statement));
+			eval(eden.translateToJavaScript(statement));
 		}
 
 		if (me.actionLists != null) {
@@ -515,7 +515,7 @@
 				}
 			} else {
 				// Execute any EDEN code normally.
-				eval(Eden.translateToJavaScript(action+';'));
+				eval(eden.translateToJavaScript(action+';'));
 			}
 		}
 		me.selectedActions = new Array();
@@ -586,9 +586,9 @@
 			// The guard is an EDEN observable - check its value.
 			var guardAction = entity.actionsArr[j];
 			try {
-				var answer = eval(Eden.translateToJavaScript('return ' + guardAction.edenVar + ';'));
+				var answer = eval(eden.translateToJavaScript('return ' + guardAction.edenVar + ';'));
 			} catch (e) {
-				Eden.reportError(e);
+				eden.reportError(e);
 			}
 			// If the guard was true, add the first action in the sequence.
 			if (answer == true) {

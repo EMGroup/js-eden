@@ -42,21 +42,32 @@ func avail
 	return t;
 }
 
+input = @;
+option = @;
+step = 0;
 
 proc init_pour : input
 {
-        updating = 1;
-	if (int(input) == 5)	{
+	if (input == @) {
+		return;
+	}
+	updating = 1;
+	if (int(input) == 5) {
 		content5 = contentA + contentB;
 		contentB is content5 - contentA;
 		option = valid6 ? 6 : 7;
-	} else
+	} else {
 		option = int(input);
+	}
 	step = 0;
 }
- 
-proc pour :  step
+
+proc pour : step
 {
+	if (option == @) {
+		return;
+	}
+
 	if (avail(option)) {
 		switch (option) {
 		case 1:
@@ -86,10 +97,10 @@ proc pour :  step
 			step++;
 		}
 	} else {
-                contentA = contentA;
-                contentB = contentB;
-                updating = 0;
-        }
+		contentA = contentA;
+		contentB = contentB;
+		updating = 0;
+	}
 }
 
 status is (Error)?"invalid option": ((updating)?"updating":"awaiting input");

@@ -14,6 +14,17 @@ Slider = function(name, min, max, step, value, orientation, x, y) {
   this.x = x;
   this.y = y;
 }
+
+Slider.prototype.hash = function () {
+	return this.name+"$$"+
+				this.min+"$$"+
+				this.max+"$$"+
+				this.step+"$$"+
+				this.value+"$$"+
+				this.orientation+"$$"+
+				this.x+"$$"+
+				this.y;
+};
 }}$;
 
 func Slider { ${{
@@ -31,42 +42,42 @@ func Slider { ${{
 ${{
 Slider.prototype.draw = function(context,content) {
 
-  var me = "canvas_" + this.name;
-  var me2 = this.name;
-  var sli = this.element;
+	var me = "canvas_" + this.name;
+	var me2 = this.name;
+	var that = this;
+	var sli = this.element;
 
-  if (sli === undefined) {
-  
-	if(this.orientation=="vertical"){
-		var ori = "-webkit-appearance: slider-vertical;"
-	}else{
-		var ori = "";
+	if (sli === undefined) {
+
+		if(this.orientation=="vertical"){
+			var ori = "-webkit-appearance: slider-vertical;"
+		}else{
+			var ori = "";
+		}
+
+		var div = $('<div id="'+me+'-slider" style="position:absolute; top:'+this.y+'px; left:'+this.x+'px;">'+this.name+'</div>');
+
+		var addinputtodiv = (($('<input id="'+me+'-slider-input" style="'+ori+'" value="'+this.value+'" type="range" name="'+this.name+'" min="'+this.min+'" max="'+this.max+'" step="'+this.step+'"/>')).on("change", function(){root.lookup(me2 + "_value").assign(parseInt(this.value))})).appendTo(div);
+
+		this.element = div.get(0);
+		div.get(0).togarbage = false;
+
+		setTimeout(function () {
+			//Assign obs value
+			root.lookup(me2 + "_value").assign(that.value);
+			root.lookup(me2 + "_x").assign(that.x);
+			root.lookup(me2 + "_y").assign(that.y);
+			root.lookup(me2 + "_min").assign(that.min);
+			root.lookup(me2 + "_max").assign(that.max);
+			root.lookup(me2 + "_step").assign(that.step);
+		}, 0);
+
+
+	} else {
+		//Draw with the values stored in the observables
+
+		this.element.togarbage = false;
 	}
-	
-	var div = $('<div id="'+me+'-slider" style="position:absolute; top:'+this.y+'px; left:'+this.x+'px;">'+this.name+'</div>');
-	
-	var addinputtodiv = (($('<input id="'+me+'-slider-input" style="'+ori+'" value="'+this.value+'" type="range" name="'+this.name+'" min="'+this.min+'" max="'+this.max+'" step="'+this.step+'"/>')).on("change", function(){root.lookup(me2 + "_value").assign(parseInt(this.value))})).appendTo(div);
-	
-	var slihtml = $(div.appendTo($(content)));
-
-	this.element = slihtml.get(0);
-    slihtml.get(0).togarbage = false;
-
-    //Assign obs value
-    root.lookup(me2 + "_value").assign(this.value);
-    root.lookup(me2 + "_x").assign(this.x);
-    root.lookup(me2 + "_y").assign(this.y);
-    root.lookup(me2 + "_min").assign(this.min);
-    root.lookup(me2 + "_max").assign(this.max);
-    root.lookup(me2 + "_step").assign(this.step);
-	
-  } else {
-	//Draw with the values stored in the observables
-	
-    this.element.togarbage = false;
-	//append
-	content.appendChild(this.element);
-  }
 
 };
 }}$;

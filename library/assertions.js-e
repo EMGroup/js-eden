@@ -1,0 +1,207 @@
+##A framework for testing EDEN code.
+
+##Observables:
+##
+##jseTestGroup The collective name of a group of related test cases.
+
+
+##Temporary hack until list equality is fixed in the interpreter.
+func equalLists {
+	para l1, l2;
+	auto i;
+	if (l1# != l2#) {
+		return false;
+	}
+	for (i = 1; i <= l1#; i++) {
+		if (isList(l1[i])) {
+			if (!isList(l2[i]) || !equalLists(l1[i], l2[i])) {
+				return false;
+			}
+		} else {
+			if (l1[i] != l2[i]) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+##Tests if two values are equal and raises an EDEN if they are not.  This
+##function requires three arguments.  The first and second arguments are the
+##values to be compared.  The third argument is name of the test case.
+proc assertEqual {
+	auto valuesEqual, errorStr;
+	if ($# != 3) {
+		error("assertEqual: This procedure requires exactly 3 arguments");
+		return @;
+	}
+	if (isList($[1])) {
+		valuesEqual = isList($[2]) && equalLists($[1], $[2]);
+	} else {
+		valuesEqual = $[1] == $[2];
+	}
+	if (!valuesEqual) {
+		errorStr = "assertEqual:\nAssertion Failure! Expected equality.\nLHS = " // edenCode($[1]) // "\nRHS = " // edenCode($[2]);
+		if (jseTestGroup != @) {
+			errorStr = errorStr // "\nTest Group: " // str(jseTestGroup);
+		}
+		errorStr = errorStr // "\nTest Case: " // $[3];
+		error(errorStr);
+	}
+}
+
+##Call this procedure prior to calling code that should generate an EDEN error
+##if the code is performing correctly.  Calling this procedure prevents the
+##error from being displayed in the user interface.  This procedure doesn't
+##have any parameters.
+proc expectErrors {
+	${{
+		if (arguments.length != 0) {
+			eden.error(new Error("expectErrors: This procedure does not accept any arguments."), "error");
+		}
+		eden.reportErrors = false;
+		eden.errorNumber = 0;
+	}}$;
+}
+
+##Call this procedure to restore JS-EDEN's error handling to the normal
+##behaviour and raise an error if the expected errors did not occur.  The first
+##parameter is optional and if provided gives the number of errors that should
+##have been raised.  The final argument is the name of the test case.
+proc assertErrors {
+	${{
+		eden.reportErrors = true;
+		
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("assertErrors: This procedure requires at least 1 argument and at most 2 arguments."), "error");
+		}
+		
+		var errorStr;
+		if (arguments.length < 2 && eden.errorNumber == 0) {
+			errorStr = "assertErrors:\nAssertion Failure! Expected an EDEN error but no error occurred.";
+		} else if (arguments.length == 2 && eden.errorNumber != arguments[0]) {
+			errorStr = "assertErrors:\nAssertion Failure! Expected " + arguments[0].toString() + " EDEN errors but " + eden.errorNumber.toString() + " errors occurred.";
+		}
+		
+		if (errorStr !== undefined) {
+			var jseTestGroup = root.lookup("jseTestGroup").value();
+			if (jseTestGroup !== undefined && jseTestGroup !== null) {
+				errorStr = errorStr + "\nTest Group: " + jseTestGroup.toString();
+			}
+			if (arguments.length > 0) {
+				errorStr = errorStr + "\nTest Case: " + arguments[arguments.length - 1];
+			}
+			eden.error(new Error(errorStr), "error");
+		}
+	}}$;
+}
+
+##Calling this procedure is equivalent to calling assertErrors followed by expectErrors.
+proc assertErrorsExpectMore {
+	${{
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.reportErrors = true;
+			eden.error(new Error("assertErrorsExpectMore: This procedure requires at least 1 argument and at most 2 arguments."), "error");
+		}
+		
+		var errorStr;
+		if (arguments.length < 2 && eden.errorNumber == 0) {
+			errorStr = "assertErrorsExpectMore:\nAssertion Failure! Expected an EDEN error but no error occurred.";
+		} else if (arguments.length == 2 && eden.errorNumber != arguments[0]) {
+			errorStr = "assertErrorsExpectMore:\nAssertion Failure! Expected " + arguments[0].toString() + " EDEN errors but " + eden.errorNumber.toString() + " errors occurred.";
+		}
+		
+		if (errorStr !== undefined) {
+			eden.reportErrors = true;
+			
+			var jseTestGroup = root.lookup("jseTestGroup").value();
+			if (jseTestGroup !== undefined && jseTestGroup !== null) {
+				errorStr = errorStr + "\nTest Group: " + jseTestGroup.toString();
+			}
+			if (arguments.length > 0) {
+				errorStr = errorStr + "\nTest Case: " + arguments[arguments.length - 1];
+			}
+			eden.error(new Error(errorStr), "error");
+			
+			eden.reportErrors = false;
+		}
+		eden.errorNumber = 0;
+	}}$;
+}
+
+##Usage: assertChecksNumberOfArgs(funcOrProcPointer, minNumberOfArgs, maxNumberOfArgs, listOfTestArguments)
+##If maxNumberOfArgs and minNumberOfArgs are equal then maxNumberOfArgs can be omitted.
+##
+##The following tests will be run.
+##(1) The func or proc will be called using the first minNumberOfArgs - 1 of
+##    the test arguments and an error must be raised.
+##(2) The func or proc will be called using minNumberOfArgs and it must not
+##    produce an error.
+##(3) The func or proc will be called using all of the test arguments and it
+##    must not produce an error.
+##(4) The func or proc will be called using all of the test arguments and an
+##    additional nonsense argument and an error must be raised.
+##
+##The func or proc must not modify the state in such a way that the execution
+##of one of these tests prevents a later test from succeeding.
+##
+proc assertChecksNumberOfArgs {
+	auto funcOrProcP, minArgs, maxArgs, fullArgList;
+	if ($# < 2 || ($# == 2 && $[2] > 0) || ($# > 4)) {
+		error("assertChecksNumberOfArgs: This procedure requires at least 3 arguments and at most 4 arguments.");
+		return;
+	} else if (!isPointer($[1])) {
+		error("assertChecksNumberOfArgs: The first argument must be a pointer to a proc or a func, not a " // type($[1]));
+		return;
+	} else if (!isCallable(*$[1])) {
+		error("assertChecksNumberOfArgs: The first argument must be a pointer to a proc or a func, not a pointer to " // type(*$[1]));
+		return;
+	} else if (!isNumber($[2])) {
+		error("assertChecksNumberOfArgs: The second argument must be a number, not a " // type($[1]));
+		return;
+	} else if ($# == 2) {
+		minArgs = 0;
+		maxArgs = 0;
+		fullArgList = [];
+	} else if ($# == 3) {
+		minArgs = $[2];
+		maxArgs = $[2];
+		fullArgList = $[3];
+	} else {
+		minArgs = $[2];
+		fullArgList = $[4];
+		
+		if (isNumber($[3])) {
+			maxArgs = $[3];
+		} else {
+			error("assertChecksNumberOfArgs: The third argument must be a number, not a " // type($[3]));
+			return;
+		}
+	}
+	
+	funcOrProcP = $[1];
+	
+	if (!isList(fullArgList)) {
+		error("assertChecksNumberOfArgs: The final argument must be a list, not a " // type(fullArgList));
+		return;
+	}
+	
+	if (minArgs == 0) {
+		(*funcOrProcP)();	
+	} else {
+		expectErrors();
+		if (minArgs == 1) {
+			(*funcOrProcP)();
+		} else {
+			apply(*funcOrProcP, sublist(fullArgList, minArgs - 1, fullArgList#));
+		}
+		assertErrors(nameof(funcOrProcP) // " produces an error when fewer than " // str(minArgs) // " arguments are provided.");
+		apply(*funcOrProcP, sublist(fullArgList, 1, minArgs));
+	}
+
+	apply(*funcOrProcP, fullArgList);
+	
+	expectErrors();
+	apply(*funcOrProcP, fullArgList // ["erroneous extra argument"]);
+	assertErrors(nameof(funcOrProcP) // " produces an error when more than " // str(maxArgs) // " arguments are provided.");
+}

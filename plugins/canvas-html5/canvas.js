@@ -11,43 +11,39 @@
  * @class CanvasHTML5 Plugin
  */
 
-Eden.plugins.CanvasHTML5 = function(context) {
-
+EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 	var me = this;
 
-	var clearCanvas = function(content) {
-
-		$(content).children(":not(canvas)").each(function() {
-			//XXX What is this check for?? To prevent destruction of child divs
-			//if(/canvas_/.test(this.id)) {
-				this.togarbage = true;
-			//}
-		});
-	}
-
-	var cleanupCanvas = function(content) {
-
-	   $(content).children(":not(canvas)").each(function() {
-	       if (this.togarbage == true) {
-	           $(this).remove();
-	       }
-	   });
-
-	}
-
+	var cleanupCanvas = function (canvasElement, previousElements, nextElements) {
+		var hash;
+		for (hash in previousElements) {
+			if (hash in nextElements || !previousElements[hash].togarbage) {
+				continue;
+			}
+			canvasElement.removeChild(previousElements[hash]);
+		}
+	};
 
 	canvases = {};
 	contents = {};
+	var canvasNameToElements = {};
 
 	this.delay = 40;
 
 	this.drawPicture = function(canvasname, pictureobs) {
 
+		if (!canvasNameToElements[canvasname]) {
+			canvasNameToElements[canvasname] = {};
+		}
+
+		var previousElements = canvasNameToElements[canvasname];
+		var nextElements = {};
+
 		var canvas = canvases[canvasname];
 
 		if (canvas === undefined) {
 			//Need to make the canvas view first
-			eden.createView(canvasname,"CanvasHTML5");
+			edenUI.createView(canvasname,"CanvasHTML5");
 			
 			canvases[canvasname] = $("#"+canvasname+"-dialog-canvas")[0];
 			contents[canvasname] = $("#"+canvasname+"-dialog-canvascontent")[0];
@@ -58,11 +54,11 @@ Eden.plugins.CanvasHTML5 = function(context) {
 		if (!canvas.drawing){
 
 			canvas.drawing = true;
-			setTimeout(function(){
+			setTimeout(function (){
 
 			canvas.drawing = false;
 			
-			var picture = context.context.lookup(pictureobs).value(); //This works!!
+			var picture = root.lookup(pictureobs).value();
 
 			//To clear canvas.
 			canvas.width = canvas.width;
@@ -70,18 +66,42 @@ Eden.plugins.CanvasHTML5 = function(context) {
 		    canvas = canvas.getContext('2d');
 		    var content = contents[canvasname];
 
-		    clearCanvas(content);
+			var hash;
+			for (hash in previousElements) {
+				previousElements[hash].togarbage = true;
+			}
 
 			if (picture === undefined) { return; }
 
 			for (var i = 0; i < picture.length; i++) {
 
 				if (picture[i] === undefined) { continue; }
-				picture[i].draw(canvas,content);
-			}
-			cleanupCanvas(content);
 
-		},me.delay);
+				var elHash = picture[i].hash && picture[i].hash();
+				var existingEl = elHash && previousElements[elHash];
+
+				if (existingEl) {
+					// if already existing hash, no need to draw, just set the element
+					picture[i].element = existingEl;
+				} else {
+					// expect draw() method to set .element
+					picture[i].draw(canvas, content);
+				}
+
+				var htmlEl = picture[i].element;
+				if (htmlEl) { htmlEl.togarbage = false; }
+				if (htmlEl && !existingEl) {
+					$(content).append(htmlEl);
+				}
+
+				if (htmlEl) {
+					nextElements[elHash] = htmlEl;
+				}
+			}
+			cleanupCanvas(content, previousElements, nextElements);
+			canvasNameToElements[canvasname] = nextElements;
+
+		}, me.delay);
 		}
 	};
 
@@ -93,26 +113,26 @@ Eden.plugins.CanvasHTML5 = function(context) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			context.context.lookup('mousePressed').assign(true);
-			context.context.lookup('mouseDown').assign(root.lookup('Point').value().call(this, x, y), this);
+			root.lookup('mousePressed').assign(true);
+			root.lookup('mouseDown').assign(root.lookup('Point').value().call(this, x, y));
 		}).on("mouseup",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			context.context.lookup('mousePressed').assign(false);
-			context.context.lookup('mouseUp').assign(root.lookup('Point').value().call(this, x, y), this);
+			root.lookup('mousePressed').assign(false);
+			root.lookup('mouseUp').assign(root.lookup('Point').value().call(this, x, y));
 		}).on("mousemove",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			context.context.lookup('mouseX').assign(x);
-			context.context.lookup('mouseY').assign(y);
+			root.lookup('mouseX').assign(x);
+			root.lookup('mouseY').assign(y);
 		}).on("click",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			context.context.lookup('mouseClickX').assign(x);
-			context.context.lookup('mouseClickY').assign(y);
+			root.lookup('mouseClickX').assign(x);
+			root.lookup('mouseClickY').assign(y);
 		});
 
 		$dialog = $('<div id="'+name+'"></div>')
@@ -126,23 +146,18 @@ Eden.plugins.CanvasHTML5 = function(context) {
 				resizeStop: function(event,ui) {
 					$("#"+name+"-canvas").attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
 
-					//Now need to redraw the canvas.
-					//TODO: Dont use eden
-					try {
-						eval(Eden.translateToJavaScript("drawPicture();"));
-					} catch(e) {
-						console.error(e);
-					}
+					// Now need to redraw the canvas.
+					edenUI.eden.execute("drawPicture();");
 				},
 			});
 	}
 
 	//Supported canvas views
-	context.views["CanvasHTML5"] = {dialog: this.createDialog, title: "Canvas HTML5"};
+	edenUI.views["CanvasHTML5"] = {dialog: this.createDialog, title: "Canvas HTML5"};
 
-	Eden.executeFileSSI("plugins/canvas-html5/canvas.js-e");
+	edenUI.eden.include("plugins/canvas-html5/canvas.js-e", success);
 };
 
-Eden.plugins.CanvasHTML5.title = "Canvas HTML5";
-Eden.plugins.CanvasHTML5.description = "Provides an Eden drawable HTML5 canvas";
-Eden.plugins.CanvasHTML5.author = "Nicolas Pope et. al.";
+EdenUI.plugins.CanvasHTML5.title = "Canvas HTML5";
+EdenUI.plugins.CanvasHTML5.description = "Provides an Eden drawable HTML5 canvas";
+EdenUI.plugins.CanvasHTML5.author = "Nicolas Pope et. al.";

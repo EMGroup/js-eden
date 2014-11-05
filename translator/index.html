@@ -8,6 +8,7 @@
 		<script src="../js/lib/beautify.js"></script>
 
 		<script src="../js/core/translator.js"></script>
+		<script src="../js/core/polyglot.js"></script>
 		<script src="../js/core/eden.js"></script>
 	</head>
 	<body>
@@ -20,12 +21,13 @@
 		<h2>Generated JavaScript</h2>
 		<pre id="parser-output"></pre>
 		<script>
+			var eden = new Eden();
 			function translate() {
 				var edenSource = document.getElementById('parser-input').value;
 				window.localStorage.setItem('edenSource', edenSource);
 				var parserOutput;
 				try {
-					parserOutput = js_beautify(Eden.translateToJavaScript(edenSource));
+					parserOutput = js_beautify(eden.translateToJavaScript(edenSource));
 				} catch (e) {
 					parserOutput = "Parse error: " + (e.message || e);
 				}

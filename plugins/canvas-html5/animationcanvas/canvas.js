@@ -11,8 +11,7 @@
  * @class CanvasHTML5 Plugin
  */
 
-Eden.plugins.CanvasHTML5 = function(context) {
-
+Eden.plugins.CanvasHTML5 = function (context) {
 	var me = this;
 	q = me;
 
@@ -110,7 +109,7 @@ Eden.plugins.CanvasHTML5 = function(context) {
 
 	//Supported canvas views
 	context.views["CanvasHTML5"] = {dialog: this.createDialog, title: "Canvas HTML5"};
-	Eden.executeFileSSI("plugins/canvas-html5/canvas.js-e");
+	eden.executeFileSSI("plugins/canvas-html5/canvas.js-e");
 	
 	//Initial Call to Render
 	window.webkitRequestAnimationFrame(me.render);

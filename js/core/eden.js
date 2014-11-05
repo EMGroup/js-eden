@@ -4,215 +4,348 @@
  *
  * See LICENSE.txt
  */
- 
 
- 
-function Eden(context) {
-
-	this.context = context || new Folder();
-	this.storage_script_key = "script";
-	this.history = new Array();
-	this.index = 0;
-	this.errornumber = 0;
-	this.plugins = {};
-	this.internals = {};
-}
-
-modelbase = "";
-
-Eden.prototype.internal = function(name) {
-
-	this.internals.__defineGetter__(name, function(){
-
-        return (root.lookup(name)).value();
-    });
-    
-    this.internals.__defineSetter__(name, function(val){
-
-        root.lookup(name).assign(val);
-    });
-}
-
-
-//Eden.prototype.addHistory = function(data) {
-//	this.history.push(data);
-//	this.index = this.history.length;
-//}
-
-//Eden.prototype.getHistory = function(index) {
-//	if (this.history.length == 0) {
-//		return "";
-//	} else {
-//		return this.history[index];
-//	}
-//}
-
-//Eden.prototype.previousHistory = function() {
-//	if (this.index <= 0) {
-//		this.index = 1;
-//	}
-//	if (this.index > this.history.length) {
-//		this.index = this.history.length;
-//	}
-//	return this.getHistory(--this.index);
-//};
-
-//Eden.prototype.nextHistory = function() {
-//	if (this.index < 0) {
-//		this.index = 0;
-//	}
-//	if (this.index >= this.history.length-1) {
-//		this.index++;
-//		return "";
-//	}
-//	return this.getHistory(++this.index);
-//};
-
-Eden.formatError = function (e, options) {
-
-	options = options || {};
-	return "<div class=\"error-item\">"+
-		"## ERROR number " + eden.errornumber + ":<br>"+
-		(options.path ? "## " + options.path + "<br>" : "")+
-		e.message+
-		"</div>\r\n\r\n";
-};
-
-Eden.reportError = function (e, options) {
-
-	if (eden.plugins.MenuBar) {
-		eden.plugins.MenuBar.updateStatus("Error: "+e.message);
+// import node.js modules
+function concatAndResolveUrl(url, concat) {
+	var url1 = url.split('/');
+	var url2 = concat.split('/');
+	var url3 = [ ];
+	for (var i = 0, l = url1.length; i < l; i ++) {
+		if (url1[i] == '..') {
+			url3.pop();
+		} else if (url1[i] == '.') {
+			continue;
+		} else {
+			url3.push(url1[i]);
+		}
 	}
-	$('#error-window')
-		.addClass('ui-state-error')
-		.prepend(Eden.formatError(e, options))
-		.dialog({title:"EDEN Errors"});
-	eden.errornumber = eden.errornumber + 1;
-};
+	for (var i = 0, l = url2.length; i < l; i ++) {
+		if (url2[i] == '..') {
+			url3.pop();
+		} else if (url2[i] == '.') {
+			continue;
+		} else {
+			url3.push(url2[i]);
+		}
+	}
+	return url3.join('/');
+}
 
-/*
- * synchronously loads an EDEN file from the server,
- * translates it to JavaScript then evals it when it's done
- */
-Eden.executeFile = function (path) {
+(function (global) {
+	if (global.require) {
+		Polyglot = global.require('./polyglot.js').Polyglot;
+		parser = global.require('./translator.js').parser;
+		rt = global.require('./runtime.js').rt;
+	}
 
-	//console.error("Calls to executeFile should be deprecated");
-	$.ajax({
-		url: modelbase+path,
-		dataType: 'text',
-		success: function(data) {
-			try {
-				eval(Eden.translateToJavaScript(data));
-			} catch (e) {
-				Eden.reportError(e, {path: path});
-				console.error(e);
+	/**
+	 * @constructor
+	 * @struct
+	 * @param {Eden} eden
+	 */
+	function EdenUI(eden) {
+		/**
+		 * @type {Eden}
+		 * @public
+		 */
+		this.eden = eden;
+
+		/**
+		 * @type {Object.<string,*>}
+		 */
+		this.views = {};
+
+		this.viewInstances = {};
+
+		/**
+		 * @type {Object.<string,*>}
+		 */
+		this.activeDialogs = {};
+
+		/**
+		 * @type {Object.<string,*>}
+		 */
+		this.plugins = {};
+
+		var me = this;
+		this.views.ErrorWindow = {
+			dialog: function () { me.showErrorWindow(); },
+			title: "Error Window"
+		};
+
+		this.eden.listenTo('executeFileLoad', this, function (path) {
+			if (this.plugins.MenuBar) {
+				this.plugins.MenuBar.updateStatus("Loading "+path);
 			}
-		},
-		cache: false,
-		async: false
-	});
-};
-
-
-/*
- * Async loads an EDEN file from the server,
- * translates it to JavaScript then evals it when it's done.
- * This variation performs a server side include of all sub-scripts. It is also
- * possible to use this version across domains to load scripts on other servers.
- */
-Eden.executeFileSSI = function (path) {
-
-Eden.loadqueue = new Array();
-	var ajaxfunc = function(path2) {
-		$.ajax({
-			url: path2,
-			dataType: 'text',
-			type: 'GET',
-			success: function(data) {
-				try {
-					if (eden.plugins.MenuBar) {
-						eden.plugins.MenuBar.updateStatus("Parsing "+path2+"...");
-					}
-					eval(Eden.translateToJavaScript(data));
-					if (eden.plugins.MenuBar) {
-						eden.plugins.MenuBar.appendStatus(" [complete]");
-					}
-				} catch (e) {
-					Eden.reportError(e, {path: path2});
-					console.error(e);
-				}
-
-				if (Eden.loadqueue.length > 0) {
-					var pathtoload = Eden.loadqueue.pop();
-					if (eden.plugins.MenuBar) {
-						eden.plugins.MenuBar.updateStatus("Loading "+pathtoload);
-					}
-					ajaxfunc(pathtoload);
-				}
-			},
-			cache: false,
-			async: true
 		});
+
+		this.eden.listenTo('executeBegin', this, function (path) {
+			if (this.plugins.MenuBar) {
+				this.plugins.MenuBar.updateStatus("Parsing "+path+"...");
+			}
+		});
+
+		this.eden.listenTo('executeEnd', this, function () {
+			if (this.plugins.MenuBar) {
+				this.plugins.MenuBar.appendStatus(" [complete]");
+			}
+		});
+
+		this.eden.listenTo('executeError', this, function (e, options) {
+			if (this.plugins.MenuBar) {
+				this.plugins.MenuBar.updateStatus("Error: "+e.message);
+			}
+
+			var formattedError = "<div class=\"error-item\">"+
+				"## ERROR number " + options.errorNumber + ":<br>"+
+				(options.path ? "## " + options.path + "<br>" : "")+
+				e.message+
+				"</div>\r\n\r\n";
+
+			this.showErrorWindow().prepend(formattedError)
+			this.showErrorWindow().prop('scrollTop', 0);
+		});
+	}
+
+	EdenUI.prototype.showErrorWindow = function () {
+		return $('#error-window')
+			.addClass('ui-state-error')
+			.dialog({title: "EDEN Errors", width: 500})
+			.dialog('moveToTop');
 	};
 
-	if (Eden.loadqueue.length == 0) {
-		if (eden.plugins.MenuBar) {
-			eden.plugins.MenuBar.updateStatus("Loading - "+path);
-		}
-		ajaxfunc(path);
-	} else {
-		Eden.loadqueue.unshift(path);
-	}
-};
-
-Eden.execute = function(code) {
-
-	var result = "";
-	try {
-		result = eval(Eden.translateToJavaScript(code));
-	} catch(e) {
-		Eden.reportError(e);
-		//$('#error-window').addClass('ui-state-error').append("<div class=\"error-item\"># ERROR number " + eden.errornumber + ":<br># Execute<br>" + e.message + "</div>\r\n\r\n").dialog({title:"EDEN Errors"});
-		//eden.errornumber = eden.errornumber + 1;
-	}
-	return result;
-}
-
-function _$() {
-
-	var code = arguments[0];
-	for (var i=1; i<arguments.length; i++) {
-		code = code.replace("$"+i,arguments[i]);
-	}
-	return Eden.execute(code);
-}
-
-/*
- * Wraps a parser generated by jison so that it has access to some functions useful
- * in parsing
- *
- * @param {function} parser generated by jison takes a string
- */
-Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 	/**
-	 * @param {String} source - EDEN code to translate into JavaScript.
-	 * @returns {String} JavaScript code as a String.
+	 * @constructor
+	 * @struct
 	 */
-	return function (source) {
+	function Eden(root) {
+		this.root = root;
+
+		/**
+		 * @type {number}
+		 * @public (Inspected and reset by the framework for testing EDEN code.)
+		 */
+		this.errorNumber = 0;
+
+		this.polyglot = new Polyglot();
+
+		var me = this;
+		this.polyglot.setDefault('eden');
+		this.polyglot.register('eden', {
+			execute: function (code, origin, prefix, success) {
+				me.executeEden(code, origin, prefix, success);
+			}
+		});
+		this.polyglot.register('js', {
+			execute: function (code, origin, prefix, success) {
+				var result = eval(code);
+				success && success(result);
+			}
+		});
+
+		/**
+		 * @type {Object.<string, Array.<{target: *, callback: function(...[*])}>>}
+		 * @private
+		 */
+		this.listeners = {};
+
+		/**
+		 * Setting this to false temporarily prevents the error method from
+		 * producing any output.  This is used by the framework for testing EDEN
+		 * code in the scenario when an error is the intended outcome of a test case.
+		 *
+		 * @see library/assertions.js-e
+		 * @type {boolean}
+		 * @public
+		*/
+		this.reportErrors = true;
+	}
+
+	/**
+	 * @param {string} eventName
+	 * @param {*} target
+	 * @param {function(...[*])} callback
+	 */
+	Eden.prototype.listenTo = function (eventName, target, callback) {
+		if (!this.listeners[eventName]) {
+			this.listeners[eventName] = [];
+		}
+		this.listeners[eventName].push({target: target, callback: callback})
+	};
+
+	/**
+	 * @param {string} eventName
+	 * @param {Array.<*>} eventArgs
+	 */
+	Eden.prototype.emit = function (eventName, eventArgs) {
+		var listenersForEvent = this.listeners[eventName];
+		if (!listenersForEvent) {
+			return;
+		}
+		var i;
+		for (i = 0; i < listenersForEvent.length; ++i) {
+			var target = listenersForEvent[i].target;
+			var callback = listenersForEvent[i].callback;
+			callback.apply(target, eventArgs);
+		}
+	};
+
+	/**
+	 * @param {*} error
+	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
+	 */
+	Eden.prototype.error = function (error, origin) {
+		if (origin != "error") {
+			//Errors that halt execution are always reported and cause error
+			//handling to be restored to the default behaviour to avoid confusion.
+			this.reportErrors = true;
+		}
+		if (this.reportErrors) {
+			if (origin) {
+				this.emit('executeError', [error, {path: origin, errorNumber: this.errorNumber}]);
+			} else {
+				this.emit('executeError', [error, {errorNumber: this.errorNumber}]);
+			}
+		}
+		++this.errorNumber;
+	};
+	
+	Eden.prototype.executeEden = function (code, origin, prefix, success) {
+		var result;
+		this.emit('executeBegin', [origin]);
+		try {
+			eval(this.translateToJavaScript(code))(this.root, this, prefix, function () {
+				success && success();
+			});
+		} catch (e) {
+			this.error(e);
+			success && success();
+		}
+	};
+
+	/**
+	 * @param {string} code
+	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
+	 * @param {string?} prefix Prefix used for relative includes.
+	 * @param {function(*)} success
+	 */
+	Eden.prototype.execute = function (code, origin, prefix, success) {
+		if (arguments.length == 2) {
+			success = origin;
+			origin = 'unknown';
+			prefix = '';
+		}
+		this.polyglot.execute(code, origin, prefix, success);
+	};
+
+	/**
+	 * @param {string} includePath
+	 * @param {string?} prefix Prefix used for relative includes.
+	 * @param {function()} success Called when include has finished successfully.
+	 */
+	Eden.prototype.include = function (includePath, prefix, success) {
+		if (arguments.length == 2) {
+			success = prefix;
+			prefix = '';
+		}
+		var url;
+		if (includePath.charAt(0) === '.') {
+			url = concatAndResolveUrl(prefix, includePath);
+		} else {
+			url = includePath;
+		}
+		var match = url.match(/(.*)\/([^\/]*?)$/);
+		var newPrefix = match ? match[1] : '';
+		this.emit('executeFileLoad', [url]);
+		var error = function (e) {
+			eden.error(new Error("Failed to include '"+url+"', error: "+JSON.stringify(e)));
+		};
+		if (url.match(/.js$/)) {
+			$.ajax({
+				url: url,
+				success: success,
+				error: error
+			});
+		} else {
+			if (url.match(/^http/)) {
+				// cross host
+				$.ajax({
+					url: rt.config.jseProxyBaseUrl,
+					jsonp: "callback",
+					dataType: "jsonp",
+					data: {
+						url: url,
+					},
+					success: function (data) {
+						eden.execute(data.success, url, newPrefix, success);
+					},
+					error: error
+				});
+			} else {
+				// same host, no need to use JSONP proxy
+				$.ajax({
+					url: url,
+					success: function (data) {
+						eden.execute(data, url, newPrefix, success);
+					},
+					error: error
+				});
+			}
+		}
+	};
+
+	/**
+	 * This function sets up a bunch of state/functions used in the generated parser. The
+	 * `parser.yy` object is exposed as `yy` by jison. (See grammar.jison for usage)
+	 *
+	 * @param {string} source EDEN code to translate into JavaScript.
+	 * @returns {string} JavaScript code as a string.
+	 */
+	Eden.prototype.translateToJavaScript = function (source) {
+		/** @type {Object.<string,*>} */
+		parser.yy;
+
 		source = source.replace(/\r\n/g, '\n');
 
-		/**
-		 * This function sets up a bunch of state/functions used in the generated parser. The
-		 * `parser.yy` object is exposed as `yy` by jison. (See grammar.jison for usage)
-		 */
+		parser.yy.async = function (asyncFuncExpression) {
+			var args = Array.prototype.slice.call(arguments, 1);
+			return new Code(1, asyncFuncExpression + '(' + args.concat('function () {')); 
+		};
+
+		function Code(cps, code) {
+			this.cps = cps;
+			this.code = code;
+		}
+
+		Code.prototype.valueOf = function () {
+			throw new Error("Tried to valueOf Code " + this.code);
+		};
+
+		parser.yy.sync = function (code) {
+			return new Code(0, code);
+		};
+
+		parser.yy.code = function (cps, code) {
+			return new Code(cps, code);
+		};
+
+		parser.yy.withIncludes = function (code, callbackName) {
+			var closer = '' + callbackName + '();';
+			var i;
+			for (i = 0; i < code.cps; ++i) {
+				closer += '});';
+			}
+			return code.code + closer;
+		};
 
 		/**
-		 * Extract a string from original eden source.
-		 * @param {Number} firstLine - Index of the line to start extracting.
-		 * @param {Number} firstColumn - Position in the line to start extracting.
-		 * @param {Number} firstLine - Index of the line to end extracting.
-		 * @param {Number} firstColumn - Position in the line to end extracting.
-		 * @returns {String} Extracted source.
+		 * Extract a string from original eden source being parsed.
+		 *
+		 * @param {number} firstLine Index of the line to start extracting.
+		 * @param {number} firstColumn Position in the line to start extracting.
+		 * @param {number} lastLine Index of the line to end extracting.
+		 * @param {number} lastColumn Position in the line to end extracting.
+		 * @returns {string} Extracted source.
 		 */
 		parser.yy.extractEdenDefinition = function (firstLine, firstColumn, lastLine, lastColumn) {
 			var definitionLines = source.split('\n').slice(firstLine - 1, lastLine);
@@ -265,7 +398,8 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 
 		/**
 		 * Used by the parser to test whether currently parsing a definition.
-		 * @returns {Boolean}
+		 *
+		 * @returns {boolean}
 		 */
 		parser.yy.inDefinition = function () {
 			return inDefinition;
@@ -273,6 +407,8 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 
 		/**
 		 * Used by the parser to record dependencies when parsing a definition.
+		 *
+		 * @param {string} name
 		 */
 		parser.yy.addDependency = function (name) {
 			dependencies[name] = 1;
@@ -280,7 +416,8 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 
 		/**
 		 * Used by the parser to generate a list of observables to observe for changes.
-		 * @returns {Array.<String>} Array of observable names used in the current definition.
+		 *
+		 * @returns {Array.<string>} Array of observable names used in the current definition.
 		 */
 		parser.yy.getDependencies = function () {
 			var dependencyList = [];
@@ -290,31 +427,25 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 			return dependencyList;
 		};
 
+		/** @type {Object.<string,number>} */
 		var observables = {};
 
 		/**
 		 * Used by the parser to track observables used in a script.
-		 * @param {String} name - Name of observable t
-		 * @returns {String} Generated code that results in the Symbol for name.
+		 *
+		 * @param {string} name Name of observable.
+		 * @returns {string} Generated code that results in the Symbol for name.
 		 */
 		parser.yy.observable = function (name) {
 			observables[name] = 1;
 			return "o_" + name;
 		};
 
-		var dobservables = {};
-		var varNum = 0;
-
-		parser.yy.dobservable = function (name) {
-			varNum = varNum + 1;
-			return "var d_" + varNum + " = context.lookup(" + name + "); d_" + varNum;
-		};
-
 		/**
 		 * Used by the parser to generate 'var' declarations for the whole script.
 		 * These vars store `Symbols` for each observable.
 		 *
-		 * @returns {String} JavaScript statements defining vars for each observable.
+		 * @returns {string} JavaScript statements defining vars for each observable.
 		 */
 		parser.yy.printObservableDeclarations = function () {
 			var javascriptDeclarations = [];
@@ -332,17 +463,22 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 		 * a function. These lists are pushed onto each time the parser enters a
 		 * function definition.
 		 */
+
+		/** @type {Array.<string>} */
 		parser.yy.locals = [];
+
+		/** @type {Array.<string>} */
 		parser.yy.paras = [];
 
 		/**
 		 * Used by the parser instead of Array.prototype.map which isn't
 		 * available in some browsers.
 		 *
-		 * @param {Array}
-		 * @returns {Array}
+		 * @param {Array.<?>} array
+		 * @param {function(*, number)} f
+		 * @returns {Array.<?>}
 		 */
-		parser.yy.map = function map(array, f) {
+		parser.yy.map = function map (array, f) {
 			if (array.map) {
 				return array.map(function (x, i) { return f(x, i); });
 			}
@@ -356,74 +492,26 @@ Eden.parserWithInitialisation = function parserWithInitialisation(parser) {
 
 		return parser.parse(source);
 	};
-};
 
-/*
- * This is the entry point for eden to JS translation, which attaches some of the
- * necessary functions/initial state to the translator before running it
- */
-// XXX: require.js for loading translator.js
-Eden.translateToJavaScript = Eden.parserWithInitialisation(parser);
-
-Eden.prototype.getDefinition = function(name, symbol) {
-
-	if (symbol.eden_definition) {
-		return symbol.eden_definition + ";";
-	} else {
-		return name + " = " + symbol.cached_value + ";";
-	}
-};
-
-/*
- * XXX: all this stuff currently isn't used, just represents
- * some hacking for persisting model state I did. monk
- */
-Eden.prototype.getSerializedState = function() {
-
-	var script = "";
-	for (var name in this.context.symbols) {
-		script += this.getDefinition(name, this.context.symbols[name]) + "\n";
-	}
-	return script;
-};
-
-Eden.prototype.saveLocalModelState = function() {
-
-	var state_string = this.getSerializedState(this.context);
-	localStorage[this.storage_script_key] = state_string;
-};
-
-Eden.prototype.loadLocalModelState = function() {
-
-	var stored_script = localStorage[this.storage_script_key];
-	if (stored_script != undefined) {
-		eval(Eden.translateToJavaScript(stored_script));
-	} else {
-		console.log("tried to load local model state but there was nothing stored!");
-	}
-};
-
-Eden.prototype.pushModelState = function() {
-
-	var uploader_url = 'push-state.php';
-	var state_string = this.getSerializedState(this.context);
-	$.ajax(uploader_url, {
-		type: 'POST',
-		data: {
-			state: state_string
-		},
-		timeout: 2000,
-		success: function(data) {
-			console.log("SUCCESSFULLY PUSHED MODEL", data);
-		},
-		error: function(request, status, error) {
-			if (status === "timeout") {
-				console.log("whoops, POST timed out");
-			} else {
-				console.log("something went wrong submitting a question (other than timeout): status " + status);
-			}
+	/**
+	 * @param {string} name
+	 * @param {Symbol} symbol
+	 * @return {string}
+	 */
+	Eden.prototype.getDefinition = function (name, symbol) {
+		if (symbol.eden_definition) {
+			return symbol.eden_definition + ";";
+		} else {
+			return name + " = " + symbol.cached_value + ";";
 		}
-	});
-};
+	};
 
-this.Eden = Eden;
+	// expose API
+	global.EdenUI = EdenUI;
+	global.Eden = Eden;
+
+	// expose as node.js module
+	if (global.module) {
+		global.module.exports.Eden = Eden;
+	}
+}(typeof window !== 'undefined' ? window : global));

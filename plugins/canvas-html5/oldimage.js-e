@@ -12,6 +12,15 @@ Image = function (name, x, y, width, height, file) {
 	this.height = height;
 	this.file = file;
 }
+
+Image.prototype.hash = function () {
+	return this.name+"$$"+
+				this.x+"$$"+
+				this.y+"$$"+
+				this.width+"$$"+
+				this.height+"$$"+
+				this.file;
+};
 }}$;
 
 func Image { ${{
@@ -36,7 +45,7 @@ Image.prototype.draw = function(context,content) {
 	else { dis = "disabled=\"true\""; }
 
 	var can = $(content);
-	var buthtml = $("<img id=\"" + me + "\" style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;\" src=\"" + this.file + "\"></img>").appendTo(can);
+	var buthtml = $("<img id=\"" + me + "\" style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;\" src=\"" + this.file + "\"></img>");
 
 	this.HTMLelement = buthtml[0];
 	

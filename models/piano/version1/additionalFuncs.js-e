@@ -6,7 +6,7 @@
 
 proc error {
 	${{
-		Eden.reportError(new Error(arguments[0]));
+		eden.error(new Error(arguments[0]));
 	}}$;
 }
 

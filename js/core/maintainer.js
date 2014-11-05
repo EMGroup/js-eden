@@ -20,92 +20,161 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
-
 
 (function (global) {
-
-	/**
-	 * A maintainer of definitions
-	 * @constructor
-	 */
-	function Folder(name, parent, root) {
-	
-		this.name = name || "/";
-		this.parent = parent || this;
-		this.root = root || this;
-		this.symbols = {};
-		this.globalobservers = new Array();
-		this.autocalc_state = true;
-		this.todoactions = new Array();
+	function copy(value) {
+		var i, copied;
+		if (value instanceof Array) {
+			copied = value.slice();
+			for (i = 0; i < value.length; ++i) {
+				copied[i] = copy(copied[i]);
+			}
+			return copied;
+		}
+		return value;
 	}
 
 	/**
-	 * Looks up the current value of the requested symbol
-	 * @param {string} name The name of the observable you want the current value offscreenBuffering
-	 * @return {number|string|array}
+	 * A maintainer of definitions
+	 *
+	 * @constructor
+	 * @struct
+	 * @param {string?} name Name to prepend to all child Symbols.
+	 * @param {Folder?} parent Parent Folder for this Folder.
+	 * @param {Folder?} root The top most parent of this Folder.
 	 */
-	Folder.prototype.lookup = function(name) {
-	//
-		var me = this;
+	function Folder(name, parent, root) {
+		/**
+		 * @type {string}
+		 * @private
+		 */
+		this.name = name || "/";
+
+		/**
+		 * @type {Folder}
+		 * @private
+		 */
+		this.parent = parent || this;
+
+		/**
+		 * @type {Folder}
+		 * @private
+		 */
+		this.root = root || this;
+
+		/**
+		 * @type {Object.<string, Symbol>}
+		 * @public
+		 */
+		this.symbols = {};
+
+		/**
+		 * @type {Array.<function(Symbol, boolean)>}
+		 * @private
+		 */
+		this.globalobservers = [];
+
+		/**
+		 * @type {boolean}
+		 * @private
+		 */
+		this.autocalc_state = true;
+
+		this.needsExpire = {};
+	}
+
+	/**
+	 * Looks up the the Symbol with the given name.
+	 *
+	 * @param {string} name The name of the symbol you want.
+	 * @return {Symbol}
+	 */
+	Folder.prototype.lookup = function (name) {
 		if (this.symbols[name] === undefined) {
-		//
-			this.symbols[name] = new Symbol(this, this.name + name, this.root);
-
-			this.notifyGlobals(this.symbols[name],true);
+			this.symbols[name] = new Symbol(this, this.name + name);
+			this.notifyGlobals(this.symbols[name], true);
 		}
-
 		return this.symbols[name];
 	};
 
-	Folder.prototype.addGlobal = function(f) {
-	
-		this.globalobservers.push(f);
+	/**
+	 * Add a listener for any change in the Folder.
+	 *
+	 * @param {function(Symbol, boolean)} listener This will be executed when a change occurs in the Folder.
+	 */
+	Folder.prototype.addGlobal = function (listener) {
+		this.globalobservers.push(listener);
 	};
 
-	Folder.prototype.notifyGlobals = function(symbol, create) {
-	//
-		for (var i=0; i < this.globalobservers.length; i++) {
+	/**
+	 * Notify all global listeners about a change in the Folder.
+	 *
+	 * @param {Symbol} symbol The symbol that changed.
+	 * @param {boolean} create 
+	 */
+	Folder.prototype.notifyGlobals = function (symbol, create) {
+		for (var i = 0; i < this.globalobservers.length; i++) {
 			if (this.globalobservers[i] !== undefined) {
-				this.globalobservers[i].call(this,symbol,create);
-			}
-		}
-	};
-
-	Folder.prototype.autocalc = function(state) {
-	
-		if ((state == true) && (this.autocalc_state == false)) {
-			this.autocalc_state = true;
-			this.fireAllActions(this.todoactions);
-		} else if ((state == false) && (this.autocalc_state == true)) {
-			this.todoactions = new Array();
-			this.autocalc_state = false;
-		}
-	};
-
-	Folder.prototype.fireAllActions = function(actions) {
-	
-		for (var i=0; i < actions.length; i++) {
-			var actions_to_fire = actions[i];
-			for (var action_name in actions_to_fire) {
-				var action = actions_to_fire[action_name];
-				// if one action fails, it shouldn't prevent all the other
-				// scheduled actions from firing
-				if (action != undefined) { action.trigger(); }
+				this.globalobservers[i].call(this, symbol, create);
 			}
 		}
 	};
 
 	/**
-	 * A symbol table entry. Maybe.
+	 * Set whether autocalc is on or off.
+	 *
+	 * @param {boolean} state True to enable autocalc, false to disable.
+	 */
+	Folder.prototype.autocalc = function (state) {
+		this.autocalc_state = state;
+		this.expireAndFireActions();
+	};
+
+	Folder.prototype.expireSymbol = function (sym) {
+		this.needsExpire[sym.name] = sym;
+
+		if (this.autocalc_state) {
+			this.expireAndFireActions();
+		}
+	};
+
+	Folder.prototype.expireAndFireActions = function () {
+		var actions_to_fire = {};
+		var symbols_to_force = {};
+		for (var symName in this.needsExpire) {
+			var sym = this.needsExpire[symName];
+			sym.expire(symbols_to_force, actions_to_fire);
+			this.notifyGlobals(sym, false);
+		}
+		this.needsExpire = {};
+		for (var symName in symbols_to_force) {
+			// force re-eval
+			var sym = symbols_to_force[symName];
+			sym.evaluateIfDependenciesExist();
+		}
+		fireActions(actions_to_fire);
+	};
+
+
+	/**
+	 * A symbol table entry.
+	 *
 	 * @constructor
-	 * @param {function} definition
-	 * @param {Object.<string,number>} subscribers
-	 * @param {Object.<string,function>} observers
+	 * @struct
+	 * @param {Folder} context Folder this Symbol belongs to.
+	 * @param {string} name Name for the Symbol.
 	 */
 	function Symbol(context, name) {
-	
+		/**
+		 * @type {Folder}
+		 * @private
+		 */
 		this.context = context;
+
+		/**
+		 * @type {string}
+		 * @private
+		 */
 		this.name = name;
 
 		this.definition = undefined;
@@ -123,39 +192,47 @@
 
 		// need to keep track of observers so we can notify those also
 		this.observers = {};
-
 		this.observees = {};
 
 		this.last_modified_by = undefined;
-		
 	}
 
 	/**
-	 * Return the current value of this symbol, recalculating it if necessary.
-	 * @param {Folder} The context in which to evaluate the definition
-	 * @return {number|string|list}
+	 * Return the current value of this symbol, forcing calculation if necessary.
+	 *
+	 * @return {*}
 	 */
-	Symbol.prototype.value = function() {
-	
-		if (!this.up_to_date) {
-			if (this.definition === undefined) {
-				this.cached_value = undefined;
-			} else {
-				try {
-					this.cached_value = this.definition(this.context);
-					this.up_to_date = true;
-				} catch(e) {
-					this.cached_value = undefined;
-					this.up_to_data = false;
-				}
+	Symbol.prototype.value = function () {
+		if (this.definition) {
+			if (!this.up_to_date) {
+				this.evaluate();
 			}
 		}
-	
 		return this.cached_value;
 	};
 
-	Symbol.prototype.clearObservees = function() {
-	
+	Symbol.prototype.evaluateIfDependenciesExist = function () {
+		var name;
+		for (name in this.dependencies) {
+			// only evaluate if all dependencies have been defined by some agent
+			if (!this.dependencies[name].last_modified_by) {
+				return;
+			}
+		}
+		this.evaluate();
+	};
+
+	Symbol.prototype.evaluate = function () {
+		try {
+			this.cached_value = copy(this.definition(this.context));
+			this.up_to_date = true;
+		} catch (e) {
+			this.cached_value = undefined;
+			this.up_to_date = false;
+		}
+	};
+
+	Symbol.prototype.clearObservees = function () {
 		for (var name in this.observees) {
 			var symbol = this.observees[name];
 			symbol.removeObserver(this.name);
@@ -163,10 +240,8 @@
 		this.observees = {};
 	};
 
-	Symbol.prototype.subscribe = function() {
-	
+	Symbol.prototype.subscribe = function () {
 		var dependencies = Utils.flatten(arguments);
-
 		for (var i = 0; i < dependencies.length; ++i) {
 			var dependency = dependencies[i];
 			var symbol = this.context.lookup(dependency);
@@ -178,237 +253,193 @@
 		return this;
 	};
 
-	Symbol.prototype.clearDependencies = function() {
-	
+	Symbol.prototype.clearDependencies = function () {
 		for (var name in this.dependencies) {
 			var dependency = this.dependencies[name];
 			dependency.removeSubscriber(this.name);
 		}
-
 		this.dependencies = {};
 	};
 
-	Symbol.prototype._setLastModifiedBy = function(modifying_agent) {
-	
+	Symbol.prototype._setLastModifiedBy = function (modifying_agent) {
 		if (modifying_agent === global) {
 			this.last_modified_by = 'input';
 		} else {
-			this.last_modified_by = modifying_agent ? modifying_agent.name : 'unknown';
+			this.last_modified_by = modifying_agent ? modifying_agent.name.replace(/^\//, '') : "modifying agent wasn't specified :(";
 		}
 	};
 
 	/**
-	 * @param {function} definition
-	 * @param {Array.<string>} dependencies Symbol names for the dependencies
+	 * Set a definition for the Symbol, which will be used to calculate it's value.
+	 *
+	 * @param {function(Folder)} definition
+	 * @param {Symbol} modifying_agent Agent modifying this Symbol.
 	 */
-	Symbol.prototype.define = function(definition, modifying_agent) {
-	
-		var me = this;
-
-		// XXX: not sure if we really want to have lastModifiedBy set
-		// in the mutation methods
-		//
-		// this is a similar problem to the usage of this.context
+	Symbol.prototype.define = function (definition, modifying_agent, subscriptions) {
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = definition;
 
+		// symbol no longer observes or depends on anything
 		this.clearObservees();
 		this.clearDependencies();
 
-		var actions_to_fire = {};
-		this.expire(actions_to_fire);
+		this.subscribe(Array.prototype.slice.call(arguments, 2));
 
-		//Needs to be conditional on autocalc
-		if (this.context !== undefined) {
-			if (this.context.autocalc_state == true) {
-				this.fireActions(actions_to_fire);
-			} else {
-				this.context.todoactions.push(actions_to_fire);
-			}
-		} else {
-			this.fireActions(actions_to_fire);
-		}
-
-		if (this.context !== undefined) {
-			this.context.notifyGlobals(this,false);
-		}
-		return me;
-	};
-
-	/**
-	 * Watch another symbol for changes
-	 * @param {string} symbol_name A name for the Symbol
-	 */
-	Symbol.prototype.observe = function() {
-	
-	
-		var symbol_names = Utils.flatten(arguments);
-		var me = this;
-		
-		for (var i = 0; i < symbol_names.length; ++i) {
-			var symbol = this.context.lookup(symbol_names[i]);
-			this.observees[symbol.name] = symbol;
-		
-			symbol.addObserver(me.name, me);
-		
+		if (this.context) {
+			this.context.expireSymbol(this);
 		}
 
 		return this;
 	};
 
-	Symbol.prototype.stopObserving = function(symbol_name) {
-	
+	/**
+	 * Watch another symbol for changes.
+	 *
+	 * @param {...string} symbol_names Names of other symbols to observe from the same Folder.
+	 * @return {Symbol}
+	 */
+	Symbol.prototype.observe = function (symbol_names) {
+		symbol_names = Utils.flatten(arguments);
+		
+		for (var i = 0; i < symbol_names.length; ++i) {
+			var symbol = this.context.lookup(symbol_names[i]);
+			this.observees[symbol.name] = symbol;
+			symbol.addObserver(this.name, this);
+		}
+
+		this.trigger();
+		return this;
+	};
+
+	Symbol.prototype.stopObserving = function (symbol_name) {
 		this.observees[symbol_name].removeObserver(this.name);
 		this.observees[symbol_name] = undefined;
 	};
 
 	/**
-	 * Change the current value of this symbol and notify
-	 * @param {any} value
+	 * Change the current value of this symbol and notify.
+	 *
+	 * @param {*} value
+	 * @param {Symbol} modifying_agent
 	 */
-	Symbol.prototype.assign = function(value, modifying_agent) {
-	
-		var me = this;
-
-		// XXX: not sure if we really want to have last_modified_by set
-		// in the mutation methods
+	Symbol.prototype.assign = function (value, modifying_agent) {
+		value = copy(value);
+		if (this.name === "/autocalc") {
+			this.context && this.context.autocalc(value === 1);
+		}
+		this.eden_definition = undefined;
 		this._setLastModifiedBy(modifying_agent);
-		
 		this.definition = undefined;
-		this.clearDependencies();
-		this.clearObservees();
 		this.cached_value = value;
-
-		var actions_to_fire = {};
-		this.expire(actions_to_fire);
 		this.up_to_date = true;
 
-		//Needs to be conditional on autocalc
-		if (this.context !== undefined) {
-			if (this.context.autocalc_state == true) {
-				this.fireActions(actions_to_fire);
-			} else {
-				this.context.todoactions.push(actions_to_fire);
-			}
-		} else {
-			this.fireActions(actions_to_fire);
+		// symbol no longer observes or depends on anything
+		this.clearObservees();
+		this.clearDependencies();
+
+		if (this.context) {
+			this.context.expireSymbol(this);
 		}
 
-		if (this.context !== undefined) {
-			this.context.notifyGlobals(this,false);
-		}
 		return this;
 	};
 
 	/**
 	 * Change the current value of this symbol and notify
-	 * @param {function} mutator
+	 *
+	 * @param {function(Symbol, Symbol)} mutator
+	 * @param {Symbol} modifying_agent
+	 * @param {...*} mutatorArgs args to be passed to the mutator function.
 	 */
-	Symbol.prototype.mutate = function(mutator, modifying_agent) {
-	
+	Symbol.prototype.mutate = function (mutator, modifying_agent, mutatorArgs) {
 		var me = this;
+		this._setLastModifiedBy(modifying_agent);
 
-		// XXX: not sure if we really want to have last_modified_by set
-		// in the mutation methods
-		if (modifying_agent === global) {
-			this.last_modified_by = 'input';
-		} else {
-			this.last_modified_by = modifying_agent ? modifying_agent.name : 'unknown';
-		}
-
-		// XXX: need to make sure the cacexpirehed value exists before mutation
-		// which frequently relies on modifying the cached value
+		// need to make sure the cached value exists before mutation
+		// which is allowed to refer to the cached value.
 		this.value();
-
 		this.definition = undefined;
-		this.clearDependencies();
-		this.clearObservees();
 
 		mutator.apply(undefined, [this].concat(Array.prototype.slice.call(arguments, 1)));
 
-		var actions_to_fire = {};
-		this.expire(actions_to_fire);
-
-		this.up_to_date = true;
-		// accumulate a set of agents to trigger in expire, then trigger each of them
-		//Needs to be conditional on autocalc
-		if (this.context !== undefined) {
-			if (this.context.autocalc_state == true) {
-				this.fireActions(actions_to_fire);
-			} else {
-				this.context.todoactions.push(actions_to_fire);
-			}
-		} else {
-			this.fireActions(actions_to_fire);
+		if (this.context) {
+			this.context.expireSymbol(this);
 		}
 
-		if (this.context !== undefined) {
-			this.context.notifyGlobals(this,false);
-		}
 		return this;
 	};
 
 	Symbol.prototype.loggers = {
-		console: function(error) {
+		console: function (error) {
 			console.log("<JSEDEN:" + this.name + "> "  + error);
 		}
 	};
 
-	Symbol.prototype.logError = function(error) {
+	Symbol.prototype.logError = function (error) {
 		for (var channel_name in this.loggers) {
 			var logger = this.loggers[channel_name];
 			logger.call(this, error);
 		}
 	};
 
-	Symbol.prototype.trigger = function() {
-	
+	Symbol.prototype.trigger = function () {
+		var name;
+		// only trigger when all observed symbols have been defined by some agent
+		for (name in this.observees) {
+			if (!this.observees[name].last_modified_by) {
+				return;
+			}
+		}
 		// if one action fails, it shouldn't prevent all the other
 		// scheduled actions from firing
 		try {
-			//console.log("THIS: ", this);
 			this.value().call(this);
 		} catch (error) {
 			this.logError("Failed while triggering: " + error);
 		}
 	};
 
-	Symbol.prototype.fireActions = function(actions_to_fire){
+	function fireActions(actions_to_fire){
 		for (var action_name in actions_to_fire) {
 			var action = actions_to_fire[action_name];
-	
+
 			// if one action fails, it shouldn't prevent all the other
 			// scheduled actions from firing
-			if (action != undefined) { action.trigger(); }
+			if (action) {
+				action.trigger();
+			}
 		}
 	};
 
 	/**
 	 * Mark this symbol as out of date, and notify all formulas and observers of
 	 * this change
-	 * @param {object} a set to accumulate all the actions that should be notified about this expiry
+	 * @param {Object.<string,Symbol>} actions_to_fire set to accumulate all the actions that should be notified about this expiry
 	 */
-	Symbol.prototype.expire = function(actions_to_fire) {
-		var me = this;
-		this.up_to_date = false;
-
-		for (var subscriber_name in this.subscribers) {
-			var subscriber = this.subscribers[subscriber_name];
-			// XXX: why should this ever be undefined?
-			if (subscriber !== undefined) {
-				subscriber.expire(actions_to_fire);
-			}
+	Symbol.prototype.expire = function (symbols_to_force, actions_to_fire) {
+		if (this.definition) {
+			this.up_to_date = false;
+			symbols_to_force[this.name] = this;
 		}
 
 		for (var observer_name in this.observers) {
 			actions_to_fire[observer_name] = this.observers[observer_name];
 		}
 
-		setTimeout(function() {
-			if (me.context !== undefined) {
-				me.context.notifyGlobals(me,false);
+		// recursively mark out of date and collect
+		for (var subscriber_name in this.subscribers) {
+			var subscriber = this.subscribers[subscriber_name];
+			if (subscriber) {
+				subscriber.expire(symbols_to_force, actions_to_fire);
 			}
-		});
+		}
+
+		var me = this;
+		setTimeout(function () {
+			if (me.context !== undefined) {
+				me.context.notifyGlobals(me, false);
+			}
+		}, 0);
 	};
 
 	Symbol.prototype.assertNotDependentOn = function (name) {
@@ -424,31 +455,44 @@
 
 	/**
 	 * Add a subscriber to notify on changes to the stored value
+	 *
 	 * @param {string} name The name of the subscribing symbol
 	 */
-	Symbol.prototype.addSubscriber = function(name, symbol) {
+	Symbol.prototype.addSubscriber = function (name, symbol) {
 		this.assertNotDependentOn(name);
 		this.subscribers[name] = symbol;
 	};
 
-	Symbol.prototype.removeSubscriber = function(name) {
-		this.subscribers[name] = undefined;
+	/**
+	 * Tell this Symbol that it no longer needs to notify a specific symbol.
+	 *
+	 * @param {string} name The name of the symbol that no longer needs to be notified.
+	 */
+	Symbol.prototype.removeSubscriber = function (name) {
+		delete this.subscribers[name];
 	};
 
 	/**
-	 * Add an observer to notify on changes to the stored value
-	 * @param {string} name The name of the subscribing symbol
+	 * Add an observer to notify on changes to the stored value.
+	 *
+	 * @param {string} name The name of the subscribing Symbol.
+	 * @param {Symbol} symbol The Symbol to trigger when there is a change in this Symbol.
 	 */
-	Symbol.prototype.addObserver = function(name, symbol) {
+	Symbol.prototype.addObserver = function (name, symbol) {
 		this.observers[name] = symbol;
 	};
 
-	Symbol.prototype.removeObserver = function(name) {
-		this.observers[name] = undefined;
+	/**
+	 * Tell this Symbol that it no longer needs to notify a specific observer.
+	 *
+	 * @param {string} name Name of the observer that no longer needs to be notified.
+	 */
+	Symbol.prototype.removeObserver = function (name) {
+		delete this.observers[name];
 	};
 
 	var Utils = {
-		flatten: function(array) {
+		flatten: function (array) {
 			var flat = [];
 			for (var i = 0, l = array.length; i < l; ++i){
 				flat = flat.concat(array[i] instanceof Array ? this.flatten(array[i]) : array[i]);
@@ -456,7 +500,8 @@
 			return flat;
 		},
 
-		construct: (function() {
+		construct: (function () {
+			/** @constructor */
 			var temp_ctor = function () {};
 
 			return function (ctor) {
@@ -468,33 +513,60 @@
 		})()
 	};
 
-	Symbol.prototype.get = function() {
+	/**
+	 * Lookup part of the value for this Symbol, and return a SymbolAccessor for it.
+	 *
+	 * @param {...string} keys Keys to look up successively in the symbol value.
+	 * @return {SymbolAccessor}
+	 */
+	Symbol.prototype.get = function (keys) {
 		return Utils.construct.apply(undefined, [SymbolAccessor,this].concat(Array.prototype.slice.call(arguments)));
 	};
 
-
-	/*
+	/**
+	 * A SymbolAccessor can be used to focus on part of a Symbol, allowing
+	 * assignment and lookup of the value.
 	 *
+	 * E.g.
+	 *
+	 * ```
+	 * var array = root.lookup('myArray');
+	 * array.assign(['a', 'b', 'c']);
+	 * var firstElement = new SymbolAccessor(symbol, '0');
+	 * firstElement.value() // results in 'a'
+	 * ```
+	 *
+	 * @constructor
+	 * @struct
+	 * @param {Symbol} symbol The symbol to access a part of.
+	 * @param {...string} keys Keys to look up successively in the symbol value.
 	 */
-	var SymbolAccessor = function(symbol) {
+	function SymbolAccessor(symbol, keys) {
 		this.parent = symbol;
 		this.symbol = symbol;
 		this.keys = Array.prototype.slice.call(arguments, 1);
 	};
 
-	SymbolAccessor.prototype.assign = function(value, modifying_agent) {
+	/**
+	 * @param {*} value The value to assign.
+	 * @param {Symbol} modifying_agent The agent responsible for the modification.
+	 */
+	SymbolAccessor.prototype.assign = function (value, modifying_agent) {
 		var me = this;
-		this.parent.mutate(function(symbol, modifying_agent) {
-			var list = symbol.cached_value;
+		this.parent.mutate(function (symbol, modifying_agent) {
+			var list = symbol.value();
 			for (var i = 0; i < me.keys.length - 1; ++i) {
 				list = list[me.keys[i]];
 			}
 			list[me.keys[i]] = value;
-		});
+		}, modifying_agent);
 		return this;
 	};
 
-	SymbolAccessor.prototype.value = function() {
+	/**
+	 * @return {*} The current value for this part of the parent Symbol.
+	 */
+	SymbolAccessor.prototype.value = function () {
 		var value = this.parent.value();
 		for (var i = 0; i < this.keys.length; ++i) {
 			value = value[this.keys[i]];
@@ -502,7 +574,13 @@
 		return value;
 	};
 
-	SymbolAccessor.prototype.get = function() {
+	/**
+	 * Create a new SymbolAccessor by combining starting with the keys used for this one.
+	 *
+	 * @param {...string} keys Keys to lookup successively for the new accessor.
+	 * @return {SymbolAccessor}
+	 */
+	SymbolAccessor.prototype.get = function (keys) {
 		var newLookup = this.keys.concat(Array.prototype.slice.call(arguments));
 		return Symbol.prototype.get.apply(this.parent, newLookup);
 	};
@@ -510,4 +588,10 @@
 	// expose API
 	global.Folder = Folder;
 	global.Symbol = Symbol;
-}(typeof window !== 'undefined' && window || global));
+	
+	// expose as node.js module
+	if (global.module) {
+		global.module.exports.Folder = Folder;
+		global.module.exports.Symbol = Symbol;
+	}
+}(typeof window !== 'undefined' ? window : global));

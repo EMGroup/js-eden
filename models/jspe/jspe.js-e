@@ -1,9 +1,3 @@
-picture2=[];
-
-proc drawPicture2 : picture2 { 
-  CanvasHTML5_DrawPicture("jspe","picture2");
-};
-
 _view_default_x=10;
 _view_default_y=50;
 _view_jspe_x=960;
@@ -85,7 +79,6 @@ Slide = function (html) {
 
 func Slide { ${{
   var html = arguments[0];
-console.log(html);
   return new Slide(html);
 }}$; }
 
@@ -125,13 +118,13 @@ Slide.prototype.toString = function() {
 ${{
   copyToInput = function(e) {
 
-	document.getElementById("inputCodeArea").value = $(e).siblings('pre').text();
+	edenUI.createView("inputwindow", "InputWindow").setValue($(e).siblings('pre').text());
 	//Copies to EDEN interpreter window
   }
 
   execute = function(e) {
 	// Evaluates and stores in the symbol table
-	eden.plugins.InputWindow.submitEdenCode($(e).siblings('pre').text());
+	edenUI.plugins.InputWindow.submitEdenCode($(e).siblings('pre').text());
   }
 }}$;
 
@@ -173,26 +166,21 @@ proc drawSlides : slides {
 
 jspeleft = ${{ $('#jspe-dialog-canvas').position().left }}$;
 
-buttonPrevEnabled is true;
-buttonNextEnabled is true;
+buttonPrevEnabled is currentSlide > 1;
+buttonNextEnabled is currentSlide < slideList#;
 
-
-buttonPrev is SlideButton("buttonPrev","Previous Slide", jspeleft, 
-_view_jspe_height-70, buttonPrevEnabled);
-
-buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 150, 
-_view_jspe_height-70, buttonNextEnabled);
+buttonPrev is SlideButton("buttonPrev","Previous Slide", jspeleft, 0, buttonPrevEnabled);
+buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 150, 0, buttonNextEnabled);
 
 ## buttonSave = SlideButton("buttonSave","Add Slide", int(${{ $('#jspe-dialog-canvas').position().left }}$) + 100, ${{ $('#jspe-dialog-canvas').height()+15 }}$, true);
 
 slideList is [];
 
-proc disableButtons : currentSlide {
-	buttonPrevEnabled is (currentSlide <= 1) ? false : true;
-	buttonNextEnabled is (currentSlide >= slideList#) ? false : true;
-}
-
 proc prevSlide : buttonPrev_clicked {
+	if (!buttonPrev_clicked) {
+		return;
+	}
+
 	if (currentSlide > 2) {
 		currentSlide--;
 	} else {
@@ -201,6 +189,10 @@ proc prevSlide : buttonPrev_clicked {
 }
 
 proc nextSlide : buttonNext_clicked {
+	if (!buttonNext_clicked) {
+		return;
+	}
+
 	if (currentSlide < slideList#) {
 		currentSlide++;
 	} else {
@@ -210,9 +202,9 @@ proc nextSlide : buttonNext_clicked {
 
 
 ## something like an onclick of some kind which 
-slides is [buttonPrev, buttonNext, slideNumber, slideList[currentSlide]];
+slides is [buttonPrev, buttonNext, slideList[currentSlide]];
 
-currentSlide = 0;
+currentSlide = 1;
 ## slideNumber is Div("slidenumber",100,100,100,50,"<h3>Slide Number: "+currentSlide+"</h3>","");
 
 
@@ -220,5 +212,3 @@ ${{
 $('#canvas_buttonPrev').attr('id', 'jspe_buttonPrev');
 $('#canvas_buttonNext').attr('id', 'jspe_buttonNext');
 }}$;
-
-currentSlide = 0;

@@ -1,0 +1,67 @@
+${{
+function _keys(obj) {
+	if (Object.keys) {
+		return Object.keys.apply(this, arguments);
+	}
+
+	var result = [];
+	var p;
+	for (p in obj) {
+		if (obj.hasOwnProperty(p)) {
+			result.push(p);
+		}
+	}
+	return result;
+}
+}}$;
+
+generate_function is ${{ function generate(name, outputSym, inputs) {
+	var inputSet = {};
+	for (var i = 0; i < inputs.length; ++i) {
+		inputSet[inputs[i]] = true;
+	}
+
+	var output = outputSym.name.slice(1);
+	var todo = [outputSym.name];
+	var next;
+	var nextSym;
+	var ordered = [];
+	var defParts;
+	var deps;
+	while (todo.length) {
+		next = todo.pop().slice(1);
+		if (inputSet[next]) {
+			continue;
+		}
+		nextSym = root.lookup(next);
+		ordered.unshift(next);
+		deps = _keys(nextSym.dependencies);
+		todo.unshift.apply(todo, deps);
+	}
+
+	var i;
+	var statements = [];
+	var autos = {};
+	for (i = 0; i < ordered.length; ++i) {
+		next = ordered[i];
+		if (autos[next]) {
+			console.log('skipping', next);
+			continue;
+		}
+		console.log('visiting', next);
+		autos[next] = true;
+		nextSym = root.lookup(next);
+		defParts = nextSym.eden_definition.match(/\S+\s+is\s+(.*)/);
+		console.log(defParts);
+		statements.push(next+' = '+defParts[1]);
+	}
+	var autoKeys = _keys(autos);
+
+	return 'func '+name+' {\n'+
+		(!inputs.length ? '' : 'para '+inputs.join(', ')+';')+'\n'+
+		(!autoKeys.length ? '' : 'auto '+autoKeys.join(', ')+';')+'\n'+
+		statements.join(";\n")+';\n'+
+		'return '+output+';\n'+
+	'}';
+}
+}}$;

@@ -3,25 +3,22 @@
 ##
 ## See LICENSE.txt
 
-func require {
-  ${{
-  var lib = arguments[0];
-  eden.loadPlugin(lib);
-  }}$;
-};
+func execute {
+	${{ eden.execute(arguments[0]) }}$;
+}
 
 func createView {
 	${{
 	var name = arguments[0];
 	var type = arguments[1];
-	eden.createView(name,type);
+	edenUI.createView(name,type);
 	}}$;
 };
 
 func hideView {
 	${{
 	var name = arguments[0];
-	eden.hideView(name);
+	edenUI.hideView(name);
 	}}$;
 };
 
@@ -30,7 +27,7 @@ func moveView {
 	var name = arguments[0];
 	var x = arguments[1];
 	var y = arguments[2];
-	eden.moveView(name,x,y);
+	edenUI.moveView(name,x,y);
 	}}$;
 };
 
@@ -39,14 +36,8 @@ func resizeView {
 	var name = arguments[0];
 	var x = arguments[1];
 	var y = arguments[2];
-	eden.resizeView(name,x,y);
+	edenUI.resizeView(name,x,y);
 	}}$;
-};
-
-func includeSSI {
-${{
-	Eden.executeFileSSI(arguments[0]);
-}}$;
 };
 
 func showObservables { ${{

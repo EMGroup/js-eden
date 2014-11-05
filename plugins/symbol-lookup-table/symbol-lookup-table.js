@@ -1,12 +1,11 @@
-Eden.plugins.SLT = function(context) {
-
+EdenUI.plugins.SLT = function (edenui, success) {
 	var me = this;
 	var defaultview = "";
 
 	this.html = function(name,content) {
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
-				context.createView(name,"SLT");
+				edenui.createView(name,"SLT");
 			}
 			$("#"+defaultview+"-content").html(content).onclick;
 		} else {
@@ -34,7 +33,7 @@ Eden.plugins.SLT = function(context) {
 	}
 
 	//Register the HTML view options
-	context.views["SLT"] = {dialog: this.createDialog, title: "Symbol Lookup Table"};
+	edenui.views["SLT"] = {dialog: this.createDialog, title: "Symbol Lookup Table"};
 	
 	SLT = {};
 	SLT.update = function(event){
@@ -60,20 +59,23 @@ Eden.plugins.SLT = function(context) {
 	
 	
 	SLT.generateBottomHTML = function(regexString){
-		//generates the content
-
-		var HTML = "<tr><td class=\"lower\"><b>Name</b></td><td class=\"lower\"><b>Definition</b></td><td class=\"lower\"><b>Current Value</b></td><td class=\"lower\"><b>Watches</b></td><td class=\"lower\"><b>Updates</b></td>";
+		var HTML = "<tr>"+
+			"<td class=\"lower\"><b>Name</b></td>"+
+			"<td class=\"lower\"><b>Definition</b></td>"+
+			"<td class=\"lower\"><b>Current Value</b></td>"+
+			"<td class=\"lower\"><b>Watches</b></td>"+
+			"<td class=\"lower\"><b>Updates</b>"+
+			"<td class=\"lower\"><b>Last modified by</b></td>"+
+		"</tr>";
 		var symbolsx = SLT.arrayFromObject(root.symbols);
 		
 		re = new RegExp("^("+regexString+").*$","i");
 		
 		for(var i=0; i<symbolsx.length; i++){
-		
 			var blank = " - ";
 		
 			var name = symbolsx[i].name.replace(/\//g,'');
 			if(!re.test(name)){
-
 				continue;
 			}
 			
@@ -103,9 +105,18 @@ Eden.plugins.SLT = function(context) {
 			else{
 				ofa = "(Observable)";
 			}
+			var lastModifiedBy = symbolsx[i].last_modified_by ? symbolsx[i].last_modified_by : 'Not yet defined';
 
-			//table cells
-			HTML = HTML.concat("<tr><td class=\"lower\"><p>"+name+"\n"+ofa+"</p></td><td class=\"lower\"><p>"+def+"</p></td><td class=\"lower\"><p>"+value+"</p></td><td class=\"lower\"><p>"+WATCHES+"</p></td><td class=\"lower\"><p>"+UPDATES+"</p></td></tr>");
+			HTML = HTML.concat(
+				"<tr>"+
+					"<td class=\"lower\"><p>"+name+"\n"+ofa+"</p></td>"+
+					"<td class=\"lower\"><p>"+def+"</p></td>"+
+					"<td class=\"lower\"><p>"+value+"</p></td>"+
+					"<td class=\"lower\"><p>"+WATCHES+"</p></td>"+
+					"<td class=\"lower\"><p>"+UPDATES+"</p></td>"+
+					"<td class=\"lower\"><p>"+lastModifiedBy+"</p></td>"+
+				"</tr>"
+			);
 		}
 		return "<table>"+HTML+"</table>";
 	}
@@ -131,9 +142,10 @@ Eden.plugins.SLT = function(context) {
 		
 		return temp;
 	}
-
+	
+	success();
 };
 /* Plugin meta information */
-Eden.plugins.SLT.title = "Symbol Lookup Table (SLT)";
-Eden.plugins.SLT.description = "Database of all symbols in the application";
-Eden.plugins.SLT.author = "Joe Butler";
+EdenUI.plugins.SLT.title = "Symbol Lookup Table (SLT)";
+EdenUI.plugins.SLT.description = "Database of all symbols in the application";
+EdenUI.plugins.SLT.author = "Joe Butler";

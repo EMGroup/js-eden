@@ -36,7 +36,7 @@ proc cueMove : mouseX,mouseY {
 	}
 };
 
-proc cueSet : mouseClickX {
+proc cueSet : mouseClickY {
 	if (initialHitTaken == false) {
 		if (cuePositionSet == true) {
 			cuePositionSet = false;
@@ -113,22 +113,20 @@ instructions2 = Text("1. Move mouse to change direction of cue", 330, 45, "black
 instructions3 = Text("2. Click to set cue positiont (clicking again will un-set it)", 330, 55, "black");
 instructions4 = Text("3. When ready press 'Start'", 330, 65, "black");
 playGameBtn = Button("playGameBtn", "Start", 350, 80, true);
-playGameBtn_clicked is false;
 resetGameBtn = Button("resetGameBtn", "Reset", 350, 110, true);
-resetGameBtn_clicked is false;
 
 
 /* Procedures for dealing with when buttons are clicked */
 proc gameStarted : playGameBtn_clicked {
-	if(playGameBtn_clicked && cuePositionSet && !initialHitTaken) {
+	if (playGameBtn_clicked && cuePositionSet && !initialHitTaken) {
 		initialHitTaken = true;
-		endGame = true;
 		endGame = false;
 		poolBalls[1].velocityX = hypotenuseX;
 		poolBalls[1].velocityY = hypotenuseY;
 		moveBalls(poolBalls);
 	}
 }
+
 proc gameReset : resetGameBtn_clicked {
 	auto i;
 	initialHitTaken = false;
@@ -139,16 +137,6 @@ proc gameReset : resetGameBtn_clicked {
 		poolBalls[i].velocityX = 0;
 		poolBalls[i].velocityY = 0;
 	}
-}
-
-/* Log function used to help debug model. Prints arguments to the javascript console
- * use: log(argument1, argument2 ..., argumentn);
- */
-func log {
-	##${{ console.log.apply(console, arguments); }}$;
-}
-func abs { 
-	return ${{ Math.abs.apply(this, arguments); }}$; 
 }
 
 /* Check for collisions with holes (if the ball has been pocketed) */
@@ -207,7 +195,6 @@ proc moveBalls {
 
 	for(i=1; i<=poolBalls#; i++)
 	{
-		log("loop", i);
 		/* Limit ball velocity to between -200 and 200 */
 		if(poolBalls[i].velocityX > 200) {
 			poolBalls[i].velocityX = 200;
@@ -222,12 +209,10 @@ proc moveBalls {
 		
 		/* If ball hasn't already been pocketed... */
 		if(!poolBalls[i].pocketed) {
-			log("ifNotPocketed");
 			/* Check if its about to be pocketed */
 			ispocketed = pocketed(poolBalls[i]);
 			
 			if(ispocketed) {
-				log("pocketed");
 				poolBalls[i].pocketed = true;
 				poolBalls[i].x = poolBalls[i].initialX + 300;
 				poolBalls[i].y = poolBalls[i].initialY + 100;
@@ -260,29 +245,23 @@ proc moveBalls {
 				
 				/* Check to see if ball i is colliding with any other ball */
 				for(j=1; j<=poolBalls#; j++) {
-					log("checkOtherBalls", i, j);
 					if(i != j) {				
 						xDiff = poolBalls[i].x - poolBalls[j].x;
 						yDiff = poolBalls[i].y - poolBalls[j].y;
 						
 						/* Are balls i and j within collision distance? */
 						if(abs(xDiff) <= 2*ballWidth-2 && abs(yDiff) <= 2*ballWidth-2) {					
-						log("hi", xDiff, yDiff);
 							/* All the calculations needed to calculate velocities after collision */
 							dist = xDiff*xDiff + yDiff*yDiff;
-							log("dist", dist);
 							xVelocityDifference = poolBalls[j].velocityX - poolBalls[i].velocityX;
 							yVelocityDifference = poolBalls[j].velocityY - poolBalls[i].velocityY;
 
 							dotProduct = xDiff * xVelocityDifference + yDiff * yVelocityDifference;
-							log("dot", dotProduct);
 							
 							if(dotProduct > 0) {
-								log("dot > 0");
 								collisionScale = dotProduct / dist;
 								xCollision = xDiff * collisionScale;
 								yCollision = yDiff * collisionScale;
-								log(collisionScale, xCollision, yCollision);
 								combinedMass = 1 + 1;
 								collisionWeightA = 2 * 1/combinedMass;
 								collisionWeightB = 2 * 1/combinedMass;
@@ -291,25 +270,22 @@ proc moveBalls {
 								poolBalls[i].velocityY += collisionWeightA * yCollision;
 								poolBalls[j].velocityX -= collisionWeightB * xCollision;
 								poolBalls[j].velocityY -= collisionWeightB * yCollision;
-								log("vels assigned");
 							}						
 						}			
 					}
 				}		
 			}
 			/* Move the ball */
-			log("moveA");
 			poolBalls[i].velocityX = poolBalls[i].velocityX-poolBalls[i].velocityX*friction;
 			poolBalls[i].velocityY = poolBalls[i].velocityY-poolBalls[i].velocityY*friction;
-			log(poolBalls[i].velocityX, poolBalls[i].velocityY);
 			poolBalls[i].x += poolBalls[i].velocityX/80;
 			poolBalls[i].y += poolBalls[i].velocityY/80;
 		}
 	}
 	
-	after(1) {
+	after (1) {
 		/* If at least one ball is still moving with a velocity >20, re-call the procedure */
-		if(!endGame) {
+		if (!endGame) {
 			moveBalls(poolBalls);
 		}
 	}
@@ -324,7 +300,6 @@ func checkForEndGame {
 	if(initialHitTaken) {
 		for(i=1; i<poolBalls#; i++){	
 			if(abs(poolBalls[i].velocityX) > 20  || abs(poolBalls[i].velocityY) > 20) {
-			log("vel too small", abs(poolBalls[i].velocityX), abs(poolBalls[i].velocityY));
 				return false;
 			}
 		}

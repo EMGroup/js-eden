@@ -15,8 +15,7 @@
  */
  
 
-Eden.plugins.MenuBar = function(context) {
-
+EdenUI.plugins.MenuBar = function(edenUI, success) {
 	var me = this;
 	var index = 0;
 
@@ -37,83 +36,90 @@ Eden.plugins.MenuBar = function(context) {
 		menustatus.html(menustatus.html()+text);
 	}
 
+	var menuShowing = false;
+
+	var hideMenu = function () {
+		$(".menubar-menu").hide();
+		menuShowing = false;
+	};
+
+	var showMenu = function (name) {
+		$("#menubar-mainitem-"+name).show();
+		menuShowing = true;
+	};
+
+	$(document.body).on('mousedown', function () {
+		hideMenu();
+	});
+
 	/** @private */
 	var addMainItem = function(name, title) {
 	
 		var menuitem = $("<div class=\"menubar-mainitem\"></div>");
 		menuitem.html(title+"<div id=\"menubar-mainitem-"+name+"\" class=\"menubar-menu\"></div>");
 		menuitem.appendTo(menudiv);
-		$("#menubar-mainitem-"+name).hide();
-		menuitem.click(function() {
-			if ($("#menubar-mainitem-"+name).css("display") != "block") {
-				$(".menubar-menu").hide();
-				$("#menubar-mainitem-"+name).show(200);
-			} else {
-				$(".menubar-menu").hide();
-			}
-		}).hover(function() {
-			$(this).css("font-weight","bold");
-		},function() {
-			$(this).css("font-weight","normal");
-		});
-	};
 
-	/** @public */
-	this.updatePluginsMenu = function() {
-	
-		var plugins = $("#menubar-mainitem-plugins");
-		plugins.html("");
-		for (x in Eden.plugins) {
-			pluginentry = $("<div class=\"menubar-item\"></div>");
-			if (context.plugins[x] === undefined) {
-				pluginentry.html(Eden.plugins[x].title);
+		$("#menubar-mainitem-"+name).hide();
+
+		var toggleMenu = function (e) {
+			if (menuShowing) {
+				if (e.target === this) {
+					hideMenu();
+				}
 			} else {
-				pluginentry.html("<b>"+Eden.plugins[x].title+"</b>");
+				hideMenu();
+				showMenu(name);
 			}
-			pluginentry.appendTo(plugins);
-			pluginentry.bind("click",function() {
-				//console.log("Load Plugin: "+ this.plugin);
-				context.loadPlugin(this.plugin);
-				me.updatePluginsMenu();
-				me.updateViewsMenu();
-			});
-			pluginentry[0].plugin = x;
-		}
-		//plugins.menu();
+			e.stopPropagation();
+			e.preventDefault();
+		};
+
+		menuitem.on('mousedown', toggleMenu);
+		menuitem.on('mouseover', function () {
+			if (menuShowing) {
+				hideMenu();
+				showMenu(name);
+			}
+		});
 	};
 
 	/** @public */
 	this.updateViewsMenu = function() {
 	
 		var views = $("#menubar-mainitem-views");
+		var existingViews = $("#menubar-mainitem-existing-views");
 		views.html("");
 
 		//First add supported view types
-		for (x in context.views) {
+		for (x in edenUI.views) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
-			viewentry.html(context.views[x].title);
+			viewentry.html(edenUI.views[x].title);
 
 			viewentry.appendTo(views);
-			viewentry.bind("click",function() {
+			viewentry.bind("click",function(e) {
 				//console.log("Create and Show View: "+ this.view);
-				context.createView("view_"+index, this.view);
-				context.showView("view"+index);
+				edenUI.createView("view_"+index, this.view);
+				edenUI.showView("view"+index);
+				hideMenu();
 				index = index + 1;
 				me.updateViewsMenu();
+				e.stopPropagation();
+				e.preventDefault();
 			});
 			viewentry[0].view = x;
 		}
 
+		existingViews.html("");
 		//Now add actually active view.
-		$("<hr></hr>").appendTo(views);
-		for (x in context.active_dialogs) {
+		for (x in edenUI.activeDialogs) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
-			viewentry.html(x + " ["+context.active_dialogs[x]+"]");
+			viewentry.html(x + " ["+edenUI.activeDialogs[x]+"]");
 
-			viewentry.appendTo(views);
-			viewentry.bind("click",function() {
-				//console.log("Show View: "+ this.viewname);
-				context.showView(this.viewname);
+			viewentry.appendTo(existingViews);
+			viewentry.bind("click",function (e) {
+				edenUI.showView(this.viewname);
+				hideMenu();
+				e.preventDefault();
 			});
 			viewentry[0].viewname = x;
 		}
@@ -130,24 +136,8 @@ Eden.plugins.MenuBar = function(context) {
 	}
 
 	//Add main menu items.
-	addMainItem("jseden","JS-Eden");
-	addMainItem("plugins","Plugins");
-	addMainItem("views","Views");
-	//addMainItem("help","Help");
-
-	addMenuItem("jseden","Error Log", function() {
-	
-		$('#error-window').dialog("open");
-	});
-	//addMenuItem("help","Eden Syntax", function() {
-		
-	//});
-	//addMenuItem("help","Javascript Internals", function() {
-		
-	//});
-	//addMenuItem("help","About", function() {
-		
-	//});
+	addMainItem("views", "New");
+	addMainItem("existing-views", "Windows");
 
 	//Put js-eden version in right corner
 	$.ajax({
@@ -167,17 +157,11 @@ Eden.plugins.MenuBar = function(context) {
 		async: true
 	});
 
-	//Hide all menus on click.
-	//$(document).mouseup(function() {
-	//	$(".menubar-menu").hide();
-	//});
-
-	this.updatePluginsMenu();
 	this.updateViewsMenu();
 
-	Eden.executeFileSSI("plugins/menu-bar/menu-bar.js-e");
+	edenUI.eden.include("plugins/menu-bar/menu-bar.js-e", success);
 };
 
-Eden.plugins.MenuBar.title = "Menu Bar";
-Eden.plugins.MenuBar.description = "Provides main menu for plugin and view management";
-Eden.plugins.MenuBar.author = "Nicolas Pope";
+EdenUI.plugins.MenuBar.title = "Menu Bar";
+EdenUI.plugins.MenuBar.description = "Provides main menu for plugin and view management";
+EdenUI.plugins.MenuBar.author = "Nicolas Pope";

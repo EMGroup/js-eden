@@ -15,7 +15,7 @@
  */
 
  
-Eden.plugins.ProjectList = function(context) {
+EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 	var me = this;
 
@@ -65,15 +65,15 @@ Eden.plugins.ProjectList = function(context) {
 			proj[0].project = me.projects.projects[i];
 
 			proj.html(
-				"<li class=\"type-project\"><span class=\"projectlist-result_name\">"
+				"<li class=\"type-project\"><div class=\"projectlist-result_name\">"
 				+ me.projects.projects[i].name
-				+ "</span><br><span class='projectlist-result_value'>"
+				+ "</div><div class='projectlist-result_value'>"
 				+ me.projects.projects[i].description
-				+ "<br><span class='projectlist-result_value'> by "
+				+ "</div><div class='projectlist-result_value'> by "
 				+ me.projects.projects[i].author
 				+ " ("
 				+ me.projects.projects[i].year
-				+ ")</span></li>"
+				+ ")</div></li>"
 			).appendTo(projresults);
 
 			i = i + 1;
@@ -100,42 +100,21 @@ Eden.plugins.ProjectList = function(context) {
 			$(this).animate({backgroundColor: "#dbe5f1"}, 100);
 
 			if (this.project !== undefined) {
-				//Actually load the project by executing js-e file.
-				Eden.executeFileSSI(this.project.runfile);
-			} else {
-				//session_connect(this.session.cid);
+				// Actually load the project by executing js-e file.
+				edenUI.eden.include(this.project.runfile);
 			}
-			//printAllUpdates();
 		});
 	}
 
 	/**
-	 * Generate the base HTML structure of a project list dialog. Includes
-	 * the initially invisible project details and config views.
+	 * Generate the base HTML structure of a project list dialog.
 	 * @private
 	 */
 	var generateHTML = function() {
 		return "\
 <div class=\"projectlist-listing\">\
-	<div class=\"projectlist-search-box-outer\">\
-		<div class=\"projectlist-search-icon\"></div>\
-				<input type=\"text\" class=\"projectlist-search\"></input>\
-		<div class=\"projectlist-config-icon\"></div>\
-	</div>\
 	<div class=\"projectlist-results\"></div>\
-</div><div style=\"display: none;\" class=\"projectlist-config\">\
-</div><div style=\"display: none;\" class=\"projectlist-details\">\
 </div>";
-	}
-
-	/** @private */
-	var generateConfig = function() {
-
-	}
-
-	/** @private */
-	var generateDetails = function(project) {
-	
 	}
 
 	/** @public */
@@ -156,12 +135,7 @@ Eden.plugins.ProjectList = function(context) {
 
 		me.instances.push(code_entry[0]);
 		updateCollection(code_entry[0],"");
-		code_entry.find(".projectlist-search-box-outer > .projectlist-search").keyup(function() {
-			updateCollection(code_entry[0],this.value);
-		});
 	}
-
-	
 
 	//Get a list of projects from the server.
 	$.ajax({
@@ -169,7 +143,7 @@ Eden.plugins.ProjectList = function(context) {
 		dataType: 'json',
 		success: function(data) {
 			me.projects = data;
-			context.projects = me.projects;
+			edenUI.projects = me.projects;
 			updateAllCollections("");
 		},
 		cache: false,
@@ -177,10 +151,11 @@ Eden.plugins.ProjectList = function(context) {
 	});
 
 	//Add views supported by this plugin.
-	context.views["ProjectList"] = {dialog: this.createDialog, title: "Project List"};
+	edenUI.views["ProjectList"] = {dialog: this.createDialog, title: "Project List"};
+	success();
 };
 
 /* Plugin meta information */
-Eden.plugins.ProjectList.title = "Project List";
-Eden.plugins.ProjectList.description = "Display list of available projects";
-Eden.plugins.ProjectList.author = "Nicolas Pope";
+EdenUI.plugins.ProjectList.title = "Project List";
+EdenUI.plugins.ProjectList.description = "Display list of available projects";
+EdenUI.plugins.ProjectList.author = "Nicolas Pope";

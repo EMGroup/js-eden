@@ -1,5 +1,4 @@
-Eden.plugins.ST = function(context){
-
+EdenUI.plugins.ST = function(edenUI, success){
 	var me = this;
 	var defaultview = "";
 
@@ -7,7 +6,7 @@ Eden.plugins.ST = function(context){
 	//This doesn't look like its ever being called
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
-				context.createView(name,"ST");
+				edenUI.createView(name,"ST");
 			}
 			$("#"+defaultview+"-content").html(content).onclick;
 		} else {
@@ -27,21 +26,21 @@ Eden.plugins.ST = function(context){
 		code_entry = $('<div id=\"'+name+'-content\" class=\"st-content\"></div>').append($("<input id=\""+name+"-regex\"></input>")).append($('<button style="margin-bottom:20px;">Generate State</button>').click(function(){
 			
 			//Adds a new state to the tree
-			eden.plugins.ST.ST.states.push(eden.plugins.ST.generateState("partial"));
+			edenUI.plugins.ST.ST.states.push(edenUI.plugins.ST.generateState("partial"));
 			
 			var statename = document.getElementById(name+"-regex").value;
 			if(statename==""){
-				statename = "State "+eden.plugins.ST.ST.nextBlankState;
+				statename = "State "+edenUI.plugins.ST.ST.nextBlankState;
 			}
 			
 			$('#'+name+'-content-states').append(
-				"<div id='stdiv"+eden.plugins.ST.ST.nextBlankState+"' class='stdiv'>"+statename+": <a class='stlinkrestore' href='javascript:eden.plugins.ST.changeState("+eden.plugins.ST.ST.nextBlankState+")'>Restore</a> "+new Date().toLocaleTimeString()+" <a class='stlinkdelete' href='javascript:eden.plugins.ST.deleteState("+eden.plugins.ST.ST.nextBlankState+")'> Delete</a></div>"
+				"<div id='stdiv"+edenUI.plugins.ST.ST.nextBlankState+"' class='stdiv'>"+statename+": <a class='stlinkrestore' href='javascript:edenUI.plugins.ST.changeState("+edenUI.plugins.ST.ST.nextBlankState+")'>Restore</a> "+new Date().toLocaleTimeString()+" <a class='stlinkdelete' href='javascript:edenUI.plugins.ST.deleteState("+edenUI.plugins.ST.ST.nextBlankState+")'> Delete</a></div>"
 			);
 			
 			document.getElementById(name+"-regex").value = "";
 			
 			//Increment the next blank state
-			eden.plugins.ST.ST.nextBlankState++;
+			edenUI.plugins.ST.ST.nextBlankState++;
 			
 		})).append($('<div id="'+name+'-content-states"></div>'));
 		
@@ -89,7 +88,7 @@ Eden.plugins.ST = function(context){
 					continue;
 				}
 			
-				if(eden.plugins.ST.ignoreRE.test(root.symbols[ii].name.substring(1,root.symbols[ii].name.length))){
+				if(edenUI.plugins.ST.ignoreRE.test(root.symbols[ii].name.substring(1,root.symbols[ii].name.length))){
 				//console.log("not deleting:"+root.symbols[ii].name)
 					continue;
 				}
@@ -98,7 +97,7 @@ Eden.plugins.ST = function(context){
 			}
 			
 			//Interpret the given state
-			eden.plugins.InputWindow.submitEdenCode(eden.plugins.ST.ST.states[stateIndex]);
+			edenUI.plugins.InputWindow.submitEdenCode(edenUI.plugins.ST.ST.states[stateIndex]);
 			
 /*
 			var afterStore = [];
@@ -233,7 +232,7 @@ Eden.plugins.ST = function(context){
 			
 			//Reasoning /push to appropriate array
 						
-			if(eden.plugins.ST.ignoreRE.test(name)){
+			if(edenUI.plugins.ST.ignoreRE.test(name)){
 				continue;
 			}
 			
@@ -306,9 +305,10 @@ Eden.plugins.ST = function(context){
 	}
 	
 	//Register the HTML view options
-	context.views["ST"] = {dialog: this.createDialog, title: "State Timeline"};
+	edenUI.views["ST"] = {dialog: this.createDialog, title: "State Timeline"};
+	success();
 };
 /* Plugin meta information */
-Eden.plugins.ST.title = "State Timeline (ST)";
-Eden.plugins.ST.description = "A timeline of states for the Application Environment JS-EDEN";
-Eden.plugins.ST.author = "Joe Butler";
+EdenUI.plugins.ST.title = "State Timeline (ST)";
+EdenUI.plugins.ST.description = "A timeline of states for the Application Environment JS-EDEN";
+EdenUI.plugins.ST.author = "Joe Butler";

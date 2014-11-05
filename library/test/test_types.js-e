@@ -1,0 +1,46 @@
+
+jseTestGroup = "char";
+assertChecksNumberOfArgs(&char, 1, [65]);
+assertEqual(char('A'), 'A', "Returns the same char for a char argument");
+assertEqual(char(65), 'A', "Returns the character having the same character code as the integer argument");
+assertEqual(char("abc"), 'a', "Returns the first character of a char argument");
+assertEqual(char(""), "", "Returns a sort of nothing character for an empty string argument");
+assertEqual(char(65.5), 'A', "Truncates a float to an integer and then returns the character having that character code");
+assertEqual(char(true), char(1), "Converts a Boolean to an integer and then returns the character having that character code");
+assertEqual(char(writeln), @, "Returns undefined 'otherwise'");
+assertEqual(char([]), @, "Returns undefined 'otherwise'");
+assertEqual(char(&writeln), @, "Returns undefined 'otherwise'");
+assertEqual(char(@), @, "Returns undefined 'otherwise'");
+
+jseTestGroup = "int";
+assertChecksNumberOfArgs(&int, 1, ["1"]);
+assertEqual(int(42), 42, "Returns the same integer for an integer argument");
+assertEqual(int('A'), 65, "Returns the Unicode character code for a single character string argument");
+assertEqual(int("42"), 42, "Interprets a string as a stream of digits and returns that integer");
+assertEqual(int("1"), 1, "Interprets single digit strings as digits, no conversion to character codes");
+assertEqual(int(6.5), 6, "Truncates a positive float");
+assertEqual(int(-6.5), -6, "Truncates a negative float");
+assertEqual(int("-6.5"), -6, "Interprets a string as a stream of digits and converts the float to an integer");
+assertEqual(int("abc"), 0, "Tries to interpret a string as a stream of digits, finds non-digits, returns 0");
+assertEqual(int(""), 0, "Tries to interpret a string as a stream of digits, finds no characters, returns 0");
+assertEqual(int(false), 0, "Converts false to 0.");
+assertEqual(int(writeln), @, "Returns undefined 'otherwise'");
+assertEqual(int([]), @, "Returns undefined 'otherwise'");
+assertEqual(int(@), @, "Returns undefined 'otherwise'");
+
+jseTestGroup = "str";
+assertChecksNumberOfArgs(&str, 1, [100]);
+assertEqual(str("abc"), "abc", "Returns the same string for a string argument");
+assertEqual(str(@), "@", "Returns \"@\" for an undefined argument");
+assertEqual(str('A'), "A", "Returns a string composed of that one character for a char argument");
+assertEqual(str(12), "12", "Returns the string of digits representing the numeric value of an integer argument");
+assertEqual(str(-12.75), "-12.75", "Returns the string of digits representing the numeric value of a float argument");
+
+jseTestGroup = "type";
+assertChecksNumberOfArgs(&type, 1, [42]);
+assertEqual(type(@), "@", "Returns \"@\" for an undefined argument");
+assertEqual(type(42), "int", "Returns \"int\" for an integer argument");
+assertEqual(type(""), "string", "Returns \"string\" for a string argument");
+assertEqual(type("a"), "string", "Returns \"string\" for a string argument of length 1");
+assertEqual(type(6.5), "float", "Returns \"float\" for a non-integer numeric argument");
+assertEqual(type([]), "list", "Returns \"list\" for a list argument");
