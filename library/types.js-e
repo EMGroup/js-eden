@@ -91,22 +91,44 @@ func int {
 	}}$;
 }
 
-func str {
+##int('0') incorrectly gives 0 instead of 48.  This complementary function
+##(a JS-EDEN specific addition) always gives the Unicode character code,
+##including for numerals.  Unlike int() this function raises an error if its
+##argument is not a single character.
+func charCode {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("str: this function requires exactly one argument."), "error");
+			eden.error(new Error("charCode: this function requires exactly one argument."), "error");
 			return undefined;			
 		}
-
-		if (typeof(arguments[0]) == "string") {
-			return arguments[0];
-		} else if (arguments[0] === undefined) {
-			return "@";
+		
+		var value = arguments[0];
+		if (value === undefined) {
+			return undefined;
+		} else if (typeof(value) != "string") {
+			eden.error(new Error("charCode: The argument must be a string, not a " + typeof(value)), "error");
+			return undefined;
+		} else if (value.length != 1) {
+			eden.error(new Error("charCode: The argument must be a single character, not " + value), "error");
+			return undefined;
 		} else {
-			var a = arguments[0];
-			return (new Number(a)).toString();
+			return value.charCodeAt(0);
 		}
 	}}$;
+}
+
+func str {
+	para v;
+	if ($# != 1) {
+		error("str: this function requires exactly one argument.");
+		return @;		
+	}
+
+	if (isString(v)) {
+		return v;
+	} else {
+		return edenCode(v);
+	}
 }
 
 ##=============================================================================
@@ -249,7 +271,7 @@ func isChar {
 ##	(2) The null object
 ##		null can't have properties attached to it or accept standard method
 ##		invocations like toString(), unlike all other object-typed values.
-##	(3) NaNs
+##	(3) A NaN
 ##		Although NaNs are part of the JavaScript number type that EDEN
 ##		inherits, NaNs are not numbers from a modelling perspective.  An
 ##		expression that evaluates to NaN, such as 0/0 has mathematical
@@ -306,6 +328,10 @@ func isList {
 ##Tests if a value is a NaN.
 func isNaN {
 	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isNaN: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
 		return isNaN(arguments[0]);
 	}}$;
 }
