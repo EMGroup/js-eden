@@ -118,21 +118,17 @@ func charCode {
 }
 
 func str {
-	${{
-		if (arguments.length != 1) {
-			eden.error(new Error("str: this function requires exactly one argument."), "error");
-			return undefined;			
-		}
+	para v;
+	if ($# != 1) {
+		error("str: this function requires exactly one argument.");
+		return @;		
+	}
 
-		if (typeof(arguments[0]) == "string") {
-			return arguments[0];
-		} else if (arguments[0] === undefined) {
-			return "@";
-		} else {
-			var a = arguments[0];
-			return (new Number(a)).toString();
-		}
-	}}$;
+	if (isString(v)) {
+		return v;
+	} else {
+		return edenCode(v);
+	}
 }
 
 ##=============================================================================

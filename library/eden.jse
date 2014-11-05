@@ -158,3 +158,5 @@ include("library/maths.jse");
 include("library/strings.js-e");
 include("library/algebra.jse");
 include("library/include_js.js-e");
+include("library/dynamic.js-e");
+include("library/html.js-e");
