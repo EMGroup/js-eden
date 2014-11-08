@@ -47,12 +47,13 @@ ${{
 
 			var can = $(content);
 			var inputHtml = '<input  type="button"' +
-															'value="' + this.label + '"' +
+															'value="' + this.label + '"' + dis +
 															'style="' +
 																'position: absolute;' +
 																'left: ' + this.x + 'px;' +
 																'top: ' + this.y + 'px;"' +
-											'</input>'
+											'</input>';
+			console.log(inputHtml);
 
 			var $input = $(inputHtml).click(function () {
 				root.lookup(name + "_clicked").assign(true);
