@@ -53,7 +53,6 @@ ${{
 																'left: ' + this.x + 'px;' +
 																'top: ' + this.y + 'px;"' +
 											'</input>';
-			console.log(inputHtml);
 
 			var $input = $(inputHtml).click(function () {
 				root.lookup(name + "_clicked").assign(true);
