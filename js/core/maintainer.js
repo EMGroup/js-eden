@@ -590,7 +590,7 @@
 	global.Symbol = Symbol;
 	
 	// expose as node.js module
-	if (global.module) {
+	if (global.module && global.module.exports) {
 		global.module.exports.Folder = Folder;
 		global.module.exports.Symbol = Symbol;
 	}
