@@ -263,6 +263,7 @@ function concatAndResolveUrl(url, concat) {
 		if (url.match(/.js$/)) {
 			$.ajax({
 				url: url,
+				dataType: 'script',
 				success: success,
 				error: error
 			});

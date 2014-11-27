@@ -492,4 +492,25 @@ if (typeof window !== "undefined") {
 		});
 		stop();
 	});
+
+	test("@browser include js", function () {
+		eden.execute('include("test-models/test.js");', function () {
+			equal(root.lookup('x').value(), 9002);
+			start();
+		});
+		stop();
+	});
+
+	test("@browser include js different host", function () {
+		var done = false;
+		eden.execute('include("http://underscorejs.org/underscore-min.js");', function () {
+			ok(_ instanceof Object);
+			done = true;
+			start();
+		});
+		setTimeout(function () {
+			if (!done) { ok(false, 'failed to get underscore.js'); start(); }
+		}, 2000);
+		stop();
+	});
 }
