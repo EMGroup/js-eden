@@ -2,7 +2,7 @@ var root;
 var eden;
 
 function edenModule(description) {
-	QUnit.module("foo", {
+	QUnit.module(description, {
 		setup: function () {
 			root = new Folder();
 			eden = new Eden(root);
@@ -423,6 +423,16 @@ test("list comparison", function () {
 	equal(root.lookup('b').value(), false);
 	eden.execute("b = [] == @;");
 	equal(root.lookup('b').value(), false);
+});
+
+test("insert", function () {
+	eden.execute("x = [20,30,40]; insert x, 2, 50;");
+	deepEqual(root.lookup('x').value(), [20, 50, 30, 40]);
+});
+
+test("delete", function () {
+	eden.execute("x = [20,30,40]; delete x, 2;");
+	deepEqual(root.lookup('x').value(), [20, 40]);
 });
 
 //
