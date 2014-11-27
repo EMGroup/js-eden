@@ -130,7 +130,7 @@
  */
 
 %right '=' '+=' '-='
-%right TERNARY
+%right '?' ':'
 %left '||' OR
 %left '&&' AND
 %right '==' '!='
@@ -285,7 +285,7 @@ expression
     //
     // ternary operator
     //
-    | expression '?' expression ':' expression %prec TERNARY
+    | expression '?' expression ':' expression
         { $$ = $expression1 + ' ? ' + $expression2 + ' : ' + $expression3; }
 
     | OPENJS javascript ENDJS
