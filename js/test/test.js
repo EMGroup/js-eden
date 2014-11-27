@@ -63,8 +63,12 @@ test("Modulus operator without whitespace doesn't get confused by language switc
 edenModule("Ternary");
 
 test("Ternary precedence", function () {
-	eden.execute("x = 1 ? 1 : 2 + 1;");
+	eden.execute("x = 1 ? 1 : 1 + 1;");
 	equal(root.lookup('x').value(), 1);
+	eden.execute("x = 1 + 1 ? 1 : 1;");
+	equal(root.lookup('x').value(), 1);
+	eden.execute("x = 0 ? 'a' : 1 ? 'b' : 'c';");
+	equal(root.lookup('x').value(), 'b');
 });
 
 //
