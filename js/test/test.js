@@ -48,6 +48,14 @@ test("Assignment sets the correct value", function () {
 });
 
 //
+// ternary
+//
+test("Ternary precedence", function () {
+	eden.execute("x = 1 ? 1 : 2 + 1;");
+	equal(root.lookup('x').value(), 1);
+});
+
+//
 // char
 //
 edenModule("Char type");

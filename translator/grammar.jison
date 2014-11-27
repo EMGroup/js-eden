@@ -130,6 +130,7 @@
  */
 
 %right '=' '+=' '-='
+%right TERNARY
 %left '||' OR
 %left '&&' AND
 %right '==' '!='
@@ -138,7 +139,6 @@
 %left '*' '/'
 %right '%'
 %left UMINUS
-%right '?'
 %left '!'
 %nonassoc DEREFERENCE LENGTH
 
@@ -285,8 +285,9 @@ expression
     //
     // ternary operator
     //
-    | expression '?' expression ':' expression
+    | expression '?' expression ':' expression %prec TERNARY
         { $$ = $expression1 + ' ? ' + $expression2 + ' : ' + $expression3; }
+
     | OPENJS javascript ENDJS
         { $$ = $2; }
     ;
