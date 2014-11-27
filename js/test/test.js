@@ -21,8 +21,6 @@ test("No language token", function () {
 	equal(root.lookup('x').value(), 2);
 });
 
-// monk: toggling these tests off as they are currently broken
-
 test("%eden", function () {
 	eden.execute("%eden\nx = 2;");
 	equal(root.lookup('x').value(), 2);
