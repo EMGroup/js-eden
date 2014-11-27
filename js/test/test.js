@@ -48,8 +48,20 @@ test("Assignment sets the correct value", function () {
 });
 
 //
+// modulus
+//
+edenModule("Modulus");
+
+test("Modulus operator without whitespace doesn't get confused by language switching", function () {
+	eden.execute("a = 1; b = 1; x = a%b;");
+	equal(root.lookup('a').value(), 1);
+});
+
+//
 // ternary
 //
+edenModule("Ternary");
+
 test("Ternary precedence", function () {
 	eden.execute("x = 1 ? 1 : 2 + 1;");
 	equal(root.lookup('x').value(), 1);

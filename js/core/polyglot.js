@@ -19,7 +19,7 @@ Polyglot.prototype.execute = function (polyglotCode, origin, prefix, success) {
 		this.currentLanguage = this.defaultLanguage;
 	}
 	var lastChar = polyglotCode.length;
-	var lastLineMatch = polyglotCode.substr(firstChar).search(new RegExp(this.languageModeRegex));
+	var lastLineMatch = polyglotCode.substr(firstChar).search(new RegExp('\n'+this.languageModeRegex));
 	if (lastLineMatch !== -1) {
 		lastChar = firstChar + lastLineMatch;
 	}
