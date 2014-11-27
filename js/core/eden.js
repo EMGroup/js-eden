@@ -511,7 +511,7 @@ function concatAndResolveUrl(url, concat) {
 	global.Eden = Eden;
 
 	// expose as node.js module
-	if (global.module) {
+	if (global.module && global.module.exports) {
 		global.module.exports.Eden = Eden;
 	}
 }(typeof window !== 'undefined' ? window : global));

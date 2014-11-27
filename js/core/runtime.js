@@ -81,6 +81,6 @@ var rt = {
 this.rt = rt;
 
 // expose as node.js module
-if (this.module) {
+if (this.module && this.module.exports) {
 	this.module.exports.rt = rt;
 }
