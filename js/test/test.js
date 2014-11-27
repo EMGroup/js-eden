@@ -23,16 +23,16 @@ test("No language token", function () {
 
 // monk: toggling these tests off as they are currently broken
 
-//test("%eden", function () {
-//	eden.execute("%eden\nx = 2;");
-//	equal(root.lookup('x').value(), 2);
-//	eden.execute("%eden\nx = 3;%eden");
-//	equal(root.lookup('x').value(), 3);
-//	eden.execute("x = 4;%eden");
-//	equal(root.lookup('x').value(), 4);
-//	eden.execute("%eden\nx = 1;%js\nroot.lookup('x').assign(root.lookup('x').value() + 1);");
-//	equal(root.lookup('x').value(), 2);
-//});
+test("%eden", function () {
+	eden.execute("%eden\nx = 2;");
+	equal(root.lookup('x').value(), 2);
+	eden.execute("%eden\nx = 3;\n%eden");
+	equal(root.lookup('x').value(), 3);
+	eden.execute("x = 4;\n%eden");
+	equal(root.lookup('x').value(), 4);
+	eden.execute("%eden\nx = 1;\n%js\nroot.lookup('x').assign(root.lookup('x').value() + 1);");
+	equal(root.lookup('x').value(), 2);
+});
 
 //
 // observables
