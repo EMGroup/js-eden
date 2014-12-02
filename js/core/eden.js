@@ -286,6 +286,7 @@ function concatAndResolveUrl(url, concat) {
 				// same host, no need to use JSONP proxy
 				$.ajax({
 					url: url,
+					dataType: "text",
 					success: function (data) {
 						eden.execute(data, url, newPrefix, success);
 					},
