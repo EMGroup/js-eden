@@ -64,14 +64,20 @@ Combobox.prototype.draw = function(context,content) {
 
 		boxhtml.get(0).togarbage = false;
 
+		var valueName = me2+'_value';
+		var drawableName = me2+'_drawable';
+
 		setTimeout(function () {
-			root.lookup(me2 + "_value").assign(that.options[0]);
+			root.lookup(valueName).assign(that.options[0]);
 		}, 0);
+
+		root.lookup(drawableName).assign(this);
+		eden.execute('proc '+me2+'_update : '+valueName+' { '+drawableName+'.draw(); }');
 	} else {
 		$(box).html(makeoptionshtml(this.options));
 		box.togarbage = false;
 
-		$(box).val(root.lookup(this.name+"_value").cached_value);
+		$(box).val(root.lookup(this.name+"_value").value());
 
 		if (this.enabled == true) { 
 			box.disabled = false; 
