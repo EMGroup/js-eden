@@ -156,7 +156,7 @@ script
                  '(function(context, rt) { ' +
                     yy.printObservableDeclarations() +
                     yy.withIncludes($1, 'done') +
-                 '})(root, rt);' +
+                 '}).call(this, root, rt);' +
                '})';
       }
     ;

@@ -5,6 +5,8 @@
  * See LICENSE.txt
  */
 
+function noop() {}
+
 // import node.js modules
 function concatAndResolveUrl(url, concat) {
 	var url1 = url.split('/');
@@ -132,12 +134,12 @@ function concatAndResolveUrl(url, concat) {
 		var me = this;
 		this.polyglot.setDefault('eden');
 		this.polyglot.register('eden', {
-			execute: function (code, origin, prefix, success) {
-				me.executeEden(code, origin, prefix, success);
+			execute: function (code, origin, prefix, name, success) {
+				me.executeEden(code, origin, prefix, name, success);
 			}
 		});
 		this.polyglot.register('js', {
-			execute: function (code, origin, prefix, success) {
+			execute: function (code, origin, prefix, name, success) {
 				var result = eval(code);
 				success && success(result);
 			}
@@ -210,11 +212,11 @@ function concatAndResolveUrl(url, concat) {
 		++this.errorNumber;
 	};
 	
-	Eden.prototype.executeEden = function (code, origin, prefix, success) {
+	Eden.prototype.executeEden = function (code, origin, prefix, name, success) {
 		var result;
 		this.emit('executeBegin', [origin]);
 		try {
-			eval(this.translateToJavaScript(code))(this.root, this, prefix, function () {
+			eval(this.translateToJavaScript(code)).call({name: name}, this.root, this, prefix, function () {
 				success && success();
 			});
 		} catch (e) {
@@ -229,13 +231,19 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {string?} prefix Prefix used for relative includes.
 	 * @param {function(*)} success
 	 */
-	Eden.prototype.execute = function (code, origin, prefix, success) {
-		if (arguments.length == 2) {
+	Eden.prototype.execute = function (code, origin, prefix, name, success) {
+		if (arguments.length <= 2) {
 			success = origin;
 			origin = 'unknown';
 			prefix = '';
+			name = 'input';
 		}
-		this.polyglot.execute(code, origin, prefix, success);
+
+		if (!success) {
+			success = noop;
+		}
+
+		this.polyglot.execute(code, origin, prefix, name, success);
 	};
 
 	/**
@@ -278,7 +286,7 @@ function concatAndResolveUrl(url, concat) {
 						url: url,
 					},
 					success: function (data) {
-						eden.execute(data.success, url, newPrefix, success);
+						eden.execute(data.success, url, newPrefix, '/include', success);
 					},
 					error: error
 				});
@@ -288,7 +296,7 @@ function concatAndResolveUrl(url, concat) {
 					url: url,
 					dataType: "text",
 					success: function (data) {
-						eden.execute(data, url, newPrefix, success);
+						eden.execute(data, url, newPrefix, '/include', success);
 					},
 					error: error
 				});

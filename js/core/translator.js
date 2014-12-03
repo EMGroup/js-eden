@@ -86,7 +86,7 @@ case 1: return '(function (root, eden, includePrefix, done) {' +
                  '(function(context, rt) { ' +
                     yy.printObservableDeclarations() +
                     yy.withIncludes($$[$0-1], 'done') +
-                 '})(root, rt);' +
+                 '}).call(this, root, rt);' +
                '})';
       
 break;
