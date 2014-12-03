@@ -3,6 +3,10 @@ EdenUI.plugins.SG = function(edenUI, success) {
 	var me = this;
 	var defaultview = "";
 
+	function lastModifiedByInput(name) {
+		return root.lookup(name).last_modified_by === 'input';
+	}
+
 	this.html = function(name, content) {
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
@@ -100,6 +104,11 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			var ofai = 5;
 		
 			var name = symbolsx[i].name.replace(/\//g,'');
+				
+			if (!lastModifiedByInput(name)) {
+				continue;
+			}
+
 			var def = Eden.deHTML(symbolsx[i].eden_definition);
 				if(def==undefined){
 					def = blank;
@@ -112,28 +121,19 @@ EdenUI.plugins.SG = function(edenUI, success) {
 					continue;
 				}
 			}
-				
+
 			//check this early
 			if(def.indexOf("proc")==0){
 				ofa = "(Action)";
 				ofai = 2;
-				if(Eden.isitSystemAgent(name)){
-					continue;
-				}
 			}
 			else if(def.indexOf("func")==0){
 				ofa = "(Function)";
 				ofai = 1;
-				if(Eden.isitSystemFunction(name)){
-					continue;
-				}
 			}
 			else{
 				ofa = "(Observable)";
 				ofai = 0;
-				if(Eden.isitSystemObservable(name)){
-					continue;
-				}
 			}
 				
 			var value = Eden.deHTML(String(symbolsx[i].cached_value)).replace("/n", "<br/>");

@@ -336,12 +336,12 @@ test("readonly doesn't set last modified by", function () {
 
 test("assignment sets last modified by", function () {
 	eden.execute('x = 1;');
-	equal(root.lookup('x').last_modified_by, 'input');
+	equal(root.lookup('x').last_modified_by, 'execute');
 });
 
 test("assignment from proc invoked directly sets last modified by", function () {
 	eden.execute('proc p { x = 2; } p();');
-	equal(root.lookup('x').last_modified_by, 'input');
+	equal(root.lookup('x').last_modified_by, 'execute');
 });
 
 test("assignment from triggered proc sets last modified by", function () {
@@ -351,12 +351,12 @@ test("assignment from triggered proc sets last modified by", function () {
 
 test("definition sets last modified by", function () {
 	eden.execute('x is 1;');
-	equal(root.lookup('x').last_modified_by, 'input');
+	equal(root.lookup('x').last_modified_by, 'execute');
 });
 
 test("definition from proc invoked directly sets last modified by", function () {
 	eden.execute('proc p { x is 2; } p();');
-	equal(root.lookup('x').last_modified_by, 'input');
+	equal(root.lookup('x').last_modified_by, 'execute');
 });
 
 test("definition from triggered proc sets last modified by", function () {
@@ -366,12 +366,12 @@ test("definition from triggered proc sets last modified by", function () {
 
 test("function definition sets last modified by", function () {
 	eden.execute('func f {}');
-	equal(root.lookup('f').last_modified_by, 'input');
+	equal(root.lookup('f').last_modified_by, 'execute');
 });
 
 test("proc definition sets last modified by", function () {
 	eden.execute('proc p {}');
-	equal(root.lookup('p').last_modified_by, 'input');
+	equal(root.lookup('p').last_modified_by, 'execute');
 });
 
 //
@@ -466,12 +466,12 @@ edenModule("Include statement");
 
 test("include defers execution", function () {
 	var include = eden.include;
-	eden.include = function (url, prefix, success) {
+	eden.include = function (url, prefix, agent, success) {
 		equal(url, "https://test.com/test.js");
 		setTimeout(function () {
 			equal(root.lookup('x').value(), undefined);
 			// allow script which called "include" to continue
-			success();
+			success.call(agent);
 			equal(root.lookup('x').value(), 2);
 			start();
 		}, 0);

@@ -412,9 +412,9 @@ statement
     | RETURN expression ';'
         { $$ = yy.sync('return ' + $expression + ';'); }
     | INCLUDE expression ';'
-        { $$ = yy.async('eden.include', $expression, 'includePrefix'); }
+        { $$ = yy.async('eden.include', $expression, 'includePrefix', 'this'); }
     | REQUIRE expression ';'
-        { $$ = yy.async('edenUI.loadPlugin', $expression); }
+        { $$ = yy.async('edenUI.loadPlugin', $expression, 'this'); }
     | AWAIT expression ';'
         { $$ = yy.async($expression + '.callAsync'); }
     | INSERT lvalue ',' expression ',' expression ';'
