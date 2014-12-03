@@ -5,6 +5,8 @@
  * See LICENSE.txt
  */
 
+function noop() {}
+
 // import node.js modules
 function concatAndResolveUrl(url, concat) {
 	var url1 = url.split('/');
@@ -132,12 +134,12 @@ function concatAndResolveUrl(url, concat) {
 		var me = this;
 		this.polyglot.setDefault('eden');
 		this.polyglot.register('eden', {
-			execute: function (code, origin, prefix, success) {
-				me.executeEden(code, origin, prefix, success);
+			execute: function (code, origin, prefix, agent, success) {
+				me.executeEden(code, origin, prefix, agent, success);
 			}
 		});
 		this.polyglot.register('js', {
-			execute: function (code, origin, prefix, success) {
+			execute: function (code, origin, prefix, agent, success) {
 				var result = eval(code);
 				success && success(result);
 			}
@@ -210,11 +212,11 @@ function concatAndResolveUrl(url, concat) {
 		++this.errorNumber;
 	};
 	
-	Eden.prototype.executeEden = function (code, origin, prefix, success) {
+	Eden.prototype.executeEden = function (code, origin, prefix, agent, success) {
 		var result;
 		this.emit('executeBegin', [origin]);
 		try {
-			eval(this.translateToJavaScript(code))(this.root, this, prefix, function () {
+			eval(this.translateToJavaScript(code)).call(agent, this.root, this, prefix, function () {
 				success && success();
 			});
 		} catch (e) {
@@ -229,13 +231,21 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {string?} prefix Prefix used for relative includes.
 	 * @param {function(*)} success
 	 */
-	Eden.prototype.execute = function (code, origin, prefix, success) {
+	Eden.prototype.execute = function (code, origin, prefix, agent, success) {
+		if (arguments.length == 1) {
+			success = noop;
+			origin = 'unknown';
+			prefix = '';
+			agent = {name: '/execute'};
+		}
 		if (arguments.length == 2) {
 			success = origin;
 			origin = 'unknown';
 			prefix = '';
+			agent = {name: '/execute'};
 		}
-		this.polyglot.execute(code, origin, prefix, success);
+
+		this.polyglot.execute(code, origin, prefix, agent, success);
 	};
 
 	/**
@@ -243,11 +253,17 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {string?} prefix Prefix used for relative includes.
 	 * @param {function()} success Called when include has finished successfully.
 	 */
-	Eden.prototype.include = function (includePath, prefix, success) {
-		if (arguments.length == 2) {
+	Eden.prototype.include = function (includePath, prefix, agent, success) {
+		if (arguments.length === 2) {
 			success = prefix;
+			agent = {name: '/include'};
+			prefix = '';
+		} else if (arguments.length === 3) {
+			success = agent;
+			agent = prefix;
 			prefix = '';
 		}
+
 		var url;
 		if (includePath.charAt(0) === '.') {
 			url = concatAndResolveUrl(prefix, includePath);
@@ -260,11 +276,15 @@ function concatAndResolveUrl(url, concat) {
 		var error = function (e) {
 			eden.error(new Error("Failed to include '"+url+"', error: "+JSON.stringify(e)));
 		};
+		var wrappedSuccess = function () {
+			success && success.call(agent);
+		};
+			
 		if (url.match(/.js$/)) {
 			$.ajax({
 				url: url,
 				dataType: 'script',
-				success: success,
+				success: wrappedSuccess,
 				error: error
 			});
 		} else {
@@ -278,7 +298,7 @@ function concatAndResolveUrl(url, concat) {
 						url: url,
 					},
 					success: function (data) {
-						eden.execute(data.success, url, newPrefix, success);
+						eden.execute(data.success, url, newPrefix, agent, wrappedSuccess);
 					},
 					error: error
 				});
@@ -288,7 +308,7 @@ function concatAndResolveUrl(url, concat) {
 					url: url,
 					dataType: "text",
 					success: function (data) {
-						eden.execute(data, url, newPrefix, success);
+						eden.execute(data, url, newPrefix, agent, wrappedSuccess);
 					},
 					error: error
 				});

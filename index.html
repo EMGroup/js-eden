@@ -71,7 +71,7 @@ See LICENSE.txt
 
 <script type="text/javascript">
 	JS_Eden_Initialise(function () {
-		eden.include("library/initialise.jse", function () {
+		eden.include("library/initialise.jse", {name: '/system'}, function () {
 			// Force manual refresh of views menu.
 			edenUI.plugins.MenuBar.updateViewsMenu();
 		});

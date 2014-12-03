@@ -40,11 +40,16 @@
 	 * @param {string} name Name of the plugin to load.
 	 * @param {function()?} success
 	 */
-	EdenUI.prototype.loadPlugin = function (name, success) {
+	EdenUI.prototype.loadPlugin = function (name, agent, success) {
+		if (arguments.length === 2) {
+			success = agent;
+			agent = {name: '/loadPlugin'};
+		}
+
 		if (this.plugins[name] === undefined) {
-			this.plugins[name] = new EdenUI.plugins[name](this, function () { success && success(); });
+			this.plugins[name] = new EdenUI.plugins[name](this, function () { success && success.call(agent); });
 		} else {
-			success && success();
+			success && success.call(agent);
 		}
 	};
 

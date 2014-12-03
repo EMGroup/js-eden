@@ -9,7 +9,7 @@ Polyglot.prototype.register = function (languageName, executor) {
 	this.languages[languageName] = executor;
 };
 
-Polyglot.prototype.execute = function (polyglotCode, origin, prefix, success) {
+Polyglot.prototype.execute = function (polyglotCode, origin, prefix, agent, success) {
 	var firstChar = 0;
 
 	// look for %<lang> on the first line of input
@@ -32,13 +32,13 @@ Polyglot.prototype.execute = function (polyglotCode, origin, prefix, success) {
 
 	var section = polyglotCode.slice(firstChar, lastChar);
 	var me = this;
-	this.languages[this.currentLanguage].execute(section, origin, prefix, function () {
+	this.languages[this.currentLanguage].execute(section, origin, prefix, agent, function () {
 		polyglotCode = polyglotCode.substr(lastChar);
 		if (polyglotCode === '') {
 			success && success();
 			return;
 		}
-		me.execute(polyglotCode, origin, prefix, success);
+		me.execute(polyglotCode, origin, prefix, agent, success);
 	});
 };
 
