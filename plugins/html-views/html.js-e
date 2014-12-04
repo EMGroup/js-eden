@@ -1,13 +1,73 @@
+/*
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
 ##HTML Output
+##If two arguments are provided then the view named by the first argument is
+##is updated to have the content set to the HTML code specified by the second
+##argument.  If only one argument is provided then the argument contains the
+##HTML code and the default HTML view is updated.
 proc html {
 	${{
-	var arg0 = arguments[0];
-	var arg1 = arguments[1];
+		var viewName, content;
+		switch (arguments.length) {
+		case 1:
+			viewName = "DEFAULT";
+			content = arguments[0];
+			break;
+		case 2:
+			viewName = arguments[0];
+			content = arguments[1];
+			if (typeof(viewName) != "string") {
+				eden.error(new Error("html: The name of the view to update must be a string, not a " + typeof(viewName)), "error");
+			}
+			break;
+		default:
+			eden.error(new Error("html: This procedure requires at least 1 argument and at most 2 arguments."), "error");
+			return;
+		}
 
-	if (arg1 === undefined) {
-		edenUI.plugins.HTMLViews.html("DEFAULT",arg0);
-	} else {
-		edenUI.plugins.HTMLViews.html(arg0,arg1);
-	}
+		if (content === undefined) {
+			content = "<div style=\"color: red\">undefined</div>";
+		}
+		
+		edenUI.plugins.HTMLViews.html(viewName, content);
 	}}$;
 };
+
+##Creates a HTML view and a triggered procedure so that contents of the view
+##are kept in sync with the value of a given observable name at all times.  The first
+##parameter is the name of the observable who's value provides the HTML code.  The
+##second, optional parameter, is the name of the view itself (which is reflected
+##in the window's title bar).
+func createHTMLView {
+	auto viewName, obsName;
+	if ($# == 1) {
+		obsName = $[1];
+		viewName = $[1];
+	} else if ($# == 2) {
+		obsName = $[1];
+		if ($[2] == @) {
+			viewName = obsName;
+		} else if (isString($[2])) {
+			viewName = $[2];
+		} else {
+			error("createHTMLView: The second argument must be a string, not a " // type($[2]));
+			return;
+		}
+	} else {
+		error("createHTMLView: This procedure requires at least 1 argument and at most 2 arguments.");
+		return;
+	}
+	
+	if (!isString(obsName)) {
+		error("createHTMLView: The first argument must be a string, not a " // type(obsName));
+		return;
+	}
+	
+	createView(viewName, "PlainHTML");
+	execute("proc _update_" // viewName // " : " // obsName // " { html(" // edenCode(viewName) // ", " // obsName // "); }");
+}
