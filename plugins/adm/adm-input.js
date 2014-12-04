@@ -12,7 +12,7 @@
  * These can then be instantiated and computation takes place through selections of available
  * actions made by the human user.
  */
- Eden.plugins.ADM = function(context) {
+ EdenUI.plugins.ADM = function (edenUI, success) {
 	var me = this;
 	
 	// Array of actions selected to be executed
@@ -236,8 +236,6 @@
 		input_dialog = $dialog;
 		
 		$("#btn-submit").css("margin-right", "30px");
-		
-		myeditor = convertToEdenPageNew('#'+name+'-input','code');
 	};
 
 	/***** CODE FOR TEMPLATE INSTANTIATOR VIEW *****/
@@ -378,7 +376,7 @@
 					}
 				}]
 			});
-		me.templateList = new Eden.plugins.ADM.TemplateList();
+		me.templateList = new EdenUI.plugins.ADM.TemplateList();
 		// Show all precreated templates in the dropdown list for instantiation.
 		for (x in me.templates) {
 			var template = me.templates[x];
@@ -478,7 +476,7 @@
 		}
 
 		if (me.actionLists != null) {
-			var actionList = new Eden.plugins.ADM.ActionsList(name);
+			var actionList = new EdenUI.plugins.ADM.ActionsList(name);
 			me.actionLists.push(actionList);
 			// Display available actions in the human perspective.
 			refreshEntity(entity, actionList);
@@ -520,7 +518,7 @@
 		}
 		me.selectedActions = new Array();
 		// Check for the next available actions.
-		eden.plugins.ADM.refreshHumanPerspective();
+		edenUI.plugins.ADM.refreshHumanPerspective();
 	}
 
 	/* Add selected action to list of currently selected actions in human perspective. */
@@ -625,7 +623,7 @@
 					id: "btn-refresh",
 					text: "Refresh actions",
 					click: function() {
-						eden.plugins.ADM.refreshHumanPerspective();
+						edenUI.plugins.ADM.refreshHumanPerspective();
 					}
 				},
 				{
@@ -639,9 +637,9 @@
 		me.actionLists = new Array();
 		for (x in me.entities) {
 			var name = me.entities[x].name;
-			me.actionLists.push(new Eden.plugins.ADM.ActionsList(name));
+			me.actionLists.push(new EdenUI.plugins.ADM.ActionsList(name));
 		}
-		eden.plugins.ADM.refreshHumanPerspective();
+		edenUI.plugins.ADM.refreshHumanPerspective();
 	};
 
 	/***** CODE FOR ENTITY LIST VIEW *****/
@@ -682,7 +680,7 @@
 
 		for (x in me.actionLists) {
 			if (me.actionLists[x].entityName == entityName) {
-				me.actionsLists[x] = new Eden.plugins.ADM.ActionsList(entityName);
+				me.actionsLists[x] = new EdenUI.plugins.ADM.ActionsList(entityName);
 				for (x in entity.actionsArr) {
 					//me.actionsLists[x].addAction(entity.actionsArr[x]);
 				}
@@ -740,7 +738,7 @@
 					}
 				}*/]
 			});
-		me.entityList = new Eden.plugins.ADM.EntityList();
+		me.entityList = new EdenUI.plugins.ADM.EntityList();
 		for (x in me.entities) {
 			var entity = me.entities[x];
 			me.entityList.addEntity(entity.name, entity.definitions.join('\n'), entity.actionsArr.join('\n'));
@@ -944,51 +942,52 @@
 			});
 		input_dialog = $dialog;
 		$("#btn-submit-advanced").css("margin-right", "30px");
-		myeditor = convertToEdenPageNew("#advanced-input", "code");
 	};
 
 
-	context.views["AdmTemplateCreator"] = {
+	edenUI.views["AdmTemplateCreator"] = {
 		dialog: this.createTemplateCreator,
 		title: "ADM Template Creator"
 	};
 
-	context.views["AdmInstantiator"] = {
+	edenUI.views["AdmInstantiator"] = {
 		dialog: this.createInstantiator,
 		title: "ADM Template Instantiator"
 	};
 	
-	context.views["AdmHumanPerspective"] = {
+	edenUI.views["AdmHumanPerspective"] = {
 		dialog: this.createHumanPerspective,
 		title: "ADM Human Perspective"
 	};
 
-	context.views["AdmEntityList"] = {
+	edenUI.views["AdmEntityList"] = {
 		dialog: this.createInstanceList,
 		title: "ADM Entity List"
 	};
 
-	context.views["AdmAdvancedInput"] = {
+	edenUI.views["AdmAdvancedInput"] = {
 		dialog: this.createAdvancedInput,
 		title: "ADM Advanced Input"
 	};
+
+	success();
 };
 
 /* Objects to represent the list of templates in the instantiator.*/
-Eden.plugins.ADM.TemplateList = function() {
+EdenUI.plugins.ADM.TemplateList = function() {
 	this.templateList = document.getElementById('template-menu');
 	this.templateList.style.minWidth="100px";
 	this.templates = new Array();
 }
 
-Eden.plugins.ADM.TemplateList.prototype.addTemplate = function(template, params) {
-	var templateElement = new Eden.plugins.ADM.Template(template, params);
+EdenUI.plugins.ADM.TemplateList.prototype.addTemplate = function(template, params) {
+	var templateElement = new EdenUI.plugins.ADM.Template(template, params);
 	templateElement.element.appendTo(this.templateList);
 	this.templates.push(templateElement);
 }
 
 /* Each template is selectable in the drop down menu of the view.*/
-Eden.plugins.ADM.Template = function(template, parameters) {
+EdenUI.plugins.ADM.Template = function(template, parameters) {
 	this.template = template;
 	this.element = $('<option value='+template+'>'+template+'</option>');
 	var show = this.showParamInput;
@@ -1003,7 +1002,7 @@ Eden.plugins.ADM.Template = function(template, parameters) {
 }
 
 /* Add an input box for every parameter. */
-Eden.plugins.ADM.Template.prototype.showParamInput = function(params) {
+EdenUI.plugins.ADM.Template.prototype.showParamInput = function(params) {
 	var instantiator = document.getElementById("instantiate-params");
 	instantiator.innerHTML="";
 	for (x in params) {
@@ -1021,7 +1020,7 @@ Eden.plugins.ADM.Template.prototype.showParamInput = function(params) {
 
 
 /* Objects to represent the list of available actions for each entity in the human perspective.*/
-Eden.plugins.ADM.ActionsList = function(entityName) {
+EdenUI.plugins.ADM.ActionsList = function(entityName) {
 	var humanPerspective = document.getElementById("human-perspective");
 	this.actionresults = document.createElement('div');
 	this.actionresults.setAttribute('id', 'actions_'+entityName);
@@ -1031,23 +1030,23 @@ Eden.plugins.ADM.ActionsList = function(entityName) {
 	this.entityName = entityName;
 }
 
-Eden.plugins.ADM.ActionsList.prototype.addAction = function(action, finalAction) {
-	var actionElement = new Eden.plugins.ADM.Action(action, finalAction);
+EdenUI.plugins.ADM.ActionsList.prototype.addAction = function(action, finalAction) {
+	var actionElement = new EdenUI.plugins.ADM.Action(action, finalAction);
 	actionElement.element.appendTo(this.actionresults);
 	this.actions.push(actionElement);
 }
 
-Eden.plugins.ADM.ActionsList.prototype.clear = function() {
+EdenUI.plugins.ADM.ActionsList.prototype.clear = function() {
 	this.actions = new Array();
         this.actionresults.innerHTML = '<label><b>Actions for '+this.entityName+'</b></label>';
 }
 	
-Eden.plugins.ADM.ActionsList.prototype.remove = function() {
+EdenUI.plugins.ADM.ActionsList.prototype.remove = function() {
 	var humanPerspective = document.getElementById("human-perspective");
 	humanPerspective.removeChild(document.getElementById("actions_"+this.entityName));
 }
 
-Eden.plugins.ADM.Action = function(action, finalAction) {
+EdenUI.plugins.ADM.Action = function(action, finalAction) {
 	var action = action;
 	this.action = action;
 	this.element = $('<div class="entitylist-element"></div>');
@@ -1071,11 +1070,11 @@ Eden.plugins.ADM.Action = function(action, finalAction) {
 	).click(function() {
 		// On click select/deselect this action for execution next step.
 		if (selected == false) {
-			eden.plugins.ADM.actionPush(action);
+			edenUI.plugins.ADM.actionPush(action);
 			$(this).css("backgroundColor","#6666CC");
 			selected = true;
 		} else {
-			eden.plugins.ADM.actionRemove(action);
+			edenUI.plugins.ADM.actionRemove(action);
 			$(this).css("backgroundColor", "white");
 			selected = false;
 		}
@@ -1084,7 +1083,7 @@ Eden.plugins.ADM.Action = function(action, finalAction) {
 	this.update(finalAction);
 }
 
-Eden.plugins.ADM.Action.prototype.updateAction = function(finalAction) {
+EdenUI.plugins.ADM.Action.prototype.updateAction = function(finalAction) {
 	var baseHTML = "<li class=\"type-function\"><span class=\"result_name\">";
 	if (finalAction == true) {
 		baseHTML = baseHTML + this.action + "</span></li>";
@@ -1097,18 +1096,18 @@ Eden.plugins.ADM.Action.prototype.updateAction = function(finalAction) {
 
 
 /* Objects to represent the list of entities. */
-Eden.plugins.ADM.EntityList = function() {
+EdenUI.plugins.ADM.EntityList = function() {
 	this.entityList = document.getElementById('entity-list');
 	this.entities = new Array();
 }
 
-Eden.plugins.ADM.EntityList.prototype.addEntity = function(entity, defs, actions) {
-	var entityElement = new Eden.plugins.ADM.Entity(entity, defs, actions);
+EdenUI.plugins.ADM.EntityList.prototype.addEntity = function(entity, defs, actions) {
+	var entityElement = new EdenUI.plugins.ADM.Entity(entity, defs, actions);
 	entityElement.element.appendTo(this.entityList);
 	this.entities.push(entityElement);
 }
 
-Eden.plugins.ADM.EntityList.prototype.removeEntity = function(entity) {
+EdenUI.plugins.ADM.EntityList.prototype.removeEntity = function(entity) {
 	var index;
 	for (x in this.entities) {
 		if (this.entities[x].entity == entity) {
@@ -1120,13 +1119,13 @@ Eden.plugins.ADM.EntityList.prototype.removeEntity = function(entity) {
 	this.entityList.removeChild(entityElement);
 }
 
-Eden.plugins.ADM.EntityList.prototype.unselectAll = function() {
+EdenUI.plugins.ADM.EntityList.prototype.unselectAll = function() {
 	for (x in this.entities) {
 		this.entities[x].unselect();
 	}
 }
 
-Eden.plugins.ADM.Entity = function(entity, definitions, actions) {
+EdenUI.plugins.ADM.Entity = function(entity, definitions, actions) {
 	this.entity = entity;
 	this.element = $('<div class="entitylist-element" id=element-'+entity+'></div>');
 	var contentHTML = "<li class=\"type-function\"><span class=\"result_name\">"
@@ -1157,25 +1156,25 @@ Eden.plugins.ADM.Entity = function(entity, definitions, actions) {
 					<label>Actions:</label><br>\
 					<textarea disabled>'+actions+'</textarea><br>'
 			this.appendChild(newDiv);
-			eden.plugins.ADM.entityPush(entity);
+			edenUI.plugins.ADM.entityPush(entity);
 			$(this).css("backgroundColor", "#6666CC");
 			selected = true;
 		} else {
 			this.innerHTML = contentHTML;
-			eden.plugins.ADM.entityRemove(entity);
+			edenUI.plugins.ADM.entityRemove(entity);
 			$(this).css("backgroundColor", "white");
 			selected = false;
 		}
 	});
 }
 
-Eden.plugins.ADM.Entity.prototype.unselect = function() {
+EdenUI.plugins.ADM.Entity.prototype.unselect = function() {
 	var contentHTML = "<li class=\"type-function\"><span class=\"result_name\">"
 		+ this.entity + "</span></li>";
 	this.element.html(contentHTML);
 }
 
 
-Eden.plugins.ADM.title = "ADM";
-Eden.plugins.ADM.description = "Abstract Definitive Machine";
-Eden.plugins.ADM.author = "Ruth King";
+EdenUI.plugins.ADM.title = "ADM";
+EdenUI.plugins.ADM.description = "Abstract Definitive Machine";
+EdenUI.plugins.ADM.author = "Ruth King";

@@ -130,6 +130,7 @@
  */
 
 %right '=' '+=' '-='
+%right '?' ':'
 %left '||' OR
 %left '&&' AND
 %right '==' '!='
@@ -138,7 +139,6 @@
 %left '*' '/'
 %right '%'
 %left UMINUS
-%right '?'
 %left '!'
 %nonassoc DEREFERENCE LENGTH
 
@@ -156,7 +156,7 @@ script
                  '(function(context, rt) { ' +
                     yy.printObservableDeclarations() +
                     yy.withIncludes($1, 'done') +
-                 '})(root, rt);' +
+                 '}).call(this, root, rt);' +
                '})';
       }
     ;
@@ -287,6 +287,7 @@ expression
     //
     | expression '?' expression ':' expression
         { $$ = $expression1 + ' ? ' + $expression2 + ' : ' + $expression3; }
+
     | OPENJS javascript ENDJS
         { $$ = $2; }
     ;
@@ -411,15 +412,15 @@ statement
     | RETURN expression ';'
         { $$ = yy.sync('return ' + $expression + ';'); }
     | INCLUDE expression ';'
-        { $$ = yy.async('eden.include', $expression, 'includePrefix'); }
+        { $$ = yy.async('eden.include', $expression, 'includePrefix', 'this'); }
     | REQUIRE expression ';'
-        { $$ = yy.async('edenUI.loadPlugin', $expression); }
+        { $$ = yy.async('edenUI.loadPlugin', $expression, 'this'); }
     | AWAIT expression ';'
         { $$ = yy.async($expression + '.callAsync'); }
     | INSERT lvalue ',' expression ',' expression ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ', 0, ' + $expression2 + '); });'); }
+        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ' - 1, 0, ' + $expression2 + '); });'); }
     | DELETE lvalue ',' expression ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ', 1); });'); }
+        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ' - 1, 1); });'); }
     | APPEND lvalue ',' expression ';'
         { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.push(' + $expression1 + '); });'); }
     | SHIFT lvalue ';'

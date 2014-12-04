@@ -3,6 +3,10 @@ EdenUI.plugins.SG = function(edenUI, success) {
 	var me = this;
 	var defaultview = "";
 
+	function lastModifiedByInput(name) {
+		return root.lookup(name).last_modified_by === 'input';
+	}
+
 	this.html = function(name, content) {
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
@@ -46,13 +50,13 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			if(regex==undefined){
 				continue;
 			}
-			views[j].children[0].children[1].innerHTML = SG.generateInnerHTML(regex);
+			views[j].children[0].children[2].innerHTML = SG.generateInnerHTML(regex);
 		}
 	}
 	
 	SG.generateAllHTML = function(){
 		//generates the regex
-		var indiv = '<input onkeyup="SG.update()" type="select" placeholder="Regex to not display"/><div style=\" display:block; \">'+SG.generateInnerHTML()+'</div>';
+		var indiv = '<input onkeyup="SG.update()" type="select" placeholder="Regex to not display"/><button style="float: right;" onclick="SG.update()">Re-generate script</button><div style=\" display:block; \">'+SG.generateInnerHTML()+'</div>';
 		return indiv;
 	}
 	
@@ -78,7 +82,7 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			picture = picture+";";
 		}
 		var comments = [
-			"## Auto-Generated Script of Model by JS-Eden J-version",
+			"## Auto-Generated Script of Model by JS-Eden",
 			"## Auto calculation is turned off to until the model has been fully loaded",
 			"## Observable Assignments:",
 			"## Observable Definitions:",
@@ -100,6 +104,11 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			var ofai = 5;
 		
 			var name = symbolsx[i].name.replace(/\//g,'');
+				
+			if (!lastModifiedByInput(name)) {
+				continue;
+			}
+
 			var def = Eden.deHTML(symbolsx[i].eden_definition);
 				if(def==undefined){
 					def = blank;
@@ -112,28 +121,19 @@ EdenUI.plugins.SG = function(edenUI, success) {
 					continue;
 				}
 			}
-				
+
 			//check this early
 			if(def.indexOf("proc")==0){
 				ofa = "(Action)";
 				ofai = 2;
-				if(Eden.isitSystemAgent(name)){
-					continue;
-				}
 			}
 			else if(def.indexOf("func")==0){
 				ofa = "(Function)";
 				ofai = 1;
-				if(Eden.isitSystemFunction(name)){
-					continue;
-				}
 			}
 			else{
 				ofa = "(Observable)";
 				ofai = 0;
-				if(Eden.isitSystemObservable(name)){
-					continue;
-				}
 			}
 				
 			var value = Eden.deHTML(String(symbolsx[i].cached_value)).replace("/n", "<br/>");
@@ -189,30 +189,31 @@ EdenUI.plugins.SG = function(edenUI, success) {
 		lines.push(autocalcOff);
 		lines.push("");
 		lines.push(comments[2]);
-		lines.push("");
 		for(var i=0; i<obsAssins.length; i++){
 			lines.push(obsAssins[i]);
 		}
 		lines.push("");
 		lines.push(comments[3]);
-		lines.push("");
 		for(var i=0; i<obsDefs.length; i++){
 			lines.push(obsDefs[i]);
 		}
 		lines.push("");
 		lines.push(comments[4]);
-		lines.push("");	
 		for(var i=0; i<acts.length; i++){
 			lines.push(acts[i]);
-			lines.push("");
+			if (i !== acts.length - 1) {
+				lines.push("");
+			}
 		}
 		lines.push("");
 		lines.push(comments[5]);
-		lines.push("");
 		for(var i=0; i<functs.length; i++){
 			lines.push(functs[i]);
-			lines.push("");
+			if (i !== functs.length - 1) {
+				lines.push("");
+			}
 		}
+		lines.push("");
 		lines.push(comments[6]);
 		lines.push(picture);
 		lines.push("");
@@ -221,9 +222,9 @@ EdenUI.plugins.SG = function(edenUI, success) {
 		lines.push("");
 		lines.push(comments[8]);
 
-		//console.log(lines.join("\n"));
-
-		return "<pre>"+lines.join("\n")+"</pre>";
+		return "<div style='position: absolute; top: 30px; bottom: 10px; left: 0; right: 10px;'>"+
+							"<textarea disabled=true spellcheck=false style='font-family: monospace; background-color: white; color: black; resize: none; width: 100%; height: 100%;'>"+lines.join("\n")+"</textarea>"+
+						"</div>";
 	}
 	
 	SG.arrayFromObject = function(object){

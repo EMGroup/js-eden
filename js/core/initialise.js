@@ -145,7 +145,7 @@ function JS_Eden_Initialise(callback) {
 		$('<pre id="error-window" style="font-family:monospace; display: none;"></pre>').appendTo($('body'));
 
 		//Load the Eden library scripts
-		eden.include("library/eden.jse", function () {
+		eden.include("library/eden.jse", {name: '/system'}, function () {
 			//Process query string for plugins and models to load
 			var plugins = getParameterByName("p").split(",");
 			var views = getParameterByName("v").split(",");

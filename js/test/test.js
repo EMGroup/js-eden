@@ -2,7 +2,7 @@ var root;
 var eden;
 
 function edenModule(description) {
-	QUnit.module("foo", {
+	QUnit.module(description, {
 		setup: function () {
 			root = new Folder();
 			eden = new Eden(root);
@@ -24,11 +24,11 @@ test("No language token", function () {
 test("%eden", function () {
 	eden.execute("%eden\nx = 2;");
 	equal(root.lookup('x').value(), 2);
-	eden.execute("%eden\nx = 3;%eden");
+	eden.execute("%eden\nx = 3;\n%eden");
 	equal(root.lookup('x').value(), 3);
-	eden.execute("x = 4;%eden");
+	eden.execute("x = 4;\n%eden");
 	equal(root.lookup('x').value(), 4);
-	eden.execute("%eden\nx = 1;%js\nroot.lookup('x').assign(root.lookup('x').value() + 1);");
+	eden.execute("%eden\nx = 1;\n%js\nroot.lookup('x').assign(root.lookup('x').value() + 1);");
 	equal(root.lookup('x').value(), 2);
 });
 
@@ -45,6 +45,30 @@ test("Underscores in observable names works", function () {
 test("Assignment sets the correct value", function () {
 	eden.execute("x = 2;");
 	equal(root.lookup('x').value(), 2);
+});
+
+//
+// modulus
+//
+edenModule("Modulus");
+
+test("Modulus operator without whitespace doesn't get confused by language switching", function () {
+	eden.execute("a = 1; b = 1; x = a%b;");
+	equal(root.lookup('a').value(), 1);
+});
+
+//
+// ternary
+//
+edenModule("Ternary");
+
+test("Ternary precedence", function () {
+	eden.execute("x = 1 ? 1 : 1 + 1;");
+	equal(root.lookup('x').value(), 1);
+	eden.execute("x = 1 + 1 ? 1 : 1;");
+	equal(root.lookup('x').value(), 1);
+	eden.execute("x = 0 ? 'a' : 1 ? 'b' : 'c';");
+	equal(root.lookup('x').value(), 'b');
 });
 
 //
@@ -312,12 +336,12 @@ test("readonly doesn't set last modified by", function () {
 
 test("assignment sets last modified by", function () {
 	eden.execute('x = 1;');
-	equal(root.lookup('x').last_modified_by, 'input');
+	equal(root.lookup('x').last_modified_by, 'execute');
 });
 
 test("assignment from proc invoked directly sets last modified by", function () {
 	eden.execute('proc p { x = 2; } p();');
-	equal(root.lookup('x').last_modified_by, 'input');
+	equal(root.lookup('x').last_modified_by, 'execute');
 });
 
 test("assignment from triggered proc sets last modified by", function () {
@@ -327,12 +351,12 @@ test("assignment from triggered proc sets last modified by", function () {
 
 test("definition sets last modified by", function () {
 	eden.execute('x is 1;');
-	equal(root.lookup('x').last_modified_by, 'input');
+	equal(root.lookup('x').last_modified_by, 'execute');
 });
 
 test("definition from proc invoked directly sets last modified by", function () {
 	eden.execute('proc p { x is 2; } p();');
-	equal(root.lookup('x').last_modified_by, 'input');
+	equal(root.lookup('x').last_modified_by, 'execute');
 });
 
 test("definition from triggered proc sets last modified by", function () {
@@ -342,12 +366,12 @@ test("definition from triggered proc sets last modified by", function () {
 
 test("function definition sets last modified by", function () {
 	eden.execute('func f {}');
-	equal(root.lookup('f').last_modified_by, 'input');
+	equal(root.lookup('f').last_modified_by, 'execute');
 });
 
 test("proc definition sets last modified by", function () {
 	eden.execute('proc p {}');
-	equal(root.lookup('p').last_modified_by, 'input');
+	equal(root.lookup('p').last_modified_by, 'execute');
 });
 
 //
@@ -401,6 +425,16 @@ test("list comparison", function () {
 	equal(root.lookup('b').value(), false);
 });
 
+test("insert", function () {
+	eden.execute("x = [20,30,40]; insert x, 2, 50;");
+	deepEqual(root.lookup('x').value(), [20, 50, 30, 40]);
+});
+
+test("delete", function () {
+	eden.execute("x = [20,30,40]; delete x, 2;");
+	deepEqual(root.lookup('x').value(), [20, 40]);
+});
+
 //
 // @
 //
@@ -432,12 +466,12 @@ edenModule("Include statement");
 
 test("include defers execution", function () {
 	var include = eden.include;
-	eden.include = function (url, prefix, success) {
+	eden.include = function (url, prefix, agent, success) {
 		equal(url, "https://test.com/test.js");
 		setTimeout(function () {
 			equal(root.lookup('x').value(), undefined);
 			// allow script which called "include" to continue
-			success();
+			success.call(agent);
 			equal(root.lookup('x').value(), 2);
 			start();
 		}, 0);
@@ -470,6 +504,27 @@ if (typeof window !== "undefined") {
 			equal(root.lookup('x').value(), 9001);
 			start();
 		});
+		stop();
+	});
+
+	test("@browser include js", function () {
+		eden.execute('include("test-models/test.js");', function () {
+			equal(root.lookup('x').value(), 9002);
+			start();
+		});
+		stop();
+	});
+
+	test("@browser include js different host", function () {
+		var done = false;
+		eden.execute('include("http://underscorejs.org/underscore-min.js");', function () {
+			ok(_ instanceof Object);
+			done = true;
+			start();
+		});
+		setTimeout(function () {
+			if (!done) { ok(false, 'failed to get underscore.js'); start(); }
+		}, 2000);
 		stop();
 	});
 }
