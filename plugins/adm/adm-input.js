@@ -178,11 +178,12 @@
 	/** @private */
 	var generateTemplateHTML = function(name) {
 		return '<div id="'+name+'-input" class=\"inputwindow-code\">\
-			<form>\
-				<label>Name: </label><input id="adm-name" type=\"text\" class=\"adm-name\"></input><br>\
-				<label>Definitions:</label><br><textarea id="adm-definitions" class=\"adm-definitions\"></textarea><br>\
-				<label>Actions:</label><br><textarea id="adm-actions" class=\"adm-actions\"></textarea>\
-			</form>\
+			<div>Name:</div>\
+			<div><textarea id="adm-name" type=\"text\" class=\"adm-name\"></textarea></div>\
+			<div>Definitions:</div>\
+			<div><textarea id="adm-definitions" class=\"adm-definitions\"></textarea></div>\
+			<div>Actions:</div>\
+			<div><textarea id="adm-actions" class=\"adm-actions\"></textarea></div>\
 		</div>\
 		<div id="adm-results" class=\"entitylist-results\">\
 			<ul id="results"> </ul>\
@@ -350,12 +351,16 @@
 	this.createInstantiator = function(name, mtitle) {
 		var code_entry = $('<div></div>');
 		code_entry = $('<div id=\"template-instantiator\">\
-					<label>Templates:</label>\
-					<select id=\"template-menu\">\
-					</select><br>\
-					<label>Entity name:</label>\
-					<input id=\"entity-name\"></input><br>\
-					<label>Parameters:</label><br>\
+					<div>Templates:</div>\
+					<div>\
+						<select id=\"template-menu\">\
+						</select>\
+					</div>\
+					<div>Entity name:</div>\
+					<div>\
+						<textarea id=\"entity-name\"></textarea>\
+					</div>\
+					<div>Parameters:</div>\
 					<div id=\"instantiate-params\"></div>\
 				</div>');
 		
