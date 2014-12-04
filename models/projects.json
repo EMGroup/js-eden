@@ -31,7 +31,7 @@
 		{
 			"name": "Malaria",
 			"author": "Meurig Beynon / William Beynon",
-			"year": "?",
+			"year": "2012",
 			"description": "Modelling Malaria",
 			"runfile": "models/malaria/malariaA.jse"
 		},
