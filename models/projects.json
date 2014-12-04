@@ -30,7 +30,7 @@
 		},
 		{
 			"name": "Malaria",
-			"author": "?",
+			"author": "Meurig Beynon / William Beynon",
 			"year": "?",
 			"description": "Modelling Malaria",
 			"runfile": "models/malaria/malariaA.jse"
@@ -48,13 +48,6 @@
 			"year": "2012",
 			"description": "Initial shot for a game of Eightball",
 			"runfile": "models/poolTable/2Ball/run.e"
-		},
-		{
-			"name": "Parallel Parking",
-			"author": "Matt Cranham",
-			"year": "2012",
-			"description": "Parallel parking model",
-			"runfile": "models/parpar/run.jse"
 		}
 	]
 }
