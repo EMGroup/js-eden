@@ -178,11 +178,12 @@
 	/** @private */
 	var generateTemplateHTML = function(name) {
 		return '<div id="'+name+'-input" class=\"inputwindow-code\">\
-			<form>\
-				<label>Name: </label><input id="adm-name" type=\"text\" class=\"adm-name\"></input><br>\
-				<label>Definitions:</label><br><textarea id="adm-definitions" class=\"adm-definitions\"></textarea><br>\
-				<label>Actions:</label><br><textarea id="adm-actions" class=\"adm-actions\"></textarea>\
-			</form>\
+			<div>Name:</div>\
+			<div><textarea id="adm-name" type=\"text\" class=\"adm-name\"></textarea></div>\
+			<div>Definitions:</div>\
+			<div><textarea id="adm-definitions" class=\"adm-definitions\"></textarea></div>\
+			<div>Actions:</div>\
+			<div><textarea id="adm-actions" class=\"adm-actions\"></textarea></div>\
 		</div>\
 		<div id="adm-results" class=\"entitylist-results\">\
 			<ul id="results"> </ul>\
@@ -313,7 +314,7 @@
 				var param = trim(thisTemplate.parameters[paramIndex]);
 				var value = trim(input.value);
 				inputBoxes.push(input);
-				eval(eden.translateToJavaScript(name+'_'+param+' is '+value+';'));
+				eden.execute(name+'_'+param+' is '+value+';');
 				paramIndex++;
 			}
 		}
@@ -337,7 +338,7 @@
 			// Submit each definition as EDEN code to add to definition store.
 			var definition = trim(definitions[i]);
 			try {
-				eval(eden.translateToJavaScript(name+'_'+definition));
+				eden.execute(name+'_'+definition);
 			} catch (e) {
 				eden.reportError(e);
 				return -1;
@@ -350,12 +351,16 @@
 	this.createInstantiator = function(name, mtitle) {
 		var code_entry = $('<div></div>');
 		code_entry = $('<div id=\"template-instantiator\">\
-					<label>Templates:</label>\
-					<select id=\"template-menu\">\
-					</select><br>\
-					<label>Entity name:</label>\
-					<input id=\"entity-name\"></input><br>\
-					<label>Parameters:</label><br>\
+					<div>Templates:</div>\
+					<div>\
+						<select id=\"template-menu\">\
+						</select>\
+					</div>\
+					<div>Entity name:</div>\
+					<div>\
+						<textarea id=\"entity-name\"></textarea>\
+					</div>\
+					<div>Parameters:</div>\
 					<div id=\"instantiate-params\"></div>\
 				</div>');
 		
@@ -448,7 +453,7 @@
 			var param = trim(template.parameters[x]);
 			var value = trim(splitParams[x]);
 			// Add the parameter definition to the EDEN definition store.
-			eval(eden.translateToJavaScript(entityName+'_'+param+' is '+value+';'));
+			eden.execute(entityName+'_'+param+' is '+value+';');
 		}
 		
 		// Replace "this" keyword with entity name in actions and definitions.
@@ -472,7 +477,7 @@
 		for (x in entityActions) {
 			var action = entityActions[x];
 			var statement = action.edenVar + ' is ' + action.guard + ';';
-			eval(eden.translateToJavaScript(statement));
+			eden.execute(statement);
 		}
 
 		if (me.actionLists != null) {
@@ -513,7 +518,7 @@
 				}
 			} else {
 				// Execute any EDEN code normally.
-				eval(eden.translateToJavaScript(action+';'));
+				eden.execute(action+';');
 			}
 		}
 		me.selectedActions = new Array();
@@ -583,13 +588,9 @@
 		for (var j = 0; j < entity.actionsArr.length; j++) {
 			// The guard is an EDEN observable - check its value.
 			var guardAction = entity.actionsArr[j];
-			try {
-				var answer = eval(eden.translateToJavaScript('return ' + guardAction.edenVar + ';'));
-			} catch (e) {
-				eden.reportError(e);
-			}
+			var answer = eden.root.lookup(guardAction.edenVar).value();
 			// If the guard was true, add the first action in the sequence.
-			if (answer == true) {
+			if (answer === true) {
 				var split = guardAction.actions.split(';');
 				var firstAction = split[0];
 				var finalAction = true;
