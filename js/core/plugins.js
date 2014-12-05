@@ -46,10 +46,19 @@
 			agent = {name: '/loadPlugin'};
 		}
 
-		if (this.plugins[name] === undefined) {
-			this.plugins[name] = new EdenUI.plugins[name](this, function () { success && success.call(agent); });
-		} else {
+		var me = this;
+		var wrappedSuccess = function () {
+			// Force manual refresh of views menu.
+			if (me.plugins.MenuBar) {
+				me.plugins.MenuBar.updateViewsMenu();
+			}
 			success && success.call(agent);
+		}
+
+		if (this.plugins[name] === undefined) {
+			this.plugins[name] = new EdenUI.plugins[name](this, wrappedSuccess);
+		} else {
+			wrappedSuccess();
 		}
 	};
 
