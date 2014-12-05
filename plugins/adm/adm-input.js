@@ -34,6 +34,12 @@
 	this.templateList;
 	// Var to hold the EntityList object
 	this.entityList;
+
+	eden.polyglot.register('adm', {
+		execute: function (code, origin, prefix, agent, success) {
+			submitAdmCode(code);
+		}
+	});
 	
 	// Holds guard / action sequence pairs, and the eden var depending on the guard.
 	function GuardActions(edenVar, guard, actions) {
@@ -314,7 +320,7 @@
 				var param = trim(thisTemplate.parameters[paramIndex]);
 				var value = trim(input.value);
 				inputBoxes.push(input);
-				eden.execute(name+'_'+param+' is '+value+';');
+				eden.executeEden(name+'_'+param+' is '+value+';');
 				paramIndex++;
 			}
 		}
@@ -337,12 +343,7 @@
 		for (var i = 0; i < definitions.length; i++) {
 			// Submit each definition as EDEN code to add to definition store.
 			var definition = trim(definitions[i]);
-			try {
-				eden.execute(name+'_'+definition);
-			} catch (e) {
-				eden.reportError(e);
-				return -1;
-			}
+			eden.executeEden(name+'_'+definition);
 			me.definitions.push(name+'_'+definition);
 		}
 	};
@@ -453,7 +454,7 @@
 			var param = trim(template.parameters[x]);
 			var value = trim(splitParams[x]);
 			// Add the parameter definition to the EDEN definition store.
-			eden.execute(entityName+'_'+param+' is '+value+';');
+			eden.executeEden(entityName+'_'+param+' is '+value+';');
 		}
 		
 		// Replace "this" keyword with entity name in actions and definitions.
@@ -477,7 +478,7 @@
 		for (x in entityActions) {
 			var action = entityActions[x];
 			var statement = action.edenVar + ' is ' + action.guard + ';';
-			eden.execute(statement);
+			eden.executeEden(statement);
 		}
 
 		if (me.actionLists != null) {
@@ -518,7 +519,7 @@
 				}
 			} else {
 				// Execute any EDEN code normally.
-				eden.execute(action+';');
+				eden.executeEden(action+';');
 			}
 		}
 		me.selectedActions = new Array();
@@ -814,8 +815,7 @@
 	 * }
 	 * template_name(parameter_values) as entity_name
 	 */
-	var submitAdmCode = function(options) {
-		var code = options.editor.getValue();
+	var submitAdmCode = function(code) {
 		var lines = code.split('\n');
 		// Variables for new template creation
 		var name;
@@ -909,9 +909,6 @@
 				}
 			}
 		}
-
-		// Clear the editor to indicate input was successful.
-		options.editor.setValue("");
 		
 	};
 	
@@ -937,7 +934,10 @@
 					id: "btn-submit-advanced",
 					text: "Submit",
 					click: function() {
-						submitAdmCode({editor: myeditor});
+						var code = myeditor.getValue();
+						submitAdmCode(code);
+						// Clear the editor to indicate input was successful.
+						myeditor.setValue("");
 					}
 				}]
 			});
