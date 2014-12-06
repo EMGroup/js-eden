@@ -329,6 +329,8 @@ function concatAndResolveUrl(url, concat) {
 
 		source = source.replace(/\r\n/g, '\n');
 
+		parser.yy.commentNesting = 0;
+
 		parser.yy.async = function (asyncFuncExpression) {
 			var args = Array.prototype.slice.call(arguments, 1);
 			return new Code(1, asyncFuncExpression + '(' + args.concat('function () {')); 
