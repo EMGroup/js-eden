@@ -4,9 +4,11 @@ function codegen(node) {
 
 var codegens = {
   Decl: function (node) {
-    return 'declDonald("_'+node.declName+'");\n'+
-      'A_'+node.declName+' = "";\n'+
-      'proc P_'+node.declName+' : _'+node.declName+', A_'+node.declName+' { drawPicture(); }';
+    return node.declNames.map(function (declName) {
+      return 'declDonald("_'+declName+'");\n'+
+        'A_'+declName+' = "";\n'+
+        'proc P_'+declName+' : _'+declName+', A_'+declName+' { drawPicture(); }';
+    }).join('\n');
   },
   Assign: function (node) {
     return '_'+node.lhs+' is '+codegen(node.rhs);

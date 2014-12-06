@@ -55,10 +55,17 @@ statement-list
     ;
 
 statement
-    : decl IDENTIFIER
-        { $$ = {nodeType: 'Decl', declType: $1, declName: $2}; }
+    : decl identifier-list
+        { $$ = {nodeType: 'Decl', declType: $1, declNames: $2}; }
     | IDENTIFIER '=' expression
         { $$ = {nodeType: 'Assign', lhs: $1, rhs: $3}; }
+    ;
+
+identifier-list
+    : IDENTIFIER
+        { $$ = [$1]; }
+    | IDENTIFIER ',' identifier-list
+        { $$ = [$1].concat($3); }
     ;
 
 decl
