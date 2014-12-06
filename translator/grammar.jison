@@ -14,10 +14,10 @@
 %s BLOCKCOMMENT
 %%
 
-<BLOCKCOMMENT>"*/"    { this.popState(); }
+<BLOCKCOMMENT>"/*"    { yy.commentNesting++; }
+<BLOCKCOMMENT>"*/"    { yy.commentNesting--; if (yy.commentNesting === 0) { this.popState(); } }
 <BLOCKCOMMENT>.       {}
-"/*"                  { this.begin('BLOCKCOMMENT'); }
-
+"/*"                  { yy.commentNesting++; this.begin('BLOCKCOMMENT'); }
 
 <LINECOMMENT>[\n\r]   { this.popState(); }
 <LINECOMMENT>.        {}

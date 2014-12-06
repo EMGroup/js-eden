@@ -32,6 +32,15 @@ test("%eden", function () {
 	equal(root.lookup('x').value(), 2);
 });
 
+edenModule("Comments");
+
+test("Nested block comments parse", function () {
+	eden.translateToJavaScript('/* hi */');
+	eden.translateToJavaScript('/* hi /* bye */ */');
+	eden.execute('/* hi /* bye */ */ x = 2;');
+	equal(root.lookup('x').value(), 2);
+});
+
 //
 // observables
 //
