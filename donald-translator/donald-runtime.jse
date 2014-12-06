@@ -1,0 +1,30 @@
+donaldPicture = [];
+donaldPictureNames = ${{ Object.create(null) }}$;
+
+proc declPoint {
+  ${{
+  var pointName = arguments[0];
+  var donaldPictureNames = context.lookup('donaldPictureNames').value();
+  var donaldPicture = context.lookup('donaldPicture').value();
+  if (donaldPictureNames[pointName]) { return; }
+  donaldPictureNames[pointName] = true;
+  donaldPicture.push(pointName);
+  }}$;
+}
+
+proc drawPicture {
+  ${{
+  var donaldPicture = context.lookup('donaldPicture').value();
+  var canvas = document.getElementById('donald-canvas');
+  canvas.width = canvas.width;
+  var width = canvas.width;
+  var drawingContext = canvas.getContext('2d');
+
+  for (var i = 0; i < donaldPicture.length; ++i) {
+    var point = root.lookup(donaldPicture[i]).value();
+    if (!point) { continue; }
+    drawingContext.fillRect(point[1], width - point[2], 3, 3);
+  }
+
+  }}$;
+}
