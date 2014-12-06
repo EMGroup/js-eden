@@ -1,0 +1,112 @@
+<html>
+	<head>
+		<title>EDEN to JS translator test page</title>
+
+		<script src="../js/lib/jquery-1.8.3.min.js"></script>
+		<script src="../js/dummyconsole.js"></script>
+		<script src="../js/lib/json2.js"></script>
+
+		<script src="../js/lib/beautify.js"></script>
+
+		<script src="../js/core/translator.js"></script>
+		<script src="../js/core/runtime.js"></script>
+		<script src="../js/core/maintainer.js"></script>
+		<script src="../js/core/polyglot.js"></script>
+		<script src="../js/core/eden.js"></script>
+		<script src="../js/core/donald-translator.js"></script>
+		<script src="./donald-codegen.js"></script>
+	</head>
+	<body>
+		<canvas id="donald-canvas" style="border: 1px solid black; float: right; margin-right: 20px" width=250 height=250></canvas>
+		<h2>Test the parser</h2>
+		<textarea id="parser-input" rows="8" cols="80"></textarea>
+		<p>
+			<button id="parse-btn">Parse</button>
+			<button id="link-btn">Link to example</button>
+		</p>
+
+		<h2>AST</h2>
+		<div style="border: 1px solid gray; height: 150px; overflow: auto">
+			<pre id="parser-output"></pre>
+		</div>
+		<h2 style="margin-top: 20px">Codegen</h2>
+		<div style="border: 1px solid gray; height: 150px; overflow: auto">
+			<pre id="codegen-output"></pre>
+		</div>
+		<script>
+			var root = new Folder();
+			var eden = new Eden(root);
+			eden.include('donald-runtime.jse', function () {
+				eden.listenTo('executeError', this, function (e, options) {
+						window.alert(e.message);
+				});
+				function getParameterByName(name) {
+					name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+					var regexS = "[\\?&]"+name+"=([^&#]*)";
+					var regex = new RegExp( regexS );
+					var results = regex.exec( window.location.href );
+					if (results == null)
+						return "";
+					else
+						return decodeURIComponent(results[1].replace(/\+/g, " "));
+				}
+
+				function getEdenSource() {
+					return document.getElementById('parser-input').value;
+				}
+
+				function translate() {
+					var edenSource = getEdenSource();
+					try {
+						window.localStorage.setItem('edenSource', edenSource);
+					} catch (e) {
+						// allow localStorage to fail
+					}
+
+					var parserOutput, outputContent;
+					try {
+						parserOutput = js_beautify(donaldParser.parse(edenSource));
+						outputContent = parserOutput;
+					} catch (e) {
+						outputContent = "Parse error: " + (e.message || e);
+					}
+					document.getElementById('parser-output').innerHTML = outputContent;
+
+					if (!parserOutput) { return; }
+
+					var codegenOutput;
+					codegenOutput = JSON.parse(parserOutput).map(codegen).map(function (s) { return s + ';\n'; }).join('');
+					document.getElementById('codegen-output').innerHTML = codegenOutput;
+
+					if (!codegenOutput) { return; }
+
+					eden.executeEden(codegenOutput);
+				}
+
+				var previousSource = getParameterByName("s");
+
+				if (!previousSource) {
+					try {
+						previousSource = window.localStorage.getItem('edenSource');
+					} catch (e) {
+						// allow localStorage to fail
+					}
+				}
+
+				if (previousSource) {
+					document.getElementById('parser-input').value = previousSource;
+					translate();
+				}
+
+				document.getElementById('parse-btn').addEventListener('click', function () {
+					translate();
+				});
+
+				document.getElementById('link-btn').addEventListener('click', function () {
+					window.location.href = window.location.origin + window.location.pathname +
+						'?s=' + encodeURIComponent(getEdenSource());
+				});
+			});
+		</script>
+	</body>
+</html>
