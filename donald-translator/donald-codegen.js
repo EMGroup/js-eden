@@ -4,16 +4,21 @@ function codegen(node) {
 
 var codegens = {
   Decl: function (node) {
-    return 'declPoint("'+node.declName+'"); proc P_'+node.declName+' : '+node.declName+' { drawPicture(); }';
+    return 'declDonald("_'+node.declName+'");\n'+
+      'A_'+node.declName+' = "";\n'+
+      'proc P_'+node.declName+' : _'+node.declName+', A_'+node.declName+' { drawPicture(); }';
   },
   Assign: function (node) {
-    return node.lhs+' = '+codegen(node.rhs);
+    return '_'+node.lhs+' is '+codegen(node.rhs);
   },
   Ident: function (node) {
-    return node.name;
+    return '_'+node.name;
   },
   Point: function (node) {
-    return "['C', "+codegen(node.fst)+', '+codegen(node.snd)+']';
+    return 'cart('+codegen(node.fst)+', '+codegen(node.snd)+')';
+  },
+  Line: function (node) {
+    return 'line('+codegen(node.fst)+', '+codegen(node.snd)+')';
   },
   Num: function (node) {
     return node.val;
