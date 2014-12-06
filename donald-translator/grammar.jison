@@ -17,9 +17,12 @@
 [\n\r]                 return 'NEWLINE'
 \s+                    /* skip other whitespace */
 "point"                return 'POINT'
+"line"                 return 'LINE'
 "="                    return '='
 "{"                    return '{'
 "}"                    return '}'
+"["                    return '['
+"]"                    return ']'
 ","                    return ','
 [0-9]+                 return 'NUMBER'
 [a-zA-Z_][a-zA-Z_0-9]* return 'IDENTIFIER'
@@ -52,15 +55,22 @@ statement-list
     ;
 
 statement
-    : POINT IDENTIFIER
+    : decl IDENTIFIER
         { $$ = {nodeType: 'Decl', declType: $1, declName: $2}; }
     | IDENTIFIER '=' expression
         { $$ = {nodeType: 'Assign', lhs: $1, rhs: $3}; }
     ;
 
+decl
+    : POINT
+    | LINE
+    ;
+
 expression
     : '{' expression ',' expression '}'
         { $$ = {nodeType: 'Point', fst: $2, snd: $4}; }
+    | '[' expression ',' expression ']'
+        { $$ = {nodeType: 'Line', fst: $2, snd: $4}; }
     | IDENTIFIER
         { $$ = {nodeType: 'Ident', name: $1}; }
     | NUMBER
