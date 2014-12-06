@@ -389,6 +389,11 @@ test("Lists are value types", function () {
 	equal(root.lookup('x').value()[0], 1);
 });
 
+test("List index on the result of a function call should parse", function () {
+	expect(0);
+	eden.translateToJavaScript("f()[1];");
+});
+
 test("assigning a list and modifying", function () {
 	eden.execute("x = y = [1,2,3]; b = x == y;");
 	equal(root.lookup('b').value(), true);
