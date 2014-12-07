@@ -22,6 +22,9 @@ var codegens = {
   Line: function (node) {
     return 'line('+codegen(node.fst)+', '+codegen(node.snd)+')';
   },
+  Arc: function (node) {
+    return 'arc('+codegen(node.fst)+', '+codegen(node.snd)+', '+codegen(node.angle)+')';
+  },
   Num: function (node) {
     return node.val;
   }

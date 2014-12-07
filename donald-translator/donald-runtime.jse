@@ -31,6 +31,25 @@ proc drawPicture {
       drawingContext.moveTo(el[1][1], height - el[1][2]);
       drawingContext.lineTo(el[2][1], height - el[2][2]);
       drawingContext.stroke();
+    } else if (el[0] === 'U') {
+      drawingContext.beginPath();
+
+      var a = el[1];
+      var b = el[2];
+      var diff = ['C', b[1] - a[1], b[1] - a[1]];
+      var mag = Math.sqrt(diff[1]*diff[1] + diff[2]*diff[2]);
+      ## which normal to choose?
+      var normal = ['C', -diff[2] / mag, diff[1] / mag];
+
+      drawingContext.arc();
+      context.lookup('drawArc').value()(
+        drawingContext,
+        el[1][1],
+        el[1][2],
+        el[2][1],
+        el[2][2],
+        el[3]
+      );
     }
   }
 
@@ -39,11 +58,191 @@ proc drawPicture {
 
 CART = 'C';
 LINE = 'L';
+ARC = 'U';
+POLAR = 'P';
 
 func cart {
   return [CART, $1, $2];
 }
 
+func polar {
+  return [POLAR, $1, $2];
+}
+
 func line {
   return [LINE, $1, $2];
+}
+
+func arc {
+  return [ARC, $1, $2, $3];
+}
+
+func float {
+  return $1;
+}
+
+func int {
+	return ${{ Math.floor(arguments[0]) }}$;
+}
+
+func sqrt {
+  return ${{ Math.sqrt(arguments[0]) }}$;
+}
+
+func atan2 {
+  return ${{ Math.sqrt(arguments[0], arguments[1]) }}$;
+}
+
+func cos {
+  return ${{ Math.cos(arguments[0]) }}$;
+}
+
+func sin {
+  return ${{ Math.sin(arguments[0]) }}$;
+}
+
+func cart_to_polar {
+	para cart;
+	if (idv(cart)) return @;
+	if (cart[1] == POLAR) return cart;
+	if (cart[1] != CART) error("argument is not in cart coordinate");
+	cart[2] = float(cart[2]);
+	cart[3] = float(cart[3]);
+	if (cart[2] == 0.0 && cart[3] == 0.0)
+		return [POLAR, 0.0, 0.0];
+	return [POLAR, sqrt(cart[2]*cart[2]+cart[3]*cart[3]),
+		atan2(cart[3], cart[2])];
+}
+
+func polar_to_cart {
+	para polar;
+	if (idv(polar)) return @;
+	if (polar[1] == CART) return polar;
+	if (polar[1] != POLAR) error("argument is not in polar coordinate");
+	return [CART,
+		polar[2] * cos(float(polar[3])),
+		polar[2] * sin(float(polar[3]))];
+}
+
+func type {
+  return "notlist";
+}
+
+/* check for ill-defined value
+   argument: list
+   return:
+	   0 if all terms are well-defined
+	   1 if partly undefined */
+func idv
+{
+	para	d;
+	auto	i;
+	
+	if (d == @) return 1;
+	if (type(d) != "list")
+		return 0;
+	for (i = d#; i > 0; --i) {
+		if (idv(d[i]))
+			return 1;
+	}
+	return 0;
+}
+
+func vector_sub
+{
+	para	point1, point2;
+
+	if (idv(point1) || idv(point2)) return @;
+	if (point1[1] == POLAR) point1 = polar_to_cart(point1);
+	if (point2[1] == POLAR) point2 = polar_to_cart(point2);
+	return [CART, point1[2] - point2[2], point1[3] - point2[3]];
+}
+
+PI = ${{ Math.PI }}$;
+
+proc drawArc
+{
+	para	drawingContext, x1, y1, x2, y2, a, attr;
+
+	auto	xOrigin, yOrigin, xScale, yScale;
+	auto 	p1, p2, cx, cy, r, rad, b, c, start, col, outcol;
+	auto 	command, val, opt, tclVarNameStart;
+  auto startrad;
+
+	xOrigin = 0;
+	yOrigin = 0;
+	xScale = 1;
+	yScale = 1;
+
+	if ((a >= 0 ? a : -a) < 1.0) {
+		/* small angle, treat as straight line */
+		x1 = x1 * xScale + xOrigin;
+		y1 = y1 * yScale + yOrigin;
+		x2 = x2 * xScale + xOrigin;
+		y2 = y2 * yScale + yOrigin;
+
+		##xline(viewport_name, segid, x1, y1, x2, y2, xOrigin, yOrigin, xScale, yScale);
+
+		return;
+	}
+
+	##col = lookAttr(*attr, "color");
+	##opt = "-fill " // ((col == "") ? "${"//tclVarNameStart//"_fg}" : col);
+	##outcol = lookAttr(*attr, "outlinecolor");
+	##opt = opt // " -outline " // ((outcol == "") ? "${"//tclVarNameStart//"_fg}" : outcol);
+	
+	##val = lookAttr(*attr, "linewidth");
+	##if (val != "")
+	##	opt = opt // " -width " // val;
+	##val = lookAttr(*attr, "linestyle");
+	##if (val == "dashed")
+	##	opt = opt // dashedopt;
+	##else if (val == "dotted")
+	##	opt = opt // dottedopt;
+	##val = lookAttr(*attr, "fill");
+	##opt = opt // " -style " //
+	##	((val == "") ? "arc" : "pieslice");
+
+	/* treat it properly as a genuine arc */
+	a = float(a);
+	if (a > 360 || a < -360)
+		error("arc angle must be in between -360 and 360");
+	x1 = float(x1);
+	y1 = float(y1);
+	x2 = float(x2);
+	y2 = float(y2);
+	p1 = [CART, x1, y1];
+	p2 = [CART, x2, y2];
+	rad = a * PI / 180;
+	rad = rad >= 0 ? rad : 2 * PI + rad;
+	b = (PI - rad) / 2;
+	c = cart_to_polar(vector_sub(p2, p1))[3];
+	r = sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)) / 2 / sin(rad / 2);
+	r = r >= 0 ? r : -r;
+	cx = x1 + r * cos(c - b);
+	cy = y1 + r * sin(c - b);
+	start = 90 + (c - rad / 2) * 180 / PI;
+	start = start - int(start / 360) * 360;
+	start = start >= 0 ? start : start + 360;
+  startrad = start * PI / 180;
+	##x1 = (cx - r) * xScale + xOrigin;
+	##y1 = (cy - r) * yScale + yOrigin;
+	##x2 = (cx + r) * xScale + xOrigin;
+	##y2 = (cy + r) * yScale + yOrigin;
+	##xoutput(command, "create arc", x1, y1, x2, y2, "-start", start, "-extent", a, opt, "-tags {all t"//str(int(segid))//"}");
+
+	${{
+	var drawingContext = arguments[0];
+	drawingContext.arc(
+		local_cx.value(),
+    ## TODO (monk) don't assume canvas height is 250!
+		250 - local_cy.value(),
+		local_r.value(),
+		local_startrad.value(),
+		local_startrad.value() + local_rad.value(),
+		false
+	);
+  debugger;
+	drawingContext.stroke();
+  }}$;
 }

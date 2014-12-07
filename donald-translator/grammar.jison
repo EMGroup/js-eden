@@ -18,6 +18,7 @@
 \s+                    /* skip other whitespace */
 "point"                return 'POINT'
 "line"                 return 'LINE'
+"arc"                  return 'ARC'
 "="                    return '='
 "{"                    return '{'
 "}"                    return '}'
@@ -71,6 +72,7 @@ identifier-list
 decl
     : POINT
     | LINE
+    | ARC
     ;
 
 expression
@@ -78,6 +80,8 @@ expression
         { $$ = {nodeType: 'Point', fst: $2, snd: $4}; }
     | '[' expression ',' expression ']'
         { $$ = {nodeType: 'Line', fst: $2, snd: $4}; }
+    | '[' expression ',' expression ',' expression ']'
+        { $$ = {nodeType: 'Arc', fst: $2, snd: $4, angle: $6}; }
     | IDENTIFIER
         { $$ = {nodeType: 'Ident', name: $1}; }
     | NUMBER
