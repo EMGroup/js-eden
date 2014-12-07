@@ -89,8 +89,9 @@
 			"parameters": {
 				"x1": "X-coordinate for top left",
 				"y1": "Y-coordinate for top left",
-				"x2": "X-coordinate for bottom right",
-				"y2": "Y-coordinate for bottom right",
+				"w": "Width of rectangle",
+				"h": "Height of rectangle",
+				"colour": "Colour of the rectangle fill in HTML form",
 				"outlinecolour": "Colour of the rectangle (stroke) in HTML form"
 			},
 			"return": "Rectangle object",

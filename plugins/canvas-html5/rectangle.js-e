@@ -4,11 +4,11 @@
 ## See LICENSE.txt
 
 ${{
-Rectangle = function(x1, y1, x2, y2, fillcolour, outlinecolour) {
+Rectangle = function(x1, y1, w, h, fillcolour, outlinecolour) {
   this.x1 = x1;
   this.y1 = y1;
-  this.x2 = x2;
-  this.y2 = y2;
+  this.w = w;
+  this.h = h;
   this.fillcolour = fillcolour;
   this.outlinecolour = outlinecolour;
 }
@@ -17,24 +17,25 @@ Rectangle = function(x1, y1, x2, y2, fillcolour, outlinecolour) {
 func Rectangle { ${{
   var x1 = arguments[0];
   var y1 = arguments[1];
-  var x2 = arguments[2];
-  var y2 = arguments[3];
+  var w = arguments[2];
+  var h = arguments[3];
   var colour = arguments[4];
   var outlinecolour = arguments[5];
   if (colour === undefined) { colour = "black"; }
-  return new Rectangle(x1, y1, x2, y2, colour, outlinecolour);
+  if (outlinecolour === undefined) { outlinecolour = "black"; }
+  return new Rectangle(x1, y1, w, h, colour, outlinecolour);
 }}$; };
 
 ${{
 Rectangle.prototype.draw = function(context) {
   context.fillStyle = this.fillcolour;
   context.strokeStyle = this.outlinecolour;
-  context.fillRect(this.x1,this.y1,this.x2,this.y2);
-  context.strokeRect(this.x1,this.y1,this.x2,this.y2);
+  context.fillRect(this.x1,this.y1,this.w,this.h);
+  context.strokeRect(this.x1,this.y1,this.w,this.h);
 };
 }}$;
 ${{
 Rectangle.prototype.toString = function() {
-  return "Rectangle(" + this.x1 + ", " + this.y1 + ", " + this.x2 + ", "+this.y2+", "+this.colour+")";
+  return "Rectangle(" + this.x1 + ", " + this.y1 + ", " + this.w + ", "+this.h+", "+this.fillcolour+", "+this.outlinecolour+")";
 };
 }}$;
