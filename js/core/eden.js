@@ -255,6 +255,7 @@ function concatAndResolveUrl(url, concat) {
 	 */
 	Eden.prototype.include = function (includePath, prefix, agent, success) {
 		if (arguments.length === 2) {
+			// path and callback
 			success = prefix;
 			agent = {name: '/include'};
 			prefix = '';
