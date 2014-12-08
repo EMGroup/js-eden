@@ -14,7 +14,6 @@ proc declDonald {
 
 proc drawPicture {
   ${{
-  console.log('draw');
   var donaldPicture = context.lookup('donaldPicture').value();
   var canvas = document.getElementById('donald-canvas');
   canvas.width = canvas.width;
@@ -34,22 +33,41 @@ proc drawPicture {
     } else if (el[0] === 'U') {
       drawingContext.beginPath();
 
-      var a = el[1];
-      var b = el[2];
-      var diff = ['C', b[1] - a[1], b[1] - a[1]];
-      var mag = Math.sqrt(diff[1]*diff[1] + diff[2]*diff[2]);
-      ## which normal to choose?
-      var normal = ['C', -diff[2] / mag, diff[1] / mag];
+      var a = ['C', el[1][1], height - el[1][2]];
+      var b = ['C', el[2][1], height - el[2][2]];
+      var angle = el[3];
+      var diff = ['C', b[1] - a[1], b[2] - a[2]];
+      var mid = ['C', a[1] + diff[1] / 2, a[2] + diff[2] / 2];
+      var diffmag = Math.sqrt(diff[1]*diff[1] + diff[2]*diff[2]);
 
-      drawingContext.arc();
-      context.lookup('drawArc').value()(
-        drawingContext,
-        el[1][1],
-        el[1][2],
-        el[2][1],
-        el[2][2],
-        el[3]
+      // which direction normal is the correct normal?
+      var normal = ['C', -diff[2] / diffmag, diff[1] / diffmag];
+      var radius = diffmag / Math.sin(angle * Math.PI / 180) * Math.sin((90 - angle) * Math.PI / 180);
+
+      var halfDiffMagSquared = diff[1] / 2 * diff[1] / 2 + diff[2] / 2 * diff[2] / 2;
+      var radiusSquared = radius * radius;
+      var height = Math.sqrt(halfDiffMagSquared + radiusSquared);
+      var scaledNormal = ['C', normal[1] * height, normal[2] * height];
+      var centre = ['C', mid[1] + scaledNormal[1], mid[2] + scaledNormal[2]];
+
+      // TODO(trmonks) figure out starting angle
+      var startAngle = 0;
+
+      console.log('draw arc!',
+        centre[1],
+        centre[2],
+        radius,
+        startAngle * Math.PI / 180,
+        (startAngle + angle) * Math.PI / 180
       );
+      drawingContext.arc(
+        centre[1],
+        centre[2],
+        radius,
+        startAngle * Math.PI / 180,
+        startAngle + angle * Math.PI / 180
+      );
+      drawingContext.stroke();
     }
   }
 
@@ -159,90 +177,3 @@ func vector_sub
 }
 
 PI = ${{ Math.PI }}$;
-
-proc drawArc
-{
-	para	drawingContext, x1, y1, x2, y2, a, attr;
-
-	auto	xOrigin, yOrigin, xScale, yScale;
-	auto 	p1, p2, cx, cy, r, rad, b, c, start, col, outcol;
-	auto 	command, val, opt, tclVarNameStart;
-  auto startrad;
-
-	xOrigin = 0;
-	yOrigin = 0;
-	xScale = 1;
-	yScale = 1;
-
-	if ((a >= 0 ? a : -a) < 1.0) {
-		/* small angle, treat as straight line */
-		x1 = x1 * xScale + xOrigin;
-		y1 = y1 * yScale + yOrigin;
-		x2 = x2 * xScale + xOrigin;
-		y2 = y2 * yScale + yOrigin;
-
-		##xline(viewport_name, segid, x1, y1, x2, y2, xOrigin, yOrigin, xScale, yScale);
-
-		return;
-	}
-
-	##col = lookAttr(*attr, "color");
-	##opt = "-fill " // ((col == "") ? "${"//tclVarNameStart//"_fg}" : col);
-	##outcol = lookAttr(*attr, "outlinecolor");
-	##opt = opt // " -outline " // ((outcol == "") ? "${"//tclVarNameStart//"_fg}" : outcol);
-	
-	##val = lookAttr(*attr, "linewidth");
-	##if (val != "")
-	##	opt = opt // " -width " // val;
-	##val = lookAttr(*attr, "linestyle");
-	##if (val == "dashed")
-	##	opt = opt // dashedopt;
-	##else if (val == "dotted")
-	##	opt = opt // dottedopt;
-	##val = lookAttr(*attr, "fill");
-	##opt = opt // " -style " //
-	##	((val == "") ? "arc" : "pieslice");
-
-	/* treat it properly as a genuine arc */
-	a = float(a);
-	if (a > 360 || a < -360)
-		error("arc angle must be in between -360 and 360");
-	x1 = float(x1);
-	y1 = float(y1);
-	x2 = float(x2);
-	y2 = float(y2);
-	p1 = [CART, x1, y1];
-	p2 = [CART, x2, y2];
-	rad = a * PI / 180;
-	rad = rad >= 0 ? rad : 2 * PI + rad;
-	b = (PI - rad) / 2;
-	c = cart_to_polar(vector_sub(p2, p1))[3];
-	r = sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)) / 2 / sin(rad / 2);
-	r = r >= 0 ? r : -r;
-	cx = x1 + r * cos(c - b);
-	cy = y1 + r * sin(c - b);
-	start = 90 + (c - rad / 2) * 180 / PI;
-	start = start - int(start / 360) * 360;
-	start = start >= 0 ? start : start + 360;
-  startrad = start * PI / 180;
-	##x1 = (cx - r) * xScale + xOrigin;
-	##y1 = (cy - r) * yScale + yOrigin;
-	##x2 = (cx + r) * xScale + xOrigin;
-	##y2 = (cy + r) * yScale + yOrigin;
-	##xoutput(command, "create arc", x1, y1, x2, y2, "-start", start, "-extent", a, opt, "-tags {all t"//str(int(segid))//"}");
-
-	${{
-	var drawingContext = arguments[0];
-	drawingContext.arc(
-		local_cx.value(),
-    ## TODO (monk) don't assume canvas height is 250!
-		250 - local_cy.value(),
-		local_r.value(),
-		local_startrad.value(),
-		local_startrad.value() + local_rad.value(),
-		false
-	);
-  debugger;
-	drawingContext.stroke();
-  }}$;
-}
