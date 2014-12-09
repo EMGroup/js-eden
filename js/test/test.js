@@ -32,6 +32,15 @@ test("%eden", function () {
 	equal(root.lookup('x').value(), 2);
 });
 
+edenModule("Comments");
+
+test("Nested block comments parse", function () {
+	eden.translateToJavaScript('/* hi */');
+	eden.translateToJavaScript('/* hi /* bye */ */');
+	eden.execute('/* hi /* bye */ */ x = 2;');
+	equal(root.lookup('x').value(), 2);
+});
+
 //
 // observables
 //
@@ -387,6 +396,11 @@ test("Lists are 1 indexed", function () {
 test("Lists are value types", function () {
 	eden.execute("x = [1,2,3]; func f { $1 = 9000; } f(x);");
 	equal(root.lookup('x').value()[0], 1);
+});
+
+test("List index on the result of a function call should parse", function () {
+	expect(0);
+	eden.translateToJavaScript("f()[1];");
 });
 
 test("assigning a list and modifying", function () {

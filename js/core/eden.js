@@ -255,6 +255,7 @@ function concatAndResolveUrl(url, concat) {
 	 */
 	Eden.prototype.include = function (includePath, prefix, agent, success) {
 		if (arguments.length === 2) {
+			// path and callback
 			success = prefix;
 			agent = {name: '/include'};
 			prefix = '';
@@ -328,6 +329,8 @@ function concatAndResolveUrl(url, concat) {
 		parser.yy;
 
 		source = source.replace(/\r\n/g, '\n');
+
+		parser.yy.commentNesting = 0;
 
 		parser.yy.async = function (asyncFuncExpression) {
 			var args = Array.prototype.slice.call(arguments, 1);

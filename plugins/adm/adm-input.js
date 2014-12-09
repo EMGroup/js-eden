@@ -34,6 +34,12 @@
 	this.templateList;
 	// Var to hold the EntityList object
 	this.entityList;
+
+	eden.polyglot.register('adm', {
+		execute: function (code, origin, prefix, agent, success) {
+			submitAdmCode(code);
+		}
+	});
 	
 	// Holds guard / action sequence pairs, and the eden var depending on the guard.
 	function GuardActions(edenVar, guard, actions) {
@@ -178,11 +184,12 @@
 	/** @private */
 	var generateTemplateHTML = function(name) {
 		return '<div id="'+name+'-input" class=\"inputwindow-code\">\
-			<form>\
-				<label>Name: </label><input id="adm-name" type=\"text\" class=\"adm-name\"></input><br>\
-				<label>Definitions:</label><br><textarea id="adm-definitions" class=\"adm-definitions\"></textarea><br>\
-				<label>Actions:</label><br><textarea id="adm-actions" class=\"adm-actions\"></textarea>\
-			</form>\
+			<div>Name:</div>\
+			<div><textarea id="adm-name" type=\"text\" class=\"adm-name\"></textarea></div>\
+			<div>Definitions:</div>\
+			<div><textarea id="adm-definitions" class=\"adm-definitions\"></textarea></div>\
+			<div>Actions:</div>\
+			<div><textarea id="adm-actions" class=\"adm-actions\"></textarea></div>\
 		</div>\
 		<div id="adm-results" class=\"entitylist-results\">\
 			<ul id="results"> </ul>\
@@ -313,7 +320,7 @@
 				var param = trim(thisTemplate.parameters[paramIndex]);
 				var value = trim(input.value);
 				inputBoxes.push(input);
-				eval(eden.translateToJavaScript(name+'_'+param+' is '+value+';'));
+				eden.executeEden(name+'_'+param+' is '+value+';');
 				paramIndex++;
 			}
 		}
@@ -336,12 +343,7 @@
 		for (var i = 0; i < definitions.length; i++) {
 			// Submit each definition as EDEN code to add to definition store.
 			var definition = trim(definitions[i]);
-			try {
-				eval(eden.translateToJavaScript(name+'_'+definition));
-			} catch (e) {
-				eden.reportError(e);
-				return -1;
-			}
+			eden.executeEden(name+'_'+definition);
 			me.definitions.push(name+'_'+definition);
 		}
 	};
@@ -350,12 +352,16 @@
 	this.createInstantiator = function(name, mtitle) {
 		var code_entry = $('<div></div>');
 		code_entry = $('<div id=\"template-instantiator\">\
-					<label>Templates:</label>\
-					<select id=\"template-menu\">\
-					</select><br>\
-					<label>Entity name:</label>\
-					<input id=\"entity-name\"></input><br>\
-					<label>Parameters:</label><br>\
+					<div>Templates:</div>\
+					<div>\
+						<select id=\"template-menu\">\
+						</select>\
+					</div>\
+					<div>Entity name:</div>\
+					<div>\
+						<textarea id=\"entity-name\"></textarea>\
+					</div>\
+					<div>Parameters:</div>\
 					<div id=\"instantiate-params\"></div>\
 				</div>');
 		
@@ -448,7 +454,7 @@
 			var param = trim(template.parameters[x]);
 			var value = trim(splitParams[x]);
 			// Add the parameter definition to the EDEN definition store.
-			eval(eden.translateToJavaScript(entityName+'_'+param+' is '+value+';'));
+			eden.executeEden(entityName+'_'+param+' is '+value+';');
 		}
 		
 		// Replace "this" keyword with entity name in actions and definitions.
@@ -472,7 +478,7 @@
 		for (x in entityActions) {
 			var action = entityActions[x];
 			var statement = action.edenVar + ' is ' + action.guard + ';';
-			eval(eden.translateToJavaScript(statement));
+			eden.executeEden(statement);
 		}
 
 		if (me.actionLists != null) {
@@ -513,7 +519,7 @@
 				}
 			} else {
 				// Execute any EDEN code normally.
-				eval(eden.translateToJavaScript(action+';'));
+				eden.executeEden(action+';');
 			}
 		}
 		me.selectedActions = new Array();
@@ -583,13 +589,9 @@
 		for (var j = 0; j < entity.actionsArr.length; j++) {
 			// The guard is an EDEN observable - check its value.
 			var guardAction = entity.actionsArr[j];
-			try {
-				var answer = eval(eden.translateToJavaScript('return ' + guardAction.edenVar + ';'));
-			} catch (e) {
-				eden.reportError(e);
-			}
+			var answer = eden.root.lookup(guardAction.edenVar).value();
 			// If the guard was true, add the first action in the sequence.
-			if (answer == true) {
+			if (answer === true) {
 				var split = guardAction.actions.split(';');
 				var firstAction = split[0];
 				var finalAction = true;
@@ -813,8 +815,7 @@
 	 * }
 	 * template_name(parameter_values) as entity_name
 	 */
-	var submitAdmCode = function(options) {
-		var code = options.editor.getValue();
+	var submitAdmCode = function(code) {
 		var lines = code.split('\n');
 		// Variables for new template creation
 		var name;
@@ -908,9 +909,6 @@
 				}
 			}
 		}
-
-		// Clear the editor to indicate input was successful.
-		options.editor.setValue("");
 		
 	};
 	
@@ -936,7 +934,10 @@
 					id: "btn-submit-advanced",
 					text: "Submit",
 					click: function() {
-						submitAdmCode({editor: myeditor});
+						var code = myeditor.getValue();
+						submitAdmCode(code);
+						// Clear the editor to indicate input was successful.
+						myeditor.setValue("");
 					}
 				}]
 			});

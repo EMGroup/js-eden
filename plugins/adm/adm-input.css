@@ -19,9 +19,6 @@
 	border-width: 1px;
 	border-color: #117fe5;
 	background-color: white;
-	padding: 2px;
-	float: right;
-	margin-left: 5px;
 }
 
 .adm-definitions {
@@ -30,9 +27,6 @@
 	border-width: 1px;
 	border-color: #117fe5;
 	background-color: white;
-	padding: 2px;
-	float: right;
-	margin-left: 5px;
 }
 
 .adm-actions {
@@ -41,22 +35,10 @@
 	border-width: 1px;
 	border-color: #117fe5;
 	background-color: white;
-	padding: 2px;
-	float: right;
-	margin-left: 5px;
 }
 
 .entitylist-element {
-	/*border-bottom-width: 1px;
-	border-bottom-style: solid;
-	border-bottom-color: #d0d0d0;*/
-	position: relative;
-	left: 0px;
-	right: 0px;
-	height: 20px;
 	cursor: pointer;
-	overflow: hidden;
-	position: relative;
 	padding-left: 15px;
 	padding-right: 15px;
 	margin-bottom: 2px;
