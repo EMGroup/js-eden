@@ -223,7 +223,7 @@ EdenUI.plugins.SG = function(edenUI, success) {
 		lines.push(comments[8]);
 
 		return "<div style='position: absolute; top: 30px; bottom: 10px; left: 0; right: 10px;'>"+
-							"<textarea disabled=true spellcheck=false style='font-family: monospace; background-color: white; color: black; resize: none; width: 100%; height: 100%;'>"+lines.join("\n")+"</textarea>"+
+							"<textarea readonly=true spellcheck=false style='font-family: monospace; background-color: white; color: black; resize: none; width: 100%; height: 100%;'>"+lines.join("\n")+"</textarea>"+
 						"</div>";
 	}
 	
