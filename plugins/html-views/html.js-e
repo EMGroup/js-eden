@@ -39,11 +39,11 @@ proc html {
 };
 
 ##Creates a HTML view and a triggered procedure so that contents of the view
-##are kept in sync with the value of a given observable name at all times.  The first
+##are kept in sync with the value of a given observable at all times.  The first
 ##parameter is the name of the observable who's value provides the HTML code.  The
 ##second, optional parameter, is the name of the view itself (which is reflected
 ##in the window's title bar).
-func createHTMLView {
+proc createHTMLView {
 	auto viewName, obsName;
 	if ($# == 1) {
 		obsName = $[1];

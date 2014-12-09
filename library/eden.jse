@@ -160,3 +160,4 @@ include("library/algebra.jse");
 include("library/include_js.js-e");
 include("library/dynamic.js-e");
 include("library/html.js-e");
+include("library/objects.js-e");

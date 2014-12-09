@@ -357,7 +357,7 @@ func isObject {
 			eden.error(new Error("isObject: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
-		return arguments[0] !== null && typeof(arguments[0]) == "object" && !root.lookup("isPointer").definition(root)(arguments[0]);
+		return arguments[0] !== null && typeof(arguments[0]) == "object" && !Array.isArray(arguments[0]) && !root.lookup("isPointer").definition(root)(arguments[0]);
 	}}$;
 }
 

@@ -138,55 +138,6 @@ func edenCode {
 	}}$;
 }
 
-func splitListDefinition {
-	${{
-		var input = arguments[0];
-		var pat = /(\\?"|[(),[\]])/g;
-		var insideQuotes = false;
-		var items = [];
-		var match, matchedStr, itemStartIndex, itemEndIndex;
-		var trim = root.lookup("trim").definition(root);
-		
-		match = /^\s*\[/.exec(input);
-		if (match == null) {
-			return undefined;
-		} else {
-			itemStartIndex = match[0].length;
-			pat.lastIndex = itemStartIndex;
-		}
-
-		var bracketLevel = 1;		
-		while ((match = pat.exec(input)) != null) {
-			matchedStr = match[0];
-			if (matchedStr == "\"") {
-				insideQuotes = !insideQuotes;
-			} else if (!insideQuotes && (matchedStr == "[" || matchedStr == "(")) {
-				bracketLevel++;
-				if (bracketLevel == 1) {
-					itemStartIndex = pat.lastIndex;
-				}
-			} else if (!insideQuotes && (matchedStr == "]" || matchedStr == ")")) {
-				bracketLevel--;
-				if (bracketLevel == 0) {
-					itemEndIndex = pat.lastIndex - 1;
-					items.push(trim(input.slice(itemStartIndex, itemEndIndex)));
-					match = /^\s*\/\/\s*\[/.exec(input.slice(itemEndIndex + 1));
-					if (match != null) {
-						pat.lastIndex = itemEndIndex + match.index + match[0].length;
-					} else {
-					
-					}
-				}
-			} else if (!insideQuotes && matchedStr == "," && bracketLevel == 1) {
-				itemEndIndex = pat.lastIndex - 1;
-				items.push(trim(input.slice(itemStartIndex, itemEndIndex + 1)));
-				itemStartIndex = pat.lastIndex;
-			}
-		}
-		return items;
-	}}$;
-}
-
 ##This procedure inspects the current definition of a list observable and
 ##redefines the observable such that its new definition is like the old one but
 ##with an extra item (or items) added onto the end of the list.  It is similar

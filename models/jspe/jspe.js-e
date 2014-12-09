@@ -203,7 +203,7 @@ $('#canvas_buttonPrev').attr('id', 'jspe_buttonPrev');
 $('#canvas_buttonNext').attr('id', 'jspe_buttonNext');
 }}$;
 
-func TitledSlide {
+func TitleSlide {
 	auto title, subtitle, content, slideHTML;
 	if ($# == 2) {
 		title = $[1];
@@ -332,9 +332,5 @@ func BulletSlide {
 		}
 	} ## end if the slide has some bullet points
 	return Slide(slideHTML);
-}
-
-proc addSlide {
-
 }
 
