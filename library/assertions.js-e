@@ -1,30 +1,13 @@
-##A framework for testing EDEN code.
+## Copyright (c) 2014, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+##
+## A framework for testing EDEN code.
 
 ##Observables:
 ##
 ##jseTestGroup The collective name of a group of related test cases.
-
-
-##Temporary hack until list equality is fixed in the interpreter.
-func equalLists {
-	para l1, l2;
-	auto i;
-	if (l1# != l2#) {
-		return false;
-	}
-	for (i = 1; i <= l1#; i++) {
-		if (isList(l1[i])) {
-			if (!isList(l2[i]) || !equalLists(l1[i], l2[i])) {
-				return false;
-			}
-		} else {
-			if (l1[i] != l2[i]) {
-				return false;
-			}
-		}
-	}
-	return true;
-}
 
 ##Tests if two values are equal and raises an EDEN if they are not.  This
 ##function requires three arguments.  The first and second arguments are the
@@ -35,11 +18,9 @@ proc assertEqual {
 		error("assertEqual: This procedure requires exactly 3 arguments");
 		return @;
 	}
-	if (isList($[1])) {
-		valuesEqual = isList($[2]) && equalLists($[1], $[2]);
-	} else {
-		valuesEqual = $[1] == $[2];
-	}
+
+	valuesEqual = $[1] == $[2];
+
 	if (!valuesEqual) {
 		errorStr = "assertEqual:\nAssertion Failure! Expected equality.\nLHS = " // edenCode($[1]) // "\nRHS = " // edenCode($[2]);
 		if (jseTestGroup != @) {

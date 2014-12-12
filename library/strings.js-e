@@ -1,0 +1,313 @@
+## Copyright (c) 2014, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+##
+##Functions that operate on strings.
+
+##Concatenates a collection of values, separating each one by a given
+##separator string or separator element.  The values can either be provided as
+##multiple arguments or alternatively as a single list type argument.
+##
+##Basically you can pass to this function any list of values that you want to
+##munge together and it will attempt to figure out what you meant.
+##
+##Case 1: separator + a list of strings
+##	The strings are concatenated, separated by the separator.  If the separator
+##	is undefined and there are two more strings then undefined is returned.  If
+##	the separator is defined but is not a string then it is automatically
+##	converted into a string.
+##
+##Case 2: separator + a list of lists
+##	The lists are concatenated, separated by the single separator element.
+##
+##Case 3: separator + a list of things that are not all lists but are all defined
+##	Any list items that are not strings are converted into strings, then as Case 1.
+##
+##Case 4: separator + a list containing the undefined value
+##	Undefined is returned.
+##
+##Case 5: separator + one or more further arguments that are all strings
+##	The strings are concatenated, separated by the separator.
+##
+##Case 6: separator + two or more further arguments that are all lists
+##	The lists are concatenated, separated by the single separator element.
+##
+##Case 7: separator + one or more further arguments that are not all lists but are all defined
+##	Any arguments that are not strings are converted into strings, then as Case 5.
+##
+##Case 8: separator + one or more further arguments, at least one of which is undefined
+##	Undefined is returned.
+##
+##Case 9: separator only (zero further arguments)
+##	The empty string is returned.
+##
+func concat {
+	auto separator, concatStrings, list, i, item, result;
+	if ($# < 1) {
+		error("concat: This function requires at least one argument.");
+		return @;
+	}
+
+	if ($# == 2 && type($[2]) == "list") {
+		list = $[2];
+	} else {
+		list = sublist($, 2, $#);
+	}
+	
+	if (list# == 0) {
+		return "";
+	}
+	
+	separator = $[1];
+	concatStrings = false;
+	for (i = 1; i <= list#; i++) {
+		if (list[i] == @) {
+			return @;
+		} else if (!isList(list[i])) {
+			concatStrings = true;
+			break;
+		}
+	}
+	
+	if (concatStrings) {
+		if (separator == @) {
+			if (list# > 1) {
+				return @;
+			}
+		} else {
+			separator = str(separator);
+		}
+		result = "";
+	} else {
+		separator = [separator];
+		result = [];
+	}
+	
+	for (i = 1; i < list#; i++) {
+		if (concatStrings) {
+			item = str(list[i]);
+		} else {
+			item = list[i];
+		}
+		result = result // item // separator;
+	}
+	if (list# > 0) {
+		if (concatStrings) {
+			item = str(list[list#]);
+		} else {
+			item = list[list#];
+		}
+		result = result // item;
+	}
+	return result;
+}
+
+func lowercase {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("lowercase: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		
+		var arg = arguments[0];
+		
+		if (arg === undefined) {
+			return undefined;
+		} else if (typeof(arg) == "string") {
+			return arg.toLocaleLowerCase();
+		} else {
+			eden.error(new Error("lowercase: This function cannot be applied to a value of type " + typeof(arg)), "error");
+			return undefined;
+		}
+	}}$;
+}
+
+func strcat {
+	auto result, i;
+	result = "";
+	for (i = 1; i <= $#; i++) {
+		if ($[i] == @) {
+			return @;
+		} else if (isString($[i])) {
+			result = result // $[i];
+		} else {
+			error("strcat: Argument " // str(i) // " must be a string, not a " // type($[i]));
+			return @;
+		}
+	}
+	return result;
+}
+
+##Returns the string formed by replacing the first instance of the second
+##argument with the string given by the third argument in the string the string
+##given by the first argument.
+func replaceFirst {
+	${{
+		if (arguments.length < 3 || arguments.length > 4) {
+			eden.error(new Error("replaceFirst: This function requires a minimum of 3 arguments and a maximum of 4 arguments."), "error");
+			return undefined;
+		}
+		var source = arguments[0];
+		if (source === undefined) {
+			return undefined;
+		} else if (typeof(source) != "string") {
+			eden.error(new Error("replaceFirst: The first argument must be a string, not a " + typeof(source)), "error");
+			return undefined;
+		}
+		
+		var search = arguments[1];
+		if (search === undefined) {
+			return undefined;
+		} else if (typeof(search) != "string") {
+			eden.error(new Error("replaceFirst: The second argument must be a string, not a " + typeof(search)), "error");
+			return undefined;
+		}
+
+		var replacement = arguments[2];
+		if (replacement === undefined) {
+			if (source.indexOf(search) == -1) {
+				return source;
+			} else {
+				return undefined;
+			}
+		} else if (typeof(replacement) != "string") {
+			eden.error(new Error("replaceFirst: The third argument must be a string, not a " + typeof(replacement)), "error");
+			return undefined;
+		}
+		
+		if (arguments.length == 3) {
+			return source.replace(search, replacement);
+		} else {
+			var startPos = arguments[3];
+			if (startPos !== undefined && typeof(startPos) != "number") {
+				eden.error(new Error("replaceFirst: The forth argument must be an int, not a " + typeof(startPos)), "error");
+				return undefined;
+			} else if (startPos === undefined || isNaN(startPos)) {
+				if (source.indexOf(search) == -1) {
+					return source;
+				} else {
+					return undefined;
+				}
+			} else if (startPos != parseInt(startPos)) {
+				eden.error(new Error("replaceFirst: The forth argument must be an int, not a float."), "error");
+				return undefined;
+			} else if (startPos == 0) {
+				eden.error(new Error("replaceFirst: The forth argument must cannot be 0."), "error");
+				return undefined;			
+			} else if (startPos > 0) {
+				return source.slice(0, startPos - 1).concat(source.slice(startPos - 1).replace(search, replacement));
+			} else {
+				return source.slice(0, startPos).concat(source.slice(startPos).replace(search, replacement));			
+			}
+		}
+	}}$;
+}
+
+##The same issues arise as with the sublist function (in lists.js-e) and they're handled in the
+##same way.
+func substr {
+	${{
+		if (arguments.length < 2 || arguments.length > 3) {
+			eden.error(new Error("substr: this function requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
+			return undefined;
+		}
+		
+		var str = arguments[0];
+		var from = arguments[1];
+		var to = arguments[2];
+		
+		if (str === undefined) {
+			return undefined;
+		}
+		if (typeof(str) != "string") {
+			eden.error(new Error("substr: expected string but got " + typeof(str)), "error");
+			return undefined;
+		}
+		if (from === undefined) {
+			from = 1;
+		} else if (from > to) {
+			return "";
+		}
+		if (from > 0) {
+			from = from - 1;
+		} else if (from == 0) {
+			eden.error(new Error("substr: from cannot be 0."), "error");
+			return undefined;
+		}
+		if (to == 0) {
+			eden.error(new Error("substr: to cannot be 0."), "error");		
+		} else if (to < 0) {
+			to = to + 1;
+			if (to == 0) {
+				to = str.length;
+			}
+		}
+		
+		var result = str.slice(from, to);
+		
+		if (to > str.length) {
+			result = result + Array(to - str.length + 1).join(" ");
+		}
+		
+		return result;
+	}}$;
+}
+
+func trim {
+	${{
+		if (arguments.length < 1 || arguments.length > 2) {
+			eden.error(new Error("trim: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var value = arguments[0];
+		
+		var trimType;
+		if (arguments.length == 1) {
+			trimType = "both";
+		} else {
+			trimType = arguments[1];
+		}
+
+		if (value === undefined) {
+			if (trimType == "left" || trimType == "right" || trimType == "both") {
+				return undefined;
+			}
+		} else if (typeof(value) != "string") {
+			eden.error(new Error("trim: The first argument cannot be of type " + typeof(value)), "error");
+			return undefined;
+		}
+		
+		if (trimType == "left") {
+			return value.replace(/^\s*/, "");
+		} else if (trimType == "right") {
+			return value.replace(/\s*$/, "");
+		} else if (trimType == "both") {
+			return value.replace(/(^\s*)|(\s*$)/g, "");
+		} else {
+			eden.error(new Error("trim: type of trimming must be \"left\", \"right\" or \"both\"."), "error");
+			return undefined;
+		}
+	}}$;
+}
+
+func uppercase {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("uppercase: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		
+		var arg = arguments[0];
+		
+		if (arg === undefined) {
+			return undefined;
+		} else if (typeof(arg) == "string") {
+			return arg.toLocaleUpperCase();
+		} else {
+			eden.error(new Error("upercase: This function cannot be applied to a value of type " + typeof(arg)), "error");
+			return undefined;
+		}
+	}}$;
+}

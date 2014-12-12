@@ -14,7 +14,7 @@ func time {
   }}$;
 };
 
-func writeln {
+proc writeln {
   ${{
   var t = arguments[0];
   console.log(t);
@@ -36,19 +36,19 @@ func srand {
 
 };
 
-func substr {
-
-};
-
 ##Raises an error if fewer or greater than two arguments are given.
 ##Returns undefined if either argument is undefined.
 ##tkeden returns strange strings beginning with the word "usage" in these situations.
 func apply {
 	${{
 		if (arguments.length != 2) {
-			eden.error(new Error("apply: this function requires exactly 2 arguments."), "error");
+			eden.error(new Error("apply: This function requires exactly 2 arguments."), "error");
 			return undefined;			
-		} else if (arguments[0] === undefined || arguments[1] === undefined) {
+		} else if (typeof(arguments[0]) != "function") {
+			eden.error(new Error("apply: The first argument must be of type func or type proc, not " + typeof(arguments[0])), "error");
+			return undefined;
+		} else if (!Array.isArray(arguments[1])) {
+			eden.error(new Error("apply: The second argument must be of type list, not " + typeof(arguments[1])), "error");
 			return undefined;
 		} else {
 			return arguments[0].apply(this, arguments[1]);
@@ -105,6 +105,46 @@ func nameof {
 	}}$;
 }
 
+proc todo {
+	auto code;
+	if ($# != 1) {
+		error("todo: This proc requires exactly 1 argument.");
+		return;
+	}
+	
+	code = $[1];
+	
+	if (code == @) {
+		return;
+	} else if (!isString(code)) {
+		error("todo: The argument must be of type string, not " // type(code));
+		return;
+	}
+	
+	code = code // ";";
+	
+	after (0) {
+		execute(code);
+	}
+}
+
+##A new JS-EDEN specific function.
+func doDefault {
+	para value, defaultValue;
+	if ($# != 2) {
+		error("doDefault: This function requires exactly 2 arguments.");
+	}
+	if (value == @) {
+		if (defaultValue == @) {
+			error("doDefault: The default value cannot be undefined.");
+		} else {
+			return defaultValue;
+		}
+	} else {
+		return value;
+	}
+}
+
 ##Autocalc compatibility
 autocalc = 1;
 
@@ -115,6 +155,9 @@ include("library/core.js-e");
 include("library/lists.js-e");
 ## include("library/drawing.jse");
 include("library/maths.jse");
+include("library/strings.js-e");
 include("library/algebra.jse");
 include("library/include_js.js-e");
-include("library/declarevar.js-e");
+include("library/dynamic.js-e");
+include("library/html.js-e");
+include("library/objects.js-e");
