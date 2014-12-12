@@ -6,3 +6,5 @@ include("library/assertions.js-e");
 
 ##Run all available test suites.
 include("library/test/test_types.js-e");
+
+writeln("Tests complete.");
