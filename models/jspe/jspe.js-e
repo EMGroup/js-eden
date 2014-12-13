@@ -203,7 +203,7 @@ $('#canvas_buttonPrev').attr('id', 'jspe_buttonPrev');
 $('#canvas_buttonNext').attr('id', 'jspe_buttonNext');
 }}$;
 
-func TitleSlide {
+func TitledSlide {
 	auto title, subtitle, content, slideHTML;
 	if ($# == 2) {
 		title = $[1];
