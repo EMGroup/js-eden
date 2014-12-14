@@ -219,7 +219,7 @@ function concatAndResolveUrl(url, concat) {
 		try {
 			eval(this.translateToJavaScript(code)).call(agent, this.root, this, prefix, function () {
 				success && success();
-				me.emit('executeEnd', origin);
+				me.emit('executeEnd', [origin]);
 			});
 		} catch (e) {
 			this.error(e);
