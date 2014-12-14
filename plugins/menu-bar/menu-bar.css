@@ -55,13 +55,46 @@
 }
 
 .menubar-item {
-	cursor: pointer;
-	padding: 5px;
+	position: relative;
 }
 
 .menubar-item:hover {
+	background-color: rgba(111, 198, 245, 0.3);
+}
+
+.menubar-item-clickable {
+	cursor: pointer;
+}
+
+.menubar-item-clickable:hover {
 	background-color: #6FC6F5;
 	color: white;
+}
+
+.menubar-item-label {
+	width: 150px;
+	display: inline-block;
+	padding: 5px;
+}
+
+.menubar-item-fullwidth {
+	width: 190px;
+	padding: 5px;
+}
+
+.menubar-item-close {
+	text-align: center;
+	color: red;
+	position: absolute;
+	width: 40px;
+	height: 100%;
+	right: 0;
+	top: 0;
+}
+
+.menubar-item-close-icon {
+	display: inline-block;
+	padding: 5px;
 }
 
 .menubar-menu {
@@ -73,7 +106,7 @@
 	border-style: solid;
 	border-width: 1px;
 	color: black;
-	width: 150px;
+	width: 200px;
 	z-index: 2147483647; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */
 }
 
