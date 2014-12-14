@@ -91,12 +91,14 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		views.html("");
 
 		//First add supported view types
+		var viewArray = [];
 		for (x in edenUI.views) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
-			var label = $('<div class="menubar-item-fullwidth menubar-item-clickable">'+edenUI.views[x].title+'</div>');
+			var title = edenUI.views[x].title;
+			var label = $('<div class="menubar-item-fullwidth menubar-item-clickable">'+title+'</div>');
 			viewentry.html(label);
 
-			viewentry.appendTo(views);
+			viewArray.push({title: title, viewentry: viewentry});
 			viewentry.bind("click",function(e) {
 				edenUI.createView("view_"+index, this.view);
 				edenUI.showView("view"+index);
@@ -109,16 +111,63 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 			viewentry[0].view = x;
 		}
 
+		viewArray = viewArray.sort(function (a, b) {
+			if (a.title > b.title) {
+				return 1;
+			} else if (a.title < b.title) {
+				return -1;
+			}
+			return 0;
+		});
+
+		for (var i = 0; i < viewArray.length; ++i) {
+			viewArray[i].viewentry.appendTo(views);
+		}
+
 		existingViews.html("");
+		var hoverFunc = function (x) {
+			var lastDialog;
+			var previousZIndex;
+
+			return {
+				mouseover: function (e) {
+					// temporarily highlight the view
+					lastDialog = edenUI.getDialogWindow(x);
+					lastDialog.addClass('menubar-window-raise');
+					previousZIndex = lastDialog.css('z-index');
+					lastDialog.css('z-index', 2147483646);
+				},
+				mouseout: function (e) {
+					if (lastDialog) {
+						lastDialog.removeClass('menubar-window-raise');
+						lastDialog.css('z-index', previousZIndex);
+						lastDialog = undefined;
+						previousZIndex = undefined;
+					}
+				},
+				click: function (e) {
+					e.preventDefault();
+					if (lastDialog) {
+						lastDialog.removeClass('menubar-window-raise');
+						lastDialog.css('z-index', previousZIndex);
+						lastDialog = undefined;
+						previousZIndex = undefined;
+					}
+					edenUI.showView(x);
+					hideMenu();
+				}
+			};
+		};
+
 		//Now add actually active view.
 		for (x in edenUI.activeDialogs) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
+			var myHover = hoverFunc(x);
+			viewentry.bind('mouseover', myHover.mouseover);
+			viewentry.bind('mouseout', myHover.mouseout);
+
 			var label = $('<div class="menubar-item-label menubar-item-clickable">'+x+' ['+edenUI.activeDialogs[x]+']</div>');
-			label.bind("click", function (e) {
-				edenUI.showView(this.parentNode.viewname);
-				hideMenu();
-				e.preventDefault();
-			});
+			label.bind("click", myHover.click);
 
 			var close = $('<div class="menubar-item-close menubar-item-clickable"><div class="menubar-item-close-icon">X</div></div>');
 			close.bind("click", function (e) {

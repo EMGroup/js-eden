@@ -108,6 +108,10 @@
 		delete this.activeDialogs[name];
 	};
 
+	EdenUI.prototype.getDialogWindow = function (name) {
+		return dialog(name).parent();
+	};
+
 	/**
 	 * Make the window for a view visible.
 	 *
