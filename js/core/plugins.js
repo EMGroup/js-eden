@@ -103,6 +103,11 @@
 		return this.viewInstances[name];
 	};
 
+	EdenUI.prototype.destroyView = function (name) {
+		this.hideView(name);
+		delete this.activeDialogs[name];
+	};
+
 	/**
 	 * Make the window for a view visible.
 	 *

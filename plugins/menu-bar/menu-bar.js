@@ -93,11 +93,11 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		//First add supported view types
 		for (x in edenUI.views) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
-			viewentry.html(edenUI.views[x].title);
+			var label = $('<div class="menubar-item-fullwidth menubar-item-clickable">'+edenUI.views[x].title+'</div>');
+			viewentry.html(label);
 
 			viewentry.appendTo(views);
 			viewentry.bind("click",function(e) {
-				//console.log("Create and Show View: "+ this.view);
 				edenUI.createView("view_"+index, this.view);
 				edenUI.showView("view"+index);
 				hideMenu();
@@ -113,14 +113,27 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		//Now add actually active view.
 		for (x in edenUI.activeDialogs) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
-			viewentry.html(x + " ["+edenUI.activeDialogs[x]+"]");
-
-			viewentry.appendTo(existingViews);
-			viewentry.bind("click",function (e) {
-				edenUI.showView(this.viewname);
+			var label = $('<div class="menubar-item-label menubar-item-clickable">'+x+' ['+edenUI.activeDialogs[x]+']</div>');
+			label.bind("click", function (e) {
+				edenUI.showView(this.parentNode.viewname);
 				hideMenu();
 				e.preventDefault();
 			});
+
+			var close = $('<div class="menubar-item-close menubar-item-clickable"><div class="menubar-item-close-icon">X</div></div>');
+			close.bind("click", function (e) {
+				e.preventDefault();
+				edenUI.destroyView(this.parentNode.viewname);
+				$(this.parentNode).remove();
+
+				if (Object.keys && Object.keys(edenUI.activeDialogs).length === 0) {
+					hideMenu();
+				}
+			});
+
+			viewentry.append(label);
+			viewentry.append(close);
+			viewentry.appendTo(existingViews);
 			viewentry[0].viewname = x;
 		}
 	};
@@ -130,7 +143,8 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 	
 		var menu = $("#menubar-mainitem-"+menu);
 		var entry = $("<div class=\"menubar-item\"></div>");
-		entry.html(text);
+		var label = $('<div class="menubar-item-label menubar-item-clickable">'+text+'</div>');
+		entry.html(label);
 		entry.click(click);
 		entry.appendTo(menu);
 	}
