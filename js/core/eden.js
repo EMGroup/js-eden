@@ -87,9 +87,9 @@ function concatAndResolveUrl(url, concat) {
 			}
 		});
 
-		this.eden.listenTo('executeEnd', this, function () {
+		this.eden.listenTo('executeEnd', this, function (path) {
 			if (this.plugins.MenuBar) {
-				this.plugins.MenuBar.appendStatus(" [complete]");
+				this.plugins.MenuBar.updateStatus("Parsing "+path+" [complete]");
 			}
 		});
 
@@ -214,10 +214,12 @@ function concatAndResolveUrl(url, concat) {
 	
 	Eden.prototype.executeEden = function (code, origin, prefix, agent, success) {
 		var result;
+		var me = this;
 		this.emit('executeBegin', [origin]);
 		try {
 			eval(this.translateToJavaScript(code)).call(agent, this.root, this, prefix, function () {
 				success && success();
+				me.emit('executeEnd', origin);
 			});
 		} catch (e) {
 			this.error(e);
