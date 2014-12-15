@@ -86,7 +86,6 @@
 		dialog(name)
 		.dialog({
 			close: function () {
-				debugger;
 				edenUI.destroyView(name);
 			}
 		})
