@@ -189,8 +189,16 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 				}
 			};
 		};
+		
+		function existingViewsInstructions() {
+			if (Object.keys && Object.keys(edenUI.activeDialogs).length === 0) {
+				existingViews.html('<div class="menubar-item-fullwidth">Use "New" menu to create windows.</div>');
+			}
+		}
 
 		me.itemViews = {};
+		existingViewsInstructions();
+
 		//Now add actually active view.
 		for (x in edenUI.activeDialogs) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
@@ -206,9 +214,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 				e.preventDefault();
 				edenUI.destroyView(this.parentNode.viewname);
 
-				if (Object.keys && Object.keys(edenUI.activeDialogs).length === 0) {
-					hideMenu();
-				}
+				existingViewsInstructions();
 			});
 
 			viewentry.append(label);
