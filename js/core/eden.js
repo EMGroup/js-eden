@@ -107,12 +107,6 @@ function concatAndResolveUrl(url, concat) {
 			}
 		});
 
-		this.eden.listenTo('executeEnd', this, function (path) {
-			if (this.plugins.MenuBar) {
-				this.plugins.MenuBar.updateStatus("Parsing "+path+" [complete]");
-			}
-		});
-
 		this.eden.listenTo('executeError', this, function (e, options) {
 			if (this.plugins.MenuBar) {
 				this.plugins.MenuBar.updateStatus("Error: "+e.message);
