@@ -51,34 +51,73 @@ describe("UI tests", function() {
 			browser
 			.waitForElementByCss('#inputwindow-dialog textarea')
 			.type('writeln("Hello world!");')
-			.then(function () {
-				return browser.waitForElementByCss('#inputwindow-dialog .submitButton').click();
-			});
+			.waitForElementByCss('#inputwindow-dialog .submitButton')
+			.click();
 		});
 
 		it("shows in the menu status", function () {
-			return browser.waitForElementByCss('#menubar-status', wd.asserters.textInclude('Hello world!'));
+			return browser
+			.waitForElementByCss('#menubar-status', wd.asserters.textInclude('Hello world!'));
+		});
+	});
+
+	describe("clicking 'new' menu", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("New"))
+			.click();
 		});
 
-		describe("clicking 'new' menu", function () {
-			before(function () {
+		it("shows a symbol list entry", function () {
+			return browser
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List"));
+		});
+	});
+
+	describe("click symbol list", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List"))
+			.click()
+			.then(function () {
+				// click menu again to make it disappear
 				return browser
 				.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("New"))
 				.click();
 			});
+		});
 
-			describe("click symbol list", function () {
-				before(function () {
-					return browser
-					.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List"))
-					.click();
-				});
+		it('shows a symbol list dialog', function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude("Symbol List"));
+		});
+	});
 
-				it('shows a symbol list dialog', function () {
-					return browser
-					.waitForElementByCss('.ui-dialog', wd.asserters.textInclude("Symbol List"));
-				});
-			});
+	describe("clicking 'window' menu", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
+			.click();
+		});
+
+		it('shows a symbol list entry', function () {
+			return browser
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_0 [SymbolList]"));
+		});
+	});
+
+	describe("close window through menu", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_0 [SymbolList]"))
+			.elementByCss('>', '.menubar-item-close')
+			.click();
+		});
+
+		it('closes the window', function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Symbol List'))
+			.should.be.rejectedWith("Element condition wasn't satisfied");
 		});
 	});
 });
