@@ -18,6 +18,12 @@
 EdenUI.plugins.MenuBar = function(edenUI, success) {
 	var me = this;
 	var index = 0;
+	this.itemViews = {};
+
+	edenUI.listenTo('destroyView', this, function (name) {
+		$(me.itemViews[name]).remove();
+		delete me.itemViews[name];
+	});
 
 	/** @private */
 	var menudiv = $("<div id=\"menubar-main\"></div>");
@@ -35,6 +41,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		
 		menustatus.html(menustatus.html()+text);
 	}
+
 
 	var menuShowing = false;
 
@@ -183,6 +190,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 			};
 		};
 
+		me.itemViews = {};
 		//Now add actually active view.
 		for (x in edenUI.activeDialogs) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
@@ -197,7 +205,6 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 			close.bind("click", function (e) {
 				e.preventDefault();
 				edenUI.destroyView(this.parentNode.viewname);
-				$(this.parentNode).remove();
 
 				if (Object.keys && Object.keys(edenUI.activeDialogs).length === 0) {
 					hideMenu();
@@ -208,6 +215,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 			viewentry.append(close);
 			viewentry.appendTo(existingViews);
 			viewentry[0].viewname = x;
+			me.itemViews[x] = viewentry[0];
 		}
 	};
 
