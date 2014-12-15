@@ -152,8 +152,7 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 				width: 500,
 				height: 200,
 				minHeight: 200,
-				minWidth: 500,
-
+				minWidth: 500
 			});
 			input_dialog = $dialog;
 
