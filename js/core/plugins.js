@@ -83,7 +83,13 @@
 
 		this.viewInstances[name] = this.views[type].dialog(name+"-dialog", this.views[type].title+" ["+name+"]");
 		// add minimise button to created dialog
-		dialog(name).dialogExtend({
+		dialog(name)
+		.dialog({
+			close: function () {
+				edenUI.destroyView(name);
+			}
+		})
+		.dialogExtend({
 			minimizable: true,
 			minimize: function () {
 				var dialogMin = dialog(name).data('dialog-extend-minimize-controls');
@@ -118,6 +124,7 @@
 	EdenUI.prototype.destroyView = function (name) {
 		this.hideView(name);
 		delete this.activeDialogs[name];
+		this.emit('destroyView', [name]);
 	};
 
 	EdenUI.prototype.getDialogContent = function (name) {
