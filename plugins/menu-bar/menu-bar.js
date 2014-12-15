@@ -133,25 +133,49 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 				mouseover: function (e) {
 					// temporarily highlight the view
 					lastDialog = edenUI.getDialogWindow(x);
-					lastDialog.addClass('menubar-window-raise');
-					previousZIndex = lastDialog.css('z-index');
-					lastDialog.css('z-index', 2147483646);
+					var lastDialogMin = edenUI.getDialogContent(x).data('dialog-extend-minimize-controls');
+					if (lastDialogMin) {
+						lastDialogMin.addClass('menubar-window-raise');
+						previousZIndex = lastDialogMin.css('z-index');
+						lastDialogMin.css('z-index', 2147483646);
+						lastDialogMin.css('position', 'relative');
+					} else {
+						lastDialog.addClass('menubar-window-raise');
+						previousZIndex = lastDialog.css('z-index');
+						lastDialog.css('z-index', 2147483646);
+					}
 				},
 				mouseout: function (e) {
 					if (lastDialog) {
-						lastDialog.removeClass('menubar-window-raise');
-						lastDialog.css('z-index', previousZIndex);
-						lastDialog = undefined;
-						previousZIndex = undefined;
+						var lastDialogMin = edenUI.getDialogContent(x).data('dialog-extend-minimize-controls');
+						if (lastDialogMin) {
+							lastDialogMin.removeClass('menubar-window-raise');
+							lastDialogMin.css('z-index', previousZIndex);
+							lastDialog = undefined;
+							previousZIndex = undefined;
+						} else {
+							lastDialog.removeClass('menubar-window-raise');
+							lastDialog.css('z-index', previousZIndex);
+							lastDialog = undefined;
+							previousZIndex = undefined;
+						}
 					}
 				},
 				click: function (e) {
 					e.preventDefault();
 					if (lastDialog) {
-						lastDialog.removeClass('menubar-window-raise');
-						lastDialog.css('z-index', previousZIndex);
-						lastDialog = undefined;
-						previousZIndex = undefined;
+						var lastDialogMin = edenUI.getDialogContent(x).data('dialog-extend-minimize-controls');
+						if (lastDialogMin) {
+							lastDialogMin.removeClass('menubar-window-raise');
+							lastDialogMin.css('z-index', previousZIndex);
+							lastDialog = undefined;
+							previousZIndex = undefined;
+						} else {
+							lastDialog.removeClass('menubar-window-raise');
+							lastDialog.css('z-index', previousZIndex);
+							lastDialog = undefined;
+							previousZIndex = undefined;
+						}
 					}
 					edenUI.showView(x);
 					hideMenu();

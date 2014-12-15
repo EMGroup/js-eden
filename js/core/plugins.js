@@ -82,6 +82,18 @@
 		}
 
 		this.viewInstances[name] = this.views[type].dialog(name+"-dialog", this.views[type].title+" ["+name+"]");
+		// add minimise button to created dialog
+		dialog(name).dialogExtend({
+			minimizable: true,
+			minimize: function () {
+				var dialogMin = dialog(name).data('dialog-extend-minimize-controls');
+				// dialogExtend sets position: static and top, left, but doesn't need to.
+				// override this so we can add position absolute elements into the minimized controls.
+				dialogMin.css('position', 'relative');
+				dialogMin.css('top', '');
+				dialogMin.css('left', '');
+			}
+		});
 		this.activeDialogs[name] = type;
 		if (this.plugins.MenuBar) {
 			this.plugins.MenuBar.updateViewsMenu();
@@ -108,6 +120,10 @@
 		delete this.activeDialogs[name];
 	};
 
+	EdenUI.prototype.getDialogContent = function (name) {
+		return dialog(name);
+	};
+
 	EdenUI.prototype.getDialogWindow = function (name) {
 		return dialog(name).parent();
 	};
@@ -118,7 +134,7 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.showView = function (name) {
-		dialog(name).dialog('open').dialog('moveToTop');
+		dialog(name).dialog('open').dialog('moveToTop').dialogExtend('restore');
 		return this.activeDialogs[name];
 	};
 
