@@ -119,5 +119,29 @@ describe("UI tests", function() {
 			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Symbol List'))
 			.should.be.rejectedWith("Element condition wasn't satisfied");
 		});
+
+		it('removes the menu item', function () {
+			return browser
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_0 [SymbolList]"))
+			.should.be.rejectedWith("Element condition wasn't satisfied");
+		});
+	});
+
+	describe("close the 3 default windows", function () {
+		before(function () {
+			return browser
+			.elementByCss('.menubar-item-close')
+			.click()
+			.elementByCss('.menubar-item-close')
+			.click()
+			.elementByCss('.menubar-item-close')
+			.click();
+		});
+
+		it('shows instructions', function () {
+			return browser
+			.elementByCss('.menubar-mainitem')
+			.waitForElementByCss('.menubar-item-fullwidth', wd.asserters.textInclude('Use "New" menu to create windows.'));
+		});
 	});
 });
