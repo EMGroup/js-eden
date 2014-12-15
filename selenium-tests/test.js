@@ -59,5 +59,26 @@ describe("UI tests", function() {
 		it("shows in the menu status", function () {
 			return browser.waitForElementByCss('#menubar-status', wd.asserters.textInclude('Hello world!'));
 		});
+
+		describe("clicking 'new' menu", function () {
+			before(function () {
+				return browser
+				.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("New"))
+				.click();
+			});
+
+			describe("click symbol list", function () {
+				before(function () {
+					return browser
+					.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List"))
+					.click();
+				});
+
+				it('shows a symbol list dialog', function () {
+					return browser
+					.waitForElementByCss('.ui-dialog', wd.asserters.textInclude("Symbol List"));
+				});
+			});
+		});
 	});
 });
