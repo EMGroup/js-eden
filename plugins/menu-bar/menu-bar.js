@@ -23,6 +23,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 	edenUI.listenTo('destroyView', this, function (name) {
 		$(me.itemViews[name]).remove();
 		delete me.itemViews[name];
+		existingViewsInstructions();
 	});
 
 	/** @private */
@@ -89,10 +90,16 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 			}
 		});
 	};
+		
+	function existingViewsInstructions() {
+		var existingViews = $("#menubar-mainitem-existing-views");
+		if (Object.keys && Object.keys(edenUI.activeDialogs).length === 0) {
+			existingViews.html('<div class="menubar-item-fullwidth">Use "New" menu to create windows.</div>');
+		}
+	}
 
 	/** @public */
 	this.updateViewsMenu = function() {
-	
 		var views = $("#menubar-mainitem-views");
 		var existingViews = $("#menubar-mainitem-existing-views");
 		views.html("");
@@ -188,12 +195,6 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 				}
 			};
 		};
-		
-		function existingViewsInstructions() {
-			if (Object.keys && Object.keys(edenUI.activeDialogs).length === 0) {
-				existingViews.html('<div class="menubar-item-fullwidth">Use "New" menu to create windows.</div>');
-			}
-		}
 
 		me.itemViews = {};
 		existingViewsInstructions();
