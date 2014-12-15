@@ -109,7 +109,6 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 			viewentry.bind("click",function(e) {
 				edenUI.createView("view_"+index, this.view);
 				edenUI.showView("view"+index);
-				hideMenu();
 				index = index + 1;
 				me.updateViewsMenu();
 				e.stopPropagation();
