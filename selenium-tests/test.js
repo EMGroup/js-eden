@@ -93,6 +93,19 @@ describe("UI tests", function() {
 		});
 	});
 
+	describe("click item in symbol list", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('.symbollist-result-element', wd.asserters.textInclude("autocalc"))
+			.click();
+		});
+
+		it('creates an edit window', function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude("Edit_autocalc"));
+		});
+	});
+
 	describe("clicking 'window' menu", function () {
 		before(function () {
 			return browser
@@ -100,15 +113,54 @@ describe("UI tests", function() {
 			.click();
 		});
 
-		it('shows a symbol list entry', function () {
+		it('shows a symbol list and edit window entry', function () {
 			return browser
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_0 [SymbolList]"));
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_0 [SymbolList]"))
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Edit_autocalc [InputWindow]"));
 		});
 	});
 
-	describe("close window through menu", function () {
+	describe("close window through titlebar", function () {
 		before(function () {
 			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Input Window [Edit_autocalc]'))
+			.elementByCss('>', '.ui-dialog-titlebar-close')
+			.click();
+		});
+
+		it('closes the window', function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Input Window [Edit_autocalc]'))
+			.should.be.rejectedWith("Element condition wasn't satisfied");
+		});
+
+		it('removes the menu item', function () {
+			return browser
+			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
+			.click()
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Edit_autocalc [InputWindow]"))
+			.should.be.rejectedWith("Element condition wasn't satisfied");
+		});
+	});
+
+	describe("click item in symbol list", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('.symbollist-result-element', wd.asserters.textInclude("autocalc"))
+			.click();
+		});
+
+		it('creates an edit window', function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude("Edit_autocalc"));
+		});
+	});
+
+	describe("close symbol list window through menu", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
+			.click()
 			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_0 [SymbolList]"))
 			.elementByCss('>', '.menubar-item-close')
 			.click();
@@ -116,7 +168,7 @@ describe("UI tests", function() {
 
 		it('closes the window', function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Symbol List'))
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Symbol List [view_0]'))
 			.should.be.rejectedWith("Element condition wasn't satisfied");
 		});
 
@@ -127,9 +179,11 @@ describe("UI tests", function() {
 		});
 	});
 
-	describe("close the 3 default windows", function () {
+	describe("close the 4 default windows", function () {
 		before(function () {
 			return browser
+			.elementByCss('.menubar-item-close')
+			.click()
 			.elementByCss('.menubar-item-close')
 			.click()
 			.elementByCss('.menubar-item-close')
