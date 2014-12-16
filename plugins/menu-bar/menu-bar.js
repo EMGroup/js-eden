@@ -98,7 +98,6 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 
 	function onClickNewWindow(e) {
 		edenUI.createView("view_"+index, this.view);
-		edenUI.showView("view"+index);
 		index = index + 1;
 		me.updateViewsMenu();
 		e.stopPropagation();
