@@ -66,7 +66,8 @@ These tests simulate user actions in the JS-Eden UI. They are in the
 1. Download `selenium-server-standalone-<version>.jar` from http://www.seleniumhq.org/download/
 2. Run `java -jar selenium-server-standalone-<version>.jar` in a terminal and leave it running.
 3. Run `npm install`
-4. Run `./node_modules/.bin/mocha selenium-tests/test.js`
+4. Run `node jseden-dev-server.js` in a terminal and leave it running.
+5. Run `./node_modules/.bin/mocha selenium-tests/test.js`
 
 You should see Firefox appear and some actions occur.
 
