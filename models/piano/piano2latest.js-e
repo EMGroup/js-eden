@@ -13,11 +13,7 @@
 ##which is probably insufficient.  Need to delve into the audio library more deeply
 ##and learn how to override the default.
 
-##=============================================================================
-##Include these lines first.
-
-##Include JavaScript import library.
-include("library/include_js.js-e");
+include("compatibility/construit.c5.js-e");
 
 ##Include the JavaScript sound library.
 include("http://www.dcs.warwick.ac.uk/~wmb/PianoJS/audio.js");

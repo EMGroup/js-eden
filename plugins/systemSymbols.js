@@ -9,10 +9,9 @@ Eden.systemObservableNames = [
 	"mouseClickX",
 	"mouseClickY",
 	"mouseDown",
+	"mousePosition",
 	"mousePressed",
 	"mouseUp",
-	"mouseX",
-	"mouseY",
 	"true"
 ];
 

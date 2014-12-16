@@ -125,14 +125,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			root.lookup('mouseX').assign(x);
-			root.lookup('mouseY').assign(y);
-		}).on("click",function(e) {
-			pos = $(this).offset();
-			x = e.pageX - pos.left;
-			y = e.pageY - pos.top;
-			root.lookup('mouseClickX').assign(x);
-			root.lookup('mouseClickY').assign(y);
+			root.lookup('mousePosition').assign(root.lookup('Point').value().call(this, x, y));
 		});
 
 		$dialog = $('<div id="'+name+'"></div>')
