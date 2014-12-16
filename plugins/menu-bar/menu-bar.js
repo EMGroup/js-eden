@@ -151,52 +151,14 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 
 			return {
 				mouseover: function (e) {
-					// temporarily highlight the view
-					lastDialog = edenUI.getDialogWindow(dialogName);
-					var lastDialogMin = edenUI.getDialogContent(dialogName).data('dialog-extend-minimize-controls');
-					if (lastDialogMin) {
-						lastDialogMin.addClass('menubar-window-raise');
-						previousZIndex = lastDialogMin.css('z-index');
-						lastDialogMin.css('z-index', 2147483646);
-						lastDialogMin.css('position', 'relative');
-					} else {
-						lastDialog.addClass('menubar-window-raise');
-						previousZIndex = lastDialog.css('z-index');
-						lastDialog.css('z-index', 2147483646);
-					}
+					edenUI.highlight(dialogName);
 				},
 				mouseout: function (e) {
-					if (lastDialog) {
-						var lastDialogMin = edenUI.getDialogContent(dialogName).data('dialog-extend-minimize-controls');
-						if (lastDialogMin) {
-							lastDialogMin.removeClass('menubar-window-raise');
-							lastDialogMin.css('z-index', previousZIndex);
-							lastDialog = undefined;
-							previousZIndex = undefined;
-						} else {
-							lastDialog.removeClass('menubar-window-raise');
-							lastDialog.css('z-index', previousZIndex);
-							lastDialog = undefined;
-							previousZIndex = undefined;
-						}
-					}
+					edenUI.stopHighlight(dialogName);
 				},
 				click: function (e) {
 					e.preventDefault();
-					if (lastDialog) {
-						var lastDialogMin = edenUI.getDialogContent(dialogName).data('dialog-extend-minimize-controls');
-						if (lastDialogMin) {
-							lastDialogMin.removeClass('menubar-window-raise');
-							lastDialogMin.css('z-index', previousZIndex);
-							lastDialog = undefined;
-							previousZIndex = undefined;
-						} else {
-							lastDialog.removeClass('menubar-window-raise');
-							lastDialog.css('z-index', previousZIndex);
-							lastDialog = undefined;
-							previousZIndex = undefined;
-						}
-					}
+					edenUI.stopHighlight();
 					edenUI.showView(dialogName);
 					hideMenu();
 				}
