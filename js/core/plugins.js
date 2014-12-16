@@ -48,10 +48,7 @@
 
 		var me = this;
 		var wrappedSuccess = function () {
-			// Force manual refresh of views menu.
-			if (me.plugins.MenuBar) {
-				me.plugins.MenuBar.updateViewsMenu();
-			}
+			me.emit('loadPlugin', [name]);
 			success && success.call(agent);
 		}
 
