@@ -127,7 +127,12 @@ function concatAndResolveUrl(url, concat) {
 		 * @private
 		 */
 		this.listeners = {};
+
+		this.windowHighlighter = new WindowHighlighter(this);
 	}
+
+	EdenUI.prototype.highlight = function (dialogName) { this.windowHighlighter.highlight(dialogName); };
+	EdenUI.prototype.stopHighlight = function (dialogName) { this.windowHighlighter.stopHighlight(dialogName); };
 
 	EdenUI.prototype.showErrorWindow = function () {
 		return $('#error-window')
