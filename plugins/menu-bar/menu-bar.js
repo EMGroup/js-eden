@@ -13,7 +13,7 @@
  */
 EdenUI.plugins.MenuBar = function (edenUI, success) {
 	var me = this;
-	var index = 0;
+	var viewNumber = 0;
 	this.itemViews = {};
 
 	edenUI.listenTo('createView', this, function (name, path) {
@@ -60,7 +60,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		hideMenu();
 	});
 
-	function addMainItem (name, title) {
+	function addMainItem(name, title) {
 		var menuitem = $('<div class="menubar-mainitem"></div>');
 		menuitem.html(title+'<div id="menubar-mainitem-'+name+'" class="menubar-menu"></div>');
 		menuitem.appendTo(menudiv);
@@ -97,9 +97,8 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	}
 
 	function onClickNewWindow(e) {
-		edenUI.createView("view_"+index, this.view);
-		edenUI.showView("view"+index);
-		index = index + 1;
+		edenUI.createView("view_"+viewNumber, this.view);
+		viewNumber++;
 		me.updateViewsMenu();
 		e.stopPropagation();
 		e.preventDefault();
@@ -119,17 +118,17 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		// First add supported view types
 		var viewArray = [];
 		var dialogName;
-		var viewentry;
+		var viewEntry;
 		var label;
 
 		for (dialogName in edenUI.views) {
-			viewentry = $('<div class="menubar-item"></div>');
+			viewEntry = $('<div class="menubar-item"></div>');
 			var title = edenUI.views[dialogName].title;
 			label = $('<div class="menubar-item-fullwidth menubar-item-clickable">'+title+'</div>');
-			viewentry.html(label);
-			viewArray.push({title: title, viewentry: viewentry});
-			viewentry.bind("click", onClickNewWindow);
-			viewentry[0].view = dialogName;
+			viewEntry.html(label);
+			viewArray.push({title: title, viewEntry: viewEntry});
+			viewEntry.bind("click", onClickNewWindow);
+			viewEntry[0].view = dialogName;
 		}
 
 		viewArray = viewArray.sort(function (a, b) {
@@ -142,7 +141,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		});
 
 		for (var i = 0; i < viewArray.length; ++i) {
-			viewArray[i].viewentry.appendTo(views);
+			viewArray[i].viewEntry.appendTo(views);
 		}
 
 		existingViews.html("");
@@ -209,10 +208,10 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 
 		// Now add existing windows
 		for (dialogName in edenUI.activeDialogs) {
-			viewentry = $("<div class=\"menubar-item\"></div>");
+			viewEntry = $("<div class=\"menubar-item\"></div>");
 			var myHover = hoverFunc(dialogName);
-			viewentry.bind('mouseover', myHover.mouseover);
-			viewentry.bind('mouseout', myHover.mouseout);
+			viewEntry.bind('mouseover', myHover.mouseover);
+			viewEntry.bind('mouseout', myHover.mouseout);
 
 			label = $('<div class="menubar-item-label menubar-item-clickable">'+dialogName+' ['+edenUI.activeDialogs[dialogName]+']</div>');
 			label.bind("click", myHover.click);
@@ -220,11 +219,11 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			var close = $('<div class="menubar-item-close menubar-item-clickable"><div class="menubar-item-close-icon">X</div></div>');
 			close.bind("click", onClickCloseWindow);
 
-			viewentry.append(label);
-			viewentry.append(close);
-			viewentry.appendTo(existingViews);
-			viewentry[0].viewname = dialogName;
-			me.itemViews[dialogName] = viewentry[0];
+			viewEntry.append(label);
+			viewEntry.append(close);
+			viewEntry.appendTo(existingViews);
+			viewEntry[0].viewname = dialogName;
+			me.itemViews[dialogName] = viewEntry[0];
 		}
 	};
 
