@@ -4,7 +4,19 @@
 ##changes made to the environment subsequent to the CONSTRUIT! C5 meeting
 ##(11-16 December 2014) but before the next major JS-EDEN release.
 
-mouseX is mousePosition.x;
-mouseY is mousePosition.y;
+proc CanvasHTML5_DrawPicture {
+	${{
+	var canvas = arguments[0];
+	var picture = arguments[1];
+	edenUI.plugins.CanvasHTML5.drawPicture(canvas,picture);
+	}}$;
+};
+
+proc drawPicture : picture { 
+  CanvasHTML5_DrawPicture("default","picture");
+};
+
 mouseClickX is mouseUp.x;
 mouseClickY is mouseUp.y;
+mouseX is mousePosition.x;
+mouseY is mousePosition.y;
