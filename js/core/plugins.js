@@ -48,10 +48,7 @@
 
 		var me = this;
 		var wrappedSuccess = function () {
-			// Force manual refresh of views menu.
-			if (me.plugins.MenuBar) {
-				me.plugins.MenuBar.updateViewsMenu();
-			}
+			me.emit('loadPlugin', [name]);
 			success && success.call(agent);
 		}
 
@@ -101,9 +98,7 @@
 			}
 		});
 		this.activeDialogs[name] = type;
-		if (this.plugins.MenuBar) {
-			this.plugins.MenuBar.updateViewsMenu();
-		}
+		this.emit('createView', [name, type]);
 
 		var diag = dialog(name);
 		view(name, 'width').assign(diag.dialog("option", "width"));
