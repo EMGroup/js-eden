@@ -179,6 +179,22 @@ describe("UI tests", function() {
 		});
 	});
 
+	describe("highlight window", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("inputwindow [InputWindow]"))
+			.moveTo();
+		});
+
+		it("highlights window", function () {
+			return browser
+			.waitForElementByCss(
+				'.ui-dialog.menubar-window-raise',
+				wd.asserters.textInclude('Input Window [inputwindow]')
+			);
+		});
+	});
+
 	describe("close the 4 default windows", function () {
 		before(function () {
 			return browser
