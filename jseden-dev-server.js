@@ -7,6 +7,9 @@
  */
 var connect = require('connect');
 var serveStatic = require('serve-static');
+var port = 8000;
 
 var app = connect();
-app.use(serveStatic('.')).listen(8000);
+app.use(serveStatic('.')).listen(port, function () {
+  console.log('JS-Eden instance running at http://localhost:'+port);
+});

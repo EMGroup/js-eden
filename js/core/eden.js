@@ -7,6 +7,26 @@
 
 function noop() {}
 
+function listenTo(eventName, target, callback) {
+	if (!this.listeners[eventName]) {
+		this.listeners[eventName] = [];
+	}
+	this.listeners[eventName].push({target: target, callback: callback});
+}
+
+function emit(eventName, eventArgs) {
+	var listenersForEvent = this.listeners[eventName];
+	if (!listenersForEvent) {
+		return;
+	}
+	var i;
+	for (i = 0; i < listenersForEvent.length; ++i) {
+		var target = listenersForEvent[i].target;
+		var callback = listenersForEvent[i].callback;
+		callback.apply(target, eventArgs);
+	}
+}
+
 // import node.js modules
 function concatAndResolveUrl(url, concat) {
 	var url1 = url.split('/');
@@ -87,12 +107,6 @@ function concatAndResolveUrl(url, concat) {
 			}
 		});
 
-		this.eden.listenTo('executeEnd', this, function () {
-			if (this.plugins.MenuBar) {
-				this.plugins.MenuBar.appendStatus(" [complete]");
-			}
-		});
-
 		this.eden.listenTo('executeError', this, function (e, options) {
 			if (this.plugins.MenuBar) {
 				this.plugins.MenuBar.updateStatus("Error: "+e.message);
@@ -107,6 +121,12 @@ function concatAndResolveUrl(url, concat) {
 			this.showErrorWindow().prepend(formattedError)
 			this.showErrorWindow().prop('scrollTop', 0);
 		});
+
+		/**
+		 * @type {Object.<string, Array.<{target: *, callback: function(...[*])}>>}
+		 * @private
+		 */
+		this.listeners = {};
 	}
 
 	EdenUI.prototype.showErrorWindow = function () {
@@ -115,6 +135,19 @@ function concatAndResolveUrl(url, concat) {
 			.dialog({title: "EDEN Errors", width: 500})
 			.dialog('moveToTop');
 	};
+
+	/**
+	 * @param {string} eventName
+	 * @param {*} target
+	 * @param {function(...[*])} callback
+	 */
+	EdenUI.prototype.listenTo = listenTo;
+
+	/**
+	 * @param {string} eventName
+	 * @param {Array.<*>} eventArgs
+	 */
+	EdenUI.prototype.emit = emit;
 
 	/**
 	 * @constructor
@@ -168,29 +201,13 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {*} target
 	 * @param {function(...[*])} callback
 	 */
-	Eden.prototype.listenTo = function (eventName, target, callback) {
-		if (!this.listeners[eventName]) {
-			this.listeners[eventName] = [];
-		}
-		this.listeners[eventName].push({target: target, callback: callback})
-	};
+	Eden.prototype.listenTo = listenTo;
 
 	/**
 	 * @param {string} eventName
 	 * @param {Array.<*>} eventArgs
 	 */
-	Eden.prototype.emit = function (eventName, eventArgs) {
-		var listenersForEvent = this.listeners[eventName];
-		if (!listenersForEvent) {
-			return;
-		}
-		var i;
-		for (i = 0; i < listenersForEvent.length; ++i) {
-			var target = listenersForEvent[i].target;
-			var callback = listenersForEvent[i].callback;
-			callback.apply(target, eventArgs);
-		}
-	};
+	Eden.prototype.emit = emit;
 
 	/**
 	 * @param {*} error
@@ -214,10 +231,12 @@ function concatAndResolveUrl(url, concat) {
 	
 	Eden.prototype.executeEden = function (code, origin, prefix, agent, success) {
 		var result;
+		var me = this;
 		this.emit('executeBegin', [origin]);
 		try {
 			eval(this.translateToJavaScript(code)).call(agent, this.root, this, prefix, function () {
 				success && success();
+				me.emit('executeEnd', [origin]);
 			});
 		} catch (e) {
 			this.error(e);

@@ -18,6 +18,13 @@
 EdenUI.plugins.MenuBar = function(edenUI, success) {
 	var me = this;
 	var index = 0;
+	this.itemViews = {};
+
+	edenUI.listenTo('destroyView', this, function (name) {
+		$(me.itemViews[name]).remove();
+		delete me.itemViews[name];
+		existingViewsInstructions();
+	});
 
 	/** @private */
 	var menudiv = $("<div id=\"menubar-main\"></div>");
@@ -35,6 +42,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		
 		menustatus.html(menustatus.html()+text);
 	}
+
 
 	var menuShowing = false;
 
@@ -82,25 +90,32 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 			}
 		});
 	};
+		
+	function existingViewsInstructions() {
+		var existingViews = $("#menubar-mainitem-existing-views");
+		if (Object.keys && Object.keys(edenUI.activeDialogs).length === 0) {
+			existingViews.html('<div class="menubar-item-fullwidth">Use "New" menu to create windows.</div>');
+		}
+	}
 
 	/** @public */
 	this.updateViewsMenu = function() {
-	
 		var views = $("#menubar-mainitem-views");
 		var existingViews = $("#menubar-mainitem-existing-views");
 		views.html("");
 
 		//First add supported view types
+		var viewArray = [];
 		for (x in edenUI.views) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
-			viewentry.html(edenUI.views[x].title);
+			var title = edenUI.views[x].title;
+			var label = $('<div class="menubar-item-fullwidth menubar-item-clickable">'+title+'</div>');
+			viewentry.html(label);
 
-			viewentry.appendTo(views);
+			viewArray.push({title: title, viewentry: viewentry});
 			viewentry.bind("click",function(e) {
-				//console.log("Create and Show View: "+ this.view);
 				edenUI.createView("view_"+index, this.view);
 				edenUI.showView("view"+index);
-				hideMenu();
 				index = index + 1;
 				me.updateViewsMenu();
 				e.stopPropagation();
@@ -109,19 +124,104 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 			viewentry[0].view = x;
 		}
 
+		viewArray = viewArray.sort(function (a, b) {
+			if (a.title > b.title) {
+				return 1;
+			} else if (a.title < b.title) {
+				return -1;
+			}
+			return 0;
+		});
+
+		for (var i = 0; i < viewArray.length; ++i) {
+			viewArray[i].viewentry.appendTo(views);
+		}
+
 		existingViews.html("");
+		var hoverFunc = function (x) {
+			var lastDialog;
+			var previousZIndex;
+
+			return {
+				mouseover: function (e) {
+					// temporarily highlight the view
+					lastDialog = edenUI.getDialogWindow(x);
+					var lastDialogMin = edenUI.getDialogContent(x).data('dialog-extend-minimize-controls');
+					if (lastDialogMin) {
+						lastDialogMin.addClass('menubar-window-raise');
+						previousZIndex = lastDialogMin.css('z-index');
+						lastDialogMin.css('z-index', 2147483646);
+						lastDialogMin.css('position', 'relative');
+					} else {
+						lastDialog.addClass('menubar-window-raise');
+						previousZIndex = lastDialog.css('z-index');
+						lastDialog.css('z-index', 2147483646);
+					}
+				},
+				mouseout: function (e) {
+					if (lastDialog) {
+						var lastDialogMin = edenUI.getDialogContent(x).data('dialog-extend-minimize-controls');
+						if (lastDialogMin) {
+							lastDialogMin.removeClass('menubar-window-raise');
+							lastDialogMin.css('z-index', previousZIndex);
+							lastDialog = undefined;
+							previousZIndex = undefined;
+						} else {
+							lastDialog.removeClass('menubar-window-raise');
+							lastDialog.css('z-index', previousZIndex);
+							lastDialog = undefined;
+							previousZIndex = undefined;
+						}
+					}
+				},
+				click: function (e) {
+					e.preventDefault();
+					if (lastDialog) {
+						var lastDialogMin = edenUI.getDialogContent(x).data('dialog-extend-minimize-controls');
+						if (lastDialogMin) {
+							lastDialogMin.removeClass('menubar-window-raise');
+							lastDialogMin.css('z-index', previousZIndex);
+							lastDialog = undefined;
+							previousZIndex = undefined;
+						} else {
+							lastDialog.removeClass('menubar-window-raise');
+							lastDialog.css('z-index', previousZIndex);
+							lastDialog = undefined;
+							previousZIndex = undefined;
+						}
+					}
+					edenUI.showView(x);
+					hideMenu();
+				}
+			};
+		};
+
+		me.itemViews = {};
+		existingViewsInstructions();
+
 		//Now add actually active view.
 		for (x in edenUI.activeDialogs) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
-			viewentry.html(x + " ["+edenUI.activeDialogs[x]+"]");
+			var myHover = hoverFunc(x);
+			viewentry.bind('mouseover', myHover.mouseover);
+			viewentry.bind('mouseout', myHover.mouseout);
 
-			viewentry.appendTo(existingViews);
-			viewentry.bind("click",function (e) {
-				edenUI.showView(this.viewname);
-				hideMenu();
+			var label = $('<div class="menubar-item-label menubar-item-clickable">'+x+' ['+edenUI.activeDialogs[x]+']</div>');
+			label.bind("click", myHover.click);
+
+			var close = $('<div class="menubar-item-close menubar-item-clickable"><div class="menubar-item-close-icon">X</div></div>');
+			close.bind("click", function (e) {
 				e.preventDefault();
+				edenUI.destroyView(this.parentNode.viewname);
+
+				existingViewsInstructions();
 			});
+
+			viewentry.append(label);
+			viewentry.append(close);
+			viewentry.appendTo(existingViews);
 			viewentry[0].viewname = x;
+			me.itemViews[x] = viewentry[0];
 		}
 	};
 
@@ -130,7 +230,8 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 	
 		var menu = $("#menubar-mainitem-"+menu);
 		var entry = $("<div class=\"menubar-item\"></div>");
-		entry.html(text);
+		var label = $('<div class="menubar-item-label menubar-item-clickable">'+text+'</div>');
+		entry.html(label);
 		entry.click(click);
 		entry.appendTo(menu);
 	}
