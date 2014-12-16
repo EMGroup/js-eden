@@ -30,7 +30,7 @@ proc createCanvas {
 		return;
 	}
 
-	execute(obsName // " = [];");
+	execute("if (" // obsName // " == @) { " // obsName // " = []; }");
 	createView(viewName, "CanvasHTML5");
 	execute("proc _update_" // viewName // " : " // obsName // " { $" // "{{ edenUI.plugins.CanvasHTML5.drawPicture(" // edenCode(viewName) // ", " // edenCode(obsName) // "); }}$; }");
 }
