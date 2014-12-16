@@ -43,14 +43,32 @@ parser. Changes to the file `translator/grammar.jison` will automatically
 rebuild the parser at `js/core/translator.js` (takes a few seconds) and reload
 the page.
 
-## Automated testing
+## Unit tests
 
-There are automated tests for the JavaScript code. To run the tests:
+There are automated tests for the JavaScript code. They execute javascript code
+directly to test the dependency maintenance and parsing code. To run the tests
+on the commandline:
 
-```shell
-npm install
-npm test
-```
+1. Run `npm install`
+2. Run `npm test`
+
+If you want to use the browser's debugging tools, you can run the tests in the
+browser:
+
+1. Run `node jseden-dev-server.js`
+2. Go to `localhost:8000/qunit.html`
+
+## Selenium tests
+
+These tests simulate user actions in the JS-Eden UI. They are in the
+`selenium-tests` folder. To run the tests:
+
+1. Download `selenium-server-standalone-<version>.jar` from http://www.seleniumhq.org/download/
+2. Run `java -jar selenium-server-standalone-<version>.jar` in a terminal and leave it running.
+3. Run `npm install`
+4. Run `./node_modules/.bin/mocha selenium-tests/test.js`
+
+You should see Firefox appear and some actions occur.
 
 ## Black box tests for tkeden and JS-Eden
 
