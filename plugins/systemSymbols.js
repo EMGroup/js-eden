@@ -1,7 +1,6 @@
 //System Symbols
 Eden.systemObservableNames = [
 	"_status",
-	"_view*",
 	"Infinity",
 	"autocalc",
 	"false",
@@ -17,7 +16,6 @@ Eden.systemObservableNames = [
 
 Eden.systemAgentNames = [
 	"_MenuBar_Status",
-	"_View_*",
 	"createHTMLView",
 	"createView",
 	"drawPicture",
