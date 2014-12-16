@@ -20,13 +20,20 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 	var index = 0;
 	this.itemViews = {};
 
+	edenUI.listenTo('createView', this, function (name, path) {
+		this.updateViewsMenu();
+	});
+
 	edenUI.listenTo('destroyView', this, function (name) {
-		$(me.itemViews[name]).remove();
-		delete me.itemViews[name];
+		$(this.itemViews[name]).remove();
+		delete this.itemViews[name];
 		existingViewsInstructions();
 	});
 
-	/** @private */
+	edenUI.listenTo('loadPlugin', this, function (name, path) {
+		this.updateViewsMenu();
+	});
+
 	var menudiv = $("<div id=\"menubar-main\"></div>");
 	var menustatus = $("<div id=\"menubar-status\"></div>");
 	menustatus.appendTo(menudiv);

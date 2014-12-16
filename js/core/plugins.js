@@ -101,9 +101,7 @@
 			}
 		});
 		this.activeDialogs[name] = type;
-		if (this.plugins.MenuBar) {
-			this.plugins.MenuBar.updateViewsMenu();
-		}
+		this.emit('createView', [name, type]);
 
 		var diag = dialog(name);
 		view(name, 'width').assign(diag.dialog("option", "width"));
