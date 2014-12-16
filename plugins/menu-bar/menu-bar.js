@@ -8,14 +8,10 @@
 /**
  * JS-Eden Menu Bar Plugin
  * Generates a bar at the top of the screen for loading plugins and creating
- * views. It also gives access to Help and other js-eden options. This should
- * be considered a fundamental plugin that allows users to manage other
- * plugins.
+ * views.
  * @class MenuBar Plugin
  */
- 
-
-EdenUI.plugins.MenuBar = function(edenUI, success) {
+EdenUI.plugins.MenuBar = function (edenUI, success) {
 	var me = this;
 	var index = 0;
 	this.itemViews = {};
@@ -34,44 +30,39 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		this.updateViewsMenu();
 	});
 
-	var menudiv = $("<div id=\"menubar-main\"></div>");
-	var menustatus = $("<div id=\"menubar-status\"></div>");
+	var menudiv = $('<div id="menubar-main"></div>');
+	var menustatus = $('<div id="menubar-status"></div>');
 	menustatus.appendTo(menudiv);
 	menudiv.appendTo($("body"));
-	$("<div id=\"menubar-bottom\"></div>").appendTo($("body"));
+	$('<div id="menubar-bottom"></div>').appendTo($("body"));
 
-	this.updateStatus = function(text) {
-		
+	this.updateStatus = function (text) {
 		menustatus.html(text);
-	}
+	};
 
-	this.appendStatus = function(text) {
-		
+	this.appendStatus = function (text) {
 		menustatus.html(menustatus.html()+text);
-	}
-
+	};
 
 	var menuShowing = false;
 
-	var hideMenu = function () {
+	function hideMenu() {
 		$(".menubar-menu").hide();
 		menuShowing = false;
-	};
+	}
 
-	var showMenu = function (name) {
+	function showMenu(name) {
 		$("#menubar-mainitem-"+name).show();
 		menuShowing = true;
-	};
+	}
 
 	$(document.body).on('mousedown', function () {
 		hideMenu();
 	});
 
-	/** @private */
-	var addMainItem = function(name, title) {
-	
-		var menuitem = $("<div class=\"menubar-mainitem\"></div>");
-		menuitem.html(title+"<div id=\"menubar-mainitem-"+name+"\" class=\"menubar-menu\"></div>");
+	function addMainItem (name, title) {
+		var menuitem = $('<div class="menubar-mainitem"></div>');
+		menuitem.html(title+'<div id="menubar-mainitem-'+name+'" class="menubar-menu"></div>');
 		menuitem.appendTo(menudiv);
 
 		$("#menubar-mainitem-"+name).hide();
@@ -96,7 +87,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 				showMenu(name);
 			}
 		});
-	};
+	}
 		
 	function existingViewsInstructions() {
 		var existingViews = $("#menubar-mainitem-existing-views");
@@ -105,30 +96,40 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		}
 	}
 
-	/** @public */
-	this.updateViewsMenu = function() {
+	function onClickNewWindow(e) {
+		edenUI.createView("view_"+index, this.view);
+		edenUI.showView("view"+index);
+		index = index + 1;
+		me.updateViewsMenu();
+		e.stopPropagation();
+		e.preventDefault();
+	}
+	
+	function onClickCloseWindow(e) {
+		e.preventDefault();
+		edenUI.destroyView(this.parentNode.viewname);
+		existingViewsInstructions();
+	}
+
+	this.updateViewsMenu = function () {
 		var views = $("#menubar-mainitem-views");
 		var existingViews = $("#menubar-mainitem-existing-views");
 		views.html("");
 
-		//First add supported view types
+		// First add supported view types
 		var viewArray = [];
-		for (x in edenUI.views) {
-			viewentry = $("<div class=\"menubar-item\"></div>");
-			var title = edenUI.views[x].title;
-			var label = $('<div class="menubar-item-fullwidth menubar-item-clickable">'+title+'</div>');
-			viewentry.html(label);
+		var dialogName;
+		var viewentry;
+		var label;
 
+		for (dialogName in edenUI.views) {
+			viewentry = $('<div class="menubar-item"></div>');
+			var title = edenUI.views[dialogName].title;
+			label = $('<div class="menubar-item-fullwidth menubar-item-clickable">'+title+'</div>');
+			viewentry.html(label);
 			viewArray.push({title: title, viewentry: viewentry});
-			viewentry.bind("click",function(e) {
-				edenUI.createView("view_"+index, this.view);
-				edenUI.showView("view"+index);
-				index = index + 1;
-				me.updateViewsMenu();
-				e.stopPropagation();
-				e.preventDefault();
-			});
-			viewentry[0].view = x;
+			viewentry.bind("click", onClickNewWindow);
+			viewentry[0].view = dialogName;
 		}
 
 		viewArray = viewArray.sort(function (a, b) {
@@ -145,15 +146,15 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		}
 
 		existingViews.html("");
-		var hoverFunc = function (x) {
+		var hoverFunc = function (dialogName) {
 			var lastDialog;
 			var previousZIndex;
 
 			return {
 				mouseover: function (e) {
 					// temporarily highlight the view
-					lastDialog = edenUI.getDialogWindow(x);
-					var lastDialogMin = edenUI.getDialogContent(x).data('dialog-extend-minimize-controls');
+					lastDialog = edenUI.getDialogWindow(dialogName);
+					var lastDialogMin = edenUI.getDialogContent(dialogName).data('dialog-extend-minimize-controls');
 					if (lastDialogMin) {
 						lastDialogMin.addClass('menubar-window-raise');
 						previousZIndex = lastDialogMin.css('z-index');
@@ -167,7 +168,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 				},
 				mouseout: function (e) {
 					if (lastDialog) {
-						var lastDialogMin = edenUI.getDialogContent(x).data('dialog-extend-minimize-controls');
+						var lastDialogMin = edenUI.getDialogContent(dialogName).data('dialog-extend-minimize-controls');
 						if (lastDialogMin) {
 							lastDialogMin.removeClass('menubar-window-raise');
 							lastDialogMin.css('z-index', previousZIndex);
@@ -184,7 +185,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 				click: function (e) {
 					e.preventDefault();
 					if (lastDialog) {
-						var lastDialogMin = edenUI.getDialogContent(x).data('dialog-extend-minimize-controls');
+						var lastDialogMin = edenUI.getDialogContent(dialogName).data('dialog-extend-minimize-controls');
 						if (lastDialogMin) {
 							lastDialogMin.removeClass('menubar-window-raise');
 							lastDialogMin.css('z-index', previousZIndex);
@@ -197,7 +198,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 							previousZIndex = undefined;
 						}
 					}
-					edenUI.showView(x);
+					edenUI.showView(dialogName);
 					hideMenu();
 				}
 			};
@@ -206,52 +207,45 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 		me.itemViews = {};
 		existingViewsInstructions();
 
-		//Now add actually active view.
-		for (x in edenUI.activeDialogs) {
+		// Now add existing windows
+		for (dialogName in edenUI.activeDialogs) {
 			viewentry = $("<div class=\"menubar-item\"></div>");
-			var myHover = hoverFunc(x);
+			var myHover = hoverFunc(dialogName);
 			viewentry.bind('mouseover', myHover.mouseover);
 			viewentry.bind('mouseout', myHover.mouseout);
 
-			var label = $('<div class="menubar-item-label menubar-item-clickable">'+x+' ['+edenUI.activeDialogs[x]+']</div>');
+			label = $('<div class="menubar-item-label menubar-item-clickable">'+dialogName+' ['+edenUI.activeDialogs[dialogName]+']</div>');
 			label.bind("click", myHover.click);
 
 			var close = $('<div class="menubar-item-close menubar-item-clickable"><div class="menubar-item-close-icon">X</div></div>');
-			close.bind("click", function (e) {
-				e.preventDefault();
-				edenUI.destroyView(this.parentNode.viewname);
-
-				existingViewsInstructions();
-			});
+			close.bind("click", onClickCloseWindow);
 
 			viewentry.append(label);
 			viewentry.append(close);
 			viewentry.appendTo(existingViews);
-			viewentry[0].viewname = x;
-			me.itemViews[x] = viewentry[0];
+			viewentry[0].viewname = dialogName;
+			me.itemViews[dialogName] = viewentry[0];
 		}
 	};
 
-	/** @private */
-	var addMenuItem = function(menu,text,click) {
-	
-		var menu = $("#menubar-mainitem-"+menu);
-		var entry = $("<div class=\"menubar-item\"></div>");
+	function addMenuItem(menuText, text, click) {
+		menu = $("#menubar-mainitem-"+menuText);
+		var entry = $('<div class="menubar-item"></div>');
 		var label = $('<div class="menubar-item-label menubar-item-clickable">'+text+'</div>');
 		entry.html(label);
 		entry.click(click);
 		entry.appendTo(menu);
 	}
 
-	//Add main menu items.
+	// Add main menu items
 	addMainItem("views", "New");
 	addMainItem("existing-views", "Windows");
 
-	//Put js-eden version in right corner
+	// Put js-eden version in right corner
 	$.ajax({
 		url: "version.json",
 		dataType: "json",
-		success: function(data) {
+		success: function (data) {
 			var versionHtml = '';
 			if (data.tag) {
 				versionHtml += 'Version ' + data.tag;
@@ -261,8 +255,7 @@ EdenUI.plugins.MenuBar = function(edenUI, success) {
 			}
 			$('<div id="menubar-version-number"></div>').html(versionHtml).appendTo($("#menubar-main"));
 		},
-		cache: false,
-		async: true
+		cache: false
 	});
 
 	this.updateViewsMenu();
