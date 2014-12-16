@@ -48,7 +48,7 @@ describe("UI tests", function() {
 
 	describe("writeln", function () {
 		before(function () {
-			browser
+			return browser
 			.waitForElementByCss('#inputwindow-dialog textarea')
 			.type('writeln("Hello world!");')
 			.waitForElementByCss('#inputwindow-dialog .submitButton')
@@ -212,6 +212,46 @@ describe("UI tests", function() {
 			return browser
 			.elementByCss('.menubar-mainitem')
 			.waitForElementByCss('.menubar-item-fullwidth', wd.asserters.textInclude('Use "New" menu to create windows.'));
+		});
+	});
+
+	describe("create new input window", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("New"))
+			.moveTo()
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Input Window"))
+			.click()
+			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
+			.moveTo();
+		});
+
+		it("shows an input window entry", function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Input Window [view_1]'))
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_1 [InputWindow]"));
+		});
+	});
+
+	describe("use eden createView", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('#view_1-dialog textarea')
+			.type('createView("testinput", "InputWindow");')
+			.waitForElementByCss('#view_1-dialog .submitButton')
+			.click();
+		});
+
+		it("creates a window", function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Input Window [testinput]'));
+		});
+
+		it("shows an input window entry", function () {
+			return browser
+			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
+			.click()
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("testinput [InputWindow]"));
 		});
 	});
 });
