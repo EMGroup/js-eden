@@ -1,0 +1,10 @@
+##Shim construal construit.c5
+##
+##Run on the later versions of JS-EDEN to temporarily reverse incompatible
+##changes made to the environment subsequent to the CONSTRUIT! C5 meeting
+##(11-16 December 2014) but before the next major JS-EDEN release.
+
+mouseX is mousePosition.x;
+mouseY is mousePosition.y;
+mouseClickX is mouseUp.x;
+mouseClickY is mouseUp.y;

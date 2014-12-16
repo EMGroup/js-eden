@@ -49,8 +49,6 @@ proc cueSet : mouseClickX {
 };
 
 /* Initialising observables */
-mouseX = 0;
-mouseY = 0;
 mousePointX = 131;
 mousePointY = 448;
 
