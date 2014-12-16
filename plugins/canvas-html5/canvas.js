@@ -140,7 +140,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 					$("#"+name+"-canvas").attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
 
 					// Now need to redraw the canvas.
-					edenUI.eden.execute("drawPicture();");
+					edenUI.eden.execute("_update_" + name.slice(0, -7) + "();");
 				},
 			});
 	}
