@@ -93,6 +93,19 @@ describe("UI tests", function() {
 		});
 	});
 
+	describe("click item in symbol list", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('.symbollist-result-element', wd.asserters.textInclude("autocalc"))
+			.click();
+		});
+
+		it('creates an edit window', function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude("Edit_autocalc"));
+		});
+	});
+
 	describe("clicking 'window' menu", function () {
 		before(function () {
 			return browser
@@ -127,9 +140,11 @@ describe("UI tests", function() {
 		});
 	});
 
-	describe("close the 3 default windows", function () {
+	describe("close the 4 default windows", function () {
 		before(function () {
 			return browser
+			.elementByCss('.menubar-item-close')
+			.click()
 			.elementByCss('.menubar-item-close')
 			.click()
 			.elementByCss('.menubar-item-close')
