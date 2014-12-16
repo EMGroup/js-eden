@@ -153,7 +153,6 @@ autocalc = 1;
 include("library/types.js-e");
 include("library/core.js-e");
 include("library/lists.js-e");
-## include("library/drawing.jse");
 include("library/maths.jse");
 include("library/strings.js-e");
 include("library/algebra.jse");
