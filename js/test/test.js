@@ -329,6 +329,13 @@ test("autocalc off defers agents", function () {
 	equal(root.lookup('x').value(), 1);
 });
 
+test("autocalc off prevents agent firing at definition time", function () {
+	eden.execute('autocalc = 0; x = 0; proc p : x { y = 1; }');
+	equal(root.lookup('y').value(), undefined);
+	eden.execute('autocalc = 1;');
+	equal(root.lookup('y').value(), 1);
+});
+
 //
 // last modified by
 //
