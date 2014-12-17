@@ -54,10 +54,10 @@ function concatAndResolveUrl(url, concat) {
 }
 
 (function (global) {
-	if (global.require) {
-		Polyglot = global.require('./polyglot.js').Polyglot;
-		parser = global.require('./translator.js').parser;
-		rt = global.require('./runtime.js').rt;
+	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+		Polyglot = require('./polyglot').Polyglot;
+		parser = require('./translator').parser;
+		rt = require('./runtime').rt;
 	}
 
 	/**
@@ -560,7 +560,7 @@ function concatAndResolveUrl(url, concat) {
 	global.Eden = Eden;
 
 	// expose as node.js module
-	if (global.module && global.module.exports) {
-		global.module.exports.Eden = Eden;
+	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+		exports.Eden = Eden;
 	}
 }(typeof window !== 'undefined' ? window : global));
