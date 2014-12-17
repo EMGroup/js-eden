@@ -132,13 +132,14 @@
 
 	Folder.prototype.expireSymbol = function (sym) {
 		this.needsExpire[sym.name] = sym;
-
-		if (this.autocalc_state) {
-			this.expireAndFireActions();
-		}
+		this.expireAndFireActions();
 	};
 
 	Folder.prototype.expireAndFireActions = function () {
+		if (!this.autocalc_state) {
+			return;
+		}
+
 		var actions_to_fire = {};
 		var symbols_to_force = {};
 		for (var symName in this.needsExpire) {
