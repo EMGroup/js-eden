@@ -307,7 +307,7 @@
 			symbol.addObserver(this.name, this);
 		}
 
-		if (this.autocalc_state) {
+		if (this.context.autocalc_state) {
 			this.trigger();
 		}
 		return this;
