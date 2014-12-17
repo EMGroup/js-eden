@@ -4,8 +4,8 @@
 ##changes made to the environment subsequent to the CONSTRUIT! C5 meeting
 ##(11-16 December 2014) but before the next major JS-EDEN release.
 
-alias("_View_default_position", "_view_picture_position");
-alias("_View_default_size", "_view_picture_size");
+alias("_View_default_position", "_View_picture_position");
+alias("_View_default_size", "_View_picture_size");
 alias("_view_default_width", "_view_picture_width");
 alias("_view_default_height", "_view_picture_height");
 alias("_view_default_x", "_view_picture_x");
