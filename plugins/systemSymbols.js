@@ -15,6 +15,7 @@ Eden.systemObservableNames = [
 Eden.systemAgentNames = [
 	"_MenuBar_Status",
 	"_update_.*",
+	"alias",
 	"createCanvas",
 	"createHTMLView",
 	"createView",

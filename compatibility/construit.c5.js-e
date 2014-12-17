@@ -4,6 +4,13 @@
 ##changes made to the environment subsequent to the CONSTRUIT! C5 meeting
 ##(11-16 December 2014) but before the next major JS-EDEN release.
 
+alias("_View_default_position", "_view_picture_position");
+alias("_View_default_size", "_view_picture_size");
+alias("_view_default_width", "_view_picture_width");
+alias("_view_default_height", "_view_picture_height");
+alias("_view_default_x", "_view_picture_x");
+alias("_view_default_y", "_view_picture_y");
+
 proc CanvasHTML5_DrawPicture {
 	${{
 	var canvas = arguments[0];
@@ -13,7 +20,7 @@ proc CanvasHTML5_DrawPicture {
 };
 
 proc drawPicture : picture { 
-  CanvasHTML5_DrawPicture("default","picture");
+  CanvasHTML5_DrawPicture("picture","picture");
 };
 
 mouseClickX is mouseUp.x;
