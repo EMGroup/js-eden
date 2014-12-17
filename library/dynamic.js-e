@@ -14,26 +14,51 @@
 ##This procedure is used when combining two construals to produce a larger
 ##construal where the component construals share a common concept but use
 ##different observable names to refer to that concept.
+##
+##Notice/bug: This procedure must be called prior to defining any dependencies
+##that are dependent on y, otherwise screwy things happen.  Triggered procedures
+##can be defined either before or afterwards though.
+##Bug: y's displayed value in the Symbol List view is only updated when the
+##search string is changed.
 proc alias {
 	${{
 		if (arguments.length != 2) {
 			eden.error(new Error("alias: This procedure requires exactly two arguments."), "error");
 		}
 		
-		var dest = arguments[0];
-		var source = arguments[1];
+		var source, sourceName, dest, destName;
 		
-		if (typeof(dest) != "string") {
-			eden.error(new Error("alias: The first argument must be a string, not a " + typeof(dest)), "error");
+		if (typeof(arguments[0]) == "string") {
+			destName = arguments[0];
+			dest = root.lookup(destName);
+		} else if (arguments[0] instanceof Symbol) {
+			dest = arguments[0];
+			destName = dest.name.slice(1);
+		} else {
+			eden.error(new Error("alias: The first argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
 		}
 		
-		if (typeof(source) == "string") {
-			source = root.lookup(source);
-		} else if (!(source instanceof Symbol)) {
-			eden.error(new Error("alias: The second argument must be a string or a pointer, not a " + typeof(source)), "error");
+		if (typeof(arguments[1]) == "string") {
+			sourceName = arguments[1];
+			source = root.lookup(sourceName);
+		} else if (arguments[1] instanceof Symbol) {
+			source = arguments[1];
+			sourceName = source.name.slice(1);
+		} else {
+			eden.error(new Error("alias: The second argument must be a string or a pointer, not a " + typeof(arguments[1])), "error");
+		}
+
+		//If the destination symbol name already exists then copy across any
+		//pre-existing triggered procedures triggered by the aliased name.
+		//Unfortunately the same technique doesn't work pre-existing dependencies.
+		for (var observerName in dest.observers) {
+			var observer = dest.observers[observerName];
+			source.observers[observerName] = observer;
+			delete observer.observees["/" + destName];
+			observer.observees["/" + sourceName] = source;
 		}
 		
-		root.symbols[dest] = source;
+		root.symbols[destName] = source;
 	}}$;
 }
 
