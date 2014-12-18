@@ -49,6 +49,6 @@ Polyglot.prototype.setDefault = function (languageName) {
 this.Polyglot = Polyglot;
 
 // expose as node.js module
-if (this.module && this.module.exports) {
-	this.module.exports.Polyglot = Polyglot;
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+	exports.Polyglot = Polyglot;
 }
