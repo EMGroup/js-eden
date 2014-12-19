@@ -1,11 +1,7 @@
 ## This is the original version where the piano key that's been clicked is found
 ## by examining the boundaries of every rectangle until the matching one is found.
 
-##=============================================================================
-##Include these lines first.
-
-##Include JavaScript import library.
-include("library/include_js.js-e");
+include("compatibility/construit.c5.js-e");
 
 ##Include the JavaScript sound library.
 include("http://www.dcs.warwick.ac.uk/~wmb/PianoJS/audio.js");

@@ -6,6 +6,62 @@
 ##Functions and procedures that allow EDEN code to inspect, manipulate and
 ##construct parts of scripts at runtime.
 
+
+##alias(y, x) makes the identifier y an alias for the identifier x.  It's
+##similar to definition "y is x" except that if y is subsequently redefined or
+##assigned to then x inherits y's new definition or assigned value.  Thus the
+##aliasing operation also simultaneously acts like the definition "x is y".
+##This procedure is used when combining two construals to produce a larger
+##construal where the component construals share a common concept but use
+##different observable names to refer to that concept.
+##
+##Notice/bug: This procedure must be called prior to defining any dependencies
+##that are dependent on y, otherwise screwy things happen.  Triggered procedures
+##can be defined either before or afterwards though.
+##Bug: y's displayed value in the Symbol List view is only updated when the
+##search string is changed.
+proc alias {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("alias: This procedure requires exactly two arguments."), "error");
+		}
+		
+		var source, sourceName, dest, destName;
+		
+		if (typeof(arguments[0]) == "string") {
+			destName = arguments[0];
+			dest = root.lookup(destName);
+		} else if (arguments[0] instanceof Symbol) {
+			dest = arguments[0];
+			destName = dest.name.slice(1);
+		} else {
+			eden.error(new Error("alias: The first argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
+		}
+		
+		if (typeof(arguments[1]) == "string") {
+			sourceName = arguments[1];
+			source = root.lookup(sourceName);
+		} else if (arguments[1] instanceof Symbol) {
+			source = arguments[1];
+			sourceName = source.name.slice(1);
+		} else {
+			eden.error(new Error("alias: The second argument must be a string or a pointer, not a " + typeof(arguments[1])), "error");
+		}
+
+		//If the destination symbol name already exists then copy across any
+		//pre-existing triggered procedures triggered by the aliased name.
+		//Unfortunately the same technique doesn't work pre-existing dependencies.
+		for (var observerName in dest.observers) {
+			var observer = dest.observers[observerName];
+			source.observers[observerName] = observer;
+			delete observer.observees["/" + destName];
+			observer.observees["/" + sourceName] = source;
+		}
+		
+		root.symbols[destName] = source;
+	}}$;
+}
+
 ##This function is the reverse of execute.  Given pointer or a string that names
 ##an observable it returns the code used to define the observable that is named
 ##or being pointed to, that is, this function returns the text of the most

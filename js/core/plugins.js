@@ -48,10 +48,7 @@
 
 		var me = this;
 		var wrappedSuccess = function () {
-			// Force manual refresh of views menu.
-			if (me.plugins.MenuBar) {
-				me.plugins.MenuBar.updateViewsMenu();
-			}
+			me.emit('loadPlugin', [name]);
 			success && success.call(agent);
 		}
 
@@ -82,10 +79,26 @@
 		}
 
 		this.viewInstances[name] = this.views[type].dialog(name+"-dialog", this.views[type].title+" ["+name+"]");
+		// add minimise button to created dialog
+		dialog(name)
+		.dialog({
+			close: function () {
+				edenUI.destroyView(name);
+			}
+		})
+		.dialogExtend({
+			minimizable: true,
+			minimize: function () {
+				var dialogMin = dialog(name).data('dialog-extend-minimize-controls');
+				// dialogExtend sets position: static and top, left, but doesn't need to.
+				// override this so we can add position absolute elements into the minimized controls.
+				dialogMin.css('position', 'relative');
+				dialogMin.css('top', '');
+				dialogMin.css('left', '');
+			}
+		});
 		this.activeDialogs[name] = type;
-		if (this.plugins.MenuBar) {
-			this.plugins.MenuBar.updateViewsMenu();
-		}
+		this.emit('createView', [name, type]);
 
 		var diag = dialog(name);
 		view(name, 'width').assign(diag.dialog("option", "width"));
@@ -106,6 +119,11 @@
 	EdenUI.prototype.destroyView = function (name) {
 		this.hideView(name);
 		delete this.activeDialogs[name];
+		this.emit('destroyView', [name]);
+	};
+
+	EdenUI.prototype.getDialogContent = function (name) {
+		return dialog(name);
 	};
 
 	EdenUI.prototype.getDialogWindow = function (name) {
@@ -118,7 +136,7 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.showView = function (name) {
-		dialog(name).dialog('open').dialog('moveToTop');
+		dialog(name).dialog('open').dialog('moveToTop').dialogExtend('restore');
 		return this.activeDialogs[name];
 	};
 

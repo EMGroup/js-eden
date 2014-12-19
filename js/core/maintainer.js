@@ -132,13 +132,14 @@
 
 	Folder.prototype.expireSymbol = function (sym) {
 		this.needsExpire[sym.name] = sym;
-
-		if (this.autocalc_state) {
-			this.expireAndFireActions();
-		}
+		this.expireAndFireActions();
 	};
 
 	Folder.prototype.expireAndFireActions = function () {
+		if (!this.autocalc_state) {
+			return;
+		}
+
 		var actions_to_fire = {};
 		var symbols_to_force = {};
 		for (var symName in this.needsExpire) {
@@ -307,7 +308,9 @@
 			symbol.addObserver(this.name, this);
 		}
 
-		this.trigger();
+		if (this.context.autocalc_state) {
+			this.trigger();
+		}
 		return this;
 	};
 
@@ -590,8 +593,8 @@
 	global.Symbol = Symbol;
 	
 	// expose as node.js module
-	if (global.module && global.module.exports) {
-		global.module.exports.Folder = Folder;
-		global.module.exports.Symbol = Symbol;
+	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+		exports.Folder = Folder;
+		exports.Symbol = Symbol;
 	}
 }(typeof window !== 'undefined' ? window : global));

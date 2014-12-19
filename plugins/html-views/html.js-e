@@ -50,12 +50,9 @@ proc createHTMLView {
 		viewName = $[1];
 	} else if ($# == 2) {
 		obsName = $[1];
-		if ($[2] == @) {
-			viewName = obsName;
-		} else if (isString($[2])) {
-			viewName = $[2];
-		} else {
-			error("createHTMLView: The second argument must be a string, not a " // type($[2]));
+		viewName = $[2];
+		if (!isString(viewName)) {
+			error("createHTMLView: The second argument must be a string, not a " // type(viewName));
 			return;
 		}
 	} else {

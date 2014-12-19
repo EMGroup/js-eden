@@ -1,3 +1,4 @@
+include("compatibility/construit.c5.js-e");
 
 s1 is Slide("<h3>A construal for reading music on a piano keyboard</h3><p>This presentation describes the development of a construal intended to assist in teaching and learning basic musical concepts.
 This is work-in-progress to which there are several contributors:

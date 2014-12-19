@@ -3,19 +3,37 @@
 ##
 ## See LICENSE.txt
 
-func CanvasHTML5_DrawPicture {
-	${{
-	var canvas = arguments[0];
-	var picture = arguments[1];
-	edenUI.plugins.CanvasHTML5.drawPicture(canvas,picture);
-	}}$;
-};
+##Creates a canvas and a triggered procedure so that canvas display is kept in
+##sync with the value of a given observable at all times.  The first parameter
+##is the name of the observable who's value provides the list of drawables.  The
+##second, optional parameter, is the name of the canvas view (which is reflected
+##in the window's title bar).
+proc createCanvas {
+	auto viewName, obsName;
+	if ($# == 1) {
+		obsName = $[1];
+		viewName = $[1];
+	} else if ($# == 2) {
+		obsName = $[1];
+		viewName = $[2];
+		if (!isString(viewName)) {
+			error("createCanvas: The second argument must be a string, not a " // type(viewName));
+			return;
+		}
+	} else {
+		error("createCanvas: This procedure requires at least 1 argument and at most 2 arguments.");
+		return;
+	}
+	
+	if (!isString(obsName)) {
+		error("createCanvas: The first argument must be a string, not a " // type(obsName));
+		return;
+	}
 
-picture = [];
-
-proc drawPicture : picture { 
-  CanvasHTML5_DrawPicture("default","picture");
-};
+	execute("if (" // obsName // " == @) { " // obsName // " = []; }");
+	createView(viewName, "CanvasHTML5");
+	execute("proc _update_" // viewName // " : " // obsName // " { $" // "{{ edenUI.plugins.CanvasHTML5.drawPicture(" // edenCode(viewName) // ", " // edenCode(obsName) // "); }}$; }");
+}
 
 include("plugins/canvas-html5/arc.js-e");
 include("plugins/canvas-html5/button.js-e");

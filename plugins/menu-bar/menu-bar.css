@@ -110,8 +110,17 @@
 	z-index: 2147483647; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */
 }
 
-.menubar-window-raise {
-	border: red 4px solid; !important
+/* use a pseudo element to make a border without
+ * causing the window contents to move */
+.menubar-window-raise:after {
+	content: "";
+	position: absolute;
+	z-index: 2147483645; /* one less than the z-index used for the raised window */
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border: 4px solid red;
 }
 
 #menubar-version-number {

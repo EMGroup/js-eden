@@ -1,27 +1,24 @@
 //System Symbols
 Eden.systemObservableNames = [
 	"_status",
-	"_view*",
 	"Infinity",
 	"autocalc",
 	"false",
 	"generate_function",
-	"mouseClickX",
-	"mouseClickY",
 	"mouseDown",
+	"mousePosition",
 	"mousePressed",
 	"mouseUp",
-	"mouseX",
-	"mouseY",
 	"true"
 ];
 
 Eden.systemAgentNames = [
 	"_MenuBar_Status",
-	"_View_*",
+	"_update_.*",
+	"alias",
+	"createCanvas",
 	"createHTMLView",
 	"createView",
-	"drawPicture",
 	"error",
 	"hideView",
 	"html",

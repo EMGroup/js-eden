@@ -7,6 +7,26 @@
 
 function noop() {}
 
+function listenTo(eventName, target, callback) {
+	if (!this.listeners[eventName]) {
+		this.listeners[eventName] = [];
+	}
+	this.listeners[eventName].push({target: target, callback: callback});
+}
+
+function emit(eventName, eventArgs) {
+	var listenersForEvent = this.listeners[eventName];
+	if (!listenersForEvent) {
+		return;
+	}
+	var i;
+	for (i = 0; i < listenersForEvent.length; ++i) {
+		var target = listenersForEvent[i].target;
+		var callback = listenersForEvent[i].callback;
+		callback.apply(target, eventArgs);
+	}
+}
+
 // import node.js modules
 function concatAndResolveUrl(url, concat) {
 	var url1 = url.split('/');
@@ -34,10 +54,10 @@ function concatAndResolveUrl(url, concat) {
 }
 
 (function (global) {
-	if (global.require) {
-		Polyglot = global.require('./polyglot.js').Polyglot;
-		parser = global.require('./translator.js').parser;
-		rt = global.require('./runtime.js').rt;
+	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+		Polyglot = require('./polyglot').Polyglot;
+		parser = require('./translator').parser;
+		rt = require('./runtime').rt;
 	}
 
 	/**
@@ -87,12 +107,6 @@ function concatAndResolveUrl(url, concat) {
 			}
 		});
 
-		this.eden.listenTo('executeEnd', this, function (path) {
-			if (this.plugins.MenuBar) {
-				this.plugins.MenuBar.updateStatus("Parsing "+path+" [complete]");
-			}
-		});
-
 		this.eden.listenTo('executeError', this, function (e, options) {
 			if (this.plugins.MenuBar) {
 				this.plugins.MenuBar.updateStatus("Error: "+e.message);
@@ -107,7 +121,18 @@ function concatAndResolveUrl(url, concat) {
 			this.showErrorWindow().prepend(formattedError)
 			this.showErrorWindow().prop('scrollTop', 0);
 		});
+
+		/**
+		 * @type {Object.<string, Array.<{target: *, callback: function(...[*])}>>}
+		 * @private
+		 */
+		this.listeners = {};
+
+		this.windowHighlighter = new WindowHighlighter(this);
 	}
+
+	EdenUI.prototype.highlight = function (dialogName) { this.windowHighlighter.highlight(dialogName); };
+	EdenUI.prototype.stopHighlight = function (dialogName) { this.windowHighlighter.stopHighlight(dialogName); };
 
 	EdenUI.prototype.showErrorWindow = function () {
 		return $('#error-window')
@@ -115,6 +140,19 @@ function concatAndResolveUrl(url, concat) {
 			.dialog({title: "EDEN Errors", width: 500})
 			.dialog('moveToTop');
 	};
+
+	/**
+	 * @param {string} eventName
+	 * @param {*} target
+	 * @param {function(...[*])} callback
+	 */
+	EdenUI.prototype.listenTo = listenTo;
+
+	/**
+	 * @param {string} eventName
+	 * @param {Array.<*>} eventArgs
+	 */
+	EdenUI.prototype.emit = emit;
 
 	/**
 	 * @constructor
@@ -168,29 +206,13 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {*} target
 	 * @param {function(...[*])} callback
 	 */
-	Eden.prototype.listenTo = function (eventName, target, callback) {
-		if (!this.listeners[eventName]) {
-			this.listeners[eventName] = [];
-		}
-		this.listeners[eventName].push({target: target, callback: callback})
-	};
+	Eden.prototype.listenTo = listenTo;
 
 	/**
 	 * @param {string} eventName
 	 * @param {Array.<*>} eventArgs
 	 */
-	Eden.prototype.emit = function (eventName, eventArgs) {
-		var listenersForEvent = this.listeners[eventName];
-		if (!listenersForEvent) {
-			return;
-		}
-		var i;
-		for (i = 0; i < listenersForEvent.length; ++i) {
-			var target = listenersForEvent[i].target;
-			var callback = listenersForEvent[i].callback;
-			callback.apply(target, eventArgs);
-		}
-	};
+	Eden.prototype.emit = emit;
 
 	/**
 	 * @param {*} error
@@ -538,7 +560,7 @@ function concatAndResolveUrl(url, concat) {
 	global.Eden = Eden;
 
 	// expose as node.js module
-	if (global.module && global.module.exports) {
-		global.module.exports.Eden = Eden;
+	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+		exports.Eden = Eden;
 	}
 }(typeof window !== 'undefined' ? window : global));
