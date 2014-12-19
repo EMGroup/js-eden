@@ -1,24 +1,44 @@
+// usage: node black-box-tests/all.js [line-number]
+// passing line number will execute just the test at that line number from
+// all.e
 var fs = require('fs');
 var exec = require('child_process').exec;
 
+var limit;
+var firstLine;
+
+if (process.argv[2]) {
+	firstLine = parseInt(process.argv[2], 10);
+	limit = 1;
+} else {
+	firstLine = 0;
+}
+
 var testsFile = fs.readFileSync('black-box-tests/all.e');
-var lines = testsFile.toString().split('\n');
+var lines = testsFile.toString().split('\n').slice(firstLine);
 var sections = [];
 var descriptionLines = [];
 var sectionLines = [];
 var i;
+var sectionLineNumber;
+var match;
 for (i = 0; i < lines.length; ++i) {
-	var match = lines[i].match(/^##(.*)/);
+	match = lines[i].match(/^##(.*)/);
 	if (match) {
 		if (sectionLines.length !== 0) {
 			sections.push({
 				description: descriptionLines.join(' '),
-				section: sectionLines.join('\n')
+				section: sectionLines.join('\n'),
+				lineNumber: sectionLineNumber
 			});
 			descriptionLines = [];
 			sectionLines = [];
+			sectionLineNumber = undefined;
 		}
 		descriptionLines.push(match[1].trim());
+		if (sectionLineNumber === undefined) {
+			sectionLineNumber = firstLine + i;
+		}
 	} else {
 		sectionLines.push(lines[i]);
 	}
@@ -29,7 +49,7 @@ var after = fs.readFileSync('black-box-tests/after.e');
 
 var failures = [];
 function testNumber(i) {
-	if (i === sections.length) {
+	if (i === (limit !== undefined ? limit : sections.length)) {
 		if (failures.length === 0) {
 			return;
 		}
@@ -48,7 +68,7 @@ function testNumber(i) {
 	fs.writeFileSync('__tmptest.e', testCase);
 	exec('node ttyeden.js __tmptest.e', function (error, stdout) {
 		var result = stdout === '' ? 'PASS' : 'FAIL';
-		console.log(result+' '+sections[i].description);
+		console.log(result+' '+sections[i].lineNumber+' '+sections[i].description);
 		if (stdout !== '') {
 			failures.push({
 				i: i,
