@@ -3,12 +3,13 @@
 // all.e
 var fs = require('fs');
 var exec = require('child_process').exec;
+var mode = process.argv[2];
 
 var limit;
 var firstLine;
 
-if (process.argv[2]) {
-	firstLine = parseInt(process.argv[2], 10);
+if (process.argv[3]) {
+	firstLine = parseInt(process.argv[3], 10);
 	limit = 1;
 } else {
 	firstLine = 0;
@@ -64,19 +65,35 @@ function testNumber(i) {
 		return;
 	}
 
-	var testCase = before+'\n'+sections[i].section+'\n'+after;
+	var testCase = before+'\n'+sections[i].section+'\n'+after+'\n';
 	fs.writeFileSync('__tmptest.e', testCase);
-	exec('node ttyeden.js __tmptest.e', function (error, stdout) {
-		var result = stdout === '' ? 'PASS' : 'FAIL';
-		console.log(result+' '+sections[i].lineNumber+' '+sections[i].description);
-		if (stdout !== '') {
-			failures.push({
-				i: i,
-				stdout: stdout
-			});
-		}
-		testNumber(i + 1);
-	});
+	if (mode === 'jseden') {
+		exec('node ttyeden.js __tmptest.e', function (error, stdout) {
+			var result = error || stdout === '' ? 'PASS' : 'FAIL';
+			console.log(result+' '+sections[i].lineNumber+' '+sections[i].description);
+			if (stdout !== '') {
+				failures.push({
+					i: i,
+					stdout: stdout
+				});
+			}
+			testNumber(i + 1);
+		});
+	} else if (mode === 'tkeden') {
+		var tkeden = '/Applications/ttyeden1-73';
+		var child = exec(tkeden+' /Users/trmonks/projects/js-eden/__tmptest.e', {timeout: 100}, function (error, stdout, stderr) {
+			var failed = error || stdout !== '' || stdout !== '';
+			var result = failed ? 'FAIL' : 'PASS';
+			console.log(result+' '+sections[i].lineNumber+' '+sections[i].description);
+			if (failed) {
+				failures.push({
+					i: i,
+					stdout: stdout !== '' ? stdout : stderr
+				});
+			}
+			testNumber(i + 1);
+		});
+	}
 }
 
 testNumber(0);
