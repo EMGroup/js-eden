@@ -2,6 +2,16 @@
 
 set -e
 
+curl -L https://github.com/EMGroup/tkeden/releases/download/0.0.1/ttyeden > ttyeden
+chmod a+x .//ttyeden
+TKEDEN=$PWD/ttyeden node ./black-box-tests/all.js tkeden
+
+if [ "$?" != "0" ]
+then
+	echo "Black box didn't pass with tkeden"
+	exit 1
+fi
+
 # don't deploy for PRs
 if [ "$TRAVIS_PULL_REQUEST" != "false" ]
 then
