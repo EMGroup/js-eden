@@ -12,11 +12,3 @@ proc setup_test {
 }
 
 setup_test();
-
-## agent triggers when formula evaluated
-x is t("x", y);
-proc p : x { t("p", @); }
-x;
-check_trace(["x", "p"]);
-
-exit();
