@@ -237,7 +237,7 @@ function concatAndResolveUrl(url, concat) {
 	Eden.prototype.executeEden = function (code, origin, prefix, agent, success) {
 		var result;
 		var me = this;
-		this.emit('executeBegin', [origin]);
+		this.emit('executeBegin', [origin, code]);
 		try {
 			eval(this.translateToJavaScript(code)).call(agent, this.root, this, prefix, function () {
 				success && success();

@@ -48,7 +48,11 @@ EdenUI.plugins.SL = function(edenUI, success){
 				// open connection
 				var url = "ws://" + $("#sl-ipaddr").val() + ":" + $("#sl-port").val() + '/'; 
 				var connection = new WebSocket(url);
-				
+				eden.listenTo('executeBegin',this,function(origin,code){
+					console.log("origin");
+					if(origin != "net")
+						connection.send(code);	
+				});
 				$("#sl-status").html('<p>Connected to: ' + url + "</p>");
 				
 				connection.onerror = function (error) {
@@ -59,7 +63,7 @@ EdenUI.plugins.SL = function(edenUI, success){
 				// most important part - incoming messages
 				connection.onmessage = function (message) {
 					$("#sl-status").html('<p>Received: ' + message.data + "</p>");
-					eden.execute(message.data);
+					eden.execute(message.data,"net","",{name:"/execute"},noop);
 					return;
 
 				};
