@@ -57,7 +57,7 @@ Slider.prototype.draw = function(context,content) {
 
 		var div = $('<div id="'+me+'-slider" style="position:absolute; top:'+this.y+'px; left:'+this.x+'px;">'+this.name+'</div>');
 
-		var addinputtodiv = (($('<input id="'+me+'-slider-input" style="'+ori+'" value="'+this.value+'" type="range" name="'+this.name+'" min="'+this.min+'" max="'+this.max+'" step="'+this.step+'"/>')).on("change", function(){root.lookup(me2 + "_value").assign(parseInt(this.value))})).appendTo(div);
+		var addinputtodiv = (($('<input id="'+me+'-slider-input" style="'+ori+'" value="'+this.value+'" type="range" name="'+this.name+'" min="'+this.min+'" max="'+this.max+'" step="'+this.step+'"/>')).on("change", function(){root.lookup(me2 + "_value").assign(parseInt(this.value))}).on("input", function(){root.lookup(me2 + "_preview").assign(parseInt(this.value))})).appendTo(div);
 
 		this.element = div.get(0);
 		div.get(0).togarbage = false;
