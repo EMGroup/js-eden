@@ -6,9 +6,11 @@ Eden.systemObservableNames = [
 	"false",
 	"generate_function",
 	"mouseDown",
+	"mouseDownWindow",
 	"mousePosition",
 	"mousePressed",
 	"mouseUp",
+	"mouseWindow",
 	"true"
 ];
 
