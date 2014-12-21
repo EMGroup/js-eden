@@ -5,14 +5,7 @@
 				"file": "Script file to load"
 			},
 			"return": "No return value",
-			"description": "Loads and executes a JS-Eden script file"
-		},
-		"include_js": {
-			"parameters": {
-				"file": "JavaScript file to load"
-			},
-			"return": "No return value",
-			"description": "Loads and executes an external javascript file"
+			"description": "Loads and executes a JavaScript or JS-Eden script file"
 		},
 		"include_css": {
 			"parameters": {
