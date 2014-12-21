@@ -58,8 +58,43 @@ func apply {
 
 func forget {
 	${{
-	var o = arguments[0];
-	delete root.symbols[o];
+		if (arguments.length != 1) {
+			eden.error(new Error("forget: This function requires exactly 1 argument."), "error");
+			if (arguments.length == 0) {
+				return 1;
+			}
+		}
+	
+		var nameToDelete, symbolToDelete;
+		
+		if (typeof(arguments[0]) == "string") {
+			nameToDelete = arguments[0];
+			symbolToDelete = root.lookup(nameToDelete);
+			if (!(nameToDelete in root.symbols)) {
+				return 1;
+			}
+			nameToDelete = "/" + nameToDelete;
+		} else if (arguments[0] instanceof Symbol) {
+			symbolToDelete = arguments[0];
+			nameToDelete = symbolToDelete.name;
+		} else {
+			eden.error(new Error("forget: The argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
+			return 1;
+		}
+
+		for (var dependency in symbolToDelete.subscribers) {
+			return 2;
+		}
+		for (var triggeredProc in symbolToDelete.observers) {
+			return 2;
+		}
+
+		for (var triggerName in symbolToDelete.observees) {
+			var triggerSymbol = root.lookup(triggerName.slice(1));
+			delete triggerSymbol.observers[nameToDelete];
+		}
+		delete root.symbols[nameToDelete.slice(1)];
+		return 0;
 	}}$;
 };
 
