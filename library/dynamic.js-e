@@ -6,7 +6,6 @@
 ##Functions and procedures that allow EDEN code to inspect, manipulate and
 ##construct parts of scripts at runtime.
 
-
 ##alias(y, x) makes the identifier y an alias for the identifier x.  It's
 ##similar to definition "y is x" except that if y is subsequently redefined or
 ##assigned to then x inherits y's new definition or assigned value.  Thus the
@@ -14,6 +13,12 @@
 ##This procedure is used when combining two construals to produce a larger
 ##construal where the component construals share a common concept but use
 ##different observable names to refer to that concept.
+##
+##To remove the alias execute:
+##	forget("_alias_aliasedName");
+##	forget("_alias_originalObservable");
+##where aliasedName and originalObservable are respectively the string values of
+##the first and second arguments the alias procedure was previously invoked with.
 ##
 proc alias {
 	para aliasN, original;
@@ -55,7 +60,6 @@ proc alias {
 	str = str // "	}\n";
 	str = str // "}\n";
 	execute(str);
-
 }
 
 ##This function is the reverse of execute.  Given pointer or a string that names
@@ -132,6 +136,8 @@ func definitionRHS {
 	}}$;
 }
 
+##Returns true if the observable named by the first argument appears in the
+##definition of the obervable named by the second argument.
 func dependent {
 	${{
 		if (arguments.length != 2) {

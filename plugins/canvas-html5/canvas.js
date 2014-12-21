@@ -109,11 +109,14 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 
 		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');
 		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" width=\"550px\" height=\"380px\"></canvas>");
+		//Remove -dialog name suffix.
+		var displayedName = name.slice(0, -7);
 		code_entry.find(".canvashtml-canvas").on("mousedown",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
 			root.lookup('mousePressed').assign(true);
+			root.lookup('mouseDownWindow').assign(displayedName);
 			root.lookup('mouseDown').assign(root.lookup('Point').value().call(this, x, y));
 		}).on("mouseup",function(e) {
 			pos = $(this).offset();
@@ -125,6 +128,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
+			root.lookup('mouseWindow').assign(displayedName);
 			root.lookup('mousePosition').assign(root.lookup('Point').value().call(this, x, y));
 		});
 
@@ -140,7 +144,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 					$("#"+name+"-canvas").attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
 
 					// Now need to redraw the canvas.
-					edenUI.eden.execute("_update_" + name.slice(0, -7) + "();");
+					edenUI.eden.execute("_update_" + displayedName + "();");
 				},
 			});
 	}
