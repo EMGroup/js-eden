@@ -81,6 +81,7 @@
 		this.autocalc_state = true;
 
 		this.needsExpire = {};
+		this.needsTrigger = {};
 	}
 
 	/**
@@ -128,6 +129,7 @@
 	Folder.prototype.autocalc = function (state) {
 		this.autocalc_state = state;
 		this.expireAndFireActions();
+		this.triggerActions();
 	};
 
 	Folder.prototype.expireSymbol = function (sym) {
@@ -155,7 +157,38 @@
 			sym = symbols_to_force[symName];
 			sym.evaluateIfDependenciesExist();
 		}
-		fireActions(actions_to_fire);
+
+		for (var action_name in actions_to_fire) {
+			var action = actions_to_fire[action_name];
+
+			// if one action fails, it shouldn't prevent all the other
+			// scheduled actions from firing
+			if (action) {
+				action.trigger();
+			}
+		}
+	};
+
+	Folder.prototype.triggerAction = function (sym) {
+		this.needsTrigger[sym.name] = sym;
+		this.triggerActions();
+	};
+
+	Folder.prototype.triggerActions = function () {
+		if (!this.autocalc_state) {
+			return;
+		}
+
+		for (var action_name in this.needsTrigger) {
+			var action = this.needsTrigger[action_name];
+
+			// if one action fails, it shouldn't prevent all the other
+			// scheduled actions from firing
+			if (action) {
+				action.trigger();
+			}
+		}
+		this.needsTrigger = {};
 	};
 
 	/**
@@ -245,7 +278,7 @@
 				this.subscribers[symName].evaluateIfDependenciesExist(allActionsToFire);
 			}
 			for (symName in allActionsToFire) {
-				allActionsToFire[symName].trigger();
+				this.context.triggerAction(allActionsToFire[symName]);
 			}
 		} else {
 			for (symName in this.observers) {
@@ -423,18 +456,6 @@
 			this.value().call(this);
 		} catch (error) {
 			this.logError("Failed while triggering: " + error);
-		}
-	};
-
-	function fireActions(actions_to_fire){
-		for (var action_name in actions_to_fire) {
-			var action = actions_to_fire[action_name];
-
-			// if one action fails, it shouldn't prevent all the other
-			// scheduled actions from firing
-			if (action) {
-				action.trigger();
-			}
 		}
 	};
 

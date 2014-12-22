@@ -75,6 +75,8 @@ autocalc = 0;
 check_trace([]);
 x;
 check_trace(["x"]);
+autocalc = 1;
+check_trace(["x", "p"]);
 
 ## triggered action doesn't fire after definition if autocalc off
 autocalc = 0;
