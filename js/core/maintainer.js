@@ -142,15 +142,17 @@
 
 		var actions_to_fire = {};
 		var symbols_to_force = {};
-		for (var symName in this.needsExpire) {
-			var sym = this.needsExpire[symName];
+		var sym;
+		var symName;
+		for (symName in this.needsExpire) {
+			sym = this.needsExpire[symName];
 			sym.expire(symbols_to_force, actions_to_fire);
 			this.notifyGlobals(sym, false);
 		}
 		this.needsExpire = {};
-		for (var symName in symbols_to_force) {
+		for (symName in symbols_to_force) {
 			// force re-eval
-			var sym = symbols_to_force[symName];
+			sym = symbols_to_force[symName];
 			sym.evaluateIfDependenciesExist();
 		}
 		fireActions(actions_to_fire);
