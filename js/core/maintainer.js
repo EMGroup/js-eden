@@ -268,25 +268,22 @@
 
 		if (!this.up_to_date) { return; }
 
+		var topLevel = !actionsToFire;
+		actionsToFire = actionsToFire || {};
+
 		var symName;
-		if (!actionsToFire) {
-			var allActionsToFire = {};
-			for (symName in this.observers) {
-				allActionsToFire[symName] = this.observers[symName];
-			}
-			for (symName in this.subscribers) {
-				this.subscribers[symName].evaluateIfDependenciesExist(allActionsToFire);
-			}
-			for (symName in allActionsToFire) {
-				this.context.triggerAction(allActionsToFire[symName]);
-			}
-		} else {
-			for (symName in this.observers) {
-				actionsToFire[symName] = this.observers[symName];
-			}
-			for (symName in this.subscribers) {
-				this.subscribers[symName].evaluateIfDependenciesExist(actionsToFire);
-			}
+		for (symName in this.observers) {
+			actionsToFire[symName] = this.observers[symName];
+		}
+
+		for (symName in this.subscribers) {
+			this.subscribers[symName].evaluateIfDependenciesExist(actionsToFire);
+		}
+
+		if (!topLevel) { return; }
+
+		for (symName in actionsToFire) {
+			this.context.triggerAction(actionsToFire[symName]);
 		}
 	};
 
