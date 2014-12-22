@@ -38,6 +38,11 @@ y is t("y", z);
 y;
 check_trace(["y", "x"]);
 
+## agent does not immediately fire if observees not yet defined
+x is t("x", y);
+proc p : x { t("p", @); }
+check_trace([]);
+
 ## agent triggers when formula evaluated
 x is t("x", y);
 proc p : x { t("p", @); }

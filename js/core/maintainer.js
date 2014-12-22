@@ -158,7 +158,6 @@
 		fireActions(actions_to_fire);
 	};
 
-
 	/**
 	 * A symbol table entry.
 	 *
@@ -214,24 +213,47 @@
 		return this.cached_value;
 	};
 
-	Symbol.prototype.evaluateIfDependenciesExist = function () {
+	Symbol.prototype.evaluateIfDependenciesExist = function (actionsToFire) {
 		var name;
 		for (name in this.dependencies) {
 			// only evaluate if all dependencies have been defined by some agent
-			if (!this.dependencies[name].last_modified_by) {
+			if (!this.dependencies[name].up_to_date) {
 				return;
 			}
 		}
-		this.evaluate();
+		this.evaluate(actionsToFire);
 	};
 
-	Symbol.prototype.evaluate = function () {
+	Symbol.prototype.evaluate = function (actionsToFire) {
 		try {
 			this.cached_value = copy(this.definition(this.context));
 			this.up_to_date = true;
 		} catch (e) {
 			this.cached_value = undefined;
 			this.up_to_date = false;
+		}
+
+		if (!this.up_to_date) { return; }
+
+		var symName;
+		if (!actionsToFire) {
+			var allActionsToFire = {};
+			for (symName in this.observers) {
+				allActionsToFire[symName] = this.observers[symName];
+			}
+			for (symName in this.subscribers) {
+				this.subscribers[symName].evaluateIfDependenciesExist(allActionsToFire);
+			}
+			for (symName in allActionsToFire) {
+				allActionsToFire[symName].trigger();
+			}
+		} else {
+			for (symName in this.observers) {
+				actionsToFire[symName] = this.observers[symName];
+			}
+			for (symName in this.subscribers) {
+				this.subscribers[symName].evaluateIfDependenciesExist(actionsToFire);
+			}
 		}
 	};
 
@@ -391,7 +413,7 @@
 		var name;
 		// only trigger when all observed symbols have been defined by some agent
 		for (name in this.observees) {
-			if (!this.observees[name].last_modified_by) {
+			if (!this.observees[name].up_to_date) {
 				return;
 			}
 		}
