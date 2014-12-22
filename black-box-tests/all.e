@@ -38,6 +38,13 @@ y is t("y", z);
 y;
 check_trace(["y", "x"]);
 
+## forcing evaluation with autocalc off doesn't propagate
+autocalc = 0;
+x is t("x", y);
+y is t("y", z);
+y;
+check_trace(["y"]);
+
 ## agent does not immediately fire if observees not yet defined
 x is t("x", y);
 proc p : x { t("p", @); }
