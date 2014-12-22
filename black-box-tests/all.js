@@ -52,7 +52,7 @@ var failures = [];
 function testNumber(i) {
 	if (i === (limit !== undefined ? limit : sections.length)) {
 		if (failures.length === 0) {
-			return;
+			process.exit(0);
 		}
 
 		console.log('\nFailures:\n');
@@ -62,7 +62,7 @@ function testNumber(i) {
 			console.log(failure.stdout);
 		});
 
-		return;
+		process.exit(1);
 	}
 
 	var testCase = before+'\n'+sections[i].section+'\n'+after+'\n';
@@ -80,8 +80,9 @@ function testNumber(i) {
 			testNumber(i + 1);
 		});
 	} else if (mode === 'tkeden') {
-		var tkeden = '/Applications/ttyeden1-73';
-		var child = exec(tkeden+' /Users/trmonks/projects/js-eden/__tmptest.e', {timeout: 100}, function (error, stdout, stderr) {
+		var tkeden = process.env.TKEDEN || '/Applications/ttyeden1-73';
+		var command = tkeden+' -n __tmptest.e'
+		var child = exec(command, {timeout: 100}, function (error, stdout, stderr) {
 			var failed = error || stdout !== '' || stdout !== '';
 			var result = failed ? 'FAIL' : 'PASS';
 			console.log(result+' '+sections[i].lineNumber+' '+sections[i].description);
