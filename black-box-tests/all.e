@@ -133,3 +133,16 @@ proc p : x { t("p", @); }
 check_trace([]);
 autocalc = 1;
 check_trace(["p"]);
+
+## forcing by assignment
+proc p : x { t(str(x), @); }
+check_trace([]);
+x = x == @;
+check_trace(["1"]);
+
+## forcing fv by assignment
+x is z;
+proc p : x { t(str(x), @); }
+check_trace([]);
+x = x == @;
+check_trace(["@", "1"]);
