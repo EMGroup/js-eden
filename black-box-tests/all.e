@@ -91,6 +91,21 @@ x is t("x", y);
 proc p : x { t("p", @); }
 check_trace([]);
 
+## agent immediately fires if observees have been observed
+x is t("x", y);
+x;
+proc p : x { t("p", @); }
+check_trace(["x", "p"]);
+
+## autocalc off agent immediately fires if observees have been observed
+autocalc = 0;
+x is t("x", y);
+x;
+proc p : x { t("p", @); }
+check_trace(["x"]);
+autocalc = 1;
+check_trace(["x", "p"]);
+
 ## agent triggers when formula evaluated
 x is t("x", y);
 proc p : x { t("p", @); }
