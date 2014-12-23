@@ -32,18 +32,38 @@ x is t("x", y + z);
 x;
 y;
 
-## forcing evaluation propagates
+## forcing evaluation propagates to dependees
 x is t("x", y);
 y is t("y", z);
+check_trace([]);
 y;
 check_trace(["y", "x"]);
 
-## forcing evaluation with autocalc off doesn't propagate
+## forcing evaluation
+x is t("x", y);
+y is t("y", z);
+check_trace([]);
+x;
+"When y becomes up to date, a second evaluation of x is scheduled by tkeden";
+check_trace(["y", "x", "x"]);
+
+## forcing evaluation with autocalc off
 autocalc = 0;
 x is t("x", y);
 y is t("y", z);
+check_trace([]);
+x;
+check_trace(["y", "x"]);
+
+## forcing evaluation with autocalc off doesn't propagate to dependees
+autocalc = 0;
+x is t("x", y);
+y is t("y", z);
+z1 is t("z1", z2);
 y;
 check_trace(["y"]);
+autocalc = 1;
+check_trace(["y", "x"]);
 
 ## agent does not immediately fire if observees not yet defined
 x is t("x", y);
