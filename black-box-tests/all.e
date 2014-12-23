@@ -47,6 +47,15 @@ x;
 "When y becomes up to date, a second evaluation of x is scheduled by tkeden";
 check_trace(["y", "x", "x"]);
 
+## forcing evaluation detailed
+func return_1 { return 1; }
+x is t("x_begin", 1) &&  return_1(y) && t("x_end", 1);
+y is t("y", z);
+check_trace([]);
+x;
+"When y becomes up to date, a second evaluation of x is scheduled by tkeden";
+check_trace(["x_begin", "y", "x_begin", "x_end", "x_end"]);
+
 ## forcing evaluation with autocalc off
 autocalc = 0;
 x is t("x", y);
