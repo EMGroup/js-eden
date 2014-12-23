@@ -65,6 +65,18 @@ check_trace(["y"]);
 autocalc = 1;
 check_trace(["y", "x"]);
 
+## flushing autocalc will trigger actions which had dependency updates scheduled
+autocalc = 0;
+x is t("x", y);
+y is t("y", z);
+y;
+check_trace(["y"]);
+proc x { t("x_proc", @); }
+check_trace(["y"]);
+autocalc = 1;
+"The fact that x is triggered is probably a bug in tkeden";
+check_trace(["y", "x_proc"]);
+
 ## agent does not immediately fire if observees not yet defined
 x is t("x", y);
 proc p : x { t("p", @); }
