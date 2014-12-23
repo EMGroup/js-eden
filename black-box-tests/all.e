@@ -32,11 +32,79 @@ x is t("x", y + z);
 x;
 y;
 
-## forcing evaluation propagates
+## forcing evaluation propagates to dependees
+x is t("x", y);
+y is t("y", z);
+check_trace([]);
+y;
+check_trace(["y", "x"]);
+
+## forcing evaluation
+x is t("x", y);
+y is t("y", z);
+check_trace([]);
+x;
+"When y becomes up to date, a second evaluation of x is scheduled by tkeden";
+check_trace(["y", "x", "x"]);
+
+## forcing evaluation detailed
+func return_1 { return 1; }
+x is t("x_begin", 1) &&  return_1(y) && t("x_end", 1);
+y is t("y", z);
+check_trace([]);
+x;
+"When y becomes up to date, a second evaluation of x is scheduled by tkeden";
+check_trace(["x_begin", "y", "x_begin", "x_end", "x_end"]);
+
+## forcing evaluation with autocalc off
+autocalc = 0;
+x is t("x", y);
+y is t("y", z);
+check_trace([]);
+x;
+check_trace(["y", "x"]);
+
+## forcing evaluation with autocalc off doesn't propagate to dependees
+autocalc = 0;
+x is t("x", y);
+y is t("y", z);
+z1 is t("z1", z2);
+y;
+check_trace(["y"]);
+autocalc = 1;
+check_trace(["y", "x"]);
+
+## flushing autocalc will trigger actions which had dependency updates scheduled
+autocalc = 0;
 x is t("x", y);
 y is t("y", z);
 y;
-check_trace(["y", "x"]);
+check_trace(["y"]);
+proc x { t("x_proc", @); }
+check_trace(["y"]);
+autocalc = 1;
+"The fact that x is triggered is probably a bug in tkeden";
+check_trace(["y", "x_proc"]);
+
+## agent does not immediately fire if observees not yet defined
+x is t("x", y);
+proc p : x { t("p", @); }
+check_trace([]);
+
+## agent immediately fires if observees have been observed
+x is t("x", y);
+x;
+proc p : x { t("p", @); }
+check_trace(["x", "p"]);
+
+## autocalc off agent immediately fires if observees have been observed
+autocalc = 0;
+x is t("x", y);
+x;
+proc p : x { t("p", @); }
+check_trace(["x"]);
+autocalc = 1;
+check_trace(["x", "p"]);
 
 ## agent triggers when formula evaluated
 x is t("x", y);
@@ -70,6 +138,8 @@ autocalc = 0;
 check_trace([]);
 x;
 check_trace(["x"]);
+autocalc = 1;
+check_trace(["x", "p"]);
 
 ## triggered action doesn't fire after definition if autocalc off
 autocalc = 0;
@@ -78,3 +148,23 @@ proc p : x { t("p", @); }
 check_trace([]);
 autocalc = 1;
 check_trace(["p"]);
+
+## forcing by assignment
+proc p : x { t(str(x), @); }
+check_trace([]);
+x = x == @;
+check_trace(["1"]);
+
+## forcing fv by assignment
+x is z;
+proc p : x { t(str(x), @); }
+check_trace([]);
+x = x == @;
+check_trace(["@", "1"]);
+
+## forcing fv by assignment
+x is z;
+y is t(str(x), @);
+check_trace([]);
+x = x == @;
+check_trace(["@", "1"]);

@@ -44,6 +44,11 @@ for (i = 0; i < lines.length; ++i) {
 		sectionLines.push(lines[i]);
 	}
 }
+sections.push({
+	description: descriptionLines.join(' '),
+	section: sectionLines.join('\n'),
+	lineNumber: sectionLineNumber
+});
 
 var before = fs.readFileSync('black-box-tests/before.e');
 var after = fs.readFileSync('black-box-tests/after.e');

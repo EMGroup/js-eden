@@ -5,6 +5,7 @@ set -e
 curl -L https://github.com/EMGroup/tkeden/releases/download/0.0.1/ttyeden > ttyeden
 chmod a+x .//ttyeden
 TKEDEN=$PWD/ttyeden node ./black-box-tests/all.js tkeden
+node ./black-box-tests/all.js jseden
 
 if [ "$?" != "0" ]
 then
