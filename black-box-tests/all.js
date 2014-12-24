@@ -1,4 +1,4 @@
-// usage: node black-box-tests/all.js [line-number]
+// usage: node black-box-tests/all.js <jseden|tkeden> [<line-number>]
 // passing line number will execute just the test at that line number from
 // all.e
 var fs = require('fs');
@@ -44,7 +44,8 @@ for (i = 0; i < lines.length; ++i) {
 		} else {
 			descriptionLines.push(match[1].trim());
 			if (sectionLineNumber === undefined) {
-				sectionLineNumber = firstLine + i;
+				// line numbers are 1 indexed
+				sectionLineNumber = firstLine + i + 1;
 			}
 		}
 	} else {
