@@ -265,4 +265,50 @@ describe("UI tests", function () {
 			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("testinput [InputWindow]"));
 		});
 	});
+
+	describe("open error window", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("New"))
+			.moveTo()
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Error Window"))
+			.click();
+		});
+
+		it("creates a window", function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('EDEN Errors'));
+		});
+	});
+
+	describe("close window through titlebar", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('EDEN Errors'))
+			.elementByCss('>', '.ui-dialog-titlebar-close')
+			.click();
+		});
+
+		it('closes the window', function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('EDEN Errors'))
+			.should.be.rejectedWith("Element condition wasn't satisfied");
+		});
+	});
+
+
+	describe("cause error", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('#testinput-dialog textarea')
+			.type('x')
+			.waitForElementByCss('#testinput-dialog .submitButton')
+			.click();
+		});
+
+		it("shows a parse error in the error window", function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Parse error on line 1:\nx'));
+		});
+	});
 });
