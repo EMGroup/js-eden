@@ -33,6 +33,7 @@ x;
 y;
 
 ## forcing evaluation propagates to dependees
+## @FailsInJSEden
 x is t("x", y);
 y is t("y", z);
 check_trace([]);
@@ -40,6 +41,7 @@ y;
 check_trace(["y", "x"]);
 
 ## forcing evaluation
+## @FailsInJSEden
 x is t("x", y);
 y is t("y", z);
 check_trace([]);
@@ -48,6 +50,7 @@ x;
 check_trace(["y", "x", "x"]);
 
 ## forcing evaluation detailed
+## @FailsInJSEden
 func return_1 { return 1; }
 x is t("x_begin", 1) &&  return_1(y) && t("x_end", 1);
 y is t("y", z);
@@ -65,6 +68,7 @@ x;
 check_trace(["y", "x"]);
 
 ## forcing evaluation with autocalc off doesn't propagate to dependees
+## @FailsInJSEden
 autocalc = 0;
 x is t("x", y);
 y is t("y", z);
@@ -75,6 +79,7 @@ autocalc = 1;
 check_trace(["y", "x"]);
 
 ## flushing autocalc will trigger actions which had dependency updates scheduled
+## @FailsInJSEden
 autocalc = 0;
 x is t("x", y);
 y is t("y", z);
@@ -87,6 +92,7 @@ autocalc = 1;
 check_trace(["y", "x_proc"]);
 
 ## agent does not immediately fire if observees not yet defined
+## @FailsInJSEden
 x is t("x", y);
 proc p : x { t("p", @); }
 check_trace([]);
@@ -107,6 +113,7 @@ autocalc = 1;
 check_trace(["x", "p"]);
 
 ## agent triggers when formula evaluated
+## @FailsInJSEden
 x is t("x", y);
 proc p : x { t("p", @); }
 x;
@@ -132,6 +139,7 @@ x;
 check_trace(["x"]);
 
 ## observing a formula var with autocalc off doesn't trigger agents
+## @FailsInJSEden
 x is t("x", y);
 proc p : x { t("p", @); }
 autocalc = 0;
@@ -150,12 +158,14 @@ autocalc = 1;
 check_trace(["p"]);
 
 ## forcing by assignment
+## @FailsInJSEden
 proc p : x { t(str(x), @); }
 check_trace([]);
 x = x == @;
 check_trace(["1"]);
 
 ## forcing fv by assignment
+## @FailsInJSEden
 x is z;
 proc p : x { t(str(x), @); }
 check_trace([]);
@@ -163,6 +173,7 @@ x = x == @;
 check_trace(["@", "1"]);
 
 ## forcing fv by assignment
+## @FailsInJSEden
 x is z;
 y is t(str(x), @);
 check_trace([]);
