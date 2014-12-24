@@ -129,13 +129,21 @@ function concatAndResolveUrl(url, concat) {
 		this.listeners = {};
 
 		this.windowHighlighter = new WindowHighlighter(this);
+
+		this.errorWindow = null;
 	}
 
 	EdenUI.prototype.highlight = function (dialogName) { this.windowHighlighter.highlight(dialogName); };
 	EdenUI.prototype.stopHighlight = function (dialogName) { this.windowHighlighter.stopHighlight(dialogName); };
 
 	EdenUI.prototype.showErrorWindow = function () {
-		return $('#error-window')
+		if (!this.errorWindow) {
+			this.errorWindow = $(
+				'<pre id="error-window" style="font-family:monospace; display: none;"></pre>'
+			).appendTo('body');
+		}
+
+		return this.errorWindow
 			.addClass('ui-state-error')
 			.dialog({title: "EDEN Errors", width: 500})
 			.dialog('moveToTop');

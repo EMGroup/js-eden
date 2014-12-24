@@ -27,11 +27,8 @@ function initialiseJSEden(callback) {
 	root = new Folder();
 	eden = new Eden(root);
 
-	$(document).ready(function() {
+	$(document).ready(function () {
 		edenUI = new EdenUI(eden);
-
-		// Create the error window. Hidden to start with.
-		$('<pre id="error-window" style="font-family:monospace; display: none;"></pre>').appendTo('body');
 
 		// Load the Eden library scripts
 		eden.include("library/eden.jse", {name: '/system'}, function () {
