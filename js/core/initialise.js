@@ -8,12 +8,6 @@
 var root;
 var eden;
 
-window.onbeforeunload = confirmBrowseAway;
-
-function confirmBrowseAway() {
-	return "Are you sure? If you leave this page now, your work will NOT be saved.";
-}
-
 /**
  * Utility function to extract URL query string parameters.
  */
