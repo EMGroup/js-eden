@@ -46,10 +46,6 @@
 	white-space: nowrap;
 }
 
-li.type-function {
-	list-style-image: url('../images/type-function.png');
-}
-
 .instance-list {
 	min-height: 400px;
 	min-width: 100%;

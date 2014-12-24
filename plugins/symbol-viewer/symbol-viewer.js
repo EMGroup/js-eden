@@ -371,7 +371,7 @@ function _keys(obj) {
  * for this function, such as parameters and description.
  */
 EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
-	var funchtml = "<li class=\"type-function\"><span class=\"result_name\">" + this.name + "</span>";
+	var funchtml = "<li><span class=\"result_name\">" + this.name + "</span>";
 
 	// If there are details for this function in the function meta data
 	if (edenfunctions.functions != undefined && edenfunctions.functions[this.name] !== undefined) {
@@ -441,7 +441,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 		namehtml = this.name;
 	}
 
-	this.element.html("<li class=\"type-observable\"><span class=\"result_name\">"
+	this.element.html("<li><span class=\"result_name\">"
 		+ namehtml
 		+ "</span><span class='result_value'> = "
 		+ valhtml
@@ -453,5 +453,5 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
  * Update the HTML output of a procedure symbol.
  */
 EdenUI.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function () {
-	this.element.html("<li class=\"type-procedure\"><span class=\"result_name\">" + this.name + "</span></li>");
+	this.element.html("<li><span class=\"result_name\">" + this.name + "</span></li>");
 };
