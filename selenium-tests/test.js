@@ -6,36 +6,47 @@ chai.use(chaiAsPromised);
 chai.should();
 chaiAsPromised.transferPromiseness = wd.transferPromiseness;
 
-describe("UI tests", function() {
+describe("UI tests", function () {
 	this.timeout(60000);
 	var browser;
 
-	before(function() {
-		browser = wd.promiseChainRemote({
-			hostname: '127.0.0.1',
-			port: '4444'
-		});
-		return browser.init({browserName: 'firefox'});
+	before(function () {
+		var jobNumber = process.env.TRAVIS_JOB_NUMBER;
+		if (jobNumber) {
+			browser = wd.promiseChainRemote(
+				"ondemand.saucelabs.com",
+				80,
+				process.env.SAUCE_USERNAME,
+				process.env.SAUCE_ACCESS_KEY
+			);
+			return browser.init({browserName: 'firefox', 'tunnel-identifier': jobNumber});
+		} else {
+			browser = wd.promiseChainRemote({
+				hostname: '127.0.0.1',
+				port: '4444'
+			});
+			return browser.init({browserName: 'firefox'});
+		}
 	});
 
-	before(function() {
+	before(function () {
 		return browser.get("http://localhost:8000");
 	});
 
-	after(function() {
+	after(function () {
 		return browser.quit();
 	});
 
-	it("has JS-Eden as page title", function() {
+	it("has JS-Eden as page title", function () {
 		return browser.title().should.become("JS-Eden");
 	});
 
 	it("has a menu", function () {
-		return browser.waitForElementByCss('#menubar-main');
+		return browser.waitForElementByCss('#menubar-main', wd.asserters.textInclude('New'), 60000);
 	});
 
 	it("has an input window", function () {
-		return browser.waitForElementByCss('#inputwindow-dialog');
+		return browser.waitForElementByCss('#inputwindow-dialog', wd.asserters.textInclude('inputwindow'), 60000);
 	});
 
 	it("describe it has a canvas window", function () {
