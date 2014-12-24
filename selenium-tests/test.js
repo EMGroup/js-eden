@@ -39,7 +39,7 @@ describe("UI tests", function() {
 	});
 
 	it("describe it has a canvas window", function () {
-		return browser.waitForElementByCss('#default-dialog');
+		return browser.waitForElementByCss('#picture-dialog');
 	});
 
 	it("describe it has a projects window", function () {
