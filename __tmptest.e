@@ -13,12 +13,11 @@ proc setup_test {
 
 setup_test();
 
-x is t("x", y);
-proc p : x { t("p", @); }
-autocalc = 0;
+x is z;
+y is t(str(x), @);
 check_trace([]);
-x;
-check_trace(["x"]);
+x = x == @;
+check_trace(["@", "1"]);
 
 exit();
 
