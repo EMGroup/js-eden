@@ -46,7 +46,7 @@ describe("UI tests", function () {
 	});
 
 	it("has an input window", function () {
-		return browser.waitForElementByCss('#inputwindow-dialog', wd.asserters.textInclude('inputwindow'), 60000);
+		return browser.waitForElementByCss('#inputwindow-dialog', wd.asserters.isDisplayed, 60000);
 	});
 
 	it("describe it has a canvas window", function () {
