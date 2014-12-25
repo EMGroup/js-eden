@@ -23,7 +23,7 @@ function getParameterByName(name) {
 	}
 }
 
-function initialiseJSEden(callback) {
+function initialiseJSEden() {
 	root = new Folder();
 	eden = new Eden(root);
 
@@ -41,8 +41,6 @@ function initialiseJSEden(callback) {
 				if (include) {
 					eden.include(include);
 				}
-
-				callback();
 			});
 		});
 	});
