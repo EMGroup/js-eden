@@ -79,9 +79,12 @@
 		}
 
 		this.viewInstances[name] = this.views[type].dialog(name+"-dialog", this.views[type].title+" ["+name+"]");
+		var position = this.viewInstances[name] && this.viewInstances[name].position;
+
 		// add minimise button to created dialog
 		dialog(name)
 		.dialog({
+			position: position,
 			close: function () {
 				edenUI.destroyView(name);
 			}
@@ -110,14 +113,20 @@
 		});
 
 		function viewEdenCode() {
-			return 'proc _View_'+name+'_position : _view_'+name+'_x, _view_'+name+'_y {\n'+
+			var code = 'proc _View_'+name+'_position : _view_'+name+'_x, _view_'+name+'_y {\n'+
 					'${{ edenUI.moveView("'+name+'"); }}$;\n'+
 				'};\n'+
 				'proc _View_'+name+'_size : _view_'+name+'_width,_view_'+name+'_height {\n'+
 					'${{ edenUI.resizeView("'+name+'"); }}$;\n'+
 				'};'+
 				'if (_view_list == @) { _view_list = []; }\n'+
-				'append _view_list, "'+name+'";';
+				'append _view_list, "'+name+'";\n';
+
+			if (position) {
+				code += '_view_'+name+'_position = ['+position.join(', ')+']\n;';
+			}
+
+			return code;
 		}
 
 		// Now construct eden agents and observables for dialog control.
