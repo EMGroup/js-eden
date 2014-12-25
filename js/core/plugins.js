@@ -109,10 +109,19 @@
 			view(name, 'height').assign(ui.size.height);
 		});
 
+		function viewEdenCode() {
+			return 'proc _View_'+name+'_position : _view_'+name+'_x, _view_'+name+'_y {\n'+
+					'${{ edenUI.moveView("'+name+'"); }}$;\n'+
+				'};\n'+
+				'proc _View_'+name+'_size : _view_'+name+'_width,_view_'+name+'_height {\n'+
+					'${{ edenUI.resizeView("'+name+'"); }}$;\n'+
+				'};'+
+				'if (_view_list == @) { _view_list = []; }\n'+
+				'append _view_list, "'+name+'";';
+		}
+
 		// Now construct eden agents and observables for dialog control.
-		this.eden.execute("proc _View_"+name+"_position : _view_"+name+"_x,_view_"+name+"_y { ${{ edenUI.moveView(\""+name+"\"); }}$; };", function () {
-			this.eden.execute("proc _View_"+name+"_size : _view_"+name+"_width,_view_"+name+"_height { ${{ edenUI.resizeView(\""+name+"\"); }}$; };");
-		});
+		this.eden.execute(viewEdenCode());
 		return this.viewInstances[name];
 	};
 
