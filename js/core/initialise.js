@@ -33,7 +33,6 @@ function initialiseJSEden() {
 		// Load the Eden library scripts
 		eden.include("library/eden.jse", {name: '/system'}, function () {
 			var include = getParameterByName("include");
-			var viewcount;
 
 			$.getJSON('config.json', function (config) {
 				rt.config = config;
