@@ -214,3 +214,22 @@ createView("projects", "ProjectList");
 createView("inputwindow", "InputWindow");
 
 _menubar_status = "JS-Eden done loading";
+
+proc arrange {
+  auto i;
+  auto name;
+  auto curr_x;
+
+  curr_x = 0;
+  for (i = 1; i <= _view_list#; ++i) {
+    name = _view_list[i];
+    if (`"_view_"//name//"_position"` != @) {
+      continue;
+    }
+    `"_view_"//name//"_x"` = curr_x;
+    `"_view_"//name//"_y"` = 100;
+    curr_x += `"_view_"//name//"_width"` + 10;
+  }
+}
+
+arrange();
