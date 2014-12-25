@@ -212,3 +212,5 @@ require("ST");
 createCanvas("picture");
 createView("projects", "ProjectList");
 createView("inputwindow", "InputWindow");
+
+_menubar_status = "JS-Eden done loading";
