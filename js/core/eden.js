@@ -286,6 +286,13 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {function()} success Called when include has finished successfully.
 	 */
 	Eden.prototype.include = function (includePath, prefix, agent, success) {
+		var includePaths;
+		if (includePath instanceof Array) {
+			includePaths = includePath;
+		} else {
+			includePaths = [includePath];
+		}
+
 		if (arguments.length === 2) {
 			// path and callback
 			success = prefix;
@@ -297,56 +304,36 @@ function concatAndResolveUrl(url, concat) {
 			prefix = '';
 		}
 
-		var url;
-		if (includePath.charAt(0) === '.') {
-			url = concatAndResolveUrl(prefix, includePath);
-		} else {
-			url = includePath;
-		}
-		var match = url.match(/(.*)\/([^\/]*?)$/);
-		var newPrefix = match ? match[1] : '';
-		this.emit('executeFileLoad', [url]);
-		var error = function (e) {
-			eden.error(new Error("Failed to include '"+url+"', error: "+JSON.stringify(e)));
-		};
-		var wrappedSuccess = function () {
-			success && success.call(agent);
-		};
-			
-		if (url.match(/.js$/)) {
-			$.ajax({
-				url: url,
-				dataType: 'script',
-				success: wrappedSuccess,
-				error: error
-			});
-		} else {
-			if (url.match(/^http/)) {
-				// cross host
-				$.ajax({
-					url: rt.config.jseProxyBaseUrl,
-					jsonp: "callback",
-					dataType: "jsonp",
-					data: {
-						url: url,
-					},
-					success: function (data) {
-						eden.execute(data.success, url, newPrefix, agent, wrappedSuccess);
-					},
-					error: error
-				});
+		var promise;
+		includePaths.forEach(function (includePath) {
+			var url;
+			if (includePath.charAt(0) === '.') {
+				url = concatAndResolveUrl(prefix, includePath);
 			} else {
-				// same host, no need to use JSONP proxy
-				$.ajax({
-					url: url,
-					dataType: "text",
-					success: function (data) {
-						eden.execute(data, url, newPrefix, agent, wrappedSuccess);
-					},
-					error: error
-				});
+				url = includePath;
 			}
-		}
+			var match = url.match(/(.*)\/([^\/]*?)$/);
+			var newPrefix = match ? match[1] : '';
+			var previousPromise = promise;
+			promise = $.ajax({
+				url: url,
+				dataType: "text"
+			}).then(function (data) {
+				var deferred = $.Deferred();
+				if (previousPromise) {
+					return previousPromise.then(function () {
+						eden.execute(data, url, newPrefix, agent, deferred.resolve);
+						return deferred.promise;
+					});
+				} else {
+					eden.execute(data, url, newPrefix, agent, deferred.resolve);
+					return deferred.promise;
+				}
+			});
+		});
+		promise.then(function () {
+			success && success.call(agent);
+		});
 	};
 
 	/**
