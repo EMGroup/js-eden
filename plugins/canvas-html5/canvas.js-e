@@ -52,3 +52,4 @@ include("plugins/canvas-html5/inputbox.js-e");
 include("plugins/canvas-html5/textarea.js-e");
 include("plugins/canvas-html5/radioButtons.js-e");
 include("plugins/canvas-html5/greek.js-e");
+include("plugins/canvas-html5/image.js-e");
