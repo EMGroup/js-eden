@@ -1,4 +1,3 @@
-slideList is [];
 _view_default_x=10;
 _view_default_y=50;
 _view_jspe_x=960;
@@ -7,6 +6,8 @@ _view_default_width=625;
 _view_default_height=600;
 _view_jspe_width=625;
 _view_jspe_height=600;
+
+if (slideList == @) slideList = [];
 
 ## SlideButton to overcome Button limitations
 ${{
