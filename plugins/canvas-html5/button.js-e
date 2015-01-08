@@ -55,8 +55,7 @@ ${{
 											'</input>';
 
 			var $input = $(inputHtml).click(function () {
-				root.lookup(name + "_clicked").assign(true);
-				root.lookup(name + "_clicked").assign(false);
+				triggerButton(name);
 			});
 
 			but = $input.get(0);
@@ -86,4 +85,9 @@ ${{
 	Button.prototype.toString = function () {
 		return "Button(\"" + this.name + "\", \"" + this.label + "\", " + this.x + ", "+this.y+", "+this.enabled+")";
 	};
+
+function triggerButton(name){
+	eden.execute(name + "_clicked = true; " + name + "_clicked = false;");
+}
 }}$;
+
