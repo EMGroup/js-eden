@@ -1,3 +1,4 @@
+slideList is [];
 _view_default_x=10;
 _view_default_y=50;
 _view_jspe_x=960;
@@ -164,7 +165,6 @@ buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 150, 0, buttonNe
 
 ## buttonSave = SlideButton("buttonSave","Add Slide", int(${{ $('#jspe-dialog-canvas').position().left }}$) + 100, ${{ $('#jspe-dialog-canvas').height()+15 }}$, true);
 
-slideList is [];
 
 proc prevSlide : buttonPrev_clicked {
 	if (!buttonPrev_clicked) {
