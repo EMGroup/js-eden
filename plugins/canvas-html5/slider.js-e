@@ -46,39 +46,48 @@ Slider.prototype.draw = function(context,content) {
 	var me2 = this.name;
 	var that = this;
 	var sli = this.element;
+	
+	root.lookup(me2 + "_drawing").assign(true);
 
 	if (sli === undefined) {
-
 		if(this.orientation=="vertical"){
 			var ori = "-webkit-appearance: slider-vertical;"
+			var orif = " orient=\"vertical\"";
 		}else{
 			var ori = "";
+			var orif = "";
 		}
 
 		var div = $('<div id="'+me+'-slider" style="position:absolute; top:'+this.y+'px; left:'+this.x+'px;">'+this.name+'</div>');
 
-		var addinputtodiv = (($('<input id="'+me+'-slider-input" style="'+ori+'" value="'+this.value+'" type="range" name="'+this.name+'" min="'+this.min+'" max="'+this.max+'" step="'+this.step+'"/>')).on("change", function(){root.lookup(me2 + "_value").assign(parseInt(this.value))}).on("input", function(){root.lookup(me2 + "_preview").assign(parseInt(this.value))})).appendTo(div);
+		var addinputtodiv = (($('<input id="'+me+'-slider-input" style="'+ori+'" value="'+this.value+'" type="range" name="'+this.name+'" min="'+this.min+'" max="'+this.max+'" step="'+this.step+'"' + orif + '/>')).on("change", function(){
+eden.execute(me2 + "_value = " + parseInt(this.value) + ";");
+
+}).on("input", function(){
+eden.execute(me2 + "_preview = " + parseInt(this.value) + ";");
+})).appendTo(div);
 
 		this.element = div.get(0);
 		div.get(0).togarbage = false;
+		root.lookup(me2 + "_drawable").assign(this);
 
 		setTimeout(function () {
 			//Assign obs value
-			root.lookup(me2 + "_value").assign(that.value);
-			root.lookup(me2 + "_x").assign(that.x);
-			root.lookup(me2 + "_y").assign(that.y);
-			root.lookup(me2 + "_min").assign(that.min);
-			root.lookup(me2 + "_max").assign(that.max);
-			root.lookup(me2 + "_step").assign(that.step);
+			eden.execute(me2 + "_value = " + that.value + ";");
+			eden.execute(me2 + "_x = " + that.x + ";");
+			eden.execute(me2 + "_y = " + that.y + ";");
+			eden.execute(me2 + "_min = " + that.min + ";");
+			eden.execute(me2 + "_max = " + that.max + ";");
+			eden.execute(me2 + "_step = " + that.step + ";");
 		}, 0);
-
+		eden.execute("proc " + me2 + "_update : " + me2 + "_value { if (" + me2 + "_drawing){return;} " + me2 + "_drawable.draw();}");
 
 	} else {
 		//Draw with the values stored in the observables
-
+		this.getElementsByTagName("input")[0].value = root.lookup(me2 + "_value").cached_value;
 		this.element.togarbage = false;
 	}
-
+	root.lookup(me2 + "_drawing").assign(false);
 };
 }}$;
 

@@ -58,7 +58,7 @@ RadioButtons.prototype.draw = function(context,content) {
 	var canvas_obsname = "canvas_" + this.name;
 	var id = this.name;
 	var check = this.element;
-	
+	root.lookup(id+'_drawing').assign(true);
 	if(check === undefined){
 
 		//Make the HTML
@@ -67,6 +67,7 @@ RadioButtons.prototype.draw = function(context,content) {
 		//Assign the value to update the observable if the HTML changes
 		//Uses Jquery.
 
+		root.lookup(id+'_drawable').assign(this);
 		inputhtml.change(function(){
 
 			//Find the current value
@@ -75,7 +76,7 @@ RadioButtons.prototype.draw = function(context,content) {
 				if(inputhtml.get(0).children[0][i].checked){
 					
 					//Assign the selected value to an eden observable
-					root.lookup(id + "_value").assign(inputhtml.get(0).children[0][i].value);
+					eden.execute(id + "_value = \"" + inputhtml.get(0).children[0][i].value + "\";");
 				}
 			}
 		});
@@ -83,19 +84,22 @@ RadioButtons.prototype.draw = function(context,content) {
 		this.element = inputhtml.get(0);
 
 		inputhtml.get(0).togarbage = false;
-
+		eden.execute('proc ' + id + '_update : ' + id + '_value { if (' + id + '_drawing){return;} ' + id + '_drawable.draw();}');
   }
   else{
 
 		this.element.togarbage = false;
-		
+		console.log("Value is " + root.lookup(id + "_value").cached_value);	
 		for(var i=0; i<this.listOfButtonNames.length; i++){
-			if(this.element.children[0][i].value==root.lookup(id + "_value")){
+			console.log("Comparing with " + this.element.children[0][i].value);
+			if(this.element.children[0][i].value==root.lookup(id + "_value").cached_value){
+				console.log("Found it - setting checked to true");
 				this.element.children[0][i].checked = true;
 				break;
 			}
 		}
   }
+	root.lookup(id+'_drawing').assign(false);
 };
 }}$;
 
