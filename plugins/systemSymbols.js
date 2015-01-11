@@ -2,6 +2,7 @@
 Eden.systemObservableNames = [
 	"_status",
 	"Infinity",
+	"PI",
 	"autocalc",
 	"false",
 	"generate_function",
@@ -25,6 +26,7 @@ Eden.systemAgentNames = [
 	"hideView",
 	"html",
 	"moveView",
+	"patch",
 	"resizeView",
 	"setProperty",
     "showObservables",
@@ -123,6 +125,7 @@ Eden.systemFunctionNames = [
 	"reverse",
 	"rotate",
 	"round",
+	"scale",
 	"search",
 	"sin",
 	"sort",

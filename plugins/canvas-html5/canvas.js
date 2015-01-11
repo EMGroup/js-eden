@@ -48,9 +48,9 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			canvases[canvasname] = $("#"+canvasname+"-dialog-canvas")[0];
 			contents[canvasname] = $("#"+canvasname+"-dialog-canvascontent")[0];
 			canvas = canvases[canvasname];
-			canvas.drawing = false;
+			canvas.drawing = false;			
 		}
-
+	
 		if (!canvas.drawing){
 
 			canvas.drawing = true;
@@ -63,7 +63,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			//To clear canvas.
 			canvas.width = canvas.width;
 
-		    canvas = canvas.getContext('2d');
+		    var context = canvas.getContext('2d');
 		    var content = contents[canvasname];
 
 			var hash;
@@ -84,8 +84,11 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 					// if already existing hash, no need to draw, just set the element
 					picture[i].element = existingEl;
 				} else {
+					context.save();
+					me.configureContext(context, picture[i].drawingOptions);
 					// expect draw() method to set .element
-					picture[i].draw(canvas, content);
+					picture[i].draw(context, content);
+					context.restore();
 				}
 
 				var htmlEl = picture[i].element;
@@ -105,6 +108,22 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 		}
 	};
 
+	this.configureContext = function (context, options) {
+		if (options === undefined) {
+			return;
+		}
+		
+		if ("lineWidth" in options) {
+			context.lineWidth = options.lineWidth;
+		}
+		if ("dashes" in options) {
+			context.setLineDash(options.dashes);
+			if ("dashOffset" in options) {
+				context.lineDashOffset = options.dashOffset;
+			}
+		}
+	}
+	
 	this.createDialog = function(name,mtitle) {
 
 		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');

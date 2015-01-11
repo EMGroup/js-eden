@@ -4,36 +4,50 @@
 ## See LICENSE.txt
 
 ${{
-Line = function(x1, y1, x2, y2, colour) {
-  this.x1 = x1;
-  this.y1 = y1;
-  this.x2 = x2;
-  this.y2 = y2;
-  this.colour = colour;
+Line = function(x1, y1, x2, y2, colour, drawingOptions) {
+	this.x1 = x1;
+	this.y1 = y1;
+	this.x2 = x2;
+	this.y2 = y2;
+	this.colour = colour;
+	this.drawingOptions = drawingOptions;
 }
 }}$;
 
 func Line { ${{
-  var x1 = arguments[0];
-  var y1 = arguments[1];
-  var x2 = arguments[2];
-  var y2 = arguments[3];
-  var colour = arguments[4];
-  if (colour === undefined) { colour = "black"; }
-  return new Line(x1, y1, x2, y2, colour);
+	var x1 = arguments[0];
+	var y1 = arguments[1];
+	var x2 = arguments[2];
+	var y2 = arguments[3];
+	var colour = arguments[4];
+	var drawingOptions = arguments[5];
+	if (colour === undefined) { colour = "black"; }
+	return new Line(x1, y1, x2, y2, colour, drawingOptions);
 }}$; };
 
 ${{
 Line.prototype.draw = function(context) {
-  context.beginPath();
-  context.strokeStyle = this.colour;
-  context.moveTo(this.x1, this.y1);
-  context.lineTo(this.x2, this.y2);
-  context.stroke();
+	context.beginPath();
+	context.strokeStyle = this.colour;
+	context.moveTo(this.x1, this.y1);
+	context.lineTo(this.x2, this.y2);
+	context.stroke();
 };
 }}$;
 ${{
 Line.prototype.toString = function() {
-  return "Line(" + this.x1 + ", " + this.y1 + ", " + this.x2 + ", "+this.y2+", "+this.colour+")";
+	var s = "Line(" +
+		this.x1.toString() + ", " +
+		this.y1.toString() + ", " +
+		this.x2.toString() + ", " +
+		this.y2.toString() + ", " +
+		this.colour;
+
+	if (this.drawingOptions !== undefined) {
+		s = s + ", " + root.lookup("edenCode").definition("root")(this.drawingOptions);
+	}
+	
+	s = s + ")";
+	return s;
 };
 }}$;

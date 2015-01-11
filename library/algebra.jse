@@ -61,3 +61,23 @@ func rotate {
   return rpoints;
   
 }
+
+func scale {
+	para scaleFactor, vector;
+	auto result, i;
+	if ((scaleFactor == @ || vector == @) && $# == 2) {
+		return @;
+	}
+	if (!isNumber(scaleFactor)) {
+		error("scale: The first argument must be a number, not a " // type(scaleFactor));
+		return @;
+	} else if (!isList(vector)) {
+		error("scale: The second argument must be a list, not a " // type(vector));
+		return @;
+	}
+	result = array(vector#);
+	for (i = 1; i <= vector#; i++) {
+		result[i] = scaleFactor * vector[i];
+	}
+	return result;
+}

@@ -252,6 +252,72 @@ func isDependency {
 	}}$;
 }
 
+##Replaces a func or a proc with a new func or proc defined in terms of the
+##function or procedure previously known by the same name.  The first argument
+##is a pointer to the patch function or patch procedure.  This should be a func
+##or a proc with exactly two parameters.  The first is a func/proc typed
+##parameter that will be instantiated with the old func/proc.  The second is a
+##list typed parameter that will instantiated with the argument list of the
+##resulting "patched function" or "patched procedure".  The second argument to
+##patch is a pointer to the "current", "old" or "original" func or proc to which
+##the patch is to be applied.
+##
+##Example:
+##
+## func f {
+## 	para x;
+##	return x * 2;
+## }
+##
+## func fPatch {
+## 	para oldF, params;
+##	##Do whatever the "old f" function did but offset the value of the parameter
+## 	##by one.
+##	return oldF(params[1] + 1);
+## }
+##
+## patch(&fPatch, &f);
+##
+## f(1) now returns 4 and fPatch has been forgotten.
+##
+proc patch {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("patch: This procedure requires exactly 2 arguments.", "error"));
+			return;
+		}
+		if (!(arguments[0] instanceof Symbol)) {
+			eden.error(new Error("patch: The first argument must be a pointer to a func or a proc, not a " + typeof(arguments[0])), "error");
+			return;
+		}
+		if (!(arguments[1] instanceof Symbol)) {
+			eden.error(new Error("patch: The second argument must be a pointer to a func or a proc, not a " + typeof(arguments[1])), "error");
+			return;
+		}
+		
+		var funcName = arguments[1].name.slice(1);
+		var patchName = arguments[0].name.slice(1);
+
+		var patchFunc = arguments[0].value();
+		var originalFunc = arguments[1].value();
+		
+		if (typeof(patchFunc) != "function") {
+			eden.error(new Error("patch: The first argument must be a pointer to a func or a proc, not a pointer to a " + typeof(patchFunc)), "error");
+			return;
+		}
+		if (typeof(originalFunc) != "function") {
+			eden.error(new Error("patch: The second argument must be a pointer to a func or a proc, not a pointer to a " + typeof(originalFunc)), "error");
+			return;
+		}
+
+		root.lookup(funcName).assign(function () {
+			return patchFunc(originalFunc, arguments);
+		}, this);
+
+		delete root.symbols[patchName];
+	}}$;
+}
+
 ##This procedure inspects the current definition of a list observable and
 ##redefines the observable such that its new definition is like the old one but
 ##with an extra item (or items) added onto the end of the list.  It is similar
