@@ -64,7 +64,7 @@ Arc.prototype.toString = function() {
 		this.colour;
 
 	if (this.drawingOptions !== undefined) {
-		s = s + ", " + root.lookup("edenCode").definition("root")(this.drawingOptions);
+		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
 	}
 	
 	s = s + ")";
