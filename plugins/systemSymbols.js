@@ -135,6 +135,7 @@ Eden.systemFunctionNames = [
 	"strcat",
 	"sublist",
 	"substr",
+	"tail",
 	"tan",
 	"time",
 	"translate",
