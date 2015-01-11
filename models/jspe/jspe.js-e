@@ -7,6 +7,8 @@ _view_default_height=600;
 _view_jspe_width=625;
 _view_jspe_height=600;
 
+if (slideList == @) slideList = [];
+
 ## SlideButton to overcome Button limitations
 ${{
 SlideButton = function (name, label, x, y, enabled) {
@@ -164,7 +166,6 @@ buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 150, 0, buttonNe
 
 ## buttonSave = SlideButton("buttonSave","Add Slide", int(${{ $('#jspe-dialog-canvas').position().left }}$) + 100, ${{ $('#jspe-dialog-canvas').height()+15 }}$, true);
 
-slideList is [];
 
 proc prevSlide : buttonPrev_clicked {
 	if (!buttonPrev_clicked) {

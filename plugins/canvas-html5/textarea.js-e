@@ -42,15 +42,15 @@ Textbox.prototype.draw = function(context,content) {
 		root.lookup(id + "_value").assign(textareahtml.get(0).value);
 
 		textareahtml.change(function(){
-			root.lookup(id + "_value").assign(textareahtml.get(0).value);
+			eden.execute(id + "_value = \"" + textareahtml.get(0).value + "\";");
 		});
 
 		this.element = textareahtml.get(0);
-
+		root.lookup(id + "_drawable").assign(this);
 		textareahtml.get(0).togarbage = false;
-
+		eden.execute('proc ' + id + '_update : ' + id + '_value { if (' + id + '_drawing){return;} ' + id + '_drawable.draw(); }');
 		//Assign
-		root.lookup(id + "_value").assign(textareahtml.get(0).value);
+		eden.execute(id + "_value = \"" + textareahtml.get(0).value + "\";");
 	
   }
   else{

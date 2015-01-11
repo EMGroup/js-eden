@@ -413,8 +413,8 @@ statement
         { $$ = yy.sync('return;'); }
     | RETURN expression ';'
         { $$ = yy.sync('return ' + $expression + ';'); }
-    | INCLUDE expression ';'
-        { $$ = yy.async('eden.include', $expression, 'includePrefix', 'this'); }
+    | include-statement-list
+        { $$ = yy.async('eden.include', '['+$1.join(', ')+']', 'includePrefix', 'this'); }
     | REQUIRE expression ';'
         { $$ = yy.async('edenUI.loadPlugin', $expression, 'this'); }
     | AWAIT expression ';'
@@ -433,6 +433,13 @@ statement
         { $$ = yy.sync('default: '); }
     | ';'
         { $$ = yy.sync(''); }
+    ;
+
+include-statement-list
+    : INCLUDE '(' expression ')' ';'
+        { $$ = [$3]; }
+    | INCLUDE '(' expression ')' ';' include-statement-list
+        { console.log('PARSE'); $$ = [$3].concat($6); }
     ;
 
 expression-opt

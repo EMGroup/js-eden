@@ -23,7 +23,7 @@ function getParameterByName(name) {
 	}
 }
 
-function initialiseJSEden(callback) {
+function initialiseJSEden() {
 	root = new Folder();
 	eden = new Eden(root);
 
@@ -33,7 +33,6 @@ function initialiseJSEden(callback) {
 		// Load the Eden library scripts
 		eden.include("library/eden.jse", {name: '/system'}, function () {
 			var include = getParameterByName("include");
-			var viewcount;
 
 			$.getJSON('config.json', function (config) {
 				rt.config = config;
@@ -41,8 +40,6 @@ function initialiseJSEden(callback) {
 				if (include) {
 					eden.include(include);
 				}
-
-				callback();
 			});
 		});
 	});

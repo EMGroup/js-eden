@@ -49,7 +49,7 @@ EdenUI.plugins.SL = function(edenUI, success){
 				var url = "ws://" + $("#sl-ipaddr").val() + ":" + $("#sl-port").val() + '/'; 
 				var connection = new WebSocket(url);
 				eden.listenTo('executeBegin',this,function(origin,code){
-					console.log("origin");
+					console.log(origin);
 					if(origin != "net")
 						connection.send(code);	
 				});

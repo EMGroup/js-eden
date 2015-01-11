@@ -35,7 +35,7 @@ Inputbox.prototype.draw = function(context,content) {
 	var canvas_obsname = "canvas_" + this.name;
 	var id = this.name;
 	var check = this.element;
-
+	root.lookup(id + "_drawing").assign(true);
 	if(check === undefined){
 
 		//for enabled visibility
@@ -46,22 +46,23 @@ Inputbox.prototype.draw = function(context,content) {
 
 		inputhtml.get(0).value = this.value;
 		setTimeout(function () {
-			root.lookup(id + "_value").assign(inputhtml.get(0).value);
+			eden.execute(id + "_value = \"" + escapeQuotes(inputhtml.get(0).value) + "\";");
 		}, 0);
 
 		inputhtml.change(function(){
-			root.lookup(id + "_value").assign(inputhtml.get(0).value);
+			eden.execute(id + "_value = \"" + escapeQuotes(inputhtml.get(0).value) + "\";");
 		});
-
+		root.lookup(id + "_drawable").assign(this);
 		this.element = inputhtml.get(0);
 		inputhtml.get(0).togarbage = false;
-	
+		eden.execute('proc ' + id + "_update" + " : " + id + "_value" + " { if (" + id + "_drawing){ return; } " + id + "_drawable.draw();}");
   }
   else{
 
 		this.element.togarbage = false;
 		this.element.value = (root.lookup(this.name+"_value").cached_value);
   }
+	root.lookup(id + "_drawing").assign(false);
 };
 }}$;
 
@@ -69,4 +70,7 @@ ${{
 Inputbox.prototype.toString = function() {
   return "Inputbox(" + this.name + "," + this.x + ", "+this.y+", "+this.enabled+")";
 };
+function escapeQuotes(str){
+	return str.replace(/\\/g,"\\\\").replace(/\"/g,'\\\"');
+}
 }}$;

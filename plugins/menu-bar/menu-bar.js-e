@@ -1,8 +1,8 @@
-_status = "";
+_menubar_status = "";
 
-proc _MenuBar_Status : _status {
+proc _menubar_update : _menubar_status {
 	${{
-	var text = root.lookup("_status").value();
+	var text = root.lookup("_menubar_status").value();
 	edenUI.plugins.MenuBar.updateStatus(text);
 	}}$;
 };

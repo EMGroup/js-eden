@@ -129,13 +129,13 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 				width: 310,
 				height: 400,
 				minHeight: 120,
-				minWidth: 230,
-				position: ['right','bottom'],
+				minWidth: 230
 			});
 
 		me.instances.push(code_entry[0]);
-		updateCollection(code_entry[0],"");
-	}
+		updateCollection(code_entry[0], "");
+		return {position: ['right', 'bottom']};
+	};
 
 	//Get a list of projects from the server.
 	$.ajax({

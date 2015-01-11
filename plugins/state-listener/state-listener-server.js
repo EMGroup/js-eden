@@ -28,8 +28,10 @@ function receiveData(socket, data){
 	//For each received command, send it to every known socket 
 	//(apart from the socket that sent the data)
 	for(var i = 0; i < sockets.length; i++){
-		if(sockets[i] !== socket)
+		if(sockets[i] !== socket){
+			console.log("Sending " + data + " to socket " + i);
 			sockets[i].send(data);
+		}
 	}
 }
 wss.on('connection', function(socket) {

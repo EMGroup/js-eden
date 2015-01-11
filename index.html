@@ -63,9 +63,7 @@ See LICENSE.txt
 <script src="plugins/adm/adm-input.js"></script>
 
 <script type="text/javascript">
-	initialiseJSEden(function () {
-		eden.include("library/initialise.jse", {name: '/system'}, function () {});
-	});
+	initialiseJSEden();
 	var current = null;
 	var cycleView = function () {
 		var $windows = $('.ui-dialog-content');
