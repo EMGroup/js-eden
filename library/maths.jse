@@ -104,6 +104,8 @@ func mod {
 	return x>=0? x % n : (n + (x % n));
 }
 
+PI = ${{ Math.PI }}$;
+
 func pow {
   return ${{ Math.pow(arguments[0],arguments[1]); }}$;
 }

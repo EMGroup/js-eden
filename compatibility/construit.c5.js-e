@@ -20,10 +20,23 @@ proc CanvasHTML5_DrawPicture {
 };
 
 proc drawPicture : picture { 
-  CanvasHTML5_DrawPicture("picture","picture");
+  CanvasHTML5_DrawPicture("picture", "picture");
 };
 
 mouseClickX is mouseUp.x;
 mouseClickY is mouseUp.y;
 mouseX is mousePosition.x;
 mouseY is mousePosition.y;
+
+func oldArc {
+	para newArc, params;
+	auto direction;
+	if (params[6]) {
+		direction = "clockwise";
+	} else {
+		direction = "anticlockwise";
+	}
+	return newArc(params[1], params[2], params[3], -params[4], -params[5], params[7], {direction: direction});
+}
+
+patch(&oldArc, &Arc);
