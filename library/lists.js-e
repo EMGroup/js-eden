@@ -434,3 +434,20 @@ func sublist {
 		return result;
 	}}$;
 }
+
+func tail {
+	if ($# != 1) {
+		error("tail: This function requires exactly 1 argument.");
+		return @;
+	} else if ($[1] == @) {
+		return @;
+	} else if (!isList($[1])) {
+		error("tail: The argument must be a list, not a " // type($[1]));
+		return @;
+	} else if ($[1]# == 0) {
+		error("tail: The empty list does not have a tail.");
+		return @;
+	} else {
+		return sublist($[1], 2, $[1]#);
+	}
+}
