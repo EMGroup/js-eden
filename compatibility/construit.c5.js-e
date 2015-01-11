@@ -32,9 +32,9 @@ func oldArc {
 	para newArc, params;
 	auto direction;
 	if (params[6]) {
-		direction = "clockwise";
-	} else {
 		direction = "anticlockwise";
+	} else {
+		direction = "clockwise";
 	}
 	return newArc(params[1], params[2], params[3], -params[4], -params[5], params[7], {direction: direction});
 }
