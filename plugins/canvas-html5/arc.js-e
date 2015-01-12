@@ -30,7 +30,7 @@ func Arc { ${{
 ${{
 Arc.prototype.draw = function(context) {
 	var anticlockwise;
-	if ("direction" in this.drawingOptions) {
+	if (this.drawingOptions !== undefined && "direction" in this.drawingOptions) {
 		switch (this.drawingOptions.direction) {
 		case "minor":
 			anticlockwise = this.sAngle < this.eAngle;
@@ -48,7 +48,7 @@ Arc.prototype.draw = function(context) {
 		anticlockwise = this.sAngle < this.eAngle;
 	}
 	context.beginPath();
-	context.arc(this.x, this.y, this.r, -this.sAngle, -this.eAngle, anticlockwise);
+	context.arc(this.x, this.y, this.r, -this.sAngle * root.lookup("radiansPerUnit").value(), -this.eAngle * root.lookup("radiansPerUnit").value(), anticlockwise);
 	context.strokeStyle = this.colour;
 	context.stroke();
 	context.closePath();
