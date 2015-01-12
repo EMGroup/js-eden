@@ -36,7 +36,7 @@ func oldArc {
 	} else {
 		direction = "clockwise";
 	}
-	return newArc(params[1], params[2], params[3], -params[4], -params[5], params[7], {direction: direction});
+	return newArc(params[1], params[2], params[3], -params[4] / radiansPerUnit, -params[5] / radiansPerUnit, params[7], {direction: direction});
 }
 
 patch(&oldArc, &Arc);
