@@ -12,6 +12,7 @@ Eden.systemObservableNames = [
 	"mousePressed",
 	"mouseUp",
 	"mouseWindow",
+	"radiansPerUnit",
 	"true"
 ];
 
