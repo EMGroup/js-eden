@@ -4,6 +4,9 @@
 ##equivalents of the same name where there are minor differences between the
 ##normal JS-EDEN implementations and the tkeden versions.
 
+##Trigonometric functions in tkeden work in radians instead of degrees.
+radiansPerUnit = 1;
+
 ##JS-EDEN tail func returns @ for an undefined argument, refuses the empty list
 ##or a non-list argument, and refuses if more than one argument is provided.
 func oldTail {

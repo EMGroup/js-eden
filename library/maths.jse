@@ -3,20 +3,23 @@
 ##
 ## See LICENSE.txt
 
+PI = ${{ Math.PI }}$;
+radiansPerUnit is PI / 180;
+
 func abs {
   return ${{ Math.abs(arguments[0]); }}$;
 }
 
 func acos {
-  return ${{ Math.acos(arguments[0])*180/Math.PI; }}$;
+  return ${{ Math.acos(arguments[0]) }}$ / radiansPerUnit;
 }
 
 func asin {
-  return ${{ Math.asin(arguments[0])*180/Math.PI; }}$;
+  return ${{ Math.asin(arguments[0]) }}$ / radiansPerUnit;
 }
 
 func atan {
-  return ${{ Math.atan(arguments[0])*180/Math.PI; }}$;
+  return ${{ Math.atan(arguments[0]) }}$ / radiansPerUnit;
 }
 
 func ceil {
@@ -24,7 +27,7 @@ func ceil {
 }
 
 func cos {
-  return ${{ Math.cos(arguments[0]*Math.PI/180); }}$;
+  return ${{ Math.cos(arguments[0]*root.lookup("radiansPerUnit").value()); }}$;
 }
 
 func exp {
@@ -104,8 +107,6 @@ func mod {
 	return x>=0? x % n : (n + (x % n));
 }
 
-PI = ${{ Math.PI }}$;
-
 func pow {
   return ${{ Math.pow(arguments[0],arguments[1]); }}$;
 }
@@ -172,7 +173,7 @@ func round {
 }
 
 func sin {
-  return ${{ Math.sin(arguments[0]*Math.PI/180); }}$;
+  return ${{ Math.sin(arguments[0]*root.lookup("radiansPerUnit").value()); }}$;
 }
 
 func sqrt {
@@ -180,6 +181,6 @@ func sqrt {
 }
 
 func tan {
-  return ${{ Math.tan(arguments[0]*Math.PI/180); }}$;
+  return ${{ Math.tan(arguments[0]*root.lookup("radiansPerUnit").value()); }}$;
 }
 
