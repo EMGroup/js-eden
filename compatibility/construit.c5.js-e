@@ -40,3 +40,13 @@ func oldArc {
 }
 
 patch(&oldArc, &Arc);
+
+func oldCircle {
+	para newCircle, params;
+	auto fillColour, outlineColour;
+	fillColour = params[4] == @? "black" : params[4];
+	outlineColour = params[5] == @? "black" : params[5];
+	return newCircle(params[1], params[2], params[3], fillColour, outlineColour, {lineWidth: 2});
+}
+
+patch(&oldCircle, &Circle);
