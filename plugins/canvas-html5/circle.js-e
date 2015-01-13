@@ -4,12 +4,13 @@
 ## See LICENSE.txt
 
 ${{
-Circle = function(x, y, radius, fillcolour, outlinecolour) {
+Circle = function(x, y, radius, fillcolour, outlinecolour, drawingOptions) {
   this.x = x;
   this.y = y;
   this.radius = radius;
   this.fillcolour = fillcolour;
   this.outlinecolour = outlinecolour;
+  this.drawingOptions = drawingOptions;
 }
 }}$;
 
@@ -19,26 +20,49 @@ func Circle { ${{
   var radius = arguments[2];
   var fillcolour = arguments[3];
   var outlinecolour = arguments[4];
-  if (fillcolour == null) { fillcolour = "black"; }
-  if (outlinecolour == null) { outlinecolour = "black"; }
-  return new Circle(x, y, radius, fillcolour, outlinecolour);
+  var drawingOptions = arguments[5];
+  return new Circle(x, y, radius, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
 ${{
 Circle.prototype.draw = function(context) {
-  context.beginPath();
-  context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
+	context.beginPath();
+	context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
  
-  context.fillStyle = this.fillcolour;
-  context.fill();
-  context.lineWidth = 2;
-  context.strokeStyle = this.outlinecolour;
-  context.stroke();
-  context.closePath();
+	if (this.fillcolour !== undefined) {
+		context.fillStyle = this.fillcolour;
+		context.fill();
+	}
+	if (this.outlinecolour !== undefined) {
+		context.strokeStyle = this.outlinecolour;
+		context.stroke();
+	}
+	context.closePath();
 };
 }}$;
 ${{
 Circle.prototype.toString = function() {
-  return "Circle(" + this.x + ", " + this.y + ", " + this.radius + ", "+this.fillcolour+", "+this.outlinecolour+")";
+	var s = "Circle(" +
+		this.x.toString() + ", " +
+		this.y.toString() + ", " +
+		this.radius.toString() + ", ";
+
+	if (this.fillcolour === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + this.fillcolour.toString() +", ";
+	}
+	if (this.outlinecolour !== undefined) {
+		s = s + this.outlinecolour.toString();
+	} else {
+		s = s + "@";
+	}
+	
+	if (this.drawingOptions !== undefined) {
+		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
+	}
+	
+	s = s + ")";
+	return s;
 };
 }}$;

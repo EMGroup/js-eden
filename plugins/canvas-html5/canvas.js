@@ -116,6 +116,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 		if ("lineWidth" in options) {
 			context.lineWidth = options.lineWidth;
 		}
+		
 		if ("dashes" in options) {
 			context.setLineDash(options.dashes);
 			if ("dashOffset" in options) {
