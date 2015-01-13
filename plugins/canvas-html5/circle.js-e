@@ -15,13 +15,20 @@ Circle = function(x, y, radius, fillcolour, outlinecolour, drawingOptions) {
 }}$;
 
 func Circle { ${{
-  var x = arguments[0];
-  var y = arguments[1];
-  var radius = arguments[2];
-  var fillcolour = arguments[3];
-  var outlinecolour = arguments[4];
-  var drawingOptions = arguments[5];
-  return new Circle(x, y, radius, fillcolour, outlinecolour, drawingOptions);
+	var x = arguments[0];
+	var y = arguments[1];
+	var radius = arguments[2];
+	var fillcolour = arguments[3];
+	var outlinecolour = arguments[4];
+	if (outlinecolour === undefined) {
+		if (fillcolour === undefined) {
+			outlinecolour = "black";
+		} else {
+			outlinecolour = fillcolour;
+		}
+	}
+	var drawingOptions = arguments[5];
+	return new Circle(x, y, radius, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
 ${{
@@ -33,10 +40,8 @@ Circle.prototype.draw = function(context) {
 		context.fillStyle = this.fillcolour;
 		context.fill();
 	}
-	if (this.outlinecolour !== undefined) {
-		context.strokeStyle = this.outlinecolour;
-		context.stroke();
-	}
+	context.strokeStyle = this.outlinecolour;
+	context.stroke();
 	context.closePath();
 };
 }}$;
@@ -52,11 +57,7 @@ Circle.prototype.toString = function() {
 	} else {
 		s = s + this.fillcolour.toString() +", ";
 	}
-	if (this.outlinecolour !== undefined) {
-		s = s + this.outlinecolour.toString();
-	} else {
-		s = s + "@";
-	}
+	s = s + this.outlinecolour.toString();
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
