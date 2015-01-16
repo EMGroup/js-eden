@@ -24,18 +24,21 @@ proc alias {
 	para aliasN, original;
 	if ($# != 2) {
 		error("alias: This procedure requires exactly two arguments.");
+		return;
 	}
 	
 	if (isPointer(aliasN)) {
 		aliasN = nameof(aliasN);
 	} else if (!isString(aliasN)) {
 		error("alias: The first argument must be a string or a pointer, not a " // type(aliasN));
+		return;
 	}
 
 	if (isPointer(original)) {
 		original = nameof(original);
 	} else if (!isString(original)) {
 		error("alias: The second argument must be a string or a pointer, not a " // type(original));
+		return;
 	}
 
 	str = aliasN // " is " // original // ";\n\n";
