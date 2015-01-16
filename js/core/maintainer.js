@@ -348,7 +348,7 @@
 	};
 
 	Symbol.prototype.netAssign = function (value, modifying_agent) {
-		eden.emit("beforeJSAssign", [this, value, modifying_agent]);
+		eden.emit("beforeNetAssign", [this, value, modifying_agent]);
 		this.assign(value, modifying_agent);
 	}
 	

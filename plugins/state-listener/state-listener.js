@@ -53,7 +53,7 @@ EdenUI.plugins.SL = function(edenUI, success){
 					if(origin != "net")
 						connection.send(code);	
 				});
-				eden.listenTo('beforeJSAssign',this,function(symbol, value, origin){
+				eden.listenTo('beforeNetAssign',this,function(symbol, value, origin){
 					console.log(origin);
 					if (origin != "net") {
 						var symRoot = symbol.context.root;
