@@ -67,15 +67,14 @@ Combobox.prototype.draw = function(context,content) {
 		updateVal(boxhtml);
 
 		boxhtml.change(function() {
-			eden.execute(valueName + " = \"" + boxhtml.get(0).value + "\";")
+			root.lookup(valueName).netAssign(boxhtml.get(0).value);
 		});
 
 		this.element = boxhtml.get(0);
 		this.element.togarbage = false;
 		root.lookup(drawableName).assign(this);
 		if (root.lookup(valueName).value() === undefined) {
-			eden.execute(valueName + " = " + that.options[0] + ";");
-//			root.lookup(valueName).assign(that.options[0]);
+			root.lookup(valueName).netAssign(that.options[0]);
 		}
 		eden.execute('proc '+updateName+' : '+valueName+' { if ('+drawingName+') { return; } '+drawableName+'.draw(); }');
 	} else {

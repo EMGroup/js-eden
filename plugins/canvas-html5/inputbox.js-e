@@ -40,17 +40,17 @@ Inputbox.prototype.draw = function(context,content) {
 
 		//for enabled visibility
 		if (this.enabled == true) { dis = ""; }
-		else { dis = "disabled=\"true\""; }
+		else { dis = "disabled=\"disabled\""; }
 
 		var inputhtml = $("<input id=\""+canvas_obsname+"\" "+dis+" style=\"position: absolute; width:"+this.width+"px; left: "+this.x+"px; top: "+this.y+"px;\" />");
 
 		inputhtml.get(0).value = this.value;
 		setTimeout(function () {
-			eden.execute(id + "_value = \"" + escapeQuotes(inputhtml.get(0).value) + "\";");
+			root.lookup(id + "_value").netAssign(inputhtml.get(0).value);
 		}, 0);
 
 		inputhtml.change(function(){
-			eden.execute(id + "_value = \"" + escapeQuotes(inputhtml.get(0).value) + "\";");
+			root.lookup(id + "_value").netAssign(inputhtml.get(0).value);
 		});
 		root.lookup(id + "_drawable").assign(this);
 		this.element = inputhtml.get(0);
@@ -70,7 +70,4 @@ ${{
 Inputbox.prototype.toString = function() {
   return "Inputbox(" + this.name + "," + this.x + ", "+this.y+", "+this.enabled+")";
 };
-function escapeQuotes(str){
-	return str.replace(/\\/g,"\\\\").replace(/\"/g,'\\\"');
-}
 }}$;

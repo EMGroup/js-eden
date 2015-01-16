@@ -131,17 +131,17 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" width=\"550px\" height=\"380px\"></canvas>");
 		//Remove -dialog name suffix.
 		var displayedName = name.slice(0, -7);
-		var followMouse;
-		var mousePos;
 		code_entry.find(".canvashtml-canvas").on("mousedown",function(e) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			followMouse = true;
-			mousePos = root.lookup('Point').value().call(this, x, y);
-			if(followMouse){
-				eden.execute("mousePressed = true; mouseDownWindow = \"" + displayedName + "\"; mouseDown = {" + mousePos.x + ", " + mousePos.y + "};");
-			}else{
+			var followMouse = root.lookup("mouseFollow").value();
+			var mousePos = root.lookup('Point').value().call(this, x, y);
+			if (followMouse) {
+				root.lookup('mousePressed').netAssign(true);
+				root.lookup('mouseDownWindow').netAssign(displayedName);
+				root.lookup('mouseDown').netAssign(mousePos);
+			} else {
 				root.lookup('mousePressed').assign(true);
 				root.lookup('mouseDownWindow').assign(displayedName);
 				root.lookup('mouseDown').assign(mousePos);
@@ -150,11 +150,12 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			followMouse = true;
-			mousePos = root.lookup('Point').value().call(this, x, y);
-			if(followMouse){
-				eden.execute("mousePressed = false; mouseUp = {" + mousePos.x + ", " + mousePos.y + "};");
-			}else{
+			var followMouse = root.lookup("mouseFollow").value();
+			var mousePos = root.lookup('Point').value().call(this, x, y);
+			if (followMouse) {
+				root.lookup('mousePressed').netAssign(false);
+				root.lookup('mouseUp').netAssign(mousePos);
+			} else {
 				root.lookup('mousePressed').assign(false);
 				root.lookup('mouseUp').assign(mousePos);
 			}
@@ -162,11 +163,12 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			pos = $(this).offset();
 			x = e.pageX - pos.left;
 			y = e.pageY - pos.top;
-			followMouse = true;
-			mousePos = root.lookup('Point').value().call(this, x, y);
-			if(followMouse){
-				eden.execute("mouseWindow = \"" + displayedName + "\"; mousePosition = {" + mousePos.x + ", " + mousePos.y + "};");
-			}else{
+			var followMouse = root.lookup("mouseFollow").value();
+			var mousePos = root.lookup('Point').value().call(this, x, y);
+			if (followMouse) {
+				root.lookup('mouseWindow').netAssign(displayedName);
+				root.lookup('mousePosition').netAssign(root.lookup('Point').value().call(this, x, y));
+			} else {
 				root.lookup('mouseWindow').assign(displayedName);
 				root.lookup('mousePosition').assign(root.lookup('Point').value().call(this, x, y));
 			}
