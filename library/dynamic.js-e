@@ -186,7 +186,7 @@ func edenCode {
 		} else if (value === null) {
 			code = "$" + "{{ null }}" + "$";
 		} else if (type == "string") {
-			code = "\"" + value + "\"";
+			code = "\"" + value.replace(/\\/g,"\\\\").replace(/\"/g,"\\\"") + "\"";
 		} else if (Array.isArray(value)) {
 			code = "[";
 			for (var i = 0; i < value.length - 1; i++) {

@@ -42,7 +42,7 @@ ${{
 			if (this.enabled) {
 				dis = "";
 			} else {
-				dis = "disabled=\"true\"";
+				dis = "disabled=\"disabled\"";
 			}
 
 			var can = $(content);
@@ -55,7 +55,8 @@ ${{
 											'</input>';
 
 			var $input = $(inputHtml).click(function () {
-				triggerButton(name);
+				root.lookup(name + "_clicked").netAssign(true);
+				root.lookup(name + "_clicked").netAssign(false);
 			});
 
 			but = $input.get(0);
@@ -86,8 +87,5 @@ ${{
 		return "Button(\"" + this.name + "\", \"" + this.label + "\", " + this.x + ", "+this.y+", "+this.enabled+")";
 	};
 
-function triggerButton(name){
-	eden.execute(name + "_clicked = true; " + name + "_clicked = false;");
-}
 }}$;
 

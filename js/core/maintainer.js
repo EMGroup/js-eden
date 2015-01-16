@@ -347,6 +347,11 @@
 		return this;
 	};
 
+	Symbol.prototype.netAssign = function (value, modifying_agent) {
+		eden.emit("beforeJSAssign", [this, value, modifying_agent]);
+		this.assign(value, modifying_agent);
+	}
+	
 	/**
 	 * Change the current value of this symbol and notify
 	 *
