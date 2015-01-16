@@ -22,6 +22,7 @@
 ##
 proc alias {
 	para aliasN, original;
+	auto str;
 	if ($# != 2) {
 		error("alias: This procedure requires exactly two arguments.");
 		return;
