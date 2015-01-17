@@ -78,8 +78,8 @@ func Inputbox { ${{
   var enabled = arguments[3];
   var width = arguments[4];
   var value = arguments[5];
-  root.lookup(name + "_value").assign(value);  
-  return new Inputbox(name, x, y, enabled, width);
+  root.lookup(name + "_value").assign(value);
+  return new Textbox(name, x, y, width, 1, enabled);
 }}$; }
 
 func Slider { ${{
@@ -92,6 +92,13 @@ func Slider { ${{
   var x = arguments[6];
   var y = arguments[7];
   root.lookup(name + "_value").assign(value);
-  return new Slider(name, min, max, step, orientation, x, y);
+  return new Slider(name, min, max, step, x, y, 130, orientation, true);
 }}$; }
 
+func Textbox { ${{
+  var name = arguments[0];
+  var x = arguments[1];
+  var y = arguments[2];
+  var enabled = arguments[3];
+  return new Textbox(name, x, y, 130, 2, enabled);
+}}$; }

@@ -1,0 +1,77 @@
+${{
+Textbox = function (name, x, y, width, rows, enabled) {
+	this.name = name;
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.rows = rows;
+    this.enabled = enabled;
+}
+
+Textbox.prototype.hash = function () {
+	return this.name+"$$"+
+				this.x+"$$"+
+				this.y+"$$"+
+				this.width+"$$"+
+				this.rows+"$$"+
+				this.enabled;
+};
+}}$;
+
+func Textbox { ${{
+  var name = arguments[0];
+  var x = arguments[1];
+  var y = arguments[2];
+  var width = arguments[3];
+  var rows = arguments[4];
+  var enabled = arguments[5];
+  return new Textbox(name, x, y, width, rows, enabled);
+}}$; }
+
+${{
+Textbox.prototype.draw = function(context,content) {
+
+	var canvas_obsname = "canvas_" + this.name;
+	var id = this.name;
+	var check = this.element;
+	var valueSymbol = root.lookup(id + "_value");
+	var value = valueSymbol.value();
+	root.lookup(id + "_drawing").assign(true);
+	if(check === undefined){
+
+		var disabled = this.enabled === false? "readonly=\"readonly\"" : "";
+		var html;
+		if (this.rows > 1) {
+			html = $("<textarea rows=\""+this.rows+"\" id=\""+canvas_obsname+"\" "+disabled+" style=\"position: absolute; width:"+this.width+"px; left: "+this.x+"px; top: "+this.y+"px;\" />");		
+		} else {
+			html = $("<input id=\""+canvas_obsname+"\" "+disabled+" style=\"position: absolute; width:"+this.width+"px; left: "+this.x+"px; top: "+this.y+"px;\" />");
+		}
+
+		if (value === undefined) {
+			valueSymbol.assign("", this);
+		} else {
+			html.get(0).value = value;
+		}
+
+		html.change(function(){
+			root.lookup(id + "_value").netAssign(html.get(0).value);
+		});
+		root.lookup(id + "_drawable").assign(this);
+		this.element = html.get(0);
+		html.get(0).togarbage = false;
+		eden.execute('proc ' + id + "_update" + " : " + id + "_value" + " { if (" + id + "_drawing){ return; } " + id + "_drawable.draw();}");
+
+  } else {
+
+		this.element.togarbage = false;
+		this.element.value = value;
+  }
+  root.lookup(id + "_drawing").assign(false);
+};
+}}$;
+
+${{
+Textbox.prototype.toString = function() {
+  return "Textbox(" + this.name + "," + this.x + ", " + this.y + ", " + this.width + ", " + this.rows + ", " + this.enabled + ")";
+};
+}}$;

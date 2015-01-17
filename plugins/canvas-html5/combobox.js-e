@@ -56,12 +56,9 @@ Combobox.prototype.draw = function(context,content) {
 	var that = this;
 	root.lookup(drawingName).assign(true);
 	if (box === undefined) {
-		var dis = "";
-		if (this.enabled == true) { dis = ""; }
-		else { dis = "disabled=\"true\""; }
-
+		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
 		var can = $(content);
-		var boxhtml = $("<select id=\"" + me + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
+		var boxhtml = $("<select id=\"" + me + "\" " + disabled + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
 
 		boxhtml.html(makeoptionshtml(this.options));
 		updateVal(boxhtml);

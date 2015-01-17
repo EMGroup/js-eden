@@ -37,22 +37,16 @@ ${{
 		var but = this.element;
 
 		if (but === undefined){
-			var dis = "";
 
-			if (this.enabled) {
-				dis = "";
-			} else {
-				dis = "disabled=\"disabled\"";
-			}
-
+			var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
 			var can = $(content);
 			var inputHtml = '<input  type="button"' +
-															'value="' + this.label + '"' + dis +
-															'style="' +
-																'position: absolute;' +
-																'left: ' + this.x + 'px;' +
-																'top: ' + this.y + 'px;"' +
-											'</input>';
+				'value="' + this.label + '"' + disabled +
+				'style="' +
+					'position: absolute;' +
+					'left: ' + this.x + 'px;' +
+					'top: ' + this.y + 'px;"' +
+				'/>';
 
 			var $input = $(inputHtml).click(function () {
 				root.lookup(name + "_clicked").netAssign(true);

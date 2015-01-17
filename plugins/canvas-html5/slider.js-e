@@ -4,15 +4,16 @@
 ## See LICENSE.txt
 
 ${{
-Slider = function(name, min, max, step, orientation, x, y, length) {
+Slider = function(name, min, max, step, x, y, length, orientation, enabled) {
   this.name = name;
   this.min = min;
   this.max = max;
   this.step = step;
-  this.orientation = orientation;
   this.x = x;
   this.y = y;
-  this.length = length === undefined? 130 : length;
+  this.length = length;
+  this.orientation = orientation;
+  this.enabled = enabled;
 }
 
 Slider.prototype.hash = function () {
@@ -20,10 +21,11 @@ Slider.prototype.hash = function () {
 				this.min+"$$"+
 				this.max+"$$"+
 				this.step+"$$"+
-				this.orientation+"$$"+
 				this.x+"$$"+
 				this.y+"$$"+
-				this.length;
+				this.length+"$$"+
+				this.orientation+"$$"+
+				this.enabled;
 };
 }}$;
 
@@ -32,11 +34,12 @@ func Slider { ${{
   var min = arguments[1];
   var max = arguments[2];
   var step = arguments[3];
-  var orientation = arguments[4];
-  var x = arguments[5];
-  var y = arguments[6];
-  var length = arguments[7];
-  return new Slider(name, min, max, step, orientation, x, y, length);
+  var x = arguments[4];
+  var y = arguments[5];
+  var length = arguments[6];
+  var orientation = arguments[7];
+  var enabled = arguments[8];
+  return new Slider(name, min, max, step, x, y, length, orientation, enabled);
 }}$; }
 
 ${{
@@ -71,7 +74,8 @@ Slider.prototype.draw = function(context,content) {
 		}
 		root.lookup(this.name + "_preview").assign(value, this);
 
-		var inputhtml = (($('<input ' +
+		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
+		var inputhtml = (($('<input ' + disabled +
 			'id="' + me + '" ' +
 			'style="position:absolute; ' + topCSS + ' left:' + this.x.toString() + 'px; width:' + this.length.toString() + 'px; ' + orientationCSS + '" ' +
 			'value="' + value.toString() + '" ' +
@@ -91,11 +95,6 @@ Slider.prototype.draw = function(context,content) {
 
 		setTimeout(function () {
 			//Assign obs value
-			root.lookup(me2 + "_x").netAssign(that.x);
-			root.lookup(me2 + "_y").netAssign(that.y);
-			root.lookup(me2 + "_min").netAssign(that.min);
-			root.lookup(me2 + "_max").netAssign(that.max);
-			root.lookup(me2 + "_step").netAssign(that.step);
 			var actualValue = parseInt(that.element.value);
 			if (actualValue != value) {
 				//Old value not divisible by new step size.
