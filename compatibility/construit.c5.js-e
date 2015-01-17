@@ -50,15 +50,3 @@ func oldCircle {
 }
 
 patch(&oldCircle, &Circle);
-
-func Slider { ${{
-  var name = arguments[0];
-  var min = arguments[1];
-  var max = arguments[2];
-  var step = arguments[3];
-  var value = arguments[4];
-  var orientation = arguments[5] == "vertical"? "up" : "horizontal";
-  var x = arguments[6];
-  var y = arguments[7];
-  return new Slider(name, min, max, step, value, orientation, x, y, 130);
-}}$; }
