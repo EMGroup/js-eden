@@ -33,7 +33,7 @@ func ceil {
 		if (number === undefined) {
 			return undefined;
 		} else if (typeof(number) != "number") {
-			eden.error(new Error("round: The first argument must be a number, not a " + typeof(number)), "error");
+			eden.error(new Error("ceil: The first argument must be a number, not a " + typeof(number)), "error");
 			return undefined;
 		}
 
@@ -48,7 +48,7 @@ func ceil {
 			if (multiple === undefined) {
 				return undefined;
 			} else if (typeof(multiple) != "number") {
-				eden.error(new Error("round: The second argument must be a number, not a " + typeof(multiple)), "error");
+				eden.error(new Error("ceil: The second argument must be a number, not a " + typeof(multiple)), "error");
 				return undefined;
 			} else {
 				var divided = number / multiple;
