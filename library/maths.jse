@@ -41,20 +41,18 @@ func ceil {
 		
 		if (multiple === 1) {
 			return Math.ceil(number);		
+		} else if (multiple === undefined) {
+			return undefined;
+		} else if (typeof(multiple) != "number") {
+			eden.error(new Error("ceil: The second argument must be a number, not a " + typeof(multiple)), "error");
+			return undefined;
 		} else {
-			if (multiple === undefined) {
-				return undefined;
-			} else if (typeof(multiple) != "number") {
-				eden.error(new Error("ceil: The second argument must be a number, not a " + typeof(multiple)), "error");
-				return undefined;
+			var divided = number / multiple;
+			var truncated = parseInt(divided);
+			if (divided == truncated) {
+				return number;
 			} else {
-				var divided = number / multiple;
-				var truncated = parseInt(divided);
-				if (divided == truncated) {
-					return number;
-				} else {
-					return (truncated + 1) * multiple;
-				}
+				return (truncated + 1) * multiple;
 			}
 		}
 	}}$;
@@ -85,7 +83,9 @@ func floor {
 
 		var multiple = arguments[1];
 		
-		if (multiple === undefined) {
+		if (multiple === 1) {
+			return Math.floor(number);
+		} else if (multiple === undefined) {
 			return undefined;
 		} else if (typeof(multiple) != "number") {
 			eden.error(new Error("floor: The second argument must be a number, not a " + typeof(multiple)), "error");
@@ -235,21 +235,19 @@ func round {
 			decimalPlaces = 0;
 		}
 		
-		if (decimalPlaces !== 0) {
-			if (decimalPlaces === undefined) {
-				return undefined;
-			} else if (typeof(decimalPlaces) != "number") {
-				eden.error(new Error("round: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
-				return undefined;
-			} else if (decimalPlaces != parseInt(decimalPlaces) && !isNaN(decimalPlaces)) {
-				eden.error(new Error("round: The second argument must be an int, not a float"), "error");
-				return undefined;
-			} else {
-				var multiplier = Math.pow(10, decimalPlaces);
-				return Math.round(number * multiplier) / multiplier;
-			}
-		} else {
+		if (decimalPlaces === 0) {
 			return Math.round(number);
+		} else if (decimalPlaces === undefined) {
+			return undefined;
+		} else if (typeof(decimalPlaces) != "number") {
+			eden.error(new Error("round: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
+			return undefined;
+		} else if (decimalPlaces != parseInt(decimalPlaces) && !isNaN(decimalPlaces)) {
+			eden.error(new Error("round: The second argument must be an int, not a float"), "error");
+			return undefined;
+		} else {
+			var multiplier = Math.pow(10, decimalPlaces);
+			return Math.round(number * multiplier) / multiplier;
 		}
 	}}$;
 }
