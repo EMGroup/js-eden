@@ -322,6 +322,12 @@
 	/**
 	 * Change the current value of this symbol and notify.
 	 *
+	 * If this is called other than from within a ${{ }}$ block (for example
+	 * inside a JavaScript event handler), then the assignment won't be
+	 * propagated to other instances of JS-EDEN connected via the state listener
+	 * plug-in.  Use the netAssign function if the assignment needs to be
+	 * propagated to other instances of JS-EDEN.
+	 *
 	 * @param {*} value
 	 * @param {Symbol} modifying_agent
 	 */
@@ -347,6 +353,13 @@
 		return this;
 	};
 
+	/**
+	 * Change the current value of this symbol and notify both locally and
+	 * remotely via the state listener plug-in.
+	 *
+	 * @param {*} value
+	 * @param {Symbol} modifying_agent
+	 */
 	Symbol.prototype.netAssign = function (value, modifying_agent) {
 		eden.emit("beforeNetAssign", [this, value, modifying_agent]);
 		this.assign(value, modifying_agent);
