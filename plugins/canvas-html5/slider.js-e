@@ -4,12 +4,11 @@
 ## See LICENSE.txt
 
 ${{
-Slider = function(name, min, max, step, value, orientation, x, y, length) {
+Slider = function(name, min, max, step, orientation, x, y, length) {
   this.name = name;
   this.min = min;
   this.max = max;
   this.step = step;
-  this.value = value;
   this.orientation = orientation;
   this.x = x;
   this.y = y;
@@ -21,7 +20,6 @@ Slider.prototype.hash = function () {
 				this.min+"$$"+
 				this.max+"$$"+
 				this.step+"$$"+
-				this.value+"$$"+
 				this.orientation+"$$"+
 				this.x+"$$"+
 				this.y+"$$"+
@@ -34,12 +32,11 @@ func Slider { ${{
   var min = arguments[1];
   var max = arguments[2];
   var step = arguments[3];
-  var value = arguments[4];
-  var orientation = arguments[5];
-  var x = arguments[6];
-  var y = arguments[7];
-  var length = arguments[8];
-  return new Slider(name, min, max, step, value, orientation, x, y, length);
+  var orientation = arguments[4];
+  var x = arguments[5];
+  var y = arguments[6];
+  var length = arguments[7];
+  return new Slider(name, min, max, step, orientation, x, y, length);
 }}$; }
 
 ${{
@@ -66,10 +63,16 @@ Slider.prototype.draw = function(context,content) {
 		}
 
 
+		var valueSymbol = root.lookup(this.name + "_value");
+		var value = valueSymbol.value();
+		if (value === undefined) {
+			value = this.min;
+		}
+
 		var inputhtml = (($('<input ' +
 			'id="' + me + '" ' +
 			'style="position:absolute; ' + topCSS + ' left:' + this.x.toString() + 'px; width:' + this.length.toString() + 'px; ' + orientationCSS + '" ' +
-			'value="' + this.value.toString() + '" ' +
+			'value="' + value.toString() + '" ' +
 			'type="range" ' +
 			'name="' + this.name + '" ' +
 			'min="' + this.min.toString() + '" ' +
@@ -86,12 +89,16 @@ Slider.prototype.draw = function(context,content) {
 
 		setTimeout(function () {
 			//Assign obs value
-			root.lookup(me2 + "_value").netAssign(that.value);
 			root.lookup(me2 + "_x").netAssign(that.x);
 			root.lookup(me2 + "_y").netAssign(that.y);
 			root.lookup(me2 + "_min").netAssign(that.min);
 			root.lookup(me2 + "_max").netAssign(that.max);
 			root.lookup(me2 + "_step").netAssign(that.step);
+			var actualValue = parseInt(that.element.value);
+			if (actualValue != value) {
+				//Old value not divisible by new step size.
+				valueSymbol.netAssign(actualValue);
+			}
 		}, 0);
 		eden.execute("proc " + me2 + "_update : " + me2 + "_value { if (" + me2 + "_drawing){return;} " + me2 + "_drawable.draw();}");
 
@@ -106,6 +113,6 @@ Slider.prototype.draw = function(context,content) {
 
 ${{
 Slider.prototype.toString = function() {
-  return "Slider("+this.name+", "+this.min+", "+this.max+", "+this.step+", "+this.default+", "+this.orientation+", "+this.x+", "+this.y+")";
+  return "Slider("+this.name+", "+this.min+", "+this.max+", "+this.step+", "+this.orientation+", "+this.x+", "+this.y+", "+this.length+")";
 };
 }}$;
