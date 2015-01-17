@@ -156,20 +156,44 @@ func random {
 }
 
 func round {
-  para num, places;
-  auto i;
+	${{
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("round: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var number = arguments[0];
+		if (number === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("round: The first argument must be an int, not a " + typeof(number)), "error");
+			return undefined;
+		}
 
-  for (i = 1; i <= places; i++) {
-    num = num*10;
-  }
-
-  num = int(num);
-
-  for (i = 1; i <= places; i++) {
-    num = num/10;
-  }
-
-  return num;
+		var decimalPlaces;
+		if (arguments.length == 2) {
+			decimalPlaces = arguments[1];
+		} else {
+			decimalPlaces = 0;
+		}
+		
+		if (decimalPlaces !== 0) {
+			if (decimalPlaces === undefined) {
+				return undefined;
+			} else if (typeof(decimalPlaces) != "number") {
+				eden.error(new Error("round: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
+				return undefined;
+			} else if (decimalPlaces != parseInt(decimalPlaces) && !isNaN(decimalPlaces)) {
+				eden.error(new Error("round: The second argument must be an int, not a float"), "error");
+				return undefined;
+			} else {
+				var multiplier = Math.pow(10, decimalPlaces);
+				return Math.round(number * multiplier) / multiplier;
+			}
+		} else {
+			return Math.round(number);
+		}
+	}}$;
 }
 
 func sin {
