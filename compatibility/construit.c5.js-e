@@ -50,3 +50,27 @@ func oldCircle {
 }
 
 patch(&oldCircle, &Circle);
+
+func Inputbox { ${{
+  var name = arguments[0];
+  var x = arguments[1];
+  var y = arguments[2];
+  var enabled = arguments[3];
+  var width = arguments[4];
+  var value = arguments[5];
+  root.lookup(name + "_value").assign(value);  
+  return new Inputbox(name, x, y, enabled, width);
+}}$; }
+
+func Slider { ${{
+  var name = arguments[0];
+  var min = arguments[1];
+  var max = arguments[2];
+  var step = arguments[3];
+  var value = arguments[4];
+  var orientation = arguments[5];
+  var x = arguments[6];
+  var y = arguments[7];
+  root.lookup(name + "_value").assign(value);
+  return new Slider(name, min, max, step, orientation, x, y);
+}}$; }

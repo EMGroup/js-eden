@@ -1,11 +1,10 @@
 ${{
-Inputbox = function (name, x, y, enabled, width, value) {
+Inputbox = function (name, x, y, enabled, width) {
 	this.name = name;
 	this.x = x;
 	this.y = y;
     this.enabled = enabled;
 	this.width = width;
-	this.value = value;
 }
 
 Inputbox.prototype.hash = function () {
@@ -13,8 +12,7 @@ Inputbox.prototype.hash = function () {
 				this.x+"$$"+
 				this.y+"$$"+
 				this.enabled+"$$"+
-				this.width+"$$"+
-				this.value+"$$";
+				this.width+"$$";
 };
 
 }}$;
@@ -24,8 +22,7 @@ func Inputbox { ${{
   var y = arguments[2];
   var enabled = arguments[3];
   var width = arguments[4];
-  var value = arguments[5];
-  return new Inputbox(name, x, y, enabled, width, value);
+  return new Inputbox(name, x, y, enabled, width);
 }}$; }
 
 
@@ -44,10 +41,13 @@ Inputbox.prototype.draw = function(context,content) {
 
 		var inputhtml = $("<input id=\""+canvas_obsname+"\" "+dis+" style=\"position: absolute; width:"+this.width+"px; left: "+this.x+"px; top: "+this.y+"px;\" />");
 
-		inputhtml.get(0).value = this.value;
-		setTimeout(function () {
-			root.lookup(id + "_value").netAssign(inputhtml.get(0).value);
-		}, 0);
+		var valueSymbol = root.lookup(id + "_value");
+		var value = valueSymbol.value();
+		if (value !== undefined) {
+			inputhtml.get(0).value = value;
+		} else {
+			valueSymbol.assign("", this);
+		}
 
 		inputhtml.change(function(){
 			root.lookup(id + "_value").netAssign(inputhtml.get(0).value);
@@ -56,13 +56,13 @@ Inputbox.prototype.draw = function(context,content) {
 		this.element = inputhtml.get(0);
 		inputhtml.get(0).togarbage = false;
 		eden.execute('proc ' + id + "_update" + " : " + id + "_value" + " { if (" + id + "_drawing){ return; } " + id + "_drawable.draw();}");
-  }
-  else{
+
+  } else {
 
 		this.element.togarbage = false;
 		this.element.value = (root.lookup(this.name+"_value").cached_value);
   }
-	root.lookup(id + "_drawing").assign(false);
+  root.lookup(id + "_drawing").assign(false);
 };
 }}$;
 
