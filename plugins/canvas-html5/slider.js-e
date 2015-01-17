@@ -48,6 +48,8 @@ Slider.prototype.draw = function(context,content) {
 	var sli = this.element;
 	
 	root.lookup(me2 + "_drawing").assign(true);
+	var valueSymbol = root.lookup(this.name + "_value");
+	var value = valueSymbol.value();
 
 	if (sli === undefined) {
 		var orientationCSS = "";
@@ -63,10 +65,9 @@ Slider.prototype.draw = function(context,content) {
 		}
 
 
-		var valueSymbol = root.lookup(this.name + "_value");
-		var value = valueSymbol.value();
 		if (value === undefined) {
 			value = this.min;
+			valueSymbol.assign(value, this);
 		}
 
 		var inputhtml = (($('<input ' +
@@ -80,7 +81,7 @@ Slider.prototype.draw = function(context,content) {
 			'step="' + this.step.toString() + '" />')).on("change", function(){
 				root.lookup(me2 + "_value").netAssign(parseInt(this.value));
 			}).on("input", function(){
-				root.lookup(me2 + "_value").netAssign(parseInt(this.value));
+				root.lookup(me2 + "_preview").netAssign(parseInt(this.value));
 			}));
 
 		this.element = inputhtml.get(0);
@@ -104,7 +105,11 @@ Slider.prototype.draw = function(context,content) {
 
 	} else {
 		//Draw with the values stored in the observables
-		this.element.value = root.lookup(me2 + "_value").cached_value;
+		if (value === undefined) {
+			valueSymbol.assign(parseInt(this.element.value), this);
+		} else {
+			this.element.value = value.toString();
+		}
 		this.element.togarbage = false;
 	}
 	root.lookup(me2 + "_drawing").assign(false);
