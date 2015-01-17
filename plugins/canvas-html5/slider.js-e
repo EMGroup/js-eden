@@ -103,7 +103,7 @@ Slider.prototype.draw = function(context,content) {
 			}
 		}, 0);
 		eden.execute("proc " + me2 + "_update : " + me2 + "_value { if (" + me2 + "_drawing) return; if (" + me2 + "_preview != " + me2 + "_value) {" + me2 + "_preview = " + me2 + "_value; " + me2 + "_drawable.draw();}}");
-		eden.execute("proc " + me2 + "_update2 : " + me2 + "_preview { if (" + me2 + "_drawing) return; if (" + me2 + "_preview != " + me2 + "_value && $" + "{{ root.lookup('" + me2 + "_preview').last_modified_by == 'input' }}" + "$) {" + me2 + "_value = " + me2 + "_preview; " + me2 + "_drawable.draw();}}");
+		eden.execute("proc " + me2 + "_update2 : " + me2 + "_preview { if (" + me2 + "_drawing) return; if ($" + "{{ root.lookup('" + me2 + "_preview').last_modified_by == 'input' }}" + "$) {" + me2 + "_value = " + me2 + "_preview; " + me2 + "_drawable.draw();}}");
 	} else {
 		//Draw with the values stored in the observables
 		if (value === undefined) {
