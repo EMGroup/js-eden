@@ -23,7 +23,46 @@ func atan {
 }
 
 func ceil {
-  return ${{ Math.ceil(arguments[0]); }}$;
+	${{
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("ceil: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var number = arguments[0];
+		if (number === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("round: The first argument must be a number, not a " + typeof(number)), "error");
+			return undefined;
+		}
+
+		var multiple;
+		if (arguments.length == 2) {
+			multiple = arguments[1];
+		} else {
+			multiple = 1;
+		}
+		
+		if (multiple !== 1) {
+			if (multiple === undefined) {
+				return undefined;
+			} else if (typeof(multiple) != "number") {
+				eden.error(new Error("round: The second argument must be a number, not a " + typeof(multiple)), "error");
+				return undefined;
+			} else {
+				var divided = number / multiple;
+				var truncated = parseInt(divided);
+				if (divided == truncated) {
+					return number;
+				} else {
+					return (truncated + 1) * multiple;
+				}
+			}
+		} else {
+			return Math.ceil(number);
+		}
+	}}$;
 }
 
 func cos {
@@ -35,7 +74,31 @@ func exp {
 }
 
 func floor {
-  return ${{ Math.floor(arguments[0]); }}$;
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("floor: This function requires exactly 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var number = arguments[0];
+		if (number === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("floor: The first argument must be a number, not a " + typeof(number)), "error");
+			return undefined;
+		}
+
+		var multiple = arguments[1];
+		
+		if (multiple === undefined) {
+			return undefined;
+		} else if (typeof(multiple) != "number") {
+			eden.error(new Error("floor: The second argument must be a number, not a " + typeof(multiple)), "error");
+			return undefined;
+		} else {
+			return parseInt(number / multiple) * multiple;
+		}
+	}}$;
 }
 
 func log {
@@ -166,7 +229,7 @@ func round {
 		if (number === undefined) {
 			return undefined;
 		} else if (typeof(number) != "number") {
-			eden.error(new Error("round: The first argument must be an int, not a " + typeof(number)), "error");
+			eden.error(new Error("round: The first argument must be a number, not a " + typeof(number)), "error");
 			return undefined;
 		}
 
