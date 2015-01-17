@@ -24,8 +24,8 @@ func atan {
 
 func ceil {
 	${{
-		if (arguments.length == 0 || arguments.length > 2) {
-			eden.error(new Error("ceil: This function requires at least 1 argument and at most 2 arguments."), "error");
+		if (arguments.length != 2) {
+			eden.error(new Error("ceil: This function requires at exactly 2 arguments."), "error");
 			return undefined;
 		}
 		
@@ -37,14 +37,11 @@ func ceil {
 			return undefined;
 		}
 
-		var multiple;
-		if (arguments.length == 2) {
-			multiple = arguments[1];
-		} else {
-			multiple = 1;
-		}
+		var multiple = arguments[1];
 		
-		if (multiple !== 1) {
+		if (multiple === 1) {
+			return Math.ceil(number);		
+		} else {
 			if (multiple === undefined) {
 				return undefined;
 			} else if (typeof(multiple) != "number") {
@@ -59,8 +56,6 @@ func ceil {
 					return (truncated + 1) * multiple;
 				}
 			}
-		} else {
-			return Math.ceil(number);
 		}
 	}}$;
 }

@@ -41,6 +41,16 @@ func oldArc {
 
 patch(&oldArc, &Arc);
 
+func oldCeil {
+	para newCeil, params;
+	if (params# < 2) {
+		return newCeil(params[1], 1);
+	} else {
+		return newCeil(params[1], params[2]);
+	}
+}
+patch(&oldCeil, &ceil);
+
 func oldCircle {
 	para newCircle, params;
 	auto fillColour, outlineColour;
@@ -50,6 +60,16 @@ func oldCircle {
 }
 
 patch(&oldCircle, &Circle);
+
+func oldFloor {
+	para newFloor, params;
+	if (params# < 2) {
+		return newFloor(params[1], 1);
+	} else {
+		return newFloor(params[1], params[2]);
+	}
+}
+patch(&oldFloor, &floor);
 
 func Inputbox { ${{
   var name = arguments[0];
@@ -74,3 +94,4 @@ func Slider { ${{
   root.lookup(name + "_value").assign(value);
   return new Slider(name, min, max, step, orientation, x, y);
 }}$; }
+
