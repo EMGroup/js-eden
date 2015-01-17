@@ -58,7 +58,7 @@ Slider.prototype.draw = function(context,content) {
 		if (this.orientation == "down"){
 			orientationCSS = "transform: rotate(90deg);"
 			topCSS = "top: " + (this.y + this.length / 2).toString() + "px;";
-		} else if (this.orientation == "up") {
+		} else if (this.orientation == "up" || this.orientation == "vertical") {
 			orientationCSS = "transform: rotate(-90deg);"
 			topCSS = "top: " + (this.y + this.length / 2).toString() + "px;";
 		} else {
