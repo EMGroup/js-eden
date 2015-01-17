@@ -68,6 +68,7 @@ Slider.prototype.draw = function(context,content) {
 		if (value === undefined) {
 			value = this.min;
 			valueSymbol.assign(value, this);
+			root.lookup(this.name + "_preview").assign(value, this);
 		}
 
 		var inputhtml = (($('<input ' +
@@ -101,12 +102,12 @@ Slider.prototype.draw = function(context,content) {
 				valueSymbol.netAssign(actualValue);
 			}
 		}, 0);
-		eden.execute("proc " + me2 + "_update : " + me2 + "_value { if (" + me2 + "_drawing){return;} " + me2 + "_drawable.draw();}");
-
+		eden.execute("proc " + me2 + "_update : " + me2 + "_value { if (" + me2 + "_drawing){return;} " + me2 + "_preview = " + me2 + "_value; " + me2 + "_drawable.draw();}");
 	} else {
 		//Draw with the values stored in the observables
 		if (value === undefined) {
 			valueSymbol.assign(parseInt(this.element.value), this);
+			root.lookup(this.name + "_preview").assign(this.element.value, this);
 		} else {
 			this.element.value = value.toString();
 		}
