@@ -82,6 +82,12 @@ func Inputbox { ${{
   return new Textbox(name, x, y, width, 1, enabled);
 }}$; }
 
+func rand {
+  ${{
+	return Math.floor(Math.random()*32767);
+  }}$;
+};
+
 func Slider { ${{
   var name = arguments[0];
   var min = arguments[1];

@@ -5,7 +5,12 @@
 
 ##MISSING FUNCTIONS
 
-func eager {};
+proc eager {
+	if (autocalc == 0) {
+		autocalc = 1;
+		autocalc = 0;
+	};
+};
 
 func time {
   ${{
@@ -21,12 +26,6 @@ proc writeln {
 	if (edenUI.plugins.MenuBar) {
 		edenUI.plugins.MenuBar.updateStatus("Output: "+t);
 	}
-  }}$;
-};
-
-func rand {
-  ${{
-	return Math.floor(Math.random()*32767);
   }}$;
 };
 
