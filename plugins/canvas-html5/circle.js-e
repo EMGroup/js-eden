@@ -47,17 +47,14 @@ Circle.prototype.draw = function(context) {
 }}$;
 ${{
 Circle.prototype.toString = function() {
-	var s = "Circle(" +
-		this.x.toString() + ", " +
-		this.y.toString() + ", " +
-		this.radius.toString() + ", ";
+	var s = "Circle(" + this.x + ", " + this.y + ", " + this.radius + ", ";
 
 	if (this.fillcolour === undefined) {
 		s = s + "@, ";
 	} else {
-		s = s + this.fillcolour.toString() +", ";
+		s = s + this.fillcolour +", ";
 	}
-	s = s + this.outlinecolour.toString();
+	s = s + this.outlinecolour;
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);

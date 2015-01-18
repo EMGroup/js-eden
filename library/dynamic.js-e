@@ -211,11 +211,13 @@ func edenCode {
 				"parent" in value &&
 				value.parent instanceof Symbol
 			) {
-				code = "&" + value.parent.name.slice(1) + "[" + value.keys[0].toString() + "]";
+				code = "&" + value.parent.name.slice(1) + "[" + value.keys[0] + "]";
 			} else {
 				code = "{";
 				for (var key in value) {
-					code = code + key + ": " + root.lookup("edenCode").definition(root)(value[key]) + ", ";
+					if (!(key in Object.prototype)) {
+						code = code + key + ": " + root.lookup("edenCode").definition(root)(value[key]) + ", ";
+					}
 				}
 				if (code != "{") {
 					code = code.slice(0, -2);
@@ -223,9 +225,9 @@ func edenCode {
 				code = code + "}";
 			}
 		} else if (type == "function") {
-			code = "$" +"{{ " + value.toString() + " }}" + "$";
+			code = "$" +"{{ " + value + " }}" + "$";
 		} else {
-			code = value.toString();
+			code = String(value);
 		}
 		return code;
 	}}$;

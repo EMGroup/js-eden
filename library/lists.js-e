@@ -308,7 +308,7 @@ func sort {
 				}
 			}
 		} else if (typeof(sortFunction) != "function") {
-			eden.error(new Error("sort: unknown collation order " + (sortFunction === null? "null" : sortFunction.toString())), "error");
+			eden.error(new Error("sort: unknown collation order " + sortFunction), "error");
 			return undefined;
 		}
 		

@@ -64,7 +64,7 @@ Slider.prototype.draw = function(context,content) {
 			orientationCSS = "transform: rotate(-90deg);"
 			topCSS = "top: " + (this.y + this.length / 2).toString() + "px;";
 		} else {
-			topCSS = "top: " + this.y.toString() + "px;";		
+			topCSS = "top: " + this.y + "px;";		
 		}
 
 
@@ -77,13 +77,13 @@ Slider.prototype.draw = function(context,content) {
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
 		var inputhtml = (($('<input ' + disabled +
 			'id="' + me + '" ' +
-			'style="position:absolute; ' + topCSS + ' left:' + this.x.toString() + 'px; width:' + this.length.toString() + 'px; ' + orientationCSS + '" ' +
-			'value="' + value.toString() + '" ' +
+			'style="position:absolute; ' + topCSS + ' left:' + this.x + 'px; width:' + this.length + 'px; ' + orientationCSS + '" ' +
+			'value="' + value + '" ' +
 			'type="range" ' +
 			'name="' + this.name + '" ' +
-			'min="' + this.min.toString() + '" ' +
-			'max="' + this.max.toString() + '" ' +
-			'step="' + this.step.toString() + '" />')).on("change", function(){
+			'min="' + this.min + '" ' +
+			'max="' + this.max + '" ' +
+			'step="' + this.step + '" />')).on("change", function(){
 				root.lookup(me2 + "_value").netAssign(parseInt(this.value));
 			}).on("input", function(){
 				root.lookup(me2 + "_preview").netAssign(parseInt(this.value));
@@ -109,7 +109,7 @@ Slider.prototype.draw = function(context,content) {
 			valueSymbol.assign(parseInt(this.element.value), this);
 			root.lookup(this.name + "_preview").assign(parseInt(this.element.value), this);
 		} else {
-			this.element.value = value.toString();
+			this.element.value = String(value);
 		}
 		this.element.togarbage = false;
 	}
