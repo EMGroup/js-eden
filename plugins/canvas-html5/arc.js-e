@@ -29,17 +29,41 @@ func Arc { ${{
 
 ${{
 Arc.prototype.draw = function(context) {
+	var radiansPerUnit = root.lookup("radiansPerUnit").value();
 	var anticlockwise;
 	if (this.drawingOptions !== undefined && "direction" in this.drawingOptions) {
-		switch (this.drawingOptions.direction) {
-		case "minor":
-			anticlockwise = this.sAngle < this.eAngle;
+		var directionName, sAngleNormalized, eAngleNormalized, turnedThroughAC, twoPI;
+		directionName = this.drawingOptions.direction;
+		if (directionName == "major" || directionName == "minor") {
+			twoPI = 2 * Math.PI;
+			sAngleNormalized = (this.sAngle * radiansPerUnit) % twoPI;
+			if (sAngleNormalized < 0) {
+				sAngleNormalized = sAngleNormalized + twoPI;
+			}
+			eAngleNormalized = (this.eAngle * radiansPerUnit) % twoPI;
+			if (eAngleNormalized < 0) {
+				eAngleNormalized = eAngleNormalized + twoPI;
+			}
+			turnedThroughAC = eAngleNormalized - sAngleNormalized;
+			if (eAngleNormalized < sAngleNormalized) {
+				turnedThroughAC = turnedThroughAC + twoPI;
+			}
+		}
+		switch (directionName) {
+		case "anticlockwise":
+			anticlockwise = true;
 			break;
-		case "major":
-			anticlockwise = this.sAngle > this.eAngle;
+		case "auto":
+			anticlockwise = this.sAngle < this.eAngle;
 			break;
 		case "clockwise":
 			anticlockwise = false;
+			break;
+		case "major":
+			anticlockwise = turnedThroughAC > Math.PI;
+			break;
+		case "minor":
+			anticlockwise = turnedThroughAC <= Math.PI;
 			break;
 		default:
 			anticlockwise = true;
@@ -48,7 +72,7 @@ Arc.prototype.draw = function(context) {
 		anticlockwise = this.sAngle < this.eAngle;
 	}
 	context.beginPath();
-	context.arc(this.x, this.y, this.r, -this.sAngle * root.lookup("radiansPerUnit").value(), -this.eAngle * root.lookup("radiansPerUnit").value(), anticlockwise);
+	context.arc(this.x, this.y, this.r, -this.sAngle * radiansPerUnit, -this.eAngle * radiansPerUnit, anticlockwise);
 	context.strokeStyle = this.colour;
 	context.stroke();
 	context.closePath();
