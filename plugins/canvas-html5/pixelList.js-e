@@ -1,0 +1,72 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+##Returns a PixelList drawable.  The data argument should be a list of integers.
+##The first four elements of the list represent the red, green, blue and alpha
+##components of the first pixel respectively (all in the range 0-255).  The next
+##four elements represent the second pixel, going from left to right along the
+##top line of the block.  The data list should contain data for an exact number
+##of rows of the specified width.  Although cumbersome a PixelList is far
+##faster than using numerous individual Pixel objects for a block of any
+##significant size.
+##
+##Example:
+/*
+func colourMap {
+	para b;
+	auto data, i, j;
+	data = [];
+	for (j = 0; j <= 255; j++) {
+		for (i = 0; i <= 255; i++) {
+			append data, i;
+			append data, j;
+			append data, b;
+			append data, 255;
+		}
+	}
+	return data;
+}
+
+blue = 50;
+pixelData is colourMap(blue);
+pixels is PixelList(pixelData, 20, 20, 256);
+picture is [pixels];
+*/
+
+func PixelList {
+	${{
+		var data = arguments[0];
+		var x = arguments[1];
+		var y = arguments[2];
+		var width = arguments[3];
+		return new PixelList(data, x, y, width);
+	}}$;
+}
+
+${{
+function PixelList(data, x, y, width) {
+	this.data = data;
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = data.length / (4 * width);
+}
+
+PixelList.prototype.draw = function(context) {
+	var imageData = context.createImageData(this.width, this.height);
+	var imageArr = imageData.data;
+	var dataArr = this.data;
+	var arrayLen = dataArr.length;
+	for (var i = 0; i < arrayLen; i++) {
+		imageArr[i] = dataArr[i];
+	}
+	context.putImageData(imageData, this.x, this.y);
+}
+
+PixelList.prototype.toString = function() {
+	return "PixelList(" + (this.data.length / 4).toString() + " pixel values, " + this.x.toString() + ", " + this.y.toString() + ", " + this.width.toString() + ")";
+}
+
+}}$;

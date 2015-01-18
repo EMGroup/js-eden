@@ -38,7 +38,6 @@ Eden.systemAgentNames = [
 ];
 
 Eden.systemFunctionNames = [
-	"_keys",
 	"Arc",
 	"BulletSlide",
 	"Button",
@@ -48,19 +47,16 @@ Eden.systemFunctionNames = [
 	"Div",
 	"Image",
 	"Line",
-	"Matrix",
 	"Pixel",
-	"Plane",
+	"PixelList",
 	"Point",
 	"Polygon",
 	"RadioButtons",
 	"Rectangle",
 	"Slider",
-	"TestDraw",
 	"Text",
 	"Textbox",
 	"TitleSlide",
-	"Vector",
 	"abs",
 	"acos",
 	"apply",
@@ -90,7 +86,6 @@ Eden.systemFunctionNames = [
 	"hasProperty",
 	"hsl",
 	"include",
-	"includeSSI",
 	"include_css",
 	"indexOf",
 	"int",
@@ -143,8 +138,7 @@ Eden.systemFunctionNames = [
 	"translate",
 	"trim",
 	"type",
-	"uppercase",
-    "getInputWindowCode" //No longer exists?
+	"uppercase"
 ];
 Eden.isitSystemSymbol = function(name){
 
