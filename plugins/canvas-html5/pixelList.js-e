@@ -3,12 +3,12 @@
 ##
 ## See LICENSE.txt
 
-##Returns a PixelList drawable.  The data argument should be a list of integers.
-##The first four elements of the list represent the red, green, blue and alpha
-##components of the first pixel respectively (all in the range 0-255).  The next
-##four elements represent the second pixel, going from left to right along the
+##Returns a PixelList drawable.  The data argument should be a pointer to a list of
+##integers.  The first four elements of the list represent the red, green, blue and
+##alpha components of the first pixel respectively (all in the range 0-255).  The
+##next four elements represent the second pixel, going from left to right along the
 ##top line of the block.  The data list should contain data for an exact number
-##of rows of the specified width.  Although cumbersome a PixelList is far
+##of rows of the specified width.  Although cumbersome a PixelList performs far
 ##faster than using numerous individual Pixel objects for a block of any
 ##significant size.
 ##
@@ -31,27 +31,27 @@ func colourMap {
 
 blue = 50;
 pixelData is colourMap(blue);
-pixels is PixelList(pixelData, 20, 20, 256);
+pixels is PixelList(&pixelData, 20, 20, 256);
 picture is [pixels];
 */
 
 func PixelList {
 	${{
-		var data = arguments[0];
+		var ptrToData = arguments[0];
 		var x = arguments[1];
 		var y = arguments[2];
 		var width = arguments[3];
-		return new PixelList(data, x, y, width);
+		return new PixelList(ptrToData, x, y, width);
 	}}$;
 }
 
 ${{
-function PixelList(data, x, y, width) {
-	this.data = data;
+function PixelList(ptrToData, x, y, width) {
+	this.data = ptrToData.value();
 	this.x = x;
 	this.y = y;
 	this.width = width;
-	this.height = data.length / (4 * width);
+	this.height = this.data.length / (4 * width);
 }
 
 PixelList.prototype.draw = function(context) {

@@ -11,6 +11,15 @@
  * @class Input Window Plugin
  */
 
+if (!("time" in console)) {
+	console.time = function (timerName) {
+		return;
+	};
+	console.endTime = function (timerName) {
+		return;
+	};
+}
+ 
 EdenUI.plugins.InputWindow = function(edenUI, success) {
 
 	var me = this;
@@ -75,8 +84,10 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 
 	this.submitEdenCode = function (text) {
 		this.addHistory(text);
+		console.time("submitEdenCode");
 		edenUI.eden.execute(text, 'input', '', {name: 'input'});
-			
+		console.timeEnd("submitEdenCode");
+		
 		if (historydialog !== undefined) {
 			historydialog.html(this.generateHistory());
 		}
