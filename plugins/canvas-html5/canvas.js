@@ -112,16 +112,23 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 		if (options === undefined) {
 			return;
 		}
-		
-		if ("lineWidth" in options) {
-			context.lineWidth = options.lineWidth;
-		}
-		
+			
 		if ("dashes" in options) {
 			context.setLineDash(options.dashes);
 			if ("dashOffset" in options) {
 				context.lineDashOffset = options.dashOffset;
 			}
+		}
+
+		if ("lineWidth" in options) {
+			context.lineWidth = options.lineWidth;
+		}
+		
+		if ("shadow" in options) {
+			context.shadowColor = options.shadow.colour;
+			context.shadowBlur = options.shadow.blur;
+			context.shadowOffsetX = options.shadow.xOffset;
+			context.shadowOffsetY = options.shadow.yOffset;
 		}
 	}
 	

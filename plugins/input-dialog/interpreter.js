@@ -5,12 +5,15 @@
  * See LICENSE.txt
  */
 
-/**
- * JS-Eden Interpreter Window Plugin.
- * Which is better than the one with all the widget cak.
- * @class Input Window Plugin
- */
-
+ 
+ // First of all, prevent missing browser functionality from causing errors.
+/*
+ * If supported by the browser then JS-EDEN will measure how long it takes to
+ * execute the user's code each time they press the submit button in the input
+ * window and print the result in the JavaScript console.  If the browser
+ * doesn't natively support making timing measurements then the functionality is
+ * simply disabled.
+*/
 if (!("time" in console)) {
 	console.time = function (timerName) {
 		return;
@@ -20,6 +23,11 @@ if (!("time" in console)) {
 	};
 }
  
+/**
+ * JS-Eden Interpreter Window Plugin.
+ * Which is better than the one with all the widget cak.
+ * @class Input Window Plugin
+ */
 EdenUI.plugins.InputWindow = function(edenUI, success) {
 
 	var me = this;

@@ -3,7 +3,7 @@
 ##
 ## See LICENSE.txt
 
-##Returns a PixelList drawable.  The data argument should be a pointer to a list of
+##Returns a PixelList drawable.  The ptrToData argument should be a pointer to a list of
 ##integers.  The first four elements of the list represent the red, green, blue and
 ##alpha components of the first pixel respectively (all in the range 0-255).  The
 ##next four elements represent the second pixel, going from left to right along the
@@ -14,25 +14,25 @@
 ##
 ##Example:
 /*
-func colourMap {
-	para b;
-	auto data, i, j;
-	data = [];
-	for (j = 0; j <= 255; j++) {
-		for (i = 0; i <= 255; i++) {
-			append data, i;
-			append data, j;
-			append data, b;
-			append data, 255;
+	func colourMap {
+		para b;
+		auto data, i, j;
+		data = [];
+		for (j = 0; j <= 255; j++) {
+			for (i = 0; i <= 255; i++) {
+				append data, i;
+				append data, j;
+				append data, b;
+				append data, 255;
+			}
 		}
+		return data;
 	}
-	return data;
-}
 
-blue = 50;
-pixelData is colourMap(blue);
-pixels is PixelList(&pixelData, 20, 20, 256);
-picture is [pixels];
+	blue = 50;
+	pixelData is colourMap(blue);
+	pixels is PixelList(&pixelData, 20, 20, 256);
+	picture is [pixels];
 */
 
 func PixelList {

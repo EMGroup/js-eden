@@ -53,6 +53,7 @@ Eden.systemFunctionNames = [
 	"Polygon",
 	"RadioButtons",
 	"Rectangle",
+	"Shadow",
 	"Slider",
 	"Text",
 	"Textbox",

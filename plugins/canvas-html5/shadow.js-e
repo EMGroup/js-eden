@@ -1,0 +1,27 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+func Shadow {
+	${{
+		var colour = arguments[0];
+		var blur = arguments[1];
+		var xOffset = arguments[2];
+		var yOffset = arguments[3];
+		return new Shadow(colour, blur, xOffset, yOffset);
+	}}$;
+}
+
+${{
+	function Shadow(colour, blur, xOffset, yOffset) {
+		this.colour = colour;
+		this.blur = blur;
+		this.xOffset = xOffset;
+		this.yOffset = yOffset;
+	}
+
+	Shadow.prototype.toString = function() {
+		return "Shadow(" + this.colour + ", " + this.blur + ", " + this.xOffset + ", " + this.yOffset + ")";
+	}
+}}$;
