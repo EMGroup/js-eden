@@ -46,6 +46,7 @@ Eden.systemFunctionNames = [
 	"Circle",
 	"Combobox",
 	"Div",
+	"Ellipse",
 	"Image",
 	"Line",
 	"Pixel",

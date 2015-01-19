@@ -1,25 +1,27 @@
-## Copyright (c) 2013, Empirical Modelling Group
+## Copyright (c) 2015, Empirical Modelling Group
 ## All rights reserved.
 ##
 ## See LICENSE.txt
 
 ${{
-Circle = function(x, y, radius, fillcolour, outlinecolour, drawingOptions) {
+Ellipse = function(x, y, xradius, yradius, fillcolour, outlinecolour, drawingOptions) {
   this.x = x;
   this.y = y;
-  this.radius = radius;
+  this.xradius = xradius;
+  this.yradius = yradius;
   this.fillcolour = fillcolour;
   this.outlinecolour = outlinecolour;
   this.drawingOptions = drawingOptions;
 }
 }}$;
 
-func Circle { ${{
+func Ellipse { ${{
 	var x = arguments[0];
 	var y = arguments[1];
-	var radius = arguments[2];
-	var fillcolour = arguments[3];
-	var outlinecolour = arguments[4];
+	var xradius = arguments[2];
+	var yradius = arguments[3];
+	var fillcolour = arguments[4];
+	var outlinecolour = arguments[5];
 	if (outlinecolour === undefined) {
 		if (fillcolour === undefined) {
 			outlinecolour = "black";
@@ -27,14 +29,16 @@ func Circle { ${{
 			outlinecolour = fillcolour;
 		}
 	}
-	var drawingOptions = arguments[5];
-	return new Circle(x, y, radius, fillcolour, outlinecolour, drawingOptions);
+	var drawingOptions = arguments[6];
+	return new Ellipse(x, y, xradius, yradius, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
 ${{
-Circle.prototype.draw = function(context) {
+Ellipse.prototype.draw = function(context) {
+	var scaleFactor = this.yradius / this.xradius;
+	context.scale(1, scaleFactor);
 	context.beginPath();
-	context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
+	context.arc(this.x, this.y / scaleFactor, this.xradius, 0, 2 * Math.PI, false);
 	context.closePath();
  
 	if (this.fillcolour !== undefined) {
@@ -46,8 +50,8 @@ Circle.prototype.draw = function(context) {
 };
 }}$;
 ${{
-Circle.prototype.toString = function() {
-	var s = "Circle(" + this.x + ", " + this.y + ", " + this.radius + ", ";
+Ellipse.prototype.toString = function() {
+	var s = "Ellipse(" + this.x + ", " + this.y + ", " + this.xradius + ", " + this.yradius + ", ";
 
 	if (this.fillcolour === undefined) {
 		s = s + "@, ";

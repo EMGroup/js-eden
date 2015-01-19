@@ -492,6 +492,19 @@
 			"return": "",
 			"description": ""
 		},
+		"Ellipse": {
+			"parameters": {
+				"x": "Centre X-coordinate",
+				"y": "Centre Y-coordinate",
+				"x_radius": "Ellipse x-axis radius from centre",
+				"y_radius": "Ellipse y-axis radius from centre",
+				"[fill_colour": "Fill colour for the ellipse on the canvas",
+				"[outline_colour": "Outline colour of the ellipse on the canvas",
+				"[drawing_options]]]": ""
+			},
+			"return": "Circle object",
+			"description": "Creates an ellipse element for display on the canvas"
+		},
 		"Line": {
 			"parameters": {
 				"x1": "X-coordinate for start",
