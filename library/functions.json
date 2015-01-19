@@ -534,6 +534,20 @@
 			"return": "Polygon object",
 			"description": "Creates a polygon element for display on the canvas"
         },
+		"Sector": {
+			"parameters": {
+				"x": "",
+				"y": "",
+				"radius": "",
+				"start_angle": "",
+				"end_angle": "",
+				"[fill_colour": "",
+				"[outline_colour": "",
+				"[drawing_options]]]": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"Shadow": {
 			"parameters": {
 				"colour": "",

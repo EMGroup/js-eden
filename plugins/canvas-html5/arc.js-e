@@ -75,7 +75,6 @@ Arc.prototype.draw = function(context) {
 	context.arc(this.x, this.y, this.r, -this.sAngle * radiansPerUnit, -this.eAngle * radiansPerUnit, anticlockwise);
 	context.strokeStyle = this.colour;
 	context.stroke();
-	context.closePath();
 };
 
 Arc.prototype.toString = function() {

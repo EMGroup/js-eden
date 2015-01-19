@@ -1,0 +1,75 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+Sector = function(x, y, r, sAngle, eAngle, fillcolour, outlinecolour,drawingOptions) {
+	this.x = x;
+	this.y = y;
+	this.r = r;
+	this.sAngle = sAngle;
+	this.eAngle = eAngle;
+    this.fillcolour = fillcolour;
+	this.outlinecolour = outlinecolour;
+	this.drawingOptions = drawingOptions;
+}
+}}$;
+
+func Sector { ${{
+	var x = arguments[0];
+	var y = arguments[1];
+	var r = arguments[2];
+	var sAngle = arguments[3];
+	var eAngle = arguments[4];
+	var fillcolour = arguments[5];
+	var outlinecolour = arguments[6];
+	if (outlinecolour === undefined) {
+		if (fillcolour === undefined) {
+			fillcolour = "black";
+			outlinecolour = "black";
+		} else {
+			outlinecolour = fillcolour;
+		}
+	}
+	var drawingOptions = arguments[7];
+	return new Sector(x, y, r, sAngle, eAngle, fillcolour, outlinecolour, drawingOptions);
+}}$; };
+
+${{
+Sector.prototype.draw = function(context) {
+	var radiansPerUnit = root.lookup("radiansPerUnit").value();
+	var eAngleInRadians = -this.eAngle * radiansPerUnit;
+	var endX = this.x + this.r * Math.cos(eAngleInRadians);
+	var endY = this.y + this.r * Math.sin(eAngleInRadians);
+	context.beginPath();
+	context.arc(this.x, this.y, this.r, -this.sAngle * radiansPerUnit, eAngleInRadians, this.sAngle < this.eAngle);
+	context.lineTo(this.x, this.y);
+	context.closePath();
+ 
+	if (this.fillcolour !== undefined) {
+		context.fillStyle = this.fillcolour;
+		context.fill();
+	}
+	context.strokeStyle = this.outlinecolour;
+	context.stroke();
+};
+
+Sector.prototype.toString = function() {
+	var s= "Sector(" +
+		this.x + ", " +
+		this.y + ", " +
+		this.r + ", " +
+		this.sAngle + ", " +
+		this.eAngle + ", " +
+		this.fillcolour + ", " +
+		this.outlinecolour;
+
+	if (this.drawingOptions !== undefined) {
+		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
+	}
+	
+	s = s + ")";
+	return s;
+}
+}}$;
