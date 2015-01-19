@@ -343,7 +343,7 @@
 		},
 		"scale": {
 			"parameters": {
-				"scaleFactor": "",
+				"scale_factor": "",
 				"vector": ""
 			},
 			"return": "",
@@ -529,12 +529,27 @@
 		},
 		"Rectangle": {
 			"parameters": {
-				"x1": "X-coordinate for top left",
-				"y1": "Y-coordinate for top left",
-				"x2": "X-coordinate for bottom right",
-				"y2": "Y-coordinate for bottom right",
-				"fill_colour": "",
-				"outline_colour": "Colour of the rectangle (stroke) in HTML form"
+				"x": "X-coordinate for top left",
+				"y": "Y-coordinate for top left",
+				"width": "",
+				"height": "",
+				"[fill_colour": "",
+				"[outline_colour": "Colour of the rectangle outline in HTML form",
+				"[drawing_options]]]": ""
+			},
+			"return": "Rectangle object",
+			"description": "Creates a rectangle element for display on the canvas"
+		},
+		"RoundedRectangle": {
+			"parameters": {
+				"x": "X-coordinate for top left",
+				"y": "Y-coordinate for top left",
+				"width": "",
+				"height": "",
+				"corner_radius": "",
+				"[fill_colour": "",
+				"[outline_colour": "Colour of the rectangle outline in HTML form",
+				"[drawing_options]]]": ""
 			},
 			"return": "Rectangle object",
 			"description": "Creates a rectangle element for display on the canvas"
@@ -627,7 +642,7 @@
 				"step": "",
 				"x": "",
 				"y": "",
-				"length": "",
+				"size_in_pixels": "",
 				"[orientation": "",
 				"[enabled]]": ""
 			},

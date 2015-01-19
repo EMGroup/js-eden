@@ -1,0 +1,81 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+RoundedRectangle = function(x, y, width, height, radius, fillcolour, outlinecolour, drawingOptions) {
+  this.x1 = x;
+  this.y1 = y;
+  this.x2 = x + width;
+  this.y2 = y + height;
+  this.radius = radius;
+  this.fillcolour = fillcolour;
+  this.outlinecolour = outlinecolour;
+  this.drawingOptions = drawingOptions;
+}
+}}$;
+
+func RoundedRectangle { ${{
+	var x = arguments[0];
+	var y = arguments[1];
+	var width = arguments[2];
+	var height = arguments[3];
+	var radius = arguments[4];
+	var fillcolour = arguments[5];
+	var outlinecolour = arguments[6];
+	if (outlinecolour === undefined) {
+		if (fillcolour === undefined) {
+			outlinecolour = "black";
+		} else {
+			outlinecolour = fillcolour;
+		}
+	}
+	var drawingOptions = arguments[7];
+	return new RoundedRectangle(x, y, width, height, radius, fillcolour, outlinecolour, drawingOptions);
+}}$; };
+
+${{
+RoundedRectangle.prototype.draw = function(context) {
+	context.beginPath();
+    context.moveTo(this.x1 + this.radius, this.y1);
+    context.lineTo(this.x2 - this.radius, this.y1);
+	context.arcTo(this.x2, this.y1, this.x2, this.y1 + this.radius, this.radius);
+	context.lineTo(this.x2, this.y2 - this.radius);
+	context.arcTo(this.x2, this.y2, this.x2 - this.radius, this.y2, this.radius);
+	context.lineTo(this.x1 + this.radius, this.y2);
+	context.arcTo(this.x1, this.y2, this.x1, this.y2 - this.radius, this.radius);
+	context.lineTo(this.x1, this.y1 + this.radius);
+	context.arcTo(this.x1, this.y1, this.x1 + this.radius, this.y1, this.radius);
+
+	if (this.fillcolour !== undefined) {
+		context.fillStyle = this.fillcolour;
+		context.fill();
+	}
+	context.strokeStyle = this.outlinecolour;
+	context.stroke();
+};
+}}$;
+
+${{
+RoundedRectangle.prototype.toString = function() {
+	var s = "RoundedRectangle(" + this.x1 + ", " + this.y1 + ", " +
+		(this.x2 - this.x1) + ", " +
+		(this.y2 - this.y1) + ", " +
+		this.radius + ", ";
+
+	if (this.fillcolour === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + this.fillcolour +", ";
+	}
+	s = s + this.outlinecolour;
+	
+	if (this.drawingOptions !== undefined) {
+		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
+	}
+	
+	s = s + ")";
+	return s;
+};
+}}$;

@@ -4,37 +4,62 @@
 ## See LICENSE.txt
 
 ${{
-Rectangle = function(x1, y1, x2, y2, fillcolour, outlinecolour) {
-  this.x1 = x1;
-  this.y1 = y1;
-  this.x2 = x2;
-  this.y2 = y2;
+Rectangle = function(x, y, width, height, fillcolour, outlinecolour, drawingOptions) {
+  this.x = x;
+  this.y = y;
+  this.width = width;
+  this.height = height;
   this.fillcolour = fillcolour;
   this.outlinecolour = outlinecolour;
+  this.drawingOptions = drawingOptions;
 }
 }}$;
 
 func Rectangle { ${{
-  var x1 = arguments[0];
-  var y1 = arguments[1];
-  var x2 = arguments[2];
-  var y2 = arguments[3];
-  var colour = arguments[4];
-  var outlinecolour = arguments[5];
-  if (colour === undefined) { colour = "black"; }
-  return new Rectangle(x1, y1, x2, y2, colour, outlinecolour);
+	var x = arguments[0];
+	var y = arguments[1];
+	var width = arguments[2];
+	var height = arguments[3];
+	var fillcolour = arguments[4];
+	var outlinecolour = arguments[5];
+	if (outlinecolour === undefined) {
+		if (fillcolour === undefined) {
+			outlinecolour = "black";
+		} else {
+			outlinecolour = fillcolour;
+		}
+	}
+	var drawingOptions = arguments[6];
+	return new Rectangle(x, y, width, height, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
 ${{
 Rectangle.prototype.draw = function(context) {
-  context.fillStyle = this.fillcolour;
-  context.strokeStyle = this.outlinecolour;
-  context.fillRect(this.x1,this.y1,this.x2,this.y2);
-  context.strokeRect(this.x1,this.y1,this.x2,this.y2);
+	if (this.fillcolour !== undefined) {
+		context.fillStyle = this.fillcolour;
+		context.fillRect(this.x, this.y, this.width, this.height);
+	}
+	context.strokeStyle = this.outlinecolour;
+	context.strokeRect(this.x, this.y, this.width, this.height);
 };
 }}$;
+
 ${{
 Rectangle.prototype.toString = function() {
-  return "Rectangle(" + this.x1 + ", " + this.y1 + ", " + this.x2 + ", "+this.y2+", "+this.colour+")";
+	var s = "Rectangle(" + this.x + ", " + this.y + ", " + this.width + ", " + this.height + ", ";
+
+	if (this.fillcolour === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + this.fillcolour +", ";
+	}
+	s = s + this.outlinecolour;
+	
+	if (this.drawingOptions !== undefined) {
+		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
+	}
+	
+	s = s + ")";
+	return s;
 };
 }}$;
