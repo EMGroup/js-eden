@@ -82,6 +82,18 @@ func Inputbox { ${{
   return new Textbox(name, x, y, width, 1, enabled);
 }}$; }
 
+func Polygon {
+	${{
+		var points = arguments[0];
+		var colour = arguments[1];
+		var newPoints = [];
+		for (var i = 0; i < points.length - 1; i = i + 2) {
+			newPoints.push(new Point(points[i], points[i + 1]));
+		}
+		return new Polygon(newPoints, colour, colour);
+	}}$;
+}
+
 func rand {
   ${{
 	return Math.floor(Math.random()*32767);

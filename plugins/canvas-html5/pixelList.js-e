@@ -9,8 +9,8 @@
 ##next four elements represent the second pixel, going from left to right along the
 ##top line of the block.  The data list should contain data for an exact number
 ##of rows of the specified width.  Although cumbersome a PixelList performs far
-##faster than using numerous individual Pixel objects for a block of any
-##significant size.
+##faster than trying to map each pixel to an individual EDEN observable for a
+##block of any significant size.
 ##
 ##Example:
 /*

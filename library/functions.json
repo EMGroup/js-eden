@@ -517,6 +517,15 @@
 			"return": "Line object",
 			"description": "Creates a line element for display on the canvas"
 		},
+		"LineSequence": {
+			"parameters": {
+				"points": "List of coordinates in the form Point(x, y) from the top left corner of the canvas",
+				"[colour": "Colour of the polygon (fill) in HTML form",
+				"[drawing_options]]": ""
+			},
+			"return": "Polygon object",
+			"description": "Creates a polygon element for display on the canvas"
+        },
 		"PixelList": {
 			"parameters": {
 				"pointer_to_rgba_values_list": "",
@@ -556,8 +565,10 @@
 		},
 		"Polygon": {
 			"parameters": {
-				"[points]": "List of coordinates in the form [ x1,y1 , x2,y2 ] from the top left corner",
-				"colour": "Colour of the polygon (fill) in HTML form"
+				"points": "List of coordinates in the form Point(x, y) from the top left corner of the canvas",
+				"[fill_colour": "Colour of the polygon (fill) in HTML form",
+				"[outline_colour": "",
+				"[drawing_options]]]": ""
 			},
 			"return": "Polygon object",
 			"description": "Creates a polygon element for display on the canvas"

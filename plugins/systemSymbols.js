@@ -49,6 +49,7 @@ Eden.systemFunctionNames = [
 	"Ellipse",
 	"Image",
 	"Line",
+	"LineSequence",
 	"Pixel",
 	"PixelList",
 	"Point",
