@@ -47,6 +47,7 @@ Eden.systemFunctionNames = [
 	"Combobox",
 	"Div",
 	"Ellipse",
+	"GreyPixelList",
 	"Image",
 	"Line",
 	"LineSequence",

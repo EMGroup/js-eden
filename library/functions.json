@@ -536,6 +536,19 @@
 			"return": "",
 			"description": ""
 		},
+		"GreyPixelList": {
+			"parameters": {
+				"pointer_to_grayscale_values_list": "",
+				"x": "",
+				"y": "",
+				"width": "",
+				"[red_tint" : "",
+				"green_tint" : "",
+				"blue_tint]" : ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"Rectangle": {
 			"parameters": {
 				"x": "X-coordinate for top left",

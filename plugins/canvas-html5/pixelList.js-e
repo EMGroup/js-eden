@@ -12,6 +12,10 @@
 ##faster than trying to map each pixel to an individual EDEN observable for a
 ##block of any significant size.
 ##
+##N.B. Unfortunately the alpha values are not true transparency.  That is, you
+##you can't see through to other objects drawn underneath on the canvas.  Alpha
+##values less than 255 just make the colours lighter.
+##
 ##Example:
 /*
 	func colourMap {
