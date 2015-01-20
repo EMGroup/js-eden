@@ -204,6 +204,14 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 	edenUI.eden.include("plugins/canvas-html5/canvas.js-e", success);
 };
 
+EdenUI.plugins.CanvasHTML5.setFillStyle = function (context, style) {
+	if (typeof(style) == "object") {
+		context.fillStyle = style.getColour(context);
+	} else {
+		context.fillStyle = style;
+	}
+};
+
 EdenUI.plugins.CanvasHTML5.title = "Canvas HTML5";
 EdenUI.plugins.CanvasHTML5.description = "Provides an Eden drawable HTML5 canvas";
 EdenUI.plugins.CanvasHTML5.author = "Nicolas Pope et. al.";

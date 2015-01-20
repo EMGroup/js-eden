@@ -20,12 +20,8 @@ func Circle { ${{
 	var radius = arguments[2];
 	var fillcolour = arguments[3];
 	var outlinecolour = arguments[4];
-	if (outlinecolour === undefined) {
-		if (fillcolour === undefined) {
-			outlinecolour = "black";
-		} else {
-			outlinecolour = fillcolour;
-		}
+	if (fillcolour === undefined && outlinecolour === undefined) {
+		outlinecolour = "black";
 	}
 	var drawingOptions = arguments[5];
 	return new Circle(x, y, radius, fillcolour, outlinecolour, drawingOptions);
@@ -38,11 +34,13 @@ Circle.prototype.draw = function(context) {
 	context.closePath();
  
 	if (this.fillcolour !== undefined) {
-		context.fillStyle = this.fillcolour;
+		EdenUI.plugins.CanvasHTML5.setFillStyle(context, this.fillcolour);
 		context.fill();
 	}
-	context.strokeStyle = this.outlinecolour;
-	context.stroke();
+	if (this.outlinecolour !== undefined) {
+		context.strokeStyle = this.outlinecolour;
+		context.stroke();
+	}
 };
 }}$;
 ${{
@@ -52,9 +50,13 @@ Circle.prototype.toString = function() {
 	if (this.fillcolour === undefined) {
 		s = s + "@, ";
 	} else {
-		s = s + this.fillcolour +", ";
+		s = s + this.fillcolour + ", ";
 	}
-	s = s + this.outlinecolour;
+	if (this.outlinecolour === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + this.outlinecolour + ", ";
+	}
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);

@@ -50,6 +50,7 @@ Eden.systemFunctionNames = [
 	"GreyPixelList",
 	"Image",
 	"Line",
+	"LinearGradient",
 	"LineSequence",
 	"Pixel",
 	"PixelList",

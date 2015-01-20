@@ -44,6 +44,7 @@ include("plugins/canvas-html5/ellipse.js-e");
 include("plugins/canvas-html5/canvasImage.js-e");
 include("plugins/canvas-html5/greyPixelList.js-e");
 include("plugins/canvas-html5/line.js-e");
+include("plugins/canvas-html5/linearGradient.js-e");
 include("plugins/canvas-html5/lineSequence.js-e");
 include("plugins/canvas-html5/polygon.js-e");
 include("plugins/canvas-html5/rectangle.js-e");

@@ -517,6 +517,19 @@
 			"return": "Line object",
 			"description": "Creates a line element for display on the canvas"
 		},
+		"LinearGradient": {
+			"parameters": {
+				"x1": "X-coordinate for start",
+				"y1": "Y-coordinate for start",
+				"x2": "X-coordinate for end",
+				"y2": "Y-coordinate for end",
+				"[start_colour" : "",
+				"end_colour]" : "",
+				"[extra_colour_stops]" : "A list of two item lists.  The first element of each is a point along the gradient (0.0-1.0).  The second is the colour."
+			},
+			"return": "",
+			"description": ""
+		},
 		"LineSequence": {
 			"parameters": {
 				"points": "List of coordinates in the form Point(x, y) from the top left corner of the canvas",

@@ -22,12 +22,8 @@ func Rectangle { ${{
 	var height = arguments[3];
 	var fillcolour = arguments[4];
 	var outlinecolour = arguments[5];
-	if (outlinecolour === undefined) {
-		if (fillcolour === undefined) {
-			outlinecolour = "black";
-		} else {
-			outlinecolour = fillcolour;
-		}
+	if (fillcolour === undefined && outlinecolour === undefined) {
+		outlinecolour = "black";
 	}
 	var drawingOptions = arguments[6];
 	return new Rectangle(x, y, width, height, fillcolour, outlinecolour, drawingOptions);
@@ -36,11 +32,13 @@ func Rectangle { ${{
 ${{
 Rectangle.prototype.draw = function(context) {
 	if (this.fillcolour !== undefined) {
-		context.fillStyle = this.fillcolour;
+		EdenUI.plugins.CanvasHTML5.setFillStyle(context, this.fillcolour);
 		context.fillRect(this.x, this.y, this.width, this.height);
 	}
-	context.strokeStyle = this.outlinecolour;
-	context.strokeRect(this.x, this.y, this.width, this.height);
+	if (this.outlinecolour !== undefined) {
+		context.strokeStyle = this.outlinecolour;
+		context.strokeRect(this.x, this.y, this.width, this.height);
+	}
 };
 }}$;
 
@@ -51,9 +49,13 @@ Rectangle.prototype.toString = function() {
 	if (this.fillcolour === undefined) {
 		s = s + "@, ";
 	} else {
-		s = s + this.fillcolour +", ";
+		s = s + this.fillcolour + ", ";
 	}
-	s = s + this.outlinecolour;
+	if (this.outlinecolour === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + this.outlinecolour + ", ";
+	}
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);

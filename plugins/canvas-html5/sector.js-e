@@ -24,13 +24,8 @@ func Sector { ${{
 	var eAngle = arguments[4];
 	var fillcolour = arguments[5];
 	var outlinecolour = arguments[6];
-	if (outlinecolour === undefined) {
-		if (fillcolour === undefined) {
-			fillcolour = "black";
-			outlinecolour = "black";
-		} else {
-			outlinecolour = fillcolour;
-		}
+	if (fillcolour === undefined && outlinecolour === undefined) {
+		fillcolour = "black";
 	}
 	var drawingOptions = arguments[7];
 	return new Sector(x, y, r, sAngle, eAngle, fillcolour, outlinecolour, drawingOptions);
@@ -48,22 +43,33 @@ Sector.prototype.draw = function(context) {
 	context.closePath();
  
 	if (this.fillcolour !== undefined) {
-		context.fillStyle = this.fillcolour;
+		EdenUI.plugins.CanvasHTML5.setFillStyle(context, this.fillcolour);
 		context.fill();
 	}
-	context.strokeStyle = this.outlinecolour;
-	context.stroke();
+	if (this.outlinecolour !== undefined) {
+		context.strokeStyle = this.outlinecolour;
+		context.stroke();
+	}
 };
 
 Sector.prototype.toString = function() {
-	var s= "Sector(" +
+	var s = "Sector(" +
 		this.x + ", " +
 		this.y + ", " +
 		this.r + ", " +
 		this.sAngle + ", " +
-		this.eAngle + ", " +
-		this.fillcolour + ", " +
-		this.outlinecolour;
+		this.eAngle + ", ";
+
+	if (this.fillcolour === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + this.fillcolour + ", ";
+	}
+	if (this.outlinecolour === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + this.outlinecolour + ", ";
+	}
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);

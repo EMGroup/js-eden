@@ -24,12 +24,8 @@ func RoundedRectangle { ${{
 	var radius = arguments[4];
 	var fillcolour = arguments[5];
 	var outlinecolour = arguments[6];
-	if (outlinecolour === undefined) {
-		if (fillcolour === undefined) {
-			outlinecolour = "black";
-		} else {
-			outlinecolour = fillcolour;
-		}
+	if (fillcolour === undefined && outlinecolour === undefined) {
+		outlinecolour = "black";
 	}
 	var drawingOptions = arguments[7];
 	return new RoundedRectangle(x, y, width, height, radius, fillcolour, outlinecolour, drawingOptions);
@@ -49,11 +45,13 @@ RoundedRectangle.prototype.draw = function(context) {
 	context.arcTo(this.x1, this.y1, this.x1 + this.radius, this.y1, this.radius);
 
 	if (this.fillcolour !== undefined) {
-		context.fillStyle = this.fillcolour;
+		EdenUI.plugins.CanvasHTML5.setFillStyle(context, this.fillcolour);
 		context.fill();
 	}
-	context.strokeStyle = this.outlinecolour;
-	context.stroke();
+	if (this.outlinecolour !== undefined) {
+		context.strokeStyle = this.outlinecolour;
+		context.stroke();
+	}
 };
 }}$;
 
@@ -67,9 +65,13 @@ RoundedRectangle.prototype.toString = function() {
 	if (this.fillcolour === undefined) {
 		s = s + "@, ";
 	} else {
-		s = s + this.fillcolour +", ";
+		s = s + this.fillcolour + ", ";
 	}
-	s = s + this.outlinecolour;
+	if (this.outlinecolour === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + this.outlinecolour + ", ";
+	}
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
