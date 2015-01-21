@@ -55,9 +55,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 
 			canvas.drawing = true;
 			setTimeout(function (){
-
-			canvas.drawing = false;
-			
+		
 			var picture = root.lookup(pictureobs).value();
 
 			//To clear canvas.
@@ -103,7 +101,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			}
 			cleanupCanvas(content, previousElements, nextElements);
 			canvasNameToElements[canvasname] = nextElements;
-
+			canvas.drawing = false;
 		}, me.delay);
 		}
 	};
