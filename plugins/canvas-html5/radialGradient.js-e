@@ -1,0 +1,54 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+##Example:
+
+func RadialGradient {
+	${{
+		var x1, y1, r1, x2, y2, r2, colourStops;
+		x1 = arguments[0];
+		y1 = arguments[1];
+		
+		switch (arguments.length) {
+			case 4:
+				r1 = 0;
+				x2 = x1;
+				y2 = y1;
+				r2 = arguments[2];
+				colourStops = arguments[3];
+				break;
+		}
+		return new RadialGradient(x1, y1, r1, x2, y2, r2, colourStops);
+	}}$;
+}
+
+${{
+	function RadialGradient(x1, y1, r1, x2, y2, r2, colourStops) {
+		this.x1 = x1;
+		this.y1 = y1;
+		this.r1 = r1;
+		this.x2 = x2;
+		this.y2 = y2;
+		this.r2 = r2;
+		this.colourStops = colourStops;
+	}
+	
+	RadialGradient.prototype.getColour = function (context) {
+		var gradient = context.createRadialGradient(this.x1, this.y1, this.r1, this.x2, this.y2, this.r2);
+		var colourStop;
+		for (var i = 0; i < this.colourStops.length; i++) {
+			colourStop = this.colourStops[i];
+			gradient.addColorStop(colourStop[0], colourStop[1]);
+		}
+		return gradient;
+	};
+
+	RadialGradient.prototype.toString = function() {
+		return "RadialGradient(" + this.x1 + ", " + this.y1 + ", " + this.r1 +
+			", " + this.x2 + ", " + this.y2 + ", " + this.r2 + ", " +
+			root.lookup("edenCode").definition(root)(this.colourStops) + ")";
+		
+	};
+}}$;

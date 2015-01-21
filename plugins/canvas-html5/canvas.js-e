@@ -53,6 +53,7 @@ include("plugins/canvas-html5/text.js-e");
 include("plugins/canvas-html5/point.js-e");
 include("plugins/canvas-html5/pixel.js-e");
 include("plugins/canvas-html5/pixelList.js-e");
+include("plugins/canvas-html5/radialGradient.js-e");
 include("plugins/canvas-html5/radioButtons.js-e");
 include("plugins/canvas-html5/roundedRectangle.js-e");
 include("plugins/canvas-html5/sector.js-e");
