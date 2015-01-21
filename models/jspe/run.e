@@ -1,3 +1,3 @@
 require("CanvasHTML5");
-createView("jspe","CanvasHTML5");
+createCanvas("slides", "jspe");
 include("models/jspe/jspe.js-e");

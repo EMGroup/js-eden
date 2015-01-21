@@ -7,12 +7,6 @@ _view_picture_height=600;
 _view_jspe_width=625;
 _view_jspe_height=600;
 
-proc _update_jspe {
-	##Fudge. The JSPE doesn't have a picture observable because it's not a
-	##canvas, though bizarrely it's been implemented using an empty canvas as
-	##its containner.
-}
-
 if (slideList == @) slideList = [];
 
 ## SlideButton to overcome Button limitations
