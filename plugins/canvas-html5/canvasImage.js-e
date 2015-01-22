@@ -3,50 +3,53 @@
 ##
 ## See LICENSE.txt
 
+##Taints the canvas if the file is located on another domain.
+
 ${{
-canvasImage = function (name, x, y, width, height, file) {
-	this.name = name;
+CanvasImage = function (x, y, width, height, file) {
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
-	this.file = file;
 	this.image = new Image();
+	
+	this.canvasesToRepaint = {};
 	this.loaded = false;
-	this.image.src = this.file;
 	
 	var me = this;
 	
 	this.image.onload = function(){
 		me.loaded = true;
+		for (var canvas in me.canvasesToRepaint) {
+			eden.execute("_update_" + canvas + "();");
+		}
 	}
+
+	this.image.src = file;
 }
 }}$;
 
-func canvasImage { ${{
-  var name = arguments[0];
-  var x = arguments[1];
-  var y = arguments[2];
-  var width = arguments[3];
-  var height = arguments[4];
-  var file = arguments[5];
-  return new canvasImage(name, x, y, width, height, file);
+func Image { ${{
+  var x = arguments[0];
+  var y = arguments[1];
+  var width = arguments[2];
+  var height = arguments[3];
+  var file = arguments[4];
+  return new CanvasImage(x, y, width, height, file);
 }}$; }
 
 ${{
-canvasImage.prototype.draw = function(context,content) {
+CanvasImage.prototype.draw = function(context, content, canvas) {
 	if(this.loaded){
-	console.log("loaded");
 		context.drawImage(this.image, this.x, this.y, this.width, this.height);
-	}
-	else{
-		console.log("notloaded");
+	} else {
+		this.canvasesToRepaint[canvas] = true;
 	}
 };
 }}$;
 
 ${{
-Image.prototype.toString = function() {
-  return "Image(" + this.name + ", " + this.x + ", "+this.y+", ...)";
+CanvasImage.prototype.toString = function() {
+  return "Image(" + this.x + ", " + this.y+ ", " + this.width + ", " + this.height + ", \"" + this.image.src + "\")";
 };
 }}$;

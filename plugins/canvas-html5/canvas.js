@@ -85,7 +85,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 					context.save();
 					me.configureContext(context, picture[i].drawingOptions);
 					// expect draw() method to set .element
-					picture[i].draw(context, content);
+					picture[i].draw(context, content, pictureobs);
 					context.restore();
 				}
 

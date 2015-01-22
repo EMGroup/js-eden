@@ -661,7 +661,6 @@
 		},
 		"Image": {
 			"parameters": {
-				"name": "not used",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"width": "Width in pixels",
@@ -669,7 +668,19 @@
 				"src": "Source file for the image"
 			},
 			"return": "Image object",
-			"description": "Creates a html image element for display on the canvas"
+			"description": "Creates an image element for display on the canvas together with the geometric shapes.  Taints the canvas if src is located on another domain."
+		},
+		"HTMLImage": {
+			"parameters": {
+				"name": "Name for click events",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"width": "Width in pixels",
+				"height": "Height in pixels",
+				"src": "Source file for the image"
+			},
+			"return": "Image object",
+			"description": "Creates a HTML image element for display on the canvas above the geometric shapes.  Doesn't taint the canvas."
 		},
 		"Slider": {
 			"parameters": {
