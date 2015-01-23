@@ -300,7 +300,11 @@ func BulletSlide {
 					if (currentPosition > 1) {
 						slideHTML = slideHTML // "</li>\n";
 					}
-					slideHTML = slideHTML // "<li style=\"margin-bottom: 7pt; line-height: 150%\">" // currentItem;
+					slideHTML = slideHTML // "<li style=\"";
+					if (lists# == 1) {
+						slideHTML = slideHTML // "margin-bottom: 7pt;";
+					}
+					slideHTML = slideHTML // "line-height: 150%\">" // currentItem;
 				} else if (isList(currentItem)) {
 					if (currentItem# > 0) {
 						##Begin a nested list.

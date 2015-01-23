@@ -37,8 +37,30 @@ Sector.prototype.draw = function(context) {
 	var eAngleInRadians = -this.eAngle * radiansPerUnit;
 	var endX = this.x + this.r * Math.cos(eAngleInRadians);
 	var endY = this.y + this.r * Math.sin(eAngleInRadians);
+
+	var anticlockwise;
+	if (this.drawingOptions !== undefined && "direction" in this.drawingOptions) {
+		switch (this.drawingOptions.direction) {
+		case "anticlockwise":
+		case "acw":
+			anticlockwise = true;
+			break;
+		case "auto":
+			anticlockwise = this.sAngle < this.eAngle;
+			break;
+		case "clockwise":
+		case "cw":
+			anticlockwise = false;
+			break;
+		default:
+			anticlockwise = true;
+		}
+	} else {
+		anticlockwise = this.sAngle < this.eAngle;
+	}
+
 	context.beginPath();
-	context.arc(this.x, this.y, this.r, -this.sAngle * radiansPerUnit, eAngleInRadians, this.sAngle < this.eAngle);
+	context.arc(this.x, this.y, this.r, -this.sAngle * radiansPerUnit, eAngleInRadians, anticlockwise);
 	context.lineTo(this.x, this.y);
 	context.closePath();
  

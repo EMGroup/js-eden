@@ -58,10 +58,9 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 		
 			var picture = root.lookup(pictureobs).value();
 
-			//To clear canvas.
-			canvas.width = canvas.width;
-
 		    var context = canvas.getContext('2d');
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			
 		    var content = contents[canvasname];
 
 			var hash;
@@ -83,7 +82,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 					picture[i].element = existingEl;
 				} else {
 					context.save();
-					me.configureContext(context, picture[i].drawingOptions);
+					EdenUI.plugins.CanvasHTML5.configureContext(context, picture[i].drawingOptions);
 					// expect draw() method to set .element
 					picture[i].draw(context, content, pictureobs);
 					context.restore();
@@ -106,30 +105,6 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 		}
 	};
 
-	this.configureContext = function (context, options) {
-		if (options === undefined) {
-			return;
-		}
-			
-		if ("dashes" in options) {
-			context.setLineDash(options.dashes);
-			if ("dashOffset" in options) {
-				context.lineDashOffset = options.dashOffset;
-			}
-		}
-
-		if ("lineWidth" in options) {
-			context.lineWidth = options.lineWidth;
-		}
-		
-		if ("shadow" in options) {
-			context.shadowColor = options.shadow.colour;
-			context.shadowBlur = options.shadow.blur;
-			context.shadowOffsetX = options.shadow.xOffset;
-			context.shadowOffsetY = options.shadow.yOffset;
-		}
-	}
-	
 	this.createDialog = function(name,mtitle) {
 
 		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');
@@ -201,6 +176,30 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 
 	edenUI.eden.include("plugins/canvas-html5/canvas.js-e", success);
 };
+
+EdenUI.plugins.CanvasHTML5.configureContext = function (context, options) {
+	if (options === undefined) {
+		return;
+	}
+		
+	if ("dashes" in options) {
+		context.setLineDash(options.dashes);
+		if ("dashOffset" in options) {
+			context.lineDashOffset = options.dashOffset;
+		}
+	}
+
+	if ("lineWidth" in options) {
+		context.lineWidth = options.lineWidth;
+	}
+	
+	if ("shadow" in options) {
+		context.shadowColor = options.shadow.colour;
+		context.shadowBlur = options.shadow.blur;
+		context.shadowOffsetX = options.shadow.xOffset;
+		context.shadowOffsetY = options.shadow.yOffset;
+	}
+}
 
 EdenUI.plugins.CanvasHTML5.setFillStyle = function (context, style) {
 	if (typeof(style) == "object") {

@@ -51,12 +51,14 @@ Arc.prototype.draw = function(context) {
 		}
 		switch (directionName) {
 		case "anticlockwise":
+		case "acw":
 			anticlockwise = true;
 			break;
 		case "auto":
 			anticlockwise = this.sAngle < this.eAngle;
 			break;
 		case "clockwise":
+		case "cw":
 			anticlockwise = false;
 			break;
 		case "major":
