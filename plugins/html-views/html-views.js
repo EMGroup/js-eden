@@ -16,15 +16,8 @@ EdenUI.plugins.HTMLViews = function(edenUI, success) {
 	var defaultview = "";
 
 	this.html = function(name,content) {
-		if (name == "DEFAULT") {
-			if (defaultview == "") {
-				//this.createDialog(name+"-dialog","Default HTML");
-				edenUI.createView(name,"PlainHTML");
-			}
-			$("#"+defaultview+"-content").html(content);
-		} else {
-			$("#"+name+"-dialog-content").html(content);
-		}
+		edenUI.createView(name,"PlainHTML");
+		$("#"+name+"-dialog-content").html(content);
 	}
 
 	this.createDialog = function(name,mtitle) {

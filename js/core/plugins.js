@@ -140,8 +140,10 @@
 	};
 
 	EdenUI.prototype.destroyView = function (name) {
-		this.hideView(name);
+		dialog(name).dialog('destroy');
+		dialog(name).remove();
 		delete this.activeDialogs[name];
+		delete this.viewInstances[name];
 		this.emit('destroyView', [name]);
 	};
 
