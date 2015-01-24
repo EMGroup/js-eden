@@ -219,11 +219,11 @@ func search {
 ##collation order specified by the second argument.  Valid values for the
 ##second parameter are:
 ## @ - Return the original list without sorting the items.
-## 1 - Sort the items in ascending order according to the values returned by
+## "ascending" - Sort the items in ascending order according to the values returned by
 ##     JavaScript's less than (<) and greater than (>) operators.  Lists of
 ##     strings will be sorted alphabetically, lists of numbers will be sorted
 ##     numerically and lists of lists will be sorted lexicographically.
-## 2 - Sort the items in descending order according to the values returned by
+## "descending" - Sort the items in descending order according to the values returned by
 ##     JavaScript's less than (<) and greater than (>) operators.
 ## a function - The function should take two parameters and return a positive
 ##     value if the first argument should be appear after the second argument
@@ -240,6 +240,8 @@ func search {
 ##
 ##Differences from tkeden:
 ##
+##In tkeden "ascending" and "descending" were called 1 and 2.
+##
 ##tkeden will "sort" a single value that is given as the first parameter that is
 ##defined but is neither a list nor a string.  This implementation will raise an
 ##error if the first argument is defined but is not a list or a string.  If the
@@ -250,7 +252,7 @@ func search {
 ##any value other than 1 or 2.  This function will raise an error if the second
 ##argument isn't one of allowed values defined above.
 ##
-##Defaulting to use collation order 1 and the ability to use a custom
+##Defaulting to use "ascending" collation order and the ability to use a custom
 ##comparison function are JS-EDEN specific extensions.
 ##
 func sort {
@@ -276,14 +278,14 @@ func sort {
 		
 		var sortFunction;
 		if (arguments.length < 2) {
-			sortFunction = 1;
+			sortFunction = "ascending";
 		} else {
 			sortFunction = arguments[1];
 		}
 		
 		if (sortFunction === undefined) {
 			return values;
-		} else if (sortFunction == 1) {
+		} else if (sortFunction == "ascending") {
 			if (sortingSingleString) {
 				sortFunction = undefined;
 			} else {
@@ -297,7 +299,7 @@ func sort {
 					}
 				}
 			}
-		} else if (sortFunction == 2) {
+		} else if (sortFunction == "descending") {
 			sortFunction = function (a, b) {
 				if (a > b) {
 					return -1;
@@ -308,7 +310,7 @@ func sort {
 				}
 			}
 		} else if (typeof(sortFunction) != "function") {
-			eden.error(new Error("sort: unknown collation order " + (sortFunction === null? "null" : sortFunction.toString())), "error");
+			eden.error(new Error("sort: unknown collation order " + sortFunction), "error");
 			return undefined;
 		}
 		

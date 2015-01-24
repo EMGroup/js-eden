@@ -32,14 +32,13 @@ ${{
 					this.enabled;
 	};
 
-	Button.prototype.draw = function (context, content) {
+	Button.prototype.draw = function (context) {
 		var name = this.name;
 		var but = this.element;
 
 		if (but === undefined){
 
 			var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
-			var can = $(content);
 			var inputHtml = '<input  type="button"' +
 				'value="' + this.label + '"' + disabled +
 				'style="' +

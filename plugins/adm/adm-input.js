@@ -198,7 +198,6 @@
 
 	/** @public */
 	this.createTemplateCreator = function(name, mtitle) {
-		var myeditor;
 		var code_entry = $('<div></div>');
 		code_entry.html(generateTemplateHTML(name));
 		
@@ -914,12 +913,13 @@
 	
 	/** @public */
 	this.createAdvancedInput = function(name, mtitle) {
-		var myeditor;
-
-		$code_entry = $('<div id=\"advanced-input\" class=\"inputwindow-code\">\
-					<div></div>\
-					<pre class="adm exec"></pre>\
-				</div>');
+		var myeditor = document.createElement("textarea");
+		myeditor.style.boxSizing = "border-box";
+		myeditor.style.width = "100%";
+		myeditor.style.height = "100%";
+		
+		$code_entry = $('<div id=\"advanced-input\" class=\"inputwindow-code\" style=\"height: 100%\"></div>');
+		$code_entry.append(myeditor);
 		
 		$dialog = $('<div id="'+name+'"></div>')
 			.html($code_entry)
@@ -934,10 +934,10 @@
 					id: "btn-submit-advanced",
 					text: "Submit",
 					click: function() {
-						var code = myeditor.getValue();
+						var code = myeditor.value;
 						submitAdmCode(code);
 						// Clear the editor to indicate input was successful.
-						myeditor.setValue("");
+						myeditor.value = "";
 					}
 				}]
 			});

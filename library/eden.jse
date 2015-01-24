@@ -5,7 +5,12 @@
 
 ##MISSING FUNCTIONS
 
-func eager {};
+proc eager {
+	if (autocalc == 0) {
+		autocalc = 1;
+		autocalc = 0;
+	};
+};
 
 func time {
   ${{
@@ -21,12 +26,6 @@ proc writeln {
 	if (edenUI.plugins.MenuBar) {
 		edenUI.plugins.MenuBar.updateStatus("Output: "+t);
 	}
-  }}$;
-};
-
-func rand {
-  ${{
-	return Math.floor(Math.random()*32767);
   }}$;
 };
 
@@ -132,7 +131,7 @@ func nameof {
 			"parent" in pointer &&
 			pointer.parent instanceof Symbol
 		) {
-			return pointer.parent.name.slice(1) + "[" + pointer.keys[0].toString() + "]";
+			return pointer.parent.name.slice(1) + "[" + pointer.keys[0] + "]";
 		} else {
 			eden.error(new Error("nameof: The argument must be a pointer, not a " + typeof(pointer)), "error");
 			return undefined;

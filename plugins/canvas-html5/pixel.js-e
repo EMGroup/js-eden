@@ -4,35 +4,29 @@
 ## See LICENSE.txt
 
 ${{
-Pixel = function(x, y, r, g, b, a) {
+Pixel = function(x, y, colour) {
   this.x = x;
   this.y = y;
-  this.r = r;
-  this.g = g;
-  this.b = b;
-  this.a = a;
+  this.colour = colour;
 }
 }}$;
 
 func Pixel { ${{
   var x = arguments[0];
   var y = arguments[1];
-  var r = arguments[2];
-  var g = arguments[3];
-  var b = arguments[4];
-  var a = arguments[5];
-  return new Pixel(x, y, r, g, b, a);
+  var colour = arguments[2];
+  return new Pixel(x, y, colour);
 }}$; };
 
 ${{
 Pixel.prototype.toString = function() {
-  return 'Pixel(this.x+","+this.y+","+this.r+","+this.g+","+this.b+","+(this.a/255))';
+  return "Pixel("+ this.x + ", " + this.y + ", " + this.colour + ")";
 };
 }}$;
 
 ${{
 Pixel.prototype.draw = function(context) {
-  context.fillStyle = "rgba("+this.r+","+this.g+","+this.b+","+(this.a/255)+")";
-  context.fillRect( this.x, this.y, 1, 1 );
+  context.fillStyle = this.colour;
+  context.fillRect( this.x, this.y, 1, 1);
 };
 }}$;

@@ -111,6 +111,11 @@
 			view(name, 'width').assign(ui.size.width);
 			view(name, 'height').assign(ui.size.height);
 		});
+		diag.on("dialogdragstop", function (event, ui) {
+			view(name, 'x').assign(ui.position.left);
+			view(name, 'y').assign(ui.position.top);
+		});
+		
 
 		function viewEdenCode() {
 			var code = 'proc _View_'+name+'_position : _view_'+name+'_x, _view_'+name+'_y {\n'+

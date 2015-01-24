@@ -1,5 +1,441 @@
 {
 	"functions": {
+		"apply": {
+			"parameters": {
+				"func_or_proc": "",
+				"argument_list": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"array": {
+			"parameters": {
+				"length": "",
+				"[fill_value]" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"bulletList": {
+			"parameters": {
+				"string_list_or_string1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"char": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"charCode": {
+			"parameters": {
+				"character": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"choose": {
+			"parameters": {
+				"selected_key": "",
+				"key1": "",
+				"value1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"concat": {
+			"parameters": {
+				"separator": "",
+				"items": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"definitionOf": {
+			"parameters": {
+				"symbol": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"definitionRHS": {
+			"parameters": {
+				"symbol": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"doDefault": {
+			"parameters": {
+				"value": "",
+				"value_if_undefined": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"edenCode": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"hasProperty": {
+			"parameters": {
+				"property_name": "",
+				"object": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"hsl": {
+			"parameters": {
+				"hue": "",
+				"saturation": "",
+				"lightness": "",
+				"[alpha]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"indexOf": {
+			"parameters": {
+				"string_or_list": "",
+				"search_value": "",
+				"[start": "",
+				"[is_sorted]]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"int": {
+			"parameters": {
+				"value": "Value to convert"
+			},
+			"return": "An integer",
+			"description": "Converts a value to an integer"
+		},
+		"isBoolean": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isCallable": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isChar": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isDefined": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isDependency": {
+			"parameters": {
+				"symbol": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isDependent": {
+			"parameters": {
+				"dependency": "",
+				"observable": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isFunc": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isInt": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isList": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isNaN": {
+			"parameters": {
+				"number": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isNumber": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isObject": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isPointer": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isProc": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isString": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"listcat": {
+			"parameters": {
+				"list1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"lookup": {
+			"parameters": {
+				"key": "",
+				"object": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"lowercase": {
+			"parameters": {
+				"string": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"max": {
+			"parameters": {
+				"list_or_value1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"min": {
+			"parameters": {
+				"list_or_value1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"mod": {
+			"parameters": {
+				"dividend": "",
+				"divisor": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"nameof": {
+			"parameters": {
+				"pointer": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"Point": {
+			"parameters": {
+				"x": "",
+				"y": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"pow": {
+			"parameters": {
+				"base": "",
+				"exponent": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"properties": {
+			"parameters": {
+				"object": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"randomInteger": {
+			"parameters": {
+				"lower_bound": "",
+				"upper_bound": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"replaceFirst": {
+			"parameters": {
+				"source": "",
+				"search": "",
+				"replace": "",
+				"[start]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"reverse": {
+			"parameters": {
+				"list": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"rgb": {
+			"parameters": {
+				"red": "",
+				"green": "",
+				"blue": "",
+				"[alpha]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"round": {
+			"parameters": {
+				"number": "",
+				"[decimal_places]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"scale": {
+			"parameters": {
+				"scale_factor": "",
+				"vector": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"search": {
+			"parameters": {
+				"string_or_list": "",
+				"search_value": "",
+				"comparison_function": "",
+				"[start": "",
+				"[is_sorted]]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"sort": {
+			"parameters": {
+				"string_or_list": "",
+				"[named_ordering_or_comparison_function]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"sqrt": {
+			"parameters": {
+				"number": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"str": {
+			"parameters": {
+				"value": "A value to be converted"
+			},
+			"return": "A string",
+			"description": "Converts a value to a string"
+		},
+		"strcat": {
+			"parameters": {
+				"string1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"sublist": {
+			"parameters": {
+				"list": "",
+				"from": "",
+				"[to]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"substr": {
+			"parameters": {
+				"string": "",
+				"from": "",
+				"[to]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"tail": {
+			"parameters": {
+				"list": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"trim": {
+			"parameters": {
+				"string": "",
+				"[left_right_or_both]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"type": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"uppercase": {
+			"parameters": {
+				"string": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"include": {
 			"parameters": {
 				"file": "Script file to load"
@@ -14,20 +450,6 @@
 			"return": "No return value",
 			"description": "Load an external style sheet"
 		},
-		"str": {
-			"parameters": {
-				"object": "A number or list to be converted"
-			},
-			"return": "A string",
-			"description": "Converts a number or list to a string"
-		},
-		"int": {
-			"parameters": {
-				"string": "String to convert"
-			},
-			"return": "An integer",
-			"description": "Converts a string to an integer"
-		},
 		"html": {
 			"parameters": {
 				"code": "HTML code string"
@@ -39,13 +461,6 @@
 			"return": "Integer number of seconds",
 			"description": "Get current time in seconds since 1/1/1970"
 		},
-		"writeln": {
-			"parameters": {
-				"text": "A string"
-			},
-			"return": "No return value",
-			"description": "Prints a string to the browser console"
-		},
 		"execute": {
 			"parameters": {
 				"code": "A string"
@@ -53,19 +468,42 @@
 			"return": "No return value",
 			"description": "Evaluates a string as an Eden script"
 		},
-		"rand": {
-			"return": "Random integer",
-			"description": "Generates a random integer between 0 and 32767"
-		},
 		"Text": {
 			"parameters": {
 				"text": "Text string to display",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"colour": "Text colour in HTML form"
+				"colour": "Text colour in HTML form",
+				"[size]" : ""
 			},
 			"return": "Text object",
 			"description": "Creates a text element for display on the canvas"
+		},
+		"Arc": {
+			"parameters": {
+				"x": "",
+				"y": "",
+				"radius": "",
+				"start_angle": "",
+				"end_angle": "",
+				"colour": "",
+				"[drawing_options]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"Ellipse": {
+			"parameters": {
+				"x": "Centre X-coordinate",
+				"y": "Centre Y-coordinate",
+				"x_radius": "Ellipse x-axis radius from centre",
+				"y_radius": "Ellipse y-axis radius from centre",
+				"[fill_colour": "Fill colour for the ellipse on the canvas",
+				"[outline_colour": "Outline colour of the ellipse on the canvas",
+				"[drawing_options]]]": ""
+			},
+			"return": "Circle object",
+			"description": "Creates an ellipse element for display on the canvas"
 		},
 		"Line": {
 			"parameters": {
@@ -73,37 +511,126 @@
 				"y1": "Y-coordinate for start",
 				"x2": "X-coordinate for end",
 				"y2": "Y-coordinate for end",
-				"colour": "Colour of the line in HTML form"
+				"colour": "Colour of the line in HTML form",
+				"[drawing_options]" : ""
 			},
 			"return": "Line object",
 			"description": "Creates a line element for display on the canvas"
 		},
+		"LinearGradient": {
+			"parameters": {
+				"x1": "X-coordinate for start",
+				"y1": "Y-coordinate for start",
+				"x2": "X-coordinate for end",
+				"y2": "Y-coordinate for end",
+				"[start_colour" : "",
+				"end_colour]" : "",
+				"[extra_colour_stops]" : "A list of two item lists.  The first element of each is a point along the gradient (0.0-1.0).  The second is the colour."
+			},
+			"return": "",
+			"description": ""
+		},
+		"LineSequence": {
+			"parameters": {
+				"points": "List of coordinates in the form Point(x, y) from the top left corner of the canvas",
+				"[colour": "Colour of the polygon (fill) in HTML form",
+				"[drawing_options]]": ""
+			},
+			"return": "Polygon object",
+			"description": "Creates a polygon element for display on the canvas"
+        },
+		"PixelList": {
+			"parameters": {
+				"pointer_to_rgba_values_list": "",
+				"x": "",
+				"y": "",
+				"width": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"GreyPixelList": {
+			"parameters": {
+				"pointer_to_grayscale_values_list": "",
+				"x": "",
+				"y": "",
+				"width": "",
+				"[red_tint" : "",
+				"green_tint" : "",
+				"blue_tint]" : ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"Rectangle": {
 			"parameters": {
-				"x1": "X-coordinate for top left",
-				"y1": "Y-coordinate for top left",
-				"x2": "X-coordinate for bottom right",
-				"y2": "Y-coordinate for bottom right",
-				"outlinecolour": "Colour of the rectangle (stroke) in HTML form"
+				"x": "X-coordinate for top left",
+				"y": "Y-coordinate for top left",
+				"width": "",
+				"height": "",
+				"[fill_colour": "",
+				"[outline_colour": "Colour of the rectangle outline in HTML form",
+				"[drawing_options]]]": ""
 			},
 			"return": "Rectangle object",
 			"description": "Creates a rectangle element for display on the canvas"
 		},
-                "Polygon": {
-                        "parameters": {
-                                "[points]": "List of coordinates in the form [ x1,y1 , x2,y2 ] from the top left corner",
-                                "colour": "Colour of the polygon (fill) in HTML form"
-                        },
-                        "return": "Polygon object",
-                        "description": "Creates a polygon element for display on the canvas"
-                },
+		"RoundedRectangle": {
+			"parameters": {
+				"x": "X-coordinate for top left",
+				"y": "Y-coordinate for top left",
+				"width": "",
+				"height": "",
+				"corner_radius": "",
+				"[fill_colour": "",
+				"[outline_colour": "Colour of the rectangle outline in HTML form",
+				"[drawing_options]]]": ""
+			},
+			"return": "Rectangle object",
+			"description": "Creates a rectangle element for display on the canvas"
+		},
+		"Polygon": {
+			"parameters": {
+				"points": "List of coordinates in the form Point(x, y) from the top left corner of the canvas",
+				"[fill_colour": "Colour of the polygon (fill) in HTML form",
+				"[outline_colour": "",
+				"[drawing_options]]]": ""
+			},
+			"return": "Polygon object",
+			"description": "Creates a polygon element for display on the canvas"
+        },
+		"Sector": {
+			"parameters": {
+				"x": "",
+				"y": "",
+				"radius": "",
+				"start_angle": "",
+				"end_angle": "",
+				"[fill_colour": "",
+				"[outline_colour": "",
+				"[drawing_options]]]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"Shadow": {
+			"parameters": {
+				"colour": "",
+				"blur": "",
+				"x_offset": "",
+				"y_offset": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"Circle": {
 			"parameters": {
 				"x": "Centre X-coordinate",
 				"y": "Centre Y-coordinate",
 				"radius": "Circle radius from centre",
-				"fillcolour": "Fill colour for the circle in HTML form",
-				"outlinecolour": "Outline colour of the circle in HTML form"
+				"[fill_colour": "Fill colour for the circle on the canvas",
+				"[outline_colour": "Outline colour of the circle on the canvas",
+				"[drawing_options]]]": ""
 			},
 			"return": "Circle object",
 			"description": "Creates a circle element for display on the canvas"
@@ -114,7 +641,7 @@
 				"label": "Text for the button",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"enabled": "Boolean for button enabled"
+				"[enabled]": "Boolean for button enabled"
 			},
 			"return": "Button object",
 			"description": "Creates a button element for display on the canvas"
@@ -134,7 +661,6 @@
 		},
 		"Image": {
 			"parameters": {
-				"name": "not used",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"width": "Width in pixels",
@@ -142,7 +668,46 @@
 				"src": "Source file for the image"
 			},
 			"return": "Image object",
-			"description": "Creates a html image element for display on the canvas"
+			"description": "Creates an image element for display on the canvas together with the geometric shapes.  Taints the canvas if src is located on another domain."
+		},
+		"HTMLImage": {
+			"parameters": {
+				"name": "Name for click events",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"width": "Width in pixels",
+				"height": "Height in pixels",
+				"src": "Source file for the image"
+			},
+			"return": "Image object",
+			"description": "Creates a HTML image element for display on the canvas above the geometric shapes.  Doesn't taint the canvas."
+		},
+		"Slider": {
+			"parameters": {
+				"name": "",
+				"min": "",
+				"max": "",
+				"step": "",
+				"x": "",
+				"y": "",
+				"size_in_pixels": "",
+				"[orientation": "",
+				"[enabled]]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"Textbox": {
+			"parameters": {
+				"name": "",
+				"x": "",
+				"y": "",
+				"width_in_px": "",
+				"[rows": "",
+				"[enabled]]": ""
+			},
+			"return": "",
+			"description": ""
 		},
 		"Combobox": {
 			"parameters": {
@@ -150,7 +715,7 @@
 				"options": "A list of strings providing the options",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"enabled": "Boolean for combobox enabled"
+				"[enabled]": "Boolean for combobox enabled"
 			},
 			"return": "Combobox object",
 			"description": "Creates a drop-down select box for the canvas"
@@ -169,54 +734,63 @@
 			"return": "Sine of the angle",
 			"description": "Sine"
 		},
+		"tan": {
+			"parameters": {
+				"angle": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"abs": {
 			"parameters": {
-				"value": "A number"
+				"number": "A number"
 			},
 			"return": "The absolute magnitude",
 			"description": "Removes the sign from a number to return its absolute magnitude"
 		},
 		"acos": {
 			"parameters": {
-				"value": "Number between -1 and 1"
+				"number": "Number between -1 and 1"
 			},
 			"return": "Arc cosine of value in radians",
 			"description": "Arc cosine, inverse of cosine."
 		},
 		"asin": {
 			"parameters": {
-				"value": "Number between -1 and 1"
+				"number": "Number between -1 and 1"
 			},
 			"return": "Arc sine of value in radians",
 			"description": "Arc sine, inverse of sine."
 		},
 		"atan": {
 			"parameters": {
-				"value": ""
+				"number": ""
 			},
 			"return": "Arc tan in radians",
 			"description": "Arc tan, inverse of tan."
 		},
 		"ceil": {
 			"parameters": {
-				"number": "Floating point number"
+				"number": "Floating point number",
+				"multiple": "The unit to round to, e.g. 0.1 for the nearest 10th"
 			},
-			"return": "Nearest integer, rounded up",
-			"description": "Finds the nearest integer that is not less than the number"
+			"return": "Nearest value, rounded up",
+			"description": "Finds the nearest value that is not less than the number"
 		},
 		"exp": {
 			"parameters": {
-				"number": "Exponent"
+				"exponent": "Exponent"
 			},
 			"return": "e to the power of number",
 			"description": "Base-e exponential."
 		},
 		"floor": {
 			"parameters": {
-				"number": "Floating point number"
+				"number": "Floating point number",
+				"multiple": "The unit to round to, e.g. 0.1 for the nearest 10th"
 			},
-			"return": "Nearest integer, rounded down",
-			"description": "Finds the nearest integer by rounding down"
+			"return": "Nearest value, rounded down",
+			"description": "Finds the nearest value by rounding down"
 		},
 		"log": {
 			"parameters": {

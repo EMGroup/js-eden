@@ -1,0 +1,62 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+##Doesn't taint the canvas if the file is located on another domain.
+
+${{
+HTMLImage = function (name, x, y, width, height, file) {
+	this.name = name;
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.file = file;
+}
+
+HTMLImage.prototype.hash = function () {
+	return this.name+"$$"+
+				this.x+"$$"+
+				this.y+"$$"+
+				this.width+"$$"+
+				this.height+"$$"+
+				this.file;
+};
+}}$;
+
+func HTMLImage { ${{
+  var name = arguments[0];
+  var x = arguments[1];
+  var y = arguments[2];
+  var width = arguments[3];
+  var height = arguments[4];
+  var file = arguments[5];
+  return new HTMLImage(name, x, y, width, height, file);
+}}$; }
+
+${{
+HTMLImage.prototype.draw = function(context) {
+  var me = "canvas_" + this.name;
+  var me2 = this.name;
+  var but = $("#"+me).get(0);
+
+  if (but === undefined) {
+
+	var html = $("<img id=\"" + me + "\" style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;\" src=\"" + this.file + "\"/>");
+	
+	html = html.on("click", function () {
+		root.lookup(me2 + "_clicked").netAssign(true);
+		root.lookup(me2 + "_clicked").netAssign(false);
+	});
+
+	this.element = html;
+	root.lookup(me2 + "_clicked").assign(false);
+  }
+};
+}}$;
+${{
+HTMLImage.prototype.toString = function() {
+  return "HTMLImage(" + this.name + ", " + this.x + ", " + this.y + ", " + this.width + ", " + this.height + ", \"" + this.file + "\")";
+};
+}}$;

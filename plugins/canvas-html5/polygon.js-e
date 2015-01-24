@@ -4,31 +4,63 @@
 ## See LICENSE.txt
 
 ${{
-Polygon = function(points, colour) {
+Polygon = function(points, fillcolour, outlinecolour, drawingOptions) {
   this.points = points;
-  this.colour = colour;
+  this.fillcolour = fillcolour;
+  this.outlinecolour = outlinecolour;
+  this.drawingOptions = drawingOptions;
 }
 }}$;
 
 func Polygon { ${{
-  var points = arguments[0];
-  var colour = arguments[1];
-  if (colour === undefined) { colour = "black"; }
-  return new Polygon(points, colour);
+	var points = arguments[0];
+	var fillcolour = arguments[1];
+	var outlinecolour = arguments[2];
+	if (fillcolour === undefined && outlinecolour === undefined) {
+		outlinecolour = "black";
+	}
+	var drawingOptions = arguments[3];
+  return new Polygon(points, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
 ${{
 Polygon.prototype.draw = function(context) {
-  context.fillStyle = this.colour;
+	context.beginPath();
+	context.moveTo(this.points[0].x, this.points[0].y);
+	for (var i = 1; i < this.points.length; i++) {
+		context.lineTo(this.points[i].x, this.points[i].y);
+	}
+	context.closePath();
 
-  context.beginPath();
-  context.moveTo(this.points[0], this.points[1]);
-  
-  for (i = 2; i < this.points.length-1; i +=2) {
-    context.lineTo(this.points[i], this.points[i+1]);
-  }
+	if (this.fillcolour !== undefined) {
+		EdenUI.plugins.CanvasHTML5.setFillStyle(context, this.fillcolour);
+		context.fill();
+	}
+	if (this.outlinecolour !== undefined) {
+		context.strokeStyle = this.outlinecolour;
+		context.stroke();
+	}
+};
 
-  context.closePath();
-  context.fill();
+Polygon.prototype.toString = function() {
+	var s = "Polygon(" + root.lookup("edenCode").definition(root)(this.points) + ", ";
+
+	if (this.fillcolour === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + this.fillcolour + ", ";
+	}
+	if (this.outlinecolour === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + this.outlinecolour + ", ";
+	}
+	
+	if (this.drawingOptions !== undefined) {
+		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
+	}
+	
+	s = s + ")";
+	return s;
 };
 }}$;

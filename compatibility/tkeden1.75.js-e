@@ -7,6 +7,24 @@
 ##Trigonometric functions in tkeden work in radians instead of degrees.
 radiansPerUnit = 1;
 
+func rand {
+  ${{
+	return Math.floor(Math.random()*32767);
+  }}$;
+};
+
+func oldSort {
+	para newSort, params;
+	if (params[2] == 1) {
+		return newSort(params[1], "ascending");
+	} else if (params[2] == 2) {
+		return newSort(params[1], "descending");
+	} else {
+		return newSort(params[1], params[2]);
+	}
+}
+patch(&oldSort, &sort);
+
 ##JS-EDEN tail func returns @ for an undefined argument, refuses the empty list
 ##or a non-list argument, and refuses if more than one argument is provided.
 func oldTail {

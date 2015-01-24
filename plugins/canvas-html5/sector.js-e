@@ -1,0 +1,103 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+Sector = function(x, y, r, sAngle, eAngle, fillcolour, outlinecolour,drawingOptions) {
+	this.x = x;
+	this.y = y;
+	this.r = r;
+	this.sAngle = sAngle;
+	this.eAngle = eAngle;
+    this.fillcolour = fillcolour;
+	this.outlinecolour = outlinecolour;
+	this.drawingOptions = drawingOptions;
+}
+}}$;
+
+func Sector { ${{
+	var x = arguments[0];
+	var y = arguments[1];
+	var r = arguments[2];
+	var sAngle = arguments[3];
+	var eAngle = arguments[4];
+	var fillcolour = arguments[5];
+	var outlinecolour = arguments[6];
+	if (fillcolour === undefined && outlinecolour === undefined) {
+		fillcolour = "black";
+	}
+	var drawingOptions = arguments[7];
+	return new Sector(x, y, r, sAngle, eAngle, fillcolour, outlinecolour, drawingOptions);
+}}$; };
+
+${{
+Sector.prototype.draw = function(context) {
+	var radiansPerUnit = root.lookup("radiansPerUnit").value();
+	var eAngleInRadians = -this.eAngle * radiansPerUnit;
+	var endX = this.x + this.r * Math.cos(eAngleInRadians);
+	var endY = this.y + this.r * Math.sin(eAngleInRadians);
+
+	var anticlockwise;
+	if (this.drawingOptions !== undefined && "direction" in this.drawingOptions) {
+		switch (this.drawingOptions.direction) {
+		case "anticlockwise":
+		case "acw":
+			anticlockwise = true;
+			break;
+		case "auto":
+			anticlockwise = this.sAngle < this.eAngle;
+			break;
+		case "clockwise":
+		case "cw":
+			anticlockwise = false;
+			break;
+		default:
+			anticlockwise = true;
+		}
+	} else {
+		anticlockwise = this.sAngle < this.eAngle;
+	}
+
+	context.beginPath();
+	context.arc(this.x, this.y, this.r, -this.sAngle * radiansPerUnit, eAngleInRadians, anticlockwise);
+	context.lineTo(this.x, this.y);
+	context.closePath();
+ 
+	if (this.fillcolour !== undefined) {
+		EdenUI.plugins.CanvasHTML5.setFillStyle(context, this.fillcolour);
+		context.fill();
+	}
+	if (this.outlinecolour !== undefined) {
+		context.strokeStyle = this.outlinecolour;
+		context.stroke();
+	}
+};
+
+Sector.prototype.toString = function() {
+	var s = "Sector(" +
+		this.x + ", " +
+		this.y + ", " +
+		this.r + ", " +
+		this.sAngle + ", " +
+		this.eAngle + ", ";
+
+	if (this.fillcolour === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + this.fillcolour + ", ";
+	}
+	if (this.outlinecolour === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + this.outlinecolour + ", ";
+	}
+
+	if (this.drawingOptions !== undefined) {
+		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
+	}
+	
+	s = s + ")";
+	return s;
+}
+}}$;

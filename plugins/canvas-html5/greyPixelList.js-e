@@ -1,0 +1,133 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+##Returns a GreyPixelList drawable.  The ptrToData argument should be a pointer
+##to a list of integers.  The first element represents the grey shade of the
+##top-left pixel (0-255) and the subsequent elements represent successive pixels,
+##first along the top row going from left to right and then along the second row,
+##etc.  The data list should contain data for an exact number of rows of the
+##specified width.  The redTint, greenTint and blueTint arguments represent
+##where the information comes from for each colour channel.  An integer value
+##(0-255) represents a fixed value (or tint) throughout the image, whereas @
+##means that it varies according to the lightness information in the data array.
+##Thus @,@,@ means that the red, green and blue values all vary according to the
+##lightness data, resulting in a conventional grayscale image.  64,@,@ results
+##in a red tint.  The tint is not applied to areas of the image where the image
+##data value is @ (instead of a number 0-255).
+##
+##Example:
+##
+/*
+	func greyMap {
+		para position;
+		auto data, i, j, v;
+		data = [];
+		for (j = 0; j <= 255; j++) {
+			for (i = 0; i <= 255; i++) {
+					v = sqrt((i - 128) * (i - 128) + (j - 128) * (j - 128));
+					if (v > 115) {
+						append data, @;
+					} else {
+						append data, ((i - 128) * (i - 128) + (j - 128) * (j - 128)) % 256;
+					}
+			}
+		}
+		return data;
+	}
+	pixelData is greyMap();
+	pixels is GreyPixelList(&pixelData, mousePosition.x - 128, mousePosition.y - 128, 256, @, @, 64);
+	picture is [pixels];
+*/
+func GreyPixelList {
+	${{
+		var ptrToData = arguments[0];
+		var x = arguments[1];
+		var y = arguments[2];
+		var width = arguments[3];
+		var redTint = arguments[4];
+		var greenTint = arguments[5];
+		var blueTint = arguments[6];
+		return new GreyPixelList(ptrToData, x, y, width, redTint, greenTint, blueTint);
+	}}$;
+}
+
+${{
+function GreyPixelList(ptrToData, x, y, width, red, green, blue) {
+	this.data = ptrToData.value();
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = this.data.length / width;
+	this.red = red;
+	this.green = green;
+	this.blue = blue;
+}
+
+GreyPixelList.prototype.draw = function(context) {
+	var imageData = context.createImageData(this.width, this.height);
+	var imageArr = imageData.data;
+	var dataArr = this.data;
+	var dataArrayLen = dataArr.length;
+	var imageArrayLen = dataArrayLen * 4;
+	var offset;
+	
+	offset = 0;
+	if (this.red === undefined) {
+		for (var i = 0; i < dataArrayLen; i++) {
+			imageArr[offset] = dataArr[i];
+			offset = offset + 4;
+		}
+	} else {
+		while (offset < imageArrayLen) {
+			imageArr[offset] = this.red;
+			offset = offset + 4;
+		}
+	}
+
+	offset = 1;
+	if (this.green === undefined) {
+		for (var i = 0; i < dataArrayLen; i++) {
+			imageArr[offset] = dataArr[i];
+			offset = offset + 4;
+		}
+	} else {
+		while (offset < imageArrayLen) {
+			imageArr[offset] = this.green;
+			offset = offset + 4;
+		}
+	}
+
+	offset = 2;
+	if (this.blue === undefined) {
+		for (var i = 0; i < dataArrayLen; i++) {
+			imageArr[offset] = dataArr[i];
+			offset = offset + 4;
+		}
+	} else {
+		while (offset < imageArrayLen) {
+			imageArr[offset] = this.blue;
+			offset = offset + 4;
+		}
+	}
+
+	offset = 3;
+	for (var i = 0; i < dataArrayLen; i++) {
+		if (dataArr[i] !== undefined) {
+			imageArr[offset] = 255;
+		}
+		offset = offset + 4;
+	}
+
+	context.putImageData(imageData, this.x, this.y);
+}
+
+GreyPixelList.prototype.toString = function() {
+	return "GreyPixelList(" +
+		(this.data.length / 4).toString() + " pixel values, " +
+		this.x + ", " + this.y + ", " + this.width + "," + this.red + ", " +
+		this.green + ", " + this.blue + ")";
+}
+
+}}$;

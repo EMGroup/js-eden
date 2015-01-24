@@ -1,0 +1,63 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+##Example:
+/*
+	x = 50;
+	y = 50;
+	width = 400;
+	height = 250;
+	gradient is LinearGradient(x, y, x + width, y + height, "cyan", "blue");
+	rect is Rectangle(x, y, width, height, gradient);
+	picture is [rect];
+*/
+
+func LinearGradient {
+	${{
+		var x1 = arguments[0];
+		var y1 = arguments[1];
+		var x2 = arguments[2];
+		var y2 = arguments[3];
+		var colourStops;
+		if (Array.isArray(arguments[4])) {
+			colourStops = arguments[4];
+		} else {
+			if (Array.isArray(arguments[6])) {
+				colourStops = arguments[6];
+			} else {
+				colourStops = [];
+			}
+			colourStops.push([0, arguments[4]]);
+			colourStops.push([1, arguments[5]]);
+		}
+		return new LinearGradient(x1, y1, x2, y2, colourStops);
+	}}$;
+}
+
+${{
+	function LinearGradient(x1, y1, x2, y2, colourStops) {
+		this.x1 = x1;
+		this.y1 = y1;
+		this.x2 = x2;
+		this.y2 = y2;
+		this.colourStops = colourStops;
+	}
+	
+	LinearGradient.prototype.getColour = function (context) {
+		var gradient = context.createLinearGradient(this.x1, this.y1, this.x2, this.y2);
+		var colourStop;
+		for (var i = 0; i < this.colourStops.length; i++) {
+			colourStop = this.colourStops[i];
+			gradient.addColorStop(colourStop[0], colourStop[1]);
+		}
+		return gradient;
+	};
+
+	LinearGradient.prototype.toString = function() {
+		return "LinearGradient(" + this.x1 + ", " + this.y1 + ", " + this.x2 +
+			", " + this.y2 + ", " + root.lookup("edenCode").definition(root)(this.colourStops) + ")";
+		
+	};
+}}$;

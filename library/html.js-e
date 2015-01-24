@@ -35,6 +35,35 @@ func bulletList {
 	return result;
 }
 
+##Given an EDEN list of strings, returns a string containing HTML mark-up for
+##formatting the given items as an ordered (numbered) list.
+func numberedList {
+	auto items, result, i;
+	if ($# == 1 && isList($[1])) {
+		items = $[1];
+	} else {
+		items = $;
+	}
+	
+	if (items# == 0) {
+		return "";
+	}
+	
+	result = "<ol>";
+	
+	for (i = 1; i <= items#; i++) {
+		if (isString(items[i])) {
+			result = result // "<li style=\"margin-bottom: 7pt; line-height: 150%\">" // items[i] // "</li>\n";
+		} else if (items[i] != @) {
+			error("numberedList: Item " // str(i) // " must be a string, not a " // type(items[i]));
+			return @;
+		}
+	}
+	
+	result = result // "</ol>\n";
+	return result;
+}
+
 ##Converts three numbers representing the red, green and blue values of a colour
 ##(range 0-255) into a string that can be used as a colour value for canvas
 ##drawables or for appropriate CSS properties.  If four arguments are supplied

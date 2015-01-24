@@ -413,9 +413,19 @@ function _formatVal(val) {
 	}
 
 	if (val instanceof Array) {
+		var maxDisplayedElements = 20;
+		var numDisplayed;
+		if (val.length < maxDisplayedElements) {
+			numDisplayed = val.length;
+		} else {
+			numDisplayed = maxDisplayedElements;
+		}
 		var parts = [];
-		for (var i = 0; i < val.length; ++i) {
+		for (var i = 0; i < numDisplayed; ++i) {
 			parts.push(_formatVal(val[i]));
+		}
+		if (val.length > maxDisplayedElements) {
+			parts.push("...");
 		}
 		return "[" + parts.join(", ") + "]";
 	}

@@ -61,13 +61,13 @@ proc assertErrors {
 		if (arguments.length < 2 && eden.errorNumber == 0) {
 			errorStr = "assertErrors:\nAssertion Failure! Expected an EDEN error but no error occurred.";
 		} else if (arguments.length == 2 && eden.errorNumber != arguments[0]) {
-			errorStr = "assertErrors:\nAssertion Failure! Expected " + arguments[0].toString() + " EDEN errors but " + eden.errorNumber.toString() + " errors occurred.";
+			errorStr = "assertErrors:\nAssertion Failure! Expected " + arguments[0] + " EDEN errors but " + eden.errorNumber + " errors occurred.";
 		}
 		
 		if (errorStr !== undefined) {
 			var jseTestGroup = root.lookup("jseTestGroup").value();
 			if (jseTestGroup !== undefined && jseTestGroup !== null) {
-				errorStr = errorStr + "\nTest Group: " + jseTestGroup.toString();
+				errorStr = errorStr + "\nTest Group: " + jseTestGroup;
 			}
 			if (arguments.length > 0) {
 				errorStr = errorStr + "\nTest Case: " + arguments[arguments.length - 1];
@@ -89,7 +89,7 @@ proc assertErrorsExpectMore {
 		if (arguments.length < 2 && eden.errorNumber == 0) {
 			errorStr = "assertErrorsExpectMore:\nAssertion Failure! Expected an EDEN error but no error occurred.";
 		} else if (arguments.length == 2 && eden.errorNumber != arguments[0]) {
-			errorStr = "assertErrorsExpectMore:\nAssertion Failure! Expected " + arguments[0].toString() + " EDEN errors but " + eden.errorNumber.toString() + " errors occurred.";
+			errorStr = "assertErrorsExpectMore:\nAssertion Failure! Expected " + arguments[0] + " EDEN errors but " + eden.errorNumber + " errors occurred.";
 		}
 		
 		if (errorStr !== undefined) {
@@ -97,7 +97,7 @@ proc assertErrorsExpectMore {
 			
 			var jseTestGroup = root.lookup("jseTestGroup").value();
 			if (jseTestGroup !== undefined && jseTestGroup !== null) {
-				errorStr = errorStr + "\nTest Group: " + jseTestGroup.toString();
+				errorStr = errorStr + "\nTest Group: " + jseTestGroup;
 			}
 			if (arguments.length > 0) {
 				errorStr = errorStr + "\nTest Case: " + arguments[arguments.length - 1];
