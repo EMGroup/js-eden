@@ -13,19 +13,16 @@
 
 EdenUI.plugins.HTMLViews = function(edenUI, success) {
 	var me = this;
-	var defaultview = "";
 
 	this.html = function(name,content) {
-		edenUI.createView(name,"PlainHTML");
+		if (!(name in edenUI.viewInstances)) {
+			edenUI.createView(name,"PlainHTML");
+		}
 		$("#"+name+"-dialog-content").html(content);
 	}
 
 	this.createDialog = function(name,mtitle) {
 	
-		if (defaultview == "") {
-			defaultview = name;
-		}
-
 		code_entry = $('<div id=\"'+name+'-content\" class=\"htmlviews-content\"></div>');
 
 		$dialog = $('<div id="'+name+'"></div>')
