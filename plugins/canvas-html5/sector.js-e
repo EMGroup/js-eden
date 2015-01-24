@@ -40,9 +40,10 @@ Sector.prototype.draw = function(context) {
 
 	var anticlockwise;
 	if (this.drawingOptions !== undefined && "direction" in this.drawingOptions) {
-		switch (this.drawingOptions.direction) {
+		switch (this.drawingOptions.direction.toLowerCase()) {
 		case "anticlockwise":
 		case "acw":
+		case "ccw":
 			anticlockwise = true;
 			break;
 		case "auto":

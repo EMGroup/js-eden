@@ -29,8 +29,19 @@ func LinearGradient {
 			} else {
 				colourStops = [];
 			}
-			colourStops.push([0, arguments[4]]);
-			colourStops.push([1, arguments[5]]);
+			
+			var start_colour = arguments[4];
+			if (typeof(start_colour) != "string") {
+				start_colour = "black";
+			}
+			
+			var end_colour = arguments[5];
+			if (typeof(end_colour) != "string") {
+				end_colour = "white";
+			}
+			
+			colourStops.push([0, start_colour]);
+			colourStops.push([1, end_colour]);
 		}
 		return new LinearGradient(x1, y1, x2, y2, colourStops);
 	}}$;
