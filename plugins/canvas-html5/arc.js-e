@@ -33,7 +33,7 @@ Arc.prototype.draw = function(context) {
 	var anticlockwise;
 	if (this.drawingOptions !== undefined && "direction" in this.drawingOptions) {
 		var directionName, sAngleNormalized, eAngleNormalized, turnedThroughAC, twoPI;
-		directionName = this.drawingOptions.direction;
+		directionName = this.drawingOptions.direction.toLowerCase();
 		if (directionName == "major" || directionName == "minor") {
 			twoPI = 2 * Math.PI;
 			sAngleNormalized = (this.sAngle * radiansPerUnit) % twoPI;
@@ -52,6 +52,7 @@ Arc.prototype.draw = function(context) {
 		switch (directionName) {
 		case "anticlockwise":
 		case "acw":
+		case "ccw":
 			anticlockwise = true;
 			break;
 		case "auto":
