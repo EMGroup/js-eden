@@ -662,8 +662,8 @@
 			"parameters": {
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"width": "Width in pixels",
-				"height": "Height in pixels",
+				"[width": "Width in pixels",
+				"height]": "Height in pixels",
 				"src": "Source file for the image"
 			},
 			"return": "Image object",
@@ -674,8 +674,8 @@
 				"name": "Name for click events",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"width": "Width in pixels",
-				"height": "Height in pixels",
+				"[width": "Width in pixels",
+				"height]": "Height in pixels",
 				"src": "Source file for the image"
 			},
 			"return": "Image object",
