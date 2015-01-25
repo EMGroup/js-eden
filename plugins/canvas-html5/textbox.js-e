@@ -30,14 +30,12 @@ func Textbox { ${{
 
 ${{
 Textbox.prototype.draw = function(context,content) {
-
+	var me = this;
 	var canvas_obsname = "canvas_" + this.name;
 	var id = this.name;
-	var check = this.element;
 	var valueSymbol = root.lookup(id + "_value");
 	var value = valueSymbol.value();
-	root.lookup(id + "_drawing").assign(true);
-	if(check === undefined){
+	if(this.element === undefined){
 
 		var disabled = this.enabled === false? "readonly=\"readonly\"" : "";
 		var html;
@@ -59,14 +57,14 @@ Textbox.prototype.draw = function(context,content) {
 		root.lookup(id + "_drawable").assign(this);
 		this.element = html.get(0);
 		html.get(0).togarbage = false;
-		eden.execute('proc ' + id + "_update" + " : " + id + "_value" + " { if (" + id + "_drawing){ return; } " + id + "_drawable.draw();}");
+
+		valueSymbol.addJSObserver(function (name, value) {
+			me.element.value = value;
+		});
 
   } else {
-
 		this.element.togarbage = false;
-		this.element.value = value;
   }
-  root.lookup(id + "_drawing").assign(false);
 };
 }}$;
 
