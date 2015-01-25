@@ -60,4 +60,3 @@ include("plugins/canvas-html5/roundedRectangle.js-e");
 include("plugins/canvas-html5/sector.js-e");
 include("plugins/canvas-html5/shadow.js-e");
 include("plugins/canvas-html5/textbox.js-e");
-include("plugins/canvas-html5/greek.js-e");
