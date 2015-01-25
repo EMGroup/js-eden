@@ -147,6 +147,7 @@
 			sym.expire(symbols_to_force, actions_to_fire);
 			this.notifyGlobals(sym, false);
 		}
+		var expired = this.needsExpire;
 		this.needsExpire = {};
 		for (var symName in symbols_to_force) {
 			// force re-eval
@@ -154,6 +155,7 @@
 			sym.evaluateIfDependenciesExist();
 		}
 		fireActions(actions_to_fire);
+		fireJSActions(expired);
 	};
 
 
@@ -194,6 +196,7 @@
 		// need to keep track of observers so we can notify those also
 		this.observers = {};
 		this.observees = {};
+		this.jsObservers = [];
 
 		this.last_modified_by = undefined;
 	}
@@ -431,7 +434,23 @@
 			}
 		}
 	};
+	
+	function fireJSActions(symbols_to_fire_for) {
+		for (var symbol_name in symbols_to_fire_for) {
+			symbols_to_fire_for[symbol_name].fireJSObservers();
+		}
+	}
 
+	Symbol.prototype.fireJSObservers = function () {
+		for (var i = 0; i < this.jsObservers.length; i++) {
+			try {
+				this.jsObservers[i](this.name, this.value());
+			} catch (error) {
+				this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
+			}
+		}
+	}
+	
 	/**
 	 * Mark this symbol as out of date, and notify all formulas and observers of
 	 * this change
@@ -504,6 +523,26 @@
 	};
 
 	/**
+	 * Add a JavaScript function to notify on changes to the stored value.
+	 *
+	 * @param {function} listener The JavaScript function to call when there is a change in this Symbol.
+	 */
+	Symbol.prototype.addJSObserver = function (listener) {
+		if (typeof(listener) != "function") {
+			throw new Error("Failed adding JavaScript observer " + listener);
+		}
+		
+		for (var i = 0; i < this.jsObservers.length; i++) {
+			if (this.jsObservers[i] == listener) {
+				return;
+			}
+		}
+		this.jsObservers.push(listener);
+
+		return this;
+	}
+	
+	/**
 	 * Tell this Symbol that it no longer needs to notify a specific observer.
 	 *
 	 * @param {string} name Name of the observer that no longer needs to be notified.
@@ -511,6 +550,20 @@
 	Symbol.prototype.removeObserver = function (name) {
 		delete this.observers[name];
 	};
+
+	/**
+	 * Tell this Symbol that it no longer needs to notify a specific JavaScript function.
+	 *
+	 * @param {function} listener Function that no longer needs to be notified.
+	 */
+	 Symbol.prototype.removeJSObserver = function (listener) {
+		for (var i = 0; i < this.jsObservers.length; i++) {
+			if (this.jsObservers[i] == listener) {
+				this.jsObservers.splice(i, 1);
+				return;
+			}
+		}
+	}
 
 	var Utils = {
 		flatten: function (array) {
