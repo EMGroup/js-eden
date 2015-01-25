@@ -32,16 +32,25 @@ CanvasImage = function (x, y, width, height, file) {
 func Image { ${{
   var x = arguments[0];
   var y = arguments[1];
-  var width = arguments[2];
-  var height = arguments[3];
-  var file = arguments[4];
+  var width, height, file;
+  if (arguments.length == 3) {
+	file = arguments[2];
+  } else {
+	width = arguments[2];
+	height = arguments[3];
+	file = arguments[4];
+  }
   return new CanvasImage(x, y, width, height, file);
 }}$; }
 
 ${{
 CanvasImage.prototype.draw = function(context, content, canvas) {
 	if(this.loaded){
-		context.drawImage(this.image, this.x, this.y, this.width, this.height);
+		if (this.height === undefined) {
+			context.drawImage(this.image, this.x, this.y);
+		} else {
+			context.drawImage(this.image, this.x, this.y, this.width, this.height);
+		}
 	} else {
 		this.canvasesToRepaint[canvas] = true;
 	}
