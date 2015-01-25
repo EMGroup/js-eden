@@ -61,6 +61,16 @@ func oldCircle {
 
 patch(&oldCircle, &Circle);
 
+func Div { ${{
+	var x = arguments[1];
+	var y = arguments[2];
+	var width = arguments[3];
+	var height = arguments[4];
+	var html = arguments[5];
+	var style = arguments[6];
+	return new Div(x, y, width, height, html, style);
+}}$; }
+
 func oldFloor {
 	para newFloor, params;
 	if (params# < 2) {
