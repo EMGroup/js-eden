@@ -4,8 +4,7 @@
 ## See LICENSE.txt
 
 ${{
-Div = function (name, x, y, width, height, html, style) {
-	this.name = name;
+Div = function (x, y, width, height, html, style) {
 	this.x = x;
 	this.y = y;
 	this.width = width;
@@ -16,8 +15,7 @@ Div = function (name, x, y, width, height, html, style) {
 }
 
 Div.prototype.hash = function () {
-	return this.name+"$$"+
-				this.x+"$$"+
+	return this.x+"$$"+
 				this.y+"$$"+
 				this.width+"$$"+
 				this.height+"$$"+
@@ -27,56 +25,39 @@ Div.prototype.hash = function () {
 }}$;
 
 func Div { ${{
-  var name = arguments[0];
-  var x = arguments[1];
-  var y = arguments[2];
-  var width = arguments[3];
-  var height = arguments[4];
-  var html = arguments[5];
-  var style = arguments[6];
-  return new Div(name, x, y, width, height, html, style);
+	var x = arguments[0];
+	var y = arguments[1];
+	var width = arguments[2];
+	var height = arguments[3];
+	var html = arguments[4];
+	var style = arguments[5];
+	return new Div(x, y, width, height, html, style);
 }}$; }
 
 ${{
 Div.prototype.draw = function(context,content) {
-  var me = "canvas_" + this.name;
-  var me2 = this.name;
-  var but = this.element;
 
-  if (but === undefined) {
-	var dis = "";
-	if (this.enabled == true) { dis = ""; }
-	else { dis = "disabled=\"true\""; }
+  if (this.element === undefined) {
 
-	var can = $(content);
-	var divstyle = "position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;";
+	var divStyle = "position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " + this.width + "px; height: " + this.height + "px;";
 	if (this.style !== undefined) {
-		divstyle = divstyle + this.style;
+		divStyle = divStyle + this.style;
 	}
-	var buthtml = $("<div id=\"" + me + "\" style=\""+divstyle+"\">" + this.html + "</div>");
-
-	//.click(function() {
-	//	root.lookup(me2 + "_clicked").assign(true); root.lookup(me2 + "_clicked").assign(false);
-	//}).appendTo(can);
-
-	buthtml.get(0).togarbage = false;
-	this.element = buthtml.get(0);
-
-	//Initialise
-	//root.lookup(me2 + "_clicked").assign(false);
+	var divElement = document.createElement("div");
+	divElement.style.cssText = divStyle;
+	divElement.innerHTML = this.html;
+	
+	divElement.togarbage = false;
+	this.element = divElement;
   } else {
-	//but.value = this.label;
-	but.innerHTML = this.html;
-	but.togarbage = false;
-	but.style.width = "" + this.width + "px";
-	but.style.height = "" + this.height + "px";
-	but.style.left = "" + this.x + "px";
-	but.style.top = "" + this.y + "px";
-	}
+	this.element.togarbage = false;
+  }
 };
 }}$;
 ${{
 Div.prototype.toString = function() {
-  return "Div(" + this.name + ", " + this.x + ", "+this.y+", ...)";
+  var htmlAsText = this.html.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  return "Div(" + this.x + ", " + this.y + "," + this.width + ", " + this.height + ", \"" + 
+	htmlAsText + "\", \"" + this.style + "\")";
 };
 }}$;
