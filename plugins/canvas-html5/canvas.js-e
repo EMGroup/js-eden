@@ -35,6 +35,32 @@ proc createCanvas {
 	execute("proc _update_" // viewName // " : " // obsName // " { $" // "{{ edenUI.plugins.CanvasHTML5.drawPicture(" // edenCode(viewName) // ", " // edenCode(obsName) // "); }}$; }");
 }
 
+##Returns a string that can be used as the src attribute for an <img> tag inside the content of a
+##HTML view.  The image with the special URL returned by this function is a snapshot of the contents
+##of the canvas at the time this function was called.
+func canvasURL {
+	${{
+		var canvasName;
+		if (arguments.length == 0) {
+			canvasName = "picture";
+		} else {
+			canvasName = arguments[0];
+			if (canvasName === undefined) {
+				return "";
+			} else if (typeof(canvasName) == "string") {
+				if (!(canvasName in canvases)) {
+					return "";
+				}
+			} else {
+				eden.error(new Error("canvasURL: The first argument must be a string, not a " + typeof(canvasName)), "error");
+				return "";
+			}
+		}
+		
+		return canvases[canvasName].toDataURL();
+	}}$;
+}
+
 include("plugins/canvas-html5/arc.js-e");
 include("plugins/canvas-html5/button.js-e");
 include("plugins/canvas-html5/circle.js-e");

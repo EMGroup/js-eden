@@ -16,9 +16,10 @@
 			"return": "",
 			"description": ""
 		},
-		"bulletList": {
+		"canvasURL": {
 			"parameters": {
-				"string_list_or_string1...": ""
+				"[canvas": "",
+				"[anything...]]" : ""
 			},
 			"return": "",
 			"description": ""
@@ -97,6 +98,20 @@
 				"saturation": "",
 				"lightness": "",
 				"[alpha]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"htmlBulletList": {
+			"parameters": {
+				"string_list_or_string1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"htmlNumberedList": {
+			"parameters": {
+				"string_list_or_string1...": ""
 			},
 			"return": "",
 			"description": ""
