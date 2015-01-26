@@ -84,8 +84,12 @@ Slide.prototype.draw = function(context) {
   var but = $("#"+me).get(0);
 
   var jspe = $('#jspe-dialog-canvas');
-  var content = this.html.replace(/<jseden>/g,"<div><pre>").replace(/<\/jseden>/g,"</pre><a href=\"#\" onclick=\"execute(this)\">execute</a> <a href=\"#\" onclick=\"copyToInput(this)\">copy to input</a><br /></div>");
-
+  var content = this.html.replace(
+	/<jseden>([\s\S]*?)<\/jseden>/g,
+	function (match, code, offset, string) {
+	return "<div><pre>" + code.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</pre><a href=\"#\" onclick=\"execute(this)\">execute</a> <a href=\"#\" onclick=\"copyToInput(this)\">copy to input</a></div>";
+	}
+  );
   if (but === undefined) {
         var can = $("#jspe-dialog-canvascontent");
 	var divstyle = "position: absolute; left: " + ($('#jspe-dialog-canvas').position().left + 20) + "px; top: 40px"; 
