@@ -62,6 +62,7 @@ Eden.systemFunctionNames = [
 	"RoundedRectangle",
 	"Sector",
 	"Shadow",
+	"Slide",
 	"Slider",
 	"Text",
 	"Textbox",
