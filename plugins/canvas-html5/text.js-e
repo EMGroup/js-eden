@@ -27,7 +27,7 @@ func Text { ${{
 ${{
 Text.prototype.draw = function(context) {
   context.font = this.size+"px Arial";
-  context.fillStyle = this.colour;
+  EdenUI.plugins.CanvasHTML5.setFillStyle(context, this.colour);
   context.lineWidth = 1;
   context.fillText(this.text, this.x, this.y);
 };

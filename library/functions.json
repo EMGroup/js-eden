@@ -473,8 +473,8 @@
 				"text": "Text string to display",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"colour": "Text colour in HTML form",
-				"[size]" : ""
+				"[colour": "Text colour in HTML form",
+				"[size]]" : ""
 			},
 			"return": "Text object",
 			"description": "Creates a text element for display on the canvas"
@@ -648,11 +648,11 @@
 		},
 		"Div": {
 			"parameters": {
+				"html": "HTML content",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"width": "Width in pixels",
 				"height": "Height in pixels",
-				"html": "HTML content",
 				"[style]" : "An optional CSS style string"
 			},
 			"return": "Div object",
@@ -718,6 +718,31 @@
 			},
 			"return": "Combobox object",
 			"description": "Creates a drop-down select box for the canvas"
+		},
+		"BulletSlide": {
+			"parameters": {
+				"[title": "",
+				"[subtitle]]": "",
+				"list_of_bullet_points" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"Slide": {
+			"parameters": {
+				"html": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"TitledSlide": {
+			"parameters": {
+				"title": "",
+				"[subtitle]" : "",
+				"html" : ""
+			},
+			"return": "",
+			"description": ""
 		},
 		"cos": {
 			"parameters": {
