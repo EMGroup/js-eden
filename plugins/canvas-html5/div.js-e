@@ -56,7 +56,7 @@ Div.prototype.draw = function(context,content) {
 }}$;
 ${{
 Div.prototype.toString = function() {
-  var htmlAsText = this.html.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  var htmlAsText = this.html.replace(/</g, "&lt;");
   return "Div(" + this.x + ", " + this.y + "," + this.width + ", " + this.height + ", \"" + 
 	htmlAsText + "\", \"" + this.style + "\")";
 };
