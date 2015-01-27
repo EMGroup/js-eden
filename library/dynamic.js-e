@@ -286,7 +286,8 @@ func isDependency {
 ##
 ## patch(&fPatch, &f);
 ##
-## f(1) now returns 4 and fPatch has been forgotten.
+## f(1) now returns 4 and fPatch has been forgotten.  Note that the old definition of f is no longer
+## available to view in the environment so be sure to save a copy first.
 ##
 proc patch {
 	${{

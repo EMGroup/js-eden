@@ -333,7 +333,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 	).click(function () {
 		edenUI.createView("Edit_" + me.name, "InputWindow");
 		var val;
-		if (typeof symbol.value() === 'function') {
+		if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
 			val = symbol.eden_definition;
 		} else {
 			if (symbol.definition) {
@@ -391,6 +391,7 @@ function _toStrVal(val) {
 		case "undefined": return "@";
 		case "string": return JSON.stringify(val);
 		case "number": return val;
+		case "function": return "${{ " + val + "}}$";
 	}
 
 	if (val instanceof Array) {
