@@ -570,9 +570,12 @@
 				"x": "",
 				"y": "",
 				"width": "",
-				"[red_tint" : "",
-				"green_tint" : "",
-				"blue_tint]" : ""
+				"[red_multiply" : "",
+				"[green_multiply" : "",
+				"[blue_multiply" : "",
+				"[red_add" : "",
+				"[green_add" : "",
+				"[blue_add]]]]]]" : ""
 			},
 			"return": "",
 			"description": ""
