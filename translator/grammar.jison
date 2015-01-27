@@ -550,7 +550,13 @@ identifier-list
 
 dependency-link
     : OBSERVABLE '~>' '[' identifier-list ']' ';'
-        { $$ = "ERROR; context.lookup('" + $1 + "').subscribe(" + JSON.stringify($4) + ");"; }
+        { 
+			var js = "";
+			for (var i = 0; i <= $4.length; i++) {
+				js = js + "context.lookup('" + $4[i] + "').observe(['" + $1 + "']); ";
+			}
+			$$ = yy.sync(js);
+		}
     ;
 
 compound-statement
