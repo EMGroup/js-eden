@@ -214,7 +214,7 @@ func partApply {
 			} else if (isNaN(argMap[i])) {
 				eden.error(new Error("partApply: Argument" + (i+1).toString() + " must be a int, not a NaN."), "error");
 				return undefined;
-			} else if (argMap[i] != parseInt(argMap[i])) {
+			} else if (!Number.isInteger(argMap[i])) {
 				eden.error(new Error("partApply: Argument" + (i+1).toString() + " must be a int, not a float."), "error");
 				return undefined;			
 			} else if (argMap[i] < 1) {

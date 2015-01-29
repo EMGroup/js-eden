@@ -196,7 +196,7 @@ func type {
 		} else if (typeName == "number") {
 			if (isNaN(value)) {
 				return "@";
-			} else if (value == parseInt(value)) {
+			} else if (Number.isInteger(value)) {
 				return "int";
 			} else {
 				return "float";
@@ -310,7 +310,7 @@ func isInt {
 			return undefined;
 		}
 		var v = arguments[0];
-		return typeof(v) == "number" && !isNaN(v) && v == parseInt(v);
+		return Number.isInteger(v);
 	}}$;
 }
 

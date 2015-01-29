@@ -18,7 +18,7 @@ func array {
 
 		if (n === undefined) {
 			return undefined;
-		} else if (typeof(n) != "number" || n != parseInt(n)) {
+		} else if (typeof(n) != "number" || !Number.isInteger(n)) {
 			eden.error(new Error("array: The first argument must be an int, not a " + typeof(n)), "error");
 			return undefined;
 		}
