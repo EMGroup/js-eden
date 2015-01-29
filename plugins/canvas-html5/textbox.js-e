@@ -24,7 +24,9 @@ func Textbox { ${{
   var y = arguments[2];
   var width = arguments[3];
   var rows = arguments[4];
+  if (rows === undefined) rows = 1;
   var enabled = arguments[5];
+  if (enabled === undefined) enabled = true;
   return new Textbox(name, x, y, width, rows, enabled);
 }}$; }
 
@@ -69,6 +71,7 @@ Textbox.prototype.draw = function(context,content) {
 
 ${{
 Textbox.prototype.toString = function() {
-  return "Textbox(" + this.name + "," + this.x + ", " + this.y + ", " + this.width + ", " + this.rows + ", " + this.enabled + ")";
+  return "Textbox(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
+	this.rows + ", " + this.enabled + ")";
 };
 }}$;

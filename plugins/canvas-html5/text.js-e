@@ -34,6 +34,7 @@ Text.prototype.draw = function(context) {
 }}$;
 ${{
 Text.prototype.toString = function() {
-  return "Text(" + this.x + ", " + this.y + ", '" + this.text + "', "+this.colour+")";
+  return "Text(\"" + this.text + "\", " + this.x + ", " + this.y + ", " + this.colour + ", \"" +
+	this.size + "\")";
 };
 }}$;

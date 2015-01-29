@@ -38,7 +38,9 @@ func Slider { ${{
   var y = arguments[5];
   var length = arguments[6];
   var orientation = arguments[7];
+  if (orientation === undefined) orientation = "horizontal";
   var enabled = arguments[8];
+  if (enabled === undefined) enabled = true;
   return new Slider(name, min, max, step, x, y, length, orientation, enabled);
 }}$; }
 
@@ -55,7 +57,7 @@ Slider.prototype.draw = function(context,content) {
 	var value = valueSymbol.value();
 
 	if (sli === undefined) {
-		var orientationCSS = "";
+		var orientationCSS;
 		var topCSS;
 		if (this.orientation == "down"){
 			orientationCSS = "transform: rotate(90deg);"
@@ -64,6 +66,7 @@ Slider.prototype.draw = function(context,content) {
 			orientationCSS = "transform: rotate(-90deg);"
 			topCSS = "top: " + (this.y + this.length / 2).toString() + "px;";
 		} else {
+			orientationCSS = "";
 			topCSS = "top: " + this.y + "px;";		
 		}
 
@@ -84,9 +87,9 @@ Slider.prototype.draw = function(context,content) {
 			'min="' + this.min + '" ' +
 			'max="' + this.max + '" ' +
 			'step="' + this.step + '" />')).on("change", function(){
-				root.lookup(me2 + "_value").netAssign(parseInt(this.value));
+				root.lookup(me2 + "_value").netAssign(parseFloat(this.value));
 			}).on("input", function(){
-				root.lookup(me2 + "_preview").netAssign(parseInt(this.value));
+				root.lookup(me2 + "_preview").netAssign(parseFloat(this.value));
 			}));
 
 		this.element = inputhtml.get(0);
@@ -95,7 +98,7 @@ Slider.prototype.draw = function(context,content) {
 
 		setTimeout(function () {
 			//Assign obs value
-			var actualValue = parseInt(that.element.value);
+			var actualValue = parseFloat(that.element.value);
 			if (actualValue != value) {
 				//Old value not divisible by new step size.
 				valueSymbol.netAssign(actualValue);
@@ -106,8 +109,8 @@ Slider.prototype.draw = function(context,content) {
 	} else {
 		//Draw with the values stored in the observables
 		if (value === undefined) {
-			valueSymbol.assign(parseInt(this.element.value), this);
-			root.lookup(this.name + "_preview").assign(parseInt(this.element.value), this);
+			valueSymbol.assign(parseFloat(this.element.value), this);
+			root.lookup(this.name + "_preview").assign(parseFloat(this.element.value), this);
 		} else {
 			this.element.value = String(value);
 		}
@@ -119,6 +122,8 @@ Slider.prototype.draw = function(context,content) {
 
 ${{
 Slider.prototype.toString = function() {
-  return "Slider("+this.name+", "+this.min+", "+this.max+", "+this.step+", "+this.orientation+", "+this.x+", "+this.y+", "+this.length+")";
+  return "Slider(\"" + this.name + "\", " + this.min + ", " + this.max + ", " + this.step + ", " +
+	this.x + ", " + this.y + ", " + this.length + ", \"" + this.orientation + "\", " +
+	this.enabled + ")";
 };
 }}$;

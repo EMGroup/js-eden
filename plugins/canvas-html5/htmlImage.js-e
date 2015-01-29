@@ -70,6 +70,7 @@ HTMLImage.prototype.draw = function(context) {
 }}$;
 ${{
 HTMLImage.prototype.toString = function() {
-  return "HTMLImage(" + this.name + ", " + this.x + ", " + this.y + ", " + this.width + ", " + this.height + ", \"" + this.file + "\")";
+  return "HTMLImage(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
+	this.height + ", \"" + this.file + "\")";
 };
 }}$;
