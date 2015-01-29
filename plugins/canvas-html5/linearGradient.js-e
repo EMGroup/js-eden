@@ -56,6 +56,8 @@ ${{
 		this.colourStops = colourStops;
 	}
 	
+	LinearGradient.prototype = new EdenUI.plugins.CanvasHTML5.FillStyle();
+	
 	LinearGradient.prototype.getColour = function (context) {
 		var gradient = context.createLinearGradient(this.x1, this.y1, this.x2, this.y2);
 		var colourStop;

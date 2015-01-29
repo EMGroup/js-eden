@@ -201,8 +201,12 @@ EdenUI.plugins.CanvasHTML5.configureContext = function (context, options) {
 	}
 }
 
+EdenUI.plugins.CanvasHTML5.FillStyle = function () {
+	//Abstract superclass.
+}
+
 EdenUI.plugins.CanvasHTML5.setFillStyle = function (context, style) {
-	if (typeof(style) == "object") {
+	if (style instanceof EdenUI.plugins.CanvasHTML5.FillStyle) {
 		context.fillStyle = style.getColour(context);
 	} else {
 		context.fillStyle = style;

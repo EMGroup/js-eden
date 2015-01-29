@@ -57,9 +57,9 @@ Ellipse.prototype.toString = function() {
 		s = s + this.fillcolour + ", ";
 	}
 	if (this.outlinecolour === undefined) {
-		s = s + "@, ";
+		s = s + "@";
 	} else {
-		s = s + this.outlinecolour + ", ";
+		s = s + this.outlinecolour;
 	}
 	
 	if (this.drawingOptions !== undefined) {
