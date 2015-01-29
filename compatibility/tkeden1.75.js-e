@@ -25,6 +25,11 @@ func oldSort {
 }
 patch(&oldSort, &sort);
 
+proc srand {
+	para seed;
+	randomSeed = seed;
+}
+
 ##JS-EDEN tail func returns @ for an undefined argument, refuses the empty list
 ##or a non-list argument, and refuses if more than one argument is provided.
 func oldTail {
