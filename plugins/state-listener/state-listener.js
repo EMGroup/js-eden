@@ -92,6 +92,8 @@ EdenUI.plugins.SL = function(edenUI, success){
 						randomSeedSym.netAssign((new Date()).getTime());
 					} else {
 						pushSymbol("randomSeed");
+						root.lookup("randomGeneratorState").assign(randomSeed);
+						root.lookup("randomGeneratorIndex").assign(0);
 					}
 				};
 				
