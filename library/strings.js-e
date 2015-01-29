@@ -189,7 +189,7 @@ func replaceFirst {
 				} else {
 					return undefined;
 				}
-			} else if (startPos != parseInt(startPos)) {
+			} else if (!Number.isInteger(startPos)) {
 				eden.error(new Error("replaceFirst: The forth argument must be an int, not a float."), "error");
 				return undefined;
 			} else if (startPos == 0) {

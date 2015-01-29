@@ -186,7 +186,7 @@ func randomInteger {
 			return undefined;
 		} else if (isNaN(lowerBound)) {
 			return undefined;
-		} else if (lowerBound != parseInt(lowerBound)) {
+		} else if (!Number.isInteger(lowerBound)) {
 			eden.error(new Error("randomInteger: The lower bound must be an int, not a float."), "error");
 			return undefined;
 		} else if (typeof(upperBound) != "number") {
@@ -194,7 +194,7 @@ func randomInteger {
 			return undefined;
 		} else if (isNaN(upperBound)) {
 			return undefined;
-		} else if (upperBound != parseInt(upperBound)) {
+		} else if (!Number.isInteger(upperBound)) {
 			eden.error(new Error("randomInteger: The upper bound must be an int, not a float."), "error");
 			return undefined;
 		}
@@ -242,7 +242,7 @@ func round {
 		} else if (typeof(decimalPlaces) != "number") {
 			eden.error(new Error("round: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
 			return undefined;
-		} else if (decimalPlaces != parseInt(decimalPlaces) && !isNaN(decimalPlaces)) {
+		} else if (!Number.isInteger(decimalPlaces)) {
 			eden.error(new Error("round: The second argument must be an int, not a float"), "error");
 			return undefined;
 		} else {
