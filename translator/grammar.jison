@@ -8,8 +8,8 @@
 %lex
 
 %s JS
-%s D
-%s QUOTE
+%x D
+%x QUOTE
 %s LINECOMMENT
 %s BLOCKCOMMENT
 %%
@@ -19,17 +19,17 @@
 <BLOCKCOMMENT>.       {}
 "/*"                  { yy.commentNesting++; this.begin('BLOCKCOMMENT'); }
 
-<LINECOMMENT>[\n\r]   { this.popState(); }
-<LINECOMMENT>.        {}
-"##"                  { this.begin('LINECOMMENT'); }
-
 "${{"                 { this.begin('JS'); return "OPENJS"; }
 <JS>"}}$"             { this.popState(); return 'ENDJS'; }
 <JS>([\n\r]|.)        return 'JSCODE'
 
-<D>"\\\""             return 'STRINGCHARACTER'
+<LINECOMMENT>[\n\r]   { this.popState(); }
+<LINECOMMENT>.        {}
+"##"                  { this.begin('LINECOMMENT'); }
+
+<D>"\\".              return 'STRINGCHARACTER'
 <D>'"'                { this.popState(); return '"'; }
-<D>(.|\n)             return 'STRINGCHARACTER'
+<D>(.|\n|\r)          return 'STRINGCHARACTER'
 "\""                  { this.begin('D'); return '"'; }
 
 <QUOTE>"\\".         return 'STRINGCHARACTER'
