@@ -43,6 +43,7 @@ Eden.systemFunctionNames = [
 	"BulletSlide",
 	"Button",
 	"CanvasHTML5_DrawPicture",
+	"Checkbox",
 	"Circle",
 	"Combobox",
 	"Div",
