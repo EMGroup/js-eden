@@ -38,7 +38,7 @@ Checkbox.prototype.draw = function(context, content) {
 		var me = this;
 		var name = this.name;
 		var id = "canvas_" + this.name;
-		var valueSym = root.lookup( name + "_value");
+		var valueSym = root.lookup(name + "_checked");
 		var value = valueSym.value();
 
 		var jqElement = $("<input type=\"checkbox\" style=\"position: absolute\" />");
