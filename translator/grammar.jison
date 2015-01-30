@@ -19,13 +19,13 @@
 <BLOCKCOMMENT>.       {}
 "/*"                  { yy.commentNesting++; this.begin('BLOCKCOMMENT'); }
 
+<LINECOMMENT>[\n\r]   { this.popState(); }
+<LINECOMMENT>.        {}
+<INITIAL>"##"         { this.begin('LINECOMMENT'); }
+
 "${{"                 { this.begin('JS'); return "OPENJS"; }
 <JS>"}}$"             { this.popState(); return 'ENDJS'; }
 <JS>([\n\r]|.)        return 'JSCODE'
-
-<LINECOMMENT>[\n\r]   { this.popState(); }
-<LINECOMMENT>.        {}
-"##"                  { this.begin('LINECOMMENT'); }
 
 <D>"\\".              return 'STRINGCHARACTER'
 <D>'"'                { this.popState(); return '"'; }
