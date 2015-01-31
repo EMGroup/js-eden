@@ -59,7 +59,7 @@ Textbox.prototype.draw = function(context,content) {
 		this.element = html.get(0);
 		html.get(0).togarbage = false;
 
-		valueSymbol.addJSObserver(function (name, value) {
+		valueSymbol.addJSObserver("updateTextbox", function (name, value) {
 			me.element.value = value;
 		});
 

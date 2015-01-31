@@ -156,6 +156,7 @@
 		}
 		fireActions(actions_to_fire);
 		fireJSActions(expired);
+		fireJSActions(symbols_to_force);
 	};
 
 
@@ -196,7 +197,7 @@
 		// need to keep track of observers so we can notify those also
 		this.observers = {};
 		this.observees = {};
-		this.jsObservers = [];
+		this.jsObservers = {};
 
 		this.last_modified_by = undefined;
 	}
@@ -442,9 +443,9 @@
 	}
 
 	Symbol.prototype.fireJSObservers = function () {
-		for (var i = 0; i < this.jsObservers.length; i++) {
+		for (var jsObserverName in this.jsObservers) {
 			try {
-				this.jsObservers[i](this.name, this.value());
+				this.jsObservers[jsObserverName](this.name, this.value());
 			} catch (error) {
 				this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
 			}
@@ -525,21 +526,14 @@
 	/**
 	 * Add a JavaScript function to notify on changes to the stored value.
 	 *
+	 * @param {string} name A descriptive ID identifying the code being called.
 	 * @param {function} listener The JavaScript function to call when there is a change in this Symbol.
 	 */
-	Symbol.prototype.addJSObserver = function (listener) {
+	Symbol.prototype.addJSObserver = function (name, listener) {
 		if (typeof(listener) != "function") {
 			throw new Error("Failed adding JavaScript observer " + listener);
-		}
-		
-		for (var i = 0; i < this.jsObservers.length; i++) {
-			if (this.jsObservers[i] == listener) {
-				return;
-			}
-		}
-		this.jsObservers.push(listener);
-
-		return this;
+		}		
+		this.jsObservers[name] = listener;
 	}
 	
 	/**
@@ -554,15 +548,10 @@
 	/**
 	 * Tell this Symbol that it no longer needs to notify a specific JavaScript function.
 	 *
-	 * @param {function} listener Function that no longer needs to be notified.
+	 * @param {string} name Identifier of the function that no longer needs to be notified.
 	 */
-	 Symbol.prototype.removeJSObserver = function (listener) {
-		for (var i = 0; i < this.jsObservers.length; i++) {
-			if (this.jsObservers[i] == listener) {
-				this.jsObservers.splice(i, 1);
-				return;
-			}
-		}
+	 Symbol.prototype.removeJSObserver = function (name) {
+		delete this.jsObservers[name];
 	}
 
 	var Utils = {
