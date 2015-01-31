@@ -666,7 +666,7 @@
 		},
 		"Checkbox": {
 			"parameters": {
-				"name": "for [name]_value",
+				"name": "for [name]_checked",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[tristate": "Allow the user to click to produce an undefined value",

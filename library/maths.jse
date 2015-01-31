@@ -210,12 +210,12 @@ func randomInteger {
 }
 
 ${{
-	root.lookup("randomSeed").addJSObserver(function (name, seed) {
+	root.lookup("randomSeed").addJSObserver("applySeed", function (name, seed) {
 		root.lookup("randomGeneratorState").netAssign(seed);
 		root.lookup("randomIndex").netAssign(0);
 	});
 
-	root.lookup("randomGenerator").addJSObserver(function (name, generator) {
+	root.lookup("randomGenerator").addJSObserver("applySeed", function (name, generator) {
 		root.lookup("randomGeneratorState").netAssign(root.lookup("randomSeed").value());		
 		root.lookup("randomIndex").netAssign(0);
 	});
