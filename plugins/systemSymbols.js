@@ -6,6 +6,7 @@ Eden.systemObservableNames = [
 	"autocalc",
 	"false",
 	"generate_function",
+	"mouseButtons",
 	"mouseDown",
 	"mouseDownWindow",
 	"mousePosition",
@@ -13,6 +14,8 @@ Eden.systemObservableNames = [
 	"mouseUp",
 	"mouseWindow",
 	"radiansPerUnit",
+	"randomGenerator",
+	"randomIndex",
 	"true"
 ];
 
@@ -58,6 +61,7 @@ Eden.systemFunctionNames = [
 	"PixelList",
 	"Point",
 	"Polygon",
+	"RadialGradient",
 	"RadioButtons",
 	"Rectangle",
 	"RoundedRectangle",
@@ -149,7 +153,8 @@ Eden.systemFunctionNames = [
 	"translate",
 	"trim",
 	"type",
-	"uppercase"
+	"uppercase",
+	"xorshiftRandomGenerator"
 ];
 Eden.isitSystemSymbol = function(name){
 

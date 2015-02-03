@@ -3,6 +3,15 @@
 ##
 ## See LICENSE.txt
 
+##Initialize observables
+mouseButtons = {left: false, middle: false, right: false, button4: false, button5: false,
+	toString: ${{ function () {
+		return "{left: " + this.left + ", middle: " + this.middle + ", right: " + this.right + ", button4: " + this.button4 + ", button5: " + this.button5 + "}";
+	} }}$
+};
+mouseContextMenuEnabled = false;
+mouseFollow = true;
+
 ##Creates a canvas and a triggered procedure so that canvas display is kept in
 ##sync with the value of a given observable at all times.  The first parameter
 ##is the name of the observable who's value provides the list of drawables.  The

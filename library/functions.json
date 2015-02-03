@@ -19,7 +19,7 @@
 		"canvasURL": {
 			"parameters": {
 				"[canvas": "",
-				"[anything...]]" : ""
+				"[triggering_observables...]]" : ""
 			},
 			"return": "",
 			"description": ""
