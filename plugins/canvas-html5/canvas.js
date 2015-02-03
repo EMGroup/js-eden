@@ -117,14 +117,40 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			y = e.pageY - pos.top;
 			var followMouse = root.lookup("mouseFollow").value();
 			var mousePos = root.lookup('Point').value().call(this, x, y);
+			var mouseButtonsSym = root.lookup("mouseButtons");
+			var buttonsDown = mouseButtonsSym.value();
+			var buttonsPreviouslyDown = buttonsDown.left || buttonsDown.middle || buttonsDown.right || buttonsDown.button4 || buttonsDown.button5;
+			switch (e.button) {
+				case 0:
+					buttonsDown.left = true;
+					break;
+				case 1:
+					buttonsDown.middle = true;
+					break;
+				case 2:
+					buttonsDown.right = true;
+					break;
+				case 3:
+					buttonsDown.button4 = true;
+					break;
+				case 4:
+					buttonsDown.button5 = true;
+					break;
+			}
 			if (followMouse) {
-				root.lookup('mousePressed').netAssign(true);
-				root.lookup('mouseDownWindow').netAssign(displayedName);
-				root.lookup('mouseDown').netAssign(mousePos);
+				root.lookup('mousePressed').netAssign(buttonsDown.left);
+				mouseButtonsSym.netAssign(buttonsDown);
+				if (!buttonsPreviouslyDown) {
+					root.lookup('mouseDownWindow').netAssign(displayedName);
+					root.lookup('mouseDown').netAssign(mousePos);
+				}
 			} else {
-				root.lookup('mousePressed').assign(true);
-				root.lookup('mouseDownWindow').assign(displayedName);
-				root.lookup('mouseDown').assign(mousePos);
+				root.lookup('mousePressed').assign(buttonsDown.left);
+				mouseButtonsSym.assign(buttonsDown);
+				if (!buttonsPreviouslyDown) {
+					root.lookup('mouseDownWindow').assign(displayedName);
+					root.lookup('mouseDown').assign(mousePos);
+				}
 			}
 		}).on("mouseup",function(e) {
 			pos = $(this).offset();
@@ -132,12 +158,43 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			y = e.pageY - pos.top;
 			var followMouse = root.lookup("mouseFollow").value();
 			var mousePos = root.lookup('Point').value().call(this, x, y);
+			var mouseButtonsSym = root.lookup("mouseButtons");
+			var buttonsDown = mouseButtonsSym.value();
+			switch (e.button) {
+				case 0:
+					buttonsDown.left = false;
+					break;
+				case 1:
+					buttonsDown.middle = false;
+					break;
+				case 2:
+					buttonsDown.right = false;
+					break;
+				case 3:
+					buttonsDown.button4 = false;
+					break;
+				case 4:
+					buttonsDown.button5 = false;
+					break;
+			}
+			var someButtonsDown = buttonsDown.left || buttonsDown.middle || buttonsDown.right || buttonsDown.button4 || buttonsDown.button5;
 			if (followMouse) {
-				root.lookup('mousePressed').netAssign(false);
-				root.lookup('mouseUp').netAssign(mousePos);
+				root.lookup('mousePressed').netAssign(buttonsDown.left);
+				mouseButtonsSym.netAssign(buttonsDown);
+				if (!someButtonsDown) {
+					root.lookup('mouseUp').netAssign(mousePos);
+				}
 			} else {
-				root.lookup('mousePressed').assign(false);
-				root.lookup('mouseUp').assign(mousePos);
+				root.lookup('mousePressed').assign(buttonsDown.left);
+				mouseButtonsSym.assign(buttonsDown);
+				if (!someButtonsDown) {
+					root.lookup('mouseUp').assign(mousePos);
+				}
+			}
+		}).on("contextmenu", function (e) {
+			if (!root.lookup("mouseContextMenuEnabled").value()) {
+				e.preventDefault();
+				e.stopPropagation();
 			}
 		}).on("mousemove",function(e) {
 			pos = $(this).offset();

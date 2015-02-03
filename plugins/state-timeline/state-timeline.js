@@ -21,7 +21,7 @@ EdenUI.plugins.ST = function(edenUI, success){
 		}
 
 		//Things not to delete
-		me.ignoreRE = new RegExp("((_view.*)|(_View.*)|(_status)|(mouse.*)|(picture)|(canvas)|(drawPicture)|(CanvasHTML5_DrawPicture)|(updateCanvas))");
+		me.ignoreRE = new RegExp("((_view.*)|(_View.*)|(_status)|(mouse.*)|(picture))");
 		
 		code_entry = $('<div id=\"'+name+'-content\" class=\"st-content\"></div>').append($("<input id=\""+name+"-regex\"></input>")).append($('<button style="margin-bottom:20px;">Generate State</button>').click(function(){
 			
@@ -164,7 +164,7 @@ EdenUI.plugins.ST = function(edenUI, success){
 */		
 		for(var i=0; i<symbolsx.length; i++){
 		
-			var blank = " - ";
+			var blank = "@";
 			var ofa = "";
 			var ofai = 5;
 		
@@ -208,19 +208,8 @@ EdenUI.plugins.ST = function(edenUI, success){
 				}
 			}
 				
-			var value = ""+symbolsx[i].cached_value;
+			var value = root.lookup("edenCode").definition(root)(symbolsx[i].cached_value);
 			
-			if(Object.prototype.toString.call(symbolsx[i].cached_value) === '[object Array]'){
-				value = "["+symbolsx[i].cached_value+"]"
-			}
-				if(value=="undefined"){
-					value = blank;
-				}
-				else{
-					if(typeof symbolsx[i].cached_value=="string"){
-						value = "\""+value+"\"";
-					}
-				}
 			var WATCHES = SG.propertiesFromObject(symbolsx[i].observees).join(", ").replace(/\//g,'');
 				if(WATCHES==""){
 					WATCHES = blank;
