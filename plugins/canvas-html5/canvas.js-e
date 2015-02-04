@@ -10,6 +10,7 @@ mouseButtons = {left: false, middle: false, right: false, button4: false, button
 	} }}$
 };
 mouseContextMenuEnabled = false;
+mouseDoubleClicks = 0;
 mouseFollow = true;
 
 ##Creates a canvas and a triggered procedure so that canvas display is kept in

@@ -9,6 +9,7 @@ Eden.systemObservableNames = [
 	"mouseButtonDown",
 	"mouseButtons",
 	"mouseButtonUp",
+	"mouseDoubleClicks",
 	"mouseDown",
 	"mouseDownWindow",
 	"mousePosition",
