@@ -4,9 +4,9 @@
 ## See LICENSE.txt
 
 ##Initialize observables
-mouseButtons = {left: false, middle: false, right: false, button4: false, button5: false,
+mouseButtons = {left: false, middle: false, right: false, button4: false, button5: false, count: 0,
 	toString: ${{ function () {
-		return "{left: " + this.left + ", middle: " + this.middle + ", right: " + this.right + ", button4: " + this.button4 + ", button5: " + this.button5 + "}";
+		return "{count: " + this.count + ", left: " + this.left + ", middle: " + this.middle + ", right: " + this.right + ", button4: " + this.button4 + ", button5: " + this.button5 + "}";
 	} }}$
 };
 mouseContextMenuEnabled = false;
