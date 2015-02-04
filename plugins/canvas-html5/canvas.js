@@ -37,7 +37,8 @@ document.addEventListener("mouseup", function (e) {
 		}
 		buttonsDown.count = buttonsDown.left + buttonsDown.middle + buttonsDown.right + buttonsDown.button4 + buttonsDown.button5;
 		var followMouse = root.lookup("mouseFollow").value();
-		if (buttonsDown.count == 0) {
+		var buttonsSym = root.lookup("mouseButtons");
+		if (buttonsDown.count == 0 && buttonsSym.value() != "") {
 			//Final button released outside of any canvas window.
 			var autocalcSym = root.lookup("autocalc");
 			var autocalcValueOnEntry = autocalcSym.value();
@@ -45,9 +46,10 @@ document.addEventListener("mouseup", function (e) {
 
 			var mousePressedSym = root.lookup("mousePressed");
 			var mousePressed = mousePressedSym.value();
+
 			if (followMouse) {
 				root.lookup("mouseButton").netAssign(buttonName + " up");
-				root.lookup("mouseButtons").netAssign("");
+				buttonsSym.netAssign("");
 				root.lookup('mousePosition').netAssign(undefined);
 				if (mousePressed) {
 					mousePressedSym.netAssign(false);
@@ -56,7 +58,7 @@ document.addEventListener("mouseup", function (e) {
 				root.lookup('mouseWindow').netAssign(undefined);
 			} else {
 				root.lookup("mouseButton").assign(buttonName + " up");
-				root.lookup("mouseButtons").assign("");
+				buttonsSym.assign("");
 				root.lookup('mousePosition').assign(undefined);
 				if (mousePressed) {
 					mousePressedSym.assign(false);
@@ -377,12 +379,12 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			}
 		
 		}).on("wheel", function (e) {
-			if (!e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) {
-				e.preventDefault();
-				e.stopPropagation();
-				var followMouse = root.lookup("mouseFollow").value();
-				var e2 = e.originalEvent;
-				if (e2.deltaY !== 0) {
+			var e2 = e.originalEvent;
+			var followMouse = root.lookup("mouseFollow").value();
+			if (e2.deltaY !== 0) {
+				if (!e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) {
+					e.preventDefault();
+					e.stopPropagation();
 					var mouseWheelSym = root.lookup("mouseWheel");
 					var mouseWheelValue = mouseWheelSym.value();
 					if (e2.deltaY < 0) {
@@ -396,19 +398,21 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 						mouseWheelSym.assign(mouseWheelValue);
 					}
 				}
-				if (e2.deltaX !== 0) {
-					var touchScrollXSym = root.lookup("touchScrollX");
-					var touchScrollXValue = touchScrollXSym.value();
-					if (e2.deltaX < 0) {
-						touchScrollXValue--;
-					} else {
-						touchScrollXValue++;
-					}
-					if (followMouse) {
-						touchScrollXSym.netAssign(touchScrollXValue);
-					} else {
-						touchScrollXSym.assign(touchScrollXValue);
-					}
+			}
+			if (e2.deltaX !== 0) {
+				e.preventDefault();
+				e.stopPropagation();
+				var touchScrollXSym = root.lookup("touchScrollX");
+				var touchScrollXValue = touchScrollXSym.value();
+				if (e2.deltaX < 0) {
+					touchScrollXValue--;
+				} else {
+					touchScrollXValue++;
+				}
+				if (followMouse) {
+					touchScrollXSym.netAssign(touchScrollXValue);
+				} else {
+					touchScrollXSym.assign(touchScrollXValue);
 				}
 			}
 
