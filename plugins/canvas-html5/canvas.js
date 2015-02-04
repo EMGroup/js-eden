@@ -5,6 +5,89 @@
  * See LICENSE.txt
  */
 
+//To catch when a mouse button is pressed down over a canvas window and then released outside of any
+//canvas window.
+document.addEventListener("mouseup", function (e) {
+	var followMouse = root.lookup("mouseFollow").value();
+	var mouseButtonsSym = root.lookup("mouseButtons");
+	var buttonsDown = mouseButtonsSym.value();
+	var autocalcSym = root.lookup("autocalc");
+	var autocalcBeforeEvent = buttonsDown.autocalc;
+	if (autocalcBeforeEvent === undefined) {
+		autocalcBeforeEvent = autocalcSym.value();
+		autocalcSym.assign(0);
+	} else {
+		buttonsDown.autocalc = undefined;
+	}
+
+	if (e.button == 0) {
+		if (followMouse) {
+			root.lookup('mousePressed').netAssign(false);
+		} else {
+			root.lookup('mousePressed').assign(false);
+		}
+	}
+
+	//If the mouse pointer is inside a canvas window then buttonsDown.count has already been
+	//calculated inside the canvas mouse up event listener, hence it may be when we reach zero here.
+	if (buttonsDown.count > 0) {
+		var buttonName;
+		switch (e.button) {
+			case 0:
+				buttonsDown.left = false;
+				buttonName = "left";
+				break;
+			case 1:
+				buttonsDown.middle = false;
+				buttonName = "middle";
+				break;
+			case 2:
+				buttonsDown.right = false;
+				buttonName = "right";
+				break;
+			case 3:
+				buttonsDown.button4 = false;
+				buttonName = "button4";
+				break;
+			case 4:
+				buttonsDown.button5 = false;
+				buttonName = "button5";
+				break;
+			default:
+				buttonName = "unknown";
+		}
+		buttonsDown.count = buttonsDown.left + buttonsDown.middle + buttonsDown.right + buttonsDown.button4 + buttonsDown.button5;
+		if (buttonsDown.count == 0) {
+			//Final button released outside of any canvas window.
+			buttonUpSym = root.lookup("mouseButtonUp");
+			if (followMouse) {
+				if (buttonUpSym.value() === undefined) {
+					root.lookup('mouseButtonDown').netAssign(undefined);
+				}
+				buttonUpSym.netAssign(buttonName);
+				root.lookup('mousePosition').netAssign(undefined);
+				root.lookup('mouseUp').netAssign(undefined);
+				root.lookup('mouseWindow').netAssign(undefined);
+			} else {
+				if (buttonUpSym.value() === undefined) {
+					root.lookup('mouseButtonDown').assign(undefined);
+				}
+				buttonUpSym.assign(buttonName);
+				root.lookup('mousePosition').assign(undefined);
+				root.lookup('mouseUp').assign(undefined);
+				root.lookup('mouseWindow').assign(undefined);
+			}
+		}
+	}
+
+	if (followMouse) {
+		mouseButtonsSym.netAssign(buttonsDown);
+	} else {
+		mouseButtonsSym.assign(buttonsDown);
+	}
+	autocalcSym.assign(autocalcBeforeEvent);
+});
+
 /**
  * JS-Eden Canvas Plugin
  * Allows a html5 canvas to be displayed and used within JS-Eden for drawing.
@@ -111,104 +194,159 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" width=\"550px\" height=\"380px\"></canvas>");
 		//Remove -dialog name suffix.
 		var displayedName = name.slice(0, -7);
-		code_entry.find(".canvashtml-canvas").on("mousedown",function(e) {
-			pos = $(this).offset();
-			x = e.pageX - pos.left;
-			y = e.pageY - pos.top;
+		code_entry.find(".canvashtml-canvas").on("mousedown", function(e) {
 			var followMouse = root.lookup("mouseFollow").value();
-			var mousePos = root.lookup('Point').value().call(this, x, y);
 			var mouseButtonsSym = root.lookup("mouseButtons");
 			var buttonsDown = mouseButtonsSym.value();
-			var buttonsPreviouslyDown = buttonsDown.left || buttonsDown.middle || buttonsDown.right || buttonsDown.button4 || buttonsDown.button5;
+			var autocalcSym = root.lookup("autocalc");
+			var autocalcValueOnEntry = autocalcSym.value();
+			autocalcSym.assign(0);
+			var buttonName;
+			
+			if (e.buttons !== undefined && e.buttons != 0) {
+				/*
+				 * As of 3/2/2015 Chrome doesn't support this method of checking and Firefox has
+				 * issues with OS X and with buttons 4 and 5 on Linux & Windows.  However, this
+				 * property (where available) captures the case of pressing one mouse button down
+				 * when outside of any canvas window and then moving the pointer inside a canvas
+				 * window and then finally pressing another button down.
+				 */
+				buttonsDown.left = ((e.buttons & 1) == 1);
+				buttonsDown.middle = ((e.buttons & 4) == 4);
+				buttonsDown.right = ((e.buttons & 2) == 2);
+				if (e.buttons & 8) {
+					buttonsDown.button4 = true;
+				}
+				if (e.buttons & 16) {
+					buttonsDown.button5 = true;
+				}
+			}
 			switch (e.button) {
 				case 0:
 					buttonsDown.left = true;
+					if (followMouse) {
+						root.lookup('mousePressed').netAssign(true);
+					} else {
+						root.lookup('mousePressed').assign(true);					
+					}
+					buttonName = "left";
 					break;
 				case 1:
 					buttonsDown.middle = true;
+					buttonName = "middle";
 					break;
 				case 2:
 					buttonsDown.right = true;
+					buttonName = "right";
 					break;
 				case 3:
 					buttonsDown.button4 = true;
+					buttonName = "button4";
 					break;
 				case 4:
 					buttonsDown.button5 = true;
+					buttonName = "button5";
 					break;
+				default:
+					buttonName = "unknown";
 			}
+			buttonsDown.count = buttonsDown.left + buttonsDown.middle + buttonsDown.right + buttonsDown.button4 + buttonsDown.button5;
+
 			if (followMouse) {
-				root.lookup('mousePressed').netAssign(buttonsDown.left);
 				mouseButtonsSym.netAssign(buttonsDown);
-				if (!buttonsPreviouslyDown) {
-					root.lookup('mouseDownWindow').netAssign(displayedName);
-					root.lookup('mouseDown').netAssign(mousePos);
-				}
+				root.lookup("mouseButtonDown").netAssign(buttonName);
+				root.lookup("mouseButtonUp").netAssign(undefined);
 			} else {
-				root.lookup('mousePressed').assign(buttonsDown.left);
 				mouseButtonsSym.assign(buttonsDown);
-				if (!buttonsPreviouslyDown) {
+				root.lookup("mouseButtonDown").assign(buttonName);
+				root.lookup("mouseButtonUp").assign(undefined);
+			}
+
+			if (buttonsDown.count == 1) {
+				var mousePos = root.lookup('Point').value().call(this, e.clientX, e.clientY);
+				if (followMouse) {
+					root.lookup('mouseDownWindow').netAssign(displayedName);
+					root.lookup('mouseDown').netAssign(mousePos);				
+				} else {
 					root.lookup('mouseDownWindow').assign(displayedName);
 					root.lookup('mouseDown').assign(mousePos);
 				}
 			}
+			autocalcSym.assign(autocalcValueOnEntry);
+
 		}).on("mouseup",function(e) {
-			pos = $(this).offset();
-			x = e.pageX - pos.left;
-			y = e.pageY - pos.top;
 			var followMouse = root.lookup("mouseFollow").value();
-			var mousePos = root.lookup('Point').value().call(this, x, y);
+			//The only reason we compute which mouse buttons are pressed here is to check if we need
+			//to update the mouseUp and mouseButtonUp observables.  Updates to the other observables
+			//are done inside the document mouse up event handler.
 			var mouseButtonsSym = root.lookup("mouseButtons");
 			var buttonsDown = mouseButtonsSym.value();
+			var autocalcSym = root.lookup("autocalc");
+			var autocalcValueOnEntry = autocalcSym.value();
+			autocalcSym.assign(0);
+			buttonsDown.autocalc = autocalcValueOnEntry; //To be restored in document mouse up handler
+			var buttonName;
+
 			switch (e.button) {
 				case 0:
 					buttonsDown.left = false;
+					buttonName = "left";
 					break;
 				case 1:
 					buttonsDown.middle = false;
+					buttonName = "middle";
 					break;
 				case 2:
 					buttonsDown.right = false;
+					buttonName = "right";
 					break;
 				case 3:
 					buttonsDown.button4 = false;
+					buttonName = "button4";
 					break;
 				case 4:
 					buttonsDown.button5 = false;
+					buttonName = "button5";
 					break;
+				default:
+					buttonName = "unknown";
 			}
-			var someButtonsDown = buttonsDown.left || buttonsDown.middle || buttonsDown.right || buttonsDown.button4 || buttonsDown.button5;
+			buttonsDown.count = buttonsDown.left + buttonsDown.middle + buttonsDown.right + buttonsDown.button4 + buttonsDown.button5;
+
 			if (followMouse) {
-				root.lookup('mousePressed').netAssign(buttonsDown.left);
-				mouseButtonsSym.netAssign(buttonsDown);
-				if (!someButtonsDown) {
-					root.lookup('mouseUp').netAssign(mousePos);
-				}
+				root.lookup("mouseButtonDown").netAssign(undefined);
+				root.lookup("mouseButtonUp").netAssign(buttonName);
 			} else {
-				root.lookup('mousePressed').assign(buttonsDown.left);
-				mouseButtonsSym.assign(buttonsDown);
-				if (!someButtonsDown) {
+				root.lookup("mouseButtonDown").assign(undefined);
+				root.lookup("mouseButtonUp").assign(buttonName);
+			}
+			
+			if (buttonsDown.count == 0) {
+				var mousePos = root.lookup('Point').value().call(this, e.clientX, e.clientY);
+				if (followMouse) {
+					root.lookup('mouseUp').netAssign(mousePos);
+				} else {
 					root.lookup('mouseUp').assign(mousePos);
 				}
 			}
+
 		}).on("contextmenu", function (e) {
 			if (!root.lookup("mouseContextMenuEnabled").value()) {
 				e.preventDefault();
 				e.stopPropagation();
 			}
+
 		}).on("mousemove",function(e) {
-			pos = $(this).offset();
-			x = e.pageX - pos.left;
-			y = e.pageY - pos.top;
 			var followMouse = root.lookup("mouseFollow").value();
-			var mousePos = root.lookup('Point').value().call(this, x, y);
+			var mousePos = root.lookup('Point').value().call(this, e.clientX, e.clientY);
 			if (followMouse) {
 				root.lookup('mouseWindow').netAssign(displayedName);
-				root.lookup('mousePosition').netAssign(root.lookup('Point').value().call(this, x, y));
+				root.lookup('mousePosition').netAssign(mousePos);
 			} else {
 				root.lookup('mouseWindow').assign(displayedName);
-				root.lookup('mousePosition').assign(root.lookup('Point').value().call(this, x, y));
+				root.lookup('mousePosition').assign(mousePos);
 			}
+
 		});
 
 		$dialog = $('<div id="'+name+'"></div>')
