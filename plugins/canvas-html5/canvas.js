@@ -370,6 +370,42 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			} else {
 				dblClickSym.assign(numClicks + 1);
 			}
+		
+		}).on("wheel", function (e) {
+			if (!e.ctrlKey) {
+				e.preventDefault();
+				e.stopPropagation();
+				var followMouse = root.lookup("mouseFollow").value();
+				var e2 = e.originalEvent;
+				if (e2.deltaY !== 0) {
+					var mouseWheelSym = root.lookup("mouseWheel");
+					var mouseWheelValue = mouseWheelSym.value();
+					if (e2.deltaY < 0) {
+						mouseWheelValue--;
+					} else {
+						mouseWheelValue++;
+					}
+					if (followMouse) {
+						mouseWheelSym.netAssign(mouseWheelValue);
+					} else {
+						mouseWheelSym.assign(mouseWheelValue);
+					}
+				}
+				if (e2.deltaX !== 0) {
+					var touchScrollXSym = root.lookup("touchScrollX");
+					var touchScrollXValue = touchScrollXSym.value();
+					if (e2.deltaX < 0) {
+						touchScrollXValue--;
+					} else {
+						touchScrollXValue++;
+					}
+					if (followMouse) {
+						touchScrollXSym.netAssign(touchScrollXValue);
+					} else {
+						touchScrollXSym.assign(touchScrollXValue);
+					}
+				}
+			}
 
 		}).on("mousemove",function(e) {
 			var followMouse = root.lookup("mouseFollow").value();

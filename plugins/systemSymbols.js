@@ -6,19 +6,20 @@ Eden.systemObservableNames = [
 	"autocalc",
 	"false",
 	"generate_function",
-	"mouseButtonDown",
+	"mouseButtonChange",
 	"mouseButtons",
-	"mouseButtonUp",
 	"mouseDoubleClicks",
 	"mouseDown",
 	"mouseDownWindow",
 	"mousePosition",
 	"mousePressed",
 	"mouseUp",
+	"mouseWheel",
 	"mouseWindow",
 	"radiansPerUnit",
 	"randomGenerator",
 	"randomIndex",
+	"touchpadScrollX",
 	"true"
 ];
 

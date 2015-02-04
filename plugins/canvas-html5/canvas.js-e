@@ -8,6 +8,8 @@ mouseButtons = "";
 mouseContextMenuEnabled = false;
 mouseDoubleClicks = 0;
 mouseFollow = true;
+mouseWheel = 0;
+touchScrollX = 0;
 
 ##Creates a canvas and a triggered procedure so that canvas display is kept in
 ##sync with the value of a given observable at all times.  The first parameter
