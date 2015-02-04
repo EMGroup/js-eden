@@ -377,7 +377,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			}
 		
 		}).on("wheel", function (e) {
-			if (!e.ctrlKey) {
+			if (!e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) {
 				e.preventDefault();
 				e.stopPropagation();
 				var followMouse = root.lookup("mouseFollow").value();
