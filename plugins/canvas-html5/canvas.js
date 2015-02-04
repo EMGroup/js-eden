@@ -13,24 +13,17 @@ document.addEventListener("mouseup", function (e) {
 	var buttonsDown = EdenUI.plugins.CanvasHTML5.mouseButtonsDown;
 	var autocalcSym = root.lookup("autocalc");
 	var autocalcBeforeEvent = buttonsDown.autocalc;
+	var mouseOverCanvas;
 	if (autocalcBeforeEvent === undefined) {
 		autocalcBeforeEvent = autocalcSym.value();
 		autocalcSym.assign(0);
+		mouseOverCanvas = false;
 	} else {
 		buttonsDown.autocalc = undefined;
+		mouseOverCanvas = true;
 	}
 
-	if (e.button == 0) {
-		if (followMouse) {
-			root.lookup('mousePressed').netAssign(false);
-		} else {
-			root.lookup('mousePressed').assign(false);
-		}
-	}
-
-	//If the mouse pointer is inside a canvas window then buttonsDown.count has already been
-	//calculated inside the canvas mouse up event listener, hence it may be when we reach zero here.
-	if (buttonsDown.count > 0) {
+	if (!mouseOverCanvas) {
 		var buttonName;
 		switch (e.button) {
 			case 0:
@@ -59,14 +52,22 @@ document.addEventListener("mouseup", function (e) {
 		buttonsDown.count = buttonsDown.left + buttonsDown.middle + buttonsDown.right + buttonsDown.button4 + buttonsDown.button5;
 		if (buttonsDown.count == 0) {
 			//Final button released outside of any canvas window.
+			var mousePressedSym = root.lookup("mousePressed");
+			var mousePressed = mousePressedSym.value();
 			if (followMouse) {
 				root.lookup("mouseButton").netAssign(buttonName + " up");
 				root.lookup('mousePosition').netAssign(undefined);
+				if (mousePressed) {
+					mousePressedSym.netAssign(false);
+				}
 				root.lookup('mouseUp').netAssign(undefined);
 				root.lookup('mouseWindow').netAssign(undefined);
 			} else {
 				root.lookup("mouseButton").assign(buttonName + " up");
 				root.lookup('mousePosition').assign(undefined);
+				if (mousePressed) {
+					mousePressedSym.assign(false);
+				}
 				root.lookup('mouseUp').assign(undefined);
 				root.lookup('mouseWindow').assign(undefined);
 			}
@@ -240,7 +241,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 					if (followMouse) {
 						root.lookup('mousePressed').netAssign(true);
 					} else {
-						root.lookup('mousePressed').assign(true);					
+						root.lookup('mousePressed').assign(true);
 					}
 					buttonName = "Left";
 					break;
@@ -316,6 +317,11 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			switch (e.button) {
 				case 0:
 					buttonsDown.left = false;
+					if (followMouse) {
+						root.lookup('mousePressed').netAssign(false);
+					} else {
+						root.lookup('mousePressed').assign(false);
+					}
 					buttonName = "Left";
 					break;
 				case 1:
