@@ -8,22 +8,8 @@
 //To catch when a mouse button is pressed down over a canvas window and then released outside of any
 //canvas window.
 document.addEventListener("mouseup", function (e) {
-	var followMouse = root.lookup("mouseFollow").value();
-	var mouseButtonsSym = root.lookup("mouseButtons");
 	var buttonsDown = EdenUI.plugins.CanvasHTML5.mouseButtonsDown;
-	var autocalcSym = root.lookup("autocalc");
-	var autocalcBeforeEvent = buttonsDown.autocalc;
-	var mouseOverCanvas;
-	if (autocalcBeforeEvent === undefined) {
-		autocalcBeforeEvent = autocalcSym.value();
-		autocalcSym.assign(0);
-		mouseOverCanvas = false;
-	} else {
-		buttonsDown.autocalc = undefined;
-		mouseOverCanvas = true;
-	}
-
-	if (!mouseOverCanvas) {
+	if (!buttonsDown.insideCanvas) {
 		var buttonName;
 		switch (e.button) {
 			case 0:
@@ -50,12 +36,18 @@ document.addEventListener("mouseup", function (e) {
 				buttonName = "Unknown";
 		}
 		buttonsDown.count = buttonsDown.left + buttonsDown.middle + buttonsDown.right + buttonsDown.button4 + buttonsDown.button5;
+		var followMouse = root.lookup("mouseFollow").value();
 		if (buttonsDown.count == 0) {
 			//Final button released outside of any canvas window.
+			var autocalcSym = root.lookup("autocalc");
+			var autocalcValueOnEntry = autocalcSym.value();
+			autocalcSym.assign(0);
+
 			var mousePressedSym = root.lookup("mousePressed");
 			var mousePressed = mousePressedSym.value();
 			if (followMouse) {
 				root.lookup("mouseButton").netAssign(buttonName + " up");
+				root.lookup("mouseButtons").netAssign("");
 				root.lookup('mousePosition').netAssign(undefined);
 				if (mousePressed) {
 					mousePressedSym.netAssign(false);
@@ -64,6 +56,7 @@ document.addEventListener("mouseup", function (e) {
 				root.lookup('mouseWindow').netAssign(undefined);
 			} else {
 				root.lookup("mouseButton").assign(buttonName + " up");
+				root.lookup("mouseButtons").assign("");
 				root.lookup('mousePosition').assign(undefined);
 				if (mousePressed) {
 					mousePressedSym.assign(false);
@@ -71,35 +64,35 @@ document.addEventListener("mouseup", function (e) {
 				root.lookup('mouseUp').assign(undefined);
 				root.lookup('mouseWindow').assign(undefined);
 			}
+			autocalcSym.assign(autocalcValueOnEntry);
 		}
 	}
 
-	var buttonsStr = "|";
-	if (buttonsDown.left) {
-		buttonsStr = buttonsStr + "Left|";
-	}
-	if (buttonsDown.middle) {
-		buttonsStr = buttonsStr + "Middle|";
-	}
-	if (buttonsDown.right) {
-		buttonsStr = buttonsStr + "Right|";
-	}
-	if (buttonsDown.button4) {
-		buttonsStr = buttonsStr + "Button4|";
-	}
-	if (buttonsDown.button5) {
-		buttonsStr = buttonsStr + "Button5|";
-	}
-	if (buttonsStr == "|") {
-		buttonsStr = "";
-	}
+});
 
-	if (followMouse) {
-		mouseButtonsSym.netAssign(buttonsStr);
-	} else {
-		mouseButtonsSym.assign(buttonsStr);
+document.addEventListener("mousedown", function (e) {
+	var buttonsDown = EdenUI.plugins.CanvasHTML5.mouseButtonsDown;
+	if (!buttonsDown.insideCanvas) {
+		var buttonName;
+		switch (e.button) {
+			case 0:
+				buttonsDown.left = true;
+				break;
+			case 1:
+				buttonsDown.middle = true;
+				break;
+			case 2:
+				buttonsDown.right = true;
+				break;
+			case 3:
+				buttonsDown.button4 = true;
+				break;
+			case 4:
+				buttonsDown.button5 = true;
+				break;
+		}
+		buttonsDown.count = buttonsDown.left + buttonsDown.middle + buttonsDown.right + buttonsDown.button4 + buttonsDown.button5;;
 	}
-	autocalcSym.assign(autocalcBeforeEvent);
 });
 
 /**
@@ -209,32 +202,15 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 		//Remove -dialog name suffix.
 		var displayedName = name.slice(0, -7);
 		code_entry.find(".canvashtml-canvas").on("mousedown", function(e) {
-			var followMouse = root.lookup("mouseFollow").value();
-			var mouseButtonsSym = root.lookup("mouseButtons");
-			var buttonsDown = EdenUI.plugins.CanvasHTML5.mouseButtonsDown;
 			var autocalcSym = root.lookup("autocalc");
 			var autocalcValueOnEntry = autocalcSym.value();
 			autocalcSym.assign(0);
-			var buttonName;
-			
-			if (e.buttons !== undefined && e.buttons != 0) {
-				/*
-				 * As of 3/2/2015 Chrome doesn't support this method of checking and Firefox has
-				 * issues with OS X and with buttons 4 and 5 on Linux & Windows.  However, this
-				 * property (where available) captures the case of pressing one mouse button down
-				 * when outside of any canvas window and then moving the pointer inside a canvas
-				 * window and then finally pressing another button down.
-				 */
-				buttonsDown.left = ((e.buttons & 1) == 1);
-				buttonsDown.middle = ((e.buttons & 4) == 4);
-				buttonsDown.right = ((e.buttons & 2) == 2);
-				if (e.buttons & 8) {
-					buttonsDown.button4 = true;
-				}
-				if (e.buttons & 16) {
-					buttonsDown.button5 = true;
-				}
-			}
+
+			var followMouse = root.lookup("mouseFollow").value();
+			var buttonsDown = EdenUI.plugins.CanvasHTML5.mouseButtonsDown;
+			buttonsDown.insideCanvas = true;
+
+			var buttonName;			
 			switch (e.button) {
 				case 0:
 					buttonsDown.left = true;
@@ -264,7 +240,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 				default:
 					buttonName = "Unknown";
 			}
-			buttonsDown.count = buttonsDown.left + buttonsDown.middle + buttonsDown.right + buttonsDown.button4 + buttonsDown.button5;
+			buttonsDown.count = buttonsDown.left + buttonsDown.middle + buttonsDown.right + buttonsDown.button4 + buttonsDown.button5;;
 			var buttonsStr = "|";
 			if (buttonsDown.left) {
 				buttonsStr = buttonsStr + "Left|";
@@ -283,10 +259,10 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			}
 
 			if (followMouse) {
-				mouseButtonsSym.netAssign(buttonsStr);
+				root.lookup("mouseButtons").netAssign(buttonsStr);
 				root.lookup("mouseButton").netAssign(buttonName + " down");
 			} else {
-				mouseButtonsSym.assign(buttonsStr);
+				root.lookup("mouseButtons").assign(buttonsStr);
 				root.lookup("mouseButton").assign(buttonName + " down");
 			}
 
@@ -303,17 +279,15 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			autocalcSym.assign(autocalcValueOnEntry);
 
 		}).on("mouseup",function(e) {
-			var followMouse = root.lookup("mouseFollow").value();
-			//The only reason we compute which mouse buttons are pressed here is to check if we need
-			//to update the mouseUp and mouseButtonUp observables.  Updates to the other observables
-			//are done inside the document mouse up event handler.
-			var buttonsDown = EdenUI.plugins.CanvasHTML5.mouseButtonsDown;
 			var autocalcSym = root.lookup("autocalc");
 			var autocalcValueOnEntry = autocalcSym.value();
 			autocalcSym.assign(0);
-			buttonsDown.autocalc = autocalcValueOnEntry; //To be restored in document mouse up handler
-			var buttonName;
 
+			var followMouse = root.lookup("mouseFollow").value();
+			var buttonsDown = EdenUI.plugins.CanvasHTML5.mouseButtonsDown;
+			buttonsDown.insideCanvas = true;
+
+			var buttonName;
 			switch (e.button) {
 				case 0:
 					buttonsDown.left = false;
@@ -354,11 +328,36 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			if (buttonsDown.count == 0) {
 				var mousePos = root.lookup('Point').value().call(this, e.clientX, e.clientY);
 				if (followMouse) {
+					root.lookup("mouseButtons").netAssign("");
 					root.lookup('mouseUp').netAssign(mousePos);
 				} else {
+					root.lookup("mouseButtons").assign("");
 					root.lookup('mouseUp').assign(mousePos);
 				}
+			} else {
+				var buttonsStr = "|";
+				if (buttonsDown.left) {
+					buttonsStr = buttonsStr + "Left|";
+				}
+				if (buttonsDown.middle) {
+					buttonsStr = buttonsStr + "Middle|";
+				}
+				if (buttonsDown.right) {
+					buttonsStr = buttonsStr + "Right|";
+				}
+				if (buttonsDown.button4) {
+					buttonsStr = buttonsStr + "Button4|";
+				}
+				if (buttonsDown.button5) {
+					buttonsStr = buttonsStr + "Button5|";
+				}
+				if (followMouse) {
+					root.lookup("mouseButtons").netAssign(buttonsStr);
+				} else {
+					root.lookup("mouseButtons").assign(buttonsStr);
+				}
 			}
+			autocalcSym.assign(autocalcValueOnEntry);
 
 		}).on("contextmenu", function (e) {
 			if (!root.lookup("mouseContextMenuEnabled").value()) {
@@ -413,9 +412,80 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 				}
 			}
 
+		}).on("mouseout", function (e) {
+			var buttonsDown = EdenUI.plugins.CanvasHTML5.mouseButtonsDown;
+			buttonsDown.insideCanvas = false;
+		
+		}).on("mouseenter", function (e) {
+			var buttonsDown = EdenUI.plugins.CanvasHTML5.mouseButtonsDown;
+			if (!buttonsDown.insideCanvas) {
+				buttonsDown.insideCanvas = true;
+				var buttonsStr;
+				if (buttonsDown.count == 0) {
+					buttonsStr = "";
+				} else {
+					buttonsStr = "|";
+					if (buttonsDown.left) {
+						buttonsStr = buttonsStr + "Left|";
+					}
+					if (buttonsDown.middle) {
+						buttonsStr = buttonsStr + "Middle|";
+					}
+					if (buttonsDown.right) {
+						buttonsStr = buttonsStr + "Right|";
+					}
+					if (buttonsDown.button4) {
+						buttonsStr = buttonsStr + "Button4|";
+					}
+					if (buttonsDown.button5) {
+						buttonsStr = buttonsStr + "Button5|";
+					}
+				}
+				
+				var buttonsSym = root.lookup("mouseButtons");
+				var prevButtons = buttonsSym.value();
+				if (buttonsStr != prevButtons) {
+					var autocalcSym = root.lookup("autocalc");
+					var autocalcValueOnEntry = autocalcSym.value();
+					autocalcSym.assign(0);
+					
+					var followMouse = root.lookup("mouseFollow").value();
+					var pressedSym = root.lookup("mousePressed");
+
+					if (followMouse) {
+						root.lookup("mouseButton").netAssign("Enter window");
+						buttonsSym.netAssign(buttonsStr);
+						if (pressedSym.value() != buttonsDown.left) {
+							pressedSym.netAssign(buttonsDown.left);
+						}
+					} else {
+						root.lookup("mouseButton").assign("Enter window");				
+						buttonsSym.assign(buttonsStr);
+						if (pressedSym.value() != buttonsDown.left) {
+							pressedSym.assign(buttonsDown.left);
+						}
+					}
+					if (prevButtons == "" && buttonsStr != "") {
+						if (followMouse) {
+							root.lookup("mouseDown").netAssign(undefined);
+							root.lookup("mouseDownWindow").netAssign(undefined);
+						} else {
+							root.lookup("mouseDown").assign(undefined);
+							root.lookup("mouseDownWindow").assign(undefined);					
+						}
+					}
+					autocalcSym.assign(autocalcValueOnEntry);
+				}
+			}
+		
 		}).on("mousemove",function(e) {
+			var autocalcSym = root.lookup("autocalc");
+			var autocalcValueOnEntry = autocalcSym.value();
+			autocalcSym.assign(0);
+
 			var followMouse = root.lookup("mouseFollow").value();
 			var mousePos = root.lookup('Point').value().call(this, e.clientX, e.clientY);
+
 			if (followMouse) {
 				root.lookup('mouseWindow').netAssign(displayedName);
 				root.lookup('mousePosition').netAssign(mousePos);
@@ -423,7 +493,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 				root.lookup('mouseWindow').assign(displayedName);
 				root.lookup('mousePosition').assign(mousePos);
 			}
-
+			autocalcSym.assign(autocalcValueOnEntry);
 		});
 
 		$dialog = $('<div id="'+name+'"></div>')
@@ -449,7 +519,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 	edenUI.eden.include("plugins/canvas-html5/canvas.js-e", success);
 };
 
-EdenUI.plugins.CanvasHTML5.mouseButtonsDown = {left: false, middle: false, right: false, button4: false, button5: false, count: 0};
+EdenUI.plugins.CanvasHTML5.mouseButtonsDown = {left: false, middle: false, right: false, button4: false, button5: false, count: 0, insideCanvas: false};
 
 EdenUI.plugins.CanvasHTML5.configureContext = function (context, options) {
 	if (options === undefined) {
