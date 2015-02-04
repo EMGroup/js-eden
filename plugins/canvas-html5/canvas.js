@@ -60,12 +60,12 @@ document.addEventListener("mouseup", function (e) {
 		if (buttonsDown.count == 0) {
 			//Final button released outside of any canvas window.
 			if (followMouse) {
-				root.lookup("mouseButtonChange").netAssign(buttonName + " up");
+				root.lookup("mouseButton").netAssign(buttonName + " up");
 				root.lookup('mousePosition').netAssign(undefined);
 				root.lookup('mouseUp').netAssign(undefined);
 				root.lookup('mouseWindow').netAssign(undefined);
 			} else {
-				root.lookup("mouseButtonChange").assign(buttonName + " up");
+				root.lookup("mouseButton").assign(buttonName + " up");
 				root.lookup('mousePosition').assign(undefined);
 				root.lookup('mouseUp').assign(undefined);
 				root.lookup('mouseWindow').assign(undefined);
@@ -283,10 +283,10 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 
 			if (followMouse) {
 				mouseButtonsSym.netAssign(buttonsStr);
-				root.lookup("mouseButtonChange").netAssign(buttonName + " down");
+				root.lookup("mouseButton").netAssign(buttonName + " down");
 			} else {
 				mouseButtonsSym.assign(buttonsStr);
-				root.lookup("mouseButtonChange").assign(buttonName + " down");
+				root.lookup("mouseButton").assign(buttonName + " down");
 			}
 
 			if (buttonsDown.count == 1) {
@@ -340,9 +340,9 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			buttonsDown.count = buttonsDown.left + buttonsDown.middle + buttonsDown.right + buttonsDown.button4 + buttonsDown.button5;
 
 			if (followMouse) {
-				root.lookup("mouseButtonChange").netAssign(buttonName + " up");
+				root.lookup("mouseButton").netAssign(buttonName + " up");
 			} else {
-				root.lookup("mouseButtonChange").assign(buttonName + " up");
+				root.lookup("mouseButton").assign(buttonName + " up");
 			}
 			
 			if (buttonsDown.count == 0) {

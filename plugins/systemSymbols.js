@@ -6,7 +6,7 @@ Eden.systemObservableNames = [
 	"autocalc",
 	"false",
 	"generate_function",
-	"mouseButtonChange",
+	"mouseButton",
 	"mouseButtons",
 	"mouseDoubleClicks",
 	"mouseDown",
