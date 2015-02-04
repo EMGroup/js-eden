@@ -335,6 +335,17 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 				e.preventDefault();
 				e.stopPropagation();
 			}
+			
+		}).on("dblclick", function (e) {
+			var followMouse = root.lookup("mouseFollow").value();
+			var dblClickSym = root.lookup("mouseDoubleClicks");
+			var numClicks = dblClickSym.value();
+
+			if (followMouse) {
+				dblClickSym.netAssign(numClicks + 1);
+			} else {
+				dblClickSym.assign(numClicks + 1);
+			}
 
 		}).on("mousemove",function(e) {
 			var followMouse = root.lookup("mouseFollow").value();
