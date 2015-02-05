@@ -5,11 +5,21 @@
 
 ##Initialize observables
 mouseButtons = "";
+mouseCapture = false;
+mouseCaptured = false;
 mouseContextMenuEnabled = false;
 mouseDoubleClicks = 0;
 mouseFollow = true;
 mouseWheel = 0;
 touchScrollX = 0;
+
+${{
+	root.lookup("mouseCapture").addJSObserver("releaseCapture", function (name, lock) {
+		if (!lock) {
+			document.exitPointerLock();
+		}
+	});
+}}$;
 
 ##Creates a canvas and a triggered procedure so that canvas display is kept in
 ##sync with the value of a given observable at all times.  The first parameter
