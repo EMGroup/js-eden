@@ -27,6 +27,7 @@ Eden.systemAgentNames = [
 	"_MenuBar_Status",
 	"_update_.*",
 	"alias",
+	"attemptMouseCapture",
 	"createCanvas",
 	"createHTMLView",
 	"createView",
@@ -40,7 +41,6 @@ Eden.systemAgentNames = [
 	"setProperty",
     "showObservables",
 	"todo",
-	"updateCanvas",
 	"withAppendedItem",
 	"writeln"
 ];

@@ -31,11 +31,18 @@ ${{
 ## (1) The model sets the mouseCapture observable to true, meaning that mouse capture is permitted.
 ## (2) The user clicks in the canvas window to initiate capture mode.  The mouseCaptured obversable
 ##     automatically gets set to true.
-## (3) Capture mode is ended by either (a) the user pressing the escape key, or, (b) the model
+## (3) Capture mode is ended either by (a) the user pressing the escape key, or, (b) the model
 ##     setting the mouseCapture observable to false.
 ## (4) Calling attemptMouseCapture after case (3b) has occurred will succeed in the mouse pointer
 ##     becoming captured again immediately.  However, if case (3a) occurred then calling
-##     attemptMouseCapture won't do anything.
+##     attemptMouseCapture won't do anything.  If this situation occurs then the model can still set
+##     mouseCapture to true and wait for the user to re-grant permission to capture mouse movements
+##     by clicking in the window again.
+##
+## Note that at the time of writing (5/2/2015) although the underlying API has received the W3C's
+## Candidate Recommendation approval it is currently only implemented in recent versions of Chrome.
+## Access to mouse capturing capabilities can be restricted based upon a browser preference setting.
+## (In Chrome this is under Settings->Advanced settings->Content settings->Mouse cursor.)
 ##
 proc attemptMouseCapture {
 	${{
