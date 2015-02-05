@@ -21,6 +21,31 @@ ${{
 	});
 }}$;
 
+##Attempts to capture the mouse pointer so the it cannot leave the current canvas window.  This
+##allows the mouse to be used as a pure sensor and the mousePosition observable becomes able to take
+##on any value, free from the constraints of the size of the window.  Note that this procedure will
+##only work if the window has already been in mouse capture mode previously and the user did not
+##exit capture mode using the escape key.
+##
+##The sequence of events:
+## (1) The model sets the mouseCapture observable to true, meaning that mouse capture is permitted.
+## (2) The user clicks in the canvas window to initiate capture mode.  The mouseCaptured obversable
+##     automatically gets set to true.
+## (3) Capture mode is ended by either (a) the user pressing the escape key, or, (b) the model
+##     setting the mouseCapture observable to false.
+## (4) Calling attemptMouseCapture after case (3b) has occurred will succeed in the mouse pointer
+##     becoming captured again immediately.  However, if case (3a) occurred then calling
+##     attemptMouseCapture won't do anything.
+##
+proc attemptMouseCapture {
+	${{
+		var canvasName = root.lookup("mouseWindow").value();
+		if (canvasName !== undefined) {
+			canvases[canvasName].requestPointerLock();
+		}
+	}}$;
+}
+
 ##Creates a canvas and a triggered procedure so that canvas display is kept in
 ##sync with the value of a given observable at all times.  The first parameter
 ##is the name of the observable who's value provides the list of drawables.  The

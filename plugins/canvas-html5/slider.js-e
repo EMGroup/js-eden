@@ -47,16 +47,15 @@ func Slider { ${{
 ${{
 Slider.prototype.draw = function(context,content) {
 
-	var me = "canvas_" + this.name;
-	var me2 = this.name;
+	var name = this.name;
+	var id = "canvas_" + name;
 	var that = this;
-	var sli = this.element;
 	
-	root.lookup(me2 + "_drawing").assign(true);
-	var valueSymbol = root.lookup(this.name + "_value");
-	var value = valueSymbol.value();
+	var valueSym = root.lookup(name + "_value");
+	var value = valueSym.value();
+	var previewSym = root.lookup(name + "_preview");
 
-	if (sli === undefined) {
+	if (this.element === undefined) {
 		var orientationCSS;
 		var topCSS;
 		if (this.orientation == "down"){
@@ -72,10 +71,17 @@ Slider.prototype.draw = function(context,content) {
 
 
 		if (value === undefined) {
-			value = this.min;
-			valueSymbol.assign(value, this);
+			var previewValue = previewSym.value();
+			if (previewValue !== undefined) {
+				value = previewValue;
+			} else {
+				value = this.min;
+				previewSym.assign(value);
+			}
+			valueSym.assign(value, this);
+		} else {
+			previewSym.assign(value);
 		}
-		root.lookup(this.name + "_preview").assign(value, this);
 
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
 		var inputhtml = (($('<input ' + disabled +
@@ -83,40 +89,45 @@ Slider.prototype.draw = function(context,content) {
 			'style="position:absolute; ' + topCSS + ' left:' + this.x + 'px; width:' + this.length + 'px; ' + orientationCSS + '" ' +
 			'value="' + value + '" ' +
 			'type="range" ' +
-			'name="' + this.name + '" ' +
+			'name="' + name + '" ' +
 			'min="' + this.min + '" ' +
 			'max="' + this.max + '" ' +
 			'step="' + this.step + '" />')).on("change", function(){
-				root.lookup(me2 + "_value").netAssign(parseFloat(this.value));
+				root.lookup(name + "_value").netAssign(parseFloat(this.value));
 			}).on("input", function(){
-				root.lookup(me2 + "_preview").netAssign(parseFloat(this.value));
+				root.lookup(name + "_preview").netAssign(parseFloat(this.value));
 			}));
 
 		this.element = inputhtml.get(0);
 		inputhtml.get(0).togarbage = false;
-		root.lookup(me2 + "_drawable").assign(this);
 
-		setTimeout(function () {
-			//Assign obs value
-			var actualValue = parseFloat(that.element.value);
-			if (actualValue != value) {
-				//Old value not divisible by new step size.
-				valueSymbol.netAssign(actualValue);
+		valueSym.addJSObserver("updateUI", function (obsName, value) {
+			var previewSym = root.lookup(name + "_preview");
+			if (previewSym.value() != value) {
+				that.element.value = String(value);
+				previewSym.assign(value);
 			}
-		}, 0);
-		eden.execute("proc " + me2 + "_update : " + me2 + "_value { if (" + me2 + "_drawing) return; if (" + me2 + "_preview != " + me2 + "_value) {" + me2 + "_preview = " + me2 + "_value; " + me2 + "_drawable.draw();}}");
-		eden.execute("proc " + me2 + "_update2 : " + me2 + "_preview { if (" + me2 + "_drawing) return; if ($" + "{{ root.lookup('" + me2 + "_preview').last_modified_by == 'input' }}" + "$) {" + me2 + "_value = " + me2 + "_preview; " + me2 + "_drawable.draw();}}");
+		});
+		
+		previewSym.addJSObserver("updateUI", function (obsName, preview) {
+			var previewSym = root.lookup(name + "_preview");
+			var valueSym = root.lookup(name + "_value");
+			if (previewSym.last_modified_by == "input") {
+				that.element.value = String(preview);
+				valueSym.netAssign(preview);
+			}
+		});
+		
 	} else {
 		//Draw with the values stored in the observables
 		if (value === undefined) {
-			valueSymbol.assign(parseFloat(this.element.value), this);
-			root.lookup(this.name + "_preview").assign(parseFloat(this.element.value), this);
+			valueSym.assign(parseFloat(this.element.value), this);
+			previewSym.assign(parseFloat(this.element.value), this);
 		} else {
 			this.element.value = String(value);
 		}
 		this.element.togarbage = false;
 	}
-	root.lookup(me2 + "_drawing").assign(false);
 };
 }}$;
 
