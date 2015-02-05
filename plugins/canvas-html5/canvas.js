@@ -269,7 +269,10 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			}
 
 			if (buttonsDown.count == 1) {
-				var mousePos = root.lookup('Point').value().call(this, e.clientX, e.clientY);
+			var windowPos = $(this).offset();
+			var x = Math.ceil(e.pageX - windowPos.left);
+			var y = Math.ceil(e.pageY - windowPos.top);
+			var mousePos = root.lookup('Point').value().call(this, x, y);
 				if (followMouse) {
 					root.lookup('mouseDownWindow').netAssign(displayedName);
 					root.lookup('mouseDown').netAssign(mousePos);				
@@ -328,7 +331,10 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			}
 			
 			if (buttonsDown.count == 0) {
-				var mousePos = root.lookup('Point').value().call(this, e.clientX, e.clientY);
+				var windowPos = $(this).offset();
+				var x = Math.ceil(e.pageX - windowPos.left);
+				var y = Math.ceil(e.pageY - windowPos.top);
+				var mousePos = root.lookup('Point').value().call(this, x, y);
 				if (followMouse) {
 					root.lookup("mouseButtons").netAssign("");
 					root.lookup('mouseUp').netAssign(mousePos);
@@ -488,7 +494,10 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			autocalcSym.assign(0);
 
 			var followMouse = root.lookup("mouseFollow").value();
-			var mousePos = root.lookup('Point').value().call(this, e.clientX, e.clientY);
+			var windowPos = $(this).offset();
+			var x = Math.ceil(e.pageX - windowPos.left);
+			var y = Math.ceil(e.pageY - windowPos.top);
+			var mousePos = root.lookup('Point').value().call(this, x, y);
 
 			if (followMouse) {
 				root.lookup('mouseWindow').netAssign(displayedName);
