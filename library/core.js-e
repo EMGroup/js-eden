@@ -41,6 +41,44 @@ proc resizeView {
 };
 
 proc showObservables { ${{
-    $('.symbollist-search').val(arguments[0]);
-    $('.symbollist-search').keyup();
+    if (arguments.length > 2) {
+		eden.error(new Error("showObservables: This procedure requires at most 2 parameters."), "error");
+		return;
+	}
+	
+	var searchStr, viewName;
+	
+	if (arguments.length == 0) {
+		searchStr = "";
+	} else {
+		searchStr = arguments[0];
+		if (searchStr === undefined) {
+			searchStr = "";
+		}
+		if (typeof(searchStr) != "string") {
+			eden.error(new Error("showObservables: The first argument must be a string, not a " + typeof(searchStr)), "error");
+			return;
+		}
+	}
+	
+	if (arguments.length == 2) {
+		viewName = arguments[1];
+		if (viewName === undefined) {
+			viewName = "showObservables";
+		}
+		if (typeof(viewName) != "string") {
+			eden.error(new Error("showObservables: The second argument must be a string, not a " + typeof(viewName)), "error");
+			return;
+		}		
+	} else {
+		viewName = "showObservables";
+	}
+	
+	var inputBox = $('#' + viewName + '-dialog .symbollist-search');
+	if (inputBox.length == 0) {
+		edenUI.createView(viewName, "SymbolList");
+		inputBox = $('#' + viewName + '-dialog .symbollist-search');
+	}
+	inputBox.val(searchStr);
+    inputBox.keyup();
 }}$; }
