@@ -865,6 +865,14 @@
 			},
 			"return": "",
 			"description": "Removes a symbol from the symbol table"
+		},
+		"forgetAll": {
+			"parameters": {
+				"regular_expression": "",
+				"[case_sensitive]": ""
+			},
+			"return": "",
+			"description": "Removes from the symbol table all symbols whose names match a given regular expression"
 		}
 	}
 }

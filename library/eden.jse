@@ -67,9 +67,7 @@ func forget {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("forget: This function requires exactly 1 argument."), "error");
-			if (arguments.length == 0) {
-				return 1;
-			}
+			return 2;
 		}
 	
 		var nameToDelete, symbolToDelete;
@@ -104,6 +102,133 @@ func forget {
 		return 0;
 	}}$;
 };
+
+##Forgets all symbols whose names match a given regular expression.  The optional second argument
+##determines if the search is case sensitive and the optional third parameter determines if system
+##defined symbols matching the regular expression will also be deleted.
+##
+##Returns a list.
+## 1st element: The number of symbols successfully forgotten.
+## 2nd element: The number of symbols whose names matched the regular expression but that could not
+##	be forgotten because they are referenced by a dependency or are a trigger for a triggered procedure.
+func forgetAll {
+	${{
+		/* The third parameter determines whether or not system defined symbols will also be
+		 * deleted.  This feature is for the system's own internal use and is not advertised to end
+		 * users.
+		 */
+		var searchStr, caseSensitive, includeSystemSymbols, regExp, symbol;
+		
+		if (arguments.length == 0 || arguments.length > 3) {
+			eden.error(new Error("forgetAll: This function requires at lease 1 argument and at most 2 arguments."), "error");
+			return undefined;
+		}
+		
+		if (typeof(arguments[0]) == "string") {
+			searchStr = arguments[0];
+		} else {
+			eden.error(new Error("forgetAll: The first argument must be a string, not a " + typeof(arguments[0])), "error");
+			return undefined;
+		}
+
+		if (arguments.length > 1) {
+			if (typeof(arguments[1]) != "boolean") {
+				eden.error(new Error("forgetAll: The second argument must be a boolean, not a " + typeof(arguments[1])), "error");
+				return undefined;
+			}
+			caseSensitive = arguments[1];
+		} else {
+			caseSensitive = true;
+		}
+		
+		if (arguments.length > 2) {
+			if (typeof(arguments[1]) != "boolean") {
+				eden.error(new Error("forgetAll: This function requires at lease 1 argument and at most 2 arguments."), "error");
+				return undefined;
+			}
+			includeSystemSymbols = arguments[2];
+		} else {
+			includeSystemSymbols = false;
+		}
+		
+		if (caseSensitive) {
+			regExp = new RegExp(searchStr);
+		} else {
+			regExp = new RegExp(searchStr, "i");
+		}
+		
+		var references = {};
+
+		for (var name in root.symbols) {
+			if (regExp.test(name)) {
+				if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
+					continue;
+				}
+				
+				symbol = root.symbols[name];
+				var referencedBy = [];
+				for (var dependency in symbol.subscribers) {
+					referencedBy.push(dependency.slice(1));
+				}
+				for (var triggeredProc in symbol.observers) {
+					referencedBy.push(triggeredProc.slice(1));
+				}
+				references[name] = referencedBy;
+			}
+		}
+		
+		var numForgotten = 0;
+		var numUnableToForget = 0;
+		var canForget = {};
+
+		var forgetRecursive = function (name) {
+			if (name in canForget) {
+				return canForget[name];
+			}
+			if (!(name in references)) {
+				canForget[name] = false;
+				return false;
+			}
+			var referencedBy = references[name];
+			if (referencedBy.length == 0) {
+				canForget[name] = true;
+				return true;
+			} else {
+				for (var i = 0; i < referencedBy.length; i++) {
+					var success = forgetRecursive(referencedBy[i]);
+					if (!success) {
+						canForget[name] = false;
+						return false;
+					}
+				}
+				canForget[name] = true;
+				return true;
+			}
+		};
+		
+		for (name in references) {
+			if (references.hasOwnProperty(name)) {
+				var success = forgetRecursive(name);
+				if (success) {
+					symbol = root.symbols[name];
+					var nameToDelete = "/" + name;
+					for (var triggerName in symbol.observees) {
+						if (triggerName in root.symbols) {
+							var triggerSymbol = root.symbols[triggerName];
+							delete triggerSymbol.observers[nameToDelete];
+						}
+					}
+					delete root.symbols[name];
+					numForgotten++;
+				} else {
+					numUnableToForget++;
+				}
+			}
+		}
+		
+		return [numForgotten, numUnableToForget];
+	}}$;
+}
 
 proc error {
 	${{
