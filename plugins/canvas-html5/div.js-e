@@ -4,12 +4,14 @@
 ## See LICENSE.txt
 
 ${{
-Div = function (html, x, y, width, height, style) {
+Div = function (html, x, y, width, height, id, classNames, style) {
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
 	this.html = html;
+	this.id = id;
+	this.classNames = classNames;
 	this.style = style;
 	this.element = undefined;
 }
@@ -20,6 +22,8 @@ Div.prototype.hash = function () {
 				this.width+"$$"+
 				this.height+"$$"+
 				this.html+"$$"+
+				this.id+"$$"+
+				this.classNames+"$$"
 				this.style;
 };
 }}$;
@@ -30,9 +34,34 @@ func Div { ${{
 	var y = arguments[2];
 	var width = arguments[3];
 	var height = arguments[4];
-	var style = arguments[5];
-	if (style === undefined) style = "";
-	return new Div(html, x, y, width, height, style);
+	
+	var id, classNames = [], style = "";
+	if (arguments.length > 5) {
+		if (arguments.length == 8) {
+			id = arguments[5];
+			classNames = arguments[6];
+			style = arguments[7];
+		} else {
+			if (Array.isArray(arguments[5])) {
+				classNames = arguments[5];
+				if (arguments.length == 7) {
+					style = arguments[6];
+				}
+			} else if (arguments.length == 7) {
+				id = arguments[5];
+				if (Array.isArray(arguments[6])) {
+					classNames = arguments[6];
+				} else {
+					style = arguments[6];
+				}
+			} else if (arguments[5].indexOf(":") != -1) {
+				id = arguments[5];
+			} else {
+				style = arguments[5];
+			}
+		}
+	}	
+	return new Div(html, x, y, width, height, id, classNames, style);
 }}$; }
 
 ${{
@@ -44,6 +73,10 @@ Div.prototype.draw = function(context,content) {
 		this.width + "px; height: " + this.height + "px;" + this.style;
 
 	var divElement = document.createElement("div");
+	if (this.id !== undefined) {
+		divElement.id = this.id;
+	}
+	divElement.setAttribute("class", this.classNames.join(" "));
 	divElement.style.cssText = divStyle;
 	divElement.innerHTML = this.html;
 	

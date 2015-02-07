@@ -682,6 +682,8 @@
 				"y": "Y-coordinate",
 				"width": "Width in pixels",
 				"height": "Height in pixels",
+				"[id]" : "",
+				"[cssClassList]" : "",
 				"[style]" : "An optional CSS style string"
 			},
 			"return": "Div object",

@@ -1,5 +1,6 @@
 //System Symbols
 Eden.systemObservableNames = [
+	"_authoringMode",
 	"_status",
 	"Infinity",
 	"PI",
@@ -19,7 +20,7 @@ Eden.systemObservableNames = [
 	"radiansPerUnit",
 	"randomGenerator",
 	"randomIndex",
-	"touchpadScrollX",
+	"touchScrollX",
 	"true"
 ];
 
@@ -28,6 +29,9 @@ Eden.systemAgentNames = [
 	"_update_.*",
 	"alias",
 	"attemptMouseCapture",
+	"bindCSSNumericProperty",
+	"bindCSSProperty",
+	"bindCSSRule",
 	"createCanvas",
 	"createHTMLView",
 	"createView",
@@ -41,6 +45,7 @@ Eden.systemAgentNames = [
 	"setProperty",
     "showObservables",
 	"todo",
+	"unbind",
 	"withAppendedItem",
 	"writeln"
 ];
