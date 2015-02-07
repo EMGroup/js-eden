@@ -103,6 +103,7 @@ Eden.systemFunctionNames = [
 	"exp",
 	"floor",
 	"forget",
+	"forgetAll", 
 	"generate_function",
 	"hasProperty",
 	"hsl",

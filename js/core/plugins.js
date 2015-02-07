@@ -144,6 +144,21 @@
 		dialog(name).remove();
 		delete this.activeDialogs[name];
 		delete this.viewInstances[name];
+		root.lookup("forgetAll").definition(root)("^_[vV]iew_" + name + "_", true, true);
+		
+		var viewListSym = root.lookup("_view_list");
+		var viewList = viewListSym.value();
+		if (Array.isArray(viewList)) {
+			var index = viewList.indexOf(name);
+			var newViewList;
+			if (index == 0) {
+				newViewList = viewList.slice(1);
+			} else {
+				newViewList = viewList.slice(0, index).concat(viewList.slice(index + 1));
+			}
+			viewListSym.assign(newViewList);
+		}
+		
 		this.emit('destroyView', [name]);
 	};
 
