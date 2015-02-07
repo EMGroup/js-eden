@@ -29,7 +29,7 @@ ${{
 ##
 ##The sequence of events:
 ## (1) The model sets the mouseCapture observable to true, meaning that mouse capture is permitted.
-## (2) The user clicks in the canvas window to initiate capture mode.  The mouseCaptured obversable
+## (2) The user clicks in the canvas window to initiate capture mode.  The mouseCaptured observable
 ##     automatically gets set to true.
 ## (3) Capture mode is ended either by (a) the user pressing the escape key, or, (b) the model
 ##     setting the mouseCapture observable to false.
