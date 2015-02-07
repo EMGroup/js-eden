@@ -35,6 +35,7 @@ func Combobox { ${{
   var x = arguments[2];
   var y = arguments[3];
   var enabled = arguments[4];
+  if (enabled === undefined) enabled = true;
   return new Combobox(name, options, x, y, enabled);
 }}$; }
 
