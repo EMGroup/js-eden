@@ -220,7 +220,7 @@ ${{
 		root.lookup("randomIndex").netAssign(0);
 	});
 	
-	function xorshift32Random(state) {
+	xorshift32Random = function (state) {
 		state ^= state << 13;
 		state ^= state >>> 17;
 		state ^= state << 5;
@@ -236,13 +236,14 @@ func xorshiftRandomGenerator {
 		var upper = xorshift32Random(lower);
 		stateSym.assign(upper);
 		upper = Math.abs(upper) * 4194304; // 2^22, 53 bits of precision in total
-		return (upper + Math.abs(lower)) / 9007199254740991; // 2^51 - 1
+		return (upper + Math.abs(lower)) / 9007199254740991; // 2^53 - 1
 	}}$;
 }
 
 randomGenerator = xorshiftRandomGenerator;
 
 func random {
+	debugger;
 	randomIndex++;
 	if (randomSeed == @) {
 		return ${{ Math.random(); }}$;
