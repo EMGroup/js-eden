@@ -170,7 +170,7 @@ lvalue
     } else if (yy.locals.length !== 0 && yy.locals[0][$1] !== undefined) {
         $$ = "local_" + $1;
     } else {
-        if (yy.inDefinition()) yy.addDependency($1);
+        if (yy.inDefinition() && !yy.inEval()) yy.addDependency($1);
         $$ = yy.observable($1);
     }
     %}
@@ -598,8 +598,8 @@ formula-definition
         yy.leaveDefinition();
 
         $$ = yy.sync(
-				yy.evalExps.join("\n") +
-				yy.printEvalIDs($1) + 
+				yy.evalExps.join("\n") +	//Evaluate eval() expressions and save them in the context.
+				yy.printEvalIDs($1) + 		//Mapping used by Symbol.prototype.value to update eden_definition, changing eval() to the actual value.
 				"(" +
                yy.observable($1) +
                  ".eden_definition = " + eden_definition + ", " +

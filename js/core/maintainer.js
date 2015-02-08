@@ -99,10 +99,21 @@
 		return this.symbols[name];
 	};
 
+	/**
+	 * Saves the result of an eval() invocation.
+	 *
+	 * @param {*} id An opaque ID issued to the parser by an instance of the Eden prototype.
+	 * @param {value} The computed result of the expression.
+	 */
 	Folder.prototype.putEval = function (id, value) {
 		this.evalResults[id] = value;
 	}
 	
+	/**
+	 * Fetches the result of an eval() invocation.
+	 *
+	 * @param {*} id An opaque ID issued to the parser by an instance of the Eden prototype.
+	 */
 	Folder.prototype.getEval = function (id) {
 		return this.evalResults[id];
 	}
