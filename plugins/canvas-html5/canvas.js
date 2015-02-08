@@ -171,36 +171,37 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 				previousElements[hash].togarbage = true;
 			}
 
-			if (picture === undefined) { return; }
+			if (Array.isArray(picture)) {
 
-			for (var i = 0; i < picture.length; i++) {
+				for (var i = 0; i < picture.length; i++) {
 
-				if (picture[i] === undefined) { continue; }
+					if (picture[i] === undefined) { continue; }
 
-				var elHash = picture[i].hash && picture[i].hash();
-				var existingEl = elHash && previousElements[elHash];
+					var elHash = picture[i].hash && picture[i].hash();
+					var existingEl = elHash && previousElements[elHash];
 
-				if (existingEl) {
-					// if already existing hash, no need to draw, just set the element
-					picture[i].element = existingEl;
-				} else {
-					context.save();
-					EdenUI.plugins.CanvasHTML5.configureContext(context, picture[i].drawingOptions);
-					// expect draw() method to set .element
-					picture[i].draw(context, content, pictureobs);
-					context.restore();
+					if (existingEl) {
+						// if already existing hash, no need to draw, just set the element
+						picture[i].element = existingEl;
+					} else {
+						context.save();
+						EdenUI.plugins.CanvasHTML5.configureContext(context, picture[i].drawingOptions);
+						// expect draw() method to set .element
+						picture[i].draw(context, content, pictureobs);
+						context.restore();
+					}
+
+					var htmlEl = picture[i].element;
+					if (htmlEl) { htmlEl.togarbage = false; }
+					if (htmlEl && !existingEl) {
+						$(content).append(htmlEl);
+					}
+
+					if (htmlEl) {
+						nextElements[elHash] = htmlEl;
+					}
 				}
-
-				var htmlEl = picture[i].element;
-				if (htmlEl) { htmlEl.togarbage = false; }
-				if (htmlEl && !existingEl) {
-					$(content).append(htmlEl);
-				}
-
-				if (htmlEl) {
-					nextElements[elHash] = htmlEl;
-				}
-			}
+			} //end if picture observable is undefined.
 			cleanupCanvas(content, previousElements, nextElements);
 			canvasNameToElements[canvasname] = nextElements;
 			canvas.drawing = false;
