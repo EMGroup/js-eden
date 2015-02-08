@@ -67,6 +67,8 @@
 		 * @public
 		 */
 		this.symbols = {};
+		
+		this.evalResults = {};
 
 		/**
 		 * @type {Array.<function(Symbol, boolean)>}
@@ -97,6 +99,14 @@
 		return this.symbols[name];
 	};
 
+	Folder.prototype.putEval = function (id, value) {
+		this.evalResults[id] = value;
+	}
+	
+	Folder.prototype.getEval = function (id) {
+		return this.evalResults[id];
+	}
+	
 	/**
 	 * Add a listener for any change in the Folder.
 	 *
@@ -212,6 +222,28 @@
 			if (!this.up_to_date) {
 				this.evaluate();
 			}
+		}
+		if ("evalIDs" in this) {
+			//Replace eval() in EDEN definition with the actual value.
+			var replacedDef = this.eden_definition;
+			var re = /\beval\(/;
+			var searchIndex;
+			while ((searchIndex = replacedDef.search(re)) != -1) {
+				for (exp in this.evalIDs) {
+					if (this.evalIDs.hasOwnProperty(exp)) {
+						var subString = replacedDef.slice(searchIndex + 5, searchIndex + exp.length + 6);
+						if (subString == exp + ")") {
+							var jsValue = this.context.getEval(this.evalIDs[exp]);
+							replacedDef = replacedDef.slice(0, searchIndex) +
+								eden.edenCodeForValue(jsValue) +
+								replacedDef.slice(searchIndex + exp.length + 6);
+							break;
+						}
+					}
+				}
+			}
+			this.eden_definition = replacedDef;
+			delete this.evalIDs;
 		}
 		return this.cached_value;
 	};

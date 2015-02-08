@@ -40,7 +40,8 @@
 \s+                   /* skip whitespace */
 "@"                   return 'UNDEFINED'
 [0-9]+("."[0-9]+)?\b  return 'NUMBER'
-"is"                  { yy.enterDefinition(); return 'IS'; }
+"is"                  { yy.enterDefinition(); yy.evalExps = []; return 'IS'; }
+"eval"                { yy.enterEval(); return 'EVAL'; }
 "include"             return 'INCLUDE'
 "await"               return 'AWAIT'
 "require"             return 'REQUIRE'
@@ -200,6 +201,18 @@ statement-list-opt
 
 expression
     : literal
+	| EVAL '(' expression ')'
+		{
+			var evalExp = yy.extractEdenDefinition(
+				@3.first_line,
+				@3.first_column,
+				@3.last_line,
+				@3.last_column
+			);
+			var id = yy.leaveEval(evalExp);
+			yy.evalExps.push("context.putEval(" + id + ", " + $3 + ");");
+			$$ = "context.getEval(" + id + ")";
+		}
     | '(' expression ')'
         { $$ = $1 + $2 + $3; }
     | primary-expression
@@ -582,9 +595,12 @@ formula-definition
             @3.last_column
           )
         );
-
         yy.leaveDefinition();
-        $$ = yy.sync("(" +
+
+        $$ = yy.sync(
+				yy.evalExps.join("\n") +
+				yy.printEvalIDs($1) + 
+				"(" +
                yy.observable($1) +
                  ".eden_definition = " + eden_definition + ", " +
 
