@@ -336,6 +336,61 @@ function concatAndResolveUrl(url, concat) {
 		});
 	};
 
+	Eden.prototype.edenCodeForValue = function (value) {
+		var type = typeof(value);
+		var code = "";
+		if (type == "undefined") {
+			code = "@";
+		} else if (value === null) {
+			code = "$" + "{{ null }}" + "$";
+		} else if (type == "string") {
+			code = "\"" + value.replace(/\\/g,"\\\\").replace(/\"/g,"\\\"") + "\"";
+		} else if (Array.isArray(value)) {
+			code = "[";
+			for (var i = 0; i < value.length - 1; i++) {
+				code = code + this.edenCodeForValue(value[i]) + ", ";
+			}
+			if (value.length > 0) {
+				code = code + this.edenCodeForValue(value[value.length - 1]);
+			}
+			code = code + "]";
+		} else if (type == "object") {
+			if (value instanceof Point) {
+				code = "{" + value.x + ", " + value.y + "}";
+			} else if (value instanceof Symbol) {	
+				code = "&" + value.name.slice(1);
+			} else if (
+				"keys" in value &&
+				Array.isArray(value.keys) &&
+				value.keys.length > 0 &&
+				typeof(value.keys[0]) == "number" &&
+				"parent" in value &&
+				value.parent instanceof Symbol
+			) {
+				code = "&" + value.parent.name.slice(1) + "[" + value.keys[0] + "]";
+			} else {
+				code = "{";
+				for (var key in value) {
+					if (!(key in Object.prototype)) {
+						code = code + key + ": " + this.edenCodeForValue(value[key]) + ", ";
+					}
+				}
+				if (code != "{") {
+					code = code.slice(0, -2);
+				}
+				code = code + "}";
+			}
+		} else if (type == "function") {
+			code = "$" +"{{ " + value + " }}" + "$";
+		} else {
+			code = String(value);
+		}
+		return code;	
+	}
+	
+	/** The number of the unique identifier for the next call to eval(). */
+	Eden.prototype.nextEvalID = 0;
+	
 	/**
 	 * This function sets up a bunch of state/functions used in the generated parser. The
 	 * `parser.yy` object is exposed as `yy` by jison. (See grammar.jison for usage)
@@ -344,13 +399,15 @@ function concatAndResolveUrl(url, concat) {
 	 * @returns {string} JavaScript code as a string.
 	 */
 	Eden.prototype.translateToJavaScript = function (source) {
+		var me = this;
+
 		/** @type {Object.<string,*>} */
 		parser.yy;
 
 		source = source.replace(/\r\n/g, '\n');
 
 		parser.yy.commentNesting = 0;
-
+		
 		parser.yy.async = function (asyncFuncExpression) {
 			var args = Array.prototype.slice.call(arguments, 1);
 			return new Code(1, asyncFuncExpression + '(' + args.concat('function () {')); 
@@ -423,13 +480,16 @@ function concatAndResolveUrl(url, concat) {
 		};
 
 		var inDefinition = false;
+		var inEval = false;
 		var dependencies = {};
+		var evalIDs = {};
 
 		/**
 		 * Called in the parser when entering a definition.
 		 */
 		parser.yy.enterDefinition = function () {
 			dependencies = {};
+			evalIDs = {};
 			inDefinition = true;
 		};
 
@@ -440,13 +500,42 @@ function concatAndResolveUrl(url, concat) {
 			inDefinition = false;
 		};
 
+		parser.yy.enterEval = function () {
+			inEval = true;
+		}
+		
+		parser.yy.leaveEval = function (eden_exp) {
+			inEval = false;
+			var id = me.nextEvalID;
+			evalIDs[eden_exp] = id;
+			me.nextEvalID++;
+			return id;
+		}
+		
+		parser.yy.printEvalIDs = function (obsName) {
+			var jsVar = parser.yy.observable(obsName) + ".evalIDs";
+			var str = jsVar + " = {}; ";
+			var hasEval = false;
+			for (exp in evalIDs) {
+				if (evalIDs.hasOwnProperty(exp)) {
+					str = str + jsVar + "[\"" + exp + "\"] = " + evalIDs[exp] + "; ";
+					hasEval = true;
+				}
+			}
+			if (hasEval) {
+				return str;
+			} else {
+				return "";
+			}
+		}
+		
 		/**
 		 * Used by the parser to test whether currently parsing a definition.
 		 *
 		 * @returns {boolean}
 		 */
 		parser.yy.inDefinition = function () {
-			return inDefinition;
+			return inDefinition && !inEval;
 		};
 
 		/**
@@ -513,6 +602,8 @@ function concatAndResolveUrl(url, concat) {
 
 		/** @type {Array.<string>} */
 		parser.yy.paras = [];
+		
+		/** @type {Array.<string>} */
 
 		/**
 		 * Used by the parser instead of Array.prototype.map which isn't
@@ -533,7 +624,7 @@ function concatAndResolveUrl(url, concat) {
 			}
 			return results;
 		};
-
+		
 		return parser.parse(source);
 	};
 
