@@ -388,7 +388,7 @@ function concatAndResolveUrl(url, concat) {
 		return code;	
 	}
 	
-	/** The number of the unique identifier for the next call to eval(). */
+	/** An identifier used to locate the result of the next call to eval(). */
 	Eden.prototype.nextEvalID = 0;
 	
 	/**
@@ -482,6 +482,12 @@ function concatAndResolveUrl(url, concat) {
 		var inDefinition = false;
 		var inEval = false;
 		var dependencies = {};
+
+		/**
+		 * Maps from EDEN code contained inside an eval() invocation to an ID number that is later
+		 * used to find the result obtained from evaluating the expression written between the
+		 * parentheses.
+		 */
 		var evalIDs = {};
 
 		/**
@@ -500,10 +506,16 @@ function concatAndResolveUrl(url, concat) {
 			inDefinition = false;
 		};
 
+		/**
+		 * Called in the parser when entering an eval expression.
+		 */
 		parser.yy.enterEval = function () {
 			inEval = true;
 		}
 		
+		/**
+		 * Called in the parser when exiting an eval expression.
+		 */
 		parser.yy.leaveEval = function (eden_exp) {
 			inEval = false;
 			var id = me.nextEvalID;
@@ -512,6 +524,10 @@ function concatAndResolveUrl(url, concat) {
 			return id;
 		}
 		
+		/**
+		 * Called in the parser to set a symbol's evalIDs property so that the eden_definition
+		 * property can later be updated to replace eval() with the actual values once they are known.
+		 */
 		parser.yy.printEvalIDs = function (obsName) {
 			var jsVar = parser.yy.observable(obsName) + ".evalIDs";
 			var str = jsVar + " = {}; ";
@@ -535,7 +551,16 @@ function concatAndResolveUrl(url, concat) {
 		 * @returns {boolean}
 		 */
 		parser.yy.inDefinition = function () {
-			return inDefinition && !inEval;
+			return inDefinition;
+		};
+
+		/**
+		 * Used by the parser to test whether currently parsing an eval expression.
+		 *
+		 * @returns {boolean}
+		 */
+		parser.yy.inEval = function () {
+			return inEval;
 		};
 
 		/**
