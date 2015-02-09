@@ -103,9 +103,10 @@ func forget {
 	}}$;
 };
 
-##Forgets all symbols whose names match a given regular expression.  The optional second argument
-##determines if the search is case sensitive and the optional third parameter determines if system
-##defined symbols matching the regular expression will also be deleted.
+##Forgets all symbols whose names match a given regular expression or that are explicitly provided
+##as a list.  The optional second argument determines if the search is case sensitive and the
+##optional third parameter determines if system defined symbols matching the regular expression will
+##also be deleted.
 ##
 ##Returns a list.
 ## 1st element: The number of symbols successfully forgotten.
@@ -118,6 +119,7 @@ func forgetAll {
 		 * users.
 		 */
 		var searchStr, caseSensitive, includeSystemSymbols, regExp, symbol;
+		var obsToDelete = undefined;
 		
 		if (arguments.length == 0 || arguments.length > 3) {
 			eden.error(new Error("forgetAll: This function requires at lease 1 argument and at most 2 arguments."), "error");
@@ -126,6 +128,10 @@ func forgetAll {
 		
 		if (typeof(arguments[0]) == "string") {
 			searchStr = arguments[0];
+		} else if (Array.isArray(arguments[0])) {
+			obsToDelete = arguments[0];
+		} else if (arguments[0] === undefined) {
+			return [0, 0];
 		} else {
 			eden.error(new Error("forgetAll: The first argument must be a string, not a " + typeof(arguments[0])), "error");
 			return undefined;
@@ -141,6 +147,11 @@ func forgetAll {
 			caseSensitive = true;
 		}
 		
+		if (arguments.length == 2 && obsToDelete !== undefined) {
+			eden.error(new Error("forgetAll: Cannot specify case sensitivity when selecting using a list."), "error");
+			return undefined;
+		}
+		
 		if (arguments.length > 2) {
 			if (typeof(arguments[1]) != "boolean") {
 				eden.error(new Error("forgetAll: This function requires at lease 1 argument and at most 2 arguments."), "error");
@@ -151,21 +162,31 @@ func forgetAll {
 			includeSystemSymbols = false;
 		}
 		
-		if (caseSensitive) {
-			regExp = new RegExp(searchStr);
-		} else {
-			regExp = new RegExp(searchStr, "i");
-		}
-		
 		var references = {};
 
-		for (var name in root.symbols) {
-			if (regExp.test(name)) {
-				if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
+		if (obsToDelete !== undefined) {
+
+			//Observables given as a list.
+			for (var i = 0; i < obsToDelete.length; i++) {
+				var name;
+				if (obsToDelete[i] instanceof Symbol) {
+					name = obsToDelete[i].name.slice(1);
+					symbol = obsToDelete[i];
+				} else if (typeof(obsToDelete[i]) == "string") {
+					name = obsToDelete[i];
+					symbol = root.symbols[name];
+				} else if (obsToDelete === undefined) {
 					continue;
+				} else {
+					eden.error(new Error("forgetAll: All list items must be strings or pointers.  Item " + i + " is a " + typeof(obsToDelete[i])), "error");
+					return undefined;
+				}
+
+				if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
+					eden.error(new Error("forgetAll: Cannot forget built-in symbol " + name), "error");
+					return undefined;
 				}
 				
-				symbol = root.symbols[name];
 				var referencedBy = [];
 				for (var dependency in symbol.subscribers) {
 					referencedBy.push(dependency.slice(1));
@@ -174,6 +195,33 @@ func forgetAll {
 					referencedBy.push(triggeredProc.slice(1));
 				}
 				references[name] = referencedBy;
+			}
+
+		} else {
+
+			//Search for observables by regular expression.
+			if (caseSensitive) {
+				regExp = new RegExp(searchStr);
+			} else {
+				regExp = new RegExp(searchStr, "i");
+			}
+			
+			for (var name in root.symbols) {
+				if (regExp.test(name)) {
+					if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
+						continue;
+					}
+					
+					symbol = root.symbols[name];
+					var referencedBy = [];
+					for (var dependency in symbol.subscribers) {
+						referencedBy.push(dependency.slice(1));
+					}
+					for (var triggeredProc in symbol.observers) {
+						referencedBy.push(triggeredProc.slice(1));
+					}
+					references[name] = referencedBy;
+				}
 			}
 		}
 		
