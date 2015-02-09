@@ -122,7 +122,7 @@ func forgetAll {
 		var obsToDelete = undefined;
 		
 		if (arguments.length == 0 || arguments.length > 3) {
-			eden.error(new Error("forgetAll: This function requires at lease 1 argument and at most 2 arguments."), "error");
+			eden.error(new Error("forgetAll: This function requires at least 1 argument and at most 2 arguments."), "error");
 			return undefined;
 		}
 		
@@ -154,7 +154,7 @@ func forgetAll {
 		
 		if (arguments.length > 2) {
 			if (typeof(arguments[1]) != "boolean") {
-				eden.error(new Error("forgetAll: This function requires at lease 1 argument and at most 2 arguments."), "error");
+				eden.error(new Error("forgetAll: This function requires at least 1 argument and at most 2 arguments."), "error");
 				return undefined;
 			}
 			includeSystemSymbols = arguments[2];
@@ -229,7 +229,10 @@ func forgetAll {
 		var numUnableToForget = 0;
 		var canForget = {};
 
-		var forgetRecursive = function (name) {
+		/* Traverses the subgraph of symbols suggested for deletion and returns true if the named
+		 * symbol isn't referenced by anything outside of the subgraph.
+		 */
+		var isSafeToForget = function (name) {
 			if (name in canForget) {
 				return canForget[name];
 			}
@@ -243,7 +246,7 @@ func forgetAll {
 				return true;
 			} else {
 				for (var i = 0; i < referencedBy.length; i++) {
-					var success = forgetRecursive(referencedBy[i]);
+					var success = isSafeToForget(referencedBy[i]);
 					if (!success) {
 						canForget[name] = false;
 						return false;
@@ -256,7 +259,7 @@ func forgetAll {
 		
 		for (name in references) {
 			if (references.hasOwnProperty(name)) {
-				var success = forgetRecursive(name);
+				var success = isSafeToForget(name);
 				if (success) {
 					symbol = root.symbols[name];
 					var nameToDelete = "/" + name;
