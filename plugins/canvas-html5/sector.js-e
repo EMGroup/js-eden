@@ -81,18 +81,9 @@ Sector.prototype.toString = function() {
 		this.y + ", " +
 		this.r + ", " +
 		this.sAngle + ", " +
-		this.eAngle + ", ";
-
-	if (this.fillcolour === undefined) {
-		s = s + "@, ";
-	} else {
-		s = s + this.fillcolour + ", ";
-	}
-	if (this.outlinecolour === undefined) {
-		s = s + "@";
-	} else {
-		s = s + this.outlinecolour;
-	}
+		this.eAngle + ", " +
+		eden.edenCodeForValue(this.fillcolour) + ", " +
+		eden.edenCodeForValue(this.outlinecolour);
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + eden.edenCodeForValue(this.drawingOptions);
@@ -101,4 +92,7 @@ Sector.prototype.toString = function() {
 	s = s + ")";
 	return s;
 }
+
+Sector.prototype.getEdenCode = Sector.prototype.toString;
+
 }}$;

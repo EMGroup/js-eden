@@ -45,18 +45,8 @@ Circle.prototype.draw = function(context) {
 }}$;
 ${{
 Circle.prototype.toString = function() {
-	var s = "Circle(" + this.x + ", " + this.y + ", " + this.radius + ", ";
-
-	if (this.fillcolour === undefined) {
-		s = s + "@, ";
-	} else {
-		s = s + this.fillcolour + ", ";
-	}
-	if (this.outlinecolour === undefined) {
-		s = s + "@";
-	} else {
-		s = s + this.outlinecolour;
-	}
+	var s = "Circle(" + this.x + ", " + this.y + ", " + this.radius + ", " +
+		eden.edenCodeForValue(this.fillcolour) + ", " + eden.edenCodeForValue(this.outlinecolour);
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + eden.edenCodeForValue(this.drawingOptions);
@@ -65,4 +55,7 @@ Circle.prototype.toString = function() {
 	s = s + ")";
 	return s;
 };
+
+Circle.prototype.getEdenCode = Circle.prototype.toString;
+
 }}$;

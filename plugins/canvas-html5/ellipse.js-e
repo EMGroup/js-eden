@@ -49,18 +49,8 @@ Ellipse.prototype.draw = function(context) {
 }}$;
 ${{
 Ellipse.prototype.toString = function() {
-	var s = "Ellipse(" + this.x + ", " + this.y + ", " + this.xradius + ", " + this.yradius + ", ";
-
-	if (this.fillcolour === undefined) {
-		s = s + "@, ";
-	} else {
-		s = s + this.fillcolour + ", ";
-	}
-	if (this.outlinecolour === undefined) {
-		s = s + "@";
-	} else {
-		s = s + this.outlinecolour;
-	}
+	var s = "Ellipse(" + this.x + ", " + this.y + ", " + this.xradius + ", " + this.yradius + ", " +
+		eden.edenCodeForValue(this.fillcolour) + ", " + eden.edenCodeForValue(this.outlinecolour);
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + eden.edenCodeForValue(this.drawingOptions);
@@ -69,4 +59,7 @@ Ellipse.prototype.toString = function() {
 	s = s + ")";
 	return s;
 };
+
+Ellipse.prototype.getEdenCode = Ellipse.prototype.toString;
+
 }}$;

@@ -5,11 +5,11 @@
 
 ${{
 Div = function (html, x, y, width, height, id, classNames, style) {
+	this.html = html;
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
-	this.html = html;
 	this.id = id;
 	this.classNames = classNames;
 	this.style = style;
@@ -35,7 +35,7 @@ func Div { ${{
 	var width = arguments[3];
 	var height = arguments[4];
 	
-	var id, classNames = [], style = "";
+	var id, classNames, style = "";
 	if (arguments.length > 5) {
 		if (arguments.length == 8) {
 			id = arguments[5];
@@ -76,7 +76,9 @@ Div.prototype.draw = function(context,content) {
 	if (this.id !== undefined) {
 		divElement.id = this.id;
 	}
-	divElement.setAttribute("class", this.classNames.join(" "));
+	if (Array.isArray(this.classNames)) {
+		divElement.setAttribute("class", this.classNames.join(" "));
+	}
 	divElement.style.cssText = divStyle;
 	divElement.innerHTML = this.html;
 	
@@ -89,8 +91,24 @@ Div.prototype.draw = function(context,content) {
 }}$;
 ${{
 Div.prototype.toString = function() {
-  var htmlAsText = this.html.replace(/</g, "&lt;");
-  return "Div(\"" + htmlAsText + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
-	this.height + ", \"" + this.style + "\")";
+	return this.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;");
 };
+
+Div.prototype.getEdenCode = function () {
+	var s = "Div(\"" + this.html + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
+		this.height;
+
+	if (this.id !== undefined) {
+		s = s + ", \"" + this.id + "\"";
+	}
+	if (this.classNames !== undefined) {
+		s = s + ", " + eden.edenCodeForValue(this.classNames);
+	}
+	if (this.style != "") {
+		s = s + ", \"" + this.style + "\"";
+	}
+	s = s + ")";
+	return s;
+};
+
 }}$;

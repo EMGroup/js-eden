@@ -87,7 +87,7 @@ Arc.prototype.toString = function() {
 		this.r + "," +
 		this.sAngle + "," +
 		this.eAngle + "," +
-		this.colour;
+		"\"" + this.colour + "\"";
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + eden.edenCodeForValue(this.drawingOptions);
@@ -96,4 +96,7 @@ Arc.prototype.toString = function() {
 	s = s + ")";
 	return s;
 }
+
+Arc.prototype.getEdenCode = Arc.prototype.toString;
+
 }}$;

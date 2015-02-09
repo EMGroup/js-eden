@@ -73,4 +73,7 @@ ${{
 			", " + this.y2 + ", " + eden.edenCodeForValue(this.colourStops) + ")";
 		
 	};
+
+	LinearGradient.prototype.getEdenCode = LinearGradient.prototype.toString;
+
 }}$;

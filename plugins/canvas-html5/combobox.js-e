@@ -95,6 +95,10 @@ Combobox.prototype.draw = function(context,content) {
 }}$;
 ${{
 Combobox.prototype.toString = function() {
-	return "Combobox(" + this.name + ", " + this.options + ", " + this.x + ", "+this.y+", "+this.enabled+")";
+	return "Combobox(\"" + this.name + "\", " + eden.edenCodeForValue(this.options) + ", " +
+		this.x + ", " + this.y + ", " + this.enabled+")";
 };
+
+Combobox.prototype.getEdenCode = Combobox.prototype.toString;
+
 }}$;

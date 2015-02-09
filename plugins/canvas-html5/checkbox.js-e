@@ -101,4 +101,7 @@ Checkbox.prototype.toString = function() {
   return "Checkbox(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.tristate + ", " +
 	this.enabled + ")";
 };
+
+Checkbox.prototype.getEdenCode = Checkbox.prototype.toString;
+
 }}$;

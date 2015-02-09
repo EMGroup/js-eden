@@ -74,4 +74,7 @@ Textbox.prototype.toString = function() {
   return "Textbox(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
 	this.rows + ", " + this.enabled + ")";
 };
+
+Textbox.prototype.getEdenCode = Textbox.prototype.toString;
+
 }}$;

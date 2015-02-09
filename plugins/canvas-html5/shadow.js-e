@@ -22,6 +22,10 @@ ${{
 	}
 
 	Shadow.prototype.toString = function() {
-		return "Shadow(" + this.colour + ", " + this.blur + ", " + this.xOffset + ", " + this.yOffset + ")";
+		return "Shadow(" + eden.edenCodeForValue(this.colour) + ", " + this.blur + ", " +
+			this.xOffset + ", " + this.yOffset + ")";
 	}
+
+	Shadow.prototype.getEdenCode = Shadow.prototype.toString;
+
 }}$;

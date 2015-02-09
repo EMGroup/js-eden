@@ -53,4 +53,7 @@ ${{
 			eden.edenCodeForValue(this.colourStops) + ")";
 		
 	};
+
+	RadialGradient.prototype.getEdenCode = RadialGradient.prototype.toString;
+
 }}$;

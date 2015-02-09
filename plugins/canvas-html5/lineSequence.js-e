@@ -31,7 +31,7 @@ LineSequence.prototype.draw = function(context) {
 };
 
 LineSequence.prototype.toString = function() {
-	var s = "LineSequence(" + eden.edenCodeForValue(this.points) + ", " + this.colour;
+	var s = "LineSequence(" + eden.edenCodeForValue(this.points) + ", \"" + this.colour + "\"";
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + eden.edenCodeForValue(this.drawingOptions);
@@ -40,4 +40,7 @@ LineSequence.prototype.toString = function() {
 	s = s + ")";
 	return s;
 };
+
+LineSequence.prototype.getEdenCode = LineSequence.prototype.toString;
+
 }}$;

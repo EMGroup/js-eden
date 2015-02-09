@@ -137,4 +137,7 @@ Slider.prototype.toString = function() {
 	this.x + ", " + this.y + ", " + this.length + ", \"" + this.orientation + "\", " +
 	this.enabled + ")";
 };
+
+Slider.prototype.getEdenCode = Slider.prototype.toString;
+
 }}$;

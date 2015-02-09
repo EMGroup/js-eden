@@ -360,9 +360,9 @@ function concatAndResolveUrl(url, concat) {
 			}
 			code = code + "]";
 		} else if (type == "object") {
-			if (value instanceof Point) {
-				code = "{" + value.x + ", " + value.y + "}";
-			} else if (value instanceof Symbol) {	
+			if ("getEdenCode" in value) {
+				code = value.getEdenCode();
+			} else if (value instanceof Symbol) {
 				code = "&" + value.name.slice(1);
 			} else if (
 				"keys" in value &&

@@ -61,4 +61,7 @@ ${{
 CanvasImage.prototype.toString = function() {
   return "Image(" + this.x + ", " + this.y+ ", " + this.width + ", " + this.height + ", \"" + this.image.src + "\")";
 };
+
+CanvasImage.prototype.getEdenCode = CanvasImage.prototype.toString;
+
 }}$;

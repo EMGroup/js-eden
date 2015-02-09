@@ -81,5 +81,7 @@ ${{
 		return "Button(\"" + this.name + "\", \"" + this.label + "\", " + this.x + ", "+this.y+", "+this.enabled+")";
 	};
 
+	Button.prototype.getEdenCode = Button.prototype.toString;
+
 }}$;
 

@@ -520,7 +520,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 				y = Math.ceil(e.pageY - windowPos.top);
 			}
 
-			var mousePos = root.lookup('Point').value().call(this, x, y);
+			var mousePos = new Point(x, y);
 
 			if (followMouse) {
 				root.lookup('mouseWindow').netAssign(displayedName);

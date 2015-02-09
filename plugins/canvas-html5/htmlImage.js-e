@@ -73,4 +73,7 @@ HTMLImage.prototype.toString = function() {
   return "HTMLImage(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
 	this.height + ", \"" + this.file + "\")";
 };
+
+HTMLImage.prototype.getEdenCode = HTMLImage.prototype.toString;
+
 }}$;

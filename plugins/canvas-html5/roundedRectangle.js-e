@@ -60,18 +60,9 @@ RoundedRectangle.prototype.toString = function() {
 	var s = "RoundedRectangle(" + this.x1 + ", " + this.y1 + ", " +
 		(this.x2 - this.x1) + ", " +
 		(this.y2 - this.y1) + ", " +
-		this.radius + ", ";
-
-	if (this.fillcolour === undefined) {
-		s = s + "@, ";
-	} else {
-		s = s + this.fillcolour + ", ";
-	}
-	if (this.outlinecolour === undefined) {
-		s = s + "@";
-	} else {
-		s = s + this.outlinecolour;
-	}
+		this.radius + ", " +
+		eden.edenCodeForValue(this.fillcolour) + ", " +
+		eden.edenCodeForValue(this.outlinecolour);
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + eden.edenCodeForValue(this.drawingOptions);
@@ -80,4 +71,7 @@ RoundedRectangle.prototype.toString = function() {
 	s = s + ")";
 	return s;
 };
+
+RoundedRectangle.prototype.getEdenCode = RoundedRectangle.prototype.toString;
+
 }}$;

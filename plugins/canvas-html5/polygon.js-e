@@ -43,19 +43,9 @@ Polygon.prototype.draw = function(context) {
 };
 
 Polygon.prototype.toString = function() {
-	var s = "Polygon(" + eden.edenCodeForValue(this.points) + ", ";
+	var s = "Polygon(" + eden.edenCodeForValue(this.points) + ", " +
+		eden.edenCodeForValue(this.fillcolour) + ", " + eden.edenCodeForValue(this.outlinecolour);
 
-	if (this.fillcolour === undefined) {
-		s = s + "@, ";
-	} else {
-		s = s + this.fillcolour + ", ";
-	}
-	if (this.outlinecolour === undefined) {
-		s = s + "@";
-	} else {
-		s = s + this.outlinecolour;
-	}
-	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + eden.edenCodeForValue(this.drawingOptions);
 	}
@@ -63,4 +53,7 @@ Polygon.prototype.toString = function() {
 	s = s + ")";
 	return s;
 };
+
+Polygon.prototype.getEdenCode = Polygon.prototype.toString;
+
 }}$;

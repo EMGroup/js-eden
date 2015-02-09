@@ -103,6 +103,10 @@ RadioButtons.prototype.draw = function(context,content) {
 
 ${{
 RadioButtons.prototype.toString = function() {
-  return "RadioButtons(" + this.name + ", [" + this.listOfButtonNames + "], "+this.x+ ", "+this.y+ ", "+this.enabled+", "+this.horizontal+")";
+  return "RadioButtons(" + this.name + ", " + eden.edenCodeForValue(this.listOfButtonNames) + ", " +
+	this.x + ", " + this.y + ", " + this.enabled + ", " + this.horizontal + ")";
 };
+
+RadioButtons.prototype.getEdenCode = RadioButtons.prototype.toString;
+
 }}$;

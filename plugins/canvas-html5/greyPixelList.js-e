@@ -122,7 +122,15 @@ GreyPixelList.prototype.draw = function(context) {
 
 GreyPixelList.prototype.toString = function() {
 	return "GreyPixelList(" +
-		(this.data.length / 4).toString() + " pixel values, " +
+		this.data.length + " pixel values, " +
+		this.x + ", " + this.y + ", " + this.width + "," + this.redMultiply + ", " + this.redAdd +
+		", " + this.greenMultiply + ", " + this.greenAdd + ", " + this.blueMultiply + ", " +
+		this.blueAdd + ")";
+}
+
+GreyPixelList.prototype.getEdenCode = function() {
+	return "GreyPixelList(" +
+		eden.edenCodeForValue(this.data) + ", " +
 		this.x + ", " + this.y + ", " + this.width + "," + this.redMultiply + ", " + this.redAdd +
 		", " + this.greenMultiply + ", " + this.greenAdd + ", " + this.blueMultiply + ", " +
 		this.blueAdd + ")";
