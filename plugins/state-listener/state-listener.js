@@ -56,9 +56,7 @@ EdenUI.plugins.SL = function(edenUI, success){
 				eden.listenTo('beforeNetAssign',this,function(symbol, value, origin){
 					console.log(origin);
 					if (origin != "net") {
-						var symRoot = symbol.context.root;
-						var edenCodeFunc = symRoot.lookup("edenCode").definition(symRoot);
-						connection.send(symbol.name.slice(1) + "=" + edenCodeFunc(value) + ";");
+						connection.send(symbol.name.slice(1) + "=" + eden.edenCodeForValue(value) + ";");
 					}
 				});
 				$("#sl-status").html('<p>Connected to: ' + url + "</p>");

@@ -336,6 +336,11 @@ function concatAndResolveUrl(url, concat) {
 		});
 	};
 
+	/**Given any JavaScript value returns a string representing the EDEN code that would be required
+	 * to obtain the same value when interpreted.
+	 * @param {*} The value to find an EDEN representation for.
+	 * @returns {string} The EDEN code that produces the given value.
+	 */
 	Eden.prototype.edenCodeForValue = function (value) {
 		var type = typeof(value);
 		var code = "";

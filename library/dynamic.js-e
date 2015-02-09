@@ -96,7 +96,7 @@ func definitionOf {
 		if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
 			return symbol.eden_definition + ";";
 		} else {
-			return name + " = " + root.lookup("edenCode").definition(root)(symbol.cached_value) + ";";
+			return name + " = " + eden.edenCodeForValue(symbol.cached_value) + ";";
 		}
 	}}$;
 }
@@ -135,7 +135,7 @@ func definitionRHS {
 			rhs = rhs.replace(/\[\s*\]$/, "[]");
 			return rhs;
 		} else {
-			return root.lookup("edenCode").definition(root)(symbol.cached_value);
+			return eden.edenCodeForValue(symbol.cached_value);
 		}	
 	}}$;
 }

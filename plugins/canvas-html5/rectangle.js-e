@@ -58,7 +58,7 @@ Rectangle.prototype.toString = function() {
 	}
 	
 	if (this.drawingOptions !== undefined) {
-		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
+		s = s + ", " + eden.edenCodeForValue(this.drawingOptions);
 	}
 	
 	s = s + ")";

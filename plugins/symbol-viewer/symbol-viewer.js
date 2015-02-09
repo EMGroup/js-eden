@@ -84,7 +84,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 					if (symbol.definition) {
 						val = symbol.eden_definition + ";";
 					} else {
-						val = symbolname + " = " + _toStrVal(symbol.value()) + ";";
+						val = symbolname + " = " + eden.edenCodeForValue(symbol.value()) + ";";
 					}
 				}
 				allVals += val + "\n";
@@ -361,7 +361,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			if (symbol.definition) {
 				val = symbol.eden_definition + ";";
 			} else {
-				val = me.name + " = " + _toStrVal(symbol.value()) + ";";
+				val = me.name + " = " + eden.edenCodeForValue(symbol.value()) + ";";
 			}
 		}
 
@@ -406,26 +406,6 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 	funchtml = funchtml + "</li>";
 	this.element.html(funchtml);
 };
-
-function _toStrVal(val) {
-	switch (typeof val) {
-		case "boolean": return val;
-		case "undefined": return "@";
-		case "string": return JSON.stringify(val);
-		case "number": return val;
-		case "function": return "${{ " + val + "}}$";
-	}
-
-	if (val instanceof Array) {
-		var parts = [];
-		for (var i = 0; i < val.length; ++i) {
-			parts.push(_toStrVal(val[i]));
-		}
-		return "[" + parts.join(", ") + "]";
-	}
-
-	return val.toString();
-}
 
 function _formatVal(val) {
 	switch (typeof val) {

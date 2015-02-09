@@ -43,7 +43,7 @@ Polygon.prototype.draw = function(context) {
 };
 
 Polygon.prototype.toString = function() {
-	var s = "Polygon(" + root.lookup("edenCode").definition(root)(this.points) + ", ";
+	var s = "Polygon(" + eden.edenCodeForValue(this.points) + ", ";
 
 	if (this.fillcolour === undefined) {
 		s = s + "@, ";
@@ -57,7 +57,7 @@ Polygon.prototype.toString = function() {
 	}
 	
 	if (this.drawingOptions !== undefined) {
-		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
+		s = s + ", " + eden.edenCodeForValue(this.drawingOptions);
 	}
 	
 	s = s + ")";
