@@ -19,13 +19,13 @@ describe("UI tests", function () {
 				process.env.SAUCE_USERNAME,
 				process.env.SAUCE_ACCESS_KEY
 			);
-			return browser.init({browserName: 'chrome', 'tunnel-identifier': jobNumber});
+			return browser.init({browserName: 'firefox', 'tunnel-identifier': jobNumber});
 		} else {
 			browser = wd.promiseChainRemote({
 				hostname: '127.0.0.1',
 				port: '4444'
 			});
-			return browser.init({browserName: 'chrome'});
+			return browser.init({browserName: 'firefox'});
 		}
 	});
 
