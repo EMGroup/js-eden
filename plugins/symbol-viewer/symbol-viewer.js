@@ -38,7 +38,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 	var generateHTML = function () {
 		return "<div class=\"symbollist-search-box-outer\">\
-			<input type=\"text\" class=\"symbollist-search\" placeholder=\"Search\"></input>\
+			<input type=\"text\" class=\"symbollist-search\" placeholder=\"Search\"></input><a class=\"symbollist-edit\">Edit</a>\
 		</div>\
 		<div class=\"symbollist-results\"></div>";
 	};
@@ -70,6 +70,28 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 		me.instances.push(symbollist);
 		symbollist.search("");
+
+		code_entry.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
+			edenUI.createView("Edit_" + me.name, "InputWindow");
+			var allVals = "";
+			var symbol;
+			for(var symbolname in symbollist.symbols){
+				symbol = root.lookup(symbolname);
+				var val;
+				if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
+					val = symbol.eden_definition;
+				} else {
+					if (symbol.definition) {
+						val = symbol.eden_definition + ";";
+					} else {
+						val = symbolname + " = " + _toStrVal(symbol.value()) + ";";
+					}
+				}
+				allVals += val + "\n";
+			}
+				$('#Edit_'+me.name+'-dialog').find('textarea').val(allVals);
+		});
+
 
 		// Make changes in search box update the list.
 		code_entry.find(".symbollist-search-box-outer > .symbollist-search").keyup(function() {
