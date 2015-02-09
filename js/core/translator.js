@@ -394,8 +394,10 @@ break;
 case 126:
  
 			var js = "";
-			for (var i = 0; i <= $$[$0-2].length; i++) {
+			for (var i = 0; i < $$[$0-2].length; i++) {
 				js = js + "context.lookup('" + $$[$0-2][i] + "').observe(['" + $$[$0-5] + "']); ";
+				js = js + "context.lookup('" + $$[$0-2][i] + "').subscribe(['" + $$[$0-5] + "']); ";
+				js = js + "context.expireSymbol(context.lookup('" + $$[$0-2][i] + "')); ";
 			}
 			this.$ = yy.sync(js);
 		

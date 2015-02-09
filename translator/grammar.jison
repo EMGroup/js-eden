@@ -565,8 +565,10 @@ dependency-link
     : OBSERVABLE '~>' '[' identifier-list ']' ';'
         { 
 			var js = "";
-			for (var i = 0; i <= $4.length; i++) {
+			for (var i = 0; i < $4.length; i++) {
 				js = js + "context.lookup('" + $4[i] + "').observe(['" + $1 + "']); ";
+				js = js + "context.lookup('" + $4[i] + "').subscribe(['" + $1 + "']); ";
+				js = js + "context.expireSymbol(context.lookup('" + $4[i] + "')); ";
 			}
 			$$ = yy.sync(js);
 		}
