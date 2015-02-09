@@ -450,6 +450,15 @@
 		}
 	};
 
+	/**
+	 * Used with pointer type observables, e.g. when clicking in the Symbol List view to edit one.
+	 * @return {string} The EDEN code used to create an expression that references this symbol,
+	 *	i.e. &name
+	 */
+	Symbol.prototype.getEdenCode = function () {
+		return "&" + this.name.slice(1);
+	}
+	
 	Symbol.prototype.trigger = function () {
 		var name;
 		// only trigger when all observed symbols have been defined by some agent

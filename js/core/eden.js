@@ -362,8 +362,6 @@ function concatAndResolveUrl(url, concat) {
 		} else if (type == "object") {
 			if ("getEdenCode" in value) {
 				code = value.getEdenCode();
-			} else if (value instanceof Symbol) {
-				code = "&" + value.name.slice(1);
 			} else if (
 				"keys" in value &&
 				Array.isArray(value.keys) &&
