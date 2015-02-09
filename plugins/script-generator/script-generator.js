@@ -135,19 +135,10 @@ EdenUI.plugins.SG = function(edenUI, success) {
 				ofa = "(Observable)";
 				ofai = 0;
 			}
-				
-			var value = Eden.deHTML(String(symbolsx[i].cached_value)).replace("/n", "<br/>");
-				if(value=="undefined"){
-					value = blank;
-				}
-				else{
-					if(typeof symbolsx[i].cached_value=="string"){
-						value = "\""+value+"\"";
-					}
-					else if(symbolsx[i].cached_value instanceof Array){
-						value = Eden.deHTML(SG.toActualString(symbolsx[i].cached_value)).replace("/n", "<br/>");
-					}
-				}
+			
+			var value = symbolsx[i].cached_value;
+			var htmlForValue = Eden.deHTML(eden.edenCodeForValue(value)).replace("\\n", "<br/>");
+
 			var WATCHES = Eden.deHTML(SG.propertiesFromObject(symbolsx[i].observees).join(", ").replace(/\//g,''));
 				if(WATCHES==""){
 					WATCHES = blank;
@@ -162,11 +153,8 @@ EdenUI.plugins.SG = function(edenUI, success) {
 				functs.push(def);
 			}
 			else if(ofai==0){
-				if((value==blank)&&(def==blank)){
-					continue;
-				}
-				else if(def==blank){
-					obsAssins.push(name+" = "+value+";");
+				if (def == blank) {
+					obsAssins.push(name + " = " + htmlForValue + ";");
 				}
 				else{
 					obsDefs.push(def+";");
