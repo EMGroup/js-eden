@@ -408,7 +408,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 };
 
 function _formatVal(value) {
-	var str = Eden.prettyPrintValue("", value, 150, false);
+	var str = Eden.prettyPrintValue("", value, 200, false, false);
 	switch (typeof(value)) {
 	case "boolean":
 		return "<span class='special_text'>" + str + "</span>";

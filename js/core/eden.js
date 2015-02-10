@@ -402,10 +402,15 @@ function concatAndResolveUrl(url, concat) {
 	 * 	have significantly more characters than this number.
 	 * @param {boolean} Whether or not to include code that defines a JavaScript function.  If false
 	 *	then functions will shortened to the word func.
+	 * @param {boolean} True if the result is allowed to span multiple lines, or false if it must
+	 * 	fit into a single line display (e.g. for the symbol viewer)
 	 * @returns {string} The EDEN code that produces the given value, with HTML mark-up characters
 	 *	escaped.
 	 */
-	Eden.prettyPrintValue = function (prefix, value, maxChars, showJSFuncs) {
+	Eden.prettyPrintValue = function (prefix, value, maxChars, showJSFuncs, multiline) {
+		if (multiline === undefined) {
+			multiline = true;
+		}
 		var type = typeof(value);
 		var code = "";
 		var truncated = false;
@@ -422,7 +427,7 @@ function concatAndResolveUrl(url, concat) {
 		} else if (Array.isArray(value)) {
 			code = "[";
 			for (var i = 0; i < value.length - 1; i++) {
-				code = Eden.prettyPrintValue(code, value[i], maxChars, showJSFuncs) + ",";
+				code = Eden.prettyPrintValue(code, value[i], maxChars, showJSFuncs, multiline) + ",";
 				if (maxChars !== undefined && code.length >= maxChars - 1) {
 					if (code.slice(-3) != "...") {
 						code = code + "...";
@@ -434,7 +439,7 @@ function concatAndResolveUrl(url, concat) {
 				}
 			}
 			if (value.length > 0 && !truncated) {
-				code = Eden.prettyPrintValue(code, value[value.length - 1], maxChars, showJSFuncs);
+				code = Eden.prettyPrintValue(code, value[value.length - 1], maxChars, showJSFuncs, multiline);
 			}
 			code = code + "]";
 		} else if (type == "object") {
@@ -466,7 +471,7 @@ function concatAndResolveUrl(url, concat) {
 							break;
 						}
 						code = code + key + ": ";
-						code = Eden.prettyPrintValue(code, value[key], maxChars, showJSFuncs);
+						code = Eden.prettyPrintValue(code, value[key], maxChars, showJSFuncs, multiline);
 						if (code.slice(-3) == "...") {
 							truncated = true;
 							break;
@@ -496,6 +501,9 @@ function concatAndResolveUrl(url, concat) {
 			}
 		} else {
 			code = String(value);
+		}
+		if (!multiline) {
+			code = code.replace(/\n/g, "\\n");
 		}
 		if (!prefix) {
 			return Eden.htmlEscape(code).replace(/\.\.\.$/, "&hellip;");
