@@ -341,7 +341,7 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {*} The value to find an EDEN representation for.
 	 * @returns {string} The EDEN code that produces the given value.
 	 */
-	Eden.prototype.edenCodeForValue = function (value) {
+	Eden.edenCodeForValue = function (value) {
 		var type = typeof(value);
 		var code = "";
 		if (type == "undefined") {
@@ -353,10 +353,10 @@ function concatAndResolveUrl(url, concat) {
 		} else if (Array.isArray(value)) {
 			code = "[";
 			for (var i = 0; i < value.length - 1; i++) {
-				code = code + this.edenCodeForValue(value[i]) + ", ";
+				code = code + Eden.edenCodeForValue(value[i]) + ", ";
 			}
 			if (value.length > 0) {
-				code = code + this.edenCodeForValue(value[value.length - 1]);
+				code = code + Eden.edenCodeForValue(value[value.length - 1]);
 			}
 			code = code + "]";
 		} else if (type == "object") {
@@ -375,7 +375,7 @@ function concatAndResolveUrl(url, concat) {
 				code = "{";
 				for (var key in value) {
 					if (!(key in Object.prototype)) {
-						code = code + key + ": " + this.edenCodeForValue(value[key]) + ", ";
+						code = code + key + ": " + Eden.edenCodeForValue(value[key]) + ", ";
 					}
 				}
 				if (code != "{") {
@@ -384,11 +384,149 @@ function concatAndResolveUrl(url, concat) {
 				code = code + "}";
 			}
 		} else if (type == "function") {
-			code = "$" +"{{ " + value + " }}" + "$";
+			code = "$"+"{{\n\t" +
+					value.toString().replace(/([;{])(\n)?/g, "$1\n").replace(/\n?(\s*\})/g, "\n$1").replace(/\n/g, "\n\t") +
+				"\n}}"+"$";
 		} else {
 			code = String(value);
 		}
 		return code;	
+	}
+	
+	/**Given any JavaScript value returns a string that can be displayed to users in an EDEN
+	 * friendly way, possibly truncated to reasonable length to fit in with the UI's requirements.
+	 * @param {string} A prefix to prepend to the string representation of the value.  Any HTML
+	 * 	mark-up characters present in the prefix will be preserved.
+	 * @param {*} The value to find an EDEN representation for.
+	 * @param {number} The character limit for the result (optional).  The returned string will not
+	 * 	have significantly more characters than this number.
+	 * @param {boolean} Whether or not to include code that defines a JavaScript function.  If false
+	 *	then functions will shortened to the word func.
+	 * @returns {string} The EDEN code that produces the given value, with HTML mark-up characters
+	 *	escaped.
+	 */
+	Eden.prettyPrintValue = function (prefix, value, maxChars, showJSFuncs) {
+		var type = typeof(value);
+		var code = "";
+		var truncated = false;
+		if (type == "undefined") {
+			code = "@";
+		} else if (value === null) {
+			code = "$" + "{{ null }}" + "$";
+		} else if (type == "string") {
+			code = "\"" + value.replace(/\\/g,"\\\\").replace(/\"/g,"\\\"") + "\"";
+			if (maxChars !== undefined && code.length > maxChars + 1) {
+				code = code.slice(0, maxChars) + "...";
+				truncated = true;
+			}
+		} else if (Array.isArray(value)) {
+			code = "[";
+			for (var i = 0; i < value.length - 1; i++) {
+				code = Eden.prettyPrintValue(code, value[i], maxChars, showJSFuncs) + ",";
+				if (maxChars !== undefined && code.length >= maxChars - 1) {
+					if (code.slice(-3) != "...") {
+						code = code + "...";
+					}
+					truncated = true;
+					break;
+				} else {
+					code = code + " ";
+				}
+			}
+			if (value.length > 0 && !truncated) {
+				code = Eden.prettyPrintValue(code, value[value.length - 1], maxChars, showJSFuncs);
+			}
+			code = code + "]";
+		} else if (type == "object") {
+			if (value.toString != Object.prototype.toString) {
+				code = value.toString();
+				if (maxChars !== undefined && code.length > maxChars) {
+					code = code.slice(0, maxChars) + "...";
+					truncated = true;
+				}
+			} else if (value instanceof Symbol) {
+				code = value.getEdenCode();
+			} else if (
+				"keys" in value &&
+				Array.isArray(value.keys) &&
+				value.keys.length > 0 &&
+				typeof(value.keys[0]) == "number" &&
+				"parent" in value &&
+				value.parent instanceof Symbol
+			) {
+				code = "&" + value.parent.name.slice(1) + "[" + value.keys[0] + "]";
+			} else {
+				code = "{";
+				var maybeTruncate = false;
+				for (var key in value) {
+					if (!(key in Object.prototype)) {
+						if (maybeTruncate) {
+							code = code.slice(0, -1) + "...";
+							truncated = true;
+							break;
+						}
+						code = code + key + ": ";
+						code = Eden.prettyPrintValue(code, value[key], maxChars, showJSFuncs);
+						if (code.slice(-3) == "...") {
+							truncated = true;
+							break;
+						}
+						if (maxChars !== undefined && code.length >= maxChars) {
+							maybeTruncate = true;
+						}
+						code = code + ", ";
+					}
+				}
+				if (code != "{" && !truncated) {
+					code = code.slice(0, -2);
+				}
+				code = code + "}";
+			}
+		} else if (type == "function") {
+			if (showJSFuncs) {
+				code = "$"+"{{\n\t" +
+						value.toString().replace(/([;{])(\n)?/g, "$1\n").replace(/\n?(\s*\})/g, "\n$1").replace(/\n/g, "\n\t") +
+					"\n}}"+"$";
+				if (maxChars !== undefined && code.length > maxChars) {
+					code = code.slice(0, maxChars) + "...";
+					truncated = true;
+				}
+			} else {
+				code = "func";
+			}
+		} else {
+			code = String(value);
+		}
+		if (!prefix) {
+			return Eden.htmlEscape(code).replace(/\.\.\.$/, "&hellip;");
+		} else {
+			return prefix + code;
+		}
+	}
+
+	/**
+	 * Converts plain text to HTML, by default preserving line breaks (though all other forms of
+	 * white space are collapsed).  HTML mark-up characters are escaped.
+	 * @param {string} The string to escape.
+	 * @param {boolean} If true then line breaks won't be converted to <br/>.  (E.g. useful for
+	 * 	content of <textarea> tag.
+	 * @return {string} The escaped string.
+	 */
+	Eden.htmlEscape = function (text, nobr) {
+		if (text === undefined) {
+			return "";
+		}
+		text = String(text);
+		text = text.replace(/&/g, "&amp;");
+		text = text.replace(/</g, "&lt;");
+		text = text.replace(/>/g, "&gt;");
+		text = text.replace(/"/g, "&quot;");
+		text = text.replace(/'/g, "&apos;");
+		
+		if (!nobr) {
+			text = text.replace(/\n/g, "<br/>\n");
+		}
+		return text;
 	}
 	
 	/** An identifier used to locate the result of the next call to eval(). */

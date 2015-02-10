@@ -56,7 +56,7 @@ EdenUI.plugins.SL = function(edenUI, success){
 				eden.listenTo('beforeNetAssign',this,function(symbol, value, origin){
 					console.log(origin);
 					if (origin != "net") {
-						connection.send(symbol.name.slice(1) + "=" + eden.edenCodeForValue(value) + ";");
+						connection.send(symbol.name.slice(1) + "=" + Eden.edenCodeForValue(value) + ";");
 					}
 				});
 				$("#sl-status").html('<p>Connected to: ' + url + "</p>");

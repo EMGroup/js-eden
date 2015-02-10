@@ -84,7 +84,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 					if (symbol.definition) {
 						val = symbol.eden_definition + ";";
 					} else {
-						val = symbolname + " = " + eden.edenCodeForValue(symbol.value()) + ";";
+						val = symbolname + " = " + Eden.edenCodeForValue(symbol.value()) + ";";
 					}
 				}
 				allVals += val + "\n";
@@ -361,7 +361,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			if (symbol.definition) {
 				val = symbol.eden_definition + ";";
 			} else {
-				val = me.name + " = " + eden.edenCodeForValue(symbol.value()) + ";";
+				val = me.name + " = " + Eden.edenCodeForValue(symbol.value()) + ";";
 			}
 		}
 
@@ -407,33 +407,20 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 	this.element.html(funchtml);
 };
 
-function _formatVal(val) {
-	switch (typeof val) {
-		case "boolean": return "<span class='special_text'>"+val+"</span>";
-		case "undefined": return "<span class='error_text'>@</span>";
-		case "string": return "<span class='string_text'>\""+Eden.deHTML(val)+"\"</span>";
-		case "number": return "<span class='numeric_text'>"+val+"</span>";
+function _formatVal(value) {
+	var str = Eden.prettyPrintValue("", value, 150, false);
+	switch (typeof(value)) {
+	case "boolean":
+		return "<span class='special_text'>" + str + "</span>";
+	case "undefined":
+		return "<span class='error_text'>@</span>";
+	case "string":
+		return "<span class='string_text'>" + str + "</span>";
+	case "number":
+		return "<span class='numeric_text'>" + str + "</span>";
+	default:
+		return str;
 	}
-
-	if (val instanceof Array) {
-		var maxDisplayedElements = 20;
-		var numDisplayed;
-		if (val.length < maxDisplayedElements) {
-			numDisplayed = val.length;
-		} else {
-			numDisplayed = maxDisplayedElements;
-		}
-		var parts = [];
-		for (var i = 0; i < numDisplayed; ++i) {
-			parts.push(_formatVal(val[i]));
-		}
-		if (val.length > maxDisplayedElements) {
-			parts.push("...");
-		}
-		return "[" + parts.join(", ") + "]";
-	}
-
-	return Eden.deHTML(val.toString());
 };
 
 /**
@@ -448,7 +435,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 	var namehtml;
 	if (this.symbol.definition !== undefined) {
 		namehtml = "<span class=\"hasdef_text\" title=\""
-		+ Eden.deHTML(this.symbol.eden_definition)
+		+ Eden.htmlEscape(this.symbol.eden_definition, true)
 		+"\">"+this.name+"</span>";
 	} else {
 		namehtml = this.name;

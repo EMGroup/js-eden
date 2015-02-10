@@ -102,7 +102,7 @@ Div.prototype.getEdenCode = function () {
 		s = s + ", \"" + this.id + "\"";
 	}
 	if (this.classNames !== undefined) {
-		s = s + ", " + eden.edenCodeForValue(this.classNames);
+		s = s + ", " + Eden.edenCodeForValue(this.classNames);
 	}
 	if (this.style != "") {
 		s = s + ", \"" + this.style + "\"";

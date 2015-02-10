@@ -74,7 +74,7 @@ PixelList.prototype.toString = function() {
 }
 
 PixelList.prototype.getEdenCode = function() {
-	return "PixelList(" + eden.edenCodeForValue(this.data) + ", " + this.x + ", " + this.y + ", " +
+	return "PixelList(" + Eden.edenCodeForValue(this.data) + ", " + this.x + ", " + this.y + ", " +
 		this.width + ")";
 }
 

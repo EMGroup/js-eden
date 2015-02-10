@@ -130,7 +130,7 @@ GreyPixelList.prototype.toString = function() {
 
 GreyPixelList.prototype.getEdenCode = function() {
 	return "GreyPixelList(" +
-		eden.edenCodeForValue(this.data) + ", " +
+		Eden.edenCodeForValue(this.data) + ", " +
 		this.x + ", " + this.y + ", " + this.width + "," + this.redMultiply + ", " + this.redAdd +
 		", " + this.greenMultiply + ", " + this.greenAdd + ", " + this.blueMultiply + ", " +
 		this.blueAdd + ")";

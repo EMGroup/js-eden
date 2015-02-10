@@ -82,11 +82,11 @@ Sector.prototype.toString = function() {
 		this.r + ", " +
 		this.sAngle + ", " +
 		this.eAngle + ", " +
-		eden.edenCodeForValue(this.fillcolour) + ", " +
-		eden.edenCodeForValue(this.outlinecolour);
+		Eden.edenCodeForValue(this.fillcolour) + ", " +
+		Eden.edenCodeForValue(this.outlinecolour);
 
 	if (this.drawingOptions !== undefined) {
-		s = s + ", " + eden.edenCodeForValue(this.drawingOptions);
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
 	
 	s = s + ")";

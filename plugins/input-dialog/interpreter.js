@@ -118,7 +118,7 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 		result = "";
 		for (var i=0; i<me.history.length; i++) {
 			var theclass = "inputwindow-history-line";
-			result = result + "<div class=\""+theclass+"\"><p style=\"word-wrap: break-word;\">" + Eden.deHTML(me.history[i]) + "</p></div>";
+			result = result + "<div class=\""+theclass+"\"><p style=\"word-wrap: break-word;\">" + Eden.htmlEscape(me.history[i]) + "</p></div>";
 		}
 		return result;
 	}
@@ -223,51 +223,6 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 	
 	success();
 };
-
-Eden.deHTML = function(text){
-//a function to allow the display of HTML in pages directly without the HTML being interpreted
-
-	if(text==undefined){
-		return undefined;
-	}
-
-	var build = [];
-
-	for(var i=0; i<text.length; i++) {
-	
-		if(text[i] == "<"){
-				build.push("&#60;");
-		}
-		else if(text[i] == ">"){	
-			//if(text[i+1]!="="){
-				build.push("&#62;");
-			//}
-		}
-		else if(text[i] == "{"){	
-			build.push("&#123;");	
-		}
-		else if(text[i] == "}"){	
-			build.push("&#125;");	
-		}
-		else if(text[i] == "\\"){	
-			build.push("&#92;");	
-		}
-		else if(text[i] == "\/"){	
-			build.push("&#47;");	
-		}
-		else if(text[i] == "\""){	
-			build.push("&#34;");	
-		}
-		else if(text[i] == "\$"){	
-			build.push("&#36;");	
-		}
-		else{
-			build.push(text[i]);
-		}
-	}
-
-	return build.join("");
-}
 
 /* Plugin meta information */
 EdenUI.plugins.InputWindow.title = "Input Window";

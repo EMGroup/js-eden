@@ -50,7 +50,7 @@ ${{
 	RadialGradient.prototype.toString = function() {
 		return "RadialGradient(" + this.x1 + ", " + this.y1 + ", " + this.r1 +
 			", " + this.x2 + ", " + this.y2 + ", " + this.r2 + ", " +
-			eden.edenCodeForValue(this.colourStops) + ")";
+			Eden.edenCodeForValue(this.colourStops) + ")";
 		
 	};
 

@@ -79,20 +79,20 @@ EdenUI.plugins.SLT = function (edenui, success) {
 				continue;
 			}
 			
-			var value = Eden.deHTML(String(symbolsx[i].cached_value)).replace("/n", "<br/>");
-				if(value=="undefined"){
+			var value = Eden.htmlEscape(symbolsx[i].cached_value);
+				if(symbolsx[i].cached_value === undefined){
 					value = blank;
 				}//!
-			var WATCHES = Eden.deHTML(SLT.propertiesFromObject(symbolsx[i].observees).concat(SLT.propertiesFromObject(symbolsx[i].dependencies)).join(", ").replace(/\//g,''));
+			var WATCHES = Eden.htmlEscape(SLT.propertiesFromObject(symbolsx[i].observees).concat(SLT.propertiesFromObject(symbolsx[i].dependencies)).join(", ").replace(/\//g,''));
 				if(WATCHES==""){
 					WATCHES = blank;
 				}
-			var UPDATES = Eden.deHTML(SLT.propertiesFromObject(symbolsx[i].observers).concat(SLT.propertiesFromObject(symbolsx[i].subscribers)).join(", ").replace(/\//g,''));
+			var UPDATES = Eden.htmlEscape(SLT.propertiesFromObject(symbolsx[i].observers).concat(SLT.propertiesFromObject(symbolsx[i].subscribers)).join(", ").replace(/\//g,''));
 				if(UPDATES==""){
 					UPDATES = blank;
 				}
-			var def = Eden.deHTML(symbolsx[i].eden_definition);
-				if(def==undefined){
+			var def = Eden.htmlEscape(symbolsx[i].eden_definition);
+				if(symbolsx[i].eden_definition === undefined){
 					def = blank;
 				}
 			var ofa = "";

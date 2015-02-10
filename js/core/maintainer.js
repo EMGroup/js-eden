@@ -246,7 +246,7 @@
 						if (subString == exp + ")") {
 							var jsValue = this.context.getEval(this.evalIDs[exp]);
 							replacedDef = replacedDef.slice(0, searchIndex) +
-								eden.edenCodeForValue(jsValue) +
+								Eden.edenCodeForValue(jsValue) +
 								replacedDef.slice(searchIndex + exp.length + 6);
 							break;
 						}

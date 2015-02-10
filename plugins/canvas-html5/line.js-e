@@ -40,7 +40,7 @@ Line.prototype.toString = function() {
 		", \"" + this.colour + "\"";
 
 	if (this.drawingOptions !== undefined) {
-		s = s + ", " + eden.edenCodeForValue(this.drawingOptions);
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
 	
 	s = s + ")";

@@ -208,7 +208,7 @@ EdenUI.plugins.ST = function(edenUI, success){
 				}
 			}
 				
-			var value = eden.edenCodeForValue(symbolsx[i].cached_value);
+			var value = Eden.edenCodeForValue(symbolsx[i].cached_value);
 			
 			var WATCHES = SG.propertiesFromObject(symbolsx[i].observees).join(", ").replace(/\//g,'');
 				if(WATCHES==""){

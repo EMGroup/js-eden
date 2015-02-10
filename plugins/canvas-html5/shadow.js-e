@@ -22,7 +22,7 @@ ${{
 	}
 
 	Shadow.prototype.toString = function() {
-		return "Shadow(" + eden.edenCodeForValue(this.colour) + ", " + this.blur + ", " +
+		return "Shadow(" + Eden.edenCodeForValue(this.colour) + ", " + this.blur + ", " +
 			this.xOffset + ", " + this.yOffset + ")";
 	}
 

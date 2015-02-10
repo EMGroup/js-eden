@@ -40,7 +40,7 @@ Text.prototype.draw = function(context) {
 ${{
 Text.prototype.toString = function() {
   return "Text(\"" + this.text + "\", " + this.x + ", " + this.y + ", " +
-	eden.edenCodeForValue(this.colour) + ", \"" + this.size + "\")";
+	Eden.edenCodeForValue(this.colour) + ", \"" + this.size + "\")";
 };
 
 Text.prototype.getEdenCode = Text.prototype.toString;

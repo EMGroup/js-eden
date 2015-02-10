@@ -109,7 +109,7 @@ EdenUI.plugins.SG = function(edenUI, success) {
 				continue;
 			}
 
-			var def = Eden.deHTML(symbolsx[i].eden_definition);
+			var def = symbolsx[i].eden_definition;
 				if(def==undefined){
 					def = blank;
 				}
@@ -137,17 +137,8 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			}
 			
 			var value = symbolsx[i].cached_value;
-			var htmlForValue = Eden.deHTML(eden.edenCodeForValue(value)).replace("\\n", "<br/>");
+			var htmlForValue = Eden.htmlEscape(Eden.edenCodeForValue(value), true);
 
-			var WATCHES = Eden.deHTML(SG.propertiesFromObject(symbolsx[i].observees).join(", ").replace(/\//g,''));
-				if(WATCHES==""){
-					WATCHES = blank;
-				}
-			var UPDATES = Eden.deHTML(SG.propertiesFromObject(symbolsx[i].observers).join(", ").replace(/\//g,''));
-				if(UPDATES==""){
-					UPDATES = blank;
-				}
-			
 			//Reasoning /push to appropriate array
 			if(ofai==1){
 				functs.push(def);
@@ -157,7 +148,7 @@ EdenUI.plugins.SG = function(edenUI, success) {
 					obsAssins.push(name + " = " + htmlForValue + ";");
 				}
 				else{
-					obsDefs.push(def+";");
+					obsDefs.push(Eden.htmlEscape(def, true) + ";");
 				}
 			}
 			else if(ofai==2){

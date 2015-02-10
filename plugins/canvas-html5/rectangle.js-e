@@ -45,10 +45,10 @@ Rectangle.prototype.draw = function(context) {
 ${{
 Rectangle.prototype.toString = function() {
 	var s = "Rectangle(" + this.x + ", " + this.y + ", " + this.width + ", " + this.height + ", " +
-		eden.edenCodeForValue(this.fillcolour) + ", " + eden.edenCodeForValue(this.outlinecolour);
+		Eden.edenCodeForValue(this.fillcolour) + ", " + Eden.edenCodeForValue(this.outlinecolour);
 
 	if (this.drawingOptions !== undefined) {
-		s = s + ", " + eden.edenCodeForValue(this.drawingOptions);
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
 	
 	s = s + ")";

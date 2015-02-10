@@ -103,7 +103,7 @@ RadioButtons.prototype.draw = function(context,content) {
 
 ${{
 RadioButtons.prototype.toString = function() {
-  return "RadioButtons(" + this.name + ", " + eden.edenCodeForValue(this.listOfButtonNames) + ", " +
+  return "RadioButtons(" + this.name + ", " + Eden.edenCodeForValue(this.listOfButtonNames) + ", " +
 	this.x + ", " + this.y + ", " + this.enabled + ", " + this.horizontal + ")";
 };
 

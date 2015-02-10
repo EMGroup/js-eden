@@ -61,11 +61,11 @@ RoundedRectangle.prototype.toString = function() {
 		(this.x2 - this.x1) + ", " +
 		(this.y2 - this.y1) + ", " +
 		this.radius + ", " +
-		eden.edenCodeForValue(this.fillcolour) + ", " +
-		eden.edenCodeForValue(this.outlinecolour);
+		Eden.edenCodeForValue(this.fillcolour) + ", " +
+		Eden.edenCodeForValue(this.outlinecolour);
 	
 	if (this.drawingOptions !== undefined) {
-		s = s + ", " + eden.edenCodeForValue(this.drawingOptions);
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
 	
 	s = s + ")";
