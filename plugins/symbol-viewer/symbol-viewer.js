@@ -434,19 +434,25 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 
 	var namehtml;
 	if (this.symbol.definition !== undefined) {
-		namehtml = "<span class=\"hasdef_text\" title=\""
-		+ Eden.htmlEscape(this.symbol.eden_definition, true)
-		+"\">"+this.name+"</span>";
+		namehtml = "<span class='hasdef_text'>" + this.name + "</span>";
 	} else {
 		namehtml = this.name;
 	}
 
-	this.element.html("<li><span class=\"result_name\">"
-		+ namehtml
-		+ "</span><span class='result_value'> = "
-		+ valhtml
-		+ "</span></li>"
-	);
+	var html = "<span class='result_name'>" + namehtml + "</span>" +
+		"<span class='result_value'> = " + valhtml + "</span>";
+
+	if (this.symbol.definition !== undefined) {
+		/*The inner replacement overcomes a bug(?) in Chrome 40 and Firefox 35 where < is interpreted
+		 *as a HTML start tag even when escaped as &lt;
+		 */
+		var tooltip = Eden.htmlEscape(this.symbol.eden_definition.replace(/<(\S)/g, " < $1"), true);
+		html = "<li title='" + tooltip + "'>" + html + "</li>";
+	} else {
+		html = "<li>" + html + "</li>";
+	}
+
+	this.element.html(html);
 };
 
 /**
