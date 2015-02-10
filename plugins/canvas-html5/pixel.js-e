@@ -22,9 +22,9 @@ ${{
 Pixel.prototype.toString = function() {
   return "Pixel("+ this.x + ", " + this.y + ", \"" + this.colour + "\")";
 };
-}}$;
 
 Pixel.prototype.getEdenCode = Pixel.prototype.toString;
+}}$;
 
 ${{
 Pixel.prototype.draw = function(context) {

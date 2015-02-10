@@ -243,7 +243,6 @@ func xorshiftRandomGenerator {
 randomGenerator = xorshiftRandomGenerator;
 
 func random {
-	debugger;
 	randomIndex++;
 	if (randomSeed == @) {
 		return ${{ Math.random(); }}$;
