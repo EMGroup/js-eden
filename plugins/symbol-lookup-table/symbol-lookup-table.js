@@ -61,56 +61,53 @@ EdenUI.plugins.SLT = function (edenui, success) {
 	SLT.generateBottomHTML = function(regexString){
 		var HTML = "<tr>"+
 			"<td class=\"lower\"><b>Name</b></td>"+
+			"<td class=\"lower\"><b>Type</b></td>" +
 			"<td class=\"lower\"><b>Definition</b></td>"+
 			"<td class=\"lower\"><b>Current Value</b></td>"+
 			"<td class=\"lower\"><b>Watches</b></td>"+
 			"<td class=\"lower\"><b>Updates</b>"+
-			"<td class=\"lower\"><b>Last modified by</b></td>"+
+			"<td class=\"lower\"><b>Last Modified By</b></td>" +
 		"</tr>";
 		var symbolsx = SLT.arrayFromObject(root.symbols);
 		
 		re = new RegExp("^("+regexString+").*$","i");
 		
 		for(var i=0; i<symbolsx.length; i++){
-			var blank = " - ";
-		
-			var name = symbolsx[i].name.replace(/\//g,'');
+			var symbol = symbolsx[i];
+			var name = symbol.name.slice(1);
+			
 			if(!re.test(name)){
 				continue;
 			}
 			
-			var value = Eden.htmlEscape(symbolsx[i].cached_value);
-				if(symbolsx[i].cached_value === undefined){
-					value = blank;
-				}//!
-			var WATCHES = Eden.htmlEscape(SLT.propertiesFromObject(symbolsx[i].observees).concat(SLT.propertiesFromObject(symbolsx[i].dependencies)).join(", ").replace(/\//g,''));
-				if(WATCHES==""){
-					WATCHES = blank;
+			var kind, definition, value;
+			if (symbol.eden_definition === undefined) {
+				definition = "-";
+				kind = typeof(symbol.cached_value) == "function"? "Function" : "Observable";
+				value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cached_value));
+			} else {
+				definition = Eden.htmlEscape(symbol.eden_definition);
+				if (definition.indexOf("proc") == 0) {
+					kind = "Agent";
+					value = "";
+				} else if (definition.indexOf("func") == 0) {
+					kind = "Function";
+					value = "";
+				} else {
+					kind = "Dependency";
+					value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cached_value));
 				}
-			var UPDATES = Eden.htmlEscape(SLT.propertiesFromObject(symbolsx[i].observers).concat(SLT.propertiesFromObject(symbolsx[i].subscribers)).join(", ").replace(/\//g,''));
-				if(UPDATES==""){
-					UPDATES = blank;
-				}
-			var def = Eden.htmlEscape(symbolsx[i].eden_definition);
-				if(symbolsx[i].eden_definition === undefined){
-					def = blank;
-				}
-			var ofa = "";
-			if(def.indexOf("proc")==0){
-				ofa = "(Action)";
 			}
-			else if(def.indexOf("func")==0){
-				ofa = "(Function)";
-			}
-			else{
-				ofa = "(Observable)";
-			}
-			var lastModifiedBy = symbolsx[i].last_modified_by ? symbolsx[i].last_modified_by : 'Not yet defined';
+			
+			var WATCHES = Eden.htmlEscape(SLT.propertiesFromObject(symbol.observees).concat(SLT.propertiesFromObject(symbol.dependencies)).join(", ").replace(/\//g,''));
+			var UPDATES = Eden.htmlEscape(SLT.propertiesFromObject(symbol.observers).concat(SLT.propertiesFromObject(symbol.subscribers)).join(", ").replace(/\//g,''));
+			var lastModifiedBy = symbol.last_modified_by ? symbol.last_modified_by : 'Not yet defined';
 
 			HTML = HTML.concat(
 				"<tr>"+
-					"<td class=\"lower\"><p>"+name+"\n"+ofa+"</p></td>"+
-					"<td class=\"lower\"><p>"+def+"</p></td>"+
+					"<td class=\"lower\"><p>" + name + "</p></td>" +
+					"<td class=\"lower\"><p>" + kind + "</p></td>" +
+					"<td class=\"lower\"><p>" + definition + "</p></td>" +
 					"<td class=\"lower\"><p>"+value+"</p></td>"+
 					"<td class=\"lower\"><p>"+WATCHES+"</p></td>"+
 					"<td class=\"lower\"><p>"+UPDATES+"</p></td>"+

@@ -49,8 +49,8 @@
 		},
 		"concat": {
 			"parameters": {
-				"separator": "",
-				"items": ""
+				"[separator]": "",
+				"item_list_or_item1...": ""
 			},
 			"return": "",
 			"description": ""
