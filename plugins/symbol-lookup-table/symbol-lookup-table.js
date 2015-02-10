@@ -19,7 +19,7 @@ EdenUI.plugins.SLT = function (edenui, success) {
 			defaultview = name;
 		}
 		
-		code_entry = $('<div id=\"'+name+'-content\" class=\"symbol-lookup-table-content\">'+SLT.generateAllHTML()+'</div>');
+		code_entry = $('<div id=\"'+name+'-content\" class=\"symbol-lookup-table-content\">' + SLT.generateAllHTML(name) + '</div>');
 
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
@@ -36,30 +36,32 @@ EdenUI.plugins.SLT = function (edenui, success) {
 	edenui.views["SLT"] = {dialog: this.createDialog, title: "Symbol Lookup Table"};
 	
 	SLT = {};
-	SLT.update = function(event){
-		//Update All SLT with their respective regexs
-		
-		var views = document.getElementsByClassName("SLT");
-		for(var j=0; j<views.length; j++){
-			var regex = views[j].children[0].children[0].value;
-			if(regex==undefined){
-				continue;
-			}
-			views[j].children[1].innerHTML = SLT.generateBottomHTML(regex);
-		}
 
+	SLT.search = function (viewName) {
+		//Update an SLT with search results for a new regexp.
+		var regExp = document.getElementById(viewName + "-regexp").value;
+		if(regExp == undefined) {
+			return;
+		}
+		document.getElementById(viewName + "-table-div").innerHTML = SLT.generateBottomHTML(regExp, viewName);
 	}
 	
-	SLT.generateAllHTML = function(){
-		//Generates the regex
-		var regex = "<input class=\"SLTregex\" type=\"text\" onkeyUp=\"SLT.update(event)\" placeholder=\"regex\" onload=\"setFocus()\" style='';>";
-		var indiv = "<div class=\"SLT\"><div class=\"upper\" style=\" display:block; \">"+regex+"</div><div class=\"lower\" style=\" display:block; \">"+SLT.generateBottomHTML("")+"</div></div>";
+	SLT.generateAllHTML = function (viewName) {
+		var controls = "<input id='" + viewName + "-regexp' class='SLTregex' type='text' onkeyUp=\"SLT.search('" + viewName + "')\" placeholder='search' onload='setFocus()' />";
+		var indiv = 
+			"<div idclass='SLT'>" +
+				"<div class='upper'>" + 
+					controls +
+				"</div>" +
+				"<div id='" + viewName + "-table-div' class='lower'>" +
+					SLT.generateBottomHTML("", viewName) +
+				"</div>" +
+			"</div>";
 		return indiv;
 	}
 	
-	
-	SLT.generateBottomHTML = function(regexString){
-		var HTML = "<tr>"+
+	SLT.generateBottomHTML = function(regexString, viewName) {
+		var tableHeadHTML = "<tr>"+
 			"<td class=\"lower\"><b>Name</b></td>"+
 			"<td class=\"lower\"><b>Type</b></td>" +
 			"<td class=\"lower\"><b>Definition</b></td>"+
@@ -68,15 +70,17 @@ EdenUI.plugins.SLT = function (edenui, success) {
 			"<td class=\"lower\"><b>Updates</b>"+
 			"<td class=\"lower\"><b>Last Modified By</b></td>" +
 		"</tr>";
-		var symbolsx = SLT.arrayFromObject(root.symbols);
+		tableBodyHTML = "";
 		
-		re = new RegExp("^("+regexString+").*$","i");
+		var re = new RegExp("^(" + regexString + ")", "i");
+		var partialTable = [];
+		var matchingNames = {};
+		var symbol;
 		
-		for(var i=0; i<symbolsx.length; i++){
-			var symbol = symbolsx[i];
-			var name = symbol.name.slice(1);
+		for (var name in root.symbols) {
+			symbol = root.symbols[name];
 			
-			if(!re.test(name)){
+			if (!re.test(name)) {
 				continue;
 			}
 			
@@ -88,9 +92,15 @@ EdenUI.plugins.SLT = function (edenui, success) {
 			} else {
 				definition = Eden.htmlEscape(symbol.eden_definition);
 				if (definition.indexOf("proc") == 0) {
+					if (Eden.isitSystemAgent(name) && name != regexString) {
+						continue;
+					}
 					kind = "Agent";
 					value = "";
 				} else if (definition.indexOf("func") == 0) {
+					if (Eden.isitSystemFunction(name) && name != regexString) {
+						continue;
+					}
 					kind = "Function";
 					value = "";
 				} else {
@@ -98,46 +108,57 @@ EdenUI.plugins.SLT = function (edenui, success) {
 					value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cached_value));
 				}
 			}
-			
-			var WATCHES = Eden.htmlEscape(SLT.propertiesFromObject(symbol.observees).concat(SLT.propertiesFromObject(symbol.dependencies)).join(", ").replace(/\//g,''));
-			var UPDATES = Eden.htmlEscape(SLT.propertiesFromObject(symbol.observers).concat(SLT.propertiesFromObject(symbol.subscribers)).join(", ").replace(/\//g,''));
+			partialTable.push([symbol, name, kind, definition, value]);
+			matchingNames[name] = true;
+		}
+		
+		for (var i = 0; i < partialTable.length; i++) {
+			var row = partialTable[i];
+			symbol = row[0];
+			var watches = SLT.referencedObservables(symbol.observees, matchingNames, viewName).concat(
+				SLT.referencedObservables(symbol.dependencies, matchingNames, viewName));
+
+			var updates = SLT.referencedObservables(symbol.observers, matchingNames, viewName).concat(
+				SLT.referencedObservables(symbol.subscribers, matchingNames, viewName));
+
 			var lastModifiedBy = symbol.last_modified_by ? symbol.last_modified_by : 'Not yet defined';
 
-			HTML = HTML.concat(
-				"<tr>"+
-					"<td class=\"lower\"><p>" + name + "</p></td>" +
-					"<td class=\"lower\"><p>" + kind + "</p></td>" +
-					"<td class=\"lower\"><p>" + definition + "</p></td>" +
-					"<td class=\"lower\"><p>"+value+"</p></td>"+
-					"<td class=\"lower\"><p>"+WATCHES+"</p></td>"+
-					"<td class=\"lower\"><p>"+UPDATES+"</p></td>"+
-					"<td class=\"lower\"><p>"+lastModifiedBy+"</p></td>"+
-				"</tr>"
-			);
+			tableBodyHTML =
+				"<tr id='" + viewName + "-symbol-" + row[1] + "'>"+
+					"<td class=\"lower\"><p>" + row[1] + "</p></td>" +
+					"<td class=\"lower\"><p>" + row[2] + "</p></td>" +
+					"<td class=\"lower\"><p>" + row[3] + "</p></td>" +
+					"<td class=\"lower\"><p>" + row[4] + "</p></td>" +
+					"<td class=\"lower\"><p>" + watches + "</p></td>" +
+					"<td class=\"lower\"><p>" + updates + "</p></td>" +
+					"<td class=\"lower\"><p>" + lastModifiedBy + "</p></td>" +
+				"</tr>".concat(tableBodyHTML);
 		}
-		return "<table>"+HTML+"</table>";
+		return "<table>" + tableHeadHTML + tableBodyHTML + "</table>";
+	}
+
+	SLT.referencedObservables = function(referencedObs, obsInTable, viewName) {
+		var list = [];
+		for (var key in referencedObs) {
+			var name = key.slice(1);
+			if (name in obsInTable) {
+				list.push("<a href='#" + viewName + "-symbol-" + name + "'>" + name + "</a>");
+			} else {
+				if (Eden.isitSystemAgent(name) || Eden.isitSystemFunction(name)) {
+					list.push(name);
+				} else {
+					list.push("<a href=\"javascript:SLT.addSymbolToSearch('" + viewName + "', " + "'" + name + "')\">" + name + "</a>");
+				}
+			}
+		}
+		return list.join(", ");
 	}
 	
-	SLT.arrayFromObject = function(object){
-
-		var temp = [];
-
-		$.each(object, function(){
-			temp.push(this);
-		});
-		
-		return temp;
-	}
-	
-	SLT.propertiesFromObject = function(object){
-
-		var temp = [];
-
-		$.each(object, function(x){
-			temp.push(x);
-		});
-		
-		return temp;
+	SLT.addSymbolToSearch = function (viewName, symbolName) {
+		var searchBox = document.getElementById(viewName + "-regexp");
+		var searchStr = searchBox.value + "|" + symbolName + "$";
+		searchBox.value = searchStr;
+		SLT.search(viewName);
 	}
 	
 	success();

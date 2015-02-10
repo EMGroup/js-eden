@@ -443,13 +443,7 @@ function concatAndResolveUrl(url, concat) {
 			}
 			code = code + "]";
 		} else if (type == "object") {
-			if (value.toString != Object.prototype.toString) {
-				code = value.toString();
-				if (maxChars !== undefined && code.length > maxChars) {
-					code = code.slice(0, maxChars) + "...";
-					truncated = true;
-				}
-			} else if (value instanceof Symbol) {
+			if (value instanceof Symbol) {
 				code = value.getEdenCode();
 			} else if (
 				"keys" in value &&
@@ -460,6 +454,12 @@ function concatAndResolveUrl(url, concat) {
 				value.parent instanceof Symbol
 			) {
 				code = "&" + value.parent.name.slice(1) + "[" + value.keys[0] + "]";
+			} else if (value.toString != Object.prototype.toString) {
+				code = value.toString();
+				if (maxChars !== undefined && code.length > maxChars) {
+					code = code.slice(0, maxChars) + "...";
+					truncated = true;
+				}
 			} else {
 				code = "{";
 				var maybeTruncate = false;

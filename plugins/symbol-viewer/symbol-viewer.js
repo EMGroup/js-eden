@@ -38,7 +38,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 	var generateHTML = function () {
 		return "<div class=\"symbollist-search-box-outer\">\
-			<input type=\"text\" class=\"symbollist-search\" placeholder=\"Search\"></input><a class=\"symbollist-edit\">Edit</a>\
+			<input type=\"text\" class=\"symbollist-search\" placeholder=\"search\" /><a class=\"symbollist-edit\">Edit</a>\
 		</div>\
 		<div class=\"symbollist-results\"></div>";
 	};
@@ -278,7 +278,7 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.updateSymbol = function (name) 
  * @param name The name of the given symbol object.
  */
 EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, name) {
-	var reg = new RegExp("^("+this.pattern+").*");
+	var reg = new RegExp("^(" + this.pattern + ")", "i");
 
 	if (name.search(reg) == -1) {
 		return;
