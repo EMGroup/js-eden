@@ -3,10 +3,6 @@ EdenUI.plugins.SG = function(edenUI, success) {
 	var me = this;
 	var defaultview = "";
 
-	function lastModifiedByInput(name) {
-		return root.lookup(name).last_modified_by === 'input';
-	}
-
 	this.html = function(name, content) {
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
@@ -84,6 +80,7 @@ EdenUI.plugins.SG = function(edenUI, success) {
 		var comments = [
 			"## Auto-Generated Script of Model by JS-Eden",
 			"## Auto calculation is turned off to until the model has been fully loaded",
+			"##Include Files:",
 			"## Observable Assignments:",
 			"## Observable Definitions:",
 			"## Action Definitions:",
@@ -105,7 +102,7 @@ EdenUI.plugins.SG = function(edenUI, success) {
 		
 			var name = symbolsx[i].name.replace(/\//g,'');
 				
-			if (!lastModifiedByInput(name)) {
+			if (symbolsx[i].last_modified_by == "include") {
 				continue;
 			}
 
@@ -168,16 +165,22 @@ EdenUI.plugins.SG = function(edenUI, success) {
 		lines.push(autocalcOff);
 		lines.push("");
 		lines.push(comments[2]);
+		var includeFiles = eden.getIncludedURLs();
+		for (var i = 0; i < includeFiles.length; i++) {
+			lines.push("include(\"" + includeFiles[i] + "\");");
+		}
+		lines.push("");
+		lines.push(comments[3]);
 		for(var i=0; i<obsAssins.length; i++){
 			lines.push(obsAssins[i]);
 		}
 		lines.push("");
-		lines.push(comments[3]);
+		lines.push(comments[4]);
 		for(var i=0; i<obsDefs.length; i++){
 			lines.push(obsDefs[i]);
 		}
 		lines.push("");
-		lines.push(comments[4]);
+		lines.push(comments[5]);
 		for(var i=0; i<acts.length; i++){
 			lines.push(acts[i]);
 			if (i !== acts.length - 1) {
@@ -185,7 +188,7 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			}
 		}
 		lines.push("");
-		lines.push(comments[5]);
+		lines.push(comments[6]);
 		for(var i=0; i<functs.length; i++){
 			lines.push(functs[i]);
 			if (i !== functs.length - 1) {
@@ -193,13 +196,13 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			}
 		}
 		lines.push("");
-		lines.push(comments[6]);
+		lines.push(comments[7]);
 		lines.push(picture);
 		lines.push("");
-		lines.push(comments[7]);
+		lines.push(comments[8]);
 		lines.push(autocalcOn);
 		lines.push("");
-		lines.push(comments[8]);
+		lines.push(comments[9]);
 
 		return "<div style='position: absolute; top: 30px; bottom: 10px; left: 0; right: 10px;'>"+
 							"<textarea readonly=true spellcheck=false style='font-family: monospace; background-color: white; color: black; resize: none; width: 100%; height: 100%;'>"+lines.join("\n")+"</textarea>"+

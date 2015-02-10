@@ -198,6 +198,13 @@ function concatAndResolveUrl(url, concat) {
 		this.listeners = {};
 
 		/**
+		 * A record of the external files that have been loaded using the include statement.
+		 * Plugins (such as the script generator) can request a copy of this information.
+		 * @private
+		 */
+		this.includes = {};
+		
+		/**
 		 * Setting this to false temporarily prevents the error method from
 		 * producing any output.  This is used by the framework for testing EDEN
 		 * code in the scenario when an error is the intended outcome of a test case.
@@ -286,6 +293,7 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {function()} success Called when include has finished successfully.
 	 */
 	Eden.prototype.include = function (includePath, prefix, agent, success) {
+		var me = this;
 		var includePaths;
 		if (includePath instanceof Array) {
 			includePaths = includePath;
@@ -303,6 +311,12 @@ function concatAndResolveUrl(url, concat) {
 			agent = prefix;
 			prefix = '';
 		}
+		/* The include procedure is the agent that modifies the observables, not the agent passing
+		 * the include agent a filename.  Interesting philosophically?  Plus a practical necessity,
+		 * e.g. for the Script Generator plug-in to work properly.
+		 */
+		var originalAgent = agent;
+		agent = {name: '/include'};		
 
 		var promise;
 		includePaths.forEach(function (includePath) {
@@ -323,10 +337,16 @@ function concatAndResolveUrl(url, concat) {
 				if (previousPromise) {
 					return previousPromise.then(function () {
 						eden.execute(data, url, newPrefix, agent, deferred.resolve);
+						if (originalAgent.name == "input") {
+							me.includes[url] = true;
+						}
 						return deferred.promise;
 					});
 				} else {
 					eden.execute(data, url, newPrefix, agent, deferred.resolve);
+					if (originalAgent.name == "input") {
+						me.includes[url] = true;
+					}
 					return deferred.promise;
 				}
 			});
@@ -336,9 +356,19 @@ function concatAndResolveUrl(url, concat) {
 		});
 	};
 
+	Eden.prototype.getIncludedURLs = function () {
+		var urlList = [];
+		for (url in this.includes) {
+			if (this.includes.hasOwnProperty(url)) {
+				urlList.push(url);
+			}
+		}
+		return urlList;
+	}
+	
 	/**Given any JavaScript value returns a string representing the EDEN code that would be required
 	 * to obtain the same value when interpreted.
-	 * @param {*} The value to find an EDEN representation for.
+	 * @param {*} value The value to find an EDEN representation for.
 	 * @returns {string} The EDEN code that produces the given value.
 	 */
 	Eden.edenCodeForValue = function (value) {
