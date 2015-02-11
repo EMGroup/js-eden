@@ -33,6 +33,7 @@ ${{
 SlideButton.prototype.draw = function(context) {
   var me = "jspe_" + this.name;
   var me2 = this.name;
+  var agent = root.lookup("SlideButton");
   var but = $("#"+me).get(0);
   if (but === undefined) {
 	var dis = "";
@@ -41,13 +42,13 @@ SlideButton.prototype.draw = function(context) {
 
 	var can = $("#jspe-dialog-canvascontent");
 	var buthtml = $("<input type=\"button\" id=\"" + me + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
-		root.lookup(me2 + "_clicked").assign(true);
+		root.lookup(me2 + "_clicked").assign(true, agent);
 	}).appendTo(can);
 
 	buthtml.get(0).togarbage = false;
 
 	//Initialise
-	root.lookup(me2 + "_clicked").assign(false);
+	root.lookup(me2 + "_clicked").assign(false, agent);
   } else {
 	but.value = this.label;
 	but.togarbage = false;

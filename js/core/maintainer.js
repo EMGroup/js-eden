@@ -313,7 +313,7 @@
 		if (modifying_agent === global) {
 			this.last_modified_by = 'input';
 		} else {
-			this.last_modified_by = modifying_agent ? modifying_agent.name.replace(/^\//, '') : "modifying agent wasn't specified :(";
+			this.last_modified_by = modifying_agent ? modifying_agent.name.replace(/^\//, '') : "*JavaScript";
 		}
 	};
 
@@ -497,7 +497,7 @@
 	Symbol.prototype.fireJSObservers = function () {
 		for (var jsObserverName in this.jsObservers) {
 			try {
-				this.jsObservers[jsObserverName](this.name, this.value());
+				this.jsObservers[jsObserverName](this, this.cached_value);
 			} catch (error) {
 				this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
 			}

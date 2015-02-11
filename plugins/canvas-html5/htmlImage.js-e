@@ -44,6 +44,7 @@ ${{
 HTMLImage.prototype.draw = function(context) {
   var me = "canvas_" + this.name;
   var me2 = this.name;
+  var agent = root.lookup("HTMLImage");
 
   if (this.element === undefined) {
 
@@ -58,13 +59,13 @@ HTMLImage.prototype.draw = function(context) {
 	html = html + "/>";
 
 	var imageQuery = $(html).on("mousedown", function () {
-		root.lookup(me2 + "_click").netAssign(true);
+		root.lookup(me2 + "_click").netAssign(true, agent);
 	}).on("mouseup", function () {
-		root.lookup(me2 + "_click").netAssign(false);
+		root.lookup(me2 + "_click").netAssign(false, agent);
 	});
 
 	this.element = imageQuery.get(0);
-	root.lookup(me2 + "_click").assign(false);
+	root.lookup(me2 + "_click").assign(false, agent);
   }
 };
 }}$;

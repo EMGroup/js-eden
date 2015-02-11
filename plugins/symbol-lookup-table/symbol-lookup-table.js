@@ -123,7 +123,7 @@ EdenUI.plugins.SLT = function (edenui, success) {
 
 			var lastModifiedBy = symbol.last_modified_by ? symbol.last_modified_by : 'Not yet defined';
 
-			tableBodyHTML =
+			var rowHTML =
 				"<tr id='" + viewName + "-symbol-" + row[1] + "'>"+
 					"<td class=\"lower\"><p>" + row[1] + "</p></td>" +
 					"<td class=\"lower\"><p>" + row[2] + "</p></td>" +
@@ -132,7 +132,19 @@ EdenUI.plugins.SLT = function (edenui, success) {
 					"<td class=\"lower\"><p>" + watches + "</p></td>" +
 					"<td class=\"lower\"><p>" + updates + "</p></td>" +
 					"<td class=\"lower\"><p>" + lastModifiedBy + "</p></td>" +
-				"</tr>".concat(tableBodyHTML);
+				"</tr>";
+
+			/* Officially the order in which object properties are returned during iteration is
+			 * implementation defined, though most browsers do usually return them in the order
+			 * they were first assigned, so it's not guaranteed but we hope the following code puts
+			 * the most recently defined symbols at the top (excluding the coordinates of GUI
+			 * window positions, etc. which should hopefully end up at the bottom of the table.
+			 */
+			if (/^((_view_.*)|mousePosition|mouseWindow)$/.test(row[1])) {
+				tableBodyHTML = tableBodyHTML + rowHTML;
+			} else {
+				tableBodyHTML = rowHTML + tableBodyHTML;
+			}
 		}
 		return "<table>" + tableHeadHTML + tableBodyHTML + "</table>";
 	}

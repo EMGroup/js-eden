@@ -50,6 +50,7 @@ Slider.prototype.draw = function(context,content) {
 	var name = this.name;
 	var id = "canvas_" + name;
 	var that = this;
+	var agent = root.lookup("Slider");
 	
 	var valueSym = root.lookup(name + "_value");
 	var value = valueSym.value();
@@ -76,11 +77,11 @@ Slider.prototype.draw = function(context,content) {
 				value = previewValue;
 			} else {
 				value = this.min;
-				previewSym.assign(value);
+				previewSym.assign(value, agent);
 			}
-			valueSym.assign(value, this);
+			valueSym.assign(value, agent);
 		} else {
-			previewSym.assign(value);
+			previewSym.assign(value, agent);
 		}
 
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
@@ -93,36 +94,36 @@ Slider.prototype.draw = function(context,content) {
 			'min="' + this.min + '" ' +
 			'max="' + this.max + '" ' +
 			'step="' + this.step + '" />')).on("change", function(){
-				root.lookup(name + "_value").netAssign(parseFloat(this.value));
+				root.lookup(name + "_value").netAssign(parseFloat(this.value), agent);
 			}).on("input", function(){
-				root.lookup(name + "_preview").netAssign(parseFloat(this.value));
+				root.lookup(name + "_preview").netAssign(parseFloat(this.value), agent);
 			}));
 
 		this.element = inputhtml.get(0);
 		inputhtml.get(0).togarbage = false;
 
-		valueSym.addJSObserver("updateUI", function (obsName, value) {
+		valueSym.addJSObserver("updateUI", function (obs, value) {
 			var previewSym = root.lookup(name + "_preview");
 			if (previewSym.value() != value) {
 				that.element.value = String(value);
-				previewSym.assign(value);
+				previewSym.assign(value, agent);
 			}
 		});
 		
-		previewSym.addJSObserver("updateUI", function (obsName, preview) {
+		previewSym.addJSObserver("updateUI", function (obs, preview) {
 			var previewSym = root.lookup(name + "_preview");
 			var valueSym = root.lookup(name + "_value");
 			if (previewSym.last_modified_by == "input") {
 				that.element.value = String(preview);
-				valueSym.netAssign(preview);
+				valueSym.netAssign(preview, agent);
 			}
 		});
 		
 	} else {
 		//Draw with the values stored in the observables
 		if (value === undefined) {
-			valueSym.assign(parseFloat(this.element.value), this);
-			previewSym.assign(parseFloat(this.element.value), this);
+			valueSym.assign(parseFloat(this.element.value), agent);
+			previewSym.assign(parseFloat(this.element.value), agent);
 		} else {
 			this.element.value = String(value);
 		}

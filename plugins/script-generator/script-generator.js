@@ -26,8 +26,8 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			.html(code_entry)
 			.dialog({
 				title: mtitle,
-				width: 600,
-				height: 450,
+				width: 735,
+				height: 600,
 				minHeight: 120,
 				minWidth: 230
 			});
@@ -78,31 +78,40 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			picture = picture+";";
 		}
 		var comments = [
-			"## Auto-Generated Script of Model by JS-Eden",
-			"## Auto calculation is turned off to until the model has been fully loaded",
-			"##Include Files:",
+			"## This is a JS-EDEN script automatically generated using the environment's script generator feature.",
+			"## JS-EDEN is an open source empirical modelling environment based on research, principles and work",
+			"## conducted at University of Warwick.",
+			"## Web site: https://github.com/emgroup/js-eden",
+			"## Firstly, turn off automatic calculation until the construal is fully loaded.",
+			"## Include Files:",
 			"## Observable Assignments:",
 			"## Observable Definitions:",
 			"## Action Definitions:",
 			"## Function Definitions:",
 			"## Picture Definition:",
-			"## Auto calculation is turned on and the updating is fired",
-			"## End of Auto-Generated Script"
+			"## Turn on automatic calculation and execute any triggered actions pending.",
+			"## End of automatically generated script."
 		];
 		
-		for(var i=0; i<symbolsx.length; i++){
+		var blank = " - ";
 
-		if(symbolsx[i].name.replace(/\//g,'')=="picture"){
-			continue;
-		}
-		
-			var blank = " - ";
+		for(var i=0; i<symbolsx.length; i++){
+	
 			var ofa = "";
 			var ofai = 5;
 		
 			var name = symbolsx[i].name.replace(/\//g,'');
 				
 			if (symbolsx[i].last_modified_by == "include") {
+				continue;
+			}
+			if (name == "autocalc" || name == "picture") {
+				continue;
+			}
+			if (/^(mouse|touch)[A-Z]/.test(name) && Eden.isitSystemObservable(name)) {
+				continue;
+			}
+			if (/^_([vV]iew|update)_/.test(name)) {
 				continue;
 			}
 
@@ -162,25 +171,29 @@ EdenUI.plugins.SG = function(edenUI, success) {
 		lines.push(comments[0]);
 		lines.push("");
 		lines.push(comments[1]);
+		lines.push(comments[2]);
+		lines.push(comments[3]);
+		lines.push("");		
+		lines.push(comments[4]);
 		lines.push(autocalcOff);
 		lines.push("");
-		lines.push(comments[2]);
+		lines.push(comments[5]);
 		var includeFiles = eden.getIncludedURLs();
 		for (var i = 0; i < includeFiles.length; i++) {
 			lines.push("include(\"" + includeFiles[i] + "\");");
 		}
 		lines.push("");
-		lines.push(comments[3]);
+		lines.push(comments[6]);
 		for(var i=0; i<obsAssins.length; i++){
 			lines.push(obsAssins[i]);
 		}
 		lines.push("");
-		lines.push(comments[4]);
+		lines.push(comments[7]);
 		for(var i=0; i<obsDefs.length; i++){
 			lines.push(obsDefs[i]);
 		}
 		lines.push("");
-		lines.push(comments[5]);
+		lines.push(comments[8]);
 		for(var i=0; i<acts.length; i++){
 			lines.push(acts[i]);
 			if (i !== acts.length - 1) {
@@ -188,7 +201,7 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			}
 		}
 		lines.push("");
-		lines.push(comments[6]);
+		lines.push(comments[9]);
 		for(var i=0; i<functs.length; i++){
 			lines.push(functs[i]);
 			if (i !== functs.length - 1) {
@@ -196,13 +209,13 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			}
 		}
 		lines.push("");
-		lines.push(comments[7]);
+		lines.push(comments[10]);
 		lines.push(picture);
 		lines.push("");
-		lines.push(comments[8]);
+		lines.push(comments[11]);
 		lines.push(autocalcOn);
 		lines.push("");
-		lines.push(comments[9]);
+		lines.push(comments[12]);
 
 		return "<div style='position: absolute; top: 30px; bottom: 10px; left: 0; right: 10px;'>"+
 							"<textarea readonly=true spellcheck=false style='font-family: monospace; background-color: white; color: black; resize: none; width: 100%; height: 100%;'>"+lines.join("\n")+"</textarea>"+

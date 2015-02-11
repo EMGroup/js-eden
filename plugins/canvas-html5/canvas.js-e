@@ -9,12 +9,12 @@ mouseCapture = false;
 mouseCaptured = false;
 mouseContextMenuEnabled = false;
 mouseDoubleClicks = 0;
-mouseFollow = true;
+mouseFollow = false;
 mouseWheel = 0;
 touchScrollX = 0;
 
 ${{
-	root.lookup("mouseCapture").addJSObserver("releaseCapture", function (name, lock) {
+	root.lookup("mouseCapture").addJSObserver("releaseCapture", function (obs, lock) {
 		if (!lock) {
 			document.exitPointerLock();
 		}

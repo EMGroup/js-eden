@@ -425,14 +425,14 @@ function concatAndResolveUrl(url, concat) {
 	
 	/**Given any JavaScript value returns a string that can be displayed to users in an EDEN
 	 * friendly way, possibly truncated to reasonable length to fit in with the UI's requirements.
-	 * @param {string} A prefix to prepend to the string representation of the value.  Any HTML
+	 * @param {string} prefix A prefix to prepend to the string representation of the value.  Any HTML
 	 * 	mark-up characters present in the prefix will be preserved.
-	 * @param {*} The value to find an EDEN representation for.
-	 * @param {number} The character limit for the result (optional).  The returned string will not
+	 * @param {*} value The value to find an EDEN representation for.
+	 * @param {number} maxChars The character limit for the result (optional).  The returned string will not
 	 * 	have significantly more characters than this number.
-	 * @param {boolean} Whether or not to include code that defines a JavaScript function.  If false
+	 * @param {boolean} showJSFuncs Whether or not to include code that defines a JavaScript function.  If false
 	 *	then functions will shortened to the word func.
-	 * @param {boolean} True if the result is allowed to span multiple lines, or false if it must
+	 * @param {boolean} multiline True if the result is allowed to span multiple lines, or false if it must
 	 * 	fit into a single line display (e.g. for the symbol viewer)
 	 * @returns {string} The EDEN code that produces the given value, with HTML mark-up characters
 	 *	escaped.
@@ -545,8 +545,8 @@ function concatAndResolveUrl(url, concat) {
 	/**
 	 * Converts plain text to HTML, by default preserving line breaks (though all other forms of
 	 * white space are collapsed).  HTML mark-up characters are escaped.
-	 * @param {string} The string to escape.
-	 * @param {boolean} If true then line breaks won't be converted to <br/>.  (E.g. useful for
+	 * @param {string} text The string to escape.
+	 * @param {boolean} nobr If true then line breaks won't be converted to <br/>.  (E.g. useful for
 	 * 	content of <textarea> tag.
 	 * @return {string} The escaped string.
 	 */

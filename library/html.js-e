@@ -273,7 +273,7 @@ proc bindCSSProperty {
 		}
 		
 		var cssDeclarations = stylesheet.cssRules[0].style;
-		var updateFunction = function (name, value) {
+		var updateFunction = function (obs, value) {
 			if (value === undefined) {
 				cssDeclarations.cssText = "";
 			} else {
@@ -351,7 +351,7 @@ proc bindCSSNumericProperty {
 		}
 		
 		var cssDeclarations = stylesheet.cssRules[0].style;
-		var updateFunction = function (name, value) {
+		var updateFunction = function (obs, value) {
 			if (value === undefined) {
 				cssDeclarations.cssText = "";
 			} else if (/[+-]?[0-9]*(\.[0-9]+)?(e[+-]?[0-9]+)?/.test(value)) {
@@ -416,7 +416,7 @@ proc bindCSSRule {
 		}
 		
 		var cssDeclarations = stylesheet.cssRules[0].style;
-		var updateFunction = function (name, value) {
+		var updateFunction = function (obs, value) {
 			if (value === undefined) {
 				cssDeclarations.cssText = "";
 			} else if (typeof(value) == "object") {

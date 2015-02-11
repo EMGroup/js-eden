@@ -37,6 +37,8 @@ Textbox.prototype.draw = function(context,content) {
 	var id = this.name;
 	var valueSymbol = root.lookup(id + "_value");
 	var value = valueSymbol.value();
+	var agent = root.lookup("Textbox");
+	
 	if(this.element === undefined){
 
 		var disabled = this.enabled === false? "readonly=\"readonly\"" : "";
@@ -48,18 +50,18 @@ Textbox.prototype.draw = function(context,content) {
 		}
 
 		if (value === undefined) {
-			valueSymbol.assign("", this);
+			valueSymbol.assign("", agent);
 		} else {
 			html.get(0).value = value;
 		}
 
 		html.change(function(){
-			root.lookup(id + "_value").netAssign(html.get(0).value);
+			root.lookup(id + "_value").netAssign(html.get(0).value, agent);
 		});
 		this.element = html.get(0);
 		html.get(0).togarbage = false;
 
-		valueSymbol.addJSObserver("updateTextbox", function (name, value) {
+		valueSymbol.addJSObserver("updateTextbox", function (obs, value) {
 			me.element.value = value;
 		});
 
