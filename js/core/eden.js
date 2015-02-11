@@ -202,7 +202,7 @@ function concatAndResolveUrl(url, concat) {
 		 * Plugins (such as the script generator) can request a copy of this information.
 		 * @private
 		 */
-		this.includes = {};
+		this.includes = [];
 		
 		/**
 		 * Setting this to false temporarily prevents the error method from
@@ -318,6 +318,14 @@ function concatAndResolveUrl(url, concat) {
 		var originalAgent = agent;
 		agent = {name: '/include'};		
 
+		var addIncludeURL = function (url) {
+			var index = me.includes.indexOf(url);
+			if (index != -1) {
+				me.includes.splice(index, 1);
+			}
+			me.includes.push(url);
+		}
+		
 		var promise;
 		includePaths.forEach(function (includePath) {
 			var url;
@@ -338,14 +346,14 @@ function concatAndResolveUrl(url, concat) {
 					return previousPromise.then(function () {
 						eden.execute(data, url, newPrefix, agent, deferred.resolve);
 						if (originalAgent.name == Symbol.getInputAgentName()) {
-							me.includes[url] = true;
+							addIncludeURL(url);
 						}
 						return deferred.promise;
 					});
 				} else {
 					eden.execute(data, url, newPrefix, agent, deferred.resolve);
 					if (originalAgent.name == Symbol.getInputAgentName()) {
-						me.includes[url] = true;
+						addIncludeURL(url);
 					}
 					return deferred.promise;
 				}
@@ -357,13 +365,7 @@ function concatAndResolveUrl(url, concat) {
 	};
 
 	Eden.prototype.getIncludedURLs = function () {
-		var urlList = [];
-		for (url in this.includes) {
-			if (this.includes.hasOwnProperty(url)) {
-				urlList.push(url);
-			}
-		}
-		return urlList;
+		return this.includes.slice();
 	}
 	
 	/**Given any JavaScript value returns a string representing the EDEN code that would be required
