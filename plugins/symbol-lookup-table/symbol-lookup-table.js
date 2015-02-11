@@ -69,6 +69,7 @@ EdenUI.plugins.SLT = function (edenui, success) {
 			"<td class=\"lower\"><b>Watches</b></td>"+
 			"<td class=\"lower\"><b>Updates</b>"+
 			"<td class=\"lower\"><b>Last Modified By</b></td>" +
+			"<td class=\"lower\"><b>JavaScript Actions</b></td>" +
 		"</tr>";
 		tableBodyHTML = "";
 		
@@ -123,6 +124,8 @@ EdenUI.plugins.SLT = function (edenui, success) {
 
 			var lastModifiedBy = symbol.last_modified_by ? symbol.last_modified_by : 'Not yet defined';
 
+			var jsObservers = Object.keys(symbol.jsObservers).join(", ");
+			
 			var rowHTML =
 				"<tr id='" + viewName + "-symbol-" + row[1] + "'>"+
 					"<td class=\"lower\"><p>" + row[1] + "</p></td>" +
@@ -132,6 +135,7 @@ EdenUI.plugins.SLT = function (edenui, success) {
 					"<td class=\"lower\"><p>" + watches + "</p></td>" +
 					"<td class=\"lower\"><p>" + updates + "</p></td>" +
 					"<td class=\"lower\"><p>" + lastModifiedBy + "</p></td>" +
+					"<td class=\"lower\"><p>" + jsObservers + "</p></td>" +
 				"</tr>";
 
 			/* Officially the order in which object properties are returned during iteration is
@@ -156,11 +160,7 @@ EdenUI.plugins.SLT = function (edenui, success) {
 			if (name in obsInTable) {
 				list.push("<a href='#" + viewName + "-symbol-" + name + "'>" + name + "</a>");
 			} else {
-				if (Eden.isitSystemAgent(name) || Eden.isitSystemFunction(name)) {
-					list.push(name);
-				} else {
-					list.push("<a href=\"javascript:SLT.addSymbolToSearch('" + viewName + "', " + "'" + name + "')\">" + name + "</a>");
-				}
+				list.push("<a href=\"javascript:SLT.addSymbolToSearch('" + viewName + "', " + "'" + name + "')\">" + name + "</a>");
 			}
 		}
 		return list.join(", ");
