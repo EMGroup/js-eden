@@ -32,6 +32,7 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 
 	var me = this;
 	me.edenparser = undefined;
+	var inputAgent = {name: Symbol.getInputAgentName()};
 	this.history = [];
 	this.index = 0;
 
@@ -93,7 +94,7 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 	this.submitEdenCode = function (text) {
 		this.addHistory(text);
 		console.time("submitEdenCode");
-		edenUI.eden.execute(text, 'input', '', {name: 'input'});
+		edenUI.eden.execute(text, 'input', '', inputAgent);
 		console.timeEnd("submitEdenCode");
 		
 		if (historydialog !== undefined) {

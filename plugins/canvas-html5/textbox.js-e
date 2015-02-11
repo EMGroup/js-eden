@@ -56,7 +56,7 @@ Textbox.prototype.draw = function(context,content) {
 		}
 
 		html.change(function(){
-			root.lookup(id + "_value").netAssign(html.get(0).value, agent);
+			root.lookup(id + "_value").assign(html.get(0).value, agent, true);
 		});
 		this.element = html.get(0);
 		html.get(0).togarbage = false;

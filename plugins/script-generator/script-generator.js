@@ -105,7 +105,7 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			if (symbolsx[i].last_modified_by == "include") {
 				continue;
 			}
-			if (name == "autocalc" || name == "picture") {
+			if (/^(autocalc|picture|randomIndex|randomGeneratorState)$/.test(name)) {
 				continue;
 			}
 			if (/^(mouse|touch)[A-Z]/.test(name) && Eden.isitSystemObservable(name)) {

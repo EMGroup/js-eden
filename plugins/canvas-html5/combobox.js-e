@@ -44,6 +44,7 @@ ${{
 Combobox.prototype.draw = function(context,content) {
 	var me = "canvas_" + this.name;
 	var me2 = this.name;
+	var agent = root.lookup("Combobox");
 	var valueName = this.name+'_value';
 	var drawableName = this.name+'_drawable';
 	var updateName = this.name+'_update';
@@ -55,7 +56,7 @@ Combobox.prototype.draw = function(context,content) {
 
 	var box = this.element;
 	var that = this;
-	root.lookup(drawingName).assign(true);
+	root.lookup(drawingName).assign(true, agent);
 	if (box === undefined) {
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
 		var can = $(content);
@@ -65,14 +66,14 @@ Combobox.prototype.draw = function(context,content) {
 		updateVal(boxhtml);
 
 		boxhtml.change(function() {
-			root.lookup(valueName).netAssign(boxhtml.get(0).value);
+			root.lookup(valueName).assign(boxhtml.get(0).value, agent, true);
 		});
 
 		this.element = boxhtml.get(0);
 		this.element.togarbage = false;
-		root.lookup(drawableName).assign(this);
+		root.lookup(drawableName).assign(this, agent);
 		if (root.lookup(valueName).value() === undefined) {
-			root.lookup(valueName).netAssign(that.options[0]);
+			root.lookup(valueName).assign(that.options[0], agent, true);
 		}
 		eden.execute('proc '+updateName+' : '+valueName+' { if ('+drawingName+') { return; } '+drawableName+'.draw(); }');
 	} else {
@@ -90,7 +91,7 @@ Combobox.prototype.draw = function(context,content) {
 		box.style.top = "" + this.y + "px";
 	}
 
-	root.lookup(drawingName).assign(false);
+	root.lookup(drawingName).assign(false, agent);
 };
 }}$;
 ${{

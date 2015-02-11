@@ -74,7 +74,7 @@ Checkbox.prototype.draw = function(context, content) {
 			} else {
 				value = element.checked;
 			}
-			valueSym.netAssign(value, agent);
+			valueSym.assign(value, agent, true);
 		});
 		
 		valueSym.addJSObserver("updateCheckbox", function (obs, value) {

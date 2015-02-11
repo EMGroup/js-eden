@@ -92,13 +92,13 @@ EdenUI.plugins.SLT = function (edenui, success) {
 			} else {
 				definition = Eden.htmlEscape(symbol.eden_definition);
 				if (definition.indexOf("proc") == 0) {
-					if (Eden.isitSystemAgent(name) && name != regexString) {
+					if (Eden.isitSystemAgent(name) && !(new RegExp("\\b" + name + "\\b")).test(regexString)) {
 						continue;
 					}
 					kind = "Agent";
 					value = "";
 				} else if (definition.indexOf("func") == 0) {
-					if (Eden.isitSystemFunction(name) && name != regexString) {
+					if (Eden.isitSystemFunction(name) && !(new RegExp("\\b" + name + "\\b")).test(regexString)) {
 						continue;
 					}
 					kind = "Function";

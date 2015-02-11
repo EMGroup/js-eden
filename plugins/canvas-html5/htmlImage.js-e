@@ -59,9 +59,9 @@ HTMLImage.prototype.draw = function(context) {
 	html = html + "/>";
 
 	var imageQuery = $(html).on("mousedown", function () {
-		root.lookup(me2 + "_click").netAssign(true, agent);
+		root.lookup(me2 + "_click").assign(true, agent, true);
 	}).on("mouseup", function () {
-		root.lookup(me2 + "_click").netAssign(false, agent);
+		root.lookup(me2 + "_click").assign(false, agent, true);
 	});
 
 	this.element = imageQuery.get(0);

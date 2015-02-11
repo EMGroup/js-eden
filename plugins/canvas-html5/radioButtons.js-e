@@ -56,8 +56,9 @@ RadioButtons.prototype.makeHTML = function(){
 ${{
 RadioButtons.prototype.draw = function(context,content) {
 	var id = this.name;
+	var agent = root.lookup("RadioButtons");
 	var check = this.element;
-	root.lookup(id+'_drawing').assign(true);
+	root.lookup(id+'_drawing').assign(true, agent);
 	if(check === undefined){
 
 		//Make the HTML
@@ -66,7 +67,7 @@ RadioButtons.prototype.draw = function(context,content) {
 		//Assign the value to update the observable if the HTML changes
 		//Uses Jquery.
 
-		root.lookup(id+'_drawable').assign(this);
+		root.lookup(id+'_drawable').assign(this, agent);
 		inputhtml.change(function(){
 
 			//Find the current value
@@ -75,7 +76,7 @@ RadioButtons.prototype.draw = function(context,content) {
 				if(inputhtml.get(0).children[0][i].checked){
 					
 					//Assign the selected value to an eden observable
-					root.lookup(id + "_value").netAssign(inputhtml.get(0).children[0][i].value);
+					root.lookup(id + "_value").assign(inputhtml.get(0).children[0][i].value, agent, true);
 				}
 			}
 		});
@@ -97,7 +98,7 @@ RadioButtons.prototype.draw = function(context,content) {
 			}
 		}
   }
-	root.lookup(id+'_drawing').assign(false);
+	root.lookup(id+'_drawing').assign(false, agent);
 };
 }}$;
 

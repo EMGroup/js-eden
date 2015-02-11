@@ -53,7 +53,7 @@ EdenUI.plugins.SL = function(edenUI, success){
 					if(origin != "net")
 						connection.send(code);	
 				});
-				eden.listenTo('beforeNetAssign',this,function(symbol, value, origin){
+				eden.listenTo('beforeAssign',this,function(symbol, value, origin){
 					console.log(origin);
 					if (origin != "net") {
 						connection.send(symbol.name.slice(1) + "=" + Eden.edenCodeForValue(value) + ";");
@@ -87,7 +87,7 @@ EdenUI.plugins.SL = function(edenUI, success){
 					randomSeed = randomSeedSym.value();
 					
 					if (randomSeed === undefined) {
-						randomSeedSym.netAssign((new Date()).getTime());
+						randomSeedSym.assign((new Date()).getTime(), undefined, true);
 					} else {
 						pushSymbol("randomSeed");
 					}
