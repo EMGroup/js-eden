@@ -123,6 +123,7 @@ EdenUI.plugins.SLT = function (edenui, success) {
 				SLT.referencedObservables(symbol.subscribers, matchingNames, viewName));
 
 			var lastModifiedBy = symbol.last_modified_by ? symbol.last_modified_by : 'Not yet defined';
+			lastModifiedBy = SLT.referencedObservable(lastModifiedBy, matchingNames, viewName);
 
 			var jsObservers = Object.keys(symbol.jsObservers).join(", ");
 			
@@ -157,13 +158,19 @@ EdenUI.plugins.SLT = function (edenui, success) {
 		var list = [];
 		for (var key in referencedObs) {
 			var name = key.slice(1);
-			if (name in obsInTable) {
-				list.push("<a href='#" + viewName + "-symbol-" + name + "'>" + name + "</a>");
-			} else {
-				list.push("<a href=\"javascript:SLT.addSymbolToSearch('" + viewName + "', " + "'" + name + "')\">" + name + "</a>");
-			}
+			list.push(SLT.referencedObservable(name, obsInTable, viewName));
 		}
 		return list.join(", ");
+	}
+	
+	SLT.referencedObservable = function(name, obsInTable, viewName) {
+		if (name[0] == "*" || name == "include" || name == "Not yet defined") {
+			return name;
+		} else if (name in obsInTable) {
+			return "<a href='#" + viewName + "-symbol-" + name + "'>" + name + "</a>";
+		} else {
+			return "<a href=\"javascript:SLT.addSymbolToSearch('" + viewName + "', " + "'" + name + "')\">" + name + "</a>";
+		}		
 	}
 	
 	SLT.addSymbolToSearch = function (viewName, symbolName) {
