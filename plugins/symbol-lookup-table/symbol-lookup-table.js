@@ -167,7 +167,7 @@ EdenUI.plugins.SLT = function (edenui, success) {
 		if (name[0] == "*" || name == "include" || name == "Not yet defined") {
 			return name;
 		} else if (name in obsInTable) {
-			return "<a href='#" + viewName + "-symbol-" + name + "'>" + name + "</a>";
+			return "<a href=\"javascript:SLT.jump('" + viewName + "-symbol-" + name + "')\">" + name + "</a>";
 		} else {
 			return "<a href=\"javascript:SLT.addSymbolToSearch('" + viewName + "', " + "'" + name + "')\">" + name + "</a>";
 		}		
@@ -178,6 +178,12 @@ EdenUI.plugins.SLT = function (edenui, success) {
 		var searchStr = searchBox.value + "|" + symbolName + "$";
 		searchBox.value = searchStr;
 		SLT.search(viewName);
+	}
+	
+	SLT.jump = function (anchor) {
+		var url = location.href;                 //Save down the URL without hash.
+		location.href = "#" + anchor;            //Go to the target element.
+		history.replaceState(null, null, url);  //Don't like hashes. Changing it back.		
 	}
 	
 	success();

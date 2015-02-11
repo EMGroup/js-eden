@@ -345,14 +345,14 @@ function concatAndResolveUrl(url, concat) {
 				if (previousPromise) {
 					return previousPromise.then(function () {
 						eden.execute(data, url, newPrefix, agent, deferred.resolve);
-						if (originalAgent.name == Symbol.getInputAgentName()) {
+						if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
 							addIncludeURL(url);
 						}
 						return deferred.promise;
 					});
 				} else {
 					eden.execute(data, url, newPrefix, agent, deferred.resolve);
-					if (originalAgent.name == Symbol.getInputAgentName()) {
+					if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
 						addIncludeURL(url);
 					}
 					return deferred.promise;
