@@ -759,6 +759,14 @@
 			"return": "",
 			"description": ""
 		},
+		"Video": {
+			"parameters": {
+				"name": "",
+				"[preload]": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"Slide": {
 			"parameters": {
 				"html": ""

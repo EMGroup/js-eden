@@ -91,7 +91,7 @@ Div.prototype.draw = function(context,content) {
 }}$;
 ${{
 Div.prototype.toString = function() {
-	return this.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;");
+	return this.getEdenCode();
 };
 
 Div.prototype.getEdenCode = function () {

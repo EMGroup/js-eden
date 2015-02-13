@@ -83,6 +83,7 @@ Eden.systemFunctionNames = [
 	"Text",
 	"Textbox",
 	"TitledSlide",
+	"Video",
 	"abs",
 	"acos",
 	"apply",
