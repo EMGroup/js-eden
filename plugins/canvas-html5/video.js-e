@@ -1,3 +1,6 @@
+##Bugs:
+##If _paused defined by dependency and true while seeking, starts playing while mouse button still held down.
+
 ##For a video drawable named "vid", the following observables are available.  All are read/write.
 ##
 ##vid_url
@@ -46,7 +49,7 @@
 	##Stop to complete an exercise 60 seconds into the video.
 	exercisePoints = [60];
 	exercisesCompleted = array(1, false);
-	exerciseNumber is indexOf(exercisePoints, vid_time);
+	exerciseNumber is indexOf(exercisePoints, int(vid_time));
 	vid_controls is exerciseNumber == 0 || exercisesCompleted[exerciseNumber];
 	vid_paused is !vid_controls;
 */
@@ -85,6 +88,7 @@ ${{
 				}
 			}
 		});
+
 	}
 	
 	Video.prototype.hash = function () {
@@ -193,9 +197,6 @@ ${{
 				var relativePosition = seconds - currentTime;
 				if (relativePosition < -1 || relativePosition > 1 ) {
 					videoElement.currentTime = seconds;
-					if (!root.lookup(name + "_paused").value()) {
-						videoElement.play();
-					}
 				}
 			});
 			videoElement.addEventListener("timeupdate", function (event) {
@@ -203,9 +204,11 @@ ${{
 				if (newTimeIndex != me.timeIndex) {
 					root.lookup(name + "_time").assign(newTimeIndex / 10, agent);
 					me.timeIndex = newTimeIndex;
-					if (!root.lookup(name + "_paused").value()) {
-						videoElement.play();
-					}
+				}
+			});
+			videoElement.addEventListener("seeked", function (event) {
+			if (!root.lookup(name + "_paused").value()) {
+					videoElement.play();
 				}
 			});
 			
