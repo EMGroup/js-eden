@@ -22,7 +22,7 @@
 ##
 ##vid_time
 ##	The current temporal position of the video, accurate to 1/10 of a second.  Cannot be set by
-##	dependency unless the video is paused.
+##	dependency.
 ##
 ##vid_volume
 ##	The current volume level of the video's soundtrack, between 0 and 1.  If vid_volume is specified
@@ -173,13 +173,13 @@ ${{
 			videoElement.addEventListener("pause", function (event) {
 				var pausedSym = root.lookup(name + "_paused");
 				if (pausedSym.eden_definition === undefined || pausedSym.definition === undefined) {
-					assign(true, agent);
+					pausedSym.assign(true, agent);
 				}
 			});
 			videoElement.addEventListener("playing", function (event) {
 				var pausedSym = root.lookup(name + "_paused");
 				if (pausedSym.eden_definition === undefined || pausedSym.definition === undefined) {
-					assign(false, agent);
+					pausedSym.assign(false, agent);
 				}
 			});
 			
