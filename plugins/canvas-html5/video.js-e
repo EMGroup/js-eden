@@ -66,7 +66,6 @@ ${{
 	function Video(name, preload) {
 		this.name = name;
 		this.preload = preload;
-		this.chapterMarks = [];
 		
 		Object.defineProperty(this, "duration", {
 			enumerable: true,
@@ -104,6 +103,49 @@ ${{
 			var name = this.name;
 			var agent = root.lookup("Video");
 
+			var chapterMarks, chapterNames, chapterIndex, nextChapterAt;
+			var chapterMarksSym = root.lookup(name + "_chapters");
+
+			var setChapters = function (symbol, chapters) {
+				chapterMarks = [];
+				chapterNames = [];
+				chapterIndex = -1;
+				nextChapterAt = undefined;
+				var currentPos = root.lookup(name + "_time").value();
+				
+				if (chapters instanceof Object) {
+					for (var chapterName in chapters) {
+						if (chapters.hasOwnProperty(chapterName)) {
+							var beginsAt = chapters[chapterName];
+							var i = 0;
+							while (i < chapterMarks.length) {
+								if (beginsAt < chapterMarks[i]) {
+									break;
+								}
+								i++;
+							}
+							chapterMarks.splice(i, 0, beginsAt);
+							chapterNames.splice(i, 0, chapterName);
+							if (currentPos !== undefined && currentPos <= beginsAt) {
+								chapterIndex = i;
+							}
+						}
+					}
+					if (chapterIndex < chapterMarks.length - 1) {
+						nextChapterAt = chapterMarks[chapterIndex + 1];
+					}
+				}
+				var chapterSym = root.lookup(name + "_chapter");
+				if (chapterIndex == -1) {
+					chapterSym.assign(undefined, agent);
+				} else {
+					chapterSym.assign(chapterNames[chapterIndex], agent);
+				}
+			};
+			setChapters(chapterMarksSym, chapterMarksSym.value());
+			chapterMarksSym.addJSObserver("setChapters", setChapters);
+			
+			
 			var videoElement = document.createElement("video");
 			var controlsSym = root.lookup(name + "_controls");
 			var controls = controlsSym.value();
@@ -205,10 +247,20 @@ ${{
 				if (newTimeIndex != me.timeIndex) {
 					root.lookup(name + "_time").assign(newTimeIndex / 10, agent);
 					me.timeIndex = newTimeIndex;
+					
+					if (nextChapterAt !== undefined && newTimeIndex >= nextChapterAt) {
+						chapterIndex++;
+						root.lookup(name + "_chapter").assign(chapterNames[chapterIndex], agent);
+						if (chapterIndex < chapterMarks.length - 1) {
+							nextChapterAt = chapterMarks[chapterIndex]
+						} else {
+							nextChapterAt = undefined;
+						}
+					}
 				}
 			});
 			videoElement.addEventListener("seeked", function (event) {
-			if (!root.lookup(name + "_paused").value()) {
+				if (!root.lookup(name + "_paused").value()) {
 					videoElement.play();
 				}
 			});

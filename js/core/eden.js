@@ -461,7 +461,7 @@ function concatAndResolveUrl(url, concat) {
 	 * @returns {string} The EDEN code that produces the given value, with HTML mark-up characters
 	 *	escaped.
 	 */
-	Eden.prettyPrintValue = function (prefix, value, maxChars, showJSFuncs, multiline) {
+	Eden.prettyPrintValue = function (prefix, value, maxChars, showJSFuncs, multiline, refStack) {
 		if (multiline === undefined) {
 			multiline = true;
 		}
