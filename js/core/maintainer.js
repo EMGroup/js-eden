@@ -663,6 +663,7 @@
 	 * @param {Symbol} modifying_agent The agent responsible for the modification.
 	 */
 	SymbolAccessor.prototype.assign = function (value, modifying_agent, pushToNetwork) {
+		value = copy(value);
 		var me = this;
 		if (pushToNetwork) {
 			eden.emit("beforeAssign", [this, value, modifying_agent]);

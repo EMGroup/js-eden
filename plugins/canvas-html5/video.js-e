@@ -66,6 +66,7 @@ ${{
 	function Video(name, preload) {
 		this.name = name;
 		this.preload = preload;
+		this.chapterMarks = [];
 		
 		Object.defineProperty(this, "duration", {
 			enumerable: true,
@@ -260,5 +261,7 @@ ${{
 	Video.prototype.toString = function () {
 		return "";
 	}
+	
+	Video.prototype.getEdenCode = Video.prototype.toString;
 
 }}$;

@@ -371,9 +371,10 @@ function concatAndResolveUrl(url, concat) {
 	/**Given any JavaScript value returns a string representing the EDEN code that would be required
 	 * to obtain the same value when interpreted.
 	 * @param {*} value The value to find an EDEN representation for.
+	 * @param {Array} refStack Used when the method recursively calls itself.
 	 * @returns {string} The EDEN code that produces the given value.
 	 */
-	Eden.edenCodeForValue = function (value) {
+	Eden.edenCodeForValue = function (value, refStack) {
 		var type = typeof(value);
 		var code = "";
 		if (type == "undefined") {
@@ -383,14 +384,24 @@ function concatAndResolveUrl(url, concat) {
 		} else if (type == "string") {
 			code = "\"" + value.replace(/\\/g,"\\\\").replace(/\"/g,"\\\"") + "\"";
 		} else if (Array.isArray(value)) {
-			code = "[";
-			for (var i = 0; i < value.length - 1; i++) {
-				code = code + Eden.edenCodeForValue(value[i]) + ", ";
+			if (refStack === undefined) {
+				refStack = [];
 			}
-			if (value.length > 0) {
-				code = code + Eden.edenCodeForValue(value[value.length - 1]);
+			if (refStack.indexOf(value) != -1) {
+				//Array contains a reference to itself.
+				code = code + "<<circular reference>>";
+			} else {
+				refStack.push(value);
+				code = "[";
+				for (var i = 0; i < value.length - 1; i++) {
+					code = code + Eden.edenCodeForValue(value[i], refStack) + ", ";
+				}
+				if (value.length > 0) {
+					code = code + Eden.edenCodeForValue(value[value.length - 1], refStack);
+				}
+				code = code + "]";
+				refStack.pop();
 			}
-			code = code + "]";
 		} else if (type == "object") {
 			if ("getEdenCode" in value) {
 				code = value.getEdenCode();
@@ -404,16 +415,26 @@ function concatAndResolveUrl(url, concat) {
 			) {
 				code = "&" + value.parent.name.slice(1) + "[" + value.keys[0] + "]";
 			} else {
-				code = "{";
-				for (var key in value) {
-					if (!(key in Object.prototype)) {
-						code = code + key + ": " + Eden.edenCodeForValue(value[key]) + ", ";
+				if (refStack === undefined) {
+					refStack = [];
+				}
+				if (refStack.indexOf(value) != -1) {
+					//Object contains a reference to itself.
+					code = code + "<<circular reference>>";
+				} else {
+					refStack.push(value);
+					code = "{";
+					for (var key in value) {
+						if (!(key in Object.prototype)) {
+							code = code + key + ": " + Eden.edenCodeForValue(value[key], refStack) + ", ";
+						}
 					}
+					if (code != "{") {
+						code = code.slice(0, -2);
+					}
+					code = code + "}";
+					refStack.pop();
 				}
-				if (code != "{") {
-					code = code.slice(0, -2);
-				}
-				code = code + "}";
 			}
 		} else if (type == "function") {
 			code = "$"+"{{\n\t" +
@@ -422,7 +443,7 @@ function concatAndResolveUrl(url, concat) {
 		} else {
 			code = String(value);
 		}
-		return code;	
+		return code;
 	}
 	
 	/**Given any JavaScript value returns a string that can be displayed to users in an EDEN
@@ -436,6 +457,7 @@ function concatAndResolveUrl(url, concat) {
 	 *	then functions will shortened to the word func.
 	 * @param {boolean} multiline True if the result is allowed to span multiple lines, or false if it must
 	 * 	fit into a single line display (e.g. for the symbol viewer)
+	 * @param {Array} refStack Used when the method recursively calls itself.
 	 * @returns {string} The EDEN code that produces the given value, with HTML mark-up characters
 	 *	escaped.
 	 */
@@ -457,23 +479,33 @@ function concatAndResolveUrl(url, concat) {
 				truncated = true;
 			}
 		} else if (Array.isArray(value)) {
-			code = "[";
-			for (var i = 0; i < value.length - 1; i++) {
-				code = Eden.prettyPrintValue(code, value[i], maxChars, showJSFuncs, multiline) + ",";
-				if (maxChars !== undefined && code.length >= maxChars - 1) {
-					if (code.slice(-3) != "...") {
-						code = code + "...";
+			if (refStack === undefined) {
+				refStack = [];
+			}
+			if (refStack.indexOf(value) != -1) {
+				//Array contains a reference to itself.
+				code = code + "...";
+			} else {
+				refStack.push(value);
+				code = "[";
+				for (var i = 0; i < value.length - 1; i++) {
+					code = Eden.prettyPrintValue(code, value[i], maxChars, showJSFuncs, multiline, refStack) + ",";
+					if (maxChars !== undefined && code.length >= maxChars - 1) {
+						if (code.slice(-3) != "...") {
+							code = code + "...";
+						}
+						truncated = true;
+						break;
+					} else {
+						code = code + " ";
 					}
-					truncated = true;
-					break;
-				} else {
-					code = code + " ";
 				}
+				if (value.length > 0 && !truncated) {
+					code = Eden.prettyPrintValue(code, value[value.length - 1], maxChars, showJSFuncs, multiline, refStack);
+				}
+				code = code + "]";
+				refStack.pop();
 			}
-			if (value.length > 0 && !truncated) {
-				code = Eden.prettyPrintValue(code, value[value.length - 1], maxChars, showJSFuncs, multiline);
-			}
-			code = code + "]";
 		} else if (type == "object") {
 			if (value instanceof Symbol) {
 				code = value.getEdenCode();
@@ -493,31 +525,41 @@ function concatAndResolveUrl(url, concat) {
 					truncated = true;
 				}
 			} else {
-				code = "{";
-				var maybeTruncate = false;
-				for (var key in value) {
-					if (!(key in Object.prototype)) {
-						if (maybeTruncate) {
-							code = code.slice(0, -1) + "...";
-							truncated = true;
-							break;
+				if (refStack === undefined) {
+					refStack = [];
+				}
+				if (refStack.indexOf(value) != -1) {
+					//Object contains a reference to itself.
+					code = code + "...";
+				} else {
+					refStack.push(value);
+					code = "{";
+					var maybeTruncate = false;
+					for (var key in value) {
+						if (!(key in Object.prototype)) {
+							if (maybeTruncate) {
+								code = code.slice(0, -1) + "...";
+								truncated = true;
+								break;
+							}
+							code = code + key + ": ";
+							code = Eden.prettyPrintValue(code, value[key], maxChars, showJSFuncs, multiline, refStack);
+							if (code.slice(-3) == "...") {
+								truncated = true;
+								break;
+							}
+							if (maxChars !== undefined && code.length >= maxChars) {
+								maybeTruncate = true;
+							}
+							code = code + ", ";
 						}
-						code = code + key + ": ";
-						code = Eden.prettyPrintValue(code, value[key], maxChars, showJSFuncs, multiline);
-						if (code.slice(-3) == "...") {
-							truncated = true;
-							break;
-						}
-						if (maxChars !== undefined && code.length >= maxChars) {
-							maybeTruncate = true;
-						}
-						code = code + ", ";
 					}
+					if (code != "{" && !truncated) {
+						code = code.slice(0, -2);
+					}
+					code = code + "}";
+					refStack.pop();
 				}
-				if (code != "{" && !truncated) {
-					code = code.slice(0, -2);
-				}
-				code = code + "}";
 			}
 		} else if (type == "function") {
 			if (showJSFuncs) {
@@ -538,7 +580,7 @@ function concatAndResolveUrl(url, concat) {
 			code = code.replace(/\n/g, "\\n");
 		}
 		if (!prefix) {
-			return Eden.htmlEscape(code).replace(/\.\.\.$/, "&hellip;");
+			return Eden.htmlEscape(code).replace(/\.\.\.$/g, "&hellip;");
 		} else {
 			return prefix + code;
 		}
