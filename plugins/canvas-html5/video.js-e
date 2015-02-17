@@ -1,5 +1,10 @@
 ##Bugs:
-##If _paused defined by dependency and true while seeking, starts playing while mouse button still held down.
+##Need to disable autocalc while producing the element and making assignments to observables.
+##Triggered procedures are possibly called twice when making assignments.
+##If _paused is defined by dependency and is true while seeking then the video starts playing while the mouse button is still held down.
+##_chapter doesn't yet update correctly if the a backward seek is performed.
+##toString method needs implementing.
+##Attempting to play back video in reverse (vid_speed < 0) only works on Safari on Mac.  A workaround is possible.
 
 ##For a video drawable named "vid", the following observables are available.  All are read/write.
 ##
@@ -27,10 +32,26 @@
 ##	The current temporal position of the video, accurate to 1/10 of a second.  Cannot be set by
 ##	dependency.
 ##
+##vid_chapters and vid_chapter
+##	If defined then vid_chapters should be an object where the keys are labels attributed to certain
+##	sections of the video and the values are the times when these sections begin.  For example, if
+##	vid_chapters is {lesson1: 60, lesson2: 900} then vid_chapter will undefined during the first
+##	60 seconds of playback, contain the string "lesson1" between 60 seconds through to 15 minutes
+##	into the video, at which point the second lesson begins and vid_chapter will become "lesson2".
+##
+##vid_speed
+##	Determines the speed of video playback, e.g. 1 for normal speed or 2 to play back at double
+##	speed.  Setting the speed to zero pauses the video and assigns the value true to vid_paused
+##	unless vid_paused is calculated by dependency.  If vid_speed is set to zero then subsequently
+##	assigning another value to vid_speed won't automatically resume playback unless vid_paused is
+##	calculated by dependency.  If vid_speed is zero when the video becomes unpaused, either by
+##	the value of vid_paused changing from true to false or by the user clicking on the play button,
+##	then the speed will be reset to 1.  Loading a new video file will also reset the speed to 1.
+##
 ##vid_volume
 ##	The current volume level of the video's soundtrack, between 0 and 1.  If vid_volume is specified
 ##	by dependency and playback controls are enabled and the user uses them to adjust the volume
-##	then then the dependency will be overwritten by an assignment.
+##	then then the dependency will be overwritten by an implicit assignment.
 ##
 ##Useful properties of the drawable object itself:
 ##
@@ -38,7 +59,7 @@
 ##	The duration of the currently loaded video file (read-only).
 ##
 ##.ended
-##	True if the current temporal position is currently located at the end of the video (read-only).
+##	True if the current temporal position is located at the end of the video (read-only).
 
 ##Example:
 /*
@@ -48,7 +69,7 @@
 
 	##Stop to complete an exercise 60 seconds into the video.
 	exercisePoints = [60];
-	exercisesCompleted = array(1, false);
+	exercisesCompleted = [false];
 	exerciseNumber is indexOf(exercisePoints, int(vid_time));
 	vid_controls is exerciseNumber == 0 || exercisesCompleted[exerciseNumber];
 	vid_paused is !vid_controls;
@@ -103,15 +124,15 @@ ${{
 			var name = this.name;
 			var agent = root.lookup("Video");
 
-			var chapterMarks, chapterNames, chapterIndex, nextChapterAt;
-			var chapterMarksSym = root.lookup(name + "_chapters");
 
+	//Chapters
+
+			var chapterMarks, chapterNames, chapterIndex, nextChapterAt;
 			var setChapters = function (symbol, chapters) {
 				chapterMarks = [];
 				chapterNames = [];
 				chapterIndex = -1;
 				nextChapterAt = undefined;
-				var currentPos = root.lookup(name + "_time").value();
 				
 				if (chapters instanceof Object) {
 					for (var chapterName in chapters) {
@@ -126,11 +147,15 @@ ${{
 							}
 							chapterMarks.splice(i, 0, beginsAt);
 							chapterNames.splice(i, 0, chapterName);
-							if (currentPos !== undefined && currentPos <= beginsAt) {
-								chapterIndex = i;
-							}
 						}
 					}
+					
+					var currentPos = root.lookup(name + "_time").value();
+					while (chapterIndex < chapterMarks.length - 1 &&
+					 currentPos >= chapterMarks[chapterIndex + 1]) {
+						chapterIndex++;
+					}
+					
 					if (chapterIndex < chapterMarks.length - 1) {
 						nextChapterAt = chapterMarks[chapterIndex + 1];
 					}
@@ -142,11 +167,18 @@ ${{
 					chapterSym.assign(chapterNames[chapterIndex], agent);
 				}
 			};
+			var chapterMarksSym = root.lookup(name + "_chapters");
 			setChapters(chapterMarksSym, chapterMarksSym.value());
 			chapterMarksSym.addJSObserver("setChapters", setChapters);
-			
-			
+
+
+	//Create HTML tag
+
 			var videoElement = document.createElement("video");
+
+
+	//Playback controls
+
 			var controlsSym = root.lookup(name + "_controls");
 			var controls = controlsSym.value();
 			if (controls === undefined) {
@@ -157,14 +189,10 @@ ${{
 			controlsSym.addJSObserver("showHideControls", function (symbol, showControls) {
 				videoElement.controls = showControls;
 			});
-			
-			var preloadWhat;
-			if (this.preload) {
-				preloadWhat = "auto";
-			} else {
-				preloadWhat = "none";
-			}
-			
+
+
+	//Position on screen
+
 			videoElement.style.position = "absolute";
 			var positionSym = root.lookup(name + "_position");
 			var position = positionSym.value();
@@ -181,6 +209,9 @@ ${{
 			repositionAction(positionSym, position);
 			positionSym.addJSObserver("reposition", repositionAction);
 
+
+	//Size and preloading
+
 			var sizeSym = root.lookup(name + "_size");
 			var size = sizeSym.value();
 			var resizeAction = function (symbol, size) {
@@ -188,6 +219,12 @@ ${{
 					videoElement.width = size.x;
 					videoElement.height = size.y;
 				}
+			}
+			var preloadWhat;
+			if (this.preload) {
+				preloadWhat = "auto";
+			} else {
+				preloadWhat = "none";
 			}
 			if (size instanceof Point) {
 				resizeAction(sizeSym, size);
@@ -202,7 +239,10 @@ ${{
 					sizeSym.assign(new Point(videoElement.videoWidth, videoElement.videoHeight), agent);
 				}
 			});
-			
+
+
+	//Paused or playing
+
 			var pausedSym = root.lookup(name + "_paused");
 			var beginPaused = pausedSym.value();
 			if (beginPaused === undefined && (pausedSym.eden_definition === undefined || pausedSym.definition === undefined)) {
@@ -228,8 +268,15 @@ ${{
 				if (pausedSym.eden_definition === undefined || pausedSym.definition === undefined) {
 					pausedSym.assign(false, agent);
 				}
+				if (root.lookup(name + "_speed").value() == 0) {
+					videoElement.defaultPlaybackRate = 1;
+					videoElement.playbackRate = 1;
+				}
 			});
-			
+
+
+	//Seeking and time moving forward
+
 			var timeSym = root.lookup(name + "_time");
 			var time = timeSym.value();
 			if (time !== undefined) {
@@ -248,7 +295,7 @@ ${{
 					root.lookup(name + "_time").assign(newTimeIndex / 10, agent);
 					me.timeIndex = newTimeIndex;
 					
-					if (nextChapterAt !== undefined && newTimeIndex >= nextChapterAt) {
+					if (nextChapterAt !== undefined && videoElement.currentTime >= nextChapterAt) {
 						chapterIndex++;
 						root.lookup(name + "_chapter").assign(chapterNames[chapterIndex], agent);
 						if (chapterIndex < chapterMarks.length - 1) {
@@ -264,7 +311,44 @@ ${{
 					videoElement.play();
 				}
 			});
-			
+
+
+	//Playback speed
+
+			var speedResetOnLoad;
+			var speedSym = root.lookup(name + "_speed");
+			var speed = speedSym.value();
+			if (speed === undefined) {
+				speedSym.assign(1, agent);
+			} else if (speed > 0) {
+				videoElement.defaultPlaybackRate = speed;
+			}
+			speedSym.addJSObserver("changePlaybackSpeed", function (symbol, speed) {
+				if (videoElement.playbackRate != speed) {
+					if (speed > 0) {
+						videoElement.defaultPlaybackRate = speed;
+					} else {
+						videoElement.defaultPlaybackRate = 1;					
+					}
+					videoElement.playbackRate = speed;
+				}
+			});
+			videoElement.addEventListener("ratechange", function (event) {
+				var speedSym = root.lookup(name + "_speed");
+				var speed = videoElement.playbackRate;
+				if (speedSym.eden_definition === undefined || speedSym.definition === undefined) {
+					speedSym.assign(speed, agent);
+				}
+				if (speed == 0) {
+					videoElement.pause();
+				} else if (!root.lookup(name + "_paused").value()) {
+					videoElement.play();
+				}
+			});
+
+
+	//Volume
+
 			var volumeSym = root.lookup(name + "_volume");
 			var volume = volumeSym.value();
 			if (volume === undefined) {
@@ -277,9 +361,11 @@ ${{
 			});
 			videoElement.addEventListener("volumechange", function (event) {
 				root.lookup(name + "_volume").assign(videoElement.volume, agent);
-			});
-			
-			
+			});	
+
+
+	//Loading a video file
+
 			var urlSym = root.lookup(name + "_url");
 			var url = urlSym.value();
 			if (url !== undefined) {
