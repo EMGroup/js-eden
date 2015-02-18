@@ -877,7 +877,8 @@
 		"forgetAll": {
 			"parameters": {
 				"regular_expression_or_list": "",
-				"[case_sensitive]": ""
+				"[case_sensitive": "",
+				"[confirm]]" : ""
 			},
 			"return": "",
 			"description": "Removes from the symbol table all symbols whose names match a given regular expression"
