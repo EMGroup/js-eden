@@ -198,7 +198,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 	this.createDialog = function(name,mtitle) {
 
 		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');
-		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" width=\"550px\" height=\"380px\"></canvas>");
+		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" width=\"584px\" height=\"408px\"></canvas>");
 		//Remove -dialog name suffix.
 		var displayedName = name.slice(0, -7);
 		var jqCanvas = code_entry.find(".canvashtml-canvas");
@@ -469,11 +469,13 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 				minHeight: 120,
 				minWidth: 230,
 				resizeStop: function(event,ui) {
-					$("#"+name+"-canvas").attr("width", (ui.size.width-50)+"px").attr("height", (ui.size.height-70)+"px");
+					var contentElem = document.getElementById(name);
+					$("#"+name+"-canvas").attr("width", Math.floor(ui.size.width - 16)).attr("height", parseInt(contentElem.style.height) - 16);
 
 					// Now need to redraw the canvas.
 					edenUI.eden.execute("_update_" + displayedName + "();");
 				},
+				dialogClass: "unpadded-dialog"
 			});
 	}
 
