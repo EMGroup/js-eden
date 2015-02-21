@@ -526,8 +526,8 @@
 				"y1": "Y-coordinate for start",
 				"x2": "X-coordinate for end",
 				"y2": "Y-coordinate for end",
-				"colour": "Colour of the line in HTML form",
-				"[drawing_options]" : ""
+				"[colour(s)": "A HTML colour value for the whole line or a list of HTML colour values to create a gradient",
+				"[drawing_options]]" : ""
 			},
 			"return": "Line object",
 			"description": "Creates a line element for display on the canvas"
@@ -548,7 +548,7 @@
 		"LineSequence": {
 			"parameters": {
 				"points": "List of coordinates in the form Point(x, y) from the top left corner of the canvas",
-				"[colour": "Colour of the polygon (fill) in HTML form",
+				"[colour(s)": "Colour of the line as a HTML colour value, or a list of such colour values",
 				"[drawing_options]]": ""
 			},
 			"return": "Polygon object",
@@ -611,7 +611,7 @@
 			"parameters": {
 				"points": "List of coordinates in the form Point(x, y) from the top left corner of the canvas",
 				"[fill_colour": "Colour of the polygon (fill) in HTML form",
-				"[outline_colour": "",
+				"[outline_colour(s)": "",
 				"[drawing_options]]]": ""
 			},
 			"return": "Polygon object",
@@ -683,7 +683,7 @@
 				"width": "Width in pixels",
 				"height": "Height in pixels",
 				"[id]" : "",
-				"[cssClassList]" : "",
+				"[css_class_list]" : "",
 				"[style]" : "An optional CSS style string"
 			},
 			"return": "Div object",
