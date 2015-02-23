@@ -46,11 +46,10 @@ func HTMLImage { ${{
 
 ${{
 HTMLImage.prototype.draw = function(context) {
-  var id = "canvas_" + this.name;
-  var name = this.name;
-  var agent = root.lookup("HTMLImage");
-
   if (this.elements === undefined) {
+	var id = "canvas_" + this.name;
+	var name = this.name;
+	var agent = root.lookup("HTMLImage");
 
 	var html = "<img id=\"" + id + "\" style=\"position: absolute; left: " + this.x + "px; top: " +
 		this.y + "px\" src=\"" + this.url + "\"";
@@ -69,23 +68,33 @@ HTMLImage.prototype.draw = function(context) {
 	
 	if (this.imageMap !== undefined) {
 		imageJQ.on("mousedown", function () {
+			var autocalcSym = root.lookup("autocalc");
+			var autocalcValueOnEntry = autocalcSym.value();
+			var autocalcLastModified = autocalcSym.last_modified_by;
+			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+
 			var followMouse = root.lookup("mouseFollow").value();
 			root.lookup(name + "_click").assign(true, agent, followMouse);
 			root.lookup(name + "_regionMouseDown").assign(undefined, agent, followMouse);
+			autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
 
 		}).on("mouseup", function () {
+			var autocalcSym = root.lookup("autocalc");
+			var autocalcValueOnEntry = autocalcSym.value();
+			var autocalcLastModified = autocalcSym.last_modified_by;
+			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+
 			var followMouse = root.lookup("mouseFollow").value();
 			root.lookup(name + "_click").assign(false, agent, followMouse);
 			root.lookup(name + "_regionMouseUp").assign(undefined, agent, followMouse);
+			autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
 
 		});	
 
 		var mapJQ = $("<map name=\"" + id + "-map\" id=\"" + id + "-map\"></map>");
-		for (var i = 0; i < this.imageMap.length; i++) {
-			var regionName = this.imageMap[i][0];
-			var areaJQ = $("<area " + this.imageMap[i][1].imageMapArea() + "/>");
-			
-			areaJQ.on("mouseenter", function (event) {
+
+		var setAreaEvents = function (area, regionName) {
+			area.on("mouseenter", function (event) {
 				var followMouse = root.lookup("mouseFollow").value();
 				root.lookup(name + "_region").assign(regionName, agent, followMouse);
 
@@ -116,7 +125,12 @@ HTMLImage.prototype.draw = function(context) {
 				autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
 
 			});
-			
+		};
+
+		for (var i = this.imageMap.length - 1; i >= 0; i--) {
+			var regionName = this.imageMap[i][0];
+			var areaJQ = $("<area " + this.imageMap[i][1].imageMapArea() + "/>");
+			setAreaEvents(areaJQ, regionName);
 			mapJQ.append(areaJQ);
 		}
 		this.elements.push(mapJQ.get(0));
