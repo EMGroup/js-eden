@@ -41,7 +41,7 @@ func Combobox { ${{
 
 
 ${{
-Combobox.prototype.draw = function(context,content) {
+Combobox.prototype.draw = function(context) {
 	var me = "canvas_" + this.name;
 	var me2 = this.name;
 	var agent = root.lookup("Combobox");
@@ -54,12 +54,10 @@ Combobox.prototype.draw = function(context,content) {
 		boxhtml.val(root.lookup(valueName).value());
 	}
 
-	var box = this.element;
 	var that = this;
 	root.lookup(drawingName).assign(true, agent);
-	if (box === undefined) {
+	if (this.elements === undefined) {
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
-		var can = $(content);
 		var boxhtml = $("<select id=\"" + me + "\" " + disabled + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
 
 		boxhtml.html(makeoptionshtml(this.options));
@@ -69,26 +67,27 @@ Combobox.prototype.draw = function(context,content) {
 			root.lookup(valueName).assign(boxhtml.get(0).value, agent, true);
 		});
 
-		this.element = boxhtml.get(0);
-		this.element.togarbage = false;
+		this.elements = [boxhtml.get(0)];
 		root.lookup(drawableName).assign(this, agent);
 		if (root.lookup(valueName).value() === undefined) {
 			root.lookup(valueName).assign(that.options[0], agent, true);
 		}
 		eden.execute('proc '+updateName+' : '+valueName+' { if ('+drawingName+') { return; } '+drawableName+'.draw(); }');
-	} else {
-		$(box).html(makeoptionshtml(this.options));
-		box.togarbage = false;
 
-		updateVal($(box));
+	} else {
+
+		var dropDownList = this.elements[0];
+		$(dropDownList).html(makeoptionshtml(this.options));
+
+		updateVal($(dropDownList));
 
 		if (this.enabled == true) { 
-			box.disabled = false; 
+			dropDownList.disabled = false; 
 		}
-		else { box.disabled = true; }
+		else { dropDownList.disabled = true; }
 
-		box.style.left = "" + this.x + "px";
-		box.style.top = "" + this.y + "px";
+		dropDownList.style.left = "" + this.x + "px";
+		dropDownList.style.top = "" + this.y + "px";
 	}
 
 	root.lookup(drawingName).assign(false, agent);

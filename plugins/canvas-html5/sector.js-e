@@ -32,7 +32,8 @@ func Sector { ${{
 }}$; };
 
 ${{
-Sector.prototype.draw = function(context) {
+
+Sector.prototype.draw = function (context) {
 	var radiansPerUnit = root.lookup("radiansPerUnit").value();
 	var eAngleInRadians = -this.eAngle * radiansPerUnit;
 	var endX = this.x + this.r * Math.cos(eAngleInRadians);

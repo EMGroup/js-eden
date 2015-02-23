@@ -32,6 +32,7 @@ func Line { ${{
 }}$; };
 
 ${{
+
 Line.prototype.draw = function(context) {
 	context.beginPath();
 	if (this.colours.length == 1) {
@@ -47,8 +48,7 @@ Line.prototype.draw = function(context) {
 	context.lineTo(this.x2, this.y2);
 	context.stroke();
 };
-}}$;
-${{
+
 Line.prototype.toString = function() {
 	var s = "Line(" + this.x1 + ", " + this.y1 + ", " + this.x2 + ", " + this.y2 +
 		", " + Eden.edenCodeForValue(this.colours);

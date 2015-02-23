@@ -28,6 +28,7 @@ func Circle { ${{
 }}$; };
 
 ${{
+
 Circle.prototype.draw = function(context) {
 	context.beginPath();
 	context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
@@ -42,8 +43,7 @@ Circle.prototype.draw = function(context) {
 		context.stroke();
 	}
 };
-}}$;
-${{
+
 Circle.prototype.toString = function() {
 	var s = "Circle(" + this.x + ", " + this.y + ", " + this.radius + ", " +
 		Eden.edenCodeForValue(this.fillcolour) + ", " + Eden.edenCodeForValue(this.outlinecolour);
@@ -57,5 +57,13 @@ Circle.prototype.toString = function() {
 };
 
 Circle.prototype.getEdenCode = Circle.prototype.toString;
+
+Circle.prototype.imageMapArea = function () {
+	return "shape=\"circle\" coords=\"" + this.x + "," + this.y + "," + this.radius + "\"";
+}
+
+Circle.prototype.centre = function () {
+	return new Point(this.x, this.y);
+}
 
 }}$;

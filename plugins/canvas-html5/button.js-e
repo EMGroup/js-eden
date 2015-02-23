@@ -22,7 +22,6 @@ ${{
 		this.x = x;
 		this.y = y;
 		this.enabled = enabled;
-		this.element = undefined;
 	};
 
 	Button.prototype.hash = function () {
@@ -34,11 +33,9 @@ ${{
 	};
 
 	Button.prototype.draw = function (context) {
-		var name = this.name;
-		var but = this.element;
-		var agent = root.lookup("Button");
-
-		if (but === undefined){
+		if (this.elements === undefined){
+			var name = this.name;
+			var agent = root.lookup("Button");
 
 			var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
 			var inputHtml = '<input  type="button"' +
@@ -54,21 +51,24 @@ ${{
 				root.lookup(name + "_clicked").assign(false, agent, true);
 			});
 
-			but = $input.get(0);
-			this.element = but;
+			var button = $input.get(0);
+			this.elements = [button];
+
 		} else {
-			but.value = this.label;
+
+			var button = this.elements[0];
+			button.value = this.label;
 
 			if (this.enabled) {
-				but.disabled = false;
+				button.disabled = false;
 			} else {
-				but.disabled = true;
+				button.disabled = true;
 			}
 
 			var x = ""+this.x+"px";
 			var y = ""+this.y+"px";
 
-			var style = but.style;
+			var style = button.style;
 			if (style.left != x) {
 				style.left = x;
 			}

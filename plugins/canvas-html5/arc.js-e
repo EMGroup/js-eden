@@ -28,6 +28,7 @@ func Arc { ${{
 }}$; };
 
 ${{
+
 Arc.prototype.draw = function(context) {
 	var radiansPerUnit = root.lookup("radiansPerUnit").value();
 	var anticlockwise;

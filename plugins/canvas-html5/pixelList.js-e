@@ -58,7 +58,7 @@ function PixelList(ptrToData, x, y, width) {
 	this.height = this.data.length / (4 * width);
 }
 
-PixelList.prototype.draw = function(context) {
+PixelList.prototype.draw = function (context) {
 	var imageData = context.createImageData(this.width, this.height);
 	var imageArr = imageData.data;
 	var dataArr = this.data;

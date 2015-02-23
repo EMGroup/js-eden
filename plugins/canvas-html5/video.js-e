@@ -6,7 +6,7 @@
 ##toString method needs implementing.
 ##Attempting to play back video in reverse (vid_speed < 0) only works on Safari on Mac.  A workaround is possible.
 
-##For a video drawable named "vid", the following observables are available.  All are read/write.
+##For a Video drawable named "vid", the following observables are available.  All are read/write.
 ##
 ##vid_url
 ##	The URL of the current video loaded into the video player.
@@ -91,10 +91,10 @@ ${{
 		Object.defineProperty(this, "duration", {
 			enumerable: true,
 			get: function () {
-				if (this.element === undefined) {
+				if (this.elements === undefined) {
 					return 0;
 				} else {
-					return Math.floor(this.element.duration * 10) / 10;
+					return Math.floor(this.elements[0].duration * 10) / 10;
 				}
 			}
 		});
@@ -102,10 +102,10 @@ ${{
 		Object.defineProperty(this, "ended", {
 			enumerable: true,
 			get: function () {
-				if (this.element === undefined) {
+				if (this.elements === undefined) {
 					return false;
 				} else {
-					return this.element.ended;
+					return this.elements[0].ended;
 				}
 			}
 		});
@@ -119,7 +119,7 @@ ${{
 
 ${{
 	Video.prototype.draw = function (context) {		
-		if (this.element === undefined ) {
+		if (this.elements === undefined ) {
 			var me = this;
 			var name = this.name;
 			var agent = root.lookup("Video");
@@ -389,10 +389,7 @@ ${{
 				videoElement.load();
 			});
 
-			videoElement.togarbage = false;
-			this.element = videoElement;
-		} else {
-			this.element.togarbage = false;
+			this.elements = [videoElement];
 		}
 	}
 	

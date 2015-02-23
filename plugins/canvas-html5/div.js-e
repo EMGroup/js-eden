@@ -13,7 +13,6 @@ Div = function (html, x, y, width, height, id, classNames, style) {
 	this.id = id;
 	this.classNames = classNames;
 	this.style = style;
-	this.element = undefined;
 }
 
 Div.prototype.hash = function () {
@@ -65,12 +64,20 @@ func Div { ${{
 }}$; }
 
 ${{
-Div.prototype.draw = function(context,content) {
 
-  if (this.element === undefined) {
+Div.prototype.draw = function(context) {
 
-	var divStyle = "position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " +
-		this.width + "px; height: " + this.height + "px;" + this.style;
+  if (this.elements === undefined) {
+
+	var divStyle = "position: absolute; left: " + this.x + "px; top: " + this.y + "px;";
+	
+	if (this.width !== undefined) {
+		divStyle = divStyle + " width: " + this.width + "px;";
+	}
+	if (this.height !== undefined) {
+		divStyle = divStyle + " height: " + this.height + "px;";
+	}
+	divStyle = divStyle + this.style;
 
 	var divElement = document.createElement("div");
 	if (this.id !== undefined) {
@@ -81,15 +88,10 @@ Div.prototype.draw = function(context,content) {
 	}
 	divElement.style.cssText = divStyle;
 	divElement.innerHTML = this.html;
-	
-	divElement.togarbage = false;
-	this.element = divElement;
-  } else {
-	this.element.togarbage = false;
+	this.elements = [divElement];
   }
 };
-}}$;
-${{
+
 Div.prototype.toString = function() {
 	return this.getEdenCode();
 };

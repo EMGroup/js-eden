@@ -112,6 +112,7 @@ Eden.systemFunctionNames = [
 	"hsl",
 	"htmlBulletList",
 	"htmlNumberedList",
+	"imageWithZones",
 	"include",
 	"include_css",
 	"indexOf",

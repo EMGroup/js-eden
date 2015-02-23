@@ -31,7 +31,7 @@ func Textbox { ${{
 }}$; }
 
 ${{
-Textbox.prototype.draw = function(context,content) {
+Textbox.prototype.draw = function(context) {
 	var me = this;
 	var canvas_obsname = "canvas_" + this.name;
 	var id = this.name;
@@ -39,7 +39,7 @@ Textbox.prototype.draw = function(context,content) {
 	var value = valueSymbol.value();
 	var agent = root.lookup("Textbox");
 	
-	if(this.element === undefined){
+	if(this.elements === undefined){
 
 		var disabled = this.enabled === false? "readonly=\"readonly\"" : "";
 		var html;
@@ -58,15 +58,11 @@ Textbox.prototype.draw = function(context,content) {
 		html.change(function(){
 			root.lookup(id + "_value").assign(html.get(0).value, agent, true);
 		});
-		this.element = html.get(0);
-		html.get(0).togarbage = false;
+		this.elements = [html.get(0)];
 
 		valueSymbol.addJSObserver("updateTextbox", function (obs, value) {
-			me.element.value = value;
+			me.elements[0].value = value;
 		});
-
-  } else {
-		this.element.togarbage = false;
   }
 };
 }}$;

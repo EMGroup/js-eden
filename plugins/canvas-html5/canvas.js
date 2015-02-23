@@ -109,7 +109,10 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			if (hash in nextElements || !previousElements[hash].togarbage) {
 				continue;
 			}
-			canvasElement.removeChild(previousElements[hash]);
+			var elementsToRemove = previousElements[hash];
+			for (var i = 0; i < elementsToRemove.length; i++) {
+				canvasElement.removeChild(elementsToRemove[i]);
+			}
 		}
 	};
 
@@ -161,23 +164,23 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 
 				for (var i = 0; i < picture.length; i++) {
 
-					if (picture[i] === undefined) { continue; }
+					if (!(picture[i] instanceof Object) || !("draw" in picture[i])) { continue; }
 
 					var elHash = picture[i].hash && picture[i].hash();
 					var existingEl = elHash && previousElements[elHash];
 
 					if (existingEl) {
-						// if already existing hash, no need to draw, just set the element
-						picture[i].element = existingEl;
+						// if already existing hash, no need to draw, just set the elements
+						picture[i].elements = existingEl;
 					} else {
 						context.save();
 						EdenUI.plugins.CanvasHTML5.configureContext(context, picture[i].drawingOptions);
-						// expect draw() method to set .element
-						picture[i].draw(context, content, pictureobs);
+						// expect draw() method to set .elements
+						picture[i].draw(context, pictureobs);
 						context.restore();
 					}
 
-					var htmlEl = picture[i].element;
+					var htmlEl = picture[i].elements;
 					if (htmlEl) { htmlEl.togarbage = false; }
 					if (htmlEl && !existingEl) {
 						$(content).append(htmlEl);
@@ -502,6 +505,10 @@ EdenUI.plugins.CanvasHTML5.configureContext = function (context, options) {
 
 	if ("lineWidth" in options) {
 		context.lineWidth = options.lineWidth;
+	}
+
+	if ("opacity" in options) {
+		context.globalAlpha = options.opacity;
 	}
 	
 	if ("shadow" in options) {

@@ -54,12 +54,11 @@ RadioButtons.prototype.makeHTML = function(){
 }}$;
 
 ${{
-RadioButtons.prototype.draw = function(context,content) {
+RadioButtons.prototype.draw = function (context) {
 	var id = this.name;
 	var agent = root.lookup("RadioButtons");
-	var check = this.element;
 	root.lookup(id+'_drawing').assign(true, agent);
-	if(check === undefined){
+	if(this.elements === undefined){
 
 		//Make the HTML
 		var inputhtml = $(this.makeHTML());
@@ -81,20 +80,19 @@ RadioButtons.prototype.draw = function(context,content) {
 			}
 		});
 
-		this.element = inputhtml.get(0);
+		this.elements = [inputhtml.get(0)];
 
-		inputhtml.get(0).togarbage = false;
 		eden.execute('proc ' + id + '_update : ' + id + '_value { if (' + id + '_drawing){return;} ' + id + '_drawable.draw();}');
   } else {
+		var buttonsDiv = this.elements[0];
 
-		this.element.togarbage = false;
 		for(var i=0; i<this.listOfButtonNames.length; i++){
-			if(this.element.children[0][i].value==root.lookup(id + "_value").cached_value){
-				this.element.children[0][i].checked = true;
+			if(buttonsDiv.children[0][i].value==root.lookup(id + "_value").cached_value){
+				buttonsDiv.children[0][i].checked = true;
 				break;
 			} else {
 				//Posibility of having no radio button selected.
-				this.element.children[0][i].checked = false;				
+				buttonsDiv.children[0][i].checked = false;				
 			}
 		}
   }

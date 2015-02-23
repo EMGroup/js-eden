@@ -45,7 +45,8 @@ func Slider { ${{
 }}$; }
 
 ${{
-Slider.prototype.draw = function(context,content) {
+
+Slider.prototype.draw = function (context) {
 
 	var name = this.name;
 	var id = "canvas_" + name;
@@ -56,7 +57,7 @@ Slider.prototype.draw = function(context,content) {
 	var value = valueSym.value();
 	var previewSym = root.lookup(name + "_preview");
 
-	if (this.element === undefined) {
+	if (this.elements === undefined) {
 		var orientationCSS;
 		var topCSS;
 		if (this.orientation == "down"){
@@ -99,13 +100,12 @@ Slider.prototype.draw = function(context,content) {
 				root.lookup(name + "_preview").assign(parseFloat(this.value), agent, true);
 			}));
 
-		this.element = inputhtml.get(0);
-		inputhtml.get(0).togarbage = false;
+		this.elements = [inputhtml.get(0)];
 
 		valueSym.addJSObserver("updateUI", function (obs, value) {
 			var previewSym = root.lookup(name + "_preview");
 			if (previewSym.value() != value) {
-				that.element.value = String(value);
+				that.elements[0].value = String(value);
 				previewSym.assign(value, agent);
 			}
 		});
@@ -114,7 +114,7 @@ Slider.prototype.draw = function(context,content) {
 			var previewSym = root.lookup(name + "_preview");
 			var valueSym = root.lookup(name + "_value");
 			if (previewSym.last_modified_by == Symbol.getInputAgentName()) {
-				that.element.value = String(preview);
+				that.elements[0].value = String(preview);
 				valueSym.assign(preview, agent, true);
 			}
 		});
@@ -122,12 +122,11 @@ Slider.prototype.draw = function(context,content) {
 	} else {
 		//Draw with the values stored in the observables
 		if (value === undefined) {
-			valueSym.assign(parseFloat(this.element.value), agent);
-			previewSym.assign(parseFloat(this.element.value), agent);
+			valueSym.assign(parseFloat(this.elements[0].value), agent);
+			previewSym.assign(parseFloat(this.elements[0].value), agent);
 		} else {
-			this.element.value = String(value);
+			this.elements[0].value = String(value);
 		}
-		this.element.togarbage = false;
 	}
 };
 }}$;

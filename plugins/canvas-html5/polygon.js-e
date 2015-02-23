@@ -120,7 +120,8 @@ func Polygon { ${{
 }}$; };
 
 ${{
-Polygon.prototype.draw = function(context) {
+
+Polygon.prototype.draw = function (context) {
 	var oneOutlineColour = this.outlinecolours !== undefined &&
 		this.outlinecolours.length == 1 && !Array.isArray(this.outlinecolours[0]);
 	
@@ -223,5 +224,27 @@ Polygon.prototype.toString = function() {
 };
 
 Polygon.prototype.getEdenCode = Polygon.prototype.toString;
+
+Polygon.prototype.imageMapArea = function () {
+	var s = "shape=\"poly\" coords=\"";
+	for (var i = 0; i < this.points.length; i++) {
+		var point = this.points[i];
+		s = s + point.x + "," + point.y + ",";
+	}
+	s = s.slice(0, -1);
+	s = s + "\"";
+	return s;
+}
+
+Polygon.prototype.centre = function () {
+	var centreX = 0, centreY = 0;
+	for (var i = 0; i < this.points.length; i++) {
+		centreX = centreX + this.points[i].x;
+		centreY = centreY + this.points[i].y;
+	}
+	centreX = centreX / this.points.length;
+	centreY = centreY / this.points.length;
+	return new Point(centreX, centreY);
+}
 
 }}$;

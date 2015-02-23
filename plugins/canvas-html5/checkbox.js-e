@@ -33,8 +33,9 @@ func Checkbox { ${{
 }}$; }
 
 ${{
-Checkbox.prototype.draw = function(context, content) {
-	if(this.element === undefined){
+
+Checkbox.prototype.draw = function(context) {
+	if(this.elements === undefined){
 		var me = this;
 		var name = this.name;
 		var id = "canvas_" + this.name;
@@ -88,12 +89,8 @@ Checkbox.prototype.draw = function(context, content) {
 			}
 		});
 
-		this.element = element;
-		element.togarbage = false;
-
-  } else {
-	this.element.togarbage = false;
-  }
+		this.elements = [element];
+	}
 };
 }}$;
 

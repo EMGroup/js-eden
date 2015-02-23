@@ -29,15 +29,14 @@ func Text { ${{
 }}$; };
 
 ${{
-Text.prototype.draw = function(context) {
+
+Text.prototype.draw = function (context) {
   context.font = this.size+" Arial";
   EdenUI.plugins.CanvasHTML5.setFillStyle(context, this.colour);
   context.lineWidth = 1;
   context.fillText(this.text, this.x, this.y);
 };
-}}$;
 
-${{
 Text.prototype.toString = function() {
   return "Text(\"" + this.text + "\", " + this.x + ", " + this.y + ", " +
 	Eden.edenCodeForValue(this.colour) + ", \"" + this.size + "\")";

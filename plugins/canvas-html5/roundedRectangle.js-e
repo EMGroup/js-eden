@@ -32,7 +32,8 @@ func RoundedRectangle { ${{
 }}$; };
 
 ${{
-RoundedRectangle.prototype.draw = function(context) {
+
+RoundedRectangle.prototype.draw = function (context) {
 	context.beginPath();
     context.moveTo(this.x1 + this.radius, this.y1);
     context.lineTo(this.x2 - this.radius, this.y1);
@@ -53,9 +54,7 @@ RoundedRectangle.prototype.draw = function(context) {
 		context.stroke();
 	}
 };
-}}$;
 
-${{
 RoundedRectangle.prototype.toString = function() {
 	var s = "RoundedRectangle(" + this.x1 + ", " + this.y1 + ", " +
 		(this.x2 - this.x1) + ", " +

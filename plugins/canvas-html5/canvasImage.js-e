@@ -44,7 +44,7 @@ func Image { ${{
 }}$; }
 
 ${{
-CanvasImage.prototype.draw = function(context, content, canvas) {
+CanvasImage.prototype.draw = function(context, canvas) {
 	if(this.loaded){
 		if (this.height === undefined) {
 			context.drawImage(this.image, this.x, this.y);
