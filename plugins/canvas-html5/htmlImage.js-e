@@ -75,7 +75,7 @@ HTMLImage.prototype.draw = function(context) {
 
 			var followMouse = root.lookup("mouseFollow").value();
 			root.lookup(name + "_click").assign(true, agent, followMouse);
-			root.lookup(name + "_regionMouseDown").assign(undefined, agent, followMouse);
+			root.lookup(name + "_zoneMouseDown").assign(undefined, agent, followMouse);
 			autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
 
 		}).on("mouseup", function () {
@@ -86,7 +86,7 @@ HTMLImage.prototype.draw = function(context) {
 
 			var followMouse = root.lookup("mouseFollow").value();
 			root.lookup(name + "_click").assign(false, agent, followMouse);
-			root.lookup(name + "_regionMouseUp").assign(undefined, agent, followMouse);
+			root.lookup(name + "_zoneMouseUp").assign(undefined, agent, followMouse);
 			autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
 
 		});	
@@ -96,11 +96,11 @@ HTMLImage.prototype.draw = function(context) {
 		var setAreaEvents = function (area, regionName) {
 			area.on("mouseenter", function (event) {
 				var followMouse = root.lookup("mouseFollow").value();
-				root.lookup(name + "_region").assign(regionName, agent, followMouse);
+				root.lookup(name + "_zone").assign(regionName, agent, followMouse);
 
 			}).on("mouseout", function (event) {
 				var followMouse = root.lookup("mouseFollow").value();
-				root.lookup(name + "_region").assign(undefined, agent, followMouse);
+				root.lookup(name + "_zone").assign(undefined, agent, followMouse);
 
 			}).on("mousedown", function (event) {
 				var autocalcSym = root.lookup("autocalc");
@@ -109,7 +109,7 @@ HTMLImage.prototype.draw = function(context) {
 				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 				
 				var followMouse = root.lookup("mouseFollow").value();
-				root.lookup(name + "_regionMouseDown").assign(regionName, agent, followMouse);
+				root.lookup(name + "_zoneMouseDown").assign(regionName, agent, followMouse);
 				root.lookup(name + "_click").assign(true, agent, followMouse);
 				autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
 
@@ -120,7 +120,7 @@ HTMLImage.prototype.draw = function(context) {
 				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
 				var followMouse = root.lookup("mouseFollow").value();
-				root.lookup(name + "_regionMouseUp").assign(regionName, agent, followMouse);
+				root.lookup(name + "_zoneMouseUp").assign(regionName, agent, followMouse);
 				root.lookup(name + "_click").assign(false, agent, followMouse);
 				autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
 
