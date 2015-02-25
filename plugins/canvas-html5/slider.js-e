@@ -45,17 +45,19 @@ func Slider { ${{
 }}$; }
 
 ${{
-Slider.prototype.draw = function(context,content) {
+
+Slider.prototype.draw = function (context) {
 
 	var name = this.name;
 	var id = "canvas_" + name;
 	var that = this;
+	var agent = root.lookup("Slider");
 	
 	var valueSym = root.lookup(name + "_value");
 	var value = valueSym.value();
 	var previewSym = root.lookup(name + "_preview");
 
-	if (this.element === undefined) {
+	if (this.elements === undefined) {
 		var orientationCSS;
 		var topCSS;
 		if (this.orientation == "down"){
@@ -76,11 +78,11 @@ Slider.prototype.draw = function(context,content) {
 				value = previewValue;
 			} else {
 				value = this.min;
-				previewSym.assign(value);
+				previewSym.assign(value, agent);
 			}
-			valueSym.assign(value, this);
+			valueSym.assign(value, agent);
 		} else {
-			previewSym.assign(value);
+			previewSym.assign(value, agent);
 		}
 
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
@@ -93,40 +95,38 @@ Slider.prototype.draw = function(context,content) {
 			'min="' + this.min + '" ' +
 			'max="' + this.max + '" ' +
 			'step="' + this.step + '" />')).on("change", function(){
-				root.lookup(name + "_value").netAssign(parseFloat(this.value));
+				root.lookup(name + "_value").assign(parseFloat(this.value), agent, true);
 			}).on("input", function(){
-				root.lookup(name + "_preview").netAssign(parseFloat(this.value));
+				root.lookup(name + "_preview").assign(parseFloat(this.value), agent, true);
 			}));
 
-		this.element = inputhtml.get(0);
-		inputhtml.get(0).togarbage = false;
+		this.elements = [inputhtml.get(0)];
 
-		valueSym.addJSObserver("updateUI", function (obsName, value) {
+		valueSym.addJSObserver("updateUI", function (obs, value) {
 			var previewSym = root.lookup(name + "_preview");
 			if (previewSym.value() != value) {
-				that.element.value = String(value);
-				previewSym.assign(value);
+				that.elements[0].value = String(value);
+				previewSym.assign(value, agent);
 			}
 		});
 		
-		previewSym.addJSObserver("updateUI", function (obsName, preview) {
+		previewSym.addJSObserver("updateUI", function (obs, preview) {
 			var previewSym = root.lookup(name + "_preview");
 			var valueSym = root.lookup(name + "_value");
-			if (previewSym.last_modified_by == "input") {
-				that.element.value = String(preview);
-				valueSym.netAssign(preview);
+			if (previewSym.last_modified_by == Symbol.getInputAgentName()) {
+				that.elements[0].value = String(preview);
+				valueSym.assign(preview, agent, true);
 			}
 		});
 		
 	} else {
 		//Draw with the values stored in the observables
 		if (value === undefined) {
-			valueSym.assign(parseFloat(this.element.value), this);
-			previewSym.assign(parseFloat(this.element.value), this);
+			valueSym.assign(parseFloat(this.elements[0].value), agent);
+			previewSym.assign(parseFloat(this.elements[0].value), agent);
 		} else {
-			this.element.value = String(value);
+			this.elements[0].value = String(value);
 		}
-		this.element.togarbage = false;
 	}
 };
 }}$;
@@ -137,4 +137,7 @@ Slider.prototype.toString = function() {
 	this.x + ", " + this.y + ", " + this.length + ", \"" + this.orientation + "\", " +
 	this.enabled + ")";
 };
+
+Slider.prototype.getEdenCode = Slider.prototype.toString;
+
 }}$;

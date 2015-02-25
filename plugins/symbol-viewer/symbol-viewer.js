@@ -38,7 +38,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 	var generateHTML = function () {
 		return "<div class=\"symbollist-search-box-outer\">\
-			<input type=\"text\" class=\"symbollist-search\" placeholder=\"Search\"></input>\
+			<input type=\"text\" class=\"symbollist-search\" placeholder=\"search\" /><a class=\"symbollist-edit\">Edit</a>\
 		</div>\
 		<div class=\"symbollist-results\"></div>";
 	};
@@ -70,6 +70,28 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 		me.instances.push(symbollist);
 		symbollist.search("");
+
+		code_entry.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
+			edenUI.createView("Edit_" + me.name, "InputWindow");
+			var allVals = "";
+			var symbol;
+			for(var symbolname in symbollist.symbols){
+				symbol = root.lookup(symbolname);
+				var val;
+				if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
+					val = symbol.eden_definition;
+				} else {
+					if (symbol.definition) {
+						val = symbol.eden_definition + ";";
+					} else {
+						val = symbolname + " = " + Eden.edenCodeForValue(symbol.value()) + ";";
+					}
+				}
+				allVals += val + "\n";
+			}
+				$('#Edit_'+me.name+'-dialog').find('textarea').val(allVals);
+		});
+
 
 		// Make changes in search box update the list.
 		code_entry.find(".symbollist-search-box-outer > .symbollist-search").keyup(function() {
@@ -256,7 +278,7 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.updateSymbol = function (name) 
  * @param name The name of the given symbol object.
  */
 EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, name) {
-	var reg = new RegExp("^("+this.pattern+").*");
+	var reg = new RegExp("^(" + this.pattern + ")", "i");
 
 	if (name.search(reg) == -1) {
 		return;
@@ -339,7 +361,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			if (symbol.definition) {
 				val = symbol.eden_definition + ";";
 			} else {
-				val = me.name + " = " + _toStrVal(symbol.value()) + ";";
+				val = me.name + " = " + Eden.edenCodeForValue(symbol.value()) + ";";
 			}
 		}
 
@@ -385,53 +407,20 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 	this.element.html(funchtml);
 };
 
-function _toStrVal(val) {
-	switch (typeof val) {
-		case "boolean": return val;
-		case "undefined": return "@";
-		case "string": return JSON.stringify(val);
-		case "number": return val;
-		case "function": return "${{ " + val + "}}$";
+function _formatVal(value) {
+	var str = Eden.prettyPrintValue("", value, 200, false, false);
+	switch (typeof(value)) {
+	case "boolean":
+		return "<span class='special_text'>" + str + "</span>";
+	case "undefined":
+		return "<span class='error_text'>@</span>";
+	case "string":
+		return "<span class='string_text'>" + str + "</span>";
+	case "number":
+		return "<span class='numeric_text'>" + str + "</span>";
+	default:
+		return str;
 	}
-
-	if (val instanceof Array) {
-		var parts = [];
-		for (var i = 0; i < val.length; ++i) {
-			parts.push(_toStrVal(val[i]));
-		}
-		return "[" + parts.join(", ") + "]";
-	}
-
-	return val.toString();
-}
-
-function _formatVal(val) {
-	switch (typeof val) {
-		case "boolean": return "<span class='special_text'>"+val+"</span>";
-		case "undefined": return "<span class='error_text'>@</span>";
-		case "string": return "<span class='string_text'>\""+Eden.deHTML(val)+"\"</span>";
-		case "number": return "<span class='numeric_text'>"+val+"</span>";
-	}
-
-	if (val instanceof Array) {
-		var maxDisplayedElements = 20;
-		var numDisplayed;
-		if (val.length < maxDisplayedElements) {
-			numDisplayed = val.length;
-		} else {
-			numDisplayed = maxDisplayedElements;
-		}
-		var parts = [];
-		for (var i = 0; i < numDisplayed; ++i) {
-			parts.push(_formatVal(val[i]));
-		}
-		if (val.length > maxDisplayedElements) {
-			parts.push("...");
-		}
-		return "[" + parts.join(", ") + "]";
-	}
-
-	return Eden.deHTML(val.toString());
 };
 
 /**
@@ -445,19 +434,25 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 
 	var namehtml;
 	if (this.symbol.definition !== undefined) {
-		namehtml = "<span class=\"hasdef_text\" title=\""
-		+ Eden.deHTML(this.symbol.eden_definition)
-		+"\">"+this.name+"</span>";
+		namehtml = "<span class='hasdef_text'>" + this.name + "</span>";
 	} else {
 		namehtml = this.name;
 	}
 
-	this.element.html("<li><span class=\"result_name\">"
-		+ namehtml
-		+ "</span><span class='result_value'> = "
-		+ valhtml
-		+ "</span></li>"
-	);
+	var html = "<span class='result_name'>" + namehtml + "</span>" +
+		"<span class='result_value'> = " + valhtml + "</span>";
+
+	if (this.symbol.definition !== undefined) {
+		/*The inner replacement overcomes a bug(?) in Chrome 40 and Firefox 35 where < is interpreted
+		 *as a HTML start tag even when escaped as &lt;
+		 */
+		var tooltip = Eden.htmlEscape(this.symbol.eden_definition.replace(/<(\S)/g, " < $1"), true);
+		html = "<li title='" + tooltip + "'>" + html + "</li>";
+	} else {
+		html = "<li>" + html + "</li>";
+	}
+
+	this.element.html(html);
 };
 
 /**

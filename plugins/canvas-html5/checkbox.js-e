@@ -33,13 +33,15 @@ func Checkbox { ${{
 }}$; }
 
 ${{
-Checkbox.prototype.draw = function(context, content) {
-	if(this.element === undefined){
+
+Checkbox.prototype.draw = function(context) {
+	if(this.elements === undefined){
 		var me = this;
 		var name = this.name;
 		var id = "canvas_" + this.name;
 		var valueSym = root.lookup(name + "_checked");
 		var value = valueSym.value();
+		var agent = root.lookup("Checkbox");
 
 		var jqElement = $("<input type=\"checkbox\" style=\"position: absolute\" />");
 		var element = jqElement.get(0);
@@ -53,7 +55,7 @@ Checkbox.prototype.draw = function(context, content) {
 			if (this.tristate) {
 				element.indeterminate = true;
 			} else {
-				valueSym.assign(false, this);
+				valueSym.assign(false, agent);
 			}
 		} else {
 			element.checked = value;
@@ -73,10 +75,10 @@ Checkbox.prototype.draw = function(context, content) {
 			} else {
 				value = element.checked;
 			}
-			valueSym.netAssign(value);
+			valueSym.assign(value, agent, true);
 		});
 		
-		valueSym.addJSObserver("updateCheckbox", function (name, value) {
+		valueSym.addJSObserver("updateCheckbox", function (obs, value) {
 			var element = me.element;
 			if (value === undefined) {
 				element.indeterminate = true;
@@ -87,12 +89,8 @@ Checkbox.prototype.draw = function(context, content) {
 			}
 		});
 
-		this.element = element;
-		element.togarbage = false;
-
-  } else {
-	this.element.togarbage = false;
-  }
+		this.elements = [element];
+	}
 };
 }}$;
 
@@ -101,4 +99,7 @@ Checkbox.prototype.toString = function() {
   return "Checkbox(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.tristate + ", " +
 	this.enabled + ")";
 };
+
+Checkbox.prototype.getEdenCode = Checkbox.prototype.toString;
+
 }}$;

@@ -223,6 +223,12 @@
 		this.last_modified_by = undefined;
 	}
 
+	Symbol.getInputAgentName = function () {
+		return "*Script Input";
+	}
+	
+	Symbol.hciAgent = {name: "*Input Device"};
+	
 	/**
 	 * Return the current value of this symbol, forcing calculation if necessary.
 	 *
@@ -246,7 +252,7 @@
 						if (subString == exp + ")") {
 							var jsValue = this.context.getEval(this.evalIDs[exp]);
 							replacedDef = replacedDef.slice(0, searchIndex) +
-								eden.edenCodeForValue(jsValue) +
+								Eden.edenCodeForValue(jsValue) +
 								replacedDef.slice(searchIndex + exp.length + 6);
 							break;
 						}
@@ -311,9 +317,9 @@
 
 	Symbol.prototype._setLastModifiedBy = function (modifying_agent) {
 		if (modifying_agent === global) {
-			this.last_modified_by = 'input';
+			this.last_modified_by = Symbol.getInputAgentName();
 		} else {
-			this.last_modified_by = modifying_agent ? modifying_agent.name.replace(/^\//, '') : "modifying agent wasn't specified :(";
+			this.last_modified_by = modifying_agent ? modifying_agent.name.replace(/^\//, '') : "*JavaScript";
 		}
 	};
 
@@ -369,17 +375,19 @@
 	/**
 	 * Change the current value of this symbol and notify.
 	 *
-	 * If this is called other than from within a ${{ }}$ block (for example
-	 * inside a JavaScript event handler), then the assignment won't be
-	 * propagated to other instances of JS-EDEN connected via the state listener
-	 * plug-in.  Use the netAssign function if the assignment needs to be
-	 * propagated to other instances of JS-EDEN.
+	 * If this is called from within JavaScript code that is initiated in some way other than via the
+	 * input window (e.g. mouse movement events) then the third parameter must be set to true to
+	 * ensure that the change gets propagated to other networked instances of JS-EDEN.
 	 *
 	 * @param {*} value
 	 * @param {Symbol} modifying_agent
+	 * @param {boolean} pushToNetwork
 	 */
-	Symbol.prototype.assign = function (value, modifying_agent) {
+	Symbol.prototype.assign = function (value, modifying_agent, pushToNetwork) {
 		value = copy(value);
+		if (pushToNetwork) {
+			eden.emit("beforeAssign", [this, value, modifying_agent]);
+		}
 		if (this.name === "/autocalc") {
 			this.context && this.context.autocalc(value === 1);
 		}
@@ -400,18 +408,6 @@
 		return this;
 	};
 
-	/**
-	 * Change the current value of this symbol and notify both locally and
-	 * remotely via the state listener plug-in.
-	 *
-	 * @param {*} value
-	 * @param {Symbol} modifying_agent
-	 */
-	Symbol.prototype.netAssign = function (value, modifying_agent) {
-		eden.emit("beforeNetAssign", [this, value, modifying_agent]);
-		this.assign(value, modifying_agent);
-	}
-	
 	/**
 	 * Change the current value of this symbol and notify
 	 *
@@ -450,6 +446,15 @@
 		}
 	};
 
+	/**
+	 * Used with pointer type observables, e.g. when clicking in the Symbol List view to edit one.
+	 * @return {string} The EDEN code used to create an expression that references this symbol,
+	 *	i.e. &name
+	 */
+	Symbol.prototype.getEdenCode = function () {
+		return "&" + this.name.slice(1);
+	}
+	
 	Symbol.prototype.trigger = function () {
 		var name;
 		// only trigger when all observed symbols have been defined by some agent
@@ -488,7 +493,7 @@
 	Symbol.prototype.fireJSObservers = function () {
 		for (var jsObserverName in this.jsObservers) {
 			try {
-				this.jsObservers[jsObserverName](this.name, this.value());
+				this.jsObservers[jsObserverName](this, this.cached_value);
 			} catch (error) {
 				this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
 			}
@@ -657,8 +662,12 @@
 	 * @param {*} value The value to assign.
 	 * @param {Symbol} modifying_agent The agent responsible for the modification.
 	 */
-	SymbolAccessor.prototype.assign = function (value, modifying_agent) {
+	SymbolAccessor.prototype.assign = function (value, modifying_agent, pushToNetwork) {
+		value = copy(value);
 		var me = this;
+		if (pushToNetwork) {
+			eden.emit("beforeAssign", [this, value, modifying_agent]);
+		}
 		this.parent.mutate(function (symbol, modifying_agent) {
 			var list = symbol.value();
 			for (var i = 0; i < me.keys.length - 1; ++i) {

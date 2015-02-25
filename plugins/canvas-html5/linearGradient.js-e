@@ -70,7 +70,10 @@ ${{
 
 	LinearGradient.prototype.toString = function() {
 		return "LinearGradient(" + this.x1 + ", " + this.y1 + ", " + this.x2 +
-			", " + this.y2 + ", " + root.lookup("edenCode").definition(root)(this.colourStops) + ")";
+			", " + this.y2 + ", " + Eden.edenCodeForValue(this.colourStops) + ")";
 		
 	};
+
+	LinearGradient.prototype.getEdenCode = LinearGradient.prototype.toString;
+
 }}$;

@@ -198,6 +198,13 @@ function concatAndResolveUrl(url, concat) {
 		this.listeners = {};
 
 		/**
+		 * A record of the external files that have been loaded using the include statement.
+		 * Plugins (such as the script generator) can request a copy of this information.
+		 * @private
+		 */
+		this.includes = [];
+		
+		/**
 		 * Setting this to false temporarily prevents the error method from
 		 * producing any output.  This is used by the framework for testing EDEN
 		 * code in the scenario when an error is the intended outcome of a test case.
@@ -286,6 +293,7 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {function()} success Called when include has finished successfully.
 	 */
 	Eden.prototype.include = function (includePath, prefix, agent, success) {
+		var me = this;
 		var includePaths;
 		if (includePath instanceof Array) {
 			includePaths = includePath;
@@ -303,7 +311,21 @@ function concatAndResolveUrl(url, concat) {
 			agent = prefix;
 			prefix = '';
 		}
+		/* The include procedure is the agent that modifies the observables, not the agent passing
+		 * the include agent a filename.  Interesting philosophically?  Plus a practical necessity,
+		 * e.g. for the Script Generator plug-in to work properly.
+		 */
+		var originalAgent = agent;
+		agent = {name: '/include'};		
 
+		var addIncludeURL = function (url) {
+			var index = me.includes.indexOf(url);
+			if (index != -1) {
+				me.includes.splice(index, 1);
+			}
+			me.includes.push(url);
+		}
+		
 		var promise;
 		includePaths.forEach(function (includePath) {
 			var url;
@@ -323,10 +345,16 @@ function concatAndResolveUrl(url, concat) {
 				if (previousPromise) {
 					return previousPromise.then(function () {
 						eden.execute(data, url, newPrefix, agent, deferred.resolve);
+						if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
+							addIncludeURL(url);
+						}
 						return deferred.promise;
 					});
 				} else {
 					eden.execute(data, url, newPrefix, agent, deferred.resolve);
+					if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
+						addIncludeURL(url);
+					}
 					return deferred.promise;
 				}
 			});
@@ -336,7 +364,17 @@ function concatAndResolveUrl(url, concat) {
 		});
 	};
 
-	Eden.prototype.edenCodeForValue = function (value) {
+	Eden.prototype.getIncludedURLs = function () {
+		return this.includes.slice();
+	}
+	
+	/**Given any JavaScript value returns a string representing the EDEN code that would be required
+	 * to obtain the same value when interpreted.
+	 * @param {*} value The value to find an EDEN representation for.
+	 * @param {Array} refStack Used when the method recursively calls itself.
+	 * @returns {string} The EDEN code that produces the given value.
+	 */
+	Eden.edenCodeForValue = function (value, refStack) {
 		var type = typeof(value);
 		var code = "";
 		if (type == "undefined") {
@@ -346,19 +384,27 @@ function concatAndResolveUrl(url, concat) {
 		} else if (type == "string") {
 			code = "\"" + value.replace(/\\/g,"\\\\").replace(/\"/g,"\\\"") + "\"";
 		} else if (Array.isArray(value)) {
-			code = "[";
-			for (var i = 0; i < value.length - 1; i++) {
-				code = code + this.edenCodeForValue(value[i]) + ", ";
+			if (refStack === undefined) {
+				refStack = [];
 			}
-			if (value.length > 0) {
-				code = code + this.edenCodeForValue(value[value.length - 1]);
+			if (refStack.indexOf(value) != -1) {
+				//Array contains a reference to itself.
+				code = code + "<<circular reference>>";
+			} else {
+				refStack.push(value);
+				code = "[";
+				for (var i = 0; i < value.length - 1; i++) {
+					code = code + Eden.edenCodeForValue(value[i], refStack) + ", ";
+				}
+				if (value.length > 0) {
+					code = code + Eden.edenCodeForValue(value[value.length - 1], refStack);
+				}
+				code = code + "]";
+				refStack.pop();
 			}
-			code = code + "]";
 		} else if (type == "object") {
-			if (value instanceof Point) {
-				code = "{" + value.x + ", " + value.y + "}";
-			} else if (value instanceof Symbol) {	
-				code = "&" + value.name.slice(1);
+			if ("getEdenCode" in value) {
+				code = value.getEdenCode();
 			} else if (
 				"keys" in value &&
 				Array.isArray(value.keys) &&
@@ -369,23 +415,200 @@ function concatAndResolveUrl(url, concat) {
 			) {
 				code = "&" + value.parent.name.slice(1) + "[" + value.keys[0] + "]";
 			} else {
-				code = "{";
-				for (var key in value) {
-					if (!(key in Object.prototype)) {
-						code = code + key + ": " + this.edenCodeForValue(value[key]) + ", ";
+				if (refStack === undefined) {
+					refStack = [];
+				}
+				if (refStack.indexOf(value) != -1) {
+					//Object contains a reference to itself.
+					code = code + "<<circular reference>>";
+				} else {
+					refStack.push(value);
+					code = "{";
+					for (var key in value) {
+						if (!(key in Object.prototype)) {
+							code = code + key + ": " + Eden.edenCodeForValue(value[key], refStack) + ", ";
+						}
 					}
+					if (code != "{") {
+						code = code.slice(0, -2);
+					}
+					code = code + "}";
+					refStack.pop();
 				}
-				if (code != "{") {
-					code = code.slice(0, -2);
-				}
-				code = code + "}";
 			}
 		} else if (type == "function") {
-			code = "$" +"{{ " + value + " }}" + "$";
+			code = "$"+"{{\n\t" +
+					value.toString().replace(/([;{])(\n)?/g, "$1\n").replace(/\n?(\s*\})/g, "\n$1").replace(/\n/g, "\n\t") +
+				"\n}}"+"$";
 		} else {
 			code = String(value);
 		}
-		return code;	
+		return code;
+	}
+	
+	/**Given any JavaScript value returns a string that can be displayed to users in an EDEN
+	 * friendly way, possibly truncated to reasonable length to fit in with the UI's requirements.
+	 * @param {string} prefix A prefix to prepend to the string representation of the value.  Any HTML
+	 * 	mark-up characters present in the prefix will be preserved.
+	 * @param {*} value The value to find an EDEN representation for.
+	 * @param {number} maxChars The character limit for the result (optional).  The returned string will not
+	 * 	have significantly more characters than this number.
+	 * @param {boolean} showJSFuncs Whether or not to include code that defines a JavaScript function.  If false
+	 *	then functions will shortened to the word func.
+	 * @param {boolean} multiline True if the result is allowed to span multiple lines, or false if it must
+	 * 	fit into a single line display (e.g. for the symbol viewer)
+	 * @param {Array} refStack Used when the method recursively calls itself.
+	 * @returns {string} The EDEN code that produces the given value, with HTML mark-up characters
+	 *	escaped.
+	 */
+	Eden.prettyPrintValue = function (prefix, value, maxChars, showJSFuncs, multiline, refStack) {
+		if (multiline === undefined) {
+			multiline = true;
+		}
+		var type = typeof(value);
+		var code = "";
+		var truncated = false;
+		if (type == "undefined") {
+			code = "@";
+		} else if (value === null) {
+			code = "$" + "{{ null }}" + "$";
+		} else if (type == "string") {
+			code = "\"" + value.replace(/\\/g,"\\\\").replace(/\"/g,"\\\"") + "\"";
+			if (maxChars !== undefined && code.length > maxChars + 1) {
+				code = code.slice(0, maxChars) + "...";
+				truncated = true;
+			}
+		} else if (Array.isArray(value)) {
+			if (refStack === undefined) {
+				refStack = [];
+			}
+			if (refStack.indexOf(value) != -1) {
+				//Array contains a reference to itself.
+				code = code + "...";
+			} else {
+				refStack.push(value);
+				code = "[";
+				for (var i = 0; i < value.length - 1; i++) {
+					code = Eden.prettyPrintValue(code, value[i], maxChars, showJSFuncs, multiline, refStack) + ",";
+					if (maxChars !== undefined && code.length >= maxChars - 1) {
+						if (code.slice(-3) != "...") {
+							code = code + "...";
+						}
+						truncated = true;
+						break;
+					} else {
+						code = code + " ";
+					}
+				}
+				if (value.length > 0 && !truncated) {
+					code = Eden.prettyPrintValue(code, value[value.length - 1], maxChars, showJSFuncs, multiline, refStack);
+				}
+				code = code + "]";
+				refStack.pop();
+			}
+		} else if (type == "object") {
+			if (value instanceof Symbol) {
+				code = value.getEdenCode();
+			} else if (
+				"keys" in value &&
+				Array.isArray(value.keys) &&
+				value.keys.length > 0 &&
+				typeof(value.keys[0]) == "number" &&
+				"parent" in value &&
+				value.parent instanceof Symbol
+			) {
+				code = "&" + value.parent.name.slice(1) + "[" + value.keys[0] + "]";
+			} else if (value.toString != Object.prototype.toString) {
+				code = value.toString();
+				if (maxChars !== undefined && code.length > maxChars) {
+					code = code.slice(0, maxChars) + "...";
+					truncated = true;
+				}
+			} else {
+				if (refStack === undefined) {
+					refStack = [];
+				}
+				if (refStack.indexOf(value) != -1) {
+					//Object contains a reference to itself.
+					code = code + "...";
+				} else {
+					refStack.push(value);
+					code = "{";
+					var maybeTruncate = false;
+					for (var key in value) {
+						if (!(key in Object.prototype)) {
+							if (maybeTruncate) {
+								code = code.slice(0, -1) + "...";
+								truncated = true;
+								break;
+							}
+							code = code + key + ": ";
+							code = Eden.prettyPrintValue(code, value[key], maxChars, showJSFuncs, multiline, refStack);
+							if (code.slice(-3) == "...") {
+								truncated = true;
+								break;
+							}
+							if (maxChars !== undefined && code.length >= maxChars) {
+								maybeTruncate = true;
+							}
+							code = code + ", ";
+						}
+					}
+					if (code != "{" && !truncated) {
+						code = code.slice(0, -2);
+					}
+					code = code + "}";
+					refStack.pop();
+				}
+			}
+		} else if (type == "function") {
+			if (showJSFuncs) {
+				code = "$"+"{{\n\t" +
+						value.toString().replace(/([;{])(\n)?/g, "$1\n").replace(/\n?(\s*\})/g, "\n$1").replace(/\n/g, "\n\t") +
+					"\n}}"+"$";
+				if (maxChars !== undefined && code.length > maxChars) {
+					code = code.slice(0, maxChars) + "...";
+					truncated = true;
+				}
+			} else {
+				code = "func";
+			}
+		} else {
+			code = String(value);
+		}
+		if (!multiline) {
+			code = code.replace(/\n/g, "\\n");
+		}
+		if (!prefix) {
+			return Eden.htmlEscape(code).replace(/\.\.\.$/g, "&hellip;");
+		} else {
+			return prefix + code;
+		}
+	}
+
+	/**
+	 * Converts plain text to HTML, by default preserving line breaks (though all other forms of
+	 * white space are collapsed).  HTML mark-up characters are escaped.
+	 * @param {string} text The string to escape.
+	 * @param {boolean} nobr If true then line breaks won't be converted to <br/>.  (E.g. useful for
+	 * 	content of <textarea> tag.
+	 * @return {string} The escaped string.
+	 */
+	Eden.htmlEscape = function (text, nobr) {
+		if (text === undefined) {
+			return "";
+		}
+		text = String(text);
+		text = text.replace(/&/g, "&amp;");
+		text = text.replace(/</g, "&lt;");
+		text = text.replace(/>/g, "&gt;");
+		text = text.replace(/"/g, "&quot;");
+		text = text.replace(/'/g, "&apos;");
+		
+		if (!nobr) {
+			text = text.replace(/\n/g, "<br/>\n");
+		}
+		return text;
 	}
 	
 	/** An identifier used to locate the result of the next call to eval(). */

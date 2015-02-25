@@ -210,16 +210,6 @@ func randomInteger {
 }
 
 ${{
-	root.lookup("randomSeed").addJSObserver("applySeed", function (name, seed) {
-		root.lookup("randomGeneratorState").netAssign(seed);
-		root.lookup("randomIndex").netAssign(0);
-	});
-
-	root.lookup("randomGenerator").addJSObserver("applySeed", function (name, generator) {
-		root.lookup("randomGeneratorState").netAssign(root.lookup("randomSeed").value());		
-		root.lookup("randomIndex").netAssign(0);
-	});
-	
 	xorshift32Random = function (state) {
 		state ^= state << 13;
 		state ^= state >>> 17;
@@ -228,22 +218,32 @@ ${{
 	}
 }}$;
 
-	
 func xorshiftRandomGenerator {
 	${{
 		var stateSym = root.lookup("randomGeneratorState");
 		var lower = xorshift32Random(stateSym.value());
 		var upper = xorshift32Random(lower);
-		stateSym.assign(upper);
+		stateSym.assign(upper, root.lookup("xorshiftRandomGenerator"));
 		upper = Math.abs(upper) * 4194304; // 2^22, 53 bits of precision in total
 		return (upper + Math.abs(lower)) / 9007199254740991; // 2^53 - 1
 	}}$;
 }
 
-randomGenerator = xorshiftRandomGenerator;
+randomGenerator is xorshiftRandomGenerator;
 
+${{
+	root.lookup("randomSeed").addJSObserver("applySeed", function (obs, seed) {
+		root.lookup("randomGeneratorState").assign(seed, obs);
+		root.lookup("randomIndex").assign(0, obs);
+	});
+
+	root.lookup("randomGenerator").addJSObserver("applySeed", function (obs, generator) {
+		root.lookup("randomGeneratorState").assign(root.lookup("randomSeed").value(), obs);		
+		root.lookup("randomIndex").assign(0, obs);
+	});	
+}}$;
+	
 func random {
-	debugger;
 	randomIndex++;
 	if (randomSeed == @) {
 		return ${{ Math.random(); }}$;

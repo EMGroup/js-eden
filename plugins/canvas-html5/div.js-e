@@ -5,15 +5,14 @@
 
 ${{
 Div = function (html, x, y, width, height, id, classNames, style) {
+	this.html = html;
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
-	this.html = html;
 	this.id = id;
 	this.classNames = classNames;
 	this.style = style;
-	this.element = undefined;
 }
 
 Div.prototype.hash = function () {
@@ -35,7 +34,7 @@ func Div { ${{
 	var width = arguments[3];
 	var height = arguments[4];
 	
-	var id, classNames = [], style = "";
+	var id, classNames, style = "";
 	if (arguments.length > 5) {
 		if (arguments.length == 8) {
 			id = arguments[5];
@@ -65,32 +64,53 @@ func Div { ${{
 }}$; }
 
 ${{
-Div.prototype.draw = function(context,content) {
 
-  if (this.element === undefined) {
+Div.prototype.draw = function(context) {
 
-	var divStyle = "position: absolute; left: " + this.x + "px; top: " + this.y + "px; width: " +
-		this.width + "px; height: " + this.height + "px;" + this.style;
+  if (this.elements === undefined) {
+
+	var divStyle = "position: absolute; left: " + this.x + "px; top: " + this.y + "px;";
+	
+	if (this.width !== undefined) {
+		divStyle = divStyle + " width: " + this.width + "px;";
+	}
+	if (this.height !== undefined) {
+		divStyle = divStyle + " height: " + this.height + "px;";
+	}
+	divStyle = divStyle + this.style;
 
 	var divElement = document.createElement("div");
 	if (this.id !== undefined) {
 		divElement.id = this.id;
 	}
-	divElement.setAttribute("class", this.classNames.join(" "));
+	if (Array.isArray(this.classNames)) {
+		divElement.setAttribute("class", this.classNames.join(" "));
+	}
 	divElement.style.cssText = divStyle;
 	divElement.innerHTML = this.html;
-	
-	divElement.togarbage = false;
-	this.element = divElement;
-  } else {
-	this.element.togarbage = false;
+	this.elements = [divElement];
   }
 };
-}}$;
-${{
+
 Div.prototype.toString = function() {
-  var htmlAsText = this.html.replace(/</g, "&lt;");
-  return "Div(\"" + htmlAsText + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
-	this.height + ", \"" + this.style + "\")";
+	return this.getEdenCode();
 };
+
+Div.prototype.getEdenCode = function () {
+	var s = "Div(\"" + this.html + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
+		this.height;
+
+	if (this.id !== undefined) {
+		s = s + ", \"" + this.id + "\"";
+	}
+	if (this.classNames !== undefined) {
+		s = s + ", " + Eden.edenCodeForValue(this.classNames);
+	}
+	if (this.style != "") {
+		s = s + ", \"" + this.style + "\"";
+	}
+	s = s + ")";
+	return s;
+};
+
 }}$;

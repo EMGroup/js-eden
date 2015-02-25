@@ -2,6 +2,7 @@
 Eden.systemObservableNames = [
 	"_authoringMode",
 	"_status",
+	"_view_.*",
 	"Infinity",
 	"PI",
 	"autocalc",
@@ -9,6 +10,7 @@ Eden.systemObservableNames = [
 	"generate_function",
 	"mouseButton",
 	"mouseButtons",
+	"mouseCaptured",
 	"mouseDoubleClicks",
 	"mouseDown",
 	"mouseDownWindow",
@@ -17,8 +19,7 @@ Eden.systemObservableNames = [
 	"mouseUp",
 	"mouseWheel",
 	"mouseWindow",
-	"radiansPerUnit",
-	"randomGenerator",
+	"randomGeneratorState",
 	"randomIndex",
 	"touchScrollX",
 	"true"
@@ -26,6 +27,7 @@ Eden.systemObservableNames = [
 
 Eden.systemAgentNames = [
 	"_MenuBar_Status",
+	"_View_.*",
 	"_update_.*",
 	"alias",
 	"attemptMouseCapture",
@@ -80,7 +82,8 @@ Eden.systemFunctionNames = [
 	"Slider",
 	"Text",
 	"Textbox",
-	"TitleSlide",
+	"TitledSlide",
+	"Video",
 	"abs",
 	"acos",
 	"apply",
@@ -109,6 +112,7 @@ Eden.systemFunctionNames = [
 	"hsl",
 	"htmlBulletList",
 	"htmlNumberedList",
+	"imageWithZones",
 	"include",
 	"include_css",
 	"indexOf",

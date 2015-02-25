@@ -28,6 +28,7 @@ func Arc { ${{
 }}$; };
 
 ${{
+
 Arc.prototype.draw = function(context) {
 	var radiansPerUnit = root.lookup("radiansPerUnit").value();
 	var anticlockwise;
@@ -87,13 +88,16 @@ Arc.prototype.toString = function() {
 		this.r + "," +
 		this.sAngle + "," +
 		this.eAngle + "," +
-		this.colour;
+		"\"" + this.colour + "\"";
 
 	if (this.drawingOptions !== undefined) {
-		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
 	
 	s = s + ")";
 	return s;
 }
+
+Arc.prototype.getEdenCode = Arc.prototype.toString;
+
 }}$;

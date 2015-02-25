@@ -4,12 +4,12 @@
 ## See LICENSE.txt
 
 ${{
-Line = function(x1, y1, x2, y2, colour, drawingOptions) {
+Line = function(x1, y1, x2, y2, colours, drawingOptions) {
 	this.x1 = x1;
 	this.y1 = y1;
 	this.x2 = x2;
 	this.y2 = y2;
-	this.colour = colour;
+	this.colours = colours;
 	this.drawingOptions = drawingOptions;
 }
 }}$;
@@ -19,30 +19,48 @@ func Line { ${{
 	var y1 = arguments[1];
 	var x2 = arguments[2];
 	var y2 = arguments[3];
-	var colour = arguments[4];
+	var colours = arguments[4];
+	if (colours === undefined) {
+		colours = ["black"];
+	} else if (!Array.isArray(colours)) {
+		colours = [colours];
+	} else if (colours.length == 0) {
+		colours = ["black"];
+	}
 	var drawingOptions = arguments[5];
-	if (colour === undefined) { colour = "black"; }
-	return new Line(x1, y1, x2, y2, colour, drawingOptions);
+	return new Line(x1, y1, x2, y2, colours, drawingOptions);
 }}$; };
 
 ${{
+
 Line.prototype.draw = function(context) {
 	context.beginPath();
-	context.strokeStyle = this.colour;
+	if (this.colours.length == 1) {
+		context.strokeStyle = this.colours[0];
+	} else {
+		var gradient = context.createLinearGradient(this.x1, this.y1, this.x2, this.y2);
+		for (var i = 0; i < this.colours.length; i++) {
+			gradient.addColorStop(i / (this.colours.length - 1), this.colours[i]);
+		}
+		context.strokeStyle = gradient;
+	}
 	context.moveTo(this.x1, this.y1);
 	context.lineTo(this.x2, this.y2);
 	context.stroke();
 };
-}}$;
-${{
-Line.prototype.toString = function() {
-	var s = "Line(" + this.x1 + ", " + this.y1 + ", " + this.x2 + ", " + this.y2 + ", " + this.colour;
 
+Line.prototype.toString = function() {
+	var s = "Line(" + this.x1 + ", " + this.y1 + ", " + this.x2 + ", " + this.y2 +
+		", " + Eden.edenCodeForValue(this.colours);
+	
 	if (this.drawingOptions !== undefined) {
-		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
 	
 	s = s + ")";
 	return s;
 };
+
+Line.prototype.getEdenCode = Line.prototype.toString;
+
 }}$;

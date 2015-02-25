@@ -6,6 +6,10 @@ body, html {
 	font-size: 1em;
 }
 
+.unpadded-dialog .ui-dialog-content {
+	padding: 0px;
+}
+
 ul li {
 	list-style-type: square;
 }

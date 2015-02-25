@@ -19,22 +19,29 @@ func Text { ${{
   var y = arguments[2];
   var colour = arguments[3];
   var size = arguments[4];
-  if (colour == null) { colour = "black"; }
-  if (size == null) { size = "1em"; }
+  if (colour === undefined) { colour = "black"; }
+  if (size === undefined) {
+	size = "1em";
+  } else if (typeof(size) == "number") {
+	size = size + "px";
+  }
   return new Text(text, x, y, colour, size);
 }}$; };
 
 ${{
-Text.prototype.draw = function(context) {
-  context.font = this.size+"px Arial";
+
+Text.prototype.draw = function (context) {
+  context.font = this.size+" Arial";
   EdenUI.plugins.CanvasHTML5.setFillStyle(context, this.colour);
   context.lineWidth = 1;
   context.fillText(this.text, this.x, this.y);
 };
-}}$;
-${{
+
 Text.prototype.toString = function() {
-  return "Text(\"" + this.text + "\", " + this.x + ", " + this.y + ", " + this.colour + ", \"" +
-	this.size + "\")";
+  return "Text(\"" + this.text + "\", " + this.x + ", " + this.y + ", " +
+	Eden.edenCodeForValue(this.colour) + ", \"" + this.size + "\")";
 };
+
+Text.prototype.getEdenCode = Text.prototype.toString;
+
 }}$;

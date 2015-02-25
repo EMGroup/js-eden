@@ -4,7 +4,7 @@
 ## See LICENSE.txt
 
 func execute {
-	${{ eden.execute(arguments[0]) }}$;
+	${{ eden.execute(arguments[0], "execute", "", {name: "/execute"}, function () { } ) }}$;
 }
 
 proc createView {

@@ -3,41 +3,171 @@
 ##
 ## See LICENSE.txt
 
+##See polygon.js-e for a description of how multiple colours work.
+
 ${{
-LineSequence = function(points, colour, drawingOptions) {
+LineSequence = function(points, colours, drawingOptions) {
 	this.points = points;
-	this.colour = colour;
+	this.colours = colours;
 	this.drawingOptions = drawingOptions;
 }
 }}$;
 
 func LineSequence { ${{
 	var points = arguments[0];
-	var colour = arguments[1];
+	var colours = arguments[1];
 	var drawingOptions = arguments[2];
-	if (colour === undefined) { colour = "black"; }
-	return new LineSequence(points, colour, drawingOptions);
+
+	if (colours === undefined) {
+		colours = ["black"];
+	} else if (!Array.isArray(colours)) {
+		colours = [colours];
+	} else if (colours.length == 0) {
+		colours = ["black"];
+	} else {
+		if (colours[0] === undefined) {
+			for (var i = 1; i <= colours.length; i++) {
+				if (colours[i] !== undefined) {
+					//The colour of the first edge is undefined so copy the colour of the next edge.
+					if (Array.isArray(colours[i])) {
+						colours[0] = colours[i][colours[i].length - 1];
+					} else {
+						colours[0] = colours[i];
+					}
+					break;
+				}
+			}
+			if (colours[0] === undefined) {
+				colours[0] = "black";
+			}
+		}
+		for (var i = 0; i < colours.length - 1; i++) {
+			if (colours[i + 1] !== undefined) {
+				if (colours[i] === undefined) {
+					//Interpolate for vertices that haven't been assigned colours.
+					if (Array.isArray(colours[i + 1])) {
+						if (colours[i + 1].length > 1) {
+							var colour = colours[i + 1].shift();
+							colours[i] = [colour];
+						}
+					} else {
+						colours[i] = [colours[i + 1]];
+					}
+				} else if (Array.isArray(colours[i]) && !Array.isArray(colours[i + 1]) &&
+				  colours[i][colours[i].length - 1] != colours[i + 1]) {
+					//Blend the colour of this edge with the next edge (which is a single coloured edge).
+					colours[i].push(colours[i + 1]);
+				}
+			}
+		}	
+	}
+
+	var oneColour = colours.length == 1 && !Array.isArray(colours[0]);
+
+	if (!oneColour) {
+		if (drawingOptions instanceof Object) {
+			if (!("lineCap" in drawingOptions)) {
+				drawingOptions.lineCap = "round";
+			}
+		} else {
+			drawingOptions = {lineCap: "round"};
+		}
+	}
+	return new LineSequence(points, colours, drawingOptions);
 }}$; };
 
 ${{
 LineSequence.prototype.draw = function(context) {
 	context.beginPath();
 	context.moveTo(this.points[0].x, this.points[0].y);
-	for (var i = 1; i < this.points.length; i++) {
-		context.lineTo(this.points[i].x, this.points[i].y);
+	
+	var strokeNum = 1;
+	var i, prevColour;
+	var me = this;
+	var newStroke = function () {
+		if (strokeNum == 2) {
+			if (me.drawingOptions instanceof Object && me.drawingOptions.lineJoin == "bevel") {
+				context.lineCap = "butt";
+			} else {
+				context.lineCap = "round";
+			}
+		}
+		context.stroke();
+		context.beginPath();
+		context.moveTo(me.points[i].x, me.points[i].y);
+		strokeNum++;
 	}
-	context.strokeStyle = this.colour;
-	context.stroke();
+
+	for (i = 1; i < this.points.length; i++) {
+		context.lineTo(this.points[i].x, this.points[i].y);
+		if (i <= this.colours.length) {
+			//Set the colour of a new piece.
+			var colour = this.colours[i - 1];
+			if (colour === undefined || (Array.isArray(colour) && colour.length == 0)) {
+				//Repeat the colour of the previous line.
+				if (i < this.colours.length && this.colours[i] !== undefined) {
+					//End of a sequence of lines of a repeated colour.
+					newStroke();
+				}
+			} else {
+				var isGradient = false;
+				if (Array.isArray(colour)) {
+					var gradient = context.createLinearGradient(this.points[i - 1].x, this.points[i - 1].y, this.points[i].x, this.points[i].y);
+					//First colour of the new line is the last colour of the previous line.
+					if (i == 1 || prevColour == colour[0]) {
+						if (colour.length == 1) {
+							context.strokeStyle = colour[0];
+						} else {
+							for (var j = 0; j < colour.length; j++) {
+								gradient.addColorStop(j / (colour.length - 1), colour[j]);
+							}
+							context.strokeStyle = gradient;
+							isGradient = true;
+						}
+					} else {
+						gradient.addColorStop(0, prevColour);							
+						for (var j = 0; j < colour.length; j++) {
+							gradient.addColorStop((j + 1) / colour.length, colour[j]);
+						}
+						context.strokeStyle = gradient;
+						isGradient = true;
+					}
+					prevColour = colour[colour.length - 1];
+				} else {
+					context.strokeStyle = colour;
+					prevColour = colour;
+				}
+				if ((i == this.colours.length || this.colours[i] === undefined) && isGradient) {
+					/* Repeat the final colour of the gradient for the subsequent lines rather than
+					 * repeating the whole gradient. */
+					newStroke();
+					context.strokeStyle = prevColour;
+				} else if (i < this.colours.length && this.colours[i] !== undefined && (this.colours[i] !== prevColour || isGradient)) {
+					//There's a colour change coming up so stroke this path and begin a new one.
+					newStroke();
+				}
+			}
+		}
+	}
+	//Stroke final path.
+	if (strokeNum > 1) {
+		context.lineCap = this.drawingOptions.lineCap;
+	}
+	context.stroke();	
 };
 
 LineSequence.prototype.toString = function() {
-	var s = "LineSequence(" + root.lookup("edenCode").definition(root)(this.points) + ", " + this.colour;
+	var s = "LineSequence(" + Eden.edenCodeForValue(this.points) + ", " +
+		Eden.edenCodeForValue(this.colours);
 
 	if (this.drawingOptions !== undefined) {
-		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
 	
 	s = s + ")";
 	return s;
 };
+
+LineSequence.prototype.getEdenCode = LineSequence.prototype.toString;
+
 }}$;

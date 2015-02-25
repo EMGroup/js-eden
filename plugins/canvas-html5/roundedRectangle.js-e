@@ -32,7 +32,8 @@ func RoundedRectangle { ${{
 }}$; };
 
 ${{
-RoundedRectangle.prototype.draw = function(context) {
+
+RoundedRectangle.prototype.draw = function (context) {
 	context.beginPath();
     context.moveTo(this.x1 + this.radius, this.y1);
     context.lineTo(this.x2 - this.radius, this.y1);
@@ -53,31 +54,23 @@ RoundedRectangle.prototype.draw = function(context) {
 		context.stroke();
 	}
 };
-}}$;
 
-${{
 RoundedRectangle.prototype.toString = function() {
 	var s = "RoundedRectangle(" + this.x1 + ", " + this.y1 + ", " +
 		(this.x2 - this.x1) + ", " +
 		(this.y2 - this.y1) + ", " +
-		this.radius + ", ";
-
-	if (this.fillcolour === undefined) {
-		s = s + "@, ";
-	} else {
-		s = s + this.fillcolour + ", ";
-	}
-	if (this.outlinecolour === undefined) {
-		s = s + "@";
-	} else {
-		s = s + this.outlinecolour;
-	}
+		this.radius + ", " +
+		Eden.edenCodeForValue(this.fillcolour) + ", " +
+		Eden.edenCodeForValue(this.outlinecolour);
 	
 	if (this.drawingOptions !== undefined) {
-		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
 	
 	s = s + ")";
 	return s;
 };
+
+RoundedRectangle.prototype.getEdenCode = RoundedRectangle.prototype.toString;
+
 }}$;

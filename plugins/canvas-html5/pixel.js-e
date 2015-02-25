@@ -20,8 +20,10 @@ func Pixel { ${{
 
 ${{
 Pixel.prototype.toString = function() {
-  return "Pixel("+ this.x + ", " + this.y + ", " + this.colour + ")";
+  return "Pixel("+ this.x + ", " + this.y + ", \"" + this.colour + "\")";
 };
+
+Pixel.prototype.getEdenCode = Pixel.prototype.toString;
 }}$;
 
 ${{

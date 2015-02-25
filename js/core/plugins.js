@@ -144,7 +144,7 @@
 		dialog(name).remove();
 		delete this.activeDialogs[name];
 		delete this.viewInstances[name];
-		root.lookup("forgetAll").definition(root)("^_[vV]iew_" + name + "_", true, true);
+		root.lookup("forgetAll").definition(root)("^_[vV]iew_" + name + "_", true, false, true);
 		
 		var viewListSym = root.lookup("_view_list");
 		var viewList = viewListSym.value();

@@ -96,7 +96,7 @@ func definitionOf {
 		if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
 			return symbol.eden_definition + ";";
 		} else {
-			return name + " = " + root.lookup("edenCode").definition(root)(symbol.cached_value) + ";";
+			return name + " = " + Eden.edenCodeForValue(symbol.cached_value) + ";";
 		}
 	}}$;
 }
@@ -135,7 +135,7 @@ func definitionRHS {
 			rhs = rhs.replace(/\[\s*\]$/, "[]");
 			return rhs;
 		} else {
-			return root.lookup("edenCode").definition(root)(symbol.cached_value);
+			return Eden.edenCodeForValue(symbol.cached_value);
 		}	
 	}}$;
 }
@@ -182,7 +182,7 @@ func edenCode {
 			eden.error(new Error("edenCode: This function requires exactly 1 argument."), "error");
 			return undefined;
 		 } else {
-			return eden.edenCodeForValue(arguments[0]);
+			return Eden.edenCodeForValue(arguments[0]);
 		 }
 	}}$;
 }
@@ -273,7 +273,7 @@ proc patch {
 
 		root.lookup(funcName).assign(function () {
 			return patchFunc(originalFunc, arguments);
-		}, this);
+		}, root.lookup("patch"));
 
 		delete root.symbols[patchName];
 	}}$;

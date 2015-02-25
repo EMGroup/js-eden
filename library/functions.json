@@ -49,8 +49,8 @@
 		},
 		"concat": {
 			"parameters": {
-				"separator": "",
-				"items": ""
+				"[separator]": "",
+				"item_list_or_item1...": ""
 			},
 			"return": "",
 			"description": ""
@@ -526,8 +526,8 @@
 				"y1": "Y-coordinate for start",
 				"x2": "X-coordinate for end",
 				"y2": "Y-coordinate for end",
-				"colour": "Colour of the line in HTML form",
-				"[drawing_options]" : ""
+				"[colour(s)": "A HTML colour value for the whole line or a list of HTML colour values to create a gradient",
+				"[drawing_options]]" : ""
 			},
 			"return": "Line object",
 			"description": "Creates a line element for display on the canvas"
@@ -548,7 +548,7 @@
 		"LineSequence": {
 			"parameters": {
 				"points": "List of coordinates in the form Point(x, y) from the top left corner of the canvas",
-				"[colour": "Colour of the polygon (fill) in HTML form",
+				"[colour(s)": "Colour of the line as a HTML colour value, or a list of such colour values",
 				"[drawing_options]]": ""
 			},
 			"return": "Polygon object",
@@ -611,7 +611,7 @@
 			"parameters": {
 				"points": "List of coordinates in the form Point(x, y) from the top left corner of the canvas",
 				"[fill_colour": "Colour of the polygon (fill) in HTML form",
-				"[outline_colour": "",
+				"[outline_colour(s)": "",
 				"[drawing_options]]]": ""
 			},
 			"return": "Polygon object",
@@ -683,7 +683,7 @@
 				"width": "Width in pixels",
 				"height": "Height in pixels",
 				"[id]" : "",
-				"[cssClassList]" : "",
+				"[css_class_list]" : "",
 				"[style]" : "An optional CSS style string"
 			},
 			"return": "Div object",
@@ -698,7 +698,21 @@
 				"url": "Source file for the image"
 			},
 			"return": "Image object",
-			"description": "Creates an image element for display on the canvas together with the geometric shapes.  Taints the canvas if src is located on another domain."
+			"description": "Creates an image element for display on the canvas together with the geometric shapes.  Taints the canvas if url is located on another domain."
+		},
+		"imageWithZones": {
+			"parameters": {
+				"name": "Name for click events",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"[width": "Width in pixels",
+				"height]": "Height in pixels",
+				"url": "Source file for the image",
+				"zones": "List of two element lists. The first element of each is the name of an image area. The second is a Circle, Rectangle or Polygon object.",
+				"show_zones": "True to display a visualization of the zones or false to implement the zones without the visualization."
+			},
+			"return": "A list of canvas objects",
+			"description": ""
 		},
 		"HTMLImage": {
 			"parameters": {
@@ -707,7 +721,8 @@
 				"y": "Y-coordinate",
 				"[width": "Width in pixels",
 				"height]": "Height in pixels",
-				"url": "Source file for the image"
+				"url": "Source file for the image",
+				"[zones]": "List of two element lists. The first element of each is the name of an image area. The second is a Circle, Rectangle or Polygon object."
 			},
 			"return": "Image object",
 			"description": "Creates a HTML image element for display on the canvas above the geometric shapes.  Doesn't taint the canvas."
@@ -755,6 +770,14 @@
 				"[title": "",
 				"[subtitle]]": "",
 				"list_of_bullet_points" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"Video": {
+			"parameters": {
+				"name": "",
+				"[preload]": ""
 			},
 			"return": "",
 			"description": ""
@@ -868,8 +891,9 @@
 		},
 		"forgetAll": {
 			"parameters": {
-				"regular_expression": "",
-				"[case_sensitive]": ""
+				"regular_expression_or_list": "",
+				"[case_sensitive": "",
+				"[confirm]]" : ""
 			},
 			"return": "",
 			"description": "Removes from the symbol table all symbols whose names match a given regular expression"

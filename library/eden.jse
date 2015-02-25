@@ -103,69 +103,106 @@ func forget {
 	}}$;
 };
 
-##Forgets all symbols whose names match a given regular expression.  The optional second argument
-##determines if the search is case sensitive and the optional third parameter determines if system
-##defined symbols matching the regular expression will also be deleted.
+##Forgets all symbols whose names match a given regular expression or that are explicitly provided
+##as a list.  The optional second argument determines if the search is case sensitive.  The optional
+##third argument determines if the user will be prompted to confirm the deletions and the optional
+##forth "secret" parameter determines if system-defined symbols matching the search criteria will
+##also be deleted.
 ##
 ##Returns a list.
-## 1st element: The number of symbols successfully forgotten.
-## 2nd element: The number of symbols whose names matched the regular expression but that could not
-##	be forgotten because they are referenced by a dependency or are a trigger for a triggered procedure.
+## 1st element: A list of the symbol names that were successfully forgotten.
+## 2nd element: A list of the symbol names that matched the regular expression but that could not be
+##	forgotten either because they are referenced by a dependency or because they act as a trigger for
+##	a triggered procedure, or because forgetAll is refusing to forget them because they are system-defined
+##	symbols.  This list item is undefined if an error occurs before the relationships between the
+##	observables have been analysed (such as if one or more of the arguments are invalid).
 func forgetAll {
 	${{
-		/* The third parameter determines whether or not system defined symbols will also be
+		/* The forth parameter determines whether or not system defined symbols will also be
 		 * deleted.  This feature is for the system's own internal use and is not advertised to end
 		 * users.
 		 */
-		var searchStr, caseSensitive, includeSystemSymbols, regExp, symbol;
+		var searchStr, caseSensitive, requireConfirm, includeSystemSymbols;
+		var regExp, symbol;
+		var obsToDelete = undefined;
 		
-		if (arguments.length == 0 || arguments.length > 3) {
-			eden.error(new Error("forgetAll: This function requires at lease 1 argument and at most 2 arguments."), "error");
-			return undefined;
+		if (arguments.length == 0 || arguments.length > 4) {
+			eden.error(new Error("forgetAll: This function requires at least 1 argument and at most 3 arguments."), "error");
+			return [[], undefined];
 		}
 		
 		if (typeof(arguments[0]) == "string") {
 			searchStr = arguments[0];
+		} else if (Array.isArray(arguments[0])) {
+			obsToDelete = arguments[0];
+		} else if (arguments[0] === undefined) {
+			return [0, 0];
 		} else {
 			eden.error(new Error("forgetAll: The first argument must be a string, not a " + typeof(arguments[0])), "error");
-			return undefined;
+			return [[], undefined];
 		}
 
 		if (arguments.length > 1) {
 			if (typeof(arguments[1]) != "boolean") {
 				eden.error(new Error("forgetAll: The second argument must be a boolean, not a " + typeof(arguments[1])), "error");
-				return undefined;
+				return [[], undefined];
 			}
 			caseSensitive = arguments[1];
 		} else {
 			caseSensitive = true;
 		}
 		
-		if (arguments.length > 2) {
-			if (typeof(arguments[1]) != "boolean") {
-				eden.error(new Error("forgetAll: This function requires at lease 1 argument and at most 2 arguments."), "error");
-				return undefined;
+		if (arguments.length >= 2 && obsToDelete !== undefined) {
+			eden.error(new Error("forgetAll: Cannot specify case sensitivity when selecting using a list."), "error");
+			return [[], undefined];
+		}
+		
+		if (arguments.length >= 3) {
+			if (typeof(arguments[2]) != "boolean") {
+				eden.error(new Error("forgetAll: The third argument must be a boolean, not a " + typeof(arguments[2])), "error");
+				return [[], undefined];
 			}
-			includeSystemSymbols = arguments[2];
+			requireConfirm = arguments[2];
+		} else {
+			requireConfirm = true;
+		}
+		
+		if (arguments.length > 3) {
+			if (arguments.length > 4 || typeof(arguments[3]) != "boolean") {
+				eden.error(new Error("forgetAll: This function requires at least 1 argument and at most 3 arguments."), "error");
+				return [[], undefined];
+			}
+			includeSystemSymbols = arguments[3];
 		} else {
 			includeSystemSymbols = false;
 		}
 		
-		if (caseSensitive) {
-			regExp = new RegExp(searchStr);
-		} else {
-			regExp = new RegExp(searchStr, "i");
-		}
-		
 		var references = {};
+		var unableToDelete = [];
 
-		for (var name in root.symbols) {
-			if (regExp.test(name)) {
+		if (obsToDelete !== undefined) {
+
+			//Observables given as a list.
+			for (var i = 0; i < obsToDelete.length; i++) {
+				var name;
+				if (obsToDelete[i] instanceof Symbol) {
+					name = obsToDelete[i].name.slice(1);
+					symbol = obsToDelete[i];
+				} else if (typeof(obsToDelete[i]) == "string") {
+					name = obsToDelete[i];
+					symbol = root.symbols[name];
+				} else if (obsToDelete === undefined) {
+					continue;
+				} else {
+					eden.error(new Error("forgetAll: All list items must be strings or pointers.  Item " + i + " is a " + typeof(obsToDelete[i])), "error");
+					return [[], undefined];
+				}
+
 				if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
+					unableToDelete.push(name);
 					continue;
 				}
 				
-				symbol = root.symbols[name];
 				var referencedBy = [];
 				for (var dependency in symbol.subscribers) {
 					referencedBy.push(dependency.slice(1));
@@ -175,13 +212,42 @@ func forgetAll {
 				}
 				references[name] = referencedBy;
 			}
+
+		} else {
+
+			//Search for observables by regular expression.
+			if (caseSensitive) {
+				regExp = new RegExp(searchStr);
+			} else {
+				regExp = new RegExp(searchStr, "i");
+			}
+			
+			for (var name in root.symbols) {
+				if (regExp.test(name)) {
+					if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
+						continue;
+					}
+					
+					symbol = root.symbols[name];
+					var referencedBy = [];
+					for (var dependency in symbol.subscribers) {
+						referencedBy.push(dependency.slice(1));
+					}
+					for (var triggeredProc in symbol.observers) {
+						referencedBy.push(triggeredProc.slice(1));
+					}
+					references[name] = referencedBy;
+				}
+			}
 		}
 		
-		var numForgotten = 0;
 		var numUnableToForget = 0;
 		var canForget = {};
 
-		var forgetRecursive = function (name) {
+		/* Traverses the subgraph of symbols suggested for deletion and returns true if the named
+		 * symbol isn't referenced by anything outside of the subgraph.
+		 */
+		var isSafeToForget = function (name) {
 			if (name in canForget) {
 				return canForget[name];
 			}
@@ -195,7 +261,7 @@ func forgetAll {
 				return true;
 			} else {
 				for (var i = 0; i < referencedBy.length; i++) {
-					var success = forgetRecursive(referencedBy[i]);
+					var success = isSafeToForget(referencedBy[i]);
 					if (!success) {
 						canForget[name] = false;
 						return false;
@@ -206,27 +272,51 @@ func forgetAll {
 			}
 		};
 		
+		var namesToDelete = [];
+		
 		for (name in references) {
 			if (references.hasOwnProperty(name)) {
-				var success = forgetRecursive(name);
+				var success = isSafeToForget(name);
 				if (success) {
-					symbol = root.symbols[name];
-					var nameToDelete = "/" + name;
-					for (var triggerName in symbol.observees) {
-						if (triggerName in root.symbols) {
-							var triggerSymbol = root.symbols[triggerName];
-							delete triggerSymbol.observers[nameToDelete];
-						}
-					}
-					delete root.symbols[name];
-					numForgotten++;
+					namesToDelete.push(name);
 				} else {
-					numUnableToForget++;
+					unableToDelete.push(name);
 				}
 			}
 		}
 		
-		return [numForgotten, numUnableToForget];
+		var confirmed;
+		if (namesToDelete.length >0 && requireConfirm) {
+			if (namesToDelete.length <= 50) {
+				confirmed = confirm("You are about to delete the following " + namesToDelete.length +
+					" symbols.  Is this correct?\n\n" + namesToDelete.join("\n"));
+			} else {
+				var numNotDisplayed = namesToDelete.length - 50;
+				confirmed = confirm("You are about to delete " + namesToDelete.length +
+					" symbols.  Is this correct?\n\n" + namesToDelete.slice(0, 50).join("\n") +
+					"\n...\n(" + numNotDisplayed + " more)");
+			}
+		} else {
+			confirmed = true;
+		}
+		
+		if (confirmed) {
+			for (var i = 0; i < namesToDelete.length; i++) {
+				var name = namesToDelete[i];
+				symbol = root.symbols[name];
+				var nameInFolder = "/" + name;
+				for (var triggerName in symbol.observees) {
+					if (triggerName in root.symbols) {
+						var triggerSymbol = root.symbols[triggerName];
+						delete triggerSymbol.observers[nameInFolder];
+					}
+				}
+				delete root.symbols[name];		
+			}
+			return [namesToDelete, unableToDelete];
+		} else {
+			return [0, unableToDelete];
+		}
 	}}$;
 }
 

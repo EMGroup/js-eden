@@ -30,7 +30,8 @@ func Rectangle { ${{
 }}$; };
 
 ${{
-Rectangle.prototype.draw = function(context) {
+
+Rectangle.prototype.draw = function (context) {
 	if (this.fillcolour !== undefined) {
 		EdenUI.plugins.CanvasHTML5.setFillStyle(context, this.fillcolour);
 		context.fillRect(this.x, this.y, this.width, this.height);
@@ -40,28 +41,28 @@ Rectangle.prototype.draw = function(context) {
 		context.strokeRect(this.x, this.y, this.width, this.height);
 	}
 };
-}}$;
 
-${{
 Rectangle.prototype.toString = function() {
-	var s = "Rectangle(" + this.x + ", " + this.y + ", " + this.width + ", " + this.height + ", ";
+	var s = "Rectangle(" + this.x + ", " + this.y + ", " + this.width + ", " + this.height + ", " +
+		Eden.edenCodeForValue(this.fillcolour) + ", " + Eden.edenCodeForValue(this.outlinecolour);
 
-	if (this.fillcolour === undefined) {
-		s = s + "@, ";
-	} else {
-		s = s + this.fillcolour + ", ";
-	}
-	if (this.outlinecolour === undefined) {
-		s = s + "@";
-	} else {
-		s = s + this.outlinecolour;
-	}
-	
 	if (this.drawingOptions !== undefined) {
-		s = s + ", " + root.lookup("edenCode").definition(root)(this.drawingOptions);
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
 	
 	s = s + ")";
 	return s;
 };
+
+Rectangle.prototype.getEdenCode = Rectangle.prototype.toString;
+
+Rectangle.prototype.imageMapArea = function () {
+	return "shape=\"rect\" coords=\"" + this.x + "," + this.y + "," + (this.x + this.width) + "," +
+		(this.y + this.height) + "\"";
+}
+
+Rectangle.prototype.centre = function () {
+	return new Point(this.x + this.width / 2, this.y + this.height / 2);
+}
+
 }}$;

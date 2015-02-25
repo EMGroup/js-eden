@@ -31,13 +31,15 @@ func Textbox { ${{
 }}$; }
 
 ${{
-Textbox.prototype.draw = function(context,content) {
+Textbox.prototype.draw = function(context) {
 	var me = this;
 	var canvas_obsname = "canvas_" + this.name;
 	var id = this.name;
 	var valueSymbol = root.lookup(id + "_value");
 	var value = valueSymbol.value();
-	if(this.element === undefined){
+	var agent = root.lookup("Textbox");
+	
+	if(this.elements === undefined){
 
 		var disabled = this.enabled === false? "readonly=\"readonly\"" : "";
 		var html;
@@ -48,23 +50,19 @@ Textbox.prototype.draw = function(context,content) {
 		}
 
 		if (value === undefined) {
-			valueSymbol.assign("", this);
+			valueSymbol.assign("", agent);
 		} else {
 			html.get(0).value = value;
 		}
 
 		html.change(function(){
-			root.lookup(id + "_value").netAssign(html.get(0).value);
+			root.lookup(id + "_value").assign(html.get(0).value, agent, true);
 		});
-		this.element = html.get(0);
-		html.get(0).togarbage = false;
+		this.elements = [html.get(0)];
 
-		valueSymbol.addJSObserver("updateTextbox", function (name, value) {
-			me.element.value = value;
+		valueSymbol.addJSObserver("updateTextbox", function (obs, value) {
+			me.elements[0].value = value;
 		});
-
-  } else {
-		this.element.togarbage = false;
   }
 };
 }}$;
@@ -74,4 +72,7 @@ Textbox.prototype.toString = function() {
   return "Textbox(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
 	this.rows + ", " + this.enabled + ")";
 };
+
+Textbox.prototype.getEdenCode = Textbox.prototype.toString;
+
 }}$;

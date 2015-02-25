@@ -39,34 +39,49 @@
 ##Case 8: separator + one or more further arguments, at least one of which is undefined
 ##	Undefined is returned.
 ##
-##Case 9: separator only (zero further arguments)
+##Case 9: Single argument, which is a list
+##	The list is concatenated using the empty string as the separator.
+##
+##Case 10: Single argument, which is not a list.
 ##	The empty string is returned.
 ##
 func concat {
 	auto separator, concatStrings, list, i, item, result;
-	if ($# < 1) {
+	concatStrings = @;
+	if ($# == 0) {
 		error("concat: This function requires at least one argument.");
 		return @;
-	}
-
-	if ($# == 2 && type($[2]) == "list") {
+	} else if ($# == 1 && isList($[1])) {
+		separator = "";
+		list = $[1];
+		concatStrings = true;
+	} else if ($# == 2 && isList($[2])) {
+		separator = $[1];
 		list = $[2];
 	} else {
+		separator = $[1];
 		list = sublist($, 2, $#);
 	}
 	
 	if (list# == 0) {
 		return "";
 	}
-	
-	separator = $[1];
-	concatStrings = false;
-	for (i = 1; i <= list#; i++) {
-		if (list[i] == @) {
-			return @;
-		} else if (!isList(list[i])) {
-			concatStrings = true;
-			break;
+
+	if (concatStrings == @) {
+		concatStrings = false;
+		for (i = 1; i <= list#; i++) {
+			if (list[i] == @) {
+				return @;
+			} else if (!isList(list[i])) {
+				concatStrings = true;
+				break;
+			}
+		}
+	} else {
+		for (i = 1; i <= list#; i++) {
+			if (list[i] == @) {
+				return @;
+			}
 		}
 	}
 	

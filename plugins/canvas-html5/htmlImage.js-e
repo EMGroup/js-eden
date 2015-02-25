@@ -3,16 +3,17 @@
 ##
 ## See LICENSE.txt
 
-##Doesn't taint the canvas if the file is located on another domain.
+##Doesn't taint the canvas if the url is located on another domain.
 
 ${{
-HTMLImage = function (name, x, y, width, height, file) {
+HTMLImage = function (name, x, y, width, height, url, imageMap) {
 	this.name = name;
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
-	this.file = file;
+	this.url = url;
+	this.imageMap = imageMap;
 }
 
 HTMLImage.prototype.hash = function () {
@@ -21,7 +22,8 @@ HTMLImage.prototype.hash = function () {
 				this.y+"$$"+
 				this.width+"$$"+
 				this.height+"$$"+
-				this.file;
+				this.url+"$$"+
+				this.imageMap;
 };
 }}$;
 
@@ -29,48 +31,165 @@ func HTMLImage { ${{
   var name = arguments[0];
   var x = arguments[1];
   var y = arguments[2];
-  var width, height, file;
-  if (arguments.length == 4) {
-	file = arguments[3];
+  var width, height, url, imageMap;
+  if (arguments.length < 6) {
+	url = arguments[3];
+	imageMap = arguments[4];
   } else {
 	width = arguments[3];
 	height = arguments[4];
-	file = arguments[5];
+	url = arguments[5];
+	imageMap = arguments[6];
   }
-  return new HTMLImage(name, x, y, width, height, file);
+  return new HTMLImage(name, x, y, width, height, url, imageMap);
 }}$; }
 
 ${{
 HTMLImage.prototype.draw = function(context) {
-  var me = "canvas_" + this.name;
-  var me2 = this.name;
+  if (this.elements === undefined) {
+	var id = "canvas_" + this.name;
+	var name = this.name;
+	var agent = root.lookup("HTMLImage");
 
-  if (this.element === undefined) {
-
-	var html = "<img id=\"" + me + "\" style=\"position: absolute; left: " + this.x + "px; top: " +
-		this.y + "px\" src=\"" + this.file + "\"";
+	var html = "<img id=\"" + id + "\" style=\"position: absolute; left: " + this.x + "px; top: " +
+		this.y + "px\" src=\"" + this.url + "\"";
 	if (this.width !== undefined) {
 		html = html + " width=\"" + this.width + "\"";
 	}
 	if (this.height !== undefined) {
 		html = html + " height=\"" + this.height + "\"";
 	}
+	if (this.imageMap !== undefined) {
+		html = html + " usemap=\"#" + id + "-map\" draggable=\"false\"";
+	}
 	html = html + "/>";
+	var imageJQ = $(html);
+	this.elements = [imageJQ.get(0)];
+	
+	if (this.imageMap !== undefined) {
+		imageJQ.on("mousedown", function () {
+			var autocalcSym = root.lookup("autocalc");
+			var autocalcValueOnEntry = autocalcSym.value();
+			var autocalcLastModified = autocalcSym.last_modified_by;
+			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
-	var imageQuery = $(html).on("mousedown", function () {
-		root.lookup(me2 + "_click").netAssign(true);
-	}).on("mouseup", function () {
-		root.lookup(me2 + "_click").netAssign(false);
-	});
+			var followMouse = root.lookup("mouseFollow").value();
+			root.lookup(name + "_click").assign(true, agent, followMouse);
+			root.lookup(name + "_zoneMouseDown").assign(undefined, agent, followMouse);
+			autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
 
-	this.element = imageQuery.get(0);
-	root.lookup(me2 + "_click").assign(false);
+		}).on("mouseup", function () {
+			var autocalcSym = root.lookup("autocalc");
+			var autocalcValueOnEntry = autocalcSym.value();
+			var autocalcLastModified = autocalcSym.last_modified_by;
+			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+
+			var followMouse = root.lookup("mouseFollow").value();
+			root.lookup(name + "_click").assign(false, agent, followMouse);
+			root.lookup(name + "_zoneMouseUp").assign(undefined, agent, followMouse);
+			autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
+
+		});	
+
+		var mapJQ = $("<map name=\"" + id + "-map\" id=\"" + id + "-map\"></map>");
+
+		var setAreaEvents = function (area, regionName) {
+			area.on("mouseenter", function (event) {
+				var followMouse = root.lookup("mouseFollow").value();
+				root.lookup(name + "_zone").assign(regionName, agent, followMouse);
+
+			}).on("mouseout", function (event) {
+				var followMouse = root.lookup("mouseFollow").value();
+				root.lookup(name + "_zone").assign(undefined, agent, followMouse);
+
+			}).on("mousedown", function (event) {
+				var autocalcSym = root.lookup("autocalc");
+				var autocalcValueOnEntry = autocalcSym.value();
+				var autocalcLastModified = autocalcSym.last_modified_by;
+				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+				
+				var followMouse = root.lookup("mouseFollow").value();
+				root.lookup(name + "_zoneMouseDown").assign(regionName, agent, followMouse);
+				root.lookup(name + "_click").assign(true, agent, followMouse);
+				autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
+
+			}).on("mouseup", function (event) {
+				var autocalcSym = root.lookup("autocalc");
+				var autocalcValueOnEntry = autocalcSym.value();
+				var autocalcLastModified = autocalcSym.last_modified_by;
+				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+
+				var followMouse = root.lookup("mouseFollow").value();
+				root.lookup(name + "_zoneMouseUp").assign(regionName, agent, followMouse);
+				root.lookup(name + "_click").assign(false, agent, followMouse);
+				autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
+
+			});
+		};
+
+		for (var i = this.imageMap.length - 1; i >= 0; i--) {
+			var regionName = this.imageMap[i][0];
+			var areaJQ = $("<area " + this.imageMap[i][1].imageMapArea() + "/>");
+			setAreaEvents(areaJQ, regionName);
+			mapJQ.append(areaJQ);
+		}
+		this.elements.push(mapJQ.get(0));
+
+	} else {
+
+		//No image map.
+		imageJQ.on("mousedown", function () {
+			var followMouse = root.lookup("mouseFollow").value();
+			root.lookup(name + "_click").assign(true, agent, followMouse);
+
+		}).on("mouseup", function () {
+			var followMouse = root.lookup("mouseFollow").value();
+			root.lookup(name + "_click").assign(false, agent, followMouse);
+
+		});	
+	}
+	root.lookup(name + "_click").assign(false, agent);
   }
 };
 }}$;
 ${{
 HTMLImage.prototype.toString = function() {
   return "HTMLImage(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
-	this.height + ", \"" + this.file + "\")";
+	this.height + ", \"" + this.url + "\"" + Eden.edenCodeForValue(this.imageMap) + ")";
 };
+
+HTMLImage.prototype.getEdenCode = HTMLImage.prototype.toString;
+
 }}$;
+
+func imageWithZones {
+	para name, x, y;
+	auto width, height, url, imageMap, testing, items;
+	auto i, shape, zoneName, centre;
+	items = [];
+	if ($# < 8) {
+		url = $[4];
+		imageMap = $[5];
+		testing = $[6];
+	} else {
+		width = $[4];
+		height = $[5];
+		url = $[6];
+		imageMap = $[7];
+		testing = $[8];
+	}
+	
+	if (testing) {
+		append items, Image(x, y, width, height, url);
+		for (i = 1; i <= imageMap#; i++) {
+			zoneName = imageMap[i][1];
+			shape = imageMap[i][2];
+			append items, shape;
+			centre = shape.centre();
+			append items, Div(zoneName, centre.x - 5.5 * zoneName#, centre.y - 10, @, @, "color: white; background-color: black; font-size: 20px; font-family: monospace");
+		}
+	} else {
+		append items, HTMLImage(name, x, y, width, height, url, imageMap);
+	}
+	return items;
+}
