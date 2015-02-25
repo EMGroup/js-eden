@@ -67,10 +67,10 @@ func LineSequence { ${{
 	if (!oneColour) {
 		if (drawingOptions instanceof Object) {
 			if (!("lineCap" in drawingOptions)) {
-				drawingOptions.lineCap = "square";
+				drawingOptions.lineCap = "round";
 			}
 		} else {
-			drawingOptions = {lineCap: "square"};
+			drawingOptions = {lineCap: "round"};
 		}
 	}
 	return new LineSequence(points, colours, drawingOptions);
@@ -80,8 +80,25 @@ ${{
 LineSequence.prototype.draw = function(context) {
 	context.beginPath();
 	context.moveTo(this.points[0].x, this.points[0].y);
-	var prevColour;
-	for (var i = 1; i < this.points.length; i++) {
+	
+	var strokeNum = 1;
+	var i, prevColour;
+	var me = this;
+	var newStroke = function () {
+		if (strokeNum == 2) {
+			if (me.drawingOptions instanceof Object && me.drawingOptions.lineJoin == "bevel") {
+				context.lineCap = "butt";
+			} else {
+				context.lineCap = "round";
+			}
+		}
+		context.stroke();
+		context.beginPath();
+		context.moveTo(me.points[i].x, me.points[i].y);
+		strokeNum++;
+	}
+
+	for (i = 1; i < this.points.length; i++) {
 		context.lineTo(this.points[i].x, this.points[i].y);
 		if (i <= this.colours.length) {
 			//Set the colour of a new piece.
@@ -90,9 +107,7 @@ LineSequence.prototype.draw = function(context) {
 				//Repeat the colour of the previous line.
 				if (i < this.colours.length && this.colours[i] !== undefined) {
 					//End of a sequence of lines of a repeated colour.
-					context.stroke();
-					context.beginPath();
-					context.moveTo(this.points[i].x, this.points[i].y);				
+					newStroke();
 				}
 			} else {
 				var isGradient = false;
@@ -125,20 +140,19 @@ LineSequence.prototype.draw = function(context) {
 				if ((i == this.colours.length || this.colours[i] === undefined) && isGradient) {
 					/* Repeat the final colour of the gradient for the subsequent lines rather than
 					 * repeating the whole gradient. */
-					context.stroke();
-					context.beginPath();
-					context.moveTo(this.points[i].x, this.points[i].y);
+					newStroke();
 					context.strokeStyle = prevColour;
-				} else if (i < this.colours.length && this.colours[i] !== undefined) {
+				} else if (i < this.colours.length && this.colours[i] !== undefined && (this.colours[i] !== prevColour || isGradient)) {
 					//There's a colour change coming up so stroke this path and begin a new one.
-					context.stroke();
-					context.beginPath();
-					context.moveTo(this.points[i].x, this.points[i].y);
+					newStroke();
 				}
 			}
 		}
 	}
 	//Stroke final path.
+	if (strokeNum > 1) {
+		context.lineCap = this.drawingOptions.lineCap;
+	}
 	context.stroke();	
 };
 

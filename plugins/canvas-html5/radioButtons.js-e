@@ -91,7 +91,7 @@ RadioButtons.prototype.draw = function (context) {
 				buttonsDiv.children[0][i].checked = true;
 				break;
 			} else {
-				//Posibility of having no radio button selected.
+				//Possibility of having no radio button selected.
 				buttonsDiv.children[0][i].checked = false;				
 			}
 		}

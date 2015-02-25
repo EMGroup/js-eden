@@ -152,6 +152,8 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 
 		    var context = canvas.getContext('2d');
 			context.clearRect(0, 0, canvas.width, canvas.height);
+			//Configure JS-EDEN default options that are different from the HTML canvas defaults.
+			context.lineJoin = "bevel";
 			
 		    var content = contents[canvasname];
 
@@ -503,6 +505,19 @@ EdenUI.plugins.CanvasHTML5.configureContext = function (context, options) {
 		}
 	}
 
+	if ("lineCap" in options) {
+		context.lineCap = options.lineCap;
+	}
+	
+	if ("lineJoin" in options) {
+		context.lineJoin = options.lineJoin;
+		context.miterLimit = 9007199254740991;
+	}
+	
+	if ("miterLimit" in options) {
+		context.miterLimit = options.miterLimit;
+	}
+	
 	if ("lineWidth" in options) {
 		context.lineWidth = options.lineWidth;
 	}
