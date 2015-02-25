@@ -116,6 +116,21 @@ func Polygon { ${{
 		}
 	}
 
+	var oneColour = outlinecolours.length == 1 && !Array.isArray(outlinecolours[0]);
+
+	if (!oneColour) {
+		if (drawingOptions instanceof Object) {
+			if (!("lineJoin" in drawingOptions)) {
+				drawingOptions.lineJoin = "round";
+				drawingOptions.lineCap = "round";
+			} else if (drawingOptions.lineJoin != "bevel") {
+				drawingOptions.lineCap = "round";
+			}
+		} else {
+			drawingOptions = {lineCap: "round", lineJoin: "round"};
+		}
+	}
+
 	return new Polygon(points, fillcolour, outlinecolours, drawingOptions);
 }}$; };
 
@@ -143,16 +158,6 @@ Polygon.prototype.draw = function (context) {
 		context.strokeStyle = this.outlinecolours[0];
 		context.stroke();
 	} else {
-		if (this.drawingOptions instanceof Object) {
-			if (this.drawingOptions.lineJoin == "round") {
-				context.lineCap = "round";
-			} else {
-				context.lineCap = "square";
-			}
-		} else {
-			context.lineCap = "square";
-		}
-
 		context.beginPath();
 		context.moveTo(this.points[0].x, this.points[0].y);
 		var prevColour;
@@ -204,7 +209,7 @@ Polygon.prototype.draw = function (context) {
 						context.beginPath();
 						context.moveTo(this.points[i].x, this.points[i].y);
 						context.strokeStyle = prevColour;
-					} else if (i < this.outlinecolours.length && this.outlinecolours[i] !== undefined && (this.colours[i] !== prevColour || isGradient)) {
+					} else if (i < this.outlinecolours.length && this.outlinecolours[i] !== undefined && (this.outlinecolours[i] !== prevColour || isGradient)) {
 						//There's a colour change coming up so stroke this path and begin a new one.
 						context.stroke();
 						context.beginPath();
