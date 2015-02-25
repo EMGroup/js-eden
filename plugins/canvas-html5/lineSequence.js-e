@@ -68,9 +68,12 @@ func LineSequence { ${{
 		if (drawingOptions instanceof Object) {
 			if (!("lineCap" in drawingOptions)) {
 				drawingOptions.lineCap = "round";
+				if (!("lineJoin" in drawingOptions)) {
+					drawingOptions.lineJoin = "round";
+				}
 			}
 		} else {
-			drawingOptions = {lineCap: "round"};
+			drawingOptions = {lineCap: "round", lineJoin: "round"};
 		}
 	}
 	return new LineSequence(points, colours, drawingOptions);
