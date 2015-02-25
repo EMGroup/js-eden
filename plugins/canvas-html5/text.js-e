@@ -4,42 +4,106 @@
 ## See LICENSE.txt
 
 ${{
-Text = function(txt, x, y, colour, size) {
-  this.text = txt;
-  this.x = x;
-  this.y = y;
-  this.colour = colour;
-  this.size = size;
+Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
+	this.text = text;
+	this.x = x;
+	this.y = y;
+	this.size = size;
+	this.fillcolour = fillcolour;
+	this.outlinecolour = outlinecolour;
+
+	var fontCSS;
+	if (options instanceof Object) {		
+		if (!("valign" in options)) {
+			options.valign = "top";
+		}
+		this.drawingOptions = options;
+
+		if (options.italic) {
+			fontCSS = "italic ";
+		} else {
+			fontCSS = "";
+		}
+		if (options.smallCaps) {
+			fontCSS = fontCSS + "small-caps ";
+		}
+		if (options.bold) {
+			fontCSS = fontCSS + "bold ";
+		}
+		fontCSS = fontCSS + size + " ";
+		if (options.fontFace === undefined) {
+			fontCSS = fontCSS + "sans-serif";
+		} else {
+			fontCSS = fontCSS + options.fontFace;
+		}
+
+	} else if (typeof(options) == "string") {
+		var valignRE = /\b(top|hanging|middle|baseline|alphabetic|ideographic|bottom)\b/;
+		var searchResults = valignRE.exec(options);
+		if (searchResults === null) {
+			this.drawingOptions = {valign: "top"};
+		} else {
+			this.drawingOptions = {valign: searchResults[0]};
+			options = options.replace(valignRE, "");
+		}
+		fontCSS = options + " sans-serif";
+	} else {
+		fontCSS = size + " sans-serif";
+		this.drawingOptions = {valign: "top"};
+	}
+	if (this.drawingOptions.valign == "baseline") {
+		this.drawingOptions.valign = "alphabetic";
+	}
+	this.fontCSS = fontCSS;
 }
 }}$;
 
-func Text { ${{
-  var text = arguments[0];
-  var x = arguments[1];
-  var y = arguments[2];
-  var colour = arguments[3];
-  var size = arguments[4];
-  if (colour === undefined) { colour = "black"; }
-  if (size === undefined) {
-	size = "1em";
-  } else if (typeof(size) == "number") {
-	size = size + "px";
-  }
-  return new Text(text, x, y, colour, size);
-}}$; };
+func Text {
+	${{
+		var text = arguments[0];
+		var x = arguments[1];
+		var y = arguments[2];
+		var size = arguments[3];
+		var fillcolour = arguments[4];
+		var outlinecolour = arguments[5];
+		var options = arguments[6];
+
+		if (size === undefined) {
+			size = "1em";
+		} else if (typeof(size) == "number") {
+			size = size + "px";
+		}
+		if (outlinecolour === undefined && fillcolour === undefined) {
+			fillcolour = "black";
+		}
+		
+		return new Text(text, x, y, size, fillcolour, outlinecolour, options);
+	}}$;
+}
 
 ${{
 
 Text.prototype.draw = function (context) {
-  context.font = this.size+" Arial";
-  EdenUI.plugins.CanvasHTML5.setFillStyle(context, this.colour);
-  context.lineWidth = 1;
-  context.fillText(this.text, this.x, this.y);
+	context.font = this.fontCSS;
+	context.textBaseline = this.drawingOptions.valign;
+	if ("align" in this.drawingOptions) {
+		context.textAlign = this.drawingOptions.align;
+	}
+
+	if (this.fillcolour !== undefined) {
+		EdenUI.plugins.CanvasHTML5.setFillStyle(context, this.fillcolour);
+		context.fillText(this.text, this.x, this.y);
+	}
+	if (this.outlinecolour !== undefined) {
+		context.strokeStyle = this.outlinecolour;
+		context.strokeText(this.text, this.x, this.y);	
+	}
 };
 
 Text.prototype.toString = function() {
-  return "Text(\"" + this.text + "\", " + this.x + ", " + this.y + ", " +
-	Eden.edenCodeForValue(this.colour) + ", \"" + this.size + "\")";
+	return "Text(\"" + this.text + "\", " + this.x + ", " + this.y + ", \"" + this.size + "\", " +
+		Eden.edenCodeForValue(this.fillcolour) + ", " + Eden.edenCodeForValue(this.outlinecolour) +
+		", " + Eden.edenCodeForValue(this.drawingOptions) + ")";
 };
 
 Text.prototype.getEdenCode = Text.prototype.toString;

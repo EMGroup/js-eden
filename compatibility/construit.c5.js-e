@@ -123,6 +123,27 @@ func Slider { ${{
   return new Slider(name, min, max, step, x, y, 130, orientation, true);
 }}$; }
 
+func Text {
+	${{
+		var text = arguments[0];
+		var x = arguments[1];
+		var y = arguments[2];
+		var fillcolour = arguments[3];
+		var size = arguments[4];
+
+		if (size === undefined) {
+			size = "1em";
+		} else if (typeof(size) == "number") {
+			size = size + "px";
+		}
+		if (fillcolour === undefined) {
+			fillcolour = "black";
+		}
+		
+		return new Text(text, x, y, size, fillcolour, undefined, {valign: "alphabetic"});
+	}}$;
+}
+
 func Textbox { ${{
   var name = arguments[0];
   var x = arguments[1];

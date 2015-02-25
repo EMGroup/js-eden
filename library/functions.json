@@ -488,8 +488,10 @@
 				"text": "Text string to display",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"[colour": "Text colour in HTML form",
-				"[size]]" : ""
+				"[size" : "",
+				"[fill_colour": "Text colour in HTML form",
+				"[outline_colour": "",
+				"[options]]]]": ""
 			},
 			"return": "Text object",
 			"description": "Creates a text element for display on the canvas"
