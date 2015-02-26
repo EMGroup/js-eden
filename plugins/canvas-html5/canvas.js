@@ -505,12 +505,12 @@ EdenUI.plugins.CanvasHTML5.configureContext = function (context, options) {
 		}
 	}
 
-	if ("lineCap" in options) {
-		context.lineCap = options.lineCap;
+	if ("cap" in options) {
+		context.lineCap = options.cap;
 	}
 	
-	if ("lineJoin" in options) {
-		context.lineJoin = options.lineJoin;
+	if ("join" in options) {
+		context.lineJoin = options.join;
 		context.miterLimit = 9007199254740991;
 	}
 	

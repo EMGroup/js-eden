@@ -66,14 +66,14 @@ func LineSequence { ${{
 
 	if (!oneColour) {
 		if (drawingOptions instanceof Object) {
-			if (!("lineCap" in drawingOptions)) {
-				drawingOptions.lineCap = "round";
-				if (!("lineJoin" in drawingOptions)) {
-					drawingOptions.lineJoin = "round";
+			if (!("cap" in drawingOptions)) {
+				drawingOptions.cap = "round";
+				if (!("join" in drawingOptions)) {
+					drawingOptions.join = "round";
 				}
 			}
 		} else {
-			drawingOptions = {lineCap: "round", lineJoin: "round"};
+			drawingOptions = {cap: "round", join: "round"};
 		}
 	}
 	return new LineSequence(points, colours, drawingOptions);
@@ -89,7 +89,7 @@ LineSequence.prototype.draw = function(context) {
 	var me = this;
 	var newStroke = function () {
 		if (strokeNum == 2) {
-			if (me.drawingOptions instanceof Object && me.drawingOptions.lineJoin == "bevel") {
+			if (me.drawingOptions instanceof Object && me.drawingOptions.join == "bevel") {
 				context.lineCap = "butt";
 			} else {
 				context.lineCap = "round";
@@ -154,7 +154,7 @@ LineSequence.prototype.draw = function(context) {
 	}
 	//Stroke final path.
 	if (strokeNum > 1) {
-		context.lineCap = this.drawingOptions.lineCap;
+		context.lineCap = this.drawingOptions.cap;
 	}
 	context.stroke();	
 };

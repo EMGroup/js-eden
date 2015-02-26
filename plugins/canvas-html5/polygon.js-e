@@ -120,14 +120,14 @@ func Polygon { ${{
 
 	if (!oneColour) {
 		if (drawingOptions instanceof Object) {
-			if (!("lineJoin" in drawingOptions)) {
-				drawingOptions.lineJoin = "round";
-				drawingOptions.lineCap = "round";
-			} else if (drawingOptions.lineJoin != "bevel") {
-				drawingOptions.lineCap = "round";
+			if (!("join" in drawingOptions)) {
+				drawingOptions.join = "round";
+				drawingOptions.cap = "round";
+			} else if (drawingOptions.join != "bevel") {
+				drawingOptions.cap = "round";
 			}
 		} else {
-			drawingOptions = {lineCap: "round", lineJoin: "round"};
+			drawingOptions = {cap: "round", join: "round"};
 		}
 	}
 
