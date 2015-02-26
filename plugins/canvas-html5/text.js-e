@@ -38,6 +38,7 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 		}
 
 	} else if (typeof(options) == "string") {
+		this.optionString = options;
 		var valignRE = /\b(top|hanging|middle|baseline|alphabetic|ideographic|bottom)\b/;
 		var searchResults = valignRE.exec(options);
 		if (searchResults === null) {
@@ -46,10 +47,19 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 			this.drawingOptions = {valign: searchResults[0]};
 			options = options.replace(valignRE, "");
 		}
+		var halignRE = /\b(left|right|center|centre|start|end)\b/;
+		searchResults = halignRE.exec(options);
+		if (searchResults !== null) {
+			this.drawingOptions.align = searchResults[0];
+			options = options.replace(halignRE, "");
+		}
 		fontCSS = options + " sans-serif";
 	} else {
 		fontCSS = size + " sans-serif";
 		this.drawingOptions = {valign: "top"};
+	}
+	if (this.drawingOptions.align == "centre") {
+		this.drawingOptions.align = "center";
 	}
 	if (this.drawingOptions.valign == "baseline") {
 		this.drawingOptions.valign = "alphabetic";
@@ -63,10 +73,34 @@ func Text {
 		var text = arguments[0];
 		var x = arguments[1];
 		var y = arguments[2];
-		var size = arguments[3];
-		var fillcolour = arguments[4];
-		var outlinecolour = arguments[5];
-		var options = arguments[6];
+		var size, fillcolour, outlinecolour, options;
+		var numArgs = arguments.length;
+		var argType = typeof(arguments[numArgs - 1]);
+		if (argType == "string" && arguments[numArgs - 1].indexOf(" ") !== -1) {
+			options = arguments[numArgs - 1];
+			if (numArgs >= 5) {
+				fillcolour = arguments[3];
+				if (numArgs >= 6) {
+					outlinecolour = arguments[5];
+				}
+			}
+		} else if (argType == "object" && !(arguments[numArgs - 1] instanceof EdenUI.plugins.CanvasHTML5.FillStyle)) {
+			options = arguments[numArgs - 1];
+			if (numArgs >= 5) {
+				size = arguments[3];
+				if (numArgs >= 6) {
+					fillcolour = arguments[4];
+					if (numArgs >= 7) {
+						outlinecolour = arguments[5];
+					}
+				}
+			}
+		} else {
+			size = arguments[3];
+			fillcolour = arguments[4];
+			outlinecolour = arguments[5];
+			options = arguments[6];
+		}
 
 		if (size === undefined) {
 			size = "1em";
@@ -101,9 +135,19 @@ Text.prototype.draw = function (context) {
 };
 
 Text.prototype.toString = function() {
-	return "Text(\"" + this.text + "\", " + this.x + ", " + this.y + ", \"" + this.size + "\", " +
-		Eden.edenCodeForValue(this.fillcolour) + ", " + Eden.edenCodeForValue(this.outlinecolour) +
-		", " + Eden.edenCodeForValue(this.drawingOptions) + ")";
+	var s = "Text(\"" + this.text + "\", " + this.x + ", " + this.y + ", ";
+
+	if (this.optionString !== undefined) {
+		s = s + Eden.edenCodeForValue(this.fillcolour) + ", " +
+			Eden.edenCodeForValue(this.outlinecolour) + ", " +
+			"\"" + this.optionString + "\")";
+	} else {
+		s = s + Eden.edenCodeForValue(this.size) + ", " +
+			Eden.edenCodeForValue(this.fillcolour) + ", " +
+			Eden.edenCodeForValue(this.outlinecolour) + ", " +
+			Eden.edenCodeForValue(this.drawingOptions) + ")";
+	}
+	return s;
 };
 
 Text.prototype.getEdenCode = Text.prototype.toString;
