@@ -62,7 +62,7 @@ Checkbox.prototype.draw = function(context) {
 		}
 
 		jqElement.change(function() {
-			var element = me.element;
+			var element = me.elements[0];
 			var value;
 			if (element.indeterminate) {
 				element.indeterminate = false;
@@ -79,7 +79,7 @@ Checkbox.prototype.draw = function(context) {
 		});
 		
 		valueSym.addJSObserver("updateCheckbox", function (obs, value) {
-			var element = me.element;
+			var element = me.elements[0];
 			if (value === undefined) {
 				element.indeterminate = true;
 				element.checked = false;

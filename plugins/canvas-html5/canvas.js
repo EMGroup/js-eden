@@ -498,7 +498,7 @@ EdenUI.plugins.CanvasHTML5.configureContext = function (context, options) {
 		return;
 	}
 		
-	if ("dashes" in options) {
+	if ("dashes" in options && Array.isArray(options.dashes)) {
 		context.setLineDash(options.dashes);
 		if ("dashOffset" in options) {
 			context.lineDashOffset = options.dashOffset;
