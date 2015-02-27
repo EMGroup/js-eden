@@ -116,7 +116,7 @@ func Polygon { ${{
 		}
 	}
 
-	var oneColour = outlinecolours.length == 1 && !Array.isArray(outlinecolours[0]);
+	var oneColour = outlinecolours === undefined || (outlinecolours.length == 1 && !Array.isArray(outlinecolours[0]));
 
 	if (!oneColour) {
 		if (drawingOptions instanceof Object) {
