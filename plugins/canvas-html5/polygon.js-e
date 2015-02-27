@@ -157,7 +157,7 @@ Polygon.prototype.draw = function (context) {
 	if (oneOutlineColour) {
 		context.strokeStyle = this.outlinecolours[0];
 		context.stroke();
-	} else {
+	} else if (this.outlinecolours !== undefined) {
 		context.beginPath();
 		context.moveTo(this.points[0].x, this.points[0].y);
 		var prevColour;
