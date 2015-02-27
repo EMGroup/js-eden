@@ -696,7 +696,12 @@
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[width": "Width in pixels",
-				"height]": "Height in pixels",
+				"[height": "Height in pixels",
+				"[clip_left": "",
+				"[clip_top": "",
+				"[clip_right": "",
+				"[clip_bottom": "",
+				"[smoothed]]]]]]]": "",
 				"url": "Source file for the image"
 			},
 			"return": "Image object",
