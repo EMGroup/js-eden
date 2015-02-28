@@ -509,6 +509,13 @@
 			"return": "",
 			"description": ""
 		},
+		"FillPattern": {
+			"parameters": {
+				"url": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"Ellipse": {
 			"parameters": {
 				"x": "Centre X-coordinate",
