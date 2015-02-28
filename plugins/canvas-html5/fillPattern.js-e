@@ -1,0 +1,45 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+##Taints the canvas if the file is located on another domain.
+
+${{
+FillPattern = function (url) {
+	this.image = new Image();
+	this.canvasesToRepaint = {};
+	this.loaded = false;
+	
+	var me = this;
+	
+	this.image.onload = function(){
+		me.loaded = true;
+		for (var canvas in me.canvasesToRepaint) {
+			eden.execute("_update_" + canvas + "();");
+		}
+	}
+	this.image.src = url;
+};
+}}$;
+
+func FillPattern {
+	${{
+		return new FillPattern(arguments[0]);
+	}}$;
+}
+
+${{
+	FillPattern.prototype = new EdenUI.plugins.CanvasHTML5.FillStyle();
+	
+	FillPattern.prototype.getColour = function (context) {
+		return context.createPattern(this.image, 'repeat');
+	}
+
+	FillPattern.prototype.toString = function() {
+		return "FillPattern(\"" + this.image.src + "\")";
+	}
+
+	FillPattern.prototype.getEdenCode = FillPattern.prototype.toString;
+
+}}$;
