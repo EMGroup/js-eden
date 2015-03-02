@@ -42,7 +42,7 @@ document.addEventListener("mouseup", function (e) {
 			//Final button released outside of any canvas window.
 			var autocalcSym = root.lookup("autocalc");
 			var autocalcValueOnEntry = autocalcSym.value();
-			var autocalcLastModified = autocalcSym.last_modified_by;
+			var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
 			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
 			var mousePressedSym = root.lookup("mousePressed");
@@ -56,7 +56,7 @@ document.addEventListener("mouseup", function (e) {
 			}
 			root.lookup('mouseUp').assign(undefined, Symbol.hciAgent, followMouse);
 			root.lookup('mouseWindow').assign(undefined, Symbol.hciAgent, followMouse);
-			autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
+			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 		}
 	}
 
@@ -210,7 +210,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 		jqCanvas.on("mousedown", function(e) {
 			var autocalcSym = root.lookup("autocalc");
 			var autocalcValueOnEntry = autocalcSym.value();
-			var autocalcLastModified = autocalcSym.last_modified_by;
+			var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
 			var followMouse = root.lookup("mouseFollow").value();
 			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
@@ -269,12 +269,13 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 				root.lookup('mouseDownWindow').assign(displayedName, Symbol.hciAgent, followMouse);
 				root.lookup('mouseDown').assign(mousePos, Symbol.hciAgent, followMouse);
 			}
-			autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
+			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 
 		}).on("mouseup",function(e) {
 			var autocalcSym = root.lookup("autocalc");
 			var autocalcValueOnEntry = autocalcSym.value();
-			var autocalcLastModified = autocalcSym.last_modified_by;
+			var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
+
 			var followMouse = root.lookup("mouseFollow").value();
 			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
@@ -334,7 +335,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 				}
 				root.lookup("mouseButtons").assign(buttonsStr, Symbol.hciAgent, followMouse);
 			}
-			autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
+			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 
 		}).on("contextmenu", function (e) {
 			if (!root.lookup("mouseContextMenuEnabled").value()) {
@@ -418,7 +419,8 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 				if (buttonsStr != prevButtons) {
 					var autocalcSym = root.lookup("autocalc");
 					var autocalcValueOnEntry = autocalcSym.value();
-					var autocalcLastModified = autocalcSym.last_modified_by;
+					var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
+
 					var followMouse = root.lookup("mouseFollow").value();
 					autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
@@ -433,14 +435,15 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 						root.lookup("mouseDown").assign(undefined, Symbol.hciAgent, followMouse);
 						root.lookup("mouseDownWindow").assign(undefined, Symbol.hciAgent, followMouse);
 					}
-					autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
+					autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 				}
 			}
 		
 		}).on("mousemove",function(e) {
 			var autocalcSym = root.lookup("autocalc");
 			var autocalcValueOnEntry = autocalcSym.value();
-			var autocalcLastModified = autocalcSym.last_modified_by;
+			var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
+
 			var followMouse = root.lookup("mouseFollow").value();
 			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
@@ -462,7 +465,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 
 			root.lookup('mouseWindow').assign(displayedName, Symbol.hciAgent, followMouse);
 			mousePositionSym.assign(mousePos, Symbol.hciAgent, followMouse);
-			autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
+			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 		});
 
 		$dialog = $('<div id="'+name+'"></div>')
