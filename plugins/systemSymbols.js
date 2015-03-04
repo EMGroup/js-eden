@@ -76,6 +76,7 @@ Eden.systemFunctionNames = [
 	"RadialGradient",
 	"RadioButtons",
 	"Rectangle",
+	"RegularPolygon",
 	"RoundedRectangle",
 	"Sector",
 	"Shadow",
