@@ -38,7 +38,6 @@ func oldArc {
 	}
 	return newArc(params[1], params[2], params[3], -params[4] / radiansPerUnit, -params[5] / radiansPerUnit, params[7], {direction: direction});
 }
-
 patch(&oldArc, &Arc);
 
 func oldCeil {
@@ -58,17 +57,17 @@ func oldCircle {
 	outlineColour = params[5] == @? "black" : params[5];
 	return newCircle(params[1], params[2], params[3], fillColour, outlineColour, {lineWidth: 2});
 }
-
 patch(&oldCircle, &Circle);
 
 func Div { ${{
+	var name = arguments[0];
 	var x = arguments[1];
 	var y = arguments[2];
 	var width = arguments[3];
 	var height = arguments[4];
 	var html = arguments[5];
 	var style = arguments[6];
-	return new Div(html, x, y, width, height, style);
+	return new Div(html, x, y, width, height, name, style);
 }}$; }
 
 func oldFloor {

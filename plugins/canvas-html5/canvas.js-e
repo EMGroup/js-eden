@@ -134,6 +134,7 @@ include("plugins/canvas-html5/pixel.js-e");
 include("plugins/canvas-html5/pixelList.js-e");
 include("plugins/canvas-html5/radialGradient.js-e");
 include("plugins/canvas-html5/radioButtons.js-e");
+include("plugins/canvas-html5/regularPolygon.js-e");
 include("plugins/canvas-html5/roundedRectangle.js-e");
 include("plugins/canvas-html5/sector.js-e");
 include("plugins/canvas-html5/shadow.js-e");

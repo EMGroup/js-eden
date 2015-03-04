@@ -70,24 +70,26 @@ HTMLImage.prototype.draw = function(context) {
 		imageJQ.on("mousedown", function () {
 			var autocalcSym = root.lookup("autocalc");
 			var autocalcValueOnEntry = autocalcSym.value();
-			var autocalcLastModified = autocalcSym.last_modified_by;
+			var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
+
 			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
 			var followMouse = root.lookup("mouseFollow").value();
 			root.lookup(name + "_click").assign(true, agent, followMouse);
 			root.lookup(name + "_zoneMouseDown").assign(undefined, agent, followMouse);
-			autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
+			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 
 		}).on("mouseup", function () {
 			var autocalcSym = root.lookup("autocalc");
 			var autocalcValueOnEntry = autocalcSym.value();
-			var autocalcLastModified = autocalcSym.last_modified_by;
+			var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
+
 			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
 			var followMouse = root.lookup("mouseFollow").value();
 			root.lookup(name + "_click").assign(false, agent, followMouse);
 			root.lookup(name + "_zoneMouseUp").assign(undefined, agent, followMouse);
-			autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
+			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 
 		});	
 
@@ -105,24 +107,26 @@ HTMLImage.prototype.draw = function(context) {
 			}).on("mousedown", function (event) {
 				var autocalcSym = root.lookup("autocalc");
 				var autocalcValueOnEntry = autocalcSym.value();
-				var autocalcLastModified = autocalcSym.last_modified_by;
+				var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
+
 				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 				
 				var followMouse = root.lookup("mouseFollow").value();
 				root.lookup(name + "_zoneMouseDown").assign(regionName, agent, followMouse);
 				root.lookup(name + "_click").assign(true, agent, followMouse);
-				autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
+				autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 
 			}).on("mouseup", function (event) {
 				var autocalcSym = root.lookup("autocalc");
 				var autocalcValueOnEntry = autocalcSym.value();
-				var autocalcLastModified = autocalcSym.last_modified_by;
+				var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
+
 				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
 				var followMouse = root.lookup("mouseFollow").value();
 				root.lookup(name + "_zoneMouseUp").assign(regionName, agent, followMouse);
 				root.lookup(name + "_click").assign(false, agent, followMouse);
-				autocalcSym.assign(autocalcValueOnEntry, {name: autocalcLastModified}, followMouse);
+				autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 
 			});
 		};
