@@ -134,6 +134,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 		me.instances.push(code_entry[0]);
 		updateCollection(code_entry[0], "");
+		//The -1 is stop Chrome from displaying scrollbars on start up.
 		return {position: ['right', 'bottom-1']};
 	};
 
