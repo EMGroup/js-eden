@@ -134,7 +134,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 		me.instances.push(code_entry[0]);
 		updateCollection(code_entry[0], "");
-		return {position: ['right', 'bottom']};
+		return {position: ['right', 'bottom-1']};
 	};
 
 	//Get a list of projects from the server.
