@@ -65,7 +65,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 				width: 360,
 				height: 400,
 				minHeight: 200,
-				minWidth: 360,
+				minWidth: 200,
 			});
 
 		me.instances.push(symbollist);

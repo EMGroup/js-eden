@@ -6,6 +6,9 @@
  */
 
 (function () {
+	//Prevent jQuery from cancelling attempts to reposition a dialog so that it isn't fully within the boundaries of the window.
+	$.extend($.ui.dialog.prototype.options.position, { collision: 'none' });
+
 	/**
 	 * Helper to return the Symbol for a view property.
 	 *
@@ -84,6 +87,7 @@
 		// add minimise button to created dialog
 		dialog(name)
 		.dialog({
+			draggable: true,
 			position: position,
 			close: function () {
 				edenUI.destroyView(name);
@@ -104,6 +108,10 @@
 		this.emit('createView', [name, type]);
 
 		var diag = dialog(name);
+		//Allow mouse drags that position the dialog partially outside of the browser window.
+		diag.dialog("widget").draggable("option","containment","none");
+		
+		//Initialize observables
 		view(name, 'width').assign(diag.dialog("option", "width"));
 		view(name, 'height').assign(diag.dialog("option", "height"));
 
@@ -197,7 +205,7 @@
 	EdenUI.prototype.moveView = function (name) {
 		var x = view(name, 'x').value();
 		var y = view(name, 'y').value();
-		dialog(name).dialog("option", "position", [x, y]);
+		dialog(name).parent().offset({left: x, top: y});
 	};
 
 	/**
