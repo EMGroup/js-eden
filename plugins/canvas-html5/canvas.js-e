@@ -59,7 +59,7 @@ proc attemptMouseCapture {
 ##second, optional parameter, is the name of the canvas view (which is reflected
 ##in the window's title bar).
 proc createCanvas {
-	auto viewName, obsName;
+	auto viewName, obsName, createJSObserver, jsObserver;
 	if ($# == 1) {
 		obsName = $[1];
 		viewName = $[1];
@@ -80,9 +80,20 @@ proc createCanvas {
 		return;
 	}
 
-	execute("if (" // obsName // " == @) { " // obsName // " = []; }");
+	if (`obsName` == @) {
+		`obsName` = [];
+	}
 	createView(viewName, "CanvasHTML5");
-	execute("proc _update_" // viewName // " : " // obsName // " { $" // "{{ edenUI.plugins.CanvasHTML5.drawPicture(" // edenCode(viewName) // ", " // edenCode(obsName) // "); }}$; }");
+	
+	createJSObserver = ${{ function (obsName, viewName) {
+		var observer = function (symbol, value) {
+			edenUI.plugins.CanvasHTML5.drawPicture(obsName, viewName);
+		};
+		root.lookup(obsName).addJSObserver("refreshView", observer);
+		return observer
+	} }}$;
+	jsObserver = createJSObserver(obsName, viewName);
+	jsObserver(&`obsName`, `obsName`);
 }
 
 ##Returns a string that can be used as the src attribute for an <img> tag inside the content of a

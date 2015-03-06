@@ -1,7 +1,7 @@
 //System Symbols
 Eden.systemObservableNames = [
 	"_authoringMode",
-	"_status",
+	"_menubar_status",
 	"_view_.*",
 	"Infinity",
 	"PI",
@@ -25,7 +25,7 @@ Eden.systemObservableNames = [
 ];
 
 Eden.systemAgentNames = [
-	"_MenuBar_Status",
+	"_menubar_update",
 	"_View_.*",
 	"_update_.*",
 	"alias",
