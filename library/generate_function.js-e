@@ -13,9 +13,8 @@ function _keys(obj) {
 	}
 	return result;
 }
-}}$;
 
-generate_function is ${{ function generate(name, outputSym, inputs) {
+root.lookup("generate_function").assignFunction(function generate(name, outputSym, inputs) {
 	var inputSet = {};
 	for (var i = 0; i < inputs.length; ++i) {
 		inputSet[inputs[i]] = true;
@@ -63,5 +62,5 @@ generate_function is ${{ function generate(name, outputSym, inputs) {
 		statements.join(";\n")+';\n'+
 		'return '+output+';\n'+
 	'}';
-}
+}, {name: "/include"});
 }}$;

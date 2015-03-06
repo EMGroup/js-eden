@@ -55,6 +55,13 @@
 			"return": "",
 			"description": ""
 		},
+		"decodeHTML": {
+			"parameters": {
+				"string": "A string containing escape sequences such as &amp;"
+			},
+			"return": "A string with the escape sequences replaced with the real characters.",
+			"description": ""
+		},
 		"definitionOf": {
 			"parameters": {
 				"symbol": ""

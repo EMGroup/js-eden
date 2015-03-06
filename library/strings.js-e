@@ -118,6 +118,32 @@ func concat {
 	return result;
 }
 
+${{
+	/* Replaces HTML character entities in a string with the equivalent real characters with the
+	 * following exceptions: &amp; &lt; &gt; &quot; &apos;
+	 */
+	root.lookup("decodeHTML").assignFunction( (function() {
+	  var element = document.createElement('div');
+
+	  function decodeHTML (str) {
+		if(typeof(str) == 'string') {
+		  //Strip html tags
+		  str = str.replace(/&(amp|#38|lt|#60|gt|#62|quot|#34|apos|#39);/g, "&amp;$1;");
+		  str = str.replace(/&([^\s;]*\s)/g, "&amp;$1");
+		  str = str.replace(/</g, "&lt;");
+		  element.innerHTML = str;
+		  str = element.textContent;
+		  element.textContent = '';
+		}
+
+		return str;
+	  }
+
+	  return decodeHTML;
+	})(), {name: "/include"} );
+}}$;
+
+
 func lowercase {
 	${{
 		if (arguments.length != 1) {

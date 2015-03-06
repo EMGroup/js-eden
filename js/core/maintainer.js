@@ -408,6 +408,17 @@
 		return this;
 	};
 
+	/**Makes a JavaScript function appear in the Function List view, rather than instead appearing
+	 * as a function typed observable, as it otherwise would using assign.
+	 * @param {function} f The function to assign.
+	 * @param {Symbol} agent The modifying agent.
+	 */
+	Symbol.prototype.assignFunction = function (f, agent) {
+		this.assign(f, agent);
+		this.eden_definition = "func " + this.name.slice(1);
+		this.definition = function (context) { return f; }
+	}
+
 	/**
 	 * Change the current value of this symbol and notify
 	 *
