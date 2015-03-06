@@ -367,7 +367,7 @@ function concatAndResolveUrl(url, concat) {
 	Eden.prototype.getIncludedURLs = function () {
 		return this.includes.slice();
 	}
-	
+
 	/**Given any JavaScript value returns a string representing the EDEN code that would be required
 	 * to obtain the same value when interpreted.
 	 * @param {*} value The value to find an EDEN representation for.
@@ -603,7 +603,7 @@ function concatAndResolveUrl(url, concat) {
 		text = text.replace(/</g, "&lt;");
 		text = text.replace(/>/g, "&gt;");
 		text = text.replace(/"/g, "&quot;");
-		text = text.replace(/'/g, "&apos;");
+		text = text.replace(/'/g, "&#39;");
 		
 		if (!nobr) {
 			text = text.replace(/\n/g, "<br/>\n");

@@ -129,11 +129,11 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			}
 
 			//check this early
-			if(def.indexOf("proc")==0){
+			if(def.indexOf("proc ")==0){
 				ofa = "(Action)";
 				ofai = 2;
 			}
-			else if(def.indexOf("func")==0){
+			else if(def.indexOf("func ")==0){
 				ofa = "(Function)";
 				ofai = 1;
 			}
@@ -143,7 +143,19 @@ EdenUI.plugins.SG = function(edenUI, success) {
 			}
 			
 			var value = symbolsx[i].cached_value;
-			var htmlForValue = Eden.htmlEscape(Eden.edenCodeForValue(value), true);
+			var edenForValue;
+			if (typeof(value) == "string" && /[^ -~\t\n]/.test(value)) {
+				/* Ensure that strings don't contain any special characters that might get mangled
+				 * by mistaken character set auto-recognition performed by browsers or code editors.
+				 * Stick to ASCII printable only and use XML/HTML entity syntax for the rest. */
+				var encoded = value.replace(/[^ -~\t\n]/g, function(str) {
+					return '&#'+str.charCodeAt(0) + ';';
+				});
+				edenForValue = "decodeHTML(" + Eden.edenCodeForValue(encoded) + ")";
+			} else {
+				edenForValue = Eden.edenCodeForValue(value);
+			}
+			var htmlForValue= Eden.htmlEscape(edenForValue, true);
 
 			//Reasoning /push to appropriate array
 			if(ofai==1){
