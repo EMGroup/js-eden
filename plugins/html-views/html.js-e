@@ -44,7 +44,7 @@ proc html {
 ##second, optional parameter, is the name of the view itself (which is reflected
 ##in the window's title bar).
 proc createHTMLView {
-	auto viewName, obsName;
+	auto viewName, obsName, createJSObserver, jsObserver;
 	if ($# == 1) {
 		obsName = $[1];
 		viewName = $[1];
@@ -66,5 +66,14 @@ proc createHTMLView {
 	}
 	
 	createView(viewName, "PlainHTML");
-	execute("proc _update_" // viewName // " : " // obsName // " { html(" // edenCode(viewName) // ", " // obsName // "); }");
+
+	createJSObserver = ${{ function (obsName, viewName) {
+		var observer = function (symbol, value) {
+			root.lookup("html").definition(root)(viewName, value);
+		};
+		root.lookup(obsName).addJSObserver("refreshView", observer);
+		return observer;
+	} }}$;
+	jsObserver = createJSObserver(obsName, viewName);
+	html(viewName, `obsName`);
 }

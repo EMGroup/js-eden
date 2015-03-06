@@ -111,11 +111,17 @@ func forget {
 ##
 ##Returns a list.
 ## 1st element: A list of the symbol names that were successfully forgotten.
-## 2nd element: A list of the symbol names that matched the regular expression but that could not be
+## 2nd element: A list of the symbol names that matched the selection criteria but that could not be
 ##	forgotten either because they are referenced by a dependency or because they act as a trigger for
 ##	a triggered procedure, or because forgetAll is refusing to forget them because they are system-defined
 ##	symbols.  This list item is undefined if an error occurs before the relationships between the
 ##	observables have been analysed (such as if one or more of the arguments are invalid).
+## 3rd element: A list of symbol names that could not be forgotten but were set to the undefined
+##	value instead of being completely forgotten.  Names such as "picture" appear on this list
+##	because forgetting them would destroy some built-in system behaviours that the user might not
+##	know how recreate, such as redrawing the canvas if the picture observable is later given a new
+##	definition.
+##
 func forgetAll {
 	${{
 		/* The forth parameter determines whether or not system defined symbols will also be
@@ -128,7 +134,7 @@ func forgetAll {
 		
 		if (arguments.length == 0 || arguments.length > 4) {
 			eden.error(new Error("forgetAll: This function requires at least 1 argument and at most 3 arguments."), "error");
-			return [[], undefined];
+			return [[], undefined, []];
 		}
 		
 		if (typeof(arguments[0]) == "string") {
@@ -136,16 +142,16 @@ func forgetAll {
 		} else if (Array.isArray(arguments[0])) {
 			obsToDelete = arguments[0];
 		} else if (arguments[0] === undefined) {
-			return [0, 0];
+			return [[], undefined, []];
 		} else {
 			eden.error(new Error("forgetAll: The first argument must be a string, not a " + typeof(arguments[0])), "error");
-			return [[], undefined];
+			return [[], undefined, []];
 		}
 
 		if (arguments.length > 1) {
 			if (typeof(arguments[1]) != "boolean") {
 				eden.error(new Error("forgetAll: The second argument must be a boolean, not a " + typeof(arguments[1])), "error");
-				return [[], undefined];
+				return [[], undefined, []];
 			}
 			caseSensitive = arguments[1];
 		} else {
@@ -154,13 +160,13 @@ func forgetAll {
 		
 		if (arguments.length >= 2 && obsToDelete !== undefined) {
 			eden.error(new Error("forgetAll: Cannot specify case sensitivity when selecting using a list."), "error");
-			return [[], undefined];
+			return [[], undefined, []];
 		}
 		
 		if (arguments.length >= 3) {
 			if (typeof(arguments[2]) != "boolean") {
 				eden.error(new Error("forgetAll: The third argument must be a boolean, not a " + typeof(arguments[2])), "error");
-				return [[], undefined];
+				return [[], undefined, []];
 			}
 			requireConfirm = arguments[2];
 		} else {
@@ -170,7 +176,7 @@ func forgetAll {
 		if (arguments.length > 3) {
 			if (arguments.length > 4 || typeof(arguments[3]) != "boolean") {
 				eden.error(new Error("forgetAll: This function requires at least 1 argument and at most 3 arguments."), "error");
-				return [[], undefined];
+				return [[], undefined, []];
 			}
 			includeSystemSymbols = arguments[3];
 		} else {
@@ -179,6 +185,7 @@ func forgetAll {
 		
 		var references = {};
 		var unableToDelete = [];
+		var setToUndefined = {};
 
 		if (obsToDelete !== undefined) {
 
@@ -195,7 +202,7 @@ func forgetAll {
 					continue;
 				} else {
 					eden.error(new Error("forgetAll: All list items must be strings or pointers.  Item " + i + " is a " + typeof(obsToDelete[i])), "error");
-					return [[], undefined];
+					return [[], undefined, []];
 				}
 
 				if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
@@ -203,14 +210,20 @@ func forgetAll {
 					continue;
 				}
 				
-				var referencedBy = [];
-				for (var dependency in symbol.subscribers) {
-					referencedBy.push(dependency.slice(1));
+				if (name == "picture") {
+					/* A symbol (e.g. picture) has a critical jsObserver attached that can't be
+					 * easily recreated by the user, so set it to undefined instead of forgetting. */
+					setToUndefined[name] = symbol;
+				} else {
+					var referencedBy = [];
+					for (var dependency in symbol.subscribers) {
+						referencedBy.push(dependency.slice(1));
+					}
+					for (var triggeredProc in symbol.observers) {
+						referencedBy.push(triggeredProc.slice(1));
+					}
+					references[name] = referencedBy;
 				}
-				for (var triggeredProc in symbol.observers) {
-					referencedBy.push(triggeredProc.slice(1));
-				}
-				references[name] = referencedBy;
 			}
 
 		} else {
@@ -229,19 +242,22 @@ func forgetAll {
 					}
 					
 					symbol = root.symbols[name];
-					var referencedBy = [];
-					for (var dependency in symbol.subscribers) {
-						referencedBy.push(dependency.slice(1));
+					if (name == "picture") {
+						setToUndefined[name] = symbol;
+					} else {
+						var referencedBy = [];
+						for (var dependency in symbol.subscribers) {
+							referencedBy.push(dependency.slice(1));
+						}
+						for (var triggeredProc in symbol.observers) {
+							referencedBy.push(triggeredProc.slice(1));
+						}
+						references[name] = referencedBy;
 					}
-					for (var triggeredProc in symbol.observers) {
-						referencedBy.push(triggeredProc.slice(1));
-					}
-					references[name] = referencedBy;
 				}
 			}
 		}
 		
-		var numUnableToForget = 0;
 		var canForget = {};
 
 		/* Traverses the subgraph of symbols suggested for deletion and returns true if the named
@@ -250,6 +266,9 @@ func forgetAll {
 		var isSafeToForget = function (name) {
 			if (name in canForget) {
 				return canForget[name];
+			}
+			if (name in setToUndefined) {
+				return true;
 			}
 			if (!(name in references)) {
 				canForget[name] = false;
@@ -273,7 +292,6 @@ func forgetAll {
 		};
 		
 		var namesToDelete = [];
-		
 		for (name in references) {
 			if (references.hasOwnProperty(name)) {
 				var success = isSafeToForget(name);
@@ -286,14 +304,16 @@ func forgetAll {
 		}
 		
 		var confirmed;
-		if (namesToDelete.length >0 && requireConfirm) {
-			if (namesToDelete.length <= 50) {
-				confirmed = confirm("You are about to delete the following " + namesToDelete.length +
-					" symbols.  Is this correct?\n\n" + namesToDelete.join("\n"));
+		var unsetList = Object.keys(setToUndefined);
+		var deletePlusUnset = namesToDelete.concat(unsetList);
+		if (deletePlusUnset.length >0 && requireConfirm) {
+			if (deletePlusUnset.length <= 50) {
+				confirmed = confirm("You are about to delete the following " + deletePlusUnset.length +
+					" symbols.  Is this correct?\n\n" + deletePlusUnset.join("\n"));
 			} else {
-				var numNotDisplayed = namesToDelete.length - 50;
-				confirmed = confirm("You are about to delete " + namesToDelete.length +
-					" symbols.  Is this correct?\n\n" + namesToDelete.slice(0, 50).join("\n") +
+				var numNotDisplayed = deletePlusUnset.length - 50;
+				confirmed = confirm("You are about to delete " + deletePlusUnset.length +
+					" symbols.  Is this correct?\n\n" + deletePlusUnset.slice(0, 50).join("\n") +
 					"\n...\n(" + numNotDisplayed + " more)");
 			}
 		} else {
@@ -301,6 +321,17 @@ func forgetAll {
 		}
 		
 		if (confirmed) {
+			var autocalcSym = root.lookup("autocalc");
+			var autocalcValueOnEntry = autocalcSym.value();
+			if (autocalcValueOnEntry) autocalcSym.assign(0, this);
+
+			if (unsetList.length > 0) {
+				for (name in setToUndefined) {
+					if (setToUndefined.hasOwnProperty(name)) {
+						setToUndefined[name].assign(undefined, this);
+					}
+				}
+			}
 			for (var i = 0; i < namesToDelete.length; i++) {
 				var name = namesToDelete[i];
 				symbol = root.symbols[name];
@@ -311,11 +342,17 @@ func forgetAll {
 						delete triggerSymbol.observers[nameInFolder];
 					}
 				}
-				delete root.symbols[name];		
+				if ("refreshView" in symbol.jsObservers) {
+					/* Clear the view's contents before deleting the associated symbol, so at least
+					 * it's clear that the view is no longer valid and isn't merely "hung". */
+					symbol.assign(undefined);
+				}
+				delete root.symbols[name];
 			}
-			return [namesToDelete, unableToDelete];
+			if (autocalcValueOnEntry) autocalcSym.assign(1, this);
+			return [namesToDelete, unableToDelete, unsetList];
 		} else {
-			return [0, unableToDelete];
+			return [[], unableToDelete, []];
 		}
 	}}$;
 }
