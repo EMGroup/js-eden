@@ -86,6 +86,11 @@ func forget {
 			eden.error(new Error("forget: The argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
 			return 1;
 		}
+		
+		if (nameToDelete == "/picture") {
+			root.lookup("picture").assign(undefined, this);
+			return 3;
+		}
 
 		for (var dependency in symbolToDelete.subscribers) {
 			return 2;
