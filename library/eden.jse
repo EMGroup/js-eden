@@ -326,10 +326,6 @@ func forgetAll {
 		}
 		
 		if (confirmed) {
-			var autocalcSym = root.lookup("autocalc");
-			var autocalcValueOnEntry = autocalcSym.value();
-			if (autocalcValueOnEntry) autocalcSym.assign(0, this);
-
 			if (unsetList.length > 0) {
 				for (name in setToUndefined) {
 					if (setToUndefined.hasOwnProperty(name)) {
@@ -351,10 +347,13 @@ func forgetAll {
 					/* Clear the view's contents before deleting the associated symbol, so at least
 					 * it's clear that the view is no longer valid and isn't merely "hung". */
 					symbol.assign(undefined);
+					window.setTimeout(function () {
+						delete root.symbols[name];
+					}, 41);
+				} else {
+					delete root.symbols[name];				
 				}
-				delete root.symbols[name];
 			}
-			if (autocalcValueOnEntry) autocalcSym.assign(1, this);
 			return [namesToDelete, unableToDelete, unsetList];
 		} else {
 			return [[], unableToDelete, []];
