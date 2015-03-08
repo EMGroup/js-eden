@@ -107,13 +107,13 @@ describe("UI tests", function () {
 	describe("click item in symbol list", function () {
 		before(function () {
 			return browser
-			.waitForElementByCss('.symbollist-result-element', wd.asserters.textInclude("autocalc"))
+			.waitForElementByCss('.symbollist-result-element', wd.asserters.textInclude("picture"))
 			.click();
 		});
 
 		it('creates an edit window', function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude("Edit_autocalc"));
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude("Edit_picture"));
 		});
 	});
 
@@ -127,21 +127,21 @@ describe("UI tests", function () {
 		it('shows a symbol list and edit window entry', function () {
 			return browser
 			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_0 [SymbolList]"))
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Edit_autocalc [InputWindow]"));
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Edit_picture [InputWindow]"));
 		});
 	});
 
 	describe("close window through titlebar", function () {
 		before(function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Input Window [Edit_autocalc]'))
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Input Window [Edit_picture]'))
 			.elementByCss('>', '.ui-dialog-titlebar-close')
 			.click();
 		});
 
 		it('closes the window', function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Input Window [Edit_autocalc]'))
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Input Window [Edit_picture]'))
 			.should.be.rejectedWith("Element condition wasn't satisfied");
 		});
 
@@ -149,7 +149,7 @@ describe("UI tests", function () {
 			return browser
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
 			.click()
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Edit_autocalc [InputWindow]"))
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Edit_picture [InputWindow]"))
 			.should.be.rejectedWith("Element condition wasn't satisfied");
 		});
 	});
@@ -157,13 +157,13 @@ describe("UI tests", function () {
 	describe("click item in symbol list", function () {
 		before(function () {
 			return browser
-			.waitForElementByCss('.symbollist-result-element', wd.asserters.textInclude("autocalc"))
+			.waitForElementByCss('.symbollist-result-element', wd.asserters.textInclude("picture"))
 			.click();
 		});
 
 		it('creates an edit window', function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude("Edit_autocalc"));
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude("Edit_picture"));
 		});
 	});
 
