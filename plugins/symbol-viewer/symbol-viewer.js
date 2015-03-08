@@ -55,7 +55,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		var code_entry = $('<div></div>');
 		code_entry.html(generateHTML());
 		var symbollist = new EdenUI.plugins.SymbolViewer.SymbolList(
-			code_entry.find(".symbollist-results")[0], type
+			edenUI.eden.root, code_entry.find(".symbollist-results")[0], type
 		);
 
 		$dialog = $('<div id="'+name+'"></div>')
@@ -76,7 +76,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			var allVals = "";
 			var symbol;
 			for(var symbolname in symbollist.symbols){
-				symbol = root.lookup(symbolname);
+				symbol = edenUI.eden.root.lookup(symbolname);
 				var val;
 				if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
 					val = symbol.eden_definition;
@@ -205,7 +205,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	};
 
 	// Register event handler for symbol changes.
-	root.addGlobal(symbolChanged);
+	edenUI.eden.root.addGlobal(symbolChanged);
 
 	// Add views supported by this plugin.
 	edenUI.views["ObservableList"] = {dialog: this.createObservableDialog, title: "Observable List"};
@@ -231,8 +231,9 @@ EdenUI.plugins.SymbolViewer.author = "Nicolas Pope and Tim Monks";
  * @param element An HTML element to put the symbol list into.
  * @param type The type of symbols to include: obs,agent,func,all.
  */
-EdenUI.plugins.SymbolViewer.SymbolList = function (element, type) {
-	this.pattern = "";
+EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
+	this.root = root;
+	this.regExp = new RegExp("");
 	this.type = type;
 	this.symresults = element;
 	this.symbols = {};
@@ -244,7 +245,7 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (element, type) {
  * @param pattern A regular expression for symbol names.
  */
 EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (pattern) {
-	this.pattern = pattern;
+	this.regExp = new RegExp("^(" + pattern + ")", "i");
 
 	// Clear existing results and start again
 	this.symresults.innerHTML = "";
@@ -252,8 +253,8 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (pattern) {
 
 	// For every js-eden symbol
 	var name, symbol;
-	for (name in root.symbols) {
-		symbol = root.symbols[name];
+	for (name in this.root.symbols) {
+		symbol = this.root.symbols[name];
 		this.addSymbol(symbol, name);
 	}
 };
@@ -278,9 +279,8 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.updateSymbol = function (name) 
  * @param name The name of the given symbol object.
  */
 EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, name) {
-	var reg = new RegExp("^(" + this.pattern + ")", "i");
 
-	if (name.search(reg) == -1) {
+	if (!this.regExp.test(name)) {
 		return;
 	}
 
@@ -291,11 +291,11 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 		type = "observable";
 	} else {
 		// Find out what kind of definition it is (proc, func or plain)
-		var subs = symbol.eden_definition.substring(0,4);
+		var definition = symbol.eden_definition;
 	
-		if (subs == "proc") {
+		if (/^proc\s/.test(definition)) {
 			type = "procedure";
-		} else if (subs == "func") {
+		} else if (/^func\s/.test(definition)) {
 			type = "function";
 		} else {
 			type = "observable";
