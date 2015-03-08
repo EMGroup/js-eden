@@ -36,11 +36,18 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 */
 	this.instances = [];
 
-	var generateHTML = function () {
-		return "<div class=\"symbollist-search-box-outer\">\
-			<input type=\"text\" class=\"symbollist-search\" placeholder=\"search\" /><a class=\"symbollist-edit\">Edit</a>\
-		</div>\
-		<div class=\"symbollist-results\"></div>";
+	var generateHTML = function (viewName) {
+		return "\
+			<div class=\"symbollist-search-box-outer\"> \
+				<input type=\"text\" class=\"symbollist-search\" placeholder=\"search\" /><br/> \
+				<select id=\"" + viewName + "-system-filter\" class=\"symbollist-control\"> \
+					<option value=\"user\">Construal</option> \
+					<option value=\"system\">System Library</option> \
+					<option value=\"both\">All</option> \
+				</select> \
+				<a class=\"symbollist-edit symbollist-control\">Edit Displayed</a> \
+			</div> \
+			<div class=\"symbollist-results\"></div>";
 	};
 
 	/**
@@ -53,7 +60,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 */
 	this.createDialog = function (name, mtitle, type) {
 		var code_entry = $('<div></div>');
-		code_entry.html(generateHTML());
+		code_entry.html(generateHTML(name));
 		var symbollist = new EdenUI.plugins.SymbolViewer.SymbolList(
 			edenUI.eden.root, code_entry.find(".symbollist-results")[0], type
 		);
@@ -94,8 +101,13 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 
 		// Make changes in search box update the list.
-		code_entry.find(".symbollist-search-box-outer > .symbollist-search").keyup(function() {
+		var searchBox = code_entry.find(".symbollist-search-box-outer > .symbollist-search");
+		searchBox.keyup(function() {
 			symbollist.search(this.value);
+		});
+		var searchBoxElem = searchBox.get(0);
+		document.getElementById(name + "-system-filter").addEventListener("change", function (event) {
+			symbollist.search(searchBoxElem.value, event.target.value);
 		});
 	};
 
@@ -235,6 +247,7 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
 	this.root = root;
 	this.regExp = new RegExp("");
 	this.type = type;
+	this.showSystem = "user"; // Show "user" defined, "system" defined or "both"
 	this.symresults = element;
 	this.symbols = {};
 };
@@ -244,10 +257,14 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
  *
  * @param pattern A regular expression for symbol names.
  */
-EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (pattern) {
+EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (pattern, showSystem) {
 	this.regExp = new RegExp("^(" + pattern + ")", "i");
+	if (showSystem !== undefined) {
+		this.showSystem = showSystem;
+	}
 
 	// Clear existing results and start again
+	EdenUI.closeTooltip();
 	this.symresults.innerHTML = "";
 	this.symbols = {};
 
@@ -283,39 +300,37 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 	if (!this.regExp.test(name)) {
 		return;
 	}
+	if (Eden.isitSystemSymbol(name)) {
+		if (this.showSystem == "user") {
+			return;
+		}
+	} else if (this.showSystem == "system") {
+		return;
+	}
 
-	var type = "observable";
+	var symbolType = "obs";
 
 	// Does the symbol have a definition
 	if (!symbol.definition || !symbol.eden_definition) {
-		type = "observable";
+		symbolType = "obs";
 	} else {
 		// Find out what kind of definition it is (proc, func or plain)
 		var definition = symbol.eden_definition;
 	
 		if (/^proc\s/.test(definition)) {
-			type = "procedure";
+			symbolType = "agent";
 		} else if (/^func\s/.test(definition)) {
-			type = "function";
+			symbolType = "func";
 		} else {
-			type = "observable";
+			symbolType = "obs";
 		}
 	}
 
 	// Do we need to display this type of observable.
-	var show = false;
-	if (this.type == "all") {
-		show = true;
-	} else if (this.type == "agent" && type == "procedure") {
-		show = true;
-	} else if (this.type == "func" && type == "function") {
-		show = true;
-	} else if (this.type == "obs" && type == "observable") {
-		show = true;
-	}
+	var show = this.type == "all" || this.type == symbolType;
 
 	if (show) {
-		var symele = new EdenUI.plugins.SymbolViewer.Symbol(symbol,name,type);
+		var symele = new EdenUI.plugins.SymbolViewer.Symbol(symbol, name, symbolType);
 		symele.element.appendTo(this.symresults);
 		this.symbols[name] = symele;
 	}
@@ -340,9 +355,9 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 
 	// Select update method based upon symbol type.
 	switch (type) {
-		case 'function': this.update = this.updateFunction; break;
-		case 'procedure': this.update = this.updateProcedure; break;
-		case 'observable': this.update = this.updateObservable; break;
+		case 'func': this.update = this.updateFunction; break;
+		case 'agent': this.update = this.updateProcedure; break;
+		case 'obs': this.update = this.updateObservable; break;
 	};
 
 	var me = this;
@@ -393,7 +408,7 @@ function _keys(obj) {
  * for this function, such as parameters and description.
  */
 EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
-	var funchtml = "<li><span class=\"result_name\">" + this.name + "</span>";
+	var funchtml = "<span class=\"result_name\">" + this.name + "</span>";
 
 	// If there are details for this function in the function meta data
 	if (edenfunctions.functions != undefined && edenfunctions.functions[this.name] !== undefined) {
@@ -403,7 +418,6 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 		funchtml = funchtml + "<span class='result_value'> ( " + params.join(", ") + " )</span>";
 	}
 
-	funchtml = funchtml + "</li>";
 	this.element.html(funchtml);
 };
 
@@ -447,9 +461,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 		 *as a HTML start tag even when escaped as &lt;
 		 */
 		var tooltip = Eden.htmlEscape(this.symbol.eden_definition.replace(/<(\S)/g, " < $1"), true);
-		html = "<li title='" + tooltip + "'>" + html + "</li>";
-	} else {
-		html = "<li>" + html + "</li>";
+		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
 
 	this.element.html(html);
@@ -459,5 +471,5 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
  * Update the HTML output of a procedure symbol.
  */
 EdenUI.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function () {
-	this.element.html("<li><span class=\"result_name\">" + this.name + "</span></li>");
+	this.element.html("<span class=\"result_name\">" + this.name + "</span>");
 };

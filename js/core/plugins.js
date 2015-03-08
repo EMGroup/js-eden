@@ -136,7 +136,7 @@
 				'append _view_list, "'+name+'";\n';
 
 			if (position) {
-				code += '_view_'+name+'_position = ['+position.join(', ')+']\n;';
+				code += '_view_'+name+'_position = [\"'+position.join('\", \"')+'\"];\n';
 			}
 
 			return code;

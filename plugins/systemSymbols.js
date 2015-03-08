@@ -29,6 +29,7 @@ Eden.systemAgentNames = [
 	"_View_.*",
 	"_update_.*",
 	"alias",
+	"arrangeWindows",
 	"attemptMouseCapture",
 	"bindCSSNumericProperty",
 	"bindCSSProperty",
