@@ -61,17 +61,12 @@ proc showObservables { ${{
 		}
 	}
 	
-	if (arguments.length == 2) {
-		viewName = arguments[1];
-		if (viewName === undefined) {
-			viewName = "showObservables";
-		}
-		if (typeof(viewName) != "string") {
-			eden.error(new Error("showObservables: The second argument must be a string, not a " + typeof(viewName)), "error");
-			return;
-		}		
-	} else {
+	viewName = arguments[1];
+	if (viewName === undefined) {
 		viewName = "showObservables";
+	} else if (typeof(viewName) != "string") {
+		eden.error(new Error("showObservables: The second argument must be a string, not a " + typeof(viewName)), "error");
+		return;
 	}
 	
 	var inputBox = $('#' + viewName + '-dialog .symbollist-search');

@@ -17,6 +17,23 @@
 	white-space: nowrap;
 }
 
-.symbollist-search{
-	width: 90%;
+.symbollist-search {
+	margin-bottom: 6px;
+	width: 100%;
+}
+
+.symbollist-search-box-outer {
+	border-bottom: 1px solid #BBBBBB;
+	padding-bottom: 6px;
+	margin-bottom: 2pt;
+}
+
+.symbollist-control {
+	margin-right: 8px;
+}
+
+a.symbollist-control {
+	color: #29454B;
+	text-decoration: underline;
+	cursor: pointer;
 }

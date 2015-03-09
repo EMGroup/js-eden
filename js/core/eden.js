@@ -162,6 +162,20 @@ function concatAndResolveUrl(url, concat) {
 	 */
 	EdenUI.prototype.emit = emit;
 
+	EdenUI.showTooltip = function (event, text) {
+		var tooltip = document.getElementById("tooltip");
+		var x = event.clientX;
+		var y = event.clientY + 20;
+		tooltip.style.left = x + "px";
+		tooltip.style.top = y + "px";
+		tooltip.innerHTML = text;
+		tooltip.style.display = "block";
+	}
+	
+	EdenUI.closeTooltip = function () {
+		document.getElementById("tooltip").style.display = "none";
+	}
+
 	/**
 	 * @constructor
 	 * @struct

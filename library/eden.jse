@@ -477,7 +477,7 @@ createView("inputwindow", "InputWindow");
 
 _menubar_status = "JS-Eden done loading";
 
-proc arrange {
+proc arrangeWindows {
   auto i;
   auto name;
   auto curr_x;
@@ -494,4 +494,4 @@ proc arrange {
   }
 }
 
-arrange();
+arrangeWindows();
