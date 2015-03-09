@@ -159,7 +159,7 @@ HTMLImage.prototype.draw = function(context) {
 ${{
 HTMLImage.prototype.toString = function() {
   return "HTMLImage(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
-	this.height + ", \"" + this.url + "\"" + Eden.edenCodeForValue(this.imageMap) + ")";
+	this.height + ", \"" + this.url + "\", " + Eden.edenCodeForValue(this.imageMap) + ")";
 };
 
 HTMLImage.prototype.getEdenCode = HTMLImage.prototype.toString;

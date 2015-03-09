@@ -457,10 +457,8 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 		"<span class='result_value'> = " + valhtml + "</span>";
 
 	if (this.symbol.definition !== undefined) {
-		/*The inner replacement overcomes a bug(?) in Chrome 40 and Firefox 35 where < is interpreted
-		 *as a HTML start tag even when escaped as &lt;
-		 */
-		var tooltip = Eden.htmlEscape(this.symbol.eden_definition.replace(/<(\S)/g, " < $1"), true);
+		var tooltip = Eden.htmlEscape(this.symbol.eden_definition, false, true);
+		tooltip = Eden.htmlEscape("<pre>" + tooltip + ";</pre>");
 		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
 

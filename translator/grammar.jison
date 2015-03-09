@@ -134,14 +134,13 @@
 %right '?' ':'
 %left '||' OR
 %left '&&' AND
-%right '==' '!='
+%left '==' '!='
 %left '>' '<' '>=' '<='
 %left '+' '-'
-%left '*' '/'
-%right '%'
-%left UMINUS
-%left '!'
-%nonassoc DEREFERENCE LENGTH
+%left '*' '/' '%'
+%right UMINUS '!'
+%nonassoc LENGTH
+%right DEREFERENCE
 
 %start script
 

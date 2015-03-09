@@ -260,7 +260,8 @@ div#functions-info-name {
 }
 
 .hasdef_text {
-	color: #00FF00;
+	color: #00D400;
+	font-weight: bold;
 }
 
 textarea#observable-info-definition {
