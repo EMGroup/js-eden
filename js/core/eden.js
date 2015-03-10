@@ -590,11 +590,13 @@ function concatAndResolveUrl(url, concat) {
 		} else {
 			code = String(value);
 		}
-		if (!multiline) {
-			code = code.replace(/\n/g, "\\n");
-		}
 		if (!prefix) {
-			return Eden.htmlEscape(code).replace(/\.\.\.$/g, "&hellip;");
+			var pretty = Eden.htmlEscape(code, !multiline);
+			pretty = pretty.replace(/\.\.\./g, "&hellip;");
+			if (!multiline) {
+				pretty = pretty.replace(/\n/g, "\\n");
+			}
+			return pretty;
 		} else {
 			return prefix + code;
 		}
@@ -605,10 +607,11 @@ function concatAndResolveUrl(url, concat) {
 	 * white space are collapsed).  HTML mark-up characters are escaped.
 	 * @param {string} text The string to escape.
 	 * @param {boolean} nobr If true then line breaks won't be converted to <br/>.  (E.g. useful for
-	 * 	content of <textarea> tag.
+	 * 	content of <pre> or <textarea> tags.
+	 * @param {boolean} removeLineBreaks If true then the result will not contain line breaks (though it may contain <br/> tags).
 	 * @return {string} The escaped string.
 	 */
-	Eden.htmlEscape = function (text, nobr) {
+	Eden.htmlEscape = function (text, nobr, removeLineBreaks) {
 		if (text === undefined) {
 			return "";
 		}
@@ -619,9 +622,16 @@ function concatAndResolveUrl(url, concat) {
 		text = text.replace(/"/g, "&quot;");
 		text = text.replace(/'/g, "&#39;");
 		
-		if (!nobr) {
+		if (removeLineBreaks) {
+			if (nobr) {
+				text = text.replace(/\n/g, " ");
+			} else {
+				text = text.replace(/\n/g, "<br/>");
+			}
+		} else if (!nobr) {
 			text = text.replace(/\n/g, "<br/>\n");
 		}
+
 		return text;
 	}
 	

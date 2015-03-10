@@ -73,9 +73,13 @@ var rt = {
 		return a % b;
 	},
 
-	includeJS: function (url, success) {
-		eden.include(url, success);
+	pow: function (a, b) {
+		if (a === undefined || b === undefined) {
+			return undefined;
+		}
+		return Math.pow(a, b);
 	}
+
 };
 
 this.rt = rt;
