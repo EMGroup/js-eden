@@ -143,7 +143,7 @@
 %left '*' '/' '%'
 %nonassoc UMINUS
 %right '^' '!' NOT
-%nonassoc LENGTH
+%nonassoc '&' LENGTH
 %right DEREFERENCE
 %left '.'
 

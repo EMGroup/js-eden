@@ -276,6 +276,7 @@ var json = {
 	var edenPrefixOperators = {};
 	edenPrefixOperators["-"] = {precedence: 9, text: "-"};
 	edenPrefixOperators["!"] = {precedence: 9, text: "!"};
+	edenPrefixOperators["&"] = {precedence: 9, text: "&"};
 	edenPrefixOperators["not"] = {precedence: 9, text: "!"};
 	edenPrefixOperators["++."] = {precedence: 10, text: "++"};
 	edenPrefixOperators["--."] = {precedence: 10, text: "--"};
