@@ -165,10 +165,6 @@ func mod {
 	return x>=0? x % n : (n + (x % n));
 }
 
-func pow {
-  return ${{ Math.pow(arguments[0],arguments[1]); }}$;
-}
-
 func randomInteger {
 	${{
 		if (arguments.length != 2) {

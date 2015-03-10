@@ -65,6 +65,9 @@
 "proc"                %{ yy.paras.unshift({}); yy.locals.unshift({}); return 'PROC'; %}
 "auto"                return 'AUTO'
 "para"                return 'PARA'
+"and"                 return 'AND'
+"or"                  return 'OR'
+"not"                 return 'NOT'
 [a-zA-Z_][a-zA-Z_0-9]* return 'OBSERVABLE'
 
 "?"                   return '?'
@@ -78,8 +81,6 @@
 "=="                  return '=='
 "!="                  return '!='
 
-"and"                 return 'AND'
-"or"                  return 'OR'
 "||"                  return '||'
 "&&"                  return '&&'
 "!"                   return '!'
@@ -89,6 +90,8 @@
 "-="                  return '-='
 "++"                  return '++'
 "--"                  return '--'
+
+"^"                   return "^"
 
 "&"                   return '&'
 "*"                   return '*'
@@ -136,11 +139,13 @@
 %left '&&' AND
 %left '==' '!='
 %left '>' '<' '>=' '<='
-%left '+' '-'
+%left '+' '-' '//'
 %left '*' '/' '%'
-%right UMINUS '!'
+%nonassoc UMINUS
+%right '^' '!' NOT
 %nonassoc LENGTH
 %right DEREFERENCE
+%left '.'
 
 %start script
 
@@ -218,8 +223,9 @@ expression
     | '-' expression %prec UMINUS
         { $$ = '-' + $2; }
 
-// XXX: currently unsure what the precedence for not needs to be
     | '!' expression
+        { $$ = '!' + $2; }
+    | NOT expression
         { $$ = '!' + $2; }
 
     | '&' lvalue
@@ -244,6 +250,8 @@ expression
         { $$ = 'rt.divide(' + $1 + ', ' + $3 + ')'; }
     | expression '%' expression
         { $$ = 'rt.mod(' + $1 + ', ' + $3 + ')'; }
+    | expression '^' expression
+        { $$ = 'rt.pow(' + $1 + ', ' + $3 + ')'; }
 
     | expression '>' expression
         { $$ = '' + $1 + ' > ' + $3; }
@@ -272,7 +280,6 @@ expression
     | '{' expression ',' expression '}'
         { $$ = "context.lookup('Point').value().call(this, " + $2 +"," + $4 +")" }
 
-// XXX: introduces a TON of SR conflicts and I have no idea why!
     | expression '//' expression
         { $$ = $1 + '.concat(' + $3 +')'; }
 
