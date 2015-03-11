@@ -428,7 +428,21 @@ function concatAndResolveUrl(url, concat) {
 				value.parent instanceof Symbol
 			) {
 				code = "&" + value.parent.name.slice(1) + "[" + value.keys[0] + "]";
-			} else {
+			} else if (typeof(window) == "object" && typeof(document) == "object" && typeof(Element) == "function") {
+				//Web browser runtime environment
+				if (value == window) {
+					code = "${{ window }}$";
+				} else if (value == document) {
+					code = "${{ document }}$";
+				} else if (value == document.documentElement) {
+					code = "${{ document.documentElement }}$";
+				} else if (value == document.body) {
+					code = "${{ document.body }}$";
+				} else if (value instanceof Element && value.id) {
+					code = "${{ document.getElementById(\"" + value.id + "\") }}$";
+				}
+			}
+			if (code == "") {
 				if (refStack === undefined) {
 					refStack = [];
 				}
@@ -532,47 +546,63 @@ function concatAndResolveUrl(url, concat) {
 				value.parent instanceof Symbol
 			) {
 				code = "&" + value.parent.name.slice(1) + "[" + value.keys[0] + "]";
-			} else if (value.toString != Object.prototype.toString) {
-				code = value.toString();
-				if (maxChars !== undefined && code.length > maxChars) {
-					code = code.slice(0, maxChars) + "...";
-					truncated = true;
+			} else if (typeof(window) == "object" && typeof(document) == "object" && typeof(Element) == "function") {
+				//Web browser runtime environment
+				if (value == window) {
+					code = "${{ window }}$";
+				} else if (value == document) {
+					code = "${{ document }}$";
+				} else if (value == document.documentElement) {
+					code = "${{ document.documentElement }}$";
+				} else if (value == document.body) {
+					code = "${{ document.body }}$";
+				} else if (value instanceof Element && value.id) {
+					code = "${{ document.getElementById(\"" + value.id + "\") }}$";
 				}
-			} else {
-				if (refStack === undefined) {
-					refStack = [];
-				}
-				if (refStack.indexOf(value) != -1) {
-					//Object contains a reference to itself.
-					code = code + "...";
+			}
+			if (code == "") {
+				if (value.toString != Object.prototype.toString) {
+					code = value.toString();
+					if (maxChars !== undefined && code.length > maxChars) {
+						code = code.slice(0, maxChars) + "...";
+						truncated = true;
+					}
 				} else {
-					refStack.push(value);
-					code = "{";
-					var maybeTruncate = false;
-					for (var key in value) {
-						if (!(key in Object.prototype)) {
-							if (maybeTruncate) {
-								code = code.slice(0, -1) + "...";
-								truncated = true;
-								break;
+					if (refStack === undefined) {
+						refStack = [];
+					}
+					if (refStack.indexOf(value) != -1) {
+						//Object contains a reference to itself.
+						code = code + "...";
+					} else {
+						refStack.push(value);
+						code = "{";
+						var maybeTruncate = false;
+						for (var key in value) {
+							if (!(key in Object.prototype)) {
+								if (maybeTruncate) {
+									code = code.slice(0, -1) + "...";
+									truncated = true;
+									break;
+								}
+								code = code + key + ": ";
+								code = Eden.prettyPrintValue(code, value[key], maxChars, showJSFuncs, multiline, refStack);
+								if (code.slice(-3) == "...") {
+									truncated = true;
+									break;
+								}
+								if (maxChars !== undefined && code.length >= maxChars) {
+									maybeTruncate = true;
+								}
+								code = code + ", ";
 							}
-							code = code + key + ": ";
-							code = Eden.prettyPrintValue(code, value[key], maxChars, showJSFuncs, multiline, refStack);
-							if (code.slice(-3) == "...") {
-								truncated = true;
-								break;
-							}
-							if (maxChars !== undefined && code.length >= maxChars) {
-								maybeTruncate = true;
-							}
-							code = code + ", ";
 						}
+						if (code != "{" && !truncated) {
+							code = code.slice(0, -2);
+						}
+						code = code + "}";
+						refStack.pop();
 					}
-					if (code != "{" && !truncated) {
-						code = code.slice(0, -2);
-					}
-					code = code + "}";
-					refStack.pop();
 				}
 			}
 		} else if (type == "function") {
