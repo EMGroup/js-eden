@@ -353,7 +353,7 @@ var json = {
 			return "{" + nameValuePairs.join(", ") + "}";
 		}
 	};
-	edenSpecialOperators["point"] = {
+	edenSpecialOperators["Point"] = {
 		precedence: 12,
 		code: function (operands) {
 			var x = me.convertTreeToEden(operands[0]);
