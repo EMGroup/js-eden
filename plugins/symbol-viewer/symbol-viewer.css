@@ -14,22 +14,28 @@
 }
 
 .symbollist-search {
-	margin-bottom: 6px;
-	width: 100%;
+	width: calc(100% - 80px);
 }
 
 .symbollist-search-box-outer {
 	border-bottom: 1px solid #BBBBBB;
-	padding-bottom: 6px;
-	margin-bottom: 2pt;
+	margin-bottom: 4px;
+	padding-bottom: 1px;
 }
 
 .symbollist-control {
 	margin-right: 8px;
+	margin-bottom: 5px;
 }
 
 a.symbollist-control {
+	cursor: pointer;
+	display: inline-block;
 	color: #29454B;
 	text-decoration: underline;
-	cursor: pointer;
+	white-space: nowrap;
+}
+
+.symbollist-rightmost-control {
+	margin-right: 0px;
 }
