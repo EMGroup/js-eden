@@ -139,7 +139,8 @@
 %left '&&' AND
 %left '==' '!='
 %left '>' '<' '>=' '<='
-%left '+' '-' '//'
+%left  '//'
+%left '+' '-'
 %left '*' '/' '%'
 %nonassoc UMINUS
 %right '^' '!' NOT

@@ -171,7 +171,7 @@ var json = {
 	}
 
 	var convertTreeToText = function (prefixOperators, infixOperators, postfixOperators, specialOperators, functionInvocationPrecedence) {
-		var convertTree = function (json, parentPrecedence) {
+		var convertTree = function (json, parentPrecedence, parentName) {
 			if (!json.hasOwnProperty("children")) {
 				return json.name;
 			}
@@ -186,8 +186,8 @@ var json = {
 				thisPrecedence = operator.precedence;
 				var associativity = operator.associativity;
 
-				var leftStr = convertTree(children[0], thisPrecedence);
-				var rightStr = convertTree(children[1], thisPrecedence);
+				var leftStr = convertTree(children[0], thisPrecedence, operator.text);
+				var rightStr = convertTree(children[1], thisPrecedence, operator.text);
 				
 				if (associativity == "left") {
 					var rightChildOperatorName = children[1].name;
@@ -215,26 +215,26 @@ var json = {
 
 				operator = prefixOperators[operatorName];
 				thisPrecedence = operator.precedence;
-				str = operator.text + convertTree(children[0], thisPrecedence);
+				str = operator.text + convertTree(children[0], thisPrecedence, operator.text);
 		
 			} else if (postfixOperators.hasOwnProperty(operatorName)) {
 				
 				operator = postfixOperators[operatorName];
 				thisPrecedence = operator.precedence;
-				str = convertTree(children[0], thisPrecedence) + operator.text;
+				str = convertTree(children[0], thisPrecedence, operator.text) + operator.text;
 				
 			} else if (specialOperators.hasOwnProperty(operatorName)) {
 				
 				operator = specialOperators[operatorName];
 				this.precedence = operator.precedence;
-				str = operator.code(children);
+				str = operator.code(children, parentName);
 
 			} else {
 
 				thisPrecedence = functionInvocationPrecedence;
 				var args = [];
 				for (var i = 0; i < children.length; i++) {
-					args.push(convertTree(children[i], 0));
+					args.push(convertTree(children[i], 0, undefined));
 				}
 				str = operatorName + "(" + args.join(", ") + ")";
 
@@ -246,7 +246,7 @@ var json = {
 		};
 
 		return function (json) {
-			return convertTree(json, 0);
+			return convertTree(json, 0, undefined);
 		}
 	};
 
@@ -264,31 +264,31 @@ var json = {
 	edenInfixOperators["<="] = {precedence: 6, associativity: "left", text: "<=", whitespace: true};
 	edenInfixOperators[">"] = {precedence: 6, associativity: "left", text: ">=", whitespace: true};
 	edenInfixOperators[">="] = {precedence: 6, associativity: "left", text: ">", whitespace: true};
-	edenInfixOperators["+"] = {precedence: 7, associativity: "left", text: "+", whitespace: true};
-	edenInfixOperators["-"] = {precedence: 7, associativity: "left", text: "-", whitespace: true};
 	edenInfixOperators["//"] = {precedence: 7, associativity: "left", text: "//", whitespace: true};
-	edenInfixOperators["*"] = {precedence: 8, associativity: "left", text: "*", whitespace: true};
-	edenInfixOperators["/"] = {precedence: 8, associativity: "left", text: "/", whitespace: true};
-	edenInfixOperators["%"] = {precedence: 8, associativity: "left", text: "%", whitespace: true};
-	edenInfixOperators["^"] = {precedence: 10, associativity: "right", text: ".", whitespace: false};
-	edenInfixOperators["."] = {precedence: 13, associativity: "left", text: ".", whitespace: false};
+	edenInfixOperators["+"] = {precedence: 8, associativity: "left", text: "+", whitespace: true};
+	edenInfixOperators["-"] = {precedence: 8, associativity: "left", text: "-", whitespace: true};
+	edenInfixOperators["*"] = {precedence: 9, associativity: "left", text: "*", whitespace: true};
+	edenInfixOperators["/"] = {precedence: 9, associativity: "left", text: "/", whitespace: true};
+	edenInfixOperators["%"] = {precedence: 9, associativity: "left", text: "%", whitespace: true};
+	edenInfixOperators["^"] = {precedence: 11, associativity: "right", text: ".", whitespace: false};
+	edenInfixOperators["."] = {precedence: 14, associativity: "left", text: ".", whitespace: false};
 
 	var edenPrefixOperators = {};
-	edenPrefixOperators["-"] = {precedence: 9, text: "-"};
-	edenPrefixOperators["!"] = {precedence: 9, text: "!"};
-	edenPrefixOperators["&"] = {precedence: 9, text: "&"};
-	edenPrefixOperators["not"] = {precedence: 9, text: "!"};
-	edenPrefixOperators["++."] = {precedence: 10, text: "++"};
-	edenPrefixOperators["--."] = {precedence: 10, text: "--"};
-	edenPrefixOperators["*"] = {precedence: 11, text: "*"};  //Pointer dereference
+	edenPrefixOperators["-"] = {precedence: 10, text: "-"};
+	edenPrefixOperators["!"] = {precedence: 10, text: "!"};
+	edenPrefixOperators["&"] = {precedence: 10, text: "&"};
+	edenPrefixOperators["not"] = {precedence: 10, text: "!"};
+	edenPrefixOperators["++."] = {precedence: 11, text: "++"};
+	edenPrefixOperators["--."] = {precedence: 11, text: "--"};
+	edenPrefixOperators["*"] = {precedence: 12, text: "*"};  //Pointer dereference
 
 	var edenPostfixOperators = {};
-	edenPostfixOperators["#"] = {precedence: 10, text: "#"};
-	edenPostfixOperators[".++"] = {precedence: 10, text: "++"};
-	edenPostfixOperators[".--"] = {precedence: 10, text: "--"};
+	edenPostfixOperators["#"] = {precedence: 11, text: "#"};
+	edenPostfixOperators[".++"] = {precedence: 11, text: "++"};
+	edenPostfixOperators[".--"] = {precedence: 11, text: "--"};
 	
 	var edenSpecialOperators = {};
-	var edenFuncInvocationPrecedence = 12;
+	var edenFuncInvocationPrecedence = 13;
 	this.convertTreeToEden = convertTreeToText(edenPrefixOperators, edenInfixOperators, edenPostfixOperators, edenSpecialOperators, edenFuncInvocationPrecedence);
 
 	edenSpecialOperators["?"] = {
@@ -301,21 +301,21 @@ var json = {
 		}
 	};
 	edenSpecialOperators["`...`"] = {
-		precedence: 12,
+		precedence: 13,
 		code: function (operands) {
 			var identifier = me.convertTreeToEden(operands[0]);
 			return "`" + identifier + "`";
 		}
 	};
 	edenSpecialOperators["${{...}}$"] = {
-		precedence: 12,
+		precedence: 13,
 		code: function (operands) {
 			var js = operands[0].name;
 			return "${{ " + js + " }}$";
 		}
 	};
 	edenSpecialOperators["(...)"] = { //E.g. (*funcPointer)(argument) (This operator is function application, the 2nd pair of parenthesis)
-		precedence: 12,
+		precedence: 13,
 		code: function (operands) {
 			var functionExpr = me.convertTreeToEden(operands[0]);
 			var operandStrs = [];
@@ -326,7 +326,7 @@ var json = {
 		}
 	};
 	edenSpecialOperators["[...]"] = {
-		precedence: 12,
+		precedence: 13,
 		code: function (operands) {
 			var operandStrs = [];
 			for (var i = 0; i < operands.length; i++) {
@@ -336,7 +336,7 @@ var json = {
 		}
 	};	
 	edenSpecialOperators["[n]"] = {
-		precedence: 12,
+		precedence: 13,
 		code: function (operands) {
 			var list = me.convertTreeToEden(operands[0]);
 			var index = me.convertTreeToEden(operands[1]);
@@ -344,7 +344,7 @@ var json = {
 		}
 	};
 	edenSpecialOperators["{...}"] = {
-		precedence: 12,
+		precedence: 13,
 		code: function (operands) {
 			var nameValuePairs = [];
 			for (var i = 0; i < operands.length - 1; i = i + 2) {
@@ -354,11 +354,20 @@ var json = {
 		}
 	};
 	edenSpecialOperators["Point"] = {
-		precedence: 12,
-		code: function (operands) {
-			var x = me.convertTreeToEden(operands[0]);
-			var y = me.convertTreeToEden(operands[1]);
-			return "{" + x + ", " + y + "}";
+		precedence: 13,
+		code: function (operands, parentOp) {
+			if (parentOp == ".") {
+				//Method name called Point
+				var operandStrs = [];
+				for (var i = 0; i < operands.length; i++) {
+					operandStrs.push(me.convertTreeToEden(operands[i]));
+				}
+				return "Point(" + operandStrs.join(", ") + ")";
+			} else {
+				var x = me.convertTreeToEden(operands[0]);
+				var y = me.convertTreeToEden(operands[1]);
+				return "{" + x + ", " + y + "}";
+			}
 		}
 	};
 
