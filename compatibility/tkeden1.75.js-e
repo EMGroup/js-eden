@@ -7,6 +7,22 @@
 ##Trigonometric functions in tkeden work in radians instead of degrees.
 radiansPerUnit = 1;
 
+func listcat {
+	auto result, i;
+	result = [];
+	for (i = 1; i <= $#; i++) {
+		if ($[i] == @) {
+			return @;
+		} else if (isList($[i])) {
+			result = result // $[i];
+		} else {
+			error("listcat: Argument " // str(i) // " must be a list, not a " // type($[i]));
+			return @;
+		}
+	}
+	return result;
+}
+
 func pow {
   return ${{ Math.pow(arguments[0],arguments[1]); }}$;
 }
@@ -32,6 +48,22 @@ patch(&oldSort, &sort);
 proc srand {
 	para seed;
 	randomSeed = seed;
+}
+
+func strcat {
+	auto result, i;
+	result = "";
+	for (i = 1; i <= $#; i++) {
+		if ($[i] == @) {
+			return @;
+		} else if (isString($[i])) {
+			result = result // $[i];
+		} else {
+			error("strcat: Argument " // str(i) // " must be a string, not a " // type($[i]));
+			return @;
+		}
+	}
+	return result;
 }
 
 ##JS-EDEN tail func returns @ for an undefined argument, refuses the empty list
