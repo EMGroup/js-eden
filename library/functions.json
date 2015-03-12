@@ -50,7 +50,7 @@
 		"concat": {
 			"parameters": {
 				"[separator]": "",
-				"item_list_or_item1...": ""
+				"[item_list_or_item1...]": ""
 			},
 			"return": "",
 			"description": ""

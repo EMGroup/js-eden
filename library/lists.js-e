@@ -107,22 +107,6 @@ func indexOf {
 	return 0;
 }
 
-func listcat {
-	auto result, i;
-	result = [];
-	for (i = 1; i <= $#; i++) {
-		if ($[i] == @) {
-			return @;
-		} else if (isList($[i])) {
-			result = result // $[i];
-		} else {
-			error("listcat: Argument " // str(i) // " must be a list, not a " // type($[i]));
-			return @;
-		}
-	}
-	return result;
-}
-
 ##A new JS-EDEN specific function.
 func reverse {
 	para list;

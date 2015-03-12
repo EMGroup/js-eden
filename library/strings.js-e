@@ -6,11 +6,28 @@
 ##Functions that operate on strings.
 
 ##Concatenates a collection of values, separating each one by a given
-##separator string or separator element.  The values can either be provided as
+##separator string, separator element or separator list.  The values can either be provided as
 ##multiple arguments or alternatively as a single list type argument.
 ##
 ##Basically you can pass to this function any list of values that you want to
 ##munge together and it will attempt to figure out what you meant.
+##
+##concat("", string1, ..., stringN) performs the same as strcat in tkeden.
+##concat([], list1, ..., listN) performs the same listcat in tkeden.
+##
+##To summarize the detailed case by case behavioural descriptions that follow later:
+##
+##	* The items to concatenate can be specified either as a list or as separate arguments.
+##	* If the items are specified as separate arguments then a separator must be provided, otherwise it is optional.
+##
+##	* If the items to be concatenated are all lists then list concatenation is used.
+##	* If one or more items are undefined then the entire result is undefined.
+##	* Otherwise string concatenation is used, with automatic conversion of non-string items to strings.
+##
+##	* For string concatenation: the separator is intended to be a string, or another not undefined value that gets implicitly converted into a string.
+##	* For string concatenation: if the separator is undefined then the entire result is undefined if there is more than one item.
+##	* For list concatenation: if the separator is a list then the items are concatenated as itemN // separator itemM
+##	* For list concatenation: if the separator is not a list then the items are concatenated as itemN // [separator] // itemM
 ##
 ##Case 1: separator + a list of strings
 ##	The strings are concatenated, separated by the separator.  If the separator
@@ -19,7 +36,7 @@
 ##	converted into a string.
 ##
 ##Case 2: separator + a list of lists
-##	The lists are concatenated, separated by the single separator element.
+##	The lists are concatenated, separated by the separator element or separator list.
 ##
 ##Case 3: separator + a list of things that are not all lists but are all defined
 ##	Any list items that are not strings are converted into strings, then as Case 1.
@@ -31,7 +48,7 @@
 ##	The strings are concatenated, separated by the separator.
 ##
 ##Case 6: separator + two or more further arguments that are all lists
-##	The lists are concatenated, separated by the single separator element.
+##	The lists are concatenated, separated by the separator element or separator list.
 ##
 ##Case 7: separator + one or more further arguments that are not all lists but are all defined
 ##	Any arguments that are not strings are converted into strings, then as Case 5.
@@ -39,25 +56,33 @@
 ##Case 8: separator + one or more further arguments, at least one of which is undefined
 ##	Undefined is returned.
 ##
-##Case 9: Single argument, which is a list
+##Case 9: Single argument, which is a list of lists
+##	The list is flattened by one level.
+##
+##Case 10: Single argument, which is a list whose items are not exclusively nested lists but are all defined
 ##	The list is concatenated using the empty string as the separator.
 ##
-##Case 10: Single argument, which is not a list.
+##Case 11: Single argument, which is list that contains at least one undefined element
+##	Undefined is returned.
+##
+##Case 12: Single argument, which is not a list.
 ##	The empty string is returned.
 ##
 func concat {
 	auto separator, concatStrings, list, i, item, result;
-	concatStrings = @;
+	concatStrings = false;
 	if ($# == 0) {
 		error("concat: This function requires at least one argument.");
 		return @;
 	} else if ($# == 1 && isList($[1])) {
-		separator = "";
 		list = $[1];
-		concatStrings = true;
 	} else if ($# == 2 && isList($[2])) {
-		separator = $[1];
-		list = $[2];
+		if (isList($[1])) {
+			return $[2];
+		} else {
+			separator = $[1];
+			list = $[2];
+		}
 	} else {
 		separator = $[1];
 		list = sublist($, 2, $#);
@@ -67,25 +92,24 @@ func concat {
 		return "";
 	}
 
-	if (concatStrings == @) {
-		concatStrings = false;
-		for (i = 1; i <= list#; i++) {
-			if (list[i] == @) {
-				return @;
-			} else if (!isList(list[i])) {
-				concatStrings = true;
-				break;
-			}
-		}
-	} else {
-		for (i = 1; i <= list#; i++) {
-			if (list[i] == @) {
-				return @;
-			}
+	for (i = 1; i <= list#; i++) {
+		if (list[i] == @) {
+			return @;
+		} else if (!isList(list[i])) {
+			concatStrings = true;
+			break;
 		}
 	}
 	
-	if (concatStrings) {
+	if ($# == 1 && isList($[1])) {
+		if (concatStrings) {
+			separator = "";
+			result = "";
+		} else {
+			separator = [];
+			result = [];
+		}
+	} else if (concatStrings) {
 		if (separator == @) {
 			if (list# > 1) {
 				return @;
@@ -95,10 +119,12 @@ func concat {
 		}
 		result = "";
 	} else {
-		separator = [separator];
+		if (!isList(separator)) {
+			separator = [separator];
+		}
 		result = [];
 	}
-	
+
 	for (i = 1; i < list#; i++) {
 		if (concatStrings) {
 			item = str(list[i]);
@@ -162,22 +188,6 @@ func lowercase {
 			return undefined;
 		}
 	}}$;
-}
-
-func strcat {
-	auto result, i;
-	result = "";
-	for (i = 1; i <= $#; i++) {
-		if ($[i] == @) {
-			return @;
-		} else if (isString($[i])) {
-			result = result // $[i];
-		} else {
-			error("strcat: Argument " // str(i) // " must be a string, not a " // type($[i]));
-			return @;
-		}
-	}
-	return result;
 }
 
 ##Returns the string formed by replacing the first instance of the second

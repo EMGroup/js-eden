@@ -91,6 +91,22 @@ func Inputbox { ${{
   return new Textbox(name, x, y, width, 1, enabled);
 }}$; }
 
+func listcat {
+	auto result, i;
+	result = [];
+	for (i = 1; i <= $#; i++) {
+		if ($[i] == @) {
+			return @;
+		} else if (isList($[i])) {
+			result = result // $[i];
+		} else {
+			error("listcat: Argument " // str(i) // " must be a list, not a " // type($[i]));
+			return @;
+		}
+	}
+	return result;
+}
+
 func Polygon {
 	${{
 		var points = arguments[0];
@@ -125,6 +141,22 @@ func Slider { ${{
   root.lookup(name + "_value").assign(value, root.lookup("Slider"));
   return new Slider(name, min, max, step, x, y, 130, orientation, true);
 }}$; }
+
+func strcat {
+	auto result, i;
+	result = "";
+	for (i = 1; i <= $#; i++) {
+		if ($[i] == @) {
+			return @;
+		} else if (isString($[i])) {
+			result = result // $[i];
+		} else {
+			error("strcat: Argument " // str(i) // " must be a string, not a " // type($[i]));
+			return @;
+		}
+	}
+	return result;
+}
 
 func Text {
 	${{
