@@ -458,6 +458,7 @@ include("library/strings.js-e");
 include("library/algebra.jse");
 include("library/include_js.js-e");
 include("library/dynamic.js-e");
+include("library/edenclocks.js-e");
 include("library/html.js-e");
 include("library/declarevar.js-e");
 

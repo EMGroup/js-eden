@@ -1,6 +1,7 @@
 //System Symbols
 Eden.systemObservableNames = [
 	"_authoringMode",
+	"_debug_.*",
 	"_menubar_status",
 	"_view_.*",
 	"Infinity",
@@ -43,7 +44,9 @@ Eden.systemAgentNames = [
 	"html",
 	"moveView",
 	"patch",
+	"removeedenclock",
 	"resizeView",
+	"setedenclock",
 	"setProperty",
     "showObservables",
 	"todo",
