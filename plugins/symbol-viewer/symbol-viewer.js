@@ -343,7 +343,15 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 
 	// Does the symbol have a definition
 	if (!symbol.definition || !symbol.eden_definition) {
-		symbolType = "obs";
+		if (typeof(symbol.cached_value) == "function") {
+			if (/\breturn\s+([^\/;]|(\/[^*\/]))/.test(symbol.cached_value.toString())) {
+				symbolType = "func";
+			} else {
+				symbolType = "agent";
+			}
+		} else {
+			symbolType = "obs";
+		}
 	} else {
 		// Find out what kind of definition it is (proc, func or plain)
 		var definition = symbol.eden_definition;
@@ -353,7 +361,16 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 		} else if (/^func\s/.test(definition)) {
 			symbolType = "func";
 		} else {
-			symbolType = "obs";
+			//Dependency
+			if (typeof(symbol.cached_value) == "function") {
+				if (/\breturn\s+([^\/;]|(\/[^*\/]))/.test(symbol.cached_value.toString())) {
+					symbolType = "func";
+				} else {
+					symbolType = "agent";
+				}
+			} else {
+				symbolType = "obs";
+			}
 		}
 	}
 
@@ -439,17 +456,35 @@ function _keys(obj) {
  * for this function, such as parameters and description.
  */
 EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
-	var funchtml = "<span class=\"result_name\">" + this.name + "</span>";
+	var eden_definition = this.symbol.eden_definition;
+	var nameHTML;
+	var detailsHTML;
+
+	if (eden_definition !== undefined && !/^func\s/.test(eden_definition)) {
+		nameHTML = "<span class='hasdef_text'>" + this.name + "</span>";
+	} else {
+		nameHTML = this.name;
+	}
 
 	// If there are details for this function in the function meta data
 	if (edenfunctions.functions != undefined && edenfunctions.functions[this.name] !== undefined) {
 		this.details = edenfunctions.functions[this.name];
 		// Extract parameters for display.
 		var params = _keys(this.details.parameters || {});
-		funchtml = funchtml + "<span class='result_value'> ( " + params.join(", ") + " )</span>";
+		detailsHTML = "<span class='result_value'> ( " + params.join(", ") + " )</span>";
+	} else {
+		detailsHTML = "";
 	}
 
-	this.element.html(funchtml);
+	var html = "<span class='result_name'>" + nameHTML + "</span>" + detailsHTML;
+
+	if (eden_definition !== undefined && !/^func\s/.test(this.symbol.eden_definition)) {
+		var tooltip = Eden.htmlEscape(eden_definition, false, true);
+		tooltip = Eden.htmlEscape("<pre>" + tooltip + ";</pre>");
+		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
+	}
+
+	this.element.html(html);
 };
 
 function _formatVal(value) {
@@ -473,7 +508,6 @@ function _formatVal(value) {
  * of the observable to display its current value correctly.
  */
 EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
-	var me = this;
 	var val = this.symbol.value();
 	var valhtml = _formatVal(val);
 
@@ -500,5 +534,22 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
  * Update the HTML output of a procedure symbol.
  */
 EdenUI.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function () {
-	this.element.html("<span class=\"result_name\">" + this.name + "</span>");
+	var eden_definition = this.symbol.eden_definition;
+	var nameHTML;
+
+	if (eden_definition !== undefined && !/^proc\s/.test(eden_definition)) {
+		nameHTML = "<span class='hasdef_text'>" + this.name + "</span>";
+	} else {
+		nameHTML = this.name;
+	}
+
+	var html = "<span class='result_name'>" + nameHTML + "</span>";
+
+	if (eden_definition !== undefined && !/^proc\s/.test(this.symbol.eden_definition)) {
+		var tooltip = Eden.htmlEscape(eden_definition, false, true);
+		tooltip = Eden.htmlEscape("<pre>" + tooltip + ";</pre>");
+		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
+	}
+
+	this.element.html(html);
 };

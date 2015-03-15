@@ -47,10 +47,25 @@
 			"return": "",
 			"description": ""
 		},
+		"compose": {
+			"parameters": {
+				"func_list_or_func1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"concat": {
 			"parameters": {
 				"[separator]": "",
 				"[item_list_or_item1...]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"curry": {
+			"parameters": {
+				"func": "",
+				"argument_list_or_argument1...": ""
 			},
 			"return": "",
 			"description": ""
@@ -87,6 +102,24 @@
 		"edenCode": {
 			"parameters": {
 				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"foldl": {
+			"parameters": {
+				"func": "",
+				"initial_value": "",
+				"list_or_item1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"foldr": {
+			"parameters": {
+				"func": "",
+				"initial_value": "",
+				"list_or_item1...": ""
 			},
 			"return": "",
 			"description": ""
@@ -246,6 +279,13 @@
 			"return": "",
 			"description": ""
 		},
+		"List": {
+			"parameters": {
+				"item1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"listcat": {
 			"parameters": {
 				"list1...": ""
@@ -264,6 +304,22 @@
 		"lowercase": {
 			"parameters": {
 				"string": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"map": {
+			"parameters": {
+				"func": "",
+				"list_or_item1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"mapPartial": {
+			"parameters": {
+				"func": "",
+				"list_or_item1...": ""
 			},
 			"return": "",
 			"description": ""
@@ -293,6 +349,15 @@
 		"nameof": {
 			"parameters": {
 				"pointer": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"partApply": {
+			"parameters": {
+				"func": "",
+				"argument_number1": "",
+				"argument_value1...": ""
 			},
 			"return": "",
 			"description": ""
@@ -378,6 +443,63 @@
 				"comparison_function": "",
 				"[start": "",
 				"[is_sorted]]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"sequenceItoJ": {
+			"parameters": {
+				"low": "",
+				"high": "",
+				"[increment]": "",
+				"func": "",
+				"[item0]" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"sequenceN": {
+			"parameters": {
+				"low": "",
+				"[increment]": "",
+				"number_of_values" : "",
+				"func": "",
+				"[item0]" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"sequenceArithmetic": {
+			"parameters": {
+				"low": "",
+				"high": "",
+				"[increment]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"sequenceArithmeticN": {
+			"parameters": {
+				"low": "",
+				"[increment]": "",
+				"number_of_values" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"sequenceList": {
+			"parameters": {
+				"func": "",
+				"list_or_item1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"sequencePrevious": {
+			"parameters": {
+				"func": "",
+				"item0" : "",
+				"[n]": ""
 			},
 			"return": "",
 			"description": ""

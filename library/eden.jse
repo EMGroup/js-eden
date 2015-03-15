@@ -461,6 +461,7 @@ include("library/dynamic.js-e");
 include("library/edenclocks.js-e");
 include("library/html.js-e");
 include("library/declarevar.js-e");
+include("library/generate_function.js-e");
 
 require("InputWindow");
 require("PluginListing");
