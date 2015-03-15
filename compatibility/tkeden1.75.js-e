@@ -23,6 +23,18 @@ func listcat {
 	return result;
 }
 
+proc pauseedenclocks {
+	edenclocks_paused = true;
+}
+
+proc unpauseedenclocks {
+	auto temp;
+	temp = edenclocks;
+	edenclocks = [];
+	edenclocks = temp;
+	edenclocks_paused = false;
+}
+
 func pow {
   return ${{ Math.pow(arguments[0],arguments[1]); }}$;
 }

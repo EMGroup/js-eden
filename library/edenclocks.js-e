@@ -1,0 +1,181 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+##
+
+##Implementation of tkeden's edenclocks functionality in JS-EDEN.  The timing is a bit more reliable
+##than after(), though there are still some timing errors.
+## 
+##Enhancements, in addition to the functionality offered by tkeden:
+##
+## (1) If the observable pointed to is a procedure rather than a numeric observable then the
+##      procedure will be called (with no arguments) once per clock pulse.
+## (2) The edenclocks_paused observable can be used to pause and unpause all active clocks without
+##     losing the phase differences between them.
+
+edenclocks = [];
+edenclocks_paused = false;
+
+${{
+	root.edenclocks = {};
+	var edenclocks = root.lookup("edenclocks");
+	edenclocks.addJSObserver("setClocks", function (symbol, clocks) {
+		var newClockNames = {};
+		var debugSym = root.lookup("_debug_edenclocks");
+		var debug = debugSym.value();
+		var pausedSym = root.lookup("edenclocks_paused");
+
+		if (Array.isArray(clocks)) {
+			var incrementClock = function (symbol) {
+				if (!pausedSym.cached_value) {
+					symbol.assign(symbol.cached_value + 1, edenclocks);
+					if (debugSym.cached_value) {
+						console.log("edenclocks: clock " + symbol.name);
+					}
+				}
+			};
+			var callClockProc = function (symbol) {
+				if (!pausedSym.cached_value) {
+					if (debugSym.cached_value) {
+						console.log("edenclocks: clock " + symbol.name);
+					}				
+					symbol.definition(root)();
+				}
+			};
+			var startClock = function (interval, target) {
+				if (target.eden_definition !== undefined && target.definition !== undefined && /^proc\s/.test(target.eden_definition)) {
+					return window.setInterval(callClockProc, interval, target);
+				} else {
+					var currentValue = target.value();
+					if (currentValue === undefined) {
+						target.assign(0, edenclocks);
+						return window.setInterval(incrementClock, interval, target);
+					} else if (typeof(currentValue) == "number") {
+						return window.setInterval(incrementClock, interval, target);					
+					} else {
+						var targetName = target.name.slice(1);
+						eden.error(new Error("edenclocks: edenclock observable " + targetName + " must be a procedure or have a numeric value assigned, not a " + typeof(currentValue) + ".  Paused edenclock " + targetName), "error");
+						return undefined;
+					}
+				}
+			};
+
+			for (var i = 0; i < clocks.length; i++) {
+				var clockDetails = clocks[i];
+				if (Array.isArray(clockDetails)) {
+					var clockSymbol = clockDetails[0];
+					if (clockSymbol instanceof Symbol) {
+						var clockName = clockSymbol.name;
+						var clockInterval = clockDetails[1];
+						if (clockInterval !== undefined && typeof(clockInterval) != "number") {
+							eden.error(new Error("edenclocks: The value assigned to item " + i + " of the edenclocks list must be a list where the second element is a number or undefined, not a " + typeof(clockInterval) + ".  Paused edenclock " + clockName), "error");
+							clockInterval = undefined;
+						}
+						var existingClock = root.edenclocks[clockName];
+						var timer;
+						if (existingClock === undefined) {
+							if (clockInterval === undefined) {
+								if (debug) {
+									console.log("edenclocks: new clock " + clockName + ", paused");
+								}
+								root.edenclocks[clockName] = {intervalID: undefined, interval: undefined};
+							} else {
+								if (debug) {
+									console.log("edenclocks: new clock " + clockName + ", " + clockInterval + "ms");
+								}
+								timer = startClock(clockInterval, clockSymbol);
+								root.edenclocks[clockName] = {intervalID: timer, interval: clockInterval};
+							}
+						} else if (existingClock.intervalID === undefined) {
+							if (clockInterval !== undefined) {
+								if (debug) {
+									console.log("edenclocks: restart clock " + clockName + ", " + clockInterval + "ms");
+								}
+								timer = startClock(clockInterval, clockSymbol);
+								existingClock.intervalID = timer;
+								existingClock.interval = clockInterval;
+							}					
+						} else if (clockInterval === undefined) {
+							window.clearInterval(existingClock.intervalID);
+							if (debug) {
+								console.log("edenclocks: pause clock " + clockName);
+							}
+							existingClock.intervalID = undefined;
+						} else if (clockInterval != existingClock.interval) {
+							window.clearInterval(existingClock.intervalID);
+							if (debug) {
+								console.log("edenclocks: change interval " + clockName + ", " + clockInterval + "ms");
+							}
+							timer = startClock(clockInterval, clockSymbol);
+							existingClock.intervalID = timer;
+							existingClock.interval = clockInterval;
+						}
+						newClockNames[clockName] = true;
+					} else if (clockSymbol !== undefined) {
+						eden.error(new Error("edenclocks: The value assigned to item " + i + " of the edenclocks list must be a list where the first element is a pointer, not a " + typeof(clockSymbol)), "error");
+					}
+				} else if (clockDetails !== undefined) {
+					eden.error(new Error("edenclocks: The value assigned to item " + i + " of the edenclocks list must be a list, not a " + typeof(clockDetails)), "error");
+				}
+			}
+		} else if (clocks !== undefined) {
+			eden.error(new Error("edenclocks: The value assigned to edenclocks must be a list, not a " + typeof(clocks)), "error");
+		}
+		for (var clockName in root.edenclocks) {
+			if (!(clockName in newClockNames)) {
+				var existingClock = root.edenclocks[clockName];
+				if (existingClock.intervalID !== undefined) {
+					window.clearInterval(existingClock.intervalID);
+					if (debug) {
+						console.log("edenclocks: delete clock " + clockName);
+					}
+					existingClock.intervalID = undefined;
+				}
+			}
+		}
+	});
+}}$;
+
+proc setedenclock {
+	para clockPtr, millis;
+	auto i;
+	if ($# != 2) {
+		error("setedenclock: This procedure requires exactly 2 arguments.");
+	} else if (!isPointer($[1])) {
+		error("setedenclock: The first argument must be a pointer, not a " // type($[1]));
+	} else if ($[2] != @ && !isNumber($[2])) {
+		error("setedenclock: The second argument must be a number or undefined, not a " // type($[2]));
+	} else {
+		if (_debug_edenclocks) {
+			${{ console.log("edenclocks: setedenclock(" + arguments[0].name.slice(1) + ", " + arguments[1] + ")"); }}$;
+		}
+		for (i = 1; i <= edenclocks#; i++) {
+			if (isList(edenclocks[i]) && edenclocks[i][1] == clockPtr) {
+				edenclocks = sublist(edenclocks, 1, i - 1) // [[clockPtr, millis]] // sublist(edenclocks, i + 1);
+				return;
+			}
+		}
+		edenclocks = edenclocks // [[clockPtr, millis]];
+	}
+}
+
+proc removeedenclock {
+	para clockPtr;
+	auto i;
+	if ($# != 1) {
+		error("removeedenclock: This procedure requires exactly 1 argument.");
+	} else if (!isPointer($[1])) {
+		error("removeedenclock: The argument must be a pointer, not a " // type($[1]));
+	} else {
+		if (_debug_edenclocks) {
+			${{ console.log("edenclocks: removeedenclock(" + arguments[0].name.slice(1) + ")"); }}$;
+		}
+		for (i = 1; i <= edenclocks#; i++) {
+			if (isList(edenclocks[i]) && edenclocks[i][1] == clockPtr) {
+				edenclocks = sublist(edenclocks, 1, i - 1) // sublist(edenclocks, i + 1);
+				return;
+			}
+		}
+	}
+}
