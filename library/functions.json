@@ -18,8 +18,7 @@
 		},
 		"canvasURL": {
 			"parameters": {
-				"[canvas": "",
-				"[triggering_observables...]]" : ""
+				"[canvas_name]": ""
 			},
 			"return": "",
 			"description": ""

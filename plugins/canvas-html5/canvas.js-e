@@ -94,7 +94,10 @@ proc createCanvas {
 func canvasURL {
 	${{
 		var canvasName;
-		if (arguments.length == 0) {
+		if (arguments.length > 1) {
+			eden.error(new Error("canvasURL: This function requires at most one argument."), "error");
+			return "";
+		} else if (arguments.length == 0) {
 			canvasName = "picture";
 		} else {
 			canvasName = arguments[0];

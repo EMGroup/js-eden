@@ -95,6 +95,7 @@
 		})
 		.dialogExtend({
 			minimizable: true,
+			maximizable: true,
 			minimize: function () {
 				var dialogMin = dialog(name).data('dialog-extend-minimize-controls');
 				// dialogExtend sets position: static and top, left, but doesn't need to.

@@ -16,6 +16,7 @@
 
 edenclocks = [];
 edenclocks_paused = false;
+_debug_edenclocks = false;
 
 ${{
 	root.edenclocks = {};
