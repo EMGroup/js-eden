@@ -180,7 +180,7 @@ EdenUI.plugins.DM = function(edenUI, success){
 	}
 	
 	//Register the HTML view options
-	edenUI.views["DM"] = {dialog: this.createDialog, title: "Dependency Map"};
+	edenUI.views["DM"] = {dialog: this.createDialog, title: "Dependency Map", category: edenUI.viewCategories.comprehension, menuPriority: 0};
 	success();
 };
 /* Plugin meta information */

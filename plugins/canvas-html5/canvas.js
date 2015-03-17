@@ -488,7 +488,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 	}
 
 	//Supported canvas views
-	edenUI.views["CanvasHTML5"] = {dialog: this.createDialog, title: "Canvas HTML5"};
+	edenUI.views["CanvasHTML5"] = {dialog: this.createDialog, title: "Canvas HTML5", category: edenUI.viewCategories.visualization};
 
 	edenUI.eden.include("plugins/canvas-html5/canvas.js-e", success);
 };

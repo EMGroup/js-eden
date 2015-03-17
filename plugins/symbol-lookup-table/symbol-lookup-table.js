@@ -33,7 +33,7 @@ EdenUI.plugins.SLT = function (edenui, success) {
 	}
 
 	//Register the HTML view options
-	edenui.views["SLT"] = {dialog: this.createDialog, title: "Symbol Lookup Table"};
+	edenui.views["SLT"] = {dialog: this.createDialog, title: "Symbol Lookup Table", category: edenUI.viewCategories.comprehension, menuPriority: 3};
 	
 	SLT = {};
 

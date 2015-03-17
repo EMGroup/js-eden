@@ -238,10 +238,10 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	edenUI.eden.root.addGlobal(symbolChanged);
 
 	// Add views supported by this plugin.
-	edenUI.views["ObservableList"] = {dialog: this.createObservableDialog, title: "Observable List"};
-	edenUI.views["FunctionList"] = {dialog: this.createFunctionDialog, title: "Function List"};
-	edenUI.views["AgentList"] = {dialog: this.createAgentDialog, title: "Agent List"};
-	edenUI.views["SymbolList"] = {dialog: this.createSymbolDialog, title: "Symbol List"};
+	edenUI.views["ObservableList"] = {dialog: this.createObservableDialog, title: "Observable List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
+	edenUI.views["FunctionList"] = {dialog: this.createFunctionDialog, title: "Function List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
+	edenUI.views["AgentList"] = {dialog: this.createAgentDialog, title: "Agent List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
+	edenUI.views["SymbolList"] = {dialog: this.createSymbolDialog, title: "Symbol List", category: edenUI.viewCategories.comprehension, menuPriority: 2};
 
 	$(document).tooltip();
 	success();

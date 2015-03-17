@@ -294,7 +294,7 @@ EdenUI.plugins.ST = function(edenUI, success){
 	}
 	
 	//Register the HTML view options
-	edenUI.views["ST"] = {dialog: this.createDialog, title: "State Timeline"};
+	edenUI.views["ST"] = {dialog: this.createDialog, title: "State Timeline", category: edenUI.viewCategories.history};
 	success();
 };
 /* Plugin meta information */

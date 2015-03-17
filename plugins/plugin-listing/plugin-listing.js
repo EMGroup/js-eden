@@ -73,7 +73,7 @@ EdenUI.plugins.PluginListing = function (edenUI, success) {
 			});
 	};
 
-	edenUI.views["PluginListing"] = {dialog: this.createDialog, title: "Plugin Listing"};
+	edenUI.views["PluginListing"] = {dialog: this.createDialog, title: "Plugin Listing", category: edenUI.viewCategories.environment};
 	success();
 };
 

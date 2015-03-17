@@ -33,7 +33,7 @@ EdenUI.plugins.SG = function (edenUI, success) {
 	}
 
 	//Register the HTML view options:
-	edenUI.views["SG"] = {dialog: this.createDialog, title: "Script Generator"};
+	edenUI.views["SG"] = {dialog: this.createDialog, title: "Script Generator", category: edenUI.viewCategories.history};
 	
 	SG = {};
 	SG.update = function (event) {

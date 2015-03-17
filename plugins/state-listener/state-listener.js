@@ -102,7 +102,7 @@ EdenUI.plugins.SL = function(edenUI, success){
 	
 	
 	//Register the HTML view options
-	edenUI.views["SL"] = {dialog: this.createDialog, title: "State Listener"};
+	edenUI.views["SL"] = {dialog: this.createDialog, title: "State Listener", category: edenUI.viewCategories.extension};
 	edenUI.eden.include("plugins/state-listener/state-listener.js-e", success);
 };
 /* Plugin meta information */
