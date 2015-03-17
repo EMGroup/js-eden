@@ -372,7 +372,7 @@ var json = {
 	};
 
 	//Register the HTML view options
-	edenUI.views["ET"] = {dialog: this.createDialog, title: "Expression Tree"};
+	edenUI.views["ET"] = {dialog: this.createDialog, title: "Expression Tree", category: edenUI.viewCategories.interpretation, menuPriority: 0};
 	edenUI.eden.include("plugins/expression-tree/expression-tree.js-e", success);
 };
 /* Plugin meta information */

@@ -212,12 +212,15 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 	edenUI.views.InputWindow = {
 		dialog: this.createDialog,
 		embed: this.createEmbedded,
-		title: "JS-Eden Input Window"
+		title: "JS-Eden Input Window",
+		category: edenUI.viewCategories.interpretation,
+		menuPriority: 0
 	};
 
 	edenUI.views.History = {
 		dialog: this.createHistory,
-		title: "Input History"
+		title: "Input History",
+		category: edenUI.viewCategories.history
 	};
 	
 	edenUI.history = this.history;

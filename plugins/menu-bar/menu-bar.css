@@ -49,13 +49,25 @@
 	font-family: 'arial';
 	color: #dadada;
 	float: left;
-	width: 60px;
+	width: 104px;
 	cursor: pointer;
 	z-index: 5;
 }
 
 .menubar-item {
 	position: relative;
+}
+
+.menubar-item-separator {
+	margin-top: 10px;
+	margin-bottom: 1px;
+	background-color: #E8E8E8;
+	font-weight: bold;
+	cursor: default;
+}
+
+.menubar-item:first-child .menubar-item-separator {
+	margin-top: 0px;
 }
 
 .menubar-item:hover {
@@ -78,7 +90,8 @@
 }
 
 .menubar-item-fullwidth {
-	width: 190px;
+	box-sizing: border-box;
+	width: 200px;
 	padding: 5px;
 }
 
@@ -108,6 +121,10 @@
 	color: black;
 	width: 200px;
 	z-index: 2147483647; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */
+}
+
+.menubar-view {
+	padding-left: 2em;
 }
 
 /* use a pseudo element to make a border without

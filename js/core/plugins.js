@@ -8,7 +8,7 @@
 (function () {
 	//Prevent jQuery from cancelling attempts to reposition a dialog so that it isn't fully within the boundaries of the window.
 	$.extend($.ui.dialog.prototype.options.position, { collision: 'none' });
-
+	
 	/**
 	 * Helper to return the Symbol for a view property.
 	 *
