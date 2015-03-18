@@ -152,7 +152,7 @@ ${{
 	  var element = document.createElement('div');
 
 	  function decodeHTML (str) {
-		if(typeof(str) == 'string') {
+		if (typeof(str) == "string") {
 		  //Strip html tags
 		  str = str.replace(/&(amp|#38|lt|#60|gt|#62|quot|#34|apos|#39);/g, "&amp;$1;");
 		  str = str.replace(/&([^\s;]*\s)/g, "&amp;$1");

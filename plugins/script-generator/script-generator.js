@@ -57,7 +57,21 @@ EdenUI.plugins.SG = function (edenUI, success) {
 	
 	
 	SG.generateInnerHTML = function (excludeStr) {
-		//generates the content
+		var lines = SG.generateScript(excludeStr);
+		var html = "<div style='position: absolute; top: 30px; bottom: 10px; left: 0; right: 10px;'>" +
+			"<textarea readonly=true spellcheck=false style='font-family: monospace; background-color: white; color: black; resize: none; width: 100%; height: 100%;'>";
+		for (var i = 0; i < lines.length; i++) {
+			html = html + Eden.htmlEscape(lines[i], true) + "\n";
+		}
+		html = html + "</textarea></div>";
+		return html;
+	}
+
+	/**
+	 * @return {Array} An array where each item is a string representing a piece of EDEN code and
+	 * of the items together represent a complete script capable of rebuilding the current state.
+	 */
+	SG.generateScript = function (excludeStr) {
 
 		var symbols = SG.arrayFromObject(root.symbols);
 		
@@ -80,7 +94,7 @@ EdenUI.plugins.SG = function (edenUI, success) {
 			"## This is a JS-EDEN script automatically generated using the environment's script generator feature.",
 			"## JS-EDEN is an open source empirical modelling environment based on research, principles and work",
 			"## conducted at University of Warwick.",
-			"## Web site: https://github.com/emgroup/js-eden",
+			"## Web site: https://github.com/EMGroup/js-eden",
 			"## Firstly, turn off automatic calculation until the construal is fully loaded.",
 			"## Include Files:",
 			"## Observable Assignments:",
@@ -127,7 +141,7 @@ EdenUI.plugins.SG = function (edenUI, success) {
 				} else if (/^proc\s/.test(symbol.eden_definition)) {
 					procedures.push(symbol.eden_definition);
 				} else {
-					definitions.push(Eden.htmlEscape(symbol.eden_definition, true) + ";");
+					definitions.push(symbol.eden_definition + ";");
 				}
 
 			} else {
@@ -145,8 +159,7 @@ EdenUI.plugins.SG = function (edenUI, success) {
 				} else {
 					edenForValue = Eden.edenCodeForValue(value);
 				}
-				var htmlForValue = Eden.htmlEscape(edenForValue, true);
-				assignments.push(name + " = " + htmlForValue + ";");
+				assignments.push(name + " = " + edenForValue + ";");
 
 			}
 
@@ -203,12 +216,7 @@ EdenUI.plugins.SG = function (edenUI, success) {
 		lines.push(autocalcOn);
 		lines.push("");
 		lines.push(comments[12]);
-
-		return "<div style='position: absolute; top: 30px; bottom: 10px; left: 0; right: 10px;'>" +
-			"	<textarea readonly=true spellcheck=false style='font-family: monospace; background-color: white; color: black; resize: none; width: 100%; height: 100%;'>" +
-					lines.join("\n") + 
-			"	</textarea>" +
-			"</div>";
+		return lines;
 	}
 	
 	SG.arrayFromObject = function (object) {

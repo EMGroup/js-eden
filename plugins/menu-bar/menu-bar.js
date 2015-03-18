@@ -236,7 +236,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 
 	// Add main menu items
 	addMainItem("views", "New Window");
-	addMainItem("existing-views", "Current Windows");
+	addMainItem("existing-views", "Existing Windows");
 
 	// Put js-eden version in right corner
 	$.ajax({

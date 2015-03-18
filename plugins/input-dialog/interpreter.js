@@ -212,7 +212,7 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 	edenUI.views.InputWindow = {
 		dialog: this.createDialog,
 		embed: this.createEmbedded,
-		title: "JS-Eden Input Window",
+		title: "Script Input Window",
 		category: edenUI.viewCategories.interpretation,
 		menuPriority: 0
 	};
