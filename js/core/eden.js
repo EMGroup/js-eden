@@ -115,14 +115,15 @@ function concatAndResolveUrl(url, concat) {
 		});
 
 		this.eden.listenTo('executeError', this, function (e, options) {
+			var errorMessageHTML = Eden.htmlEscape(e.message);
 			if (this.plugins.MenuBar) {
-				this.plugins.MenuBar.updateStatus("Error: "+e.message);
+				this.plugins.MenuBar.updateStatus("Error: " + errorMessageHTML);
 			}
 
 			var formattedError = "<div class=\"error-item\">"+
 				"## ERROR number " + options.errorNumber + ":<br>"+
 				(options.path ? "## " + options.path + "<br>" : "")+
-				e.message+
+				errorMessageHTML +
 				"</div>\r\n\r\n";
 
 			this.showErrorWindow().prepend(formattedError)
@@ -294,6 +295,9 @@ function concatAndResolveUrl(url, concat) {
 			} else {
 				this.emit('executeError', [error, {errorNumber: this.errorNumber}]);
 			}
+		}
+		if (error.stack) {
+			console.log(e.stack);
 		}
 		++this.errorNumber;
 	};
