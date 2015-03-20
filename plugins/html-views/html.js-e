@@ -23,6 +23,10 @@ proc html {
 			content = arguments[1];
 			if (typeof(viewName) != "string") {
 				eden.error(new Error("html: The name of the view to update must be a string, not a " + typeof(viewName)), "error");
+				return;
+			} else if (!/^[_a-zA-Z]\w*$/.test(viewName)) {
+				eden.error(new Error("html: The name of the view to update must be a valid EDEN identifier."), "error");
+				return;
 			}
 			break;
 		default:
@@ -34,7 +38,7 @@ proc html {
 			content = "<div style=\"color: red\">undefined</div>";
 		}
 		
-		edenUI.plugins.HTMLViews.html(viewName, content);
+		edenUI.plugins.HTMLContent.html(viewName, content);
 	}}$;
 };
 
@@ -65,7 +69,7 @@ proc createHTMLView {
 		return;
 	}
 	
-	createView(viewName, "PlainHTML");
+	createView(viewName, "HTMLContent");
 
 	createJSObserver = ${{ function (obsName, viewName) {
 		var observer = function (symbol, value) {

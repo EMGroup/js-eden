@@ -98,7 +98,7 @@ func replace {
 ##comprending the procedural code that created the definitions.  In simple
 ##cases of using "execute" to create many similar definitions the contents of
 ##this window could be directly substituted for the procedural code.
-createView("Dynamically_Created_Definitions", "PlainHTML");
+createView("Dynamically_Created_Definitions", "HTMLContent");
 generatedDefinitions = "";
 
 ##A drop-in replacement for "execute" that "execute"s its argument and logs the

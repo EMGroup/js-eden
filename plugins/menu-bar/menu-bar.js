@@ -97,6 +97,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	}
 
 	function onClickNewWindow(e) {
+		hideMenu();
 		edenUI.createView("view_"+viewNumber, this.view);
 		viewNumber++;
 		me.updateViewsMenu();
@@ -117,9 +118,13 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		}
 		return viewEntry;
 	}
-
+	
 	function menuItemPart(className, content) {
 		return $('<div class="'+className+' menubar-item-clickable">'+content+'</div>');
+	}
+
+	function menuSeparator(name) {
+		return $("<div class='menubar-item'><div class='menubar-item-fullwidth menubar-item-separator'>" + name + "</div></div>");
 	}
 
 	function hoverFunc(viewName) {
@@ -153,18 +158,37 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		var close;
 
 		for (viewType in edenUI.views) {
-			var title = edenUI.views[viewType].title;
+			var viewDetails = edenUI.views[viewType];
+			var title = viewDetails.title;
+			var categoryLabel = viewDetails.category.getLabel();
+			var categoryPriority = viewDetails.category.getMenuPriority();
+			var itemPriority = viewDetails.menuPriority;
 
-			label = menuItemPart('menubar-item-fullwidth', title);
+			label = menuItemPart('menubar-item-fullwidth menubar-view', title);
 
 			viewEntry = menuItem([label]);
 			viewEntry[0].view = viewType;
 			viewEntry.bind("click", onClickNewWindow);
 
-			viewArray.push({title: title, viewEntry: viewEntry});
+			viewArray.push({title: title, viewEntry: viewEntry,
+				categoryLabel: categoryLabel, categoryPriority: categoryPriority, itemPriority: itemPriority});
 		}
 
 		viewArray = viewArray.sort(function (a, b) {
+			if (a.categoryPriority != b.categoryPriority) {
+				return a.categoryPriority - b.categoryPriority;
+			}
+			if (a.itemPriority !== undefined) {
+				if (b.itemPriority !== undefined) {
+					if (a.itemPriority != b.itemPriority) {
+						return a.itemPriority - b.itemPriority;
+					}
+				} else {
+					return -1;
+				}
+			} else if (b.itemPriority !== undefined) {
+				return 1;
+			}
 			if (a.title > b.title) {
 				return 1;
 			} else if (a.title < b.title) {
@@ -173,8 +197,16 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			return 0;
 		});
 
+		var prevCategory;
 		for (var i = 0; i < viewArray.length; ++i) {
-			viewArray[i].viewEntry.appendTo(views);
+			var item = viewArray[i];
+			var category = item.categoryLabel;
+			if (prevCategory != category) {
+				var separator = menuSeparator(category);
+				separator.appendTo(views);
+				prevCategory = category;
+			}
+			item.viewEntry.appendTo(views);
 		}
 
 		existingViews.html("");
@@ -203,8 +235,8 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	};
 
 	// Add main menu items
-	addMainItem("views", "New");
-	addMainItem("existing-views", "Windows");
+	addMainItem("views", "New Window");
+	addMainItem("existing-views", "Existing Windows");
 
 	// Put js-eden version in right corner
 	$.ajax({
@@ -229,5 +261,4 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 };
 
 EdenUI.plugins.MenuBar.title = "Menu Bar";
-EdenUI.plugins.MenuBar.description = "Provides main menu for plugin and view management";
-EdenUI.plugins.MenuBar.author = "Nicolas Pope";
+EdenUI.plugins.MenuBar.description = "Creates the menu bar.";

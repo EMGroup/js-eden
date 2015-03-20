@@ -8,7 +8,7 @@
 (function () {
 	//Prevent jQuery from cancelling attempts to reposition a dialog so that it isn't fully within the boundaries of the window.
 	$.extend($.ui.dialog.prototype.options.position, { collision: 'none' });
-
+	
 	/**
 	 * Helper to return the Symbol for a view property.
 	 *
@@ -95,6 +95,7 @@
 		})
 		.dialogExtend({
 			minimizable: true,
+			maximizable: true,
 			minimize: function () {
 				var dialogMin = dialog(name).data('dialog-extend-minimize-controls');
 				// dialogExtend sets position: static and top, left, but doesn't need to.

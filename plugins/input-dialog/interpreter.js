@@ -28,7 +28,7 @@ if (!("time" in console)) {
  * Which is better than the one with all the widget cak.
  * @class Input Window Plugin
  */
-EdenUI.plugins.InputWindow = function(edenUI, success) {
+EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 	var me = this;
 	me.edenparser = undefined;
@@ -127,7 +127,7 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 	this.createHistory = function(name,mtitle) {
 
 		historydialog = $('<div id="'+name+'"></div>')
-			.html("<div class=\"history\">"+edenUI.plugins.InputWindow.generateHistory()+"</div>")
+			.html("<div class=\"history\">"+edenUI.plugins.ScriptInput.generateHistory()+"</div>")
 			.dialog({
 				title: mtitle,
 				width: 500,
@@ -180,17 +180,17 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 	};
 
 	this.next = function (el) {
-		var n = edenUI.plugins.InputWindow.nextHistory();
+		var n = edenUI.plugins.ScriptInput.nextHistory();
 		el.value = n;
 	};
 
 	this.prev = function (el) {
-		var p = edenUI.plugins.InputWindow.previousHistory();
+		var p = edenUI.plugins.ScriptInput.previousHistory();
 		el.value = p;
 	};
 
 	this.submit = function (el) {
-		edenUI.plugins.InputWindow.submitEdenCode(el.value);
+		edenUI.plugins.ScriptInput.submitEdenCode(el.value);
 		el.value = "";
 	};
 
@@ -209,15 +209,18 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 		}
 	};
 
-	edenUI.views.InputWindow = {
+	edenUI.views.ScriptInput = {
 		dialog: this.createDialog,
 		embed: this.createEmbedded,
-		title: "JS-Eden Input Window"
+		title: "Script Input Window",
+		category: edenUI.viewCategories.interpretation,
+		menuPriority: 0
 	};
 
 	edenUI.views.History = {
 		dialog: this.createHistory,
-		title: "Input History"
+		title: "Input History",
+		category: edenUI.viewCategories.history
 	};
 	
 	edenUI.history = this.history;
@@ -226,9 +229,8 @@ EdenUI.plugins.InputWindow = function(edenUI, success) {
 };
 
 /* Plugin meta information */
-EdenUI.plugins.InputWindow.title = "Input Window";
-EdenUI.plugins.InputWindow.description = "EDEN style script input window";
-EdenUI.plugins.InputWindow.author = "Joe Butler";
+EdenUI.plugins.ScriptInput.title = "Script Input";
+EdenUI.plugins.ScriptInput.description = "Provides the ability to type in definitional scripts using the keyboard, submit them for interpretation and recall the input history.";
 
 //Make tab do spaces instead of selecting the next element
 $(document).delegate('.inputCodeArea textarea', 'keydown', function(e) {

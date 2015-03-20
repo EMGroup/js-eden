@@ -946,29 +946,36 @@
 	};
 
 
+	edenUI.addViewCategory("adm", "Abstract Definitive Machine");
+	
 	edenUI.views["AdmTemplateCreator"] = {
 		dialog: this.createTemplateCreator,
-		title: "ADM Template Creator"
+		title: "ADM Template Creator",
+		category: edenUI.viewCategories.adm
 	};
 
 	edenUI.views["AdmInstantiator"] = {
 		dialog: this.createInstantiator,
-		title: "ADM Template Instantiator"
+		title: "ADM Template Instantiator",
+		category: edenUI.viewCategories.adm
 	};
 	
 	edenUI.views["AdmHumanPerspective"] = {
 		dialog: this.createHumanPerspective,
-		title: "ADM Human Perspective"
+		title: "ADM Human Perspective",
+		category: edenUI.viewCategories.adm
 	};
 
 	edenUI.views["AdmEntityList"] = {
 		dialog: this.createInstanceList,
-		title: "ADM Entity List"
+		title: "ADM Entity List",
+		category: edenUI.viewCategories.adm
 	};
 
 	edenUI.views["AdmAdvancedInput"] = {
 		dialog: this.createAdvancedInput,
-		title: "ADM Advanced Input"
+		title: "ADM Advanced Input",
+		category: edenUI.viewCategories.adm
 	};
 
 	success();
@@ -1176,6 +1183,6 @@ EdenUI.plugins.ADM.Entity.prototype.unselect = function() {
 }
 
 
-EdenUI.plugins.ADM.title = "ADM";
+EdenUI.plugins.ADM.title = "Abstract Definitive Machine (ADM)";
 EdenUI.plugins.ADM.description = "Abstract Definitive Machine";
 EdenUI.plugins.ADM.author = "Ruth King";

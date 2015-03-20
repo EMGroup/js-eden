@@ -8,15 +8,15 @@
 /**
  * JS-Eden HTML Views Plugin.
  * A simple plugin allowing Eden code to display html within dialogs.
- * @class HTMLViews Plugin
+ * @class HTMLContent Plug-in
  */
 
-EdenUI.plugins.HTMLViews = function(edenUI, success) {
+EdenUI.plugins.HTMLContent = function(edenUI, success) {
 	var me = this;
 
 	this.html = function(name,content) {
 		if (!(name in edenUI.viewInstances)) {
-			edenUI.createView(name,"PlainHTML");
+			edenUI.createView(name,"HTMLContent");
 		}
 		$("#"+name+"-dialog-content").html(content);
 	}
@@ -37,13 +37,12 @@ EdenUI.plugins.HTMLViews = function(edenUI, success) {
 	}
 
 	//Register the HTML view options
-	edenUI.views["PlainHTML"] = {dialog: this.createDialog, title: "Plain HTML View"};
+	edenUI.views["HTMLContent"] = {dialog: this.createDialog, title: "HTML Content", category: edenUI.viewCategories.visualization};
 
 	//Load the Eden wrapper functions
 	edenUI.eden.include("plugins/html-views/html.js-e", success);
 };
 
 /* Plugin meta information */
-EdenUI.plugins.HTMLViews.title = "HTML Views";
-EdenUI.plugins.HTMLViews.description = "Allow Eden code to display HTML output in dialogs";
-EdenUI.plugins.HTMLViews.author = "Nicolas Pope";
+EdenUI.plugins.HTMLContent.title = "HTML Content";
+EdenUI.plugins.HTMLContent.description = "Provides construals with the ability to create windows dedicated to displaying HTML content created using EDEN code.";

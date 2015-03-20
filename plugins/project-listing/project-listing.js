@@ -152,11 +152,10 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 	});
 
 	//Add views supported by this plugin.
-	edenUI.views["ProjectList"] = {dialog: this.createDialog, title: "Project List"};
+	edenUI.views["ProjectList"] = {dialog: this.createDialog, title: "Project List", category: edenUI.viewCategories.interpretation};
 	success();
 };
 
 /* Plugin meta information */
 EdenUI.plugins.ProjectList.title = "Project List";
-EdenUI.plugins.ProjectList.description = "Display list of available projects";
-EdenUI.plugins.ProjectList.author = "Nicolas Pope";
+EdenUI.plugins.ProjectList.description = "Displays a list of construals.";

@@ -60,6 +60,17 @@ function concatAndResolveUrl(url, concat) {
 		rt = require('./runtime').rt;
 	}
 
+	/**Create a new category of plug-ins.  Plug-ins in the same category are displayed immediately
+	 * above/below each other in the drop down menu. */
+	function ViewCategory(label, menuPriority) {
+		this.getLabel = function () {
+			return label;
+		}
+		this.getMenuPriority = function () {
+			return menuPriority;
+		};
+	}
+
 	/**
 	 * @constructor
 	 * @struct
@@ -90,10 +101,6 @@ function concatAndResolveUrl(url, concat) {
 		this.plugins = {};
 
 		var me = this;
-		this.views.ErrorWindow = {
-			dialog: function () { me.showErrorWindow(); },
-			title: "Error Window"
-		};
 
 		this.eden.listenTo('executeFileLoad', this, function (path) {
 			if (this.plugins.MenuBar) {
@@ -131,8 +138,36 @@ function concatAndResolveUrl(url, concat) {
 		this.windowHighlighter = new WindowHighlighter(this);
 
 		this.errorWindow = null;
-	}
+		
+		this.viewCategories = {};
+		this.numberOfViewCategories = 0;
+		/*Category of plug-ins for construal comprehension. */
+		this.addViewCategory("comprehension", "Comprehension");
+		/*Category of plug-ins for interacting with the interpreter to create new definitions. */
+		this.addViewCategory("interpretation", "Making Definitions");
+		/*Category of plug-ins for preserving the current state, revisiting prior states, etc. */
+		this.addViewCategory("history", "History &amp; State");
+		/*Category of plug-ins for construal visualizations, e.g. Canvas, Plain HTML, etc. */
+		this.addViewCategory("visualization", "Visualization");
+		/*Category of plug-ins that radically enhance what the environment can do in ways that don't
+		 * fit into any of the other categories defined here and don't warrant a whole category of
+		 * their own, e.g. State Listener. */
+		this.addViewCategory("extension", "Extensions");
+		/*Category of plug-ins that pertain to the management of the JS-EDEN environment itself, e.g. Project List, Plugin Listing. */
+		this.addViewCategory("environment", "Management");		
 
+		this.views.ErrorWindow = {
+			dialog: function () { me.showErrorWindow(); },
+			title: "Error Window",
+			category: this.viewCategories.interpretation
+		};
+	}
+		
+	EdenUI.prototype.addViewCategory = function (name, label) {
+		this.viewCategories[name] = new ViewCategory(label, this.numberOfViewCategories);
+		this.numberOfViewCategories++;
+	};
+	
 	EdenUI.prototype.highlight = function (dialogName) { this.windowHighlighter.highlight(dialogName); };
 	EdenUI.prototype.stopHighlight = function (dialogName) { this.windowHighlighter.stopHighlight(dialogName); };
 

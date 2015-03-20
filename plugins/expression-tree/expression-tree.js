@@ -1,4 +1,4 @@
-EdenUI.plugins.ET = function(edenUI, success){
+EdenUI.plugins.ExpressionTree = function(edenUI, success){
 	var me = this;
 	var defaultview = "";
 
@@ -6,7 +6,7 @@ EdenUI.plugins.ET = function(edenUI, success){
 	//This doesn't look like its ever being called
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
-				edenUI.createView(name,"ET");
+				edenUI.createView(name,"ExpressionTree");
 			}
 			$("#"+defaultview+"-content").html(content).onclick;
 		} else {
@@ -372,10 +372,9 @@ var json = {
 	};
 
 	//Register the HTML view options
-	edenUI.views["ET"] = {dialog: this.createDialog, title: "Expression Tree"};
+	edenUI.views["ExpressionTree"] = {dialog: this.createDialog, title: "Expression Tree", category: edenUI.viewCategories.interpretation, menuPriority: 0};
 	edenUI.eden.include("plugins/expression-tree/expression-tree.js-e", success);
 };
 /* Plugin meta information */
-EdenUI.plugins.ET.title = "Expression Tree";
-EdenUI.plugins.ET.description = "Editing definitions using an expression tree";
-EdenUI.plugins.ET.author = "Meurig Beynon, Jonny Foss and Elizabeth Hudnott";
+EdenUI.plugins.ExpressionTree.title = "Expression Tree";
+EdenUI.plugins.ExpressionTree.description = "Provides a graphical user interface for creating dependencies.";

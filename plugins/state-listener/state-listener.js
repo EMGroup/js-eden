@@ -1,4 +1,4 @@
-EdenUI.plugins.SL = function(edenUI, success){
+EdenUI.plugins.StateListener = function(edenUI, success){
 	var me = this;
 	var defaultview = "";
 
@@ -6,7 +6,7 @@ EdenUI.plugins.SL = function(edenUI, success){
 	//This doesn't look like its ever being called
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
-				edenUI.createView(name,"SL");
+				edenUI.createView(name,"StateListener");
 			}
 			$("#"+defaultview+"-content").html(content).onclick;
 		} else {
@@ -102,10 +102,10 @@ EdenUI.plugins.SL = function(edenUI, success){
 	
 	
 	//Register the HTML view options
-	edenUI.views["SL"] = {dialog: this.createDialog, title: "State Listener"};
+	edenUI.views["StateListener"] = {dialog: this.createDialog, title: "State Listener", category: edenUI.viewCategories.extension};
 	edenUI.eden.include("plugins/state-listener/state-listener.js-e", success);
 };
 /* Plugin meta information */
-EdenUI.plugins.SL.title = "State Listener (SL)";
-EdenUI.plugins.SL.description = "Method of syncronizing observables via TCP";
-EdenUI.plugins.SL.author = "Jonny Foss";
+EdenUI.plugins.StateListener.title = "State Listener";
+EdenUI.plugins.StateListener.description = "Provides the ability to synchronize observables over the internet.";
+EdenUI.plugins.StateListener.author = "Jonny Foss";

@@ -89,7 +89,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		symbollist.search("");
 
 		code_entry.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
-			edenUI.createView("Edit_" + me.name, "InputWindow");
+			edenUI.createView("Edit_" + me.name, "ScriptInput");
 			var allVals = "";
 			var symbol;
 			for(var symbolname in symbollist.symbols){
@@ -238,10 +238,10 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	edenUI.eden.root.addGlobal(symbolChanged);
 
 	// Add views supported by this plugin.
-	edenUI.views["ObservableList"] = {dialog: this.createObservableDialog, title: "Observable List"};
-	edenUI.views["FunctionList"] = {dialog: this.createFunctionDialog, title: "Function List"};
-	edenUI.views["AgentList"] = {dialog: this.createAgentDialog, title: "Agent List"};
-	edenUI.views["SymbolList"] = {dialog: this.createSymbolDialog, title: "Symbol List"};
+	edenUI.views["ObservableList"] = {dialog: this.createObservableDialog, title: "Observable List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
+	edenUI.views["FunctionList"] = {dialog: this.createFunctionDialog, title: "Function List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
+	edenUI.views["AgentList"] = {dialog: this.createAgentDialog, title: "Agent List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
+	edenUI.views["SymbolList"] = {dialog: this.createSymbolDialog, title: "Symbol List", category: edenUI.viewCategories.comprehension, menuPriority: 2};
 
 	$(document).tooltip();
 	success();
@@ -249,8 +249,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 /* Plugin meta information */
 EdenUI.plugins.SymbolViewer.title = "Symbol Viewer";
-EdenUI.plugins.SymbolViewer.description = "Provide various views of the symbol table";
-EdenUI.plugins.SymbolViewer.author = "Nicolas Pope and Tim Monks";
+EdenUI.plugins.SymbolViewer.description = "Provide various views of the symbol table.";
 
 /**
  * Class to represent symbol lists. Displays a list of symbol information
@@ -416,7 +415,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			$(this).animate({backgroundColor: "white"}, 100);
 		}	
 	).click(function () {
-		edenUI.createView("Edit_" + me.name, "InputWindow");
+		edenUI.createView("Edit_" + me.name, "ScriptInput");
 		var val;
 		if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
 			val = symbol.eden_definition;
