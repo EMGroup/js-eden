@@ -158,5 +158,4 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 /* Plugin meta information */
 EdenUI.plugins.ProjectList.title = "Project List";
-EdenUI.plugins.ProjectList.description = "Display list of available projects";
-EdenUI.plugins.ProjectList.author = "Nicolas Pope";
+EdenUI.plugins.ProjectList.description = "Displays a list of construals.";

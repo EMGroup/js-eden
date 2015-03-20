@@ -261,5 +261,4 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 };
 
 EdenUI.plugins.MenuBar.title = "Menu Bar";
-EdenUI.plugins.MenuBar.description = "Provides main menu for plugin and view management";
-EdenUI.plugins.MenuBar.author = "Nicolas Pope";
+EdenUI.plugins.MenuBar.description = "Creates the menu bar.";

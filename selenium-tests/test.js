@@ -127,7 +127,7 @@ describe("UI tests", function () {
 		it('shows a symbol list and edit window entry', function () {
 			return browser
 			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_0 [SymbolList]"))
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Edit_picture [InputWindow]"));
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Edit_picture [ScriptInput]"));
 		});
 	});
 
@@ -149,7 +149,7 @@ describe("UI tests", function () {
 			return browser
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
 			.click()
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Edit_picture [InputWindow]"))
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Edit_picture [ScriptInput]"))
 			.should.be.rejectedWith("Element condition wasn't satisfied");
 		});
 	});
@@ -193,7 +193,7 @@ describe("UI tests", function () {
 	describe("highlight window", function () {
 		before(function () {
 			return browser
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("inputwindow [InputWindow]"))
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("inputwindow [ScriptInput]"))
 			.moveTo();
 		});
 
@@ -240,7 +240,7 @@ describe("UI tests", function () {
 		it("shows an input window entry", function () {
 			return browser
 			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Input Window [view_1]'))
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_1 [InputWindow]"));
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_1 [ScriptInput]"));
 		});
 	});
 
@@ -248,7 +248,7 @@ describe("UI tests", function () {
 		before(function () {
 			return browser
 			.waitForElementByCss('#view_1-dialog textarea')
-			.type('createView("testinput", "InputWindow");')
+			.type('createView("testinput", "ScriptInput");')
 			.waitForElementByCss('#view_1-dialog .submitButton')
 			.click();
 		});
@@ -262,7 +262,7 @@ describe("UI tests", function () {
 			return browser
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
 			.click()
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("testinput [InputWindow]"));
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("testinput [ScriptInput]"));
 		});
 	});
 

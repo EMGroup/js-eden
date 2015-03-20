@@ -89,7 +89,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		symbollist.search("");
 
 		code_entry.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
-			edenUI.createView("Edit_" + me.name, "InputWindow");
+			edenUI.createView("Edit_" + me.name, "ScriptInput");
 			var allVals = "";
 			var symbol;
 			for(var symbolname in symbollist.symbols){
@@ -249,8 +249,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 /* Plugin meta information */
 EdenUI.plugins.SymbolViewer.title = "Symbol Viewer";
-EdenUI.plugins.SymbolViewer.description = "Provide various views of the symbol table";
-EdenUI.plugins.SymbolViewer.author = "Nicolas Pope and Tim Monks";
+EdenUI.plugins.SymbolViewer.description = "Provide various views of the symbol table.";
 
 /**
  * Class to represent symbol lists. Displays a list of symbol information
@@ -416,7 +415,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			$(this).animate({backgroundColor: "white"}, 100);
 		}	
 	).click(function () {
-		edenUI.createView("Edit_" + me.name, "InputWindow");
+		edenUI.createView("Edit_" + me.name, "ScriptInput");
 		var val;
 		if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
 			val = symbol.eden_definition;

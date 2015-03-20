@@ -1,4 +1,4 @@
-EdenUI.plugins.VL = function(edenUI, success){
+EdenUI.plugins.WindowLayout = function(edenUI, success){
 	var me = this;
 	var defaultview = "";
 	var program;
@@ -12,7 +12,7 @@ EdenUI.plugins.VL = function(edenUI, success){
 	//This doesn't look like its ever being called
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
-				edenUI.createView(name,"VL");
+				edenUI.createView(name,"WindowLayout");
 			}
 			$("#"+defaultview+"-content").html(content).onclick;
 		} else {
@@ -93,10 +93,10 @@ EdenUI.plugins.VL = function(edenUI, success){
 	}
 	
 	//Register the HTML view options
-	edenUI.views["VL"] = {dialog: this.createDialog, title: "View Layout", category: edenUI.viewCategories.environment};
+	edenUI.views["WindowLayout"] = {dialog: this.createDialog, title: "Window Layout", category: edenUI.viewCategories.environment};
 	success();
 };
 /* Plugin meta information */
-EdenUI.plugins.VL.title = "View Layout (VL)";
-EdenUI.plugins.VL.description = "Assists with rearranging views";
-EdenUI.plugins.VL.author = "Jonny Foss";
+EdenUI.plugins.WindowLayout.title = "Window Layout Tool";
+EdenUI.plugins.WindowLayout.description = "Provices assistance with rearranging windows.";
+EdenUI.plugins.WindowLayout.author = "Jonny Foss";

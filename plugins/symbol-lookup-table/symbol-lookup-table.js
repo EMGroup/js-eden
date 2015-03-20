@@ -1,11 +1,11 @@
-EdenUI.plugins.SLT = function (edenui, success) {
+EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 	var me = this;
 	var defaultview = "";
 
 	this.html = function(name,content) {
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
-				edenui.createView(name,"SLT");
+				edenui.createView(name,"SymbolLookUpTable");
 			}
 			$("#"+defaultview+"-content").html(content).onclick;
 		} else {
@@ -19,7 +19,7 @@ EdenUI.plugins.SLT = function (edenui, success) {
 			defaultview = name;
 		}
 		
-		code_entry = $('<div id=\"'+name+'-content\" class=\"symbol-lookup-table-content\">' + SLT.generateAllHTML(name) + '</div>');
+		code_entry = $('<div id=\"'+name+'-content\" class=\"symbol-lookup-table-content\">' + generateAllHTML(name) + '</div>');
 
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
@@ -33,34 +33,30 @@ EdenUI.plugins.SLT = function (edenui, success) {
 	}
 
 	//Register the HTML view options
-	edenui.views["SLT"] = {dialog: this.createDialog, title: "Symbol Lookup Table", category: edenUI.viewCategories.comprehension, menuPriority: 3};
+	edenui.views["SymbolLookUpTable"] = {dialog: this.createDialog, title: "Symbol Look-Up Table", category: edenUI.viewCategories.comprehension, menuPriority: 3};
 	
-	SLT = {};
-
-	SLT.search = function (viewName) {
-		//Update an SLT with search results for a new regexp.
+	this.search = function (viewName) {
+		//Update a symbol look-up table with search results for a new regexp.
 		var regExp = document.getElementById(viewName + "-regexp").value;
 		if(regExp == undefined) {
 			return;
 		}
-		document.getElementById(viewName + "-table-div").innerHTML = SLT.generateBottomHTML(regExp, viewName);
+		document.getElementById(viewName + "-table-div").innerHTML = generateBottomHTML(regExp, viewName);
 	}
 	
-	SLT.generateAllHTML = function (viewName) {
-		var controls = "<input id='" + viewName + "-regexp' class='SLTregex' type='text' onkeyUp=\"SLT.search('" + viewName + "')\" placeholder='search' onload='setFocus()' />";
+	var generateAllHTML = function (viewName) {
+		var controls = "<input id='" + viewName + "-regexp' class='SLTregex' type='text' onkeyUp=\"edenUI.plugins.SymbolLookUpTable.search('" + viewName + "')\" placeholder='search' onload='setFocus()' />";
 		var indiv = 
-			"<div idclass='SLT'>" +
-				"<div class='upper'>" + 
-					controls +
-				"</div>" +
-				"<div id='" + viewName + "-table-div' class='lower'>" +
-					SLT.generateBottomHTML("", viewName) +
-				"</div>" +
+			"<div class='upper'>" + 
+				controls +
+			"</div>" +
+			"<div id='" + viewName + "-table-div' class='lower'>" +
+				generateBottomHTML("", viewName) +
 			"</div>";
 		return indiv;
 	}
 	
-	SLT.generateBottomHTML = function(regexString, viewName) {
+	var generateBottomHTML = function(regexString, viewName) {
 		var tableHeadHTML = "<tr>"+
 			"<td class=\"lower\"><b>Name</b></td>"+
 			"<td class=\"lower\"><b>Type</b></td>" +
@@ -116,14 +112,14 @@ EdenUI.plugins.SLT = function (edenui, success) {
 		for (var i = 0; i < partialTable.length; i++) {
 			var row = partialTable[i];
 			symbol = row[0];
-			var watches = SLT.referencedObservables(symbol.observees, matchingNames, viewName).concat(
-				SLT.referencedObservables(symbol.dependencies, matchingNames, viewName));
+			var watches = referencedObservables(symbol.observees, matchingNames, viewName).concat(
+				referencedObservables(symbol.dependencies, matchingNames, viewName));
 
-			var updates = SLT.referencedObservables(symbol.observers, matchingNames, viewName).concat(
-				SLT.referencedObservables(symbol.subscribers, matchingNames, viewName));
+			var updates = referencedObservables(symbol.observers, matchingNames, viewName).concat(
+				referencedObservables(symbol.subscribers, matchingNames, viewName));
 
 			var lastModifiedBy = symbol.last_modified_by ? symbol.last_modified_by : 'Not yet defined';
-			lastModifiedBy = SLT.referencedObservable(lastModifiedBy, matchingNames, viewName);
+			lastModifiedBy = referencedObservable(lastModifiedBy, matchingNames, viewName);
 
 			var jsObservers = Object.keys(symbol.jsObservers).join(", ");
 			
@@ -154,33 +150,33 @@ EdenUI.plugins.SLT = function (edenui, success) {
 		return "<table>" + tableHeadHTML + tableBodyHTML + "</table>";
 	}
 
-	SLT.referencedObservables = function(referencedObs, obsInTable, viewName) {
+	var referencedObservables = function(referencedObs, obsInTable, viewName) {
 		var list = [];
 		for (var key in referencedObs) {
 			var name = key.slice(1);
-			list.push(SLT.referencedObservable(name, obsInTable, viewName));
+			list.push(referencedObservable(name, obsInTable, viewName));
 		}
 		return list.join(", ");
 	}
 	
-	SLT.referencedObservable = function(name, obsInTable, viewName) {
+	var referencedObservable = function(name, obsInTable, viewName) {
 		if (name[0] == "*" || name == "include" || name == "Not yet defined") {
 			return name;
 		} else if (name in obsInTable) {
-			return "<a href=\"javascript:SLT.jump('" + viewName + "-symbol-" + name + "')\">" + name + "</a>";
+			return "<a href=\"javascript:edenUI.plugins.SymbolLookUpTable.jump('" + viewName + "-symbol-" + name + "')\">" + name + "</a>";
 		} else {
-			return "<a href=\"javascript:SLT.addSymbolToSearch('" + viewName + "', " + "'" + name + "')\">" + name + "</a>";
+			return "<a href=\"javascript:edenUI.plugins.SymbolLookUpTable.addSymbolToSearch('" + viewName + "', " + "'" + name + "')\">" + name + "</a>";
 		}		
 	}
 	
-	SLT.addSymbolToSearch = function (viewName, symbolName) {
+	this.addSymbolToSearch = function (viewName, symbolName) {
 		var searchBox = document.getElementById(viewName + "-regexp");
 		var searchStr = searchBox.value + "|" + symbolName + "$";
 		searchBox.value = searchStr;
-		SLT.search(viewName);
+		this.search(viewName);
 	}
 	
-	SLT.jump = function (anchor) {
+	this.jump = function (anchor) {
 		var url = location.href;                 //Save down the URL without hash.
 		location.href = "#" + anchor;            //Go to the target element.
 		history.replaceState(null, null, url);  //Don't like hashes. Changing it back.		
@@ -189,6 +185,6 @@ EdenUI.plugins.SLT = function (edenui, success) {
 	success();
 };
 /* Plugin meta information */
-EdenUI.plugins.SLT.title = "Symbol Lookup Table (SLT)";
-EdenUI.plugins.SLT.description = "Database of all symbols in the application";
-EdenUI.plugins.SLT.author = "Joe Butler";
+EdenUI.plugins.SymbolLookUpTable.title = "Symbol Look-Up Table";
+EdenUI.plugins.SymbolLookUpTable.description = "Displays detailed information about symbols.";
+EdenUI.plugins.SymbolLookUpTable.originalAuthor = "Joe Butler";

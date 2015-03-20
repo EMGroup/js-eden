@@ -1,4 +1,4 @@
-EdenUI.plugins.ST = function(edenUI, success){
+EdenUI.plugins.StateTimeLine = function(edenUI, success){
 	var me = this;
 	var defaultview = "";
 
@@ -6,7 +6,7 @@ EdenUI.plugins.ST = function(edenUI, success){
 	//This doesn't look like its ever being called
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
-				edenUI.createView(name,"ST");
+				edenUI.createView(name,"StateTimeLine");
 			}
 			$("#"+defaultview+"-content").html(content).onclick;
 		} else {
@@ -26,21 +26,21 @@ EdenUI.plugins.ST = function(edenUI, success){
 		code_entry = $('<div id=\"'+name+'-content\" class=\"st-content\"></div>').append($("<input id=\""+name+"-regex\"></input>")).append($('<button style="margin-bottom:20px;">Generate State</button>').click(function(){
 			
 			//Adds a new state to the tree
-			edenUI.plugins.ST.ST.states.push(edenUI.plugins.ST.generateState("partial"));
+			me.ST.states.push(generateState("partial"));
 			
 			var statename = document.getElementById(name+"-regex").value;
 			if(statename==""){
-				statename = "State "+edenUI.plugins.ST.ST.nextBlankState;
+				statename = "State " + me.ST.nextBlankState;
 			}
 			
 			$('#'+name+'-content-states').append(
-				"<div id='stdiv"+edenUI.plugins.ST.ST.nextBlankState+"' class='stdiv'>"+statename+": <a class='stlinkrestore' href='javascript:edenUI.plugins.ST.changeState("+edenUI.plugins.ST.ST.nextBlankState+")'>Restore</a> "+new Date().toLocaleTimeString()+" <a class='stlinkdelete' href='javascript:edenUI.plugins.ST.deleteState("+edenUI.plugins.ST.ST.nextBlankState+")'> Delete</a></div>"
+				"<div id='stdiv"+edenUI.plugins.StateTimeLine.ST.nextBlankState+"' class='stdiv'>"+statename+": <a class='stlinkrestore' href='javascript:edenUI.plugins.StateTimeLine.changeState("+edenUI.plugins.StateTimeLine.ST.nextBlankState+")'>Restore</a> "+new Date().toLocaleTimeString()+" <a class='stlinkdelete' href='javascript:edenUI.plugins.StateTimeLine.deleteState("+edenUI.plugins.StateTimeLine.ST.nextBlankState+")'> Delete</a></div>"
 			);
 			
 			document.getElementById(name+"-regex").value = "";
 			
 			//Increment the next blank state
-			edenUI.plugins.ST.ST.nextBlankState++;
+			edenUI.plugins.StateTimeLine.ST.nextBlankState++;
 			
 		})).append($('<div id="'+name+'-content-states"></div>'));
 		
@@ -88,7 +88,7 @@ EdenUI.plugins.ST = function(edenUI, success){
 					continue;
 				}
 			
-				if(edenUI.plugins.ST.ignoreRE.test(root.symbols[ii].name.substring(1,root.symbols[ii].name.length))){
+				if(edenUI.plugins.StateTimeLine.ignoreRE.test(root.symbols[ii].name.substring(1,root.symbols[ii].name.length))){
 				//console.log("not deleting:"+root.symbols[ii].name)
 					continue;
 				}
@@ -97,7 +97,7 @@ EdenUI.plugins.ST = function(edenUI, success){
 			}
 			
 			//Interpret the given state
-			edenUI.plugins.InputWindow.submitEdenCode(edenUI.plugins.ST.ST.states[stateIndex]);
+			edenUI.plugins.ScriptInput.submitEdenCode(edenUI.plugins.StateTimeLine.ST.states[stateIndex]);
 			
 /*
 			var afterStore = [];
@@ -129,11 +129,10 @@ EdenUI.plugins.ST = function(edenUI, success){
 			
 		}
 	
-		this.generateState = function(type){
+		var generateState = function(type){
 		//generates the content
 
 		var HTML = "";
-		var symbolsx = SG.arrayFromObject(root.symbols);
 		
 		var obsDefs = [];
 		var obsAssins = [];
@@ -162,15 +161,14 @@ EdenUI.plugins.ST = function(edenUI, success){
 			"## End of Auto-Generated Script"
 		];
 */		
-		for(var i=0; i<symbolsx.length; i++){
+		for(var name in root.symbols){
 		
 			var blank = "@";
 			var ofa = "";
 			var ofai = 5;
-		
-			var name = symbolsx[i].name.replace(/\//g,'');
-						
-			var def = symbolsx[i].eden_definition;
+
+			var symbol = root.symbols[name];
+			var def = symbol.eden_definition;
 				if(def==undefined){
 					def = blank;
 				}
@@ -208,20 +206,11 @@ EdenUI.plugins.ST = function(edenUI, success){
 				}
 			}
 				
-			var value = Eden.edenCodeForValue(symbolsx[i].cached_value);
-			
-			var WATCHES = SG.propertiesFromObject(symbolsx[i].observees).join(", ").replace(/\//g,'');
-				if(WATCHES==""){
-					WATCHES = blank;
-				}
-			var UPDATES = SG.propertiesFromObject(symbolsx[i].observers).join(", ").replace(/\//g,'');
-				if(UPDATES==""){
-					UPDATES = blank;
-				}
+			var value = Eden.edenCodeForValue(symbol.cached_value);
 			
 			//Reasoning /push to appropriate array
 						
-			if(edenUI.plugins.ST.ignoreRE.test(name)){
+			if(edenUI.plugins.StateTimeLine.ignoreRE.test(name)){
 				continue;
 			}
 			
@@ -294,10 +283,10 @@ EdenUI.plugins.ST = function(edenUI, success){
 	}
 	
 	//Register the HTML view options
-	edenUI.views["ST"] = {dialog: this.createDialog, title: "State Timeline", category: edenUI.viewCategories.history};
+	edenUI.views["StateTimeLine"] = {dialog: this.createDialog, title: "State Time Line", category: edenUI.viewCategories.history};
 	success();
 };
 /* Plugin meta information */
-EdenUI.plugins.ST.title = "State Timeline (ST)";
-EdenUI.plugins.ST.description = "A timeline of states for the Application Environment JS-EDEN";
-EdenUI.plugins.ST.author = "Joe Butler";
+EdenUI.plugins.StateTimeLine.title = "State Time Line";
+EdenUI.plugins.StateTimeLine.description = "Provides the ability to save the current state, keep a history of saved states and go back to a saved state later.";
+EdenUI.plugins.StateTimeLine.author = "Joe Butler";

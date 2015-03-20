@@ -34,6 +34,19 @@ if (!("isInteger") in Number) {
 	};
 }
 
+if (!("keys") in Object) {
+	//Not in IE 8.
+	Object.keys = function (obj) {
+		var result = [];
+		for (var name in obj) {
+			if (obj.hasOwnProperty(name)) {
+				result.push(name);
+			}
+		}
+		return result;
+	}
+}
+
 function initialiseJSEden() {
 	root = new Folder();
 	eden = new Eden(root);

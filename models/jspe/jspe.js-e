@@ -118,13 +118,13 @@ Slide.prototype.toString = function() {
 ${{
   copyToInput = function(e) {
 
-	edenUI.createView("inputwindow", "InputWindow").setValue($(e).siblings('pre').text());
+	edenUI.createView("inputwindow", "ScriptInput").setValue($(e).siblings('pre').text());
 	//Copies to EDEN interpreter window
   }
 
   execute = function(e) {
 	// Evaluates and stores in the symbol table
-	edenUI.plugins.InputWindow.submitEdenCode($(e).siblings('pre').text());
+	edenUI.plugins.ScriptInput.submitEdenCode($(e).siblings('pre').text());
   }
 }}$;
 
@@ -211,6 +211,32 @@ $('#canvas_buttonPrev').attr('id', 'jspe_buttonPrev');
 $('#canvas_buttonNext').attr('id', 'jspe_buttonNext');
 }}$;
 
+func TitleSlide {
+	para title, subtitle;
+	auto slideHTML;
+	if ($# == 0 || $# > 2) {
+		error("TitleSlide: This function requires at least 1 argument and at most 2 arguments.");
+		return @;
+	}
+	
+	if (title == @) {
+		title = "";
+	} else if (!isString(title)) {
+		error("TitleSlide: The second argument must be of a string, not a " // type(title));
+		return @;
+	}
+	
+	slideHTML =  "<div style=\"margin-top: calc(45% - 76px); text-align: center\"><div style=\"font-size: 28pt; transform: translateY(-50%)\">" // title // "</div>";
+
+	if (isString(subtitle) && subtitle != "") {
+		slideHTML = slideHTML // "<div style=\"font-size: 16pt; margin-top: 1pt\">" // subtitle // "</div>";
+	} else if (subtitle != @ && subtitle != "") {
+		error("TitleSlide: The second argument must be a string, not a " // type(subtitle));
+	}
+	slideHTML = slideHTML // "</div>";
+	return Slide(slideHTML);
+}
+
 func TitledSlide {
 	auto title, subtitle, content, slideHTML;
 	if ($# == 2) {
@@ -226,11 +252,14 @@ func TitledSlide {
 		return @;
 	}
 	
-	if (!isString(title)) {
+	if (title == @) {
+		slideHTML = "<h1>&nbsp;</h1>";
+	} else if (isString(title)) {
+		slideHTML = "<h1>" // title // "</h1>\n";
+	} else {
 		error("TitledSlide: The first argument must be a string, not a " // type(title));
 		return @;
 	}
-	slideHTML = "<h1>" // title // "</h1>\n";
 	
 	if (isString(subtitle) && subtitle != "") {
 		slideHTML = slideHTML // "<h2>" // subtitle // "</h2>\n";

@@ -1,4 +1,4 @@
-EdenUI.plugins.DM = function(edenUI, success){
+EdenUI.plugins.DependencyMap = function(edenUI, success){
 
 	var me = this;
 	var defaultview = "";
@@ -7,7 +7,7 @@ EdenUI.plugins.DM = function(edenUI, success){
 	//This doesn't look like its ever being called
 		if (name == "DEFAULT") {
 			if (defaultview == "") {
-				edenUI.createView(name,"DM");
+				edenUI.createView(name,"DependencyMap");
 			}
 			$("#"+defaultview+"-content").html(content).onclick;
 		} else {
@@ -180,10 +180,10 @@ EdenUI.plugins.DM = function(edenUI, success){
 	}
 	
 	//Register the HTML view options
-	edenUI.views["DM"] = {dialog: this.createDialog, title: "Dependency Map", category: edenUI.viewCategories.comprehension, menuPriority: 0};
+	edenUI.views["DependencyMap"] = {dialog: this.createDialog, title: "Dependency Map", category: edenUI.viewCategories.comprehension, menuPriority: 0};
 	success();
 };
 /* Plugin meta information */
-EdenUI.plugins.DM.title = "Dependency Map (DM)";
-EdenUI.plugins.DM.description = "A graph representing the functional connection between observables";
-EdenUI.plugins.DM.author = "Joe Butler";
+EdenUI.plugins.DependencyMap.title = "Dependency Map";
+EdenUI.plugins.DependencyMap.description = "Displays a diagram showing the relationships between observables.";
+EdenUI.plugins.DependencyMap.author = "Joe Butler";

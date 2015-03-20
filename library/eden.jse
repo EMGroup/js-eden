@@ -463,19 +463,19 @@ include("library/html.js-e");
 include("library/declarevar.js-e");
 include("library/generate_function.js-e");
 
-require("InputWindow");
-require("PluginListing");
+require("ScriptInput");
+require("PluginManager");
 require("ProjectList");
 require("CanvasHTML5");
 require("SymbolViewer");
-require("HTMLViews");
-require("SLT");
-require("SG");
-require("DM");
-require("ST");
+require("HTMLContent");
+require("SymbolLookUpTable");
+require("ScriptGenerator");
+require("DependencyMap");
+require("StateTimeLine");
 createCanvas("picture");
 createView("projects", "ProjectList");
-createView("inputwindow", "InputWindow");
+createView("inputwindow", "ScriptInput");
 
 _menubar_status = "JS-Eden done loading";
 

@@ -488,7 +488,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 	}
 
 	//Supported canvas views
-	edenUI.views["CanvasHTML5"] = {dialog: this.createDialog, title: "Canvas HTML5", category: edenUI.viewCategories.visualization};
+	edenUI.views["CanvasHTML5"] = {dialog: this.createDialog, title: "2D Canvas", category: edenUI.viewCategories.visualization};
 
 	edenUI.eden.include("plugins/canvas-html5/canvas.js-e", success);
 };
@@ -549,6 +549,5 @@ EdenUI.plugins.CanvasHTML5.setFillStyle = function (context, style) {
 	}
 };
 
-EdenUI.plugins.CanvasHTML5.title = "Canvas HTML5";
-EdenUI.plugins.CanvasHTML5.description = "Provides an Eden drawable HTML5 canvas";
-EdenUI.plugins.CanvasHTML5.author = "Nicolas Pope et. al.";
+EdenUI.plugins.CanvasHTML5.title = "2D Canvas";
+EdenUI.plugins.CanvasHTML5.description = "Provides the ability to draw two-dimensional shapes, images, text and user interface controls using EDEN dependencies.";

@@ -9,7 +9,7 @@
 		},
 		{
 			"name": "JSPE",
-			"author": "Meurig Beynon / Hui Zhu",
+			"author": "Matt Cranham",
 			"year": "2012",
 			"description": "Installs a presentation environment.",
 			"runfile": "models/jspe/run.e"
