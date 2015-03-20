@@ -134,14 +134,14 @@ describe("UI tests", function () {
 	describe("close window through titlebar", function () {
 		before(function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Input Window [Edit_picture]'))
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Script Input Window [Edit_picture]'))
 			.elementByCss('>', '.ui-dialog-titlebar-close')
 			.click();
 		});
 
 		it('closes the window', function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Input Window [Edit_picture]'))
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Script Input Window [Edit_picture]'))
 			.should.be.rejectedWith("Element condition wasn't satisfied");
 		});
 
@@ -201,7 +201,7 @@ describe("UI tests", function () {
 			return browser
 			.waitForElementByCss(
 				'.ui-dialog.menubar-window-raise',
-				wd.asserters.textInclude('Input Window [inputwindow]')
+				wd.asserters.textInclude('Script Input Window [inputwindow]')
 			);
 		});
 	});
@@ -229,17 +229,17 @@ describe("UI tests", function () {
 	describe("create new input window", function () {
 		before(function () {
 			return browser
-			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("New"))
+			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("New Window"))
 			.moveTo()
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Input Window"))
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Script Input Window"))
 			.click()
-			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
+			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Existing Windows"))
 			.moveTo();
 		});
 
 		it("shows an input window entry", function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Input Window [view_1]'))
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Script Input Window [view_1]'))
 			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_1 [ScriptInput]"));
 		});
 	});
@@ -255,7 +255,7 @@ describe("UI tests", function () {
 
 		it("creates a window", function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Input Window [testinput]'));
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Script Input Window [testinput]'));
 		});
 
 		it("shows an input window entry", function () {

@@ -164,7 +164,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			var categoryPriority = viewDetails.category.getMenuPriority();
 			var itemPriority = viewDetails.menuPriority;
 
-			label = menuItemPart('menubar-item-fullwidth menubar-view', title);
+			label = menuItemPart('menubar-item menubar-item-fullwidth menubar-view', title);
 
 			viewEntry = menuItem([label]);
 			viewEntry[0].view = viewType;
