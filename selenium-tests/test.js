@@ -232,14 +232,14 @@ describe("UI tests", function () {
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("New Window"))
 			.moveTo()
 			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Script Input Window"))
-			.click()
-			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Existing Windows"))
-			.moveTo();
+			.click();
 		});
 
 		it("shows an input window entry", function () {
 			return browser
 			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Script Input Window [view_1]'))
+			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Existing Windows"))
+			.click()
 			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_1 [ScriptInput]"));
 		});
 	});
