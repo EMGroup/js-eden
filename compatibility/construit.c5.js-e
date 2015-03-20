@@ -15,7 +15,7 @@ proc CanvasHTML5_DrawPicture {
 	${{
 	var canvas = arguments[0];
 	var picture = arguments[1];
-	edenUI.plugins.CanvasHTML5.drawPicture(canvas,picture);
+	edenUI.plugins.Canvas2D.drawPicture(canvas,picture);
 	}}$;
 };
 

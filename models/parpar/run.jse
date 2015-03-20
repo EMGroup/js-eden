@@ -1,4 +1,4 @@
-require("CanvasHTML5");
+require("Canvas2D");
 
 include("models/parpar/car.jse");
 include("models/parpar/parkedcars.jse");

@@ -30,7 +30,7 @@ func FillPattern {
 }
 
 ${{
-	FillPattern.prototype = new EdenUI.plugins.CanvasHTML5.FillStyle();
+	FillPattern.prototype = new EdenUI.plugins.Canvas2D.FillStyle();
 	
 	FillPattern.prototype.getColour = function (context) {
 		return context.createPattern(this.image, 'repeat');

@@ -35,7 +35,7 @@ ${{
 		this.colourStops = colourStops;
 	}
 	
-	RadialGradient.prototype = new EdenUI.plugins.CanvasHTML5.FillStyle();
+	RadialGradient.prototype = new EdenUI.plugins.Canvas2D.FillStyle();
 
 	RadialGradient.prototype.getColour = function (context) {
 		var gradient = context.createRadialGradient(this.x1, this.y1, this.r1, this.x2, this.y2, this.r2);

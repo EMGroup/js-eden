@@ -84,8 +84,8 @@ proc createCanvas {
 		`obsName` = [];
 	}
 
-	createView(viewName, "CanvasHTML5");
-	execute("proc _update_" // viewName // " : " // obsName // " { $" // "{{ edenUI.plugins.CanvasHTML5.drawPicture(" // edenCode(viewName) // ", " // edenCode(obsName) // "); }}$; }");
+	createView(viewName, "Canvas2D");
+	execute("proc _update_" // viewName // " : " // obsName // " { $" // "{{ edenUI.plugins.Canvas2D.drawPicture(" // edenCode(viewName) // ", " // edenCode(obsName) // "); }}$; }");
 }
 
 ##Returns a string that can be used as the src attribute for an <img> tag inside the content of a
