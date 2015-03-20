@@ -2,8 +2,8 @@
 edit this file to include the correct path
 */
 
-require("CanvasHTML5");
-createView("defaultcanvas","CanvasHTML5");
+require("Canvas2D");
+createView("defaultcanvas","Canvas2D");
 hideView("projects");
 
 include("models/battleship/game.jse");

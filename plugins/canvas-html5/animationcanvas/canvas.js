@@ -8,10 +8,10 @@
 /**
  * JS-Eden Canvas Plugin
  * Allows a html5 canvas to be displayed and used within JS-Eden for drawing.
- * @class CanvasHTML5 Plugin
+ * @class Canvas2D Plugin
  */
 
-Eden.plugins.CanvasHTML5 = function (context) {
+Eden.plugins.Canvas2D = function (context) {
 	var me = this;
 	q = me;
 
@@ -108,13 +108,13 @@ Eden.plugins.CanvasHTML5 = function (context) {
 	}
 
 	//Supported canvas views
-	context.views["CanvasHTML5"] = {dialog: this.createDialog, title: "Canvas HTML5"};
+	context.views["Canvas2D"] = {dialog: this.createDialog, title: "Canvas HTML5"};
 	eden.executeFileSSI("plugins/canvas-html5/canvas.js-e");
 	
 	//Initial Call to Render
 	window.webkitRequestAnimationFrame(me.render);
 };
 
-Eden.plugins.CanvasHTML5.title = "Canvas";
-Eden.plugins.CanvasHTML5.description = "An HTML5 Canvas for EDEN Drawables";
-Eden.plugins.CanvasHTML5.author = "Joe Butler";
+Eden.plugins.Canvas2D.title = "Canvas";
+Eden.plugins.Canvas2D.description = "An HTML5 Canvas for EDEN Drawables";
+Eden.plugins.Canvas2D.author = "Joe Butler";

@@ -466,7 +466,7 @@ include("library/generate_function.js-e");
 require("ScriptInput");
 require("PluginManager");
 require("ProjectList");
-require("CanvasHTML5");
+require("Canvas2D");
 require("SymbolViewer");
 require("HTMLContent");
 require("SymbolLookUpTable");

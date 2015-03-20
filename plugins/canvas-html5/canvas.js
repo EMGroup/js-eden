@@ -8,7 +8,7 @@
 //To catch when a mouse button is pressed down over a canvas window and then released outside of any
 //canvas window.
 document.addEventListener("mouseup", function (e) {
-	var mouseInfo = EdenUI.plugins.CanvasHTML5.mouseInfo;
+	var mouseInfo = EdenUI.plugins.Canvas2D.mouseInfo;
 	if (!mouseInfo.insideCanvas) {
 		var buttonName;
 		switch (e.button) {
@@ -63,7 +63,7 @@ document.addEventListener("mouseup", function (e) {
 });
 
 document.addEventListener("mousedown", function (e) {
-	var mouseInfo = EdenUI.plugins.CanvasHTML5.mouseInfo;
+	var mouseInfo = EdenUI.plugins.Canvas2D.mouseInfo;
 	if (!mouseInfo.insideCanvas) {
 		var buttonName;
 		switch (e.button) {
@@ -89,7 +89,7 @@ document.addEventListener("mousedown", function (e) {
 
 document.addEventListener("pointerlockchange", function (e) {
 	var locked = document.pointerLockElement !== null;
-	EdenUI.plugins.CanvasHTML5.mouseInfo.capturing = locked;
+	EdenUI.plugins.Canvas2D.mouseInfo.capturing = locked;
 	var followMouse = root.lookup("mouseFollow").value();
 	root.lookup("mouseCaptured").assign(locked, undefined, followMouse);
 });
@@ -97,10 +97,10 @@ document.addEventListener("pointerlockchange", function (e) {
 /**
  * JS-Eden Canvas Plugin
  * Allows a html5 canvas to be displayed and used within JS-Eden for drawing.
- * @class CanvasHTML5 Plugin
+ * @class Canvas2D Plugin
  */
 
-EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
+EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	var me = this;
 
 	var cleanupCanvas = function (canvasElement, previousElements, nextElements) {
@@ -135,7 +135,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 
 		if (canvas === undefined) {
 			//Need to make the canvas view first
-			edenUI.createView(canvasname,"CanvasHTML5");
+			edenUI.createView(canvasname,"Canvas2D");
 			
 			canvases[canvasname] = $("#"+canvasname+"-dialog-canvas")[0];
 			contents[canvasname] = $("#"+canvasname+"-dialog-canvascontent")[0];
@@ -176,7 +176,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 						picture[i].elements = existingEl;
 					} else {
 						context.save();
-						EdenUI.plugins.CanvasHTML5.configureContext(context, picture[i].drawingOptions);
+						EdenUI.plugins.Canvas2D.configureContext(context, picture[i].drawingOptions);
 						// expect draw() method to set .elements
 						picture[i].draw(context, pictureobs);
 						context.restore();
@@ -214,7 +214,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			var followMouse = root.lookup("mouseFollow").value();
 			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
-			var mouseInfo = EdenUI.plugins.CanvasHTML5.mouseInfo;
+			var mouseInfo = EdenUI.plugins.Canvas2D.mouseInfo;
 			mouseInfo.insideCanvas = true;
 
 			var buttonName;			
@@ -279,7 +279,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			var followMouse = root.lookup("mouseFollow").value();
 			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
-			var mouseInfo = EdenUI.plugins.CanvasHTML5.mouseInfo;
+			var mouseInfo = EdenUI.plugins.Canvas2D.mouseInfo;
 			mouseInfo.insideCanvas = true;
 
 			var buttonName;
@@ -385,11 +385,11 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			}
 
 		}).on("mouseout", function (e) {
-			var mouseInfo = EdenUI.plugins.CanvasHTML5.mouseInfo;
+			var mouseInfo = EdenUI.plugins.Canvas2D.mouseInfo;
 			mouseInfo.insideCanvas = false;
 		
 		}).on("mouseenter", function (e) {
-			var mouseInfo = EdenUI.plugins.CanvasHTML5.mouseInfo;
+			var mouseInfo = EdenUI.plugins.Canvas2D.mouseInfo;
 			if (!mouseInfo.insideCanvas) {
 				mouseInfo.insideCanvas = true;
 				var buttonsStr;
@@ -450,7 +450,7 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 			var mousePositionSym = root.lookup('mousePosition');
 			
 			var x, y;
-			if (EdenUI.plugins.CanvasHTML5.mouseInfo.capturing) {
+			if (EdenUI.plugins.Canvas2D.mouseInfo.capturing) {
 				var previousPosition = mousePositionSym.value();
 				var e2 = e.originalEvent;
 				x = previousPosition.x + e2.movementX;
@@ -488,15 +488,15 @@ EdenUI.plugins.CanvasHTML5 = function (edenUI, success) {
 	}
 
 	//Supported canvas views
-	edenUI.views["CanvasHTML5"] = {dialog: this.createDialog, title: "2D Canvas", category: edenUI.viewCategories.visualization};
+	edenUI.views["Canvas2D"] = {dialog: this.createDialog, title: "Canvas 2D", category: edenUI.viewCategories.visualization};
 
 	edenUI.eden.include("plugins/canvas-html5/canvas.js-e", success);
 };
 
-EdenUI.plugins.CanvasHTML5.mouseInfo = {leftButton: false, middleButton: false, rightButton: false,
+EdenUI.plugins.Canvas2D.mouseInfo = {leftButton: false, middleButton: false, rightButton: false,
 	button4: false, button5: false, buttonCount: 0, insideCanvas: false, capturing: false};
 
-EdenUI.plugins.CanvasHTML5.configureContext = function (context, options) {
+EdenUI.plugins.Canvas2D.configureContext = function (context, options) {
 	if (options === undefined) {
 		return;
 	}
@@ -537,17 +537,17 @@ EdenUI.plugins.CanvasHTML5.configureContext = function (context, options) {
 	}
 }
 
-EdenUI.plugins.CanvasHTML5.FillStyle = function () {
+EdenUI.plugins.Canvas2D.FillStyle = function () {
 	//Abstract superclass.
 }
 
-EdenUI.plugins.CanvasHTML5.setFillStyle = function (context, style) {
-	if (style instanceof EdenUI.plugins.CanvasHTML5.FillStyle) {
+EdenUI.plugins.Canvas2D.setFillStyle = function (context, style) {
+	if (style instanceof EdenUI.plugins.Canvas2D.FillStyle) {
 		context.fillStyle = style.getColour(context);
 	} else {
 		context.fillStyle = style;
 	}
 };
 
-EdenUI.plugins.CanvasHTML5.title = "2D Canvas";
-EdenUI.plugins.CanvasHTML5.description = "Provides the ability to draw two-dimensional shapes, images, text and user interface controls using EDEN dependencies.";
+EdenUI.plugins.Canvas2D.title = "Canvas 2D";
+EdenUI.plugins.Canvas2D.description = "Provides the ability to draw two-dimensional shapes, images, text and user interface controls using EDEN dependencies.";

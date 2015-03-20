@@ -1,6 +1,6 @@
 ## %eden
 
-require("CanvasHTML5");
+require("Canvas2D");
 
 /* game.e */
 

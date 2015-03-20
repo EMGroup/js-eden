@@ -84,7 +84,7 @@ func Text {
 					outlinecolour = arguments[5];
 				}
 			}
-		} else if (argType == "object" && !(arguments[numArgs - 1] instanceof EdenUI.plugins.CanvasHTML5.FillStyle)) {
+		} else if (argType == "object" && !(arguments[numArgs - 1] instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
 			options = arguments[numArgs - 1];
 			if (numArgs >= 5) {
 				size = arguments[3];
@@ -125,7 +125,7 @@ Text.prototype.draw = function (context) {
 	}
 
 	if (this.fillcolour !== undefined) {
-		EdenUI.plugins.CanvasHTML5.setFillStyle(context, this.fillcolour);
+		EdenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
 		context.fillText(this.text, this.x, this.y);
 	}
 	if (this.outlinecolour !== undefined) {
