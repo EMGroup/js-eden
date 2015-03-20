@@ -1,2 +1,2 @@
-require("CanvasHTML5");
+require("Canvas2D");
 include("models/ratio/ratio.js-e");

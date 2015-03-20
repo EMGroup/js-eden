@@ -1183,6 +1183,6 @@ EdenUI.plugins.ADM.Entity.prototype.unselect = function() {
 }
 
 
-EdenUI.plugins.ADM.title = "Abstract Definitive Machine (ADM)";
+EdenUI.plugins.ADM.title = "Abstract Definitive Machine";
 EdenUI.plugins.ADM.description = "Abstract Definitive Machine";
 EdenUI.plugins.ADM.author = "Ruth King";
