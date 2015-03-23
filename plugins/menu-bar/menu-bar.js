@@ -37,7 +37,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	$('<div id="menubar-bottom"></div>').appendTo("body");
 
 	this.updateStatus = function (text) {
-		menustatus.html(text);
+		menustatus.html(Eden.htmlEscape(text, true, true));
 	};
 
 	this.appendStatus = function (text) {

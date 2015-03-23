@@ -20,13 +20,9 @@ func time {
 };
 
 proc writeln {
-  ${{
-  var t = arguments[0];
-  console.log(t);
-	if (edenUI.plugins.MenuBar) {
-		edenUI.plugins.MenuBar.updateStatus("Output: "+t);
-	}
-  }}$;
+  para message;
+  ${{ console.log(arguments[0]); }}$;
+  _menubar_status = "Output: " // str(message);
 };
 
 ##A kind of privilege level that the JS-EDEN user is constrained by.

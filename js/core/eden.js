@@ -296,9 +296,6 @@ function concatAndResolveUrl(url, concat) {
 				this.emit('executeError', [error, {errorNumber: this.errorNumber}]);
 			}
 		}
-		if (error.stack) {
-			console.log(e.stack);
-		}
 		++this.errorNumber;
 	};
 	

@@ -5,9 +5,9 @@
 ##
 ##Functions that operate on strings.
 
-##Concatenates a collection of values, separating each one by a given
-##separator string, separator element or separator list.  The values can either be provided as
-##multiple arguments or alternatively as a single list type argument.
+##Concatenates a collection of values, separating each one by a given separator string, separator
+##element or separator list.  The values can either be provided as multiple arguments or
+##alternatively as a single list type argument.
 ##
 ##Basically you can pass to this function any list of values that you want to
 ##munge together and it will attempt to figure out what you meant.
@@ -26,7 +26,7 @@
 ##
 ##	* For string concatenation: the separator is intended to be a string, or another not undefined value that gets implicitly converted into a string.
 ##	* For string concatenation: if the separator is undefined then the entire result is undefined if there is more than one item.
-##	* For list concatenation: if the separator is a list then the items are concatenated as itemN // separator itemM
+##	* For list concatenation: if the separator is a list then the items are concatenated as itemN // separator // itemM
 ##	* For list concatenation: if the separator is not a list then the items are concatenated as itemN // [separator] // itemM
 ##
 ##Case 1: separator + a list of strings
@@ -88,10 +88,6 @@ func concat {
 		list = sublist($, 2, $#);
 	}
 	
-	if (list# == 0) {
-		return "";
-	}
-
 	for (i = 1; i <= list#; i++) {
 		if (list[i] == @) {
 			return @;
@@ -187,6 +183,170 @@ func lowercase {
 			eden.error(new Error("lowercase: This function cannot be applied to a value of type " + typeof(arg)), "error");
 			return undefined;
 		}
+	}}$;
+}
+
+func RE {
+	${{
+		if (arguments.length < 1 || arguments.length > 3) {
+			eden.error(new Error("RE: The function requires at least 1 argument and at most 3 arguments"), "error");
+			return undefined;
+		}
+		var pattern = arguments[0];
+		if (pattern === undefined) {
+			return undefined;
+		} else if (typeof(pattern) != "string") {
+			eden.error(new Error("RE: The first argument must be a string, not a " + typeof(pattern)), "error");
+			return undefined;
+		}
+		
+		var caseSensitive, global;
+		if (arguments.length >= 2) {
+			caseSensitive = arguments[1];
+			if (caseSensitive === undefined) {
+				return undefined;
+			} else if (typeof(caseSensitive) != "boolean") {
+				eden.error(new Error("RE: The second argument must be a boolean, not a " + typeof(caseSensitive)), "error");
+				return undefined;
+			}
+			if (arguments.length == 3) {
+			global = arguments[2];
+				if (global === undefined) {
+					return undefined;
+				} else if (typeof(global) != "boolean") {
+					eden.error(new Error("RE: The third argument must be a boolean, not a " + typeof(global)), "error");
+					return undefined;
+				}			
+			} else {
+				global = true;
+			}
+		} else {
+			caseSensitive = true;
+			global = true;
+		}
+		
+		var flags;
+		if (caseSensitive) {
+			flags = "";
+		} else {
+			flags = "i";
+		}
+		if (global) {
+			flags = flags + "g";
+		}
+		return new RegExp(pattern, flags);
+	}}$;
+}
+
+## indexOfRE(patternStr, caseSensitive (optional), targetStr, startOffset (optional))
+## indexOfRE(reObject, targetStr, startOffset (optional, requires g flag))
+func indexOfRE {
+	${{
+		if (arguments.length < 2 || arguments.length > 4) {
+			eden.error(new Error("indexOfRE: The function requires at least 2 arguments and at most 4 arguments"), "error");
+			return undefined;
+		}
+		var pattern = arguments[0];
+		var reFromObject = false;
+		if (pattern === undefined) {
+			return undefined;
+		} else if (pattern instanceof RegExp) {
+			reFromObject = true;
+		} else if (typeof(pattern) != "string") {
+			eden.error(new Error("indexOfRE: The first argument must be a string or a regular expression object, not a " + typeof(pattern)), "error");
+			return undefined;
+		}
+		
+		var caseSensitive = true;
+		var argsProcessed = 1;
+		var subject, offset;
+		
+		if (arguments.length > 2) {
+			if (arguments[1] === undefined) {
+				return undefined;
+			} else if (typeof(arguments[1]) == "string") {
+				subject = arguments[1];
+				argsProcessed = 2;
+			} else if (reFromObject) {
+				if (arguments[1] !== undefined) {
+					eden.error(new Error("indexOfRE: Case sensitivity cannot be specified separately when the regular expression is selected using the RE function."), "error");
+				}
+				return undefined;
+			} else if (typeof(arguments[1]) == "boolean") {
+				caseSensitive = arguments[1];
+				subject = arguments[2];
+				argsProcessed = 3;				
+			} else {
+				eden.error(new Error("indexOfRE: The second argument must be a string or a boolean, not a " + typeof(arguments[1])), "error");
+				return undefined;
+			}
+			if (arguments.length > argsProcessed) {
+				offset = arguments[argsProcessed];
+				if (typeof(offset) == "number") {
+					if (!Number.isInteger(offset) || offset < 1) {
+						eden.error(new Error("indexOfRE: The starting offset must be a positive integer."), "error");
+						return undefined;
+					}
+					offset--;
+				} else {
+					eden.error(new Error("indexOfRE: The starting offset must be a positive integer, not a " + typeof(offset)), "error");
+					return undefined;
+				}
+			}
+		} else {
+			subject = arguments[1];
+		}
+		
+		if (subject === undefined) {
+			return undefined;
+		} else if (typeof(subject) != "string") {
+				eden.error(new Error("indexOfRE: The value to match against must be a string, not a " + typeof(caseSensitive)), "error");
+				return undefined;
+		}
+		
+		var regExp;
+		if (reFromObject) {
+			regExp = pattern;
+			if (offset !== undefined && offset != 0 && !regExp.global) {
+				return subject.slice(offset).search(regExp) + offset + 1;
+			}
+		} else if (caseSensitive) {
+			regExp = new RegExp(pattern, "g");
+		} else {
+			regExp = new RegExp(pattern, "ig");
+		}
+		if (offset !== undefined) {
+			regExp.lastIndex = offset;
+		}
+		if (offset !== undefined || (reFromObject && regExp.global)) {
+			var match = regExp.exec(subject);
+			if (match === null) {
+				return 0;
+			} else {
+				return regExp.lastIndex;
+			}
+		} else {
+			return subject.search(regExp) + 1;
+		}
+	}}$;
+}
+
+func escapeRE {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("escapeRE: This function requires exactly one argument."), "error");
+			return undefined;
+		}
+		var str = arguments[0];
+		if (str === undefined) {
+			return undefined;
+		} else if (typeof(str) != "string") {
+			eden.error(new Error("escapeRE: The argument must be a string, not a " + typeof(str)), "error");
+			return undefined;
+		}
+		
+		metaRE = /([\\^$*+?.()|{[\]])/g;
+		return str.replace(metaRE, "\\$1");
 	}}$;
 }
 

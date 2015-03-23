@@ -9,7 +9,7 @@
 ##Given an EDEN list of strings, returns a string containing HTML mark-up for formatting the given
 ##items as an unordered (bullet point) list.
 func htmlBulletList {
-	auto items, result, i;
+	auto items, item, result, i;
 	if ($# == 1 && isList($[1])) {
 		items = $[1];
 	} else {
@@ -23,12 +23,13 @@ func htmlBulletList {
 	result = "<ul>";
 	
 	for (i = 1; i <= items#; i++) {
-		if (isString(items[i])) {
-			result = result // "<li style=\"margin-bottom: 7pt; line-height: 150%\">" // items[i] // "</li>\n";
-		} else if (items[i] != @) {
-			error("bulletList: Item " // str(i) // " must be a string, not a " // type(items[i]));
-			return @;
+		item = items[i];
+		if (item == @) {
+			item = "<span style=\"color: red\">undefined</style>";
+		} else {
+			item = str(item);
 		}
+		result = result // "<li style=\"margin-bottom: 7pt; line-height: 150%\">" // item // "</li>\n";
 	}
 	
 	result = result // "</ul>\n";
@@ -38,26 +39,69 @@ func htmlBulletList {
 ##Given an EDEN list of strings, returns a string containing HTML mark-up for
 ##formatting the given items as an ordered (numbered) list.
 func htmlNumberedList {
-	auto items, result, i;
-	if ($# == 1 && isList($[1])) {
-		items = $[1];
+	auto items, item, result, i, numberingType, start;
+	if ($# == 0) {
+		return "";
+	} else if ($# <= 3 && $[$#] == @) {
+		return "";
+	} else if ($# <= 3 && isList($[$#])) {
+		items = $[$#];
+		if (isString($[1])) {
+			numberingType = $[1];
+			if ($# == 3) {
+				if (isInt($[2])) {
+					start = $[2];
+				} else if ($[2] == @) {
+					numberingType = "symbols(\"?\")";
+				} else {
+					error("htmlNumberedList: The second argument must be an integer, not a " // type($[2]));
+					return "";
+				}
+			}
+		} else if (isInt($[1]) && $# == 2) {
+			start = $[1];
+		} else if ($[1] == @) {
+			numberingType = "symbols(\"?\")";		
+		} else if ($# > 1) {
+			error("htmlNumberedList: The first argument must be a string or an integer, not a " // type($[1]));
+			return "";
+		}
 	} else {
-		items = $;
+		if ($# >= 2 && (isString($[1]) || $[1] == @) && (isInt($[2]) || $[2] == @)) {
+			numberingType = $[1];
+			start = $[2];
+			items = sublist($, 3);
+		} else if ($# >= 1 && (isInt($[1]) || $[1] == @)) {
+			start = $[1];
+			items = sublist($, 2);
+		} else {
+			items = $;
+		}
 	}
 	
 	if (items# == 0) {
 		return "";
 	}
 	
-	result = "<ol>";
+	result = "<ol";
+	if (start != @) {
+		result = result // " start=\"" // str(start) // "\"";
+	}
+	if (numberingType =~ "^[1aAiI]$") {
+		result = result // " type=\"" // numberingType // "\"";
+	} else if (numberingType != @) {
+		result = result // " style='list-style-type: " // numberingType // "'";
+	}
+	result = result + ">\n";
 	
 	for (i = 1; i <= items#; i++) {
-		if (isString(items[i])) {
-			result = result // "<li style=\"margin-bottom: 7pt; line-height: 150%\">" // items[i] // "</li>\n";
-		} else if (items[i] != @) {
-			error("numberedList: Item " // str(i) // " must be a string, not a " // type(items[i]));
-			return @;
+		item = items[i];
+		if (item == @) {
+			item = "<span style=\"color: red\">undefined</style>";
+		} else {
+			item = str(item);
 		}
+		result = result // "<li style=\"margin-bottom: 7pt; line-height: 150%\">" // item // "</li>\n";
 	}
 	
 	result = result // "</ol>\n";
@@ -68,7 +112,7 @@ func htmlNumberedList {
 ##(range 0-255) into a string that can be used as a colour value for canvas
 ##drawables or for appropriate CSS properties.  If four arguments are supplied
 ##then the forth value determines the opacity (range 0.0 to 1.0).
-func rgb {
+func rgb2colour {
 	auto r, g, b, a;
 	if ($# < 3 || $# > 4) {
 		error("rgb: This function requires at least 3 arguments and at most 4 arguments.");
@@ -130,7 +174,7 @@ func rgb {
 ##can be used as a colour value for canvas drawables or for appropriate CSS
 ##properties.  If four arguments are supplied then the forth value determines
 ##the opacity (range 0.0 to 1.0).
-func hsl {
+func hsl2colour {
 	auto h, s, l, a;
 	if ($# < 3 || $# > 4) {
 		error("hsl: This function requires at least 3 arguments and at most 4 arguments.");

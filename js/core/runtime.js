@@ -78,6 +78,26 @@ var rt = {
 			return undefined;
 		}
 		return Math.pow(a, b);
+	},
+
+	regExpMatch: function (subject, pattern) {
+		if (subject === undefined || pattern === undefined) {
+			return undefined;
+		} else if (pattern instanceof RegExp) {
+			return pattern.test(subject);
+		} else {
+			return (new RegExp(pattern)).test(subject);
+		}
+	},
+	
+	regExpNotMatch: function (subject, pattern) {
+		if (subject === undefined || pattern === undefined) {
+			return undefined;
+		} else if (pattern instanceof RegExp) {
+			return !pattern.test(subject);
+		} else {
+			return !(new RegExp(pattern)).test(subject);
+		}
 	}
 
 };

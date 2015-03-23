@@ -80,6 +80,12 @@ func oldFloor {
 }
 patch(&oldFloor, &floor);
 
+func oldIndexOf {
+	para newIndexOf, params;
+	return apply(newIndexOf, [params[2], params[1]] // sublist(params, 3));
+}
+patch(&oldIndexOf, &indexOf);
+
 func Inputbox { ${{
   var name = arguments[0];
   var x = arguments[1];
