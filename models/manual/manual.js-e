@@ -1,0 +1,144 @@
+include("models/jspe/run.e");
+
+slideTitle is TitleSlide("JS-EDEN Programmers' Guide and Reference Manual");
+
+slideWhoFor is TitledSlide("Who is This Manual For?", "
+	<p>This manual has three intended purposes.</p>" // htmlBulletList(
+		"To introduce JS-EDEN to people who have previous experience of computer programming in other languages.  It explains the technical differences between JS-EDEN and other languages and includes a complete language reference.",
+		"To introduce JS-EDEN to people who do not have any programming experience but do have some experience of using spreadsheet packages.  It explains how you can build on your knowledge of spreadsheets to create things called consruals in JS-EDEN.  However, this manual only provides an extremely intensive crash course in computer programming and you will probably find that you get stuck at some point and will need to consult the other sources of JS-EDEN documentation that are available in addition to this manual.",
+		"To provide reference material for experienced JS-EDEN users who want to refresh their memory on particular topics, or to extend their knowledge in particular areas such as learning more about the built-in system library functions that are available, for example."
+	) // "
+	<p>This manual does not describe the methodology that should be used to create construals, nor does it give any examples of sufficient size, sophistication or realism to demonstrate the purpose of creating construals or the advantages that they have over conventional software programs.  You are strongly suggested to work your way through the online course on making construals if you are interested in understanding the motivation behind JS-EDEN and how it can be much more than, \"Just another programming language.\"</p>
+");
+
+slideParts is BulletSlide("Contents", [
+	"Part 1: Introduction to JS-EDEN",
+	"Part 2: The JS-EDEN Environment",
+	"Part 3: The EDEN Language",
+	"Part 4: The System Library",
+	"Part 5: Advanced Topics",
+	"Part 6: Appendices"
+]);
+
+slideIntroPartTitle is TitleSlide("Part 1: Introduction to JS-EDEN");
+
+slideWhatIsJSEDEN is TitledSlide("A Little About JS-EDEN", "
+	<h2>What is JS-EDEN?</h2>
+	<p>JS-EDEN is a web-based environment for creating dynamic, interactive models of interesting phenomena.  We refer to these models as \"construals\".</p>
+	
+	<h2>Origins &amp; Current Project</h2>
+	
+	<h2>Links to Other Resources</h2>
+	
+");
+
+slideTransitionFromSpreadsheets is TitledSlide("Making the Step from Spreadsheets to JS-EDEN Code", "
+	<p>Let's write your first JS-EDEN statement together.  Click on the \"copy to input\" hyperlink below the following code and it will appear in the Script Input Window.  Then click on the Submit button inside the Script Input Window to get JS-EDEN to execute the code.</p>
+	<jseden>
+B1 = 5500;
+	</jseden>
+
+	<p>The statement that you just executed has changed the current value of the observable named B1 to become the number 5500.  We call this kind of statement an <em>assignment statement</em>.  A <dfn>statement</dfn> is a written instruction given to the computer.  When the computer has performed the action requested by a statement we say the statement has been <em>executed</em>.  The statement that you just executed is the JS-EDEN equivalent of clicking on cell B1 in Microsoft Excel, typing 5500 and pressing the return key.  Unlike a spreadsheet the observables in JS-EDEN are not laid out in a two-dimensional grid.  In fact, by default they're not visible at all.  You can view the current values of the observables by clicking on \"New Window\" in the menu bar and choosing the option called Observable List.  You'll see a new window appear that lists all of the observables that are part of the current construal.  You'll see many other observables listed in addition to B1.  These contain the data used to create the slideshow presentation that you are reading now.  If you scroll down to the bottom of the observable list then you'll see B1 listed and you can confirm that it has the value 5500.  You can also type B1 into the search box to locate it more quickly.  Now let's enter some more sales figures into JS-EDEN.</p>
+	<jseden>
+B2 = 6000;
+B3 = 6250;
+B4 = 6800;
+	</jseden>
+
+	<p>And finally let's enter a formula, which in JS-EDEN terminology is called <em>making a definition</em>.</p>
+	<jseden>
+B5 is B1+B2+B3+B4;
+	</jseden>
+	<p>This is the equivalent of clicking on cell B5 in Excel, typing =B1+B2+B3+B4 and pressing the return key.  Try typing your own assignment statement into the script input window and submitting it to give either B1, B2, B3 or B4 a different value.  You'll notice that the value of B5 also changes to match the sum of of the other four values, three that have stayed the same and the one that you just changed.  If you place the mouse pointer over B5 then it's definition will displayed as a tool tip.</p>
+	
+	<p>Let's review the things we've seen about EDEN code so far.</p>
+	
+	<div>For an assignment:" // htmlNumberedList(
+		"The text before the equality symbol tells JS-EDEN which observable to change.  It is similar to placing the cursor into a particular cell in a spreadsheet.",
+		"The equality symbol tells JS-EDEN that we are inputting a value and not a formula.  This is the opposite behaviour from a spreadsheet.  In a spreadsheet the equality symbol indicates that the user has entered a formula.",
+		"The text that appears after the equality symbol but before the semi-colon describes the value to associate with the observable, known as the value <em>assigned to</em> the observable.  It's the value that would appear in the cell in a spreadsheet.",
+		"The semi-colon indicates the completion of input for that particular observable.  It's similar to pressing the return key in a spreadsheet.  JS-EDEN ignores the return key unless it's preceded by a semi-colon.  This allows complicated instructions to be spread across multiple lines if needed."
+	) // "
+	</div>
+	
+	<div>For a definition:" // htmlNumberedList(
+		"The text before the word <i>is</i> tells JS-EDEN which observable is the subject of the dependency.  Again, it's the equivalent of placing the cursor into a particular spreadsheet cell.",
+		"The word <i>is</i> tells JS-EDEN that we are writing a definition rather than an assignment.  It is equivalent to writing = to begin a formula in Excel.",
+		"The text after the word <i>is</i> and before the semi-colon gives the formula that's used to calculate the observable's value.",
+		"Finally, the definition is ended with a semi-colon, which is common to all JS-EDEN statements."
+	) // "
+	</div>
+	
+	<p>You may know that Excel allows you to give cells memorable names so that you don't have to remember their locations in terms of column letters and row numbers. You can find out <a href=\"https://support.office.com/en-gb/article/Define-and-use-names-in-formulas-2d9abce7-42cf-4a21-a6b4-f02786f690b7\" target=\"excel\">more about this feature on Microsoft's support site</a>.  In JS-EDEN you are not limited to observable names like B1.  In fact, as we've seen, these names don't have any meaning in JS-EDEN because JS-EDEN doesn't use the grid system to present data.  Thus, in JS-EDEN it is usual to write our assignments and definitions using observable names that are meaningful to us.  We might write the quarterly sales example in the following way.</p>
+	<jseden>
+q1Sales = 5500;
+q2Sales = 6000;
+q3Sales = 6250;
+q4Sales = 6800;
+annualSales is q1Sales + q2Sales + q3Sales + q4Sales;
+	</jseden>
+	<h2>Rules for Naming Observables</h2>
+	" // htmlBulletList(
+		"Observable names can contain upper case English letters, lower case English letters, Hindu-Arabic numerals (0&ndash;9) and underscores (_).",
+		"Observable names cannot begin with a number.",
+		"Conventionally, observables with names beginning with an underscore denote information about the JS-EDEN environment itself rather than about the topic of the construal.  For example, there are observables that denote the positions of the windows on the screen."
+	)
+);
+
+slideFirstDemo is TitledSlide("A More Sophisticated Example", "
+
+");
+
+slideMiscSpreadsheets is TitledSlide("More Connections Between JS-EDEN and Spreadsheets", "
+
+");
+
+slideTerminology is BulletSlide("Terminology Used When Describing Making Construals", [
+	"A construal of <var>x</var> is how a person thinks of <var>x</var>.  It has two parts: the thoughts in the user's mind about <var>x</var> and the computer based <em>artefact</em> used to record and animate them.  The two parts are intertwined through a symbiotic process of visualization, interaction, experimentation and refinement.  The author's thoughts become clarified through interaction with the computer and misunderstandings are corrected.  The artefact becomes richer as the user makes refinements to it.",
+	"When a construal maker creates a construal of <var>x</var> then <var>x</var> is known as the referent.",
+	"An artefact is the computer based component of a construal.  Conceptually it refers to the current memory state of the computer while interaction is occurring, though in practice artefacts are usually created, preserved, stored and later reloaded in the form <em>definitive scripts</em> and these scripts may be regarded as the canonical form of an artefact.",
+	"A definitive script is a collection of <em>definitions</em>, <em>assignments</em>, <em>functions</em>, <em>procedures</em> and any other computer code used to create an artefact.  The key thing that makes definitive scripts distinctly different from conventional computer programs is the inclusion of <em>definitions</em>.  Definitions are how construal makers express their knowledge of the relationships between the <em>observables</em> present in the referent.",
+	"An observable is some attribute of the referent that can be observed or who's value can otherwise by inferred.  For example, in a construal of a car we can identify an observable named \"speed\" that informs us of the current speed of the car in kilometres per hour.  Each observable has associated with it a current value (which may be different at different points in time) and way of identifying it separately from the other observables and from the referent as a whole.  Construals rarely represent everything that is possibly knowable about the referent so only a selection of the observables that one could theoretically identify or choose to observe are modelled as part of the construal.  For example, if we were to make a construal of the how a car is manufactured from its components then the current speed of the car might be deemed irrelevant for the particular context.  In definitive scripts observables are identified using names typed into the computer using the keyboard.  Observables in JS-EDEN behave in a similar way to variables in other programming languages because they can be described by a combination of their name and current value and they also respond to operations for reading the current value and changing it using an assignment instruction.  However, observables can also be the subject (or target) of a <em>definition</em>, which is another way of ascribing a value to an observable that is an alternative to assignment and one that is radically different from anything found in other programming languages.",
+	"A type is a collection of values that are related.  For example, the collection of all numbers representable in JS-EDEN is a type, and the collection of all possible pieces of text is a different type.",
+	"A dependency definition (usually abbreviated to simply <em>definition</em>) is a statement that the value of one observable is always derivable from the values of one or more other observables according to some known rule.",
+	"Every dependency definition describes exactly one dependency.  A rule by which the value of one observable is derived from others is called \"a dependency\", and the associated instruction that tells the computer to obey the dependency is the dependency definition.  Dependencies are <em>maintained</em> automatically by the JS-EDEN environment, which means that JS-EDEN will ensure that a construal's observables always satisfy the relationships expressed by the construal's dependencies at all times.",
+	"A base observable is an observable whose value is determined by an assignment rather than being automatically computed by the system in response to a dependency definition.",
+	"A function is a recipe for using one or more values to compute another value according to some fixed rule.  For example, in mathematics taking the cosine of an angle is <em>invoking</em> the cos function.  Functions have a name and a <em>function definition</em>.  For example, the definition of the cos function is a Taylor series expansion.",
+	"An operator is a commonly used function for which it is customary to write invocations of it in a special format that is more convenient to read.  If we take the the addition operator as an example, we usually write <code>3&nbsp;+&nbsp;2</code> rather than <code>+(3,&nbsp;2)</code> but the latter form would be the required one if addition were just an ordinary function.  In practice there are other practical differences between operators and other functions too.  For example, JS-EDEN will let you inspect the recipe of an ordinary function whereas addition is a built-in basic operation of the computer that is not available for analysis or modification, even though mathematically speaking there does exist a recipe for addition.",
+	"A procedure is a list of statements that are executed sequentially one after another and have a shorthand name attached to them that facilitates repeating the same list of statements again at a later point in time.",
+	"A triggered action is an action that is performed automatically when the values of one or more observables change in some predetermined fashion.  The description of the change needed in order to cause the action to be automatically performed is called the <em>trigger</em>.  Presently the only kinds of trigger conditions that can be expressed in JS-EDEN are, \"When the value of any one of the observables named in this list of observables changes to any value different from that observable's current value then perform the action.\"  The actions themselves specified by creating a procedure for each action.",
+	"An agent is something that:", [
+		"can change the system state,",
+		"is not instructed to make a change but can autonomously choose to make a change,",
+		"perceives state before deciding to act,",
+		"can initiate tasks (e.g. by invoking procedures) and communicate with other agents."
+	],
+	"Humans and triggered actions are both categories of agents."
+]);
+
+slideLanguages is TitledSlide("Computer Languages Used in JS-EDEN", "
+	<h2>EDEN</h2>
+	<p>So far the code we've written has all been written in the EDEN language, which is the language for making construals that is unique to JS-EDEN and its predecessors.  Most of the content of construals is written in EDEN.</p>
+	
+	<h2>HTML</h2>
+	<p>JS-EDEN runs inside a web browser and the native language of web browsers is HTML.  It is possible to create complex construals without writing any HTML at all.  Most of time JS-EDEN handles converting your EDEN code into HTML for the browser to display completely invisibly.  Nonetheless, there are sometimes situations where it can be convenient to write some HTML code of your own.  HTML can be stored inside observables, altered using EDEN code, and displayed in the form of a document on the screen.  This presentation is an example of mixing together EDEN and HTML.  There are many books and web sites available for learning HTML if you find you need to learn some HTML in order to progress to creating more ambitious construals.  <a href=\"http://www.w3schools.com/html/html_intro.asp\" target=\"webprogramming\">W3Schools</a> is a popular free web site for learning HTML.</p>
+	
+	<h2>CSS</h2>
+	<p>CSS is another language used by web browsers.  Whereas HTML deals with the content of documents (or often just snippets of documents in JS-EDEN), CSS is for handling the finer details such as selecting colours and font sizes.  You're even less likely to need to write CSS when using JS-EDEN than the likelihood of requiring HTML content.  Nonetheless, for advanced users JS-EDEN has a few feature that integrate EDEN wih CSS.  <a href=\"http://www.w3schools.com/css/css_intro.asp\" target=\"webprogramming\">W3Schools also has a tutorial on CSS.s</a></p>
+	
+	<h2>Regular Expressions</h2>
+	
+	<h2>JavaScript</h2>
+	
+");
+
+slideEnvironmentPartTitle is TitleSlide("Part 2: The JS-EDEN Environment");
+
+slideUI is TitledSlide("The JS-EDEN User Interface", "
+
+");
+
+slidesIntro is [slideIntroPartTitle, slideWhatIsJSEDEN, slideTransitionFromSpreadsheets, slideFirstDemo, slideMiscSpreadsheets, slideTerminology, slideLanguages];
+slidesEnvironment is [slideEnvironmentPartTitle, slideUI];
+
+slideList is [slideTitle, slideWhoFor, slideParts] // slidesIntro // slidesEnvironment;

@@ -105,6 +105,13 @@
 			"return": "",
 			"description": ""
 		},
+		"escapeRE": {
+			"parameters": {
+				"string": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"foldl": {
 			"parameters": {
 				"func": "",
@@ -131,7 +138,7 @@
 			"return": "",
 			"description": ""
 		},
-		"hsl": {
+		"hsl2colour": {
 			"parameters": {
 				"hue": "",
 				"saturation": "",
@@ -150,6 +157,8 @@
 		},
 		"htmlNumberedList": {
 			"parameters": {
+				"[numbering_scheme]" : "",
+				"[starting_number]" : "",
 				"string_list_or_string1...": ""
 			},
 			"return": "",
@@ -157,10 +166,20 @@
 		},
 		"indexOf": {
 			"parameters": {
-				"string_or_list": "",
 				"search_value": "",
+				"string_or_list": "",
 				"[start": "",
 				"[is_sorted]]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"indexOfRE": {
+			"parameters": {
+				"regular_expression": "",
+				"[case_sensitive]": "",
+				"target_string": "",
+				"[starting_offset]": ""
 			},
 			"return": "",
 			"description": ""
@@ -392,6 +411,15 @@
 			"return": "",
 			"description": ""
 		},
+		"RE": {
+			"parameters": {
+				"pattern": "",
+				"[case_sensitive": "",
+				"[global]]" : ""
+			},
+			"return": "",
+			"description": ""
+		},		
 		"replaceFirst": {
 			"parameters": {
 				"source": "",
@@ -409,7 +437,7 @@
 			"return": "",
 			"description": ""
 		},
-		"rgb": {
+		"rgb2colour": {
 			"parameters": {
 				"red": "",
 				"green": "",
@@ -437,8 +465,8 @@
 		},
 		"search": {
 			"parameters": {
-				"string_or_list": "",
 				"search_value": "",
+				"string_or_list": "",
 				"comparison_function": "",
 				"[start": "",
 				"[is_sorted]]": ""
@@ -936,6 +964,14 @@
 				"title": "",
 				"[subtitle]" : "",
 				"html" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"TitleSlide": {
+			"parameters": {
+				"title": "",
+				"[subtitle]" : ""
 			},
 			"return": "",
 			"description": ""

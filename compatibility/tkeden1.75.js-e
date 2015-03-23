@@ -45,6 +45,8 @@ func rand {
   }}$;
 };
 
+rgb2color is rgb2colour;
+
 func oldSort {
 	para newSort, params;
 	if (params[2] == 1) {

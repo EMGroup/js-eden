@@ -80,6 +80,8 @@
 ">"                   return '>'
 "=="                  return '=='
 "!="                  return '!='
+"=~"                  return '=~'
+'!~'                  return '!~'
 
 "||"                  return '||'
 "&&"                  return '&&'
@@ -138,7 +140,7 @@
 %left '||' OR
 %left '&&' AND
 %left '==' '!='
-%left '>' '<' '>=' '<='
+%left '>' '<' '>=' '<=' '=~' '!~'
 %left  '//'
 %left '+' '-'
 %left '*' '/' '%'
@@ -267,6 +269,10 @@ expression
         { $$ = 'rt.equal(' + $1 + ', ' + $3 + ')'; }
     | expression '!=' expression
         { $$ = '!rt.equal(' + $1 + ', ' + $3 + ')'; }
+	| expression '=~' expression
+		{ $$ = 'rt.regExpMatch(' + $1 + ', ' + $3 + ')'; }
+	| expression '!~' expression
+		{ $$ = 'rt.regExpNotMatch(' + $1 + ', ' + $3 + ')'; }
 
     | expression '&&' expression
         { $$ = '' + $1 + ' && ' + $3; }

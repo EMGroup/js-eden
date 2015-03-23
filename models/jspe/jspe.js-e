@@ -18,18 +18,7 @@ SlideButton = function (name, label, x, y, enabled) {
 	this.y = y;
 	this.enabled = enabled;
 }
-}}$;
 
-func SlideButton { ${{
-  var name = arguments[0];
-  var label = arguments[1];
-  var x = arguments[2];
-  var y = arguments[3];
-  var enabled = arguments[4];
-  return new SlideButton(name, label, x, y, enabled);
-}}$; }
-
-${{
 SlideButton.prototype.draw = function(context) {
   var me = "jspe_" + this.name;
   var me2 = this.name;
@@ -65,21 +54,21 @@ SlideButton.prototype.toString = function() {
 };
 }}$;
 
+func SlideButton { ${{
+  var name = arguments[0];
+  var label = arguments[1];
+  var x = arguments[2];
+  var y = arguments[3];
+  var enabled = arguments[4];
+  return new SlideButton(name, label, x, y, enabled);
+}}$; }
 
 ## Slide
 ${{
 Slide = function (html) {
         this.html = html;
 }
-}}$;
 
-func Slide { ${{
-  var html = arguments[0];
-  return new Slide(html);
-}}$; }
-
-
-${{
 Slide.prototype.draw = function(context) {
   var me = "jspe_slide";
   var but = $("#"+me).get(0);
@@ -102,10 +91,9 @@ Slide.prototype.draw = function(context) {
   } else {
         but.innerHTML = content;
         but.togarbage = false;
-	but.style.left = ($('#jspe-dialog-canvas').position().left + 20) + "px";
-	but.style.top = "40px";
+		but.style.top = "40px";
   }
-  $('#jspe_slide').css("width",$('#jspe-dialog-canvas').width());
+  $('#jspe_slide').css("width",(parseInt($('#jspe-dialog-canvas').width()) - 36) + "px");
 };
 }}$;
 
@@ -114,6 +102,11 @@ Slide.prototype.toString = function() {
   return "Slide("+this.html+")";
 };
 }}$;
+
+func Slide { ${{
+  var html = arguments[0];
+  return new Slide(html);
+}}$; }
 
 ${{
   copyToInput = function(e) {

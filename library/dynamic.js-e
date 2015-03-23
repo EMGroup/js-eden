@@ -272,7 +272,7 @@ proc patch {
 		}
 
 		root.lookup(funcName).assign(function () {
-			return patchFunc(originalFunc, arguments);
+			return patchFunc(originalFunc, Array.prototype.slice.call(arguments));
 		}, root.lookup("patch"));
 
 		delete root.symbols[patchName];
