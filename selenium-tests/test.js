@@ -222,7 +222,7 @@ describe("UI tests", function () {
 		it('shows instructions', function () {
 			return browser
 			.elementByCss('.menubar-mainitem')
-			.waitForElementByCss('.menubar-item-fullwidth', wd.asserters.textInclude('Use "New" menu to create windows.'));
+			.waitForElementByCss('.menubar-item-fullwidth', wd.asserters.textInclude('Use the "New Window" menu to create windows.'));
 		});
 	});
 

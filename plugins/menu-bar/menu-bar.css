@@ -114,10 +114,11 @@
 	position: relative;
 	font-weight: normal;
 	margin-top: 6px;
-	background-color: white;
-	border-color: silver;
+	background-color: #FFFFE0;
+	border-color: #A0A0A0;
 	border-style: solid;
-	border-width: 1px;
+	border-width: 0px 0px 1px 2px;
+	box-shadow: 4px 6px 7px 0px #111111;
 	color: black;
 	width: 210px;
 	z-index: 2147483647; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */

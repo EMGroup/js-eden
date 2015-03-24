@@ -349,6 +349,22 @@
 			"return": "",
 			"description": ""
 		},
+		"Menu": {
+			"parameters": {
+				"label": "",
+				"items": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"MenuItem": {
+			"parameters": {
+				"name": "",
+				"label": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"min": {
 			"parameters": {
 				"list_or_value1...": ""

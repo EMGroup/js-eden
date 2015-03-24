@@ -228,4 +228,5 @@
 			diag.dialog("option", "height", newheight);
 		}
 	};
+
 }());
