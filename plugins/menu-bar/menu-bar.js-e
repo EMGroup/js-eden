@@ -6,3 +6,21 @@ proc _menubar_update : _menubar_status {
 	edenUI.plugins.MenuBar.updateStatus(text);
 	}}$;
 };
+
+menus = [];
+
+func Menu {
+	${{
+		var text = arguments[0];
+		var items = arguments[1];
+		return new edenUI.plugins.MenuBar.Menu(text, items);
+	}}$;
+}
+
+func MenuItem {
+	${{
+		var name = arguments[0];
+		var text = arguments[1];
+		return new edenUI.plugins.MenuBar.SimpleMenuItem(name, text);
+	}}$;
+}

@@ -1,4 +1,4 @@
-/*
+/*f
  * Copyright (c) 2013, Empirical Modelling Group
  * All rights reserved.
  *
@@ -41,7 +41,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	};
 
 	this.appendStatus = function (text) {
-		menustatus.html(menustatus.html()+text);
+		menustatus.html(menustatus.html() + Eden.htmlEscape(text, true, true));
 	};
 
 	var menuShowing = false;
@@ -60,10 +60,16 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		hideMenu();
 	});
 
-	function addMainItem(name, title) {
+	function addMainGroup() {
+		var group = $('<div></div>');
+		group.appendTo(menudiv);
+		return group;
+	}
+	
+	function addMainItem(name, title, group) {
 		var menuitem = $('<div class="menubar-mainitem"></div>');
 		menuitem.html(title+'<div id="menubar-mainitem-'+name+'" class="menubar-menu"></div>');
-		menuitem.appendTo(menudiv);
+		menuitem.appendTo(group);
 
 		$("#menubar-mainitem-"+name).hide();
 
@@ -92,7 +98,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	function existingViewsInstructions() {
 		var existingViews = $("#menubar-mainitem-existing-views");
 		if (Object.keys && Object.keys(edenUI.activeDialogs).length === 0) {
-			existingViews.html('<div class="menubar-item-fullwidth">Use "New" menu to create windows.</div>');
+			existingViews.html('<div class="menubar-item-fullwidth">Use the "New Window" menu to create windows.</div>');
 		}
 	}
 
@@ -112,11 +118,11 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	}
 
 	function menuItem(parts) {
-		var viewEntry = $("<div class='menubar-item'></div>");
+		var item = $("<div class='menubar-item'></div>");
 		for (var i = 0; i < parts.length; ++i) {
-			viewEntry.append(parts[i]);
+			item.append(parts[i]);
 		}
-		return viewEntry;
+		return item;
 	}
 	
 	function menuItemPart(className, content) {
@@ -235,8 +241,9 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	};
 
 	// Add main menu items
-	addMainItem("views", "New Window");
-	addMainItem("existing-views", "Existing Windows");
+	var jsedenGroup = addMainGroup();
+	addMainItem("views", "New Window", jsedenGroup);
+	addMainItem("existing-views", "Existing Windows", jsedenGroup);
 
 	// Put js-eden version in right corner
 	$.ajax({
@@ -256,6 +263,62 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	});
 
 	this.updateViewsMenu();
+
+	var construalGroup = addMainGroup();
+	
+	edenUI.eden.root.lookup("menus").addJSObserver("updateMenus", function (symbol, menus) {
+		var previousChildren = construalGroup.children();
+		previousChildren.detach();
+		if (Array.isArray(menus)) {
+			for (var i = 0; i < menus.length; i++) {
+				var menu = menus[i];
+				if (menu.element === undefined) {
+					var menuID = "construal-" + i;
+					addMainItem(menuID, menu.text, construalGroup);
+					var menuDiv = $('#menubar-mainitem-' + menuID);
+					menu.generate(menuDiv);
+				} else {
+					construalGroup.append(menu.element);
+				}
+			}
+		}
+	});
+	
+	this.Menu = function (text, items) {
+		this.text = text;
+		this.items = items;
+	}
+
+	this.Menu.prototype.generate = function (menuDiv) {
+		if (this.element === undefined) {
+			for (var i = 0; i < this.items.length; i++) {
+				var item = this.items[i];
+				item.generate();
+				menuDiv.append(item.element);
+			}
+			this.element = menuDiv.parent().get(0);
+		}
+	}
+
+	this.SimpleMenuItem = function (name, text) {
+		this.name = name;
+		this.text = text;
+	}
+
+	this.SimpleMenuItem.prototype.generate = function () {
+		if (this.element === undefined) {
+			var label = menuItemPart('menubar-item-fullwidth', this.text);
+			var item = menuItem([label]);
+			var name = this.name;
+			item.bind("click", function (event) {
+				hideMenu();
+				var symbol = root.lookup(name + "_clicked");
+				symbol.assign(true);
+				symbol.assign(false);
+			});
+			this.element = item.get(0);
+		}
+	}
 
 	edenUI.eden.include("plugins/menu-bar/menu-bar.js-e", success);
 };

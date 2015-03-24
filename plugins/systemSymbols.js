@@ -73,6 +73,8 @@ Eden.systemFunctionNames = [
 	"LinearGradient",
 	"LineSequence",
 	"List",
+	"Menu",
+	"MenuItem",
 	"Pixel",
 	"PixelList",
 	"Point",
