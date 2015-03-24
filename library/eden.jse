@@ -469,9 +469,14 @@ require("SymbolLookUpTable");
 require("ScriptGenerator");
 require("DependencyMap");
 require("StateTimeLine");
-createCanvas("picture");
-createView("projects", "ProjectList");
-createView("inputwindow", "ScriptInput");
+
+defaultViews = ${{getParameterByName("views") }}$;
+if (defaultViews == "" || defaultViews == "default") {
+	createCanvas("picture");
+	createView("projects", "ProjectList");
+	createView("inputwindow", "ScriptInput");
+}
+forget(&defaultViews);
 
 _menubar_status = "JS-Eden done loading";
 
