@@ -69,6 +69,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 * @param {string} Type of symbols to show: obs,agent,func,all.
 	 */
 	this.createDialog = function (name, mtitle, type) {
+		var edenName = name.slice(0, -7);
 		var code_entry = $('<div></div>');
 		code_entry.html(generateHTML(name, type));
 		var symbollist = new EdenUI.plugins.SymbolViewer.SymbolList(
@@ -89,7 +90,8 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		symbollist.search("");
 
 		code_entry.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
-			edenUI.createView("Edit_" + me.name, "ScriptInput");
+			console.log(name);
+			edenUI.createView("edit_" + edenName, "ScriptInput");
 			var allVals = "";
 			var symbol;
 			for(var symbolname in symbollist.symbols){
@@ -106,7 +108,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 				}
 				allVals += val + "\n";
 			}
-				$('#Edit_'+me.name+'-dialog').find('textarea').val(allVals);
+				$('#edit_' + edenName + '-dialog').find('textarea').val(allVals);
 		});
 
 
@@ -415,7 +417,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			$(this).animate({backgroundColor: "white"}, 100);
 		}	
 	).click(function () {
-		edenUI.createView("Edit_" + me.name, "ScriptInput");
+		edenUI.createView("edit_" + me.name, "ScriptInput");
 		var val;
 		if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
 			val = symbol.eden_definition;
@@ -427,7 +429,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			}
 		}
 
-		$('#Edit_'+me.name+'-dialog').find('textarea').val(
+		$('#edit_' + me.name + '-dialog').find('textarea').val(
 			val
 		);
 	});

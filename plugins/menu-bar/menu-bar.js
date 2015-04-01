@@ -223,8 +223,8 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		// Now add existing windows
 		for (viewName in edenUI.activeDialogs) {
 			var myHover = hoverFunc(viewName);
-			var dialogType = edenUI.activeDialogs[viewName];
-			label = menuItemPart('menubar-item-label', viewName+' ['+dialogType+']');
+			var title = edenUI.eden.root.lookup("_view_" + viewName + "_title").value();
+			label = menuItemPart('menubar-item-label', title +' [' + viewName + ']');
 			label.bind("click", myHover.click);
 
 			close = menuItemPart('menubar-item-close', '<div class="menubar-item-close-icon">X</div>');
@@ -264,6 +264,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 
 	this.updateViewsMenu();
 
+	//Additional menus defined by the construal.
 	var construalGroup = addMainGroup();
 	
 	edenUI.eden.root.lookup("menus").addJSObserver("updateMenus", function (symbol, menus) {

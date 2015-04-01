@@ -81,7 +81,9 @@
 			return this.viewInstances[name];
 		}
 
-		this.viewInstances[name] = this.views[type].dialog(name+"-dialog", this.views[type].title+" ["+name+"]");
+		var me = this;
+		var title = this.views[type].title;
+		this.viewInstances[name] = this.views[type].dialog(name + "-dialog", title);
 		var position = this.viewInstances[name] && this.viewInstances[name].position;
 
 		// add minimise button to created dialog
@@ -106,6 +108,15 @@
 			}
 		});
 		this.activeDialogs[name] = type;
+
+		//Set title bar text and allow the construal to change it later.
+		var titleSym = view(name, "title");
+		titleSym.assign(title);
+		titleSym.addJSObserver("updateTitleBar", function (symbol, value) {
+			diag.dialog("option", "title", value);
+			me.plugins.MenuBar.updateViewsMenu();
+		});
+
 		this.emit('createView', [name, type]);
 
 		var diag = dialog(name);
@@ -124,7 +135,7 @@
 			view(name, 'x').assign(ui.position.left);
 			view(name, 'y').assign(ui.position.top);
 		});
-		
+
 
 		function viewEdenCode() {
 			var code = 'proc _View_'+name+'_position : _view_'+name+'_x, _view_'+name+'_y {\n'+
