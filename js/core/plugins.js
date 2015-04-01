@@ -229,4 +229,50 @@
 		}
 	};
 
+	/**Creates a modal dialogue box that permits the user to choose from a small number of fixed
+	 * options.  The user cannot must choose an option before they can have any other interaction
+	 * with JS-EDEN.
+	 * @param {string} title The text to go in the window's title bar.
+	 * @param {string} message The text to display as a prompt message.  Can include HTML.
+	 * @param {Array} options An array of strings.  Each one provides the text used to create a
+	 * button at the foot of the dialogue box.
+	 * @param {function} callback A function to call once the user has clicked a button.  The
+	 * function should have a single integer parameter.  If n options are provided then the function
+	 * will be invoked with a value between 0 and n inclusive.  Values 0 through n-1 correspond to
+	 * the options provided in the options argument.  n means that the user has clicked "Cancel",
+	 * which is an option that is always provided, regardless of the contents of the options array.
+	 */
+	EdenUI.prototype.modalDialog = function (title, message, options, callback) {
+		var dialog = $('<div id="modal"></div>');
+		
+		var callCallback = function (i) {
+			return function (event) {
+				dialog.dialog("destroy");
+				dialog.remove();
+				callback(i);
+			};
+		};
+		
+		var text = $('<div>' + message + '</div>');
+		dialog.append(text);
+		
+		for (var i = 0; i < options.length; i++) {
+			var button = $('<button type="button">' + options[i] + '</button>');
+			button.on("click", callCallback(i));
+			dialog.append(button);
+		}
+		var cancelValue = options.length;
+		var cancelButton = $('<button type="button">Cancel</button>');
+		cancelButton.on("click", callCallback(cancelValue));
+		dialog.append(cancelButton);
+		
+		dialog.dialog({
+			modal: true,
+			title: title,
+			close: function () {
+				callback(cancelValue);
+			}
+		});
+	}
+
 }());

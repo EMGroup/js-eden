@@ -50,13 +50,47 @@ if (!("keys") in Object) {
 function initialiseJSEden() {
 	root = new Folder();
 	eden = new Eden(root);
+	
+	var include = getParameterByName("include");
+	var plugins = getParameterByName("plugins");
+	if (plugins == "") {
+		//Default plug-ins
+		plugins = [
+			"ScriptInput",
+			"PluginManager",
+			"ProjectList",
+			"Canvas2D",
+			"SymbolViewer",
+			"HTMLContent",
+			"SymbolLookUpTable",
+			"ScriptGenerator",
+			"DependencyMap",
+			"StateTimeLine"
+		];
+	} else {
+		plugins = plugins.split(",");
+	}
 
 	$(document).ready(function () {
 		edenUI = new EdenUI(eden);
+		
+		var loadPlugins = function (pluginList, callback) {
+			if (pluginList.length > 0) {
+				var plugin = pluginList.shift();
+				edenUI.loadPlugin(plugin, function () {
+					loadPlugins(pluginList, callback);
+				});
+			} else {
+				callback();
+			}
+		};
+		
+		if (getParameterByName("menus") != "false") {
+			edenUI.loadPlugin("MenuBar", function () { });
+		}
 
 		// Load the Eden library scripts
-		eden.include("library/eden.jse", {name: '/system'}, function () {
-			var include = getParameterByName("include");
+		eden.include("library/eden.jse", {name: '/system'}, loadPlugins(plugins, function () {
 
 			$.getJSON('config.json', function (config) {
 				rt.config = config;
@@ -65,6 +99,6 @@ function initialiseJSEden() {
 					eden.include(include);
 				}
 			});
-		});
+		}));
 	});
 }
