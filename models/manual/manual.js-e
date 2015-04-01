@@ -17,7 +17,9 @@ slideParts is BulletSlide("Contents", [
 	"Part 3: The EDEN Language",
 	"Part 4: The System Library",
 	"Part 5: Advanced Topics",
-	"Part 6: Appendices"
+	"Part 6: Appendices", [
+		"Recent changes and making extensions to JS-EDEN"
+	]
 ]);
 
 slideIntroPartTitle is TitleSlide("Part 1: Introduction to JS-EDEN");
@@ -69,7 +71,7 @@ B5 is B1+B2+B3+B4;
 	) // "
 	</div>
 	
-	<p>You may know that Excel allows you to give cells memorable names so that you don't have to remember their locations in terms of column letters and row numbers. You can find out <a href=\"https://support.office.com/en-gb/article/Define-and-use-names-in-formulas-2d9abce7-42cf-4a21-a6b4-f02786f690b7\" target=\"excel\">more about this feature on Microsoft's support site</a>.  In JS-EDEN you are not limited to observable names like B1.  In fact, as we've seen, these names don't have any meaning in JS-EDEN because JS-EDEN doesn't use the grid system to present data.  Thus, in JS-EDEN it is usual to write our assignments and definitions using observable names that are meaningful to us.  We might write the quarterly sales example in the following way.</p>
+	<p>You may know that Excel allows you to give cells memorable names so that you don't have to remember their locations in terms of column letters and row numbers. You can find out <a href=\"https://support.office.com/en-gb/article/Define-and-use-names-in-formulas-2d9abce7-42cf-4a21-a6b4-f02786f690b7\" target=\"_blank\">more about this feature on Microsoft's support site</a>.  In JS-EDEN you are not limited to observable names like B1.  In fact, as we've seen, these names don't have any meaning in JS-EDEN because JS-EDEN doesn't use the grid system to present data.  Thus, in JS-EDEN it is usual to write our assignments and definitions using observable names that are meaningful to us.  We might write the quarterly sales example in the following way.</p>
 	<jseden>
 q1Sales = 5500;
 q2Sales = 6000;
@@ -121,10 +123,10 @@ slideLanguages is TitledSlide("Computer Languages Used in JS-EDEN", "
 	<p>So far the code we've written has all been written in the EDEN language, which is the language for making construals that is unique to JS-EDEN and its predecessors.  Most of the content of construals is written in EDEN.</p>
 	
 	<h2>HTML</h2>
-	<p>JS-EDEN runs inside a web browser and the native language of web browsers is HTML.  It is possible to create complex construals without writing any HTML at all.  Most of time JS-EDEN handles converting your EDEN code into HTML for the browser to display completely invisibly.  Nonetheless, there are sometimes situations where it can be convenient to write some HTML code of your own.  HTML can be stored inside observables, altered using EDEN code, and displayed in the form of a document on the screen.  This presentation is an example of mixing together EDEN and HTML.  There are many books and web sites available for learning HTML if you find you need to learn some HTML in order to progress to creating more ambitious construals.  <a href=\"http://www.w3schools.com/html/html_intro.asp\" target=\"webprogramming\">W3Schools</a> is a popular free web site for learning HTML.</p>
+	<p>JS-EDEN runs inside a web browser and the native language of web browsers is HTML.  It is possible to create complex construals without writing any HTML at all.  Most of time JS-EDEN handles converting your EDEN code into HTML for the browser to display completely invisibly.  Nonetheless, there are sometimes situations where it can be convenient to write some HTML code of your own.  HTML can be stored inside observables, altered using EDEN code, and displayed in the form of a document on the screen.  This presentation is an example of mixing together EDEN and HTML.  There are many books and web sites available for learning HTML if you find you need to learn some HTML in order to progress to creating more ambitious construals.  <a href=\"http://www.w3schools.com/html/html_intro.asp\" target=\"_blank\">W3Schools</a> is a popular free web site for learning HTML.</p>
 	
 	<h2>CSS</h2>
-	<p>CSS is another language used by web browsers.  Whereas HTML deals with the content of documents (or often just snippets of documents in JS-EDEN), CSS is for handling the finer details such as selecting colours and font sizes.  You're even less likely to need to write CSS when using JS-EDEN than the likelihood of requiring HTML content.  Nonetheless, for advanced users JS-EDEN has a few feature that integrate EDEN wih CSS.  <a href=\"http://www.w3schools.com/css/css_intro.asp\" target=\"webprogramming\">W3Schools also has a tutorial on CSS.s</a></p>
+	<p>CSS is another language used by web browsers.  Whereas HTML deals with the content of documents (or often just snippets of documents in JS-EDEN), CSS is for handling the finer details such as selecting colours and font sizes.  You're even less likely to need to write CSS when using JS-EDEN than the likelihood of requiring HTML content.  Nonetheless, for advanced users JS-EDEN has a few feature that integrate EDEN wih CSS.  <a href=\"http://www.w3schools.com/css/css_intro.asp\" target=\"_blank\">W3Schools also has a tutorial on CSS.</a></p>
 	
 	<h2>Regular Expressions</h2>
 	

@@ -444,8 +444,6 @@ autocalc = 1;
 
 ##Include the rest of the library
 
-require("MenuBar");
-
 include("library/types.js-e");
 include("library/core.js-e");
 include("library/lists.js-e");
@@ -459,21 +457,13 @@ include("library/html.js-e");
 include("library/declarevar.js-e");
 include("library/generate_function.js-e");
 
-require("ScriptInput");
-require("PluginManager");
-require("ProjectList");
-require("Canvas2D");
-require("SymbolViewer");
-require("HTMLContent");
-require("SymbolLookUpTable");
-require("ScriptGenerator");
-require("DependencyMap");
-require("StateTimeLine");
-
 defaultViews = ${{getParameterByName("views") }}$;
 if (defaultViews == "" || defaultViews == "default") {
+	require("Canvas2D");
 	createCanvas("picture");
+	require("ProjectList");
 	createView("projects", "ProjectList");
+	require("ScriptInput");
 	createView("inputwindow", "ScriptInput");
 }
 forget(&defaultViews);
