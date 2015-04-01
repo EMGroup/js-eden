@@ -99,7 +99,7 @@ describe("UI tests", function () {
 		before(function () {
 			return browser
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("New"))
-			.click();
+			.mouseOver();
 		});
 
 		it("shows a symbol list entry", function () {
