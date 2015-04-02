@@ -179,7 +179,7 @@ function concatAndResolveUrl(url, concat) {
 			).appendTo('body');
 		}
 
-		return this.errorWindow
+		this.errorWindow
 			.addClass('ui-state-error')
 			.dialog({title: "EDEN Errors", width: 500})
 			.dialog('moveToTop');

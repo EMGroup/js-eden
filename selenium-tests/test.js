@@ -152,7 +152,7 @@ describe("UI tests", function () {
 		before(function () {
 			return browser
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
-			.click()
+			.moveTo()
 			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List [view_0]"))
 			.elementByCss('>', '.menubar-item-close')
 			.click();
