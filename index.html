@@ -79,7 +79,9 @@ See LICENSE.txt
 				}
 			}
 		}
-		$(current).dialog('open').dialog('moveToTop');
+		if ($(current).is(':data(dialog)')) {
+			$(current).dialog('open').dialog('moveToTop').dialogExtend('restore');
+		}
 	};
 	$(document).on('keydown', null, 'ctrl+m', cycleView);
 </script>
