@@ -72,11 +72,34 @@ describe("UI tests", function () {
 		});
 	});
 
+	describe("close window through titlebar", function () {
+		before(function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Script Input Window'))
+			.elementByCss('>', '.ui-dialog-titlebar-close')
+			.click();
+		});
+
+		it('closes the window', function () {
+			return browser
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Script Input Window'))
+			.should.be.rejectedWith("Element condition wasn't satisfied");
+		});
+
+		it('removes the menu item', function () {
+			return browser
+			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
+			.click()
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Script Input Window"))
+			.should.be.rejectedWith("Element condition wasn't satisfied");
+		});
+	});
+
 	describe("clicking 'new' menu", function () {
 		before(function () {
 			return browser
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("New"))
-			.click();
+			.moveTo();
 		});
 
 		it("shows a symbol list entry", function () {
@@ -89,13 +112,7 @@ describe("UI tests", function () {
 		before(function () {
 			return browser
 			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List"))
-			.click()
-			.then(function () {
-				// click menu again to make it disappear
-				return browser
-				.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("New"))
-				.click();
-			});
+			.click();
 		});
 
 		it('shows a symbol list dialog', function () {
@@ -113,7 +130,7 @@ describe("UI tests", function () {
 
 		it('creates an edit window', function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude("Edit_picture"));
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude("Script Input Window"));
 		});
 	});
 
@@ -126,44 +143,8 @@ describe("UI tests", function () {
 
 		it('shows a symbol list and edit window entry', function () {
 			return browser
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_0 [SymbolList]"))
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Edit_picture [ScriptInput]"));
-		});
-	});
-
-	describe("close window through titlebar", function () {
-		before(function () {
-			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Script Input Window [Edit_picture]'))
-			.elementByCss('>', '.ui-dialog-titlebar-close')
-			.click();
-		});
-
-		it('closes the window', function () {
-			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Script Input Window [Edit_picture]'))
-			.should.be.rejectedWith("Element condition wasn't satisfied");
-		});
-
-		it('removes the menu item', function () {
-			return browser
-			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
-			.click()
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Edit_picture [ScriptInput]"))
-			.should.be.rejectedWith("Element condition wasn't satisfied");
-		});
-	});
-
-	describe("click item in symbol list", function () {
-		before(function () {
-			return browser
-			.waitForElementByCss('.symbollist-result-element', wd.asserters.textInclude("picture"))
-			.click();
-		});
-
-		it('creates an edit window', function () {
-			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude("Edit_picture"));
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List [view_0]"))
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Script Input Window [edit_picture]"));
 		});
 	});
 
@@ -171,21 +152,21 @@ describe("UI tests", function () {
 		before(function () {
 			return browser
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
-			.click()
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_0 [SymbolList]"))
+			.moveTo()
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List [view_0]"))
 			.elementByCss('>', '.menubar-item-close')
 			.click();
 		});
 
 		it('closes the window', function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Symbol List [view_0]'))
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Symbol List'))
 			.should.be.rejectedWith("Element condition wasn't satisfied");
 		});
 
 		it('removes the menu item', function () {
 			return browser
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_0 [SymbolList]"))
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List [view_0]"))
 			.should.be.rejectedWith("Element condition wasn't satisfied");
 		});
 	});
@@ -193,7 +174,7 @@ describe("UI tests", function () {
 	describe("highlight window", function () {
 		before(function () {
 			return browser
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("inputwindow [ScriptInput]"))
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Canvas 2D [picture]"))
 			.moveTo();
 		});
 
@@ -201,16 +182,14 @@ describe("UI tests", function () {
 			return browser
 			.waitForElementByCss(
 				'.ui-dialog.menubar-window-raise',
-				wd.asserters.textInclude('Script Input Window [inputwindow]')
+				wd.asserters.textInclude('Canvas 2D')
 			);
 		});
 	});
 
-	describe("close the 4 default windows", function () {
+	describe("close the remaining two default windows and the edit_picture window", function () {
 		before(function () {
 			return browser
-			.elementByCss('.menubar-item-close')
-			.click()
 			.elementByCss('.menubar-item-close')
 			.click()
 			.elementByCss('.menubar-item-close')
@@ -237,10 +216,10 @@ describe("UI tests", function () {
 
 		it("shows an input window entry", function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Script Input Window [view_1]'))
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Script Input Window'))
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Existing Windows"))
 			.click()
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("view_1 [ScriptInput]"));
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Script Input Window [view_1]"));
 		});
 	});
 
@@ -248,21 +227,21 @@ describe("UI tests", function () {
 		before(function () {
 			return browser
 			.waitForElementByCss('#view_1-dialog textarea')
-			.type('createView("testinput", "ScriptInput");')
+			.type('createView("testlist", "SymbolList");')
 			.waitForElementByCss('#view_1-dialog .submitButton')
 			.click();
 		});
 
 		it("creates a window", function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Script Input Window [testinput]'));
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Symbol List'));
 		});
 
 		it("shows an input window entry", function () {
 			return browser
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
 			.click()
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("testinput [ScriptInput]"));
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List [testlist]"));
 		});
 	});
 
@@ -300,9 +279,9 @@ describe("UI tests", function () {
 	describe("cause error", function () {
 		before(function () {
 			return browser
-			.waitForElementByCss('#testinput-dialog textarea')
+			.waitForElementByCss('#view_1-dialog textarea')
 			.type('x')
-			.waitForElementByCss('#testinput-dialog .submitButton')
+			.waitForElementByCss('#view_1-dialog .submitButton')
 			.click();
 		});
 
