@@ -76,6 +76,11 @@
 	 * @param {string} type Used to group different types of views.
 	 */
 	EdenUI.prototype.createView = function (name, type) {
+		if ("name" in this.views[type]) {
+			// Single instance view type (e.g. error window)
+			name = this.views[type].name;
+		}
+		
 		if (this.activeDialogs[name] !== undefined) {
 			this.showView(name);
 			return this.viewInstances[name];

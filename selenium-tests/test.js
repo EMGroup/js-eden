@@ -279,9 +279,9 @@ describe("UI tests", function () {
 	describe("cause error", function () {
 		before(function () {
 			return browser
-			.waitForElementByCss('#testinput-dialog textarea')
+			.waitForElementByCss('#view_1-dialog textarea')
 			.type('x')
-			.waitForElementByCss('#testinput-dialog .submitButton')
+			.waitForElementByCss('#view_1-dialog .submitButton')
 			.click();
 		});
 

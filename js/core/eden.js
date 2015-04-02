@@ -158,8 +158,20 @@ function concatAndResolveUrl(url, concat) {
 		this.addViewCategory("environment", "Management");		
 
 		this.views.ErrorWindow = {
-			dialog: function () { me.showErrorWindow(); },
+			dialog: function () {
+				if (!this.errorWindow) {
+					this.errorWindow = $(
+						'<pre id="errors-dialog" style="font-family:monospace; display: none;"></pre>'
+					).appendTo('body');
+				}
+
+				this.errorWindow
+					.addClass('ui-state-error')
+					.dialog({title: "EDEN Errors", width: 500})
+					.dialog('moveToTop');
+			},
 			title: "Error Window",
+			name: "errors",
 			category: this.viewCategories.interpretation
 		};
 	}
@@ -173,16 +185,8 @@ function concatAndResolveUrl(url, concat) {
 	EdenUI.prototype.stopHighlight = function (dialogName) { this.windowHighlighter.stopHighlight(dialogName); };
 
 	EdenUI.prototype.showErrorWindow = function () {
-		if (!this.errorWindow) {
-			this.errorWindow = $(
-				'<pre id="error-window" style="font-family:monospace; display: none;"></pre>'
-			).appendTo('body');
-		}
-
-		this.errorWindow
-			.addClass('ui-state-error')
-			.dialog({title: "EDEN Errors", width: 500})
-			.dialog('moveToTop');
+		this.createView("errors", "ErrorWindow");
+		return $("#errors-dialog");
 	};
 
 	/**

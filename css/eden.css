@@ -42,7 +42,7 @@ div.error-item {
 	width: 450px;
 }
 
-#error-window {
+#errors-dialog {
 	max-height: 250px;
 	white-space: pre-wrap;
 	word-wrap: break-word;
