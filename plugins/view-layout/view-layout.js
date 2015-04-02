@@ -20,6 +20,8 @@ EdenUI.plugins.WindowLayout = function(edenUI, success){
 		}
 	}
 	
+	this.name = "window_name";
+	
 	this.createDialog = function(name,mtitle) {
 
 		if (defaultview == "") {
@@ -32,25 +34,22 @@ EdenUI.plugins.WindowLayout = function(edenUI, success){
 		
 		var posDia = [];
 		var views = root.lookup("_view_list").value();
-		var matches = mtitle.match(/\[(.*?)\]/);
-		//This could possibly use the 'name' instead - but "-dialog" would still need to be removed
-		if(matches)
-			thisviewname = matches[1];
-				
+		var thisViewName = this.name;
+
 		views.forEach(function(e){
-			if(e != thisviewname){
+			if (e != thisViewName) {
 				var tmpx = root.lookup("_view_" + e + "_x").value();
 				var tmpy = root.lookup("_view_" + e + "_y").value();
 				tmpx = ((typeof tmpx != "undefined") ? tmpx : 0);
 				tmpy = ((typeof tmpy != "undefined") ? tmpy : 0);
-				posDia = [e,tmpx,tmpy,root.lookup("_view_" + e + "_width").value(), root.lookup("_view_" + e + "_height").value()];
+				posDia = [e,tmpx,tmpy,root.lookup("_view_" + e + "_width").value(), root.lookup("_view_" + e + "_height").value(), root.lookup("_view_" + e + "_title").value()];
 				console.log(posDia);
 				positions.push(posDia);
 			}
 		});
 		var fullLIList = "";
 		positions.forEach(function(e,i){
-			fullLIList += "<li data-row=\"" + Math.round(e[2] / (baseh)) + "\" data-col=\"" + Math.round(e[1] / (basew)) + "\" data-sizex=\"" + Math.round(e[3] / (basew * 1)) + "\" data-sizey=\"" + Math.round(e[4] / (baseh * 1)) +"\" data-name=\"" + e[0] + "\" data-num=\"" + i + "\">" + e[0] + "</li>";
+			fullLIList += "<li data-row=\"" + Math.round(e[2] / (baseh)) + "\" data-col=\"" + Math.round(e[1] / (basew)) + "\" data-sizex=\"" + Math.round(e[3] / (basew * 1)) + "\" data-sizey=\"" + Math.round(e[4] / (baseh * 1)) +"\" data-name=\"" + e[0] + "\" data-num=\"" + i + "\">" + e[5] + " [" + e[0] + "]</li>";
 //			$(".gridster ul").append(thisli);
 		});
 		var vlHTML = "<a class=\"vl-update\">Update</a><div class=\"gridster\"><ul>" + fullLIList + "</ul></div>";
