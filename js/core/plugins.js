@@ -101,6 +101,7 @@
 			}
 		})
 		.dialogExtend({
+			dblclick: "maximize",
 			minimizable: true,
 			maximizable: true,
 			minimize: function () {

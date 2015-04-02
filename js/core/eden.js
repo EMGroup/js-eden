@@ -154,7 +154,7 @@ function concatAndResolveUrl(url, concat) {
 		 * fit into any of the other categories defined here and don't warrant a whole category of
 		 * their own, e.g. State Listener. */
 		this.addViewCategory("extension", "Extensions");
-		/*Category of plug-ins that pertain to the management of the JS-EDEN environment itself, e.g. Project List, Plugin Listing. */
+		/*Category of plug-ins that pertain to the management of the JS-EDEN environment itself, e.g. Plugin Listing. */
 		this.addViewCategory("environment", "Management");		
 
 		this.views.ErrorWindow = {

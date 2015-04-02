@@ -27,7 +27,7 @@ function getParameterByName(name) {
  * Implementations of functionality specified in web standards but not yet supported by all of
  * supported JS-EDEN runtime platforms.
  */
-if (!("isInteger") in Number) {
+if (!("isInteger" in Number)) {
 	//Not in IE 11.
 	Number.isInteger = function (n) {
 		return parseInt(n) === n;
