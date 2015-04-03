@@ -34,6 +34,7 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 				minHeight: 120,
 				minWidth: 230
 			});
+		return {confirmClose: true};
 	}
 
 	//Register the HTML view options

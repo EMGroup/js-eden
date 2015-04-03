@@ -485,6 +485,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				},
 				dialogClass: "unpadded-dialog"
 			});
+		return {confirmClose: true};
 	}
 
 	//Supported canvas views

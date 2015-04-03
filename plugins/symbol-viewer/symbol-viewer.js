@@ -524,7 +524,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 
 	if (this.symbol.definition !== undefined) {
 		var tooltip = Eden.htmlEscape(this.symbol.eden_definition, false, true);
-		tooltip = Eden.htmlEscape("<pre>" + tooltip + ";</pre>");
+		tooltip = Eden.htmlEscape("<pre class='symbollist-tooltip'>" + tooltip + ";</pre>");
 		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
 

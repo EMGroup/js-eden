@@ -204,9 +204,15 @@ function concatAndResolveUrl(url, concat) {
 
 	EdenUI.showTooltip = function (event, text) {
 		var tooltip = document.getElementById("tooltip");
-		var x = event.clientX;
+		var x = event.clientX + 2;
 		var y = event.clientY + 20;
+		var maxWidth = window.pageXOffset + window.innerWidth - x - 15;
+		if (maxWidth < 200) {
+			x = x - (200 - maxWidth);
+			maxWidth = 200;
+		}
 		tooltip.style.left = x + "px";
+		tooltip.style.maxWidth = maxWidth + "px";
 		tooltip.style.top = y + "px";
 		tooltip.innerHTML = text;
 		tooltip.style.display = "block";
