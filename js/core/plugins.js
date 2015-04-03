@@ -88,16 +88,43 @@
 
 		var me = this;
 		var title = this.views[type].title;
-		this.viewInstances[name] = this.views[type].dialog(name + "-dialog", title);
-		var position = this.viewInstances[name] && this.viewInstances[name].position;
+		var viewData = this.views[type].dialog(name + "-dialog", title);
+		if (viewData === undefined) {
+			viewData = {};
+		}
+		this.viewInstances[name] = viewData;
+		var position = viewData.position;
 
 		// add minimise button to created dialog
 		dialog(name)
 		.dialog({
 			draggable: true,
 			position: position,
-			close: function () {
-				edenUI.destroyView(name);
+			beforeClose: function () {
+				if (viewData.closing) {
+					viewData.closing = false;
+					return true;
+				} else if (viewData.confirmClose) {
+					edenUI.modalDialog(
+						"Window Close Action",
+						"<p>Removing this window from the work space may result in information being lost.  You might need to reload the construal from the beginning to get it back again later.</p> \
+						<p>Are you sure you want to permanently delete this information?  Or would you prefer to hide the window instead?</p>",
+						["Close Forever", "Hide"],
+						function (optNum) {
+							if (optNum == 0) {
+								viewData.closing = true;
+								edenUI.destroyView(name);
+							} else if (optNum == 1) {
+								viewData.closing = true;
+								edenUI.hideView(name);
+							}
+						}
+					);
+					return false;
+				} else {
+					edenUI.destroyView(name);
+					return true;
+				}
 			}
 		})
 		.dialogExtend({
@@ -113,6 +140,7 @@
 				dialogMin.css('left', '');
 			}
 		});
+
 		this.activeDialogs[name] = type;
 
 		//Set title bar text and allow the construal to change it later.
@@ -162,7 +190,7 @@
 
 		// Now construct eden agents and observables for dialog control.
 		this.eden.execute(viewEdenCode());
-		return this.viewInstances[name];
+		return viewData;
 	};
 
 	EdenUI.prototype.destroyView = function (name) {
@@ -285,6 +313,7 @@
 		
 		dialog.dialog({
 			modal: true,
+			resizable: false,
 			title: title,
 			close: function () {
 				callback(cancelValue);

@@ -55,6 +55,7 @@ div.error-item {
 	border: 2px solid #AAAAAA;
 	border-radius: 5px;
 	box-shadow: 3px 4px 13px 0px #444444;
+	box-sizing: border-box;
 	font-family: sans-serif;
 	font-size: 9pt;
 	padding: 9px;

@@ -39,3 +39,8 @@ a.symbollist-control {
 .symbollist-rightmost-control {
 	margin-right: 0px;
 }
+
+.symbollist-tooltip {
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
