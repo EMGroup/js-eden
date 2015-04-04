@@ -107,15 +107,13 @@
 				} else if (viewData.confirmClose) {
 					edenUI.modalDialog(
 						"Window Close Action",
-						"<p>Removing this window from the work space may result in information being lost.  You might need to reload the construal from the beginning to get it back again later.</p> \
+						"<p>Removing this window from the work space will cause any unsaved changes to be lost.  You will need to reload the construal if you wish to see this window again.</p> \
 						<p>Are you sure you want to permanently delete this information?  Or would you prefer to hide the window instead?</p>",
 						["Close Forever", "Hide"],
 						function (optNum) {
 							if (optNum == 0) {
-								viewData.closing = true;
 								edenUI.destroyView(name);
 							} else if (optNum == 1) {
-								viewData.closing = true;
 								edenUI.hideView(name);
 							}
 						}
@@ -138,6 +136,9 @@
 				dialogMin.css('position', 'relative');
 				dialogMin.css('top', '');
 				dialogMin.css('left', '');
+			},
+			restore: function (event) {
+				$(event.target).dialog('moveToTop');
 			}
 		});
 
@@ -194,6 +195,7 @@
 	};
 
 	EdenUI.prototype.destroyView = function (name) {
+		this.viewInstances[name].closing = true;
 		dialog(name).dialog('destroy');
 		dialog(name).remove();
 		delete this.activeDialogs[name];
@@ -240,7 +242,17 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.hideView = function (name) {
+		this.viewInstances[name].closing = true;
 		dialog(name).dialog('close');
+	};
+
+	/**
+	 * Minimize the window for a view.
+	 *
+	 * @param {string} name Unique identifier for the view.
+	 */
+	EdenUI.prototype.minimizeView = function (name) {
+		dialog(name).dialogExtend('minimize');
 	};
 
 	/**

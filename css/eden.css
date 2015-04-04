@@ -43,6 +43,7 @@ div.error-item {
 }
 
 #errors-dialog {
+	font-family:monospace;
 	max-height: 250px;
 	white-space: pre-wrap;
 	word-wrap: break-word;

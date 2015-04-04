@@ -13,13 +13,13 @@ alias("_view_default_y", "_view_picture_y");
 
 proc CanvasHTML5_DrawPicture {
 	${{
-	var canvas = arguments[0];
-	var picture = arguments[1];
-	edenUI.plugins.Canvas2D.drawPicture(canvas,picture);
+		var canvas = arguments[0];
+		var picture = arguments[1];
+		edenUI.plugins.Canvas2D.drawPicture(canvas, picture);
 	}}$;
 };
 
-proc drawPicture : picture { 
+proc drawPicture { 
   CanvasHTML5_DrawPicture("picture", "picture");
 };
 
@@ -59,6 +59,34 @@ func oldCircle {
 }
 patch(&oldCircle, &Circle);
 
+proc createView {
+	${{
+		var name = arguments[0];
+		var oldType = arguments[1];
+		
+		var typeMapping = {
+			CanvasHTML5: "Canvas2D",
+			DM: "DependencyMap",
+			PlainHTML: "HTMLContent",
+			PluginListing: "PluginManager",
+			SG: "ScriptGenerator",
+			InputWindow: "ScriptInput",
+			ST: "StateTimeLine",
+			SL: "StateListener",
+			SLT: "SymbolLookUpTable"
+		};
+		
+		var newType;
+		if (oldType in typeMapping) {
+			newType = typeMapping[oldType];
+		} else {
+			newType = oldType;
+		}
+		
+		edenUI.createView(name, newType);
+	}}$;
+};
+
 func Div { ${{
 	var name = arguments[0];
 	var x = arguments[1];
@@ -67,7 +95,7 @@ func Div { ${{
 	var height = arguments[4];
 	var html = arguments[5];
 	var style = arguments[6];
-	return new Div(html, x, y, width, height, name, style);
+	return new Div(html, x + "px", y + "px", width + "px", height + "px", name, undefined, style);
 }}$; }
 
 func oldFloor {
@@ -85,6 +113,15 @@ func oldIndexOf {
 	return apply(newIndexOf, [params[2], params[1]] // sublist(params, 3));
 }
 patch(&oldIndexOf, &indexOf);
+
+func Image { ${{
+  var x = arguments[1];
+  var y = arguments[2];
+  var width = arguments[3];
+  var height = arguments[4];
+  var file = arguments[5];
+  return new CanvasImage(x, y, width, height, file);
+}}$; }
 
 func Inputbox { ${{
   var name = arguments[0];
@@ -134,6 +171,26 @@ func rand {
 	return Math.floor(Math.random()*32767);
   }}$;
 };
+
+func oldRectangle {
+	para newRectangle, params, result;
+	auto fillColour, outlineColour;
+	fillColour = params[5] == @? "black" : params[5];
+	outlineColour = params[6] == @? "black" : params[6];
+	result = newRectangle(params[1], params[2], params[3], params[4], fillColour, outlineColour, params[7]);
+	result.x1 = result.x;
+	result.y1 = result.y;
+	result.x2 = result.width;
+	result.y2 = result.height;
+	return result;
+}
+patch(&oldRectangle, &Rectangle);
+
+func oldSearch {
+	para newSearch, params;
+	return apply(newSearch, [params[2], params[1]] // sublist(params, 3));
+}
+patch(&oldSearch, &search);
 
 func Slider { ${{
   var name = arguments[0];

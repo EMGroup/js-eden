@@ -15,10 +15,24 @@ proc createView {
 	}}$;
 };
 
+proc showView {
+	${{
+	var name = arguments[0];
+	edenUI.showView(name);
+	}}$;
+};
+
 proc hideView {
 	${{
 	var name = arguments[0];
-	edenUI.hideView(name);
+	edenUI.minimizeView(name);
+	}}$;
+};
+
+proc destroyView {
+	${{
+	var name = arguments[0];
+	edenUI.destroyView(name);
 	}}$;
 };
 

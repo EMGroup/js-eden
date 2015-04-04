@@ -439,37 +439,6 @@ func doDefault {
 	}
 }
 
-##Autocalc compatibility
-autocalc = 1;
-
-##Include the rest of the library
-
-include("library/types.js-e");
-include("library/core.js-e");
-include("library/lists.js-e");
-include("library/maths.jse");
-include("library/strings.js-e");
-include("library/algebra.jse");
-include("library/include_js.js-e");
-include("library/dynamic.js-e");
-include("library/edenclocks.js-e");
-include("library/html.js-e");
-include("library/declarevar.js-e");
-include("library/generate_function.js-e");
-
-defaultViews = ${{getParameterByName("views") }}$;
-if (defaultViews == "" || defaultViews == "default") {
-	require("Canvas2D");
-	createCanvas("picture");
-	require("ProjectList");
-	createView("projects", "ProjectList");
-	require("ScriptInput");
-	createView("inputwindow", "ScriptInput");
-}
-forget(&defaultViews);
-
-_menubar_status = "JS-Eden done loading";
-
 proc arrangeWindows {
   auto i;
   auto name;
@@ -487,4 +456,34 @@ proc arrangeWindows {
   }
 }
 
+##Autocalc compatibility
+autocalc = 1;
+
+##Include the rest of the library
+
+include("library/types.js-e");
+include("library/core.js-e");
+include("library/lists.js-e");
+include("library/maths.jse");
+include("library/strings.js-e");
+require("Canvas2D");
+include("library/algebra.jse");
+include("library/include_js.js-e");
+include("library/dynamic.js-e");
+include("library/edenclocks.js-e");
+include("library/html.js-e");
+include("library/declarevar.js-e");
+include("library/generate_function.js-e");
+
+initialViews = ${{getParameterByName("views") }}$;
+if (initialViews == "" || initialViews == "default") {
+	require("ProjectList");
+	require("ScriptInput");
+	createView("projects", "ProjectList");
+	createCanvas("picture");
+	createView("inputwindow", "ScriptInput");
+}
+forget(&initialViews);
+
 arrangeWindows();
+_menubar_status = "JS-Eden done loading";

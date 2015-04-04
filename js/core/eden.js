@@ -116,9 +116,6 @@ function concatAndResolveUrl(url, concat) {
 
 		this.eden.listenTo('executeError', this, function (e, options) {
 			var errorMessageHTML = Eden.htmlEscape(e.message);
-			if (this.plugins.MenuBar) {
-				this.plugins.MenuBar.updateStatus("Error: " + errorMessageHTML);
-			}
 
 			var formattedError = "<div class=\"error-item\">"+
 				"## ERROR number " + options.errorNumber + ":<br>"+
@@ -128,6 +125,10 @@ function concatAndResolveUrl(url, concat) {
 
 			this.showErrorWindow().prepend(formattedError)
 			this.showErrorWindow().prop('scrollTop', 0);
+
+			if (this.plugins.MenuBar) {
+				this.plugins.MenuBar.updateStatus("Error: " + e.message);
+			}
 		});
 
 		/**
@@ -161,8 +162,8 @@ function concatAndResolveUrl(url, concat) {
 			dialog: function () {
 				if (!this.errorWindow) {
 					this.errorWindow = $(
-						'<pre id="errors-dialog" style="font-family:monospace; display: none;"></pre>'
-					).appendTo('body');
+						'<pre id="errors-dialog"></pre>'
+					);
 				}
 
 				this.errorWindow

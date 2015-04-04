@@ -45,18 +45,16 @@ proc html {
 ##Creates a HTML view and a triggered procedure so that contents of the view
 ##are kept in sync with the value of a given observable at all times.  The first
 ##parameter is the name of the observable who's value provides the HTML code.  The
-##second, optional parameter, is the name of the view itself (which is reflected
-##in the window's title bar).
+##second, optional parameter, is the text to place into the window's title bar.
 proc createHTMLView {
-	auto viewName, obsName, createJSObserver, jsObserver;
+	auto viewName, obsName, viewTitle, createJSObserver, jsObserver;
 	if ($# == 1) {
 		obsName = $[1];
-		viewName = $[1];
 	} else if ($# == 2) {
 		obsName = $[1];
-		viewName = $[2];
-		if (!isString(viewName)) {
-			error("createHTMLView: The second argument must be a string, not a " // type(viewName));
+		viewTitle = $[2];
+		if (viewTitle != @ && !isString(viewTitle)) {
+			error("createHTMLView: The second argument must be a string, not a " // type(viewTitle));
 			return;
 		}
 	} else {
@@ -69,6 +67,7 @@ proc createHTMLView {
 		return;
 	}
 	
+	viewName = obsName;
 	createView(viewName, "HTMLContent");
 
 	createJSObserver = ${{ function (obsName, viewName) {
@@ -80,4 +79,7 @@ proc createHTMLView {
 	} }}$;
 	jsObserver = createJSObserver(obsName, viewName);
 	html(viewName, `obsName`);
+	if (viewTitle != @) {
+		`"_view_" // viewName // "_title"` = viewTitle;
+	}
 }
