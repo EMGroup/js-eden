@@ -23,9 +23,9 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 
 	this.createDialog = function(name,mtitle) {
 	
-		code_entry = $('<div id=\"'+name+'-content\" class=\"htmlviews-content\"></div>');
+		var code_entry = $('<div id=\"'+name+'-content\" class=\"htmlviews-content\"></div>');
 
-		$dialog = $('<div id="'+name+'"></div>')
+		$('<div id="'+name+'"></div>')
 			.html(code_entry)
 			.dialog({
 				title: mtitle,

@@ -75,14 +75,15 @@ function initialiseJSEden() {
 		edenUI = new EdenUI(eden);
 		
 		var loadPlugins = function (pluginList, callback) {
-			if (pluginList.length > 0) {
-				var plugin = pluginList.shift();
-				edenUI.loadPlugin(plugin, function () {
-					loadPlugins(pluginList, callback);
-				});
-			} else {
-				callback();
-			}
+			var loadPlugin = function () {
+				if (pluginList.length > 0) {
+					var plugin = pluginList.shift();
+					edenUI.loadPlugin(plugin, loadPlugin);
+				} else {
+					callback();
+				}
+			};
+			return loadPlugin;
 		};
 		
 		if (getParameterByName("menus") != "false") {
