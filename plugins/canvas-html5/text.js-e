@@ -125,7 +125,7 @@ Text.prototype.draw = function (context) {
 	}
 
 	if (this.fillcolour !== undefined) {
-		EdenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
+		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
 		context.fillText(this.text, this.x, this.y);
 	}
 	if (this.outlinecolour !== undefined) {

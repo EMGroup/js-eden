@@ -5,95 +5,6 @@
  * See LICENSE.txt
  */
 
-//To catch when a mouse button is pressed down over a canvas window and then released outside of any
-//canvas window.
-document.addEventListener("mouseup", function (e) {
-	var mouseInfo = EdenUI.plugins.Canvas2D.mouseInfo;
-	if (!mouseInfo.insideCanvas) {
-		var buttonName;
-		switch (e.button) {
-			case 0:
-				mouseInfo.leftButton = false;
-				buttonName = "Left";
-				break;
-			case 1:
-				mouseInfo.middleButton = false;
-				buttonName = "Middle";
-				break;
-			case 2:
-				mouseInfo.rightButton = false;
-				buttonName = "Right";
-				break;
-			case 3:
-				mouseInfo.button4 = false;
-				buttonName = "Button4";
-				break;
-			case 4:
-				mouseInfo.button5 = false;
-				buttonName = "Button5";
-				break;
-			default:
-				buttonName = "Unknown";
-		}
-		mouseInfo.buttonCount = mouseInfo.leftButton + mouseInfo.middleButton + mouseInfo.rightButton + mouseInfo.button4 + mouseInfo.button5;
-		var followMouse = root.lookup("mouseFollow").value();
-		var buttonsSym = root.lookup("mouseButtons");
-		if (mouseInfo.buttonCount == 0 && buttonsSym.value() != "") {
-			//Final button released outside of any canvas window.
-			var autocalcSym = root.lookup("autocalc");
-			var autocalcValueOnEntry = autocalcSym.value();
-			var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
-			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
-
-			var mousePressedSym = root.lookup("mousePressed");
-			var mousePressed = mousePressedSym.value();
-
-			root.lookup("mouseButton").assign(buttonName + " up", Symbol.hciAgent, followMouse);
-			buttonsSym.assign("", Symbol.hciAgent, followMouse);
-			root.lookup('mousePosition').assign(undefined, Symbol.hciAgent, followMouse);
-			if (mousePressed) {
-				mousePressedSym.assign(false, Symbol.hciAgent, followMouse);
-			}
-			root.lookup('mouseUp').assign(undefined, Symbol.hciAgent, followMouse);
-			root.lookup('mouseWindow').assign(undefined, Symbol.hciAgent, followMouse);
-			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
-		}
-	}
-
-});
-
-document.addEventListener("mousedown", function (e) {
-	var mouseInfo = EdenUI.plugins.Canvas2D.mouseInfo;
-	if (!mouseInfo.insideCanvas) {
-		var buttonName;
-		switch (e.button) {
-			case 0:
-				mouseInfo.leftButton = true;
-				break;
-			case 1:
-				mouseInfo.middleButton = true;
-				break;
-			case 2:
-				mouseInfo.rightButton = true;
-				break;
-			case 3:
-				mouseInfo.button4 = true;
-				break;
-			case 4:
-				mouseInfo.button5 = true;
-				break;
-		}
-		mouseInfo.buttonCount = mouseInfo.leftButton + mouseInfo.middleButton + mouseInfo.rightButton + mouseInfo.button4 + mouseInfo.button5;;
-	}
-});
-
-document.addEventListener("pointerlockchange", function (e) {
-	var locked = document.pointerLockElement !== null;
-	EdenUI.plugins.Canvas2D.mouseInfo.capturing = locked;
-	var followMouse = root.lookup("mouseFollow").value();
-	root.lookup("mouseCaptured").assign(locked, undefined, followMouse);
-});
-
 /**
  * JS-Eden Canvas Plugin
  * Allows a html5 canvas to be displayed and used within JS-Eden for drawing.
@@ -135,7 +46,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 		if (canvas === undefined) {
 			//Need to make the canvas view first
-			edenUI.createView(canvasname,"Canvas2D");
+			edenUI.createView(canvasname, "Canvas2D", pictureobs);
 			
 			canvases[canvasname] = $("#"+canvasname+"-dialog-canvas")[0];
 			contents[canvasname] = $("#"+canvasname+"-dialog-canvascontent")[0];
@@ -146,7 +57,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		if (!canvas.drawing){
 
 			canvas.drawing = true;
-			setTimeout(function (){
+
+			setTimeout(function () {
 		
 			var picture = root.lookup(pictureobs).value();
 
@@ -176,12 +88,23 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 						picture[i].elements = existingEl;
 					} else {
 						context.save();
-						EdenUI.plugins.Canvas2D.configureContext(context, picture[i].drawingOptions);
+						me.configureContext(context, picture[i].drawingOptions);
 						// expect draw() method to set .elements
 						picture[i].draw(context, pictureobs);
 						context.restore();
 					}
 
+					if (picture[i].elements !== undefined) {
+						var parentEl = picture[i].elements[0].parentElement;
+						if (parentEl && parentEl != content) {
+							//HTML item already present on another canvas.
+							var copiedEl = [];
+							for (var j = 0; j < picture[i].elements.length; j++) {
+								copiedEl.push($(picture[i].elements[j]).clone(true, true).get(0));
+							}
+							picture[i].elements = copiedEl;
+						}
+					}
 					var htmlEl = picture[i].elements;
 					if (htmlEl) { htmlEl.togarbage = false; }
 					if (htmlEl && !existingEl) {
@@ -200,12 +123,69 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		}
 	};
 
-	this.createDialog = function(name,mtitle) {
+	this.configureContext = function (context, options) {
+		if (options === undefined) {
+			return;
+		}
+			
+		if ("dashes" in options && Array.isArray(options.dashes)) {
+			context.setLineDash(options.dashes);
+			if ("dashOffset" in options) {
+				context.lineDashOffset = options.dashOffset;
+			}
+		}
+
+		if ("cap" in options) {
+			context.lineCap = options.cap;
+		}
+		
+		if ("join" in options) {
+			context.lineJoin = options.join;
+			context.miterLimit = 9007199254740991;
+		}
+		
+		if ("miterLimit" in options) {
+			context.miterLimit = options.miterLimit;
+		}
+		
+		if ("lineWidth" in options) {
+			context.lineWidth = options.lineWidth;
+		}
+
+		if ("opacity" in options) {
+			context.globalAlpha = options.opacity;
+		}
+		
+		if ("shadow" in options) {
+			context.shadowColor = options.shadow.colour;
+			context.shadowBlur = options.shadow.blur;
+			context.shadowOffsetX = options.shadow.xOffset;
+			context.shadowOffsetY = options.shadow.yOffset;
+		}
+	}
+
+	this.setFillStyle = function (context, style) {
+		if (style instanceof EdenUI.plugins.Canvas2D.FillStyle) {
+			context.fillStyle = style.getColour(context);
+		} else {
+			context.fillStyle = style;
+		}
+	};
+
+	this.mouseInfo = {
+		leftButton: false, middleButton: false, rightButton: false, button4: false, button5: false,
+		buttonCount: 0, insideCanvas: false, capturing: false
+	};
+
+	this.createDialog = function(name, mtitle, pictureobs) {
+		//Remove -dialog name suffix.
+		var displayedName = name.slice(0, -7);
+		edenUI.eden.root.lookup(pictureobs).addJSObserver("refreshView", function (symbol, value) {
+			me.drawPicture(displayedName, pictureobs);
+		});
 
 		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');
 		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" width=\"584px\" height=\"408px\"></canvas>");
-		//Remove -dialog name suffix.
-		var displayedName = name.slice(0, -7);
 		var jqCanvas = code_entry.find(".canvashtml-canvas");
 		jqCanvas.on("mousedown", function(e) {
 			var autocalcSym = root.lookup("autocalc");
@@ -214,7 +194,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			var followMouse = root.lookup("mouseFollow").value();
 			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
-			var mouseInfo = EdenUI.plugins.Canvas2D.mouseInfo;
+			var mouseInfo = me.mouseInfo;
 			mouseInfo.insideCanvas = true;
 
 			var buttonName;			
@@ -279,7 +259,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			var followMouse = root.lookup("mouseFollow").value();
 			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
-			var mouseInfo = EdenUI.plugins.Canvas2D.mouseInfo;
+			var mouseInfo = me.mouseInfo;
 			mouseInfo.insideCanvas = true;
 
 			var buttonName;
@@ -385,11 +365,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			}
 
 		}).on("mouseout", function (e) {
-			var mouseInfo = EdenUI.plugins.Canvas2D.mouseInfo;
-			mouseInfo.insideCanvas = false;
+			me.mouseInfo.insideCanvas = false;
 		
 		}).on("mouseenter", function (e) {
-			var mouseInfo = EdenUI.plugins.Canvas2D.mouseInfo;
+			var mouseInfo = me.mouseInfo;
 			if (!mouseInfo.insideCanvas) {
 				mouseInfo.insideCanvas = true;
 				var buttonsStr;
@@ -450,7 +429,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			var mousePositionSym = root.lookup('mousePosition');
 			
 			var x, y;
-			if (EdenUI.plugins.Canvas2D.mouseInfo.capturing) {
+			if (me.mouseInfo.capturing) {
 				var previousPosition = mousePositionSym.value();
 				var e2 = e.originalEvent;
 				x = previousPosition.x + e2.movementX;
@@ -479,76 +458,115 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				resizeStop: function(event,ui) {
 					var contentElem = document.getElementById(name);
 					$("#"+name+"-canvas").attr("width", Math.floor(ui.size.width - 16)).attr("height", parseInt(contentElem.style.height) - 16);
-
-					// Now need to redraw the canvas.
-					edenUI.eden.execute("_update_" + displayedName + "();");
+					me.drawPicture(displayedName, pictureobs);
 				},
 				dialogClass: "unpadded-dialog"
 			});
-		return {confirmClose: true};
+		return {
+			confirmClose: true,
+			destroy: function () {
+				delete canvases[displayedName];
+				delete contents[displayedName];
+			}
+		};
 	}
 
-	//Supported canvas views
-	edenUI.views["Canvas2D"] = {dialog: this.createDialog, title: "Canvas 2D", category: edenUI.viewCategories.visualization};
+	//To catch when a mouse button is pressed down over a canvas window and then released outside of any
+	//canvas window.
+	document.addEventListener("mouseup", function (e) {
+		var mouseInfo = me.mouseInfo;
+		if (!mouseInfo.insideCanvas) {
+			var buttonName;
+			switch (e.button) {
+				case 0:
+					mouseInfo.leftButton = false;
+					buttonName = "Left";
+					break;
+				case 1:
+					mouseInfo.middleButton = false;
+					buttonName = "Middle";
+					break;
+				case 2:
+					mouseInfo.rightButton = false;
+					buttonName = "Right";
+					break;
+				case 3:
+					mouseInfo.button4 = false;
+					buttonName = "Button4";
+					break;
+				case 4:
+					mouseInfo.button5 = false;
+					buttonName = "Button5";
+					break;
+				default:
+					buttonName = "Unknown";
+			}
+			mouseInfo.buttonCount = mouseInfo.leftButton + mouseInfo.middleButton + mouseInfo.rightButton + mouseInfo.button4 + mouseInfo.button5;
+			var followMouse = root.lookup("mouseFollow").value();
+			var buttonsSym = root.lookup("mouseButtons");
+			if (mouseInfo.buttonCount == 0 && buttonsSym.value() != "") {
+				//Final button released outside of any canvas window.
+				var autocalcSym = root.lookup("autocalc");
+				var autocalcValueOnEntry = autocalcSym.value();
+				var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
+				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
+				var mousePressedSym = root.lookup("mousePressed");
+				var mousePressed = mousePressedSym.value();
+
+				root.lookup("mouseButton").assign(buttonName + " up", Symbol.hciAgent, followMouse);
+				buttonsSym.assign("", Symbol.hciAgent, followMouse);
+				root.lookup('mousePosition').assign(undefined, Symbol.hciAgent, followMouse);
+				if (mousePressed) {
+					mousePressedSym.assign(false, Symbol.hciAgent, followMouse);
+				}
+				root.lookup('mouseUp').assign(undefined, Symbol.hciAgent, followMouse);
+				root.lookup('mouseWindow').assign(undefined, Symbol.hciAgent, followMouse);
+				autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
+			}
+		}
+
+	});
+
+	document.addEventListener("mousedown", function (e) {
+		var mouseInfo = me.mouseInfo;
+		if (!mouseInfo.insideCanvas) {
+			var buttonName;
+			switch (e.button) {
+				case 0:
+					mouseInfo.leftButton = true;
+					break;
+				case 1:
+					mouseInfo.middleButton = true;
+					break;
+				case 2:
+					mouseInfo.rightButton = true;
+					break;
+				case 3:
+					mouseInfo.button4 = true;
+					break;
+				case 4:
+					mouseInfo.button5 = true;
+					break;
+			}
+			mouseInfo.buttonCount = mouseInfo.leftButton + mouseInfo.middleButton + mouseInfo.rightButton + mouseInfo.button4 + mouseInfo.button5;;
+		}
+	});
+
+	document.addEventListener("pointerlockchange", function (e) {
+		var locked = document.pointerLockElement !== null;
+		me.mouseInfo.capturing = locked;
+		var followMouse = root.lookup("mouseFollow").value();
+		root.lookup("mouseCaptured").assign(locked, undefined, followMouse);
+	});
+
+	edenUI.views["Canvas2D"] = {dialog: this.createDialog, title: "Canvas 2D", category: edenUI.viewCategories.visualization};
 	edenUI.eden.include("plugins/canvas-html5/canvas.js-e", success);
 };
-
-EdenUI.plugins.Canvas2D.mouseInfo = {leftButton: false, middleButton: false, rightButton: false,
-	button4: false, button5: false, buttonCount: 0, insideCanvas: false, capturing: false};
-
-EdenUI.plugins.Canvas2D.configureContext = function (context, options) {
-	if (options === undefined) {
-		return;
-	}
-		
-	if ("dashes" in options && Array.isArray(options.dashes)) {
-		context.setLineDash(options.dashes);
-		if ("dashOffset" in options) {
-			context.lineDashOffset = options.dashOffset;
-		}
-	}
-
-	if ("cap" in options) {
-		context.lineCap = options.cap;
-	}
-	
-	if ("join" in options) {
-		context.lineJoin = options.join;
-		context.miterLimit = 9007199254740991;
-	}
-	
-	if ("miterLimit" in options) {
-		context.miterLimit = options.miterLimit;
-	}
-	
-	if ("lineWidth" in options) {
-		context.lineWidth = options.lineWidth;
-	}
-
-	if ("opacity" in options) {
-		context.globalAlpha = options.opacity;
-	}
-	
-	if ("shadow" in options) {
-		context.shadowColor = options.shadow.colour;
-		context.shadowBlur = options.shadow.blur;
-		context.shadowOffsetX = options.shadow.xOffset;
-		context.shadowOffsetY = options.shadow.yOffset;
-	}
-}
 
 EdenUI.plugins.Canvas2D.FillStyle = function () {
 	//Abstract superclass.
 }
-
-EdenUI.plugins.Canvas2D.setFillStyle = function (context, style) {
-	if (style instanceof EdenUI.plugins.Canvas2D.FillStyle) {
-		context.fillStyle = style.getColour(context);
-	} else {
-		context.fillStyle = style;
-	}
-};
 
 EdenUI.plugins.Canvas2D.title = "Canvas 2D";
 EdenUI.plugins.Canvas2D.description = "Provides the ability to draw two-dimensional shapes, images, text and user interface controls using EDEN dependencies.";

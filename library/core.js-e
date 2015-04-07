@@ -11,7 +11,8 @@ proc createView {
 	${{
 	var name = arguments[0];
 	var type = arguments[1];
-	edenUI.createView(name,type);
+	var initData = arguments[2];
+	edenUI.createView(name, type, initData);
 	}}$;
 };
 
@@ -37,21 +38,31 @@ proc destroyView {
 };
 
 proc moveView {
-	${{
-	var name = arguments[0];
-	var x = arguments[1];
-	var y = arguments[2];
-	edenUI.moveView(name,x,y);
-	}}$;
+	para name, x, y;
+	auto autocalcEnabledOnEntry;
+	autocalcEnabledOnEntry = autocalc;
+	if (autocalcEnabledOnEntry) {
+		autocalc = 0;
+	}
+	`"_view_" // name // "_x"` = x;
+	`"_view_" // name // "_y"` = y;
+	if (autocalcEnabledOnEntry) {
+		autocalc = 1;
+	}
 };
 
 proc resizeView {
-	${{
-	var name = arguments[0];
-	var x = arguments[1];
-	var y = arguments[2];
-	edenUI.resizeView(name,x,y);
-	}}$;
+	para name, width, height;
+	auto autocalcEnabledOnEntry;
+	autocalcEnabledOnEntry = autocalc;
+	if (autocalcEnabledOnEntry) {
+		autocalc = 0;
+	}
+	`"_view_" // name // "_width"` = width;
+	`"_view_" // name // "_height"` = height;
+	if (autocalcEnabledOnEntry) {
+		autocalc = 1;
+	}
 };
 
 proc showObservables { ${{

@@ -47,7 +47,7 @@ proc html {
 ##parameter is the name of the observable who's value provides the HTML code.  The
 ##second, optional parameter, is the text to place into the window's title bar.
 proc createHTMLView {
-	auto viewName, obsName, viewTitle, createJSObserver, jsObserver;
+	auto viewName, obsName, viewTitle, createJSObserver;
 	if ($# == 1) {
 		obsName = $[1];
 	} else if ($# == 2) {
@@ -75,9 +75,8 @@ proc createHTMLView {
 			root.lookup("html").definition(root)(viewName, value);
 		};
 		root.lookup(obsName).addJSObserver("refreshView", observer);
-		return observer;
 	} }}$;
-	jsObserver = createJSObserver(obsName, viewName);
+	createJSObserver(obsName, viewName);
 	html(viewName, `obsName`);
 	if (viewTitle != @) {
 		`"_view_" // viewName // "_title"` = viewTitle;

@@ -422,6 +422,25 @@ proc todo {
 	}
 }
 
+proc touch {
+	${{
+		var autocalcEnabledOnEntry = root.autocalc_state;
+		if (autocalcEnabledOnEntry) {
+			root.autocalc(false);
+		}
+		for (var i = 0; i < arguments.length; i++) {
+			if (arguments[i] instanceof Symbol) {
+				root.expireSymbol(arguments[i]);
+			} else {
+				eden.error(new Error("touch: Argument " + (i+1) + " must be a pointer, not a " + typeof(arguments[i])), "error");
+			}
+		}
+		if (autocalcEnabledOnEntry) {
+			root.autocalc(true);
+		}
+	}}$;
+}
+
 ##A new JS-EDEN specific function.
 func doDefault {
 	para value, defaultValue;
@@ -451,7 +470,7 @@ proc arrangeWindows {
       continue;
     }
     `"_view_"//name//"_x"` = curr_x;
-    `"_view_"//name//"_y"` = 100;
+    `"_view_"//name//"_y"` = 110;
     curr_x += `"_view_"//name//"_width"` + 10;
   }
 }

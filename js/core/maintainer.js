@@ -389,6 +389,13 @@
 			eden.emit("beforeAssign", [this, value, modifying_agent]);
 		}
 		if (this.name === "/autocalc") {
+			/* JS-EDEN has a separate Boolean type so users may expect to be able to assign true and
+			 * false even though autocalc uses 1 and 0 for compatibility with tkeden. */
+			if (value === true) {
+				value = 1;
+			} else if (value === false) {
+				value = 0;
+			}
 			this.context && this.context.autocalc(value === 1);
 		}
 		this.eden_definition = undefined;
@@ -540,6 +547,20 @@
 				me.context.notifyGlobals(me, false);
 			}
 		}, 0);
+	};
+
+	Symbol.prototype.isDependentOn = function (name) {
+		if (this.dependencies[name]) {
+			return true;
+		}
+
+		for (var d in this.dependencies) {
+			var symbol = this.dependencies[d];
+			if (symbol.isDependentOn(name)) {
+				return true;
+			}
+		}
+		return false;
 	};
 
 	Symbol.prototype.assertNotDependentOn = function (name) {

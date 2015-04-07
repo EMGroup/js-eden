@@ -51,12 +51,10 @@ EdenUI.plugins.StateListener = function(edenUI, success){
 				var url = "ws://" + $("#sl-ipaddr").val() + ":" + $("#sl-port").val() + '/'; 
 				var connection = new WebSocket(url);
 				eden.listenTo('executeBegin',this,function(origin,code){
-					console.log(origin);
 					if(origin != "net")
 						connection.send(code);	
 				});
 				eden.listenTo('beforeAssign',this,function(symbol, value, origin){
-					console.log(origin);
 					if (origin != "net") {
 						connection.send(symbol.name.slice(1) + "=" + Eden.edenCodeForValue(value) + ";");
 					}

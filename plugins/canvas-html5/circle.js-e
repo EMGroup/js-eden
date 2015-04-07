@@ -35,7 +35,7 @@ Circle.prototype.draw = function(context) {
 	context.closePath();
  
 	if (this.fillcolour !== undefined) {
-		EdenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
+		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
 		context.fill();
 	}
 	if (this.outlinecolour !== undefined) {

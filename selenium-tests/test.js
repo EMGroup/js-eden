@@ -143,7 +143,7 @@ describe("UI tests", function () {
 
 		it('shows a symbol list and edit window entry', function () {
 			return browser
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List [view_0]"))
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List [view_1]"))
 			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Script Input Window [edit_picture]"));
 		});
 	});
@@ -153,7 +153,7 @@ describe("UI tests", function () {
 			return browser
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
 			.moveTo()
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List [view_0]"))
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List [view_1]"))
 			.elementByCss('>', '.menubar-item-close')
 			.click();
 		});
@@ -166,7 +166,7 @@ describe("UI tests", function () {
 
 		it('removes the menu item', function () {
 			return browser
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List [view_0]"))
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Symbol List [view_1]"))
 			.should.be.rejectedWith("Element condition wasn't satisfied");
 		});
 	});
@@ -219,16 +219,16 @@ describe("UI tests", function () {
 			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Script Input Window'))
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Existing Windows"))
 			.click()
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Script Input Window [view_1]"));
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Script Input Window [view_2]"));
 		});
 	});
 
 	describe("use eden createView", function () {
 		before(function () {
 			return browser
-			.waitForElementByCss('#view_1-dialog textarea')
+			.waitForElementByCss('#view_2-dialog textarea')
 			.type('createView("testlist", "SymbolList");')
-			.waitForElementByCss('#view_1-dialog .submitButton')
+			.waitForElementByCss('#view_2-dialog .submitButton')
 			.click();
 		});
 
@@ -279,9 +279,9 @@ describe("UI tests", function () {
 	describe("cause error", function () {
 		before(function () {
 			return browser
-			.waitForElementByCss('#view_1-dialog textarea')
+			.waitForElementByCss('#view_2-dialog textarea')
 			.type('x')
-			.waitForElementByCss('#view_1-dialog .submitButton')
+			.waitForElementByCss('#view_2-dialog .submitButton')
 			.click();
 		});
 

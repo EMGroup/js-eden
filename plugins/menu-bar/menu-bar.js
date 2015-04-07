@@ -13,7 +13,6 @@
  */
 EdenUI.plugins.MenuBar = function (edenUI, success) {
 	var me = this;
-	var viewNumber = 0;
 	this.itemViews = {};
 
 	edenUI.listenTo('createView', this, function (name, path) {
@@ -104,8 +103,16 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 
 	function onClickNewWindow(e) {
 		hideMenu();
-		edenUI.createView("view_"+viewNumber, this.view);
-		viewNumber++;
+		var root = edenUI.eden.root;
+		var followMouse = root.lookup("mouseFollow").value();
+		var viewNumberSym = root.lookup("_view_number");
+		var viewNumber = viewNumberSym.value() + 1;
+		viewNumberSym.assign(viewNumber, Symbol.hciAgent, followMouse);
+		if (followMouse) {
+			edenUI.eden.execute("createView(\"view_" + viewNumber + "\", \"" + this.view + "\");");
+		} else {
+			edenUI.createView("view_" + viewNumber, this.view);
+		}
 		me.updateViewsMenu();
 		e.stopPropagation();
 		e.preventDefault();

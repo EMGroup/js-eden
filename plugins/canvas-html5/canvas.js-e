@@ -58,14 +58,20 @@ proc attemptMouseCapture {
 ##is the name of the observable who's value provides the list of drawables.  The
 ##second, optional parameter, is the text to place into the window's title bar.
 proc createCanvas {
-	auto viewName, obsName, viewTitle;
+	auto viewName, obsName, viewTitle, drawPicture;
 	if ($# == 1) {
 		obsName = $[1];
+		viewName = obsName;
 	} else if ($# == 2) {
 		obsName = $[1];
+		viewName = obsName;
 		viewTitle = $[2];
-		if (viewTitle != @ && !isString(viewTitle)) {
-			error("createCanvas: The second argument must be a string, not a " // type(viewTitle));
+	} else if ($# == 3) {
+		viewName = $[1];
+		obsName = $[2];
+		viewTitle = $[3];
+		if (!isString(viewName)) {
+			error("createCanvas: The first argument must be a string, not a " // type(viewName));
 			return;
 		}
 	} else {
@@ -74,7 +80,12 @@ proc createCanvas {
 	}
 	
 	if (!isString(obsName)) {
-		error("createCanvas: The first argument must be a string, not a " // type(obsName));
+		error("createCanvas: The observable name must be expressed as a string, not a " // type(obsName));
+		return;
+	}
+
+	if (viewTitle != @ && !isString(viewTitle)) {
+		error("createCanvas: The window title must be a string, not a " // type(viewTitle));
 		return;
 	}
 
@@ -82,9 +93,13 @@ proc createCanvas {
 		`obsName` = [];
 	}
 
-	viewName = obsName;
-	createView(viewName, "Canvas2D");
-	execute("proc _update_" // viewName // " : " // obsName // " { $" // "{{ edenUI.plugins.Canvas2D.drawPicture(" // edenCode(viewName) // ", " // edenCode(obsName) // "); }}$; }");
+	drawPicture = ${{ function (viewName, obsName) {
+		edenUI.plugins.Canvas2D.drawPicture(viewName, obsName);
+	} }}$;
+	
+	createView(viewName, "Canvas2D", obsName);	
+	drawPicture(viewName, obsName);
+	
 	if (viewTitle != @) {
 		`"_view_" // viewName // "_title"` = viewTitle;
 	}

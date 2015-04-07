@@ -61,8 +61,8 @@ Checkbox.prototype.draw = function(context) {
 			element.checked = value;
 		}
 
-		jqElement.change(function() {
-			var element = me.elements[0];
+		jqElement.change(function (event) {
+			var element = event.target;
 			var value;
 			if (element.indeterminate) {
 				element.indeterminate = false;

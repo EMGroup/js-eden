@@ -1,3 +1,3 @@
 require("Canvas2D");
-createCanvas("slides", "jspe");
+createCanvas("jspe", "slides", "JSPE Slides");
 include("models/jspe/jspe.js-e");

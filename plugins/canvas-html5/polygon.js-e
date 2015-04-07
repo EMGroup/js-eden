@@ -150,7 +150,7 @@ Polygon.prototype.draw = function (context) {
 	}
 
 	if (this.fillcolour !== undefined) {
-		EdenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
+		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
 		context.fill();
 	}
 	
