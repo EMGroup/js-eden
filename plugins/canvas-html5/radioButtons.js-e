@@ -1,8 +1,8 @@
 ##Radio Buttons
 ${{
-RadioButtons = function (name, listOfButtonNames, x, y, enabled, horizontal){
+RadioButtons = function (name, buttonValues, x, y, enabled, horizontal){
 	this.name = name;
-	this.listOfButtonNames = listOfButtonNames;
+	this.buttonValues = buttonValues;
 	this.x = x;
 	this.y = y;
     this.enabled = enabled;
@@ -11,7 +11,7 @@ RadioButtons = function (name, listOfButtonNames, x, y, enabled, horizontal){
 
 RadioButtons.prototype.hash = function () {
 	return this.name+"$$"+
-				this.listOfButtonNames.join("$$")+
+				this.buttonValues.join("$$")+
 				this.x+"$$"+
 				this.y+"$$"+
 				this.enabled+"$$"+
@@ -21,88 +21,74 @@ RadioButtons.prototype.hash = function () {
 
 func RadioButtons { ${{
   var name = arguments[0];
-  var listOfButtonNames = arguments[1];
+  var buttonValues = arguments[1];
   var x = arguments[2];
   var y = arguments[3];
   var enabled = arguments[4];
   var horizontal = arguments[5];
-  return (new RadioButtons(name, listOfButtonNames, x, y, enabled, horizontal));
+  return (new RadioButtons(name, buttonValues, x, y, enabled, horizontal));
 }}$; }
 
 ${{
-RadioButtons.prototype.makeHTML = function(){
 
+RadioButtons.prototype.makeHTML = function() {
 	var build = "";
 
-	for(var i=0; i<this.listOfButtonNames.length; i++){
-		if(build==""){
-			build = build + "<input type=\"radio\" name=\""+this.name+"\" value=\""+this.listOfButtonNames[i]+"\">"+this.listOfButtonNames[i];
-		}
-		else{
-			build = build + "<br/><input type=\"radio\" name=\""+this.name+"\" value=\""+this.listOfButtonNames[i]+"\">"+this.listOfButtonNames[i];
-		}
+	for (var i = 0; i < this.buttonValues.length; i++) {
+		build = build + "<input type=\"radio\" name=\"" + this.name + "\" value=\"" + this.buttonValues[i] + "\">" + this.buttonValues[i] + "<br/>";
 	}
 
 	
-	if(this.horizontal){
-		return "<div id=\"canvas_"+this.name+"\" style=\" position: absolute; top:"+this.y+"px; left:"+this.x+"px;\"><form style=\"display:inline-flex;\">"+build+"</form></div>";
+	if (this.horizontal) {
+		return "<form id=\"canvas_" + this.name + "\" style=\"position: absolute; top: " + this.y + "px; left: " + this.x + "px; display: inline-flex\">" + 
+			build + "</form>";
+	} else {
+		return "<form id=\"canvas_" + this.name + "\" style=\"position: absolute; top: " + this.y + "px; left: " + this.x + "px\">" +
+			build + "</form>";
 	}
-	
-	return "<div id=\"canvas_"+this.name+"\" style=\" position: absolute; top:"+this.y+"px; left:"+this.x+"px;\"><form>"+build+"</form></div>";
-
 };
-}}$;
 
-${{
 RadioButtons.prototype.draw = function (context) {
-	var id = this.name;
+	var name = this.name;
 	var agent = root.lookup("RadioButtons");
-	root.lookup(id+'_drawing').assign(true, agent);
-	if(this.elements === undefined){
+
+	if(this.elements === undefined) {
 
 		//Make the HTML
-		var inputhtml = $(this.makeHTML());
+		var formJQ = $(this.makeHTML());
 
-		//Assign the value to update the observable if the HTML changes
-		//Uses Jquery.
-
-		root.lookup(id+'_drawable').assign(this, agent);
-		inputhtml.change(function(){
-
-			//Find the current value
-
-			for(var i=0; i<inputhtml.get(0).children[0].length; i++){
-				if(inputhtml.get(0).children[0][i].checked){
-					
-					//Assign the selected value to an eden observable
-					root.lookup(id + "_value").assign(inputhtml.get(0).children[0][i].value, agent, true);
+		formJQ.change(function(event) {
+			root.lookup(name + "_value").assign(event.target.value, agent, true);
+		});
+		
+		var formElement = formJQ.get(0);
+		var valueSym = root.lookup(name + "_value");
+		var updateValue = function (buttonGroup, value) {
+			for (var i = 0; i < buttonGroup.length; i++) {
+				if (buttonGroup[i].value == value) {
+					buttonGroup[i].checked = true;
+					break;
+				} else {
+					//Possibility of having no radio button selected.
+					buttonGroup[i].checked = false;
 				}
 			}
+		
+		};
+		var initialValue = valueSym.value();
+		if (initialValue !== undefined) {
+			updateValue(formElement, initialValue);
+		}
+		valueSym.addJSObserver("updateUI", function (symbol, value) {
+			updateValue(formElement, value);
 		});
 
-		this.elements = [inputhtml.get(0)];
-
-		eden.execute('proc ' + id + '_update : ' + id + '_value { if (' + id + '_drawing){return;} ' + id + '_drawable.draw();}');
-  } else {
-		var buttonsDiv = this.elements[0];
-
-		for(var i=0; i<this.listOfButtonNames.length; i++){
-			if(buttonsDiv.children[0][i].value==root.lookup(id + "_value").cached_value){
-				buttonsDiv.children[0][i].checked = true;
-				break;
-			} else {
-				//Possibility of having no radio button selected.
-				buttonsDiv.children[0][i].checked = false;				
-			}
-		}
-  }
-	root.lookup(id+'_drawing').assign(false, agent);
+		this.elements = [formElement];
+	}
 };
-}}$;
 
-${{
 RadioButtons.prototype.toString = function() {
-  return "RadioButtons(" + this.name + ", " + Eden.edenCodeForValue(this.listOfButtonNames) + ", " +
+  return "RadioButtons(" + this.name + ", " + Eden.edenCodeForValue(this.buttonValues) + ", " +
 	this.x + ", " + this.y + ", " + this.enabled + ", " + this.horizontal + ")";
 };
 

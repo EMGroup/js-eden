@@ -40,6 +40,10 @@
 \s+                   /* skip whitespace */
 "@"                   return 'UNDEFINED'
 [0-9]+("."[0-9]+)?\b  return 'NUMBER'
+"0x"[0-9a-fA-F]+\b    return 'NUMBER'
+"Infinity"            return 'NUMBER'
+"true"                return 'BOOLEAN'
+"false"               return 'BOOLEAN'
 "is"                  { yy.enterDefinition(); yy.evalExps = []; return 'IS'; }
 "eval"                { yy.enterEval(); return 'EVAL'; }
 "include"             return 'INCLUDE'
@@ -326,6 +330,7 @@ javascript
 
 literal
     : NUMBER
+	| BOOLEAN
     | UNDEFINED
         { $$ = 'undefined'; }
     | list-literal

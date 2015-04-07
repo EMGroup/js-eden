@@ -42,23 +42,26 @@ Textbox.prototype.draw = function(context) {
 	if(this.elements === undefined){
 
 		var disabled = this.enabled === false? "readonly=\"readonly\"" : "";
-		var html;
+		var jQuery;
 		if (this.rows > 1) {
-			html = $("<textarea rows=\""+this.rows+"\" id=\""+canvas_obsname+"\" "+disabled+" style=\"position: absolute; width:"+this.width+"px; left: "+this.x+"px; top: "+this.y+"px;\" />");		
+			jQuery = $("<textarea rows=\""+this.rows+"\" id=\""+canvas_obsname+"\" "+ disabled +
+				" style=\"position: absolute; width:" + this.width + "px; left: " + this.x + "px; top: " + this.y + "px;\" />");		
 		} else {
-			html = $("<input id=\""+canvas_obsname+"\" "+disabled+" style=\"position: absolute; width:"+this.width+"px; left: "+this.x+"px; top: "+this.y+"px;\" />");
+			jQuery = $("<input id=\""+canvas_obsname+"\" " + disabled +
+				" style=\"position: absolute; width:" + this.width + "px; left: " + this.x + "px; top: " + this.y + "px;\" />");
 		}
-
+		var element = jQuery.get(0);
+		
 		if (value === undefined) {
 			valueSymbol.assign("", agent);
 		} else {
-			html.get(0).value = value;
+			element.value = value;
 		}
 
-		html.change(function(){
-			root.lookup(id + "_value").assign(html.get(0).value, agent, true);
+		jQuery.change(function(event) {
+			root.lookup(id + "_value").assign(event.target.value, agent, true);
 		});
-		this.elements = [html.get(0)];
+		this.elements = [element];
 
 		valueSymbol.addJSObserver("updateTextbox", function (obs, value) {
 			me.elements[0].value = value;

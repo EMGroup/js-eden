@@ -56,6 +56,7 @@ ${{
 
 		} else {
 
+			//Case when the user has performed direct assignment to one or more JavaScript properties.
 			var button = this.elements[0];
 			button.value = this.label;
 
@@ -65,9 +66,8 @@ ${{
 				button.disabled = true;
 			}
 
-			var x = ""+this.x+"px";
-			var y = ""+this.y+"px";
-
+			var x = this.x + "px";
+			var y = this.y + "px";
 			var style = button.style;
 			if (style.left != x) {
 				style.left = x;

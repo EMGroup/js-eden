@@ -140,8 +140,8 @@ func definitionRHS {
 	}}$;
 }
 
-##Returns true if the observable named by the first argument appears in the
-##definition of the obervable named by the second argument.
+##Returns true if the observable named by the second argument appears in the definition of the
+##observable named by the first argument.
 func isDependent {
 	${{
 		if (arguments.length != 2) {
@@ -165,11 +165,11 @@ func isDependent {
 		} else if (arguments[1] instanceof Symbol) {
 			searchName = arguments[1].name;
 		} else {
-			eden.error(new Error("isDependent: The first argument must be a string or a pointer, not a " + typeof(arguments[1])), "error");
+			eden.error(new Error("isDependent: The second argument must be a string or a pointer, not a " + typeof(arguments[1])), "error");
 			return undefined;
 		}
 		
-		return searchName in symbol.dependencies;
+		return symbol.isDependentOn(searchName);
 	}}$;
 }
 

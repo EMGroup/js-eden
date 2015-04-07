@@ -4,10 +4,8 @@ Eden.systemObservableNames = [
 	"_debug_.*",
 	"_menubar_status",
 	"_view_.*",
-	"Infinity",
 	"PI",
 	"autocalc",
-	"false",
 	"mouseButton",
 	"mouseButtons",
 	"mouseCaptured",
@@ -21,8 +19,7 @@ Eden.systemObservableNames = [
 	"mouseWindow",
 	"randomGeneratorState",
 	"randomIndex",
-	"touchScrollX",
-	"true"
+	"touchScrollX"
 ];
 
 Eden.systemAgentNames = [
@@ -52,6 +49,7 @@ Eden.systemAgentNames = [
     "showObservables",
 	"showView",
 	"todo",
+	"touch",
 	"unbind",
 	"withAppendedItem",
 	"writeln"

@@ -119,14 +119,6 @@ Slider.prototype.draw = function (context) {
 			}
 		});
 		
-	} else {
-		//Draw with the values stored in the observables
-		if (value === undefined) {
-			valueSym.assign(parseFloat(this.elements[0].value), agent);
-			previewSym.assign(parseFloat(this.elements[0].value), agent);
-		} else {
-			this.elements[0].value = String(value);
-		}
 	}
 };
 }}$;

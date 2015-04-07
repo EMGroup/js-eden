@@ -20,13 +20,6 @@ Combobox.prototype.hash = function () {
 				this.enabled;
 };
 
-function makeoptionshtml(opts) {
-	var html = "";
-	for (x in opts) {
-		html = html + "\n<option value=\""+ opts[x] + "\">"+ opts[x] + "</option>";
-	}
-	return html;
-}
 }}$;
 
 func Combobox { ${{
@@ -41,56 +34,64 @@ func Combobox { ${{
 
 
 ${{
-Combobox.prototype.draw = function(context) {
-	var me = "canvas_" + this.name;
-	var me2 = this.name;
-	var agent = root.lookup("Combobox");
-	var valueName = this.name+'_value';
-	var drawableName = this.name+'_drawable';
-	var updateName = this.name+'_update';
-	var drawingName = this.name+'_drawing';
 
-	function updateVal(boxhtml) {
-		boxhtml.val(root.lookup(valueName).value());
+function makeOptionsHTML(values) {
+	var html = "";
+	for (var i = 0; i < values.length; i++) {
+		html = html + "\n<option value=\"" + values[i] + "\">" + values[i] + "</option>";
 	}
+	return html;
+}
 
-	var that = this;
-	root.lookup(drawingName).assign(true, agent);
+Combobox.prototype.draw = function(context) {
+	var me = this;
+	var id = "canvas_" + this.name;
+	var agent = root.lookup("Combobox");
+	var valueName = this.name + '_value';
+	var valueSym = root.lookup(valueName);
+
+	var dropDownList;
 	if (this.elements === undefined) {
+
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
-		var boxhtml = $("<select id=\"" + me + "\" " + disabled + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
+		var dropDownListJQ = $("<select id=\"" + id + "\" " + disabled + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
+		dropDownListJQ.html(makeOptionsHTML(this.options));
 
-		boxhtml.html(makeoptionshtml(this.options));
-		updateVal(boxhtml);
-
-		boxhtml.change(function() {
-			root.lookup(valueName).assign(boxhtml.get(0).value, agent, true);
+		dropDownListJQ.change(function(event) {
+			root.lookup(valueName).assign(event.target.value, agent, true);
 		});
 
-		this.elements = [boxhtml.get(0)];
-		root.lookup(drawableName).assign(this, agent);
-		if (root.lookup(valueName).value() === undefined) {
-			root.lookup(valueName).assign(that.options[0], agent, true);
+		dropDownList = dropDownListJQ.get(0);
+		var initialValue = valueSym.value();
+		if (initialValue === undefined) {
+			valueSym.assign(me.options[0], agent, true);
+		} else {
+			dropDownList.value = initialValue;
 		}
-		eden.execute('proc '+updateName+' : '+valueName+' { if ('+drawingName+') { return; } '+drawableName+'.draw(); }');
+
+		valueSym.addJSObserver("updateCombobox", function (symbol, value) {
+			dropDownList.value = value;
+		});
+
+		this.elements = [dropDownList];
 
 	} else {
 
-		var dropDownList = this.elements[0];
-		$(dropDownList).html(makeoptionshtml(this.options));
+		//Case when the user has performed direct assignment to one or more JavaScript properties.
+		dropDownList = this.elements[0];
+		$(dropDownList).html(makeOptionsHTML(this.options));
 
-		updateVal($(dropDownList));
+		dropDownList.value = valueSym.value();
 
 		if (this.enabled == true) { 
 			dropDownList.disabled = false; 
+		} else {
+			dropDownList.disabled = true;
 		}
-		else { dropDownList.disabled = true; }
 
 		dropDownList.style.left = "" + this.x + "px";
 		dropDownList.style.top = "" + this.y + "px";
 	}
-
-	root.lookup(drawingName).assign(false, agent);
 };
 }}$;
 ${{

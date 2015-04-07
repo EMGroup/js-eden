@@ -7,16 +7,6 @@
 ## belongs, etc.
 
 ##=============================================================================
-##Constants
-
-##Boolean values
-true = ${{ true }}$;
-false = ${{ false }}$;
-
-##Infinity
-Infinity = 1/0;
-
-##=============================================================================
 ##Type casting functions.
 
 func char {

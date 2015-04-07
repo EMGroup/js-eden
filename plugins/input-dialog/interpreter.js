@@ -176,7 +176,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			});
 			input_dialog = $dialog;
 
-		return {setValue: function (value) { textarea.value = value; }};
+		var confirmClose = !("MenuBar" in edenUI.plugins);
+
+		return {confirmClose: confirmClose, setValue: function (value) { textarea.value = value; }};
 	};
 
 	this.next = function (el) {

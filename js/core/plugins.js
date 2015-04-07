@@ -74,8 +74,10 @@
 	 *
 	 * @param {string} name Unique identifier for the view.
 	 * @param {string} type Used to group different types of views.
+	 * @param {*} initData Data passed to the plug-in's createDialog function and ascribed meaning
+	 * by the particular plug-in. (optional)
 	 */
-	EdenUI.prototype.createView = function (name, type) {
+	EdenUI.prototype.createView = function (name, type, initData) {
 		if ("name" in this.views[type]) {
 			// Single instance view type (e.g. error window)
 			name = this.views[type].name;
@@ -88,7 +90,7 @@
 
 		var me = this;
 		var title = this.views[type].title;
-		var viewData = this.views[type].dialog(name + "-dialog", title);
+		var viewData = this.views[type].dialog(name + "-dialog", title, initData);
 		if (viewData === undefined) {
 			viewData = {};
 		}
@@ -107,14 +109,18 @@
 				} else if (viewData.confirmClose) {
 					edenUI.modalDialog(
 						"Window Close Action",
-						"<p>Removing this window from the work space will cause any unsaved changes to be lost.  You will need to reload the construal if you wish to see this window again.</p> \
+						"<p>Removing this window from the work space will cause any unsaved changes contained therein to be lost.  You will need to reload the construal if you wish to see this window again.</p> \
 						<p>Are you sure you want to permanently delete this information?  Or would you prefer to hide the window instead?</p>",
 						["Close Forever", "Hide"],
 						function (optNum) {
 							if (optNum == 0) {
 								edenUI.destroyView(name);
 							} else if (optNum == 1) {
-								edenUI.hideView(name);
+								if (me.plugins.MenuBar) {
+									edenUI.hideView(name);
+								} else {
+									edenUI.minimizeView(name);
+								}
 							}
 						}
 					);
@@ -144,7 +150,7 @@
 
 		this.activeDialogs[name] = type;
 
-		//Set title bar text and allow the construal to change it later.
+		//Set the title bar text and allow the construal to change it later.
 		var titleSym = view(name, "title");
 		titleSym.assign(title);
 		titleSym.addJSObserver("updateTitleBar", function (symbol, value) {
@@ -163,12 +169,32 @@
 		view(name, 'height').assign(diag.dialog("option", "height"));
 
 		diag.on("dialogresizestop", function (event, ui) {
-			view(name, 'width').assign(ui.size.width);
-			view(name, 'height').assign(ui.size.height);
+			var root = me.eden.root;
+			var autocalcSym = root.lookup("autocalc");
+			var autocalcOnEntry = autocalcSym.value();
+			var followMouse = root.lookup("mouseFollow").value();
+			if (autocalcOnEntry) {
+				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+			}
+			view(name, 'width').assign(ui.size.width, Symbol.hciAgent, followMouse);
+			view(name, 'height').assign(ui.size.height, Symbol.hciAgent, followMouse);
+			if (autocalcOnEntry) {
+				autocalcSym.assign(1, Symbol.hciAgent, followMouse);
+			}
 		});
 		diag.on("dialogdragstop", function (event, ui) {
-			view(name, 'x').assign(ui.position.left);
-			view(name, 'y').assign(ui.position.top);
+			var root = me.eden.root;
+			var autocalcSym = root.lookup("autocalc");
+			var autocalcOnEntry = autocalcSym.value();
+			var followMouse = root.lookup("mouseFollow").value();
+			if (autocalcOnEntry) {
+				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+			}
+			view(name, 'x').assign(ui.position.left, Symbol.hciAgent, followMouse);
+			view(name, 'y').assign(ui.position.top, Symbol.hciAgent, followMouse);
+			if (autocalcOnEntry) {
+				autocalcSym.assign(1, Symbol.hciAgent, followMouse);
+			}
 		});
 
 
@@ -196,8 +222,14 @@
 
 	EdenUI.prototype.destroyView = function (name) {
 		this.viewInstances[name].closing = true;
-		dialog(name).dialog('destroy');
-		dialog(name).remove();
+		if (this.viewInstances[name].destroy) {
+			//Call clean-up handler.
+			this.viewInstances[name].destroy();
+		}
+		var theDialog = dialog(name);
+		theDialog.dialog('destroy');
+		theDialog.remove();
+		theDialog.html("");
 		delete this.activeDialogs[name];
 		delete this.viewInstances[name];
 		root.lookup("forgetAll").definition(root)("^_[vV]iew_" + name + "_", true, false, true);
