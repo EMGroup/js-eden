@@ -505,4 +505,4 @@ if (initialViews == "" || initialViews == "default") {
 forget(&initialViews);
 
 arrangeWindows();
-_menubar_status = "JS-Eden done loading";
+
