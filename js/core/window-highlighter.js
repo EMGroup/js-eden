@@ -9,12 +9,12 @@ WindowHighlighter.prototype.highlight = function (dialogName) {
 	var lastDialogMin = edenUI.getDialogContent(dialogName).data('dialog-extend-minimize-controls');
 	if (lastDialogMin) {
 		lastDialogMin.addClass('menubar-window-raise');
-		previousZIndex = lastDialogMin.css('z-index');
-		this.lastDialogMin.css('z-index', 2147483646);
+		this.previousZIndex = lastDialogMin.css('z-index');
+		lastDialogMin.css('z-index', 2147483646);
 		lastDialogMin.css('position', 'relative');
 	} else {
 		this.lastDialog.addClass('menubar-window-raise');
-		previousZIndex = this.lastDialog.css('z-index');
+		this.previousZIndex = this.lastDialog.css('z-index');
 		this.lastDialog.css('z-index', 2147483646);
 	}
 };
@@ -28,7 +28,7 @@ WindowHighlighter.prototype.stopHighlight = function (dialogName) {
 
 	elementToStopHighlighting
 		.removeClass('menubar-window-raise')
-		.css('z-index', previousZIndex);
+		.css('z-index', this.previousZIndex);
 	this.lastDialog = undefined;
 	this.previousZIndex = undefined;
 };
