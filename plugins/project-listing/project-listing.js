@@ -140,7 +140,8 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 	//Get a list of projects from the server.
 	$.ajax({
-		url: "models/projects.json",
+		//url: "models/projects.json",
+		url: "models/SciFest2015/projects.json",
 		dataType: 'json',
 		success: function(data) {
 			me.projects = data;

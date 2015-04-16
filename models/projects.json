@@ -9,7 +9,7 @@
 		},
 		{
 			"name": "JSPE",
-			"author": "Matt Cranham",
+			"author": "Matt Cranham and Hui Zhu",
 			"year": "2012",
 			"description": "Installs a presentation environment.",
 			"runfile": "models/jspe/run.e"
@@ -30,7 +30,7 @@
 		},
 		{
 			"name": "Malaria",
-			"author": "Meurig Beynon / William Beynon",
+			"author": "Meurig Beynon and Will Beynon",
 			"year": "2012",
 			"description": "Modelling Malaria",
 			"runfile": "models/malaria/malariaA.jse"

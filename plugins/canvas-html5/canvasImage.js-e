@@ -60,7 +60,8 @@ CanvasImage = function (dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoothed, f
 		
 		me.loaded = true;
 		for (var canvas in me.canvasesToRepaint) {
-			eden.execute("_update_" + canvas + "();");
+			var pictureObs = root.lookup(canvas);
+			pictureObs.jsObservers.refreshView(pictureObs, pictureObs.value());
 		}
 	}
 	this.image.src = file;

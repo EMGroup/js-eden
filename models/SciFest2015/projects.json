@@ -1,0 +1,32 @@
+{
+	"projects": [
+		{
+			"name": "Light Box",
+			"author": "Jonny Foss and Joe Butler",
+			"year": "2015",
+			"description": "Reflect a laser beam using mirrors.",
+			"runfile": "models/SciFest2015/light-box/light-box.js-e"
+		},
+		{
+			"name": "Hexagons",
+			"author": "Jonny Foss",
+			"year": "2015",
+			"description": "A puzzle game involving colouring in hexagons.",
+			"runfile": "models/SciFest2015/grid-colouring/grid-colouring.js-e"
+		},
+		{
+			"name": "Nim Coins",
+			"author": "Matthew Leeke and Meurig Beynon",
+			"year": "2012-2015",
+			"description": "A competitive two player strategy game.",
+			"runfile": "models/SciFest2015/nim-coins/nim-coins.js-e"
+		},
+		{
+			"name": "Piano",
+			"author": "Elizabeth Hudnott",
+			"year": "2014",
+			"description": "Explore learning to play the piano and read music.",
+			"runfile": "models/SciFest2015/piano/run.js-e"
+		}
+	]
+}

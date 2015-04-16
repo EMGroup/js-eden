@@ -1,0 +1,95 @@
+include("library/functional_programming.js-e");
+include("compatibility/construit.c5.js-e");
+
+##Searches the string given by the first argument for a match against the
+##regular expression given by the second argument (given as either a string
+##(without the usual enclosing / /) or a RegExp object) and returns the string
+##formed by replacing the matching portion using the string provided by the
+##third argument.  If the second argument is a string then the optional fourth
+##argument specifies which regular expression flags to use (defaults to "g",
+##meaning replace every instance of the search string rather than just the
+##first).
+##
+##To use a special regular expression character as a literal you need to escape
+##it with two backslash characters, once for the regular expression escape
+##sequence and once to stop JS-EDEN from interpreting the first backslash as a
+##JS-EDEN string escape sequence.
+##
+##See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#Specifying_a_function_as_a_parameter
+##for further details.
+func replace {
+	${{
+		if (typeof(arguments[1]) == "object") {
+			return arguments[0].replace(arguments[1], arguments[2]);
+		} else {
+			var flags = arguments[3];
+			if (flags === undefined) {
+				flags = "g";
+			}
+			return arguments[0].replace(new RegExp(arguments[1], flags), arguments[2]);		
+		}
+	}}$;
+}
+
+##We create an additional JS-EDEN view that logs each definition, function or procedure
+##just after it has been successfully declared using the "execute" procedure.
+##The resulting window displays a script that can be used as a tool for
+##comprehending the procedural code that created the definitions.  In simple
+##cases where "execute" is used to create many similar definitions the contents of
+##this window could be directly substituted for the procedural code.
+
+generatedDefinitions = "";
+generatedDefinitionsPreamble = "
+	<style>
+		div.generatedDefinition {
+			padding-left: 3em;
+			text-indent: -3em;
+			padding-bottom: 7pt;
+			font-family: monospace;
+			white-space: pre-wrap;
+		}
+	</style>
+";
+lastGeneratedDefinitionSource = "";
+
+##A replacement for "execute" that "execute"s its second argument and
+##logs the (re-)definition to the log window.  The first argument specifies the
+##name of the group of definitions to which the definition belongs, for example
+##this could be the name of the proc that created the definition.
+##
+##TODO There's a small bug if the definition contains a semicolon inside a string
+##literal embedded inside the second argument (which is itself a string).  The definition
+##shown in the log window will contain an unwanted line break after the semicolon.
+##
+proc createDefinition {
+	para source, definition;
+	auto definitionHTML;
+
+	if (substr(definition, definition#, definition#) != ";") {
+		definition = definition // ";";
+	}
+	execute(definition);
+
+	if (generatedDefinitions == "") {
+		createView("Dynamically_Created_Definitions", "PlainHTML");
+	}
+
+	definitionHTML = definition;
+	definitionHTML = replace(definitionHTML, "&", "&amp;");
+	definitionHTML = replace(definitionHTML, "<", "&lt;");
+	definitionHTML = replace(definitionHTML, ">", "&gt;");
+	definitionHTML = replace(definitionHTML, "(^|\\W|[^&\\w]\\w*);\\s*(\\S)", "$1;</div>\n<div class=\"generatedDefinition\">$2");
+	definitionHTML = "<div class=\"generatedDefinition\">" // definitionHTML // "</div>\n";
+
+	if (source != lastGeneratedDefinitionSource) {
+		generatedDefinitions = generatedDefinitions // "<h1>" // source // "</h1>\n";
+		lastGeneratedDefinitionSource = source;
+	}
+
+	generatedDefinitions = generatedDefinitions // definitionHTML;
+	html("Dynamically_Created_Definitions", generatedDefinitionsPreamble // generatedDefinitions);
+}
+
+include("models/SciFest2015/piano/music-theory.js-e");
+include("models/SciFest2015/piano/piano.js-e");
+include("models/SciFest2015/piano/stave.js-e");

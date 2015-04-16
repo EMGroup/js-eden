@@ -18,7 +18,7 @@ func Point { ${{
 
 ${{
 Point.prototype.toString = function() {
-  return "{" + this.x + ", " + this.y + "}";
+  return "{" + Eden.edenCodeForValue(this.x) + ", " + Eden.edenCodeForValue(this.y) + "}";
 };
 
 Point.prototype.getEdenCode = Point.prototype.toString;

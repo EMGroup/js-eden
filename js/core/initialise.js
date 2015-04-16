@@ -89,7 +89,7 @@ function initialiseJSEden() {
 		
 		var doneLoading = function () {
 			if (menuBar) {
-				root.lookup("_menubar_status").assign("JS-Eden done loading", {name: "/system"});
+				root.lookup("_menubar_status").assign("JS-EDEN has finished loading.", {name: "/system"});
 			}
 		}
 		

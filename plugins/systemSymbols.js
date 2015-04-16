@@ -25,7 +25,6 @@ Eden.systemObservableNames = [
 Eden.systemAgentNames = [
 	"_menubar_update",
 	"_View_.*",
-	"_update_.*",
 	"alias",
 	"arrangeWindows",
 	"attemptMouseCapture",
