@@ -1,0 +1,791 @@
+##Abstract music theory calculations.  Many of these functions are shared
+##between the stave and piano models.
+
+##Calculate the number of diatonic steps a note is away from the C that is
+##either itself or else is the nearest C immediately below itself, with results
+##in the range 0-7.  One diatonic step corresponds to a one letter increment
+##through the English alphabet.  The argument should not include the octave
+##number.
+func diatonicStepsFromC {
+	para letter;
+	auto asciiNumber;
+	
+	## C D E F G A B
+	## 67686970716566 charCode()
+	## 7 8 9 10115 6  -60
+	## 0 1 2 3 4 5 6  %7
+	
+	##N.B. Unlike piano key numbers this sequence doesn't have positions for
+	##the sharps, which follows on directly from the fact that the position
+	##of a sharp on the stave is the same as it's nearest nearest natural
+	##note and then we have key signatures and accidentals notation to
+	##determine the exact note.
+	
+	asciiNumber = charCode(letter);
+	if (asciiNumber < 65 || asciiNumber > 71) {
+		error("Unknown note: " // letter);
+		return @;
+	} else {
+		return (asciiNumber - 60) % 7;
+	}
+}
+
+##Calculates the letter of the note that is a given non-negative number of
+##diatonic steps from C.
+func diatonicStepsFromCToLetter {
+	para number;
+	
+	## 0 1 2 3 4 5 6
+	## 2 3 4 5 6 7 8  +2
+	## 2 3 4 5 6 0 1  %7
+	## 67686970716566 +65
+	## C D E F G A B  char()
+	
+	return char((number + 2) % 7 + 65);
+}
+
+func diatonicIncrement {
+	para letter, increment;
+	if (increment < 0) {
+	 increment = increment + (int(-increment / 7) + 1) * 7;
+	}
+	return diatonicStepsFromCToLetter(diatonicStepsFromC(letter) + increment);
+}
+
+func diatonicStepsFromA0 {
+	para note;
+	auto letter, octave;
+	letter = substr(note, 1, 1);
+	octave = note[note#];
+	return (octave - 1) * 7 + diatonicStepsFromC(letter) + 2;
+}
+
+func diatonicStepsFromA0ToNote {
+	para numSteps;
+	return diatonicStepsFromCToLetter(numSteps + 5) + str(int((numSteps + 5) / 7));
+}
+
+naturalSymbol = "n";
+sharpSymbol = "#";
+flatSymbol = "b";
+doubleSharpSymbol = "x";
+doubleFlatSymbol is flatSymbol // flatSymbol;
+tripleFlatSymbol is flatSymbol // doubleFlatSymbol;
+
+##Given the text representing a pitch adjustment, returns the number of
+##semitones that the pitch should be adjusted by, e.g. a sharp symbol
+##represents an increase of 1 semitone.
+func semitoneAdjustment {
+	para accidentalOrKSPart;
+	if (accidentalOrKSPart == @ || accidentalOrKSPart == "" || accidentalOrKSPart == naturalSymbol) {
+		return 0;
+	} else if (accidentalOrKSPart == sharpSymbol) {
+		return 1;
+	} else if (accidentalOrKSPart == flatSymbol) {
+		return -1;
+	} else if (accidentalOrKSPart == doubleSharpSymbol) {
+		return 2;
+	} else if (accidentalOrKSPart == doubleFlatSymbol) {
+		return -2;
+	} else if (accidentalOrKSPart == tripleFlatSymbol) {
+		return -3;
+	} else {
+		error("Unknown symbol in key signature or accidental: " // key[i]);
+		return @;
+	}
+}
+
+##Given a small number of semitones, returns the symbol that adjusts the pitch
+##of a note by that amount, e.g. an input of -1 returns the flat symbol.
+func semitoneAdjustmentToSymbol {
+	para semitoneAdjustment;
+	if (semitoneAdjustment == 0) {
+		return naturalSymbol;
+	} else if (semitoneAdjustment == 1) {
+		return sharpSymbol;
+	} else if (semitoneAdjustment == -1) {
+		return flatSymbol;
+	} else if (semitoneAdjustment == 2) {
+		return doubleSharpSymbol;
+	} else if (semitoneAdjustment == -2) {
+		return doubleFlatSymbol;
+	} else if (semitoneAdjustment == -3) {
+		return tripleFlatSymbol;
+	} else {
+		error("Unable to represent a " // str(semitoneAdjustment) // " semitone increase with a symbol.  Use a different letter.");
+		return @;
+	}
+}
+
+##Convert a music note (by scientific name) to its piano key number.  E.g. A4 -> 49
+func pianoKeyNumber {
+	para nameOfNote;
+	auto letter, octave, semitoneAdjustmentSymbol, keyNumber;
+	letter = nameOfNote[1];
+	octave = int(substr(nameOfNote, nameOfNote#, nameOfNote#));
+	semitoneAdjustmentSymbol = substr(nameOfNote, 2, nameOfNote# - 1);
+
+	if (letter == "A") {
+		keyNumber = 1;
+	} else if (letter == "B") {
+		keyNumber = 3;
+	} else if (letter == "C") {
+		keyNumber = 4;
+	} else if (letter == "D") {
+		keyNumber = 6;
+	} else if (letter == "E") {
+		keyNumber = 8;
+	} else if (letter == "F") {
+		keyNumber = 9;
+	} else if (letter == "G") {
+		keyNumber = 11;
+	} else {
+		error("Unknown note " // nameOfNote);
+		keyNumber = @;
+	}
+	
+	if (keyNumber < 4) {
+		keyNumber = keyNumber + octave * 12;
+	} else {
+		keyNumber = keyNumber + (octave - 1) * 12;
+	}
+	
+	keyNumber = keyNumber + semitoneAdjustment(semitoneAdjustmentSymbol);
+	
+	return keyNumber;
+}
+
+##Convert a piano key number into the scientific name of the note.  E.g. 50 -> A#4
+func noteName {
+	para keyNumber;
+	auto octave, keyNumberInFirstOctave;
+	keyNumberInFirstOctave = keyNumber % 12;
+	octave = int(keyNumber / 12) + 1;
+	if (keyNumberInFirstOctave < 4) {
+		octave--;
+	}
+	
+	switch (keyNumberInFirstOctave) {
+	case 0:
+		return "G" // sharpSymbol // octave;
+	case 1:
+		return "A" // octave;
+	case 2:
+		return "A" // sharpSymbol // octave;
+	case 3:
+		return "B" // octave;
+	case 4:
+		return "C" // octave;
+	case 5:
+		return "C" // sharpSymbol // octave;
+	case 6:
+		return "D" // octave;
+	case 7:
+		return "D" // sharpSymbol // octave;
+	case 8:
+		return "E" // octave;
+	case 9:
+		return "F" // octave;
+	case 10:
+		return "F" // sharpSymbol // octave;
+	case 11:
+		return "G" // octave;
+	case @:
+		return @;
+	default:
+		error("Assertion failure: " // str(keyNumberInFirstOctave) // " is outside the range of mod 12.");
+		return @;
+	}
+}
+
+func noteNameInKey {
+	para keyNumber, keySignature;
+	auto octave, keyNumberInFirstOctave, diatonicSteps, semitoneAdjustmentSymbol, sharpsKeySignature, letter, i;
+
+	if (keySignature# == 0) {
+		sharpsKeySignature = true;
+	} else {
+		semitoneAdjustmentSymbol = 	substr(keySignature[1], 2, keySignature[1]#);
+		sharpsKeySignature = (semitoneAdjustmentSymbol == sharpSymbol || semitoneAdjustmentSymbol == doubleSharpSymbol);
+	}
+	
+	keyNumberInFirstOctave = keyNumber % 12;
+	octave = int(keyNumber / 12) + 1;
+	if (keyNumberInFirstOctave < 4) {
+		octave--;
+	}
+	
+	switch (keyNumberInFirstOctave) {
+	case 0: ## G#
+		diatonicSteps = 4;
+		semitoneAdjustmentSymbol = sharpSymbol;
+		break;
+	case 1: ## A
+		diatonicSteps = 5;
+		semitoneAdjustmentSymbol = "";
+		break;
+	case 2: ## A#
+		diatonicSteps = 5;
+		semitoneAdjustmentSymbol = sharpSymbol;
+		break;
+	case 3: ## B
+		diatonicSteps = 6;
+		semitoneAdjustmentSymbol = "";
+		break;
+	case 4: ## C
+		diatonicSteps = 0;
+		semitoneAdjustmentSymbol = "";
+		break;
+	case 5: ## C#
+		diatonicSteps = 0;
+		semitoneAdjustmentSymbol = sharpSymbol;
+		break;
+	case 6: ## D
+		diatonicSteps = 1;
+		semitoneAdjustmentSymbol = "";
+		break;
+	case 7: ## D#
+		diatonicSteps = 1;
+		semitoneAdjustmentSymbol = sharpSymbol;
+		break;
+	case 8: ## E
+		diatonicSteps = 2;
+		semitoneAdjustmentSymbol = "";
+		break;
+	case 9: ## F
+		diatonicSteps = 3;
+		semitoneAdjustmentSymbol = "";
+		break;
+	case 10: ## F#
+		diatonicSteps = 3;
+		semitoneAdjustmentSymbol = sharpSymbol;
+		break;
+	case 11: ## G
+		diatonicSteps = 4;
+		semitoneAdjustmentSymbol = "";
+		break;
+	case @:
+		return @;
+	default:
+		error("Assertion failure: " // str(keyNumberInFirstOctave) // " is outside the range of mod 12.");
+		return @;
+	}
+	
+	letter = diatonicStepsFromCToLetter(diatonicSteps);
+	
+	if (semitoneAdjustmentSymbol == sharpSymbol) {
+		if (!sharpsKeySignature && indexOf(keySignature, letter // sharpSymbol) == 0) {
+			if (letter == "B") {
+				letter = "C";
+				octave++;
+			} else {
+				diatonicSteps = diatonicSteps + 1;
+				letter = diatonicStepsFromCToLetter(diatonicSteps);
+			}
+			return letter // flatSymbol // str(octave);
+		} else {
+			return letter // sharpSymbol // str(octave);		
+		}
+	} else {
+		for (i = 1; i <= keySignature#; i++) {
+			if (keySignature[i][1] == letter) {
+				if (keySignature[i]# == 1) {
+					return letter // str(octave);
+				} else {
+					return letter // naturalSymbol // str(octave);
+				}
+			}
+		}
+		return letter // str(octave);
+	}
+}
+
+##Key signatures
+##
+##These could also be defined using the ascendingScale and makeKeySignature
+##functions but writing them out explicitly is illustrative of the circle of
+##fifths.
+##
+cMajorKS = [];
+gMajorKS is ["F" // sharpSymbol];
+dMajorKS is ["F" // sharpSymbol, "C" // sharpSymbol];
+aMajorKS is ["F" // sharpSymbol, "C" // sharpSymbol, "G" // sharpSymbol];
+eMajorKS is ["F" // sharpSymbol, "C" // sharpSymbol, "G" // sharpSymbol, "D" // sharpSymbol];
+bMajorKS is ["F" // sharpSymbol, "C" // sharpSymbol, "G" // sharpSymbol, "D" // sharpSymbol, "A" // sharpSymbol];
+fSharpMajorKS is ["F" // sharpSymbol, "C" // sharpSymbol, "G" // sharpSymbol, "D" // sharpSymbol, "A" // sharpSymbol, "E" // sharpSymbol];
+cSharpMajorKS is ["F" // sharpSymbol, "C" // sharpSymbol, "G" // sharpSymbol, "D" // sharpSymbol, "A" // sharpSymbol, "E" // sharpSymbol, "B" // sharpSymbol];
+
+aMinorKS is cMajorKS;
+eMinorKS is gMajorKS;
+bMinorKS is dMajorKS;
+fSharpMinorKS is aMajorKS;
+cSharpMinorKS is eMajorKS;
+gSharpMinorKS is bMajorKS;
+dSharpMinorKS is fSharpMajorKS;
+aSharpMinorKS is cSharpMajorKS;
+
+fMajorKS is ["B" // flatSymbol];
+bFlatMajorKS is ["B" // flatSymbol, "E" // flatSymbol];
+eFlatMajorKS is ["B" // flatSymbol, "E" // flatSymbol, "A" // flatSymbol];
+aFlatMajorKS is ["B" // flatSymbol, "E" // flatSymbol, "A" // flatSymbol, "D" // flatSymbol];
+dFlatMajorKS is ["B" // flatSymbol, "E" // flatSymbol, "A" // flatSymbol, "D" // flatSymbol, "G" // flatSymbol];
+gFlatMajorKS is ["B" // flatSymbol, "E" // flatSymbol, "A" // flatSymbol, "D" // flatSymbol, "G" // flatSymbol, "C" // flatSymbol];
+cFlatMajorKS is ["B" // flatSymbol, "E" // flatSymbol, "A" // flatSymbol, "D" // flatSymbol, "G" // flatSymbol, "C" // flatSymbol, "F" // flatSymbol];
+
+dMinorKS is fMajorKS;
+gMinorKS is bFlatMajorKS;
+cMinorKS is eFlatMajorKS;
+fMinorKS is aFlatMajorKS;
+bFlatMinorKS is dFlatMajorKS;
+eFlatMinorKS is gFlatMajorKS;
+aFlatMinorKS is cFlatMajorKS;
+
+##Checks if a note appears in a key signature.
+func inKeySignature {
+	para signature, note;
+	auto i;
+	for (i = 1; i <= signature#; i++) {
+		if (note[1] == signature[i][1]) {
+			return (note == signature[i]);
+		}
+	}
+	return false;
+}
+
+##Find the number of semitones by which a letter A-G should be transposed from
+##its C Major pitch.  Derived by giving:
+##(1) The letter of the note.
+##(2) If we intend to form an accidental then the neceassry pitch adjustment
+##    symbol is supplied, otherwise this argument is left undefined (i.e. supply @)
+##    if the intended resulting note is not an accidental.
+##(3) The key we're working in.
+func keyOrAccidentalAdjustment {
+	para note, optionalAccidentalSymbol, key;
+	auto i;
+	
+	if (optionalAccidentalSymbol != @ && optionalAccidentalSymbol != "") {
+		return semitoneAdjustment(optionalAccidentalSymbol);
+	}
+	
+	for (i = 1; i <= key#; i++) {
+		if (key[i][1] == note[1]) {
+			return semitoneAdjustment(substr(key[i], 2, key[i]#));
+		}
+	}
+	
+	return 0;
+}
+
+##Alternatively this function can be called with a whole scale as the argument
+##instead of a key signature.
+func keysInKey {
+        para keySignature, lowestOctave, highestOctave;
+        auto i, j, letters, naturalInKey, keys;
+		letters = "ABCDEFG";
+		keys = [];
+		
+		##Find which naturals are implicitly in the key because they're not mentioned in the key signature.
+		naturalInKey = array(7, true);		
+		for (i = 1; i <= keySignature#; i++) {
+			naturalInKey[charCode(keySignature[i][1]) - 64] = false;
+		}
+
+		##Add the natural notes.
+		for (i = 1; i <= 7; i++) {
+			if (naturalInKey[i]) {
+				for (j = lowestOctave; j <= highestOctave; j++) {
+					append keys, letters[i] // str(j);
+				}
+			}
+		}
+		
+		##Add the sharps and flats.
+        for (i = lowestOctave; i <= highestOctave; i++) {
+                for (j = 1; j <= keySignature#; j++) {
+                        append keys, keySignature[j] // str(i);
+                }
+        }
+        return keys;
+}
+
+func ascendingScale {
+	para tonic, intervals;
+	auto notes, letterAndSymbol, symbol, listIndex, i, interval, strIndex;
+	
+	letterAndSymbol = [tonic[1], substr(tonic, 2, tonic#)];
+	notes = [tonic];
+	
+	i = 1;
+	while (i <= intervals#) {
+		strIndex = indexOf(intervals, "-", i);
+		if (strIndex == 0) {
+			interval = substr(intervals, i, intervals#);
+			i = intervals# + 1;
+		} else {
+			interval = substr(intervals, i, strIndex - 1);
+			i = strIndex + 1;
+		}
+		
+		symbol = letterAndSymbol[2];
+		listIndex = charCode(letterAndSymbol[1]) - 64;
+		
+		if (interval == "1" || interval == "S") {
+			if (symbol == "") {
+				letterAndSymbol = naturalsRaisedByHalf[listIndex];
+			} else if (symbol == sharpSymbol) {
+				letterAndSymbol = sharpsRaisedByHalf[listIndex];
+			} else if (symbol == flatSymbol) {
+				letterAndSymbol = flatsRaisedByHalf[listIndex];
+			} else if (symbol == doubleSharpSymbol) {
+				letterAndSymbol = doubleSharpsRaisedByHalf[listIndex];
+			} else if (symbol == doubleFlatSymbol) {
+				letterAndSymbol = doubleFlatsRaisedByHalf[listIndex];
+			} else if (symbol == tripleFlatSymbol) {
+				letterAndSymbol = tripleFlatsRaisedByHalf[listIndex];
+			} else {
+				error("Unknown symbol: " // symbol);
+				return @;
+			}
+		} else if (interval == "2" || interval == "T") {
+			if (symbol == "") {
+				letterAndSymbol = naturalsRaisedByOne[listIndex];
+			} else if (symbol == sharpSymbol) {
+				letterAndSymbol = sharpsRaisedByOne[listIndex];
+			} else if (symbol == flatSymbol) {
+				letterAndSymbol = flatsRaisedByOne[listIndex];
+			} else if (symbol == doubleSharpSymbol) {
+				letterAndSymbol = doubleSharpsRaisedByOne[listIndex];
+			} else if (symbol == doubleFlatSymbol) {
+				letterAndSymbol = doubleFlatsRaisedByOne[listIndex];
+			} else if (symbol == tripleFlatSymbol) {
+				letterAndSymbol = tripleFlatsRaisedByOne[listIndex];
+			} else {
+				error("Unknown symbol: " // symbol);
+				return @;
+			}
+		} else {
+			error("Unknown interval: " // interval);
+			return @;
+		}
+		
+		if (letterAndSymbol != @) {
+			append notes, letterAndSymbol[1] // letterAndSymbol[2];
+		} else {
+			error("Unknown progression: " // concat(", ", notes) // ", " // notes[notes#] // " + " // interval);
+			return @;
+		}
+		
+	}
+	return notes;
+}
+
+naturalsRaisedByHalf is [
+	["B", flatSymbol],	## A -> A# = Bb
+	["C", ""        ],	## B ->      C
+	["D", flatSymbol],	## C -> C# = Db
+	["E", flatSymbol],	## D -> D# = Eb
+	["F", ""        ],	## E ->      F
+	["G", flatSymbol],	## F -> F# = Gb
+	["A", flatSymbol] 	## G -> G# = Ab
+];
+
+naturalsRaisedByOne is [
+	["B", ""         ],	## A -> A# -> B
+	["C", sharpSymbol],	## B -> C  -> C#
+	["D", ""         ],	## C -> C# -> D
+	["E", ""         ],	## D -> D# -> E
+	["F", sharpSymbol],	## E -> F  -> F#
+	["G", ""         ],	## F -> F# -> G
+	["A", ""         ]	## G -> G# -> A
+];
+
+sharpsRaisedByHalf is [
+	["B", ""         ],	##      A# -> B
+	["C", sharpSymbol],	## B# = C  -> C#
+	["D", ""         ],	##      C# -> D
+	["E", ""         ],	##      D# -> E
+	["F", sharpSymbol],	## E# = F  -> F#
+	["G", ""         ],	##      F# -> G
+	["A", ""         ]	##      G# -> A
+];
+
+sharpsRaisedByOne is [
+	["B", sharpSymbol      ],	##      A# -> B  -> C = B#
+	["C", doubleSharpSymbol],	## B# = C  -> C# -> D = Cx
+	["D", sharpSymbol      ],	##      C# -> D  ->     D#
+	["E", sharpSymbol      ],	##      D# -> E  -> F = E#
+	["F", doubleSharpSymbol],	## E# = F  -> F# -> G = Fx
+	["G", sharpSymbol      ],	##      F# -> G  ->     G#
+	["A", sharpSymbol      ]	##      G# -> A  ->     A#
+];
+
+flatsRaisedByHalf is [
+	["B", doubleFlatSymbol],	## Ab = G# -> A = Bbb
+	["C", flatSymbol      ],	## Bb = A# -> B = Cb
+	["D", doubleFlatSymbol],	## Cb = B  -> C = Dbb
+	["E", doubleFlatSymbol],	## Db = C# -> D = Ebb
+	["F", flatSymbol      ],	## Eb = D# -> E = Fb
+	["G", doubleFlatSymbol],	## Fb = E  -> F = Gbb
+	["A", doubleFlatSymbol] 	## Gb = F# -> G = Abb
+];
+
+flatsRaisedByOne is [
+	["B", flatSymbol],	## Ab = G# -> A -> A# = Bb
+	["C", ""        ],	## Bb = A# -> B ->      C
+	["D", flatSymbol],	## Cb = B  -> C -> C# = Db
+	["E", flatSymbol],	## Db = C# -> D -> D# = Eb
+	["F", ""        ],	## Eb = D# -> E ->      F
+	["G", flatSymbol],	## Fb = E  -> F -> F# = Gb
+	["A", flatSymbol] 	## Gb = F# -> G -> G# = Ab
+];
+
+doubleSharpsRaisedByHalf is [
+	["B", sharpSymbol      ],	## Ax = B  -> C = B#
+	["C", doubleSharpSymbol],	## Bx = C# -> D = Cx
+	["D", sharpSymbol      ],	## Cx = D  ->     D#
+	["E", sharpSymbol      ],	## Dx = E  -> F = E#
+	["F", doubleSharpSymbol],	## Ex = F# -> G = Fx
+	["G", sharpSymbol      ],	## Fx = G  ->     G# 
+	["A", sharpSymbol      ] 	## Gx = A  ->     A#
+];
+
+##N.B. Raising a B double sharp or an E double sharp by a whole tone causes a
+##letter to be skipped.  Consequently, if the scale is heptatonic (7 notes long)
+##then another letter will be used twice, thus preventing formation of a valid
+##key signature.
+##
+##The alternative option would be to use triple sharps in the table below.
+##Triple sharps are too rare for the model to consider.  Also, I haven't found
+##any examples of them being used in a key signature, only as accidentals.
+
+doubleSharpsRaisedByOne is [
+	["B", doubleSharpSymbol],	## Ax = B  -> C  -> C# = Bx
+	["D", sharpSymbol      ],	## Bx = C# -> D  ->      D# (= C#x)
+	["D", doubleSharpSymbol],	## Cx = D  -> D# -> E  = Dx
+	["E", doubleSharpSymbol],	## Dx = E  -> F  -> F# = Ex
+	["G", sharpSymbol      ],	## Ex = F# -> G  ->      G# (= F#x)
+	["G", doubleSharpSymbol],	## Fx = G  -> G# -> A  = Gx
+	["A", doubleSharpSymbol] 	## Gx = A  -> A# -> B  = Ax
+];
+
+##Triple flats are too rare for the model to consider fully.  Also, I haven't
+##found any examples of them being used in a key signature, only as
+##accidentals.  Triple flats can be raised by the raiseAndFlatten function but
+##aren't supported by the rest of the model.
+
+doubleFlatsRaisedByHalf is [
+	["B", tripleFlatSymbol],    ## Abb = G  -> G# = Ab = Bbbb
+	["C", doubleFlatSymbol],	## Bbb = A  -> A# = Bb = Cbb
+	["D", tripleFlatSymbol],    ## Cbb = A# -> B  = Cb = Dbbb
+	["E", tripleFlatSymbol],    ## Dbb = C  -> C# = Db = Ebbb
+	["F", doubleFlatSymbol],	## Ebb = D  -> D# = Eb = Fbb
+	["G", tripleFlatSymbol],    ## Fbb = D# -> E  = Fb = Gbbb
+	["A", tripleFlatSymbol]     ## Gbb = F  -> F# = Gb = Abbb
+];
+
+doubleFlatsRaisedByOne is [
+	["B", doubleFlatSymbol],	## Abb = G  -> G# -> A = Bbb
+	["C", flatSymbol      ],	## Bbb = A  -> A# -> B = Cb
+	["D", doubleFlatSymbol],	## Cbb = A# -> B  -> C = Dbb
+	["E", doubleFlatSymbol],	## Dbb = C  -> C# -> D = Ebb
+	["F", flatSymbol      ],	## Ebb = D  -> D# -> E = Fb
+	["G", doubleFlatSymbol],	## Fbb = D# -> E  -> F = Gbb
+	["A", doubleFlatSymbol] 	## Gbb = F  -> F# -> G = Abb
+];
+
+##Quadruple flats?  Seriously, let's not go there.
+tripleFlatsRaisedByHalf is [
+	@,                      	## FAIL
+	["C", tripleFlatSymbol],	## Bbbb = G# -> A = Cbbb
+	@,                      	## FAIL
+	@,                      	## FAIL
+	["F", tripleFlatSymbol],	## Ebbb = C# -> D = Fbbb
+	@,                      	## FAIL
+	@                       	## FAIL
+];
+
+tripleFlatsRaisedByOne is [
+	["B", tripleFlatSymbol],	## Abbb = F# -> G -> G# = Bbbb
+	["C", doubleFlatSymbol],	## Bbbb = G# -> A -> A# = Cbb
+	["D", tripleFlatSymbol],	## Cbbb = A -> A# -> B = Dbbb
+	["E", tripleFlatSymbol],	## Dbbb -> -> Ebbb
+	["F", doubleFlatSymbol],	## Ebbb = C# -> D -> D# = Fbb
+	["G", tripleFlatSymbol],	## Fbbb -> -> Gbbb
+	["A", tripleFlatSymbol] 	## Gbbb -> -> Abbb
+];
+
+func raiseAndFlatten {
+	para scale, modifications;
+	auto i, result, note, semitones;
+	
+	result = [];
+	for (i = 0; i < modifications#; i++) {
+		note = scale[(i % scale#) + 1];
+		if (modifications[i + 1] == 0) {
+			append result, note;
+		} else {
+			semitones = semitoneAdjustment(substr(note, 2, note#)) + modifications[i + 1];
+			if (semitones == 0) {
+				append result, note[1];
+			} else {
+				append result, note[1] // semitoneAdjustmentToSymbol(semitones);
+			}
+		}
+	}
+	
+	for (i = modifications# + 1; i <= scale#; i++) {
+		append result, scale[i];
+	}
+	return result;
+}
+
+func symbolToIdentifier {
+	para symbol;
+	if (symbol == "") {
+		return "";
+	} if (symbol == sharpSymbol) {
+		return "Sharp";
+	} else if (symbol == flatSymbol) {
+		return "Flat";
+	} else {
+		error("Unknown symbol: " // symbol);
+		return @;
+	}
+}
+
+proc defineScales {
+	para scaleName, tonics, intervalPattern, modifications;
+	auto i, letter, symbol, identifier, definition;
+	for (i = 1; i <= tonics#; i++) {
+		letter = tonics[i][1];
+		symbol = substr(tonics[i], 2, tonics[i]#);
+		identifier = lowercase(letter) // symbolToIdentifier(symbol) // scaleName;
+
+		if (modifications# == 0) {
+			definition = identifier // " is ascendingScale(" // 
+				edenCode(tonics[i]) // ", " // edenCode(intervalPattern) // ");";
+		} else {
+			definition = identifier // " is raiseAndFlatten(ascendingScale(" // 
+				edenCode(tonics[i]) // ", " // edenCode(intervalPattern) // "), " // edenCode(modifications) // ");";
+		}
+		createDefinition("defineScales()", definition);
+	}
+}
+
+majorIntervalPattern =        "T-T-S-T-T-T";
+naturalMinorIntervalPattern = "T-S-T-T-S-T";
+
+allNoteNames is [
+	"A", "B", "C", "D", "E", "F", "G",
+	"A" // sharpSymbol, "C" // sharpSymbol, "D" // sharpSymbol, "F" // sharpSymbol, "G" // sharpSymbol,
+	"B" // flatSymbol,  "D" // flatSymbol,  "E" // flatSymbol,  "G" // flatSymbol,  "A" // flatSymbol
+];
+
+majorScaleTonics is [
+	"C", "G", "D", "A", "E", "B", "F" // sharpSymbol, "C" // sharpSymbol,
+	"F", "B" // flatSymbol, "E" // flatSymbol, "A" // flatSymbol, "D" // flatSymbol, "G" // flatSymbol, "C" // flatSymbol];
+
+minorScaleTonics is [
+	"A", "E", "B", "F" // sharpSymbol, "C" // sharpSymbol, "G" // sharpSymbol, "D" // sharpSymbol, "A" // sharpSymbol,
+	"D", "G", "C", "F", "B" // flatSymbol, "E" // flatSymbol, "A" // flatSymbol];
+
+defineScales("MajorScale", majorScaleTonics, majorIntervalPattern, []);
+defineScales("NaturalMinorScale", minorScaleTonics, naturalMinorIntervalPattern, []);
+defineScales("HarmonicMinorScale", minorScaleTonics, naturalMinorIntervalPattern, [0, 0, 0, 0, 0, 0, 1]);
+defineScales("MelodicMinorScale", minorScaleTonics, naturalMinorIntervalPattern, [0, 0, 0, 0, 0, 1, 1]);
+
+func makeKeySignature {
+	para scale;
+	auto i, result;
+	result = [];
+	for (i = 1; i <= scale#; i++) {
+		if (scale[i]# > 1) {
+			append result, scale[i];
+		}
+	}
+	return result;
+}
+
+func placeScaleInOctave {
+	para scale, octave;
+	auto stepsFromC, currentOctave, numAscending, isAscending, i, result;
+	if (scale# == 0) {
+		return [];
+	}
+
+	##Figure out if the scale is ascending or descending.
+	stepsFromC = [];
+	for (i = 1; i <= scale#; i++) {
+		append stepsFromC, diatonicStepsFromC(scale[i][1]);
+	}	
+	numAscending = 0;
+	isAscending = false;
+	for (i = 1; i <= scale# - 1; i++) {
+		if (stepsFromC[i + 1] - stepsFromC[i] >= 0) {
+			numAscending++;
+			if (numAscending >= (scale# - 1) / 2) {
+				isAscending = true;
+				break;
+			}
+		}
+	}
+	
+	result = [scale[1] // str(octave)];
+	currentOctave = octave;
+	for (i = 2; i <= scale#; i++) {
+		if (isAscending && stepsFromC[i] < stepsFromC[i - 1]) {
+			currentOctave++;
+		} else if (!isAscending && stepsFromC[i] > stepsFromC[i - 1]) {
+			currentOctave--;
+		}
+		append result, scale[i] // str(currentOctave);
+		prevStepsFromC = stepsFromC;
+	}
+	return result;
+}
+
+func isScaleAscending {
+	para scale;
+	auto stepsFromC, i, numAscending, numDescending;
+	##Figure out if the scale is ascending or descending.
+	stepsFromC = [];
+	for (i = 1; i <= scale#; i++) {
+		append stepsFromC, diatonicStepsFromC(scale[i][1]);
+	}	
+	numAscending = 0;
+	numDescending = 0;
+	for (i = 1; i <= scale# - 1; i++) {
+		if (stepsFromC[i + 1] - stepsFromC[i] >= 0) {
+			numAscending++;
+			if (numAscending >= (scale# - 1) / 2) {
+				return true;
+			}
+		} else {
+			numDescending++;
+			if (numDescending >= (scale# - 1) / 2) {
+				return false;
+			}
+		}
+	}
+	return false;
+}
+
+
+hideView("Dynamically_Created_Definitions");
+##=============================================================================
+##These functions could potentially go in library.js-e.  However it would be
+##better to develop alternative solutions to represent structured data
+##(e.g. using the dot notation) rather than using terse nested list
+##representations.  Therefore these functions aren't in library.js-e because I
+##don't want to encourage such bad practice.
+
+func firstElementComparison {
+	para a, b;
+	if (a[1] > b) {
+		return 1;
+	} else if (a[1] < b) {
+		return -1;
+	} else {
+		return 0;
+	}
+}

@@ -16,7 +16,8 @@ FillPattern = function (url) {
 	this.image.onload = function(){
 		me.loaded = true;
 		for (var canvas in me.canvasesToRepaint) {
-			eden.execute("_update_" + canvas + "();");
+			var pictureObs = root.lookup(canvas);
+			pictureObs.jsObservers.refreshView(pictureObs, pictureObs.value());
 		}
 	}
 	this.image.src = url;

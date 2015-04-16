@@ -1,0 +1,447 @@
+## This is a JS-EDEN script automatically generated using the environment's script generator feature.
+
+## JS-EDEN is an open source empirical modelling environment based on research, principles and work
+## conducted at University of Warwick.
+## Web site: https://github.com/EMGroup/js-eden
+
+## Firstly, turn off automatic calculation until the construal is fully loaded.
+autocalc = 0;
+
+## Include Files:
+
+## Observable Assignments:
+_menubar_status = "JS-Eden done loading";
+randomSeed = @;
+pileSizeOne = 5;
+pileSizeTwo = 4;
+pileSizeThree = 7;
+activePile = 0;
+numberOfTurns = 0;
+firstPlayer = "PLAYER 1";
+secondPlayer = "PLAYER 2";
+prePad = "000";
+preLength = 3;
+sPrefix = "000";
+prefixLength = 3;
+indexCount = 0;
+binaryNimSumString = "110";
+c1 = 1;
+c2 = 1;
+c3 = 1;
+magnitudeIndex = 0;
+magnitudeValue = 8;
+test = "";
+bChar = "1";
+winnerLabelTxt = "";
+binarySumHistoryLabelTxt = "";
+pileButtonOne_clicked = false;
+pileButtonTwo_clicked = false;
+pileButtonThree_clicked = false;
+endTurnButton_clicked = false;
+history = "";
+resetButton_clicked = false;
+buttonPrev_clicked = false;
+buttonNext_clicked = false;
+maxSizeForPile = 7;
+s1 = "111";
+scaleWidth = 30;
+imagelocation = "http://www.dcs.warwick.ac.uk/~jonny/ukcurrency/";
+ix1One = 1;
+ix2One = 1;
+ix3One = 1;
+ix4One = 1;
+ix5One = 1;
+ix6One = 1;
+ix7One = 1;
+ix1Two = 1;
+ix2Two = 1;
+ix3Two = 1;
+ix4Two = 1;
+ix5Two = 1;
+ix6Two = 1;
+ix7Two = 1;
+offsetTwo = 5;
+ix1Three = 1;
+ix2Three = 1;
+ix3Three = 1;
+ix4Three = 1;
+ix5Three = 1;
+ix6Three = 1;
+ix7Three = 1;
+offsetThree = 10;
+ix1 = 1;
+ix2 = 1;
+ix3 = 1;
+ix4 = 1;
+ix5 = 1;
+ix6 = 1;
+ix7 = 1;
+hiddenCol = "red";
+coin1Twopic_click = false;
+coin2Twopic_click = false;
+coin3Twopic_click = false;
+coin4Twopic_click = false;
+coin5Twopic_click = false;
+coin6Twopic_click = false;
+coin1Threepic_click = false;
+coin2Threepic_click = false;
+coin3Threepic_click = false;
+coin4Threepic_click = false;
+coin5Threepic_click = false;
+coin6Threepic_click = false;
+coin1Onepic_click = false;
+coin2Onepic_click = false;
+coin3Onepic_click = false;
+coin4Onepic_click = false;
+coin5Onepic_click = false;
+coin6Onepic_click = false;
+
+## Observable Definitions:
+pile1able is (pileSizeOne>0) && ((activePile == 0) || (activePile == 1));
+pile2able is (pileSizeTwo>0) && ((activePile == 0) || (activePile == 2));
+pile3able is (pileSizeThree>0) && ((activePile == 0) || (activePile == 3));
+pileSizeMax is max(pileSizeOne, pileSizeTwo, pileSizeThree);
+pileLabelOneTxt is str(pileSizeOne);
+pileLabelTwoTxt is str(pileSizeTwo);
+pileLabelThreeTxt is str(pileSizeThree);
+currentPlayer is establishPlayer(numberOfTurns, firstPlayer, secondPlayer);
+currentPlayerLabelTxt is currentPlayer;
+decimalSum is pileSizeOne + pileSizeTwo + pileSizeThree;
+nimSumLength is decimalToBinary(pileSizeMax)#;
+currentNimSum is nimSum(pileSizeOne, pileSizeTwo, pileSizeThree, nimSumLength);
+pileSizeBinaryStringOne is normalise(decimalToBinary(pileSizeOne), nimSumLength);
+pileSizeBinaryStringTwo is normalise(decimalToBinary(pileSizeTwo), nimSumLength);
+pileSizeBinaryStringThree is normalise(decimalToBinary(pileSizeThree), nimSumLength);
+currentNimSumBinaryString is normalise(decimalToBinary(currentNimSum), nimSumLength);
+currentBinarySumPileOneLabelTxt is pileSizeBinaryStringOne;
+currentBinarySumPileTwoLabelTxt is pileSizeBinaryStringTwo;
+currentBinarySumPileThreeLabelTxt is pileSizeBinaryStringThree;
+currentBinarySumLabelTxt is currentNimSumBinaryString;
+header is Text("NIM",7*scaleWidth,0.5*scaleWidth,scaleWidth,"black");
+pileLabelOne is Text("Pile 1 size: " // pileLabelOneTxt,scaleWidth,10*scaleWidth,scaleWidth/2,hiddenCol);
+pileLabelTwo is Text("Pile 2 size: " // pileLabelTwoTxt,6*scaleWidth,10*scaleWidth,scaleWidth/2,hiddenCol);
+pileLabelThree is Text("Pile 3 size: " // pileLabelThreeTxt,11*scaleWidth,10*scaleWidth,scaleWidth/2,hiddenCol);
+pileButtonOne is Button("pileButtonOne","Take from pile 1",scaleWidth,5.5*scaleWidth,pile1able);
+pileButtonTwo is Button("pileButtonTwo","Take from pile 2",(offsetTwo + 1)*scaleWidth,5.5*scaleWidth,pile2able);
+pileButtonThree is Button("pileButtonThree","Take from pile 3",(offsetThree + 1)*scaleWidth,5.5*scaleWidth,pile3able);
+currentPlayerHeader is Text("It is the turn of:",scaleWidth,6.5*scaleWidth,scaleWidth/2, "blue");
+currentPlayerLabel is Text(currentPlayerLabelTxt,6.5*scaleWidth,6.5*scaleWidth,scaleWidth/2,"black");
+endTurnButton is Button("endTurnButton","End Turn",12*scaleWidth,6.5*scaleWidth,1);
+winnerHeader is Text("The NIM winner is:",scaleWidth,8*scaleWidth,scaleWidth/2,"blue");
+winnerLabel is Text(winnerLabelTxt,6.5*scaleWidth,8*scaleWidth,scaleWidth/2,"black");
+resetButton is Button("resetButton","Start New Game",11*scaleWidth,8*scaleWidth,1);
+currentBinarySumPileOneHeader is Text("In binary: " // currentBinarySumPileOneLabelTxt,scaleWidth,11*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumPileTwoHeader is Text("In binary:" // currentBinarySumPileTwoLabelTxt,6*scaleWidth,11*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumPileThreeHeader is Text("In binary:" // currentBinarySumPileThreeLabelTxt,11*scaleWidth,11*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumPileOneLabel is Text(currentBinarySumPileOneLabelTxt,7*scaleWidth,12.5*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumPileTwoLabel is Text(currentBinarySumPileTwoLabelTxt,7*scaleWidth,13.5*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumPileThreeLabel is Text(currentBinarySumPileThreeLabelTxt,7*scaleWidth,14.5*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumHeader is Text("NimSum in binary:",scaleWidth,13.5*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumLabel is Text(currentBinarySumLabelTxt,7*scaleWidth,16.5*scaleWidth,scaleWidth/2,hiddenCol);
+binarySumHistoryHeader is Text("Binary Sum History:",30,450,"blue");
+binarySumHistoryLabel is Text(binarySumHistoryLabelTxt,190,450,"black");
+coin1Onepic is HTMLImage("coin1Onepic",loc1One.x,loc1One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix1One));
+coin2Onepic is HTMLImage("coin2Onepic",loc2One.x,loc2One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix2One));
+coin3Onepic is HTMLImage("coin3Onepic",loc3One.x,loc3One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix3One));
+coin4Onepic is HTMLImage("coin4Onepic",loc4One.x,loc4One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix4One));
+coin5Onepic is HTMLImage("coin5Onepic",loc5One.x,loc5One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix5One));
+coin6Onepic is HTMLImage("coin6Onepic",loc6One.x,loc6One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix6One));
+coin7Onepic is HTMLImage("coin6Onepic",loc7One.x,loc7One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix7One));
+loc1One is {2*scaleWidth,3*scaleWidth};
+loc2One is {3*scaleWidth,4*scaleWidth};
+loc3One is {scaleWidth,2*scaleWidth};
+loc4One is {scaleWidth,4*scaleWidth};
+loc5One is {3*scaleWidth,2*scaleWidth};
+loc6One is {scaleWidth,3*scaleWidth};
+loc7One is {3*scaleWidth,3*scaleWidth};
+loc1Two is {(offsetTwo + 2)*scaleWidth,3*scaleWidth};
+coin1Twopic is HTMLImage("coin1Twopic",loc1Two.x,loc1Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix1Two));
+loc2Two is {(offsetTwo + 3)*scaleWidth,4*scaleWidth};
+coin2Twopic is HTMLImage("coin2Twopic",loc2Two.x,loc2Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix2Two));
+loc3Two is {(offsetTwo + 1)*scaleWidth,2*scaleWidth};
+coin3Twopic is HTMLImage("coin3Twopic",loc3Two.x,loc3Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix3Two));
+loc4Two is {(offsetTwo + 1)*scaleWidth,4*scaleWidth};
+coin4Twopic is HTMLImage("coin4Twopic",loc4Two.x,loc4Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix4Two));
+loc5Two is {(offsetTwo + 3)*scaleWidth,2*scaleWidth};
+coin5Twopic is HTMLImage("coin5Twopic",loc5Two.x,loc5Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix5Two));
+loc6Two is {(offsetTwo + 1)*scaleWidth,3*scaleWidth};
+coin6Twopic is HTMLImage("coin6Twopic",loc6Two.x,loc6Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix6Two));
+loc7Two is {(offsetTwo + 3)*scaleWidth,3*scaleWidth};
+coin7Twopic is HTMLImage("coin6Twopic",loc7Two.x,loc7Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix7Two));
+loc1Three is {(offsetThree + 2)*scaleWidth,3*scaleWidth};
+coin1Threepic is HTMLImage("coin1Threepic",loc1Three.x,loc1Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix1Three));
+loc2Three is {(offsetThree + 3)*scaleWidth,4*scaleWidth};
+coin2Threepic is HTMLImage("coin2Threepic",loc2Three.x,loc2Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix2Three));
+loc3Three is {(offsetThree + 1)*scaleWidth,2*scaleWidth};
+coin3Threepic is HTMLImage("coin3Threepic",loc3Three.x,loc3Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix3Three));
+loc4Three is {(offsetThree + 1)*scaleWidth,4*scaleWidth};
+coin4Threepic is HTMLImage("coin4Threepic",loc4Three.x,loc4Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix4Three));
+loc5Three is {(offsetThree + 3)*scaleWidth,2*scaleWidth};
+coin5Threepic is HTMLImage("coin5Threepic",loc5Three.x,loc5Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix5Three));
+loc6Three is {(offsetThree + 1)*scaleWidth,3*scaleWidth};
+coin6Threepic is HTMLImage("coin6Threepic",loc6Three.x,loc6Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix6Three));
+loc7Three is {(offsetThree + 3)*scaleWidth,3*scaleWidth};
+coin7Threepic is HTMLImage("coin6Threepic",loc7Three.x,loc7Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix7Three));
+coinsPileOneDisplay is prefixlsn([coin1Onepic, coin2Onepic, coin3Onepic, coin4Onepic, coin5Onepic, coin6Onepic, coin7Onepic], pileSizeOne);
+coinsPileTwoDisplay is prefixlsn([coin1Twopic, coin2Twopic, coin3Twopic, coin4Twopic, coin5Twopic, coin6Twopic, coin7Twopic], pileSizeTwo);
+coinsPileThreeDisplay is prefixlsn([coin1Threepic, coin2Threepic, coin3Threepic, coin4Threepic, coin5Threepic, coin6Threepic, coin7Threepic], pileSizeThree);
+currentBinarySumSymbol is Text(sumStr,7*scaleWidth,15.5*scaleWidth,scaleWidth/2,hiddenCol);
+binarySumHistory is Text("Binary Sum History: "  // binarySumHistoryLabelTxt,scaleWidth,18*scaleWidth,scaleWidth/2,hiddenCol);
+sumStr is (currentBinarySumPileOneLabelTxt#==3) ? "===" : ((currentBinarySumPileOneLabelTxt#==2) ? "==" : "=");
+
+## Action Definitions:
+proc takePile1 : pileButtonOne_clicked {
+	if (pileButtonOne_clicked){
+		if (pileSizeOne>0) {
+			if (activePile == 0) {
+				activePile=1;
+				pileSizeOne--;
+			}
+			else
+			if (activePile == 1) {
+				pileSizeOne--;
+			}
+		}
+	}
+}
+
+proc takePile2 : pileButtonTwo_clicked {
+	if (pileButtonTwo_clicked){
+		if (pileSizeTwo>0) {
+			if (activePile == 0) {
+				activePile=2;
+				pileSizeTwo--;
+			} 
+			else
+			if (activePile == 2) {
+				pileSizeTwo--;
+			}
+		}
+	}
+}
+
+proc takePile3 : pileButtonThree_clicked{
+	if (pileButtonThree_clicked){
+		if (pileSizeThree>0) {
+			if (activePile == 0) {
+				activePile=3;
+				pileSizeThree--;
+			}
+			else
+			if (activePile == 3) {
+				pileSizeThree--;
+			}
+		}
+	}
+}
+
+proc declareWinner : decimalSum {
+	if (decimalSum == 0) {
+		winnerLabelTxt = str(currentPlayer);
+	}
+}
+
+proc endTurn : endTurnButton_clicked {
+	if (endTurnButton_clicked) {
+	
+		if (activePile != 0) {
+			activePile = 0;
+			numberOfTurns++;
+			history = binarySumHistoryLabelTxt;
+	
+			if (history == "") {
+				binarySumHistoryLabelTxt = str(currentNimSum);
+			}
+			else {
+				binarySumHistoryLabelTxt = history // "," // str(currentNimSum);
+			}
+		}
+	}
+}
+
+proc resetGame : resetButton_clicked {
+	if (resetButton_clicked) {
+		pileSizeOne = randomInteger(1,7);
+		pileSizeTwo = randomInteger(1,7);
+		pileSizeThree = randomInteger(1,7);
+		numberOfTurns = 0;
+		activePile = 0;
+		binarySumHistoryLabelTxt = "";
+		winnerLabelTxt = "TBA";
+	}
+}
+
+## Function Definitions:
+func sublist{
+   ${{
+   var src = arguments[0];
+   var firstix = arguments[1];
+   var lastix = arguments[2];
+   return src.slice(firstix-1, lastix);
+   }}$;
+}
+
+func max{
+   ${{
+   var n1 = arguments[0];
+   var n2 = arguments[1];
+   var n3 = arguments[2];
+   return Math.max(n1,n2,n3);
+   }}$;
+}
+
+func substr {
+   ${{
+   var src = arguments[0];
+   var firstix = arguments[1];
+   var lastix = arguments[2];
+   return src.substr(firstix-1, lastix-firstix+1);
+   }}$;
+}
+
+func establishPlayer {
+	para turns, p1, p2;
+	auto player;
+	
+	if (turns%2 == 1) {
+		player = p2;
+		return player;
+	}
+	else {
+		player = p1;
+		return player;
+	}
+}
+
+func decimalToBinary {
+	para decimal, pad;
+	auto st;
+		
+	st = "";
+    if (decimal==0)
+	st= strcat("0",st);
+	 while (decimal > 0)
+	  {
+		if((decimal % 2) > 0) {
+			st = strcat("1", st); 
+		}
+		else {
+			st = strcat("0", st);
+		}
+	decimal = int(decimal / 2);
+	};
+	
+	return st;
+}
+
+func nimSum {
+	para pileOne, pileTwo, pileThree, nLen;
+	auto nimSumValue, s1, s2, s3;
+	sPrefix = "";
+	prefixLength = 0;
+    
+	for(prefixLength=0;prefixLength<nLen;prefixLength++)
+	{
+	   sPrefix = strcat(sPrefix, "0");
+	
+	}
+		
+	s1 = strcat(sPrefix, decimalToBinary(pileOne));
+	s2 = strcat(sPrefix, decimalToBinary(pileTwo));
+	s3 = strcat(sPrefix, decimalToBinary(pileThree));
+	s1 = substr(s1, s1# - nLen + 1, s1#);
+	s2 = substr(s2, s2# - nLen + 1, s2#);
+	s3 = substr(s3, s3# - nLen + 1, s3#);
+	indexCount = s1#;
+	binaryNimSumString = "";
+	
+	while (indexCount>0) {
+		c1 = int(str(s1[indexCount]));
+		c2 = int(str(s2[indexCount]));
+		c3 = int(str(s3[indexCount]));
+		if (((c1+c2+c3) % 2) == 0) {
+			binaryNimSumString = strcat("0", binaryNimSumString);
+		}
+		else {
+			binaryNimSumString = strcat("1", binaryNimSumString);
+		}
+		
+		indexCount--;
+	}
+	magnitudeIndex = binaryNimSumString#;
+	magnitudeValue = 1;
+	nimSumValue = 0;
+	test = "";
+	
+	while (magnitudeIndex > 0) {
+		bChar = binaryNimSumString[magnitudeIndex];
+		
+		if(bChar == '1') {
+			nimSumValue = nimSumValue + magnitudeValue;
+		}
+		magnitudeValue = magnitudeValue * 2;
+		magnitudeIndex--;
+	}
+	return nimSumValue;
+}
+
+func normalise {
+	para binaryString, precision;
+	auto paddedbinaryString;
+	
+	prePad = "";
+	preLength = 0;
+	for(preLength=0;preLength<precision;preLength++)
+	{
+	    prePad = strcat(prePad, "0");
+	
+	}
+	
+	s1 = strcat(prePad, binaryString);
+	s1 = substr(s1, s1# - precision + 1, s1#);
+	return s1;
+}
+
+func strcat{
+  ${{
+		var s1 = arguments[0];
+		var s2 = arguments[1];
+		return s1+s2;
+   }}$;
+}
+
+func rnd{
+   ${{
+   var num =arguments[0];
+   return Math.round(Math.random()*num);
+   
+   }}$;
+}
+
+func coindisplay {
+	para ix;
+	if (ix==1) return "1p.gif";
+	if (ix==2) return "2p.gif";
+	if (ix==3) return "5p.gif";
+	if (ix==4) return "10p.gif";
+	if (ix==5) return "20p.jpg";
+	if (ix==6) return "50p.jpg";
+	if (ix==7) return "pound.gif";
+	if (ix==8) return "2pounds.gif";
+}
+
+func prefixlsn {
+	para ls, n;
+	auto result, i;
+	result = [];
+	for (i=1;i<=n;i++) result = result // ls[i];
+	return result;
+}
+
+## Picture Definition:
+picture is [header,pileLabelOne,pileLabelTwo,pileLabelThree,pileButtonOne,pileButtonTwo,pileButtonThree,currentPlayerHeader,currentPlayerLabel,endTurnButton,winnerHeader,winnerLabel,resetButton,currentBinarySumPileOneHeader,currentBinarySumPileTwoHeader,currentBinarySumPileThreeHeader,currentBinarySumPileOneLabel,currentBinarySumPileTwoLabel,currentBinarySumPileThreeLabel,currentBinarySumLabel,currentBinarySumHeader,currentBinarySumSymbol,binarySumHistory] // coinsPileOneDisplay // coinsPileTwoDisplay // coinsPileThreeDisplay;
+
+## Turn on automatic calculation and execute any triggered actions pending.
+autocalc = 1;
+
+## End of automatically generated script.

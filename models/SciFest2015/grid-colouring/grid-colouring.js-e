@@ -1,0 +1,438 @@
+##Originally known as hexagons2.
+
+## to protect against loss of information whilst constructing patterns
+
+${{
+  
+var workIsDone = false;
+window.onbeforeunload = confirmBrowseAway;
+
+function confirmBrowseAway()
+{
+  if (!workIsDone) {
+    return "Reloading this page will discard the current script.";
+  }
+};
+  
+}}$;
+
+## This is a JS-EDEN script automatically generated using the environment's script generator feature.
+
+## JS-EDEN is an open source empirical modelling environment based on research, principles and work
+## conducted at University of Warwick.
+## Web site: https://github.com/EMGroup/js-eden
+
+## Firstly, turn off automatic calculation until the construal is fully loaded.
+autocalc = 0;
+
+## Include Files:
+
+## Observable Assignments:
+_menubar_status = "Output: false";
+randomSeed = @;
+centre = {225, 420};
+radius = 25;
+hexcols = [["white", "white"], ["white", "white", "white", "white"], ["white", "white", "white"], ["white", "white", "white", "white"], ["white", "white"]];
+
+## Observable Definitions:
+point1 is {centre.x+2*radius, centre.y};
+point2 is {centre.x+radius, centre.y-sqrt(3)*radius};
+point5 is {centre.x-radius, centre.y+sqrt(3)*radius};
+point4 is {centre.x-2*radius, centre.y};
+point6 is {centre.x+radius, centre.y+sqrt(3)*radius};
+point3 is {centre.x-radius, centre.y-sqrt(3)*radius};
+hexagon is Polygon([pointA, pointB, pointC, pointD, pointE, pointF], "white", "black");
+sideS is Line(pointE, pointF, "red");
+sideSE is Line(pointF, pointA, "red");
+sideEN is Line(pointA, pointB, "red");
+sideN is Line(pointB, pointC,"red");
+sideNW is Line(pointC, pointD, "red");
+sideWS is Line(pointD, pointE, "red");
+centre00 is centre;
+point00A is {centre00.x+2*radius, centre00.y};
+point00B is {centre00.x+radius, centre00.y-sqrt(3)*radius};
+point00C is {centre00.x-radius, centre00.y-sqrt(3)*radius};
+point00D is {centre00.x-2*radius, centre00.y};
+point00E is {centre00.x-radius, centre00.y+sqrt(3)*radius};
+point00F is {centre00.x+radius, centre00.y+sqrt(3)*radius};
+pointE is {centre.x-radius, centre.y+sqrt(3)*radius};
+pointF is {centre.x+radius, centre.y+sqrt(3)*radius};
+side00S is Line(pointE, pointF, "red");
+pointA is {centre.x+2*radius, centre.y};
+side00SE is Line(pointF, pointA, "red");
+pointB is {centre.x+radius, centre.y-sqrt(3)*radius};
+side00EN is Line(pointA, pointB, "red");
+pointC is {centre.x-radius, centre.y-sqrt(3)*radius};
+side00N is Line(pointB, pointC,"red");
+pointD is {centre.x-2*radius, centre.y};
+side00NW is Line(pointC, pointD, "red");
+side00WS is Line(pointD, pointE, "red");
+hexagon00 is Polygon([point00A, point00B, point00C, point00D, point00E, point00F], val00, "black");
+centre10 is {centre.x+Xx, centre.y+Xy};
+point10A is {centre10.x+2*radius, centre10.y};
+point10B is {centre10.x+radius, centre10.y-sqrt(3)*radius};
+point10C is {centre10.x-radius, centre10.y-sqrt(3)*radius};
+point10D is {centre10.x-2*radius, centre10.y};
+point10E is {centre10.x-radius, centre10.y+sqrt(3)*radius};
+point10F is {centre10.x+radius, centre10.y+sqrt(3)*radius};
+side10S is Line(pointE, pointF, "red");
+side10SE is Line(pointF, pointA, "red");
+side10EN is Line(pointA, pointB, "red");
+side10N is Line(pointB, pointC,"red");
+side10NW is Line(pointC, pointD, "red");
+side10WS is Line(pointD, pointE, "red");
+Xx is 3*radius;
+Xy is -sqrt(3)*radius;
+Yx is -3*radius;
+Yy is -sqrt(3)*radius;
+hexagon10 is Polygon([point10A, point10B, point10C, point10D, point10E, point10F], val10, "black");
+centreRC is {centre.x+R*3*radius, centre.y+C*radius};
+centre01 is {centre.x+Yx, centre.y+Yy};
+point01A is {centre01.x+2*radius, centre01.y};
+point01B is {centre01.x+radius, centre01.y-sqrt(3)*radius};
+point01C is {centre01.x-radius, centre01.y-sqrt(3)*radius};
+point01D is {centre01.x-2*radius, centre01.y};
+point01E is {centre01.x-radius, centre01.y+sqrt(3)*radius};
+point01F is {centre01.x+radius, centre01.y+sqrt(3)*radius};
+side01S is Line(pointE, pointF, "red");
+side01SE is Line(pointF, pointA, "red");
+side01EN is Line(pointA, pointB, "red");
+side01N is Line(pointB, pointC,"red");
+side01NW is Line(pointC, pointD, "red");
+side01WS is Line(pointD, pointE, "red");
+hexagon01 is Polygon([point01A, point01B, point01C, point01D, point01E, point01F], val01, "black");
+centre11 is {centre.x+Xx+Yx, centre.y+Xy+Yy};
+point11A is {centre11.x+2*radius, centre11.y};
+point11B is {centre11.x+radius, centre11.y-sqrt(3)*radius};
+point11C is {centre11.x-radius, centre11.y-sqrt(3)*radius};
+point11D is {centre11.x-2*radius, centre11.y};
+point11E is {centre11.x-radius, centre11.y+sqrt(3)*radius};
+point11F is {centre11.x+radius, centre11.y+sqrt(3)*radius};
+side11S is Line(pointE, pointF, "red");
+side11SE is Line(pointF, pointA, "red");
+side11EN is Line(pointA, pointB, "red");
+side11N is Line(pointB, pointC,"red");
+side11NW is Line(pointC, pointD, "red");
+side11WS is Line(pointD, pointE, "red");
+hexagon11 is Polygon([point11A, point11B, point11C, point11D, point11E, point11F], val11, "black");
+centre12 is {centre.x+Xx+2*Yx, centre.y+Xy+2*Yy};
+point12A is {centre12.x+2*radius, centre12.y};
+point12B is {centre12.x+radius, centre12.y-sqrt(3)*radius};
+point12C is {centre12.x-radius, centre12.y-sqrt(3)*radius};
+point12D is {centre12.x-2*radius, centre12.y};
+point12E is {centre12.x-radius, centre12.y+sqrt(3)*radius};
+point12F is {centre12.x+radius, centre12.y+sqrt(3)*radius};
+side12S is Line(pointE, pointF, "red");
+side12SE is Line(pointF, pointA, "red");
+side12EN is Line(pointA, pointB, "red");
+side12N is Line(pointB, pointC,"red");
+side12NW is Line(pointC, pointD, "red");
+side12WS is Line(pointD, pointE, "red");
+hexagon12 is Polygon([point12A, point12B, point12C, point12D, point12E, point12F], val12, "black");
+centre21 is {centre.x+2*Xx+Yx, centre.y+2*Xy+Yy};
+point21A is {centre21.x+2*radius, centre21.y};
+point21B is {centre21.x+radius, centre21.y-sqrt(3)*radius};
+point21C is {centre21.x-radius, centre21.y-sqrt(3)*radius};
+point21D is {centre21.x-2*radius, centre21.y};
+point21E is {centre21.x-radius, centre21.y+sqrt(3)*radius};
+point21F is {centre21.x+radius, centre21.y+sqrt(3)*radius};
+side21S is Line(pointE, pointF, "red");
+side21SE is Line(pointF, pointA, "red");
+side21EN is Line(pointA, pointB, "red");
+side21N is Line(pointB, pointC,"red");
+side21NW is Line(pointC, pointD, "red");
+side21WS is Line(pointD, pointE, "red");
+point22A is {centre22.x+2*radius, centre22.y};
+point22B is {centre22.x+radius, centre22.y-sqrt(3)*radius};
+point22C is {centre22.x-radius, centre22.y-sqrt(3)*radius};
+point22D is {centre22.x-2*radius, centre22.y};
+point22E is {centre22.x-radius, centre22.y+sqrt(3)*radius};
+point22F is {centre22.x+radius, centre22.y+sqrt(3)*radius};
+hexagon22 is Polygon([point22A, point22B, point22C, point22D, point22E, point22F], val22, "black");
+centre22 is {centre.x+2*Xx+2*Yx, centre.y+2*Xy+2*Yy};
+side22S is Line(pointE, pointF, "red");
+side22SE is Line(pointF, pointA, "red");
+side22EN is Line(pointA, pointB, "red");
+side22N is Line(pointB, pointC,"red");
+side22NW is Line(pointC, pointD, "red");
+side22WS is Line(pointD, pointE, "red");
+centre31 is {centre.x+3*Xx+Yx, centre.y+3*Xy+Yy};
+point31A is {centre31.x+2*radius, centre31.y};
+point31B is {centre31.x+radius, centre31.y-sqrt(3)*radius};
+point31C is {centre31.x-radius, centre31.y-sqrt(3)*radius};
+point31D is {centre31.x-2*radius, centre31.y};
+point31E is {centre31.x-radius, centre31.y+sqrt(3)*radius};
+point31F is {centre31.x+radius, centre31.y+sqrt(3)*radius};
+side31S is Line(pointE, pointF, "red");
+side31SE is Line(pointF, pointA, "red");
+side31EN is Line(pointA, pointB, "red");
+side31N is Line(pointB, pointC,"red");
+side31NW is Line(pointC, pointD, "red");
+side31WS is Line(pointD, pointE, "red");
+hexagon31 is Polygon([point31A, point31B, point31C, point31D, point31E, point31F], val31, "black");
+centre13 is {centre.x+Xx+3*Yx, centre.y+Xy+3*Yy};
+point13A is {centre13.x+2*radius, centre13.y};
+point13B is {centre13.x+radius, centre13.y-sqrt(3)*radius};
+point13C is {centre13.x-radius, centre13.y-sqrt(3)*radius};
+point13D is {centre13.x-2*radius, centre13.y};
+point13E is {centre13.x-radius, centre13.y+sqrt(3)*radius};
+point13F is {centre13.x+radius, centre13.y+sqrt(3)*radius};
+side13S is Line(pointE, pointF, "red");
+side13SE is Line(pointF, pointA, "red");
+side13EN is Line(pointA, pointB, "red");
+side13N is Line(pointB, pointC,"red");
+side13NW is Line(pointC, pointD, "red");
+side13WS is Line(pointD, pointE, "red");
+hexagon13 is Polygon([point13A, point13B, point13C, point13D, point13E, point13F], val13, "black");
+centre33 is {centre.x+3*Xx+3*Yx, centre.y+3*Xy+3*Yy};
+point33A is {centre33.x+2*radius, centre33.y};
+point33B is {centre33.x+radius, centre33.y-sqrt(3)*radius};
+point33C is {centre33.x-radius, centre33.y-sqrt(3)*radius};
+point33D is {centre33.x-2*radius, centre33.y};
+point33E is {centre33.x-radius, centre33.y+sqrt(3)*radius};
+point33F is {centre33.x+radius, centre33.y+sqrt(3)*radius};
+side33S is Line(pointE, pointF, "red");
+side33SE is Line(pointF, pointA, "red");
+side33EN is Line(pointA, pointB, "red");
+side33N is Line(pointB, pointC,"red");
+side33NW is Line(pointC, pointD, "red");
+side33WS is Line(pointD, pointE, "red");
+hexagon33 is Polygon([point33A, point33B, point33C, point33D, point33E, point33F], val33, "black");
+centre32 is {centre.x+3*Xx+2*Yx, centre.y+3*Xy+2*Yy};
+point32A is {centre32.x+2*radius, centre32.y};
+point32B is {centre32.x+radius, centre32.y-sqrt(3)*radius};
+point32C is {centre32.x-radius, centre32.y-sqrt(3)*radius};
+point32D is {centre32.x-2*radius, centre32.y};
+point32E is {centre32.x-radius, centre32.y+sqrt(3)*radius};
+point32F is {centre32.x+radius, centre32.y+sqrt(3)*radius};
+side32S is Line(pointE, pointF, "red");
+side32SE is Line(pointF, pointA, "red");
+side32EN is Line(pointA, pointB, "red");
+side32N is Line(pointB, pointC,"red");
+side32NW is Line(pointC, pointD, "red");
+side32WS is Line(pointD, pointE, "red");
+hexagon32 is Polygon([point32A, point32B, point32C, point32D, point32E, point32F], val32, "black");
+centre23 is {centre.x+2*Xx+3*Yx, centre.y+2*Xy+3*Yy};
+point23A is {centre23.x+2*radius, centre23.y};
+point23B is {centre23.x+radius, centre23.y-sqrt(3)*radius};
+point23C is {centre23.x-radius, centre23.y-sqrt(3)*radius};
+point23D is {centre23.x-2*radius, centre23.y};
+point23E is {centre23.x-radius, centre23.y+sqrt(3)*radius};
+point23F is {centre23.x+radius, centre23.y+sqrt(3)*radius};
+side23S is Line(pointE, pointF, "red");
+side23SE is Line(pointF, pointA, "red");
+side23EN is Line(pointA, pointB, "red");
+side23N is Line(pointB, pointC,"red");
+side23NW is Line(pointC, pointD, "red");
+side23WS is Line(pointD, pointE, "red");
+hexagon23 is Polygon([point23A, point23B, point23C, point23D, point23E, point23F], val23, "black");
+centre44 is {centre.x+4*Xx+4*Yx, centre.y+4*Xy+4*Yy};
+point44A is {centre44.x+2*radius, centre44.y};
+point44B is {centre44.x+radius, centre44.y-sqrt(3)*radius};
+point44C is {centre44.x-radius, centre44.y-sqrt(3)*radius};
+point44D is {centre44.x-2*radius, centre44.y};
+point44E is {centre44.x-radius, centre44.y+sqrt(3)*radius};
+point44F is {centre44.x+radius, centre44.y+sqrt(3)*radius};
+side44S is Line(pointE, pointF, "red");
+side44SE is Line(pointF, pointA, "red");
+side44EN is Line(pointA, pointB, "red");
+side44N is Line(pointB, pointC,"red");
+side44NW is Line(pointC, pointD, "red");
+side44WS is Line(pointD, pointE, "red");
+hexagon44 is Polygon([point44A, point44B, point44C, point44D, point44E, point44F], val44, "black");
+centre34 is {centre.x+3*Xx+4*Yx, centre.y+3*Xy+4*Yy};
+point34A is {centre34.x+2*radius, centre34.y};
+point34B is {centre34.x+radius, centre34.y-sqrt(3)*radius};
+point34C is {centre34.x-radius, centre34.y-sqrt(3)*radius};
+point34D is {centre34.x-2*radius, centre34.y};
+point34E is {centre34.x-radius, centre34.y+sqrt(3)*radius};
+point34F is {centre34.x+radius, centre34.y+sqrt(3)*radius};
+side34S is Line(pointE, pointF, "red");
+side34SE is Line(pointF, pointA, "red");
+side34EN is Line(pointA, pointB, "red");
+side34N is Line(pointB, pointC,"red");
+side34NW is Line(pointC, pointD, "red");
+side34WS is Line(pointD, pointE, "red");
+hexagon34 is Polygon([point34A, point34B, point34C, point34D, point34E, point34F], val34, "black");
+centre43 is {centre.x+4*Xx+3*Yx, centre.y+4*Xy+3*Yy};
+point43A is {centre43.x+2*radius, centre43.y};
+point43B is {centre43.x+radius, centre43.y-sqrt(3)*radius};
+point43C is {centre43.x-radius, centre43.y-sqrt(3)*radius};
+point43D is {centre43.x-2*radius, centre43.y};
+point43E is {centre43.x-radius, centre43.y+sqrt(3)*radius};
+point43F is {centre43.x+radius, centre43.y+sqrt(3)*radius};
+side43S is Line(pointE, pointF, "red");
+side43SE is Line(pointF, pointA, "red");
+side43EN is Line(pointA, pointB, "red");
+side43N is Line(pointB, pointC,"red");
+side43NW is Line(pointC, pointD, "red");
+side43WS is Line(pointD, pointE, "red");
+hexagon43 is Polygon([point43A, point43B, point43C, point43D, point43E, point43F], val43, "black");
+hexagon21 is Polygon([point21A, point21B, point21C, point21D, point21E, point21F], val21, "black");
+hexagons is [hexagon00, hexagon10, hexagon01, hexagon11, hexagon12, hexagon21, hexagon22, hexagon31, hexagon13, hexagon33, hexagon32, hexagon23, hexagon44, hexagon34, hexagon43];
+centres is [[centre00, centre01], [centre10,centre11,centre12,centre13], [centre21, centre22, centre23], [centre31,centre32,centre33,centre34], [centre43,centre44]];
+displaynum00 is Text("00", centres[1][1].x - radius, centres[1][1].y - sqrt(3)*radius);
+hexnumdisplays is [displaynum00, displaynum10, displaynum01, displaynum11, displaynum12, displaynum21, displaynum22, displaynum31, displaynum13, displaynum33, displaynum32, displaynum23, displaynum44, displaynum34, displaynum43];
+displaynum10 is Text("10", centres[2][1].x - radius, centres[2][1].y - sqrt(3)*radius);
+displaynum01 is Text("01", centres[1][2].x - radius, centres[1][2].y - sqrt(3)*radius);
+displaynum11 is Text("11", centres[2][2].x - radius, centres[2][2].y - sqrt(3)*radius);
+displaynum12 is Text("12", centres[2][3].x - radius, centres[2][3].y - sqrt(3)*radius);
+displaynum21 is Text("21", centres[3][1].x - radius, centres[3][1].y - sqrt(3)*radius);
+displaynum22 is Text("22", centres[3][2].x - radius, centres[3][2].y - sqrt(3)*radius);
+displaynum31 is Text("31", centres[4][1].x - radius, centres[4][1].y - sqrt(3)*radius);
+displaynum13 is Text("13", centres[2][4].x - radius, centres[2][4].y - sqrt(3)*radius);
+displaynum33 is Text("33", centres[4][3].x - radius, centres[4][3].y - sqrt(3)*radius);
+displaynum32 is Text("32", centres[4][2].x - radius, centres[4][2].y - sqrt(3)*radius);
+displaynum23 is Text("23", centres[3][3].x - radius, centres[3][3].y - sqrt(3)*radius);
+displaynum44 is Text("44", centres[5][2].x - radius, centres[5][2].y - sqrt(3)*radius);
+displaynum34 is Text("34", centres[4][4].x - radius, centres[4][4].y - sqrt(3)*radius);
+displaynum43 is Text("43", centres[5][1].x - radius, centres[5][1].y - sqrt(3)*radius);
+displaynum55 is Text("44", centres[5][5].x - radius, centres[5][5].y - sqrt(3)*radius);
+potentialRed00 is Rectangle(currCentre.x - radius, currCentre.y-5,10,10,"red");
+potentialGreen00 is Rectangle(currCentre.x-radius+10, currCentre.y-5,10,10,"green");
+potentialYellow00 is Rectangle(currCentre.x-radius+20, currCentre.y-5,10,10,"yellow");
+potentialBlue00 is Rectangle(currCentre.x-radius+30, currCentre.y-5,10,10,"blue");
+resetBtn00 is Rectangle(currCentre.x-radius+40,currCentre.y - 5,10,10,"white");
+near00 is (sqrt((mousePosition.x - centre00.x) ^ 2 + (mousePosition.y - centre00.y) ^ 2) < 25);
+near10 is (sqrt((mousePosition.x - centre10.x) ^ 2 + (mousePosition.y - centre10.y) ^ 2) < 25);
+near01 is (sqrt((mousePosition.x - centre01.x) ^ 2 + (mousePosition.y - centre01.y) ^ 2) < 25);
+near12 is (sqrt((mousePosition.x - centre12.x) ^ 2 + (mousePosition.y - centre12.y) ^ 2) < 25);
+near21 is (sqrt((mousePosition.x - centre21.x) ^ 2 + (mousePosition.y - centre21.y) ^ 2) < 25);
+near11 is (sqrt((mousePosition.x - centre11.x) ^ 2 + (mousePosition.y - centre11.y) ^ 2) < 25);
+near22 is (sqrt((mousePosition.x - centre22.x) ^ 2 + (mousePosition.y - centre22.y) ^ 2) < 25);
+near31 is (sqrt((mousePosition.x - centre31.x) ^ 2 + (mousePosition.y - centre31.y) ^ 2) < 25);
+near13 is (sqrt((mousePosition.x - centre13.x) ^ 2 + (mousePosition.y - centre13.y) ^ 2) < 25);
+near33 is (sqrt((mousePosition.x - centre33.x) ^ 2 + (mousePosition.y - centre33.y) ^ 2) < 25);
+near32 is (sqrt((mousePosition.x - centre32.x) ^ 2 + (mousePosition.y - centre32.y) ^ 2) < 25);
+near23 is (sqrt((mousePosition.x - centre23.x) ^ 2 + (mousePosition.y - centre23.y) ^ 2) < 25);
+near44 is (sqrt((mousePosition.x - centre44.x) ^ 2 + (mousePosition.y - centre44.y) ^ 2) < 25);
+near34 is (sqrt((mousePosition.x - centre34.x) ^ 2 + (mousePosition.y - centre34.y) ^ 2) < 25);
+near43 is (sqrt((mousePosition.x - centre43.x) ^ 2 + (mousePosition.y - centre43.y) ^ 2) < 25);
+canbeRed11 is noadjhex(1,1,"red");
+val00 is hexcols[1][1];
+val10 is hexcols[2][1];
+val01 is hexcols[1][2];
+val11 is hexcols[2][2];
+val21 is hexcols[3][1];
+val12 is hexcols[2][3];
+val22 is hexcols[3][2];
+val31 is hexcols[4][1];
+val13 is hexcols[2][4];
+val33 is hexcols[4][3];
+val32 is hexcols[4][2];
+val23 is hexcols[3][3];
+val44 is hexcols[5][2];
+val34 is hexcols[4][4];
+val43 is hexcols[5][1];
+currCentre is centres[currListIndex[1]][currListIndex[2]];
+nears is [near00,near10,near01,near11,near21,near12,near22,near31,near13,near33,near32,near23,near44,near34,near43];
+currPos is currHexPt(nears);
+currListIndex is hexIndexListPos(currPos);
+testMousePosx is mousePosition.x - currCentre.x;
+inCurrRed is ((currCentre.x - mousePosition.x) > 15) && ((currCentre.x - mousePosition.x) < 25)
+				&& ((currCentre.y - mousePosition.y) > -5) && ((currCentre.y - mousePosition.y) < 5);
+inCurrGreen is ((currCentre.x - mousePosition.x) > 5) && ((currCentre.x - mousePosition.x) < 15)
+				&& ((currCentre.y - mousePosition.y) > -5) && ((currCentre.y - mousePosition.y) < 5);
+inCurrYellow is ((currCentre.x - mousePosition.x) > -5) && ((currCentre.x - mousePosition.x) < 5)
+				&& ((currCentre.y - mousePosition.y) > -5) && ((currCentre.y - mousePosition.y) < 5);
+inCurrBlue is ((currCentre.x - mousePosition.x) > -15) && ((currCentre.x - mousePosition.x) < -5)
+				&& ((currCentre.y - mousePosition.y) > -5) && ((currCentre.y - mousePosition.y) < 5);
+inCurrReset is ((currCentre.x - mousePosition.x) > -25) && ((currCentre.x - mousePosition.x) < -15)
+				&& ((currCentre.y - mousePosition.y) > -5) && ((currCentre.y - mousePosition.y) < 5);
+setcolbuttons is ((canBeRedCurr) ? [potentialRed] : []) // ((canBeGreenCurr) ? [potentialGreen] : []) // ((canBeYellowCurr) ? [potentialYellow] : []) // ((canBeBlueCurr) ? [potentialBlue] : []) // [resetBtn];
+currCanBeRed is noadjhex(currListIndex[1], currListIndex[2],"red");
+canBeBesideRed is okIJcol(currListIndex[1], currListIndex[2], "red");
+adjPoslist00 is [[0,1],[1,1],[1,0]];
+adjPoslist01 is [[0,0],[1,1],[1,2]];
+adjPoslist10 is [[0,0],[1,1],[2,1]];
+adjPoslist11 is [[0,1],[1,2],[2,2],[2,1],[1,0],[0,0]];
+adjPoslist12 is [[0,1],[2,2],[2,3],[1,3]];
+adjPoslist21 is [[1,0],[1,1],[2,2],[3,2],[3,1]];
+adjPoslist22 is [[1,2],[2,3],[3,3],[3,2],[2,1],[1,1]];
+adjPoslist23 is [[1,2],[2,2],[3,3],[3,4],[1,3]];
+adjPoslist31 is [[2,1],[3,2]];
+adjPoslist32 is [[2,1],[3,1],[2,2],[3,3],[4,3]];
+adjPoslist33 is [[2,3],[3,4],[4,4],[4,3],[3,2],[2,2]];
+adjPoslist34 is [[2,3],[3,3],[4,4]];
+adjPoslist43 is [[3,2],[3,3],[4,4]];
+adjPoslist44 is [[3,4],[4,3],[3,3]];
+adjPoslist13 is [[1,2],[2,3]];
+adjPoslist is [[adjPoslist00, adjPoslist01], [adjPoslist10, adjPoslist11, adjPoslist12, adjPoslist13], [adjPoslist21, adjPoslist22, adjPoslist23], [adjPoslist31,adjPoslist32,adjPoslist33,adjPoslist34], [adjPoslist43,adjPoslist44]];
+currColAdj is coladjls(adjPoslist[currListIndex[1]][currListIndex[2]]);
+canBeRedcurr is !isinlist(currColAdj, "red");
+canBeYellowcurr is !isinlist(currColAdj, "yellow");
+canBeBluecurr is !isinlist(currColAdj, "blue");
+canBeGreencurr is !isinlist(currColAdj, "green");
+potentialRed is Rectangle(currCentre.x - radius, currCentre.y-5,10,10,"red");
+potentialGreen is Rectangle(currCentre.x-radius+10, currCentre.y-5,10,10,"green");
+potentialYellow is Rectangle(currCentre.x-radius+20, currCentre.y-5,10,10,"yellow");
+potentialBlue is Rectangle(currCentre.x-radius+30, currCentre.y-5,10,10,"blue");
+resetBtn is Rectangle(currCentre.x-radius+40,currCentre.y - 5,10,10,"white");
+canBeRedCurr is !isinlist(currColAdj, "red");
+canBeGreenCurr is !isinlist(currColAdj, "green");
+canBeYellowCurr is !isinlist(currColAdj, "yellow");
+canBeBlueCurr is !isinlist(currColAdj, "blue");
+
+## Action Definitions:
+proc assignCol: mouseDown {
+	if (mouseDown && inCurrRed && canBeRedCurr) hexcols[currListIndex[1]][currListIndex[2]] = "red";
+	if (mouseDown && inCurrGreen && canBeGreenCurr) hexcols[currListIndex[1]][currListIndex[2]] = "green";
+	if (mouseDown && inCurrYellow && canBeYellowCurr) hexcols[currListIndex[1]][currListIndex[2]] = "yellow";
+	if (mouseDown && inCurrBlue && canBeBlueCurr) hexcols[currListIndex[1]][currListIndex[2]] = "blue";
+	if (mouseDown && inCurrReset) hexcols[currListIndex[1]][currListIndex[2]] = "white";
+}
+
+## Function Definitions:
+
+func currHexPt {
+	para nearto;
+	if (nearto[1]) return [0,0];
+	if (nearto[2]) return [1,0];
+	if (nearto[3]) return [0,1];
+	if (nearto[4]) return [1,1];
+	if (nearto[5]) return [2,1];
+	if (nearto[6]) return [1,2];
+	if (nearto[7]) return [2,2];
+	if (nearto[8]) return [3,1];
+	if (nearto[9]) return [1,3];
+	if (nearto[10]) return [3,3];
+	if (nearto[11]) return [3,2];
+	if (nearto[12]) return [2,3];
+	if (nearto[13]) return [4,4];
+	if (nearto[14]) return [3,4];
+	if (nearto[15]) return [4,3];
+}
+
+func hexIndexListPos {
+	para ls;
+	## adjusting indexing into centres list to reflect the irregular shape of hexagonal grid
+	if ((ls[1]==0)||(ls[1]==1)) return [ls[1]+1, ls[2]+1];
+	if ((ls[1]==2)||(ls[1]==3)) return [ls[1]+1, ls[2]];
+	if (ls[1]==4) return [ls[1]+1, ls[2]-2];
+}
+
+func coladjls {
+	para lsindices;
+	auto i, result;
+	result = [];
+	for (i=1; i<=lsindices#; i++)
+		result = result // [hexcols[hexIndexListPos(lsindices[i])[1]][hexIndexListPos(lsindices[i])[2]]];
+	return result;
+}
+
+func isinlist {
+	para ls, obj;
+	auto i;
+	result = false;
+	for (i=1; i<=ls#; i++)
+		if (ls[i]==obj) result = true;
+	return result;
+}
+
+## Picture Definition:
+picture is hexagons // setcolbuttons // hexnumdisplays;
+
+## Turn on automatic calculation and execute any triggered actions pending.
+autocalc = 1;
+
+## End of automatically generated script.
