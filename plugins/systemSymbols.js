@@ -3,7 +3,6 @@ Eden.systemObservableNames = [
 	"_authoringMode",
 	"_debug_.*",
 	"_menubar_status",
-	"_view_.*",
 	"PI",
 	"autocalc",
 	"mouseButton",
@@ -23,7 +22,6 @@ Eden.systemObservableNames = [
 ];
 
 Eden.systemAgentNames = [
-	"_menubar_update",
 	"_View_.*",
 	"alias",
 	"arrangeWindows",

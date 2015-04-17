@@ -1,7 +1,6 @@
 ##Model of a piano
 ##
-##Include /extensions/unfinished-library.js-e first.
-##Then include abstractMusicTheory.js-e before running this script.
+##Include abstractMusicTheory.js-e before running this script.
 ##
 ##Outstanding bugs:
 ##Notes from F#7 onwards don't sound as high as they should.  The default sampling
@@ -15,7 +14,7 @@
 ##the keys on a standard piano keyboard in the sequence A0..C8.
 
 ##Include the JavaScript sound library
-include("models/SciFest2015/piano/audio.js-e");
+##include("models/SciFest2015/piano/audio.js-e");
 
 ##Map JavaScript variables onto EDEN observables.
 ${{
@@ -28,7 +27,12 @@ ${{
 ##single fundamental frequency and no harmonics.
 func pianoSound {
 	${{
-		return new Audio(Notes.getDataURI(arguments[0] - 40));
+		var pianoKeyNumber = arguments[0];
+		var audioObj = new Audio(Notes.getDataURI(pianoKeyNumber - 40));
+		audioObj.getEdenCode = function () {
+			return "pianoSound(" + pianoKeyNumber + ")";
+		};
+		return audioObj;
 	}}$;
 }
 

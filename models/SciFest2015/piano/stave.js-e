@@ -42,7 +42,7 @@ frenchViolinClef = ["G4", 1];	##No longer used.  For example use and old music o
 ##in scientific notation.
 func staveLineToNote {
 	para staveLine, optionalAccidentalAnnotation, clef, keySignature;
-	auto diatonicStepsFromC0, octave, basicNote, noteInCorrectKey;
+	auto diatonicStepsFromC0, octave, basicNote, noteInCMajorKey;
 	diatonicStepsFromC0 = clef[1][2] * 7 + diatonicStepsFromC(clef[1][1]) + (staveLine - clef[2]) * 2;
 	octave = int(diatonicStepsFromC0 / 7);
 	basicNote = diatonicStepsFromCToLetter(diatonicStepsFromC0) // octave;
@@ -66,7 +66,7 @@ func noteToStaveLine {
 	staveLine = (diatonicStepsFromC0 - (clef[1][2] * 7 + diatonicStepsFromC(clef[1][1]))) / 2 + clef[2];
 	
 	nextLetterUp = diatonicIncrement(letter, 1);
-	nextLetterdown = diatonicIncrement(letter, 6);
+	nextLetterDown = diatonicIncrement(letter, 6);
 	
 	if (adjustment == -1 && inKeySignature(keySignature, letter // flatSymbol)) {
 		##Our note matches the key signature for this line or space.
@@ -168,12 +168,12 @@ func staveSpaces {
 	para position, length, spaceWidth, colourScheme, staveHighlights;
 	auto colours;
 	colours = [
-		staveLineOrSpaceColour(colourScheme, linesInLesson, staveHighlights, 0.5),
-		staveLineOrSpaceColour(colourScheme, linesInLesson, staveHighlights, 1.5),
-		staveLineOrSpaceColour(colourScheme, linesInLesson, staveHighlights, 2.5),
-		staveLineOrSpaceColour(colourScheme, linesInLesson, staveHighlights, 3.5),
-		staveLineOrSpaceColour(colourScheme, linesInLesson, staveHighlights, 4.5),
-		staveLineOrSpaceColour(colourScheme, linesInLesson, staveHighlights, 5.5)
+		staveLineOrSpaceColour(colourScheme, [], staveHighlights, 0.5),
+		staveLineOrSpaceColour(colourScheme, [], staveHighlights, 1.5),
+		staveLineOrSpaceColour(colourScheme, [], staveHighlights, 2.5),
+		staveLineOrSpaceColour(colourScheme, [], staveHighlights, 3.5),
+		staveLineOrSpaceColour(colourScheme, [], staveHighlights, 4.5),
+		staveLineOrSpaceColour(colourScheme, [], staveHighlights, 5.5)
 	];
 	
 	return [
@@ -264,7 +264,7 @@ testNotesColour = "cyan";
 
 proc generateRandomCrotchet {
 	auto randomNumber;
-	randomNumber = randomIntegerBetween(1, stave1LinesInLesson# + stave2LinesInLesson#);
+	randomNumber = randomInteger(1, stave1LinesInLesson# + stave2LinesInLesson#);
 
 	if (randomNumber <= stave1LinesInLesson#) {
 		stave1Markings is [[[stave1LinesInLesson[randomNumber], testNotesColour, 1/4]]];
@@ -488,19 +488,27 @@ stave1FingerFrameUI is [stave1FingerFrameUpButton, stave1FingerFrameDownButton];
 stave2FingerFrameUI is [stave2FingerFrameUpButton, stave2FingerFrameDownButton];
 
 proc stave1MoveFingerFrameUp : stave1FingerFrameUpButton_clicked {
-	stave1FingerFrameBaseline = stave1FingerFrameBaseline + 0.5;
+	if (stave1FingerFrameUpButton_clicked) {
+		stave1FingerFrameBaseline = stave1FingerFrameBaseline + 1;
+	}
 }
 
 proc stave2MoveFingerFrameUp : stave2FingerFrameUpButton_clicked {
-	stave2FingerFrameBaseline = stave2FingerFrameBaseline + 0.5;
+	if (stave2FingerFrameUpButton_clicked) {
+		stave2FingerFrameBaseline = stave2FingerFrameBaseline + 1;
+	}
 }
 
 proc stave1MoveFingerFrameDown : stave1FingerFrameDownButton_clicked {
-	stave1FingerFrameBaseline = stave1FingerFrameBaseline - 0.5;
+	if (stave1FingerFrameDownButton_clicked) {
+		stave1FingerFrameBaseline = stave1FingerFrameBaseline - 1;
+	}
 }
 
 proc stave2MoveFingerFrameDown : stave2FingerFrameDownButton_clicked {
-	stave2FingerFrameBaseline = stave2FingerFrameBaseline - 0.5;
+	if (stave2FingerFrameDownButton_clicked) {
+		stave2FingerFrameBaseline = stave2FingerFrameBaseline - 1;
+	}
 }
 
 stavePicture is stave1Spaces // stave1Lines // stave2Spaces // stave2Lines // [stave1ClefImage, stave2ClefImage] // stave1FingerFrame // stave1FingerFrameUI // stave2FingerFrame // stave2FingerFrameUI;

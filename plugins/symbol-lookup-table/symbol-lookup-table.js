@@ -1,24 +1,7 @@
 EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
-	var me = this;
-	var defaultview = "";
-
-	this.html = function(name,content) {
-		if (name == "DEFAULT") {
-			if (defaultview == "") {
-				edenui.createView(name,"SymbolLookUpTable");
-			}
-			$("#"+defaultview+"-content").html(content).onclick;
-		} else {
-			$("#"+name+"-dialog-content").html(content).onclick;
-		}
-	}
 
 	this.createDialog = function(name,mtitle) {
 
-		if (defaultview == "") {
-			defaultview = name;
-		}
-		
 		code_entry = $('<div id=\"'+name+'-content\" class=\"symbol-lookup-table-content\">' + generateAllHTML(name) + '</div>');
 
 		$dialog = $('<div id="'+name+'"></div>')

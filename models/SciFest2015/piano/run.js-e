@@ -91,5 +91,6 @@ proc createDefinition {
 }
 
 include("models/SciFest2015/piano/music-theory.js-e");
+include("models/SciFest2015/piano/audio.js-e");
 include("models/SciFest2015/piano/piano.js-e");
 include("models/SciFest2015/piano/stave.js-e");

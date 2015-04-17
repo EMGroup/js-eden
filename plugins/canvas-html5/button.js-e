@@ -50,6 +50,10 @@ ${{
 				root.lookup(name + "_clicked").assign(true, agent, true);
 				root.lookup(name + "_clicked").assign(false, agent, true);
 			});
+			var clickSym = root.lookup(name + "_clicked");
+			if (clickSym.value() === undefined) {
+				clickSym.assign(false, agent);
+			}
 
 			var button = $input.get(0);
 			this.elements = [button];

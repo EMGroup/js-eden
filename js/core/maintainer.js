@@ -128,6 +128,22 @@
 	};
 
 	/**
+	 * Remove a global observer / global listener.
+	 *
+	 * @param {function(Symbol, boolean)} listener This listener will cease being executed when a change occurs in the Folder.
+	 * @return {boolean} True if the listener was successfully removed, or false if it could not be found.
+	 */
+	Folder.prototype.removeGlobal = function (listener) {
+		for (var i = 0; i < this.globalobservers.length; i++) {
+			if (this.globalobservers[i] === listener) {
+				this.globalobservers.splice(i, 1);
+				return true;
+			}
+		}
+		return false;
+	};
+
+	/**
 	 * Notify all global listeners about a change in the Folder.
 	 *
 	 * @param {Symbol} symbol The symbol that changed.
