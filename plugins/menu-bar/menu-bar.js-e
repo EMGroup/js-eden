@@ -1,12 +1,11 @@
 _view_number = 0;
 _menubar_status = "";
 
-proc _menubar_update : _menubar_status {
-	${{
-	var text = root.lookup("_menubar_status").value();
-	edenUI.plugins.MenuBar.updateStatus(text);
-	}}$;
-};
+${{
+	root.lookup("_menubar_status").addJSObserver("updateStatusText", function (symbol, text) {
+		edenUI.plugins.MenuBar.updateStatus(text);
+	});
+}}$;
 
 menus = [];
 

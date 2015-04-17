@@ -90,7 +90,7 @@ func semitoneAdjustment {
 	} else if (accidentalOrKSPart == tripleFlatSymbol) {
 		return -3;
 	} else {
-		error("Unknown symbol in key signature or accidental: " // key[i]);
+		error("Unknown symbol in key signature or accidental: " // accidentalOrKSPart);
 		return @;
 	}
 }
@@ -708,7 +708,7 @@ func makeKeySignature {
 
 func placeScaleInOctave {
 	para scale, octave;
-	auto stepsFromC, currentOctave, numAscending, isAscending, i, result;
+	auto stepsFromC, prevStepsFromC, currentOctave, numAscending, isAscending, i, result;
 	if (scale# == 0) {
 		return [];
 	}

@@ -451,13 +451,13 @@ statement
     | AWAIT expression ';'
         { $$ = yy.async($expression + '.callAsync'); }
     | INSERT lvalue ',' expression ',' expression ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ' - 1, 0, ' + $expression2 + '); });'); }
+        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ' - 1, 0, ' + $expression2 + '); }, this);'); }
     | DELETE lvalue ',' expression ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ' - 1, 1); });'); }
+        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ' - 1, 1); }, this);'); }
     | APPEND lvalue ',' expression ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.push(' + $expression1 + '); });'); }
+        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.push(' + $expression1 + '); }, this);'); }
     | SHIFT lvalue ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.shift(); });'); }
+        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.shift(); }, this);'); }
     | CASE literal ':'
         { $$ = yy.sync('case ' + $literal + ': '); }
     | DEFAULT ':'

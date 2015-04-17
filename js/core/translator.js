@@ -332,16 +332,16 @@ case 96:
  this.$ = yy.async($$[$0-1] + '.callAsync'); 
 break;
 case 97:
- this.$ = yy.sync($$[$0-5] + '.mutate(function(s) { s.cached_value.splice(' + $$[$0-3] + ' - 1, 0, ' + $$[$0-1] + '); });'); 
+ this.$ = yy.sync($$[$0-5] + '.mutate(function(s) { s.cached_value.splice(' + $$[$0-3] + ' - 1, 0, ' + $$[$0-1] + '); }, this);'); 
 break;
 case 98:
- this.$ = yy.sync($$[$0-3] + '.mutate(function(s) { s.cached_value.splice(' + $$[$0-1] + ' - 1, 1); });'); 
+ this.$ = yy.sync($$[$0-3] + '.mutate(function(s) { s.cached_value.splice(' + $$[$0-1] + ' - 1, 1); }, this);'); 
 break;
 case 99:
- this.$ = yy.sync($$[$0-3] + '.mutate(function(s) { s.cached_value.push(' + $$[$0-1] + '); });'); 
+ this.$ = yy.sync($$[$0-3] + '.mutate(function(s) { s.cached_value.push(' + $$[$0-1] + '); }, this);'); 
 break;
 case 100:
- this.$ = yy.sync($$[$0-1] + '.mutate(function(s) { s.cached_value.shift(); });'); 
+ this.$ = yy.sync($$[$0-1] + '.mutate(function(s) { s.cached_value.shift(); }, this);'); 
 break;
 case 101:
  this.$ = yy.sync('case ' + $$[$0-1] + ': '); 

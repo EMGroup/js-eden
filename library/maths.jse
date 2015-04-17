@@ -225,6 +225,7 @@ func xorshiftRandomGenerator {
 	}}$;
 }
 
+randomSeed = @;
 randomGenerator is xorshiftRandomGenerator;
 
 ${{
