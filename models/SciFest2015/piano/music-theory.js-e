@@ -274,7 +274,7 @@ func noteNameInKey {
 	letter = diatonicStepsFromCToLetter(diatonicSteps);
 	
 	if (semitoneAdjustmentSymbol == sharpSymbol) {
-		if (!sharpsKeySignature && indexOf(keySignature, letter // sharpSymbol) == 0) {
+		if (!sharpsKeySignature && indexOf(letter // sharpSymbol, keySignature) == 0) {
 			if (letter == "B") {
 				letter = "C";
 				octave++;
@@ -417,7 +417,7 @@ func ascendingScale {
 	
 	i = 1;
 	while (i <= intervals#) {
-		strIndex = indexOf(intervals, "-", i);
+		strIndex = indexOf("-", intervals, i);
 		if (strIndex == 0) {
 			interval = substr(intervals, i, intervals#);
 			i = intervals# + 1;
