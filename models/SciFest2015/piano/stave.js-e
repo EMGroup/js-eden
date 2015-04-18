@@ -19,9 +19,6 @@
 ##    represents middle C.
 ##(4) Line numbers greater than 5 represent positions above fifth line.
 
-##Workarounds for bugs in JS-EDEN
-numImages = 0;
-
 ##For reference purposes.
 trebleLines = ["E4", "G4", "B4", "D5", "F5"];
 bassLines = ["G2", "B2", "D3", "F3", "A3"];
@@ -125,7 +122,7 @@ func staveLineOrSpaceColour {
 	}
 	
 	if ((lineNum * 2) % 2 == 0) {
-		if (indexOf(linesInLesson, lineNum) != 0) {
+		if (indexOf(lineNum, linesInLesson) != 0) {
 			return colours[1]; ##staveLineInLessonColour
 		} else {
 			return colours[2]; ##staveLineNotInLessonColour
@@ -195,14 +192,14 @@ func clefImage {
 		url = "http://www.dcs.warwick.ac.uk/~wmb/Treble_Clef_Pin.PNG";
 		imageWidth = 642;
 		imageHeight = 680;
-		anchorPoint = Point(196, 422);
+		anchorPoint = {196, 422};
 		scale = (2.5 * spaceWidth + 1) / (646 - anchorPoint.y);
 		break;
 	case "F":
 		url = "http://www.dcs.warwick.ac.uk/~wmb/bass_clef.png";
 		imageWidth = 339;
 		imageHeight = 400;
-		anchorPoint = Point(10, 120.5);
+		anchorPoint = {10, 120.5};
 		scale = (spaceWidth + 0.5) / anchorPoint.y;
 		break;
 	case "C":
@@ -211,12 +208,11 @@ func clefImage {
 	default:
 		error("Unknown clef: " // clef[1]);
 	}
-	numImages = numImages + 1;
-	return Image("img" // numImages, stavePosition.x + xOffset - anchorPoint.x * scale + 10, stavePosition.y + 5 + 4 * spaceWidth - (clef[2] - 1) * spaceWidth - int(clef[2]) - anchorPoint.y * scale + 5, imageWidth * scale, imageHeight * scale, url);
+	return Image(stavePosition.x + xOffset - anchorPoint.x * scale, stavePosition.y + 5 + 4 * spaceWidth - (clef[2] - 1) * spaceWidth - int(clef[2]) - anchorPoint.y * scale, imageWidth * scale, imageHeight * scale, url);
 }
 
 ##Create the grand stave.
-staveOrigin = Point(20, 30);
+staveOrigin = {20, 30};
 staveSpaceWidth = 11;
 staveNoteRadius is staveSpaceWidth / 2;
 staveLength = 400;
@@ -344,7 +340,7 @@ func fingerFrame {
 	} else {
 		colours = fingerColours;
 	}
-	if (baseLine == floor(baseLine)) {
+	if (baseLine == int(baseLine)) {
 		##Starting on a line.
 		return [
 			##Lower space
@@ -489,25 +485,25 @@ stave2FingerFrameUI is [stave2FingerFrameUpButton, stave2FingerFrameDownButton];
 
 proc stave1MoveFingerFrameUp : stave1FingerFrameUpButton_clicked {
 	if (stave1FingerFrameUpButton_clicked) {
-		stave1FingerFrameBaseline = stave1FingerFrameBaseline + 1;
+		stave1FingerFrameBaseline = stave1FingerFrameBaseline + 0.5;
 	}
 }
 
 proc stave2MoveFingerFrameUp : stave2FingerFrameUpButton_clicked {
 	if (stave2FingerFrameUpButton_clicked) {
-		stave2FingerFrameBaseline = stave2FingerFrameBaseline + 1;
+		stave2FingerFrameBaseline = stave2FingerFrameBaseline + 0.5;
 	}
 }
 
 proc stave1MoveFingerFrameDown : stave1FingerFrameDownButton_clicked {
 	if (stave1FingerFrameDownButton_clicked) {
-		stave1FingerFrameBaseline = stave1FingerFrameBaseline - 1;
+		stave1FingerFrameBaseline = stave1FingerFrameBaseline - 0.5;
 	}
 }
 
 proc stave2MoveFingerFrameDown : stave2FingerFrameDownButton_clicked {
 	if (stave2FingerFrameDownButton_clicked) {
-		stave2FingerFrameBaseline = stave2FingerFrameBaseline - 1;
+		stave2FingerFrameBaseline = stave2FingerFrameBaseline - 0.5;
 	}
 }
 
@@ -517,7 +513,7 @@ stavePicture is stave1Spaces // stave1Lines // stave2Spaces // stave2Lines // [s
 ##These definitions link the stave model to the piano model.
 
 staveToPianoGap = 55;
-pianoPosition is Point(0, max(stave1Position.y, stave2Position.y) + 4 * staveSpaceWidth + 5 + max(staveToPianoGap, staveSpaceWidth + 1 + staveNoteRadius));
+pianoPosition is Point(10, max(stave1Position.y, stave2Position.y) + 4 * staveSpaceWidth + 5 + max(staveToPianoGap, staveSpaceWidth + 1 + staveNoteRadius));
 
 staveToControlsGap = 40;
 pianoControlsPosition is Point(staveOrigin.x + staveLength + staveToControlsGap, staveOrigin.y - staveSpaceWidth / 2);
@@ -529,7 +525,7 @@ proc highlightKeysForHighlightedStaveLines {
 
 highlightStaveLinesChoice = "Highlighted Stave Lines";
 if (keyHighlightChoices != @) {
-	tempIndex = indexOf(keyHighlightChoices, highlightStaveLinesChoice);
+	tempIndex = indexOf(highlightStaveLinesChoice, keyHighlightChoices);
 	if (tempIndex == 0) {
 		append keyHighlightChoices, highlightStaveLinesChoice;
 		tempIndex = keyHighlightChoices#;
@@ -564,4 +560,3 @@ if (pianoPicture == @) {
 }
 
 picture is pianoPicture // pianoControlsPicture // stavePicture;
-_view_default_width is rightmostPianoCoordinate + 13;
