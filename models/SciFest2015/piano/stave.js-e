@@ -208,7 +208,7 @@ func clefImage {
 	default:
 		error("Unknown clef: " // clef[1]);
 	}
-	return Image(stavePosition.x + xOffset - anchorPoint.x * scale + 10, stavePosition.y + 5 + 4 * spaceWidth - (clef[2] - 1) * spaceWidth - int(clef[2]) - anchorPoint.y * scale + 5, imageWidth * scale, imageHeight * scale, url);
+	return Image(stavePosition.x + xOffset - anchorPoint.x * scale, stavePosition.y + 5 + 4 * spaceWidth - (clef[2] - 1) * spaceWidth - int(clef[2]) - anchorPoint.y * scale, imageWidth * scale, imageHeight * scale, url);
 }
 
 ##Create the grand stave.
