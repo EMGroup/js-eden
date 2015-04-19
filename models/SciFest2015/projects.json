@@ -23,7 +23,7 @@
 		},
 		{
 			"name": "Nim Coins",
-			"author": "Matthew Leeke and Meurig Beynon",
+			"author": "Meurig Beynon and Matthew Leeke",
 			"year": "2012-2015",
 			"description": "A competitive two player strategy game.",
 			"runfile": "models/SciFest2015/nim-coins/nim-coins.js-e"
@@ -34,6 +34,13 @@
 			"year": "2014",
 			"description": "Explore learning to play the piano and read music.",
 			"runfile": "models/SciFest2015/piano/run.js-e"
+		},
+		{
+			"name": "JS-EDEN Presentation Environment (JSPE)",
+			"author": "Matt Cranham and Hui Zhu",
+			"year": "2012",
+			"description": "Installs a presentation environment.",
+			"runfile": "models/jspe/run.e"
 		}
 	]
 }

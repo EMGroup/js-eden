@@ -102,6 +102,7 @@ function concatAndResolveUrl(url, concat) {
 
 		var me = this;
 
+		//Never called anymore.
 		this.eden.listenTo('executeFileLoad', this, function (path) {
 			if (this.plugins.MenuBar) {
 				this.plugins.MenuBar.updateStatus("Loading "+path);

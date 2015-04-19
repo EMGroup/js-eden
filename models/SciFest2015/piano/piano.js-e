@@ -1,7 +1,6 @@
 ##Model of a piano
 ##
-##Include /extensions/unfinished-library.js-e first.
-##Then include abstractMusicTheory.js-e before running this script.
+##Include abstractMusicTheory.js-e before running this script.
 ##
 ##Outstanding bugs:
 ##Notes from F#7 onwards don't sound as high as they should.  The default sampling
@@ -15,7 +14,7 @@
 ##the keys on a standard piano keyboard in the sequence A0..C8.
 
 ##Include the JavaScript sound library
-include("models/SciFest2015/piano/audio.js-e");
+##include("models/SciFest2015/piano/audio.js-e");
 
 ##Map JavaScript variables onto EDEN observables.
 ${{
@@ -28,7 +27,12 @@ ${{
 ##single fundamental frequency and no harmonics.
 func pianoSound {
 	${{
-		return new Audio(Notes.getDataURI(arguments[0] - 40));
+		var pianoKeyNumber = arguments[0];
+		var audioObj = new Audio(Notes.getDataURI(pianoKeyNumber - 40));
+		audioObj.getEdenCode = function () {
+			return "pianoSound(" + pianoKeyNumber + ")";
+		};
+		return audioObj;
 	}}$;
 }
 
@@ -85,10 +89,10 @@ if (picture# == 0) {
 }
 
 if (pianoControlsPosition == @) {
-	pianoControlsPosition = Point(0, 5);
+	pianoControlsPosition = {10, 5};
 }
 if (pianoPosition == @) {
-	pianoPosition = Point(pianoControlsPosition.x, pianoControlsPosition.y + 25);
+	pianoPosition = {pianoControlsPosition.x, pianoControlsPosition.y + 25};
 }
 
 ##Piano key dimensions are taken from:
@@ -181,7 +185,7 @@ func keyVisual {
 	if (highlightColour != @) {
 		colour = highlightColour;
 	}
-	return Rectangle(xPos, yOffset, keyWidth, keyHeight, colour);
+	return Rectangle(xPos, yOffset, keyWidth, keyHeight, colour, "black");
 }
 
 ## The keys currently highlighted on the keyboard are the key names in this list.
@@ -289,7 +293,7 @@ if (keyHighlights == @) {
 func keyHighlight {
 	para highlighted, note;
 	auto index;
-	index = search(highlighted, note, firstElementComparison, 1, true);
+	index = search(note, highlighted, firstElementComparison, 1, true);
 	if (index == 0) {
 		return @;
 	} else {
@@ -431,12 +435,14 @@ proc backupKeyHighlights : keyHighlights {
 ##Synchronize keyHighlightsDef with whatever definition of keyHighlights is already in effect.
 backupKeyHighlights();
 
-func findPianoKeyUnderMousePointer {
-	para mx, my;
-	auto middleKeyDrawOrder, middleKeyNum, leftKeyRect, rightKeyRect, pianoKeyOver;
-	
-	if (mx >= pianoPosition.x && mx < rightmostPianoCoordinate &&
-	 my >= pianoPosition.y && my < pianoPosition.y + naturalKeyLength) {			
+func findPianoKeyFromPixelPosition {
+	para position;
+	auto x, y, middleKeyDrawOrder, middleKeyNum, leftKeyRect, rightKeyRect, pianoKeyOver;
+	x = position.x;
+	y = position.y;
+
+	if (x >= pianoPosition.x && x < rightmostPianoCoordinate &&
+	 y >= pianoPosition.y && y < pianoPosition.y + naturalKeyLength) {			
 		
 		##Find out which piano key the mouse pointer is above.  We first locate the
 		##white key whose zone the mouse pointer is within.  The pointer might actually
@@ -450,20 +456,20 @@ func findPianoKeyUnderMousePointer {
 		##of our initial guess then our initially guessed white key was the key that
 		##the mouse is actually over.
 		
-		middleKeyDrawOrder = int((mx - pianoPosition.x) / naturalKeyWidth) + 1;
+		middleKeyDrawOrder = int((x - pianoPosition.x) / naturalKeyWidth) + 1;
 		middleKeyNum = drawOrderToPianoKeyNum[middleKeyDrawOrder];
 		pianoKeyOver = @;
 		
 		if (middleKeyNum > 1) {
 			leftKeyRect = keyboard[pianoKeyNumToDrawOrder[middleKeyNum - 1]];
-			if (mx >= leftKeyRect.x1 && mx < leftKeyRect.x1 + leftKeyRect.x2 && my >= leftKeyRect.y1 && my < leftKeyRect.y1 + leftKeyRect.y2) {
+			if (x >= leftKeyRect.x && x < leftKeyRect.x + leftKeyRect.width && y >= leftKeyRect.y && y < leftKeyRect.y + leftKeyRect.height) {
 				pianoKeyOver = middleKeyNum - 1;
 			}
 		}
 		
 		if (middleKeyDrawOrder < numberOfNaturals) {
 			rightKeyRect = keyboard[pianoKeyNumToDrawOrder[middleKeyNum + 1]];
-			if (mx >= rightKeyRect.x1 && mx < rightKeyRect.x1 + rightKeyRect.x2 && my >= rightKeyRect.y1 && my < rightKeyRect.y1 + rightKeyRect.y2) {
+			if (x >= rightKeyRect.x && x < rightKeyRect.x + rightKeyRect.width && y >= rightKeyRect.y && y < rightKeyRect.y + rightKeyRect.height) {
 				pianoKeyOver = middleKeyNum + 1;
 			}				
 		}
@@ -479,7 +485,7 @@ func findPianoKeyUnderMousePointer {
 }
 
 proc showPianoKeyUnderMousePointer {
-	pianoKeyUnderMousePointer is findPianoKeyUnderMousePointer(mouseX, mouseY);
+	pianoKeyUnderMousePointer is findPianoKeyFromPixelPosition(mousePosition);
 	noteUnderMousePointer is pianoKeyUnderMousePointer == @? @ : noteName(pianoKeyUnderMousePointer);
 	showObservables("pianoKeyUnderMousePointer|noteUnderMousePointer");
 }
@@ -493,7 +499,7 @@ proc playNoteWhenClicked : mousePressed {
 			if (pianoKeyUnderMousePointer != @) {
 				pianoKeyHit = pianoKeyUnderMousePointer;
 			} else {
-				pianoKeyHit = findPianoKeyUnderMousePointer(mouseX, mouseY);
+				pianoKeyHit = findPianoKeyFromPixelPosition(mousePosition);
 			}
 			if (noteUnderMousePointer != @) {
 				noteHit = noteUnderMousePointer;
@@ -531,7 +537,7 @@ fingerLabelSharpBorderColour = "aqua";
 
 fingerLabelWidth is fingerLabelFontSizeInPx + 2 * fingerLabelPadding;
 fingerLabelHeight is (fingerLabelFontSizeInPx + 2 * max(2, fingerLabelPadding)) * 1.6;
-fingerLabelYPos is naturalKeyLength - 4;
+fingerLabelYPos is naturalKeyLength + 5;
 fingerLabelSharpOffset = 0;
 
 fingerLabelStyle is
@@ -557,12 +563,11 @@ func fingerLabel {
 	semitoneAdjustment = keyOrAccidentalAdjustment(diatonicStepsFromCToLetter(numDiatonicStepsFromA0 + 5), optionalAccidentalSymbol, keySignature);
 
 	return Div(
-		hand // "HandFinger" // label,
-		origin.x + keyWidth * (numDiatonicStepsFromA0 + 0.5) - boxWidth / 2 + 10 + semitoneAdjustment * 0.5 * keyWidth,
-		origin.y + yOffset + 5 + (semitoneAdjustment != 0? -sharpYOffset : 0),
+		label,
+		origin.x + keyWidth * (numDiatonicStepsFromA0 + 0.5) - boxWidth / 2 + semitoneAdjustment * 0.5 * keyWidth,
+		origin.y + yOffset + (semitoneAdjustment != 0? -sharpYOffset : 0),
 		boxWidth,
 		boxHeight,
-		label,
 		semitoneAdjustment == 0? naturalStyle : sharpStyle
 	);
 }
@@ -718,14 +723,14 @@ proc highlightKeysInKey {
 highlightKeyListChoice = "Chosen Keys";
 highlightNotesInKeyChoice = "Key Signature";
 if (keyHighlightChoices != @) {
-	tempIndex = indexOf(keyHighlightChoices, highlightKeyListChoice);
+	tempIndex = indexOf(highlightKeyListChoice, keyHighlightChoices);
 	if (tempIndex == 0) {
 		append keyHighlightChoices, highlightKeyListChoice;
 		tempIndex = keyHighlightChoices#;
 	}
 	keyHighlightProcedures[tempIndex] == &highlightHighlightedKeys;
 
-	tempIndex = indexOf(keyHighlightChoices, highlightNotesInKeyChoice);
+	tempIndex = indexOf(highlightNotesInKeyChoice, keyHighlightChoices);
 	if (tempIndex == 0) {
 		append keyHighlightChoices, highlightNotesInKeyChoice;
 		tempIndex = keyHighlightChoices#;
@@ -738,8 +743,8 @@ if (keyHighlightChoices != @) {
 }
 
 keyHighlightingUIPos is pianoControlsPosition;
-keyHighlightingChooser is Combobox("keyHighlightingChooser", keyHighlightChoices, keyHighlightingUIPos.x + 102, keyHighlightingUIPos.y, true);
-keyHighlightingLabel is Text("Key Highlighting:", keyHighlightingUIPos.x, keyHighlightingUIPos.y + 7, "black");
+keyHighlightingChooser is Combobox("keyHighlightingChooser", keyHighlightChoices, keyHighlightingUIPos.x + 90, keyHighlightingUIPos.y);
+keyHighlightingLabel is Text("Key Highlighting:", keyHighlightingUIPos.x, keyHighlightingUIPos.y + 1.5);
 keyHighlightingUI is [keyHighlightingLabel, keyHighlightingChooser];
 
 proc changeKeyHighlighting : keyHighlightingChooser_value {
@@ -758,15 +763,15 @@ func farEdgeOfPiano {
 	para pic;
 	auto i;
 	for (i = numberOfNaturals; i >= 1; i--) {
-		if (indexOf(pic, keyboard[i]) != 0) {
-			return keyboard[i].x1 + keyboard[i].x2;
+		if (indexOf(keyboard[i], pic) != 0) {
+			return keyboard[i].x + keyboard[i].width;
 		}
 	}
 	return pianoPosition.x - 1;
 }
 
 rightmostPianoCoordinate is farEdgeOfPiano(pianoPicture);
-_view_default_width is rightmostPianoCoordinate + 51;
+_view_picture_width is rightmostPianoCoordinate + 16;
 
 proc playNotes95bpm {
 	para notes;

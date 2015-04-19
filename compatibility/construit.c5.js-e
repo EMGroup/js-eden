@@ -48,6 +48,8 @@ func oldCeil {
 }
 patch(&oldCeil, &ceil);
 
+centre = centroid;
+
 func oldCircle {
 	para newCircle, params;
 	auto fillColour, outlineColour;

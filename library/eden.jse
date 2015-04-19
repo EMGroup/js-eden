@@ -20,10 +20,16 @@ func time {
 };
 
 proc writeln {
-  para message;
-  ${{ console.log(arguments[0]); }}$;
-  _menubar_status = "Output: " // str(message);
-};
+  ${{
+	var message = root.lookup("str").definition(root)(arguments[0]);
+	console.log(message);
+	message = "Output: " + message;
+	root.lookup("_menubar_status").assign(message, this);
+	if (!root.autocalc_state) {
+		edenUI.plugins.MenuBar.updateStatus(message);
+	}
+  }}$;
+}
 
 ##A kind of privilege level that the JS-EDEN user is constrained by.
 ##
@@ -470,8 +476,8 @@ proc arrangeWindows {
       continue;
     }
     `"_view_"//name//"_x"` = curr_x;
-    `"_view_"//name//"_y"` = 110;
-    curr_x += `"_view_"//name//"_width"` + 10;
+    `"_view_"//name//"_y"` = 80;
+    curr_x += `"_view_"//name//"_width"` + 27;
   }
 }
 

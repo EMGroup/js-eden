@@ -101,7 +101,14 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 			if (this.project !== undefined) {
 				// Actually load the project by executing js-e file.
-				edenUI.eden.include(this.project.runfile, {name: Symbol.getInputAgentName()}, function () { return true; });
+				var url = this.project.runfile;
+				$.ajax({
+					url: url,
+					dataType: "text",
+					success: function (data) {
+						EdenUI.plugins.ScriptGenerator.loadBaseConstrual(url, data);
+					}
+				});
 			}
 		});
 	}

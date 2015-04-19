@@ -30,6 +30,12 @@
 		return $("#"+viewName+"-dialog");
 	}
 
+	//Dimensions of various UI components.
+	EdenUI.prototype.titleBarHeight = 32;
+	EdenUI.prototype.menuBarHeight = 29;
+	EdenUI.prototype.scrollBarYSize = 19;
+	EdenUI.prototype.scrollBarXSize = 16;	
+
 	/**
 	 * Stores plugins that can be loaded. Plugins will modify this directly in
 	 * order for them to be loaded later.
@@ -107,26 +113,26 @@
 					viewData.closing = false;
 					return true;
 				} else if (viewData.confirmClose) {
-					edenUI.modalDialog(
+					me.modalDialog(
 						"Window Close Action",
 						"<p>Removing this window from the work space will cause any unsaved changes contained therein to be lost.  You will need to reload the construal if you wish to see this window again.</p> \
 						<p>Are you sure you want to permanently delete this information?  Or would you prefer to hide the window instead?</p>",
 						["Close Forever", "Hide"],
 						function (optNum) {
 							if (optNum == 0) {
-								edenUI.destroyView(name);
+								me.destroyView(name);
 							} else if (optNum == 1) {
 								if (me.plugins.MenuBar) {
-									edenUI.hideView(name);
+									me.hideView(name);
 								} else {
-									edenUI.minimizeView(name);
+									me.minimizeView(name);
 								}
 							}
 						}
 					);
 					return false;
 				} else {
-					edenUI.destroyView(name);
+					me.destroyView(name);
 					return true;
 				}
 			}
@@ -147,8 +153,26 @@
 				$(event.target).dialog('moveToTop');
 			}
 		});
-
 		this.activeDialogs[name] = type;
+		this.emit('createView', [name, type]);
+
+		var diag = dialog(name);
+		//Allow mouse drags that position the dialog partially outside of the browser window.
+		diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, -10, Number.MAX_VALUE, Number.MAX_VALUE]);
+		
+		/* Initialize observables
+		 * _view_xxx_width and _view_xxx_height are the width and height respectively of the usable
+		 * client window area.  They don't include the space reserved for the title bar, scroll bars
+		 * and resizing widget.  The actual size of the window with these elements included is
+		 * bigger than the dimensions described these observables.  Thus:
+		 *   _view_b_x = _view_a_x + _view_a_width;
+		 * will position the windows with a slight overlap, though no information will be hidden.
+		 */
+		view(name, 'width').assign(diag.dialog("option", "width") - this.scrollBarYSize);
+		view(name, 'height').assign(diag.dialog("option", "height") - this.titleBarHeight - this.scrollBarXSize);
+		var topLeft = diag.closest('.ui-dialog').offset();
+		view(name, 'x').assign(topLeft.left);
+		view(name, 'y').assign(topLeft.top - (this.plugins.MenuBar? this.menuBarHeight : 0));
 
 		//Set the title bar text and allow the construal to change it later.
 		var titleSym = view(name, "title");
@@ -158,16 +182,6 @@
 			me.plugins.MenuBar.updateViewsMenu();
 		});
 
-		this.emit('createView', [name, type]);
-
-		var diag = dialog(name);
-		//Allow mouse drags that position the dialog partially outside of the browser window.
-		diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, -10, Number.MAX_VALUE, Number.MAX_VALUE]);
-		
-		//Initialize observables
-		view(name, 'width').assign(diag.dialog("option", "width"));
-		view(name, 'height').assign(diag.dialog("option", "height"));
-
 		diag.on("dialogresizestop", function (event, ui) {
 			var root = me.eden.root;
 			var autocalcSym = root.lookup("autocalc");
@@ -176,8 +190,8 @@
 			if (autocalcOnEntry) {
 				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 			}
-			view(name, 'width').assign(ui.size.width, Symbol.hciAgent, followMouse);
-			view(name, 'height').assign(ui.size.height, Symbol.hciAgent, followMouse);
+			view(name, 'width').assign(ui.size.width - me.scrollBarYSize, Symbol.hciAgent, followMouse);
+			view(name, 'height').assign(ui.size.height - me.titleBarHeight - me.scrollBarXSize, Symbol.hciAgent, followMouse);
 			if (autocalcOnEntry) {
 				autocalcSym.assign(1, Symbol.hciAgent, followMouse);
 			}
@@ -191,7 +205,7 @@
 				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 			}
 			view(name, 'x').assign(ui.position.left, Symbol.hciAgent, followMouse);
-			view(name, 'y').assign(ui.position.top, Symbol.hciAgent, followMouse);
+			view(name, 'y').assign(ui.position.top - (me.plugins.MenuBar? me.menuBarHeight : 0), Symbol.hciAgent, followMouse);
 			if (autocalcOnEntry) {
 				autocalcSym.assign(1, Symbol.hciAgent, followMouse);
 			}
@@ -203,10 +217,16 @@
 					'${{ edenUI.moveView("'+name+'"); }}$;\n'+
 				'};\n'+
 				'proc _View_'+name+'_size : _view_'+name+'_width,_view_'+name+'_height {\n'+
-					'${{ edenUI.resizeView("'+name+'"); }}$;\n'+
-				'};'+
-				'if (_view_list == @) { _view_list = []; }\n'+
-				'append _view_list, "'+name+'";\n';
+					'${{ \
+						edenUI.resizeView("'+name+'"); \
+						var viewData = edenUI.viewInstances["' + name + '"]; \
+						if ("resize" in viewData) { \
+							viewData.resize(root.lookup("_view_' + name + '_width").value(), root.lookup("_view_' + name + '_height").value()); \
+						} \
+					}}$; \
+				}; \
+				if (_view_list == @) { _view_list = []; } \
+				append _view_list, "'+name+'"; \n';
 
 			if (position) {
 				code += '_view_'+name+'_position = [\"'+position.join('\", \"')+'\"];\n';
@@ -295,6 +315,9 @@
 	EdenUI.prototype.moveView = function (name) {
 		var x = view(name, 'x').value();
 		var y = view(name, 'y').value();
+		if (this.plugins.MenuBar) {
+			y = y  + this.menuBarHeight;
+		}
 		dialog(name).parent().offset({left: x, top: y});
 	};
 
@@ -311,10 +334,10 @@
 		var oldheight = diag.dialog("option", "height");
 
 		if (newwidth - oldwidth !== 0) {
-			diag.dialog("option", "width", newwidth);
+			diag.dialog("option", "width", newwidth + this.scrollBarYSize);
 		}
 		if (newheight - oldheight !== 0) {
-			diag.dialog("option", "height", newheight);
+			diag.dialog("option", "height", newheight + this.titleBarHeight + this.scrollBarXSize);
 		}
 	};
 

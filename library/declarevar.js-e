@@ -38,12 +38,12 @@ declare_jse = function(p1, p2, p3) {
 		}
 	}
 
-    object.__defineGetter__(nameJ, function(){
-        return (root.lookup(nameJSE)).value();
+    object.__defineGetter__(nameJ, function() {
+        return root.lookup(nameJSE).value();
     });
     
-    object.__defineSetter__(nameJ, function(val){
-        root.lookup(nameJSE).assign(val, root.lookup("declare_jse"));
+    object.__defineSetter__(nameJ, function(val) {
+        root.lookup(nameJSE).assign(val, {name: "declare_jse"});
     });
 }
 

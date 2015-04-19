@@ -31,8 +31,9 @@ func Div { ${{
 	var html = arguments[0];
 	var x = arguments[1];
 	var y = arguments[2];
-	var width = arguments[3];
-	var height = arguments[4];
+	var width, height;   //Number of pixels, string (e.g. "50%") or undefined (automatic)
+	var id, classNames;
+	var style = "";
 	
 	if (typeof(x) == "number") {
 		x = x + "px";
@@ -40,36 +41,49 @@ func Div { ${{
 	if (typeof(y) == "number") {
 		y = y + "px";
 	}
-	if (typeof(width) == "number") {
-		width = width + "px";
-	}
-	if (typeof(height) == "number") {
-		height = height + "px";
+
+	var argsProcessed = 3;
+	var argType = typeof(arguments[3]);
+	
+	if (argType == "number" || argType == "undefined" || (argType == "string" && /^\d/.test(arguments[3]))) {
+		width = arguments[3];
+		argsProcessed++;
+		if (argType == "number") {
+			width = width + "px";
+		}
+		
+		argType = typeof(arguments[4]);
+		if (argType == "number" || argType == "undefined" || (argType == "string" && /^\d/.test(arguments[4]))) {
+			height = arguments[4];
+			argsProcessed++;
+			if (argType == "number") {
+				height = height + "px";
+			}
+		}
 	}
 
-	var id, classNames, style = "";
-	if (arguments.length > 5) {
-		if (arguments.length == 8) {
-			id = arguments[5];
-			classNames = arguments[6];
-			style = arguments[7];
+	if (arguments.length > argsProcessed) {
+		if (arguments.length == argsProcessed + 3) {
+			id = arguments[argsProcessed];
+			classNames = arguments[argsProcessed + 1];
+			style = arguments[argsProcessed + 2];
 		} else {
-			if (Array.isArray(arguments[5])) {
-				classNames = arguments[5];
-				if (arguments.length == 7) {
-					style = arguments[6];
+			if (Array.isArray(arguments[argsProcessed])) {
+				classNames = arguments[argsProcessed];
+				if (arguments.length == argsProcessed + 2) {
+					style = arguments[argsProcessed + 1];
 				}
-			} else if (arguments.length == 7) {
-				id = arguments[5];
-				if (Array.isArray(arguments[6])) {
-					classNames = arguments[6];
+			} else if (arguments.length == argsProcessed + 2) {
+				id = arguments[argsProcessed];
+				if (Array.isArray(arguments[argsProcessed + 1])) {
+					classNames = arguments[argsProcessed + 1];
 				} else {
-					style = arguments[6];
+					style = arguments[argsProcessed + 1];
 				}
-			} else if (arguments[5].indexOf(":") == -1) {
-				id = arguments[5];
+			} else if (arguments[argsProcessed].indexOf(":") == -1) {
+				id = arguments[argsProcessed];
 			} else {
-				style = arguments[5];
+				style = arguments[argsProcessed];
 			}
 		}
 	}	

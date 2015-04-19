@@ -185,7 +185,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		});
 
 		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');
-		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" width=\"584px\" height=\"408px\"></canvas>");
+		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\"></canvas>");
 		var jqCanvas = code_entry.find(".canvashtml-canvas");
 		jqCanvas.on("mousedown", function(e) {
 			var autocalcSym = root.lookup("autocalc");
@@ -442,7 +442,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 			var mousePos;
 			//Workaround for bug #67.
-			if (Point) {
+			if (window.Point) {
 				mousePos = new Point(x, y);
 			}
 
@@ -455,13 +455,13 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			.html(code_entry)
 			.dialog({
 				title: mtitle,
-				width: 600,
-				height: 450,
+				width: 600 + edenUI.scrollBarYSize,
+				height: 450 + edenUI.titleBarHeight + edenUI.scrollBarXSize,
 				minHeight: 120,
 				minWidth: 230,
 				resizeStop: function(event,ui) {
 					var contentElem = document.getElementById(name);
-					$("#"+name+"-canvas").attr("width", Math.floor(ui.size.width - 16)).attr("height", parseInt(contentElem.style.height) - 16);
+					$("#"+name+"-canvas").attr("width", Math.floor(ui.size.width) - edenUI.scrollBarYSize).attr("height", parseInt(contentElem.style.height) - edenUI.scrollBarXSize + 3);
 					me.drawPicture(displayedName, pictureobs);
 				},
 				dialogClass: "unpadded-dialog"
@@ -471,6 +471,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			destroy: function () {
 				delete canvases[displayedName];
 				delete contents[displayedName];
+			},
+			resize: function (width, height) {
+				var contentElem = document.getElementById(name);
+				$("#"+name+"-canvas").attr("width", Math.floor(width)).attr("height", Math.floor(height));
+				me.drawPicture(displayedName, pictureobs);
 			}
 		};
 	}

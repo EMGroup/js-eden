@@ -1,5 +1,4 @@
 include("library/functional_programming.js-e");
-include("compatibility/construit.c5.js-e");
 
 ##Searches the string given by the first argument for a match against the
 ##regular expression given by the second argument (given as either a string
@@ -71,7 +70,7 @@ proc createDefinition {
 	execute(definition);
 
 	if (generatedDefinitions == "") {
-		createView("Dynamically_Created_Definitions", "PlainHTML");
+		createView("Dynamically_Created_Definitions", "HTMLContent");
 	}
 
 	definitionHTML = definition;
@@ -91,5 +90,6 @@ proc createDefinition {
 }
 
 include("models/SciFest2015/piano/music-theory.js-e");
+include("models/SciFest2015/piano/audio.js-e");
 include("models/SciFest2015/piano/piano.js-e");
 include("models/SciFest2015/piano/stave.js-e");
