@@ -476,8 +476,8 @@ proc arrangeWindows {
       continue;
     }
     `"_view_"//name//"_x"` = curr_x;
-    `"_view_"//name//"_y"` = 110;
-    curr_x += `"_view_"//name//"_width"` + 10;
+    `"_view_"//name//"_y"` = 80;
+    curr_x += `"_view_"//name//"_width"` + 27;
   }
 }
 

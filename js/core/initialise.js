@@ -47,12 +47,23 @@ if (!("keys") in Object) {
 	}
 }
 
+/**
+ * Currently supported URL parameters (HTTP GET):
+ * views: One of a several preset values.  Currently either "none" (no canvas, input window or project list created) or "default".
+ * menus: true or false.  If false then the menu bar is not displayed and views can only be opened by writing JS-EDEN script.
+ * plugins: A comma separated listed of plug-ins to load automatically at start up.
+ * include: URL of a construal to load as soon as the environment is loaded.
+ * exec: A piece of JS-EDEN code to execute after the included construal has been loaded.
+*/
 function initialiseJSEden() {
 	root = new Folder();
 	eden = new Eden(root);
 	
-	var include = getParameterByName("include");
+	var menuBar = getParameterByName("menus") != "false";
 	var plugins = getParameterByName("plugins");
+	var include = getParameterByName("include");
+	var exec = getParameterByName("exec");
+
 	if (plugins == "") {
 		//Default plug-ins
 		plugins = [
@@ -70,7 +81,6 @@ function initialiseJSEden() {
 	} else {
 		plugins = plugins.split(",");
 	}
-	var menuBar = getParameterByName("menus") != "false";
 
 	$(document).ready(function () {
 		edenUI = new EdenUI(eden);
@@ -90,6 +100,12 @@ function initialiseJSEden() {
 		var doneLoading = function () {
 			if (menuBar) {
 				root.lookup("_menubar_status").assign("JS-EDEN has finished loading.", {name: "/system"});
+			}
+			if (exec) {
+				if (exec.slice(-1) != ";") {
+					exec = exec + ";";
+				}
+				eden.execute(exec, "URL", "", {name: "execute"}, function () { });
 			}
 		}
 		

@@ -3,6 +3,7 @@ Eden.systemObservableNames = [
 	"_authoringMode",
 	"_debug_.*",
 	"_menubar_status",
+	"_view_.*",
 	"PI",
 	"autocalc",
 	"mouseButton",
@@ -99,7 +100,7 @@ Eden.systemFunctionNames = [
 	"atan",
 	"canvasURL",
 	"ceil",
-	"centre",
+	"centroid",
 	"char",
 	"charCode",
 	"choose",
@@ -194,63 +195,33 @@ Eden.systemFunctionNames = [
 	"xorshiftRandomGenerator"
 ];
 Eden.isitSystemSymbol = function(name){
-
-	if(Eden.isitSystemFunction(name)){
-		return true;
-	}
-	else if(Eden.isitSystemObservable(name)){
-		return true;
-	}
-	else if(Eden.isitSystemAgent(name)){
-		return true;
-	}
-	return false;
+	return Eden.isitSystemObservable(name) || Eden.isitSystemAgent(name) || Eden.isitSystemFunction(name);
 }
 
-Eden.isitSystemObservable = function(name){
-
-	var pattern1 = new RegExp("^_view_");
-
-	if(pattern1.test(name)){
-		return true;
-	}
-	
-	for(var j=0; j<Eden.systemObservableNames.length; j++){
-	
-		var pattern = new RegExp("^"+Eden.systemObservableNames[j]+"$");
-		
-			if(pattern.test(name)){
-				return true;
-			}
+Eden.isitSystemObservable = function(name) {
+	for (var j = 0; j < Eden.systemObservableNames.length; j++) {
+		var pattern = new RegExp("^" + Eden.systemObservableNames[j] + "$");
+		if (pattern.test(name)) {
+			return true;
+		}
 	}
 	return false;
 }
 Eden.isitSystemAgent = function(name){
-
-	var pattern2 = new RegExp("^_View_");
-	if(pattern2.test(name)){
-		return true;
-	}
-
-	for(var j=0; j<Eden.systemAgentNames.length; j++){
-	
-		var pattern = new RegExp("^"+Eden.systemAgentNames[j]+"$");
-
-			if(pattern.test(name)){
-				return true;
-			}
+	for (var j = 0; j < Eden.systemAgentNames.length; j++) {
+		var pattern = new RegExp("^" + Eden.systemAgentNames[j] + "$");
+		if (pattern.test(name)) {
+			return true;
+		}
 	}
 	return false;
 }
-Eden.isitSystemFunction = function(name){
-
-	for(var j=0; j<Eden.systemFunctionNames.length; j++){
-	
-		var pattern = new RegExp("^"+Eden.systemFunctionNames[j]+"$");
-		
-			if(pattern.test(name)){
-				return true;
-			}
+Eden.isitSystemFunction = function(name) {
+	for(var j = 0; j < Eden.systemFunctionNames.length; j++) {
+		var pattern = new RegExp("^" + Eden.systemFunctionNames[j] + "$");
+		if (pattern.test(name)) {
+			return true;
+		}
 	}
 	return false;
 }

@@ -862,10 +862,10 @@
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[width": "Width in pixels or as a string or undefined",
-				"[height": "Height in pixels or as a string or undefined",
+				"[height]]": "Height in pixels or as a string or undefined",
 				"[id]" : "",
 				"[css_class_list]" : "",
-				"[style]]]" : "An optional CSS style string"
+				"[style]" : "An optional CSS style string"
 			},
 			"return": "Div object",
 			"description": "Creates a html element for display on the canvas"
