@@ -1,5 +1,3 @@
-##Originally known as version 3.
-
 ## to protect against loss of information whilst constructing patterns
 
 ${{
@@ -114,7 +112,7 @@ cell42 = @;
 cell43 = @;
 cell44 = @;
 mirrorcol = "blue";
-near = 500;
+near = 1000;
 
 ## Observable Definitions:
 cell11_clicked is mousePressed && ((visraypt(1,1)[1] - mousePosition.x) * (visraypt(1,1)[1] - mousePosition.x) + (visraypt(1,1)[2] - mousePosition.y) * (visraypt(1,1)[2] - mousePosition.y) < near);
@@ -134,10 +132,10 @@ cell24_clicked is mousePressed && ((visraypt(2,4)[1] - mousePosition.x) * (visra
 cell34_clicked is mousePressed && ((visraypt(3,4)[1] - mousePosition.x) * (visraypt(3,4)[1] - mousePosition.x) + (visraypt(3,4)[2] - mousePosition.y) * (visraypt(3,4)[2] - mousePosition.y) < near);
 cell44_clicked is mousePressed && ((visraypt(4,4)[1] - mousePosition.x) * (visraypt(4,4)[1] - mousePosition.x) + (visraypt(4,4)[2] - mousePosition.y) * (visraypt(4,4)[2] - mousePosition.y) < near);
 board is Rectangle(startPos.x,startPos.y,4*scaleWidth,4*scaleHeight,"black");
-inl1 is Button("inl1","InL1",startPos.x - 50, startPos.y + 50,true);
-inl2 is Button("inl2","InL2",startPos.x - 50, startPos.y + 150,true);
-inl3 is Button("inl3","InL3",startPos.x - 50, startPos.y + 250,true);
-inl4 is Button("inl4","InL4",startPos.x - 50, startPos.y + 350,true);
+inl1 is Button("inl1","InL1",startPos.x - 90, startPos.y + 50,true);
+inl2 is Button("inl2","InL2",startPos.x - 90, startPos.y + 150,true);
+inl3 is Button("inl3","InL3",startPos.x - 90, startPos.y + 250,true);
+inl4 is Button("inl4","InL4",startPos.x - 90, startPos.y + 350,true);
 inu1 is Button("inu1","InU1",startPos.x + 50, startPos.y + 450,true);
 inu2 is Button("inu2","InU2",startPos.x + 150, startPos.y + 450,true);
 inu3 is Button("inu3","InU3",startPos.x + 250, startPos.y + 450,true);
@@ -183,38 +181,39 @@ ind3 is Button("ind3","InD3",startPos.x + 250, startPos.y - 50,true);
 ind4 is Button("ind4","InD4",startPos.x + 350, startPos.y - 50,true);
 testPt is Circle(visraypt(rix,cix)[1], visraypt(rix,cix)[2], 10);
 testLS is LineSequence(rayloctovis(ray11N), "blue");
+onRadius = 4;
 onN11col is (ind1_toggle==1) ? rayN11col : "white";
-onN11 is Circle(visraypt(0,1)[1], visraypt(0,1)[2], 2, onN11col, onN11col);
+onN11 is Circle(visraypt(0,1)[1], visraypt(0,1)[2], onRadius, onN11col, onN11col);
 onN12col is (ind2_toggle==1) ? rayN12col : "white";
-onN12 is Circle(visraypt(0,2)[1], visraypt(0,2)[2], 2, onN12col, onN12col);
+onN12 is Circle(visraypt(0,2)[1], visraypt(0,2)[2], onRadius, onN12col, onN12col);
 onN13col is (ind3_toggle==1) ? rayN13col : "white";
-onN13 is Circle(visraypt(0,3)[1], visraypt(0,3)[2], 2, onN13col, onN13col);
+onN13 is Circle(visraypt(0,3)[1], visraypt(0,3)[2], onRadius, onN13col, onN13col);
 onN14col is (ind4_toggle==1) ? rayN14col : "white";
-onN14 is Circle(visraypt(0,4)[1], visraypt(0,4)[2], 2, onN14col, onN14col);
+onN14 is Circle(visraypt(0,4)[1], visraypt(0,4)[2], onRadius, onN14col, onN14col);
 onW11col is (inl1_toggle==1) ? rayW11col : "white";
-onW11 is Circle(visraypt(1,0)[1], visraypt(1,0)[2], 2, onW11col, onW11col);
+onW11 is Circle(visraypt(1,0)[1], visraypt(1,0)[2], onRadius, onW11col, onW11col);
 onW21col is (inl2_toggle==1) ? rayW21col : "white";
-onW21 is Circle(visraypt(2,0)[1], visraypt(2,0)[2], 2, onW21col, onW21col);
+onW21 is Circle(visraypt(2,0)[1], visraypt(2,0)[2], onRadius, onW21col, onW21col);
 onW31col is (inl3_toggle==1) ? rayW31col : "white";
-onW31 is Circle(visraypt(3,0)[1], visraypt(3,0)[2], 2, onW31col, onW31col);
+onW31 is Circle(visraypt(3,0)[1], visraypt(3,0)[2], onRadius, onW31col, onW31col);
 onW41col is (inl4_toggle==1) ? rayW41col : "white";
-onW41 is Circle(visraypt(4,0)[1], visraypt(4,0)[2], 2, onW41col, onW41col);
+onW41 is Circle(visraypt(4,0)[1], visraypt(4,0)[2], onRadius, onW41col, onW41col);
 onE14col is (inr1_toggle==1) ? rayE14col : "white";
-onE14 is Circle(visraypt(1,5)[1], visraypt(1,4)[2], 2, onE14col, onE14col);
+onE14 is Circle(visraypt(1,5)[1], visraypt(1,4)[2], onRadius, onE14col, onE14col);
 onE24col is (inr2_toggle==1) ? rayE24col : "white";
-onE24 is Circle(visraypt(2,5)[1], visraypt(2,4)[2], 2, onE24col, onE24col);
+onE24 is Circle(visraypt(2,5)[1], visraypt(2,4)[2], onRadius, onE24col, onE24col);
 onE34col is (inr3_toggle==1) ? rayE34col : "white";
-onE34 is Circle(visraypt(3,5)[1], visraypt(3,4)[2], 2, onE34col, onE34col);
+onE34 is Circle(visraypt(3,5)[1], visraypt(3,4)[2], onRadius, onE34col, onE34col);
 onE44col is (inr4_toggle==1) ? rayE44col : "white";
-onE44 is Circle(visraypt(4,5)[1], visraypt(4,4)[2], 2, onE44col, onE44col);
+onE44 is Circle(visraypt(4,5)[1], visraypt(4,4)[2], onRadius, onE44col, onE44col);
 onS41col is (inu1_toggle==1) ? rayS41col : "white";
-onS41 is Circle(visraypt(5,1)[1], visraypt(5,1)[2], 2, onS41col, onS41col);
+onS41 is Circle(visraypt(5,1)[1], visraypt(5,1)[2], onRadius, onS41col, onS41col);
 onS42col is (inu2_toggle==1) ? rayS42col : "white";
-onS42 is Circle(visraypt(5,2)[1], visraypt(5,2)[2], 2, onS42col, onS42col);
+onS42 is Circle(visraypt(5,2)[1], visraypt(5,2)[2], onRadius, onS42col, onS42col);
 onS43col is (inu3_toggle==1) ? rayS43col : "white";
-onS43 is Circle(visraypt(5,3)[1], visraypt(5,3)[2], 2, onS43col, onS43col);
+onS43 is Circle(visraypt(5,3)[1], visraypt(5,3)[2], onRadius, onS43col, onS43col);
 onS44col is (inu4_toggle==1) ? rayS44col : "white";
-onS44 is Circle(visraypt(5,4)[1], visraypt(5,4)[2], 2, onS44col, onS44col);
+onS44 is Circle(visraypt(5,4)[1], visraypt(5,4)[2], onRadius, onS44col, onS44col);
 resetButt is Button("reset", "RESET", 5, 5, true);
 ray11Nvis is LineSequence(rayloctovis(ray11N), onN11col);
 ray12Nvis is LineSequence(rayloctovis(ray12N), onN12col);
@@ -568,3 +567,64 @@ proc toggle_cover : cover_clicked {
 		gridVisible = (gridVisible) ? false : true;
 	}
 }
+
+## there is an error in the specification of mirror12:
+## mirror12 is Line(visraypt(1,2)[1] - size12, visraypt(1,2)[2] + size11*mirrorGrid[1][2], visraypt(1,2)[1] + size12, visraypt(1,2)[2] - size12*mirrorGrid[1][2], mirrorcol);
+
+mirror12 is Line(visraypt(1,2)[1] - size12, visraypt(1,2)[2] + size12*mirrorGrid[1][2], visraypt(1,2)[1] + size12, visraypt(1,2)[2] - size12*mirrorGrid[1][2], mirrorcol);
+
+## a more friendly clicking regime:
+near = 1000;
+
+near11 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (1-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (1-0.5)) ^ 2) < 25);
+near12 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (2-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (1-0.5)) ^ 2) < 25);
+near13 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (3-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (1-0.5)) ^ 2) < 25);
+near14 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (4-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (1-0.5)) ^ 2) < 25);
+
+near21 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (1-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (2-0.5)) ^ 2) < 25);
+near22 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (2-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (2-0.5)) ^ 2) < 25);
+near23 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (3-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (2-0.5)) ^ 2) < 25);
+near24 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (4-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (2-0.5)) ^ 2) < 25);
+
+near31 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (1-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (3-0.5)) ^ 2) < 25);
+near32 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (2-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (3-0.5)) ^ 2) < 25);
+near33 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (3-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (3-0.5)) ^ 2) < 25);
+near34 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (4-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (3-0.5)) ^ 2) < 25);
+
+near41 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (1-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (4-0.5)) ^ 2) < 25);
+near42 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (2-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (4-0.5)) ^ 2) < 25);
+near43 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (3-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (4-0.5)) ^ 2) < 25);
+near44 is (sqrt((mousePosition.x - startPos.x - scaleWidth * (4-0.5)) ^ 2 + (mousePosition.y - startPos.y - scaleHeight * (4-0.5)) ^ 2) < 25);
+
+nearIJs is [near11,near12,near13,near14, near21,near22,near23,near24, near31,near32,near33,near34, near41,near42,near43,near44];
+
+func currLBgridpt {
+
+	para nearto;
+	
+	if (nearto[1]) return [1,1];
+	if (nearto[2]) return [1,2];
+	if (nearto[3]) return [1,3];
+	if (nearto[4]) return [1,4];
+	
+	if (nearto[5]) return [2,1];
+	if (nearto[6]) return [2,2];
+	if (nearto[7]) return [2,3];
+	if (nearto[8]) return [2,4];
+	
+	if (nearto[9]) return [3,1];
+	if (nearto[10]) return [3,2];
+	if (nearto[11]) return [3,3];
+	if (nearto[12]) return [3,4];
+	
+	if (nearto[13]) return [4,1];
+	if (nearto[14]) return [4,2];
+	if (nearto[15]) return [4,3];
+	if (nearto[16]) return [4,4];
+};
+
+currgridpt is currLBgridpt(nearIJs);
+
+locatorCircle is Circle(startPos.x + scaleWidth * (currgridpt[2]-0.5), startPos.y + scaleHeight * (currgridpt[1]-0.5), 6, "lightgrey");
+
+picture is [inl1,inl2,inl3,inl4,inu1,inu2,inu3,inu4, inr1, inr2, inr3, inr4, ind1, ind2, ind3, ind4, onN11, onN12, onN13, onN14, onW11, onW21, onW31, onW41, onE14, onE24, onE34, onE44, onS41, onS42, onS43, onS44, ray11Nvis, ray12Nvis, ray13Nvis, ray14Nvis, ray11Wvis, ray21Wvis, ray31Wvis, ray41Wvis, ray14Evis, ray24Evis, ray34Evis, ray44Evis, ray41Svis, ray42Svis, ray43Svis, ray44Svis, resetButt, coverButt, LBcover] // mirrorvis // [locatorCircle];
