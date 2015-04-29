@@ -1,19 +1,3 @@
-## to protect against loss of information whilst constructing patterns
-
-${{
-  
-var workIsDone = false;
-window.onbeforeunload = confirmBrowseAway;
-
-function confirmBrowseAway()
-{
-  if (!workIsDone) {
-    return "Reloading this page will discard the current script.";
-  }
-};
-  
-}}$;
-
 ## This is a JS-EDEN script automatically generated using the environment's script generator feature.
 
 ## JS-EDEN is an open source empirical modelling environment based on research, principles and work
@@ -40,12 +24,6 @@ maxyellow = 4;
 reset_clicked = false;
 
 ## Observable Definitions:
-point1 is {centre.x+2*radius, centre.y};
-point2 is {centre.x+radius, centre.y-sqrt(3)*radius};
-point5 is {centre.x-radius, centre.y+sqrt(3)*radius};
-point4 is {centre.x-2*radius, centre.y};
-point6 is {centre.x+radius, centre.y+sqrt(3)*radius};
-point3 is {centre.x-radius, centre.y-sqrt(3)*radius};
 pointA is {centre.x+2*radius, centre.y};
 pointB is {centre.x+radius, centre.y-sqrt(3)*radius};
 pointC is {centre.x-radius, centre.y-sqrt(3)*radius};
@@ -340,31 +318,31 @@ inCurrBlue is ((currCentre.x - mousePosition.x) > -15) && ((currCentre.x - mouse
 				&& ((currCentre.y - mousePosition.y) > -5) && ((currCentre.y - mousePosition.y) < 5);
 inCurrReset is ((currCentre.x - mousePosition.x) > -25) && ((currCentre.x - mousePosition.x) < -15)
 				&& ((currCentre.y - mousePosition.y) > -5) && ((currCentre.y - mousePosition.y) < 5);
-canBeRedCurr is !isinlist(currColAdj, "red");
+canBeRedCurr is !indexOf("red", currColAdj);
 potentialRed is Rectangle(currCentre.x - radius, currCentre.y-5,10,10,"red");
-canBeGreenCurr is !isinlist(currColAdj, "green");
+canBeGreenCurr is !indexOf("green", currColAdj);
 potentialGreen is Rectangle(currCentre.x-radius+10, currCentre.y-5,10,10,"green");
-canBeYellowCurr is !isinlist(currColAdj, "yellow");
+canBeYellowCurr is !indexOf("yellow", currColAdj);
 potentialYellow is Rectangle(currCentre.x-radius+20, currCentre.y-5,10,10,"yellow");
-canBeBlueCurr is !isinlist(currColAdj, "blue");
+canBeBlueCurr is !indexOf("blue", currColAdj);
 potentialBlue is Rectangle(currCentre.x-radius+30, currCentre.y-5,10,10,"blue");
 resetBtn is Rectangle(currCentre.x-radius+40,currCentre.y - 5,10,10,"white");
 setcolbuttons is ((canBeRedCurr) ? [potentialRed] : []) // ((canBeGreenCurr) ? [potentialGreen] : []) // ((canBeYellowCurr) ? [potentialYellow] : []) // ((canBeBlueCurr) ? [potentialBlue] : []) // [resetBtn];
-adjPoslist00 is [[0,1],[1,1],[1,0]];
-adjPoslist01 is [[0,0],[1,1],[1,2]];
-adjPoslist10 is [[0,0],[1,1],[2,1]];
-adjPoslist11 is [[0,1],[1,2],[2,2],[2,1],[1,0],[0,0]];
-adjPoslist12 is [[0,1],[1,1],[2,2],[2,3],[1,3]];
-adjPoslist21 is [[1,0],[1,1],[2,2],[3,2],[3,1]];
-adjPoslist22 is [[1,2],[2,3],[3,3],[3,2],[2,1],[1,1]];
-adjPoslist23 is [[1,2],[2,2],[3,3],[3,4],[1,3]];
-adjPoslist31 is [[2,1],[3,2]];
-adjPoslist32 is [[2,1],[3,1],[2,2],[3,3],[4,3]];
-adjPoslist33 is [[2,3],[3,4],[4,4],[4,3],[3,2],[2,2]];
-adjPoslist34 is [[2,3],[3,3],[4,4]];
-adjPoslist43 is [[3,2],[3,3],[4,4]];
-adjPoslist44 is [[3,4],[4,3],[3,3]];
-adjPoslist13 is [[1,2],[2,3]];
+adjPoslist00 = [[0,1],[1,1],[1,0]];
+adjPoslist01 = [[0,0],[1,1],[1,2]];
+adjPoslist10 = [[0,0],[1,1],[2,1]];
+adjPoslist11 = [[0,1],[1,2],[2,2],[2,1],[1,0],[0,0]];
+adjPoslist12 = [[0,1],[1,1],[2,2],[2,3],[1,3]];
+adjPoslist21 = [[1,0],[1,1],[2,2],[3,2],[3,1]];
+adjPoslist22 = [[1,2],[2,3],[3,3],[3,2],[2,1],[1,1]];
+adjPoslist23 = [[1,2],[2,2],[3,3],[3,4],[1,3]];
+adjPoslist31 = [[2,1],[3,2]];
+adjPoslist32 = [[2,1],[3,1],[2,2],[3,3],[4,3]];
+adjPoslist33 = [[2,3],[3,4],[4,4],[4,3],[3,2],[2,2]];
+adjPoslist34 = [[2,3],[3,3],[4,4]];
+adjPoslist43 = [[3,2],[3,3],[4,4]];
+adjPoslist44 = [[3,4],[4,3],[3,3]];
+adjPoslist13 = [[1,2],[2,3]];
 adjPoslist is [[adjPoslist00, adjPoslist01], [adjPoslist10, adjPoslist11, adjPoslist12, adjPoslist13], [adjPoslist21, adjPoslist22, adjPoslist23], [adjPoslist31,adjPoslist32,adjPoslist33,adjPoslist34], [adjPoslist43,adjPoslist44]];
 currColAdj is coladjls(adjPoslist[currListIndex[1]][currListIndex[2]]);
 xyGridO is {150,225};
@@ -435,21 +413,21 @@ str34 is (currListIndex==[4,4]?"34":"$$");
 str43 is (currListIndex==[5,1]?"43":"$$");
 str44 is (currListIndex==[5,2]?"44":"$$");
 dispListPtr is Text(str([[str00,str01],[str10,str11,str12,str13],[str21,str22,str23],[str31,str32,str33,str34],[str43,str44]]), 20, 50, 12);
-pos00ok is !(val00=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([0,0])[1]][hexIndexListPos([0,0])[2]]), val00);
-pos01ok is !(val01=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([0,1])[1]][hexIndexListPos([0,1])[2]]), val01);
-pos10ok is !(val10=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([1,0])[1]][hexIndexListPos([1,0])[2]]), val10);
-pos11ok is !(val11=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([1,1])[1]][hexIndexListPos([1,1])[2]]), val11);
-pos12ok is !(val12=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([1,2])[1]][hexIndexListPos([1,2])[2]]), val12);
-pos13ok is !(val13=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([1,3])[1]][hexIndexListPos([1,3])[2]]), val13);
-pos21ok is !(val21=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([2,1])[1]][hexIndexListPos([2,1])[2]]), val21);
-pos22ok is !(val22=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([2,2])[1]][hexIndexListPos([2,2])[2]]), val22);
-pos23ok is !(val23=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([2,3])[1]][hexIndexListPos([2,3])[2]]), val23);
-pos31ok is !(val31=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([3,1])[1]][hexIndexListPos([3,1])[2]]), val31);
-pos32ok is !(val32=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([3,2])[1]][hexIndexListPos([3,2])[2]]), val32);
-pos33ok is !(val33=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([3,3])[1]][hexIndexListPos([3,3])[2]]), val33);
-pos34ok is !(val34=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([3,4])[1]][hexIndexListPos([3,4])[2]]), val34);
-pos43ok is !(val43=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([4,3])[1]][hexIndexListPos([4,3])[2]]), val43);
-pos44ok is !(val44=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([4,4])[1]][hexIndexListPos([4,4])[2]]), val44);
+pos00ok is !(val00=="white") && !indexOf(val00, coladjls(adjPoslist[hexIndexListPos([0,0])[1]][hexIndexListPos([0,0])[2]]));
+pos01ok is !(val01=="white") && !indexOf(val01, coladjls(adjPoslist[hexIndexListPos([0,1])[1]][hexIndexListPos([0,1])[2]]));
+pos10ok is !(val10=="white") && !indexOf(val10, coladjls(adjPoslist[hexIndexListPos([1,0])[1]][hexIndexListPos([1,0])[2]]));
+pos11ok is !(val11=="white") && !indexOf(val11, coladjls(adjPoslist[hexIndexListPos([1,1])[1]][hexIndexListPos([1,1])[2]]));
+pos12ok is !(val12=="white") && !indexOf(val12, coladjls(adjPoslist[hexIndexListPos([1,2])[1]][hexIndexListPos([1,2])[2]]));
+pos13ok is !(val13=="white") && !indexOf(val13, coladjls(adjPoslist[hexIndexListPos([1,3])[1]][hexIndexListPos([1,3])[2]]));
+pos21ok is !(val21=="white") && !indexOf(val21, coladjls(adjPoslist[hexIndexListPos([2,1])[1]][hexIndexListPos([2,1])[2]]));
+pos22ok is !(val22=="white") && !indexOf(val22, coladjls(adjPoslist[hexIndexListPos([2,2])[1]][hexIndexListPos([2,2])[2]]));
+pos23ok is !(val23=="white") && !indexOf(val23, coladjls(adjPoslist[hexIndexListPos([2,3])[1]][hexIndexListPos([2,3])[2]]));
+pos31ok is !(val31=="white") && !indexOf(val31, coladjls(adjPoslist[hexIndexListPos([3,1])[1]][hexIndexListPos([3,1])[2]]));
+pos32ok is !(val32=="white") && !indexOf(val32, coladjls(adjPoslist[hexIndexListPos([3,2])[1]][hexIndexListPos([3,2])[2]]));
+pos33ok is !(val33=="white") && !indexOf(val33, coladjls(adjPoslist[hexIndexListPos([3,3])[1]][hexIndexListPos([3,3])[2]]));
+pos34ok is !(val34=="white") && !indexOf(val34, coladjls(adjPoslist[hexIndexListPos([3,4])[1]][hexIndexListPos([3,4])[2]]));
+pos43ok is !(val43=="white") && !indexOf(val43, coladjls(adjPoslist[hexIndexListPos([4,3])[1]][hexIndexListPos([4,3])[2]]));
+pos44ok is !(val44=="white") && !indexOf(val44, coladjls(adjPoslist[hexIndexListPos([4,4])[1]][hexIndexListPos([4,4])[2]]));
 allvals is [val00, val01,val10, val11, val12, val13,val21, val22, val23,val31,val32,val33,val34,val43,val44];
 allposoks is [pos00ok, pos01ok,pos10ok, pos11ok, pos12ok, pos13ok,pos21ok, pos22ok, pos23ok,pos31ok,pos32ok,pos33ok,pos34ok,pos43ok,pos44ok];
 noofredcells is count(allvals, "red");
@@ -459,11 +437,12 @@ noofyellowcells is count(allvals, "yellow");
 coloursok is (noofredcells <= maxred) && (noofbluecells <= maxblue) && (noofgreencells <= maxgreen) && (noofyellowcells <= maxyellow);
 solved is (count(allposoks,false)==0) && coloursok;
 solvedText is solved ? Text("Well done! You've solved the puzzle!", 0, 0,18, "green","black") :
-	Text("Colour the map: you now have " // str(maxred-noofredcells) // " red, "
+	Text("Colour the map: you have " // str(maxred-noofredcells) // " red, "
 	// str(maxgreen-noofgreencells) // " green, "
 	// str(maxblue-noofbluecells) // " blue, "
-	// str(maxyellow-noofyellowcells) // " yellow cells left", 0, 0, 18);
+	// str(maxyellow-noofyellowcells) // " yellow cells left", 0, 0, 18, (coloursok) ? "green" : "red");
 resetHexGrid is Button("reset", "Reset", 0, 25, true);
+_view_picture_height = 465;
 
 ## Action Definitions:
 proc assignCol: mouseDown {
@@ -513,15 +492,6 @@ func coladjls {
 	result = [];
 	for (i=1; i<=lsindices#; i++)
 		result = result // [hexcols[hexIndexListPos(lsindices[i])[1]][hexIndexListPos(lsindices[i])[2]]];
-	return result;
-}
-
-func isinlist {
-	para ls, obj;
-	auto i;
-	result = false;
-	for (i=1; i<=ls#; i++)
-		if (ls[i]==obj) result = true;
 	return result;
 }
 

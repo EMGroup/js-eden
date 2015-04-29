@@ -36,26 +36,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	this.history = [];
 	this.index = 0;
 
-	try {
-		if (window.localStorage) {
-			this.history = JSON.parse(window.localStorage.getItem('history')) || [];
-			this.index = this.history.length;
-		}
-	} catch (e) {
-		// can throw security exceptions if cookies are blocked
-	}
+	this.history = JSON.parse(edenUI.getOptionValue('history')) || [];
+	this.index = this.history.length;
 
 	this.addHistory = function(text) {
 		this.history.push(text);
 		this.index = this.history.length;
-		try {
-			if (window.localStorage) {
-				// store the last 50 items in local storage
-				localStorage.setItem('history', JSON.stringify(this.history.slice(-50)));
-			}
-		} catch (e) {
-			// can throw security exceptions if cookies are blocked
-		}
+		edenUI.setOptionValue('history', JSON.stringify(this.history.slice(-50)));
 	}
 
 	this.getHistory = function(index) {

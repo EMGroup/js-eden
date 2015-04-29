@@ -122,7 +122,7 @@ function concatAndResolveUrl(url, concat) {
 				"## ERROR number " + options.errorNumber + ":<br>"+
 				(options.path ? "## " + options.path + "<br>" : "")+
 				errorMessageHTML +
-				"</div>\r\n\r\n";
+				"</div>\n\n";
 
 			this.showErrorWindow().prepend(formattedError)
 			this.showErrorWindow().prop('scrollTop', 0);
@@ -169,7 +169,7 @@ function concatAndResolveUrl(url, concat) {
 
 				this.errorWindow
 					.addClass('ui-state-error')
-					.dialog({title: "EDEN Errors", width: 500})
+					.dialog({title: "EDEN Errors", width: 500, height: 250})
 					.dialog('moveToTop');
 			},
 			title: "Error Window",
@@ -224,6 +224,29 @@ function concatAndResolveUrl(url, concat) {
 		document.getElementById("tooltip").style.display = "none";
 	}
 
+	EdenUI.prototype.getOptionValue = function (optionName) {
+		try {
+			if (window.localStorage) {
+				return window.localStorage.getItem(optionName);
+			}
+		} catch (e) {
+			//Cookies are blocked.
+			return undefined;
+		}
+	}
+	
+	EdenUI.prototype.setOptionValue = function(optionName, value) {
+		try {
+			if (window.localStorage) {
+				window.localStorage.setItem(optionName, value);
+				return true;
+			}
+		} catch (e) {
+			//Cookies are blocked.
+			return false;
+		}
+	}
+		
 	/**
 	 * @constructor
 	 * @struct

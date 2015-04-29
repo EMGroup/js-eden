@@ -459,11 +459,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				height: 450 + edenUI.titleBarHeight + edenUI.scrollBarXSize,
 				minHeight: 120,
 				minWidth: 230,
-				resizeStop: function(event,ui) {
-					var contentElem = document.getElementById(name);
-					$("#"+name+"-canvas").attr("width", Math.floor(ui.size.width) - edenUI.scrollBarYSize).attr("height", parseInt(contentElem.style.height) - edenUI.scrollBarXSize + 3);
-					me.drawPicture(displayedName, pictureobs);
-				},
 				dialogClass: "unpadded-dialog"
 			});
 		return {

@@ -1,19 +1,3 @@
-## to protect against loss of information whilst constructing patterns
-
-${{
-  
-var workIsDone = false;
-window.onbeforeunload = confirmBrowseAway;
-
-function confirmBrowseAway()
-{
-  if (!workIsDone) {
-    return "Reloading this page will discard the current script.";
-  }
-};
-  
-}}$;
-
 ## This is a JS-EDEN script automatically generated using the environment's script generator feature.
 
 ## JS-EDEN is an open source empirical modelling environment based on research, principles and work
@@ -132,14 +116,14 @@ cell24_clicked is mousePressed && ((visraypt(2,4)[1] - mousePosition.x) * (visra
 cell34_clicked is mousePressed && ((visraypt(3,4)[1] - mousePosition.x) * (visraypt(3,4)[1] - mousePosition.x) + (visraypt(3,4)[2] - mousePosition.y) * (visraypt(3,4)[2] - mousePosition.y) < near);
 cell44_clicked is mousePressed && ((visraypt(4,4)[1] - mousePosition.x) * (visraypt(4,4)[1] - mousePosition.x) + (visraypt(4,4)[2] - mousePosition.y) * (visraypt(4,4)[2] - mousePosition.y) < near);
 board is Rectangle(startPos.x,startPos.y,4*scaleWidth,4*scaleHeight,"black");
-inl1 is Button("inl1","InL1",startPos.x - 90, startPos.y + 50,true);
-inl2 is Button("inl2","InL2",startPos.x - 90, startPos.y + 150,true);
-inl3 is Button("inl3","InL3",startPos.x - 90, startPos.y + 250,true);
-inl4 is Button("inl4","InL4",startPos.x - 90, startPos.y + 350,true);
-inu1 is Button("inu1","InU1",startPos.x + 50, startPos.y + 450,true);
-inu2 is Button("inu2","InU2",startPos.x + 150, startPos.y + 450,true);
-inu3 is Button("inu3","InU3",startPos.x + 250, startPos.y + 450,true);
-inu4 is Button("inu4","InU4",startPos.x + 350, startPos.y + 450,true);
+inl1 is Button("inl1","Torch W1",startPos.x - 90, startPos.y + 50,true);
+inl2 is Button("inl2","Torch W2",startPos.x - 90, startPos.y + 150,true);
+inl3 is Button("inl3","Torch W3",startPos.x - 90, startPos.y + 250,true);
+inl4 is Button("inl4","Torch W4",startPos.x - 90, startPos.y + 350,true);
+inu1 is Button("inu1","Torch S1",startPos.x + 50, startPos.y + 450,true);
+inu2 is Button("inu2","Torch S2",startPos.x + 150, startPos.y + 450,true);
+inu3 is Button("inu3","Torch S3",startPos.x + 250, startPos.y + 450,true);
+inu4 is Button("inu4","Torch S4",startPos.x + 350, startPos.y + 450,true);
 inputslu is [inl1_toggle, inl2_toggle, inl3_toggle, inl4_toggle, inu1_toggle, inu2_toggle, inu3_toggle, inu4_toggle];
 inputsrd is [inr1_toggle, inr2_toggle, inr3_toggle, inr4_toggle, ind1_toggle, ind2_toggle, ind3_toggle, ind4_toggle];
 inputs is inputslu // inputsrd;
@@ -171,14 +155,14 @@ ray14E is makeray(1,4,"E",mirrors);
 alltherays is [ray11N, ray12N, ray13N, ray14N, ray11W, ray21W, ray31W, ray41W, ray41S, ray42S, ray43S, ray44S, ray14E, ray24E, ray34E, ray44E];
 raysselected is [ind1_toggle, ind2_toggle, ind3_toggle, ind4_toggle, inl1_toggle,inl2_toggle,inl3_toggle,inl4_toggle,inu1_toggle,inu2_toggle,inu3_toggle,inu4_toggle, inr1_toggle, inr2_toggle, inr3_toggle, inr4_toggle];
 rays is subsetrays(alltherays, raysselected);
-inr1 is Button("inr1","InR1",startPos.x +450, startPos.y + 50,true);
-inr2 is Button("inr2","InR2",startPos.x +450, startPos.y + 150,true);
-inr3 is Button("inr3","InR3",startPos.x + 450, startPos.y + 250,true);
-inr4 is Button("inr4","InR4",startPos.x + 450, startPos.y + 350,true);
-ind1 is Button("ind1","InD1",startPos.x + 50, startPos.y  - 50,true);
-ind2 is Button("ind2","InD2",startPos.x + 150, startPos.y - 50,true);
-ind3 is Button("ind3","InD3",startPos.x + 250, startPos.y - 50,true);
-ind4 is Button("ind4","InD4",startPos.x + 350, startPos.y - 50,true);
+inr1 is Button("inr1","Torch E1",startPos.x +450, startPos.y + 50,true);
+inr2 is Button("inr2","Torch E2",startPos.x +450, startPos.y + 150,true);
+inr3 is Button("inr3","Torch E3",startPos.x + 450, startPos.y + 250,true);
+inr4 is Button("inr4","Torch E4",startPos.x + 450, startPos.y + 350,true);
+ind1 is Button("ind1","Torch N1",startPos.x + 50, startPos.y  - 50,true);
+ind2 is Button("ind2","Torch N2",startPos.x + 150, startPos.y - 50,true);
+ind3 is Button("ind3","Torch N3",startPos.x + 250, startPos.y - 50,true);
+ind4 is Button("ind4","Torch N4",startPos.x + 350, startPos.y - 50,true);
 testPt is Circle(visraypt(rix,cix)[1], visraypt(rix,cix)[2], 10);
 testLS is LineSequence(rayloctovis(ray11N), "blue");
 onRadius = 4;

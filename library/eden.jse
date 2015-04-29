@@ -465,20 +465,29 @@ func doDefault {
 }
 
 proc arrangeWindows {
-  auto i;
-  auto name;
-  auto curr_x;
+	para windowOrder;
+	auto name, curr_x, i;
 
-  curr_x = 0;
-  for (i = 1; i <= _view_list#; ++i) {
-    name = _view_list[i];
-    if (`"_view_"//name//"_position"` != @) {
-      continue;
-    }
-    `"_view_"//name//"_x"` = curr_x;
-    `"_view_"//name//"_y"` = 80;
-    curr_x += `"_view_"//name//"_width"` + 27;
-  }
+	if (windowOrder == @) {
+		windowOrder = _view_list;
+	} else  {
+		for (i =  1; i <= _view_list#; i++) {
+			if (indexOf(_view_list[i], windowOrder) == 0) {
+				windowOrder = windowOrder // [_view_list[i]];
+			}
+		}
+	}
+  
+	curr_x = 0;
+	for (i = 1; i <= windowOrder#; ++i) {
+		name = windowOrder[i];
+		if (`"_view_"//name//"_position"` != @) {
+			continue;
+		}
+		`"_view_"//name//"_x"` = curr_x;
+		`"_view_"//name//"_y"` = 80;
+		curr_x += `"_view_"//name//"_width"` + 27;
+	}
 }
 
 ##Autocalc compatibility

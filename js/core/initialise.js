@@ -85,6 +85,15 @@ function initialiseJSEden() {
 	$(document).ready(function () {
 		edenUI = new EdenUI(eden);
 		
+		window.onbeforeunload = function () {
+			var prompt = edenUI.getOptionValue('optConfirmUnload');
+			if (prompt != "false") {
+				return "Leaving this page will discard the current script. Your work will not be saved.";
+			} else {
+				return undefined;
+			}
+		}
+
 		var loadPlugins = function (pluginList, callback) {
 			var loadPlugin = function () {
 				if (pluginList.length > 0) {

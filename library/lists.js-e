@@ -69,7 +69,7 @@ func indexOf {
 		if(!isSorted || searchValue# > 1) {
 			${{
 				if (arguments[1].length < arguments[0].length) {
-					console.log("Warning: possible usage error for indexOf.  The source string has fewer characters than the search string.");
+					//console.log("Warning: possible usage error for indexOf.  The source string has fewer characters than the search string.");
 				}
 				return arguments[1].indexOf(arguments[0], arguments[2]) + 1;
 			}}$;
@@ -80,7 +80,7 @@ func indexOf {
 	}
 
 	if (list# < searchValue#) {
-		${{ console.log("Warning: possible usage error in indexOf.  The source has fewer elements/characters than the search value."); }}$;
+		##${{ console.log("Warning: possible usage error in indexOf.  The source has fewer elements/characters than the search value."); }}$;
 	}
 	
 	if (lowerBound == @) {

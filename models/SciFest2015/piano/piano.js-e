@@ -32,6 +32,7 @@ func pianoSound {
 		audioObj.getEdenCode = function () {
 			return "pianoSound(" + pianoKeyNumber + ")";
 		};
+		audioObj.toString = audioObj.getEdenCode;
 		return audioObj;
 	}}$;
 }

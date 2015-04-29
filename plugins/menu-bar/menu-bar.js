@@ -65,9 +65,10 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		return group;
 	}
 	
-	function addMainItem(name, title, group) {
-		var menuitem = $('<div class="menubar-mainitem"></div>');
-		menuitem.html(title+'<div id="menubar-mainitem-'+name+'" class="menubar-menu"></div>');
+	function addMainItem(name, title, width, group) {
+		width = width + 40;
+		var menuitem = $('<div class="menubar-mainitem" style="width: ' + width + 'px"></div>');
+		menuitem.html(title+'<div id="menubar-mainitem-'+ name + '" class="menubar-menu"></div>');
 		menuitem.appendTo(group);
 
 		$("#menubar-mainitem-"+name).hide();
@@ -247,10 +248,39 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		}
 	};
 
+	function checkedHTML(isChecked) {
+		return isChecked && isChecked != "false"? 'checked="checked"' : '';
+	}
+	
 	// Add main menu items
-	var jsedenGroup = addMainGroup();
-	addMainItem("views", "New Window", jsedenGroup);
-	addMainItem("existing-views", "Existing Windows", jsedenGroup);
+	function createMenus() {
+		var jsedenGroup = addMainGroup();
+		
+		var optionsMenu;
+		var label, checkbox, inputElement, initialOptionValue, item;
+		
+		addMainItem("views", "New Window", 60, jsedenGroup);
+		addMainItem("existing-views", "Existing Windows", 85, jsedenGroup);
+		me.updateViewsMenu();
+
+		addMainItem("options", "Options", 60, jsedenGroup);	
+		optionsMenu = $("#menubar-mainitem-options");
+
+		initialOptionValue = edenUI.getOptionValue("optConfirmUnload");
+		checkbox = menuItemPart("menubar-item-input", '<input type="checkbox"' + checkedHTML(initialOptionValue) + ' />');
+		inputElement = checkbox.get(0).children[0];
+		label = menuItemPart('menubar-item-label', "Confirm Closing Environment");
+		item = menuItem([checkbox, label]);
+		item.click(function (event) {
+			if (event.target != inputElement) {
+				inputElement.checked = !inputElement.checked;
+			}
+			edenUI.setOptionValue("optConfirmUnload", inputElement.checked);
+		});
+		item.appendTo(optionsMenu);
+	}
+
+	createMenus();
 
 	// Put js-eden version in right corner
 	$.ajax({
@@ -260,6 +290,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			var versionHtml = '';
 			if (data.tag) {
 				versionHtml += 'Version ' + data.tag;
+				document.title = document.title + " " + data.tag;
 			}
 			if (data.sha) {
 				versionHtml += ' Commit <a href="https://github.com/EMgroup/js-eden/commit/' + data.sha +'">' + data.sha + '</a>';
@@ -268,8 +299,6 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		},
 		cache: false
 	});
-
-	this.updateViewsMenu();
 
 	//Additional menus defined by the construal.
 	var construalGroup = addMainGroup();

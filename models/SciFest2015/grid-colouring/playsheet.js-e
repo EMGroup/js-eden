@@ -1,0 +1,431 @@
+include("models/jspe/run.e");
+
+## playsheet for Grid Colouring
+
+## initial environment with the bug in the adjacency list corrected
+
+picture is hexagons // setcolbuttons // hexnumdisplays // [solvedText, resetHexGrid];
+picture is hexagons // setcolbuttons // [solvedText, resetHexGrid];
+
+introH is Slide("
+<h3>Grid colouring</h3>
+<i>Colouring a map</i> means that two countries next to each other have different colours ...
+
+<p>
+<b>How it works ...</b>
+<ul>
+<li>Hover the mouse over a hexagon in the Canvas 2D window. Some coloured boxes appear inside the hexagon.
+<li>Click on one of the boxes to colour the hexagon - use the white box to delete a colour.</li>
+</ul>
+</p>
+<p>
+<b>Questions</b>
+<ul>
+<li>Can colour the hexagon map using each of the four colours RGBY at most 4 times?
+</li>
+<li>How many cells can you colour blue?</li>
+<li>Can you colour the map with just <b>three</b> colours?</li>
+</ul>
+</p>
+<p>
+<b>Things you can do ...</b>
+<jseden>
+showObservables(\"max|noof|allvals|coloursok\");
+arrangeWindows([\"picture\", \"showObservables\", \"jspe\"]);
+</jseden>
+</p>
+<p>
+<code>maxred</code> says how many times you can use red. Click on it.
+You can change its value.
+</p>
+<p>
+The definition
+<pre>
+adjPoslist12 = [[0,1],[1,1],[2,2],[2,3],[1,3]];
+</pre>
+says that the hexagon labelled 12 is next to the hexagons labelled 01, 11, 22, 23 and 13. What goes wrong if you change it ... ?
+<jseden>
+adjPoslist12 = [[0,1],[2,2],[2,3],[1,3]];
+</jseden>
+</p>
+");
+
+slideA2_colouringexpts is Slide("
+<p>
+<h3>Some experiments</h3>
+<ul>
+<li>The coloured boxes won't let you give the same colour to hexagons next to each other. For instance, no red box appears in a hexagon next to a red hexagon. Can you set things up so that all the coloured boxes for a hexagon diappear?</li>
+<li>When you hover over a coloured hexagon, a white box appears. What does this do?</li>
+<li>
+If you want to solve the puzzle, you can only use each colour at most four times. But in fact (maybe you found this out already?), you can use each colour as many times as you like. 
+<i>
+<ul>
+<li>
+What is the largest number of times that you can use the colour blue?
+</li><li>
+What is the <i>smallest</i> number of times?
+</li>
+</ul>
+</i>
+</li>
+</ul>
+</p>
+");
+
+slideList is [slide0_setup, slide1_intro, slide2_colouringexpts];
+
+A_initphase is [introH, slideA2_colouringexpts];
+
+slideList is A_initphase // B_introconstrual;
+
+B_introconstrual is [slideB0_basics, slideB1_expts];
+
+slideB0_basics is Slide("
+<h3>About the construal ...</h3>
+<p>
+What do you think about when colouring the map?
+You look at the hexagons, how they are coloured, which hexagons are next to each other.
+You also note how many times you can use each colour. These are examples of observables. 
+Though you can't always see an observable directly, you are aware of it. For instace, you can work out
+how many times you can use red by counting the red hexagons and checking how many you have left. 
+</p>
+<p>
+The construal keeps track of the observables.  Click the \"execute\" link below to see some interesting observables.
+</p>
+<jseden>
+showObservables(\"max|noof|allvals|coloursok\");
+arrangeWindows([\"picture\", \"showObservables\", \"jspe\"]);
+</jseden>
+<p>
+Hover the mouse over the 'green' observables to see how they are defined. Change the colours of
+hexagons and see how the values of the observables change. Can you say what each of the observables means?
+</p>
+");
+
+slideB1_expts is Slide("
+<h3>Changing your mind ...</h3>
+<p>
+We might want to change the colouring puzzle. For instance, we might want:
+<ol>
+<li>to use each colour as many times as you like</li>
+<li>to find out whether we can use just three colours</li>
+<li>to use each colour the same number of times</li>
+</ol>
+</p>
+<p>
+A construal can track our change of mind - we just have <i>redefine</i> observables. 
+Here are three ways to define <code>maxred</code>, <code>maxgreen</code>, <code>maxblue</code> and <code>maxyellow</code>:
+<ul>
+<li>definition A
+<jseden>
+maxred = maxgreen = maxblue = 15; maxyellow = 0;
+</jseden>
+<br>
+</li>
+<li>definition B
+<jseden>
+maxred = maxgreen = maxblue = 5;  maxyellow = 0;
+</jseden></li>
+<br>
+<li>definition C
+<jseden>
+maxred = maxgreen = maxblue = maxyellow = 15;
+</jseden>
+</li>
+</ul>
+</p>
+<p>
+<i>How do A, B and C match up to 1, 2 and 3?</i>
+</p>
+");
+
+picture is hexagons // setcolbuttons // hexnumdisplays // [solvedText, resetHexGrid];
+
+slideB2_colouringchecks is Slide("
+<h3>Checking the colouring</h3>
+<p>
+The construal works by making sure that observables are kept up-to-date automatically.
+For instance, when <code>maxred</code> is changed, the observable <code>coloursok</code> may also change.
+We say that <code>coloursok</code> <i>depends</i> on <code>maxred</code>.
+</p>
+<p>
+The colour we can give to a hexagon depends on the colours of the hexagons next to it.
+'The hexagons next to a hexagon' is also an example of an observable!
+To look at these observables, copy-and-paste the expression <code>adjPoslist</code> into the search box in an Observable List.
+</p>
+<p>
+There are 15 observables, one for each hexagon. To see how the hexagons have been labelled, we can add labels to the <code>picture</code> observable:
+<jseden>
+picture is hexagons // setcolbuttons // hexnumdisplays // [solvedText, resetHexGrid];
+</jseden>
+</p>
+<p>
+The definition
+<pre>
+adjPoslist12 = [[0,1],[1,1],[2,2],[2,3],[1,3]];
+</pre>
+says that the hexagon labelled 12 is next to the hexagons labelled 01, 11, 22, 23 and 13.
+</p>
+<p>
+<p>At first, we gave the wrong definition to <code>adjPoslist12</code>. Click 'execute' to restore this mistake:
+<jseden>
+adjPoslist12 = [[0,1],[2,2],[2,3],[1,3]];
+</jseden>
+</p>
+<i>
+<p>
+When do you see this error when you try to colour the hexagons?
+</p>
+<p>How would you set up the construal to look for colourings in which hexagons 00 and 44 have different colours?</li>
+</p>
+</i>
+");
+
+slideList is A_initphase // B_introconstrual;
+
+B_introconstrual is [slideB0_basics, slideB1_expts, slideB2_colouringchecks];
+
+slideC0_basicMC is Slide("
+<h3>How we made the construal</h3>
+<p>
+Making a construal is a kind of journey.
+To show how we made the construal we go back to an early point in that journey, when we had just one hexagon in the picture.
+<p>
+The first hexagon that we made still exists, but isn't displayed. You can find out about the observables in it by copying-and-pasting <code>hexagon$|point[A-F]|radius|centre$</code> into the Observable List Search box. To display it on the screen, execute:
+<p>
+<jseden>
+picture is [hexagon];
+</jseden>
+</p>
+<p>
+To see the observables in the hexagon and how they are defined, click 'Edit Listed' at the top right of the Observable List window: 
+<jseden>
+centre = {225, 420};
+radius = 25;
+pointA is {centre.x+2*radius, centre.y};
+pointB is {centre.x+radius, centre.y-sqrt(3)*radius};
+pointC is {centre.x-radius, centre.y-sqrt(3)*radius};
+pointD is {centre.x-2*radius, centre.y};
+pointE is {centre.x-radius, centre.y+sqrt(3)*radius};
+pointF is {centre.x+radius, centre.y+sqrt(3)*radius};
+hexagon is Polygon([pointA, pointB, pointC, pointD, pointE, pointF], \"white\", \"black\");
+</jseden>
+<p>
+After playing around with the hexagon we can execute these definitions to put it back to its original state. 
+</p>
+");
+
+slideC1_firsthex is Slide("
+<h3>How we made the first hexagon</h3>
+<p>
+We can take a closer look at the hexagon!
+<jseden>
+centre = {225,225};
+radius = 100;
+</jseden>
+</p>
+<p>
+We can add some new observables to it to show how it was constructed.
+<jseden>
+spoke1 is Line(centre.x, centre.y, pointA.x, pointA.y, \"red\");
+spoke2 is Line(centre.x, centre.y, pointB.x, pointB.y, \"red\");
+pointAlabel is Text(\"A\", pointA.x+5, pointA.y);
+pointBlabel is Text(\"B\", pointB.x+10, pointB.y);
+pointOlabel is Text(\"P\", centre.x+radius, centre.y+5);
+pointPlabel is Text(\"C\", centre.x, centre.y+5);
+pointlabels is [pointAlabel, pointBlabel, pointOlabel, pointPlabel];
+perpendicular is Line(centre.x + radius, centre.y, point2.x, point2.y, \"green\");
+picture is [hexagon] // [spoke1, spoke2, perpendicular] // pointlabels;
+</jseden>
+<p>
+Note that <bold>centre.x</bold> and <bold>centre.y</bold> are the x and y coordinates of <bold>centre</bold>.
+</p>
+<p>
+<i>
+Can you match each observable in the script with something on the screen?
+</i>
+</p>
+");
+
+slideC2_hexmath is Slide("
+<h3>The maths behind the hexagon</h3>
+<p>
+Look back at the script that defines the hexagon:
+<i>
+<ul>
+<li>Do you know the maths we used to make the hexagon?</li>
+<li>Why is the observable 'radius' not what we might expect?</li>
+<li>Why do we <b>subtract</b> from <code>centre.y</code> when defining the coordinates of <code>pointB</code>?</li>
+</ul>
+</i>
+</p>
+<p>
+... and this is the triangle to which we apply basic trigonometry:
+<jseden>
+hypeTriangle is Line(centre.x, centre.y, point2.x, point2.y, \"green\");
+oppTriangle is Line(centre.x, centre.y, centre.x+radius, point1.y, \"green\");
+angleTriangle is Arc(centre.x, centre.y, radius/4, 0, 60, \"green\");
+oppSide is Text(decodeHTML(\"&radic;\") // str(3), centre.x + radius, centre.y - radius*sqrt(3)/2, 18,\"green\");
+adjSide is Text(str(1), centre.x + radius/2, centre.y, 18,\"green\");
+hypeSide is Text(str(2), centre.x + radius/2, centre.y - radius*sqrt(3)/2, 18,\"green\");
+trigTriangle is [perpendicular, angleTriangle, oppSide, adjSide, hypeSide, oppTriangle, hypeTriangle];
+picture is [hexagon] // [spoke1, spoke2] // trigTriangle // pointlabels;
+</jseden>
+</p>
+<p>
+... and this is what 'radius' might have meant
+<jseden>
+incircleHex is Circle(centre.x, centre.y, sqrt(3)*radius, \"transparent\", \"green\");
+picture is [hexagon] // [spoke1, spoke2] // [incircleHex] // pointlabels;
+</jseden>
+</p>
+");
+
+slideC3_backtonormality is Slide("
+<h3>Getting back to where we were</h3>
+<p>
+To get back to where we were on our journey, and bring back all the other hexagons, we execute:
+<jseden>
+centre = {225, 420};
+radius = 25;
+picture is hexagons // setcolbuttons // hexnumdisplays  // [solvedText, resetHexGrid];
+</jseden>
+</p>
+");
+
+C_introMC is [slideC0_basicMC, slideC1_firsthex, slideC2_hexmath, slideC3_backtonormality];
+
+slideD0_MCrepstruct is Slide("
+<h3>More about how the construal has been made ...</h3>
+<p>To make a construal we must think about many ways of observing things.
+</p>
+<p>
+To draw the 15 hexagons that make up the display, it's useful to think of the centres of the hexagons as laid out on the xy-plane.
+</p>
+<jseden>
+radius = 10;
+picture is hexagons // hexnumdisplays // xyGrid // xyGridnums // xyGridPts;
+</jseden>
+</p>
+You can move the mouse over the hexagonal grid and see which points in the xy-plane they correspond to.
+<p>
+<p>
+To represent the structure of the hexagon grid in a computer-friendly way, we have to use lists.
+</p>
+<jseden>
+picture is hexagons // hexnumdisplays // xyGrid // xyGridnums // xyGridPts // [dispList, dispListPtr];
+</jseden>
+</p>
+You can move the mouse over the hexagonal grid and see which elements in the list of lists they correspond to.
+<p>
+<p>
+We always have to keep in our mind how these two ways of recording information about the grid are linked. 
+</p>
+<p>
+We use dependencies for this, as we shall now explore.
+</p>
+<p>
+</p>
+");
+
+slideD1_currstate is Slide("
+<h3>Observing the current state ...</h3>
+<p>
+We can change the focus of attention by moving the mouse over the hexagon grid.
+This affects the observables of the grid cell we're currently looking at.
+</p>
+<p>
+To explore this, type <code>curr|can</code> into the search box of an Observable List.
+<p>
+You can see how we view the grid as an array (see currPos) and how the computer refers to it as a list (see currListIndex).
+Can see the dependency trail using RE 'currPos|canBeRedCurr|currListIndex' in a Dependency Map viewer.
+</p>
+<p>
+Exercise: survey the hexagon grid and figure out what all the observables in the Observable list all mean - i.e. link them to specific natural language descriptions.
+<pre>
+currCentre is centres[currListIndex[1]][currListIndex[2]];
+currListIndex is hexIndexListPos(currPos);
+currPos is currHexPt(nears);
+canBeRedCurr is !isinlist(currColAdj, \"red\");
+canBeGreenCurr is !isinlist(currColAdj, \"green\");
+canBeYellowCurr is !isinlist(currColAdj, \"yellow\");
+canBeBlueCurr is !isinlist(currColAdj, \"blue\");
+currColAdj is coladjls(adjPoslist[currListIndex[1]][currListIndex[2]]);
+</pre>
+</p>
+<p>
+We can also add a definition for the current colour:
+<jseden>
+currCol is hexcols[currListIndex[1]][currListIndex[2]];
+</jseden>
+</p>
+
+");
+
+D_morereMC is [slideD0_MCrepstruct, slideD1_currstate, slideC3_backtonormality];
+
+slideE0_demochallenge is Slide("
+<h3>Colouring the hexagons with three colours ...</h3>
+<p>
+A colouring of a map so that no two regions are adjacent that uses 3 colours is called a 3-colouring. 
+</p>
+<p>
+You may have already found out that we can colour the hexagon grid using three colours. In fact, there's essentially only way to do it. The code below modifies the mouse actions that you use to colour the hexagons so that if you click near the centre of each of the hexagons in turn, but don't click on any of the coloured rectangles, you make a 3-colouring.
+</p>
+<jseden>
+
+func selcol {
+	para ix;
+	return (ix==0) ? \"red\" : ((ix==1) ? \"blue\":\"green\");
+}
+
+proc assignCol: mouseDown {
+	if (mouseDown && inCurrRed && canBeRedCurr) hexcols[currListIndex[1]][currListIndex[2]] = \"red\";
+	if (mouseDown && inCurrGreen && canBeGreenCurr) hexcols[currListIndex[1]][currListIndex[2]] = \"green\";
+	if (mouseDown && inCurrYellow && canBeYellowCurr) hexcols[currListIndex[1]][currListIndex[2]] = \"yellow\";
+	if (mouseDown && inCurrBlue && canBeBlueCurr) hexcols[currListIndex[1]][currListIndex[2]] = \"blue\";
+	if (mouseDown && inCurrReset) hexcols[currListIndex[1]][currListIndex[2]] = \"white\";
+	if (mouseDown && (!inCurrRed) && (!inCurrGreen) && (!inCurrYellow) && (!inCurrBlue) && (!inCurrReset)) 
+		hexcols[currListIndex[1]][currListIndex[2]] = selcol((currPos[1]+currPos[2])%3);
+}
+</jseden>
+</p>
+<p>
+If we like a challenge, see if you can figure out how this works. (Hint: clicking on hexagonIJ assigns a default colour value determined by the remainder on dividing I+J by 3).
+<p/P
+");
+
+slideE1_refinement is Slide("
+
+<h3>Adapting the cell sensitivity to suit the 3-colouring technique ...</h3>
+
+... when you don't want to click on the coloured rectangles it's useful to have a bigger area to aim at. To do this we redefine the following observables, bearing in mind what we learnt from creating the observable <code>incirclehex</code>:
+
+<jseden>
+near00 is (sqrt((mousePosition.x - centre00.x) ^ 2 + (mousePosition.y - centre00.y) ^ 2) < sqrt(3)*radius);
+near10 is (sqrt((mousePosition.x - centre10.x) ^ 2 + (mousePosition.y - centre10.y) ^ 2) < sqrt(3)*radius);
+near01 is (sqrt((mousePosition.x - centre01.x) ^ 2 + (mousePosition.y - centre01.y) ^ 2) < sqrt(3)*radius);
+near12 is (sqrt((mousePosition.x - centre12.x) ^ 2 + (mousePosition.y - centre12.y) ^ 2) < sqrt(3)*radius);
+near21 is (sqrt((mousePosition.x - centre21.x) ^ 2 + (mousePosition.y - centre21.y) ^ 2) < sqrt(3)*radius);
+near11 is (sqrt((mousePosition.x - centre11.x) ^ 2 + (mousePosition.y - centre11.y) ^ 2) < sqrt(3)*radius);
+near22 is (sqrt((mousePosition.x - centre22.x) ^ 2 + (mousePosition.y - centre22.y) ^ 2) < sqrt(3)*radius);
+near31 is (sqrt((mousePosition.x - centre31.x) ^ 2 + (mousePosition.y - centre31.y) ^ 2) < sqrt(3)*radius);
+near13 is (sqrt((mousePosition.x - centre13.x) ^ 2 + (mousePosition.y - centre13.y) ^ 2) < sqrt(3)*radius);
+near33 is (sqrt((mousePosition.x - centre33.x) ^ 2 + (mousePosition.y - centre33.y) ^ 2) < sqrt(3)*radius);
+near32 is (sqrt((mousePosition.x - centre32.x) ^ 2 + (mousePosition.y - centre32.y) ^ 2) < sqrt(3)*radius);
+near23 is (sqrt((mousePosition.x - centre23.x) ^ 2 + (mousePosition.y - centre23.y) ^ 2) < sqrt(3)*radius);
+near44 is (sqrt((mousePosition.x - centre44.x) ^ 2 + (mousePosition.y - centre44.y) ^ 2) < sqrt(3)*radius);
+near34 is (sqrt((mousePosition.x - centre34.x) ^ 2 + (mousePosition.y - centre34.y) ^ 2) < sqrt(3)*radius);
+near43 is (sqrt((mousePosition.x - centre43.x) ^ 2 + (mousePosition.y - centre43.y) ^ 2) < sqrt(3)*radius);
+</jseden>
+<p>
+When exploring map colouring, the indexing of the grid cells serves no purpose and can be removed:
+<jseden>
+picture is hexagons // setcolbuttons // [solvedText, resetHexGrid];
+</jseden>
+</p>
+");
+
+E_demo3col is [slideE0_demochallenge, slideE1_refinement];
+
+slideList is A_initphase // B_introconstrual // C_introMC  // D_morereMC // E_demo3col;
