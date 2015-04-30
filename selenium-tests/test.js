@@ -38,7 +38,7 @@ describe("UI tests", function () {
 	});
 
 	it("has JS-Eden as page title", function () {
-		return browser.title().should.become("JS-Eden");
+		return browser.title().should.become("JS-EDEN");
 	});
 
 	it("has a menu", function () {

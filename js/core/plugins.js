@@ -176,11 +176,11 @@
 
 		//Set the title bar text and allow the construal to change it later.
 		var titleSym = view(name, "title");
-		titleSym.assign(title);
 		titleSym.addJSObserver("updateTitleBar", function (symbol, value) {
 			diag.dialog("option", "title", value);
 			me.plugins.MenuBar.updateViewsMenu();
 		});
+		titleSym.assign(title);
 
 		diag.on("dialogresizestop", function (event, ui) {
 			var root = me.eden.root;
