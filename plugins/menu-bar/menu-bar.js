@@ -266,7 +266,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		addMainItem("options", "Options", 60, jsedenGroup);	
 		optionsMenu = $("#menubar-mainitem-options");
 
-		initialOptionValue = edenUI.getOptionValue("optConfirmUnload");
+		initialOptionValue = edenUI.getOptionValue("optConfirmUnload") != "false";
 		checkbox = menuItemPart("menubar-item-input", '<input type="checkbox"' + checkedHTML(initialOptionValue) + ' />');
 		inputElement = checkbox.get(0).children[0];
 		label = menuItemPart('menubar-item-label', "Confirm Closing Environment");

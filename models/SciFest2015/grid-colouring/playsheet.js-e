@@ -1,6 +1,6 @@
 include("models/jspe/run.e");
 
-## playsheet for Grid Colouring
+## playsheet for Hexagon Colouring
 
 ## initial environment with the bug in the adjacency list corrected
 
@@ -8,7 +8,7 @@ picture is hexagons // setcolbuttons // hexnumdisplays // [solvedText, resetHexG
 picture is hexagons // setcolbuttons // [solvedText, resetHexGrid];
 
 introH is Slide("
-<h3>Grid colouring</h3>
+<h3>Hexagon colouring</h3>
 <i>Colouring a map</i> means that two countries next to each other have different colours ...
 
 <p>
