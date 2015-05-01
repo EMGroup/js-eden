@@ -24,8 +24,8 @@ func atan {
 
 func ceil {
 	${{
-		if (arguments.length != 2) {
-			eden.error(new Error("ceil: This function requires at exactly 2 arguments."), "error");
+		if (arguments.length < 1 || arguments.length > 2) {
+			eden.error(new Error("ceil: This function requires at least 1 argument and at most 2 arguments."), "error");
 			return undefined;
 		}
 		
@@ -37,15 +37,21 @@ func ceil {
 			return undefined;
 		}
 
-		var multiple = arguments[1];
+		var multiple;
+		if (arguments.length == 2) {
+			multiple = arguments[1];
+			if (multiple === undefined) {
+				return undefined;
+			} else if (typeof(multiple) != "number") {
+				eden.error(new Error("ceil: The second argument must be a number, not a " + typeof(multiple)), "error");
+				return undefined;
+			}
+		} else {
+			multiple = 1;
+		}
 		
 		if (multiple === 1) {
 			return Math.ceil(number);		
-		} else if (multiple === undefined) {
-			return undefined;
-		} else if (typeof(multiple) != "number") {
-			eden.error(new Error("ceil: The second argument must be a number, not a " + typeof(multiple)), "error");
-			return undefined;
 		} else {
 			var divided = number / multiple;
 			var truncated = parseInt(divided);
@@ -58,6 +64,8 @@ func ceil {
 	}}$;
 }
 
+roundUp is ceil;
+
 func cos {
   return ${{ Math.cos(arguments[0]*root.lookup("radiansPerUnit").value()); }}$;
 }
@@ -68,8 +76,8 @@ func exp {
 
 func floor {
 	${{
-		if (arguments.length != 2) {
-			eden.error(new Error("floor: This function requires exactly 2 arguments."), "error");
+		if (arguments.length < 1 || arguments.length > 2) {
+			eden.error(new Error("floor: This function requires at least 1 argument and at most 2 arguments."), "error");
 			return undefined;
 		}
 		
@@ -81,20 +89,28 @@ func floor {
 			return undefined;
 		}
 
-		var multiple = arguments[1];
+		var multiple;
+		if (arguments.length == 2) {
+			multiple = arguments[1];
+			if (multiple === undefined) {
+				return undefined;
+			} else if (typeof(multiple) != "number") {
+				eden.error(new Error("floor: The second argument must be a number, not a " + typeof(multiple)), "error");
+				return undefined;
+			}
+		} else {
+			multiple = 1;
+		}
 		
 		if (multiple === 1) {
 			return Math.floor(number);
-		} else if (multiple === undefined) {
-			return undefined;
-		} else if (typeof(multiple) != "number") {
-			eden.error(new Error("floor: The second argument must be a number, not a " + typeof(multiple)), "error");
-			return undefined;
 		} else {
 			return parseInt(number / multiple) * multiple;
 		}
 	}}$;
 }
+
+roundDown is floor;
 
 func log {
   return ${{ Math.log(arguments[0]); }}$;

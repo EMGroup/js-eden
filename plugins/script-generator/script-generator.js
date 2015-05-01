@@ -109,7 +109,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		
 			var symbol = root.symbols[name];
 
-			if (symbol.last_modified_by == "include") {
+			if (symbol.last_modified_by == "include" || symbol.last_modified_by == "system" || symbol.last_modified_by == "createView") {
 				continue;
 			}
 			if (/^(autocalc|picture|randomIndex|randomGeneratorState)$/.test(name)) {
@@ -124,7 +124,10 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			if (/_clicked$/.test(name) && symbol.cached_value === false && symbol.last_modified_by == "Button") {
 				continue;
 			}
-			if (/^_[vV]iew_/.test(name)) {
+			if (/^_View_/.test(name)) {
+			  continue;
+			}
+			if (/^_view_/.test(name) && Eden.isitSystemObservable(name)) {
 				continue;
 			}
 			

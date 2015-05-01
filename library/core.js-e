@@ -65,6 +65,16 @@ proc resizeView {
 	}
 };
 
+##The maximum height a view can be if it fits within the browser window without scrolling.
+screenWidth = ${{ window.innerWidth - edenUI.scrollBarYSize - 2 * edenUI.dialogBorderWidth }}$;
+screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.titleBarHeight - edenUI.scrollBarXSize }}$;
+${{
+	window.addEventListener("resize", function (event) {
+		root.lookup("screenWidth").assign(window.innerWidth - edenUI.scrollBarYSize - 2 * edenUI.dialogBorderWidth, Symbol.hciAgent);
+		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.titleBarHeight - edenUI.scrollBarXSize, Symbol.hciAgent);
+	});
+}}$;
+
 proc showObservables { ${{
     if (arguments.length > 2) {
 		eden.error(new Error("showObservables: This procedure requires at most 2 parameters."), "error");

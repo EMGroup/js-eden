@@ -8,7 +8,7 @@ picture is hexagons // setcolbuttons // hexnumdisplays // [solvedText, resetHexG
 picture is hexagons // setcolbuttons // [solvedText, resetHexGrid];
 
 introH is Slide("
-<h3>Grid colouring</h3>
+<h3>Hexagon Colouring</h3>
 <i>Colouring a map</i> means that two countries next to each other have different colours ...
 
 <p>
@@ -21,7 +21,7 @@ introH is Slide("
 <p>
 <b>Questions</b>
 <ul>
-<li>Can colour the hexagon map using each of the four colours RGBY at most 4 times?
+<li>Can you colour the hexagon map using each of the four colours RGBY at most 4 times?
 </li>
 <li>How many cells can you colour blue?</li>
 <li>Can you colour the map with just <b>three</b> colours?</li>

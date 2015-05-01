@@ -1049,6 +1049,14 @@
 			"return": "Nearest value, rounded up",
 			"description": "Finds the nearest value that is not less than the number"
 		},
+		"roundUp": {
+			"parameters": {
+				"number": "Floating point number",
+				"multiple": "The unit to round to, e.g. 0.1 for the nearest 10th"
+			},
+			"return": "Nearest value, rounded up",
+			"description": "Finds the nearest value that is not less than the number"
+		},
 		"exp": {
 			"parameters": {
 				"exponent": "Exponent"
@@ -1057,6 +1065,14 @@
 			"description": "Base-e exponential."
 		},
 		"floor": {
+			"parameters": {
+				"number": "Floating point number",
+				"multiple": "The unit to round to, e.g. 0.1 for the nearest 10th"
+			},
+			"return": "Nearest value, rounded down",
+			"description": "Finds the nearest value by rounding down"
+		},
+		"roundDown": {
 			"parameters": {
 				"number": "Floating point number",
 				"multiple": "The unit to round to, e.g. 0.1 for the nearest 10th"

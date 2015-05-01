@@ -31,10 +31,11 @@
 	}
 
 	//Dimensions of various UI components.
-	EdenUI.prototype.titleBarHeight = 32;
-	EdenUI.prototype.menuBarHeight = 29;
+	EdenUI.prototype.dialogBorderWidth = 3.133;
+	EdenUI.prototype.titleBarHeight = 32 + EdenUI.prototype.dialogBorderWidth;
+	EdenUI.prototype.menuBarHeight = 30;
 	EdenUI.prototype.scrollBarYSize = 19;
-	EdenUI.prototype.scrollBarXSize = 16;	
+	EdenUI.prototype.scrollBarXSize = 16;
 
 	/**
 	 * Stores plugins that can be loaded. Plugins will modify this directly in
@@ -95,6 +96,7 @@
 		}
 
 		var me = this;
+		var agent = root.lookup("createView");
 		var title = this.views[type].title;
 		var viewData = this.views[type].dialog(name + "-dialog", title, initData);
 		if (viewData === undefined) {
@@ -168,11 +170,11 @@
 		 *   _view_b_x = _view_a_x + _view_a_width;
 		 * will position the windows with a slight overlap, though no information will be hidden.
 		 */
-		view(name, 'width').assign(diag.dialog("option", "width") - this.scrollBarYSize);
-		view(name, 'height').assign(diag.dialog("option", "height") - this.titleBarHeight - this.scrollBarXSize);
+		view(name, 'width').assign(diag.dialog("option", "width") - this.scrollBarYSize, agent);
+		view(name, 'height').assign(diag.dialog("option", "height") - this.titleBarHeight - this.scrollBarXSize, agent);
 		var topLeft = diag.closest('.ui-dialog').offset();
-		view(name, 'x').assign(topLeft.left);
-		view(name, 'y').assign(topLeft.top - (this.plugins.MenuBar? this.menuBarHeight : 0));
+		view(name, 'x').assign(topLeft.left, agent);
+		view(name, 'y').assign(topLeft.top - (this.plugins.MenuBar? this.menuBarHeight : 0), agent);
 
 		//Set the title bar text and allow the construal to change it later.
 		var titleSym = view(name, "title");
@@ -180,7 +182,7 @@
 			diag.dialog("option", "title", value);
 			me.plugins.MenuBar.updateViewsMenu();
 		});
-		titleSym.assign(title);
+		titleSym.assign(title, agent);
 
 		diag.on("dialogresizestop", function (event, ui) {
 			var root = me.eden.root;

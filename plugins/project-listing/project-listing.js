@@ -107,6 +107,9 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 					dataType: "text",
 					success: function (data) {
 						EdenUI.plugins.ScriptGenerator.loadBaseConstrual(url, data);
+						if (edenUI.plugins.ScriptInput) {
+							edenUI.plugins.ScriptInput.addHistory('include("' + url + '");');
+						}
 					}
 				});
 			}

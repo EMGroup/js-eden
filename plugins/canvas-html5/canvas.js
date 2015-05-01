@@ -51,7 +51,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			canvases[canvasname] = $("#"+canvasname+"-dialog-canvas")[0];
 			contents[canvasname] = $("#"+canvasname+"-dialog-canvascontent")[0];
 			canvas = canvases[canvasname];
-			canvas.drawing = false;			
+			canvas.drawing = false;
 		}
 	
 		if (!canvas.drawing){
@@ -61,13 +61,16 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			setTimeout(function () {
 		
 			var picture = root.lookup(pictureobs).value();
+		  var context = canvas.getContext('2d');
+		  var content = contents[canvasname];
+		  
+		  var backgroundColour = root.lookup("_view_" + canvasname + "_background_colour").value();
+		  me.setFillStyle(context, backgroundColour);
+		  content.parentElement.style.backgroundColor = backgroundColour;
+			context.fillRect(0, 0, canvas.width, canvas.height);
 
-		    var context = canvas.getContext('2d');
-			context.clearRect(0, 0, canvas.width, canvas.height);
 			//Configure JS-EDEN default options that are different from the HTML canvas defaults.
 			context.lineJoin = "bevel";
-			
-		    var content = contents[canvasname];
 
 			var hash;
 			for (hash in previousElements) {
@@ -182,6 +185,13 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		var displayedName = name.slice(0, -7);
 		edenUI.eden.root.lookup(pictureobs).addJSObserver("refreshView", function (symbol, value) {
 			me.drawPicture(displayedName, pictureobs);
+		});
+		var backgroundColourSym = root.lookup("_view_" + displayedName + "_background_colour");
+		if (backgroundColourSym.value() === undefined) {
+		  backgroundColourSym.assign("white", {name: "createView"});
+		}
+		backgroundColourSym.addJSObserver("refreshView", function (symbol, value) {
+			me.drawPicture(displayedName, pictureobs);		  
 		});
 
 		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');

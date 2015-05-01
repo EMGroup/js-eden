@@ -1,8 +1,11 @@
+##Configure views.
 destroyView("inputwindow");
-hideView("projects");
+
+##Prompt to initiate logging.
 require("NetworkRemote");
 createView("logging", "NetworkRemote");
 mouseFollow = true;
 
+##Adjust font size.
 bindCSSNumericProperty("#jspe_slide", "font-size", "jspeFontSize", "pt");
 jspeFontSize = 14;

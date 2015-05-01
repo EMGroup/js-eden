@@ -3,7 +3,6 @@ Eden.systemObservableNames = [
 	"_authoringMode",
 	"_debug_.*",
 	"_menubar_status",
-	"_view_.*",
 	"PI",
 	"autocalc",
 	"mouseButton",
@@ -19,6 +18,8 @@ Eden.systemObservableNames = [
 	"mouseWindow",
 	"randomGeneratorState",
 	"randomIndex",
+	"screenHeight",
+	"screenWidth",
 	"touchScrollX"
 ];
 
@@ -169,6 +170,8 @@ Eden.systemFunctionNames = [
 	"rgb2colour",
 	"rotate",
 	"round",
+	"roundDown",
+	"roundUp",
 	"scale",
 	"search",
 	"sequenceItoJ",
@@ -199,6 +202,9 @@ Eden.isitSystemSymbol = function(name){
 }
 
 Eden.isitSystemObservable = function(name) {
+	if (/^_view_/.test(name) && !/_background_colour$/.test(name)) {
+	  return true;
+	}
 	for (var j = 0; j < Eden.systemObservableNames.length; j++) {
 		var pattern = new RegExp("^" + Eden.systemObservableNames[j] + "$");
 		if (pattern.test(name)) {

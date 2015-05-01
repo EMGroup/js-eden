@@ -22,14 +22,14 @@
 			"runfile": "models/SciFest2015/light-box/run.js-e"
 		},
 		{
-			"name": "Grid Colouring",
+			"name": "Hexagon Colouring",
 			"author": "Jonny Foss and Meurig Beynon",
 			"year": "2015",
 			"description": "A puzzle game involving colouring in hexagons.",
-			"runfile": "models/SciFest2015/grid-colouring/run.js-e"
+			"runfile": "models/SciFest2015/hexagon-colouring/run.js-e"
 		},
 		{
-			"name": "Nim Coins",
+			"name": "Nim",
 			"author": "Meurig Beynon and Matthew Leeke",
 			"year": "2012-2015",
 			"description": "A competitive two player strategy game.",
@@ -41,6 +41,13 @@
 			"year": "2014",
 			"description": "Explore learning to play the piano and read music.",
 			"runfile": "models/SciFest2015/piano/run.js-e"
+		},
+		{
+			"name": "Exhibition Setup",
+			"author": "Elizabeth Hudnott",
+			"year": "2015",
+			"description": "Configure the environment for presenting the construals on an exhibition stand.",
+			"runfile": "models/SciFest2015/exhibition-setup.js-e"
 		},
 		{
 			"name": "JS-EDEN Presentation Environment (JSPE)",

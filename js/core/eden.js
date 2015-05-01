@@ -224,18 +224,28 @@ function concatAndResolveUrl(url, concat) {
 		document.getElementById("tooltip").style.display = "none";
 	}
 
+  /**Cached copy of user preferences, etc. (needed for when local storage is disabled). */
+  EdenUI.prototype.options = {};
+
+  /** Retrieves an item from local storage. */
 	EdenUI.prototype.getOptionValue = function (optionName) {
-		try {
-			if (window.localStorage) {
-				return window.localStorage.getItem(optionName);
-			}
-		} catch (e) {
-			//Cookies are blocked.
-			return undefined;
+    if (optionName in this.options) {
+      return this.options[optionName];
+    } else {
+		  try {
+			  if (window.localStorage) {
+				  return window.localStorage.getItem(optionName);
+			  }
+		  } catch (e) {
+			  //Cookies are blocked.
+			  return null;
+		  }
 		}
 	}
 	
+	/**Stores a program option in memory, and, if possible, local storage too. */
 	EdenUI.prototype.setOptionValue = function(optionName, value) {
+		this.options[optionName] = String(value);
 		try {
 			if (window.localStorage) {
 				window.localStorage.setItem(optionName, value);
@@ -246,7 +256,7 @@ function concatAndResolveUrl(url, concat) {
 			return false;
 		}
 	}
-		
+
 	/**
 	 * @constructor
 	 * @struct

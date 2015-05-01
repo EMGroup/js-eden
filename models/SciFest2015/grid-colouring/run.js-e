@@ -1,3 +1,0 @@
-include("models/SciFest2015/grid-colouring/grid-colouring.js-e");
-include("models/SciFest2015/grid-colouring/playsheet.js-e");
-include("models/SciFest2015/exhibition-setup.js-e");

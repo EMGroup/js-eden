@@ -31,7 +31,6 @@ if (!("time" in console)) {
 EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 	var me = this;
-	me.edenparser = undefined;
 	var inputAgent = {name: Symbol.getInputAgentName()};
 	this.history = [];
 	this.index = 0;
@@ -125,7 +124,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}).find(".history");
 	}
 
-	this.createDialog = function (name, mtitle, edenparser) {
+	this.createDialog = function (name, mtitle) {
 		var $dialogContents = $('<div class="inputCodeArea"><textarea spellcheck="false"></textarea></div><div class="subButtonsDiv"><button class="submitButton">Submit</button></div><div class="buttonsDiv"><button class="previousButton">Previous</button><button class="nextButton">Next</button></div>')
 			
 		var textarea = $dialogContents.find('textarea').get(0);

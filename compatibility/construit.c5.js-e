@@ -38,16 +38,6 @@ func oldArc {
 }
 patch(&oldArc, &Arc);
 
-func oldCeil {
-	para newCeil, params;
-	if (params# < 2) {
-		return newCeil(params[1], 1);
-	} else {
-		return newCeil(params[1], params[2]);
-	}
-}
-patch(&oldCeil, &ceil);
-
 centre = centroid;
 
 func oldCircle {
@@ -97,16 +87,6 @@ func Div { ${{
 	var style = arguments[6];
 	return new Div(html, x + "px", y + "px", width + "px", height + "px", name, undefined, style);
 }}$; }
-
-func oldFloor {
-	para newFloor, params;
-	if (params# < 2) {
-		return newFloor(params[1], 1);
-	} else {
-		return newFloor(params[1], params[2]);
-	}
-}
-patch(&oldFloor, &floor);
 
 func oldIndexOf {
 	para newIndexOf, params;
