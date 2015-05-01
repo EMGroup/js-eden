@@ -159,7 +159,7 @@ function concatAndResolveUrl(url, concat) {
 		/*Category of plug-ins that pertain to the management of the JS-EDEN environment itself, e.g. Plugin Listing. */
 		this.addViewCategory("environment", "Management");		
 
-		this.views.ErrorWindow = {
+		this.views.ErrorLog = {
 			dialog: function () {
 				if (!this.errorWindow) {
 					this.errorWindow = $(
@@ -169,10 +169,10 @@ function concatAndResolveUrl(url, concat) {
 
 				this.errorWindow
 					.addClass('ui-state-error')
-					.dialog({title: "EDEN Errors", width: 500, height: 250})
+					.dialog({width: 500, height: 250})
 					.dialog('moveToTop');
 			},
-			title: "Error Window",
+			title: "Error Log",
 			name: "errors",
 			category: this.viewCategories.interpretation
 		};
@@ -187,7 +187,7 @@ function concatAndResolveUrl(url, concat) {
 	EdenUI.prototype.stopHighlight = function (dialogName) { this.windowHighlighter.stopHighlight(dialogName); };
 
 	EdenUI.prototype.showErrorWindow = function () {
-		this.createView("errors", "ErrorWindow");
+		this.createView("errors", "ErrorLog");
 		return $("#errors-dialog");
 	};
 

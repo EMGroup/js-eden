@@ -86,7 +86,7 @@
 	 */
 	EdenUI.prototype.createView = function (name, type, initData) {
 		if ("name" in this.views[type]) {
-			// Single instance view type (e.g. error window)
+			// Single instance view type (e.g. error log)
 			name = this.views[type].name;
 		}
 		

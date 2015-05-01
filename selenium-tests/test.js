@@ -245,32 +245,32 @@ describe("UI tests", function () {
 		});
 	});
 
-	describe("open error window", function () {
+	describe("open error log", function () {
 		before(function () {
 			return browser
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("New"))
 			.moveTo()
-			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Error Window"))
+			.waitForElementByCss('.menubar-item', wd.asserters.textInclude("Error Log"))
 			.click();
 		});
 
 		it("creates a window", function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('EDEN Errors'));
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Error Log'));
 		});
 	});
 
 	describe("close window through titlebar", function () {
 		before(function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('EDEN Errors'))
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Error Log'))
 			.elementByCss('>', '.ui-dialog-titlebar-close')
 			.click();
 		});
 
 		it('closes the window', function () {
 			return browser
-			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('EDEN Errors'))
+			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Error Log'))
 			.should.be.rejectedWith("Element condition wasn't satisfied");
 		});
 	});

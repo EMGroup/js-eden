@@ -190,7 +190,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		if (backgroundColourSym.value() === undefined) {
 		  backgroundColourSym.assign("white", {name: "createView"});
 		}
-		backgroundColourSym.addJSObserver("refreshView", function (symbol, value) {
+		backgroundColourSym.addJSObserver("repaintView", function (symbol, value) {
 			me.drawPicture(displayedName, pictureobs);		  
 		});
 
