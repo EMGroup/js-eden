@@ -115,3 +115,5 @@ picture is [coin1pic,coin2pic,coin3pic,coin4pic, coin1text,coin2text,coin3text,c
 
 ## Turn on automatic calculation and execute any triggered actions pending.
 autocalc = 1;
+
+resetPuzzle();

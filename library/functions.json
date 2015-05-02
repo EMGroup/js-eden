@@ -840,7 +840,8 @@
 				"label": "Text for the button",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"[enabled]": "Boolean for button enabled"
+				"[enabled": "Boolean for button enabled",
+				"[background_colour]]": "Background colour of the button"
 			},
 			"return": "Button object",
 			"description": "Creates a button element for display on the canvas"

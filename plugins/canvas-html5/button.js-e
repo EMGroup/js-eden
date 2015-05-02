@@ -10,18 +10,20 @@ ${{
 	var x = arguments[2];
 	var y = arguments[3];
 	var enabled = arguments[4];
+	var backgroundColour = arguments[5];
 	if (enabled === undefined) enabled = true;
-	return new Button(name, label, x, y, enabled);
+	return new Button(name, label, x, y, enabled, backgroundColour);
 }}$;
 }
 
 ${{
-	var Button = function (name, label, x, y, enabled) {
+	var Button = function (name, label, x, y, enabled, backgroundColour) {
 		this.name = name;
 		this.label = label;
 		this.x = x;
 		this.y = y;
 		this.enabled = enabled;
+		this.backgroundColour = backgroundColour;
 	};
 
 	Button.prototype.hash = function () {
@@ -29,7 +31,8 @@ ${{
 					this.label+"$$"+
 					this.x+"$$"+
 					this.y+"$$"+
-					this.enabled;
+					this.enabled+"$$"+
+					this.backgroundColour;
 	};
 
 	Button.prototype.draw = function (context) {
@@ -41,10 +44,13 @@ ${{
 			var inputHtml = '<input  type="button"' +
 				'value="' + this.label + '"' + disabled +
 				'style="' +
-					'position: absolute;' +
-					'left: ' + this.x + 'px;' +
-					'top: ' + this.y + 'px;"' +
-				'/>';
+					'position: absolute; ' +
+					'left: ' + this.x + 'px; ' +
+					'top: ' + this.y + 'px; ';
+			if (this.backgroundColour !== undefined) {
+				inputHtml = inputHtml + 'background-color: ' + this.backgroundColour + '; ';
+			}
+			inputHtml = inputHtml + '"/>';
 
 			var $input = $(inputHtml).click(function () {
 				root.lookup(name + "_clicked").assign(true, agent, true);
@@ -72,12 +78,20 @@ ${{
 
 			var x = this.x + "px";
 			var y = this.y + "px";
+			var backgroundColour = this.backgroundColour;
 			var style = button.style;
 			if (style.left != x) {
 				style.left = x;
 			}
 			if (style.top != y) {
 				style.top = y;
+			}
+			if (style.backgroundColor != backgroundColour) {
+				if (backgroundColour === undefined) {
+					style.backgroundColor = "ButtonFace";
+				} else {
+					style.backgroundColor = backgroundColour;
+				}
 			}
 		}
 	};

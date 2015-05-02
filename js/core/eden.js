@@ -349,7 +349,8 @@ function concatAndResolveUrl(url, concat) {
 		var me = this;
 		this.emit('executeBegin', [origin, code]);
 		try {
-			eval(this.translateToJavaScript(code)).call(agent, this.root, this, prefix, function () {
+			var js = this.translateToJavaScript(code);
+			eval(js).call(agent, this.root, this, prefix, function () {
 				success && success();
 				me.emit('executeEnd', [origin]);
 			});

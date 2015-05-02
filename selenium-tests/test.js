@@ -237,7 +237,7 @@ describe("UI tests", function () {
 			.waitForElementByCss('.ui-dialog', wd.asserters.textInclude('Symbol List'));
 		});
 
-		it("shows an input window entry", function () {
+		it("shows a symbol list entry", function () {
 			return browser
 			.waitForElementByCss('.menubar-mainitem', wd.asserters.textInclude("Windows"))
 			.click()

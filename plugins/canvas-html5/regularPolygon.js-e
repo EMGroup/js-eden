@@ -1,5 +1,5 @@
 ${{
-	RegularPolygon = function (x, y, r, n, star, rotation, fillcolour, outlinecolours, outlineInterior, drawingOptions) {
+	RegularPolygon = function (x, y, r, n, star, rotation, fillcolour, outlinecolours, drawingOptions) {
 		this.x = x;
 		this. y = y;
 		this.r = r;
@@ -11,7 +11,7 @@ ${{
 		this.drawingOptions = drawingOptions;
 		
 		this.polygons = [];
-		this.outlines = [];
+		this.vertices = [];
 		
 		rotation = -rotation - Math.PI * (0.5 - 2 / n);
 		var exteriorAngle = (2 * Math.PI) / n;
@@ -19,16 +19,18 @@ ${{
 		var px, py;
 		for (var i = 0; i < n; i++) {
 			var j = i;
-			var points = [];
+			var currentPolygonPoints = [];
 			while (pointsDone[j] !== true) {
 				px = x + r * Math.cos(rotation + j * exteriorAngle);
 				py = y + r * Math.sin(rotation + j * exteriorAngle);
-				points.push(new Point(px, py));
+				var currentPoint = new Point(px, py);
+				this.vertices[j] = currentPoint;
+				currentPolygonPoints.push(currentPoint);
 				pointsDone[j] = true;
 				j = (j + star) % n;
 			}
-			if (points.length > 0) {
-				this.polygons.push(new Polygon(points, fillcolour, outlinecolours, drawingOptions));
+			if (currentPolygonPoints.length > 0) {
+				this.polygons.push(new Polygon(currentPolygonPoints, fillcolour, outlinecolours, drawingOptions));
 			}
 		}
 	}
@@ -56,9 +58,8 @@ func RegularPolygon {
 		}
 		var fillcolour = arguments[argsProcessed];
 		var outlinecolours = ["black"];
-		var outlineInterior = true;
 		var drawingOptions = {};
-		return new RegularPolygon(x, y, r, n, star, rotation, fillcolour, outlinecolours, outlineInterior, drawingOptions);
+		return new RegularPolygon(x, y, r, n, star, rotation, fillcolour, outlinecolours, drawingOptions);
 	}}$;
 }
 

@@ -117,7 +117,7 @@
 				} else if (viewData.confirmClose) {
 					me.modalDialog(
 						"Window Close Action",
-						"<p>Removing this window from the work space will cause any unsaved changes contained therein to be lost.  You will need to reload the construal if you wish to see this window again.</p> \
+						"<p>Removing this window from the work space will cause any unsaved changes associated with it to be lost.  You will need to reload the construal if you wish to see this window again.</p> \
 						<p>Are you sure you want to permanently delete this information?  Or would you prefer to hide the window instead?</p>",
 						["Close Forever", "Hide"],
 						function (optNum) {
@@ -243,6 +243,10 @@
 	};
 
 	EdenUI.prototype.destroyView = function (name) {
+		if (!(name in this.viewInstances)) {
+			//View already closed or never existed.
+			return;
+		}
 		this.viewInstances[name].closing = true;
 		if (this.viewInstances[name].destroy) {
 			//Call clean-up handler.
@@ -296,6 +300,10 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.hideView = function (name) {
+		if (!(name in this.viewInstances)) {
+			//View has been destroyed or never existed.
+			return;
+		}
 		this.viewInstances[name].closing = true;
 		dialog(name).dialog('close');
 	};
