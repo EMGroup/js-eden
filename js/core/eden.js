@@ -548,7 +548,7 @@ function concatAndResolveUrl(url, concat) {
 			}
 		} else if (type == "function") {
 			code = "$"+"{{\n\t" +
-					value.toString().replace(/([;{])(\n)?/g, "$1\n").replace(/\n?(\s*\})/g, "\n$1").replace(/\n/g, "\n\t") +
+					value.toString().replace(/\n/g, "\n\t") +
 				"\n}}"+"$";
 		} else {
 			code = String(value);
@@ -690,7 +690,7 @@ function concatAndResolveUrl(url, concat) {
 		} else if (type == "function") {
 			if (showJSFuncs) {
 				code = "$"+"{{\n\t" +
-						value.toString().replace(/([;{])(\n)?/g, "$1\n").replace(/\n?(\s*\})/g, "\n$1").replace(/\n/g, "\n\t") +
+						value.toString().replace(/\n/g, "\n\t") +
 					"\n}}"+"$";
 				if (maxChars !== undefined && code.length > maxChars) {
 					code = code.slice(0, maxChars) + "...";

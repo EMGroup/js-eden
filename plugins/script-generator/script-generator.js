@@ -150,7 +150,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 					}
 					if (implicitDef !== undefined) {
 						if (symbol.last_modified_by == "execute") {
-							implicitDef = "  " + implicitDef.replace(/\n/g, "\n  ");
+							implicitDef = "  " + implicitDef.replace(/\n/g, "\n");
 							execute.push(implicitDef);
 						} else {
 							implicitDef = pad("  " + implicitDef.replace(/\n/g, "\n  "), commentColumn) + "  ## Set by " + symbol.last_modified_by + ".";

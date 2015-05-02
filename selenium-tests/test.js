@@ -190,11 +190,11 @@ describe("UI tests", function () {
 	describe("close the remaining two default windows and the edit_picture window", function () {
 		before(function () {
 			return browser
-			.elementByCss('.menubar-item-close')
+			.waitForElementByCss('.menubar-item-close')
 			.click()
-			.elementByCss('.menubar-item-close')
+			.waitForElementByCss('.menubar-item-close')
 			.click()
-			.elementByCss('.menubar-item-close')
+			.waitForElementByCss('.menubar-item-close')
 			.click();
 		});
 
