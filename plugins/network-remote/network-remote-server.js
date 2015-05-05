@@ -25,11 +25,32 @@ var sessionKeys = [];
 
 var WebSocketServer = require('ws').Server
 var fs = require('fs');
-var wss = new WebSocketServer({port: 8001});
+var port = 8001;
+var debug = false;
 
-var saveFileCmd = "SAVEFILE = \"";
-var savefilename = "";
+var savefilename;
 
+function printUsage(){
+        console.log("Usage:\nnode network-remote-server.js FILENAME [--port=PORT] [--debug]");
+}
+
+process.argv.forEach(function(val, index, array){
+	if(index == 2)
+		savefilename = val;
+	if(val == "--debug")
+		debug = true;
+	var options = val.split("=");
+        if(options[0] == "--port")
+        	port = options[1];
+});
+
+if(savefilename === undefined){
+	console.log("No filename defined");
+	return;
+}
+	
+
+var wss = new WebSocketServer({port: port});
 function receiveData(socket, data){
 	//For each received command, send it to every known socket 
 	//(apart from the socket that sent the data)
@@ -39,61 +60,42 @@ function receiveData(socket, data){
 		//authenticate
 		sessionKey = data;
 		socketKeys[socketKey] = sessionKey;
-		var tmplog = "Adding " + socketKey + " to session " + sessionKey + " (num: ";
 		if(typeof allSockets[sessionKey] == 'undefined')
 			allSockets[sessionKey] = [];
 		allSockets[sessionKey].push(socket);
-		console.log(tmplog + (allSockets[sessionKey].length - 1) + ")");
+		var msg = "REPLAY:"+(allSockets[sessionKey].length -1)+":"+sessionKey+":C:"+socketKey;
+		if(debug)
+			console.log(msg);
+		logToFile(msg);
 	}else{
 		processCode(socket,data);
 	}
+}
+
+function logToFile(msg){
+	fs.appendFile(savefilename, msg + "\n", function(err){
+		if(err) throw err;
+	});
 }
 
 function processCode(socket, data){
 	var sessionKey = socketKeys[socket.upgradeReq.headers["sec-websocket-key"]];
 	var socketsInSession = allSockets[sessionKey];
 	var sender = -1;
-	if(data.slice(0,saveFileCmd.length) == saveFileCmd){
-		savefilename = data.slice(saveFileCmd.length,-2);
-	}
 	var replay = false;
 	var codeLines = [];
-/*	if(data == "REPLAY = true;"){
-		replay = true;
-		fs.readFile("replay.txt", "utf-8",function(err,data){
-			if(err)
-				return console.log(err);
-			var lines = data.split("REPLAY: ");
-			var starttime = Date.now()
-			var firstTime = -1;
-			var curTime;
-			for(var i = 1; i < lines.length;i++){
-				var tokens = lines[i].split(":")
-				var sender = tokens[0]
-				var timestamp = tokens[1]
-				var line = tokens.slice(2).join(":");
-				var nextTime = 0;
-				if(firstTime == -1)
-					firstTime = timestamp;
-				codeLines.push({time:timestamp - firstTime,code:line});
-				firstTime = timestamp;
-			}
-			for(var i = 0; i < socketsInSession.length; i++){
-				socketsInSession[i].send(JSON.stringify(codeLines));
-			}
-		});
-			
-	}else{*/
-		codeLines.push({time: 0, code: data});
-		for(var i = 0; i < socketsInSession.length; i++){
-			if(socketsInSession[i] !== socket){
-				socketsInSession[i].send(JSON.stringify(codeLines));
-			}else{
-				sender = i;
-			}
+	codeLines.push({time: 0, code: data});
+	for(var i = 0; i < socketsInSession.length; i++){
+		if(socketsInSession[i] !== socket){
+			socketsInSession[i].send(JSON.stringify(codeLines));
+		}else{
+			sender = i;
 		}
-		console.log("REPLAY: " + sender + ":" + sessionKey + ":" + Date.now() + ":" + data);
-	//}
+	}
+	var msg = "REPLAY: " + sender + ":" + sessionKey + ":" + Date.now() + ":" + data;
+	if(debug)
+		console.log(msg);
+	logToFile(msg);
 }
 
 
@@ -119,6 +121,9 @@ function closeSocket(socket){
 	var i = allSockets[sessionKey].indexOf(socket);
 	if(i != -1)
 		allSockets[sessionKey].splice(i,1);
-	console.log("Deleting " + socketKey + " from session " + sessionKey);
+	var msg = "REPLAY:?:" + sessionKey + ":D:" + socketKey;
+	if(debug)
+		console.log(msg);
+	logToFile(msg);
 	delete socketKeys[socketKey];
 }

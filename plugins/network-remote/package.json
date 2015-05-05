@@ -1,0 +1,24 @@
+{
+  "author": "",
+  "name": "js-eden-network-remote",
+  "description": "JavaScript EDEN Network Remote",
+  "version": "0.0.1",
+  "homepage": "jseden.dcs.warwick.ac.uk",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/EMGroup/js-eden.git"
+  },
+  "scripts": {
+    "test": "node ./qunit_tests.js"
+  },
+  "dependencies": {
+	"ws": "*",
+	"fs": "*"
+},
+  "devDependencies": {
+  },
+  "optionalDependencies": {},
+  "engines": {
+    "node": ">=0.10"
+  }
+}
