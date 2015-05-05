@@ -39,11 +39,10 @@ function receiveData(socket, data){
 		//authenticate
 		sessionKey = data;
 		socketKeys[socketKey] = sessionKey;
-		var tmplog = "Adding " + socketKey + " to session " + sessionKey + " (num: ";
 		if(typeof allSockets[sessionKey] == 'undefined')
 			allSockets[sessionKey] = [];
 		allSockets[sessionKey].push(socket);
-		console.log(tmplog + (allSockets[sessionKey].length - 1) + ")");
+		console.log("REPLAY:"+(allSockets[sessionKey].length -1)+":"+sessionKey+":C:"+socketKey);
 	}else{
 		processCode(socket,data);
 	}
@@ -58,19 +57,15 @@ function processCode(socket, data){
 	}
 	var replay = false;
 	var codeLines = [];
-/*	if(data == "REPLAY = true;"){
-			
-	}else{*/
-		codeLines.push({time: 0, code: data});
-		for(var i = 0; i < socketsInSession.length; i++){
-			if(socketsInSession[i] !== socket){
-				socketsInSession[i].send(JSON.stringify(codeLines));
-			}else{
-				sender = i;
-			}
+	codeLines.push({time: 0, code: data});
+	for(var i = 0; i < socketsInSession.length; i++){
+		if(socketsInSession[i] !== socket){
+			socketsInSession[i].send(JSON.stringify(codeLines));
+		}else{
+			sender = i;
 		}
-		console.log("REPLAY: " + sender + ":" + sessionKey + ":" + Date.now() + ":" + data);
-	//}
+	}
+	console.log("REPLAY: " + sender + ":" + sessionKey + ":" + Date.now() + ":" + data);
 }
 
 
@@ -96,6 +91,6 @@ function closeSocket(socket){
 	var i = allSockets[sessionKey].indexOf(socket);
 	if(i != -1)
 		allSockets[sessionKey].splice(i,1);
-	console.log("Deleting " + socketKey + " from session " + sessionKey);
+	console.log("REPLAY:?:" + sessionKey + ":D:" + socketKey);
 	delete socketKeys[socketKey];
 }
