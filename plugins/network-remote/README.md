@@ -14,7 +14,7 @@ $ node network-remote-server.js FILENAME
 ```
 which will write (append) all received statements into FILENAME
 
-You can optionally specify the port for the server using ```shell --port=PORTNUMBER```
+You can optionally specify the port for the server using ```--port=PORTNUMBER```
 
 You can then use the Network-Remote plugin in JS-Eden to connect to the server (you need to specify the host address and port number, and choose a session key). All interactions will be logged into the server's output file.
 
