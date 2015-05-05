@@ -59,29 +59,6 @@ function processCode(socket, data){
 	var replay = false;
 	var codeLines = [];
 /*	if(data == "REPLAY = true;"){
-		replay = true;
-		fs.readFile("replay.txt", "utf-8",function(err,data){
-			if(err)
-				return console.log(err);
-			var lines = data.split("REPLAY: ");
-			var starttime = Date.now()
-			var firstTime = -1;
-			var curTime;
-			for(var i = 1; i < lines.length;i++){
-				var tokens = lines[i].split(":")
-				var sender = tokens[0]
-				var timestamp = tokens[1]
-				var line = tokens.slice(2).join(":");
-				var nextTime = 0;
-				if(firstTime == -1)
-					firstTime = timestamp;
-				codeLines.push({time:timestamp - firstTime,code:line});
-				firstTime = timestamp;
-			}
-			for(var i = 0; i < socketsInSession.length; i++){
-				socketsInSession[i].send(JSON.stringify(codeLines));
-			}
-		});
 			
 	}else{*/
 		codeLines.push({time: 0, code: data});
