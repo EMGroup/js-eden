@@ -1,0 +1,62 @@
+include("models/jspe/run.e");
+
+scene1 is Slide("
+	<h1>A Basic Construal of Shopping</h1>
+	<h2>Scene 1</h2>
+	<p><em>&hellip;in which observables make their first appearance</em></p>
+
+	<p>Along with the 'JSPE Slides' window (which you are reading) you will see a 'Canvas 2D' window with coins and fruit. Try and arrange these windows so you can read the slides and see the coins and fruit in the canvas. Click on a coin and it moves into the 'Offered' position. Click on a fruit and it moves into the 'Basket'. Click on them again and you've changed your mind! The canvas is visualising a bit of your mind while you are at the fruit shop.</p>
+
+	<p>The things you are looking at, or thinking about, like <strong>purse</strong>, <strong>basket</strong>, <strong>totalcost</strong>, are called observables. You'll find a list of all of them in&mdash;guess what?&mdash;the Observable List. Choose it now from the menu called 'New Window' (top left). A new window appears. Adjust the widths of the windows so that the Observables List is in between the canvas and these slides. Scroll down, about half-way, and find the observable 'basket' displayed in green. Don't click on it yet.  Click on some fruits on the canvas and check that as they move in or out of the visual basket, at the same time, they move in or out of the list after 'basket = ' in the observable list. The script and the canvas reflect each other&mdash;like a mirror. Explore the observable list a bit more yourself. The notion of 'observable' is the first of our Really Important concepts.</p>
+");
+
+scene2 is Slide("
+	<h2>Scene 2</h2>
+	<p><em>&hellip;why being green is so important&mdash;even when it comes to observables!</em></p>
+
+	<p>You will have noticed that in the observable list some observables appear in black and some are in green. Place your cursor over a green name (but without clicking). A box appears with the definition of the observable, it's written using the keyword 'is'. Look at some other green observables. Can you figure out why the box contents are usually very different from what's in the observable list? It's an important difference! Now click on any green observable. A script input window appears together with the definition which you clicked. This is ready for you to change it.  But don't do it yet.  Close the script window that you just opened.</p>
+
+	<p>An observable in green is defined by dependency: its value depends on the observables on the right-hand side. And&mdash;like a formula in a spreadsheet&mdash;it is self-maintaining. Find 'haveenoughmoney'.  It has the definition '(totalcost&lt;spendingmoney'. Probably it has the value 'true' and that may be because you have not chosen any items to buy! Click on some fruits and, as in real life, soon the 'totalcost' will no longer be less than  'spendingmoney'. Probably you can make 'haveenoughmoney' go false because it is being maintained by the environment. What if you had exactly the right money? Can you correct the definition? Try it and test your answer!</p> 
+");
+
+scene3 is Slide("
+	<h2>Scene 3</h2>
+	<p><em>These guys are just all over the place! Values and Lists&hellip;</em></p>
+
+	<p>Click on one of the black observables - you will see its definition written with an '=' and a value on the right-hand side which might be a number, a string of characters with (double) inverted commas around it, a list of such values, or a list of lists. Click on 'itemsselected', which is a list of 0's and 1's.  Change some of them and note what happens on the canvas. Look at the value of 'forsale', a list containing other lists which contain strings and numbers. Click on 'spendingmoney'and click on 'purse'. The observable 'purse[3]' means the 3rd item in the list for purse. By exploring the values of the observables check that the value of 'spendingmoney' is correct.</p>
+
+	<p>Observables shown in black, whose values do not depend on other values, are sometimes called base values. Their definitions are called assignments.</p>
+");
+
+scene4 is Slide("
+	<h2>Scene 4</h2>
+	<p><em>Here we meet the functions.  They are a kind of undercover processing agent.</em></p>
+
+	<p>In the shop, and in your head too if you are good at mental arithmetic, you probably add up the cost of items you want so as to make 'totalcost'. If so then you are evaluating a function! Close the observable list now and under 'New Window' choose 'Function List'.  Near the bottom you will find 'costitems'.  Click on 'costitems' and scroll down in the input window to see the whole function. This is a little program in itself. The second line (beginning para) has two variable names which are just 'pretend' variables showing us what the function will do. 'onsale' will be a list of lists, so the <var>i</var>th item in onsale is a list and the function is going to add up the second item (price) within the <var>i</var>th item that we have chosen. Look now at the definition of observable 'totalcost' and figure out for yourself how it is working.</p>
+
+	<p>Typically we pass observables to functions which then do useful things to them and give us back a result. We have to give names to functions (so we know what they will do).  Here the name is 'costitems'.  It's important we know how many things, and what type of things, we need to pass to the function. So in the case of costitems() it was important that 'forsale' was a list of little lists, each of which was exactly two items long.</p>
+");
+
+scene5 is Slide("
+	<h2>Scene 5 </h2>
+	<p><em>At last we get some action, and it's the agents that do it!</em></p>
+
+	<p>Have you figured out how this construal makes the coins, or the fruits, change position when you click on them? It's quite tricky to work this out.</p>
+
+	<p>In everyday life we often <strong>do</strong> things because some observable <strong>changes</strong>. Your phone rings, you feel hungry, you see a car coming, or your bus coming, etc. and these observables 'trigger' your actions. It's the same in these visualisations of imagined actions in a construal. By clicking on the image of an orange you are changing the value of 'item3pic_click' (check this by finding that observable and observing it closely as you click. It only flickers but you should be able to register the 'true'). Why does it move? Choose 'Agent List' under 'New Window' and find near the end 'item3picMove'. You should see how the 'click' changes the 3rd item (the orange) in the itemsselected list. Now find 'picture' in the observables list. Check out 'HTMLImage' among the Functions and you should be able to figure it all out. </p>
+
+	<p>We sometimes call these actions 'triggered actions' for obvious reasons. They are like procedures in programming (hence the 'proc' you saw in the Agent List.</p>
+
+	<p>If you have got to this point and done everything on the way, well done! You have seen the three basic components of making a construal: observables, dependency, agency.</p>
+"); 
+
+scene6 is Slide("
+	<h2>Acknowledgements</h2>
+	<p>The images and presentation of coins were adapted from these websites:</p>
+	<ul>
+		<li><a href='http://projectbritain.com/money/coins.htm' target='_new'>http://projectbritain.com/money/coins.htm</a></li>
+		<li><a href='http://www.mathsisfun.com/money/currency.html' target='_new'>http://www.mathsisfun.com/money/currency.html</a></li>
+	</ul>
+");
+
+slideList is [scene1, scene2, scene3, scene4, scene5, scene6];

@@ -92,3 +92,15 @@ func oldTail {
 }
 
 patch(&oldTail, &tail);
+
+${{
+	Eden.systemAgentNames["srand"] = true;
+	Eden.systemAgentNames["pauseedenclocks"] = true;
+	Eden.systemAgentNames["unpauseedenclocks"] = true;
+
+	Eden.systemFunctionNames["listcat"] = true;
+	Eden.systemFunctionNames["pow"] = true;
+	Eden.systemFunctionNames["rand"] = true;
+	Eden.systemFunctionNames["rgb2color"] = true;
+	Eden.systemFunctionNames["strcat"] = true;
+}}$;

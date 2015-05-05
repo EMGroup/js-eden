@@ -1,2 +1,2 @@
 include("models/SciFest2015/shopping/basic-shopping.js-e");
-include("models/SciFest2015/shopping/scenesSBR.js-e");
+include("models/SciFest2015/shopping/slides.js-e");

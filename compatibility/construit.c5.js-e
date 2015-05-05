@@ -229,3 +229,20 @@ func Textbox { ${{
   var enabled = arguments[3];
   return new Textbox(name, x, y, 130, 2, enabled);
 }}$; }
+
+${{
+	Eden.systemObservableNames["mouseClickX"] = true;
+	Eden.systemObservableNames["mouseClickY"] = true;
+	Eden.systemObservableNames["mouseX"] = true;
+	Eden.systemObservableNames["mouseY"] = true;
+
+	Eden.systemAgentNames["CanvasHTML5_DrawPicture"] = true;
+	Eden.systemAgentNames["drawPicture"] = true;
+
+	Eden.systemFunctionNames["centre"] = true;
+	Eden.systemFunctionNames["Inputbox"] = true;
+	Eden.systemFunctionNames["listcat"] = true;
+	Eden.systemFunctionNames["pow"] = true;
+	Eden.systemFunctionNames["rand"] = true;
+	Eden.systemFunctionNames["strcat"] = true;
+}}$;

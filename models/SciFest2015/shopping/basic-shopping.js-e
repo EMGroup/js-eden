@@ -285,13 +285,3 @@ MyCoinsText is Text("Purse", 8.3*scaleWidth,0.5*scaleWidth, scaleWidth/4, "blue"
 CoinsOfferedText is Text("Offered", 8.3*scaleWidth,2.5*scaleWidth,scaleWidth/4, "red");
 MyItemsText is Text("Basket", 8.3*scaleWidth,4*scaleWidth,scaleWidth/4, "red");
 ItemsOfferedText is Text("For Sale", 8.3*scaleWidth,6*scaleWidth,scaleWidth/4, "blue");
-
-## slideList is [SBR1a, SBR1b, SBR2a, SBR2b, SBR3, SBR4, SBR5, SBR6];
-## slideList is [SBR1, SBR2, SBR3, SBR4, SBR5, SBR6];
-
-slideList is [SBR1a, SBR1b, SBR2a, SBR2b, SBR3];
-slideList is [SBR1, SBR2, SBR3];
-
-
-
-
