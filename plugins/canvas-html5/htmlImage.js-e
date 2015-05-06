@@ -60,37 +60,29 @@ HTMLImage.prototype.draw = function(context) {
 		html = html + " height=\"" + this.height + "\"";
 	}
 	if (this.imageMap !== undefined) {
-		html = html + " usemap=\"#" + id + "-map\" draggable=\"false\"";
+		html = html + " usemap=\"#" + id + "-map\" draggable=\"false\" class=\"noselect\"";
 	}
 	html = html + "/>";
 	var imageJQ = $(html);
 	this.elements = [imageJQ.get(0)];
-	
+
 	if (this.imageMap !== undefined) {
+		//Initialize to undefined if necessary.
+		root.lookup(name + "_zoneMouseDown");
+		root.lookup(name + "_zoneMouseUp");
+
 		imageJQ.on("mousedown", function () {
 			var autocalcSym = root.lookup("autocalc");
 			var autocalcValueOnEntry = autocalcSym.value();
 			var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
-
+			var followMouse = root.lookup("mouseFollow").value();
 			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
-			var followMouse = root.lookup("mouseFollow").value();
-			root.lookup(name + "_click").assign(true, agent, followMouse);
+			edenUI.plugins.Canvas2D.setMouseDown(name + "_click", true, false, agent);
 			root.lookup(name + "_zoneMouseDown").assign(undefined, agent, followMouse);
+			edenUI.plugins.Canvas2D.scheduleMouseUp(name + "_zoneMouseUp", undefined, agent);
+
 			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
-
-		}).on("mouseup", function () {
-			var autocalcSym = root.lookup("autocalc");
-			var autocalcValueOnEntry = autocalcSym.value();
-			var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
-
-			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
-
-			var followMouse = root.lookup("mouseFollow").value();
-			root.lookup(name + "_click").assign(false, agent, followMouse);
-			root.lookup(name + "_zoneMouseUp").assign(undefined, agent, followMouse);
-			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
-
 		});	
 
 		var mapJQ = $("<map name=\"" + id + "-map\" id=\"" + id + "-map\"></map>");
@@ -108,24 +100,25 @@ HTMLImage.prototype.draw = function(context) {
 				var autocalcSym = root.lookup("autocalc");
 				var autocalcValueOnEntry = autocalcSym.value();
 				var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
-
+				var followMouse = root.lookup("mouseFollow").value();
 				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 				
-				var followMouse = root.lookup("mouseFollow").value();
+				edenUI.plugins.Canvas2D.setMouseDown(name + "_click", true, false, agent);
 				root.lookup(name + "_zoneMouseDown").assign(regionName, agent, followMouse);
-				root.lookup(name + "_click").assign(true, agent, followMouse);
+				edenUI.plugins.Canvas2D.scheduleMouseUp(name + "_zoneMouseUp", undefined, agent);
+
 				autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 
 			}).on("mouseup", function (event) {
 				var autocalcSym = root.lookup("autocalc");
 				var autocalcValueOnEntry = autocalcSym.value();
 				var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
-
+				var followMouse = root.lookup("mouseFollow").value();
 				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 
-				var followMouse = root.lookup("mouseFollow").value();
-				root.lookup(name + "_zoneMouseUp").assign(regionName, agent, followMouse);
-				root.lookup(name + "_click").assign(false, agent, followMouse);
+				edenUI.plugins.Canvas2D.setMouseUp(name + "_click", false, agent);
+				edenUI.plugins.Canvas2D.setMouseUp(name + "_zoneMouseUp", regionName, agent);
+
 				autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 
 			});
@@ -143,13 +136,7 @@ HTMLImage.prototype.draw = function(context) {
 
 		//No image map.
 		imageJQ.on("mousedown", function () {
-			var followMouse = root.lookup("mouseFollow").value();
-			root.lookup(name + "_click").assign(true, agent, followMouse);
-
-		}).on("mouseup", function () {
-			var followMouse = root.lookup("mouseFollow").value();
-			root.lookup(name + "_click").assign(false, agent, followMouse);
-
+			edenUI.plugins.Canvas2D.setMouseDown(name + "_click", true, false, agent);
 		});	
 	}
 	var clickSym = root.lookup(name + "_click");

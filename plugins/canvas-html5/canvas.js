@@ -485,9 +485,52 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		};
 	}
 
+	//Describes observables whose values will change when the left mouse button is released.
+	var observablesMouseDown = {};
+	
+	/**Sets the value of an observable (e.g. when the mouse button is pressed down) and schedules
+	 * another value to be assigned when the left mouse button is later released.
+	 * @param {String} name The name of the observable.
+	 * @param {*} valueDown The value to assign to the observable immediately.
+	 * @param {*} valueUp The value to assign when the mouse button is released.
+	 * @param {Symbol} agent The agent to perform the assignment on behalf of.
+	 */
+	this.setMouseDown = function (name, valueDown, valueUp, agent) {
+		var followMouse = root.lookup("mouseFollow").value();
+		root.lookup(name).assign(valueDown, agent, followMouse);
+		observablesMouseDown[name] = {agent: agent, valueOnRelease: valueUp};
+	}
+
+	/**Schedules a future assignment to an observable when the left mouse button is released.
+	 * @param {String} name The name of the observable.
+	 * @param {*} valueUp The value to assign when the mouse button is released.
+	 * @param {Symbol} agent The agent to perform the assignment on behalf of.
+	 */
+	this.scheduleMouseUp = function (name, valueUp, agent) {
+		observablesMouseDown[name] = {agent: agent, valueOnRelease: valueUp};
+	}
+
+	 /**Sets the value of an observable and cancels the assignment previously scheduled to happen
+	 * when the left mouse button is released.
+	 * @param {String} name The name of the observable.
+	 * @param {*} valueUp The value to assign when the mouse button is released.
+	 * @param {Symbol} agent The agent to perform the assignment on behalf of.
+	 */
+	this.setMouseUp = function (name, valueUp, agent) {
+		var followMouse = root.lookup("mouseFollow").value();
+		root.lookup(name).assign(valueUp, agent, followMouse);
+		delete observablesMouseDown[name];
+	}
+
 	//To catch when a mouse button is pressed down over a canvas window and then released outside of any
 	//canvas window.
 	document.addEventListener("mouseup", function (e) {
+		var autocalcSym = root.lookup("autocalc");
+		var autocalcValueOnEntry = autocalcSym.value();
+		var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
+		autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+		var followMouse = root.lookup("mouseFollow").value();
+
 		var mouseInfo = me.mouseInfo;
 		if (!mouseInfo.insideCanvas) {
 			var buttonName;
@@ -516,15 +559,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					buttonName = "Unknown";
 			}
 			mouseInfo.buttonCount = mouseInfo.leftButton + mouseInfo.middleButton + mouseInfo.rightButton + mouseInfo.button4 + mouseInfo.button5;
-			var followMouse = root.lookup("mouseFollow").value();
 			var buttonsSym = root.lookup("mouseButtons");
 			if (mouseInfo.buttonCount == 0 && buttonsSym.value() != "") {
 				//Final button released outside of any canvas window.
-				var autocalcSym = root.lookup("autocalc");
-				var autocalcValueOnEntry = autocalcSym.value();
-				var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
-				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
-
 				var mousePressedSym = root.lookup("mousePressed");
 				var mousePressed = mousePressedSym.value();
 
@@ -536,10 +573,18 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				}
 				root.lookup('mouseUp').assign(undefined, Symbol.hciAgent, followMouse);
 				root.lookup('mouseWindow').assign(undefined, Symbol.hciAgent, followMouse);
-				autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 			}
 		}
 
+
+		if (!mouseInfo.leftButton) {
+			for (var observable in observablesMouseDown) {
+				var clickDetails = observablesMouseDown[observable];
+				root.lookup(observable).assign(clickDetails.valueOnRelease, clickDetails.agent, followMouse);
+			}
+			observablesMouseDown = {};
+		}
+		autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 	});
 
 	document.addEventListener("mousedown", function (e) {
