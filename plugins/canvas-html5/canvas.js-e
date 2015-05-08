@@ -3,6 +3,9 @@
 ##
 ## See LICENSE.txt
 
+mouseX is mousePosition.x;
+mouseY is mousePosition.y;
+
 ##Initialize observables
 mouseButtons = "";
 mouseCapture = false;

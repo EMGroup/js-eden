@@ -160,7 +160,7 @@
 
 		var diag = dialog(name);
 		//Allow mouse drags that position the dialog partially outside of the browser window.
-		diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, -10, Number.MAX_VALUE, Number.MAX_VALUE]);
+		diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, this.menuBarHeight, Number.MAX_VALUE, Number.MAX_VALUE]);
 		
 		/* Initialize observables
 		 * _view_xxx_width and _view_xxx_height are the width and height respectively of the usable

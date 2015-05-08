@@ -504,8 +504,8 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 		namehtml = this.name;
 	}
 
-	var html = "<span class='result_name'>" + namehtml + "</span>" +
-		"<span class='result_value'> = " + valhtml + "</span>";
+	var html = "<span class='result_name'>" + namehtml + "</span> &DoubleRightArrow; " +
+		"<span class='result_value'>" + valhtml + "</span>";
 
 	if (this.symbol.definition !== undefined) {
 		var tooltip = Eden.htmlEscape(this.symbol.eden_definition, false, true);

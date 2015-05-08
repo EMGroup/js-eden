@@ -1,0 +1,74 @@
+{
+	"projects": [
+		{
+				"name": "Shopping",
+				"author": "Meurig Beynon, Jonny Foss and Steve Russ",
+				"year": "2015",
+				"description": "Basic shopping as an introductory construal.",
+				"runfile": "models/SciFest2015/shopping/run.js-e"
+		},
+		{
+				"name": "Shopping Game",
+				"author": "Meurig Beynon, Jonny Foss and Steve Russ",
+				"year": "2015",
+				"description": "Test your maths skills by calculating the change.",
+				"runfile": "models/SciFest2015/shopping/run-game.js-e"
+		},
+		{
+			"name": "Light Switch",
+			"author": "Ilkka Jormanainen",
+			"year": "2015",
+			"description": "A simple construal for beginners.",
+			"runfile": "models/construit-c14-teacher-cpd/light-switch.js-e"
+		},
+		{
+			"name": "Simple Electrical Circuit",
+			"author": "Elizabeth Hudnott",
+			"year": "2015",
+			"description": "Turn bulbs on and off and explore the wiring diagram.",
+			"runfile": "models/construit-c14-teacher-cpd/simple-circuit.js-e"
+		},
+		{
+			"name": "Light Box",
+			"author": "Jonny Foss and Meurig Beynon",
+			"year": "2015",
+			"description": "Reflect a laser beam using mirrors.",
+			"runfile": "models/SciFest2015/light-box/run.js-e"
+		},
+		{
+			"name": "Hexagon Colouring",
+			"author": "Jonny Foss and Meurig Beynon",
+			"year": "2015",
+			"description": "A puzzle game involving colouring in hexagons.",
+			"runfile": "models/SciFest2015/hexagon-colouring/run.js-e"
+		},
+		{
+			"name": "Nim",
+			"author": "Meurig Beynon and Matthew Leeke",
+			"year": "2012-2015",
+			"description": "A competitive two player strategy game.",
+			"runfile": "models/SciFest2015/nim-coins/run.js-e"
+		},
+		{
+			"name": "Piano",
+			"author": "Elizabeth Hudnott (pedagogical consultant Meg Beynon)",
+			"year": "2014",
+			"description": "Explore learning to play the piano and read music.",
+			"runfile": "models/SciFest2015/piano/run.js-e"
+		},
+		{
+			"name": "Exhibition Setup",
+			"author": "Elizabeth Hudnott",
+			"year": "2015",
+			"description": "Configure the environment for presenting the construals on an exhibition stand.",
+			"runfile": "models/SciFest2015/exhibition-setup.js-e"
+		},
+		{
+			"name": "JS-EDEN Presentation Environment (JSPE)",
+			"author": "Matt Cranham and Hui Zhu",
+			"year": "2012",
+			"description": "Installs a presentation environment.",
+			"runfile": "models/jspe/run.e"
+		}
+	]
+}

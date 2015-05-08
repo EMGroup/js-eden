@@ -4,8 +4,6 @@
 autocalc = 0;
 
 ## Observable Assignments:
-randomIndex = 24;
-_view_list = ["picture", "inputwindow", "PlainHTML"];
 _view_picture_width = 550;
 _view_picture_y = 30;
 _view_html_x = 875;
@@ -16,7 +14,7 @@ price3 = 0.39;
 price4 = 2;
 price5 = 0.29;
 price6 = 0.42;
-imagelocation = "http://www.dcs.warwick.ac.uk/~jonny/ukcurrency/";
+imagelocation = "models/SciFest2015/shopping/img/";
 pounds = 2;
 pence = 0.3;
 selection0 = [7, 8, 6, 7, 3, 1, 6, 3];
@@ -186,24 +184,24 @@ func moneyinhand {
 
 func coindisplay {
 	para ix;
-	if (ix==1) return "1p.gif";
-	if (ix==2) return "2p.gif";
-	if (ix==3) return "5p.gif";
-	if (ix==4) return "10p.gif";
-	if (ix==5) return "20p.jpg";
-	if (ix==6) return "50p.jpg";
-	if (ix==7) return "pound.gif";
-	if (ix==8) return "2pounds.gif";
+	if (ix==1) return "GBP-1p-tails.gif";
+	if (ix==2) return "GBP-2-pence-tails.gif";
+	if (ix==3) return "GBP-5-pence-tails.gif";
+	if (ix==4) return "GBP-10-pence-tails.gif";
+	if (ix==5) return "GBP-20-pence-tails.jpg";
+	if (ix==6) return "GBP-50-pence-tails.jpg";
+	if (ix==7) return "GBP-1-pound-tails-england.gif";
+	if (ix==8) return "GBP-2-pounds-tails.gif";
 }
 
 func itemdisplay {
 	para ix, scaleWidth;
-	if (ix==1) return "a.png";
-	if (ix==2) return "b.png";
-	if (ix==3) return "c.jpg";
-	if (ix==4) return "d.jpg";
-	if (ix==5) return "e.jpg";
-	if (ix==6) return "f.jpg";
+	if (ix==1) return "apple.png";
+	if (ix==2) return "bananas.jpg";
+	if (ix==3) return "grapes.png";
+	if (ix==4) return "orange.jpg";
+	if (ix==5) return "pear.jpg";
+	if (ix==6) return "strawberry.jpg";
 }
 
 func denomdisplay {

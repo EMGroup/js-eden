@@ -23,8 +23,6 @@ proc drawPicture {
 
 mouseClickX is mouseUp.x;
 mouseClickY is mouseUp.y;
-mouseX is mousePosition.x;
-mouseY is mousePosition.y;
 
 func oldArc {
 	para newArc, params;

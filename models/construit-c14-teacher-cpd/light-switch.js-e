@@ -1,0 +1,34 @@
+room is Rectangle(50,50, 100, 100, (lightison) ? "yellow" : @);
+lightswitch is Button("lightswitch", switchlabel, 200, 50);
+switchlabel is (lightison) ? "Turn off" : "Turn on";
+
+proc press_switch: lightswitch_clicked {
+	if (lightswitch_clicked) {
+		lightison = not lightison;
+	}
+}
+
+question is Text("Is the light on?", 50, 200, "14px","blue" );
+result is Text(resulttext, 150, 230, "14px", resulttextcolor);
+
+buttonyes is Button("buttonyes", "Yes", 60, 230, true, (myanswer == "Y") ? "lightblue" : "white");
+buttonno is Button("buttonno", "No", 110, 230, true, (myanswer == "N") ? "lightblue" : "white");
+
+proc lightis_on: buttonyes_clicked {
+	if (buttonyes_clicked) {
+		myanswer = "Y";
+	}
+}
+
+proc lightis_off: buttonno_clicked {
+	if (buttonno_clicked) {
+		myanswer = "N";
+	}
+}
+resulttext is myanswercorrect? "Correct answer!" : "Oops.. are you sure?";
+myanswercorrect is ((myanswer == "Y") and (lightison)) or ((myanswer == "N") and (!lightison));
+
+resulttextcolor is (myanswercorrect) ? "green" : "red";
+
+picture is [room, lightswitch, question, buttonyes, buttonno, result];
+

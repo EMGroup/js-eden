@@ -54,8 +54,8 @@ scene6 is Slide("
 	<h2>Acknowledgements</h2>
 	<p>The images and presentation of coins were adapted from these websites:</p>
 	<ul>
-		<li><a href='http://projectbritain.com/money/coins.htm' target='_new'>http://projectbritain.com/money/coins.htm</a></li>
-		<li><a href='http://www.mathsisfun.com/money/currency.html' target='_new'>http://www.mathsisfun.com/money/currency.html</a></li>
+		<li><a href='http://projectbritain.com/money/coins.htm' target='_blank'>http://projectbritain.com/money/coins.htm</a></li>
+		<li><a href='http://www.mathsisfun.com/money/currency.html' target='_blank'>http://www.mathsisfun.com/money/currency.html</a></li>
 	</ul>
 ");
 

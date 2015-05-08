@@ -110,8 +110,20 @@ func resetPuzzle {
   chosenItem2 is int(random()*6)+1;
 }
 
+func coindisplay {
+	para ix;
+	if (ix==1) return "GBP-1p-heads.png";
+	if (ix==2) return "GBP-2-pence-heads.gif";
+	if (ix==3) return "GBP-5-pence-heads.gif";
+	if (ix==4) return "GBP-10-pence-heads.gif";
+	if (ix==5) return "GBP-20-pence-heads.jpg";
+	if (ix==6) return "GBP-50-pence-heads.jpg";
+	if (ix==7) return "GBP-1-pound-heads.gif";
+	if (ix==8) return "GBP-2-pounds-heads.gif";
+}
+
 ## Picture Definition:
-picture is [coin1pic,coin2pic,coin3pic,coin4pic, coin1text,coin2text,coin3text,coin4text, item1pic,item2pic,item1text, item2text, MoneyText,EnoughText,AnswerText,ItemText, yesBtn, noBtn, Response, resetBtn];
+picture is [coin1pic,coin2pic,coin3pic,coin4pic, item1pic,item2pic,item1text, item2text, MoneyText,EnoughText,AnswerText,ItemText, yesBtn, noBtn, Response, resetBtn];
 
 ## Turn on automatic calculation and execute any triggered actions pending.
 autocalc = 1;
