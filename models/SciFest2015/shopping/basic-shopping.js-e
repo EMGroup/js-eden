@@ -197,11 +197,11 @@ func coindisplay {
 func itemdisplay {
 	para ix, scaleWidth;
 	if (ix==1) return "apple.png";
-	if (ix==2) return "bananas.jpg";
-	if (ix==3) return "grapes.png";
-	if (ix==4) return "orange.jpg";
-	if (ix==5) return "pear.jpg";
-	if (ix==6) return "strawberry.jpg";
+	if (ix==2) return "grapes.png";
+	if (ix==3) return "orange.jpg";
+	if (ix==4) return "strawberry.jpg";
+	if (ix==5) return "bananas.jpg";
+	if (ix==6) return "pear.jpg";
 }
 
 func denomdisplay {
