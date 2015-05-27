@@ -13,7 +13,7 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 	this.outlinecolour = outlinecolour;
 
 	var fontCSS;
-	if (options instanceof Object) {		
+	if (options instanceof Object) {
 		if (!("valign" in options)) {
 			options.valign = "top";
 		}
@@ -153,3 +153,64 @@ Text.prototype.toString = function() {
 Text.prototype.getEdenCode = Text.prototype.toString;
 
 }}$;
+
+func textWidth {
+	${{
+		var text = arguments[0];
+		var size, options;
+		if (typeof(arguments[1]) == "object") {
+			options = arguments[1];
+		} else {
+			var size = arguments[1];
+			var options = arguments[2];
+		}
+
+		if (size === undefined) {
+			size = "1em";
+		} else if (typeof(size) == "number") {
+			size = size + "px";
+		}
+
+		var fontCSS;
+		if (options instanceof Object) {
+			if (options.italic) {
+				fontCSS = "italic ";
+			} else {
+				fontCSS = "";
+			}
+			if (options.smallCaps) {
+				fontCSS = fontCSS + "small-caps ";
+			}
+			if (options.bold) {
+				fontCSS = fontCSS + "bold ";
+			}
+			fontCSS = fontCSS + size + " ";
+			if (options.fontFace === undefined) {
+				fontCSS = fontCSS + "sans-serif";
+			} else {
+				fontCSS = fontCSS + options.fontFace;
+			}
+		} else if (typeof(options) == "string") {
+			fontCSS = options + " sans-serif";
+		} else {
+			fontCSS = size + " sans-serif";
+		}
+		
+		//Find an existing canvas (any one).
+		var canvas;
+		for (var canvasName in canvases) {
+			canvas =  canvases[canvasName];
+		}
+		
+		var context = canvas.getContext("2d");
+		context.save();
+		edenUI.plugins.Canvas2D.configureContextDefaults(context);
+		edenUI.plugins.Canvas2D.configureContext(context, options);
+		context.font = fontCSS;
+		context.textBaseline = "top";
+		var metrics = context.measureText(text);
+		var width = metrics.width;
+		context.restore();
+		return width;
+	}}$;
+}

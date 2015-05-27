@@ -668,6 +668,15 @@
 			"return": "Text object",
 			"description": "Creates a text element for display on the canvas"
 		},
+		"textWidth": {
+			"parameters": {
+				"text": "Text string to measure",
+				"[size]" : "",
+				"[options]": ""
+			},
+			"return": "The width of the given text, in pixels",
+			"description": "Measures the width of a piece of text drawn using the Text function."
+		},
 		"Arc": {
 			"parameters": {
 				"x": "",

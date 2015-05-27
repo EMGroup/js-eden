@@ -653,8 +653,20 @@ func symbolToIdentifier {
 	}
 }
 
+func makeKeySignature {
+	para scale;
+	auto i, result;
+	result = [];
+	for (i = 1; i <= scale#; i++) {
+		if (scale[i]# > 1) {
+			append result, scale[i];
+		}
+	}
+	return result;
+}
+
 proc defineScales {
-	para scaleName, tonics, intervalPattern, modifications;
+	para scaleName, tonics, intervalPatternObs, modifications;
 	auto i, letter, symbol, identifier, definition;
 	for (i = 1; i <= tonics#; i++) {
 		letter = tonics[i][1];
@@ -662,13 +674,18 @@ proc defineScales {
 		identifier = lowercase(letter) // symbolToIdentifier(symbol) // scaleName;
 
 		if (modifications# == 0) {
-			definition = identifier // " is ascendingScale(" // 
-				edenCode(tonics[i]) // ", " // edenCode(intervalPattern) // ");";
+			definition = identifier // "Scale is ascendingScale(" // 
+				edenCode(tonics[i]) // ", " // intervalPatternObs // ");";
 		} else {
-			definition = identifier // " is raiseAndFlatten(ascendingScale(" // 
-				edenCode(tonics[i]) // ", " // edenCode(intervalPattern) // "), " // edenCode(modifications) // ");";
+			definition = identifier // "Scale is raiseAndFlatten(ascendingScale(" // 
+				edenCode(tonics[i]) // ", " // intervalPatternObs // "), " // edenCode(modifications) // ");";
 		}
 		createDefinition("defineScales()", definition);
+
+		if (modifications == []) {
+			definition = identifier // "KS is makeKeySignature(" // identifier // "Scale);";
+			createDefinition("defineScales()", definition);
+		}
 	}
 }
 
@@ -689,22 +706,10 @@ minorScaleTonics is [
 	"A", "E", "B", "F" // sharpSymbol, "C" // sharpSymbol, "G" // sharpSymbol, "D" // sharpSymbol, "A" // sharpSymbol,
 	"D", "G", "C", "F", "B" // flatSymbol, "E" // flatSymbol, "A" // flatSymbol];
 
-defineScales("MajorScale", majorScaleTonics, majorIntervalPattern, []);
-defineScales("NaturalMinorScale", minorScaleTonics, naturalMinorIntervalPattern, []);
-defineScales("HarmonicMinorScale", minorScaleTonics, naturalMinorIntervalPattern, [0, 0, 0, 0, 0, 0, 1]);
-defineScales("MelodicMinorScale", minorScaleTonics, naturalMinorIntervalPattern, [0, 0, 0, 0, 0, 1, 1]);
-
-func makeKeySignature {
-	para scale;
-	auto i, result;
-	result = [];
-	for (i = 1; i <= scale#; i++) {
-		if (scale[i]# > 1) {
-			append result, scale[i];
-		}
-	}
-	return result;
-}
+defineScales("Major", majorScaleTonics, "majorIntervalPattern", []);
+defineScales("NaturalMinor", minorScaleTonics, "naturalMinorIntervalPattern", []);
+defineScales("HarmonicMinor", minorScaleTonics, "naturalMinorIntervalPattern", [0, 0, 0, 0, 0, 0, 1]);
+defineScales("MelodicMinor", minorScaleTonics, "naturalMinorIntervalPattern", [0, 0, 0, 0, 0, 1, 1]);
 
 func placeScaleInOctave {
 	para scale, octave;

@@ -5,6 +5,7 @@
 ##_chapter doesn't yet update correctly if the a backward seek is performed.
 ##toString method needs implementing.
 ##Attempting to play back video in reverse (vid_speed < 0) only works on Safari on Mac.  A workaround is possible.
+##Useful site for extracting YouTube video URLs: http://www.downvids.net/
 
 ##For a Video drawable named "vid", the following observables are available.  All are read/write.
 ##
@@ -70,9 +71,9 @@
 	##Stop to complete an exercise 60 seconds into the video.
 	exercisePoints = [60];
 	exercisesCompleted = [false];
-	exerciseNumber is indexOf(int(vid_time, exercisePoints));
+	exerciseNumber is indexOf(int(vid_time), exercisePoints);
 	vid_controls is exerciseNumber == 0 || exercisesCompleted[exerciseNumber];
-	vid_paused is !vid_controls;
+	vid_paused is vid_controls == false;
 */
 
 func Video {
@@ -183,7 +184,9 @@ ${{
 			var controls = controlsSym.value();
 			if (controls === undefined) {
 				controls = true;
-				controlsSym.assign(true, this);
+				if (controlsSym.eden_definition === undefined || controlsSym.definition === undefined) {
+					controlsSym.assign(true, this);
+				}
 			}
 			videoElement.controls = controls;
 			controlsSym.addJSObserver("showHideControls", function (symbol, showControls) {

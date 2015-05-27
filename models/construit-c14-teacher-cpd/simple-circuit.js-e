@@ -48,7 +48,7 @@ func verticalSwitch {
 	return items;
 }
 
-func battery {
+func horizontalBattery {
 	para position, length, spacing;
 	auto x, y, items, ratio;
 	x = position.x;
@@ -94,7 +94,7 @@ switch2Position is {right, top + height * switch2RelativeY};
 bulb1Position is {left + junction1RelativeX * width, top + bulb1RelativeY * height};
 bulb2Position is {right, top + bulb2RelativeY * height};
 
-battery1 is battery(batteryPosition, symbolSize, symbolSize / 6);
+battery1 is horizontalBattery(batteryPosition, symbolSize, symbolSize / 6);
 masterSwitch is horizontalSwitch(masterSwitchPosition, switchLength, junctionRadius, masterSwitchClosed);
 switch1 is verticalSwitch(switch1Position, switchLength, junctionRadius, switch1Closed);
 switch2 is verticalSwitch(switch2Position, switchLength, junctionRadius, switch2Closed);

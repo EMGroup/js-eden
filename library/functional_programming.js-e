@@ -191,9 +191,14 @@ func curry {
 			return undefined;
 		}
 		var curriedArgs = Array.prototype.slice.call(arguments, 1);
-		return function () {
-			return f.apply(this, curriedArgs.concat(Array.prototype.slice.call(arguments)));
-		};
+		if ("bind" in f) {
+			return Function.prototype.bind.apply(f, [this].concat(curriedArgs));
+		} else {
+			//IE 8
+			return function () {
+				return f.apply(this, curriedArgs.concat(Array.prototype.slice.call(arguments)));
+			};
+		}
 	}}$;
 }
 

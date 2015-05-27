@@ -15,11 +15,13 @@ Eden.systemObservableNames = {
 	"mouseUp": true,
 	"mouseWheel": true,
 	"mouseWindow": true,
+	"mouseX": true,
+	"mouseY": true,
 	"randomGeneratorState": true,
 	"randomIndex": true,
 	"screenHeight": true,
 	"screenWidth": true,
-	"touchScrollX": true
+	"touchScrollX": true,
 };
 
 Eden.systemAgentNames = {
@@ -49,7 +51,7 @@ Eden.systemAgentNames = {
 	"touch": true,
 	"unbind": true,
 	"withAppendedItem": true,
-	"writeln": true
+	"writeln": true,
 };
 
 Eden.systemFunctionNames = {
@@ -184,12 +186,13 @@ Eden.systemFunctionNames = {
 	"substr": true,
 	"tail": true,
 	"tan": true,
+	"textWidth": true,
 	"time": true,
 	"translate": true,
 	"trim": true,
 	"type": true,
 	"uppercase": true,
-	"xorshiftRandomGenerator": true
+	"xorshiftRandomGenerator": true,
 };
 
 Eden.symbolCategories = {};
@@ -206,7 +209,7 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"mouseUp": true,
 		"mouseWheel": true,
 		"mouseWindow": true,
-		"touchScrollX": true
+		"touchScrollX": true,
 	},
 	agent: {
 		"attemptMouseCapture": true,
@@ -254,6 +257,7 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"imageWithZones": true,
 		"include_css": true,
 		"rgb2colour": true,
+		"textWidth": true,
 	}
 };
 

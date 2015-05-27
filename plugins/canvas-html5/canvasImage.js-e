@@ -104,7 +104,7 @@ func Image {
 
 ${{
 CanvasImage.prototype.draw = function(context, canvas) {
-	if(this.loaded) {
+	if (this.loaded) {
 		context.imageSmoothingEnabled = this.smoothed;
 		context.drawImage(this.image, this.sx, this.sy, this.sWidth, this.sHeight, this.dx, this.dy, this.dWidth, this.dHeight);
 	} else {

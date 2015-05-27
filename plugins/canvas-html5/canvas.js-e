@@ -96,12 +96,13 @@ proc createCanvas {
 		`obsName` = [];
 	}
 
-	drawPicture = ${{ function (viewName, obsName) {
+	initPicture = ${{ function (viewName, obsName) {
+		edenUI.plugins.Canvas2D.setPictureObs(viewName, obsName);
 		edenUI.plugins.Canvas2D.drawPicture(viewName, obsName);
 	} }}$;
-	
-	createView(viewName, "Canvas2D", obsName);	
-	drawPicture(viewName, obsName);
+
+	createView(viewName, "Canvas2D", obsName);
+	initPicture(viewName, obsName);
 	
 	if (viewTitle != @) {
 		`"_view_" // viewName // "_title"` = viewTitle;

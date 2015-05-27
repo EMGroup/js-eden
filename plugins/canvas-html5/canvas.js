@@ -30,10 +30,17 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	canvases = {};
 	contents = {};
 	var canvasNameToElements = {};
+	var pictureObsToViews = {};
 
 	this.delay = 40;
 
-	this.drawPicture = function(canvasname, pictureobs) {
+	this.drawPictures = function (pictureObs) {
+		for (viewName in pictureObsToViews[pictureObs]) {
+			this.drawPicture(viewName, pictureObs);
+		}
+	}
+
+	this.drawPicture = function(canvasname, pictureObs) {
 
 		if (!canvasNameToElements[canvasname]) {
 			canvasNameToElements[canvasname] = {};
@@ -46,7 +53,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 		if (canvas === undefined) {
 			//Need to make the canvas view first
-			edenUI.createView(canvasname, "Canvas2D", pictureobs);
+			edenUI.createView(canvasname, "Canvas2D", pictureObs);
 			
 			canvases[canvasname] = $("#"+canvasname+"-dialog-canvas")[0];
 			contents[canvasname] = $("#"+canvasname+"-dialog-canvascontent")[0];
@@ -60,17 +67,17 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 			setTimeout(function () {
 		
-			var picture = root.lookup(pictureobs).value();
-		  var context = canvas.getContext('2d');
-		  var content = contents[canvasname];
+			var picture = root.lookup(pictureObs).value();
+			var context = canvas.getContext('2d');
+			var content = contents[canvasname];
 		  
-		  var backgroundColour = root.lookup("_view_" + canvasname + "_background_colour").value();
-		  me.setFillStyle(context, backgroundColour);
-		  content.parentElement.style.backgroundColor = backgroundColour;
+			var backgroundColour = root.lookup("_view_" + canvasname + "_background_colour").value();
+			me.setFillStyle(context, backgroundColour);
+			content.parentElement.style.backgroundColor = backgroundColour;
 			context.fillRect(0, 0, canvas.width, canvas.height);
 
 			//Configure JS-EDEN default options that are different from the HTML canvas defaults.
-			context.lineJoin = "bevel";
+			me.configureContextDefaults(context);
 
 			var hash;
 			for (hash in previousElements) {
@@ -81,8 +88,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 				for (var i = 0; i < picture.length; i++) {
 
-					if (!(picture[i] instanceof Object) || !("draw" in picture[i])) { continue; }
-
 					var elHash = picture[i].hash && picture[i].hash();
 					var existingEl = elHash && previousElements[elHash];
 
@@ -91,9 +96,15 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 						picture[i].elements = existingEl;
 					} else {
 						context.save();
-						me.configureContext(context, picture[i].drawingOptions);
-						// expect draw() method to set .elements
-						picture[i].draw(context, pictureobs);
+						try {
+							me.configureContext(context, picture[i].drawingOptions);
+							// expect draw() method to set .elements
+							picture[i].draw(context, pictureObs);
+						} catch (e) {
+							if (picture[i] !== undefined) {
+								console.log(e);
+							}
+						}
 						context.restore();
 					}
 
@@ -126,6 +137,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		}
 	};
 
+	/**Configures JS-EDEN default drawing options that are different from the HTML canvas defaults.
+	 */
+	this.configureContextDefaults = function (context) {
+		context.lineJoin = "bevel";		
+	}
+	
 	this.configureContext = function (context, options) {
 		if (options === undefined) {
 			return;
@@ -180,18 +197,30 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		buttonCount: 0, insideCanvas: false, capturing: false
 	};
 
-	this.createDialog = function(name, mtitle, pictureobs) {
+	this.setPictureObs = function (viewName, pictureObs) {
+		for (var otherPictureObs in pictureObsToViews) {
+			delete pictureObsToViews[otherPictureObs][viewName];
+		}
+		if (!(pictureObs in pictureObsToViews)) {
+			pictureObsToViews[pictureObs] = {};
+		}
+		pictureObsToViews[pictureObs][viewName] = true;
+
+		edenUI.eden.root.lookup(pictureObs).addJSObserver("refreshView", function (symbol, value) {
+			me.drawPictures(pictureObs);
+		});
+	};
+	
+	this.createDialog = function (name, mtitle, pictureObs) {
 		//Remove -dialog name suffix.
 		var displayedName = name.slice(0, -7);
-		edenUI.eden.root.lookup(pictureobs).addJSObserver("refreshView", function (symbol, value) {
-			me.drawPicture(displayedName, pictureobs);
-		});
+		me.setPictureObs(displayedName, pictureObs);
 		var backgroundColourSym = root.lookup("_view_" + displayedName + "_background_colour");
 		if (backgroundColourSym.value() === undefined) {
 		  backgroundColourSym.assign("white", {name: "createView"});
 		}
 		backgroundColourSym.addJSObserver("repaintView", function (symbol, value) {
-			me.drawPicture(displayedName, pictureobs);		  
+			me.drawPicture(displayedName, pictureObs);		  
 		});
 
 		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');
@@ -478,9 +507,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				delete contents[displayedName];
 			},
 			resize: function (width, height) {
-				var contentElem = document.getElementById(name);
 				$("#"+name+"-canvas").attr("width", Math.floor(width)).attr("height", Math.floor(height));
-				me.drawPicture(displayedName, pictureobs);
+				me.drawPicture(displayedName, pictureObs);
 			}
 		};
 	}

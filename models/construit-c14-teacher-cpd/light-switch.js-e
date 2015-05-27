@@ -1,4 +1,4 @@
-room is Rectangle(50,50, 100, 100, (lightison) ? "yellow" : @);
+room is Rectangle(50,50, 100, 100, (lightison) ? "yellow" : "black");
 lightswitch is Button("lightswitch", switchlabel, 200, 50);
 switchlabel is (lightison) ? "Turn off" : "Turn on";
 
