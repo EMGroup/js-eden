@@ -67,3 +67,11 @@ div.error-item {
 	-ms-user-select: none;
 	-webkit-user-select: none;
 }
+
+#dialog-extend-fixed-container {
+	pointer-events: none;
+}
+
+#dialog-extend-fixed-container .ui-dialog {
+	pointer-events: auto;
+}
