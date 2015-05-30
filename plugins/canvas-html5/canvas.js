@@ -27,12 +27,13 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		}
 	};
 
+	var defaultWidth = 600;
+	var defaultHeight = 450;
 	canvases = {};
 	contents = {};
 	var canvasNameToElements = {};
 	var pictureObsToViews = {};
-
-	this.delay = 40;
+	var redrawDelay = 40;
 
 	this.drawPictures = function (pictureObs) {
 		for (viewName in pictureObsToViews[pictureObs]) {
@@ -61,80 +62,83 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			canvas.drawing = false;
 		}
 	
-		if (!canvas.drawing){
+		if (!canvas.drawing) {
 
 			canvas.drawing = true;
 
 			setTimeout(function () {
-		
-			var picture = root.lookup(pictureObs).value();
-			var context = canvas.getContext('2d');
-			var content = contents[canvasname];
-		  
-			var backgroundColour = root.lookup("_view_" + canvasname + "_background_colour").value();
-			me.setFillStyle(context, backgroundColour);
-			content.parentElement.style.backgroundColor = backgroundColour;
-			context.fillRect(0, 0, canvas.width, canvas.height);
 
-			//Configure JS-EDEN default options that are different from the HTML canvas defaults.
-			me.configureContextDefaults(context);
+				var picture = root.lookup(pictureObs).value();
+				var context = canvas.getContext('2d');
+				var content = contents[canvasname];
+			  
+				var backgroundColour = root.lookup("_view_" + canvasname + "_background_colour").value();
+				me.setFillStyle(context, backgroundColour);
+				content.parentElement.style.backgroundColor = backgroundColour;
+				context.fillRect(0, 0, canvas.width, canvas.height);
 
-			var hash;
-			for (hash in previousElements) {
-				previousElements[hash].togarbage = true;
-			}
+				//Configure JS-EDEN default options that are different from the HTML canvas defaults.
+				me.configureContextDefaults(context);
 
-			if (Array.isArray(picture)) {
-
-				for (var i = 0; i < picture.length; i++) {
-
-					var elHash = picture[i].hash && picture[i].hash();
-					var existingEl = elHash && previousElements[elHash];
-
-					if (existingEl) {
-						// if already existing hash, no need to draw, just set the elements
-						picture[i].elements = existingEl;
-					} else {
-						context.save();
-						try {
-							me.configureContext(context, picture[i].drawingOptions);
-							// expect draw() method to set .elements
-							picture[i].draw(context, pictureObs);
-						} catch (e) {
-							if (picture[i] !== undefined) {
-								console.log(e);
-							}
-						}
-						context.restore();
-					}
-
-					if (picture[i].elements !== undefined) {
-						var parentEl = picture[i].elements[0].parentElement;
-						if (parentEl && parentEl != content) {
-							//HTML item already present on another canvas.
-							var copiedEl = [];
-							for (var j = 0; j < picture[i].elements.length; j++) {
-								copiedEl.push($(picture[i].elements[j]).clone(true, true).get(0));
-							}
-							picture[i].elements = copiedEl;
-						}
-					}
-					var htmlEl = picture[i].elements;
-					if (htmlEl) { htmlEl.togarbage = false; }
-					if (htmlEl && !existingEl) {
-						$(content).append(htmlEl);
-					}
-
-					if (htmlEl) {
-						nextElements[elHash] = htmlEl;
-					}
+				var hash;
+				for (hash in previousElements) {
+					previousElements[hash].togarbage = true;
 				}
-			} //end if picture observable is undefined.
-			cleanupCanvas(content, previousElements, nextElements);
-			canvasNameToElements[canvasname] = nextElements;
-			canvas.drawing = false;
-		}, me.delay);
-		}
+
+				if (Array.isArray(picture)) {
+
+					for (var i = 0; i < picture.length; i++) {
+						if (typeof(picture[i]) != "object") {
+							continue;
+						}
+
+						var elHash = picture[i].hash && picture[i].hash();
+						var existingEl = elHash && previousElements[elHash];
+
+						if (existingEl) {
+							// if already existing hash, no need to draw, just set the elements
+							picture[i].elements = existingEl;
+						} else {
+							context.save();
+							try {
+								me.configureContext(context, picture[i].drawingOptions);
+								// expect draw() method to set .elements
+								picture[i].draw(context, pictureObs);
+							} catch (e) {
+								if (picture[i] !== undefined) {
+									console.log(e);
+								}
+							}
+							context.restore();
+						}
+
+						if (picture[i].elements !== undefined) {
+							var parentEl = picture[i].elements[0].parentElement;
+							if (parentEl && parentEl != content) {
+								//HTML item already present on another canvas.
+								var copiedEl = [];
+								for (var j = 0; j < picture[i].elements.length; j++) {
+									copiedEl.push($(picture[i].elements[j]).clone(true, true).get(0));
+								}
+								picture[i].elements = copiedEl;
+							}
+						}
+						var htmlEl = picture[i].elements;
+						if (htmlEl) { htmlEl.togarbage = false; }
+						if (htmlEl && !existingEl) {
+							$(content).append(htmlEl);
+						}
+
+						if (htmlEl) {
+							nextElements[elHash] = htmlEl;
+						}
+					} //end of redraw loop.
+				} //end if picture observable is undefined.
+				cleanupCanvas(content, previousElements, nextElements);
+				canvasNameToElements[canvasname] = nextElements;
+				canvas.drawing = false;
+			}, redrawDelay);
+		} //end redraw only if not already queued.
 	};
 
 	/**Configures JS-EDEN default drawing options that are different from the HTML canvas defaults.
@@ -494,8 +498,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			.html(code_entry)
 			.dialog({
 				title: mtitle,
-				width: 600 + edenUI.scrollBarYSize,
-				height: 450 + edenUI.titleBarHeight + edenUI.scrollBarXSize,
+				width: defaultWidth + edenUI.scrollBarYSize,
+				height: defaultHeight + edenUI.titleBarHeight + edenUI.scrollBarXSize,
 				minHeight: 120,
 				minWidth: 230,
 				dialogClass: "unpadded-dialog"
@@ -507,8 +511,23 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				delete contents[displayedName];
 			},
 			resize: function (width, height) {
-				$("#"+name+"-canvas").attr("width", Math.floor(width)).attr("height", Math.floor(height));
-				me.drawPicture(displayedName, pictureObs);
+				var redraw = false;
+				var canvas = document.getElementById(name + "-canvas");
+				var roundedWidth = Math.floor(width);
+				var roundedHeight = Math.floor(height);
+				/* The if statements are necessary because setting the width or height has the side
+				 effect of erasing the canvas. */
+				if (roundedWidth != canvas.width) {
+					canvas.width = roundedWidth;
+					redraw = true;
+				}
+				if (roundedHeight != canvas.height) {
+					canvas.height = roundedHeight;
+					redraw = true;
+				}
+				if (redraw) {
+					me.drawPicture(displayedName, pictureObs);
+				}
 			}
 		};
 	}
