@@ -1,0 +1,27 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+##
+## Modified version of the JSPE where resizing the canvas will automatically move and resize the
+## slides and the input window.
+##
+
+include("models/jspe/run.e");
+
+_view_jspe_x is _view_picture_x + _view_picture_width + ${{edenUI.scrollBarYSize + 2 * edenUI.dialogBorderWidth}}$ + _view_separation;
+_view_jspe_width is min(700, screenWidth - _view_jspe_x);
+_view_jspe_height is screenHeight - _view_jspe_y - 6;
+_view_inputwindow_x = 2;
+_view_inputwindow_y is
+	_view_picture_x == 2 && _view_inputwindow_x == 2?
+	_view_picture_y + _view_picture_height + ${{ edenUI.titleBarHeight + edenUI.scrollBarXSize }}$ + _view_separation * 1.5 : 
+	eval(_view_inputwindow_y);
+_view_inputwindow_width is
+	_view_picture_x == 2 && _view_inputwindow_x == 2?
+	min(0.4 * screenWidth, _view_picture_width) :
+	eval(_view_inputwindow_width);
+_view_inputwindow_height is
+	_view_picture_x == 2 && _view_inputwindow_x == 2?
+	screenHeight - _view_inputwindow_y - ${{ edenUI.titleBarHeight }}$ :
+	eval(_view_inputwindow_height);

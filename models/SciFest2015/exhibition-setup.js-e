@@ -1,4 +1,7 @@
+##Configures JS-EDEN for presenting the construals on an exhibition stand.
+
 ##Configure views.
+include("models/jspe/auto-resizing-jspe.js-e");
 destroyView("inputwindow");
 
 ##Prompt to initiate logging.

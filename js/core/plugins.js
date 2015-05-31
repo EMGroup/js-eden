@@ -97,6 +97,7 @@
 
 		var me = this;
 		var agent = root.lookup("createView");
+		var desktopTop = this.plugins.MenuBar? this.menuBarHeight : 0;
 		var title = this.views[type].title;
 		var viewData = this.views[type].dialog(name + "-dialog", title, initData);
 		if (viewData === undefined) {
@@ -159,8 +160,6 @@
 		this.emit('createView', [name, type]);
 
 		var diag = dialog(name);
-		//Allow mouse drags that position the dialog partially outside of the browser window.
-		diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, this.menuBarHeight, Number.MAX_VALUE, Number.MAX_VALUE]);
 		
 		/* Initialize observables
 		 * _view_xxx_width and _view_xxx_height are the width and height respectively of the usable
@@ -174,7 +173,7 @@
 		view(name, 'height').assign(diag.dialog("option", "height") - this.titleBarHeight - this.scrollBarXSize, agent);
 		var topLeft = diag.closest('.ui-dialog').offset();
 		view(name, 'x').assign(topLeft.left, agent);
-		view(name, 'y').assign(topLeft.top - (this.plugins.MenuBar? this.menuBarHeight : 0), agent);
+		view(name, 'y').assign(topLeft.top - desktopTop, agent);
 
 		//Set the title bar text and allow the construal to change it later.
 		var titleSym = view(name, "title");
@@ -184,32 +183,51 @@
 		});
 		titleSym.assign(title, agent);
 
+		//Allow mouse drags that position the dialog partially outside of the browser window but not over the menu bar.
+		diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, desktopTop, Number.MAX_VALUE, Number.MAX_VALUE]);
+		diag.on("dialogresize", function (event, ui) {
+			var provisionalTop = ui.position.top;
+			if (provisionalTop < desktopTop) {
+				ui.size.height = ui.size.height - (desktopTop - provisionalTop);
+				ui.position.top = desktopTop;
+			}
+		});
+
 		diag.on("dialogresizestop", function (event, ui) {
 			var root = me.eden.root;
 			var autocalcSym = root.lookup("autocalc");
 			var autocalcOnEntry = autocalcSym.value();
-			var followMouse = root.lookup("mouseFollow").value();
 			if (autocalcOnEntry) {
-				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+				autocalcSym.assign(0, Symbol.hciAgent);
 			}
-			view(name, 'width').assign(ui.size.width - me.scrollBarYSize, Symbol.hciAgent, followMouse);
-			view(name, 'height').assign(ui.size.height - me.titleBarHeight - me.scrollBarXSize, Symbol.hciAgent, followMouse);
+			view(name, 'width').assign(ui.size.width - me.scrollBarYSize, Symbol.hciAgent);
+			view(name, 'height').assign(ui.size.height - me.titleBarHeight - me.scrollBarXSize, Symbol.hciAgent);
+
+			var xSym = view(name, "x");
+			if (xSym.value() != ui.position.left) {
+				xSym.assign(ui.position.left, Symbol.hciAgent);
+			}
+			var ySym = view(name, "y");
+			var possibleNewY = ui.position.top - desktopTop;
+			if (ySym.value() != possibleNewY) {
+				ySym.assign(possibleNewY, Symbol.hciAgent);
+			}
+
 			if (autocalcOnEntry) {
-				autocalcSym.assign(1, Symbol.hciAgent, followMouse);
+				autocalcSym.assign(1, Symbol.hciAgent);
 			}
 		});
 		diag.on("dialogdragstop", function (event, ui) {
 			var root = me.eden.root;
 			var autocalcSym = root.lookup("autocalc");
 			var autocalcOnEntry = autocalcSym.value();
-			var followMouse = root.lookup("mouseFollow").value();
 			if (autocalcOnEntry) {
-				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+				autocalcSym.assign(0, Symbol.hciAgent);
 			}
-			view(name, 'x').assign(ui.position.left, Symbol.hciAgent, followMouse);
-			view(name, 'y').assign(ui.position.top - (me.plugins.MenuBar? me.menuBarHeight : 0), Symbol.hciAgent, followMouse);
+			view(name, 'x').assign(ui.position.left, Symbol.hciAgent);
+			view(name, 'y').assign(ui.position.top - desktopTop, Symbol.hciAgent);
 			if (autocalcOnEntry) {
-				autocalcSym.assign(1, Symbol.hciAgent, followMouse);
+				autocalcSym.assign(1, Symbol.hciAgent);
 			}
 		});
 
