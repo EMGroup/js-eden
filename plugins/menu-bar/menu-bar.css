@@ -62,7 +62,6 @@
 	margin-bottom: 1px;
 	background-color: #E8E8E8;
 	font-weight: bold;
-	cursor: default;
 }
 
 .menubar-item:first-child .menubar-item-separator {
@@ -71,6 +70,14 @@
 
 .menubar-item:hover {
 	background-color: rgba(111, 198, 245, 0.3);
+}
+
+.menubar-nonselectable {
+	cursor: default;
+}
+
+.menubar-nonselectable.menubar-item:hover {
+	background-color: inherit;
 }
 
 .menubar-item-clickable {

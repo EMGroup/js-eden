@@ -106,9 +106,17 @@
 		this.viewInstances[name] = viewData;
 		var position = viewData.position;
 
-		// add minimise button to created dialog
+		//Create and set behaviour for minimize, maximize and close buttons.
+		var collapseOnDblClick = edenUI.getOptionValue("optCollapseToTitleBar");
+		var titleBarAction;
+		if (collapseOnDblClick == "true") {
+			titleBarAction = "collapse";
+		} else {
+			titleBarAction = "maximize";
+		}
 		dialog(name)
 		.dialog({
+			closeOnEscape: false,
 			draggable: true,
 			position: position,
 			beforeClose: function () {
@@ -118,9 +126,10 @@
 				} else if (viewData.confirmClose) {
 					me.modalDialog(
 						"Window Close Action",
-						"<p>Removing this window from the work space will cause any unsaved changes associated with it to be lost.  You will need to reload the construal if you wish to see this window again.</p> \
+						"<p>Removing this window from the work space will cause any unsaved changes associated with it to be lost.  You may need to reload the construal if you wish to see this window again.</p> \
 						<p>Are you sure you want to permanently delete this information?  Or would you prefer to hide the window instead?</p>",
 						["Close Forever", "Hide"],
+						1, //Suggest hiding the window as the default option.
 						function (optNum) {
 							if (optNum == 0) {
 								me.destroyView(name);
@@ -141,9 +150,18 @@
 			}
 		})
 		.dialogExtend({
-			dblclick: "maximize",
+			dblclick: titleBarAction,
 			minimizable: true,
 			maximizable: true,
+			beforeMinimize: function () {
+				var hide = edenUI.getOptionValue("optHideOnMinimize");
+				if (hide == "true") {
+					me.hideView(name);
+					return false;
+				} else {
+					return true;
+				}
+			},
 			minimize: function () {
 				var dialogMin = dialog(name).data('dialog-extend-minimize-controls');
 				// dialogExtend sets position: static and top, left, but doesn't need to.
@@ -332,7 +350,12 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.minimizeView = function (name) {
-		dialog(name).dialogExtend('minimize');
+		var hide = edenUI.getOptionValue("optHideOnMinimize");
+		if (hide == "true") {
+			this.hideView(name);
+		} else {
+			dialog(name).dialogExtend('minimize');
+		}
 	};
 
 	/**
@@ -376,13 +399,15 @@
 	 * @param {string} message The text to display as a prompt message.  Can include HTML.
 	 * @param {Array} options An array of strings.  Each one provides the text used to create a
 	 * button at the foot of the dialogue box.
+	 * @param {Number} defaultOptionNum The number of the option that should be taken if the user
+	 * presses the enter or space key. (Can use the tab key to select a different option.)
 	 * @param {function} callback A function to call once the user has clicked a button.  The
 	 * function should have a single integer parameter.  If n options are provided then the function
 	 * will be invoked with a value between 0 and n inclusive.  Values 0 through n-1 correspond to
 	 * the options provided in the options argument.  n means that the user has clicked "Cancel",
 	 * which is an option that is always provided, regardless of the contents of the options array.
 	 */
-	EdenUI.prototype.modalDialog = function (title, message, options, callback) {
+	EdenUI.prototype.modalDialog = function (title, message, options, defaultOptionNum, callback) {
 		var dialog = $('<div id="modal"></div>');
 		
 		var callCallback = function (i) {
@@ -396,22 +421,31 @@
 		var text = $('<div>' + message + '</div>');
 		dialog.append(text);
 		
+		var buttons = [];
 		for (var i = 0; i < options.length; i++) {
-			var button = $('<button type="button">' + options[i] + '</button>');
-			button.on("click", callCallback(i));
-			dialog.append(button);
+			var button = {
+				text: options[i],
+				click: callCallback(i)
+			};
+			buttons.push(button);
 		}
 		var cancelValue = options.length;
-		var cancelButton = $('<button type="button">Cancel</button>');
-		cancelButton.on("click", callCallback(cancelValue));
-		dialog.append(cancelButton);
+		var cancelButton = {
+			text: "Cancel",
+			click: callCallback(cancelValue)
+		};
+		buttons.push(cancelButton);
 		
 		dialog.dialog({
+			buttons: buttons,
 			modal: true,
 			resizable: false,
 			title: title,
 			close: function () {
 				callback(cancelValue);
+			},
+			open: function () {
+				$(this).parent().find("button")[defaultOptionNum].focus();				
 			}
 		});
 	}

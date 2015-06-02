@@ -3,6 +3,8 @@
 ##Configure views.
 include("models/jspe/auto-resizing-jspe.js-e");
 destroyView("inputwindow");
+moveView("picture", 0, 0);
+_view_picture_height is screenHeight - _view_picture_y;
 
 ##Prompt to initiate logging.
 require("NetworkRemote");

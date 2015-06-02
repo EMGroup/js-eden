@@ -138,7 +138,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	}
 
 	function menuSeparator(name) {
-		return $("<div class='menubar-item'><div class='menubar-item-fullwidth menubar-item-separator'>" + name + "</div></div>");
+		return $("<div class='menubar-item menubar-nonselectable'><div class='menubar-item-fullwidth menubar-item-separator'>" + name + "</div></div>");
 	}
 
 	function hoverFunc(viewName) {
@@ -255,34 +255,50 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	// Add main menu items
 	function createMenus() {
 		var jsedenGroup = addMainGroup();
-		
-		var optionsMenu;
-		var label, checkbox, inputElement, initialOptionValue, item;
-		
 		addMainItem("views", "New Window", 60, jsedenGroup);
 		addMainItem("existing-views", "Existing Windows", 85, jsedenGroup);
 		me.updateViewsMenu();
 
 		addMainItem("options", "Options", 60, jsedenGroup);	
-		optionsMenu = $("#menubar-mainitem-options");
+		var optionsMenu = $("#menubar-mainitem-options");
 
-		initialOptionValue = edenUI.getOptionValue("optConfirmUnload") != "false";
-		checkbox = menuItemPart("menubar-item-input", '<input type="checkbox"' + checkedHTML(initialOptionValue) + ' />');
-		inputElement = checkbox.get(0).children[0];
-		label = menuItemPart('menubar-item-label', "Confirm Closing Environment");
-		item = menuItem([checkbox, label]);
-		item.click(function (event) {
-			if (event.target != inputElement) {
-				inputElement.checked = !inputElement.checked;
+		function addCheckboxOption(optionName, description, defaultValue, onChange) {
+			var initialOptionValue = edenUI.getOptionValue(optionName);
+			if (initialOptionValue === null) {
+				initialOptionValue = defaultValue;
 			}
-			edenUI.setOptionValue("optConfirmUnload", inputElement.checked);
+			var checkbox = menuItemPart("menubar-item-input", '<input type="checkbox"' + checkedHTML(initialOptionValue) + ' />');
+			var inputElement = checkbox.get(0).children[0];
+			var label = menuItemPart('menubar-item-label', description);
+			var item = menuItem([checkbox, label]);
+			item.click(function (event) {
+				if (event.target != inputElement) {
+					inputElement.checked = !inputElement.checked;
+				}
+				edenUI.setOptionValue(optionName, inputElement.checked);
+				if (onChange) {
+					onChange(optionName, inputElement.checked);
+				}
+			});
+			item.appendTo(optionsMenu);
+		}
+
+		addCheckboxOption("optConfirmUnload", "Confirm closing environment", true);
+		addCheckboxOption("optHideOnMinimize", "Hide windows on minimize", false);
+		addCheckboxOption("optCollapseToTitleBar", "Collapse to title bar on double click", false, function (optName, collapse) {
+			var action;
+			if (collapse) {
+				action = "collapse";
+			} else {
+				action = "maximize";
+			}
+			$(".ui-dialog-content").each(function () { $(this).dialogExtend("option", "dblclick", action); });
 		});
-		item.appendTo(optionsMenu);
 	}
 
 	createMenus();
 
-	// Put js-eden version in right corner
+	// Put JS-EDEN version number or name in top-right corner.
 	$.ajax({
 		url: "version.json",
 		dataType: "json",

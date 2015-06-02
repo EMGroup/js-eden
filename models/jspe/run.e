@@ -197,13 +197,13 @@ proc nextSlide : buttonNext_clicked {
 }
 
 
-## something like an onclick of some kind which 
-slides is [buttonPrev, buttonNext, slideList[currentSlide]];
+## User interface elements.
+slideNumberLabel is Text(currentSlide, jspeleft + 120, 5);
+slides is [buttonPrev, slideNumberLabel, buttonNext, slideList[currentSlide]];
 
 if (currentSlide == @) {
 	currentSlide = 1;
 }
-## slideNumber is Div("slidenumber",100,100,100,50,"<h3>Slide Number: "+currentSlide+"</h3>","");
 
 
 ${{

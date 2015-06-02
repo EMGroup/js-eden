@@ -75,3 +75,7 @@ div.error-item {
 #dialog-extend-fixed-container .ui-dialog {
 	pointer-events: auto;
 }
+
+.ui-dialog-buttonset button:not(:first-child) {
+    margin-left: 27px;
+}

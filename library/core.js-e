@@ -4,38 +4,40 @@
 ## See LICENSE.txt
 
 func execute {
-	${{ eden.execute(arguments[0], "execute", "", {name: "/execute"}, function () { } ) }}$;
+	${{
+		eden.execute(arguments[0], "execute", "", {name: "/execute"}, function () { } );
+	}}$;
 }
 
 proc createView {
 	${{
-	var name = arguments[0];
-	var type = arguments[1];
-	var initData = arguments[2];
-	edenUI.createView(name, type, initData);
+		var name = arguments[0];
+		var type = arguments[1];
+		var initData = arguments[2];
+		edenUI.createView(name, type, initData);
 	}}$;
-};
+}
 
 proc showView {
 	${{
-	var name = arguments[0];
-	edenUI.showView(name);
+		var name = arguments[0];
+		edenUI.showView(name);
 	}}$;
-};
+}
 
 proc hideView {
 	${{
-	var name = arguments[0];
-	edenUI.minimizeView(name);
+		var name = arguments[0];
+		edenUI.minimizeView(name);
 	}}$;
-};
+}
 
 proc destroyView {
 	${{
-	var name = arguments[0];
-	edenUI.destroyView(name);
+		var name = arguments[0];
+		edenUI.destroyView(name);
 	}}$;
-};
+}
 
 proc moveView {
 	para name, x, y;
@@ -49,7 +51,7 @@ proc moveView {
 	if (autocalcEnabledOnEntry) {
 		autocalc = 1;
 	}
-};
+}
 
 proc resizeView {
 	para name, width, height;
@@ -63,11 +65,13 @@ proc resizeView {
 	if (autocalcEnabledOnEntry) {
 		autocalc = 1;
 	}
-};
+}
 
-##The maximum height a view can be if it fits within the browser window without scrolling.
+##The maximum width a view can be if it fits within the browser window without scrolling.
 screenWidth = ${{ window.innerWidth - edenUI.scrollBarYSize - 2 * edenUI.dialogBorderWidth }}$;
+##The maximum height a view can be if it fits within the browser window without scrolling.
 screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.titleBarHeight - edenUI.scrollBarXSize }}$;
+
 ${{
 	window.addEventListener("resize", function (event) {
 		root.lookup("screenWidth").assign(window.innerWidth - edenUI.scrollBarYSize - 2 * edenUI.dialogBorderWidth, Symbol.hciAgent);
