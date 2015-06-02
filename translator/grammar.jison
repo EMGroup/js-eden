@@ -292,7 +292,7 @@ expression
         { $$ = "context.lookup('Point').value().call(this, " + $2 +"," + $4 +")" }
 
     | expression '//' expression
-        { $$ = $1 + '.concat(' + $3 +')'; }
+        { $$ = 'rt.concat(' + $1 + ', ' + $3 + ')'; }
 
     //
     // assignment operators

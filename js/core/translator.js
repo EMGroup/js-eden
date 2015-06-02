@@ -205,7 +205,7 @@ case 39:
  this.$ = "context.lookup('Point').value().call(this, " + $$[$0-3] +"," + $$[$0-1] +")" 
 break;
 case 40:
- this.$ = $$[$0-2] + '.concat(' + $$[$0] +')'; 
+ this.$ = 'rt.concat(' + $$[$0-2] + ', ' + $$[$0] + ')'; 
 break;
 case 41:
  this.$ = $$[$0-2] + '.assign(' + $$[$0] + ', this).value()'; 

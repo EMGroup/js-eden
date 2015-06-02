@@ -198,7 +198,7 @@ proc nextSlide : buttonNext_clicked {
 
 
 ## User interface elements.
-slideNumberLabel is Text(currentSlide, jspeleft + 120, 5);
+slideNumberLabel is Text(currentSlide // " of " // slideList#, jspeleft + 120, 5, {align: "centre"});
 slides is [buttonPrev, slideNumberLabel, buttonNext, slideList[currentSlide]];
 
 if (currentSlide == @) {

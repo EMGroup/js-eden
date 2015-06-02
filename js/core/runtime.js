@@ -80,6 +80,14 @@ var rt = {
 		return Math.pow(a, b);
 	},
 
+	concat: function (a, b) {
+		if (Array.isArray(a)) {
+			return a.concat(b);
+		} else {
+			return String(a) + b;
+		}
+	},
+
 	regExpMatch: function (subject, pattern) {
 		if (subject === undefined || pattern === undefined) {
 			return undefined;
