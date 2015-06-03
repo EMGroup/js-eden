@@ -4,11 +4,8 @@ body, html {
 }
 
 body {
-	background: linear-gradient(#29454B, #000000);
-
-	/* MSIE */
-	filter: progid:DXImageTransform.Microsoft.Gradient(
-	StartColorStr='#09284B', EndColorStr='#000000', GradientType=0);
+	background-color: #29454B;
+	background-image: linear-gradient(#29454B, #000000);
 }
 
 ul li {

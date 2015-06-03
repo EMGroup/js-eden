@@ -267,12 +267,17 @@ lenray24E is ray24E#-1;
 lenray14E is ray14E#-1;
 </jseden>
 <p>
-... and the total length of all the rays:
+&hellip;and the total length of all the rays:
 </p>
 <jseden>
 totalraylength is (lenray11N + lenray12N + lenray13N + lenray14N + lenray11W + lenray21W + lenray31W + lenray41W + lenray41S + lenray42S + lenray43S + lenray44S + lenray44E + lenray34E + lenray24E + lenray14E)/2;
 </jseden>
 <p>
+&hellip;and the length of the longest ray in the current configuration:
+</p>
+<jseden>
+longestraylength is max(lenray11N, lenray12N, lenray13N, lenray14N, lenray11W, lenray21W, lenray31W, lenray41W, lenray41S, lenray42S, lenray43S, lenray44S, lenray44E, lenray34E, lenray24E, lenray14E);
+</jseden>
 <p>
 You can keep a live check on these values by copying-and-pasting <code>len|total</code> into an Observable List. 
 </p>
@@ -436,8 +441,8 @@ proc setupmirrorconfig : callsecretagent {
 	if (callsecretagent) {
 		gridVisible = false;
 		if (!gridVisible) mirrorGrid = [[1, 0, 1, -1], [0, 1, 0, 1], [1, 0, 1, 0], [-1, 1, 0, 1]];
-	};
-	callsecretagent = false;
+		callsecretagent = false;
+	}
 }
 
 callgremlin = false;
@@ -445,8 +450,8 @@ callgremlin = false;
 proc messupmirrorconfig : callgremlin {
 	if (callgremlin) {
 		mirror12 is Line(visraypt(1,2)[1] - size12, visraypt(1,2)[2] + size11*mirrorGrid[1][2], visraypt(1,2)[1] + size12, visraypt(1,2)[2] - size12*mirrorGrid[1][2], mirrorcol);
-	};
-	callgremlin = false;
+		callgremlin = false;
+	}
 }
 
 
@@ -455,6 +460,7 @@ callengineer = false;
 proc restoremirrorconfig : callengineer {
 	if (callengineer) {
 		mirror12 is Line(visraypt(1,2)[1] - size12, visraypt(1,2)[2] + size12*mirrorGrid[1][2], visraypt(1,2)[1] + size12, visraypt(1,2)[2] - size12*mirrorGrid[1][2], mirrorcol);
-	};
-	callenginer = false;
+		callenginer = false;
+	}
 }
+

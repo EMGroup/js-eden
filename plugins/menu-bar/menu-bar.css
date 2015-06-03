@@ -94,13 +94,13 @@
 }
 
 .menubar-item-label {
-	width: 190px;
+	width: 200px;
 	padding: 5px;
 }
 
 .menubar-item-fullwidth {
 	box-sizing: border-box;
-	width: 230px;
+	width: 240px;
 	padding: 5px;
 }
 
@@ -133,7 +133,7 @@
 	border-width: 0px 0px 1px 2px;
 	box-shadow: 4px 6px 7px 0px #111111;
 	color: black;
-	width: 230px;
+	width: 240px;
 	z-index: 2147483647; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */
 }
 
