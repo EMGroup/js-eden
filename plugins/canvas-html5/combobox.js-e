@@ -45,7 +45,6 @@ function makeOptionsHTML(values) {
 
 Combobox.prototype.draw = function(context) {
 	var me = this;
-	var id = "canvas_" + this.name;
 	var agent = root.lookup("Combobox");
 	var valueName = this.name + '_value';
 	var valueSym = root.lookup(valueName);
@@ -54,7 +53,7 @@ Combobox.prototype.draw = function(context) {
 	if (this.elements === undefined) {
 
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
-		var dropDownListJQ = $("<select id=\"" + id + "\" " + disabled + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
+		var dropDownListJQ = $("<select " + disabled + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
 		dropDownListJQ.html(makeOptionsHTML(this.options));
 
 		dropDownListJQ.change(function(event) {

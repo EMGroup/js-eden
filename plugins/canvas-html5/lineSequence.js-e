@@ -6,15 +6,15 @@
 ##See polygon.js-e for a description of how multiple colours work.
 
 ${{
-LineSequence = function(points, colours, drawingOptions) {
-	this.points = points;
+LineSequence = function(vertices, colours, drawingOptions) {
+	this.vertices = vertices;
 	this.colours = colours;
 	this.drawingOptions = drawingOptions;
 }
 }}$;
 
 func LineSequence { ${{
-	var points = arguments[0];
+	var vertices = arguments[0];
 	var colours = arguments[1];
 	var drawingOptions = arguments[2];
 
@@ -76,13 +76,13 @@ func LineSequence { ${{
 			drawingOptions = {cap: "round", join: "round"};
 		}
 	}
-	return new LineSequence(points, colours, drawingOptions);
+	return new LineSequence(vertices, colours, drawingOptions);
 }}$; };
 
 ${{
 LineSequence.prototype.draw = function(context) {
 	context.beginPath();
-	context.moveTo(this.points[0].x, this.points[0].y);
+	context.moveTo(this.vertices[0].x, this.vertices[0].y);
 	
 	var strokeNum = 1;
 	var i, prevColour;
@@ -97,12 +97,12 @@ LineSequence.prototype.draw = function(context) {
 		}
 		context.stroke();
 		context.beginPath();
-		context.moveTo(me.points[i].x, me.points[i].y);
+		context.moveTo(me.vertices[i].x, me.vertices[i].y);
 		strokeNum++;
 	}
 
-	for (i = 1; i < this.points.length; i++) {
-		context.lineTo(this.points[i].x, this.points[i].y);
+	for (i = 1; i < this.vertices.length; i++) {
+		context.lineTo(this.vertices[i].x, this.vertices[i].y);
 		if (i <= this.colours.length) {
 			//Set the colour of a new piece.
 			var colour = this.colours[i - 1];
@@ -115,7 +115,7 @@ LineSequence.prototype.draw = function(context) {
 			} else {
 				var isGradient = false;
 				if (Array.isArray(colour)) {
-					var gradient = context.createLinearGradient(this.points[i - 1].x, this.points[i - 1].y, this.points[i].x, this.points[i].y);
+					var gradient = context.createLinearGradient(this.vertices[i - 1].x, this.vertices[i - 1].y, this.vertices[i].x, this.vertices[i].y);
 					//First colour of the new line is the last colour of the previous line.
 					if (i == 1 || prevColour == colour[0]) {
 						if (colour.length == 1) {
@@ -160,7 +160,7 @@ LineSequence.prototype.draw = function(context) {
 };
 
 LineSequence.prototype.toString = function() {
-	var s = "LineSequence(" + Eden.edenCodeForValue(this.points) + ", " +
+	var s = "LineSequence(" + Eden.edenCodeForValue(this.vertices) + ", " +
 		Eden.edenCodeForValue(this.colours);
 
 	if (this.drawingOptions !== undefined) {

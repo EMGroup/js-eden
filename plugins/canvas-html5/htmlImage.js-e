@@ -51,8 +51,9 @@ HTMLImage.prototype.draw = function(context) {
 	var name = this.name;
 	var agent = root.lookup("HTMLImage");
 
-	var html = "<img id=\"" + id + "\" style=\"position: absolute; left: " + this.x + "px; top: " +
+	var html = "<img style=\"position: absolute; left: " + this.x + "px; top: " +
 		this.y + "px\" src=\"" + this.url + "\"";
+
 	if (this.width !== undefined) {
 		html = html + " width=\"" + this.width + "\"";
 	}

@@ -14,10 +14,10 @@
 EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	var me = this;
 
-	var cleanupCanvas = function (canvasElement, previousElements, nextElements) {
+	var cleanupCanvas = function (canvasElement, previousElements) {
 		var hash;
 		for (hash in previousElements) {
-			if (hash in nextElements || !previousElements[hash].togarbage) {
+			if (!previousElements[hash].togarbage) {
 				continue;
 			}
 			var elementsToRemove = previousElements[hash];
@@ -47,9 +47,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			canvasNameToElements[canvasname] = {};
 		}
 
-		var previousElements = canvasNameToElements[canvasname];
-		var nextElements = {};
-
 		var canvas = canvases[canvasname];
 
 		if (canvas === undefined) {
@@ -59,92 +56,108 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			canvases[canvasname] = $("#"+canvasname+"-dialog-canvas")[0];
 			contents[canvasname] = $("#"+canvasname+"-dialog-canvascontent")[0];
 			canvas = canvases[canvasname];
-			canvas.drawing = false;
+			canvas.drawingQueued = false;
+			canvas.drawingInProgress = false;
 		}
 	
-		if (!canvas.drawing) {
+		if (!canvas.drawingQueued) {
+			canvas.drawingQueued = true;
 
-			canvas.drawing = true;
+			if (!canvas.drawingInProgress) {
+				var redrawFunction = function () {
+					canvas.drawingInProgress = true;
+					canvas.drawingQueued = false;
 
-			setTimeout(function () {
+					var previousElements = canvasNameToElements[canvasname];
+					var nextElements = {};
 
-				var picture = root.lookup(pictureObs).value();
-				var context = canvas.getContext('2d');
-				var content = contents[canvasname];
-			  
-				var backgroundColour = root.lookup("_view_" + canvasname + "_background_colour").value();
-				me.setFillStyle(context, backgroundColour);
-				content.parentElement.style.backgroundColor = backgroundColour;
-				context.fillRect(0, 0, canvas.width, canvas.height);
+					var picture = root.lookup(pictureObs).value();
+					var context = canvas.getContext('2d');
+					var content = contents[canvasname];
+				  
+					var backgroundColour = root.lookup("_view_" + canvasname + "_background_colour").value();
+					me.setFillStyle(context, backgroundColour);
+					content.parentElement.style.backgroundColor = backgroundColour;
+					context.fillRect(0, 0, canvas.width, canvas.height);
 
-				//Configure JS-EDEN default options that are different from the HTML canvas defaults.
-				me.configureContextDefaults(context);
+					//Configure JS-EDEN default options that are different from the HTML canvas defaults.
+					me.configureContextDefaults(context);
 
-				var hash;
-				for (hash in previousElements) {
-					previousElements[hash].togarbage = true;
-				}
+					var hash;
+					for (hash in previousElements) {
+						previousElements[hash].togarbage = true;
+					}
 
-				if (Array.isArray(picture)) {
+					if (Array.isArray(picture)) {
 
-					for (var i = 0; i < picture.length; i++) {
-						if (typeof(picture[i]) != "object") {
-							continue;
-						}
+						for (var i = 0; i < picture.length; i++) {
+							if (typeof(picture[i]) != "object") {
+								continue;
+							}
 
-						var elHash = picture[i].hash && picture[i].hash();
-						var existingEl = elHash && previousElements[elHash];
+							var elHash = picture[i].hash && picture[i].hash();
+							var existingEl = elHash && previousElements[elHash];
 
-						if (existingEl) {
-							// if already existing hash, no need to draw, just set the elements
-							picture[i].elements = existingEl;
-						} else {
-							context.save();
-							try {
-								me.configureContext(context, picture[i].drawingOptions);
-								// expect draw() method to set .elements
-								picture[i].draw(context, pictureObs);
-							} catch (e) {
-								if (picture[i] !== undefined) {
-									console.log(e);
+							if (existingEl) {
+								// if already existing hash, no need to draw, just set the elements
+								picture[i].elements = existingEl;
+							} else {
+								context.save();
+								try {
+									me.configureContext(context, picture[i].drawingOptions);
+									// expect draw() method to set .elements
+									picture[i].draw(context, pictureObs);
+								} catch (e) {
+									if (picture[i] !== undefined) {
+										console.log(e);
+										var debug = edenUI.eden.root.lookup("debug").value();
+										if (typeof(debug) == "object" && debug.jsExceptions) {
+											debugger;
+										}
+									}
+								}
+								context.restore();
+							}
+
+							if (picture[i].elements !== undefined) {
+								var parentEl = picture[i].elements[0].parentElement;
+								if (parentEl && parentEl != content) {
+									//HTML item already present on another canvas.
+									var copiedEl = [];
+									for (var j = 0; j < picture[i].elements.length; j++) {
+										copiedEl.push($(picture[i].elements[j]).clone(true, true).get(0));
+									}
+									picture[i].elements = copiedEl;
 								}
 							}
-							context.restore();
-						}
-
-						if (picture[i].elements !== undefined) {
-							var parentEl = picture[i].elements[0].parentElement;
-							if (parentEl && parentEl != content) {
-								//HTML item already present on another canvas.
-								var copiedEl = [];
-								for (var j = 0; j < picture[i].elements.length; j++) {
-									copiedEl.push($(picture[i].elements[j]).clone(true, true).get(0));
-								}
-								picture[i].elements = copiedEl;
+							var htmlEl = picture[i].elements;
+							if (htmlEl) { htmlEl.togarbage = false; }
+							if (htmlEl && !existingEl) {
+								$(content).append(htmlEl);
 							}
-						}
-						var htmlEl = picture[i].elements;
-						if (htmlEl) { htmlEl.togarbage = false; }
-						if (htmlEl && !existingEl) {
-							$(content).append(htmlEl);
-						}
 
-						if (htmlEl) {
-							nextElements[elHash] = htmlEl;
-						}
-					} //end of redraw loop.
-				} //end if picture observable is undefined.
-				cleanupCanvas(content, previousElements, nextElements);
-				canvasNameToElements[canvasname] = nextElements;
-				canvas.drawing = false;
-			}, redrawDelay);
+							if (htmlEl) {
+								nextElements[elHash] = htmlEl;
+							}
+						} //end of redraw loop.
+					} //end if picture observable is undefined.
+					cleanupCanvas(content, previousElements);
+					canvasNameToElements[canvasname] = nextElements;
+					canvas.drawingInProgress = false;
+					if (canvas.drawingQueued) {
+						setTimeout(redrawFunction, redrawDelay);
+					}
+				}; // end of redraw function.
+				setTimeout(redrawFunction, redrawDelay);
+			} //end if drawing not already in progress.
 		} //end redraw only if not already queued.
 	};
 
 	/**Configures JS-EDEN default drawing options that are different from the HTML canvas defaults.
 	 */
 	this.configureContextDefaults = function (context) {
-		context.lineJoin = "bevel";		
+		context.lineJoin = "bevel";
+		context.lineWidth = 2;
 	}
 	
 	this.configureContext = function (context, options) {
@@ -509,6 +522,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			destroy: function () {
 				delete canvases[displayedName];
 				delete contents[displayedName];
+				delete pictureObsToViews[pictureObs][displayedName];
 			},
 			resize: function (width, height) {
 				var redraw = false;

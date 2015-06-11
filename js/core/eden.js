@@ -227,7 +227,10 @@ function concatAndResolveUrl(url, concat) {
   /**Cached copy of user preferences, etc. (needed for when local storage is disabled). */
   EdenUI.prototype.options = {};
 
-  /** Retrieves an item from local storage. */
+	/**Retrieves a program option from local storage or the main memory cache.
+	 * @param {String} optionName  The name of the option to set.
+	 * @return {String} The option's value, or null if the requested program option has not been given a value yet.
+	 */
 	EdenUI.prototype.getOptionValue = function (optionName) {
     if (optionName in this.options) {
       return this.options[optionName];
@@ -243,7 +246,11 @@ function concatAndResolveUrl(url, concat) {
 		}
 	}
 	
-	/**Stores a program option in memory, and, if possible, local storage too. */
+	/**Stores a program option in memory, and, if possible, local storage too.
+	 * @param {String} optionName  The name of the option to set.
+	 * @param {*} value The value to assign to the option.
+	 * @returns {boolean} True if the option was saved in local storage, or false if it could not be saved.
+	 */
 	EdenUI.prototype.setOptionValue = function(optionName, value) {
 		this.options[optionName] = String(value);
 		try {

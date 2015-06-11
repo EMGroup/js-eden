@@ -3,6 +3,9 @@
 ##
 ## See LICENSE.txt
 
+##Debugging flags.
+debug = {jsExceptions: ${{edenUI.getOptionValue("developer") == "true" }}$ };
+
 ##MISSING FUNCTIONS
 
 proc eager {

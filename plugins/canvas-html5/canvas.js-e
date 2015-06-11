@@ -61,7 +61,7 @@ proc attemptMouseCapture {
 ##is the name of the observable who's value provides the list of drawables.  The
 ##second, optional parameter, is the text to place into the window's title bar.
 proc createCanvas {
-	auto viewName, obsName, viewTitle, drawPicture;
+	auto viewName, obsName, viewTitle, initPicture;
 	if ($# == 1) {
 		obsName = $[1];
 		viewName = obsName;
