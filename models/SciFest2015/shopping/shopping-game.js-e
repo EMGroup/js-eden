@@ -112,7 +112,7 @@ func resetPuzzle {
 
 func coindisplay {
 	para ix;
-	if (ix==1) return "GBP-1p-heads.png";
+	if (ix==1) return "GBP-1p-heads.gif";
 	if (ix==2) return "GBP-2-pence-heads.gif";
 	if (ix==3) return "GBP-5-pence-heads.gif";
 	if (ix==4) return "GBP-10-pence-heads.gif";

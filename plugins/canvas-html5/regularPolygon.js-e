@@ -51,7 +51,7 @@ ${{
 					} else {
 						lineWidth = 2;
 					}
-					var smallerRadius = r - Math.ceil(lineWidth / 2);
+					var smallerRadius = r - Math.ceil(lineWidth / 2) - 2;
 					currentPolygonVertices = [];
 					i = 0;
 					do {
