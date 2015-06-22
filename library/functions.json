@@ -799,12 +799,28 @@
 		},
 		"Polygon": {
 			"parameters": {
-				"points": "List of coordinates in the form Point(x, y) from the top left corner of the canvas",
+				"points": "List of coordinates in the form {x, y} from the top left corner of the canvas",
 				"[fill_colour": "Colour of the polygon (fill) in HTML form",
 				"[outline_colour(s)": "",
 				"[drawing_options]]]": ""
 			},
 			"return": "Polygon object",
+			"description": "Creates a polygon element for display on the canvas"
+        },
+		"RegularPolygon": {
+			"parameters": {
+				"centre_x": "",
+				"centre_y": "",
+				"radius": "",
+				"n_sides": "",
+				"[star_factor]": "",
+				"[is_interior_outlined]": "",
+				"[rotation]": "",
+				"[fill_colour": "Colour to fill the interior of the polygon with",
+				"[outline_colour(s)": "",
+				"[drawing_options]]]": ""
+			},
+			"return": "RegularPolygon object",
 			"description": "Creates a polygon element for display on the canvas"
         },
 		"Sector": {

@@ -286,7 +286,6 @@ var contentdiv = canvas.parentNode;
 			ctx.textAlign = "left";
 			ctx.textBaseline = "top";
 			ctx.font = "16px Verdana, sans-serif";
-//			ctx.font = "16px Verdana, sans-serif";
 			var text = (node.data.label !== undefined) ? node.data.label : node.id;
 			
 //!

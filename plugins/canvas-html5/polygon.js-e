@@ -21,8 +21,8 @@
 ##    (combining (2) and (3) above).
 
 ${{
-Polygon = function(points, fillcolour, outlinecolours, drawingOptions) {
-  this.points = points;
+Polygon = function(vertices, fillcolour, outlinecolours, drawingOptions) {
+  this.vertices = vertices;
   this.fillcolour = fillcolour;
   this.outlinecolours = outlinecolours;
   this.drawingOptions = drawingOptions;
@@ -30,9 +30,9 @@ Polygon = function(points, fillcolour, outlinecolours, drawingOptions) {
 }}$;
 
 func Polygon { ${{
-	var points = arguments[0];
-	if (points[0].x != points[points.length - 1].x || points[0].y != points[points.length - 1].y) {
-		points.push(points[0]);
+	var vertices = arguments[0];
+	if (vertices[0].x != vertices[vertices.length - 1].x || vertices[0].y != vertices[vertices.length - 1].y) {
+		vertices.push(vertices[0]);
 	}
 
 	var fillcolour = arguments[1];
@@ -48,7 +48,7 @@ func Polygon { ${{
 	} else if (outlinecolours.length == 0) {
 		outlinecolours = ["black"];
 	} else {
-		var numVertices = points.length - 1;
+		var numVertices = vertices.length - 1;
 		if (outlinecolours[0] === undefined) {
 			for (var i = outlinecolours.length - 1; i >= 0; i--) {
 				if (outlinecolours[i] !== undefined) {
@@ -131,7 +131,7 @@ func Polygon { ${{
 		}
 	}
 
-	return new Polygon(points, fillcolour, outlinecolours, drawingOptions);
+	return new Polygon(vertices, fillcolour, outlinecolours, drawingOptions);
 }}$; };
 
 ${{
@@ -142,9 +142,9 @@ Polygon.prototype.draw = function (context) {
 	
 	if (oneOutlineColour || this.fillcolour !== undefined) {
 		context.beginPath();
-		context.moveTo(this.points[0].x, this.points[0].y);
-		for (var i = 1; i < this.points.length; i++) {
-			context.lineTo(this.points[i].x, this.points[i].y);
+		context.moveTo(this.vertices[0].x, this.vertices[0].y);
+		for (var i = 1; i < this.vertices.length; i++) {
+			context.lineTo(this.vertices[i].x, this.vertices[i].y);
 		}
 		context.closePath();
 	}
@@ -159,10 +159,10 @@ Polygon.prototype.draw = function (context) {
 		context.stroke();
 	} else if (this.outlinecolours !== undefined) {
 		context.beginPath();
-		context.moveTo(this.points[0].x, this.points[0].y);
+		context.moveTo(this.vertices[0].x, this.vertices[0].y);
 		var prevColour;
-		for (var i = 1; i < this.points.length; i++) {
-			context.lineTo(this.points[i].x, this.points[i].y);
+		for (var i = 1; i < this.vertices.length; i++) {
+			context.lineTo(this.vertices[i].x, this.vertices[i].y);
 			if (i <= this.outlinecolours.length) {
 				//Set the colour of a new piece.
 				var colour = this.outlinecolours[i - 1];
@@ -172,12 +172,12 @@ Polygon.prototype.draw = function (context) {
 						//End of a sequence of lines of a repeated colour.
 						context.stroke();
 						context.beginPath();
-						context.moveTo(this.points[i].x, this.points[i].y);				
+						context.moveTo(this.vertices[i].x, this.vertices[i].y);				
 					}
 				} else {
 					var isGradient = false;
 					if (Array.isArray(colour)) {
-						var gradient = context.createLinearGradient(this.points[i - 1].x, this.points[i - 1].y, this.points[i].x, this.points[i].y);
+						var gradient = context.createLinearGradient(this.vertices[i - 1].x, this.vertices[i - 1].y, this.vertices[i].x, this.vertices[i].y);
 						//First colour of the new line is the last colour of the previous line.
 						if (i == 1 || prevColour == colour[0]) {
 							if (colour.length == 1) {
@@ -207,13 +207,13 @@ Polygon.prototype.draw = function (context) {
 						 * repeating the whole gradient. */
 						context.stroke();
 						context.beginPath();
-						context.moveTo(this.points[i].x, this.points[i].y);
+						context.moveTo(this.vertices[i].x, this.vertices[i].y);
 						context.strokeStyle = prevColour;
 					} else if (i < this.outlinecolours.length && this.outlinecolours[i] !== undefined && (this.outlinecolours[i] !== prevColour || isGradient)) {
 						//There's a colour change coming up so stroke this path and begin a new one.
 						context.stroke();
 						context.beginPath();
-						context.moveTo(this.points[i].x, this.points[i].y);
+						context.moveTo(this.vertices[i].x, this.vertices[i].y);
 					}
 				}
 			}
@@ -224,7 +224,7 @@ Polygon.prototype.draw = function (context) {
 };
 
 Polygon.prototype.toString = function() {
-	var s = "Polygon(" + Eden.edenCodeForValue(this.points) + ", " +
+	var s = "Polygon(" + Eden.edenCodeForValue(this.vertices) + ", " +
 		Eden.edenCodeForValue(this.fillcolour) + ", " + Eden.edenCodeForValue(this.outlinecolour);
 
 	if (this.drawingOptions !== undefined) {
@@ -239,9 +239,9 @@ Polygon.prototype.getEdenCode = Polygon.prototype.toString;
 
 Polygon.prototype.imageMapArea = function () {
 	var s = "shape=\"poly\" coords=\"";
-	for (var i = 0; i < this.points.length; i++) {
-		var point = this.points[i];
-		s = s + point.x + "," + point.y + ",";
+	for (var i = 0; i < this.vertices.length; i++) {
+		var vertex = this.vertices[i];
+		s = s + vertex.x + "," + vertex.y + ",";
 	}
 	s = s.slice(0, -1);
 	s = s + "\"";
@@ -250,12 +250,12 @@ Polygon.prototype.imageMapArea = function () {
 
 Polygon.prototype.centre = function () {
 	var centreX = 0, centreY = 0;
-	for (var i = 0; i < this.points.length; i++) {
-		centreX = centreX + this.points[i].x;
-		centreY = centreY + this.points[i].y;
+	for (var i = 0; i < this.vertices.length; i++) {
+		centreX = centreX + this.vertices[i].x;
+		centreY = centreY + this.vertices[i].y;
 	}
-	centreX = centreX / this.points.length;
-	centreY = centreY / this.points.length;
+	centreX = centreX / this.vertices.length;
+	centreY = centreY / this.vertices.length;
 	return new Point(centreX, centreY);
 }
 

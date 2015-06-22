@@ -31,6 +31,10 @@ h2, ul li {
 	font-size: 10pt;
 }
 
+.result_separator {
+	font-weight: bold;
+}
+
 div.error-item {
 	border-top-style: solid;
 	border-top-width: 1px;

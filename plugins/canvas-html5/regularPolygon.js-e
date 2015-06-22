@@ -1,37 +1,81 @@
 ${{
-	RegularPolygon = function (x, y, r, n, star, rotation, fillcolour, outlinecolours, drawingOptions) {
+	RegularPolygon = function (x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolours, drawingOptions) {
 		this.x = x;
 		this. y = y;
 		this.r = r;
 		this.n = n;
 		this.star = star;
+		this.interiorOutline = interiorOutline;
 		this.rotation = rotation;
 		this.fillcolour = fillcolour;
 		this.outlinecolours = outlinecolours;
 		this.drawingOptions = drawingOptions;
 		
-		this.polygons = [];
+		var separatePolygonsPossiblyNeeded;
+		if (fillcolour !== undefined && fillcolour != "transparent" && outlinecolours !== undefined &&
+			n / star != 2) {
+			separatePolygonsPossiblyNeeded = true;
+		} else {
+			separatePolygonsPossiblyNeeded = false;		
+		}
 		this.vertices = [];
 		
 		rotation = -rotation - Math.PI * (0.5 - 2 / n);
 		var exteriorAngle = (2 * Math.PI) / n;
 		var pointsDone = new Array(n);
 		var px, py;
+		var polygons = [];
+		var currentPolygonVertices, currentPoint;
 		for (var i = 0; i < n; i++) {
 			var j = i;
-			var currentPolygonPoints = [];
+			currentPolygonVertices = [];
 			while (pointsDone[j] !== true) {
 				px = x + r * Math.cos(rotation + j * exteriorAngle);
 				py = y + r * Math.sin(rotation + j * exteriorAngle);
-				var currentPoint = new Point(px, py);
-				this.vertices[j] = currentPoint;
-				currentPolygonPoints.push(currentPoint);
+				currentPoint = new Point(px, py);
+				currentPolygonVertices.push(currentPoint);
 				pointsDone[j] = true;
 				j = (j + star) % n;
 			}
-			if (currentPolygonPoints.length > 0) {
-				this.polygons.push(new Polygon(currentPolygonPoints, fillcolour, outlinecolours, drawingOptions));
+			if (currentPolygonVertices.length > 0) {
+				this.vertices = this.vertices.concat(currentPolygonVertices);
+				polygons.push(new Polygon(currentPolygonVertices, fillcolour, outlinecolours, drawingOptions));
 			}
+		}
+		if (separatePolygonsPossiblyNeeded) {
+			if (polygons.length == 1) {
+				if (!interiorOutline) {
+					var lineWidth;
+					if (typeof(drawingOptions) == "object" && "lineWidth" in drawingOptions) {
+						lineWidth = drawingOptions.lineWidth;
+					} else {
+						lineWidth = 2;
+					}
+					var smallerRadius = r - Math.ceil(lineWidth / 2) - 2;
+					currentPolygonVertices = [];
+					i = 0;
+					do {
+						px = x + smallerRadius * Math.cos(rotation + i * exteriorAngle);
+						py = y + smallerRadius * Math.sin(rotation + i * exteriorAngle);
+						currentPoint = new Point(px, py);
+						currentPolygonVertices.push(currentPoint);
+						i = (i + star) % n;
+					} while (i != 0);
+					polygons.push(new Polygon(currentPolygonVertices, fillcolour, undefined, drawingOptions));
+				}
+				this.filledPolygons = polygons;
+				this.outlinePolygons = [];
+			} else {
+				this.filledPolygons = [];
+				this.outlinePolygons = [];
+				for (var i = 0; i < polygons.length; i++) {
+					this.filledPolygons.push(new Polygon(polygons[i].vertices, fillcolour, undefined, drawingOptions));
+					this.outlinePolygons.push(new Polygon(polygons[i].vertices, undefined, outlinecolours, drawingOptions));
+				}
+			}
+		} else {
+			this.filledPolygons = polygons;
+			this.outlinePolygons = [];
 		}
 	}
 }}$;
@@ -42,36 +86,86 @@ func RegularPolygon {
 		var y = arguments[1];
 		var r = arguments[2];
 		var n = arguments[3];
-		var star = 1, rotation = 0;
-		var argsProcessed;
+		var star = 1, rotation = 0, interiorOutline = true;
+		var argsProcessed = 4;
 		if (typeof(arguments[4]) == "number") {
-			if (typeof(arguments[5]) == "number") {
-				star = arguments[4];
-				rotation = arguments[5] * root.lookup("radiansPerUnit").value();
-				argsProcessed = 6;
-			} else {
-				star = arguments[4];
-				argsProcessed = 5;
-			}
-		} else {
-			argsProcessed = 4;
+			star = arguments[4];
+			argsProcessed++;
 		}
+		if (typeof(arguments[argsProcessed]) == "boolean") {
+			interiorOutline = arguments[argsProcessed];
+			argsProcessed++;
+		}
+		if (typeof(arguments[argsProcessed]) == "number") {
+				rotation = arguments[argsProcessed] * root.lookup("radiansPerUnit").value();
+				argsProcessed++;
+		}
+		
+		if (typeof(arguments[arguments.length - 1]) == "object") {
+			argsProcessed = arguments.length - 3;
+		} else if (arguments.length > 6) {
+			argsProcessed = arguments.length - 2;
+		}
+
 		var fillcolour = arguments[argsProcessed];
-		var outlinecolours = ["black"];
-		var drawingOptions = {};
-		return new RegularPolygon(x, y, r, n, star, rotation, fillcolour, outlinecolours, drawingOptions);
+		var outlinecolours = arguments[argsProcessed + 1];
+
+		if (outlinecolours === undefined) {
+			if (fillcolour === undefined) {
+				outlinecolours = ["black"];
+			}
+		} else if (!Array.isArray(outlinecolours)) {
+			outlinecolours = [outlinecolours];
+		} else if (outlinecolours.length == 0) {
+			outlinecolours = ["black"];
+		}
+
+		var drawingOptions = arguments[argsProcessed + 2];
+		if (typeof(drawingOptions) == "object" && !("join" in drawingOptions)) {
+			drawingOptions.join = "round";
+		}
+		return new RegularPolygon(x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolours, drawingOptions);
 	}}$;
 }
 
 ${{
 	RegularPolygon.prototype.draw = function (context) {
-		for (var i = 0; i < this.polygons.length; i++) {
-			this.polygons[i].draw(context);
+		if (this.interiorOutline) {
+			for (var i = 0; i < this.filledPolygons.length; i++) {
+				this.filledPolygons[i].draw(context);
+			}
+			for (var i = 0; i < this.outlinePolygons.length; i++) {
+				this.outlinePolygons[i].draw(context);
+			}
+		} else {
+			context.lineWidth = context.lineWidth * 2;
+			for (var i = 0; i < this.outlinePolygons.length; i++) {
+				this.outlinePolygons[i].draw(context);
+			}
+			context.lineWidth = context.lineWidth / 2;
+			for (var i = 0; i < this.filledPolygons.length; i++) {
+				this.filledPolygons[i].draw(context);
+			}
 		}
 	}
 	
 	RegularPolygon.prototype.toString = function () {
-		return "";
+		var s = "RegularPolygon(" +
+			this.x + ", " +
+			this.y + ", " +
+			this.r + ", " +
+			this.n + ", " +
+			this.star + ", " +
+			this.interiorOutline + ", " +
+			this.rotation + ", " +
+			Eden.edenCodeForValue(this.fillcolour) + ", " +
+			Eden.edenCodeForValue(this.outlinecolours);
+
+		if (this.drawingOptions !== undefined) {
+			s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
+		}
+		s = s + ")";
+		return s;
 	}
 	
 	RegularPolygon.prototype.getEdenCode;

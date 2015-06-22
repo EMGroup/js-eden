@@ -33,9 +33,8 @@ func Textbox { ${{
 ${{
 Textbox.prototype.draw = function(context) {
 	var me = this;
-	var canvas_obsname = "canvas_" + this.name;
-	var id = this.name;
-	var valueSymbol = root.lookup(id + "_value");
+	var name = this.name;
+	var valueSymbol = root.lookup(name + "_value");
 	var value = valueSymbol.value();
 	var agent = root.lookup("Textbox");
 	
@@ -44,10 +43,10 @@ Textbox.prototype.draw = function(context) {
 		var disabled = this.enabled === false? "readonly=\"readonly\"" : "";
 		var jQuery;
 		if (this.rows > 1) {
-			jQuery = $("<textarea rows=\""+this.rows+"\" id=\""+canvas_obsname+"\" "+ disabled +
+			jQuery = $("<textarea rows=\"" + this.rows + "\" " + disabled +
 				" style=\"position: absolute; width:" + this.width + "px; left: " + this.x + "px; top: " + this.y + "px;\" />");		
 		} else {
-			jQuery = $("<input id=\""+canvas_obsname+"\" " + disabled +
+			jQuery = $("<input " + disabled +
 				" style=\"position: absolute; width:" + this.width + "px; left: " + this.x + "px; top: " + this.y + "px;\" />");
 		}
 		var element = jQuery.get(0);
@@ -59,7 +58,7 @@ Textbox.prototype.draw = function(context) {
 		}
 
 		jQuery.change(function(event) {
-			root.lookup(id + "_value").assign(event.target.value, agent, true);
+			root.lookup(name + "_value").assign(event.target.value, agent, true);
 		});
 		this.elements = [element];
 

@@ -4,6 +4,7 @@ Eden.systemObservableNames = {
 	"_menubar_status": true,
 	"PI": true,
 	"autocalc": true,
+	"debug": true,
 	"mouseButton": true,
 	"mouseButtons": true,
 	"mouseCaptured": true,
@@ -269,9 +270,6 @@ Eden.isitSystemSymbol = function(name){
 Eden.isitSystemObservable = function(name) {
 	if (/^_view_/.test(name) && !/_background_colour$/.test(name)) {
 	  return true;
-	}
-	if (/^_debug_/.test(name)) {
-		return true;
 	}
 	return name in Eden.systemObservableNames;
 }

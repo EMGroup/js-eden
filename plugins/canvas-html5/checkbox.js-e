@@ -38,7 +38,6 @@ Checkbox.prototype.draw = function(context) {
 	if(this.elements === undefined){
 		var me = this;
 		var name = this.name;
-		var id = "canvas_" + this.name;
 		var valueSym = root.lookup(name + "_checked");
 		var value = valueSym.value();
 		var agent = root.lookup("Checkbox");
@@ -46,7 +45,6 @@ Checkbox.prototype.draw = function(context) {
 		var jqElement = $("<input type=\"checkbox\" style=\"position: absolute\" />");
 		var element = jqElement.get(0);
 		
-		element.id = id;
 		element.disabled = (this.enabled === false);
 		element.style.left = this.x + "px";
 		element.style.top = this.y + "px";

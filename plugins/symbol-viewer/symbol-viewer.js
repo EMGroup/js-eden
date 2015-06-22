@@ -414,7 +414,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 		function() {
 			$(this).animate({backgroundColor: "#eaeaea"}, 100);
 		}, function() {
-			$(this).animate({backgroundColor: "white"}, 100);
+			$(this).animate({backgroundColor: "inherit"}, 100);
 		}	
 	).click(function () {
 		edenUI.createView("edit_" + me.name, "ScriptInput");
@@ -504,7 +504,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 		namehtml = this.name;
 	}
 
-	var html = "<span class='result_name'>" + namehtml + "</span> &DoubleRightArrow; " +
+	var html = "<span class='result_name'>" + namehtml + "</span><span class='result_separator'> = </span> " +
 		"<span class='result_value'>" + valhtml + "</span>";
 
 	if (this.symbol.definition !== undefined) {

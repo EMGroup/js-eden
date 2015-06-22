@@ -49,7 +49,6 @@ ${{
 Slider.prototype.draw = function (context) {
 
 	var name = this.name;
-	var id = "canvas_" + name;
 	var that = this;
 	var agent = root.lookup("Slider");
 	
@@ -87,11 +86,9 @@ Slider.prototype.draw = function (context) {
 
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
 		var inputhtml = (($('<input ' + disabled +
-			'id="' + me + '" ' +
 			'style="position:absolute; ' + topCSS + ' left:' + this.x + 'px; width:' + this.length + 'px; ' + orientationCSS + '" ' +
 			'value="' + value + '" ' +
 			'type="range" ' +
-			'name="' + name + '" ' +
 			'min="' + this.min + '" ' +
 			'max="' + this.max + '" ' +
 			'step="' + this.step + '" />')).on("change", function(){
