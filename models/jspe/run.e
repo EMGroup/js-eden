@@ -199,7 +199,29 @@ proc nextSlide : buttonNext_clicked {
 
 ## User interface elements.
 slideNumberLabel is Text(currentSlide // " of " // slideList#, jspeleft + 120, 5, {align: "centre"});
-slides is [buttonPrev, slideNumberLabel, buttonNext, slideList[currentSlide]];
+
+
+textIncrease is SlideButton("buttonTextIncrease", "Font++", jspeleft + 325, 0, true);
+textDecrease is SlideButton("buttonTextDecrease", "Font--", jspeleft + 250, 0, true);
+
+slides is [buttonPrev, slideNumberLabel, buttonNext, slideList[currentSlide], textIncrease, textDecrease];
+
+bindCSSNumericProperty("#jspe_slide", "font-size", "jspeFontSize", "pt");
+jspeFontSize = 8;
+
+proc increaseText : buttonTextIncrease_clicked{
+	if(!buttonTextIncrease_clicked){
+		return;
+	}
+	jspeFontSize++;
+}
+
+proc decreaseText : buttonTextDecrease_clicked{
+	if(!buttonTextDecrease_clicked){
+		return;
+	}
+	jspeFontSize--;
+}
 
 if (currentSlide == @) {
 	currentSlide = 1;
