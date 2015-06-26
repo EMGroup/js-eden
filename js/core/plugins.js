@@ -85,6 +85,10 @@
 	 * by the particular plug-in. (optional)
 	 */
 	EdenUI.prototype.createView = function (name, type, initData) {
+		if (!(type in this.views)) {
+			this.eden.error(new Error("View type " + type + " is unavailable.  Check that the associated plug-in is loaded."));
+			return;
+		}
 		if ("name" in this.views[type]) {
 			// Single instance view type (e.g. error log)
 			name = this.views[type].name;

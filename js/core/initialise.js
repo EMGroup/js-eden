@@ -61,25 +61,31 @@ function initialiseJSEden() {
 	
 	var menuBar = getParameterByName("menus") != "false";
 	var plugins = getParameterByName("plugins");
+	var views = getParameterByName("views");
 	var include = getParameterByName("include");
 	var exec = getParameterByName("exec");
 
 	if (plugins == "") {
 		//Default plug-ins
 		plugins = [
-			"ScriptInput",
+			"Canvas2D",
+			"DependencyMap",
+			"HTMLContent",
 			"PluginManager",
 			"ProjectList",
-			"Canvas2D",
-			"SymbolViewer",
-			"HTMLContent",
-			"SymbolLookUpTable",
 			"ScriptGenerator",
-			"DependencyMap",
-			"StateTimeLine"
+			"ScriptInput",
+			"StateTimeLine",
+			"SymbolLookUpTable",
+			"SymbolViewer"
 		];
 	} else {
 		plugins = plugins.split(",");
+		if (views == "" || views == "default") {
+			plugins.push("Canvas2D");
+			plugins.push("ProjectList");
+			plugins.push("ScriptInput");
+		}
 	}
 
 	$(document).ready(function () {
@@ -103,7 +109,7 @@ function initialiseJSEden() {
 					callback();
 				}
 			};
-			return loadPlugin;
+			loadPlugin();
 		};
 		
 		var doneLoading = function () {
@@ -123,17 +129,18 @@ function initialiseJSEden() {
 		}
 
 		// Load the Eden library scripts
-		eden.include("library/eden.jse", {name: '/system'}, loadPlugins(plugins, function () {
+		loadPlugins(plugins, function () {
+			eden.include("library/eden.jse", {name: '/system'}, function () {
+				$.getJSON('config.json', function (config) {
+					rt.config = config;
 
-			$.getJSON('config.json', function (config) {
-				rt.config = config;
-
-				if (include) {
-					eden.include(include, doneLoading);
-				} else {
-					doneLoading();
-				}
+					if (include) {
+						eden.include(include, doneLoading);
+					} else {
+						doneLoading();
+					}
+				});
 			});
-		}));
+		});
 	});
 }

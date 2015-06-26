@@ -503,7 +503,6 @@ include("library/core.js-e");
 include("library/lists.js-e");
 include("library/maths.jse");
 include("library/strings.js-e");
-require("Canvas2D");
 include("library/algebra.jse");
 include("library/include_js.js-e");
 include("library/dynamic.js-e");
@@ -514,11 +513,9 @@ include("library/generate_function.js-e");
 
 initialViews = ${{getParameterByName("views") }}$;
 if (initialViews == "" || initialViews == "default") {
-	require("ProjectList");
-	require("ScriptInput");
-	createView("projects", "ProjectList");
 	createCanvas("picture");
 	createView("inputwindow", "ScriptInput");
+	createView("projects", "ProjectList");
 }
 forget(&initialViews);
 
