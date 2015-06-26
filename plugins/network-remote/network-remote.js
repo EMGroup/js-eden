@@ -128,7 +128,7 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 						$("#nr-status").html('<p>Received: ' + line + "</p>");
 						eden.execute(line,"net","",{name:"/execute"},noop);
 					}
-					me.playCode(0);
+					//me.playCode(0);
 					return;
 
 				};
