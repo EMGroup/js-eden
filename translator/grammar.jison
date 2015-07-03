@@ -449,7 +449,7 @@ statement
     | REQUIRE expression ';'
         { $$ = yy.async('edenUI.loadPlugin', $expression, 'this'); }
     | AWAIT expression ';'
-        { $$ = yy.async($expression + '.callAsync'); }
+        { $$ = yy.async($expression); }
     | INSERT lvalue ',' expression ',' expression ';'
         { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ' - 1, 0, ' + $expression2 + '); }, this);'); }
     | DELETE lvalue ',' expression ';'

@@ -329,7 +329,7 @@ case 95:
  this.$ = yy.async('edenUI.loadPlugin', $$[$0-1], 'this'); 
 break;
 case 96:
- this.$ = yy.async($$[$0-1] + '.callAsync'); 
+ this.$ = yy.async($$[$0-1]); 
 break;
 case 97:
  this.$ = yy.sync($$[$0-5] + '.mutate(function(s) { s.cached_value.splice(' + $$[$0-3] + ' - 1, 0, ' + $$[$0-1] + '); }, this);'); 
