@@ -230,8 +230,6 @@ func displaycurrency {
 	return decodeHTML("&pound;") // ((pounds>0) ? str(pounds) : "0") // ((pence>0) ? "-" //  str(pence)  // "p" : "");
 }
 
-displaycurrency ~> [pricedisplay];
-
 func listcoins {
 	para allcoins, chosen;
 	auto result, i;	

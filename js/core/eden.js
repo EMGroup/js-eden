@@ -756,6 +756,13 @@ function concatAndResolveUrl(url, concat) {
 	
 	/** An identifier used to locate the result of the next call to eval(). */
 	Eden.prototype.nextEvalID = 0;
+
+	/**Compile-time options that alter the way that EDEN code is translated to JavaScript. Like #pragma in C.
+	 *The trackObservableRefsInFunc parsing option controls whether or not z is dependent on y for:
+	 * func f  { para x; return x + y; }
+	 * z is f(a);
+	 */
+	Eden.prototype.parsingOptions = {trackObservableRefsInFuncs: true};
 	
 	/**
 	 * This function sets up a bunch of state/functions used in the generated parser. The
@@ -994,8 +1001,34 @@ function concatAndResolveUrl(url, concat) {
 		/** @type {Array.<string>} */
 		parser.yy.paras = [];
 		
-		/** @type {Array.<string>} */
+		/** Tracks which observables have been references inside a function body.
+		  * E.g. for:
+		  * func f  { para x; return x + y; }
+		  * z is f(a);
+		  * f references y, and z should be recomputed when either a or y changes if the
+		  * trackObservableRefsInFunc parsing option is enabled when f is parsed.
+		  * @type {Array.<string>}
+		  */
+		parser.yy.funcBodyDependencies = [];
 
+		parser.yy.addFuncBodyDependency = function (name) {
+			if (me.parsingOptions.trackObservableRefsInFuncs) {
+				this.funcBodyDependencies[0][name] = 1;
+			}
+		}
+
+		parser.yy.getFuncBodyDependencies = function () {
+			var dependencyList = [];
+			for (var p in this.funcBodyDependencies[this.funcBodyDependencies.length - 1]) {
+				dependencyList.push(p);
+			}
+			return dependencyList;
+		};
+
+		parser.yy.setParsingOption = function (optionName, value) {
+			me.parsingOptions[optionName] = value;
+		}
+		
 		/**
 		 * Used by the parser instead of Array.prototype.map which isn't
 		 * available in some browsers.

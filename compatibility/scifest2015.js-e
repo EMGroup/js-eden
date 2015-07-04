@@ -1,0 +1,7 @@
+##Shim construal scifest2015
+##
+##Run on the later versions of JS-EDEN to temporarily reverse incompatible
+##changes made to the environment subsequent to the SciFest 2015 event at Joensuu (21-27 April 2015)
+##but before the next major JS-EDEN release.
+
+option trackObservableRefsInFuncs = false;

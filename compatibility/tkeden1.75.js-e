@@ -4,6 +4,8 @@
 ##equivalents of the same name where there are minor differences between the
 ##normal JS-EDEN implementations and the tkeden versions.
 
+option trackObservableRefsInFuncs = false;
+
 ##Trigonometric functions in tkeden work in radians instead of degrees.
 radiansPerUnit = 1;
 

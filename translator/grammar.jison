@@ -46,6 +46,7 @@
 "false"               return 'BOOLEAN'
 "is"                  { yy.enterDefinition(); yy.evalExps = []; return 'IS'; }
 "eval"                { yy.enterEval(); return 'EVAL'; }
+"option"              return 'OPTION'
 "include"             return 'INCLUDE'
 "await"               return 'AWAIT'
 "require"             return 'REQUIRE'
@@ -65,8 +66,8 @@
 "break"               return 'BREAK'
 "continue"            return 'CONTINUE'
 "return"              return 'RETURN'
-"func"                %{ yy.paras.unshift({}); yy.locals.unshift({}); return 'FUNC'; %}
-"proc"                %{ yy.paras.unshift({}); yy.locals.unshift({}); return 'PROC'; %}
+"func"                %{ yy.paras.unshift({}); yy.locals.unshift({}); yy.funcBodyDependencies.unshift({}); return 'FUNC'; %}
+"proc"                %{ yy.paras.unshift({}); yy.locals.unshift({}); yy.funcBodyDependencies.unshift({}); return 'PROC'; %}
 "auto"                return 'AUTO'
 "para"                return 'PARA'
 "and"                 return 'AND'
@@ -181,7 +182,10 @@ lvalue
     } else if (yy.locals.length !== 0 && yy.locals[0][$1] !== undefined) {
         $$ = "local_" + $1;
     } else {
-        if (yy.inDefinition() && !yy.inEval()) yy.addDependency($1);
+ 		if (!yy.inEval()) {
+			if (yy.funcBodyDependencies.length !== 0) yy.addFuncBodyDependency($1);
+			if (yy.inDefinition()) yy.addDependency($1);
+		}
         $$ = yy.observable($1);
     }
     %}
@@ -409,6 +413,11 @@ statement
     | dependency-link
     | query-command
     | compound-statement
+	| OPTION OBSERVABLE '=' literal
+		{
+			yy.setParsingOption($2, eval($4));
+			$$ = yy.sync('');
+		}
     | AFTER '(' expression ')' statement
         { $$ = yy.sync('setTimeout(function() ' + $statement.code + ', ' + $expression + ');'); }
     | IF '(' expression ')' statement
@@ -501,9 +510,11 @@ function-definition
     : function-declarator function-body
         {
         var eden_definition = JSON.stringify(yy.extractEdenDefinition(@1.first_line, @1.first_column, @2.last_line, @2.last_column));
+        var subscribers = JSON.stringify(yy.getFuncBodyDependencies());
         yy.paras.pop();
         yy.locals.pop();
-        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context) { return " + $2 + "}, this).eden_definition = " + eden_definition + ";"); }
+		yy.funcBodyDependencies.pop();
+        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context) { return " + $2 + "}, this," + subscribers + ").eden_definition = " + eden_definition + ";"); }
     ;
 
 function-declarator
@@ -561,8 +572,9 @@ action-specification
     : function-declarator dependency-list function-body
         {
         var eden_definition = JSON.stringify(yy.extractEdenDefinition(@1.first_line, @1.first_column, @3.last_line, @3.last_column));
-        yy.paras.pop();
+		yy.paras.pop();
         yy.locals.pop();
+		yy.funcBodyDependencies.pop();
         $$ = yy.sync("context.lookup('" + $1 + "').define(function(context) { return " + $3 + "; }, this).observe(" + JSON.stringify($2) + ").eden_definition = " + eden_definition + ";");
         }
     ;
