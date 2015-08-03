@@ -314,16 +314,16 @@ proc withAppendedItem {
 	if ($# != 2) {
 		error("withAppendedItems: This procedure requires at exactly 2 arguments.");
 		return @;
-	} else if (isString($[1])) {
-		oldRHS = definitionRHS($[1]);
-		listObs = $[1];
+	} else if (isString(target)) {
+		oldRHS = definitionRHS(target);
+		listObs = target;
 		currentValue = `listObs`;
-	} else if (isPointer($[1])) {
-		oldRHS = definitionRHS($[1]);
-		listObs = nameof($[1]);
-		currentValue = *($[1]);
+	} else if (isPointer(target)) {
+		oldRHS = definitionRHS(target);
+		listObs = nameof(target);
+		currentValue = *(target);
 	} else {
-		error("withAppendedItem: The first argument must be a string or a pointer, not a " // type($[1]));
+		error("withAppendedItem: The first argument must be a string or a pointer, not a " // type(target));
 		return @;
 	}
 	
@@ -333,7 +333,7 @@ proc withAppendedItem {
 	}
 	
 	if (!isString(appendItem)) {
-		error("withAppendedItem: The second argument must be a string, not a " // type(appendItem));
+		error("withAppendedItem: The second argument must be a string, not a " // type(appendItem) // ".  Place the expression inside quotes (ordinarily), or use edenCode() to append a fixed value.");
 		return @;
 	}
 

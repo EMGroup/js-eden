@@ -17,13 +17,13 @@ Div = function (html, x, y, width, height, id, classNames, style) {
 
 Div.prototype.hash = function () {
 	return this.x+"$$"+
-				this.y+"$$"+
-				this.width+"$$"+
-				this.height+"$$"+
-				this.html+"$$"+
-				this.id+"$$"+
-				this.classNames+"$$"
-				this.style;
+		this.y+"$$"+
+		this.width+"$$"+
+		this.height+"$$"+
+		this.html+"$$"+
+		this.id+"$$"+
+		this.classNames+"$$"+
+		this.style;
 };
 }}$;
 
@@ -95,7 +95,8 @@ ${{
 Div.prototype.draw = function(context) {
 
   if (this.elements === undefined) {
-
+	var me = this;
+	var agent = root.lookup("Div");
 	var divStyle = "position: absolute; left: " + this.x + "; top: " + this.y + "; ";
 	
 	if (this.width !== undefined) {
@@ -115,6 +116,27 @@ Div.prototype.draw = function(context) {
 	}
 	divElement.style.cssText = divStyle;
 	divElement.innerHTML = this.html;
+
+	//Create object properties that record the automatically generated width and/or height.
+	if (this.id !== undefined && (this.width === undefined || this.height === undefined)) {
+		var objectElement = document.createElement("object");
+		objectElement.setAttribute("style", "display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
+		objectElement.onload = function () {
+			var resizeAction = function () {
+				if (me.width === undefined) {
+					root.lookup(me.id + "_width").assign(me.elements[0].clientWidth);
+				}
+				if (me.height === undefined) {
+					root.lookup(me.id + "_height").assign(me.elements[0].clientHeight);
+				}
+			};
+			resizeAction();
+			this.contentDocument.defaultView.addEventListener("resize", resizeAction);
+		};
+		objectElement.type = "text/html";
+		objectElement.data = "about:blank";
+		divElement.appendChild(objectElement);
+	}
 	this.elements = [divElement];
   }
 };

@@ -231,7 +231,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	this.createDialog = function (name, mtitle, pictureObs) {
 		//Remove -dialog name suffix.
 		var displayedName = name.slice(0, -7);
-		me.setPictureObs(displayedName, pictureObs);
 		var backgroundColourSym = root.lookup("_view_" + displayedName + "_background_colour");
 		if (backgroundColourSym.value() === undefined) {
 		  backgroundColourSym.assign("white", {name: "createView"});
@@ -517,6 +516,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				minWidth: 230,
 				dialogClass: "unpadded-dialog"
 			});
+		me.setPictureObs(displayedName, pictureObs);
 		return {
 			confirmClose: true,
 			destroy: function () {

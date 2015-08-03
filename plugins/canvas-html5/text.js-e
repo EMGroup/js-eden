@@ -191,6 +191,7 @@ func textWidth {
 				fontCSS = fontCSS + options.fontFace;
 			}
 		} else if (typeof(options) == "string") {
+			options = options.replace(/\b(top|hanging|middle|baseline|alphabetic|ideographic|bottom|left|right|center|centre|start|end)\b\s*/g, "");
 			fontCSS = options + " sans-serif";
 		} else {
 			fontCSS = size + " sans-serif";

@@ -215,7 +215,7 @@ func type {
 		)) {
 			return "pointer";
 		} else {
-			//boolean or string
+			//boolean, object or string
 			return typeName;
 		}
 	}}$;

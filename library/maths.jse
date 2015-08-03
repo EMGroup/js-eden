@@ -181,6 +181,14 @@ func mod {
 	return x>=0? x % n : (n + (x % n));
 }
 
+func randomBoolean {
+	para probability;
+	if (probability == @) {
+		probability = 0.5;
+	}
+	return random() <= probability;
+}
+
 func randomInteger {
 	${{
 		if (arguments.length != 2) {
@@ -215,6 +223,38 @@ func randomInteger {
 		if (n > upperBound) {
 			// 1 / 2^62 chance
 			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+			n = upperBound;
+		}
+		return n;
+	}}$;
+}
+
+func randomFloat {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("randomFloat: This function requires exactly 2 arguments"), "error");
+			return undefined;
+		}
+
+		var lowerBound = arguments[0];
+		var upperBound = arguments[1];
+
+		if (lowerBound === undefined || upperBound === undefined) {
+			return undefined;
+		} else if (typeof(lowerBound) != "number") {
+			eden.error(new Error("randomFloat: The lower bound must be a float, not a " + typeof(lowerBound)), "error");
+			return undefined;
+		} else if (isNaN(lowerBound)) {
+			return undefined;
+		} else if (typeof(upperBound) != "number") {
+			eden.error(new Error("randomFloat: The upper bound must be a float, not a " + typeof(upperBound)), "error");
+			return undefined;
+		} else if (isNaN(upperBound)) {
+			return undefined;
+		}
+
+		var n = root.lookup("random").definition(root)() * (upperBound - lowerBound + 1) + lowerBound;
+		if (n > upperBound) {
 			n = upperBound;
 		}
 		return n;
@@ -310,6 +350,31 @@ func sin {
 
 func sqrt {
   return ${{ Math.sqrt(arguments[0]); }}$;
+}
+
+func sum {
+	${{
+		var list, total, type;
+		if (arguments.length == 1 && Array.isArray(arguments[0])) {
+			list = arguments[0];
+		} else {
+			list = arguments;
+		}
+
+		total = 0;
+		for (var i = 0; i < list.length; i++) {
+			type = typeof(list[i]);
+			if (type === undefined) {
+				return undefined;
+			} else if (type == "number" || type == "boolean") {
+				total = total + list[i];
+			} else {
+				eden.error(new Error("sum: Item " + i + " must be a number, not a " + type));
+				return undefined;
+			}
+		}
+		return total;
+	}}$;
 }
 
 func tan {

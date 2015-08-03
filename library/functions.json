@@ -419,6 +419,21 @@
 			"return": "",
 			"description": ""
 		},
+		"randomBoolean": {
+			"parameters": {
+				"[probability_true]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"randomFloat": {
+			"parameters": {
+				"lower_bound": "",
+				"upper_bound": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"randomInteger": {
 			"parameters": {
 				"lower_bound": "",
@@ -590,6 +605,13 @@
 				"string": "",
 				"from": "",
 				"[to]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"sum": {
+			"parameters": {
+				"list_or_item1...": ""
 			},
 			"return": "",
 			"description": ""
