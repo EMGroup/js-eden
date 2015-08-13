@@ -40,10 +40,10 @@ RadioButtons.prototype.makeHTML = function() {
 
 	
 	if (this.horizontal) {
-		return "<form id=\"canvas_" + this.name + "\" style=\"position: absolute; top: " + this.y + "px; left: " + this.x + "px; display: inline-flex\">" + 
+		return "<form style=\"position: absolute; display: inline-flex\">" + 
 			build + "</form>";
 	} else {
-		return "<form id=\"canvas_" + this.name + "\" style=\"position: absolute; top: " + this.y + "px; left: " + this.x + "px\">" +
+		return "<form style=\"position: absolute\">" +
 			build + "</form>";
 	}
 };
@@ -85,6 +85,12 @@ RadioButtons.prototype.draw = function (context) {
 
 		this.elements = [formElement];
 	}
+};
+
+RadioButtons.prototype.scale = function (scale) {
+	var style = this.elements[0].style;
+	style.left = Math.round(this.x * scale) + "px";
+	style.top = Math.round(this.y * scale) + "px";
 };
 
 RadioButtons.prototype.toString = function() {

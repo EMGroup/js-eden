@@ -4,15 +4,17 @@
 ## See LICENSE.txt
 
 ${{
-Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
+Text = function(text, x, y, size, sizeUnits, fillcolour, outlinecolour, options) {
 	this.text = text;
 	this.x = x;
 	this.y = y;
 	this.size = size;
+	this.sizeUnits = sizeUnits;
 	this.fillcolour = fillcolour;
 	this.outlinecolour = outlinecolour;
+	//See also (below): this.css, this.font, this.optionString
 
-	var fontCSS;
+	var css;
 	if (options instanceof Object) {
 		if (!("valign" in options)) {
 			options.valign = "top";
@@ -20,21 +22,20 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 		this.drawingOptions = options;
 
 		if (options.italic) {
-			fontCSS = "italic ";
+			css = "italic ";
 		} else {
-			fontCSS = "";
+			css = "";
 		}
 		if (options.smallCaps) {
-			fontCSS = fontCSS + "small-caps ";
+			css = css + "small-caps ";
 		}
 		if (options.bold) {
-			fontCSS = fontCSS + "bold ";
+			css = css + "bold ";
 		}
-		fontCSS = fontCSS + size + " ";
 		if (options.fontFace === undefined) {
-			fontCSS = fontCSS + "sans-serif";
+			this.font = "sans-serif";
 		} else {
-			fontCSS = fontCSS + options.fontFace;
+			this.font = options.fontFace;
 		}
 
 	} else if (typeof(options) == "string") {
@@ -53,9 +54,11 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 			this.drawingOptions.align = searchResults[0];
 			options = options.replace(halignRE, "");
 		}
-		fontCSS = options + " sans-serif";
+		css = options + " sans-serif";
+		this.sizeUnits = undefined;
 	} else {
-		fontCSS = size + " sans-serif";
+		css = "";
+		this.font = "sans-serif";
 		this.drawingOptions = {valign: "top"};
 	}
 	if (this.drawingOptions.align == "centre") {
@@ -64,7 +67,7 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 	if (this.drawingOptions.valign == "baseline") {
 		this.drawingOptions.valign = "alphabetic";
 	}
-	this.fontCSS = fontCSS;
+	this.css = css;
 }
 }}$;
 
@@ -73,7 +76,7 @@ func Text {
 		var text = arguments[0];
 		var x = arguments[1];
 		var y = arguments[2];
-		var size, fillcolour, outlinecolour, options;
+		var size, sizeUnits, fillcolour, outlinecolour, options;
 		var numArgs = arguments.length;
 		var argType = typeof(arguments[numArgs - 1]);
 		if (argType == "string" && arguments[numArgs - 1].indexOf(" ") !== -1) {
@@ -103,22 +106,32 @@ func Text {
 		}
 
 		if (size === undefined) {
-			size = "1em";
+			size = 1;
+			sizeUnits = "em";
 		} else if (typeof(size) == "number") {
-			size = size + "px";
+			sizeUnits = "px";
+		} else {
+			var match = /^(\d*(\.\d*)?)([a-z%]*)$/.exec(size);
+			size = parseFloat(match[1]);
+			sizeUnits = match[3];
 		}
 		if (outlinecolour === undefined && fillcolour === undefined) {
 			fillcolour = "black";
-		}
-		
-		return new Text(text, x, y, size, fillcolour, outlinecolour, options);
+		}		
+		return new Text(text, x, y, size, sizeUnits, fillcolour, outlinecolour, options);
 	}}$;
 }
 
 ${{
 
-Text.prototype.draw = function (context) {
-	context.font = this.fontCSS;
+Text.prototype.draw = function (context, canvasName) {
+	var scale = root.lookup("_view_" + canvasName + "_scale").value();
+
+	if (this.sizeUnits === undefined) {
+		context.font = this.css;
+	} else {
+		context.font = this.css + (this.size / scale) + this.sizeUnits + " " + this.font;
+	}
 	context.textBaseline = this.drawingOptions.valign;
 	if ("align" in this.drawingOptions) {
 		context.textAlign = this.drawingOptions.align;
@@ -142,7 +155,7 @@ Text.prototype.toString = function() {
 			Eden.edenCodeForValue(this.outlinecolour) + ", " +
 			"\"" + this.optionString + "\")";
 	} else {
-		s = s + Eden.edenCodeForValue(this.size) + ", " +
+		s = s + '"' +Eden.edenCodeForValue(this.size) + this.sizeUnits + '", ' +
 			Eden.edenCodeForValue(this.fillcolour) + ", " +
 			Eden.edenCodeForValue(this.outlinecolour) + ", " +
 			Eden.edenCodeForValue(this.drawingOptions) + ")";
@@ -157,44 +170,69 @@ Text.prototype.getEdenCode = Text.prototype.toString;
 func textWidth {
 	${{
 		var text = arguments[0];
-		var size, options;
+
+		var size, sizeUnits, options, optionsObj, scale;
 		if (typeof(arguments[1]) == "object") {
 			options = arguments[1];
 		} else {
 			var size = arguments[1];
-			var options = arguments[2];
+			if (typeof(arguments[2]) == "number") {
+				scale = arguments[2];
+			} else {
+				options = arguments[2];
+				scale = arguments[3];
+				if (size !== undefined && typeof(options) == "string") {
+					eden.error(new Error("textWidth: The size argument must be @ when the options parameter is given as a string.  The font size should be included in the options string.  See https://drafts.csswg.org/css2/fonts.html#font-shorthand"), "error");
+					return undefined;
+				}
+			}
 		}
 
 		if (size === undefined) {
-			size = "1em";
+			size = 1;
+			sizeUnits = "em";
 		} else if (typeof(size) == "number") {
-			size = size + "px";
+			sizeUnits = "px";
+		} else if (scale !== undefined) {
+			var match = /^(\d*(\.\d*)?)([a-z%]*)$/.exec(size);
+			if (match === null) {
+				eden.error(new Error("textWidth: Giving the options parameter as a string is not supported when the scale parameter is used."), "error");
+				return undefined;
+			} else {
+				size = parseFloat(match[1]) / scale;
+				sizeUnits = match[3];
+			}
+		} else {
+			sizeUnits = "";
 		}
 
-		var fontCSS;
+		var css;
 		if (options instanceof Object) {
+			optionsObj = options;
 			if (options.italic) {
-				fontCSS = "italic ";
+				css = "italic ";
 			} else {
-				fontCSS = "";
+				css = "";
 			}
 			if (options.smallCaps) {
-				fontCSS = fontCSS + "small-caps ";
+				css = css + "small-caps ";
 			}
 			if (options.bold) {
-				fontCSS = fontCSS + "bold ";
+				css = css + "bold ";
 			}
-			fontCSS = fontCSS + size + " ";
+			css = css + size + sizeUnits + " ";
 			if (options.fontFace === undefined) {
-				fontCSS = fontCSS + "sans-serif";
+				css = css + "sans-serif";
 			} else {
-				fontCSS = fontCSS + options.fontFace;
+				css = css + options.fontFace;
 			}
 		} else if (typeof(options) == "string") {
 			options = options.replace(/\b(top|hanging|middle|baseline|alphabetic|ideographic|bottom|left|right|center|centre|start|end)\b\s*/g, "");
-			fontCSS = options + " sans-serif";
+			css = options + " sans-serif";
+			optionsObj = {};
 		} else {
-			fontCSS = size + " sans-serif";
+			css = size + sizeUnits + " sans-serif";
+			optionsObj = {};
 		}
 		
 		//Find an existing canvas (any one).
@@ -206,8 +244,8 @@ func textWidth {
 		var context = canvas.getContext("2d");
 		context.save();
 		edenUI.plugins.Canvas2D.configureContextDefaults(context);
-		edenUI.plugins.Canvas2D.configureContext(context, options);
-		context.font = fontCSS;
+		edenUI.plugins.Canvas2D.configureContext(context, optionsObj);
+		context.font = css;
 		context.textBaseline = "top";
 		var metrics = context.measureText(text);
 		var width = metrics.width;

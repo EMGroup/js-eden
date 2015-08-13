@@ -744,8 +744,8 @@ if (keyHighlightChoices != @) {
 }
 
 keyHighlightingUIPos is pianoControlsPosition;
-keyHighlightingChooser is Combobox("keyHighlightingChooser", keyHighlightChoices, keyHighlightingUIPos.x + 90, keyHighlightingUIPos.y);
-keyHighlightingLabel is Text("Key Highlighting:", keyHighlightingUIPos.x, keyHighlightingUIPos.y + 1.5);
+keyHighlightingChooser is Combobox("keyHighlightingChooser", keyHighlightChoices, keyHighlightingUIPos.x + 105, keyHighlightingUIPos.y);
+keyHighlightingLabel is Text("Key Highlighting:", keyHighlightingUIPos.x, keyHighlightingUIPos.y + 3);
 keyHighlightingUI is [keyHighlightingLabel, keyHighlightingChooser];
 
 proc changeKeyHighlighting : keyHighlightingChooser_value {

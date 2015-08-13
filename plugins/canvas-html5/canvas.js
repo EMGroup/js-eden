@@ -22,7 +22,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			}
 			var elementsToRemove = previousElements[hash];
 			for (var i = 0; i < elementsToRemove.length; i++) {
-				canvasElement.removeChild(elementsToRemove[i]);
+				if (elementsToRemove[i].parentElement !== null) {
+					canvasElement.removeChild(elementsToRemove[i]);
+				}
 			}
 		}
 	};
@@ -58,6 +60,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			canvas = canvases[canvasname];
 			canvas.drawingQueued = false;
 			canvas.drawingInProgress = false;
+			canvas.rescale = false;
 		}
 	
 		if (!canvas.drawingQueued) {
@@ -76,9 +79,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var content = contents[canvasname];
 				  
 					var backgroundColour = root.lookup("_view_" + canvasname + "_background_colour").value();
+					var scale = root.lookup("_view_" + canvasname + "_scale").value();
 					me.setFillStyle(context, backgroundColour);
 					content.parentElement.style.backgroundColor = backgroundColour;
+					context.setTransform(1, 0, 0, 1, 0, 0);
 					context.fillRect(0, 0, canvas.width, canvas.height);
+					context.scale(scale, scale);
 
 					//Configure JS-EDEN default options that are different from the HTML canvas defaults.
 					me.configureContextDefaults(context);
@@ -128,6 +134,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 										copiedEl.push($(picture[i].elements[j]).clone(true, true).get(0));
 									}
 									picture[i].elements = copiedEl;
+									picture[i].scale(scale);
+								} else if (!existingEl || canvas.rescale) {
+									picture[i].scale(scale);
 								}
 							}
 							var htmlEl = picture[i].elements;
@@ -178,7 +187,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		
 		if ("join" in options) {
 			context.lineJoin = options.join;
-			context.miterLimit = 9007199254740991;
+			context.miterLimit = 429496656;
 		}
 		
 		if ("miterLimit" in options) {
@@ -231,12 +240,23 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	this.createDialog = function (name, mtitle, pictureObs) {
 		//Remove -dialog name suffix.
 		var displayedName = name.slice(0, -7);
+		var agent = root.lookup("createView");
+
 		var backgroundColourSym = root.lookup("_view_" + displayedName + "_background_colour");
 		if (backgroundColourSym.value() === undefined) {
-		  backgroundColourSym.assign("white", {name: "createView"});
+		  backgroundColourSym.assign("white", agent);
 		}
 		backgroundColourSym.addJSObserver("repaintView", function (symbol, value) {
-			me.drawPicture(displayedName, pictureObs);		  
+			me.drawPicture(displayedName, pictureObs);
+		});
+
+		var scaleSym = root.lookup("_view_" + displayedName + "_scale");
+		if (scaleSym.value() === undefined) {
+		  scaleSym.assign(1, agent);
+		}
+		scaleSym.addJSObserver("repaintView", function (symbol, value) {
+			document.getElementById(name + "-canvas").rescale = true;
+			me.drawPicture(displayedName, pictureObs);
 		});
 
 		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');
@@ -484,15 +504,17 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			var mousePositionSym = root.lookup('mousePosition');
 			
 			var x, y;
+			var scale = root.lookup("_view_" + displayedName + "_scale").value();
 			if (me.mouseInfo.capturing) {
 				var previousPosition = mousePositionSym.value();
 				var e2 = e.originalEvent;
-				x = previousPosition.x + e2.movementX;
-				y = previousPosition.y + e2.movementY;
+				x = previousPosition.x + e2.movementX / scale;
+				y = previousPosition.y + e2.movementY / scale;
 			} else {
+				//pageX & pageY are deprecated in DOM but still contemporary for jQuery events.
 				var windowPos = $(this).offset();
-				x = Math.ceil(e.pageX - windowPos.left);
-				y = Math.ceil(e.pageY - windowPos.top);
+				x = (e.pageX - Math.round(windowPos.left)) / scale;
+				y = (e.pageY - Math.round(windowPos.top)) / scale;
 			}
 
 			var mousePos;
@@ -511,7 +533,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			.dialog({
 				title: mtitle,
 				width: defaultWidth + edenUI.scrollBarYSize,
-				height: defaultHeight + edenUI.titleBarHeight + edenUI.scrollBarXSize,
+				height: defaultHeight + edenUI.titleBarHeight,
 				minHeight: 120,
 				minWidth: 230,
 				dialogClass: "unpadded-dialog"
@@ -529,8 +551,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				var canvas = document.getElementById(name + "-canvas");
 				var roundedWidth = Math.floor(width);
 				var roundedHeight = Math.floor(height);
-				/* The if statements are necessary because setting the width or height has the side
-				 effect of erasing the canvas. */
+				/*The if statements are necessary because setting the width or height has the side
+				 *effect of erasing the canvas.  If the width or height are defined by dependency
+				 *then this method gets called whenever that dependency is re-evaluated, even if the
+				 *recalculated value is the same as the old one, which previously resulted in a
+				 *noticeable flicker effect.
+				 */
 				if (roundedWidth != canvas.width) {
 					canvas.width = roundedWidth;
 					redraw = true;

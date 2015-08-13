@@ -6,14 +6,17 @@
 ##Doesn't taint the canvas if the url is located on another domain.
 
 ${{
-HTMLImage = function (name, x, y, width, height, url, imageMap) {
+HTMLImage = function (name, x, y, width, height, scaleFactor, url, imageMap) {
 	this.name = name;
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
+	this.scaledWidth = width;
+	this.scaledHeight = height;
+	this.scaleFactor = scaleFactor;
 	this.url = url;
-	this.imageMap = imageMap;
+	this.imageMap = imageMap;	
 }
 
 HTMLImage.prototype.hash = function () {
@@ -22,26 +25,41 @@ HTMLImage.prototype.hash = function () {
 				this.y+"$$"+
 				this.width+"$$"+
 				this.height+"$$"+
+				this.scaleFactor+"$$"+
 				this.url+"$$"+
 				this.imageMap;
 };
 }}$;
 
 func HTMLImage { ${{
-  var name = arguments[0];
-  var x = arguments[1];
-  var y = arguments[2];
-  var width, height, url, imageMap;
-  if (arguments.length < 6) {
-	url = arguments[3];
-	imageMap = arguments[4];
-  } else {
-	width = arguments[3];
-	height = arguments[4];
-	url = arguments[5];
-	imageMap = arguments[6];
-  }
-  return new HTMLImage(name, x, y, width, height, url, imageMap);
+	var name = arguments[0];
+	var x = arguments[1];
+	var y = arguments[2];
+	var width, height, url, imageMap;
+	var scaleFactor = 1;
+
+	var numArgs = arguments.length;
+	var argsLeft;
+
+	if (numArgs == 8 || typeof(arguments[numArgs - 1]) == "object") {
+		imageMap = arguments[numArgs - 1];
+		url = arguments[numArgs - 2];
+		argsLeft = numArgs - 5;
+	} else {
+		url = arguments[numArgs - 1];
+		argsLeft = numArgs - 4;
+	}
+
+	if (argsLeft >= 1) {
+		width = arguments[3];
+		if (argsLeft >=2) {
+			height = arguments[4];
+			if (argsLeft == 3) {
+				scaleFactor = arguments[5];
+			}
+		}
+	}
+	return new HTMLImage(name, x, y, width, height, scaleFactor, url, imageMap);
 }}$; }
 
 ${{
@@ -49,22 +67,33 @@ HTMLImage.prototype.draw = function(context) {
   if (this.elements === undefined) {
 	var id = "canvas_" + this.name;
 	var name = this.name;
+	var me = this;
 	var agent = root.lookup("HTMLImage");
 
-	var html = "<img style=\"position: absolute; left: " + this.x + "px; top: " +
-		this.y + "px\" src=\"" + this.url + "\"";
+	var html = "<img style=\"position: absolute\" src=\"" + this.url + "\"";
 
-	if (this.width !== undefined) {
-		html = html + " width=\"" + this.width + "\"";
-	}
-	if (this.height !== undefined) {
-		html = html + " height=\"" + this.height + "\"";
-	}
 	if (this.imageMap !== undefined) {
 		html = html + " usemap=\"#" + id + "-map\" draggable=\"false\" class=\"noselect\"";
 	}
 	html = html + "/>";
 	var imageJQ = $(html);
+	if (this.scaledWidth === undefined || this.scaledHeight === undefined) {
+		imageJQ.on("load", function (event) {
+			var image = event.target;
+			var parentID = image.parentElement.id;
+			var canvasName = parentID.slice(0, -21) // trim -dialog-canvascontent
+			var canvasScale = root.lookup("_view_" + canvasName + "_scale").value();
+
+			if (me.scaledWidth === undefined) {
+				me.scaledWidth = image.naturalWidth;
+				image.width = Math.round(me.scaledWidth * canvasScale / me.scaleFactor);
+			}
+			if (me.scaledHeight === undefined) {
+				me.scaledHeight = image.naturalHeight * me.scaledWidth / image.naturalWidth;
+				image.height = Math.round(me.scaledHeight * canvasScale / me.scaleFactor);
+			}
+		});
+	}
 	this.elements = [imageJQ.get(0)];
 
 	if (this.imageMap !== undefined) {
@@ -146,8 +175,16 @@ HTMLImage.prototype.draw = function(context) {
 	}
   }
 };
-}}$;
-${{
+
+HTMLImage.prototype.scale = function (scale) {
+	var imageElem = this.elements[0];
+	var style = imageElem.style;
+	style.left = Math.round(this.x * scale) + "px";
+	style.top = Math.round(this.y * scale) + "px";
+	imageElem.width = Math.round(this.scaledWidth * scale / this.scaleFactor);
+	imageElem.height = Math.round(this.scaledHeight * scale / this.scaleFactor);
+};
+
 HTMLImage.prototype.toString = function() {
   return "HTMLImage(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
 	this.height + ", \"" + this.url + "\", " + Eden.edenCodeForValue(this.imageMap) + ")";

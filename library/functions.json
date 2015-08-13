@@ -694,7 +694,8 @@
 			"parameters": {
 				"text": "Text string to measure",
 				"[size]" : "",
-				"[options]": ""
+				"[options]": "",
+				"[canvas_scale]": ""
 			},
 			"return": "The width of the given text, in pixels",
 			"description": "Measures the width of a piece of text drawn using the Text function."
@@ -953,8 +954,9 @@
 				"name": "Name for click events",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"[width": "Width in pixels",
-				"height]": "Height in pixels",
+				"[width": "Width in virtual pixel units",
+				"[height": "Height in virtual pixel units",
+				"[at_scale]]]": "The value of _view_xxx_scale needed to make 1 virtual pixel equal 1 real pixel",
 				"url": "Source file for the image",
 				"[zones]": "List of two element lists. The first element of each is the name of an image area. The second is a Circle, Rectangle or Polygon object."
 			},
@@ -981,9 +983,9 @@
 				"name": "",
 				"x": "",
 				"y": "",
-				"width_in_px": "",
-				"[rows": "",
-				"[enabled]]": ""
+				"width": "",
+				"[height]": "",
+				"[enabled]": ""
 			},
 			"return": "",
 			"description": ""

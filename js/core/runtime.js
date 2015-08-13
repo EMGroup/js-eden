@@ -41,15 +41,21 @@ var rt = {
 	add: function (a, b) {
 		if (a === undefined || b === undefined) {
 			return undefined;
+		} else if (a instanceof Point) {
+			return new Point(a.x + b.x, a.y + b.y);
+		} else {
+			return a + b;
 		}
-		return a + b;
 	},
 
 	subtract: function (a, b) {
 		if (a === undefined || b === undefined) {
 			return undefined;
+		} else if (a instanceof Point) {
+			return new Point(a.x - b.x, a.y - b.y);
+		} else {
+			return a - b;
 		}
-		return a - b;
 	},
 
 	multiply: function (a, b) {

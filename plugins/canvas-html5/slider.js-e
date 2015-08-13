@@ -58,16 +58,12 @@ Slider.prototype.draw = function (context) {
 
 	if (this.elements === undefined) {
 		var orientationCSS;
-		var topCSS;
 		if (this.orientation == "down"){
 			orientationCSS = "transform: rotate(90deg);"
-			topCSS = "top: " + (this.y + this.length / 2).toString() + "px;";
 		} else if (this.orientation == "up" || this.orientation == "vertical") {
 			orientationCSS = "transform: rotate(-90deg);"
-			topCSS = "top: " + (this.y + this.length / 2).toString() + "px;";
 		} else {
 			orientationCSS = "";
-			topCSS = "top: " + this.y + "px;";		
 		}
 
 
@@ -86,7 +82,7 @@ Slider.prototype.draw = function (context) {
 
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
 		var inputhtml = (($('<input ' + disabled +
-			'style="position:absolute; ' + topCSS + ' left:' + this.x + 'px; width:' + this.length + 'px; ' + orientationCSS + '" ' +
+			'style="position:absolute; ' + orientationCSS + '" ' +
 			'value="' + value + '" ' +
 			'type="range" ' +
 			'min="' + this.min + '" ' +
@@ -118,9 +114,19 @@ Slider.prototype.draw = function (context) {
 		
 	}
 };
-}}$;
 
-${{
+Slider.prototype.scale = function (scale) {
+	var style = this.elements[0].style;
+	if (this.orientation == "up" || this.orientation == "down" || this.orientation == "vertical") {
+		style.left = Math.round((this.x - this.length / 2) * scale) + "px";
+		style.top = Math.round((this.y + this.length / 2) * scale) + "px";
+	} else {
+		style.left = Math.round(this.x * scale) + "px";
+		style.top = Math.round(this.y * scale) + "px";
+	}
+	style.width = Math.round(this.length * scale) + "px";
+};
+
 Slider.prototype.toString = function() {
   return "Slider(\"" + this.name + "\", " + this.min + ", " + this.max + ", " + this.step + ", " +
 	this.x + ", " + this.y + ", " + this.length + ", \"" + this.orientation + "\", " +

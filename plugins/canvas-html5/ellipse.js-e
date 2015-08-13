@@ -33,6 +33,10 @@ ${{
 
 Ellipse.prototype.draw = function(context) {
 	var scaleFactor = this.yradius / this.xradius;
+	var scaleOutline = this.drawingOptions !== undefined && this.drawingOptions.scaleOutline;
+	if (!scaleOutline) {
+		context.save();
+	}
 	context.scale(1, scaleFactor);
 	context.beginPath();
 	context.arc(this.x, this.y / scaleFactor, this.xradius, 0, 2 * Math.PI, false);
@@ -41,6 +45,9 @@ Ellipse.prototype.draw = function(context) {
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
 		context.fill();
+	}
+	if (!scaleOutline) {
+		context.restore();
 	}
 	if (this.outlinecolour !== undefined) {
 		context.strokeStyle = this.outlinecolour;

@@ -12,5 +12,4 @@ createView("logging", "NetworkRemote");
 mouseFollow = true;
 
 ##Adjust font size.
-bindCSSNumericProperty("#jspe_slide", "font-size", "jspeFontSize", "pt");
 jspeFontSize = 14;

@@ -53,7 +53,7 @@ Combobox.prototype.draw = function(context) {
 	if (this.elements === undefined) {
 
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
-		var dropDownListJQ = $("<select " + disabled + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
+		var dropDownListJQ = $("<select " + disabled + " style=\"position: absolute\"></select>");
 		dropDownListJQ.html(makeOptionsHTML(this.options));
 
 		dropDownListJQ.change(function(event) {
@@ -88,12 +88,15 @@ Combobox.prototype.draw = function(context) {
 			dropDownList.disabled = true;
 		}
 
-		dropDownList.style.left = "" + this.x + "px";
-		dropDownList.style.top = "" + this.y + "px";
 	}
 };
-}}$;
-${{
+
+Combobox.prototype.scale = function (scale) {
+	var style = this.elements[0].style;
+	style.left = Math.round(this.x * scale) + "px";
+	style.top = Math.round(this.y * scale) + "px";
+};
+
 Combobox.prototype.toString = function() {
 	return "Combobox(\"" + this.name + "\", " + Eden.edenCodeForValue(this.options) + ", " +
 		this.x + ", " + this.y + ", " + this.enabled+")";

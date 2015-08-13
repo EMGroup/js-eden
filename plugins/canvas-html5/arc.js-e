@@ -21,9 +21,15 @@ func Arc { ${{
 	var r = arguments[2];
 	var sAngle = arguments[3];
 	var eAngle = arguments[4];
-	var colour = arguments[5];
-	var drawingOptions = arguments[6];
-	if (colour === undefined) { colour = "black"; }
+	var colour, drawingOptions;
+	if (arguments.length == 6 && typeof(arguments[5]) == "object" && !(arguments[5] instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+		colour = "black";
+		drawingOptions = arguments[5];
+	} else {
+		colour = arguments[5];
+		drawingOptions = arguments[6];
+		if (colour === undefined) { colour = "black"; }
+	}
 	return new Arc(x, y, r, sAngle, eAngle, colour, drawingOptions);
 }}$; };
 

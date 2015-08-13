@@ -67,15 +67,19 @@ proc resizeView {
 	}
 }
 
+##The summed dimensions of all window borders, title bars, scroll bars and any other parts that are
+##not part of a view's content.  _view_xxx_width + _views_frame_width gives the first x position where
+##another view can be placed without overlapping with xxx.
+_views_frame_width = ${{ edenUI.dialogFrameWidth }}$;
+_views_frame_height = ${{ edenUI.dialogFrameHeight }}$;
 ##The maximum width a view can be if it fits within the browser window without scrolling.
-screenWidth = ${{ window.innerWidth - edenUI.scrollBarYSize - 2 * edenUI.dialogBorderWidth }}$;
+screenWidth = ${{ window.innerWidth }}$ - _views_frame_width;
 ##The maximum height a view can be if it fits within the browser window without scrolling.
-screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.titleBarHeight - edenUI.scrollBarXSize }}$;
-
+screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight }}$ - _views_frame_height;
 ${{
 	window.addEventListener("resize", function (event) {
-		root.lookup("screenWidth").assign(window.innerWidth - edenUI.scrollBarYSize - 2 * edenUI.dialogBorderWidth, Symbol.hciAgent);
-		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.titleBarHeight - edenUI.scrollBarXSize, Symbol.hciAgent);
+		root.lookup("screenWidth").assign(window.innerWidth - edenUI.dialogFrameWidth, Symbol.hciAgent);
+		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight, Symbol.hciAgent);
 	});
 }}$;
 

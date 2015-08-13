@@ -3,15 +3,14 @@ require("Canvas2D");
 if (_view_jspe_width == @) {
 	createCanvas("jspe", "slides", "JSPE Slides");
 	_view_picture_x = 2;
-	_view_separation = 15;
-	_view_jspe_x = _view_picture_x + _view_picture_width + ${{edenUI.scrollBarYSize + 2 * edenUI.dialogBorderWidth}}$ + _view_separation;
+	_view_jspe_x = _view_picture_x + _view_picture_width + _views_frame_width + 15;
 	_view_jspe_y = 0;
 	_view_jspe_width is min(700, screenWidth - _view_jspe_x);
 	_view_jspe_height is screenHeight - _view_jspe_y;
 	_view_inputwindow_x = 2;
-	_view_inputwindow_y = _view_picture_y + _view_picture_height + ${{ edenUI.titleBarHeight + edenUI.scrollBarXSize }}$ + _view_separation * 1.5;	
+	_view_inputwindow_y = _view_picture_y + _view_picture_height + _views_frame_height + 22;	
 	_view_inputwindow_width = min(0.4 * screenWidth, _view_picture_width);
-	_view_inputwindow_height = screenHeight - _view_inputwindow_y - ${{ edenUI.titleBarHeight }}$;
+	_view_inputwindow_height = screenHeight - _view_inputwindow_y - _views_frame_height;
 }
 
 if (slideList == @) slideList = [];
@@ -77,31 +76,29 @@ Slide = function (html) {
 }
 
 Slide.prototype.draw = function(context) {
-  var me = "jspe_slide";
-  var but = $("#"+me).get(0);
+  var id = "jspe_slide";
+  var jspeJQ = $('#jspe-dialog-canvas');
+  var leftRightMargin = 25;
+  if (this.elements === undefined) {
+	var content = this.html.replace(
+		/<jseden>([\s\S]*?)<\/jseden>/g,
+		function (match, code, offset, string) {
+		return "<div><pre>" + code.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</pre><a href=\"#\" onclick=\"execute(this)\">submit</a> <a href=\"#\" onclick=\"copyToInput(this)\">copy to input</a></div>";
+		}
+	);
 
-  var jspe = $('#jspe-dialog-canvas');
-  var content = this.html.replace(
-	/<jseden>([\s\S]*?)<\/jseden>/g,
-	function (match, code, offset, string) {
-	return "<div><pre>" + code.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</pre><a href=\"#\" onclick=\"execute(this)\">submit</a> <a href=\"#\" onclick=\"copyToInput(this)\">copy to input</a></div>";
-	}
-  );
-  if (but === undefined) {
-        var can = $("#jspe-dialog-canvascontent");
-	var divstyle = "position: absolute; left: " + ($('#jspe-dialog-canvas').position().left + 20) + "px; top: 40px"; 
-	var buthtml = $("<div id=\"" + me + "\" style=\""+divstyle+"\">" + content + "</div>").appendTo(can);
-
-        buthtml.get(0).togarbage = false;
-
-        //Initialise
-  } else {
-        but.innerHTML = content;
-        but.togarbage = false;
-		but.style.top = "40px";
+	var can = $("#jspe-dialog-canvascontent");
+	var divstyle = "position: absolute; text-align: justify; line-height: 1.75; top: 35px; ";
+	divstyle = divstyle + "left: " + leftRightMargin + "px";
+	var divJQ = $("<div id=\"" + id + "\" style=\"" + divstyle + "\">" + content + "</div>").appendTo(can);
+	this.elements = [divJQ.get(0)];
   }
-  $('#jspe_slide').css("width",(parseInt($('#jspe-dialog-canvas').width()) - 36) + "px");
+  $('#jspe_slide').css("width",(parseInt(jspeJQ.width()) - 2 * leftRightMargin) + "px");
 };
+
+Slide.prototype.scale = function (scale) {
+	//Do nothing
+}
 }}$;
 
 ${{
@@ -161,13 +158,13 @@ proc drawSlides : slides {
   cleanupSlides();
 };
 
-jspeleft = ${{ $('#jspe-dialog-canvas').position().left }}$;
+jspeleft = 2;
 
 buttonPrevEnabled is currentSlide > 1;
 buttonNextEnabled is currentSlide < slideList#;
 
-buttonPrev is SlideButton("buttonPrev","Previous Slide", jspeleft, 0, buttonPrevEnabled);
-buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 150, 0, buttonNextEnabled);
+buttonPrev is SlideButton("buttonPrev","Previous Slide", jspeleft, 4, buttonPrevEnabled);
+buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 170, 4, buttonNextEnabled);
 
 ## buttonSave = SlideButton("buttonSave","Add Slide", int(${{ $('#jspe-dialog-canvas').position().left }}$) + 100, ${{ $('#jspe-dialog-canvas').height()+15 }}$, true);
 
@@ -198,16 +195,16 @@ proc nextSlide : buttonNext_clicked {
 
 
 ## User interface elements.
-slideNumberLabel is Text(currentSlide // " of " // slideList#, jspeleft + 120, 5, {align: "centre"});
+slideNumberLabel is Text(currentSlide // " of " // slideList#, jspeleft + 140, 10, {align: "centre"});
 
 
-textIncrease is SlideButton("buttonTextIncrease", "Font++", jspeleft + 325, 0, true);
-textDecrease is SlideButton("buttonTextDecrease", "Font--", jspeleft + 250, 0, true);
+textIncrease is SlideButton("buttonTextIncrease", "Font++", jspeleft + 345, 4, true);
+textDecrease is SlideButton("buttonTextDecrease", "Font--", jspeleft + 278, 4, true);
 
 slides is [buttonPrev, slideNumberLabel, buttonNext, slideList[currentSlide], textIncrease, textDecrease];
 
 bindCSSNumericProperty("#jspe_slide", "font-size", "jspeFontSize", "pt");
-jspeFontSize = 8;
+jspeFontSize = 11;
 
 proc increaseText : buttonTextIncrease_clicked{
 	if(!buttonTextIncrease_clicked){

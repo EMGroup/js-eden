@@ -1,10 +1,10 @@
 ${{
-Textbox = function (name, x, y, width, rows, enabled) {
+Textbox = function (name, x, y, width, height, enabled) {
 	this.name = name;
 	this.x = x;
 	this.y = y;
 	this.width = width;
-	this.rows = rows;
+	this.height = height;
     this.enabled = enabled;
 }
 
@@ -13,7 +13,7 @@ Textbox.prototype.hash = function () {
 				this.x+"$$"+
 				this.y+"$$"+
 				this.width+"$$"+
-				this.rows+"$$"+
+				this.height+"$$"+
 				this.enabled;
 };
 }}$;
@@ -23,11 +23,17 @@ func Textbox { ${{
   var x = arguments[1];
   var y = arguments[2];
   var width = arguments[3];
-  var rows = arguments[4];
-  if (rows === undefined) rows = 1;
-  var enabled = arguments[5];
+  var height, enabled;
+  if (arguments.length == 6) {
+	height = arguments[4];
+	enabled = arguments[5];
+  } else if (typeof(arguments[4]) == "boolean") {
+	enabled = arguments[4];
+  } else {
+	height = arguments[4];
+  }
   if (enabled === undefined) enabled = true;
-  return new Textbox(name, x, y, width, rows, enabled);
+  return new Textbox(name, x, y, width, height, enabled);
 }}$; }
 
 ${{
@@ -40,14 +46,12 @@ Textbox.prototype.draw = function(context) {
 	
 	if(this.elements === undefined){
 
-		var disabled = this.enabled === false? "readonly=\"readonly\"" : "";
+		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
 		var jQuery;
-		if (this.rows > 1) {
-			jQuery = $("<textarea rows=\"" + this.rows + "\" " + disabled +
-				" style=\"position: absolute; width:" + this.width + "px; left: " + this.x + "px; top: " + this.y + "px;\" />");		
+		if (this.height === undefined) {
+			jQuery = $("<input " + disabled + " style=\"position: absolute\" />");
 		} else {
-			jQuery = $("<input " + disabled +
-				" style=\"position: absolute; width:" + this.width + "px; left: " + this.x + "px; top: " + this.y + "px;\" />");
+			jQuery = $("<textarea " + disabled + " style=\"position: absolute\" />");
 		}
 		var element = jQuery.get(0);
 		
@@ -67,12 +71,22 @@ Textbox.prototype.draw = function(context) {
 		});
   }
 };
-}}$;
 
-${{
+Textbox.prototype.scale = function (scale) {
+	var style = this.elements[0].style;
+	style.left = Math.round(this.x * scale) + "px";
+	style.top = Math.round(this.y * scale) + "px";
+	style.width = Math.round(this.width * scale) + "px";
+	var rows = Math.floor(Math.round(this.height * scale - 6) / 20);	//See css/eden.css
+	if (rows == 0) {
+		rows = 1;
+	}
+	style.height = (rows * 20) + "px";
+};
+
 Textbox.prototype.toString = function() {
   return "Textbox(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
-	this.rows + ", " + this.enabled + ")";
+	Eden.edenCodeForValue(this.height) + ", " + this.enabled + ")";
 };
 
 Textbox.prototype.getEdenCode = Textbox.prototype.toString;

@@ -47,7 +47,7 @@ EdenUI.plugins.WindowLayout = function(edenUI, success){
 					tmpx,
 					tmpy,
 					root.lookup("_view_" + e + "_width").value() + edenUI.scrollBarYSize,
-					root.lookup("_view_" + e + "_height").value() + edenUI.titleBarHeight + edenUI.scrollBarXSize,
+					root.lookup("_view_" + e + "_height").value() + edenUI.titleBarHeight,
 					root.lookup("_view_" + e + "_title").value()
 				];
 				console.log(posDia);
@@ -93,8 +93,8 @@ EdenUI.plugins.WindowLayout = function(edenUI, success){
 			updatedLayout.forEach(function(e,i) {
 				var edenPosCode = "_view_" + e.name + "_y = " + ((e.row-1) * baseh) +
 					";_view_" + e.name + "_x = " + ((e.col-1) * basew) +
-					";_view_" + e.name +"_width = " + (e.size_x * basew - edenUI.scrollBarYSize - 6) +
-					";_view_" + e.name +"_height = " + (e.size_y * baseh - edenUI.titleBarHeight - edenUI.scrollBarXSize) + ";";
+					";_view_" + e.name +"_width = " + (e.size_x * basew - edenUI.dialogFrameWidth) +
+					";_view_" + e.name +"_height = " + (e.size_y * baseh - edenUI.dialogFrameHeight) + ";";
 				console.log(edenPosCode);
 				eden.execute(edenPosCode);
 			});

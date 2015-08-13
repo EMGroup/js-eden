@@ -271,7 +271,7 @@ Eden.isitSystemSymbol = function(name){
 }
 
 Eden.isitSystemObservable = function(name) {
-	if (/^_view_/.test(name) && !/_background_colour$/.test(name)) {
+	if (/^_view_/.test(name) && !/_(background_colour|scale)$/.test(name)) {
 	  return true;
 	}
 	return name in Eden.systemObservableNames;

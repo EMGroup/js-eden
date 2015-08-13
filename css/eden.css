@@ -19,7 +19,16 @@ h2, ul li {
 }
 
 .canvashtml-content {
-	font-size: 1em;
+	/* See Textbox.prototype.scale in plugins/textbox.js-e */
+	font-size: 13.3px;
+	line-height: 20px;
+}
+
+textarea.canvashtml-content {
+	/* See Textbox.prototype.scale in plugins/textbox.js-e */
+	border: 1px solid;
+	margin: 0px;
+	padding: 2px;
 }
 
 .unpadded-dialog .ui-dialog-content {

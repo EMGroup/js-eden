@@ -43,10 +43,7 @@ ${{
 			var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
 			var inputHtml = '<input  type="button"' +
 				'value="' + this.label + '"' + disabled +
-				'style="' +
-					'position: absolute; ' +
-					'left: ' + this.x + 'px; ' +
-					'top: ' + this.y + 'px; ';
+				'style="position: absolute; ';
 			if (this.backgroundColour !== undefined) {
 				inputHtml = inputHtml + 'background-color: ' + this.backgroundColour + '; ';
 			}
@@ -76,16 +73,8 @@ ${{
 				button.disabled = true;
 			}
 
-			var x = this.x + "px";
-			var y = this.y + "px";
 			var backgroundColour = this.backgroundColour;
 			var style = button.style;
-			if (style.left != x) {
-				style.left = x;
-			}
-			if (style.top != y) {
-				style.top = y;
-			}
 			if (style.backgroundColor != backgroundColour) {
 				if (backgroundColour === undefined) {
 					style.backgroundColor = "ButtonFace";
@@ -96,6 +85,12 @@ ${{
 		}
 	};
 
+	Button.prototype.scale = function (scale) {
+		var style = this.elements[0].style;
+		style.left = Math.round(this.x * scale) + "px";
+		style.top = Math.round(this.y * scale) + "px";
+	};
+	
 	Button.prototype.toString = function () {
 		return "Button(\"" + this.name + "\", \"" + this.label + "\", " + this.x + ", "+this.y+", "+this.enabled+")";
 	};

@@ -35,30 +35,17 @@ func Div { ${{
 	var id, classNames;
 	var style = "";
 	
-	if (typeof(x) == "number") {
-		x = x + "px";
-	}
-	if (typeof(y) == "number") {
-		y = y + "px";
-	}
-
 	var argsProcessed = 3;
 	var argType = typeof(arguments[3]);
 	
 	if (argType == "number" || argType == "undefined" || (argType == "string" && /^\d/.test(arguments[3]))) {
 		width = arguments[3];
 		argsProcessed++;
-		if (argType == "number") {
-			width = width + "px";
-		}
 		
 		argType = typeof(arguments[4]);
 		if (argType == "number" || argType == "undefined" || (argType == "string" && /^\d/.test(arguments[4]))) {
 			height = arguments[4];
 			argsProcessed++;
-			if (argType == "number") {
-				height = height + "px";
-			}
 		}
 	}
 
@@ -97,15 +84,7 @@ Div.prototype.draw = function(context) {
   if (this.elements === undefined) {
 	var me = this;
 	var agent = root.lookup("Div");
-	var divStyle = "position: absolute; left: " + this.x + "; top: " + this.y + "; ";
-	
-	if (this.width !== undefined) {
-		divStyle = divStyle + " width: " + this.width + "; ";
-	}
-	if (this.height !== undefined) {
-		divStyle = divStyle + " height: " + this.height + "; ";
-	}
-	divStyle = divStyle + this.style;
+	var divStyle = "position: absolute; " + this.style;
 
 	var divElement = document.createElement("div");
 	if (this.id !== undefined) {
@@ -139,6 +118,22 @@ Div.prototype.draw = function(context) {
 	}
 	this.elements = [divElement];
   }
+};
+
+Div.prototype.scale = function (scale) {
+	var style = this.elements[0].style;
+	if (typeof(this.x) == "number") {
+		style.left = Math.round(this.x * scale) + "px";
+	}
+	if (typeof(this.y) == "number") {
+		style.top = Math.round(this.y * scale) + "px";
+	}
+	if (typeof(this.width) == "number") {
+		style.width = Math.round(this.width * scale) + "px";
+	}
+	if (typeof(this.height) == "number") {
+		style.height = Math.round(this.height * scale) + "px";
+	}
 };
 
 Div.prototype.toString = function() {

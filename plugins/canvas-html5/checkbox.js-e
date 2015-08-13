@@ -46,8 +46,6 @@ Checkbox.prototype.draw = function(context) {
 		var element = jqElement.get(0);
 		
 		element.disabled = (this.enabled === false);
-		element.style.left = this.x + "px";
-		element.style.top = this.y + "px";
 		
 		if (value === undefined) {
 			if (this.tristate) {
@@ -90,9 +88,13 @@ Checkbox.prototype.draw = function(context) {
 		this.elements = [element];
 	}
 };
-}}$;
 
-${{
+Checkbox.prototype.scale = function (scale) {
+	var style = this.elements[0].style;
+	style.left = Math.round(this.x * scale) + "px";
+	style.top = Math.round(this.y * scale) + "px";
+};
+
 Checkbox.prototype.toString = function() {
   return "Checkbox(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.tristate + ", " +
 	this.enabled + ")";

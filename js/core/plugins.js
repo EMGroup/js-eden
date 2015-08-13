@@ -31,11 +31,12 @@
 	}
 
 	//Dimensions of various UI components.
-	EdenUI.prototype.dialogBorderWidth = 3.133;
-	EdenUI.prototype.titleBarHeight = 32 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.menuBarHeight = 30;
-	EdenUI.prototype.scrollBarYSize = 19;
-	EdenUI.prototype.scrollBarXSize = 16;
+	EdenUI.prototype.dialogBorderWidth = 3.133;
+	EdenUI.prototype.titleBarHeight = 33.6563 + EdenUI.prototype.dialogBorderWidth;
+	EdenUI.prototype.scrollBarYSize = 17;
+	EdenUI.prototype.dialogFrameWidth = EdenUI.prototype.scrollBarYSize + 2 * EdenUI.prototype.dialogBorderWidth;
+	EdenUI.prototype.dialogFrameHeight = EdenUI.prototype.titleBarHeight;
 
 	/**
 	 * Stores plugins that can be loaded. Plugins will modify this directly in
@@ -127,30 +128,8 @@
 				if (viewData.closing) {
 					viewData.closing = false;
 					return true;
-				} else if (viewData.confirmClose) {
-					me.modalDialog(
-						"Window Close Action",
-						"<p>Removing this window from the work space will cause any unsaved changes associated with it to be lost.  You may need to reload the construal if you wish to see this window again.</p> \
-						<p>Are you sure you want to permanently delete this information?  Or would you prefer to hide the window instead?</p>",
-						["Close Forever", "Hide"],
-						1, //Suggest hiding the window as the default option.
-						function (optNum) {
-							if (optNum == 0) {
-								me.destroyView(name);
-							} else if (optNum == 1) {
-								if (me.plugins.MenuBar) {
-									me.hideView(name);
-								} else {
-									me.minimizeView(name);
-								}
-							}
-						}
-					);
-					return false;
-				} else {
-					me.destroyView(name);
-					return true;
 				}
+				return me.closeView(name);
 			}
 		})
 		.dialogExtend({
@@ -192,7 +171,7 @@
 		 * will position the windows with a slight overlap, though no information will be hidden.
 		 */
 		view(name, 'width').assign(diag.dialog("option", "width") - this.scrollBarYSize, agent);
-		view(name, 'height').assign(diag.dialog("option", "height") - this.titleBarHeight - this.scrollBarXSize, agent);
+		view(name, 'height').assign(diag.dialog("option", "height") - this.titleBarHeight, agent);
 		var topLeft = diag.closest('.ui-dialog').offset();
 		view(name, 'x').assign(topLeft.left, agent);
 		view(name, 'y').assign(topLeft.top - desktopTop, agent);
@@ -223,7 +202,7 @@
 				autocalcSym.assign(0, Symbol.hciAgent);
 			}
 			view(name, 'width').assign(ui.size.width - me.scrollBarYSize, Symbol.hciAgent);
-			view(name, 'height').assign(ui.size.height - me.titleBarHeight - me.scrollBarXSize, Symbol.hciAgent);
+			view(name, 'height').assign(ui.size.height - me.titleBarHeight + 6, Symbol.hciAgent);
 
 			var xSym = view(name, "x");
 			if (xSym.value() != ui.position.left) {
@@ -255,20 +234,14 @@
 
 
 		function viewEdenCode() {
-			var code = 'proc _View_'+name+'_position : _view_'+name+'_x, _view_'+name+'_y {\n'+
+			var code = 'proc _View_'+name+'_position : _view_'+name+'_x, _view_'+name+'_y {\n' +
 					'${{ edenUI.moveView("'+name+'"); }}$;\n'+
-				'};\n'+
-				'proc _View_'+name+'_size : _view_'+name+'_width,_view_'+name+'_height {\n'+
-					'${{ \
-						edenUI.resizeView("'+name+'"); \
-						var viewData = edenUI.viewInstances["' + name + '"]; \
-						if ("resize" in viewData) { \
-							viewData.resize(root.lookup("_view_' + name + '_width").value(), root.lookup("_view_' + name + '_height").value()); \
-						} \
-					}}$; \
-				}; \
+				'};\n' +
+				'proc _View_'+name+'_size : _view_'+name+'_width,_view_'+name+'_height {\n' +
+					'${{ edenUI.resizeView("'+name+'"); }}$; \n' +
+				'}; \
 				if (_view_list == @) { _view_list = []; } \
-				append _view_list, "'+name+'"; \n';
+				append _view_list, "'+name+'";';
 
 			if (position) {
 				code += '_view_'+name+'_position = [\"'+position.join('\", \"')+'\"];\n';
@@ -281,6 +254,38 @@
 		this.eden.execute(viewEdenCode());
 		return viewData;
 	};
+
+	/**Simulates clicking a view's close button, prompting the user to confirm their intentions if necessary.
+	 *@return {boolean} True if the view's dialog should actually be closed now, or false if we need
+	 * to wait for confirmation first.
+	 */
+	EdenUI.prototype.closeView = function (name) {
+		var me = this;
+		if (this.viewInstances[name].confirmClose) {
+			this.modalDialog(
+				"Window Close Action",
+				"<p>Removing this window from the work space will cause any unsaved changes associated with it to be lost.  You may need to reload the construal if you wish to see this window again.</p> \
+				<p>Are you sure you want to permanently delete this information?  Or would you prefer to hide the window instead?</p>",
+				["Close Forever", "Hide"],
+				1, //Suggest hiding the window as the default option.
+				function (optNum) {
+					if (optNum == 0) {
+						me.destroyView(name);
+					} else if (optNum == 1) {
+						if (me.plugins.MenuBar) {
+							me.hideView(name);
+						} else {
+							me.minimizeView(name);
+						}
+					}
+				}
+			);
+			return false;
+		} else {
+			this.destroyView(name);
+			return true;
+		}
+	}
 
 	EdenUI.prototype.destroyView = function (name) {
 		if (!(name in this.viewInstances)) {
@@ -382,17 +387,28 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.resizeView = function (name) {
-		var newwidth = view(name, 'width').value();
-		var newheight = view(name, 'height').value();
 		var diag = dialog(name);
-		var oldwidth = diag.dialog("option", "width");
-		var oldheight = diag.dialog("option", "height");
+		var oldWidth = diag.dialog("option", "width");
+		var oldHeight = diag.dialog("option", "height");
+		var newWidth = view(name, 'width').value();
+		var newHeight = view(name, 'height').value();
+		var resized = false;
 
-		if (newwidth - oldwidth !== 0) {
-			diag.dialog("option", "width", newwidth + this.scrollBarYSize);
+		if (newWidth != oldWidth) {
+			diag.dialog("option", "width", newWidth + this.scrollBarYSize);
+			resized = true;
 		}
-		if (newheight - oldheight !== 0) {
-			diag.dialog("option", "height", newheight + this.titleBarHeight + this.scrollBarXSize);
+
+		if (newHeight != oldHeight) {
+			diag.dialog("option", "height", newHeight + this.titleBarHeight);
+			resized = true;
+		}
+
+		if (resized) {
+			var viewData = this.viewInstances[name];
+			if ("resize" in viewData) {
+				viewData.resize(newWidth, newHeight);
+			}
 		}
 	};
 
