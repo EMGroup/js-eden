@@ -87,13 +87,12 @@ Slide.prototype.draw = function(context) {
 		}
 	);
 
-	var can = $("#jspe-dialog-canvascontent");
 	var divstyle = "position: absolute; text-align: justify; line-height: 1.75; top: 35px; ";
 	divstyle = divstyle + "left: " + leftRightMargin + "px";
-	var divJQ = $("<div id=\"" + id + "\" style=\"" + divstyle + "\">" + content + "</div>").appendTo(can);
+	var divJQ = $("<div id=\"" + id + "\" style=\"" + divstyle + "\">" + content + "</div>");
 	this.elements = [divJQ.get(0)];
   }
-  $('#jspe_slide').css("width",(parseInt(jspeJQ.width()) - 2 * leftRightMargin) + "px");
+  $(this.elements[0]).css("width",(jspeJQ.width() - 2 * leftRightMargin) + "px");
 };
 
 Slide.prototype.scale = function (scale) {
@@ -120,7 +119,7 @@ ${{
   }
 
   execute = function(e) {
-	// Evaluates and stores in the symbol table
+	// Evaluates AND stores it in the input history.
 	edenUI.plugins.ScriptInput.submitEdenCode($(e).siblings('pre').text());
   }
 }}$;
@@ -151,8 +150,8 @@ proc drawSlides : slides {
   if (slides === undefined) { return; }
 
   for (var i = 0; i < slides.length; i++) {
-  if (slides[i] === undefined) { continue; }
-  slides[i].draw(jspe);
+	if (slides[i] === undefined) { continue; }
+	slides[i].draw(jspe);
   }
   }}$;
   cleanupSlides();
@@ -160,46 +159,31 @@ proc drawSlides : slides {
 
 jspeleft = 2;
 
-buttonPrevEnabled is currentSlide > 1;
-buttonNextEnabled is currentSlide < slideList#;
-
-buttonPrev is SlideButton("buttonPrev","Previous Slide", jspeleft, 4, buttonPrevEnabled);
-buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 170, 4, buttonNextEnabled);
-
-## buttonSave = SlideButton("buttonSave","Add Slide", int(${{ $('#jspe-dialog-canvas').position().left }}$) + 100, ${{ $('#jspe-dialog-canvas').height()+15 }}$, true);
-
-
 proc prevSlide : buttonPrev_clicked {
-	if (!buttonPrev_clicked) {
-		return;
-	}
-
-	if (currentSlide > 2) {
+	if (buttonPrev_clicked) {
 		currentSlide--;
-	} else {
-		currentSlide = 1;
 	}
 }
 
 proc nextSlide : buttonNext_clicked {
-	if (!buttonNext_clicked) {
-		return;
-	}
-
-	if (currentSlide < slideList#) {
+	if (buttonNext_clicked) {
 		currentSlide++;
-	} else {
-		currentSlide = slideList#;
 	}
 }
 
 
 ## User interface elements.
-slideNumberLabel is Text(currentSlide // " of " // slideList#, jspeleft + 140, 10, {align: "centre"});
+buttonPrevEnabled is currentSlide > 1;
+buttonNextEnabled is currentSlide < slideList#;
 
+buttonPrev is SlideButton("buttonPrev","Previous Slide", jspeleft, 4, buttonPrevEnabled);
+slideNumberLabel is Text(currentSlide // " of " // slideList#, jspeleft + 140, 10, {align: "centre"});
+buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 170, 4, buttonNextEnabled);
 
 textIncrease is SlideButton("buttonTextIncrease", "Font++", jspeleft + 345, 4, true);
 textDecrease is SlideButton("buttonTextDecrease", "Font--", jspeleft + 278, 4, true);
+
+## buttonSave = SlideButton("buttonSave","Add Slide", int(${{ $('#jspe-dialog-canvas').position().left }}$) + 100, ${{ $('#jspe-dialog-canvas').height()+15 }}$, true);
 
 slides is [buttonPrev, slideNumberLabel, buttonNext, slideList[currentSlide], textIncrease, textDecrease];
 
@@ -207,17 +191,15 @@ bindCSSNumericProperty("#jspe_slide", "font-size", "jspeFontSize", "pt");
 jspeFontSize = 11;
 
 proc increaseText : buttonTextIncrease_clicked{
-	if(!buttonTextIncrease_clicked){
-		return;
+	if (buttonTextIncrease_clicked) {
+		jspeFontSize++;
 	}
-	jspeFontSize++;
 }
 
 proc decreaseText : buttonTextDecrease_clicked{
-	if(!buttonTextDecrease_clicked){
-		return;
+	if(buttonTextDecrease_clicked) {
+		jspeFontSize--;
 	}
-	jspeFontSize--;
 }
 
 if (currentSlide == @) {

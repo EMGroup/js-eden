@@ -889,7 +889,8 @@
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[enabled": "Boolean for button enabled",
-				"[background_colour]]": "Background colour of the button"
+				"[fill_colour": "Background colour of the button",
+				"[text_colour]]]": "Colour of the text written on the button"
 			},
 			"return": "Button object",
 			"description": "Creates a button element for display on the canvas"

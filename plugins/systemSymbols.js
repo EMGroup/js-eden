@@ -23,6 +23,8 @@ Eden.systemObservableNames = {
 	"screenHeight": true,
 	"screenWidth": true,
 	"touchScrollX": true,
+	"_views_frame_width": true,
+	"_views_frame_height": true,
 };
 
 Eden.systemAgentNames = {

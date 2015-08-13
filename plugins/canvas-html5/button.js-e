@@ -10,20 +10,22 @@ ${{
 	var x = arguments[2];
 	var y = arguments[3];
 	var enabled = arguments[4];
-	var backgroundColour = arguments[5];
+	var fillcolour = arguments[5];
+	var textcolour = arguments[6];
 	if (enabled === undefined) enabled = true;
-	return new Button(name, label, x, y, enabled, backgroundColour);
+	return new Button(name, label, x, y, enabled, fillcolour, textcolour);
 }}$;
 }
 
 ${{
-	var Button = function (name, label, x, y, enabled, backgroundColour) {
+	var Button = function (name, label, x, y, enabled, fillcolour, textcolour) {
 		this.name = name;
 		this.label = label;
 		this.x = x;
 		this.y = y;
 		this.enabled = enabled;
-		this.backgroundColour = backgroundColour;
+		this.fillcolour = fillcolour;
+		this.textcolour = textcolour;
 	};
 
 	Button.prototype.hash = function () {
@@ -32,7 +34,8 @@ ${{
 					this.x+"$$"+
 					this.y+"$$"+
 					this.enabled+"$$"+
-					this.backgroundColour;
+					this.fillcolour+"$$"+
+					this.textcolour;
 	};
 
 	Button.prototype.draw = function (context) {
@@ -44,8 +47,11 @@ ${{
 			var inputHtml = '<input  type="button"' +
 				'value="' + this.label + '"' + disabled +
 				'style="position: absolute; ';
-			if (this.backgroundColour !== undefined) {
-				inputHtml = inputHtml + 'background-color: ' + this.backgroundColour + '; ';
+			if (this.fillcolour !== undefined) {
+				inputHtml = inputHtml + 'background-color: ' + this.fillcolour + '; ';
+			}
+			if (this.textcolour !== undefined) {
+				inputHtml = inputHtml + 'color: ' + this.textcolour + '; ';
 			}
 			inputHtml = inputHtml + '"/>';
 
@@ -73,13 +79,21 @@ ${{
 				button.disabled = true;
 			}
 
-			var backgroundColour = this.backgroundColour;
 			var style = button.style;
-			if (style.backgroundColor != backgroundColour) {
-				if (backgroundColour === undefined) {
+			var fillcolour = this.fillcolour;
+			if (style.backgroundColor != fillcolour) {
+				if (fillcolour === undefined) {
 					style.backgroundColor = "ButtonFace";
 				} else {
-					style.backgroundColor = backgroundColour;
+					style.backgroundColor = fillcolour;
+				}
+			}
+			var textcolour = this.textcolour;
+			if (style.color != textcolour) {
+				if (textcolour === undefined) {
+					style.color = "ButtonText";
+				} else {
+					style.color = textcolour;
 				}
 			}
 		}
