@@ -133,14 +133,26 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		code_entry.html(generateHTML());
 
 		$dialog = $('<div id="'+name+'"></div>')
-			.html(code_entry)
-			.dialog({
+			.html(code_entry);
+		var dialogMode = false;
+		if(!dialogMode){
+			$("#windowsArea").append($dialog);
+			$dialog.addClass("tileView");
+			$dialog.css({width:310,
+				height: 400,
+				minHeight: 120,
+				minWidth: 230,
+				overflow: "scroll"
+				});
+		}else{
+			$dialog.dialog({
 				title: mtitle,
 				width: 310,
 				height: 400,
 				minHeight: 120,
 				minWidth: 230
 			});
+		}
 
 		me.instances.push(code_entry[0]);
 		updateCollection(code_entry[0], "");

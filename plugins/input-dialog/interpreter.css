@@ -3,7 +3,6 @@
 	-o-tab-size: 2;
 	tab-size: 2;
 
-	position: absolute;
 	top: 0px;
 	bottom: 35px;
 	left: 1px;
@@ -22,13 +21,11 @@
 }
 
 .buttonsDiv {
-	position: absolute;
 	bottom: 2px;
 	right: 0px;
 }
 
 .subButtonsDiv{
-	position: absolute;
 	bottom: 2px;
 	left: 0px;
 }

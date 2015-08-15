@@ -239,6 +239,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	
 	this.createDialog = function (name, mtitle, pictureObs) {
 		//Remove -dialog name suffix.
+		 		
+		
+		console.log("Inside createDialog for " + name);
 		var displayedName = name.slice(0, -7);
 		var agent = root.lookup("createView");
 
@@ -528,9 +531,21 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 		});
 
-		$dialog = $('<div id="'+name+'"></div>')
-			.html(code_entry)
-			.dialog({
+		$dialog = $('<div id="'+name+'"></div>').html(code_entry);
+		//console.log($('<div>').append($dialog.clone()).html());
+		//console.log($dialog.parent().attr("id"));
+		
+		dialogMode = false;
+		if(!dialogMode){
+			$("#windowsArea").append($dialog);
+			$dialog.addClass("tileView");
+			$dialog.css({width:defaultWidth + edenUI.scrollBarYSize,
+				height: defaultHeight + edenUI.titleBarHeight,
+				minHeight: 120,
+				minWidth: 230
+				});
+		}else{
+			$dialog.dialog({
 				title: mtitle,
 				width: defaultWidth + edenUI.scrollBarYSize,
 				height: defaultHeight + edenUI.titleBarHeight,
@@ -538,6 +553,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				minWidth: 230,
 				dialogClass: "unpadded-dialog"
 			});
+			console.log($('<div>').append($dialog.clone()).html());
+			console.log($dialog.parent());
+		}
 		me.setPictureObs(displayedName, pictureObs);
 		return {
 			confirmClose: true,

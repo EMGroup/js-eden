@@ -152,14 +152,25 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		});
 		
 		$dialog = $('<div id="'+name+'"></div>')
-			.html($dialogContents)
-			.dialog({
+			.html($dialogContents);
+		var dialogMode = false;
+		if(!dialogMode){
+			$("#windowsArea").append($dialog);
+			$dialog.addClass("tileView");
+			$dialog.css({width:500,
+				height: 200,
+				minHeight: 200,
+				minWidth: 500
+				});
+		}else{
+			$dialog.dialog({
 				title: mtitle,
 				width: 500,
 				height: 200,
 				minHeight: 200,
 				minWidth: 500
 			});
+		}
 			input_dialog = $dialog;
 
 		var confirmClose = !("MenuBar" in edenUI.plugins);

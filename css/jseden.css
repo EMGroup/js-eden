@@ -342,3 +342,11 @@ div.obs_inspector {
 div.history-error {
 	color: red;
 }
+
+.tileView{
+	border: dashed blue;
+}
+#windowsArea{
+	width:100%;
+	height:100%;
+}
