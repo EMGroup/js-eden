@@ -39,7 +39,7 @@
 
 \s+                   /* skip whitespace */
 "@"                   return 'UNDEFINED'
-[0-9]+("."[0-9]+)?\b  return 'NUMBER'
+(([0-9]+("."[0-9]*)?)|("."[0-9]+))([eE]("+"|"-")?[0-9]+)?\b  return 'NUMBER'
 "0x"[0-9a-fA-F]+\b    return 'NUMBER'
 "Infinity"            return 'NUMBER'
 "true"                return 'BOOLEAN'

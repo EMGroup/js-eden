@@ -114,7 +114,9 @@ func str {
 		return @;		
 	}
 
-	if (isString(v)) {
+	if (v == @) {
+		return "undefined";
+	} else if (isString(v)) {
 		return v;
 	} else {
 		return edenCode(v);

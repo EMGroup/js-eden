@@ -150,6 +150,7 @@ Eden.systemFunctionNames = {
 	"isPointer": true,
 	"isProc": true,
 	"isString": true,
+	"ln": true,
 	"log": true,
 	"lookup": true,
 	"lowercase": true,
@@ -204,17 +205,30 @@ Eden.systemFunctionNames = {
 Eden.symbolCategories = {};
 Eden.symbolCategories["Canvas 2D"] = {
 	obs: {
+		"_menubar_status": true,
+		"_view_picture_background_colour": true,
+		"_view_picture_scale": true,
+		"_view_picture_title": true,
+		"_view_picture_width": true,
+		"_view_picture_height": true,
+		"menus": true,
 		"mouseButton": true,
 		"mouseButtons": true,
+		"mouseCapture": true,
 		"mouseCaptured": true,
+		"mouseContextMenuEnabled": true,
 		"mouseDoubleClicks": true,
 		"mouseDown": true,
 		"mouseDownWindow": true,
+		"mouseFollow": true,
 		"mousePosition": true,
 		"mousePressed": true,
 		"mouseUp": true,
 		"mouseWheel": true,
 		"mouseWindow": true,
+		"mouseX": true,
+		"mouseY": true,
+		"picture": true,
 		"touchScrollX": true,
 	},
 	agent: {
@@ -224,11 +238,13 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"bindCSSRule": true,
 		"createCanvas": true,
 		"destroyView": true,
+		"include_css": true,
 		"unbind": true,
 	},
 	func: {
 		"Arc": true,
 		"Button": true,
+		"canvasURL": true,
 		"Checkbox": true,
 		"Circle": true,
 		"Combobox": true,
@@ -236,8 +252,10 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"Ellipse": true,
 		"FillPattern": true,
 		"GreyPixelList": true,
+		"hsl2colour": true,
 		"HTMLImage": true,
 		"Image": true,
+		"imageWithZones": true,
 		"Line": true,
 		"LinearGradient": true,
 		"LineSequence": true,
@@ -251,19 +269,15 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"RadioButtons": true,
 		"Rectangle": true,
 		"RegularPolygon": true,
+		"rgb2colour": true,
 		"RoundedRectangle": true,
 		"Sector": true,
 		"Shadow": true,
 		"Slider": true,
 		"Text": true,
 		"Textbox": true,
-		"Video": true,
-		"canvasURL": true,
-		"hsl2colour": true,
-		"imageWithZones": true,
-		"include_css": true,
-		"rgb2colour": true,
 		"textWidth": true,
+		"Video": true,
 	}
 };
 
@@ -286,4 +300,29 @@ Eden.isitSystemAgent = function(name){
 }
 Eden.isitSystemFunction = function(name) {
 	return name in Eden.systemFunctionNames;
+}
+
+Eden.isitCategory = function (name, category, type) {
+	var categoryData = Eden.symbolCategories[category];
+	if (type == "all") {
+		return ("obs" in categoryData && name in categoryData.obs) ||
+			("agent" in categoryData && name in categoryData.agent) ||
+			("func" in categoryData && name in categoryData.func);
+	} else {
+		return type in categoryData && name in categoryData[type];
+	}
+}
+
+Eden.getSymbolCategories = function (type) {
+	if (type == "all") {
+		return Object.keys(Eden.symbolCategories);
+	} else {
+		var applicableCategories = [];
+		for (var category in Eden.symbolCategories) {
+			if (type in Eden.symbolCategories[category]) {
+				applicableCategories.push(category);
+			}
+		}
+		return applicableCategories;
+	}
 }

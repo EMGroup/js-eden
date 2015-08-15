@@ -762,7 +762,7 @@ function concatAndResolveUrl(url, concat) {
 	 * func f  { para x; return x + y; }
 	 * z is f(a);
 	 */
-	Eden.prototype.parsingOptions = {trackObservableRefsInFuncs: true};
+	Eden.prototype.parsingOptions = {trackObservableRefsInFuncs: false};
 	
 	/**
 	 * This function sets up a bunch of state/functions used in the generated parser. The

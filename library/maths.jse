@@ -112,8 +112,33 @@ func floor {
 
 roundDown is floor;
 
-func log {
+func ln {
   return ${{ Math.log(arguments[0]); }}$;
+}
+
+func log {
+	${{
+		var number = arguments[0];
+		var base;
+		if (arguments.length == 1) {
+			base = 10;
+		} else if (arguments.length != 2) {
+			eden.error(new Error("log: The function requires at least one argument and at most two arguments."), "error");
+			return undefined;
+		} else {
+			base = arguments[1];
+		}
+
+		if (number === undefined || base === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("log: The first argument must be a number, not a " + typeof(number)), "error");
+		} else if (typeof(base) != "number") {
+			eden.error(new Error("log: The second argument must be a number, not a " + typeof(base)), "error");
+		}
+
+		return Math.log(number) / Math.log(base);
+	}}$;
 }
 
 ##The same remarks apply as for min, mutatis mutandis.

@@ -41,17 +41,22 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			<div class=\"symbollist-search-box-outer\"> \
 				<input type=\"text\" class=\"symbollist-search symbollist-control\" placeholder=\"search\" /> \
 				<a class=\"symbollist-edit symbollist-control symbollist-rightmost-control\">Edit Listed</a><br/> \
-				<select id=\"" + viewName + "-system-filter\" class=\"symbollist-control\"> \
-					<option value=\"user\">Construal</option> \
-					<option value=\"system\">System Library</option> \
-					<option value=\"both\">All Sources</option> \
+				<select id=\"" + viewName + "-category-filter\" class=\"symbollist-control\"> \
+					<option value=\"user\">Construal</option>";
+
+		var categories = Eden.getSymbolCategories(viewType);
+		for (var i = 0; i < categories.length; i++) {
+			html = html + "<option value=\"" + categories[i] + "\">" + categories[i] + "</option>";
+		}
+		html = html+"<option value=\"system\">Complete Library</option> \
+					<option value=\"all\">All Sources</option> \
 				</select>";
 		if (viewType == "obs") {
 			html = html + "\
 				<select id=\"" + viewName + "-type-filter\" class=\"symbollist-control symbollist-rightmost-control\"> \
 					<option value=\"formulas\">Dependencies</option>\
 					<option value=\"vars\">Base Observables</option>\
-					<option value=\"both\" selected=\"selected\">All Kinds</option>\
+					<option value=\"all\" selected=\"selected\">All Kinds</option>\
 				</select>";
 		}
 		html = html + "\
@@ -119,7 +124,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		});
 		var searchBoxElem = searchBox.get(0);
 
-		document.getElementById(name + "-system-filter").addEventListener("change", function (event) {
+		document.getElementById(name + "-category-filter").addEventListener("change", function (event) {
 			symbollist.search(searchBoxElem.value, event.target.value);
 		});
 
@@ -266,8 +271,9 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
 	this.root = root;
 	this.regExp = new RegExp("");
 	this.type = type;
-	this.showSystem = "user"; // Show "user" defined, "system" defined or "both"
-	this.subtypes = "both";   // Show "formulas", "vars" or "both"
+	this.category = "user"; // Show "user" defined, "system" defined, a custom category name or "all"
+	this.customCategory = false;
+	this.subtypes = "all";   // Show "formulas", "vars" or "all"
 	this.symresults = element;
 	this.symbols = {};
 };
@@ -277,10 +283,11 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
  *
  * @param pattern A regular expression for symbol names.
  */
-EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (pattern, showSystem, subtypes) {
+EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (pattern, category, subtypes) {
 	this.regExp = new RegExp("^(" + pattern + ")", "i");
-	if (showSystem !== undefined) {
-		this.showSystem = showSystem;
+	if (category !== undefined) {
+		this.category = category;
+		this.customCategory = (category != "user" && category != "system" && category != "all");
 	}
 	if (subtypes !== undefined) {
 		this.subtypes = subtypes;;
@@ -323,11 +330,16 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 	if (!this.regExp.test(name)) {
 		return;
 	}
-	if (Eden.isitSystemSymbol(name)) {
-		if (this.showSystem == "user") {
+
+	if (this.customCategory) {
+		if (!Eden.isitCategory(name, this.category, this.type)) {
 			return;
 		}
-	} else if (this.showSystem == "system") {
+	} else if (Eden.isitSystemSymbol(name)) {
+		if (this.category == "user") {
+			return;
+		}
+	} else if (this.category == "system") {
 		return;
 	}
 	if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {

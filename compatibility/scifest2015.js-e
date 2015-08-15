@@ -4,4 +4,28 @@
 ##changes made to the environment subsequent to the SciFest 2015 event at Joensuu (21-27 April 2015)
 ##but before the next major JS-EDEN release.
 
-option trackObservableRefsInFuncs = false;
+##Default to base e instead of base 10.
+func log {
+	${{
+		var number = arguments[0];
+		var base = arguments[1];
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("log: The function requires at least one argument and at most two arguments."), "error");
+			return undefined;
+		}
+
+		if (number === undefined || (arguments.length == 2 && base === undefined)) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("log: The first argument must be a number, not a " + typeof(number)), "error");
+		} else if (base !== undefined && typeof(base) != "number") {
+			eden.error(new Error("log: The second argument must be a number, not a " + typeof(base)), "error");
+		}
+
+		if (base === undefined) {
+			return Math.log(number);
+		} else {
+			return Math.log(number) / Math.log(base);
+		}
+	}}$;
+}
