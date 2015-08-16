@@ -123,10 +123,10 @@ Div.prototype.draw = function(context) {
 Div.prototype.scale = function (scale) {
 	var style = this.elements[0].style;
 	if (typeof(this.x) == "number") {
-		style.left = Math.round(this.x * scale) + "px";
+		style.left = Math.round(this.x * scale + origin.x) + "px";
 	}
 	if (typeof(this.y) == "number") {
-		style.top = Math.round(this.y * scale) + "px";
+		style.top = Math.round(this.y * scale + origin.y) + "px";
 	}
 	if (typeof(this.width) == "number") {
 		style.width = Math.round(this.width * scale) + "px";

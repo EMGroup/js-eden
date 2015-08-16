@@ -26,6 +26,10 @@ func Rectangle { ${{
 		outlinecolour = "black";
 	}
 	var drawingOptions = arguments[6];
+	if (typeof(drawingOptions) == "object" && !("join" in drawingOptions) &&
+		drawingOptions.lineWidth < 10) { //Bug in Chrome v44, shape isn't drawn when miter join is used with larger line widths.
+		drawingOptions.join = "miter"
+	}
 	return new Rectangle(x, y, width, height, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 

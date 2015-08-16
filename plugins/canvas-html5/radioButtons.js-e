@@ -89,8 +89,8 @@ RadioButtons.prototype.draw = function (context) {
 
 RadioButtons.prototype.scale = function (scale) {
 	var style = this.elements[0].style;
-	style.left = Math.round(this.x * scale) + "px";
-	style.top = Math.round(this.y * scale) + "px";
+	style.left = Math.round(this.x * scale + origin.x) + "px";
+	style.top = Math.round(this.y * scale + origin.y) + "px";
 };
 
 RadioButtons.prototype.toString = function() {

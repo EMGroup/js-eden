@@ -205,8 +205,8 @@ Eden.systemFunctionNames = {
 Eden.symbolCategories = {};
 Eden.symbolCategories["Canvas 2D"] = {
 	obs: {
-		"_menubar_status": true,
 		"_view_picture_background_colour": true,
+		"_view_picture_offset": true,
 		"_view_picture_scale": true,
 		"_view_picture_title": true,
 		"_view_picture_width": true,
@@ -287,7 +287,7 @@ Eden.isitSystemSymbol = function(name){
 }
 
 Eden.isitSystemObservable = function(name) {
-	if (/^_view_/.test(name) && !/_(background_colour|scale)$/.test(name)) {
+	if (/^_view_/.test(name) && !/_(background_colour|offset|scale)$/.test(name)) {
 	  return true;
 	}
 	return name in Eden.systemObservableNames;

@@ -179,8 +179,8 @@ HTMLImage.prototype.draw = function(context) {
 HTMLImage.prototype.scale = function (scale) {
 	var imageElem = this.elements[0];
 	var style = imageElem.style;
-	style.left = Math.round(this.x * scale) + "px";
-	style.top = Math.round(this.y * scale) + "px";
+	style.left = Math.round(this.x * scale + origin.x) + "px";
+	style.top = Math.round(this.y * scale + origin.y) + "px";
 	imageElem.width = Math.round(this.scaledWidth * scale / this.scaleFactor);
 	imageElem.height = Math.round(this.scaledHeight * scale / this.scaleFactor);
 };

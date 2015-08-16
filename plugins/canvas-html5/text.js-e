@@ -243,8 +243,8 @@ func textWidth {
 		
 		var context = canvas.getContext("2d");
 		context.save();
-		edenUI.plugins.Canvas2D.configureContextDefaults(context);
-		edenUI.plugins.Canvas2D.configureContext(context, optionsObj);
+		edenUI.plugins.Canvas2D.configureContextDefaults(context, 1);
+		edenUI.plugins.Canvas2D.configureContext(context, 1, optionsObj);
 		context.font = css;
 		context.textBaseline = "top";
 		var metrics = context.measureText(text);
