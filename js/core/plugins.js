@@ -164,7 +164,10 @@
 		console.log("Parent is " + $("#" + name + "-dialog").parent().attr("id"));
 		console.log("Before diag = dialog(" + name + ")");
 		var diag = dialog(name);
+		var $aHandle = $("<div class='tileHandle'>Move 123</div>");
 		
+		diag.prepend($aHandle);
+		diag.draggable({handle: ".tileHandle"}).resizable();
 		/* Initialize observables
 		 * _view_xxx_width and _view_xxx_height are the width and height respectively of the usable
 		 * client window area.  They don't include the space reserved for the title bar, scroll bars
@@ -396,20 +399,22 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.resizeView = function (name) {
+		console.log("Resized");
 		var diag = dialog(name);
-		var oldWidth = diag.dialog("option", "width");
-		var oldHeight = diag.dialog("option", "height");
+		
+		var oldWidth = diag.width();
+		var oldHeight = diag.height();
 		var newWidth = view(name, 'width').value();
 		var newHeight = view(name, 'height').value();
 		var resized = false;
 
 		if (newWidth != oldWidth) {
-			diag.dialog("option", "width", newWidth + this.scrollBarYSize);
+//			diag.dialog("option", "width", newWidth + this.scrollBarYSize);
 			resized = true;
 		}
 
 		if (newHeight != oldHeight) {
-			diag.dialog("option", "height", newHeight + this.titleBarHeight);
+	//		diag.dialog("option", "height", newHeight + this.titleBarHeight);
 			resized = true;
 		}
 
