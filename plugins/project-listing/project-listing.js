@@ -129,7 +129,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 	/** @public */
 	this.createDialog = function(name,mtitle) {
-		code_entry = $('<div></div>');
+		code_entry = $('<div style=\"overflow: auto; height: 100%;\"></div>');
 		code_entry.html(generateHTML());
 
 		$dialog = $('<div id="'+name+'"></div>')
@@ -141,8 +141,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 			$dialog.css({width:310,
 				height: 400,
 				minHeight: 120,
-				minWidth: 230,
-				overflow: "scroll"
+				minWidth: 230
 				});
 		}else{
 			$dialog.dialog({

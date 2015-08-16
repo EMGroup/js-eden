@@ -75,21 +75,32 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 */
 	this.createDialog = function (name, mtitle, type) {
 		var edenName = name.slice(0, -7);
-		var code_entry = $('<div></div>');
+		var code_entry = $('<div style=\"overflow: auto; height: 100%;\"></div>');
 		code_entry.html(generateHTML(name, type));
 		var symbollist = new EdenUI.plugins.SymbolViewer.SymbolList(
 			edenUI.eden.root, code_entry.find(".symbollist-results")[0], type
 		);
 
 		$dialog = $('<div id="'+name+'"></div>')
-			.html(code_entry)
-			.dialog({
+			.html(code_entry);
+		var dialogMode = false;
+		if(!dialogMode){
+			$("#windowsArea").append($dialog);
+			$dialog.addClass("tileView");
+			$dialog.css({width:360,
+				height: 400,
+				minHeight: 200,
+				minWidth: 200
+				});
+		}else{
+			$dialog.dialog({
 				title: mtitle,
 				width: 360,
 				height: 400,
 				minHeight: 200,
 				minWidth: 200,
 			});
+		}
 
 		me.instances.push(symbollist);
 		symbollist.search("");

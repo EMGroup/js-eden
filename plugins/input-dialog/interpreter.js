@@ -125,7 +125,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createDialog = function (name, mtitle) {
-		var $dialogContents = $('<div class="inputCodeArea"><textarea spellcheck="false"></textarea></div><div class="subButtonsDiv"><button class="submitButton">Submit</button></div><div class="buttonsDiv"><button class="previousButton">Previous</button><button class="nextButton">Next</button></div>')
+		var $dialogContents = $('<div class="inputCodeArea"><textarea spellcheck="false"></textarea></div>'
+				+ '<div class="buttonsDiv"><button class="nextButton">Next</button><button class="previousButton">Previous</button><button class="submitButton">Submit</button></div>')
 			
 		var textarea = $dialogContents.find('textarea').get(0);
 		$dialogContents.on('keydown', 'textarea', function (e) {

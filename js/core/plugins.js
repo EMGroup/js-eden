@@ -157,10 +157,14 @@
 		this.activeDialogs[name] = type;
 		this.emit('createView', [name, type]);
 		var diag = dialog(name);
-		var $aHandle = $("<div class='tileHandle'>" + title + "</div>");
+		var $aHandle = $("<div class='tileHandle'>" + title + "<span class=\"closeTile\"><span class=\"ui-icon ui-icon-closethick\"></span></span><span class=\"maximiseTile\"><span class=\"ui-icon ui-icon-extlink\"></span></span><span class=\"minimiseTile\"><span class=\"ui-icon ui-icon-minus\"></span></span></div>");
 		
 		diag.prepend($aHandle);
-		diag.draggable({handle: ".tileHandle"}).resizable();
+		diag.draggable({handle: ".tileHandle", stop: function(ev,ui){
+			diag.trigger("tiledragstop",ev,ui);
+		}}).resizable({stop: function(ev,ui){
+			diag.trigger("tileresizestop",ev,ui);
+		}});
 		/* Initialize observables
 		 * _view_xxx_width and _view_xxx_height are the width and height respectively of the usable
 		 * client window area.  They don't include the space reserved for the title bar, scroll bars
@@ -218,7 +222,45 @@
 				autocalcSym.assign(1, Symbol.hciAgent);
 			}
 		});
+		
+		diag.on("tileresizestop", function (event, ui) {
+			var root = me.eden.root;
+			var autocalcSym = root.lookup("autocalc");
+			var autocalcOnEntry = autocalcSym.value();
+			if (autocalcOnEntry) {
+				autocalcSym.assign(0, Symbol.hciAgent);
+			}
+			view(name, 'width').assign($(event.target).width() - me.scrollBarYSize, Symbol.hciAgent);
+			view(name, 'height').assign($(event.target).height() - me.titleBarHeight + 6, Symbol.hciAgent);
 
+			var xSym = view(name, "x");
+			if (xSym.value() != $(event.target).offset().left) {
+				xSym.assign($(event.target).offset().left, Symbol.hciAgent);
+			}
+			var ySym = view(name, "y");
+			var possibleNewY = $(event.target).offset().top - desktopTop;
+			if (ySym.value() != possibleNewY) {
+				ySym.assign(possibleNewY, Symbol.hciAgent);
+			}
+
+			if (autocalcOnEntry) {
+				autocalcSym.assign(1, Symbol.hciAgent);
+			}
+		});
+
+		diag.on("tiledragstop", function(event){
+			var root = me.eden.root;
+			var autocalcSym = root.lookup("autocalc");
+			var autocalcOnEntry = autocalcSym.value();
+			if (autocalcOnEntry) {
+				autocalcSym.assign(0, Symbol.hciAgent);
+			}
+			view(name, 'x').assign($(event.target).offset().left, Symbol.hciAgent);
+			view(name, 'y').assign($(event.target).offset().top - desktopTop, Symbol.hciAgent);
+			if (autocalcOnEntry) {
+				autocalcSym.assign(1, Symbol.hciAgent);
+			}
+		});
 		diag.on("dialogdragstop", function (event, ui) {
 			var root = me.eden.root;
 			var autocalcSym = root.lookup("autocalc");

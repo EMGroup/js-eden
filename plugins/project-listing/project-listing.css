@@ -15,7 +15,9 @@
 	font-size: 8pt;
 	background-color: #eaeaea;
 }
-
+.projectlist-listing{
+	overflow: auto;
+}
 .projectlist-search {
 	/*position: absolute;
 	left: 0px;
