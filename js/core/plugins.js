@@ -165,6 +165,11 @@
 		}}).resizable({stop: function(ev,ui){
 			diag.trigger("tileresizestop",ev,ui);
 		}});
+		
+		diag.find(".closeTile").click(function(){
+			me.closeView(name);
+		});
+		
 		/* Initialize observables
 		 * _view_xxx_width and _view_xxx_height are the width and height respectively of the usable
 		 * client window area.  They don't include the space reserved for the title bar, scroll bars
@@ -340,7 +345,8 @@
 			this.viewInstances[name].destroy();
 		}
 		var theDialog = dialog(name);
-		theDialog.dialog('destroy');
+		console.log("Trying to delete ");
+		console.log(theDialog);
 		theDialog.remove();
 		theDialog.html("");
 		delete this.activeDialogs[name];
