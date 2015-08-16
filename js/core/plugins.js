@@ -86,8 +86,6 @@
 	 * by the particular plug-in. (optional)
 	 */
 	EdenUI.prototype.createView = function (name, type, initData) {
-		console.log("When constructing " + name + " windowsArea is ");
-		console.log($("#windowsArea").offset());
 		if (!(type in this.views)) {
 			this.eden.error(new Error("View type " + type + " is unavailable.  Check that the associated plug-in is loaded."));
 			return;
@@ -106,6 +104,7 @@
 		var desktopTop = this.plugins.MenuBar? this.menuBarHeight : 0;
 		var title = this.views[type].title;
 		var viewData = this.views[type].dialog(name + "-dialog", title, initData);
+		$("#windowsArea").freetile();
 		if (viewData === undefined) {
 			viewData = {};
 		}
@@ -120,12 +119,8 @@
 		} else {
 			titleBarAction = "maximize";
 		}
-		
 /*		dialog(name)
 		.dialog({
-			closeOnEscape: false,
-			draggable: true,
-			position: position,
 			beforeClose: function () {
 				if (viewData.closing) {
 					viewData.closing = false;
@@ -161,10 +156,8 @@
 		});*/
 		this.activeDialogs[name] = type;
 		this.emit('createView', [name, type]);
-		console.log("Parent is " + $("#" + name + "-dialog").parent().attr("id"));
-		console.log("Before diag = dialog(" + name + ")");
 		var diag = dialog(name);
-		var $aHandle = $("<div class='tileHandle'>Move 123</div>");
+		var $aHandle = $("<div class='tileHandle'>" + title + "</div>");
 		
 		diag.prepend($aHandle);
 		diag.draggable({handle: ".tileHandle"}).resizable();
@@ -176,10 +169,9 @@
 		 *   _view_b_x = _view_a_x + _view_a_width;
 		 * will position the windows with a slight overlap, though no information will be hidden.
 		 */
-//		view(name, 'width').assign(diag.dialog("option", "width") - this.scrollBarYSize, agent);
-//		view(name, 'height').assign(diag.dialog("option", "height") - this.titleBarHeight, agent);
-		var topLeft = diag.closest('.ui-dialog').offset();
-		var topLeft = $("#" + name + "-dialog").offset();
+		view(name, 'width').assign(diag.width() - this.scrollBarYSize, agent);
+		view(name, 'height').assign(diag.height() - this.titleBarHeight, agent);
+		var topLeft = diag.offset();
 		view(name, 'x').assign(topLeft.left, agent);
 		view(name, 'y').assign(topLeft.top - desktopTop, agent);
 
@@ -187,6 +179,7 @@
 		var titleSym = view(name, "title");
 		titleSym.addJSObserver("updateTitleBar", function (symbol, value) {
 //			diag.dialog("option", "title", value);
+			
 			me.plugins.MenuBar.updateViewsMenu();
 		});
 		titleSym.assign(title, agent);
@@ -257,13 +250,8 @@
 
 			return code;
 		}
-		console.log("Near end of function, windowsArea is :");
-		console.log($("#windowsArea").offset());
-		console.log("Eden code is " + viewEdenCode());
 		// Now construct eden agents and observables for dialog control.
 		this.eden.execute(viewEdenCode());
-		console.log("At end of function, windowsArea is :");
-		console.log($("#windowsArea").offset());
 		return viewData;
 	};
 
