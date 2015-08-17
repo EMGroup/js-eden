@@ -62,7 +62,9 @@ Sector.prototype.draw = function (context) {
 	}
 
 	var radius;
-	if (this.drawingOptions !== undefined && this.drawingOptions.lineWidth % 2 == 1) {
+	if (this.outlinecolour === undefined) {
+		radius = this.r;
+	} else if (this.drawingOptions !== undefined && this.drawingOptions.lineWidth % 2 == 1) {
 		var scale = this.drawingOptions.lineWidth / context.lineWidth;
 		context.translate(0.5 / scale, 0.5 / scale);
 		radius = this.r - 0.5 * context.lineWidth + 0.5 / scale;

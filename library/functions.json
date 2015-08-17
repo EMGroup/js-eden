@@ -964,6 +964,18 @@
 			"return": "Image object",
 			"description": "Creates a HTML image element for display on the canvas above the geometric shapes.  Doesn't taint the canvas."
 		},
+		"RadioButtons": {
+			"parameters": {
+				"name": "for [name]_clicked",
+				"options": "A list of strings providing the options",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"[enabled": "Boolean for combobox enabled",
+				"[is_horizontal]]": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"Slider": {
 			"parameters": {
 				"name": "",

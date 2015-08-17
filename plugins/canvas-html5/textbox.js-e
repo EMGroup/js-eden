@@ -72,16 +72,17 @@ Textbox.prototype.draw = function(context) {
   }
 };
 
-Textbox.prototype.scale = function (scale) {
+Textbox.prototype.scale = function (scale, zoom, origin) {
 	var style = this.elements[0].style;
 	style.left = Math.round(this.x * scale + origin.x) + "px";
 	style.top = Math.round(this.y * scale + origin.y) + "px";
-	style.width = Math.round(this.width * scale) + "px";
-	var rows = Math.floor(Math.round(this.height * scale - 6) / 20);	//See css/eden.css
+	style.width = Math.round(this.width * scale - 6) + "px";
+	var rows = Math.floor(Math.round(this.height * scale - 6) / (23.275 * zoom));	//See css/eden.css
 	if (rows == 0) {
 		rows = 1;
 	}
-	style.height = (rows * 20) + "px";
+	style.height = (rows * 20.275 * zoom) + "px";
+	style.fontSize = (13.3 * zoom) + "px";
 };
 
 Textbox.prototype.toString = function() {

@@ -112,7 +112,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			if (symbol.last_modified_by == "include" || symbol.last_modified_by == "system" || symbol.last_modified_by == "createView") {
 				continue;
 			}
-			if (/^(autocalc|picture|randomIndex|randomGeneratorState)$/.test(name)) {
+			if (/^(autocalc|picture|randomIndex|randomGeneratorState|screenWidth|screenHeight)$/.test(name)) {
 				continue;
 			}
 			if (/^(mouse|touch)[A-Z]/.test(name) && Eden.isitSystemObservable(name)) {

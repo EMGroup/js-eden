@@ -87,7 +87,7 @@ Slide.prototype.draw = function(context) {
 		}
 	);
 
-	var divstyle = "position: absolute; text-align: justify; line-height: 1.75; top: 35px; ";
+	var divstyle = "position: absolute; text-align: justify; top: 35px; ";
 	divstyle = divstyle + "left: " + leftRightMargin + "px";
 	var divJQ = $("<div id=\"" + id + "\" style=\"" + divstyle + "\">" + content + "</div>");
 	this.elements = [divJQ.get(0)];
@@ -341,7 +341,7 @@ func BulletSlide {
 					if (lists# == 1) {
 						slideHTML = slideHTML // "margin-bottom: 7pt;";
 					}
-					slideHTML = slideHTML // "line-height: 150%\">" // currentItem;
+					slideHTML = slideHTML // "\">" // currentItem;
 				} else if (isList(currentItem)) {
 					if (currentItem# > 0) {
 						##Begin a nested list.

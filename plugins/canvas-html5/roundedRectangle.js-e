@@ -34,7 +34,12 @@ func RoundedRectangle { ${{
 ${{
 
 RoundedRectangle.prototype.draw = function (context) {
-	var halfLineWidth = context.lineWidth / 2;
+	var halfLineWidth;
+	if (this.outlinecolour !== undefined) {
+		halfLineWidth = context.lineWidth / 2;
+	} else {
+		halfLineWidth = 0;
+	}
 	var x1 = this.x1 + halfLineWidth;
 	var x2 = this.x2 - halfLineWidth;
 	var y1 = this.y1 + halfLineWidth;

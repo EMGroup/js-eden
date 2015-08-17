@@ -99,10 +99,11 @@ ${{
 		}
 	};
 
-	Button.prototype.scale = function (scale, origin) {
+	Button.prototype.scale = function (scale, zoom, origin) {
 		var style = this.elements[0].style;
 		style.left = Math.round(this.x * scale + origin.x) + "px";
 		style.top = Math.round(this.y * scale + origin.y) + "px";
+		style.fontSize = zoom + "em";
 	};
 	
 	Button.prototype.toString = function () {

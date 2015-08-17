@@ -21,10 +21,20 @@ h2, ul li {
 .canvashtml-content {
 	/* See Textbox.prototype.scale in plugins/textbox.js-e */
 	font-size: 13.3px;
-	line-height: 20px;
+	line-height: 1.75;
 }
 
-textarea.canvashtml-content {
+.canvashtml-content input {
+	margin: 0px;
+	padding: 0px;
+}
+
+.canvashtml-content select {
+	margin: 0px;
+	padding: 0px;
+}
+
+.canvashtml-content textarea {
 	/* See Textbox.prototype.scale in plugins/textbox.js-e */
 	border: 1px solid;
 	margin: 0px;

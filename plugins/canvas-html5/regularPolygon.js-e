@@ -9,7 +9,10 @@ ${{
 		this.rotation = rotation;
 		this.fillcolour = fillcolour;
 		this.outlinecolours = outlinecolours;
-		this.drawingOptions = drawingOptions;		
+		this.drawingOptions = drawingOptions;
+		if (this.outlinecolours === undefined) {
+			this.calculatePolygons(0);
+		}
 	}
 
 	RegularPolygon.prototype.calculatePolygons = function (lineWidth) {
@@ -142,9 +145,14 @@ radiansPerUnit ~> [RegularPolygon];
 ${{
 RegularPolygon.prototype.draw = function (context) {
 	var lineWidth = context.lineWidth;
-	if (lineWidth !== this.cachedPolygonLineWidth) {
-		this.calculatePolygons(lineWidth);
-		this.cachedPolygonLineWidth = lineWidth;
+	if (!this.interiorOutline) {
+		lineWidth = lineWidth * 2;
+	}
+	if (this.outlinecolours !== undefined) {
+		if (lineWidth !== this.cachedPolygonLineWidth) {
+			this.calculatePolygons(lineWidth);
+			this.cachedPolygonLineWidth = lineWidth;
+		}
 	}
 
 	if (this.interiorOutline) {
@@ -155,11 +163,11 @@ RegularPolygon.prototype.draw = function (context) {
 			this.outlinePolygons[i].draw(context);
 		}
 	} else {
-		context.lineWidth = context.lineWidth * 2;
+		context.lineWidth = lineWidth;
 		for (var i = 0; i < this.outlinePolygons.length; i++) {
 			this.outlinePolygons[i].draw(context);
 		}
-		context.lineWidth = context.lineWidth / 2;
+		context.lineWidth = lineWidth / 2;
 		for (var i = 0; i < this.filledPolygons.length; i++) {
 			this.filledPolygons[i].draw(context);
 		}

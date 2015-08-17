@@ -176,7 +176,7 @@ HTMLImage.prototype.draw = function(context) {
   }
 };
 
-HTMLImage.prototype.scale = function (scale) {
+HTMLImage.prototype.scale = function (scale, zoom, origin) {
 	var imageElem = this.elements[0];
 	var style = imageElem.style;
 	style.left = Math.round(this.x * scale + origin.x) + "px";

@@ -33,23 +33,30 @@ ${{
 
 Ellipse.prototype.draw = function(context) {
 	var scaleFactor = this.yradius / this.xradius;
-	var scaleOutline = this.drawingOptions === undefined || this.drawingOptions.scaleOutline;
-	if (!scaleOutline) {
-		context.save();
+	var lineWidth, scaleOutline;
+	if (this.outlinecolour !== undefined) {
+		lineWidth = context.lineWidth;
+		scaleOutline = this.drawingOptions === undefined || this.drawingOptions.scaleOutline;
+		if (!scaleOutline) {
+			context.save();
+		}
+	} else {
+		lineWidth = 0;
 	}
+
 	context.scale(1, scaleFactor);
 	context.beginPath();
-	context.arc(this.x, this.y / scaleFactor, this.xradius - context.lineWidth / 2, 0, 2 * Math.PI, false);
+	context.arc(this.x, this.y / scaleFactor, this.xradius - lineWidth / 2, 0, 2 * Math.PI, false);
 	context.closePath();
  
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
 		context.fill();
 	}
-	if (!scaleOutline) {
-		context.restore();
-	}
 	if (this.outlinecolour !== undefined) {
+		if (!scaleOutline) {
+			context.restore();
+		}
 		context.strokeStyle = this.outlinecolour;
 		context.stroke();
 	}

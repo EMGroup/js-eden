@@ -13,6 +13,7 @@ mouseCaptured = false;
 mouseContextMenuEnabled = false;
 mouseDoubleClicks = 0;
 mouseFollow = false;
+mouseWheelEnabled = false;
 mouseWheel = 0;
 touchScrollX = 0;
 

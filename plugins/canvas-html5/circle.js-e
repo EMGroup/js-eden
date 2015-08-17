@@ -30,8 +30,14 @@ func Circle { ${{
 ${{
 
 Circle.prototype.draw = function(context) {
+	var lineWidth;
+	if (this.outlinecolour !== undefined) {
+		lineWidth = context.lineWidth;
+	} else {
+		lineWidth = 0;
+	}
 	context.beginPath();
-	context.arc(this.x, this.y, this.radius - context.lineWidth / 2, 0, 2 * Math.PI, false);
+	context.arc(this.x, this.y, this.radius - lineWidth / 2, 0, 2 * Math.PI, false);
 	context.closePath();
  
 	if (this.fillcolour !== undefined) {

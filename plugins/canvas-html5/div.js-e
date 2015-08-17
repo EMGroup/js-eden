@@ -95,6 +95,7 @@ Div.prototype.draw = function(context) {
 	}
 	divElement.style.cssText = divStyle;
 	divElement.innerHTML = this.html;
+	this.fontSizeSpecified = divElement.style.fontSize !== "";
 
 	//Create object properties that record the automatically generated width and/or height.
 	if (this.id !== undefined && (this.width === undefined || this.height === undefined)) {
@@ -120,7 +121,7 @@ Div.prototype.draw = function(context) {
   }
 };
 
-Div.prototype.scale = function (scale) {
+Div.prototype.scale = function (scale, zoom , origin) {
 	var style = this.elements[0].style;
 	if (typeof(this.x) == "number") {
 		style.left = Math.round(this.x * scale + origin.x) + "px";
@@ -133,6 +134,13 @@ Div.prototype.scale = function (scale) {
 	}
 	if (typeof(this.height) == "number") {
 		style.height = Math.round(this.height * scale) + "px";
+	}
+	if (!this.fontSizeSpecified) {
+		if (zoom == 1) {
+			style.fontSize = "";
+		} else {
+			style.fontSize = zoom + "em";
+		}
 	}
 };
 

@@ -29,7 +29,7 @@ func htmlBulletList {
 		} else {
 			item = str(item);
 		}
-		result = result // "<li style=\"margin-bottom: 7pt; line-height: 150%\">" // item // "</li>\n";
+		result = result // "<li style=\"margin-bottom: 7pt\">" // item // "</li>\n";
 	}
 	
 	result = result // "</ul>\n";
@@ -101,7 +101,7 @@ func htmlNumberedList {
 		} else {
 			item = str(item);
 		}
-		result = result // "<li style=\"margin-bottom: 7pt; line-height: 150%\">" // item // "</li>\n";
+		result = result // "<li style=\"margin-bottom: 7pt\">" // item // "</li>\n";
 	}
 	
 	result = result // "</ol>\n";

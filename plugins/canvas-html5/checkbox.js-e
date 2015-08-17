@@ -89,10 +89,13 @@ Checkbox.prototype.draw = function(context) {
 	}
 };
 
-Checkbox.prototype.scale = function (scale) {
+Checkbox.prototype.scale = function (scale, zoom, origin) {
 	var style = this.elements[0].style;
 	style.left = Math.round(this.x * scale + origin.x) + "px";
 	style.top = Math.round(this.y * scale + origin.y) + "px";
+	var checkboxSize = Math.round(13 * zoom) + "px";
+	style.width = checkboxSize;
+	style.height = checkboxSize;
 };
 
 Checkbox.prototype.toString = function() {

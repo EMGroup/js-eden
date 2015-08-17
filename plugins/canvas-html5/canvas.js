@@ -80,6 +80,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				  
 					var backgroundColour = root.lookup("_view_" + canvasname + "_background_colour").value();
 					var scale = root.lookup("_view_" + canvasname + "_scale").value();
+					var zoom = root.lookup("_view_" + canvasname + "_zoom").value();
+					var combinedScale = scale * zoom;
 					var origin = root.lookup("_view_" + canvasname + "_offset").value();
 					me.setFillStyle(context, backgroundColour);
 					content.parentElement.style.backgroundColor = backgroundColour;
@@ -88,7 +90,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					if (origin instanceof Point) {
 						context.translate(origin.x, origin.y);
 					}
-					context.scale(scale, scale);
+					context.scale(combinedScale, combinedScale);
 
 					//Configure JS-EDEN default options that are different from the HTML canvas defaults.
 					me.configureContextDefaults(context, scale);
@@ -138,9 +140,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 										copiedEl.push($(picture[i].elements[j]).clone(true, true).get(0));
 									}
 									picture[i].elements = copiedEl;
-									picture[i].scale(scale, origin);
+									picture[i].scale(combinedScale, zoom, origin);
 								} else if (!existingEl || canvas.rescale) {
-									picture[i].scale(scale, origin);
+									picture[i].scale(combinedScale, zoom, origin);
 								}
 							}
 							var htmlEl = picture[i].elements;
@@ -262,6 +264,14 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			document.getElementById(name + "-canvas").rescale = true;
 			me.drawPicture(displayedName, pictureObs);
 		});
+		var zoomSym = root.lookup("_view_" + displayedName + "_zoom");
+		if (zoomSym.value() === undefined) {
+		  zoomSym.assign(1, agent);
+		}
+		zoomSym.addJSObserver("repaintView", function (symbol, value) {
+			document.getElementById(name + "-canvas").rescale = true;
+			me.drawPicture(displayedName, pictureObs);
+		});
 		var offsetSym = root.lookup("_view_" + displayedName + "_offset");
 		if (offsetSym.value() === undefined) {
 		  offsetSym.assign(new Point(0, 0), agent);
@@ -272,7 +282,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		});
 
 		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');
-		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\"></canvas>");
+		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" tabindex=\"1\"></canvas>");
 		var jqCanvas = code_entry.find(".canvashtml-canvas");
 		jqCanvas.on("mousedown", function(e) {
 			var autocalcSym = root.lookup("autocalc");
@@ -422,8 +432,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			dblClickSym.assign(numClicks + 1, Symbol.hciAgent, followMouse);
 		
 		}).on("wheel", function (e) {
+			if (!root.lookup("mouseWheelEnabled").value()) {
+				return;
+			}
 			var e2 = e.originalEvent;
 			var followMouse = root.lookup("mouseFollow").value();
+			var direction;
 			if (e2.deltaY !== 0) {
 				if (!e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) {
 					e.preventDefault();
@@ -432,10 +446,13 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var mouseWheelValue = mouseWheelSym.value();
 					if (e2.deltaY < 0) {
 						mouseWheelValue--;
+						direction = "up";
 					} else {
 						mouseWheelValue++;
+						direction = "down";
 					}
 					mouseWheelSym.assign(mouseWheelValue, Symbol.hciAgent, followMouse);
+					root.lookup("mouseWheelDir").assign(direction, Symbol.hciAgent, followMouse);
 				}
 			}
 			if (e2.deltaX !== 0) {
@@ -445,10 +462,13 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				var touchScrollXValue = touchScrollXSym.value();
 				if (e2.deltaX < 0) {
 					touchScrollXValue--;
+					direction = "left";
 				} else {
 					touchScrollXValue++;
+					direction = "right";
 				}
 				touchScrollXSym.assign(touchScrollXValue, Symbol.hciAgent, followMouse);
+				root.lookup("touchScrollXDir").assign(direction, Symbol.hciAgent, followMouse);
 			}
 
 		}).on("mouseout", function (e) {
@@ -538,6 +558,21 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			root.lookup('mouseWindow').assign(displayedName, Symbol.hciAgent, followMouse);
 			mousePositionSym.assign(mousePos, Symbol.hciAgent, followMouse);
 			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
+
+		}).on("keyup", function (e) {
+			if (e.altKey) {
+				var keyCode = e.which;
+				if (keyCode == 187 || keyCode == 189) {
+					var zoomSym = root.lookup("_view_" + displayedName + "_zoom");
+					var zoom = zoomSym.value();
+					if (keyCode == 187) {
+						zoom = zoom * 1.25;
+					} else {
+						zoom = zoom / 1.25;
+					}
+					zoomSym.assign(zoom, Symbol.hciAgent);
+				}
+			}
 		});
 
 		$dialog = $('<div id="'+name+'"></div>')
