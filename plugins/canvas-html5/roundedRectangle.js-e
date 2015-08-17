@@ -34,16 +34,22 @@ func RoundedRectangle { ${{
 ${{
 
 RoundedRectangle.prototype.draw = function (context) {
+	var halfLineWidth = context.lineWidth / 2;
+	var x1 = this.x1 + halfLineWidth;
+	var x2 = this.x2 - halfLineWidth;
+	var y1 = this.y1 + halfLineWidth;
+	var y2 = this.y2 - halfLineWidth;
+	
 	context.beginPath();
-    context.moveTo(this.x1 + this.radius, this.y1);
-    context.lineTo(this.x2 - this.radius, this.y1);
-	context.arcTo(this.x2, this.y1, this.x2, this.y1 + this.radius, this.radius);
-	context.lineTo(this.x2, this.y2 - this.radius);
-	context.arcTo(this.x2, this.y2, this.x2 - this.radius, this.y2, this.radius);
-	context.lineTo(this.x1 + this.radius, this.y2);
-	context.arcTo(this.x1, this.y2, this.x1, this.y2 - this.radius, this.radius);
-	context.lineTo(this.x1, this.y1 + this.radius);
-	context.arcTo(this.x1, this.y1, this.x1 + this.radius, this.y1, this.radius);
+    context.moveTo(x1 + this.radius, y1);
+    context.lineTo(x2 - this.radius, y1);
+	context.arcTo(x2, y1, x2, y1 + this.radius, this.radius);
+	context.lineTo(x2, y2 - this.radius);
+	context.arcTo(x2, y2, x2 - this.radius, y2, this.radius);
+	context.lineTo(x1 + this.radius, y2);
+	context.arcTo(x1, y2, x1, y2 - this.radius, this.radius);
+	context.lineTo(x1, y1 + this.radius);
+	context.arcTo(x1, y1, x1 + this.radius, y1, this.radius);
 
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);

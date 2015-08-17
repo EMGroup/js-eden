@@ -31,7 +31,7 @@ ${{
 
 Circle.prototype.draw = function(context) {
 	context.beginPath();
-	context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
+	context.arc(this.x, this.y, this.radius - context.lineWidth / 2, 0, 2 * Math.PI, false);
 	context.closePath();
  
 	if (this.fillcolour !== undefined) {

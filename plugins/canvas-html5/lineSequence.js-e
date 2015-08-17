@@ -81,6 +81,11 @@ func LineSequence { ${{
 
 ${{
 LineSequence.prototype.draw = function(context) {
+	if (this.drawingOptions !== undefined && this.drawingOptions.lineWidth % 2 == 1) {
+		var scale = this.drawingOptions.lineWidth / context.lineWidth;
+		context.translate(0.5 / scale, 0.5 / scale);
+	}
+
 	context.beginPath();
 	context.moveTo(this.vertices[0].x, this.vertices[0].y);
 	

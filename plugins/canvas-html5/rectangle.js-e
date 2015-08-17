@@ -36,13 +36,14 @@ func Rectangle { ${{
 ${{
 
 Rectangle.prototype.draw = function (context) {
+	var lineWidth = context.lineWidth;
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
-		context.fillRect(this.x, this.y, this.width, this.height);
+		context.fillRect(this.x + lineWidth, this.y + lineWidth, this.width - 2 * lineWidth, this.height - 2 * lineWidth);
 	}
 	if (this.outlinecolour !== undefined) {
 		context.strokeStyle = this.outlinecolour;
-		context.strokeRect(this.x, this.y, this.width, this.height);
+		context.strokeRect(this.x + lineWidth / 2, this.y + lineWidth / 2, this.width - lineWidth, this.height - lineWidth);
 	}
 };
 

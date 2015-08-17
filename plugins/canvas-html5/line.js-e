@@ -9,6 +9,41 @@ Line = function(x1, y1, x2, y2, colours, drawingOptions) {
 	this.y1 = y1;
 	this.x2 = x2;
 	this.y2 = y2;
+	var align, valign, shift;
+	if (drawingOptions !== undefined) {
+		align = drawingOptions.align;
+		valign = drawingOptions.valign;
+	}
+	if (this.x1 == this.x2) {
+		if (align == "left") {
+			shift = -1;
+		} else if (align == "right") {
+			shift = 1;
+		} else {
+			shift = 0;
+		}
+		this.xShift1 = shift;
+		this.xShift2 = shift;
+		this.yShift1 = 0;
+		this.yShift2 = 0;
+	} else if (this.y1 == this.y2) {
+		if (valign == "top") {
+			shift = -1;
+		} else if (valign == "bottom") {
+			shift = 1;
+		} else {
+			shift = 0;
+		}
+		this.xShift1 = 0;
+		this.xShift2 = 0;
+		this.yShift1 = shift;
+		this.yShift2 = shift;
+	} else {
+		this.xShift1 = this.x2 > this.x1? 1 : -1;
+		this.xShift2 = -this.xShift1;
+		this.yShift1 = this.y2 > this.y1? 1 : -1;
+		this.yShift2 = -this.yShift1;
+	}
 	this.colours = colours;
 	this.drawingOptions = drawingOptions;
 }
@@ -44,8 +79,25 @@ Line.prototype.draw = function(context) {
 		}
 		context.strokeStyle = gradient;
 	}
-	context.moveTo(this.x1, this.y1);
-	context.lineTo(this.x2, this.y2);
+	var xShift1, xShift2, yShift1, yShift2;
+	if (this.drawingOptions !== undefined) {
+		var scale = this.drawingOptions.lineWidth / context.lineWidth;
+		var width = (context.lineWidth / 2 + 0.5 / scale) / Math.SQRT2;
+		xShift1 = this.xShift1 * width;
+		xShift2 = this.xShift2 * width;
+		yShift1 = this.yShift1 * width;
+		yShift2 = this.yShift2 * width;
+		if ((this.xShift1 == 0 || this.yShift1 == 0) && this.drawingOptions.lineWidth % 2 == 1) {
+			context.translate(0.5 / scale, 0.5 / scale);
+		}
+	} else {
+		xShift1 = 0;
+		xShift2 = 0;
+		yShift1 = 0;
+		yShift2 = 0;
+	}
+	context.moveTo(this.x1 + xShift1, this.y1 + yShift1);
+	context.lineTo(this.x2 + xShift2, this.y2 + yShift2);
 	context.stroke();
 };
 

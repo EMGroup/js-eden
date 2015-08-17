@@ -10,6 +10,10 @@ Sector = function(x, y, r, sAngle, eAngle, fillcolour, outlinecolour,drawingOpti
 	this.r = r;
 	this.sAngle = sAngle;
 	this.eAngle = eAngle;
+	var radiansPerUnit = root.lookup("radiansPerUnit").value();
+	this.sRadians = sAngle * radiansPerUnit;
+	this.eRadians = eAngle * radiansPerUnit;
+
     this.fillcolour = fillcolour;
 	this.outlinecolour = outlinecolour;
 	this.drawingOptions = drawingOptions;
@@ -30,18 +34,14 @@ func Sector { ${{
 	var drawingOptions = arguments[7];
 	return new Sector(x, y, r, sAngle, eAngle, fillcolour, outlinecolour, drawingOptions);
 }}$; };
+radiansPerUnit ~> [Sector];
 
 ${{
 
 Sector.prototype.draw = function (context) {
-	var radiansPerUnit = root.lookup("radiansPerUnit").value();
-	var eAngleInRadians = -this.eAngle * radiansPerUnit;
-	var endX = this.x + this.r * Math.cos(eAngleInRadians);
-	var endY = this.y + this.r * Math.sin(eAngleInRadians);
-
 	var anticlockwise;
 	if (this.drawingOptions !== undefined && "direction" in this.drawingOptions) {
-		switch (this.drawingOptions.direction.toLowerCase()) {
+		switch (this.drawingOptions.direction) {
 		case "anticlockwise":
 		case "acw":
 		case "ccw":
@@ -61,8 +61,17 @@ Sector.prototype.draw = function (context) {
 		anticlockwise = this.sAngle < this.eAngle;
 	}
 
+	var radius;
+	if (this.drawingOptions !== undefined && this.drawingOptions.lineWidth % 2 == 1) {
+		var scale = this.drawingOptions.lineWidth / context.lineWidth;
+		context.translate(0.5 / scale, 0.5 / scale);
+		radius = this.r - 0.5 * context.lineWidth + 0.5 / scale;
+	} else {
+		radius = this.r - 0.5 * context.lineWidth;
+	}
+
 	context.beginPath();
-	context.arc(this.x, this.y, this.r, -this.sAngle * radiansPerUnit, eAngleInRadians, anticlockwise);
+	context.arc(this.x, this.y, radius, -this.sRadians, -this.eRadians, anticlockwise);
 	context.lineTo(this.x, this.y);
 	context.closePath();
  

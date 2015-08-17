@@ -10,6 +10,21 @@ Arc = function(x, y, r, sAngle, eAngle, colour, drawingOptions) {
 	this.r = r;
 	this.sAngle = sAngle;
 	this.eAngle = eAngle;
+	var radiansPerUnit = root.lookup("radiansPerUnit").value();
+	var sRadians = sAngle * radiansPerUnit;
+	var eRadians = eAngle * radiansPerUnit;
+	var twoPI = 2 * Math.PI;
+	sRadians = sRadians % twoPI;
+	if (sRadians < 0) {
+		sRadians = sRadians + twoPI;
+	}
+	eRadians = eRadians % twoPI;
+	if (eRadians < 0) {
+		eRadians = eRadians + twoPI;
+	}
+	this.sRadians = sRadians;
+	this.eRadians = eRadians;
+	
 	this.colour = colour
 	this.drawingOptions = drawingOptions;
 }
@@ -32,29 +47,17 @@ func Arc { ${{
 	}
 	return new Arc(x, y, r, sAngle, eAngle, colour, drawingOptions);
 }}$; };
+radiansPerUnit ~> [Arc];
 
 ${{
 
 Arc.prototype.draw = function(context) {
-	var radiansPerUnit = root.lookup("radiansPerUnit").value();
 	var anticlockwise;
 	if (this.drawingOptions !== undefined && "direction" in this.drawingOptions) {
-		var directionName, sAngleNormalized, eAngleNormalized, turnedThroughAC, twoPI;
-		directionName = this.drawingOptions.direction.toLowerCase();
-		if (directionName == "major" || directionName == "minor") {
-			twoPI = 2 * Math.PI;
-			sAngleNormalized = (this.sAngle * radiansPerUnit) % twoPI;
-			if (sAngleNormalized < 0) {
-				sAngleNormalized = sAngleNormalized + twoPI;
-			}
-			eAngleNormalized = (this.eAngle * radiansPerUnit) % twoPI;
-			if (eAngleNormalized < 0) {
-				eAngleNormalized = eAngleNormalized + twoPI;
-			}
-			turnedThroughAC = eAngleNormalized - sAngleNormalized;
-			if (eAngleNormalized < sAngleNormalized) {
-				turnedThroughAC = turnedThroughAC + twoPI;
-			}
+		var directionName = this.drawingOptions.direction;
+		var turnedThroughAC = this.eRadians - this.sRadians;
+		if (this.eRadians < this.sRadians) {
+			turnedThroughAC = turnedThroughAC + twoPI;
 		}
 		switch (directionName) {
 		case "anticlockwise":
@@ -82,7 +85,7 @@ Arc.prototype.draw = function(context) {
 		anticlockwise = this.sAngle < this.eAngle;
 	}
 	context.beginPath();
-	context.arc(this.x, this.y, this.r, -this.sAngle * radiansPerUnit, -this.eAngle * radiansPerUnit, anticlockwise);
+	context.arc(this.x, this.y, this.r - context.lineWidth / 2, -this.sRadians, -this.eRadians, anticlockwise);
 	context.strokeStyle = this.colour;
 	context.stroke();
 };

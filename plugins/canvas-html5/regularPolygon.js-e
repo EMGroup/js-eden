@@ -9,59 +9,69 @@ ${{
 		this.rotation = rotation;
 		this.fillcolour = fillcolour;
 		this.outlinecolours = outlinecolours;
-		this.drawingOptions = drawingOptions;
-		
+		this.drawingOptions = drawingOptions;		
+	}
+
+	RegularPolygon.prototype.calculatePolygons = function (lineWidth) {
 		var separatePolygonsPossiblyNeeded;
-		if (fillcolour !== undefined && fillcolour != "transparent" && outlinecolours !== undefined &&
-			n / star != 2) {
+		if (this.fillcolour !== undefined && this.fillcolour != "transparent" && this.outlinecolours !== undefined &&
+			this.n / this.star != 2) {
 			separatePolygonsPossiblyNeeded = true;
 		} else {
 			separatePolygonsPossiblyNeeded = false;		
 		}
 		this.vertices = [];
 		
-		rotation = -rotation - Math.PI * (0.5 - 2 / n);
-		var exteriorAngle = (2 * Math.PI) / n;
-		var pointsDone = new Array(n);
+		var radius = this.r - lineWidth / 2;
+		var rotation = -this.rotation - Math.PI * (0.5 - 2 / this.n);
+		var nudge;
+		if (this.drawingOptions !== undefined && this.drawingOptions.valign == "bottom") {
+			nudge = lineWidth;
+		} else {
+			nudge = 0;
+		}
+
+		var exteriorAngle = (2 * Math.PI) / this.n;
+		var pointsDone = new Array(this.n);
 		var px, py;
 		var polygons = [];
 		var currentPolygonVertices, currentPoint;
-		for (var i = 0; i < n; i++) {
+		for (var i = 0; i < this.n; i++) {
 			var j = i;
 			currentPolygonVertices = [];
 			while (pointsDone[j] !== true) {
-				px = x + r * Math.cos(rotation + j * exteriorAngle);
-				py = y + r * Math.sin(rotation + j * exteriorAngle);
+				px = this.x + radius * Math.cos(rotation + j * exteriorAngle);
+				py = this.y + radius * Math.sin(rotation + j * exteriorAngle) + nudge;
 				currentPoint = new Point(px, py);
 				currentPolygonVertices.push(currentPoint);
 				pointsDone[j] = true;
-				j = (j + star) % n;
+				j = (j + this.star) % this.n;
 			}
 			if (currentPolygonVertices.length > 0) {
 				this.vertices = this.vertices.concat(currentPolygonVertices);
-				polygons.push(new Polygon(currentPolygonVertices, fillcolour, outlinecolours, drawingOptions));
+				polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, this.outlinecolours, this.drawingOptions));
 			}
 		}
 		if (separatePolygonsPossiblyNeeded) {
 			if (polygons.length == 1) {
-				if (!interiorOutline) {
+				if (!this.interiorOutline) {
 					var lineWidth;
-					if (typeof(drawingOptions) == "object" && "lineWidth" in drawingOptions) {
-						lineWidth = drawingOptions.lineWidth;
+					if (typeof(this.drawingOptions) == "object" && "lineWidth" in this.drawingOptions) {
+						lineWidth = this.drawingOptions.lineWidth;
 					} else {
 						lineWidth = 2;
 					}
-					var smallerRadius = r - Math.ceil(lineWidth / 2) - 2;
+					var smallerRadius = radius - Math.ceil(lineWidth / 2) - 2;
 					currentPolygonVertices = [];
 					i = 0;
 					do {
-						px = x + smallerRadius * Math.cos(rotation + i * exteriorAngle);
-						py = y + smallerRadius * Math.sin(rotation + i * exteriorAngle);
+						px = this.x + smallerRadius * Math.cos(rotation + i * exteriorAngle);
+						py = this.y + smallerRadius * Math.sin(rotation + i * exteriorAngle) + nudge;
 						currentPoint = new Point(px, py);
 						currentPolygonVertices.push(currentPoint);
-						i = (i + star) % n;
+						i = (i + this.star) % this.n;
 					} while (i != 0);
-					polygons.push(new Polygon(currentPolygonVertices, fillcolour, undefined, drawingOptions));
+					polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, undefined, this.drawingOptions));
 				}
 				this.filledPolygons = polygons;
 				this.outlinePolygons = [];
@@ -69,14 +79,14 @@ ${{
 				this.filledPolygons = [];
 				this.outlinePolygons = [];
 				for (var i = 0; i < polygons.length; i++) {
-					this.filledPolygons.push(new Polygon(polygons[i].vertices, fillcolour, undefined, drawingOptions));
-					this.outlinePolygons.push(new Polygon(polygons[i].vertices, undefined, outlinecolours, drawingOptions));
+					this.filledPolygons.push(new Polygon(polygons[i].vertices, this.fillcolour, undefined, this.drawingOptions));
+					this.outlinePolygons.push(new Polygon(polygons[i].vertices, undefined, this.outlinecolours, this.drawingOptions));
 				}
 			}
 		} else {
 			this.filledPolygons = polygons;
 			this.outlinePolygons = [];
-		}
+		}	
 	}
 }}$;
 
@@ -127,47 +137,54 @@ func RegularPolygon {
 		return new RegularPolygon(x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolours, drawingOptions);
 	}}$;
 }
+radiansPerUnit ~> [RegularPolygon];
 
 ${{
-	RegularPolygon.prototype.draw = function (context) {
-		if (this.interiorOutline) {
-			for (var i = 0; i < this.filledPolygons.length; i++) {
-				this.filledPolygons[i].draw(context);
-			}
-			for (var i = 0; i < this.outlinePolygons.length; i++) {
-				this.outlinePolygons[i].draw(context);
-			}
-		} else {
-			context.lineWidth = context.lineWidth * 2;
-			for (var i = 0; i < this.outlinePolygons.length; i++) {
-				this.outlinePolygons[i].draw(context);
-			}
-			context.lineWidth = context.lineWidth / 2;
-			for (var i = 0; i < this.filledPolygons.length; i++) {
-				this.filledPolygons[i].draw(context);
-			}
-		}
+RegularPolygon.prototype.draw = function (context) {
+	var lineWidth = context.lineWidth;
+	if (lineWidth !== this.cachedPolygonLineWidth) {
+		this.calculatePolygons(lineWidth);
+		this.cachedPolygonLineWidth = lineWidth;
 	}
-	
-	RegularPolygon.prototype.toString = function () {
-		var s = "RegularPolygon(" +
-			this.x + ", " +
-			this.y + ", " +
-			this.r + ", " +
-			this.n + ", " +
-			this.star + ", " +
-			this.interiorOutline + ", " +
-			this.rotation + ", " +
-			Eden.edenCodeForValue(this.fillcolour) + ", " +
-			Eden.edenCodeForValue(this.outlinecolours);
 
-		if (this.drawingOptions !== undefined) {
-			s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
+	if (this.interiorOutline) {
+		for (var i = 0; i < this.filledPolygons.length; i++) {
+			this.filledPolygons[i].draw(context);
 		}
-		s = s + ")";
-		return s;
+		for (var i = 0; i < this.outlinePolygons.length; i++) {
+			this.outlinePolygons[i].draw(context);
+		}
+	} else {
+		context.lineWidth = context.lineWidth * 2;
+		for (var i = 0; i < this.outlinePolygons.length; i++) {
+			this.outlinePolygons[i].draw(context);
+		}
+		context.lineWidth = context.lineWidth / 2;
+		for (var i = 0; i < this.filledPolygons.length; i++) {
+			this.filledPolygons[i].draw(context);
+		}
 	}
-	
-	RegularPolygon.prototype.getEdenCode;
+}
+
+RegularPolygon.prototype.toString = function () {
+	var s = "RegularPolygon(" +
+		this.x + ", " +
+		this.y + ", " +
+		this.r + ", " +
+		this.n + ", " +
+		this.star + ", " +
+		this.interiorOutline + ", " +
+		this.rotation + ", " +
+		Eden.edenCodeForValue(this.fillcolour) + ", " +
+		Eden.edenCodeForValue(this.outlinecolours);
+
+	if (this.drawingOptions !== undefined) {
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
+	}
+	s = s + ")";
+	return s;
+}
+
+RegularPolygon.prototype.getEdenCode;
 	
 }}$;

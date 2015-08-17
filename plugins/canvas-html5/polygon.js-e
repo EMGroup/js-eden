@@ -137,6 +137,11 @@ func Polygon { ${{
 ${{
 
 Polygon.prototype.draw = function (context) {
+	if (this.drawingOptions !== undefined && this.drawingOptions.lineWidth % 2 == 1) {
+		var scale = this.drawingOptions.lineWidth / context.lineWidth;
+		context.translate(0.5 / scale, 0.5 / scale);
+	}
+
 	var oneOutlineColour = this.outlinecolours !== undefined &&
 		this.outlinecolours.length == 1 && !Array.isArray(this.outlinecolours[0]);
 	

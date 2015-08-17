@@ -33,13 +33,13 @@ ${{
 
 Ellipse.prototype.draw = function(context) {
 	var scaleFactor = this.yradius / this.xradius;
-	var scaleOutline = this.drawingOptions !== undefined && this.drawingOptions.scaleOutline;
+	var scaleOutline = this.drawingOptions === undefined || this.drawingOptions.scaleOutline;
 	if (!scaleOutline) {
 		context.save();
 	}
 	context.scale(1, scaleFactor);
 	context.beginPath();
-	context.arc(this.x, this.y / scaleFactor, this.xradius, 0, 2 * Math.PI, false);
+	context.arc(this.x, this.y / scaleFactor, this.xradius - context.lineWidth / 2, 0, 2 * Math.PI, false);
 	context.closePath();
  
 	if (this.fillcolour !== undefined) {
