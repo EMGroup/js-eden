@@ -117,7 +117,11 @@
 	Folder.prototype.getEval = function (id) {
 		return this.evalResults[id];
 	}
-	
+
+	Folder.prototype.clearEval = function (id) {
+		delete this.evalResults[id];
+	}
+
 	/**
 	 * Add a listener for any change in the Folder.
 	 *
@@ -221,6 +225,7 @@
 		this.definition = undefined;
 		this.eden_definition = undefined;
 		this.cached_value = undefined;
+		this.evalResolved = true;
 		this.up_to_date = false;
 
 		// need to keep track of who we subscribe to so
@@ -256,28 +261,6 @@
 				this.evaluate();
 			}
 		}
-		if ("evalIDs" in this) {
-			//Replace eval() in EDEN definition with the actual value.
-			var replacedDef = this.eden_definition;
-			var re = /\beval\(/;
-			var searchIndex;
-			while ((searchIndex = replacedDef.search(re)) != -1) {
-				for (exp in this.evalIDs) {
-					if (this.evalIDs.hasOwnProperty(exp)) {
-						var subString = replacedDef.slice(searchIndex + 5, searchIndex + exp.length + 6);
-						if (subString == exp + ")") {
-							var jsValue = this.context.getEval(this.evalIDs[exp]);
-							replacedDef = replacedDef.slice(0, searchIndex) +
-								Eden.edenCodeForValue(jsValue) +
-								replacedDef.slice(searchIndex + exp.length + 6);
-							break;
-						}
-					}
-				}
-			}
-			this.eden_definition = replacedDef;
-			delete this.evalIDs;
-		}
 		return this.cached_value;
 	};
 
@@ -296,11 +279,40 @@
 		try {
 			this.cached_value = copy(this.definition(this.context));
 			this.up_to_date = true;
+			if (!this.evalResolved) {
+				var replacedDef = this.eden_definition;
+				//Replace eval() in EDEN definition with the actual value.
+				var re = /\beval\(/;
+				var searchIndex;
+				while ((searchIndex = replacedDef.search(re)) != -1) {
+					for (exp in this.evalIDs) {
+						var subString = replacedDef.slice(searchIndex + 5, searchIndex + exp.length + 6);
+						if (subString == exp + ")") {
+							var jsValue = this.context.getEval(this.evalIDs[exp]);
+							replacedDef = replacedDef.slice(0, searchIndex) +
+								Eden.edenCodeForValue(jsValue) +
+								replacedDef.slice(searchIndex + exp.length + 6);
+							break;
+						}
+					}
+				}
+				this.eden_definition = replacedDef;
+				this.evalResolved = true;
+			}
 		} catch (e) {
 			this.cached_value = undefined;
 			this.up_to_date = false;
 		}
 	};
+
+	Symbol.prototype.clearEvalIDs = function () {
+		var context = this.context;
+		for (var id in this.evalIDs) {
+			context.clearEval(this.evalIDs[id]);
+		}
+		this.evalIDs = {};
+		this.evalResolved = false;
+	}
 
 	Symbol.prototype.clearObservees = function () {
 		for (var name in this.observees) {
@@ -415,6 +427,8 @@
 			this.context && this.context.autocalc(value === 1);
 		}
 		this.eden_definition = undefined;
+		this.clearEvalIDs();
+		this.evalResolved = true;
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = undefined;
 		this.cached_value = value;

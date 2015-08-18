@@ -631,7 +631,7 @@ formula-definition
 
         $$ = yy.sync(
 				yy.evalExps.join("\n") +	//Evaluate eval() expressions and save them in the context.
-				yy.printEvalIDs($1) + 		//Mapping used by Symbol.prototype.value to update eden_definition, changing eval() to the actual value.
+				yy.printEvalIDs($1) + 		//Mapping used by Symbol.prototype.evaluate to update eden_definition, changing eval() to the actual value.
 				"(" +
                yy.observable($1) +
                  ".eden_definition = " + eden_definition + ", " +

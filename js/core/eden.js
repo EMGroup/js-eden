@@ -902,20 +902,15 @@ function concatAndResolveUrl(url, concat) {
 		 * property can later be updated to replace eval() with the actual values once they are known.
 		 */
 		parser.yy.printEvalIDs = function (obsName) {
-			var jsVar = parser.yy.observable(obsName) + ".evalIDs";
-			var str = jsVar + " = {}; ";
-			var hasEval = false;
+			var obsJS = parser.yy.observable(obsName);
+			var str = obsJS + ".clearEvalIDs(); ";
+			var evalIDsJS =  obsJS + ".evalIDs";
 			for (exp in evalIDs) {
 				if (evalIDs.hasOwnProperty(exp)) {
-					str = str + jsVar + "[\"" + exp + "\"] = " + evalIDs[exp] + "; ";
-					hasEval = true;
+					str = str + evalIDsJS + "[\"" + exp + "\"] = " + evalIDs[exp] + "; ";
 				}
 			}
-			if (hasEval) {
-				return str;
-			} else {
-				return "";
-			}
+			return str;
 		}
 		
 		/**
