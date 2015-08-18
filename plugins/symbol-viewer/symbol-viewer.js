@@ -84,14 +84,16 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry);
 		var dialogMode = false;
-		if(!dialogMode){
-			$("#windowsArea").append($dialog);
-			$dialog.addClass("tileView");
-			$dialog.css({width:360,
-				height: 400,
-				minHeight: 200,
-				minWidth: 200
-				});
+		if(!dialogMode){	
+			if(myDocker.panelTypes().indexOf("SymbolViewer") == -1){
+				myDocker.registerPanelType("SymbolViewer",{onCreate: function(myPanel,options){
+				    myPanel.initSize(400, 200);
+					console.log(options.dialogOb);
+					myPanel.layout().addItem($dialog,0,0);
+				},options:{'dialogOb': $dialog
+					}});
+			}
+		    var myNewPanel = myDocker.addPanel('SymbolViewer', wcDocker.DOCK_LEFT);
 		}else{
 			$dialog.dialog({
 				title: mtitle,

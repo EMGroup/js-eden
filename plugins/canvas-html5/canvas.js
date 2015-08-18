@@ -537,13 +537,17 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		
 		dialogMode = false;
 		if(!dialogMode){
-			$("#windowsArea").append($dialog);
-			$dialog.addClass("tileView");
-			$dialog.css({width:defaultWidth + edenUI.scrollBarYSize,
-				height: defaultHeight + edenUI.titleBarHeight,
-				minHeight: 120,
-				minWidth: 230
-				});
+			
+			if(myDocker.panelTypes().indexOf("Canvas") == -1){
+				myDocker.registerPanelType("Canvas",{onCreate: function(myPanel,options){
+					console.log("Inside creation of canvas");
+				    myPanel.initSize(400, 200);
+					console.log(options.dialogOb);
+					myPanel.layout().addItem($dialog,0,0);
+				},options:{'dialogOb': $dialog
+					}});
+			}
+		    var myNewPanel = myDocker.addPanel('Canvas', wcDocker.DOCK_LEFT);
 		}else{
 			$dialog.dialog({
 				title: mtitle,
@@ -553,8 +557,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				minWidth: 230,
 				dialogClass: "unpadded-dialog"
 			});
-			console.log($('<div>').append($dialog.clone()).html());
-			console.log($dialog.parent());
 		}
 		me.setPictureObs(displayedName, pictureObs);
 		return {

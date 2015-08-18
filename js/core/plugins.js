@@ -104,7 +104,8 @@
 		var desktopTop = this.plugins.MenuBar? this.menuBarHeight : 0;
 		var title = this.views[type].title;
 		var viewData = this.views[type].dialog(name + "-dialog", title, initData);
-		$("#windowsArea").freetile();
+//		$("#windowsArea").freetile();
+		
 		if (viewData === undefined) {
 			viewData = {};
 		}
@@ -160,11 +161,11 @@
 		var $aHandle = $("<div class='tileHandle'>" + title + "<span class=\"closeTile\"><span class=\"ui-icon ui-icon-closethick\"></span></span><span class=\"maximiseTile\"><span class=\"ui-icon ui-icon-extlink\"></span></span><span class=\"minimiseTile\"><span class=\"ui-icon ui-icon-minus\"></span></span></div>");
 		
 		diag.prepend($aHandle);
-		diag.draggable({handle: ".tileHandle", stop: function(ev,ui){
+		/*diag.draggable({handle: ".tileHandle", stop: function(ev,ui){
 			diag.trigger("tiledragstop",ev,ui);
 		}}).resizable({stop: function(ev,ui){
 			diag.trigger("tileresizestop",ev,ui);
-		}});
+		}});*/
 		
 		diag.find(".closeTile").click(function(){
 			me.closeView(name);
@@ -181,6 +182,8 @@
 		view(name, 'width').assign(diag.width() - this.scrollBarYSize, agent);
 		view(name, 'height').assign(diag.height() - this.titleBarHeight, agent);
 		var topLeft = diag.offset();
+		if(topLeft === undefined)
+			topLeft = {left: 0, top: 0}
 		view(name, 'x').assign(topLeft.left, agent);
 		view(name, 'y').assign(topLeft.top - desktopTop, agent);
 

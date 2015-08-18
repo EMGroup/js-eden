@@ -11,11 +11,8 @@ See LICENSE.txt
 	<title>JS-EDEN</title>
 
 	<link rel="stylesheet" type="text/css" href="css/jseden.css">
-	<link rel="stylesheet" type="text/css" href="css/jquery-ui.min.css">
+	<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.2.custom.min.css">
 	<link rel="stylesheet" type="text/css" href="css/eden.css">
-
-	<link rel="stylesheet" type="text/css" href="js/lib/jQuery-contextMenu-1.6.8/src/jquery.contextMenu.css">
-	<link rel="stylesheet" type="text/css" href="js/lib/wcDocker/wcDocker.min.css">
 	<link rel="stylesheet" type="text/css" href="plugins/project-listing/project-listing.css">
 	<link rel="stylesheet" type="text/css" href="plugins/menu-bar/menu-bar.css">
 	<link rel="stylesheet" type="text/css" href="plugins/symbol-viewer/symbol-viewer.css">
@@ -27,16 +24,14 @@ See LICENSE.txt
 	<link rel="stylesheet" type="text/css" href="plugins/input-dialog/interpreter.css" />
 	<link rel="stylesheet" type="text/css" href="plugins/adm/adm-input.css" />
 
-	<script type="text/javascript" src="js/lib/jquery-1.11.3.min.js"></script>
-	<script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
-	<script type="text/javascript" src="js/lib/jQuery-contextMenu-1.6.8/src/jquery.contextMenu.js"></script>
-	<script type="text/javascript" src="js/lib/jQuery-contextMenu-1.6.8/src/jquery.ui.position.js"></script>
-	<script type="text/javascript" src="js/lib/wcDocker/wcDocker.min.js"></script>
-	
+	<script type="text/javascript" src="js/lib/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery-ui-1.9.2.custom.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.dialogextend.min.js"></script>
 </head>
 <body>
 <div id="eden-logo"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/3.3.1/masonry.pkgd.min.js"></script>
 <script src="js/lib/jquery.color.js"></script>
 <script src="js/lib/jquery.hotkeys.js"></script>
 <script src="js/lib/json2.js"></script>
@@ -53,6 +48,7 @@ See LICENSE.txt
 <script src="plugins/input-dialog/interpreter.js"></script>
 <script src="plugins/project-listing/project-listing.js"></script>
 <script src="plugins/plugin-listing/plugin-listing.js"></script>
+<script src="plugins/menu-bar/menu-bar.js"></script>
 <script src="plugins/canvas-html5/canvas.js"></script>
 <script src="plugins/symbol-viewer/symbol-viewer.js"></script>
 <script src="plugins/html-views/html-views.js"></script>
@@ -62,7 +58,6 @@ See LICENSE.txt
 <script src="plugins/symbol-lookup-table/symbol-lookup-table.js"></script>
 <script src="plugins/script-generator/script-generator.js"></script>
 <script src="plugins/dependency-map/springy/springy.js"></script>
-<script src="plugins/menu-bar/menu-bar.js"></script>
 <script src="plugins/dependency-map/springy/springyui.js"></script>
 <script src="plugins/dependency-map/dependency-map.js"></script>
 <script src="plugins/state-timeline/state-timeline.js"></script>
@@ -70,12 +65,10 @@ See LICENSE.txt
 <script src="plugins/network-remote/network-remote.js"></script>
 <script src="plugins/view-layout/view-layout.js"></script>
 <script src="plugins/adm/adm-input.js"></script>
+<script src="js/lib/Freetile-0.3.1/jquery.freetile.min.js"></script>
 
 <script type="text/javascript">
 	initialiseJSEden();
-	
-	var myDocker = new wcDocker(document.body,{themePath: '/js/lib/wcDocker/Themes'});
-    
 	var current = null;
 	var cycleView = function () {
 		var $windows = $('.ui-dialog-content');
@@ -97,6 +90,7 @@ See LICENSE.txt
 	$(document).on('keydown', null, 'ctrl+m', cycleView);
 </script>
 <div id="windowsArea" style="position: absolute; top:40px;"></div>
+
 <div id="tooltip" style="display:none"></div>
 </body>
 </html>

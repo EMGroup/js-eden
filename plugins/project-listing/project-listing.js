@@ -136,13 +136,18 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 			.html(code_entry);
 		var dialogMode = false;
 		if(!dialogMode){
-			$("#windowsArea").append($dialog);
-			$dialog.addClass("tileView");
-			$dialog.css({width:310,
-				height: 400,
-				minHeight: 120,
-				minWidth: 230
-				});
+			
+			if(myDocker.panelTypes().indexOf("ProjectListing") == -1){
+				console.log("About to register project listing");
+				myDocker.registerPanelType("ProjectListing",{onCreate: function(myPanel,options){
+					console.log("Inside creation of project listing");
+				    myPanel.initSize(400, 200);
+					console.log(options.dialogOb);
+					myPanel.layout().addItem($dialog,0,0);
+				},options:{'dialogOb': $dialog
+					}});
+			}
+		    var myNewPanel = myDocker.addPanel('ProjectListing', wcDocker.DOCK_LEFT);
 		}else{
 			$dialog.dialog({
 				title: mtitle,

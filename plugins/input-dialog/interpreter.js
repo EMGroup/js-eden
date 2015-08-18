@@ -81,7 +81,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		this.addHistory(text);
 		console.time("submitEdenCode");
 		edenUI.eden.execute(text, 'input', '', inputAgent);
-		console.timeEnd("submitEdenCode");
+		console.timeEnd("submitEdenCode");s
 		
 		if (historydialog !== undefined) {
 			historydialog.html(this.generateHistory());
@@ -156,13 +156,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			.html($dialogContents);
 		var dialogMode = false;
 		if(!dialogMode){
-			$("#windowsArea").append($dialog);
-			$dialog.addClass("tileView");
-			$dialog.css({width:500,
-				height: 200,
-				minHeight: 200,
-				minWidth: 500
-				});
+			console.log("Trying to create interpreter");
+			if(myDocker.panelTypes().indexOf("Interpreter") == -1){
+				myDocker.registerPanelType("Interpreter",{onCreate: function(myPanel,options){
+				    myPanel.initSize(200, 100);
+					console.log(options.dialogOb);
+					myPanel.layout().addItem($dialog,0,0);
+				},options:{'dialogOb': $dialog
+					}});
+			}
+		    var myNewPanel = myDocker.addPanel('Interpreter', wcDocker.DOCK_BOTTOM);
 		}else{
 			$dialog.dialog({
 				title: mtitle,
