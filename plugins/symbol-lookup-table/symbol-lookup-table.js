@@ -47,6 +47,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 			"<td class=\"lower\"><b>Current Value</b></td>"+
 			"<td class=\"lower\"><b>Watches</b></td>"+
 			"<td class=\"lower\"><b>Updates</b>"+
+			"<td class=\"lower\"><b>Backticks</b>"+
 			"<td class=\"lower\"><b>Last Modified By</b></td>" +
 			"<td class=\"lower\"><b>JavaScript Actions</b></td>" +
 		"</tr>";
@@ -95,11 +96,23 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 		for (var i = 0; i < partialTable.length; i++) {
 			var row = partialTable[i];
 			symbol = row[0];
-			var watches = referencedObservables(symbol.observees, matchingNames, viewName).concat(
-				referencedObservables(symbol.dependencies, matchingNames, viewName));
+			var observees = referencedObservables(symbol.observees, matchingNames, viewName)
+			var dependencies = referencedObservables(symbol.dependencies, matchingNames, viewName);
+			var watches = observees;
+			if (observees != "" && dependencies != "") {
+				watches = watches + ", ";
+			}
+			watches = watches + dependencies;
 
-			var updates = referencedObservables(symbol.observers, matchingNames, viewName).concat(
-				referencedObservables(symbol.subscribers, matchingNames, viewName));
+			var observers = referencedObservables(symbol.observers, matchingNames, viewName);
+			var subscribers = referencedObservables(symbol.subscribers, matchingNames, viewName);
+			var updates = observers;
+			if (observers != "" && subscribers != "") {
+				updates = updates + ", ";
+			}
+			updates = updates + subscribers;
+
+			var backticks = referencedObservablesList(symbol.dynamicDependencyTable, matchingNames, viewName);
 
 			var lastModifiedBy = symbol.last_modified_by ? symbol.last_modified_by : 'Not yet defined';
 			lastModifiedBy = referencedObservable(lastModifiedBy, matchingNames, viewName);
@@ -114,6 +127,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 					"<td class=\"lower\"><p>" + row[4] + "</p></td>" +
 					"<td class=\"lower\"><p>" + watches + "</p></td>" +
 					"<td class=\"lower\"><p>" + updates + "</p></td>" +
+					"<td class=\"lower\"><p>" + backticks + "</p></td>" +
 					"<td class=\"lower\"><p>" + lastModifiedBy + "</p></td>" +
 					"<td class=\"lower\"><p>" + jsObservers + "</p></td>" +
 				"</tr>";
@@ -142,6 +156,18 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 		return list.join(", ");
 	}
 	
+	var referencedObservablesList = function(referencedObs, obsInTable, viewName) {
+		var list = [];
+		for (var i = 0; i < referencedObs.length; i++) {
+			var name = referencedObs[i];
+			if (name === undefined) {
+				name = "";
+			}
+			list.push(referencedObservable(name, obsInTable, viewName));
+		}
+		return list.join(", ");
+	}
+
 	var referencedObservable = function(name, obsInTable, viewName) {
 		if (name[0] == "*" || name == "include" || name == "Not yet defined") {
 			return name;

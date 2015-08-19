@@ -15,6 +15,7 @@ function _keys(obj) {
 }
 
 root.lookup("generate_function").assignFunction(function generate(name, outputSym, inputs) {
+	//TODO How to handle dynamic dependencies (backticks)?
 	var inputSet = {};
 	for (var i = 0; i < inputs.length; ++i) {
 		inputSet[inputs[i]] = true;

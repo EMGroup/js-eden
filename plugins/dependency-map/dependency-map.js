@@ -1,27 +1,8 @@
 EdenUI.plugins.DependencyMap = function(edenUI, success){
 
 	var me = this;
-	var defaultview = "";
 
-	this.html = function(name,content) {
-	//This doesn't look like its ever being called
-		if (name == "DEFAULT") {
-			if (defaultview == "") {
-				edenUI.createView(name,"DependencyMap");
-			}
-			$("#"+defaultview+"-content").html(content).onclick;
-		} else {
-			$("#"+name+"-dialog-content").html(content).onclick;
-		}
-	}
-	
 	this.createDialog = function(name,mtitle) {
-
-		if (defaultview == "") {
-			defaultview = name;
-		}
-		
-		//make graph local
 		var graph = undefined;
 		
 		//Create new Graph
@@ -74,7 +55,8 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 		graph.newEdges = [];
 		for(var i in root.symbols){
 		
-			var nodename = root.symbols[i].name.substring(1,root.symbols[i].length);
+			var nodeSym = root.symbols[i];
+			var nodename = nodeSym.name.slice(1);
 			
 			if(re.test(nodename)){
 				//Get the nodes which are now in the graph
@@ -88,59 +70,57 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 					//Do nothing
 				}
 				//Inward nodes
-				var depArray = root.lookup(nodename).dependencies;
+				var depArray = nodeSym.dependencies;
 				for(var ii in depArray){
-					var nodename2 = depArray[ii].name.substring(1,root.symbols[i].length);
+					var nodename2 = depArray[ii].name.slice(1);
 
 					if((graph.newNodes).indexOf(nodename2)==-1){
-
 						graph.newNodes.push(nodename2);
 					}
-					else{
-						//do nothing
-					}
-					graph.newEdges.push([nodename2,nodename]);
+					graph.newEdges.push([nodename2,nodename, false]);
 				}
-				depArray = root.lookup(nodename).observees;
+
+				depArray = nodeSym.dynamicDependencies;
 				for(var ii in depArray){
-					var nodename2 = depArray[ii].name.substring(1,root.symbols[i].length);
+					var nodename2 = depArray[ii].name.slice(1);
 
 					if((graph.newNodes).indexOf(nodename2)==-1){
-
 						graph.newNodes.push(nodename2);
 					}
-					else{
-						//do nothing
+					graph.newEdges.push([nodename2,nodename, true]);
+				}
+
+				depArray = nodeSym.observees;
+				for(var ii in depArray){
+					var nodename2 = depArray[ii].name.slice(1);
+
+					if((graph.newNodes).indexOf(nodename2)==-1){
+						graph.newNodes.push(nodename2);
 					}
-					graph.newEdges.push([nodename2,nodename]);
+					graph.newEdges.push([nodename2,nodename, false]);
 				}				
 				
 				
-				
 				//outward nodes
-				var subArray = root.lookup(nodename).subscribers;
+				var subArray = nodeSym.subscribers;
 				for(var ii in subArray){
-					var nodename2 = subArray[ii].name.substring(1,root.symbols[i].length);
+					var subscriber = subArray[ii];
+					var nodename2 = subscriber.name.slice(1);
 					
 					if((graph.newNodes).indexOf(nodename2)==-1){
 						graph.newNodes.push(nodename2);
 					}
-					else{
-						//do nothing
-					}
-					graph.newEdges.push([nodename,nodename2]);
+					var dashed = nodeSym.name in subscriber.dynamicDependencies;
+					graph.newEdges.push([nodename,nodename2, dashed]);
 				}
-				subArray = root.lookup(nodename).observers;
+				subArray = nodeSym.observers;
 				for(var ii in subArray){
-					var nodename2 = subArray[ii].name.substring(1,root.symbols[i].length);
+					var nodename2 = subArray[ii].name.slice(1);
 					
 					if((graph.newNodes).indexOf(nodename2)==-1){
 						graph.newNodes.push(nodename2);
 					}
-					else{
-						//do nothing
-					}
-					graph.newEdges.push([nodename,nodename2]);
+					graph.newEdges.push([nodename,nodename2, false]);
 				}
 			}
 		}
@@ -173,7 +153,11 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 			//Add all the edges
 			var aboutedge1 = graph.previousEdges[ii][0];
 			var aboutedge2 = graph.previousEdges[ii][1];
-			graph.newEdge(graph.nodeObjectsStore[aboutedge1], graph.nodeObjectsStore[aboutedge2]);
+			var attributes = {};
+			if (graph.previousEdges[ii][2]) {
+				attributes.dashes = [10, 10];
+			}
+			graph.newEdge(graph.nodeObjectsStore[aboutedge1], graph.nodeObjectsStore[aboutedge2], attributes);
 		}
 
 		

@@ -97,10 +97,7 @@ func forget {
 			return 3;
 		}
 
-		for (var dependency in symbolToDelete.subscribers) {
-			return 2;
-		}
-		for (var triggeredProc in symbolToDelete.observers) {
+		if (!symbolToDelete.canSafelyBeForgetten()) {
 			return 2;
 		}
 

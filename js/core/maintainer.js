@@ -99,6 +99,10 @@
 		return this.symbols[name];
 	};
 
+	Folder.prototype.removeSymbol = function (name) {
+		delete this.symbols[name.slice(this.name.length)];
+	}
+	
 	/**
 	 * Saves the result of an eval() invocation.
 	 *
@@ -236,6 +240,17 @@
 		// so that we can notify them of a change in value
 		this.subscribers = {};
 
+		// performs the same role as .dependencies but for the backtick notation, where which
+		// observables an observable depends on can be dependent on the values of other observables.
+		this.dynamicDependencies = {};
+
+		// tracks which observable names currently fill in for the parts of the definition defined
+		// by backticks.  Element 0 represents the first invocation of backticks in the EDEN definition.
+		this.dynamicDependencyTable = [];
+		// tracks how many times the same observable is referenced by different invocations of
+		// backticks.  When a reference count is decremented to zero then it's time to unsubscribe.
+		this.dynamicDependencyRefCount = {};
+
 		// need to keep track of observers so we can notify those also
 		this.observers = {};
 		this.observees = {};
@@ -329,18 +344,57 @@
 			var symbol = this.context.lookup(dependency);
 
 			symbol.addSubscriber(this.name, this);
-			this.dependencies[symbol.name] = symbol;
+			var name = symbol.name;
+			this.dependencies[name] = symbol;
+			delete this.dynamicDependencies[name];
 		}
 
 		return this;
 	};
 
+	Symbol.prototype.subscribeDynamic = function (position, dependency) {
+		if (!(dependency in this.dependencies)) {
+			var symbol, refCount;
+			var previousDependency = this.dynamicDependencyTable[position];
+			if (previousDependency !== undefined) {
+				refCount = this.dynamicDependencyRefCount[previousDependency];
+				if (refCount == 1) {
+					symbol = this.context.lookup(previousDependency);
+					symbol.removeSubscriber(this.name);
+					delete this.dynamicDependencies[symbol.name];
+					delete this.dynamicDependencyRefCount[previousDependency];
+				} else {
+					this.dynamicDependencyRefCount[previousDependency] = refCount - 1;
+				}
+			}
+			if (!(dependency in this.dynamicDependencies)) {
+				symbol = this.context.lookup(dependency);
+				symbol.addSubscriber(this.name, this);
+				this.dynamicDependencies[symbol.name] = symbol;
+				this.dynamicDependencyRefCount[dependency] = 1;
+			} else {
+				this.dynamicDependencyRefCount[dependency]++;				
+			}
+		}
+		this.dynamicDependencyTable[position] = dependency;
+		return this.context.lookup(dependency);
+	}
+
+	
 	Symbol.prototype.clearDependencies = function () {
+		var dependency;
 		for (var name in this.dependencies) {
-			var dependency = this.dependencies[name];
+			dependency = this.dependencies[name];
 			dependency.removeSubscriber(this.name);
 		}
 		this.dependencies = {};
+		for (var name in this.dynamicDependencies) {
+			dependency = this.dynamicDependencies[name];
+			dependency.removeSubscriber(this.name);
+		}
+		this.dynamicDependencies = {};
+		this.dynamicDependencyTable = [];
+		this.dynamicDependencyRefCount = {};
 	};
 
 	Symbol.prototype._setLastModifiedBy = function (modifying_agent) {
@@ -584,8 +638,15 @@
 			return true;
 		}
 
+		var symbol;
 		for (var d in this.dependencies) {
-			var symbol = this.dependencies[d];
+			symbol = this.dependencies[d];
+			if (symbol.isDependentOn(name)) {
+				return true;
+			}
+		}
+		for (var d in this.dynamicDependencies) {
+			symbol = this.dynamicDependencies[d];
 			if (symbol.isDependentOn(name)) {
 				return true;
 			}
@@ -598,8 +659,13 @@
 			throw new Error("Cyclic dependency detected");
 		}
 
+		var symbol;
 		for (var d in this.dependencies) {
-			var symbol = this.dependencies[d];
+			symbol = this.dependencies[d];
+			symbol.assertNotDependentOn(name);
+		}
+		for (var d in this.dynamicDependencies) {
+			symbol = this.dynamicDependencies[d];
 			symbol.assertNotDependentOn(name);
 		}
 	};
@@ -621,7 +687,21 @@
 	 */
 	Symbol.prototype.removeSubscriber = function (name) {
 		delete this.subscribers[name];
+		if (this.last_modified_by === undefined && this.canSafelyBeForgetten()) {
+			this.context.removeSymbol(this.name);
+			this.context = undefined;
+		}
 	};
+
+	Symbol.prototype.canSafelyBeForgetten = function () {
+		for (var s in this.subscribers) {
+			return false;
+		}
+		for (var o in this.observers) {
+			return false;
+		}
+		return true;
+	}
 
 	/**
 	 * Add an observer to notify on changes to the stored value.
@@ -653,6 +733,10 @@
 	 */
 	Symbol.prototype.removeObserver = function (name) {
 		delete this.observers[name];
+		if (this.last_modified_by === undefined && this.canSafelyBeForgetten()) {
+			this.context.removeSymbol(this.name);
+			this.context = undefined;
+		}
 	};
 
 	/**

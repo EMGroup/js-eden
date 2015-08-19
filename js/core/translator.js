@@ -123,7 +123,13 @@ case 7: case 49:
  this.$ = $$[$0-1]; 
 break;
 case 8:
- this.$ = 'context.lookup(' + $$[$0-1] + ')'; 
+
+			if (!yy.inEval() && yy.inDefinition()) {
+				this.$ = '_this.subscribeDynamic(' + yy.backticks() + ', ' + $$[$0-1] + ')';
+			} else {
+				this.$ = 'context.lookup(' + $$[$0-1] + ')';
+			}
+		
 break;
 case 9: case 19: case 115: case 116: case 129:
  this.$ = $$[$0]; 
@@ -451,7 +457,7 @@ case 136:
 
                yy.observable($$[$0-3]) +
                  ".define(" +
-                   "function(context) { return " + $$[$0-1] + "; }," +
+                   "function(context) { var _this = " + yy.observable($$[$0-3]) + "; return " + $$[$0-1] + "; }," +
                    "this, " +
                    JSON.stringify(yy.getDependencies()) +
                  ")" +

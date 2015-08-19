@@ -206,6 +206,12 @@ var contentdiv = canvas.parentNode;
 			}
 
 			var stroke = (edge.data.color !== undefined) ? edge.data.color : '#C0C0C0';
+			var lineDash;
+			if ("dashes" in edge.data) {
+				lineDash = edge.data.dashes;
+			} else {
+				lineDash = [];
+			}
 
 			var arrowWidth;
 			var arrowLength;
@@ -228,6 +234,7 @@ var contentdiv = canvas.parentNode;
 
 			
 			ctx.strokeStyle = stroke;
+			ctx.setLineDash(lineDash);
 			ctx.beginPath();
 			ctx.moveTo(s1.x, s1.y);
 			ctx.lineTo(lineEnd.x, lineEnd.y);
@@ -281,8 +288,10 @@ var contentdiv = canvas.parentNode;
 			} else {
 				ctx.fillStyle = "#FFFFFF";
 			}
-			ctx.fillRect(s.x - boxWidth/2, s.y - 10, boxWidth, 20);
 */
+			ctx.fillStyle = "#FFFFFF";
+			ctx.fillRect(s.x - boxWidth/2, s.y - 10, boxWidth, 20);
+			ctx.setLineDash([]);
 			ctx.textAlign = "left";
 			ctx.textBaseline = "top";
 			ctx.font = "16px Verdana, sans-serif";

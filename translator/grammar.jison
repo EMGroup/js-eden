@@ -200,7 +200,13 @@ lvalue
     | '(' lvalue ')'
         { $$ = $2; }
     | '`' expression '`'
-        { $$ = 'context.lookup(' + $expression + ')'; }
+        {
+			if (!yy.inEval() && yy.inDefinition()) {
+				$$ = '_this.subscribeDynamic(' + yy.backticks() + ', ' + $expression + ')';
+			} else {
+				$$ = 'context.lookup(' + $expression + ')';
+			}
+		}
 
 // XXX: this introduces some shift reduce conflicts apparently, but not sure what the conflict output means
 // so not sure where to look for problems
@@ -638,7 +644,7 @@ formula-definition
 
                yy.observable($1) +
                  ".define(" +
-                   "function(context) { return " + $3 + "; }," +
+                   "function(context) { var _this = " + yy.observable($1) + "; return " + $3 + "; }," +
                    "this, " +
                    JSON.stringify(yy.getDependencies()) +
                  ")" +

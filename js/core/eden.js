@@ -855,6 +855,7 @@ function concatAndResolveUrl(url, concat) {
 		var inDefinition = false;
 		var inEval = false;
 		var dependencies = {};
+		var nextBackticksID = 0;
 
 		/**
 		 * Maps from EDEN code contained inside an eval() invocation to an ID number that is later
@@ -869,6 +870,7 @@ function concatAndResolveUrl(url, concat) {
 		parser.yy.enterDefinition = function () {
 			dependencies = {};
 			evalIDs = {};
+			nextBackticksID = 0;
 			inDefinition = true;
 		};
 
@@ -966,6 +968,12 @@ function concatAndResolveUrl(url, concat) {
 			observables[name] = 1;
 			return "o_" + name;
 		};
+
+		parser.yy.backticks = function () {
+			var id = nextBackticksID;
+			nextBackticksID = id + 1;
+			return id;
+		}
 
 		/**
 		 * Used by the parser to generate 'var' declarations for the whole script.
