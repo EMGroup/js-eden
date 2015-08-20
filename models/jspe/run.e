@@ -151,7 +151,7 @@ proc drawSlides : slides {
 
   for (var i = 0; i < slides.length; i++) {
 	if (slides[i] === undefined) { continue; }
-	slides[i].draw(jspe);
+	slides[i].draw(jspe, "jspe");
   }
   }}$;
   cleanupSlides();

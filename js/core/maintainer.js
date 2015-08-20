@@ -222,7 +222,6 @@
 
 		/**
 		 * @type {string}
-		 * @private
 		 */
 		this.name = name;
 
@@ -687,13 +686,12 @@
 	 */
 	Symbol.prototype.removeSubscriber = function (name) {
 		delete this.subscribers[name];
-		if (this.last_modified_by === undefined && this.canSafelyBeForgetten()) {
-			this.context.removeSymbol(this.name);
-			this.context = undefined;
+		if (this.last_modified_by === undefined && this.canSafelyBeForgotten()) {
+			this.forget();
 		}
 	};
 
-	Symbol.prototype.canSafelyBeForgetten = function () {
+	Symbol.prototype.canSafelyBeForgotten = function () {
 		for (var s in this.subscribers) {
 			return false;
 		}
@@ -702,6 +700,17 @@
 		}
 		return true;
 	}
+
+	Symbol.prototype.forget = function () {
+		this.eden_definition = undefined;
+		this.clearEvalIDs();
+		this.evalResolved = true;
+		this.definition = undefined;
+		this.up_to_date = true;
+		this.clearObservees();
+		this.clearDependencies();
+		this.context.removeSymbol(this.name);
+	};
 
 	/**
 	 * Add an observer to notify on changes to the stored value.
@@ -733,9 +742,8 @@
 	 */
 	Symbol.prototype.removeObserver = function (name) {
 		delete this.observers[name];
-		if (this.last_modified_by === undefined && this.canSafelyBeForgetten()) {
-			this.context.removeSymbol(this.name);
-			this.context = undefined;
+		if (this.last_modified_by === undefined && this.canSafelyBeForgotten()) {
+			this.forget();
 		}
 	};
 

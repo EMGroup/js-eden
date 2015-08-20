@@ -18,6 +18,10 @@ h2, ul li {
 	color: black;
 }
 
+.canvashtml-canvas {
+	outline: none;
+}
+
 .canvashtml-content {
 	/* See Textbox.prototype.scale in plugins/textbox.js-e */
 	font-size: 13.3px;

@@ -97,15 +97,11 @@ func forget {
 			return 3;
 		}
 
-		if (!symbolToDelete.canSafelyBeForgetten()) {
+		if (!symbolToDelete.canSafelyBeForgotten()) {
 			return 2;
 		}
 
-		for (var triggerName in symbolToDelete.observees) {
-			var triggerSymbol = root.lookup(triggerName.slice(1));
-			delete triggerSymbol.observers[nameToDelete];
-		}
-		delete root.symbols[nameToDelete.slice(1)];
+		symbolToDelete.forget();
 		return 0;
 	}}$;
 };
@@ -300,13 +296,11 @@ func forgetAll {
 		
 		var namesToDelete = [];
 		for (name in references) {
-			if (references.hasOwnProperty(name)) {
-				var success = isSafeToForget(name);
-				if (success) {
-					namesToDelete.push(name);
-				} else {
-					unableToDelete.push(name);
-				}
+			var success = isSafeToForget(name);
+			if (success) {
+				namesToDelete.push(name);
+			} else {
+				unableToDelete.push(name);
 			}
 		}
 		
@@ -330,30 +324,21 @@ func forgetAll {
 		if (confirmed) {
 			if (unsetList.length > 0) {
 				for (name in setToUndefined) {
-					if (setToUndefined.hasOwnProperty(name)) {
-						setToUndefined[name].assign(undefined, this);
-					}
+					setToUndefined[name].assign(undefined, this);
 				}
 			}
 			for (var i = 0; i < namesToDelete.length; i++) {
 				var name = namesToDelete[i];
 				symbol = root.symbols[name];
-				var nameInFolder = "/" + name;
-				for (var triggerName in symbol.observees) {
-					if (triggerName in root.symbols) {
-						var triggerSymbol = root.symbols[triggerName];
-						delete triggerSymbol.observers[nameInFolder];
-					}
-				}
 				if ("refreshView" in symbol.jsObservers) {
 					/* Clear the view's contents before deleting the associated symbol, so at least
 					 * it's clear that the view is no longer valid and isn't merely "hung". */
 					symbol.assign(undefined);
 					window.setTimeout(function () {
-						delete root.symbols[name];
-					}, 41);
+						root.symbols[name].forget();
+					}, 50);
 				} else {
-					delete root.symbols[name];				
+					symbol.forget();
 				}
 			}
 			return [namesToDelete, unableToDelete, unsetList];

@@ -597,7 +597,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				var redraw = false;
 				var canvas = document.getElementById(name + "-canvas");
 				var roundedWidth = Math.floor(width);
-				var roundedHeight = Math.floor(height);
+				var roundedHeight = Math.floor(height - 1);
 				/*The if statements are necessary because setting the width or height has the side
 				 *effect of erasing the canvas.  If the width or height are defined by dependency
 				 *then this method gets called whenever that dependency is re-evaluated, even if the
