@@ -211,7 +211,6 @@ func type {
 				"keys" in value &&
 				Array.isArray(value.keys) &&
 				value.keys.length > 0 &&
-				typeof(value.keys[0]) == "number" &&
 				"parent" in value &&
 				value.parent instanceof Symbol
 		)) {
@@ -350,6 +349,16 @@ func isObject {
 			return undefined;
 		}
 		return arguments[0] !== null && typeof(arguments[0]) == "object" && !Array.isArray(arguments[0]) && !root.lookup("isPointer").definition(root)(arguments[0]);
+	}}$;
+}
+
+func isPoint {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isPoint: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return (arguments[0] instanceof Point);
 	}}$;
 }
 

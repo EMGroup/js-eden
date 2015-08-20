@@ -23,6 +23,13 @@
 			"return": "",
 			"description": ""
 		},
+		"centroid": {
+			"parameters": {
+				"point_list_or_point1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"char": {
 			"parameters": {
 				"value": ""
@@ -276,6 +283,13 @@
 			"return": "",
 			"description": ""
 		},
+		"isPoint": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"isPointer": {
 			"parameters": {
 				"value": ""
@@ -478,6 +492,15 @@
 			"return": "",
 			"description": ""
 		},
+		"rotatePoint": {
+			"parameters": {
+				"point": "",
+				"angle": "",
+				"[centre]": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"round": {
 			"parameters": {
 				"number": "",
@@ -486,10 +509,12 @@
 			"return": "",
 			"description": ""
 		},
-		"scale": {
+		"scalePoint": {
 			"parameters": {
-				"scale_factor": "",
-				"vector": ""
+				"point": "",
+				"scale_x": "",
+				"[scale_y]": "",
+				"[centre]": ""
 			},
 			"return": "",
 			"description": ""
