@@ -311,6 +311,14 @@
 			"return": "",
 			"description": ""
 		},
+		"length": {
+			"parameters": {
+				"[from]": "",
+				"to": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"List": {
 			"parameters": {
 				"item1...": ""

@@ -233,7 +233,7 @@ stave1ClefImage is clefImage(stave1Position, stave1Clef, staveSpaceWidth);
 
 stave2Clef is bassClef;
 stave2KeySignature is keySignature;
-stave2Position is Point(staveOrigin.x, staveOrigin.y + 4 * staveSpaceWidth + 5 + gapBetweenStaves);
+stave2Position is {staveOrigin.x, staveOrigin.y + 4 * staveSpaceWidth + 5 + gapBetweenStaves};
 stave2Spaces is staveSpaces(stave2Position, staveLength, staveSpaceWidth, staveColours, stave2Highlights);
 stave2Lines is staveLines(stave2Position, staveLength, staveSpaceWidth, staveColours, stave2LinesInLesson, stave2Highlights);
 stave2ClefImage is clefImage(stave2Position, stave2Clef, staveSpaceWidth);
@@ -513,10 +513,10 @@ stavePicture is stave1Spaces // stave1Lines // stave2Spaces // stave2Lines // [s
 ##These definitions link the stave model to the piano model.
 
 staveToPianoGap = 55;
-pianoPosition is Point(10, max(stave1Position.y, stave2Position.y) + 4 * staveSpaceWidth + 5 + max(staveToPianoGap, staveSpaceWidth + 1 + staveNoteRadius));
+pianoPosition is {10, max(stave1Position.y, stave2Position.y) + 4 * staveSpaceWidth + 5 + max(staveToPianoGap, staveSpaceWidth + 1 + staveNoteRadius)};
 
 staveToControlsGap = 40;
-pianoControlsPosition is Point(staveOrigin.x + staveLength + staveToControlsGap, staveOrigin.y - staveSpaceWidth / 2);
+pianoControlsPosition is {staveOrigin.x + staveLength + staveToControlsGap, staveOrigin.y - staveSpaceWidth / 2};
 
 proc highlightKeysForHighlightedStaveLines {
 	keyHighlights is mapStaveHighlightsToKeyHighlights(stave1Highlights, stave1Clef, stave1KeySignature) //

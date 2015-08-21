@@ -46,6 +46,38 @@ func centroid {
 	return {x, y};
 }
 
+func length {
+	auto from, to, xDist, yDist;
+	if ($# == 1) {
+		to = $[1];
+		from = {0, 0};
+	} else if ($# == 2) {
+		from = $[1];
+		to = $[2];
+		if (from == @) {
+			return @;
+		} else if (!isPoint(from)) {
+			error("length: The first argument must be a Point, not a " // type(from));
+			return @;
+		}
+	} else {
+		error("length: This function requires at least 1 argument and at most 2 arguments");
+		return @;
+	}
+	if (to == @) {
+		return @;
+	} else if (!isPoint(to)) {
+		error("length: The destination point must be a Point, not a " // type(to));
+		return @;
+	}
+	if (from.x == @ || from.y == @ || to.x == @ || to.y == @) {
+		return @;
+	}
+	xDist = to.x - from.x;
+	yDist = to.y - from.y;
+	return sqrt(xDist * xDist + yDist * yDist);
+}
+
 func rotatePoint {
 	para point, theta, centre;
 	auto translatedX, translatedY, rotatedX, rotatedY, cosTheta, sinTheta;
@@ -74,7 +106,8 @@ func rotatePoint {
 		return @;
 	}
 
-	cosTheta = cos(-theta);
+	##Theta is 90 minus the original theta.
+	cosTheta = cos(theta);
 	sinTheta = sin(-theta);
 	translatedX = point.x - centre.x;
 	translatedY = point.y - centre.y;

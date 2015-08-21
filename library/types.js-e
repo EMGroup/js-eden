@@ -334,8 +334,7 @@ func isNumber {
 			eden.error(new Error("isNumber: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
-		var v = arguments[0];
-		return typeof(v) == "number" && !isNaN(v);
+		return typeof(arguments[0]) == "number";
 	}}$;
 }
 
