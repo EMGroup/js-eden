@@ -314,7 +314,7 @@
 		"length": {
 			"parameters": {
 				"[from]": "",
-				"to": ""
+				"point_or_line": ""
 			},
 			"return": "",
 			"description": ""
