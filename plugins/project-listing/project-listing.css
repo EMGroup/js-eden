@@ -1,19 +1,38 @@
+/*
+ * Joint stylesheet for the Project List and Plug-in Manager plug-ins.
+ */
+
+.projectlist-listing {
+	padding: 3px;
+}
+
+.projectlist-prologue {
+	background-color: #f8fafc;
+	font-family: sans-serif;
+	font-weight: bold;
+	font-size: 10pt;
+	padding: 0.75em 10px;
+	margin-bottom: 2px;
+}
+
 .projectlist-result-element {
-	/*border-bottom-width: 1px;
-	border-bottom-style: solid;
-	border-bottom-color: #d0d0d0;*/
-	position: relative;
-	left: 0px;
-	right: 0px;
-	/*height: 16px;*/
 	cursor: pointer;
-	overflow: hidden;
-	position: relative;
-	padding-left: 15px;
-	padding-right: 15px;
+	padding: 10px;
 	margin-bottom: 2px;
 	font-size: 8pt;
 	background-color: #eaeaea;
+}
+
+.projectlist-result-element:hover {
+	background-color: #f2f2f2;
+}
+
+/* This rule has to come after the rule for .projectlist-result-element so that these declarations
+ * take precedence.
+ */
+.pluginmanager-loaded {
+	background-color: #cecece;
+	cursor: default;
 }
 
 .projectlist-search {
@@ -53,20 +72,17 @@
 	float: left;
 }
 
-.projectlist-result_name {
-	font-family: "Arial";
+.projectlist-result-name {
+	font-family: sans-serif;
 	font-weight: bold;
 	font-size: 10pt;
+	margin-bottom: 2pt;
 }
 
-.projectlist-result_value {
+.projectlist-result-metadata {
 	color: #909090;
-	overflow: hidden;
-}
-
-.type-project {
-	list-style-type: none;
-	padding: 10px 0;
+	line-height: 1.35;
+	margin-top: 2pt;
 }
 
 .projectlist-search-icon {

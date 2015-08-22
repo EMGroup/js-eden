@@ -164,7 +164,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 	}
 	
 	//Register the HTML view options
-	edenUI.views["DependencyMap"] = {dialog: this.createDialog, title: "Dependency Map", category: edenUI.viewCategories.comprehension, menuPriority: 0};
+	edenUI.views["DependencyMap"] = {dialog: this.createDialog, title: "Dependency Map", category: edenUI.viewCategories.comprehension, menuPriority: 2};
 	success();
 };
 /* Plugin meta information */

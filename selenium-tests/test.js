@@ -46,7 +46,7 @@ describe("UI tests", function () {
 	});
 
 	it("has an input window", function () {
-		return browser.waitForElementByCss('#inputwindow-dialog', wd.asserters.isDisplayed, 60000);
+		return browser.waitForElementByCss('#input-dialog', wd.asserters.isDisplayed, 60000);
 	});
 
 	it("describe it has a canvas window", function () {
@@ -60,9 +60,9 @@ describe("UI tests", function () {
 	describe("writeln", function () {
 		before(function () {
 			return browser
-			.waitForElementByCss('#inputwindow-dialog textarea')
+			.waitForElementByCss('#input-dialog textarea')
 			.type('writeln("Hello world!");')
-			.waitForElementByCss('#inputwindow-dialog .submitButton')
+			.waitForElementByCss('#input-dialog .submitButton')
 			.click();
 		});
 

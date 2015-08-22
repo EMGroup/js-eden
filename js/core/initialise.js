@@ -87,6 +87,9 @@ function initialiseJSEden() {
 			plugins.push("ScriptInput");
 		}
 	}
+	if (menuBar) {
+		plugins.unshift("MenuBar");
+	}
 
 	$(document).ready(function () {
 		edenUI = new EdenUI(eden);
@@ -123,10 +126,6 @@ function initialiseJSEden() {
 				eden.execute(exec, "URL", "", {name: "execute"}, function () { });
 			}
 		}
-		
-		if (menuBar) {
-			edenUI.loadPlugin("MenuBar", function () { });
-		}
 
 		// Load the Eden library scripts
 		loadPlugins(plugins, function () {
@@ -134,6 +133,7 @@ function initialiseJSEden() {
 				$.getJSON('config.json', function (config) {
 					rt.config = config;
 
+					eden.captureInitialState();
 					if (include) {
 						eden.include(include, doneLoading);
 					} else {

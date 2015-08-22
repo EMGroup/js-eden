@@ -168,8 +168,8 @@
 
 #menubar-status {
 	position: absolute;
-	left: 300px;
-	right: 300px;
+	left: 355px;
+	min-width: calc(100% - 710px);
 	text-align: center;
 	padding-top: 4px;
 	color: #e0e0e0;

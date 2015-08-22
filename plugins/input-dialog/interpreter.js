@@ -104,7 +104,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		result = "";
 		for (var i=0; i<me.history.length; i++) {
-			var theclass = "inputwindow-history-line";
+			var theclass = "input-history-line";
 			result = result + "<div class=\""+theclass+"\"><p style=\"word-wrap: break-word;\">" + Eden.htmlEscape(me.history[i]) + "</p></div>";
 		}
 		return result;
@@ -156,8 +156,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			.dialog({
 				title: mtitle,
 				width: 500,
-				height: 200,
-				minHeight: 200,
+				height: 224,
+				minHeight: 203,
 				minWidth: 500
 			});
 			input_dialog = $dialog;

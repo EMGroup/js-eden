@@ -51,13 +51,15 @@ CanvasImage = function (dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoothed, f
 		if (me.sHeight === undefined) {
 			me.sHeight = me.image.height - me.sy;
 		}
-		if (me.dWidth === undefined) {
+		if (me.dWidth === undefined && me.dHeight === undefined) {
 			me.dWidth = me.sWidth;
+			me.dHeight = me.sHeight;		
+		} else if (me.dWidth === undefined) {
+			me.dWidth = me.sWidth * me.dHeight / me.sHeight;
+		} else if (me.dHeight === undefined) {
+			me.dHeight = me.sHeight * me.dWidth / me.sWidth;
 		}
-		if (me.dHeight === undefined) {
-			me.dHeight = me.sHeight;
-		}
-		
+
 		me.loaded = true;
 		for (var canvas in me.canvasesToRepaint) {
 			var pictureObs = root.lookup(canvas);

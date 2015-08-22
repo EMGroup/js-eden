@@ -2,7 +2,7 @@
 
 ##Configure views.
 include("models/jspe/auto-resizing-jspe.js-e");
-destroyView("inputwindow");
+destroyView("input");
 moveView("picture", 0, 0);
 _view_picture_height is screenHeight - _view_picture_y;
 
