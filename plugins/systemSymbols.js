@@ -1,3 +1,22 @@
+/**These are the observables that will be reset to pre-defined values after using EDEN's forgetAll
+ function (instead of being completely deleted). They represent a kind of minimal construal.
+ */
+ Eden.initiallyDefined = [
+	"_view_picture_background_colour",
+	"_view_picture_offset",
+	"_view_picture_scale",
+	"edenclocks",
+	"edenclocks_paused",
+	"menus",
+	"mouseCapture",
+	"mouseContextMenuEnabled",
+	"mouseFollow",
+	"mouseWheelEnabled",
+	"picture",
+	"radiansPerUnit",
+	"randomSeed"
+];
+
 //System Symbols
 Eden.systemObservableNames = {
 	"_authoringMode": true,

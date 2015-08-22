@@ -188,8 +188,9 @@ func forgetAll {
 		
 		var references = {};
 		var unableToDelete = [];
-		var setToUndefined = {};
+		var reset = {};
 
+		var initialDefinition;
 		if (obsToDelete !== undefined) {
 
 			//Observables given as a list.
@@ -212,11 +213,10 @@ func forgetAll {
 					unableToDelete.push(name);
 					continue;
 				}
-				
-				if (name == "picture") {
-					/* A symbol (e.g. picture) has a critical jsObserver attached that can't be
-					 * easily recreated by the user, so set it to undefined instead of forgetting. */
-					setToUndefined[name] = symbol;
+
+				initialDefinition = eden.initialDefinition(name);
+				if (initialDefinition) {
+					reset[name] = initialDefinition;
 				} else {
 					var referencedBy = [];
 					for (var dependency in symbol.subscribers) {
@@ -244,10 +244,11 @@ func forgetAll {
 						continue;
 					}
 					
-					symbol = root.symbols[name];
-					if (name == "picture") {
-						setToUndefined[name] = symbol;
+					initialDefinition = eden.initialDefinition(name);
+					if (initialDefinition) {
+						reset[name] = initialDefinition;
 					} else {
+						symbol = root.symbols[name];
 						var referencedBy = [];
 						for (var dependency in symbol.subscribers) {
 							referencedBy.push(dependency.slice(1));
@@ -270,7 +271,7 @@ func forgetAll {
 			if (name in canForget) {
 				return canForget[name];
 			}
-			if (name in setToUndefined) {
+			if (name in reset) {
 				return true;
 			}
 			if (!(name in references)) {
@@ -305,16 +306,16 @@ func forgetAll {
 		}
 		
 		var confirmed;
-		var unsetList = Object.keys(setToUndefined);
-		var deletePlusUnset = namesToDelete.concat(unsetList);
-		if (deletePlusUnset.length >0 && requireConfirm) {
-			if (deletePlusUnset.length <= 50) {
-				confirmed = confirm("You are about to delete the following " + deletePlusUnset.length +
-					" symbols.  Is this correct?\n\n" + deletePlusUnset.join("\n"));
+		var resetList = Object.keys(reset);
+		var deletePlusReset = namesToDelete.concat(resetList);
+		if (deletePlusReset.length >0 && requireConfirm) {
+			if (deletePlusReset.length <= 50) {
+				confirmed = confirm("You are about to delete the following " + deletePlusReset.length +
+					" symbols.  Is this correct?\n\n" + deletePlusReset.join("\n"));
 			} else {
-				var numNotDisplayed = deletePlusUnset.length - 50;
-				confirmed = confirm("You are about to delete " + deletePlusUnset.length +
-					" symbols.  Is this correct?\n\n" + deletePlusUnset.slice(0, 50).join("\n") +
+				var numNotDisplayed = deletePlusReset.length - 50;
+				confirmed = confirm("You are about to delete " + deletePlusReset.length +
+					" symbols.  Is this correct?\n\n" + deletePlusReset.slice(0, 50).join("\n") +
 					"\n...\n(" + numNotDisplayed + " more)");
 			}
 		} else {
@@ -322,9 +323,17 @@ func forgetAll {
 		}
 		
 		if (confirmed) {
-			if (unsetList.length > 0) {
-				for (name in setToUndefined) {
-					setToUndefined[name].assign(undefined, this);
+			var noop = function () { };
+			var wasInInitialState = eden.isInInitialState();
+			var autocalcSym = root.lookup("autocalc");
+			var autoCalcEnabledOnEntry = autocalcSym.value();
+			if (autoCalcEnabledOnEntry) {
+				autocalcSym.assign(0, this);
+			}
+
+			if (resetList.length > 0) {
+				for (name in reset) {
+					eden.execute(reset[name], "forgetAll", "", this, noop);
 				}
 			}
 			for (var i = 0; i < namesToDelete.length; i++) {
@@ -334,14 +343,26 @@ func forgetAll {
 					/* Clear the view's contents before deleting the associated symbol, so at least
 					 * it's clear that the view is no longer valid and isn't merely "hung". */
 					symbol.assign(undefined);
-					window.setTimeout(function () {
-						root.symbols[name].forget();
-					}, 50);
+					window.setTimeout(function (nameToDelete) {
+						root.symbols[nameToDelete].forget();
+					}(name), 50);
 				} else {
 					symbol.forget();
 				}
 			}
-			return [namesToDelete, unableToDelete, unsetList];
+			if (searchStr === "") {
+				edenUI.destroyView("jspe");
+				if ("Canvas2D" in edenUI.plugins) {
+					eden.execute('createCanvas("picture");', "forgetAll", "", this, noop);
+				}
+				eden.captureInitialState();
+			} else if (wasInInitialState) {
+				eden.captureInitialState();			
+			}
+			if (autoCalcEnabledOnEntry) {
+				autocalcSym.assign(1, this);
+			}
+			return [namesToDelete, unableToDelete, resetList];
 		} else {
 			return [[], unableToDelete, []];
 		}
@@ -495,11 +516,19 @@ include("library/generate_function.js-e");
 
 initialViews = ${{getParameterByName("views") }}$;
 if (initialViews == "" || initialViews == "default") {
-	createCanvas("picture");
-	createView("inputwindow", "ScriptInput");
 	createView("projects", "ProjectList");
+	_view_projects_x = 0;
+	_view_projects_y = 0;
+	_view_projects_width = 220;
+	_view_projects_height = screenHeight - _views_frame_height;
+	createCanvas("picture");
+	_view_picture_x = _view_projects_width + _views_frame_width;
+	_view_picture_y = 0;
+	picture is [Image(_view_picture_width / 2 - 299, _view_picture_height / 2 - 80, "images/construit-logo.jpg")];
+	createView("input", "ScriptInput");
+	_view_input_x = _view_picture_x;
+	_view_input_y = _view_picture_height + _views_frame_height;
+	_view_input_width = _view_picture_width;
+	_view_input_height = max(170, screenHeight - _view_input_y - _views_frame_height);
 }
 forget(&initialViews);
-
-arrangeWindows();
-

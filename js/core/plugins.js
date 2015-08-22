@@ -293,6 +293,7 @@
 			return;
 		}
 		this.viewInstances[name].closing = true;
+		root.lookup("forgetAll").definition(root)("^_[vV]iew_" + name + "_", true, false, true);
 		if (this.viewInstances[name].destroy) {
 			//Call clean-up handler.
 			this.viewInstances[name].destroy();
@@ -303,7 +304,6 @@
 		theDialog.html("");
 		delete this.activeDialogs[name];
 		delete this.viewInstances[name];
-		root.lookup("forgetAll").definition(root)("^_[vV]iew_" + name + "_", true, false, true);
 		
 		var viewListSym = root.lookup("_view_list");
 		var viewList = viewListSym.value();

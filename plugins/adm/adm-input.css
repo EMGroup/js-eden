@@ -1,9 +1,9 @@
-.inputwindow-code {
+.adm-input-code {
 	font.size: 10pt;
 }
 
-.inputwindow-history-line {
-	font-family: 'Courier New';
+.adm-input-history-line {
+	font-family: monospace;
 	font-size: 10pt;
 	color: black;
 	width: 100%;

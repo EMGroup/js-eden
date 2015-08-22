@@ -315,10 +315,10 @@ proc drawPicture5: picture5 {
 
 }
 picture5 is [selectRules,applyRule,Manualexe,Inputstrtable,Inputtokenstable,nextstep,Outputtable,ResetButton,nextsymboltable];
-_view_inputwindow_x=10;
-_view_inputwindow_y=130;
-_view_inputwindow_width=350;
-_view_inputwindow_height=200;
+_view_input_x=10;
+_view_input_y=130;
+_view_input_width=350;
+_view_input_height=200;
 _view_view_4_x=10;
 _view_view_4_y=550;
 _view_view_4_width=200;

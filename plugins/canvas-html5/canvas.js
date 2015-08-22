@@ -30,7 +30,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	};
 
 	var defaultWidth = 600;
-	var defaultHeight = 450;
+	var defaultHeight = 500;
 	canvases = {};
 	contents = {};
 	var canvasNameToElements = {};
@@ -77,6 +77,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var picture = root.lookup(pictureObs).value();
 					var context = canvas.getContext('2d');
 					var content = contents[canvasname];
+					if (content === undefined) {
+						//View has been detroyed.
+						return;
+					}
 				  
 					var backgroundColour = root.lookup("_view_" + canvasname + "_background_colour").value();
 					var scale = root.lookup("_view_" + canvasname + "_scale").value();
@@ -99,7 +103,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					for (hash in previousElements) {
 						previousElements[hash].togarbage = true;
 					}
-
 					if (Array.isArray(picture)) {
 
 						for (var i = 0; i < picture.length; i++) {

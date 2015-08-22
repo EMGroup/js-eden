@@ -316,8 +316,45 @@ function concatAndResolveUrl(url, concat) {
 		 * @public
 		*/
 		this.reportErrors = true;
+
+		/**Records whether or not the environment is in the initial state, i.e. if the system
+		 * library is loaded but no other definitions have been made.
+		 * @type {boolean}
+		 * @private
+		 */
+		var inInitialState = true;
+		
+		/**Records the values of the observables in the initial state.
+		 * @type {Object}
+		 * @private
+		 */
+		var initialDefinitions = {};
 	}
 
+	Eden.prototype.captureInitialState = function () {
+		this.initialDefinitions = {};
+		for (var i = 0; i < Eden.initiallyDefined.length; i++) {
+			var name = Eden.initiallyDefined[i];
+			if (name in this.root.symbols) {
+				var symbol = this.root.symbols[name];
+				if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
+					this.initialDefinitions[name] = symbol.eden_definition + ";";
+				} else {
+					this.initialDefinitions[name] = name + " = " + Eden.edenCodeForValue(symbol.cached_value) + ";";
+				}
+			}
+		}
+		this.inInitialState = true;
+	}
+
+	Eden.prototype.initialDefinition = function (name) {
+		return this.initialDefinitions[name];
+	}
+
+	Eden.prototype.isInInitialState = function () {
+		return this.inInitialState;
+	}
+	
 	/**
 	 * @param {string} eventName
 	 * @param {*} target
@@ -357,6 +394,7 @@ function concatAndResolveUrl(url, concat) {
 		this.emit('executeBegin', [origin, code]);
 		try {
 			var js = this.translateToJavaScript(code);
+			this.inInitialState = false;
 			eval(js).call(agent, this.root, this, prefix, function () {
 				success && success();
 				me.emit('executeEnd', [origin]);

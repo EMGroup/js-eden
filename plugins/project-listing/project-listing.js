@@ -7,14 +7,9 @@
 
 /**
  * JS-Eden Project Listing Plugin.
- * A plugin to display a list of models hosted on the server. The list can
- * either be displayed in a dialog using createProjectList or be displayed
- * in an existing div element using embedProjectList. It includes a search box
- * to allow searching of the projects available.
+ * A plugin to display a list of models hosted online.
  * @class ProjectList Plugin
  */
-
- 
 EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 	var me = this;
@@ -46,6 +41,28 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		//Clear any existing project search results.
 		var projresults = $(element).find(".projectlist-results");
 		projresults.html('');
+		var emptyProject = $(
+			'<div class="projectlist-result-element">' +
+				'<div class="projectlist-result-name">New Project</div>' + 
+				'<div class="projectlist-result-metadata">An empty work space.</div>' +
+				'<div class="projectlist-result-metadata">By JS-EDEN Project Team</div>' +
+			'</div>'
+		).click(function () {
+			edenUI.modalDialog(
+				"Reset Work Space",
+				"<p>This action will discard the current script. Your work will not be saved.</p>\
+				<p>Are you sure you wish to continue?</p>",
+				["Reset Work Space"],
+				1,
+				function (optionNo) {
+					if (optionNo == 0) {
+						var root = edenUI.eden.root;
+						root.lookup("forgetAll").definition(root)("", true, false);
+					}
+				}
+			);
+		});
+		projresults.append(emptyProject);
 
 		//Search through projects to find those matching the query.
 		var reg = new RegExp("^"+pattern+".*");
@@ -65,53 +82,62 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 			proj[0].project = me.projects.projects[i];
 
 			proj.html(
-				"<li class=\"type-project\"><div class=\"projectlist-result_name\">"
-				+ me.projects.projects[i].name
-				+ "</div><div class='projectlist-result_value'>"
-				+ me.projects.projects[i].description
-				+ "</div><div class='projectlist-result_value'> by "
+				'<div class="projectlist-result-name">'
+				+ me.projects.projects[i].name +
+				'</div><div class="projectlist-result-metadata">'
+				+ me.projects.projects[i].description +
+				'</div><div class="projectlist-result-metadata">By '
 				+ me.projects.projects[i].author
-				+ " ("
+				+ ' ('
 				+ me.projects.projects[i].year
-				+ ")</div></li>"
+				+ ')</div>'
 			).appendTo(projresults);
 
 			i = i + 1;
 		}
 
-		//Now add animations to each project result
-		projresults.find(".projectlist-result-element").hover(
-			function() {
-				if (this != me.selected_project) {
-					$(this).animate({backgroundColor: "#f2f2f2"}, 100);
-				}
-			}, function() {
-				if (this != me.selected_project) {
-					$(this).animate({backgroundColor: "#eaeaea"}, 100);
-				}
-			}	
-
-		//Also add mouse click functionality (load the project).
-		).click(function () {
-			if (me.selected_project != null) {
-				$(me.selected_project).animate({backgroundColor: "white"}, 100);
-			}
-			me.selected_project = this;
-			$(this).animate({backgroundColor: "#dbe5f1"}, 100);
-
+		//Also add mouse click functionality to load the project.
+		projresults.find(".projectlist-result-element").click(function () {
 			if (this.project !== undefined) {
 				// Actually load the project by executing js-e file.
 				var url = this.project.runfile;
-				$.ajax({
-					url: url,
-					dataType: "text",
-					success: function (data) {
-						EdenUI.plugins.ScriptGenerator.loadBaseConstrual(url, data);
-						if (edenUI.plugins.ScriptInput) {
-							edenUI.plugins.ScriptInput.addHistory('include("' + url + '");');
+				var loadSelectedProject = function () {
+					$.ajax({
+						url: url,
+						dataType: "text",
+						success: function (data) {
+							EdenUI.plugins.ScriptGenerator.loadBaseConstrual(url, data);
+							if (edenUI.plugins.ScriptInput) {
+								edenUI.plugins.ScriptInput.addHistory('include("' + url + '");');
+							}
 						}
+					});
+				};
+				if (!edenUI.eden.isInInitialState()) {
+					edenUI.modalDialog(
+						"Open Project Action",
+						"<p>The work space contains an existing construal.</p>\
+						<p>You can either abandon the existing construal or choose to merge the project with the existing definitions.</p>\
+						<p>Which would you like to do?</p>",
+						["Open Project", "Merge"],
+						0,
+						function (optionNo) {
+							if (optionNo == 2) {
+								return;
+							}
+							if (optionNo == 0) {
+								var root = edenUI.eden.root;
+								root.lookup("forgetAll").definition(root)("", true, false);
+							}
+							loadSelectedProject();
+						}
+					);
+				} else {
+					if ("Canvas2D" in edenUI.plugins) {
+						eden.execute('createCanvas("picture");', "ProjectList", "", Symbol.hciAgent, noop);
 					}
-				});
+					loadSelectedProject();
+				}
 			}
 		});
 	}
@@ -121,10 +147,16 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 	 * @private
 	 */
 	var generateHTML = function() {
-		return "\
-<div class=\"projectlist-listing\">\
-	<div class=\"projectlist-results\"></div>\
-</div>";
+		return '\
+			<div class="projectlist-listing">\
+				<a href="http://www.construit.org/index.php/dissemination/newsletters" target="newsletter" style="text-decoration: none">\
+					<div class="projectlist-prologue">\
+						<img src="images/email.png" width="16" height="16" style="vertical-align: -20%"/>\
+						Newsletter Sign-Up\
+					</div>\
+				</a>\
+				<div class="projectlist-results noselect"></div>\
+			</div>';
 	}
 
 	/** @public */
@@ -139,7 +171,8 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 				width: 310,
 				height: 400,
 				minHeight: 120,
-				minWidth: 230
+				minWidth: 230,
+				dialogClass: "unpadded-dialog"
 			});
 
 		me.instances.push(code_entry[0]);
@@ -155,7 +188,6 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		dataType: 'json',
 		success: function(data) {
 			me.projects = data;
-			edenUI.projects = me.projects;
 			updateAllCollections("");
 		},
 		cache: false,

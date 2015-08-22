@@ -1,16 +1,17 @@
 require("Canvas2D");
 
 if (_view_jspe_width == @) {
+	hideView("projects");
 	createCanvas("jspe", "slides", "JSPE Slides");
 	_view_picture_x = 2;
-	_view_jspe_x = _view_picture_x + _view_picture_width + _views_frame_width + 15;
+	_view_jspe_x = _view_picture_x + _view_picture_width + _views_frame_width + 14;
 	_view_jspe_y = 0;
 	_view_jspe_width is min(700, screenWidth - _view_jspe_x);
 	_view_jspe_height is screenHeight - _view_jspe_y;
-	_view_inputwindow_x = 2;
-	_view_inputwindow_y = _view_picture_y + _view_picture_height + _views_frame_height + 22;	
-	_view_inputwindow_width = min(0.4 * screenWidth, _view_picture_width);
-	_view_inputwindow_height = screenHeight - _view_inputwindow_y - _views_frame_height;
+	_view_input_x = 2;
+	_view_input_y = _view_picture_y + _view_picture_height + _views_frame_height + 14;	
+	_view_input_width = min(0.4 * screenWidth, _view_picture_width);
+	_view_input_height = screenHeight - _view_input_y - _views_frame_height;
 }
 
 if (slideList == @) slideList = [];
@@ -114,7 +115,7 @@ func Slide { ${{
 ${{
   copyToInput = function(e) {
 
-	edenUI.createView("inputwindow", "ScriptInput").setValue($(e).siblings('pre').text());
+	edenUI.createView("input", "ScriptInput").setValue($(e).siblings('pre').text());
 	//Copies to EDEN interpreter window
   }
 
@@ -188,7 +189,7 @@ textDecrease is SlideButton("buttonTextDecrease", "Font--", jspeleft + 278, 4, t
 slides is [buttonPrev, slideNumberLabel, buttonNext, slideList[currentSlide], textIncrease, textDecrease];
 
 bindCSSNumericProperty("#jspe_slide", "font-size", "jspeFontSize", "pt");
-jspeFontSize = 11;
+jspeFontSize = 10.5;
 
 proc increaseText : buttonTextIncrease_clicked{
 	if (buttonTextIncrease_clicked) {

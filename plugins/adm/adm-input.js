@@ -183,7 +183,7 @@
 		
 	/** @private */
 	var generateTemplateHTML = function(name) {
-		return '<div id="'+name+'-input" class=\"inputwindow-code\">\
+		return '<div id="'+name+'-input" class=\"adm-input-code\">\
 			<div>Name:</div>\
 			<div><textarea id="adm-name" type=\"text\" class=\"adm-name\"></textarea></div>\
 			<div>Definitions:</div>\
@@ -918,7 +918,7 @@
 		myeditor.style.width = "100%";
 		myeditor.style.height = "100%";
 		
-		$code_entry = $('<div id=\"advanced-input\" class=\"inputwindow-code\" style=\"height: 100%\"></div>');
+		$code_entry = $('<div id=\"advanced-input\" class=\"adm-input-code\" style=\"height: 100%\"></div>');
 		$code_entry.append(myeditor);
 		
 		$dialog = $('<div id="'+name+'"></div>')

@@ -8,7 +8,7 @@
 EdenUI.plugins.PluginManager = function (edenUI, success) {
 	
 	this.createDialog = function (name, mtitle) {
-		var $pluginList = $('<div class="projectlist-result-element"></div>');
+		var $pluginList = $('<div class="projectlist-results noselect"></div>');
 		var pluginInfo;
 		var pluginName;
 		var wording;
@@ -36,17 +36,18 @@ EdenUI.plugins.PluginManager = function (edenUI, success) {
 		for (var i = 0; i < pluginNames.length; i++) {
 			pluginName = pluginNames[i];
 			pluginInfo = EdenUI.plugins[pluginName];
+			var loadedCSSClass = pluginName in edenUI.plugins? " pluginmanager-loaded" : "";
 			var pluginHTML =
-				'<li class="type-project">' +
-					'<div class="projectlist-result_name">' +
+				'<div class="projectlist-result-element' + loadedCSSClass + '">' +
+					'<div class="projectlist-result-name">' +
 						pluginInfo.title +
 					"</div>" +
-					"<div class='projectlist-result_value'>" +
+					"<div class='projectlist-result-metadata'>" +
 						pluginInfo.description +
 					"</div>";
 			if (pluginInfo.originalAuthor !== undefined) {
 				pluginHTML = pluginHTML +
-					"<div class='projectlist-result_value'>" +
+					"<div class='projectlist-result-metadata'>" +
 						"Original version by " + pluginInfo.originalAuthor +
 					"</div>";
 			}
@@ -57,44 +58,36 @@ EdenUI.plugins.PluginManager = function (edenUI, success) {
 					wording = "Built on by ";
 				}
 				pluginHTML = pluginHTML +
-					"<div class='projectlist-result_value'>" +
+					"<div class='projectlist-result-metadata'>" +
 						wording + pluginInfo.author +
 					"</div>";
 			}
 			pluginHTML = pluginHTML +
-					'<div class="pluginlist-loaded projectlist-result_value">' +
+					'<div class="pluginlist-loaded projectlist-result-metadata">' +
 						loadedHtml(pluginName) +
 					"</div>" +
-				"</li>"
+				"</div>"
 
 			$(pluginHTML).click((function (pluginName) {
 				return function () {
-					var el = this;
-					$(this).animate({backgroundColor: "#dbe5f1"}, 100);
+					var pluginJQ = $(this);
 					edenUI.loadPlugin(pluginName, function () {
-						$(el).find('.pluginlist-loaded').html(loadedHtml(pluginName));
+						if (edenUI.plugins[pluginName]) {
+							pluginJQ.find('.pluginlist-loaded').html(loadedHtml(pluginName));
+							pluginJQ.addClass("pluginmanager-loaded", 100);
+						}
 						edenUI.plugins.MenuBar.updateViewsMenu();
 					});
 				};
-			}(pluginName))).hover(
-				function() {
-					$(this).stop().animate({backgroundColor: "#f2f2f2"}, 100);
-				}, function() {
-					$(this).stop().animate({backgroundColor: "#eaeaea"}, 100);
-				}	
+			}(pluginName))	
 			).appendTo($pluginList);
 		}
 
 		var $dialogContents = $(
-			'<div class="projectlist-listing">'+
-				'<div class="projectlist-results">'+
-				'</div>'+
+			'<div class="projectlist-listing">' +
 			'</div>'
 		);
-
-		$dialogContents
-			.find('.projectlist-results')
-			.append($pluginList);
+		$dialogContents.append($pluginList);
 
 		$dialog = $('<div id="'+name+'"></div>')
 			.html($dialogContents)
@@ -104,7 +97,7 @@ EdenUI.plugins.PluginManager = function (edenUI, success) {
 				height: 400,
 				minHeight: 120,
 				minWidth: 230,
-				position: ['right','top'],
+				dialogClass: "unpadded-dialog"
 			});
 	};
 

@@ -132,7 +132,7 @@ ${{
   copy = function(e) {
 
 	// Copies to EDEN interpreter window
-	$('#inputwindow-dialog-input').text($(e).siblings('pre').html());
+	$('#input-dialog-input').text($(e).siblings('pre').html());
 
   }
 

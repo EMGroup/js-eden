@@ -82,16 +82,19 @@ HTMLImage.prototype.draw = function(context) {
 			var image = event.target;
 			var parentID = image.parentElement.id;
 			var canvasName = parentID.slice(0, -21) // trim -dialog-canvascontent
-			var canvasScale = root.lookup("_view_" + canvasName + "_scale").value();
+			var canvasScale = root.lookup("_view_" + canvasName + "_scale").value() * root.lookup("_view_" + canvasName + "_zoom").value();
 
-			if (me.scaledWidth === undefined) {
+			if (me.scaledWidth === undefined && me.scaledHeight === undefined) {
 				me.scaledWidth = image.naturalWidth;
-				image.width = Math.round(me.scaledWidth * canvasScale / me.scaleFactor);
+				me.scaledHeight = image.naturalHeight;
+			} else if (me.scaledWidth === undefined) {
+				me.scaledWidth = image.naturalWidth * me.scaledHeight / image.naturalHeight;
 			}
 			if (me.scaledHeight === undefined) {
 				me.scaledHeight = image.naturalHeight * me.scaledWidth / image.naturalWidth;
-				image.height = Math.round(me.scaledHeight * canvasScale / me.scaleFactor);
 			}
+			image.width = Math.round(me.scaledWidth * canvasScale / me.scaleFactor);
+			image.height = Math.round(me.scaledHeight * canvasScale / me.scaleFactor);
 		});
 	}
 	this.elements = [imageJQ.get(0)];
