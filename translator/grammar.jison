@@ -165,10 +165,12 @@
 
 script
     : statement-list-opt EOF
-      { return '(function (root, eden, includePrefix, done) {' +
+      {
+		var code = yy.code($1.cps, $1.code + ' root.collectGarbage();');
+		return '(function (root, eden, includePrefix, done) {' +
                  '(function(context, rt) { ' +
                     yy.printObservableDeclarations() +
-                    yy.withIncludes($1, 'done') +
+                    yy.withIncludes(code, 'done') +
                  '}).call(this, root, rt);' +
                '})';
       }

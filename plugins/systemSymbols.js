@@ -14,7 +14,8 @@
 	"mouseWheelEnabled",
 	"picture",
 	"radiansPerUnit",
-	"randomSeed"
+	"randomGenerator",
+	"randomSeed",
 ];
 
 //System Symbols
@@ -57,6 +58,7 @@ Eden.systemAgentNames = {
 	"bindCSSRule": true,
 	"createCanvas": true,
 	"createHTMLView": true,
+	"createProjectList": true,
 	"createView": true,
 	"destroyView": true,
 	"eager": true,

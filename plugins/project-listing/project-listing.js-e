@@ -1,0 +1,52 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+proc createProjectList {
+	auto url, viewTitle, viewName, updateExistingView, success;
+	if ($# == 1) {
+		url = $[1];
+		viewTitle = "Project List";
+		viewName = "projects";
+	} else if ($# == 2) {
+		url = $[1];
+		viewTitle = $[2];
+		viewName = viewTitle;
+	} else if ($# == 3) {
+		url = $[1];
+		viewTitle = $[2];
+		viewName = $[3];
+		if (viewTitle != @ && !isString(viewTitle)) {
+			error("createProjectList: The second argument must be a string, not a " // type(viewTitle));
+			return;
+		}
+	} else {
+		error("createProjectList: This procedure requires at least 1 argument and at most 3 arguments.");
+		return;
+	}
+	
+	if (!isString(url)) {
+		error("createProjectList: The first argument must be a string, not a " // type(url));
+		return;
+	}
+	
+	if (!isString(viewName)) {
+		error("createProjectList: The view name must be a string, not a " // type(viewName));
+		return;
+	}
+
+	createOrUpdateView = ${{ function (viewName, url) {
+		if (edenUI.activeDialogs[viewName] == "ProjectList") {
+			edenUI.viewInstances[viewName].data.loadProjectData(url);
+		} else {
+			edenUI.createView(viewName, "ProjectList", url);
+		}
+	} }}$;
+
+	createOrUpdateView(viewName, url);
+
+	if (viewTitle != @) {
+		`"_view_" // viewName // "_title"` = viewTitle;
+	}
+}

@@ -38,31 +38,18 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	var redrawDelay = 40;
 
 	this.drawPictures = function (pictureObs) {
-		for (viewName in pictureObsToViews[pictureObs]) {
+		for (var viewName in pictureObsToViews[pictureObs]) {
 			this.drawPicture(viewName, pictureObs);
 		}
 	}
 
 	this.drawPicture = function(canvasname, pictureObs) {
-
-		if (!canvasNameToElements[canvasname]) {
-			canvasNameToElements[canvasname] = {};
-		}
-
 		var canvas = canvases[canvasname];
-
 		if (canvas === undefined) {
-			//Need to make the canvas view first
-			edenUI.createView(canvasname, "Canvas2D", pictureObs);
-			
-			canvases[canvasname] = $("#"+canvasname+"-dialog-canvas")[0];
-			contents[canvasname] = $("#"+canvasname+"-dialog-canvascontent")[0];
-			canvas = canvases[canvasname];
-			canvas.drawingQueued = false;
-			canvas.drawingInProgress = false;
-			canvas.rescale = false;
+			//View has been detroyed.
+			return;
 		}
-	
+
 		if (!canvas.drawingQueued) {
 			canvas.drawingQueued = true;
 
@@ -83,17 +70,29 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					}
 				  
 					var backgroundColour = root.lookup("_view_" + canvasname + "_background_colour").value();
+					if (backgroundColour === undefined) {
+						backgroundColour = "white";
+					}
 					var scale = root.lookup("_view_" + canvasname + "_scale").value();
+					if (typeof(scale) != "number") {
+						scale = 1;
+					}
 					var zoom = root.lookup("_view_" + canvasname + "_zoom").value();
+					if (typeof(zoom) != "number") {
+						zoom = 1;
+					}
 					var combinedScale = scale * zoom;
 					var origin = root.lookup("_view_" + canvasname + "_offset").value();
+					if (origin instanceof Point) {
+						context.translate(origin.x, origin.y);
+					} else {
+						origin = new Point(0, 0);
+					}
+
 					me.setFillStyle(context, backgroundColour);
 					content.parentElement.style.backgroundColor = backgroundColour;
 					context.setTransform(1, 0, 0, 1, 0, 0);
 					context.fillRect(0, 0, canvas.width, canvas.height);
-					if (origin instanceof Point) {
-						context.translate(origin.x, origin.y);
-					}
 					context.scale(combinedScale, combinedScale);
 
 					//Configure JS-EDEN default options that are different from the HTML canvas defaults.
@@ -248,45 +247,56 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	
 	this.createDialog = function (name, mtitle, pictureObs) {
 		//Remove -dialog name suffix.
-		var displayedName = name.slice(0, -7);
+		var canvasName = name.slice(0, -7);
 		var agent = root.lookup("createView");
 
-		var backgroundColourSym = root.lookup("_view_" + displayedName + "_background_colour");
+		var backgroundColourSym = root.lookup("_view_" + canvasName + "_background_colour");
 		if (backgroundColourSym.value() === undefined) {
 		  backgroundColourSym.assign("white", agent);
 		}
 		backgroundColourSym.addJSObserver("repaintView", function (symbol, value) {
-			me.drawPicture(displayedName, pictureObs);
+			me.drawPicture(canvasName, pictureObs);
 		});
 
-		var scaleSym = root.lookup("_view_" + displayedName + "_scale");
+		var scaleSym = root.lookup("_view_" + canvasName + "_scale");
 		if (scaleSym.value() === undefined) {
 		  scaleSym.assign(1, agent);
 		}
 		scaleSym.addJSObserver("repaintView", function (symbol, value) {
 			document.getElementById(name + "-canvas").rescale = true;
-			me.drawPicture(displayedName, pictureObs);
+			me.drawPicture(canvasName, pictureObs);
 		});
-		var zoomSym = root.lookup("_view_" + displayedName + "_zoom");
+		var zoomSym = root.lookup("_view_" + canvasName + "_zoom");
 		if (zoomSym.value() === undefined) {
 		  zoomSym.assign(1, agent);
 		}
 		zoomSym.addJSObserver("repaintView", function (symbol, value) {
 			document.getElementById(name + "-canvas").rescale = true;
-			me.drawPicture(displayedName, pictureObs);
+			me.drawPicture(canvasName, pictureObs);
 		});
-		var offsetSym = root.lookup("_view_" + displayedName + "_offset");
+		var offsetSym = root.lookup("_view_" + canvasName + "_offset");
 		if (offsetSym.value() === undefined) {
 		  offsetSym.assign(new Point(0, 0), agent);
 		}
 		offsetSym.addJSObserver("repaintView", function (symbol, value) {
 			document.getElementById(name + "-canvas").rescale = true;
-			me.drawPicture(displayedName, pictureObs);
+			me.drawPicture(canvasName, pictureObs);
 		});
 
 		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');
 		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" tabindex=\"1\"></canvas>");
 		var jqCanvas = code_entry.find(".canvashtml-canvas");
+
+		if (!(canvasName in canvases)) {		
+			var canvas = jqCanvas[0];
+			canvases[canvasName] = canvas;
+			contents[canvasName] = code_entry[0];
+			canvasNameToElements[canvasName] = {};
+			canvas.drawingQueued = false;
+			canvas.drawingInProgress = false;
+			canvas.rescale = false;
+		}
+
 		jqCanvas.on("mousedown", function(e) {
 			var autocalcSym = root.lookup("autocalc");
 			var autocalcValueOnEntry = autocalcSym.value();
@@ -346,7 +356,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 			if (mouseInfo.buttonCount == 1) {
 				var mousePos = root.lookup('mousePosition').value();
-				root.lookup('mouseDownWindow').assign(displayedName, Symbol.hciAgent, followMouse);
+				root.lookup('mouseDownWindow').assign(canvasName, Symbol.hciAgent, followMouse);
 				root.lookup('mouseDown').assign(mousePos, Symbol.hciAgent, followMouse);
 			}
 			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
@@ -539,7 +549,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			var mousePositionSym = root.lookup('mousePosition');
 			
 			var x, y;
-			var scale = root.lookup("_view_" + displayedName + "_scale").value();
+			var scale = root.lookup("_view_" + canvasName + "_scale").value();
 			if (me.mouseInfo.capturing) {
 				var previousPosition = mousePositionSym.value();
 				var e2 = e.originalEvent;
@@ -558,7 +568,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				mousePos = new Point(x, y);
 			}
 
-			root.lookup('mouseWindow').assign(displayedName, Symbol.hciAgent, followMouse);
+			root.lookup('mouseWindow').assign(canvasName, Symbol.hciAgent, followMouse);
 			mousePositionSym.assign(mousePos, Symbol.hciAgent, followMouse);
 			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 
@@ -566,7 +576,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			if (e.altKey) {
 				var keyCode = e.which;
 				if (keyCode == 187 || keyCode == 189) {
-					var zoomSym = root.lookup("_view_" + displayedName + "_zoom");
+					var zoomSym = root.lookup("_view_" + canvasName + "_zoom");
 					var zoom = zoomSym.value();
 					if (keyCode == 187) {
 						zoom = zoom * 1.25;
@@ -578,23 +588,23 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			}
 		});
 
-		$dialog = $('<div id="'+name+'"></div>')
-			.html(code_entry)
-			.dialog({
-				title: mtitle,
-				width: defaultWidth + edenUI.scrollBarYSize,
-				height: defaultHeight + edenUI.titleBarHeight,
-				minHeight: 120,
-				minWidth: 230,
-				dialogClass: "unpadded-dialog"
-			});
-		me.setPictureObs(displayedName, pictureObs);
+		$('<div id="'+name+'"></div>')
+		.html(code_entry)
+		.dialog({
+			title: mtitle,
+			width: defaultWidth + edenUI.scrollBarYSize,
+			height: defaultHeight + edenUI.titleBarHeight,
+			minHeight: 120,
+			minWidth: 230,
+			dialogClass: "unpadded-dialog"
+		});
+		me.setPictureObs(canvasName, pictureObs);
 		return {
 			confirmClose: true,
 			destroy: function () {
-				delete canvases[displayedName];
-				delete contents[displayedName];
-				delete pictureObsToViews[pictureObs][displayedName];
+				delete canvases[canvasName];
+				delete contents[canvasName];
+				delete pictureObsToViews[pictureObs][canvasName];
 			},
 			resize: function (width, height) {
 				var redraw = false;
@@ -616,7 +626,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					redraw = true;
 				}
 				if (redraw) {
-					me.drawPicture(displayedName, pictureObs);
+					me.drawPicture(canvasName, pictureObs);
 				}
 			}
 		};

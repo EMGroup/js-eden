@@ -30,7 +30,7 @@ func log {
 	}}$;
 }
 
-//Linear algebra stuff
+##Linear algebra stuff
 
 func centroid {
   para points;

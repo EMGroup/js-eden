@@ -47,7 +47,7 @@ proc html {
 ##parameter is the name of the observable who's value provides the HTML code.  The
 ##second, optional parameter, is the text to place into the window's title bar.
 proc createHTMLView {
-	auto viewName, obsName, viewTitle, createJSObserver;
+	auto obsName, viewTitle, viewName, createJSObserver;
 	if ($# == 1) {
 		obsName = $[1];
 	} else if ($# == 2) {

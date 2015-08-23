@@ -83,6 +83,11 @@
 		this.autocalc_state = true;
 
 		this.needsExpire = {};
+		
+		/** Symbols that might be ready to be garbage collected.
+		 * @private
+		 */
+		this.potentialGarbage = {};
 	}
 
 	/**
@@ -99,10 +104,23 @@
 		return this.symbols[name];
 	};
 
-	Folder.prototype.removeSymbol = function (name) {
-		delete this.symbols[name.slice(this.name.length)];
+	/**
+	 * Adds a symbol to the garbage queue (e.g. when EDEN's forget function is used.
+	 * @param {Symbol} The symbol that will require garbage collection if it isn't referenced again.
+	 */
+	Folder.prototype.queueForGarbageCollection = function (symbol) {
+		this.potentialGarbage[symbol.name] = symbol;
 	}
-	
+
+	Folder.prototype.collectGarbage = function () {
+		for (name in this.potentialGarbage) {
+			if (this.potentialGarbage[name].garbage) {
+				delete this.symbols[name.slice(this.name.length)];
+			}
+		}
+		this.potentialGarbage = {};
+	}
+
 	/**
 	 * Saves the result of an eval() invocation.
 	 *
@@ -256,6 +274,11 @@
 		this.jsObservers = {};
 
 		this.last_modified_by = undefined;
+
+		// true when the symbol ready to be garbage collected from its folder when execution of the
+		// current script finishes (if it is not subsequently referenced again).  This occurs when
+		// using EDEN's forget function.
+		this.garbage = false;
 	}
 
 	Symbol.getInputAgentName = function () {
@@ -270,6 +293,7 @@
 	 * @return {*}
 	 */
 	Symbol.prototype.value = function () {
+		this.garbage = false;
 		if (this.definition) {
 			if (!this.up_to_date) {
 				this.evaluate();
@@ -411,6 +435,7 @@
 	 * @param {Symbol} modifying_agent Agent modifying this Symbol.
 	 */
 	Symbol.prototype.define = function (definition, modifying_agent, subscriptions) {
+		this.garbage = false;
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = definition;
 
@@ -465,6 +490,7 @@
 	 * @param {boolean} pushToNetwork
 	 */
 	Symbol.prototype.assign = function (value, modifying_agent, pushToNetwork) {
+		this.garbage = false;
 		value = copy(value);
 		if (pushToNetwork) {
 			eden.emit("beforeAssign", [this, value, modifying_agent]);
@@ -517,6 +543,7 @@
 	 * @param {...*} mutatorArgs args to be passed to the mutator function.
 	 */
 	Symbol.prototype.mutate = function (mutator, modifying_agent, mutatorArgs) {
+		this.garbage = false;
 		var me = this;
 		this._setLastModifiedBy(modifying_agent);
 
@@ -675,6 +702,7 @@
 	 * @param {string} name The name of the subscribing symbol
 	 */
 	Symbol.prototype.addSubscriber = function (name, symbol) {
+		this.garbage = false;
 		this.assertNotDependentOn(name);
 		this.subscribers[name] = symbol;
 	};
@@ -706,10 +734,13 @@
 		this.clearEvalIDs();
 		this.evalResolved = true;
 		this.definition = undefined;
+		this.cached_value = undefined;
 		this.up_to_date = true;
 		this.clearObservees();
 		this.clearDependencies();
-		this.context.removeSymbol(this.name);
+		this.jsObservers = {};
+		this.garbage = true;
+		this.context.queueForGarbageCollection(this);
 	};
 
 	/**
@@ -719,6 +750,7 @@
 	 * @param {Symbol} symbol The Symbol to trigger when there is a change in this Symbol.
 	 */
 	Symbol.prototype.addObserver = function (name, symbol) {
+		this.garbage = false;
 		this.observers[name] = symbol;
 	};
 
@@ -731,7 +763,7 @@
 	Symbol.prototype.addJSObserver = function (name, listener) {
 		if (typeof(listener) != "function") {
 			throw new Error("Failed adding JavaScript observer " + listener);
-		}		
+		}
 		this.jsObservers[name] = listener;
 	}
 	
@@ -817,6 +849,7 @@
 	 * @param {Symbol} modifying_agent The agent responsible for the modification.
 	 */
 	SymbolAccessor.prototype.assign = function (value, modifying_agent, pushToNetwork) {
+		this.symbol.garbage = false;
 		value = copy(value);
 		var me = this;
 		if (pushToNetwork) {
@@ -836,6 +869,7 @@
 	 * @return {*} The current value for this part of the parent Symbol.
 	 */
 	SymbolAccessor.prototype.value = function () {
+		this.symbol.garbage = false;
 		var value = this.parent.value();
 		for (var i = 0; i < this.keys.length; ++i) {
 			value = value[this.keys[i]];

@@ -275,7 +275,7 @@ proc patch {
 			return patchFunc(originalFunc, Array.prototype.slice.call(arguments));
 		}, this);
 
-		delete root.symbols[patchName];
+		arguments[0].forget();
 	}}$;
 }
 

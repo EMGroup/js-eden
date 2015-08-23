@@ -294,6 +294,7 @@
 		}
 		this.viewInstances[name].closing = true;
 		root.lookup("forgetAll").definition(root)("^_[vV]iew_" + name + "_", true, false, true);
+		root.collectGarbage();
 		if (this.viewInstances[name].destroy) {
 			//Call clean-up handler.
 			this.viewInstances[name].destroy();

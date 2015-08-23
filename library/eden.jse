@@ -79,8 +79,11 @@ func forget {
 		
 		if (typeof(arguments[0]) == "string") {
 			nameToDelete = arguments[0];
-			symbolToDelete = root.lookup(nameToDelete);
 			if (!(nameToDelete in root.symbols)) {
+				return 1;
+			}
+			symbolToDelete = root.lookup(nameToDelete);
+			if (symbolToDelete.garbage) {
 				return 1;
 			}
 			nameToDelete = "/" + nameToDelete;
@@ -201,7 +204,7 @@ func forgetAll {
 					symbol = obsToDelete[i];
 				} else if (typeof(obsToDelete[i]) == "string") {
 					name = obsToDelete[i];
-					symbol = root.symbols[name];
+					symbol = root.lookup(name);
 				} else if (obsToDelete === undefined) {
 					continue;
 				} else {
@@ -343,12 +346,8 @@ func forgetAll {
 					/* Clear the view's contents before deleting the associated symbol, so at least
 					 * it's clear that the view is no longer valid and isn't merely "hung". */
 					symbol.assign(undefined);
-					window.setTimeout(function (nameToDelete) {
-						root.symbols[nameToDelete].forget();
-					}(name), 50);
-				} else {
-					symbol.forget();
 				}
+				symbol.forget();
 			}
 			if (searchStr === "") {
 				edenUI.destroyView("jspe");

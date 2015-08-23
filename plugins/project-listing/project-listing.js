@@ -8,39 +8,51 @@
 /**
  * JS-Eden Project Listing Plugin.
  * A plugin to display a list of models hosted online.
+ * TODO Add a search box.
  * @class ProjectList Plugin
  */
 EdenUI.plugins.ProjectList = function(edenUI, success) {
 
-	var me = this;
+	var defaultURL = getParameterByName("projects");
 
-	/** @public */
-	this.instances = new Array();
-
-	/**
-	 * Update all project list views. Used when the projects.json file gets
-	 * loaded to make sure projects are being listed correctly.
-	 * TODO: The search input of each view gets ignored.
-	 * @private
-	 */
-	var updateAllCollections = function(pattern) {
-		for (x in me.instances) {
-			updateCollection(me.instances[x],pattern);
-		}
+	if (defaultURL == "") {
+		//Previously models/projects.json
+		defaultURL = "models/construit-c14-teacher-cpd/projects.json";
+	}
+	
+	var instances = new Array();
+	
+	function ProjectListProjects(element) {
+		this.element = element;
+		this.json = {projects: []};
 	}
 
+	ProjectListProjects.prototype.loadProjectData = function (url) {
+		//Get a list of projects from the server.
+		var me = this;
+		$.ajax({
+			url: url,
+			dataType: 'json',
+			success: function(data) {
+				me.json = data;
+				me.updateCollection("");
+			},
+			cache: false,
+			async: true
+		});
+	};
+	
 	/**
 	 * Update a particular project list with the specified search expression.
 	 * This gets called whenever the search input gets changed. It clears the
 	 * existing project list and generates new results matching the pattern.
 	 * @private
 	 */
-	var updateCollection = function(element,pattern) {
-		procspos = 0;
+	ProjectListProjects.prototype.updateCollection = function (pattern) {
 
 		//Clear any existing project search results.
-		var projresults = $(element).find(".projectlist-results");
-		projresults.html('');
+		var searchResults = $(this.element).find(".projectlist-results");
+		searchResults.html('');
 		var emptyProject = $(
 			'<div class="projectlist-result-element">' +
 				'<div class="projectlist-result-name">New Project</div>' + 
@@ -58,46 +70,44 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 					if (optionNo == 0) {
 						var root = edenUI.eden.root;
 						root.lookup("forgetAll").definition(root)("", true, false);
+						root.collectGarbage();
 					}
 				}
 			);
 		});
-		projresults.append(emptyProject);
+		searchResults.append(emptyProject);
 
 		//Search through projects to find those matching the query.
-		var reg = new RegExp("^"+pattern+".*");
-		var i = 0;
-
-		if (me.projects === undefined) {
-			return;
-		}
-
-		while (me.projects.projects[i] !== undefined) {
+		var re = new RegExp("\\b"+ pattern + "\\b", "i");
+		for (var i = 0; i < this.json.projects.length; i++) {
 			//If not a match then skip to next project
-			if (me.projects.projects[i].name.search(reg) == -1) { i = i + 1; continue; }
+			if (pattern != "" && !re.test(this.json.projects[i].name) &&
+				!re.test(this.json.projects[i].description)
+			) {
+				continue;
+			}
 
 			//Generate the html element for the project
 			var proj = $('<div class="projectlist-result-element"></div>');
 			//Optimise by putting project details into html element.
-			proj[0].project = me.projects.projects[i];
+			proj[0].project = this.json.projects[i];
 
 			proj.html(
 				'<div class="projectlist-result-name">'
-				+ me.projects.projects[i].name +
+				+ this.json.projects[i].name +
 				'</div><div class="projectlist-result-metadata">'
-				+ me.projects.projects[i].description +
+				+ this.json.projects[i].description +
 				'</div><div class="projectlist-result-metadata">By '
-				+ me.projects.projects[i].author
+				+ this.json.projects[i].author
 				+ ' ('
-				+ me.projects.projects[i].year
+				+ this.json.projects[i].year
 				+ ')</div>'
-			).appendTo(projresults);
+			).appendTo(searchResults);
 
-			i = i + 1;
 		}
 
 		//Also add mouse click functionality to load the project.
-		projresults.find(".projectlist-result-element").click(function () {
+		searchResults.find(".projectlist-result-element").click(function () {
 			if (this.project !== undefined) {
 				// Actually load the project by executing js-e file.
 				var url = this.project.runfile;
@@ -128,6 +138,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 							if (optionNo == 0) {
 								var root = edenUI.eden.root;
 								root.lookup("forgetAll").definition(root)("", true, false);
+								root.collectGarbage();
 							}
 							loadSelectedProject();
 						}
@@ -160,43 +171,32 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 	}
 
 	/** @public */
-	this.createDialog = function(name,mtitle) {
-		code_entry = $('<div></div>');
-		code_entry.html(generateHTML());
+	this.createDialog = function(name, mtitle, url) {
+		if (url === undefined) {
+			url = defaultURL;
+		}
 
-		$dialog = $('<div id="'+name+'"></div>')
-			.html(code_entry)
-			.dialog({
-				title: mtitle,
-				width: 310,
-				height: 400,
-				minHeight: 120,
-				minWidth: 230,
-				dialogClass: "unpadded-dialog"
-			});
+		var content = $(generateHTML());
+		var dialog = $('<div id="'+name+'"></div>')
+		.html(content)
+		.dialog({
+			title: mtitle,
+			width: 310,
+			height: 400,
+			minHeight: 120,
+			minWidth: 230,
+			dialogClass: "unpadded-dialog"
+		});
 
-		me.instances.push(code_entry[0]);
-		updateCollection(code_entry[0], "");
-		//The -1 is stop Chrome from displaying scrollbars on start up.
-		return {position: ['right', 'bottom-1']};
+		var instance = new ProjectListProjects(content.get(0));
+		instance.loadProjectData(url);
+		instances.push(instance);
+		return {data: instance};
 	};
-
-	//Get a list of projects from the server.
-	$.ajax({
-		//url: "models/projects.json",
-		url: "models/construit-c14-teacher-cpd/projects.json",
-		dataType: 'json',
-		success: function(data) {
-			me.projects = data;
-			updateAllCollections("");
-		},
-		cache: false,
-		async: true
-	});
 
 	//Add views supported by this plugin.
 	edenUI.views["ProjectList"] = {dialog: this.createDialog, title: "Project List", category: edenUI.viewCategories.interpretation};
-	success();
+	edenUI.eden.include("plugins/project-listing/project-listing.js-e", success);
 };
 
 /* Plugin meta information */
