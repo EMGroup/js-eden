@@ -4,7 +4,7 @@
 ## See LICENSE.txt
 
 proc createProjectList {
-	auto url, viewTitle, viewName, updateExistingView, success;
+	auto url, viewTitle, viewName, createOrUpdateView;
 	if ($# == 1) {
 		url = $[1];
 		viewTitle = "Project List";

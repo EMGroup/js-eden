@@ -61,9 +61,9 @@ CanvasImage = function (dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoothed, f
 		}
 
 		me.loaded = true;
-		for (var canvas in me.canvasesToRepaint) {
-			var pictureObs = root.lookup(canvas);
-			pictureObs.jsObservers.refreshView(pictureObs, pictureObs.value());
+		for (var pictureObs in me.canvasesToRepaint) {
+			var pictureObsSym = root.lookup(pictureObs);
+			pictureObsSym.jsObservers.refreshView(pictureObsSym, pictureObsSym.value());
 		}
 	}
 	this.image.src = file;
@@ -105,12 +105,12 @@ func Image {
 }
 
 ${{
-CanvasImage.prototype.draw = function(context, canvas) {
+CanvasImage.prototype.draw = function(context, scale, pictureObs) {
 	if (this.loaded) {
 		context.imageSmoothingEnabled = this.smoothed;
 		context.drawImage(this.image, this.sx, this.sy, this.sWidth, this.sHeight, this.dx, this.dy, this.dWidth, this.dHeight);
 	} else {
-		this.canvasesToRepaint[canvas] = true;
+		this.canvasesToRepaint[pictureObs] = true;
 	}
 };
 }}$;

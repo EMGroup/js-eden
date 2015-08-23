@@ -120,7 +120,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 								try {
 									me.configureContext(context, scale, picture[i].drawingOptions);
 									// expect draw() method to set .elements
-									picture[i].draw(context, pictureObs);
+									picture[i].draw(context, scale, pictureObs);
 								} catch (e) {
 									if (picture[i] !== undefined) {
 										console.log(e);

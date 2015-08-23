@@ -55,8 +55,9 @@ ${{
 			}
 			inputHtml = inputHtml + '"/>';
 
-			var $input = $(inputHtml).click(function () {
+			var inputJQ = $(inputHtml).on("mousedown", function () {
 				root.lookup(name + "_clicked").assign(true, agent, true);
+			}).on("mouseup", function () {
 				root.lookup(name + "_clicked").assign(false, agent, true);
 			});
 			var clickSym = root.lookup(name + "_clicked");
@@ -64,7 +65,7 @@ ${{
 				clickSym.assign(false, agent);
 			}
 
-			var button = $input.get(0);
+			var button = inputJQ.get(0);
 			this.elements = [button];
 
 		} else {

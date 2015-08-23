@@ -136,16 +136,10 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 				var projectURL = this.project.runfile;
 				if (projectURL !== undefined) {
 					var loadSelectedProject = function () {
-						$.ajax({
-							url: projectURL,
-							dataType: "text",
-							success: function (data) {
-								EdenUI.plugins.ScriptGenerator.loadBaseConstrual(projectURL, data);
-								if (edenUI.plugins.ScriptInput) {
-									edenUI.plugins.ScriptInput.addHistory('include("' + projectURL + '");');
-								}
-							}
-						});
+						EdenUI.plugins.ScriptGenerator.loadBaseConstrual(projectURL);
+						if (edenUI.plugins.ScriptInput) {
+							edenUI.plugins.ScriptInput.addHistory('include("' + projectURL + '");');
+						}
 					};
 					if (!edenUI.eden.isInInitialState()) {
 						edenUI.modalDialog(
@@ -206,7 +200,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		}
 
 		var content = $(generateHTML());
-		var dialog = $('<div id="'+name+'"></div>')
+		$('<div id="'+name+'"></div>')
 		.html(content)
 		.dialog({
 			title: mtitle,

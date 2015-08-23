@@ -1,63 +1,133 @@
+/*
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
 EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 	var me = this;
 
 	this.createDialog = function (name, mtitle) {
+		var content = $('<div class="script-generator"></div>');
 
-		code_entry = $('<div id=\"' + name + '-content\" class=\"script-generator-content\">' + generateAllHTML() + '</div>');
+		var script = $('<textarea id="' + name + '-code" class="script-generator-code" readonly="readonly" spellcheck="false"></textarea>')
+		.html(generateScriptHTML());
 
-		$dialog = $('<div class=\"script-generator\" id="' + name + '"></div>')
-			.html(code_entry)
-			.dialog({
-				title: mtitle,
-				width: 735,
-				height: 600,
-				minHeight: 120,
-				minWidth: 230
-			});
-	}
+		var controls = $('<div class="script-generator-controls"></div>');
 
-	this.update = function () {
-		//Update All views with their respective regexs
-		var views = document.getElementsByClassName("script-generator");
-		for (var j=0; j<views.length; j++) {
-			var regex = views[j].children[0].children[0].value;
-			if (regex==undefined) {
-				continue;
+		var switchFile = function (url) {
+			if (url == "") {
+				script.html(generateScriptHTML());
+				return;
 			}
-			views[j].children[0].children[2].innerHTML = generateInnerHTML(regex);
+			$.ajax({
+				url: url,
+				dataType: "text",
+				success: function (data) {
+					script.html(data);
+				}
+			});
 		}
-	}
-	
-	var generateAllHTML = function() {
-		//generates the regex
-		var indiv = '<input onkeyup="edenUI.plugins.ScriptGenerator.update()" type="select" placeholder="Regex to not display"/><button style="float: right;" onclick="edenUI.plugins.ScriptGenerator.update()">Re-generate script</button><div style=\" display:block; \">' + generateInnerHTML() + '</div>';
-		return indiv;
-	}
-	
-	
-	var generateInnerHTML = function (excludeStr) {
-		var lines = me.generateScript(excludeStr);
-		var html = "<div style='position: absolute; top: 30px; bottom: 10px; left: 0; right: 10px;'>" +
-			"<textarea readonly=true spellcheck=false style='font-family: monospace; background-color: white; color: black; resize: none; width: 100%; height: 100%;'>";
+
+		var fileChooser = $('<select></select>')
+		.on("change", function (event) {
+			switchFile(event.target.value);
+		});
+		controls.append(fileChooser);
+
+		var updateFileChooser = function () {
+			fileChooser.html('<option value="">Working Script</option>');
+			var includedURLs = edenUI.eden.getAllIncludedURLs();
+			for (var i = 0; i < includedURLs.length; i++) {
+				var url = includedURLs[i];
+				var matcher = /([^/]+)\.(js)?(-?e)?$/.exec(url);
+				var name;
+				if (matcher === null) {
+					matcher = /([^/]*)\/?$/.exec(url);
+				}
+				name = matcher[1];
+				if (name == "run") {
+					matcher = /(^|\/)([^/]*)\/[^/]*$/.exec(url);
+					if (matcher !== null) {
+						name = matcher[2] + "/run";
+					}
+				}
+				var option = $('<option value="' + url + '">' + name + '</option>');
+				fileChooser.append(option);
+			}			
+		};
+		updateFileChooser();
+		
+		var excludeRegEx = $('<input id="' + name + '-exclude-regex" placeholder="excluded symbols"/>')
+		.on("keyup", function (event) {
+			var excludedRegEx = event.target.value;
+			script.html(generateScriptHTML(excludedRegEx));
+		});
+		var excludeRegExElem = excludeRegEx.get(0);
+		controls.append(excludeRegEx);
+
+		var regenerate = $('<button style="float: right">Regenerate Script</button>')
+		.click(function () {
+			updateFileChooser();
+			var excludedRegEx = excludeRegExElem.value;
+			script.html(generateScriptHTML(excludedRegEx));
+		});
+		controls.append(regenerate);
+
+		content.append(controls);
+		content.append(script);
+
+		$('<div id="' + name + '"></div>')
+		.html(content)
+		.dialog({
+			title: mtitle,
+			width: 790,
+			height: 700,
+			minHeight: 120,
+			minWidth: 230
+		});
+	};
+
+	var generateScriptHTML = function (excludeStr) {
+		var lines = me.generateScriptLines(excludeStr);
+		var html = "";
 		for (var i = 0; i < lines.length; i++) {
 			html = html + Eden.htmlEscape(lines[i], true) + "\n";
 		}
-		html = html + "</textarea></div>";
 		return html;
-	}
+	};
 
 	function pad(str, minChars) {
 		for (var i = str.length; i < minChars; i++) {
 			str = str + " ";
 		}
 		return str;
-	}
+	};
+
+	var comments = {
+		header1: "## This is a JS-EDEN script automatically generated using the environment's script generator feature.",
+		header2: "## JS-EDEN is an open source empirical modelling environment based on research, principles and work",
+		header3: "## conducted at University of Warwick.",
+		homePage: "## Web site: https://github.com/EMGroup/js-eden",
+		include: "## Include Files:",
+		autocalcOff: "## Turn off automatic calculation until the construal is fully loaded.",
+		assignments: "## Observable Assignments:",
+		definitions: "## Observable Definitions:",
+		procedures: "## Action Definitions:",
+		functions: "## Function Definitions:",
+		picture: "## Picture Definition:",
+		autocalcOn: "## Turn on automatic calculation and execute any triggered actions pending.",
+		impliedByExecute: "## Definitions implied by loading the original script (execute procedure):",
+		impliedOther: "## Definitions implied by loading the original script (other):",
+		end: "## End of automatically generated script.",
+	};
 
 	/**
 	 * @return {Array} An array where each item is a string representing a piece of EDEN code and
 	 * of the items together represent a complete script capable of rebuilding the current state.
 	 */
-	this.generateScript = function (excludeStr) {
+	this.generateScriptLines = function (excludeStr) {
 
 		var definitions = [];
 		var assignments = [];
@@ -76,25 +146,6 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		} else {
 			picture = picture + ";";
 		}
-
-		var comments = [
-			"## This is a JS-EDEN script automatically generated using the environment's script generator feature.",
-			"## JS-EDEN is an open source empirical modelling environment based on research, principles and work",
-			"## conducted at University of Warwick.",
-			"## Web site: https://github.com/EMGroup/js-eden",
-			"##   ---- END OF THE ORIGINAL CONSTRUAL.  SUBSEQUENT MODIFICATIONS FOLLOW. ----",
-			"## Include Files:",
-			"## Turn off automatic calculation until the construal is fully loaded.",
-			"## Observable Assignments:",
-			"## Observable Definitions:",
-			"## Action Definitions:",
-			"## Function Definitions:",
-			"## Picture Definition:",
-			"## Turn on automatic calculation and execute any triggered actions pending.",
-			"## Definitions implied by loading the original script (execute procedure):",
-			"## Definitions implied by loading the original script (other):",
-			"## End of automatically generated script."
-		];
 
 		var excludeRE;
 		if (excludeStr !== undefined && excludeStr != "") {
@@ -201,40 +252,34 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		//Script Generation
 		var lines = [];
 			
-		lines.push(comments[0]);
+		lines.push(comments.header1);
 		lines.push("");
-		lines.push(comments[1]);
-		lines.push(comments[2]);
-		lines.push(comments[3]);
+		lines.push(comments.header2);
+		lines.push(comments.header3);
+		lines.push(comments.homePage);
 		lines.push("");		
-		if (EdenUI.plugins.ScriptGenerator.baseConstrual != "") {
-			lines.push(EdenUI.plugins.ScriptGenerator.baseConstrual);
-			lines.push("");
-			lines.push(comments[4]);
-			lines.push("");
-		}
 		var includeFiles = eden.getIncludedURLs();
 		if (includeFiles.length > 0) {
-			lines.push(comments[5]);
+			lines.push(comments.include);
 			for (var i = 0; i < includeFiles.length; i++) {
 				lines.push("include(\"" + includeFiles[i] + "\");");
 			}
 			lines.push("");
 		}
-		lines.push(comments[6]);
+		lines.push(comments.autocalcOff);
 		lines.push(autocalcOff);
 		lines.push("");
-		lines.push(comments[7]);
+		lines.push(comments.assignments);
 		for (var i = 0; i < assignments.length; i++) {
 			lines.push(assignments[i]);
 		}
 		lines.push("");
-		lines.push(comments[8]);
+		lines.push(comments.definitions);
 		for (var i = 0; i < definitions.length; i++) {
 			lines.push(definitions[i]);
 		}
 		lines.push("");
-		lines.push(comments[9]);
+		lines.push(comments.procedures);
 		for (var i = 0; i < procedures.length; i++) {
 			lines.push(procedures[i]);
 			if (i !== procedures.length - 1) {
@@ -242,7 +287,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			}
 		}
 		lines.push("");
-		lines.push(comments[10]);
+		lines.push(comments.functions);
 		for (var i = 0; i < functions.length; i++) {
 			lines.push(functions[i]);
 			if (i !== functions.length - 1) {
@@ -250,14 +295,14 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			}
 		}
 		lines.push("");
-		lines.push(comments[11]);
+		lines.push(comments.picture);
 		lines.push(picture);
 		lines.push("");
-		lines.push(comments[12]);
+		lines.push(comments.autocalcOn);
 		lines.push(autocalcOn);
 		lines.push("");
 		if (execute.length > 0 || implicit.length > 0) {
-			lines.push(comments[13]);
+			lines.push(comments.impliedByExecute);
 			if (execute.length > 0) {
 				lines.push("/*");
 				for (var i = 0; i < execute.length; i++) {
@@ -267,7 +312,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			}
 			lines.push("");
 			if (implicit.length > 0) {
-				lines.push(comments[14]);
+				lines.push(comments.impliedOther);
 				lines.push("/*");
 				for (var i = 0; i < implicit.length; i++) {
 					lines.push(implicit[i]);
@@ -276,9 +321,9 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 				lines.push("");
 			}
 		}
-		lines.push(comments[15]);
+		lines.push(comments.end);
 		return lines;
-	}
+	};
 
 	/**Holds information about symbols implicitly defined upon loading a construal via execute
 	 * statements, procedures triggered upon loading and things referenced but not defined. */
@@ -301,6 +346,9 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		root.removeGlobal(me.changeListener);	
 	});
 
+	/**Records which file was the one most recently loaded from the project list. */
+	this.baseConstrualURL = "";
+
 	edenUI.views["ScriptGenerator"] = {dialog: this.createDialog, title: "Script Generator", category: edenUI.viewCategories.history};
 	success();
 };
@@ -310,23 +358,19 @@ EdenUI.plugins.ScriptGenerator.title = "Script Generator";
 EdenUI.plugins.ScriptGenerator.description = "Generates a definitional script that can be used to recreate the current state of the environment at a later time.";
 EdenUI.plugins.ScriptGenerator.originalAuthor = "Joe Butler";
 
-/**Code loaded from a source other than input window, such as from a project file or a database. */
-EdenUI.plugins.ScriptGenerator.baseConstrual = "";
-
 /**Executes a string and stores the script for display in the script generator later.
  * @param {String} source A textual description of where the source code came from, e.g. a URL.
  * @param {String} code The code to execute and retain as initial starting source code for the
  * construal.
  */
-EdenUI.plugins.ScriptGenerator.loadBaseConstrual = function (source, code) {
+EdenUI.plugins.ScriptGenerator.loadBaseConstrual = function (url) {
 	if ("ScriptGenerator" in edenUI.plugins) {
 		root.addGlobal(edenUI.plugins.ScriptGenerator.changeListener);
 	}
-	eden.execute(code, "construal load", "", {name: "include"}, function () {
+	eden.include(url, "", {name: Symbol.getInputAgentName()}, function () {
 		if ("ScriptGenerator" in edenUI.plugins) {
 			root.removeGlobal(edenUI.plugins.ScriptGenerator.changeListener);
+			edenUI.plugins.ScriptGenerator.baseConstrualURL = url;
 		}
-		EdenUI.plugins.ScriptGenerator.baseConstrual = EdenUI.plugins.ScriptGenerator.baseConstrual +
-			"##   ---- CONSTRUAL INITIALLY LOADED FROM " + source + " ----\n\n" + code;
 	});
 }

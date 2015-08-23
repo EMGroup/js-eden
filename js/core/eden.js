@@ -304,8 +304,13 @@ function concatAndResolveUrl(url, concat) {
 		 * Plugins (such as the script generator) can request a copy of this information.
 		 * @private
 		 */
-		this.includes = [];
+		this.topLevelIncludes = [];
 		
+		/**
+		 * Includes nested includes.
+		 */
+		this.included = {};
+
 		/**
 		 * Setting this to false temporarily prevents the error method from
 		 * producing any output.  This is used by the framework for testing EDEN
@@ -344,6 +349,7 @@ function concatAndResolveUrl(url, concat) {
 				}
 			}
 		}
+		this.included = {};
 		this.inInitialState = true;
 	}
 
@@ -460,11 +466,11 @@ function concatAndResolveUrl(url, concat) {
 		agent = {name: '/include'};		
 
 		var addIncludeURL = function (url) {
-			var index = me.includes.indexOf(url);
+			var index = me.topLevelIncludes.indexOf(url);
 			if (index != -1) {
-				me.includes.splice(index, 1);
+				me.topLevelIncludes.splice(index, 1);
 			}
-			me.includes.push(url);
+			me.topLevelIncludes.push(url);
 		}
 		
 		var promise;
@@ -489,6 +495,7 @@ function concatAndResolveUrl(url, concat) {
 						if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
 							addIncludeURL(url);
 						}
+						me.included[url] = true;
 						return deferred.promise;
 					});
 				} else {
@@ -496,6 +503,7 @@ function concatAndResolveUrl(url, concat) {
 					if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
 						addIncludeURL(url);
 					}
+					me.included[url] = true;
 					return deferred.promise;
 				}
 			});
@@ -506,7 +514,14 @@ function concatAndResolveUrl(url, concat) {
 	};
 
 	Eden.prototype.getIncludedURLs = function () {
-		return this.includes.slice();
+		return this.topLevelIncludes.slice();
+	}
+
+	/**
+	 * Includes nested includes.
+	 */
+	Eden.prototype.getAllIncludedURLs = function () {
+		return Object.keys(this.included);
 	}
 
 	/**Given any JavaScript value returns a string representing the EDEN code that would be required

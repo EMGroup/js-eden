@@ -124,8 +124,7 @@ func Text {
 
 ${{
 
-Text.prototype.draw = function (context, canvasName) {
-	var scale = root.lookup("_view_" + canvasName + "_scale").value();
+Text.prototype.draw = function (context, scale) {
 
 	if (this.sizeUnits === undefined) {
 		context.font = this.css;
