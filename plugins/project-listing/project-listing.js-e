@@ -38,7 +38,7 @@ proc createProjectList {
 
 	createOrUpdateView = ${{ function (viewName, url) {
 		if (edenUI.activeDialogs[viewName] == "ProjectList") {
-			edenUI.viewInstances[viewName].data.loadProjectData(url);
+			edenUI.viewInstances[viewName].data.loadProjectData(url, true);
 		} else {
 			edenUI.createView(viewName, "ProjectList", url);
 		}

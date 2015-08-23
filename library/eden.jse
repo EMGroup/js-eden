@@ -137,6 +137,7 @@ func forgetAll {
 		var searchStr, caseSensitive, requireConfirm, includeSystemSymbols;
 		var regExp, symbol;
 		var obsToDelete = undefined;
+		var includeAgent = {name: "/include"};
 		
 		if (arguments.length == 0 || arguments.length > 4) {
 			eden.error(new Error("forgetAll: This function requires at least 1 argument and at most 3 arguments."), "error");
@@ -334,11 +335,10 @@ func forgetAll {
 				autocalcSym.assign(0, this);
 			}
 
-			if (resetList.length > 0) {
-				for (name in reset) {
-					eden.execute(reset[name], "forgetAll", "", this, noop);
-				}
+			for (name in reset) {
+				eden.execute(reset[name], "forgetAll", "", includeAgent, noop);
 			}
+
 			for (var i = 0; i < namesToDelete.length; i++) {
 				var name = namesToDelete[i];
 				symbol = root.symbols[name];
@@ -352,11 +352,11 @@ func forgetAll {
 			if (searchStr === "") {
 				edenUI.destroyView("jspe");
 				if ("Canvas2D" in edenUI.plugins) {
-					eden.execute('createCanvas("picture");', "forgetAll", "", this, noop);
+					eden.execute('createCanvas("picture");', "forgetAll", includeAgent, this, noop);
 				}
 				eden.captureInitialState();
 			} else if (wasInInitialState) {
-				eden.captureInitialState();			
+				eden.captureInitialState(); //Re-assert still in initial state.		
 			}
 			if (autoCalcEnabledOnEntry) {
 				autocalcSym.assign(1, this);
