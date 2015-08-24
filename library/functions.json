@@ -517,6 +517,14 @@
 			"return": "",
 			"description": ""
 		},
+		"roundMultiple": {
+			"parameters": {
+				"number": "Floating point number",
+				"multiple": "The unit to round to, e.g. 0.1 for the nearest 10th"
+			},
+			"return": "Nearest value, rounded down",
+			"description": "Finds the nearest value by rounding down"
+		},
 		"scalePoint": {
 			"parameters": {
 				"point": "",
@@ -1148,7 +1156,7 @@
 		"roundUp": {
 			"parameters": {
 				"number": "Floating point number",
-				"[multiple]": "The unit to round to, e.g. 0.1 for the nearest 10th"
+				"[decimal_places]": ""
 			},
 			"return": "Nearest value, rounded up",
 			"description": "Finds the nearest value that is not less than the number"
@@ -1171,7 +1179,7 @@
 		"roundDown": {
 			"parameters": {
 				"number": "Floating point number",
-				"[multiple]": "The unit to round to, e.g. 0.1 for the nearest 10th"
+				"[decimal_places]": ""
 			},
 			"return": "Nearest value, rounded down",
 			"description": "Finds the nearest value by rounding down"
