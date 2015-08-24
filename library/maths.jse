@@ -6,26 +6,45 @@
 PI = ${{ Math.PI }}$;
 radiansPerUnit is PI / 180;
 
-func abs {
-  return ${{ Math.abs(arguments[0]); }}$;
-}
+##Rounding functions
 
-func acos {
-  return ${{ Math.acos(arguments[0]) }}$ / radiansPerUnit;
-}
+${{
+  /**
+   * Decimal adjustment of a number.
+   * from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round
+   *
+   * @param {String}  type  The type of adjustment ("round", "floor" or "ceil").
+   * @param {Number}  value The number.
+   * @param {Integer} exp   The exponent (the 10 logarithm of the adjustment base) (exp = 0 - number of decimal places required).
+   * @returns {Number} The adjusted value.
+   */
+   decimalAdjust = function (type, value, exp) {
+		// If the exp is undefined or zero...
+		if (typeof exp === 'undefined' || +exp === 0) {
+		  return Math[type](value);
+		}
+		value = +value;
+		exp = +exp;
+		// If the value is not a number or the exp is not an integer...
+		if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+		  return NaN;
+		}
+		// Shift
+		value = value.toString().split('e');
+		value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+		// Shift back
+		value = value.toString().split('e');
+		return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+	};
+}}$;
 
-func asin {
-  return ${{ Math.asin(arguments[0]) }}$ / radiansPerUnit;
-}
+##Rounding to a specified number of decimal places, down, nearest or up, implemented by roundDown,
+##round and roundUp respectively.
 
-func atan {
-  return ${{ Math.atan(arguments[0]) }}$ / radiansPerUnit;
-}
-
-func ceil {
+func roundDown {
 	${{
-		if (arguments.length < 1 || arguments.length > 2) {
-			eden.error(new Error("ceil: This function requires at least 1 argument and at most 2 arguments."), "error");
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("roundDown: This function requires at least 1 argument and at most 2 arguments."), "error");
 			return undefined;
 		}
 		
@@ -33,46 +52,116 @@ func ceil {
 		if (number === undefined) {
 			return undefined;
 		} else if (typeof(number) != "number") {
-			eden.error(new Error("ceil: The first argument must be a number, not a " + typeof(number)), "error");
+			eden.error(new Error("roundDown: The first argument must be a number, not a " + typeof(number)), "error");
 			return undefined;
 		}
 
-		var multiple;
+		var decimalPlaces;
 		if (arguments.length == 2) {
-			multiple = arguments[1];
-			if (multiple === undefined) {
-				return undefined;
-			} else if (typeof(multiple) != "number") {
-				eden.error(new Error("ceil: The second argument must be a number, not a " + typeof(multiple)), "error");
-				return undefined;
-			}
+			decimalPlaces = arguments[1];
 		} else {
-			multiple = 1;
+			decimalPlaces = 0;
 		}
 		
-		if (multiple === 1) {
-			return Math.ceil(number);		
+		if (decimalPlaces === 0) {
+			return Math.round(number);
+		} else if (decimalPlaces === undefined) {
+			return undefined;
+		} else if (typeof(decimalPlaces) != "number") {
+			eden.error(new Error("roundDown: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
+			return undefined;
+		} else if (!Number.isInteger(decimalPlaces)) {
+			eden.error(new Error("roundDown: The second argument must be an int, not a float"), "error");
+			return undefined;
 		} else {
-			var divided = number / multiple;
-			var truncated = parseInt(divided);
-			if (divided == truncated) {
-				return number;
-			} else {
-				return (truncated + 1) * multiple;
-			}
+			return decimalAdjust("floor", number, -decimalPlaces);
 		}
 	}}$;
 }
 
-roundUp is ceil;
+func round {
+	${{
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("round: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var number = arguments[0];
+		if (number === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("round: The first argument must be a number, not a " + typeof(number)), "error");
+			return undefined;
+		}
 
-func cos {
-  return ${{ Math.cos(arguments[0]*root.lookup("radiansPerUnit").value()); }}$;
+		var decimalPlaces;
+		if (arguments.length == 2) {
+			decimalPlaces = arguments[1];
+		} else {
+			decimalPlaces = 0;
+		}
+		
+		if (decimalPlaces === 0) {
+			return Math.round(number);
+		} else if (decimalPlaces === undefined) {
+			return undefined;
+		} else if (typeof(decimalPlaces) != "number") {
+			eden.error(new Error("round: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
+			return undefined;
+		} else if (!Number.isInteger(decimalPlaces)) {
+			eden.error(new Error("round: The second argument must be an int, not a float"), "error");
+			return undefined;
+		} else {
+			return decimalAdjust("round", number, -decimalPlaces);
+		}
+	}}$;
 }
 
-func exp {
-  return ${{ Math.exp(arguments[0]); }}$;
+func roundUp {
+	${{
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("roundUp: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var number = arguments[0];
+		if (number === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("roundUp: The first argument must be a number, not a " + typeof(number)), "error");
+			return undefined;
+		}
+
+		var decimalPlaces;
+		if (arguments.length == 2) {
+			decimalPlaces = arguments[1];
+		} else {
+			decimalPlaces = 0;
+		}
+		
+		if (decimalPlaces === 0) {
+			return Math.round(number);
+		} else if (decimalPlaces === undefined) {
+			return undefined;
+		} else if (typeof(decimalPlaces) != "number") {
+			eden.error(new Error("roundUp: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
+			return undefined;
+		} else if (!Number.isInteger(decimalPlaces)) {
+			eden.error(new Error("roundUp: The second argument must be an int, not a float"), "error");
+			return undefined;
+		} else {
+			return decimalAdjust("ceil", number, -decimalPlaces);
+		}
+	}}$;
 }
+
+
+##Rounding to a multiple of another number, down, nearest or up, implemented by floor, roundMultiple
+##and ceil respectively.
+##Some multiples may not return the correct results, with an error approximately equal to the magnitude
+##of the 17th decimal digit.  This is because many decimal numbers cannot be represented exactly
+##in IEEE 754 floating point format.  For multiples such as 0.1, 0.01, etc. the roundDown, round and
+##roundUp functions will sometimes give more accurate results because of JavaScript quirks.
 
 func floor {
 	${{
@@ -102,15 +191,108 @@ func floor {
 			multiple = 1;
 		}
 		
-		if (multiple === 1) {
+		if (multiple == 1) {
 			return Math.floor(number);
 		} else {
-			return parseInt(number / multiple) * multiple;
+			return Math.floor((number / multiple).toPrecision(16)) * multiple;
 		}
 	}}$;
 }
 
-roundDown is floor;
+func roundMultiple {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("roundMultiple: This function requires exactly 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var number = arguments[0];
+		if (number === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("roundMultiple: The first argument must be a number, not a " + typeof(number)), "error");
+			return undefined;
+		}
+
+		var multiple = arguments[1];
+		if (multiple === undefined) {
+			return undefined;
+		} else if (typeof(multiple) != "number") {
+			eden.error(new Error("roundMultiple: The second argument must be a number, not a " + typeof(multiple)), "error");
+			return undefined;
+		}
+		
+		if (multiple == 1) {
+			return Math.round(number);
+		} else {
+			return Math.round((number / multiple).toPrecision(16)) * multiple;
+		}
+	}}$;
+}
+
+func ceil {
+	${{
+		if (arguments.length < 1 || arguments.length > 2) {
+			eden.error(new Error("ceil: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var number = arguments[0];
+		if (number === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("ceil: The first argument must be a number, not a " + typeof(number)), "error");
+			return undefined;
+		}
+
+		var multiple;
+		if (arguments.length == 2) {
+			multiple = arguments[1];
+			if (multiple === undefined) {
+				return undefined;
+			} else if (typeof(multiple) != "number") {
+				eden.error(new Error("ceil: The second argument must be a number, not a " + typeof(multiple)), "error");
+				return undefined;
+			}
+		} else {
+			multiple = 1;
+		}
+
+		if (multiple == 1) {
+			return Math.ceil(number);
+		} else {
+			return Math.ceil((number / multiple).toPrecision(16)) * multiple;
+		}
+	}}$;
+}
+
+
+## --- End of rounding functions ---
+
+
+func abs {
+  return ${{ Math.abs(arguments[0]); }}$;
+}
+
+func acos {
+  return ${{ Math.acos(arguments[0]) }}$ / radiansPerUnit;
+}
+
+func asin {
+  return ${{ Math.asin(arguments[0]) }}$ / radiansPerUnit;
+}
+
+func atan {
+  return ${{ Math.atan(arguments[0]) }}$ / radiansPerUnit;
+}
+
+func cos {
+  return ${{ Math.cos(arguments[0]*root.lookup("radiansPerUnit").value()); }}$;
+}
+
+func exp {
+  return ${{ Math.exp(arguments[0]); }}$;
+}
 
 func ln {
   return ${{ Math.log(arguments[0]); }}$;
@@ -328,45 +510,6 @@ func random {
 	} else {
 		return randomGenerator();
 	}
-}
-
-func round {
-	${{
-		if (arguments.length == 0 || arguments.length > 2) {
-			eden.error(new Error("round: This function requires at least 1 argument and at most 2 arguments."), "error");
-			return undefined;
-		}
-		
-		var number = arguments[0];
-		if (number === undefined) {
-			return undefined;
-		} else if (typeof(number) != "number") {
-			eden.error(new Error("round: The first argument must be a number, not a " + typeof(number)), "error");
-			return undefined;
-		}
-
-		var decimalPlaces;
-		if (arguments.length == 2) {
-			decimalPlaces = arguments[1];
-		} else {
-			decimalPlaces = 0;
-		}
-		
-		if (decimalPlaces === 0) {
-			return Math.round(number);
-		} else if (decimalPlaces === undefined) {
-			return undefined;
-		} else if (typeof(decimalPlaces) != "number") {
-			eden.error(new Error("round: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
-			return undefined;
-		} else if (!Number.isInteger(decimalPlaces)) {
-			eden.error(new Error("round: The second argument must be an int, not a float"), "error");
-			return undefined;
-		} else {
-			var multiplier = Math.pow(10, decimalPlaces);
-			return Math.round(number * multiplier) / multiplier;
-		}
-	}}$;
 }
 
 func sin {
