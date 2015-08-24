@@ -565,7 +565,6 @@ function concatAndResolveUrl(url, concat) {
 				"keys" in value &&
 				Array.isArray(value.keys) &&
 				value.keys.length > 0 &&
-				typeof(value.keys[0]) == "number" &&
 				"parent" in value &&
 				value.parent instanceof Symbol
 			) {
@@ -683,7 +682,6 @@ function concatAndResolveUrl(url, concat) {
 				"keys" in value &&
 				Array.isArray(value.keys) &&
 				value.keys.length > 0 &&
-				typeof(value.keys[0]) == "number" &&
 				"parent" in value &&
 				value.parent instanceof Symbol
 			) {

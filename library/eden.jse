@@ -398,7 +398,6 @@ func nameof {
 			"keys" in pointer &&
 			Array.isArray(pointer.keys) &&
 			pointer.keys.length > 0 &&
-			typeof(pointer.keys[0]) == "number" &&
 			"parent" in pointer &&
 			pointer.parent instanceof Symbol
 		) {
