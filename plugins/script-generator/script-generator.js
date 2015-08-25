@@ -247,6 +247,10 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 
 			}
 
+		} // end for each symbol
+		
+		if (root.lookup("randomSeed").value() !== undefined) {
+			assignments.push("randomIndex = " + root.lookup("randomIndex").value() + ";");
 		}
 		
 		//Script Generation

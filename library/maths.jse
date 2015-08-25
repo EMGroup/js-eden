@@ -492,6 +492,8 @@ randomSeed = @;
 randomGenerator is xorshiftRandomGenerator;
 
 ${{
+	window.inRandomFunc = false;
+
 	root.lookup("randomSeed").addJSObserver("applySeed", function (obs, seed) {
 		root.lookup("randomGeneratorState").assign(seed, obs);
 		root.lookup("randomIndex").assign(0, obs);
@@ -500,16 +502,33 @@ ${{
 	root.lookup("randomGenerator").addJSObserver("applySeed", function (obs, generator) {
 		root.lookup("randomGeneratorState").assign(root.lookup("randomSeed").value(), obs);		
 		root.lookup("randomIndex").assign(0, obs);
-	});	
+	});
+
+	root.lookup("randomIndex").addJSObserver("skipToIndex", function (obs, desiredIndex) {
+		if (inRandomFunc) {
+			return;
+		}
+		inRandomFunc = true;
+		var generator = root.lookup("randomGenerator").value();
+		root.lookup("randomGeneratorState").assign(root.lookup("randomSeed").value(), obs);
+		for (var i = 0; i < desiredIndex; i++) {
+			generator();
+		}
+		inRandomFunc = false;
+	});
 }}$;
 	
 func random {
+	auto result;
+	${{ inRandomFunc = true; }}$;
 	randomIndex++;
 	if (randomSeed == @) {
-		return ${{ Math.random(); }}$;
+		result = ${{ Math.random() }}$;
 	} else {
-		return randomGenerator();
+		result = randomGenerator();
 	}
+	${{ inRandomFunc = false; }}$;
+	return result;
 }
 
 func sin {

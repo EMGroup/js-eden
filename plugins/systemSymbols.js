@@ -255,6 +255,7 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"mouseX": true,
 		"mouseY": true,
 		"picture": true,
+		"radiansPerUnit": true,
 		"touchScrollX": true,
 		"touchScrollXDir": true,
 	},
@@ -312,6 +313,45 @@ Eden.symbolCategories["Canvas 2D"] = {
 	}
 };
 
+Eden.symbolCategories["Math"] = {
+	obs: {
+		"PI": true,
+		"radiansPerUnit": true,
+		"randomGeneratorState": true,
+		"randomIndex": true,
+		"randomSeed": true,
+	},
+	func: {
+		"abs": true,
+		"acos": true,
+		"asin": true,
+		"atan": true,
+		"ceil": true,
+		"cos": true,
+		"exp": true,
+		"floor": true,
+		"length": true,
+		"ln": true,
+		"log": true,
+		"max": true,
+		"min": true,
+		"mod": true,
+		"random": true,
+		"randomBoolean": true,
+		"randomInteger": true,
+		"randomFloat": true,
+		"rotatePoint": true,
+		"round": true,
+		"roundDown": true,
+		"roundUp": true,
+		"roundMultiple": true,
+		"scalePoint": true,
+		"sin": true,
+		"sqrt": true,
+		"sum": true,
+		"tan": true,
+	},
+};
 
 Eden.isitSystemSymbol = function(name){
 	return Eden.isitSystemObservable(name) || Eden.isitSystemAgent(name) || Eden.isitSystemFunction(name);
