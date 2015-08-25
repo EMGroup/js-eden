@@ -405,7 +405,7 @@ func replaceFirst {
 				return undefined;
 			} else if (startPos == 0) {
 				eden.error(new Error("replaceFirst: The forth argument must cannot be 0."), "error");
-				return undefined;			
+				return undefined;
 			} else if (startPos > 0) {
 				return source.slice(0, startPos - 1).concat(source.slice(startPos - 1).replace(search, replacement));
 			} else {

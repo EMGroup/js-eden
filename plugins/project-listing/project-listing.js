@@ -45,10 +45,9 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 					if (!me.atRoot) {
 						var rootProject = {
 							name: "Return to main list",
-							author: "JS-EDEN Project Team",
 							projects: me.rootURL
 						};
-						me.json.projects.unshift(rootProject);
+						me.json.projects.push(rootProject);
 					}
 				}
 				me.updateCollection("");

@@ -298,6 +298,9 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			}
 			$(".ui-dialog-content").each(function () { $(this).dialogExtend("option", "dblclick", action); });
 		});
+		addCheckboxOption("developer", "Debug JS-EDEN", false, function (optName, enabled) {
+				root.lookup("debug").mutate(function (symbol) { symbol.cached_value.jsExceptions = enabled; }, Symbol.hciAgent);
+		});
 	}
 
 	createMenus();

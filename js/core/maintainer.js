@@ -105,8 +105,9 @@
 	};
 
 	/**
-	 * Adds a symbol to the garbage queue (e.g. when EDEN's forget function is used.
-	 * @param {Symbol} The symbol that will require garbage collection if it isn't referenced again.
+	 * Adds a symbol to the garbage queue, for example, when EDEN's forget function is used.
+	 * @param {Symbol} The symbol that will require garbage collection if it isn't referenced again
+	 * before execution of the current script completes.
 	 */
 	Folder.prototype.queueForGarbageCollection = function (symbol) {
 		this.potentialGarbage[symbol.name] = symbol;
