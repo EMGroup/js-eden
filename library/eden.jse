@@ -349,13 +349,7 @@ func forgetAll {
 				}
 				symbol.forget();
 			}
-			if (searchStr === "") {
-				edenUI.destroyView("jspe");
-				if ("Canvas2D" in edenUI.plugins) {
-					eden.execute('createCanvas("picture");', "forgetAll", includeAgent, this, noop);
-				}
-				eden.captureInitialState();
-			} else if (wasInInitialState) {
+			if (wasInInitialState) {
 				eden.captureInitialState(); //Re-assert still in initial state.		
 			}
 			if (autoCalcEnabledOnEntry) {

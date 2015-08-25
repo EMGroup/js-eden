@@ -85,9 +85,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 				1,
 				function (optionNo) {
 					if (optionNo == 0) {
-						var root = edenUI.eden.root;
-						root.lookup("forgetAll").definition(root)("", true, false);
-						root.collectGarbage();
+						edenUI.newProject();
 					}
 				}
 			);
@@ -153,17 +151,13 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 									return;
 								}
 								if (optionNo == 0) {
-									var root = edenUI.eden.root;
-									root.lookup("forgetAll").definition(root)("", true, false);
-									root.collectGarbage();
+									edenUI.newProject();
 								}
 								loadSelectedProject();
 							}
 						);
 					} else {
-						if ("Canvas2D" in edenUI.plugins) {
-							eden.execute('createCanvas("picture");', "ProjectList", "", Symbol.hciAgent, noop);
-						}
+						edenUI.newProject();
 						loadSelectedProject();
 					}
 				}

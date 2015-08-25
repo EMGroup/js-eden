@@ -360,7 +360,17 @@ function concatAndResolveUrl(url, concat) {
 	Eden.prototype.isInInitialState = function () {
 		return this.inInitialState;
 	}
-	
+
+	Eden.prototype.reset = function () {
+		this.root.lookup("forgetAll").definition(root)("", true, false);
+		this.root.collectGarbage();
+		this.errorNumber = 0;
+		this.topLevelIncludes = [];
+		this.included = {};
+		this.reportErrors = true;
+		
+	}
+
 	/**
 	 * @param {string} eventName
 	 * @param {*} target

@@ -413,6 +413,18 @@
 		}
 	};
 
+	EdenUI.prototype.newProject = function () {
+		this.eden.reset();
+		this.destroyView("jspe");
+		if ("Canvas2D" in this.plugins) {
+			this.eden.executeEden('createCanvas("picture");', "new project", "", Symbol.hciAgent, noop);
+		}
+		if (this.views.ErrorLog.errorWindow) {
+			this.views.ErrorLog.errorWindow.html('');
+		}
+		this.eden.captureInitialState();
+	}
+
 	/**Creates a modal dialogue box that permits the user to choose from a small number of fixed
 	 * options.  The user cannot must choose an option before they can have any other interaction
 	 * with JS-EDEN.
