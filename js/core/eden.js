@@ -102,6 +102,15 @@ function concatAndResolveUrl(url, concat) {
 
 		var me = this;
 
+		this.branding = {};
+		$.ajax({
+			url: "branding.json",
+			dataType: "json",
+			success: function (data) {
+				me.branding = data;
+			},
+		});
+		
 		//Never called anymore.
 		this.eden.listenTo('executeFileLoad', this, function (path) {
 			if (this.plugins.MenuBar) {

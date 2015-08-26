@@ -516,7 +516,9 @@ if (initialViews == "" || initialViews == "default") {
 	createCanvas("picture");
 	_view_picture_x = _view_projects_width + _views_frame_width;
 	_view_picture_y = 0;
-	picture is [Image(_view_picture_width / 2 - 299, _view_picture_height / 2 - 80, "images/construit-logo.jpg")];
+	if (${{ "logo" in edenUI.branding }}$) {
+		picture is [Image(_view_picture_width / 2 - ${{edenUI.branding.logo.width}}$ / 2, _view_picture_height / 2 - ${{edenUI.branding.logo.height}}$ / 2, ${{edenUI.branding.logo.url}}$)];
+	}
 	createView("input", "ScriptInput");
 	if (${{edenUI.getOptionValue("developer") == "true" }}$) {
 		##For JS-EDEN developers, position the input window out of the way of the JavaScript console.
