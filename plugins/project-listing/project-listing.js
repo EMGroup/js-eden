@@ -20,7 +20,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		if ("prologue" in edenUI.branding.projectList) {
 			prologue = '<div class="projectlist-prologue">' + edenUI.branding.projectList.prologue.html + '</div>';
 			if ("href" in edenUI.branding.projectList.prologue) {
-				prologue = '<a href="' + edenUI.branding.projectList + '" target="project-listing-link" style="text-decoration: none">' + prologue + '</a>';
+				prologue = '<a href="' + edenUI.branding.projectList.prologue.href + '" target="project-listing-link" style="text-decoration: none">' + prologue + '</a>';
 			}
 		}
 		if (defaultURL == "" && "data" in edenUI.branding.projectList) {

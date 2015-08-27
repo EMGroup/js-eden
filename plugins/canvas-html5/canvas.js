@@ -550,16 +550,18 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			
 			var x, y;
 			var scale = root.lookup("_view_" + canvasName + "_scale").value();
+			var zoom = root.lookup("_view_" + canvasName + "_zoom").value();
+			var combinedScale = scale * zoom;
 			if (me.mouseInfo.capturing) {
 				var previousPosition = mousePositionSym.value();
 				var e2 = e.originalEvent;
-				x = previousPosition.x + e2.movementX / scale;
-				y = previousPosition.y + e2.movementY / scale;
+				x = previousPosition.x + e2.movementX / combinedScale;
+				y = previousPosition.y + e2.movementY / combinedScale;
 			} else {
 				//pageX & pageY are deprecated in DOM but still contemporary for jQuery events.
 				var windowPos = $(this).offset();
-				x = (e.pageX - Math.round(windowPos.left)) / scale;
-				y = (e.pageY - Math.round(windowPos.top)) / scale;
+				x = (e.pageX - Math.round(windowPos.left)) / combinedScale;
+				y = (e.pageY - Math.round(windowPos.top)) / combinedScale;
 			}
 
 			var mousePos;

@@ -5,7 +5,19 @@
 	height: 100%;
 }
 
-.script-generator * {
+.script-generator-controls {
+	display: inline-block;
+}
+
+.script-generator-controls>* {
+	margin-right: 20px
+}
+
+.script-generator-controls>*:last-child {
+	margin-right: 0px;
+}
+
+.script-generator>* {
 	margin: 4px 0px;
 }
 
