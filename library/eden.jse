@@ -527,8 +527,9 @@ if (initialViews == "" || initialViews == "default") {
 	} else {
 		##Position input window underneath the canvas.
 		_view_input_x = _view_picture_x;
-		_view_input_y = _view_picture_height + _views_frame_height;
 		_view_input_width = _view_picture_width;
+		_view_picture_height = min(_view_picture_height, screenHeight - (170 + 2 * _views_frame_height));
+		_view_input_y = _view_picture_height + _views_frame_height;
 		_view_input_height = max(170, screenHeight - _view_input_y - _views_frame_height);
 	}
 }

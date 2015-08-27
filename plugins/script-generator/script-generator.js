@@ -9,33 +9,39 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 	var me = this;
 
 	this.createDialog = function (name, mtitle) {
+		var viewName = name.slice(0,-7); //remove -dialog suffix
+
+		//Create elements
+		var label;
 		var content = $('<div class="script-generator"></div>');
+		var controls = $('<div></div>');
+		content.append(controls);
 
-		var script = $('<textarea id="' + name + '-code" class="script-generator-code" readonly="readonly" spellcheck="false"></textarea>')
-		.html(generateScriptHTML());
+		var controlsLeft = $('<div class="script-generator-controls"></div>');
+		controls.append(controlsLeft);
+		var controlsRight = $('<div class="script-generator-controls" style="float: right"></div>');
+		controls.append(controlsRight);
 
-		var controls = $('<div class="script-generator-controls"></div>');
+		var script = $('<textarea class="script-generator-code" readonly="readonly" spellcheck="false"></textarea>');
+		content.append(script);
 
-		var switchFile = function (url) {
-			if (url == "") {
-				script.html(generateScriptHTML());
-				return;
-			}
-			$.ajax({
-				url: url,
-				dataType: "text",
-				success: function (data) {
-					script.html(data);
-				}
-			});
-		}
+		var fileChooser = $('<select></select>');
+		controlsLeft.append(fileChooser);
 
-		var fileChooser = $('<select></select>')
-		.on("change", function (event) {
-			switchFile(event.target.value);
-		});
-		controls.append(fileChooser);
+		var excludeRegEx = $('<input placeholder="excluded symbols"/>');
+		var excludeRegExElem = excludeRegEx.get(0);
+		controlsLeft.append(excludeRegEx);
 
+		var includeViews = $('<input type="checkbox" />');
+		label = $('<label>Preserve screen layout</label>');
+		label.prepend(includeViews);
+		controlsRight.append(label);
+		var includeViewsElem = includeViews.get(0);
+
+		var regenerate = $('<button>Regenerate Script</button>');
+		controlsRight.append(regenerate);
+
+		//Add events
 		var updateFileChooser = function () {
 			fileChooser.html('<option value="">Working Script</option>');
 			var includedURLs = edenUI.eden.getAllIncludedURLs();
@@ -57,26 +63,36 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 				fileChooser.append(option);
 			}			
 		};
-		updateFileChooser();
-		
-		var excludeRegEx = $('<input id="' + name + '-exclude-regex" placeholder="excluded symbols"/>')
-		.on("keyup", function (event) {
-			var excludedRegEx = event.target.value;
-			script.html(generateScriptHTML(excludedRegEx));
-		});
-		var excludeRegExElem = excludeRegEx.get(0);
-		controls.append(excludeRegEx);
 
-		var regenerate = $('<button style="float: right">Regenerate Script</button>')
-		.click(function () {
+		var updateScript = function () {
+			script.html(generateScriptHTML(excludeRegExElem.value, includeViewsElem.checked, viewName));			
+		};
+
+		fileChooser.on("change", function (event) {
+			var url = event.target.value;
+			if (url == "") {
+				updateScript();
+				return;
+			}
+			$.ajax({
+				url: url,
+				dataType: "text",
+				success: function (data) {
+					script.html(data);
+				}
+			});
+		});
+
+		excludeRegEx.on("keyup", updateScript);
+		includeViews.on("change", updateScript);
+		regenerate.click(function () {
 			updateFileChooser();
-			var excludedRegEx = excludeRegExElem.value;
-			script.html(generateScriptHTML(excludedRegEx));
+			updateScript();
 		});
-		controls.append(regenerate);
 
-		content.append(controls);
-		content.append(script);
+		//Initialize
+		updateFileChooser();
+		updateScript();
 
 		$('<div id="' + name + '"></div>')
 		.html(content)
@@ -89,8 +105,8 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		});
 	};
 
-	var generateScriptHTML = function (excludeStr) {
-		var lines = me.generateScriptLines(excludeStr);
+	var generateScriptHTML = function (excludeStr, includeViews, viewToExclude) {
+		var lines = me.generateScriptLines(excludeStr, includeViews, viewToExclude);
 		var html = "";
 		for (var i = 0; i < lines.length; i++) {
 			html = html + Eden.htmlEscape(lines[i], true) + "\n";
@@ -117,6 +133,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		procedures: "## Action Definitions:",
 		functions: "## Function Definitions:",
 		picture: "## Picture Definition:",
+		views: "## View Configuration:",
 		autocalcOn: "## Turn on automatic calculation and execute any triggered actions pending.",
 		impliedByExecute: "## Definitions implied by loading the original script (execute procedure):",
 		impliedOther: "## Definitions implied by loading the original script (other):",
@@ -127,7 +144,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 	 * @return {Array} An array where each item is a string representing a piece of EDEN code and
 	 * of the items together represent a complete script capable of rebuilding the current state.
 	 */
-	this.generateScriptLines = function (excludeStr) {
+	this.generateScriptLines = function (excludeStr, includeViews, viewToExclude) {
 
 		var definitions = [];
 		var assignments = [];
@@ -135,7 +152,8 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		var functions = [];
 		var execute = [];
 		var implicit = [];
-			
+		var views = [];
+
 		var autocalcOn = "autocalc = 1;"
 		var autocalcOff = "autocalc = 0;"
 		var commentColumn = 32;
@@ -159,6 +177,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			}
 		
 			var symbol = root.symbols[name];
+			var isView = false;
 
 			if (symbol.last_modified_by == "include" || symbol.last_modified_by == "system" || symbol.last_modified_by == "createView") {
 				continue;
@@ -178,10 +197,15 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			if (/^_View_/.test(name)) {
 			  continue;
 			}
-			if (/^_view_/.test(name) && Eden.isitSystemObservable(name)) {
-				continue;
+			if (/^_view_/.test(name)) {
+				isView = true;
+				if ((!includeViews || name.search("^_view_" + viewToExclude) != -1 || name == "_view_list" || name == "_view_number") &&
+					Eden.isitSystemObservable(name) && symbol.definition === undefined)
+				{
+					continue;
+				}
 			}
-			
+
 			/* Deal with symbols that are set implicitly when the construal is loaded from file.
 			 * This occurs when an execute statement is used, a triggered procedure is fired
 			 * immediately upon the construal being loaded, or if an observable is referenced but
@@ -218,7 +242,15 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			}
 
 			//Reasoning to push to the appropriate array.
-			if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
+			if (isView) {
+
+				if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
+					views.push(symbol.eden_definition + ";");
+				} else {
+					views.push(name + " = " + Eden.edenCodeForValue(symbol.cached_value) + ";");
+				}
+
+			} else if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
 				
 				if (/^func\s/.test(symbol.eden_definition)) {
 					functions.push(symbol.eden_definition);
@@ -302,6 +334,13 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		lines.push(comments.picture);
 		lines.push(picture);
 		lines.push("");
+		if (views.length > 0) {
+			lines.push(comments.views);
+			for (var i = 0; i < views.length; i++) {
+				lines.push(views[i]);
+			}
+			lines.push("");
+		}
 		lines.push(comments.autocalcOn);
 		lines.push(autocalcOn);
 		lines.push("");
