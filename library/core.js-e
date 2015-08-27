@@ -75,11 +75,11 @@ _views_frame_height = ${{ edenUI.dialogFrameHeight }}$;
 ##The maximum width a view can be if it fits within the browser window without scrolling.
 screenWidth = ${{ window.innerWidth }}$ - _views_frame_width;
 ##The maximum height a view can be if it fits within the browser window without scrolling.
-screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight }}$ - _views_frame_height;
+screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - (edenUI.getOptionValue("optHideOnMinimize") != "true"? 34 : 0)}}$;
 ${{
 	window.addEventListener("resize", function (event) {
 		root.lookup("screenWidth").assign(window.innerWidth - edenUI.dialogFrameWidth, Symbol.hciAgent);
-		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight, Symbol.hciAgent);
+		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - (edenUI.getOptionValue("optHideOnMinimize") != "true"? 34 : 0), Symbol.hciAgent);
 	});
 }}$;
 
