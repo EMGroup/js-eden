@@ -198,8 +198,8 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		var content = $('<div class="projectlist-listing"></div>');
 		content.append(prologue);
 
-		var searchDiv = $('<div></div>');
-		var searchBox = $('<input type="text" placeholder="search" />')
+		var searchDiv = $('<div class="projectlist-search-box-outer"></div>');
+		var searchBox = $('<input type="text" class="projectlist-search" placeholder="search" />')
 		.on("keyup", function (event) {
 			instance.updateCollection(event.target.value);
 		});

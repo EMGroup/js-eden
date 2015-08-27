@@ -573,15 +573,18 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
 
 		}).on("keyup", function (e) {
-			if (e.altKey) {
-				var keyCode = e.which;
-				if (keyCode == 187 || keyCode == 189) {
+			var keyCode = e.which;
+			if (e.altKey && !e.shiftKey && !e.ctrlKey) {
+				if (keyCode == 187 || keyCode == 189 || keyCode == 48) {
+					//Zooming using Alt+, Alt- and Alt0
 					var zoomSym = root.lookup("_view_" + canvasName + "_zoom");
 					var zoom = zoomSym.value();
 					if (keyCode == 187) {
 						zoom = zoom * 1.25;
-					} else {
+					} else if (keyCode == 189) {
 						zoom = zoom / 1.25;
+					} else {
+						zoom = 1;
 					}
 					zoomSym.assign(zoom, Symbol.hciAgent);
 				}
