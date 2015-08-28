@@ -1,0 +1,46 @@
+.procedure-results {
+	overflow-y: hidden;
+	font-size: 12px;
+	bottom: 0px;
+}
+
+.symbollist-result-element {
+	margin-bottom: 3px;
+	cursor: pointer;
+	overflow: hidden;
+	font-size: 8pt;
+	font-family: monospace;
+	white-space: nowrap;
+}
+
+.symbollist-search {
+	width: calc(100% - 80px);
+}
+
+.symbollist-search-box-outer {
+	border-bottom: 1px solid #BBBBBB;
+	margin-bottom: 4px;
+	padding-bottom: 1px;
+}
+
+.symbollist-control {
+	margin-right: 8px;
+	margin-bottom: 5px;
+}
+
+a.symbollist-control {
+	cursor: pointer;
+	display: inline-block;
+	color: #29454B;
+	text-decoration: underline;
+	white-space: nowrap;
+}
+
+.symbollist-rightmost-control {
+	margin-right: 0px;
+}
+
+.symbollist-tooltip {
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
