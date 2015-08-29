@@ -12,77 +12,78 @@ SymbolMeta = function(sym) {
 	this.significance = 1.0;
 	this.index = 0;
 	this.isinteresting = false;
+	this.oldvalue = undefined;
 };
 
-SymbolMeta.ObserverLimit = 20;
-SymbolMeta.ObserveeLimit = 5;
+SymbolMeta.DependencyRate = 0.4;
+SymbolMeta.SubscriberRate = 0.2;
 
 SymbolMeta.DecayRate = 0.01;
 
-SymbolMeta.AgentPercentage = 2 / 20;
-SymbolMeta.ObserverCountPercentage = 1 / 20;
-SymbolMeta.ObserveeCountPercentage = 4 / 20;
-SymbolMeta.ObserverAvgPercentage = 1 / 20;
-SymbolMeta.ObserveeAvgPercentage = 4 / 20;
-SymbolMeta.CurrentPercentage = 8 / 20;
+//SymbolMeta.AgentPercentage = 2 / 20;
+SymbolMeta.DependencyPercentage = 4 / 23;
+SymbolMeta.SubscriberPercentage = 1 / 23;
+SymbolMeta.DependencyAvgPercentage = 6 / 23;
+SymbolMeta.SubscriberAvgPercentage = 3 / 23;
+SymbolMeta.CurrentPercentage = 4 / 23;
+SymbolMeta.DeltaPercentage = 5 / 23;
 
 
 SymbolMeta.prototype.update = function(ctx) {
-	//this.interestingness = 1.0;
-	// Number of dependencies
-	// Number of subscribers
-	// Last changed, and by whome
-	// Current value of interestingness
-	// Decay rate of interestingness
-	// Long term significance
-	// Short term significance
-
-	var agent_interestingness;
+	/*var agent_interestingness;
 	switch (this.symbol.last_modified_by) {
 	case "*Script Input": agent_interestingness = 3; break;
 	case "*JavaScript": agent_interestingness = 2; break;
 	case "*Input Device": agent_interestingness = 1; break;
 	default: agent_interestingness = 0;
 	}
-	agent_interestingness /= 3;
+	agent_interestingness /= 3;*/
 
-	var observer_count = 0;
-	var avg_observer_interestingness = 0;
-	for (var x in this.symbol.observers) {
-		observer_count++;
+	var dependency_count = 0;
+	var dependency_interestingness = 0;
+	var avg_dependency_interestingness = 0;
+	for (var x in this.symbol.dependencies) {
+		dependency_count++;
+		dependency_interestingness += (1.0 - dependency_interestingness) * SymbolMeta.DependencyRate;
 		var name = x.substr(1);
 		if (ctx.meta[name] !== undefined) {
-			avg_observer_interestingness += ctx.meta[name].interestingness;
+			avg_dependency_interestingness += ctx.meta[name].interestingness;
 		}
 	}
-	if (observer_count > 0) {
-		avg_observer_interestingness /= observer_count;
+	if (dependency_count > 0) {
+		avg_dependency_interestingness /= dependency_count;
 	}
-	observer_count /= SymbolMeta.ObserverLimit;
-	if (observer_count > 1.0) observer_count = 1.0;
-	observer_count = 1.0 - observer_count;
 
-	var observee_count = 0;
-	var avg_observee_interestingness = 0;
-	for (var x in this.symbol.observees) {
-		observee_count++;
+	var subscriber_count = 0;
+	var subscriber_interestingness = 0;
+	var avg_subscriber_interestingness = 0;
+	for (var x in this.symbol.subscribers) {
+		subscriber_count++;
+		subscriber_interestingness += (1.0 - subscriber_interestingness) * SymbolMeta.SubscriberRate;
 		var name = x.substr(1);
 		if (ctx.meta[name] !== undefined) {
-			avg_observee_interestingness += ctx.meta[name].interestingness;
+			avg_subscriber_interestingness += ctx.meta[name].interestingness;
 		}
 	}
-	if (observee_count > 0) {
-		avg_obeservee_interestingness /= observee_count;
+	if (subscriber_count > 0) {
+		avg_subscriber_interestingness /= subscriber_count;
 	}
-	observee_count /= SymbolMeta.ObserveeLimit;
-	if (observee_count > 1.0) observee_count = 1.0;
+
+	if (this.symbol.last_modified_by == "*Input Device") {
+		subscriber_interestingness = 1.0 - subscriber_interestingness;
+	} else if (this.symbol.last_modified_by == "*Script Input") {
+		dependency_interestingness = 1.0 - dependency_interestingness;
+	}
 
 	var interestingness = 0.0;
-	interestingness += agent_interestingness * SymbolMeta.AgentPercentage;
-	interestingness += observer_count * SymbolMeta.ObserverCountPercentage;
-	interestingness += observee_count * SymbolMeta.ObserveeCountPercentage;
-	interestingness += avg_observer_interestingness * SymbolMeta.ObserverAvgPercentage;
-	interestingness += avg_observee_interestingness * SymbolMeta.ObserveeAvgPercentage;
+	interestingness += dependency_interestingness * SymbolMeta.DependencyPercentage;
+	interestingness += subscriber_interestingness * SymbolMeta.SubscriberPercentage;
+	interestingness += avg_dependency_interestingness * SymbolMeta.DependencyAvgPercentage;
+	interestingness += avg_subscriber_interestingness * SymbolMeta.SubscriberAvgPercentage;
+	if (this.symbol.value() != this.oldvalue) {
+		this.oldvalue = this.symbol.value();
+		interestingness += SymbolMeta.DeltaPercentage;
+	}
 	interestingness += this.interestingness * SymbolMeta.CurrentPercentage;
 
 	this.interestingness = interestingness;
@@ -192,9 +193,9 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 		}
 
 		// Decay interestingness
-		for (var i = 0; i < me.interesting.length; i++) {
+		/*for (var i = 0; i < me.interesting.length; i++) {
 			me.interesting[i].interestingness -= me.interesting[i].interestingness * SymbolMeta.DecayRate;
-		}
+		}*/
 
 		setTimeout(sym_changed_to,me.delay);
 	};
