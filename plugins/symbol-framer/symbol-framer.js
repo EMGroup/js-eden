@@ -10,10 +10,25 @@ SymbolMeta = function(sym) {
 	this.symbol = sym;
 	this.interestingness = 0.0;
 	this.significance = 1.0;
+	this.index = 0;
+	this.isinteresting = false;
 };
 
-SymbolMeta.prototype.update = function() {
-	this.interestingness = 1.0;
+SymbolMeta.ObserverLimit = 20;
+SymbolMeta.ObserveeLimit = 40;
+
+SymbolMeta.DecayRate = 0.01;
+
+SymbolMeta.AgentPercentage = 2 / 20;
+SymbolMeta.ObserverCountPercentage = 1 / 20;
+SymbolMeta.ObserveeCountPercentage = 4 / 20;
+SymbolMeta.ObserverAvgPercentage = 1 / 20;
+SymbolMeta.ObserveeAvgPercentage = 4 / 20;
+SymbolMeta.CurrentPercentage = 8 / 20;
+
+
+SymbolMeta.prototype.update = function(ctx) {
+	//this.interestingness = 1.0;
 	// Number of dependencies
 	// Number of subscribers
 	// Last changed, and by whome
@@ -21,6 +36,56 @@ SymbolMeta.prototype.update = function() {
 	// Decay rate of interestingness
 	// Long term significance
 	// Short term significance
+
+	var agent_interestingness;
+	switch (this.symbol.last_modified_by) {
+	case "*Script Input": agent_interestingness = 3; break;
+	case "*JavaScript": agent_interestingness = 2; break;
+	case "*Input Device": agent_interestingness = 1; break;
+	default: agent_interestingness = 0;
+	}
+	agent_interestingness /= 3;
+
+	var observer_count = 0;
+	var avg_observer_interestingness = 0;
+	for (var x in this.symbol.observers) {
+		observer_count++;
+		var name = x.substr(1);
+		if (ctx.meta[name] !== undefined) {
+			avg_observer_interestingness += ctx.meta[name].interestingness;
+		}
+	}
+	if (observer_count > 0) {
+		avg_observer_interestingness /= observer_count;
+	}
+	observer_count /= SymbolMeta.ObserverLimit;
+	if (observer_count > 1.0) observer_count = 1.0;
+	observer_count = 1.0 - observer_count;
+
+	var observee_count = 0;
+	var avg_observee_interestingness = 0;
+	for (var x in this.symbol.observees) {
+		observee_count++;
+		var name = x.substr(1);
+		if (ctx.meta[name] !== undefined) {
+			avg_observee_interestingness += ctx.meta[name].interestingness;
+		}
+	}
+	if (observee_count > 0) {
+		avg_obeservee_interestingness /= observee_count;
+	}
+	observee_count /= SymbolMeta.ObserveeLimit;
+	if (observee_count > 1.0) observee_count = 1.0;
+
+	var interestingness = 0.0;
+	interestingness += agent_interestingness * SymbolMeta.AgentPercentage;
+	interestingness += observer_count * SymbolMeta.ObserverCountPercentage;
+	interestingness += observee_count * SymbolMeta.ObserveeCountPercentage;
+	interestingness += avg_observer_interestingness * SymbolMeta.ObserverAvgPercentage;
+	interestingness += avg_observee_interestingness * SymbolMeta.ObserveeAvgPercentage;
+	interestingness += this.interestingness * SymbolMeta.CurrentPercentage;
+
+	this.interestingness = interestingness;
 };
 
 /**
@@ -40,12 +105,13 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 	this.meta = {};
 	this.interesting = [];
 
-	this.maxInteresting = 10;
+	this.maxInteresting = 15;
 
 	this.symresults = undefined;
+	this.symbolsui = [];
 
 	var generateHTML = function (viewName) {
-		var html = "<div class=\"symbollist-results\"></div>";
+		var html = "<div class=\"symbolframer-results\"></div>";
 		return html;
 	};
 
@@ -69,7 +135,7 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 		var edenName = name.slice(0, -7);
 		var code_entry = $('<div></div>');
 		code_entry.html(generateHTML(name));
-		me.symresults = code_entry.find(".symbollist-results")[0];
+		me.symresults = code_entry.find(".symbolframer-results")[0];
 
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
@@ -104,10 +170,6 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 		});*/
 	};
 
-	var symbol_update_queue = {};
-	var symbol_create_queue = {};
-	var sym_update_to = false;
-
 	/**
 	 * The delay between updates of all the symbol viewers. A higher value
 	 * reduces the update frequency which improves performance but gives a
@@ -121,29 +183,28 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 	 * @private
 	 */
 	var sym_changed_to = function () {
-			var parent = me.symresults.parent();
-			me.symresults.detach();
+		if (me.symresults !== undefined) {
+			var parent = $(me.symresults).parent();
+			$(me.symresults).detach();
 
 			// For every recently created symbol
-			for (var i = 0; i < me.interesting.length; i++) {
-				var sym = me.interesting[i];
-				var symele = new EdenUI.plugins.SymbolViewer.Symbol(sym, name);
-				symele.element.appendTo(me.symresults);
-				this.symbolsui[name] = symele;
-			}
-
-			// For every recently updated symbol
-			for (var name in symbol_update_queue) {			
-				instance.updateSymbol(name);
+			for (var i = 0; i < me.symbolsui.length; i++) {
+				me.symbolsui[i].update();
 			}
 
 			// Add symbol list back into the DOM for display.
-			me.symresults.appendTo(parent);
+			$(me.symresults).appendTo(parent);
+		}
 
-		symbol_update_queue = {};
-		symbol_create_queue = {};
-		sym_update_to = false;
+		// Decay interestingness
+		for (var i = 0; i < me.interesting.length; i++) {
+			me.interesting[i].interestingness -= me.interesting[i].interestingness * SymbolMeta.DecayRate;
+		}
+
+		setTimeout(sym_changed_to,me.delay);
 	};
+
+	sym_changed_to();
 
 	/**
 	 * Called every time a symbol is changed or created. Then proceeds to
@@ -152,16 +213,63 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 	var symbolChanged = function (sym, create) {
 		var name = sym.name.substr(1);
 
+		if (me.symresults === undefined) return;
+
+		// Does the symbol have a definition
+		if (!sym.definition || !sym.eden_definition) {
+			if (typeof(sym.cached_value) == "function") {
+				return;
+			}
+		} else {
+			// Find out what kind of definition it is (proc, func or plain)
+			var definition = sym.eden_definition;
+	
+			if (/^proc\s/.test(definition)) {
+				return;
+			} else if (/^func\s/.test(definition)) {
+				return;
+			} else {
+				//Dependency
+				if (typeof(sym.cached_value) == "function") {
+					return;
+				}
+			}
+		}
+
 		if (create || me.meta[name] === undefined) {
 			me.meta[name] = new SymbolMeta(sym);
 		}
-		me.meta[name].update();
+		me.meta[name].update(me);
 
-		if (me.meta[name].interestingness >= me.minInteresting()) {
-			if (me.interesting.length == me.maxInteresting) {
-				me.interesting.pop();
+		if (me.meta[name].isinteresting == false) {
+			if (me.meta[name].interestingness > me.minInteresting()) {
+				var ix = me.interesting.length;
+
+				if (me.interesting.length == me.maxInteresting) {
+					var uninteresting = me.interesting[me.interesting.length-1];
+					uninteresting.isinteresting = false;
+					ix = uninteresting.index;
+					me.interesting.pop();
+				}
+				me.interesting.push(me.meta[name]);
+				me.meta[name].isinteresting = true;
+				me.meta[name].index = ix;
+				if (me.symbolsui[ix] === undefined) {
+					me.symbolsui.push(new EdenUI.plugins.SymbolFramer.Symbol());
+
+					var parent = $(me.symresults).parent();
+					$(me.symresults).detach();
+					me.symbolsui[ix].element.appendTo(me.symresults);
+					$(me.symresults).appendTo(parent);
+				}
+				me.symbolsui[ix].symbol = sym;
+				me.symbolsui[ix].name = name;
+				me.symbolsui[ix].meta = me.meta[name];
+				me.symbolsui[ix].outofdate = true;
+
+				console.log("Update: " + name + ": " + me.meta[name].interestingness + ", ix = " + ix);
 			}
-			me.interesting.push(me.meta[name]);
+			me.interesting.sort(function(a,b) { return b.interestingness - a.interestingness; });
 		}
 	};
 
@@ -176,8 +284,8 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 };
 
 /* Plugin meta information */
-EdenUI.plugins.SymbolFramer.title = "Symbol Framer";
-EdenUI.plugins.SymbolFramer.description = "Automatically generate a list of interesting symbols";
+EdenUI.plugins.SymbolFramer.title = "Observable Mining";
+EdenUI.plugins.SymbolFramer.description = "Automatically generate search for interesting observables";
 
 /**
  * A class for an individual symbol result which deals with HTML formatting.
@@ -188,20 +296,16 @@ EdenUI.plugins.SymbolFramer.description = "Automatically generate a list of inte
  * @param name Name of the symbol.
  * @param Already detected type of the symbol: procedure,function,observable.
  */
-EdenUI.plugins.SymbolFramer.Symbol = function (symbol, name, type) {
-	this.symbol = symbol;
-	this.name = name;
-	this.type = type;
+EdenUI.plugins.SymbolFramer.Symbol = function () {
+	this.symbol = undefined;
+	this.name = undefined;
+	this.meta = undefined;
 	this.element = $('<div class="symbollist-result-element"></div>');
 	this.details = undefined;
 	this.update = undefined;
+	this.outofdate = false;
 
-	// Select update method based upon symbol type.
-	switch (type) {
-		case 'func': this.update = this.updateFunction; break;
-		case 'agent': this.update = this.updateProcedure; break;
-		case 'obs': this.update = this.updateObservable; break;
-	};
+	this.update = this.updateObservable;
 
 	var me = this;
 	this.element.hover(
@@ -213,13 +317,13 @@ EdenUI.plugins.SymbolFramer.Symbol = function (symbol, name, type) {
 	).click(function () {
 		edenUI.createView("edit_" + me.name, "ScriptInput");
 		var val;
-		if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
-			val = symbol.eden_definition;
+		if (typeof me.symbol.value() === 'function' && me.symbol.eden_definition !== undefined) {
+			val = me.symbol.eden_definition;
 		} else {
-			if (symbol.definition) {
-				val = symbol.eden_definition + ";";
+			if (me.symbol.definition) {
+				val = me.symbol.eden_definition + ";";
 			} else {
-				val = me.name + " = " + Eden.edenCodeForValue(symbol.value()) + ";";
+				val = me.name + " = " + Eden.edenCodeForValue(me.symbol.value()) + ";";
 			}
 		}
 
@@ -228,46 +332,10 @@ EdenUI.plugins.SymbolFramer.Symbol = function (symbol, name, type) {
 		);
 	});
 
-	this.update();
+	//this.update();
 };
 
-/**
- * Update the HTML output of a function type symbol. Looks for any meta data
- * for this function, such as parameters and description.
- */
-EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
-	var eden_definition = this.symbol.eden_definition;
-	var nameHTML;
-	var detailsHTML;
-
-	if (eden_definition !== undefined && !/^func\s/.test(eden_definition)) {
-		nameHTML = "<span class='hasdef_text'>" + this.name + "</span>";
-	} else {
-		nameHTML = this.name;
-	}
-
-	// If there are details for this function in the function meta data
-	if (edenfunctions.functions != undefined && edenfunctions.functions[this.name] !== undefined) {
-		this.details = edenfunctions.functions[this.name];
-		// Extract parameters for display.
-		var params = Object.keys(this.details.parameters || {});
-		detailsHTML = "<span class='result_value'> ( " + params.join(", ") + " )</span>";
-	} else {
-		detailsHTML = "";
-	}
-
-	var html = "<span class='result_name'>" + nameHTML + "</span>" + detailsHTML;
-
-	if (eden_definition !== undefined && !/^func\s/.test(this.symbol.eden_definition)) {
-		var tooltip = Eden.htmlEscape(eden_definition, false, true);
-		tooltip = Eden.htmlEscape("<pre>" + tooltip + ";</pre>");
-		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
-	}
-
-	this.element.html(html);
-};
-
-function _formatVal(value) {
+function _formatFramerVal(value) {
 	var str = Eden.prettyPrintValue("", value, 200, false, false);
 	switch (typeof(value)) {
 	case "boolean":
@@ -287,9 +355,11 @@ function _formatVal(value) {
  * Update the HTML output of a plain observable symbol. Detects the data type
  * of the observable to display its current value correctly.
  */
-EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
+EdenUI.plugins.SymbolFramer.Symbol.prototype.updateObservable = function () {
+	if (this.outofdate == false) return;
+
 	var val = this.symbol.value();
-	var valhtml = _formatVal(val);
+	var valhtml = _formatFramerVal(val);
 
 	var namehtml;
 	if (this.symbol.definition !== undefined) {
@@ -310,26 +380,3 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 	this.element.html(html);
 };
 
-/**
- * Update the HTML output of a procedure symbol.
- */
-EdenUI.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function () {
-	var eden_definition = this.symbol.eden_definition;
-	var nameHTML;
-
-	if (eden_definition !== undefined && !/^proc\s/.test(eden_definition)) {
-		nameHTML = "<span class='hasdef_text'>" + this.name + "</span>";
-	} else {
-		nameHTML = this.name;
-	}
-
-	var html = "<span class='result_name'>" + nameHTML + "</span>";
-
-	if (eden_definition !== undefined && !/^proc\s/.test(this.symbol.eden_definition)) {
-		var tooltip = Eden.htmlEscape(eden_definition, false, true);
-		tooltip = Eden.htmlEscape("<pre>" + tooltip + ";</pre>");
-		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
-	}
-
-	this.element.html(html);
-};
