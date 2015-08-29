@@ -15,7 +15,7 @@ SymbolMeta = function(sym) {
 };
 
 SymbolMeta.ObserverLimit = 20;
-SymbolMeta.ObserveeLimit = 40;
+SymbolMeta.ObserveeLimit = 5;
 
 SymbolMeta.DecayRate = 0.01;
 
@@ -105,7 +105,7 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 	this.meta = {};
 	this.interesting = [];
 
-	this.maxInteresting = 15;
+	this.limitInteresting = 15;
 
 	this.symresults = undefined;
 	this.symbolsui = [];
@@ -114,14 +114,6 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 		var html = "<div class=\"symbolframer-results\"></div>";
 		return html;
 	};
-
-	this.minInteresting = function() {
-		if (me.interesting.length > 0) {
-			return me.interesting[me.interesting.length - 1].interestingness;
-		} else {
-			return 0.0;
-		}
-	}
 
 	/**
 	 * Construct a jQuery dialog wrapper for a symbol list instance. Also
@@ -175,7 +167,7 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 	 * reduces the update frequency which improves performance but gives a
 	 * sluggish look to the symbol lists.
 	 */
-	this.delay = 40;
+	this.delay = 100;
 
 	/**
 	 * Timeout function for updating symbol lists with any recently changed
@@ -187,9 +179,12 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 			var parent = $(me.symresults).parent();
 			$(me.symresults).detach();
 
+			var mini = me.minInteresting();
+			var maxi = me.maxInteresting();
+
 			// For every recently created symbol
 			for (var i = 0; i < me.symbolsui.length; i++) {
-				me.symbolsui[i].update();
+				me.symbolsui[i].update(mini, maxi);
 			}
 
 			// Add symbol list back into the DOM for display.
@@ -245,7 +240,7 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 			if (me.meta[name].interestingness > me.minInteresting()) {
 				var ix = me.interesting.length;
 
-				if (me.interesting.length == me.maxInteresting) {
+				if (me.interesting.length == me.limitInteresting) {
 					var uninteresting = me.interesting[me.interesting.length-1];
 					uninteresting.isinteresting = false;
 					ix = uninteresting.index;
@@ -283,6 +278,22 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 	success();
 };
 
+EdenUI.plugins.SymbolFramer.prototype.minInteresting = function() {
+	if (this.interesting.length > 0) {
+		return this.interesting[this.interesting.length - 1].interestingness;
+	} else {
+		return 0.0;
+	}
+}
+
+EdenUI.plugins.SymbolFramer.prototype.maxInteresting = function() {
+	if (this.interesting.length > 0) {
+		return this.interesting[0].interestingness;
+	} else {
+		return 0.0;
+	}
+}
+
 /* Plugin meta information */
 EdenUI.plugins.SymbolFramer.title = "Observable Mining";
 EdenUI.plugins.SymbolFramer.description = "Automatically generate search for interesting observables";
@@ -300,7 +311,7 @@ EdenUI.plugins.SymbolFramer.Symbol = function () {
 	this.symbol = undefined;
 	this.name = undefined;
 	this.meta = undefined;
-	this.element = $('<div class="symbollist-result-element"></div>');
+	this.element = $('<div class="symbolframer-result-element"></div>');
 	this.details = undefined;
 	this.update = undefined;
 	this.outofdate = false;
@@ -355,8 +366,12 @@ function _formatFramerVal(value) {
  * Update the HTML output of a plain observable symbol. Detects the data type
  * of the observable to display its current value correctly.
  */
-EdenUI.plugins.SymbolFramer.Symbol.prototype.updateObservable = function () {
-	if (this.outofdate == false) return;
+EdenUI.plugins.SymbolFramer.Symbol.prototype.updateObservable = function (mini, maxi) {
+	if (this.symbol === undefined) return;
+
+	if (maxi == 0) maxi = 1;
+	var fscale = (this.meta.interestingness - mini) * (1 / maxi);
+	var fontsize = Math.round(8 + ((20 - 8) * fscale));
 
 	var val = this.symbol.value();
 	var valhtml = _formatFramerVal(val);
@@ -368,7 +383,8 @@ EdenUI.plugins.SymbolFramer.Symbol.prototype.updateObservable = function () {
 		namehtml = this.name;
 	}
 
-	var html = "<span class='result_name'>" + namehtml + "</span><span class='result_separator'> = </span> " +
+	// class='result_name'
+	var html = "<span>" + namehtml + "</span><span class='result_separator'> = </span> " +
 		"<span class='result_value'>" + valhtml + "</span>";
 
 	if (this.symbol.definition !== undefined) {
@@ -378,5 +394,6 @@ EdenUI.plugins.SymbolFramer.Symbol.prototype.updateObservable = function () {
 	}
 
 	this.element.html(html);
+	this.element.css({'font-size': fontsize + "px"});
 };
 
