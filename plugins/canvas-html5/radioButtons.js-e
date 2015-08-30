@@ -77,10 +77,10 @@ RadioButtons.prototype.draw = function (context) {
 		};
 		var initialValue = valueSym.value();
 		if (initialValue !== undefined) {
-			updateValue(formElement, initialValue);
+			updateValue(formElement.elements, initialValue);
 		}
 		valueSym.addJSObserver("updateUI", function (symbol, value) {
-			updateValue(formElement, value);
+			updateValue(formElement.elements, value);
 		});
 
 		this.elements = [formElement];
