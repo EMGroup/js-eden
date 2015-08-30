@@ -376,6 +376,8 @@ EdenUI.plugins.SymbolFramer.Symbol = function () {
 		$('#edit_' + me.name + '-dialog').find('textarea').val(
 			val
 		);
+	}).draggable({
+		distance: 30, axis: "x", revert: true
 	});
 
 	//this.update();
