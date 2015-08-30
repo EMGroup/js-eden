@@ -12,7 +12,7 @@ SymbolMeta = function(sym) {
 	this.significance = 1.0;
 	this.index = 0;
 	this.isinteresting = false;
-	this.oldvalue = undefined;
+	this.oldstr = "";
 };
 
 SymbolMeta.DependencyComplexityRate = 0.4;
@@ -32,32 +32,49 @@ SymbolMeta.SubscriberPercentage = 1 / 2;
  *   however, more dependencies increases the chance of a change occuring
  *   which reduces interestingness as it becomes noise.
  */
-SymbolMeta.prototype.dependencyInterestingness = function() {
+SymbolMeta.prototype.dependencyInterestingness = function(ctx) {
 	var count = 0;
+	var icount = 0;
 	var interestingness = 0;
 
 	for (var x in this.symbol.dependencies) {
 		count++;
 		interestingness += (1.0 - interestingness) * SymbolMeta.DependencyComplexityRate;
+
+		var name = x.substr(1);
+
+		if (ctx.meta[name] !== undefined && ctx.meta[name].interestingness >= ctx.minInteresting()) {
+			icount++;
+		}
 	}
 
 	interestingness -= count * SymbolMeta.DependencyChangeProbability;
+
+	interestingness = (0.5 * interestingness) + (0.5 * (icount / count));
 
 	if (interestingness < 0) return 0;
 	else return interestingness;
 }
 
 
-SymbolMeta.prototype.subscriberInterestingness = function() {
+SymbolMeta.prototype.subscriberInterestingness = function(ctx) {
 	var count = 0;
+	var icount = 0;
 	var interestingness = 0;
 
 	for (var x in this.symbol.subscribers) {
 		count++;
 		interestingness += (1.0 - interestingness) * SymbolMeta.SubscriberRate;
+
+		var name = x.substr(1);
+
+		if (ctx.meta[name] !== undefined && ctx.meta[name].interestingness >= ctx.minInteresting()) {
+			icount++;
+		}
 	}
 
 	interestingness = 1.0 - interestingness;
+	interestingness = (0.5 * interestingness) + (0.5 * (icount / count));
 	return interestingness;
 }
 
@@ -80,18 +97,13 @@ SymbolMeta.prototype.frequencyInterestingness = function() {
 }
 
 
-SymbolMeta.prototype.relationInterestingness = function() {
-
-}
-
-
 SymbolMeta.prototype.update = function(ctx) {
 	var interestingness = 0.0;
 	//interestingness += this.dependencyInterestingness() * SymbolMeta.DependencyPercentage;
 	//interestingness += this.subscriberInterestingness() * SymbolMeta.SubscriberPercentage;
 
-	interestingness = this.dependencyInterestingness()
-						* this.subscriberInterestingness()
+	interestingness = this.dependencyInterestingness(ctx)
+						* this.subscriberInterestingness(ctx)
 						* this.nameInterestingness();
 
 	/*if (this.symbol.value() != this.oldvalue) {
@@ -222,6 +234,7 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 	 */
 	var symbolChanged = function (sym, create) {
 		var name = sym.name.substr(1);
+		var meta = me.meta[name];
 
 		if (me.symresults === undefined) return;
 
@@ -246,14 +259,23 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 			}
 		}
 
-		if (create || me.meta[name] === undefined) {
+		if (create || meta === undefined) {
 			me.meta[name] = new SymbolMeta(sym);
+			meta = me.meta[name];
 		}
-		me.meta[name].update(me);
+		meta.update(me);
 
-		if (me.meta[name].isinteresting == false) {
-			if (me.meta[name].interestingness >= me.minInteresting()) {
+		if (meta.isinteresting == false) {
+			if (meta.interestingness >= me.minInteresting()) {
 				var ix = me.interesting.length;
+
+				// CHECK FOR REAL CHANGE
+				//var str = Eden.prettyPrintValue("", sym.value(), 200, false, false);
+				//if (str == meta.oldstr) {
+				//	console.log("Not real change: " + name);
+				//	return;
+				//}
+				//meta.oldstr = str;
 
 				if (me.interesting.length == me.limitInteresting) {
 					var uninteresting = me.interesting[me.interesting.length-1];
@@ -261,9 +283,9 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 					ix = uninteresting.index;
 					me.interesting.pop();
 				}
-				me.interesting.push(me.meta[name]);
-				me.meta[name].isinteresting = true;
-				me.meta[name].index = ix;
+				me.interesting.push(meta);
+				meta.isinteresting = true;
+				meta.index = ix;
 				if (me.symbolsui[ix] === undefined) {
 					me.symbolsui.push(new EdenUI.plugins.SymbolFramer.Symbol());
 
@@ -274,7 +296,7 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 				}
 				me.symbolsui[ix].symbol = sym;
 				me.symbolsui[ix].name = name;
-				me.symbolsui[ix].meta = me.meta[name];
+				me.symbolsui[ix].meta = meta;
 				me.symbolsui[ix].outofdate = true;
 			}
 			me.interesting.sort(function(a,b) { return b.interestingness - a.interestingness; });
