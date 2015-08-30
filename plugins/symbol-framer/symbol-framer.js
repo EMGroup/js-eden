@@ -156,7 +156,7 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 		code_entry.html(generateHTML(name));
 		me.symresults = code_entry.find(".symbolframer-results")[0];
 
-		$dialog = $('<div id="'+name+'"></div>')
+		$dialog = $('<div id="'+"mined_dialog"+'"></div>')
 			.html(code_entry)
 			.dialog({
 				title: mtitle,
@@ -350,6 +350,7 @@ EdenUI.plugins.SymbolFramer.Symbol = function () {
 	this.details = undefined;
 	this.update = undefined;
 	this.outofdate = false;
+	this.dodelete = false;
 
 	this.update = this.updateObservable;
 
@@ -358,7 +359,7 @@ EdenUI.plugins.SymbolFramer.Symbol = function () {
 		function() {
 			$(this).animate({backgroundColor: "#eaeaea"}, 100);
 		}, function() {
-			$(this).animate({backgroundColor: "inherit"}, 100);
+			$(this).animate({backgroundColor: "#fafafa"}, 100);
 		}	
 	).click(function () {
 		edenUI.createView("edit_" + me.name, "ScriptInput");
@@ -377,7 +378,22 @@ EdenUI.plugins.SymbolFramer.Symbol = function () {
 			val
 		);
 	}).draggable({
-		distance: 30, axis: "x", revert: true
+		distance: 30, axis: "x",
+		drag: function(event, ui) {
+			if (ui.position.left > 150) {
+				me.dodelete = true;
+			} else {
+				me.dodelete = false;
+			}
+		},
+		revert: function(event, ui) {
+			return !me.dodelete;
+		},
+		stop: function(event, ui) {
+			if (me.dodelete) {
+				me.element.hide( "drop", { direction: "right" }, "slow" );
+			}
+		}
 	});
 
 	//this.update();
