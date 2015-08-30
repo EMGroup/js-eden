@@ -62,12 +62,37 @@ SymbolMeta.prototype.subscriberInterestingness = function() {
 }
 
 
+SymbolMeta.prototype.nameInterestingness = function() {
+	var name = this.symbol.name.substr(1);
+
+	if (name[0] == '_') {
+		return 0.5;
+	} else if (/\d/.test(name)) {
+		return 0.9;
+	} else {
+		return 1.0;
+	}
+}
+
+
+SymbolMeta.prototype.frequencyInterestingness = function() {
+
+}
+
+
+SymbolMeta.prototype.relationInterestingness = function() {
+
+}
+
+
 SymbolMeta.prototype.update = function(ctx) {
 	var interestingness = 0.0;
 	//interestingness += this.dependencyInterestingness() * SymbolMeta.DependencyPercentage;
 	//interestingness += this.subscriberInterestingness() * SymbolMeta.SubscriberPercentage;
 
-	interestingness = this.dependencyInterestingness() * this.subscriberInterestingness();
+	interestingness = this.dependencyInterestingness()
+						* this.subscriberInterestingness()
+						* this.nameInterestingness();
 
 	/*if (this.symbol.value() != this.oldvalue) {
 		this.oldvalue = this.symbol.value();
@@ -260,7 +285,7 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 	edenUI.eden.root.addGlobal(symbolChanged);
 
 	// Add views supported by this plugin.
-	edenUI.views["FramedSymbols"] = {dialog: this.createDialog, title: "Framed Symbols", category: edenUI.viewCategories.comprehension, menuPriority: 1};
+	edenUI.views["ObservableMine"] = {dialog: this.createDialog, title: "Mined Observables", category: edenUI.viewCategories.comprehension, menuPriority: 1};
 
 	$(document).tooltip();
 	success();
