@@ -273,6 +273,17 @@ function concatAndResolveUrl(url, concat) {
 		}
 	}
 
+	EdenUI.prototype.unsetOptionValue = function (optionName) {
+		delete this.options[optionName];
+		try {
+			if (window.localStorage) {
+				window.localStorage.removeItem(optionName);
+			}
+		} catch (e) {
+			//Cookies are blocked.
+		}		
+	}
+
 	/**
 	 * @constructor
 	 * @struct
@@ -722,6 +733,8 @@ function concatAndResolveUrl(url, concat) {
 			if (code == "") {
 				if (value.toString != Object.prototype.toString) {
 					code = value.toString();
+					//If you've written a badly behaved toString() method somewhere that fails to
+					//actually return a string then the next statement will cause an error.
 					if (maxChars !== undefined && code.length > maxChars) {
 						code = code.slice(0, maxChars) + "...";
 						truncated = true;

@@ -96,7 +96,6 @@ Combobox.prototype.scale = function (scale, zoom, origin) {
 	style.left = Math.round(this.x * scale + origin.x) + "px";
 	style.top = Math.round(this.y * scale + origin.y) + "px";
 	style.fontSize = zoom + "em";
-debugger;
 };
 
 Combobox.prototype.toString = function() {

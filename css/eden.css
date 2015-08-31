@@ -8,6 +8,10 @@ body {
 	background-image: linear-gradient(#29454B, #000000);
 }
 
+input[type=checkbox] {
+	vertical-align: -0.25em;
+}
+
 ul li {
 	list-style-type: square;
 }
