@@ -1,5 +1,6 @@
 .symbolframer-results {
 	margin: 0px;
+	overflow-x: hidden;
 }
 
 div#mined_dialog.ui-dialog-content {

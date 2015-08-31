@@ -378,7 +378,7 @@ EdenUI.plugins.SymbolFramer.Symbol = function () {
 			val
 		);
 	}).draggable({
-		distance: 30, axis: "x",
+		distance: 30, axis: "x", scroll: false,
 		drag: function(event, ui) {
 			if (ui.position.left > 150) {
 				me.dodelete = true;
