@@ -106,8 +106,8 @@ func Text {
 		}
 
 		if (size === undefined) {
-			size = 1;
-			sizeUnits = "em";
+			size = 13.3;
+			sizeUnits = "px";
 		} else if (typeof(size) == "number") {
 			sizeUnits = "px";
 		} else {
@@ -188,8 +188,8 @@ func textWidth {
 		}
 
 		if (size === undefined) {
-			size = 1;
-			sizeUnits = "em";
+			size = 13.3;
+			sizeUnits = "px";
 		} else if (typeof(size) == "number") {
 			sizeUnits = "px";
 		} else if (scale !== undefined) {
