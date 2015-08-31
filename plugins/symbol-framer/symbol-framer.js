@@ -9,7 +9,7 @@ var edenfunctions = {};
 SymbolMeta = function(sym) {
 	this.symbol = sym;
 	this.interestingness = 0.0;
-	this.significance = 1.0;
+	this.significance = 0.5;
 	this.index = 0;
 	this.isinteresting = false;
 	this.oldstr = "";
@@ -25,6 +25,8 @@ SymbolMeta.DependencyPercentage = 1 / 2;
 SymbolMeta.SubscriberPercentage = 1 / 2;
 //SymbolMeta.CurrentPercentage = 4 / 23;
 //SymbolMeta.DeltaPercentage = 5 / 23;
+
+SymbolMeta.SigDeleteRate = 0.1;
 
 /**
  * Calculate an interestingness measure using dependency information.
@@ -104,7 +106,7 @@ SymbolMeta.prototype.update = function(ctx) {
 
 	interestingness = this.dependencyInterestingness(ctx)
 						* this.subscriberInterestingness(ctx)
-						* this.nameInterestingness();
+						* this.nameInterestingness() * this.significance;
 
 	/*if (this.symbol.value() != this.oldvalue) {
 		this.oldvalue = this.symbol.value();
@@ -196,6 +198,8 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 	 */
 	this.delay = 100;
 
+	var symbolChanged = undefined;
+
 	/**
 	 * Timeout function for updating symbol lists with any recently changed
 	 * or created symbols.
@@ -206,8 +210,39 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 			var parent = $(me.symresults).parent();
 			$(me.symresults).detach();
 
+			// Check for free ui slots...
+			for (var i = 0; i < me.symbolsui.length; i++) {
+				if (me.symbolsui[i].meta.isinteresting == false) {
+					me.symbolsui[i].element.remove();
+					me.symbolsui.splice(i, 1);
+				}
+			}
+
 			var mini = me.minInteresting();
 			var maxi = me.maxInteresting();
+
+			for (var i = 0; i < me.interesting.length; i++) {
+				var found = false;
+				for (var j = 0; j < me.symbolsui.length; j++) {
+					if (me.symbolsui[j].meta == me.interesting[i]) {
+						found = true;
+						break;
+					}
+				}
+
+				if (!found) {
+					//Make new symbolui entry for this symbol.
+					var symui = new EdenUI.plugins.SymbolFramer.Symbol();
+					me.symbolsui.push(symui);
+					symui.element.appendTo(me.symresults);
+					symui.symbol = me.interesting[i].symbol;
+					var name = symui.symbol.name.substr(1);
+					symui.name = name;
+					symui.meta = me.interesting[i];
+					symui.outofdate = true;
+					symui.symbolChanged = symbolChanged;
+				}
+			}
 
 			// For every recently created symbol
 			for (var i = 0; i < me.symbolsui.length; i++) {
@@ -232,7 +267,7 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 	 * Called every time a symbol is changed or created. Then proceeds to
 	 * update all visible symbol lists.
 	 */
-	var symbolChanged = function (sym, create) {
+	symbolChanged = function (sym, create) {
 		var name = sym.name.substr(1);
 		var meta = me.meta[name];
 
@@ -280,13 +315,16 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 				if (me.interesting.length == me.limitInteresting) {
 					var uninteresting = me.interesting[me.interesting.length-1];
 					uninteresting.isinteresting = false;
-					ix = uninteresting.index;
+					//ix = uninteresting.index;
 					me.interesting.pop();
+					
 				}
+
 				me.interesting.push(meta);
 				meta.isinteresting = true;
-				meta.index = ix;
-				if (me.symbolsui[ix] === undefined) {
+				//meta.index = ix;
+
+				/*if (me.symbolsui[ix] === undefined) {
 					me.symbolsui.push(new EdenUI.plugins.SymbolFramer.Symbol());
 
 					var parent = $(me.symresults).parent();
@@ -297,9 +335,23 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 				me.symbolsui[ix].symbol = sym;
 				me.symbolsui[ix].name = name;
 				me.symbolsui[ix].meta = meta;
-				me.symbolsui[ix].outofdate = true;
+				me.symbolsui[ix].outofdate = true;*/
 			}
 			me.interesting.sort(function(a,b) { return b.interestingness - a.interestingness; });
+		} else {
+			//me.interesting.sort(function(a,b) { return b.interestingness - a.interestingness; });
+
+			if (meta.interestingness < me.minInteresting()) {
+				// Find and destroy
+				console.log("DESTROY");
+				for (var i = 0; i < me.interesting.length; i++) {
+					if (me.interesting[i] == meta) {
+						meta.isinteresting = false;
+						me.interesting.splice(i,1);
+						break;
+					}
+				}
+			}
 		}
 	};
 
@@ -351,6 +403,7 @@ EdenUI.plugins.SymbolFramer.Symbol = function () {
 	this.update = undefined;
 	this.outofdate = false;
 	this.dodelete = false;
+	this.symbolChanged = undefined;
 
 	this.update = this.updateObservable;
 
@@ -378,7 +431,7 @@ EdenUI.plugins.SymbolFramer.Symbol = function () {
 			val
 		);
 	}).draggable({
-		distance: 30, axis: "x", scroll: false,
+		distance: 40, axis: "x", scroll: false,
 		drag: function(event, ui) {
 			if (ui.position.left > 150) {
 				me.dodelete = true;
@@ -391,6 +444,10 @@ EdenUI.plugins.SymbolFramer.Symbol = function () {
 		},
 		stop: function(event, ui) {
 			if (me.dodelete) {
+				me.meta.significance *= SymbolMeta.SigDeleteRate;
+				console.log("Old I: " + me.meta.interestingness);
+				me.symbolChanged(me.symbol, false);
+				console.log("New I: " + me.meta.interestingness);
 				me.element.hide( "drop", { direction: "right" }, "slow" );
 			}
 		}
