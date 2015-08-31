@@ -165,7 +165,7 @@ func forgetAll {
 			caseSensitive = true;
 		}
 		
-		if (arguments.length >= 2 && obsToDelete !== undefined) {
+		if (obsToDelete !== undefined && arguments.length > 2) {
 			eden.error(new Error("forgetAll: Cannot specify case sensitivity when selecting using a list."), "error");
 			return [[], undefined, []];
 		}
@@ -176,6 +176,8 @@ func forgetAll {
 				return [[], undefined, []];
 			}
 			requireConfirm = arguments[2];
+		} else if (obsToDelete !== undefined && arguments.length == 2) {
+			requireConfirm = arguments[1];
 		} else {
 			requireConfirm = true;
 		}

@@ -625,6 +625,16 @@
 				this.jsObservers[jsObserverName](this, this.cached_value);
 			} catch (error) {
 				this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
+				var debug;
+				if (this.context) {
+					var debugOptions = this.context.lookup("debug").cached_value;
+					debug = typeof(debugOptions) == "object" && debugOptions.jsExceptions;
+				} else {
+					debug = false;
+				}
+				if (debug) {
+					debugger;
+				}
 			}
 		}
 	}
@@ -681,19 +691,25 @@
 		return false;
 	};
 
-	Symbol.prototype.assertNotDependentOn = function (name) {
+	Symbol.prototype.assertNotDependentOn = function (name, path) {
+		if (path === undefined) {
+			path = [];
+		}
+		path.push(this.name.slice(1));
+
 		if (this.dependencies[name]) {
-			throw new Error("Cyclic dependency detected");
+			var details = path.join(" -> ") + " -> " + name.slice(1) + " -> " + path[0];
+			throw new Error("Cyclic dependency detected: " + details);
 		}
 
 		var symbol;
 		for (var d in this.dependencies) {
 			symbol = this.dependencies[d];
-			symbol.assertNotDependentOn(name);
+			symbol.assertNotDependentOn(name, path);
 		}
 		for (var d in this.dynamicDependencies) {
 			symbol = this.dynamicDependencies[d];
-			symbol.assertNotDependentOn(name);
+			symbol.assertNotDependentOn(name, path);
 		}
 	};
 
