@@ -16,9 +16,9 @@ SymbolMeta = function(sym) {
 };
 
 SymbolMeta.DependencyComplexityRate = 0.4;
-SymbolMeta.DependencyChangeProbability = 0.05;
+SymbolMeta.DependencyChangeProbability = 0.01;
 SymbolMeta.SubscriberRate = 0.1;
-SymbolMeta.DecayRate = 0.99;
+SymbolMeta.DecayRate = 0.9999;
 
 //SymbolMeta.AgentPercentage = 2 / 20;
 SymbolMeta.DependencyPercentage = 1 / 2;
@@ -27,6 +27,7 @@ SymbolMeta.SubscriberPercentage = 1 / 2;
 //SymbolMeta.DeltaPercentage = 5 / 23;
 
 SymbolMeta.SigDeleteRate = 0.1;
+SymbolMeta.SigInterestingRate = 1.01;
 
 /**
  * Calculate an interestingness measure using dependency information.
@@ -37,7 +38,7 @@ SymbolMeta.SigDeleteRate = 0.1;
 SymbolMeta.prototype.dependencyInterestingness = function(ctx) {
 	var count = 0;
 	var icount = 0;
-	var interestingness = 0;
+	var interestingness = 0.1;
 
 	for (var x in this.symbol.dependencies) {
 		count++;
@@ -52,7 +53,9 @@ SymbolMeta.prototype.dependencyInterestingness = function(ctx) {
 
 	interestingness -= count * SymbolMeta.DependencyChangeProbability;
 
-	interestingness = (0.5 * interestingness) + (0.5 * (icount / count));
+	if (count != 0) {
+		interestingness = (0.5 * interestingness) + (0.5 * (icount / count));
+	}
 
 	if (interestingness < 0) return 0;
 	else return interestingness;
@@ -76,7 +79,10 @@ SymbolMeta.prototype.subscriberInterestingness = function(ctx) {
 	}
 
 	interestingness = 1.0 - interestingness;
-	interestingness = (0.5 * interestingness) + (0.5 * (icount / count));
+
+	if (count != 0) {
+		interestingness = (0.5 * interestingness) + (0.5 * (icount / count));
+	}
 	return interestingness;
 }
 
@@ -212,8 +218,7 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 
 			// Check for free ui slots...
 			for (var i = 0; i < me.symbolsui.length; i++) {
-				if (me.symbolsui[i].meta.isinteresting == false) {
-					me.symbolsui[i].element.remove();
+				if (me.symbolsui[i].meta.dodelete) {
 					me.symbolsui.splice(i, 1);
 				}
 			}
@@ -301,16 +306,10 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 		meta.update(me);
 
 		if (meta.isinteresting == false) {
+			me.interesting.sort(function(a,b) { return b.interestingness - a.interestingness; });
+
 			if (meta.interestingness >= me.minInteresting()) {
 				var ix = me.interesting.length;
-
-				// CHECK FOR REAL CHANGE
-				//var str = Eden.prettyPrintValue("", sym.value(), 200, false, false);
-				//if (str == meta.oldstr) {
-				//	console.log("Not real change: " + name);
-				//	return;
-				//}
-				//meta.oldstr = str;
 
 				if (me.interesting.length == me.limitInteresting) {
 					var uninteresting = me.interesting[me.interesting.length-1];
@@ -322,36 +321,12 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 
 				me.interesting.push(meta);
 				meta.isinteresting = true;
-				//meta.index = ix;
+				meta.significance *= SymbolMeta.SigInterestingRate;
 
-				/*if (me.symbolsui[ix] === undefined) {
-					me.symbolsui.push(new EdenUI.plugins.SymbolFramer.Symbol());
-
-					var parent = $(me.symresults).parent();
-					$(me.symresults).detach();
-					me.symbolsui[ix].element.appendTo(me.symresults);
-					$(me.symresults).appendTo(parent);
-				}
-				me.symbolsui[ix].symbol = sym;
-				me.symbolsui[ix].name = name;
-				me.symbolsui[ix].meta = meta;
-				me.symbolsui[ix].outofdate = true;*/
+				me.interesting.sort(function(a,b) { return b.interestingness - a.interestingness; });
 			}
-			me.interesting.sort(function(a,b) { return b.interestingness - a.interestingness; });
 		} else {
-			//me.interesting.sort(function(a,b) { return b.interestingness - a.interestingness; });
-
-			if (meta.interestingness < me.minInteresting()) {
-				// Find and destroy
-				console.log("DESTROY");
-				for (var i = 0; i < me.interesting.length; i++) {
-					if (me.interesting[i] == meta) {
-						meta.isinteresting = false;
-						me.interesting.splice(i,1);
-						break;
-					}
-				}
-			}
+			
 		}
 	};
 
@@ -448,7 +423,9 @@ EdenUI.plugins.SymbolFramer.Symbol = function () {
 				console.log("Old I: " + me.meta.interestingness);
 				me.symbolChanged(me.symbol, false);
 				console.log("New I: " + me.meta.interestingness);
-				me.element.hide( "drop", { direction: "right" }, "slow" );
+				me.element.hide( "drop", { direction: "right" }, "slow", function() {
+					me.element.remove();
+				});
 			}
 		}
 	});
