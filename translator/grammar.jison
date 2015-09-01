@@ -69,6 +69,7 @@
 "func"                %{ yy.paras.unshift({}); yy.locals.unshift({}); yy.funcBodyDependencies.unshift({}); return 'FUNC'; %}
 "proc"                %{ yy.paras.unshift({}); yy.locals.unshift({}); yy.funcBodyDependencies.unshift({}); return 'PROC'; %}
 "auto"                return 'AUTO'
+"local"               return 'AUTO'
 "para"                return 'PARA'
 "and"                 return 'AND'
 "or"                  return 'OR'
