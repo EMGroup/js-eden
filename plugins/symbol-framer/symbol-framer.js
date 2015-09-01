@@ -220,6 +220,12 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 			for (var i = 0; i < me.symbolsui.length; i++) {
 				if (me.symbolsui[i].meta.dodelete) {
 					me.symbolsui.splice(i, 1);
+				} else if (me.symbolsui[i].meta.isinteresting == false) {
+					var myelement = me.symbolsui[i].element;
+					me.symbolsui[i].element.hide( "drop", { direction: "right" }, "slow", function() {
+						myelement.remove();
+					});
+					me.symbolsui.splice(i, 1);
 				}
 			}
 
