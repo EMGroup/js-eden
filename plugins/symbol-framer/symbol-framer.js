@@ -379,12 +379,13 @@ EdenUI.plugins.SymbolFramer.Symbol = function () {
 	this.symbol = undefined;
 	this.name = undefined;
 	this.meta = undefined;
-	this.element = $('<div class="symbolframer-result-element"></div>');
+	this.element = $('<div class="symbolframer-result-element"><div class="observable"></div></div>');
 	this.details = undefined;
 	this.update = undefined;
 	this.outofdate = false;
 	this.dodelete = false;
 	this.symbolChanged = undefined;
+	this.editing = false;
 
 	this.update = this.updateObservable;
 
@@ -394,9 +395,35 @@ EdenUI.plugins.SymbolFramer.Symbol = function () {
 			$(this).animate({backgroundColor: "#eaeaea"}, 100);
 		}, function() {
 			$(this).animate({backgroundColor: "#fafafa"}, 100);
+			if (me.editing == true) {
+				me.editing = false;
+				me.element.find("textarea").remove();
+				me.element.animate({'height': '20px'}, 'fast');
+			}
 		}	
 	).click(function () {
-		edenUI.createView("edit_" + me.name, "ScriptInput");
+		if (me.editing) return;
+
+		var val;
+		if (typeof me.symbol.value() === 'function' && me.symbol.eden_definition !== undefined) {
+			val = me.symbol.eden_definition;
+		} else {
+			if (me.symbol.definition) {
+				val = me.symbol.eden_definition + ";";
+			} else {
+				val = me.name + " = " + Eden.edenCodeForValue(me.symbol.value()) + ";";
+			}
+		}
+
+		//me.element.effect({ effect: "size", scale: "box", to: {width: me.element.width(), height: 60 }});
+		me.element.animate({'height': '60px'}, {duration: 200, complete: function() {
+			var text = $('<textarea class="mine_edit_box" style="display: none"></textarea>');
+			text.val(val);
+			text.appendTo(me.element);
+			text.show('fast');
+		}});
+		me.editing = true;
+		/*edenUI.createView("edit_" + me.name, "ScriptInput");
 		var val;
 		if (typeof me.symbol.value() === 'function' && me.symbol.eden_definition !== undefined) {
 			val = me.symbol.eden_definition;
@@ -410,7 +437,7 @@ EdenUI.plugins.SymbolFramer.Symbol = function () {
 
 		$('#edit_' + me.name + '-dialog').find('textarea').val(
 			val
-		);
+		);*/
 	}).draggable({
 		distance: 40, axis: "x", scroll: false,
 		drag: function(event, ui) {
@@ -486,7 +513,8 @@ EdenUI.plugins.SymbolFramer.Symbol.prototype.updateObservable = function (mini, 
 		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
 
-	this.element.html(html);
-	this.element.css({'font-size': fontsize + "px"});
+	var span = this.element.find(".observable");
+	span.html(html);
+	span.css({'font-size': fontsize + "px"});
 };
 
