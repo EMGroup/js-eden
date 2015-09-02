@@ -468,10 +468,12 @@
 			var dependency = dependencies[i];
 			var symbol = this.context.lookup(dependency);
 
-			symbol.addSubscriber(this.name, this);
-			var name = symbol.name;
-			this.dependencies[name] = symbol;
-			delete this.dynamicDependencies[name];
+			if (symbol.name != this.name) {
+				symbol.addSubscriber(this.name, this);
+				var name = symbol.name;
+				this.dependencies[name] = symbol;
+				delete this.dynamicDependencies[name];
+			}
 		}
 
 		return this;
@@ -832,7 +834,9 @@
 	Symbol.prototype.addSubscriber = function (name, symbol) {
 		this.garbage = false;
 		this.assertNotDependentOn(name);
-		this.subscribers[name] = symbol;
+		//if (symbol.name != this.name) {
+			this.subscribers[name] = symbol;
+		//}
 	};
 
 	/**
