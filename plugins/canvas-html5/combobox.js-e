@@ -44,32 +44,41 @@ function makeOptionsHTML(values) {
 }
 
 Combobox.prototype.draw = function(context) {
-	var me = this;
-	var agent = root.lookup("Combobox");
-	var valueName = this.name + '_value';
-	var valueSym = root.lookup(valueName);
-
 	var dropDownList;
+
 	if (this.elements === undefined) {
+		var me = this;
+		var name = this.name;
 
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
 		var dropDownListJQ = $("<select " + disabled + " style=\"position: absolute\"></select>");
 		dropDownListJQ.html(makeOptionsHTML(this.options));
 
-		dropDownListJQ.change(function(event) {
-			root.lookup(valueName).assign(event.target.value, agent, true);
-		});
-
 		dropDownList = dropDownListJQ.get(0);
+		var valueSym = root.lookup(name + '_value');
 		var initialValue = valueSym.value();
 		if (initialValue === undefined) {
-			valueSym.assign(me.options[0], agent, true);
+			valueSym.assign(me.options[0], root.lookup("Combobox"), true);
 		} else {
 			dropDownList.value = initialValue;
 		}
-
 		valueSym.addJSObserver("updateCombobox", function (symbol, value) {
 			dropDownList.value = value;
+		});
+
+		dropDownListJQ.change(function(event) {
+			valueSym.assign(event.target.value, Symbol.hciAgent, true);
+		})
+		.on("mousedown", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseDownZone").assign(undefined, Symbol.hciAgent, mouseFollow);
+		})
+		.on("mouseup", function () {
+			edenUI.plugins.Canvas2D.endClick();
+		})
+		.on("mouseenter", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(name, Symbol.hciAgent, mouseFollow);
 		});
 
 		this.elements = [dropDownList];

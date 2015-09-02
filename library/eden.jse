@@ -331,11 +331,7 @@ func forgetAll {
 		if (confirmed) {
 			var noop = function () { };
 			var wasInInitialState = eden.isInInitialState();
-			var autocalcSym = root.lookup("autocalc");
-			var autoCalcEnabledOnEntry = autocalcSym.value();
-			if (autoCalcEnabledOnEntry) {
-				autocalcSym.assign(0, this);
-			}
+			root.beginAutocalcOff();
 
 			for (name in reset) {
 				eden.execute(reset[name], "forgetAll", "", includeAgent, noop);
@@ -354,9 +350,7 @@ func forgetAll {
 			if (wasInInitialState) {
 				eden.captureInitialState(); //Re-assert still in initial state.		
 			}
-			if (autoCalcEnabledOnEntry) {
-				autocalcSym.assign(1, this);
-			}
+			root.endAutocalcOff();
 			return [namesToDelete, unableToDelete, resetList];
 		} else {
 			return [[], unableToDelete, []];

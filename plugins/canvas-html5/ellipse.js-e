@@ -26,29 +26,25 @@ func Ellipse { ${{
 		outlinecolour = "black";
 	}
 	var drawingOptions = arguments[6];
+	if (typeof(drawingOptions) == "object" && eden.isValidIdentifier(drawingOptions.name)) {
+		var clickSym = root.lookup(drawingOptions.name + "_click");
+		if (clickSym.value() === undefined) {
+			clickSym.assign(false, root.lookup("Ellipse"));
+		}
+	}
 	return new Ellipse(x, y, xradius, yradius, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
 ${{
 
 Ellipse.prototype.draw = function(context) {
-	var scaleFactor = this.yradius / this.xradius;
-	var lineWidth, scaleOutline;
-	if (this.outlinecolour !== undefined) {
-		lineWidth = context.lineWidth;
-		scaleOutline = this.drawingOptions === undefined || this.drawingOptions.scaleOutline;
-		if (!scaleOutline) {
-			context.save();
-		}
-	} else {
-		lineWidth = 0;
+	var scaleOutline = this.drawingOptions === undefined || this.drawingOptions.scaleOutline;
+	if (!scaleOutline) {
+		context.save();
 	}
 
-	context.scale(1, scaleFactor);
-	context.beginPath();
-	context.arc(this.x, this.y / scaleFactor, this.xradius - lineWidth / 2, 0, 2 * Math.PI, false);
-	context.closePath();
- 
+	this.tracePath(context);
+
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
 		context.fill();
@@ -61,6 +57,26 @@ Ellipse.prototype.draw = function(context) {
 		context.stroke();
 	}
 };
+
+Ellipse.prototype.tracePath = function (context) {
+	var scaleFactor = this.yradius / this.xradius;
+	var lineWidth;
+	if (this.outlinecolour !== undefined) {
+		lineWidth = context.lineWidth;
+	} else {
+		lineWidth = 0;
+	}
+
+	context.scale(1, scaleFactor);
+	context.beginPath();
+	context.arc(this.x, this.y / scaleFactor, this.xradius - lineWidth / 2, 0, 2 * Math.PI, false);
+	context.closePath();
+}
+
+Ellipse.prototype.isHit = function (context, scale, x, y) {
+	this.tracePath(context);
+	return context.isPointInPath(x,y);
+}
 
 Ellipse.prototype.toString = function() {
 	var s = "Ellipse(" + this.x + ", " + this.y + ", " + this.xradius + ", " + this.yradius + ", " +

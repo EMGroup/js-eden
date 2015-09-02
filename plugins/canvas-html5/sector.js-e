@@ -32,6 +32,12 @@ func Sector { ${{
 		fillcolour = "black";
 	}
 	var drawingOptions = arguments[7];
+	if (typeof(drawingOptions) == "object" && eden.isValidIdentifier(drawingOptions.name)) {
+		var clickSym = root.lookup(drawingOptions.name + "_click");
+		if (clickSym.value() === undefined) {
+			clickSym.assign(false, root.lookup("Sector"));
+		}
+	}
 	return new Sector(x, y, r, sAngle, eAngle, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 radiansPerUnit ~> [Sector];
@@ -39,6 +45,20 @@ radiansPerUnit ~> [Sector];
 ${{
 
 Sector.prototype.draw = function (context) {
+
+	this.tracePath(context);
+
+	if (this.fillcolour !== undefined) {
+		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
+		context.fill();
+	}
+	if (this.outlinecolour !== undefined) {
+		context.strokeStyle = this.outlinecolour;
+		context.stroke();
+	}
+};
+
+Sector.prototype.tracePath = function (context) {
 	var anticlockwise;
 	if (this.drawingOptions !== undefined && "direction" in this.drawingOptions) {
 		switch (this.drawingOptions.direction) {
@@ -55,9 +75,11 @@ Sector.prototype.draw = function (context) {
 			anticlockwise = false;
 			break;
 		default:
+			//Invalid value specified.
 			anticlockwise = true;
 		}
 	} else {
+		//Default to "auto" 
 		anticlockwise = this.sAngle < this.eAngle;
 	}
 
@@ -76,16 +98,12 @@ Sector.prototype.draw = function (context) {
 	context.arc(this.x, this.y, radius, -this.sRadians, -this.eRadians, anticlockwise);
 	context.lineTo(this.x, this.y);
 	context.closePath();
- 
-	if (this.fillcolour !== undefined) {
-		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
-		context.fill();
-	}
-	if (this.outlinecolour !== undefined) {
-		context.strokeStyle = this.outlinecolour;
-		context.stroke();
-	}
 };
+
+Sector.prototype.isHit = function (context, scale, x, y) {
+	this.tracePath(context);
+	return context.isPointInPath(x,y);
+}
 
 Sector.prototype.toString = function() {
 	var s = "Sector(" +

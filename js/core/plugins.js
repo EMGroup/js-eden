@@ -196,11 +196,7 @@
 
 		diag.on("dialogresizestop", function (event, ui) {
 			var root = me.eden.root;
-			var autocalcSym = root.lookup("autocalc");
-			var autocalcOnEntry = autocalcSym.value();
-			if (autocalcOnEntry) {
-				autocalcSym.assign(0, Symbol.hciAgent);
-			}
+			root.beginAutocalcOff();
 			view(name, 'width').assign(ui.size.width - me.scrollBarYSize, Symbol.hciAgent);
 			view(name, 'height').assign(ui.size.height - me.titleBarHeight + 6, Symbol.hciAgent);
 
@@ -213,23 +209,14 @@
 			if (ySym.value() != possibleNewY) {
 				ySym.assign(possibleNewY, Symbol.hciAgent);
 			}
-
-			if (autocalcOnEntry) {
-				autocalcSym.assign(1, Symbol.hciAgent);
-			}
+			root.endAutocalcOff();
 		});
 		diag.on("dialogdragstop", function (event, ui) {
 			var root = me.eden.root;
-			var autocalcSym = root.lookup("autocalc");
-			var autocalcOnEntry = autocalcSym.value();
-			if (autocalcOnEntry) {
-				autocalcSym.assign(0, Symbol.hciAgent);
-			}
+			root.beginAutocalcOff();
 			view(name, 'x').assign(ui.position.left, Symbol.hciAgent);
 			view(name, 'y').assign(ui.position.top - desktopTop, Symbol.hciAgent);
-			if (autocalcOnEntry) {
-				autocalcSym.assign(1, Symbol.hciAgent);
-			}
+			root.endAutocalcOff();
 		});
 
 

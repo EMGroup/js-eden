@@ -83,7 +83,6 @@ Div.prototype.draw = function(context) {
 
   if (this.elements === undefined) {
 	var me = this;
-	var agent = root.lookup("Div");
 	var divStyle = "position: absolute; " + this.style;
 
 	var divElement = document.createElement("div");
@@ -98,25 +97,46 @@ Div.prototype.draw = function(context) {
 	this.fontSizeSpecified = divElement.style.fontSize !== "";
 
 	//Create object properties that record the automatically generated width and/or height.
-	if (this.id !== undefined && (this.width === undefined || this.height === undefined)) {
-		var objectElement = document.createElement("object");
-		objectElement.setAttribute("style", "display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
-		objectElement.onload = function () {
-			var resizeAction = function () {
-				if (me.width === undefined) {
-					root.lookup(me.id + "_width").assign(me.elements[0].clientWidth);
-				}
-				if (me.height === undefined) {
-					root.lookup(me.id + "_height").assign(me.elements[0].clientHeight);
-				}
-			};
-			resizeAction();
-			this.contentDocument.defaultView.addEventListener("resize", resizeAction);
+	if (this.id !== undefined) {
+		divElement.onmousedown = function (event) {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseDownZone").assign(event.target.id, Symbol.hciAgent, mouseFollow);
 		};
-		objectElement.type = "text/html";
-		objectElement.data = "about:blank";
-		divElement.appendChild(objectElement);
+		divElement.onmouseup = function (event) {
+			edenUI.plugins.Canvas2D.endClick();
+		};
+		divElement.onmouseenter = function (event) {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(event.target.id, Symbol.hciAgent, mouseFollow);
+		};
+		if (eden.isValidIdentifier(this.id)) {
+			var clickSym = root.lookup(this.id + "_click");
+			if (clickSym.value() === undefined) {
+				clickSym.assign(false, root.lookup("Div"));
+			}
+		}
+
+		if (this.width === undefined || this.height === undefined) {
+			var objectElement = document.createElement("object");
+			objectElement.setAttribute("style", "display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
+			objectElement.onload = function () {
+				var resizeAction = function () {
+					if (me.width === undefined) {
+						root.lookup(me.id + "_width").assign(me.elements[0].clientWidth);
+					}
+					if (me.height === undefined) {
+						root.lookup(me.id + "_height").assign(me.elements[0].clientHeight);
+					}
+				};
+				resizeAction();
+				this.contentDocument.defaultView.addEventListener("resize", resizeAction);
+			};
+			objectElement.type = "text/html";
+			objectElement.data = "about:blank";
+			divElement.appendChild(objectElement);
+		}
 	}
+
 	this.elements = [divElement];
   }
 };

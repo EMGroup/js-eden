@@ -5,25 +5,41 @@
 
 func Shadow {
 	${{
-		var colour = arguments[0];
-		var blur = arguments[1];
-		var xOffset = arguments[2];
-		var yOffset = arguments[3];
-		return new Shadow(colour, blur, xOffset, yOffset);
+		var colour, blur, xOffset, yOffset, scale;
+		var argsProcessed;
+		if (typeof(arguments[0]) == "string") {
+			colour = arguments[0];
+			argsProcessed = 1;
+		} else {
+			argsProcessed = 0;
+		}
+		if (colour == undefined) {
+			colour = "black";
+		}
+
+		xOffset = arguments[argsProcessed];
+		argsProcessed++;
+		yOffset = arguments[argsProcessed];
+		argsProcessed++;
+		blur = arguments[argsProcessed];
+		argsProcessed++;
+		scale = arguments[argsProcessed];
+		return new Shadow(colour, xOffset, yOffset, blur, scale);
 	}}$;
 }
 
 ${{
-	function Shadow(colour, blur, xOffset, yOffset) {
+	function Shadow(colour, xOffset, yOffset, blur, scale) {
 		this.colour = colour;
 		this.blur = blur;
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
+		this.scale = scale;
 	}
 
 	Shadow.prototype.toString = function() {
-		return "Shadow(" + Eden.edenCodeForValue(this.colour) + ", " + this.blur + ", " +
-			this.xOffset + ", " + this.yOffset + ")";
+		return "Shadow(" + Eden.edenCodeForValue(this.colour) + ", " + this.xOffset + ", " +
+		this.yOffset + ", " + this.blur + ", " + this.scale + ")";
 	}
 
 	Shadow.prototype.getEdenCode = Shadow.prototype.toString;

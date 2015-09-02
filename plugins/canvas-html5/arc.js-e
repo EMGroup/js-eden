@@ -79,9 +79,11 @@ Arc.prototype.draw = function(context) {
 			anticlockwise = turnedThroughAC <= Math.PI;
 			break;
 		default:
+			//Invalid value specified.
 			anticlockwise = true;
 		}
 	} else {
+		//Default to "auto" 
 		anticlockwise = this.sAngle < this.eAngle;
 	}
 	context.beginPath();

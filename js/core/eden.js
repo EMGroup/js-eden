@@ -356,6 +356,10 @@ function concatAndResolveUrl(url, concat) {
 		var initialDefinitions = {};
 	}
 
+	Eden.prototype.isValidIdentifier = function (name) {
+		return name && /^[_a-zA-Z]\w*$/.test(name);
+	};
+
 	Eden.prototype.captureInitialState = function () {
 		this.initialDefinitions = {};
 		for (var i = 0; i < Eden.initiallyDefined.length; i++) {

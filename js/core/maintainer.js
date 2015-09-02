@@ -88,6 +88,12 @@
 		 * @private
 		 */
 		this.potentialGarbage = {};
+
+		/** Remember if autocalc was enabled or disabled prior to entering a block of JavaScript
+		  * statements where we want to guarantee that autocalc is off until at least the end of the block.
+		  * @private
+		  */
+		this.saved_autocalc_state = true;
 	}
 
 	/**
@@ -193,6 +199,25 @@
 		this.autocalc_state = state;
 		this.expireAndFireActions();
 	};
+
+	/**
+	 * Enter a block of JavaScript statements where we want to guarantee autocalc is off.
+	 */
+	Folder.prototype.beginAutocalcOff = function () {
+		this.saved_autocalc_state = this.autocalc_state;
+		if (this.autocalc_state) {
+			this.autocalc(false);
+		}
+	}
+
+	/**
+	 * Leave a block of JavaScript statements where we wanted to guarantee autocalc was off.
+	 */
+	Folder.prototype.endAutocalcOff = function () {
+		if (this.saved_autocalc_state) {
+			this.autocalc(true);
+		}
+	}
 
 	Folder.prototype.expireSymbol = function (sym) {
 		this.needsExpire[sym.name] = sym;

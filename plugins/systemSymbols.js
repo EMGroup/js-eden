@@ -31,6 +31,7 @@ Eden.systemObservableNames = {
 	"mouseDoubleClicks": true,
 	"mouseDown": true,
 	"mouseDownWindow": true,
+	"mouseDownZone": true,
 	"mousePosition": true,
 	"mousePressed": true,
 	"mouseUp": true,
@@ -39,6 +40,7 @@ Eden.systemObservableNames = {
 	"mouseWindow": true,
 	"mouseX": true,
 	"mouseY": true,
+	"mouseZone": true,
 	"randomGeneratorState": true,
 	"randomIndex": true,
 	"screenHeight": true,
@@ -174,6 +176,7 @@ Eden.systemFunctionNames = {
 	"isPointer": true,
 	"isProc": true,
 	"isString": true,
+	"isValue": true,
 	"length": true,
 	"ln": true,
 	"log": true,
@@ -219,11 +222,14 @@ Eden.systemFunctionNames = {
 	"tail": true,
 	"tan": true,
 	"textWidth": true,
+	"textHeight": true,
 	"time": true,
 	"trim": true,
 	"type": true,
 	"uppercase": true,
 	"xorshiftRandomGenerator": true,
+	"zoneOnTopAt": true,
+	"zonesAt" : true,
 };
 
 Eden.symbolCategories = {};
@@ -244,6 +250,7 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"mouseDoubleClicks": true,
 		"mouseDown": true,
 		"mouseDownWindow": true,
+		"mouseDownZone": true,
 		"mouseFollow": true,
 		"mousePosition": true,
 		"mousePressed": true,
@@ -254,6 +261,7 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"mouseWindow": true,
 		"mouseX": true,
 		"mouseY": true,
+		"mouseZone": true,
 		"picture": true,
 		"radiansPerUnit": true,
 		"touchScrollX": true,
@@ -309,7 +317,10 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"Text": true,
 		"Textbox": true,
 		"textWidth": true,
+		"textHeight": true,
 		"Video": true,
+		"zoneOnTopAt": true,
+		"zonesAt" : true,
 	}
 };
 

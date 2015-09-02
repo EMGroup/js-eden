@@ -1,0 +1,47 @@
+include("models/jspe/run.e");
+
+slideZones is Slide("
+	<h1>Hit Detection for Shapes</h1>
+
+	<h2>The Basics</h2>
+	<p>You can now easily detect when the mouse pointer is positioned over any particular shape of
+	interest.  You can also easily detect when the user clicks on a shape using a convenient _click
+	observable, similar to the _clicked observables that already existed for buttons.</p>
+
+	<p>To detect when the mouse pointer interacts with a shape you need to give the shape a name.
+	You do this in the same way that other pieces of supplementary information are added to shapes,
+	using the <em>drawing options</em>.</p>
+
+<jseden>
+r1 is Rectangle(0, 0, 200, 200, \"red\", @, {name: \"red\"});
+r2 is Rectangle(100, 100, 200, 200, \"blue\", @, {name: \"blue\"});
+picture is [r1, r2];
+</jseden>
+
+	<p>Now open a symbol list and use the drop-down list to view all of the relevant observables,
+	including system observables.</p>
+<jseden>
+showObservables(\"mouseZone|mouseDownZone|.*_click(ed)?\");
+</jseden>
+
+	<p>Notice that the system has created two additional observables, <code>red_click</code> and
+	blue_click.  These have the value <code>true</code> assigned to them whenever the left mouse
+	button is pressed down and the mouse pointer is positioned over the relevant shape.  The names
+	of the shapes do not have to be unique, which is useful if several individual shapes form a
+	larger semantic component.</p>
+	
+	<p>Where two shapes overlap only the topmost one (the visible one) has its <code>_click</code>
+	observable set to true.  We might also be interested in knowing about <em>all</em> of the shapes
+	that intersect with the mouse pointer.  Alternatively, the bottommost shape may be the one of
+	interest.  The final section addresses these situations.</p>
+
+	<h2>Invisible Shapes</h2>
+	
+	<h2>Zones Within Images</h2>
+
+	<h2>Hit Detection at Any Point</h2>
+
+	<h2>A Stack of Shapes</h2>
+");
+
+slideList is [slideZones];

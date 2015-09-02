@@ -188,10 +188,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			if (/^(mouse|touch)[A-Z]/.test(name) && Eden.isitSystemObservable(name)) {
 				continue;
 			}
-			if (/_click$/.test(name) && symbol.cached_value === false && symbol.last_modified_by == "HTMLImage") {
-				continue;
-			}
-			if (/_clicked$/.test(name) && symbol.cached_value === false && symbol.last_modified_by == "Button") {
+			if (/_click(ed)?$/.test(name) && symbol.eden_definition === undefined) {
 				continue;
 			}
 			if (/^_View_/.test(name)) {

@@ -27,7 +27,6 @@
 ##
 /*
 	func greyMap {
-		para position;
 		auto data, i, j, v;
 		data = [];
 		for (j = 0; j <= 255; j++) {
@@ -48,28 +47,55 @@
 */
 func GreyPixelList {
 	${{
-		var ptrToData = arguments[0];
-		var x = arguments[1];
-		var y = arguments[2];
-		var width = arguments[3];
-		var redMultiply = arguments[4];
+		var name;
+		var argsProcessed;
+		if (typeof(arguments[0]) == "string") {
+			name = arguments[0];
+			argsProcessed = 1;
+		} else {
+			argsProcessed = 0;
+		}
+		var ptrToData = arguments[argsProcessed];
+		argsProcessed++;
+		var x = arguments[argsProcessed];
+		argsProcessed++;
+		var y = arguments[argsProcessed];
+		argsProcessed++;
+		var width = arguments[argsProcessed];
+		argsProcessed++;
+		var redMultiply = arguments[argsProcessed];
 		if (redMultiply === undefined) redMultiply = 1;
-		var greenMultiply = arguments[5];
+		argsProcessed++;
+		var greenMultiply = arguments[argsProcessed];
 		if (greenMultiply === undefined) greenMultiply = 1;
-		var blueMultiply = arguments[6];
+		argsProcessed++;
+		var blueMultiply = arguments[argsProcessed];
 		if (blueMultiply === undefined) blueMultiply = 1;
-		var redAdd = arguments[7];
+		argsProcessed++;
+		var redAdd = arguments[argsProcessed];
 		if (redAdd === undefined) redAdd = 0;
-		var greenAdd = arguments[8];
+		argsProcessed++;
+		var greenAdd = arguments[argsProcessed];
 		if (greenAdd === undefined) greenAdd = 0;
-		var blueAdd = arguments[9];
+		argsProcessed++;
+		var blueAdd = arguments[argsProcessed];
 		if (blueAdd === undefined) blueAdd = 0;
-		return new GreyPixelList(ptrToData, x, y, width, redMultiply, greenMultiply, blueMultiply, redAdd, greenAdd, blueAdd);
+		argsProcessed++;
+		if (eden.isValidIdentifier(name)) {
+			var clickSym = root.lookup(name + "_click");
+			if (clickSym.value() === undefined) {
+				clickSym.assign(false, root.lookup("GreyPixelList"));
+			}
+		}
+		return new GreyPixelList(name, ptrToData, x, y, width, redMultiply, greenMultiply, blueMultiply, redAdd, greenAdd, blueAdd);
 	}}$;
 }
 
 ${{
-function GreyPixelList(ptrToData, x, y, width, redMultiply, greenMultiply, blueMultiply, redAdd, greenAdd, blueAdd) {
+function GreyPixelList(name, ptrToData, x, y, width, redMultiply, greenMultiply, blueMultiply, redAdd, greenAdd, blueAdd) {
+	if (name !== undefined) {
+		this.drawingOptions = {name: name};
+	}
 	this.data = ptrToData.value();
 	this.x = x;
 	this.y = y;
@@ -119,6 +145,12 @@ GreyPixelList.prototype.draw = function(context) {
 
 	context.putImageData(imageData, this.x, this.y);
 }
+
+GreyPixelList.prototype.isHit = function (context, scale, x, y) {
+	return x >= this.x && x < this.x + this.width && y >= this.y && y < this.y + this.height &&
+	this.data[(y - this.y) * this.width + x - this.x] !== undefined;
+}
+
 
 GreyPixelList.prototype.toString = function() {
 	return "GreyPixelList(" +

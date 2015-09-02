@@ -32,30 +32,41 @@ HTMLImage.prototype.hash = function () {
 }}$;
 
 func HTMLImage { ${{
-	var name = arguments[0];
-	var x = arguments[1];
-	var y = arguments[2];
+	var numArgs = arguments.length;
+	var argsProcessedFirst;
+	
+	var name;
+	if (typeof(arguments[0]) == "string") {
+		name = arguments[0];
+		argsProcessedFirst = 1;
+	} else {
+		argsProcessedFirst = 0;
+	}
+
+	var x = arguments[argsProcessedFirst];
+	argsProcessedFirst++;
+	var y = arguments[argsProcessedFirst];
+	argsProcessedFirst++;
+
 	var width, height, url, imageMap;
 	var scaleFactor = 1;
+	var argsLeft = numArgs - argsProcessedFirst;
 
-	var numArgs = arguments.length;
-	var argsLeft;
-
-	if (numArgs == 8 || typeof(arguments[numArgs - 1]) == "object") {
+	if (numArgs == 8 || Array.isArray(arguments[numArgs - 1])) {
 		imageMap = arguments[numArgs - 1];
 		url = arguments[numArgs - 2];
-		argsLeft = numArgs - 5;
+		argsLeft = argsLeft - 2;
 	} else {
 		url = arguments[numArgs - 1];
-		argsLeft = numArgs - 4;
+		argsLeft--;
 	}
 
 	if (argsLeft >= 1) {
-		width = arguments[3];
+		width = arguments[argsProcessedFirst];
 		if (argsLeft >=2) {
-			height = arguments[4];
+			height = arguments[argsProcessedFirst + 1];
 			if (argsLeft == 3) {
-				scaleFactor = arguments[5];
+				scaleFactor = arguments[argsProcessedFirst + 2];
 			}
 		}
 	}
@@ -68,15 +79,14 @@ HTMLImage.prototype.draw = function(context) {
 	var id = "canvas_" + this.name;
 	var name = this.name;
 	var me = this;
-	var agent = root.lookup("HTMLImage");
 
 	var html = "<img style=\"position: absolute\" src=\"" + this.url + "\"";
-
 	if (this.imageMap !== undefined) {
 		html = html + " usemap=\"#" + id + "-map\" draggable=\"false\" class=\"noselect\"";
 	}
 	html = html + "/>";
 	var imageJQ = $(html);
+
 	if (this.scaledWidth === undefined || this.scaledHeight === undefined) {
 		imageJQ.on("load", function (event) {
 			var image = event.target;
@@ -99,61 +109,52 @@ HTMLImage.prototype.draw = function(context) {
 	}
 	this.elements = [imageJQ.get(0)];
 
-	if (this.imageMap !== undefined) {
-		//Initialize to undefined if necessary.
-		root.lookup(name + "_zoneMouseDown");
-		root.lookup(name + "_zoneMouseUp");
+	imageJQ.on("mousemove", function (event) {
+		var image = event.target;
+		var parentID = image.parentElement.id;
+		var canvasName = parentID.slice(0, -21) // trim -dialog-canvascontent
+		var canvasScale = root.lookup("_view_" + canvasName + "_scale").value() * root.lookup("_view_" + canvasName + "_zoom").value();
+		var mouseFollow = root.lookup("mouseFollow").value();
+		var imagePos = $(this).offset();
+		var x = (event.pageX - Math.round(imagePos.left)) / canvasScale;
+		var y = (event.pageY - Math.round(imagePos.top)) / canvasScale;
+		root.lookup("mousePosition").assign(new Point(x, y), Symbol.hciAgent, mouseFollow);
+	});
 
+	if (name !== undefined) {
+		if (eden.isValidIdentifier(name)) {
+			var clickSym = root.lookup(name + "_click");
+			if (clickSym.value() === undefined) {
+				clickSym.assign(false, root.lookup("HTMLImage"));
+			}
+		}
 		imageJQ.on("mousedown", function () {
-			var autocalcSym = root.lookup("autocalc");
-			var autocalcValueOnEntry = autocalcSym.value();
-			var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
-			var followMouse = root.lookup("mouseFollow").value();
-			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
-
-			edenUI.plugins.Canvas2D.setMouseDown(name + "_click", true, false, agent);
-			root.lookup(name + "_zoneMouseDown").assign(undefined, agent, followMouse);
-			edenUI.plugins.Canvas2D.scheduleMouseUp(name + "_zoneMouseUp", undefined, agent);
-
-			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
-		});	
-
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseDownZone").assign(name, Symbol.hciAgent, mouseFollow);
+		})
+		.on("mouseup", function () {
+			edenUI.plugins.Canvas2D.endClick();
+		})
+		.on("mouseenter", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(name, Symbol.hciAgent, mouseFollow);
+		});
+	}
+	
+	if (this.imageMap !== undefined) {
 		var mapJQ = $("<map name=\"" + id + "-map\" id=\"" + id + "-map\"></map>");
 
 		var setAreaEvents = function (area, regionName) {
 			area.on("mouseenter", function (event) {
 				var followMouse = root.lookup("mouseFollow").value();
-				root.lookup(name + "_zone").assign(regionName, agent, followMouse);
-
-			}).on("mouseout", function (event) {
+				root.lookup("mouseZone").assign(regionName, Symbol.hciAgent, followMouse);
+			})
+			.on("mousedown", function (event) {
 				var followMouse = root.lookup("mouseFollow").value();
-				root.lookup(name + "_zone").assign(undefined, agent, followMouse);
-
-			}).on("mousedown", function (event) {
-				var autocalcSym = root.lookup("autocalc");
-				var autocalcValueOnEntry = autocalcSym.value();
-				var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
-				var followMouse = root.lookup("mouseFollow").value();
-				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
-				
-				edenUI.plugins.Canvas2D.setMouseDown(name + "_click", true, false, agent);
-				root.lookup(name + "_zoneMouseDown").assign(regionName, agent, followMouse);
-				edenUI.plugins.Canvas2D.scheduleMouseUp(name + "_zoneMouseUp", undefined, agent);
-
-				autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
+				root.lookup("mouseDownZone").assign(regionName, Symbol.hciAgent, followMouse);
 
 			}).on("mouseup", function (event) {
-				var autocalcSym = root.lookup("autocalc");
-				var autocalcValueOnEntry = autocalcSym.value();
-				var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
-				var followMouse = root.lookup("mouseFollow").value();
-				autocalcSym.assign(0, Symbol.hciAgent, followMouse);
-
-				edenUI.plugins.Canvas2D.setMouseUp(name + "_click", false, agent);
-				edenUI.plugins.Canvas2D.setMouseUp(name + "_zoneMouseUp", regionName, agent);
-
-				autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
-
+				edenUI.plugins.Canvas2D.endClick();
 			});
 		};
 
@@ -162,19 +163,15 @@ HTMLImage.prototype.draw = function(context) {
 			var areaJQ = $("<area " + this.imageMap[i][1].imageMapArea() + "/>");
 			setAreaEvents(areaJQ, regionName);
 			mapJQ.append(areaJQ);
+
+			if (eden.isValidIdentifier(regionName)) {
+				var clickSym = root.lookup(regionName + "_click");
+				if (clickSym.value() === undefined) {
+					clickSym.assign(false, root.lookup("HTMLImage"));
+				}
+			}
 		}
 		this.elements.push(mapJQ.get(0));
-
-	} else {
-
-		//No image map.
-		imageJQ.on("mousedown", function () {
-			edenUI.plugins.Canvas2D.setMouseDown(name + "_click", true, false, agent);
-		});	
-	}
-	var clickSym = root.lookup(name + "_click");
-	if (clickSym.value() === undefined) {
-		clickSym.assign(false, agent);
 	}
   }
 };
@@ -189,8 +186,8 @@ HTMLImage.prototype.scale = function (scale, zoom, origin) {
 };
 
 HTMLImage.prototype.toString = function() {
-  return "HTMLImage(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
-	this.height + ", \"" + this.url + "\", " + Eden.edenCodeForValue(this.imageMap) + ")";
+  return "HTMLImage(" + Eden.edenCodeForValue(this.name) + ", " + this.x + ", " + this.y + ", " +
+	this.width + ", " + this.height + ", \"" + this.url + "\", " + Eden.edenCodeForValue(this.imageMap) + ")";
 };
 
 HTMLImage.prototype.getEdenCode = HTMLImage.prototype.toString;

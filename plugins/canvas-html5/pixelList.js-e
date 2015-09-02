@@ -41,16 +41,37 @@
 
 func PixelList {
 	${{
-		var ptrToData = arguments[0];
-		var x = arguments[1];
-		var y = arguments[2];
-		var width = arguments[3];
-		return new PixelList(ptrToData, x, y, width);
+		var name;
+		var argsProcessed;
+		if (typeof(arguments[0]) == "string") {
+			name = arguments[0];
+			argsProcessed = 1;
+		} else {
+			argsProcessed = 0;
+		}
+		var ptrToData = arguments[argsProcessed];
+		argsProcessed++;
+		var x = arguments[argsProcessed];
+		argsProcessed++;
+		var y = arguments[argsProcessed];
+		argsProcessed++;
+		var width = arguments[argsProcessed];
+		argsProcessed++;
+		if (eden.isValidIdentifier(name)) {
+			var clickSym = root.lookup(name + "_click");
+			if (clickSym.value() === undefined) {
+				clickSym.assign(false, root.lookup("PixelList"));
+			}
+		}
+		return new PixelList(name, ptrToData, x, y, width);
 	}}$;
 }
 
 ${{
-function PixelList(ptrToData, x, y, width) {
+function PixelList(name, ptrToData, x, y, width) {
+	if (name !== undefined) {
+		this.drawingOptions = {name: name};
+	}
 	this.data = ptrToData.value();
 	this.x = x;
 	this.y = y;
@@ -67,6 +88,10 @@ PixelList.prototype.draw = function (context) {
 		imageArr[i] = dataArr[i];
 	}
 	context.putImageData(imageData, this.x, this.y);
+}
+
+PixelList.prototype.isHit = function (context, scale, x, y) {
+	return x >= this.x && x < this.x + this.width && y >= this.y && y < this.y + this.height;
 }
 
 PixelList.prototype.toString = function() {
