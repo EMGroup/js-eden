@@ -108,7 +108,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		var followMouse = root.lookup("mouseFollow").value();
 		var viewNumberSym = root.lookup("_view_number");
 		var viewNumber = viewNumberSym.value() + 1;
-		viewNumberSym.assign(viewNumber, Symbol.hciAgent, true);
+		viewNumberSym.assign(viewNumber, root.scope, Symbol.hciAgent, true);
 		if (followMouse) {
 			edenUI.eden.execute("createView(\"view_" + viewNumber + "\", \"" + this.view + "\");");
 		} else {
@@ -299,7 +299,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			$(".ui-dialog-content").each(function () { $(this).dialogExtend("option", "dblclick", action); });
 		});
 		addCheckboxOption("developer", "Debug JS-EDEN", false, function (optName, enabled) {
-				root.lookup("debug").mutate(function (symbol) { symbol.cached_value.jsExceptions = enabled; }, Symbol.hciAgent);
+				root.lookup("debug").mutate(root.scope, function (symbol) { symbol.context.scope.lookup(symbol.name).value.jsExceptions = enabled; }, Symbol.hciAgent);
 		});
 	}
 
@@ -373,8 +373,8 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			item.bind("click", function (event) {
 				hideMenu();
 				var symbol = root.lookup(name + "_clicked");
-				symbol.assign(true);
-				symbol.assign(false);
+				symbol.assign(true, root.scope);
+				symbol.assign(false, root.scope);
 			});
 			this.element = item.get(0);
 		}

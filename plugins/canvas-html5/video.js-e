@@ -163,9 +163,9 @@ ${{
 				}
 				var chapterSym = root.lookup(name + "_chapter");
 				if (chapterIndex == -1) {
-					chapterSym.assign(undefined, agent);
+					chapterSym.assign(undefined, root.scope, agent);
 				} else {
-					chapterSym.assign(chapterNames[chapterIndex], agent);
+					chapterSym.assign(chapterNames[chapterIndex], root.scope, agent);
 				}
 			};
 			var chapterMarksSym = root.lookup(name + "_chapters");
@@ -185,7 +185,7 @@ ${{
 			if (controls === undefined) {
 				controls = true;
 				if (controlsSym.eden_definition === undefined || controlsSym.definition === undefined) {
-					controlsSym.assign(true, this);
+					controlsSym.assign(true, root.scope, this);
 				}
 			}
 			videoElement.controls = controls;
@@ -201,7 +201,7 @@ ${{
 			var position = positionSym.value();
 			if (position === undefined) {
 				position = new Point(0, 0);
-				positionSym.assign(position, agent);
+				positionSym.assign(position, root.scope, agent);
 			}
 			var repositionAction = function (symbol, position) {
 				if (position instanceof Point) {
@@ -239,7 +239,7 @@ ${{
 			videoElement.addEventListener("loadedmetadata", function (event) {
 				var sizeSym = root.lookup(name + "_size");
 				if (sizeSym.value() === undefined) {
-					sizeSym.assign(new Point(videoElement.videoWidth, videoElement.videoHeight), agent);
+					sizeSym.assign(new Point(videoElement.videoWidth, videoElement.videoHeight), root.scope, agent);
 				}
 			});
 
@@ -249,7 +249,7 @@ ${{
 			var pausedSym = root.lookup(name + "_paused");
 			var beginPaused = pausedSym.value();
 			if (beginPaused === undefined && (pausedSym.eden_definition === undefined || pausedSym.definition === undefined)) {
-				pausedSym.assign(true, agent);
+				pausedSym.assign(true, root.scope, agent);
 			} else if (beginPaused == false) {
 				videoElement.autoplay = true;
 			}
@@ -263,13 +263,13 @@ ${{
 			videoElement.addEventListener("pause", function (event) {
 				var pausedSym = root.lookup(name + "_paused");
 				if (pausedSym.eden_definition === undefined || pausedSym.definition === undefined) {
-					pausedSym.assign(true, agent);
+					pausedSym.assign(true, root.scope, agent);
 				}
 			});
 			videoElement.addEventListener("playing", function (event) {
 				var pausedSym = root.lookup(name + "_paused");
 				if (pausedSym.eden_definition === undefined || pausedSym.definition === undefined) {
-					pausedSym.assign(false, agent);
+					pausedSym.assign(false, root.scope, agent);
 				}
 				if (root.lookup(name + "_speed").value() == 0) {
 					videoElement.defaultPlaybackRate = 1;
@@ -295,12 +295,12 @@ ${{
 			videoElement.addEventListener("timeupdate", function (event) {
 				var newTimeIndex = Math.floor(videoElement.currentTime * 10);
 				if (newTimeIndex != me.timeIndex) {
-					root.lookup(name + "_time").assign(newTimeIndex / 10, agent);
+					root.lookup(name + "_time").assign(newTimeIndex / 10, root.scope, agent);
 					me.timeIndex = newTimeIndex;
 					
 					if (nextChapterAt !== undefined && videoElement.currentTime >= nextChapterAt) {
 						chapterIndex++;
-						root.lookup(name + "_chapter").assign(chapterNames[chapterIndex], agent);
+						root.lookup(name + "_chapter").assign(chapterNames[chapterIndex], root.scope, agent);
 						if (chapterIndex < chapterMarks.length - 1) {
 							nextChapterAt = chapterMarks[chapterIndex]
 						} else {
@@ -322,7 +322,7 @@ ${{
 			var speedSym = root.lookup(name + "_speed");
 			var speed = speedSym.value();
 			if (speed === undefined) {
-				speedSym.assign(1, agent);
+				speedSym.assign(1, root.scope, agent);
 			} else if (speed > 0) {
 				videoElement.defaultPlaybackRate = speed;
 			}
@@ -340,7 +340,7 @@ ${{
 				var speedSym = root.lookup(name + "_speed");
 				var speed = videoElement.playbackRate;
 				if (speedSym.eden_definition === undefined || speedSym.definition === undefined) {
-					speedSym.assign(speed, agent);
+					speedSym.assign(speed, root.scope, agent);
 				}
 				if (speed == 0) {
 					videoElement.pause();
@@ -355,7 +355,7 @@ ${{
 			var volumeSym = root.lookup(name + "_volume");
 			var volume = volumeSym.value();
 			if (volume === undefined) {
-				volumeSym.assign(1, agent);
+				volumeSym.assign(1, root.scope, agent);
 			} else {
 				videoElement.volume = volume;			
 			}
@@ -363,7 +363,7 @@ ${{
 				videoElement.volume = volume;
 			});
 			videoElement.addEventListener("volumechange", function (event) {
-				root.lookup(name + "_volume").assign(videoElement.volume, agent);
+				root.lookup(name + "_volume").assign(videoElement.volume, root.scope, agent);
 			});	
 
 
@@ -376,7 +376,7 @@ ${{
 			}
 			urlSym.addJSObserver("newVideo", function (symbol, url) {
 				var autoplay = !root.lookup(name + "_paused").value();
-				root.lookup(name + "_time").assign(undefined, agent);
+				root.lookup(name + "_time").assign(undefined, root.scope, agent);
 				me.timeIndex = undefined;
 				videoElement.autoplay = autoplay;
 				if (!autoplay) {

@@ -33,7 +33,7 @@ func Rectangle { ${{
 	if (typeof(drawingOptions) == "object" && eden.isValidIdentifier(drawingOptions.name)) {
 		var clickSym = root.lookup(drawingOptions.name + "_click");
 		if (clickSym.value() === undefined) {
-			clickSym.assign(false, root.lookup("Rectangle"));
+			clickSym.assign(false, root.scope, root.lookup("Rectangle"));
 		}
 	}
 	return new Rectangle(x, y, width, height, fillcolour, outlinecolour, drawingOptions);

@@ -118,26 +118,26 @@ HTMLImage.prototype.draw = function(context) {
 		var imagePos = $(this).offset();
 		var x = (event.pageX - Math.round(imagePos.left)) / canvasScale;
 		var y = (event.pageY - Math.round(imagePos.top)) / canvasScale;
-		root.lookup("mousePosition").assign(new Point(x, y), Symbol.hciAgent, mouseFollow);
+		root.lookup("mousePosition").assign(new Point(x, y), root.scope, Symbol.hciAgent, mouseFollow);
 	});
 
 	if (name !== undefined) {
 		if (eden.isValidIdentifier(name)) {
 			var clickSym = root.lookup(name + "_click");
 			if (clickSym.value() === undefined) {
-				clickSym.assign(false, root.lookup("HTMLImage"));
+				clickSym.assign(false, root.scope, root.lookup("HTMLImage"));
 			}
 		}
 		imageJQ.on("mousedown", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseDownZone").assign(name, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseDownZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
 		})
 		.on("mouseup", function () {
 			edenUI.plugins.Canvas2D.endClick();
 		})
 		.on("mouseenter", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseZone").assign(name, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
 		});
 	}
 	
@@ -147,11 +147,11 @@ HTMLImage.prototype.draw = function(context) {
 		var setAreaEvents = function (area, regionName) {
 			area.on("mouseenter", function (event) {
 				var followMouse = root.lookup("mouseFollow").value();
-				root.lookup("mouseZone").assign(regionName, Symbol.hciAgent, followMouse);
+				root.lookup("mouseZone").assign(regionName, root.scope, Symbol.hciAgent, followMouse);
 			})
 			.on("mousedown", function (event) {
 				var followMouse = root.lookup("mouseFollow").value();
-				root.lookup("mouseDownZone").assign(regionName, Symbol.hciAgent, followMouse);
+				root.lookup("mouseDownZone").assign(regionName, root.scope, Symbol.hciAgent, followMouse);
 
 			}).on("mouseup", function (event) {
 				edenUI.plugins.Canvas2D.endClick();
@@ -167,7 +167,7 @@ HTMLImage.prototype.draw = function(context) {
 			if (eden.isValidIdentifier(regionName)) {
 				var clickSym = root.lookup(regionName + "_click");
 				if (clickSym.value() === undefined) {
-					clickSym.assign(false, root.lookup("HTMLImage"));
+					clickSym.assign(false, root.scope, root.lookup("HTMLImage"));
 				}
 			}
 		}

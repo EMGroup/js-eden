@@ -38,13 +38,13 @@ SlideButton.prototype.draw = function(context) {
 
 	var can = $("#jspe-dialog-canvascontent");
 	var buthtml = $("<input type=\"button\" id=\"" + me + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
-		root.lookup(me2 + "_clicked").assign(true, agent);
+		root.lookup(me2 + "_clicked").assign(true, root.scope, agent);
 	}).appendTo(can);
 
 	buthtml.get(0).togarbage = false;
 
 	//Initialise
-	root.lookup(me2 + "_clicked").assign(false, agent);
+	root.lookup(me2 + "_clicked").assign(false, root.scope, agent);
   } else {
 	but.value = this.label;
 	but.togarbage = false;

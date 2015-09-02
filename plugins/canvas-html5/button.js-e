@@ -58,25 +58,25 @@ Button.prototype.draw = function (context) {
 		var inputJQ = $(inputHtml);
 		var clickSym = root.lookup(name + "_click");
 		if (clickSym.value() === undefined) {
-			clickSym.assign(false, root.lookup("Button"));
-			root.lookup(name + "_clicked").assign(false, root.lookup("Button"));
+			clickSym.assign(false, root.scope, root.lookup("Button"));
+			root.lookup(name + "_clicked").assign(false, root.scope, root.lookup("Button"));
 		}
 
 		inputJQ
 		.click(function () {
-			root.lookup(name + "_clicked").assign(true, Symbol.hciAgent, true);
-			root.lookup(name + "_clicked").assign(false, Symbol.hciAgent, true);
+			root.lookup(name + "_clicked").assign(true, root.scope, Symbol.hciAgent, true);
+			root.lookup(name + "_clicked").assign(false, root.scope, Symbol.hciAgent, true);
 		})
 		.on("mousedown", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseDownZone").assign(name, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseDownZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
 		})
 		.on("mouseup", function () {
 			edenUI.plugins.Canvas2D.endClick();
 		})
 		.on("mouseenter", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseZone").assign(name, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
 		});
 
 		var button = inputJQ.get(0);

@@ -27,7 +27,7 @@ func Circle { ${{
 	if (typeof(drawingOptions) == "object" && eden.isValidIdentifier(drawingOptions.name)) {
 		var clickSym = root.lookup(drawingOptions.name + "_click");
 		if (clickSym.value() === undefined) {
-			clickSym.assign(false, root.lookup("Circle"));
+			clickSym.assign(false, root.scope, root.lookup("Circle"));
 		}
 	}
 	return new Circle(x, y, radius, fillcolour, outlinecolour, drawingOptions);

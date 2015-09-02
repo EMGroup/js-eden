@@ -27,7 +27,7 @@ proc writeln {
 	var message = root.lookup("str").definition(root)(arguments[0]);
 	console.log(message);
 	message = "Output: " + message;
-	root.lookup("_menubar_status").assign(message, this);
+	root.lookup("_menubar_status").assign(message, root.scope, this);
 	if (!root.autocalc_state) {
 		edenUI.plugins.MenuBar.updateStatus(message);
 	}
@@ -96,7 +96,7 @@ func forget {
 		}
 		
 		if (nameToDelete == "/picture") {
-			root.lookup("picture").assign(undefined, this);
+			root.lookup("picture").assign(undefined, root.scope, this);
 			return 3;
 		}
 
@@ -343,7 +343,7 @@ func forgetAll {
 				if ("refreshView" in symbol.jsObservers) {
 					/* Clear the view's contents before deleting the associated symbol, so at least
 					 * it's clear that the view is no longer valid and isn't merely "hung". */
-					symbol.assign(undefined);
+					symbol.assign(undefined, root.scope);
 				}
 				symbol.forget();
 			}

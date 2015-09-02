@@ -55,7 +55,7 @@ Textbox.prototype.draw = function(context) {
 		var valueSymbol = root.lookup(name + "_value");
 		var value = valueSymbol.value();
 		if (value === undefined) {
-			valueSymbol.assign("", root.lookup("Textbox"));
+			valueSymbol.assign("", root.scope, root.lookup("Textbox"));
 		} else {
 			element.value = value;
 		}
@@ -65,18 +65,18 @@ Textbox.prototype.draw = function(context) {
 
 		jQuery
 		.on("input", function(event) {
-			root.lookup(name + "_value").assign(event.target.value, Symbol.hciAgent, true);
+			root.lookup(name + "_value").assign(event.target.value, root.scope, Symbol.hciAgent, true);
 		})
 		.on("mousedown", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseDownZone").assign(undefined, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseDownZone").assign(undefined, root.scope, Symbol.hciAgent, mouseFollow);
 		})
 		.on("mouseup", function () {
 			edenUI.plugins.Canvas2D.endClick();
 		})
 		.on("mouseenter", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseZone").assign(name, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
 		});
 
 		this.elements = [element];

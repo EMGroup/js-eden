@@ -84,7 +84,7 @@ func GreyPixelList {
 		if (eden.isValidIdentifier(name)) {
 			var clickSym = root.lookup(name + "_click");
 			if (clickSym.value() === undefined) {
-				clickSym.assign(false, root.lookup("GreyPixelList"));
+				clickSym.assign(false, root.scope, root.lookup("GreyPixelList"));
 			}
 		}
 		return new GreyPixelList(name, ptrToData, x, y, width, redMultiply, greenMultiply, blueMultiply, redAdd, greenAdd, blueAdd);

@@ -386,7 +386,7 @@ function concatAndResolveUrl(url, concat) {
 	}
 
 	Eden.prototype.reset = function () {
-		this.root.lookup("forgetAll").definition(root)("", true, false);
+		this.root.lookup("forgetAll").definition(root, root.scope)("", true, false);
 		this.root.collectGarbage();
 		this.errorNumber = 0;
 		this.topLevelIncludes = [];
@@ -432,17 +432,17 @@ function concatAndResolveUrl(url, concat) {
 		var result;
 		var me = this;
 		this.emit('executeBegin', [origin, code]);
-		try {
+		//try {
 			var js = this.translateToJavaScript(code);
 			this.inInitialState = false;
-			eval(js).call(agent, this.root, this, prefix, function () {
+			eval(js).call(agent, this.root, this, this.root.scope, prefix, function () {
 				success && success();
 				me.emit('executeEnd', [origin]);
 			});
-		} catch (e) {
-			this.error(e);
+		//} catch (e) {
+		//	this.error(e);
 			success && success();
-		}
+		//}
 	};
 
 	/**

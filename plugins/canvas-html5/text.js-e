@@ -122,7 +122,7 @@ func Text {
 		if (typeof(options) == "object" && eden.isValidIdentifier(options.name)) {
 			var clickSym = root.lookup(options.name + "_click");
 			if (clickSym.value() === undefined) {
-				clickSym.assign(false, root.lookup("Text"));
+				clickSym.assign(false, root.scope, root.lookup("Text"));
 			}
 		}		
 		return new Text(text, x, y, size, sizeUnits, fillcolour, outlinecolour, options);

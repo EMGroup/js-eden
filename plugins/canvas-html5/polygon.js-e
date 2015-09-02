@@ -134,7 +134,7 @@ func Polygon { ${{
 	if (typeof(drawingOptions) == "object" && eden.isValidIdentifier(drawingOptions.name)) {
 		var clickSym = root.lookup(drawingOptions.name + "_click");
 		if (clickSym.value() === undefined) {
-			clickSym.assign(false, root.lookup("Polygon"));
+			clickSym.assign(false, root.scope, root.lookup("Polygon"));
 		}
 	}
 
