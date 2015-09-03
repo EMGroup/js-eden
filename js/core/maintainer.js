@@ -469,6 +469,28 @@
 		return cache.value;
 	};
 
+	Symbol.prototype.multiValue = function (context, scope, overrides, cause) {
+		var hasrange = false;
+		var results = [];
+
+		for (var o in overrides) {
+			var override = overrides[o];
+			if (typeof override == "object" && override.begin) {
+				hasrange = true;
+				for (var i = override.begin; i <= override.end; i++) {
+					overrides[o] = i;
+					results = results.concat(this.multiValue(context, scope, overrides, cause));
+				}
+			}
+		}
+
+		if (hasrange == false) {
+			return [this.value(new Scope(context, scope, overrides, cause))];
+		} else {
+			return results;
+		}
+	};
+
 	Symbol.prototype.evaluateIfDependenciesExist = function () {
 		var name;
 		for (name in this.dependencies) {

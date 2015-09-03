@@ -124,6 +124,7 @@
 "("                   return '('
 ")"                   return ')'
 
+".."                  return '..'   
 "."                   return '.'
 "`"                   return '`'
 
@@ -419,6 +420,24 @@ scope-pair
         { $$ = $1 + ': ' + $3; }
     ;
 
+scoperange-list-opt
+    : scoperange-list
+    |
+        { $$ = ""; }
+    ;
+
+scoperange-list
+    : scoperange-pair
+    | scoperange-pair ',' scoperange-list
+        { $$ = $1 + ', ' + $3; }
+    ;
+
+scoperange-pair
+    : OBSERVABLE '=' expression '..' expression
+        { $$ = $1 + ': { begin: ' + $3 + ', end: ' + $5 + '}'; }
+	| scope-pair
+    ;
+
 primary-expression
     : lvalue
         { $$ = $lvalue + '.value(scope)'; }
@@ -426,6 +445,8 @@ primary-expression
         { $$ = $lvalue + '.value(scope).' + $3 + '(' + $5 + ')'; }
 	| lvalue '{' scope-list-opt '}'
 		{ $$ = $1 + '.value(new Scope(context, scope, {' + $3 + '}, ' + $1 + '))'; }
+	| lvalue '{' scoperange-list-opt '}'
+		{ $$ = $1 + '.multiValue(context, scope, {' + $3 + '}, ' + $1 + ')'; }
     | primary-expression '(' expression-list-opt ')'
         { $$ = '' + $1 + '.call('+ ['this'].concat($3) + ')'; }
     | primary-expression '[' expression ']'
