@@ -600,7 +600,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					direction = "right";
 				}
 				touchScrollXSym.assign(touchScrollXValue, root.scope, Symbol.hciAgent, followMouse);
-				root.lookup("touchScrollXDir").assign(direction, Symbol.hciAgent, followMouse);
+				root.lookup("touchScrollXDir").assign(direction, root.scope, Symbol.hciAgent, followMouse);
 			}
 			root.endAutocalcOff();
 

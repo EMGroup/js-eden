@@ -111,7 +111,7 @@ func Inputbox { ${{
   var enabled = arguments[3];
   var width = arguments[4];
   var value = arguments[5];
-  root.lookup(name + "_value").assign(value, root.lookup("Inputbox"));
+  root.lookup(name + "_value").assign(value, root.scope, root.lookup("Inputbox"));
   return new Textbox(name, x, y, width, 1, enabled);
 }}$; }
 
@@ -182,7 +182,7 @@ func Slider { ${{
   var orientation = arguments[5];
   var x = arguments[6];
   var y = arguments[7];
-  root.lookup(name + "_value").assign(value, root.lookup("Slider"));
+  root.lookup(name + "_value").assign(value, root.scope, root.lookup("Slider"));
   return new Slider(name, min, max, step, x, y, 130, orientation, true);
 }}$; }
 

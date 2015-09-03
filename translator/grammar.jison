@@ -425,7 +425,7 @@ primary-expression
     | lvalue '.' OBSERVABLE '(' expression-list-opt ')'
         { $$ = $lvalue + '.value(scope).' + $3 + '(' + $5 + ')'; }
 	| lvalue '{' scope-list-opt '}'
-		{ $$ = $1 + '.value(new Scope(context, scope, {' + $3 + '}))'; }
+		{ $$ = $1 + '.value(new Scope(context, scope, {' + $3 + '}, ' + $1 + '))'; }
     | primary-expression '(' expression-list-opt ')'
         { $$ = '' + $1 + '.call('+ ['this'].concat($3) + ')'; }
     | primary-expression '[' expression ']'

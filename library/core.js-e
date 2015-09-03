@@ -78,8 +78,8 @@ screenWidth = ${{ window.innerWidth }}$ - _views_frame_width;
 screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - (edenUI.getOptionValue("optHideOnMinimize") != "true"? 34 : 0)}}$;
 ${{
 	window.addEventListener("resize", function (event) {
-		root.lookup("screenWidth").assign(window.innerWidth - edenUI.dialogFrameWidth, Symbol.hciAgent);
-		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - (edenUI.getOptionValue("optHideOnMinimize") != "true"? 34 : 0), Symbol.hciAgent);
+		root.lookup("screenWidth").assign(window.innerWidth - edenUI.dialogFrameWidth, root.scope, Symbol.hciAgent);
+		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - (edenUI.getOptionValue("optHideOnMinimize") != "true"? 34 : 0), root.scope, Symbol.hciAgent);
 	});
 }}$;
 
@@ -115,7 +115,7 @@ proc showObservables { ${{
 	var inputBox = $('#' + viewName + '-dialog .symbollist-search');
 	if (inputBox.length == 0) {
 		edenUI.createView(viewName, "SymbolList");
-		root.lookup("_view_" + viewName + "_title").assign("Symbol List [showObservables]", this);
+		root.lookup("_view_" + viewName + "_title").assign("Symbol List [showObservables]", root.scope, this);
 		inputBox = $('#' + viewName + '-dialog .symbollist-search');
 	}
 	inputBox.val(searchStr);

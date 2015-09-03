@@ -324,12 +324,12 @@ ${{
 
 window.updatescriptvar = function updatescriptvar(ix)
 {
-	(root.lookup("currscriptvarix")).assign(ix, this).value();
+	(root.lookup("currscriptvarix")).assign(ix, root.scope, this).value();
 	$("#selscriptvar")[0].children[ix-1].checked = true;
-    $("#scriptvid")[0].value = root.lookup("scriptvarid").cached_value; 
-    $("#matchseg")[0].value = root.lookup("strtomatch").cached_value; 
-    $("#srcstring")[0].value = root.lookup("astr").cached_value; 
-	$("#auxscript")[0].value = root.lookup("pattcontext").cached_value;
+    $("#scriptvid")[0].value = root.scope.lookup("/scriptvarid").value; 
+    $("#matchseg")[0].value = root.scope.lookup("/strtomatch").value; 
+    $("#srcstring")[0].value = root.scope.lookup("/astr").value; 
+	$("#auxscript")[0].value = root.scope.lookup("/pattcontext").value;
 }
 
 }}$;
@@ -357,7 +357,7 @@ update3 is Button("setval3", "Update template", 20, vertpos2+100, true);
 proc updateval1 : setval1_clicked {
   if (setval1_clicked) {
 	${{
-	 (root.lookup("scriptvarid")).assign($("#scriptvid")[0].value, this).value();
+	 (root.lookup("scriptvarid")).assign($("#scriptvid")[0].value, root.scope, this).value();
 	}}$;
 	maintainforinput();
   }
@@ -366,7 +366,7 @@ proc updateval1 : setval1_clicked {
 proc updateval2 : setval2_clicked {
   if (setval2_clicked) {
     ${{
-	 (root.lookup("strtomatch")).assign($("#matchseg")[0].value, this).value();
+	 (root.lookup("strtomatch")).assign($("#matchseg")[0].value, root.scope, this).value();
     }}$;
 	maintainforinput();
   }
@@ -375,7 +375,7 @@ proc updateval2 : setval2_clicked {
 proc updateval3 : setval3_clicked {
 	if (setval3_clicked) {
 		${{	 
-		(root.lookup("astr")).assign($("#srcstring")[0].value, this).value();
+		(root.lookup("astr")).assign($("#srcstring")[0].value, root.scope, this).value();
 		}}$;
 		maintainforinput();
 	}
@@ -435,7 +435,7 @@ proc updatectxt : recctxt_clicked {
   auto pattcontextarr, i, obs, defexp;
   if (recctxt_clicked) {
 	${{
-	(root.lookup("pattcontext")).assign($("#auxscript")[0].value, this).value();
+	(root.lookup("pattcontext")).assign($("#auxscript")[0].value, root.scope, this).value();
 	}}$;
 	pattcontextarr = strtols(pattcontext);
 	## writeln("From updatectxt:\n");
@@ -457,7 +457,7 @@ proc updatectxt : recctxt_clicked {
 proc updatectxt : recctxt_clicked {
   if (recctxt_clicked) {
 	${{
-	(root.lookup("pattcontext")).assign($("#auxscript")[0].value, this).value();
+	(root.lookup("pattcontext")).assign($("#auxscript")[0].value, root.scope, this).value();
 	}}$;
 	execute(pattcontext);
 	maintainforinput();

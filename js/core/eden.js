@@ -369,7 +369,7 @@ function concatAndResolveUrl(url, concat) {
 				if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
 					this.initialDefinitions[name] = symbol.eden_definition + ";";
 				} else {
-					this.initialDefinitions[name] = name + " = " + Eden.edenCodeForValue(symbol.cached_value) + ";";
+					this.initialDefinitions[name] = name + " = " + Eden.edenCodeForValue(symbol.context.scope.lookup(symbol.name).value) + ";";
 				}
 			}
 		}
@@ -1151,7 +1151,7 @@ function concatAndResolveUrl(url, concat) {
 		if (symbol.eden_definition) {
 			return symbol.eden_definition + ";";
 		} else {
-			return name + " = " + symbol.cached_value + ";";
+			return name + " = " + symbol.context.scope.lookup(symbol.name).value + ";";
 		}
 	};
 

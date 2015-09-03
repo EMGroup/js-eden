@@ -279,7 +279,7 @@ case 78:
  this.$ = $$[$0-5] + '.value(scope).' + $$[$0-3] + '(' + $$[$0-1] + ')'; 
 break;
 case 79:
- this.$ = $$[$0-3] + '.value(new Scope(context, scope, {' + $$[$0-1] + '}))'; 
+ this.$ = $$[$0-3] + '.value(new Scope(context, scope, {' + $$[$0-1] + '}, ' + $$[$0-3] + '))'; 
 break;
 case 80:
  this.$ = '' + $$[$0-3] + '.call('+ ['this'].concat($$[$0-1]) + ')'; 

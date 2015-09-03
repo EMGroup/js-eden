@@ -273,7 +273,7 @@ proc patch {
 
 		root.lookup(funcName).assign(function () {
 			return patchFunc(originalFunc, Array.prototype.slice.call(arguments));
-		}, this);
+		}, root.scope, this);
 
 		arguments[0].forget();
 	}}$;

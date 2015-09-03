@@ -34,11 +34,20 @@
 		return value;
 	}
 
-	function Scope(context, parent, overrides) {
+	function ScopeCache(up_to_date, value) {
+		this.up_to_date = up_to_date;
+		this.value = value;
+	}
+
+	function Scope(context, parent, overrides, cause) {
 		this.parent = parent;
 		this.context = context;
 		this.cache = {};
 		this.overrides = overrides;
+
+		if (cause) {
+			this.add(cause.name);
+		}
 
 		console.log("New scope");
 
@@ -50,41 +59,95 @@
 
 	Scope.prototype.lookup = function(name) {
 		var symcache = this.cache[name];
-		if (symcache !== undefined) {
+		if (symcache) {
 			return symcache;
 		} else {
 			if (this.parent) {
 				return this.parent.lookup(name);
 			} else {
 				console.log("Symbol without cache: " + name);
-				this.cache[name] = {value: undefined, up_to_date: true};
+				this.cache[name] = new ScopeCache(true, undefined);
 				return this.cache[name];
 			}
 		}
 	}
 
+	/*Scope.prototype.lookup2 = function(name) {
+		var symcache = this.cache[name];
+		if (symcache !== undefined) {
+			return {context: this.context, cache: symcache};
+		} else {
+			if (this.parent) {
+				return this.parent.lookup2(name);
+			} else {
+				console.trace("Symbol without cache: " + name);
+				this.cache[name] = {value: undefined, up_to_date: true};
+				return {context: this.context, cache: this.cache[name]};
+			}
+		}
+	}*/
+
 	Scope.prototype.add = function(name) {
-		this.cache[name] = { up_to_date: false, value: undefined };
+		var cache = new ScopeCache( false, undefined );
+		this.cache[name] = cache;
+		return cache;
 	}
 
 	Scope.prototype.addOverride = function(name, value) {
 		console.log("Add override: " + name + " = " + value);
-		this.cache["/"+name] = { up_to_date: true, value: value };
-		var sym = this.context.lookup(name);
-		console.log(sym);
-		for (var d in sym.subscribers) {
-			this.addSubscriber(d);
+		this.cache["/"+name] = new ScopeCache( true, value );
+
+		if (this.context) {
+			var sym = this.context.lookup(name);
+			console.log(sym);
+			for (var d in sym.subscribers) {
+				this.addSubscriber(d);
+			}
 		}
 	}
 
 	Scope.prototype.addSubscriber = function(name) {
 		console.log("Adding scope subscriber...: " + name);
-		this.cache[name] = { up_to_date: false, value: undefined };
+		this.cache[name] = new ScopeCache( false, undefined );
 		var sym = this.context.lookup(name.substr(1));
 		for (var d in sym.subscribers) {
 			this.addSubscriber(d);
 		}
 	}
+
+	/*Scope.prototype.assign = function(name, value, modifying_agent, pushToNetwork) {
+		var data = this.lookup2("/" + name);
+
+		value = copy(value);
+
+		if (name === "autocalc") {
+			
+			if (value === true) {
+				value = 1;
+			} else if (value === false) {
+				value = 0;
+			}
+			data.context && data.context.autocalc(value === 1);
+		}
+
+		var sym = undefined;
+		if (data.context) {
+			sym = data.context.lookup(name);
+
+			if (pushToNetwork) {
+				eden.emit("beforeAssign", [sym, value, modifying_agent]);
+			}
+
+			sym.assigned(modifying_agent);
+		}
+
+		data.cache.value = value;
+		data.cache.up_to_date = true;
+
+		if (data.context) {
+			data.context.expireSymbol(sym);
+		}
+	}*/
 
 	/**
 	 * A maintainer of definitions
@@ -159,7 +222,6 @@
 	Folder.prototype.lookup = function (name) {
 		if (this.symbols[name] === undefined) {
 			this.symbols[name] = new Symbol(this, this.name + name);
-			this.scope.add(this.name + name);
 			this.notifyGlobals(this.symbols[name], true);
 		}
 		return this.symbols[name];
@@ -340,6 +402,8 @@
 			this.name = makeRandomName();
 		}
 
+		this.cache = (context) ? context.scope.add(name) : new ScopeCache( true, undefined );
+
 		this.definition = undefined;
 		this.eden_definition = undefined;
 		//this.cached_value = undefined;
@@ -394,7 +458,8 @@
 		this.garbage = false;
 
 		if (scope === undefined) scope = this.context.scope;
-		var cache = scope.lookup(this.name);
+
+		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
 
 		if (this.definition) {
 			if (!cache.up_to_date) {
@@ -593,7 +658,7 @@
 	 * @param {Symbol} modifying_agent
 	 * @param {boolean} pushToNetwork
 	 */
-	Symbol.prototype.assign = function (value, pscope, modifying_agent, pushToNetwork) {
+	Symbol.prototype.assign = function (value, scope, modifying_agent, pushToNetwork) {
 		this.garbage = false;
 		value = copy(value);
 		if (pushToNetwork) {
@@ -615,12 +680,8 @@
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = undefined;
 
-		var scope = pscope;
-		if (scope === undefined) {
-			scope = this.context.scope;
-		}
 		//if (this.context) {
-		var cache = scope.lookup(this.name);
+		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
 		cache.value = value;
 		cache.up_to_date = true;
 
@@ -631,6 +692,32 @@
 		if (this.context) {
 			this.context.expireSymbol(this);
 		}
+
+		return this;
+	};
+
+	/**
+	 * Change the current value of this symbol and notify.
+	 *
+	 * If this is called from within JavaScript code that is initiated in some way other than via the
+	 * input window (e.g. mouse movement events) then the third parameter must be set to true to
+	 * ensure that the change gets propagated to other networked instances of JS-EDEN.
+	 *
+	 * @param {*} value
+	 * @param {Symbol} modifying_agent
+	 * @param {boolean} pushToNetwork
+	 */
+	Symbol.prototype.assigned = function (modifying_agent) {
+		this.garbage = false;
+		this.eden_definition = undefined;
+		this.clearEvalIDs();
+		this.evalResolved = true;
+		this._setLastModifiedBy(modifying_agent);
+		this.definition = undefined;
+
+		// symbol no longer observes or depends on anything
+		this.clearObservees();
+		this.clearDependencies();
 
 		return this;
 	};
@@ -732,14 +819,12 @@
 	Symbol.prototype.fireJSObservers = function () {
 		for (var jsObserverName in this.jsObservers) {
 			try {
-				var cache = this.context.scope.lookup(this.name);
-				this.jsObservers[jsObserverName](this, cache.value);
+				this.jsObservers[jsObserverName](this, this.cache.value);
 			} catch (error) {
 				this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
 				var debug;
 				if (this.context) {
-					var cache = this.context.scope.lookup("/debug");
-					var debugOptions = cache.value;
+					var debugOptions = this.cache.value;
 					debug = typeof(debugOptions) == "object" && debugOptions.jsExceptions;
 				} else {
 					debug = false;
@@ -758,8 +843,7 @@
 	 */
 	Symbol.prototype.expire = function (symbols_to_force, actions_to_fire) {
 		if (this.definition) {
-			var cache = this.context.scope.lookup(this.name);
-			cache.up_to_date = false;
+			this.cache.up_to_date = false;
 			symbols_to_force[this.name] = this;
 		}
 
@@ -866,9 +950,8 @@
 		this.clearEvalIDs();
 		this.evalResolved = true;
 		this.definition = undefined;
-		var cache = this.context.scope.lookup(this.name);
-		cache.value = undefined;
-		cache.up_to_date = true;
+		this.cache.value = undefined;
+		this.cache.up_to_date = true;
 		this.clearObservees();
 		this.clearDependencies();
 		this.jsObservers = {};
