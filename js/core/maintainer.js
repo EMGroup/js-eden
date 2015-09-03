@@ -49,7 +49,7 @@
 			this.add(cause.name);
 		}
 
-		console.log("New scope");
+		//console.log("New scope");
 
 		/* Process the overrides */
 		for (var override in overrides) {
@@ -65,7 +65,7 @@
 			if (this.parent) {
 				return this.parent.lookup(name);
 			} else {
-				console.log("Symbol without cache: " + name);
+				//console.log("Symbol without cache: " + name);
 				this.cache[name] = new ScopeCache(true, undefined);
 				return this.cache[name];
 			}
@@ -94,12 +94,12 @@
 	}
 
 	Scope.prototype.addOverride = function(name, value) {
-		console.log("Add override: " + name + " = " + value);
+		//console.log("Add override: " + name + " = " + value);
 		this.cache["/"+name] = new ScopeCache( true, value );
 
 		if (this.context) {
 			var sym = this.context.lookup(name);
-			console.log(sym);
+			//console.log(sym);
 			for (var d in sym.subscribers) {
 				this.addSubscriber(d);
 			}
@@ -107,7 +107,7 @@
 	}
 
 	Scope.prototype.addSubscriber = function(name) {
-		console.log("Adding scope subscriber...: " + name);
+		//console.log("Adding scope subscriber...: " + name);
 		this.cache[name] = new ScopeCache( false, undefined );
 		var sym = this.context.lookup(name.substr(1));
 		for (var d in sym.subscribers) {
@@ -479,12 +479,16 @@
 				hasrange = true;
 				for (var i = override.begin; i <= override.end; i++) {
 					overrides[o] = i;
+					console.trace(overrides);
 					results = results.concat(this.multiValue(context, scope, overrides, cause));
 				}
+				overrides[o] = override;
+				break;
 			}
 		}
 
 		if (hasrange == false) {
+			console.log("RANGE");
 			return [this.value(new Scope(context, scope, overrides, cause))];
 		} else {
 			return results;
