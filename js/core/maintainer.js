@@ -39,6 +39,7 @@
 		this.value = value;
 	}
 
+
 	function Scope(context, parent, overrides, cause) {
 		this.parent = parent;
 		this.context = context;
@@ -479,8 +480,7 @@
 				hasrange = true;
 				for (var i = override.begin; i <= override.end; i++) {
 					overrides[o] = i;
-					console.trace(overrides);
-					results = results.concat(this.multiValue(context, scope, overrides, cause));
+					results.push.apply(results, this.multiValue(context, scope, overrides, cause));
 				}
 				overrides[o] = override;
 				break;
@@ -488,7 +488,6 @@
 		}
 
 		if (hasrange == false) {
-			console.log("RANGE");
 			return [this.value(new Scope(context, scope, overrides, cause))];
 		} else {
 			return results;
