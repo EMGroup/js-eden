@@ -59,4 +59,27 @@ picture is [r1, r2, zone3];
 	<h2>A Stack of Shapes</h2>
 ");
 
-slideList is [slideZones];
+slideViewHighlight is Slide("
+	<h1>Highlighting Views</h1>
+	<p>You can now programmatically attach a highlight to one or more views in order to draw the
+	user's attention to them.</p>
+
+<jseden>
+highlightView(\"picture\");
+highlightView(\"projects\");
+</jseden>
+
+	<p>To remove the highlight, use the <code>stopHighlightingView</code> procedure.</p>
+
+<jseden>
+stopHighlightingView(\"picture\");
+stopHighlightingView(\"projects\");
+</jseden>
+
+	<p>We anticipate that this feature may be most useful when writing instructional guides that
+	introduce students to a new construal, or introduce students to JS-EDEN itself.</p>
+
+");
+
+slideList is [slideZones, slideViewHighlight];
+currentSlide = slideList#;

@@ -34,8 +34,9 @@
 	}
 
 	//Configuration options
-	EdenUI.prototype.gridSizeX = 30;
-	EdenUI.prototype.gridSizeY = 30;
+	//30 pixels seems like a good grid cell width on a display 1920 pixels wide.
+	EdenUI.prototype.gridSizeX = Math.round(window.outerWidth * 30 / 1920);
+	EdenUI.prototype.gridSizeY = Math.round(((window.innerHeight / window.outerHeight) * (window.outerHeight / 1920)) * 30);
 	
 	//Dimensions of various UI components.
 	EdenUI.prototype.menuBarHeight = 30;
@@ -318,17 +319,31 @@
 	};
 
 	/**Highlights a view until the stopHighlightingView method is called.
-	 * N.B. More than one view can be highlighted simultaneously.
+	 * N.B. More than one view can be highlighted simultaneously, but only one can be raised.
 	 * @param {string} name The name of the view that should become the currently highlighted view.
+	 * @param {boolean} raise Whether or not display the view (if it is not already displayed) and
+	 * ensure that it is not obscured by any other views.
 	 */
-	EdenUI.prototype.highlightView = function (dialogName) {
-		this.windowHighlighter.highlight(dialogName);
+	EdenUI.prototype.highlightView = function (name, raise) {
+		if (raise) {
+			this.windowHighlighter.highlight(name);
+		} else {
+			var element = this.getDialogContent(name).data('dialog-extend-minimize-controls') || this.getDialogWindow(name);
+			element.addClass("window-highlighted");
+		}
 	};
 
-	/**Removes the highlighting effect from a previously view highlighted.
+	/**Removes the highlighting effect from a view that was previously highlighted.  If the
+	 * view no longer highlighted is the raised one then it will no longer be raised and will return
+	 * to its original position in the UI.
 	 */
-	EdenUI.prototype.stopHighlightingView = function (dialogName) {
-		this.windowHighlighter.stopHighlight(dialogName);
+	EdenUI.prototype.stopHighlightingView = function (name, wasRaised) {
+		if (wasRaised) {
+			this.windowHighlighter.stopHighlight(name);
+		} else {
+			var element = this.getDialogContent(name).data('dialog-extend-minimize-controls') || this.getDialogWindow(name);
+			element.removeClass("window-highlighted");
+		}
 	};
 
 	/**Momentarily provides a visual cue to direct the user's gaze towards a particular view.

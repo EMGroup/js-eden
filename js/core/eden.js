@@ -211,7 +211,7 @@ function concatAndResolveUrl(url, concat) {
 	 * Requires that a view manager is loaded.
 	 */
 	EdenUI.prototype.cycleNextView = function () {
-		this.stopHighlightingView(this.currentView);
+		this.stopHighlightingView(this.currentView, true);
 		var viewNames = Object.keys(this.activeDialogs);
 		if (this.currentView === undefined) {
 			this.currentView = viewNames[0];
@@ -223,12 +223,11 @@ function concatAndResolveUrl(url, concat) {
 				}
 			}
 		}
-		this.showView(this.currentView);
-		this.highlightView(this.currentView);
+		this.highlightView(this.currentView, true);
 	};
 
 	EdenUI.prototype.stopViewCycling = function () {
-		this.stopHighlightingView(this.currentView);
+		this.stopHighlightingView(this.currentView, true);
 	};
 
 	/**

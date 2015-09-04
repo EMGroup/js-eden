@@ -29,14 +29,14 @@ proc showView {
 proc highlightView {
 	${{
 		var name = arguments[0];
-		edenUI.highlightView(name);
+		edenUI.highlightView(name, false);
 	}}$;
 }
 
 proc stopHighlightingView {
 	${{
 		var name = arguments[0];
-		edenUI.stopHighlightingView(name);
+		edenUI.stopHighlightingView(name, false);
 	}}$;
 }
 

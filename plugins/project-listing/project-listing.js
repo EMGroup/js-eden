@@ -66,6 +66,70 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		});
 	};
 	
+	function openProject(url) {
+		EdenUI.plugins.ScriptGenerator.loadBaseConstrual(url);
+		if (edenUI.plugins.ScriptInput) {
+			edenUI.plugins.ScriptInput.addHistory('include("' + url + '");');
+		}
+	}
+
+	ProjectListProjects.prototype.projectClick = function (details) {
+		// Actually load the project by executing js-e file.
+		var projectURL = details.runfile;
+		if (projectURL !== undefined) {
+			if (!edenUI.eden.isInInitialState()) {
+				edenUI.modalDialog(
+					"Open Project Action",
+					"<p>The work space contains an existing construal.</p>\
+					<p>You can either abandon the existing construal or choose to merge the project with the existing definitions.</p>\
+					<p>Which would you like to do?</p>",
+					["Open Project", "Merge"],
+					0,
+					function (optionNo) {
+						if (optionNo == 2) {
+							return;
+						}
+						if (optionNo == 0) {
+							edenUI.newProject();
+						}
+						openProject(projectURL);
+					}
+				);
+			} else {
+				edenUI.newProject();
+				openProject(projectURL);
+			}
+		}
+		var projectListURL = details.projects;
+		if (projectListURL !== undefined) {
+			this.loadProjectData(projectListURL, false);
+		}
+	};
+
+	//Generate the jQuery for a project
+	ProjectListProjects.prototype.makeProject = function (projectData) {
+		var me = this;
+		var project = $('<div class="projectlist-result-element"></div>');
+
+		var projectHTML = '<div class="projectlist-result-name">' + projectData.name + '</div>';
+		if (projectData.description !== undefined) {
+			projectHTML = projectHTML + '<div class="projectlist-result-metadata">' + projectData.description + '</div>';
+		}
+		if (projectData.author !== undefined || projectData.year !== undefined) {
+			projectHTML = projectHTML + '<div class="projectlist-result-metadata">';
+			if (projectData.author !== undefined) {
+				projectHTML = projectHTML + "By " + projectData.author;
+			}
+			if (projectData.year !== undefined) {
+				projectHTML = projectHTML + " (" + projectData.year + ")";
+			}
+			projectHTML = projectHTML + '</div>'
+		}
+		project.html(projectHTML);
+		project.click(function () {me.projectClick(projectData);} );
+		return project;
+	}
+
 	/**
 	 * Update a particular project list with the specified search expression.
 	 * This gets called whenever the search input gets changed. It clears the
@@ -73,93 +137,45 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 	 * @private
 	 */
 	ProjectListProjects.prototype.updateCollection = function (pattern) {
-		var me = this;
 
 		//Clear any existing project search results.
 		this.element.parentElement.scrollTop = 0;
 		var searchResults = $(this.element).find(".projectlist-results");
 		searchResults.html('');
 
-		//Search through projects to find those matching the query.
-		var re = new RegExp("(^|\\s)"+ pattern, "im");
-		var hasMatches = false;
-		for (var i = 0; i < this.json.projects.length; i++) {
-			//If not a match then skip to next project
-			if (
-				!re.test(this.json.projects[i].name) &&
-				!re.test(this.json.projects[i].description) &&
-				!re.test(this.json.projects[i].author) &&
-				!re.test(this.json.projects[i].year)
-			) {
-				continue;
-			}
-			hasMatches = true;
-
-			//Generate the html element for the project
-			var proj = $('<div class="projectlist-result-element"></div>');
-			//Optimise by putting project details into html element.
-			proj[0].project = this.json.projects[i];
-
-			var projectData = this.json.projects[i];
-			var projectHTML = '<div class="projectlist-result-name">' + projectData.name + '</div>';
-			if (projectData.description !== undefined) {
-				projectHTML = projectHTML + '<div class="projectlist-result-metadata">' + projectData.description + '</div>';
-			}
-			if (projectData.author !== undefined || projectData.year !== undefined) {
-				projectHTML = projectHTML + '<div class="projectlist-result-metadata">';
-				if (projectData.author !== undefined) {
-					projectHTML = projectHTML + "By " + projectData.author;
+		if (this.json.projects !== undefined) {
+			//Search through projects to find those matching the query.
+			var re = new RegExp("(^|\\s)"+ pattern, "im");
+			var hasMatches = false;
+			for (var i = 0; i < this.json.projects.length; i++) {
+				//If not a match then skip to next project
+				if (
+					!re.test(this.json.projects[i].name) &&
+					!re.test(this.json.projects[i].description) &&
+					!re.test(this.json.projects[i].author) &&
+					!re.test(this.json.projects[i].year)
+				) {
+					continue;
 				}
-				if (projectData.year !== undefined) {
-					projectHTML = projectHTML + " (" + projectData.year + ")";
-				}
-				projectHTML = projectHTML + '</div>'
-			}
-			proj.html(projectHTML).appendTo(searchResults);
+				hasMatches = true;
 
+				var projectData = this.json.projects[i];
+				var project = this.makeProject(projectData);
+				searchResults.append(project);
+			}
 		}
 
-		//Also add mouse click functionality to load the project.
-		searchResults.find(".projectlist-result-element").click(function () {
-			if (this.project !== undefined) {
-				// Actually load the project by executing js-e file.
-				var projectURL = this.project.runfile;
-				if (projectURL !== undefined) {
-					var loadSelectedProject = function () {
-						EdenUI.plugins.ScriptGenerator.loadBaseConstrual(projectURL);
-						if (edenUI.plugins.ScriptInput) {
-							edenUI.plugins.ScriptInput.addHistory('include("' + projectURL + '");');
-						}
-					};
-					if (!edenUI.eden.isInInitialState()) {
-						edenUI.modalDialog(
-							"Open Project Action",
-							"<p>The work space contains an existing construal.</p>\
-							<p>You can either abandon the existing construal or choose to merge the project with the existing definitions.</p>\
-							<p>Which would you like to do?</p>",
-							["Open Project", "Merge"],
-							0,
-							function (optionNo) {
-								if (optionNo == 2) {
-									return;
-								}
-								if (optionNo == 0) {
-									edenUI.newProject();
-								}
-								loadSelectedProject();
-							}
-						);
-					} else {
-						edenUI.newProject();
-						loadSelectedProject();
-					}
-				}
-				var projectListURL = this.project.projects;
-				if (projectListURL !== undefined) {
-					me.loadProjectData(projectListURL, false);
-				}
-			}
-		});
+		//Add feature of the day option
+		if (this.rootURL == defaultURL && this.atRoot) {
+			var project = this.makeProject({
+				name: "Feature of The Day",
+				description: "Learn about the latest features added to JS-EDEN.",
+				author: "JS-EDEN Development Team",
+				year: "Fri 4 Sep 2015",
+				runfile: "models/guides/feature-of-the-day.js-e"
+			});
+			searchResults.prepend(project);
+		}
 
 		//Add new project option
 		if (!hasMatches || re.test("New Project")) {
@@ -167,7 +183,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 				'<div class="projectlist-result-element">' +
 					'<div class="projectlist-result-name">New Project</div>' + 
 					'<div class="projectlist-result-metadata">An empty work space.</div>' +
-					'<div class="projectlist-result-metadata">By JS-EDEN Project Team</div>' +
+					'<div class="projectlist-result-metadata">By JS-EDEN Development Team</div>' +
 				'</div>'
 			).click(function () {
 				edenUI.modalDialog(
