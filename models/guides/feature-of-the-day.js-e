@@ -30,14 +30,29 @@ showObservables(\"mouseZone|mouseDownZone|.*_click(ed)?\");
 	of the shapes do not have to be unique, which is useful if several individual shapes form a
 	larger semantic component.</p>
 	
+	<p>The <code>mouseZone</code> observable records which zone the mouse pointer is currently
+	positioned over, even when the mouse button is not pressed.  The <code>mouseDownZone</code>
+	observable records which zone the mouse was in when the mouse button most recently changed from
+	being not pressed to becoming pressed down.</p>
+	
 	<p>Where two shapes overlap only the topmost one (the visible one) has its <code>_click</code>
-	observable set to true.  We might also be interested in knowing about <em>all</em> of the shapes
-	that intersect with the mouse pointer.  Alternatively, the bottommost shape may be the one of
-	interest.  The final section addresses these situations.</p>
+	observable set to <code>true</code>.  We might also be interested in knowing about <em>all</em>
+	of the shapes that intersect with the mouse pointer.  Alternatively, the bottommost shape may be
+	the one of interest.  The final section addresses these situations.</p>
 
 	<h2>Invisible Shapes</h2>
+	<p>What if you want to detect if the mouse pointer is located in particular part of the canvas
+	without drawing a shape there?  The Setting the <code>visible</code> drawing option to <code>false</code>
+	allows you to keep an observable in the <code>picture</code> list and have it work as an active
+	mouse zone without actually drawing the shape.  The following example creates an invisible zone
+	above the blue rectangle and to the right of the red rectangle.</p>
+
+<jseden>
+zone3 is Rectangle(200, 0, 100, 100, @, @, {name: \"hidden\", visible: false});
+picture is [r1, r2, zone3];
+</jseden>
 	
-	<h2>Zones Within Images</h2>
+	<h2>Zones Within <code>HTMLImage</code></h2>
 
 	<h2>Hit Detection at Any Point</h2>
 

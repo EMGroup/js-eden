@@ -27,7 +27,7 @@ h2, ul li {
 }
 
 .canvashtml-content {
-	/* See Textbox.prototype.scale in plugins/textbox.js-e */
+	/* See Textbox.prototype.scale in plugins/canvas-html5/textbox.js-e */
 	font-size: 13.3px;
 	line-height: 1.75;
 }
@@ -106,4 +106,24 @@ div.error-item {
 
 .ui-dialog-buttonset button:not(:first-child) {
     margin-left: 27px;
+}
+
+@keyframes window-activated {
+	from {border-color: white;}
+	to {border-color: red;}
+}
+
+.window-activated:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border: 4px solid red;
+	animation-name: window-activated;
+	animation-duration: 0.15s;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+	animation-timing-function: linear;
 }

@@ -49,6 +49,8 @@ Eden.systemObservableNames = {
 	"touchScrollXDir": true,
 	"_views_frame_width": true,
 	"_views_frame_height": true,
+	"_views_unit_x": true,
+	"_views_unit_y": true,
 };
 
 Eden.systemAgentNames = {

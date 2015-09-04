@@ -180,6 +180,7 @@ function concatAndResolveUrl(url, concat) {
 					.addClass('ui-state-error')
 					.dialog({width: 500, height: 250})
 					.dialog('moveToTop');
+				EdenUI.brieflyHighlight(this.errorWindow);
 			},
 			title: "Error Log",
 			name: "errors",
@@ -191,9 +192,17 @@ function concatAndResolveUrl(url, concat) {
 		this.viewCategories[name] = new ViewCategory(label, this.numberOfViewCategories);
 		this.numberOfViewCategories++;
 	};
-	
+
 	EdenUI.prototype.highlight = function (dialogName) { this.windowHighlighter.highlight(dialogName); };
 	EdenUI.prototype.stopHighlight = function (dialogName) { this.windowHighlighter.stopHighlight(dialogName); };
+
+	EdenUI.brieflyHighlight = function (dialog) {
+		var dialogWindow = dialog.parent();
+		dialogWindow.addClass("window-activated");
+		setTimeout(function () {
+			dialogWindow.removeClass("window-activated");
+		}, 600);
+	};
 
 	EdenUI.prototype.showErrorWindow = function () {
 		this.createView("errors", "ErrorLog");

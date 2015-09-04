@@ -22,6 +22,7 @@ proc showView {
 	${{
 		var name = arguments[0];
 		edenUI.showView(name);
+		edenUI.highlightView(name);
 	}}$;
 }
 
@@ -72,14 +73,18 @@ proc resizeView {
 ##another view can be placed without overlapping with xxx.
 _views_frame_width = ${{ edenUI.dialogFrameWidth }}$;
 _views_frame_height = ${{ edenUI.dialogFrameHeight }}$;
+##The size of the grid squares that windows snap to.
+_views_unit_x = ${{ edenUI.gridSizeX }}$;
+_views_unit_y = ${{ edenUI.gridSizeY }}$;
+
 ##The maximum width a view can be if it fits within the browser window without scrolling.
 screenWidth = ${{ window.innerWidth }}$ - _views_frame_width;
 ##The maximum height a view can be if it fits within the browser window without scrolling.
-screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - (edenUI.getOptionValue("optHideOnMinimize") != "true"? 34 : 0)}}$;
+screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight -  (edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0)}}$;
 ${{
 	window.addEventListener("resize", function (event) {
 		root.lookup("screenWidth").assign(window.innerWidth - edenUI.dialogFrameWidth, Symbol.hciAgent);
-		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - (edenUI.getOptionValue("optHideOnMinimize") != "true"? 34 : 0), Symbol.hciAgent);
+		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - (edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0), Symbol.hciAgent);
 	});
 }}$;
 
@@ -117,7 +122,10 @@ proc showObservables { ${{
 		edenUI.createView(viewName, "SymbolList");
 		root.lookup("_view_" + viewName + "_title").assign("Symbol List [showObservables]", this);
 		inputBox = $('#' + viewName + '-dialog .symbollist-search');
+	} else {
+		edenUI.showView(viewName);
 	}
+	edenUI.highlightView(viewName);
 	inputBox.val(searchStr);
     inputBox.keyup();
 }}$; }

@@ -84,6 +84,7 @@ See LICENSE.txt
 		}
 		if ($(current).is(':data(dialog)')) {
 			$(current).dialog('open').dialog('moveToTop').dialogExtend('restore');
+			EdenUI.brieflyHighlight($(current));
 		}
 	};
 	$(document).on('keydown', null, 'ctrl+m', cycleView);

@@ -30,13 +30,18 @@
 		return $("#"+viewName+"-dialog");
 	}
 
+	//Configuration options
+	EdenUI.prototype.gridSizeX = 30;
+	EdenUI.prototype.gridSizeY = 30;
+	
 	//Dimensions of various UI components.
 	EdenUI.prototype.menuBarHeight = 30;
 	EdenUI.prototype.dialogBorderWidth = 3.133;
-	EdenUI.prototype.titleBarHeight = 33.6563 + EdenUI.prototype.dialogBorderWidth;
-	EdenUI.prototype.scrollBarYSize = 17;
+	EdenUI.prototype.titleBarHeight = 34.659 + EdenUI.prototype.dialogBorderWidth;
+	EdenUI.prototype.scrollBarYSize = 14 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.dialogFrameWidth = EdenUI.prototype.scrollBarYSize + 2 * EdenUI.prototype.dialogBorderWidth;
-	EdenUI.prototype.dialogFrameHeight = EdenUI.prototype.titleBarHeight;
+	EdenUI.prototype.dialogFrameHeight = EdenUI.prototype.titleBarHeight + EdenUI.prototype.dialogBorderWidth;
+	EdenUI.prototype.bottomBarHeight = 34.906;
 
 	/**
 	 * Stores plugins that can be loaded. Plugins will modify this directly in
@@ -97,6 +102,7 @@
 		
 		if (this.activeDialogs[name] !== undefined) {
 			this.showView(name);
+			this.highlightView(name);
 			return this.viewInstances[name];
 		}
 
@@ -119,8 +125,8 @@
 		} else {
 			titleBarAction = "maximize";
 		}
-		dialog(name)
-		.dialog({
+		var diag = dialog(name);
+		diag.dialog({
 			closeOnEscape: false,
 			draggable: true,
 			position: position,
@@ -155,12 +161,19 @@
 			},
 			restore: function (event) {
 				$(event.target).dialog('moveToTop');
+				EdenUI.brieflyHighlight($(event.target));
 			}
 		});
+		var diagWindow = diag.parents(".ui-dialog");
+		diagWindow.draggable("option", {
+			grid: [this.gridSizeX, this.gridSizeY]
+		});
+		diagWindow.resizable("option", {
+			grid: [this.gridSizeX, this.gridSizeY]
+		});
+
 		this.activeDialogs[name] = type;
 		this.emit('createView', [name, type]);
-
-		var diag = dialog(name);
 		
 		/* Initialize observables
 		 * _view_xxx_width and _view_xxx_height are the width and height respectively of the usable
@@ -326,6 +339,10 @@
 		dialog(name).dialog('open').dialog('moveToTop').dialogExtend('restore');
 		return this.activeDialogs[name];
 	};
+	
+	EdenUI.prototype.highlightView = function (name) {
+		EdenUI.brieflyHighlight(dialog(name));
+	}
 
 	/**
 	 * Hide the window for a view.
@@ -361,12 +378,18 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.moveView = function (name) {
-		var x = view(name, 'x').value();
-		var y = view(name, 'y').value();
+		var xSym = view(name, 'x');
+		var ySym = view(name, 'y');
+		var x = xSym.value();
+		var y = ySym.value();
+		var realX = Math.round(x / this.gridSizeX) * this.gridSizeX;
+		var realY = Math.round(y / this.gridSizeY) * this.gridSizeY;
+		xSym.cached_value = realX;
+		ySym.cached_value = realY;
 		if (this.plugins.MenuBar) {
-			y = y  + this.menuBarHeight;
+			realY = realY  + this.menuBarHeight;
 		}
-		dialog(name).parent().offset({left: x, top: y});
+		dialog(name).parent().offset({left: realX, top: realY});
 	};
 
 	/**
@@ -376,27 +399,78 @@
 	 */
 	EdenUI.prototype.resizeView = function (name) {
 		var diag = dialog(name);
-		var oldWidth = diag.dialog("option", "width");
-		var oldHeight = diag.dialog("option", "height");
-		var newWidth = view(name, 'width').value();
-		var newHeight = view(name, 'height').value();
-		var resized = false;
-
-		if (newWidth != oldWidth) {
-			diag.dialog("option", "width", newWidth + this.scrollBarYSize);
-			resized = true;
+		var position = diag.parent().position();
+		var left = position.left;
+		var top = position.top;
+		var widthSym = view(name, 'width');
+		var newWidth = widthSym.value();
+		var heightSym = view(name, 'height');
+		var newHeight = heightSym.value();
+		var right = left + newWidth + this.scrollBarYSize + this.dialogBorderWidth;
+		var bottom = top + newHeight + this.titleBarHeight - 1;
+		var xMax = window.innerWidth;
+		var yMax = window.innerHeight;
+		var bottomBarY;
+		if (edenUI.getOptionValue("optHideOnMinimize") == "true") {
+			bottomBarY = yMax;
+		} else {
+			bottomBarY = yMax - this.bottomBarHeight;			
 		}
+		var hciName = Symbol.hciAgent.name;
 
-		if (newHeight != oldHeight) {
-			diag.dialog("option", "height", newHeight + this.titleBarHeight);
-			resized = true;
-		}
-
-		if (resized) {
-			var viewData = this.viewInstances[name];
-			if ("resize" in viewData) {
-				viewData.resize(newWidth, newHeight);
+		//Round the width.  For some reason the width set by jquery.ui isn't always aligned to the grid.
+		var adjustedWidth = Math.round((newWidth + this.scrollBarYSize + this.dialogBorderWidth) / this.gridSizeX) * this.gridSizeX - 2 * this.dialogBorderWidth;
+		if (widthSym.last_modified_by != hciName) {
+			if (adjustedWidth < newWidth + this.scrollBarYSize) {
+				//...but if the width was set by EDEN code instead of the UI then don't make the window narrower than the width requested.
+				adjustedWidth = adjustedWidth + this.gridSizeX;
 			}
+			if (right <= xMax && left + adjustedWidth + this.dialogBorderWidth > xMax) {
+				//...and don't go off of the screen (unless originally requested).
+				adjustedWidth = xMax - this.dialogBorderWidth - left;
+			}
+		} else {
+			// When resizing is performed by dragging in the UI:
+			if (left + adjustedWidth + this.dialogBorderWidth > xMax + document.documentElement.scrollLeft) {
+				//Snap to the right edge of the browser window.
+				adjustedWidth = xMax - this.dialogBorderWidth - left + document.documentElement.scrollLeft;
+			}
+		}
+		newWidth = adjustedWidth - this.scrollBarYSize;
+		diag.dialog("option", "width", adjustedWidth);
+
+		//Round the height.  For some reason the height set by jquery.ui isn't always aligned to the grid.
+		var adjustedHeight = Math.round((newHeight + this.titleBarHeight) / this.gridSizeY) * this.gridSizeY;
+		if (heightSym.last_modified_by != hciName) {
+			if (adjustedHeight < newHeight + this.titleBarHeight) {
+				//...but if the height was set by EDEN code instead of the UI then don't make the window shorter than the height requested.
+				adjustedHeight = adjustedHeight + this.gridSizeY;
+			}
+			if (bottom <= bottomBarY && top + adjustedHeight > bottomBarY) {
+				// ... and don't go into the minimized windows area (unless originally requested).
+				adjustedHeight = bottomBarY - top;
+			} else if (bottom <= yMax && top + adjustedHeight > yMax) {
+				// ... and don't go off the screen (unless originally requested).
+				adjustedHeight = yMax - top;
+			}
+		} else {
+			// When resizing is performed by dragging in the UI:
+			if (top + adjustedHeight > bottomBarY && top + adjustedHeight < yMax) {
+				//Snap to align with the minimized windows area.
+				adjustedHeight = bottomBarY - top;
+			} else if (top + adjustedHeight > yMax + document.documentElement.scrollTop) {
+				//Snap to align with the bottom of the browser window.
+				adjustedHeight = yMax - top + document.documentElement.scrollTop;
+			}
+		}
+		newHeight = adjustedHeight - this.titleBarHeight;
+		diag.dialog("option", "height", adjustedHeight);
+
+		widthSym.cached_value = newWidth;
+		heightSym.cached_value = newHeight;
+		var viewData = this.viewInstances[name];
+		if ("resize" in viewData) {
+			viewData.resize(newWidth, newHeight);
 		}
 	};
 
