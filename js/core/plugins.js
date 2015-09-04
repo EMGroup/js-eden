@@ -6,7 +6,10 @@
  */
 
 (function () {
-	//Prevent jQuery from cancelling attempts to reposition a dialog so that it isn't fully within the boundaries of the window.
+
+	/*Prevent jQuery from cancelling attempts to reposition a dialog so that it isn't fully within
+	 * the boundaries of the browser window.
+	 */
 	$.extend($.ui.dialog.prototype.options.position, { collision: 'none' });
 	
 	/**
@@ -44,38 +47,6 @@
 	EdenUI.prototype.bottomBarHeight = 34.906;
 
 	/**
-	 * Stores plugins that can be loaded. Plugins will modify this directly in
-	 * order for them to be loaded later.
-	 */
-	EdenUI.plugins = {};
-
-	/**
-	 * Load a plugin if it is not already loaded. The plugin must have been
-	 * registered first.
-	 *
-	 * @param {string} name Name of the plugin to load.
-	 * @param {function()?} success
-	 */
-	EdenUI.prototype.loadPlugin = function (name, agent, success) {
-		if (arguments.length === 2) {
-			success = agent;
-			agent = {name: '/loadPlugin'};
-		}
-
-		var me = this;
-		var wrappedSuccess = function () {
-			me.emit('loadPlugin', [name]);
-			success && success.call(agent);
-		}
-
-		if (this.plugins[name] === undefined) {
-			this.plugins[name] = new EdenUI.plugins[name](this, wrappedSuccess);
-		} else {
-			wrappedSuccess();
-		}
-	};
-
-	/**
 	 * A view is a window which appears in the JsEden UI.
 	 *
 	 * This inserts an element for the view window, and also creates observables
@@ -102,7 +73,7 @@
 		
 		if (this.activeDialogs[name] !== undefined) {
 			this.showView(name);
-			this.highlightView(name);
+			this.brieflyHighlightView(name);
 			return this.viewInstances[name];
 		}
 
@@ -161,19 +132,20 @@
 			},
 			restore: function (event) {
 				$(event.target).dialog('moveToTop');
-				EdenUI.brieflyHighlight($(event.target));
+				me.brieflyHighlightView(event.target.id.slice(0,-7));
 			}
 		});
-		var diagWindow = diag.parents(".ui-dialog");
-		diagWindow.draggable("option", {
-			grid: [this.gridSizeX, this.gridSizeY]
-		});
-		diagWindow.resizable("option", {
-			grid: [this.gridSizeX, this.gridSizeY]
-		});
-
 		this.activeDialogs[name] = type;
-		this.emit('createView', [name, type]);
+		var dialogWindow = this.getDialogWindow(name);
+		dialogWindow.draggable("option", {
+			grid: [this.gridSizeX, this.gridSizeY]
+		});
+		dialogWindow.resizable("option", {
+			grid: [this.gridSizeX, this.gridSizeY]
+		});
+		if (viewData.pinned) {
+			this.pinView(name);
+		}
 		
 		/* Initialize observables
 		 * _view_xxx_width and _view_xxx_height are the width and height respectively of the usable
@@ -252,6 +224,7 @@
 
 		// Now construct eden agents and observables for dialog control.
 		this.eden.execute(viewEdenCode());
+		this.emit('createView', [name, type]);
 		return viewData;
 	};
 
@@ -336,12 +309,37 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.showView = function (name) {
-		dialog(name).dialog('open').dialog('moveToTop').dialogExtend('restore');
+		var diag = dialog(name);
+		diag.dialog('open').dialog('moveToTop');
+		if (diag.dialogExtend("state") != "normal") {
+			diag.dialogExtend('restore');
+		}
 		return this.activeDialogs[name];
 	};
-	
-	EdenUI.prototype.highlightView = function (name) {
-		EdenUI.brieflyHighlight(dialog(name));
+
+	/**Highlights a view until the stopHighlightingView method is called.
+	 * N.B. More than one view can be highlighted simultaneously.
+	 * @param {string} name The name of the view that should become the currently highlighted view.
+	 */
+	EdenUI.prototype.highlightView = function (dialogName) {
+		this.windowHighlighter.highlight(dialogName);
+	};
+
+	/**Removes the highlighting effect from a previously view highlighted.
+	 */
+	EdenUI.prototype.stopHighlightingView = function (dialogName) {
+		this.windowHighlighter.stopHighlight(dialogName);
+	};
+
+	/**Momentarily provides a visual cue to direct the user's gaze towards a particular view.
+	 * @param {string} name The name of the view to draw attention to.
+	 */
+	EdenUI.prototype.brieflyHighlightView = function (name) {
+		var dialogWindow = dialog(name).parent();
+		dialogWindow.addClass("window-activated");
+		setTimeout(function () {
+			dialogWindow.removeClass("window-activated");
+		}, 600);
 	}
 
 	/**
@@ -368,6 +366,10 @@
 		if (hide == "true") {
 			this.hideView(name);
 		} else {
+			if (!(name in this.viewInstances)) {
+				//View has been destroyed or never existed.
+				return;
+			}
 			dialog(name).dialogExtend('minimize');
 		}
 	};
@@ -472,6 +474,20 @@
 		if ("resize" in viewData) {
 			viewData.resize(newWidth, newHeight);
 		}
+	};
+
+	/**Makes the view less likely to be obscured by other views/other page content.
+	 * @param name The view's name.
+	 */
+	EdenUI.prototype.pinView = function (name) {
+		this.getDialogWindow(name).addClass("ui-front");
+	};
+
+	/**Reduce a view's importance to the same status as other windows.
+	 * @param name The view's name.
+	 */
+	EdenUI.prototype.unpinView = function (name) {
+		this.getDialogWindow(name).removeClass("ui-front");
 	};
 
 	EdenUI.prototype.newProject = function () {

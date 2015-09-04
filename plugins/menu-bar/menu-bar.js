@@ -148,14 +148,14 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	function hoverFunc(viewName) {
 		return {
 			mouseover: function (e) {
-				edenUI.highlight(viewName);
+				edenUI.highlightView(viewName);
 			},
 			mouseout: function (e) {
-				edenUI.stopHighlight(viewName);
+				edenUI.stopHighlightingView(viewName);
 			},
 			click: function (e) {
 				e.preventDefault();
-				edenUI.stopHighlight();
+				edenUI.stopHighlightingView(viewName);
 				edenUI.showView(viewName);
 				hideMenu();
 			}

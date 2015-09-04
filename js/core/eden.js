@@ -83,19 +83,25 @@ function concatAndResolveUrl(url, concat) {
 		 */
 		this.eden = eden;
 
-		/**
+		/**Descriptive information about the types of views that are available.
 		 * @type {Object.<string,*>}
 		 */
 		this.views = {};
 
+		/**Various pieces of information used to communicate between the views and view manager
+		 *(or in some cases purely for the view's private use).
+		 * Example: the confirmClose attribute determines if the user is prompted to confirm before
+		 * the view is closed (destroyed).
+		 */
 		this.viewInstances = {};
 
-		/**
+		/**A mapping between view names and the name of the type of view that each view belongs to.
 		 * @type {Object.<string,*>}
 		 */
 		this.activeDialogs = {};
 
-		/**
+		/**The plug-ins actually loaded.
+		 * Contrast with: EdenUI.plugins
 		 * @type {Object.<string,*>}
 		 */
 		this.plugins = {};
@@ -148,6 +154,7 @@ function concatAndResolveUrl(url, concat) {
 		this.listeners = {};
 
 		this.windowHighlighter = new WindowHighlighter(this);
+		this.currentView = undefined; //Used for cycling between views.
 
 		this.errorWindow = null;
 		
@@ -180,28 +187,85 @@ function concatAndResolveUrl(url, concat) {
 					.addClass('ui-state-error')
 					.dialog({width: 500, height: 250})
 					.dialog('moveToTop');
-				EdenUI.brieflyHighlight(this.errorWindow);
+				me.brieflyHighlightView(this.name);
 			},
 			title: "Error Log",
 			name: "errors",
 			category: this.viewCategories.interpretation
 		};
 	}
-		
-	EdenUI.prototype.addViewCategory = function (name, label) {
-		this.viewCategories[name] = new ViewCategory(label, this.numberOfViewCategories);
-		this.numberOfViewCategories++;
-	};
 
-	EdenUI.prototype.highlight = function (dialogName) { this.windowHighlighter.highlight(dialogName); };
-	EdenUI.prototype.stopHighlight = function (dialogName) { this.windowHighlighter.stopHighlight(dialogName); };
-
-	EdenUI.brieflyHighlight = function (dialog) {
-		var dialogWindow = dialog.parent();
+	/**Momentarily provides a visual cue to direct the user's gaze towards a particular view.
+	 * Default implementation (in case support for displaying multiple views simultaneously isn't loaded).
+	 * @param {string} name The name of the view to draw attention to.
+	 */
+	EdenUI.prototype.brieflyHighlightView = function (name) {
+		var dialogWindow = $("#"+viewName+"-dialog").dialog.parent();
 		dialogWindow.addClass("window-activated");
 		setTimeout(function () {
 			dialogWindow.removeClass("window-activated");
 		}, 600);
+	}
+
+	/**Calling this method repeatedly displays each view in turn, cycling through the views.
+	 * Requires that a view manager is loaded.
+	 */
+	EdenUI.prototype.cycleNextView = function () {
+		this.stopHighlightingView(this.currentView);
+		var viewNames = Object.keys(this.activeDialogs);
+		if (this.currentView === undefined) {
+			this.currentView = viewNames[0];
+		} else {
+			for (i = 0; i < viewNames.length; i++) {
+				if (this.currentView == viewNames[i]) {
+					this.currentView = viewNames[(i + 1) % viewNames.length];
+					break;
+				}
+			}
+		}
+		this.showView(this.currentView);
+		this.highlightView(this.currentView);
+	};
+
+	EdenUI.prototype.stopViewCycling = function () {
+		this.stopHighlightingView(this.currentView);
+	};
+
+	/**
+	 * Stores plugins that can be loaded. Plugins will modify this directly in
+	 * order for them to be loaded later.
+	 */
+	EdenUI.plugins = {};
+
+	/**
+	 * Load a plugin if it is not already loaded. The plugin must have been
+	 * registered first.
+	 *
+	 * @param {string} name Name of the plugin to load.
+	 * @param {function()?} success
+	 */
+	EdenUI.prototype.loadPlugin = function (name, agent, success) {
+		if (arguments.length === 2) {
+			success = agent;
+			agent = {name: '/loadPlugin'};
+		}
+
+		var me = this;
+		var wrappedSuccess = function () {
+			me.emit('loadPlugin', [name]);
+			success && success.call(agent);
+		}
+
+		if (this.plugins[name] === undefined) {
+			this.plugins[name] = new EdenUI.plugins[name](this, wrappedSuccess);
+		} else {
+			wrappedSuccess();
+		}
+	};
+
+	EdenUI.prototype.addViewCategory = function (name, label) {
+		this.viewCategories[name] = new ViewCategory(label, this.numberOfViewCategories);
+		this.numberOfViewCategories++;
 	};
 
 	EdenUI.prototype.showErrorWindow = function () {

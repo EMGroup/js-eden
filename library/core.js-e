@@ -22,7 +22,21 @@ proc showView {
 	${{
 		var name = arguments[0];
 		edenUI.showView(name);
+		edenUI.brieflyHighlightView(name);
+	}}$;
+}
+
+proc highlightView {
+	${{
+		var name = arguments[0];
 		edenUI.highlightView(name);
+	}}$;
+}
+
+proc stopHighlightingView {
+	${{
+		var name = arguments[0];
+		edenUI.stopHighlightingView(name);
 	}}$;
 }
 
