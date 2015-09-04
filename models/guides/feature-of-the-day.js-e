@@ -2,15 +2,13 @@ include("models/jspe/run.e");
 
 slideZones is Slide("
 	<h1>Hit Detection for Shapes</h1>
-
-	<h2>The Basics</h2>
 	<p>You can now easily detect when the mouse pointer is positioned over any particular shape of
-	interest.  You can also easily detect when the user clicks on a shape using a convenient _click
-	observable, similar to the _clicked observables that already existed for buttons.</p>
+	interest.  You can also detect when the user clicks on a shape using a convenient <code>_click</code>
+	observable, similar to the <code>_clicked</code> observables that already existed for buttons.</p>
 
 	<p>To detect when the mouse pointer interacts with a shape you need to give the shape a name.
 	You do this in the same way that other pieces of supplementary information are added to shapes,
-	using the <em>drawing options</em>.</p>
+	this is, using the <em>drawing options</em>.</p>
 
 <jseden>
 r1 is Rectangle(0, 0, 200, 200, \"red\", @, {name: \"red\"});
@@ -21,13 +19,13 @@ picture is [r1, r2];
 	<p>Now open a symbol list and use the drop-down list to view all of the relevant observables,
 	including system observables.</p>
 <jseden>
-showObservables(\"mouseZone|mouseDownZone|.*_click(ed)?\");
+showObservables(\"mouseZone|mouseDownZone|.*_click\");
 </jseden>
 
 	<p>Notice that the system has created two additional observables, <code>red_click</code> and
 	blue_click.  These have the value <code>true</code> assigned to them whenever the left mouse
 	button is pressed down and the mouse pointer is positioned over the relevant shape.  The names
-	of the shapes do not have to be unique, which is useful if several individual shapes form a
+	of the shapes do not have to be unique, which is useful if several individual shapes model a
 	larger semantic component.</p>
 	
 	<p>The <code>mouseZone</code> observable records which zone the mouse pointer is currently
@@ -42,8 +40,8 @@ showObservables(\"mouseZone|mouseDownZone|.*_click(ed)?\");
 
 	<h2>Invisible Shapes</h2>
 	<p>What if you want to detect if the mouse pointer is located in particular part of the canvas
-	without drawing a shape there?  The Setting the <code>visible</code> drawing option to <code>false</code>
-	allows you to keep an observable in the <code>picture</code> list and have it work as an active
+	without drawing a shape there?  Setting the new <code>visible</code> drawing option to <code>false</code>
+	allows you to keep an observable in the <code>picture</code> list and have it work as a
 	mouse zone without actually drawing the shape.  The following example creates an invisible zone
 	above the blue rectangle and to the right of the red rectangle.</p>
 
@@ -53,6 +51,7 @@ picture is [r1, r2, zone3];
 </jseden>
 	
 	<h2>Zones Within <code>HTMLImage</code></h2>
+	<p>As previously, you can create zones over particular pieces of a HTML Image.</p>
 
 	<h2>Hit Detection at Any Point</h2>
 
@@ -61,23 +60,23 @@ picture is [r1, r2, zone3];
 
 slideViewHighlight is Slide("
 	<h1>Highlighting Views</h1>
-	<p>You can now programmatically attach a highlight to one or more views in order to draw the
-	user's attention to them.</p>
+	<p>You can now programmatically attach a highlighting effect to one or more views in order to
+	draw the user's attention to them.</p>
 
 <jseden>
 highlightView(\"picture\");
-highlightView(\"projects\");
+highlightView(\"input\");
 </jseden>
 
-	<p>To remove the highlight, use the <code>stopHighlightingView</code> procedure.</p>
+	<p>To remove the highlighting, use the <code>stopHighlightingView</code> procedure.</p>
 
 <jseden>
 stopHighlightingView(\"picture\");
-stopHighlightingView(\"projects\");
+stopHighlightingView(\"input\");
 </jseden>
 
-	<p>We anticipate that this feature may be most useful when writing instructional guides that
-	introduce students to a new construal, or introduce students to JS-EDEN itself.</p>
+	<p>This feature could be used, for instance, when writing instructional guides that introduce
+	students to a new construal, or to introduce them to JS-EDEN itself.</p>
 
 ");
 

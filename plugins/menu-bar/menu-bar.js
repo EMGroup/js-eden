@@ -106,7 +106,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		hideMenu();
 		var root = edenUI.eden.root;
 		var followMouse = root.lookup("mouseFollow").value();
-		var viewNumberSym = root.lookup("_view_number");
+		var viewNumberSym = root.lookup("_views_number_created");
 		var viewNumber = viewNumberSym.value() + 1;
 		viewNumberSym.assign(viewNumber, Symbol.hciAgent, true);
 		if (followMouse) {

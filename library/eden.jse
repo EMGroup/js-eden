@@ -458,11 +458,11 @@ proc arrangeWindows {
 	auto name, curr_x, i;
 
 	if (windowOrder == @) {
-		windowOrder = _view_list;
+		windowOrder = _views_list;
 	} else  {
-		for (i =  1; i <= _view_list#; i++) {
-			if (indexOf(_view_list[i], windowOrder) == 0) {
-				windowOrder = windowOrder // [_view_list[i]];
+		for (i =  1; i <= _views_list#; i++) {
+			if (indexOf(_views_list[i], windowOrder) == 0) {
+				windowOrder = windowOrder // [_views_list[i]];
 			}
 		}
 	}

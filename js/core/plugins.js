@@ -213,8 +213,8 @@
 				'proc _View_'+name+'_size : _view_'+name+'_width,_view_'+name+'_height {\n' +
 					'${{ edenUI.resizeView("'+name+'"); }}$; \n' +
 				'}; \
-				if (_view_list == @) { _view_list = []; } \
-				append _view_list, "'+name+'";';
+				if (_views_list == @) { _views_list = []; } \
+				append _views_list, "'+name+'";';
 
 			if (position) {
 				code += '_view_'+name+'_position = [\"'+position.join('\", \"')+'\"];\n';
@@ -280,7 +280,7 @@
 		delete this.activeDialogs[name];
 		delete this.viewInstances[name];
 		
-		var viewListSym = root.lookup("_view_list");
+		var viewListSym = root.lookup("_views_list");
 		var viewList = viewListSym.value();
 		if (Array.isArray(viewList)) {
 			var index = viewList.indexOf(name);

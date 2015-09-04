@@ -196,7 +196,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			}
 			if (/^_view_/.test(name)) {
 				isView = true;
-				if ((!includeViews || name.search("^_view_" + viewToExclude) != -1 || name == "_view_list" || name == "_view_number") &&
+				if ((!includeViews || name.search("^_view_" + viewToExclude) != -1) &&
 					Eden.isitSystemObservable(name) && symbol.definition === undefined)
 				{
 					continue;

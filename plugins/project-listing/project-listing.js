@@ -166,7 +166,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		}
 
 		//Add feature of the day option
-		if (this.rootURL == defaultURL && this.atRoot) {
+		if (this.rootURL == defaultURL && this.atRoot && (pattern == "" || re.test("Feature of The Day"))) {
 			var project = this.makeProject({
 				name: "Feature of The Day",
 				description: "Learn about the latest features added to JS-EDEN.",

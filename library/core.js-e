@@ -139,7 +139,7 @@ proc showObservables { ${{
 	} else {
 		edenUI.showView(viewName);
 	}
-	edenUI.highlightView(viewName);
+	edenUI.brieflyHighlightView(viewName);
 	inputBox.val(searchStr);
     inputBox.keyup();
 }}$; }
