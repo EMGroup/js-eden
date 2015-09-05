@@ -3,9 +3,10 @@ EDEN LL(1) Grammar
 SCRIPT		-> STATEMENT ; SCRIPT | epsilon														FIRST: proc func observable epsilon
 STATEMENT	-> proc PROCEDURE | func FUNCTION | FORMULA											FIRST: proc func observable
 FORMULA		-> LVALUE FORMULA'																	FIRST: observable
-FORMULA'	-> is EXPRESSION | = EXPRESSION | epsilon											FIRST: is = epsilon
+FORMULA'	-> is EXPRESSION | FORMULA''														FIRST: is = += -= = *= epsilon
+FORMULA''	-> = EXPRESSION | += EXPRESSION | -= EXPRESSION | /= EXPRESSION | *= EXPRESSION | ++ | -- | epsilon
 LVALUE		-> observable LVALUE'																FIRST: observable
-LVALUE'		-> [ EXPRESSION ] LVALUE' | . observable | epsilon									FIRST: [ . epsilon
+LVALUE'		-> [ EXPRESSION ] LVALUE' | . observable LVALUE' | epsilon							FIRST: [ . epsilon
 
 EXPRESSION	-> T E'																				FIRST: ( - number & ! observable
 E'			-> && T E' | || T E' | epsilon														FIRST: && || epsilon
@@ -18,8 +19,15 @@ E''''		-> * T''' E'''' | / T''' E'''' | % T''' E'''' | ^ T''' E'''' | epsilon			
 T'''		-> T'''' E'''''																		FIRST: ( - number & ! observable
 E'''''		-> # | epsilon																		FIRST: # epsilon
 T''''		-> F E''''''																		FIRST: ( - number & ! observable
-E''''''		-> ? EXPRESSION : EXPRESSION | epsilon												FIRST: ?
-F			-> ( EXPRESSION ) | - number | number | string | & LVALUE | ! LVALUE | LVALUE		FIRST: ( - number & ! observable
+E''''''		-> ? EXPRESSION : EXPRESSION | epsilon												FIRST: ? epsilon
+F			-> ( EXPRESSION ) | - number | number | string | & LVALUE | ! PRIMARY | PRIMARY		FIRST: ( - number & ! observable
+
+PRIMARY		-> LVALUE PRIMARY'																	FIRST: observable
+PRIMARY'	-> ( ELIST ) PRIMARY' | . observable ( ELIST ) PRIMARY' | [ EXPRESSION ] PRIMARY' | epsilon			FIRST: ( . [ epsilon
+
+ELIST		-> ELIST' | epsilon																	FIRST: ( - number & ! observable epsilon
+ELIST'		-> EXPRESSION ELIST''																FIRST: ( - number & ! observable
+ELIST''		-> , ELIST' | epsilon																FIRST: , epsilon
 
 PROCEDURE
 

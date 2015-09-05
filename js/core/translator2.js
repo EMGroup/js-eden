@@ -292,11 +292,32 @@ function fnEdenAST_left(left) {
 	}
 };
 
-function EdenAST_Number(number) {
-	this.type = "number";
-	this.number = number;
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+function EdenAST_Literal(type, literal) {
+	this.type = type;
+	this.value = literal;
 	this.errors = [];
 }
+EdenAST_Literal.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_UnaryOp(op, right) {
+	this.type = "unaryop";
+	this.op = op;
+	this.errors = right.errors;
+	this.r = right;
+}
+EdenAST_UnaryOp.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
 
 function EdenAST_BinaryOp(op, right) {
 	this.type = "binaryop";
@@ -306,7 +327,26 @@ function EdenAST_BinaryOp(op, right) {
 	this.l = undefined;
 }
 EdenAST_BinaryOp.prototype.left = fnEdenAST_left;
+EdenAST_BinaryOp.prototype.error = fnEdenAST_error;
 
+EdenAST_BinaryOp.prototype.generate = function() {
+	var left = (this.l.type == "lvalue") ? this.l.generate() + ".value()" : this.l.generate();
+	var right = (this.r.type == "lvalue") ? this.r.generate() + ".value()" : this.r.generate();
+	return left + " " + this.op + " " + right;
+}
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_Length() {
+	this.type = "length";
+	this.errors = [];
+}
+
+
+
+//------------------------------------------------------------------------------
 
 function EdenAST_LValue(observable, lvaluep) {
 	this.type = "lvalue";
@@ -321,32 +361,56 @@ function EdenAST_LValue(observable, lvaluep) {
 
 EdenAST_LValue.prototype.error = fnEdenAST_error;
 
+EdenAST_LValue.prototype.generate = function() {
+	return "context.lookup(\"" + this.observable + "\")";
+}
+
+
+
+//------------------------------------------------------------------------------
 
 function EdenAST_Definition(expression) {
 	this.type = "definition";
 	this.errors = expression.errors;
 	this.expression = expression;
+	this.lvalue = undefined;
 };
+
+EdenAST_Definition.prototype.left = function(lvalue) {
+	this.lvalue = lvalue;
+	if (lvalue.errors.length > 0) {
+		this.errors.push.apply(this.errors, lvalue.errors);
+	}
+};
+
+EdenAST_Definition.prototype.generate = function() {
+	var result = this.lvalue.generate() + ".define(function(context) { return ";
+	result = result + this.expression.generate();
+	result = result + "; }, this, []);"
+	return result;
+};
+
+
+
+//------------------------------------------------------------------------------
 
 function EdenAST_Assignment(expression) {
 	this.type = "assignment";
 	this.errors = expression.errors;
 	this.expression = expression;
+	this.lvalue = undefined;
 };
 
-
-function EdenAST_Formula(lvalue, formula) {
-	this.type = "formula";
-	this.errors = lvalue.errors;
+EdenAST_Assignment.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
-	this.formula = formula;
-
-	if (formula && formula.errors.length > 0) {
-		this.errors.push.apply(this.errors, formula.errors);
+	if (lvalue.errors.length > 0) {
+		this.errors.push.apply(this.errors, lvalue.errors);
 	}
 };
 
-//EdenAST_Formula.prototype.error = fnEdenAST_error;
+
+
+//------------------------------------------------------------------------------
 
 function EdenAST_Script() {
 	this.type = "script";
@@ -363,21 +427,46 @@ EdenAST_Script.prototype.append = function (ast) {
 	}
 }
 
+EdenAST_Script.prototype.generate = function() {
+	var result = "(function (root, eden, includePrefix, done) {(function(context, rt) {";
+	for (var i = 0; i < this.statements.length; i++) {
+		result = result + this.statements[i].generate();
+	}
+	result = result + "}).call(this, root, rt);})";
+	return result;
+}
 
 
 
+////////////////////////////////////////////////////////////////////////////////
 
 function EdenAST(code) {
 	this.stream = new EdenStream(code);
 	this.data = {};
 	this.token = "invalid";
+
+	console.time("MakeEdenAST");
 	this.script = this.pSCRIPT();
+	console.timeEnd("MakeEdenAST");
 }
 
 EdenAST.prototype.next = function() {
 	this.token = readToken(this.stream, this.data);
 };
 
+EdenAST.prototype.makeBinaryOp = function(op) {
+	var term = this.pTERM_P();
+	var right = this.pEXPRESSION_PP();
+	if (right) {
+		right.left(term);
+		return new EdenAST_BinaryOp(op, right);
+	}
+	return new EdenAST_BinaryOp(op, term);
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * T -> T' E''
@@ -394,31 +483,21 @@ EdenAST.prototype.pTERM = function() {
 }
 
 
+
 /*
  * E'-> && T E' | || T E' | epsilon
  */
 EdenAST.prototype.pEXPRESSION_P = function() {
 	if (this.token == "&&") {
 		this.next();
-		var term = this.pTERM();
-		var right = this.pEXPRESSION_P();
-		if (right) {
-			right.left(term);
-			return new EdenAST_BinaryOp("&&", right);
-		}
-		return new EdenAST_BinaryOp("&&", term);
+		return this.makeBinaryOp("&&");
 	} else if (this.token == "||") {
 		this.next();
-		var term = this.pTERM();
-		var right = this.pEXPRESSION_P();
-		if (right) {
-			right.left(term);
-			return new EdenAST_BinaryOp("||", right);
-		}
-		return new EdenAST_BinaryOp("||", term);
+		return this.makeBinaryOp("||");
 	}
 	return undefined;
 }
+
 
 
 /*
@@ -436,22 +515,33 @@ EdenAST.prototype.pTERM_P = function() {
 }
 
 
+
 /*
  * E'' -> < T' E'' | <= T' E'' | > T' E'' | >= T' E'' | == T' E'' | != T' E'' | epsilon
  */
 EdenAST.prototype.pEXPRESSION_PP = function() {
 	if (this.token == "<") {
 		this.next();
-		var term = this.pTERM_P();
-		var right = this.pEXPRESSION_PP();
-		if (right) {
-			right.left(term);
-			return new EdenAST_BinaryOp("<", right);
-		}
-		return new EdenAST_BinaryOp("<", term);
+		return this.makeBinaryOp("<");
+	} else if (this.token == "<=") {
+		this.next();
+		return this.makeBinaryOp("<=");
+	} else if (this.token == ">") {
+		this.next();
+		return this.makeBinaryOp(">");
+	} else if (this.token == ">=") {
+		this.next();
+		return this.makeBinaryOp(">=");
+	} else if (this.token == "==") {
+		this.next();
+		return this.makeBinaryOp("==");
+	} else if (this.token == "!=") {
+		this.next();
+		return this.makeBinaryOp("!=");
 	}
 	return undefined;
 }
+
 
 
 /*
@@ -469,12 +559,24 @@ EdenAST.prototype.pTERM_PP = function() {
 }
 
 
+
 /*
  * E''' -> + T'' E''' | - T'' E''' | // T'' E''' | epsilon
  */
 EdenAST.prototype.pEXPRESSION_PPP = function() {
+	if (this.token == "+") {
+		this.next();
+		return this.makeBinaryOp("+");
+	} else if (this.token == "-") {
+		this.next();
+		return this.makeBinaryOp("-");
+	} else if (this.token == "//") {
+		this.next();
+		return this.makeBinaryOp("//");
+	}
 	return undefined;
 }
+
 
 
 /*
@@ -492,12 +594,27 @@ EdenAST.prototype.pTERM_PPP = function() {
 }
 
 
+
 /*
  * E'''' -> * T''' E'''' | / T''' E'''' | % T''' E'''' | ^ T''' E'''' | epsilon
  */
 EdenAST.prototype.pEXPRESSION_PPPP = function() {
+	if (this.token == "*") {
+		this.next();
+		return this.makeBinaryOp("*");
+	} else if (this.token == "/") {
+		this.next();
+		return this.makeBinaryOp("/");
+	} else if (this.token == "%") {
+		this.next();
+		return this.makeBinaryOp("%");
+	} else if (this.token == "^") {
+		this.next();
+		return this.makeBinaryOp("^");
+	}
 	return undefined;
 }
+
 
 
 /*
@@ -515,29 +632,72 @@ EdenAST.prototype.pTERM_PPPP = function() {
 }
 
 
+
 /*
  * E''''' -> # | epsilon
  */
 EdenAST.prototype.pEXPRESSION_PPPPP = function() {
+	if (this.token == "#") {
+		this.next();
+		return new EdenAST_Length();
+	}
 	return undefined;
 }
+
 
 
 /*
  * F -> ( EXPRESSION ) | - number | number | string | & LVALUE | ! LVALUE | LVALUE
  */
 EdenAST.prototype.pFACTOR = function() {
-	if (this.token == "NUMBER") {
+	if (this.token == "(") {
 		this.next();
-		return new EdenAST_Number(this.data.value);
+		var expression = this.pEXPRESSION();
+		if (this.token != ")") {
+			expression.error(new EdenError(expression, this.stream, "Missing a closing ')' bracket"));
+		} else {
+			this.next();
+		}
+		return expression;
+	} else if (this.token == "NUMBER") {
+		this.next();
+		return new EdenAST_Literal("NUMBER", this.data.value);
+	} else if (this.token == "STRING") {
+		this.next();
+		return new EdenAST_Literal("STRING", this.data.value);
+	} else if (this.token == "!") {
+		this.next;
+		var lvalue = this.pLVALUE();
+		return new EdenAST_UnaryOp("!", lvalue);
+	} else {
+		var lvalue = this.pLVALUE();
+		if (lvalue && lvalue.errors.length == 0) {
+			return lvalue;
+		}
 	}
+
+	var dummy = new EdenAST_Number(0);
+	dummy.error(new EdenError(dummy, this.stream, "Expected a number, string, observable or ( ... )"));
+	return dummy;
 }
+
 
 
 /*
  * E'''''' -> ? EXPRESSION : EXPRESSION | epsilon
  */
 EdenAST.prototype.pEXPRESSION_PPPPPP = function() {
+	if (this.token == "?") {
+		var exp1 = this.pEXPRESSION();
+		if (this.token != ":") {
+
+		} else {
+			this.next();
+		}
+		var exp2 = this.pEXPRESSION();
+
+		//return new EdenAST_TernaryOp("?");
+	}
 	return undefined;
 }
 
@@ -614,7 +774,13 @@ EdenAST.prototype.pFORMULA_P = function() {
  * FORMULA -> LVALUE FORMULA'	
  */
 EdenAST.prototype.pFORMULA = function() {
-	return new EdenAST_Formula(this.pLVALUE(), this.pFORMULA_P());
+	var lvalue = this.pLVALUE();
+	var formula = this.pFORMULA_P();
+	if (formula) {
+		formula.left(lvalue);
+		return formula;
+	}
+	return lvalue;
 };
 
 
