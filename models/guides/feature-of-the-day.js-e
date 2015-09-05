@@ -56,6 +56,8 @@ picture is [r1, r2, zone3];
 	<h2>Hit Detection at Any Point</h2>
 
 	<h2>A Stack of Shapes</h2>
+
+	<h2>Limitations &amp; Future Changes</h2>
 ");
 
 slideViewHighlight is Slide("
@@ -78,6 +80,11 @@ stopHighlightingView(\"input\");
 	<p>This feature could be used, for instance, when writing instructional guides that introduce
 	students to a new construal, or to introduce them to JS-EDEN itself.</p>
 
+	<h2>Limitations &amp; Future Changes</h2>
+	<p>The current technique doesn't use definitions.  Ideally we would talk about an observable
+	representing the <em>set</em> of currently highlighted views.  However, JS-EDEN doesn't
+	currently have a notation for defining sets.  Features may be updated from time to time as
+	continuing improvements are made.</p>
 ");
 
 slideList is [slideZones, slideViewHighlight];

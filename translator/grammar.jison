@@ -19,23 +19,23 @@
 <BLOCKCOMMENT>.       {}
 "/*"                  { yy.commentNesting++; this.begin('BLOCKCOMMENT'); }
 
+<INITIAL>"##"         { this.begin('LINECOMMENT'); }
 <LINECOMMENT>[\n\r]   { this.popState(); }
 <LINECOMMENT>.        {}
-<INITIAL>"##"         { this.begin('LINECOMMENT'); }
 
 "${{"                 { this.begin('JS'); return "OPENJS"; }
 <JS>"}}$"             { this.popState(); return 'ENDJS'; }
-<JS>([\n\r]|.)        return 'JSCODE'
+<JS>(.|\n|\r)         return 'JSCODE'
 
+<INITIAL>"\""         { this.begin('D'); return '"'; }
 <D>"\\".              return 'STRINGCHARACTER'
 <D>'"'                { this.popState(); return '"'; }
 <D>(.|\n|\r)          return 'STRINGCHARACTER'
-"\""                  { this.begin('D'); return '"'; }
 
-<QUOTE>"\\".         return 'STRINGCHARACTER'
+<INITIAL>"'"          { this.begin('QUOTE'); return "'"; }
+<QUOTE>"\\".          return 'STRINGCHARACTER'
 <QUOTE>"'"            { this.popState(); return "'"; }
-<QUOTE>.              return 'STRINGCHARACTER'
-"'"                   { this.begin('QUOTE'); return "'"; }
+<QUOTE>(.|\n|\r)      return 'STRINGCHARACTER'
 
 \s+                   /* skip whitespace */
 "@"                   return 'UNDEFINED'
@@ -66,6 +66,7 @@
 "break"               return 'BREAK'
 "continue"            return 'CONTINUE'
 "return"              return 'RETURN'
+"together"            return 'TOGETHER'
 "func"                %{ yy.paras.unshift({}); yy.locals.unshift({}); yy.funcBodyDependencies.unshift({}); return 'FUNC'; %}
 "proc"                %{ yy.paras.unshift({}); yy.locals.unshift({}); yy.funcBodyDependencies.unshift({}); return 'PROC'; %}
 "auto"                return 'AUTO'
@@ -353,8 +354,8 @@ literal
     ;
 
 char-literal
-    : "'" STRINGCHARACTER "'"
-        { $$ = '"' + $2 + '"'; }
+    : "'" string-contents-opt "'"
+        { $$ = "'" + $2 + "'"; }
     ;
 
 string-literal
@@ -462,6 +463,8 @@ statement
         { $$ = yy.sync('return;'); }
     | RETURN expression ';'
         { $$ = yy.sync('return ' + $expression + ';'); }
+	| TOGETHER statement
+		{ $$ = yy.code($statement.cps, 'root.beginAutocalcOff(); ' + $statement.code + ' root.endAutocalcOff();'); }
     | include-statement-list
         { $$ = yy.async('eden.include', '['+$1.join(', ')+']', 'includePrefix', 'this'); }
     | REQUIRE expression ';'

@@ -94,6 +94,8 @@
 		  * @private
 		  */
 		this.saved_autocalc_state = true;
+		/**Number of times beginAutocalcOff has been called minus times endAutocalcOff has been called. */
+		this.saved_autocalc_level = 0;
 	}
 
 	/**
@@ -204,6 +206,10 @@
 	 * Enter a block of JavaScript statements where we want to guarantee autocalc is off.
 	 */
 	Folder.prototype.beginAutocalcOff = function () {
+		this.saved_autocalc_level++;
+		if (this.saved_autocalc_level != 1) {
+			return;
+		}
 		this.saved_autocalc_state = this.autocalc_state;
 		if (this.autocalc_state) {
 			this.autocalc(false);
@@ -214,6 +220,10 @@
 	 * Leave a block of JavaScript statements where we wanted to guarantee autocalc was off.
 	 */
 	Folder.prototype.endAutocalcOff = function () {
+		this.saved_autocalc_level--;
+		if (this.saved_autocalc_level != 0) {
+			return;
+		}
 		if (this.saved_autocalc_state) {
 			this.autocalc(true);
 		}

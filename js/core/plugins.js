@@ -572,7 +572,8 @@
 			open: function () {
 				$(this).parent().find("button")[defaultOptionNum].focus();				
 			}
-		});
+		})
+		dialog.parent().addClass("ui-front");
 	}
 
 }());
