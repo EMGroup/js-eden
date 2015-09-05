@@ -1,0 +1,26 @@
+EDEN LL(1) Grammar
+
+SCRIPT		-> STATEMENT ; SCRIPT | epsilon														FIRST: proc func observable epsilon
+STATEMENT	-> proc PROCEDURE | func FUNCTION | FORMULA											FIRST: proc func observable
+FORMULA		-> LVALUE FORMULA'																	FIRST: observable
+FORMULA'	-> is EXPRESSION | = EXPRESSION | epsilon											FIRST: is = epsilon
+LVALUE		-> observable LVALUE'																FIRST: observable
+LVALUE'		-> [ EXPRESSION ] LVALUE' | . observable | epsilon									FIRST: [ . epsilon
+
+EXPRESSION	-> T E'																				FIRST: ( - number & ! observable
+E'			-> && T E' | || T E' | epsilon														FIRST: && || epsilon
+T			-> T' E''																			FIRST: ( - number & ! observable
+E''			-> < T' E'' | <= T' E'' | > T' E'' | >= T' E'' | == T' E'' | != T' E'' | epsilon	FIRST: < <= > >= == != epsilon
+T'			-> T'' E'''																			FIRST: ( - number & ! observable
+E'''		-> + T'' E''' | - T'' E''' | // T'' E''' | epsilon									FIRST: + - // epsilon
+T''			-> T''' E''''																		FIRST: ( - number & ! observable
+E''''		-> * T''' E'''' | / T''' E'''' | % T''' E'''' | ^ T''' E'''' | epsilon				FIRST: * / % ^ epsilon
+T'''		-> T'''' E'''''																		FIRST: ( - number & ! observable
+E'''''		-> # | epsilon																		FIRST: # epsilon
+T''''		-> F E''''''																		FIRST: ( - number & ! observable
+E''''''		-> ? EXPRESSION : EXPRESSION | epsilon												FIRST: ?
+F			-> ( EXPRESSION ) | - number | number | string | & LVALUE | ! LVALUE | LVALUE		FIRST: ( - number & ! observable
+
+PROCEDURE
+
+FUNCTION
