@@ -28,12 +28,32 @@ func RoundedRectangle { ${{
 		outlinecolour = "black";
 	}
 	var drawingOptions = arguments[7];
+	if (typeof(drawingOptions) == "object" && eden.isValidIdentifier(drawingOptions.name)) {
+		var clickSym = root.lookup(drawingOptions.name + "_click");
+		if (clickSym.value() === undefined) {
+			clickSym.assign(false, root.lookup("RoundedRectangle"));
+		}
+	}
 	return new RoundedRectangle(x, y, width, height, radius, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
 ${{
 
 RoundedRectangle.prototype.draw = function (context) {
+
+	this.tracePath(context);
+
+	if (this.fillcolour !== undefined) {
+		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
+		context.fill();
+	}
+	if (this.outlinecolour !== undefined) {
+		context.strokeStyle = this.outlinecolour;
+		context.stroke();
+	}
+};
+
+RoundedRectangle.prototype.tracePath = function (context) {
 	var halfLineWidth;
 	if (this.outlinecolour !== undefined) {
 		halfLineWidth = context.lineWidth / 2;
@@ -55,16 +75,13 @@ RoundedRectangle.prototype.draw = function (context) {
 	context.arcTo(x1, y2, x1, y2 - this.radius, this.radius);
 	context.lineTo(x1, y1 + this.radius);
 	context.arcTo(x1, y1, x1 + this.radius, y1, this.radius);
-
-	if (this.fillcolour !== undefined) {
-		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
-		context.fill();
-	}
-	if (this.outlinecolour !== undefined) {
-		context.strokeStyle = this.outlinecolour;
-		context.stroke();
-	}
+	context.closePath();
 };
+
+RoundedRectangle.prototype.isHit = function (context, scale, x, y) {
+	this.tracePath(context);
+	return context.isPointInPath(x,y);
+}
 
 RoundedRectangle.prototype.toString = function() {
 	var s = "RoundedRectangle(" + this.x1 + ", " + this.y1 + ", " +

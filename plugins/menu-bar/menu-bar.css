@@ -141,8 +141,7 @@
 	padding-left: 2em;
 }
 
-/* use a pseudo element to make a border without
- * causing the window contents to move */
+/* use a pseudo element to make a border without causing the window contents to move */
 .menubar-window-raise:after {
 	content: "";
 	position: absolute;

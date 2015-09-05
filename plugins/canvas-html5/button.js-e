@@ -18,100 +18,114 @@ ${{
 }
 
 ${{
-	var Button = function (name, label, x, y, enabled, fillcolour, textcolour) {
-		this.name = name;
-		this.label = label;
-		this.x = x;
-		this.y = y;
-		this.enabled = enabled;
-		this.fillcolour = fillcolour;
-		this.textcolour = textcolour;
-	};
+var Button = function (name, label, x, y, enabled, fillcolour, textcolour) {
+	this.name = name;
+	this.label = label;
+	this.x = x;
+	this.y = y;
+	this.enabled = enabled;
+	this.fillcolour = fillcolour;
+	this.textcolour = textcolour;
+};
 
-	Button.prototype.hash = function () {
-		return this.name+"$$"+
-					this.label+"$$"+
-					this.x+"$$"+
-					this.y+"$$"+
-					this.enabled+"$$"+
-					this.fillcolour+"$$"+
-					this.textcolour;
-	};
+Button.prototype.hash = function () {
+	return this.name+"$$"+
+				this.label+"$$"+
+				this.x+"$$"+
+				this.y+"$$"+
+				this.enabled+"$$"+
+				this.fillcolour+"$$"+
+				this.textcolour;
+};
 
-	Button.prototype.draw = function (context) {
-		if (this.elements === undefined){
-			var name = this.name;
-			var agent = root.lookup("Button");
+Button.prototype.draw = function (context) {
 
-			var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
-			var inputHtml = '<input  type="button"' +
-				'value="' + this.label + '"' + disabled +
-				'style="position: absolute; ';
-			if (this.fillcolour !== undefined) {
-				inputHtml = inputHtml + 'background-color: ' + this.fillcolour + '; ';
-			}
-			if (this.textcolour !== undefined) {
-				inputHtml = inputHtml + 'color: ' + this.textcolour + '; ';
-			}
-			inputHtml = inputHtml + '"/>';
+	if (this.elements === undefined) {
+		var name = this.name;
 
-			var inputJQ = $(inputHtml).on("mousedown", function () {
-				root.lookup(name + "_clicked").assign(true, agent, true);
-			}).on("mouseup", function () {
-				root.lookup(name + "_clicked").assign(false, agent, true);
-			});
-			var clickSym = root.lookup(name + "_clicked");
-			if (clickSym.value() === undefined) {
-				clickSym.assign(false, agent);
-			}
+		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
+		var inputHtml = '<input  type="button"' +
+			'value="' + this.label + '"' + disabled +
+			'style="position: absolute; ';
+		if (this.fillcolour !== undefined) {
+			inputHtml = inputHtml + 'background-color: ' + this.fillcolour + '; ';
+		}
+		if (this.textcolour !== undefined) {
+			inputHtml = inputHtml + 'color: ' + this.textcolour + '; ';
+		}
+		inputHtml = inputHtml + '"/>';
 
-			var button = inputJQ.get(0);
-			this.elements = [button];
+		var inputJQ = $(inputHtml);
+		var clickSym = root.lookup(name + "_click");
+		if (clickSym.value() === undefined) {
+			clickSym.assign(false, root.lookup("Button"));
+			root.lookup(name + "_clicked").assign(false, root.lookup("Button"));
+		}
 
+		inputJQ
+		.click(function () {
+			root.lookup(name + "_clicked").assign(true, Symbol.hciAgent, true);
+			root.lookup(name + "_clicked").assign(false, Symbol.hciAgent, true);
+		})
+		.on("mousedown", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseDownZone").assign(name, Symbol.hciAgent, mouseFollow);
+		})
+		.on("mouseup", function () {
+			edenUI.plugins.Canvas2D.endClick();
+		})
+		.on("mouseenter", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(name, Symbol.hciAgent, mouseFollow);
+		});
+
+		var button = inputJQ.get(0);
+		this.elements = [button];
+
+	} else {
+
+		//Case when the user has performed direct assignment to one or more JavaScript properties.
+		var button = this.elements[0];
+		button.value = this.label;
+
+		if (this.enabled) {
+			button.disabled = false;
 		} else {
+			button.disabled = true;
+		}
 
-			//Case when the user has performed direct assignment to one or more JavaScript properties.
-			var button = this.elements[0];
-			button.value = this.label;
-
-			if (this.enabled) {
-				button.disabled = false;
+		var style = button.style;
+		var fillcolour = this.fillcolour;
+		if (style.backgroundColor != fillcolour) {
+			if (fillcolour === undefined) {
+				style.backgroundColor = "ButtonFace";
 			} else {
-				button.disabled = true;
-			}
-
-			var style = button.style;
-			var fillcolour = this.fillcolour;
-			if (style.backgroundColor != fillcolour) {
-				if (fillcolour === undefined) {
-					style.backgroundColor = "ButtonFace";
-				} else {
-					style.backgroundColor = fillcolour;
-				}
-			}
-			var textcolour = this.textcolour;
-			if (style.color != textcolour) {
-				if (textcolour === undefined) {
-					style.color = "ButtonText";
-				} else {
-					style.color = textcolour;
-				}
+				style.backgroundColor = fillcolour;
 			}
 		}
-	};
+		var textcolour = this.textcolour;
+		if (style.color != textcolour) {
+			if (textcolour === undefined) {
+				style.color = "ButtonText";
+			} else {
+				style.color = textcolour;
+			}
+		}
+	}
+};
 
-	Button.prototype.scale = function (scale, zoom, origin) {
-		var style = this.elements[0].style;
-		style.left = Math.round(this.x * scale + origin.x) + "px";
-		style.top = Math.round(this.y * scale + origin.y) + "px";
-		style.fontSize = zoom + "em";
-	};
-	
-	Button.prototype.toString = function () {
-		return "Button(\"" + this.name + "\", \"" + this.label + "\", " + this.x + ", "+this.y+", "+this.enabled+")";
-	};
+Button.prototype.scale = function (scale, zoom, origin) {
+	var style = this.elements[0].style;
+	style.left = Math.round(this.x * scale + origin.x) + "px";
+	style.top = Math.round(this.y * scale + origin.y) + "px";
+	style.fontSize = zoom + "em";
+};
 
-	Button.prototype.getEdenCode = Button.prototype.toString;
+Button.prototype.toString = function () {
+	return "Button(\"" + this.name + "\", \"" + this.label + "\", " + this.x + ", "+this.y+", "+this.enabled+")";
+};
+
+Button.prototype.getEdenCode = Button.prototype.toString;
 
 }}$;
 

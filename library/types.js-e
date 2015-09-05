@@ -255,6 +255,23 @@ func isChar {
 	}}$;
 }
 
+func isDefined {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isDefined: This function requires exactly 1 argument."), "error");
+			return undefined;
+		} else if (arguments[0] === undefined) {
+			return undefined;
+		} else if (typeof(arguments[0]) == "string") {
+			var name = arguments[0];
+			return name in root.symbols;
+		} else {
+			eden.error(new Error("isDefined: The argument must be a string, not a " + typeof(arguments[0])), "error");
+			return undefined;
+		}
+	}}$;
+}
+
 ##Tests if a value is defined in the modelling sense.  To be defined a value
 ##must not be:
 ##	(1) The undefined value
@@ -270,10 +287,10 @@ func isChar {
 ##		such as 0/0 == 0/0 evaluate to false because one NaN value is never
 ##		equal to another NaN value, which is mathematically queer.
 ##
-func isDefined {
+func isValue {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isDefined: This function requires exactly 1 argument."), "error");
+			eden.error(new Error("isValue: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		var v = arguments[0];

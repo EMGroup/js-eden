@@ -88,6 +88,14 @@
 		 * @private
 		 */
 		this.potentialGarbage = {};
+
+		/** Remember if autocalc was enabled or disabled prior to entering a block of JavaScript
+		  * statements where we want to guarantee that autocalc is off until at least the end of the block.
+		  * @private
+		  */
+		this.saved_autocalc_state = true;
+		/**Number of times beginAutocalcOff has been called minus times endAutocalcOff has been called. */
+		this.saved_autocalc_level = 0;
 	}
 
 	/**
@@ -193,6 +201,33 @@
 		this.autocalc_state = state;
 		this.expireAndFireActions();
 	};
+
+	/**
+	 * Enter a block of JavaScript statements where we want to guarantee autocalc is off.
+	 */
+	Folder.prototype.beginAutocalcOff = function () {
+		this.saved_autocalc_level++;
+		if (this.saved_autocalc_level != 1) {
+			return;
+		}
+		this.saved_autocalc_state = this.autocalc_state;
+		if (this.autocalc_state) {
+			this.autocalc(false);
+		}
+	}
+
+	/**
+	 * Leave a block of JavaScript statements where we wanted to guarantee autocalc was off.
+	 */
+	Folder.prototype.endAutocalcOff = function () {
+		this.saved_autocalc_level--;
+		if (this.saved_autocalc_level != 0) {
+			return;
+		}
+		if (this.saved_autocalc_state) {
+			this.autocalc(true);
+		}
+	}
 
 	Folder.prototype.expireSymbol = function (sym) {
 		this.needsExpire[sym.name] = sym;
@@ -625,6 +660,16 @@
 				this.jsObservers[jsObserverName](this, this.cached_value);
 			} catch (error) {
 				this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
+				var debug;
+				if (this.context) {
+					var debugOptions = this.context.lookup("debug").cached_value;
+					debug = typeof(debugOptions) == "object" && debugOptions.jsExceptions;
+				} else {
+					debug = false;
+				}
+				if (debug) {
+					debugger;
+				}
 			}
 		}
 	}
@@ -681,19 +726,25 @@
 		return false;
 	};
 
-	Symbol.prototype.assertNotDependentOn = function (name) {
+	Symbol.prototype.assertNotDependentOn = function (name, path) {
+		if (path === undefined) {
+			path = [];
+		}
+		path.push(this.name.slice(1));
+
 		if (this.dependencies[name]) {
-			throw new Error("Cyclic dependency detected");
+			var details = path.join(" -> ") + " -> " + name.slice(1) + " -> " + path[0];
+			throw new Error("Cyclic dependency detected: " + details);
 		}
 
 		var symbol;
 		for (var d in this.dependencies) {
 			symbol = this.dependencies[d];
-			symbol.assertNotDependentOn(name);
+			symbol.assertNotDependentOn(name, path);
 		}
 		for (var d in this.dynamicDependencies) {
 			symbol = this.dynamicDependencies[d];
-			symbol.assertNotDependentOn(name);
+			symbol.assertNotDependentOn(name, path);
 		}
 	};
 

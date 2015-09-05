@@ -3,19 +3,28 @@
 ##
 ## See LICENSE.txt
 
-mouseX is mousePosition.x;
-mouseY is mousePosition.y;
-
 ##Initialize observables
+mouseButton = "";
 mouseButtons = "";
 mouseCapture = false;
 mouseCaptured = false;
 mouseContextMenuEnabled = false;
 mouseDoubleClicks = 0;
+mouseDown = @;
+mouseDownWindow = @;
+mouseDownZone = @;
 mouseFollow = false;
+mousePosition = @;
+mousePressed = false;
+mouseUp = @;
 mouseWheelEnabled = false;
 mouseWheel = 0;
+mouseWindow = @;
+mouseX is mousePosition.x;
+mouseY is mousePosition.y;
+mouseZone = @;
 touchScrollX = 0;
+
 
 ${{
 	root.lookup("mouseCapture").addJSObserver("releaseCapture", function (obs, lock) {
@@ -136,6 +145,82 @@ func canvasURL {
 		}
 		
 		return canvases[canvasName].toDataURL();
+	}}$;
+}
+
+func zoneOnTopAt {
+	${{
+		var target = arguments[0];
+		var x, y;
+		if (arguments.length == 2) {
+			if (arguments[1] instanceof Point) {
+				x = arguments[1].x;
+				y = arguments[1].y;
+			} else if (arguments[1] === undefined) {
+				return undefined;
+			} else {
+				eden.error(new Error("zoneOnTopAt: The second argument must a Point, otherwise 3 arguments must be provided."), "error");
+				return undefined;
+			}
+		} else if (arguments.length == 3) {
+			x = arguments[1];
+			y = arguments[2];
+		} else {
+			eden.error(new Error("zoneOnTopAt: This function requires at least 2 arguments and at most 3 arguments."), "error");
+			return undefined;
+		}
+
+		if (target === undefined || x === undefined || y === undefined) {
+			return undefined;
+		} else if (!(target instanceof Symbol) && typeof(target) != "string") {
+			eden.error(new Error("zoneOnTopAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
+			return undefined;
+		} else if (typeof(x) != "number") {
+			eden.error(new Error("zoneOnTopAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
+			return undefined;
+		} else if (typeof(y) != "number") {
+			eden.error(new Error("zoneOnTopAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
+			return undefined;
+		}
+		return edenUI.plugins.Canvas2D.findZoneHit2(target, x, y);
+	}}$;
+}
+
+func zonesAt {
+	${{
+		var target = arguments[0];
+		var x, y;
+		if (arguments.length == 2) {
+			if (arguments[1] instanceof Point) {
+				x = arguments[1].x;
+				y = arguments[1].y;
+			} else if (arguments[1] === undefined) {
+				return undefined;
+			} else {
+				eden.error(new Error("zonesAt: The second argument must a Point, otherwise 3 arguments must be provided."), "error");
+				return undefined;
+			}
+		} else if (arguments.length == 3) {
+			x = arguments[1];
+			y = arguments[2];
+		} else {
+			eden.error(new Error("zonesAt: This function requires at least 2 arguments and at most 3 arguments."), "error");
+			return undefined;
+		}
+
+		if (target === undefined || x === undefined || y === undefined) {
+			return undefined;
+		} else if (!(target instanceof Symbol) && typeof(target) != "string") {
+			eden.error(new Error("zonesAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
+			return undefined;
+		} else if (typeof(x) != "number") {
+			eden.error(new Error("zonesAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
+			return undefined;
+		} else if (typeof(y) != "number") {
+			eden.error(new Error("zonesAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
+			return undefined;
+		}
+		return edenUI.plugins.Canvas2D.findAllZonesHit(target, x, y);
 	}}$;
 }
 

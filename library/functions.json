@@ -741,6 +741,16 @@
 			"return": "The width of the given text, in pixels",
 			"description": "Measures the width of a piece of text drawn using the Text function."
 		},
+		"textHeight": {
+			"parameters": {
+				"text": "Text string to measure",
+				"[size]" : "",
+				"[options]": "",
+				"[canvas_scale]": ""
+			},
+			"return": "The height of the given text, in pixels",
+			"description": "Measures the height of a piece of text drawn using the Text function."
+		},
 		"Arc": {
 			"parameters": {
 				"x": "",
@@ -903,10 +913,11 @@
 		},
 		"Shadow": {
 			"parameters": {
-				"colour": "",
-				"blur": "",
+				"[colour]": "",
 				"x_offset": "",
-				"y_offset": ""
+				"y_offset": "",
+				"length": "",
+				"[scales]": "True if the shadow scales in accordance with the canvas's scale observable, or false if the shadow is just cosmetic and shouldn't scale."
 			},
 			"return": "",
 			"description": ""
@@ -963,6 +974,7 @@
 		},
 		"Image": {
 			"parameters": {
+				"[name]": "",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[width": "Width in pixels",
@@ -993,7 +1005,7 @@
 		},
 		"HTMLImage": {
 			"parameters": {
-				"name": "Name for click events",
+				"[name]": "Name for click events",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[width": "Width in virtual pixel units",
@@ -1211,6 +1223,22 @@
 			},
 			"return": "",
 			"description": "Removes from the symbol table all symbols whose names match a given regular expression"
+		},
+		"zoneOnTopAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_pair" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"zonesAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_pair" : ""
+			},
+			"return": "",
+			"description": ""
 		}
 	}
 }

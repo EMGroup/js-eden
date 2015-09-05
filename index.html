@@ -28,6 +28,12 @@ See LICENSE.txt
 
 	<script type="text/javascript" src="js/lib/jquery-1.8.3.min.js"></script>
 	<script type="text/javascript" src="js/lib/jquery-ui-1.9.2.custom.min.js"></script>
+	<style type="text/css">
+		/*If we ever upgrade to jquery.ui version 1.10 or later then remove the following rule. */
+		.ui-front {
+			z-index: 10000 !important;
+		}
+	</style>
 	<script type="text/javascript" src="js/lib/jquery.dialogextend.min.js"></script>
 </head>
 <body>
@@ -70,25 +76,6 @@ See LICENSE.txt
 
 <script type="text/javascript">
 	initialiseJSEden();
-	var current = null;
-	var cycleView = function () {
-		var $windows = $('.ui-dialog-content');
-		var i;
-		if (!current) {
-			current = $windows.get(0);
-		} else {
-			for (i = 0; i < $windows.length; ++i) {
-				if ($windows.get(i) === current) {
-					current = $windows.get((i + 1) % $windows.length);
-					break;
-				}
-			}
-		}
-		if ($(current).is(':data(dialog)')) {
-			$(current).dialog('open').dialog('moveToTop').dialogExtend('restore');
-		}
-	};
-	$(document).on('keydown', null, 'ctrl+m', cycleView);
 </script>
 
 <div id="tooltip" style="display:none"></div>

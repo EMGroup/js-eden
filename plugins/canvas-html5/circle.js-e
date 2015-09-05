@@ -24,22 +24,19 @@ func Circle { ${{
 		outlinecolour = "black";
 	}
 	var drawingOptions = arguments[5];
+	if (typeof(drawingOptions) == "object" && eden.isValidIdentifier(drawingOptions.name)) {
+		var clickSym = root.lookup(drawingOptions.name + "_click");
+		if (clickSym.value() === undefined) {
+			clickSym.assign(false, root.lookup("Circle"));
+		}
+	}
 	return new Circle(x, y, radius, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
 ${{
 
 Circle.prototype.draw = function(context) {
-	var lineWidth;
-	if (this.outlinecolour !== undefined) {
-		lineWidth = context.lineWidth;
-	} else {
-		lineWidth = 0;
-	}
-	context.beginPath();
-	context.arc(this.x, this.y, this.radius - lineWidth / 2, 0, 2 * Math.PI, false);
-	context.closePath();
- 
+	this.tracePath(context);
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
 		context.fill();
@@ -49,6 +46,23 @@ Circle.prototype.draw = function(context) {
 		context.stroke();
 	}
 };
+
+Circle.prototype.tracePath = function (context) {
+	var lineWidth;
+	if (this.outlinecolour !== undefined) {
+		lineWidth = context.lineWidth;
+	} else {
+		lineWidth = 0;
+	}
+	context.beginPath();
+	context.arc(this.x, this.y, this.radius - lineWidth / 2, 0, 2 * Math.PI, false);
+	context.closePath();
+}
+
+Circle.prototype.isHit = function (context, scale, x, y) {
+	this.tracePath(context);
+	return context.isPointInPath(x,y);
+}
 
 Circle.prototype.toString = function() {
 	var s = "Circle(" + this.x + ", " + this.y + ", " + this.radius + ", " +

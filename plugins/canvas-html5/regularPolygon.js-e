@@ -17,8 +17,10 @@ ${{
 
 	RegularPolygon.prototype.calculatePolygons = function (lineWidth) {
 		var separatePolygonsPossiblyNeeded;
-		if (this.fillcolour !== undefined && this.fillcolour != "transparent" && this.outlinecolours !== undefined &&
-			this.n / this.star != 2) {
+		if (this.fillcolour !== undefined && this.fillcolour != "transparent" &&
+			this.outlinecolours !== undefined &&
+			this.n / this.star != 2
+		) {
 			separatePolygonsPossiblyNeeded = true;
 		} else {
 			separatePolygonsPossiblyNeeded = false;		
@@ -58,6 +60,12 @@ ${{
 		if (separatePolygonsPossiblyNeeded) {
 			if (polygons.length == 1) {
 				if (!this.interiorOutline) {
+					/* Case: single constituent polygon (e.g. five-pointed star) with an outline but
+					 * not an outline drawn in inside the shape (i.e. a star or a pentagon rather
+					 * than a pentagram).
+					 * Solution: add extra polygons to over-paint those inside edges that we don't want.
+					 * N.B. We can (and do) safely ignore these extra polygons when performing hit testing.
+					 */
 					var lineWidth;
 					if (typeof(this.drawingOptions) == "object" && "lineWidth" in this.drawingOptions) {
 						lineWidth = this.drawingOptions.lineWidth;
@@ -75,18 +83,35 @@ ${{
 						i = (i + this.star) % this.n;
 					} while (i != 0);
 					polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, undefined, this.drawingOptions));
+				} else {
+					/* Case: the user wants to see the edges that intersect the interior of the
+					 * polygon.
+					 */
 				}
 				this.filledPolygons = polygons;
 				this.outlinePolygons = [];
 			} else {
+				/* Case: multiple constituent polygons (specifically, more than 2).  Occurs when
+				 * n / star is an integer greater than 2.
+				 * Solution: Paint the fill and the outline as separate polygons.  The requirement
+				 * to show or hide the interior edges determines whether the outlines are painted
+				 * first or the fill is painted first.
+				 */
 				this.filledPolygons = [];
 				this.outlinePolygons = [];
 				for (var i = 0; i < polygons.length; i++) {
 					this.filledPolygons.push(new Polygon(polygons[i].vertices, this.fillcolour, undefined, this.drawingOptions));
+				}
+				for (var i = 0; i < polygons.length; i++) {
 					this.outlinePolygons.push(new Polygon(polygons[i].vertices, undefined, this.outlinecolours, this.drawingOptions));
 				}
 			}
 		} else {
+			/* Case: the outline doesn't have intersecting edges (or only degenerate ones, i.e. n / star = 2),
+			 * or doesn't have an outline, or doesn't have a fill colour.
+			 * N.B: n / star = 2 is the degenerate case when a polygon is reduced to being a set of unconnected lines.
+			 * Solution: One set of polygons that paint either the fill or the outline (the shape doesn't have both).
+			 */
 			this.filledPolygons = polygons;
 			this.outlinePolygons = [];
 		}	
@@ -134,8 +159,16 @@ func RegularPolygon {
 		}
 
 		var drawingOptions = arguments[argsProcessed + 2];
-		if (typeof(drawingOptions) == "object" && !("join" in drawingOptions)) {
-			drawingOptions.join = "round";
+		if (typeof(drawingOptions) == "object") {
+			if (!("join" in drawingOptions)) {
+				drawingOptions.join = "round";
+			}
+			if (eden.isValidIdentifier(drawingOptions.name)) {
+				var clickSym = root.lookup(drawingOptions.name + "_click");
+				if (clickSym.value() === undefined) {
+					clickSym.assign(false, root.lookup("RegularPolygon"));
+				}
+			}
 		}
 		return new RegularPolygon(x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolours, drawingOptions);
 	}}$;
@@ -173,6 +206,29 @@ RegularPolygon.prototype.draw = function (context) {
 		}
 	}
 }
+
+RegularPolygon.prototype.isHit = function (context, scale, x, y) {
+	var hit;
+	var ratio = this.n / this.star;
+	var limit;
+	if (this.fillcolour !== undefined && this.fillcolour != "transparent" &&
+		this.outlinecolours !== undefined &&
+		ratio != 2 &&
+		(this.star == 1 || ratio != Math.floor(ratio)) &&
+		!this.interiorOutline
+	) {
+		limit = this.filledPolygons.length / 2;
+	} else {
+		limit = this.filledPolygons.length;
+	}
+	for (var i = 0; i < limit; i++) {
+		hit = this.filledPolygons[i].isHit(context, x, y);
+		if (hit) {
+			return true;
+		}
+	}
+	return false;
+};
 
 RegularPolygon.prototype.toString = function () {
 	var s = "RegularPolygon(" +

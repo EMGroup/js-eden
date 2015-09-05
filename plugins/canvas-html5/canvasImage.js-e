@@ -6,7 +6,11 @@
 ##Taints the canvas if the file is located on another domain.
 
 ${{
-CanvasImage = function (dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoothed, file) {
+CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoothed, file) {
+	if (name !== undefined) {
+		this.drawingOptions = {name: name};
+	}
+
 	var temp;
 	if (sx2 !== undefined) {
 		if (sx1 > sx2) {
@@ -44,7 +48,7 @@ CanvasImage = function (dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoothed, f
 	
 	var me = this;
 	
-	this.image.onload = function(){
+	this.image.onload = function() {
 		if (me.sWidth === undefined) {
 			me.sWidth = me.image.width - me.sx;
 		}
@@ -62,8 +66,7 @@ CanvasImage = function (dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoothed, f
 
 		me.loaded = true;
 		for (var pictureObs in me.canvasesToRepaint) {
-			var pictureObsSym = root.lookup(pictureObs);
-			pictureObsSym.jsObservers.refreshView(pictureObsSym, pictureObsSym.value());
+			edenUI.plugins.Canvas2D.drawPictures(pictureObs);
 		}
 	}
 	this.image.src = file;
@@ -73,51 +76,82 @@ CanvasImage = function (dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoothed, f
 func Image {
 	${{
 		var numArgs = arguments.length;
+		var argsProcessed;
+		var name;
+		if (typeof(arguments[0]) == "string") {
+			name = arguments[0];
+			argsProcessed = 1;
+		} else {
+			argsProcessed = 0;
+		}
 
-		var dx = arguments[0];
-		var dy = arguments[1];
+		var dx = arguments[argsProcessed];
+		argsProcessed++;
+		var dy = arguments[argsProcessed];
+		argsProcessed++;
+
 		var dWidth, dHeight, sx1 = 0, sy1 = 0, sx2, sy2, smoothed = true, file;
 
-		if (numArgs > 3) {
-			dWidth = arguments[2];
-			if (numArgs > 4) {
-				dHeight = arguments[3];
-				if (numArgs > 5) {
-					sx1 = arguments[4];
-					if (numArgs > 6) {
-						sy1 = arguments[5];
-						if (numArgs > 7) {
-							sx2 = arguments[6];
-							if (numArgs > 8) {
-								sy2 = arguments[7];
-								if (numArgs > 9) {
-									smoothed = arguments[8];
-								}
-							}
-						}
-					}
-				}
-			}
+		if (numArgs - 1 > argsProcessed) {
+			dWidth = arguments[argsProcessed];
+			argsProcessed++;
+		}
+		if (numArgs - 1 > argsProcessed) {
+			dHeight = arguments[argsProcessed];
+			argsProcessed++;
+		}
+		if (numArgs - 1 > argsProcessed) {
+			sx1 = arguments[argsProcessed];
+			argsProcessed++;
+		}
+		if (numArgs - 1 > argsProcessed) {
+			sy1 = arguments[argsProcessed];
+			argsProcessed++;
+		}
+		if (numArgs - 1 > argsProcessed) {
+			sx2 = arguments[argsProcessed];
+			argsProcessed++;
+		}
+		if (numArgs - 1 > argsProcessed) {
+			sy2 = arguments[argsProcessed];
+			argsProcessed++;
+		}
+		if (numArgs - 1 > argsProcessed) {
+			smoothed = arguments[argsProcessed];
+			argsProcessed++;
 		}
 		file = arguments[numArgs - 1];
-		return new CanvasImage(dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoothed, file);
+		if (eden.isValidIdentifier(name)) {
+			var clickSym = root.lookup(name + "_click");
+			if (clickSym.value() === undefined) {
+				clickSym.assign(false, root.lookup("Image"));
+			}
+		}
+		return new CanvasImage(name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoothed, file);
 	}}$;
 }
 
 ${{
 CanvasImage.prototype.draw = function(context, scale, pictureObs) {
 	if (this.loaded) {
-		context.imageSmoothingEnabled = this.smoothed;
+		var smoothed = this.smoothed;
+		context.mozImageSmoothingEnabled = smoothed;
+		context.msImageSmoothingEnabled = smoothed;
+		context.imageSmoothingEnabled = smoothed;
 		context.drawImage(this.image, this.sx, this.sy, this.sWidth, this.sHeight, this.dx, this.dy, this.dWidth, this.dHeight);
 	} else {
 		this.canvasesToRepaint[pictureObs] = true;
 	}
 };
-}}$;
 
-${{
+CanvasImage.prototype.isHit = function (context, scale, x, y) {
+	return x >= this.dx && x < this.dx + this.dWidth && y >= this.dy && y < this.dy + this.dHeight;
+}
+
 CanvasImage.prototype.toString = function() {
-  return "Image(" + this.dx + ", " + this.dy+ ", " +
+  return "Image(" +
+	Eden.edenCodeForValue(this.name) + ", " +
+	this.dx + ", " + this.dy + ", " +
 	Eden.edenCodeForValue(this.originalDWidth) + ", " +
 	Eden.edenCodeForValue(this.originalDHeight) + ", " +
 	Eden.edenCodeForValue(this.sx) + ", " +

@@ -188,10 +188,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			if (/^(mouse|touch)[A-Z]/.test(name) && Eden.isitSystemObservable(name)) {
 				continue;
 			}
-			if (/_click$/.test(name) && symbol.cached_value === false && symbol.last_modified_by == "HTMLImage") {
-				continue;
-			}
-			if (/_clicked$/.test(name) && symbol.cached_value === false && symbol.last_modified_by == "Button") {
+			if (/_click(ed)?$/.test(name) && symbol.eden_definition === undefined) {
 				continue;
 			}
 			if (/^_View_/.test(name)) {
@@ -199,7 +196,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			}
 			if (/^_view_/.test(name)) {
 				isView = true;
-				if ((!includeViews || name.search("^_view_" + viewToExclude) != -1 || name == "_view_list" || name == "_view_number") &&
+				if ((!includeViews || name.search("^_view_" + viewToExclude) != -1) &&
 					Eden.isitSystemObservable(name) && symbol.definition === undefined)
 				{
 					continue;

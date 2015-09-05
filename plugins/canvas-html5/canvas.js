@@ -35,6 +35,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	contents = {};
 	var canvasNameToElements = {};
 	var pictureObsToViews = {};
+	var viewsToPictureObs = {};
 	var redrawDelay = 40;
 
 	this.drawPictures = function (pictureObs) {
@@ -118,9 +119,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 							} else {
 								context.save();
 								try {
-									me.configureContext(context, scale, picture[i].drawingOptions);
+									var visible = me.configureContext(context, scale, zoom, picture[i].drawingOptions);
 									// expect draw() method to set .elements
-									picture[i].draw(context, scale, pictureObs);
+									if (visible) {
+										picture[i].draw(context, scale, pictureObs);
+									}
 								} catch (e) {
 									if (picture[i] !== undefined) {
 										console.log(e);
@@ -178,12 +181,16 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		context.lineWidth = 2 / scale;
 	}
 	
-	this.configureContext = function (context, scale, options) {
-		if (options === undefined) {
-			return;
+	this.configureContext = function (context, scale, zoom, options) {
+		if (typeof(options) != "object") {
+			return true;
+		}
+		
+		if (options.visible === false) {
+			return false;
 		}
 			
-		if ("dashes" in options && Array.isArray(options.dashes)) {
+		if (Array.isArray(options.dashes)) {
 			context.setLineDash(options.dashes);
 			if ("dashOffset" in options) {
 				context.lineDashOffset = options.dashOffset;
@@ -210,12 +217,21 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			context.globalAlpha = options.opacity;
 		}
 		
-		if ("shadow" in options) {
+		if (typeof(options.shadow) == "object") {
 			context.shadowColor = options.shadow.colour;
-			context.shadowBlur = options.shadow.blur;
-			context.shadowOffsetX = options.shadow.xOffset;
-			context.shadowOffsetY = options.shadow.yOffset;
+			if (options.shadow.scale) {
+				var combinedScale = zoom * scale;
+				context.shadowBlur = options.shadow.blur * combinedScale;
+				context.shadowOffsetX = options.shadow.xOffset * combinedScale;
+				context.shadowOffsetY = options.shadow.yOffset * combinedScale;
+			} else {
+				context.shadowBlur = options.shadow.blur * zoom;
+				context.shadowOffsetX = options.shadow.xOffset * zoom;
+				context.shadowOffsetY = options.shadow.yOffset * zoom;
+			}
 		}
+
+		return true;
 	}
 
 	this.setFillStyle = function (context, style) {
@@ -225,6 +241,110 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			context.fillStyle = style;
 		}
 	};
+
+	this.findZoneHit = function (canvasName, pictureObs, x, y) {
+		var picture = root.lookup(pictureObs).value();
+		if (!Array.isArray(picture)) {
+			return undefined;
+		}
+		var canvas = canvases[canvasName];
+		var context = canvas.getContext("2d");
+		var scale = root.lookup("_view_" + canvasName + "_scale").value();
+
+		for (var i = picture.length - 1; i >= 0; i--) {
+			var drawable = picture[i];
+			if (typeof(drawable) != "object") {
+				continue;
+			}
+			var drawingOptions = drawable.drawingOptions;
+			if (drawingOptions === undefined) {
+				continue;
+			}
+			var id = drawingOptions.name;
+			if (id === undefined) {
+				continue;
+			}
+			var hitTest = drawable.isHit;
+			if (hitTest === undefined) {
+				continue;
+			}
+			context.save();
+			var isHit = drawable.isHit(context, scale, x, y);
+			context.restore();
+			if (isHit) {
+				return id;
+			}
+		}
+		return undefined;
+	}
+
+	this.findZoneHit2 = function (pictureOrView, x, y) {
+		var viewName, pictureObs;
+		if (pictureOrView instanceof Symbol) {
+			pictureObs = pictureOrView.name.slice(1);
+			for (var view in pictureObsToViews[pictureObs]) {
+				//Grab the first view.
+				viewName = view;
+				break;
+			}
+		} else {
+			viewName = pictureOrView;
+			pictureObs = viewsToPictureObs[viewName];
+		}
+		return this.findZoneHit(viewName, pictureObs, x, y);
+	}
+
+	this.findAllZonesHit = function (pictureOrView, x, y) {
+		var viewName, pictureObs, picture;
+		if (pictureOrView instanceof Symbol) {
+			pictureObs = pictureOrView.name.slice(1);
+			for (var view in pictureObsToViews[pictureObs]) {
+				//Grab the first view.
+				viewName = view;
+				break;
+			}
+			picture = pictureOrView.value();
+		} else {
+			viewName = pictureOrView;
+			pictureObs = viewsToPictureObs[viewName];
+			picture = root.lookup(pictureObs).value();
+		}
+
+		if (!Array.isArray(picture)) {
+			return [];
+		}
+
+		var canvas = canvases[viewName];
+		var context = canvas.getContext("2d");
+		var scale = root.lookup("_view_" + viewName + "_scale").value();
+		var zonesHit = [];
+
+		for (var i = 0; i < picture.length; i++) {
+			var drawable = picture[i];
+			if (typeof(drawable) != "object") {
+				continue;
+			}
+			var drawingOptions = drawable.drawingOptions;
+			if (drawingOptions === undefined) {
+				continue;
+			}
+			var id = drawingOptions.name;
+			if (id === undefined) {
+				continue;
+			}
+			var hitTest = drawable.isHit;
+			if (hitTest === undefined) {
+				continue;
+			}
+			context.save();
+			var isHit = drawable.isHit(context, scale, x, y);
+			context.restore();
+			if (isHit) {
+				zonesHit.push(id);
+			}
+		}
+		return zonesHit;
+	}
 
 	this.mouseInfo = {
 		leftButton: false, middleButton: false, rightButton: false, button4: false, button5: false,
@@ -239,6 +359,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			pictureObsToViews[pictureObs] = {};
 		}
 		pictureObsToViews[pictureObs][viewName] = true;
+		viewsToPictureObs[viewName] = pictureObs;
 
 		edenUI.eden.root.lookup(pictureObs).addJSObserver("refreshView", function (symbol, value) {
 			me.drawPictures(pictureObs);
@@ -298,11 +419,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		}
 
 		jqCanvas.on("mousedown", function(e) {
-			var autocalcSym = root.lookup("autocalc");
-			var autocalcValueOnEntry = autocalcSym.value();
-			var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
 			var followMouse = root.lookup("mouseFollow").value();
-			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+			root.beginAutocalcOff();
 
 			var mouseInfo = me.mouseInfo;
 			mouseInfo.insideCanvas = true;
@@ -358,16 +476,14 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				var mousePos = root.lookup('mousePosition').value();
 				root.lookup('mouseDownWindow').assign(canvasName, Symbol.hciAgent, followMouse);
 				root.lookup('mouseDown').assign(mousePos, Symbol.hciAgent, followMouse);
+				var hitZone = root.lookup("mouseZone").value();
+				root.lookup("mouseDownZone").assign(hitZone, Symbol.hciAgent, followMouse);
 			}
-			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
+			root.endAutocalcOff();
 
 		}).on("mouseup",function(e) {
-			var autocalcSym = root.lookup("autocalc");
-			var autocalcValueOnEntry = autocalcSym.value();
-			var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
-
 			var followMouse = root.lookup("mouseFollow").value();
-			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+			root.beginAutocalcOff();
 
 			var mouseInfo = me.mouseInfo;
 			mouseInfo.insideCanvas = true;
@@ -406,6 +522,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				var mousePos = root.lookup('mousePosition').value();
 				root.lookup("mouseButtons").assign("", Symbol.hciAgent, followMouse);
 				root.lookup('mouseUp').assign(mousePos, Symbol.hciAgent, followMouse);
+				edenUI.plugins.Canvas2D.endClick();
 			} else {
 				var buttonsStr = "|";
 				if (mouseInfo.leftButton) {
@@ -425,7 +542,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				}
 				root.lookup("mouseButtons").assign(buttonsStr, Symbol.hciAgent, followMouse);
 			}
-			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
+			root.endAutocalcOff();
 
 		}).on("contextmenu", function (e) {
 			if (!root.lookup("mouseContextMenuEnabled").value()) {
@@ -450,6 +567,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			}
 			var e2 = e.originalEvent;
 			var followMouse = root.lookup("mouseFollow").value();
+			root.beginAutocalcOff();
+
 			var direction;
 			if (e2.deltaY !== 0) {
 				if (!e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) {
@@ -483,9 +602,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				touchScrollXSym.assign(touchScrollXValue, Symbol.hciAgent, followMouse);
 				root.lookup("touchScrollXDir").assign(direction, Symbol.hciAgent, followMouse);
 			}
+			root.endAutocalcOff();
 
 		}).on("mouseout", function (e) {
 			me.mouseInfo.insideCanvas = false;
+			var followMouse = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(undefined, Symbol.hciAgent, followMouse);
 		
 		}).on("mouseenter", function (e) {
 			var mouseInfo = me.mouseInfo;
@@ -516,12 +638,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				var buttonsSym = root.lookup("mouseButtons");
 				var prevButtons = buttonsSym.value();
 				if (buttonsStr != prevButtons) {
-					var autocalcSym = root.lookup("autocalc");
-					var autocalcValueOnEntry = autocalcSym.value();
-					var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
-
 					var followMouse = root.lookup("mouseFollow").value();
-					autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+					root.beginAutocalcOff();
 
 					buttonsSym.assign(buttonsStr, Symbol.hciAgent, followMouse);
 					root.lookup("mouseButton").assign("Enter window", Symbol.hciAgent, followMouse);				
@@ -534,31 +652,26 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 						root.lookup("mouseDown").assign(undefined, Symbol.hciAgent, followMouse);
 						root.lookup("mouseDownWindow").assign(undefined, Symbol.hciAgent, followMouse);
 					}
-					autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
+					root.endAutocalcOff();
 				}
 			}
 		
 		}).on("mousemove",function(e) {
-			var autocalcSym = root.lookup("autocalc");
-			var autocalcValueOnEntry = autocalcSym.value();
-			var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
-
 			var followMouse = root.lookup("mouseFollow").value();
-			autocalcSym.assign(0, Symbol.hciAgent, followMouse);
+			root.beginAutocalcOff();
 
-			var mousePositionSym = root.lookup('mousePosition');
-			
-			var x, y;
+			var mousePositionSym = root.lookup('mousePosition');			
 			var scale = root.lookup("_view_" + canvasName + "_scale").value();
 			var zoom = root.lookup("_view_" + canvasName + "_zoom").value();
 			var combinedScale = scale * zoom;
+			var x, y;
+
 			if (me.mouseInfo.capturing) {
 				var previousPosition = mousePositionSym.value();
 				var e2 = e.originalEvent;
 				x = previousPosition.x + e2.movementX / combinedScale;
 				y = previousPosition.y + e2.movementY / combinedScale;
 			} else {
-				//pageX & pageY are deprecated in DOM but still contemporary for jQuery events.
 				var windowPos = $(this).offset();
 				x = (e.pageX - Math.round(windowPos.left)) / combinedScale;
 				y = (e.pageY - Math.round(windowPos.top)) / combinedScale;
@@ -572,7 +685,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 			root.lookup('mouseWindow').assign(canvasName, Symbol.hciAgent, followMouse);
 			mousePositionSym.assign(mousePos, Symbol.hciAgent, followMouse);
-			autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
+
+			var hitZone = me.findZoneHit(canvasName, pictureObs, x, y);
+			root.lookup("mouseZone").assign(hitZone, Symbol.hciAgent, followMouse);
+			
+			root.endAutocalcOff();
 
 		}).on("keyup", function (e) {
 			var keyCode = e.which;
@@ -610,6 +727,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				delete canvases[canvasName];
 				delete contents[canvasName];
 				delete pictureObsToViews[pictureObs][canvasName];
+				delete viewsToPictureObs[canvasName];
 			},
 			resize: function (width, height) {
 				var redraw = false;
@@ -637,51 +755,24 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		};
 	}
 
-	//Describes observables whose values will change when the left mouse button is released.
-	var observablesMouseDown = {};
+	root.lookup("mouseDownZone").addJSObserver("recordClick", function (symbol, zone) {
+		if (eden.isValidIdentifier(zone)) {
+			root.lookup(zone + "_click").assign(true, Symbol.hciAgent);
+		}
+	});
 	
-	/**Sets the value of an observable (e.g. when the mouse button is pressed down) and schedules
-	 * another value to be assigned when the left mouse button is later released.
-	 * @param {String} name The name of the observable.
-	 * @param {*} valueDown The value to assign to the observable immediately.
-	 * @param {*} valueUp The value to assign when the mouse button is released.
-	 * @param {Symbol} agent The agent to perform the assignment on behalf of.
-	 */
-	this.setMouseDown = function (name, valueDown, valueUp, agent) {
-		var followMouse = root.lookup("mouseFollow").value();
-		root.lookup(name).assign(valueDown, agent, followMouse);
-		observablesMouseDown[name] = {agent: agent, valueOnRelease: valueUp};
-	}
-
-	/**Schedules a future assignment to an observable when the left mouse button is released.
-	 * @param {String} name The name of the observable.
-	 * @param {*} valueUp The value to assign when the mouse button is released.
-	 * @param {Symbol} agent The agent to perform the assignment on behalf of.
-	 */
-	this.scheduleMouseUp = function (name, valueUp, agent) {
-		observablesMouseDown[name] = {agent: agent, valueOnRelease: valueUp};
-	}
-
-	 /**Sets the value of an observable and cancels the assignment previously scheduled to happen
-	 * when the left mouse button is released.
-	 * @param {String} name The name of the observable.
-	 * @param {*} valueUp The value to assign when the mouse button is released.
-	 * @param {Symbol} agent The agent to perform the assignment on behalf of.
-	 */
-	this.setMouseUp = function (name, valueUp, agent) {
-		var followMouse = root.lookup("mouseFollow").value();
-		root.lookup(name).assign(valueUp, agent, followMouse);
-		delete observablesMouseDown[name];
-	}
+	this.endClick = function () {
+		var zoneDown = root.lookup("mouseDownZone").value();
+		if (eden.isValidIdentifier(zoneDown)) {
+			root.lookup(zoneDown + "_click").assign(false, Symbol.hciAgent);
+		}
+	};
 
 	//To catch when a mouse button is pressed down over a canvas window and then released outside of any
 	//canvas window.
 	document.addEventListener("mouseup", function (e) {
-		var autocalcSym = root.lookup("autocalc");
-		var autocalcValueOnEntry = autocalcSym.value();
-		var autocalcLastModified = autocalcSym.last_modified_by === undefined? undefined : {name: autocalcSym.last_modified_by};
-		autocalcSym.assign(0, Symbol.hciAgent, followMouse);
 		var followMouse = root.lookup("mouseFollow").value();
+		root.beginAutocalcOff();
 
 		var mouseInfo = me.mouseInfo;
 		if (!mouseInfo.insideCanvas) {
@@ -725,18 +816,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				}
 				root.lookup('mouseUp').assign(undefined, Symbol.hciAgent, followMouse);
 				root.lookup('mouseWindow').assign(undefined, Symbol.hciAgent, followMouse);
+				edenUI.plugins.Canvas2D.endClick();
 			}
 		}
-
-
-		if (!mouseInfo.leftButton) {
-			for (var observable in observablesMouseDown) {
-				var clickDetails = observablesMouseDown[observable];
-				root.lookup(observable).assign(clickDetails.valueOnRelease, clickDetails.agent, followMouse);
-			}
-			observablesMouseDown = {};
-		}
-		autocalcSym.assign(autocalcValueOnEntry, autocalcLastModified, followMouse);
+		root.endAutocalcOff();
 	});
 
 	document.addEventListener("mousedown", function (e) {

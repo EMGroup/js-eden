@@ -106,7 +106,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		hideMenu();
 		var root = edenUI.eden.root;
 		var followMouse = root.lookup("mouseFollow").value();
-		var viewNumberSym = root.lookup("_view_number");
+		var viewNumberSym = root.lookup("_views_number_created");
 		var viewNumber = viewNumberSym.value() + 1;
 		viewNumberSym.assign(viewNumber, Symbol.hciAgent, true);
 		if (followMouse) {
@@ -148,14 +148,14 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	function hoverFunc(viewName) {
 		return {
 			mouseover: function (e) {
-				edenUI.highlight(viewName);
+				edenUI.highlightView(viewName, true);
 			},
 			mouseout: function (e) {
-				edenUI.stopHighlight(viewName);
+				edenUI.stopHighlightingView(viewName, true);
 			},
 			click: function (e) {
 				e.preventDefault();
-				edenUI.stopHighlight();
+				edenUI.stopHighlightingView(viewName, true);
 				edenUI.showView(viewName);
 				hideMenu();
 			}

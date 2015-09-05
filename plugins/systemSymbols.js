@@ -31,6 +31,7 @@ Eden.systemObservableNames = {
 	"mouseDoubleClicks": true,
 	"mouseDown": true,
 	"mouseDownWindow": true,
+	"mouseDownZone": true,
 	"mousePosition": true,
 	"mousePressed": true,
 	"mouseUp": true,
@@ -39,6 +40,7 @@ Eden.systemObservableNames = {
 	"mouseWindow": true,
 	"mouseX": true,
 	"mouseY": true,
+	"mouseZone": true,
 	"randomGeneratorState": true,
 	"randomIndex": true,
 	"screenHeight": true,
@@ -47,6 +49,10 @@ Eden.systemObservableNames = {
 	"touchScrollXDir": true,
 	"_views_frame_width": true,
 	"_views_frame_height": true,
+	"_views_list": true,
+	"_views_number_created": true,
+	"_views_unit_x": true,
+	"_views_unit_y": true,
 };
 
 Eden.systemAgentNames = {
@@ -64,6 +70,7 @@ Eden.systemAgentNames = {
 	"eager": true,
 	"error": true,
 	"hideView": true,
+	"highlightView": true,
 	"html": true,
 	"moveView": true,
 	"patch": true,
@@ -73,6 +80,7 @@ Eden.systemAgentNames = {
 	"setProperty": true,
     "showObservables": true,
 	"showView": true,
+	"stopHighlightingView": true,
 	"todo": true,
 	"touch": true,
 	"unbind": true,
@@ -174,6 +182,7 @@ Eden.systemFunctionNames = {
 	"isPointer": true,
 	"isProc": true,
 	"isString": true,
+	"isValue": true,
 	"length": true,
 	"ln": true,
 	"log": true,
@@ -219,11 +228,14 @@ Eden.systemFunctionNames = {
 	"tail": true,
 	"tan": true,
 	"textWidth": true,
+	"textHeight": true,
 	"time": true,
 	"trim": true,
 	"type": true,
 	"uppercase": true,
 	"xorshiftRandomGenerator": true,
+	"zoneOnTopAt": true,
+	"zonesAt" : true,
 };
 
 Eden.symbolCategories = {};
@@ -244,6 +256,7 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"mouseDoubleClicks": true,
 		"mouseDown": true,
 		"mouseDownWindow": true,
+		"mouseDownZone": true,
 		"mouseFollow": true,
 		"mousePosition": true,
 		"mousePressed": true,
@@ -254,6 +267,7 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"mouseWindow": true,
 		"mouseX": true,
 		"mouseY": true,
+		"mouseZone": true,
 		"picture": true,
 		"radiansPerUnit": true,
 		"touchScrollX": true,
@@ -309,7 +323,10 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"Text": true,
 		"Textbox": true,
 		"textWidth": true,
+		"textHeight": true,
 		"Video": true,
+		"zoneOnTopAt": true,
+		"zonesAt" : true,
 	}
 };
 

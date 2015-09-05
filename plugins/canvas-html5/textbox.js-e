@@ -37,14 +37,11 @@ func Textbox { ${{
 }}$; }
 
 ${{
-Textbox.prototype.draw = function(context) {
-	var me = this;
-	var name = this.name;
-	var valueSymbol = root.lookup(name + "_value");
-	var value = valueSymbol.value();
-	var agent = root.lookup("Textbox");
-	
-	if(this.elements === undefined){
+Textbox.prototype.draw = function(context) {	
+
+	if(this.elements === undefined) {
+		var me = this;
+		var name = this.name;
 
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
 		var jQuery;
@@ -53,22 +50,36 @@ Textbox.prototype.draw = function(context) {
 		} else {
 			jQuery = $("<textarea " + disabled + " style=\"position: absolute\" />");
 		}
+
 		var element = jQuery.get(0);
-		
+		var valueSymbol = root.lookup(name + "_value");
+		var value = valueSymbol.value();
 		if (value === undefined) {
-			valueSymbol.assign("", agent);
+			valueSymbol.assign("", root.lookup("Textbox"));
 		} else {
 			element.value = value;
 		}
-
-		jQuery.change(function(event) {
-			root.lookup(name + "_value").assign(event.target.value, agent, true);
-		});
-		this.elements = [element];
-
 		valueSymbol.addJSObserver("updateTextbox", function (obs, value) {
 			me.elements[0].value = value;
 		});
+
+		jQuery
+		.on("input", function(event) {
+			root.lookup(name + "_value").assign(event.target.value, Symbol.hciAgent, true);
+		})
+		.on("mousedown", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseDownZone").assign(undefined, Symbol.hciAgent, mouseFollow);
+		})
+		.on("mouseup", function () {
+			edenUI.plugins.Canvas2D.endClick();
+		})
+		.on("mouseenter", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(name, Symbol.hciAgent, mouseFollow);
+		});
+
+		this.elements = [element];
   }
 };
 

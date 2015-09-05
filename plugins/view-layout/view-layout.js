@@ -33,7 +33,7 @@ EdenUI.plugins.WindowLayout = function(edenUI, success){
 		var basew = 100;
 		
 		var posDia = [];
-		var views = root.lookup("_view_list").value();
+		var views = root.lookup("_views_list").value();
 		var thisViewName = this.name;
 
 		views.forEach(function(e){

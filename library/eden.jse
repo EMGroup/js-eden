@@ -165,7 +165,7 @@ func forgetAll {
 			caseSensitive = true;
 		}
 		
-		if (arguments.length >= 2 && obsToDelete !== undefined) {
+		if (obsToDelete !== undefined && arguments.length > 2) {
 			eden.error(new Error("forgetAll: Cannot specify case sensitivity when selecting using a list."), "error");
 			return [[], undefined, []];
 		}
@@ -176,6 +176,8 @@ func forgetAll {
 				return [[], undefined, []];
 			}
 			requireConfirm = arguments[2];
+		} else if (obsToDelete !== undefined && arguments.length == 2) {
+			requireConfirm = arguments[1];
 		} else {
 			requireConfirm = true;
 		}
@@ -329,11 +331,7 @@ func forgetAll {
 		if (confirmed) {
 			var noop = function () { };
 			var wasInInitialState = eden.isInInitialState();
-			var autocalcSym = root.lookup("autocalc");
-			var autoCalcEnabledOnEntry = autocalcSym.value();
-			if (autoCalcEnabledOnEntry) {
-				autocalcSym.assign(0, this);
-			}
+			root.beginAutocalcOff();
 
 			for (name in reset) {
 				eden.execute(reset[name], "forgetAll", "", includeAgent, noop);
@@ -352,9 +350,7 @@ func forgetAll {
 			if (wasInInitialState) {
 				eden.captureInitialState(); //Re-assert still in initial state.		
 			}
-			if (autoCalcEnabledOnEntry) {
-				autocalcSym.assign(1, this);
-			}
+			root.endAutocalcOff();
 			return [namesToDelete, unableToDelete, resetList];
 		} else {
 			return [[], unableToDelete, []];
@@ -428,10 +424,7 @@ proc todo {
 
 proc touch {
 	${{
-		var autocalcEnabledOnEntry = root.autocalc_state;
-		if (autocalcEnabledOnEntry) {
-			root.autocalc(false);
-		}
+		root.beginAutocalcOff();
 		for (var i = 0; i < arguments.length; i++) {
 			if (arguments[i] instanceof Symbol) {
 				root.expireSymbol(arguments[i]);
@@ -439,9 +432,7 @@ proc touch {
 				eden.error(new Error("touch: Argument " + (i+1) + " must be a pointer, not a " + typeof(arguments[i])), "error");
 			}
 		}
-		if (autocalcEnabledOnEntry) {
-			root.autocalc(true);
-		}
+		root.endAutocalcOff();
 	}}$;
 }
 
@@ -467,11 +458,11 @@ proc arrangeWindows {
 	auto name, curr_x, i;
 
 	if (windowOrder == @) {
-		windowOrder = _view_list;
+		windowOrder = _views_list;
 	} else  {
-		for (i =  1; i <= _view_list#; i++) {
-			if (indexOf(_view_list[i], windowOrder) == 0) {
-				windowOrder = windowOrder // [_view_list[i]];
+		for (i =  1; i <= _views_list#; i++) {
+			if (indexOf(_views_list[i], windowOrder) == 0) {
+				windowOrder = windowOrder // [_views_list[i]];
 			}
 		}
 	}
@@ -511,8 +502,8 @@ if (initialViews == "" || initialViews == "default") {
 	createView("projects", "ProjectList");
 	_view_projects_x = 0;
 	_view_projects_y = 0;
-	_view_projects_width = 220;
-	_view_projects_height = screenHeight - _views_frame_height;
+	_view_projects_width = 210;
+	_view_projects_height = screenHeight;
 	createCanvas("picture");
 	_view_picture_x = _view_projects_width + _views_frame_width;
 	_view_picture_y = 0;
@@ -528,9 +519,9 @@ if (initialViews == "" || initialViews == "default") {
 		##Position input window underneath the canvas.
 		_view_input_x = _view_picture_x;
 		_view_input_width = _view_picture_width;
-		_view_picture_height = min(_view_picture_height, screenHeight - (170 + 2 * _views_frame_height));
+		_view_picture_height = min(_view_picture_height, screenHeight - (180 + 2 * _views_frame_height));
 		_view_input_y = _view_picture_height + _views_frame_height;
-		_view_input_height = max(170, screenHeight - _view_input_y - _views_frame_height);
+		_view_input_height = max(180, screenHeight - _view_input_y - _views_frame_height);
 	}
 }
 forget(&initialViews);
