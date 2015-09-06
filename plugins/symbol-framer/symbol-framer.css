@@ -1,0 +1,38 @@
+.symbolframer-results {
+	margin: 0px;
+	overflow-x: hidden;
+}
+
+div#mined_dialog.ui-dialog-content {
+	padding-top: 5px;
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+textarea.mine_edit_box {
+	margin: 3px;
+	width: 90%;
+	font-family: monospace;
+	resize: none;
+	outline: none !important;
+    border-color: #719ECE;
+    box-shadow: 0 0 10px #719ECE;
+}
+
+.symbolframer-result-element {
+	padding: 3px;
+	margin-bottom: 3px;
+	cursor: pointer;
+	min-height: 20px;
+	line-height: 20px;
+	overflow: hidden;
+	font-size: 8pt;
+	font-family: monospace;
+	white-space: nowrap;
+	background-color: #fafafa;
+}
+
+.symbolframer-tooltip {
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}

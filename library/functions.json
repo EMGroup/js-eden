@@ -641,6 +641,14 @@
 			"return": "",
 			"description": ""
 		},
+		"substitute": {
+			"parameters": {
+				"string_with_placeholders": "",
+				"object_or_list_or_value1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"substr": {
 			"parameters": {
 				"string": "",

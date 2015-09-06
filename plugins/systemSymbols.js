@@ -49,6 +49,10 @@ Eden.systemObservableNames = {
 	"touchScrollXDir": true,
 	"_views_frame_width": true,
 	"_views_frame_height": true,
+	"_views_list": true,
+	"_views_number_created": true,
+	"_views_unit_x": true,
+	"_views_unit_y": true,
 };
 
 Eden.systemAgentNames = {
@@ -66,6 +70,7 @@ Eden.systemAgentNames = {
 	"eager": true,
 	"error": true,
 	"hideView": true,
+	"highlightView": true,
 	"html": true,
 	"moveView": true,
 	"patch": true,
@@ -75,6 +80,7 @@ Eden.systemAgentNames = {
 	"setProperty": true,
     "showObservables": true,
 	"showView": true,
+	"stopHighlightingView": true,
 	"todo": true,
 	"touch": true,
 	"unbind": true,
@@ -217,6 +223,7 @@ Eden.systemFunctionNames = {
 	"sqrt": true,
 	"str": true,
 	"sublist": true,
+	"substitute": true,
 	"substr": true,
 	"sum": true,
 	"tail": true,

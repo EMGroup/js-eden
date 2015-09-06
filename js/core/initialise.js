@@ -93,6 +93,13 @@ function initialiseJSEden() {
 
 	$(document).ready(function () {
 		edenUI = new EdenUI(eden);
+		$(document)
+		.on('keydown', null, 'ctrl+m', function () {
+			edenUI.cycleNextView();
+		})
+		.on('keyup', null, 'ctrl', function () {
+			edenUI.stopViewCycling();
+		});
 		
 		window.onbeforeunload = function () {
 			var prompt = edenUI.getOptionValue('optConfirmUnload');

@@ -6,7 +6,10 @@
  */
 
 (function () {
-	//Prevent jQuery from cancelling attempts to reposition a dialog so that it isn't fully within the boundaries of the window.
+
+	/*Prevent jQuery from cancelling attempts to reposition a dialog so that it isn't fully within
+	 * the boundaries of the browser window.
+	 */
 	$.extend($.ui.dialog.prototype.options.position, { collision: 'none' });
 	
 	/**
@@ -30,45 +33,19 @@
 		return $("#"+viewName+"-dialog");
 	}
 
+	//Configuration options
+	//30 pixels seems like a good grid cell width on a display 1920 pixels wide.
+	EdenUI.prototype.gridSizeX = Math.round(window.outerWidth * 30 / 1920);
+	EdenUI.prototype.gridSizeY = Math.round(((window.innerHeight / window.outerHeight) * (window.outerHeight / 1920)) * 30);
+	
 	//Dimensions of various UI components.
 	EdenUI.prototype.menuBarHeight = 30;
 	EdenUI.prototype.dialogBorderWidth = 3.133;
-	EdenUI.prototype.titleBarHeight = 33.6563 + EdenUI.prototype.dialogBorderWidth;
-	EdenUI.prototype.scrollBarYSize = 17;
+	EdenUI.prototype.titleBarHeight = 34.659 + EdenUI.prototype.dialogBorderWidth;
+	EdenUI.prototype.scrollBarYSize = 14 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.dialogFrameWidth = EdenUI.prototype.scrollBarYSize + 2 * EdenUI.prototype.dialogBorderWidth;
-	EdenUI.prototype.dialogFrameHeight = EdenUI.prototype.titleBarHeight;
-
-	/**
-	 * Stores plugins that can be loaded. Plugins will modify this directly in
-	 * order for them to be loaded later.
-	 */
-	EdenUI.plugins = {};
-
-	/**
-	 * Load a plugin if it is not already loaded. The plugin must have been
-	 * registered first.
-	 *
-	 * @param {string} name Name of the plugin to load.
-	 * @param {function()?} success
-	 */
-	EdenUI.prototype.loadPlugin = function (name, agent, success) {
-		if (arguments.length === 2) {
-			success = agent;
-			agent = {name: '/loadPlugin'};
-		}
-
-		var me = this;
-		var wrappedSuccess = function () {
-			me.emit('loadPlugin', [name]);
-			success && success.call(agent);
-		}
-
-		if (this.plugins[name] === undefined) {
-			this.plugins[name] = new EdenUI.plugins[name](this, wrappedSuccess);
-		} else {
-			wrappedSuccess();
-		}
-	};
+	EdenUI.prototype.dialogFrameHeight = EdenUI.prototype.titleBarHeight + EdenUI.prototype.dialogBorderWidth;
+	EdenUI.prototype.bottomBarHeight = 34.906;
 
 	/**
 	 * A view is a window which appears in the JsEden UI.
@@ -97,6 +74,7 @@
 		
 		if (this.activeDialogs[name] !== undefined) {
 			this.showView(name);
+			this.brieflyHighlightView(name);
 			return this.viewInstances[name];
 		}
 
@@ -119,8 +97,8 @@
 		} else {
 			titleBarAction = "maximize";
 		}
-		dialog(name)
-		.dialog({
+		var diag = dialog(name);
+		diag.dialog({
 			closeOnEscape: false,
 			draggable: true,
 			position: position,
@@ -155,12 +133,20 @@
 			},
 			restore: function (event) {
 				$(event.target).dialog('moveToTop');
+				me.brieflyHighlightView(event.target.id.slice(0,-7));
 			}
 		});
 		this.activeDialogs[name] = type;
-		this.emit('createView', [name, type]);
-
-		var diag = dialog(name);
+		var dialogWindow = this.getDialogWindow(name);
+		dialogWindow.draggable("option", {
+			grid: [this.gridSizeX, this.gridSizeY]
+		});
+		dialogWindow.resizable("option", {
+			grid: [this.gridSizeX, this.gridSizeY]
+		});
+		if (viewData.pinned) {
+			this.pinView(name);
+		}
 		
 		/* Initialize observables
 		 * _view_xxx_width and _view_xxx_height are the width and height respectively of the usable
@@ -227,8 +213,8 @@
 				'proc _View_'+name+'_size : _view_'+name+'_width,_view_'+name+'_height {\n' +
 					'${{ edenUI.resizeView("'+name+'"); }}$; \n' +
 				'}; \
-				if (_view_list == @) { _view_list = []; } \
-				append _view_list, "'+name+'";';
+				if (_views_list == @) { _views_list = []; } \
+				append _views_list, "'+name+'";';
 
 			if (position) {
 				code += '_view_'+name+'_position = [\"'+position.join('\", \"')+'\"];\n';
@@ -239,6 +225,7 @@
 
 		// Now construct eden agents and observables for dialog control.
 		this.eden.execute(viewEdenCode());
+		this.emit('createView', [name, type]);
 		return viewData;
 	};
 
@@ -293,7 +280,7 @@
 		delete this.activeDialogs[name];
 		delete this.viewInstances[name];
 		
-		var viewListSym = root.lookup("_view_list");
+		var viewListSym = root.lookup("_views_list");
 		var viewList = viewListSym.value();
 		if (Array.isArray(viewList)) {
 			var index = viewList.indexOf(name);
@@ -323,9 +310,52 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.showView = function (name) {
-		dialog(name).dialog('open').dialog('moveToTop').dialogExtend('restore');
+		var diag = dialog(name);
+		diag.dialog('open').dialog('moveToTop');
+		if (diag.dialogExtend("state") != "normal") {
+			diag.dialogExtend('restore');
+		}
 		return this.activeDialogs[name];
 	};
+
+	/**Highlights a view until the stopHighlightingView method is called.
+	 * N.B. More than one view can be highlighted simultaneously, but only one can be raised.
+	 * @param {string} name The name of the view that should become the currently highlighted view.
+	 * @param {boolean} raise Whether or not display the view (if it is not already displayed) and
+	 * ensure that it is not obscured by any other views.
+	 */
+	EdenUI.prototype.highlightView = function (name, raise) {
+		if (raise) {
+			this.windowHighlighter.highlight(name);
+		} else {
+			var element = this.getDialogContent(name).data('dialog-extend-minimize-controls') || this.getDialogWindow(name);
+			element.addClass("window-highlighted");
+		}
+	};
+
+	/**Removes the highlighting effect from a view that was previously highlighted.  If the
+	 * view no longer highlighted is the raised one then it will no longer be raised and will return
+	 * to its original position in the UI.
+	 */
+	EdenUI.prototype.stopHighlightingView = function (name, wasRaised) {
+		if (wasRaised) {
+			this.windowHighlighter.stopHighlight(name);
+		} else {
+			var element = this.getDialogContent(name).data('dialog-extend-minimize-controls') || this.getDialogWindow(name);
+			element.removeClass("window-highlighted");
+		}
+	};
+
+	/**Momentarily provides a visual cue to direct the user's gaze towards a particular view.
+	 * @param {string} name The name of the view to draw attention to.
+	 */
+	EdenUI.prototype.brieflyHighlightView = function (name) {
+		var dialogWindow = dialog(name).parent();
+		dialogWindow.addClass("window-activated");
+		setTimeout(function () {
+			dialogWindow.removeClass("window-activated");
+		}, 600);
+	}
 
 	/**
 	 * Hide the window for a view.
@@ -351,6 +381,10 @@
 		if (hide == "true") {
 			this.hideView(name);
 		} else {
+			if (!(name in this.viewInstances)) {
+				//View has been destroyed or never existed.
+				return;
+			}
 			dialog(name).dialogExtend('minimize');
 		}
 	};
@@ -361,12 +395,18 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.moveView = function (name) {
-		var x = view(name, 'x').value();
-		var y = view(name, 'y').value();
+		var xSym = view(name, 'x');
+		var ySym = view(name, 'y');
+		var x = xSym.value();
+		var y = ySym.value();
+		var realX = Math.round(x / this.gridSizeX) * this.gridSizeX;
+		var realY = Math.round(y / this.gridSizeY) * this.gridSizeY;
+		xSym.cached_value = realX;
+		ySym.cached_value = realY;
 		if (this.plugins.MenuBar) {
-			y = y  + this.menuBarHeight;
+			realY = realY  + this.menuBarHeight;
 		}
-		dialog(name).parent().offset({left: x, top: y});
+		dialog(name).parent().offset({left: realX, top: realY});
 	};
 
 	/**
@@ -376,28 +416,93 @@
 	 */
 	EdenUI.prototype.resizeView = function (name) {
 		var diag = dialog(name);
-		var oldWidth = diag.dialog("option", "width");
-		var oldHeight = diag.dialog("option", "height");
-		var newWidth = view(name, 'width').value();
-		var newHeight = view(name, 'height').value();
-		var resized = false;
-
-		if (newWidth != oldWidth) {
-			diag.dialog("option", "width", newWidth + this.scrollBarYSize);
-			resized = true;
+		var position = diag.parent().position();
+		var left = position.left;
+		var top = position.top;
+		var widthSym = view(name, 'width');
+		var newWidth = widthSym.value();
+		var heightSym = view(name, 'height');
+		var newHeight = heightSym.value();
+		var right = left + newWidth + this.scrollBarYSize + this.dialogBorderWidth;
+		var bottom = top + newHeight + this.titleBarHeight - 1;
+		var xMax = window.innerWidth;
+		var yMax = window.innerHeight;
+		var bottomBarY;
+		if (edenUI.getOptionValue("optHideOnMinimize") == "true") {
+			bottomBarY = yMax;
+		} else {
+			bottomBarY = yMax - this.bottomBarHeight;			
 		}
+		var hciName = Symbol.hciAgent.name;
 
-		if (newHeight != oldHeight) {
-			diag.dialog("option", "height", newHeight + this.titleBarHeight);
-			resized = true;
-		}
-
-		if (resized) {
-			var viewData = this.viewInstances[name];
-			if ("resize" in viewData) {
-				viewData.resize(newWidth, newHeight);
+		//Round the width.  For some reason the width set by jquery.ui isn't always aligned to the grid.
+		var adjustedWidth = Math.round((newWidth + this.scrollBarYSize + this.dialogBorderWidth) / this.gridSizeX) * this.gridSizeX - 2 * this.dialogBorderWidth;
+		if (widthSym.last_modified_by != hciName) {
+			if (adjustedWidth < newWidth + this.scrollBarYSize) {
+				//...but if the width was set by EDEN code instead of the UI then don't make the window narrower than the width requested.
+				adjustedWidth = adjustedWidth + this.gridSizeX;
+			}
+			if (right <= xMax && left + adjustedWidth + this.dialogBorderWidth > xMax) {
+				//...and don't go off of the screen (unless originally requested).
+				adjustedWidth = xMax - this.dialogBorderWidth - left;
+			}
+		} else {
+			// When resizing is performed by dragging in the UI:
+			if (left + adjustedWidth + this.dialogBorderWidth > xMax + document.documentElement.scrollLeft) {
+				//Snap to the right edge of the browser window.
+				adjustedWidth = xMax - this.dialogBorderWidth - left + document.documentElement.scrollLeft;
 			}
 		}
+		newWidth = adjustedWidth - this.scrollBarYSize;
+		diag.dialog("option", "width", adjustedWidth);
+
+		//Round the height.  For some reason the height set by jquery.ui isn't always aligned to the grid.
+		var adjustedHeight = Math.round((newHeight + this.titleBarHeight) / this.gridSizeY) * this.gridSizeY;
+		if (heightSym.last_modified_by != hciName) {
+			if (adjustedHeight < newHeight + this.titleBarHeight) {
+				//...but if the height was set by EDEN code instead of the UI then don't make the window shorter than the height requested.
+				adjustedHeight = adjustedHeight + this.gridSizeY;
+			}
+			if (bottom <= bottomBarY && top + adjustedHeight > bottomBarY) {
+				// ... and don't go into the minimized windows area (unless originally requested).
+				adjustedHeight = bottomBarY - top;
+			} else if (bottom <= yMax && top + adjustedHeight > yMax) {
+				// ... and don't go off the screen (unless originally requested).
+				adjustedHeight = yMax - top;
+			}
+		} else {
+			// When resizing is performed by dragging in the UI:
+			if (top + adjustedHeight > bottomBarY && top + adjustedHeight < yMax) {
+				//Snap to align with the minimized windows area.
+				adjustedHeight = bottomBarY - top;
+			} else if (top + adjustedHeight > yMax + document.documentElement.scrollTop) {
+				//Snap to align with the bottom of the browser window.
+				adjustedHeight = yMax - top + document.documentElement.scrollTop;
+			}
+		}
+		newHeight = adjustedHeight - this.titleBarHeight;
+		diag.dialog("option", "height", adjustedHeight);
+
+		widthSym.cached_value = newWidth;
+		heightSym.cached_value = newHeight;
+		var viewData = this.viewInstances[name];
+		if ("resize" in viewData) {
+			viewData.resize(newWidth, newHeight);
+		}
+	};
+
+	/**Makes the view less likely to be obscured by other views/other page content.
+	 * @param name The view's name.
+	 */
+	EdenUI.prototype.pinView = function (name) {
+		this.getDialogWindow(name).addClass("ui-front");
+	};
+
+	/**Reduce a view's importance to the same status as other windows.
+	 * @param name The view's name.
+	 */
+	EdenUI.prototype.unpinView = function (name) {
+		this.getDialogWindow(name).removeClass("ui-front");
 	};
 
 	EdenUI.prototype.newProject = function () {
@@ -467,7 +572,8 @@
 			open: function () {
 				$(this).parent().find("button")[defaultOptionNum].focus();				
 			}
-		});
+		})
+		dialog.parent().addClass("ui-front");
 	}
 
 }());

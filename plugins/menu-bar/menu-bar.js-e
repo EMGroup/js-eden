@@ -1,4 +1,4 @@
-_view_number = 0;
+_views_number_created = 0;
 _menubar_status = "";
 
 ${{

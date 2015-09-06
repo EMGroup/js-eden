@@ -10,7 +10,8 @@
 %s JS
 %x D
 %x QUOTE
-%s LINECOMMENT
+%x MULTILINE
+%x LINECOMMENT
 %s BLOCKCOMMENT
 %%
 
@@ -19,23 +20,28 @@
 <BLOCKCOMMENT>.       {}
 "/*"                  { yy.commentNesting++; this.begin('BLOCKCOMMENT'); }
 
+<INITIAL>"##"         { this.begin('LINECOMMENT'); }
 <LINECOMMENT>[\n\r]   { this.popState(); }
 <LINECOMMENT>.        {}
-<INITIAL>"##"         { this.begin('LINECOMMENT'); }
 
-"${{"                 { this.begin('JS'); return "OPENJS"; }
+<INITIAL>"${{"        { this.begin('JS'); return "OPENJS"; }
 <JS>"}}$"             { this.popState(); return 'ENDJS'; }
-<JS>([\n\r]|.)        return 'JSCODE'
+<JS>(.|\n|\r)         return 'JSCODE'
 
+<INITIAL>"\""         { this.begin('D'); return '"'; }
 <D>"\\".              return 'STRINGCHARACTER'
 <D>'"'                { this.popState(); return '"'; }
 <D>(.|\n|\r)          return 'STRINGCHARACTER'
-"\""                  { this.begin('D'); return '"'; }
 
-<QUOTE>"\\".         return 'STRINGCHARACTER'
+<INITIAL>"<%"[ ]?     { this.begin('MULTILINE'); return '<%'; }
+<MULTILINE>"\\>"      return 'STRINGCHARACTER'
+<MULTILINE>([ ]|\t)*"%>" { this.popState(); return '%>'; }
+<MULTILINE>(.|\n|\r)  return 'STRINGCHARACTER'
+
+<INITIAL>"'"          { this.begin('QUOTE'); return "'"; }
+<QUOTE>"\\".          return 'STRINGCHARACTER'
 <QUOTE>"'"            { this.popState(); return "'"; }
-<QUOTE>.              return 'STRINGCHARACTER'
-"'"                   { this.begin('QUOTE'); return "'"; }
+<QUOTE>(.|\n|\r)      return 'STRINGCHARACTER'
 
 \s+                   /* skip whitespace */
 "@"                   return 'UNDEFINED'
@@ -66,6 +72,7 @@
 "break"               return 'BREAK'
 "continue"            return 'CONTINUE'
 "return"              return 'RETURN'
+"together"            return 'TOGETHER'
 "func"                %{ yy.paras.unshift({}); yy.locals.unshift({}); yy.funcBodyDependencies.unshift({}); return 'FUNC'; %}
 "proc"                %{ yy.paras.unshift({}); yy.locals.unshift({}); yy.funcBodyDependencies.unshift({}); return 'PROC'; %}
 "auto"                return 'AUTO'
@@ -350,12 +357,13 @@ literal
     | list-literal
     | object-literal
     | string-literal
+	| multiline-string-literal
     | char-literal
     ;
 
 char-literal
     : "'" STRINGCHARACTER "'"
-        { $$ = '"' + $2 + '"'; }
+        { $$ = "'" + $2 + "'"; }
     ;
 
 string-literal
@@ -374,6 +382,59 @@ string-contents
         { $$ = $1 !== '\n' ? $1 : '\\n'; }
     | STRINGCHARACTER string-contents
         { $$ = ($1 !== '\n' ? $1 : '\\n') + $2; }
+    ;
+
+multiline-string-literal
+    : '<%' multiline-string-contents-opt '%>'
+        {
+			var str = $2;
+			var match = str.match(/^([^\\]|\\\\)*(\\n)+(\s+)/);
+			if (match !== null) {
+				var re = new RegExp("(([^\\\\]|\\\\\\\\)*)\\\\n" + match[3], "g");
+				str = str.replace(re, "$" + "1\\n");
+			}
+			if (str[0] == "\n") {
+				str = str.slice(1);
+			}
+			$$ = '"' + str + '"';
+		}
+    ;
+
+multiline-string-contents-opt
+    : multiline-string-contents
+    |
+        { $$ = ""; }
+    ;
+
+multiline-string-contents
+    : STRINGCHARACTER
+		{
+			if ($1 == '\n') {
+				$$ = '\\n';
+			} else if ($1 == '"') {
+				$$ = '\\"';
+			} else if ($1 == '\\') {
+				$$ = '\\\\';
+			} else if ($1 == '\\>') {
+				$$ = '>';
+			} else {
+				$$ = $1;
+			}
+		}
+    | STRINGCHARACTER multiline-string-contents
+		{
+			if ($1 == '\n') {
+				$$ = '\\n' + $2;
+			} else if ($1 == '"') {
+				$$ = '\\"' + $2;
+			} else if ($1 == '\\') {
+				$$ = '\\\\' + $2;
+			} else if ($1 == '\\>') {
+				$$ = '>' + $2;
+			} else {
+				$$ = $1 + $2;
+			}
+		}
     ;
 
 list-literal
@@ -502,6 +563,8 @@ statement
         { $$ = yy.sync('return;'); }
     | RETURN expression ';'
         { $$ = yy.sync('return ' + $expression + ';'); }
+	| TOGETHER statement
+		{ $$ = yy.code($statement.cps, 'root.beginAutocalcOff(); ' + $statement.code + ' root.endAutocalcOff();'); }
     | include-statement-list
         { $$ = yy.async('eden.include', '['+$1.join(', ')+']', 'includePrefix', 'this'); }
     | REQUIRE expression ';'
