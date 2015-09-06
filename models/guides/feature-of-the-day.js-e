@@ -1,7 +1,18 @@
 include("models/jspe/run.e");
+${{
+	edenUI.setOptionValue("fotd-sticker", (new Date()).getTime());
+	var element = document.getElementById("fotd-sticker");
+	if (element) {
+		element.style.visibility = "hidden";
+	}
+}}$;
+
+introducedDateCSS = "font-size: 133%";
+bindCSSRule("#jspe", ".date", &introducedDateCSS);
 
 slideZones is Slide("
 	<h1>Hit Detection for Shapes</h1>
+	<div class='date'>2nd September 2015</div>
 	<p>You can now easily detect when the mouse pointer is positioned over any particular shape of
 	interest.  You can also detect when the user clicks on a shape using a convenient <code>_click</code>
 	observable, similar to the <code>_clicked</code> observables that already existed for buttons.</p>
@@ -62,6 +73,7 @@ picture is [r1, r2, zone3];
 
 slideViewHighlight is Slide("
 	<h1>Highlighting Views</h1>
+	<div class='date'>4th September 2015</div>
 	<p>You can now programmatically attach a highlighting effect to one or more views in order to
 	draw the user's attention to them.</p>
 
@@ -86,6 +98,12 @@ stopHighlightingView(\"input\");
 	currently have a notation for defining sets.  Features may be updated from time to time as
 	continuing improvements are made.</p>
 ");
+
+slideLang1 is Slide('
+	<h1>New EDEN Language Developments</h1>
+	<div class="date">5th September 2015</div>
+
+');
 
 slideList is [slideZones, slideViewHighlight];
 currentSlide = slideList#;

@@ -13,6 +13,8 @@
  */
 EdenUI.plugins.ProjectList = function(edenUI, success) {
 
+	var fotdLastUpdated = Date.UTC(2015, 9 - 1, 5); //For some reason months parameter expects numbers 0-11.
+
 	var defaultURL = getParameterByName("projects");
 	var prologue = "";
 
@@ -167,11 +169,17 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 		//Add feature of the day option
 		if (this.rootURL == defaultURL && this.atRoot && (pattern == "" || re.test("Feature of The Day"))) {
+			var sticker;
+			var lastVisited = edenUI.getOptionValue("fotdLastVisited");
+			if (lastVisited === null || parseInt(lastVisited) < fotdLastUpdated) {
+				sticker = '<img id="fotd-sticker" src="images/new-sticker.png" width="24" height="14" style="vertical-align: 5%" />';
+			} else {
+				sticker = "";
+			}
 			var project = this.makeProject({
-				name: "Feature of The Day",
+				name: "Feature of The Day " + sticker,
 				description: "Learn about the latest features added to JS-EDEN.",
 				author: "JS-EDEN Development Team",
-				year: "Fri 4 Sep 2015",
 				runfile: "models/guides/feature-of-the-day.js-e"
 			});
 			searchResults.prepend(project);

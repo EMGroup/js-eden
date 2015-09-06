@@ -223,6 +223,7 @@ Eden.systemFunctionNames = {
 	"sqrt": true,
 	"str": true,
 	"sublist": true,
+	"substitute": true,
 	"substr": true,
 	"sum": true,
 	"tail": true,

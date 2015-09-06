@@ -94,7 +94,10 @@
 		  * @private
 		  */
 		this.saved_autocalc_state = true;
-		/**Number of times beginAutocalcOff has been called minus times endAutocalcOff has been called. */
+
+		/** Number of times beginAutocalcOff has been called minus times endAutocalcOff has been called.
+		  * @private
+		  */
 		this.saved_autocalc_level = 0;
 	}
 

@@ -415,6 +415,75 @@ func replaceFirst {
 	}}$;
 }
 
+##Replaces occurrences of strings like {1} and {name} in a string by values given as arguments (converted
+##to strings using str() first if necessary).
+##Examples:
+##	substitute("Hello.  My name is {1}.  I am {2} years old.", "John", 49})
+##	substitute("Hello.  My name is {name}.  I am {age} years old.", {name: "John", age: 49})
+func substitute {
+	${{
+		var placeholderRE = /(^|[^\\])\{([^}]+)\}/g;
+		if (arguments.length == 0) {
+			eden.error(new Error("substitute: This function requires at least one argument."), "error");
+			return undefined;
+		} else if (arguments[0] === undefined) {
+			return undefined;
+		} else if (typeof(arguments[0]) != "string") {
+			eden.error(new Error("substitute: The first argument must be a string, not a " + typeof(arguments[0])), "error");
+			return undefined;
+		} else if (arguments.length == 1 && placeholderRE.test(arguments[0])) {
+			eden.error(new Error("substitute: The target string contains placeholders but no placeholder values were provided."), "error");
+			return undefined;
+		}
+
+		var argList;
+		if (arguments.length == 2 && Array.isArray(arguments[1])) {
+			argList = arguments[1];
+			argList.unshift("");
+		} else {
+			argList = arguments;
+		}
+		var meArgs = arguments;
+
+		var strFunc = root.lookup("str").value();
+		var digitsRE = /\d+/;
+		var errorMsg;
+		function replaceFunc (match, beforeChar, varName) {
+			var value;
+			if (digitsRE.test(varName)) {
+				var num = parseInt(varName);
+				if (num == 0) {
+					errorMsg = "Bad placeholder {0}";
+					value = "";
+				} else if (num < argList.length) {
+					value = argList[num];
+				} else if (argList.length == 2 && argList[1] === undefined) {
+					//Could have intended to pass a list but passed undefined instead.
+					value = "undefined";
+				} else {
+					errorMsg = "Found placeholder {" + varName + "} but only " + (argList.length - 1) + " values were provided.";
+					value = "";
+				}
+			} else if (typeof(meArgs[1]) == "object") {
+				value = meArgs[1][varName];
+			} else if (meArgs[1] == undefined) {
+				value = "undefined";
+			} else {
+				errorMsg = "Found placeholder {" + varName + "} but the second argument is not an object.";
+				value = "";
+			}
+			return beforeChar + strFunc(value);
+		};
+
+		var replaced = arguments[0].replace(placeholderRE, replaceFunc);
+		if (errorMsg !== undefined) {
+			eden.error(new Error("substitute: " + errorMsg), "error");
+			return undefined;
+		}
+		return replaced;
+	}}$;
+}
+
 ##The same issues arise as with the sublist function (in lists.js-e) and they're handled in the
 ##same way.
 func substr {

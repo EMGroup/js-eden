@@ -10,7 +10,8 @@
 %s JS
 %x D
 %x QUOTE
-%s LINECOMMENT
+%x MULTILINE
+%x LINECOMMENT
 %s BLOCKCOMMENT
 %%
 
@@ -23,7 +24,7 @@
 <LINECOMMENT>[\n\r]   { this.popState(); }
 <LINECOMMENT>.        {}
 
-"${{"                 { this.begin('JS'); return "OPENJS"; }
+<INITIAL>"${{"        { this.begin('JS'); return "OPENJS"; }
 <JS>"}}$"             { this.popState(); return 'ENDJS'; }
 <JS>(.|\n|\r)         return 'JSCODE'
 
@@ -31,6 +32,11 @@
 <D>"\\".              return 'STRINGCHARACTER'
 <D>'"'                { this.popState(); return '"'; }
 <D>(.|\n|\r)          return 'STRINGCHARACTER'
+
+<INITIAL>"<%"[ ]?     { this.begin('MULTILINE'); return '<%'; }
+<MULTILINE>"\\>"      return 'STRINGCHARACTER'
+<MULTILINE>([ ]|\t)*"%>" { this.popState(); return '%>'; }
+<MULTILINE>(.|\n|\r)  return 'STRINGCHARACTER'
 
 <INITIAL>"'"          { this.begin('QUOTE'); return "'"; }
 <QUOTE>"\\".          return 'STRINGCHARACTER'
@@ -350,11 +356,12 @@ literal
     | list-literal
     | object-literal
     | string-literal
+	| multiline-string-literal
     | char-literal
     ;
 
 char-literal
-    : "'" string-contents-opt "'"
+    : "'" STRINGCHARACTER "'"
         { $$ = "'" + $2 + "'"; }
     ;
 
@@ -374,6 +381,59 @@ string-contents
         { $$ = $1 !== '\n' ? $1 : '\\n'; }
     | STRINGCHARACTER string-contents
         { $$ = ($1 !== '\n' ? $1 : '\\n') + $2; }
+    ;
+
+multiline-string-literal
+    : '<%' multiline-string-contents-opt '%>'
+        {
+			var str = $2;
+			var match = str.match(/^([^\\]|\\\\)*(\\n)+(\s+)/);
+			if (match !== null) {
+				var re = new RegExp("(([^\\\\]|\\\\\\\\)*)\\\\n" + match[3], "g");
+				str = str.replace(re, "$" + "1\\n");
+			}
+			if (str[0] == "\n") {
+				str = str.slice(1);
+			}
+			$$ = '"' + str + '"';
+		}
+    ;
+
+multiline-string-contents-opt
+    : multiline-string-contents
+    |
+        { $$ = ""; }
+    ;
+
+multiline-string-contents
+    : STRINGCHARACTER
+		{
+			if ($1 == '\n') {
+				$$ = '\\n';
+			} else if ($1 == '"') {
+				$$ = '\\"';
+			} else if ($1 == '\\') {
+				$$ = '\\\\';
+			} else if ($1 == '\\>') {
+				$$ = '>';
+			} else {
+				$$ = $1;
+			}
+		}
+    | STRINGCHARACTER multiline-string-contents
+		{
+			if ($1 == '\n') {
+				$$ = '\\n' + $2;
+			} else if ($1 == '"') {
+				$$ = '\\"' + $2;
+			} else if ($1 == '\\') {
+				$$ = '\\\\' + $2;
+			} else if ($1 == '\\>') {
+				$$ = '>' + $2;
+			} else {
+				$$ = $1 + $2;
+			}
+		}
     ;
 
 list-literal

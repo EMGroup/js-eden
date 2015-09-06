@@ -3,3 +3,10 @@ email.png
 	Author: Mark James
 	Source: https://commons.wikimedia.org/wiki/File:Email.png
 	Original Source: http://www.famfamfam.com/lab/icons/silk/
+
+new-sticker.png
+	Licence: Creative Commons Attribution 3.0 United States
+	Author: FatCow Web Hosting
+	Source: https://commons.wikimedia.org/wiki/File:Farm-Fresh_new.png
+	Original Source: http://www.fatcow.com/free-icons/
+	Edits Performed: cropping
