@@ -493,7 +493,10 @@
 				hasrange = true;
 				for (var i = override.begin; i <= override.end; i++) {
 					overrides[o] = i;
-					results.push.apply(results, this.multiValue(context, scope, overrides, cause));
+					var res = this.multiValue(context, scope, overrides, cause);
+					if (res) {
+						results.push.apply(results, res);
+					}
 				}
 				overrides[o] = override;
 				break;
@@ -501,7 +504,11 @@
 		}
 
 		if (hasrange == false) {
-			return [this.value(new Scope(context, scope, overrides, cause))];
+			var val = this.value(new Scope(context, scope, overrides, cause));
+			if (val) {
+				return [val];
+			}
+			return undefined;
 		} else {
 			return results;
 		}
