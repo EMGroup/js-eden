@@ -20,7 +20,7 @@
 		</p>
 
 		<h2>Generated JavaScript</h2>
-		<pre id="parser-output"></pre>
+		<pre id="parser-output" style="white-space: pre-wrap"></pre>
 		<script>
 			var eden = new Eden();
 			function getParameterByName(name) {
@@ -48,7 +48,7 @@
 
 				var parserOutput;
 				try {
-					parserOutput = js_beautify(eden.translateToJavaScript(edenSource));
+					parserOutput = Eden.htmlEscape(js_beautify(eden.translateToJavaScript(edenSource)));
 				} catch (e) {
 					parserOutput = "Parse error: " + (e.message || e);
 				}

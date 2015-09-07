@@ -361,16 +361,24 @@
 				//Replace eval() in EDEN definition with the actual value.
 				var re = /\beval\(/;
 				var searchIndex;
-				while ((searchIndex = replacedDef.search(re)) != -1) {
+				var searchFrom = 0;
+				while ((searchIndex = replacedDef.slice(searchFrom).search(re)) != -1) {
+					var combinedIndex = searchFrom + searchIndex;
+					var found = false;
 					for (exp in this.evalIDs) {
-						var subString = replacedDef.slice(searchIndex + 5, searchIndex + exp.length + 6);
+						var subString = replacedDef.slice(combinedIndex + 5, combinedIndex + exp.length + 6);
 						if (subString == exp + ")") {
 							var jsValue = this.context.getEval(this.evalIDs[exp]);
-							replacedDef = replacedDef.slice(0, searchIndex) +
+							replacedDef = replacedDef.slice(0, combinedIndex) +
 								Eden.edenCodeForValue(jsValue) +
-								replacedDef.slice(searchIndex + exp.length + 6);
+								replacedDef.slice(combinedIndex + exp.length + 6);
+							searchFrom = combinedIndex + exp.length + 6
+							found = true;
 							break;
 						}
+					}
+					if (!found) {
+						searchFrom = combinedIndex + 5;
 					}
 				}
 				this.eden_definition = replacedDef;

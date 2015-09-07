@@ -113,6 +113,7 @@ func translate {
 }
 
 ${{
+	Eden.systemObservableNames["_view_list"] = true;
 	Eden.systemFunctionNames["rotate"] = true;
 	Eden.systemFunctionNames["scale"] = true;
 	Eden.systemFunctionNames["translate"] = true;

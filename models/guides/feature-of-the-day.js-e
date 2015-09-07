@@ -1,6 +1,22 @@
+/*
+ * Copyright (c) 2015, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ *
+ * Provides the Feature of The Day function, accessible from the Project List.
+ */
+ 
+## N.B. When adding new slides to this presentation, don't forget to get to update the definition of
+## fotdLastUpdated is plugins/project-listing/project-listing.js
+
 include("models/jspe/run.e");
+
+##Set a persistent setting that records when the user mostly recently accessed FoTD, so that we know
+##when to display the small "New" icon indicating that new slides have been added to this presentation
+##that they haven't seen yet.
 ${{
-	edenUI.setOptionValue("fotd-sticker", (new Date()).getTime());
+	edenUI.setOptionValue("fotdLastVisited", (new Date()).getTime());
 	var element = document.getElementById("fotd-sticker");
 	if (element) {
 		element.style.visibility = "hidden";
@@ -13,6 +29,7 @@ bindCSSRule("#jspe", ".date", &introducedDateCSS);
 slideZones is Slide("
 	<h1>Hit Detection for Shapes</h1>
 	<div class='date'>2nd September 2015</div>
+
 	<p>You can now easily detect when the mouse pointer is positioned over any particular shape of
 	interest.  You can also detect when the user clicks on a shape using a convenient <code>_click</code>
 	observable, similar to the <code>_clicked</code> observables that already existed for buttons.</p>
@@ -74,6 +91,7 @@ picture is [r1, r2, zone3];
 slideViewHighlight is Slide("
 	<h1>Highlighting Views</h1>
 	<div class='date'>4th September 2015</div>
+
 	<p>You can now programmatically attach a highlighting effect to one or more views in order to
 	draw the user's attention to them.</p>
 
@@ -99,11 +117,309 @@ stopHighlightingView(\"input\");
 	continuing improvements are made.</p>
 ");
 
-slideLang1 is Slide('
+slideLang1 is Slide(<%
 	<h1>New EDEN Language Developments</h1>
 	<div class="date">5th September 2015</div>
 
-');
+	<p>Although the essentials of the EDEN language have remained remarkably stable since <a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/publications/mscbyresearch/eyung/" target="eyung">
+	its introduction in 1989</a>, our development team are often making incremental improvements.
+	Today we're reviewing the extensions that we've made to the core JS-EDEN language syntax
+	during the 2014/15 academic year.</p>
 
-slideList is [slideZones, slideViewHighlight];
+	<h2><code>local</code> as a Synonym for <code>auto</code></h2>
+	<p>You'll know that local variables inside functions and procedures are declared using the <code>auto</code>
+	keyword.  But why the word "auto"?  What do you think of when you read the word auto in JS-EDEN
+	code?  What does it mean to you?  What was it <em>intended</em> to mean?  <em>Why</em> was the
+	word "auto" chosen?</p>
+
+	<p>The word auto refers to the memory being used to store the variable's value being
+	allocated "automatically" by the compiler when the function is entered, and then deallocated
+	automatically when the function's execution is complete.  This is as opposed to allocating memory
+	in other ways, for example, by using <code>malloc</code>, a CPU register or <code>static</code> allocation.
+	The syntax of EDEN was designed based on C and C permits these other methods of memory allocation.
+	However, the current JS-EDEN implementation of EDEN compiles EDEN code into JavaScript rather than the
+	machine code that a C compiler produces.  In JavaScript memory is always allocated automatically,
+	so the word "auto" has come to have little meaning.  The older tkeden interpreter for EDEN was written in C.</p>
+
+	<p>Consequently, we're now introducing the keyword <code>local</code> to the EDEN language.  It
+	performs exactly the same job as the <code>auto</code> keyword, it's just a bit more self-explanatory.
+	The <code>auto</code> keyword still works too, so if you've already made construals that use
+	<code>auto</code> then it's not a problem.</p>
+
+	<h2>New Operators: <code>^</code>, <code>=~</code> and <code>!~</code></h2>
+	<p>A frequently asked question was, "How do I raise a number 'to the power of'?".  We'd included
+	the <code>pow</code> function but it seemed that not many people discovered this.  You complained, "Why
+	not just use the ^ like Excel?"  Well, we listened and we made changes.  Expressions like <code>x^y</code>
+	now parse as you'd expect and produce the intended result.  The silly <code>pow</code> function
+	has been banished into history.  This should hopefully make learning EDEN a smidgen easier for those who have
+	previous experience with spreadsheets or a programming language that also uses <code>^</code>
+	for exponentiation.  Don't forget though that if you need to, you can always revert to an earlier
+	version of the system library when working with an older contrual.</p>
+	
+	<jseden>
+	createProjectList("compatibility/projects.json", "Compatibility Shims", "compatibility");
+	</jseden>
+
+	<p>After loading a compatibility shim, use the Script Generator to view the definitions of deprecated
+	or highly revised system-defined observables, functions and procedures and copy-and-paste them
+	individually into your own construal if you prefer to do it that way.</p>
+	
+	<p>We've also added two more new operators to EDEN.  These ones are inspired by the Perl programming language.
+	<code><var>string1</var>&nbsp;=~&nbsp;<var>string2</var></code> tests if <var>string1</var>
+	matches the regular expression contained inside <var>string2</var>.  It returns a Boolean value
+	(or undefined, <code>@</code>, if either operand is undefined).  Unfortunately, the syntax for
+	performing a case insensitive match is a little clunky:</p>
+	
+	<p><code><var>string1</var>&nbsp;=~&nbsp;RE(<var>string2</var>,&nbsp;false)</code></p>
+	
+	<p>However, the advantage of this syntax is that the decision whether to perform a case sensitive
+	or a case insensitive match can easily be specified using dependency.  The alternative, to force
+	users to define a string containing the traditional regular expression "flags" would be even
+	clunkier in an EDEN environment. The <code>!~</code> operator tests if a string
+	<em>does <strong>not</strong> match</em> a given regular expression.</p>
+	
+	<p>Finally, the <code>+</code> and <code>-</code> operators can now be used to add one 2-dimensional
+	point to another, or to subtract one point from another, as well as continuing to serve their usual
+	purpose for addition and subtraction of simple numbers.  Furthermore, it has become common practice
+	to express points in a shorthand form&mdash;like <code>{2, 3}</code> for instance&mdash;rather than the longer
+	<code>Point(2, 3)</code> form.  This last feature actually isn't new, but few people seemed to know of
+	its existence (including most people at Warwick) until it was rediscovered at about Christmas time.</p>
+
+	<h2>Backticks, <code>eval()</code> and Dependency Link</h2>
+	<h3><code>eval()</code></h3>
+	<p>The <code>eval()</code> construct performs the equivalent of <a href="https://support.office.com/en-gb/article/Replace-a-formula-with-its-result-56f2929c-970b-45c1-823e-a87b304d28b8" target="evalExcel">
+	pressing the F9 key in Microsoft Excel when the cursor is positioned in the formula bar</a>.  It's
+	like a cross between writing an assignment and writing a dependency.  Part of the expression is
+	evaluated immediately and once only, the other part stands as a formula and is recalculated
+	automatically whenever needed.</p>
+	
+	<jseden>
+	x = 2;
+	y = 3;
+	z is eval(x) + y; ## Effectively the same as defining z is 2 + y;
+	## z equals 5 at this point.
+	x = 3;
+	## z still equals 5.
+	y = 5;
+	## z now equals 7.
+	</jseden>
+
+	<h3>Dependency Link</h3>
+	<p>The dependency link feature solves three problems that we occasionally encounter when
+	making construals.  Consider the following script fragment.</p>
+
+	<jseden>
+	x = 2;
+	func f {
+		para a;
+		return a + x;
+	}
+	y is f(3);
+	## y now equals 5.
+	x = 3;
+	## y still equals 5.  Unexpected!
+	</jseden>
+
+	<p>Here the interpreter isn't clever enough to figure out that <code>y</code> indirectly depends on <code>x</code>.
+	This can be solved in two ways.  Firstly, we could add an extra parameter to <code>f</code> and
+	rewrite the dependency as <code>y is f(3, x)</code>.  This is the usually the most intelligible way of expressing
+	the relationships between <code>y</code>, <code>f</code> and <code>x</code>.  An exception is
+	when a function already has say ten parameters and <code>x</code> very rarely changes.  The piano
+	construal contains examples of such complicated functions.  This is where the new <dfn>dependency
+	link</dfn> feature is useful.</p>
+
+	<jseden>
+	x ~> [f];
+	</jseden>
+
+	<p>This manually instructs JS-EDEN that changes to <code>x</code> affect the results of <code>f</code>.</p>
+	
+	<p>Now let's look at a second case.</p>
+	
+	<jseden>
+	func f {
+		para a, b;
+		return g(a, b) + 6;
+	}
+	
+	func g {
+		para a, b;
+		return a + b;
+	}
+	x is f(3, 2);
+	## x now equals 11.
+	
+	## Now let's refine our understanding of the concept expressed by g.
+	
+	func g {
+		para a, b;
+		return a + b - 1;
+	}
+	
+	## x still equals 11.  Unexpected!
+	</jseden>
+
+	<p>Again, the dependency link feature can solve the problem:</p>
+	
+	<jseden>
+	g ~> [f];
+	</jseden>
+
+	<p>And finally, one more situation where the ability to manually create a dependency link is helpful:</p>
+
+	<jseden>
+	proc p : x {
+		writeln("Triggered!");
+	}
+	
+	## Now we refine our understanding and would like p triggered by y also.
+	## How to do this without having to resubmit p in its entirety?
+	
+	## Answer:
+	y ~> [p];
+	</jseden>
+
+	<p>In the first two situations you might ask, "Why can't we just make JS-EDEN smarter so that it
+	defines the necessary dependency link automatically?" Hopefully, in the long-term we can do this,
+	though at the present time our attempts are encountering some teething problems.</p>
+	
+	<h3>Backticks</h3>
+	<p>The backticks operator enables you to say things like, "The observable whose name I have stored in
+	this string."  It is best illustrated using an example.</p>
+	
+	<jseden>
+	a1 = "This is the text stored in observable a1";
+	a2 = "This is the text stored in observable a2";
+	number = 1;
+	a is `"a" // str(number)`;
+	## Now a equals "This is the text stored in observable a1"
+	number = 2;
+	## Now a equals "This is the text stored in observable a2"
+	`"a" // str(number)` = "This is a new sentence";
+	## Now a2 and a both equal "This is a new sentence"
+	</jseden>
+
+	<h3>History</h3>
+	<p>tkeden (JS-EDEN's predecessor) supported <code>eval()</code> and dependency link but these
+	features have only recently been added to JS-EDEN.  Backticks existed previously in JS-EDEN but
+	they didn't work properly if backticks were used on the right-hand side of a dependency definition.
+	For example, in the example above the comment describing the final state would be inaccurate.
+	<code>a2</code> would indeed equal, "This is a new sentence", but <code>a</code>, would still
+	equal, "This is the text stored in observable a2", because the
+	indirect dependency of <code>a</code> on <code>a2</code> that the backticks operator implies
+	would not have been detected by JS-EDEN.  Indeed, a sentence in the <i>Eden quick reference</i>
+	(for tkeden) states that there were problems if backticks were used on the right-hand side
+	of dependency definitions in tkeden too.</p>
+
+	<h2>Writing Long Strings with Less Hassle</h2>
+	<h3>How Do We Write a String?</h3>
+	<p>Sometimes it's necessary to write long strings in JS-EDEN.  Creating JSPE slides is a common
+	example.  And when producing such texts, until today you had to remember to put a backslash (\)
+	character before any instances of double quotes.  For example, to write, "This is a quote", you
+	would have to type, \"This is a quote\".  It's easy to forget to do this and in doing so to
+	render the entire script unparsable.  Writing EDEN code inside JSPE slides was a particularly
+	problematic area with lots of double quotes needing to be escaped.</p>
+	
+	<p>We've now introduced a way around this problem.  There is now a second way to write strings.</p>
+	
+	<jseden>
+	x is Slide(<% Long piece of text containing "quotations". %\>);
+	</jseden>
+	
+	<p>The <code>&lt;% &hellip; %&gt;</code> syntax is inspired by server-side scripting languages such ASP and PHP.
+	Inside an instance of the <code>&lt;% &hellip; %&gt;</code> construct it is not necessary to escape anything and nor is it
+	possible to escape anything, with one exception.  Write <code>%\&gt;</code> if you need write a string
+	containing the character sequence <code>%&gt;</code>.  The sequence <code>\n</code> produces a string containing <code>\n</code>,
+	and not a newline character as it would using the normal <code>"&hellip;"</code> syntax.
+	It is not possible to write a string using the new syntax that contains the three character sequence %\&gt;.
+	Finally, if every line of the text is indented by at least <var>n</var> tab or space characters
+	then <var>n</var> tabs or spaces are removed from the beginning of every line before the finished
+	string is produced.  This allows you to indent your JS-EDEN code neatly without adding unwanted white
+	space to the middle of your string.</p>
+	
+	<h3>The <code>substitute</code> Function</h3>
+	<p>The <code>substitute</code> built-in function is a second new feature that's also designed to
+	facilitate writing long pieces of text.  Previously, you would write something like:</p>
+	
+	<jseden>
+	slide1 is Slide("Hello.  My name is " // name // " and I am " // str(age) // " years old.");
+	</jseden>
+	
+	<p>The extra string delimiters, concatenation operator invocations and data type conversions disrupt
+	the flow of the text.  The <code>substitute</code> function provides various new alternative ways of
+	writing the string that you might find preferable.  The <code>substitute</code> function automatically
+	converts all of its operands into strings without the need to manually invoke the <code>str</code>
+	function yourself.</p>
+	
+	<h4>Using a Dictionary (object)</h4>
+	<p>Each field name (before the colon) is bound to an expression (after the colon).</p>
+	<jseden>
+	slide1 is Slide(substitute("Hello.  My name is {name} and I am {age} years old.", {name: name, age: age}));
+	</jseden>
+	
+	<h4>Using the Ordinal Positions of the Arguments</h4>
+	<p>The fields are given numeric names and value of field <code>{<var>i</var>}</code> is the <var>i</var>th
+	argument after the template string.</p>
+	<jseden>
+	slide1 is Slide(substitute("Hello.  My name is {1} and I am {2} years old.", name, age));
+	</jseden>
+	
+	<h4>Using a List</h4>
+	<jseden>
+	slide1Data is [name, age];
+	slide1 is Slide(substitute("Hello.  My name is {1} and I am {2} years old.", slide1Data));
+	</jseden>
+	
+	<h4>Using Pointers</h4>
+	<p>The value for the field named <i>age</i> is held in the observable also named <code>age</code>.</p>
+	<jseden>
+	slide1 is Slide(substitute("Hello.  My name is {name} and I am {age} years old.", &name, &age));
+	</jseden>
+	
+	<h2>Grouping Assignments Together</h2>
+	<p>Sometimes it's necessary to perform two or more assignments simultaneously, by which I mean not
+	necessarily literally in parallel, but in a single computational step (or "atomically") from the
+	viewpoint of triggered procedures.</p>
+	
+	<jseden>
+	z = 0;
+	## Trigger this procedure when x or y changes, but not twice if both change.
+	proc p : x, y {
+		z++;
+	}
+	</jseden>
+	
+	<p>Previously we might have achieved this objective by using the following idiom.</p>
+	
+	<jseden>
+	temporaryObservable = autocalc;
+	autocalc = 0;
+	x = 2;
+	y = 3;
+	autocalc = temporaryObservable;
+	forget(&temporaryObservable);
+	</jseden>
+	
+	<p>Now we can accomplish the same thing, but in a much neater way, by using the new <code>together</code>
+	statement, which does exactly what it says, executes the statements contained within it together as a
+	joint group.</p>
+	
+	<jseden>
+	together {
+		x = 2;
+		y = 3;
+	}
+	</jseden>
+	
+	<p><code>together</code> blocks can be nested, for example one <code>together</code> block
+	inside a procedure that calls another procedure that has its own <code>together</code> block.
+	No triggered procedures will be executed until the thread of execution leaves the final
+	<code>together</code> block.</p>
+
+	<h2>Future Developments</h2>
+	<p>We're working on some more core language developments and hope to be writing about
+	them on <i>Feature of The Day</i> in the coming weeks.</p>
+%>);
+
+slideList is [slideZones, slideViewHighlight, slideLang1];
 currentSlide = slideList#;

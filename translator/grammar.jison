@@ -33,8 +33,8 @@
 <D>'"'                { this.popState(); return '"'; }
 <D>(.|\n|\r)          return 'STRINGCHARACTER'
 
-<INITIAL>"<%"[ ]?     { this.begin('MULTILINE'); return '<%'; }
-<MULTILINE>"\\>"      return 'STRINGCHARACTER'
+<INITIAL>"<%"[ \t]*   { this.begin('MULTILINE'); return '<%'; }
+<MULTILINE>"%\\>"     return 'STRINGCHARACTER'
 <MULTILINE>([ ]|\t)*"%>" { this.popState(); return '%>'; }
 <MULTILINE>(.|\n|\r)  return 'STRINGCHARACTER'
 
@@ -392,8 +392,8 @@ multiline-string-literal
 				var re = new RegExp("(([^\\\\]|\\\\\\\\)*)\\\\n" + match[3], "g");
 				str = str.replace(re, "$" + "1\\n");
 			}
-			if (str[0] == "\n") {
-				str = str.slice(1);
+			if (str[0] == "\\" && str[1] == "n") {
+				str = str.slice(2);
 			}
 			$$ = '"' + str + '"';
 		}
@@ -414,8 +414,8 @@ multiline-string-contents
 				$$ = '\\"';
 			} else if ($1 == '\\') {
 				$$ = '\\\\';
-			} else if ($1 == '\\>') {
-				$$ = '>';
+			} else if ($1 == '%\\>') {
+				$$ = '%>';
 			} else {
 				$$ = $1;
 			}
@@ -428,8 +428,8 @@ multiline-string-contents
 				$$ = '\\"' + $2;
 			} else if ($1 == '\\') {
 				$$ = '\\\\' + $2;
-			} else if ($1 == '\\>') {
-				$$ = '>' + $2;
+			} else if ($1 == '%\\>') {
+				$$ = '%>' + $2;
 			} else {
 				$$ = $1 + $2;
 			}

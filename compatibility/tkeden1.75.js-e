@@ -80,6 +80,13 @@ func strcat {
 	return result;
 }
 
+symboldefinition is definitionOf;
+
+func symboltext {
+	return definitionRHS($[1]) // ";";
+}
+
+
 ##JS-EDEN tail func returns @ for an undefined argument, refuses the empty list
 ##or a non-list argument, and refuses if more than one argument is provided.
 func oldTail {
@@ -103,4 +110,6 @@ ${{
 	Eden.systemFunctionNames["rand"] = true;
 	Eden.systemFunctionNames["rgb2color"] = true;
 	Eden.systemFunctionNames["strcat"] = true;
+	Eden.systemFunctionNames["symboldefinition"] = true;
+	Eden.systemFunctionNames["symboltext"] = true;
 }}$;

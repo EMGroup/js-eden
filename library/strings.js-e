@@ -419,6 +419,7 @@ func replaceFirst {
 ##to strings using str() first if necessary).
 ##Examples:
 ##	substitute("Hello.  My name is {1}.  I am {2} years old.", "John", 49})
+##	substitute("Hello.  My name is {1}.  I am {2} years old.", ["John", 49])
 ##	substitute("Hello.  My name is {name}.  I am {age} years old.", {name: "John", age: 49})
 func substitute {
 	${{
@@ -437,20 +438,28 @@ func substitute {
 		}
 
 		var argList;
-		if (arguments.length == 2 && Array.isArray(arguments[1])) {
+		var useObject = false;
+		var isArray = Array.isArray(arguments[1]);
+		if (arguments.length == 2 && isArray && arguments[1].length > 0) {
 			argList = arguments[1];
 			argList.unshift("");
 		} else {
 			argList = arguments;
+			if (arguments.length == 2 && !isArray && typeof(arguments[1]) == "object" && arguments[1] !== null) {
+				useObject = true;
+			}
 		}
 		var meArgs = arguments;
 
 		var strFunc = root.lookup("str").value();
 		var digitsRE = /\d+/;
+		var observables = {};
+		var scannedForObservables = false;
 		var errorMsg;
 		function replaceFunc (match, beforeChar, varName) {
 			var value;
 			if (digitsRE.test(varName)) {
+				//Case 1: Placeholders are numeric, {1}, etc.
 				var num = parseInt(varName);
 				if (num == 0) {
 					errorMsg = "Bad placeholder {0}";
@@ -464,13 +473,28 @@ func substitute {
 					errorMsg = "Found placeholder {" + varName + "} but only " + (argList.length - 1) + " values were provided.";
 					value = "";
 				}
-			} else if (typeof(meArgs[1]) == "object") {
+			} else if (useObject) {
+				//Case 2: Placeholders refer to object properties.
 				value = meArgs[1][varName];
-			} else if (meArgs[1] == undefined) {
-				value = "undefined";
 			} else {
-				errorMsg = "Found placeholder {" + varName + "} but the second argument is not an object.";
-				value = "";
+				//Case 3: Placeholders refer to observable names.
+				if (!scannedForObservables) {
+					for (var i = 1; i < argList.length ; i++) {
+						if (argList[i] instanceof Symbol) {
+							observables[argList[i].name.slice(1)] = argList[i];
+						}
+					}
+					scannedForObservables = true;
+				}
+				if (!(varName in observables)) {
+					if (meArgs.length == 2 && (meArgs[1] === undefined || meArgs[1] === null)) {
+						value = "undefined";
+					} else {
+						errorMsg = "Found placeholder for observable " + varName + " but couldn't find a matching pointer-typed argument in the argument list.";
+					}
+				} else {
+					value = observables[varName].value();
+				}
 			}
 			return beforeChar + strFunc(value);
 		};
@@ -516,12 +540,7 @@ func substr {
 			return undefined;
 		}
 		if (to == 0) {
-			eden.error(new Error("substr: to cannot be 0."), "error");		
-		} else if (to < 0) {
-			to = to + 1;
-			if (to == 0) {
-				to = str.length;
-			}
+			to = str.length;
 		}
 		
 		var result = str.slice(from, to);
