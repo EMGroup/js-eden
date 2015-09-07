@@ -23,20 +23,19 @@ selection2 = [4, 2, 4, 6, 7, 1, 1, 5];
 scaleWidth = 50;
 itemsselected = [0, 0, 0, 0, 0, 0];
 
-## Scoped Support Function
+## Scoped Support/Replacement Functions
 sum is sum_recurse{ i = 1 };
 sum_recurse is (i <= list#) ? list[i] + sum_recurse{ i = i + 1 } : 0;
 
 round is ${{ Math.round(context.lookup("number").value(scope)) }}$;
 
-Text is _text_function{ size = 13.3, sizeUnits = "px", fillcolour = "black" };
-_text_function is ${{ new Text(
+Text is ${{ new Text(
 	scope.lookup("/text").value,
 	scope.lookup("/x").value,
 	scope.lookup("/y").value,
-	scope.lookup("/size").value,
-	scope.lookup("/sizeUnits").value,
-	scope.lookup("/fillcolour").value,
+	scope.lookup("/size").value || 13.3,
+	scope.lookup("/sizeUnits").value || "px",
+	scope.lookup("/fillcolour").value || "black",
 	scope.lookup("/outlinecolour").value,
 	scope.lookup("/options").value) }}$;
 
