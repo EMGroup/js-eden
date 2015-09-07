@@ -44,6 +44,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		}
 	}
 
+	this.destroyViews = function (pictureObs) {
+		for (var viewName in pictureObsToViews[pictureObs]) {
+			edenUI.destroyView(viewName);
+		}
+	}
+
 	this.drawPicture = function(canvasname, pictureObs) {
 		var canvas = canvases[canvasname];
 		if (canvas === undefined) {

@@ -461,6 +461,7 @@ function concatAndResolveUrl(url, concat) {
 		this.root.lookup("forgetAll").definition(root)("", true, false);
 		this.root.collectGarbage();
 		this.errorNumber = 0;
+		this.inInitialState = true;
 		this.topLevelIncludes = [];
 		this.included = {};
 		this.reportErrors = true;

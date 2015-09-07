@@ -194,18 +194,22 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 					'<div class="projectlist-result-metadata">By JS-EDEN Development Team</div>' +
 				'</div>'
 			).click(function () {
-				edenUI.modalDialog(
-					"Reset Work Space",
-					"<p>This action will discard the current script. Your work will not be saved.</p>\
-					<p>Are you sure you wish to continue?</p>",
-					["Reset Work Space"],
-					1,
-					function (optionNo) {
-						if (optionNo == 0) {
-							edenUI.newProject();
+				if (!eden.isInInitialState()) {
+					edenUI.modalDialog(
+						"Reset Work Space",
+						'<p>This action will discard the current script. Your work will not be saved.</p>\
+						<p>Are you sure you wish to continue?</p>',
+						["Reset Work Space"],
+						1,
+						function (optionNo) {
+							if (optionNo == 0) {
+								edenUI.newProject();
+							}
 						}
-					}
-				);
+					);
+				} else {
+					edenUI.newProject();
+				}
 			});
 			searchResults.prepend(emptyProject);
 		}

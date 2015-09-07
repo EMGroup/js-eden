@@ -107,7 +107,9 @@
 					viewData.closing = false;
 					return true;
 				}
-				return me.closeView(name);
+				var doClose = me.closeView(name);
+				root.collectGarbage();
+				return doClose;
 			}
 		})
 		.dialogExtend({
@@ -268,7 +270,6 @@
 		}
 		this.viewInstances[name].closing = true;
 		root.lookup("forgetAll").definition(root)("^_[vV]iew_" + name + "_", true, false, true);
-		root.collectGarbage();
 		if (this.viewInstances[name].destroy) {
 			//Call clean-up handler.
 			this.viewInstances[name].destroy();
@@ -511,6 +512,9 @@
 		if ("Canvas2D" in this.plugins) {
 			this.eden.executeEden('createCanvas("picture");', "new project", "", Symbol.hciAgent, noop);
 		}
+		if ("ScriptInput" in this.plugins) {
+			this.eden.executeEden('createView("input", "ScriptInput");', "new project", "", Symbol.hciAgent, noop);
+		}
 		if (this.views.ErrorLog.errorWindow) {
 			this.views.ErrorLog.errorWindow.html('');
 		}
@@ -565,6 +569,7 @@
 			buttons: buttons,
 			modal: true,
 			resizable: false,
+			show: "fade",
 			title: title,
 			close: function () {
 				callback(cancelValue);

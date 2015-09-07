@@ -340,12 +340,18 @@ func forgetAll {
 			for (var i = 0; i < namesToDelete.length; i++) {
 				var name = namesToDelete[i];
 				symbol = root.symbols[name];
-				if ("refreshView" in symbol.jsObservers) {
-					/* Clear the view's contents before deleting the associated symbol, so at least
-					 * it's clear that the view is no longer valid and isn't merely "hung". */
-					symbol.assign(undefined);
+				if (symbol !== undefined) {
+					if ("refreshView" in symbol.jsObservers) {
+						/* Clear the view's contents before deleting the associated symbol, so at least
+						 * it's clear that the view is no longer valid and isn't merely "hung". */
+						symbol.assign(undefined);
+						// Close the window if it's a canvas picture observable.
+						if ("Canvas2D" in edenUI.plugins) {
+							edenUI.plugins.Canvas2D.destroyViews(name);
+						}
+					}
+					symbol.forget();
 				}
-				symbol.forget();
 			}
 			if (wasInInitialState) {
 				eden.captureInitialState(); //Re-assert still in initial state.		
