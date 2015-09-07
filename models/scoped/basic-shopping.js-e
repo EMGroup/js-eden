@@ -24,8 +24,8 @@ scaleWidth = 50;
 itemsselected = [0, 0, 0, 0, 0, 0];
 
 ## Scoped Support/Replacement Functions
-sum is sum_recurse{ i = 1 };
-sum_recurse is (i <= list#) ? list[i] + sum_recurse{ i = i + 1 } : 0;
+sum is _sum{ i = 1 };
+_sum is (i <= list#) ? list[i] + _sum{ i = i + 1 } : 0;
 
 round is ${{ Math.round(context.lookup("number").value(scope)) }}$;
 
@@ -38,6 +38,16 @@ Text is ${{ new Text(
 	scope.lookup("/fillcolour").value || "black",
 	scope.lookup("/outlinecolour").value,
 	scope.lookup("/options").value) }}$;
+
+HTMLImage is ${{ new HTMLImage(
+	scope.lookup("/name").value,
+	scope.lookup("/x").value,
+	scope.lookup("/y").value,
+	scope.lookup("/width").value,
+	scope.lookup("/height").value,
+	scope.lookup("/scaleFactor").value || 1,
+	scope.lookup("/url").value,
+	scope.lookup("/imageMap").value); }}$;
 
 ## Observable Definitions:
 selection is selection0;
@@ -59,15 +69,18 @@ forsale is [item1, item2, item3, item4, item5, item6];
 
 
 basket is listitems{ onsale = forsale, chosen = itemsselected };
+
 ##basket is listitems(forsale, itemsselected);
 
 totalcost is costitems{ onsale = forsale, chosen = itemsselected };
+
 ##totalcost is costitems(forsale, itemsselected);
 
 coinlist is [1,2,5,10,20,50,100,200];
 
 purse_single is coinlist[selection[i]];
 purse is purse_single{ i = 1..8 };
+
 ## purse is coinlist[i]{ i in selection };
 ##purse is [coinlist[ix1], coinlist[ix2], coinlist[ix3], coinlist[ix4], coinlist[ix5], coinlist[ix6], coinlist[ix7], coinlist[ix8]];
 
@@ -82,7 +95,14 @@ offered is moneyinhand{ allcoins = purse, chosen = coinsselected };
 change is (offered >= totalcost) ? round{ number = (offered - totalcost)*100}/100 : 0;
 items is [item1, item2, item3, item4, item5, item6];
 
-coinpic is HTMLImage("coin" // str(i) // "pic", (i-1)*scaleWidth, 2 * scaleWidth * coinsselected[i], scaleWidth, scaleWidth, imagelocation // coindisplay[selection[i]]);
+coinpic is HTMLImage{
+	name = "coin" // str(i) // "pic",
+	x = (i-1)*scaleWidth,
+	y = 2 * scaleWidth * coinsselected[i],
+	width = scaleWidth,
+	height = scaleWidth,
+	url = imagelocation // coindisplay[selection[i]]
+};
 ##coin1pic is coinpic{ i = 1 };
 ##coin2pic is coinpic{ i = 2 };
 ##coin3pic is coinpic{ i = 3 };
@@ -105,7 +125,14 @@ coinpics is coinpic{ i = 1..8 };
 ##coin8pic is HTMLImage("coin8pic", scaleWidth*7,2*scaleWidth*coinsselected[8],scaleWidth,scaleWidth,imagelocation // coindisplay(ix8));
 
 itempic_positions = [0.5, 1.8, 3.1, 4.4, 5.7, 7];
-itempic is HTMLImage("item" // str(i) // "pic", scaleWidth * itempic_positions[i], 5.5 * scaleWidth - 2 * scaleWidth * itemsselected[i], scaleWidth, scaleWidth, imagelocation // itemdisplay[i]);
+itempic is HTMLImage{
+	name = "item" // str(i) // "pic",
+	x = scaleWidth * itempic_positions[i],
+	y = 5.5 * scaleWidth - 2 * scaleWidth * itemsselected[i],
+	width = scaleWidth,
+	height = scaleWidth,
+	url = imagelocation // itemdisplay[i]
+};
 itempics is itempic{ i = 1..6 };
 
 ##item1pic is HTMLImage("item1pic",scaleWidth*0.5,5.5*scaleWidth-2*scaleWidth*itemsselected[1],scaleWidth,scaleWidth,imagelocation // itemdisplay(1));
@@ -136,6 +163,12 @@ itempics is itempic{ i = 1..6 };
 ##ItemsOfferedText is Text("For Sale", 8.3*scaleWidth,6*scaleWidth, "blue", 18);
 
 ## Action Definitions:
+
+##coinpic_click is ??????
+##action coinpicMove when coinpic_click{ i = 1..8} do {
+##	if (coinpic_click) coinsselected[i] = 1 - coinsselected[i];
+##}
+
 proc coin1picMove : coin1pic_click {
 	if(coin1pic_click)
 		coinsselected[1] = 1 - coinsselected[1];
