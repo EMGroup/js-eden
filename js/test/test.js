@@ -6,6 +6,7 @@ function edenModule(description) {
 		setup: function () {
 			root = new Folder();
 			eden = new Eden(root);
+			Point = function(){};
 			eden.execute("trace = []; func t { append trace, $1; return $2; }");
 		}
 	});
