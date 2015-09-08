@@ -103,26 +103,31 @@ coinpic is HTMLImage{
 	height = scaleWidth,
 	url = imagelocation // coindisplay[selection[i]]
 };
-##coin1pic is coinpic{ i = 1 };
-##coin2pic is coinpic{ i = 2 };
-##coin3pic is coinpic{ i = 3 };
-##coin4pic is coinpic{ i = 4 };
-##coin5pic is coinpic{ i = 5 };
-##coin6pic is coinpic{ i = 6 };
-##coin7pic is coinpic{ i = 7 };
-##coin8pic is coinpic{ i = 8 };
+
+/*
+coin1pic is coinpic{ i = 1 };
+coin2pic is coinpic{ i = 2 };
+coin3pic is coinpic{ i = 3 };
+coin4pic is coinpic{ i = 4 };
+coin5pic is coinpic{ i = 5 };
+coin6pic is coinpic{ i = 6 };
+coin7pic is coinpic{ i = 7 };
+coin8pic is coinpic{ i = 8 };
+*/
 
 ## Or do this depending on how observable you want it to be.
 coinpics is coinpic{ i = 1..8 };
 
-##coin1pic is HTMLImage("coin1pic",0,2*scaleWidth*coinsselected[1],scaleWidth,scaleWidth,imagelocation // coindisplay(ix1));
-##coin2pic is HTMLImage("coin2pic", scaleWidth,2*scaleWidth*coinsselected[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix2));
-##coin3pic is HTMLImage("coin3pic", scaleWidth*2,2*scaleWidth*coinsselected[3],scaleWidth,scaleWidth,imagelocation // coindisplay(ix3));
-##coin4pic is HTMLImage("coin4pic", scaleWidth*3,2*scaleWidth*coinsselected[4],scaleWidth,scaleWidth,imagelocation // coindisplay(ix4));
-##coin5pic is HTMLImage("coin5pic", scaleWidth*4,2*scaleWidth*coinsselected[5],scaleWidth,scaleWidth,imagelocation // coindisplay(ix5));
-##coin6pic is HTMLImage("coin6pic", scaleWidth*5,2*scaleWidth*coinsselected[6],scaleWidth,scaleWidth,imagelocation // coindisplay(ix6));
-##coin7pic is HTMLImage("coin7pic", scaleWidth*6,2*scaleWidth*coinsselected[7],scaleWidth,scaleWidth,imagelocation // coindisplay(ix7));
-##coin8pic is HTMLImage("coin8pic", scaleWidth*7,2*scaleWidth*coinsselected[8],scaleWidth,scaleWidth,imagelocation // coindisplay(ix8));
+/*
+coin1pic is HTMLImage("coin1pic",0,2*scaleWidth*coinsselected[1],scaleWidth,scaleWidth,imagelocation // coindisplay(ix1));
+coin2pic is HTMLImage("coin2pic", scaleWidth,2*scaleWidth*coinsselected[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix2));
+coin3pic is HTMLImage("coin3pic", scaleWidth*2,2*scaleWidth*coinsselected[3],scaleWidth,scaleWidth,imagelocation // coindisplay(ix3));
+coin4pic is HTMLImage("coin4pic", scaleWidth*3,2*scaleWidth*coinsselected[4],scaleWidth,scaleWidth,imagelocation // coindisplay(ix4));
+coin5pic is HTMLImage("coin5pic", scaleWidth*4,2*scaleWidth*coinsselected[5],scaleWidth,scaleWidth,imagelocation // coindisplay(ix5));
+coin6pic is HTMLImage("coin6pic", scaleWidth*5,2*scaleWidth*coinsselected[6],scaleWidth,scaleWidth,imagelocation // coindisplay(ix6));
+coin7pic is HTMLImage("coin7pic", scaleWidth*6,2*scaleWidth*coinsselected[7],scaleWidth,scaleWidth,imagelocation // coindisplay(ix7));
+coin8pic is HTMLImage("coin8pic", scaleWidth*7,2*scaleWidth*coinsselected[8],scaleWidth,scaleWidth,imagelocation // coindisplay(ix8));
+*/
 
 itempic_positions = [0.5, 1.8, 3.1, 4.4, 5.7, 7];
 itempic is HTMLImage{
@@ -135,32 +140,35 @@ itempic is HTMLImage{
 };
 itempics is itempic{ i = 1..6 };
 
-##item1pic is HTMLImage("item1pic",scaleWidth*0.5,5.5*scaleWidth-2*scaleWidth*itemsselected[1],scaleWidth,scaleWidth,imagelocation // itemdisplay(1));
-##item2pic is HTMLImage("item2pic", scaleWidth*1.8, 5.5*scaleWidth-2*scaleWidth*itemsselected[2],scaleWidth,scaleWidth,imagelocation // itemdisplay(2));
-##item3pic is HTMLImage("item3pic", scaleWidth*3.1, 5.5*scaleWidth-2*scaleWidth*itemsselected[3],scaleWidth,scaleWidth,imagelocation // itemdisplay(3));
-##item4pic is HTMLImage("item4pic", scaleWidth*4.4, 5.5*scaleWidth-2*scaleWidth*itemsselected[4],scaleWidth,scaleWidth,imagelocation // itemdisplay(4));
-##item5pic is HTMLImage("item5pic", scaleWidth*5.7, 5.5*scaleWidth-2*scaleWidth*itemsselected[5],scaleWidth,scaleWidth,imagelocation // itemdisplay(5));
-##item6pic is HTMLImage("item6pic", scaleWidth*7, 5.5*scaleWidth-2*scaleWidth*itemsselected[6],scaleWidth,scaleWidth,imagelocation // itemdisplay(6));
+/*
+item1pic is HTMLImage("item1pic",scaleWidth*0.5,5.5*scaleWidth-2*scaleWidth*itemsselected[1],scaleWidth,scaleWidth,imagelocation // itemdisplay(1));
+item2pic is HTMLImage("item2pic", scaleWidth*1.8, 5.5*scaleWidth-2*scaleWidth*itemsselected[2],scaleWidth,scaleWidth,imagelocation // itemdisplay(2));
+item3pic is HTMLImage("item3pic", scaleWidth*3.1, 5.5*scaleWidth-2*scaleWidth*itemsselected[3],scaleWidth,scaleWidth,imagelocation // itemdisplay(3));
+item4pic is HTMLImage("item4pic", scaleWidth*4.4, 5.5*scaleWidth-2*scaleWidth*itemsselected[4],scaleWidth,scaleWidth,imagelocation // itemdisplay(4));
+item5pic is HTMLImage("item5pic", scaleWidth*5.7, 5.5*scaleWidth-2*scaleWidth*itemsselected[5],scaleWidth,scaleWidth,imagelocation // itemdisplay(5));
+item6pic is HTMLImage("item6pic", scaleWidth*7, 5.5*scaleWidth-2*scaleWidth*itemsselected[6],scaleWidth,scaleWidth,imagelocation // itemdisplay(6));
+*/
 
-
-##coin1text is Text(denomdisplay(ix1), 0.2*scaleWidth,1.5*scaleWidth);
-##coin2text is Text(denomdisplay(ix2), 1.2*scaleWidth,1.5*scaleWidth);
-##coin3text is Text(denomdisplay(ix3), 2.2*scaleWidth,1.5*scaleWidth);
-##coin4text is Text(denomdisplay(ix4), 3.2*scaleWidth,1.5*scaleWidth);
-##coin5text is Text(denomdisplay(ix5), 4.2*scaleWidth,1.5*scaleWidth);
-##coin6text is Text(denomdisplay(ix6), 5.2*scaleWidth,1.5*scaleWidth);
-##coin7text is Text(denomdisplay(ix7), 6.2*scaleWidth,1.5*scaleWidth);
-##coin8text is Text(denomdisplay(ix8), 7.2*scaleWidth,1.5*scaleWidth);
-##item1text is Text(pricedisplay(1, items), 0.6*scaleWidth,5*scaleWidth);
-##item2text is Text(pricedisplay(2, items), 1.9*scaleWidth,5*scaleWidth);
-##item3text is Text(pricedisplay(3, items), 3.2*scaleWidth,5*scaleWidth);
-##item4text is Text(pricedisplay(4, items), 4.5*scaleWidth,5*scaleWidth);
-##item5text is Text(pricedisplay(5, items), 5.8*scaleWidth,5*scaleWidth);
-##item6text is Text(pricedisplay(6, items), 7.1*scaleWidth,5*scaleWidth);
-##MyCoinsText is Text("Purse", 8.3*scaleWidth,0.5*scaleWidth, "blue", 18);
-##CoinsOfferedText is Text("Offered", 8.3*scaleWidth,2.5*scaleWidth, "red", 18);
-##MyItemsText is Text("Basket", 8.3*scaleWidth,4*scaleWidth, "red", 18);
-##ItemsOfferedText is Text("For Sale", 8.3*scaleWidth,6*scaleWidth, "blue", 18);
+/*
+coin1text is Text(denomdisplay(ix1), 0.2*scaleWidth,1.5*scaleWidth);
+coin2text is Text(denomdisplay(ix2), 1.2*scaleWidth,1.5*scaleWidth);
+coin3text is Text(denomdisplay(ix3), 2.2*scaleWidth,1.5*scaleWidth);
+coin4text is Text(denomdisplay(ix4), 3.2*scaleWidth,1.5*scaleWidth);
+coin5text is Text(denomdisplay(ix5), 4.2*scaleWidth,1.5*scaleWidth);
+coin6text is Text(denomdisplay(ix6), 5.2*scaleWidth,1.5*scaleWidth);
+coin7text is Text(denomdisplay(ix7), 6.2*scaleWidth,1.5*scaleWidth);
+coin8text is Text(denomdisplay(ix8), 7.2*scaleWidth,1.5*scaleWidth);
+item1text is Text(pricedisplay(1, items), 0.6*scaleWidth,5*scaleWidth);
+item2text is Text(pricedisplay(2, items), 1.9*scaleWidth,5*scaleWidth);
+item3text is Text(pricedisplay(3, items), 3.2*scaleWidth,5*scaleWidth);
+item4text is Text(pricedisplay(4, items), 4.5*scaleWidth,5*scaleWidth);
+item5text is Text(pricedisplay(5, items), 5.8*scaleWidth,5*scaleWidth);
+item6text is Text(pricedisplay(6, items), 7.1*scaleWidth,5*scaleWidth);
+MyCoinsText is Text("Purse", 8.3*scaleWidth,0.5*scaleWidth, "blue", 18);
+CoinsOfferedText is Text("Offered", 8.3*scaleWidth,2.5*scaleWidth, "red", 18);
+MyItemsText is Text("Basket", 8.3*scaleWidth,4*scaleWidth, "red", 18);
+ItemsOfferedText is Text("For Sale", 8.3*scaleWidth,6*scaleWidth, "blue", 18);
+*/
 
 ## Action Definitions:
 
@@ -168,6 +176,10 @@ itempics is itempic{ i = 1..6 };
 ##action coinpicMove when coinpic_click{ i = 1..8} do {
 ##	if (coinpic_click) coinsselected[i] = 1 - coinsselected[i];
 ##}
+
+##coinpicMove when coinpick_click {
+
+##};
 
 proc coin1picMove : coin1pic_click {
 	if(coin1pic_click)
@@ -244,38 +256,44 @@ listitems_single is (chosen[i]) ? onsale[i][1] : @;
 listitems is listitems_single{ i = 1..onsale# };
 
 ## Function Definitions:
-##func listitems {
-##	para onsale, chosen;
-##	auto result, i;	
-##	result = [];
-##	for (i=1; i<=onsale#; i++)
-##		if (chosen[i]) result = result // [onsale[i][1]];
-## return result;
-##}
+/*
+func listitems {
+	para onsale, chosen;
+	auto result, i;	
+	result = [];
+	for (i=1; i<=onsale#; i++)
+		if (chosen[i]) result = result // [onsale[i][1]];
+ return result;
+}
+*/
 
 costitems_single is (chosen[i]) ? onsale[i][2] : 0;
 costitems is sum{ list = costitems_single{ i = 1..onsale#} };
 
-##func costitems {
-##	para onsale, chosen;
-##	auto result, i;	
-##	result = 0;
-##	for (i=1; i<=onsale#; i++)
-##		if (chosen[i]) result = result + onsale[i][2];
-## return result;
-##}
+/*
+func costitems {
+	para onsale, chosen;
+	auto result, i;	
+	result = 0;
+	for (i=1; i<=onsale#; i++)
+		if (chosen[i]) result = result + onsale[i][2];
+ return result;
+}
+*/
 
 moneyinhand_single is (chosen[i]) ? allcoins[i] : 0;
 moneyinhand is sum{ list = moneyinhand_single{ i = 1..allcoins# }} / 100;
 
-##func moneyinhand {
-##	para allcoins, chosen;
-##	auto result, i;	
-##	result = 0;
-##	for (i=1; i<=allcoins#; i++)
-##		if (chosen[i]) result = result + allcoins[i];
-## return result/100;
-##}
+/*
+func moneyinhand {
+	para allcoins, chosen;
+	auto result, i;	
+	result = 0;
+	for (i=1; i<=allcoins#; i++)
+		if (chosen[i]) result = result + allcoins[i];
+ return result/100;
+}
+*/
 
 coindisplay = [
 "GBP-1p-tails.gif",
@@ -288,17 +306,19 @@ coindisplay = [
 "GBP-2-pounds-tails.gif"
 ];
 
-##func coindisplay {
-##	para ix;
-##	if (ix==1) return "GBP-1p-tails.gif";
-##	if (ix==2) return "GBP-2-pence-tails.gif";
-##	if (ix==3) return "GBP-5-pence-tails.gif";
-##	if (ix==4) return "GBP-10-pence-tails.gif";
-##	if (ix==5) return "GBP-20-pence-tails.jpg";
-##	if (ix==6) return "GBP-50-pence-tails.jpg";
-##	if (ix==7) return "GBP-1-pound-tails-england.gif";
-##	if (ix==8) return "GBP-2-pounds-tails.gif";
-##}
+/*
+func coindisplay {
+	para ix;
+	if (ix==1) return "GBP-1p-tails.gif";
+	if (ix==2) return "GBP-2-pence-tails.gif";
+	if (ix==3) return "GBP-5-pence-tails.gif";
+	if (ix==4) return "GBP-10-pence-tails.gif";
+	if (ix==5) return "GBP-20-pence-tails.jpg";
+	if (ix==6) return "GBP-50-pence-tails.jpg";
+	if (ix==7) return "GBP-1-pound-tails-england.gif";
+	if (ix==8) return "GBP-2-pounds-tails.gif";
+}
+*/
 
 itemdisplay = [
 "apple.png",
@@ -309,15 +329,17 @@ itemdisplay = [
 "pear.jpg"
 ];
 
-##func itemdisplay {
-##	para ix, scaleWidth;
-##	if (ix==1) return "apple.png";
-##	if (ix==2) return "grapes.png";
-##	if (ix==3) return "orange.jpg";
-##	if (ix==4) return "strawberry.jpg";
-##	if (ix==5) return "bananas.jpg";
-##	if (ix==6) return "pear.jpg";
-##}
+/*
+func itemdisplay {
+	para ix, scaleWidth;
+	if (ix==1) return "apple.png";
+	if (ix==2) return "grapes.png";
+	if (ix==3) return "orange.jpg";
+	if (ix==4) return "strawberry.jpg";
+	if (ix==5) return "bananas.jpg";
+	if (ix==6) return "pear.jpg";
+}
+*/
 
 denomdisplay = [
 "1p",
@@ -330,56 +352,66 @@ decodeHTML("&pound;1"),
 decodeHTML("&pound;2")
 ];
 
-##func denomdisplay {
-##	para ix;
-##	if (ix==1) return "1p";
-##	if (ix==2) return "2p";
-##	if (ix==3) return "5p";
-##	if (ix==4) return "10p";
-##	if (ix==5) return "20p";
-##	if (ix==6) return "50p";
-##	if (ix==7) return decodeHTML("&pound;1");
-##	if (ix==8) return decodeHTML("&pound;2");;
-##}
+/*
+func denomdisplay {
+	para ix;
+	if (ix==1) return "1p";
+	if (ix==2) return "2p";
+	if (ix==3) return "5p";
+	if (ix==4) return "10p";
+	if (ix==5) return "20p";
+	if (ix==6) return "50p";
+	if (ix==7) return decodeHTML("&pound;1");
+	if (ix==8) return decodeHTML("&pound;2");;
+}
+*/
 
 pricedisplay is displaycurrency{ amount = items[i][2] };
 
-##func pricedisplay {
-##	para ix,items;
-##	return displaycurrency(items[ix][2]);
-##}
+/*
+func pricedisplay {
+	para ix,items;
+	return displaycurrency(items[ix][2]);
+}
+*/
 
 currency_inpence is 100 * amount;
 currency_pounds is int(currency_inpence / 100);
 currency_pence is round{ number = currency_inpence - currency_pounds*100};
 displaycurrency is decodeHTML("&pound") // ((currency_pounds>0) ? str(currency_pounds) : "0") // ((currency_pence>0) ? "-" //  str(currency_pence)  // "p" : "");
 
-##func displaycurrency {
-##	para amount;
-##	auto pounds, pence;
-##	pence = 100*amount;
-##	pounds = int (pence / 100);
-##	pence = round(pence - pounds*100);
-##	return decodeHTML("&pound;") // ((pounds>0) ? str(pounds) : "0") // ((pence>0) ? "-" //  str(pence)  // "p" : "");
-##}
+/*
+func displaycurrency {
+	para amount;
+	auto pounds, pence;
+	pence = 100*amount;
+	pounds = int (pence / 100);
+	pence = round(pence - pounds*100);
+	return decodeHTML("&pound;") // ((pounds>0) ? str(pounds) : "0") // ((pence>0) ? "-" //  str(pence)  // "p" : "");
+}
+*/
 
 ##displaycurrency ~> [pricedisplay];
 
-##func listcoins {
-##	para allcoins, chosen;
-##	auto result, i;	
-##	result = [];
-##	for (i=1; i<=allcoins#; i++)
-##		if (chosen[i]) result = result // [allcoins[i]];
-## return result;
-##}
+/*
+func listcoins {
+	para allcoins, chosen;
+	auto result, i;	
+	result = [];
+	for (i=1; i<=allcoins#; i++)
+		if (chosen[i]) result = result // [allcoins[i]];
+ return result;
+}
+*/
 
 ## Picture Definition:
 picture is coinpics // itempics // cointexts // itemtexts // [MyCoinsText,CoinsOfferedText,MyItemsText,ItemsOfferedText];
 
-##picture is [coin1pic,coin2pic,coin3pic,coin4pic,coin5pic,coin6pic,coin7pic,coin8pic, item1pic,item2pic,item3pic,item4pic,item5pic,item6pic,
-##coin1text,coin2text,coin3text,coin4text,coin5text,coin6text,coin7text,coin8text,item1text,item2text,item3text,item4text,item5text,item6text,
-##MyCoinsText,CoinsOfferedText,MyItemsText,ItemsOfferedText];
+/*
+picture is [coin1pic,coin2pic,coin3pic,coin4pic,coin5pic,coin6pic,coin7pic,coin8pic, item1pic,item2pic,item3pic,item4pic,item5pic,item6pic,
+coin1text,coin2text,coin3text,coin4text,coin5text,coin6text,coin7text,coin8text,item1text,item2text,item3text,item4text,item5text,item6text,
+MyCoinsText,CoinsOfferedText,MyItemsText,ItemsOfferedText];
+*/
 
 ## Auto calculation is turned on and the updating is fired
 autocalc = 1;
@@ -389,14 +421,16 @@ autocalc = 1;
 coinsselected = [0,0,0,0,0,0,0,0];
 itemsselected = [0,0,0,0,0,0];
 
-##ix1 is randomInteger(1,8);
-##ix2 is randomInteger(1,8);
-##ix3 is randomInteger(1,8);
-##ix4 is randomInteger(1,8);
-##ix5 is randomInteger(1,8);
-##ix6 is randomInteger(1,8);
-##ix7 is randomInteger(1,8);
-##ix8 is randomInteger(1,8);
+/*
+ix1 is randomInteger(1,8);
+ix2 is randomInteger(1,8);
+ix3 is randomInteger(1,8);
+ix4 is randomInteger(1,8);
+ix5 is randomInteger(1,8);
+ix6 is randomInteger(1,8);
+ix7 is randomInteger(1,8);
+ix8 is randomInteger(1,8);
+*/
 
 selection_single is randomInteger(1,8);
 selection is selection_single{ i = 1..8 };
@@ -414,14 +448,16 @@ cointext is Text{
 };
 cointexts is cointext{ i = 1..8 };
 
-##coin1text is Text(denomdisplay(ix1), 0.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
-##coin2text is Text(denomdisplay(ix2), 1.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
-##coin3text is Text(denomdisplay(ix3), 2.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
-##coin4text is Text(denomdisplay(ix4), 3.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
-##coin5text is Text(denomdisplay(ix5), 4.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
-##coin6text is Text(denomdisplay(ix6), 5.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
-##coin7text is Text(denomdisplay(ix7), 6.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
-##coin8text is Text(denomdisplay(ix8), 7.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
+/*
+coin1text is Text(denomdisplay(ix1), 0.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
+coin2text is Text(denomdisplay(ix2), 1.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
+coin3text is Text(denomdisplay(ix3), 2.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
+coin4text is Text(denomdisplay(ix4), 3.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
+coin5text is Text(denomdisplay(ix5), 4.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
+coin6text is Text(denomdisplay(ix6), 5.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
+coin7text is Text(denomdisplay(ix7), 6.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
+coin8text is Text(denomdisplay(ix8), 7.4*scaleWidth,1.5*scaleWidth,scaleWidth/5);
+*/
 
 itemtext_positions = [0.6, 1.9, 3.2, 4.5, 5.8, 7.1];
 itemtext is Text{
@@ -432,12 +468,14 @@ itemtext is Text{
 };
 itemtexts is itemtext{ i = 1..6 };
 
-##item1text is Text(pricedisplay(1, items), 0.6*scaleWidth,5*scaleWidth,scaleWidth/5);
-##item2text is Text(pricedisplay(2, items), 1.9*scaleWidth,5*scaleWidth,scaleWidth/5);
-##item3text is Text(pricedisplay(3, items), 3.2*scaleWidth,5*scaleWidth,scaleWidth/5);
-##item4text is Text(pricedisplay(4, items), 4.5*scaleWidth,5*scaleWidth,scaleWidth/5);
-##item5text is Text(pricedisplay(5, items), 5.8*scaleWidth,5*scaleWidth,scaleWidth/5);
-##item6text is Text(pricedisplay(6, items), 7.1*scaleWidth,5*scaleWidth,scaleWidth/5);
+/*
+item1text is Text(pricedisplay(1, items), 0.6*scaleWidth,5*scaleWidth,scaleWidth/5);
+item2text is Text(pricedisplay(2, items), 1.9*scaleWidth,5*scaleWidth,scaleWidth/5);
+item3text is Text(pricedisplay(3, items), 3.2*scaleWidth,5*scaleWidth,scaleWidth/5);
+item4text is Text(pricedisplay(4, items), 4.5*scaleWidth,5*scaleWidth,scaleWidth/5);
+item5text is Text(pricedisplay(5, items), 5.8*scaleWidth,5*scaleWidth,scaleWidth/5);
+item6text is Text(pricedisplay(6, items), 7.1*scaleWidth,5*scaleWidth,scaleWidth/5);
+*/
 
 MyCoinsText is Text{
 	text = "Purse",
