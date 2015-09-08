@@ -116,7 +116,8 @@
 			dblclick: titleBarAction,
 			minimizable: true,
 			maximizable: true,
-			beforeMinimize: function () {
+			beforeMinimize: function (event) {
+				$(event.target).parent().removeClass("window-activated");
 				var hide = edenUI.getOptionValue("optHideOnMinimize");
 				if (hide == "true") {
 					me.hideView(name);
@@ -351,7 +352,7 @@
 	 * @param {string} name The name of the view to draw attention to.
 	 */
 	EdenUI.prototype.brieflyHighlightView = function (name) {
-		var dialogWindow = dialog(name).parent();
+		var dialogWindow = this.getDialogWindow(name);
 		dialogWindow.addClass("window-activated");
 		setTimeout(function () {
 			dialogWindow.removeClass("window-activated");

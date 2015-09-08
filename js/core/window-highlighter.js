@@ -10,11 +10,11 @@ WindowHighlighter.prototype.highlight = function (dialogName) {
 	var dialogContent = edenUI.getDialogContent(dialogName);
 	var lastDialogMin = dialogContent.data('dialog-extend-minimize-controls');
 	if (lastDialogMin) {
-		lastDialogMin.addClass('menubar-window-raise');
 		this.previousZIndex = lastDialogMin.css('z-index');
 		dialogContent.dialogExtend("restore");
-		lastDialogMin.css('z-index', 2147483646);
-		lastDialogMin.css('position', 'relative');
+		this.lastDialog.removeClass("window-activated");
+		this.lastDialog.addClass('menubar-window-raise');
+		this.lastDialog.css('z-index', 2147483646);
 		this.lastDialogMinimized = true;
 	} else {
 		this.lastDialog.addClass('menubar-window-raise');
@@ -27,17 +27,19 @@ WindowHighlighter.prototype.highlight = function (dialogName) {
 WindowHighlighter.prototype.stopHighlight = function (dialogName) {
 	if (!this.lastDialog) { return; }
 
+	this.lastDialog.removeClass('menubar-window-raise');
+
 	var dialogContent = edenUI.getDialogContent(dialogName);
 	if (this.lastDialogMinimized) {
 		dialogContent.dialogExtend("minimize");
 	}
 
-	this.lastDialog.removeClass('menubar-window-raise');
 	if (this.lastZIndex === undefined) {
 		dialogContent.dialog("moveToTop");
 	} else {
 		this.lastDialog.css('z-index', this.previousZIndex);
 	}
+
 	this.lastDialog = undefined;
 	this.lastDialogMinimized = false;
 	this.previousZIndex = undefined;
