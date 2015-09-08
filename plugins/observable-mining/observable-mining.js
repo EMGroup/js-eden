@@ -133,7 +133,7 @@ SymbolMeta.prototype.update = function(ctx) {
  * @param context The eden context this plugin is being loaded in to.
  */
 
-EdenUI.plugins.SymbolFramer = function (edenUI, success) {
+EdenUI.plugins.ObservableMining = function (edenUI, success) {
 	var me = this;
 
 	/* Symbol meta data */
@@ -243,7 +243,7 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 
 				if (!found) {
 					//Make new symbolui entry for this symbol.
-					var symui = new EdenUI.plugins.SymbolFramer.Symbol();
+					var symui = new EdenUI.plugins.ObservableMining.Symbol();
 					me.symbolsui.push(symui);
 					symui.element.appendTo(me.symresults);
 					symui.symbol = me.interesting[i].symbol;
@@ -340,13 +340,13 @@ EdenUI.plugins.SymbolFramer = function (edenUI, success) {
 	edenUI.eden.root.addGlobal(symbolChanged);
 
 	// Add views supported by this plugin.
-	edenUI.views["ObservableMine"] = {dialog: this.createDialog, title: "Mined Observables", category: edenUI.viewCategories.comprehension, menuPriority: 1};
+	edenUI.views["ObservableMining"] = {dialog: this.createDialog, title: "Observable Mining", category: edenUI.viewCategories.comprehension, menuPriority: 1};
 
 	$(document).tooltip();
 	success();
 };
 
-EdenUI.plugins.SymbolFramer.prototype.minInteresting = function() {
+EdenUI.plugins.ObservableMining.prototype.minInteresting = function() {
 	if (this.interesting.length > 0) {
 		return this.interesting[this.interesting.length - 1].interestingness;
 	} else {
@@ -354,7 +354,7 @@ EdenUI.plugins.SymbolFramer.prototype.minInteresting = function() {
 	}
 }
 
-EdenUI.plugins.SymbolFramer.prototype.maxInteresting = function() {
+EdenUI.plugins.ObservableMining.prototype.maxInteresting = function() {
 	if (this.interesting.length > 0) {
 		return this.interesting[0].interestingness;
 	} else {
@@ -363,8 +363,8 @@ EdenUI.plugins.SymbolFramer.prototype.maxInteresting = function() {
 }
 
 /* Plugin meta information */
-EdenUI.plugins.SymbolFramer.title = "Observable Mining";
-EdenUI.plugins.SymbolFramer.description = "Automatically generate search for interesting observables";
+EdenUI.plugins.ObservableMining.title = "Observable Mining";
+EdenUI.plugins.ObservableMining.description = "Automatically generate search for interesting observables";
 
 /**
  * A class for an individual symbol result which deals with HTML formatting.
@@ -375,7 +375,7 @@ EdenUI.plugins.SymbolFramer.description = "Automatically generate search for int
  * @param name Name of the symbol.
  * @param Already detected type of the symbol: procedure,function,observable.
  */
-EdenUI.plugins.SymbolFramer.Symbol = function () {
+EdenUI.plugins.ObservableMining.Symbol = function () {
 	this.symbol = undefined;
 	this.name = undefined;
 	this.meta = undefined;
@@ -486,7 +486,7 @@ function _formatFramerVal(value) {
  * Update the HTML output of a plain observable symbol. Detects the data type
  * of the observable to display its current value correctly.
  */
-EdenUI.plugins.SymbolFramer.Symbol.prototype.updateObservable = function (mini, maxi) {
+EdenUI.plugins.ObservableMining.Symbol.prototype.updateObservable = function (mini, maxi) {
 	if (this.symbol === undefined) return;
 
 	if (maxi == 0) maxi = 1;
