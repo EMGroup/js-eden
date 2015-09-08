@@ -99,6 +99,9 @@ function initialiseJSEden() {
 		})
 		.on('keyup', null, 'ctrl', function () {
 			edenUI.stopViewCycling();
+		})
+		.on('keydown', null, 'backspace', function (e) {
+			e.preventDefault();
 		});
 		
 		window.onbeforeunload = function () {

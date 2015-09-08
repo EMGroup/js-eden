@@ -496,14 +496,19 @@
 	 * @param name The view's name.
 	 */
 	EdenUI.prototype.pinView = function (name) {
-		this.getDialogWindow(name).addClass("ui-front");
+		var dialogWindow = this.getDialogWindow(name);
+		dialogWindow.addClass("ui-front");
+		this.viewInstances[name].pinned = true;
 	};
 
 	/**Reduce a view's importance to the same status as other windows.
 	 * @param name The view's name.
 	 */
 	EdenUI.prototype.unpinView = function (name) {
-		this.getDialogWindow(name).removeClass("ui-front");
+		var dialogWindow = this.getDialogWindow(name);
+		dialogWindow.removeClass("ui-front");
+		this.viewInstances[name].pinned = false;
+		this.windowHighlighter.unpin(dialogWindow);
 	};
 
 	EdenUI.prototype.newProject = function () {

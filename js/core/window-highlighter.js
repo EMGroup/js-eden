@@ -2,7 +2,7 @@ function WindowHighlighter(edenUI) {
 	this.edenUI = edenUI;
 	this.lastDialog = undefined;
 	this.lastDialogMinimized = false;
-	this.previousZIndex = undefined;
+	this.previousZIndex = undefined;  //z-index before raising, or undefined if window has become unpinned since.
 }
 
 WindowHighlighter.prototype.highlight = function (dialogName) {
@@ -32,10 +32,19 @@ WindowHighlighter.prototype.stopHighlight = function (dialogName) {
 		dialogContent.dialogExtend("minimize");
 	}
 
-	this.lastDialog
-		.removeClass('menubar-window-raise')
-		.css('z-index', this.previousZIndex);
+	this.lastDialog.removeClass('menubar-window-raise');
+	if (this.lastZIndex === undefined) {
+		dialogContent.dialog("moveToTop");
+	} else {
+		this.lastDialog.css('z-index', this.previousZIndex);
+	}
 	this.lastDialog = undefined;
 	this.lastDialogMinimized = false;
 	this.previousZIndex = undefined;
 };
+
+WindowHighlighter.prototype.unpin = function (dialog) {
+	if (dialog === this.lastDialog) {
+		this.previousZIndex = undefined;
+	}
+}
