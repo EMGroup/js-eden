@@ -164,7 +164,7 @@ EdenUI.plugins.ObservableMining = function (edenUI, success) {
 		code_entry.html(generateHTML(name));
 		me.symresults = code_entry.find(".symbolframer-results")[0];
 
-		$dialog = $('<div id="'+"mined_dialog"+'"></div>')
+		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
 			.dialog({
 				title: mtitle,
@@ -172,6 +172,7 @@ EdenUI.plugins.ObservableMining = function (edenUI, success) {
 				height: 400,
 				minHeight: 200,
 				minWidth: 200,
+				dialogClass: "unpadded-dialog"
 			});
 
 		/*code_entry.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
