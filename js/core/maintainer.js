@@ -494,7 +494,7 @@
 				for (var i = override.begin; i <= override.end; i++) {
 					overrides[o] = i;
 					var res = this.multiValue(context, scope, overrides, cause);
-					if (res) {
+					if (res !== undefined) {
 						results.push.apply(results, res);
 					}
 				}
@@ -505,7 +505,7 @@
 
 		if (hasrange == false) {
 			var val = this.value(new Scope(context, scope, overrides, cause));
-			if (val) {
+			if (val !== undefined) {
 				return [val];
 			}
 			return undefined;
