@@ -82,7 +82,7 @@
 		 */
 		this.autocalc_state = true;
 
-		this.needsExpire = {};
+		this.needsExpire = [];
 		
 		/** Symbols that might be ready to be garbage collected.
 		 * @private
@@ -233,7 +233,7 @@
 	}
 
 	Folder.prototype.expireSymbol = function (sym) {
-		this.needsExpire[sym.name] = sym;
+		this.needsExpire.push(sym);
 		this.expireAndFireActions();
 	};
 
@@ -242,18 +242,18 @@
 			return;
 		}
 
-		var actions_to_fire = {};
-		var symbols_to_force = {};
-		for (var symName in this.needsExpire) {
-			var sym = this.needsExpire[symName];
+		var actions_to_fire = [];
+		var symbols_to_force = [];
+		for (var i = 0; i < this.needsExpire.length; i++) {
+			var sym = this.needsExpire[i];
 			sym.expire(symbols_to_force, actions_to_fire);
 			this.notifyGlobals(sym, false);
 		}
 		var expired = this.needsExpire;
-		this.needsExpire = {};
-		for (var symName in symbols_to_force) {
+		this.needsExpire = [];
+		for (var i = 0; i < symbols_to_force.length; i++) {
 			// force re-eval
-			var sym = symbols_to_force[symName];
+			var sym = symbols_to_force[i];
 			sym.evaluateIfDependenciesExist();
 		}
 		fireActions(actions_to_fire);
@@ -648,8 +648,8 @@
 	};
 
 	function fireActions(actions_to_fire){
-		for (var action_name in actions_to_fire) {
-			var action = actions_to_fire[action_name];
+		for (var i = 0; i < actions_to_fire.length; i++) {
+			var action = actions_to_fire[i];
 
 			// if one action fails, it shouldn't prevent all the other
 			// scheduled actions from firing
@@ -660,8 +660,8 @@
 	};
 	
 	function fireJSActions(symbols_to_fire_for) {
-		for (var symbol_name in symbols_to_fire_for) {
-			symbols_to_fire_for[symbol_name].fireJSObservers();
+		for (var i = 0; i < symbols_to_fire_for.length; i++) {
+			symbols_to_fire_for[i].fireJSObservers();
 		}
 	}
 
@@ -693,11 +693,11 @@
 	Symbol.prototype.expire = function (symbols_to_force, actions_to_fire) {
 		if (this.definition) {
 			this.up_to_date = false;
-			symbols_to_force[this.name] = this;
+			symbols_to_force.push(this);
 		}
 
 		for (var observer_name in this.observers) {
-			actions_to_fire[observer_name] = this.observers[observer_name];
+			actions_to_fire.push(this.observers[observer_name]);
 		}
 
 		// recursively mark out of date and collect
