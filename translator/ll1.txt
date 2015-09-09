@@ -1,10 +1,53 @@
 EDEN LL(1) Grammar
 
 SCRIPT		-> STATEMENT ; SCRIPT | epsilon														FIRST: proc func observable epsilon
-STATEMENT	-> proc PROCEDURE | func FUNCTION | FORMULA											FIRST: proc func observable
-FORMULA		-> LVALUE FORMULA'																	FIRST: observable
-FORMULA'	-> is EXPRESSION | FORMULA''														FIRST: is = += -= = *= epsilon
-FORMULA''	-> = EXPRESSION | += EXPRESSION | -= EXPRESSION | /= EXPRESSION | *= EXPRESSION | ++ | -- | epsilon
+
+STATEMENT	->
+	{ SCRIPT } |
+	when WHEN |
+	proc ACTION |
+	func FUNCTION |
+	STATEMENT' |
+	for FOR |
+	while WHILE |
+	switch SWITCH |
+	if IF |
+	return EOPT |
+	continue |
+	break
+
+FOR			-> ( SOPT ; EOPT ; SOPT ) STATEMENT
+WHILE		-> ( EOPT ) STATEMENT 
+SOPT		-> STATEMENT' | epsilon
+EOPT		-> EXPRESSION | epsilon
+
+IF			-> ( EXPRESSION ) STATEMENT IF'
+IF'			-> else STATEMENT | epsilon
+
+FUNCTION	-> OBSERVABLE { PARAS LOCALS SCRIPT }
+PARAS		-> para OBSERVABLE ; PARAS | epsilon
+LOCALS		-> auto OBSERVABLE ; LOCALS | local OBSERVABLE ; LOCALS | epsilon
+
+WHEN		-> change WHEN' | touch WHEN' | EXPRESSION STATEMENT
+WHEN'		-> LLIST STATEMENT
+
+LLIST		-> LVALUE LLIST'
+LLIST'		-> , LVALUE LLIST' | epsilon
+
+ACTION		-> OBSERVABLE { LOCALS SCRIPT }
+
+
+STATEMENT'	-> LVALUE STATEMENT'' | epsilon
+STATEMENT''	->
+	is EXPRESSION |
+	= EXPRESSION |
+	+= EXPRESSION |
+	-= EXPRESSION |
+	/= EXPRESSION |
+	*= EXPRESSION |
+	++ |
+	--
+
 LVALUE		-> observable LVALUE'																FIRST: observable
 LVALUE'		-> [ EXPRESSION ] LVALUE' | . observable LVALUE' | epsilon							FIRST: [ . epsilon
 
@@ -25,10 +68,7 @@ F			-> ( EXPRESSION ) | - number | number | string | & LVALUE | ! PRIMARY | PRIM
 PRIMARY		-> LVALUE PRIMARY'																	FIRST: observable
 PRIMARY'	-> ( ELIST ) PRIMARY' | . observable ( ELIST ) PRIMARY' | [ EXPRESSION ] PRIMARY' | epsilon			FIRST: ( . [ epsilon
 
-ELIST		-> ELIST' | epsilon																	FIRST: ( - number & ! observable epsilon
-ELIST'		-> EXPRESSION ELIST''																FIRST: ( - number & ! observable
-ELIST''		-> , ELIST' | epsilon																FIRST: , epsilon
+ELIST		-> EXPRESSION ELIST' | epsilon																FIRST: ( - number & ! observable
+ELIST'		-> , EXPRESSION ELIST' | epsilon																FIRST: , epsilon
 
-PROCEDURE
 
-FUNCTION

@@ -135,6 +135,7 @@ var edenKeywords = [
 "proc",
 "auto",
 "para",
+"local",
 "if",
 "is",
 "else",
@@ -148,7 +149,10 @@ var edenKeywords = [
 "case",
 "break",
 "continue",
-"return"
+"return",
+"when",
+"change",
+"touch"
 ];
 
 
@@ -408,6 +412,43 @@ EdenAST_Assignment.prototype.left = function(lvalue) {
 	}
 };
 
+EdenAST_Assignment.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_Action(llist, statement) {
+	this.type = "action";
+	this.kindofaction = "touch";
+	this.errors = llist.errors.concat(statement.errors);
+	this.llist = llist;
+	this.statement = statement;
+};
+
+EdenAST_Action.prototype.kind = function(k) {
+	this.kindofaction = k;
+};
+
+EdenAST_Action.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_LList() {
+	this.type = "lvaluelist";
+	this.errors = [];
+	this.llist = [];
+};
+
+EdenAST_LList.prototype.append = function(lvalue) {
+	this.llist.push(lvalue);
+	this.errors.push.apply(this.errors, lvalue.errors);
+};
+
+EdenAST_LList.prototype.error = fnEdenAST_error;
+
 
 
 //------------------------------------------------------------------------------
@@ -444,6 +485,9 @@ function EdenAST(code) {
 	this.stream = new EdenStream(code);
 	this.data = {};
 	this.token = "invalid";
+
+	// Get First Token;
+	this.next();
 
 	console.time("MakeEdenAST");
 	this.script = this.pSCRIPT();
@@ -676,7 +720,7 @@ EdenAST.prototype.pFACTOR = function() {
 		}
 	}
 
-	var dummy = new EdenAST_Number(0);
+	var dummy = new EdenAST_Literal("NUMBER", 0);
 	dummy.error(new EdenError(dummy, this.stream, "Expected a number, string, observable or ( ... )"));
 	return dummy;
 }
@@ -719,7 +763,102 @@ EdenAST.prototype.pEXPRESSION = function() {
 }
 
 
-EdenAST.prototype.pPROCEDURE = function() {
+/**
+ * ACTION Production
+ * ACTION -> OBSERVABLE { LOCALS SCRIPT }
+ */
+EdenAST.prototype.pACTION = function() {
+	return undefined;
+}
+
+
+/**
+ * WHEN Production
+ * WHEN -> change WHEN' | touch WHEN' | EXPRESSION STATEMENT
+ */
+EdenAST.prototype.pWHEN = function() {
+	if (this.token == "touch") {
+		this.next();
+		var when = this.pWHEN_P();
+		when.kind("touch");
+		return when;
+	}
+	var express = this.pEXPRESSION();
+	var statement = this.pSTATEMENT();
+	var when = new EdenAST_ConditionalAction(express, statement);
+
+	if (express.errors.length > 0) {
+		when.error(new EdenError(when, this.stream, "A 'when' needs to be 'when change', 'when touch' or just 'when' but with a boolean expression"));
+	}
+
+	if (statement === undefined) {
+		when.error(new EdenError(when, this.stream, "A 'when' needs to be followed by one or more statements"));
+	}
+
+	return when;
+}
+
+
+/**
+ * WHEN Prime Production
+ * WHEN' -> LLIST STATEMENT
+ */
+EdenAST.prototype.pWHEN_P = function() {
+	var llist = this.pLLIST();
+	var statement = this.pSTATEMENT();
+	var when = new EdenAST_Action(llist, statement);
+
+	if (llist.errors.length > 0) {
+		when.error(new EdenError(when, this.stream, "A 'when touch' or 'when change' needs a list of observables to watch"));
+	}
+	if (statement === undefined) {
+		when.error(new EdenError(when, this.stream, "A 'when' needs to be followed by one or more statements"));
+	}
+	return when;
+}
+
+
+/**
+ * LLIST Production
+ * LLIST -> LVALUE LLIST'
+ */
+EdenAST.prototype.pLLIST = function() {
+	var lvalue = this.pLVALUE();
+	var llist = this.pLLIST_P();
+	if (llist === undefined) {
+		llist = new EdenAST_LList();
+	}
+
+	llist.append(lvalue);
+	return llist;
+}
+
+
+/**
+ * LLIST Prime Production
+ * LLIST' -> , LVALUE LLIST' | epsilon
+ */
+EdenAST.prototype.pLLIST_P = function() {
+	return undefined;
+}
+
+
+EdenAST.prototype.pIF = function() {
+	return undefined;
+}
+
+
+EdenAST.prototype.pFOR = function() {
+	return undefined;
+}
+
+
+EdenAST.prototype.pWHILE = function() {
+	return undefined;
+}
+
+
+EdenAST.prototype.pSWITCH = function() {
 	return undefined;
 }
 
@@ -753,16 +892,56 @@ EdenAST.prototype.pLVALUE = function() {
 
 
 /**
- * FORMULA Prime Production
- * FORMULA' -> is EXPRESSION | = EXPRESSION | epsilon
+ * STATEMENT PrimePrime Production
+ * STATEMENT''	->
+ *	is EXPRESSION |
+ *	= EXPRESSION |
+ *	+= EXPRESSION |
+ *	-= EXPRESSION |
+ *	/= EXPRESSION |
+ *	*= EXPRESSION |
+ *	++ |
+ *	--
  */
-EdenAST.prototype.pFORMULA_P = function() {
+EdenAST.prototype.pSTATEMENT_PP = function() {
 	if (this.token == "is") {
 		this.next();
 		return new EdenAST_Definition(this.pEXPRESSION());
 	} else if (this.token == "=") {
 		this.next();
 		return new EdenAST_Assignment(this.pEXPRESSION());
+	} else if (this.token == "+=") {
+		this.next();
+		return new EdenAST_Modify("+=", this.pEXPRESSION());
+	} else if (this.token == "-=") {
+		this.next();
+		return new EdenAST_Modify("-=", this.pEXPRESSION());
+	} else if (this.token == "/=") {
+		this.next();
+		return new EdenAST_Modify("/=", this.pEXPRESSION());
+	} else if (this.token == "*=") {
+		this.next();
+		return new EdenAST_Modify("*=", this.pEXPRESSION());
+	}
+
+	//TODO: Remove known invalid tokens
+	var errast = new EdenAST_Assignment(this.pEXPRESSION());
+	errast.error(new EdenError(errast, this.stream, "Expecting an 'is' definition or some kind of assignment."));
+	return errast;
+};
+
+
+
+/**
+ * STATEMENT Prime Production
+ * STATEMENT' -> LVALUE STATEMENT'' | epsilon
+ */
+EdenAST.prototype.pSTATEMENT_P = function() {
+	var lvalue = this.pLVALUE();
+	if (lvalue.errors.length == 0) {
+		var formula = this.pSTATEMENT_PP();
+		formula.left(lvalue);
+		return formula;
 	}
 	return undefined;
 };
@@ -770,34 +949,62 @@ EdenAST.prototype.pFORMULA_P = function() {
 
 
 /**
- * FORMULA Production
- * FORMULA -> LVALUE FORMULA'	
- */
-EdenAST.prototype.pFORMULA = function() {
-	var lvalue = this.pLVALUE();
-	var formula = this.pFORMULA_P();
-	if (formula) {
-		formula.left(lvalue);
-		return formula;
-	}
-	return lvalue;
-};
-
-
-
-/**
  * STATEMENT Production
- * STATEMENT -> proc PROCEDURE | func FUNCTION | FORMULA
+ * STATEMENT	->
+ *	{ SCRIPT } |
+ *	proc ACTION |
+ *	func FUNCTION |
+ *	STATEMENT' |
+ *	for FOR |
+ *	while WHILE |
+ *	switch SWITCH |
+ *	if IF |
+ *	return EOPT |
+ *	continue |
+ *	break
  */
 EdenAST.prototype.pSTATEMENT = function() {
 	if (this.token == "proc") {
 		this.next();
-		return this.pPROCEDURE();
+		return this.pACTION();
 	} else if (this.token == "func") {
 		this.next();
 		return this.pFUNCTION();
+	} else if (this.token == "when") {
+		this.next();
+		return this.pWHEN();
+	} else if (this.token == "for") {
+		this.next();
+		return this.pFOR();
+	} else if (this.token == "while") {
+		this.next();
+		return this.pWHILE();
+	} else if (this.token == "switch") {
+		this.next();
+		return this.pSWITCH();
+	} else if (this.token == "if") {
+		this.next();
+		return this.pIF();
+	} else if (this.token == "return") {
+		this.next();
+		return new EdenAST_Return(this.pEOPT());
+	} else if (this.token == "continue") {
+		this.next();
+		return new EdenAST_Continue();
+	} else if (this.token == "break") {
+		this.next();
+		return new EdenAST_Break();
+	} else if (this.token == "{") {
+		this.next();
+		var script = this.pSCRIPT();
+		if (this.token != "}") {
+			script.error(new EdenError(script, this.stream, "Missing a closing '}'"));
+			return script;
+		}
+		this.next();
+		return script;
 	}
-	return this.pFORMULA();
+	return this.pSTATEMENT_P();
 };
 
 
@@ -808,12 +1015,14 @@ EdenAST.prototype.pSTATEMENT = function() {
 EdenAST.prototype.pSCRIPT = function() {
 	var ast = new EdenAST_Script();
 
-	// Get First Token;
-	this.next();
-
 	while (this.token != "EOF") {
 		var statement = this.pSTATEMENT();
-		ast.append(statement);
+
+		if (statement !== undefined) {
+			ast.append(statement);
+		} else {
+			break;
+		} 
 		
 		//this.next();
 
