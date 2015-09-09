@@ -492,7 +492,12 @@
 		this.clearObservees();
 		this.clearDependencies();
 
-		this.subscribe(Array.prototype.slice.call(arguments, 2));
+		var args = [];
+		for (var i = 2; i < arguments.length; i++) {
+			args.push(arguments[i]);
+		}
+
+		this.subscribe(args);
 
 		if (this.context) {
 			this.context.expireSymbol(this);
@@ -601,7 +606,12 @@
 		this.value();
 		this.definition = undefined;
 
-		mutator.apply(undefined, [this].concat(Array.prototype.slice.call(arguments, 1)));
+		var args = [];
+		for (var i = 1; i < arguments.length; i++) {
+			args.push(arguments[i]);
+		}
+
+		mutator.apply(undefined, [this].concat(args));
 
 		if (this.context) {
 			this.context.expireSymbol(this);
@@ -686,6 +696,7 @@
 			}
 		}
 	}
+
 	
 	/**
 	 * Mark this symbol as out of date, and notify all formulas and observers of
@@ -869,7 +880,11 @@
 			return function (ctor) {
 				temp_ctor.prototype = ctor.prototype;
 				var instance = new temp_ctor();
-				ctor.apply(instance, Array.prototype.slice.call(arguments, 1));
+				var args = [];
+				for (var i = 1; i < arguments.length; i++) {
+					args.push(arguments[i]);
+				}
+				ctor.apply(instance, args);
 				return instance;
 			};
 		})()
@@ -882,7 +897,11 @@
 	 * @return {SymbolAccessor}
 	 */
 	Symbol.prototype.get = function (keys) {
-		return Utils.construct.apply(undefined, [SymbolAccessor,this].concat(Array.prototype.slice.call(arguments)));
+		var args = [];
+		for (var i = 0; i < arguments.length; i++) {
+			args.push(arguments[i]);
+		}
+		return Utils.construct.apply(undefined, [SymbolAccessor,this].concat(args));
 	};
 
 	/**
@@ -906,7 +925,12 @@
 	function SymbolAccessor(symbol, keys) {
 		this.parent = symbol;
 		this.symbol = symbol;
-		this.keys = Array.prototype.slice.call(arguments, 1);
+		//this.keys = Array.prototype.slice.call(arguments, 1);
+
+		this.keys = [];
+		for (var i = 1; i < arguments.length; i++) {
+			this.keys.push(arguments[i]);
+		}
 	};
 
 	/**
@@ -949,7 +973,11 @@
 	 * @return {SymbolAccessor}
 	 */
 	SymbolAccessor.prototype.get = function (keys) {
-		var newLookup = this.keys.concat(Array.prototype.slice.call(arguments));
+		var args = [];
+		for (var i = 0; i < arguments.length; i++) {
+			args.push(arguments[i]);
+		}
+		var newLookup = this.keys.concat(args);
 		return Symbol.prototype.get.apply(this.parent, newLookup);
 	};
 

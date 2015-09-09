@@ -635,7 +635,7 @@ para-alias
 
 function-body
     : '{' para-alias-opt local-var-decl-list-opt statement-list-opt '}'
-        { $$ = 'function() { var args = new Symbol().assign(Array.prototype.slice.call(arguments)); ' + $2 + ' ' + $3 + ' ' + $4.code + '}'; }
+        { $$ = 'function() { var argsa = []; for(var i=0; i<arguments.length; i++) argsa.push(arguments[i]); var args = new Symbol().assign(argsa); ' + $2 + ' ' + $3 + ' ' + $4.code + '}'; }
     ;
 
 

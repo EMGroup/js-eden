@@ -459,7 +459,7 @@ case 133:
  yy.map($$[$0-1], function(id,i) { yy.paras[0][id] = i; }); this.$ = ""; 
 break;
 case 134:
- this.$ = 'function() { var args = new Symbol().assign(Array.prototype.slice.call(arguments)); ' + $$[$0-3] + ' ' + $$[$0-2] + ' ' + $$[$0-1].code + '}'; 
+ this.$ = 'function() { var argsa = []; for(var i=0; i<arguments.length; i++) argsa.push(arguments[i]); var args = new Symbol().assign(argsa); ' + $$[$0-3] + ' ' + $$[$0-2] + ' ' + $$[$0-1].code + '}'; 
 break;
 case 135:
 
