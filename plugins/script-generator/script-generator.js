@@ -177,6 +177,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			}
 		
 			var symbol = root.symbols[name];
+			var isSystemObs = Eden.isitSystemObservable(name);
 			var isView = false;
 
 			if (symbol.last_modified_by == "include" || symbol.last_modified_by == "system" || symbol.last_modified_by == "createView") {
@@ -185,19 +186,19 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			if (/^(autocalc|picture|randomIndex|randomGeneratorState|screenWidth|screenHeight)$/.test(name)) {
 				continue;
 			}
-			if (/^(mouse|touch)[A-Z]/.test(name) && Eden.isitSystemObservable(name)) {
+			if (/^(mouse|touch)[A-Z]/.test(name) && isSystemObs) {
 				continue;
 			}
 			if (/_click(ed)?$/.test(name) && symbol.eden_definition === undefined) {
 				continue;
 			}
-			if (/^_View_/.test(name)) {
+			if (/^_(View|views)_/.test(name)) {
 			  continue;
 			}
 			if (/^_view_/.test(name)) {
 				isView = true;
 				if ((!includeViews || name.search("^_view_" + viewToExclude) != -1) &&
-					Eden.isitSystemObservable(name) && symbol.definition === undefined)
+					isSystemObs && symbol.definition === undefined)
 				{
 					continue;
 				}

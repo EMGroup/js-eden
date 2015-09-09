@@ -42,8 +42,8 @@
 	EdenUI.prototype.menuBarHeight = 30;
 	EdenUI.prototype.dialogBorderWidth = 3.133;
 	EdenUI.prototype.titleBarHeight = 34.659 + EdenUI.prototype.dialogBorderWidth;
-	EdenUI.prototype.scrollBarYSize = 14 + EdenUI.prototype.dialogBorderWidth;
-	EdenUI.prototype.dialogFrameWidth = EdenUI.prototype.scrollBarYSize + 2 * EdenUI.prototype.dialogBorderWidth;
+	EdenUI.prototype.scrollBarSize = 14 + EdenUI.prototype.dialogBorderWidth;
+	EdenUI.prototype.dialogFrameWidth = EdenUI.prototype.scrollBarSize + 2 * EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.dialogFrameHeight = EdenUI.prototype.titleBarHeight + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.bottomBarHeight = 34.906;
 
@@ -111,8 +111,9 @@
 				root.collectGarbage();
 				return doClose;
 			}
-		})
-		.dialogExtend({
+		});
+		var dialogWindow = this.getDialogWindow(name);
+		diag.dialogExtend({
 			dblclick: titleBarAction,
 			minimizable: true,
 			maximizable: true,
@@ -135,21 +136,25 @@
 				dialogMin.css('left', '');
 			},
 			restore: function (event) {
-				$(event.target).dialog('moveToTop');
+				diag.dialog('moveToTop');
 				me.brieflyHighlightView(event.target.id.slice(0,-7));
+				//The following lines are needed because of bugs in dialogExtend, which might be fixed in the latest version.
+				diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, desktopTop, Number.MAX_VALUE, Number.MAX_VALUE]);
+				dialogWindow.draggable("option", {
+					grid: [me.gridSizeX, me.gridSizeY]
+				});
+				dialogWindow.resizable("option", {
+					grid: [me.gridSizeX, me.gridSizeY]
+				});
 			}
 		});
 		this.activeDialogs[name] = type;
-		var dialogWindow = this.getDialogWindow(name);
 		dialogWindow.draggable("option", {
 			grid: [this.gridSizeX, this.gridSizeY]
 		});
 		dialogWindow.resizable("option", {
 			grid: [this.gridSizeX, this.gridSizeY]
 		});
-		if (viewData.pinned) {
-			this.pinView(name);
-		}
 		
 		/* Initialize observables
 		 * _view_xxx_width and _view_xxx_height are the width and height respectively of the usable
@@ -159,7 +164,7 @@
 		 *   _view_b_x = _view_a_x + _view_a_width;
 		 * will position the windows with a slight overlap, though no information will be hidden.
 		 */
-		view(name, 'width').assign(diag.dialog("option", "width") - this.scrollBarYSize, agent);
+		view(name, 'width').assign(diag.dialog("option", "width") - this.scrollBarSize, agent);
 		view(name, 'height').assign(diag.dialog("option", "height") - this.titleBarHeight, agent);
 		var topLeft = diag.closest('.ui-dialog').offset();
 		view(name, 'x').assign(topLeft.left, agent);
@@ -186,8 +191,8 @@
 		diag.on("dialogresizestop", function (event, ui) {
 			var root = me.eden.root;
 			root.beginAutocalcOff();
-			view(name, 'width').assign(ui.size.width - me.scrollBarYSize, Symbol.hciAgent);
-			view(name, 'height').assign(ui.size.height - me.titleBarHeight + 6, Symbol.hciAgent);
+			view(name, 'width').assign(ui.size.width - me.scrollBarSize, Symbol.hciAgent);
+			view(name, 'height').assign(ui.size.height - me.titleBarHeight + 2 * me.dialogBorderWidth, Symbol.hciAgent);
 
 			var xSym = view(name, "x");
 			if (xSym.value() != ui.position.left) {
@@ -227,7 +232,7 @@
 		}
 
 		// Now construct eden agents and observables for dialog control.
-		this.eden.execute(viewEdenCode());
+		this.eden.execute(viewEdenCode(), "createView", "", {name: "/createView"}, noop);
 		this.emit('createView', [name, type]);
 		return viewData;
 	};
@@ -425,7 +430,7 @@
 		var newWidth = widthSym.value();
 		var heightSym = view(name, 'height');
 		var newHeight = heightSym.value();
-		var right = left + newWidth + this.scrollBarYSize + this.dialogBorderWidth;
+		var right = left + newWidth + this.scrollBarSize + this.dialogBorderWidth;
 		var bottom = top + newHeight + this.titleBarHeight - 1;
 		var xMax = window.innerWidth;
 		var yMax = window.innerHeight;
@@ -438,9 +443,9 @@
 		var hciName = Symbol.hciAgent.name;
 
 		//Round the width.  For some reason the width set by jquery.ui isn't always aligned to the grid.
-		var adjustedWidth = Math.round((newWidth + this.scrollBarYSize + this.dialogBorderWidth) / this.gridSizeX) * this.gridSizeX - 2 * this.dialogBorderWidth;
+		var adjustedWidth = Math.round((newWidth + this.scrollBarSize + this.dialogBorderWidth) / this.gridSizeX) * this.gridSizeX - 2 * this.dialogBorderWidth;
 		if (widthSym.last_modified_by != hciName) {
-			if (adjustedWidth < newWidth + this.scrollBarYSize) {
+			if (adjustedWidth < newWidth + this.scrollBarSize) {
 				//...but if the width was set by EDEN code instead of the UI then don't make the window narrower than the width requested.
 				adjustedWidth = adjustedWidth + this.gridSizeX;
 			}
@@ -455,7 +460,7 @@
 				adjustedWidth = xMax - this.dialogBorderWidth - left + document.documentElement.scrollLeft;
 			}
 		}
-		newWidth = adjustedWidth - this.scrollBarYSize;
+		newWidth = adjustedWidth - this.scrollBarSize;
 		diag.dialog("option", "width", adjustedWidth);
 
 		//Round the height.  For some reason the height set by jquery.ui isn't always aligned to the grid.
@@ -584,7 +589,8 @@
 				$(this).parent().find("button")[defaultOptionNum].focus();				
 			}
 		})
-		dialog.parent().addClass("ui-front");
+		$(".ui-widget-overlay").css("z-index", 10001);
+		dialog.parent().css("z-index", 10002);
 	}
 
 }());

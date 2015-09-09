@@ -101,7 +101,10 @@ function initialiseJSEden() {
 			edenUI.stopViewCycling();
 		})
 		.on('keydown', null, 'backspace', function (e) {
-			e.preventDefault();
+			var tagName = e.target.tagName.toUpperCase();
+			if (tagName != "INPUT" && tagName != "TEXTAREA") {
+				e.preventDefault();
+			}
 		});
 		
 		window.onbeforeunload = function () {

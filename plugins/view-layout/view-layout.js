@@ -35,7 +35,7 @@ EdenUI.plugins.WindowLayoutTool = function(edenUI, success) {
 					e,
 					tmpx,
 					tmpy,
-					root.lookup("_view_" + e + "_width").value() + edenUI.scrollBarYSize,
+					root.lookup("_view_" + e + "_width").value() + edenUI.scrollBarSize,
 					root.lookup("_view_" + e + "_height").value() + edenUI.titleBarHeight,
 					root.lookup("_view_" + e + "_title").value()
 				];

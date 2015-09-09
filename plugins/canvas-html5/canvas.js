@@ -376,6 +376,24 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		//Remove -dialog name suffix.
 		var canvasName = name.slice(0, -7);
 		var agent = root.lookup("createView");
+		var code_entry, jqCanvas;
+
+		var canvas = canvases[canvasName];
+		if (canvas === undefined) {
+			code_entry = $('<div id=\"' + name + '-canvascontent\" class=\"canvashtml-content\"></div>');
+			code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" tabindex=\"1\"></canvas>");
+			jqCanvas = code_entry.find(".canvashtml-canvas");
+			canvas = jqCanvas[0];
+			canvases[canvasName] = canvas;
+			contents[canvasName] = code_entry[0];
+			canvasNameToElements[canvasName] = {};
+			canvas.drawingQueued = false;
+			canvas.drawingInProgress = false;
+			canvas.rescale = false;
+		} else {
+			code_entry = $("#" + name + "-canvascontent");
+			jqCanvas = code_entry.find(".canvashtml-canvas");
+		}
 
 		var backgroundColourSym = root.lookup("_view_" + canvasName + "_background_colour");
 		if (backgroundColourSym.value() === undefined) {
@@ -385,43 +403,86 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			me.drawPicture(canvasName, pictureObs);
 		});
 
+		//Events triggered by changes to the various sizing observables.
 		var scaleSym = root.lookup("_view_" + canvasName + "_scale");
-		if (scaleSym.value() === undefined) {
-		  scaleSym.assign(1, agent);
-		}
-		scaleSym.addJSObserver("repaintView", function (symbol, value) {
-			document.getElementById(name + "-canvas").rescale = true;
-			me.drawPicture(canvasName, pictureObs);
-		});
 		var zoomSym = root.lookup("_view_" + canvasName + "_zoom");
-		if (zoomSym.value() === undefined) {
-		  zoomSym.assign(1, agent);
-		}
-		zoomSym.addJSObserver("repaintView", function (symbol, value) {
-			document.getElementById(name + "-canvas").rescale = true;
-			me.drawPicture(canvasName, pictureObs);
-		});
 		var offsetSym = root.lookup("_view_" + canvasName + "_offset");
-		if (offsetSym.value() === undefined) {
-		  offsetSym.assign(new Point(0, 0), agent);
-		}
-		offsetSym.addJSObserver("repaintView", function (symbol, value) {
-			document.getElementById(name + "-canvas").rescale = true;
+		var widthSym = root.lookup("_view_" + canvasName + "_canvas_right");
+		var heightSym = root.lookup("_view_" + canvasName + "_canvas_bottom");
+		var viewWidthSym = root.lookup("_view_" + canvasName + "_width");
+		var viewHeightSym = root.lookup("_view_" + canvasName + "_height");
+		function resizeCanvas () {
+			var offset = offsetSym.value();
+			var offsetX, offsetY;
+			if (offset instanceof Point) {
+				offsetX = offset.x;
+				offsetY = offset.y;
+			} else {
+				offsetX = 0;
+				offsetY = 0;
+			}
+
+			/* Use cached_value in some places below because the grid snapping UI adjusts the values
+			 * to make them align to the grid after the results of any dependencies have been calculated!
+			 */
+			var width = widthSym.value();
+			if (width === undefined) {
+				canvas.width = Math.floor(viewWidthSym.cached_value);
+			} else {
+				width = widthSym.value() * scaleSym.value() * zoomSym.value() + offsetX;
+				canvas.width = width;
+			}
+
+			var height;
+			if (heightSym.value() !== undefined) {
+				height = heightSym.value() * scaleSym.value() * zoomSym.value() + offsetY;
+			} else {
+				height = Math.floor(viewHeightSym.cached_value - 1);
+				if (width !== undefined && width > Math.floor(viewWidthSym.cached_value)) {
+					height = height - edenUI.scrollBarSize;
+				}
+			}
+			canvas.height = height;
+
+			canvas.rescale = true;
 			me.drawPicture(canvasName, pictureObs);
-		});
-
-		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');
-		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" tabindex=\"1\"></canvas>");
-		var jqCanvas = code_entry.find(".canvashtml-canvas");
-
-		if (!(canvasName in canvases)) {		
-			var canvas = jqCanvas[0];
-			canvases[canvasName] = canvas;
-			contents[canvasName] = code_entry[0];
-			canvasNameToElements[canvasName] = {};
-			canvas.drawingQueued = false;
-			canvas.drawingInProgress = false;
-			canvas.rescale = false;
+		}
+		var scale = scaleSym.value();
+		if (scale === undefined) {
+		  scaleSym.assign(1, agent);
+		  scale = 1;
+		}
+		scaleSym.addJSObserver("repaintView", resizeCanvas);
+		var zoom = zoomSym.value();
+		if (zoom === undefined) {
+		  zoomSym.assign(1, agent);
+		  zoom = 1;
+		}
+		zoomSym.addJSObserver("repaintView", resizeCanvas);
+		var offset = offsetSym.value();
+		var offsetX, offsetY;
+		if (!(offset instanceof Point)) {
+		  offsetSym.assign(new Point(0, 0), agent);
+		  offsetX = 0;
+		  offsetY = 0;
+		} else {
+			offsetX = offset.x;
+			offsetY = offset.y;
+		}
+		offsetSym.addJSObserver("repaintView", resizeCanvas);
+		widthSym.addJSObserver("repaintView", resizeCanvas);
+		heightSym.addJSObserver("repaintView", resizeCanvas);
+		var initialWidth = widthSym.value();
+		if (initialWidth === undefined) {
+			initialWidth = defaultWidth;
+		} else {
+			initialWidth = initialWidth * scale + offsetX;
+		}
+		var initialHeight = heightSym.value();
+		if (initialHeight === undefined) {
+			initialHeight = defaultHeight;
+		} else {
+			initialHeight = initialHeight * scale + offsetY;
 		}
 
 		jqCanvas.on("mousedown", function(e) {
@@ -720,8 +781,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		.html(code_entry)
 		.dialog({
 			title: mtitle,
-			width: defaultWidth + edenUI.scrollBarYSize,
-			height: defaultHeight + edenUI.titleBarHeight,
+			width: initialWidth + edenUI.scrollBarSize,
+			height: initialHeight + edenUI.titleBarHeight,
 			minHeight: 120,
 			minWidth: 230,
 			dialogClass: "unpadded-dialog"
@@ -738,21 +799,32 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			resize: function (width, height) {
 				var redraw = false;
 				var canvas = document.getElementById(name + "-canvas");
-				var roundedWidth = Math.floor(width);
-				var roundedHeight = Math.floor(height - 1);
-				/*The if statements are necessary because setting the width or height has the side
+				/*The if redraw = true stuff is necessary because setting the width or height has the side
 				 *effect of erasing the canvas.  If the width or height are defined by dependency
 				 *then this method gets called whenever that dependency is re-evaluated, even if the
 				 *recalculated value is the same as the old one, which previously resulted in a
 				 *noticeable flicker effect.
 				 */
-				if (roundedWidth != canvas.width) {
-					canvas.width = roundedWidth;
-					redraw = true;
+				var prescribedWidth = widthSym.value();
+				var roundedWidth = Math.floor(width);
+				if (prescribedWidth === undefined) {
+					if (roundedWidth != canvas.width) {
+						canvas.width = roundedWidth;
+						redraw = true;
+					}
+				} else {
+					prescribedWidth = prescribedWidth * scaleSym.value() * zoomSym.value();
 				}
-				if (roundedHeight != canvas.height) {
-					canvas.height = roundedHeight;
-					redraw = true;
+
+				if (heightSym.value() === undefined) {
+					if (prescribedWidth !== undefined && prescribedWidth > roundedWidth) {
+						height = height - edenUI.scrollBarSize
+					}
+					var roundedHeight = Math.floor(height - 1);
+					if (roundedHeight != canvas.height) {
+						canvas.height = roundedHeight;
+						redraw = true;
+					}
 				}
 				if (redraw) {
 					me.drawPicture(canvasName, pictureObs);
