@@ -233,7 +233,9 @@
 	}
 
 	Folder.prototype.expireSymbol = function (sym) {
-		this.needsExpire.push(sym);
+		if (this.needsExpire.indexOf(sym) == -1) {
+			this.needsExpire.push(sym);
+		}
 		this.expireAndFireActions();
 	};
 
