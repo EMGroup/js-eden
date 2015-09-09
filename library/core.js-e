@@ -110,17 +110,13 @@ proc showObservables { ${{
 	
 	var searchStr, viewName;
 	
-	if (arguments.length == 0) {
+	searchStr = arguments[0];
+	if (searchStr === undefined) {
 		searchStr = "";
-	} else {
-		searchStr = arguments[0];
-		if (searchStr === undefined) {
-			searchStr = "";
-		}
-		if (typeof(searchStr) != "string") {
-			eden.error(new Error("showObservables: The first argument must be a string, not a " + typeof(searchStr)), "error");
-			return;
-		}
+	}
+	if (typeof(searchStr) != "string") {
+		eden.error(new Error("showObservables: The first argument must be a string, not a " + typeof(searchStr)), "error");
+		return;
 	}
 	
 	viewName = arguments[1];
@@ -134,7 +130,7 @@ proc showObservables { ${{
 	var inputBox = $('#' + viewName + '-dialog .symbollist-search');
 	if (inputBox.length == 0) {
 		edenUI.createView(viewName, "SymbolList");
-		root.lookup("_view_" + viewName + "_title").assign("Symbol List [showObservables]", this);
+		root.lookup("_view_" + viewName + "_title").assign("Symbol List (" + viewName + ")", this);
 		inputBox = $('#' + viewName + '-dialog .symbollist-search');
 	} else {
 		edenUI.showView(viewName);

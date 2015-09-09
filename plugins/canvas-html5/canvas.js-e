@@ -20,8 +20,8 @@ mouseUp = @;
 mouseWheelEnabled = false;
 mouseWheel = 0;
 mouseWindow = @;
-mouseX is mousePosition.x;
-mouseY is mousePosition.y;
+mouseX is mousePosition == @? @ : mousePosition.x;
+mouseY is mousePosition == @? @ : mousePosition.y;
 mouseZone = @;
 touchScrollX = 0;
 
