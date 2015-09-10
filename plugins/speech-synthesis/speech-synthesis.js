@@ -23,6 +23,116 @@
 EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 	var interrupted = false;
 
+	function speak(utterance) {
+		if (!("chrome" in window)) {
+			window.speechSynthesis.speak(utterance);
+			return;
+		}
+
+		var utterances = [];
+		if (utterance.voice && utterance.voice.voiceURI == "native") {
+			utterances.push(utterance);
+		} else {
+			var chunkSize = 200;
+			var lastPunctuationRE = /^(.*[:;,.!?]['")\]]*)(\s[^:;,.!?]*)?$/;
+			var punctuationRE = /^([:;,.!?"')\]]*)\s*/;
+			function makeBoundaryEvent(offset) {
+				return function (event) {
+					var modifiedEvent = new Event("SpeechSynthesis");
+					if (event.charIndex !== undefined) {
+						modifiedEvent.charIndex = offset + event.charIndex;
+					} else {
+						modifiedEvent.charIndex = offset;
+					}
+					modifiedEvent.elapsedTime = event.elapsedTime;
+					modifiedEvent.name = event.name;
+					utterance.onboundary(modifiedEvent);
+				};
+			}
+
+			var text = utterance.text.replace(/(\s)\s+/g, "$1");
+			var offset = 0;
+			var chunk = text.substr(offset, chunkSize);
+
+			while (offset < text.length) {
+				var beginOffset = offset;
+				if (offset + chunkSize < text.length) {
+					var newlineIndex = chunk.lastIndexOf("\n");
+					if (newlineIndex !== -1) {
+						chunk = chunk.slice(0, newlineIndex);
+					} else {
+						var match = chunk.match(lastPunctuationRE);
+						if (match !== null) {
+							chunk = match[1];
+						} else {
+							var spaceIndex = chunk.lastIndexOf(" ");
+							if (spaceIndex !== -1) {
+								chunk = chunk.slice(0, spaceIndex);
+							}
+						}
+					}
+				}
+				var nextChunk = text.substr(offset + chunk.length, chunkSize);
+				offset = offset + chunk.length;
+				match = nextChunk.match(punctuationRE);
+				if (match !== null) {
+					chunk = chunk + match[1];
+					offset = offset + match[0].length;
+				}
+
+				var chunkUtterance = new SpeechSynthesisUtterance(chunk);
+				chunkUtterance.endOffset = beginOffset + chunk.length;
+				chunkUtterance.lang = utterance.lang;
+				chunkUtterance.volume = utterance.volume;
+				chunkUtterance.rate = utterance.rate;
+				chunkUtterance.pitch = utterance.pitch;
+				chunkUtterance.voiceURI = utterance.voiceURI;
+				chunkUtterance.voice = utterance.voice;
+				chunkUtterance.onerror = utterance.onerror;
+				chunkUtterance.onpause = utterance.onpause;
+				chunkUtterance.onresume = utterance.onresume;
+				if (utterance.onboundary) {
+					chunkUtterance.onboundary = makeBoundaryEvent(beginOffset);
+				}
+				utterances.push(chunkUtterance);
+				chunk = nextChunk;
+			}
+
+			function addNext(current, next) {
+				current.onend = function (event) {
+					if (utterance.onboundary) {
+						var modifiedEvent = new Event("SpeechSynthesis");
+						modifiedEvent.charIndex = current.endOffset;
+						modifiedEvent.elapsedTime = event.elapsedTime;
+						modifiedEvent.name = "word";
+						utterance.onboundary(modifiedEvent);				
+					}
+					if (!utterance.cancelled) {
+						console.log(next);
+						setTimeout(function () {
+							window.speechSynthesis.speak(next);
+						}, 0);
+					} else if (utterance.onend) {
+						lastUtterance.onend(event);
+					}
+				};
+			}
+			offset = 0;
+			for (var i = 0; i < utterances.length - 1; i++) {
+				addNext(utterances[i], utterances[i + 1]);
+			}
+			var lastUtterance = utterances[utterances.length - 1];
+			utterances[0].onstart = utterance.onstart;
+			
+			lastUtterance.onend = utterance.onend;	
+		}
+
+		console.log(utterances[0]);
+		setTimeout(function () {
+			window.speechSynthesis.speak(utterances[0]);
+		}, 0);
+	}
+
 	function stopSpeaking() {
 		var paused = window.speechSynthesis.paused;
 		window.speechSynthesis.cancel();
@@ -87,12 +197,14 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 			var next = queue[queueIndex - 1];
 			if (!(next instanceof SpeakingWords) || next.cancelled) {
 				nextSpeech("", true);
+				return;
 			}
+			next.prepareUtterance();
 			var utter = next.utterance;
 
 			id = next.id;
 			idSym.assign(id, agent);
-			if (/^[_a-zA-Z]\w*$/.test(id)) {
+			if (eden.isValidIdentifier(id)) {
 				root.lookup(id + "_status").assign("speaking", agent);
 			}
 
@@ -101,6 +213,7 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 			if (advance) {
 				queueIndexSym.assign(queueIndex, agent);
 			}
+			next.hasBeenSpoken = true;
 			window.speechSynthesis.speak(utter);
 
 		} else {
@@ -125,11 +238,12 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 				//Index shouldn't be bigger than list length + 1.
 				indexSym.assign(queue.length + 1, agent);
 			} else if (index <= queue.length) {
-				for (var i = index < 1? 1 : index; i <= queue.length; i++) {
-					var next = queue[i - 1];
-					if (next instanceof SpeakingWords) {
-						var id = next.id;
-						if (/^[_a-zA-Z]\w*$/.test(id)) {
+				for (var i = index < 1? 0 : index - 1; i < queue.length; i++) {
+					var item = queue[i];
+					if (item instanceof SpeakingWords) {
+						item.prepareUtterance();
+						var id = item.id;
+						if (eden.isValidIdentifier(id)) {
 							root.lookup(id + "_status").assign("waiting", agent);
 						}
 					}
@@ -152,6 +266,11 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 					nextSpeech("interrupted", false);
 				} else {
 					nextSpeech("", false);
+				}
+				for (var i = index; i < queue.length; i++) {
+					if (queue[i] instanceof SpeakingWords) {
+						queue[i].prepareUtterance();
+					}
 				}
 			}
 		}
@@ -253,6 +372,7 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 		var optVal, defaultedLang, defaultedGender, defaultedRate, defaultedPitch;
 		var thisGender;
 		var thisCancelled;
+		this.hasBeenSpoken = false;
 		if (gender === undefined) {
 			thisGender = edenUI.getOptionValue("speechSynthDefaultGender");
 			if ("chrome" in window && thisGender === null) {
@@ -267,7 +387,7 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 		if (rate === undefined) {
 			optVal = edenUI.getOptionValue("speechSynthDefaultRate");
 			if (optVal !== null) {
-				this.utterance.rate = optVal;
+				this.utterance.rate = parseFloat(optVal);
 			}
 			defaultedRate = true;
 		} else {
@@ -277,7 +397,7 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 		if (pitch === undefined) {
 			optVal = edenUI.getOptionValue("speechSynthDefaultPitch");
 			if (optVal !== null) {
-				this.utterance.pitch = optVal;
+				this.utterance.pitch = parseFloat(optVal);
 			}
 			defaultedPitch = true;
 		} else {
@@ -303,7 +423,7 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 				if (newLang) {
 					var index = newLang.indexOf("-");
 					if (index != -1) {
-						newLang = newLang.slice(0, index) + "-" + newLang.slice(index + 1).toUpperCase();
+						newLang = newLang.slice(0, index + 1) + newLang.slice(index + 1).toUpperCase();
 					}
 					me.utterance.lang = newLang;
 				} else {
@@ -407,13 +527,29 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 			this.lang = lang;
 		}
 		
-		if (/^[_a-zA-Z]\w*$/.test(id)) {
+		if (eden.isValidIdentifier(id)) {
 			var idSym = root.lookup(id + "_status");
 			if (idSym.value() === undefined) {
 				idSym.assign("not queued", {name: "/speakingWords"});
 			}
 		}
 
+		this.prepareUtterance = function () {
+			if (me.hasBeenSpoken && !("chrome" in window)) {
+				var newUtterance = new window.SpeechSynthesisUtterance(me.utterance.text);
+				newUtterance.lang = me.utterance.lang;
+				newUtterance.volume = me.utterance.volume;
+				newUtterance.rate = me.utterance.rate;
+				newUtterance.pitch = me.utterance.pitch;
+				newUtterance.voiceURI = me.utterance.voiceURI;
+				newUtterance.voice = me.utterance.voice;
+				newUtterance.onboundary = me.utterance.onboundary;
+				newUtterance.onend = me.utterance.onend;
+				newUtterance.onerror = me.utterance.onerror;
+				me.utterance = newUtterance;
+				me.hasBeenSpoken = false;
+			}
+		}
 		this.utterance.onboundary = function (event) {
 			var agent = {name: "/speak"};
 			root.lookup("speakingCharIndex").assign(event.charIndex + 1, agent);
@@ -428,6 +564,7 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 		this.utterance.onerror = function () {
 			nextSpeech("error", true);
 		};
+
 	}
 
 	edenUI.eden.include("plugins/speech-synthesis/speech-synthesis.js-e", success);

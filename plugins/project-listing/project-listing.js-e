@@ -5,9 +5,10 @@
 
 proc createProjectList {
 	auto url, viewTitle, viewName, createOrUpdateView;
-	if ($# == 1) {
+	if ($# == 0) {
+		viewName = "projects";
+	} else if ($# == 1) {
 		url = $[1];
-		viewTitle = "Project List";
 		viewName = "projects";
 	} else if ($# == 2) {
 		url = $[1];
@@ -22,11 +23,11 @@ proc createProjectList {
 			return;
 		}
 	} else {
-		error("createProjectList: This procedure requires at least 1 argument and at most 3 arguments.");
+		error("createProjectList: This procedure requires at most 3 arguments.");
 		return;
 	}
 	
-	if (!isString(url)) {
+	if (url != @ && !isString(url)) {
 		error("createProjectList: The first argument must be a string, not a " // type(url));
 		return;
 	}

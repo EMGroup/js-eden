@@ -54,7 +54,19 @@ func Line { ${{
 	var y1 = arguments[1];
 	var x2 = arguments[2];
 	var y2 = arguments[3];
-	var colours = arguments[4];
+	var colours, drawingOptions;
+	var lastArg = arguments[arguments.length - 1];
+	var processUpTo;
+	if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+		drawingOptions = lastArg;
+		processUpTo = arguments.length - 2;
+	} else {
+		processUpTo = arguments.length - 1;
+	}
+	if (processUpTo == 4) {
+		colours = arguments[4];
+	}
+
 	if (colours === undefined) {
 		colours = ["black"];
 	} else if (!Array.isArray(colours)) {
@@ -62,7 +74,6 @@ func Line { ${{
 	} else if (colours.length == 0) {
 		colours = ["black"];
 	}
-	var drawingOptions = arguments[5];
 	return new Line(x1, y1, x2, y2, colours, drawingOptions);
 }}$; };
 

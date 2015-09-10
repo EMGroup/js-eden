@@ -533,7 +533,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
  */
 EdenUI.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function () {
 	var eden_definition = this.symbol.eden_definition;
-	var nameHTML;
+	var nameHTML, detailsHTML;
 
 	if (eden_definition !== undefined && !/^proc\s/.test(eden_definition)) {
 		nameHTML = "<span class='hasdef_text'>" + this.name + "</span>";
@@ -541,7 +541,17 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function () {
 		nameHTML = this.name;
 	}
 
-	var html = "<span class='result_name'>" + nameHTML + "</span>";
+	// If there are details for this function in the function meta data
+	if (edenfunctions.functions != undefined && edenfunctions.procedures[this.name] !== undefined) {
+		this.details = edenfunctions.procedures[this.name];
+		// Extract parameters for display.
+		var params = Object.keys(this.details.parameters || {});
+		detailsHTML = "<span class='result_value'> ( " + params.join(", ") + " )</span>";
+	} else {
+		detailsHTML = "";
+	}
+
+	var html = "<span class='result_name'>" + nameHTML + "</span>" + detailsHTML;
 
 	if (eden_definition !== undefined && !/^proc\s/.test(this.symbol.eden_definition)) {
 		var tooltip = Eden.htmlEscape(eden_definition, false, true);

@@ -56,29 +56,17 @@ proc destroyView {
 
 proc moveView {
 	para name, x, y;
-	auto autocalcEnabledOnEntry;
-	autocalcEnabledOnEntry = autocalc;
-	if (autocalcEnabledOnEntry) {
-		autocalc = 0;
-	}
-	`"_view_" // name // "_x"` = x;
-	`"_view_" // name // "_y"` = y;
-	if (autocalcEnabledOnEntry) {
-		autocalc = 1;
+	together {
+		`"_view_" // name // "_x"` = x;
+		`"_view_" // name // "_y"` = y;
 	}
 }
 
 proc resizeView {
 	para name, width, height;
-	auto autocalcEnabledOnEntry;
-	autocalcEnabledOnEntry = autocalc;
-	if (autocalcEnabledOnEntry) {
-		autocalc = 0;
-	}
-	`"_view_" // name // "_width"` = width;
-	`"_view_" // name // "_height"` = height;
-	if (autocalcEnabledOnEntry) {
-		autocalc = 1;
+	together {
+		`"_view_" // name // "_width"` = width;
+		`"_view_" // name // "_height"` = height;
 	}
 }
 

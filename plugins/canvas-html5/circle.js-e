@@ -18,13 +18,22 @@ func Circle { ${{
 	var x = arguments[0];
 	var y = arguments[1];
 	var radius = arguments[2];
-	var fillcolour = arguments[3];
-	var outlinecolour = arguments[4];
-	if (fillcolour === undefined && outlinecolour === undefined) {
-		outlinecolour = "black";
+	var fillcolour, outlinecolour, drawingOptions;
+	var lastArg = arguments[arguments.length - 1];
+	var processUpTo;
+	if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+		drawingOptions = lastArg;
+		processUpTo = arguments.length - 2;
+	} else {
+		processUpTo = arguments.length - 1;
 	}
-	var drawingOptions = arguments[5];
-	if (typeof(drawingOptions) == "object" && eden.isValidIdentifier(drawingOptions.name)) {
+	if (processUpTo >= 3) {
+		fillcolour = arguments[3];
+		if (processUpTo == 4) {
+			outlinecolour = arguments[4];
+		}
+	}
+	if (drawingOptions !== undefined && eden.isValidIdentifier(drawingOptions.name)) {
 		var clickSym = root.lookup(drawingOptions.name + "_click");
 		if (clickSym.value() === undefined) {
 			clickSym.assign(false, root.lookup("Circle"));

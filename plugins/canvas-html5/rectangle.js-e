@@ -20,20 +20,34 @@ func Rectangle { ${{
 	var y = arguments[1];
 	var width = arguments[2];
 	var height = arguments[3];
-	var fillcolour = arguments[4];
-	var outlinecolour = arguments[5];
+	var fillcolour, outlinecolour, drawingOptions;
+	var lastArg = arguments[arguments.length - 1];
+	var processUpTo;
+	if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+		drawingOptions = lastArg;
+		processUpTo = arguments.length - 2;
+	} else {
+		processUpTo = arguments.length - 1;
+	}
+	if (processUpTo >= 4) {
+		fillcolour = arguments[4];
+		if (processUpTo == 5) {
+			outlinecolour = arguments[5];
+		}
+	}
 	if (fillcolour === undefined && outlinecolour === undefined) {
 		outlinecolour = "black";
 	}
-	var drawingOptions = arguments[6];
-	if (typeof(drawingOptions) == "object" && !("join" in drawingOptions) &&
-		drawingOptions.lineWidth < 10) { //Bug in Chrome v44, shape isn't drawn when miter join is used with larger line widths.
-		drawingOptions.join = "miter"
-	}
-	if (typeof(drawingOptions) == "object" && eden.isValidIdentifier(drawingOptions.name)) {
-		var clickSym = root.lookup(drawingOptions.name + "_click");
-		if (clickSym.value() === undefined) {
-			clickSym.assign(false, root.lookup("Rectangle"));
+	if (drawingOptions !== undefined) {
+		if (!("join" in drawingOptions) && drawingOptions.lineWidth < 10) {
+			//Bug in Chrome v44, shape isn't drawn when miter join is used with larger line widths.
+			drawingOptions.join = "miter"
+		}
+		if (eden.isValidIdentifier(drawingOptions.name)) {
+			var clickSym = root.lookup(drawingOptions.name + "_click");
+			if (clickSym.value() === undefined) {
+				clickSym.assign(false, root.lookup("Rectangle"));
+			}
 		}
 	}
 	return new Rectangle(x, y, width, height, fillcolour, outlinecolour, drawingOptions);

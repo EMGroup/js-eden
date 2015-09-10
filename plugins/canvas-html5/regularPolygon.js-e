@@ -1,7 +1,7 @@
 ${{
 	RegularPolygon = function (x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolours, drawingOptions) {
 		this.x = x;
-		this. y = y;
+		this.y = y;
 		this.r = r;
 		this.n = n;
 		this.star = star;
@@ -139,14 +139,22 @@ func RegularPolygon {
 				argsProcessed++;
 		}
 		
-		if (typeof(arguments[arguments.length - 1]) == "object") {
-			argsProcessed = arguments.length - 3;
-		} else if (arguments.length > 6) {
-			argsProcessed = arguments.length - 2;
+		var fillcolour, outlinecolours, drawingOptions;
+		var lastArg = arguments[arguments.length - 1];
+		var processUpTo;
+		if (lastArg !== undefined && (lastArg instanceof Object) && !Array.isArray(lastArg) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+			drawingOptions = lastArg;
+			processUpTo = arguments.length - 2;
+		} else {
+			processUpTo = arguments.length - 1;
 		}
-
-		var fillcolour = arguments[argsProcessed];
-		var outlinecolours = arguments[argsProcessed + 1];
+		if (processUpTo >= argsProcessed) {
+			fillcolour = arguments[argsProcessed];
+			argsProcessed++;
+			if (processUpTo == argsProcessed) {
+				outlinecolours = arguments[argsProcessed];
+			}
+		}
 
 		if (outlinecolours === undefined) {
 			if (fillcolour === undefined) {
@@ -158,8 +166,7 @@ func RegularPolygon {
 			outlinecolours = ["black"];
 		}
 
-		var drawingOptions = arguments[argsProcessed + 2];
-		if (typeof(drawingOptions) == "object") {
+		if (drawingOptions !== undefined) {
 			if (!("join" in drawingOptions)) {
 				drawingOptions.join = "round";
 			}
@@ -222,7 +229,7 @@ RegularPolygon.prototype.isHit = function (context, scale, x, y) {
 		limit = this.filledPolygons.length;
 	}
 	for (var i = 0; i < limit; i++) {
-		hit = this.filledPolygons[i].isHit(context, x, y);
+		hit = this.filledPolygons[i].isHit(context, scale, x, y);
 		if (hit) {
 			return true;
 		}
@@ -249,6 +256,14 @@ RegularPolygon.prototype.toString = function () {
 	return s;
 }
 
-RegularPolygon.prototype.getEdenCode;
+RegularPolygon.prototype.getEdenCode = RegularPolygon.prototype.toString;
 	
+RegularPolygon.prototype.imageMapArea = function () {
+	return this.filledPolygons[0].imageMapArea();
+}
+
+RegularPolygon.prototype.centre = function () {
+	return new Point(this.x, this.y);
+}
+
 }}$;
