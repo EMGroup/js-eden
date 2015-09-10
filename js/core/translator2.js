@@ -9,6 +9,7 @@ function EdenStream(code) {
 	this.code = code;
 	this.position = 0;
 	this.position_stack = [];
+	this.line = 1;
 };
 
 EdenStream.prototype.pushPosition = function() {
@@ -29,6 +30,11 @@ EdenStream.prototype.get = function() {
 
 EdenStream.prototype.peek = function() {
 	return this.code.charCodeAt(this.position);
+};
+
+EdenStream.prototype.peek2 = function() {
+	if (this.position + 1 >= this.code.length) return 0;
+	return this.code.charCodeAt(this.position + 1);
 };
 
 EdenStream.prototype.skip = function() {
@@ -54,7 +60,8 @@ EdenStream.prototype.unget = function() {
 function skipWhiteSpace(stream) {
 	var ch;
 	ch = stream.peek();
-	while (stream.valid() && (ch == 9 || ch == 13 || ch == 32)) {
+	while (stream.valid() && (ch == 9 || ch == 13 || ch == 10 || ch == 32)) {
+		if (ch == 10) stream.line++;
 		stream.skip();
 		ch = stream.peek();
 	}
@@ -159,8 +166,6 @@ var edenKeywords = [
 function readToken(stream, data) {
 	skipWhiteSpace(stream);
 
-	// Remove line and block comments and whitespace.
-
 	if (stream.eof()) return "EOF";
 
 	var ch = stream.get();
@@ -183,6 +188,7 @@ function readToken(stream, data) {
 	case 40	:	return "(";
 	case 41	:	return ")";
 	case 42	:	if (stream.peek() == 61) { stream.skip(); return "*="; }
+				if (stream.peek() == 47) { stream.skip(); return "*/"; }
 				return "*";
 	case 43	:	if (stream.peek() == 43) { stream.skip(); return "++"; }
 				if (stream.peek() == 61) { stream.skip(); return "+="; }
@@ -195,6 +201,11 @@ function readToken(stream, data) {
 				return ".";
 	case 47	:	if (stream.peek() == 47) { stream.skip(); return "//"; }
 				if (stream.peek() == 61) { stream.skip(); return "/="; }
+				if (stream.peek() == 42) {
+					stream.skip();
+					if (stream.peek() == 42) return "/**";
+					return "/*";
+				}
 				return "/";
 	case 48 :
 	case 49 :
@@ -270,6 +281,7 @@ function edenTokenTest(code) {
 function EdenError(ast, stream, msg, parent) {
 	this.ast = ast;
 	this.stream = stream;
+	this.line = stream.line;
 	this.msg = msg;
 	this.parent = parent;
 	this.position = stream.position;
@@ -277,6 +289,9 @@ function EdenError(ast, stream, msg, parent) {
 	console.log("Error: " + msg);
 };
 
+EdenError.prototype.prettyPrint = function() {
+	return "Error on line " + this.line + ": " + this.msg;
+};
 
 
 
@@ -301,7 +316,8 @@ function fnEdenAST_left(left) {
 ////////////////////////////////////////////////////////////////////////////////
 
 function EdenAST_Literal(type, literal) {
-	this.type = type;
+	this.type = "literal";
+	this.datatype = type;
 	this.value = literal;
 	this.errors = [];
 }
@@ -358,8 +374,8 @@ function EdenAST_LValue(observable, lvaluep) {
 	this.observable = observable;
 	this.lvaluep = lvaluep;
 
-	if (lvaluep) {
-		this.errors = lvaluep.errors;
+	for (var i = 0; i < lvaluep.length; i++) {
+		this.errors.push.apply(this.errors, lvaluep[i].errors);
 	}
 };
 
@@ -368,6 +384,26 @@ EdenAST_LValue.prototype.error = fnEdenAST_error;
 EdenAST_LValue.prototype.generate = function() {
 	return "context.lookup(\"" + this.observable + "\")";
 }
+
+function EdenAST_LValueComponent(kind) {
+	this.type = "lvaluecomponent";
+	this.errors = [];
+	this.kind = kind;
+	this.indexexp = undefined;
+	this.observable = undefined;
+};
+
+EdenAST_LValueComponent.prototype.index = function(pindex) {
+	this.indexexp = pindex;
+	this.errors.push.apply(this.errors, pindex.errors);
+};
+
+EdenAST_LValueComponent.prototype.property = function(pprop) {
+	this.observable = pprop;
+	this.errors.push.apply(this.errors, pprop.errors);
+}
+
+EdenAST_LValueComponent.prototype.error = fnEdenAST_error;
 
 
 
@@ -421,9 +457,13 @@ EdenAST_Assignment.prototype.error = fnEdenAST_error;
 function EdenAST_Action(llist, statement) {
 	this.type = "action";
 	this.kindofaction = "touch";
-	this.errors = llist.errors.concat(statement.errors);
+	this.errors = llist.errors;
 	this.llist = llist;
 	this.statement = statement;
+
+	if (statement) {
+		this.errors.push.apply(this.errors, statement.errors);
+	}
 };
 
 EdenAST_Action.prototype.kind = function(k) {
@@ -431,6 +471,23 @@ EdenAST_Action.prototype.kind = function(k) {
 };
 
 EdenAST_Action.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_ConditionalAction(expr, statement) {
+	this.type = "conditionalaction";
+	this.errors = expr.errors;
+	this.expression = expr;
+	this.statement = statement;
+
+	if (statement) {
+		this.errors.push.apply(this.errors, statement.errors);
+	}
+};
+
+EdenAST_ConditionalAction.prototype.error = fnEdenAST_error;
 
 
 
@@ -494,8 +551,33 @@ function EdenAST(code) {
 	console.timeEnd("MakeEdenAST");
 }
 
+EdenAST.prototype.prettyPrint = function() {
+	var result = "";
+
+	if (this.script.errors.length > 0) {
+		for (var i = this.script.errors.length - 1; i >= 0; i--) {
+			result = result + this.script.errors[i].prettyPrint() + "\n\n";
+		}
+	} else {
+		result = JSON.stringify(this.script, function(key, value) {
+			if (key == "errors") return undefined;
+			return value;
+		}, "    ");
+	}
+
+	return result;
+};
+
 EdenAST.prototype.next = function() {
 	this.token = readToken(this.stream, this.data);
+
+	//Skip normal block comments
+	while (this.token == "/*") {
+		while (this.token != "*/") {
+			this.token = readToken(this.stream, this.data);
+		}
+		this.token = readToken(this.stream, this.data);
+	}
 };
 
 EdenAST.prototype.makeBinaryOp = function(op) {
@@ -774,7 +856,7 @@ EdenAST.prototype.pACTION = function() {
 
 /**
  * WHEN Production
- * WHEN -> change WHEN' | touch WHEN' | EXPRESSION STATEMENT
+ * WHEN -> change WHEN' | touch WHEN' | ( EXPRESSION ) STATEMENT
  */
 EdenAST.prototype.pWHEN = function() {
 	if (this.token == "touch") {
@@ -783,19 +865,29 @@ EdenAST.prototype.pWHEN = function() {
 		when.kind("touch");
 		return when;
 	}
-	var express = this.pEXPRESSION();
-	var statement = this.pSTATEMENT();
-	var when = new EdenAST_ConditionalAction(express, statement);
+	if (this.token == "(") {
+		this.next();
+		var express = this.pEXPRESSION();
 
-	if (express.errors.length > 0) {
-		when.error(new EdenError(when, this.stream, "A 'when' needs to be 'when change', 'when touch' or just 'when' but with a boolean expression"));
+		if (this.token != ")") {
+			express.error(new EdenError(express, this.stream, "Missing a ')' after a 'when' conditional"));
+		} else {
+			this.next();
+		}
+
+		var statement = this.pSTATEMENT();
+		var when = new EdenAST_ConditionalAction(express, statement);
+
+		if (express.errors.length > 0) {
+			when.error(new EdenError(when, this.stream, "A 'when' needs to be 'when change', 'when touch' or just 'when' but with a boolean expression"));
+		}
+
+		if (statement === undefined) {
+			when.error(new EdenError(when, this.stream, "A 'when' needs to be followed by one or more statements"));
+		}
+
+		return when;
 	}
-
-	if (statement === undefined) {
-		when.error(new EdenError(when, this.stream, "A 'when' needs to be followed by one or more statements"));
-	}
-
-	return when;
 }
 
 
@@ -839,6 +931,16 @@ EdenAST.prototype.pLLIST = function() {
  * LLIST' -> , LVALUE LLIST' | epsilon
  */
 EdenAST.prototype.pLLIST_P = function() {
+	if (this.token == ",") {
+		this.next();
+		var lvalue = this.pLVALUE();
+		var llist = this.pLLIST_P();
+		if (llist === undefined) {
+			llist = new EdenAST_LList();
+		}
+		llist.append(lvalue);
+		return llist;
+	}
 	return undefined;
 }
 
@@ -868,8 +970,32 @@ EdenAST.prototype.pFUNCTION = function() {
 }
 
 
+/**
+ * LVALUE Prime Production
+ * LVALUE' -> [ EXPRESSION ] LVALUE' | . observable LVALUE' | epsilon
+ */
 EdenAST.prototype.pLVALUE_P = function() {
-	return undefined;
+	var components = [];
+
+	while (true) {
+		if (this.token == "[") {
+			this.next();
+
+			var comp = new EdenAST_LValueComponent("index");
+			var expression = this.pEXPRESSION();
+			comp.index(expression);
+			components.push(comp);
+
+			if (this.token != "]") {
+				comp.error(new EdenError(comp, this.stream, "Missing closing ']' of list index"));
+				return components;
+			}
+			this.next();
+		} else {
+			break;
+		}
+	}
+	return components;
 };
 
 
@@ -880,7 +1006,7 @@ EdenAST.prototype.pLVALUE_P = function() {
  */
 EdenAST.prototype.pLVALUE = function() {
 	if (this.token != "OBSERVABLE") {
-		var ast = new EdenAST_LValue("NONAME", undefined);
+		var ast = new EdenAST_LValue("NONAME", []);
 		ast.error(new EdenError(ast, this.stream, "Expected an observable name"));
 		return ast;
 	}
@@ -1040,5 +1166,24 @@ EdenAST.prototype.pSCRIPT = function() {
 
 	return ast;
 };
+
+
+////////////////////////////////////////////////////////////////////////////////
+//    TESTS
+////////////////////////////////////////////////////////////////////////////////
+
+function eden_parse_tests() {
+	var myast;
+	myast = new EdenAST("when touch a, b, c { d = a * b * c; };");
+	console.log(myast);
+	myast = new EdenAST("d is a * b + c / (x * 55);");
+	console.log(myast);
+	myast = new EdenAST("d is a * b; f = g * h; j is i;");
+	console.log(myast);
+	myast = new EdenAST("d[1] = 5;");
+	console.log(myast);
+	myast = new EdenAST("/* some comment */   a = 6;");
+	console.log(myast);
+}
 
 

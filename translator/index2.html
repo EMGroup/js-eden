@@ -1,0 +1,76 @@
+<html>
+	<head>
+		<title>EDEN to JS translator 2 test page</title>
+
+		<script src="../js/dummyconsole.js"></script>
+		<script src="../js/lib/json2.js"></script>
+
+		<script src="../js/lib/beautify.js"></script>
+
+		<script src="../js/core/translator2.js"></script>
+	</head>
+	<body>
+		<h2>Test the parser</h2>
+		<textarea id="parser-input" rows="8" cols="80"></textarea>
+		<p>
+			<button id="parse-btn">Parse</button>
+			<button id="link-btn">Link to example</button>
+		</p>
+
+		<h2>Generated AST</h2>
+		<pre id="parser-output"></pre>
+		<script>
+			function getParameterByName(name) {
+				name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+				var regexS = "[\\?&]"+name+"=([^&#]*)";
+				var regex = new RegExp( regexS );
+				var results = regex.exec( window.location.href );
+				if (results == null)
+					return "";
+				else
+					return decodeURIComponent(results[1].replace(/\+/g, " "));
+			}
+
+			function getEdenSource() {
+				return document.getElementById('parser-input').value;
+			}
+
+			function translate() {
+				var edenSource = getEdenSource();
+				try {
+					window.localStorage.setItem('edenSource', edenSource);
+				} catch (e) {
+					// allow localStorage to fail
+				}
+
+				var parserAST = new EdenAST(edenSource);
+				var parserOutput = parserAST.prettyPrint();
+				document.getElementById('parser-output').innerHTML = parserOutput;
+			}
+
+			var previousSource = getParameterByName("s");
+
+			if (!previousSource) {
+				try {
+					previousSource = window.localStorage.getItem('edenSource');
+				} catch (e) {
+					// allow localStorage to fail
+				}
+			}
+
+			if (previousSource) {
+				document.getElementById('parser-input').value = previousSource;
+				translate();
+			}
+
+			document.getElementById('parse-btn').addEventListener('click', function () {
+				translate();
+			});
+
+			document.getElementById('link-btn').addEventListener('click', function () {
+				window.location.href = window.location.origin + window.location.pathname +
+					'?s=' + encodeURIComponent(getEdenSource());
+			});
+		</script>
+	</body>
+</html>
