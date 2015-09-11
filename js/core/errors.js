@@ -17,6 +17,7 @@ var EDEN_ERROR_LVALUE = 13;
 var EDEN_ERROR_SEMICOLON = 14;
 var EDEN_ERROR_STATEMENT = 15;
 var EDEN_ERROR_DEFINITION = 16;
+var EDEN_ERROR_FUNCCALLEND = 17;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -143,6 +144,14 @@ var eden_error_db = [
 			identifier: "Must be an 'is' or some kind of assignment",
 			bracket: "Wrong kind of bracket, can only be '['"},
 		suggestion: {expected: ["=","is","+=","-=","/=","*="], next: ["(","OBSERVABLE","NUMBER","STRING","!"]}
+	},
+/* EDEN_ERROR_FUNCCALLEND */
+	{	messages: {
+			keyword: "Missing a ')' after function call",
+			operator: "Missing a ')' after function call",
+			identifier: "Missing a ')' after function call",
+			bracket: "Wrong kind of bracket, need a ')'"},
+		suggestion: {expected: [")"], next: [";","(","[","+","-","/","*","%","^"]}
 	}
 ]
 

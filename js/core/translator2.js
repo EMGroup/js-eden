@@ -240,7 +240,15 @@ EdenAST.prototype.pEXPRESSION_PPPPP = function() {
 
 
 /*
- * F -> ( EXPRESSION ) | - number | number | string | & LVALUE | ! LVALUE | LVALUE
+ * F ->
+ *	( EXPRESSION ) |
+ *	- number |
+ *	number |
+ *	string |
+ *	[ ELIST ] |
+ *	& LVALUE |
+ *	! PRIMARY |
+ *	PRIMARY	
  */
 EdenAST.prototype.pFACTOR = function() {
 	if (this.token == "(") {
@@ -260,18 +268,106 @@ EdenAST.prototype.pFACTOR = function() {
 		return new EdenAST_Literal("STRING", this.data.value);
 	} else if (this.token == "!") {
 		this.next;
-		var lvalue = this.pLVALUE();
-		return new EdenAST_UnaryOp("!", lvalue);
+		var primary = this.pPRIMARY();
+		return new EdenAST_UnaryOp("!", primary);
 	} else {
-		var lvalue = this.pLVALUE();
-		if (lvalue && lvalue.errors.length == 0) {
-			return lvalue;
+		var primary = this.pPRIMARY();
+		return primary;
+	}
+}
+
+
+
+/**
+ * PRIMARY Production
+ * PRIMARY -> observable PRIMARY'
+ */
+EdenAST.prototype.pPRIMARY = function() {
+	var primary = new EdenAST_Primary();
+	if (this.token != "OBSERVABLE") {
+		primary.errors.push(new EdenError(this, EDEN_ERROR_BADFACTOR));
+		return primary;
+	}
+	primary.observable = this.data.value;
+	this.next();
+	primary.setExtras(this.pPRIMARY_P());
+	console.log(primary);
+	return primary;
+}
+
+
+
+/**
+ * PRIMARY Prime Production
+ * PRIMARY'	->
+ *	( ELIST ) PRIMARY'
+ *	| . observable PRIMARY'
+ *	| [ EXPRESSION ] PRIMARY'
+ *	| epsilon
+ */
+EdenAST.prototype.pPRIMARY_P = function() {
+	var result = [];
+	while (true) {
+		if (this.token == "(") {
+			var func = new EdenAST_FunctionCall();
+			this.next();
+
+			result.push(func);
+
+			if (this.token == ")") {
+				this.next();
+				continue;
+			}
+
+			var elist = this.pELIST();
+			func.setParams(elist);
+
+			if (this.token != ")") {
+				if (func.errors.length > 0) return result;
+				func.errors.push(new EdenError(this, EDEN_ERROR_FUNCCALLEND));
+				return result;
+			} else {
+				this.next();
+			}
+		} else {
+			return result;
 		}
 	}
+}
 
-	var dummy = new EdenAST_Literal("NUMBER", 0);
-	dummy.error(new EdenError(this, EDEN_ERROR_BADFACTOR));
-	return dummy;
+
+
+/**
+ * ELIST Production
+ * ELIST -> EXPRESSION ELIST' | epsilon
+ */
+EdenAST.prototype.pELIST = function() {
+	var expression = this.pEXPRESSION();
+	if (expression.errors.length > 0) {
+		return [expression];
+	}
+	var list = this.pELIST_P();
+	list.unshift(expression);
+	return list;
+}
+
+
+
+/**
+ * ELIST Prime Production
+ * ELIST' -> , EXPRESSION ELIST' | epsilon
+ */
+EdenAST.prototype.pELIST_P = function() {
+	var result = [];
+	while (this.token == ",") {
+		this.next();
+		var expression = this.pEXPRESSION();
+		result.push(expression);
+		if (expression.errors.length > 0) {
+			return result;
+		}
+	}
+	return result;
 }
 
 
@@ -710,16 +806,10 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
 
 /**
  * STATEMENT Prime Production
- * STATEMENT' -> LVALUE STATEMENT'' | epsilon
+ * STATEMENT' -> LVALUE STATEMENT''
  */
 EdenAST.prototype.pSTATEMENT_P = function() {
-	var lvalue = this.pLVALUE();
-	if (lvalue.observable != "NONAME") {
-		var formula = this.pSTATEMENT_PP();
-		formula.left(lvalue);
-		return formula;
-	}
-	return lvalue;
+	
 };
 
 
@@ -730,14 +820,15 @@ EdenAST.prototype.pSTATEMENT_P = function() {
  *	{ SCRIPT } |
  *	proc ACTION |
  *	func FUNCTION |
- *	STATEMENT' |
+ *	LVALUE STATEMENT'' |
  *	for FOR |
  *	while WHILE |
  *	switch SWITCH |
  *	if IF |
  *	return EOPT |
  *	continue |
- *	break
+ *	break |
+ *  epsilon
  */
 EdenAST.prototype.pSTATEMENT = function() {
 	if (this.token == "proc") {
@@ -779,8 +870,13 @@ EdenAST.prototype.pSTATEMENT = function() {
 		}
 		this.next();
 		return script;
+	} else if (this.token == "OBSERVABLE") {
+		var lvalue = this.pLVALUE();
+		var formula = this.pSTATEMENT_PP();
+		formula.left(lvalue);
+		return formula;
 	}
-	return this.pSTATEMENT_P();
+	return undefined;
 };
 
 

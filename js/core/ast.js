@@ -155,6 +155,45 @@ EdenAST_Assignment.prototype.error = fnEdenAST_error;
 
 //------------------------------------------------------------------------------
 
+function EdenAST_Primary() {
+	this.type = "primary";
+	this.errors = [];
+	this.observable = "";
+	this.extras = undefined;
+};
+
+EdenAST_Primary.prototype.setExtras = function(extras) {
+	this.extras = extras;
+	for (var i = 0; i < extras.length; i++) {
+		this.errors.push.apply(this.errors, extras[i].errors);
+	}
+};
+
+EdenAST_Primary.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_FunctionCall() {
+	this.type = "functioncall";
+	this.errors = [];
+	this.params = undefined;
+};
+
+EdenAST_FunctionCall.prototype.setParams = function(params) {
+	this.params = params;
+	for (var i = 0; i < params.length; i++) {
+		this.errors.push.apply(this.errors, params[i].errors);
+	}
+};
+
+EdenAST_FunctionCall.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
 function EdenAST_Action() {
 	this.type = "action";
 	this.kindofaction = "touch";

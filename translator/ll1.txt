@@ -67,10 +67,22 @@ T'''		-> T'''' E'''''																		FIRST: ( - number & ! observable
 E'''''		-> # | epsilon																		FIRST: # epsilon
 T''''		-> F E''''''																		FIRST: ( - number & ! observable
 E''''''		-> ? EXPRESSION : EXPRESSION | epsilon												FIRST: ? epsilon
-F			-> ( EXPRESSION ) | - number | number | string | & LVALUE | ! PRIMARY | PRIMARY		FIRST: ( - number & ! observable
+F			->
+	( EXPRESSION ) |
+	- number |
+	number |
+	string |
+	[ ELIST ] |
+	& LVALUE |
+	! PRIMARY |
+	PRIMARY																						FIRST: ( - number & ! observable
 
 PRIMARY		-> observable PRIMARY'																FIRST: observable
-PRIMARY'	-> ( ELIST ) PRIMARY' | . observable ( ELIST ) PRIMARY' | [ EXPRESSION ] PRIMARY' | epsilon			FIRST: ( . [ epsilon
+PRIMARY'	->
+	( ELIST ) PRIMARY'
+	| . observable PRIMARY'
+	| [ EXPRESSION ] PRIMARY'
+	| epsilon																					FIRST: ( . [ epsilon
 
 ELIST		-> EXPRESSION ELIST' | epsilon																FIRST: ( - number & ! observable
 ELIST'		-> , EXPRESSION ELIST' | epsilon																FIRST: , epsilon
