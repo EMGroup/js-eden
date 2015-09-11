@@ -24,17 +24,21 @@ EOPT		-> EXPRESSION | epsilon
 IF			-> ( EXPRESSION ) STATEMENT IF'
 IF'			-> else STATEMENT | epsilon
 
-FUNCTION	-> OBSERVABLE { PARAS LOCALS SCRIPT }
-PARAS		-> para OBSERVABLE ; PARAS | epsilon
-LOCALS		-> auto OBSERVABLE ; LOCALS | local OBSERVABLE ; LOCALS | epsilon
+FUNCTION	-> observable FUNCBODY
+ACTION		-> observable : OLIST ACTIONBODY
+FUNCBODY	-> { PARAS LOCALS SCRIPT }
+ACTIONBODY	-> { LOCALS SCRIPT }
+PARAS		-> para observable ; PARAS | epsilon
+LOCALS		-> auto observable ; LOCALS | local observable ; LOCALS | epsilon
 
-WHEN		-> change WHEN' | touch WHEN' | ( EXPRESSION ) STATEMENT
-WHEN'		-> LLIST STATEMENT
+WHEN		-> change : WHEN' | touch : WHEN' | ( EXPRESSION ) ACTIONBODY
+WHEN'		-> OLIST ACTIONBODY
+
+OLIST		-> observable OLIST'
+OLIST'		-> , observable OLIST' | epsilon
 
 LLIST		-> LVALUE LLIST'
 LLIST'		-> , LVALUE LLIST' | epsilon
-
-ACTION		-> OBSERVABLE { LOCALS SCRIPT }
 
 
 STATEMENT'	-> LVALUE STATEMENT'' | epsilon
@@ -65,7 +69,7 @@ T''''		-> F E''''''																		FIRST: ( - number & ! observable
 E''''''		-> ? EXPRESSION : EXPRESSION | epsilon												FIRST: ? epsilon
 F			-> ( EXPRESSION ) | - number | number | string | & LVALUE | ! PRIMARY | PRIMARY		FIRST: ( - number & ! observable
 
-PRIMARY		-> LVALUE PRIMARY'																	FIRST: observable
+PRIMARY		-> observable PRIMARY'																FIRST: observable
 PRIMARY'	-> ( ELIST ) PRIMARY' | . observable ( ELIST ) PRIMARY' | [ EXPRESSION ] PRIMARY' | epsilon			FIRST: ( . [ epsilon
 
 ELIST		-> EXPRESSION ELIST' | epsilon																FIRST: ( - number & ! observable

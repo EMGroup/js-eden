@@ -1,547 +1,13 @@
 /* Manual EDEN parser */
 
 
-/**
- * A basic stream wrapper for a javascript string that allows for sequential
- * reading and backtracking of the string.
- */
-function EdenStream(code) {
-	this.code = code;
-	this.position = 0;
-	this.position_stack = [];
-	this.line = 1;
-};
-
-EdenStream.prototype.pushPosition = function() {
-	this.position_stack.push(this.position);
-};
-
-EdenStream.prototype.popPosition = function() {
-	this.position = this.position_stack.pop();
-};
-
-EdenStream.prototype.discardPosition = function() {
-	this.position_stack.pop();
-};
-
-EdenStream.prototype.get = function() {
-	return this.code.charCodeAt(this.position++);
-};
-
-EdenStream.prototype.peek = function() {
-	return this.code.charCodeAt(this.position);
-};
-
-EdenStream.prototype.peek2 = function() {
-	if (this.position + 1 >= this.code.length) return 0;
-	return this.code.charCodeAt(this.position + 1);
-};
-
-EdenStream.prototype.skip = function() {
-	this.position++;
-};
-
-EdenStream.prototype.eof = function() {
-	return this.position == this.code.length;
-};
-
-EdenStream.prototype.valid = function() {
-	return this.position < this.code.length;
-};
-
-EdenStream.prototype.unget = function() {
-	this.position--;
-};
-
-
-
-/* Lexer Primatives */
-
-function skipWhiteSpace(stream) {
-	var ch;
-	ch = stream.peek();
-	while (stream.valid() && (ch == 9 || ch == 13 || ch == 10 || ch == 32)) {
-		if (ch == 10) stream.line++;
-		stream.skip();
-		ch = stream.peek();
-	}
-};
-
-
-function isAlphaNumeric(ch) {
-	return (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch == 95);
-};
-
-
-function isNumeric(ch) {
-	return (ch >= 48 && ch <= 57);
-};
-
-
-function parseAlphaNumeric(stream, data) {
-	var result = "";
-	skipWhiteSpace(stream);
-
-	if (isAlphaNumeric(stream.peek()) == false) {
-		return false;
-	}
-
-	while (stream.valid() && isAlphaNumeric(stream.peek())) {
-		result = result + String.fromCharCode(stream.get());
-	}
-	data.value = result;
-	return true;
-};
-
-
-
-function parseString(stream, data) {
-	var result = "";
-
-	while (stream.valid() && stream.peek() != 34) {
-		result = result + String.fromCharCode(stream.get());
-	}
-
-	data = result;
-};
-
-
-
-function parseNumber(stream, data) {
-	var result = "";
-
-	while (stream.valid() && isNumeric(stream.peek())) {
-		result = result + String.fromCharCode(stream.get());
-	}
-
-	data.value = parseFloat(result);
-};
-
-
-function parseKeyword(stream, word) {
-	skipWhiteSpace(stream);
-	stream.pushPosition();
-	for (var i = 0; i < word.length; i++) {
-		if (stream.get() != word.charCodeAt(i)) {
-			stream.popPosition();
-			return false;
-		}
-	}
-	if (isAlphaNumeric(stream.peek())) {
-		stream.popPosition();
-		return false;
-	} else {
-		stream.discardPosition();
-		return true;
-	}
-};
-
-
-var edenKeywords = [
-"func",
-"proc",
-"auto",
-"para",
-"local",
-"if",
-"is",
-"else",
-"true",
-"false",
-"eval",
-"for",
-"while",
-"do",
-"switch",
-"case",
-"break",
-"continue",
-"return",
-"when",
-"change",
-"touch"
-];
-
-
-function readToken(stream, data) {
-	skipWhiteSpace(stream);
-
-	if (stream.eof()) return "EOF";
-
-	var ch = stream.get();
-	switch (ch) {
-	case 33	:	if (stream.peek() == 61) { stream.skip(); return "!="; }
-				if (stream.peek() == 126) { stream.skip(); return "!~"; }
-				return "!";
-	case 34	:	parseString(stream, data); return "STRING";
-	case 35	:	return "#";
-	case 36	:	if (stream.peek() == 123 && stream.peek2() == 123) {
-					stream.skip(); stream.skip();
-					//parseJavascript(stream, data);
-					return "JAVASCRIPT";
-				}
-				return "$";
-	case 37	:	return "%";
-	case 38	:	if (stream.peek() == 38) { stream.skip(); return "&&"; }
-				if (stream.peek() == 61) { stream.skip(); return "&="; }
-				return "&";
-	case 40	:	return "(";
-	case 41	:	return ")";
-	case 42	:	if (stream.peek() == 61) { stream.skip(); return "*="; }
-				if (stream.peek() == 47) { stream.skip(); return "*/"; }
-				return "*";
-	case 43	:	if (stream.peek() == 43) { stream.skip(); return "++"; }
-				if (stream.peek() == 61) { stream.skip(); return "+="; }
-				return "+";
-	case 44 :	return ",";
-	case 45	:	if (stream.peek() == 45) { stream.skip(); return "--"; }
-				if (stream.peek() == 61) { stream.skip(); return "-="; }
-				return "-";
-	case 46	:	if (stream.peek() == 46) { stream.skip(); return ".."; }
-				return ".";
-	case 47	:	if (stream.peek() == 47) { stream.skip(); return "//"; }
-				if (stream.peek() == 61) { stream.skip(); return "/="; }
-				if (stream.peek() == 42) {
-					stream.skip();
-					if (stream.peek() == 42) return "/**";
-					return "/*";
-				}
-				return "/";
-	case 48 :
-	case 49 :
-	case 50 :
-	case 51 :
-	case 52 :
-	case 53 :
-	case 54 :
-	case 55 :
-	case 56 :
-	case 57 :	stream.unget(); parseNumber(stream, data); return "NUMBER";
-	case 58	:	return ":";
-	case 59	:	return ";";
-	case 60	:	if (stream.peek() == 60) { stream.skip(); return "<<"; }
-				if (stream.peek() == 61) { stream.skip(); return "<="; }
-				return "<";
-	case 61 :	if (stream.peek() == 61) { stream.skip(); return "=="; }
-				if (stream.peek() == 126) { stream.skip(); return "=~"; }
-				return "=";
-	case 62	:	if (stream.peek() == 62) { stream.skip(); return ">>"; }
-				if (stream.peek() == 61) { stream.skip(); return ">="; }
-				return ">";
-	case 63	:	return "?";
-	case 64	:	return "@";
-	case 91	:	return "[";
-	case 92	:	return "\"";	//TODO: Escape chars
-	case 93	:	return "]";
-	case 94	:	return "^";
-	case 96	:	return "`";
-	case 123:	return "{";
-	case 124:	if (stream.peek() == 124) { stream.skip(); return "||"; }
-				if (stream.peek() == 61) { stream.skip(); return "|="; }
-				return "|";
-	case 125:	return "}";
-	case 126:	return "~";
-	default: break; 
-	};
-
-	stream.unget();
-
-	// Nothing matched so is alpha numeric...
-	// Check for keywords
-	for (var i = 0; i < edenKeywords.length; i++) {
-		if (parseKeyword(stream, edenKeywords[i])) {
-			return edenKeywords[i];
-		}
-	}
-
-	// Must be an identifier
-	if (parseAlphaNumeric(stream, data)) return "OBSERVABLE";
-
-	return "INVALID";
-};
-
-
-function edenTokenTest(code) {
-	var stream = new EdenStream(code);
-	var result = [];
-	var data = {};
-
-	while (stream.valid()) {
-		result.push(readToken(stream, data));
-	}
-
-	return result;
-};
-
-
-
-
-/* Error Handling Class */
-
-function EdenError(ast, stream, msg, parent) {
-	this.ast = ast;
-	this.stream = stream;
-	this.line = stream.line;
-	this.msg = msg;
-	this.parent = parent;
-	this.position = stream.position;
-
-	console.log("Error: " + msg);
-};
-
-EdenError.prototype.prettyPrint = function() {
-	return "Error on line " + this.line + ": " + this.msg;
-};
-
-
-
-
-
-/* AST Structures */
-
-
-function fnEdenAST_error(err) {
-	this.errors.push(err);
-};
-
-function fnEdenAST_left(left) {
-	this.l = left;
-	if (left.errors.length > 0) {
-		this.errors.push.apply(this.errors, left.errors);
-	}
-};
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-function EdenAST_Literal(type, literal) {
-	this.type = "literal";
-	this.datatype = type;
-	this.value = literal;
-	this.errors = [];
-}
-EdenAST_Literal.prototype.error = fnEdenAST_error;
-
-
-
-//------------------------------------------------------------------------------
-
-function EdenAST_UnaryOp(op, right) {
-	this.type = "unaryop";
-	this.op = op;
-	this.errors = right.errors;
-	this.r = right;
-}
-EdenAST_UnaryOp.prototype.error = fnEdenAST_error;
-
-
-
-//------------------------------------------------------------------------------
-
-function EdenAST_BinaryOp(op, right) {
-	this.type = "binaryop";
-	this.op = op;
-	this.errors = right.errors;
-	this.r = right;
-	this.l = undefined;
-}
-EdenAST_BinaryOp.prototype.left = fnEdenAST_left;
-EdenAST_BinaryOp.prototype.error = fnEdenAST_error;
-
-EdenAST_BinaryOp.prototype.generate = function() {
-	var left = (this.l.type == "lvalue") ? this.l.generate() + ".value()" : this.l.generate();
-	var right = (this.r.type == "lvalue") ? this.r.generate() + ".value()" : this.r.generate();
-	return left + " " + this.op + " " + right;
-}
-
-
-
-//------------------------------------------------------------------------------
-
-function EdenAST_Length() {
-	this.type = "length";
-	this.errors = [];
-}
-
-
-
-//------------------------------------------------------------------------------
-
-function EdenAST_LValue(observable, lvaluep) {
-	this.type = "lvalue";
-	this.errors = [];
-	this.observable = observable;
-	this.lvaluep = lvaluep;
-
-	for (var i = 0; i < lvaluep.length; i++) {
-		this.errors.push.apply(this.errors, lvaluep[i].errors);
-	}
-};
-
-EdenAST_LValue.prototype.error = fnEdenAST_error;
-
-EdenAST_LValue.prototype.generate = function() {
-	return "context.lookup(\"" + this.observable + "\")";
-}
-
-function EdenAST_LValueComponent(kind) {
-	this.type = "lvaluecomponent";
-	this.errors = [];
-	this.kind = kind;
-	this.indexexp = undefined;
-	this.observable = undefined;
-};
-
-EdenAST_LValueComponent.prototype.index = function(pindex) {
-	this.indexexp = pindex;
-	this.errors.push.apply(this.errors, pindex.errors);
-};
-
-EdenAST_LValueComponent.prototype.property = function(pprop) {
-	this.observable = pprop;
-	this.errors.push.apply(this.errors, pprop.errors);
-}
-
-EdenAST_LValueComponent.prototype.error = fnEdenAST_error;
-
-
-
-//------------------------------------------------------------------------------
-
-function EdenAST_Definition(expression) {
-	this.type = "definition";
-	this.errors = expression.errors;
-	this.expression = expression;
-	this.lvalue = undefined;
-};
-
-EdenAST_Definition.prototype.left = function(lvalue) {
-	this.lvalue = lvalue;
-	if (lvalue.errors.length > 0) {
-		this.errors.push.apply(this.errors, lvalue.errors);
-	}
-};
-
-EdenAST_Definition.prototype.generate = function() {
-	var result = this.lvalue.generate() + ".define(function(context) { return ";
-	result = result + this.expression.generate();
-	result = result + "; }, this, []);"
-	return result;
-};
-
-
-
-//------------------------------------------------------------------------------
-
-function EdenAST_Assignment(expression) {
-	this.type = "assignment";
-	this.errors = expression.errors;
-	this.expression = expression;
-	this.lvalue = undefined;
-};
-
-EdenAST_Assignment.prototype.left = function(lvalue) {
-	this.lvalue = lvalue;
-	if (lvalue.errors.length > 0) {
-		this.errors.push.apply(this.errors, lvalue.errors);
-	}
-};
-
-EdenAST_Assignment.prototype.error = fnEdenAST_error;
-
-
-
-//------------------------------------------------------------------------------
-
-function EdenAST_Action(llist, statement) {
-	this.type = "action";
-	this.kindofaction = "touch";
-	this.errors = llist.errors;
-	this.llist = llist;
-	this.statement = statement;
-
-	if (statement) {
-		this.errors.push.apply(this.errors, statement.errors);
-	}
-};
-
-EdenAST_Action.prototype.kind = function(k) {
-	this.kindofaction = k;
-};
-
-EdenAST_Action.prototype.error = fnEdenAST_error;
-
-
-
-//------------------------------------------------------------------------------
-
-function EdenAST_ConditionalAction(expr, statement) {
-	this.type = "conditionalaction";
-	this.errors = expr.errors;
-	this.expression = expr;
-	this.statement = statement;
-
-	if (statement) {
-		this.errors.push.apply(this.errors, statement.errors);
-	}
-};
-
-EdenAST_ConditionalAction.prototype.error = fnEdenAST_error;
-
-
-
-//------------------------------------------------------------------------------
-
-function EdenAST_LList() {
-	this.type = "lvaluelist";
-	this.errors = [];
-	this.llist = [];
-};
-
-EdenAST_LList.prototype.append = function(lvalue) {
-	this.llist.push(lvalue);
-	this.errors.push.apply(this.errors, lvalue.errors);
-};
-
-EdenAST_LList.prototype.error = fnEdenAST_error;
-
-
-
-//------------------------------------------------------------------------------
-
-function EdenAST_Script() {
-	this.type = "script";
-	this.errors = [];
-	this.statements = [];
-};
-
-EdenAST_Script.prototype.error = fnEdenAST_error;
-
-EdenAST_Script.prototype.append = function (ast) {
-	this.statements.push(ast);
-	if (ast.errors.length > 0) {
-		this.errors.push.apply(this.errors, ast.errors);
-	}
-}
-
-EdenAST_Script.prototype.generate = function() {
-	var result = "(function (root, eden, includePrefix, done) {(function(context, rt) {";
-	for (var i = 0; i < this.statements.length; i++) {
-		result = result + this.statements[i].generate();
-	}
-	result = result + "}).call(this, root, rt);})";
-	return result;
-}
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
 
 function EdenAST(code) {
 	this.stream = new EdenStream(code);
 	this.data = {};
 	this.token = "invalid";
+	this.src = "input";
 
 	// Get First Token;
 	this.next();
@@ -555,7 +21,8 @@ EdenAST.prototype.prettyPrint = function() {
 	var result = "";
 
 	if (this.script.errors.length > 0) {
-		for (var i = this.script.errors.length - 1; i >= 0; i--) {
+		console.log(this.script);
+		for (var i = 0; i < this.script.errors.length; i++) {
 			result = result + this.script.errors[i].prettyPrint() + "\n\n";
 		}
 	} else {
@@ -780,7 +247,7 @@ EdenAST.prototype.pFACTOR = function() {
 		this.next();
 		var expression = this.pEXPRESSION();
 		if (this.token != ")") {
-			expression.error(new EdenError(expression, this.stream, "Missing a closing ')' bracket"));
+			expression.error(new EdenError(this, EDEN_ERROR_EXPCLOSEBRACKET));
 		} else {
 			this.next();
 		}
@@ -803,7 +270,7 @@ EdenAST.prototype.pFACTOR = function() {
 	}
 
 	var dummy = new EdenAST_Literal("NUMBER", 0);
-	dummy.error(new EdenError(dummy, this.stream, "Expected a number, string, observable or ( ... )"));
+	dummy.error(new EdenError(this, EDEN_ERROR_BADFACTOR));
 	return dummy;
 }
 
@@ -847,66 +314,238 @@ EdenAST.prototype.pEXPRESSION = function() {
 
 /**
  * ACTION Production
- * ACTION -> OBSERVABLE { LOCALS SCRIPT }
+ * ACTION -> observable : OLIST ACTIONBODY
  */
 EdenAST.prototype.pACTION = function() {
-	return undefined;
+	var action = new EdenAST_Action();
+
+	if (this.token == "OBSERVABLE") {
+		action.name = this.data.value;
+		this.next();
+	} else {
+		action.errors.push(new EdenError(this, EDEN_ERROR_PROCNAME));
+		return action;
+	}
+
+	if (this.token == ":") {
+		this.next();
+	} else {
+		action.errors.push(new EdenError(this, EDEN_ERROR_ACTIONCOLON));
+		return action;
+	}
+
+	var olist = this.pOLIST();
+	if (olist.length == 0) {
+		action.errors.push(new EdenError(this, EDEN_ERROR_ACTIONNOWATCH));
+		return action;
+	} else if (olist[olist.length-1] == "NONAME") {
+		action.errors.push(new EdenError(this, EDEN_ERROR_ACTIONCOMMAS));
+		return action;
+	}
+	action.triggers = olist;
+
+	action.setBody(this.pACTIONBODY());
+	return action;
 }
 
 
 /**
  * WHEN Production
- * WHEN -> change WHEN' | touch WHEN' | ( EXPRESSION ) STATEMENT
+ * WHEN -> change : WHEN' | touch : WHEN' | ( EXPRESSION ) ACTIONBODY
  */
 EdenAST.prototype.pWHEN = function() {
-	if (this.token == "touch") {
+	if (this.token == "touch" || this.token == "change") {
+		var kind = this.token;
 		this.next();
-		var when = this.pWHEN_P();
-		when.kind("touch");
-		return when;
-	}
-	if (this.token == "(") {
-		this.next();
-		var express = this.pEXPRESSION();
 
-		if (this.token != ")") {
-			express.error(new EdenError(express, this.stream, "Missing a ')' after a 'when' conditional"));
-		} else {
+		var hascolon = false;
+
+		if (this.token == ":") {
+			hascolon = true;
 			this.next();
 		}
 
-		var statement = this.pSTATEMENT();
-		var when = new EdenAST_ConditionalAction(express, statement);
+		var when = this.pWHEN_P();
+		when.kind(kind);
 
-		if (express.errors.length > 0) {
-			when.error(new EdenError(when, this.stream, "A 'when' needs to be 'when change', 'when touch' or just 'when' but with a boolean expression"));
-		}
-
-		if (statement === undefined) {
-			when.error(new EdenError(when, this.stream, "A 'when' needs to be followed by one or more statements"));
+		if (hascolon == false) {
+			when.errors.unshift(new EdenError(this, EDEN_ERROR_ACTIONCOLON));
 		}
 
 		return when;
 	}
+
+	var errors = [];
+
+	if (this.token != "(") {
+		errors.push(new EdenError(this, EDEN_ERROR_WHENTYPE));
+	} else {
+		this.next();
+	}
+
+	var express = this.pEXPRESSION();
+
+	if (this.token != ")") {
+		express.error(new EdenError(this, 0, "Missing a ')' after a 'when' conditional", undefined, ")"));
+	} else {
+		this.next();
+	}
+
+	var statement = this.pSTATEMENT();
+	var when = new EdenAST_ConditionalAction(express, statement);
+
+	if (statement === undefined) {
+		when.error(new EdenError(this, 0, "A 'when' needs to be followed by one or more statements", undefined, undefined));
+	}
+
+	if (errors.length > 0) {
+		for (var i = 0; i < errors.length; i++) {
+			when.error(errors[i]);
+		}
+	}
+	return when;
 }
 
 
 /**
  * WHEN Prime Production
- * WHEN' -> LLIST STATEMENT
+ * WHEN' -> OLIST ACTIONBODY
  */
 EdenAST.prototype.pWHEN_P = function() {
-	var llist = this.pLLIST();
-	var statement = this.pSTATEMENT();
-	var when = new EdenAST_Action(llist, statement);
+	var when = new EdenAST_Action();
 
-	if (llist.errors.length > 0) {
-		when.error(new EdenError(when, this.stream, "A 'when touch' or 'when change' needs a list of observables to watch"));
+	var olist = this.pOLIST();
+	if (olist.length == 0) {
+		when.error(new EdenError(this, 0, "'when touch' or 'when change' needs a list of observables to watch", undefined, undefined));
+	} else if (olist[olist.length-1] == "NONAME") {
+		when.error(new EdenError(this, 0, "Too many ',' or a missing observable", undefined, undefined));
 	}
-	if (statement === undefined) {
-		when.error(new EdenError(when, this.stream, "A 'when' needs to be followed by one or more statements"));
+	when.triggers = olist;
+
+	var body = this.pACTIONBODY();
+	
+	if (body === undefined) {
+		when.error(new EdenError(this, 0, "A 'when' needs to be followed by a body of code", undefined, undefined));
+	} else {
+		when.setBody(body);
 	}
 	return when;
+}
+
+
+
+/**
+ * OLIST Production.
+ * OLIST -> observable OLIST'
+ */
+EdenAST.prototype.pOLIST = function() {
+	if (this.token != "OBSERVABLE") {
+		return [];
+	}
+
+	var observable = this.data.value;
+	this.next();
+
+	var prime = this.pOLIST_P();
+	prime.unshift(observable);
+	return prime;
+}
+
+
+/**
+ * OLIST Prime Production
+ * OLIST' -> , observable OLIST' | epsilon
+ */
+EdenAST.prototype.pOLIST_P = function() {
+	var olist = [];
+	while (this.token == ",") {
+		this.next();
+		if (this.token == "OBSERVABLE") {
+			olist.push(this.data.value);
+			this.next();
+		} else {
+			olist.push("NONAME");
+			return olist;
+		}
+	}
+
+	return olist;
+}
+
+
+
+/**
+ * ACTIONBODY Production
+ * ACTIONBODY -> { LOCALS SCRIPT }
+ */
+EdenAST.prototype.pACTIONBODY = function() {
+	var codebody = new EdenAST_CodeBlock();
+
+	if (this.token != "{") {
+		codebody.errors.push(new EdenError(this, EDEN_ERROR_ACTIONOPEN));
+		return codebody;
+	} else {
+		this.next();
+	}
+
+	codebody.setLocals(this.pLOCALS());
+	if (codebody.locals.errors.length > 0) return codebody;
+	codebody.setScript(this.pSCRIPT());
+
+	if (this.token != "}") {
+		codebody.errors.push(new EdenError(this, EDEN_ERROR_ACTIONCLOSE));
+		return codebody;
+	} else {
+		this.next();
+	}
+
+	return codebody;
+}
+
+
+
+EdenAST.prototype.pPARAMS = function() {
+
+}
+
+
+
+/**
+ * LOCALS Production
+ * LOCALS ->
+ *		auto observable ; LOCALS |
+ *		local observable ; LOCALS |
+ *		epsilon
+ */
+EdenAST.prototype.pLOCALS = function() {
+	var locals = new EdenAST_Declarations();
+
+	while (this.token == "auto" || this.token == "local") {
+		this.next();
+
+		if (this.token == "OBSERVABLE") {
+			locals.list.push(this.data.value);
+			this.next();
+		} else {
+			locals.errors.push(new EdenError(this, EDEN_ERROR_LOCALNAME));
+			return locals;
+		}
+
+		if (this.token == ";") {
+			this.next();
+		} else {
+			locals.errors.push(new EdenError(this, EDEN_ERROR_LOCALSEMICOLON));
+			return locals;
+		}
+	}
+
+	return locals;
+}
+
+
+
+EdenAST.prototype.pFUNCBODY = function() {
+
 }
 
 
@@ -973,21 +612,30 @@ EdenAST.prototype.pFUNCTION = function() {
 /**
  * LVALUE Prime Production
  * LVALUE' -> [ EXPRESSION ] LVALUE' | . observable LVALUE' | epsilon
+ * Returns an array of lvalue extra details, possibly empty.
  */
 EdenAST.prototype.pLVALUE_P = function() {
 	var components = [];
 
+	// Get all lvalue extras such as list indices and object properties.
+	// This production is tail recursive so loop it.
 	while (true) {
+		// So we are using a list element as an lvalue?
 		if (this.token == "[") {
 			this.next();
 
+			// Make an index tree element.
 			var comp = new EdenAST_LValueComponent("index");
 			var expression = this.pEXPRESSION();
 			comp.index(expression);
 			components.push(comp);
 
+			if (expression.errors.length > 0) {
+				comp.errors.unshift(new EdenError(this, EDEN_ERROR_LISTINDEXEXP));
+			}
+
 			if (this.token != "]") {
-				comp.error(new EdenError(comp, this.stream, "Missing closing ']' of list index"));
+				comp.error(new EdenError(this, EDEN_ERROR_LISTINDEXCLOSE));
 				return components;
 			}
 			this.next();
@@ -1007,7 +655,7 @@ EdenAST.prototype.pLVALUE_P = function() {
 EdenAST.prototype.pLVALUE = function() {
 	if (this.token != "OBSERVABLE") {
 		var ast = new EdenAST_LValue("NONAME", []);
-		ast.error(new EdenError(ast, this.stream, "Expected an observable name"));
+		ast.error(new EdenError(this, EDEN_ERROR_LVALUE));
 		return ast;
 	}
 
@@ -1050,9 +698,11 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
 		return new EdenAST_Modify("*=", this.pEXPRESSION());
 	}
 
-	//TODO: Remove known invalid tokens
-	var errast = new EdenAST_Assignment(this.pEXPRESSION());
-	errast.error(new EdenError(errast, this.stream, "Expecting an 'is' definition or some kind of assignment."));
+	var errors = [];
+	errors.push(new EdenError(this, EDEN_ERROR_DEFINITION));
+
+	var errast = new EdenAST_Assignment(undefined);
+	errast.errors.unshift(errors[0]);
 	return errast;
 };
 
@@ -1064,12 +714,12 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
  */
 EdenAST.prototype.pSTATEMENT_P = function() {
 	var lvalue = this.pLVALUE();
-	if (lvalue.errors.length == 0) {
+	if (lvalue.observable != "NONAME") {
 		var formula = this.pSTATEMENT_PP();
 		formula.left(lvalue);
 		return formula;
 	}
-	return undefined;
+	return lvalue;
 };
 
 
@@ -1124,7 +774,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 		this.next();
 		var script = this.pSCRIPT();
 		if (this.token != "}") {
-			script.error(new EdenError(script, this.stream, "Missing a closing '}'"));
+			script.error(new EdenError(this, 0, "Missing a closing '}'", undefined, undefined));
 			return script;
 		}
 		this.next();
@@ -1146,19 +796,19 @@ EdenAST.prototype.pSCRIPT = function() {
 
 		if (statement !== undefined) {
 			ast.append(statement);
+			if (statement.errors.length > 0) {
+				// Skip until colon
+				while (this.token != ";" && this.token != "EOF") {
+					this.next();
+				}
+			}
 		} else {
 			break;
 		} 
-		
-		//this.next();
 
 		if (this.token != ";") {
-			ast.error(new EdenError(ast, this.stream, "Missing ';'"));
-			
-			// Attempt to carry on with next statement
-			while (this.token != "EOF" && this.token != ";") {
-				this.next();
-			}
+			ast.errors.push(new EdenError(this, EDEN_ERROR_SEMICOLON));
+			return ast;
 		}
 
 		this.next();
