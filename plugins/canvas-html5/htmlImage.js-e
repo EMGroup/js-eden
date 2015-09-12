@@ -80,11 +80,11 @@ HTMLImage.prototype.draw = function(context) {
 	var name = this.name;
 	var me = this;
 
-	var html = "<img style=\"position: absolute\" src=\"" + this.url + "\"";
+	var html = '<img style="position: absolute"';
 	if (this.imageMap !== undefined) {
-		html = html + " usemap=\"#" + id + "-map\" draggable=\"false\" class=\"noselect\"";
+		html = html + ' usemap="#' + id + '-map" draggable="false" class="noselect"';
 	}
-	html = html + "/>";
+	html = html + '/>';
 	var imageJQ = $(html);
 
 	if (this.scaledWidth === undefined || this.scaledHeight === undefined) {
@@ -107,6 +107,7 @@ HTMLImage.prototype.draw = function(context) {
 			image.height = Math.round(me.scaledHeight * canvasScale / me.scaleFactor);
 		});
 	}
+	imageJQ[0].src = this.url;
 	this.elements = [imageJQ.get(0)];
 
 	imageJQ.on("mousemove", function (event) {

@@ -1233,7 +1233,7 @@
 		"zoneOnTopAt": {
 			"parameters": {
 				"view_name_or_ptr_to_picture": "",
-				"point_or_xy_pair" : ""
+				"point_or_xy_argument_pair" : ""
 			},
 			"return": "",
 			"description": ""
@@ -1241,7 +1241,7 @@
 		"zonesAt": {
 			"parameters": {
 				"view_name_or_ptr_to_picture": "",
-				"point_or_xy_pair" : ""
+				"point_or_xy_argument_pair" : ""
 			},
 			"return": "",
 			"description": ""

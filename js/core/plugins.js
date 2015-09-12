@@ -170,10 +170,32 @@
 		view(name, 'x').assign(topLeft.left, agent);
 		view(name, 'y').assign(topLeft.top - desktopTop, agent);
 
-		//Set the title bar text and allow the construal to change it later.
+		/* Plug-ins can append status information to their title bar.  Only use if there is genuinely
+		 * no space to put the information inside the window (e.g. canvas) or an established precedent for
+		 * putting such information into the title bar (e.g. if other views also acquire a zoom facility).
+		 */
 		var titleSym = view(name, "title");
+		var theTitleBarInfo = viewData.titleBarInfo;
+		delete viewData.titleBarInfo;
+		Object.defineProperty(viewData, "titleBarInfo", {
+			get: function () { return theTitleBarInfo; },
+			set: function (info) {
+				theTitleBarInfo = info;
+				var title = titleSym.value();
+				if (info !== undefined) {
+					title = title + " (" + info + ")";
+				}
+				diag.dialog("option", "title", title);
+			},
+			enumerable: true
+		});
+		//Set the title bar text and allow the construal to change it later.
 		titleSym.addJSObserver("updateTitleBar", function (symbol, value) {
-			diag.dialog("option", "title", value);
+			var title = value;
+			if (viewData.titleBarInfo !== undefined) {
+				title = title + " (" + viewData.titleBarInfo + ")";
+			}
+			diag.dialog("option", "title", title);
 			me.plugins.MenuBar.updateViewsMenu();
 		});
 		titleSym.assign(title, agent);

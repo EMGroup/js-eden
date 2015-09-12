@@ -377,6 +377,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		var canvasName = name.slice(0, -7);
 		var agent = root.lookup("createView");
 		var code_entry, jqCanvas;
+		var viewData;
 
 		var canvas = canvases[canvasName];
 		if (canvas === undefined) {
@@ -421,26 +422,32 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				offsetX = 0;
 				offsetY = 0;
 			}
+			var zoom = zoomSym.value();
 
 			/* Use cached_value in some places below because the grid snapping UI adjusts the values
 			 * to make them align to the grid after the results of any dependencies have been calculated!
 			 */
 			var width = widthSym.value();
-			if (width === undefined) {
-				canvas.width = Math.floor(viewWidthSym.cached_value);
-			} else {
-				width = widthSym.value() * scaleSym.value() * zoomSym.value() + offsetX;
+			if (width !== undefined) {
+				width = Math.ceil(widthSym.value() * scaleSym.value() * zoom + offsetX);
 				canvas.width = width;
+			} else if (zoom > 1) {
+				canvas.width = Math.ceil(viewWidthSym.cached_value * zoom);
+			} else {
+				canvas.width = Math.floor(viewWidthSym.cached_value);
 			}
 
 			var height;
 			if (heightSym.value() !== undefined) {
-				height = heightSym.value() * scaleSym.value() * zoomSym.value() + offsetY;
+				height = Math.ceil(heightSym.value() * scaleSym.value() * zoom + offsetY);
+			} else if (zoom > 1) {
+				height = Math.ceil(viewHeightSym.cached_value * zoom);
 			} else {
-				height = Math.floor(viewHeightSym.cached_value - 1);
+				height = viewHeightSym.cached_value;
 				if (width !== undefined && width > Math.floor(viewWidthSym.cached_value)) {
 					height = height - edenUI.scrollBarSize;
 				}
+				height = Math.floor(height - 1);
 			}
 			canvas.height = height;
 
@@ -458,7 +465,15 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		  zoomSym.assign(1, agent);
 		  zoom = 1;
 		}
-		zoomSym.addJSObserver("repaintView", resizeCanvas);
+		zoomSym.addJSObserver("repaintView", function (symbol, zoom) {
+			var zoomPercent = Math.round(zoom * 100);
+			if (zoom == 1) {
+				viewData.titleBarInfo = undefined;
+			} else {
+				viewData.titleBarInfo = zoomPercent + "%";
+			}
+			resizeCanvas();
+		});
 		var offset = offsetSym.value();
 		var offsetX, offsetY;
 		if (!(offset instanceof Point)) {
@@ -788,7 +803,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			dialogClass: "unpadded-dialog"
 		});
 		me.setPictureObs(canvasName, pictureObs);
-		return {
+		viewData = {
 			confirmClose: true,
 			destroy: function () {
 				delete canvases[canvasName];
@@ -797,32 +812,54 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				delete viewsToPictureObs[canvasName];
 			},
 			resize: function (width, height) {
-				var redraw = false;
+				var offset = offsetSym.value();
+				var offsetX, offsetY;
+				if (offset instanceof Point) {
+					offsetX = offset.x;
+					offsetY = offset.y;
+				} else {
+					offsetX = 0;
+					offsetY = 0;
+				}
+				var zoom = zoomSym.value();
+
 				var canvas = document.getElementById(name + "-canvas");
+				var redraw = false;
+
 				/*The if redraw = true stuff is necessary because setting the width or height has the side
 				 *effect of erasing the canvas.  If the width or height are defined by dependency
 				 *then this method gets called whenever that dependency is re-evaluated, even if the
 				 *recalculated value is the same as the old one, which previously resulted in a
 				 *noticeable flicker effect.
 				 */
+				var neededWidth, neededHeight;
 				var prescribedWidth = widthSym.value();
-				var roundedWidth = Math.floor(width);
 				if (prescribedWidth === undefined) {
-					if (roundedWidth != canvas.width) {
-						canvas.width = roundedWidth;
+					if (zoom > 1) {
+						neededWidth = Math.ceil(width * zoom);
+					} else {
+						neededWidth = Math.floor(width);
+					}
+					if (canvas.width != neededWidth) {
+						canvas.width = neededWidth;
 						redraw = true;
 					}
 				} else {
-					prescribedWidth = prescribedWidth * scaleSym.value() * zoomSym.value();
+					prescribedWidth = Math.ceil(prescribedWidth * scaleSym.value() * zoom + offsetX);
 				}
 
 				if (heightSym.value() === undefined) {
-					if (prescribedWidth !== undefined && prescribedWidth > roundedWidth) {
-						height = height - edenUI.scrollBarSize
+					if (zoom > 1) {
+						neededHeight = Math.ceil(height * zoom);
+					} else {
+						neededHeight = height;
+						if (prescribedWidth !== undefined && prescribedWidth > neededHeight) {
+							neededHeight = neededHeight - edenUI.scrollBarSize
+						}
+						var neededHeight = Math.floor(neededHeight - 1);
 					}
-					var roundedHeight = Math.floor(height - 1);
-					if (roundedHeight != canvas.height) {
-						canvas.height = roundedHeight;
+					if (neededHeight != canvas.height) {
+						canvas.height = neededHeight;
 						redraw = true;
 					}
 				}
@@ -831,6 +868,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				}
 			}
 		};
+		return viewData;
 	}
 
 	root.lookup("mouseDownZone").addJSObserver("recordClick", function (symbol, zone) {
