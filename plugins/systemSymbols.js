@@ -16,6 +16,7 @@
 	"radiansPerUnit",
 	"randomGenerator",
 	"randomSeed",
+	"touchPinchEnabled",
 ];
 
 //System Symbols
@@ -36,7 +37,7 @@ Eden.systemObservableNames = {
 	"mousePressed": true,
 	"mouseUp": true,
 	"mouseWheel": true,
-	"mouseWheelDir": true,
+	"mouseWheelSpeed": true,
 	"mouseWindow": true,
 	"mouseX": true,
 	"mouseY": true,
@@ -45,8 +46,9 @@ Eden.systemObservableNames = {
 	"randomIndex": true,
 	"screenHeight": true,
 	"screenWidth": true,
-	"touchScrollX": true,
-	"touchScrollXDir": true,
+	"touchPanX": true,
+	"touchPanXSpeed": true,
+	"touchPinch": true,
 	"_views_frame_width": true,
 	"_views_frame_height": true,
 	"_views_list": true,

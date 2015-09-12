@@ -14,20 +14,10 @@
 EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	var me = this;
 
-	var cleanupCanvas = function (canvasElement, previousElements) {
-		var hash;
-		for (hash in previousElements) {
-			if (!previousElements[hash].togarbage) {
-				continue;
-			}
-			var elementsToRemove = previousElements[hash];
-			for (var i = 0; i < elementsToRemove.length; i++) {
-				if (elementsToRemove[i].parentElement !== null) {
-					canvasElement.removeChild(elementsToRemove[i]);
-				}
-			}
-		}
-	};
+	/**Font size at default text size. See css/eden.css. */
+	this.defaultFontSizePx = 13.3;
+	/**Line height at default text size. See css/eden.css. */
+	this.defaultLineHeight = this.defaultFontSizePx * 1.75;
 
 	var defaultWidth = 600;
 	var defaultHeight = 500;
@@ -49,6 +39,21 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			edenUI.destroyView(viewName);
 		}
 	}
+
+	var cleanupCanvas = function (canvasElement, previousElements) {
+		var hash;
+		for (hash in previousElements) {
+			if (!previousElements[hash].togarbage) {
+				continue;
+			}
+			var elementsToRemove = previousElements[hash];
+			for (var i = 0; i < elementsToRemove.length; i++) {
+				if (elementsToRemove[i].parentElement !== null) {
+					canvasElement.removeChild(elementsToRemove[i]);
+				}
+			}
+		}
+	};
 
 	this.drawPicture = function(canvasname, pictureObs) {
 		var canvas = canvases[canvasname];
@@ -80,6 +85,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					if (backgroundColour === undefined) {
 						backgroundColour = "white";
 					}
+					context.setTransform(1, 0, 0, 1, 0, 0);
 					var scale = root.lookup("_view_" + canvasname + "_scale").value();
 					if (typeof(scale) != "number") {
 						scale = 1;
@@ -98,10 +104,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 					me.setFillStyle(context, backgroundColour);
 					content.parentElement.style.backgroundColor = backgroundColour;
-					context.setTransform(1, 0, 0, 1, 0, 0);
 					context.fillRect(0, 0, canvas.width, canvas.height);
 					context.scale(combinedScale, combinedScale);
-
 					//Configure JS-EDEN default options that are different from the HTML canvas defaults.
 					me.configureContextDefaults(context, scale);
 
@@ -381,8 +385,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 		var canvas = canvases[canvasName];
 		if (canvas === undefined) {
-			code_entry = $('<div id=\"' + name + '-canvascontent\" class=\"canvashtml-content\"></div>');
-			code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" tabindex=\"1\"></canvas>");
+			code_entry = $('<div id="' + name + '-canvascontent" class="canvashtml-content"></div>');
+			code_entry.html('<canvas class="canvashtml-canvas" id="' + name + '-canvas" tabindex="1"></canvas>');
 			jqCanvas = code_entry.find(".canvashtml-canvas");
 			canvas = jqCanvas[0];
 			canvases[canvasName] = canvas;
@@ -412,6 +416,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		var heightSym = root.lookup("_view_" + canvasName + "_canvas_bottom");
 		var viewWidthSym = root.lookup("_view_" + canvasName + "_width");
 		var viewHeightSym = root.lookup("_view_" + canvasName + "_height");
+		var isZooming = false;
 		function resizeCanvas () {
 			var offset = offsetSym.value();
 			var offsetX, offsetY;
@@ -465,6 +470,21 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		  zoomSym.assign(1, agent);
 		  zoom = 1;
 		}
+		var zoomingQueued = false;
+		function zoomOnDelay() {
+			if (isZooming) {
+				isZooming = false;
+				canvas.rescale = true;
+				me.drawPicture(canvasName, pictureObs);
+				if (!zoomingQueued) {
+					zoomingQueued = true;
+					setTimeout(zoomOnDelay, 1000);
+				}
+			} else {
+				resizeCanvas();
+				zoomingQueued = false;
+			}
+		}
 		zoomSym.addJSObserver("repaintView", function (symbol, zoom) {
 			var zoomPercent = Math.round(zoom * 100);
 			if (zoom == 1) {
@@ -472,7 +492,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			} else {
 				viewData.titleBarInfo = zoomPercent + "%";
 			}
-			resizeCanvas();
+			//Redraw bigger but don't change the canvas size while the user is zooming in and out (avoids flicker).
+			isZooming = true;
+			zoomOnDelay();
 		});
 		var offset = offsetSym.value();
 		var offsetX, offsetY;
@@ -644,45 +666,73 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			dblClickSym.assign(numClicks + 1, Symbol.hciAgent, followMouse);
 		
 		}).on("wheel", function (e) {
+			var e2 = e.originalEvent;
+			var wheelScale;
+			var height = viewHeightSym.value();
+			if (e2.deltaMode == WheelEvent.DOM_DELTA_LINE) {
+				//Default font size of the canvas.  See css/eden.css
+				wheelScale =  me.defaultLineHeight;
+			} else if (e2.deltaMode == WheelEvent.DOM_DELTA_PAGE) {
+				if (e2.deltaX != 0) {
+					wheelScale = widthSym.value();
+				} else {
+					wheelScale = height;
+				}
+			} else {
+				wheelScale = 1;
+			}
+
+			var followMouse = root.lookup("mouseFollow").value();
+			if (e2.deltaY != 0 && e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+				e.preventDefault();
+				e.stopPropagation();
+				root.beginAutocalcOff();
+				var deltaY = -e2.deltaY * wheelScale;
+				if (root.lookup("touchPinchEnabled").value()) {
+					//Construal handles zoom gesture itself.
+					var pinchSym = root.lookup("touchPinch");
+					var touchPinchValue = pinchSym.value();
+					touchPinchValue = touchPinchValue + deltaY;
+					pinchSym.assign(touchPinchValue, Symbol.hciAgent, followMouse);
+				} else {
+					//Zoom on pinch gesture or Ctrl + mouse wheel.
+					var zoom = zoomSym.value();
+					zoom = zoom * (height + 2 * deltaY) / height;
+					if (zoom < 0.05) {
+						zoom = 0.05;
+					}
+					zoomSym.assign(zoom, Symbol.hciAgent, followMouse);
+				}
+				root.endAutocalcOff();
+				return;
+			}
+
 			if (!root.lookup("mouseWheelEnabled").value()) {
 				return;
 			}
-			var e2 = e.originalEvent;
-			var followMouse = root.lookup("mouseFollow").value();
-			root.beginAutocalcOff();
 
-			var direction;
+			root.beginAutocalcOff();
 			if (e2.deltaY !== 0) {
 				if (!e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) {
 					e.preventDefault();
 					e.stopPropagation();
 					var mouseWheelSym = root.lookup("mouseWheel");
 					var mouseWheelValue = mouseWheelSym.value();
-					if (e2.deltaY < 0) {
-						mouseWheelValue--;
-						direction = "up";
-					} else {
-						mouseWheelValue++;
-						direction = "down";
-					}
+					var deltaY = e2.deltaY * wheelScale;
+					mouseWheelValue = mouseWheelValue + deltaY;
 					mouseWheelSym.assign(mouseWheelValue, Symbol.hciAgent, followMouse);
-					root.lookup("mouseWheelDir").assign(direction, Symbol.hciAgent, followMouse);
+					root.lookup("mouseWheelSpeed").assign(deltaY, Symbol.hciAgent, followMouse);
 				}
 			}
 			if (e2.deltaX !== 0) {
 				e.preventDefault();
 				e.stopPropagation();
-				var touchScrollXSym = root.lookup("touchScrollX");
-				var touchScrollXValue = touchScrollXSym.value();
-				if (e2.deltaX < 0) {
-					touchScrollXValue--;
-					direction = "left";
-				} else {
-					touchScrollXValue++;
-					direction = "right";
-				}
-				touchScrollXSym.assign(touchScrollXValue, Symbol.hciAgent, followMouse);
-				root.lookup("touchScrollXDir").assign(direction, Symbol.hciAgent, followMouse);
+				var touchPanXSym = root.lookup("touchPanX");
+				var touchPanXValue = touchPanXSym.value();
+				var deltaX = e2.deltaX * wheelScale;
+				touchPanXValue = touchPanXValue + deltaX;
+				touchPanXSym.assign(touchPanXValue, Symbol.hciAgent, followMouse);
+				root.lookup("touchPanXSpeed").assign(deltaX, Symbol.hciAgent, followMouse);
 			}
 			root.endAutocalcOff();
 
@@ -775,20 +825,29 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 		}).on("keyup", function (e) {
 			var keyCode = e.which;
+			var handled = false;
 			if (e.altKey && !e.shiftKey && !e.ctrlKey) {
-				if (keyCode == 187 || keyCode == 189 || keyCode == 48) {
-					//Zooming using Alt+, Alt- and Alt0
-					var zoomSym = root.lookup("_view_" + canvasName + "_zoom");
-					var zoom = zoomSym.value();
-					if (keyCode == 187) {
-						zoom = zoom * 1.25;
-					} else if (keyCode == 189) {
-						zoom = zoom / 1.25;
-					} else {
-						zoom = 1;
-					}
-					zoomSym.assign(zoom, Symbol.hciAgent);
+				//Zooming using Alt+, Alt- and Alt0
+				var zoomSym = root.lookup("_view_" + canvasName + "_zoom");
+				var zoom = zoomSym.value();
+				if (keyCode == 61 || keyCode == 187) {
+					//Alt + =
+					zoom = zoom * 1.25;
+					handled = true;
+				} else if (keyCode == 173 || keyCode == 189) {
+					//Alt + -
+					zoom = zoom / 1.25;
+					handled = true;
+				} else if (keyCode == 48) {
+					//Alt + 0
+					zoom = 1;
+					handled = true;
 				}
+				zoomSym.assign(zoom, Symbol.hciAgent);
+			}
+			if (handled) {
+				e.preventDefault();
+				e.stopPropagation();
 			}
 		});
 

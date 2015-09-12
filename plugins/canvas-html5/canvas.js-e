@@ -17,13 +17,17 @@ mouseFollow = false;
 mousePosition = @;
 mousePressed = false;
 mouseUp = @;
-mouseWheelEnabled = false;
 mouseWheel = 0;
+mouseWheelEnabled = false;
+mouseWheelSpeed = 0;
 mouseWindow = @;
 mouseX is mousePosition == @? @ : mousePosition.x;
 mouseY is mousePosition == @? @ : mousePosition.y;
 mouseZone = @;
-touchScrollX = 0;
+touchPanX = 0;
+touchPanXSpeed = 0;
+touchPinch = 0;
+touchPinchEnabled = false;
 
 
 ${{
