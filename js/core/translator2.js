@@ -22,7 +22,7 @@ EdenAST.prototype.prettyPrint = function() {
 	var result = "";
 
 	if (this.script.errors.length > 0) {
-		//console.log(this.script);
+		console.log(this.script);
 		for (var i = 0; i < this.script.errors.length; i++) {
 			result = result + this.script.errors[i].prettyPrint() + "\n\n";
 		}
@@ -370,14 +370,17 @@ EdenAST.prototype.pPRIMARY_P = function() {
 			this.next();
 			var comp = new EdenAST_LValueComponent("index");
 			comp.index(this.pEXPRESSION());
-			if (comp.errors.length > 0) return comp;
+
+			result.push(comp);
+
+			if (comp.errors.length > 0) return result;
 
 			if (this.token != "]") {
 				comp.errors.push(new EdenError(this, EDEN_ERROR_LISTINDEXCLOSE));
+				return result;
 			} else {
 				this.next();
 			}
-			return comp;
 		} else {
 			return result;
 		}
@@ -800,8 +803,65 @@ EdenAST.prototype.pIF_P = function() {
 }
 
 
+
+/**
+ * FOR Production
+ * FOR -> ( STATEMENT'_OPT ; EXPRESSION_OPT ; STATEMENT'_OPT ) STATEMENT
+ */
 EdenAST.prototype.pFOR = function() {
-	return undefined;
+	var forast = new EdenAST_For();
+
+	if (this.token != "(") {
+		forast.error(new EdenError(this, EDEN_ERROR_FOROPEN));
+		return forast;
+	} else {
+		this.next();
+	}
+
+	if (this.token == ";") {
+		this.next();
+	} else {
+		forast.setStart(this.pSTATEMENT_P());
+		if (forast.errors.length > 0) return forast;
+
+		if (this.token != ";") {
+			forast.error(new EdenError(this, EDEN_ERROR_FORSTART));
+			return forast;
+		} else {
+			this.next();
+		}
+	}
+
+	if (this.token == ";") {
+		this.next();
+	} else {
+		forast.setCondition(this.pEXPRESSION());
+		if (forast.errors.length > 0) return forast;
+
+		if (this.token != ";") {
+			forast.error(new EdenError(this, EDEN_ERROR_FORCOND));
+			return forast;
+		} else {
+			this.next();
+		}
+	}
+
+	if (this.token == ")") {
+		this.next();
+	} else {
+		forast.setIncrement(this.pSTATEMENT_P());
+		if (forast.errors.length > 0) return forast;
+
+		if (this.token != ")") {
+			forast.error(new EdenError(this, EDEN_ERROR_FORCLOSE));
+			return forast;
+		} else {
+			this.next();
+		}
+	}
+
+	forast.setStatement(this.pSTATEMENT());
+	return forast;
 }
 
 
@@ -955,6 +1015,12 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
 	} else if (this.token == "*=") {
 		this.next();
 		return new EdenAST_Modify("*=", this.pEXPRESSION());
+	} else if (this.token == "++") {
+		this.next();
+		return new EdenAST_Modify("++", undefined);
+	} else if (this.token == "--") {
+		this.next();
+		return new EdenAST_Modify("--", undefined);
 	}
 
 	var errors = [];
@@ -972,7 +1038,12 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
  * STATEMENT' -> LVALUE STATEMENT''
  */
 EdenAST.prototype.pSTATEMENT_P = function() {
-	
+	var lvalue = this.pLVALUE();
+	if (lvalue.errors.length > 0) return lvalue;
+	var formula = this.pSTATEMENT_PP();
+	formula.left(lvalue);
+	if (formula.errors.length > 0) return formula;
+	return formula;
 };
 
 
@@ -984,7 +1055,7 @@ EdenAST.prototype.pSTATEMENT_P = function() {
  *	when WHEN |
  *	proc ACTION |
  *	func FUNCTION |
- *	STATEMENT' ; |
+ *	LVALUE STATEMENT'' ; |
  *	for FOR |
  *	while WHILE |
  *	switch SWITCH |

@@ -25,8 +25,12 @@ var EDEN_ERROR_IFCONDCLOSE = 21;
 var EDEN_ERROR_PARAMNAME = 22;
 var EDEN_ERROR_PARAMSEMICOLON = 23;
 var EDEN_ERROR_FUNCOPEN = 24;
-var EDEN_ERROR_FUNCOPEN = 25;
+var EDEN_ERROR_FUNCCLOSE = 25;
 var EDEN_ERROR_FUNCNAME = 26;
+var EDEN_ERROR_FOROPEN = 27;
+var EDEN_ERROR_FORCLOSE = 28;
+var EDEN_ERROR_FORSTART = 29;
+var EDEN_ERROR_FORCOND = 30;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -270,6 +274,34 @@ var eden_error_db = [
 			operator: "'func' needs a name",
 			bracket: "'func' needs a name"},
 		suggestion: {expected: ["OBSERVABLE"], next: ["{"]}
+	},
+/* EDEN_ERROR_FOROPEN */
+	{	message: function() { return 0; },
+		messages: [
+			"Missing an open '(' in 'for'"
+		],
+		suggestion: {expected: ["("], next: []}
+	},
+/* EDEN_ERROR_FORCLOSE */
+	{	message: function() { return 0; },
+		messages: [
+			"Missing a closing ')' after 'for'"
+		],
+		suggestion: {expected: [")"], next: []}
+	},
+/* EDEN_ERROR_FORSTART */
+	{	message: function() { return 0; },
+		messages: [
+			"Missing a ';' after initialising statement in 'for'"
+		],
+		suggestion: {expected: [";"], next: []}
+	},
+/* EDEN_ERROR_FORCOND */
+	{	message: function() { return 0; },
+		messages: [
+			"Missing a ';' after 'for' condition"
+		],
+		suggestion: {expected: [";"], next: []}
 	}
 ]
 

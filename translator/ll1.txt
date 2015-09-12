@@ -7,7 +7,7 @@ STATEMENT	->
 	when WHEN |
 	proc ACTION |
 	func FUNCTION |
-	STATEMENT' ; |
+	LVALUE STATEMENT'' ; |
 	for FOR |
 	while WHILE |
 	switch SWITCH |
@@ -16,7 +16,7 @@ STATEMENT	->
 	continue ; |
 	break ;
 
-FOR			-> ( SOPT ; EOPT ; SOPT ) STATEMENT
+FOR			-> ( STATEMENT'_OPT ; EXPRESSION_OPT ; STATEMENT'_OPT ) STATEMENT
 WHILE		-> ( EOPT ) STATEMENT 
 SOPT		-> STATEMENT' | epsilon
 EOPT		-> EXPRESSION | epsilon

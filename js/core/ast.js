@@ -95,7 +95,10 @@ EdenAST_BinaryOp.prototype.generate = function() {
 function EdenAST_Length() {
 	this.type = "length";
 	this.errors = [];
+	this.l = undefined;
 }
+
+EdenAST_Length.prototype.left = fnEdenAST_left;
 
 
 
@@ -182,6 +185,27 @@ EdenAST_Assignment.prototype.left = function(lvalue) {
 };
 
 EdenAST_Assignment.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_Modify(kind, expression) {
+	this.type = "modify";
+	this.errors = (expression) ? expression.errors : [];
+	this.kind = kind;
+	this.expression = expression;
+	this.lvalue = undefined;
+};
+
+EdenAST_Modify.prototype.left = function(lvalue) {
+	this.lvalue = lvalue;
+	if (lvalue.errors.length > 0) {
+		this.errors.push.apply(this.errors, lvalue.errors);
+	}
+};
+
+EdenAST_Modify.prototype.error = fnEdenAST_error;
 
 
 
@@ -310,6 +334,41 @@ EdenAST_Return.prototype.error = fnEdenAST_error;
 EdenAST_Return.prototype.setResult = function(result) {
 	this.result = result;
 	this.errors.push.apply(this.errors, result.errors);
+}
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_For() {
+	this.type = "for";
+	this.errors = [];
+	this.start = undefined;
+	this.condition = undefined;
+	this.inc = undefined;
+	this.statement = undefined;
+};
+
+EdenAST_For.prototype.error = fnEdenAST_error;
+
+EdenAST_For.prototype.setStart = function(start) {
+	this.start = start;
+	this.errors.push.apply(this.errors, start.errors);
+}
+
+EdenAST_For.prototype.setCondition = function(condition) {
+	this.condition = condition;
+	this.errors.push.apply(this.errors, condition.errors);
+}
+
+EdenAST_For.prototype.setIncrement = function(inc) {
+	this.inc = inc;
+	this.errors.push.apply(this.errors, inc.errors);
+}
+
+EdenAST_For.prototype.setStatement = function(statement) {
+	this.statement = statement;
+	this.errors.push.apply(this.errors, statement.errors);
 }
 
 
