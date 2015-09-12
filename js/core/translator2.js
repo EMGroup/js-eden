@@ -40,12 +40,19 @@ EdenAST.prototype.next = function() {
 	this.previous = this.token;
 	this.token = this.stream.readToken(this.data);
 
-	//Skip normal block comments
-	while (this.token == "/*") {
-		while (this.token != "*/") {
+	//Skip comments
+	while (true) {
+		if (this.token == "/*") {
+			while (this.token != "*/") {
+				this.token = this.stream.readToken(this.data);
+			}
 			this.token = this.stream.readToken(this.data);
+		} else if (this.token == "##") {
+			this.stream.skipLine();
+			this.token = this.stream.readToken(this.data);
+		} else {
+			break;
 		}
-		this.token = this.stream.readToken(this.data);
 	}
 };
 

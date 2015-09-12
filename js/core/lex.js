@@ -125,6 +125,12 @@ EdenStream.prototype.skipWhiteSpace = function() {
 
 
 
+EdenStream.prototype.skipLine = function() {
+	while (this.valid() && this.peek() != 10) this.skip();
+}
+
+
+
 /**
  * Check if a character matches [a-zA-Z0-9_]
  */
@@ -285,7 +291,8 @@ EdenStream.prototype.readToken = function(data) {
 				if (this.peek() == 126) { this.skip(); return "!~"; }
 				return "!";
 	case 34	:	this.parseString(data); return "STRING";
-	case 35	:	return "#";
+	case 35	:	if (this.peek() == 35) { this.skip(); return "##"; }
+				return "#";
 	case 36	:	if (this.peek() == 123 && this.peek2() == 123) {
 					this.skip(); this.skip();
 					//parseJavascript(stream, data);
