@@ -274,6 +274,29 @@ EdenAST.prototype.pFACTOR = function() {
 			this.next();
 		}
 		return expression;
+	} else if (this.token == "[") {
+		this.next();
+
+		var elist = [];
+		if (this.token != "]") {
+			elist = this.pELIST();
+		}
+
+		var literal = new EdenAST_Literal("LIST", elist);
+		for (var i = 0; i < elist.length; i++) {
+			if (elist[i].errors.length > 0) {
+				literal.errors.push.apply(literal.errors, elist[i].errors);
+			}
+		}
+
+		if (literal.errors.length > 0) return literal;
+
+		if (this.token != "]") {
+			literal.errors.push(new EdenError(this, EDEN_ERROR_LISTLITCLOSE));
+		} else {
+			this.next();
+		}
+		return literal;
 	} else if (this.token == "NUMBER") {
 		this.next();
 		return new EdenAST_Literal("NUMBER", this.data.value);

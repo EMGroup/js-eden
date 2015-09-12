@@ -18,6 +18,7 @@ var EDEN_ERROR_SEMICOLON = 14;
 var EDEN_ERROR_STATEMENT = 15;
 var EDEN_ERROR_DEFINITION = 16;
 var EDEN_ERROR_FUNCCALLEND = 17;
+var EDEN_ERROR_LISTLITCLOSE = 18;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -62,11 +63,16 @@ var eden_error_db = [
 	{	messages: {
 			keyword: "A reserved word can't be used as an observable name",
 			operator: "Umm, ask for some help",
-			bracket: "Too many commas, or missing a watch observable"},
+			separator: "Too many commas or missing a watch observable",
+			openbracket: "Too many commas, or missing a watch observable"},
 		suggestion: {expected: ["OBSERVABLE"], next: [",","{"]}
 	},
 /* EDEN_ERROR_ACTIONOPEN */
 	{	message: function() {
+			if ((this.token == "(" || this.token == "[")
+					&& this.context.stream.isBEOL()) {
+				return 6;
+			}
 			if (this.token == "(") return 0;
 			if (this.token == "[") return 1;
 			if (this.token == ";") return 2;
@@ -81,7 +87,8 @@ var eden_error_db = [
 			"An action must have a body of code",
 			"Missing an open '{' to start the action code",
 			"Use ',' to separate watch observables",
-			"Expected an open '{' to start action"
+			"Expected an open '{' to start action",
+			"Action code must start with a curly '{' bracket"
 		],
 		suggestion: {
 			expected: ["{"],
@@ -171,6 +178,13 @@ var eden_error_db = [
 			separator: "Missing a ')' after function call",
 			bracket: "Wrong kind of bracket, need a ')'"},
 		suggestion: {expected: [")"], next: [";","(","[","+","-","/","*","%","^"]}
+	},
+/* EDEN_ERROR_LISTLITCLOSE */
+	{	message: function() { return 0; },	
+		messages: [
+			"Missing a ']' after a list literal"
+		],
+		suggestion: {expected: ["]"], next: []}
 	}
 ]
 
@@ -237,6 +251,10 @@ EdenError.prototype.buildSuggestion = function() {
 };
 
 EdenError.prototype.prettyPrint = function() {
+	// Move stream to correct location
+	this.context.stream.pushPosition();
+	this.context.stream.move(this.position);
+
 	var err = eden_error_db[this.errno];
 
 	var msg = (err.message) ? err.messages[err.message.call(this)] : err.messages[tokenType(this.token)];
@@ -250,6 +268,9 @@ EdenError.prototype.prettyPrint = function() {
 	if (err.suggestion) {
 		errmsg += "\n    Suggestion : " + this.buildSuggestion();
 	}
+
+	// Reset stream position
+	this.context.stream.popPosition();
 
 	return errmsg;
 };

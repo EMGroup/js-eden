@@ -35,6 +35,22 @@ EdenStream.prototype.peek2 = function() {
 	return this.code.charCodeAt(this.position + 1);
 };
 
+EdenStream.prototype.move = function(pos) {
+	this.position = pos;
+};
+
+EdenStream.prototype.isBEOL = function() {
+	if (this.peek() == 10) return true;
+	var pastpos = this.prevposition;
+	var pastchar = this.code.charCodeAt(pastpos);
+	while (pastchar == 9 || pastchar == 32) {
+		pastpos--;
+		pastchar = this.code.charCodeAt(pastpos);
+	}
+	if (pastchar == 10) return true;
+	return false;
+};
+
 EdenStream.prototype.skip = function() {
 	this.position++;
 };
