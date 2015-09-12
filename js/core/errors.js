@@ -19,6 +19,7 @@ var EDEN_ERROR_STATEMENT = 15;
 var EDEN_ERROR_DEFINITION = 16;
 var EDEN_ERROR_FUNCCALLEND = 17;
 var EDEN_ERROR_LISTLITCLOSE = 18;
+var EDEN_ERROR_TERNIFCOLON = 19;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -76,7 +77,7 @@ var eden_error_db = [
 			if (this.token == "(") return 0;
 			if (this.token == "[") return 1;
 			if (this.token == ";") return 2;
-			var type = tokenType(this.token);
+			var type = this.context.stream.tokenType(this.token);
 			if (type == "keyword" || type == "identifier") return 3;
 			if (type == "separator") return 4;
 			return 5;
@@ -185,6 +186,13 @@ var eden_error_db = [
 			"Missing a ']' after a list literal"
 		],
 		suggestion: {expected: ["]"], next: []}
+	},
+/* EDEN_ERROR_TERNIFCOLON */
+	{	message: function() { return 0; },
+		messages: [
+			"An 'if' in an expression must have a ':' else part"
+		],
+		suggestion: {expected: [":"], next: []}
 	}
 ]
 
@@ -257,7 +265,7 @@ EdenError.prototype.prettyPrint = function() {
 
 	var err = eden_error_db[this.errno];
 
-	var msg = (err.message) ? err.messages[err.message.call(this)] : err.messages[tokenType(this.token)];
+	var msg = (err.message) ? err.messages[err.message.call(this)] : err.messages[this.context.stream.tokenType(this.token)];
 	var errmsg =
 			"Error:\n    " + msg +
 			"\n    Source : " + this.context.src + ", line " + this.line +

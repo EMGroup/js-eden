@@ -40,6 +40,38 @@ EdenAST_UnaryOp.prototype.error = fnEdenAST_error;
 
 //------------------------------------------------------------------------------
 
+function EdenAST_TernaryOp(op) {
+	this.type = "ternaryop";
+	this.op = op;
+	this.errors = [];
+	this.first = undefined;
+	this.second = undefined;
+	this.condition = undefined;
+}
+EdenAST_TernaryOp.prototype.error = fnEdenAST_error;
+
+EdenAST_TernaryOp.prototype.setFirst = function(first) {
+	this.first = first;
+	if (first.errors.length > 0) {
+		this.errors.push.apply(this.errors, first.errors);
+	}
+};
+
+EdenAST_TernaryOp.prototype.setSecond = function(second) {
+	this.second = second;
+	if (second.errors.length > 0) {
+		this.errors.push.apply(this.errors, second.errors);
+	}
+};
+
+EdenAST_TernaryOp.prototype.left = function(pleft) {
+	this.condition = pleft;
+};
+
+
+
+//------------------------------------------------------------------------------
+
 function EdenAST_BinaryOp(op, right) {
 	this.type = "binaryop";
 	this.op = op;

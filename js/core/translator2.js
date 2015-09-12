@@ -22,7 +22,7 @@ EdenAST.prototype.prettyPrint = function() {
 	var result = "";
 
 	if (this.script.errors.length > 0) {
-		console.log(this.script);
+		//console.log(this.script);
 		for (var i = 0; i < this.script.errors.length; i++) {
 			result = result + this.script.errors[i].prettyPrint() + "\n\n";
 		}
@@ -38,14 +38,14 @@ EdenAST.prototype.prettyPrint = function() {
 
 EdenAST.prototype.next = function() {
 	this.previous = this.token;
-	this.token = readToken(this.stream, this.data);
+	this.token = this.stream.readToken(this.data);
 
 	//Skip normal block comments
 	while (this.token == "/*") {
 		while (this.token != "*/") {
-			this.token = readToken(this.stream, this.data);
+			this.token = this.stream.readToken(this.data);
 		}
-		this.token = readToken(this.stream, this.data);
+		this.token = this.stream.readToken(this.data);
 	}
 };
 
@@ -54,7 +54,7 @@ EdenAST.prototype.peekNext = function(count) {
 	var localdata = {value: ""};
 	this.stream.pushPosition();
 	while (count > 0) {
-		res = readToken(this.stream, localdata);
+		res = this.stream.readToken(localdata);
 		count--;
 	}
 	this.stream.popPosition();
@@ -304,7 +304,7 @@ EdenAST.prototype.pFACTOR = function() {
 		this.next();
 		return new EdenAST_Literal("STRING", this.data.value);
 	} else if (this.token == "!") {
-		this.next;
+		this.next();
 		var primary = this.pPRIMARY();
 		return new EdenAST_UnaryOp("!", primary);
 	} else {
@@ -328,7 +328,7 @@ EdenAST.prototype.pPRIMARY = function() {
 	primary.observable = this.data.value;
 	this.next();
 	primary.setExtras(this.pPRIMARY_P());
-	console.log(primary);
+	//console.log(primary);
 	return primary;
 }
 
@@ -366,6 +366,18 @@ EdenAST.prototype.pPRIMARY_P = function() {
 			} else {
 				this.next();
 			}
+		} else if (this.token == "[") {
+			this.next();
+			var comp = new EdenAST_LValueComponent("index");
+			comp.index(this.pEXPRESSION());
+			if (comp.errors.length > 0) return comp;
+
+			if (this.token != "]") {
+				comp.errors.push(new EdenError(this, EDEN_ERROR_LISTINDEXCLOSE));
+			} else {
+				this.next();
+			}
+			return comp;
 		} else {
 			return result;
 		}
@@ -414,15 +426,22 @@ EdenAST.prototype.pELIST_P = function() {
  */
 EdenAST.prototype.pEXPRESSION_PPPPPP = function() {
 	if (this.token == "?") {
-		var exp1 = this.pEXPRESSION();
-		if (this.token != ":") {
+		console.log(this);
+		this.next();
+		var tern = new EdenAST_TernaryOp("?");
+		tern.setFirst(this.pEXPRESSION());
 
+		if (tern.errors.length > 0) return tern;
+
+		if (this.token != ":") {
+			tern.errors.push(new EdenError(this, EDEN_ERROR_TERNIFCOLON));
+			return tern;
 		} else {
 			this.next();
 		}
-		var exp2 = this.pEXPRESSION();
-
-		//return new EdenAST_TernaryOp("?");
+		
+		tern.setSecond(this.pEXPRESSION());
+		return tern;
 	}
 	return undefined;
 }
