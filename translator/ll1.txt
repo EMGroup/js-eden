@@ -1,20 +1,20 @@
 EDEN LL(1) Grammar
 
-SCRIPT		-> STATEMENT ; SCRIPT | epsilon														FIRST: proc func observable epsilon
+SCRIPT		-> STATEMENT SCRIPT | epsilon														FIRST: proc func observable epsilon
 
 STATEMENT	->
 	{ SCRIPT } |
 	when WHEN |
 	proc ACTION |
 	func FUNCTION |
-	STATEMENT' |
+	STATEMENT' ; |
 	for FOR |
 	while WHILE |
 	switch SWITCH |
 	if IF |
-	return EOPT |
-	continue |
-	break
+	return EOPT ; |
+	continue ; |
+	break ;
 
 FOR			-> ( SOPT ; EOPT ; SOPT ) STATEMENT
 WHILE		-> ( EOPT ) STATEMENT 
@@ -28,8 +28,8 @@ FUNCTION	-> observable FUNCBODY
 ACTION		-> observable : OLIST ACTIONBODY
 FUNCBODY	-> { PARAS LOCALS SCRIPT }
 ACTIONBODY	-> { LOCALS SCRIPT }
-PARAS		-> para observable ; PARAS | epsilon
-LOCALS		-> auto observable ; LOCALS | local observable ; LOCALS | epsilon
+PARAS		-> para OLIST ; PARAS | epsilon
+LOCALS		-> auto OLIST ; LOCALS | local OLIST ; LOCALS | epsilon
 
 WHEN		-> change : WHEN' | touch : WHEN' | ( EXPRESSION ) ACTIONBODY
 WHEN'		-> OLIST ACTIONBODY

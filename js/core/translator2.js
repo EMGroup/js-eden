@@ -736,7 +736,49 @@ EdenAST.prototype.pLLIST_P = function() {
 }
 
 
+
+/**
+ * IF Production
+ * IF -> ( EXPRESSION ) STATEMENT IF'
+ */
 EdenAST.prototype.pIF = function() {
+	var ifast = new EdenAST_If();
+
+	if (this.token != "(") {
+		ifast.errors.push(new EdenError(this, EDEN_ERROR_IFCONDOPEN));
+		return ifast;
+	} else {
+		this.next();
+	}
+
+	ifast.setCondition(this.pEXPRESSION());
+	if (ifast.errors.length > 0) return ifast;
+
+	if (this.token != ")") {
+		ifast.errors.push(new EdenError(this, EDEN_ERROR_IFCONDCLOSE));
+		return ifast;
+	} else {
+		this.next();
+	}
+
+	ifast.setStatement(this.pSTATEMENT());
+	if (ifast.errors.length > 0) return ifast;
+
+	ifast.setElse(this.pIF_P());
+	return ifast;
+}
+
+
+
+/**
+ * IF Prime Production
+ * IF' -> else STATEMENT | epsilon
+ */
+EdenAST.prototype.pIF_P = function() {
+	if (this.token == "else") {
+		this.next();
+		return this.pSTATEMENT();
+	}
 	return undefined;
 }
 

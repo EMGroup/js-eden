@@ -207,6 +207,37 @@ EdenAST_Primary.prototype.error = fnEdenAST_error;
 
 //------------------------------------------------------------------------------
 
+function EdenAST_If() {
+	this.type = "if";
+	this.errors = [];
+	this.condition = "";
+	this.statement = undefined;
+	this.elsestatement = undefined;
+};
+
+EdenAST_If.prototype.setCondition = function(condition) {
+	this.condition = condition;
+	this.errors.push.apply(this.errors, condition.errors);
+};
+
+EdenAST_If.prototype.setStatement = function(statement) {
+	this.statement = statement;
+	this.errors.push.apply(this.errors, statement.errors);
+};
+
+EdenAST_If.prototype.setElse = function(statement) {
+	this.elsestatement = statement;
+	if (statement) {
+		this.errors.push.apply(this.errors, statement.errors);
+	}
+};
+
+EdenAST_If.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
 function EdenAST_FunctionCall() {
 	this.type = "functioncall";
 	this.errors = [];

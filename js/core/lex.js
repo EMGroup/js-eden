@@ -213,6 +213,16 @@ EdenStream.prototype.parseNumber = function(data) {
 		result = result + String.fromCharCode(this.get());
 	}
 
+	if (this.peek() == 46) {
+		this.skip();
+		result = result + ".";
+		while (this.valid() && this.isNumeric(this.peek())) {
+			result = result + String.fromCharCode(this.get());
+		}
+	}
+
+	console.log(result);
+
 	data.value = parseFloat(result);
 };
 
