@@ -916,17 +916,17 @@ EdenAST.prototype.pSTATEMENT_P = function() {
  * STATEMENT Production
  * STATEMENT	->
  *	{ SCRIPT } |
+ *	when WHEN |
  *	proc ACTION |
  *	func FUNCTION |
- *	LVALUE STATEMENT'' |
+ *	STATEMENT' ; |
  *	for FOR |
  *	while WHILE |
  *	switch SWITCH |
  *	if IF |
- *	return EOPT |
- *	continue |
- *	break |
- *  epsilon
+ *	return EOPT ; |
+ *	continue ; |
+ *	break ;
  */
 EdenAST.prototype.pSTATEMENT = function() {
 	if (this.token == "proc") {
@@ -952,13 +952,34 @@ EdenAST.prototype.pSTATEMENT = function() {
 		return this.pIF();
 	} else if (this.token == "return") {
 		this.next();
-		return new EdenAST_Return(this.pEOPT());
+		var ret = new EdenAST_Return(this.pEOPT());
+		if (ret.errors.length > 0) return ret;
+		if (this.token != ";") {
+			ret.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+		} else {
+			this.next();
+		}
+		return ret;
 	} else if (this.token == "continue") {
 		this.next();
-		return new EdenAST_Continue();
+		var cont = new EdenAST_Continue();
+		if (cont.errors.length > 0) return cont;
+		if (this.token != ";") {
+			cont.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+		} else {
+			this.next();
+		}
+		return cont;
 	} else if (this.token == "break") {
 		this.next();
-		return new EdenAST_Break();
+		var breakk = new EdenAST_Continue();
+		if (breakk.errors.length > 0) return breakk;
+		if (this.token != ";") {
+			breakk.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+		} else {
+			this.next();
+		}
+		return breakk;
 	} else if (this.token == "{") {
 		this.next();
 		var script = this.pSCRIPT();
@@ -970,8 +991,17 @@ EdenAST.prototype.pSTATEMENT = function() {
 		return script;
 	} else if (this.token == "OBSERVABLE") {
 		var lvalue = this.pLVALUE();
+		if (lvalue.errors.length > 0) return lvalue;
 		var formula = this.pSTATEMENT_PP();
 		formula.left(lvalue);
+		if (formula.errors.length > 0) return formula;
+		
+		if (this.token != ";") {
+			formula.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+		} else {
+			this.next();
+		}
+
 		return formula;
 	}
 	return undefined;
@@ -980,7 +1010,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 
 /**
  * SCRIPT Production
- * SCRIPT -> STATEMENT ; SCRIPT | epsilon
+ * SCRIPT -> STATEMENT SCRIPT | epsilon
  */
 EdenAST.prototype.pSCRIPT = function() {
 	var ast = new EdenAST_Script();
@@ -998,14 +1028,7 @@ EdenAST.prototype.pSCRIPT = function() {
 			}
 		} else {
 			break;
-		} 
-
-		if (this.token != ";") {
-			ast.errors.push(new EdenError(this, EDEN_ERROR_SEMICOLON));
-			return ast;
 		}
-
-		this.next();
 	}
 
 	return ast;
