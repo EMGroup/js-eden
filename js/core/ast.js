@@ -281,6 +281,63 @@ EdenAST_Action.prototype.error = fnEdenAST_error;
 
 //------------------------------------------------------------------------------
 
+function EdenAST_Function() {
+	this.type = "function";
+	this.errors = [];
+	this.body = undefined;
+	this.name = "";
+};
+
+EdenAST_Function.prototype.setBody = function(body) {
+	this.body = body;
+	this.errors.push.apply(this.errors, body.errors);
+}
+
+EdenAST_Function.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_Return() {
+	this.type = "return";
+	this.errors = [];
+	this.result = undefined;
+};
+
+EdenAST_Return.prototype.error = fnEdenAST_error;
+
+EdenAST_Return.prototype.setResult = function(result) {
+	this.result = result;
+	this.errors.push.apply(this.errors, result.errors);
+}
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_Continue() {
+	this.type = "continue";
+	this.errors = [];
+};
+
+EdenAST_Continue.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_Break() {
+	this.type = "break";
+	this.errors = [];
+};
+
+EdenAST_Break.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
 function EdenAST_CodeBlock() {
 	this.type = "codeblock";
 	this.errors = [];

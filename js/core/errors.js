@@ -20,6 +20,13 @@ var EDEN_ERROR_DEFINITION = 16;
 var EDEN_ERROR_FUNCCALLEND = 17;
 var EDEN_ERROR_LISTLITCLOSE = 18;
 var EDEN_ERROR_TERNIFCOLON = 19;
+var EDEN_ERROR_IFCONDOPEN = 20;
+var EDEN_ERROR_IFCONDCLOSE = 21;
+var EDEN_ERROR_PARAMNAME = 22;
+var EDEN_ERROR_PARAMSEMICOLON = 23;
+var EDEN_ERROR_FUNCOPEN = 24;
+var EDEN_ERROR_FUNCOPEN = 25;
+var EDEN_ERROR_FUNCNAME = 26;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -193,6 +200,76 @@ var eden_error_db = [
 			"An 'if' in an expression must have a ':' else part"
 		],
 		suggestion: {expected: [":"], next: []}
+	},
+/* EDEN_ERROR_IFCONDOPEN */
+	{	message: function() { return 0; },
+		messages: [
+			"An 'if' condition must be surrounded by '(' and ')'"
+		],
+		suggestion: {expected: ["("], next: []}
+	},
+/* EDEN_ERROR_IFCONDCLOSE */
+	{	message: function() { return 0; },
+		messages: [
+			"Missing a closing ')' after if condition"
+		],
+		suggestion: {expected: [")"], next: []}
+	},
+/* EDEN_ERROR_PARAMNAME */
+	{	messages: {
+			keyword: "Reserved words can't be used as para names",
+			operator: "'para' can't be used as an observable name",
+			bracket: "Unexpected bracket, expected a para name"},
+		suggestion: {expected: ["OBSERVABLE"], next: [";"]}
+	},
+/* EDEN_ERROR_PARAMSEMICOLON */
+	{	messages: {
+			keyword: "Need a ';' after a para declaration",
+			operator: "It's not possible to initialise a para",
+			identifier: "Need a ';' after a para declaration",
+			bracket: "Unexpected bracket, need a ';'"},
+		suggestion: {expected: [";"], next: ["para","local","OBSERVABLE","if","for","switch","while","return"]}
+	},
+/* EDEN_ERROR_FUNCOPEN */
+	{	message: function() {
+			if ((this.token == "(" || this.token == "[")
+					&& this.context.stream.isBEOL()) {
+				return 6;
+			}
+			if (this.token == "(") return 0;
+			if (this.token == "[") return 1;
+			if (this.token == ";") return 2;
+			var type = this.context.stream.tokenType(this.token);
+			if (type == "keyword" || type == "identifier") return 3;
+			if (type == "separator") return 4;
+			return 5;
+		},
+		messages: [
+			"Cannot do a function call here",
+			"Can only watch observables, not a specific list index",
+			"An action must have a body of code",
+			"Missing an open '{' to start the action code",
+			"Use ',' to separate watch observables",
+			"Expected an open '{' to start action",
+			"Action code must start with a curly '{' bracket"
+		],
+		suggestion: {
+			expected: ["{"],
+			next: ["local","OBSERVABLE","if","for","switch","while","return"]
+		}
+	},
+/* EDEN_ERROR_FUNCCLOSE */
+	{	messages: {
+			bracket: "Wrong kind of bracket, use '}' to end action code",
+			operator: "Missing a closing '}'"},
+		suggestion: {expected: ["}"], next: [";"]}
+	},
+/* EDEN_ERROR_FUNCNAME */
+	{	messages: {
+			keyword: "'func' names can't be keywords",
+			operator: "'func' needs a name",
+			bracket: "'func' needs a name"},
+		suggestion: {expected: ["OBSERVABLE"], next: ["{"]}
 	}
 ]
 

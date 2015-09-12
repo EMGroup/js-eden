@@ -656,18 +656,40 @@ EdenAST.prototype.pACTIONBODY = function() {
 
 
 
+/**
+ * PARAMS Production
+ * PARAS -> para OLIST ; PARAS | epsilon
+ */
 EdenAST.prototype.pPARAMS = function() {
+	var params = new EdenAST_Declarations();
 
+	while (this.token == "para") {
+		this.next();
+
+		var olist = this.pOLIST();
+		params.list = olist;
+
+		if (olist.length == 0 || olist[olist.length-1] == "NONAME") {
+			params.errors.push(new EdenError(this, EDEN_ERROR_PARAMNAME));
+			return params;
+		}
+
+		if (this.token == ";") {
+			this.next();
+		} else {
+			params.errors.push(new EdenError(this, EDEN_ERROR_PARAMSEMICOLON));
+			return params;
+		}
+	}
+
+	return params;
 }
 
 
 
 /**
  * LOCALS Production
- * LOCALS ->
- *		auto observable ; LOCALS |
- *		local observable ; LOCALS |
- *		epsilon
+ * LOCALS -> auto OLIST ; LOCALS | local OLIST ; LOCALS | epsilon
  */
 EdenAST.prototype.pLOCALS = function() {
 	var locals = new EdenAST_Declarations();
@@ -675,10 +697,10 @@ EdenAST.prototype.pLOCALS = function() {
 	while (this.token == "auto" || this.token == "local") {
 		this.next();
 
-		if (this.token == "OBSERVABLE") {
-			locals.list.push(this.data.value);
-			this.next();
-		} else {
+		var olist = this.pOLIST();
+		locals.list = olist;
+
+		if (olist.length == 0 || olist[olist.length-1] == "NONAME") {
 			locals.errors.push(new EdenError(this, EDEN_ERROR_LOCALNAME));
 			return locals;
 		}
@@ -694,11 +716,6 @@ EdenAST.prototype.pLOCALS = function() {
 	return locals;
 }
 
-
-
-EdenAST.prototype.pFUNCBODY = function() {
-
-}
 
 
 /**
@@ -798,8 +815,56 @@ EdenAST.prototype.pSWITCH = function() {
 }
 
 
+
+/**
+ * FUNCTION Production
+ * FUNCTION -> observable FUNCBODY
+ */
 EdenAST.prototype.pFUNCTION = function() {
-	return undefined;
+	var func = new EdenAST_Function();
+
+	if (this.token == "OBSERVABLE") {
+		func.name = this.data.value;
+		this.next();
+	} else {
+		func.errors.push(new EdenError(this, EDEN_ERROR_FUNCNAME));
+		return func;
+	}
+
+	func.setBody(this.pFUNCBODY());
+	return func;
+}
+
+
+
+/**
+ * FUNCBODY Production
+ * FUNCBODY -> { PARAS LOCALS SCRIPT }
+ */
+EdenAST.prototype.pFUNCBODY = function() {
+	var codebody = new EdenAST_CodeBlock();
+
+	if (this.token != "{") {
+		codebody.errors.push(new EdenError(this, EDEN_ERROR_FUNCOPEN));
+		return codebody;
+	} else {
+		this.next();
+	}
+
+	codebody.setParams(this.pPARAMS());
+	if (codebody.params.errors.length > 0) return codebody;
+	codebody.setLocals(this.pLOCALS());
+	if (codebody.locals.errors.length > 0) return codebody;
+	codebody.setScript(this.pSCRIPT());
+
+	if (this.token != "}") {
+		codebody.errors.push(new EdenError(this, EDEN_ERROR_FUNCCLOSE));
+		return codebody;
+	} else {
+		this.next();
+	}
+
+	return codebody;
 }
 
 
@@ -952,33 +1017,49 @@ EdenAST.prototype.pSTATEMENT = function() {
 		return this.pIF();
 	} else if (this.token == "return") {
 		this.next();
-		var ret = new EdenAST_Return(this.pEOPT());
-		if (ret.errors.length > 0) return ret;
+
+		var ret = new EdenAST_Return();
+
+		if (this.token != ";") {
+			ret.setResult(this.pEXPRESSION());
+			if (ret.errors.length > 0) return ret;
+		} else {
+			this.next();
+			return ret;
+		}
+
 		if (this.token != ";") {
 			ret.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
 		} else {
 			this.next();
 		}
+
 		return ret;
 	} else if (this.token == "continue") {
 		this.next();
+
 		var cont = new EdenAST_Continue();
 		if (cont.errors.length > 0) return cont;
+
 		if (this.token != ";") {
 			cont.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
 		} else {
 			this.next();
 		}
+
 		return cont;
 	} else if (this.token == "break") {
 		this.next();
+
 		var breakk = new EdenAST_Continue();
 		if (breakk.errors.length > 0) return breakk;
+
 		if (this.token != ";") {
 			breakk.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
 		} else {
 			this.next();
 		}
+
 		return breakk;
 	} else if (this.token == "{") {
 		this.next();
