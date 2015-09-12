@@ -36,7 +36,9 @@ var eden_error_db = [
 	},
 /* EDEN_ERROR_BADFACTOR */
 	{	messages: {
-			bracket: "Wrong kind of bracket, use '(' in expressions.",
+			openbracket: "Wrong kind of bracket, use '(' or '[' in expressions.",
+			closebracket: "Missing expression? Unexpected closing bracket",
+			separator: "Missing a closing bracket?",
 			operator: "Missing an operand.",
 			keyword: "Keywords are not allowed in expressions"},
 		suggestion: {expected: ["NUMBER","STRING","OBSERVABLE","&","!","("], next: ["NUMBER","STRING","OBSERVABLE","&","!","(",";","+","-","==","<=",">=","!=","/","*","%","^"]}
@@ -53,7 +55,7 @@ var eden_error_db = [
 	{	messages: {
 			keyword: "A reserved word can't be used as an observable name",
 			operator: "Umm, ask for some help",
-			bracket: "There needs to be at least one watch observable"},
+			openbracket: "There needs to be at least one watch observable"},
 		suggestion: {expected: ["OBSERVABLE"], next: [",","{"]}
 	},
 /* EDEN_ERROR_ACTIONCOMMAS */
@@ -64,12 +66,27 @@ var eden_error_db = [
 		suggestion: {expected: ["OBSERVABLE"], next: [",","{"]}
 	},
 /* EDEN_ERROR_ACTIONOPEN */
-	{	messages: {
-			bracket: "Wrong kind of bracket, use '{' to start action code",
-			keyword: "Missing an open '{'",
-			operator: "Expected a '{' here",
-			identifier: "Missing an open '{'"},
-		suggestion: {expected: ["{"], next: ["local","OBSERVABLE","if","for","switch","while","return"]}
+	{	message: function() {
+			if (this.token == "(") return 0;
+			if (this.token == "[") return 1;
+			if (this.token == ";") return 2;
+			var type = tokenType(this.token);
+			if (type == "keyword" || type == "identifier") return 3;
+			if (type == "separator") return 4;
+			return 5;
+		},
+		messages: [
+			"Cannot do a function call here",
+			"Can only watch observables, not a specific list index",
+			"An action must have a body of code",
+			"Missing an open '{' to start the action code",
+			"Use ',' to separate watch observables",
+			"Expected an open '{' to start action"
+		],
+		suggestion: {
+			expected: ["{"],
+			next: ["local","OBSERVABLE","if","for","switch","while","return"]
+		}
 	},
 /* EDEN_ERROR_ACTIONCLOSE */
 	{	messages: {
@@ -127,7 +144,8 @@ var eden_error_db = [
 			keyword: "Missing a ';'",
 			identifier: "Missing a ';'",
 			operator: "Missing a ';'",
-			bracket: "Expected a ';' not a bracket"},
+			closebracket: "Missing an open bracket, or too many close brackets",
+			openbracket: "Expected a ';' not a bracket"},
 		suggestion: {expected: [";"], next: ["proc","when","OBSERVABLE","if","for","while","EOF","switch","func"]}
 	},
 /* EDEN_ERROR_STATEMENT */
@@ -150,6 +168,7 @@ var eden_error_db = [
 			keyword: "Missing a ')' after function call",
 			operator: "Missing a ')' after function call",
 			identifier: "Missing a ')' after function call",
+			separator: "Missing a ')' after function call",
 			bracket: "Wrong kind of bracket, need a ')'"},
 		suggestion: {expected: [")"], next: [";","(","[","+","-","/","*","%","^"]}
 	}
@@ -220,13 +239,16 @@ EdenError.prototype.buildSuggestion = function() {
 EdenError.prototype.prettyPrint = function() {
 	var err = eden_error_db[this.errno];
 
-	var errmsg = "Error " + err.messages[tokenType(this.token)]
-			+ "\n    " + this.context.src + " line " + this.line;
+	var msg = (err.message) ? err.messages[err.message.call(this)] : err.messages[tokenType(this.token)];
+	var errmsg =
+			"Error:\n    " + msg +
+			"\n    Source : " + this.context.src + ", line " + this.line +
+			"\n    Code   : " + this.errno;
 
-	errmsg += "\n    Here: " + this.extractBefore(10) + ">>> " + this.extractToken() + " <<<" + this.extractAfter(10);
+	errmsg += "\n    Here   : " + this.extractBefore(10) + ">>> " + this.extractToken() + " <<<" + this.extractAfter(10);
 
 	if (err.suggestion) {
-		errmsg += "\n    Suggestion: " + this.buildSuggestion();
+		errmsg += "\n    Suggestion : " + this.buildSuggestion();
 	}
 
 	return errmsg;

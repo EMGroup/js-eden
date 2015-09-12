@@ -83,8 +83,14 @@ function tokenType(token) {
 	if (isAlphaNumeric(token.charCodeAt(0))) {
 		return "keyword";
 	}
-	if (token == "(" || token == ")" || token == "[" || token == "]" || token == "{" || token == "}") {
-		return "bracket";
+	if (token == "(" || token == "[" || token == "{") {
+		return "openbracket";
+	}
+	if (token == ")" || token == "]" || token == "}") {
+		return "closebracket";
+	}
+	if (token == "," || token == "." || token == ";" || token == ":") {
+		return "separator";
 	}
 	return "operator";
 };

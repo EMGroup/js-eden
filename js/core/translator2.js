@@ -7,6 +7,7 @@ function EdenAST(code) {
 	this.stream = new EdenStream(code);
 	this.data = {};
 	this.token = "invalid";
+	this.previous = "invalid";
 	this.src = "input";
 
 	// Get First Token;
@@ -36,6 +37,7 @@ EdenAST.prototype.prettyPrint = function() {
 };
 
 EdenAST.prototype.next = function() {
+	this.previous = this.token;
 	this.token = readToken(this.stream, this.data);
 
 	//Skip normal block comments
@@ -45,6 +47,18 @@ EdenAST.prototype.next = function() {
 		}
 		this.token = readToken(this.stream, this.data);
 	}
+};
+
+EdenAST.prototype.peekNext = function(count) {
+	var res;
+	var localdata = {value: ""};
+	this.stream.pushPosition();
+	while (count > 0) {
+		res = readToken(this.stream, localdata);
+		count--;
+	}
+	this.stream.popPosition();
+	return res;
 };
 
 EdenAST.prototype.makeBinaryOp = function(op) {
