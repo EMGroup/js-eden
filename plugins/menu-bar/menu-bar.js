@@ -168,12 +168,11 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 				edenUI.highlightView(viewName, true);
 			},
 			mouseout: function (e) {
-				edenUI.stopHighlightingView(viewName, true);
+				edenUI.stopHighlightingView(viewName, true, false);
 			},
 			click: function (e) {
 				e.preventDefault();
-				edenUI.stopHighlightingView(viewName, true);
-				edenUI.showView(viewName);
+				edenUI.stopHighlightingView(viewName, true, true);
 				hideMenu();
 			}
 		};

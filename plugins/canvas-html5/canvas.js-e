@@ -17,13 +17,17 @@ mouseFollow = false;
 mousePosition = @;
 mousePressed = false;
 mouseUp = @;
-mouseWheelEnabled = false;
 mouseWheel = 0;
+mouseWheelEnabled = false;
+mouseWheelSpeed = 0;
 mouseWindow = @;
 mouseX is mousePosition == @? @ : mousePosition.x;
 mouseY is mousePosition == @? @ : mousePosition.y;
 mouseZone = @;
-touchScrollX = 0;
+touchPanX = 0;
+touchPanXSpeed = 0;
+touchPinch = 0;
+touchPinchEnabled = false;
 
 
 ${{
@@ -74,10 +78,8 @@ proc createCanvas {
 	auto obsName, viewTitle, viewName, initPicture;
 	if ($# == 1) {
 		obsName = $[1];
-		viewName = obsName;
 	} else if ($# == 2) {
 		obsName = $[1];
-		viewName = obsName;
 		viewTitle = $[2];
 	} else if ($# == 3) {
 		viewName = $[1];
@@ -92,12 +94,18 @@ proc createCanvas {
 		return;
 	}
 	
-	if (!isString(obsName)) {
-		error("createCanvas: The observable name must be expressed as a string, not a " // type(obsName));
+	if (isPointer(obsName)) {
+		obsName = nameof(obsName);
+	} else if (!isString(obsName)) {
+		error("createCanvas: The observable name must be expressed as a string or a pointer, not a " // type(obsName));
 		return;
 	}
-
-	if (viewTitle != @ && !isString(viewTitle)) {
+	if (viewName == @) {
+		viewName = obsName;
+	}
+	if (viewTitle == @) {
+		viewTitle = uppercase(substr(viewName, 1, 1)) // substr(viewName, 2);
+	} else if (!isString(viewTitle)) {
 		error("createCanvas: The window title must be a string, not a " // type(viewTitle));
 		return;
 	}
@@ -112,11 +120,8 @@ proc createCanvas {
 	} }}$;
 
 	createView(viewName, "Canvas2D", obsName);
-	initPicture(viewName, obsName);
-	
-	if (viewTitle != @) {
-		`"_view_" // viewName // "_title"` = viewTitle;
-	}
+	initPicture(viewName, obsName);	
+	`"_view_" // viewName // "_title"` = viewTitle;
 }
 
 ##Returns a string that can be used as the src attribute for an <img> tag inside the content of a

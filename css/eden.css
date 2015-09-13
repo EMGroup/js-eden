@@ -27,7 +27,7 @@ h2, ul li {
 }
 
 .canvashtml-content {
-	/* See Textbox.prototype.scale in plugins/canvas-html5/textbox.js-e */
+	/* Should be synchronized with defaultFontSizePx and defaultLineHeight in plugins/canvas-html5/canvas.js */
 	font-size: 13.3px;
 	line-height: 1.75;
 }
@@ -95,6 +95,7 @@ div.error-item {
 	-moz-user-select: none;
 	-ms-user-select: none;
 	-webkit-user-select: none;
+	user-select: none;
 }
 
 #dialog-extend-fixed-container {

@@ -59,7 +59,12 @@ showObservables(\"mouseZone|mouseDownZone|.*_click\");
 	<p>The <code>mouseZone</code> observable records which zone the mouse pointer is currently
 	positioned over, even when the mouse button is not pressed.  The <code>mouseDownZone</code>
 	observable records which zone the mouse was in when the mouse button most recently changed from
-	being not pressed to becoming pressed down.</p>
+	being not pressed to becoming pressed down.  The names used to differentiate the different
+	mouse zones can be any EDEN values that you like, even expressions that we wouldn't normally
+	think of as being \"names\".  For instance, we've had some exciting successes experimenting using
+	integers as mouse zone identifiers.  However, a <code>_click</code> observable will
+	only be generated for zones identified by strings that conform to the pattern of permitted
+	EDEN observable names.</p>
 	
 	<p>Where two shapes overlap only the topmost one (the visible one) has its <code>_click</code>
 	observable set to <code>true</code>.  We might also be interested in knowing about <em>all</em>
@@ -79,13 +84,90 @@ picture is [r1, r2, zone3];
 </jseden>
 	
 	<h2>Zones Within <code>HTMLImage</code></h2>
-	<p>As previously, you can create zones over particular pieces of a HTML Image.</p>
+	<p>As was previously also possible, you can create zones over particular pieces of a HTML image.
+	This functionality has now been revised and integrated into the general mouse zone framework.
+	If you're a web developer then you'll probably be familiar with concept and used to
+	using the term \"image map\". Indeed, the special syntax that we'll introduce shortly for adding
+	hotspots to HTML images uses HTML image maps under the covers.</p>
+	
+	<p>However, given that any canvas
+	item can now have a <code>_click</code> observable associated with it, and that shapes can
+	already be used to create invisible mouse zones, why do we need to do anything special for <code>HTMLImage</code>?
+	Well, you <em>can</em> use the <strong><code>Image</code></strong> function and overlay
+	invisible shapes on top of the image drawn, but the same is not true of <code>HTMLImage</code>.
+	Why?  Because HTML images and pre-designed user interface controls are always drawn on top of the
+	other items in the <code>picture</code> list, irrespective of how the picture list is ordered,
+	and therefore the invisible shapes will end up underneath the HTML image!  This is a
+	limitation of how the canvas works.  So what are the benefits of using <code>HTMLImage</code>
+	instead of <code>Image</code>?</p>
+	<ul>
+		<li>The positions of invisible shapes are always described relative to the canvas origin
+		point.  The positions of hotspots attached to HTML images are specified relative to the <em>top
+		left corner of the image</em> irrespective of the position of the image on the screen.
+		Consequently your construal will be a bit simpler.</li>
+		<li>Using HTML image maps will likely provide better performance than using canvas shapes.</li>
+		<li>The <code>Image</code> function <em>taints</em> the canvas, whereas <code>HTMLImage</code>
+		does not.  Once the canvas becomes tainted the <code>canvasURL</code> function will no longer
+		work.  Other features that require an untainted canvas may be added in the future.  For example, one
+		exciting possibility is the prospect of automatic collision detection between shapes.</li>
+	</ul>
+	<p>In all other respects we aim to equip the <code>Image</code> and <code>HTMLImage</code> functions with
+	equivalent functionality.  These two functions provide an interesting case study for comparing
+	what can be achieved with canvas drawing relative to HTML.  See also the section titled <a href='#jspe-slide-limitations'>
+	Bugs, Limitations &amp; Future Changes</a> for further discussion of the areas where the matched feature
+	set ambition is not currently realized and the situations when <code>Image</code> may be the better function to
+	use.</p>
+	
+	<p>With these considerations in mind, assuming that <code>HTMLImage</code> is the most appropriate
+	function for making your construal (and if you're using mouse zones within an image then it
+	probably is), let's discuss how to add mouse zones to images.</p>
+	
+	<p>Firstly, we can associate a mouse zone with the entire image.  If we also plan on adding mouse
+	zones for particular areas within the image then mouse zone of the overall image corresponds to the mouse
+	zone of the background, that is the parts of the image that don't have a more specific mouse zone
+	attached to them.  Adding a mouse zone to the overall image is accomplished using the <var>name</var>
+	parameter of <code>HTMLImage</code> (or <code>Image</code>), which is the first parameter.</p>
+	
+	<jseden>
+img is HTMLImage(\"logo\", 0, 30, \"images/construit-logo.jpg\");
+picture is [img];
+	</jseden>
+	
+	<p>Now we add our mouse zones for individual portions of the image.  Let's add a circular shaped
+	mouse zone for the the O of the CONSTRUIT! logo, and a rectangular shaped zone for the letter R.</p>
 
 	<h2>Hit Detection at Any Point</h2>
 
 	<h2>A Stack of Shapes</h2>
 
-	<h2>Limitations &amp; Future Changes</h2>
+	<h2 id='jspe-slide-limitations'>Bugs, Limitations &amp; Future Changes</h2>
+	<ul>
+		<li>Shapes (invisible or otherwise) cannot appear on top of HTML images or pre-designed
+		user interface controls.  Conceptually JS-EDEN functions as if all of the HTML elements are
+		implicitly shuffled to the end of the picture list.  We could consider moving to a three layer
+		implementation (background canvas, HTML layer, transparent foreground canvas).</li>
+		<li><code>zoneOnTopAt</code> and <code>zonesAt</code> fail to detect if a point is occupied
+		by a HTML image or user interface control.</li>
+		<li>There's no zoneOnBottomAt function.</li>
+		<li>The extent to which <code>zoneOnTopAt</code> and <code>zonesAt</code> are useful remains unclear.</li>
+		<li>The shapes that establish the mouse zones inside a <code>HTMLImage</code> aren't resized
+		automatically if the image is resized.</li>
+		<li>The capabilities of <code>Image</code> and <code>HTMLImage</code> are currently out of
+		synch.  <code>Image</code> supports cropping and pixelation, whereas <code>HTMLImage</code>
+		does not.  <code>HTMLImage</code> supports providing the width and height relative to a
+		given canvas scale factor, whereas the width and height arguments for <code>Image</code> are
+		always dimensions under scale factor 1.  There's no reason why these features cannot be
+		equalized.</li>
+		<li><code>Image</code> is a canvas \"shape\" but takes a separate parameter for associating
+		a mouse zone and doesn't accept an outline colour or drawing options.  Why?  There's no
+		reason why images produced by <code>Image</code> shouldn't have outlines, shadows and opacity,
+		since they're drawn using the same implementation mechanism as the elementary shapes (opacity
+		probably being the most useful missing option).  At present the syntaxes of <code>Image</code>
+		and <code>HTMLImage</code> are similar and it would be nice to keep this consistency.
+		Could images drawn using <code>HTMLImage</code> (and HTML elements in general) be made to
+		support a subset of the drawing options available for shapes?  Answer: yes.</li>
+	</ul>
+	<p>All of the above might get fixed in a future version of JS-EDEN.</p>
 ");
 
 slideViewHighlight is Slide("

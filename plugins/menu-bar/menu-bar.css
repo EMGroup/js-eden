@@ -96,6 +96,7 @@
 .menubar-item-label {
 	width: 200px;
 	padding: 5px;
+	vertical-align: middle;
 }
 
 .menubar-item-fullwidth {

@@ -367,10 +367,10 @@ func forgetAll {
 proc error {
 	${{
 		if (arguments.length > 1) {
-			eden.error(new Error("error: This procedure requires at most 1 argument"), "error");
+			eden.error(new Error("error: This procedure requires exactly 1 argument."), "error");
 		}
 		if (arguments.length == 0) {
-			eden.error(new Error("Runtime error"), "error");
+			eden.error(new Error("error: This procedure requires exactly 1 argument."), "error");
 		} else {
 			eden.error(new Error(arguments[0]), "error");
 		}
@@ -510,7 +510,7 @@ if (initialViews == "" || initialViews == "default") {
 	_view_projects_y = 0;
 	_view_projects_width = 210;
 	_view_projects_height = screenHeight;
-	createCanvas("picture");
+	createCanvas("picture", "Canvas Picture");
 	_view_picture_x = _view_projects_width + _views_frame_width;
 	_view_picture_y = 0;
 	if (${{ "logo" in edenUI.branding }}$) {

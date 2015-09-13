@@ -20,13 +20,26 @@ func Ellipse { ${{
 	var y = arguments[1];
 	var xradius = arguments[2];
 	var yradius = arguments[3];
-	var fillcolour = arguments[4];
-	var outlinecolour = arguments[5];
+	var fillcolour, outlinecolour, drawingOptions;
+	var lastArg = arguments[arguments.length - 1];
+	var processUpTo;
+	if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+		drawingOptions = lastArg;
+		processUpTo = arguments.length - 2;
+	} else {
+		processUpTo = arguments.length - 1;
+	}
+	if (processUpTo >= 4) {
+		fillcolour = arguments[4];
+		if (processUpTo == 5) {
+			outlinecolour = arguments[5];
+		}
+	}
+
 	if (fillcolour === undefined && outlinecolour === undefined) {
 		outlinecolour = "black";
 	}
-	var drawingOptions = arguments[6];
-	if (typeof(drawingOptions) == "object" && eden.isValidIdentifier(drawingOptions.name)) {
+	if (drawingOptions !== undefined && eden.isValidIdentifier(drawingOptions.name)) {
 		var clickSym = root.lookup(drawingOptions.name + "_click");
 		if (clickSym.value() === undefined) {
 			clickSym.assign(false, root.lookup("Ellipse"));

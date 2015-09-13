@@ -24,13 +24,13 @@ WindowHighlighter.prototype.highlight = function (dialogName) {
 	}
 };
 
-WindowHighlighter.prototype.stopHighlight = function (dialogName) {
+WindowHighlighter.prototype.stopHighlight = function (dialogName, unminimize) {
 	if (!this.lastDialog) { return; }
 
 	this.lastDialog.removeClass('menubar-window-raise');
 
 	var dialogContent = edenUI.getDialogContent(dialogName);
-	if (this.lastDialogMinimized) {
+	if (this.lastDialogMinimized && !unminimize) {
 		dialogContent.dialogExtend("minimize");
 	}
 

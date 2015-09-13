@@ -211,7 +211,7 @@ function concatAndResolveUrl(url, concat) {
 	 * Requires that a view manager is loaded.
 	 */
 	EdenUI.prototype.cycleNextView = function () {
-		this.stopHighlightingView(this.currentView, true);
+		this.stopHighlightingView(this.currentView, true, false);
 		var viewNames = Object.keys(this.activeDialogs);
 		if (this.currentView === undefined) {
 			this.currentView = viewNames[0];
@@ -227,7 +227,7 @@ function concatAndResolveUrl(url, concat) {
 	};
 
 	EdenUI.prototype.stopViewCycling = function () {
-		this.stopHighlightingView(this.currentView, true);
+		this.stopHighlightingView(this.currentView, true, true);
 	};
 
 	/**
