@@ -86,6 +86,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 						backgroundColour = "white";
 					}
 					context.setTransform(1, 0, 0, 1, 0, 0);
+					me.setFillStyle(context, backgroundColour);
+					content.parentElement.style.backgroundColor = backgroundColour;
+					context.fillRect(0, 0, canvas.width, canvas.height);
+
 					var scale = root.lookup("_view_" + canvasname + "_scale").value();
 					if (typeof(scale) != "number") {
 						scale = 1;
@@ -101,11 +105,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					} else {
 						origin = new Point(0, 0);
 					}
-
-					me.setFillStyle(context, backgroundColour);
-					content.parentElement.style.backgroundColor = backgroundColour;
-					context.fillRect(0, 0, canvas.width, canvas.height);
 					context.scale(combinedScale, combinedScale);
+
 					//Configure JS-EDEN default options that are different from the HTML canvas defaults.
 					me.configureContextDefaults(context, scale);
 
