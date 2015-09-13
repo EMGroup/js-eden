@@ -5,10 +5,12 @@
 
 function EdenAST(code) {
 	this.stream = new EdenStream(code);
-	this.data = {};
+	this.data = new EdenSyntaxData();
 	this.token = "invalid";
 	this.previous = "invalid";
 	this.src = "input";
+
+	this.stream.data = this.data;
 
 	// Get First Token;
 	this.next();
@@ -21,8 +23,9 @@ function EdenAST(code) {
 EdenAST.prototype.prettyPrint = function() {
 	var result = "";
 
+	//console.log(this.script);
+
 	if (this.script.errors.length > 0) {
-		console.log(this.script);
 		for (var i = 0; i < this.script.errors.length; i++) {
 			result = result + this.script.errors[i].prettyPrint() + "\n\n";
 		}
@@ -38,18 +41,18 @@ EdenAST.prototype.prettyPrint = function() {
 
 EdenAST.prototype.next = function() {
 	this.previous = this.token;
-	this.token = this.stream.readToken(this.data);
+	this.token = this.stream.readToken();
 
 	//Skip comments
 	while (true) {
 		if (this.token == "/*") {
 			while (this.token != "*/") {
-				this.token = this.stream.readToken(this.data);
+				this.token = this.stream.readToken();
 			}
-			this.token = this.stream.readToken(this.data);
+			this.token = this.stream.readToken();
 		} else if (this.token == "##") {
 			this.stream.skipLine();
-			this.token = this.stream.readToken(this.data);
+			this.token = this.stream.readToken();
 		} else {
 			break;
 		}
@@ -59,12 +62,14 @@ EdenAST.prototype.next = function() {
 EdenAST.prototype.peekNext = function(count) {
 	var res;
 	var localdata = {value: ""};
+	this.stream.data = localdata;
 	this.stream.pushPosition();
 	while (count > 0) {
-		res = this.stream.readToken(localdata);
+		res = this.stream.readToken();
 		count--;
 	}
 	this.stream.popPosition();
+	this.stream.data = this.data;
 	return res;
 };
 
@@ -436,7 +441,6 @@ EdenAST.prototype.pELIST_P = function() {
  */
 EdenAST.prototype.pEXPRESSION_PPPPPP = function() {
 	if (this.token == "?") {
-		console.log(this);
 		this.next();
 		var tern = new EdenAST_TernaryOp("?");
 		tern.setFirst(this.pEXPRESSION());
@@ -513,58 +517,42 @@ EdenAST.prototype.pACTION = function() {
 
 /**
  * WHEN Production
- * WHEN -> change : WHEN' | touch : WHEN' | ( EXPRESSION ) ACTIONBODY
+ * WHEN -> : WHEN' | ( EXPRESSION ) ACTIONBODY
  */
 EdenAST.prototype.pWHEN = function() {
-	if (this.token == "touch" || this.token == "change") {
-		var kind = this.token;
+	if (this.token == ":") {
 		this.next();
 
-		var hascolon = false;
-
-		if (this.token == ":") {
-			hascolon = true;
-			this.next();
-		}
-
 		var when = this.pWHEN_P();
-		when.kind(kind);
+		when.kind("change");
 
-		if (hascolon == false) {
-			when.errors.unshift(new EdenError(this, EDEN_ERROR_ACTIONCOLON));
-		}
+			//when.errors.unshift(new EdenError(this, EDEN_ERROR_ACTIONCOLON));
 
 		return when;
 	}
 
-	var errors = [];
+	var when = new EdenAST_ConditionalAction();
 
 	if (this.token != "(") {
-		errors.push(new EdenError(this, EDEN_ERROR_WHENTYPE));
-	} else {
-		this.next();
+		when.error(new EdenError(this, EDEN_ERROR_WHENTYPE));
+		return when;
 	}
 
-	var express = this.pEXPRESSION();
+	this.next();
+
+	when.setExpression(this.pEXPRESSION());
+	if (when.errors.length > 0) return when;
 
 	if (this.token != ")") {
-		express.error(new EdenError(this, 0, "Missing a ')' after a 'when' conditional", undefined, ")"));
+		when.error(new EdenError(this, 0, "Missing a ')' after a 'when' conditional", undefined, ")"));
+		return when;
 	} else {
 		this.next();
 	}
 
-	var statement = this.pSTATEMENT();
-	var when = new EdenAST_ConditionalAction(express, statement);
+	when.setStatement(this.pSTATEMENT());
+	if (when.errors.length > 0) return when;
 
-	if (statement === undefined) {
-		when.error(new EdenError(this, 0, "A 'when' needs to be followed by one or more statements", undefined, undefined));
-	}
-
-	if (errors.length > 0) {
-		for (var i = 0; i < errors.length; i++) {
-			when.error(errors[i]);
-		}
-	}
 	return when;
 }
 
@@ -1022,6 +1010,28 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
 	} else if (this.token == "*=") {
 		this.next();
 		return new EdenAST_Modify("*=", this.pEXPRESSION());
+	} else if (this.token == "~>") {
+		this.next();
+		var subscribers = new EdenAST_Subscribers();
+
+		if (this.token != "[") {
+			subscribers.error(new EdenError(this, EDEN_ERROR_SUBSCRIBEOPEN));
+			return subscribers;
+		} else {
+			this.next();
+		}
+
+		subscribers.setList(this.pOLIST());
+		if (subscribers.errors.length > 0) return subscribers;
+
+		if (this.token != "]") {
+			subscribers.error(new EdenError(this, EDEN_ERROR_SUBSCRIBECLOSE));
+			return subscribers;
+		} else {
+			this.next();
+		}
+
+		return subscribers;
 	} else if (this.token == "++") {
 		this.next();
 		return new EdenAST_Modify("++", undefined);
@@ -1186,7 +1196,14 @@ EdenAST.prototype.pSCRIPT = function() {
 				}
 			}
 		} else {
-			break;
+			if (this.token != "}" && this.token != ";") {
+				ast.errors.push(new EdenError(this, EDEN_ERROR_STATEMENT));
+			}
+			if (this.token == ";") {
+				this.next();
+			} else {
+				break;
+			}
 		}
 	}
 

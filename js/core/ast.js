@@ -211,6 +211,30 @@ EdenAST_Modify.prototype.error = fnEdenAST_error;
 
 //------------------------------------------------------------------------------
 
+function EdenAST_Subscribers() {
+	this.type = "subscribers";
+	this.errors = [];
+	this.list = [];
+	this.lvalue = undefined;
+};
+
+EdenAST_Subscribers.prototype.left = function(lvalue) {
+	this.lvalue = lvalue;
+	if (lvalue.errors.length > 0) {
+		this.errors.push.apply(this.errors, lvalue.errors);
+	}
+};
+
+EdenAST_Subscribers.prototype.setList = function(list) {
+	this.list = list;
+}
+
+EdenAST_Subscribers.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
 function EdenAST_Primary() {
 	this.type = "primary";
 	this.errors = [];
@@ -426,16 +450,22 @@ EdenAST_CodeBlock.prototype.setScript = function(script) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_ConditionalAction(expr, statement) {
+function EdenAST_ConditionalAction() {
 	this.type = "conditionalaction";
-	this.errors = expr.errors;
-	this.expression = expr;
-	this.statement = statement;
-
-	if (statement) {
-		this.errors.push.apply(this.errors, statement.errors);
-	}
+	this.errors = [];
+	this.expression = undefined;
+	this.statement = undefined;
 };
+
+EdenAST_ConditionalAction.prototype.setExpression = function (express) {
+	this.expression = express;
+	this.errors.push.apply(this.errors, express.errors);
+}
+
+EdenAST_ConditionalAction.prototype.setStatement = function (statement) {
+	this.statement = statement;
+	this.errors.push.apply(this.errors, statement.errors);
+}
 
 EdenAST_ConditionalAction.prototype.error = fnEdenAST_error;
 

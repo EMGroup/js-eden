@@ -1,3 +1,7 @@
+function EdenSyntaxData() {
+	this.value = undefined;
+}
+
 /**
  * A basic stream wrapper for a javascript string that allows for sequential
  * reading and backtracking of the string. It provides a readToken function
@@ -10,6 +14,7 @@ function EdenStream(code) {
 	this.position_stack = [];
 	this.prevposition = 0;
 	this.line = 1;
+	this.data = new EdenSyntaxData();
 };
 
 /**
@@ -114,8 +119,7 @@ EdenStream.prototype.unget = function() {
  * Counts all new lines in the process to record current line number.
  */
 EdenStream.prototype.skipWhiteSpace = function() {
-	var ch;
-	ch = this.peek();
+	var ch = this.peek();
 	while (this.valid() && (ch == 9 || ch == 13 || ch == 10 || ch == 32)) {
 		if (ch == 10) this.line++;
 		this.skip();
@@ -227,8 +231,6 @@ EdenStream.prototype.parseNumber = function(data) {
 		}
 	}
 
-	console.log(result);
-
 	data.value = parseFloat(result);
 };
 
@@ -272,25 +274,27 @@ var edenKeywords = [
 "break",
 "continue",
 "return",
-"when",
-"change",
-"touch"
+"when"
 ];
 
 
-EdenStream.prototype.readToken = function(data) {
+EdenStream.prototype.readToken = function() {
 	this.skipWhiteSpace();
 
 	if (this.eof()) return "EOF";
 
 	this.prevposition = this.position;
 
-	var ch = this.get();
+	//var ch = this.get();
+
+	var ch = this.code.charCodeAt(this.position);
+	this.position++;
+
 	switch (ch) {
 	case 33	:	if (this.peek() == 61) { this.skip(); return "!="; }
 				if (this.peek() == 126) { this.skip(); return "!~"; }
 				return "!";
-	case 34	:	this.parseString(data); return "STRING";
+	case 34	:	this.parseString(this.data); return "STRING";
 	case 35	:	if (this.peek() == 35) { this.skip(); return "##"; }
 				return "#";
 	case 36	:	if (this.peek() == 123 && this.peek2() == 123) {
@@ -334,7 +338,7 @@ EdenStream.prototype.readToken = function(data) {
 	case 54 :
 	case 55 :
 	case 56 :
-	case 57 :	this.unget(); this.parseNumber(data); return "NUMBER";
+	case 57 :	this.unget(); this.parseNumber(this.data); return "NUMBER";
 	case 58	:	return ":";
 	case 59	:	return ";";
 	case 60	:	if (this.peek() == 60) { this.skip(); return "<<"; }
@@ -358,7 +362,8 @@ EdenStream.prototype.readToken = function(data) {
 				if (this.peek() == 61) { this.skip(); return "|="; }
 				return "|";
 	case 125:	return "}";
-	case 126:	return "~";
+	case 126:	if (this.peek() == 62) { this.skip(); return "~>"; }
+				return "~";
 	default: break; 
 	};
 
@@ -373,7 +378,7 @@ EdenStream.prototype.readToken = function(data) {
 	}
 
 	// Must be an identifier?
-	if (this.parseAlphaNumeric(data)) return "OBSERVABLE";
+	if (this.parseAlphaNumeric(this.data)) return "OBSERVABLE";
 
 	return "INVALID";
 };

@@ -31,6 +31,8 @@ var EDEN_ERROR_FOROPEN = 27;
 var EDEN_ERROR_FORCLOSE = 28;
 var EDEN_ERROR_FORSTART = 29;
 var EDEN_ERROR_FORCOND = 30;
+var EDEN_ERROR_SUBSCRIBEOPEN = 31;
+var EDEN_ERROR_SUBSCRIBECLOSE = 32;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -302,6 +304,20 @@ var eden_error_db = [
 			"Missing a ';' after 'for' condition"
 		],
 		suggestion: {expected: [";"], next: []}
+	},
+/* EDEN_ERROR_SUBSCRIBEOPEN */
+	{	message: function() { return 0; },
+		messages: [
+			"Expected a '[' to list subscribers"
+		],
+		suggestion: {expected: ["["], next: []}
+	},
+/* EDEN_ERROR_SUBSCRIBECLOSE */
+	{	message: function() { return 0; },
+		messages: [
+			"Expected a ']' to end subscribers list"
+		],
+		suggestion: {expected: ["]"], next: []}
 	}
 ]
 

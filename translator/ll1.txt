@@ -14,7 +14,8 @@ STATEMENT	->
 	if IF |
 	return EOPT ; |
 	continue ; |
-	break ;
+	break ; |
+	epsilon
 
 FOR			-> ( STATEMENT'_OPT ; EXPRESSION_OPT ; STATEMENT'_OPT ) STATEMENT
 WHILE		-> ( EOPT ) STATEMENT 
@@ -31,7 +32,7 @@ ACTIONBODY	-> { LOCALS SCRIPT }
 PARAS		-> para OLIST ; PARAS | epsilon
 LOCALS		-> auto OLIST ; LOCALS | local OLIST ; LOCALS | epsilon
 
-WHEN		-> change : WHEN' | touch : WHEN' | ( EXPRESSION ) ACTIONBODY
+WHEN		-> : WHEN' | ( EXPRESSION ) ACTIONBODY
 WHEN'		-> OLIST ACTIONBODY
 
 OLIST		-> observable OLIST'
@@ -49,6 +50,7 @@ STATEMENT''	->
 	-= EXPRESSION |
 	/= EXPRESSION |
 	*= EXPRESSION |
+	~> [OLIST] |
 	++ |
 	--
 
