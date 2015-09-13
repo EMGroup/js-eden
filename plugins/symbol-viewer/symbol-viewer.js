@@ -95,7 +95,10 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		symbollist.search("");
 
 		code_entry.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
-			console.log(name);
+			var editorViewName = "edit_" + edenName;
+			edenUI.createView(editorViewName, "ScriptInput");
+			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, Symbol.hciAgent);
+			edenUI.eden.root.lookup("_view_" + edenName + "_title").assign(mtitle + " (" + edenName + ")", Symbol.hciAgent);
 			edenUI.createView("edit_" + edenName, "ScriptInput");
 			var allVals = "";
 			var symbol;
@@ -113,7 +116,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 				}
 				allVals += val + "\n";
 			}
-				$('#edit_' + edenName + '-dialog').find('textarea').val(allVals);
+				$('#' + editorViewName + '-dialog').find('textarea').val(allVals);
 		});
 
 
@@ -429,7 +432,9 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			$(this).animate({backgroundColor: "inherit"}, 100);
 		}	
 	).click(function () {
-		edenUI.createView("edit_" + me.name, "ScriptInput");
+		var editorViewName = "edit_" + me.name;
+		edenUI.createView(editorViewName, "ScriptInput");
+		edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + me.name, Symbol.hciAgent);
 		var val;
 		if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
 			val = symbol.eden_definition;
@@ -441,7 +446,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			}
 		}
 
-		$('#edit_' + me.name + '-dialog').find('textarea').val(
+		$('#' + editorViewName + '-dialog').find('textarea').val(
 			val
 		);
 	});
