@@ -74,11 +74,19 @@ var eden_error_db = [
 		suggestion: {expected: ["OBSERVABLE"], next: [",","{"]}
 	},
 /* EDEN_ERROR_ACTIONCOMMAS */
-	{	messages: {
-			keyword: "A reserved word can't be used as an observable name",
-			operator: "Umm, ask for some help",
-			separator: "Too many commas or missing a watch observable",
-			openbracket: "Too many commas, or missing a watch observable"},
+	{	message: function() {
+			if (this.token == "{") return 0;
+			if (this.token == "(" && !this.context.stream.isBEOL()) return 1;
+			var type = this.context.stream.tokenType(this.token);
+			if (type == "keyword") return 2;
+			return 3;
+		},
+		messages: [
+			"Either too many ','s or a missing watch observable",
+			"Must give an observable name, not an expression",
+			"The reserved word '%R' can't be used as an observable name",
+			"Expecting an observable name but got %T"
+		],
 		suggestion: {expected: ["OBSERVABLE"], next: [",","{"]}
 	},
 /* EDEN_ERROR_ACTIONOPEN */
@@ -110,10 +118,21 @@ var eden_error_db = [
 		}
 	},
 /* EDEN_ERROR_ACTIONCLOSE */
-	{	messages: {
-			bracket: "Wrong kind of bracket, use '}' to end action code",
-			operator: "Missing a closing '}'"},
-		suggestion: {expected: ["}"], next: [";"]}
+	{	message: function() {
+			if (this.token == ")" || this.token == "]") {
+				if (this.context.stream.isBEOL()) {
+					return 0;
+				} else {
+					return 1;
+				}
+			}
+			return 1;
+		},
+		messages: [
+			"Wrong kind of bracket to close an action, use '}' instead",
+			"Missing a closing '}' bracket at end of action code"
+		],
+		suggestion: {expected: ["}"], next: ["proc","func","if","for","OBSERVABLE","switch","while","return","continue","break"]}
 	},
 /* EDEN_ERROR_LOCALNAME */
 	{	messages: {

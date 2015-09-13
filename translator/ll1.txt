@@ -7,15 +7,25 @@ STATEMENT	->
 	when WHEN |
 	proc ACTION |
 	func FUNCTION |
-	LVALUE STATEMENT'' ; |
 	for FOR |
 	while WHILE |
 	switch SWITCH |
+	case CASE |
+	default : |
 	if IF |
 	return EOPT ; |
 	continue ; |
 	break ; |
+	ILIST |
+	insert LVALUE , EXPRESSION , EXPRESSION ; |
+	delete LVALUE , EXPRESSION ; |
+	append LVALUE , EXPRESSION ; |
+	shift LVALUE ; |
+	LVALUE STATEMENT'' ; |
 	epsilon
+
+SWITCH		-> ( EXPRESSION ) STATEMENT
+CASE 		-> STRING : | NUMBER : | CHARACTER :
 
 FOR			-> ( STATEMENT'_OPT ; EXPRESSION_OPT ; STATEMENT'_OPT ) STATEMENT
 WHILE		-> ( EOPT ) STATEMENT 
