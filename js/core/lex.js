@@ -11,7 +11,7 @@ function EdenSyntaxData() {
 function EdenStream(code) {
 	this.code = code;
 	this.position = 0;
-	this.position_stack = [];
+	this.position_stack = [0];
 	this.prevposition = 0;
 	this.line = 1;
 	this.data = new EdenSyntaxData();
@@ -43,14 +43,14 @@ EdenStream.prototype.discardPosition = function() {
  * Moves stream to the next position.
  */
 EdenStream.prototype.get = function() {
-	return this.code.charCodeAt(this.position++);
+	return (this.position < this.code.length) ? this.code.charCodeAt(this.position++) : 0;
 };
 
 /**
  * Get the next character but don't move the stream on.
  */
 EdenStream.prototype.peek = function() {
-	return this.code.charCodeAt(this.position);
+	return (this.position < this.code.length) ? this.code.charCodeAt(this.position) : 0;
 };
 
 /**
@@ -119,11 +119,14 @@ EdenStream.prototype.unget = function() {
  * Counts all new lines in the process to record current line number.
  */
 EdenStream.prototype.skipWhiteSpace = function() {
-	var ch = this.peek();
-	while (this.valid() && (ch == 9 || ch == 13 || ch == 10 || ch == 32)) {
+	while (this.valid()) {
+		var ch= this.peek();
 		if (ch == 10) this.line++;
-		this.skip();
-		ch = this.peek();
+		if (ch == 9 || ch == 10 || ch == 13 || ch == 32) {
+			this.skip();
+		} else {
+			break;
+		}
 	}
 };
 
@@ -184,14 +187,13 @@ EdenStream.prototype.tokenType = function(token) {
  */
 EdenStream.prototype.parseAlphaNumeric = function(data) {
 	var result = "";
-	this.skipWhiteSpace();
 
 	if (this.isAlphaNumeric(this.peek()) == false) {
 		return false;
 	}
 
 	while (this.valid() && this.isAlphaNumeric(this.peek())) {
-		result = result + String.fromCharCode(this.get());
+		result += String.fromCharCode(this.get());
 	}
 	data.value = result;
 	return true;
@@ -203,7 +205,7 @@ EdenStream.prototype.parseString = function(data) {
 	var result = "";
 
 	while (this.valid() && this.peek() != 34) {
-		result = result + String.fromCharCode(this.get());
+		result += String.fromCharCode(this.get());
 	}
 
 	// Remove end quote
@@ -220,14 +222,14 @@ EdenStream.prototype.parseNumber = function(data) {
 	var result = "";
 
 	while (this.valid() && this.isNumeric(this.peek())) {
-		result = result + String.fromCharCode(this.get());
+		result += String.fromCharCode(this.get());
 	}
 
 	if (this.peek() == 46) {
 		this.skip();
-		result = result + ".";
+		result += ".";
 		while (this.valid() && this.isNumeric(this.peek())) {
-			result = result + String.fromCharCode(this.get());
+			result += String.fromCharCode(this.get());
 		}
 	}
 
@@ -254,28 +256,28 @@ EdenStream.prototype.parseKeyword = function(word) {
 };
 
 
-var edenKeywords = [
-"func",
-"proc",
-"auto",
-"para",
-"local",
-"if",
-"is",
-"else",
-"true",
-"false",
-"eval",
-"for",
-"while",
-"do",
-"switch",
-"case",
-"break",
-"continue",
-"return",
-"when"
-];
+var edenKeywords = {
+"func": true,
+"proc": true,
+"auto": true,
+"para": true,
+"local": true,
+"if": true,
+"is": true,
+"else": true,
+"true": true,
+"false": true,
+"eval": true,
+"for": true,
+"while": true,
+"do": true,
+"switch": true,
+"case": true,
+"break": true,
+"continue": true,
+"return": true,
+"when": true
+};
 
 
 EdenStream.prototype.readToken = function() {
@@ -369,16 +371,10 @@ EdenStream.prototype.readToken = function() {
 
 	this.unget();
 
-	// Nothing matched so is alpha numeric...
-	// Check for keywords
-	for (var i = 0; i < edenKeywords.length; i++) {
-		if (this.parseKeyword(edenKeywords[i])) {
-			return edenKeywords[i];
-		}
+	if (this.parseAlphaNumeric(this.data)) {
+		if (edenKeywords[this.data.value]) return this.data.value;
+		return "OBSERVABLE";
 	}
-
-	// Must be an identifier?
-	if (this.parseAlphaNumeric(this.data)) return "OBSERVABLE";
 
 	return "INVALID";
 };
