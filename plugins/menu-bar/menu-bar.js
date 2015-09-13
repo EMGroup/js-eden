@@ -29,6 +29,9 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		this.updateViewsMenu();
 	});
 
+	var pinnedIcon = "images/pin.png";
+	var notPinnedIcon = "images/pin-greyed.png";
+
 	var menudiv = $('<div id="menubar-main"></div>');
 	var menustatus = $('<div id="menubar-status"></div>');
 	menustatus.appendTo(menudiv);
@@ -106,7 +109,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		hideMenu();
 		var root = edenUI.eden.root;
 		var followMouse = root.lookup("mouseFollow").value();
-		var viewNumberSym = root.lookup("_view_number");
+		var viewNumberSym = root.lookup("_views_number_created");
 		var viewNumber = viewNumberSym.value() + 1;
 		viewNumberSym.assign(viewNumber, Symbol.hciAgent, true);
 		if (followMouse) {
@@ -128,6 +131,20 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		edenUI.closeView(name);
 		existingViewsInstructions();
 	}
+	
+	function onClickPinWindow(e) {
+		e.preventDefault();
+		var image = e.currentTarget.children[0];
+		var name = this.parentNode.viewname;
+
+		if (edenUI.viewInstances[name].pinned) {
+			edenUI.unpinView(name);
+			image.src = notPinnedIcon;
+		} else {
+			edenUI.pinView(name);
+			image.src = pinnedIcon;
+		}
+	}
 
 	function menuItem(parts) {
 		var item = $("<div class='menubar-item'></div>");
@@ -148,15 +165,14 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	function hoverFunc(viewName) {
 		return {
 			mouseover: function (e) {
-				edenUI.highlight(viewName);
+				edenUI.highlightView(viewName, true);
 			},
 			mouseout: function (e) {
-				edenUI.stopHighlight(viewName);
+				edenUI.stopHighlightingView(viewName, true, false);
 			},
 			click: function (e) {
 				e.preventDefault();
-				edenUI.stopHighlight();
-				edenUI.showView(viewName);
+				edenUI.stopHighlightingView(viewName, true, true);
 				hideMenu();
 			}
 		};
@@ -172,8 +188,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		var viewName;
 		var viewType;
 		var viewEntry;
-		var label;
-		var close;
+		var label, pin, close;
 
 		for (viewType in edenUI.views) {
 			var viewDetails = edenUI.views[viewType];
@@ -186,7 +201,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 
 			viewEntry = menuItem([label]);
 			viewEntry[0].view = viewType;
-			viewEntry.bind("click", onClickNewWindow);
+			viewEntry.click(onClickNewWindow);
 
 			viewArray.push({title: title, viewEntry: viewEntry,
 				categoryLabel: categoryLabel, categoryPriority: categoryPriority, itemPriority: itemPriority});
@@ -237,12 +252,21 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			var myHover = hoverFunc(viewName);
 			var title = edenUI.eden.root.lookup("_view_" + viewName + "_title").value();
 			label = menuItemPart('menubar-item-label', title +' [' + viewName + ']');
-			label.bind("click", myHover.click);
+			label.click(myHover.click);
+
+			var pinImageURL;
+			if (edenUI.viewInstances[viewName].pinned) {
+				pinImageURL = pinnedIcon;
+			} else {
+				pinImageURL = notPinnedIcon;
+			}
+			pin = menuItemPart('menubar-item-pin', '<img src="' + pinImageURL + '" width="18" height="18" class="menubar-item-pin-icon"/>');
+			pin.click(onClickPinWindow);
 
 			close = menuItemPart('menubar-item-close', '<div class="menubar-item-close-icon">X</div>');
-			close.bind("click", onClickCloseWindow);
+			close.click(onClickCloseWindow);
 
-			viewEntry = menuItem([label, close]);
+			viewEntry = menuItem([label, pin, close]);
 			viewEntry.bind('mouseover', myHover.mouseover);
 			viewEntry.bind('mouseout', myHover.mouseout);
 			viewEntry[0].viewname = viewName;

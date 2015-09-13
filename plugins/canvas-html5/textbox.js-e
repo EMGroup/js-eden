@@ -88,12 +88,13 @@ Textbox.prototype.scale = function (scale, zoom, origin) {
 	style.left = Math.round(this.x * scale + origin.x) + "px";
 	style.top = Math.round(this.y * scale + origin.y) + "px";
 	style.width = Math.round(this.width * scale - 6) + "px";
-	var rows = Math.floor(Math.round(this.height * scale - 6) / (23.275 * zoom));	//See css/eden.css
+	var lineHeight = edenUI.plugins.Canvas2D.defaultLineHeight;
+	var rows = Math.floor(Math.round(this.height * scale - 6) / (lineHeight * zoom));	//See css/eden.css
 	if (rows == 0) {
 		rows = 1;
 	}
-	style.height = (rows * 20.275 * zoom) + "px";
-	style.fontSize = (13.3 * zoom) + "px";
+	style.height = (rows * lineHeight * zoom) + "px";
+	style.fontSize = (edenUI.plugins.Canvas2D.defaultFontSizePx * zoom) + "px";
 };
 
 Textbox.prototype.toString = function() {

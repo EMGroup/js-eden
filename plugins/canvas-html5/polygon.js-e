@@ -35,9 +35,21 @@ func Polygon { ${{
 		vertices.push(vertices[0]);
 	}
 
-	var fillcolour = arguments[1];
-	var outlinecolours = arguments[2];
-	var drawingOptions = arguments[3];
+	var fillcolour, outlinecolours, drawingOptions;
+	var lastArg = arguments[arguments.length - 1];
+	var processUpTo;
+	if (lastArg !== undefined && (lastArg instanceof Object) && !Array.isArray(lastArg) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+		drawingOptions = lastArg;
+		processUpTo = arguments.length - 2;
+	} else {
+		processUpTo = arguments.length - 1;
+	}
+	if (processUpTo >= 1) {
+		fillcolour = arguments[1];
+		if (processUpTo == 2) {
+			outlinecolours = arguments[2];
+		}
+	}
 
 	if (outlinecolours === undefined) {
 		if (fillcolour === undefined) {
@@ -119,7 +131,7 @@ func Polygon { ${{
 	var oneColour = outlinecolours === undefined || (outlinecolours.length == 1 && !Array.isArray(outlinecolours[0]));
 
 	if (!oneColour) {
-		if (drawingOptions instanceof Object) {
+		if (drawingOptions !== undefined) {
 			if (!("join" in drawingOptions)) {
 				drawingOptions.join = "round";
 				drawingOptions.cap = "round";
@@ -131,7 +143,7 @@ func Polygon { ${{
 		}
 	}
 
-	if (typeof(drawingOptions) == "object" && eden.isValidIdentifier(drawingOptions.name)) {
+	if (drawingOptions !== undefined && eden.isValidIdentifier(drawingOptions.name)) {
 		var clickSym = root.lookup(drawingOptions.name + "_click");
 		if (clickSym.value() === undefined) {
 			clickSym.assign(false, root.lookup("Polygon"));

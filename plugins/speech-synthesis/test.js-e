@@ -1,0 +1,185 @@
+showObservables("speak");
+testDescription is `test // "Desc"`;
+testInitialization is `test // "Init"`;
+testProcedure is `test`;
+testAssertion is `test // "Check"`;
+assertionOkay is definitionRHS(test // "Check") == "@"? true : testAssertion;
+
+testNames is findTestNames(tests);
+testName_value is testNames[1];
+test is tests[indexOf(testName_value, testNames)];
+logText = "";
+
+testSelection is Combobox("testName", testNames, 10, 10);
+buttonsLeft = 260;
+execButton is Button("exec", "Execute", buttonsLeft, 10);
+nextButton is Button("next", "Next", execButton.x + 65, 10, indexOf(testName_value, testNames) != testNames#);
+statusText is assertionOkay? "Automated validation checks passed." : "Fail: An unexpected state has occurred.";
+status is Text(statusText, 10, 40, @, assertionOkay? "#008000" : "red");
+logDisplay is Div(logText, 10, 65);
+logDisplayHeight is logText == ""? 0 : 150;
+info is Div(testDescription, 10,  65 + logDisplayHeight);
+complete = false;
+picture is [testSelection, execButton, nextButton, logDisplay, info] // (complete? [status] : []);
+
+proc hideStatus : testName_value {
+	complete = false;
+}
+
+proc runTest : exec_clicked {
+	if (exec_clicked) {
+		complete = false;
+		logText = "";
+		
+		if (initialize != @) {
+			initialize();
+		}
+
+		if (testInit != @) {
+			##Test-specific initialization.
+			testInit();
+			doingDefaultInit = false;
+		} else if (defaultInit != @) {
+			##Default initialization.
+			defaultInit();
+			doingDefaultInit = true;
+		}
+
+		if (testProcedure != @) {
+			##Perform test actions.
+			testProcedure();
+		} else {
+			##Test only makes assertions about the initial state, not actions.
+			complete = true;
+		}		
+	}
+}
+
+proc cleanup : complete {
+	if (complete) {
+		touch(&testAssertion);
+		forgetAll("condition.*", true, false);
+		forgetAll("monitor.*", true, false);
+
+		if (testTearDown != @) {
+			##Test-specific tear down.
+			testTearDown();
+		}
+		if (doneDefaultInit) {
+			defaultTearDown();
+		}
+		testTearDown = `test // "TearDown"`;
+		doneDefaultInit = doingDefaultInit;
+	}
+}
+
+proc nextTest : next_clicked {
+	auto index;
+	if (next_clicked) {
+		index = indexOf(testName_value, testNames) + 1;
+		testName_value = testNames[index];
+	}
+}
+
+proc output {
+	if ($# == 1 && isNumber($[1])) {
+		logText = logText // "Waypoint " // str($[1]) // " hit.";
+	}
+	logText = logText + "\n";
+}
+
+func findTests {
+	auto i, tests;
+	tests = [];
+	i = 1;
+	while (isDefined("test" // str(i) // "Name")) {
+		append tests, "test" // str(i);
+		i++;
+	}
+	return tests;
+}
+
+func findTestNames {
+	para tests;
+	auto i, result;
+	result = [];
+	for (i = 1; i <= tests#; i++) {
+		append result, `tests[i] // "Name"`;
+	}
+	return result;
+}
+
+proc initialize {
+	speakingList = [];
+}
+
+proc defaultInit {
+	speak1 = SpeakingWords("speak1", "This is the first line and it is spoken in the default voice.");
+	speak2 = SpeakingWords("speak2", "Ceci est la deuxième ligne et c'est parlé en français.", "fr");
+	speak3 = SpeakingWords("speak3", "This is the third line and it is spoken in a masculine voice, if it is available.", "en", "male");
+}
+
+proc defaultTearDown {
+	forgetAll([&speak1, &speak2, &speak3], false);
+}
+
+test1Name = "Create SpeakingWords objects";
+test1Desc = "No sound should be heard.";
+
+func test1Check {
+	return speak1_status == "not queued";
+}
+
+test2Name = "Speak a single utterance";
+test2Desc = "A single sentence should be spoken in the default voice.";
+
+proc test2 {
+	speakingList = [speak1];
+	complete is speakingIndex == 2;
+}
+
+func test2Check {
+	return speak1_status == "finished";
+}
+
+test3Name = "Pronounce French";
+test3Desc = "A single sentence should be spoken in French with the correct pronunciation.";
+
+proc test3 {
+	speakingList = [speak2];
+	complete is speakingIndex == 2;
+}
+
+test4Name = "Speak two pieces of dialogue";
+test4Desc = "You should hear one voice speak, followed by another.";
+
+proc test4 {
+	speakingList = [speak1, speak2];
+	complete is speakingIndex == 3;
+}
+
+test5Name = "Append dialogue";
+test5Desc = "You should hear one sentence spoken, then see a log message, then hear another sentence.";
+
+proc test5 {
+	condition1 is speakingIndex == 2;
+	proc monitor1 : condition1 {
+		if (condition1) {
+			output(1);
+			append speakingList, speak2;
+		}
+	}
+	speakingList = [speak1];
+	complete is speakingIndex == 3;
+}
+
+test6Name = "Append dialogue while speaking";
+test6Desc = "You should hear one sentence spoken, then another.";
+
+proc test6 {
+	speak(speak1);
+	speak(speak2);
+	complete is speakingIndex == 3;
+}
+
+tests = findTests();

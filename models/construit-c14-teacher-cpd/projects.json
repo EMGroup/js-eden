@@ -57,6 +57,11 @@
 			"runfile": "models/SciFest2015/piano/run.js-e"
 		},
 		{
+			"name": "Old System Libraries",
+			"description": "Make construals made in older versions of JS-EDEN work on the latest one.",
+			"projects": "compatibility/projects.json"
+		},
+		{
 			"name": "Older Construals",
 			"author": "various authors",
 			"year": "2011&ndash;2014",

@@ -9,20 +9,19 @@
 
 include("models/jspe/run.e");
 
-_view_separation = 15;
-_view_jspe_x is _view_picture_x + _view_picture_width + _views_frame_width + _view_separation;
+_view_jspe_x is _view_picture_x + _view_picture_width + _views_frame_width + _views_unit_x;
 _view_jspe_width is min(700, screenWidth - _view_jspe_x);
-_view_jspe_height is screenHeight - _view_jspe_y;
-_view_input_x = 2;
+_view_jspe_height is screenHeight + ${{ edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0 }}$ - _view_jspe_y;
+_view_input_x = 0;
 _view_input_y is
-	_view_picture_x == 2 && _view_input_x == 2?
-	_view_picture_y + _view_picture_height + _views_frame_height + _view_separation : 
+	_view_picture_x == 0 && _view_input_x == 0?
+	_view_picture_y + _view_picture_height + _views_frame_height + _views_unit_y : 
 	eval(_view_input_y);
 _view_input_width is
-	_view_picture_x == 2 && _view_input_x == 2?
+	_view_picture_x == 0 && _view_input_x == 0?
 	min(0.4 * screenWidth, _view_picture_width) :
 	eval(_view_input_width);
 _view_input_height is
-	_view_picture_x == 2 && _view_input_x == 2?
-	screenHeight - _view_input_y - _views_frame_height :
+	_view_picture_x == 0 && _view_input_x == 0?
+	screenHeight - _view_input_y :
 	eval(_view_input_height);

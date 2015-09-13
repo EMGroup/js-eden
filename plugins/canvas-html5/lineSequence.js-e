@@ -15,8 +15,18 @@ LineSequence = function(vertices, colours, drawingOptions) {
 
 func LineSequence { ${{
 	var vertices = arguments[0];
-	var colours = arguments[1];
-	var drawingOptions = arguments[2];
+	var colours, drawingOptions;
+	var lastArg = arguments[arguments.length - 1];
+	var processUpTo;
+	if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+		drawingOptions = lastArg;
+		processUpTo = arguments.length - 2;
+	} else {
+		processUpTo = arguments.length - 1;
+	}
+	if (processUpTo == 1) {
+		colours = arguments[1];
+	}
 
 	if (colours === undefined) {
 		colours = ["black"];

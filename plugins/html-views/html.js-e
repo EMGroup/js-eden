@@ -53,23 +53,27 @@ proc createHTMLView {
 	} else if ($# == 2) {
 		obsName = $[1];
 		viewTitle = $[2];
-		if (viewTitle != @ && !isString(viewTitle)) {
-			error("createHTMLView: The second argument must be a string, not a " // type(viewTitle));
-			return;
-		}
 	} else {
 		error("createHTMLView: This procedure requires at least 1 argument and at most 2 arguments.");
 		return;
 	}
-	
-	if (!isString(obsName)) {
-		error("createHTMLView: The first argument must be a string, not a " // type(obsName));
+
+	if (isPointer(obsName)) {
+		obsName = nameof(obsName);
+	} else if (!isString(obsName)) {
+		error("createHTMLView: The first argument must be a string or a pointer, not a " // type(obsName));
 		return;
 	}
 	
 	viewName = obsName;
-	createView(viewName, "HTMLContent");
+	if (viewTitle == @) {
+		viewTitle = uppercase(substr(obsName, 1, 1)) // substr(obsName, 2);
+	} else if (!isString(viewTitle)) {
+		error("createHTMLView: The second argument must be a string, not a " // type(viewTitle));
+		return;
+	}
 
+	createView(viewName, "HTMLContent");
 	createJSObserver = ${{ function (obsName, viewName) {
 		var observer = function (symbol, value) {
 			root.lookup("html").definition(root)(viewName, value);
@@ -78,7 +82,5 @@ proc createHTMLView {
 	} }}$;
 	createJSObserver(obsName, viewName);
 	html(viewName, `obsName`);
-	if (viewTitle != @) {
-		`"_view_" // viewName // "_title"` = viewTitle;
-	}
+	`"_view_" // viewName // "_title"` = viewTitle;
 }

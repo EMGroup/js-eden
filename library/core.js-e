@@ -22,6 +22,21 @@ proc showView {
 	${{
 		var name = arguments[0];
 		edenUI.showView(name);
+		edenUI.brieflyHighlightView(name);
+	}}$;
+}
+
+proc highlightView {
+	${{
+		var name = arguments[0];
+		edenUI.highlightView(name, false);
+	}}$;
+}
+
+proc stopHighlightingView {
+	${{
+		var name = arguments[0];
+		edenUI.stopHighlightingView(name, false, false);
 	}}$;
 }
 
@@ -41,29 +56,17 @@ proc destroyView {
 
 proc moveView {
 	para name, x, y;
-	auto autocalcEnabledOnEntry;
-	autocalcEnabledOnEntry = autocalc;
-	if (autocalcEnabledOnEntry) {
-		autocalc = 0;
-	}
-	`"_view_" // name // "_x"` = x;
-	`"_view_" // name // "_y"` = y;
-	if (autocalcEnabledOnEntry) {
-		autocalc = 1;
+	together {
+		`"_view_" // name // "_x"` = x;
+		`"_view_" // name // "_y"` = y;
 	}
 }
 
 proc resizeView {
 	para name, width, height;
-	auto autocalcEnabledOnEntry;
-	autocalcEnabledOnEntry = autocalc;
-	if (autocalcEnabledOnEntry) {
-		autocalc = 0;
-	}
-	`"_view_" // name // "_width"` = width;
-	`"_view_" // name // "_height"` = height;
-	if (autocalcEnabledOnEntry) {
-		autocalc = 1;
+	together {
+		`"_view_" // name // "_width"` = width;
+		`"_view_" // name // "_height"` = height;
 	}
 }
 
@@ -72,14 +75,18 @@ proc resizeView {
 ##another view can be placed without overlapping with xxx.
 _views_frame_width = ${{ edenUI.dialogFrameWidth }}$;
 _views_frame_height = ${{ edenUI.dialogFrameHeight }}$;
+##The size of the grid squares that windows snap to.
+_views_unit_x = ${{ edenUI.gridSizeX }}$;
+_views_unit_y = ${{ edenUI.gridSizeY }}$;
+
 ##The maximum width a view can be if it fits within the browser window without scrolling.
 screenWidth = ${{ window.innerWidth }}$ - _views_frame_width;
 ##The maximum height a view can be if it fits within the browser window without scrolling.
-screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - (edenUI.getOptionValue("optHideOnMinimize") != "true"? 34 : 0)}}$;
+screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight -  (edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0)}}$;
 ${{
 	window.addEventListener("resize", function (event) {
 		root.lookup("screenWidth").assign(window.innerWidth - edenUI.dialogFrameWidth, Symbol.hciAgent);
-		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - (edenUI.getOptionValue("optHideOnMinimize") != "true"? 34 : 0), Symbol.hciAgent);
+		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - (edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0), Symbol.hciAgent);
 	});
 }}$;
 
@@ -91,17 +98,13 @@ proc showObservables { ${{
 	
 	var searchStr, viewName;
 	
-	if (arguments.length == 0) {
+	searchStr = arguments[0];
+	if (searchStr === undefined) {
 		searchStr = "";
-	} else {
-		searchStr = arguments[0];
-		if (searchStr === undefined) {
-			searchStr = "";
-		}
-		if (typeof(searchStr) != "string") {
-			eden.error(new Error("showObservables: The first argument must be a string, not a " + typeof(searchStr)), "error");
-			return;
-		}
+	}
+	if (typeof(searchStr) != "string") {
+		eden.error(new Error("showObservables: The first argument must be a string, not a " + typeof(searchStr)), "error");
+		return;
 	}
 	
 	viewName = arguments[1];
@@ -115,9 +118,12 @@ proc showObservables { ${{
 	var inputBox = $('#' + viewName + '-dialog .symbollist-search');
 	if (inputBox.length == 0) {
 		edenUI.createView(viewName, "SymbolList");
-		root.lookup("_view_" + viewName + "_title").assign("Symbol List [showObservables]", this);
+		root.lookup("_view_" + viewName + "_title").assign("Symbol List (" + viewName + ")", this);
 		inputBox = $('#' + viewName + '-dialog .symbollist-search');
+	} else {
+		edenUI.showView(viewName);
 	}
+	edenUI.brieflyHighlightView(viewName);
 	inputBox.val(searchStr);
     inputBox.keyup();
 }}$; }

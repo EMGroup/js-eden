@@ -93,6 +93,19 @@ function initialiseJSEden() {
 
 	$(document).ready(function () {
 		edenUI = new EdenUI(eden);
+		$(document)
+		.on('keydown', null, 'ctrl+m', function () {
+			edenUI.cycleNextView();
+		})
+		.on('keyup', null, 'ctrl', function () {
+			edenUI.stopViewCycling();
+		})
+		.on('keydown', null, 'backspace', function (e) {
+			var tagName = e.target.tagName.toUpperCase();
+			if (tagName != "INPUT" && tagName != "TEXTAREA") {
+				e.preventDefault();
+			}
+		});
 		
 		window.onbeforeunload = function () {
 			var prompt = edenUI.getOptionValue('optConfirmUnload');

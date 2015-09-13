@@ -14,20 +14,10 @@
 EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	var me = this;
 
-	var cleanupCanvas = function (canvasElement, previousElements) {
-		var hash;
-		for (hash in previousElements) {
-			if (!previousElements[hash].togarbage) {
-				continue;
-			}
-			var elementsToRemove = previousElements[hash];
-			for (var i = 0; i < elementsToRemove.length; i++) {
-				if (elementsToRemove[i].parentElement !== null) {
-					canvasElement.removeChild(elementsToRemove[i]);
-				}
-			}
-		}
-	};
+	/**Font size at default text size. See css/eden.css. */
+	this.defaultFontSizePx = 13.3;
+	/**Line height at default text size. See css/eden.css. */
+	this.defaultLineHeight = this.defaultFontSizePx * 1.75;
 
 	var defaultWidth = 600;
 	var defaultHeight = 500;
@@ -43,6 +33,27 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			this.drawPicture(viewName, pictureObs);
 		}
 	}
+
+	this.destroyViews = function (pictureObs) {
+		for (var viewName in pictureObsToViews[pictureObs]) {
+			edenUI.destroyView(viewName);
+		}
+	}
+
+	var cleanupCanvas = function (canvasElement, previousElements) {
+		var hash;
+		for (hash in previousElements) {
+			if (!previousElements[hash].togarbage) {
+				continue;
+			}
+			var elementsToRemove = previousElements[hash];
+			for (var i = 0; i < elementsToRemove.length; i++) {
+				if (elementsToRemove[i].parentElement !== null) {
+					canvasElement.removeChild(elementsToRemove[i]);
+				}
+			}
+		}
+	};
 
 	this.drawPicture = function(canvasname, pictureObs) {
 		var canvas = canvases[canvasname];
@@ -74,6 +85,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					if (backgroundColour === undefined) {
 						backgroundColour = "white";
 					}
+					context.setTransform(1, 0, 0, 1, 0, 0);
+					me.setFillStyle(context, backgroundColour);
+					content.parentElement.style.backgroundColor = backgroundColour;
+					context.fillRect(0, 0, canvas.width, canvas.height);
+
 					var scale = root.lookup("_view_" + canvasname + "_scale").value();
 					if (typeof(scale) != "number") {
 						scale = 1;
@@ -89,11 +105,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					} else {
 						origin = new Point(0, 0);
 					}
-
-					me.setFillStyle(context, backgroundColour);
-					content.parentElement.style.backgroundColor = backgroundColour;
-					context.setTransform(1, 0, 0, 1, 0, 0);
-					context.fillRect(0, 0, canvas.width, canvas.height);
 					context.scale(combinedScale, combinedScale);
 
 					//Configure JS-EDEN default options that are different from the HTML canvas defaults.
@@ -370,6 +381,25 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		//Remove -dialog name suffix.
 		var canvasName = name.slice(0, -7);
 		var agent = root.lookup("createView");
+		var code_entry, jqCanvas;
+		var viewData;
+
+		var canvas = canvases[canvasName];
+		if (canvas === undefined) {
+			code_entry = $('<div id="' + name + '-canvascontent" class="canvashtml-content"></div>');
+			code_entry.html('<canvas class="canvashtml-canvas" id="' + name + '-canvas" tabindex="1"></canvas>');
+			jqCanvas = code_entry.find(".canvashtml-canvas");
+			canvas = jqCanvas[0];
+			canvases[canvasName] = canvas;
+			contents[canvasName] = code_entry[0];
+			canvasNameToElements[canvasName] = {};
+			canvas.drawingQueued = false;
+			canvas.drawingInProgress = false;
+			canvas.rescale = false;
+		} else {
+			code_entry = $("#" + name + "-canvascontent");
+			jqCanvas = code_entry.find(".canvashtml-canvas");
+		}
 
 		var backgroundColourSym = root.lookup("_view_" + canvasName + "_background_colour");
 		if (backgroundColourSym.value() === undefined) {
@@ -379,43 +409,118 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			me.drawPicture(canvasName, pictureObs);
 		});
 
+		//Events triggered by changes to the various sizing observables.
 		var scaleSym = root.lookup("_view_" + canvasName + "_scale");
-		if (scaleSym.value() === undefined) {
-		  scaleSym.assign(1, agent);
-		}
-		scaleSym.addJSObserver("repaintView", function (symbol, value) {
-			document.getElementById(name + "-canvas").rescale = true;
-			me.drawPicture(canvasName, pictureObs);
-		});
 		var zoomSym = root.lookup("_view_" + canvasName + "_zoom");
-		if (zoomSym.value() === undefined) {
-		  zoomSym.assign(1, agent);
-		}
-		zoomSym.addJSObserver("repaintView", function (symbol, value) {
-			document.getElementById(name + "-canvas").rescale = true;
-			me.drawPicture(canvasName, pictureObs);
-		});
 		var offsetSym = root.lookup("_view_" + canvasName + "_offset");
-		if (offsetSym.value() === undefined) {
-		  offsetSym.assign(new Point(0, 0), agent);
-		}
-		offsetSym.addJSObserver("repaintView", function (symbol, value) {
-			document.getElementById(name + "-canvas").rescale = true;
+		var widthSym = root.lookup("_view_" + canvasName + "_canvas_right");
+		var heightSym = root.lookup("_view_" + canvasName + "_canvas_bottom");
+		var viewWidthSym = root.lookup("_view_" + canvasName + "_width");
+		var viewHeightSym = root.lookup("_view_" + canvasName + "_height");
+		var isZooming = false;
+		function resizeCanvas () {
+			var offset = offsetSym.value();
+			var offsetX, offsetY;
+			if (offset instanceof Point) {
+				offsetX = offset.x;
+				offsetY = offset.y;
+			} else {
+				offsetX = 0;
+				offsetY = 0;
+			}
+			var zoom = zoomSym.value();
+
+			/* Use cached_value in some places below because the grid snapping UI adjusts the values
+			 * to make them align to the grid after the results of any dependencies have been calculated!
+			 */
+			var width = widthSym.value();
+			if (width !== undefined) {
+				width = Math.ceil(widthSym.value() * scaleSym.value() * zoom + offsetX);
+				canvas.width = width;
+			} else if (zoom > 1) {
+				canvas.width = Math.ceil(viewWidthSym.cached_value * zoom);
+			} else {
+				canvas.width = Math.floor(viewWidthSym.cached_value);
+			}
+
+			var height;
+			if (heightSym.value() !== undefined) {
+				height = Math.ceil(heightSym.value() * scaleSym.value() * zoom + offsetY);
+			} else if (zoom > 1) {
+				height = Math.ceil(viewHeightSym.cached_value * zoom);
+			} else {
+				height = viewHeightSym.cached_value;
+				if (width !== undefined && width > Math.floor(viewWidthSym.cached_value)) {
+					height = height - edenUI.scrollBarSize;
+				}
+				height = Math.floor(height - 1);
+			}
+			canvas.height = height;
+
+			canvas.rescale = true;
 			me.drawPicture(canvasName, pictureObs);
+		}
+		var scale = scaleSym.value();
+		if (scale === undefined) {
+		  scaleSym.assign(1, agent);
+		  scale = 1;
+		}
+		scaleSym.addJSObserver("repaintView", resizeCanvas);
+		var zoom = zoomSym.value();
+		if (zoom === undefined) {
+		  zoomSym.assign(1, agent);
+		  zoom = 1;
+		}
+		var zoomingQueued = false;
+		function zoomOnDelay() {
+			if (isZooming) {
+				isZooming = false;
+				canvas.rescale = true;
+				me.drawPicture(canvasName, pictureObs);
+				if (!zoomingQueued) {
+					zoomingQueued = true;
+					setTimeout(zoomOnDelay, 1000);
+				}
+			} else {
+				resizeCanvas();
+				zoomingQueued = false;
+			}
+		}
+		zoomSym.addJSObserver("repaintView", function (symbol, zoom) {
+			var zoomPercent = Math.round(zoom * 100);
+			if (zoom == 1) {
+				viewData.titleBarInfo = undefined;
+			} else {
+				viewData.titleBarInfo = zoomPercent + "%";
+			}
+			//Redraw bigger but don't change the canvas size while the user is zooming in and out (avoids flicker).
+			isZooming = true;
+			zoomOnDelay();
 		});
-
-		code_entry = $('<div id=\"'+name+'-canvascontent\" class=\"canvashtml-content\"></div>');
-		code_entry.html("<canvas class=\"canvashtml-canvas\" id=\""+name+"-canvas\" tabindex=\"1\"></canvas>");
-		var jqCanvas = code_entry.find(".canvashtml-canvas");
-
-		if (!(canvasName in canvases)) {		
-			var canvas = jqCanvas[0];
-			canvases[canvasName] = canvas;
-			contents[canvasName] = code_entry[0];
-			canvasNameToElements[canvasName] = {};
-			canvas.drawingQueued = false;
-			canvas.drawingInProgress = false;
-			canvas.rescale = false;
+		var offset = offsetSym.value();
+		var offsetX, offsetY;
+		if (!(offset instanceof Point)) {
+		  offsetSym.assign(new Point(0, 0), agent);
+		  offsetX = 0;
+		  offsetY = 0;
+		} else {
+			offsetX = offset.x;
+			offsetY = offset.y;
+		}
+		offsetSym.addJSObserver("repaintView", resizeCanvas);
+		widthSym.addJSObserver("repaintView", resizeCanvas);
+		heightSym.addJSObserver("repaintView", resizeCanvas);
+		var initialWidth = widthSym.value();
+		if (initialWidth === undefined) {
+			initialWidth = defaultWidth;
+		} else {
+			initialWidth = initialWidth * scale + offsetX;
+		}
+		var initialHeight = heightSym.value();
+		if (initialHeight === undefined) {
+			initialHeight = defaultHeight;
+		} else {
+			initialHeight = initialHeight * scale + offsetY;
 		}
 
 		jqCanvas.on("mousedown", function(e) {
@@ -562,45 +667,73 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			dblClickSym.assign(numClicks + 1, Symbol.hciAgent, followMouse);
 		
 		}).on("wheel", function (e) {
+			var e2 = e.originalEvent;
+			var wheelScale;
+			var height = viewHeightSym.value();
+			if (e2.deltaMode == WheelEvent.DOM_DELTA_LINE) {
+				//Default font size of the canvas.  See css/eden.css
+				wheelScale =  me.defaultLineHeight;
+			} else if (e2.deltaMode == WheelEvent.DOM_DELTA_PAGE) {
+				if (e2.deltaX != 0) {
+					wheelScale = widthSym.value();
+				} else {
+					wheelScale = height;
+				}
+			} else {
+				wheelScale = 1;
+			}
+
+			var followMouse = root.lookup("mouseFollow").value();
+			if (e2.deltaY != 0 && e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+				e.preventDefault();
+				e.stopPropagation();
+				root.beginAutocalcOff();
+				var deltaY = -e2.deltaY * wheelScale;
+				if (root.lookup("touchPinchEnabled").value()) {
+					//Construal handles zoom gesture itself.
+					var pinchSym = root.lookup("touchPinch");
+					var touchPinchValue = pinchSym.value();
+					touchPinchValue = touchPinchValue + deltaY;
+					pinchSym.assign(touchPinchValue, Symbol.hciAgent, followMouse);
+				} else {
+					//Zoom on pinch gesture or Ctrl + mouse wheel.
+					var zoom = zoomSym.value();
+					zoom = zoom * (height + 2 * deltaY) / height;
+					if (zoom < 0.05) {
+						zoom = 0.05;
+					}
+					zoomSym.assign(zoom, Symbol.hciAgent, followMouse);
+				}
+				root.endAutocalcOff();
+				return;
+			}
+
 			if (!root.lookup("mouseWheelEnabled").value()) {
 				return;
 			}
-			var e2 = e.originalEvent;
-			var followMouse = root.lookup("mouseFollow").value();
-			root.beginAutocalcOff();
 
-			var direction;
+			root.beginAutocalcOff();
 			if (e2.deltaY !== 0) {
 				if (!e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) {
 					e.preventDefault();
 					e.stopPropagation();
 					var mouseWheelSym = root.lookup("mouseWheel");
 					var mouseWheelValue = mouseWheelSym.value();
-					if (e2.deltaY < 0) {
-						mouseWheelValue--;
-						direction = "up";
-					} else {
-						mouseWheelValue++;
-						direction = "down";
-					}
+					var deltaY = e2.deltaY * wheelScale;
+					mouseWheelValue = mouseWheelValue + deltaY;
 					mouseWheelSym.assign(mouseWheelValue, Symbol.hciAgent, followMouse);
-					root.lookup("mouseWheelDir").assign(direction, Symbol.hciAgent, followMouse);
+					root.lookup("mouseWheelSpeed").assign(deltaY, Symbol.hciAgent, followMouse);
 				}
 			}
 			if (e2.deltaX !== 0) {
 				e.preventDefault();
 				e.stopPropagation();
-				var touchScrollXSym = root.lookup("touchScrollX");
-				var touchScrollXValue = touchScrollXSym.value();
-				if (e2.deltaX < 0) {
-					touchScrollXValue--;
-					direction = "left";
-				} else {
-					touchScrollXValue++;
-					direction = "right";
-				}
-				touchScrollXSym.assign(touchScrollXValue, Symbol.hciAgent, followMouse);
-				root.lookup("touchScrollXDir").assign(direction, Symbol.hciAgent, followMouse);
+				var touchPanXSym = root.lookup("touchPanX");
+				var touchPanXValue = touchPanXSym.value();
+				var deltaX = e2.deltaX * wheelScale;
+				touchPanXValue = touchPanXValue + deltaX;
+				touchPanXSym.assign(touchPanXValue, Symbol.hciAgent, followMouse);
+				root.lookup("touchPanXSpeed").assign(deltaX, Symbol.hciAgent, followMouse);
 			}
 			root.endAutocalcOff();
 
@@ -693,20 +826,29 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 		}).on("keyup", function (e) {
 			var keyCode = e.which;
+			var handled = false;
 			if (e.altKey && !e.shiftKey && !e.ctrlKey) {
-				if (keyCode == 187 || keyCode == 189 || keyCode == 48) {
-					//Zooming using Alt+, Alt- and Alt0
-					var zoomSym = root.lookup("_view_" + canvasName + "_zoom");
-					var zoom = zoomSym.value();
-					if (keyCode == 187) {
-						zoom = zoom * 1.25;
-					} else if (keyCode == 189) {
-						zoom = zoom / 1.25;
-					} else {
-						zoom = 1;
-					}
-					zoomSym.assign(zoom, Symbol.hciAgent);
+				//Zooming using Alt+, Alt- and Alt0
+				var zoomSym = root.lookup("_view_" + canvasName + "_zoom");
+				var zoom = zoomSym.value();
+				if (keyCode == 61 || keyCode == 187) {
+					//Alt + =
+					zoom = zoom * 1.25;
+					handled = true;
+				} else if (keyCode == 173 || keyCode == 189) {
+					//Alt + -
+					zoom = zoom / 1.25;
+					handled = true;
+				} else if (keyCode == 48) {
+					//Alt + 0
+					zoom = 1;
+					handled = true;
 				}
+				zoomSym.assign(zoom, Symbol.hciAgent);
+			}
+			if (handled) {
+				e.preventDefault();
+				e.stopPropagation();
 			}
 		});
 
@@ -714,14 +856,14 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		.html(code_entry)
 		.dialog({
 			title: mtitle,
-			width: defaultWidth + edenUI.scrollBarYSize,
-			height: defaultHeight + edenUI.titleBarHeight,
+			width: initialWidth + edenUI.scrollBarSize,
+			height: initialHeight + edenUI.titleBarHeight,
 			minHeight: 120,
 			minWidth: 230,
 			dialogClass: "unpadded-dialog"
 		});
 		me.setPictureObs(canvasName, pictureObs);
-		return {
+		viewData = {
 			confirmClose: true,
 			destroy: function () {
 				delete canvases[canvasName];
@@ -730,29 +872,63 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				delete viewsToPictureObs[canvasName];
 			},
 			resize: function (width, height) {
-				var redraw = false;
+				var offset = offsetSym.value();
+				var offsetX, offsetY;
+				if (offset instanceof Point) {
+					offsetX = offset.x;
+					offsetY = offset.y;
+				} else {
+					offsetX = 0;
+					offsetY = 0;
+				}
+				var zoom = zoomSym.value();
+
 				var canvas = document.getElementById(name + "-canvas");
-				var roundedWidth = Math.floor(width);
-				var roundedHeight = Math.floor(height - 1);
-				/*The if statements are necessary because setting the width or height has the side
+				var redraw = false;
+
+				/*The if redraw = true stuff is necessary because setting the width or height has the side
 				 *effect of erasing the canvas.  If the width or height are defined by dependency
 				 *then this method gets called whenever that dependency is re-evaluated, even if the
 				 *recalculated value is the same as the old one, which previously resulted in a
 				 *noticeable flicker effect.
 				 */
-				if (roundedWidth != canvas.width) {
-					canvas.width = roundedWidth;
-					redraw = true;
+				var neededWidth, neededHeight;
+				var prescribedWidth = widthSym.value();
+				if (prescribedWidth === undefined) {
+					if (zoom > 1) {
+						neededWidth = Math.ceil(width * zoom);
+					} else {
+						neededWidth = Math.floor(width);
+					}
+					if (canvas.width != neededWidth) {
+						canvas.width = neededWidth;
+						redraw = true;
+					}
+				} else {
+					prescribedWidth = Math.ceil(prescribedWidth * scaleSym.value() * zoom + offsetX);
 				}
-				if (roundedHeight != canvas.height) {
-					canvas.height = roundedHeight;
-					redraw = true;
+
+				if (heightSym.value() === undefined) {
+					if (zoom > 1) {
+						neededHeight = Math.ceil(height * zoom);
+					} else {
+						neededHeight = height;
+						if (prescribedWidth !== undefined && prescribedWidth > neededHeight) {
+							neededHeight = neededHeight - edenUI.scrollBarSize
+						}
+						var neededHeight = Math.floor(neededHeight - 1);
+					}
+					if (neededHeight != canvas.height) {
+						canvas.height = neededHeight;
+						redraw = true;
+					}
 				}
 				if (redraw) {
 					me.drawPicture(canvasName, pictureObs);
 				}
 			}
 		};
+		return viewData;
 	}
 
 	root.lookup("mouseDownZone").addJSObserver("recordClick", function (symbol, zone) {

@@ -27,7 +27,7 @@ h2, ul li {
 }
 
 .canvashtml-content {
-	/* See Textbox.prototype.scale in plugins/textbox.js-e */
+	/* Should be synchronized with defaultFontSizePx and defaultLineHeight in plugins/canvas-html5/canvas.js */
 	font-size: 13.3px;
 	line-height: 1.75;
 }
@@ -91,9 +91,11 @@ div.error-item {
 }
 
 .noselect {
+	-khtml-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	-webkit-user-select: none;
+	user-select: none;
 }
 
 #dialog-extend-fixed-container {
@@ -106,4 +108,37 @@ div.error-item {
 
 .ui-dialog-buttonset button:not(:first-child) {
     margin-left: 27px;
+}
+
+@keyframes window-activated {
+	from {border-color: white;}
+	to {border-color: red;}
+}
+
+.window-activated:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border: 4px solid red;
+	animation-name: window-activated;
+	animation-duration: 0.15s;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+	animation-timing-function: linear;
+}
+
+/* use a pseudo element to make a border without causing the window contents to move */
+.window-highlighted:after {
+	content: "";
+	position: absolute;
+	z-index: 2147483645; /* one less than the z-index used for the raised window */
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border: 4px solid yellow;
+	pointer-events: none;
 }

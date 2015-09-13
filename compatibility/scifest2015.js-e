@@ -4,6 +4,8 @@
 ##changes made to the environment subsequent to the SciFest 2015 event at Joensuu (21-27 April 2015)
 ##but before the next major JS-EDEN release.
 
+_view_list is _views_log;
+
 ##Default to base e instead of base 10.
 func log {
 	${{
@@ -111,6 +113,7 @@ func translate {
 }
 
 ${{
+	Eden.systemObservableNames["_view_list"] = true;
 	Eden.systemFunctionNames["rotate"] = true;
 	Eden.systemFunctionNames["scale"] = true;
 	Eden.systemFunctionNames["translate"] = true;

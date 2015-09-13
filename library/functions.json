@@ -641,6 +641,14 @@
 			"return": "",
 			"description": ""
 		},
+		"substitute": {
+			"parameters": {
+				"string_with_placeholders": "",
+				"object_or_list_or_value1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"substr": {
 			"parameters": {
 				"string": "",
@@ -758,7 +766,7 @@
 				"radius": "",
 				"start_angle": "",
 				"end_angle": "",
-				"colour": "",
+				"[colour]": "",
 				"[drawing_options]": ""
 			},
 			"return": "",
@@ -778,10 +786,10 @@
 				"x_radius": "Ellipse x-axis radius from centre",
 				"y_radius": "Ellipse y-axis radius from centre",
 				"[fill_colour": "Fill colour for the ellipse on the canvas",
-				"[outline_colour": "Outline colour of the ellipse on the canvas",
-				"[drawing_options]]]": ""
+				"[outline_colour]]": "Outline colour of the ellipse on the canvas",
+				"[drawing_options]": ""
 			},
-			"return": "Circle object",
+			"return": "Ellipse object",
 			"description": "Creates an ellipse element for display on the canvas"
 		},
 		"Line": {
@@ -790,8 +798,8 @@
 				"y1": "Y-coordinate for start",
 				"x2": "X-coordinate for end",
 				"y2": "Y-coordinate for end",
-				"[colour(s)": "A HTML colour value for the whole line or a list of HTML colour values to create a gradient",
-				"[drawing_options]]" : ""
+				"[colour(s)]": "A HTML colour value for the whole line or a list of HTML colour values to create a gradient",
+				"[drawing_options]" : ""
 			},
 			"return": "Line object",
 			"description": "Creates a line element for display on the canvas"
@@ -812,11 +820,11 @@
 		"LineSequence": {
 			"parameters": {
 				"points": "List of coordinates in the form Point(x, y) from the top left corner of the canvas",
-				"[colour(s)": "Colour of the line as a HTML colour value, or a list of such colour values",
-				"[drawing_options]]": ""
+				"[colour(s)]": "Colour of the line as a HTML colour value, or a list of such colour values",
+				"[drawing_options]": ""
 			},
-			"return": "Polygon object",
-			"description": "Creates a polygon element for display on the canvas"
+			"return": "LineSequences object",
+			"description": "Creates sequence of joined lines for display on the canvas"
         },
 		"PixelList": {
 			"parameters": {
@@ -851,8 +859,8 @@
 				"width": "",
 				"height": "",
 				"[fill_colour": "",
-				"[outline_colour": "Colour of the rectangle outline in HTML form",
-				"[drawing_options]]]": ""
+				"[outline_colour]]": "Colour of the rectangle outline in HTML form",
+				"[drawing_options]": ""
 			},
 			"return": "Rectangle object",
 			"description": "Creates a rectangle element for display on the canvas"
@@ -865,8 +873,8 @@
 				"height": "",
 				"corner_radius": "",
 				"[fill_colour": "",
-				"[outline_colour": "Colour of the rectangle outline in HTML form",
-				"[drawing_options]]]": ""
+				"[outline_colour]]": "Colour of the rectangle outline in HTML form",
+				"[drawing_options]": ""
 			},
 			"return": "Rectangle object",
 			"description": "Creates a rectangle element for display on the canvas"
@@ -875,8 +883,8 @@
 			"parameters": {
 				"points": "List of coordinates in the form {x, y} from the top left corner of the canvas",
 				"[fill_colour": "Colour of the polygon (fill) in HTML form",
-				"[outline_colour(s)": "",
-				"[drawing_options]]]": ""
+				"[outline_colour(s)]]": "",
+				"[drawing_options]": ""
 			},
 			"return": "Polygon object",
 			"description": "Creates a polygon element for display on the canvas"
@@ -891,8 +899,8 @@
 				"[is_interior_outlined]": "",
 				"[rotation]": "",
 				"[fill_colour": "Colour to fill the interior of the polygon with",
-				"[outline_colour(s)": "",
-				"[drawing_options]]]": ""
+				"[outline_colour(s)]]": "",
+				"[drawing_options]": ""
 			},
 			"return": "RegularPolygon object",
 			"description": "Creates a polygon element for display on the canvas"
@@ -905,8 +913,8 @@
 				"start_angle": "",
 				"end_angle": "",
 				"[fill_colour": "",
-				"[outline_colour": "",
-				"[drawing_options]]]": ""
+				"[outline_colour]]": "",
+				"[drawing_options]": ""
 			},
 			"return": "",
 			"description": ""
@@ -928,8 +936,8 @@
 				"y": "Centre Y-coordinate",
 				"radius": "Circle radius from centre",
 				"[fill_colour": "Fill colour for the circle on the canvas",
-				"[outline_colour": "Outline colour of the circle on the canvas",
-				"[drawing_options]]]": ""
+				"[outline_colour]]": "Outline colour of the circle on the canvas",
+				"[drawing_options]": ""
 			},
 			"return": "Circle object",
 			"description": "Creates a circle element for display on the canvas"
@@ -991,9 +999,7 @@
 		},
 		"imageWithZones": {
 			"parameters": {
-				"name": "Name for click events",
-				"x": "X-coordinate",
-				"y": "Y-coordinate",
+				"[name]": "Name for click events",
 				"[width": "Width in pixels",
 				"height]": "Height in pixels",
 				"url": "Source file for the image",
@@ -1227,7 +1233,7 @@
 		"zoneOnTopAt": {
 			"parameters": {
 				"view_name_or_ptr_to_picture": "",
-				"point_or_xy_pair" : ""
+				"point_or_xy_argument_pair" : ""
 			},
 			"return": "",
 			"description": ""
@@ -1235,10 +1241,179 @@
 		"zonesAt": {
 			"parameters": {
 				"view_name_or_ptr_to_picture": "",
-				"point_or_xy_pair" : ""
+				"point_or_xy_argument_pair" : ""
 			},
 			"return": "",
 			"description": ""
+		}
+	},
+	"procedures": {
+		"alias": {
+			"parameters": {
+				"pointer1": "",
+				"pointer2": ""
+			}
+		},
+		"arrangeWindows": {
+			"parameters": {
+				"[list_of_view_names]": ""
+			}
+		},
+		"attemptMouseCapture": {
+			"parameters": { }
+		},
+		"bindCSSNumericProperty": {
+			"parameters": {
+				"[id]": "",
+				"css_selector": "",
+				"css_property_name": "",
+				"observable_name": "",
+				"css_units": ""
+			}
+		},
+		"bindCSSProperty": {
+			"parameters": {
+				"[id]": "",
+				"css_selector": "",
+				"css_property_name": "",
+				"observable_name": ""
+			}
+		},
+		"bindCSSRule": {
+			"parameters": {
+				"[id]": "",
+				"css_selector": "",
+				"string_or_object_observable_name": ""
+			}
+		},
+		"createCanvas": {
+			"parameters": {
+				"[view_name]": "",
+				"picture_observable": "",
+				"[window_title]": ""
+			}
+		},
+		"createHTMLView": {
+			"parameters": {
+				"observable_name": "",
+				"[window_title]": ""
+			}
+		},
+		"createProjectList": {
+			"parameters": {
+				"[url": "",
+				"[[window_title]": "",
+				"view_name]]": ""
+			}
+		},
+		"createView": {
+			"parameters": {
+				"view_name": "",
+				"view_type": "",
+				"[view_type_specific_value]" : ""
+			}
+		},
+		"destroyView": {
+			"parameters": {
+				"view_name": ""
+			}
+		},
+		"eager": {
+			"parameters": { }
+		},
+		"error": {
+			"parameters": {
+				"message": ""
+			}
+		},
+		"hideView": {
+			"parameters": {
+				"view_name": ""
+			}
+		},
+		"highlightView": {
+			"parameters": {
+				"view_name": ""
+			}
+		},
+		"html": {
+			"parameters": {
+				"[view_name]": "",
+				"html": ""
+			}
+		},
+		"moveView": {
+			"parameters": {
+				"view_name": "",
+				"x": "",
+				"y": ""
+			}
+		},
+		"patch": {
+			"parameters": {
+				"pointer1": "",
+				"pointer2": ""
+			}
+		},
+		"removeedenclock": {
+			"parameters": {
+				"pointer": ""
+			}
+		},
+		"resizeView": {
+			"parameters": {
+				"view_name": "",
+				"width": "",
+				"height": ""
+			}
+		},
+		"setedenclock": {
+			"parameters": {
+				"pointer_to_proc_or_integer": "",
+				"milliseconds": ""
+			}
+		},
+		"showObservables": {
+			"parameters": {
+				"[search_string": "",
+				"[view_name]]": ""
+			}
+		},
+		"showView": {
+			"parameters": {
+				"view_name": ""
+			}
+		},
+		"stopHighlightingView": {
+			"parameters": {
+				"view_name": ""
+			}
+		},
+		"todo": {
+			"parameters": {
+				"string_containing_code": ""
+			}
+		},
+		"touch": {
+			"parameters": {
+				"pointer_1...": ""
+			}
+		},
+		"unbind": {
+			"parameters": {
+				"observable_name": ""
+			}
+		},
+		"withAppendedItem": {
+			"parameters": {
+				"pointer_to_list": "",
+				"string_containing_expression": ""
+			}
+		},
+		"writeln": {
+			"parameters": {
+				"message": ""
+			}
 		}
 	}
 }

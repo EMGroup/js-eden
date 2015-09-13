@@ -82,7 +82,7 @@
 		 */
 		this.autocalc_state = true;
 
-		this.needsExpire = {};
+		this.needsExpire = [];
 		
 		/** Symbols that might be ready to be garbage collected.
 		 * @private
@@ -94,6 +94,11 @@
 		  * @private
 		  */
 		this.saved_autocalc_state = true;
+
+		/** Number of times beginAutocalcOff has been called minus times endAutocalcOff has been called.
+		  * @private
+		  */
+		this.saved_autocalc_level = 0;
 	}
 
 	/**
@@ -204,6 +209,10 @@
 	 * Enter a block of JavaScript statements where we want to guarantee autocalc is off.
 	 */
 	Folder.prototype.beginAutocalcOff = function () {
+		this.saved_autocalc_level++;
+		if (this.saved_autocalc_level != 1) {
+			return;
+		}
 		this.saved_autocalc_state = this.autocalc_state;
 		if (this.autocalc_state) {
 			this.autocalc(false);
@@ -214,13 +223,19 @@
 	 * Leave a block of JavaScript statements where we wanted to guarantee autocalc was off.
 	 */
 	Folder.prototype.endAutocalcOff = function () {
+		this.saved_autocalc_level--;
+		if (this.saved_autocalc_level != 0) {
+			return;
+		}
 		if (this.saved_autocalc_state) {
 			this.autocalc(true);
 		}
 	}
 
 	Folder.prototype.expireSymbol = function (sym) {
-		this.needsExpire[sym.name] = sym;
+		if (this.needsExpire.indexOf(sym) == -1) {
+			this.needsExpire.push(sym);
+		}
 		this.expireAndFireActions();
 	};
 
@@ -229,18 +244,18 @@
 			return;
 		}
 
-		var actions_to_fire = {};
-		var symbols_to_force = {};
-		for (var symName in this.needsExpire) {
-			var sym = this.needsExpire[symName];
+		var actions_to_fire = [];
+		var symbols_to_force = [];
+		for (var i = 0; i < this.needsExpire.length; i++) {
+			var sym = this.needsExpire[i];
 			sym.expire(symbols_to_force, actions_to_fire);
 			this.notifyGlobals(sym, false);
 		}
 		var expired = this.needsExpire;
-		this.needsExpire = {};
-		for (var symName in symbols_to_force) {
+		this.needsExpire = [];
+		for (var i = 0; i < symbols_to_force.length; i++) {
 			// force re-eval
-			var sym = symbols_to_force[symName];
+			var sym = symbols_to_force[i];
 			sym.evaluateIfDependenciesExist();
 		}
 		fireActions(actions_to_fire);
@@ -348,16 +363,24 @@
 				//Replace eval() in EDEN definition with the actual value.
 				var re = /\beval\(/;
 				var searchIndex;
-				while ((searchIndex = replacedDef.search(re)) != -1) {
+				var searchFrom = 0;
+				while ((searchIndex = replacedDef.slice(searchFrom).search(re)) != -1) {
+					var combinedIndex = searchFrom + searchIndex;
+					var found = false;
 					for (exp in this.evalIDs) {
-						var subString = replacedDef.slice(searchIndex + 5, searchIndex + exp.length + 6);
+						var subString = replacedDef.slice(combinedIndex + 5, combinedIndex + exp.length + 6);
 						if (subString == exp + ")") {
 							var jsValue = this.context.getEval(this.evalIDs[exp]);
-							replacedDef = replacedDef.slice(0, searchIndex) +
+							replacedDef = replacedDef.slice(0, combinedIndex) +
 								Eden.edenCodeForValue(jsValue) +
-								replacedDef.slice(searchIndex + exp.length + 6);
+								replacedDef.slice(combinedIndex + exp.length + 6);
+							searchFrom = combinedIndex + exp.length + 6
+							found = true;
 							break;
 						}
+					}
+					if (!found) {
+						searchFrom = combinedIndex + 5;
 					}
 				}
 				this.eden_definition = replacedDef;
@@ -469,7 +492,12 @@
 		this.clearObservees();
 		this.clearDependencies();
 
-		this.subscribe(Array.prototype.slice.call(arguments, 2));
+		var args = [];
+		for (var i = 2; i < arguments.length; i++) {
+			args.push(arguments[i]);
+		}
+
+		this.subscribe(args);
 
 		if (this.context) {
 			this.context.expireSymbol(this);
@@ -578,7 +606,12 @@
 		this.value();
 		this.definition = undefined;
 
-		mutator.apply(undefined, [this].concat(Array.prototype.slice.call(arguments, 1)));
+		var args = [];
+		for (var i = 1; i < arguments.length; i++) {
+			args.push(arguments[i]);
+		}
+
+		mutator.apply(undefined, [this].concat(args));
 
 		if (this.context) {
 			this.context.expireSymbol(this);
@@ -627,8 +660,8 @@
 	};
 
 	function fireActions(actions_to_fire){
-		for (var action_name in actions_to_fire) {
-			var action = actions_to_fire[action_name];
+		for (var i = 0; i < actions_to_fire.length; i++) {
+			var action = actions_to_fire[i];
 
 			// if one action fails, it shouldn't prevent all the other
 			// scheduled actions from firing
@@ -639,8 +672,8 @@
 	};
 	
 	function fireJSActions(symbols_to_fire_for) {
-		for (var symbol_name in symbols_to_fire_for) {
-			symbols_to_fire_for[symbol_name].fireJSObservers();
+		for (var i = 0; i < symbols_to_fire_for.length; i++) {
+			symbols_to_fire_for[i].fireJSObservers();
 		}
 	}
 
@@ -663,6 +696,7 @@
 			}
 		}
 	}
+
 	
 	/**
 	 * Mark this symbol as out of date, and notify all formulas and observers of
@@ -672,11 +706,11 @@
 	Symbol.prototype.expire = function (symbols_to_force, actions_to_fire) {
 		if (this.definition) {
 			this.up_to_date = false;
-			symbols_to_force[this.name] = this;
+			symbols_to_force.push(this);
 		}
 
 		for (var observer_name in this.observers) {
-			actions_to_fire[observer_name] = this.observers[observer_name];
+			actions_to_fire.push(this.observers[observer_name]);
 		}
 
 		// recursively mark out of date and collect
@@ -846,7 +880,11 @@
 			return function (ctor) {
 				temp_ctor.prototype = ctor.prototype;
 				var instance = new temp_ctor();
-				ctor.apply(instance, Array.prototype.slice.call(arguments, 1));
+				var args = [];
+				for (var i = 1; i < arguments.length; i++) {
+					args.push(arguments[i]);
+				}
+				ctor.apply(instance, args);
 				return instance;
 			};
 		})()
@@ -859,7 +897,11 @@
 	 * @return {SymbolAccessor}
 	 */
 	Symbol.prototype.get = function (keys) {
-		return Utils.construct.apply(undefined, [SymbolAccessor,this].concat(Array.prototype.slice.call(arguments)));
+		var args = [];
+		for (var i = 0; i < arguments.length; i++) {
+			args.push(arguments[i]);
+		}
+		return Utils.construct.apply(undefined, [SymbolAccessor,this].concat(args));
 	};
 
 	/**
@@ -883,7 +925,12 @@
 	function SymbolAccessor(symbol, keys) {
 		this.parent = symbol;
 		this.symbol = symbol;
-		this.keys = Array.prototype.slice.call(arguments, 1);
+		//this.keys = Array.prototype.slice.call(arguments, 1);
+
+		this.keys = [];
+		for (var i = 1; i < arguments.length; i++) {
+			this.keys.push(arguments[i]);
+		}
 	};
 
 	/**
@@ -926,7 +973,11 @@
 	 * @return {SymbolAccessor}
 	 */
 	SymbolAccessor.prototype.get = function (keys) {
-		var newLookup = this.keys.concat(Array.prototype.slice.call(arguments));
+		var args = [];
+		for (var i = 0; i < arguments.length; i++) {
+			args.push(arguments[i]);
+		}
+		var newLookup = this.keys.concat(args);
 		return Symbol.prototype.get.apply(this.parent, newLookup);
 	};
 

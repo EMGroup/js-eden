@@ -96,27 +96,30 @@
 .menubar-item-label {
 	width: 200px;
 	padding: 5px;
+	vertical-align: middle;
 }
 
 .menubar-item-fullwidth {
 	box-sizing: border-box;
-	width: 240px;
+	width: 250px;
 	padding: 5px;
 }
 
 .menubar-item-close {
 	text-align: center;
 	color: red;
-	position: absolute;
-	width: 40px;
-	height: 100%;
-	right: 0;
-	top: 0;
+	width: 20px;
 }
 
 .menubar-item-input {
 	text-align: center;
 	width: 30px;
+}
+
+.menubar-item-pin-icon {
+	padding-top: 1px;
+	padding-bottom: 1px;
+	vertical-align: middle;
 }
 
 .menubar-item-close-icon {
@@ -133,7 +136,7 @@
 	border-width: 0px 0px 1px 2px;
 	box-shadow: 4px 6px 7px 0px #111111;
 	color: black;
-	width: 240px;
+	width: 250px;
 	z-index: 2147483647; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */
 }
 
@@ -141,8 +144,7 @@
 	padding-left: 2em;
 }
 
-/* use a pseudo element to make a border without
- * causing the window contents to move */
+/* use a pseudo element to make a border without causing the window contents to move */
 .menubar-window-raise:after {
 	content: "";
 	position: absolute;

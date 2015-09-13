@@ -411,13 +411,7 @@ func sublist {
 			return undefined;
 		}
 		if (to == 0) {
-			eden.error(new Error("sublist: to cannot be 0."), "error");
-			return undefined;
-		} else if (to < 0) {
-			to = to + 1;
-			if (to == 0) {
-				to = list.length;
-			}
+			to = list.length;
 		}
 		
 		var result = list.slice(from, to);

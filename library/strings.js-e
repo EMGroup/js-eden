@@ -415,6 +415,99 @@ func replaceFirst {
 	}}$;
 }
 
+##Replaces occurrences of strings like {1} and {name} in a string by values given as arguments (converted
+##to strings using str() first if necessary).
+##Examples:
+##	substitute("Hello.  My name is {1}.  I am {2} years old.", "John", 49})
+##	substitute("Hello.  My name is {1}.  I am {2} years old.", ["John", 49])
+##	substitute("Hello.  My name is {name}.  I am {age} years old.", {name: "John", age: 49})
+func substitute {
+	${{
+		var placeholderRE = /(^|[^\\])\{([^}]+)\}/g;
+		if (arguments.length == 0) {
+			eden.error(new Error("substitute: This function requires at least one argument."), "error");
+			return undefined;
+		} else if (arguments[0] === undefined) {
+			return undefined;
+		} else if (typeof(arguments[0]) != "string") {
+			eden.error(new Error("substitute: The first argument must be a string, not a " + typeof(arguments[0])), "error");
+			return undefined;
+		} else if (arguments.length == 1 && placeholderRE.test(arguments[0])) {
+			eden.error(new Error("substitute: The target string contains placeholders but no placeholder values were provided."), "error");
+			return undefined;
+		}
+
+		var argList;
+		var useObject = false;
+		var isArray = Array.isArray(arguments[1]);
+		if (arguments.length == 2 && isArray && arguments[1].length > 0) {
+			argList = arguments[1];
+			argList.unshift("");
+		} else {
+			argList = arguments;
+			if (arguments.length == 2 && !isArray && typeof(arguments[1]) == "object" && arguments[1] !== null) {
+				useObject = true;
+			}
+		}
+		var meArgs = arguments;
+
+		var strFunc = root.lookup("str").value();
+		var digitsRE = /\d+/;
+		var observables = {};
+		var scannedForObservables = false;
+		var errorMsg;
+		function replaceFunc (match, beforeChar, varName) {
+			var value;
+			if (digitsRE.test(varName)) {
+				//Case 1: Placeholders are numeric, {1}, etc.
+				var num = parseInt(varName);
+				if (num == 0) {
+					errorMsg = "Bad placeholder {0}";
+					value = "";
+				} else if (num < argList.length) {
+					value = argList[num];
+				} else if (argList.length == 2 && argList[1] === undefined) {
+					//Could have intended to pass a list but passed undefined instead.
+					value = "undefined";
+				} else {
+					errorMsg = "Found placeholder {" + varName + "} but only " + (argList.length - 1) + " values were provided.";
+					value = "";
+				}
+			} else if (useObject) {
+				//Case 2: Placeholders refer to object properties.
+				value = meArgs[1][varName];
+			} else {
+				//Case 3: Placeholders refer to observable names.
+				if (!scannedForObservables) {
+					for (var i = 1; i < argList.length ; i++) {
+						if (argList[i] instanceof Symbol) {
+							observables[argList[i].name.slice(1)] = argList[i];
+						}
+					}
+					scannedForObservables = true;
+				}
+				if (!(varName in observables)) {
+					if (meArgs.length == 2 && (meArgs[1] === undefined || meArgs[1] === null)) {
+						value = "undefined";
+					} else {
+						errorMsg = "Found placeholder for observable " + varName + " but couldn't find a matching pointer-typed argument in the argument list.";
+					}
+				} else {
+					value = observables[varName].value();
+				}
+			}
+			return beforeChar + strFunc(value);
+		};
+
+		var replaced = arguments[0].replace(placeholderRE, replaceFunc);
+		if (errorMsg !== undefined) {
+			eden.error(new Error("substitute: " + errorMsg), "error");
+			return undefined;
+		}
+		return replaced;
+	}}$;
+}
+
 ##The same issues arise as with the sublist function (in lists.js-e) and they're handled in the
 ##same way.
 func substr {
@@ -447,12 +540,7 @@ func substr {
 			return undefined;
 		}
 		if (to == 0) {
-			eden.error(new Error("substr: to cannot be 0."), "error");		
-		} else if (to < 0) {
-			to = to + 1;
-			if (to == 0) {
-				to = str.length;
-			}
+			to = str.length;
 		}
 		
 		var result = str.slice(from, to);

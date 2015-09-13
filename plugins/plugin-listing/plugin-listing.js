@@ -101,7 +101,7 @@ EdenUI.plugins.PluginManager = function (edenUI, success) {
 			});
 	};
 
-	edenUI.views["PluginManager"] = {dialog: this.createDialog, title: "Plug-in Manager", category: edenUI.viewCategories.environment};
+	edenUI.views["PluginManager"] = {dialog: this.createDialog, title: "Plug-in Manager", category: edenUI.viewCategories.environment, name: "plugins"};
 	success();
 };
 
