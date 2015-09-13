@@ -1092,7 +1092,8 @@
 		},
 		"Slide": {
 			"parameters": {
-				"html": ""
+				"html": "",
+				"[css_class_or_class_list]"
 			},
 			"return": "",
 			"description": ""
