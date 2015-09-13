@@ -36,7 +36,7 @@ proc highlightView {
 proc stopHighlightingView {
 	${{
 		var name = arguments[0];
-		edenUI.stopHighlightingView(name, false);
+		edenUI.stopHighlightingView(name, false, false);
 	}}$;
 }
 

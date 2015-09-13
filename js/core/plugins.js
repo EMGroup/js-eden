@@ -366,9 +366,9 @@
 	 * view no longer highlighted is the raised one then it will no longer be raised and will return
 	 * to its original position in the UI.
 	 */
-	EdenUI.prototype.stopHighlightingView = function (name, wasRaised) {
+	EdenUI.prototype.stopHighlightingView = function (name, wasRaised, show) {
 		if (wasRaised) {
-			this.windowHighlighter.stopHighlight(name);
+			this.windowHighlighter.stopHighlight(name, show);
 		} else {
 			var element = this.getDialogContent(name).data('dialog-extend-minimize-controls') || this.getDialogWindow(name);
 			element.removeClass("window-highlighted");
