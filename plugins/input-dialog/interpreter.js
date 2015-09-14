@@ -81,7 +81,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		this.addHistory(text);
 		var edenast = new EdenAST(text);
 		if (edenast.script.errors.length > 0) {
-			console.log(edenast.script.errors[0].prettyPrint());
+			edenUI.showErrorWindow().prepend("<div class='error-item'>"+edenast.script.errors[0].prettyPrint()+"</div>\n\n");
 		} else {
 			console.time("submitEdenCode");
 			edenUI.eden.execute(text, 'input', '', inputAgent);
@@ -129,31 +129,101 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}).find(".history");
 	}
 
+	function getCaretCharacterOffsetWithin(element) {
+		var caretOffset = 0;
+		var doc = element.ownerDocument || element.document;
+		var win = doc.defaultView || doc.parentWindow;
+		var sel;
+		if (typeof win.getSelection != "undefined") {
+		    sel = win.getSelection();
+		    if (sel.rangeCount > 0) {
+		        var range = win.getSelection().getRangeAt(0);
+		        var preCaretRange = range.cloneRange();
+		        preCaretRange.selectNodeContents(element);
+		        preCaretRange.setEnd(range.endContainer, range.endOffset);
+		        caretOffset = preCaretRange.toString().length;
+		    }
+		} else if ( (sel = doc.selection) && sel.type != "Control") {
+		    var textRange = sel.createRange();
+		    var preCaretTextRange = doc.body.createTextRange();
+		    preCaretTextRange.moveToElementText(element);
+		    preCaretTextRange.setEndPoint("EndToEnd", textRange);
+		    caretOffset = preCaretTextRange.text.length;
+		}
+		return caretOffset;
+	}
+
+	function getTextNodesIn(node) {
+		var textNodes = [];
+		if (node.nodeType == 3) {
+		    textNodes.push(node);
+		} else {
+		    var children = node.childNodes;
+		    for (var i = 0, len = children.length; i < len; ++i) {
+		        textNodes.push.apply(textNodes, getTextNodesIn(children[i]));
+		    }
+		}
+		return textNodes;
+	}
+
+	function setSelectionRange(el, start, end) {
+		if (document.createRange && window.getSelection) {
+		    var range = document.createRange();
+		    range.selectNodeContents(el);
+		    var textNodes = getTextNodesIn(el);
+		    var foundStart = false;
+		    var charCount = 0, endCharCount;
+
+		    for (var i = 0, textNode; textNode = textNodes[i++]; ) {
+		        endCharCount = charCount + textNode.length;
+		        if (!foundStart && start >= charCount
+		                && (start < endCharCount ||
+		                (start == endCharCount && i <= textNodes.length))) {
+		            range.setStart(textNode, start - charCount);
+		            foundStart = true;
+		        }
+		        if (foundStart && end <= endCharCount) {
+		            range.setEnd(textNode, end - charCount);
+		            break;
+		        }
+		        charCount = endCharCount;
+		    }
+
+		    var sel = window.getSelection();
+		    sel.removeAllRanges();
+		    sel.addRange(range);
+		} else if (document.selection && document.body.createTextRange) {
+		    var textRange = document.body.createTextRange();
+		    textRange.moveToElementText(el);
+		    textRange.collapse(true);
+		    textRange.moveEnd("character", end);
+		    textRange.moveStart("character", start);
+		    textRange.select();
+		}
+	}
+
 	this.createDialog = function (name, mtitle) {
-		var $dialogContents = $('<div class="inputCodeArea"><code contenteditable tabindex="1" class="inputcontent"></code></div><div class="subButtonsDiv"><button class="submitButton">Submit</button></div><div class="buttonsDiv"><button class="previousButton">Previous</button><button class="nextButton">Next</button></div>')
+		var $dialogContents = $('<div class="inputCodeArea"><code spellcheck="false" contenteditable tabindex="1" class="inputcontent"></code></div><div class="subButtonsDiv"><button class="submitButton">Submit</button></div><div class="buttonsDiv"><button class="previousButton">Previous</button><button class="nextButton">Next</button></div>')
 		var text = "";	
 		var textarea = $dialogContents.find('.inputcontent').get(0);
 		$dialogContents.on('keyup', '.inputcontent', function (e) {
-			if (!e.ctrlKey && e.keyCode != 8) {
-				//text += String.fromCharCode(e.keyCode);
-				text = textarea.textContent;
+			if (!e.ctrlKey) {
+				text = textarea.innerText;
 
-				var target = document.createTextNode("\u0001");
-				document.getSelection().getRangeAt(0).insertNode(target);
-				var position = textarea.innerHTML.indexOf("\u0001");
-				target.parentNode.removeChild(target);
+				//console.log("Key: " + e.keyCode);
 
-				console.log(text);
-				console.log(position);
+				var position = getCaretCharacterOffsetWithin(textarea);
+
+				if (e.keyCode == 8) {
+					text = text.slice(0, position-1) + text.slice(position,0);
+					position--;
+				}
+
 				var stream = new EdenStream(text);
-				textarea.innerHTML = stream.highlight();
+				var high = stream.highlight();
+				textarea.innerHTML = high;
 
-				var range = document.createRange();
-				var sel = window.getSelection();
-				range.setStart(textarea.childNodes[0], position);
-				range.collapse(true);
-				sel.removeAllRanges();
-				sel.addRange(range);
+				setSelectionRange(textarea, position, position);
 			} else {
 				console.log(e);
 
@@ -195,31 +265,31 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 	this.next = function (el) {
 		var n = edenUI.plugins.ScriptInput.nextHistory();
-		el.value = n;
+		el.innerText = n;
 	};
 
 	this.prev = function (el) {
 		var p = edenUI.plugins.ScriptInput.previousHistory();
-		el.value = p;
+		el.innerText = p;
 	};
 
 	this.submit = function (el) {
 		edenUI.plugins.ScriptInput.submitEdenCode(el.innerText);
-		el.value = "";
+		el.innerText = "";
 	};
 
 	this.getRidOfInstructions = function () {
-		var x = el.value;
+		var x = el.innerText;
 
 		if (x === "Ctrl+Enter = Submit\nCtrl+Up = Previous\nCtrl+Down = Next") {
-			el.value = "";
+			el.innerText = "";
 		}
 	};
 
 	this.putBackInstructions = function () {
 		var x = document.getElementById("inputCodeArea").value;
 		if (x === "") {
-			el.value = "Ctrl+Enter = Submit\nCtrl+Up = Previous\nCtrl+Down = Next";
+			el.innerText = "Ctrl+Enter = Submit\nCtrl+Up = Previous\nCtrl+Down = Next";
 		}
 	};
 

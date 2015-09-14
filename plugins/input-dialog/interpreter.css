@@ -20,6 +20,7 @@
 	border: 0;
 	padding: 0;
 	cursor: text;
+	white-space: pre;
 }
 
 .buttonsDiv {
@@ -57,6 +58,19 @@ span.eden-keyword {
 span.eden-storage {
 	font-weight: bold;
 	color: green;
+}
+
+span.eden-type {
+	font-weight: bold;
+	color: blue;
+}
+
+span.eden-function {
+	color: orange;
+}
+
+span.eden-comment {
+	color: silver;
 }
 
 span.eden-number {

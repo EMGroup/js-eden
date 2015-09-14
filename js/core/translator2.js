@@ -1,13 +1,23 @@
-/* Manual EDEN parser */
+/*
+ * Copyright (c) 2015, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
 
 
-////////////////////////////////////////////////////////////////////////////////
-
+/**
+ * Abstract Syntax Tree generator for JS-Eden code.
+ * Each production in the grammar has a function in this class. It makes use
+ * of the EdenStream class to tokenise the script, and the EdenError class to
+ * report the errors found. To use, pass the script to the constructor.
+ * @param code String containing the script.
+ */
 function EdenAST(code) {
 	this.stream = new EdenStream(code);
 	this.data = new EdenSyntaxData();
-	this.token = "invalid";
-	this.previous = "invalid";
+	this.token = "INVALID";
+	this.previous = "INVALID";
 	this.src = "input";
 
 	this.stream.data = this.data;
@@ -15,15 +25,37 @@ function EdenAST(code) {
 	// Get First Token;
 	this.next();
 
+	// Start parse with SCRIPT production
 	console.time("MakeEdenAST");
 	this.script = this.pSCRIPT();
 	console.timeEnd("MakeEdenAST");
 }
 
+
+
+EdenAST.prototype.getRoot = function() {
+	return this.script;
+}
+
+
+
+EdenAST.prototype.getErrors = function() {
+	return this.script.errors;
+}
+
+
+
+EdenAST.prototype.hasErrors = function() {
+	return this.script.errors.length > 0;
+}
+
+
+/**
+ * Dump the AST as stringified JSON, or pretty print any error messages.
+ * @return String of AST or errors.
+ */
 EdenAST.prototype.prettyPrint = function() {
 	var result = "";
-
-	//console.log(this.script);
 
 	if (this.script.errors.length > 0) {
 		for (var i = 0; i < this.script.errors.length; i++) {
@@ -39,17 +71,23 @@ EdenAST.prototype.prettyPrint = function() {
 	return result;
 };
 
+
+/**
+ * Move to next token.
+ */
 EdenAST.prototype.next = function() {
 	this.previous = this.token;
 	this.token = this.stream.readToken();
 
 	//Skip comments
 	while (true) {
+		// Skip block comments
 		if (this.token == "/*") {
 			while (this.token != "*/") {
 				this.token = this.stream.readToken();
 			}
 			this.token = this.stream.readToken();
+		// Skip line comments
 		} else if (this.token == "##") {
 			this.stream.skipLine();
 			this.token = this.stream.readToken();
@@ -58,6 +96,8 @@ EdenAST.prototype.next = function() {
 		}
 	}
 };
+
+
 
 EdenAST.prototype.peekNext = function(count) {
 	var res;
@@ -74,6 +114,8 @@ EdenAST.prototype.peekNext = function(count) {
 };
 
 
+////////////////////////////////////////////////////////////////////////////////
+//    Grammar Productions                                                     //
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -1231,7 +1273,18 @@ EdenAST.prototype.pAPPEND = function() {
  */
 EdenAST.prototype.pSHIFT = function() {
 	var shif = new EdenAST_Shift();
-	
+
+	shif.setDest(this.pLVALUE());
+	if (shif.errors.length > 0) return shif;
+
+	if (this.token != ";") {
+		shif.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+		return shif;
+	} else {
+		this.next();
+	}
+
+	return shif;
 }
 
 
@@ -1449,24 +1502,4 @@ EdenAST.prototype.pSCRIPT = function() {
 
 	return ast;
 };
-
-
-////////////////////////////////////////////////////////////////////////////////
-//    TESTS
-////////////////////////////////////////////////////////////////////////////////
-
-function eden_parse_tests() {
-	var myast;
-	myast = new EdenAST("when touch a, b, c { d = a * b * c; };");
-	console.log(myast);
-	myast = new EdenAST("d is a * b + c / (x * 55);");
-	console.log(myast);
-	myast = new EdenAST("d is a * b; f = g * h; j is i;");
-	console.log(myast);
-	myast = new EdenAST("d[1] = 5;");
-	console.log(myast);
-	myast = new EdenAST("/* some comment */   a = 6;");
-	console.log(myast);
-}
-
 
