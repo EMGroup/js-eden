@@ -16,13 +16,32 @@ STATEMENT	->
 	return EOPT ; |
 	continue ; |
 	break ; |
-	ILIST |
-	insert LVALUE , EXPRESSION , EXPRESSION ; |
-	delete LVALUE , EXPRESSION ; |
-	append LVALUE , EXPRESSION ; |
-	shift LVALUE ; |
+	? LVALUE ; |
+	insert INSERT |
+	delete DELETE |
+	append APPEND |
+	shift SHIFT |
+	require REQUIRE |
+	await AWAIT |
+	after AFTER |
+	option OPTION |
+	include INCLUDE |
 	LVALUE STATEMENT'' ; |
 	epsilon
+
+INCLUDE		-> ( EXPRESSION ) ; INCLUDE'
+INCLUDE'	-> include INCLUDE | epsilon
+
+OPTION		-> OBSERVABLE = OPTION'
+OPTION'		-> NUMBER | STRING
+
+AFTER		-> ( EXPRESSION ) STATEMENT
+AWAIT		-> EXPRESSION ;
+REQUIRE		-> EXPRESSION ;
+INSERT		-> LVALUE , EXPRESSION , EXPRESSION ;
+DELETE		-> LVALUE , EXPRESSION ;
+APPEND		-> LVALUE , EXPRESSION ;
+SHIFT		-> LVALUE ;
 
 SWITCH		-> ( EXPRESSION ) STATEMENT
 CASE 		-> STRING : | NUMBER : | CHARACTER :

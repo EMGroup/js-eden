@@ -1118,6 +1118,178 @@ EdenAST.prototype.pCASE = function() {
 
 
 /**
+ * INSERT Production
+ * INSERT -> LVALUE , EXPRESSION , EXPRESSION ;
+ */
+EdenAST.prototype.pINSERT = function() {
+	var insert = new EdenAST_Insert();
+	
+	insert.setDest(this.pLVALUE());
+	if (insert.errors.length > 0) return insert;
+
+	if (this.token != ",") {
+		insert.error(new EdenError(this, EDEN_ERROR_INSERTCOMMA));
+		return insert;
+	} else {
+		this.next();
+	}
+
+	insert.setIndex(this.pEXPRESSION());
+	if (insert.errors.length > 0) return insert;
+
+	if (this.token != ",") {
+		insert.error(new EdenError(this, EDEN_ERROR_INSERTCOMMA));
+		return insert;
+	} else {
+		this.next();
+	}
+
+	insert.setValue(this.pEXPRESSION());
+	if (insert.errors.length > 0) return insert;
+
+	if (this.token != ";") {
+		insert.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+		return insert;
+	} else {
+		this.next();
+	}
+
+	return insert;
+}
+
+
+
+/**
+ * DELETE Production
+ * DELETE -> LVALUE , EXPRESSION ;
+ */
+EdenAST.prototype.pDELETE = function() {
+	var del = new EdenAST_Delete();
+	
+	del.setDest(this.pLVALUE());
+	if (del.errors.length > 0) return del;
+
+	if (this.token != ",") {
+		del.error(new EdenError(this, EDEN_ERROR_DELETECOMMA));
+		return del;
+	} else {
+		this.next();
+	}
+
+	del.setIndex(this.pEXPRESSION());
+	if (del.errors.length > 0) return del;
+
+	if (this.token != ";") {
+		del.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+		return del;
+	} else {
+		this.next();
+	}
+
+	return del;
+}
+
+
+
+/**
+ * APPEND Production
+ * APPEND -> LVALUE , EXPRESSION ;
+ */
+EdenAST.prototype.pAPPEND = function() {
+	var append = new EdenAST_Append();
+	
+	append.setDest(this.pLVALUE());
+	if (append.errors.length > 0) return append;
+
+	if (this.token != ",") {
+		append.error(new EdenError(this, EDEN_ERROR_APPENDCOMMA));
+		return append;
+	} else {
+		this.next();
+	}
+
+	append.setIndex(this.pEXPRESSION());
+	if (append.errors.length > 0) return append;
+
+	if (this.token != ";") {
+		append.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+		return append;
+	} else {
+		this.next();
+	}
+
+	return append;
+}
+
+
+
+/**
+ * SHIFT Production
+ * SHIFT -> LVALUE ;
+ */
+EdenAST.prototype.pSHIFT = function() {
+	var shif = new EdenAST_Shift();
+	
+}
+
+
+
+/**
+ * REQUIRE Production
+ * REQUIRE -> EXPRESSION ;
+ */
+EdenAST.prototype.pREQUIRE = function() {
+	var req = new EdenAST_Require();
+	
+}
+
+
+
+/**
+ * AFTER Production
+ * AFTER -> ( EXPRESSION ) STATEMENT
+ */
+EdenAST.prototype.pAFTER = function() {
+	var after = new EdenAST_After();
+	
+}
+
+
+
+/**
+ * AWAIT Production
+ * AWAIT -> EXPRESSION ;
+ */
+EdenAST.prototype.pAWAIT = function() {
+	var shif = new EdenAST_Shift();
+	
+}
+
+
+
+/**
+ * OPTION Production
+ * OPTION -> OBSERVABLE = OPTION'
+ */
+EdenAST.prototype.pOPTION = function() {
+	var shif = new EdenAST_Shift();
+	
+}
+
+
+
+/**
+ * INCLUDE Production
+ * INCLUDE -> ( EXPRESSION ) ; INCLUDE'
+ */
+EdenAST.prototype.pINCLUDE = function() {
+	var shif = new EdenAST_Shift();
+	
+}
+
+
+
+/**
  * STATEMENT Production
  * STATEMENT ->
 	{ SCRIPT } |
@@ -1133,117 +1305,111 @@ EdenAST.prototype.pCASE = function() {
 	return EOPT ; |
 	continue ; |
 	break ; |
-	ILIST |
-	insert LVALUE , EXPRESSION , EXPRESSION ; |
-	delete LVALUE , EXPRESSION ; |
-	append LVALUE , EXPRESSION ; |
-	shift LVALUE ; |
+	? LVALUE ; |
+	insert INSERT |
+	delete DELETE |
+	append APPEND |
+	shift SHIFT |
+	require REQUIRE |
+	await AWAIT |
+	after AFTER |
+	option OPTION |
+	include INCLUDE |
 	LVALUE STATEMENT'' ; |
 	epsilon
  */
 EdenAST.prototype.pSTATEMENT = function() {
-	if (this.token == "proc") {
-		this.next();
-		return this.pACTION();
-	} else if (this.token == "func") {
-		this.next();
-		return this.pFUNCTION();
-	} else if (this.token == "when") {
-		this.next();
-		return this.pWHEN();
-	} else if (this.token == "for") {
-		this.next();
-		return this.pFOR();
-	} else if (this.token == "while") {
-		this.next();
-		return this.pWHILE();
-	} else if (this.token == "switch") {
-		this.next();
-		return this.pSWITCH();
-	} else if (this.token == "case") {
-		this.next();
-		return this.pCASE();
-	} else if (this.token == "default") {
-		this.next();
-		var def = new EdenAST_Default();
-		if (this.token != ":") {
-			def.error(new EdenError(this, EDEN_ERROR_DEFAULTCOLON));
-		} else {
-			this.next();
-		}
-		return def;
-	} else if (this.token == "if") {
-		this.next();
-		return this.pIF();
-	} else if (this.token == "return") {
-		this.next();
+	switch (this.token) {
+	case "proc"		:	this.next(); return this.pACTION();
+	case "func"		:	this.next(); return this.pFUNCTION();
+	case "when"		:	this.next(); return this.pWHEN();
+	case "for"		:	this.next(); return this.pFOR();
+	case "while"	:	this.next(); return this.pWHILE();
+	case "switch"	:	this.next(); return this.pSWITCH();
+	case "case"		:	this.next(); return this.pCASE();
+	case "insert"	:	this.next(); return this.pINSERT();
+	case "delete"	:	this.next(); return this.pDELETE();
+	case "append"	:	this.next(); return this.pAPPEND();
+	case "shift"	:	this.next(); return this.pSHIFT();
+	case "require"	:	this.next(); return this.pREQUIRE();
+	case "await"	:	this.next(); return this.pAWAIT();
+	case "after"	:	this.next(); return this.pAFTER();
+	case "option"	:	this.next(); return this.pOPTION();
+	case "include"	:	this.next(); return this.pINCLUDE();
+	case "default"	:	this.next();
+						var def = new EdenAST_Default();
+						if (this.token != ":") {
+							def.error(new EdenError(this,
+										EDEN_ERROR_DEFAULTCOLON));
+						} else {
+							this.next();
+						}
+						return def;
+	case "if"		:	this.next();
+						return this.pIF();
+	case "return"	:	this.next();
+						var ret = new EdenAST_Return();
 
-		var ret = new EdenAST_Return();
+						if (this.token != ";") {
+							ret.setResult(this.pEXPRESSION());
+							if (ret.errors.length > 0) return ret;
+						} else {
+							this.next();
+							return ret;
+						}
 
-		if (this.token != ";") {
-			ret.setResult(this.pEXPRESSION());
-			if (ret.errors.length > 0) return ret;
-		} else {
-			this.next();
-			return ret;
-		}
+						if (this.token != ";") {
+							ret.error(new EdenError(this,
+										EDEN_ERROR_SEMICOLON));
+						} else {
+							this.next();
+						}
 
-		if (this.token != ";") {
-			ret.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
-		} else {
-			this.next();
-		}
+						return ret;
+	case "continue"	:	this.next();
+						var cont = new EdenAST_Continue();
+						if (cont.errors.length > 0) return cont;
 
-		return ret;
-	} else if (this.token == "continue") {
-		this.next();
+						if (this.token != ";") {
+							cont.error(new EdenError(this,
+										EDEN_ERROR_SEMICOLON));
+						} else {
+							this.next();
+						}
 
-		var cont = new EdenAST_Continue();
-		if (cont.errors.length > 0) return cont;
+						return cont;
+	case "break"	:	this.next();
+						var breakk = new EdenAST_Break();
+						if (breakk.errors.length > 0) return breakk;
 
-		if (this.token != ";") {
-			cont.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
-		} else {
-			this.next();
-		}
+						if (this.token != ";") {
+							breakk.error(new EdenError(this,
+											EDEN_ERROR_SEMICOLON));
+						} else {
+							this.next();
+						}
 
-		return cont;
-	} else if (this.token == "break") {
-		this.next();
-
-		var breakk = new EdenAST_Break();
-		if (breakk.errors.length > 0) return breakk;
-
-		if (this.token != ";") {
-			breakk.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
-		} else {
-			this.next();
-		}
-
-		return breakk;
-	} else if (this.token == "{") {
-		this.next();
-		var script = this.pSCRIPT();
-		if (this.token != "}") {
-			script.error(new EdenError(this, 0, "Missing a closing '}'", undefined, undefined));
-			return script;
-		}
-		this.next();
-		return script;
-	} else if (this.token == "OBSERVABLE") {
-		var lvalue = this.pLVALUE();
-		if (lvalue.errors.length > 0) return lvalue;
-		var formula = this.pSTATEMENT_PP();
-		formula.left(lvalue);
-		if (formula.errors.length > 0) return formula;
+						return breakk;
+	case "{"		:	this.next();
+						var script = this.pSCRIPT();
+						if (this.token != "}") {
+							script.error(new EdenError(this, 0, "Missing a closing '}'", undefined, undefined));
+							return script;
+						}
+						this.next();
+						return script;
+	case "OBSERVABLE" :	var lvalue = this.pLVALUE();
+						if (lvalue.errors.length > 0) return lvalue;
+						var formula = this.pSTATEMENT_PP();
+						formula.left(lvalue);
+						if (formula.errors.length > 0) return formula;
 		
-		if (this.token != ";") {
-			formula.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
-		} else {
-			this.next();
-		}
-
-		return formula;
+						if (this.token != ";") {
+							formula.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+						} else {
+							this.next();
+						}
+						return formula;
 	}
 	return undefined;
 };

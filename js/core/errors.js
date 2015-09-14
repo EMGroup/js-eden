@@ -38,6 +38,9 @@ var EDEN_ERROR_SWITCHCLOSE = 34;
 var EDEN_ERROR_DEFAULTCOLON = 35;
 var EDEN_ERROR_CASELITERAL = 36;
 var EDEN_ERROR_CASECOLON = 37;
+var EDEN_ERROR_INSERTCOMMA = 38;
+var EDEN_ERROR_DELETECOMMA = 39;
+var EDEN_ERROR_APPENDCOMMA = 40;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -377,6 +380,27 @@ var eden_error_db = [
 			"A 'case' must end in a ':'"
 		],
 		suggestion: {expected: [":"], next: []}
+	},
+/* EDEN_ERROR_INSERTCOMMA */
+	{	message: function() { return 0; },
+		messages: [
+			"An 'insert' operation takes 3 parts"
+		],
+		suggestion: {expected: [","], next: []}
+	},
+/* EDEN_ERROR_DELETECOMMA */
+	{	message: function() { return 0; },
+		messages: [
+			"A 'delete' operation takes 2 parts"
+		],
+		suggestion: {expected: [","], next: []}
+	},
+/* EDEN_ERROR_APPENDCOMMA */
+	{	message: function() { return 0; },
+		messages: [
+			"An 'append' operation takes 2 parts"
+		],
+		suggestion: {expected: [","], next: []}
 	}
 ]
 

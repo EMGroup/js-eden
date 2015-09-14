@@ -283,7 +283,16 @@ var edenKeywords = {
 "break": true,
 "continue": true,
 "return": true,
-"when": true
+"when": true,
+"include": true,
+"option": true,
+"await": true,
+"insert": true,
+"append": true,
+"delete": true,
+"require": true,
+"after": true,
+"shift": true
 };
 
 
