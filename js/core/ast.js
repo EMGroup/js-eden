@@ -72,15 +72,20 @@ EdenAST_TernaryOp.prototype.left = function(pleft) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_BinaryOp(op, right) {
+function EdenAST_BinaryOp(op) {
 	this.type = "binaryop";
 	this.op = op;
-	this.errors = right.errors;
-	this.r = right;
+	this.errors = [];
 	this.l = undefined;
+	this.r = undefined;
 }
 EdenAST_BinaryOp.prototype.left = fnEdenAST_left;
 EdenAST_BinaryOp.prototype.error = fnEdenAST_error;
+
+EdenAST_BinaryOp.prototype.setRight = function(right) {
+	this.r = right;
+	this.errors.push.apply(this.errors, right.errors);
+}
 
 EdenAST_BinaryOp.prototype.generate = function() {
 	var left = (this.l.type == "lvalue") ? this.l.generate() + ".value()" : this.l.generate();

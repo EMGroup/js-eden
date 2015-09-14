@@ -73,17 +73,6 @@ EdenAST.prototype.peekNext = function(count) {
 	return res;
 };
 
-EdenAST.prototype.makeBinaryOp = function(op) {
-	var term = this.pTERM_P();
-	var right = this.pEXPRESSION_PP();
-	if (right) {
-		right.left(term);
-		return new EdenAST_BinaryOp(op, right);
-	}
-	return new EdenAST_BinaryOp(op, term);
-}
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -107,12 +96,20 @@ EdenAST.prototype.pTERM = function() {
  * E'-> && T E' | || T E' | epsilon
  */
 EdenAST.prototype.pEXPRESSION_P = function() {
-	if (this.token == "&&") {
+	if (this.token == "&&" || this.token == "||") {
+		var binop = new EdenAST_BinaryOp(this.token);
 		this.next();
-		return this.makeBinaryOp("&&");
-	} else if (this.token == "||") {
-		this.next();
-		return this.makeBinaryOp("||");
+
+		var term = this.pTERM();
+		var right = this.pEXPRESSION_P();
+
+		if (right) {
+			right.left(term);
+			binop.setRight(right);
+		} else {
+			binop.setRight(term);
+		}
+		return binop;
 	}
 	return undefined;
 }
@@ -139,24 +136,21 @@ EdenAST.prototype.pTERM_P = function() {
  * E'' -> < T' E'' | <= T' E'' | > T' E'' | >= T' E'' | == T' E'' | != T' E'' | epsilon
  */
 EdenAST.prototype.pEXPRESSION_PP = function() {
-	if (this.token == "<") {
+	if (this.token == "<" || this.token == "<=" || this.token == ">"
+			|| this.token == ">=" || this.token == "==" || this.token == "!=") {
+		var binop = new EdenAST_BinaryOp(this.token);
 		this.next();
-		return this.makeBinaryOp("<");
-	} else if (this.token == "<=") {
-		this.next();
-		return this.makeBinaryOp("<=");
-	} else if (this.token == ">") {
-		this.next();
-		return this.makeBinaryOp(">");
-	} else if (this.token == ">=") {
-		this.next();
-		return this.makeBinaryOp(">=");
-	} else if (this.token == "==") {
-		this.next();
-		return this.makeBinaryOp("==");
-	} else if (this.token == "!=") {
-		this.next();
-		return this.makeBinaryOp("!=");
+
+		var term = this.pTERM_P();
+		var right = this.pEXPRESSION_PP();
+
+		if (right) {
+			right.left(term);
+			binop.setRight(right);
+		} else {
+			binop.setRight(term);
+		}
+		return binop;
 	}
 	return undefined;
 }
@@ -183,15 +177,20 @@ EdenAST.prototype.pTERM_PP = function() {
  * E''' -> + T'' E''' | - T'' E''' | // T'' E''' | epsilon
  */
 EdenAST.prototype.pEXPRESSION_PPP = function() {
-	if (this.token == "+") {
+	if (this.token == "+" || this.token == "-" || this.token == "//") {
+		var binop = new EdenAST_BinaryOp(this.token);
 		this.next();
-		return this.makeBinaryOp("+");
-	} else if (this.token == "-") {
-		this.next();
-		return this.makeBinaryOp("-");
-	} else if (this.token == "//") {
-		this.next();
-		return this.makeBinaryOp("//");
+
+		var term = this.pTERM_PP();
+		var right = this.pEXPRESSION_PPP();
+
+		if (right) {
+			right.left(term);
+			binop.setRight(right);
+		} else {
+			binop.setRight(term);
+		}
+		return binop;
 	}
 	return undefined;
 }
@@ -218,18 +217,21 @@ EdenAST.prototype.pTERM_PPP = function() {
  * E'''' -> * T''' E'''' | / T''' E'''' | % T''' E'''' | ^ T''' E'''' | epsilon
  */
 EdenAST.prototype.pEXPRESSION_PPPP = function() {
-	if (this.token == "*") {
+	if (this.token == "*" || this.token == "/" || this.token == "%"
+			|| this.token == "^") {
+		var binop = new EdenAST_BinaryOp(this.token);
 		this.next();
-		return this.makeBinaryOp("*");
-	} else if (this.token == "/") {
-		this.next();
-		return this.makeBinaryOp("/");
-	} else if (this.token == "%") {
-		this.next();
-		return this.makeBinaryOp("%");
-	} else if (this.token == "^") {
-		this.next();
-		return this.makeBinaryOp("^");
+
+		var term = this.pTERM_PPP();
+		var right = this.pEXPRESSION_PPPP();
+
+		if (right) {
+			right.left(term);
+			binop.setRight(right);
+		} else {
+			binop.setRight(term);
+		}
+		return binop;
 	}
 	return undefined;
 }
