@@ -1,4 +1,5 @@
 require("Canvas2D");
+include_css("models/jspe/jspe.css");
 
 if (_view_jspe_width == @) {
 	hideView("projects");
@@ -32,12 +33,12 @@ SlideButton.prototype.draw = function(context) {
   var agent = root.lookup("SlideButton");
   var but = $("#"+me).get(0);
   if (but === undefined) {
-	var dis = "";
+	var disabledHTML = "";
 	if (this.enabled == true) { dis = ""; }
-	else { dis = "disabled=\"true\""; }
+	else { disabledHTML = 'disabled="true"'; }
 
 	var can = $("#jspe-dialog-canvascontent");
-	var buthtml = $("<input type=\"button\" id=\"" + me + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
+	var buthtml = $('<input type="button" id="' + me + '" value="' + this.label + '" ' + disabledHTML + ' style="position: absolute; left: ' + this.x + 'px; top: ' + this.y + 'px;"/>').click(function() {
 		root.lookup(me2 + "_clicked").assign(true, agent);
 	}).appendTo(can);
 
@@ -50,8 +51,8 @@ SlideButton.prototype.draw = function(context) {
 	but.togarbage = false;
 	if (this.enabled == true) { but.disabled = false; }
 	else { but.disabled = true; }
-	but.style.left = "" + this.x + "px";
-	but.style.top = "" + this.y + "px";
+	but.style.left = this.x + "px";
+	but.style.top = this.y + "px";
   }
 };
 }}$;
@@ -72,14 +73,19 @@ func SlideButton { ${{
 
 ## Slide
 ${{
-Slide = function (html) {
+Slide = function (html, cssClass) {
         this.html = html;
+		if (cssClass === undefined) {
+			this.cssClass = "";
+		} else if (Array.isArray(cssClass)) {
+			this.cssClass = "jspe-" + cssClass.join("-slide jspe-") + "-slide";
+		} else {
+			this.cssClass = "jspe-" + cssClass + "-slide";
+		}
 }
 
 Slide.prototype.draw = function(context) {
   var id = "jspe_slide";
-  var jspeJQ = $('#jspe-dialog-canvas');
-  var leftRightMargin = 25;
   if (this.elements === undefined) {
 	var content = this.html.replace(
 		/<jseden>([\s\S]*?)<\/jseden>/g,
@@ -88,12 +94,9 @@ Slide.prototype.draw = function(context) {
 		}
 	);
 
-	var divstyle = "position: absolute; text-align: justify; top: 35px; ";
-	divstyle = divstyle + "left: " + leftRightMargin + "px";
-	var divJQ = $("<div id=\"" + id + "\" style=\"" + divstyle + "\">" + content + "</div>");
+	var divJQ = $('<div id="' + id + '" class="jspe-slide ' + this.cssClass + '">' + content + '</div>');
 	this.elements = [divJQ.get(0)];
   }
-  $(this.elements[0]).css("width",(jspeJQ.width() - 2 * leftRightMargin) + "px");
 };
 
 Slide.prototype.scale = function (scale) {
@@ -109,7 +112,8 @@ Slide.prototype.toString = function() {
 
 func Slide { ${{
   var html = arguments[0];
-  return new Slide(html);
+  var cssClass = arguments[1];
+  return new Slide(html, cssClass);
 }}$; }
 
 ${{
@@ -228,15 +232,15 @@ func TitleSlide {
 		return @;
 	}
 	
-	slideHTML =  "<div style=\"margin-top: calc(45% - 76px); text-align: center\"><div style=\"font-size: 28pt; transform: translateY(-50%)\">" // title // "</div>";
+	slideHTML =  "<h1>" // title // "</h1>";
 
 	if (isString(subtitle) && subtitle != "") {
-		slideHTML = slideHTML // "<div style=\"font-size: 16pt; margin-top: 1pt\">" // subtitle // "</div>";
+		slideHTML = slideHTML // "<h2>" // subtitle // "</h2>";
 	} else if (subtitle != @ && subtitle != "") {
 		error("TitleSlide: The second argument must be a string, not a " // type(subtitle));
 	}
-	slideHTML = slideHTML // "</div>";
-	return Slide(slideHTML);
+	slideHTML = "<div>" // slideHTML // "</div>";
+	return Slide(slideHTML, "title");
 }
 
 func TitledSlide {
@@ -338,11 +342,7 @@ func BulletSlide {
 					if (currentPosition > 1) {
 						slideHTML = slideHTML // "</li>\n";
 					}
-					slideHTML = slideHTML // "<li style=\"";
-					if (lists# == 1) {
-						slideHTML = slideHTML // "margin-bottom: 7pt;";
-					}
-					slideHTML = slideHTML // "\">" // currentItem;
+					slideHTML = slideHTML // "<li>" // currentItem;
 				} else if (isList(currentItem)) {
 					if (currentItem# > 0) {
 						##Begin a nested list.
@@ -374,5 +374,5 @@ func BulletSlide {
 			}
 		}
 	} ## end if the slide has some bullet points
-	return Slide(slideHTML);
+	return Slide(slideHTML, "bullet");
 }
