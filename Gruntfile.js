@@ -71,6 +71,11 @@ module.exports = function (grunt) {
         tasks: ['jison']
       },
 
+	  coresrc: {
+		files: ['js/core/*.js','./plugins/**/*.js'],
+		tasks: ['uglify']
+	  },
+
       // reload browser when parser changes
       parser: {
         files: 'js/eden/core/parser.js',
