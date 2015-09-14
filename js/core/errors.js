@@ -33,6 +33,11 @@ var EDEN_ERROR_FORSTART = 29;
 var EDEN_ERROR_FORCOND = 30;
 var EDEN_ERROR_SUBSCRIBEOPEN = 31;
 var EDEN_ERROR_SUBSCRIBECLOSE = 32;
+var EDEN_ERROR_SWITCHOPEN = 33;
+var EDEN_ERROR_SWITCHCLOSE = 34;
+var EDEN_ERROR_DEFAULTCOLON = 35;
+var EDEN_ERROR_CASELITERAL = 36;
+var EDEN_ERROR_CASECOLON = 37;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -337,6 +342,41 @@ var eden_error_db = [
 			"Expected a ']' to end subscribers list"
 		],
 		suggestion: {expected: ["]"], next: []}
+	},
+/* EDEN_ERROR_SWITCHOPEN */
+	{	message: function() { return 0; },
+		messages: [
+			"Expected a '(' to start 'switch' expression"
+		],
+		suggestion: {expected: ["("], next: []}
+	},
+/* EDEN_ERROR_SWITCHCLOSE */
+	{	message: function() { return 0; },
+		messages: [
+			"Expected a ')' to end 'switch' expression"
+		],
+		suggestion: {expected: ["]"], next: []}
+	},
+/* EDEN_ERROR_DEFAULTCOLON */
+	{	message: function() { return 0; },
+		messages: [
+			"A 'default' statement must be followed by a ':'"
+		],
+		suggestion: {expected: [":"], next: []}
+	},
+/* EDEN_ERROR_CASELITERAL */
+	{	message: function() { return 0; },
+		messages: [
+			"A 'case' needs a number or string after it"
+		],
+		suggestion: {expected: ["NUMBER","STRING"], next: []}
+	},
+/* EDEN_ERROR_CASECOLON */
+	{	message: function() { return 0; },
+		messages: [
+			"A 'case' must end in a ':'"
+		],
+		suggestion: {expected: [":"], next: []}
 	}
 ]
 

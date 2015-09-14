@@ -865,8 +865,33 @@ EdenAST.prototype.pWHILE = function() {
 }
 
 
+
+/**
+ * SWITCH Production
+ * SWITCH -> ( EXPRESSION ) STATEMENT
+ */
 EdenAST.prototype.pSWITCH = function() {
-	return undefined;
+	var swi = new EdenAST_Switch();
+
+	if (this.token != "(") {
+		swi.error(new EdenError(this, EDEN_ERROR_SWITCHOPEN));
+		return swi;
+	} else {
+		this.next();
+	}
+
+	swi.setExpression(this.pEXPRESSION());
+	if (swi.errors.length > 0) return swi;
+
+	if (this.token != ")") {
+		swi.error(new EdenError(this, EDEN_ERROR_SWITCHCLOSE));
+		return swi;
+	} else {
+		this.next();
+	}
+
+	swi.setStatement(this.pSTATEMENT());
+	return swi;
 }
 
 
@@ -1066,20 +1091,55 @@ EdenAST.prototype.pSTATEMENT_P = function() {
 
 
 /**
+ * CASE Production
+ * CASE -> STRING : | NUMBER : | CHARACTER :
+ */
+EdenAST.prototype.pCASE = function() {
+	var cas = new EdenAST_Case();
+
+	if (this.token == "STRING" || this.token == "NUMBER") {
+		cas.setLiteral(this.token, this.data.value);
+		this.next();
+	} else {
+		cas.error(new EdenError(this, EDEN_ERROR_CASELITERAL));
+		return cas;
+	}
+
+	if (this.token != ":") {
+		cas.error(new EdenError(this, EDEN_ERROR_CASECOLON));
+		return cas;
+	} else {
+		this.next();
+	}
+
+	return cas;
+}
+
+
+
+/**
  * STATEMENT Production
- * STATEMENT	->
- *	{ SCRIPT } |
- *	when WHEN |
- *	proc ACTION |
- *	func FUNCTION |
- *	LVALUE STATEMENT'' ; |
- *	for FOR |
- *	while WHILE |
- *	switch SWITCH |
- *	if IF |
- *	return EOPT ; |
- *	continue ; |
- *	break ;
+ * STATEMENT ->
+	{ SCRIPT } |
+	when WHEN |
+	proc ACTION |
+	func FUNCTION |
+	for FOR |
+	while WHILE |
+	switch SWITCH |
+	case CASE |
+	default : |
+	if IF |
+	return EOPT ; |
+	continue ; |
+	break ; |
+	ILIST |
+	insert LVALUE , EXPRESSION , EXPRESSION ; |
+	delete LVALUE , EXPRESSION ; |
+	append LVALUE , EXPRESSION ; |
+	shift LVALUE ; |
+	LVALUE STATEMENT'' ; |
+	epsilon
  */
 EdenAST.prototype.pSTATEMENT = function() {
 	if (this.token == "proc") {
@@ -1100,6 +1160,18 @@ EdenAST.prototype.pSTATEMENT = function() {
 	} else if (this.token == "switch") {
 		this.next();
 		return this.pSWITCH();
+	} else if (this.token == "case") {
+		this.next();
+		return this.pCASE();
+	} else if (this.token == "default") {
+		this.next();
+		var def = new EdenAST_Default();
+		if (this.token != ":") {
+			def.error(new EdenError(this, EDEN_ERROR_DEFAULTCOLON));
+		} else {
+			this.next();
+		}
+		return def;
 	} else if (this.token == "if") {
 		this.next();
 		return this.pIF();
@@ -1139,7 +1211,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 	} else if (this.token == "break") {
 		this.next();
 
-		var breakk = new EdenAST_Continue();
+		var breakk = new EdenAST_Break();
 		if (breakk.errors.length > 0) return breakk;
 
 		if (this.token != ";") {

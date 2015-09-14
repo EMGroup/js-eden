@@ -279,6 +279,7 @@ var edenKeywords = {
 "do": true,
 "switch": true,
 "case": true,
+"default": true,
 "break": true,
 "continue": true,
 "return": true,

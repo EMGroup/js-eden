@@ -286,6 +286,29 @@ EdenAST_If.prototype.error = fnEdenAST_error;
 
 //------------------------------------------------------------------------------
 
+function EdenAST_Switch() {
+	this.type = "switch";
+	this.errors = [];
+	this.expression = "";
+	this.statement = undefined;
+};
+
+EdenAST_Switch.prototype.setExpression = function(expression) {
+	this.expression = expression;
+	this.errors.push.apply(this.errors, expression.errors);
+};
+
+EdenAST_Switch.prototype.setStatement = function(statement) {
+	this.statement = statement;
+	this.errors.push.apply(this.errors, statement.errors);
+};
+
+EdenAST_Switch.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
 function EdenAST_FunctionCall() {
 	this.type = "functioncall";
 	this.errors = [];
@@ -394,6 +417,35 @@ EdenAST_For.prototype.setStatement = function(statement) {
 	this.statement = statement;
 	this.errors.push.apply(this.errors, statement.errors);
 }
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_Default() {
+	this.type = "default";
+	this.errors = [];
+};
+
+EdenAST_Default.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_Case() {
+	this.type = "case";
+	this.datatype = "";
+	this.literal = undefined;
+	this.errors = [];
+};
+
+EdenAST_Case.prototype.setLiteral = function(datatype, literal) {
+	this.datatype = datatype;
+	this.literal = literal;
+}
+
+EdenAST_Case.prototype.error = fnEdenAST_error;
 
 
 
