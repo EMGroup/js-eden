@@ -79,9 +79,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 	this.submitEdenCode = function (text) {
 		this.addHistory(text);
-		console.time("submitEdenCode");
-		edenUI.eden.execute(text, 'input', '', inputAgent);
-		console.timeEnd("submitEdenCode");
+		var edenast = new EdenAST(text);
+		if (edenast.script.errors.length > 0) {
+			console.log(edenast.script.errors[0].prettyPrint());
+		} else {
+			console.time("submitEdenCode");
+			edenUI.eden.execute(text, 'input', '', inputAgent);
+			console.timeEnd("submitEdenCode");
+		}
 		
 		if (historydialog !== undefined) {
 			historydialog.html(this.generateHistory());
@@ -125,24 +130,45 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createDialog = function (name, mtitle) {
-		var $dialogContents = $('<div class="inputCodeArea"><textarea spellcheck="false"></textarea></div><div class="subButtonsDiv"><button class="submitButton">Submit</button></div><div class="buttonsDiv"><button class="previousButton">Previous</button><button class="nextButton">Next</button></div>')
-			
-		var textarea = $dialogContents.find('textarea').get(0);
-		$dialogContents.on('keydown', 'textarea', function (e) {
-			if (!e.ctrlKey) {
-				return;
-			}
+		var $dialogContents = $('<div class="inputCodeArea"><code contenteditable tabindex="1" class="inputcontent"></code></div><div class="subButtonsDiv"><button class="submitButton">Submit</button></div><div class="buttonsDiv"><button class="previousButton">Previous</button><button class="nextButton">Next</button></div>')
+		var text = "";	
+		var textarea = $dialogContents.find('.inputcontent').get(0);
+		$dialogContents.on('keyup', '.inputcontent', function (e) {
+			if (!e.ctrlKey && e.keyCode != 8) {
+				//text += String.fromCharCode(e.keyCode);
+				text = textarea.textContent;
 
-			if (e.keyCode === 13){
-				// enter
-				me.submit(textarea);
-			} else if (e.keyCode === 38) {
-				// up
-				me.prev(textarea);
-			} else if (e.keyCode === 40) {
-				// down
-				me.next(textarea);
+				var target = document.createTextNode("\u0001");
+				document.getSelection().getRangeAt(0).insertNode(target);
+				var position = textarea.innerHTML.indexOf("\u0001");
+				target.parentNode.removeChild(target);
+
+				console.log(text);
+				console.log(position);
+				var stream = new EdenStream(text);
+				textarea.innerHTML = stream.highlight();
+
+				var range = document.createRange();
+				var sel = window.getSelection();
+				range.setStart(textarea.childNodes[0], position);
+				range.collapse(true);
+				sel.removeAllRanges();
+				sel.addRange(range);
+			} else {
+				console.log(e);
+
+				if (e.keyCode === 13){
+					// enter
+					me.submit(textarea);
+				} else if (e.keyCode === 38) {
+					// up
+					me.prev(textarea);
+				} else if (e.keyCode === 40) {
+					// down
+					me.next(textarea);
+				}
 			}
+			//textarea.innerHTML += String.fromCharCode(e.keyCode);
 		}).on('click', '.submitButton', function (e) {
 			me.submit(textarea);
 		}).on('click', '.previousButton', function (e) {
@@ -178,7 +204,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	};
 
 	this.submit = function (el) {
-		edenUI.plugins.ScriptInput.submitEdenCode(el.value);
+		edenUI.plugins.ScriptInput.submitEdenCode(el.innerText);
 		el.value = "";
 	};
 

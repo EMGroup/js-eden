@@ -164,6 +164,12 @@ EdenStream.prototype.tokenType = function(token) {
 	if (token == "OBSERVABLE") {
 		return "identifier";
 	}
+	if (token == "NUMBER") {
+		return "number";
+	}
+	if (token == "STRING") {
+		return "string";
+	}
 	if (this.isAlphaNumeric(token.charCodeAt(0))) {
 		return "keyword";
 	}
@@ -377,6 +383,51 @@ EdenStream.prototype.readToken = function() {
 	}
 
 	return "INVALID";
+};
+
+
+
+/**
+ * Generate a syntax highlighted version of the stream.
+ */
+EdenStream.prototype.highlight = function() {
+	var result = "";
+	while (this.valid()) {
+		// Skip but preserve white space
+		while (this.valid()) {
+			var ch= this.peek();
+			if (ch == 10) this.line++;
+			if (ch == 9 || ch == 10 || ch == 13 || ch == 32) {
+				this.skip();
+				if (ch == 13) {
+					result += "<br/>";
+				} else {
+					result += String.fromCharCode(ch);
+				}
+			} else {
+				break;
+			}
+		}
+		var token = this.readToken();
+		var type = this.tokenType(token);
+		if (token == "EOF") {
+			break;
+		}
+		if (token == "local" || token == "auto" || token == "para") {
+			result += "<span class='eden-storage'>" + token + "</span>";
+		} else if (type == "keyword") {
+			result += "<span class='eden-keyword'>" + token + "</span>";
+		} else if (token == "NUMBER") {
+			result += "<span class='eden-number'>" + this.data.value + "</span>";
+		} else if (token == "STRING") {
+			result += "<span class='eden-string'>" + this.data.value + "</span>";
+		} else if (token == "OBSERVABLE") {
+			result += this.data.value;
+		} else {
+			result += token;
+		}
+	}
+	return result;
 };
 
 
