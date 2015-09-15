@@ -77,6 +77,10 @@ EdenStream.prototype.reset = function() {
 	this.line = 1;
 }
 
+EdenStream.prototype.tokenText = function() {
+	return this.code.substr(this.prevposition,this.position - this.prevposition);
+}
+
 /**
  * Is the stream at the beginning or end of a line.
  */

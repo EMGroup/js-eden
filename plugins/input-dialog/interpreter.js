@@ -206,6 +206,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var $dialogContents = $('<div class="inputCodeArea"><div spellcheck="false" contenteditable tabindex="1" class="inputcontent"></div></div><div class="subButtonsDiv"><button class="submitButton">Submit</button></div><div class="buttonsDiv"><button class="previousButton">Previous</button><button class="nextButton">Next</button></div>')
 		var text = "";	
 		var textarea = $dialogContents.find('.inputcontent').get(0);
+
+		$(textarea).mousedown(function(e) {
+			var eq = $(e.target);
+			if (eq.hasClass("eden-number")) {
+				console.log("NUMBER");
+				eq.css('cursor','ew-resize');
+			}
+		}).mouseup(function(e) {
+			var eq = $(e.target);
+			eq.css('cursor', 'text');
+		});
+
 		$dialogContents.on('keyup', '.inputcontent', function (e) {
 			if (!e.ctrlKey && (e.keyCode < 37 || e.keyCode > 40)) {
 				text = textarea.innerText;

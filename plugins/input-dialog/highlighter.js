@@ -149,6 +149,8 @@ EdenHighlight.prototype.highlight = function(start) {
 
 		var token = stream.readToken();
 		var type = stream.tokenType(token);
+		var classes = "";
+
 		if (token == "EOF") {
 			break;
 		}
@@ -160,7 +162,7 @@ EdenHighlight.prototype.highlight = function(start) {
 
 		if (errstart != -1) {
 			if (errstart <= stream.prevposition && !inerror) {
-				result += "<span title=\"" + errmsg + "\" class='eden-error'>";
+				result += "<span title=\"" + errmsg + "\">";
 				inerror = true;
 			}
 			if (errend <= stream.prevposition && inerror) {
@@ -169,40 +171,52 @@ EdenHighlight.prototype.highlight = function(start) {
 			}
 		}
 
+		if (inerror) classes += "eden-error ";
+
 		if (token == "##") {
-			result += "<span class='eden-comment'>##";
+			classes += "eden-comment";
+			result += "<span class='"+classes+"'>##";
 			while (stream.valid() && stream.peek() != 10) {
 				result += String.fromCharCode(stream.get());
 			}
 			result += "</span>";
 		} else if (token == "local" || token == "auto" || token == "para") {
-			result += "<span class='eden-storage'>" + token + "</span>";
+			classes += "eden-storage";
+			result += "<span class='"+classes+"'>" + token + "</span>";
 		} else if (type == "keyword") {
-			result += "<span class='eden-keyword'>" + token + "</span>";
+			classes += "eden-keyword";
+			result += "<span class='"+classes+"'>" + token + "</span>";
 		} else if (token == "NUMBER") {
-			result += "<span class='eden-number'>" + stream.data.value + "</span>";
+			classes += "eden-number";
+			result += "<span class='"+classes+"'>" + stream.tokenText() + "</span>";
 		} else if (token == "STRING") {
-			result += "<span class='eden-string'>\"" + stream.data.value + "\"</span>";
+			classes += "eden-string";
+			result += "<span class='"+classes+"'>" + stream.tokenText() + "</span>";
 		} else if (token == "OBSERVABLE") {
 			if (edenFunctions[stream.data.value]) {
-				result += "<span class='eden-function'>" + stream.data.value + "</span>";
+				classes += "eden-function";
+				result += "<span class='"+classes+"'>" + stream.data.value + "</span>";
 			} else if (edenTypes[stream.data.value]) {
-				result += "<span class='eden-type'>" + stream.data.value + "</span>";
+				classes += "eden-type";
+				result += "<span class='"+classes+"'>" + stream.data.value + "</span>";
 			} else if (edenSpecials[stream.data.value]) {
-				result += "<span class='eden-special'>" + stream.data.value + "</span>";
+				classes += "eden-special";
+				result += "<span class='"+classes+"'>" + stream.data.value + "</span>";
 			} else {
+				classes += "eden-observable";
 				if (!inerror) {
 					var val = "@";
 					if (eden.root.symbols[stream.data.value] !== undefined) {
 						val = eden.root.lookup(stream.data.value).value();
 					}
-					result += "<span title=\"" + val + "\" class='eden-observable'>" + stream.data.value + "</span>";
+					result += "<span title=\"" + val + "\" class='"+classes+"'>" + stream.tokenText() + "</span>";
 				} else {
-					result += "<span class='eden-observable'>" + stream.data.value + "</span>";
+					result += "<span class='"+classes+"'>" + stream.tokenText() + "</span>";
 				}
 			}
 		} else {
-			result += "<span class='eden-operator'>" + token + "</span>";
+			classes += "eden-operator";
+			result += "<span class='"+classes+"'>" + token + "</span>";
 		}
 	}
 	return result;

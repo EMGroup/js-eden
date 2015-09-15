@@ -8,7 +8,7 @@
 	bottom: 35px;
 	left: 1px;
 	right: 1px;
-	border: 1px solid blue;
+	border: 0;/*border: 1px solid blue;*/
 	font-family: monospace;
 	font-size: 14px;
 	padding: 5px;
@@ -19,7 +19,7 @@
 	height: 100%;
 	resize: none;
 	border: 0;
-	padding: 0;
+	padding: 2px;
 	cursor: text;
 	white-space: pre;
 	overflow: scroll;
@@ -90,5 +90,10 @@ span.eden-string {
 
 span.eden-error {
 	background-color: #ffdcdc;
-	border-bottom: 1px solid red;
+	border: 1px solid #a40000;
+}
+
+span.eden-select {
+	background-color: #cfe4ff;
+	border: 1px solid #3465a4;
 }
