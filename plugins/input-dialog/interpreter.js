@@ -224,6 +224,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				textarea.innerHTML = high;
 
 				setSelectionRange(textarea, position, position);
+
+				// Execute if no errors!
+				if (stream.ast.script.errors.length == 0) {
+					me.submit(textarea);
+				}
 			} else if (e.ctrlKey) {
 				console.log(e);
 
@@ -279,7 +284,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 	this.submit = function (el) {
 		edenUI.plugins.ScriptInput.submitEdenCode(el.innerText);
-		el.innerText = "";
+		//el.innerText = "";
 	};
 
 	this.getRidOfInstructions = function () {

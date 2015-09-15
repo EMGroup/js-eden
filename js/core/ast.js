@@ -171,6 +171,8 @@ EdenAST_Definition.prototype.generate = function() {
 	return result;
 };
 
+EdenAST_Definition.prototype.error = fnEdenAST_error;
+
 
 
 //------------------------------------------------------------------------------
