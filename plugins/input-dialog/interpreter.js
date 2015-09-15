@@ -207,16 +207,48 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var text = "";	
 		var textarea = $dialogContents.find('.inputcontent').get(0);
 
-		$(textarea).mousedown(function(e) {
-			var eq = $(e.target);
-			if (eq.hasClass("eden-number")) {
-				console.log("NUMBER");
-				eq.css('cursor','ew-resize');
+		var dragstart = 0;
+		var dragvalue = 0;
+		var draglast = 0;
+
+		function highlightContent(text, position) {
+			var stream = new EdenHighlight(text);
+			var high = stream.highlight(position);
+			textarea.innerHTML = high;
+			setSelectionRange(textarea, position, position);
+
+			$(textarea).find('.eden-number').draggable({
+				helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
+				axis: 'x',
+				drag: function(e,u) {
+					var newval = Math.round(dragvalue + ((u.position.left - dragstart) / 5));
+					if (newval != draglast) {
+						draglast = newval;
+						e.target.innerHTML = "" + newval;
+
+						var ast = new EdenAST(textarea.innerText);
+						console.log(ast.script.errors);
+						// Execute if no errors!
+						if (ast.script.errors.length == 0) {
+							me.submit(textarea);
+						}
+					}
+				},
+				start: function(e,u) {
+					dragstart = u.position.left;
+					console.log("Drag value: " + e.target.innerText);
+					dragvalue = parseInt(e.target.innerText);
+					draglast = dragvalue;
+				},
+				cursor: 'move',
+				cursorAt: {top: -5, left: -5}
+			});
+
+			// Execute if no errors!
+			if (stream.ast.script.errors.length == 0) {
+				me.submit(textarea);
 			}
-		}).mouseup(function(e) {
-			var eq = $(e.target);
-			eq.css('cursor', 'text');
-		});
+		}
 
 		$dialogContents.on('keyup', '.inputcontent', function (e) {
 			if (!e.ctrlKey && (e.keyCode < 37 || e.keyCode > 40)) {
@@ -231,16 +263,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					position--;
 				}
 
-				var stream = new EdenHighlight(text);
-				var high = stream.highlight(position);
-				textarea.innerHTML = high;
-
-				setSelectionRange(textarea, position, position);
-
-				// Execute if no errors!
-				if (stream.ast.script.errors.length == 0) {
-					me.submit(textarea);
-				}
+				highlightContent(text,position);
 			} else if (e.ctrlKey) {
 				console.log(e);
 

@@ -14,6 +14,11 @@
 	padding: 5px;
 }
 
+.eden-drag-helper {
+	width: 10px;
+	height: 10px;
+}
+
 .inputcontent {
 	width: 100%;
 	height: 100%;
