@@ -164,11 +164,11 @@
 		 *   _view_b_x = _view_a_x + _view_a_width;
 		 * will position the windows with a slight overlap, though no information will be hidden.
 		 */
-		view(name, 'width').assign(diag.dialog("option", "width") - this.scrollBarSize, agent);
-		view(name, 'height').assign(diag.dialog("option", "height") - this.titleBarHeight, agent);
+		view(name, 'width').assign(diag.dialog("option", "width") - this.scrollBarSize, eden.root.scope, agent);
+		view(name, 'height').assign(diag.dialog("option", "height") - this.titleBarHeight, eden.root.scope, agent);
 		var topLeft = diag.closest('.ui-dialog').offset();
-		view(name, 'x').assign(topLeft.left, agent);
-		view(name, 'y').assign(topLeft.top - desktopTop, agent);
+		view(name, 'x').assign(topLeft.left, eden.root.scope, agent);
+		view(name, 'y').assign(topLeft.top - desktopTop, eden.root.scope, agent);
 
 		/* Plug-ins can append status information to their title bar.  Only use if there is genuinely
 		 * no space to put the information inside the window (e.g. canvas) or an established precedent for
@@ -198,7 +198,7 @@
 			diag.dialog("option", "title", title);
 			me.plugins.MenuBar.updateViewsMenu();
 		});
-		titleSym.assign(title, agent);
+		titleSym.assign(title, eden.root.scope, agent);
 
 		//Allow mouse drags that position the dialog partially outside of the browser window but not over the menu bar.
 		diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, desktopTop, Number.MAX_VALUE, Number.MAX_VALUE]);
@@ -213,25 +213,25 @@
 		diag.on("dialogresizestop", function (event, ui) {
 			var root = me.eden.root;
 			root.beginAutocalcOff();
-			view(name, 'width').assign(ui.size.width - me.scrollBarSize, Symbol.hciAgent);
-			view(name, 'height').assign(ui.size.height - me.titleBarHeight + 2 * me.dialogBorderWidth, Symbol.hciAgent);
+			view(name, 'width').assign(ui.size.width - me.scrollBarSize, root.scope, Symbol.hciAgent);
+			view(name, 'height').assign(ui.size.height - me.titleBarHeight + 2 * me.dialogBorderWidth, root.scope, Symbol.hciAgent);
 
 			var xSym = view(name, "x");
 			if (xSym.value() != ui.position.left) {
-				xSym.assign(ui.position.left, Symbol.hciAgent);
+				xSym.assign(ui.position.left, eden.root.scope, Symbol.hciAgent);
 			}
 			var ySym = view(name, "y");
 			var possibleNewY = ui.position.top - desktopTop;
 			if (ySym.value() != possibleNewY) {
-				ySym.assign(possibleNewY, Symbol.hciAgent);
+				ySym.assign(possibleNewY, eden.root.scope, Symbol.hciAgent);
 			}
 			root.endAutocalcOff();
 		});
 		diag.on("dialogdragstop", function (event, ui) {
 			var root = me.eden.root;
 			root.beginAutocalcOff();
-			view(name, 'x').assign(ui.position.left, Symbol.hciAgent);
-			view(name, 'y').assign(ui.position.top - desktopTop, Symbol.hciAgent);
+			view(name, 'x').assign(ui.position.left, eden.root.scope, Symbol.hciAgent);
+			view(name, 'y').assign(ui.position.top - desktopTop, eden.root.scope, Symbol.hciAgent);
 			root.endAutocalcOff();
 		});
 
@@ -297,7 +297,9 @@
 			return;
 		}
 		this.viewInstances[name].closing = true;
-		root.lookup("forgetAll").definition(root)("^_[vV]iew_" + name + "_", true, false, true);
+
+		root.lookup("forgetAll").definition(root, root.scope)("^_[vV]iew_" + name + "_", true, false, true);
+
 		if (this.viewInstances[name].destroy) {
 			//Call clean-up handler.
 			this.viewInstances[name].destroy();
@@ -319,7 +321,7 @@
 			} else {
 				newViewList = viewList.slice(0, index).concat(viewList.slice(index + 1));
 			}
-			viewListSym.assign(newViewList);
+			viewListSym.assign(newViewList, eden.root.scope);
 		}
 		
 		this.emit('destroyView', [name]);

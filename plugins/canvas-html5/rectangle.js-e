@@ -38,6 +38,7 @@ func Rectangle { ${{
 	if (fillcolour === undefined && outlinecolour === undefined) {
 		outlinecolour = "black";
 	}
+
 	if (drawingOptions !== undefined) {
 		if (!("join" in drawingOptions) && drawingOptions.lineWidth < 10) {
 			//Bug in Chrome v44, shape isn't drawn when miter join is used with larger line widths.
@@ -46,7 +47,7 @@ func Rectangle { ${{
 		if (eden.isValidIdentifier(drawingOptions.name)) {
 			var clickSym = root.lookup(drawingOptions.name + "_click");
 			if (clickSym.value() === undefined) {
-				clickSym.assign(false, root.lookup("Rectangle"));
+				clickSym.assign(false, root.scope, root.lookup("Rectangle"));
 			}
 		}
 	}

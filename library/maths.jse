@@ -426,7 +426,7 @@ func randomInteger {
 			return undefined;
 		}
 		
-		var n = Math.floor(root.lookup("random").definition(root)() * (upperBound - lowerBound + 1) + lowerBound);
+		var n = Math.floor(root.lookup("random").definition(root, root.scope)() * (upperBound - lowerBound + 1) + lowerBound);
 		if (n > upperBound) {
 			// 1 / 2^62 chance
 			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
@@ -482,7 +482,7 @@ func xorshiftRandomGenerator {
 		var stateSym = root.lookup("randomGeneratorState");
 		var lower = xorshift32Random(stateSym.value());
 		var upper = xorshift32Random(lower);
-		stateSym.assign(upper, root.lookup("xorshiftRandomGenerator"));
+		stateSym.assign(upper, root.scope, root.lookup("xorshiftRandomGenerator"));
 		upper = Math.abs(upper) * 4194304; // 2^22, 53 bits of precision in total
 		return (upper + Math.abs(lower)) / 9007199254740991; // 2^53 - 1
 	}}$;
@@ -495,13 +495,13 @@ ${{
 	window.inRandomFunc = false;
 
 	root.lookup("randomSeed").addJSObserver("applySeed", function (obs, seed) {
-		root.lookup("randomGeneratorState").assign(seed, obs);
-		root.lookup("randomIndex").assign(0, obs);
+		root.lookup("randomGeneratorState").assign(seed, root.scope, obs);
+		root.lookup("randomIndex").assign(0, root.scope, obs);
 	});
 
 	root.lookup("randomGenerator").addJSObserver("applySeed", function (obs, generator) {
-		root.lookup("randomGeneratorState").assign(root.lookup("randomSeed").value(), obs);		
-		root.lookup("randomIndex").assign(0, obs);
+		root.lookup("randomGeneratorState").assign(root.lookup("randomSeed").value(), root.scope, obs);		
+		root.lookup("randomIndex").assign(0, root.scope, obs);
 	});
 
 	root.lookup("randomIndex").addJSObserver("skipToIndex", function (obs, desiredIndex) {
@@ -510,7 +510,7 @@ ${{
 		}
 		inRandomFunc = true;
 		var generator = root.lookup("randomGenerator").value();
-		root.lookup("randomGeneratorState").assign(root.lookup("randomSeed").value(), obs);
+		root.lookup("randomGeneratorState").assign(root.lookup("randomSeed").value(), root.scope, obs);
 		for (var i = 0; i < desiredIndex; i++) {
 			generator();
 		}

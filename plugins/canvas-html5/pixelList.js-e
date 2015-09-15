@@ -60,7 +60,7 @@ func PixelList {
 		if (eden.isValidIdentifier(name)) {
 			var clickSym = root.lookup(name + "_click");
 			if (clickSym.value() === undefined) {
-				clickSym.assign(false, root.lookup("PixelList"));
+				clickSym.assign(false, root.scope, root.lookup("PixelList"));
 			}
 		}
 		return new PixelList(name, ptrToData, x, y, width);

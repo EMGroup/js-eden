@@ -131,6 +131,7 @@
 "("                   return '('
 ")"                   return ')'
 
+".."                  return '..'   
 "."                   return '.'
 "`"                   return '`'
 
@@ -175,7 +176,7 @@ script
     : statement-list-opt EOF
       {
 		var code = yy.code($1.cps, $1.code + ' root.collectGarbage();');
-		return '(function (root, eden, includePrefix, done) {' +
+		return '(function (root, eden, scope, includePrefix, done) {' +
                  '(function(context, rt) { ' +
                     yy.printObservableDeclarations() +
                     yy.withIncludes(code, 'done') +
@@ -309,7 +310,7 @@ expression
         { $$ = '' + $1 + ' || ' + $3; }
 
     | '{' expression ',' expression '}'
-        { $$ = "context.lookup('Point').value().call(this, " + $2 +"," + $4 +")" }
+        { $$ = "context.lookup('Point').value(scope).call(this, " + $2 +"," + $4 +")" }
 
     | expression '//' expression
         { $$ = 'rt.concat(' + $1 + ', ' + $3 + ')'; }
@@ -318,19 +319,19 @@ expression
     // assignment operators
     //
     | lvalue '=' expression
-        { $$ = $lvalue + '.assign(' + $expression + ', this).value()'; }
+        { $$ = $lvalue + '.assign(' + $expression + ', scope, this).value(scope)'; }
     | lvalue '+=' expression
-        { $$ = $lvalue + '.assign(' + $lvalue + '.value() + ' + $expression + ', this).value()'; }
+        { $$ = $lvalue + '.assign(' + $lvalue + '.value(scope) + ' + $expression + ', scope, this).value(scope)'; }
     | lvalue '-=' expression
-        { $$ = $lvalue + '.assign(' + $lvalue + '.value() - ' + $expression + ', this).value()'; }
+        { $$ = $lvalue + '.assign(' + $lvalue + '.value(scope) - ' + $expression + ', scope, this).value(scope)'; }
     | '++' lvalue
-        { $$ = $lvalue + '.assign(' + $lvalue + '.value() + 1, this).value()'; }
+        { $$ = $lvalue + '.assign(' + $lvalue + '.value(scope) + 1, scope, this).value(scope)'; }
     | lvalue '++'
-        { $$ = $lvalue + '.assign(' + $lvalue + '.value() + 1, this).value() - 1'; }
+        { $$ = $lvalue + '.assign(' + $lvalue + '.value(scope) + 1, scope, this).value(scope) - 1'; }
     | '--' lvalue
-        { $$ = $lvalue + '.assign(' + $lvalue + '.value() - 1, this).value()'; }
+        { $$ = $lvalue + '.assign(' + $lvalue + '.value(scope) - 1, scope, this).value(scope)'; }
     | lvalue '--'
-        { $$ = $lvalue + '.assign(' + $lvalue + '.value() - 1, this).value() + 1'; }
+        { $$ = $lvalue + '.assign(' + $lvalue + '.value(scope) - 1, scope, this).value(scope) + 1'; }
 
     //
     // ternary operator
@@ -463,11 +464,50 @@ pair
         { $$ = $1 + ': ' + $3; }
     ;
 
+scope-list-opt
+    : scope-list
+    |
+        { $$ = ""; }
+    ;
+
+scope-list
+    : scope-pair
+    | scope-pair ',' scope-list
+        { $$ = $1 + ', ' + $3; }
+    ;
+
+scope-pair
+    : OBSERVABLE '=' expression
+        { $$ = $1 + ': ' + $3; }
+    ;
+
+scoperange-list-opt
+    : scoperange-list
+    |
+        { $$ = ""; }
+    ;
+
+scoperange-list
+    : scoperange-pair
+    | scoperange-pair ',' scoperange-list
+        { $$ = $1 + ', ' + $3; }
+    ;
+
+scoperange-pair
+    : OBSERVABLE '=' expression '..' expression
+        { $$ = $1 + ': { begin: ' + $3 + ', end: ' + $5 + '}'; }
+	| scope-pair
+    ;
+
 primary-expression
     : lvalue
-        { $$ = $lvalue + '.value()'; }
+        { $$ = $lvalue + '.value(scope)'; }
     | lvalue '.' OBSERVABLE '(' expression-list-opt ')'
-        { $$ = $lvalue + '.value().' + $3 + '(' + $5 + ')'; }
+        { $$ = $lvalue + '.value(scope).' + $3 + '(' + $5 + ')'; }
+	| lvalue '{' scope-list-opt '}'
+		{ $$ = $1 + '.value(new Scope(context, scope, {' + $3 + '}, ' + $1 + '))'; }
+	| lvalue '{' scoperange-list-opt '}'
+		{ $$ = $1 + '.multiValue(context, scope, {' + $3 + '}, ' + $1 + ')'; }
     | primary-expression '(' expression-list-opt ')'
         { $$ = '' + $1 + '.call('+ ['this'].concat($3) + ')'; }
     | primary-expression '[' expression ']'
@@ -532,13 +572,13 @@ statement
     | AWAIT expression ';'
         { $$ = yy.async($expression); }
     | INSERT lvalue ',' expression ',' expression ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ' - 1, 0, ' + $expression2 + '); }, this);'); }
+        { $$ = yy.sync($lvalue + '.mutate(scope, function(s) { scope.lookup(s.name).value.splice(' + $expression1 + ' - 1, 0, ' + $expression2 + '); }, this);'); }
     | DELETE lvalue ',' expression ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ' - 1, 1); }, this);'); }
+        { $$ = yy.sync($lvalue + '.mutate(scope, function(s) { scope.lookup(s.name).value.splice(' + $expression1 + ' - 1, 1); }, this);'); }
     | APPEND lvalue ',' expression ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.push(' + $expression1 + '); }, this);'); }
+        { $$ = yy.sync($lvalue + '.mutate(scope, function(s) { scope.lookup(s.name).value.push(' + $expression1 + '); }, this);'); }
     | SHIFT lvalue ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.shift(); }, this);'); }
+        { $$ = yy.sync($lvalue + '.mutate(scope, function(s) { scope.lookup(s.name).value.shift(); }, this);'); }
     | CASE literal ':'
         { $$ = yy.sync('case ' + $literal + ': '); }
     | DEFAULT ':'
@@ -586,7 +626,7 @@ function-definition
         yy.paras.pop();
         yy.locals.pop();
 		yy.funcBodyDependencies.pop();
-        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context) { return " + $2 + "}, this," + subscribers + ").eden_definition = " + eden_definition + ";"); }
+        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context, scope) { return " + $2 + "}, this," + subscribers + ").eden_definition = " + eden_definition + ";"); }
     ;
 
 function-declarator
@@ -635,7 +675,7 @@ para-alias
 
 function-body
     : '{' para-alias-opt local-var-decl-list-opt statement-list-opt '}'
-        { $$ = 'function() { var argsa = []; for(var i=0; i<arguments.length; i++) argsa.push(arguments[i]); var args = new Symbol().assign(argsa); ' + $2 + ' ' + $3 + ' ' + $4.code + '}'; }
+        { $$ = 'function() { var argsa = []; for(var i=0; i<arguments.length; i++) argsa.push(arguments[i]); var args = new Symbol().assign(argsa, scope); ' + $2 + ' ' + $3 + ' ' + $4.code + '}'; }
     ;
 
 
@@ -647,7 +687,7 @@ action-specification
 		yy.paras.pop();
         yy.locals.pop();
 		yy.funcBodyDependencies.pop();
-        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context) { return " + $3 + "; }, this).observe(" + JSON.stringify($2) + ").eden_definition = " + eden_definition + ";");
+        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context, scope) { return " + $3 + "; }, this).observe(" + JSON.stringify($2) + ").eden_definition = " + eden_definition + ";");
         }
     ;
 
@@ -710,7 +750,7 @@ formula-definition
 
                yy.observable($1) +
                  ".define(" +
-                   "function(context) { var _this = " + yy.observable($1) + "; return " + $3 + "; }," +
+                   "function(context, scope) { var _this = " + yy.observable($1) + "; return " + $3 + "; }," +
                    "this, " +
                    JSON.stringify(yy.getDependencies()) +
                  ")" +

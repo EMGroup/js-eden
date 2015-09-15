@@ -34,6 +34,122 @@
 		return value;
 	}
 
+	function ScopeCache(up_to_date, value) {
+		this.up_to_date = up_to_date;
+		this.value = value;
+	}
+
+
+	function Scope(context, parent, overrides, cause) {
+		this.parent = parent;
+		this.context = context;
+		this.cache = {};
+		this.overrides = overrides;
+
+		if (cause) {
+			this.add(cause.name);
+		}
+
+		//console.log("New scope");
+
+		/* Process the overrides */
+		for (var override in overrides) {
+			this.addOverride(override, overrides[override]);
+		}
+	}
+
+	Scope.prototype.lookup = function(name) {
+		var symcache = this.cache[name];
+		if (symcache) {
+			return symcache;
+		} else {
+			if (this.parent) {
+				return this.parent.lookup(name);
+			} else {
+				//console.log("Symbol without cache: " + name);
+				this.cache[name] = new ScopeCache(true, undefined);
+				return this.cache[name];
+			}
+		}
+	}
+
+	/*Scope.prototype.lookup2 = function(name) {
+		var symcache = this.cache[name];
+		if (symcache !== undefined) {
+			return {context: this.context, cache: symcache};
+		} else {
+			if (this.parent) {
+				return this.parent.lookup2(name);
+			} else {
+				console.trace("Symbol without cache: " + name);
+				this.cache[name] = {value: undefined, up_to_date: true};
+				return {context: this.context, cache: this.cache[name]};
+			}
+		}
+	}*/
+
+	Scope.prototype.add = function(name) {
+		var cache = new ScopeCache( false, undefined );
+		this.cache[name] = cache;
+		return cache;
+	}
+
+	Scope.prototype.addOverride = function(name, value) {
+		//console.log("Add override: " + name + " = " + value);
+		this.cache["/"+name] = new ScopeCache( true, value );
+
+		if (this.context) {
+			var sym = this.context.lookup(name);
+			//console.log(sym);
+			for (var d in sym.subscribers) {
+				this.addSubscriber(d);
+			}
+		}
+	}
+
+	Scope.prototype.addSubscriber = function(name) {
+		//console.log("Adding scope subscriber...: " + name);
+		this.cache[name] = new ScopeCache( false, undefined );
+		var sym = this.context.lookup(name.substr(1));
+		for (var d in sym.subscribers) {
+			this.addSubscriber(d);
+		}
+	}
+
+	/*Scope.prototype.assign = function(name, value, modifying_agent, pushToNetwork) {
+		var data = this.lookup2("/" + name);
+
+		value = copy(value);
+
+		if (name === "autocalc") {
+			
+			if (value === true) {
+				value = 1;
+			} else if (value === false) {
+				value = 0;
+			}
+			data.context && data.context.autocalc(value === 1);
+		}
+
+		var sym = undefined;
+		if (data.context) {
+			sym = data.context.lookup(name);
+
+			if (pushToNetwork) {
+				eden.emit("beforeAssign", [sym, value, modifying_agent]);
+			}
+
+			sym.assigned(modifying_agent);
+		}
+
+		data.cache.value = value;
+		data.cache.up_to_date = true;
+
+		if (data.context) {
+			data.context.expireSymbol(sym);
+		}
+	}*/
+
 	/**
 	 * A maintainer of definitions
 	 *
@@ -61,6 +177,8 @@
 		 * @private
 		 */
 		this.root = root || this;
+
+		this.scope = new Scope(this, undefined, {});
 
 		/**
 		 * @type {Object.<string, Symbol>}
@@ -263,6 +381,17 @@
 		fireJSActions(symbols_to_force);
 	};
 
+	function makeRandomName()
+	{
+		var text = "";
+		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+		for( var i=0; i < 10; i++ )
+		    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+		return text;
+	}
+
 
 	/**
 	 * A symbol table entry.
@@ -284,11 +413,18 @@
 		 */
 		this.name = name;
 
+		// MUST HAVE A NAME
+		if (this.name === undefined) {
+			this.name = makeRandomName();
+		}
+
+		this.cache = (context) ? context.scope.add(name) : new ScopeCache( true, undefined );
+
 		this.definition = undefined;
 		this.eden_definition = undefined;
-		this.cached_value = undefined;
+		//this.cached_value = undefined;
 		this.evalResolved = true;
-		this.up_to_date = false;
+		//this.up_to_date = false;
 
 		// need to keep track of who we subscribe to so
 		// that we can unsubscribe from them when our definition changes
@@ -333,14 +469,51 @@
 	 *
 	 * @return {*}
 	 */
-	Symbol.prototype.value = function () {
+	Symbol.prototype.value = function (pscope) {
+		var scope = pscope;
 		this.garbage = false;
+
+		if (scope === undefined) scope = this.context.scope;
+
+		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
+
 		if (this.definition) {
-			if (!this.up_to_date) {
-				this.evaluate();
+			if (!cache.up_to_date) {
+				this.evaluate(scope, cache);
 			}
 		}
-		return this.cached_value;
+		return cache.value;
+	};
+
+	Symbol.prototype.multiValue = function (context, scope, overrides, cause) {
+		var hasrange = false;
+		var results = [];
+
+		for (var o in overrides) {
+			var override = overrides[o];
+			if (typeof override == "object" && override.begin) {
+				hasrange = true;
+				for (var i = override.begin; i <= override.end; i++) {
+					overrides[o] = i;
+					var res = this.multiValue(context, scope, overrides, cause);
+					if (res !== undefined) {
+						results.push.apply(results, res);
+					}
+				}
+				overrides[o] = override;
+				break;
+			}
+		}
+
+		if (hasrange == false) {
+			var val = this.value(new Scope(context, scope, overrides, cause));
+			if (val !== undefined) {
+				return [val];
+			}
+			return undefined;
+		} else {
+			return results;
+		}
 	};
 
 	Symbol.prototype.evaluateIfDependenciesExist = function () {
@@ -351,13 +524,13 @@
 				return;
 			}
 		}
-		this.evaluate();
+		this.evaluate(this.context.scope, this.context.scope.lookup(this.name));
 	};
 
-	Symbol.prototype.evaluate = function () {
+	Symbol.prototype.evaluate = function (scope, cache) {
 		try {
-			this.cached_value = copy(this.definition(this.context));
-			this.up_to_date = true;
+			cache.value = copy(this.definition(this.context, scope));
+			cache.up_to_date = true;
 			if (!this.evalResolved) {
 				var replacedDef = this.eden_definition;
 				//Replace eval() in EDEN definition with the actual value.
@@ -387,8 +560,8 @@
 				this.evalResolved = true;
 			}
 		} catch (e) {
-			this.cached_value = undefined;
-			this.up_to_date = false;
+			cache.value = undefined;
+			cache.up_to_date = false;
 		}
 	};
 
@@ -415,10 +588,12 @@
 			var dependency = dependencies[i];
 			var symbol = this.context.lookup(dependency);
 
-			symbol.addSubscriber(this.name, this);
-			var name = symbol.name;
-			this.dependencies[name] = symbol;
-			delete this.dynamicDependencies[name];
+			if (symbol.name != this.name) {
+				symbol.addSubscriber(this.name, this);
+				var name = symbol.name;
+				this.dependencies[name] = symbol;
+				delete this.dynamicDependencies[name];
+			}
 		}
 
 		return this;
@@ -543,7 +718,7 @@
 	 * @param {Symbol} modifying_agent
 	 * @param {boolean} pushToNetwork
 	 */
-	Symbol.prototype.assign = function (value, modifying_agent, pushToNetwork) {
+	Symbol.prototype.assign = function (value, scope, modifying_agent, pushToNetwork) {
 		this.garbage = false;
 		value = copy(value);
 		if (pushToNetwork) {
@@ -564,8 +739,11 @@
 		this.evalResolved = true;
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = undefined;
-		this.cached_value = value;
-		this.up_to_date = true;
+
+		//if (this.context) {
+		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
+		cache.value = value;
+		cache.up_to_date = true;
 
 		// symbol no longer observes or depends on anything
 		this.clearObservees();
@@ -578,15 +756,41 @@
 		return this;
 	};
 
+	/**
+	 * Change the current value of this symbol and notify.
+	 *
+	 * If this is called from within JavaScript code that is initiated in some way other than via the
+	 * input window (e.g. mouse movement events) then the third parameter must be set to true to
+	 * ensure that the change gets propagated to other networked instances of JS-EDEN.
+	 *
+	 * @param {*} value
+	 * @param {Symbol} modifying_agent
+	 * @param {boolean} pushToNetwork
+	 */
+	Symbol.prototype.assigned = function (modifying_agent) {
+		this.garbage = false;
+		this.eden_definition = undefined;
+		this.clearEvalIDs();
+		this.evalResolved = true;
+		this._setLastModifiedBy(modifying_agent);
+		this.definition = undefined;
+
+		// symbol no longer observes or depends on anything
+		this.clearObservees();
+		this.clearDependencies();
+
+		return this;
+	};
+
 	/**Makes a JavaScript function appear in the Function List view, rather than instead appearing
 	 * as a function typed observable, as it otherwise would using assign.
 	 * @param {function} f The function to assign.
 	 * @param {Symbol} agent The modifying agent.
 	 */
 	Symbol.prototype.assignFunction = function (f, agent) {
-		this.assign(f, agent);
+		this.assign(f, this.context.scope, agent);
 		this.eden_definition = "func " + this.name.slice(1);
-		this.definition = function (context) { return f; }
+		this.definition = function (context, scope) { return f; }
 	}
 
 	/**
@@ -596,14 +800,14 @@
 	 * @param {Symbol} modifying_agent
 	 * @param {...*} mutatorArgs args to be passed to the mutator function.
 	 */
-	Symbol.prototype.mutate = function (mutator, modifying_agent, mutatorArgs) {
+	Symbol.prototype.mutate = function (scope, mutator, modifying_agent, mutatorArgs) {
 		this.garbage = false;
 		var me = this;
 		this._setLastModifiedBy(modifying_agent);
 
 		// need to make sure the cached value exists before mutation
 		// which is allowed to refer to the cached value.
-		this.value();
+		this.value(scope);
 		this.definition = undefined;
 
 		var args = [];
@@ -680,12 +884,12 @@
 	Symbol.prototype.fireJSObservers = function () {
 		for (var jsObserverName in this.jsObservers) {
 			try {
-				this.jsObservers[jsObserverName](this, this.cached_value);
+				this.jsObservers[jsObserverName](this, this.cache.value);
 			} catch (error) {
 				this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
 				var debug;
 				if (this.context) {
-					var debugOptions = this.context.lookup("debug").cached_value;
+					var debugOptions = this.cache.value;
 					debug = typeof(debugOptions) == "object" && debugOptions.jsExceptions;
 				} else {
 					debug = false;
@@ -705,7 +909,7 @@
 	 */
 	Symbol.prototype.expire = function (symbols_to_force, actions_to_fire) {
 		if (this.definition) {
-			this.up_to_date = false;
+			this.cache.up_to_date = false;
 			symbols_to_force.push(this);
 		}
 
@@ -780,7 +984,9 @@
 	Symbol.prototype.addSubscriber = function (name, symbol) {
 		this.garbage = false;
 		this.assertNotDependentOn(name);
-		this.subscribers[name] = symbol;
+		//if (symbol.name != this.name) {
+			this.subscribers[name] = symbol;
+		//}
 	};
 
 	/**
@@ -810,8 +1016,8 @@
 		this.clearEvalIDs();
 		this.evalResolved = true;
 		this.definition = undefined;
-		this.cached_value = undefined;
-		this.up_to_date = true;
+		this.cache.value = undefined;
+		this.cache.up_to_date = true;
 		this.clearObservees();
 		this.clearDependencies();
 		this.jsObservers = {};
@@ -937,15 +1143,15 @@
 	 * @param {*} value The value to assign.
 	 * @param {Symbol} modifying_agent The agent responsible for the modification.
 	 */
-	SymbolAccessor.prototype.assign = function (value, modifying_agent, pushToNetwork) {
+	SymbolAccessor.prototype.assign = function (value, scope, modifying_agent, pushToNetwork) {
 		this.symbol.garbage = false;
 		value = copy(value);
 		var me = this;
 		if (pushToNetwork) {
 			eden.emit("beforeAssign", [this, value, modifying_agent]);
 		}
-		this.parent.mutate(function (symbol, modifying_agent) {
-			var list = symbol.value();
+		this.parent.mutate(scope, function (symbol, modifying_agent) {
+			var list = symbol.value(scope);
 			for (var i = 0; i < me.keys.length - 1; ++i) {
 				list = list[me.keys[i]];
 			}
@@ -957,9 +1163,9 @@
 	/**
 	 * @return {*} The current value for this part of the parent Symbol.
 	 */
-	SymbolAccessor.prototype.value = function () {
+	SymbolAccessor.prototype.value = function (scope) {
 		this.symbol.garbage = false;
-		var value = this.parent.value();
+		var value = this.parent.value(scope);
 		for (var i = 0; i < this.keys.length; ++i) {
 			value = value[this.keys[i]];
 		}
@@ -984,6 +1190,7 @@
 	// expose API
 	global.Folder = Folder;
 	global.Symbol = Symbol;
+	global.Scope = Scope;
 	
 	// expose as node.js module
 	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {

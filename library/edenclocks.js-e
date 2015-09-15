@@ -30,7 +30,7 @@ ${{
 		if (Array.isArray(clocks)) {
 			var incrementClock = function (symbol) {
 				if (!pausedSym.cached_value) {
-					symbol.assign(symbol.cached_value + 1, edenclocks);
+					symbol.assign(symbol.cached_value + 1, root.scope, edenclocks);
 					if (debugSym.cached_value.edenclocks) {
 						console.log("edenclocks: clock " + symbol.name);
 					}
@@ -50,7 +50,7 @@ ${{
 				} else {
 					var currentValue = target.value();
 					if (currentValue === undefined) {
-						target.assign(0, edenclocks);
+						target.assign(0, root.scope, edenclocks);
 						return window.setInterval(incrementClock, interval, target);
 					} else if (typeof(currentValue) == "number") {
 						return window.setInterval(incrementClock, interval, target);					

@@ -441,7 +441,7 @@ function concatAndResolveUrl(url, concat) {
 				if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
 					this.initialDefinitions[name] = symbol.eden_definition + ";";
 				} else {
-					this.initialDefinitions[name] = name + " = " + Eden.edenCodeForValue(symbol.cached_value) + ";";
+					this.initialDefinitions[name] = name + " = " + Eden.edenCodeForValue(symbol.context.scope.lookup(symbol.name).value) + ";";
 				}
 			}
 		}
@@ -458,7 +458,7 @@ function concatAndResolveUrl(url, concat) {
 	}
 
 	Eden.prototype.reset = function () {
-		this.root.lookup("forgetAll").definition(root)("", true, false);
+		this.root.lookup("forgetAll").definition(root, root.scope)("", true, false);
 		this.root.collectGarbage();
 		this.errorNumber = 0;
 		this.inInitialState = true;
@@ -505,17 +505,17 @@ function concatAndResolveUrl(url, concat) {
 		var result;
 		var me = this;
 		this.emit('executeBegin', [origin, code]);
-		try {
+		//try {
 			var js = this.translateToJavaScript(code);
 			this.inInitialState = false;
-			eval(js).call(agent, this.root, this, prefix, function () {
+			eval(js).call(agent, this.root, this, this.root.scope, prefix, function () {
 				success && success();
 				me.emit('executeEnd', [origin]);
 			});
-		} catch (e) {
-			this.error(e);
+		//} catch (e) {
+		//	this.error(e);
 			success && success();
-		}
+		//}
 	};
 
 	/**
@@ -1224,7 +1224,7 @@ function concatAndResolveUrl(url, concat) {
 		if (symbol.eden_definition) {
 			return symbol.eden_definition + ";";
 		} else {
-			return name + " = " + symbol.cached_value + ";";
+			return name + " = " + symbol.context.scope.lookup(symbol.name).value + ";";
 		}
 	};
 

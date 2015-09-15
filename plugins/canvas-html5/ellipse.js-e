@@ -42,7 +42,7 @@ func Ellipse { ${{
 	if (drawingOptions !== undefined && eden.isValidIdentifier(drawingOptions.name)) {
 		var clickSym = root.lookup(drawingOptions.name + "_click");
 		if (clickSym.value() === undefined) {
-			clickSym.assign(false, root.lookup("Ellipse"));
+			clickSym.assign(false, root.scope, root.lookup("Ellipse"));
 		}
 	}
 	return new Ellipse(x, y, xradius, yradius, fillcolour, outlinecolour, drawingOptions);
