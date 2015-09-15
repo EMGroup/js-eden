@@ -319,6 +319,7 @@ EdenAST_Switch.prototype.error = fnEdenAST_error;
 function EdenAST_FunctionCall() {
 	this.type = "functioncall";
 	this.errors = [];
+	this.lvalue = undefined;
 	this.params = undefined;
 };
 
@@ -326,6 +327,13 @@ EdenAST_FunctionCall.prototype.setParams = function(params) {
 	this.params = params;
 	for (var i = 0; i < params.length; i++) {
 		this.errors.push.apply(this.errors, params[i].errors);
+	}
+};
+
+EdenAST_FunctionCall.prototype.left = function(lvalue) {
+	this.lvalue = lvalue;
+	if (lvalue.errors.length > 0) {
+		this.errors.push.apply(this.errors, lvalue.errors);
 	}
 };
 

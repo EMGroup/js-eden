@@ -81,7 +81,8 @@ STATEMENT''	->
 	*= EXPRESSION |
 	~> [OLIST] |
 	++ |
-	--
+	--|
+	( ELIST )
 
 LVALUE		-> observable LVALUE'																FIRST: observable
 LVALUE'		-> [ EXPRESSION ] LVALUE' | . observable LVALUE' | epsilon							FIRST: [ . epsilon

@@ -1058,7 +1058,8 @@ EdenAST.prototype.pLVALUE = function() {
  *	/= EXPRESSION |
  *	*= EXPRESSION |
  *	++ |
- *	--
+ *	-- |
+ *  ( ELIST )
  */
 EdenAST.prototype.pSTATEMENT_PP = function() {
 	if (this.token == "is") {
@@ -1107,6 +1108,22 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
 	} else if (this.token == "--") {
 		this.next();
 		return new EdenAST_Modify("--", undefined);
+	} else if (this.token == "(") {
+		var fcall = new EdenAST_FunctionCall();
+		this.next();
+
+		if (this.token != ")") {
+			fcall.setParams(this.pELIST());
+			if (fcall.errors.length > 0) return fcall;
+
+			if (this.token != ")") {
+				fcall.error(new EdenError(this, EDEN_ERROR_FUNCCLOSE));
+				return fcall;
+			}
+		}
+
+		this.next();
+		return fcall;
 	}
 
 	var errors = [];

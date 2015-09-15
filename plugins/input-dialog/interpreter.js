@@ -221,7 +221,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
 				axis: 'x',
 				drag: function(e,u) {
-					var newval = Math.round(dragvalue + ((u.position.left - dragstart) / 5));
+					var newval = Math.round(dragvalue + ((u.position.left - dragstart) / 2));
 					if (newval != draglast) {
 						draglast = newval;
 						e.target.innerHTML = "" + newval;
@@ -239,6 +239,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					console.log("Drag value: " + e.target.innerText);
 					dragvalue = parseInt(e.target.innerText);
 					draglast = dragvalue;
+					$(e.target).addClass("eden-select");
+					$(textarea).css("cursor","ew-resize");
+				},
+				stop: function(e,u) {
+					$(e.target).removeClass("eden-select");
+					$(textarea).css("cursor","text");
 				},
 				cursor: 'move',
 				cursorAt: {top: -5, left: -5}
@@ -261,6 +267,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (e.keyCode == 8) {
 					text = text.slice(0, position-1) + text.slice(position);
 					position--;
+				} else if (e.which == 9) {
+					e.preventDefault();
+					text = text.slice(0, position-1) + "    " + text.slice(position);
+				} else if (e.keyCode == 13) {
+					position++;
 				}
 
 				highlightContent(text,position);
@@ -279,6 +290,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 			}
 			//textarea.innerHTML += String.fromCharCode(e.keyCode);
+		}).on('click', '.inputcontent', function(e) {
+			highlightContent(textarea.innerText, getCaretCharacterOffsetWithin(textarea));
 		}).on('click', '.submitButton', function (e) {
 			me.submit(textarea);
 		}).on('click', '.previousButton', function (e) {
