@@ -45,7 +45,7 @@ var EDEN_ERROR_APPENDCOMMA = 40;
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
 	{	messages: {
-			keyword: "'proc' names can't be keywords",
+			keyword: "'proc' names cannot be keywords",
 			operator: "'proc' actions need a name",
 			bracket: "'proc' actions need a name"},
 		suggestion: {expected: ["OBSERVABLE"], next: [":"]}
@@ -76,7 +76,7 @@ var eden_error_db = [
 	},
 /* EDEN_ERROR_ACTIONNOWATCH */
 	{	messages: {
-			keyword: "A reserved word can't be used as an observable name",
+			keyword: "A reserved word cannot be used as an observable name",
 			operator: "Umm, ask for some help",
 			openbracket: "There needs to be at least one watch observable"},
 		suggestion: {expected: ["OBSERVABLE"], next: [",","{"]}
@@ -92,7 +92,7 @@ var eden_error_db = [
 		messages: [
 			"Either too many ','s or a missing watch observable",
 			"Must give an observable name, not an expression",
-			"The reserved word '%R' can't be used as an observable name",
+			"The reserved word '%R' cannot be used as an observable name",
 			"Expecting an observable name but got %T"
 		],
 		suggestion: {expected: ["OBSERVABLE"], next: [",","{"]}
@@ -144,8 +144,8 @@ var eden_error_db = [
 	},
 /* EDEN_ERROR_LOCALNAME */
 	{	messages: {
-			keyword: "Reserved words can't be used as local variable names",
-			operator: "'local' can't be used as an observable name",
+			keyword: "Reserved words cannot be used as local variable names",
+			operator: "'local' cannot be used as an observable name",
 			bracket: "Unexpected bracket, expected a local variable name"},
 		suggestion: {expected: ["OBSERVABLE"], next: [";"]}
 	},
@@ -465,6 +465,11 @@ EdenError.prototype.buildSuggestion = function() {
 				+ this.extractAfter(10);
 	}
 };
+
+EdenError.prototype.messageText = function() {
+	var err = eden_error_db[this.errno];
+	return (err.message) ? err.messages[err.message.call(this)] : err.messages[this.context.stream.tokenType(this.token)];
+}
 
 EdenError.prototype.prettyPrint = function() {
 	// Move stream to correct location

@@ -210,7 +210,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (!e.ctrlKey && (e.keyCode < 37 || e.keyCode > 40)) {
 				text = textarea.innerText;
 
-				console.log("Key: " + e.keyCode);
+				//console.log("Key: " + e.keyCode);
 
 				var position = getCaretCharacterOffsetWithin(textarea);
 
@@ -220,7 +220,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 
 				var stream = new EdenHighlight(text);
-				var high = stream.highlight();
+				var high = stream.highlight(position);
 				textarea.innerHTML = high;
 
 				setSelectionRange(textarea, position, position);
@@ -266,14 +266,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	this.next = function (el) {
 		var n = edenUI.plugins.ScriptInput.nextHistory();
 		var stream = new EdenHighlight(n);
-		var high = stream.highlight();
+		var high = stream.highlight(0);
 		el.innerHTML = high;
 	};
 
 	this.prev = function (el) {
 		var p = edenUI.plugins.ScriptInput.previousHistory();
 		var stream = new EdenHighlight(p);
-		var high = stream.highlight();
+		var high = stream.highlight(0);
 		el.innerHTML = high;
 	};
 

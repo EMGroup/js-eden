@@ -62,6 +62,10 @@ span.eden-storage {
 	color: #4e9a06;
 }
 
+span.eden-special {
+	color: #4e9a06;
+}
+
 span.eden-type {
 	font-weight: bold;
 	color: #204a87;
@@ -72,6 +76,7 @@ span.eden-function {
 }
 
 span.eden-comment {
+	font-style: italic;
 	color: #888a85;
 }
 
