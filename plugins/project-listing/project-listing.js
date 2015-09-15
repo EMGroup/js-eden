@@ -33,7 +33,16 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		defaultURL = "models/projects.json";
 	}
 
-	var instances = new Array();
+	var crossDomainTarget;
+	var crossDomainURL;
+	var crossDomainLoadAsRoot;
+	
+	this.loadCrossDomain = function (response) {
+		if (response.success) {
+			var json = JSON.parse(response.success)
+			crossDomainTarget.populateProjectData(json, crossDomainURL, crossDomainLoadAsRoot);
+		}
+	}
 
 	function ProjectListProjects() {
 		this.json = {projects: []};
@@ -44,28 +53,43 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 	ProjectListProjects.prototype.loadProjectData = function (url, asRoot) {
 		//Get a list of projects from the server.
 		var me = this;
-		$.ajax({
-			url: url,
-			dataType: 'json',
-			success: function (data) {
-				me.json = data;
-				if (asRoot) {
-					me.rootURL = url;
-					me.atRoot = true;
-				} else {
-					me.atRoot = url == me.rootURL;
-					if (!me.atRoot) {
-						var rootProject = {
-							name: "Return to main list",
-							projects: me.rootURL
-						};
-						me.json.projects.push(rootProject);
-					}
-				}
-				me.updateCollection("");
-			},
-			cache: false
-		});
+		if (/^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(url)) {
+			//Absolute URL.  Might be cross-domain.  Use JSONP.
+			crossDomainTarget = this;
+			crossDomainURL = url;
+			crossDomainLoadAsRoot = asRoot;
+			$.ajax({
+				url: rt.config.proxyBaseURL + "?url=" + url + "&callback=edenUI.plugins.ProjectList.loadCrossDomain",
+				dataType: "script",
+			});
+		} else {
+			$.ajax({
+				url: url,
+				dataType: "json",
+				success: function (data) {
+					me.populateProjectData(data, url, asRoot);
+				},
+				cache: false
+			});
+		}
+	};
+	
+	ProjectListProjects.prototype.populateProjectData = function (data, url, asRoot) {
+		this.json = data;
+		if (asRoot) {
+			this.rootURL = url;
+			this.atRoot = true;
+		} else {
+			this.atRoot = url == this.rootURL;
+			if (!this.atRoot) {
+				var rootProject = {
+					name: "Return to main list",
+					projects: this.rootURL
+				};
+				this.json.projects.push(rootProject);
+			}
+		}
+		this.updateCollection("");
 	};
 	
 	function openProject(url) {
@@ -249,7 +273,6 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 		instance.element = content.get(0);
 		instance.loadProjectData(url, true);
-		instances.push(instance);
 		return {data: instance};
 	};
 

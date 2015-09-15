@@ -524,7 +524,7 @@ if (typeof window !== "undefined") {
 
 	test("@browser include jse different host", function () {
 		rt.config = {
-			"jseProxyBaseUrl": "http://stormy-peak-6294.herokuapp.com/"
+			"proxyBaseURL": "http://stormy-peak-6294.herokuapp.com/"
 		};
 		eden.execute('include("https://gist.githubusercontent.com/itsmonktastic/29997e30182295a5dbc8/raw/d6cfa96eb2eae3f6dddc1b86f6ee04eb65b24b01/test.jse");', function () {
 			equal(root.lookup('x').value(), 9001);
