@@ -5,6 +5,16 @@
  * See LICENSE.txt
  */
 
+//data types
+Point = function(x, y) {
+  this.x = x;
+  this.y = y;
+}
+Point.prototype.toString = function() {
+  return "{" + Eden.edenCodeForValue(this.x) + ", " + Eden.edenCodeForValue(this.y) + "}";
+};
+Point.prototype.getEdenCode = Point.prototype.toString;
+
 // functions to act in the same way as EDEN operators
 var rt = {
 	length: function (value) {
