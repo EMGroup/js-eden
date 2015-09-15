@@ -203,28 +203,28 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createDialog = function (name, mtitle) {
-		var $dialogContents = $('<div class="inputCodeArea"><code spellcheck="false" contenteditable tabindex="1" class="inputcontent"></code></div><div class="subButtonsDiv"><button class="submitButton">Submit</button></div><div class="buttonsDiv"><button class="previousButton">Previous</button><button class="nextButton">Next</button></div>')
+		var $dialogContents = $('<div class="inputCodeArea"><div spellcheck="false" contenteditable tabindex="1" class="inputcontent"></div></div><div class="subButtonsDiv"><button class="submitButton">Submit</button></div><div class="buttonsDiv"><button class="previousButton">Previous</button><button class="nextButton">Next</button></div>')
 		var text = "";	
 		var textarea = $dialogContents.find('.inputcontent').get(0);
 		$dialogContents.on('keyup', '.inputcontent', function (e) {
-			if (!e.ctrlKey) {
+			if (!e.ctrlKey && (e.keyCode < 37 || e.keyCode > 40)) {
 				text = textarea.innerText;
 
-				//console.log("Key: " + e.keyCode);
+				console.log("Key: " + e.keyCode);
 
 				var position = getCaretCharacterOffsetWithin(textarea);
 
 				if (e.keyCode == 8) {
-					text = text.slice(0, position-1) + text.slice(position,0);
+					text = text.slice(0, position-1) + text.slice(position);
 					position--;
 				}
 
-				var stream = new EdenStream(text);
+				var stream = new EdenHighlight(text);
 				var high = stream.highlight();
 				textarea.innerHTML = high;
 
 				setSelectionRange(textarea, position, position);
-			} else {
+			} else if (e.ctrlKey) {
 				console.log(e);
 
 				if (e.keyCode === 13){
@@ -265,12 +265,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 	this.next = function (el) {
 		var n = edenUI.plugins.ScriptInput.nextHistory();
-		el.innerText = n;
+		var stream = new EdenHighlight(n);
+		var high = stream.highlight();
+		el.innerHTML = high;
 	};
 
 	this.prev = function (el) {
 		var p = edenUI.plugins.ScriptInput.previousHistory();
-		el.innerText = p;
+		var stream = new EdenHighlight(p);
+		var high = stream.highlight();
+		el.innerHTML = high;
 	};
 
 	this.submit = function (el) {

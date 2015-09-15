@@ -69,6 +69,14 @@ EdenStream.prototype.move = function(pos) {
 	this.position = pos;
 };
 
+
+EdenStream.prototype.reset = function() {
+	this.position = 0;
+	this.position_stack = [0];
+	this.prevposition = 0;
+	this.line = 1;
+}
+
 /**
  * Is the stream at the beginning or end of a line.
  */
@@ -395,82 +403,6 @@ EdenStream.prototype.readToken = function() {
 	return "INVALID";
 };
 
-
-var edenFunctions = {
-"int": true,
-"str": true,
-"round": true
-};
-
-var edenTypes = {
-"HTMLImage": true,
-"Text": true
-};
-
-
-/**
- * Generate a syntax highlighted version of the stream.
- */
-EdenStream.prototype.highlight = function() {
-	var result = "";
-
-	while (this.valid()) {
-		// Skip but preserve white space
-		while (this.valid()) {
-			var ch= this.peek();
-			//if (ch == 10) this.line++;
-			if (ch == 9 || ch == 10 || ch == 13 || ch == 32 || ch == 160) {
-				this.skip();
-				//if (ch == 10) {
-				//	result += "<br/>";
-				if (ch == 32 || ch == 160) {
-					result += "&nbsp;";
-				} else {
-					result += String.fromCharCode(ch);
-				}
-			} else {
-				break;
-			}
-		}
-
-		var token = this.readToken();
-		var type = this.tokenType(token);
-		if (token == "EOF") {
-			break;
-		}
-		if (token == "INVALID") {
-			console.log("INVALID: " + this.peek());
-			this.skip();
-			continue;
-		}
-		if (token == "##") {
-			result += "<span class='eden-comment'>##";
-			while (this.valid() && this.peek() != 10) {
-				result += String.fromCharCode(this.get());
-			}
-			result += "</span>";
-		} else if (token == "local" || token == "auto" || token == "para") {
-			result += "<span class='eden-storage'>" + token + "</span>";
-		} else if (type == "keyword") {
-			result += "<span class='eden-keyword'>" + token + "</span>";
-		} else if (token == "NUMBER") {
-			result += "<span class='eden-number'>" + this.data.value + "</span>";
-		} else if (token == "STRING") {
-			result += "<span class='eden-string'>\"" + this.data.value + "\"</span>";
-		} else if (token == "OBSERVABLE") {
-			if (edenFunctions[this.data.value]) {
-				result += "<span class='eden-function'>" + this.data.value + "</span>";
-			} else if (edenTypes[this.data.value]) {
-				result += "<span class='eden-type'>" + this.data.value + "</span>";
-			} else {
-				result += "<span class='eden-observable'>" + this.data.value + "</span>";
-			}
-		} else {
-			result += "<span class='eden-operator'>" + token + "</span>";
-		}
-	}
-	return result;
-};
 
 
 function edenTokenTest(code) {

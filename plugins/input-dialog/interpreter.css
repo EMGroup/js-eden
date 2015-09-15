@@ -11,6 +11,7 @@
 	border: 1px solid blue;
 	font-family: monospace;
 	font-size: 14px;
+	padding: 5px;
 }
 
 .inputcontent {
@@ -21,6 +22,7 @@
 	padding: 0;
 	cursor: text;
 	white-space: pre;
+	overflow: scroll;
 }
 
 .buttonsDiv {
@@ -52,31 +54,36 @@
 
 span.eden-keyword {
 	font-weight: bold;
-	color: red;
+	color: #a40000;
 }
 
 span.eden-storage {
 	font-weight: bold;
-	color: green;
+	color: #4e9a06;
 }
 
 span.eden-type {
 	font-weight: bold;
-	color: blue;
+	color: #204a87;
 }
 
 span.eden-function {
-	color: orange;
+	color: #ce5c00;
 }
 
 span.eden-comment {
-	color: silver;
+	color: #888a85;
 }
 
 span.eden-number {
-	color: blue;
+	color: #3465a4;
 }
 
 span.eden-string {
-	color: red;
+	color: #cc0000;
+}
+
+span.eden-error {
+	background-color: #ffdcdc;
+	border-bottom: 1px solid red;
 }
