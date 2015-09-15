@@ -439,6 +439,9 @@
 		if (diagWindow.is(this.windowHighlighter.lastDialog)) {
 			return;
 		}
+		if (diag.dialogExtend("state") != "normal") {
+			return;
+		}
 		var diagElem = diag.get(0);
 		var tolerance = 0;
 		var topLeft = diagWindow.offset();
