@@ -110,6 +110,9 @@
 				var doClose = me.closeView(name);
 				root.collectGarbage();
 				return doClose;
+			},
+			focus: function () {
+				me.minimizeObscuredViews(name);
 			}
 		});
 		var dialogWindow = this.getDialogWindow(name);
@@ -417,6 +420,59 @@
 			dialog(name).dialogExtend('minimize');
 		}
 	};
+
+	/**
+	 * Prevents a window from becoming completely obscured by another window by minimizing the first
+	 * window so that appears in the minimized windows area instead of hidden behind the other window.
+	 *
+	 * This method is specific to the jQuery dialog UI implementation.  Other implementations are
+	 * not required to implement it.  It should not be called from outside of the jQuery UI implementation.
+	 *
+	 * @private
+	 */
+	EdenUI.prototype.minimizeObscuredViews = function (name) {
+		if (edenUI.getOptionValue("optHideOnMinimize") == "true") {
+			return;
+		}
+		var diag = dialog(name);
+		var diagWindow = diag.closest('.ui-dialog');
+		if (diagWindow.is(this.windowHighlighter.lastDialog)) {
+			return;
+		}
+		var diagElem = diag.get(0);
+		var tolerance = 0;
+		var topLeft = diagWindow.offset();
+		var left = topLeft.left;
+		var top = topLeft.top;
+		var width = diag.dialog("option", "width") + 2 * EdenUI.prototype.dialogBorderWidth;
+		var height = diag.dialog("option", "height") + 2 * EdenUI.prototype.dialogBorderWidth;
+		var pinned = diagWindow.hasClass("ui-front");
+
+		var dialogs = $(".ui-dialog-content");
+		for (var i = 0; i < dialogs.length; i++) {
+			var compareDialog = $(dialogs[i]);
+			if (dialogs[i] === diagElem || compareDialog.dialogExtend("state") != "normal") {
+				continue;
+			}
+			var compareWindow = compareDialog.closest('.ui-dialog');
+			if (compareWindow.hasClass("ui-front") && !pinned) {
+				continue;
+			}
+			var compareTopLeft = compareWindow.offset();
+			var compareLeft = compareTopLeft.left;
+			var compareTop = compareTopLeft.top;
+			var compareWidth = compareDialog.dialog("option", "width") + 2 * EdenUI.prototype.dialogBorderWidth;
+			var compareHeight = compareDialog.dialog("option", "height") + 2 * EdenUI.prototype.dialogBorderWidth;
+			
+			if (compareLeft >= left - tolerance &&
+				compareLeft + compareWidth <= left + width + tolerance &&
+				compareTop >= top - tolerance &&
+				compareTop + compareHeight <= top + height + tolerance
+			) {
+				compareDialog.dialogExtend('minimize');
+			}
+		}
+	}
 
 	/**
 	 * Move the window for a view base on its EDEN observables.

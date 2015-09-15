@@ -34,7 +34,7 @@ WindowHighlighter.prototype.stopHighlight = function (dialogName, unminimize) {
 		dialogContent.dialogExtend("minimize");
 	}
 
-	if (this.lastZIndex === undefined) {
+	if (this.previousZIndex === undefined) {
 		dialogContent.dialog("moveToTop");
 	} else {
 		this.lastDialog.css('z-index', this.previousZIndex);
