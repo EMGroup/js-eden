@@ -41,6 +41,9 @@ var EDEN_ERROR_CASECOLON = 37;
 var EDEN_ERROR_INSERTCOMMA = 38;
 var EDEN_ERROR_DELETECOMMA = 39;
 var EDEN_ERROR_APPENDCOMMA = 40;
+var EDEN_ERROR_SCOPENAME = 41;
+var EDEN_ERROR_SCOPEEQUALS = 42;
+var EDEN_ERROR_SCOPECLOSE = 43;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -401,6 +404,27 @@ var eden_error_db = [
 			"An 'append' operation takes 2 parts"
 		],
 		suggestion: {expected: [","], next: []}
+	},
+/* EDEN_ERROR_SCOPENAME */
+	{	message: function() { return 0; },
+		messages: [
+			"Expected an observable name for a scope override"
+		],
+		suggestion: {expected: ["OBSERVABLE"], next: []}
+	},
+/* EDEN_ERROR_SCOPEEQUALS */
+	{	message: function() { return 0; },
+		messages: [
+			"Missing an '=' in giving a scope override"
+		],
+		suggestion: {expected: ["="], next: []}
+	},
+/* EDEN_ERROR_SCOPECLOSE */
+	{	message: function() { return 0; },
+		messages: [
+			"Missing a closing '}' after scope"
+		],
+		suggestion: {expected: ["}"], next: []}
 	}
 ]
 

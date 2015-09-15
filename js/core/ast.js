@@ -28,6 +28,29 @@ EdenAST_Literal.prototype.error = fnEdenAST_error;
 
 //------------------------------------------------------------------------------
 
+function EdenAST_Scope() {
+	this.type = "scope";
+	this.errors = [];
+	this.overrides = {};
+}
+
+EdenAST_Scope.prototype.error = fnEdenAST_error;
+
+EdenAST_Scope.prototype.prepend = function(obs, exp1, exp2) {
+	if (exp2) {
+		this.overrides[obs] = { start: exp1, end: exp2 };
+		this.errors.push.apply(this.errors, exp1.errors);
+		this.errors.push.apply(this.errors, exp2.errors);
+	} else {
+		this.overrides[obs] = exp1;
+		this.errors.push.apply(this.errors, exp1.errors);
+	}
+}
+
+
+
+//------------------------------------------------------------------------------
+
 function EdenAST_UnaryOp(op, right) {
 	this.type = "unaryop";
 	this.op = op;

@@ -437,9 +437,79 @@ EdenAST.prototype.pPRIMARY_P = function() {
 			} else {
 				this.next();
 			}
+		} else if (this.token == "{") {
+			this.next();
+			var scope = this.pSCOPE();
+			result.push(scope);
+			if (scope.errors.length > 0) return result;
+			if (this.token != "}") {
+				scope.error(new EdenError(this, EDEN_ERROR_SCOPECLOSE));
+				return result;
+			} else {
+				this.next();
+			}
 		} else {
 			return result;
 		}
+	}
+}
+
+
+
+/**
+ * SCOPE Production
+ * SCOPE -> observable = EXPRESSION SCOPE'
+ */
+EdenAST.prototype.pSCOPE = function() {
+	if (this.token != "OBSERVABLE") {
+		var scope = new EdenAST_Scope();
+		scope.error(new EdenError(this, EDEN_ERROR_SCOPENAME));
+		return scope;
+	}
+	var obs = this.data.value;
+	this.next();
+
+	if (this.token != "=") {
+		var scope = new EdenAST_Scope();
+		scope.error(new EdenError(this, EDEN_ERROR_SCOPEEQUALS));
+		return scope;
+	}
+	this.next();
+	var expression = this.pEXPRESSION();
+	if (expression.errors.length > 0) {
+		var scope = new EdenAST_Scope();
+		scope.prepend(obs, expression, undefined);
+		return scope;
+	}
+
+	var exp2 = undefined;
+	if (this.token == "..") {
+		this.next();
+		exp2 = this.pEXPRESSION();
+		if (exp2.errors.length > 0) {
+			var scope = new EdenAST_Scope();
+			scope.prepend(obs, expression, exp2);
+			return scope;
+		}
+	}
+
+	var scope = this.pSCOPE_PP();
+	scope.prepend(obs, expression, exp2);
+	return scope;
+}
+
+
+
+/**
+ * Scope Prime Prime Production
+ * SCOPE'' -> , SCOPE | epsilon
+ */
+EdenAST.prototype.pSCOPE_PP = function() {
+	if (this.token == ",") {
+		this.next();
+		return this.pSCOPE();
+	} else {
+		return new EdenAST_Scope();
 	}
 }
 

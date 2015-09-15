@@ -114,7 +114,13 @@ PRIMARY'	->
 	( ELIST ) PRIMARY'
 	| . observable PRIMARY'
 	| [ EXPRESSION ] PRIMARY'
-	| epsilon																					FIRST: ( . [ epsilon
+	| { SCOPE } PRIMARY'
+	| epsilon											FIRST: ( . [ epsilon
+
+SCOPE		-> observable = EXPRESSION SCOPE'
+SCOPE'		-> .. EXPRESSION SCOPE'' | SCOPE''
+SCOPE''		-> , SCOPE | epsilon
+	
 
 ELIST		-> EXPRESSION ELIST' | epsilon																FIRST: ( - number & ! observable
 ELIST'		-> , EXPRESSION ELIST' | epsilon																FIRST: , epsilon
