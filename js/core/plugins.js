@@ -372,6 +372,9 @@
 	EdenUI.prototype.stopHighlightingView = function (name, wasRaised, show) {
 		if (wasRaised) {
 			this.windowHighlighter.stopHighlight(name, show);
+			if (show) {
+				this.getDialogContent(name).dialog("moveToTop");
+			}
 		} else {
 			var element = this.getDialogContent(name).data('dialog-extend-minimize-controls') || this.getDialogWindow(name);
 			element.removeClass("window-highlighted");
