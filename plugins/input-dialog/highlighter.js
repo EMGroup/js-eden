@@ -165,15 +165,17 @@ EdenHighlight.prototype.highlight = function(start) {
 					}
 				}*/
 
+				//if (line == "") line = "<br/>";
+
 				linestart = stream.position+1;
-				result += line + "</span>\n";
+				result += line + "\n</span><br/>";
 				line = "";
 			}
 			if (ch == 9 || ch == 10 || ch == 13 || ch == 32 || ch == 160) {
 				stream.skip();
 				if (ch == 32 || ch == 160) {
 					line += "&nbsp;";
-				} else if (ch != 10) {
+				} else if (ch != 10 && ch != 13) {
 					line += String.fromCharCode(ch);
 				}
 			} else {

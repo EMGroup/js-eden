@@ -34,6 +34,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	var inputAgent = {name: Symbol.getInputAgentName()};
 	this.history = [];
 	this.index = 0;
+	this.autoexec = true;
 
 	this.history = JSON.parse(edenUI.getOptionValue('history')) || [];
 	this.index = this.history.length;
@@ -79,14 +80,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 	this.submitEdenCode = function (text) {
 		this.addHistory(text);
-		var edenast = new EdenAST(text);
-		if (edenast.script.errors.length > 0) {
-			edenUI.showErrorWindow().prepend("<div class='error-item'>"+edenast.script.errors[0].prettyPrint()+"</div>\n\n");
-		} else {
+		//var edenast = new EdenAST(text);
+		//if (edenast.script.errors.length > 0) {
+		//	edenUI.showErrorWindow().prepend("<div class='error-item'>"+edenast.script.errors[0].prettyPrint()+"</div>\n\n");
+		//} else {
 			console.time("submitEdenCode");
 			edenUI.eden.execute(text, 'input', '', inputAgent);
 			console.timeEnd("submitEdenCode");
-		}
+		//}
 		
 		if (historydialog !== undefined) {
 			historydialog.html(this.generateHistory());
@@ -203,7 +204,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createDialog = function (name, mtitle) {
-		var $dialogContents = $('<div class="inputCodeArea"><code spellcheck="false" contenteditable tabindex="1" class="inputcontent"></code></div><div class="subButtonsDiv"><button class="submitButton">Submit</button></div><div class="buttonsDiv"><button class="previousButton">Previous</button><button class="nextButton">Next</button></div>')
+		var $dialogContents = $('<div class="inputCodeArea"><code spellcheck="false" contenteditable tabindex="1" class="inputcontent"></code></div><div class="subButtonsDiv"><div class="switch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div></div><div class="buttonsDiv"><button class="previousButton"></button><button class="nextButton"></button></div>')
 		var text = "";	
 		var textarea = $dialogContents.find('.inputcontent').get(0);
 
@@ -266,9 +267,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						e.target.innerHTML = "" + newval;
 
 						var ast = new EdenAST(textarea.textContent);
-						console.log(ast.script.errors);
 						// Execute if no errors!
-						if (ast.script.errors.length == 0) {
+						if (me.autoexec && ast.script.errors.length == 0) {
 							me.submit(textarea);
 						}
 					}
@@ -295,7 +295,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			// Execute if no errors!
 			if (run && stream.ast.script.errors.length == 0) {
-				me.submit(textarea);
+				//me.submit(textarea);
+				edenUI.plugins.ScriptInput.submitEdenCode(text);
 			}
 		}
 
@@ -307,16 +308,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				var position = getCaretCharacterOffsetWithin(textarea);
 
 				if (e.keyCode == 8) {
-					text = text.slice(0, position-1) + text.slice(position);
-					position--;
+					//text = text.slice(0, position-1) + text.slice(position);
+					//position--;
 				} else if (e.which == 9) {
 					e.preventDefault();
 					text = text.slice(0, position-1) + "    " + text.slice(position);
 				} else if (e.keyCode == 13) {
+					//text = text.slice(0, position) + '\n' + text.slice(position);
 					//position++;
 				}
 
-				highlightContent(text,position,true);
+				highlightContent(text,position,me.autoexec);
 			} else if (e.ctrlKey) {
 				console.log(e);
 
@@ -332,15 +334,29 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 			}
 			//textarea.innerHTML += String.fromCharCode(e.keyCode);
+		}).on('keydown', '.inputcontent', function(e) {
+				if (e.keyCode == 8) {
+					var position = getCaretCharacterOffsetWithin(textarea);
+					text = textarea.textContent;
+					text = text.slice(0, position-1) + text.slice(position);
+					position--;
+					highlightContent(text,position,false);
+				}
 		}).on('click', '.inputcontent', function(e) {
 			var pos = getCaretCharacterOffsetWithin(textarea);
 			highlightContent(textarea.textContent, pos,false);
-		}).on('click', '.submitButton', function (e) {
-			me.submit(textarea);
+		}).on('change', '.submitButton', function (e) {
+			if ($(this).is(':checked')) {
+				me.autoexec = true;
+				var pos = getCaretCharacterOffsetWithin(textarea);
+				highlightContent(textarea.textContent, pos, true);
+			} else {
+				me.autoexec = false;
+			}
 		}).on('click', '.previousButton', function (e) {
-			highlightContent(me.prev(), 0, true);
+			highlightContent(me.prev(), 0, me.autoexec);
 		}).on('click', '.nextButton', function (e) {
-			highlightContent(me.next(), 0, true);
+			highlightContent(me.next(), 0, me.autoexec);
 		});
 		
 		$dialog = $('<div id="'+name+'"></div>')
@@ -350,7 +366,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				width: 500,
 				height: 224,
 				minHeight: 203,
-				minWidth: 500
+				minWidth: 500,
+				dialogClass: "input-dialog"
 			});
 			input_dialog = $dialog;
 
