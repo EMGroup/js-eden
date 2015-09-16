@@ -154,6 +154,30 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		return caretOffset;
 	}
 
+	function getStartCaretCharacterOffsetWithin(element) {
+		var caretOffset = 0;
+		var doc = element.ownerDocument || element.document;
+		var win = doc.defaultView || doc.parentWindow;
+		var sel;
+		if (typeof win.getSelection != "undefined") {
+		    sel = win.getSelection();
+		    if (sel.rangeCount > 0) {
+		        var range = win.getSelection().getRangeAt(0);
+		        var preCaretRange = range.cloneRange();
+		        preCaretRange.selectNodeContents(element);
+		        preCaretRange.setEnd(range.startContainer, range.startOffset);
+		        caretOffset = preCaretRange.toString().length;
+		    }
+		} else if ( (sel = doc.selection) && sel.type != "Control") {
+		    var textRange = sel.createRange();
+		    var preCaretTextRange = doc.body.createTextRange();
+		    preCaretTextRange.moveToElementText(element);
+		    preCaretTextRange.setEndPoint("EndToEnd", textRange);
+		    caretOffset = preCaretTextRange.text.length;
+		}
+		return caretOffset;
+	}
+
 	function getTextNodesIn(node) {
 		var textNodes = [];
 		if (node.nodeType == 3) {
@@ -303,30 +327,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		$dialogContents.on('keyup', '.inputcontent', function (e) {
 			if (!e.ctrlKey && (e.keyCode < 37 || e.keyCode > 40) && e.keyCode != 17) {
 				text = textarea.textContent;
-				console.log("Key: " + e.keyCode);
-				console.log(text);
-
 				var position = getCaretCharacterOffsetWithin(textarea);
-
-				if (e.keyCode == 8) {
-					//text = text.slice(0, position-1) + text.slice(position);
-					//position--;
-				} else if (e.which == 9) {
-					e.preventDefault();
-					text = text.slice(0, position-1) + "    " + text.slice(position);
-				} else if (e.keyCode == 13) {
-					//text = text.slice(0, position) + '\n' + text.slice(position);
-					//position++;
-				}
-
 				highlightContent(text,position,me.autoexec);
 			} else if (e.ctrlKey) {
 				console.log(e);
 
-				if (e.keyCode === 13){
-					// enter
-					me.submit(textarea);
-				} else if (e.keyCode === 38) {
+				if (e.keyCode === 38) {
 					// up
 					me.prev(textarea);
 				} else if (e.keyCode === 40) {
@@ -344,8 +350,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					highlightContent(text,position,false);
 				}
 		}).on('click', '.inputcontent', function(e) {
+			var start = getStartCaretCharacterOffsetWithin(textarea);
 			var pos = getCaretCharacterOffsetWithin(textarea);
-			highlightContent(textarea.textContent, pos,false);
+			if ((pos - start) == 0) {
+				highlightContent(textarea.textContent, pos,false);
+			}
 		}).on('change', '.submitButton', function (e) {
 			if ($(this).is(':checked')) {
 				me.autoexec = true;
@@ -355,12 +364,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				me.autoexec = false;
 			}
 		}).on('click', '.previousButton', function (e) {
-			highlightContent(me.prev(), 0, me.autoexec);
+			$dialogContents.find(".submitButton").get(0).checked = false;
+			highlightContent(me.prev(), 0, false);
 		}).on('click', '.nextButton', function (e) {
-			highlightContent(me.next(), 0, me.autoexec);
+			$dialogContents.find(".submitButton").get(0).checked = false;
+			highlightContent(me.next(), 0, false);
 		});
 		
-		$dialog = $('<div id="'+name+'"></div>')
+		$dialog = $('<div id="'+name+'" class="input-dialog"></div>')
 			.html($dialogContents)
 			.dialog({
 				title: mtitle,
