@@ -1,10 +1,11 @@
 ${{
-Textbox = function (name, x, y, width, height, enabled) {
+Textbox = function (name, x, y, width, height, placeholder, enabled) {
 	this.name = name;
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
+	this.placeholder = placeholder;
     this.enabled = enabled;
 }
 
@@ -14,26 +15,33 @@ Textbox.prototype.hash = function () {
 				this.y+"$$"+
 				this.width+"$$"+
 				this.height+"$$"+
+				this.placeholder+"$$"+
 				this.enabled;
 };
 }}$;
 
 func Textbox { ${{
-  var name = arguments[0];
-  var x = arguments[1];
-  var y = arguments[2];
-  var width = arguments[3];
-  var height, enabled;
-  if (arguments.length == 6) {
-	height = arguments[4];
-	enabled = arguments[5];
-  } else if (typeof(arguments[4]) == "boolean") {
-	enabled = arguments[4];
-  } else {
-	height = arguments[4];
-  }
-  if (enabled === undefined) enabled = true;
-  return new Textbox(name, x, y, width, height, enabled);
+	var name = arguments[0];
+	var x = arguments[1];
+	var y = arguments[2];
+	var width = arguments[3];
+	var height, placeholder, enabled;
+	var argsProcessed = 4;
+	var arg = arguments[argsProcessed];
+	var argType = typeof(arg);
+	if (arg === undefined || argType == "number") {
+		height = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);
+	}
+	if (arg === undefined || argType == "string") {
+		placeholder = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+	}
+	enabled = arg;
+	return new Textbox(name, x, y, width, height, placeholder, enabled);
 }}$; }
 
 ${{
@@ -43,12 +51,13 @@ Textbox.prototype.draw = function(context) {
 		var me = this;
 		var name = this.name;
 
-		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
+		var disabled = this.enabled === false? 'disabled="disabled"' : '';
+		var placeholder = ' placeholder="' + (this.placeholder === undefined? name : this.placeholder) + '"';
 		var jQuery;
 		if (this.height === undefined) {
-			jQuery = $("<input " + disabled + " style=\"position: absolute\" />");
+			jQuery = $('<input ' + disabled + placeholder + ' style="position: absolute" />');
 		} else {
-			jQuery = $("<textarea " + disabled + " style=\"position: absolute\" />");
+			jQuery = $('<textarea ' + disabled + placeholder + ' style="position: absolute"></textarea>');
 		}
 
 		var element = jQuery.get(0);
@@ -99,7 +108,8 @@ Textbox.prototype.scale = function (scale, zoom, origin) {
 
 Textbox.prototype.toString = function() {
   return "Textbox(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
-	Eden.edenCodeForValue(this.height) + ", " + this.enabled + ")";
+	Eden.edenCodeForValue(this.height) + ", " + Eden.edenCodeForValue(this.placeholder) + ", " +
+	Eden.edenCodeForValue(this.enabled) + ")";
 };
 
 Textbox.prototype.getEdenCode = Textbox.prototype.toString;
