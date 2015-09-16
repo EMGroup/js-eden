@@ -227,7 +227,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			items: "span",
 			content: function() {
 				var element = $(this);
-				console.log("TOOLTIP");
 				if (element.hasClass("eden-error")) {
 					return element.attr( "title" );
 				} else if (element.hasClass("eden-observable")) {
@@ -303,9 +302,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		$dialogContents.on('keyup', '.inputcontent', function (e) {
 			if (!e.ctrlKey && (e.keyCode < 37 || e.keyCode > 40)) {
 				text = textarea.textContent;
-
-				console.log(text);
-
 				//console.log("Key: " + e.keyCode);
 
 				var position = getCaretCharacterOffsetWithin(textarea);
@@ -337,7 +333,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 			//textarea.innerHTML += String.fromCharCode(e.keyCode);
 		}).on('click', '.inputcontent', function(e) {
-			highlightContent(textarea.textContent, getCaretCharacterOffsetWithin(textarea),false);
+			var pos = getCaretCharacterOffsetWithin(textarea);
+			highlightContent(textarea.textContent, pos,false);
 		}).on('click', '.submitButton', function (e) {
 			me.submit(textarea);
 		}).on('click', '.previousButton', function (e) {

@@ -159,3 +159,9 @@ span.eden-errorline {
 	background-repeat: no-repeat;
 	background-position: right;
 }
+
+span.eden-currentline {
+	display: inline-block;
+	width: 100%;
+	background-color: #f0f0ff;
+}

@@ -94,6 +94,7 @@ var edenSpecials = {
 function EdenHighlight(code) {
 	this.ast = new EdenAST(code);
 	this.CODELIMIT = 1000;
+	this.line = 1;
 }
 
 
@@ -108,6 +109,7 @@ EdenHighlight.prototype.highlight = function(start) {
 	var inerror = false;
 	var stream = this.ast.stream;
 	var title = "";
+	var oldstart = start;
 
 	if (this.ast.script.errors.length > 0 && this.ast.script.errors[0].token != "EOF") {
 		errstart = this.ast.script.errors[0].prevposition;
@@ -126,6 +128,7 @@ EdenHighlight.prototype.highlight = function(start) {
 
 	var line = "";
 	var lineerror = false;
+	var linestart = 0;
 
 	while (stream.valid()) {
 		if (stream.position > start + (2*this.CODELIMIT)) {
@@ -148,9 +151,12 @@ EdenHighlight.prototype.highlight = function(start) {
 				if (lineerror) {
 					result += "<span class='eden-errorline'>";
 					lineerror = false;
+				} else if (oldstart >= linestart && oldstart <= stream.position) {
+					result += "<span class='eden-currentline'>";
 				} else {
 					result += "<span class='eden-line'>";
 				}
+				linestart = stream.position+1;
 				result += line + "</span>\n";
 				line = "";
 			}
