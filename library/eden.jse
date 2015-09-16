@@ -24,7 +24,7 @@ func time {
 
 proc writeln {
   ${{
-	var message = root.lookup("str").definition(root)(arguments[0]);
+	var message = root.lookup("str").definition(root, root.scope)(arguments[0]);
 	console.log(message);
 	message = "Output: " + message;
 	root.lookup("_menubar_status").assign(message, root.scope, this);
