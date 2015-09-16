@@ -95,6 +95,8 @@ function EdenHighlight(code) {
 	this.ast = new EdenAST(code);
 	this.CODELIMIT = 1000;
 	this.line = 1;
+
+	console.log(this.ast.lines);
 }
 
 
@@ -156,6 +158,13 @@ EdenHighlight.prototype.highlight = function(start) {
 				} else {
 					result += "<span class='eden-line'>";
 				}
+
+				/*if (this.ast.lines[this.line - 2]) {
+					if (this.ast.lines[this.line - 2].lvalue) {
+						result += "<span class='eden-info'>" + this.ast.lines[this.line - 2].lvalue.observable + "</span>";
+					}
+				}*/
+
 				linestart = stream.position+1;
 				result += line + "</span>\n";
 				line = "";

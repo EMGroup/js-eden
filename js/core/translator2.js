@@ -19,6 +19,7 @@ function EdenAST(code) {
 	this.token = "INVALID";
 	this.previous = "INVALID";
 	this.src = "input";
+	this.lines = [];
 
 	this.stream.data = this.data;
 
@@ -353,6 +354,9 @@ EdenAST.prototype.pFACTOR = function() {
 			this.next();
 		}
 		return literal;
+	} else if (this.token == "@") {
+		this.next();
+		return new EdenAST_Literal("UNDEFINED", "@");
 	} else if (this.token == "NUMBER") {
 		this.next();
 		return new EdenAST_Literal("NUMBER", this.data.value);
@@ -1111,9 +1115,9 @@ EdenAST.prototype.pLVALUE = function() {
 		ast.error(new EdenError(this, EDEN_ERROR_LVALUE));
 		return ast;
 	}
-
+	var obs = this.data.value;
 	this.next();
-	return new EdenAST_LValue(this.data.value, this.pLVALUE_P());
+	return new EdenAST_LValue(obs, this.pLVALUE_P());
 };
 
 
@@ -1551,6 +1555,10 @@ EdenAST.prototype.pSTATEMENT = function() {
 						} else {
 							this.next();
 						}
+
+						// Log as main statement on this line.
+						this.lines[this.stream.line-1] = formula;
+
 						return formula;
 	}
 	return undefined;

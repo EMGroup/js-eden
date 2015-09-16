@@ -313,7 +313,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					e.preventDefault();
 					text = text.slice(0, position-1) + "    " + text.slice(position);
 				} else if (e.keyCode == 13) {
-					position++;
+					//position++;
 				}
 
 				highlightContent(text,position,true);

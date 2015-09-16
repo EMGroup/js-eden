@@ -160,6 +160,14 @@ span.eden-errorline {
 	background-position: right;
 }
 
+span.eden-line {
+}
+
+span.eden-info {
+	float: right;
+	color: silver;
+}
+
 span.eden-currentline {
 	display: inline-block;
 	width: 100%;
