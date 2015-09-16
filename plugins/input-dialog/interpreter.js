@@ -257,7 +257,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				} else if (element.hasClass("eden-observable")) {
 					var text = this.textContent;
 					if (eden.root.symbols[text] !== undefined) {
-						var val = eden.root.lookup(text).value();
+						var sym = eden.root.lookup(text);
+						var val = sym.value();
 						var type = typeof val;
 						var result = "";
 						if (type == "string") result += "String ";
@@ -268,8 +269,19 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 							} else if (val instanceof Array) {
 									result += "List ";
 							}
-						}
+						} else if (val === undefined) return "Undefined";
 						return result + Eden.prettyPrintValue("", val, 20);
+					}
+				} else if (element.hasClass("eden-type")) {
+					var text = this.textContent;
+					if (eden.root.symbols[text] !== undefined) {
+						var sym = eden.root.lookup(text);
+						if (sym.eden_definition.slice(0,4) == "func") {
+							if (edenfunctions.functions[text]) {
+								var params = Object.keys(edenfunctions.functions[text].parameters || {});
+								return text + "(" + params.join(", ") + ")";
+							}
+						}
 					}
 				}
 			}
