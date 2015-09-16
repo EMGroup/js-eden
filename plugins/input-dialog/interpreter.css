@@ -14,12 +14,59 @@
 	padding: 5px;
 }
 
+.ui-tooltip, .arrow:after {
+	background: #204a87;
+	border: 2px solid white;
+}
+.ui-tooltip {
+	padding: 5px 10px;
+	color: white;
+	border-radius: 20px;
+	font: bold 12px "Helvetica Neue", Sans-Serif;
+	box-shadow: 0 0 7px black;
+}
+.arrow {
+	width: 70px;
+	height: 16px;
+	overflow: hidden;
+	position: absolute;
+	left: 50%;
+	margin-left: -35px;
+	bottom: -16px;
+}
+.arrow.top {
+	top: -10px;
+	bottom: auto;
+}
+.arrow.left {
+	left: 20%;
+}
+.arrow:after {
+	background-color: black;
+	content: "";
+	position: absolute;
+	left: 20px;
+	top: -20px;
+	width: 25px;
+	height: 25px;
+	box-shadow: 6px 5px 9px -9px black;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+.arrow.top:after {
+	bottom: -20px;
+	top: auto;
+}
+
 .eden-drag-helper {
 	width: 10px;
 	height: 10px;
+	float: left;
 }
 
-.inputcontent {
+code.inputcontent {
+	display: inline-block;
 	width: 100%;
 	height: 100%;
 	resize: none;
@@ -87,6 +134,7 @@ span.eden-comment {
 
 span.eden-number {
 	color: #3465a4;
+	cursor: ew-resize;
 }
 
 span.eden-string {
@@ -95,10 +143,19 @@ span.eden-string {
 
 span.eden-error {
 	background-color: #ffdcdc;
-	border: 1px solid #a40000;
+	border: 1px dotted #d57878;
 }
 
 span.eden-select {
 	background-color: #cfe4ff;
-	border: 1px solid #3465a4;
+	/*border: 1px dotted #3465a4;*/
+}
+
+span.eden-errorline {
+	display: inline-block;
+	width: 100%;
+	background-color: #fff0f0;
+	background-image: url('/images/exclamation.png');
+	background-repeat: no-repeat;
+	background-position: right;
 }

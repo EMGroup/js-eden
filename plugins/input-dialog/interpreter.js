@@ -203,7 +203,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createDialog = function (name, mtitle) {
-		var $dialogContents = $('<div class="inputCodeArea"><div spellcheck="false" contenteditable tabindex="1" class="inputcontent"></div></div><div class="subButtonsDiv"><button class="submitButton">Submit</button></div><div class="buttonsDiv"><button class="previousButton">Previous</button><button class="nextButton">Next</button></div>')
+		var $dialogContents = $('<div class="inputCodeArea"><code spellcheck="false" contenteditable tabindex="1" class="inputcontent"></code></div><div class="subButtonsDiv"><button class="submitButton">Submit</button></div><div class="buttonsDiv"><button class="previousButton">Previous</button><button class="nextButton">Next</button></div>')
 		var text = "";	
 		var textarea = $dialogContents.find('.inputcontent').get(0);
 
@@ -211,7 +211,47 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var dragvalue = 0;
 		var draglast = 0;
 
-		function highlightContent(text, position) {
+		$( textarea ).tooltip({
+			position: {
+				my: "center bottom-15",
+				at: "center top",
+				using: function( position, feedback ) {
+					$( this ).css( position );
+					$( "<div>" )
+					.addClass( "arrow" )
+					.addClass( feedback.vertical )
+					.addClass( feedback.horizontal )
+					.appendTo( this );
+				}
+			},
+			items: "span",
+			content: function() {
+				var element = $(this);
+				console.log("TOOLTIP");
+				if (element.hasClass("eden-error")) {
+					return element.attr( "title" );
+				} else if (element.hasClass("eden-observable")) {
+					var text = this.textContent;
+					if (eden.root.symbols[text] !== undefined) {
+						var val = eden.root.lookup(text).value();
+						var type = typeof val;
+						var result = "";
+						if (type == "string") result += "String ";
+						else if (type == "number") result += "Number ";
+						else if (type == "object") {
+							if (val instanceof Rectangle) {
+									result += "Shape ";
+							} else if (val instanceof Array) {
+									result += "List ";
+							}
+						}
+						return result + Eden.prettyPrintValue("", val, 20);
+					}
+				}
+			}
+		});
+
+		function highlightContent(text, position, run) {
 			var stream = new EdenHighlight(text);
 			var high = stream.highlight(position);
 			textarea.innerHTML = high;
@@ -226,7 +266,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						draglast = newval;
 						e.target.innerHTML = "" + newval;
 
-						var ast = new EdenAST(textarea.innerText);
+						var ast = new EdenAST(textarea.textContent);
 						console.log(ast.script.errors);
 						// Execute if no errors!
 						if (ast.script.errors.length == 0) {
@@ -236,8 +276,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				},
 				start: function(e,u) {
 					dragstart = u.position.left;
-					console.log("Drag value: " + e.target.innerText);
-					dragvalue = parseInt(e.target.innerText);
+					console.log("Drag value: " + e.target.textContent);
+					dragvalue = parseInt(e.target.textContent);
 					draglast = dragvalue;
 					$(e.target).addClass("eden-select");
 					$(textarea).css("cursor","ew-resize");
@@ -248,17 +288,23 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				},
 				cursor: 'move',
 				cursorAt: {top: -5, left: -5}
-			});
+			});/*.hover(function(e) {
+				$(e.target).addClass("eden-select"); //.css("cursor", "ew-resize");
+			}, function(e) {
+				$(e.target).removeClass("eden-select"); //.css("cursor","text");
+			});*/
 
 			// Execute if no errors!
-			if (stream.ast.script.errors.length == 0) {
+			if (run && stream.ast.script.errors.length == 0) {
 				me.submit(textarea);
 			}
 		}
 
 		$dialogContents.on('keyup', '.inputcontent', function (e) {
 			if (!e.ctrlKey && (e.keyCode < 37 || e.keyCode > 40)) {
-				text = textarea.innerText;
+				text = textarea.textContent;
+
+				console.log(text);
 
 				//console.log("Key: " + e.keyCode);
 
@@ -274,7 +320,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					position++;
 				}
 
-				highlightContent(text,position);
+				highlightContent(text,position,true);
 			} else if (e.ctrlKey) {
 				console.log(e);
 
@@ -291,13 +337,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 			//textarea.innerHTML += String.fromCharCode(e.keyCode);
 		}).on('click', '.inputcontent', function(e) {
-			highlightContent(textarea.innerText, getCaretCharacterOffsetWithin(textarea));
+			highlightContent(textarea.textContent, getCaretCharacterOffsetWithin(textarea),false);
 		}).on('click', '.submitButton', function (e) {
 			me.submit(textarea);
 		}).on('click', '.previousButton', function (e) {
-			me.prev(textarea);
+			highlightContent(me.prev(), 0, true);
 		}).on('click', '.nextButton', function (e) {
-			me.next(textarea);
+			highlightContent(me.next(), 0, true);
 		});
 		
 		$dialog = $('<div id="'+name+'"></div>')
@@ -313,21 +359,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var confirmClose = !("MenuBar" in edenUI.plugins);
 
-		return {confirmClose: confirmClose, setValue: function (value) { textarea.value = value; }};
+		return {confirmClose: confirmClose, setValue: function (value) { textarea.textContent = value; }};
 	};
 
 	this.next = function (el) {
-		var n = edenUI.plugins.ScriptInput.nextHistory();
-		var stream = new EdenHighlight(n);
-		var high = stream.highlight(0);
-		el.innerHTML = high;
+		return edenUI.plugins.ScriptInput.nextHistory();
 	};
 
 	this.prev = function (el) {
-		var p = edenUI.plugins.ScriptInput.previousHistory();
-		var stream = new EdenHighlight(p);
-		var high = stream.highlight(0);
-		el.innerHTML = high;
+		return edenUI.plugins.ScriptInput.previousHistory();
 	};
 
 	this.submit = function (el) {
