@@ -168,7 +168,7 @@ EdenHighlight.prototype.highlight = function(start) {
 				//if (line == "") line = "<br/>";
 
 				linestart = stream.position+1;
-				result += line + "\n</span><br/>";
+				result += line + "\n</span>";
 				line = "";
 			}
 			if (ch == 9 || ch == 10 || ch == 13 || ch == 32 || ch == 160) {

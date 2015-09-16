@@ -301,9 +301,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		$dialogContents.on('keyup', '.inputcontent', function (e) {
-			if (!e.ctrlKey && (e.keyCode < 37 || e.keyCode > 40)) {
+			if (!e.ctrlKey && (e.keyCode < 37 || e.keyCode > 40) && e.keyCode != 17) {
 				text = textarea.textContent;
-				//console.log("Key: " + e.keyCode);
+				console.log("Key: " + e.keyCode);
+				console.log(text);
 
 				var position = getCaretCharacterOffsetWithin(textarea);
 
