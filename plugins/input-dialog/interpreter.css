@@ -262,6 +262,14 @@ span.eden-errorline {
 	background-position: right;
 }
 
+span.eden-drag-observable {
+	font: 14px/20px Roboto Mono,monospace;
+	-webkit-font-smoothing: antialiased;
+	background-color: #cfe4ff;
+	padding: 10px;
+	border: 1px solid #204a87;
+}
+
 span.eden-line {
 	/*display: inline-block;*/
 	width: 100%;
@@ -286,4 +294,8 @@ div.eden_suggestions {
 	opacity: 0.8;
 	font: 12px/20px Roboto Mono,monospace;
 	z-index: 2000;
+}
+
+div.eden-representative {
+
 }

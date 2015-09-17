@@ -29,6 +29,69 @@ if (!("time" in console)) {
  * @class Input Window Plugin
  */
 EdenUI.plugins.ScriptInput = function(edenUI, success) {
+	function makeRepresentative(value, scale) {
+		var type = typeof value;
+
+		switch (type) {
+		case "number": return makeNumberRepresentative(value, scale);
+		case "string": return makeStringRepresentative(value, scale);
+		case "object": return makeObjectRepresentative(value, scale);
+		}
+	}
+
+	function makeNumberRepresentative(value, scale) {
+		var $div = $("<div class='eden-representative'></div>");
+		$div.css("font-size",""+Math.round(scale * 0.9)+"px");
+		$div.text(""+value);
+		return $div;
+	}
+
+	function makeStringRepresentative(value, scale) {
+		var $div = $("<div class='eden-representative'></div>");
+		$div.css("font-size",""+Math.round(scale * 0.4)+"px");
+		$div.text(""+value);
+		return $div;
+	}
+
+	function makeObjectRepresentative(value, scale) {
+		if (value instanceof Rectangle) {
+			var $canvas = $("<canvas width='"+scale+"' height='"+scale+"'></canvas>");
+			var canvas = $canvas.get(0);
+			var ctx = canvas.getContext("2d");
+			var largest = Math.max(value.width,value.height);
+			var factor = scale / largest;
+			ctx.scale(factor,factor);
+			var tx = value.x;
+			var ty = value.y;
+			value.x = 0; value.y = 0;
+			//ctx.translate(value.x,0-value.y);
+			value.draw(ctx);
+			value.x = tx; value.y = ty;
+			return $canvas;
+		} else if (value instanceof HTMLImage) {
+			var largest = Math.max(value.width,value.height);
+			var factor = scale / largest;
+			var $img = $("<img src='"+value.url+"' width='"+Math.round(value.width*factor)+"' height='"+Math.round(value.height*factor)+"'></img>");
+			console.log($img);			
+			return $img;
+		} else if (value instanceof Array) {
+			var $div = $("<div class='eden-representative'></div>");
+			$div.css("font-size",""+Math.round(scale * 0.4)+"px");
+			var len = value.length;
+			if (len > 4) len = 4;
+			for (var i = 0; i < len; i++) {
+				makeRepresentative(value[i], Math.round(scale*0.4)).appendTo($div);
+				if (i < value.length - 1) {
+					$("<span>,</span>").appendTo($div);
+				}
+			}
+			if (len < value.length) {
+				$("<span>...</span>").appendTo($div);
+			}
+			//console.log(value);
+			return $div;
+		}
+	}
 
 	var me = this;
 	var inputAgent = {name: Symbol.getInputAgentName()};
@@ -253,7 +316,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			},
 			items: "span",
 			content: function() {
-				var element = $(this);
+				var text = this.textContent;
+				if (eden.root.symbols[text] !== undefined) {
+					var sym = eden.root.lookup(text);
+					var val = sym.value();
+					return makeRepresentative(val,80);
+				}
+			}
+				/*var element = $(this);
 				if (element.hasClass("eden-error")) {
 					return element.attr( "title" );
 				} else if (element.hasClass("eden-observable")) {
@@ -286,7 +356,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						}
 					}
 				}
-			}
+			}*/
 		});
 
 		function highlightContent(text, position, run) {
@@ -327,7 +397,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			});
 
 			$(textarea).find('.eden-observable').draggable({
-				helper: function(e) { return $("<span class='eden-observable eden-select'>"+e.target.textContent+"</span>"); },
+				helper: function(e) { return $("<span class='eden-drag-observable'>"+e.target.textContent+"</span>"); },
 				cursor: "move",
 				appendTo: "body",
 				zIndex: 10000,
@@ -336,6 +406,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				},
 				stop: function(e,u) {
 					$(e.target).removeClass("eden-select");
+					console.log(e);
 				},
 			});
 
@@ -357,15 +428,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				var position = getCaretCharacterOffsetWithin(textarea);
 				var stream = highlightContent(text,position,me.autoexec);
 
-				/*var curlineele = $(textarea).find(".eden-currentline");
-				var pos = curlineele.position();
-				if (pos === undefined) pos = $(textarea).position();
-				//var sym = eden.root.lookup(curast.lvalue.observable);
-				//if (sym && sym.eden_definition) suggestions.text(sym.eden_definition);
-				suggestions.text(curlineele.get(0).textContent);
-				suggestions.css("top",""+ (pos.top) +"px");
-				suggestions.show("slow");
-				//suggestions.hide("slow");*/
+				console.log("Line: " + stream.currentline);
+				var curast = stream.ast.lines[stream.currentline-1];
+				if (curast) {
+					if (curast.type == "definition") {
+						console.log("FILL IN FOR: " + curast.lvalue.observable);
+						var curlineele = $(textarea).find(".eden-currentline");
+						var pos = curlineele.position();
+						if (pos === undefined) pos = $(textarea).position();
+						var sym = eden.root.lookup(curast.lvalue.observable);
+						if (sym && sym.eden_definition) suggestions.text(sym.eden_definition);
+						suggestions.css("top",""+ (pos.top) +"px");
+						suggestions.show("slow");
+					}
+				} else {
+					suggestions.hide("slow");
+				}
 
 			} else if (e.ctrlKey) {
 				console.log(e);

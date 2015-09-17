@@ -1,0 +1,5 @@
+a is Rectangle(x*20,y*20,10,10);
+as is a{x = 1 .. 10, y = 1 .. 10 };
+picture is as;
+
+as[15] = Circle(2*20+5,5*20+5,5, "red");
