@@ -425,31 +425,88 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 	};
 
 	var me = this;
-	this.element.hover(
-		function() {
-			$(this).animate({backgroundColor: "#eaeaea"}, 100);
-		}, function() {
-			$(this).animate({backgroundColor: "inherit"}, 100);
-		}	
-	).click(function () {
-		var editorViewName = "edit_" + me.name;
-		edenUI.createView(editorViewName, "ScriptInput");
-		edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + me.name, Symbol.hciAgent);
-		var val;
-		if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
-			val = symbol.eden_definition;
-		} else {
-			if (symbol.definition) {
-				val = symbol.eden_definition + ";";
-			} else {
-				val = me.name + " = " + Eden.edenCodeForValue(symbol.value()) + ";";
-			}
+	var singleClickPerformed = false, inlineEditorOpen = false;
+	this.element.click(function () {
+		if (inlineEditorOpen || singleClickPerformed) {
+			return;
 		}
+		singleClickPerformed = true;
+		setTimeout(function () {
+			if (inlineEditorOpen || !singleClickPerformed) {
+				return;
+			}
+			singleClickPerformed = false;
+			var editorViewName = "edit_" + me.name;
+			edenUI.createView(editorViewName, "ScriptInput");
+			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + me.name, Symbol.hciAgent);
+			var val;
+			if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
+				val = symbol.eden_definition;
+			} else {
+				if (symbol.definition) {
+					val = symbol.eden_definition + ";";
+				} else {
+					val = me.name + " = " + Eden.edenCodeForValue(symbol.value()) + ";";
+				}
+			}
 
-		$('#' + editorViewName + '-dialog').find('textarea').val(
-			val
-		);
+			$('#' + editorViewName + '-dialog').find('textarea').val(
+				val
+			);
+		}, 300);
 	});
+	if (type == "obs") {
+		this.element.dblclick(function () {
+			singleClickPerformed = false;
+			var value = me.symbol.cached_value;
+			if (me.symbol.eden_definition !== undefined || typeof(value) != "boolean") {
+				inlineEditorOpen = true;
+				var valueElement = me.element.find(".result_value");
+				var operationElement = me.element.find(".result_separator");
+				valueElement.html('');
+				var currentEden, operation;
+				if (me.symbol.eden_definition !== undefined) {
+					currentEden = me.symbol.eden_definition.replace(new RegExp("^\\s*" + name + "\\s+is\\s+"), "");
+					operation = " is ";
+					operationElement.html(" is ");
+				} else {
+					currentEden = Eden.edenCodeForValue(value);
+					operation = " = ";
+				}
+				var currentEdenEscaped = Eden.htmlEscape(currentEden, true);
+				var inputBox = $('<input type="text" value="' + currentEdenEscaped + '" style="width: 100%"/>');
+				inputBox.on("keyup", function (event) {
+					var keyCode = event.which;
+					if (keyCode == 13) {
+						edenUI.plugins.ScriptInput.submitEdenCode(me.name + operation + event.target.value + ";");
+						me.update();
+						inlineEditorOpen = false;
+					} else if (keyCode == 27) {
+						me.update();
+						inlineEditorOpen = false;
+					}
+				})
+				.on("focus", function () {
+					var firstChar = currentEden.slice(0, 1);
+					this.select();
+					if (firstChar == '"' || firstChar == "'" || firstChar == "[" || firstChar == "{") {
+						this.selectionStart = 1;
+						this.selectionEnd = currentEden.length - 1;
+					}
+				})
+				.on("blur", function () {
+					me.update();
+					inlineEditorOpen = false;
+				});
+				valueElement.append(inputBox);
+				inputBox.focus();
+			} else if (value === true) {
+				me.symbol.assign(false, Symbol.hciAgent, true);
+			} else {
+				me.symbol.assign(true, Symbol.hciAgent, true);
+			}
+		});
+	}
 
 	this.update();
 };
