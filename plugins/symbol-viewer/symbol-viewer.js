@@ -400,10 +400,11 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 	}
 };
 
+EdenUI.plugins.SymbolViewer.inlineEditorSymbol = undefined;
 /**
  * A class for an individual symbol result which deals with HTML formatting.
  *
- * @author Nicolas Pope
+ * @author Nicolas Pope et al.
  * @constructor
  * @param symbol Internal EDEN symbol object.
  * @param name Name of the symbol.
@@ -425,14 +426,19 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 	};
 
 	var me = this;
-	var singleClickPerformed = false, inlineEditorOpen = false;
+	var singleClickPerformed = false;
+	function closeEditor() {
+		me.element.removeClass("symbollist-inline-editor");
+		me.update();
+	}
+
 	this.element.click(function () {
-		if (inlineEditorOpen || singleClickPerformed) {
+		if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol || singleClickPerformed) {
 			return;
 		}
 		singleClickPerformed = true;
 		setTimeout(function () {
-			if (inlineEditorOpen || !singleClickPerformed) {
+			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol || !singleClickPerformed) {
 				return;
 			}
 			singleClickPerformed = false;
@@ -453,53 +459,100 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			$('#' + editorViewName + '-dialog').find('textarea').val(
 				val
 			);
-		}, 300);
+		}, 325);
 	});
 	if (type == "obs") {
 		this.element.dblclick(function () {
 			singleClickPerformed = false;
+			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === me) {
+				return;
+			}
 			var value = me.symbol.cached_value;
 			if (me.symbol.eden_definition !== undefined || typeof(value) != "boolean") {
-				inlineEditorOpen = true;
+				EdenUI.plugins.SymbolViewer.inlineEditorSymbol = me;
+				me.element.addClass("symbollist-inline-editor");
 				var valueElement = me.element.find(".result_value");
 				var operationElement = me.element.find(".result_separator");
 				valueElement.html('');
 				var currentEden, operation;
 				if (me.symbol.eden_definition !== undefined) {
 					currentEden = me.symbol.eden_definition.replace(new RegExp("^\\s*" + name + "\\s+is\\s+"), "");
-					operation = " is ";
-					operationElement.html(" is ");
+					operation = "is";
 				} else {
 					currentEden = Eden.edenCodeForValue(value);
-					operation = " = ";
+					operation = "=";
 				}
+				var operationSelect = $('<select></select>');
+				if (operation == "=") {
+					operationSelect.append('<option value="is">is</option>');
+					operationSelect.append('<option value="=" selected="selected">=</option>');
+				} else {
+					operationSelect.append('<option value="is" selected="selected">is</option>');
+					operationSelect.append('<option value="=">=</option>');
+				}
+				operationElement.html(' ');
+				operationElement.append(operationSelect);
+
 				var currentEdenEscaped = Eden.htmlEscape(currentEden, true);
 				var inputBox = $('<input type="text" value="' + currentEdenEscaped + '" style="width: 100%"/>');
-				inputBox.on("keyup", function (event) {
+				var inputBoxElem = inputBox.get(0);
+				function submitInlineEdit () {
+						var operation = operationSelect.get(0).value;
+						var script = inputBoxElem.value;
+						if (script.slice(-1) != ";") {
+							script = script + ";";
+						}
+						edenUI.plugins.ScriptInput.submitEdenCode(me.name + " " + operation + " " + script);
+						closeEditor();
+						EdenUI.plugins.SymbolViewer.inlineEditorSymbol = undefined;
+				}
+				function keyboardShortcuts(event) {
 					var keyCode = event.which;
 					if (keyCode == 13) {
-						edenUI.plugins.ScriptInput.submitEdenCode(me.name + operation + event.target.value + ";");
-						me.update();
-						inlineEditorOpen = false;
+						//Return key.  Submit code.
+						submitInlineEdit();
 					} else if (keyCode == 27) {
-						me.update();
-						inlineEditorOpen = false;
+						//Escape key.  Abandon edits.
+						closeEditor();
+						EdenUI.plugins.SymbolViewer.inlineEditorSymbol = undefined;
 					}
-				})
-				.on("focus", function () {
-					var firstChar = currentEden.slice(0, 1);
-					this.select();
-					if (firstChar == '"' || firstChar == "'" || firstChar == "[" || firstChar == "{") {
-						this.selectionStart = 1;
-						this.selectionEnd = currentEden.length - 1;
-					}
-				})
-				.on("blur", function () {
-					me.update();
-					inlineEditorOpen = false;
+				}
+				inputBox.on("keyup", keyboardShortcuts);
+				inputBox.on("blur", function () {
+					setTimeout(function () {
+						if (!operationSelect.is(document.activeElement)) {
+							closeEditor();
+							setTimeout(function () {
+								if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === me) {
+									EdenUI.plugins.SymbolViewer.inlineEditorSymbol = undefined;
+								}
+							}, 500);
+						}
+					}, 0);
+				});
+				operationSelect.on("keydown", keyboardShortcuts);
+				operationSelect.on("blur", function () {
+					setTimeout(function () {
+						if (!inputBox.is(document.activeElement)) {
+							closeEditor();
+							setTimeout(function () {
+								if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === me) {
+									EdenUI.plugins.SymbolViewer.inlineEditorSymbol = undefined;
+								}
+							}, 500);
+						}
+					}, 0);
 				});
 				valueElement.append(inputBox);
-				inputBox.focus();
+				me.element.find(".symbollist-result-inner").get(0).onmouseenter = undefined;
+				EdenUI.closeTooltip();
+				inputBoxElem.focus();
+				inputBoxElem.select();
+				var firstChar = currentEden.slice(0, 1);
+				if (firstChar == '"' || firstChar == "'" || firstChar == "[" || firstChar == "{") {
+					inputBoxElem.selectionStart = 1;
+					inputBoxElem.selectionEnd = currentEden.length - 1;
+				}
 			} else if (value === true) {
 				me.symbol.assign(false, Symbol.hciAgent, true);
 			} else {
@@ -541,7 +594,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 	if (eden_definition !== undefined && !/^func\s/.test(this.symbol.eden_definition)) {
 		var tooltip = Eden.htmlEscape(eden_definition, false, true);
 		tooltip = Eden.htmlEscape("<pre>" + tooltip + ";</pre>");
-		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
+		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
 
 	this.element.html(html);
@@ -584,7 +637,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 	if (this.symbol.definition !== undefined) {
 		var tooltip = Eden.htmlEscape(this.symbol.eden_definition, false, true);
 		tooltip = Eden.htmlEscape("<pre class='symbollist-tooltip'>" + tooltip + ";</pre>");
-		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
+		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
 
 	this.element.html(html);
@@ -618,7 +671,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function () {
 	if (eden_definition !== undefined && !/^proc\s/.test(this.symbol.eden_definition)) {
 		var tooltip = Eden.htmlEscape(eden_definition, false, true);
 		tooltip = Eden.htmlEscape("<pre>" + tooltip + ";</pre>");
-		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
+		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
 
 	this.element.html(html);
