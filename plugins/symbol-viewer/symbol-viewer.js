@@ -544,8 +544,13 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 					}, 0);
 				});
 				valueElement.append(inputBox);
-				me.element.find(".symbollist-result-inner").get(0).onmouseenter = undefined;
+				//Remove tooltip
+				var tooltips = me.element.find(".symbollist-result-inner");
+				if (tooltips.length > 0) {
+					tooltips.get(0).onmouseenter = undefined;
+				}
 				EdenUI.closeTooltip();
+				//Select the most likely part of the value or definition to replace.
 				inputBoxElem.focus();
 				inputBoxElem.select();
 				var firstChar = currentEden.slice(0, 1);
