@@ -10,11 +10,11 @@
 	right: 8px;
 	border-color: #719ECE;
     box-shadow: 0 0 10px #719ECE;
-	font-family: monospace;
-	font-size: 14px;
+	color: #233b46;
 	padding: 5px;
 	background-color: white;
 	overflow: auto;
+	-webkit-font-smoothing: antialiased;
 }
 
 .ui-tooltip, .arrow:after {
@@ -27,6 +27,7 @@
 	border-radius: 20px;
 	font: bold 12px "Helvetica Neue", Sans-Serif;
 	box-shadow: 0 0 7px black;
+	opacity: 0.9;
 }
 .arrow {
 	width: 70px;
@@ -78,6 +79,7 @@ code.inputcontent {
 	/*margin: 5px;*/
 	cursor: text;
 	outline: none;
+	font: 14px/20px Roboto Mono,monospace;
 	white-space: pre;
 	/*overflow: auto;*/
 	/*background: white;*/
@@ -216,6 +218,10 @@ span.eden-number {
 span.eden-string {
 	color: #cc0000;
 }
+
+span.eden-operator {
+	color: black;
+};
 
 span.eden-error {
 	background-color: #ffdcdc;
