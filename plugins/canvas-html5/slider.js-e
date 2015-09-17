@@ -62,19 +62,24 @@ Slider.prototype.draw = function (context) {
 			orientationCSS = "";
 		}
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
-		var jqElement = $('<input ' + disabled +
+		var inputHTML = '<input ' + disabled +
 			'style="position:absolute; ' + orientationCSS + '" ' +
 			'value="' + value + '" ' +
 			'type="range" ' +
 			'min="' + this.min + '" ' +
-			'max="' + this.max + '" ' +
-			'step="' + this.step + '" />');
+			'max="' + this.max + '" ';
+		if (this.step !== undefined) {
+			inputHTML = inputHTML + 'step="' + this.step + '"';
+		}
+		inputHTML = inputHTML + '/>';
+		var jqElement = $(inputHTML);
+		var inputElem = jqElement.get(0);
 
 		var valueSym = root.lookup(name + "_value");
 		var value = valueSym.value();
 		var previewSym = root.lookup(name + "_preview");
+		var previewValue = previewSym.value();
 		if (value === undefined) {
-			var previewValue = previewSym.value();
 			if (previewValue !== undefined) {
 				value = previewValue;
 			} else {
@@ -83,20 +88,23 @@ Slider.prototype.draw = function (context) {
 			}
 			valueSym.assign(value, agent);
 		} else {
-			previewSym.assign(value, agent);
+			if (value !== previewValue) {
+				previewSym.assign(value, agent);
+			}
 		}
+		inputElem.value = value;
 		valueSym.addJSObserver("updateUI", function (obs, value) {
 			var previewSym = root.lookup(name + "_preview");
-			if (previewSym.value() != value) {
+			if (previewSym.value() !== value) {
 				me.elements[0].value = String(value);
-				previewSym.assign(value, agent);
+				previewSym.assign(value, Symbol.hciAgent);
 			}
 		});		
 		previewSym.addJSObserver("updateUI", function (obs, preview) {
 			var previewSym = root.lookup(name + "_preview");
 			var valueSym = root.lookup(name + "_value");
-			if (previewSym.last_modified_by == Symbol.getInputAgentName()) {
-				me.elements[0].value = String(preview);
+			if (previewSym.last_modified_by !== Symbol.hciAgent.name) {
+				me.elements[0].value = preview;
 				valueSym.assign(preview, agent, true);
 			}
 		});
@@ -120,12 +128,13 @@ Slider.prototype.draw = function (context) {
 			root.lookup("mouseZone").assign(name, Symbol.hciAgent, mouseFollow);
 		});
 
-		this.elements = [jqElement.get(0)];		
+		this.elements = [inputElem];		
 	}
 };
 
 Slider.prototype.scale = function (scale, zoom, origin) {
-	var style = this.elements[0].style;
+	var element = this.elements[0];
+	var style = element.style;
 	if (this.orientation == "up" || this.orientation == "down" || this.orientation == "vertical") {
 		style.left = Math.round((this.x - this.length / 2) * scale + origin.x) + "px";
 		style.top = Math.round((this.y + this.length / 2) * scale + origin.y) + "px";
@@ -133,11 +142,15 @@ Slider.prototype.scale = function (scale, zoom, origin) {
 		style.left = Math.round(this.x * scale + origin.x) + "px";
 		style.top = Math.round(this.y * scale + origin.y) + "px";
 	}
-	style.width = Math.round(this.length * scale) + "px";
+	var width = Math.round(this.length * scale);
+	style.width = width + "px";
+	if (this.step === undefined) {
+		element.step = (element.max - element.min) / width;
+	}
 };
 
 Slider.prototype.toString = function() {
-  return "Slider(\"" + this.name + "\", " + this.min + ", " + this.max + ", " + this.step + ", " +
+  return "Slider(\"" + this.name + "\", " + this.min + ", " + this.max + ", " + Eden.edenCodeForValue(this.step) + ", " +
 	this.x + ", " + this.y + ", " + this.length + ", \"" + this.orientation + "\", " +
 	this.enabled + ")";
 };
