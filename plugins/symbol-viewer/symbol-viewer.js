@@ -430,6 +430,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 	function closeEditor() {
 		me.element.removeClass("symbollist-inline-editor");
 		me.update();
+		me.element.scrollLeft(0);
 	}
 
 	this.element.click(function () {
@@ -494,7 +495,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 				operationElement.append(operationSelect);
 
 				var currentEdenEscaped = Eden.htmlEscape(currentEden, true);
-				var inputBox = $('<input type="text" value="' + currentEdenEscaped + '" style="width: 100%"/>');
+				var inputBox = $('<input type="text" value="' + currentEdenEscaped + '" spellcheck="false" style="width: 100%"/>');
 				var inputBoxElem = inputBox.get(0);
 				function submitInlineEdit () {
 						var operation = operationSelect.get(0).value;
