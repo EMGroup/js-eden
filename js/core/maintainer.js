@@ -454,9 +454,9 @@
 		this.name = name;
 
 		// MUST HAVE A NAME
-		if (this.name === undefined) {
+		/*if (this.name === undefined) {
 			this.name = makeRandomName();
-		}
+		}*/
 
 		this.cache = (context) ? context.scope.add(name) : new ScopeCache( true, undefined );
 
