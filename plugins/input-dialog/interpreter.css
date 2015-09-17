@@ -156,6 +156,10 @@ input.cmn-toggle-round:checked + label:after {
   margin-left: 25px;
 }
 
+input.submitError:checked + label:before {
+	background-color: #a40000;
+}
+
 .previousButton{
 	height:25px;
 	width:25px;

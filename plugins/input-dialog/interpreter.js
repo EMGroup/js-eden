@@ -332,7 +332,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			// Execute if no errors!
 			if (run && stream.ast.script.errors.length == 0) {
 				//me.submit(textarea);
+				$dialogContents.find(".submitButton").removeClass("submitError");
 				edenUI.plugins.ScriptInput.submitEdenCode(text);
+			} else if (run) {
+				$dialogContents.find(".submitButton").addClass("submitError");
 			}
 		}
 
