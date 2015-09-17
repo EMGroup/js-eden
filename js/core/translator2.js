@@ -316,6 +316,7 @@ EdenAST.prototype.pEXPRESSION_PPPPP = function() {
  *	- number |
  *	number |
  *	string |
+ *  JAVASCRIPT |
  *	[ ELIST ] |
  *	& LVALUE |
  *	! PRIMARY |
@@ -357,6 +358,9 @@ EdenAST.prototype.pFACTOR = function() {
 	} else if (this.token == "@") {
 		this.next();
 		return new EdenAST_Literal("UNDEFINED", "@");
+	} else if (this.token == "JAVASCRIPT") {
+		this.next();
+		return new EdenAST_Literal("JAVASCRIPT", this.data.value);
 	} else if (this.token == "NUMBER") {
 		this.next();
 		return new EdenAST_Literal("NUMBER", this.data.value);
@@ -1560,6 +1564,9 @@ EdenAST.prototype.pSTATEMENT = function() {
 						this.lines[this.stream.line-1] = formula;
 
 						return formula;
+	case "JAVASCRIPT" : var js = this.data.value;
+						this.next();
+						return new EdenAST_Literal("JAVASCRIPT", js);
 	}
 	return undefined;
 };

@@ -209,6 +209,10 @@ span.eden-function {
 	color: #ce5c00;
 }
 
+span.eden-javascript {
+	color: #c4a000;
+}
+
 span.eden-comment {
 	font-style: italic;
 	color: #888a85;

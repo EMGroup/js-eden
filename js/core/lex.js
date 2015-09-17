@@ -62,6 +62,14 @@ EdenStream.prototype.peek2 = function() {
 };
 
 /**
+ * Get the character after the next and don't move the stream.
+ */
+EdenStream.prototype.peek3 = function() {
+	if (this.position + 2 >= this.code.length) return 0;
+	return this.code.charCodeAt(this.position + 2);
+};
+
+/**
  * Explicitely set the stream position.
  * Used by error handlers to scan around where the error occurred.
  */
@@ -176,6 +184,9 @@ EdenStream.prototype.tokenType = function(token) {
 	if (token == "OBSERVABLE") {
 		return "identifier";
 	}
+	if (token == "JAVASCRIPT") {
+		return "javascript";
+	}
 	if (token == "NUMBER") {
 		return "number";
 	}
@@ -234,6 +245,20 @@ EdenStream.prototype.parseString = function(data) {
 	data.value = result;
 };
 
+EdenStream.prototype.parseJavascript = function(data) {
+	var result = "";
+
+	while (this.valid()) {
+		if (this.peek() == 125 && this.peek2() == 125 && this.peek3() == 36) {
+			this.skip(); this.skip(); this.skip();
+			break;
+		}
+		result += String.fromCharCode(this.get());
+	}
+
+	data.value = result;
+};
+
 
 
 EdenStream.prototype.parseNumber = function(data) {
@@ -243,7 +268,7 @@ EdenStream.prototype.parseNumber = function(data) {
 		result += String.fromCharCode(this.get());
 	}
 
-	if (this.peek() == 46) {
+	if (this.peek() == 46 && this.isNumeric(this.peek2())) {
 		this.skip();
 		result += ".";
 		while (this.valid() && this.isNumeric(this.peek())) {
@@ -329,7 +354,7 @@ EdenStream.prototype.readToken = function() {
 				return "#";
 	case 36	:	if (this.peek() == 123 && this.peek2() == 123) {
 					this.skip(); this.skip();
-					//parseJavascript(stream, data);
+					this.parseJavascript(this.data);
 					return "JAVASCRIPT";
 				}
 				return "$";

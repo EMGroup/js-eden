@@ -124,16 +124,16 @@ EdenHighlight.prototype.highlight = function(start) {
 	if (start < 0) start = 0;
 
 	stream.reset();
-	stream.position = start;
+	//stream.position = start;
 
-	result = stream.code.slice(0, start);
+	//result = stream.code.slice(0, start).replace(">","&gt;").replace("<","&lt;");
 
 	var line = "";
 	var lineerror = false;
 	var linestart = 0;
 
 	while (stream.valid()) {
-		if (stream.position > start + (2*this.CODELIMIT)) {
+		/*if (stream.position > start + (2*this.CODELIMIT)) {
 			//if (inerror) result += "</span>";
 			if (lineerror) {
 				result += "<span class='eden-errorline'>";
@@ -141,10 +141,10 @@ EdenHighlight.prototype.highlight = function(start) {
 			} else {
 				result += "<span class='eden-line'>";
 			}
-			result += line + "</span>" + stream.code.slice(stream.position);
+			result += line + "</span>" + stream.code.slice(stream.position).replace(">","&gt;").replace("<","&lt;");
 			line = "";			
 			break;
-		}
+		}*/
 		// Skip but preserve white space
 		while (stream.valid()) {
 			var ch= stream.peek();
@@ -209,7 +209,7 @@ EdenHighlight.prototype.highlight = function(start) {
 		}
 
 		if (inerror && this.ast.script.errors[0].token != "EOF") {
-			title = errmsg;
+			title = errmsg.replace(">","&gt;").replace("<","&lt;");
 			classes += "eden-error ";
 		} else {
 			title = "";
@@ -218,10 +218,12 @@ EdenHighlight.prototype.highlight = function(start) {
 		if (token == "##") {
 			classes += "eden-comment";
 			line += "<span class='"+classes+"'>##";
+			var comment = "";
 			while (stream.valid() && stream.peek() != 10) {
-				line += String.fromCharCode(stream.get());
+				comment += String.fromCharCode(stream.get());
 			}
-			line += "</span>";
+			comment = comment.replace(">","&gt;").replace("<","&lt;");
+			line += comment + "</span>";
 		} else if (token == "local" || token == "auto" || token == "para") {
 			classes += "eden-storage";
 			line += "<span class='"+classes+"' title=\""+title+"\">" + token + "</span>";
@@ -233,7 +235,7 @@ EdenHighlight.prototype.highlight = function(start) {
 			line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText() + "</span>";
 		} else if (token == "STRING") {
 			classes += "eden-string";
-			line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText() + "</span>";
+			line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText().replace(">","&gt;").replace("<","&lt;") + "</span>";
 		} else if (token == "OBSERVABLE") {
 			if (edenFunctions[stream.data.value]) {
 				classes += "eden-function";
@@ -248,8 +250,14 @@ EdenHighlight.prototype.highlight = function(start) {
 				classes += "eden-observable";
 				line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText() + "</span>";
 			}
+		} else if (token == "JAVASCRIPT") {
+			classes += "eden-javascript";
+			line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText().replace(">","&gt;").replace("<","&lt;") + "</span>";
 		} else {
 			classes += "eden-operator";
+			token = token.replace("<","&lt;");
+			token = token.replace(">","&gt;");
+			console.log("Replaced: " + token);
 			line += "<span class='"+classes+"' title=\""+title+"\">" + token + "</span>";
 		}
 	}
