@@ -28,6 +28,20 @@ $ node jseden-dev-server.js
 
 Then go to localhost:8000.
 
+Use localhost:8000/index-dev.html to get non-minified javascript.
+
+To rebuild the minified javascript before pushing core or plugin changes, use grunt:
+
+```
+$ grunt
+```
+
+This will watch for changes and rebuild .min.js files automatically. Alternatively to just rebuild them once:
+
+```
+$ grunt uglify
+```
+
 ## Developing the parser
 
 Start up the parser development server:

@@ -10,8 +10,37 @@ ${{
 		this.fillcolour = fillcolour;
 		this.outlinecolours = outlinecolours;
 		this.drawingOptions = drawingOptions;
-		if (this.outlinecolours === undefined) {
-			this.calculatePolygons(0);
+
+		this.exteriorAngle = (2 * Math.PI) / n;
+		this.vertices = [];
+		var pointsDone = new Array(n);
+		var px, py;
+		var currentPolygonVertices, currentPoint;
+		var nudge;
+		if (drawingOptions !== undefined && drawingOptions.valign == "bottom") {
+			if (drawingOptions.lineWidth !== undefined) {
+				nudge = drawingOptions.lineWidth;
+			} else {
+				nudge = 2;
+			}
+		} else {
+			nudge = 0;
+		}
+		var rotation2 = -rotation - Math.PI * (0.5 - 2 / n); //Zero rotation means "pointing upwards"
+		for (var i = 0; i < n; i++) {
+			var j = i;
+			currentPolygonVertices = [];
+			while (pointsDone[j] !== true) {
+				px = x + r * Math.cos(rotation2 + j * this.exteriorAngle);
+				py = y + r * Math.sin(rotation2 + j * this.exteriorAngle) + nudge;
+				currentPoint = new Point(px, py);
+				currentPolygonVertices.push(currentPoint);
+				pointsDone[j] = true;
+				j = (j + star) % n;
+			}
+			if (currentPolygonVertices.length > 0) {
+				this.vertices = this.vertices.concat(currentPolygonVertices);
+			}
 		}
 	}
 
@@ -25,7 +54,6 @@ ${{
 		} else {
 			separatePolygonsPossiblyNeeded = false;		
 		}
-		this.vertices = [];
 		
 		var radius = this.r - lineWidth / 2;
 		var rotation = -this.rotation - Math.PI * (0.5 - 2 / this.n);
@@ -36,7 +64,6 @@ ${{
 			nudge = 0;
 		}
 
-		var exteriorAngle = (2 * Math.PI) / this.n;
 		var pointsDone = new Array(this.n);
 		var px, py;
 		var polygons = [];
@@ -45,15 +72,14 @@ ${{
 			var j = i;
 			currentPolygonVertices = [];
 			while (pointsDone[j] !== true) {
-				px = this.x + radius * Math.cos(rotation + j * exteriorAngle);
-				py = this.y + radius * Math.sin(rotation + j * exteriorAngle) + nudge;
+				px = this.x + radius * Math.cos(rotation + j * this.exteriorAngle);
+				py = this.y + radius * Math.sin(rotation + j * this.exteriorAngle) + nudge;
 				currentPoint = new Point(px, py);
 				currentPolygonVertices.push(currentPoint);
 				pointsDone[j] = true;
 				j = (j + this.star) % this.n;
 			}
 			if (currentPolygonVertices.length > 0) {
-				this.vertices = this.vertices.concat(currentPolygonVertices);
 				polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, this.outlinecolours, this.drawingOptions));
 			}
 		}
@@ -66,18 +92,12 @@ ${{
 					 * Solution: add extra polygons to over-paint those inside edges that we don't want.
 					 * N.B. We can (and do) safely ignore these extra polygons when performing hit testing.
 					 */
-					var lineWidth;
-					if (typeof(this.drawingOptions) == "object" && "lineWidth" in this.drawingOptions) {
-						lineWidth = this.drawingOptions.lineWidth;
-					} else {
-						lineWidth = 2;
-					}
-					var smallerRadius = radius - Math.ceil(lineWidth / 2) - 2;
+					var smallerRadius = this.r - lineWidth;
 					currentPolygonVertices = [];
 					i = 0;
 					do {
-						px = this.x + smallerRadius * Math.cos(rotation + i * exteriorAngle);
-						py = this.y + smallerRadius * Math.sin(rotation + i * exteriorAngle) + nudge;
+						px = this.x + smallerRadius * Math.cos(rotation + i * this.exteriorAngle);
+						py = this.y + smallerRadius * Math.sin(rotation + i * this.exteriorAngle);
 						currentPoint = new Point(px, py);
 						currentPolygonVertices.push(currentPoint);
 						i = (i + this.star) % this.n;

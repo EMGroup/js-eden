@@ -9,6 +9,14 @@ func execute {
 	}}$;
 }
 
+func Point {
+	${{
+		var x = arguments[0];
+		var y = arguments[1];
+		return new Point(x, y);
+	}}$;
+}
+
 proc createView {
 	${{
 		var name = arguments[0];

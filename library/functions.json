@@ -1057,6 +1057,7 @@
 				"y": "",
 				"width": "",
 				"[height]": "",
+				"[placeholder_text]": "",
 				"[enabled]": ""
 			},
 			"return": "",
@@ -1092,7 +1093,8 @@
 		},
 		"Slide": {
 			"parameters": {
-				"html": ""
+				"html": "",
+				"[css_class_or_class_list]": "Adds the CSS class name jspe-<specified-name>-slide to the slide."
 			},
 			"return": "",
 			"description": ""

@@ -812,10 +812,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			}
 
 			var mousePos;
-			//Workaround for bug #67.
-			if (window.Point) {
-				mousePos = new Point(x, y);
-			}
+			mousePos = new Point(x, y);
 
 			root.lookup('mouseWindow').assign(canvasName, root.scope, Symbol.hciAgent, followMouse);
 			mousePositionSym.assign(mousePos, root.scope, Symbol.hciAgent, followMouse);

@@ -37,6 +37,7 @@ h2, ul li {
 	padding: 0px;
 }
 
+
 .canvashtml-content select {
 	margin: 0px;
 	padding: 0px;
@@ -44,7 +45,7 @@ h2, ul li {
 
 .canvashtml-content textarea {
 	/* See Textbox.prototype.scale in plugins/textbox.js-e */
-	border: 1px solid;
+	border-width: 1px;
 	margin: 0px;
 	padding: 2px;
 }

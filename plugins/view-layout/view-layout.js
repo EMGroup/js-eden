@@ -106,5 +106,5 @@ EdenUI.plugins.WindowLayoutTool = function(edenUI, success) {
 
 /* Plugin meta information */
 EdenUI.plugins.WindowLayoutTool.title = "Window Layout Tool";
-EdenUI.plugins.WindowLayoutTool.description = "Provices assistance with rearranging windows.";
+EdenUI.plugins.WindowLayoutTool.description = "Provides assistance with rearranging windows.";
 EdenUI.plugins.WindowLayoutTool.author = "Jonny Foss";

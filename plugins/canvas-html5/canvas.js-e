@@ -247,7 +247,6 @@ include("plugins/canvas-html5/polygon.js-e");
 include("plugins/canvas-html5/rectangle.js-e");
 include("plugins/canvas-html5/slider.js-e");
 include("plugins/canvas-html5/text.js-e");
-include("plugins/canvas-html5/point.js-e");
 include("plugins/canvas-html5/pixel.js-e");
 include("plugins/canvas-html5/pixelList.js-e");
 include("plugins/canvas-html5/radialGradient.js-e");

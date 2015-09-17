@@ -1070,6 +1070,7 @@
 		delete this.jsObservers[name];
 	}
 
+
 	var Utils = {
 		flatten: function (array) {
 			var flat = [];

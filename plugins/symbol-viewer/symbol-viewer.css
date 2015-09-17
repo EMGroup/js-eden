@@ -12,6 +12,9 @@
 	font-family: monospace;
 	white-space: nowrap;
 }
+.symbollist-result-element:hover {
+	background-color: #eaeaea;
+}
 
 .symbollist-search {
 	width: calc(100% - 80px);
