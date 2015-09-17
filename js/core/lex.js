@@ -93,8 +93,8 @@ EdenStream.prototype.tokenText = function() {
  * Is the stream at the beginning or end of a line.
  */
 EdenStream.prototype.isBEOL = function() {
-	if (this.peek() == 10) return true;
-	var pastpos = this.prevposition;
+	if (this.peek2() == 10) return true;
+	var pastpos = this.prevposition-1;
 	var pastchar = this.code.charCodeAt(pastpos);
 	while (pastchar == 9 || pastchar == 32) {
 		pastpos--;
@@ -362,6 +362,7 @@ EdenStream.prototype.readToken = function() {
 	case 38	:	if (this.peek() == 38) { this.skip(); return "&&"; }
 				if (this.peek() == 61) { this.skip(); return "&="; }
 				return "&";
+	case 39 :	return "'";
 	case 40	:	return "(";
 	case 41	:	return ")";
 	case 42	:	if (this.peek() == 61) { this.skip(); return "*="; }

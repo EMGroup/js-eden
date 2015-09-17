@@ -1552,6 +1552,9 @@ EdenAST.prototype.pSTATEMENT = function() {
 						if (lvalue.errors.length > 0) return lvalue;
 						var formula = this.pSTATEMENT_PP();
 						formula.left(lvalue);
+						// Log as main statement on this line.
+						this.lines[this.stream.line-1] = formula;
+
 						if (formula.errors.length > 0) return formula;
 		
 						if (this.token != ";") {
@@ -1559,9 +1562,6 @@ EdenAST.prototype.pSTATEMENT = function() {
 						} else {
 							this.next();
 						}
-
-						// Log as main statement on this line.
-						this.lines[this.stream.line-1] = formula;
 
 						return formula;
 	case "JAVASCRIPT" : var js = this.data.value;

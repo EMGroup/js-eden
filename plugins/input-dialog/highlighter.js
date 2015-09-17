@@ -95,8 +95,12 @@ function EdenHighlight(code) {
 	this.ast = new EdenAST(code);
 	this.CODELIMIT = 1000;
 	this.line = 1;
+	this.currentline = -1;
+	//this.currenttoken = "INVALID";
+	//this.currentprevtoken = "INVALID";
 
 	console.log(this.ast.lines);
+	if (this.ast.script.errors.length > 0) console.log(this.ast.script.errors[0]);
 }
 
 
@@ -131,6 +135,8 @@ EdenHighlight.prototype.highlight = function(start) {
 	var line = "";
 	var lineerror = false;
 	var linestart = 0;
+	var token = "INVALID";
+	var prevtoken = "INVALID";
 
 	while (stream.valid()) {
 		/*if (stream.position > start + (2*this.CODELIMIT)) {
@@ -151,9 +157,12 @@ EdenHighlight.prototype.highlight = function(start) {
 			if (ch == 10) {
 				this.line++;
 				if (lineerror) {
-					result += "<span class='eden-errorline'>";
+					result += "<span class='eden-currentline eden-errorline'>";
 					lineerror = false;
 				} else if (oldstart >= linestart && oldstart <= stream.position) {
+					this.currentline = this.line - 1;
+					//this.currenttoken = token;
+					//this.currentprevtoken = prevtoken;
 					result += "<span class='eden-currentline'>";
 				} else {
 					result += "<span class='eden-line'>";
@@ -183,7 +192,8 @@ EdenHighlight.prototype.highlight = function(start) {
 			}
 		}
 
-		var token = stream.readToken();
+		prevtoken = token;
+		token = stream.readToken();
 		var type = stream.tokenType(token);
 		var classes = "";
 
@@ -257,13 +267,18 @@ EdenHighlight.prototype.highlight = function(start) {
 			classes += "eden-operator";
 			token = token.replace("<","&lt;");
 			token = token.replace(">","&gt;");
-			console.log("Replaced: " + token);
 			line += "<span class='"+classes+"' title=\""+title+"\">" + token + "</span>";
 		}
 	}
 
 	if (line != "") {
 		result += "<span class='eden-line'>" + line + "</span>";
+	}
+
+	if (this.currentline == -1) {
+		//this.currenttoken = token;
+		//this.currentprevtoken = prevtoken;
+		this.currentline = this.line - 1;
 	}
 
 	return result;

@@ -228,9 +228,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createDialog = function (name, mtitle) {
-		var $dialogContents = $('<div class="inputCodeArea"><code spellcheck="false" contenteditable tabindex="1" class="inputcontent"></code></div><div class="subButtonsDiv"><div class="switch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div></div><div class="buttonsDiv"><button class="previousButton"></button><button class="nextButton"></button></div>')
+		var $dialogContents = $('<div class="inputCodeArea"><div class="eden_suggestions"></div><code spellcheck="false" contenteditable tabindex="1" class="inputcontent"></code></div><div class="subButtonsDiv"><div class="switch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div></div><div class="buttonsDiv"><button class="previousButton"></button><button class="nextButton"></button></div>')
 		var text = "";	
 		var textarea = $dialogContents.find('.inputcontent').get(0);
+		var suggestions = $dialogContents.find('.eden_suggestions');
+		suggestions.hide();
 
 		var dragstart = 0;
 		var dragvalue = 0;
@@ -311,7 +313,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				},
 				start: function(e,u) {
 					dragstart = u.position.left;
-					console.log("Drag value: " + e.target.textContent);
 					dragvalue = parseInt(e.target.textContent);
 					draglast = dragvalue;
 					$(e.target).addClass("eden-select");
@@ -323,11 +324,20 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				},
 				cursor: 'move',
 				cursorAt: {top: -5, left: -5}
-			});/*.hover(function(e) {
-				$(e.target).addClass("eden-select"); //.css("cursor", "ew-resize");
-			}, function(e) {
-				$(e.target).removeClass("eden-select"); //.css("cursor","text");
-			});*/
+			});
+
+			$(textarea).find('.eden-observable').draggable({
+				helper: function(e) { return $("<span class='eden-observable eden-select'>"+e.target.textContent+"</span>"); },
+				cursor: "move",
+				appendTo: "body",
+				zIndex: 10000,
+				start: function(e,u) {
+					$(e.target).addClass("eden-select");
+				},
+				stop: function(e,u) {
+					$(e.target).removeClass("eden-select");
+				},
+			});
 
 			// Execute if no errors!
 			if (run && stream.ast.script.errors.length == 0) {
@@ -337,13 +347,26 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			} else if (run) {
 				$dialogContents.find(".submitButton").addClass("submitError");
 			}
+
+			return stream;
 		}
 
 		$dialogContents.on('keyup', '.inputcontent', function (e) {
 			if (!e.ctrlKey && (e.keyCode < 37 || e.keyCode > 40) && e.keyCode != 17) {
 				text = textarea.textContent;
 				var position = getCaretCharacterOffsetWithin(textarea);
-				highlightContent(text,position,me.autoexec);
+				var stream = highlightContent(text,position,me.autoexec);
+
+				/*var curlineele = $(textarea).find(".eden-currentline");
+				var pos = curlineele.position();
+				if (pos === undefined) pos = $(textarea).position();
+				//var sym = eden.root.lookup(curast.lvalue.observable);
+				//if (sym && sym.eden_definition) suggestions.text(sym.eden_definition);
+				suggestions.text(curlineele.get(0).textContent);
+				suggestions.css("top",""+ (pos.top) +"px");
+				suggestions.show("slow");
+				//suggestions.hide("slow");*/
+
 			} else if (e.ctrlKey) {
 				console.log(e);
 
