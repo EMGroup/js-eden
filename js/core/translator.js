@@ -316,11 +316,14 @@ break;
 case 76: case 81: case 86:
  this.$ = $$[$0-2] + ', ' + $$[$0]; 
 break;
-case 77: case 82:
+case 77:
  this.$ = $$[$0-2] + ': ' + $$[$0]; 
 break;
+case 82:
+ this.$ = 'new ScopeOverride("' + $$[$0-2] + '", ' + $$[$0] + ')'; 
+break;
 case 87:
- this.$ = $$[$0-4] + ': { begin: ' + $$[$0-2] + ', end: ' + $$[$0] + '}'; 
+ this.$ = 'new ScopeOverride("' + $$[$0-4] + '", ' + $$[$0-2] + ', ' + $$[$0] + ')'; 
 break;
 case 89:
  this.$ = $$[$0] + '.value(scope)'; 
@@ -329,10 +332,10 @@ case 90:
  this.$ = $$[$0-5] + '.value(scope).' + $$[$0-3] + '(' + $$[$0-1] + ')'; 
 break;
 case 91:
- this.$ = $$[$0-3] + '.value(new Scope(context, scope, {' + $$[$0-1] + '}, ' + $$[$0-3] + '))'; 
+ this.$ = $$[$0-3] + '.value(new Scope(context, scope, [' + $$[$0-1] + '], ' + $$[$0-3] + '))'; 
 break;
 case 92:
- this.$ = $$[$0-3] + '.multiValue(context, scope, {' + $$[$0-1] + '}, ' + $$[$0-3] + ')'; 
+ this.$ = $$[$0-3] + '.multiValue(context, scope, [' + $$[$0-1] + '], ' + $$[$0-3] + ')'; 
 break;
 case 93:
  this.$ = '' + $$[$0-3] + '.call('+ ['this'].concat($$[$0-1]) + ')'; 

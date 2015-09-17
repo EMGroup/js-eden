@@ -478,7 +478,7 @@ scope-list
 
 scope-pair
     : OBSERVABLE '=' expression
-        { $$ = $1 + ': ' + $3; }
+        { $$ = 'new ScopeOverride("' + $1 + '", ' + $3 + ')'; }
     ;
 
 scoperange-list-opt
@@ -495,7 +495,7 @@ scoperange-list
 
 scoperange-pair
     : OBSERVABLE '=' expression '..' expression
-        { $$ = $1 + ': { begin: ' + $3 + ', end: ' + $5 + '}'; }
+        { $$ = 'new ScopeOverride("' + $1 + '", ' + $3 + ', ' + $5 + ')'; }
 	| scope-pair
     ;
 
@@ -505,9 +505,9 @@ primary-expression
     | lvalue '.' OBSERVABLE '(' expression-list-opt ')'
         { $$ = $lvalue + '.value(scope).' + $3 + '(' + $5 + ')'; }
 	| lvalue '{' scope-list-opt '}'
-		{ $$ = $1 + '.value(new Scope(context, scope, {' + $3 + '}, ' + $1 + '))'; }
+		{ $$ = $1 + '.value(new Scope(context, scope, [' + $3 + '], ' + $1 + '))'; }
 	| lvalue '{' scoperange-list-opt '}'
-		{ $$ = $1 + '.multiValue(context, scope, {' + $3 + '}, ' + $1 + ')'; }
+		{ $$ = $1 + '.multiValue(context, scope, [' + $3 + '], ' + $1 + ')'; }
     | primary-expression '(' expression-list-opt ')'
         { $$ = '' + $1 + '.call('+ ['this'].concat($3) + ')'; }
     | primary-expression '[' expression ']'

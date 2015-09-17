@@ -40,6 +40,14 @@
 	}
 
 
+	function ScopeOverride(name, start, end) {
+		this.name = name;
+		this.start = start;
+		this.end = end;
+		this.current = start;
+	}
+
+
 	function Scope(context, parent, overrides, cause) {
 		this.parent = parent;
 		this.context = context;
@@ -50,11 +58,10 @@
 			this.add(cause.name);
 		}
 
-		//console.log("New scope");
-
 		/* Process the overrides */
-		for (var override in overrides) {
-			this.addOverride(override, overrides[override]);
+		//for (var override in overrides) {
+		for (var i = 0; i < overrides.length; i++) {
+			this.addOverride(overrides[i]);
 		}
 	}
 
@@ -94,26 +101,59 @@
 		return cache;
 	}
 
-	Scope.prototype.addOverride = function(name, value) {
-		//console.log("Add override: " + name + " = " + value);
-		this.cache["/"+name] = new ScopeCache( true, value );
-
+	Scope.prototype.addOverride = function(override) {
+		this.updateOverride(override);
 		if (this.context) {
-			var sym = this.context.lookup(name);
+			var sym = this.context.lookup(override.name);
 			//console.log(sym);
 			for (var d in sym.subscribers) {
-				this.addSubscriber(d);
+				this.updateSubscriber(d);
 			}
 		}
 	}
 
-	Scope.prototype.addSubscriber = function(name) {
+	Scope.prototype.updateOverride = function(override) {
+		//console.log("Update override: " + override.name + " = " + override.current);
+		var name = "/"+override.name;
+		if (this.cache[name] === undefined) {
+			this.cache[name] = new ScopeCache( true, override.current );
+		} else {
+			this.cache[name].value = override.current;
+			this.cache[name].up_to_date = true;
+		}
+	}
+
+	Scope.prototype.updateSubscriber = function(name) {
 		//console.log("Adding scope subscriber...: " + name);
-		this.cache[name] = new ScopeCache( false, undefined );
+		if (this.cache[name] === undefined) {
+			this.cache[name] = new ScopeCache( false, undefined );
+		} else {
+			this.cache[name].up_to_date = false;
+			this.cache[name].value = undefined;
+		}
 		var sym = this.context.lookup(name.substr(1));
 		for (var d in sym.subscribers) {
-			this.addSubscriber(d);
+			this.updateSubscriber(d);
 		}
+	}
+
+	Scope.prototype.next = function() {
+		for (var o in this.cache) {
+			this.cache[o].up_to_date = false;
+		}
+		for (var i = this.overrides.length-1; i >= 0; i--) {
+			if (this.overrides[i].end === undefined) continue;
+
+			if (this.overrides[i].current < this.overrides[i].end) {
+				this.overrides[i].current++;
+				this.updateOverride(this.overrides[i]);
+				return true;
+			} else {
+				this.overrides[i].current = this.overrides[i].start;
+				this.updateOverride(this.overrides[i]);
+			}
+		}
+		return false;
 	}
 
 	/*Scope.prototype.assign = function(name, value, modifying_agent, pushToNetwork) {
@@ -488,32 +528,17 @@
 	Symbol.prototype.multiValue = function (context, scope, overrides, cause) {
 		var hasrange = false;
 		var results = [];
+		var newscope = new Scope(context,scope, overrides, cause);
 
-		for (var o in overrides) {
-			var override = overrides[o];
-			if (typeof override == "object" && override.begin) {
-				hasrange = true;
-				for (var i = override.begin; i <= override.end; i++) {
-					overrides[o] = i;
-					var res = this.multiValue(context, scope, overrides, cause);
-					if (res !== undefined) {
-						results.push.apply(results, res);
-					}
-				}
-				overrides[o] = override;
-				break;
-			}
-		}
-
-		if (hasrange == false) {
-			var val = this.value(new Scope(context, scope, overrides, cause));
+		while (true) {
+			var val = this.value(newscope);
 			if (val !== undefined) {
-				return [val];
+				results.push(val);
 			}
-			return undefined;
-		} else {
-			return results;
+			if (newscope.next() == false) break;
 		}
+
+		return results;
 	};
 
 	Symbol.prototype.evaluateIfDependenciesExist = function () {
@@ -1192,6 +1217,7 @@
 	global.Folder = Folder;
 	global.Symbol = Symbol;
 	global.Scope = Scope;
+	global.ScopeOverride = ScopeOverride;
 	
 	// expose as node.js module
 	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
