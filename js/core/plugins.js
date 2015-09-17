@@ -494,8 +494,8 @@
 		var y = ySym.value();
 		var realX = Math.round(x / this.gridSizeX) * this.gridSizeX;
 		var realY = Math.round(y / this.gridSizeY) * this.gridSizeY;
-		xSym.cached_value = realX;
-		ySym.cached_value = realY;
+		xSym.cache.value = realX;
+		ySym.cache.value = realY;
 		if (this.plugins.MenuBar) {
 			realY = realY  + this.menuBarHeight;
 		}
@@ -576,8 +576,8 @@
 		newHeight = adjustedHeight - this.titleBarHeight;
 		diag.dialog("option", "height", adjustedHeight);
 
-		widthSym.cached_value = newWidth;
-		heightSym.cached_value = newHeight;
+		widthSym.cache.value = newWidth;
+		heightSym.cache.value = newHeight;
 		var viewData = this.viewInstances[name];
 		if ("resize" in viewData) {
 			viewData.resize(newWidth, newHeight);

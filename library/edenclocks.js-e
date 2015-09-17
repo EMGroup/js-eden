@@ -29,16 +29,16 @@ ${{
 
 		if (Array.isArray(clocks)) {
 			var incrementClock = function (symbol) {
-				if (!pausedSym.cached_value) {
-					symbol.assign(symbol.cached_value + 1, root.scope, edenclocks);
-					if (debugSym.cached_value.edenclocks) {
+				if (!pausedSym.cache.value) {
+					symbol.assign(symbol.cache.value + 1, root.scope, edenclocks);
+					if (debugSym.cache.value.edenclocks) {
 						console.log("edenclocks: clock " + symbol.name);
 					}
 				}
 			};
 			var callClockProc = function (symbol) {
-				if (!pausedSym.cached_value) {
-					if (debugSym.cached_value.edenclocks) {
+				if (!pausedSym.cache.value) {
+					if (debugSym.cache.value.edenclocks) {
 						console.log("edenclocks: clock " + symbol.name);
 					}				
 					symbol.definition(root)();

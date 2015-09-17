@@ -287,7 +287,7 @@ EdenUI.plugins.ObservableMining = function (edenUI, success) {
 
 		// Does the symbol have a definition
 		if (!sym.definition || !sym.eden_definition) {
-			if (typeof(sym.cached_value) == "function") {
+			if (typeof(sym.cache.value) == "function") {
 				return;
 			}
 		} else {
@@ -300,7 +300,7 @@ EdenUI.plugins.ObservableMining = function (edenUI, success) {
 				return;
 			} else {
 				//Dependency
-				if (typeof(sym.cached_value) == "function") {
+				if (typeof(sym.cache.value) == "function") {
 					return;
 				}
 			}

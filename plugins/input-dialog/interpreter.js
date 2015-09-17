@@ -377,9 +377,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}).on('click', '.previousButton', function (e) {
 			$dialogContents.find(".submitButton").get(0).checked = false;
+			me.autoexec = false;
 			highlightContent(me.prev(), 0, false);
 		}).on('click', '.nextButton', function (e) {
 			$dialogContents.find(".submitButton").get(0).checked = false;
+			me.autoexec = false;
 			highlightContent(me.next(), 0, false);
 		});
 		

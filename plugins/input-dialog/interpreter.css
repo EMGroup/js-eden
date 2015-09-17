@@ -118,7 +118,7 @@ input.cmn-toggle-round + label {
   padding: 2px;
   width: 40px;
   height: 14px;
-  background-color: #dddddd;
+  background-color: #bfbfbf;
   border-radius: 14px;
 }
 input.cmn-toggle-round + label:before,
@@ -132,22 +132,22 @@ input.cmn-toggle-round + label:after {
 }
 input.cmn-toggle-round + label:before {
   right: 1px;
-  background-color: #f1f1f1;
+  background-color: #fafafa;
   border-radius: 14px;
-  transition: background 0.3s;
+  transition: background 0.2s;
 }
 input.cmn-toggle-round + label:after {
   width: 20px;
   height: 20px;
   top: -2px;
   /*background-color: silver;*/
-  background: -webkit-linear-gradient(#f1f1f1, silver); /* For Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(#f1f1f1, silver); /* For Opera 11.1 to 12.0 */
-  background: -moz-linear-gradient(#f1f1f1, silver); /* For Firefox 3.6 to 15 */
-  background: linear-gradient(#f1f1f1, silver); /* Standard syntax */
+  background: -webkit-linear-gradient(#e4e4e4, #b0b0b0); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(#e4e4e4, #b0b0b0); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(#e4e4e4, #b0b0b0); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(#e4e4e4, #b0b0b0); /* Standard syntax */
   border-radius: 100%;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  transition: margin 0.3s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  transition: margin 0.2s;
 }
 input.cmn-toggle-round:checked + label:before {
   background-color: #73d216;
@@ -221,7 +221,7 @@ span.eden-string {
 
 span.eden-operator {
 	color: black;
-};
+}
 
 span.eden-error {
 	background-color: #ffdcdc;

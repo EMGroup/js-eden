@@ -68,8 +68,8 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 			var kind, definition, value;
 			if (symbol.eden_definition === undefined) {
 				definition = "-";
-				kind = typeof(symbol.cached_value) == "function"? "Function" : "Observable";
-				value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cached_value));
+				kind = typeof(symbol.cache.value) == "function"? "Function" : "Observable";
+				value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cache.value));
 			} else {
 				definition = Eden.htmlEscape(symbol.eden_definition);
 				if (definition.indexOf("proc") == 0) {
@@ -86,7 +86,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 					value = "";
 				} else {
 					kind = "Dependency";
-					value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cached_value));
+					value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cache.value));
 				}
 			}
 			partialTable.push([symbol, name, kind, definition, value]);

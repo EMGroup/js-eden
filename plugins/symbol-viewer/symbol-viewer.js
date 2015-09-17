@@ -359,8 +359,8 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 
 	// Does the symbol have a definition
 	if (!symbol.definition || !symbol.eden_definition) {
-		if (typeof(symbol.cached_value) == "function") {
-			if (/\breturn\s+([^\/;]|(\/[^*\/]))/.test(symbol.cached_value.toString())) {
+		if (typeof(symbol.cache.value) == "function") {
+			if (/\breturn\s+([^\/;]|(\/[^*\/]))/.test(symbol.cache.value.toString())) {
 				symbolType = "func";
 			} else {
 				symbolType = "agent";
@@ -378,8 +378,8 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 			symbolType = "func";
 		} else {
 			//Dependency
-			if (typeof(symbol.cached_value) == "function") {
-				if (/\breturn\s+([^\/;]|(\/[^*\/]))/.test(symbol.cached_value.toString())) {
+			if (typeof(symbol.cache.value) == "function") {
+				if (/\breturn\s+([^\/;]|(\/[^*\/]))/.test(symbol.cache.value.toString())) {
 					symbolType = "func";
 				} else {
 					symbolType = "agent";
@@ -458,7 +458,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 	if (type == "obs") {
 		this.element.dblclick(function () {
 			singleClickPerformed = false;
-			var value = me.symbol.cached_value;
+			var value = me.symbol.cache.value;
 			if (me.symbol.eden_definition !== undefined || typeof(value) != "boolean") {
 				inlineEditorOpen = true;
 				var valueElement = me.element.find(".result_value");

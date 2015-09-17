@@ -113,7 +113,7 @@ EdenHighlight.prototype.highlight = function(start) {
 	var title = "";
 	var oldstart = start;
 
-	if (this.ast.script.errors.length > 0 && this.ast.script.errors[0].token != "EOF") {
+	if (this.ast.script.errors.length > 0) {
 		errstart = this.ast.script.errors[0].prevposition;
 		errend = this.ast.script.errors[0].position;
 		errmsg = this.ast.script.errors[0].messageText();
@@ -208,7 +208,7 @@ EdenHighlight.prototype.highlight = function(start) {
 			if( inerror) lineerror = true;
 		}
 
-		if (inerror) {
+		if (inerror && this.ast.script.errors[0].token != "EOF") {
 			title = errmsg;
 			classes += "eden-error ";
 		} else {

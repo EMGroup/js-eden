@@ -42,7 +42,7 @@ Eden.plugins.Canvas2D = function (context) {
 		if(typeof observable.definition == "function"){
 			var toDraw = me.toDraw = observable.definition();
 		}else{
-			var toDraw = me.toDraw = observable.cached_value;
+			var toDraw = me.toDraw = observable.cache.value;
 		}
 	
 
