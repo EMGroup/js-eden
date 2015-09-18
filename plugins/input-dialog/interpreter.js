@@ -487,7 +487,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						// Execute if no errors!
 						if (me.autoexec && ast.script.errors.length == 0) {
 							if (ast.lines[dragline]) {
-								console.log("EXEC: " + ast.getSource(ast.lines[dragline]));
+								//console.log("EXEC: " + ast.getSource(ast.lines[dragline]));
 								edenUI.plugins.ScriptInput.submitEdenCode(ast.getSource(ast.lines[dragline]));
 							}
 						}
@@ -495,7 +495,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				},
 				start: function(e,u) {
 					dragline = Math.floor(e.offsetY / 20);
-					console.log(dragline);
 					dragstart = u.position.left;
 					dragvalue = parseInt(e.target.textContent);
 					draglast = dragvalue;
@@ -531,7 +530,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (all) {
 					edenUI.plugins.ScriptInput.submitEdenCode(text);
 				} else if (stream.ast.lines[stream.currentline-1]) {
-					console.log("EXEC: " + stream.ast.getSource(stream.ast.lines[stream.currentline-1]));
+					var curline = $dialogContents.find(".eden-currentline");
+					//curline.css("backgroundColor","#f4fff0");
+					curline.addClass("eden-greenline");
+					//curline.toggleClass("eden-greenline",250);
+					//curline.animate({backgroundColor: "#f0f0ff"}, "slow");
+					//console.log("EXEC: " + stream.ast.getSource(stream.ast.lines[stream.currentline-1]));
 					edenUI.plugins.ScriptInput.submitEdenCode(stream.ast.getSource(stream.ast.lines[stream.currentline-1]));
 				}
 			} else if (run) {

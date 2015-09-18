@@ -27,9 +27,9 @@ function EdenAST(code) {
 	this.next();
 
 	// Start parse with SCRIPT production
-	console.time("MakeEdenAST");
+	//console.time("MakeEdenAST");
 	this.script = this.pSCRIPT();
-	console.timeEnd("MakeEdenAST");
+	//console.timeEnd("MakeEdenAST");
 }
 
 
@@ -1565,9 +1565,9 @@ EdenAST.prototype.pSTATEMENT = function() {
 						if (this.token != ";") {
 							formula.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
 						} else {
+							formula.setSource(start,this.stream.position);
 							this.next();
 						}
-						formula.setSource(start,this.stream.prevposition);
 						return formula;
 	case "JAVASCRIPT" : var js = this.data.value;
 						this.next();

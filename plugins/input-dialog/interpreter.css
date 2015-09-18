@@ -10,7 +10,7 @@
 	right: 8px;
 	border-color: #719ECE;
     box-shadow: 0 0 10px #719ECE;
-	color: #233b46;
+	color: #2b4957;/*#233b46;*/
 	/*padding-top: 8px;
 	padding-left: 5px;*/
 	background-color: white;
@@ -269,6 +269,27 @@ span.eden-currentline:before {
 	background-position: center;*/
 	left: 0px;
 	background-color: #e4e4f2;
+	width: 20px;
+	height: 20px;
+}
+
+span.eden-greenline {
+	display: inline-block;
+	width: 100%;
+	margin-left: -5px;
+	padding-left: 5px;
+	padding-right: 1px;
+	background-color: #f4fff0;
+}
+
+span.eden-greenline:before {
+	position: absolute;
+	content: "";
+	background-image: url('/images/accept.png');
+	background-repeat: no-repeat;
+	background-position: center;
+	left: 0px;
+	background-color: #e8f2e4;
 	width: 20px;
 	height: 20px;
 }
