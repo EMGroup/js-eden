@@ -157,7 +157,11 @@ EdenHighlight.prototype.highlight = function(start) {
 			if (ch == 10) {
 				this.line++;
 				if (lineerror) {
-					result += "<span class='eden-currentline eden-errorline'>";
+					if (oldstart >= linestart && oldstart <= stream.position) {
+						result += "<span class='eden-currentline eden-errorline'>";
+					} else {
+						result += "<span class='eden-errorline'>";
+					}
 					lineerror = false;
 				} else if (oldstart >= linestart && oldstart <= stream.position) {
 					this.currentline = this.line - 1;
@@ -273,7 +277,11 @@ EdenHighlight.prototype.highlight = function(start) {
 
 	if (line != "") {
 		if (lineerror) {
-			result += "<span class='eden-currentline eden-errorline'>" + line + "</span>";
+			if (oldstart >= linestart && oldstart <= stream.position) {
+				result += "<span class='eden-currentline eden-errorline'>" + line + "</span>";
+			} else {
+				result += "<span class='eden-errorline'>" + line + "</span>";
+			}
 		} else if (oldstart >= linestart && oldstart <= stream.position) {
 			this.currentline = this.line - 1;
 			result += "<span class='eden-currentline'>" + line + "</span>";

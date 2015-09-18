@@ -555,25 +555,28 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				var curast = stream.ast.lines[stream.currentline-1];
 				if (curast) {
 					var pattern = stream.ast.getSource(curast).split("\n")[0];
-					console.log("Fill: " + pattern);
+					//console.log("Fill: " + pattern);
 
 					var curlineele = $(textarea).find(".eden-currentline");
 					var pos = curlineele.position();
 					if (pos === undefined) pos = $(textarea).position();
+					pos.top += $dialogContents.get(0).scrollTop;
 					
 					if (curast.type == "definition") {
 						var rhs = pattern.split("is")[1].trim();
-						console.log("RHS: " + rhs);
+						//console.log("RHS: " + rhs);
 						var sym = eden.root.lookup(curast.lvalue.observable);
-						if (rhs == "") {
-							console.log("SUGGEST: " + sym.eden_definition);
-							suggestions.text(sym.eden_definition);
+						var def = sym.eden_definition;
+						if (def) def = def.split("is")[1].trim();
+						if (def && def.substr(0,rhs.length) == rhs) {
+							//console.log("SUGGEST: " + sym.eden_definition);
+							suggestions.text(sym.eden_definition.split("is")[1].trim());
 							if (suggestions.is(":visible") == false) {
 								suggestions.css("top",""+ (pos.top + 20) +"px");
-								suggestions.show("slow");
+								suggestions.show("fast");
 							}
 						} else {
-							var regExp = new RegExp("^(" + rhs + ")", "i");
+							var regExp = new RegExp("^(" + rhs + ")", "");
 							var suggest = "";
 							var count = 0;
 							var last = "";
@@ -581,7 +584,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 								if (regExp.test(s)) {
 									count++;
 									last = s;
-									console.log("SUGGEST: " + s);
+									//console.log("SUGGEST: " + s);
 									suggest += s + "<br/>";
 								}
 							}
@@ -589,14 +592,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 								suggestions.html(suggest);
 								if (suggestions.is(":visible") == false) {
 									suggestions.css("top",""+ (pos.top + 20) +"px");
-									suggestions.show("slow");
+									suggestions.show("fast");
 								}
 							} else {
-								suggestions.hide("slow");
+								suggestions.hide("fast");
 							}
 						}
 					} else {
-						suggestions.hide("slow");
+						suggestions.hide("fast");
 					}
 						//console.log("FILL IN FOR: " + curast.lvalue.observable);
 						/*var curlineele = $(textarea).find(".eden-currentline");
@@ -608,7 +611,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						suggestions.show("slow");*/
 					//}
 				} else {
-					suggestions.hide("slow");
+					suggestions.hide("fast");
 				}
 
 			} else if (e.ctrlKey) {
@@ -634,7 +637,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}).on('click', '.inputcontent', function(e) {
 			var start = getStartCaretCharacterOffsetWithin(textarea);
 			var pos = getCaretCharacterOffsetWithin(textarea);
-			suggestions.hide("slow");
+			suggestions.hide("fast");
 			if ((pos - start) == 0) {
 				highlightContent(textarea.textContent, pos,false,false);
 			}
@@ -647,12 +650,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				me.autoexec = false;
 			}
 		}).on('click', '.previousButton', function (e) {
-			suggestions.hide("slow");
+			suggestions.hide("fast");
 			$dialogContents.find(".submitButton").get(0).checked = false;
 			me.autoexec = false;
 			highlightContent(me.prev(), 0, false,false);
 		}).on('click', '.nextButton', function (e) {
-			suggestions.hide("slow");
+			suggestions.hide("fast");
 			$dialogContents.find(".submitButton").get(0).checked = false;
 			me.autoexec = false;
 			highlightContent(me.next(), 0, false,false);

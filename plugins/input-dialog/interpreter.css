@@ -255,12 +255,15 @@ span.eden-select {
 }
 
 span.eden-currentline {
+	position: relative;
 	display: inline-block;
 	width: 100%;
 	margin-left: -5px;
 	padding-left: 5px;
 	padding-right: 1px;
-	background-color: #f0f0ff;
+	background-color: #f4f4ff;
+	box-shadow: 0 0 10px #719ECE;
+	z-index: 3;
 }
 
 span.eden-currentline:before {
@@ -269,19 +272,21 @@ span.eden-currentline:before {
 	/*background-image: url('/images/exclamation.png');
 	background-repeat: no-repeat;
 	background-position: center;*/
-	left: 0px;
+	left: -20px;
 	background-color: #e4e4f2;
 	width: 20px;
 	height: 20px;
 }
 
 span.eden-greenline {
+	position: relative;
 	display: inline-block;
 	width: 100%;
 	margin-left: -5px;
 	padding-left: 5px;
 	padding-right: 1px;
 	background-color: #f4fff0;
+	z-index: 1;
 }
 
 span.eden-greenline:before {
@@ -290,13 +295,14 @@ span.eden-greenline:before {
 	background-image: url('/images/accept.png');
 	background-repeat: no-repeat;
 	background-position: center;
-	left: 0px;
+	left: -20px;
 	background-color: #e8f2e4;
 	width: 20px;
 	height: 20px;
 }
 
 span.eden-errorline {
+	position: relative;
 	display: inline-block;
 	width: 100%;
 	margin-left: -5px;
@@ -310,6 +316,8 @@ span.eden-errorline {
 	border-left-style: solid;
 	border-left-width: 10px;
 	border-left-color: silver;*/
+	/*box-shadow: none;*/
+	z-index: 1;
 }
 
 span.eden-errorline:before {
@@ -318,7 +326,7 @@ span.eden-errorline:before {
 	background-image: url('/images/exclamation.png');
 	background-repeat: no-repeat;
 	background-position: center;
-	left: 0px;
+	left: -20px;
 	background-color: #f2e4e4;
 	width: 20px;
 	height: 20px;
@@ -350,9 +358,14 @@ div.eden_suggestions {
 	width: 200px;
 	/*height: 20px;*/
 	left: 100px;
-	padding: 5px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 10px;
+	padding-right: 10px;
 	margin-right: 25px;
-	border: 1px solid #719ECE;
+	border-left: 1px solid #719ECE;
+	border-right: 1px solid #719ECE;
+	border-bottom: 1px solid #719ECE;
 	background: white;
 	color: #2b4957;
 	opacity: 0.9;
@@ -362,6 +375,7 @@ div.eden_suggestions {
 	overflow-y: auto;
 	max-height: 150px;
     box-shadow: 0 0 10px #719ECE;
+	z-index: 2;
 }
 
 div.eden-representative {
