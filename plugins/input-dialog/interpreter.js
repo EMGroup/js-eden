@@ -53,9 +53,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	function makeNumberRepresentative(value, scale, sym) {
-		var $div = $("<div class='eden-representative'></div>");
+		var $div = $("<span class='eden-representative'></span>");
 		$div.css("font-size",""+Math.round(scale * 0.7)+"px");
-		$div.text(""+value.toFixed(2));
+		if (value % 1 === 0) {
+			$div.text(""+value);
+		} else {
+			$div.text(""+value.toFixed(2));
+		}
 		return $div;
 	}
 
@@ -130,15 +134,32 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			ctx.fillStyle = "white";
 			ctx.rect(0,0,Math.round(scale),Math.round(scale));
 			ctx.fill();
-			var largest = Math.max(value.x2,value.y2);
-			var factor = scale / largest;
-			ctx.scale(factor,factor);
+			var dx = value.x2 - value.x1;
+			var dy = value.y2 - value.y1;
+
+			if (dx < dy) {
+				var factor = scale / dy;
+				dy = scale;
+				dx *= factor;
+			} else {
+				var factor = scale / dx;
+				dx = scale;
+				dy *= factor;
+			}
+
 			var tx = value.x1;
 			var ty = value.y1;
-			value.x1 = 0; value.y1 = 0;
+			var tx2 = value.x2;
+			var ty2 = value.y2;
+
+			value.x1 = (scale/2) - (dx/2);
+			value.y1 = (scale/2) - (dy/2);
+			value.x2 = (scale/2) + (dx/2);
+			value.y2 = (scale/2) + (dy/2);
 			//ctx.translate(value.x,0-value.y);
 			value.draw(ctx);
 			value.x1 = tx; value.y1 = ty;
+			value.x2 = tx2; value.y2 = ty2;
 			return $canvas;
 		} else if (value instanceof HTMLImage) {
 			var largest = Math.max(value.width,value.height);

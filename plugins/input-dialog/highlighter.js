@@ -272,14 +272,21 @@ EdenHighlight.prototype.highlight = function(start) {
 	}
 
 	if (line != "") {
-		result += "<span class='eden-line'>" + line + "</span>";
+		if (lineerror) {
+			result += "<span class='eden-currentline eden-errorline'>" + line + "</span>";
+		} else if (oldstart >= linestart && oldstart <= stream.position) {
+			this.currentline = this.line - 1;
+			result += "<span class='eden-currentline'>" + line + "</span>";
+		} else {
+			result += "<span class='eden-line'>" + line + "</span>";
+		}
 	}
 
-	if (this.currentline == -1) {
+	/*if (this.currentline == -1) {
 		//this.currenttoken = token;
 		//this.currentprevtoken = prevtoken;
 		this.currentline = this.line - 1;
-	}
+	}*/
 
 	return result;
 };
