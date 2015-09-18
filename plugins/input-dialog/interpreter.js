@@ -174,7 +174,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			if (len > 4*4-1) len = 4*4-1;
 			for (var i = 0; i < len; i++) {
-				makeRepresentative(value[i], Math.round(scale*0.4), sym).appendTo($div);
+				makeRepresentative(value[i], Math.round(scale*0.6), sym).appendTo($div);
 				if (i < value.length - 1) {
 					$("<span>,</span>").appendTo($div);
 				}
