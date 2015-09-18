@@ -54,7 +54,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 	function makeNumberRepresentative(value, scale, sym) {
 		var $div = $("<span class='eden-representative'></span>");
-		$div.css("font-size",""+Math.round(scale * 0.7)+"px");
+		$div.css("font-size",""+Math.round(scale * 0.4)+"px");
 		if (value % 1 === 0) {
 			$div.text(""+value);
 		} else {
