@@ -397,6 +397,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var dragstart = 0;
 		var dragvalue = 0;
 		var draglast = 0;
+		var dragline = 0;
 
 		$( textarea ).tooltip({
 			position: {
@@ -459,11 +460,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}*/
 		});
 
-		function highlightContent(text, position, run) {
+		function highlightContent(text, position, run, all) {
 			var stream = new EdenHighlight(text);
 			var high = stream.highlight(position);
 			textarea.innerHTML = high;
 			setSelectionRange(textarea, position, position);
+
+			/*if (stream.ast.lines[stream.currentline-1]) {
+				console.log("SRC: " + stream.ast.getSource(stream.ast.lines[stream.currentline-1]));
+			}*/
 
 			$(textarea).find('.eden-number').draggable({
 				helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
@@ -476,12 +481,21 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 						var ast = new EdenAST(textarea.textContent);
 						// Execute if no errors!
-						if (me.autoexec && ast.script.errors.length == 0) {
+						/*if (me.autoexec && ast.script.errors.length == 0) {
 							me.submit(textarea);
+						}*/
+						// Execute if no errors!
+						if (me.autoexec && ast.script.errors.length == 0) {
+							if (ast.lines[dragline]) {
+								console.log("EXEC: " + ast.getSource(ast.lines[dragline]));
+								edenUI.plugins.ScriptInput.submitEdenCode(ast.getSource(ast.lines[dragline]));
+							}
 						}
 					}
 				},
 				start: function(e,u) {
+					dragline = Math.floor(e.offsetY / 20);
+					console.log(dragline);
 					dragstart = u.position.left;
 					dragvalue = parseInt(e.target.textContent);
 					draglast = dragvalue;
@@ -496,7 +510,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				cursorAt: {top: -5, left: -5}
 			});
 
-			$(textarea).find('.eden-observable').draggable({
+			/*$(textarea).find('.eden-observable').draggable({
 				helper: function(e) { return $("<span class='eden-drag-observable'>"+e.target.textContent+"</span>"); },
 				cursor: "move",
 				appendTo: "body",
@@ -508,13 +522,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					$(e.target).removeClass("eden-select");
 					console.log(e);
 				},
-			});
+			});*/
 
 			// Execute if no errors!
 			if (run && stream.ast.script.errors.length == 0) {
 				//me.submit(textarea);
 				$dialogContents.find(".submitButton").removeClass("submitError");
-				edenUI.plugins.ScriptInput.submitEdenCode(text);
+				if (all) {
+					edenUI.plugins.ScriptInput.submitEdenCode(text);
+				} else if (stream.ast.lines[stream.currentline-1]) {
+					console.log("EXEC: " + stream.ast.getSource(stream.ast.lines[stream.currentline-1]));
+					edenUI.plugins.ScriptInput.submitEdenCode(stream.ast.getSource(stream.ast.lines[stream.currentline-1]));
+				}
 			} else if (run) {
 				$dialogContents.find(".submitButton").addClass("submitError");
 			}
@@ -526,7 +545,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (!e.ctrlKey && (e.keyCode < 37 || e.keyCode > 40) && e.keyCode != 17) {
 				text = textarea.textContent;
 				var position = getCaretCharacterOffsetWithin(textarea);
-				var stream = highlightContent(text,position,me.autoexec);
+				var stream = highlightContent(text,position,me.autoexec, false);
 
 				//console.log("Line: " + stream.currentline);
 				var curast = stream.ast.lines[stream.currentline-1];
@@ -563,30 +582,30 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					text = textarea.textContent;
 					text = text.slice(0, position-1) + text.slice(position);
 					position--;
-					highlightContent(text,position,false);
+					highlightContent(text,position,false,false);
 				}
 		}).on('click', '.inputcontent', function(e) {
 			var start = getStartCaretCharacterOffsetWithin(textarea);
 			var pos = getCaretCharacterOffsetWithin(textarea);
 			if ((pos - start) == 0) {
-				highlightContent(textarea.textContent, pos,false);
+				highlightContent(textarea.textContent, pos,false,false);
 			}
 		}).on('change', '.submitButton', function (e) {
 			if ($(this).is(':checked')) {
 				me.autoexec = true;
 				var pos = getCaretCharacterOffsetWithin(textarea);
-				highlightContent(textarea.textContent, pos, true);
+				highlightContent(textarea.textContent, pos, true,true);
 			} else {
 				me.autoexec = false;
 			}
 		}).on('click', '.previousButton', function (e) {
 			$dialogContents.find(".submitButton").get(0).checked = false;
 			me.autoexec = false;
-			highlightContent(me.prev(), 0, false);
+			highlightContent(me.prev(), 0, false,false);
 		}).on('click', '.nextButton', function (e) {
 			$dialogContents.find(".submitButton").get(0).checked = false;
 			me.autoexec = false;
-			highlightContent(me.next(), 0, false);
+			highlightContent(me.next(), 0, false,false);
 		});
 		
 		$dialog = $('<div id="'+name+'" class="input-dialog"></div>')

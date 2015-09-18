@@ -1,0 +1,19 @@
+__Text is ${{ new Text(
+	scope.lookup("/text").value,
+	scope.lookup("/x").value,
+	scope.lookup("/y").value,
+	scope.lookup("/size").value || 13.3,
+	scope.lookup("/sizeUnits").value || "px",
+	scope.lookup("/fillcolour").value || "black",
+	scope.lookup("/outlinecolour").value,
+	scope.lookup("/options").value) }}$;
+
+Text is __Text{
+	x = (x)?x:10,
+	y = (y)?y:10,
+	text = (text)?text:"Hello World"
+};
+
+mytext is Text{ text = "Welcome", y = 50 };
+
+picture is [mytext];

@@ -33,6 +33,10 @@ function EdenAST(code) {
 }
 
 
+EdenAST.prototype.getSource = function(ast) {
+	return this.stream.code.slice(ast.start,ast.end).trim();
+}
+
 
 EdenAST.prototype.getRoot = function() {
 	return this.script;
@@ -1548,7 +1552,8 @@ EdenAST.prototype.pSTATEMENT = function() {
 						}
 						this.next();
 						return script;
-	case "OBSERVABLE" :	var lvalue = this.pLVALUE();
+	case "OBSERVABLE" :	var start = this.stream.prevposition;
+						var lvalue = this.pLVALUE();
 						if (lvalue.errors.length > 0) return lvalue;
 						var formula = this.pSTATEMENT_PP();
 						formula.left(lvalue);
@@ -1562,7 +1567,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 						} else {
 							this.next();
 						}
-
+						formula.setSource(start,this.stream.prevposition);
 						return formula;
 	case "JAVASCRIPT" : var js = this.data.value;
 						this.next();

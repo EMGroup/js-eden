@@ -178,6 +178,8 @@ function EdenAST_Definition(expression) {
 	this.errors = expression.errors;
 	this.expression = expression;
 	this.lvalue = undefined;
+	this.start = 0;
+	this.end = 0;
 };
 
 EdenAST_Definition.prototype.left = function(lvalue) {
@@ -186,6 +188,11 @@ EdenAST_Definition.prototype.left = function(lvalue) {
 		this.errors.push.apply(this.errors, lvalue.errors);
 	}
 };
+
+EdenAST_Definition.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 EdenAST_Definition.prototype.generate = function() {
 	var result = this.lvalue.generate() + ".define(function(context) { return ";
@@ -205,7 +212,14 @@ function EdenAST_Assignment(expression) {
 	this.errors = (expression) ? expression.errors : [];
 	this.expression = expression;
 	this.lvalue = undefined;
+	this.start = 0;
+	this.end = 0;
 };
+
+EdenAST_Assignment.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 EdenAST_Assignment.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
@@ -226,7 +240,14 @@ function EdenAST_Modify(kind, expression) {
 	this.kind = kind;
 	this.expression = expression;
 	this.lvalue = undefined;
+	this.start = 0;
+	this.end = 0;
 };
+
+EdenAST_Modify.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 EdenAST_Modify.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
@@ -344,7 +365,14 @@ function EdenAST_FunctionCall() {
 	this.errors = [];
 	this.lvalue = undefined;
 	this.params = undefined;
+	this.start = 0;
+	this.end = 0;
 };
+
+EdenAST_FunctionCall.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 EdenAST_FunctionCall.prototype.setParams = function(params) {
 	this.params = params;
