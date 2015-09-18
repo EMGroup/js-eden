@@ -177,7 +177,7 @@ input.submitError:checked + label:before {
 	border-width: 1px;
 	border-color: #3465a4;
 	margin-right: 5px;
-	background-image: url('/images/edit-undo.png');
+	background-image: url('../../images/edit-undo.png');
 	background-repeat: no-repeat;
 	background-position: center;
 	cursor: pointer;
@@ -189,7 +189,7 @@ input.submitError:checked + label:before {
 	border-style: solid;
 	border-width: 1px;
 	border-color: #3465a4;
-	background-image: url('/images/edit-redo.png');
+	background-image: url('../../images/edit-redo.png');
 	background-repeat: no-repeat;
 	background-position: center;
 	cursor: pointer;
@@ -293,7 +293,7 @@ span.eden-greenline {
 span.eden-greenline:before {
 	position: absolute;
 	content: "";
-	background-image: url('/images/accept.png');
+	background-image: url('../../images/accept.png');
 	background-repeat: no-repeat;
 	background-position: center;
 	left: -20px;
@@ -324,7 +324,7 @@ span.eden-errorline {
 span.eden-errorline:before {
 	position: absolute;
 	content: "";
-	background-image: url('/images/exclamation.png');
+	background-image: url('../../images/exclamation.png');
 	background-repeat: no-repeat;
 	background-position: center;
 	left: -20px;
