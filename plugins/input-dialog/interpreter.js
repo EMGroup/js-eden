@@ -171,11 +171,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var $div = $("<div class='eden-representative'></div>");
 			$div.css("font-size",""+Math.round(scale * 0.4)+"px");
 			var len = value.length;
-			if (len > 4) len = 4;
+
+			if (len > 4*4-1) len = 4*4-1;
 			for (var i = 0; i < len; i++) {
 				makeRepresentative(value[i], Math.round(scale*0.4), sym).appendTo($div);
 				if (i < value.length - 1) {
 					$("<span>,</span>").appendTo($div);
+				}
+				if ((((i+1) % 4) == 0)) {
+					$("<br/>").appendTo($div);
 				}
 			}
 			if (len < value.length) {
@@ -409,6 +413,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			},
 			items: "span",
 			content: function() {
+				var element = $(this);
+				if (element.hasClass("eden-error")) {
+					return element.attr( "title" );
+				}
 				var text = this.textContent;
 				if (eden.root.symbols[text] !== undefined) {
 					var sym = eden.root.lookup(text);
