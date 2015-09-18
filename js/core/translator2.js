@@ -1555,14 +1555,19 @@ EdenAST.prototype.pSTATEMENT = function() {
 	case "OBSERVABLE" :	var start = this.stream.prevposition;
 						var lvalue = this.pLVALUE();
 						if (lvalue.errors.length > 0) return lvalue;
+						var curline = this.stream.line - 1;
 						var formula = this.pSTATEMENT_PP();
 						formula.left(lvalue);
 						// Log as main statement on this line.
-						this.lines[this.stream.line-1] = formula;
+						this.lines[curline] = formula;
 
-						if (formula.errors.length > 0) return formula;
+						if (formula.errors.length > 0) {
+							formula.setSource(start,this.stream.position);
+							return formula;
+						}
 		
 						if (this.token != ";") {
+							formula.setSource(start,this.stream.position);
 							formula.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
 						} else {
 							formula.setSource(start,this.stream.position);
@@ -1590,10 +1595,11 @@ EdenAST.prototype.pSCRIPT = function() {
 		if (statement !== undefined) {
 			ast.append(statement);
 			if (statement.errors.length > 0) {
+				break;
 				// Skip until colon
-				while (this.token != ";" && this.token != "EOF") {
+				/*while (this.token != ";" && this.token != "EOF") {
 					this.next();
-				}
+				}*/
 			}
 		} else {
 			if (this.token != "}" && this.token != ";") {

@@ -18,4 +18,5 @@ override is _override_item{ i = 1 .. list# };
 
 linesp is override{ list = lines, index = i, value = myline{ colour = "black" } };
 
-picture is lines;
+picture is linesp;
+

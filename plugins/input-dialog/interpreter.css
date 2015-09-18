@@ -179,6 +179,7 @@ input.submitError:checked + label:before {
 	background-image: url('/images/edit-undo.png');
 	background-repeat: no-repeat;
 	background-position: center;
+	cursor: pointer;
 }
 .nextButton{
 	height:25px;
@@ -190,6 +191,7 @@ input.submitError:checked + label:before {
 	background-image: url('/images/edit-redo.png');
 	background-repeat: no-repeat;
 	background-position: center;
+	cursor: pointer;
 }
 
 
@@ -345,15 +347,21 @@ span.eden-info {
 
 div.eden_suggestions {
 	position: absolute;
-	/*width: 200px;*/
-	height: 20px;
-	right: 0px;
+	width: 200px;
+	/*height: 20px;*/
+	left: 100px;
+	padding: 5px;
 	margin-right: 25px;
-	background: none;
-	color: silver;
-	opacity: 0.8;
+	border: 1px solid #719ECE;
+	background: white;
+	color: #2b4957;
+	opacity: 0.9;
 	font: 12px/20px Roboto Mono,monospace;
 	z-index: 2000;
+	overflow-x: hidden;
+	overflow-y: auto;
+	max-height: 150px;
+    box-shadow: 0 0 10px #719ECE;
 }
 
 div.eden-representative {

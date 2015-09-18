@@ -100,7 +100,7 @@ function EdenHighlight(code) {
 	//this.currentprevtoken = "INVALID";
 
 	//console.log(this.ast.lines);
-	if (this.ast.script.errors.length > 0) console.log(this.ast.script.errors[0]);
+	//if (this.ast.script.errors.length > 0) console.log(this.ast.script.errors[0]);
 }
 
 
@@ -282,11 +282,11 @@ EdenHighlight.prototype.highlight = function(start) {
 		}
 	}
 
-	/*if (this.currentline == -1) {
+	if (this.currentline == -1) {
 		//this.currenttoken = token;
 		//this.currentprevtoken = prevtoken;
 		this.currentline = this.line - 1;
-	}*/
+	}
 
 	return result;
 };
