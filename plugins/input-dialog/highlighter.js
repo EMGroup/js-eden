@@ -99,7 +99,7 @@ function EdenHighlight(code) {
 	//this.currenttoken = "INVALID";
 	//this.currentprevtoken = "INVALID";
 
-	console.log(this.ast.lines);
+	//console.log(this.ast.lines);
 	if (this.ast.script.errors.length > 0) console.log(this.ast.script.errors[0]);
 }
 
