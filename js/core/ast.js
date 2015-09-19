@@ -512,6 +512,37 @@ EdenAST_Return.prototype.setResult = function(result) {
 
 //------------------------------------------------------------------------------
 
+function EdenAST_While() {
+	this.type = "while";
+	this.parent = undefined;
+	this.errors = [];
+	this.condition = undefined;
+	this.statement = undefined;
+	this.start = 0;
+	this.end = 0;
+};
+
+EdenAST_While.prototype.error = fnEdenAST_error;
+
+EdenAST_While.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+EdenAST_While.prototype.setCondition = function(condition) {
+	this.condition = condition;
+	this.errors.push.apply(this.errors, condition.errors);
+}
+
+EdenAST_While.prototype.setStatement = function(statement) {
+	this.statement = statement;
+	this.errors.push.apply(this.errors, statement.errors);
+}
+
+
+
+//------------------------------------------------------------------------------
+
 function EdenAST_For() {
 	this.type = "for";
 	this.parent = undefined;

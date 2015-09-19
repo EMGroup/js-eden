@@ -1018,8 +1018,32 @@ EdenAST.prototype.pFOR = function() {
 }
 
 
+/**
+ * WHILE Production
+ * WHILE -> ( EOPT ) STATEMENT
+ */
 EdenAST.prototype.pWHILE = function() {
-	return undefined;
+	var w = new EdenAST_While();
+
+	if (this.token != "(") {
+		w.error(new EdenError(this, EDEN_ERROR_WHILEOPEN));
+		return w;
+	} else {
+		this.next();
+	}
+
+	w.setCondition(this.pEXPRESSION());
+	if (w.errors.length > 0) return w;
+
+	if (this.token != ")") {
+		w.error(new EdenError(this, EDEN_ERROR_WHILECLOSE));
+		return w;
+	} else {
+		this.next();
+	}
+
+	w.setStatement(this.pSTATEMENT());
+	return w;
 }
 
 

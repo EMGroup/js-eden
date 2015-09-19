@@ -45,6 +45,8 @@ var EDEN_ERROR_SCOPENAME = 41;
 var EDEN_ERROR_SCOPEEQUALS = 42;
 var EDEN_ERROR_SCOPECLOSE = 43;
 var EDEN_ERROR_BACKTICK = 44;
+var EDEN_ERROR_WHILEOPEN = 45;
+var EDEN_ERROR_WHILECLOSE = 46;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -484,6 +486,20 @@ var eden_error_db = [
 			"Missing a closing backtick"
 		],
 		suggestion: {expected: ["`"], next: []}
+	},
+/* EDEN_ERROR_WHILEOPEN */
+	{	message: function() { return 0; },
+		messages: [
+			"While loop conditions start with an open '('"
+		],
+		suggestion: {expected: ["("], next: []}
+	},
+/* EDEN_ERROR_WHILECLOSE */
+	{	message: function() { return 0; },
+		messages: [
+			"Missing a closing ')' after while condition"
+		],
+		suggestion: {expected: [")"], next: []}
 	}
 ]
 
