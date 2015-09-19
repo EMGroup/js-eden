@@ -1029,7 +1029,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	});
 
 	edenUI.views["Canvas2D"] = {dialog: this.createDialog, title: "Canvas 2D", category: edenUI.viewCategories.visualization};
-	edenUI.eden.include("plugins/canvas-html5/canvas.js-e", success);
+	//edenUI.eden.include("plugins/canvas-html5/canvas.js-e", success);
+	edenUI.eden.include("plugins/canvas-html5/jseden-canvas.min.js-e", success);
 };
 
 EdenUI.plugins.Canvas2D.FillStyle = function () {

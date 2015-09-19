@@ -446,7 +446,10 @@ EdenStream.prototype.readToken = function() {
 		return "OBSERVABLE";
 	}
 
-	return "INVALID";
+	// Ignore invalid tokens
+	this.skip();
+	return this.readToken();
+	//return "INVALID";
 };
 
 

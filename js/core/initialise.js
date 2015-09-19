@@ -142,7 +142,7 @@ function initialiseJSEden() {
 
 		// Load the Eden library scripts
 		loadPlugins(plugins, function () {
-			eden.include("library/eden.jse", {name: '/system'}, function () {
+			eden.include("library/jseden-lib.min.jse", {name: '/system'}, function () {
 				$.getJSON('config.json', function (config) {
 					rt.config = config;
 

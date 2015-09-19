@@ -178,13 +178,13 @@ EdenHighlight.prototype.highlight = function(start) {
 					}
 				}*/
 
-				//if (line == "") line = "<br/>";
+				//if (line == "") line = "\x0b";
 
 				linestart = stream.position+1;
 				result += line + "\n</span>";
 				line = "";
-			}
-			if (ch == 9 || ch == 10 || ch == 13 || ch == 32 || ch == 160) {
+				stream.skip();
+			} else if (ch == 9 || ch == 13 || ch == 32 || ch == 160) {
 				stream.skip();
 				if (ch == 32 || ch == 160) {
 					line += "&nbsp;";
