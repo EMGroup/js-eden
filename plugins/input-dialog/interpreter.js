@@ -425,40 +425,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					return makeRepresentative(sym.value(),60,sym);
 				}
 			}
-				/*var element = $(this);
-				if (element.hasClass("eden-error")) {
-					return element.attr( "title" );
-				} else if (element.hasClass("eden-observable")) {
-					var text = this.textContent;
-					if (eden.root.symbols[text] !== undefined) {
-						var sym = eden.root.lookup(text);
-						var val = sym.value();
-						var type = typeof val;
-						var result = "";
-						if (type == "string") result += "String ";
-						else if (type == "number") result += "Number ";
-						else if (type == "object") {
-							if (val instanceof Rectangle) {
-									result += "Shape ";
-							} else if (val instanceof Array) {
-									result += "List ";
-							}
-						} else if (val === undefined) return "Undefined";
-						return result + Eden.prettyPrintValue("", val, 20);
-					}
-				} else if (element.hasClass("eden-type")) {
-					var text = this.textContent;
-					if (eden.root.symbols[text] !== undefined) {
-						var sym = eden.root.lookup(text);
-						if (sym.eden_definition.slice(0,4) == "func") {
-							if (edenfunctions.functions[text]) {
-								var params = Object.keys(edenfunctions.functions[text].parameters || {});
-								return text + "(" + params.join(", ") + ")";
-							}
-						}
-					}
-				}
-			}*/
 		});
 
 		function highlightContent(text, position, run, all) {
@@ -471,6 +437,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				console.log("SRC: " + stream.ast.getSource(stream.ast.lines[stream.currentline-1]));
 			}*/
 
+			/* Number dragging code */
 			$(textarea).find('.eden-number').draggable({
 				helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
 				axis: 'x',
@@ -481,10 +448,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						e.target.innerHTML = "" + newval;
 
 						var ast = new EdenAST(textarea.textContent);
-						// Execute if no errors!
-						/*if (me.autoexec && ast.script.errors.length == 0) {
-							me.submit(textarea);
-						}*/
+
 						// Execute if no errors!
 						if (me.autoexec && ast.script.errors.length == 0) {
 							if (ast.lines[dragline]) {
@@ -495,6 +459,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 				},
 				start: function(e,u) {
+					// Calculate the line we are on
 					dragline = Math.floor((e.offsetY-8) / 20);
 					dragstart = u.position.left;
 					dragvalue = parseInt(e.target.textContent);
@@ -526,31 +491,44 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			// Execute if no errors!
 			if (run && stream.ast.script.errors.length == 0) {
-				//me.submit(textarea);
 				$dialogContents.find(".submitButton").removeClass("submitError");
+
+				// Execute entire script?
 				if (all) {
 					edenUI.plugins.ScriptInput.submitEdenCode(text);
+				// Execute only current statement
 				} else if (stream.ast.lines[stream.currentline-1]) {
 					var statement = stream.ast.lines[stream.currentline-1];
-					var i = stream.currentline - 1;
-					while (statement === undefined) {
-						i--;
-						if (i < 0) break;
-						statement = stream.ast.lines[i]
-					}
 
+					// Find root statement and execute that one
 					while (statement.parent !== undefined) statement = statement.parent;
-					i = stream.currentline - 1;
-					var curline = $dialogContents.find(".eden-currentline");
-					//curline.addClass("eden-greenline");
+
+					var currentline = $dialogContents.find(".eden-currentline");
+					var curline = currentline;
+					var i = stream.currentline - 1;
+					// Highlight all previous lines related to this statement
 					while (i >= 0) {
 						curline.addClass("eden-greenline");
 						curline = curline.prev();
-						if (stream.ast.lines[i].parent === undefined) {
+						if (stream.ast.lines[i] == statement) {
 							break;
 						}
 						i--;
 					}
+					i = stream.currentline;
+					curline = currentline.next();
+					// Highlight all next lines related to this statement
+					// TODO, ignore trailing blank lines.
+					while (i < stream.ast.lines.length) {
+						if (stream.ast.lines[i] && stream.ast.lines[i].parent === undefined) {
+							break;
+						}
+						curline.addClass("eden-greenline");
+						curline = curline.next();
+						i++
+					}
+
+					// Execute only the currently changed root statement
 					edenUI.plugins.ScriptInput.submitEdenCode(stream.ast.getSource(statement));
 				}
 			} else if (run) {
@@ -561,17 +539,30 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		$dialogContents.on('keyup', '.inputcontent', function (e) {
-			if (!e.ctrlKey && (e.keyCode < 37 || e.keyCode > 40) && e.keyCode != 17) {
+			if (!e.ctrlKey && e.keyCode != 37 && e.keyCode != 39 && e.keyCode != 17) {
 				text = textarea.textContent;
 				var position = getCaretCharacterOffsetWithin(textarea);
-				var stream = highlightContent(text,position,me.autoexec, false);
+				var stream;
+
+				// Don't execute if only moving up and down the lines.
+				if (e.keyCode == 38 || e.keyCode == 40) {
+					stream = highlightContent(text,position,false, false);
+				} else {
+					stream = highlightContent(text,position,me.autoexec, false);
+				}
 
 				//console.log("Line: " + stream.currentline);
+
+				/* Suggestions Box */
+				//console.log(window.getSelection().getRangeAt(0));
+				// Is there an abstract syntax tree node for this line?
 				var curast = stream.ast.lines[stream.currentline-1];
 				if (curast) {
 					var pattern = stream.ast.getSource(curast).split("\n")[0];
 					//console.log("Fill: " + pattern);
 
+					// Get the current line and its screen position to
+					// position the suggestions box correctly.
 					var curlineele = $(textarea).find(".eden-currentline");
 					var pos = curlineele.position();
 					if (pos === undefined) pos = $(textarea).position();
@@ -616,15 +607,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					} else {
 						suggestions.hide("fast");
 					}
-						//console.log("FILL IN FOR: " + curast.lvalue.observable);
-						/*var curlineele = $(textarea).find(".eden-currentline");
-						var pos = curlineele.position();
-						if (pos === undefined) pos = $(textarea).position();
-						var sym = eden.root.lookup(curast.lvalue.observable);
-						if (sym && sym.eden_definition) suggestions.text(sym.eden_definition);
-						suggestions.css("top",""+ (pos.top) +"px");
-						suggestions.show("slow");*/
-					//}
 				} else {
 					suggestions.hide("fast");
 				}
@@ -639,7 +621,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					// down
 					me.next(textarea);
 				}
-			}
+			} 
 			//textarea.innerHTML += String.fromCharCode(e.keyCode);
 		}).on('keydown', '.inputcontent', function(e) {
 				if (e.keyCode == 8) {
@@ -647,6 +629,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					text = textarea.textContent;
 					text = text.slice(0, position-1) + text.slice(position);
 					position--;
+					highlightContent(text,position,false,false);
+				} else if (e.keyCode == 9) {
+					var position = getCaretCharacterOffsetWithin(textarea);
+					text = textarea.textContent;
+					e.preventDefault();
+					text = text.slice(0,position) + "\t" + text.slice(position);
+					position++;
 					highlightContent(text,position,false,false);
 				}
 		}).on('click', '.inputcontent', function(e) {

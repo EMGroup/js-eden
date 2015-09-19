@@ -47,6 +47,7 @@ var EDEN_ERROR_SCOPECLOSE = 43;
 var EDEN_ERROR_BACKTICK = 44;
 var EDEN_ERROR_WHILEOPEN = 45;
 var EDEN_ERROR_WHILECLOSE = 46;
+var EDEN_ERROR_WHILENOSTATEMENT = 47;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -498,6 +499,13 @@ var eden_error_db = [
 	{	message: function() { return 0; },
 		messages: [
 			"Missing a closing ')' after while condition"
+		],
+		suggestion: {expected: [")"], next: []}
+	},
+/* EDEN_ERROR_WHILENOSTATEMENT */
+	{	message: function() { return 0; },
+		messages: [
+			"While loops must have a statement"
 		],
 		suggestion: {expected: [")"], next: []}
 	}

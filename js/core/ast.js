@@ -536,7 +536,9 @@ EdenAST_While.prototype.setCondition = function(condition) {
 
 EdenAST_While.prototype.setStatement = function(statement) {
 	this.statement = statement;
-	this.errors.push.apply(this.errors, statement.errors);
+	if (statement) {
+		this.errors.push.apply(this.errors, statement.errors);
+	}
 }
 
 

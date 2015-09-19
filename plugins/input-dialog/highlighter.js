@@ -289,7 +289,7 @@ EdenHighlight.prototype.highlight = function(start) {
 				result += "<span class='eden-errorline'>" + line + "</span>";
 			}
 		} else if (oldstart >= linestart && oldstart <= stream.position) {
-			this.currentline = this.line - 1;
+			this.currentline = this.line;
 			result += "<span class='eden-currentline'>" + line + "</span>";
 		} else {
 			result += "<span class='eden-line'>" + line + "</span>";

@@ -1024,6 +1024,8 @@ EdenAST.prototype.pFOR = function() {
  */
 EdenAST.prototype.pWHILE = function() {
 	var w = new EdenAST_While();
+	var parent = this.parent;
+	this.parent = w;
 
 	if (this.token != "(") {
 		w.error(new EdenError(this, EDEN_ERROR_WHILEOPEN));
@@ -1043,6 +1045,13 @@ EdenAST.prototype.pWHILE = function() {
 	}
 
 	w.setStatement(this.pSTATEMENT());
+
+	if (w.statement === undefined) {
+		w.error(new EdenError(this, EDEN_ERROR_WHILENOSTATEMENT));
+		return w;
+	}
+
+	this.parent = parent;
 	return w;
 }
 
