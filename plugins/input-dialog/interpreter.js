@@ -544,6 +544,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				var position = getCaretCharacterOffsetWithin(textarea);
 				var stream;
 
+				//console.log(position);
+				//return;
+
 				// Don't execute if only moving up and down the lines.
 				if (e.keyCode == 38 || e.keyCode == 40) {
 					stream = highlightContent(text,position,false, false);
@@ -620,6 +623,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				} else if (e.keyCode === 40) {
 					// down
 					me.next(textarea);
+				} else if (e.keyCode === 86) {
+					// Pasting so disable live code
+					suggestions.hide("fast");
+					$dialogContents.find(".submitButton").get(0).checked = false;
+					me.autoexec = false;
+					var position = getCaretCharacterOffsetWithin(textarea);
+					text = textarea.textContent;
+					highlightContent(text, position, false,false);
 				}
 			} 
 			//textarea.innerHTML += String.fromCharCode(e.keyCode);
