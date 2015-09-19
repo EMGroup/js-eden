@@ -325,6 +325,8 @@ EdenAST.prototype.pEXPRESSION_PPPPP = function() {
  *	- number |
  *	number |
  *	string |
+ *  boolean |
+ *  character
  *  JAVASCRIPT |
  *	[ ELIST ] |
  *	& LVALUE |
@@ -376,6 +378,12 @@ EdenAST.prototype.pFACTOR = function() {
 	} else if (this.token == "STRING") {
 		this.next();
 		return new EdenAST_Literal("STRING", this.data.value);
+	} else if (this.token == "BOOLEAN") {
+		this.next();
+		return new EdenAST_Literal("BOOLEAN", this.data.value);
+	} else if (this.token == "CHARACTER") {
+		this.next();
+		return new EdenAST_Literal("CHARACTER", this.data.value);
 	} else if (this.token == "!") {
 		this.next();
 		var primary = this.pPRIMARY();

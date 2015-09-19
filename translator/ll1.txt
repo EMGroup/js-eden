@@ -33,7 +33,7 @@ INCLUDE		-> ( EXPRESSION ) ; INCLUDE'
 INCLUDE'	-> include INCLUDE | epsilon
 
 OPTION		-> OBSERVABLE = OPTION'
-OPTION'		-> NUMBER | STRING
+OPTION'		-> number | string | boolean
 
 AFTER		-> ( EXPRESSION ) STATEMENT
 AWAIT		-> EXPRESSION ;
@@ -44,7 +44,7 @@ APPEND		-> LVALUE , EXPRESSION ;
 SHIFT		-> LVALUE ;
 
 SWITCH		-> ( EXPRESSION ) STATEMENT
-CASE 		-> STRING : | NUMBER : | CHARACTER :
+CASE 		-> string : | number : | character :
 
 FOR			-> ( STATEMENT'_OPT ; EXPRESSION_OPT ; STATEMENT'_OPT ) STATEMENT
 WHILE		-> ( EOPT ) STATEMENT 
@@ -103,6 +103,8 @@ F			->
 	( EXPRESSION ) |
 	- number |
 	number |
+	boolean |
+	character |
 	string |
 	[ ELIST ] |
 	& LVALUE |

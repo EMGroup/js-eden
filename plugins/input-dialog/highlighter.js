@@ -250,6 +250,12 @@ EdenHighlight.prototype.highlight = function(start) {
 		} else if (token == "STRING") {
 			classes += "eden-string";
 			line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText().replace(">","&gt;").replace("<","&lt;") + "</span>";
+		} else if (token == "CHARACTER") {
+			classes += "eden-string";
+			line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText().replace(">","&gt;").replace("<","&lt;") + "</span>";	
+		} else if (token == "BOOLEAN") {
+			classes += "eden-type";
+			line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText() + "</span>";	
 		} else if (token == "OBSERVABLE") {
 			if (edenFunctions[stream.data.value]) {
 				classes += "eden-function";

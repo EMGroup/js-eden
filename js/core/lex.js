@@ -193,6 +193,12 @@ EdenStream.prototype.tokenType = function(token) {
 	if (token == "STRING") {
 		return "string";
 	}
+	if (token == "CHARACTER") {
+		return "character";
+	}
+	if (token == "BOOLEAN") {
+		return "boolean";
+	}
 	if (this.isAlphaNumeric(token.charCodeAt(0))) {
 		return "keyword";
 	}
@@ -244,6 +250,15 @@ EdenStream.prototype.parseString = function(data) {
 
 	data.value = result;
 };
+
+EdenStream.prototype.parseCharacter = function(data) {
+	var result = String.fromCharCode(this.get());
+	// Remove quote.
+	if (this.valid()) {
+		this.skip();
+	}
+	data.value = result;
+}
 
 EdenStream.prototype.parseJavascript = function(data) {
 	var result = "";
@@ -308,8 +323,6 @@ var edenKeywords = {
 "if": true,
 "is": true,
 "else": true,
-"true": true,
-"false": true,
 "eval": true,
 "for": true,
 "while": true,
@@ -362,7 +375,7 @@ EdenStream.prototype.readToken = function() {
 	case 38	:	if (this.peek() == 38) { this.skip(); return "&&"; }
 				if (this.peek() == 61) { this.skip(); return "&="; }
 				return "&";
-	case 39 :	return "'";
+	case 39 :	this.parseCharacter(this.data); return "CHARACTER";
 	case 40	:	return "(";
 	case 41	:	return ")";
 	case 42	:	if (this.peek() == 61) { this.skip(); return "*="; }
@@ -427,6 +440,9 @@ EdenStream.prototype.readToken = function() {
 
 	if (this.parseAlphaNumeric(this.data)) {
 		if (edenKeywords[this.data.value]) return this.data.value;
+		if (this.data.value == "true" || this.data.value == "false") {
+			return "BOOLEAN";
+		}
 		return "OBSERVABLE";
 	}
 
