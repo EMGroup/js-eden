@@ -301,6 +301,12 @@ function EdenAST_Primary() {
 	this.errors = [];
 	this.observable = "";
 	this.extras = undefined;
+	this.backtick = undefined;
+};
+
+EdenAST_Primary.prototype.setBackticks = function(backtick) {
+	this.backtick = backtick;
+	this.errors.push.apply(this.errors, backtick.errors);
 };
 
 EdenAST_Primary.prototype.setExtras = function(extras) {

@@ -44,6 +44,7 @@ var EDEN_ERROR_APPENDCOMMA = 40;
 var EDEN_ERROR_SCOPENAME = 41;
 var EDEN_ERROR_SCOPEEQUALS = 42;
 var EDEN_ERROR_SCOPECLOSE = 43;
+var EDEN_ERROR_BACKTICK = 44;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -476,6 +477,13 @@ var eden_error_db = [
 			"Missing a closing '}' after scope"
 		],
 		suggestion: {expected: ["}"], next: []}
+	},
+/* EDEN_ERROR_BACKTICK */
+	{	message: function() { return 0; },
+		messages: [
+			"Missing a closing backtick"
+		],
+		suggestion: {expected: ["`"], next: []}
 	}
 ]
 

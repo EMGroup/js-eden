@@ -390,19 +390,35 @@ EdenAST.prototype.pFACTOR = function() {
 
 /**
  * PRIMARY Production
- * PRIMARY -> observable PRIMARY'
+ * PRIMARY -> observable PRIMARY' | ` EXPRESSION ` PRIMARY'
  */
 EdenAST.prototype.pPRIMARY = function() {
 	var primary = new EdenAST_Primary();
-	if (this.token != "OBSERVABLE") {
+
+	if (this.token == "`") {
+		primary.observable = "__BACKTICKS__";
+		this.next();
+		primary.setBackticks(this.pEXPRESSION());
+		if (primary.errors.length > 0) return primary;
+		if (this.token != "`") {
+			primary.errors.push(new EdenError(this, EDEN_ERROR_BACKTICK));
+			return primary;
+		} else {
+			this.next();
+		}
+		primary.setExtras(this.pPRIMARY_P());
+		//console.log(primary);
+		return primary;
+	} else if (this.token == "OBSERVABLE") {
+		primary.observable = this.data.value;
+		this.next();
+		primary.setExtras(this.pPRIMARY_P());
+		//console.log(primary);
+		return primary;
+	} else {
 		primary.errors.push(new EdenError(this, EDEN_ERROR_BADFACTOR));
 		return primary;
 	}
-	primary.observable = this.data.value;
-	this.next();
-	primary.setExtras(this.pPRIMARY_P());
-	//console.log(primary);
-	return primary;
 }
 
 
