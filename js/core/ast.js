@@ -18,12 +18,19 @@ function fnEdenAST_left(left) {
 
 function EdenAST_Literal(type, literal) {
 	this.type = "literal";
+	this.parent = undefined;
 	this.datatype = type;
 	this.value = literal;
 	this.errors = [];
+	this.start = 0;
+	this.end = 0;
 }
 EdenAST_Literal.prototype.error = fnEdenAST_error;
 
+EdenAST_Literal.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 
 //------------------------------------------------------------------------------
@@ -175,6 +182,7 @@ EdenAST_LValueComponent.prototype.error = fnEdenAST_error;
 
 function EdenAST_Definition(expression) {
 	this.type = "definition";
+	this.parent = undefined;
 	this.errors = expression.errors;
 	this.expression = expression;
 	this.lvalue = undefined;
@@ -209,6 +217,7 @@ EdenAST_Definition.prototype.error = fnEdenAST_error;
 
 function EdenAST_Assignment(expression) {
 	this.type = "assignment";
+	this.parent = undefined;
 	this.errors = (expression) ? expression.errors : [];
 	this.expression = expression;
 	this.lvalue = undefined;
@@ -236,6 +245,7 @@ EdenAST_Assignment.prototype.error = fnEdenAST_error;
 
 function EdenAST_Modify(kind, expression) {
 	this.type = "modify";
+	this.parent = undefined;
 	this.errors = (expression) ? expression.errors : [];
 	this.kind = kind;
 	this.expression = expression;
@@ -308,11 +318,19 @@ EdenAST_Primary.prototype.error = fnEdenAST_error;
 
 function EdenAST_If() {
 	this.type = "if";
+	this.parent = undefined;
 	this.errors = [];
 	this.condition = "";
 	this.statement = undefined;
 	this.elsestatement = undefined;
+	this.start = 0;
+	this.end = 0;
 };
+
+EdenAST_If.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 EdenAST_If.prototype.setCondition = function(condition) {
 	this.condition = condition;
@@ -321,7 +339,9 @@ EdenAST_If.prototype.setCondition = function(condition) {
 
 EdenAST_If.prototype.setStatement = function(statement) {
 	this.statement = statement;
-	this.errors.push.apply(this.errors, statement.errors);
+	if (statement) {
+		this.errors.push.apply(this.errors, statement.errors);
+	}
 };
 
 EdenAST_If.prototype.setElse = function(statement) {
@@ -339,10 +359,18 @@ EdenAST_If.prototype.error = fnEdenAST_error;
 
 function EdenAST_Switch() {
 	this.type = "switch";
+	this.parent = undefined;
 	this.errors = [];
 	this.expression = "";
 	this.statement = undefined;
+	this.start = 0;
+	this.end = 0;
 };
+
+EdenAST_Switch.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 EdenAST_Switch.prototype.setExpression = function(expression) {
 	this.expression = expression;
@@ -362,6 +390,7 @@ EdenAST_Switch.prototype.error = fnEdenAST_error;
 
 function EdenAST_FunctionCall() {
 	this.type = "functioncall";
+	this.parent = undefined;
 	this.errors = [];
 	this.lvalue = undefined;
 	this.params = undefined;
@@ -396,12 +425,20 @@ EdenAST_FunctionCall.prototype.error = fnEdenAST_error;
 
 function EdenAST_Action() {
 	this.type = "action";
+	this.parent = undefined;
 	this.kindofaction = "touch";
 	this.errors = [];
 	this.triggers = [];
 	this.body = undefined;
 	this.name = "";
+	this.start = 0;
+	this.end = 0;
 };
+
+EdenAST_Action.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 EdenAST_Action.prototype.kind = function(k) {
 	this.kindofaction = k;
@@ -420,10 +457,18 @@ EdenAST_Action.prototype.error = fnEdenAST_error;
 
 function EdenAST_Function() {
 	this.type = "function";
+	this.parent = undefined;
 	this.errors = [];
 	this.body = undefined;
 	this.name = "";
+	this.start = 0;
+	this.end = 0;
 };
+
+EdenAST_Function.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 EdenAST_Function.prototype.setBody = function(body) {
 	this.body = body;
@@ -438,9 +483,17 @@ EdenAST_Function.prototype.error = fnEdenAST_error;
 
 function EdenAST_Return() {
 	this.type = "return";
+	this.parent = undefined;
 	this.errors = [];
 	this.result = undefined;
+	this.start = 0;
+	this.end = 0;
 };
+
+EdenAST_Return.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 EdenAST_Return.prototype.error = fnEdenAST_error;
 
@@ -455,17 +508,25 @@ EdenAST_Return.prototype.setResult = function(result) {
 
 function EdenAST_For() {
 	this.type = "for";
+	this.parent = undefined;
 	this.errors = [];
-	this.start = undefined;
+	this.sstart = undefined;
 	this.condition = undefined;
 	this.inc = undefined;
 	this.statement = undefined;
+	this.start = 0;
+	this.end = 0;
 };
 
 EdenAST_For.prototype.error = fnEdenAST_error;
 
-EdenAST_For.prototype.setStart = function(start) {
+EdenAST_For.prototype.setSource = function(start, end) {
 	this.start = start;
+	this.end = end;
+}
+
+EdenAST_For.prototype.setStart = function(start) {
+	this.sstart = start;
 	this.errors.push.apply(this.errors, start.errors);
 }
 
@@ -490,10 +551,18 @@ EdenAST_For.prototype.setStatement = function(statement) {
 
 function EdenAST_Default() {
 	this.type = "default";
+	this.parent = undefined;
 	this.errors = [];
+	this.start = 0;
+	this.end = 0;
 };
 
 EdenAST_Default.prototype.error = fnEdenAST_error;
+
+EdenAST_Default.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 
 
@@ -501,14 +570,22 @@ EdenAST_Default.prototype.error = fnEdenAST_error;
 
 function EdenAST_Case() {
 	this.type = "case";
+	this.parent = undefined;
 	this.datatype = "";
 	this.literal = undefined;
 	this.errors = [];
+	this.start = 0;
+	this.end = 0;
 };
 
 EdenAST_Case.prototype.setLiteral = function(datatype, literal) {
 	this.datatype = datatype;
 	this.literal = literal;
+}
+
+EdenAST_Case.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
 }
 
 EdenAST_Case.prototype.error = fnEdenAST_error;
@@ -519,10 +596,18 @@ EdenAST_Case.prototype.error = fnEdenAST_error;
 
 function EdenAST_Continue() {
 	this.type = "continue";
+	this.parent = undefined;
 	this.errors = [];
+	this.start = 0;
+	this.end = 0;
 };
 
 EdenAST_Continue.prototype.error = fnEdenAST_error;
+
+EdenAST_Continue.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 
 
@@ -530,10 +615,18 @@ EdenAST_Continue.prototype.error = fnEdenAST_error;
 
 function EdenAST_Break() {
 	this.type = "break";
+	this.parent = undefined;
 	this.errors = [];
+	this.start = 0;
+	this.end = 0;
 };
 
 EdenAST_Break.prototype.error = fnEdenAST_error;
+
+EdenAST_Break.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 
 
@@ -622,11 +715,19 @@ EdenAST_Declarations.prototype.error = fnEdenAST_error;
 
 function EdenAST_Script() {
 	this.type = "script";
+	this.parent = undefined;
 	this.errors = [];
 	this.statements = [];
+	this.start = 0;
+	this.end = 0;
 };
 
 EdenAST_Script.prototype.error = fnEdenAST_error;
+
+EdenAST_Script.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
 EdenAST_Script.prototype.append = function (ast) {
 	this.statements.push(ast);

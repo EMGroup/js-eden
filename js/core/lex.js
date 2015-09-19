@@ -336,9 +336,9 @@ var edenKeywords = {
 EdenStream.prototype.readToken = function() {
 	this.skipWhiteSpace();
 
-	if (this.eof()) return "EOF";
-
 	this.prevposition = this.position;
+
+	if (this.eof()) return "EOF";
 
 	//var ch = this.get();
 

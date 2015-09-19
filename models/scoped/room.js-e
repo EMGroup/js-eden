@@ -32,9 +32,15 @@ door_right is translate{p=room_br, x=(0 - room_width*0.1)};
 door_open_point is rotate{p=door_left,o=door_right,theta=door_angle};
 
 door_angle is (door_open == 1)?door_open_angle:door_close_angle;
-door_open_angle = 75;
+door_open_angle = 78;
 door_close_angle = 0;
 door_open = 1;
+
+proc door_control : mousePressed {
+  if (mousePressed) {
+    door_open = (door_open)?0:1;
+  }
+}
 
 room_top is lineFromPoints{ a = room_tl, b = room_tr };
 room_bottom is lineFromPoints{ a = room_bl, b = door_left };

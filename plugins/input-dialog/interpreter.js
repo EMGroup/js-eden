@@ -174,7 +174,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			if (len > 4*4-1) len = 4*4-1;
 			for (var i = 0; i < len; i++) {
-				makeRepresentative(value[i], Math.round(scale*0.6), sym).appendTo($div);
+				var rep = makeRepresentative(value[i], Math.round(scale*0.6), sym);
+				if (rep) rep.appendTo($div);
 				if (i < value.length - 1) {
 					$("<span>,</span>").appendTo($div);
 				}
@@ -494,7 +495,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 				},
 				start: function(e,u) {
-					dragline = Math.floor(e.offsetY / 20);
+					dragline = Math.floor((e.offsetY-8) / 20);
 					dragstart = u.position.left;
 					dragvalue = parseInt(e.target.textContent);
 					draglast = dragvalue;
@@ -530,13 +531,27 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (all) {
 					edenUI.plugins.ScriptInput.submitEdenCode(text);
 				} else if (stream.ast.lines[stream.currentline-1]) {
+					var statement = stream.ast.lines[stream.currentline-1];
+					var i = stream.currentline - 1;
+					while (statement === undefined) {
+						i--;
+						if (i < 0) break;
+						statement = stream.ast.lines[i]
+					}
+
+					while (statement.parent !== undefined) statement = statement.parent;
+					i = stream.currentline - 1;
 					var curline = $dialogContents.find(".eden-currentline");
-					//curline.css("backgroundColor","#f4fff0");
-					curline.addClass("eden-greenline");
-					//curline.toggleClass("eden-greenline",250);
-					//curline.animate({backgroundColor: "#f0f0ff"}, "slow");
-					//console.log("EXEC: " + stream.ast.getSource(stream.ast.lines[stream.currentline-1]));
-					edenUI.plugins.ScriptInput.submitEdenCode(stream.ast.getSource(stream.ast.lines[stream.currentline-1]));
+					//curline.addClass("eden-greenline");
+					while (i >= 0) {
+						curline.addClass("eden-greenline");
+						curline = curline.prev();
+						if (stream.ast.lines[i].parent === undefined) {
+							break;
+						}
+						i--;
+					}
+					edenUI.plugins.ScriptInput.submitEdenCode(stream.ast.getSource(statement));
 				}
 			} else if (run) {
 				$dialogContents.find(".submitButton").addClass("submitError");

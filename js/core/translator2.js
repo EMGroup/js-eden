@@ -20,6 +20,7 @@ function EdenAST(code) {
 	this.previous = "INVALID";
 	this.src = "input";
 	this.lines = [];
+	this.parent = undefined;
 
 	this.stream.data = this.data;
 
@@ -69,6 +70,10 @@ EdenAST.prototype.prettyPrint = function() {
 	} else {
 		result = JSON.stringify(this.script, function(key, value) {
 			if (key == "errors") return undefined;
+			if (key == "parent") {
+				if (value) return true;
+				else return undefined;
+			} 
 			return value;
 		}, "    ");
 	}
@@ -610,6 +615,8 @@ EdenAST.prototype.pEXPRESSION = function() {
  */
 EdenAST.prototype.pACTION = function() {
 	var action = new EdenAST_Action();
+	var parent = this.parent;
+	this.parent = action;
 
 	if (this.token == "OBSERVABLE") {
 		action.name = this.data.value;
@@ -637,6 +644,7 @@ EdenAST.prototype.pACTION = function() {
 	action.triggers = olist;
 
 	action.setBody(this.pACTIONBODY());
+	this.parent = parent;
 	return action;
 }
 
@@ -1028,6 +1036,8 @@ EdenAST.prototype.pSWITCH = function() {
  */
 EdenAST.prototype.pFUNCTION = function() {
 	var func = new EdenAST_Function();
+	var parent = this.parent;
+	this.parent = func;
 
 	if (this.token == "OBSERVABLE") {
 		func.name = this.data.value;
@@ -1038,6 +1048,7 @@ EdenAST.prototype.pFUNCTION = function() {
 	}
 
 	func.setBody(this.pFUNCBODY());
+	this.parent = parent;
 	return func;
 }
 
@@ -1473,23 +1484,27 @@ EdenAST.prototype.pINCLUDE = function() {
 	epsilon
  */
 EdenAST.prototype.pSTATEMENT = function() {
+	var start = this.stream.prevposition;
+	var curline = this.stream.line - 1;
+	var stat = undefined;
+
 	switch (this.token) {
-	case "proc"		:	this.next(); return this.pACTION();
-	case "func"		:	this.next(); return this.pFUNCTION();
-	case "when"		:	this.next(); return this.pWHEN();
-	case "for"		:	this.next(); return this.pFOR();
-	case "while"	:	this.next(); return this.pWHILE();
-	case "switch"	:	this.next(); return this.pSWITCH();
-	case "case"		:	this.next(); return this.pCASE();
-	case "insert"	:	this.next(); return this.pINSERT();
-	case "delete"	:	this.next(); return this.pDELETE();
-	case "append"	:	this.next(); return this.pAPPEND();
-	case "shift"	:	this.next(); return this.pSHIFT();
-	case "require"	:	this.next(); return this.pREQUIRE();
-	case "await"	:	this.next(); return this.pAWAIT();
-	case "after"	:	this.next(); return this.pAFTER();
-	case "option"	:	this.next(); return this.pOPTION();
-	case "include"	:	this.next(); return this.pINCLUDE();
+	case "proc"		:	this.next(); stat = this.pACTION(); break;
+	case "func"		:	this.next(); stat = this.pFUNCTION(); break;
+	case "when"		:	this.next(); stat = this.pWHEN(); break;
+	case "for"		:	this.next(); stat = this.pFOR(); break;
+	case "while"	:	this.next(); stat = this.pWHILE(); break;
+	case "switch"	:	this.next(); stat = this.pSWITCH(); break;
+	case "case"		:	this.next(); stat = this.pCASE(); break;
+	case "insert"	:	this.next(); stat = this.pINSERT(); break;
+	case "delete"	:	this.next(); stat = this.pDELETE(); break;
+	case "append"	:	this.next(); stat = this.pAPPEND(); break;
+	case "shift"	:	this.next(); stat = this.pSHIFT(); break;
+	case "require"	:	this.next(); stat = this.pREQUIRE(); break;
+	case "await"	:	this.next(); stat = this.pAWAIT(); break;
+	case "after"	:	this.next(); stat = this.pAFTER(); break;
+	case "option"	:	this.next(); stat = this.pOPTION(); break;
+	case "include"	:	this.next(); stat = this.pINCLUDE(); break;
 	case "default"	:	this.next();
 						var def = new EdenAST_Default();
 						if (this.token != ":") {
@@ -1498,9 +1513,8 @@ EdenAST.prototype.pSTATEMENT = function() {
 						} else {
 							this.next();
 						}
-						return def;
-	case "if"		:	this.next();
-						return this.pIF();
+						stat = def; break;
+	case "if"		:	this.next(); stat = this.pIF(); break;
 	case "return"	:	this.next();
 						var ret = new EdenAST_Return();
 
@@ -1519,7 +1533,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 							this.next();
 						}
 
-						return ret;
+						stat = ret; break;
 	case "continue"	:	this.next();
 						var cont = new EdenAST_Continue();
 						if (cont.errors.length > 0) return cont;
@@ -1531,7 +1545,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 							this.next();
 						}
 
-						return cont;
+						stat = cont; break;
 	case "break"	:	this.next();
 						var breakk = new EdenAST_Break();
 						if (breakk.errors.length > 0) return breakk;
@@ -1543,7 +1557,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 							this.next();
 						}
 
-						return breakk;
+						stat = breakk; break;
 	case "{"		:	this.next();
 						var script = this.pSCRIPT();
 						if (this.token != "}") {
@@ -1551,34 +1565,34 @@ EdenAST.prototype.pSTATEMENT = function() {
 							return script;
 						}
 						this.next();
-						return script;
-	case "OBSERVABLE" :	var start = this.stream.prevposition;
-						var lvalue = this.pLVALUE();
+						stat = script; break;
+	case "OBSERVABLE" :	var lvalue = this.pLVALUE();
 						if (lvalue.errors.length > 0) return lvalue;
-						var curline = this.stream.line - 1;
 						var formula = this.pSTATEMENT_PP();
 						formula.left(lvalue);
-						// Log as main statement on this line.
-						this.lines[curline] = formula;
 
 						if (formula.errors.length > 0) {
-							formula.setSource(start,this.stream.position);
-							return formula;
+							stat = formula;
+							break;
 						}
 		
 						if (this.token != ";") {
-							formula.setSource(start,this.stream.position);
 							formula.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
 						} else {
-							formula.setSource(start,this.stream.position);
 							this.next();
 						}
-						return formula;
+						stat = formula; break;
 	case "JAVASCRIPT" : var js = this.data.value;
 						this.next();
-						return new EdenAST_Literal("JAVASCRIPT", js);
+						stat = new EdenAST_Literal("JAVASCRIPT", js);
+						break;
+	default : return undefined;
 	}
-	return undefined;
+	
+	stat.parent = this.parent;
+	stat.setSource(start, this.stream.prevposition);
+	this.lines[curline] = stat;
+	return stat;
 };
 
 
