@@ -48,39 +48,76 @@ var EDEN_ERROR_BACKTICK = 44;
 var EDEN_ERROR_WHILEOPEN = 45;
 var EDEN_ERROR_WHILECLOSE = 46;
 var EDEN_ERROR_WHILENOSTATEMENT = 47;
+var EDEN_ERROR_NEGNUMBER = 48;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
-	{	message: function() { return 0; },
+	{	message: function() {
+			var type = this.context.stream.tokenType(this.token);
+			if (type == "keyword") return 0;
+			if (type == "boolean" || type == "character" || type == "string" || type == "number") return 1;
+			if (this.token == ":") return 4;
+			if (this.token == "{") return 5;
+			if (this.token == "closebracket") return 3;
+			return 2; 
+		},
 		messages: [
 			"'proc' names cannot be keywords",
+			"'proc' action names cannot be a literal value",
 			"'proc' actions need a name",
-			"'proc' actions need a name"],
+			"Unexpected closing bracket",
+			"A 'proc' needs a name before it's watch list",
+			"A 'proc' needs a name and a watch list"
+		],
 		suggestion: {expected: ["OBSERVABLE"], next: [":"]}
 	},
 /* EDEN_ERROR_EXPCLOSEBRACKET */
-	{	message: function() { return 0; },
+	{	message: function() {
+			if (this.token == "}" || this.token == "]") return 0;
+			if (this.token == ";") return 1;
+			return 2;
+		},
 		messages: [
-			"Wrong kind of bracket, expected a ')'.",
-			"Need a closing bracket before ending the expression.",
-			"Missing a closing bracket around an expression."],
+			"Wrong kind of bracket, expected a ')'",
+			"Missing a closing ')' bracket before end of statement",
+			"Missing a closing bracket ')' or operator"
+		],
 		suggestion: {expected: [")"], next: [";","+","-","==","<=",">=","!=","/","*","%","^"]}
 	},
 /* EDEN_ERROR_BADFACTOR */
-	{	message: function() { return 0; },
+	{	message: function() {
+			if (this.token == "{") return 0;
+			if (this.token == ")") {
+				var prevtype = this.context.stream.tokenType(this.prevtoken);
+				if (prevtype == "operator") {
+					return 3;
+				}
+				return 1;
+			}
+			var type = this.context.stream.tokenType(this.token);
+			if (type == "keyword") return 4;
+			if (type == "operator") return 3;
+			return 2;
+		},
 		messages: [
 			"Wrong kind of bracket, use '(' or '[' in expressions.",
 			"Missing expression? Unexpected closing bracket",
-			"Missing a closing bracket?",
+			"Expected a value or observable",
 			"Missing an operand.",
 			"Keywords are not allowed in expressions"],
 		suggestion: {expected: ["NUMBER","STRING","OBSERVABLE","&","!","("], next: ["NUMBER","STRING","OBSERVABLE","&","!","(",";","+","-","==","<=",">=","!=","/","*","%","^"]}
 	},
 /* EDEN_ERROR_ACTIONCOLON */
-	{	message: function() { return 0; },
+	{	message: function() {
+			if (this.token == "{") return 1;
+			if (this.token == "OBSERVABLE") return 0;
+			var type = this.context.stream.tokenType(this.token);
+			if (type == "keyword") return 3;
+			return 2;
+		},
 		messages: [
 			"Need a ':' before listing trigger observables",
-			"Actions require a list of observables to trigger on",
+			"Actions require a list of observables to trigger on, expected a ':'",
 			"Expecting a ':' here",
 			"Need a ':' after an action name, not a reserved word"],
 		suggestion: {expected: [":"], next: ["OBSERVABLE"]}
@@ -170,20 +207,27 @@ var eden_error_db = [
 		suggestion: {expected: ["}"], next: ["proc","func","if","for","OBSERVABLE","switch","while","return","continue","break"]}
 	},
 /* EDEN_ERROR_LOCALNAME */
-	{	message: function() { return 0; },
+	{	message: function() {
+			var type = this.context.stream.tokenType(this.token);
+			if (type == "keyword") return 0;
+			if (this.token == ";") return 1;
+			return 2;
+		},
 		messages: [
 			"Reserved words cannot be used as local variable names",
-			"'local' cannot be used as an observable name",
-			"Unexpected bracket, expected a local variable name"],
+			"Missing a name after a 'local' declaration",
+			"'local' must be followed by a valid name"],
 		suggestion: {expected: ["OBSERVABLE"], next: [";"]}
 	},
 /* EDEN_ERROR_LOCALSEMICOLON */
-	{	message: function() { return 0; },
+	{	message: function() {
+			if (this.token == "is" || this.token == "=") return 1;
+			return 0;
+		},
 		messages: [
 			"Need a ';' after a local declaration",
-			"It's not possible to initialise a local",
-			"Need a ';' after a local declaration",
-			"Unexpected bracket, need a ';'"],
+			"It's not possible to initialise a local here"
+		],
 		suggestion: {expected: [";"], next: ["local","OBSERVABLE","if","for","switch","while","return"]}
 	},
 /* EDEN_ERROR_WHENTYPE */
@@ -508,6 +552,13 @@ var eden_error_db = [
 			"While loops must have a statement"
 		],
 		suggestion: {expected: [")"], next: []}
+	},
+/* EDEN_ERROR_NEGNUMBER */
+	{	message: function() { return 0; },
+		messages: [
+			"Expected a number after a negative sign"
+		],
+		suggestion: {expected: ["NUMBER"], next: []}
 	}
 ]
 

@@ -135,6 +135,8 @@ function EdenAST_Length() {
 
 EdenAST_Length.prototype.left = fnEdenAST_left;
 
+EdenAST_Length.prototype.error = fnEdenAST_error;
+
 
 
 //------------------------------------------------------------------------------

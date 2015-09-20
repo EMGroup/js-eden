@@ -375,6 +375,16 @@ EdenAST.prototype.pFACTOR = function() {
 	} else if (this.token == "NUMBER") {
 		this.next();
 		return new EdenAST_Literal("NUMBER", this.data.value);
+	} else if (this.token == "-") {
+		this.next();
+		if (this.token == "NUMBER") {
+			this.next();
+			return new EdenAST_Literal("NUMBER", 0.0 - this.data.value);
+		} else {
+			var res = new EdenAST_Literal("UNDEFINED","@");
+			res.errors.push(new EdenError(this, EDEN_ERROR_NEGNUMBER));
+			return res;
+		}
 	} else if (this.token == "STRING") {
 		this.next();
 		return new EdenAST_Literal("STRING", this.data.value);
@@ -627,8 +637,10 @@ EdenAST.prototype.pEXPRESSION = function() {
 
 	if (right) {
 		right.left(left);
+		//right.parent = this.parent;
 		return right;
 	}
+	//left.parent = this.parent;
 	return left;
 }
 
