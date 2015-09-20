@@ -43,7 +43,9 @@ module.exports = function (grunt) {
 
 	cssmin: {
 		options: {
-			target: './plugins'
+			target: './plugins/',
+			relativeTo: './',
+			rebase: true
 		},
 		plugins: {
 			files: {
