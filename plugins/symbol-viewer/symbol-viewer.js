@@ -435,7 +435,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 	}
 
 	this.element.click(function () {
-		if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol || singleClickPerformed) {
+		/*if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol || singleClickPerformed) {
 			return;
 		}
 		singleClickPerformed = true;
@@ -443,10 +443,10 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol || !singleClickPerformed) {
 				return;
 			}
-			singleClickPerformed = false;
-			var editorViewName = "edit_" + me.name;
+			singleClickPerformed = false;*/
+			/*var editorViewName = "edit_" + me.name;
 			edenUI.createView(editorViewName, "ScriptInput");
-			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + me.name, Symbol.hciAgent);
+			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + me.name, Symbol.hciAgent);*/
 			var val;
 			if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
 				val = symbol.eden_definition;
@@ -458,13 +458,15 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 				}
 			}
 
-			$('#' + editorViewName + '-dialog').find('textarea').val(
-				val
-			);
-		}, 325);
+			$('#input_dialog-dialog').find('textarea').val(val);
+
+			//$('#' + editorViewName + '-dialog').find('textarea').val(
+			//	val
+			//);
+		//}, 325);
 	});
 	if (type == "obs") {
-		this.element.dblclick(function () {
+		/*this.element.dblclick(function () {
 			singleClickPerformed = false;
 			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === me) {
 				return;
@@ -565,7 +567,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			} else {
 				me.symbol.assign(true, Symbol.hciAgent, true);
 			}
-		});
+		});*/
 	}
 
 	this.update();
