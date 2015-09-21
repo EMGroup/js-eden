@@ -21,6 +21,7 @@ func Circle { ${{
 	var fillcolour, outlinecolour, drawingOptions;
 	var lastArg = arguments[arguments.length - 1];
 	var processUpTo;
+	fillcolour = "black";
 	if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
 		drawingOptions = lastArg;
 		processUpTo = arguments.length - 2;
