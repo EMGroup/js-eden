@@ -1,0 +1,18 @@
+createView("input_dialog","ScriptInput");
+createView("observable_list", "ObservableList");
+createCanvas("picture");
+
+_view_input_dialog_x = 567;
+_view_input_dialog_y = 407;
+_view_input_dialog_width = 522;
+_view_input_dialog_height = 170;
+
+_view_picture_x = 567;
+_view_picture_y = 11;
+_view_picture_width = 522;
+_view_picture_height = 336;
+
+_view_observable_list_x = 168;
+_view_observable_list_y = 11;
+_view_observable_list_height = 566;
+_view_observable_list_width = 312;

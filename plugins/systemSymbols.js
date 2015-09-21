@@ -55,6 +55,19 @@ Eden.systemObservableNames = {
 	"_views_number_created": true,
 	"_views_unit_x": true,
 	"_views_unit_y": true,
+	"menus": true,
+	"mouseCapture": true,
+	"mouseContextMenuEnabled": true,
+	"mouseFollow": true,
+	"mouseWheelEnabled": true,
+	"touchPinchEnabled": true,
+	"radiansPerUnit": true,
+	"randomSeed": true,
+	"edenclocks": true,
+	"edenclocks_paused": true,
+	"_view_picture_background_colour": true,
+	"_view_picture_scale": true,
+	"_view_picture_offset": true
 };
 
 Eden.systemAgentNames = {
