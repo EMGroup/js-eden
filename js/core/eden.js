@@ -465,7 +465,6 @@ function concatAndResolveUrl(url, concat) {
 		this.topLevelIncludes = [];
 		this.included = {};
 		this.reportErrors = true;
-		
 	}
 
 	/**
