@@ -75,7 +75,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 */
 	this.createDialog = function (name, mtitle, type) {
 		var edenName = name.slice(0, -7);
-		var code_entry = $('<div></div>');
+		var code_entry = $('<div class="observablelist-dialog"></div>');
 		code_entry.html(generateHTML(name, type));
 		var symbollist = new EdenUI.plugins.SymbolViewer.SymbolList(
 			edenUI.eden.root, code_entry.find(".symbollist-results")[0], type
@@ -89,6 +89,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 				height: 400,
 				minHeight: 200,
 				minWidth: 200,
+				dialogClass: "symbollist-dialog"
 			});
 
 		me.instances.push(symbollist);

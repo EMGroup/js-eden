@@ -5,12 +5,14 @@
 }
 
 .symbollist-result-element {
-	margin-bottom: 3px;
+	margin-bottom: 5px;
 	cursor: pointer;
 	overflow: hidden;
 	font-size: 8pt;
 	font-family: monospace;
 	white-space: nowrap;
+	padding-left: 3px;
+	padding-right: 3px;
 }
 .symbollist-result-element:hover {
 	background-color: #eaeaea;
@@ -28,9 +30,25 @@
 	width: calc(100% - 80px);
 }
 
+.symbollist-dialog {
+	background: #f1f1f1;
+}
+
+.symbollist-results {
+	/*padding: 3px;*/
+}
+
+.observablelist-dialog {
+	background: white;
+	height: 100%;
+	overflow: auto;
+}
+
 .symbollist-search-box-outer {
-	border-bottom: 1px solid #BBBBBB;
-	margin-bottom: 4px;
+	box-shadow: 0 0 10px #719ECE;
+	border-bottom: 1px solid #719ECE;
+	background: #f1f1f1;
+	margin-bottom: 8px;
 	padding-bottom: 1px;
 }
 
