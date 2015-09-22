@@ -35,7 +35,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	this.history = [];
 	this.index = 0;
 	this.randomid = Math.floor(Math.random() * 100000);
-	this.monitorurl = "http://54.179.10.191/api/record";
+	this.monitorurl = "http://jsedena.mobcomlab.com/api/record";
 
 	$.post(this.monitorurl, {id: this.randomid, timestamp: Math.floor(Date.now() / 1000), action: "started", data: ""});
 
