@@ -138,7 +138,12 @@ EdenHighlight.prototype.highlight = function(start) {
 	var token = "INVALID";
 	var prevtoken = "INVALID";
 
-	while (stream.valid()) {
+	console.log(oldstart);
+
+	while (true) {
+		if (stream.position == oldstart) {
+			line += "<span class='fake-caret'></span>";
+		}
 		/*if (stream.position > start + (2*this.CODELIMIT)) {
 			//if (inerror) result += "</span>";
 			if (lineerror) {
@@ -152,54 +157,56 @@ EdenHighlight.prototype.highlight = function(start) {
 			break;
 		}*/
 		// Skip but preserve white space
-		while (stream.valid()) {
-			var ch= stream.peek();
-			if (ch == 10) {
-				this.line++;
-				if (lineerror) {
-					if (oldstart >= linestart && oldstart <= stream.position) {
-						result += "<span class='eden-currentline eden-errorline'>";
-					} else {
-						result += "<span class='eden-errorline'>";
-					}
-					lineerror = false;
-				} else if (oldstart >= linestart && oldstart <= stream.position) {
-					this.currentline = this.line - 1;
-					//this.currenttoken = token;
-					//this.currentprevtoken = prevtoken;
-					result += "<span class='eden-currentline'>";
+		//while (stream.valid()) {
+		var ch= stream.peek();
+		if (ch == 10) {
+			console.log("LINE: " + this.line);
+			this.line++;
+			if (lineerror) {
+				if (oldstart >= linestart && oldstart <= stream.position) {
+					result += "<div class='eden-currentline eden-errorline'><span>";
 				} else {
-					result += "<span class='eden-line'>";
+					result += "<div class='eden-errorline'><span>";
 				}
-
-				/*if (this.ast.lines[this.line - 2]) {
-					if (this.ast.lines[this.line - 2].lvalue) {
-						result += "<span class='eden-info'>" + this.ast.lines[this.line - 2].lvalue.observable + "</span>";
-					}
-				}*/
-
-				//if (line == "") line = "\x0b";
-
-				linestart = stream.position+1;
-				result += line + "\n</span>";
-				line = "";
-				stream.skip();
-			} else if (ch == 9 || ch == 13 || ch == 32 || ch == 160) {
-				stream.skip();
-				if (ch == 32 || ch == 160) {
-					line += "&nbsp;";
-				} else if (ch != 10 && ch != 13) {
-					line += String.fromCharCode(ch);
-				}
+				lineerror = false;
+			} else if (oldstart >= linestart && oldstart <= stream.position) {
+				this.currentline = this.line - 1;
+				//this.currenttoken = token;
+				//this.currentprevtoken = prevtoken;
+				result += "<div class='eden-currentline'><span>";
 			} else {
-				break;
+				result += "<div class='eden-line'><span>";
 			}
-		}
+
+			/*if (this.ast.lines[this.line - 2]) {
+				if (this.ast.lines[this.line - 2].lvalue) {
+					result += "<span class='eden-info'>" + this.ast.lines[this.line - 2].lvalue.observable + "</span>";
+				}
+			}*/
+
+			//if (line == "") line = " ";
+
+			linestart = stream.position+1;
+			result += line + "</span>\n</div>";
+			line = "";
+			stream.skip();
+			continue;
+		} else if (ch == 9 || ch == 13 || ch == 32 || ch == 160) {
+			stream.skip();
+			if (ch == 32 || ch == 160) {
+				line += "&nbsp;";
+			} else if (ch != 10 && ch != 13) {
+				line += String.fromCharCode(ch);
+			}
+			continue;
+		} 
+		//}
 
 		prevtoken = token;
 		token = stream.readToken();
 		var type = stream.tokenType(token);
 		var classes = "";
+		var tokentext = stream.tokenText();
 
 		if (token == "EOF") {
 			break;
@@ -231,70 +238,75 @@ EdenHighlight.prototype.highlight = function(start) {
 
 		if (token == "##") {
 			classes += "eden-comment";
-			line += "<span class='"+classes+"'>##";
 			var comment = "";
 			while (stream.valid() && stream.peek() != 10) {
 				comment += String.fromCharCode(stream.get());
 			}
-			comment = comment.replace(">","&gt;").replace("<","&lt;");
-			line += comment + "</span>";
+			tokentext = "##" + comment.replace(">","&gt;").replace("<","&lt;");
 		} else if (token == "local" || token == "auto" || token == "para") {
 			classes += "eden-storage";
-			line += "<span class='"+classes+"' title=\""+title+"\">" + token + "</span>";
 		} else if (type == "keyword") {
 			classes += "eden-keyword";
-			line += "<span class='"+classes+"' title=\""+title+"\">" + token + "</span>";
 		} else if (token == "NUMBER") {
 			classes += "eden-number";
-			line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText() + "</span>";
 		} else if (token == "STRING") {
 			classes += "eden-string";
-			line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText().replace(">","&gt;").replace("<","&lt;") + "</span>";
+			tokentext = tokentext.replace("<","&lt;");
+			tokentext = tokentext.replace(">","&gt;");
 		} else if (token == "CHARACTER") {
 			classes += "eden-string";
-			line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText().replace(">","&gt;").replace("<","&lt;") + "</span>";	
+			tokentext = tokentext.replace("<","&lt;");
+			tokentext = tokentext.replace(">","&gt;");
 		} else if (token == "BOOLEAN") {
-			classes += "eden-type";
-			line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText() + "</span>";	
+			classes += "eden-type";	
 		} else if (token == "OBSERVABLE") {
 			if (edenFunctions[stream.data.value]) {
 				classes += "eden-function";
-				line += "<span class='"+classes+"' title=\""+title+"\">" + stream.data.value + "</span>";
 			} else if (edenTypes[stream.data.value]) {
 				classes += "eden-type";
-				line += "<span class='"+classes+"' title=\""+title+"\">" + stream.data.value + "</span>";
 			} else if (edenSpecials[stream.data.value]) {
 				classes += "eden-special";
-				line += "<span class='"+classes+"' title=\""+title+"\">" + stream.data.value + "</span>";
 			} else {
 				classes += "eden-observable";
-				line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText() + "</span>";
 			}
 		} else if (token == "JAVASCRIPT") {
 			classes += "eden-javascript";
-			line += "<span class='"+classes+"' title=\""+title+"\">" + stream.tokenText().replace(">","&gt;").replace("<","&lt;") + "</span>";
+			tokentext = tokentext.replace("<","&lt;");
+			tokentext = tokentext.replace(">","&gt;");
 		} else {
 			classes += "eden-operator";
-			token = token.replace("<","&lt;");
-			token = token.replace(">","&gt;");
-			line += "<span class='"+classes+"' title=\""+title+"\">" + token + "</span>";
+			tokentext = tokentext.replace("<","&lt;");
+			tokentext = tokentext.replace(">","&gt;");
 		}
+
+		// Insert caret if needed
+		if (stream.prevposition < oldstart && stream.position >= oldstart) {
+			console.log("CARET");
+			var caret = oldstart - stream.prevposition;
+			tokentext = tokentext.slice(0,caret) + "<span class='fake-caret'></span>" + tokentext.slice(caret);
+		}
+
+		line += "<span class='"+classes+"' title=\""+title+"\">" + tokentext + "</span>";
 	}
 
 	if (line != "") {
 		if (lineerror) {
 			if (oldstart >= linestart && oldstart <= stream.position) {
-				result += "<span class='eden-currentline eden-errorline'>" + line + "</span>";
+				result += "<div class='eden-currentline eden-errorline'>" + line + "</span></div>";
 			} else {
-				result += "<span class='eden-errorline'>" + line + "</span>";
+				result += "<div class='eden-errorline'>" + line + "</span></div>";
 			}
 		} else if (oldstart >= linestart && oldstart <= stream.position) {
 			this.currentline = this.line;
-			result += "<span class='eden-currentline'>" + line + "</span>";
+			result += "<div class='eden-currentline'>" + line + "</span></div>";
 		} else {
-			result += "<span class='eden-line'>" + line + "</span>";
+			result += "<div class='eden-line'>" + line + "</span></div>";
 		}
 	}
+
+	/*if (stream.position == oldstart) {
+		result += "<span class='fake-caret'></span>";
+	}*/
 
 	if (this.currentline == -1) {
 		//this.currenttoken = token;

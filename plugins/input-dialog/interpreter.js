@@ -389,9 +389,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createDialog = function (name, mtitle) {
-		var $dialogContents = $('<div class="inputCodeArea"><div class="eden_suggestions"></div><code spellcheck="false" contenteditable tabindex="1" class="inputcontent"></code></div><div class="subButtonsDiv"><div class="switch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div></div><div class="buttonsDiv"><button class="previousButton"></button><button class="nextButton"></button></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div><textarea class="hidden-textarea"></textarea></div><div class="info-bar"></div><div class="subButtonsDiv"><div class="switch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div></div><div class="buttonsDiv"><button class="previousButton"></button><button class="nextButton"></button></div></div>')
 		var text = "";	
-		var textarea = $dialogContents.find('.inputcontent').get(0);
+		var position = 0;
+		var intextarea = $dialogContents.find('.hidden-textarea').get(0);
+		var outdiv = $dialogContents.find('.outputcontent').get(0);
+		var infobox = $dialogContents.find('.info-bar').get(0);
 		var suggestions = $dialogContents.find('.eden_suggestions');
 		suggestions.hide();
 
@@ -400,7 +403,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var draglast = 0;
 		var dragline = 0;
 
-		$( textarea ).tooltip({
+		/*$( textarea ).tooltip({
 			position: {
 				my: "center bottom-15",
 				at: "center top",
@@ -425,20 +428,19 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					return makeRepresentative(sym.value(),60,sym);
 				}
 			}
-		});
+		});*/
 
 		function highlightContent(text, position, run, all) {
 			var stream = new EdenHighlight(text);
 			var high = stream.highlight(position);
-			textarea.innerHTML = high;
-			setSelectionRange(textarea, position, position);
+			outdiv.innerHTML = high;
 
 			/*if (stream.ast.lines[stream.currentline-1]) {
 				console.log("SRC: " + stream.ast.getSource(stream.ast.lines[stream.currentline-1]));
 			}*/
 
 			/* Number dragging code */
-			$(textarea).find('.eden-number').draggable({
+			/*$(outdiv).find('.eden-number').draggable({
 				helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
 				axis: 'x',
 				drag: function(e,u) {
@@ -473,7 +475,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				},
 				cursor: 'move',
 				cursorAt: {top: -5, left: -5}
-			});
+			});*/
 
 			/*$(textarea).find('.eden-observable').draggable({
 				helper: function(e) { return $("<span class='eden-drag-observable'>"+e.target.textContent+"</span>"); },
@@ -538,10 +540,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			return stream;
 		}
 
-		$dialogContents.on('keyup', '.inputcontent', function (e) {
-			if (!e.ctrlKey && e.keyCode != 37 && e.keyCode != 39 && e.keyCode != 17) {
-				text = textarea.textContent;
-				var position = getCaretCharacterOffsetWithin(textarea);
+		$dialogContents.on('keyup', '.hidden-textarea', function (e) {
+			if (!e.ctrlKey && e.keyCode != 17) {
+				//text = textarea.textContent;
+				/*if (textarea.innerText) {
+					text = textarea.innerText;
+				} else {
+					//text = textarea.textContent;
+					text = textarea.innerHTML.replace(/<br>/gi,"\n").replace(/(<([^>]+)>)/gi, "").replace(/\&nbsp;/gi," ");
+					console.log(text);
+				}*/
+				//var position = getCaretCharacterOffsetWithin(textarea);
 				var stream;
 
 				//console.log(position);
@@ -549,17 +558,25 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 				// Don't execute if only moving up and down the lines.
 				if (e.keyCode == 38 || e.keyCode == 40) {
-					stream = highlightContent(text,position,false, false);
+					stream = highlightContent(intextarea.value,intextarea.selectionEnd,false, false);
 				} else {
-					stream = highlightContent(text,position,me.autoexec, false);
+					stream = highlightContent(intextarea.value,intextarea.selectionEnd,me.autoexec, false);
 				}
+
+				if (stream.ast.script.errors.length > 0) {
+					infobox.innerHTML = stream.ast.script.errors[0].messageText();
+				} else {
+					infobox.innerHTML = "Yay!";
+				}
+
+				//setSelectionRange(textarea, position, position);
 
 				//console.log("Line: " + stream.currentline);
 
 				/* Suggestions Box */
 				//console.log(window.getSelection().getRangeAt(0));
 				// Is there an abstract syntax tree node for this line?
-				var curast = stream.ast.lines[stream.currentline-1];
+				/*var curast = stream.ast.lines[stream.currentline-1];
 				if (curast) {
 					var pattern = stream.ast.getSource(curast).split("\n")[0];
 					//console.log("Fill: " + pattern);
@@ -612,55 +629,67 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 				} else {
 					suggestions.hide("fast");
-				}
+				}*/
 
 			} else if (e.ctrlKey) {
 				console.log(e);
 
 				if (e.keyCode === 38) {
 					// up
-					me.prev(textarea);
+					me.prev(intextarea);
 				} else if (e.keyCode === 40) {
 					// down
-					me.next(textarea);
+					me.next(intextarea);
 				} else if (e.keyCode === 86) {
 					// Pasting so disable live code
 					suggestions.hide("fast");
 					$dialogContents.find(".submitButton").get(0).checked = false;
 					me.autoexec = false;
-					var position = getCaretCharacterOffsetWithin(textarea);
-					text = textarea.textContent;
+					var position = 0; //getCaretCharacterOffsetWithin(textarea);
+					text = intextarea.value;
 					highlightContent(text, position, false,false);
 				}
 			} 
+		/*}).on('keypress', '.hidden-textarea', function(e) {
+				e.preventDefault();
+				console.log(e);
 			//textarea.innerHTML += String.fromCharCode(e.keyCode);
-		}).on('keydown', '.inputcontent', function(e) {
+		//}).on('keydown', '.inputcontent', function(e) {
 				if (e.keyCode == 8) {
-					var position = getCaretCharacterOffsetWithin(textarea);
-					text = textarea.textContent;
+					var position = 0; //getCaretCharacterOffsetWithin(textarea);
+					text = intextarea.value;
 					text = text.slice(0, position-1) + text.slice(position);
 					position--;
 					highlightContent(text,position,false,false);
 				} else if (e.keyCode == 9) {
-					var position = getCaretCharacterOffsetWithin(textarea);
-					text = textarea.textContent;
+					var position = 0; //getCaretCharacterOffsetWithin(textarea);
+					text = intextarea.value;
 					e.preventDefault();
 					text = text.slice(0,position) + "\t" + text.slice(position);
 					position++;
 					highlightContent(text,position,false,false);
-				}
-		}).on('click', '.inputcontent', function(e) {
-			var start = getStartCaretCharacterOffsetWithin(textarea);
-			var pos = getCaretCharacterOffsetWithin(textarea);
+				} else {
+					if (e.keyCode == 13) {
+						text += "\n";
+					} else {
+						text += String.fromCharCode(e.keyCode);
+					}
+					position++;
+				}*/
+		}).on('click', '.outputcontent', function(e) {
+			//var start = getStartCaretCharacterOffsetWithin(textarea);
+			var pos = 0;//getCaretCharacterOffsetWithin(outdiv);
 			suggestions.hide("fast");
-			if ((pos - start) == 0) {
-				highlightContent(textarea.textContent, pos,false,false);
-			}
+			//if ((pos - start) == 0) {
+				intextarea.position = pos;					
+				highlightContent(intextarea.value, intextarea.position,false,false);
+			//}
+			$(intextarea).focus();
 		}).on('change', '.submitButton', function (e) {
 			if ($(this).is(':checked')) {
 				me.autoexec = true;
-				var pos = getCaretCharacterOffsetWithin(textarea);
-				highlightContent(textarea.textContent, pos, true,true);
+				var pos = 0; //getCaretCharacterOffsetWithin(textarea);
+				highlightContent(intextarea.value, pos, true,true);
 			} else {
 				me.autoexec = false;
 			}
