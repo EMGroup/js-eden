@@ -280,7 +280,7 @@ EdenHighlight.prototype.highlight = function(start) {
 		}
 
 		// Insert caret if needed
-		if (stream.prevposition < oldstart && stream.position >= oldstart) {
+		if (stream.prevposition < oldstart && stream.position > oldstart) {
 			console.log("CARET");
 			var caret = oldstart - stream.prevposition;
 			tokentext = tokentext.slice(0,caret) + "<span class='fake-caret'></span>" + tokentext.slice(caret);

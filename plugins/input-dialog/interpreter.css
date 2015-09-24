@@ -6,8 +6,8 @@
 	position: absolute;
 	top: 48px;
 	bottom: 35px;
-	left: 8px;
-	right: 8px;
+	left: 12px;
+	right: 12px;
 	border-color: #719ECE;
     box-shadow: 0 0 10px #719ECE;
 	color: #2b4957;/*#233b46;*/
@@ -49,7 +49,25 @@ div.info-bar {
 	border-bottom-style: solid;
 	border-bottom-width: 1px;
 	text-align: center;
-	font-size: 16pt;
+	font-size: 12pt;
+	vertical-align: middle;
+}
+
+div.control-bar {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 35px;
+	background-color: #f1f1f1;
+	box-shadow: 0 0 10px black;
+	border-top-color: #719ECE;
+	border-top-style: solid;
+	border-top-width: 1px;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
 }
 
 .ui-tooltip, .arrow:after {
@@ -134,7 +152,16 @@ div.outputcontent {
 }
 
 div.input-dialog {
-	background: #f1f1f1;
+	/*background: #f1f1f1;*/
+	background: none;
+	border: 0;
+}
+
+div.input-dialog .ui-dialog-titlebar {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
 }
 
 .buttonsDiv {
@@ -318,7 +345,7 @@ div.eden-currentline:before {
 	height: 20px;
 }
 
-span.eden-greenline {
+div.eden-greenline {
 	position: relative;
 	display: inline-block;
 	width: 100%;
@@ -329,7 +356,7 @@ span.eden-greenline {
 	z-index: 1;
 }
 
-span.eden-greenline:before {
+div.eden-greenline:before {
 	position: absolute;
 	content: "";
 	background-image: url('../../images/accept.png');
@@ -341,7 +368,7 @@ span.eden-greenline:before {
 	height: 20px;
 }
 
-span.eden-errorline {
+div.eden-errorline {
 	position: relative;
 	/*display: inline-block;*/
 	width: 100%;
@@ -360,7 +387,7 @@ span.eden-errorline {
 	/*z-index: 1;*/
 }
 
-span.eden-errorline:before {
+div.eden-errorline:before {
 	position: absolute;
 	content: "";
 	background-image: url('../../images/exclamation.png');

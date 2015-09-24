@@ -291,105 +291,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}).find(".history");
 	}
 
-	function getCaretCharacterOffsetWithin(element) {
-		var caretOffset = 0;
-		var doc = element.ownerDocument || element.document;
-		var win = doc.defaultView || doc.parentWindow;
-		var sel;
-		if (typeof win.getSelection != "undefined") {
-		    sel = win.getSelection();
-		    if (sel.rangeCount > 0) {
-		        var range = win.getSelection().getRangeAt(0);
-		        var preCaretRange = range.cloneRange();
-		        preCaretRange.selectNodeContents(element);
-		        preCaretRange.setEnd(range.endContainer, range.endOffset);
-		        caretOffset = preCaretRange.toString().length;
-		    }
-		} else if ( (sel = doc.selection) && sel.type != "Control") {
-		    var textRange = sel.createRange();
-		    var preCaretTextRange = doc.body.createTextRange();
-		    preCaretTextRange.moveToElementText(element);
-		    preCaretTextRange.setEndPoint("EndToEnd", textRange);
-		    caretOffset = preCaretTextRange.text.length;
-		}
-		return caretOffset;
-	}
-
-	function getStartCaretCharacterOffsetWithin(element) {
-		var caretOffset = 0;
-		var doc = element.ownerDocument || element.document;
-		var win = doc.defaultView || doc.parentWindow;
-		var sel;
-		if (typeof win.getSelection != "undefined") {
-		    sel = win.getSelection();
-		    if (sel.rangeCount > 0) {
-		        var range = win.getSelection().getRangeAt(0);
-		        var preCaretRange = range.cloneRange();
-		        preCaretRange.selectNodeContents(element);
-		        preCaretRange.setEnd(range.startContainer, range.startOffset);
-		        caretOffset = preCaretRange.toString().length;
-		    }
-		} else if ( (sel = doc.selection) && sel.type != "Control") {
-		    var textRange = sel.createRange();
-		    var preCaretTextRange = doc.body.createTextRange();
-		    preCaretTextRange.moveToElementText(element);
-		    preCaretTextRange.setEndPoint("EndToEnd", textRange);
-		    caretOffset = preCaretTextRange.text.length;
-		}
-		return caretOffset;
-	}
-
-	function getTextNodesIn(node) {
-		var textNodes = [];
-		if (node.nodeType == 3) {
-		    textNodes.push(node);
-		} else {
-		    var children = node.childNodes;
-		    for (var i = 0, len = children.length; i < len; ++i) {
-		        textNodes.push.apply(textNodes, getTextNodesIn(children[i]));
-		    }
-		}
-		return textNodes;
-	}
-
-	function setSelectionRange(el, start, end) {
-		if (document.createRange && window.getSelection) {
-		    var range = document.createRange();
-		    range.selectNodeContents(el);
-		    var textNodes = getTextNodesIn(el);
-		    var foundStart = false;
-		    var charCount = 0, endCharCount;
-
-		    for (var i = 0, textNode; textNode = textNodes[i++]; ) {
-		        endCharCount = charCount + textNode.length;
-		        if (!foundStart && start >= charCount
-		                && (start < endCharCount ||
-		                (start == endCharCount && i <= textNodes.length))) {
-		            range.setStart(textNode, start - charCount);
-		            foundStart = true;
-		        }
-		        if (foundStart && end <= endCharCount) {
-		            range.setEnd(textNode, end - charCount);
-		            break;
-		        }
-		        charCount = endCharCount;
-		    }
-
-		    var sel = window.getSelection();
-		    sel.removeAllRanges();
-		    sel.addRange(range);
-		} else if (document.selection && document.body.createTextRange) {
-		    var textRange = document.body.createTextRange();
-		    textRange.moveToElementText(el);
-		    textRange.collapse(true);
-		    textRange.moveEnd("character", end);
-		    textRange.moveStart("character", start);
-		    textRange.select();
-		}
-	}
-
 	this.createDialog = function (name, mtitle) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div><textarea class="hidden-textarea"></textarea></div><div class="info-bar"></div><div class="subButtonsDiv"><div class="switch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div></div><div class="buttonsDiv"><button class="previousButton"></button><button class="nextButton"></button></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div><textarea class="hidden-textarea"></textarea></div><div class="info-bar"></div><div class="control-bar"><div class="subButtonsDiv"><div class="switch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div></div><div class="buttonsDiv"><button class="previousButton"></button><button class="nextButton"></button></div></div></div>')
 		var text = "";	
 		var position = 0;
 		var intextarea = $dialogContents.find('.hidden-textarea').get(0);
@@ -402,6 +305,29 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var dragvalue = 0;
 		var draglast = 0;
 		var dragline = 0;
+		var typingtimer;
+		var typinginterval = 1000;
+		var stream;
+
+		function doneTyping() {
+			if (me.autoexec && stream.ast.script.errors.length == 0) {
+				infobox.innerHTML = "Yay!";
+
+				if (stream.ast.lines[stream.currentline-1]) {
+					var ast = stream.ast.lines[stream.currentline-1];
+					if (ast.type == "definition" || ast.type == "assignment") {
+						var observable = stream.ast.lines[stream.currentline-1].lvalue.observable;
+						console.log(observable);
+						var sym = eden.root.lookup(observable);
+						var rep = makeRepresentative(sym.value(),30,sym);
+						infobox.innerHTML = observable + " = ";
+						rep.appendTo(infobox);
+					}
+				}
+			} else if (me.autoexec) {
+				infobox.innerHTML = stream.ast.script.errors[0].messageText();
+			}
+		}
 
 		/*$( textarea ).tooltip({
 			position: {
@@ -430,8 +356,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		});*/
 
-		function highlightContent(text, position, run, all) {
-			var stream = new EdenHighlight(text);
+		function highlightContent(text, position) {
+			stream = new EdenHighlight(text);
 			var high = stream.highlight(position);
 			outdiv.innerHTML = high;
 
@@ -491,15 +417,20 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				},
 			});*/
 
-			// Execute if no errors!
-			if (run && stream.ast.script.errors.length == 0) {
-				$dialogContents.find(".submitButton").removeClass("submitError");
+		}
 
+		$dialogContents.on('input', '.hidden-textarea', function (e) {
+			clearTimeout(typingtimer);
+			infobox.innerHTML = "... typing ...";
+			highlightContent(intextarea.value,intextarea.selectionEnd);
+			typingtimer = setTimeout(doneTyping, typinginterval);
+
+			if (me.autoexec && stream.ast.script.errors.length == 0) {
+				$dialogContents.find(".submitButton").removeClass("submitError");
 				// Execute entire script?
-				if (all) {
-					edenUI.plugins.ScriptInput.submitEdenCode(text);
-				// Execute only current statement
-				} else if (stream.ast.lines[stream.currentline-1]) {
+				//if (all) {
+				//	edenUI.plugins.ScriptInput.submitEdenCode(intextarea.value);
+				if (stream.ast.lines[stream.currentline-1]) {
 					var statement = stream.ast.lines[stream.currentline-1];
 
 					// Find root statement and execute that one
@@ -533,45 +464,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					// Execute only the currently changed root statement
 					edenUI.plugins.ScriptInput.submitEdenCode(stream.ast.getSource(statement));
 				}
-			} else if (run) {
+			} else if (me.autoexec) {
 				$dialogContents.find(".submitButton").addClass("submitError");
 			}
-
-			return stream;
-		}
-
-		$dialogContents.on('keyup', '.hidden-textarea', function (e) {
-			if (!e.ctrlKey && e.keyCode != 17) {
-				//text = textarea.textContent;
-				/*if (textarea.innerText) {
-					text = textarea.innerText;
-				} else {
-					//text = textarea.textContent;
-					text = textarea.innerHTML.replace(/<br>/gi,"\n").replace(/(<([^>]+)>)/gi, "").replace(/\&nbsp;/gi," ");
-					console.log(text);
-				}*/
-				//var position = getCaretCharacterOffsetWithin(textarea);
-				var stream;
-
-				//console.log(position);
-				//return;
-
-				// Don't execute if only moving up and down the lines.
-				if (e.keyCode == 38 || e.keyCode == 40) {
-					stream = highlightContent(intextarea.value,intextarea.selectionEnd,false, false);
-				} else {
-					stream = highlightContent(intextarea.value,intextarea.selectionEnd,me.autoexec, false);
-				}
-
-				if (stream.ast.script.errors.length > 0) {
-					infobox.innerHTML = stream.ast.script.errors[0].messageText();
-				} else {
-					infobox.innerHTML = "Yay!";
-				}
-
-				//setSelectionRange(textarea, position, position);
-
-				//console.log("Line: " + stream.currentline);
 
 				/* Suggestions Box */
 				//console.log(window.getSelection().getRangeAt(0));
@@ -630,7 +525,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				} else {
 					suggestions.hide("fast");
 				}*/
-
+		}).on('keyup', '.hidden-textarea', function(e) {
+			if (!e.ctrlKey && e.keyCode != 17) {
+				highlightContent(intextarea.value,intextarea.selectionEnd);
 			} else if (e.ctrlKey) {
 				console.log(e);
 
@@ -649,33 +546,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					text = intextarea.value;
 					highlightContent(text, position, false,false);
 				}
-			} 
-		/*}).on('keypress', '.hidden-textarea', function(e) {
-				e.preventDefault();
-				console.log(e);
-			//textarea.innerHTML += String.fromCharCode(e.keyCode);
-		//}).on('keydown', '.inputcontent', function(e) {
-				if (e.keyCode == 8) {
-					var position = 0; //getCaretCharacterOffsetWithin(textarea);
-					text = intextarea.value;
-					text = text.slice(0, position-1) + text.slice(position);
-					position--;
-					highlightContent(text,position,false,false);
-				} else if (e.keyCode == 9) {
-					var position = 0; //getCaretCharacterOffsetWithin(textarea);
-					text = intextarea.value;
-					e.preventDefault();
-					text = text.slice(0,position) + "\t" + text.slice(position);
-					position++;
-					highlightContent(text,position,false,false);
-				} else {
-					if (e.keyCode == 13) {
-						text += "\n";
-					} else {
-						text += String.fromCharCode(e.keyCode);
-					}
-					position++;
-				}*/
+			}
 		}).on('click', '.outputcontent', function(e) {
 			//var start = getStartCaretCharacterOffsetWithin(textarea);
 			var pos = 0;//getCaretCharacterOffsetWithin(outdiv);
@@ -719,7 +590,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var confirmClose = !("MenuBar" in edenUI.plugins);
 
-		return {confirmClose: confirmClose, setValue: function (value) { textarea.textContent = value; }};
+		return {confirmClose: confirmClose, setValue: function (value) { textarea.value = value; }};
 	};
 
 	this.next = function (el) {

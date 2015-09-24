@@ -568,22 +568,30 @@ EdenAST_For.prototype.setSource = function(start, end) {
 
 EdenAST_For.prototype.setStart = function(start) {
 	this.sstart = start;
-	this.errors.push.apply(this.errors, start.errors);
+	if (start) {
+		this.errors.push.apply(this.errors, start.errors);
+	}
 }
 
 EdenAST_For.prototype.setCondition = function(condition) {
 	this.condition = condition;
-	this.errors.push.apply(this.errors, condition.errors);
+	if (condition) {
+		this.errors.push.apply(this.errors, condition.errors);
+	}
 }
 
 EdenAST_For.prototype.setIncrement = function(inc) {
 	this.inc = inc;
-	this.errors.push.apply(this.errors, inc.errors);
+	if (inc) {
+		this.errors.push.apply(this.errors, inc.errors);
+	}
 }
 
 EdenAST_For.prototype.setStatement = function(statement) {
 	this.statement = statement;
-	this.errors.push.apply(this.errors, statement.errors);
+	if (statement) {
+		this.errors.push.apply(this.errors, statement.errors);
+	}
 }
 
 
