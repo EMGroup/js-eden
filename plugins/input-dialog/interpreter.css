@@ -43,11 +43,19 @@ div.info-bar {
 	right: 0px;
 	top: 0px;
 	height: 48px;
-	background-color: #f1f1f1;
+	/*background-color: #f1f1f1;*/
+
+	background: -webkit-linear-gradient(#fafafa, #ececec); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#fafafa, #ececec); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#fafafa, #ececec); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#fafafa, #ececec); /* Standard syntax */
+
 	box-shadow: 0 0 10px black;
 	border-bottom-color: #719ECE;
 	border-bottom-style: solid;
 	border-bottom-width: 1px;
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
 	text-align: center;
 	font-size: 12pt;
 	vertical-align: middle;
@@ -125,6 +133,8 @@ div.control-bar {
 
 textarea.hidden-textarea {
 	position: absolute;
+	white-space: nowrap;
+	font: 14px/20px Roboto Mono,monospace;
 	left: -9999px;
 }
 

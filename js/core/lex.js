@@ -162,7 +162,7 @@ EdenStream.prototype.skipLine = function() {
  * Check if a character matches [a-zA-Z0-9_]
  */
 EdenStream.prototype.isAlphaNumeric = function(ch) {
-	return (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch == 95);
+	return (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch == 95) || (ch >= 0xc0);
 };
 
 
@@ -439,8 +439,9 @@ EdenStream.prototype.readToken = function() {
 	this.unget();
 
 	if (this.parseAlphaNumeric(this.data)) {
-		if (edenKeywords[this.data.value]) return this.data.value;
-		if (this.data.value == "true" || this.data.value == "false") {
+		if (Language.keywords[this.data.value]) return Language.keywords[this.data.value];
+		if (Language.values[this.data.value] == "true" || Language[this.data.value] == "false") {
+			this.data.value = Language[this.data.value];
 			return "BOOLEAN";
 		}
 		return "OBSERVABLE";

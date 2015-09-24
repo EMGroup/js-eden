@@ -292,9 +292,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createDialog = function (name, mtitle) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div><textarea class="hidden-textarea"></textarea></div><div class="info-bar"></div><div class="control-bar"><div class="subButtonsDiv"><div class="switch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div></div><div class="buttonsDiv"><button class="previousButton"></button><button class="nextButton"></button></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="subButtonsDiv"><div class="switch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div></div><div class="buttonsDiv"><button class="previousButton"></button><button class="nextButton"></button></div></div></div>')
 		var text = "";	
 		var position = 0;
+		var $codearea = $dialogContents.find('.inputCodeArea');
 		var intextarea = $dialogContents.find('.hidden-textarea').get(0);
 		var outdiv = $dialogContents.find('.outputcontent').get(0);
 		var infobox = $dialogContents.find('.info-bar').get(0);
@@ -422,7 +423,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		$dialogContents.on('input', '.hidden-textarea', function (e) {
 			clearTimeout(typingtimer);
 			infobox.innerHTML = "... typing ...";
+			var scrollpos = $codearea.get(0).scrollTop;
 			highlightContent(intextarea.value,intextarea.selectionEnd);
+			$codearea.scrollTop(scrollpos);
 			typingtimer = setTimeout(doneTyping, typinginterval);
 
 			if (me.autoexec && stream.ast.script.errors.length == 0) {
@@ -527,7 +530,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}*/
 		}).on('keyup', '.hidden-textarea', function(e) {
 			if (!e.ctrlKey && e.keyCode != 17) {
+				var scrollpos = $codearea.get(0).scrollTop;
 				highlightContent(intextarea.value,intextarea.selectionEnd);
+				$codearea.scrollTop(scrollpos);
 			} else if (e.ctrlKey) {
 				console.log(e);
 
@@ -547,15 +552,26 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					highlightContent(text, position, false,false);
 				}
 			}
-		}).on('click', '.outputcontent', function(e) {
+		}).on('focus', '.outputcontent', function(e) {
+			var scrollpos = $codearea.get(0).scrollTop;
+			$(intextarea).focus();		
+			highlightContent(intextarea.value, intextarea.position,false,false);
+			$codearea.scrollTop(scrollpos);
+		}).on('mouseup', '.outputcontent', function(e) {
+			console.log(e);
+			var line = 1;
+			var cur = e.srcElement;
+			while (cur) {
+				line++;
+				cur = cur.previousSibling;
+			}
+			var character = 0;
+			console.log("Clicked on line " + line + ", char " + character);
 			//var start = getStartCaretCharacterOffsetWithin(textarea);
-			var pos = 0;//getCaretCharacterOffsetWithin(outdiv);
-			suggestions.hide("fast");
-			//if ((pos - start) == 0) {
-				intextarea.position = pos;					
-				highlightContent(intextarea.value, intextarea.position,false,false);
+			//$(intextarea).focus();
+			//suggestions.hide("fast");				
+			//highlightContent(intextarea.value, intextarea.position,false,false);
 			//}
-			$(intextarea).focus();
 		}).on('change', '.submitButton', function (e) {
 			if ($(this).is(':checked')) {
 				me.autoexec = true;
@@ -624,7 +640,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	edenUI.views.ScriptInput = {
 		dialog: this.createDialog,
 		embed: this.createEmbedded,
-		title: "Script Input Window",
+		title: Language.ui.input_window.title,
 		category: edenUI.viewCategories.interpretation,
 		menuPriority: 0
 	};
@@ -641,8 +657,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 };
 
 /* Plugin meta information */
-EdenUI.plugins.ScriptInput.title = "Script Input";
-EdenUI.plugins.ScriptInput.description = "Provides the ability to type in definitional scripts using the keyboard, submit them for interpretation and recall the input history.";
+EdenUI.plugins.ScriptInput.title = Language.ui.input_window.title;
+EdenUI.plugins.ScriptInput.description = Language.ui.input_window.description;
 
 //Make tab do spaces instead of selecting the next element
 $(document).delegate('.inputCodeArea textarea', 'keydown', function(e) {

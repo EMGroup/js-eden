@@ -160,7 +160,7 @@ EdenHighlight.prototype.highlight = function(start) {
 		//while (stream.valid()) {
 		var ch= stream.peek();
 		if (ch == 10) {
-			console.log("LINE: " + this.line);
+			//console.log("LINE: " + this.line);
 			this.line++;
 			if (lineerror) {
 				if (oldstart >= linestart && oldstart <= stream.position) {

@@ -54,6 +54,7 @@ if (!("keys") in Object) {
  * plugins: A comma separated listed of plug-ins to load automatically at start up.
  * include: URL of a construal to load as soon as the environment is loaded.
  * exec: A piece of JS-EDEN code to execute after the included construal has been loaded.
+ * lang: Human language to use for parser and UI. E.g. lang=en for English.
 */
 function initialiseJSEden() {
 	root = new Folder();
@@ -64,6 +65,11 @@ function initialiseJSEden() {
 	var views = getParameterByName("views");
 	var include = getParameterByName("include");
 	var exec = getParameterByName("exec");
+	var lang = getParameterByName("lang");
+
+	if (lang == "") {
+		lang = "en";
+	}
 
 	if (plugins == "") {
 		//Default plug-ins
@@ -116,6 +122,14 @@ function initialiseJSEden() {
 			}
 		}
 
+		var loadLanguage = function(lang, callback) {
+			$.getScript("js/language/"+lang+".js", function(data) {
+				Language.language = lang;
+				eval(data);
+				callback();
+			});
+		}
+
 		var loadPlugins = function (pluginList, callback) {
 			var loadPlugin = function () {
 				if (pluginList.length > 0) {
@@ -141,17 +155,20 @@ function initialiseJSEden() {
 		}
 
 		// Load the Eden library scripts
-		loadPlugins(plugins, function () {
-			eden.include("library/jseden-lib.min.jse", {name: '/system'}, function () {
-				$.getJSON('config.json', function (config) {
-					rt.config = config;
+		loadLanguage(lang, function() {
+			console.log("Loaded language...");
+			loadPlugins(plugins, function () {
+				eden.include("library/jseden-lib.min.jse", {name: '/system'}, function () {
+					$.getJSON('config.json', function (config) {
+						rt.config = config;
 
-					eden.captureInitialState();
-					if (include) {
-						eden.include(include, doneLoading);
-					} else {
-						doneLoading();
-					}
+						eden.captureInitialState();
+						if (include) {
+							eden.include(include, doneLoading);
+						} else {
+							doneLoading();
+						}
+					});
 				});
 			});
 		});
