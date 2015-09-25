@@ -512,7 +512,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 
 					// Execute only the currently changed root statement
-					edenUI.plugins.ScriptInput.submitEdenCode(stream.ast.getSource(statement));
+					//edenUI.plugins.ScriptInput.submitEdenCode(stream.ast.getSource(statement));
+					//stream.ast.execute(eden.root);
+					statement.execute(eden.root,undefined);
 				}
 			} else if (me.autoexec) {
 				$dialogContents.find(".submitButton").addClass("submitError");

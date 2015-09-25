@@ -4,7 +4,7 @@
 	tab-size: 2;
 	/*margin: 5px;*/
 	position: absolute;
-	top: 0px;
+	top: 5px;
 	bottom: 35px;
 	left: 5px;
 	right: 5px;
@@ -41,7 +41,7 @@ div.info-bar {
 	position: absolute;
 	left: 0px;
 	right: 0px;
-	top: -5px;
+	top: 0px;
 	height: 5px;
 	/*background-color: #f1f1f1;*/
 

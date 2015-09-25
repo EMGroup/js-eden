@@ -34,6 +34,17 @@ function EdenAST(code) {
 }
 
 
+EdenAST.prototype.generate = function() {
+	return this.script.generate();
+}
+
+EdenAST.prototype.execute = function(root) {
+	var gen = this.script.generate();
+	console.log("Execute: " + gen);
+	eval(gen)(root);
+}
+
+
 EdenAST.prototype.getSource = function(ast) {
 	return this.stream.code.slice(ast.start,ast.end).trim();
 }

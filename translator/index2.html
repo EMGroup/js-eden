@@ -7,6 +7,8 @@
 
 		<script src="../js/lib/beautify.js"></script>
 
+		<script src="../js/language/lang.js"></script>
+		<script src="../js/language/en.js"></script>
 		<script src="../js/core/lex.js"></script>
 		<script src="../js/core/errors.js"></script>
 		<script src="../js/core/ast.js"></script>
@@ -20,6 +22,8 @@
 			<button id="link-btn">Link to example</button>
 		</p>
 
+		<h2>Generated Javascript</h2>
+		<pre id="parser-output2"></pre>
 		<h2>Generated AST</h2>
 		<pre id="parser-output"></pre>
 		<script>
@@ -49,6 +53,7 @@
 				var parserAST = new EdenAST(edenSource);
 				var parserOutput = parserAST.prettyPrint();
 				document.getElementById('parser-output').innerHTML = parserOutput;
+				document.getElementById('parser-output2').innerHTML = parserAST.generate();
 			}
 
 			var previousSource = getParameterByName("s");
