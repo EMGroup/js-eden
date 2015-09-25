@@ -219,7 +219,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			//console.log($img);			
 			return $img;
 		} else if (value instanceof Array) {
-			var $div = $("<span class='eden-representative'></span>");
+			var $div = $("<span class='eden-representative'><span>[</span></span>");
 			//$div.css("font-size",""+Math.round(scale * 0.4)+"px");
 			var len = value.length;
 
@@ -235,6 +235,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				$("<span>...</span>").appendTo($div);
 			}
 			//console.log(value);
+			$("<span>]</span>").appendTo($div);
 			return $div;
 		}
 	}
@@ -355,6 +356,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var draglast = 0;
 		var dragline = 0;
 		var typingtimer;
+		var amtyping = false;
 		var typinginterval = 1000;
 		var highlighter = new EdenHighlight(outdiv);
 
@@ -375,8 +377,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		function doneTyping() {
+			amtyping = false;
 			if (me.autoexec && highlighter.ast.script.errors.length == 0) {
-				infobox.innerHTML = "<div><span>Yay!</span></div>";
+				infobox.innerHTML = "<div class='info-item'><span>Yay!</span></div>";
 				var lineno = getLineNumber(intextarea)-1;
 
 				if (highlighter.ast.lines[lineno]) {
@@ -384,13 +387,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					if (ast.type == "definition" || ast.type == "assignment") {
 						var observable = highlighter.ast.lines[lineno].lvalue.observable;
 						var sym = eden.root.lookup(observable);
-						var rep = makeRepresentative(sym.value(),15,sym);
-						infobox.innerHTML = "<div><span>"+observable + " ➙ </span></div>";
-						rep.appendTo($(infobox).find("div"));
+						var val = sym.value();
+						if (val === undefined) {
+							// Find why it is undefined...
+						} else {
+							var rep = makeRepresentative(val,15,sym);
+							infobox.innerHTML = "<div class='info-validitem'><span>"+observable + " ➙ </span></div>";
+							rep.appendTo($(infobox).find("div"));
+						}
 					}
 				}
 			} else if (me.autoexec) {
-				infobox.innerHTML = "<div><span>"+highlighter.ast.script.errors[0].messageText()+"</span></div>";
+				infobox.innerHTML = "<div class='info-erroritem'><span>"+highlighter.ast.script.errors[0].messageText()+"</span></div>";
 			}
 		}
 
@@ -493,7 +501,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var ast = new EdenAST(intextarea.value);
 			var lineno = getLineNumber(intextarea)-1;
 			clearTimeout(typingtimer);
-			infobox.innerHTML = "<div><span>typing ...</span></div>";
+			if (amtyping == false) {
+				infobox.innerHTML = "<div class='loader'></div>";
+				amtyping = true;
+			}
 			var scrollpos = $codearea.get(0).scrollTop;
 			//highlightContent(ast,intextarea.selectionEnd);
 			highlighter.highlight(ast, lineno, intextarea.selectionEnd);
