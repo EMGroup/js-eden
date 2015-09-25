@@ -116,7 +116,7 @@ function initialiseJSEden() {
 		window.onbeforeunload = function () {
 			var prompt = edenUI.getOptionValue('optConfirmUnload');
 			if (prompt != "false") {
-				return "Leaving this page will discard the current script. Your work will not be saved.";
+				return Language.ui.general.leaving;
 			} else {
 				return undefined;
 			}
@@ -144,7 +144,7 @@ function initialiseJSEden() {
 		
 		var doneLoading = function () {
 			if (menuBar) {
-				root.lookup("_menubar_status").assign("JS-EDEN has finished loading.", root.scope, {name: "/system"});
+				root.lookup("_menubar_status").assign(Language.ui.general.finished_loading, root.scope, {name: "/system"});
 			}
 			if (exec) {
 				if (exec.slice(-1) != ";") {
@@ -156,7 +156,6 @@ function initialiseJSEden() {
 
 		// Load the Eden library scripts
 		loadLanguage(lang, function() {
-			console.log("Loaded language...");
 			loadPlugins(plugins, function () {
 				eden.include("library/jseden-lib.min.jse", {name: '/system'}, function () {
 					$.getJSON('config.json', function (config) {

@@ -283,11 +283,11 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	// Add main menu items
 	function createMenus() {
 		var jsedenGroup = addMainGroup();
-		addMainItem("views", "New Window", 60, jsedenGroup);
-		addMainItem("existing-views", "Existing Windows", 85, jsedenGroup);
+		addMainItem("views", Language.ui.menu_bar.main_views, 60, jsedenGroup);
+		addMainItem("existing-views", Language.ui.menu_bar.main_existing, 85, jsedenGroup);
 		me.updateViewsMenu();
 
-		addMainItem("options", "Options", 60, jsedenGroup);	
+		addMainItem("options", Language.ui.menu_bar.main_options, 60, jsedenGroup);	
 		var optionsMenu = $("#menubar-mainitem-options");
 
 		function addCheckboxOption(optionName, description, defaultValue, onChange) {
@@ -311,9 +311,9 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			item.appendTo(optionsMenu);
 		}
 
-		addCheckboxOption("optConfirmUnload", "Confirm closing environment", true);
-		addCheckboxOption("optHideOnMinimize", "Hide windows on minimize", false);
-		addCheckboxOption("optCollapseToTitleBar", "Collapse to title bar on double click", false, function (optName, collapse) {
+		addCheckboxOption("optConfirmUnload", Language.ui.menu_bar.opt_confirm, true);
+		addCheckboxOption("optHideOnMinimize", Language.ui.menu_bar.opt_hide, false);
+		addCheckboxOption("optCollapseToTitleBar", Language.ui.menu_bar.opt_collapse, false, function (optName, collapse) {
 			var action;
 			if (collapse) {
 				action = "collapse";
@@ -322,7 +322,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			}
 			$(".ui-dialog-content").each(function () { $(this).dialogExtend("option", "dblclick", action); });
 		});
-		addCheckboxOption("developer", "Debug JS-EDEN", false, function (optName, enabled) {
+		addCheckboxOption("developer", Language.ui.menu_bar.opt_debug, false, function (optName, enabled) {
 				root.lookup("debug").mutate(root.scope, function (symbol) { symbol.context.scope.lookup(symbol.name).value.jsExceptions = enabled; }, Symbol.hciAgent);
 		});
 	}
@@ -407,5 +407,6 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	edenUI.eden.include("plugins/menu-bar/menu-bar.js-e", success);
 };
 
-EdenUI.plugins.MenuBar.title = "Menu Bar";
-EdenUI.plugins.MenuBar.description = "Creates the menu bar.";
+EdenUI.plugins.MenuBar.title = Language.ui.menu_bar.title;
+EdenUI.plugins.MenuBar.description = Language.ui.menu_bar.description;
+

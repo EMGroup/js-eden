@@ -321,7 +321,22 @@ Language.ui = {
 		success: "Super!"
 	},
 	"canvas": {
-		title: "Picture"
+		title: "Image"
+	},
+	"menu_bar": {
+		title: "Barre de Menu",
+		description: "Cr\u00e9e la barre de menu.",
+		opt_confirm: "Confirmez environnement fermeture",
+		opt_hide: "Cacher des fen\u00eatre sur de minimiser",
+		opt_collapse: "R\u00e9duire \u00e0 la barre de titre sur la double clic",
+		opt_debug: "D\u00e9boguer JS-EDEN",
+		main_views: "Nouvelle Fen\u00eatre",
+		main_existing: "Fen\u00eatres Existantes",
+		main_options: "Les Options"
+	},
+	"general": {
+		finished_loading: "JS-EDEN a termin\u00e9 le chargement.",
+		leaving: "Laissant cette page sera jeter le script courant. Votre travail ne sera pas sauvegard\u00e9."
 	}
 }
 

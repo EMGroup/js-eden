@@ -4,10 +4,10 @@
 	tab-size: 2;
 	/*margin: 5px;*/
 	position: absolute;
-	top: 48px;
+	top: 0px;
 	bottom: 35px;
-	left: 12px;
-	right: 12px;
+	left: 5px;
+	right: 5px;
 	border-color: #719ECE;
     box-shadow: 0 0 10px #719ECE;
 	color: #2b4957;/*#233b46;*/
@@ -41,8 +41,8 @@ div.info-bar {
 	position: absolute;
 	left: 0px;
 	right: 0px;
-	top: 0px;
-	height: 48px;
+	top: -5px;
+	height: 5px;
 	/*background-color: #f1f1f1;*/
 
 	background: -webkit-linear-gradient(#fafafa, #ececec); /* For Safari 5.1 to 6.0 */
@@ -67,7 +67,12 @@ div.control-bar {
 	right: 0;
 	bottom: 0;
 	height: 35px;
-	background-color: #f1f1f1;
+	/*background-color: #f1f1f1;*/
+	background: -webkit-linear-gradient(#fafafa, #cccccc); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#fafafa, #cccccc); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
+
 	box-shadow: 0 0 10px black;
 	border-top-color: #719ECE;
 	border-top-style: solid;
@@ -172,6 +177,11 @@ div.input-dialog .ui-dialog-titlebar {
 	border-bottom-right-radius: 0;
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
+	background: -webkit-linear-gradient(#fafafa, #cccccc); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#fafafa, #cccccc); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
+
 }
 
 .buttonsDiv {

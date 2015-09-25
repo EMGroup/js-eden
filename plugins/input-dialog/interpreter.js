@@ -22,6 +22,56 @@ if (!("time" in console)) {
 		return;
 	};
 }
+
+
+function getCaretCharacterOffsetWithin(element) {
+	var caretOffset = 0;
+	var doc = element.ownerDocument || element.document;
+	var win = doc.defaultView || doc.parentWindow;
+	var sel;
+	if (typeof win.getSelection != "undefined") {
+	    sel = win.getSelection();
+	    if (sel.rangeCount > 0) {
+	        var range = win.getSelection().getRangeAt(0);
+	        var preCaretRange = range.cloneRange();
+	        preCaretRange.selectNodeContents(element);
+	        preCaretRange.setEnd(range.endContainer, range.endOffset);
+	        caretOffset = preCaretRange.toString().length;
+	    }
+	} else if ( (sel = doc.selection) && sel.type != "Control") {
+	    var textRange = sel.createRange();
+	    var preCaretTextRange = doc.body.createTextRange();
+	    preCaretTextRange.moveToElementText(element);
+	    preCaretTextRange.setEndPoint("EndToEnd", textRange);
+	    caretOffset = preCaretTextRange.text.length;
+	}
+	return caretOffset;
+}
+
+function getStartCaretCharacterOffsetWithin(element) {
+	var caretOffset = 0;
+	var doc = element.ownerDocument || element.document;
+	var win = doc.defaultView || doc.parentWindow;
+	var sel;
+	if (typeof win.getSelection != "undefined") {
+	    sel = win.getSelection();
+	    if (sel.rangeCount > 0) {
+	        var range = win.getSelection().getRangeAt(0);
+	        var preCaretRange = range.cloneRange();
+	        preCaretRange.selectNodeContents(element);
+	        preCaretRange.setEnd(range.startContainer, range.startOffset);
+	        caretOffset = preCaretRange.toString().length;
+	    }
+	} else if ( (sel = doc.selection) && sel.type != "Control") {
+	    var textRange = sel.createRange();
+	    var preCaretTextRange = doc.body.createTextRange();
+	    preCaretTextRange.moveToElementText(element);
+	    preCaretTextRange.setEndPoint("EndToEnd", textRange);
+	    caretOffset = preCaretTextRange.text.length;
+	}
+	return caretOffset;
+}
+
  
 /**
  * JS-Eden Interpreter Window Plugin.
@@ -172,15 +222,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			$div.css("font-size",""+Math.round(scale * 0.4)+"px");
 			var len = value.length;
 
-			if (len > 4*4-1) len = 4*4-1;
+			if (len > 10) len = 10;
 			for (var i = 0; i < len; i++) {
-				var rep = makeRepresentative(value[i], Math.round(scale*0.6), sym);
+				var rep = makeRepresentative(value[i], scale, sym);
 				if (rep) rep.appendTo($div);
 				if (i < value.length - 1) {
 					$("<span>,</span>").appendTo($div);
-				}
-				if ((((i+1) % 4) == 0)) {
-					$("<br/>").appendTo($div);
 				}
 			}
 			if (len < value.length) {
@@ -552,31 +599,40 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					highlightContent(text, position, false,false);
 				}
 			}
-		}).on('focus', '.outputcontent', function(e) {
-			var scrollpos = $codearea.get(0).scrollTop;
-			$(intextarea).focus();		
-			highlightContent(intextarea.value, intextarea.position,false,false);
-			$codearea.scrollTop(scrollpos);
-		}).on('mouseup', '.outputcontent', function(e) {
-			console.log(e);
-			var line = 1;
-			var cur = e.srcElement;
-			while (cur) {
-				line++;
-				cur = cur.previousSibling;
+		}).on('keydown', '.outputcontent', function(e) {
+			if (e.ctrlKey) {
+
+			} else {
+				var end = getCaretCharacterOffsetWithin(outdiv);
+				var start = getStartCaretCharacterOffsetWithin(outdiv);
+				intextarea.selectionEnd = end;
+				intextarea.selectionStart = start;
+				$(intextarea).focus();
+				if (e.keyCode == 8) {
+					intextarea.value = intextarea.value.slice(0,start) + intextarea.value.slice(end);
+				}
 			}
-			var character = 0;
-			console.log("Clicked on line " + line + ", char " + character);
-			//var start = getStartCaretCharacterOffsetWithin(textarea);
-			//$(intextarea).focus();
-			//suggestions.hide("fast");				
-			//highlightContent(intextarea.value, intextarea.position,false,false);
-			//}
+		}).on('focus', '.outputcontent', function(e) {
+			
+		}).on('mouseup', '.outputcontent', function(e) {
+			var end = getCaretCharacterOffsetWithin(outdiv);
+			var start = getStartCaretCharacterOffsetWithin(outdiv);
+			if (start != end) {
+			
+				//$(intextarea).focus();
+			} else {
+				intextarea.selectionEnd = end;
+				var scrollpos = $codearea.get(0).scrollTop;
+				$(intextarea).focus();		
+				highlightContent(intextarea.value, intextarea.selectionEnd,false,false);
+				$codearea.scrollTop(scrollpos);
+			}
 		}).on('change', '.submitButton', function (e) {
 			if ($(this).is(':checked')) {
 				me.autoexec = true;
 				var pos = 0; //getCaretCharacterOffsetWithin(textarea);
-				highlightContent(intextarea.value, pos, true,true);
+				highlightContent(intextarea.value, pos);
+				edenUI.plugins.ScriptInput.submitEdenCode(intextarea.value);
 			} else {
 				me.autoexec = false;
 			}

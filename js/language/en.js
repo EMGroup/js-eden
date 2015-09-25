@@ -231,6 +231,21 @@ Language.ui = {
 	},
 	"canvas": {
 		title: "Picture"
+	},
+	"menu_bar": {
+		title: "Menu Bar",
+		description: "Creates the menu bar.",
+		opt_confirm: "Confirm closing environment",
+		opt_hide: "Hide windows on minimize",
+		opt_collapse: "Collapse to title bar on double click",
+		opt_debug: "Debug JS-EDEN",
+		main_views: "New Window",
+		main_existing: "Existing Windows",
+		main_options: "Options"
+	},
+	"general": {
+		finished_loading: "JS-EDEN has finished loading.",
+		leaving: "Leaving this page will discard the current script. Your work will not be saved."
 	}
 }
 
