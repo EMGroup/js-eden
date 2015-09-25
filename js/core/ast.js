@@ -307,6 +307,11 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 	return result;
 };
 
+EdenAST_Assignment.prototype.execute = function(root, ctx) {
+	var rhs = this.expression.generate(ctx);
+	root.lookup(this.lvalue.observable).assign(eval(rhs),root.scope);
+};
+
 EdenAST_Assignment.prototype.error = fnEdenAST_error;
 
 

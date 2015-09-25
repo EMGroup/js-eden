@@ -355,7 +355,23 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var dragline = 0;
 		var typingtimer;
 		var typinginterval = 1000;
-		var stream;
+		var highlighter = new EdenHighlight(outdiv);
+
+		function updateLineHighlight() {
+			var ast = new EdenAST(intextarea.value);
+			var lineno = getLineNumber(intextarea);
+			highlighter.highlight(ast, lineno, intextarea.selectionEnd);
+		}
+
+		function updateLineCachedHighlight() {
+			var lineno = getLineNumber(intextarea);
+			highlighter.highlight(highlighter.ast, lineno, intextarea.selectionEnd);
+		}
+
+		function updateEntireHighlight() {
+			var ast = new EdenAST(intextarea.value);
+			highlighter.highlight(ast, -1, intextarea.selectionEnd);
+		}
 
 		function doneTyping() {
 			if (me.autoexec && stream.ast.script.errors.length == 0) {
@@ -467,43 +483,51 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		}
 
-		$dialogContents.on('input', '.hidden-textarea', function (e) {
-			clearTimeout(typingtimer);
-			infobox.innerHTML = "... typing ...";
-			var scrollpos = $codearea.get(0).scrollTop;
-			highlightContent(intextarea.value,intextarea.selectionEnd);
-			$codearea.scrollTop(scrollpos);
-			typingtimer = setTimeout(doneTyping, typinginterval);
+		function getLineNumber(textarea) {
+			return textarea.value.substr(0, textarea.selectionStart).split("\n").length;
+		}
 
-			if (me.autoexec && stream.ast.script.errors.length == 0) {
+		$dialogContents.on('input', '.hidden-textarea', function (e) {
+			// Generate an Abstract Syntax Tree
+			var ast = new EdenAST(intextarea.value);
+			var lineno = getLineNumber(intextarea)-1;
+			//clearTimeout(typingtimer);
+			//infobox.innerHTML = "... typing ...";
+			var scrollpos = $codearea.get(0).scrollTop;
+			//highlightContent(ast,intextarea.selectionEnd);
+			highlighter.highlight(ast, lineno, intextarea.selectionEnd);
+			$codearea.scrollTop(scrollpos);
+			//typingtimer = setTimeout(doneTyping, typinginterval);
+
+			if (me.autoexec && ast.script.errors.length == 0) {
 				$dialogContents.find(".submitButton").removeClass("submitError");
 				// Execute entire script?
 				//if (all) {
 				//	edenUI.plugins.ScriptInput.submitEdenCode(intextarea.value);
-				if (stream.ast.lines[stream.currentline-1]) {
-					var statement = stream.ast.lines[stream.currentline-1];
+				if (ast.lines[lineno]) {
+					var statement = ast.lines[lineno];
 
 					// Find root statement and execute that one
 					while (statement.parent !== undefined) statement = statement.parent;
 
 					var currentline = $dialogContents.find(".eden-currentline");
 					var curline = currentline;
-					var i = stream.currentline - 1;
+					var i = lineno;
 					// Highlight all previous lines related to this statement
 					while (i >= 0) {
 						curline.addClass("eden-greenline");
 						curline = curline.prev();
-						if (stream.ast.lines[i] == statement) {
+						if (ast.lines[i] == statement) {
 							break;
 						}
 						i--;
 					}
-					i = stream.currentline;
+					i = lineno+1;
 					curline = currentline.next();
 					// Highlight all next lines related to this statement
 					// TODO, ignore trailing blank lines.
-					while (i < stream.ast.lines.length) {
-						if (stream.ast.lines[i] && stream.ast.lines[i].parent === undefined) {
+					while (i < ast.lines.length) {
+						if (ast.lines[i] && ast.lines[i].parent === undefined) {
 							break;
 						}
 						curline.addClass("eden-greenline");
@@ -512,9 +536,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 
 					// Execute only the currently changed root statement
-					//edenUI.plugins.ScriptInput.submitEdenCode(stream.ast.getSource(statement));
-					//stream.ast.execute(eden.root);
-					statement.execute(eden.root,undefined);
+					me.submit(statement);
 				}
 			} else if (me.autoexec) {
 				$dialogContents.find(".submitButton").addClass("submitError");
@@ -580,7 +602,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}).on('keyup', '.hidden-textarea', function(e) {
 			if (!e.ctrlKey && e.keyCode != 17) {
 				var scrollpos = $codearea.get(0).scrollTop;
-				highlightContent(intextarea.value,intextarea.selectionEnd);
+				updateLineCachedHighlight();
 				$codearea.scrollTop(scrollpos);
 			} else if (e.ctrlKey) {
 				console.log(e);
@@ -596,9 +618,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					suggestions.hide("fast");
 					$dialogContents.find(".submitButton").get(0).checked = false;
 					me.autoexec = false;
-					var position = 0; //getCaretCharacterOffsetWithin(textarea);
-					text = intextarea.value;
-					highlightContent(text, position, false,false);
+					updateLineHighlight();
 				}
 			}
 		}).on('keydown', '.outputcontent', function(e) {
@@ -626,15 +646,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				intextarea.selectionEnd = end;
 				var scrollpos = $codearea.get(0).scrollTop;
 				$(intextarea).focus();		
-				highlightContent(intextarea.value, intextarea.selectionEnd,false,false);
+				updateEntireHighlight();
 				$codearea.scrollTop(scrollpos);
 			}
 		}).on('change', '.submitButton', function (e) {
 			if ($(this).is(':checked')) {
 				me.autoexec = true;
-				var pos = 0; //getCaretCharacterOffsetWithin(textarea);
-				highlightContent(intextarea.value, pos);
-				edenUI.plugins.ScriptInput.submitEdenCode(intextarea.value);
+				updateEntireHighlight();
+				me.submit(highlighter.ast.script);
 			} else {
 				me.autoexec = false;
 			}
@@ -675,9 +694,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		return edenUI.plugins.ScriptInput.previousHistory();
 	};
 
-	this.submit = function (el) {
-		edenUI.plugins.ScriptInput.submitEdenCode(el.innerText);
-		//el.innerText = "";
+	this.submit = function (statement) {
+		statement.execute(eden.root,undefined);
 	};
 
 	this.getRidOfInstructions = function () {

@@ -91,46 +91,36 @@ var edenSpecials = {
 };
 
 
-function EdenHighlight(code) {
-	this.ast = new EdenAST(code);
-	this.CODELIMIT = 1000;
+function EdenHighlight(output) {
+	this.ast = undefined;
+	this.outelement = output;
 	this.line = 1;
 	this.currentline = -1;
-	//this.currenttoken = "INVALID";
-	//this.currentprevtoken = "INVALID";
-
-	//console.log(this.ast.lines);
-	//if (this.ast.script.errors.length > 0) console.log(this.ast.script.errors[0]);
 }
 
 
 /**
  * Generate a syntax highlighted version of the stream.
  */
-EdenHighlight.prototype.highlight = function(start) {
+EdenHighlight.prototype.highlight = function(ast, hline, position) {
+	this.ast = ast;
+
 	var result = "";
 	var errstart = -1;
 	var errend = -1;
 	var errmsg = "";
 	var inerror = false;
-	var stream = this.ast.stream;
+	var stream = ast.stream;
 	var title = "";
-	var oldstart = start;
 
-	if (this.ast.script.errors.length > 0) {
-		errstart = this.ast.script.errors[0].prevposition;
-		errend = this.ast.script.errors[0].position;
-		errmsg = this.ast.script.errors[0].messageText();
+	if (ast.script.errors.length > 0) {
+		errstart = ast.script.errors[0].prevposition;
+		errend = ast.script.errors[0].position;
+		errmsg = ast.script.errors[0].messageText();
 		//console.log(this.ast.script.errors[0]);
 	}
 
-	start = start - this.CODELIMIT;
-	if (start < 0) start = 0;
-
 	stream.reset();
-	//stream.position = start;
-
-	//result = stream.code.slice(0, start).replace(">","&gt;").replace("<","&lt;");
 
 	var line = "";
 	var lineerror = false;
@@ -138,24 +128,11 @@ EdenHighlight.prototype.highlight = function(start) {
 	var token = "INVALID";
 	var prevtoken = "INVALID";
 
-	console.log(oldstart);
-
 	while (true) {
-		if (stream.position == oldstart) {
+		if (stream.position == position) {
 			line += "<span class='fake-caret'></span>";
 		}
-		/*if (stream.position > start + (2*this.CODELIMIT)) {
-			//if (inerror) result += "</span>";
-			if (lineerror) {
-				result += "<span class='eden-errorline'>";
-				lineerror = false;
-			} else {
-				result += "<span class='eden-line'>";
-			}
-			result += line + "</span>" + stream.code.slice(stream.position).replace(">","&gt;").replace("<","&lt;");
-			line = "";			
-			break;
-		}*/
+
 		// Skip but preserve white space
 		//while (stream.valid()) {
 		var ch= stream.peek();
@@ -163,13 +140,13 @@ EdenHighlight.prototype.highlight = function(start) {
 			//console.log("LINE: " + this.line);
 			this.line++;
 			if (lineerror) {
-				if (oldstart >= linestart && oldstart <= stream.position) {
+				if (position >= linestart && oldstart <= stream.position) {
 					result += "<div class='eden-currentline eden-errorline'><span>";
 				} else {
 					result += "<div class='eden-errorline'><span>";
 				}
 				lineerror = false;
-			} else if (oldstart >= linestart && oldstart <= stream.position) {
+			} else if (position >= linestart && position <= stream.position) {
 				this.currentline = this.line - 1;
 				//this.currenttoken = token;
 				//this.currentprevtoken = prevtoken;
@@ -229,7 +206,7 @@ EdenHighlight.prototype.highlight = function(start) {
 			if( inerror) lineerror = true;
 		}
 
-		if (inerror && this.ast.script.errors[0].token != "EOF") {
+		if (inerror && ast.script.errors[0].token != "EOF") {
 			title = errmsg.replace(">","&gt;").replace("<","&lt;");
 			classes += "eden-error ";
 		} else {
@@ -280,9 +257,9 @@ EdenHighlight.prototype.highlight = function(start) {
 		}
 
 		// Insert caret if needed
-		if (stream.prevposition < oldstart && stream.position > oldstart) {
+		if (stream.prevposition < position && stream.position > position) {
 			console.log("CARET");
-			var caret = oldstart - stream.prevposition;
+			var caret = position - stream.prevposition;
 			tokentext = tokentext.slice(0,caret) + "<span class='fake-caret'></span>" + tokentext.slice(caret);
 		}
 
@@ -291,12 +268,12 @@ EdenHighlight.prototype.highlight = function(start) {
 
 	if (line != "") {
 		if (lineerror) {
-			if (oldstart >= linestart && oldstart <= stream.position) {
+			if (position >= linestart && position <= stream.position) {
 				result += "<div class='eden-currentline eden-errorline'>" + line + "</span></div>";
 			} else {
 				result += "<div class='eden-errorline'>" + line + "</span></div>";
 			}
-		} else if (oldstart >= linestart && oldstart <= stream.position) {
+		} else if (position >= linestart && position <= stream.position) {
 			this.currentline = this.line;
 			result += "<div class='eden-currentline'>" + line + "</span></div>";
 		} else {
@@ -314,5 +291,6 @@ EdenHighlight.prototype.highlight = function(start) {
 		this.currentline = this.line - 1;
 	}
 
-	return result;
+	this.outelement.innerHTML = result;
+	//return result;
 };
