@@ -104,7 +104,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 	function makeNumberRepresentative(value, scale, sym) {
 		var $div = $("<span class='eden-representative'></span>");
-		$div.css("font-size",""+Math.round(scale * 0.4)+"px");
+		//$div.css("font-size",""+Math.round(scale * 0.4)+"px");
 		if (value % 1 === 0) {
 			$div.text(""+value);
 		} else {
@@ -145,16 +145,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		iscolor = /^rgb\(.*/i.test(value);
 		if (iscolor) return makeColourRepresentative(value, scale, sym);
 
-		var $div = $("<div class='eden-representative'></div>");
-		$div.css("font-size",""+Math.round(scale * 0.4)+"px");
+		var $div = $("<span class='eden-representative'></span>");
+		$div.css("font-weight","normal");
+		$div.css("color","red");
 		$div.text("\""+value+"\"");
 		return $div;
 	}
 
 	function makeColourRepresentative(value, scale, sym) {
-		var $div = $("<div class='eden-representative'></div>");
-		$div.css("width",""+Math.round(scale * 0.6));
-		$div.css("height",""+Math.round(scale * 0.6));
+		var $div = $("<span class='eden-representative'></span>");
+		$div.css("width",""+Math.round(scale));
+		$div.css("height",""+Math.round(scale));
 		$div.css("background-color",value);
 		return $div;
 	}
@@ -218,8 +219,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			//console.log($img);			
 			return $img;
 		} else if (value instanceof Array) {
-			var $div = $("<div class='eden-representative'></div>");
-			$div.css("font-size",""+Math.round(scale * 0.4)+"px");
+			var $div = $("<span class='eden-representative'></span>");
+			//$div.css("font-size",""+Math.round(scale * 0.4)+"px");
 			var len = value.length;
 
 			if (len > 10) len = 10;
@@ -375,7 +376,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function doneTyping() {
 			if (me.autoexec && highlighter.ast.script.errors.length == 0) {
-				infobox.innerHTML = "<span>Yay!</span>";
+				infobox.innerHTML = "<div><span>Yay!</span></div>";
 				var lineno = getLineNumber(intextarea)-1;
 
 				if (highlighter.ast.lines[lineno]) {
@@ -383,13 +384,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					if (ast.type == "definition" || ast.type == "assignment") {
 						var observable = highlighter.ast.lines[lineno].lvalue.observable;
 						var sym = eden.root.lookup(observable);
-						var rep = makeRepresentative(sym.value(),30,sym);
-						infobox.innerHTML = "<span>"+observable + " = </span>";
-						rep.appendTo(infobox);
+						var rep = makeRepresentative(sym.value(),15,sym);
+						infobox.innerHTML = "<div><span>"+observable + " ➙ </span></div>";
+						rep.appendTo($(infobox).find("div"));
 					}
 				}
 			} else if (me.autoexec) {
-				infobox.innerHTML = "<span>"+highlighter.ast.script.errors[0].messageText()+"</span>";
+				infobox.innerHTML = "<div><span>"+highlighter.ast.script.errors[0].messageText()+"</span></div>";
 			}
 		}
 
@@ -492,7 +493,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var ast = new EdenAST(intextarea.value);
 			var lineno = getLineNumber(intextarea)-1;
 			clearTimeout(typingtimer);
-			infobox.innerHTML = "<span>typing ...</span>";
+			infobox.innerHTML = "<div><span>typing ...</span></div>";
 			var scrollpos = $codearea.get(0).scrollTop;
 			//highlightContent(ast,intextarea.selectionEnd);
 			highlighter.highlight(ast, lineno, intextarea.selectionEnd);

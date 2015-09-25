@@ -61,8 +61,13 @@ div.info-bar {
 	vertical-align: middle;
 }
 
-div.info-bar span {
+div.info-bar div {
+	margin-top: 5px;
 	margin-left: 80px;
+}
+
+div.info-bar canvas {
+	box-shadow: 0 0 5px black;
 }
 
 div.control-bar {
