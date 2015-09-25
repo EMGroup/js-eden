@@ -374,22 +374,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		function doneTyping() {
-			if (me.autoexec && stream.ast.script.errors.length == 0) {
-				infobox.innerHTML = "Yay!";
+			if (me.autoexec && highlighter.ast.script.errors.length == 0) {
+				infobox.innerHTML = "<span>Yay!</span>";
+				var lineno = getLineNumber(intextarea)-1;
 
-				if (stream.ast.lines[stream.currentline-1]) {
-					var ast = stream.ast.lines[stream.currentline-1];
+				if (highlighter.ast.lines[lineno]) {
+					var ast = highlighter.ast.lines[lineno];
 					if (ast.type == "definition" || ast.type == "assignment") {
-						var observable = stream.ast.lines[stream.currentline-1].lvalue.observable;
-						console.log(observable);
+						var observable = highlighter.ast.lines[lineno].lvalue.observable;
 						var sym = eden.root.lookup(observable);
 						var rep = makeRepresentative(sym.value(),30,sym);
-						infobox.innerHTML = observable + " = ";
+						infobox.innerHTML = "<span>"+observable + " = </span>";
 						rep.appendTo(infobox);
 					}
 				}
 			} else if (me.autoexec) {
-				infobox.innerHTML = stream.ast.script.errors[0].messageText();
+				infobox.innerHTML = "<span>"+highlighter.ast.script.errors[0].messageText()+"</span>";
 			}
 		}
 
@@ -491,13 +491,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			// Generate an Abstract Syntax Tree
 			var ast = new EdenAST(intextarea.value);
 			var lineno = getLineNumber(intextarea)-1;
-			//clearTimeout(typingtimer);
-			//infobox.innerHTML = "... typing ...";
+			clearTimeout(typingtimer);
+			infobox.innerHTML = "<span>typing ...</span>";
 			var scrollpos = $codearea.get(0).scrollTop;
 			//highlightContent(ast,intextarea.selectionEnd);
 			highlighter.highlight(ast, lineno, intextarea.selectionEnd);
 			$codearea.scrollTop(scrollpos);
-			//typingtimer = setTimeout(doneTyping, typinginterval);
+			typingtimer = setTimeout(doneTyping, typinginterval);
 
 			if (me.autoexec && ast.script.errors.length == 0) {
 				$dialogContents.find(".submitButton").removeClass("submitError");

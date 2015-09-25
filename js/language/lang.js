@@ -40,7 +40,8 @@ var Language = {
 		"delete": "delete",
 		"require": "require",
 		"after": "after",
-		"shift": "shift"
+		"shift": "shift",
+		"with": "with"
 	},
 	symbols: {
 		"int": "int",

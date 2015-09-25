@@ -90,6 +90,12 @@ var edenSpecials = {
 "PI": true
 };
 
+var edenValues = {
+"true": true,
+"false": true,
+"green": true
+};
+
 
 function EdenHighlight(output) {
 	this.ast = undefined;
@@ -140,7 +146,7 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 			//console.log("LINE: " + this.line);
 			this.line++;
 			if (lineerror) {
-				if (position >= linestart && oldstart <= stream.position) {
+				if (position >= linestart && position <= stream.position) {
 					result += "<div class='eden-currentline eden-errorline'><span>";
 				} else {
 					result += "<div class='eden-errorline'><span>";
@@ -235,12 +241,14 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 			tokentext = tokentext.replace("<","&lt;");
 			tokentext = tokentext.replace(">","&gt;");
 		} else if (token == "BOOLEAN") {
-			classes += "eden-type";	
+			classes += "eden-constant";	
 		} else if (token == "OBSERVABLE") {
 			if (edenFunctions[stream.data.value]) {
 				classes += "eden-function";
 			} else if (edenTypes[stream.data.value]) {
 				classes += "eden-type";
+			} else if (edenValues[stream.data.value]) {
+				classes += "eden-constant";
 			} else if (edenSpecials[stream.data.value]) {
 				classes += "eden-special";
 			} else {

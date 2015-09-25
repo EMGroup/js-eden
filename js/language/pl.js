@@ -25,7 +25,8 @@ Language.addKeywords( {
 	"usuń": "delete",
 	"wymaga": "require",
 	"po": "after",
-	"przesuń": "shift"
+	"przesuń": "shift",
+	"gdzie" : "with"
 });
 
 Language.addSymbols( {

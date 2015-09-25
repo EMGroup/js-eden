@@ -69,9 +69,24 @@ EdenAST_Scope.prototype.prepend = function(obs, exp1, exp2) {
 		this.errors.push.apply(this.errors, exp1.errors);
 		this.errors.push.apply(this.errors, exp2.errors);
 	} else {
-		this.overrides[obs] = exp1;
+		this.overrides[obs] = { start: exp1, end: undefined};
 		this.errors.push.apply(this.errors, exp1.errors);
 	}
+}
+
+EdenAST_Scope.prototype.generate = function(ctx) {
+	var res = "new Scope(context, scope, [";
+	for (var o in this.overrides) {
+		res += "new ScopeOverride(\""+o+"\", " + this.overrides[o].start.generate(ctx);
+		if (this.overrides[o].end) {
+			res += ", " + this.overrides[i].end.generate(ctx) + "),";
+		} else {
+			res += "),";
+		}
+	}
+	res = res.slice(0,-1);
+	res += "], ";
+	return res;
 }
 
 
@@ -119,8 +134,19 @@ EdenAST_TernaryOp.prototype.setSecond = function(second) {
 	}
 };
 
+EdenAST_TernaryOp.prototype.setCondition = function(cond) {
+	this.condition = cond;
+	if (cond.errors.length > 0) {
+		this.errors.push.apply(this.errors, cond.errors);
+	}
+};
+
 EdenAST_TernaryOp.prototype.left = function(pleft) {
-	this.condition = pleft;
+	if (this.condition === undefined) {
+		this.condition = pleft;
+	} else {
+		this.first = pleft;
+	}
 };
 
 EdenAST_TernaryOp.prototype.generate = function(ctx) {
@@ -419,8 +445,16 @@ EdenAST_Primary.prototype.setExtras = function(extras) {
 
 EdenAST_Primary.prototype.generate = function(ctx) {
 	if (ctx) ctx.dependencies[this.observable] = true;
-	var res = "context.lookup(\""+this.observable+"\").value(scope)";
-	for (var i=0; i < this.extras.length; i++) {
+	var res = "context.lookup(\""+this.observable+"\")";
+	var i = 0;
+	if (this.extras.length >= 1 && this.extras[0].type == "scope") {
+		res += ".value(" + this.extras[0].generate(ctx) + "context.lookup(\""+this.observable+"\")))";
+		i = 1;
+	} else {
+		res += ".value(scope)";
+	}
+
+	for (; i < this.extras.length; i++) {
 		res += this.extras[i].generate(ctx);
 	}
 	return res;

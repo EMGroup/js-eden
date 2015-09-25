@@ -381,30 +381,36 @@ EdenAST.prototype.pFACTOR = function() {
 		this.next();
 		return new EdenAST_Literal("UNDEFINED", "@");
 	} else if (this.token == "JAVASCRIPT") {
+		var lit = new EdenAST_Literal("JAVASCRIPT", this.data.value);
 		this.next();
-		return new EdenAST_Literal("JAVASCRIPT", this.data.value);
+		return lit;
 	} else if (this.token == "NUMBER") {
+		var lit = new EdenAST_Literal("NUMBER", this.data.value);
 		this.next();
-		return new EdenAST_Literal("NUMBER", this.data.value);
+		return lit
 	} else if (this.token == "-") {
 		this.next();
 		if (this.token == "NUMBER") {
+			var lit = new EdenAST_Literal("NUMBER", 0.0 - this.data.value);
 			this.next();
-			return new EdenAST_Literal("NUMBER", 0.0 - this.data.value);
+			return lit;
 		} else {
 			var res = new EdenAST_Literal("UNDEFINED","@");
 			res.errors.push(new EdenError(this, EDEN_ERROR_NEGNUMBER));
 			return res;
 		}
 	} else if (this.token == "STRING") {
+		var lit = new EdenAST_Literal("STRING", this.data.value);
 		this.next();
-		return new EdenAST_Literal("STRING", this.data.value);
+		return lit
 	} else if (this.token == "BOOLEAN") {
+		var lit = new EdenAST_Literal("BOOLEAN", this.data.value);
 		this.next();
-		return new EdenAST_Literal("BOOLEAN", this.data.value);
+		return lit;
 	} else if (this.token == "CHARACTER") {
+		var lit = new EdenAST_Literal("CHARACTER", this.data.value);
 		this.next();
-		return new EdenAST_Literal("CHARACTER", this.data.value);
+		return lit;
 	} else if (this.token == "!") {
 		this.next();
 		var primary = this.pPRIMARY();
@@ -458,6 +464,7 @@ EdenAST.prototype.pPRIMARY = function() {
  *	( ELIST ) PRIMARY'
  *	| . observable PRIMARY'
  *	| [ EXPRESSION ] PRIMARY'
+ *  | with SCOPE PRIMARY'
  *	| epsilon
  */
 EdenAST.prototype.pPRIMARY_P = function() {
@@ -499,17 +506,17 @@ EdenAST.prototype.pPRIMARY_P = function() {
 			} else {
 				this.next();
 			}
-		} else if (this.token == "{") {
+		} else if (this.token == "with") {
 			this.next();
 			var scope = this.pSCOPE();
 			result.push(scope);
 			if (scope.errors.length > 0) return result;
-			if (this.token != "}") {
+			/*if (this.token != "}") {
 				scope.error(new EdenError(this, EDEN_ERROR_SCOPECLOSE));
 				return result;
 			} else {
 				this.next();
-			}
+			}*/
 		} else {
 			return result;
 		}
@@ -520,9 +527,30 @@ EdenAST.prototype.pPRIMARY_P = function() {
 
 /**
  * SCOPE Production
- * SCOPE -> observable = EXPRESSION SCOPE'
+ * SCOPE -> ( SCOPE' ) | SCOPE'
  */
 EdenAST.prototype.pSCOPE = function() {
+	if (this.token == "(") {
+		this.next();
+		var scope = this.pSCOPE_P();
+		if (this.token != ")") {
+			scope.errors.push(new EdenError(this, EDEN_ERROR_SCOPECLOSE));
+			return scope;
+		} else {
+			this.next();
+		}
+		return scope;
+	}
+	return this.pSCOPE_P();
+}
+
+
+
+/**
+ * SCOPE Prime Production
+ * SCOPE' -> observable SCOPE''
+ */
+EdenAST.prototype.pSCOPE_P = function() {
 	if (this.token != "OBSERVABLE") {
 		var scope = new EdenAST_Scope();
 		scope.error(new EdenError(this, EDEN_ERROR_SCOPENAME));
@@ -569,7 +597,7 @@ EdenAST.prototype.pSCOPE = function() {
 EdenAST.prototype.pSCOPE_PP = function() {
 	if (this.token == ",") {
 		this.next();
-		return this.pSCOPE();
+		return this.pSCOPE_P();
 	} else {
 		return new EdenAST_Scope();
 	}
@@ -613,7 +641,10 @@ EdenAST.prototype.pELIST_P = function() {
 
 
 /*
- * E'''''' -> ? EXPRESSION : EXPRESSION | epsilon
+ * E'''''' ->
+ *  ? EXPRESSION : EXPRESSION |
+ *  if EXPRESSION else EXPRESSION |
+ *  epsilon
  */
 EdenAST.prototype.pEXPRESSION_PPPPPP = function() {
 	if (this.token == "?") {
@@ -624,6 +655,22 @@ EdenAST.prototype.pEXPRESSION_PPPPPP = function() {
 		if (tern.errors.length > 0) return tern;
 
 		if (this.token != ":") {
+			tern.errors.push(new EdenError(this, EDEN_ERROR_TERNIFCOLON));
+			return tern;
+		} else {
+			this.next();
+		}
+		
+		tern.setSecond(this.pEXPRESSION());
+		return tern;
+	} else if (this.token == "if") {
+		this.next();
+		var tern = new EdenAST_TernaryOp("?");
+		tern.setCondition(this.pEXPRESSION());
+
+		if (tern.errors.length > 0) return tern;
+
+		if (this.token != "else") {
 			tern.errors.push(new EdenError(this, EDEN_ERROR_TERNIFCOLON));
 			return tern;
 		} else {
