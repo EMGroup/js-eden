@@ -42,6 +42,11 @@ module.exports = function (grunt) {
     },
 
 	cssmin: {
+		options: {
+			target: './plugins/',
+			relativeTo: './',
+			rebase: true
+		},
 		plugins: {
 			files: {
 				'./plugins/jseden-plugins.min.css': [

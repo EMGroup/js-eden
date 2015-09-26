@@ -390,6 +390,7 @@ input.submitError:checked + label:before {
 	background-color: #a40000;
 }
 
+
 .previousButton{
 	height:25px;
 	width:25px;
