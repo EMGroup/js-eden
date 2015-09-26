@@ -366,6 +366,23 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var typinginterval = 1000;
 		var highlighter = new EdenHighlight(outdiv);
 
+		function preloadScript(sym, value) {
+			var res = "";
+			if (value instanceof Array) {
+				for (var i=0; i < value.length; i++) {
+					if (typeof value[i] == "string") {
+						res += value[i] + "\n";
+					} else if (typeof value[i] == "object") {
+						res += value[i].eden_definition+";\n";
+					}
+				}
+			}
+			intextarea.value = res;
+			updateEntireHighlight();
+		}
+
+		eden.root.lookup("_view_input_dialog_script").addJSObserver("setScript", preloadScript);
+
 		function updateLineHighlight() {
 			var ast = new EdenAST(intextarea.value);
 			var lineno = getLineNumber(intextarea);
@@ -395,37 +412,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			return res;
 		}
 
+		/* Execute a particular line of script.
+		 * If the statement is part of a larger statement block then execute
+		 * that instead (eg. a proc).
+		 */
 		function submitLine(ast, lineno) {
 			if (ast.lines[lineno]) {
 				var statement = ast.lines[lineno];
 
 				// Find root statement and execute that one
 				while (statement.parent !== undefined) statement = statement.parent;
-
-				/*var currentline = $dialogContents.find(".eden-currentline");
-				var curline = currentline;
-				var i = lineno;
-				// Highlight all previous lines related to this statement
-				while (i >= 0) {
-					curline.addClass("eden-greenline");
-					curline = curline.prev();
-					if (ast.lines[i] == statement) {
-						break;
-					}
-					i--;
-				}
-				i = lineno+1;
-				curline = currentline.next();
-				// Highlight all next lines related to this statement
-				// TODO, ignore trailing blank lines.
-				while (i < ast.lines.length) {
-					if (ast.lines[i] && ast.lines[i].parent === undefined) {
-						break;
-					}
-					curline.addClass("eden-greenline");
-					curline = curline.next();
-					i++
-				}*/
 
 				// Execute only the currently changed root statement
 				me.submit(statement);
@@ -463,16 +459,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 							if (undef.length > 0) {
 								var undefstr = "";
 								for (var i=0; i<undef.length; i++) {
-									undefstr += undef[i];
+									undefstr += "<b>"+undef[i]+"</b>";
 									if (i != undef.length - 1) undefstr += ",";
 								}
 								if (undef.length == 1) {
-									showInfoBox("warning", observable + " is undefined because "+undefstr+" is undefined");
+									showInfoBox("warning", "<b>" + observable + "</b> "+ Language.ui.input_window.is_undef_because +" "+undefstr+" " + Language.ui.input_window.is_undef);
 								} else {
-									showInfoBox("warning", observable + " is undefined because "+undefstr+" are undefined");
+									showInfoBox("warning", "<b>" + observable + "</b> "+ Language.ui.input_window.is_undef_because +" "+undefstr+" " + Language.ui.input_window.are_undef);
 								}
 							} else {
-								showInfoBox("warning", observable + " is undefined");
+								showInfoBox("warning", observable + " " + Language.ui.input_window.is_undef);
 							}
 						} else {
 							var undef = checkUndefined(ast.dependencies);
@@ -483,15 +479,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 									if (i != undef.length - 1) undefstr += ",";
 								}
 								if (undef.length == 1) {
-									showInfoBox("warning", observable + " uses "+undefstr+" which is undefined");
+									showInfoBox("warning", "<b>" + observable + "</b> "+Language.ui.input_window.uses+" "+undefstr+" "+Language.ui.input_window.which_undef);
 									
 								} else {
-									showInfoBox("warning", observable + " uses the undefined observables "+undefstr);
+									showInfoBox("warning", "<b>" + observable + "</b> "+Language.ui.input_window.uses_undef+" "+undefstr);
 								}
 							} else {
 								var rep = makeRepresentative(val,15,sym);
 								hideInfoBox();
-								outputbox.innerHTML = "<div class='info-validitem'><span>"+observable + "<b> ➙ </b></span></div>";
+								outputbox.innerHTML = "<div class='info-validitem'><span>"+observable + "<b> \u27a1 </b></span></div>";
 								rep.appendTo($(outputbox).find("div"));
 							}
 						}
@@ -740,8 +736,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					intextarea.value = intextarea.value.slice(0,start) + intextarea.value.slice(end);
 				}
 			}
-		}).on('focus', '.outputcontent', function(e) {
-			
+		}).on('blur', '.hidden-textarea', function(e) {
+			$(outdiv).find(".fake-caret").remove();
 		}).on('mouseup', '.outputcontent', function(e) {
 			var end = getCaretCharacterOffsetWithin(outdiv);
 			var start = getStartCaretCharacterOffsetWithin(outdiv);

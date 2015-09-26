@@ -318,7 +318,13 @@ Language.ui = {
 	"input_window": {
 		title: "Okno Wprowadzania Skryptu",
 		description: "Daje możliwość wpisywania skryptów, przy użyciu klawiatury, zgłaszania ich do interpretacji i przywoływanie historii wpisów.",
-		success: "Super!"
+		success: "Super!",
+		is_undef_because: "nie jest zdefiniowane ponieważ",
+		is_undef: "nie jest zdefiniowane",
+		are_undef: "nie są zdefiniowane",
+		uses: "używa",
+		which_undef: "które nie jest zdefiniowane",
+		uses_undef: "używa zmiennej która nie jest zdefiniowana"
 	},
 	"canvas": {
 		title: "Obrazek"

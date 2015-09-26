@@ -227,7 +227,13 @@ Language.ui = {
 	"input_window": {
 		title: "Script Input Window",
 		description: "Provides the ability to type in definitional scripts using the keyboard, submit them for interpretation and recall the input history.",
-		success: "Yay!"
+		success: "Yay!",
+		is_undef_because: "is undefined because",
+		is_undef: "is undefined",
+		are_undef: "are undefined",
+		uses: "uses",
+		which_undef: "which is undefined",
+		uses_undef: "uses the undefined observables"
 	},
 	"canvas": {
 		title: "Picture"

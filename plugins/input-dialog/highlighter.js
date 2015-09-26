@@ -119,6 +119,11 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 	var stream = ast.stream;
 	var title = "";
 
+	if (ast.stream.code.length == 0) {
+		this.outelement.innerHTML = "<div class='eden-currentline'><span><span class='fake-caret'></span>&nbsp;</span></div>";
+		return;
+	}
+
 	if (ast.script.errors.length > 0) {
 		errstart = ast.script.errors[0].prevposition;
 		errend = ast.script.errors[0].position;

@@ -1,0 +1,54 @@
+createView("input_dialog","ScriptInput");
+createCanvas("picture");
+
+_view_input_dialog_x = 483;
+_view_input_dialog_y = 22;
+_view_input_dialog_width = 585;
+_view_input_dialog_height = 490;
+
+b is 5 * 6;
+c is 20 / 4;
+d is 10 - 3;
+e is 22 % 5;
+f is 5 ^ 2;
+g is 5 * 6 + 4 * 10;
+h is 5 * (6 + 4) * 10;
+
+textB is Text("b -> " // str(b), 45,30,26);
+textC is Text("c -> " // str(c), 45,60,26);
+textD is Text("d -> " // str(d), 45,90,26);
+textE is Text("e -> " // str(e), 45,120,26);
+textF is Text("f -> " // str(f), 45,150,26);
+textG is Text("g -> " // str(g), 45,180,26);
+textH is Text("h -> " // str(h), 45,210,26);
+
+picture is [textB,textC,textD,textE,textF,textG,textH];
+
+_view_input_dialog_script = [
+"## Tutorial 2",
+"## Mathematical operators",
+"",
+&b,
+&c,
+&d,
+&e,
+&f,
+"",
+"## These symbols, + * - / % and ^, perform addition,",
+"## multiplication, subtraction, division, modulus and",
+"## power. They can be combined:",
+"",
+&g,
+"",
+"## Or if you need 6 + 4 to happen before multiplication",
+"",
+&h,
+"",
+"## Multiplication and division are normally done first",
+"## unless the brackets are used as in 'h'."
+];
+
+_view_picture_x = 147;
+_view_picture_y = 110;
+_view_picture_width = 228;
+_view_picture_height = 270;

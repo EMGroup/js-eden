@@ -82,6 +82,7 @@ div.info-item {
 
 div.info-validitem {
 	margin-top: 6px;
+	margin-bottom: 6px;
 }
 
 /*div.info-validitem:before {
@@ -98,6 +99,7 @@ div.info-validitem {
 div.info-warnitem {
 	margin-top: 6px;
 	margin-left: 50px;
+	margin-bottom: 6px;
 }
 
 div.info-warnitem:before {
@@ -114,6 +116,7 @@ div.info-warnitem:before {
 div.info-erroritem {
 	margin-top: 6px;
 	margin-left: 50px;
+	margin-bottom: 6px;
 }
 
 div.info-erroritem:before {
@@ -297,7 +300,7 @@ div.outputcontent {
 }
 
 div.input-dialog {
-	background: #f1f1f1;
+	background: #e1e1e1;
 	/*background: none;*/
 	border: 0;
 	padding: 0;

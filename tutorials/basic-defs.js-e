@@ -1,0 +1,38 @@
+createView("input_dialog","ScriptInput");
+createCanvas("picture");
+
+_view_input_dialog_x = 483;
+_view_input_dialog_y = 77;
+_view_input_dialog_width = 585;
+_view_input_dialog_height = 303;
+
+b = 4;
+c = 5;
+d = b + c;
+e is b + c;
+
+textB is Text("b -> " // str(b), 45,30,26);
+textC is Text("c -> " // str(c), 45,60,26);
+textD is Text("d -> " // str(d), 45,90,26);
+textE is Text("e -> " // str(e), 45,120,26);
+
+picture is [textB,textC,textD,textE];
+
+_view_input_dialog_script = [
+"## Tutorial 1",
+"## Basic definitions that update when their dependencies change",
+"",
+"b = 4;",
+"c = 5;",
+"d = b + c;",
+"e is b + c;",
+"",
+"## Try changing 'b' or 'c' and watch how 'e' changes but 'd'",
+"## does not. This is called a dependency definition.",
+"## 'd' is only updated when first written or rewritten."
+];
+
+_view_picture_x = 147;
+_view_picture_y = 143;
+_view_picture_width = 210;
+_view_picture_height = 190;

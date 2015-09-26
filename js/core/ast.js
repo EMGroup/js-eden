@@ -524,6 +524,28 @@ EdenAST_If.prototype.setElse = function(statement) {
 	}
 };
 
+EdenAST_If.prototype.generate = function(ctx) {
+	var res = "if (";
+	res += this.condition.generate(ctx) + ") ";
+	res += this.statement.generate(ctx) + " ";
+	if (this.elsestatement) {
+		res += "\nelse " + this.elsestatement.generate(ctx) + "\n";
+	}
+	return res;
+}
+
+EdenAST_If.prototype.execute = function(root, ctx) {
+	var cond = "(function(context,scope) { return ";
+	cond += this.condition.generate(ctx) + ";})";
+	if (eval(cond)(root,root.scope)) {
+		return eval(this.statement.generate(ctx));
+	} else {
+		if (this.elsestatement) {
+			return eval(this.elsestatement.generate(ctx));
+		}
+	}
+}
+
 EdenAST_If.prototype.error = fnEdenAST_error;
 
 
@@ -697,6 +719,14 @@ EdenAST_Return.prototype.error = fnEdenAST_error;
 EdenAST_Return.prototype.setResult = function(result) {
 	this.result = result;
 	this.errors.push.apply(this.errors, result.errors);
+}
+
+EdenAST_Return.prototype.generate = function(ctx) {
+	if (this.result) {
+		return "return " + this.result.generate(ctx) + ";\n";
+	} else {
+		return "return;\n";
+	}
 }
 
 
