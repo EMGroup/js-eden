@@ -858,7 +858,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			height: initialHeight + edenUI.titleBarHeight,
 			minHeight: 120,
 			minWidth: 230,
-			dialogClass: "unpadded-dialog"
+			dialogClass: "canvas-dialog unpadded-dialog"
 		});
 		me.setPictureObs(canvasName, pictureObs);
 		viewData = {

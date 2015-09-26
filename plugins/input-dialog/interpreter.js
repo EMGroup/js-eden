@@ -363,17 +363,67 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function updateLineHighlight() {
 			var ast = new EdenAST(intextarea.value);
 			var lineno = getLineNumber(intextarea);
-			highlighter.highlight(ast, lineno, intextarea.selectionEnd);
+			//highlighter.highlight(ast, lineno, intextarea.selectionEnd);
+			highlightContent(ast, lineno, intextarea.selectionEnd);
 		}
 
 		function updateLineCachedHighlight() {
 			var lineno = getLineNumber(intextarea);
-			highlighter.highlight(highlighter.ast, lineno, intextarea.selectionEnd);
+			//highlighter.highlight(highlighter.ast, lineno, intextarea.selectionEnd);
+			highlightContent(highlighter.ast, lineno, intextarea.selectionEnd);
 		}
 
 		function updateEntireHighlight() {
 			var ast = new EdenAST(intextarea.value);
-			highlighter.highlight(ast, -1, intextarea.selectionEnd);
+			//highlighter.highlight(ast, -1, intextarea.selectionEnd);
+			highlightContent(ast, -1, intextarea.selectionEnd);
+		}
+
+		function checkUndefined(dependencies) {
+			var res = [];
+			for (var d in dependencies) {
+				if (eden.root.lookup(d).value() === undefined) {
+					res.push(d);
+				}
+			}
+			return res;
+		}
+
+		function submitLine(ast, lineno) {
+			if (ast.lines[lineno]) {
+				var statement = ast.lines[lineno];
+
+				// Find root statement and execute that one
+				while (statement.parent !== undefined) statement = statement.parent;
+
+				/*var currentline = $dialogContents.find(".eden-currentline");
+				var curline = currentline;
+				var i = lineno;
+				// Highlight all previous lines related to this statement
+				while (i >= 0) {
+					curline.addClass("eden-greenline");
+					curline = curline.prev();
+					if (ast.lines[i] == statement) {
+						break;
+					}
+					i--;
+				}
+				i = lineno+1;
+				curline = currentline.next();
+				// Highlight all next lines related to this statement
+				// TODO, ignore trailing blank lines.
+				while (i < ast.lines.length) {
+					if (ast.lines[i] && ast.lines[i].parent === undefined) {
+						break;
+					}
+					curline.addClass("eden-greenline");
+					curline = curline.next();
+					i++
+				}*/
+
+				// Execute only the currently changed root statement
+				me.submit(statement);
+			}
 		}
 
 		function doneTyping() {
@@ -390,10 +440,39 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						var val = sym.value();
 						if (val === undefined) {
 							// Find why it is undefined...
+							var undef = checkUndefined(ast.dependencies);
+							if (undef.length > 0) {
+								var undefstr = "";
+								for (var i=0; i<undef.length; i++) {
+									undefstr += undef[i];
+									if (i != undef.length - 1) undefstr += ",";
+								}
+								if (undef.length == 1) {
+									infobox.innerHTML = "<div class='info-warnitem'><span>"+observable + " is undefined because "+undefstr+" is undefined</span></div>";
+								} else {
+									infobox.innerHTML = "<div class='info-warnitem'><span>"+observable + " is undefined because "+undefstr+" are undefined</span></div>";
+								}
+							} else {
+								infobox.innerHTLM = "<div class='info-warnitem'><span>"+observable + " is undefined.</span></div>";
+							}
 						} else {
-							var rep = makeRepresentative(val,15,sym);
-							infobox.innerHTML = "<div class='info-validitem'><span>"+observable + " ➙ </span></div>";
-							rep.appendTo($(infobox).find("div"));
+							var undef = checkUndefined(ast.dependencies);
+							if (undef.length > 0) {
+								var undefstr = "";
+								for (var i=0; i<undef.length; i++) {
+									undefstr += undef[i];
+									if (i != undef.length - 1) undefstr += ",";
+								}
+								if (undef.length == 1) {
+									infobox.innerHTML = "<div class='info-warnitem'><span>"+observable + " uses "+undefstr+" which is undefined</span></div>";
+								} else {
+									infobox.innerHTML = "<div class='info-warnitem'><span>"+observable + " uses the undefined observables "+undefstr+"</span></div>";
+								}
+							} else {
+								var rep = makeRepresentative(val,15,sym);
+								infobox.innerHTML = "<div class='info-validitem'><span>"+observable + " ➙ </span></div>";
+								rep.appendTo($(infobox).find("div"));
+							}
 						}
 					}
 				}
@@ -429,17 +508,27 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		});*/
 
-		function highlightContent(text, position) {
-			stream = new EdenHighlight(text);
-			var high = stream.highlight(position);
-			outdiv.innerHTML = high;
+		function replaceLine(lineno, content) {
+			var lines = intextarea.value.split("\n");
+			lines[lineno] = content;
+			intextarea.value = lines.join("\n");
+		}
 
-			/*if (stream.ast.lines[stream.currentline-1]) {
-				console.log("SRC: " + stream.ast.getSource(stream.ast.lines[stream.currentline-1]));
-			}*/
+		function findElementLineNumber(element) {
+			var el = element;
+			while (el.parentNode !== outdiv) el = el.parentNode;
+			console.log(outdiv.childNodes);
+			for (var i=0; i<outdiv.childNodes.length; i++) {
+				if (outdiv.childNodes[i] === el) return i;
+			}
+			return -1;
+		}
+
+		function highlightContent(ast, lineno, position) {
+			highlighter.highlight(ast, lineno, position);
 
 			/* Number dragging code */
-			/*$(outdiv).find('.eden-number').draggable({
+			$(outdiv).find('.eden-number').draggable({
 				helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
 				axis: 'x',
 				drag: function(e,u) {
@@ -448,33 +537,42 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						draglast = newval;
 						e.target.innerHTML = "" + newval;
 
-						var ast = new EdenAST(textarea.textContent);
+						replaceLine(dragline, e.target.parentNode.textContent);
+
+						var ast = new EdenAST(intextarea.value);
 
 						// Execute if no errors!
 						if (me.autoexec && ast.script.errors.length == 0) {
 							if (ast.lines[dragline]) {
 								//console.log("EXEC: " + ast.getSource(ast.lines[dragline]));
-								edenUI.plugins.ScriptInput.submitEdenCode(ast.getSource(ast.lines[dragline]));
+								me.submit(ast.lines[dragline]);
 							}
 						}
 					}
 				},
 				start: function(e,u) {
 					// Calculate the line we are on
-					dragline = Math.floor((e.offsetY-8) / 20);
+					dragline = findElementLineNumber(e.target);
 					dragstart = u.position.left;
 					dragvalue = parseInt(e.target.textContent);
 					draglast = dragvalue;
+					console.log(e);
+					console.log("Drag: " + dragline);
 					$(e.target).addClass("eden-select");
-					$(textarea).css("cursor","ew-resize");
+					$(outdiv).css("cursor","ew-resize");
 				},
 				stop: function(e,u) {
 					$(e.target).removeClass("eden-select");
-					$(textarea).css("cursor","text");
+					$(outdiv).css("cursor","text");
+					updateEntireHighlight();
 				},
 				cursor: 'move',
 				cursorAt: {top: -5, left: -5}
-			});*/
+			});
+
+			/*if (stream.ast.lines[stream.currentline-1]) {
+				console.log("SRC: " + stream.ast.getSource(stream.ast.lines[stream.currentline-1]));
+			}*/
 
 			/*$(textarea).find('.eden-observable').draggable({
 				helper: function(e) { return $("<span class='eden-drag-observable'>"+e.target.textContent+"</span>"); },
@@ -506,50 +604,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				amtyping = true;
 			}
 			var scrollpos = $codearea.get(0).scrollTop;
-			//highlightContent(ast,intextarea.selectionEnd);
-			highlighter.highlight(ast, lineno, intextarea.selectionEnd);
+			highlightContent(ast, lineno,intextarea.selectionEnd);
+			
 			$codearea.scrollTop(scrollpos);
 			typingtimer = setTimeout(doneTyping, typinginterval);
+
 
 			if (me.autoexec && ast.script.errors.length == 0) {
 				$dialogContents.find(".submitButton").removeClass("submitError");
 				// Execute entire script?
 				//if (all) {
 				//	edenUI.plugins.ScriptInput.submitEdenCode(intextarea.value);
-				if (ast.lines[lineno]) {
-					var statement = ast.lines[lineno];
-
-					// Find root statement and execute that one
-					while (statement.parent !== undefined) statement = statement.parent;
-
-					var currentline = $dialogContents.find(".eden-currentline");
-					var curline = currentline;
-					var i = lineno;
-					// Highlight all previous lines related to this statement
-					while (i >= 0) {
-						curline.addClass("eden-greenline");
-						curline = curline.prev();
-						if (ast.lines[i] == statement) {
-							break;
-						}
-						i--;
-					}
-					i = lineno+1;
-					curline = currentline.next();
-					// Highlight all next lines related to this statement
-					// TODO, ignore trailing blank lines.
-					while (i < ast.lines.length) {
-						if (ast.lines[i] && ast.lines[i].parent === undefined) {
-							break;
-						}
-						curline.addClass("eden-greenline");
-						curline = curline.next();
-						i++
-					}
-
-					// Execute only the currently changed root statement
-					me.submit(statement);
-				}
+				submitLine(ast, lineno);
 			} else if (me.autoexec) {
 				$dialogContents.find(".submitButton").addClass("submitError");
 			}
@@ -613,9 +679,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}*/
 		}).on('keyup', '.hidden-textarea', function(e) {
 			if (!e.ctrlKey && e.keyCode != 17) {
-				var scrollpos = $codearea.get(0).scrollTop;
-				updateLineCachedHighlight();
-				$codearea.scrollTop(scrollpos);
+				if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
+					var scrollpos = $codearea.get(0).scrollTop;
+					updateLineCachedHighlight();
+					$codearea.scrollTop(scrollpos);
+				}
 			} else if (e.ctrlKey) {
 				console.log(e);
 
@@ -627,10 +695,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					me.next(intextarea);
 				} else if (e.keyCode === 86) {
 					// Pasting so disable live code
-					suggestions.hide("fast");
-					$dialogContents.find(".submitButton").get(0).checked = false;
-					me.autoexec = false;
-					updateLineHighlight();
+					//console.log(intextarea.value);
+					//suggestions.hide("fast");
+					//$dialogContents.find(".submitButton").get(0).checked = false;
+					//me.autoexec = false;
+					//updateEntireHighlight();
 				}
 			}
 		}).on('keydown', '.outputcontent', function(e) {
@@ -656,6 +725,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				//$(intextarea).focus();
 			} else {
 				intextarea.selectionEnd = end;
+				intextarea.selectionStart = end;
 				var scrollpos = $codearea.get(0).scrollTop;
 				$(intextarea).focus();		
 				updateEntireHighlight();

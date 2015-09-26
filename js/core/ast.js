@@ -13,11 +13,6 @@ function fnEdenAST_left(left) {
 };
 
 
-function EdenEvaluationContext() {
-	this.dependencies = {};
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 
 function EdenAST_Literal(type, literal) {
@@ -58,6 +53,7 @@ EdenAST_Literal.prototype.generate = function(ctx) {
 function EdenAST_Scope() {
 	this.type = "scope";
 	this.errors = [];
+	this.range = false;
 	this.overrides = {};
 }
 
@@ -65,6 +61,7 @@ EdenAST_Scope.prototype.error = fnEdenAST_error;
 
 EdenAST_Scope.prototype.prepend = function(obs, exp1, exp2) {
 	if (exp2) {
+		this.range = true;
 		this.overrides[obs] = { start: exp1, end: exp2 };
 		this.errors.push.apply(this.errors, exp1.errors);
 		this.errors.push.apply(this.errors, exp2.errors);
@@ -75,17 +72,28 @@ EdenAST_Scope.prototype.prepend = function(obs, exp1, exp2) {
 }
 
 EdenAST_Scope.prototype.generate = function(ctx) {
-	var res = "new Scope(context, scope, [";
+	var res;
+
+	if (this.range) {
+		res = "[";
+	} else {
+		res = "new Scope(context, scope, [";
+	}
+
 	for (var o in this.overrides) {
 		res += "new ScopeOverride(\""+o+"\", " + this.overrides[o].start.generate(ctx);
 		if (this.overrides[o].end) {
-			res += ", " + this.overrides[i].end.generate(ctx) + "),";
+			res += ", " + this.overrides[o].end.generate(ctx) + "),";
 		} else {
 			res += "),";
 		}
 	}
 	res = res.slice(0,-1);
-	res += "], ";
+	if (this.range) {
+		res += "]";
+	} else {
+		res += "], ";
+	}
 	return res;
 }
 
@@ -178,7 +186,11 @@ EdenAST_BinaryOp.prototype.setRight = function(right) {
 EdenAST_BinaryOp.prototype.generate = function(ctx) {
 	var left = this.l.generate(ctx);
 	var right = this.r.generate(ctx);
-	return "(" + left + ") " + this.op + " (" + right + ")";
+	if (this.op == "//") {
+		return "rt.concat(("+left+"),("+right+"))";
+	} else {
+		return "(" + left + ") " + this.op + " (" + right + ")";
+	}
 }
 
 
@@ -259,6 +271,7 @@ function EdenAST_Definition(expression) {
 	this.lvalue = undefined;
 	this.start = 0;
 	this.end = 0;
+	this.dependencies = {};
 };
 
 EdenAST_Definition.prototype.left = function(lvalue) {
@@ -274,11 +287,10 @@ EdenAST_Definition.prototype.setSource = function(start, end) {
 }
 
 EdenAST_Definition.prototype.generate = function(ctx) {
-	var nctx = new EdenEvaluationContext();
 	var result = this.lvalue.generate(ctx) + ".define(function(context, scope) {\n\treturn ";
-	result = result + this.expression.generate(nctx);
+	result = result + this.expression.generate(this);
 	var deps = [];
-	for (var d in nctx.dependencies) {
+	for (var d in this.dependencies) {
 		deps.push(d);
 	}
 	result = result + ";\n}, this, "+JSON.stringify(deps)+");"
@@ -286,15 +298,14 @@ EdenAST_Definition.prototype.generate = function(ctx) {
 };
 
 EdenAST_Definition.prototype.execute = function(root, ctx) {
-	var nctx = new EdenEvaluationContext();
 	var rhs = "(function(context,scope) { return ";
-	rhs += this.expression.generate(nctx);
+	rhs += this.expression.generate(this);
 	rhs += ";})";
 	var deps = [];
-	for (var d in nctx.dependencies) {
+	for (var d in this.dependencies) {
 		deps.push(d);
 	}
-	console.log("RHS = " + rhs);
+	//console.log("RHS = " + rhs);
 	root.lookup(this.lvalue.observable).define(eval(rhs), undefined, deps);
 }
 
@@ -448,7 +459,11 @@ EdenAST_Primary.prototype.generate = function(ctx) {
 	var res = "context.lookup(\""+this.observable+"\")";
 	var i = 0;
 	if (this.extras.length >= 1 && this.extras[0].type == "scope") {
-		res += ".value(" + this.extras[0].generate(ctx) + "context.lookup(\""+this.observable+"\")))";
+		if (this.extras[0].range) {
+			res += ".multiValue(context,scope," + this.extras[0].generate(ctx) + ", context.lookup(\""+this.observable+"\"))";
+		} else {
+			res += ".value(" + this.extras[0].generate(ctx) + "context.lookup(\""+this.observable+"\")))";
+		}		
 		i = 1;
 	} else {
 		res += ".value(scope)";
@@ -948,6 +963,12 @@ EdenAST_Script.prototype.append = function (ast) {
 	this.statements.push(ast);
 	if (ast.errors.length > 0) {
 		this.errors.push.apply(this.errors, ast.errors);
+	}
+}
+
+EdenAST_Script.prototype.execute = function(root, ctx) {
+	for (var i = 0; i < this.statements.length; i++) {
+		this.statements[i].execute(root,ctx);
 	}
 }
 

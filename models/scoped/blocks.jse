@@ -1,0 +1,19 @@
+paddle_width = 60;
+paddle_thickness = 10;
+paddle_colour = "red";
+paddle_position = 200;
+paddle_y = 300;
+
+paddle_position is mouseX;
+
+paddle is Rectangle(paddle_position - paddle_width/2,paddle_y, paddle_width, paddle_thickness, paddle_colour);
+
+picture is [paddle] // blocks;
+
+block_width = 50;
+block_height = 20;
+block_colours = ["green","red","blue","pink","purple"];
+
+block is Rectangle(20+x*block_width,20+y*block_height,block_width,block_height,block_colours[randomInteger(1,5)]);
+blocks is block with x = 0..10, y = 0..3;
+
