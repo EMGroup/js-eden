@@ -52,6 +52,7 @@ module.exports = function (grunt) {
 				'./plugins/jseden-plugins.min.css': [
 					'plugins/project-listing/project-listing.css',
 					'plugins/menu-bar/menu-bar.css',
+					'plugins/canvas-html5/canvas.css',
 					'plugins/symbol-viewer/symbol-viewer.css',
 					'plugins/observable-mining/observable-mining.css',
 					'plugins/symbol-lookup-table/symbol-lookup-table.css',
@@ -71,6 +72,7 @@ module.exports = function (grunt) {
 		core: {
 			files: {
 				'./js/core/jseden.min.js': [
+					'./js/language/lang.js',
 					'./js/core/runtime.js',
 					'./js/core/window-highlighter.js',
 					'./js/core/maintainer.js',

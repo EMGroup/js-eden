@@ -12,6 +12,9 @@
  * @class MenuBar Plugin
  */
 EdenUI.plugins.MenuBar = function (edenUI, success) {
+	EdenUI.plugins.MenuBar.title = Language.ui.menu_bar.title;
+	EdenUI.plugins.MenuBar.description = Language.ui.menu_bar.description;
+
 	var me = this;
 	this.itemViews = {};
 
@@ -407,6 +410,4 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	edenUI.eden.include("plugins/menu-bar/menu-bar.js-e", success);
 };
 
-EdenUI.plugins.MenuBar.title = Language.ui.menu_bar.title;
-EdenUI.plugins.MenuBar.description = Language.ui.menu_bar.description;
 

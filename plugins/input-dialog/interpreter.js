@@ -79,6 +79,10 @@ function getStartCaretCharacterOffsetWithin(element) {
  * @class Input Window Plugin
  */
 EdenUI.plugins.ScriptInput = function(edenUI, success) {
+	/* Plugin meta information */
+	EdenUI.plugins.ScriptInput.title = Language.ui.input_window.title;
+	EdenUI.plugins.ScriptInput.description = Language.ui.input_window.description;
+
 	function makeRepresentative(value, scale, sym) {
 		var type = typeof value;
 
@@ -834,10 +838,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	
 	success();
 };
-
-/* Plugin meta information */
-EdenUI.plugins.ScriptInput.title = Language.ui.input_window.title;
-EdenUI.plugins.ScriptInput.description = Language.ui.input_window.description;
 
 //Make tab do spaces instead of selecting the next element
 $(document).delegate('.inputCodeArea textarea', 'keydown', function(e) {
