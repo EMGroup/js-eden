@@ -341,15 +341,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createDialog = function (name, mtitle) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="subButtonsDiv"><div class="switch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div></div><div class="buttonsDiv"><button class="previousButton"></button><button class="nextButton"></button></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="subButtonsDiv"><div class="switch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div></div><div class="outputbox"></div><div class="buttonsDiv"><button class="previousButton"></button><button class="nextButton"></button></div></div></div>')
 		var text = "";	
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
 		var intextarea = $dialogContents.find('.hidden-textarea').get(0);
 		var outdiv = $dialogContents.find('.outputcontent').get(0);
 		var infobox = $dialogContents.find('.info-bar').get(0);
+		var outputbox = $dialogContents.find('.outputbox').get(0);
 		var suggestions = $dialogContents.find('.eden_suggestions');
 		suggestions.hide();
+		$(infobox).hide();
 
 		var dragstart = 0;
 		var dragvalue = 0;
@@ -426,10 +428,23 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
+		function showInfoBox(type, message) {
+			if (type == "warning") {
+				infobox.innerHTML = "<div class='info-warnitem'><span>"+message+"</span></div>";
+			} else if (type == "error") {
+				infobox.innerHTML = "<div class='info-erroritem'><span>"+message+"</span></div>";
+			}
+			$(infobox).show("fast");
+		}
+
+		function hideInfoBox() {
+			$(infobox).hide("fast");
+		}
+
 		function doneTyping() {
 			amtyping = false;
 			if (me.autoexec && highlighter.ast.script.errors.length == 0) {
-				infobox.innerHTML = "<div class='info-item'><span>Yay!</span></div>";
+				outputbox.innerHTML = "";
 				var lineno = getLineNumber(intextarea)-1;
 
 				if (highlighter.ast.lines[lineno]) {
@@ -448,12 +463,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 									if (i != undef.length - 1) undefstr += ",";
 								}
 								if (undef.length == 1) {
-									infobox.innerHTML = "<div class='info-warnitem'><span>"+observable + " is undefined because "+undefstr+" is undefined</span></div>";
+									showInfoBox("warning", observable + " is undefined because "+undefstr+" is undefined");
 								} else {
-									infobox.innerHTML = "<div class='info-warnitem'><span>"+observable + " is undefined because "+undefstr+" are undefined</span></div>";
+									showInfoBox("warning", observable + " is undefined because "+undefstr+" are undefined");
 								}
 							} else {
-								infobox.innerHTLM = "<div class='info-warnitem'><span>"+observable + " is undefined.</span></div>";
+								showInfoBox("warning", observable + " is undefined");
 							}
 						} else {
 							var undef = checkUndefined(ast.dependencies);
@@ -464,20 +479,26 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 									if (i != undef.length - 1) undefstr += ",";
 								}
 								if (undef.length == 1) {
-									infobox.innerHTML = "<div class='info-warnitem'><span>"+observable + " uses "+undefstr+" which is undefined</span></div>";
+									showInfoBox("warning", observable + " uses "+undefstr+" which is undefined");
+									
 								} else {
-									infobox.innerHTML = "<div class='info-warnitem'><span>"+observable + " uses the undefined observables "+undefstr+"</span></div>";
+									showInfoBox("warning", observable + " uses the undefined observables "+undefstr);
 								}
 							} else {
 								var rep = makeRepresentative(val,15,sym);
-								infobox.innerHTML = "<div class='info-validitem'><span>"+observable + " ➙ </span></div>";
-								rep.appendTo($(infobox).find("div"));
+								hideInfoBox();
+								outputbox.innerHTML = "<div class='info-validitem'><span>"+observable + "<b> ➙ </b></span></div>";
+								rep.appendTo($(outputbox).find("div"));
 							}
 						}
+					} else {
+						hideInfoBox();
 					}
 				}
 			} else if (me.autoexec) {
-				infobox.innerHTML = "<div class='info-erroritem'><span>"+highlighter.ast.script.errors[0].messageText()+"</span></div>";
+				showInfoBox("error", highlighter.ast.script.errors[0].messageText());
+			} else {
+				hideInfoBox();
 			}
 		}
 
@@ -600,7 +621,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var lineno = getLineNumber(intextarea)-1;
 			clearTimeout(typingtimer);
 			if (amtyping == false) {
-				infobox.innerHTML = "<div class='loader'></div>";
+				outputbox.innerHTML = "<div class='loader'></div>";
 				amtyping = true;
 			}
 			var scrollpos = $codearea.get(0).scrollTop;
@@ -697,8 +718,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					// Pasting so disable live code
 					//console.log(intextarea.value);
 					//suggestions.hide("fast");
-					//$dialogContents.find(".submitButton").get(0).checked = false;
-					//me.autoexec = false;
+					$dialogContents.find(".submitButton").get(0).checked = false;
+					me.autoexec = false;
 					//updateEntireHighlight();
 				}
 			}
@@ -743,15 +764,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			suggestions.hide("fast");
 			$dialogContents.find(".submitButton").get(0).checked = false;
 			me.autoexec = false;
-			highlightContent(me.prev(), 0, false,false);
+			updateEntireHighlight();
 		}).on('click', '.nextButton', function (e) {
 			suggestions.hide("fast");
 			$dialogContents.find(".submitButton").get(0).checked = false;
 			me.autoexec = false;
-			highlightContent(me.next(), 0, false,false);
+			updateEntireHighlight();
 		});
 		
-		$dialog = $('<div id="'+name+'" class="input-dialog"></div>')
+		$dialog = $('<div id="'+name+'"></div>')
 			.html($dialogContents)
 			.dialog({
 				title: mtitle,
@@ -769,11 +790,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	};
 
 	this.next = function (el) {
-		return edenUI.plugins.ScriptInput.nextHistory();
+		el.value = edenUI.plugins.ScriptInput.nextHistory();
 	};
 
 	this.prev = function (el) {
-		return edenUI.plugins.ScriptInput.previousHistory();
+		el.value = edenUI.plugins.ScriptInput.previousHistory();
 	};
 
 	this.submit = function (statement) {

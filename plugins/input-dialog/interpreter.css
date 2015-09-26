@@ -4,7 +4,7 @@
 	tab-size: 2;
 	/*margin: 5px;*/
 	position: absolute;
-	top: 30px;
+	top: 0;
 	bottom: 35px;
 	left: 15px;
 	right: 15px;
@@ -37,28 +37,42 @@ span.fake-caret {
 	animation-iteration-count: infinite;
 }
 
+div.outputbox {
+	position: absolute;
+	bottom: 0px;
+	height: 35px;
+	background: none;
+	left: 100px;
+	right: 100px;
+	font-size: 12pt;
+	text-align: center;
+}
+
 div.info-bar {
 	position: absolute;
-	left: 0px;
-	right: 0px;
-	top: 0px;
-	height: 30px;
-	/*background-color: #f1f1f1;*/
+	left: 100px;
+	right: 100px;
+	bottom: 50px;
+	min-height: 30px;
+	background-color: #395069;
+	opacity: 0.9;
 
-	background: -webkit-linear-gradient(#fafafa, #ececec); /* For Safari 5.1 to 6.0 */
-	background: -o-linear-gradient(#fafafa, #ececec); /* For Opera 11.1 to 12.0 */
-	background: -moz-linear-gradient(#fafafa, #ececec); /* For Firefox 3.6 to 15 */
-	background: linear-gradient(#fafafa, #ececec); /* Standard syntax */
+	/*background: -webkit-linear-gradient(#fafafa, #ececec);
+	background: -o-linear-gradient(#fafafa, #ececec);
+	background: -moz-linear-gradient(#fafafa, #ececec);
+	background: linear-gradient(#fafafa, #ececec);*/
 
 	box-shadow: 0 0 10px black;
-	border-bottom-color: #719ECE;
+	/*border-bottom-color: #719ECE;
 	border-bottom-style: solid;
 	border-bottom-width: 1px;
 	border-bottom-left-radius: 2px;
-	border-bottom-right-radius: 2px;
+	border-bottom-right-radius: 2px;*/
 	font-size: 11pt;
 	font-weight: normal;
 	vertical-align: middle;
+	color: white;
+	z-index: 5;
 }
 
 div.info-item {
@@ -68,10 +82,9 @@ div.info-item {
 
 div.info-validitem {
 	margin-top: 6px;
-	margin-left: 50px;
 }
 
-div.info-validitem:before {
+/*div.info-validitem:before {
 	position: absolute;
 	content: "";
 	left: 18px;
@@ -80,7 +93,7 @@ div.info-validitem:before {
 	background-repeat: no-repeat;
 	width: 22px;
 	height: 22px;
-}
+}*/
 
 div.info-warnitem {
 	margin-top: 6px;
@@ -126,11 +139,11 @@ div.info-erroritem:before {
   animation: load7 1.8s infinite ease-in-out;
 }
 .loader {
-  font-size: 2px;
+  font-size: 4px;
   /*margin: 80px auto;*/
-  margin-left: 25px;
+  margin: auto;
   position: relative;
-  top: 8px;
+  top: 2px;
   text-indent: -9999em;
   -webkit-transform: translateZ(0);
   -ms-transform: translateZ(0);
@@ -174,8 +187,8 @@ div.info-erroritem:before {
 }
 
 
-div.info-bar canvas {
-	box-shadow: 0 0 5px black;
+div.outputbox canvas {
+	box-shadow: 0 0 5px #0f0f0f;
 }
 
 div.control-bar {
@@ -255,7 +268,7 @@ div.control-bar {
 
 textarea.hidden-textarea {
 	position: absolute;
-	white-space: nowrap;
+	white-space: pre;
 	font: 14px/20px Roboto Mono,monospace;
 	left: -9999px;
 }
@@ -335,7 +348,7 @@ input.cmn-toggle-round + label {
   padding: 2px;
   width: 40px;
   height: 14px;
-  background-color: #bfbfbf;
+  background-color: #9c9c9c;
   border-radius: 14px;
 }
 input.cmn-toggle-round + label:before,
@@ -367,7 +380,7 @@ input.cmn-toggle-round + label:after {
   transition: margin 0.2s;
 }
 input.cmn-toggle-round:checked + label:before {
-  background-color: #73d216;
+  background-color: #63b513;
 }
 input.cmn-toggle-round:checked + label:after {
   margin-left: 25px;

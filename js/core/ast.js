@@ -229,8 +229,14 @@ function EdenAST_LValue(observable, lvaluep) {
 
 EdenAST_LValue.prototype.error = fnEdenAST_error;
 
-EdenAST_LValue.prototype.generate = function() {
-	return "context.lookup(\"" + this.observable + "\")";
+EdenAST_LValue.prototype.generate = function(ctx) {
+	var res = "context.lookup(\"" + this.observable + "\")";
+	for (var i=0; i<this.lvaluep; i++) {
+		if (this.lvaluep[i].kind == "index") {
+			res += ".get(" + this.lvaluep[i].indexexp.generate(ctx) + ")";
+		}
+	}
+	return res;
 }
 
 function EdenAST_LValueComponent(kind) {
@@ -345,8 +351,10 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 };
 
 EdenAST_Assignment.prototype.execute = function(root, ctx) {
-	var rhs = this.expression.generate(ctx);
-	root.lookup(this.lvalue.observable).assign(eval(rhs),root.scope);
+	var rhs = "(function(context,scope) { return ";
+	rhs += this.expression.generate(ctx);
+	rhs += ";})";
+	root.lookup(this.lvalue.observable).assign(eval(rhs)(root,root.scope),root.scope);
 };
 
 EdenAST_Assignment.prototype.error = fnEdenAST_error;
