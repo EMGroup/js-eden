@@ -5,17 +5,28 @@
 	/*margin: 5px;*/
 	position: absolute;
 	top: 0;
-	bottom: 35px;
-	left: 15px;
-	right: 15px;
+	bottom: 30px;
+	left: 0;
+	right: 0;
 	border-color: #719ECE;
-    box-shadow: 0 0 10px #719ECE;
+    /*box-shadow: 0 0 10px #719ECE;*/
 	color: #2b4957;/*#233b46;*/
 	/*padding-top: 8px;
 	padding-left: 5px;*/
 	background-color: white;
 	overflow: auto;
 	-webkit-font-smoothing: antialiased;
+}
+
+@font-face {
+	font-family: "FontAwesome";
+	src: url("../../fonts/fontawesome-webfont.eot");
+	src:	url("../../fonts/fontawesome-webfont.eot?#iefix") format('eot'),
+			url("../../fonts/fontawesome-webfont.woff") format('woff'),
+			url("../../fonts/fontawesome-webfont.ttf") format('truetype'),
+			url("../../fonts/fontawesome-webfont.svg#FontAwesome") format('svg');
+	font-weight: normal;
+	font-style: normal;
 }
 
 @keyframes blinking {
@@ -40,7 +51,7 @@ span.fake-caret {
 div.outputbox {
 	position: absolute;
 	bottom: 0px;
-	height: 35px;
+	height: 30px;
 	background: none;
 	left: 100px;
 	right: 100px;
@@ -82,7 +93,7 @@ div.info-item {
 
 div.info-validitem {
 	margin-top: 6px;
-	margin-bottom: 6px;
+	/*margin-bottom: 6px;*/
 }
 
 /*div.info-validitem:before {
@@ -146,7 +157,7 @@ div.info-erroritem:before {
   /*margin: 80px auto;*/
   margin: auto;
   position: relative;
-  top: 2px;
+  top: 0;
   text-indent: -9999em;
   -webkit-transform: translateZ(0);
   -ms-transform: translateZ(0);
@@ -191,7 +202,13 @@ div.info-erroritem:before {
 
 
 div.outputbox canvas {
-	box-shadow: 0 0 5px #0f0f0f;
+	box-shadow: 0 0 5px #0a0a0a;
+}
+
+span.valueof {
+	font-family: "FontAwesome";
+	margin-left: 10px;
+	margin-right: 10px;
 }
 
 div.control-bar {
@@ -199,21 +216,22 @@ div.control-bar {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	height: 35px;
+	height: 30px;
 	/*background-color: #f1f1f1;*/
 	background: -webkit-linear-gradient(#fafafa, #cccccc); /* For Safari 5.1 to 6.0 */
 	background: -o-linear-gradient(#fafafa, #cccccc); /* For Opera 11.1 to 12.0 */
 	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
 	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
 
-	box-shadow: 0 0 10px black;
-	border-top-color: #719ECE;
+	box-shadow: 0 0 10px #4a6887;
+	border-top-color: #777;
 	border-top-style: solid;
 	border-top-width: 1px;
 	border-bottom-left-radius: 6px;
 	border-bottom-right-radius: 6px;
-	border-top-left-radius: 2px;
-	border-top-right-radius: 2px;
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
+	z-index: 6;
 }
 
 .ui-tooltip, .arrow:after {
@@ -300,26 +318,59 @@ div.outputcontent {
 }
 
 div.input-dialog {
-	background: #e1e1e1;
-	/*background: none;*/
-	border: 0;
+	/*background: #e1e1e1;*/
+	background: none;
+	border-width: 1px;
+	border-color: #777;
+	border-style: solid;
 	padding: 0;
 	border-bottom-left-radius: 6px;
 	border-bottom-right-radius: 6px;
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
+	box-shadow: 0 0 15px #4a6887;
 }
 
 div.input-dialog .ui-dialog-titlebar {
+	height: 30px;
+	text-align: center;
+	border-top-width: 0;
+	border-left-width: 0;
+	border-right-width: 0;
+	border-bottom-color: #777;
 	border-bottom-left-radius: 0;
 	border-bottom-right-radius: 0;
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
+	box-shadow: 0 0 10px #4a6887;
 	background: -webkit-linear-gradient(#fafafa, #cccccc); /* For Safari 5.1 to 6.0 */
 	background: -o-linear-gradient(#fafafa, #cccccc); /* For Opera 11.1 to 12.0 */
 	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
 	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
+	z-index: 6;
 
+}
+
+div.input-dialog .ui-dialog-title {
+	float: none;
+	-webkit-font-smoothing: antialiased;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 5px;
+	display: table;
+}
+
+div.scriptswitch {
+	position: absolute;
+	top: 10px;
+	left: 20px;
+	font-family: "FontAwesome";
+	font-size: 22px;
+	/*text-shadow: 0px 0px 3px #fff;*/
+}
+
+div.scriptswitch:hover {
+	text-shadow: 0px 0px 4px #63b513;
 }
 
 .buttonsDiv {
@@ -518,6 +569,18 @@ div.eden-greenline {
 	z-index: 1;
 }
 
+div.eden-commentline {
+	position: relative;
+	/*display: inline-block;*/
+	width: 100%;
+	margin-left: -5px;
+	padding-left: 5px;
+	padding-right: 1px;
+	background-color: #f5f5f5;
+	/*box-shadow: 0 0 10px #719ECE;*/
+	z-index: 1;
+}
+
 div.eden-greenline:before {
 	position: absolute;
 	content: "";
@@ -551,13 +614,50 @@ div.eden-errorline {
 
 div.eden-errorline:before {
 	position: absolute;
-	content: "";
-	background-image: url('../../images/exclamation.png');
+	content: "";
+	font-family: "FontAwesome";
+	/*background-image: url('../../images/exclamation.png');
 	background-repeat: no-repeat;
-	background-position: center;
+	background-position: center;*/
 	left: -20px;
+	padding-left: 4px;
+	color: red;
 	background-color: #f2e4e4;
-	width: 20px;
+	width: 16px;
+	height: 20px;
+}
+
+div.eden-warnline {
+	position: relative;
+	/*display: inline-block;*/
+	width: 100%;
+	margin-left: -5px;
+	padding-left: 5px;
+	padding-right: 1px;
+	/*padding-right: 5px;*/
+	background-color: #fffff0;
+	/*background-image: url('/images/exclamation.png');
+	background-repeat: no-repeat;
+	background-position: -10px;
+	border-left-style: solid;
+	border-left-width: 10px;
+	border-left-color: silver;*/
+	/*box-shadow: none;*/
+	/*z-index: 1;*/
+}
+
+div.eden-warnline:before {
+	position: absolute;
+	content: "";
+	font-family: "FontAwesome";
+	/*background-image: url('../../images/exclamation.png');
+	background-repeat: no-repeat;
+	background-position: center;*/
+	left: -20px;
+	padding-left: 4px;
+	color: orange;
+	background-color: #f2e4e4;
+	width: 16px;
 	height: 20px;
 }
 

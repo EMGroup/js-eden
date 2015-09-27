@@ -18,7 +18,7 @@ lineC is Line(x + lengthA, y, x, y - lengthB);
 picture is [lineA,lineB,lineC];
 
 _view_input_dialog_script = [
-"## Tutorial 3",
+"## Tutorial 4",
 "## Lines and the Picture window",
 "",
 "lengthA = 100;",

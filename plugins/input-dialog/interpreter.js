@@ -169,9 +169,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var $canvas = $("<canvas width='"+scale+"' height='"+scale+"'></canvas>");
 			var canvas = $canvas.get(0);
 			var ctx = canvas.getContext("2d");
-			ctx.fillStyle = "white";
-			ctx.rect(0,0,Math.round(scale),Math.round(scale));
-			ctx.fill();
+			//ctx.fillStyle = "white";
+			//ctx.rect(0,0,Math.round(scale),Math.round(scale));
+			//ctx.fill();
 			var largest = Math.max(value.width,value.height);
 			var factor = scale / largest;
 			ctx.scale(factor,factor);
@@ -186,9 +186,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var $canvas = $("<canvas width='"+scale+"' height='"+scale+"'></canvas>");
 			var canvas = $canvas.get(0);
 			var ctx = canvas.getContext("2d");
-			ctx.fillStyle = "white";
-			ctx.rect(0,0,Math.round(scale),Math.round(scale));
-			ctx.fill();
+			//ctx.fillStyle = "white";
+			//ctx.rect(0,0,Math.round(scale),Math.round(scale));
+			//ctx.fill();
 			var dx = value.x2 - value.x1;
 			var dy = value.y2 - value.y1;
 
@@ -345,7 +345,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createDialog = function (name, mtitle) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="subButtonsDiv"><div class="switch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div></div><div class="outputbox"></div><div class="buttonsDiv"><button class="previousButton"></button><button class="nextButton"></button></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="subButtonsDiv"></div><div class="outputbox"></div></div></div>')
 		var text = "";	
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
@@ -363,7 +363,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var dragline = 0;
 		var typingtimer;
 		var amtyping = false;
-		var typinginterval = 1000;
+		var typinginterval = 1500;
+		var currentlineno = 0;
 		var highlighter = new EdenHighlight(outdiv);
 
 		function preloadScript(sym, value) {
@@ -386,20 +387,19 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function updateLineHighlight() {
 			var ast = new EdenAST(intextarea.value);
 			var lineno = getLineNumber(intextarea);
-			//highlighter.highlight(ast, lineno, intextarea.selectionEnd);
 			highlightContent(ast, lineno, intextarea.selectionEnd);
+			rebuildNotifications();
 		}
 
 		function updateLineCachedHighlight() {
 			var lineno = getLineNumber(intextarea);
-			//highlighter.highlight(highlighter.ast, lineno, intextarea.selectionEnd);
 			highlightContent(highlighter.ast, lineno, intextarea.selectionEnd);
 		}
 
 		function updateEntireHighlight() {
 			var ast = new EdenAST(intextarea.value);
-			//highlighter.highlight(ast, -1, intextarea.selectionEnd);
 			highlightContent(ast, -1, intextarea.selectionEnd);
+			rebuildNotifications();
 		}
 
 		function checkUndefined(dependencies) {
@@ -441,6 +441,38 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			$(infobox).hide("fast");
 		}
 
+		function rebuildNotifications() {
+			for (var i=0; i<highlighter.ast.lines.length; i++) {
+				if (highlighter.ast.lines[i] &&
+						highlighter.ast.lines[i].lvalue) {
+					eden.root.lookup(highlighter.ast.lines[i].lvalue.observable).addJSObserver("scriptLines", notifyOutOfDate);
+				}
+			}
+		}
+
+		function addWarningLine(lineno) {
+			$(outdiv.childNodes[lineno-1]).addClass("eden-warnline");
+		}
+
+		function notifyOutOfDate(symbol, value) {
+			// Find the symbol in the ast lines and highlight that line
+			var count = 0;
+			var name = symbol.name.slice(1);
+			for (var i=0; i<highlighter.ast.lines.length; i++) {
+				var curast = highlighter.ast.lines[i];
+				if (curast && curast.lvalue &&
+						curast.lvalue.observable == name) {
+
+					if (curast.type == "definition") {
+
+					} else if (i != currentlineno) {
+						console.log("MARK LINE OUT_OF_DATE: " + i);
+					}
+					count++;
+				}
+			}
+		}
+
 		function doneTyping() {
 			amtyping = false;
 			if (me.autoexec && highlighter.ast.script.errors.length == 0) {
@@ -463,11 +495,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 									if (i != undef.length - 1) undefstr += ",";
 								}
 								if (undef.length == 1) {
+									addWarningLine(currentlineno);
 									showInfoBox("warning", "<b>" + observable + "</b> "+ Language.ui.input_window.is_undef_because +" "+undefstr+" " + Language.ui.input_window.is_undef);
 								} else {
+									addWarningLine(currentlineno);
 									showInfoBox("warning", "<b>" + observable + "</b> "+ Language.ui.input_window.is_undef_because +" "+undefstr+" " + Language.ui.input_window.are_undef);
 								}
 							} else {
+								addWarningLine(currentlineno);
 								showInfoBox("warning", observable + " " + Language.ui.input_window.is_undef);
 							}
 						} else {
@@ -479,15 +514,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 									if (i != undef.length - 1) undefstr += ",";
 								}
 								if (undef.length == 1) {
+									addWarningLine(currentlineno);
 									showInfoBox("warning", "<b>" + observable + "</b> "+Language.ui.input_window.uses+" "+undefstr+" "+Language.ui.input_window.which_undef);
 									
 								} else {
+									addWarningLine(currentlineno);
 									showInfoBox("warning", "<b>" + observable + "</b> "+Language.ui.input_window.uses_undef+" "+undefstr);
 								}
 							} else {
 								var rep = makeRepresentative(val,15,sym);
 								hideInfoBox();
-								outputbox.innerHTML = "<div class='info-validitem'><span>"+observable + "<b> \u27a1 </b></span></div>";
+								outputbox.innerHTML = "<div class='info-validitem'><span>"+observable + "<span class='valueof'>&#xf178;</span></span></div>";
 								rep.appendTo($(outputbox).find("div"));
 							}
 						}
@@ -612,31 +649,30 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		function getLineNumber(textarea) {
-			return textarea.value.substr(0, textarea.selectionStart).split("\n").length;
+			currentlineno = textarea.value.substr(0, textarea.selectionStart).split("\n").length;
+			return currentlineno;
 		}
 
 		$dialogContents.on('input', '.hidden-textarea', function (e) {
-			// Generate an Abstract Syntax Tree
-			var ast = new EdenAST(intextarea.value);
-			var lineno = getLineNumber(intextarea)-1;
+			// Typing status, error messages and result value are delayed
+			// by "typinginterval", so restart timeout.
 			clearTimeout(typingtimer);
 			if (amtyping == false) {
 				outputbox.innerHTML = "<div class='loader'></div>";
 				amtyping = true;
 			}
-			var scrollpos = $codearea.get(0).scrollTop;
-			highlightContent(ast, lineno,intextarea.selectionEnd);
-			
-			$codearea.scrollTop(scrollpos);
 			typingtimer = setTimeout(doneTyping, typinginterval);
 
+			// Regenerate the AST and highlight the code.
+			var scrollpos = $codearea.get(0).scrollTop;
+			updateLineHighlight();
+			$codearea.scrollTop(scrollpos);
 
-			if (me.autoexec && ast.script.errors.length == 0) {
+
+			// If we should run the statement (there are no errors)
+			if (me.autoexec && highlighter.ast.script.errors.length == 0) {
 				$dialogContents.find(".submitButton").removeClass("submitError");
-				// Execute entire script?
-				//if (all) {
-				//	edenUI.plugins.ScriptInput.submitEdenCode(intextarea.value);
-				submitLine(ast, lineno);
+				submitLine(highlighter.ast, currentlineno-1);
 			} else if (me.autoexec) {
 				$dialogContents.find(".submitButton").addClass("submitError");
 			}
@@ -783,6 +819,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				dialogClass: "input-dialog"
 			});
 			input_dialog = $dialog;
+		$dialog.parent().find(".ui-dialog-titlebar").append($('<div class="scriptswitch" title="Live Coding">&#xF011;</div>')); //$('<div class="scriptswitch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div>'));
 
 		var confirmClose = !("MenuBar" in edenUI.plugins);
 

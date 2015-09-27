@@ -163,7 +163,11 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 				//this.currentprevtoken = prevtoken;
 				result += "<div class='eden-currentline'><span>";
 			} else {
-				result += "<div class='eden-line'><span>";
+				if (stream.code.charAt(linestart) == "#") { // || stream.peek3() == "#") {
+					result += "<div class='eden-commentline'><span>";
+				} else {
+					result += "<div class='eden-line'><span>";
+				}
 			}
 
 			/*if (this.ast.lines[this.line - 2]) {

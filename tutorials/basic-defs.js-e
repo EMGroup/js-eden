@@ -1,6 +1,8 @@
 createView("input_dialog","ScriptInput");
 createCanvas("picture");
 
+include("tutorials/common.js-e");
+
 _view_input_dialog_x = 483;
 _view_input_dialog_y = 77;
 _view_input_dialog_width = 585;
@@ -19,7 +21,7 @@ textE is Text("e -> " // str(e), 45,120,26);
 picture is [textB,textC,textD,textE];
 
 _view_input_dialog_script = [
-"## Tutorial 1",
+"## Tutorial 2",
 "## Basic definitions that update when their dependencies change",
 "",
 "b = 4;",

@@ -25,7 +25,7 @@ textH is Text("h -> " // str(h), 45,210,26);
 picture is [textB,textC,textD,textE,textF,textG,textH];
 
 _view_input_dialog_script = [
-"## Tutorial 2",
+"## Tutorial 3",
 "## Mathematical operators",
 "",
 &b,
