@@ -65,6 +65,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	function addMainGroup() {
 		var group = $('<div></div>');
 		group.appendTo(menudiv);
+		group.menuGroupWidth = 0;
 		return group;
 	}
 	
@@ -72,7 +73,9 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		var menuitem = $('<div class="menubar-mainitem"></div>');
 		menuitem.html(title);
 		menuitem.appendTo(group);
-		menuitem[0].style.width = (menuitem[0].clientWidth + 10) + "px";
+		var width = menuitem[0].clientWidth + 10;
+		group.menuGroupWidth = group.menuGroupWidth + width + 10; //10px padding
+		menuitem[0].style.width =  width + "px";
 		menuitem.html(title + '<div id="menubar-mainitem-'+ name + '" class="menubar-menu"></div>');
 
 		$("#menubar-mainitem-"+name).hide();
@@ -282,8 +285,8 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	}
 	
 	// Add main menu items
+	var jsedenGroup = addMainGroup();
 	function createMenus() {
-		var jsedenGroup = addMainGroup();
 		addMainItem("views", "New Window", jsedenGroup);
 		addMainItem("existing-views", "Existing Windows", jsedenGroup);
 		me.updateViewsMenu();
@@ -384,6 +387,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	var construalGroup = addMainGroup();
 	
 	edenUI.eden.root.lookup("menus").addJSObserver("updateMenus", function (symbol, menus) {
+		construalGroup.menuGroupWidth = 0;
 		var previousChildren = construalGroup.children();
 		previousChildren.detach();
 		if (Array.isArray(menus)) {
@@ -396,9 +400,14 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 					menu.generate(menuDiv);
 				} else {
 					construalGroup.append(menu.element);
+					construalGroup.menuGroupWidth = construalGroup.menuGroupWidth + menu.element.clientWidth;
 				}
 			}
 		}
+		var statusStyle = menustatus[0].style;
+		var statusLeft = 20 + jsedenGroup.menuGroupWidth + construalGroup.menuGroupWidth;
+		statusStyle.left = statusLeft + "px";
+		statusStyle.minWidth = "calc(100% - " + (2 * statusLeft) + "px)";
 	});
 	
 	this.Menu = function (text, items) {

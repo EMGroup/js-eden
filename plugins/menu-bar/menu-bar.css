@@ -41,7 +41,7 @@
 	-webkit-user-select: none;
 	-ms-user-select: none;
 	padding-top: 4px;
-	padding-left: 5px;
+	padding-left: 5px; /*See addMainItem */
 	padding-right: 5px;
 	padding-bottom: 8px;
 	text-decoration: none;
@@ -170,8 +170,6 @@
 
 #menubar-status {
 	position: absolute;
-	left: 355px;
-	min-width: calc(100% - 710px);
 	text-align: center;
 	padding-top: 4px;
 	color: #e0e0e0;
