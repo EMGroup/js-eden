@@ -24,6 +24,7 @@ mouseWindow = @;
 mouseX is mousePosition == @? @ : mousePosition.x;
 mouseY is mousePosition == @? @ : mousePosition.y;
 mouseZone = @;
+px is 1 / _view_picture_scale;
 touchPanX = 0;
 touchPanXSpeed = 0;
 touchPinch = 0;

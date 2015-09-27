@@ -108,8 +108,7 @@ RadioButtons.prototype.scale = function (scale, zoom, origin) {
 };
 
 RadioButtons.prototype.toString = function() {
-  return "RadioButtons(" + this.name + ", " + Eden.edenCodeForValue(this.buttonValues) + ", " +
-	this.x + ", " + this.y + ", " + this.enabled + ", " + this.horizontal + ")";
+  return "RadioButtons(" + Eden.edenCodeForValues(this.buttonValues, this.x, this.y, this.enabled, this.horizontal) + ")";
 };
 
 RadioButtons.prototype.getEdenCode = RadioButtons.prototype.toString;

@@ -154,18 +154,20 @@ GreyPixelList.prototype.isHit = function (context, scale, x, y) {
 
 GreyPixelList.prototype.toString = function() {
 	return "GreyPixelList(" +
+		Eden.edenCodeForValue(this.name) + ", " +
 		this.data.length + " pixel values, " +
-		this.x + ", " + this.y + ", " + this.width + "," + this.redMultiply + ", " + this.redAdd +
-		", " + this.greenMultiply + ", " + this.greenAdd + ", " + this.blueMultiply + ", " +
-		this.blueAdd + ")";
+		Eden.edenCodeForValues(this.x, this.y, this.width) + "," +
+		this.redMultiply + ", " + this.redAdd + ", " +
+		this.greenMultiply + ", " + this.greenAdd + ", " +
+		this.blueMultiply + ", " + this.blueAdd + ")";
 }
 
 GreyPixelList.prototype.getEdenCode = function() {
 	return "GreyPixelList(" +
-		Eden.edenCodeForValue(this.data) + ", " +
-		this.x + ", " + this.y + ", " + this.width + "," + this.redMultiply + ", " + this.redAdd +
-		", " + this.greenMultiply + ", " + this.greenAdd + ", " + this.blueMultiply + ", " +
-		this.blueAdd + ")";
+		Eden.edenCodeForValues(this.name, this.data, this.x, this.y, this.width) + "," +
+		this.redMultiply + ", " + this.redAdd + ", " +
+		this.greenMultiply + ", " + this.greenAdd + ", " +
+		this.blueMultiply + ", " + this.blueAdd + ")";
 }
 
 }}$;

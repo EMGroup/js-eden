@@ -93,13 +93,7 @@ Arc.prototype.draw = function(context) {
 };
 
 Arc.prototype.toString = function() {
-	var s= "Arc(" +
-		this.x + "," +
-		this.y + "," +
-		this.r + "," +
-		this.sAngle + "," +
-		this.eAngle + "," +
-		"\"" + this.colour + "\"";
+	var s = "Arc(" + Eden.edenCodeForValues(this.x, this.y, this.r, this.sAngle, this.eAngle, this.colour);
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

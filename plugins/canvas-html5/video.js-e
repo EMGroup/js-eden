@@ -397,7 +397,7 @@ ${{
 	}
 	
 	Video.prototype.toString = function () {
-		return "";
+		return "Video(" + Eden.edenCodeForValues(this.name, this.preload) + ")";
 	}
 	
 	Video.prototype.getEdenCode = Video.prototype.toString;

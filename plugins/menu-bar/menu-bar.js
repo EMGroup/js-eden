@@ -68,11 +68,12 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		return group;
 	}
 	
-	function addMainItem(name, title, width, group) {
-		width = width + 40;
-		var menuitem = $('<div class="menubar-mainitem" style="width: ' + width + 'px"></div>');
-		menuitem.html(title+'<div id="menubar-mainitem-'+ name + '" class="menubar-menu"></div>');
+	function addMainItem(name, title, group) {
+		var menuitem = $('<div class="menubar-mainitem"></div>');
+		menuitem.html(title);
 		menuitem.appendTo(group);
+		menuitem[0].style.width = (menuitem[0].clientWidth + 10) + "px";
+		menuitem.html(title + '<div id="menubar-mainitem-'+ name + '" class="menubar-menu"></div>');
 
 		$("#menubar-mainitem-"+name).hide();
 
@@ -283,11 +284,11 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	// Add main menu items
 	function createMenus() {
 		var jsedenGroup = addMainGroup();
-		addMainItem("views", "New Window", 60, jsedenGroup);
-		addMainItem("existing-views", "Existing Windows", 85, jsedenGroup);
+		addMainItem("views", "New Window", jsedenGroup);
+		addMainItem("existing-views", "Existing Windows", jsedenGroup);
 		me.updateViewsMenu();
 
-		addMainItem("options", "Options", 60, jsedenGroup);	
+		addMainItem("options", "Options", jsedenGroup);	
 		var optionsMenu = $("#menubar-mainitem-options");
 
 		function addCheckboxOption(optionName, description, defaultValue, onChange) {
@@ -295,7 +296,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			if (initialOptionValue === null) {
 				initialOptionValue = defaultValue;
 			}
-			var checkbox = menuItemPart("menubar-item-input", '<input type="checkbox"' + checkedHTML(initialOptionValue) + ' />');
+			var checkbox = menuItemPart("menubar-item-input", '<input id="menu-' + optionName +'" type="checkbox"' + checkedHTML(initialOptionValue) + ' />');
 			var inputElement = checkbox.get(0).children[0];
 			var label = menuItemPart('menubar-item-label', description);
 			var item = menuItem([checkbox, label]);
@@ -323,7 +324,39 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			$(".ui-dialog-content").each(function () { $(this).dialogExtend("option", "dblclick", action); });
 		});
 		addCheckboxOption("developer", "Debug JS-EDEN", false, function (optName, enabled) {
+			var pathname;
+			if (enabled) {
+				pathname = "/index-dev.html";
+			} else {
+				pathname = "/index.html";
+			}
+			if (pathname != document.location.pathname) {
+				hideMenu();
+				edenUI.modalDialog(
+					"Restart Required",
+					'<p>JS-EDEN must be restarted for this change to fully take effect.  Would you like to restart JS-EDEN now?</p>',
+					["Restart Now", "Restart Later"],
+					1,
+					function (button) {
+						if (button == 0) {
+							//Restart, switching between minified and non-minified.
+							window.onbeforeunload = undefined;
+							document.location.pathname = pathname;
+						} else if (button == 1) {
+							//Don't restart but apply the debugging preference in as many areas as possible without restarting.
+							root.lookup("debug").mutate(function (symbol) { symbol.cached_value.jsExceptions = enabled; }, Symbol.hciAgent);
+						} else {
+							//Cancel the change.
+							var checkbox = document.getElementById("menu-developer");
+							checkbox.checked = !checkbox.checked;
+							edenUI.setOptionValue("developer", checkbox.checked);
+						}
+					}
+				);
+			} else {
+				//No need to restart, but do apply changes.
 				root.lookup("debug").mutate(function (symbol) { symbol.cached_value.jsExceptions = enabled; }, Symbol.hciAgent);
+			}
 		});
 	}
 
@@ -384,6 +417,11 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		}
 	}
 
+	this.Menu.prototype.toString = function () {
+		return "Menu(" + Eden.edenCodeForValues(this.text, this.items) + ")";
+	}	
+	this.Menu.prototype.getEdenCode = this.Menu.prototype.toString;
+
 	this.SimpleMenuItem = function (name, text) {
 		this.name = name;
 		this.text = text;
@@ -403,6 +441,11 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			this.element = item.get(0);
 		}
 	}
+	
+	this.SimpleMenuItem.prototype.toString = function () {
+		return "MenuItem(" + Eden.edenCodeForValues(this.name, this.text) + ")";
+	}	
+	this.SimpleMenuItem.prototype.getEdenCode = this.SimpleMenuItem.prototype.toString;
 
 	edenUI.eden.include("plugins/menu-bar/menu-bar.js-e", success);
 };

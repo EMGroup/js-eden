@@ -84,6 +84,7 @@ Slide = function (html, cssClass) {
 		} else {
 			this.cssClass = "jspe-" + cssClass + "-slide";
 		}
+		this.originalCSSClass = cssClass;
 }
 
 Slide.prototype.draw = function(context) {
@@ -108,7 +109,12 @@ Slide.prototype.scale = function (scale) {
 
 ${{
 Slide.prototype.toString = function() {
-  return "Slide("+this.html+")";
+  var s = "Slide(" + Eden.edenCodeForValue(this.html);
+  if (this.originalCSSClass !== undefined) {
+	s = s + ", " + Eden.edenCodeForValue(this.originalCSSClass);
+  }
+  s = s + ")";
+  return s;
 };
 }}$;
 

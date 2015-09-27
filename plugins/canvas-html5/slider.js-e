@@ -150,9 +150,8 @@ Slider.prototype.scale = function (scale, zoom, origin) {
 };
 
 Slider.prototype.toString = function() {
-  return "Slider(\"" + this.name + "\", " + this.min + ", " + this.max + ", " + Eden.edenCodeForValue(this.step) + ", " +
-	this.x + ", " + this.y + ", " + this.length + ", \"" + this.orientation + "\", " +
-	this.enabled + ")";
+  return "Slider(" + Eden.edenCodeForValues(this.name, this.min, this.max, this.step, this.x, this.y,
+	this.length, this.orientation, this.enabled) + ")";
 };
 
 Slider.prototype.getEdenCode = Slider.prototype.toString;

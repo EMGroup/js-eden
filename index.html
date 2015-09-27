@@ -8,6 +8,17 @@ See LICENSE.txt
 
 <html>
 <head>
+	<script type="text/javascript">
+		try {
+		  if (window.localStorage) {
+			  if (window.localStorage.getItem("developer") === "true") {
+				document.location.pathname = "/index-dev.html";
+			  }
+		  }
+		} catch (e) {
+		  //Cookies are blocked.
+		}
+	</script>
 	<title>JS-EDEN</title>
 
 	<link rel="stylesheet" type="text/css" href="css/jseden.css">

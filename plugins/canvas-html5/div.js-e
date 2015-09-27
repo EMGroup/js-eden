@@ -94,7 +94,11 @@ Div.prototype.draw = function(context) {
 	}
 	divElement.style.cssText = divStyle;
 	divElement.innerHTML = this.html;
-	this.fontSizeSpecified = divElement.style.fontSize !== "";
+	var match = divElement.style.fontSize.match(/^(\d+)([a-z%]+)$/);
+	if (match !== null) {
+		this.fontSizeNumber = match[1];
+		this.fontSizeUnits = match[2];
+	}
 
 	//Create object properties that record the automatically generated width and/or height.
 	if (this.id !== undefined) {
@@ -118,7 +122,7 @@ Div.prototype.draw = function(context) {
 
 		if (this.width === undefined || this.height === undefined) {
 			var objectElement = document.createElement("object");
-			objectElement.setAttribute("style", "display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
+			objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
 			objectElement.onload = function () {
 				var resizeAction = function () {
 					if (me.width === undefined) {
@@ -155,9 +159,11 @@ Div.prototype.scale = function (scale, zoom , origin) {
 	if (typeof(this.height) == "number") {
 		style.height = Math.round(this.height * scale) + "px";
 	}
-	if (!this.fontSizeSpecified) {
+	if (this.fontSizeNumber !== undefined) {
+		style.fontSize = String(this.fontSizeNumber * zoom) + this.fontSizeUnits;
+	} else {
 		if (zoom == 1) {
-			style.fontSize = "";
+			style.fontSize = ""; //Could be specified by CSS class rather than the style argument.
 		} else {
 			style.fontSize = zoom + "em";
 		}
@@ -169,8 +175,7 @@ Div.prototype.toString = function() {
 };
 
 Div.prototype.getEdenCode = function () {
-	var s = "Div(\"" + this.html + "\", \"" + this.x + "\", \"" + this.y + "\", " + 
-		Eden.edenCodeForValue(this.width) + ", " + Eden.edenCodeForValue(this.height);
+	var s = "Div(" + Eden.edenCodeForValues(this.html, this.x, this.y, this.width, this.height);
 
 	if (this.id !== undefined) {
 		s = s + ", \"" + this.id + "\"";

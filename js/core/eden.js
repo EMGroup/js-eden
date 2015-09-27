@@ -313,9 +313,9 @@ function concatAndResolveUrl(url, concat) {
 	 * @return {String} The option's value, or null if the requested program option has not been given a value yet.
 	 */
 	EdenUI.prototype.getOptionValue = function (optionName) {
-    if (optionName in this.options) {
-      return this.options[optionName];
-    } else {
+		if (optionName in this.options) {
+		  return this.options[optionName];
+		} else {
 		  try {
 			  if (window.localStorage) {
 				  return window.localStorage.getItem(optionName);
@@ -720,7 +720,16 @@ function concatAndResolveUrl(url, concat) {
 		}
 		return code;
 	}
-	
+
+	Eden.edenCodeForValues = function () {
+		var s = "";
+		for (var i = 0; i < arguments.length - 1; i++) {
+			s = s + Eden.edenCodeForValue(arguments[i]) + ", ";
+		}
+		s = s + Eden.edenCodeForValue(arguments[arguments.length - 1]);
+		return s;
+	}
+
 	/**Given any JavaScript value returns a string that can be displayed to users in an EDEN
 	 * friendly way, possibly truncated to reasonable length to fit in with the UI's requirements.
 	 * @param {string} prefix A prefix to prepend to the string representation of the value.  Any HTML

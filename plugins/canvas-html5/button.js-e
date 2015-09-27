@@ -122,10 +122,9 @@ Button.prototype.scale = function (scale, zoom, origin) {
 };
 
 Button.prototype.toString = function () {
-	return "Button(\"" + this.name + "\", \"" + this.label + "\", " + this.x + ", "+this.y+", "+this.enabled+")";
+	return "Button(" + Eden.edenCodeForValues(this.name, this.label, this.x, this.y, this.enabled) + ")";
 };
 
 Button.prototype.getEdenCode = Button.prototype.toString;
 
 }}$;
-

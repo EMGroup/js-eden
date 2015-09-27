@@ -74,8 +74,7 @@ Circle.prototype.isHit = function (context, scale, x, y) {
 }
 
 Circle.prototype.toString = function() {
-	var s = "Circle(" + this.x + ", " + this.y + ", " + this.radius + ", " +
-		Eden.edenCodeForValue(this.fillcolour) + ", " + Eden.edenCodeForValue(this.outlinecolour);
+	var s = "Circle(" + Eden.edenCodeForValues(this.x, this.y, this.radius, this.fillcolour, this.outlinecolour);
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

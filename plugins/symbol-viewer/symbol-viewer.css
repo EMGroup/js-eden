@@ -1,7 +1,20 @@
-.procedure-results {
-	overflow-y: hidden;
-	font-size: 12px;
-	bottom: 0px;
+.symbollist-dialog .ui-dialog-content {
+	overflow: hidden;
+	padding-left: 0.7em;
+	padding-right: 0.35em;
+	padding-top: 0.5em;
+	padding-bottom: 0.35em;
+}
+
+.symbollist-outer {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+.symbollist-results {
+	overflow-y: auto;
 }
 
 .symbollist-result-element {

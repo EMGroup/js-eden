@@ -96,12 +96,19 @@ RoundedRectangle.prototype.isHit = function (context, scale, x, y) {
 }
 
 RoundedRectangle.prototype.toString = function() {
-	var s = "RoundedRectangle(" + this.x1 + ", " + this.y1 + ", " +
-		(this.x2 - this.x1) + ", " +
-		(this.y2 - this.y1) + ", " +
-		this.radius + ", " +
-		Eden.edenCodeForValue(this.fillcolour) + ", " +
-		Eden.edenCodeForValue(this.outlinecolour);
+	var s = "RoundedRectangle(" + Eden.edenCodeForValues(this.x1, this.y1) + ", ";
+	
+	if (this.x2 === undefined || this.x1 === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + String(this.x2 - this.x1) + ", ";
+	}
+	if (this.y2 === undefined || this.y1 === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + String(this.y2 - this.y1) + ", ";
+	}
+	s = s + Eden.edenCodeForValues(this.radius, this.fillcolour, this.outlinecolour);
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

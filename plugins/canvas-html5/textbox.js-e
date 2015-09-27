@@ -107,9 +107,7 @@ Textbox.prototype.scale = function (scale, zoom, origin) {
 };
 
 Textbox.prototype.toString = function() {
-  return "Textbox(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
-	Eden.edenCodeForValue(this.height) + ", " + Eden.edenCodeForValue(this.placeholder) + ", " +
-	Eden.edenCodeForValue(this.enabled) + ")";
+  return "Textbox(" + Eden.edenCodeForValues(this.name, this.x, this.y, this.width, this.height, this.placeholder, this.enabled) + ")";
 };
 
 Textbox.prototype.getEdenCode = Textbox.prototype.toString;

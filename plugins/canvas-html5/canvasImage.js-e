@@ -149,15 +149,8 @@ CanvasImage.prototype.isHit = function (context, scale, x, y) {
 }
 
 CanvasImage.prototype.toString = function() {
-  return "Image(" +
-	Eden.edenCodeForValue(this.name) + ", " +
-	this.dx + ", " + this.dy + ", " +
-	Eden.edenCodeForValue(this.originalDWidth) + ", " +
-	Eden.edenCodeForValue(this.originalDHeight) + ", " +
-	Eden.edenCodeForValue(this.sx) + ", " +
-	Eden.edenCodeForValue(this.sy) + ", " +
-	Eden.edenCodeForValue(this.originalSX2) + ", " +
-	Eden.edenCodeForValue(this.originalSY2) + ", " + this.smoothed + ", \"" + this.image.src + "\")";
+  return "Image(" +	Eden.edenCodeForValues(this.name, this.dx, this.dy, this.originalDWidth,
+	this.originalDHeight, this.sx, this.sy, this.originalSX2, this.originalSY2, this.smoothed, this.image.src) + ")";
 };
 
 CanvasImage.prototype.getEdenCode = CanvasImage.prototype.toString;
