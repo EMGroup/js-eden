@@ -882,7 +882,7 @@
 		// if one action fails, it shouldn't prevent all the other
 		// scheduled actions from firing
 		try {
-			this.value().call(this);
+			this.value().call(this, this.context, this.context.scope);
 		} catch (error) {
 			this.logError("Failed while triggering: " + error);
 		}

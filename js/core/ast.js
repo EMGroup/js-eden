@@ -403,9 +403,9 @@ EdenAST_Modify.prototype.generate = function(ctx) {
 		result += lval + ".value(scope) * ";
 		result += this.expression.generate(ctx);
 	} else if (this.kind == "++") {
-		result += lval + ".value(scope)++";
+		result += lval + ".value(scope)+1";
 	} else if (this.kind == "--") {
-		result += lval + ".value(scope)--";
+		result += lval + ".value(scope)-1";
 	}
 
 	result = result + ", scope);\n"
@@ -538,10 +538,10 @@ EdenAST_If.prototype.execute = function(root, ctx) {
 	var cond = "(function(context,scope) { return ";
 	cond += this.condition.generate(ctx) + ";})";
 	if (eval(cond)(root,root.scope)) {
-		return eval(this.statement.generate(ctx));
+		this.statement.execute(root, ctx);
 	} else {
 		if (this.elsestatement) {
-			return eval(this.elsestatement.generate(ctx));
+			return this.elsestatement.execute(root, ctx);
 		}
 	}
 }
@@ -665,7 +665,15 @@ EdenAST_Action.prototype.setBody = function(body) {
 }
 
 EdenAST_Action.prototype.generate = function(ctx) {
-	
+	var body = this.body.generate(ctx);
+	var res = "context.lookup(\""+this.name+"\").define("+body+", {name: \"Script\"}).observe("+JSON.stringify(this.triggers)+");\n";
+	return res;
+}
+
+EdenAST_Action.prototype.execute = function(root, ctx) {
+	var body = this.body.generate(ctx);
+	console.log(body);
+	root.lookup(this.name).define(eval(body), {name: "Script"}).observe(this.triggers);
 }
 
 EdenAST_Action.prototype.error = fnEdenAST_error;
@@ -692,6 +700,11 @@ EdenAST_Function.prototype.setSource = function(start, end) {
 EdenAST_Function.prototype.setBody = function(body) {
 	this.body = body;
 	this.errors.push.apply(this.errors, body.errors);
+}
+
+EdenAST_Function.prototype.execute = function(root,ctx) {
+	var body = this.body.generate(ctx);
+	context.lookup(this.name).define(body, {name: "Script"});
 }
 
 EdenAST_Function.prototype.error = fnEdenAST_error;
@@ -813,6 +826,21 @@ EdenAST_For.prototype.setStatement = function(statement) {
 	}
 }
 
+EdenAST_For.prototype.generate = function(ctx) {
+	var res = "for (";
+	if (this.sstart) {
+		res += this.sstart.generate(ctx) + " ";
+	} else res += "; ";
+	if (this.condition) {
+		res += this.condition.generate(ctx) + "; ";
+	} else res += "; ";
+	var incer = this.inc.generate(ctx);
+	if (incer.charAt(incer.length-2) == ";") incer = incer.slice(0,-2);
+	res += incer + ")\n";
+	res += this.statement.generate(ctx);
+	return res;
+}
+
 
 
 //------------------------------------------------------------------------------
@@ -903,8 +931,8 @@ EdenAST_Break.prototype.setSource = function(start, end) {
 function EdenAST_CodeBlock() {
 	this.type = "codeblock";
 	this.errors = [];
-	this.params = [];
-	this.locals = [];
+	this.params = undefined;
+	this.locals = undefined;
 	this.script = undefined;
 };
 
@@ -923,6 +951,27 @@ EdenAST_CodeBlock.prototype.setParams = function(params) {
 EdenAST_CodeBlock.prototype.setScript = function(script) {
 	this.script = script;
 	this.errors.push.apply(this.errors, script.errors);
+}
+
+EdenAST_CodeBlock.prototype.generate = function(ctx) {
+	var res = "(function(context, pscope) {\n";
+	res += "var scope = new Scope(context,pscope,[";
+	if (this.params && this.params.list) {
+		for (var i=0; i<this.params.list.length; i++) {
+			res += "new ScopeOverride(\"" + this.params.list[i] + "\", arguments["+(i+1)+"])";
+			if (i != this.params.list.length-1) res += ",";
+		}
+	}
+	if (this.locals && this.locals.list) {
+		for (var i=0; i<this.locals.list.length; i++) {
+			res += "new ScopeOverride(\"" + this.locals.list[i] + "\", undefined)";
+			if (i != this.locals.list.length-1) res += ",";
+		}
+	}
+	res += "]);\n";
+	res += "return (function(context,pscope) {\n"
+	res += this.script.generate(ctx) + "}); })";
+	return res;
 }
 
 
@@ -1011,10 +1060,10 @@ EdenAST_Script.prototype.execute = function(root, ctx) {
 }
 
 EdenAST_Script.prototype.generate = function(ctx) {
-	var result = "(function (root, eden, includePrefix, done) {(function(context, rt) {";
+	var result = "{\n";
 	for (var i = 0; i < this.statements.length; i++) {
 		result = result + this.statements[i].generate(ctx);
 	}
-	result = result + "}).call(this, root, rt);})";
+	result = result + "}";
 	return result;
 }

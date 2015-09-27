@@ -61,8 +61,8 @@ ACTIONBODY	-> { LOCALS SCRIPT }
 PARAS		-> para OLIST ; PARAS | epsilon
 LOCALS		-> auto OLIST ; LOCALS | local OLIST ; LOCALS | epsilon
 
-WHEN		-> : WHEN' | ( EXPRESSION ) ACTIONBODY
-WHEN'		-> OLIST ACTIONBODY
+AGENT		-> observable : AGENT'
+AGENT'		-> when EXPRESSION do ACTIONBODY | do ACTIONBODY
 
 OLIST		-> observable OLIST'
 OLIST'		-> , observable OLIST' | epsilon
