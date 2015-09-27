@@ -23,6 +23,7 @@
 <INITIAL>"##"         { this.begin('LINECOMMENT'); }
 <LINECOMMENT>[\n\r]   { this.popState(); }
 <LINECOMMENT>.        {}
+<LINECOMMENT><<EOF>>  { this.popState(); return 'EOF'; }
 
 <INITIAL>"${{"        { this.begin('JS'); return "OPENJS"; }
 <JS>"}}$"             { this.popState(); return 'ENDJS'; }

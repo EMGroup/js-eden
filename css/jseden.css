@@ -237,12 +237,6 @@ div#functions-info-name {
         margin-left: 4px;
 }
 
-.result_value {
-	opacity: 0.5;
-	white-space: nowrap;
-	overflow: hidden;
-}
-
 .error_text {
 	color: red;
 }

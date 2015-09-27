@@ -5,13 +5,15 @@ if (_view_jspe_width == @) {
 	hideView("projects");
 	createCanvas("jspe", "slides", "JSPE Slides");
 	_view_picture_x = 0;
-	_view_jspe_x = _view_picture_x + _view_picture_width + _views_frame_width + _views_unit_x / 2;
+	_view_picture_y = 0;
+	_view_picture_height = min(500, _view_picture_height, 0.7 * screenHeight);
+	_view_jspe_x = _view_picture_width + _views_frame_width + _views_unit_x / 2;
 	_view_jspe_y = 0;
-	_view_jspe_width is min(700, screenWidth - _view_jspe_x);
+	_view_jspe_width is min(700, screenWidth - _view_jspe_x - _views_frame_width);
 	_view_jspe_height is screenHeight + ${{ edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0 }}$ - _view_jspe_y;
 	_view_input_x = 0;
-	_view_input_y = _view_picture_y + _view_picture_height + _views_frame_height + _views_unit_y / 2;
-	_view_input_width = min(0.4 * screenWidth, _view_picture_width);
+	_view_input_y = _view_picture_height + _views_frame_height + _views_unit_y / 2;
+	_view_input_width = min(600, _view_picture_width);
 	_view_input_height = screenHeight - _view_input_y;
 }
 

@@ -346,7 +346,8 @@
 	EdenUI.prototype.showView = function (name) {
 		var diag = dialog(name);
 		diag.dialog('open').dialog('moveToTop');
-		if (diag.dialogExtend("state") != "normal") {
+		var state = diag.dialogExtend("state");
+		if (state != "normal" && state != "maximized") {
 			diag.dialogExtend('restore');
 		}
 		return this.activeDialogs[name];
@@ -483,7 +484,7 @@
 	}
 
 	/**
-	 * Move the window for a view base on its EDEN observables.
+	 * Move the window for a view so that its position matches its EDEN observables.
 	 *
 	 * @param {string} name Unique identifier for the view.
 	 */
@@ -503,7 +504,7 @@
 	};
 
 	/**
-	 * Resize the window for a view to base on its EDEN observables.
+	 * Resize a view so that its size matches its EDEN observables.
 	 *
 	 * @param {string} name Unique identifier for the view.
 	 */

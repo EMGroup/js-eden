@@ -63,6 +63,12 @@ h2, ul li {
 	font-weight: bold;
 }
 
+.result_value {
+	opacity: 0.5;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
 div.error-item {
 	border-top-style: solid;
 	border-top-width: 1px;

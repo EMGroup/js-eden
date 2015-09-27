@@ -145,6 +145,7 @@ func RegularPolygon {
 		var r = arguments[2];
 		var n = arguments[3];
 		var star = 1, rotation = 0, interiorOutline = true;
+		var fillcolour, outlinecolours, drawingOptions;
 		var argsProcessed = 4;
 		if (typeof(arguments[4]) == "number") {
 			star = arguments[4];
@@ -158,21 +159,24 @@ func RegularPolygon {
 				rotation = arguments[argsProcessed] * root.lookup("radiansPerUnit").value();
 				argsProcessed++;
 		}
-		
-		var fillcolour, outlinecolours, drawingOptions;
-		var lastArg = arguments[arguments.length - 1];
-		var processUpTo;
-		if (lastArg !== undefined && (lastArg instanceof Object) && !Array.isArray(lastArg) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
-			drawingOptions = lastArg;
-			processUpTo = arguments.length - 2;
+
+		if (Array.isArray(arguments[argsProcessed])) {
+			outlinecolours = arguments[argsProcessed];
 		} else {
-			processUpTo = arguments.length - 1;
-		}
-		if (processUpTo >= argsProcessed) {
-			fillcolour = arguments[argsProcessed];
-			argsProcessed++;
-			if (processUpTo == argsProcessed) {
-				outlinecolours = arguments[argsProcessed];
+			var lastArg = arguments[arguments.length - 1];
+			var processUpTo;
+			if (lastArg !== undefined && (lastArg instanceof Object) && !Array.isArray(lastArg) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+				drawingOptions = lastArg;
+				processUpTo = arguments.length - 2;
+			} else {
+				processUpTo = arguments.length - 1;
+			}
+			if (processUpTo >= argsProcessed) {
+				fillcolour = arguments[argsProcessed];
+				argsProcessed++;
+				if (processUpTo == argsProcessed) {
+					outlinecolours = arguments[argsProcessed];
+				}
 			}
 		}
 
