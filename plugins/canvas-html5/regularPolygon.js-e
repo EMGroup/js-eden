@@ -262,16 +262,8 @@ RegularPolygon.prototype.isHit = function (context, scale, x, y) {
 };
 
 RegularPolygon.prototype.toString = function () {
-	var s = "RegularPolygon(" +
-		this.x + ", " +
-		this.y + ", " +
-		this.r + ", " +
-		this.n + ", " +
-		this.star + ", " +
-		this.interiorOutline + ", " +
-		this.rotation + ", " +
-		Eden.edenCodeForValue(this.fillcolour) + ", " +
-		Eden.edenCodeForValue(this.outlinecolours);
+	var s = "RegularPolygon(" + Eden.edenCodeForValues(this.x, this.y, this.r, this.n, this.star,
+		this.interiorOutline, this.rotation, this.fillcolour, this.outlinecolours);
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

@@ -186,17 +186,14 @@ Text.prototype.isHit = function (context, scale, px, py) {
 }
 
 Text.prototype.toString = function() {
-	var s = "Text(\"" + this.text + "\", " + this.x + ", " + this.y + ", ";
+	var s = "Text(" + Eden.edenCodeForValues(this.text, this.x, this.y) + ", ";
 
 	if (this.optionString !== undefined) {
-		s = s + Eden.edenCodeForValue(this.fillcolour) + ", " +
-			Eden.edenCodeForValue(this.outlinecolour) + ", " +
+		s = s + Eden.edenCodeForValues(this.fillcolour, this.outlinecolour) + ", " +
 			"\"" + this.optionString + "\")";
 	} else {
-		s = s + '"' +Eden.edenCodeForValue(this.size) + this.sizeUnits + '", ' +
-			Eden.edenCodeForValue(this.fillcolour) + ", " +
-			Eden.edenCodeForValue(this.outlinecolour) + ", " +
-			Eden.edenCodeForValue(this.drawingOptions) + ")";
+		s = s + '"' + this.size + this.sizeUnits + '", ' +
+			Eden.edenCodeForValues(this.fillcolour, this.outlinecolour, this.drawingOptions) + ")";
 	}
 	return s;
 };

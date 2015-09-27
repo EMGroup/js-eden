@@ -674,7 +674,8 @@
 			},
 			open: function () {
 				$(this).parent().find("button")[defaultOptionNum].focus();				
-			}
+			},
+			width: 350
 		})
 		$(".ui-widget-overlay").css("z-index", 10001);
 		dialog.parent().css("z-index", 10002);

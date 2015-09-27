@@ -197,8 +197,7 @@ HTMLImage.prototype.scale = function (scale, zoom, origin) {
 };
 
 HTMLImage.prototype.toString = function() {
-  return "HTMLImage(" + Eden.edenCodeForValue(this.name) + ", " + this.x + ", " + this.y + ", " +
-	this.width + ", " + this.height + ", \"" + this.url + "\", " + Eden.edenCodeForValue(this.imageMap) + ")";
+  return "HTMLImage(" + Eden.edenCodeForValues(this.name, this.x, this.y, this.width, this.height, this.url, this.imageMap) + ")";
 };
 
 HTMLImage.prototype.getEdenCode = HTMLImage.prototype.toString;

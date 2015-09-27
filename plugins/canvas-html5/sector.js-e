@@ -118,14 +118,7 @@ Sector.prototype.isHit = function (context, scale, x, y) {
 }
 
 Sector.prototype.toString = function() {
-	var s = "Sector(" +
-		this.x + ", " +
-		this.y + ", " +
-		this.r + ", " +
-		this.sAngle + ", " +
-		this.eAngle + ", " +
-		Eden.edenCodeForValue(this.fillcolour) + ", " +
-		Eden.edenCodeForValue(this.outlinecolour);
+	var s = "Sector(" + Eden.edenCodeForValues(this.x, this.y, this.r, this.sAngle, this.eAngle, this.fillcolour, this.outlinecolour);
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

@@ -175,8 +175,7 @@ LineSequence.prototype.draw = function(context) {
 };
 
 LineSequence.prototype.toString = function() {
-	var s = "LineSequence(" + Eden.edenCodeForValue(this.vertices) + ", " +
-		Eden.edenCodeForValue(this.colours);
+	var s = "LineSequence(" + Eden.edenCodeForValues(this.vertices, this.colours);
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

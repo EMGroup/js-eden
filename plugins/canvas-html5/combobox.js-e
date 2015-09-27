@@ -108,8 +108,7 @@ Combobox.prototype.scale = function (scale, zoom, origin) {
 };
 
 Combobox.prototype.toString = function() {
-	return "Combobox(\"" + this.name + "\", " + Eden.edenCodeForValue(this.options) + ", " +
-		this.x + ", " + this.y + ", " + this.enabled+")";
+	return "Combobox(" + Eden.edenCodeForValues(this.name, this.options, this.x, this.y, this.enabled) + ")";
 };
 
 Combobox.prototype.getEdenCode = Combobox.prototype.toString;

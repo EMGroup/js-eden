@@ -38,8 +38,7 @@ ${{
 	}
 
 	Shadow.prototype.toString = function() {
-		return "Shadow(" + Eden.edenCodeForValue(this.colour) + ", " + this.xOffset + ", " +
-		this.yOffset + ", " + this.blur + ", " + this.scale + ")";
+		return "Shadow(" + Eden.edenCodeForValues(this.colour, this.xOffset, this.yOffset, this.blur, this.scale) + ")";
 	}
 
 	Shadow.prototype.getEdenCode = Shadow.prototype.toString;

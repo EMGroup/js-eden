@@ -78,8 +78,7 @@ Rectangle.prototype.isHit = function (context, scale, x, y) {
 }
 
 Rectangle.prototype.toString = function() {
-	var s = "Rectangle(" + this.x + ", " + this.y + ", " + this.width + ", " + this.height + ", " +
-		Eden.edenCodeForValue(this.fillcolour) + ", " + Eden.edenCodeForValue(this.outlinecolour);
+	var s = "Rectangle(" + Eden.edenCodeForValues(this.x, this.y, this.width, this.height, this.fillcolour, this.outlinecolour);
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

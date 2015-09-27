@@ -92,8 +92,7 @@ Ellipse.prototype.isHit = function (context, scale, x, y) {
 }
 
 Ellipse.prototype.toString = function() {
-	var s = "Ellipse(" + this.x + ", " + this.y + ", " + this.xradius + ", " + this.yradius + ", " +
-		Eden.edenCodeForValue(this.fillcolour) + ", " + Eden.edenCodeForValue(this.outlinecolour);
+	var s = "Ellipse(" + Eden.edenCodeForValues(this.x, this.y, this.xradius, this.yradius, this.fillcolour, this.outlinecolour);
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

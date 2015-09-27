@@ -75,14 +75,15 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 */
 	this.createDialog = function (name, mtitle, type) {
 		var edenName = name.slice(0, -7);
-		var code_entry = $('<div class="observablelist-dialog"></div>');
-		code_entry.html(generateHTML(name, type));
+		var content = $('<div class="symbollist-outer"></div>');
+		content.html(generateHTML(name, type));
+
 		var symbollist = new EdenUI.plugins.SymbolViewer.SymbolList(
-			edenUI.eden.root, code_entry.find(".symbollist-results")[0], type
+			edenUI.eden.root, content.find(".symbollist-results")[0], type
 		);
 
-		$dialog = $('<div id="'+name+'" class="symbollist-contents"></div>')
-			.html(code_entry)
+		$dialog = $('<div id="' + name + '"></div>')
+			.append(content)
 			.dialog({
 				title: mtitle,
 				width: 360,
@@ -95,7 +96,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		me.instances.push(symbollist);
 		symbollist.search("");
 
-		code_entry.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
+		content.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
 			var editorViewName = "edit_" + edenName;
 			edenUI.createView(editorViewName, "ScriptInput");
 			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, Symbol.hciAgent);
@@ -122,7 +123,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 
 		// Make changes in search box update the list.
-		var searchBox = code_entry.find(".symbollist-search-box-outer > .symbollist-search");
+		var searchBox = content.find(".symbollist-search-box-outer > .symbollist-search");
 		searchBox.keyup(function() {
 			symbollist.search(this.value);
 		});
@@ -202,9 +203,14 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			var instance = me.instances[x];
 			
 			// Remove symbol list from DOM to speed up manipulations
-			var symresults = $(instance.symresults);
-			var parent = symresults.parent();
-			symresults.detach();
+			// (but only if the inline editor isn't open, otherwise we'd lose focus and terminate editing prematurely.)
+			var symresults, parent, scrollPosition;
+			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === undefined) {
+				symresults = $(instance.symresults);				
+				parent = symresults.parent();
+				scrollPosition = symresults.scrollTop();
+				symresults.detach();
+			}
 
 			// For every recently created symbol
 			for (var name in symbol_create_queue) {
@@ -218,7 +224,10 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			}
 
 			// Add symbol list back into the DOM for display.
-			symresults.appendTo(parent);
+			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === undefined) {
+				symresults.appendTo(parent);
+				symresults.scrollTop(scrollPosition);
+			}
 		}
 
 		symbol_update_queue = {};
@@ -261,6 +270,8 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 /* Plugin meta information */
 EdenUI.plugins.SymbolViewer.title = "Symbol Viewer";
 EdenUI.plugins.SymbolViewer.description = "Provide various views of the symbol table.";
+
+EdenUI.plugins.SymbolViewer.inlineEditorSymbol = undefined;
 
 /**
  * Class to represent symbol lists. Displays a list of symbol information
@@ -401,7 +412,6 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 	}
 };
 
-EdenUI.plugins.SymbolViewer.inlineEditorSymbol = undefined;
 /**
  * A class for an individual symbol result which deals with HTML formatting.
  *
@@ -461,7 +471,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			$('#' + editorViewName + '-dialog').find('textarea').val(
 				val
 			);
-		}, 325);
+		}, 350);
 	});
 	if (type == "obs") {
 		this.element.dblclick(function () {

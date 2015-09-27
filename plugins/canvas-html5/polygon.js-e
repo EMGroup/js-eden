@@ -257,8 +257,7 @@ Polygon.prototype.isHit = function (context, scale, x, y) {
 }
 
 Polygon.prototype.toString = function() {
-	var s = "Polygon(" + Eden.edenCodeForValue(this.vertices) + ", " +
-		Eden.edenCodeForValue(this.fillcolour) + ", " + Eden.edenCodeForValue(this.outlinecolour);
+	var s = "Polygon(" + Eden.edenCodeForValues(this.vertices, this.fillcolour, this.outlinecolour);
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
