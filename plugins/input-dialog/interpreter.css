@@ -601,7 +601,7 @@ div.eden-errorline {
 	padding-left: 5px;
 	padding-right: 1px;
 	/*padding-right: 5px;*/
-	background-color: #fff0f0;
+	background-color: #ffcccc;
 	/*background-image: url('/images/exclamation.png');
 	background-repeat: no-repeat;
 	background-position: -10px;
@@ -622,7 +622,7 @@ div.eden-errorline:before {
 	left: -20px;
 	padding-left: 4px;
 	color: red;
-	background-color: #f2e4e4;
+	background-color: #f2c2c2;
 	width: 16px;
 	height: 20px;
 }
@@ -635,7 +635,7 @@ div.eden-warnline {
 	padding-left: 5px;
 	padding-right: 1px;
 	/*padding-right: 5px;*/
-	background-color: #fffff0;
+	background-color: #ffffa8;
 	/*background-image: url('/images/exclamation.png');
 	background-repeat: no-repeat;
 	background-position: -10px;
@@ -648,7 +648,7 @@ div.eden-warnline {
 
 div.eden-warnline:before {
 	position: absolute;
-	content: "";
+	content: "";
 	font-family: "FontAwesome";
 	/*background-image: url('../../images/exclamation.png');
 	background-repeat: no-repeat;
@@ -656,7 +656,7 @@ div.eden-warnline:before {
 	left: -20px;
 	padding-left: 4px;
 	color: orange;
-	background-color: #f2e4e4;
+	background-color: #f2f2a0;
 	width: 16px;
 	height: 20px;
 }

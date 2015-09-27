@@ -465,8 +465,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 					if (curast.type == "definition") {
 
-					} else if (i != currentlineno) {
+					} else if (i != currentlineno-1) {
 						console.log("MARK LINE OUT_OF_DATE: " + i);
+						addWarningLine(i+1);
 					}
 					count++;
 				}
