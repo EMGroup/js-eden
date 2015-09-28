@@ -908,9 +908,9 @@
 
 	Symbol.prototype.fireJSObservers = function () {
 		for (var jsObserverName in this.jsObservers) {
-			try {
+			//try {
 				this.jsObservers[jsObserverName](this, this.cache.value);
-			} catch (error) {
+			/*} catch (error) {
 				this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
 				var debug;
 				if (this.context) {
@@ -922,7 +922,7 @@
 				if (debug) {
 					debugger;
 				}
-			}
+			}*/
 		}
 	}
 

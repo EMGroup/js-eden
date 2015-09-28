@@ -15,6 +15,9 @@ Paragraph is __Paragraph with text=(text)?text:"Some text goes here";
 __Script is ["script", static, code];
 Script is __Script with static=(static)?static:true, code=(code)?code:"";
 
+__Canvas is ["canvas", name, source, width, height];
+Canvas is __Canvas with name="Picture", source=(source)?source:"picture", width=(width)?width:500, height=(height)?height:200;
+
 ## Initial Default Page
 
 defaultpage is Page with title=Title, content=[Header,Paragraph];
