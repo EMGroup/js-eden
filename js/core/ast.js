@@ -47,6 +47,13 @@ EdenAST_Literal.prototype.generate = function(ctx) {
 	}
 }
 
+EdenAST_Literal.prototype.execute = function(root, ctx) {
+	var rhs = "(function(context,scope) { return ";
+	rhs += this.generate(ctx);
+	rhs += ";})";
+	return eval(rhs)(root,root.scope);
+}
+
 
 //------------------------------------------------------------------------------
 
@@ -164,6 +171,13 @@ EdenAST_TernaryOp.prototype.generate = function(ctx) {
 	return "("+cond+")?("+first+"):("+second+")";
 }
 
+EdenAST_TernaryOp.prototype.execute = function(root, ctx) {
+	var rhs = "(function(context,scope) { return ";
+	rhs += this.generate(ctx);
+	rhs += ";})";
+	return eval(rhs)(root,root.scope);
+}
+
 
 
 //------------------------------------------------------------------------------
@@ -191,6 +205,13 @@ EdenAST_BinaryOp.prototype.generate = function(ctx) {
 	} else {
 		return "(" + left + ") " + this.op + " (" + right + ")";
 	}
+}
+
+EdenAST_BinaryOp.prototype.execute = function(root, ctx) {
+	var rhs = "(function(context,scope) { return ";
+	rhs += this.generate(ctx);
+	rhs += ";})";
+	return eval(rhs)(root,root.scope);
 }
 
 
@@ -481,6 +502,13 @@ EdenAST_Primary.prototype.generate = function(ctx) {
 		res += this.extras[i].generate(ctx);
 	}
 	return res;
+}
+
+EdenAST_Primary.prototype.execute = function(root, ctx) {
+	var rhs = "(function(context,scope) { return ";
+	rhs += this.generate(ctx);
+	rhs += ";})";
+	return eval(rhs)(root,root.scope);
 }
 
 EdenAST_Primary.prototype.error = fnEdenAST_error;

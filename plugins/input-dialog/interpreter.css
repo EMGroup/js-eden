@@ -290,8 +290,12 @@ div.control-bar {
 textarea.hidden-textarea {
 	position: absolute;
 	white-space: pre;
+	/*word-wrap: normal;*/
+	overflow: auto;
 	font: 14px/20px Roboto Mono,monospace;
 	left: -9999px;
+	width: 1000px;
+	height: 1000px;
 }
 
 div.outputcontent {
@@ -366,11 +370,24 @@ div.scriptswitch {
 	left: 20px;
 	font-family: "FontAwesome";
 	font-size: 22px;
-	/*text-shadow: 0px 0px 3px #fff;*/
+}
+
+div.power-on {
+	color: #00FF00;
+	text-shadow: 0px 0px 6px #63b513;
+}
+
+div.power-off {
+	color: #aaa;
+}
+
+div.power-error {
+	color: #FF0000;
+	text-shadow: 0px 0px 4px #b51313;
 }
 
 div.scriptswitch:hover {
-	text-shadow: 0px 0px 4px #63b513;
+	text-shadow: 0px 0px 4px black;
 }
 
 .buttonsDiv {
@@ -614,7 +631,7 @@ div.eden-errorline {
 
 div.eden-errorline:before {
 	position: absolute;
-	content: "";
+	content: "\f06a";
 	font-family: "FontAwesome";
 	/*background-image: url('../../images/exclamation.png');
 	background-repeat: no-repeat;
@@ -648,7 +665,7 @@ div.eden-warnline {
 
 div.eden-warnline:before {
 	position: absolute;
-	content: "";
+	content: "\f071";
 	font-family: "FontAwesome";
 	/*background-image: url('../../images/exclamation.png');
 	background-repeat: no-repeat;

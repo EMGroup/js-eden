@@ -464,10 +464,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						curast.lvalue.observable == name) {
 
 					if (curast.type == "definition") {
-
-					} else if (i != currentlineno-1) {
-						console.log("MARK LINE OUT_OF_DATE: " + i);
-						addWarningLine(i+1);
+						// Compare eden definitions
+					} else if (curast.type == "assignment") {
+						if (curast.expression.execute(eden.root,undefined) != value) {
+							console.log("MARK LINE OUT_OF_DATE: " + i);
+							addWarningLine(i+1);
+						}
 					}
 					count++;
 				}
@@ -654,6 +656,37 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			return currentlineno;
 		}
 
+		function powerOff() {
+			powerOk();
+			$powerbutton.removeClass("power-on").addClass("power-off");
+			me.autoexec = false;
+		}
+
+		function powerOn() {
+			$powerbutton.removeClass("power-off").addClass("power-on");
+			me.autoexec = true;
+		}
+
+		function powerError() {
+			if (me.autoexec) {
+				$powerbutton.addClass("power-error");
+			}
+		}
+
+		function powerOk() {
+			if ($powerbutton.hasClass("power-error")) {
+				$powerbutton.removeClass("power-error");
+			}
+		}
+
+		function powerToggle() {
+			if (me.autoexec) {
+				powerOff();
+			} else {
+				powerOn();
+			}
+		}
+
 		$dialogContents.on('input', '.hidden-textarea', function (e) {
 			// Typing status, error messages and result value are delayed
 			// by "typinginterval", so restart timeout.
@@ -672,10 +705,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			// If we should run the statement (there are no errors)
 			if (me.autoexec && highlighter.ast.script.errors.length == 0) {
-				$dialogContents.find(".submitButton").removeClass("submitError");
+				powerOk();
 				submitLine(highlighter.ast, currentlineno-1);
 			} else if (me.autoexec) {
-				$dialogContents.find(".submitButton").addClass("submitError");
+				powerError();
 			}
 
 				/* Suggestions Box */
@@ -755,7 +788,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					// Pasting so disable live code
 					//console.log(intextarea.value);
 					//suggestions.hide("fast");
-					$dialogContents.find(".submitButton").get(0).checked = false;
+					$powerbutton.removeClass("power-on").addClass("power-off");
 					me.autoexec = false;
 					//updateEntireHighlight();
 				}
@@ -789,24 +822,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				updateEntireHighlight();
 				$codearea.scrollTop(scrollpos);
 			}
-		}).on('change', '.submitButton', function (e) {
-			if ($(this).is(':checked')) {
-				me.autoexec = true;
-				updateEntireHighlight();
-				me.submit(highlighter.ast.script);
-			} else {
-				me.autoexec = false;
-			}
-		}).on('click', '.previousButton', function (e) {
-			suggestions.hide("fast");
-			$dialogContents.find(".submitButton").get(0).checked = false;
-			me.autoexec = false;
-			updateEntireHighlight();
-		}).on('click', '.nextButton', function (e) {
-			suggestions.hide("fast");
-			$dialogContents.find(".submitButton").get(0).checked = false;
-			me.autoexec = false;
-			updateEntireHighlight();
 		});
 		
 		$dialog = $('<div id="'+name+'"></div>')
@@ -820,7 +835,23 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				dialogClass: "input-dialog"
 			});
 			input_dialog = $dialog;
-		$dialog.parent().find(".ui-dialog-titlebar").append($('<div class="scriptswitch" title="Live Coding">&#xF011;</div>')); //$('<div class="scriptswitch"><input id="cmn-toggle-1" checked="true" class="cmn-toggle cmn-toggle-round submitButton" type="checkbox"><label for="cmn-toggle-1"></label></div>'));
+
+		var $powerbutton = $('<div class="scriptswitch power-on" title="Live Coding">&#xF011;</div>');
+		$dialog.parent().find(".ui-dialog-titlebar").append($powerbutton);
+		var powerbutton = $powerbutton.get(0);
+
+		$powerbutton.click(function (e) {
+			console.log("CLICKED POWER");
+			me.autoexec = !me.autoexec;
+
+			if (me.autoexec) {
+				$powerbutton.removeClass("power-off").addClass("power-on");
+				updateEntireHighlight();
+				me.submit(highlighter.ast.script);
+			} else {
+				$powerbutton.removeClass("power-on").addClass("power-off");
+			}
+		});
 
 		var confirmClose = !("MenuBar" in edenUI.plugins);
 
