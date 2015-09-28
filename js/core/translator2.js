@@ -496,6 +496,12 @@ EdenAST.prototype.pPRIMARY_P = function() {
 			var comp = new EdenAST_LValueComponent("index");
 			comp.index(this.pEXPRESSION());
 
+			if (comp.indexexp.type == "literal" &&
+					comp.indexexp.datatype == "NUMBER" &&
+					comp.indexexp.value < 1) {
+				comp.error(new EdenError(this, EDEN_ERROR_OUTOFBOUNDS));
+			}
+
 			result.push(comp);
 
 			if (comp.errors.length > 0) return result;
@@ -1237,6 +1243,12 @@ EdenAST.prototype.pLVALUE_P = function() {
 				comp.errors.unshift(new EdenError(this, EDEN_ERROR_LISTINDEXEXP));
 			}
 
+			if (comp.indexexp.type == "literal" &&
+				comp.indexexp.datatype == "NUMBER" &&
+				comp.indexexp.value < 1) {
+				comp.error(new EdenError(this, EDEN_ERROR_OUTOFBOUNDS));
+			}
+
 			if (this.token != "]") {
 				comp.error(new EdenError(this, EDEN_ERROR_LISTINDEXCLOSE));
 				return components;
@@ -1618,7 +1630,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 	switch (this.token) {
 	case "proc"		:	this.next(); stat = this.pACTION(); break;
 	case "func"		:	this.next(); stat = this.pFUNCTION(); break;
-	case "when"		:	this.next(); stat = this.pWHEN(); break;
+	//case "when"		:	this.next(); stat = this.pWHEN(); break;
 	case "for"		:	this.next(); stat = this.pFOR(); break;
 	case "while"	:	this.next(); stat = this.pWHILE(); break;
 	case "switch"	:	this.next(); stat = this.pSWITCH(); break;
@@ -1701,6 +1713,11 @@ EdenAST.prototype.pSTATEMENT = function() {
 						if (formula.errors.length > 0) {
 							stat = formula;
 							break;
+						}
+
+						// Cannot define list elements
+						if (formula.type == "definition" && lvalue.lvaluep.length > 0) {
+							formula.error(new EdenError(this, EDEN_ERROR_DEFINELISTIX));
 						}
 		
 						if (this.token != ";") {

@@ -441,7 +441,7 @@ EdenStream.prototype.readToken = function() {
 	if (this.parseAlphaNumeric(this.data)) {
 		if (Language.keywords[this.data.value]) return Language.keywords[this.data.value];
 		if (Language.values[this.data.value] == "true" || Language[this.data.value] == "false") {
-			this.data.value = Language[this.data.value];
+			this.data.value = Language.values[this.data.value];
 			return "BOOLEAN";
 		}
 		return "OBSERVABLE";

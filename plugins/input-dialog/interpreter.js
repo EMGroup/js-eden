@@ -450,8 +450,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
-		function addWarningLine(lineno) {
-			$(outdiv.childNodes[lineno-1]).addClass("eden-warnline");
+		function addWarningLine(lineno, msg) {
+			var $line = $(outdiv.childNodes[lineno-1]);
+			$line.addClass("eden-warnline");
+			if (msg) {
+				outdiv.childNodes[lineno-1].title = msg;
+			}
 		}
 
 		function notifyOutOfDate(symbol, value) {
@@ -466,9 +470,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					if (curast.type == "definition") {
 						// Compare eden definitions
 					} else if (curast.type == "assignment") {
-						if (curast.expression.execute(eden.root,undefined) != value) {
-							console.log("MARK LINE OUT_OF_DATE: " + i);
-							addWarningLine(i+1);
+						var myval = curast.expression.execute(eden.root,undefined);
+						if (myval != value) {
+							addWarningLine(i+1, "This line says '"+name+"' = '" + myval + "', but somewhere else it changed to '"+value+"'. Please choose a resolution.");
 						}
 					}
 					count++;

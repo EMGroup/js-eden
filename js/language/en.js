@@ -221,6 +221,12 @@ Language.errors = [
 /* EDEN_ERROR_NEGNUMBER */ [
 	"Expected a number after a negative sign"
 ],
+/* EDEN_ERROR_DEFINELISTIX */ [
+	"Cannot define individual list items"
+],
+/* EDEN_ERROR_OUTOFBOUNDS */ [
+	"List items start at 1"
+]
 ];
 
 Language.ui = {

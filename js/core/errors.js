@@ -49,6 +49,8 @@ var EDEN_ERROR_WHILEOPEN = 45;
 var EDEN_ERROR_WHILECLOSE = 46;
 var EDEN_ERROR_WHILENOSTATEMENT = 47;
 var EDEN_ERROR_NEGNUMBER = 48;
+var EDEN_ERROR_DEFINELISTIX = 49;
+var EDEN_ERROR_OUTOFBOUNDS = 50;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -61,14 +63,6 @@ var eden_error_db = [
 			if (this.token == "closebracket") return 3;
 			return 2; 
 		},
-		messages: [
-			"'proc' names cannot be keywords",
-			"'proc' action names cannot be a literal value",
-			"'proc' actions need a name",
-			"Unexpected closing bracket",
-			"A 'proc' needs a name before it's watch list",
-			"A 'proc' needs a name and a watch list"
-		],
 		suggestion: {expected: ["OBSERVABLE"], next: [":"]}
 	},
 /* EDEN_ERROR_EXPCLOSEBRACKET */
@@ -77,11 +71,6 @@ var eden_error_db = [
 			if (this.token == ";") return 1;
 			return 2;
 		},
-		messages: [
-			"Wrong kind of bracket, expected a ')'",
-			"Missing a closing ')' bracket before end of statement",
-			"Missing a closing bracket ')' or operator"
-		],
 		suggestion: {expected: [")"], next: [";","+","-","==","<=",">=","!=","/","*","%","^"]}
 	},
 /* EDEN_ERROR_BADFACTOR */
@@ -99,12 +88,6 @@ var eden_error_db = [
 			if (type == "operator") return 3;
 			return 2;
 		},
-		messages: [
-			"Wrong kind of bracket, use '(' or '[' in expressions.",
-			"Missing expression? Unexpected closing bracket",
-			"Expected a value or observable",
-			"Missing an operand.",
-			"Keywords are not allowed in expressions"],
 		suggestion: {expected: ["NUMBER","STRING","OBSERVABLE","&","!","("], next: ["NUMBER","STRING","OBSERVABLE","&","!","(",";","+","-","==","<=",">=","!=","/","*","%","^"]}
 	},
 /* EDEN_ERROR_ACTIONCOLON */
@@ -115,11 +98,6 @@ var eden_error_db = [
 			if (type == "keyword") return 3;
 			return 2;
 		},
-		messages: [
-			"Need a ':' before listing trigger observables",
-			"Actions require a list of observables to trigger on, expected a ':'",
-			"Expecting a ':' here",
-			"Need a ':' after an action name, not a reserved word"],
 		suggestion: {expected: [":"], next: ["OBSERVABLE"]}
 	},
 /* EDEN_ERROR_ACTIONNOWATCH */
@@ -134,15 +112,6 @@ var eden_error_db = [
 			if (type == "operator") return 1;
 			return 1;
 		},
-		messages: [
-			"A reserved word cannot be used as an observable name",
-			"Umm, ask for some help. Need a list of observables",
-			"There needs to be at least one watch observable",
-			"Expressions cannot be used as watches",
-			"Literals cannot be watched by actions",
-			"Missing first observable before comma",
-			"Cannot watch list literals"
-		],
 		suggestion: {expected: ["OBSERVABLE"], next: [",","{"]}
 	},
 /* EDEN_ERROR_ACTIONCOMMAS */
@@ -153,12 +122,6 @@ var eden_error_db = [
 			if (type == "keyword") return 2;
 			return 3;
 		},
-		messages: [
-			"Either too many ','s or a missing watch observable",
-			"Must give an observable name, not an expression",
-			"The reserved word '%R' cannot be used as an observable name",
-			"Expecting an observable name but got %T"
-		],
 		suggestion: {expected: ["OBSERVABLE"], next: [",","{"]}
 	},
 /* EDEN_ERROR_ACTIONOPEN */
@@ -175,15 +138,6 @@ var eden_error_db = [
 			if (type == "separator") return 4;
 			return 5;
 		},
-		messages: [
-			"Cannot do a function call here",
-			"Can only watch observables, not a specific list index",
-			"An action must have a body of code",
-			"Missing an open '{' to start the action code",
-			"Use ',' to separate watch observables",
-			"Expected an open '{' to start action",
-			"Action code must start with a curly '{' bracket"
-		],
 		suggestion: {
 			expected: ["{"],
 			next: ["local","OBSERVABLE","if","for","switch","while","return"]
@@ -200,10 +154,6 @@ var eden_error_db = [
 			}
 			return 1;
 		},
-		messages: [
-			"Wrong kind of bracket to close an action, use '}' instead",
-			"Missing a closing '}' bracket at end of action code"
-		],
 		suggestion: {expected: ["}"], next: ["proc","func","if","for","OBSERVABLE","switch","while","return","continue","break"]}
 	},
 /* EDEN_ERROR_LOCALNAME */
@@ -213,10 +163,6 @@ var eden_error_db = [
 			if (this.token == ";") return 1;
 			return 2;
 		},
-		messages: [
-			"Reserved words cannot be used as local variable names",
-			"Missing a name after a 'local' declaration",
-			"'local' must be followed by a valid name"],
 		suggestion: {expected: ["OBSERVABLE"], next: [";"]}
 	},
 /* EDEN_ERROR_LOCALSEMICOLON */
@@ -224,44 +170,22 @@ var eden_error_db = [
 			if (this.token == "is" || this.token == "=") return 1;
 			return 0;
 		},
-		messages: [
-			"Need a ';' after a local declaration",
-			"It's not possible to initialise a local here"
-		],
 		suggestion: {expected: [";"], next: ["local","OBSERVABLE","if","for","switch","while","return"]}
 	},
 /* EDEN_ERROR_WHENTYPE */
 	{	message: function() { return 0; },
-		messages: [
-			"Did you mean 'when change' or 'when touch'?",
-			"Need to know type of 'when' first (change, touch or condition)",
-			"Wrong kind of bracket, use '(' for a 'when' condition",
-			"A 'when' must have some condition or trigger observables"],
 		suggestion: {expected: ["touch","change","("], next: ["OBSERVABLE",":","NUMBER","STRING","!","&"]}
 	},
 /* EDEN_ERROR_LISTINDEXEXP */
 	{	message: function() { return 0; },
-		messages: [
-			"A list index must be a valid expression",
-			"A list index must be a valid expression",
-			"A list index must be a valid expression"],
 		suggestion: {expected: ["(","OBSERVABLE","NUMBER"], next: ["]","OBSERVABLE","NUMBER","+","-","/","*","%","^"]}
 	},
 /* EDEN_ERROR_LISTINDEXCLOSE */
 	{	message: function() { return 0; },
-		messages: [
-			"Wrong kind of bracket, need a ']' to end the list index",
-			"Missing a ']' to end the list index",
-			"Missing a ']' to end the list index",
-			"Unexpected observable name, did you forget ']'?"],
 		suggestion: {expected: ["]"], next: ["[",".","=","+=","-=","==","+","-","/","*",";","/=","*=","%","^","is"]}
 	},
 /* EDEN_ERROR_LVALUE */
 	{	message: function() { return 0; },
-		messages: [
-			"Must be an observable name",
-			"Expected an observable name, cannot use reserved words as observables",
-			"Missing an observable"],
 		suggestion: {expected: ["OBSERVABLE"], next: [".","[","is","=","+=","-=","++","--","*=","/="]}
 	},
 /* EDEN_ERROR_SEMICOLON */
@@ -281,86 +205,42 @@ var eden_error_db = [
 			}
 			return 0;
 		},
-		messages: [
-			"Missing a ';'",
-			"Incomplete floating point number",
-			"Need another dot for a range, or a property name",
-			"Missing a ';' on previous line?",
-			"Missing either an operator or a ';'",
-			"Missing an open bracket, or too many close brackets",
-			"Expected a ';' not a bracket"],
 		suggestion: {expected: [";"], next: ["proc","when","OBSERVABLE","if","for","while","EOF","switch","func"]}
 	},
 /* EDEN_ERROR_STATEMENT */
 	{	message: function() { return 0; },
-		messages: [
-			"A keyword can't be used as an observable name",
-			"Missing an observable name",
-			"Wrong kind of bracket, only '{' is allowed here"],
 		suggestion: {expected: ["proc","func","when","if","for","while","switch","OBSERVABLE","{"], next: ["OBSERVABLE","(","change","touch","is","=","+=","-=","*=","proc","func","when","if","for","while","switch"]}
 	},
 /* EDEN_ERROR_DEFINITION */
 	{	message: function() { return 0; },
-		messages: [
-			"Must be an 'is' or some kind of assignment",
-			"Must be an 'is' or some kind of assignment",
-			"Must be an 'is' or some kind of assignment",
-			"Wrong kind of bracket, can only be '['"],
 		suggestion: {expected: ["=","is","+=","-=","/=","*="], next: ["(","OBSERVABLE","NUMBER","STRING","!"]}
 	},
 /* EDEN_ERROR_FUNCCALLEND */
 	{	message: function() { return 0; },
-		messages: [
-			"Missing a ')' after function call",
-			"Missing a ')' after function call",
-			"Missing a ')' after function call",
-			"Missing a ')' after function call",
-			"Wrong kind of bracket, need a ')'"],
 		suggestion: {expected: [")"], next: [";","(","[","+","-","/","*","%","^"]}
 	},
 /* EDEN_ERROR_LISTLITCLOSE */
 	{	message: function() { return 0; },	
-		messages: [
-			"Missing a ']' after a list literal"
-		],
 		suggestion: {expected: ["]"], next: []}
 	},
 /* EDEN_ERROR_TERNIFCOLON */
 	{	message: function() { return 0; },
-		messages: [
-			"An 'if' in an expression must have a ':' else part"
-		],
 		suggestion: {expected: [":"], next: []}
 	},
 /* EDEN_ERROR_IFCONDOPEN */
 	{	message: function() { return 0; },
-		messages: [
-			"An 'if' condition must be surrounded by '(' and ')'"
-		],
 		suggestion: {expected: ["("], next: []}
 	},
 /* EDEN_ERROR_IFCONDCLOSE */
 	{	message: function() { return 0; },
-		messages: [
-			"Missing a closing ')' after if condition"
-		],
 		suggestion: {expected: [")"], next: []}
 	},
 /* EDEN_ERROR_PARAMNAME */
 	{	message: function() { return 0; },
-		messages: [
-			"Reserved words can't be used as para names",
-			"'para' can't be used as an observable name",
-			"Unexpected bracket, expected a para name"],
 		suggestion: {expected: ["OBSERVABLE"], next: [";"]}
 	},
 /* EDEN_ERROR_PARAMSEMICOLON */
 	{	message: function() { return 0; },
-		messages: [
-			"Need a ';' after a para declaration",
-			"It's not possible to initialise a para",
-			"Need a ';' after a para declaration",
-			"Unexpected bracket, need a ';'"],
 		suggestion: {expected: [";"], next: ["para","local","OBSERVABLE","if","for","switch","while","return"]}
 	},
 /* EDEN_ERROR_FUNCOPEN */
@@ -377,15 +257,6 @@ var eden_error_db = [
 			if (type == "separator") return 4;
 			return 5;
 		},
-		messages: [
-			"Cannot do a function call here",
-			"Can only watch observables, not a specific list index",
-			"An action must have a body of code",
-			"Missing an open '{' to start the action code",
-			"Use ',' to separate watch observables",
-			"Expected an open '{' to start action",
-			"Action code must start with a curly '{' bracket"
-		],
 		suggestion: {
 			expected: ["{"],
 			next: ["local","OBSERVABLE","if","for","switch","while","return"]
@@ -393,172 +264,107 @@ var eden_error_db = [
 	},
 /* EDEN_ERROR_FUNCCLOSE */
 	{	message: function() { return 0; },
-		messages: [
-			"Wrong kind of bracket, use '}' to end action code",
-			"Missing a closing '}'"],
 		suggestion: {expected: ["}"], next: [";"]}
 	},
 /* EDEN_ERROR_FUNCNAME */
 	{	message: function() { return 0; },	
-		messages: [
-			"'func' names can't be keywords",
-			"'func' needs a name",
-			"'func' needs a name"],
 		suggestion: {expected: ["OBSERVABLE"], next: ["{"]}
 	},
 /* EDEN_ERROR_FOROPEN */
 	{	message: function() { return 0; },
-		messages: [
-			"Missing an open '(' in 'for'"
-		],
 		suggestion: {expected: ["("], next: []}
 	},
 /* EDEN_ERROR_FORCLOSE */
 	{	message: function() { return 0; },
-		messages: [
-			"Missing a closing ')' after 'for'"
-		],
 		suggestion: {expected: [")"], next: []}
 	},
 /* EDEN_ERROR_FORSTART */
 	{	message: function() { return 0; },
-		messages: [
-			"Missing a ';' after initialising statement in 'for'"
-		],
 		suggestion: {expected: [";"], next: []}
 	},
 /* EDEN_ERROR_FORCOND */
 	{	message: function() { return 0; },
-		messages: [
-			"Missing a ';' after 'for' condition"
-		],
 		suggestion: {expected: [";"], next: []}
 	},
 /* EDEN_ERROR_SUBSCRIBEOPEN */
 	{	message: function() { return 0; },
-		messages: [
-			"Expected a '[' to list subscribers"
-		],
 		suggestion: {expected: ["["], next: []}
 	},
 /* EDEN_ERROR_SUBSCRIBECLOSE */
 	{	message: function() { return 0; },
-		messages: [
-			"Expected a ']' to end subscribers list"
-		],
 		suggestion: {expected: ["]"], next: []}
 	},
 /* EDEN_ERROR_SWITCHOPEN */
 	{	message: function() { return 0; },
-		messages: [
-			"Expected a '(' to start 'switch' expression"
-		],
 		suggestion: {expected: ["("], next: []}
 	},
 /* EDEN_ERROR_SWITCHCLOSE */
 	{	message: function() { return 0; },
-		messages: [
-			"Expected a ')' to end 'switch' expression"
-		],
 		suggestion: {expected: ["]"], next: []}
 	},
 /* EDEN_ERROR_DEFAULTCOLON */
 	{	message: function() { return 0; },
-		messages: [
-			"A 'default' statement must be followed by a ':'"
-		],
 		suggestion: {expected: [":"], next: []}
 	},
 /* EDEN_ERROR_CASELITERAL */
 	{	message: function() { return 0; },
-		messages: [
-			"A 'case' needs a number or string after it"
-		],
 		suggestion: {expected: ["NUMBER","STRING"], next: []}
 	},
 /* EDEN_ERROR_CASECOLON */
 	{	message: function() { return 0; },
-		messages: [
-			"A 'case' must end in a ':'"
-		],
 		suggestion: {expected: [":"], next: []}
 	},
 /* EDEN_ERROR_INSERTCOMMA */
 	{	message: function() { return 0; },
-		messages: [
-			"An 'insert' operation takes 3 parts"
-		],
 		suggestion: {expected: [","], next: []}
 	},
 /* EDEN_ERROR_DELETECOMMA */
 	{	message: function() { return 0; },
-		messages: [
-			"A 'delete' operation takes 2 parts"
-		],
 		suggestion: {expected: [","], next: []}
 	},
 /* EDEN_ERROR_APPENDCOMMA */
 	{	message: function() { return 0; },
-		messages: [
-			"An 'append' operation takes 2 parts"
-		],
 		suggestion: {expected: [","], next: []}
 	},
 /* EDEN_ERROR_SCOPENAME */
 	{	message: function() { return 0; },
-		messages: [
-			"Expected an observable name for a scope override"
-		],
 		suggestion: {expected: ["OBSERVABLE"], next: []}
 	},
 /* EDEN_ERROR_SCOPEEQUALS */
 	{	message: function() { return 0; },
-		messages: [
-			"Missing an '=' in giving a scope override"
-		],
 		suggestion: {expected: ["="], next: []}
 	},
 /* EDEN_ERROR_SCOPECLOSE */
 	{	message: function() { return 0; },
-		messages: [
-			"Missing a closing '}' after scope"
-		],
 		suggestion: {expected: ["}"], next: []}
 	},
 /* EDEN_ERROR_BACKTICK */
 	{	message: function() { return 0; },
-		messages: [
-			"Missing a closing backtick"
-		],
 		suggestion: {expected: ["`"], next: []}
 	},
 /* EDEN_ERROR_WHILEOPEN */
 	{	message: function() { return 0; },
-		messages: [
-			"While loop conditions start with an open '('"
-		],
 		suggestion: {expected: ["("], next: []}
 	},
 /* EDEN_ERROR_WHILECLOSE */
 	{	message: function() { return 0; },
-		messages: [
-			"Missing a closing ')' after while condition"
-		],
 		suggestion: {expected: [")"], next: []}
 	},
 /* EDEN_ERROR_WHILENOSTATEMENT */
 	{	message: function() { return 0; },
-		messages: [
-			"While loops must have a statement"
-		],
 		suggestion: {expected: [")"], next: []}
 	},
 /* EDEN_ERROR_NEGNUMBER */
 	{	message: function() { return 0; },
-		messages: [
-			"Expected a number after a negative sign"
-		],
 		suggestion: {expected: ["NUMBER"], next: []}
+	},
+/* EDEN_ERROR_DEFINELISTIX */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_OUTOFBOUNDS */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
 	}
 ]
 
@@ -627,7 +433,7 @@ EdenError.prototype.buildSuggestion = function() {
 
 EdenError.prototype.messageText = function() {
 	var err = eden_error_db[this.errno];
-	return (err.message) ? err.messages[err.message.call(this)] : err.messages[this.context.stream.tokenType(this.token)];
+	return Language.errors[this.errno][err.message.call(this)];
 }
 
 EdenError.prototype.prettyPrint = function() {
@@ -637,7 +443,7 @@ EdenError.prototype.prettyPrint = function() {
 
 	var err = eden_error_db[this.errno];
 
-	var msg = (err.message) ? err.messages[err.message.call(this)] : err.messages[this.context.stream.tokenType(this.token)];
+	var msg = Language.errors[this.errno][err.message.call(this)];
 	var errmsg =
 			"Error:\n    " + msg +
 			"\n    Source : " + this.context.src + ", line " + this.line +
