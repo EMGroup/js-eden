@@ -1,0 +1,16 @@
+a is b;
+myscript is Script with
+	code=[&a];
+
+myheader is Header with
+	text="Basic Definition";
+
+myparagraph is Paragraph with
+	text="Some content goes here";
+
+mytitle is Title with
+	text="Tutorials:",
+	subtitle="Getting Started";
+
+mypage is Page with title=mytitle, content=[myheader,myparagraph,myscript];
+page is mypage;

@@ -120,7 +120,9 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 	var title = "";
 
 	if (ast.stream.code.length == 0) {
-		this.outelement.innerHTML = "<div class='eden-currentline'><span><span class='fake-caret'></span>&nbsp;</span></div>";
+		if (this.outelement) {
+			this.outelement.innerHTML = "<div class='eden-currentline'><span><span class='fake-caret'></span>&nbsp;</span></div>";
+		}
 		return;
 	}
 
@@ -308,6 +310,10 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 		this.currentline = this.line - 1;
 	}
 
-	this.outelement.innerHTML = result;
+	if (this.outelement) {
+		this.outelement.innerHTML = result;
+	} else {
+		return result;
+	}
 	//return result;
 };

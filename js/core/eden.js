@@ -619,6 +619,115 @@ function concatAndResolveUrl(url, concat) {
 		});
 	};
 
+	/**
+	 * @param {string} code
+	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
+	 * @param {string?} prefix Prefix used for relative includes.
+	 * @param {function(*)} success
+	 */
+	Eden.prototype.execute2 = function (code, origin, prefix, agent, success) {
+		if (arguments.length == 1) {
+			success = noop;
+			origin = 'unknown';
+			prefix = '';
+			agent = {name: '/execute'};
+		}
+		if (arguments.length == 2) {
+			success = origin;
+			origin = 'unknown';
+			prefix = '';
+			agent = {name: '/execute'};
+		}
+
+		var ast = new EdenAST(code);
+		if (ast.script.errors.length == 0) {
+			ast.script.execute(eden.root,eden.root.scope, ast);
+		} else {
+			console.error(ast.script.errors[0].prettyPrint());
+		}
+		success && success.call();
+		//this.polyglot.execute(code, origin, prefix, agent, success);
+	};
+
+	/**
+	 * @param {string} includePath
+	 * @param {string?} prefix Prefix used for relative includes.
+	 * @param {function()} success Called when include has finished successfully.
+	 */
+	Eden.prototype.include2 = function (includePath, prefix, agent, success) {
+		var me = this;
+		var includePaths;
+		if (includePath instanceof Array) {
+			includePaths = includePath;
+		} else {
+			includePaths = [includePath];
+		}
+
+		if (arguments.length === 2) {
+			// path and callback
+			success = prefix;
+			agent = {name: '/include'};
+			prefix = '';
+		} else if (arguments.length === 3) {
+			success = agent;
+			agent = prefix;
+			prefix = '';
+		}
+		/* The include procedure is the agent that modifies the observables, not the agent passing
+		 * the include agent a filename.  Interesting philosophically?  Plus a practical necessity,
+		 * e.g. for the Script Generator plug-in to work properly.
+		 */
+		var originalAgent = agent;
+		agent = {name: '/include'};		
+
+		var addIncludeURL = function (url) {
+			var index = me.topLevelIncludes.indexOf(url);
+			if (index != -1) {
+				me.topLevelIncludes.splice(index, 1);
+			}
+			me.topLevelIncludes.push(url);
+		}
+		
+		var promise;
+		includePaths.forEach(function (includePath) {
+			var url;
+			if (includePath.charAt(0) === '.') {
+				url = concatAndResolveUrl(prefix, includePath);
+			} else {
+				url = includePath;
+			}
+			var match = url.match(/(.*)\/([^\/]*?)$/);
+			var newPrefix = match ? match[1] : '';
+			var previousPromise = promise;
+			promise = $.ajax({
+				url: url,
+				dataType: "text"
+			}).then(function (data) {
+				var deferred = $.Deferred();
+				if (previousPromise) {
+					return previousPromise.then(function () {
+						eden.execute2(data, url, newPrefix, agent, deferred.resolve);
+						if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
+							addIncludeURL(url);
+						}
+						me.included[url] = true;
+						return deferred.promise;
+					});
+				} else {
+					eden.execute2(data, url, newPrefix, agent, deferred.resolve);
+					if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
+						addIncludeURL(url);
+					}
+					me.included[url] = true;
+					return deferred.promise;
+				}
+			});
+		});
+		promise.then(function () {
+			success && success.call(agent);
+		});
+	};
+
 	Eden.prototype.getIncludedURLs = function () {
 		return this.topLevelIncludes.slice();
 	}

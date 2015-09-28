@@ -1,0 +1,22 @@
+## Page Plugin
+
+__Page is ["page",title,theme,content];
+Page is __Page with theme = (theme)?theme:"default";
+
+__Title is ["title", text, subtitle, logo, menus];
+Title is __Title with text=(text)?text:"Title", subtitle=(subtitle)?subtitle:"Subtitle";
+
+__Header is ["header", text, tag, level];
+Header is __Header with text=(text)?text:"Header", level=(level)?level:0;
+
+__Paragraph is ["p", text];
+Paragraph is __Paragraph with text=(text)?text:"Some text goes here";
+
+__Script is ["script", static, code];
+Script is __Script with static=(static)?static:true, code=(code)?code:"";
+
+## Initial Default Page
+
+defaultpage is Page with title=Title, content=[Header,Paragraph];
+page is defaultpage;
+

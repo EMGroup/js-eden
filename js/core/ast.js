@@ -124,7 +124,11 @@ EdenAST_UnaryOp.prototype.error = fnEdenAST_error;
 
 EdenAST_UnaryOp.prototype.generate = function(ctx) {
 	var r = this.r.generate(ctx);
-	return this.op+"("+r+")";
+	if (this.op == "!") {
+		return "!("+r+")";
+	} else if (this.op == "&") {
+		return r;
+	}
 }
 
 
@@ -346,7 +350,7 @@ EdenAST_Definition.prototype.generate = function(ctx) {
 	return result;
 };
 
-EdenAST_Definition.prototype.execute = function(root, ctx) {
+EdenAST_Definition.prototype.execute = function(root, ctx, base) {
 	var rhs = "(function(context,scope) { return ";
 	rhs += this.expression.generate(this);
 	rhs += ";})";
@@ -355,7 +359,8 @@ EdenAST_Definition.prototype.execute = function(root, ctx) {
 		deps.push(d);
 	}
 	//console.log("RHS = " + rhs);
-	root.lookup(this.lvalue.observable).define(eval(rhs), undefined, deps);
+	root.lookup(this.lvalue.observable).define(eval(rhs), undefined, deps)
+		.eden_definition = base.getSource(this);
 }
 
 EdenAST_Definition.prototype.error = fnEdenAST_error;
@@ -1103,9 +1108,9 @@ EdenAST_Script.prototype.append = function (ast) {
 	}
 }
 
-EdenAST_Script.prototype.execute = function(root, ctx) {
+EdenAST_Script.prototype.execute = function(root, ctx, base) {
 	for (var i = 0; i < this.statements.length; i++) {
-		this.statements[i].execute(root,ctx);
+		this.statements[i].execute(root,ctx, base);
 	}
 }
 

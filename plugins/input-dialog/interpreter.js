@@ -417,15 +417,19 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * that instead (eg. a proc).
 		 */
 		function submitLine(ast, lineno) {
-			if (ast.lines[lineno]) {
-				var statement = ast.lines[lineno];
-
-				// Find root statement and execute that one
-				while (statement.parent !== undefined) statement = statement.parent;
-
-				// Execute only the currently changed root statement
-				me.submit(statement);
+			var line = lineno;
+			while ((line > 0) && (ast.lines[line] === undefined)) {
+				line--;
 			}
+
+			var statement = ast.lines[line];
+			if (!statement) return;
+
+			// Find root statement and execute that one
+			while (statement.parent !== undefined) statement = statement.parent;
+
+			// Execute only the currently changed root statement
+			me.submit(statement, highlighter.ast);
 		}
 
 		function showInfoBox(type, message) {
@@ -610,7 +614,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						if (me.autoexec && ast.script.errors.length == 0) {
 							if (ast.lines[dragline]) {
 								//console.log("EXEC: " + ast.getSource(ast.lines[dragline]));
-								me.submit(ast.lines[dragline]);
+								me.submit(ast.lines[dragline], ast);
 							}
 						}
 					}
@@ -851,7 +855,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (me.autoexec) {
 				$powerbutton.removeClass("power-off").addClass("power-on");
 				updateEntireHighlight();
-				me.submit(highlighter.ast.script);
+				me.submit(highlighter.ast.script, highlighter.ast);
 			} else {
 				$powerbutton.removeClass("power-on").addClass("power-off");
 			}
@@ -870,8 +874,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		el.value = edenUI.plugins.ScriptInput.previousHistory();
 	};
 
-	this.submit = function (statement) {
-		statement.execute(eden.root,undefined);
+	this.submit = function (statement, base) {
+		statement.execute(eden.root,undefined, base);
 	};
 
 	this.getRidOfInstructions = function () {
@@ -906,6 +910,20 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	edenUI.history = this.history;
 	
 	success();
+};
+
+EdenUI.plugins.ScriptInput.buildScriptFromList = function(value) {
+	var res = "";
+	if (value instanceof Array) {
+		for (var i=0; i < value.length; i++) {
+			if (typeof value[i] == "string") {
+				res += value[i] + "\n";
+			} else if (typeof value[i] == "object") {
+				res += value[i].eden_definition+";\n";
+			}
+		}
+	}
+	return res;
 };
 
 //Make tab do spaces instead of selecting the next element

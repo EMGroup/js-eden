@@ -1,0 +1,88 @@
+div.main-page {
+	position: absolute;
+	top: 25px;
+	width: 80%;
+	bottom: 0;
+	background: white;
+	left: 10%;
+	box-shadow: 0px 0px 20px black;
+}
+
+.page-body {
+	background: #ccc;
+}
+
+/* DEFAULT THEME */
+
+div.page-title.page-theme-default {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 250px;
+	background-color: #4a648e;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+div.page-title-block {
+	margin-top: 50px;
+	margin-left: 100px;
+}
+
+span.page-title-text.page-theme-default {
+	font-size: 58pt;
+	padding-top: 50px;
+	color: white;
+	font-weight: bold;
+}
+
+span.page-subtitle-text.page-theme-default {
+	font-size: 38pt;
+	color: #ccc;
+}
+
+div.page-content {
+	position: absolute;
+	top: 250px;
+	left: 10%;
+	right: 10%;
+}
+
+h1.page-header {
+	font-size: 28pt;
+	color: black;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+h1.page-header:before {
+	position: absolute;
+	left: -40px;
+	font-family: "FontAwesome";
+	content: "\f054";
+	font-size: 28pt;
+	color: #8fa3c4;
+}
+
+p.page-paragraph {
+	font-size: 14pt;
+	color: black;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+div.page-script-static {
+	padding: 10px;
+	margin-left: 50px;
+	width: 50%;
+	border-color: #ccc;
+	border-width: 1px;
+	border-style: solid;
+	border-left-width: 20px;
+	border-left-style: solid;
+	border-left-color: #f5f5f5;
+	box-sizing: border-box;
+	padding-left: 5px;
+	-webkit-font-smoothing: antialiased;
+	font: 14px/20px Roboto Mono,monospace;
+	overflow: auto;
+	white-space: pre;
+}
+

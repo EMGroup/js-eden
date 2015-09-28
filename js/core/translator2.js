@@ -415,6 +415,10 @@ EdenAST.prototype.pFACTOR = function() {
 		this.next();
 		var primary = this.pPRIMARY();
 		return new EdenAST_UnaryOp("!", primary);
+	} else if (this.token == "&") {
+		this.next();
+		var lvalue = this.pLVALUE();
+		return new EdenAST_UnaryOp("&", lvalue);
 	} else {
 		var primary = this.pPRIMARY();
 		return primary;
