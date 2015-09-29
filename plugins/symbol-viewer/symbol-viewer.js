@@ -455,9 +455,9 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			}
 			singleClickPerformed = false;
 			var editorViewName = "edit_" + me.name;
-			edenUI.createView(editorViewName, "ScriptInput");
-			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + me.name, Symbol.hciAgent);
-			var val;
+			edenUI.createView(editorViewName, "ScriptInput", [symbol]);
+			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + me.name, edenUI.eden.root.scope, Symbol.hciAgent);
+			/*var val;
 			if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
 				val = symbol.eden_definition;
 			} else {
@@ -470,7 +470,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 
 			$('#' + editorViewName + '-dialog').find('textarea').val(
 				val
-			);
+			);*/
 		}, 350);
 	});
 	if (type == "obs") {

@@ -30,9 +30,9 @@
 }
 
 @keyframes blinking {
-	0% {background-color: transparent;}
-	50% {background-color: black;}
-	100% {background-color: transparent;}
+	0% {background-color: black;}
+	50% {background-color: transparent;}
+	100% {background-color: black;}
 }
 
 span.fake-caret {
@@ -619,7 +619,7 @@ div.eden-errorline {
 	padding-left: 5px;
 	padding-right: 1px;
 	/*padding-right: 5px;*/
-	background-color: #ffcccc;
+	/*background-color: #ffcccc;*/
 	/*background-image: url('/images/exclamation.png');
 	background-repeat: no-repeat;
 	background-position: -10px;
@@ -643,6 +643,10 @@ div.eden-errorline:before {
 	background-color: #f2c2c2;
 	width: 16px;
 	height: 20px;
+}
+
+div.eden-actual-errorline {
+	background-color: #ffcccc;
 }
 
 div.eden-warnline {
