@@ -1,12 +1,5 @@
-createView("input_dialog","ScriptInput");
-createCanvas("picture");
-
-include("tutorials/common.js-e");
-
-_view_input_dialog_x = 483;
-_view_input_dialog_y = 77;
-_view_input_dialog_width = 585;
-_view_input_dialog_height = 303;
+##createView("input_dialog","ScriptInput");
+##createCanvas("picture");
 
 b = 4;
 c = 5;
@@ -18,23 +11,31 @@ textC is Text("c -> " // str(c), 45,60,26);
 textD is Text("d -> " // str(d), 45,90,26);
 textE is Text("e -> " // str(e), 45,120,26);
 
-picture is [textB,textC,textD,textE];
+picture_1 is [textB,textC,textD,textE];
 
-_view_input_dialog_script = [
-"## Tutorial 2",
-"## Basic definitions that update when their dependencies change",
-"",
+tut1_header is Header with text = "Basic Definitions";
+
+tut1_para1 is Paragraph with text = [
+"Try changing 'b' or 'c' and watch how 'e' changes but 'd'",
+"does not. This is called a dependency definition.",
+"'d' is only updated when first written or rewritten."
+];
+
+tut1_pic1 is Canvas with source="picture_1", name="Picture1";
+
+tut1_contents is [tut1_header, tut1_para1, tut1_pic1, tut1_script1];
+
+tut1_script1 is Script with static=false, name="Tut1Script", code=[
 "b = 4;",
 "c = 5;",
 "d = b + c;",
-"e is b + c;",
-"",
-"## Try changing 'b' or 'c' and watch how 'e' changes but 'd'",
-"## does not. This is called a dependency definition.",
-"## 'd' is only updated when first written or rewritten."
+"e is b + c;"
 ];
 
-_view_picture_x = 147;
-_view_picture_y = 143;
-_view_picture_width = 210;
-_view_picture_height = 190;
+tut1_title is Title with
+	text="Tutorials:",
+	subtitle="Getting Started";
+
+tut1_page is Page with title=tut1_title, content=tut1_contents;
+page is tut1_page;
+

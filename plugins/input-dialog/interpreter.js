@@ -344,7 +344,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}).find(".history");
 	}
 
-	this.createCommon = function (name, mtitle) {
+	this.createCommon = function (name, mtitle, code) {
 		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="subButtonsDiv"></div><div class="outputbox"></div></div></div>')
 		var text = "";	
 		var position = 0;
@@ -382,7 +382,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			updateEntireHighlight();
 		}
 
-		eden.root.lookup("_view_input_dialog_script").addJSObserver("setScript", preloadScript);
+		eden.root.lookup("_view_"+name+"_script").addJSObserver("setScript", preloadScript);
 
 		function updateLineHighlight() {
 			var ast = new EdenAST(intextarea.value);
@@ -449,7 +449,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			for (var i=0; i<highlighter.ast.lines.length; i++) {
 				if (highlighter.ast.lines[i] &&
 						highlighter.ast.lines[i].lvalue) {
-					eden.root.lookup(highlighter.ast.lines[i].lvalue.observable).addJSObserver("scriptLines", notifyOutOfDate);
+					eden.root.lookup(highlighter.ast.lines[i].lvalue.observable).addJSObserver(name+"_scriptLines", notifyOutOfDate);
 				}
 			}
 		}
@@ -834,7 +834,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var $powerbutton = $('<div class="scriptswitch power-on" title="Live Coding">&#xF011;</div>');
 		//$dialog.parent().find(".ui-dialog-titlebar").append($powerbutton);
-		$dialogContents.append($powerbutton);
+		$codearea.append($powerbutton);
 		var powerbutton = $powerbutton.get(0);
 
 		$powerbutton.click(function (e) {
@@ -849,6 +849,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				$powerbutton.removeClass("power-on").addClass("power-off");
 			}
 		});
+
+		if (code) {
+			intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(code);
+			updateEntireHighlight();
+		}
 
 		return $dialogContents;
 	};
@@ -873,8 +878,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		return {confirmClose: confirmClose, setValue: function (value) { textarea.value = value; }};
 	};
 
-	this.createEmbedded = function(name, mtitle) {
-		return me.createCommon(name, mtitle);
+	this.createEmbedded = function(name, mtitle, code) {
+		return me.createCommon(name, mtitle, code);
 	}
 
 	this.next = function (el) {
@@ -930,11 +935,24 @@ EdenUI.plugins.ScriptInput.buildScriptFromList = function(value) {
 			if (typeof value[i] == "string") {
 				res += value[i] + "\n";
 			} else if (typeof value[i] == "object") {
-				res += value[i].eden_definition+";\n";
+				if (value[i].definition !== undefined) {
+					res += value[i].eden_definition+"\n";
+				} else {
+					var name = value[i].name.slice(1);
+					res += name + " = " + Eden.edenCodeForValue(value[i].value()) + ";\n";
+				}
 			}
 		}
 	}
 	return res;
+};
+
+/**
+ * Returns the required height in pixels to display the specified number
+ * of lines. Used for embedding an input window.
+ */
+EdenUI.plugins.ScriptInput.getRequiredHeight = function(lines) {
+	return 15 + 30 + 20 * lines + 20;
 };
 
 //Make tab do spaces instead of selecting the next element

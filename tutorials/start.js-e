@@ -1,0 +1,12 @@
+## Tutorial Loader
+
+require("Page");
+
+func include2 {
+	para file;
+	${{ edenUI.eden.include2(arguments[0], success) }}$;
+}
+
+include2("tutorials/common.js-e");
+include2("tutorials/worksheet-demo.js-e");
+

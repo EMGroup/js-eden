@@ -218,10 +218,10 @@ div.control-bar {
 	bottom: 0;
 	height: 30px;
 	/*background-color: #f1f1f1;*/
-	background: -webkit-linear-gradient(#fafafa, #cccccc); /* For Safari 5.1 to 6.0 */
-	background: -o-linear-gradient(#fafafa, #cccccc); /* For Opera 11.1 to 12.0 */
-	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
-	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
+	background: -webkit-linear-gradient(#fafafa, #eeeeee); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#fafafa, #eeeeee); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#fafafa, #eeeeee); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#fafafa, #eeeeee); /* Standard syntax */
 
 	box-shadow: 0 0 10px #4a6887;
 	border-top-color: #777;
@@ -367,7 +367,7 @@ div.input-dialog .ui-dialog-title {
 div.scriptswitch {
 	position: absolute;
 	top: 10px;
-	right: 40px;
+	right: 20px;
 	font-family: "FontAwesome";
 	font-size: 22px;
 	z-index: 10;

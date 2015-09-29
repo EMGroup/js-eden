@@ -62,10 +62,17 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			if (scripts[script[3]]) {
 				embedded = scripts[script[3]];
 			} else {
-				embedded = edenUI.views.ScriptInput.embed(script[3], script[3]);
+				embedded = edenUI.views.ScriptInput.embed(script[3], script[3], script[2]);
 				scripts[script[3]] = embedded;
 			}
-			var container = $("<div class='page-script-live'></div>");
+			var container;
+			if (script[4]) {
+				container = $("<div class='page-script-live page-script-live-box'></div>");
+			} else {
+				container = $("<div class='page-script-live'></div>");
+			}
+			var height = EdenUI.plugins.ScriptInput.getRequiredHeight(script[5]);
+			container.height(height);
 			embedded.appendTo(container);
 			return container;
 		} else {
@@ -107,6 +114,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		console.log("CONTENT");
 
 		for (var i=0; i<content.length; i++) {
+			if (content[i] === undefined) continue;
 			switch(content[i][0]) {
 			case "header"	: res.append(generateHeader(content[i])); break;
 			case "p"		: res.append(generateParagraph(content[i])); break;

@@ -1,0 +1,69 @@
+
+ws_p1 is Paragraph with text = [
+"In the JS-Eden environment, we can construct models using the principles of observables, dependencies and agency.",
+"Observables are things you can see and change, they should correspond to something in your experience of what you are modelling.",
+"Dependencies describe immediate relationships between your observables, corresponding to indivisible and automatic connections found in experience.",
+"Agency acts as a mechanism for causing change, perhaps in some sequence of events or in response to some observation."
+];
+
+ws_h1 is Header with text = "Script Input Windows";
+
+ws_p2 is Paragraph with text = [
+"A script input window is the primary place for creating the observables, dependencies and agents that make up a model.",
+"If you are already a programmer, however, be aware that it is not a sequentially executed script but rather just a view of the system.",
+"Experiment by changing the numbers below and watching the values change on the page:"
+];
+
+a = 5;
+b = 6;
+myReal = 1.234;
+myString = "Hello World";
+myList = [myReal, myString];
+
+ws_pic1 is Canvas with name="WSPic1", source="picture_1", height=50, width=700;
+
+textB is Text("a -> " // str(a), 45,5,26);
+textC is Text("b -> " // str(b), 150,5,26);
+textD is Text("myString -> " // myString, 250,5,26);
+
+picture_1 is [textB,textC,textD];
+
+ws_script1 is Script with static=false, name="WSScript1", lines=6, code=[
+&a,
+&b,
+"",
+&myReal,
+&myString,
+"myList = [myReal, myString];"
+];
+
+ws_p3 is Paragraph with text = [
+"You can see from the script above that there are 4 types of observable: whole numbers (integers), real numbers, strings of text and lists.",
+"If you tried changing the values you would have noticed the liveness of the input. Whenever you enter something valid it does it straight away.",
+"To disable this and allow working off-line, click the power button in the top right corner."
+];
+
+ws_p4 is Paragraph with text = [
+"JS-Eden has operators and functions like most programming languages.",
+"Here are some examples of both:"
+];
+
+ws_script2 is Script with static=false, name="WSScript2", lines = 7, code=[
+"a = 20 + 15;",
+"b = a * 2;",
+"c = a % 5;",
+"",
+"x = max(2,8);",
+"y = sqrt(16);",
+"z = floor(5.9);"
+];
+
+ws_contents is [ws_p1,ws_h1,ws_p2,ws_pic1,ws_script1,ws_p3,ws_p4,ws_script2];
+
+ws_title is Title with
+	text="Worksheet 1:",
+	subtitle="Getting Started with JS-Eden";
+
+ws_page is Page with title=ws_title, content=ws_contents;
+page is ws_page;
+
