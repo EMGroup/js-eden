@@ -66,6 +66,8 @@ p.page-paragraph {
 	font-size: 14pt;
 	color: black;
 	font-family: Arial, Helvetica, sans-serif;
+	text-align: justify;
+	text-justify: inter-word;
 }
 
 div.page-script-static {
@@ -84,6 +86,13 @@ div.page-script-static {
 	font: 14px/20px Roboto Mono,monospace;
 	overflow: auto;
 	white-space: pre;
+}
+
+div.page-script-live {
+	position: absolute;
+	margin-left: 50px;
+	width: 50%;
+	height: 200px;
 }
 
 div.page-canvas {

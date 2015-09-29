@@ -22,6 +22,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	var canvastodo = [];
 	var canvasdestroy = [];
 	var canvases = {};
+	var scripts = {};
 
 	function generateTitle(title) {
 		if (!title) return "";
@@ -54,14 +55,25 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		if (!script) return;
 		if (script[0] != "script") return;
 
-		if (script[1] == false) {
+		console.log(script);
 
+		if (script[1] == false) {
+			var embedded;
+			if (scripts[script[3]]) {
+				embedded = scripts[script[3]];
+			} else {
+				embedded = edenUI.views.ScriptInput.embed(script[3], script[3]);
+				scripts[script[3]] = embedded;
+			}
+			var container = $("<div class='page-script-live'></div>");
+			embedded.appendTo(container);
+			return container;
 		} else {
 			var hl = new EdenHighlight();
 			var text;
 			if (script[2] instanceof Array) {
 				text = EdenUI.plugins.ScriptInput.buildScriptFromList(script[2]);
-				console.log("SCRIPT: " + text);
+				//console.log("SCRIPT: " + text);
 			} else {
 				text = script[2];
 			}
@@ -113,6 +125,11 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			canvasdestroy[i]();
 		}
 		canvasdestroy = [];
+
+		// Detach all scripts
+		for (var si in scripts) {
+			scripts[si].detach();
+		}
 
 		console.log("GENERATE PAGE");
 		theme = value[2];

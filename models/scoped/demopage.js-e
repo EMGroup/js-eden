@@ -2,7 +2,7 @@ a = 5;
 b = 4;
 c is a + b;
 
-myscript is Script with code = [
+myscript is Script with static=false, code = [
 "a = " // a // ";",
 "b = 4;",
 &c

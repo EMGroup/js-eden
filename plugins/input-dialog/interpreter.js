@@ -344,7 +344,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}).find(".history");
 	}
 
-	this.createDialog = function (name, mtitle) {
+	this.createCommon = function (name, mtitle) {
 		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="subButtonsDiv"></div><div class="outputbox"></div></div></div>')
 		var text = "";	
 		var position = 0;
@@ -831,21 +831,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				$codearea.scrollTop(scrollpos);
 			}
 		});
-		
-		$dialog = $('<div id="'+name+'"></div>')
-			.html($dialogContents)
-			.dialog({
-				title: mtitle,
-				width: 500,
-				height: 224,
-				minHeight: 203,
-				minWidth: 500,
-				dialogClass: "input-dialog"
-			});
-			input_dialog = $dialog;
 
 		var $powerbutton = $('<div class="scriptswitch power-on" title="Live Coding">&#xF011;</div>');
-		$dialog.parent().find(".ui-dialog-titlebar").append($powerbutton);
+		//$dialog.parent().find(".ui-dialog-titlebar").append($powerbutton);
+		$dialogContents.append($powerbutton);
 		var powerbutton = $powerbutton.get(0);
 
 		$powerbutton.click(function (e) {
@@ -861,10 +850,32 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		});
 
+		return $dialogContents;
+	};
+
+	this.createDialog = function(name, mtitle) {
+		$dialogContents = me.createCommon(name, mtitle);
+
+		$dialog = $('<div id="'+name+'"></div>')
+			.html($dialogContents)
+			.dialog({
+				title: mtitle,
+				width: 500,
+				height: 224,
+				minHeight: 203,
+				minWidth: 500,
+				dialogClass: "input-dialog"
+			});
+			//input_dialog = $dialog;
+
 		var confirmClose = !("MenuBar" in edenUI.plugins);
 
 		return {confirmClose: confirmClose, setValue: function (value) { textarea.value = value; }};
 	};
+
+	this.createEmbedded = function(name, mtitle) {
+		return me.createCommon(name, mtitle);
+	}
 
 	this.next = function (el) {
 		el.value = edenUI.plugins.ScriptInput.nextHistory();
