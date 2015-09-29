@@ -6,6 +6,9 @@ Page is __Page with theme = (theme)?theme:"default";
 __Title is ["title", text, subtitle, logo, menus];
 Title is __Title with text=(text)?text:"Title", subtitle=(subtitle)?subtitle:"Subtitle";
 
+__Icon is ["icon", content, size, colour];
+Icon is __Icon with content=(content)?content:"@", size=(size)?size:20, colour=(colour)?colour:"black";
+
 __Header is ["header", text, tag, level];
 Header is __Header with text=(text)?text:"Header", level=(level)?level:0;
 
@@ -16,7 +19,7 @@ __Script is ["script", static, code, name, box, lines];
 Script is __Script with static=(static!=@)?static:true, code=(code)?code:"", name=(name)?name:"EmbeddedInput", box=(box!=@)?box:true, lines=(lines)?lines:5;
 
 __Canvas is ["canvas", name, source, width, height];
-Canvas is __Canvas with name="Picture", source=(source)?source:"picture", width=(width)?width:500, height=(height)?height:200;
+Canvas is __Canvas with name=(name)?name:"Picture", source=(source)?source:"picture", width=(width)?width:500, height=(height)?height:200;
 
 ## Initial Default Page
 

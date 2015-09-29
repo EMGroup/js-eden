@@ -374,7 +374,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					if (typeof value[i] == "string") {
 						res += value[i] + "\n";
 					} else if (typeof value[i] == "object") {
-						res += value[i].eden_definition+";\n";
+						res += value[i].eden_definition+"\n";
 					}
 				}
 			}
@@ -859,7 +859,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	};
 
 	this.createDialog = function(name, mtitle) {
-		$dialogContents = me.createCommon(name, mtitle);
+		var simpleName = name.slice(0, -7);
+		$dialogContents = me.createCommon(simpleName, mtitle);
 
 		$dialog = $('<div id="'+name+'"></div>')
 			.html($dialogContents)

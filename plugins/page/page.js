@@ -24,17 +24,37 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	var canvases = {};
 	var scripts = {};
 
+	function generateIcon(icon) {
+		if (!icon) return "";
+		if (icon[0] != "icon") return "";
+		var res = $("<div class='page-icon'>"+icon[1]+"</div>");
+		res.css("font-size", icon[2]+"px");
+		res.css("color", icon[3]);
+		return res;
+	}
+
 	function generateTitle(title) {
 		if (!title) return "";
 		if (title[0] != "title") return "";
-		return "<div class='page-title "+theme+"'><div class='page-title-block'><span class='page-title-text "+theme+"'>"+title[1]+"</span><br/><span class='page-subtitle-text "+theme+"'>"+title[2]+"</span></div></div>";
+		var tit = $("<div class='page-title "+theme+"'><div class='page-title-block'><span class='page-title-text "+theme+"'>"+title[1]+"</span><br/><span class='page-subtitle-text "+theme+"'>"+title[2]+"</span></div></div>");
+		if (title[3] !== undefined) {
+			var logo = $("<div class='page-title-logo'></div>");
+			switch(title[3][0]) {
+			case "icon"		: generateIcon(title[3]).appendTo(logo);
+			}
+			logo.appendTo(tit);
+		}
+		return tit;
 	}
 
 	function generateHeader(header) {
 		if (!header) return "";
 		if (header[0] != "header") return "";
-		console.log("HEADER");
-		return $("<h1 class='page-header'>"+header[1]+"</h1>");
+
+		switch(header[3]) {
+		case 0	: return $("<h1 class='page-header'>"+header[1]+"</h1>");
+		case 1	: return $("<h2 class='page-header'>"+header[1]+"</h2>");
+		}
 	}
 
 	function generateParagraph(p) {
@@ -54,8 +74,6 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	function generateScript(script) {
 		if (!script) return;
 		if (script[0] != "script") return;
-
-		console.log(script);
 
 		if (script[1] == false) {
 			var embedded;
@@ -100,7 +118,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			canvastodo.push(function() { embedded.resize(content[3],content[4]); });
 			//canvasdestroy.push(embedded.destroy);
 		} else {
-			container.append(canvases[content[1]].code_entry);
+			canvases[content[1]].code_entry.appendTo(container);
 		}
 		return container;
 	}
@@ -110,8 +128,6 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		if (!(content instanceof Array)) return "";
 
 		var res = $("<div class='page-content "+theme+"'></div>");
-
-		console.log("CONTENT");
 
 		for (var i=0; i<content.length; i++) {
 			if (content[i] === undefined) continue;
@@ -129,22 +145,24 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		if (!(value instanceof Array)) return;
 
 		// Now destroy the canvases
-		for (var i=0; i<canvasdestroy.length; i++) {
+		/*for (var i=0; i<canvasdestroy.length; i++) {
 			canvasdestroy[i]();
 		}
-		canvasdestroy = [];
+		canvasdestroy = [];*/
+		for (var ci in canvases) {
+			canvases[ci].code_entry.detach();
+		}
 
 		// Detach all scripts
 		for (var si in scripts) {
 			scripts[si].detach();
 		}
 
-		console.log("GENERATE PAGE");
 		theme = value[2];
 		if (theme == "default") theme = "page-theme-default";
-		var html = "";
-		html += generateTitle(value[1]);
-		pagediv.html(html);
+
+		pagediv.html("");
+		pagediv.append(generateTitle(value[1]));
 		pagediv.append(generateContent(value[3],0));
 
 		// Now resize the canvases

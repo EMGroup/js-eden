@@ -146,6 +146,10 @@ function initialiseJSEden() {
 			if (menuBar) {
 				root.lookup("_menubar_status").assign(Language.ui.general.finished_loading, root.scope, {name: "/system"});
 			}
+
+			// Remove spinning loader
+			$(".mainloader").remove();
+
 			if (exec) {
 				if (exec.slice(-1) != ";") {
 					exec = exec + ";";
