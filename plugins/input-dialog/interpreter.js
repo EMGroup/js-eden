@@ -822,7 +822,21 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}*/
 		}).on('keydown', '.hidden-textarea', function(e) {
 			if (!e.ctrlKey && e.keyCode != 17) {
-				if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
+				if (e.keyCode == 9) {
+					e.preventDefault();
+					var start = intextarea.selectionStart;
+					var end = intextarea.selectionEnd;
+
+					// set textarea value to: text before caret + tab + text after caret
+					intextarea.value = intextarea.value.substring(0, start)
+								+ "\t"
+								+ intextarea.value.substring(end);
+
+					// put caret at right position again
+					intextarea.selectionStart =
+					intextarea.selectionEnd = start + 1;
+					updateLineHighlight();
+				} else if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
 					// Shift arrow selection, move to editable div.
 					if (e.shiftKey) {
 						setCaretToFakeCaret();
@@ -1037,23 +1051,4 @@ EdenUI.plugins.ScriptInput.getRequiredHeight = function(lines) {
 	return 15 + 30 + 20 * lines + 20;
 };
 
-//Make tab do spaces instead of selecting the next element
-$(document).delegate('.inputCodeArea textarea', 'keydown', function(e) {
-  var keyCode = e.keyCode || e.which;
-
-  if (keyCode == 9) {
-    e.preventDefault();
-    var start = $(this).get(0).selectionStart;
-    var end = $(this).get(0).selectionEnd;
-
-    // set textarea value to: text before caret + tab + text after caret
-    $(this).val($(this).val().substring(0, start)
-                + "\t"
-                + $(this).val().substring(end));
-
-    // put caret at right position again
-    $(this).get(0).selectionStart =
-    $(this).get(0).selectionEnd = start + 1;
-  }
-});
 
