@@ -712,6 +712,30 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			sel.addRange(range);
 		}
 
+		function selectAll() {
+			var range = document.createRange();
+			range.selectNodeContents(outdiv);
+			var sel = window.getSelection();
+			sel.removeAllRanges();
+			sel.addRange(range);
+		}
+
+		function previous() {
+			if (inputchanged && intextarea.value != "") me.addHistory(intextarea.value);
+			powerOff();
+			intextarea.value = edenUI.plugins.ScriptInput.previousHistory();
+			updateEntireHighlight();
+			inputchanged = false;
+		}
+
+		function next() {
+			if (inputchanged && intextarea.value != "") me.addHistory(intextarea.value);
+			powerOff();
+			intextarea.value = edenUI.plugins.ScriptInput.nextHistory();
+			updateEntireHighlight();
+			inputchanged = false;
+		}
+
 		$dialogContents.on('input', '.hidden-textarea', function (e) {
 			inputchanged = true;
 
@@ -799,6 +823,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}).on('keydown', '.hidden-textarea', function(e) {
 			if (!e.ctrlKey && e.keyCode != 17) {
 				if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
+					// Shift arrow selection, move to editable div.
 					if (e.shiftKey) {
 						setCaretToFakeCaret();
 						outdiv.focus();
@@ -814,16 +839,20 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 				if (e.keyCode === 38) {
 					// up
-					me.prev(intextarea);
+					previous();
 				} else if (e.keyCode === 40) {
 					// down
-					me.next(intextarea);
+					next();
 				} else if (e.keyCode === 86) {
 					// Pasting so disable live code
 					//console.log(intextarea.value);
 					//suggestions.hide("fast");
 					$powerbutton.removeClass("power-on").addClass("power-off");
 					autoexec = false;
+				} else if (e.keyCode === 65) {
+					// Ctrl+A to select all.
+					selectAll();
+					outdiv.focus();
 				}
 			}
 		}).on('keyup', '.hidden-textarea', function(e) {
@@ -845,6 +874,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				var start = getStartCaretCharacterOffsetWithin(outdiv);
 
 				if (e.keyCode == 8) {
+					// Remove selected text and move cursor to start of it.
 					intextarea.value = intextarea.value.slice(0,start) + intextarea.value.slice(end);
 					$(intextarea).focus();
 					intextarea.selectionEnd = start;
@@ -865,6 +895,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			
 				//$(intextarea).focus();
 			} else {
+				// Move caret to clicked location
 				intextarea.selectionEnd = end;
 				intextarea.selectionStart = end;
 				var scrollpos = $codearea.get(0).scrollTop;
@@ -873,17 +904,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				$codearea.scrollTop(scrollpos);
 			}
 		}).on('click', '.previous-input', function(e) {
-			if (inputchanged && intextarea.value != "") me.addHistory(intextarea.value);
-			powerOff();
-			intextarea.value = edenUI.plugins.ScriptInput.previousHistory();
-			updateEntireHighlight();
-			inputchanged = false;
+			previous();
 		}).on('click', '.next-input', function(e) {
-			if (inputchanged && intextarea.value != "") me.addHistory(intextarea.value);
-			powerOff();
-			intextarea.value = edenUI.plugins.ScriptInput.nextHistory();
-			updateEntireHighlight();
-			inputchanged = false;
+			next();
 		});
 
 		// Create power button
@@ -941,13 +964,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		return me.createCommon(name, mtitle, code);
 	}
 
-	this.next = function (el) {
+	/*this.next = function (el) {
 		el.value = edenUI.plugins.ScriptInput.nextHistory();
 	};
 
 	this.prev = function (el) {
 		el.value = edenUI.plugins.ScriptInput.previousHistory();
-	};
+	};*/
 
 	this.submit = function (statement, base) {
 		statement.execute(eden.root,undefined, base);
