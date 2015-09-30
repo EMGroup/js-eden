@@ -219,7 +219,7 @@ EdenAST_BinaryOp.prototype.generate = function(ctx) {
 	case "/"	: opstr = "divide"; break;
 	case "*"	: opstr = "multiply"; break;
 	case "=="	: opstr = "equal"; break;
-	case "%"	: opstr = "mode"; break;
+	case "%"	: opstr = "mod"; break;
 	case "^"	: opstr = "pow"; break;
 	default		: opstr = "RAW";
 	}
@@ -360,8 +360,10 @@ EdenAST_Definition.prototype.execute = function(root, ctx, base) {
 	}
 	//console.log("RHS = " + rhs);
 	var source = base.getSource(this);
-	root.lookup(this.lvalue.observable).define(eval(rhs), undefined, deps)//, source);
-		.eden_definition = base.getSource(this);
+	var sym = root.lookup(this.lvalue.observable);
+	sym.eden_definition = base.getSource(this);
+	sym.define(eval(rhs), undefined, deps);
+		
 }
 
 EdenAST_Definition.prototype.error = fnEdenAST_error;

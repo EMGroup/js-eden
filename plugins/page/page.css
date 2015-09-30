@@ -139,6 +139,7 @@ div.page-script-live-box {
 }
 
 div.page-canvas {
+	position: relative;
 	margin-left: 50px;
 	/*margin-top: 20px;*/
 	margin-bottom: 20px;

@@ -248,7 +248,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	var inputAgent = {name: Symbol.getInputAgentName()};
 	this.history = [];
 	this.index = 0;
-	this.autoexec = true;
+	//this.autoexec = true;
 
 	this.history = JSON.parse(edenUI.getOptionValue('history')) || [];
 	this.index = this.history.length;
@@ -366,7 +366,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var typinginterval = 2000;
 		var currentlineno = 0;
 		var highlighter = new EdenHighlight(outdiv);
-		var dodeleteinfo = false;
+		var autoexec = false;
 
 		function preloadScript(sym, value) {
 			var res = "";
@@ -469,6 +469,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		function notifyOutOfDate(symbol, value) {
+			// If power is off, don't show conflict warnings
+			if (!autoexec) return;
+
 			// Find the symbol in the ast lines and highlight that line
 			var count = 0;
 			var name = symbol.name.slice(1);
@@ -481,7 +484,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (curast && curast.lvalue &&
 						curast.lvalue.observable == name) {
 
-					//if (currentlineno-1 == i) continue;
+					// Any statement with a parent should be ignored
+					// TODO: check if statements
+					if (curast.parent) continue;
 
 					if (curast.type == "definition") {
 						// Compare eden definitions
@@ -490,6 +495,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						}
 					} else if (curast.type == "assignment") {
 						var myval = curast.expression.execute(eden.root,undefined);
+						// TODO compare eden value string?
 						if (myval != value) {
 							addWarningLine(i+1, "This line says '"+name+"' = '" + myval + "', but somewhere else it changed to '"+value+"'. Please choose a resolution.");
 						}
@@ -501,19 +507,30 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function doneTyping() {
 			amtyping = false;
-			if (me.autoexec && highlighter.ast.script.errors.length == 0) {
-				outputbox.innerHTML = "";
+			// Clear the typing animation
+			outputbox.innerHTML = "";
+
+			if (autoexec && highlighter.ast.script.errors.length == 0) {
+				// Get current line number
 				var lineno = getLineNumber(intextarea)-1;
 
+				// If the current line has a statement
 				if (highlighter.ast.lines[lineno]) {
 					var ast = highlighter.ast.lines[lineno];
+
+					// If the statement is a definition or assignment
 					if (ast.type == "definition" || ast.type == "assignment") {
 						var observable = highlighter.ast.lines[lineno].lvalue.observable;
 						var sym = eden.root.lookup(observable);
 						var val = sym.value();
+
+						// Show a warning if it evaluates to undefined
+						// TODO: use _option_showundefined
 						if (val === undefined) {
 							// Find why it is undefined...
 							var undef = checkUndefined(ast.dependencies);
+
+							// One of its dependencies is undefined...
 							if (undef.length > 0) {
 								var undefstr = "";
 								for (var i=0; i<undef.length; i++) {
@@ -527,10 +544,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 									addWarningLine(currentlineno);
 									showInfoBox("warning", "<b>" + observable + "</b> "+ Language.ui.input_window.is_undef_because +" "+undefstr+" " + Language.ui.input_window.are_undef);
 								}
+							// Its undefined but we don't know why
 							} else {
 								addWarningLine(currentlineno);
 								showInfoBox("warning", observable + " " + Language.ui.input_window.is_undef);
 							}
+						// Not undefined but still check if a dependency is undefined.
 						} else {
 							var undef = checkUndefined(ast.dependencies);
 							if (undef.length > 0) {
@@ -547,6 +566,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 									addWarningLine(currentlineno);
 									showInfoBox("warning", "<b>" + observable + "</b> "+Language.ui.input_window.uses_undef+" "+undefstr);
 								}
+							// Not undefined and no undefined dependencies so show value :)
 							} else {
 								var rep = makeRepresentative(val,15,sym);
 								hideInfoBox();
@@ -560,7 +580,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				} else {
 					hideInfoBox();
 				}
-			} else if (me.autoexec) {
+			} else if (autoexec) {
 				showInfoBox("error", highlighter.ast.script.errors[0].messageText());
 				addErrorLine(highlighter.ast.script.errors[0].line, highlighter.ast.script.errors[0].messageText());
 			} else {
@@ -568,39 +588,20 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
-		/*$( textarea ).tooltip({
-			position: {
-				my: "center bottom-15",
-				at: "center top",
-				using: function( position, feedback ) {
-					$( this ).css( position );
-					$( "<div>" )
-					.addClass( "arrow" )
-					.addClass( feedback.vertical )
-					.addClass( feedback.horizontal )
-					.appendTo( this );
-				}
-			},
-			items: "span",
-			content: function() {
-				var element = $(this);
-				if (element.hasClass("eden-error")) {
-					return element.attr( "title" );
-				}
-				var text = this.textContent;
-				if (eden.root.symbols[text] !== undefined) {
-					var sym = eden.root.lookup(text);
-					return makeRepresentative(sym.value(),60,sym);
-				}
-			}
-		});*/
-
+		/**
+		 * Replace a particular line with the given content.
+		 * Can be used for autocompletion.
+		 */
 		function replaceLine(lineno, content) {
 			var lines = intextarea.value.split("\n");
 			lines[lineno] = content;
 			intextarea.value = lines.join("\n");
 		}
 
+		/**
+		 * When clicking or using a syntax highlighted element, find which
+		 * source line this corresponds to. Used by number dragging.
+		 */
 		function findElementLineNumber(element) {
 			var el = element;
 			while (el.parentNode !== outdiv) el = el.parentNode;
@@ -614,51 +615,56 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function highlightContent(ast, lineno, position) {
 			highlighter.highlight(ast, lineno, position);
 
-			/* Number dragging code */
-			$(outdiv).find('.eden-number').draggable({
-				helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
-				axis: 'x',
-				drag: function(e,u) {
-					var newval = Math.round(dragvalue + ((u.position.left - dragstart) / 2));
-					if (newval != draglast) {
-						draglast = newval;
-						e.target.innerHTML = "" + newval;
+			/* Number dragging code, but only if live */
+			if (autoexec) {
+				$(outdiv).find('.eden-number').draggable({
+					helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
+					axis: 'x',
+					drag: function(e,u) {
+						var newval = Math.round(dragvalue + ((u.position.left - dragstart) / 2));
+						if (newval != draglast) {
+							draglast = newval;
+							e.target.innerHTML = "" + newval;
 
-						replaceLine(dragline, e.target.parentNode.textContent);
+							replaceLine(dragline, e.target.parentNode.textContent);
 
-						var ast = new EdenAST(intextarea.value);
+							var ast = new EdenAST(intextarea.value);
 
-						// Execute if no errors!
-						if (me.autoexec && ast.script.errors.length == 0) {
-							if (ast.lines[dragline]) {
-								//console.log("EXEC: " + ast.getSource(ast.lines[dragline]));
-								me.submit(ast.lines[dragline], ast);
+							// Execute if no errors!
+							if (autoexec && ast.script.errors.length == 0) {
+								if (ast.lines[dragline]) {
+									//console.log("EXEC: " + ast.getSource(ast.lines[dragline]));
+									me.submit(ast.lines[dragline], ast);
+								}
 							}
 						}
-					}
-				},
-				start: function(e,u) {
-					// Calculate the line we are on
-					dragline = findElementLineNumber(e.target);
-					dragstart = u.position.left;
-					dragvalue = parseInt(e.target.textContent);
-					draglast = dragvalue;
-					console.log(e);
-					console.log("Drag: " + dragline);
-					$(e.target).addClass("eden-select");
-					$(outdiv).css("cursor","ew-resize");
-				},
-				stop: function(e,u) {
-					$(e.target).removeClass("eden-select");
-					$(outdiv).css("cursor","text");
-					updateEntireHighlight();
-					dragline = -1;
-				},
-				cursor: 'move',
-				cursorAt: {top: -5, left: -5}
-			});
+					},
+					start: function(e,u) {
+						// Calculate the line we are on
+						dragline = findElementLineNumber(e.target);
+						dragstart = u.position.left;
+						dragvalue = parseInt(e.target.textContent);
+						draglast = dragvalue;
+						console.log(e);
+						console.log("Drag: " + dragline);
+						$(e.target).addClass("eden-select");
+						$(outdiv).css("cursor","ew-resize");
+					},
+					stop: function(e,u) {
+						$(e.target).removeClass("eden-select");
+						$(outdiv).css("cursor","text");
+						updateEntireHighlight();
+						dragline = -1;
+					},
+					cursor: 'move',
+					cursorAt: {top: -5, left: -5}
+				});
+			}
 		}
 
+		/**
+		 * Return the current line.
+		 */
 		function getLineNumber(textarea) {
 			currentlineno = textarea.value.substr(0, textarea.selectionStart).split("\n").length;
 			return currentlineno;
@@ -667,16 +673,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function powerOff() {
 			powerOk();
 			$powerbutton.removeClass("power-on").addClass("power-off");
-			me.autoexec = false;
+			autoexec = false;
 		}
 
 		function powerOn() {
 			$powerbutton.removeClass("power-off").addClass("power-on");
-			me.autoexec = true;
+			autoexec = true;
 		}
 
 		function powerError() {
-			if (me.autoexec) {
+			if (autoexec) {
 				$powerbutton.addClass("power-error");
 			}
 		}
@@ -688,7 +694,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		function powerToggle() {
-			if (me.autoexec) {
+			if (autoexec) {
 				powerOff();
 			} else {
 				powerOn();
@@ -713,10 +719,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 			// If we should run the statement (there are no errors)
-			if (me.autoexec && highlighter.ast.script.errors.length == 0) {
+			if (autoexec && highlighter.ast.script.errors.length == 0) {
 				powerOk();
 				submitLine(highlighter.ast, currentlineno-1);
-			} else if (me.autoexec) {
+			} else if (autoexec) {
 				powerError();
 			}
 
@@ -777,13 +783,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				} else {
 					suggestions.hide("fast");
 				}*/
-		}).on('keyup', '.hidden-textarea', function(e) {
+		}).on('keydown', '.hidden-textarea', function(e) {
 			if (!e.ctrlKey && e.keyCode != 17) {
 				if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
 					var scrollpos = $codearea.get(0).scrollTop;
 					updateLineCachedHighlight();
 					$codearea.scrollTop(scrollpos);
 				}
+				//console.log(e.keyCode);
 			} else if (e.ctrlKey) {
 				console.log(e);
 
@@ -798,8 +805,19 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					//console.log(intextarea.value);
 					//suggestions.hide("fast");
 					$powerbutton.removeClass("power-on").addClass("power-off");
-					me.autoexec = false;
+					autoexec = false;
 				}
+			}
+		}).on('keyup', '.hidden-textarea', function(e) {
+			if (!e.ctrlKey && (	e.keyCode == 37 ||	//Arrow keys
+								e.keyCode == 38 ||
+								e.keyCode == 39 ||
+								e.keyCode == 40 ||
+								e.keyCode == 36 ||	// Home key
+								e.keyCode == 35)) {	// End key
+				var scrollpos = $codearea.get(0).scrollTop;
+				updateLineCachedHighlight();
+				$codearea.scrollTop(scrollpos);
 			}
 		}).on('keydown', '.outputcontent', function(e) {
 			if (e.ctrlKey) {
@@ -815,11 +833,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				$(intextarea).focus();
 				intextarea.selectionEnd = end;
 				intextarea.selectionStart = start;
-			}
-		}).on('keydown', '.hidden-textarea', function(e) {
-			if (e.shiftKey && (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40)) {
-				console.log("SELECTING");
-				$(outdiv).focus();
 			}
 		}).on('blur', '.hidden-textarea', function(e) {
 			$(outdiv).find(".fake-caret").remove();
@@ -839,15 +852,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		});
 
-		var $powerbutton = $('<div class="scriptswitch power-on" title="Live Coding">&#xF011;</div>');
-
+		// Create power button
+		var $powerbutton = $('<div class="scriptswitch power-off" title="Live Coding">&#xF011;</div>');
 		$dialogContents.append($powerbutton);
 		var powerbutton = $powerbutton.get(0);
 
 		$powerbutton.click(function (e) {
-			me.autoexec = !me.autoexec;
+			autoexec = !autoexec;
 
-			if (me.autoexec) {
+			if (autoexec) {
 				powerOn();
 				updateEntireHighlight();
 				me.submit(highlighter.ast.script, highlighter.ast);
