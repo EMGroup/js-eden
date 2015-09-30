@@ -63,7 +63,7 @@ div.info-bar {
 	position: absolute;
 	left: 100px;
 	right: 100px;
-	bottom: 50px;
+	bottom: 15px;
 	min-height: 30px;
 	background-color: #395069;
 	opacity: 0.9;
@@ -83,7 +83,7 @@ div.info-bar {
 	font-weight: normal;
 	vertical-align: middle;
 	color: white;
-	z-index: 5;
+	z-index: 7;
 }
 
 div.info-item {
@@ -183,20 +183,20 @@ div.info-erroritem:before {
   0%,
   80%,
   100% {
-    box-shadow: 0 2.5em 0 -1.3em #666;
+    box-shadow: 0 2.5em 0 -1.3em #999;
   }
   40% {
-    box-shadow: 0 2.5em 0 0 #666;
+    box-shadow: 0 2.5em 0 0 #999;
   }
 }
 @keyframes load7 {
   0%,
   80%,
   100% {
-    box-shadow: 0 2.5em 0 -1.3em #666;
+    box-shadow: 0 2.5em 0 -1.3em #999;
   }
   40% {
-    box-shadow: 0 2.5em 0 0 #666;
+    box-shadow: 0 2.5em 0 0 #999;
   }
 }
 
@@ -218,15 +218,16 @@ div.control-bar {
 	bottom: 0;
 	height: 30px;
 	/*background-color: #f1f1f1;*/
-	background: -webkit-linear-gradient(#fafafa, #eeeeee); /* For Safari 5.1 to 6.0 */
-	background: -o-linear-gradient(#fafafa, #eeeeee); /* For Opera 11.1 to 12.0 */
-	background: -moz-linear-gradient(#fafafa, #eeeeee); /* For Firefox 3.6 to 15 */
-	background: linear-gradient(#fafafa, #eeeeee); /* Standard syntax */
+	/*background: -webkit-linear-gradient(#fafafa, #eeeeee); 
+	background: -o-linear-gradient(#fafafa, #eeeeee); 
+	background: -moz-linear-gradient(#fafafa, #eeeeee); 
+	background: linear-gradient(#fafafa, #eeeeee); */
+	background: #f5f5f5;
 
-	box-shadow: 0 0 10px #4a6887;
-	border-top-color: #777;
-	border-top-style: solid;
-	border-top-width: 1px;
+	/*border-left-width: 20px;
+	border-left-style: solid;
+	border-left-color: #f5f5f5;
+	box-sizing: border-box;*/
 	border-bottom-left-radius: 6px;
 	border-bottom-right-radius: 6px;
 	border-top-left-radius: 0px;

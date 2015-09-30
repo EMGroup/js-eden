@@ -35,7 +35,7 @@ textC is Text("C", originX+(lengthB / 2)+10, originY-(lengthA / 2)+20, 26);
 
 picture_1 is [lineA,lineB,lineC,textA,textB,textC,textLA,textLB,textLC];
 
-ws_script1 is Script with static=false, name="WSScript1", lines=6, code=[
+ws_script1 is Script with static=false, name="WSScript1", lines=4, code=[
 "lengthA = 100;",
 "lengthB = 80;",
 "lengthC is 0;"

@@ -359,7 +359,8 @@ EdenAST_Definition.prototype.execute = function(root, ctx, base) {
 		deps.push(d);
 	}
 	//console.log("RHS = " + rhs);
-	root.lookup(this.lvalue.observable).define(eval(rhs), undefined, deps)
+	var source = base.getSource(this);
+	root.lookup(this.lvalue.observable).define(eval(rhs), undefined, deps)//, source);
 		.eden_definition = base.getSource(this);
 }
 

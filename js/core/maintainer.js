@@ -683,10 +683,12 @@
 	 * @param {function(Folder)} definition
 	 * @param {Symbol} modifying_agent Agent modifying this Symbol.
 	 */
-	Symbol.prototype.define = function (definition, modifying_agent, subscriptions) {
+	Symbol.prototype.define = function (definition, modifying_agent, subscriptions, edencode) {
 		this.garbage = false;
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = definition;
+
+		if (edencode) this.eden_definition = edencode;
 
 		// symbol no longer observes or depends on anything
 		this.clearObservees();

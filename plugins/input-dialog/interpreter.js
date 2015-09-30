@@ -466,9 +466,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function addErrorLine(lineno, msg) {
 			var $line = $(outdiv.childNodes[lineno-1]);
 			$line.addClass("eden-actual-errorline");
-			if (msg) {
-				outdiv.childNodes[lineno-1].title = msg;
-			}
 		}
 
 		function notifyOutOfDate(symbol, value) {
@@ -484,8 +481,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (curast && curast.lvalue &&
 						curast.lvalue.observable == name) {
 
+					//if (currentlineno-1 == i) continue;
+
 					if (curast.type == "definition") {
 						// Compare eden definitions
+						if (symbol.eden_definition != highlighter.ast.getSource(curast)) {
+							addWarningLine(i+1, "Definition has been changed elsewhere.");
+						}
 					} else if (curast.type == "assignment") {
 						var myval = curast.expression.execute(eden.root,undefined);
 						if (myval != value) {
@@ -838,8 +840,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		});
 
 		var $powerbutton = $('<div class="scriptswitch power-on" title="Live Coding">&#xF011;</div>');
-		//$dialog.parent().find(".ui-dialog-titlebar").append($powerbutton);
-		$codearea.append($powerbutton);
+
+		$dialogContents.append($powerbutton);
 		var powerbutton = $powerbutton.get(0);
 
 		$powerbutton.click(function (e) {
@@ -866,12 +868,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var simpleName = name.slice(0, -7);
 		$dialogContents = me.createCommon(simpleName, mtitle, code);
 
+		var idealheight = 224;
+		if (code) {
+			var linecount = $dialogContents.find("textarea").val().split("\n").length;
+			idealheight = EdenUI.plugins.ScriptInput.getRequiredHeight(linecount + 1);
+		}
+
 		$dialog = $('<div id="'+name+'"></div>')
 			.html($dialogContents)
 			.dialog({
 				title: mtitle,
 				width: 500,
-				height: 224,
+				height: idealheight,
 				minHeight: 203,
 				minWidth: 500,
 				dialogClass: "input-dialog"
