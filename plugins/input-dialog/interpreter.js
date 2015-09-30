@@ -367,6 +367,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var currentlineno = 0;
 		var highlighter = new EdenHighlight(outdiv);
 		var autoexec = false;
+		var inputchanged = false;
 
 		function preloadScript(sym, value) {
 			var res = "";
@@ -568,10 +569,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 								}
 							// Not undefined and no undefined dependencies so show value :)
 							} else {
-								var rep = makeRepresentative(val,15,sym);
+								//var rep = makeRepresentative(val,15,sym);
 								hideInfoBox();
-								outputbox.innerHTML = "<div class='info-validitem'><span>"+observable + "<span class='valueof'>&#xf178;</span></span></div>";
-								rep.appendTo($(outputbox).find("div"));
+								//outputbox.innerHTML = "<div class='info-validitem'><span>"+observable + "<span class='valueof'>&#xf178;</span></span></div>";
+								//rep.appendTo($(outputbox).find("div"));
 							}
 						}
 					} else {
@@ -580,7 +581,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				} else {
 					hideInfoBox();
 				}
-			} else if (autoexec) {
+			} else if (highlighter.ast.script.errors.length != 0) {
 				showInfoBox("error", highlighter.ast.script.errors[0].messageText());
 				addErrorLine(highlighter.ast.script.errors[0].line, highlighter.ast.script.errors[0].messageText());
 			} else {
@@ -590,7 +591,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		/**
 		 * Replace a particular line with the given content.
-		 * Can be used for autocompletion.
+		 * Can be used for autocompletion and number dragging.
 		 */
 		function replaceLine(lineno, content) {
 			var lines = intextarea.value.split("\n");
@@ -645,8 +646,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						dragstart = u.position.left;
 						dragvalue = parseInt(e.target.textContent);
 						draglast = dragvalue;
-						console.log(e);
-						console.log("Drag: " + dragline);
+						// TODO: detect floats and also detect increment scale.
 						$(e.target).addClass("eden-select");
 						$(outdiv).css("cursor","ew-resize");
 					},
@@ -655,6 +655,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						$(outdiv).css("cursor","text");
 						updateEntireHighlight();
 						dragline = -1;
+						inputchanged = true;
 					},
 					cursor: 'move',
 					cursorAt: {top: -5, left: -5}
@@ -701,7 +702,19 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
+		function setCaretToFakeCaret() {
+			var el = $(outdiv).find(".fake-caret").get(0);
+			var range = document.createRange();
+			var sel = window.getSelection();
+			range.setStart(el, 0);
+			range.collapse(true);
+			sel.removeAllRanges();
+			sel.addRange(range);
+		}
+
 		$dialogContents.on('input', '.hidden-textarea', function (e) {
+			inputchanged = true;
+
 			// Typing status, error messages and result value are delayed
 			// by "typinginterval", so restart timeout.
 			clearTimeout(typingtimer);
@@ -786,6 +799,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}).on('keydown', '.hidden-textarea', function(e) {
 			if (!e.ctrlKey && e.keyCode != 17) {
 				if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
+					if (e.shiftKey) {
+						setCaretToFakeCaret();
+						outdiv.focus();
+						return;
+					}
 					var scrollpos = $codearea.get(0).scrollTop;
 					updateLineCachedHighlight();
 					$codearea.scrollTop(scrollpos);
@@ -822,17 +840,21 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}).on('keydown', '.outputcontent', function(e) {
 			if (e.ctrlKey) {
 
-			} else {
-				console.log("DIV KEY DOWN");
+			} else if (!(e.shiftKey && (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40))) {
 				var end = getCaretCharacterOffsetWithin(outdiv);
 				var start = getStartCaretCharacterOffsetWithin(outdiv);
-				console.log(e.keyCode);
+
 				if (e.keyCode == 8) {
 					intextarea.value = intextarea.value.slice(0,start) + intextarea.value.slice(end);
+					$(intextarea).focus();
+					intextarea.selectionEnd = start;
+					intextarea.selectionStart = start;					
+					updateEntireHighlight();
+				} else {
+					$(intextarea).focus();
+					intextarea.selectionEnd = end;
+					intextarea.selectionStart = start;
 				}
-				$(intextarea).focus();
-				intextarea.selectionEnd = end;
-				intextarea.selectionStart = start;
 			}
 		}).on('blur', '.hidden-textarea', function(e) {
 			$(outdiv).find(".fake-caret").remove();
@@ -851,10 +873,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				$codearea.scrollTop(scrollpos);
 			}
 		}).on('click', '.previous-input', function(e) {
-			intextarea.value = edenUI.plugins.ScriptInput.prevHistory();
+			if (inputchanged && intextarea.value != "") me.addHistory(intextarea.value);
+			powerOff();
+			intextarea.value = edenUI.plugins.ScriptInput.previousHistory();
+			updateEntireHighlight();
+			inputchanged = false;
 		}).on('click', '.next-input', function(e) {
-			console.log("NEXT");
+			if (inputchanged && intextarea.value != "") me.addHistory(intextarea.value);
+			powerOff();
 			intextarea.value = edenUI.plugins.ScriptInput.nextHistory();
+			updateEntireHighlight();
+			inputchanged = false;
 		});
 
 		// Create power button
