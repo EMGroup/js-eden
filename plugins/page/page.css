@@ -1,16 +1,16 @@
 div.main-page {
 	position: absolute;
 	top: 25px;
-	width: 80%;
+	width: 100%;
 	/*bottom: 0;*/
-	min-height: calc(100% - 25px);
+	height: calc(100% - 25px);
 	background: white;
-	left: 10%;
-	box-shadow: 0px 0px 20px black;
+	/*box-shadow: 0px 0px 20px black;*/
 	/*font-family: museo-slab, Georgia, "Times New Roman", Times, serif;*/
 	font-family: proxima-nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	overflow: auto;
 }
 
 .page-body {
@@ -128,7 +128,7 @@ div.page-script-live {
 	width: 50%;
 	height: 160px;
 	margin-bottom: 40px;
-	overflow: hidden;
+	overflow: visible;
 }
 
 div.page-script-live-box {

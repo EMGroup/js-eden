@@ -1,5 +1,5 @@
 #menubar-main {
-	position: fixed;
+	position: absolute;
 	left: 0px;
 	right: 0px;
 	top: 0px;
@@ -11,7 +11,7 @@
 	padding-left: 20px;
 	padding-top: 4px;
 	padding-right: 20px;
-	z-index: 2;
+	z-index: 2147483647;
 }
 
 .menubar-mainitem:hover {
@@ -27,13 +27,13 @@
 }
 
 #menubar-bottom {
-	position: fixed;
+	position: absolute;
 	left: 0px;
 	right: 0px;
 	top: 29px;
 	height: 5px;
 	background-image: url('../../images/menu-bottomgrad.png');
-	z-index: 2;
+	z-index: 2147483646;
 }
 
 .menubar-mainitem {

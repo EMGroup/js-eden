@@ -56,7 +56,7 @@ if (!("keys") in Object) {
  * exec: A piece of JS-EDEN code to execute after the included construal has been loaded.
  * lang: Human language to use for parser and UI. E.g. lang=en for English.
 */
-function initialiseJSEden() {
+function initialiseJSEden(callback) {
 	root = new Folder();
 	eden = new Eden(root);
 	
@@ -156,6 +156,8 @@ function initialiseJSEden() {
 				}
 				eden.execute(exec, "URL", "", {name: "execute"}, function () { });
 			}
+
+			if (callback) callback();
 		}
 
 		// Load the Eden library scripts
