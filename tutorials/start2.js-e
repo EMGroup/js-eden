@@ -2,11 +2,11 @@
 
 require("Page");
 
-func include2 {
-	para file;
-	${{ edenUI.eden.include2(arguments[0], success) }}$;
-}
+##func include2 {
+##	para file;
+##	${{ edenUI.eden.include2(arguments[0], success) }}$;
+##}
 
-include2("tutorials/common.js-e");
+##include2("tutorials/common.js-e");
 include2("tutorials/triangles.js-e");
 

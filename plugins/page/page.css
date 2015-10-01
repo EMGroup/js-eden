@@ -108,6 +108,7 @@ div.page-script-static {
 	padding: 10px;
 	margin-left: 50px;
 	width: 50%;
+	min-width: 400px;
 	border-color: #ccc;
 	border-width: 1px;
 	border-style: solid;
@@ -126,6 +127,7 @@ div.page-script-live {
 	position: relative;
 	margin-left: 50px;
 	width: 50%;
+	min-width: 400px;
 	height: 160px;
 	margin-bottom: 40px;
 	overflow: visible;

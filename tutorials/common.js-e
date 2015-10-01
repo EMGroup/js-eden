@@ -1,16 +1,4 @@
 ## Tutorial Common Code
 
-tut1 is MenuItem("tut1","1) The Environment");
-tut2 is MenuItem("tut2","2) Basic Dependencies");
-tut3 is MenuItem("tut3","3) Mathematical Operators");
-tut4 is MenuItem("tut4","4) Drawing Lines");
-tutsmenuitems is [tut1,tut2,tut3,tut4];
-tutsmenu is Menu("Tutorials", tutsmenuitems);
-menus is [tutsmenu];
 
-##proc tut1Load : tut1_clicked {
-##	if (tut1_clicked) {
-##		include("tutorials/basic-defs.js-e");
-##	}
-##}
 

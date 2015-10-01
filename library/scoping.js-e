@@ -1,0 +1,43 @@
+class is [name,members];
+__object_single_member is `class[2][i]`;
+object is [class] // __object_single_member with i=1..class[2]#;
+member is this[indexOf(name,this[1][2])+1];
+typeof is this[1][1];
+classof is this[1];
+
+_override_item is value if i == index else list[i];
+override is _override_item with i = 1 .. list#;
+
+_sum is (list[i] + _sum with (i = i + 1)) if i <= list# else 0;
+sum is _sum with i = 1;
+
+round is ${{ Math.round(context.lookup("number").value(scope)) }}$;
+
+CPoint is class with members=["x","y"], name="point";
+point is object with
+	class = CPoint,
+	x = x if x else 0,
+	y = y if y else 0;
+
+CLine is class with members=["a","b","colour","width"], name="line";
+line is object with
+	class = CLine,
+	a = a if a else point,
+	b = b if b else point,
+	color = colour if colour else "black";
+
+__translate is point with
+	x = (member with this = p, name = "x")+x,
+	y = (member with this = p, name = "y")+y;
+translate is __translate with
+	x = x if x else 0,
+	y = y if y else 0;
+
+__rotate is [((p[1]-o[1])*cos(theta)-(p[2]-o[2])*sin(theta))+o[1], ((p[1]-o[1])*sin(theta)-(p[2]-o[2])*cos(theta))+o[2]];
+rotate is __rotate with p = p if p else point;
+
+__scale is [p[1]*scalex,p[2]*scaley];
+scale is __scale with
+	scalex = scalex if scalex else 0,
+	scaley = scaley if scaley else 0;
+

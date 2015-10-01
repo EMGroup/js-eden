@@ -1,25 +1,52 @@
 ## Page Plugin
 
-__Page is ["page",title,theme,content];
-Page is __Page with theme = (theme)?theme:"default";
+CPage is class with members = ["title","theme","content"], name="page";
+Page is object with
+	class = CPage,
+	theme = theme if theme else "default";
 
-__Title is ["title", text, subtitle, logo, menus];
-Title is __Title with text=(text)?text:"Title", subtitle=(subtitle)?subtitle:"Subtitle";
+CTitle is class with members = ["text", "subtitle", "logo", "menus"], name="title";
+Title is object with
+	class = CTitle,
+	text = text if text else "Title",
+	subtitle = subtitle if subtitle else "Subtitle";
 
-__Icon is ["icon", content, size, colour];
-Icon is __Icon with content=(content)?content:"@", size=(size)?size:20, colour=(colour)?colour:"black";
+CIcon is class with members = ["content", "size", "colour"], name="icon";
+Icon is object with
+	class = CIcon,
+	content = content if content else "@",
+	size = size if size else 20,
+	colour = colour if colour else "black";
 
-__Header is ["header", text, tag, level];
-Header is __Header with text=(text)?text:"Header", level=(level)?level:0;
+CHeader is class with members = ["text", "tag", "level"], name="header";
+Header is object with
+	class = CHeader,
+	text = text if text else "Header",
+	level = level if level else 0;
 
-__Paragraph is ["p", text];
-Paragraph is __Paragraph with text=(text)?text:"Some text goes here";
+CParagraph is class with members = ["text"], name="p";
+Paragraph is object with
+	class = CParagraph,
+	text = text if text else "Some text goes here";
 
-__Script is ["script", static, code, name, box, lines];
-Script is __Script with static=(static!=@)?static:true, code=(code)?code:"", name=(name)?name:"EmbeddedInput", box=(box!=@)?box:true, lines=(lines)?lines:5;
+CScript is class with members = ["static", "code", "name", "box", "lines", "power", "float"], name="script";
+Script is object with
+	class = CScript,
+	static = static if static != @ else true,
+	code = code if code else "",
+	name = name if name else "EmbeddedInput",
+	box = box if box != @ else true,
+	lines = lines if lines else 5,
+	power = power if power != @ else false,
+	float = float if float else "none";
 
-__Canvas is ["canvas", name, source, width, height];
-Canvas is __Canvas with name=(name)?name:"Picture", source=(source)?source:"picture", width=(width)?width:500, height=(height)?height:200;
+CCanvas is class with members = ["name", "source", "width", "height"], name="canvas";
+Canvas is object with
+	class = CCanvas,
+	name = name if name else "Picture",
+	source = source if source else "picture",
+	width = width if width else 500,
+	height = height if height else 200;
 
 ## Initial Default Page
 

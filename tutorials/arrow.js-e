@@ -1,0 +1,28 @@
+left_arrow_left = 10;
+left_arrow_mid is left_arrow_top + (left_arrow_height / 2);
+left_arrow_top = 10;
+left_arrow_height = 20;
+left_arrow_right is left_arrow_left + left_arrow_width;
+left_arrow_width = 50;
+left_arrow_colour = "black";
+left_arrow_pointyness = 0.3;
+
+left_arrow_mainline is Line(
+	left_arrow_left, left_arrow_mid,
+	left_arrow_right, left_arrow_mid,
+	left_arrow_colour
+);
+left_arrow_topline is Line(left_arrow_left, left_arrow_mid, left_arrow_left + floor(left_arrow_pointyness * left_arrow_width), left_arrow_top, left_arrow_colour);
+left_arrow_bottomline is Line(left_arrow_left, left_arrow_mid, left_arrow_left + floor(left_arrow_pointyness * left_arrow_width), left_arrow_top + left_arrow_height, left_arrow_colour);
+
+left_arrow is [left_arrow_mainline, left_arrow_topline, left_arrow_bottomline];
+
+LeftArrow is left_arrow with
+	left_arrow_left = x if x else 10,
+	left_arrow_top = y if y else 10,
+	left_arrow_height = height if height else 20,
+	left_arrow_width = width if width else 50,
+	left_arrow_colour = colour if colour else "black",
+	left_arrow_pointyness = pointyness if pointyness else 0.3;
+
+picture is LeftArrow;

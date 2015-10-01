@@ -25,8 +25,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	var scripts = {};
 
 	function generateIcon(icon) {
-		if (!icon) return "";
-		if (icon[0] != "icon") return "";
+		if (!icon || !icon[0]) return "";
+		if (icon[0][0] != "icon") return "";
 		var res = $("<div class='page-icon'>"+icon[1]+"</div>");
 		res.css("font-size", icon[2]+"px");
 		res.css("color", icon[3]);
@@ -34,12 +34,12 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	}
 
 	function generateTitle(title) {
-		if (!title) return "";
-		if (title[0] != "title") return "";
+		if (!title || !title[0]) return "";
+		if (title[0][0] != "title") return "";
 		var tit = $("<div class='page-title "+theme+"'><div class='page-title-block'><span class='page-title-text "+theme+"'>"+title[1]+"</span><br/><span class='page-subtitle-text "+theme+"'>"+title[2]+"</span></div></div>");
-		if (title[3] !== undefined) {
+		if (title[3] !== undefined && title[3][0] !== undefined) {
 			var logo = $("<div class='page-title-logo'></div>");
-			switch(title[3][0]) {
+			switch(title[3][0][0]) {
 			case "icon"		: generateIcon(title[3]).appendTo(logo);
 			}
 			logo.appendTo(tit);
@@ -48,7 +48,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	}
 
 	function generateHeader(header) {
-		if (!header) return "";
+		if (!header || !header[0]) return "";
 		if (header[0] != "header") return "";
 
 		switch(header[3]) {
@@ -58,8 +58,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	}
 
 	function generateParagraph(p) {
-		if (!p) return "";
-		if (p[0] != "p") return "";
+		if (!p || !p[0]) return "";
+		if (p[0][0] != "p") return "";
 
 		var text;
 		if (p[1] instanceof Array) {
@@ -72,35 +72,47 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	}
 
 	function generateScript(script) {
-		if (!script) return;
-		if (script[0] != "script") return;
+		if (!script || !script[0]) return;
+		if (script[0][0] != "script") return;
 
-		if (script[1] == false) {
+		var isStatic = script[1];
+		var code = script[2];
+		var name = script[3];
+		var box = script[4];
+		var lines = script[5];
+		var power = script[6];
+		var float = script[7];
+
+		if (isStatic == false) {
 			var embedded;
-			if (scripts[script[3]]) {
-				embedded = scripts[script[3]];
+			if (scripts[name]) {
+				embedded = scripts[name];
 			} else {
-				embedded = edenUI.views.ScriptInput.embed(script[3], script[3], script[2]);
-				scripts[script[3]] = embedded;
+				embedded = edenUI.views.ScriptInput.embed(name, name, code);
+				scripts[name] = embedded;
 			}
 			var container;
-			if (script[4]) {
+			if (box) {
 				container = $("<div class='page-script-live page-script-live-box'></div>");
 			} else {
 				container = $("<div class='page-script-live'></div>");
 			}
 			var height = EdenUI.plugins.ScriptInput.getRequiredHeight(script[5]);
 			container.height(height);
+
+			if (float != "none") {
+				container.css("float",float);
+			}
+
 			embedded.appendTo(container);
 			return container;
 		} else {
 			var hl = new EdenHighlight();
 			var text;
-			if (script[2] instanceof Array) {
-				text = EdenUI.plugins.ScriptInput.buildScriptFromList(script[2]);
-				//console.log("SCRIPT: " + text);
+			if (code instanceof Array) {
+				text = EdenUI.plugins.ScriptInput.buildScriptFromList(code);
 			} else {
-				text = script[2];
+				text = code;
 			}
 			var ast = new EdenAST(text);
 			var hs = hl.highlight(ast,-1,-1);
@@ -131,7 +143,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 
 		for (var i=0; i<content.length; i++) {
 			if (content[i] === undefined) continue;
-			switch(content[i][0]) {
+			switch(content[i][0][0]) {
 			case "header"	: res.append(generateHeader(content[i])); break;
 			case "p"		: res.append(generateParagraph(content[i])); break;
 			case "script"	: res.append(generateScript(content[i])); break;

@@ -485,6 +485,12 @@ proc arrangeWindows {
 	}
 }
 
+## Temporary: Include using the new parser.
+func include2 {
+	para file;
+	${{ edenUI.eden.include2(arguments[0], success) }}$;
+}
+
 ##Autocalc compatibility
 autocalc = 1;
 
@@ -502,6 +508,8 @@ include("library/edenclocks.js-e");
 include("library/html.js-e");
 include("library/declarevar.js-e");
 include("library/generate_function.js-e");
+
+include2("library/scoping.js-e");
 
 initialViews = ${{getParameterByName("views") }}$;
 if (initialViews == "" || initialViews == "default") {

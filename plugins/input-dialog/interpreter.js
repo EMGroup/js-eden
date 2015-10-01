@@ -847,10 +847,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					updateLineCachedHighlight();
 					$codearea.scrollTop(scrollpos);
 				}
-				//console.log(e.keyCode);
-			} else if (e.ctrlKey) {
-				console.log(e);
 
+			} else if (e.ctrlKey) {
 				if (e.keyCode === 38) {
 					// up
 					previous();
@@ -859,10 +857,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					next();
 				} else if (e.keyCode === 86) {
 					// Pasting so disable live code
-					//console.log(intextarea.value);
-					//suggestions.hide("fast");
-					$powerbutton.removeClass("power-on").addClass("power-off");
-					autoexec = false;
+					powerOff();
 				} else if (e.keyCode === 65) {
 					// Ctrl+A to select all.
 					selectAll();

@@ -514,8 +514,15 @@ EdenAST_Primary.prototype.setExtras = function(extras) {
 };
 
 EdenAST_Primary.prototype.generate = function(ctx) {
-	if (ctx && ctx.dependencies) ctx.dependencies[this.observable] = true;
-	var res = "context.lookup(\""+this.observable+"\")";
+	var res = "context.lookup(";
+
+	if (this.observable == "__BACKTICKS__") {
+		res += this.backtick.generate(ctx) + ")";
+	} else {
+		if (ctx && ctx.dependencies) ctx.dependencies[this.observable] = true;
+		res += "\""+this.observable+"\")";
+	}
+
 	var i = 0;
 	if (this.extras.length >= 1 && this.extras[0].type == "scope") {
 		if (this.extras[0].range) {

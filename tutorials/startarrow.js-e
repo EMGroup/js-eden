@@ -1,0 +1,6 @@
+## Tutorial Loader
+
+require("Page");
+
+include2(["tutorials/common.js-e", "tutorials/arrow.js-e"]);
+
