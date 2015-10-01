@@ -199,7 +199,9 @@
 				title = title + " (" + viewData.titleBarInfo + ")";
 			}
 			diag.dialog("option", "title", title);
-			me.plugins.MenuBar.updateViewsMenu();
+			if (me.plugins.MenuBar) {
+				me.plugins.MenuBar.updateViewsMenu();
+			}
 		});
 		titleSym.assign(title, agent);
 
