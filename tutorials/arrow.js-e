@@ -158,7 +158,7 @@ ws_script5 is Script with
 	code = [
 		&myarrow,
 		"",
-		"picture is arrow // myarrow;"
+		&picture_2
 	],
 	lines = 5,
 	width = 400;

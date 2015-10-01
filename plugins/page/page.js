@@ -92,7 +92,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			if (scripts[name]) {
 				embedded = scripts[name];
 			} else {
-				embedded = edenUI.views.ScriptInput.embed(name, name, code);
+				embedded = edenUI.views.ScriptInput.embed(name, name, code, power);
 				scripts[name] = embedded;
 			}
 			var container;

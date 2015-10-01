@@ -344,7 +344,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}).find(".history");
 	}
 
-	this.createCommon = function (name, mtitle, code) {
+	this.createCommon = function (name, mtitle, code, power, embedded) {
 		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div><div class="buttonsDiv"><button class="observe-input">&#xf06e;</button><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button></div><div class="outputbox"></div></div></div>')
 		var text = "";	
 		var position = 0;
@@ -366,7 +366,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var typinginterval = 2000;
 		var currentlineno = 0;
 		var highlighter = new EdenHighlight(outdiv);
-		var autoexec = false;
+		var autoexec = power;
 		var inputchanged = false;
 
 		function preloadScript(sym, value) {
@@ -623,7 +623,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function findElementLineNumber(element) {
 			var el = element;
 			while (el.parentNode !== outdiv) el = el.parentNode;
-			console.log(outdiv.childNodes);
+
 			for (var i=0; i<outdiv.childNodes.length; i++) {
 				if (outdiv.childNodes[i] === el) return i;
 			}
@@ -650,10 +650,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 							// Execute if no errors!
 							if (autoexec && ast.script.errors.length == 0) {
-								if (ast.lines[dragline]) {
-									//console.log("EXEC: " + ast.getSource(ast.lines[dragline]));
-									me.submit(ast.lines[dragline], ast);
-								}
+								submitLine(ast, dragline);
 							}
 						}
 					},
@@ -939,6 +936,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var $powerbutton = $('<div class="scriptswitch power-off" title="Live Coding">&#xF011;</div>');
 		$dialogContents.append($powerbutton);
 		var powerbutton = $powerbutton.get(0);
+		if (power) powerOn();
 
 		$powerbutton.click(function (e) {
 			autoexec = !autoexec;
@@ -953,6 +951,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		});
 
 		if (code) {
+			inputchanged = true;	// To make sure it goes into history.
 			intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(code);
 			updateEntireHighlight();
 		}
@@ -962,7 +961,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 	this.createDialog = function(name, mtitle, code) {
 		var simpleName = name.slice(0, -7);
-		$dialogContents = me.createCommon(simpleName, mtitle, code);
+		$dialogContents = me.createCommon(simpleName, mtitle, code, false, false);
 
 		var idealheight = 224;
 		if (code) {
@@ -986,8 +985,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		return {confirmClose: confirmClose, setValue: function (value) { intextarea.value = value; }};
 	};
 
-	this.createEmbedded = function(name, mtitle, code) {
-		return me.createCommon(name, mtitle, code);
+	this.createEmbedded = function(name, mtitle, code, power) {
+		return me.createCommon(name, mtitle, code, power, true);
 	}
 
 	/*this.next = function (el) {
