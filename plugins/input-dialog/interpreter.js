@@ -388,19 +388,36 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function updateLineHighlight() {
 			var ast = new EdenAST(intextarea.value);
-			var lineno = getLineNumber(intextarea);
-			highlightContent(ast, lineno, intextarea.selectionEnd);
+			var lineno = -1;
+			var pos = -1;
+			if (document.activeElement === intextarea) {
+				pos = intextarea.selectionEnd;
+				lineno = getLineNumber(intextarea);
+			}
+
+			highlightContent(ast, lineno, pos);
 			rebuildNotifications();
 		}
 
 		function updateLineCachedHighlight() {
-			var lineno = getLineNumber(intextarea);
-			highlightContent(highlighter.ast, lineno, intextarea.selectionEnd);
+			var lineno = -1;
+			var pos = -1;
+			if (document.activeElement === intextarea) {
+				pos = intextarea.selectionEnd;
+				lineno = getLineNumber(intextarea);
+			}
+
+			highlightContent(highlighter.ast, lineno, pos);
 		}
 
 		function updateEntireHighlight() {
 			var ast = new EdenAST(intextarea.value);
-			highlightContent(ast, -1, intextarea.selectionEnd);
+			var pos = -1;
+			if (document.activeElement === intextarea) {
+				pos = intextarea.selectionEnd;
+			}
+
+			highlightContent(ast, -1, pos);
 			rebuildNotifications();
 		}
 
@@ -890,7 +907,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					intextarea.selectionStart = start;					
 					updateEntireHighlight();
 				} else {
-					$(intextarea).focus();
+					intextarea.focus();
 					intextarea.selectionEnd = end;
 					intextarea.selectionStart = start;
 				}
@@ -908,7 +925,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				intextarea.selectionEnd = end;
 				intextarea.selectionStart = end;
 				var scrollpos = $codearea.get(0).scrollTop;
-				$(intextarea).focus();		
+				intextarea.focus();		
 				updateEntireHighlight();
 				$codearea.scrollTop(scrollpos);
 			}

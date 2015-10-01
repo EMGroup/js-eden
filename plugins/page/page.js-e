@@ -22,6 +22,7 @@ CHeader is class with members = ["text", "tag", "level"], name="header";
 Header is object with
 	class = CHeader,
 	text = text if text else "Header",
+	tag = tag if tag else 0,
 	level = level if level else 0;
 
 CParagraph is class with members = ["text"], name="p";
@@ -29,7 +30,7 @@ Paragraph is object with
 	class = CParagraph,
 	text = text if text else "Some text goes here";
 
-CScript is class with members = ["static", "code", "name", "box", "lines", "power", "float"], name="script";
+CScript is class with members = ["static", "code", "name", "box", "lines", "power", "float", "width"], name="script";
 Script is object with
 	class = CScript,
 	static = static if static != @ else true,
@@ -38,15 +39,20 @@ Script is object with
 	box = box if box != @ else true,
 	lines = lines if lines else 5,
 	power = power if power != @ else false,
-	float = float if float else "none";
+	float = float if float else "none",
+	width = width if width else "50%";
 
-CCanvas is class with members = ["name", "source", "width", "height"], name="canvas";
+CCanvas is class with members = ["name", "source", "width", "height", "float"], name="canvas";
 Canvas is object with
 	class = CCanvas,
 	name = name if name else "Picture",
 	source = source if source else "picture",
 	width = width if width else 500,
-	height = height if height else 200;
+	height = height if height else 200,
+	float = float if float else "none";
+
+CBreak is class with members = [], name="break";
+Break is object with class = CBreak;
 
 ## Initial Default Page
 

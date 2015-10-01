@@ -49,10 +49,13 @@ EdenUI.plugins.Page = function(edenUI, success) {
 
 	function generateHeader(header) {
 		if (!header || !header[0]) return "";
-		if (header[0] != "header") return "";
+		if (header[0][0] != "header") return "";
+
+		console.log("HEADER");
+		console.log(header);
 
 		switch(header[3]) {
-		case 0	: return $("<h1 class='page-header'>"+header[1]+"</h1>");
+		case 0	: return $("<div class='clear'/><h1 class='page-header'>"+header[1]+"</h1>");
 		case 1	: return $("<h2 class='page-header'>"+header[1]+"</h2>");
 		}
 	}
@@ -82,6 +85,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		var lines = script[5];
 		var power = script[6];
 		var float = script[7];
+		var width = script[8];
 
 		if (isStatic == false) {
 			var embedded;
@@ -102,6 +106,13 @@ EdenUI.plugins.Page = function(edenUI, success) {
 
 			if (float != "none") {
 				container.css("float",float);
+			}
+			if (width != "50%") {
+				if (typeof width == "number") {
+					container.width(width);
+				} else {
+					container.css("width", width);
+				}
 			}
 
 			embedded.appendTo(container);
@@ -132,6 +143,11 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		} else {
 			canvases[content[1]].code_entry.appendTo(container);
 		}
+
+		if (content[5] != "none") {
+			container.css("float",content[5]);
+		}
+
 		return container;
 	}
 
@@ -148,6 +164,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			case "p"		: res.append(generateParagraph(content[i])); break;
 			case "script"	: res.append(generateScript(content[i])); break;
 			case "canvas"	: res.append(generateCanvas(content[i])); break;
+			case "break"	: res.append($("<div class='clear'></div>")); break;
 			}
 		}
 		return res;

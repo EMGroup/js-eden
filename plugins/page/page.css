@@ -85,6 +85,10 @@ h2.page-header {
 	/*font-family: Arial, Helvetica, sans-serif;*/
 }
 
+div.clear {
+	clear: both;
+}
+
 h2.page-header:before {
 	position: absolute;
 	left: calc(10% - 30px);
@@ -107,6 +111,7 @@ p.page-paragraph {
 div.page-script-static {
 	padding: 10px;
 	margin-left: 50px;
+	margin-bottom: 40px;
 	width: 50%;
 	min-width: 400px;
 	border-color: #ccc;
@@ -126,6 +131,7 @@ div.page-script-static {
 div.page-script-live {
 	position: relative;
 	margin-left: 50px;
+	margin-right: 50px;
 	width: 50%;
 	min-width: 400px;
 	height: 160px;
@@ -143,6 +149,7 @@ div.page-script-live-box {
 div.page-canvas {
 	position: relative;
 	margin-left: 50px;
+	margin-right: 50px;
 	/*margin-top: 20px;*/
 	margin-bottom: 20px;
 	background: none;
