@@ -34,20 +34,6 @@ proc writeln {
   }}$;
 }
 
-##A kind of privilege level that the JS-EDEN user is constrained by.
-##
-##Possible values:
-##	"tool development": The user is allowed to write JS-EDEN code that modifies JS-EDEN itself, for
-##		example code that modifies the CSS of the user interface.
-##	"making construals": The normal mode without the extra privileges conferred by "tool development"
-##		mode.
-##	"warnings": Puts extra checks in place to warn the user about situations that are normally
-##		permissible in "making construals" mode (and reasonable in some exceptional circumstances)
-##		but that are likely indicative of mistakes made by the user in most circumstances.  An
-##		example is referring to an observable name that hasn't been defined yet.  This mode isn't
-##		implemented yet.
-_authoringMode = "making construals";
-
 ##Raises an error if fewer or greater than two arguments are given.
 ##Returns undefined if either argument is undefined.
 ##tkeden returns strange strings beginning with the word "usage" in these situations.

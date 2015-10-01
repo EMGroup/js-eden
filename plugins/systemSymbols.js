@@ -22,7 +22,7 @@
 
 //System Symbols
 Eden.systemObservableNames = {
-	"_authoringMode": true,
+	"_option_global_css": true,
 	"_menubar_status": true,
 	"PI": true,
 	"autocalc": true,
