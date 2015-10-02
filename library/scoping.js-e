@@ -27,8 +27,12 @@ line is object with
 	color = colour if colour else "black";
 
 __translate is point with
-	x = (member with this = p, name = "x")+x,
-	y = (member with this = p, name = "y")+y;
+	x = p.x+x,
+	y = p.y+y;
+
+##__translate is point with
+##	x = (member with this = p, name = "x")+x,
+##	y = (member with this = p, name = "y")+y;
 translate is __translate with
 	x = x if x else 0,
 	y = y if y else 0;

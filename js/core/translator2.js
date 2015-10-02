@@ -516,6 +516,20 @@ EdenAST.prototype.pPRIMARY_P = function() {
 			} else {
 				this.next();
 			}
+		} else if (this.token == ".") {
+			this.next();
+			var comp = new EdenAST_LValueComponent("property");
+
+			if (this.token != "OBSERVABLE") {
+				comp.errors.push(new EdenError(this, EDEN_ERROR_PROPERTYNAME));
+			} else {
+				comp.property(this.data.value);
+				this.next();
+			}
+
+			result.push(comp);
+
+			if (comp.errors.length > 0) return result;
 		} else if (this.token == "with") {
 			this.next();
 			var scope = this.pSCOPE();

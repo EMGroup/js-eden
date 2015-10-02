@@ -226,6 +226,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_OUTOFBOUNDS */ [
 	"List items start at 1"
+],
+/* EDEN_ERROR_PROPERTYNAME */ [
+	"Invalid property name"
 ]
 ];
 

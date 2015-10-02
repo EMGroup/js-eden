@@ -300,14 +300,15 @@ EdenAST_LValueComponent.prototype.index = function(pindex) {
 
 EdenAST_LValueComponent.prototype.property = function(pprop) {
 	this.observable = pprop;
-	this.errors.push.apply(this.errors, pprop.errors);
+	//this.errors.push.apply(this.errors, pprop.errors);
 }
 
-EdenAST_LValueComponent.prototype.generate = function(ctx) {
+EdenAST_LValueComponent.prototype.generate = function(ctx, obs) {
 	if (this.kind == "index") {
 		return "[("+this.indexexp.generate(ctx)+")-1]";
+	} else if (this.kind == "property") {
+		return "[context.lookup(\""+obs+"\").value(scope)[0][1].indexOf(\""+this.observable+"\")+1]";
 	}
-	// TODO Object properties?
 }
 
 EdenAST_LValueComponent.prototype.error = fnEdenAST_error;
@@ -536,7 +537,7 @@ EdenAST_Primary.prototype.generate = function(ctx) {
 	}
 
 	for (; i < this.extras.length; i++) {
-		res += this.extras[i].generate(ctx);
+		res += this.extras[i].generate(ctx, this.observable);
 	}
 	return res;
 }
