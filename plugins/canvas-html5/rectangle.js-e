@@ -5,13 +5,15 @@
 
 ${{
 Rectangle = function(x, y, width, height, fillcolour, outlinecolour, drawingOptions) {
-  this.x = x;
-  this.y = y;
-  this.width = width;
-  this.height = height;
-  this.fillcolour = fillcolour;
-  this.outlinecolour = outlinecolour;
-  this.drawingOptions = drawingOptions;
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.fillcolour = fillcolour;
+	this.outlinecolour = outlinecolour;
+	this.drawingOptions = drawingOptions;
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Rectangle");
+	this.obsName = root.currentObservableName();
 }
 }}$;
 
@@ -42,12 +44,6 @@ func Rectangle { ${{
 		if (!("join" in drawingOptions) && drawingOptions.lineWidth < 10) {
 			//Bug in Chrome v44, shape isn't drawn when miter join is used with larger line widths.
 			drawingOptions.join = "miter"
-		}
-		if (eden.isValidIdentifier(drawingOptions.name)) {
-			var clickSym = root.lookup(drawingOptions.name + "_click");
-			if (clickSym.value() === undefined) {
-				clickSym.assign(false, root.lookup("Rectangle"));
-			}
 		}
 	}
 	return new Rectangle(x, y, width, height, fillcolour, outlinecolour, drawingOptions);

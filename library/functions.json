@@ -838,6 +838,7 @@
 		},
 		"GreyPixelList": {
 			"parameters": {
+				"[name]": "",
 				"pointer_to_grayscale_values_list": "",
 				"x": "",
 				"y": "",
@@ -944,7 +945,6 @@
 		},
 		"Button": {
 			"parameters": {
-				"name": "for [name]_clicked",
 				"label": "Text for the button",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
@@ -957,7 +957,6 @@
 		},
 		"Checkbox": {
 			"parameters": {
-				"name": "for [name]_checked",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[tristate": "Allow the user to click to produce an undefined value",
@@ -1025,11 +1024,10 @@
 		},
 		"RadioButtons": {
 			"parameters": {
-				"name": "for [name]_clicked",
 				"options": "A list of strings providing the options",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"[enabled": "Boolean for combobox enabled",
+				"[enabled": "Boolean to determine if the radio buttons are enabled",
 				"[is_horizontal]]": ""
 			},
 			"return": "",
@@ -1037,7 +1035,6 @@
 		},
 		"Slider": {
 			"parameters": {
-				"name": "",
 				"min": "",
 				"max": "",
 				"step": "",
@@ -1052,7 +1049,6 @@
 		},
 		"Textbox": {
 			"parameters": {
-				"name": "",
 				"x": "",
 				"y": "",
 				"width": "",
@@ -1065,7 +1061,6 @@
 		},
 		"Combobox": {
 			"parameters": {
-				"name": "for [name]_clicked",
 				"options": "A list of strings providing the options",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
@@ -1085,7 +1080,6 @@
 		},
 		"Video": {
 			"parameters": {
-				"name": "",
 				"[preload]": ""
 			},
 			"return": "",
@@ -1232,6 +1226,15 @@
 			"return": "",
 			"description": "Removes from the symbol table all symbols whose names match a given regular expression"
 		},
+		"shapeOnTopAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"zoneOnTopAt": {
 			"parameters": {
 				"view_name_or_ptr_to_picture": "",
@@ -1240,10 +1243,70 @@
 			"return": "",
 			"description": ""
 		},
+		"observableOnTopAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"shapeOnBottomAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"zoneOnBottomAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"observableOnBottomAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"shapesAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"zonesAt": {
 			"parameters": {
 				"view_name_or_ptr_to_picture": "",
 				"point_or_xy_argument_pair" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"observablesAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"observableForShape": {
+			"parameters": {
+				"shape": ""
 			},
 			"return": "",
 			"description": ""

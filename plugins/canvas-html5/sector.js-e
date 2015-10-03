@@ -17,6 +17,8 @@ Sector = function(x, y, r, sAngle, eAngle, fillcolour, outlinecolour,drawingOpti
     this.fillcolour = fillcolour;
 	this.outlinecolour = outlinecolour;
 	this.drawingOptions = drawingOptions;
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Sector");
+	this.obsName = root.currentObservableName();
 }
 }}$;
 
@@ -43,12 +45,6 @@ func Sector { ${{
 	}
 	if (fillcolour === undefined && outlinecolour === undefined) {
 		fillcolour = "black";
-	}
-	if (drawingOptions !== undefined && eden.isValidIdentifier(drawingOptions.name)) {
-		var clickSym = root.lookup(drawingOptions.name + "_click");
-		if (clickSym.value() === undefined) {
-			clickSym.assign(false, root.lookup("Sector"));
-		}
 	}
 	return new Sector(x, y, r, sAngle, eAngle, fillcolour, outlinecolour, drawingOptions);
 }}$; };

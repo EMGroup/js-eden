@@ -22,10 +22,12 @@
 
 ${{
 Polygon = function(vertices, fillcolour, outlinecolours, drawingOptions) {
-  this.vertices = vertices;
-  this.fillcolour = fillcolour;
-  this.outlinecolours = outlinecolours;
-  this.drawingOptions = drawingOptions;
+	this.vertices = vertices;
+	this.fillcolour = fillcolour;
+	this.outlinecolours = outlinecolours;
+	this.drawingOptions = drawingOptions;
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Polygon");
+	this.obsName = root.currentObservableName();
 }
 }}$;
 
@@ -140,13 +142,6 @@ func Polygon { ${{
 			}
 		} else {
 			drawingOptions = {cap: "round", join: "round"};
-		}
-	}
-
-	if (drawingOptions !== undefined && eden.isValidIdentifier(drawingOptions.name)) {
-		var clickSym = root.lookup(drawingOptions.name + "_click");
-		if (clickSym.value() === undefined) {
-			clickSym.assign(false, root.lookup("Polygon"));
 		}
 	}
 

@@ -12,6 +12,8 @@ Ellipse = function(x, y, xradius, yradius, fillcolour, outlinecolour, drawingOpt
   this.fillcolour = fillcolour;
   this.outlinecolour = outlinecolour;
   this.drawingOptions = drawingOptions;
+  this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Ellipse");
+  this.obsName = root.currentObservableName();
 }
 }}$;
 
@@ -38,12 +40,6 @@ func Ellipse { ${{
 
 	if (fillcolour === undefined && outlinecolour === undefined) {
 		outlinecolour = "black";
-	}
-	if (drawingOptions !== undefined && eden.isValidIdentifier(drawingOptions.name)) {
-		var clickSym = root.lookup(drawingOptions.name + "_click");
-		if (clickSym.value() === undefined) {
-			clickSym.assign(false, root.lookup("Ellipse"));
-		}
 	}
 	return new Ellipse(x, y, xradius, yradius, fillcolour, outlinecolour, drawingOptions);
 }}$; };

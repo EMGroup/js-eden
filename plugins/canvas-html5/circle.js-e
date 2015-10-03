@@ -5,12 +5,19 @@
 
 ${{
 Circle = function(x, y, radius, fillcolour, outlinecolour, drawingOptions) {
-  this.x = x;
-  this.y = y;
-  this.radius = radius;
-  this.fillcolour = fillcolour;
-  this.outlinecolour = outlinecolour;
-  this.drawingOptions = drawingOptions;
+	this.x = x;
+	this.y = y;
+	this.radius = radius;
+	if (fillcolour === undefined && outlinecolour === undefined) {
+		this.fillcolour = undefined;
+		this.outlinecolour = "black";
+	} else {
+		this.fillcolour = fillcolour;
+		this.outlinecolour = outlinecolour;
+	}
+	this.drawingOptions = drawingOptions;
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Circle");
+	this.obsName = root.currentObservableName();
 }
 }}$;
 
@@ -31,12 +38,6 @@ func Circle { ${{
 		fillcolour = arguments[3];
 		if (processUpTo == 4) {
 			outlinecolour = arguments[4];
-		}
-	}
-	if (drawingOptions !== undefined && eden.isValidIdentifier(drawingOptions.name)) {
-		var clickSym = root.lookup(drawingOptions.name + "_click");
-		if (clickSym.value() === undefined) {
-			clickSym.assign(false, root.lookup("Circle"));
 		}
 	}
 	return new Circle(x, y, radius, fillcolour, outlinecolour, drawingOptions);

@@ -5,14 +5,16 @@
 
 ${{
 RoundedRectangle = function(x, y, width, height, radius, fillcolour, outlinecolour, drawingOptions) {
-  this.x1 = x;
-  this.y1 = y;
-  this.x2 = x + width;
-  this.y2 = y + height;
-  this.radius = radius;
-  this.fillcolour = fillcolour;
-  this.outlinecolour = outlinecolour;
-  this.drawingOptions = drawingOptions;
+	this.x1 = x;
+	this.y1 = y;
+	this.x2 = x + width;
+	this.y2 = y + height;
+	this.radius = radius;
+	this.fillcolour = fillcolour;
+	this.outlinecolour = outlinecolour;
+	this.drawingOptions = drawingOptions;
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "RoundedRectangle");
+	this.obsName = root.currentObservableName();
 }
 }}$;
 
@@ -39,12 +41,6 @@ func RoundedRectangle { ${{
 	}
 	if (fillcolour === undefined && outlinecolour === undefined) {
 		outlinecolour = "black";
-	}
-	if (drawingOptions !== undefined && eden.isValidIdentifier(drawingOptions.name)) {
-		var clickSym = root.lookup(drawingOptions.name + "_click");
-		if (clickSym.value() === undefined) {
-			clickSym.assign(false, root.lookup("RoundedRectangle"));
-		}
 	}
 	return new RoundedRectangle(x, y, width, height, radius, fillcolour, outlinecolour, drawingOptions);
 }}$; };

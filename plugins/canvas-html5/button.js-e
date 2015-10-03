@@ -5,13 +5,17 @@
 
 func Button {
 ${{
-	var name = arguments[0];
-	var label = arguments[1];
-	var x = arguments[2];
-	var y = arguments[3];
-	var enabled = arguments[4];
-	var fillcolour = arguments[5];
-	var textcolour = arguments[6];
+	var name = root.currentObservableName();
+	if (name === undefined) {
+		eden.error(new Error("Button: Every button must be defined by making a dependency."), "error");
+		return undefined;
+	}
+	var label = arguments[0];
+	var x = arguments[1];
+	var y = arguments[2];
+	var enabled = arguments[3];
+	var fillcolour = arguments[4];
+	var textcolour = arguments[5];
 	if (enabled === undefined) enabled = true;
 	return new Button(name, label, x, y, enabled, fillcolour, textcolour);
 }}$;
@@ -58,8 +62,9 @@ Button.prototype.draw = function (context) {
 		var inputJQ = $(inputHtml);
 		var clickSym = root.lookup(name + "_click");
 		if (clickSym.value() === undefined) {
-			clickSym.assign(false, root.lookup("Button"));
-			root.lookup(name + "_clicked").assign(false, root.lookup("Button"));
+			var agent = root.lookup("Button");
+			clickSym.assign(false, agent);
+			root.lookup(name + "_clicked").assign(false, agent);
 		}
 
 		inputJQ
@@ -122,7 +127,7 @@ Button.prototype.scale = function (scale, zoom, origin) {
 };
 
 Button.prototype.toString = function () {
-	return "Button(" + Eden.edenCodeForValues(this.name, this.label, this.x, this.y, this.enabled) + ")";
+	return "Button(" + Eden.edenCodeForValues(this.label, this.x, this.y, this.enabled) + ")";
 };
 
 Button.prototype.getEdenCode = Button.prototype.toString;

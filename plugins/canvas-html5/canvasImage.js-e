@@ -7,9 +7,8 @@
 
 ${{
 CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoothed, file) {
-	if (name !== undefined) {
-		this.drawingOptions = {name: name};
-	}
+	this.name = edenUI.plugins.Canvas2D.initZoneFromName(name, "Image");
+	this.obsName = root.currentObservableName();
 
 	var temp;
 	if (sx2 !== undefined) {
@@ -121,12 +120,6 @@ func Image {
 			argsProcessed++;
 		}
 		file = arguments[numArgs - 1];
-		if (eden.isValidIdentifier(name)) {
-			var clickSym = root.lookup(name + "_click");
-			if (clickSym.value() === undefined) {
-				clickSym.assign(false, root.lookup("Image"));
-			}
-		}
 		return new CanvasImage(name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoothed, file);
 	}}$;
 }

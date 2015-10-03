@@ -10,6 +10,8 @@ ${{
 		this.fillcolour = fillcolour;
 		this.outlinecolours = outlinecolours;
 		this.drawingOptions = drawingOptions;
+		this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "RegularPolygon");
+		this.obsName = root.currentObservableName();
 
 		this.exteriorAngle = (2 * Math.PI) / n;
 		this.vertices = [];
@@ -193,12 +195,6 @@ func RegularPolygon {
 		if (drawingOptions !== undefined) {
 			if (!("join" in drawingOptions)) {
 				drawingOptions.join = "round";
-			}
-			if (eden.isValidIdentifier(drawingOptions.name)) {
-				var clickSym = root.lookup(drawingOptions.name + "_click");
-				if (clickSym.value() === undefined) {
-					clickSym.assign(false, root.lookup("RegularPolygon"));
-				}
 			}
 		}
 		return new RegularPolygon(x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolours, drawingOptions);

@@ -23,11 +23,15 @@ Combobox.prototype.hash = function () {
 }}$;
 
 func Combobox { ${{
-  var name = arguments[0];
-  var options = arguments[1];
-  var x = arguments[2];
-  var y = arguments[3];
-  var enabled = arguments[4];
+  var name = root.currentObservableName();
+  if (name === undefined) {
+	eden.error(new Error("Combobox: Every combobox must be defined by making a dependency."), "error");
+	return undefined;
+  }
+  var options = arguments[0];
+  var x = arguments[1];
+  var y = arguments[2];
+  var enabled = arguments[3];
   if (enabled === undefined) enabled = true;
   return new Combobox(name, options, x, y, enabled);
 }}$; }
@@ -108,7 +112,7 @@ Combobox.prototype.scale = function (scale, zoom, origin) {
 };
 
 Combobox.prototype.toString = function() {
-	return "Combobox(" + Eden.edenCodeForValues(this.name, this.options, this.x, this.y, this.enabled) + ")";
+	return "Combobox(" + Eden.edenCodeForValues(this.options, this.x, this.y, this.enabled) + ")";
 };
 
 Combobox.prototype.getEdenCode = Combobox.prototype.toString;

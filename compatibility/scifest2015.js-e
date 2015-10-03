@@ -6,6 +6,82 @@
 
 _view_list is _views_log;
 
+##Form controls used to take a "name" parameter.
+
+func Button {
+${{
+	var name = arguments[0];
+	var label = arguments[1];
+	var x = arguments[2];
+	var y = arguments[3];
+	var enabled = arguments[4];
+	var fillcolour = arguments[5];
+	var textcolour = arguments[6];
+	if (enabled === undefined) enabled = true;
+	return new Button(name, label, x, y, enabled, fillcolour, textcolour);
+}}$;
+}
+
+func Checkbox { ${{
+  var name = arguments[0];
+  var x = arguments[1];
+  var y = arguments[2];
+  var tristate = arguments[3];
+  if (tristate === undefined) tristate = false;
+  var enabled = arguments[4];
+  if (enabled === undefined) enabled = true;
+  return new Checkbox(name, x, y, tristate, enabled);
+}}$; }
+
+func Combobox { ${{
+  var name = arguments[0];
+  var options = arguments[1];
+  var x = arguments[2];
+  var y = arguments[3];
+  var enabled = arguments[4];
+  if (enabled === undefined) enabled = true;
+  return new Combobox(name, options, x, y, enabled);
+}}$; }
+
+func Slider { ${{
+  var name = arguments[0];
+  var min = arguments[1];
+  var max = arguments[2];
+  var step = arguments[3];
+  var x = arguments[4];
+  var y = arguments[5];
+  var length = arguments[6];
+  var orientation = arguments[7];
+  if (orientation === undefined) orientation = "horizontal";
+  var enabled = arguments[8];
+  if (enabled === undefined) enabled = true;
+  return new Slider(name, min, max, step, x, y, length, orientation, enabled);
+}}$; }
+
+func Textbox { ${{
+	var name = arguments[0];
+	var x = arguments[1];
+	var y = arguments[2];
+	var width = arguments[3];
+	var height, placeholder, enabled;
+	var argsProcessed = 4;
+	var arg = arguments[argsProcessed];
+	var argType = typeof(arg);
+	if (arg === undefined || argType == "number") {
+		height = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);
+	}
+	if (arg === undefined || argType == "string") {
+		placeholder = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+	}
+	enabled = arg;
+	return new Textbox(name, x, y, width, height, placeholder, enabled);
+}}$; }
+
 ##Default to base e instead of base 10.
 func log {
 	${{

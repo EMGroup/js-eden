@@ -240,7 +240,15 @@ Eden.systemFunctionNames = {
 	"type": true,
 	"uppercase": true,
 	"xorshiftRandomGenerator": true,
+	"observableForShape": true,
+	"observableOnBottomAt": true,
+	"shapeOnBottomAt": true,
+	"zoneOnBottomAt": true,
+	"observableOnTopAt": true,
+	"shapeOnTopAt": true,
 	"zoneOnTopAt": true,
+	"observablesAt" : true,
+	"shapesAt" : true,
 	"zonesAt" : true,
 };
 
@@ -332,7 +340,15 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"textWidth": true,
 		"textHeight": true,
 		"Video": true,
+		"observableForShape": true,
+		"observableOnBottomAt": true,
+		"shapeOnBottomAt": true,
+		"zoneOnBottomAt": true,
+		"observableOnTopAt": true,
+		"shapeOnTopAt": true,
 		"zoneOnTopAt": true,
+		"observablesAt" : true,
+		"shapesAt" : true,
 		"zonesAt" : true,
 	}
 };

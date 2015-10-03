@@ -213,7 +213,7 @@ lvalue
     | '`' expression '`'
         {
 			if (!yy.inEval() && yy.inDefinition()) {
-				$$ = '_this.subscribeDynamic(' + yy.backticks() + ', ' + $expression + ')';
+				$$ = 'context.currentObservable.subscribeDynamic(' + yy.backticks() + ', ' + $expression + ')';
 			} else {
 				$$ = 'context.lookup(' + $expression + ')';
 			}
@@ -525,7 +525,7 @@ statement
     | RETURN expression ';'
         { $$ = yy.sync('return ' + $expression + ';'); }
 	| TOGETHER statement
-		{ $$ = yy.code($statement.cps, 'root.beginAutocalcOff(); ' + $statement.code + ' root.endAutocalcOff();'); }
+		{ $$ = yy.code($statement.cps, 'context.beginAutocalcOff(); ' + $statement.code + ' context.endAutocalcOff();'); }
     | include-statement-list
         { $$ = yy.async('eden.include', '['+$1.join(', ')+']', 'includePrefix', 'this'); }
     | REQUIRE expression ';'
@@ -711,7 +711,7 @@ formula-definition
 
                yy.observable($1) +
                  ".define(" +
-                   "function(context) { var _this = " + yy.observable($1) + "; return " + $3 + "; }," +
+                   "function(context) { return " + $3 + "; }," +
                    "this, " +
                    JSON.stringify(yy.getDependencies()) +
                  ")" +
