@@ -772,6 +772,25 @@
 			"return": "",
 			"description": ""
 		},
+		"Curve": {
+			"parameters": {
+				"x1": "",
+				"y1": "",
+				"x2": "",
+				"y2": "",
+				"radius": "",
+				"curviness": "Usually between 0 (like a right angle) and 1 (like half of an ellipse)",
+				"[start_angle": "",
+				"[end_angle": "",
+				"[skew": "Between 0 and 1",
+				"[overshoot]]]]": "",
+				"[is_right_and_up]": "",
+				"[colour(s)]": "",
+				"[drawing_options]": ""
+			},
+			"return": "",
+			"description": ""		
+		},
 		"FillPattern": {
 			"parameters": {
 				"url": ""

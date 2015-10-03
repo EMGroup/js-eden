@@ -1,0 +1,160 @@
+${{
+	Curve = function (x1, y1, x2, y2, r, elasticity, theta1, theta2, mid, overshoot, dirSwitch, colours, drawingOptions) {
+		this.x1 = x1;
+		this.y1 = y1;
+		this.x2 = x2;
+		this.y2 = y2;
+		this.r = r;
+		this.elasticity = elasticity;
+		this.theta1 = theta1;
+		this.theta2 = theta2;
+		this.mid = mid;
+		this.overshoot = overshoot;
+		this.dirSwitch = dirSwitch;
+		this.colours = colours;
+		this.drawingOptions = drawingOptions;
+
+		var xDistance = x2 - x1;
+		var yDistance = y2 - y1;
+		this.theta3 = Math.atan2(yDistance, xDistance);
+		this.fullLength = Math.sqrt(xDistance * xDistance + yDistance * yDistance);
+		this.length1 = mid * this.fullLength;
+		var length2 = this.fullLength - this.length1;
+		
+
+		var radiansPerUnit = root.lookup("radiansPerUnit").value();
+		this.delta1 = elasticity * (this.length1 - 2) + 1;
+		this.delta2 = elasticity * (length2 - 2) + 1;
+		var fullTurn = 2 * Math.PI;
+
+		if (theta1 === undefined) {
+			this.deltaX1 = 0;
+			this.deltaY1 = 0;
+		} else {
+			var theta1Normalized = (theta1 * radiansPerUnit) % fullTurn;
+			if (theta1Normalized < 0) {
+				theta1Normalized = theta1Normalized + fullTurn;
+			}
+			var tanTheta1 = Math.abs(Math.tan(theta1Normalized));
+
+			if (theta1Normalized > fullTurn/4 && theta1Normalized <= fullTurn * 3/4) {
+				this.deltaX1 = -overshoot;
+			} else {
+				this.deltaX1 = Math.abs(this.length1 - this.delta1);
+			}
+
+			this.deltaY1 = Math.abs(this.deltaX1) * tanTheta1;
+			if (theta1Normalized > fullTurn/2) {
+				this.deltaY1 = -this.deltaY1;
+			} else if (this.deltaY1 > r) {
+				this.deltaY1 = r;
+				this.deltaX1 = r / tanTheta1;
+			}
+		}
+
+		if (theta2 === undefined) {
+			this.deltaX2 = 0;
+			this.deltaY2 = 0;
+		} else {
+			var theta2Normalized = (theta2 * radiansPerUnit) % fullTurn;
+			if (theta2Normalized < 0) {
+				theta2Normalized = theta2Normalized + fullTurn;
+			}
+			var tanTheta2 = Math.abs(Math.tan(theta2Normalized));
+
+			if (theta2Normalized > fullTurn/4 && theta2Normalized <= fullTurn * 3/4) {
+				this.deltaX2 = -overshoot;
+			} else {
+				this.deltaX2 = Math.abs(length2 - this.delta2);
+			}
+
+			this.deltaY2 = Math.abs(this.deltaX2) * tanTheta2;
+			if (theta2Normalized > fullTurn/2) {
+				this.deltaY2 = -this.deltaY2;
+			} else if (this.deltaY2 > r) {
+				this.deltaY2 = r;
+				this.deltaX2 = r / tanTheta2;
+			}
+		}
+
+		if (dirSwitch) {
+			this.radius = -r;
+			this.deltaY1 = -this.deltaY1;
+			this.deltaY2 = -this.deltaY2;
+		} else {
+			this.radius = r;
+		}
+	}
+
+}}$;
+
+func Curve {
+	${{
+		var x1 = arguments[0];
+		var y1 = arguments[1];
+		var x2 = arguments[2];
+		var y2 = arguments[3];
+		var r = arguments[4];
+		var elasticity = arguments[5];
+
+		var direction, theta1, theta2, mid = 0.5, overshoot = 150, direction, colours, drawingOptions;
+		var lastArg = arguments[arguments.length - 1];
+		var processUpTo;
+		if (lastArg !== undefined && (lastArg instanceof Object) && !Array.isArray(lastArg)) {
+			drawingOptions = lastArg;
+			processUpTo = arguments.length - 2;
+			lastArg = arguments[processUpTo];
+		} else {
+			processUpTo = arguments.length - 1;
+		}
+		if (typeof(lastArg) == "string") {
+			colours = [lastArg];
+			processUpTo--;
+		} else if (Array.isArray(lastArg)) {
+			colours = lastArg;
+			processUpTo--;
+		} else {
+			colours = ["black"];
+		}
+		lastArg = arguments[processUpTo];
+		if (typeof(lastArg) == "boolean") {
+			direction = lastArg;
+			processUpTo--;
+		}
+		if (processUpTo > 5) {
+			theta1 = arguments[6];
+			if (processUpTo > 6) {
+				theta2 = arguments[7];
+				if (processUpTo > 7) {
+					mid = arguments[8];
+					if (processUpTo > 8) {
+						overshoot = arguments[9];
+					}
+				}
+			} else {
+				theta2 = theta1;
+			}
+		}
+		return new Curve(x1, y1, x2, y2, r, elasticity, theta1, theta2, mid, overshoot, direction, colours, drawingOptions);
+	}}$;
+}
+radiansPerUnit ~> [Curve];
+
+${{
+	Curve.prototype.draw = function (context) {
+		context.translate(this.x1, this.y1);
+		context.rotate(this.theta3);
+		context.beginPath();
+		context.moveTo(0, 0);
+		context.bezierCurveTo(this.deltaX1, this.deltaY1, this.length1 - this.delta1, this.radius, this.length1, this.radius);
+		context.bezierCurveTo(this.length1 + this.delta2, this.radius, this.fullLength - this.deltaX2, this.deltaY2, this.fullLength, 0);
+		context.strokeStyle = "black";
+		context.stroke();
+	};
+
+	Curve.prototype.toString = function () {
+		return "Curve(" + Eden.edenCodeForValues(this.x1, this.y1, this.x2, this.y2, this.r, this.elasticity, this.theta1, this.theta2, this.mid, this.overshoot, this.dirSwitch, this.colours, this.drawingOptions) + ")";
+	}
+	
+	Curve.prototype.getEdenCode = Curve.prototype.toString;
+}}$;
