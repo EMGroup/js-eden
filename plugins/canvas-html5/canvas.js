@@ -115,63 +115,79 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 						previousElements[hash].togarbage = true;
 					}
 					if (Array.isArray(picture)) {
+						var pictureLists = [picture];
+						var pictureListIndices = [0];
 
-						for (var i = 0; i < picture.length; i++) {
-							if (typeof(picture[i]) != "object") {
-								continue;
-							}
+						while (pictureLists.length > 0) {
+							var currentPicture = pictureLists.pop();
+							var index = pictureListIndices.pop();
 
-							var elHash = picture[i].hash && picture[i].hash();
-							var existingEl = elHash && previousElements[elHash];
+							while (index < currentPicture.length) {
+								var item = currentPicture[index];
+								if (!(item instanceof Object)) {
+									index++;
+									continue;
+								} else if (Array.isArray(item)) {
+									pictureLists.push(currentPicture);
+									pictureListIndices.push(index + 1);
+									currentPicture = item;
+									index = 0;
+									continue;
+								}
 
-							if (existingEl) {
-								// if already existing hash, no need to draw, just set the elements
-								picture[i].elements = existingEl;
-							} else {
-								context.save();
-								try {
-									var visible = me.configureContext(context, scale, zoom, picture[i].drawingOptions);
-									// expect draw() method to set .elements
-									if (visible) {
-										picture[i].draw(context, scale, pictureObs);
-									}
-								} catch (e) {
-									if (picture[i] !== undefined) {
-										console.log(e);
-										var debug = edenUI.eden.root.lookup("debug").value();
-										if (typeof(debug) == "object" && debug.jsExceptions) {
-											debugger;
+								var elHash = item.hash && item.hash();
+								var existingEl = elHash && previousElements[elHash];
+
+								if (existingEl) {
+									// if already existing hash, no need to draw, just set the elements
+									item.elements = existingEl;
+								} else {
+									context.save();
+									try {
+										var visible = me.configureContext(context, scale, zoom, item.drawingOptions);
+										// expect draw() method to set .elements
+										if (visible) {
+											item.draw(context, scale, pictureObs);
+										}
+									} catch (e) {
+										if (item !== undefined) {
+											console.log(e);
+											var debug = edenUI.eden.root.lookup("debug").value();
+											if (typeof(debug) == "object" && debug.jsExceptions) {
+												debugger;
+											}
 										}
 									}
+									context.restore();
 								}
-								context.restore();
-							}
 
-							if (picture[i].elements !== undefined) {
-								var parentEl = picture[i].elements[0].parentElement;
-								if (parentEl && parentEl != content) {
-									//HTML item already present on another canvas.
-									var copiedEl = [];
-									for (var j = 0; j < picture[i].elements.length; j++) {
-										copiedEl.push($(picture[i].elements[j]).clone(true, true).get(0));
+								if (item.elements !== undefined) {
+									var parentEl = item.elements[0].parentElement;
+									if (parentEl && parentEl != content) {
+										//HTML item already present on another canvas.
+										var copiedEl = [];
+										for (var j = 0; j < item.elements.length; j++) {
+											copiedEl.push($(item.elements[j]).clone(true, true).get(0));
+										}
+										item.elements = copiedEl;
+										item.scale(combinedScale, zoom, origin);
+									} else if (!existingEl || canvas.rescale) {
+										item.scale(combinedScale, zoom, origin);
 									}
-									picture[i].elements = copiedEl;
-									picture[i].scale(combinedScale, zoom, origin);
-								} else if (!existingEl || canvas.rescale) {
-									picture[i].scale(combinedScale, zoom, origin);
 								}
-							}
-							var htmlEl = picture[i].elements;
-							if (htmlEl) { htmlEl.togarbage = false; }
-							if (htmlEl && !existingEl) {
-								$(content).append(htmlEl);
-							}
+								var htmlEl = item.elements;
+								if (htmlEl) { htmlEl.togarbage = false; }
+								if (htmlEl && !existingEl) {
+									$(content).append(htmlEl);
+								}
 
-							if (htmlEl) {
-								nextElements[elHash] = htmlEl;
-							}
-						} //end of redraw loop.
-					} //end if picture observable is undefined.
+								if (htmlEl) {
+									nextElements[elHash] = htmlEl;
+								}
+								index++;
+							} //end of redraw loop (current list).
+						} // end of redraw loop (all nested lists).
+					} //end if picture observable is a list.
 					cleanupCanvas(content, previousElements);
 					canvasNameToElements[canvasname] = nextElements;
 					canvas.drawingInProgress = false;
