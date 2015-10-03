@@ -1,0 +1,332 @@
+<html>
+<head>
+	<title>StorageManager Test Page</title>
+	<style type="text/css">
+		th {
+			text-align: left;
+		}
+		
+		.url-separator {
+			font-weight: bold;
+			margin-left: 5pt;
+			margin-right: 5pt;
+		}
+
+		.horizontal-radio {
+			display: inline-block;
+			margin-right: 15px;
+		}
+
+		#panel {
+			box-sizing: border-box;
+			padding: 0.5cm;
+			width: 100%;
+			border: 2px inset #CCCCCC;
+			background-color: #FFFF90;
+		}
+		
+		#provider-panel {
+			display: inline-block;
+			padding: 0.5cm;
+			margin: 0.5cm 0.45cm;
+			background-color: #90CCFF;
+		}
+		
+		#actions {
+			max-width: 100%;
+		}
+		
+		#actions textarea {
+			width: 100%;
+		}
+		
+		#actions th {
+			font-weight: normal;
+		}
+
+		#actions td, #actions th {
+			padding-top: 8px;
+			padding-bottom: 8px;
+		}
+
+		#status {
+			background-color: black;
+			color: #e0e0e0;
+			text-align: center;
+		}
+
+		#provider-panel-before, #provider-panel-after {
+			font-weight: bold;
+		}
+	</style>
+
+	<script src="/js/lib/jquery-1.8.3.min.js" type="text/javascript"></script>
+	<script src="storage-manager.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+		Eden = { storageProviders: {}};
+		var manager, providers, currentProvider;
+		var panel, panelOuter, before, after, clearButton;
+		var writeMode;
+		
+		//Add the providers
+		function registerProviders(manager) {
+			Eden.storageProviders.LocalFile(manager);
+		}
+		
+		function load() {
+			before = document.getElementById("provider-panel-before");
+			after = document.getElementById("provider-panel-after");
+			panelOuter = $("#provider-panel-outer");
+			panel = $('<div id="provider-panel"></div>');
+			clearButton = $('<button></button>')
+			.click(function () {
+				panelOuter.html('');
+				after.innerHTML = '';
+			}).get(0);
+
+			manager = new StorageManager();
+			registerProviders(manager);
+
+			providers = manager.getProviders();
+			var select = document.getElementById("providerID");
+			for (var i = 0; i < providers.length; i++) {
+				var option = document.createElement("option");
+				option.value = i;
+				option.innerHTML = providers[i].getTitle();
+				select.appendChild(option);
+			}
+			changeProvider(providers[0]);
+		}
+
+		function selectProvider(event) {
+			var provider = providers[event.target.value];
+			changeProvider(provider);
+		}
+
+		function changeProvider(provider) {
+			currentProvider = provider;
+
+			var titleElem = document.getElementById("title");
+			titleElem.innerHTML = provider.getTitle();
+
+			var iconElem = document.getElementById("icon");
+			var image = provider.getIcon();
+			
+			if (image === null) {
+				iconElem.innerHTML = "No icon provided.";
+			} else {
+				iconElem.innerHTML = "";
+				iconElem.appendChild(image);
+			}
+
+			var descriptionElem = document.getElementById("description");
+			descriptionElem.innerHTML = provider.getDescription();
+
+			var canReadElem = document.getElementById("canRead");
+			canReadElem.innerHTML = provider.canRead();
+
+			var canWriteElem = document.getElementById("canWrite");
+			canWriteElem.innerHTML = provider.canWrite();
+
+			var hasConfigElem = document.getElementById("hasConfig");
+			hasConfigElem.innerHTML = provider.hasConfig();
+
+			var schemes = manager.getProviderSchemes(provider);
+			var schemesElem = document.getElementById("schemes");
+			var schemesText = schemes.join(", ");
+			if (schemesText == "") {
+				schemesText = "&mdash;";
+			}
+			schemesElem.innerHTML = schemesText;
+			var schemeElem = document.getElementById("scheme");
+			schemeElem.innerHTML = '';
+			for (var i = 0; i < schemes.length; i++) {
+				var option = document.createElement("option");
+				option.value = schemes[i];
+				option.innerHTML = schemes[i];
+				schemeElem.appendChild(option);
+			}
+
+			var readModesElem = document.getElementById("readModes");
+			var readModesText = provider.getReadModes().join(", ");
+			if (readModesText == "") {
+				readModesText = "&mdash;";
+			}
+			readModesElem.innerHTML = readModesText;
+
+			var writeModesElem = document.getElementById("writeModes");
+			var writeModes = provider.getWriteModes();
+			var writeModesText = writeModes.join(", ");
+			if (writeModesText == "") {
+				writeModesText = "&mdash;";
+			}
+			writeModesElem.innerHTML = writeModesText;
+			var writeModeJQ = $("#writeMode");
+			writeModeJQ.html('');
+			function updateWriteMode(mode) {
+				return function () {
+					writeMode = mode;
+				};
+			}
+			for (var i = 0; i < writeModes.length; i++) {
+				var radio = document.createElement("input");
+				radio.type = "radio";
+				radio.name = "writeMode";
+				radio.value = writeModes[i];
+				if (i == 0) {
+					radio.checked = true;
+					writeMode = writeModes[0];
+				}
+				radio.onclick = updateWriteMode(writeModes[i]);
+				var label = $('<label></label>');
+				label.append(radio);
+				label.append(writeModes[i]);
+				var div = $('<div class="horizontal-radio"></div>');
+				div.append(label);
+				writeModeJQ.append(div);
+			}
+		}
+		
+		function config() {
+			panelOuter.html('');
+			panel.html('');
+			after.innerHTML = '';
+			currentProvider.config(panel);
+			if (currentProvider.hasConfig()) {
+				before.innerHTML = "The storage provider's configuration options are shown below.";
+				panelOuter.append(panel);
+				clearButton.innerHTML = 'Close Configuration';
+				after.appendChild(clearButton);
+			} else {
+				before.innerHTML = "Nothing to configure!";
+			}
+			successful();
+		}
+		
+		function successful() {
+			document.getElementById("status").innerHTML = "Success!";		
+		}
+
+		function failure(message) {
+			document.getElementById("status").innerHTML = "Error: " + message;
+		}
+		
+		function writeToURL() {
+			var scheme = document.getElementById("scheme").value;
+			var path = document.getElementById("path").value;
+			before.innerHTML = '';
+			panelOuter.html('');
+			panel.html('');
+			after.innerHTML = '';
+			currentProvider.getHandle(scheme, path, writeMode, function (handle) {
+				var text = document.getElementById("toWrite").value;
+				handle.writeString(text, function () {
+					handle.close(panel, function () {
+						after.innerHTML = '';
+						if (panel.contents().length > 0) {
+							before.innerHTML = "The storage provider presents the following dialog for completing the file transfer.";
+							panelOuter.append(panel);
+							clearButton.innerHTML = 'Close File Transfer';
+							after.appendChild(clearButton);
+						}
+						successful();
+					}, failure);
+				}, failure);
+			}, failure);
+		}
+	</script>
+
+	<script src="local-file.js" type="text/javascript"></script>
+</head>
+<body onload="load()">
+	<h1>Storage Provider Test Page</h1>
+	<table>
+		<tr>
+			<th><label for="providerID">Storage Provider:</label></th>
+			<td><select id="providerID" onchange="selectProvider"></select></td>
+		</tr>
+		<tr>
+			<th>Title:</th>
+			<td id="title"></td>
+		</tr>
+		<tr>
+			<th>Icon:</th>
+			<td id="icon"></td>
+		</tr>
+		<tr>
+			<th>Description:</th>
+			<td id="description"></td>
+		</tr>
+		<tr>
+			<th>Can Read?</th>
+			<td id="canRead"></td>
+		</tr>
+		<tr>
+			<th>Can Write?</th>
+			<td id="canWrite"></td>
+		</tr>
+		<tr>
+			<th>Has Configuration Options?</th>
+			<td id="hasConfig"></td>
+		</tr>
+		<tr>
+			<th>Supported Protocols:</th>
+			<td id="schemes"></td>
+		</tr>
+		<tr>
+			<th>Supported Read Modes:</th>
+			<td id="readModes"></td>
+		</tr>
+		<tr>
+			<th>Supported Write Modes:</th>
+			<td id="writeModes"></td>
+		</tr>
+	</table>
+
+	<table id="actions">
+		<col style="width: 10%" />
+		<tr>
+			<th>Status:</th>
+			<td id="status"></td>
+		</tr>
+		<tr>
+			<th>Operation:</th>
+			<td>
+				<button onclick="config()">Configure</button>
+				<button onclick="writeToURL()">Write to URL</button>
+			</td>
+		</tr>
+		<tr>
+			<th>URL:</th>
+			<td>
+				<div style="width: 100%; display: flex">
+					<div><select id="scheme"></select></div>
+					<div class="url-separator">://</div>
+					<div style="flex-grow: 1"><input id="path" type="text" value="savefile.txt" style="width: 100%"/></div>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<th>Write Mode:</th>
+			<td id="writeMode"></td>
+		</tr>
+		<tr>
+			<th><label for="toWrite">Text to write:</label></th>
+			<td>
+				<textarea id="toWrite" rows="4">Here is some text to save.</textarea>
+			</td>
+		</tr>
+		<tr>
+			<th>Output:</th>
+			<td>
+				<div id="panel">
+					<div id="provider-panel-before"></div>
+					<div id="provider-panel-outer"></div>
+					<div id="provider-panel-after"></div>
+				</div>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
