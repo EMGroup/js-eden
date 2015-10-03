@@ -462,9 +462,8 @@
 
 		this.definition = undefined;
 		this.eden_definition = undefined;
-		//this.cached_value = undefined;
 		this.evalResolved = true;
-		//this.up_to_date = false;
+		this.extend = undefined;
 
 		// need to keep track of who we subscribe to so
 		// that we can unsubscribe from them when our definition changes
@@ -555,6 +554,14 @@
 	Symbol.prototype.evaluate = function (scope, cache) {
 		try {
 			cache.value = copy(this.definition(this.context, scope));
+
+			// Post process with all extensions
+			if (this.extend) {
+				for (var e in this.extend) {
+					this.extend[e].code(this.context, scope, cache.value);
+				}
+			}
+
 			cache.up_to_date = true;
 			if (!this.evalResolved) {
 				var replacedDef = this.eden_definition;
@@ -683,12 +690,10 @@
 	 * @param {function(Folder)} definition
 	 * @param {Symbol} modifying_agent Agent modifying this Symbol.
 	 */
-	Symbol.prototype.define = function (definition, modifying_agent, subscriptions, edencode) {
+	Symbol.prototype.define = function (definition, modifying_agent, subscriptions) {
 		this.garbage = false;
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = definition;
-
-		if (edencode) this.eden_definition = edencode;
 
 		// symbol no longer observes or depends on anything
 		this.clearObservees();
@@ -1123,6 +1128,88 @@
 			};
 		})()
 	};
+
+	Symbol.prototype.addExtension = function(idstr, ext, source, modifying_agent, deps) {
+		console.log("ADDING EXTENSION");
+		if (this.extend === undefined) {
+			this.extend = {};
+		}
+		this.extend[idstr] = { code: ext, source: source };
+
+		this.subscribe(deps);
+
+		if (this.context) {
+			this.context.expireSymbol(this);
+		}
+	}
+
+	/*Symbol.prototype.patchList = function(scope, cache) {
+		if (this.extend === undefined) return;
+
+		for (var e in this.extend) {
+			var curlist = cache.value;
+			var indices = e.split("_");
+			for (var i=1; i<indices.length-1; i++) {
+				var ix = parseInt(indices[i]);
+				curlist = curlist[ix-1];
+			}
+			var ix = parseInt(indices[indices.length-1]);
+			curlist[ix-1] = this.extend[e].value(scope);
+		}
+	}*/
+
+	Symbol.prototype.listAssign = function(value, scope, modifying_agent, pushToNetwork, indices) {
+		if (this.definition) {
+			console.log("ASSIGN TO DEFINED LIST ERROR");
+			return;
+		}
+
+		var list = this.value(scope);
+		for (var i = 0; i < indices.length-1; i++) {
+			if (indices[i] < 1) {
+				console.log("ASSIGN OUT OF BOUNDS");
+			}
+			if (list) list = list[indices[i]-1];
+		}
+		if (list) {
+			if (indices[indices.length-1] < 1) {
+				console.log("ASSIGN OUT OF BOUNDS");
+			}
+			list[indices[indices.length-1]-1] = value;
+		} else {
+			console.log("ASSIGN DIMENSION ERROR");
+		}
+
+		this._setLastModifiedBy(modifying_agent);
+		if (this.context) {
+			this.context.expireSymbol(this);
+		}
+		return this;
+	}
+
+	/**
+	 * Generate an override on a particular set of list indices.
+	 */
+	/*Symbol.prototype.listDefine = function(definition, source, modifying_agent, subscriptions, indices) {
+		var extendstr = this.generateExtendString(indices,0);
+		if (this.extend === undefined) {
+			this.extend = {};
+		}
+		var extendsym = this.extend[extendstr];
+		if (extendsym === undefined) {
+			extendsym = new Symbol(this.context, extendstr);
+			this.extend[extendstr] = extendsym;
+		}
+		extendsym.eden_definition = source;
+		extendsym.define(definition, modifying_agent, subscriptions);
+		extendsym.addSubscriber(this.name, this);
+		
+		this._setLastModifiedBy(modifying_agent);
+		if (this.context) {
+			this.context.expireSymbol(this);
+		}
+		return this;
+	}*/
 
 	/**
 	 * Lookup part of the value for this Symbol, and return a SymbolAccessor for it.

@@ -1734,9 +1734,9 @@ EdenAST.prototype.pSTATEMENT = function() {
 						}
 
 						// Cannot define list elements
-						if (formula.type == "definition" && lvalue.lvaluep.length > 0) {
-							formula.error(new EdenError(this, EDEN_ERROR_DEFINELISTIX));
-						}
+						//if (formula.type == "definition" && lvalue.lvaluep.length > 0) {
+						//	formula.error(new EdenError(this, EDEN_ERROR_DEFINELISTIX));
+						//}
 		
 						if (this.token != ";") {
 							formula.error(new EdenError(this, EDEN_ERROR_SEMICOLON));

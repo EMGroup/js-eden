@@ -345,7 +345,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createCommon = function (name, mtitle, code, power, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div><div class="buttonsDiv"><button class="observe-input">&#xf06e;</button><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div><div class="buttonsDiv"><button class="observe-input">&#xf0c9;</button><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button></div><div class="outputbox"></div></div></div>')
 		var text = "";	
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
@@ -479,6 +479,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (msg) {
 				outdiv.childNodes[lineno-1].title = msg;
 			}
+		}
+
+		function addExtendedLine(lineno) {
+			var $line = $(outdiv.childNodes[lineno-1]);
+			$line.addClass("eden-extendedline");
+		}
+
+		function addParentLine(lineno) {
+			var $line = $(outdiv.childNodes[lineno-1]);
+			$line.addClass("eden-parentline");
 		}
 
 		function addErrorLine(lineno, msg) {
@@ -632,6 +642,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function highlightContent(ast, lineno, position) {
 			highlighter.highlight(ast, lineno, position);
+
+			// Post process lines, adding links and warnings
+			for (var i=0; i<ast.lines.length; i++) {
+				if (ast.lines[i]) {
+					if (ast.lines[i].type == "definition") {
+						var sym = eden.root.lookup(ast.lines[i].lvalue.observable);
+						if (sym.extend) {
+							if (ast.lines[i].lvalue.lvaluep.length > 0) {
+								addParentLine(i+1);
+							} else {
+								addExtendedLine(i+1);
+							}
+						}
+					}
+				}
+			}
 
 			/* Number dragging code, but only if live */
 			if (autoexec) {

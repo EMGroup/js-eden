@@ -686,7 +686,7 @@ span.eden-drag-observable {
 }
 
 div.eden-line {
-	/*position: relative;*/
+	position: relative;
 	/*top: 20px;*/
 	/*display: inline;*/
 	min-width: 6px;
@@ -694,6 +694,28 @@ div.eden-line {
 	margin-left: -5px;
 	padding-left: 5px;
 	padding-right: 1px;
+}
+
+div.eden-parentline:before {
+	position: absolute;
+	content: "\f0c1";
+	font-family: "FontAwesome";
+	left: -20px;
+	padding-left: 4px;
+	color: black;
+	width: 16px;
+	height: 20px;
+}
+
+div.eden-extendedline:before {
+	position: absolute;
+	content: "\f13a";
+	font-family: "FontAwesome";
+	left: -20px;
+	padding-left: 4px;
+	color: black;
+	width: 16px;
+	height: 20px;
 }
 
 
