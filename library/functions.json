@@ -903,7 +903,7 @@
 			"parameters": {
 				"points": "List of coordinates in the form {x, y} from the top left corner of the canvas",
 				"[fill_colour": "Colour of the polygon (fill) in HTML form",
-				"[outline_colour(s)]]": "",
+				"[outline_colour]]": "",
 				"[drawing_options]": ""
 			},
 			"return": "Polygon object",
@@ -919,7 +919,7 @@
 				"[is_interior_outlined]": "",
 				"[rotation]": "",
 				"[fill_colour": "Colour to fill the interior of the polygon with",
-				"[outline_colour(s)]]": "",
+				"[outline_colour]]": "",
 				"[drawing_options]": ""
 			},
 			"return": "RegularPolygon object",

@@ -113,7 +113,13 @@ Line.prototype.draw = function(context) {
 };
 
 Line.prototype.toString = function() {
-	var s = "Line(" + Eden.edenCodeForValues(this.x1, this.y1, this.x2, this.y2, this.colours);
+	var s = "Line(" + Eden.edenCodeForValues(this.x1, this.y1, this.x2, this.y2) + ", ";
+
+	if (this.colours.length > 1) {
+		s = s + Eden.edenCodeForValue(this.colours);
+	} else {
+		s = s + Eden.edenCodeForValue(this.colours[0]);	
+	}
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
