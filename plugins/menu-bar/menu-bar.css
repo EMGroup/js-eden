@@ -3,19 +3,21 @@
 	left: 0px;
 	right: 0px;
 	top: 0px;
-	height: 25px;
+	height: 29px;
 	background-color: black;
 	color:	white;
 	font-size: 14px;
 	font-family: 'arial';
 	padding-left: 20px;
-	padding-top: 4px;
+	/*padding-top: 4px;*/
 	padding-right: 20px;
 	z-index: 2147483647; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */
 }
 
 .menubar-mainitem:hover {
-	font-weight: bold;
+	/*font-weight: bold;*/
+	background-color: white;
+	color: black;
 }
 
 .menubar-menu {
@@ -42,16 +44,20 @@
 	-moz-user-select: none;
 	-webkit-user-select: none;
 	-ms-user-select: none;
-	padding-top: 4px;
+	padding-top: 8px;
 	padding-left: 5px; /*See addMainItem */
 	padding-right: 5px;
 	padding-bottom: 8px;
 	text-decoration: none;
 	font-size: 12px;
 	font-family: 'arial';
+	font-weight: bold;
 	color: #dadada;
 	float: left;
 	cursor: pointer;
+	text-align: center;
+	overflow: visible;
+	height: 13px;
 }
 
 .menubar-item {
@@ -60,9 +66,21 @@
 
 .menubar-item-separator {
 	margin-top: 10px;
-	margin-bottom: 1px;
-	background-color: #E8E8E8;
+	margin-bottom: 5px;
 	font-weight: bold;
+	border-top-color: #777;
+	border-top-width: 1px;
+	border-top-style: solid;
+	border-left-width: 0;
+	border-right-width: 0;
+	border-bottom-color: #777;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	box-shadow: 0 0 10px #4a6887;
+	background: -webkit-linear-gradient(#fafafa, #cccccc); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#fafafa, #cccccc); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
 }
 
 .menubar-item:first-child .menubar-item-separator {
@@ -130,14 +148,17 @@
 .menubar-menu {
 	position: relative;
 	font-weight: normal;
+	left: -5px;
 	margin-top: 6px;
-	background-color: #FFFFE0;
-	border-color: #A0A0A0;
+	padding-bottom: 6px;
+	background-color: white;
+	border-color: #777;
 	border-style: solid;
-	border-width: 0px 0px 1px 2px;
-	box-shadow: 4px 6px 7px 0px #111111;
+	border-width: 0px 0px 1px 1px;
+	box-shadow: 4px 6px 7px 0px #222;
 	color: black;
 	width: 250px;
+	text-align: left;
 }
 
 .menubar-view {

@@ -23,7 +23,8 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 					width: 600,
 					height: 450,
 					minHeight: 120,
-					minWidth: 230
+					minWidth: 230,
+					dialogClass: "dependency-map-dialog"
 				}
 			)
 			

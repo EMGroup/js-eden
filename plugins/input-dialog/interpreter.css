@@ -285,7 +285,7 @@ textarea.hidden-textarea {
 	font: 14px/20px Roboto Mono,monospace;
 	left: -9999px;
 	width: 1000px;
-	height: 1000px;
+	height: 200px;
 }
 
 div.outputcontent {
