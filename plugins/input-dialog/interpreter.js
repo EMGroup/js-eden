@@ -626,6 +626,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			intextarea.value = lines.join("\n");
 		}
 
+		function insertLines(lineno, newlines) {
+			var lines = intextarea.value.split("\n");
+			for (var i=0; i<newlines.length; i++) {
+				lines.splice(lineno, 0, newlines[i]);
+			}
+			intextarea.value = lines.join("\n");
+		}
+
 		/**
 		 * When clicking or using a syntax highlighted element, find which
 		 * source line this corresponds to. Used by number dragging.
@@ -658,6 +666,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 				}
 			}
+
+			$(outdiv).on('mouseup', '.eden-extendedline', function(e) {
+				if (e.offsetX < 0) {
+					var lineno = currentlineno+1;
+					var filters = [];
+					var curast = highlighter.ast.lines[lineno];
+					console.log(curast);
+					if (curast) {
+						var sym = eden.root.lookup(curast.lvalue.observable);
+						for (var e in sym.extend) {
+							filters.push(sym.extend[e].source);
+						}
+						insertLines(lineno+1, filters);
+					}
+				}
+			});
 
 			/* Number dragging code, but only if live */
 			if (autoexec) {

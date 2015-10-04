@@ -705,6 +705,7 @@ div.eden-parentline:before {
 	color: black;
 	width: 16px;
 	height: 20px;
+	cursor: pointer;
 }
 
 div.eden-extendedline:before {
@@ -716,6 +717,7 @@ div.eden-extendedline:before {
 	color: black;
 	width: 16px;
 	height: 20px;
+	cursor: pointer;
 }
 
 

@@ -80,21 +80,6 @@
 		}
 	}
 
-	/*Scope.prototype.lookup2 = function(name) {
-		var symcache = this.cache[name];
-		if (symcache !== undefined) {
-			return {context: this.context, cache: symcache};
-		} else {
-			if (this.parent) {
-				return this.parent.lookup2(name);
-			} else {
-				console.trace("Symbol without cache: " + name);
-				this.cache[name] = {value: undefined, up_to_date: true};
-				return {context: this.context, cache: this.cache[name]};
-			}
-		}
-	}*/
-
 	Scope.prototype.add = function(name) {
 		var cache = new ScopeCache( false, undefined );
 		this.cache[name] = cache;
@@ -453,11 +438,6 @@
 		 */
 		this.name = name;
 
-		// MUST HAVE A NAME
-		/*if (this.name === undefined) {
-			this.name = makeRandomName();
-		}*/
-
 		this.cache = (context) ? context.scope.add(name) : new ScopeCache( true, undefined );
 
 		this.definition = undefined;
@@ -553,7 +533,9 @@
 
 	Symbol.prototype.evaluate = function (scope, cache) {
 		try {
-			cache.value = copy(this.definition(this.context, scope));
+			//NOTE: Don't do copy here, be clever about it.
+			//cache.value = copy(this.definition(this.context, scope));
+			cache.value = this.definition(this.context, scope);
 
 			// Post process with all extensions
 			if (this.extend) {
@@ -705,6 +687,13 @@
 		}
 
 		this.subscribe(args);
+
+		// Re-add any extension dependencies.
+		if (this.extend) {
+			for (var e in this.extend) {
+				this.subscribe(this.extend[e].deps);
+			}
+		}
 
 		if (this.context) {
 			this.context.expireSymbol(this);
@@ -1130,11 +1119,10 @@
 	};
 
 	Symbol.prototype.addExtension = function(idstr, ext, source, modifying_agent, deps) {
-		console.log("ADDING EXTENSION");
 		if (this.extend === undefined) {
 			this.extend = {};
 		}
-		this.extend[idstr] = { code: ext, source: source };
+		this.extend[idstr] = { code: ext, source: source, deps: deps };
 
 		this.subscribe(deps);
 
@@ -1142,21 +1130,6 @@
 			this.context.expireSymbol(this);
 		}
 	}
-
-	/*Symbol.prototype.patchList = function(scope, cache) {
-		if (this.extend === undefined) return;
-
-		for (var e in this.extend) {
-			var curlist = cache.value;
-			var indices = e.split("_");
-			for (var i=1; i<indices.length-1; i++) {
-				var ix = parseInt(indices[i]);
-				curlist = curlist[ix-1];
-			}
-			var ix = parseInt(indices[indices.length-1]);
-			curlist[ix-1] = this.extend[e].value(scope);
-		}
-	}*/
 
 	Symbol.prototype.listAssign = function(value, scope, modifying_agent, pushToNetwork, indices) {
 		if (this.definition) {
@@ -1186,30 +1159,6 @@
 		}
 		return this;
 	}
-
-	/**
-	 * Generate an override on a particular set of list indices.
-	 */
-	/*Symbol.prototype.listDefine = function(definition, source, modifying_agent, subscriptions, indices) {
-		var extendstr = this.generateExtendString(indices,0);
-		if (this.extend === undefined) {
-			this.extend = {};
-		}
-		var extendsym = this.extend[extendstr];
-		if (extendsym === undefined) {
-			extendsym = new Symbol(this.context, extendstr);
-			this.extend[extendstr] = extendsym;
-		}
-		extendsym.eden_definition = source;
-		extendsym.define(definition, modifying_agent, subscriptions);
-		extendsym.addSubscriber(this.name, this);
-		
-		this._setLastModifiedBy(modifying_agent);
-		if (this.context) {
-			this.context.expireSymbol(this);
-		}
-		return this;
-	}*/
 
 	/**
 	 * Lookup part of the value for this Symbol, and return a SymbolAccessor for it.
