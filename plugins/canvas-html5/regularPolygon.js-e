@@ -1,5 +1,5 @@
 ${{
-	RegularPolygon = function (x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolours, drawingOptions) {
+	RegularPolygon = function (x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolour, drawingOptions) {
 		this.x = x;
 		this.y = y;
 		this.r = r;
@@ -8,8 +8,10 @@ ${{
 		this.interiorOutline = interiorOutline;
 		this.rotation = rotation;
 		this.fillcolour = fillcolour;
-		this.outlinecolours = outlinecolours;
+		this.outlinecolour = outlinecolour;
 		this.drawingOptions = drawingOptions;
+		this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "RegularPolygon");
+		this.obsName = root.currentObservableName();
 
 		this.exteriorAngle = (2 * Math.PI) / n;
 		this.vertices = [];
@@ -47,7 +49,7 @@ ${{
 	RegularPolygon.prototype.calculatePolygons = function (lineWidth) {
 		var separatePolygonsPossiblyNeeded;
 		if (this.fillcolour !== undefined && this.fillcolour != "transparent" &&
-			this.outlinecolours !== undefined &&
+			this.outlinecolour !== undefined &&
 			this.n / this.star != 2
 		) {
 			separatePolygonsPossiblyNeeded = true;
@@ -80,7 +82,7 @@ ${{
 				j = (j + this.star) % this.n;
 			}
 			if (currentPolygonVertices.length > 0) {
-				polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, this.outlinecolours, this.drawingOptions));
+				polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, this.outlinecolour, this.drawingOptions));
 			}
 		}
 		if (separatePolygonsPossiblyNeeded) {
@@ -123,7 +125,7 @@ ${{
 					this.filledPolygons.push(new Polygon(polygons[i].vertices, this.fillcolour, undefined, this.drawingOptions));
 				}
 				for (var i = 0; i < polygons.length; i++) {
-					this.outlinePolygons.push(new Polygon(polygons[i].vertices, undefined, this.outlinecolours, this.drawingOptions));
+					this.outlinePolygons.push(new Polygon(polygons[i].vertices, undefined, this.outlinecolour, this.drawingOptions));
 				}
 			}
 		} else {
@@ -145,7 +147,7 @@ func RegularPolygon {
 		var r = arguments[2];
 		var n = arguments[3];
 		var star = 1, rotation = 0, interiorOutline = true;
-		var fillcolour, outlinecolours, drawingOptions;
+		var fillcolour, outlinecolour, drawingOptions;
 		var argsProcessed = 4;
 		if (typeof(arguments[4]) == "number") {
 			star = arguments[4];
@@ -160,48 +162,43 @@ func RegularPolygon {
 				argsProcessed++;
 		}
 
-		if (Array.isArray(arguments[argsProcessed])) {
-			outlinecolours = arguments[argsProcessed];
+		var lastArg = arguments[arguments.length - 1];
+		var processUpTo;
+		if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+			drawingOptions = lastArg;
+			processUpTo = arguments.length - 2;
 		} else {
-			var lastArg = arguments[arguments.length - 1];
-			var processUpTo;
-			if (lastArg !== undefined && (lastArg instanceof Object) && !Array.isArray(lastArg) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
-				drawingOptions = lastArg;
-				processUpTo = arguments.length - 2;
-			} else {
-				processUpTo = arguments.length - 1;
-			}
-			if (processUpTo >= argsProcessed) {
-				fillcolour = arguments[argsProcessed];
-				argsProcessed++;
-				if (processUpTo == argsProcessed) {
-					outlinecolours = arguments[argsProcessed];
-				}
+			processUpTo = arguments.length - 1;
+		}
+		if (processUpTo >= argsProcessed) {
+			fillcolour = arguments[argsProcessed];
+			argsProcessed++;
+			if (processUpTo == argsProcessed) {
+				outlinecolour = arguments[argsProcessed];
 			}
 		}
 
-		if (outlinecolours === undefined) {
+		if (outlinecolour === undefined) {
 			if (fillcolour === undefined) {
-				outlinecolours = ["black"];
+				outlinecolour = "black";
 			}
-		} else if (!Array.isArray(outlinecolours)) {
-			outlinecolours = [outlinecolours];
-		} else if (outlinecolours.length == 0) {
-			outlinecolours = ["black"];
 		}
 
 		if (drawingOptions !== undefined) {
 			if (!("join" in drawingOptions)) {
 				drawingOptions.join = "round";
 			}
+<<<<<<< HEAD
 			if (eden.isValidIdentifier(drawingOptions.name)) {
 				var clickSym = root.lookup(drawingOptions.name + "_click");
 				if (clickSym.value() === undefined) {
 					clickSym.assign(false, root.scope, root.lookup("RegularPolygon"));
 				}
 			}
+=======
+>>>>>>> master
 		}
-		return new RegularPolygon(x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolours, drawingOptions);
+		return new RegularPolygon(x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolour, drawingOptions);
 	}}$;
 }
 radiansPerUnit ~> [RegularPolygon];
@@ -212,7 +209,7 @@ RegularPolygon.prototype.draw = function (context) {
 	if (!this.interiorOutline) {
 		lineWidth = lineWidth * 2;
 	}
-	if (this.outlinecolours !== undefined) {
+	if (this.outlinecolour !== undefined) {
 		if (lineWidth !== this.cachedPolygonLineWidth) {
 			this.calculatePolygons(lineWidth);
 			this.cachedPolygonLineWidth = lineWidth;
@@ -243,7 +240,7 @@ RegularPolygon.prototype.isHit = function (context, scale, x, y) {
 	var ratio = this.n / this.star;
 	var limit;
 	if (this.fillcolour !== undefined && this.fillcolour != "transparent" &&
-		this.outlinecolours !== undefined &&
+		this.outlinecolour !== undefined &&
 		ratio != 2 &&
 		(this.star == 1 || ratio != Math.floor(ratio)) &&
 		!this.interiorOutline
@@ -263,7 +260,7 @@ RegularPolygon.prototype.isHit = function (context, scale, x, y) {
 
 RegularPolygon.prototype.toString = function () {
 	var s = "RegularPolygon(" + Eden.edenCodeForValues(this.x, this.y, this.r, this.n, this.star,
-		this.interiorOutline, this.rotation, this.fillcolour, this.outlinecolours);
+		this.interiorOutline, this.rotation, this.fillcolour, this.outlinecolour);
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

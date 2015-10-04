@@ -22,7 +22,7 @@
 
 //System Symbols
 Eden.systemObservableNames = {
-	"_authoringMode": true,
+	"_option_global_css": true,
 	"_menubar_status": true,
 	"PI": true,
 	"autocalc": true,
@@ -99,6 +99,7 @@ Eden.systemFunctionNames = {
 	"Checkbox": true,
 	"Circle": true,
 	"Combobox": true,
+	"Curve": true,
 	"Div": true,
 	"Ellipse": true,
 	"FillPattern": true,
@@ -240,7 +241,15 @@ Eden.systemFunctionNames = {
 	"type": true,
 	"uppercase": true,
 	"xorshiftRandomGenerator": true,
+	"observableForShape": true,
+	"observableOnBottomAt": true,
+	"shapeOnBottomAt": true,
+	"zoneOnBottomAt": true,
+	"observableOnTopAt": true,
+	"shapeOnTopAt": true,
 	"zoneOnTopAt": true,
+	"observablesAt" : true,
+	"shapesAt" : true,
 	"zonesAt" : true,
 };
 
@@ -298,6 +307,7 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"Checkbox": true,
 		"Circle": true,
 		"Combobox": true,
+		"Curve": true,
 		"Div": true,
 		"Ellipse": true,
 		"FillPattern": true,
@@ -332,7 +342,15 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"textWidth": true,
 		"textHeight": true,
 		"Video": true,
+		"observableForShape": true,
+		"observableOnBottomAt": true,
+		"shapeOnBottomAt": true,
+		"zoneOnBottomAt": true,
+		"observableOnTopAt": true,
+		"shapeOnTopAt": true,
 		"zoneOnTopAt": true,
+		"observablesAt" : true,
+		"shapesAt" : true,
 		"zonesAt" : true,
 	}
 };

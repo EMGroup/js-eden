@@ -35,14 +35,15 @@
 
 	//Configuration options
 	//30 pixels seems like a good grid cell width on a display 1920 pixels wide.
-	EdenUI.prototype.gridSizeX = Math.round(window.outerWidth * 30 / 1920);
-	EdenUI.prototype.gridSizeY = Math.round(((window.innerHeight / window.outerHeight) * (window.outerHeight / 1920)) * 30);
+	EdenUI.prototype.gridSizeX = Math.floor(window.innerWidth * 30 / 1920);
+	EdenUI.prototype.gridSizeY = Math.floor(window.innerHeight * 30 / 1920);
 	
 	//Dimensions of various UI components.
 	EdenUI.prototype.menuBarHeight = 30;
 	EdenUI.prototype.dialogBorderWidth = 3.133;
 	EdenUI.prototype.titleBarHeight = 34.659 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.scrollBarSize = 14 + EdenUI.prototype.dialogBorderWidth;
+	EdenUI.prototype.scrollBarSize2 = 14;
 	EdenUI.prototype.dialogFrameWidth = EdenUI.prototype.scrollBarSize + 2 * EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.dialogFrameHeight = EdenUI.prototype.titleBarHeight + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.bottomBarHeight = 34.906;
@@ -138,6 +139,17 @@
 				dialogMin.css('top', '');
 				dialogMin.css('left', '');
 			},
+			maximize: function (event) {
+				var windowElem = dialogWindow[0];
+				var contentElem = diag[0];
+				windowElem.style.top = desktopTop + "px";
+				var height = window.innerHeight - desktopTop - me.scrollBarSize2 - 2 * me.dialogBorderWidth;
+				if (edenUI.getOptionValue("optHideOnMinimize") != "true") {
+					height = height - me.bottomBarHeight;
+				}
+				windowElem.style.height = height + "px";
+				contentElem.style.height = (height - me.titleBarHeight) + "px";
+			},
 			restore: function (event) {
 				diag.dialog('moveToTop');
 				me.brieflyHighlightView(event.target.id.slice(0,-7));
@@ -199,21 +211,82 @@
 				title = title + " (" + viewData.titleBarInfo + ")";
 			}
 			diag.dialog("option", "title", title);
-			me.plugins.MenuBar.updateViewsMenu();
+			if (me.plugins.MenuBar) {
+				me.plugins.MenuBar.updateViewsMenu();
+			}
 		});
 		titleSym.assign(title, eden.root.scope, agent);
 
 		//Allow mouse drags that position the dialog partially outside of the browser window but not over the menu bar.
 		diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, desktopTop, Number.MAX_VALUE, Number.MAX_VALUE]);
+		diag.resizeExtend = 0;
 		diag.on("dialogresize", function (event, ui) {
+			var momentumX, momentumY;
+			if (diag.previousWidth !== undefined) {
+				momentumX = ui.size.width - diag.previousWidth;
+				momentumY = ui.size.height - diag.previousHeight;
+				if (momentumX > momentumY ) {
+					diag.momentum = momentumX;
+				} else {
+					diag.momentum = momentumY;
+				}
+			}
+			diag.previousWidth = ui.size.width;
+			diag.previousHeight = ui.size.height;
+
 			var provisionalTop = ui.position.top;
 			if (provisionalTop < desktopTop) {
 				ui.size.height = ui.size.height - (desktopTop - provisionalTop);
 				ui.position.top = desktopTop;
 			}
+			var scrollX = 0, scrollY = 0;
+			if (ui.position.left + ui.size.width < document.body.scrollLeft + me.gridSizeX) {
+				ui.size.width = ui.size.width - me.gridSizeX;
+				scrollX = -me.gridSizeX;
+			}
+			if (ui.position.top + ui.size.height < document.body.scrollTop + me.gridSizeY) {
+				ui.size.height = ui.size.height - me.gridSizeY;
+				scrollY = -me.gridSizeY;
+			} else if (ui.position.top < document.body.scrollTop + me.gridSizeY) {
+				scrollY = -1 * me.gridSizeY;
+			}
+			if (diag.momentum >= 35 || diag.resizeExtend == 2) {
+				var setTimer = false;
+				if (ui.position.left + ui.size.width > document.body.scrollLeft + window.innerWidth - me.gridSizeX) {
+					if (diag.resizeExtend == 0) {
+						setTimer = true;
+					} else {
+						ui.size.width = ui.size.width + me.gridSizeX;
+						scrollX = me.gridSizeX;
+					}
+				}
+				if (ui.position.top + ui.size.height > document.body.scrollTop + window.innerHeight - me.gridSizeY) {
+					if (diag.resizeExtend == 0) {
+						setTimer = true;
+					} else {
+						ui.size.height = ui.size.height + me.gridSizeY;
+						scrollY = me.gridSizeY;
+					}
+				}
+				if (setTimer) {
+					diag.resizeExtend = 1;
+					setTimeout(function () {
+						if (diag.resizeExtend == 1) {
+							diag.resizeExtend = 2;
+						}
+					}, 850);
+				}
+			}
+			if (scrollX != 0 || scrollY != 0) {
+				window.scrollBy(scrollX, scrollY);
+			}
 		});
 
 		diag.on("dialogresizestop", function (event, ui) {
+			diag.previousWidth = undefined;
+			diag.momentum = 0;
+			diag.resizeExtend = 0;
+
 			var root = me.eden.root;
 			root.beginAutocalcOff();
 			view(name, 'width').assign(ui.size.width - me.scrollBarSize, root.scope, Symbol.hciAgent);
@@ -519,16 +592,10 @@
 		var newHeight = heightSym.value();
 		var right = left + newWidth + this.scrollBarSize + this.dialogBorderWidth;
 		var bottom = top + newHeight + this.titleBarHeight - 1;
-		var xMax = window.innerWidth;
-		var yMax = window.innerHeight;
-		var bottomBarY;
-		if (edenUI.getOptionValue("optHideOnMinimize") == "true") {
-			bottomBarY = yMax;
-		} else {
-			bottomBarY = yMax - this.bottomBarHeight;			
-		}
+		var xMax = window.innerWidth + document.body.scrollLeft;
+		var yMax = window.innerHeight + document.body.scrollTop - this.scrollBarSize2;
+		var bottomBarY = yMax - this.bottomBarHeight;			
 		var hciName = Symbol.hciAgent.name;
-
 		//Round the width.  For some reason the width set by jquery.ui isn't always aligned to the grid.
 		var adjustedWidth = Math.round((newWidth + this.scrollBarSize + this.dialogBorderWidth) / this.gridSizeX) * this.gridSizeX - 2 * this.dialogBorderWidth;
 		if (widthSym.last_modified_by != hciName) {
@@ -539,12 +606,6 @@
 			if (right <= xMax && left + adjustedWidth + this.dialogBorderWidth > xMax) {
 				//...and don't go off of the screen (unless originally requested).
 				adjustedWidth = xMax - this.dialogBorderWidth - left;
-			}
-		} else {
-			// When resizing is performed by dragging in the UI:
-			if (left + adjustedWidth + this.dialogBorderWidth > xMax + document.documentElement.scrollLeft) {
-				//Snap to the right edge of the browser window.
-				adjustedWidth = xMax - this.dialogBorderWidth - left + document.documentElement.scrollLeft;
 			}
 		}
 		newWidth = adjustedWidth - this.scrollBarSize;
@@ -569,16 +630,19 @@
 			if (top + adjustedHeight > bottomBarY && top + adjustedHeight < yMax) {
 				//Snap to align with the minimized windows area.
 				adjustedHeight = bottomBarY - top;
-			} else if (top + adjustedHeight > yMax + document.documentElement.scrollTop) {
+			} else if (top + adjustedHeight > yMax) {
 				//Snap to align with the bottom of the browser window.
-				adjustedHeight = yMax - top + document.documentElement.scrollTop;
+				adjustedHeight = yMax - top;
 			}
 		}
 		newHeight = adjustedHeight - this.titleBarHeight;
 		diag.dialog("option", "height", adjustedHeight);
-
 		widthSym.cache.value = newWidth;
 		heightSym.cache.value = newHeight;
+
+		//No idea why the following line is needed but it makes things work smoother when the window is positioned more than the value of the CSS height of the body element down the page.
+		diag.parent().offset({top: top - document.body.scrollTop});
+
 		var viewData = this.viewInstances[name];
 		if ("resize" in viewData) {
 			viewData.resize(newWidth, newHeight);

@@ -772,6 +772,25 @@
 			"return": "",
 			"description": ""
 		},
+		"Curve": {
+			"parameters": {
+				"x1": "",
+				"y1": "",
+				"x2": "",
+				"y2": "",
+				"radius": "",
+				"curviness": "Usually between 0 (like a right angle) and 1 (like half of an ellipse)",
+				"[start_angle": "",
+				"[end_angle": "",
+				"[skew": "Between 0 and 1",
+				"[overshoot]]]]": "",
+				"[is_right_and_up]": "",
+				"[colour(s)]": "",
+				"[drawing_options]": ""
+			},
+			"return": "",
+			"description": ""		
+		},
 		"FillPattern": {
 			"parameters": {
 				"url": ""
@@ -838,6 +857,7 @@
 		},
 		"GreyPixelList": {
 			"parameters": {
+				"[name]": "",
 				"pointer_to_grayscale_values_list": "",
 				"x": "",
 				"y": "",
@@ -883,7 +903,7 @@
 			"parameters": {
 				"points": "List of coordinates in the form {x, y} from the top left corner of the canvas",
 				"[fill_colour": "Colour of the polygon (fill) in HTML form",
-				"[outline_colour(s)]]": "",
+				"[outline_colour]]": "",
 				"[drawing_options]": ""
 			},
 			"return": "Polygon object",
@@ -899,7 +919,7 @@
 				"[is_interior_outlined]": "",
 				"[rotation]": "",
 				"[fill_colour": "Colour to fill the interior of the polygon with",
-				"[outline_colour(s)]]": "",
+				"[outline_colour]]": "",
 				"[drawing_options]": ""
 			},
 			"return": "RegularPolygon object",
@@ -944,7 +964,6 @@
 		},
 		"Button": {
 			"parameters": {
-				"name": "for [name]_clicked",
 				"label": "Text for the button",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
@@ -957,7 +976,6 @@
 		},
 		"Checkbox": {
 			"parameters": {
-				"name": "for [name]_checked",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[tristate": "Allow the user to click to produce an undefined value",
@@ -1025,11 +1043,10 @@
 		},
 		"RadioButtons": {
 			"parameters": {
-				"name": "for [name]_clicked",
 				"options": "A list of strings providing the options",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"[enabled": "Boolean for combobox enabled",
+				"[enabled": "Boolean to determine if the radio buttons are enabled",
 				"[is_horizontal]]": ""
 			},
 			"return": "",
@@ -1037,7 +1054,6 @@
 		},
 		"Slider": {
 			"parameters": {
-				"name": "",
 				"min": "",
 				"max": "",
 				"step": "",
@@ -1052,7 +1068,6 @@
 		},
 		"Textbox": {
 			"parameters": {
-				"name": "",
 				"x": "",
 				"y": "",
 				"width": "",
@@ -1065,7 +1080,6 @@
 		},
 		"Combobox": {
 			"parameters": {
-				"name": "for [name]_clicked",
 				"options": "A list of strings providing the options",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
@@ -1085,7 +1099,6 @@
 		},
 		"Video": {
 			"parameters": {
-				"name": "",
 				"[preload]": ""
 			},
 			"return": "",
@@ -1232,6 +1245,15 @@
 			"return": "",
 			"description": "Removes from the symbol table all symbols whose names match a given regular expression"
 		},
+		"shapeOnTopAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"zoneOnTopAt": {
 			"parameters": {
 				"view_name_or_ptr_to_picture": "",
@@ -1240,10 +1262,70 @@
 			"return": "",
 			"description": ""
 		},
+		"observableOnTopAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"shapeOnBottomAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"zoneOnBottomAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"observableOnBottomAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"shapesAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"zonesAt": {
 			"parameters": {
 				"view_name_or_ptr_to_picture": "",
 				"point_or_xy_argument_pair" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"observablesAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"observableForShape": {
+			"parameters": {
+				"shape": ""
 			},
 			"return": "",
 			"description": ""

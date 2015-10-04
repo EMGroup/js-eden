@@ -69,6 +69,8 @@ Text = function(text, x, y, size, sizeUnits, fillcolour, outlinecolour, options)
 		this.drawingOptions.valign = "alphabetic";
 	}
 	this.css = css;
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(options, "Text");
+	this.obsName = root.currentObservableName();
 }
 }}$;
 
@@ -119,12 +121,6 @@ func Text {
 		if (outlinecolour === undefined && fillcolour === undefined) {
 			fillcolour = "black";
 		}
-		if (typeof(options) == "object" && eden.isValidIdentifier(options.name)) {
-			var clickSym = root.lookup(options.name + "_click");
-			if (clickSym.value() === undefined) {
-				clickSym.assign(false, root.scope, root.lookup("Text"));
-			}
-		}		
 		return new Text(text, x, y, size, sizeUnits, fillcolour, outlinecolour, options);
 	}}$;
 }

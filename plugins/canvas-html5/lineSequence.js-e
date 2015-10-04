@@ -3,13 +3,28 @@
 ##
 ## See LICENSE.txt
 
-##See polygon.js-e for a description of how multiple colours work.
-
 ${{
 LineSequence = function(vertices, colours, drawingOptions) {
 	this.vertices = vertices;
 	this.colours = colours;
 	this.drawingOptions = drawingOptions;
+
+	this.minX = this.vertices[0].x;
+	this.minY = this.vertices[0].y;
+	this.maxX = this.minX, this.maxY = this.minY;
+	for (var i = 1; i < this.vertices.length; i++) {
+		var vertex = this.vertices[i];
+		if (vertex.x < this.minX) {
+			this.minX = vertex.x;
+		} else if (vertex.x > this.maxX) {
+			this.maxX = vertex.x;
+		}
+		if (vertex.y < this.minY) {
+			this.minY = vertex.y;
+		} else if (vertex.y > this.maxY) {
+			this.maxY = vertex.y;
+		}
+	}
 }
 }}$;
 
@@ -34,58 +49,8 @@ func LineSequence { ${{
 		colours = [colours];
 	} else if (colours.length == 0) {
 		colours = ["black"];
-	} else {
-		if (colours[0] === undefined) {
-			for (var i = 1; i <= colours.length; i++) {
-				if (colours[i] !== undefined) {
-					//The colour of the first edge is undefined so copy the colour of the next edge.
-					if (Array.isArray(colours[i])) {
-						colours[0] = colours[i][colours[i].length - 1];
-					} else {
-						colours[0] = colours[i];
-					}
-					break;
-				}
-			}
-			if (colours[0] === undefined) {
-				colours[0] = "black";
-			}
-		}
-		for (var i = 0; i < colours.length - 1; i++) {
-			if (colours[i + 1] !== undefined) {
-				if (colours[i] === undefined) {
-					//Interpolate for vertices that haven't been assigned colours.
-					if (Array.isArray(colours[i + 1])) {
-						if (colours[i + 1].length > 1) {
-							var colour = colours[i + 1].shift();
-							colours[i] = [colour];
-						}
-					} else {
-						colours[i] = [colours[i + 1]];
-					}
-				} else if (Array.isArray(colours[i]) && !Array.isArray(colours[i + 1]) &&
-				  colours[i][colours[i].length - 1] != colours[i + 1]) {
-					//Blend the colour of this edge with the next edge (which is a single coloured edge).
-					colours[i].push(colours[i + 1]);
-				}
-			}
-		}	
 	}
 
-	var oneColour = colours.length == 1 && !Array.isArray(colours[0]);
-
-	if (!oneColour) {
-		if (drawingOptions instanceof Object) {
-			if (!("cap" in drawingOptions)) {
-				drawingOptions.cap = "round";
-				if (!("join" in drawingOptions)) {
-					drawingOptions.join = "round";
-				}
-			}
-		} else {
-			drawingOptions = {cap: "round", join: "round"};
-		}
-	}
 	return new LineSequence(vertices, colours, drawingOptions);
 }}$; };
 
@@ -97,85 +62,33 @@ LineSequence.prototype.draw = function(context) {
 	}
 
 	context.beginPath();
-	context.moveTo(this.vertices[0].x, this.vertices[0].y);
-	
-	var strokeNum = 1;
-	var i, prevColour;
-	var me = this;
-	var newStroke = function () {
-		if (strokeNum == 2) {
-			if (me.drawingOptions instanceof Object && me.drawingOptions.join == "bevel") {
-				context.lineCap = "butt";
-			} else {
-				context.lineCap = "round";
-			}
+	var maxVertex = this.vertices.length - 1;
+	if (this.colours.length == 1) {
+		context.strokeStyle = this.colours[0];
+	} else {
+		var gradient = context.createLinearGradient(this.minX, this.minY, this.maxX, this.maxY);
+		for (var i = 0; i < this.colours.length; i++) {
+			gradient.addColorStop(i / (this.colours.length - 1), this.colours[i]);
 		}
-		context.stroke();
-		context.beginPath();
-		context.moveTo(me.vertices[i].x, me.vertices[i].y);
-		strokeNum++;
+		context.strokeStyle = gradient;
 	}
 
-	for (i = 1; i < this.vertices.length; i++) {
+	context.moveTo(this.vertices[0].x, this.vertices[0].y);
+	for (var i = 1; i <= maxVertex; i++) {
 		context.lineTo(this.vertices[i].x, this.vertices[i].y);
-		if (i <= this.colours.length) {
-			//Set the colour of a new piece.
-			var colour = this.colours[i - 1];
-			if (colour === undefined || (Array.isArray(colour) && colour.length == 0)) {
-				//Repeat the colour of the previous line.
-				if (i < this.colours.length && this.colours[i] !== undefined) {
-					//End of a sequence of lines of a repeated colour.
-					newStroke();
-				}
-			} else {
-				var isGradient = false;
-				if (Array.isArray(colour)) {
-					var gradient = context.createLinearGradient(this.vertices[i - 1].x, this.vertices[i - 1].y, this.vertices[i].x, this.vertices[i].y);
-					//First colour of the new line is the last colour of the previous line.
-					if (i == 1 || prevColour == colour[0]) {
-						if (colour.length == 1) {
-							context.strokeStyle = colour[0];
-						} else {
-							for (var j = 0; j < colour.length; j++) {
-								gradient.addColorStop(j / (colour.length - 1), colour[j]);
-							}
-							context.strokeStyle = gradient;
-							isGradient = true;
-						}
-					} else {
-						gradient.addColorStop(0, prevColour);							
-						for (var j = 0; j < colour.length; j++) {
-							gradient.addColorStop((j + 1) / colour.length, colour[j]);
-						}
-						context.strokeStyle = gradient;
-						isGradient = true;
-					}
-					prevColour = colour[colour.length - 1];
-				} else {
-					context.strokeStyle = colour;
-					prevColour = colour;
-				}
-				if ((i == this.colours.length || this.colours[i] === undefined) && isGradient) {
-					/* Repeat the final colour of the gradient for the subsequent lines rather than
-					 * repeating the whole gradient. */
-					newStroke();
-					context.strokeStyle = prevColour;
-				} else if (i < this.colours.length && this.colours[i] !== undefined && (this.colours[i] !== prevColour || isGradient)) {
-					//There's a colour change coming up so stroke this path and begin a new one.
-					newStroke();
-				}
-			}
-		}
 	}
-	//Stroke final path.
-	if (strokeNum > 1) {
-		context.lineCap = this.drawingOptions.cap;
-	}
+	
 	context.stroke();	
 };
 
 LineSequence.prototype.toString = function() {
-	var s = "LineSequence(" + Eden.edenCodeForValues(this.vertices, this.colours);
+	var s = "LineSequence(" + Eden.edenCodeForValue(this.vertices) + ",";
+	
+	if (this.colours.length > 1) {
+		s = s + Eden.edenCodeForValue(this.colours);
+	} else {
+		s = s + Eden.edenCodeForValue(this.colours[0]);	
+	}
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

@@ -30,18 +30,22 @@ Slider.prototype.hash = function () {
 }}$;
 
 func Slider { ${{
-  var name = arguments[0];
-  var min = arguments[1];
-  var max = arguments[2];
-  var step = arguments[3];
-  var x = arguments[4];
-  var y = arguments[5];
-  var length = arguments[6];
-  var orientation = arguments[7];
-  if (orientation === undefined) orientation = "horizontal";
-  var enabled = arguments[8];
-  if (enabled === undefined) enabled = true;
-  return new Slider(name, min, max, step, x, y, length, orientation, enabled);
+	var name = root.currentObservableName();
+	if (name === undefined) {
+		eden.error(new Error("Slider: Every slider must be defined by making a dependency."), "error");
+		return undefined;
+	}
+	var min = arguments[0];
+	var max = arguments[1];
+	var step = arguments[2];
+	var x = arguments[3];
+	var y = arguments[4];
+	var length = arguments[5];
+	var orientation = arguments[6];
+	if (orientation === undefined) orientation = "horizontal";
+	var enabled = arguments[8];
+	if (enabled === undefined) enabled = true;
+	return new Slider(name, min, max, step, x, y, length, orientation, enabled);
 }}$; }
 
 ${{
@@ -150,7 +154,7 @@ Slider.prototype.scale = function (scale, zoom, origin) {
 };
 
 Slider.prototype.toString = function() {
-  return "Slider(" + Eden.edenCodeForValues(this.name, this.min, this.max, this.step, this.x, this.y,
+  return "Slider(" + Eden.edenCodeForValues(this.min, this.max, this.step, this.x, this.y,
 	this.length, this.orientation, this.enabled) + ")";
 };
 

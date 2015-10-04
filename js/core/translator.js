@@ -127,7 +127,7 @@ break;
 case 8:
 
 			if (!yy.inEval() && yy.inDefinition()) {
-				this.$ = '_this.subscribeDynamic(' + yy.backticks() + ', ' + $$[$0-1] + ')';
+				this.$ = 'context.currentObservable.subscribeDynamic(' + yy.backticks() + ', ' + $$[$0-1] + ')';
 			} else {
 				this.$ = 'context.lookup(' + $$[$0-1] + ')';
 			}
@@ -399,7 +399,7 @@ case 113:
  this.$ = yy.sync('return ' + $$[$0-1] + ';'); 
 break;
 case 114:
- this.$ = yy.code($$[$0].cps, 'root.beginAutocalcOff(); ' + $$[$0].code + ' root.endAutocalcOff();'); 
+ this.$ = yy.code($$[$0].cps, 'context.beginAutocalcOff(); ' + $$[$0].code + ' context.endAutocalcOff();'); 
 break;
 case 115:
  this.$ = yy.async('eden.include', '['+$$[$0].join(', ')+']', 'includePrefix', 'this'); 
@@ -521,7 +521,7 @@ case 156:
 
                yy.observable($$[$0-3]) +
                  ".define(" +
-                   "function(context, scope) { var _this = " + yy.observable($$[$0-3]) + "; return " + $$[$0-1] + "; }," +
+                   "function(context, scope) { return " + $$[$0-1] + "; }," +
                    "this, " +
                    JSON.stringify(yy.getDependencies()) +
                  ")" +

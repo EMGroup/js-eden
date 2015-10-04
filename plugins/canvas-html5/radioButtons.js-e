@@ -20,13 +20,17 @@ RadioButtons.prototype.hash = function () {
 }}$;
 
 func RadioButtons { ${{
-  var name = arguments[0];
-  var buttonValues = arguments[1];
-  var x = arguments[2];
-  var y = arguments[3];
-  var enabled = arguments[4];
-  var horizontal = arguments[5];
-  return (new RadioButtons(name, buttonValues, x, y, enabled, horizontal));
+	var name = root.currentObservableName();
+	if (name === undefined) {
+		eden.error(new Error("RadioButtons: Every set of radio buttons must be defined by making a dependency."), "error");
+		return undefined;
+	}
+  var buttonValues = arguments[0];
+  var x = arguments[1];
+  var y = arguments[2];
+  var enabled = arguments[3];
+  var horizontal = arguments[4];
+  return new RadioButtons(name, buttonValues, x, y, enabled, horizontal);
 }}$; }
 
 ${{

@@ -8,6 +8,7 @@
 ${{
 HTMLImage = function (name, x, y, width, height, scaleFactor, url, imageMap) {
 	this.name = name;
+	this.obsName = root.currentObservableName();
 	this.x = x;
 	this.y = y;
 	this.width = width;
@@ -123,12 +124,7 @@ HTMLImage.prototype.draw = function(context) {
 	});
 
 	if (name !== undefined) {
-		if (eden.isValidIdentifier(name)) {
-			var clickSym = root.lookup(name + "_click");
-			if (clickSym.value() === undefined) {
-				clickSym.assign(false, root.scope, root.lookup("HTMLImage"));
-			}
-		}
+		edenUI.plugins.Canvas2D.initZoneFromName(name, "HTMLImage");
 		imageJQ.on("mousedown", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
 			root.lookup("mouseDownZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);

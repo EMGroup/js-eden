@@ -154,87 +154,183 @@ func canvasURL {
 	}}$;
 }
 
-func zoneOnTopAt {
+func shapeOnTopAt {
 	${{
 		var target = arguments[0];
-		var x, y;
-		if (arguments.length == 2) {
-			if (arguments[1] instanceof Point) {
-				x = arguments[1].x;
-				y = arguments[1].y;
-			} else if (arguments[1] === undefined) {
-				return undefined;
-			} else {
-				eden.error(new Error("zoneOnTopAt: The second argument must a Point, otherwise 3 arguments must be provided."), "error");
-				return undefined;
-			}
-		} else if (arguments.length == 3) {
+		var x, y, testAll;
+		if (arguments.length < 2 || arguments.length > 4) {
+			eden.error(new Error("shapeOnTopAt: This function requires at least 2 arguments and at most 4 arguments."), "error");
+			return undefined;
+		}
+		if (arguments[1] instanceof Point) {
+			x = arguments[1].x;
+			y = arguments[1].y;
+			testAll = arguments[2];
+		} else {
 			x = arguments[1];
 			y = arguments[2];
-		} else {
-			eden.error(new Error("zoneOnTopAt: This function requires at least 2 arguments and at most 3 arguments."), "error");
-			return undefined;
+			testAll = arguments[3];
 		}
 
 		if (target === undefined || x === undefined || y === undefined) {
 			return undefined;
 		} else if (!(target instanceof Symbol) && typeof(target) != "string") {
-			eden.error(new Error("zoneOnTopAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
+			eden.error(new Error("shapeOnTopAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
 			return undefined;
 		} else if (typeof(x) != "number") {
-			eden.error(new Error("zoneOnTopAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
+			eden.error(new Error("shapeOnTopAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
 			return undefined;
 		} else if (typeof(y) != "number") {
-			eden.error(new Error("zoneOnTopAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
+			eden.error(new Error("shapeOnTopAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
 			return undefined;
 		}
-		return edenUI.plugins.Canvas2D.findZoneHit2(target, x, y);
+		return edenUI.plugins.Canvas2D.findDrawableHit2(target, x, y, false, testAll);
+	}}$;
+}
+
+func shapeOnBottomAt {
+	${{
+		var target = arguments[0];
+		var x, y, testAll;
+		if (arguments.length < 2 || arguments.length > 4) {
+			eden.error(new Error("shapeOnBottomAt: This function requires at least 2 arguments and at most 4 arguments."), "error");
+			return undefined;
+		}
+		if (arguments[1] instanceof Point) {
+			x = arguments[1].x;
+			y = arguments[1].y;
+			testAll = arguments[2];
+		} else {
+			x = arguments[1];
+			y = arguments[2];
+			testAll = arguments[3];
+		}
+
+		if (target === undefined || x === undefined || y === undefined) {
+			return undefined;
+		} else if (!(target instanceof Symbol) && typeof(target) != "string") {
+			eden.error(new Error("shapeOnBottomAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
+			return undefined;
+		} else if (typeof(x) != "number") {
+			eden.error(new Error("shapeOnBottomAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
+			return undefined;
+		} else if (typeof(y) != "number") {
+			eden.error(new Error("shapeOnBottomAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
+			return undefined;
+		}
+		return edenUI.plugins.Canvas2D.findDrawableHit2(target, x, y, true, testAll);
+	}}$;
+}
+
+func zoneOnTopAt {
+	auto drawable;
+	drawable = apply(shapeOnTopAt, $);
+	if (drawable == @) {
+		return @;
+	} else {
+		return drawable.name;
+	}
+}
+
+func zoneOnBottomAt {
+	auto drawable;
+	drawable = apply(shapeOnBottomAt, $);
+	if (drawable == @) {
+		return @;
+	} else {
+		return drawable.name;
+	}
+}
+
+func observableForShape {
+	${{
+		var drawable = arguments[0];
+		if (drawable === undefined) {
+			return undefined;
+		} else if ("obsName" in drawable) {
+			return drawable.obsName;
+		} else {
+			return drawable.name;
+		}
+	}}$;
+}
+
+func observableOnTopAt {
+	auto drawable;
+	drawable = apply(shapeOnTopAt, $);
+	return observableForShape(drawable);
+}
+
+func observableOnBottomAt {
+	auto drawable;
+	drawable = apply(shapeOnBottomAt, $);
+	return observableForShape(drawable);
+}
+
+func shapesAt {
+	${{
+		var target = arguments[0];
+		var x, y, testAll;
+		if (arguments.length < 2 || arguments.length > 4) {
+			eden.error(new Error("shapesAt: This function requires at least 2 arguments and at most 4 arguments."), "error");
+			return undefined;
+		}
+		if (arguments[1] instanceof Point) {
+			x = arguments[1].x;
+			y = arguments[1].y;
+			testAll = arguments[2];
+		} else {
+			x = arguments[1];
+			y = arguments[2];
+			testAll = arguments[3];
+		}
+
+		if (target === undefined || x === undefined || y === undefined) {
+			return undefined;
+		} else if (!(target instanceof Symbol) && typeof(target) != "string") {
+			eden.error(new Error("shapesAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
+			return undefined;
+		} else if (typeof(x) != "number") {
+			eden.error(new Error("shapesAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
+			return undefined;
+		} else if (typeof(y) != "number") {
+			eden.error(new Error("shapesAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
+			return undefined;
+		}
+		return edenUI.plugins.Canvas2D.findAllDrawablesHit(target, x, y, testAll);
 	}}$;
 }
 
 func zonesAt {
-	${{
-		var target = arguments[0];
-		var x, y;
-		if (arguments.length == 2) {
-			if (arguments[1] instanceof Point) {
-				x = arguments[1].x;
-				y = arguments[1].y;
-			} else if (arguments[1] === undefined) {
-				return undefined;
-			} else {
-				eden.error(new Error("zonesAt: The second argument must a Point, otherwise 3 arguments must be provided."), "error");
-				return undefined;
-			}
-		} else if (arguments.length == 3) {
-			x = arguments[1];
-			y = arguments[2];
-		} else {
-			eden.error(new Error("zonesAt: This function requires at least 2 arguments and at most 3 arguments."), "error");
-			return undefined;
-		}
-
-		if (target === undefined || x === undefined || y === undefined) {
-			return undefined;
-		} else if (!(target instanceof Symbol) && typeof(target) != "string") {
-			eden.error(new Error("zonesAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
-			return undefined;
-		} else if (typeof(x) != "number") {
-			eden.error(new Error("zonesAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
-			return undefined;
-		} else if (typeof(y) != "number") {
-			eden.error(new Error("zonesAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
-			return undefined;
-		}
-		return edenUI.plugins.Canvas2D.findAllZonesHit(target, x, y);
-	}}$;
+	auto drawables, zones, i;
+	drawables = apply(shapesAt, $);
+	zones = [];
+	for (i = 1; i <= drawables#; i++) {
+		append zones, drawables[i].name;
+	}
+	return zones;
 }
+
+func observablesAt {
+	auto drawables, obsList, obsName, i;
+	drawables = apply(shapesAt, $);
+	obsList = [];
+	for (i = 1; i <= drawables#; i++) {
+		obsName = observableForShape(drawables[i]);
+		if (obsName != @) {
+			append obsList, obsName;
+		}
+	}
+	return obsList;
+}
+
 
 include("plugins/canvas-html5/arc.js-e");
 include("plugins/canvas-html5/button.js-e");
 include("plugins/canvas-html5/checkbox.js-e");
 include("plugins/canvas-html5/circle.js-e");
 include("plugins/canvas-html5/combobox.js-e");
+include("plugins/canvas-html5/curve.js-e");
 include("plugins/canvas-html5/div.js-e");
 include("plugins/canvas-html5/ellipse.js-e");
 include("plugins/canvas-html5/fillPattern.js-e");

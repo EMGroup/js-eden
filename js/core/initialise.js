@@ -99,6 +99,10 @@ function initialiseJSEden(callback) {
 
 	$(document).ready(function () {
 		edenUI = new EdenUI(eden);
+		document.body.scrollLeft = 0; //Chrome remembers position on refresh.
+		document.body.scrollTop = 0;
+		edenUI.scrollBarSize2 = window.innerHeight - $(window).height();
+
 		$(document)
 		.on('keydown', null, 'ctrl+m', function () {
 			edenUI.cycleNextView();

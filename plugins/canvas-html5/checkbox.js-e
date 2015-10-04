@@ -22,12 +22,16 @@ Checkbox.prototype.hash = function () {
 }}$;
 
 func Checkbox { ${{
-  var name = arguments[0];
-  var x = arguments[1];
-  var y = arguments[2];
-  var tristate = arguments[3];
+  var name = root.currentObservableName();
+  if (name === undefined) {
+	eden.error(new Error("Checkbox: Every checkbox must be defined by making a dependency."), "error");
+	return undefined;
+  }
+  var x = arguments[0];
+  var y = arguments[1];
+  var tristate = arguments[2];
   if (tristate === undefined) tristate = false;
-  var enabled = arguments[4];
+  var enabled = arguments[3];
   if (enabled === undefined) enabled = true;
   return new Checkbox(name, x, y, tristate, enabled);
 }}$; }
@@ -108,7 +112,7 @@ Checkbox.prototype.scale = function (scale, zoom, origin) {
 };
 
 Checkbox.prototype.toString = function() {
-  return "Checkbox(" + Eden.edenCodeForValues(this.name, this.x, this.y, this.tristate, this.enabled) + ")";
+  return "Checkbox(" + Eden.edenCodeForValues(this.x, this.y, this.tristate, this.enabled) + ")";
 };
 
 Checkbox.prototype.getEdenCode = Checkbox.prototype.toString;

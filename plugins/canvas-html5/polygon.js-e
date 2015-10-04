@@ -3,29 +3,14 @@
 ##
 ## See LICENSE.txt
 
-##Outline colours are specified either as:
-##
-##(1) A single colour
-##      E.g. "blue"
-##
-##(2) A list of colours, each colour specifying the colour of one edge.
-##      E.g. ["red", "blue", "cyan"]
-##
-##(3) A list of lists of colours, each nested list containing the colours that appear along one edge.
-##      E.g. [["red, blue"], ["blue, "cyan"], ["cyan, "red"]]
-##    It is automatically implied that an edge begins with the same colour that the previous edge
-##    ended with.  Thus the previous example can be specified more compactly as:
-##      [["red", "blue"], ["cyan"], ["red"]]
-##
-##(4) A list containing any mixture of colours, lists of colours or undefined elements
-##    (combining (2) and (3) above).
-
 ${{
-Polygon = function(vertices, fillcolour, outlinecolours, drawingOptions) {
-  this.vertices = vertices;
-  this.fillcolour = fillcolour;
-  this.outlinecolours = outlinecolours;
-  this.drawingOptions = drawingOptions;
+Polygon = function(vertices, fillcolour, outlinecolour, drawingOptions) {
+	this.vertices = vertices;
+	this.fillcolour = fillcolour;
+	this.outlinecolour = outlinecolour;
+	this.drawingOptions = drawingOptions;
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Polygon");
+	this.obsName = root.currentObservableName();
 }
 }}$;
 
@@ -35,7 +20,7 @@ func Polygon { ${{
 		vertices.push(vertices[0]);
 	}
 
-	var fillcolour, outlinecolours, drawingOptions;
+	var fillcolour, outlinecolour, drawingOptions;
 	var lastArg = arguments[arguments.length - 1];
 	var processUpTo;
 	if (lastArg !== undefined && (lastArg instanceof Object) && !Array.isArray(lastArg) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle) && !Array.isArray(lastArg)) {
@@ -47,110 +32,17 @@ func Polygon { ${{
 	if (processUpTo >= 1) {
 		fillcolour = arguments[1];
 		if (processUpTo == 2) {
-			outlinecolours = arguments[2];
+			outlinecolour = arguments[2];
 		}
 	}
 
-	if (outlinecolours === undefined) {
+	if (outlinecolour === undefined) {
 		if (fillcolour === undefined) {
-			outlinecolours = ["black"];
-		}
-	} else if (!Array.isArray(outlinecolours)) {
-		outlinecolours = [outlinecolours];
-	} else if (outlinecolours.length == 0) {
-		outlinecolours = ["black"];
-	} else {
-		var numVertices = vertices.length - 1;
-		if (outlinecolours[0] === undefined) {
-			for (var i = outlinecolours.length - 1; i >= 0; i--) {
-				if (outlinecolours[i] !== undefined) {
-					/* The colour of the first edge is undefined, which means "repeat the colour
-					 * of the previous edge", so we find the colour of the last edge and make
-					 * the first edge the same colour. */
-					if (Array.isArray(outlinecolours[i])) {
-						outlinecolours[0] = outlinecolours[i][outlinecolours[i].length - 1];
-					} else {
-						outlinecolours[0] = outlinecolours[i];
-					}
-					break;
-				}
-			}
-			if (outlinecolours[0] === undefined) {
-				outlinecolours[0] = "black";
-			}
-		} else if (Array.isArray(outlinecolours[0])  && outlinecolours[0].length > 0) {
-			if (outlinecolours[numVertices - 1] === undefined) {
-				/* The colour of the final edge was left unspecified so we produce a colour
-				 * gradient that blends the colours of the penultimate and final (=first) vertices.
-				 * Case 1: The first edge is coloured with a gradient.
-				 */
-				outlinecolours[numVertices - 1] = [outlinecolours[0][0]];
-			} else if (Array.isArray(outlinecolours[numVertices - 1])) {
-				/* The first and last edges are both coloured using gradients, so make them blend
-				 * seamlessly by adding an extra colour stop to the final edge if needed. */
-				var finalColour = outlinecolours[numVertices - 1][outlinecolours[numVertices - 1].length - 1];
-				if (finalColour != outlinecolours[0][0]) {
-					outlinecolours[numVertices - 1].push(outlinecolours[0][0]);
-				}
-			}
-		} else if (outlinecolours[numVertices - 1] === undefined) {
-				/* The colour of the final edge was left unspecified so we produce a colour
-				 * gradient that blends the colours of the penultimate and final (=first) vertices.
-				 * Case 2: The first edge is coloured with a solid colour (no gradient).
-				 */
-			outlinecolours[numVertices - 1] = [outlinecolours[0]];
-		} else if (Array.isArray(outlinecolours[numVertices - 1])) {
-			/* The first edge is not coloured with a gradient but the last edge is, so make it blend
-			 * with the initial vertex. */
-			var finalColour = outlinecolours[numVertices - 1][outlinecolours[numVertices - 1].length - 1];
-			if (finalColour != outlinecolours[0]) {
-				outlinecolours[numVertices - 1].push(outlinecolours[0]);
-			}
-		}
-		for (var i = 0; i < outlinecolours.length - 1; i++) {
-			if (outlinecolours[i + 1] !== undefined) {
-				if (outlinecolours[i] === undefined) {
-					//Interpolate for vertices that haven't been assigned colours.
-					if (Array.isArray(outlinecolours[i + 1])) {
-						if (outlinecolours[i + 1].length > 1) {
-							var colour = outlinecolours[i + 1].shift();
-							outlinecolours[i] = [colour];
-						}
-					} else {
-						outlinecolours[i] = [outlinecolours[i + 1]];
-					}
-				} else if (Array.isArray(outlinecolours[i]) && !Array.isArray(outlinecolours[i + 1]) &&
-				  outlinecolours[i][outlinecolours[i].length - 1] != outlinecolours[i + 1]) {
-					//Blend the colour of this edge with the next edge (which is a single coloured edge).
-					outlinecolours[i].push(outlinecolours[i + 1]);
-				}
-			}
+			outlinecolour = "black";
 		}
 	}
 
-	var oneColour = outlinecolours === undefined || (outlinecolours.length == 1 && !Array.isArray(outlinecolours[0]));
-
-	if (!oneColour) {
-		if (drawingOptions !== undefined) {
-			if (!("join" in drawingOptions)) {
-				drawingOptions.join = "round";
-				drawingOptions.cap = "round";
-			} else if (drawingOptions.join != "bevel") {
-				drawingOptions.cap = "round";
-			}
-		} else {
-			drawingOptions = {cap: "round", join: "round"};
-		}
-	}
-
-	if (drawingOptions !== undefined && eden.isValidIdentifier(drawingOptions.name)) {
-		var clickSym = root.lookup(drawingOptions.name + "_click");
-		if (clickSym.value() === undefined) {
-			clickSym.assign(false, root.scope, root.lookup("Polygon"));
-		}
-	}
-
-	return new Polygon(vertices, fillcolour, outlinecolours, drawingOptions);
+	return new Polygon(vertices, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
 ${{
@@ -161,84 +53,16 @@ Polygon.prototype.draw = function (context) {
 		context.translate(0.5 / scale, 0.5 / scale);
 	}
 
-	var oneOutlineColour = this.outlinecolours !== undefined &&
-		this.outlinecolours.length == 1 && !Array.isArray(this.outlinecolours[0]);
-	
-	if (oneOutlineColour || this.fillcolour !== undefined) {
-		this.tracePath(context);
-	}
+	this.tracePath(context);
 
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
 		context.fill();
 	}
 	
-	if (oneOutlineColour) {
-		context.strokeStyle = this.outlinecolours[0];
+	if (this.outlinecolour !== undefined) {
+		context.strokeStyle = this.outlinecolour;
 		context.stroke();
-	} else if (this.outlinecolours !== undefined) {
-		context.beginPath();
-		context.moveTo(this.vertices[0].x, this.vertices[0].y);
-		var prevColour;
-		for (var i = 1; i < this.vertices.length; i++) {
-			context.lineTo(this.vertices[i].x, this.vertices[i].y);
-			if (i <= this.outlinecolours.length) {
-				//Set the colour of a new piece.
-				var colour = this.outlinecolours[i - 1];
-				if (colour === undefined || (Array.isArray(colour) && colour.length == 0)) {
-					//Repeat the colour of the previous line.
-					if (i < this.outlinecolours.length && this.outlinecolours[i] !== undefined) {
-						//End of a sequence of lines of a repeated colour.
-						context.stroke();
-						context.beginPath();
-						context.moveTo(this.vertices[i].x, this.vertices[i].y);				
-					}
-				} else {
-					var isGradient = false;
-					if (Array.isArray(colour)) {
-						var gradient = context.createLinearGradient(this.vertices[i - 1].x, this.vertices[i - 1].y, this.vertices[i].x, this.vertices[i].y);
-						//First colour of the new line is the last colour of the previous line.
-						if (i == 1 || prevColour == colour[0]) {
-							if (colour.length == 1) {
-								context.strokeStyle = colour[0];
-							} else {
-								for (var j = 0; j < colour.length; j++) {
-									gradient.addColorStop(j / (colour.length - 1), colour[j]);
-								}
-								context.strokeStyle = gradient;
-								isGradient = true;
-							}
-						} else {
-							gradient.addColorStop(0, prevColour);							
-							for (var j = 0; j < colour.length; j++) {
-								gradient.addColorStop((j + 1) / colour.length, colour[j]);
-							}
-							context.strokeStyle = gradient;
-							isGradient = true;
-						}
-						prevColour = colour[colour.length - 1];
-					} else {
-						context.strokeStyle = colour;
-						prevColour = colour;
-					}
-					if ((i == this.outlinecolours.length || this.outlinecolours[i] === undefined) && isGradient) {
-						/* Repeat the final colour of the gradient for the subsequent lines rather than
-						 * repeating the whole gradient. */
-						context.stroke();
-						context.beginPath();
-						context.moveTo(this.vertices[i].x, this.vertices[i].y);
-						context.strokeStyle = prevColour;
-					} else if (i < this.outlinecolours.length && this.outlinecolours[i] !== undefined && (this.outlinecolours[i] !== prevColour || isGradient)) {
-						//There's a colour change coming up so stroke this path and begin a new one.
-						context.stroke();
-						context.beginPath();
-						context.moveTo(this.vertices[i].x, this.vertices[i].y);
-					}
-				}
-			}
-		}
-		//Stroke final path.
-		context.stroke();	
 	}
 };
 

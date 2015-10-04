@@ -10,7 +10,8 @@ Div = function (html, x, y, width, height, id, classNames, style) {
 	this.y = y;
 	this.width = width;
 	this.height = height;
-	this.id = id;
+	this.name = id;
+	this.obsName = root.currentObservableName();
 	this.classNames = classNames;
 	this.style = style;
 }
@@ -21,7 +22,7 @@ Div.prototype.hash = function () {
 		this.width+"$$"+
 		this.height+"$$"+
 		this.html+"$$"+
-		this.id+"$$"+
+		this.name+"$$"+
 		this.classNames+"$$"+
 		this.style;
 };
@@ -67,7 +68,7 @@ func Div { ${{
 				} else {
 					style = arguments[argsProcessed + 1];
 				}
-			} else if (arguments[argsProcessed].indexOf(":") == -1) {
+			} else if (typeof(arguments[argsProcessed]) != "string" || arguments[argsProcessed].indexOf(":") == -1) {
 				id = arguments[argsProcessed];
 			} else {
 				style = arguments[argsProcessed];
@@ -86,8 +87,8 @@ Div.prototype.draw = function(context) {
 	var divStyle = "position: absolute; " + this.style;
 
 	var divElement = document.createElement("div");
-	if (this.id !== undefined) {
-		divElement.id = this.id;
+	if (this.name !== undefined) {
+		divElement.id = this.name;
 	}
 	if (Array.isArray(this.classNames)) {
 		divElement.setAttribute("class", this.classNames.join(" "));
@@ -101,7 +102,7 @@ Div.prototype.draw = function(context) {
 	}
 
 	//Create object properties that record the automatically generated width and/or height.
-	if (this.id !== undefined) {
+	if (this.name !== undefined) {
 		divElement.onmousedown = function (event) {
 			var mouseFollow = root.lookup("mouseFollow").value();
 			root.lookup("mouseDownZone").assign(event.target.id, root.scope, Symbol.hciAgent, mouseFollow);
@@ -113,23 +114,20 @@ Div.prototype.draw = function(context) {
 			var mouseFollow = root.lookup("mouseFollow").value();
 			root.lookup("mouseZone").assign(event.target.id, root.scope, Symbol.hciAgent, mouseFollow);
 		};
-		if (eden.isValidIdentifier(this.id)) {
-			var clickSym = root.lookup(this.id + "_click");
-			if (clickSym.value() === undefined) {
-				clickSym.assign(false, root.scope, root.lookup("Div"));
-			}
-		}
+		edenUI.plugins.Canvas2D.initZoneFromName(name, "Div")
 
-		if (this.width === undefined || this.height === undefined) {
+		var widthSymName = this.name + "_width";
+		var heightSymName = this.name + "_height";
+		if (this.width === undefined || this.height === undefined || widthSymName in root.symbols || heightSymName in root.symbols) {
 			var objectElement = document.createElement("object");
 			objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
 			objectElement.onload = function () {
 				var resizeAction = function () {
-					if (me.width === undefined) {
-						root.lookup(me.id + "_width").assign(me.elements[0].clientWidth, root.scope);
+					if (me.width === undefined || widthSymName in root.symbols) {
+						root.lookup(widthSymName).assign(me.elements[0].clientWidth, root.scope);
 					}
-					if (me.height === undefined) {
-						root.lookup(me.id + "_height").assign(me.elements[0].clientHeight, root.scope);
+					if (me.height === undefined || heightSymName in root.symbols) {
+						root.lookup(heightSymName).assign(me.elements[0].clientHeight, root.scope);
 					}
 				};
 				resizeAction();
@@ -177,8 +175,8 @@ Div.prototype.toString = function() {
 Div.prototype.getEdenCode = function () {
 	var s = "Div(" + Eden.edenCodeForValues(this.html, this.x, this.y, this.width, this.height);
 
-	if (this.id !== undefined) {
-		s = s + ", \"" + this.id + "\"";
+	if (this.name !== undefined) {
+		s = s + ", \"" + this.name + "\"";
 	}
 	if (this.classNames !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.classNames);

@@ -1,5 +1,5 @@
 #menubar-main {
-	position: absolute;
+	position: fixed;
 	left: 0px;
 	right: 0px;
 	top: 0px;
@@ -11,7 +11,7 @@
 	padding-left: 20px;
 	padding-top: 4px;
 	padding-right: 20px;
-	z-index: 2147483647;
+	z-index: 2147483647; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */
 }
 
 .menubar-mainitem:hover {
@@ -27,7 +27,7 @@
 }
 
 #menubar-bottom {
-	position: absolute;
+	position: fixed;
 	left: 0px;
 	right: 0px;
 	top: 29px;
@@ -52,7 +52,6 @@
 	color: #dadada;
 	float: left;
 	cursor: pointer;
-	z-index: 5;
 }
 
 .menubar-item {
@@ -139,7 +138,6 @@
 	box-shadow: 4px 6px 7px 0px #111111;
 	color: black;
 	width: 250px;
-	z-index: 2147483647; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */
 }
 
 .menubar-view {

@@ -242,6 +242,9 @@
 		  * @private
 		  */
 		this.saved_autocalc_level = 0;
+
+		/** The symbol currently being evaluated. */
+		this.currentObservable = undefined;
 	}
 
 	/**
@@ -257,6 +260,26 @@
 		}
 		return this.symbols[name];
 	};
+
+	Folder.prototype.currentObservableName = function () {
+		if (this.currentObservable === undefined) {
+			return undefined;
+		} else {
+			return this.currentObservable.name.slice(1);
+		}
+	}
+
+	Folder.prototype.beginEvaluation = function (symbol) {
+		if (this.currentObservable === undefined) {
+			this.currentObservable = symbol;
+		}
+	}
+
+	Folder.prototype.endEvaluation = function (symbol) {
+		if (this.currentObservable === symbol) {
+			this.currentObservable = undefined;
+		}
+	}
 
 	/**
 	 * Adds a symbol to the garbage queue, for example, when EDEN's forget function is used.
@@ -532,6 +555,9 @@
 	};
 
 	Symbol.prototype.evaluate = function (scope, cache) {
+		if (this.context) {
+			this.context.beginEvaluation(this);
+		}
 		try {
 			//NOTE: Don't do copy here, be clever about it.
 			//cache.value = copy(this.definition(this.context, scope));
@@ -576,6 +602,9 @@
 		} catch (e) {
 			cache.value = undefined;
 			cache.up_to_date = false;
+		}
+		if (this.context) {
+			this.context.endEvaluation(this);
 		}
 	};
 

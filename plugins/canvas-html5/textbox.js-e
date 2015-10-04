@@ -21,12 +21,16 @@ Textbox.prototype.hash = function () {
 }}$;
 
 func Textbox { ${{
-	var name = arguments[0];
-	var x = arguments[1];
-	var y = arguments[2];
-	var width = arguments[3];
+	var name = root.currentObservableName();
+	if (name === undefined) {
+		eden.error(new Error("Textbox: Every text box must be defined by making a dependency."), "error");
+		return undefined;
+	}
+	var x = arguments[0];
+	var y = arguments[1];
+	var width = arguments[2];
 	var height, placeholder, enabled;
-	var argsProcessed = 4;
+	var argsProcessed = 3;
 	var arg = arguments[argsProcessed];
 	var argType = typeof(arg);
 	if (arg === undefined || argType == "number") {
@@ -107,7 +111,7 @@ Textbox.prototype.scale = function (scale, zoom, origin) {
 };
 
 Textbox.prototype.toString = function() {
-  return "Textbox(" + Eden.edenCodeForValues(this.name, this.x, this.y, this.width, this.height, this.placeholder, this.enabled) + ")";
+  return "Textbox(" + Eden.edenCodeForValues(this.x, this.y, this.width, this.height, this.placeholder, this.enabled) + ")";
 };
 
 Textbox.prototype.getEdenCode = Textbox.prototype.toString;
