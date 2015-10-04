@@ -5,12 +5,12 @@ html {
 
 body {
 	background-color: #29454B;
-	background-image: linear-gradient(#29454B, black, #29454B);
+	background-image: linear-gradient(#29454B, black);
 	margin: 0px;
 	width: 400%;
 	min-height: 100%;
 	/* Internet Explorer*/
-	scrollbar-face-color: rgba(255, 255, 255, 0.1);
+	scrollbar-face-color: rgba(255, 255, 255, 0.2);
 	scrollbar-track-color: transparent;
 }
 

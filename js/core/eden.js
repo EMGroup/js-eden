@@ -107,6 +107,7 @@ function concatAndResolveUrl(url, concat) {
 		this.plugins = {};
 
 		var me = this;
+		this.loaded = false;
 
 		this.branding = {};
 		$.ajax({
@@ -116,18 +117,20 @@ function concatAndResolveUrl(url, concat) {
 				me.branding = data;
 			},
 		});
+
+		this.$uimsg = $("<div class='message-box'></div>");
+		this.$uimsg.appendTo("body");
+		this.$uimsg.hide();
+		this.messagetimeout = undefined;
+		this.messagedisplaytime = 5000;
 		
 		//Never called anymore.
 		this.eden.listenTo('executeFileLoad', this, function (path) {
-			if (this.plugins.MenuBar) {
-				this.plugins.MenuBar.updateStatus("Loading "+path);
-			}
+			edenUI.updateStatus("Loading "+path);
 		});
 
 		this.eden.listenTo('executeBegin', this, function (path) {
-			if (this.plugins.MenuBar) {
-				this.plugins.MenuBar.updateStatus("Parsing "+path+"...");
-			}
+			edenUI.updateStatus("Parsing "+path+"...");
 		});
 
 		this.eden.listenTo('executeError', this, function (e, options) {
@@ -139,12 +142,10 @@ function concatAndResolveUrl(url, concat) {
 				errorMessageHTML +
 				"</div>\n\n";
 
-			this.showErrorWindow().prepend(formattedError)
-			this.showErrorWindow().prop('scrollTop', 0);
+			//this.showErrorWindow().prepend(formattedError)
+			//this.showErrorWindow().prop('scrollTop', 0);
 
-			if (this.plugins.MenuBar) {
-				this.plugins.MenuBar.updateStatus("Error: " + e.message);
-			}
+			edenUI.showMessage("error", "Error: " + e.message);
 		});
 
 		/**
@@ -270,6 +271,37 @@ function concatAndResolveUrl(url, concat) {
 	EdenUI.prototype.showErrorWindow = function () {
 		this.createView("errors", "ErrorLog");
 		return $("#errors-dialog");
+	};
+
+	EdenUI.prototype.updateStatus = function(message) {
+		// If loading, update the loader message
+		if (!this.loaded) {
+			$(".loadmessage").html(message);
+		} else {
+			// Otherwise show status bubble for a bit.
+			this.showMessage("info", message);
+		}
+	};
+
+	EdenUI.prototype.hideMessage = function() {
+		edenUI.$uimsg.hide("slow");
+	}
+
+	EdenUI.prototype.showMessage = function(type, message) {
+		if (type == "info") {
+			this.$uimsg.html("<div class='message-infotext'>"+message+"</div>");
+		} else if (type == "error") {
+			this.$uimsg.html("<div class='message-errortext'>"+message+"</div>");
+		}
+		this.$uimsg.show("fast");
+		clearTimeout(this.messagetimeout);
+		this.messagetimeout = setTimeout(this.hideMessage, this.messagedisplaytime);
+	};
+
+	EdenUI.prototype.finishedLoading = function() {
+		$(".loaddialog").remove();
+		this.loaded = true;
+		edenUI.updateStatus(Language.ui.general.finished_loading);
 	};
 
 	/**
