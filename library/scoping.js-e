@@ -1,9 +1,11 @@
-class is [name,members];
-__object_single_member is `class[2][i]`;
-object is [class] // __object_single_member with i=1..class[2]#;
-member is this[indexOf(name,this[1][2])+1];
-typeof is this[1][1];
-classof is this[1];
+##class is [name,members];
+##__object_single_member is `class[2][i]`;
+##object is [class] // __object_single_member with i=1..class[2]#;
+##member is this[indexOf(name,this[1][2])+1];
+membersof is ${{ Eden.membersOf(context.lookup("object").value(scope)) }}$;
+typeof is ${{ Eden.typeOf(context.lookup("object").value(scope)) }}$;
+prototypeof is ${{ Eden.prototypeOf(context.lookup("object").value(scope)) }}$;
+##classof is this[1];
 
 _override_item is value if i == index else list[i];
 override is _override_item with i = 1 .. list#;
@@ -13,18 +15,26 @@ sum is _sum with i = 1;
 
 round is ${{ Math.round(context.lookup("number").value(scope)) }}$;
 
-CPoint is class with members=["x","y"], name="point";
-point is object with
-	class = CPoint,
+prototype_Colour is ["colour",r,g,b,a];
+Colour is prototype_Colour with
+	r = r if r else 0,
+	g = g if g else 0,
+	b = b if b else 0,
+	a = a if a else 1.0;
+
+black is Colour with r=0,g=0,b=0;
+white is Colour with r=255,g=255,b=255;
+
+prototype_Point is [x,y];
+point is prototype_Point with
 	x = x if x else 0,
 	y = y if y else 0;
 
-CLine is class with members=["a","b","colour","width"], name="line";
-line is object with
-	class = CLine,
+prototype_Line is ["line", a,b,colour,width];
+line is prototype_Line with
 	a = a if a else point,
 	b = b if b else point,
-	color = colour if colour else "black";
+	color = colour if colour else black;
 
 ##__translate is point with
 ##	x = p.x+x,

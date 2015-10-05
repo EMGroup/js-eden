@@ -1,38 +1,32 @@
 ## Page Plugin
 
-CPage is class with members = ["title","theme","content"], name="page";
-Page is object with
-	class = CPage,
+prototype_Page is ["page", title,theme,content];
+Page is prototype_Page with
 	theme = theme if theme else "default";
 
-CTitle is class with members = ["text", "subtitle", "logo", "menus"], name="title";
-Title is object with
-	class = CTitle,
+prototype_Title is ["title", text,subtitle,logo,menus];
+Title is prototype_Title with
 	text = text if text else "Title",
 	subtitle = subtitle if subtitle else "Subtitle";
 
-CIcon is class with members = ["content", "size", "colour"], name="icon";
-Icon is object with
-	class = CIcon,
+prototype_Icon is ["icon", content,size,colour];
+Icon is prototype_Icon with
 	content = content if content else "@",
 	size = size if size else 20,
 	colour = colour if colour else "black";
 
-CHeader is class with members = ["text", "tag", "level"], name="header";
-Header is object with
-	class = CHeader,
+prototype_Header is ["header", text,tag,level];
+Header is prototype_Header with
 	text = text if text else "Header",
 	tag = tag if tag else 0,
 	level = level if level else 0;
 
-CParagraph is class with members = ["text"], name="p";
-Paragraph is object with
-	class = CParagraph,
+prototype_Paragraph is ["p", text];
+Paragraph is prototype_Paragraph with
 	text = text if text else "Some text goes here";
 
-CScript is class with members = ["static", "code", "name", "box", "lines", "power", "float", "width"], name="script";
-Script is object with
-	class = CScript,
+prototype_Script is ["script", static,code,name,box,lines,power,float,width];
+Script is prototype_Script with
 	static = static if static != @ else true,
 	code = code if code else "",
 	name = name if name else "EmbeddedInput",
@@ -42,17 +36,16 @@ Script is object with
 	float = float if float else "none",
 	width = width if width else "50%";
 
-CCanvas is class with members = ["name", "source", "width", "height", "float"], name="canvas";
-Canvas is object with
-	class = CCanvas,
+prototype_Canvas is ["canvas", name,source,width,height,float];
+Canvas is prototype_Canvas with
 	name = name if name else "Picture",
 	source = source if source else "picture",
 	width = width if width else 500,
 	height = height if height else 200,
 	float = float if float else "none";
 
-CBreak is class with members = [], name="break";
-Break is object with class = CBreak;
+prototype_Break is ["break"];
+Break is prototype_Break;
 
 ## Initial Default Page
 

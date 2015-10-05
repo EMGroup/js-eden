@@ -37,6 +37,9 @@ EdenAST_Literal.prototype.generate = function(ctx) {
 	case "LIST"		:	var res = "[";
 						for (var i=0; i<this.value.length; i++) {
 							res += this.value[i].generate(ctx);
+							if (this.value[i].type == "primary") {
+								res += ".value";
+							}
 							if (i != this.value.length-1) res += ",";
 						}
 						res += "]";
@@ -44,6 +47,7 @@ EdenAST_Literal.prototype.generate = function(ctx) {
 	case "CHARACTER":
 	case "STRING"	:	return "\""+this.value+"\"";
 	case "BOOLEAN"	:	return this.value;
+	case "JAVASCRIPT"	: return this.value;
 	}
 }
 
@@ -79,6 +83,7 @@ EdenAST_Scope.prototype.prepend = function(obs, exp1, exp2) {
 		this.errors.push.apply(this.errors, exp1.errors);
 		this.errors.push.apply(this.errors, exp2.errors);
 	} else {
+		this.range = false;
 		this.overrides[obs] = { start: exp1, end: undefined};
 		this.errors.push.apply(this.errors, exp1.errors);
 	}
@@ -87,11 +92,11 @@ EdenAST_Scope.prototype.prepend = function(obs, exp1, exp2) {
 EdenAST_Scope.prototype.generate = function(ctx) {
 	var res;
 
-	if (this.range) {
-		res = "[";
-	} else {
+	//if (this.range) {
+	//	res = "[";
+	//} else {
 		res = "new Scope(context, scope, [";
-	}
+	//}
 
 	for (var o in this.overrides) {
 		res += "new ScopeOverride(\""+o+"\", " + this.overrides[o].start.generate(ctx);
@@ -102,11 +107,11 @@ EdenAST_Scope.prototype.generate = function(ctx) {
 		}
 	}
 	res = res.slice(0,-1);
-	if (this.range) {
-		res += "]";
-	} else {
-		res += "], ";
-	}
+	//if (this.range) {
+	//	res += "]";
+	//} else {
+		res += "], "+this.range+", ";
+	//}
 	return res;
 }
 
@@ -178,6 +183,17 @@ EdenAST_TernaryOp.prototype.generate = function(ctx) {
 	var cond = this.condition.generate(ctx);
 	var first = this.first.generate(ctx);
 	var second = this.second.generate(ctx);
+
+	if (this.condition.type == "primary") {
+		cond += ".value";
+	}
+	if (this.first.type == "primary") {
+		first += ".value";
+	}
+	if (this.second.type == "primary") {
+		second += ".value";
+	}
+
 	return "("+cond+")?("+first+"):("+second+")";
 }
 
@@ -211,6 +227,13 @@ EdenAST_BinaryOp.prototype.generate = function(ctx) {
 	var left = this.l.generate(ctx);
 	var right = this.r.generate(ctx);
 	var opstr;
+
+	if (this.l.type == "primary") {
+		left += ".value";
+	}
+	if (this.r.type == "primary") {
+		right += ".value";
+	}
 
 	switch(this.op) {
 	case "//"	: opstr = "concat"; break;
@@ -345,6 +368,7 @@ function EdenAST_Definition(expression) {
 	this.start = 0;
 	this.end = 0;
 	this.dependencies = {};
+	this.scopes = [];
 };
 
 EdenAST_Definition.prototype.left = function(lvalue) {
@@ -357,6 +381,40 @@ EdenAST_Definition.prototype.left = function(lvalue) {
 EdenAST_Definition.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
+}
+
+EdenAST_Definition.prototype.generateDef = function(ctx) {
+	var result = "function(context, scope, cache) {\n";
+	var express = this.expression.generate(this);
+
+	// Generate array of all scopes used in this definition (if any).
+	if (this.scopes.length > 0) {
+		result += "\tvar _scopes = [];\n";
+		for (var i=0; i<this.scopes.length; i++) {
+			result += "\t_scopes.push(" + this.scopes[i];
+			result += ");\n";
+		}
+	}
+
+	if (this.expression.type == "primary") {
+		result += "\t var result = "+express+";\n";
+
+		// Save the resulting values scope binding into the cache entry.
+		result += "\tif (cache) cache.scope = result.scope;\n";
+
+		// Make sure to copy a value if its an ungenerated one.
+		if (this.scopes.length == 0) {
+			result += "\treturn edenCopy(result.value);\n}";
+		} else {
+			result += "\treturn result.value;\n}";
+		}
+	} else {
+		result += "\tif (cache) cache.scope = scope;\n";
+		result += "\treturn " + express + ";\n}";
+	}
+
+	
+	return result;
 }
 
 EdenAST_Definition.prototype.generate = function(ctx) {
@@ -377,15 +435,12 @@ EdenAST_Definition.prototype.generate = function(ctx) {
 		result += ");\n";
 		return result;
 	} else {
-	 	result += ".define(function(context, scope) {\n\treturn ";
-		result = result + this.expression.generate(this);
-
+	 	result += ".define(" + this.generateDef(ctx);
 		var deps = [];
 		for (var d in this.dependencies) {
 			deps.push(d);
 		}
-
-		result = result + ";\n}, this, "+JSON.stringify(deps)+");\n";
+		result = result + ", this, "+JSON.stringify(deps)+");\n";
 		return result;
 	}
 };
@@ -406,9 +461,7 @@ EdenAST_Definition.prototype.execute = function(root, ctx, base) {
 		}
 		sym.addExtension(this.lvalue.generateIdStr(), eval(rhs), source, undefined, deps);
 	} else {
-		var rhs = "(function(context,scope) { return ";
-		rhs += this.expression.generate(this);
-		rhs += ";})";
+		var rhs = "("+this.generateDef(ctx)+")";
 		var deps = [];
 		for (var d in this.dependencies) {
 			deps.push(d);
@@ -433,6 +486,7 @@ function EdenAST_Assignment(expression) {
 	this.lvalue = undefined;
 	this.start = 0;
 	this.end = 0;
+	this.scopes = [];
 };
 
 EdenAST_Assignment.prototype.setSource = function(start, end) {
@@ -452,14 +506,14 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 
 	if (this.lvalue.hasListIndices()) {
 		result += ".listAssign(";
-		result += this.expression.generate(ctx);
+		result += this.expression.generate(this);
 		result += ", scope, undefined, false, ";
 		result += this.lvalue.generateCompList(ctx);
 		result += ");\n";
 		return result;
 	} else {
 		result += ".assign(\n\t";
-		result += this.expression.generate(ctx);
+		result += this.expression.generate(this);
 		result += ", scope);\n"
 		return result;
 	}
@@ -467,7 +521,7 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 
 EdenAST_Assignment.prototype.execute = function(root, ctx) {
 	var rhs = "(function(context,scope) { return ";
-	rhs += this.expression.generate(ctx);
+	rhs += this.expression.generate(this);
 	rhs += ";})";
 
 	if (this.lvalue.hasListIndices()) {
@@ -593,20 +647,40 @@ EdenAST_Primary.prototype.generate = function(ctx) {
 	}
 
 	var i = 0;
-	if (this.extras.length >= 1 && this.extras[0].type == "scope") {
-		if (this.extras[0].range) {
-			res += ".multiValue(context,scope," + this.extras[0].generate(ctx) + ", context.lookup(\""+this.observable+"\"))";
-		} else {
-			res += ".value(" + this.extras[0].generate(ctx) + "context.lookup(\""+this.observable+"\")))";
-		}		
-		i = 1;
+	var scopestr;
+	var haslocalscope = false;
+	if (this.extras.length >= 1 && this.extras[this.extras.length-1].type == "scope") {
+		ctx.scopes.push(this.extras[0].generate(ctx) + " context.lookup(\""+this.observable+"\"))");
+		scopestr = "_scopes[" +(ctx.scopes.length-1)+"]";
+		haslocalscope = true;
 	} else {
-		res += ".value(scope)";
+		scopestr = "scope";
 	}
 
+	var indices = [];
+	var hasborrowedscope = false;
 	for (; i < this.extras.length; i++) {
-		res += this.extras[i].generate(ctx, this.observable);
+		if (this.extras[i].type == "lvaluecomponent" && this.extras[i].kind == "index") {
+			indices.push(this.extras[i].indexexp.generate(ctx, this.observable));
+		} else if (this.extras[i].type == "lvaluecomponent" && this.extras[i].kind == "property") {
+			scopestr = res + ".getValueScope("+scopestr+")";
+			res = "context.lookup(\""+this.extras[i].observable+"\")";
+			hasborrowedscope = true;
+		} else {
+			break;
+		}
 	}
+
+	if (hasborrowedscope) {
+		ctx.scopes.push(scopestr);
+	}
+
+	if (ctx.scopes.length > 0 && (hasborrowedscope || haslocalscope)) {
+		res += ".boundValue(_scopes["+(ctx.scopes.length-1)+"])";
+	} else {
+		res += ".boundValue(scope)";
+	}
+
 	return res;
 }
 

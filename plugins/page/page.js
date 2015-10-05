@@ -25,8 +25,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	var scripts = {};
 
 	function generateIcon(icon) {
-		if (!icon || !icon[0]) return "";
-		if (icon[0][0] != "icon") return "";
+		if (!icon) return "";
+		if (icon[0] != "icon") return "";
 		var res = $("<div class='page-icon'>"+icon[1]+"</div>");
 		res.css("font-size", icon[2]+"px");
 		res.css("color", icon[3]);
@@ -34,12 +34,12 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	}
 
 	function generateTitle(title) {
-		if (!title || !title[0]) return "";
-		if (title[0][0] != "title") return "";
+		if (!title) return "";
+		if (title[0] != "title") return "";
 		var tit = $("<div class='page-title "+theme+"'><div class='page-title-block'><span class='page-title-text "+theme+"'>"+title[1]+"</span><br/><span class='page-subtitle-text "+theme+"'>"+title[2]+"</span></div></div>");
-		if (title[3] !== undefined && title[3][0] !== undefined) {
+		if (title[3] !== undefined) {
 			var logo = $("<div class='page-title-logo'></div>");
-			switch(title[3][0][0]) {
+			switch(title[3]) {
 			case "icon"		: generateIcon(title[3]).appendTo(logo);
 			}
 			logo.appendTo(tit);
@@ -48,8 +48,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	}
 
 	function generateHeader(header) {
-		if (!header || !header[0]) return "";
-		if (header[0][0] != "header") return "";
+		if (!header) return "";
+		if (header[0] != "header") return "";
 
 		console.log("HEADER");
 		console.log(header);
@@ -61,8 +61,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	}
 
 	function generateParagraph(p) {
-		if (!p || !p[0]) return "";
-		if (p[0][0] != "p") return "";
+		if (!p) return "";
+		if (p[0] != "p") return "";
 
 		var text;
 		if (p[1] instanceof Array) {
@@ -75,8 +75,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	}
 
 	function generateScript(script) {
-		if (!script || !script[0]) return;
-		if (script[0][0] != "script") return;
+		if (!script) return;
+		if (script[0] != "script") return;
 
 		var isStatic = script[1];
 		var code = script[2];
@@ -159,7 +159,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 
 		for (var i=0; i<content.length; i++) {
 			if (content[i] === undefined) continue;
-			switch(content[i][0][0]) {
+			switch(content[i][0]) {
 			case "header"	: res.append(generateHeader(content[i])); break;
 			case "p"		: res.append(generateParagraph(content[i])); break;
 			case "script"	: res.append(generateScript(content[i])); break;

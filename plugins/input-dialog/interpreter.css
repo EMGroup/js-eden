@@ -504,6 +504,7 @@ span.eden-constant {
 }
 
 span.eden-type {
+	font-weight: bold;
 	color: #3465a4;
 }
 

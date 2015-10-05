@@ -28,7 +28,7 @@ test("%eden", function () {
 	equal(root.lookup('x').value(), 3);
 	eden.execute("x = 4;\n%eden");
 	equal(root.lookup('x').value(), 4);
-	eden.execute("%eden\nx = 1;\n%js\nroot.lookup('x').assign(root.lookup('x').value() + 1);");
+	eden.execute("%eden\nx = 1;\n%js\nroot.lookup('x').assign(root.lookup('x').value() + 1, root.scope);");
 	equal(root.lookup('x').value(), 2);
 });
 
@@ -425,7 +425,7 @@ test("assigning a list and modifying", function () {
 test("defining a list and modifying", function () {
 	eden.execute("x is y; y = [1,2,3]; b = x == y;");
 	equal(root.lookup('b').value(), true);
-	eden.execute("x[1] = [2]; b = x == y;");
+	eden.execute2("x[1] = [2]; b = x == y;");
 	equal(root.lookup('b').value(), false);
 });
 

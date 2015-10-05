@@ -34,9 +34,15 @@
 		return value;
 	}
 
-	function ScopeCache(up_to_date, value) {
+	function ScopeCache(up_to_date, value, scope) {
 		this.up_to_date = up_to_date;
 		this.value = value;
+		this.scope = scope;
+	}
+
+	function BoundValue(value,scope) {
+		this.value = value;
+		this.scope = scope;
 	}
 
 
@@ -48,24 +54,44 @@
 	}
 
 
-	function Scope(context, parent, overrides, cause) {
+	function Scope(context, parent, overrides, range, cause) {
 		this.parent = parent;
 		this.context = context;
-		this.cache = {};
+		this.cache = undefined;
 		this.overrides = overrides;
+		this.cause = cause;
+		this.range = range;
 
-		if (cause) {
-			this.add(cause.name);
+		this.rebuild();
+	}
+
+	Scope.prototype.isRange = function() {
+		return this.range;
+	}
+
+	Scope.prototype.clear = function() {
+		if (this !== eden.root) {
+			this.cache = undefined;
+		}
+	}
+
+	Scope.prototype.rebuild = function() {
+		if (this.cache !== undefined) return;
+		this.cache = {};
+
+		if (this.cause) {
+			this.add(this.cause.name);
 		}
 
 		/* Process the overrides */
-		//for (var override in overrides) {
-		for (var i = 0; i < overrides.length; i++) {
-			this.addOverride(overrides[i]);
+		for (var i = 0; i < this.overrides.length; i++) {
+			this.addOverride(this.overrides[i]);
 		}
 	}
 
 	Scope.prototype.lookup = function(name) {
+		if (this.cache === undefined) this.rebuild();
+
 		var symcache = this.cache[name];
 		if (symcache) {
 			return symcache;
@@ -98,12 +124,25 @@
 	}
 
 	Scope.prototype.updateOverride = function(override) {
-		//console.log("Update override: " + override.name + " = " + override.current);
 		var name = "/"+override.name;
-		if (this.cache[name] === undefined) {
-			this.cache[name] = new ScopeCache( true, override.current );
+		var currentval;
+		var currentscope;
+
+		if (override.current instanceof BoundValue) {
+			//console.log(override.current);
+			currentval = override.current.value;
+			currentscope = override.current.scope;
 		} else {
-			this.cache[name].value = override.current;
+			//console.log(override.current);
+			currentval = override.current;
+			currentscope = eden.root.scope;
+		}
+
+		if (this.cache[name] === undefined) {
+			this.cache[name] = new ScopeCache( true, currentval, currentscope );
+		} else {
+			this.cache[name].value = currentval;
+			this.cache[name].scope = currentscope;
 			this.cache[name].up_to_date = true;
 		}
 	}
@@ -111,10 +150,11 @@
 	Scope.prototype.updateSubscriber = function(name) {
 		//console.log("Adding scope subscriber...: " + name);
 		if (this.cache[name] === undefined) {
-			this.cache[name] = new ScopeCache( false, undefined );
+			this.cache[name] = new ScopeCache( false, undefined, undefined);
 		} else {
 			this.cache[name].up_to_date = false;
 			this.cache[name].value = undefined;
+			this.cache[name].scope = eden.root.scope;
 		}
 		var sym = this.context.lookup(name.substr(1));
 		for (var d in sym.subscribers) {
@@ -505,6 +545,12 @@
 	}
 	
 	Symbol.hciAgent = {name: "*Input Device"};
+
+	Symbol.prototype.boundValue = function(scope) {
+		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
+		this.value(scope);
+		return new BoundValue(cache.value, cache.scope);
+	}
 	
 	/**
 	 * Return the current value of this symbol, forcing calculation if necessary.
@@ -512,25 +558,29 @@
 	 * @return {*}
 	 */
 	Symbol.prototype.value = function (pscope) {
-		var scope = pscope;
-		this.garbage = false;
+		if (pscope && pscope.isRange()) {
+			return this.multiValue(pscope);
+		} else {
+			var scope = pscope;
+			this.garbage = false;
 
-		if (scope === undefined) scope = this.context.scope;
+			if (scope === undefined) scope = this.context.scope;
 
-		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
+			var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
 
-		if (this.definition) {
-			if (!cache.up_to_date) {
-				this.evaluate(scope, cache);
+			if (this.definition) {
+				if (!cache.up_to_date) {
+					this.evaluate(scope, cache);
+				}
 			}
+			return cache.value;
 		}
-		return cache.value;
 	};
 
-	Symbol.prototype.multiValue = function (context, scope, overrides, cause) {
-		var hasrange = false;
+	Symbol.prototype.multiValue = function (newscope) {
 		var results = [];
-		var newscope = new Scope(context,scope, overrides, cause);
+
+		newscope.range = false;
 
 		while (true) {
 			var val = this.value(newscope);
@@ -539,6 +589,8 @@
 			}
 			if (newscope.next() == false) break;
 		}
+
+		newscope.range = true;
 
 		return results;
 	};
@@ -554,6 +606,10 @@
 		this.evaluate(this.context.scope, this.context.scope.lookup(this.name));
 	};
 
+	Symbol.prototype.getValueScope = function(scope) {
+		return scope.lookup(this.name).scope;
+	}
+
 	Symbol.prototype.evaluate = function (scope, cache) {
 		if (this.context) {
 			this.context.beginEvaluation(this);
@@ -561,7 +617,7 @@
 		try {
 			//NOTE: Don't do copy here, be clever about it.
 			//cache.value = copy(this.definition(this.context, scope));
-			cache.value = this.definition(this.context, scope);
+			cache.value = this.definition(this.context, scope, cache);
 
 			// Post process with all extensions
 			if (this.extend) {
@@ -1004,6 +1060,15 @@
 		return false;
 	};
 
+	Symbol.prototype.getDependencies = function() {
+		var res = [];
+		for (var d in this.dependencies) {
+			res.push(d.slice(1));
+		}
+		console.log("Dependencies");
+		return res;
+	}
+
 	Symbol.prototype.assertNotDependentOn = function (name, path) {
 		if (path === undefined) {
 			path = [];
@@ -1285,10 +1350,14 @@
 	global.Symbol = Symbol;
 	global.Scope = Scope;
 	global.ScopeOverride = ScopeOverride;
+	global.edenCopy = copy;
 	
 	// expose as node.js module
 	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 		exports.Folder = Folder;
 		exports.Symbol = Symbol;
+		exports.Scope = Scope;
+		exports.ScopeOverride = ScopeOverride;
+		exports.edenCopy = copy;
 	}
 }(typeof window !== 'undefined' ? window : global));

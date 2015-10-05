@@ -61,25 +61,6 @@ var edenFunctions = {
 "decodeHTML": true
 };
 
-var edenTypes = {
-"HTMLImage": true,
-"Text": true,
-"Rectangle": true,
-"Button" : true,
-"Div": true,
-"Arc": true,
-"Button": true,
-"Checkbox": true,
-"Circle": true,
-"Combobox": true,
-"Ellipse": true,
-"Image": true,
-"Line": true,
-"Polygon": true,
-"Slider": true,
-"Point": true
-};
-
 var edenSpecials = {
 "autocalc": true,
 "mouseX": true,
@@ -102,6 +83,10 @@ function EdenHighlight(output) {
 	this.outelement = output;
 	this.line = 1;
 	this.currentline = -1;
+}
+
+EdenHighlight.isType = function(str) {
+	return (str.charCodeAt(0) >= 65 && str.charCodeAt(0) <= 90);
 }
 
 
@@ -256,7 +241,7 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 		} else if (token == "OBSERVABLE") {
 			if (edenFunctions[stream.data.value]) {
 				classes += "eden-function";
-			} else if (edenTypes[stream.data.value]) {
+			} else if (EdenHighlight.isType(stream.data.value)) {
 				classes += "eden-type";
 			} else if (edenValues[stream.data.value]) {
 				classes += "eden-constant";
