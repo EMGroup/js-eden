@@ -548,8 +548,8 @@
 
 	Symbol.prototype.boundValue = function(scope) {
 		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
-		this.value(scope);
-		return new BoundValue(cache.value, cache.scope);
+		var value = this.value(scope);
+		return new BoundValue(value, cache.scope);
 	}
 	
 	/**

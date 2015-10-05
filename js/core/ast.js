@@ -99,9 +99,19 @@ EdenAST_Scope.prototype.generate = function(ctx) {
 	//}
 
 	for (var o in this.overrides) {
-		res += "new ScopeOverride(\""+o+"\", " + this.overrides[o].start.generate(ctx);
+		var startstr = this.overrides[o].start.generate(ctx);
+		if (this.range) {
+			if (this.overrides[o].start.type == "primary") {
+				startstr += ".value";
+			}
+		}
+		res += "new ScopeOverride(\""+o+"\", " + startstr;
 		if (this.overrides[o].end) {
-			res += ", " + this.overrides[o].end.generate(ctx) + "),";
+			var endstr = this.overrides[o].end.generate(ctx);
+			if (this.overrides[o].end.type == "primary") {
+				endstr += ".value";
+			}
+			res += ", " + endstr + "),";
 		} else {
 			res += "),";
 		}
@@ -228,6 +238,7 @@ EdenAST_BinaryOp.prototype.generate = function(ctx) {
 	var right = this.r.generate(ctx);
 	var opstr;
 
+	// Get values out of any BoundValues
 	if (this.l.type == "primary") {
 		left += ".value";
 	}
@@ -277,6 +288,10 @@ EdenAST_Length.prototype.error = fnEdenAST_error;
 
 EdenAST_Length.prototype.generate = function(ctx) {
 	var left = this.l.generate(ctx);
+	// Get value out of a BoundValue
+	if (this.l.type == "primary") {
+		left += ".value";
+	}
 	return "rt.length(" + left + ")";
 }
 
@@ -396,7 +411,7 @@ EdenAST_Definition.prototype.generateDef = function(ctx) {
 		}
 	}
 
-	if (this.expression.type == "primary") {
+	if (this.expression.type == "primary" && this.expression.returnsbound) {
 		result += "\t var result = "+express+";\n";
 
 		// Save the resulting values scope binding into the cache entry.
@@ -622,6 +637,7 @@ function EdenAST_Primary() {
 	this.observable = "";
 	this.extras = [];
 	this.backtick = undefined;
+	this.returnsbound = true;
 };
 
 EdenAST_Primary.prototype.setBackticks = function(backtick) {
@@ -659,6 +675,7 @@ EdenAST_Primary.prototype.generate = function(ctx) {
 
 	var indices = [];
 	var hasborrowedscope = false;
+	var hasfunccall = false;
 	for (; i < this.extras.length; i++) {
 		if (this.extras[i].type == "lvaluecomponent" && this.extras[i].kind == "index") {
 			indices.push(this.extras[i].indexexp.generate(ctx, this.observable));
@@ -666,6 +683,18 @@ EdenAST_Primary.prototype.generate = function(ctx) {
 			scopestr = res + ".getValueScope("+scopestr+")";
 			res = "context.lookup(\""+this.extras[i].observable+"\")";
 			hasborrowedscope = true;
+		} else if (this.extras[i].type == "functioncall") {
+			hasfunccall = true;
+			if (hasborrowedscope) {
+				ctx.scopes.push(scopestr);
+				hasborrowedscope = false;
+			}
+			if (ctx.scopes.length > 0 && (hasborrowedscope || haslocalscope)) {
+				res += ".value(_scopes["+(ctx.scopes.length-1)+"])";
+			} else {
+				res += ".value(scope)";
+			}
+			res += this.extras[i].generate(ctx);
 		} else {
 			break;
 		}
@@ -675,10 +704,14 @@ EdenAST_Primary.prototype.generate = function(ctx) {
 		ctx.scopes.push(scopestr);
 	}
 
-	if (ctx.scopes.length > 0 && (hasborrowedscope || haslocalscope)) {
-		res += ".boundValue(_scopes["+(ctx.scopes.length-1)+"])";
+	if (!hasfunccall) {
+		if (ctx.scopes.length > 0 && (hasborrowedscope || haslocalscope)) {
+			res += ".boundValue(_scopes["+(ctx.scopes.length-1)+"])";
+		} else {
+			res += ".boundValue(scope)";
+		}
 	} else {
-		res += ".boundValue(scope)";
+		this.returnsbound = false;
 	}
 
 	return res;
