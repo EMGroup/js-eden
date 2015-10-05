@@ -509,6 +509,11 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.resizeView = function (name) {
+		var viewData = this.viewInstances[name];
+		if (viewData.resizing) {
+			return;
+		}
+		
 		var diag = dialog(name);
 		var position = diag.parent().position();
 		var left = position.left;
@@ -547,8 +552,6 @@
 				adjustedWidth = xMax - this.dialogBorderWidth - left + document.documentElement.scrollLeft;
 			}
 		}
-		newWidth = adjustedWidth - this.scrollBarSize;
-		diag.dialog("option", "width", adjustedWidth);
 
 		//Round the height.  For some reason the height set by jquery.ui isn't always aligned to the grid.
 		var adjustedHeight = Math.round((newHeight + this.titleBarHeight) / this.gridSizeY) * this.gridSizeY;
@@ -574,12 +577,26 @@
 				adjustedHeight = yMax - top + document.documentElement.scrollTop;
 			}
 		}
-		newHeight = adjustedHeight - this.titleBarHeight;
-		diag.dialog("option", "height", adjustedHeight);
 
-		widthSym.cached_value = newWidth;
-		heightSym.cached_value = newHeight;
-		var viewData = this.viewInstances[name];
+		diag.dialog("option", "width", adjustedWidth);
+		diag.dialog("option", "height", adjustedHeight);
+		//No idea why the following line is needed but it makes things work smoother when the window is positioned more than the value of the CSS height of the body element down the page.
+		diag.parent().offset({top: top - document.body.scrollTop});
+
+		newWidth = adjustedWidth - this.scrollBarSize;
+		newHeight = adjustedHeight - this.titleBarHeight;
+
+		viewData.resizing = true;
+		this.eden.root.beginAutocalcOff();
+		if (widthSym.definition === undefined) {
+			widthSym.assign(newWidth, {name: widthSym.last_modified_by});
+		}
+		if (heightSym.definition === undefined) {
+			heightSym.assign(newHeight, {name: heightSym.last_modified_by});
+		}
+		this.eden.root.endAutocalcOff();
+
+		viewData.resizing = false;
 		if ("resize" in viewData) {
 			viewData.resize(newWidth, newHeight);
 		}

@@ -64,7 +64,6 @@ Slider.prototype.draw = function (context) {
 		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
 		var inputHTML = '<input ' + disabled +
 			'style="position:absolute; ' + orientationCSS + '" ' +
-			'value="' + value + '" ' +
 			'type="range" ' +
 			'min="' + this.min + '" ' +
 			'max="' + this.max + '" ';
@@ -73,39 +72,74 @@ Slider.prototype.draw = function (context) {
 		}
 		inputHTML = inputHTML + '/>';
 		var jqElement = $(inputHTML);
-		var inputElem = jqElement.get(0);
 
 		var valueSym = root.lookup(name + "_value");
-		var value = valueSym.value();
 		var previewSym = root.lookup(name + "_preview");
-		var previewValue = previewSym.value();
-		if (value === undefined) {
-			if (previewValue !== undefined) {
-				value = previewValue;
-			} else {
-				value = this.min;
-				previewSym.assign(value, agent);
-			}
-			valueSym.assign(value, agent);
-		} else {
-			if (value !== previewValue) {
-				previewSym.assign(value, agent);
+
+		function setValue(obs, value, force) {
+			var previewSym = root.lookup(name + "_preview");
+			var element = me.elements[0];
+			var previewValue = previewSym.value();
+			if (previewValue !== value || force) {
+				var roundedValue;
+				if (value >= me.min && value <= me.max) {
+					element.value = value;
+					roundedValue = parseFloat(element.value);
+					if (roundedValue != value) {
+						//Value didn't match the step size.
+						obs.assign(roundedValue, agent);
+					}
+				} else {
+					if (value < me.min) {
+						element.value = me.min;
+					} else {
+						element.value = me.max;
+					}
+					if (me.step !== undefined) {
+						roundedValue = Math.round(((value - me.min) / me.step).toPrecision(16)) * me.step + me.min;
+						if (roundedValue != value) {
+							obs.assign(roundedValue, agent);
+						}
+					} else {
+						roundedValue = value;
+					}
+				}
+				if (previewValue != roundedValue) {
+					previewSym.assign(roundedValue, Symbol.hciAgent);
+				}
 			}
 		}
-		inputElem.value = value;
-		valueSym.addJSObserver("updateUI", function (obs, value) {
-			var previewSym = root.lookup(name + "_preview");
-			if (previewSym.value() !== value) {
-				me.elements[0].value = String(value);
-				previewSym.assign(value, Symbol.hciAgent);
-			}
-		});		
+
+		valueSym.addJSObserver("updateUI", setValue);
 		previewSym.addJSObserver("updateUI", function (obs, preview) {
 			var previewSym = root.lookup(name + "_preview");
 			var valueSym = root.lookup(name + "_value");
+			var element = me.elements[0];
 			if (previewSym.last_modified_by !== Symbol.hciAgent.name) {
-				me.elements[0].value = preview;
-				valueSym.assign(preview, agent, true);
+				var roundedValue;
+				if (preview >= me.min && preview <= me.max) {
+					element.value = preview;
+					roundedValue = parseFloat(element.value);
+					if (roundedValue != preview) {
+						//Value didn't match the step size.
+						obs.assign(roundedValue, agent);
+					}
+				} else {
+					if (preview < me.min) {
+						element.value = me.min;
+					} else {
+						element.value = me.max;
+					}
+					if (me.step !== undefined) {
+						roundedValue = Math.round(((preview - me.min) / me.step).toPrecision(16)) * me.step + me.min;
+						if (roundedValue != value) {
+							obs.assign(roundedValue, agent);
+						}
+					} else {
+						roundedValue = preview;
+					}
+				}
+				valueSym.assign(roundedValue, agent);
 			}
 		});
 
@@ -128,7 +162,21 @@ Slider.prototype.draw = function (context) {
 			root.lookup("mouseZone").assign(name, Symbol.hciAgent, mouseFollow);
 		});
 
-		this.elements = [inputElem];		
+		this.elements = [jqElement.get(0)];
+
+		//Initialization
+		var value = valueSym.value();
+		var previewValue = previewSym.value();
+		if (value === undefined) {
+			if (previewValue !== undefined) {
+				valueSym.assign(previewValue, agent);
+				setValue(valueSym, value, true);
+			} else {
+				valueSym.assign(this.min, agent);
+			}
+		} else {
+			setValue(valueSym, value, true);
+		}
 	}
 };
 
@@ -145,7 +193,7 @@ Slider.prototype.scale = function (scale, zoom, origin) {
 	var width = Math.round(this.length * scale);
 	style.width = width + "px";
 	if (this.step === undefined) {
-		element.step = (element.max - element.min) / width;
+		element.step = String((element.max - element.min) / (width  - 1)).slice(0, 18);
 	}
 };
 
