@@ -615,7 +615,13 @@ function concatAndResolveUrl(url, concat) {
 			});
 		});
 		promise.then(function () {
-			success && success.call(agent);
+			if (success !== undefined) {
+				try {
+					success.call(agent);
+				} catch (e) {
+					me.error(e);
+				}
+			}
 		});
 	};
 
