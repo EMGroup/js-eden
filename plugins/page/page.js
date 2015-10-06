@@ -39,7 +39,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		var tit = $("<div class='page-title "+theme+"'><div class='page-title-block'><span class='page-title-text "+theme+"'>"+title[1]+"</span><br/><span class='page-subtitle-text "+theme+"'>"+title[2]+"</span></div></div>");
 		if (title[3] !== undefined) {
 			var logo = $("<div class='page-title-logo'></div>");
-			switch(title[3]) {
+			switch(title[3][0]) {
 			case "icon"		: generateIcon(title[3]).appendTo(logo);
 			}
 			logo.appendTo(tit);
