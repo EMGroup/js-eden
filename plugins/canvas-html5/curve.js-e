@@ -14,6 +14,7 @@ ${{
 		this.colours = colours;
 		this.drawingOptions = drawingOptions;
 
+		elasticity = elasticity * 0.94;
 		var xDistance = x2 - x1;
 		var yDistance = y2 - y1;
 		this.theta3 = Math.atan2(yDistance, xDistance);
@@ -23,8 +24,8 @@ ${{
 		
 
 		var radiansPerUnit = root.lookup("radiansPerUnit").value();
-		this.delta1 = elasticity * (this.length1 - 2) + 1;
-		this.delta2 = elasticity * (length2 - 2) + 1;
+		this.delta1 = elasticity * this.length1;
+		this.delta2 = elasticity * length2;
 		var fullTurn = 2 * Math.PI;
 
 		if (theta1 === undefined) {

@@ -52,6 +52,9 @@ h2, ul li {
 	padding: 0px;
 }
 
+.canvashtml-content input[type="range"]:disabled {
+	opacity: 0.45;
+}
 
 .canvashtml-content select {
 	margin: 0px;

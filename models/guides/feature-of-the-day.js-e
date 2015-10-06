@@ -503,5 +503,64 @@ slideLang1 is Slide(<%
 	them on <i>Feature of The Day</i> in the coming weeks.</p>
 %>);
 
-slideList is [slideZones, slideViewHighlight, slideLang1];
+slideCurves is Slide(<%
+	<h1>Drawing Curves</h1>
+	<div class='date'>4th October 2015</div>
+	<p>You can already create rich diagrams using JS-EDEN.  But until now they've lacked any
+	curved features except for simple circles, circular arcs and ellipses.  There's been nothing
+	complex or non-perfectly elliptical.  We're about to introduce something to rectify that! 
+	Unlike many other environments the shape of a curve drawn with the new <code>Curve</code>
+	function can be easily understood directly from the values of its numeric parameters.</p>
+	<dl>
+		<dt><var>x1, y1, x2, y2</var></dt>
+		<dd>These define the start and end points of the curve.  Imagine a line drawn from <var>(x1,&nbsp;y1)</var>
+		to <var>(x2,&nbsp;y2)</var>.  We'll call this direction the <dfn>forward axis</dfn>.  Imagine also a
+		line perpendicular to forward axis.  We'll call this the <dfn>perpendicular axis</dfn>.  The
+		line from <var>(x1,&nbsp;y1)</var> to <var>(x2,&nbsp;y2)</var> is similar to major radius of
+		an ellipse.</dd>
+		<dt>radius</dt>
+		<dd>The curve's radius is the distance along the perpendicular axis from the forward axis to
+		the furthest point that the curve reaches along the perpendicular axis.  It's similar to the
+		minor radius of an ellipse.</dd>
+		<dt>curviness</dt>
+		<dd>The <dfn>curviness</dfn> is a value, usually between 0 and 1, that governs how similar the
+		curve is to looking like half of an ellipse versus how similar it is to looking like a pair of
+		straight lines.  A curviness of 0 means that the curve is hardly a curve at all and is almost a pair of
+		diagonal straight lines.  A curviness of 1 means that the curve looks similar to an ellipse.
+		Curviness values greater than 1 cause the curve to broaden so that part of it extends along
+		the forward axis further than the limits of <var>(x1,&nbsp;y1)</var> and <var>(x2,&nbsp;y2)</var>,
+		though these remain the start and end points.  Negative curviness values cause the curve to intersect
+		itself in a fish tail effect.</dd>
+		<dt>start_angle, end_angle</dt>
+		<dd>Remember the two imaginary diagonal lines?  These values control the angles made between
+		those lines and the forward axis.  These parameters can also be left undefined, in which case
+		the curve will have it's "natural angle" with respect to the forward axis as it arrives at
+		the start point (or the end point, or both).  These parameters roughly specify the tangents to
+		the curve at the start and end points.  However, as the curviness value approaches 1 these
+		angles start to be ignored.  Note that if both angles are specified then the parameters
+		<var>x1, y1, x2, y2, start_angle, end_angle</var> form a complete specification of the two
+		diagonal lines and that their point of intersection may be closer or further away from the
+		forward axis that the distance specified by the <var>radius</var> parameter.  If the point of
+		intersection is closer then the influence of the radius parameter will pull the straight lines
+		into becoming concave curves, resulting in an overall bell curve shape appearance.</dd>
+		<dt>skew</dt>
+		<dd>The <dfn>skew</dfn> parameter controls how far along the forward axis the point which is
+		furthest away from the forward axis occurs.  The skew is usually a value between 0 and 1, with
+		0.5 being the default.  Symmetric curves have a skew value of 0.5.  Values less than 0 or
+		greater than 1 result in an effect that looks like a bird's beak.  Together the skew and the
+		radius arguments define the point on the curve where the tangent is parallel to the forward axis.</dd>
+		<dt>overshoot</dt>
+		<dd>If <var>start_angle</var> or <var>end_angle</var> are greater than 90&deg; then the
+		overshoot parameter comes into effect in order to determine how far the forward axis is extended
+		beyond the start and end points of the curve.</dd>
+		<dt>is_right_and_up</dt>
+		<dd>Setting this Boolean parameter to true causes the whole curve to rotate 180&deg;.  When this
+		argument is false the curve is drawn facing towards the left and bottom of the canvas.  When
+		it is true the curve is drawn facing the right and top of the canvas.</dd>
+		<dt>colour(s), drawing_options</dt>
+		<dd>The usual suspects common to all canvas drawing.</dd>
+	</dl>
+%>);
+
+slideList is [slideZones, slideViewHighlight, slideLang1, slideCurves];
 currentSlide = slideList#;
