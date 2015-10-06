@@ -156,7 +156,11 @@ EdenAST_Index.prototype.setExpression = function(express) {
 }
 
 EdenAST_Index.prototype.generate = function(ctx, scope) {
-	return "[("+this.expression.generate(ctx, scope)+")-1]";
+	var ix = this.expression.generate(ctx, scope);
+	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+		ix += ".value";
+	}
+	return "[("+ix+")-1]";
 }
 
 
@@ -364,8 +368,8 @@ EdenAST_Length.prototype.left = fnEdenAST_left;
 
 EdenAST_Length.prototype.error = fnEdenAST_error;
 
-EdenAST_Length.prototype.generate = function(ctx) {
-	var left = this.l.generate(ctx);
+EdenAST_Length.prototype.generate = function(ctx, scope) {
+	var left = this.l.generate(ctx, scope);
 	// Get value out of a BoundValue
 	if (this.l.doesReturnBound && this.l.doesReturnBound()) {
 		left += ".value";
@@ -1047,7 +1051,6 @@ EdenAST_Action.prototype.generate = function(ctx) {
 
 EdenAST_Action.prototype.execute = function(root, ctx) {
 	var body = this.body.generate(ctx);
-	console.log(body);
 	root.lookup(this.name).define(eval(body), {name: "Script"}).observe(this.triggers);
 }
 
@@ -1077,9 +1080,17 @@ EdenAST_Function.prototype.setBody = function(body) {
 	this.errors.push.apply(this.errors, body.errors);
 }
 
-EdenAST_Function.prototype.execute = function(root,ctx) {
+EdenAST_Function.prototype.generate = function(ctx) {
 	var body = this.body.generate(ctx);
-	context.lookup(this.name).define(body, {name: "Script"});
+	var res = "context.lookup(\""+this.name+"\").define("+body+", {name: \"Script\"}, []);\n";
+	return res;
+}
+
+EdenAST_Function.prototype.execute = function(root,ctx,base) {
+	var body = this.body.generate(ctx);
+	var sym = root.lookup(this.name);
+	sym.eden_definition = base.getSource(this);	
+	sym.define(eval(body), {name: "Script"},[]);
 }
 
 EdenAST_Function.prototype.error = fnEdenAST_error;
@@ -1111,7 +1122,11 @@ EdenAST_Return.prototype.setResult = function(result) {
 
 EdenAST_Return.prototype.generate = function(ctx) {
 	if (this.result) {
-		return "return " + this.result.generate(ctx) + ";\n";
+		var res = this.result.generate(ctx, "scope");
+		if (this.result.doesReturnBound && this.result.doesReturnBound()) {
+			res += ".value";
+		}
+		return "return " + res + ";\n";
 	} else {
 		return "return;\n";
 	}
@@ -1207,7 +1222,7 @@ EdenAST_For.prototype.generate = function(ctx) {
 		res += this.sstart.generate(ctx) + " ";
 	} else res += "; ";
 	if (this.condition) {
-		res += this.condition.generate(ctx) + "; ";
+		res += this.condition.generate(ctx, "scope") + "; ";
 	} else res += "; ";
 	var incer = this.inc.generate(ctx);
 	if (incer.charAt(incer.length-2) == ";") incer = incer.slice(0,-2);
@@ -1330,13 +1345,7 @@ EdenAST_CodeBlock.prototype.setScript = function(script) {
 
 EdenAST_CodeBlock.prototype.generate = function(ctx) {
 	var res = "(function(context, pscope) {\n";
-	res += "var scope = new Scope(context,pscope,[";
-	if (this.params && this.params.list) {
-		for (var i=0; i<this.params.list.length; i++) {
-			res += "new ScopeOverride(\"" + this.params.list[i] + "\", arguments["+(i+1)+"])";
-			if (i != this.params.list.length-1) res += ",";
-		}
-	}
+	res += "var lscope = new Scope(context,pscope,[";
 	if (this.locals && this.locals.list) {
 		for (var i=0; i<this.locals.list.length; i++) {
 			res += "new ScopeOverride(\"" + this.locals.list[i] + "\", undefined)";
@@ -1344,7 +1353,15 @@ EdenAST_CodeBlock.prototype.generate = function(ctx) {
 		}
 	}
 	res += "]);\n";
-	res += "return (function(context,pscope) {\n"
+	res += "return (function() {\n";
+	res += "var scope = new Scope(context,lscope,[";
+	if (this.params && this.params.list) {
+		for (var i=0; i<this.params.list.length; i++) {
+			res += "new ScopeOverride(\"" + this.params.list[i] + "\", arguments["+(i)+"])";
+			if (i != this.params.list.length-1) res += ",";
+		}
+	}
+	res += "]);\n";
 	res += this.script.generate(ctx) + "}); })";
 	return res;
 }
