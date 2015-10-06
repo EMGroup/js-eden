@@ -186,10 +186,10 @@ test("Return statement from a function works", function () {
 	equal(root.lookup('power').value()(), 9000);
 });
 
-test("Function parameters work", function () {
-	eden.execute2("func id { return $1; }");
-	equal(root.lookup('id').value()(9001), 9001);
-});
+//test("Function parameters work", function () {
+//	eden.execute2("func id { return $1; }");
+//	equal(root.lookup('id').value()(9001), 9001);
+//});
 
 test("Parameter aliases work", function () {
 	eden.execute2("func id { para x; return x; }");
@@ -197,7 +197,7 @@ test("Parameter aliases work", function () {
 });
 
 test("Multiple function definitions with locals works", function () {
-	eden.execute2('func f { auto x; x; } func g { auto y; y; }');
+	eden.execute2('func f { auto x; return x; } func g { auto y; return y; }');
 	ok(true);
 });
 
@@ -410,14 +410,20 @@ test("Lists are 1 indexed", function () {
 	equal(root.lookup('y').value(), 20);
 });
 
+test("Assigning into a nested list", function () {
+	eden.execute2("x = [[1,2,3],[4,5,6],[7,8,9]]; x[2][2] = 10;");
+	equal(root.lookup('x').value()[1][1], 10);
+});
+
 test("Lists are value types", function () {
 	eden.execute2("x = [1,2,3]; func f { para a; a = 9000; } f(x);");
 	equal(root.lookup('x').value()[0], 1);
 });
 
 test("List index on the result of a function call should parse", function () {
-	expect(0);
-	eden.translateToJavaScript("f()[1];");
+	//expect(0);
+	var ast = new EdenAST("x = f()[1];");
+	equal(ast.script.errors.length, 0);
 });
 
 test("assigning a list and modifying", function () {
@@ -474,6 +480,16 @@ edenModule("Scoping");
 test("Scope override of single observable", function () {
 	eden.execute2("x is a * a; y is x with a = 5;");
 	equal(root.lookup('y').value(), 25);
+});
+
+test("Scope override of multiple observables", function () {
+	eden.execute2("x is a * b; y is x with a = 5, b = 6;");
+	equal(root.lookup('y').value(), 30);
+});
+
+test("Range scope", function () {
+	eden.execute2("x is a; y is x with a = 1..5;");
+	deepEqual(root.lookup('y').value(), [1,2,3,4,5]);
 });
 
 //

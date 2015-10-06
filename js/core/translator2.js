@@ -104,8 +104,16 @@ EdenAST.prototype.next = function() {
 	while (true) {
 		// Skip block comments
 		if (this.token == "/*") {
-			while (this.token != "*/") {
+			var count = 0;
+			while (this.token != "*/" || count > 0) {
 				this.token = this.stream.readToken();
+				if (this.token == "/*") {
+					count++;
+					this.token = this.stream.readToken();
+				} else if (this.token == "*/") {
+					count--;
+					this.token = this.stream.readToken();
+				}
 			}
 			this.token = this.stream.readToken();
 		// Skip line comments
