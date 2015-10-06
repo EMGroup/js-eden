@@ -72,11 +72,28 @@ function EdenAST_Scope() {
 	this.errors = [];
 	this.range = false;
 	this.overrides = {};
+	this.primary = new EdenAST_Primary();
 }
 
 EdenAST_Scope.prototype.error = fnEdenAST_error;
 
-EdenAST_Scope.prototype.prepend = function(obs, exp1, exp2) {
+EdenAST_Scope.prototype.prepend = function(extra) {
+	this.primary.prepend(extra);
+}
+
+EdenAST_Scope.prototype.setObservable = function(obs) {
+	this.primary.setObservable(obs);
+}
+
+EdenAST_Scope.prototype.getObservable = function() {
+	return this.primary.getObservable();
+}
+
+EdenAST_Scope.prototype.doesReturnBound = function() {
+	return this.primary.doesReturnBound();
+}
+
+EdenAST_Scope.prototype.addOverride = function(obs, exp1, exp2) {
 	if (exp2) {
 		this.range = true;
 		this.overrides[obs] = { start: exp1, end: exp2 };
@@ -92,11 +109,11 @@ EdenAST_Scope.prototype.prepend = function(obs, exp1, exp2) {
 EdenAST_Scope.prototype.generate = function(ctx) {
 	var res;
 
-	//if (this.range) {
-	//	res = "[";
-	//} else {
+	if (ctx.scopes.length > 0) {
+		res = "new Scope(context, _scopes["+(ctx.scopes.length-1)+"], [";
+	} else {
 		res = "new Scope(context, scope, [";
-	//}
+	}
 
 	for (var o in this.overrides) {
 		var startstr = this.overrides[o].start.generate(ctx);
@@ -117,12 +134,67 @@ EdenAST_Scope.prototype.generate = function(ctx) {
 		}
 	}
 	res = res.slice(0,-1);
-	//if (this.range) {
-	//	res += "]";
-	//} else {
-		res += "], "+this.range+", ";
-	//}
-	return res;
+	res += "], "+this.range+", context.lookup(\""+this.primary.getObservable()+"\"))";
+	ctx.scopes.push(res);
+	return this.primary.generate(ctx);
+}
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_Index() {
+	this.type = "index";
+	this.expression = undefined;
+	this.errors = [];
+}
+
+EdenAST_Index.prototype.setExpression = function(express) {
+	this.expression = express;
+	if (express.errors.length > 0) {
+		this.errors.push.apply(this.errors,express.errors);
+	}
+}
+
+EdenAST_Index.prototype.generate = function(ctx) {
+	return "[("+this.expression.generate(ctx)+")-1]";
+}
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_ScopePath() {
+	this.type = "scopepath";
+	this.errors = [];
+	this.primary = undefined;
+	this.path = new EdenAST_Primary();
+}
+
+EdenAST_ScopePath.prototype.prepend = function(extra) {
+	this.path.prepend(extra);
+}
+
+EdenAST_ScopePath.prototype.setObservable = function(obs) {
+	this.path.setObservable(obs);
+}
+
+EdenAST_ScopePath.prototype.getObservable = function() {
+	return this.primary.getObservable();
+}
+
+EdenAST_ScopePath.prototype.doesReturnBound = function() {
+	return this.primary.doesReturnBound();
+}
+
+EdenAST_ScopePath.prototype.setPrimary = function(prim) {
+	this.primary = prim;
+	if (this.primary.errors.length > 0) {
+		this.errors.push.apply(this.errors, prim.errors);
+	}
+}
+
+EdenAST_ScopePath.prototype.generate = function(ctx) {
+	ctx.scopes.push(this.path.generate(ctx)+".scope");
+	return this.primary.generate(ctx);
 }
 
 
@@ -411,7 +483,7 @@ EdenAST_Definition.prototype.generateDef = function(ctx) {
 		}
 	}
 
-	if (this.expression.type == "primary" && this.expression.returnsbound) {
+	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 		result += "\t var result = "+express+";\n";
 
 		// Save the resulting values scope binding into the cache entry.
@@ -645,10 +717,25 @@ EdenAST_Primary.prototype.setBackticks = function(backtick) {
 	this.errors.push.apply(this.errors, backtick.errors);
 };
 
-EdenAST_Primary.prototype.setExtras = function(extras) {
-	this.extras = extras;
-	for (var i = 0; i < extras.length; i++) {
-		this.errors.push.apply(this.errors, extras[i].errors);
+EdenAST_Primary.prototype.setObservable = function(obs) {
+	this.observable = obs;
+}
+
+EdenAST_Primary.prototype.getObservable = function() {
+	return this.observable;
+}
+
+EdenAST_Primary.prototype.doesReturnBound = function() {
+	return this.returnsbound;
+}
+
+EdenAST_Primary.prototype.prepend = function(extra) {
+	this.extras.unshift(extra);
+	if (extra.type == "functioncall") {
+		this.returnsbound = false;
+	}
+	if (extra.errors.length > 0) {
+		this.errors.push.apply(this.errors, extra.errors);
 	}
 };
 
@@ -662,56 +749,22 @@ EdenAST_Primary.prototype.generate = function(ctx) {
 		res += "\""+this.observable+"\")";
 	}
 
-	var i = 0;
-	var scopestr;
-	var haslocalscope = false;
-	if (this.extras.length >= 1 && this.extras[this.extras.length-1].type == "scope") {
-		ctx.scopes.push(this.extras[0].generate(ctx) + " context.lookup(\""+this.observable+"\"))");
-		scopestr = "_scopes[" +(ctx.scopes.length-1)+"]";
-		haslocalscope = true;
-	} else {
-		scopestr = "scope";
-	}
-
-	var indices = [];
-	var hasborrowedscope = false;
-	var hasfunccall = false;
-	for (; i < this.extras.length; i++) {
-		if (this.extras[i].type == "lvaluecomponent" && this.extras[i].kind == "index") {
-			indices.push(this.extras[i].indexexp.generate(ctx, this.observable));
-		} else if (this.extras[i].type == "lvaluecomponent" && this.extras[i].kind == "property") {
-			scopestr = res + ".getValueScope("+scopestr+")";
-			res = "context.lookup(\""+this.extras[i].observable+"\")";
-			hasborrowedscope = true;
-		} else if (this.extras[i].type == "functioncall") {
-			hasfunccall = true;
-			if (hasborrowedscope) {
-				ctx.scopes.push(scopestr);
-				hasborrowedscope = false;
-			}
-			if (ctx.scopes.length > 0 && (hasborrowedscope || haslocalscope)) {
-				res += ".value(_scopes["+(ctx.scopes.length-1)+"])";
-			} else {
-				res += ".value(scope)";
-			}
-			res += this.extras[i].generate(ctx);
-		} else {
-			break;
-		}
-	}
-
-	if (hasborrowedscope) {
-		ctx.scopes.push(scopestr);
-	}
-
-	if (!hasfunccall) {
-		if (ctx.scopes.length > 0 && (hasborrowedscope || haslocalscope)) {
+	if (this.extras.length == 0) {
+		if (ctx.scopes.length > 0) {
 			res += ".boundValue(_scopes["+(ctx.scopes.length-1)+"])";
 		} else {
 			res += ".boundValue(scope)";
 		}
 	} else {
 		this.returnsbound = false;
+		if (ctx.scopes.length > 0) {
+			res += ".value(_scopes["+(ctx.scopes.length-1)+"])";
+		} else {
+			res += ".value(scope)";
+		}
+		for (var i=0; i<this.extras.length; i++) {
+			res += this.extras[i].generate(ctx);
+		}
 	}
 
 	return res;

@@ -546,6 +546,10 @@
 	
 	Symbol.hciAgent = {name: "*Input Device"};
 
+	/**
+	 * Get the value of this symbol bound with the scope the value was
+	 * generated in.
+	 */
 	Symbol.prototype.boundValue = function(scope) {
 		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
 		var value = this.value(scope);

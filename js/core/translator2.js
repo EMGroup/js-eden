@@ -432,29 +432,31 @@ EdenAST.prototype.pFACTOR = function() {
  * PRIMARY -> observable PRIMARY' | ` EXPRESSION ` PRIMARY'
  */
 EdenAST.prototype.pPRIMARY = function() {
-	var primary = new EdenAST_Primary();
-
 	if (this.token == "`") {
-		primary.observable = "__BACKTICKS__";
 		this.next();
-		primary.setBackticks(this.pEXPRESSION());
-		if (primary.errors.length > 0) return primary;
+		var btick = this.pEXPRESSION();
+		
 		if (this.token != "`") {
+			var primary = new EdenAST_Primary();
 			primary.errors.push(new EdenError(this, EDEN_ERROR_BACKTICK));
 			return primary;
 		} else {
 			this.next();
 		}
-		primary.setExtras(this.pPRIMARY_P());
-		//console.log(primary);
+
+		var primary = this.pPRIMARY_P();
+		primary.setBackticks(btick);
+		primary.setObservable("__BACKTICKS__");
 		return primary;
 	} else if (this.token == "OBSERVABLE") {
-		primary.observable = this.data.value;
+		var observable = this.data.value;
 		this.next();
-		primary.setExtras(this.pPRIMARY_P());
-		//console.log(primary);
+		var primary = this.pPRIMARY_P();
+		if (primary.errors.length > 0) return primary;
+		primary.setObservable(observable);
 		return primary;
 	} else {
+		var primary = new EdenAST_Primary();
 		primary.errors.push(new EdenError(this, EDEN_ERROR_BADFACTOR));
 		return primary;
 	}
@@ -464,15 +466,65 @@ EdenAST.prototype.pPRIMARY = function() {
 
 /**
  * PRIMARY Prime Production
- * PRIMARY'	->
- *	( ELIST ) PRIMARY'
- *	| . observable PRIMARY'
- *	| [ EXPRESSION ] PRIMARY'
- *  | with SCOPE PRIMARY'
- *	| epsilon
+ * PRIMARY' ->
+ *	( ELIST ) PRIMARY''
+ *	| . PRIMARY
+ *	| [ EXPRESSION ] PRIMARY'''
+ *	| PRIMARY''''
  */
 EdenAST.prototype.pPRIMARY_P = function() {
-	var result = [];
+	if (this.token == "[") {
+		this.next();
+		var index = new EdenAST_Index();
+		var express = this.pEXPRESSION();
+
+		if (this.token != "]") {
+
+		} else {
+			this.next();
+		}
+
+		var primary = this.pPRIMARY_PPP();
+		index.setExpression(express);
+		primary.prepend(index);
+		return primary;
+	} else if (this.token == "(") {
+		this.next();
+		var func = new EdenAST_FunctionCall();	
+
+		if (this.token == ")") {
+			this.next();
+			var primary = this.pPRIMARY_PP();
+			primary.prepend(func);
+			return primary;
+		} else {
+			var elist = this.pELIST();
+			func.setParams(elist);
+
+			if (this.token != ")") {
+				if (func.errors.length > 0) return func;
+				func.errors.push(new EdenError(this, EDEN_ERROR_FUNCCALLEND));
+				return func;
+			} else {
+				this.next();
+			}
+
+			var primary = this.pPRIMARY_PP();
+			if (primary.errors.length > 0) return primary;
+			primary.prepend(func);
+			return primary;
+		}
+	} else if (this.token == ".") {
+		this.next();
+		var rhs = this.pPRIMARY();
+		var scopepath = new EdenAST_ScopePath();
+		scopepath.setPrimary(rhs);
+		return scopepath;
+	} else {
+		return this.pPRIMARY_PPPP();
+	}
+
+	/*var result = [];
 	while (true) {
 		if (this.token == "(") {
 			var func = new EdenAST_FunctionCall();
@@ -535,15 +587,139 @@ EdenAST.prototype.pPRIMARY_P = function() {
 			var scope = this.pSCOPE();
 			result.push(scope);
 			if (scope.errors.length > 0) return result;
-			/*if (this.token != "}") {
-				scope.error(new EdenError(this, EDEN_ERROR_SCOPECLOSE));
-				return result;
-			} else {
-				this.next();
-			}*/
 		} else {
 			return result;
 		}
+	}*/
+}
+
+
+/**
+ * Primary Prime Prime Production.
+ * PRIMARY'' ->
+ *	( ELIST ) PRIMARY''
+ *	| [ EXPRESSION ] PRIMARY''
+ *	| PRIMARY''''
+ */
+EdenAST.prototype.pPRIMARY_PP = function() {
+	if (this.token == "[") {
+		this.next();
+		var index = new EdenAST_Index();
+		var express = this.pEXPRESSION();
+
+		if (this.token != "]") {
+			index.errors.push(new EdenError(this, EDEN_ERROR_LISTINDEXCLOSE));
+			return index;
+		} else {
+			this.next();
+		}
+
+		var primary = this.pPRIMARY_PP();
+		index.setExpression(express);
+		primary.prepend(index);
+		return primary;
+	} else if (this.token == "(") {
+		this.next();
+		var func = new EdenAST_FunctionCall();
+
+		if (this.token == ")") {
+			this.next();
+			var primary = this.pPRIMARY_PP();
+			primary.prepend(func);
+			return primary;
+		} else {
+			var elist = this.pELIST();
+			func.setParams(elist);
+
+			if (this.token != ")") {
+				if (func.errors.length > 0) return func;
+				func.errors.push(new EdenError(this, EDEN_ERROR_FUNCCALLEND));
+				return func;
+			} else {
+				this.next();
+			}
+
+			var primary = this.pPRIMARY_PP();
+			primary.prepend(func);
+			return primary;
+		}
+	} else {
+		return this.pPRIMARY_PPPP();
+	}
+}
+
+
+/**
+ * Primary Triple Prime.
+ * PRIMARY''' ->
+ *	. PRIMARY
+ *	| ( ELIST ) PRIMARY''
+ *	| [ EXPRESSION ] PRIMARY''
+ *	| PRIMARY''''
+ */
+EdenAST.prototype.pPRIMARY_PPP = function() {
+	if (this.token == "[") {
+		this.next();
+		var index = new EdenAST_Index();
+		var express = this.pEXPRESSION();
+
+		if (this.token != "]") {
+
+		} else {
+			this.next();
+		}
+
+		var primary = this.pPRIMARY_PP();
+		index.setExpression(express);
+		primary.prepend(index);
+		return primary;
+	} else if (this.token == "(") {
+		this.next();
+		var func = new EdenAST_FunctionCall();		
+
+		if (this.token == ")") {
+			this.next();
+			var primary = this.pPRIMARY_PP();
+			primary.prepend(func);
+			return primary;
+		} else {
+			var elist = this.pELIST();
+			func.setParams(elist);
+
+			if (this.token != ")") {
+				if (func.errors.length > 0) return func;
+				func.errors.push(new EdenError(this, EDEN_ERROR_FUNCCALLEND));
+				return func;
+			} else {
+				this.next();
+			}
+
+			var primary = this.pPRIMARY_PP();
+			primary.prepend(func);
+			return primary;
+		}
+	} else if (this.token == ".") {
+		this.next();
+		var rhs = this.pPRIMARY();
+		var scopepath = new EdenAST_ScopePath();
+		scopepath.setPrimary(rhs);
+		return scopepath;
+	} else {
+		return this.pPRIMARY_PPPP();
+	}
+}
+
+
+/**
+ * Primary Quad Prime Production.
+ * PRIMARY'''' -> with SCOPE | epsilon
+ */
+EdenAST.prototype.pPRIMARY_PPPP = function() {
+	if (this.token == "with") {
+		this.next();
+		return this.pSCOPE();
+	} else {
+		return new EdenAST_Primary();
 	}
 }
 
@@ -592,7 +768,7 @@ EdenAST.prototype.pSCOPE_P = function() {
 	var expression = this.pEXPRESSION();
 	if (expression.errors.length > 0) {
 		var scope = new EdenAST_Scope();
-		scope.prepend(obs, expression, undefined);
+		scope.addOverride(obs, expression, undefined);
 		return scope;
 	}
 
@@ -602,13 +778,13 @@ EdenAST.prototype.pSCOPE_P = function() {
 		exp2 = this.pEXPRESSION();
 		if (exp2.errors.length > 0) {
 			var scope = new EdenAST_Scope();
-			scope.prepend(obs, expression, exp2);
+			scope.addOverride(obs, expression, exp2);
 			return scope;
 		}
 	}
 
 	var scope = this.pSCOPE_PP();
-	scope.prepend(obs, expression, exp2);
+	scope.addOverride(obs, expression, exp2);
 	return scope;
 }
 

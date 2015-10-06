@@ -113,11 +113,23 @@ F			->
 
 PRIMARY		-> observable PRIMARY' | ` EXPRESSION ` PRIMARY'																FIRST: observable
 PRIMARY'	->
-	( ELIST ) PRIMARY'
-	| . observable PRIMARY'
-	| [ EXPRESSION ] PRIMARY'
-	| with SCOPE PRIMARY'
-	| epsilon											FIRST: ( . [ epsilon
+	( ELIST ) PRIMARY''
+	| . PRIMARY
+	| [ EXPRESSION ] PRIMARY'''
+	| PRIMARY''''											
+
+PRIMARY''	->
+	( ELIST ) PRIMARY''
+	| [ EXPRESSION ] PRIMARY''
+	| PRIMARY''''
+
+PRIMARY'''	->
+	. PRIMARY
+	| ( ELIST ) PRIMARY''
+	| [ EXPRESSION ] PRIMARY''
+	| PRIMARY''''
+
+PRIMARY''''	-> with SCOPE | epsilon
 
 SCOPE		-> ( SCOPE' ) | SCOPE'
 SCOPE'		-> observable SCOPE''
