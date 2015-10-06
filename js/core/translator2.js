@@ -1738,7 +1738,9 @@ EdenAST.prototype.pSHIFT = function() {
  */
 EdenAST.prototype.pREQUIRE = function() {
 	var req = new EdenAST_Require();
-	
+	var express = this.pEXPRESSION();
+	req.setExpression(express);
+	return req;
 }
 
 
@@ -1781,8 +1783,10 @@ EdenAST.prototype.pOPTION = function() {
  * INCLUDE -> ( EXPRESSION ) ; INCLUDE'
  */
 EdenAST.prototype.pINCLUDE = function() {
-	var shif = new EdenAST_Shift();
-	
+	var express = this.pEXPRESSION();
+	var inc = new EdenAST_Include();//this.pINCLUDE_P();
+	inc.prepend(express);
+	return inc;
 }
 
 

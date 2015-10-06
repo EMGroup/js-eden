@@ -452,6 +452,69 @@ EdenAST_LValueComponent.prototype.error = fnEdenAST_error;
 
 //------------------------------------------------------------------------------
 
+function EdenAST_Require() {
+	this.type = "require";
+	this.errors = [];
+	this.expression = undefined;
+	this.start = 0;
+	this.end = 0;
+}
+
+EdenAST_Require.prototype.setExpression = function(express) {
+	this.expression = express;
+	if (express.errors.length > 0) {
+		this.errors.push.apply(this.errors,express.errors);
+	}
+}
+
+EdenAST_Require.prototype.generate = function(ctx) {
+	return "edenUI.loadPlugin("+this.expression.generate(ctx, "scope")+");";
+}
+
+EdenAST_Require.prototype.execute = function(root, ctx, base) {
+	edenUI.loadPlugin(this.expression.execute(root, ctx));
+}
+
+EdenAST_Require.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_Include() {
+	this.type = "include";
+	this.errors = [];
+	this.expression = undefined;
+	this.start = 0;
+	this.end = 0;
+}
+
+EdenAST_Include.prototype.prepend = function(express) {
+	this.expression = express;
+	if (express.errors.length > 0) {
+		this.errors.push.apply(this.errors,express.errors);
+	}
+}
+
+EdenAST_Include.prototype.generate = function(ctx) {
+	return "eden.include2("+this.expression.generate(ctx, "scope")+");";
+}
+
+EdenAST_Include.prototype.execute = function(root, ctx, base) {
+	eden.include2(this.expression.execute(root, ctx));
+}
+
+EdenAST_Include.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+
+//------------------------------------------------------------------------------
+
 function EdenAST_Definition(expression) {
 	this.type = "definition";
 	this.parent = undefined;
@@ -518,6 +581,10 @@ EdenAST_Definition.prototype.generate = function(ctx) {
 		result += ".addExtension("+this.lvalue.generateIdStr()+", function(context, scope, value) {\n\tvalue";
 		result += clist + " = ";
 		result += this.expression.generate(this, "scope");
+
+		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+			result += ".value";
+		}
 
 		var deps = [];
 		for (var d in this.dependencies) {
