@@ -30,22 +30,18 @@ point is prototype_Point with
 	x = x if x else 0,
 	y = y if y else 0;
 
-prototype_Line is ["line", a,b,colour,width];
+prototype_Line is ["line", start,end,colour,width];
 line is prototype_Line with
-	a = a if a else point,
-	b = b if b else point,
+	start = start if start else point,
+	end = end if end else point,
 	color = colour if colour else black;
 
-##__translate is point with
-##	x = p.x+x,
-##	y = p.y+y;
-
 __translate is point with
-	x = (member with this = p, name = "x")+x,
-	y = (member with this = p, name = "y")+y;
+	x = p.x+tx,
+	y = p.y+ty;
 translate is __translate with
-	x = x if x else 0,
-	y = y if y else 0;
+	tx = tx if tx else 0,
+	ty = ty if ty else 0;
 
 __rotate is [((p[1]-o[1])*cos(theta)-(p[2]-o[2])*sin(theta))+o[1], ((p[1]-o[1])*sin(theta)-(p[2]-o[2])*cos(theta))+o[2]];
 rotate is __rotate with p = p if p else point;

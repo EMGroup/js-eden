@@ -45,7 +45,8 @@ EdenAST_Literal.prototype.generate = function(ctx) {
 						res += "]";
 						return res;
 	case "CHARACTER":
-	case "STRING"	:	return "\""+this.value+"\"";
+	case "STRING"	:	var str = this.value.replace(/\n/g,"\\n");
+						return "\""+str+"\"";
 	case "BOOLEAN"	:	return this.value;
 	case "JAVASCRIPT"	: return this.value;
 	}
@@ -399,10 +400,11 @@ EdenAST_LValue.prototype.hasListIndices = function() {
 }
 
 EdenAST_LValue.prototype.generateCompList = function(ctx) {
-	var res = "";
+	var res = "[";
 	for (var i=0; i<this.lvaluep.length; i++) {
-		res += this.lvaluep[i].generate(ctx);
+		res += this.lvaluep[i].indexexp.generate(ctx);
 	}
+	res += "]";
 	return res;
 }
 
@@ -515,6 +517,48 @@ EdenAST_Include.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_Append() {
+	this.type = "append";
+	this.destination = undefined;
+	this.index = undefined;
+	this.errors = [];
+	this.start = 0;
+	this.end = 0;
+}
+
+EdenAST_Append.prototype.setDest = function(dest) {
+	this.destination = dest;
+	if (dest.errors.length > 0) {
+		this.errors.push.apply(this.errors, dest.errors);
+	}
+}
+
+EdenAST_Append.prototype.setIndex = function(index) {
+	this.index = index;
+	if (index.errors.length > 0) {
+		this.errors.push.apply(this.errors, index.errors);
+	}
+}
+
+EdenAST_Append.prototype.generate = function(ctx) {
+	var express = this.index.generate(ctx, "scope");
+	if (this.index.doesReturnBound && this.index.doesReturnBound()) {
+		express += ".value";
+	}
+	var lvalue = this.destination.generate(ctx);
+	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.push("+express+"); }, this);";
+}
+
+EdenAST_Append.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+EdenAST_Append.prototype.error = fnEdenAST_error;
 
 
 //------------------------------------------------------------------------------
@@ -671,6 +715,9 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 	if (this.lvalue.hasListIndices()) {
 		result += ".listAssign(";
 		result += this.expression.generate(this, "scope");
+		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+			result += ".value";
+		}
 		result += ", scope, undefined, false, ";
 		result += this.lvalue.generateCompList(ctx);
 		result += ");\n";
@@ -678,6 +725,9 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 	} else {
 		result += ".assign(\n\t";
 		result += this.expression.generate(this, "scope");
+		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+			result += ".value";
+		}
 		result += ", scope);\n"
 		return result;
 	}
@@ -686,6 +736,9 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 EdenAST_Assignment.prototype.execute = function(root, ctx) {
 	var rhs = "(function(context,scope) { return ";
 	rhs += this.expression.generate(this, "scope");
+	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+		rhs += ".value";
+	}
 	rhs += ";})";
 
 	if (this.lvalue.hasListIndices()) {
@@ -728,6 +781,7 @@ EdenAST_Modify.prototype.generate = function(ctx) {
 	var lval = this.lvalue.generate(ctx);
 	var result = lval + ".assign(\n\t";
 
+	// TODO Convert to rt
 	if (this.kind == "+=") {
 		result += lval + ".value(scope) + ";
 		result += this.expression.generate(ctx);
@@ -749,6 +803,31 @@ EdenAST_Modify.prototype.generate = function(ctx) {
 	result = result + ", scope);\n"
 	return result;
 };
+
+EdenAST_Modify.prototype.execute = function(root, ctx) {
+	// TODO: allow this to work on list indices
+	var sym = root.lookup(this.lvalue.observable);
+
+	if (this.kind == "++") {
+		sym.assign(sym.value(root.scope)+1, root.scope);
+	} else if (this.kind == "--") {
+		sym.assign(sym.value(root.scope)-1, root.scope);
+	} else {
+		var rhs = "(function(context,scope) { return ";
+		rhs += this.expression.generate(this, "scope");
+		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+			rhs += ".value";
+		}
+		rhs += ";})";
+
+		switch (this.kind) {
+		case "+="	: sym.assign(rt.add(sym.value(), eval(rhs)(root,root.scope)), root.scope); break;
+		case "-="	: sym.assign(rt.subtract(sym.value(), eval(rhs)(root,root.scope)), root.scope); break;
+		case "/="	: sym.assign(rt.divide(sym.value(), eval(rhs)(root,root.scope)), root.scope); break;
+		case "*="	: sym.assign(rt.multiply(sym.value(), eval(rhs)(root,root.scope)), root.scope); break;
+		}
+	}
+}
 
 EdenAST_Modify.prototype.error = fnEdenAST_error;
 
@@ -897,7 +976,11 @@ EdenAST_If.prototype.setElse = function(statement) {
 
 EdenAST_If.prototype.generate = function(ctx) {
 	var res = "if (";
-	res += this.condition.generate(ctx, "scope") + ") ";
+	res += this.condition.generate(ctx, "scope");
+	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
+		res += ".value";
+	}
+	res += ") ";
 	res += this.statement.generate(ctx) + " ";
 	if (this.elsestatement) {
 		res += "\nelse " + this.elsestatement.generate(ctx) + "\n";
@@ -907,7 +990,11 @@ EdenAST_If.prototype.generate = function(ctx) {
 
 EdenAST_If.prototype.execute = function(root, ctx) {
 	var cond = "(function(context,scope) { return ";
-	cond += this.condition.generate(ctx, "scope") + ";})";
+	cond += this.condition.generate(ctx, "scope");
+	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
+		cond += ".value";
+	}
+	cond += ";})";
 	if (eval(cond)(root,root.scope)) {
 		this.statement.execute(root, ctx);
 	} else {
@@ -986,21 +1073,25 @@ EdenAST_FunctionCall.prototype.left = function(lvalue) {
 EdenAST_FunctionCall.prototype.generate = function(ctx, scope) {
 	if (this.lvalue === undefined) {
 		var res = "(";
-		for (var i=0; i<this.params.length; i++) {
-			var express = this.params[i].generate(ctx, scope);
-			if (this.params[i].doesReturnBound && this.params[i].doesReturnBound()) {
-				express += ".value";
+		if (this.params) {
+			for (var i=0; i<this.params.length; i++) {
+				var express = this.params[i].generate(ctx, scope);
+				if (this.params[i].doesReturnBound && this.params[i].doesReturnBound()) {
+					express += ".value";
+				}
+				res += "("+express+")";
+				if (i != this.params.length-1) res += ",";
 			}
-			res += "("+express+")";
-			if (i != this.params.length-1) res += ",";
 		}
 		return res + ")";
 	} else {
 		var res = this.lvalue.generate(ctx) + ".value(scope)(";
-		for (var i=0; i<this.params.length; i++) {
-			var express = this.params[i].generate(ctx, scope);
-			res += "("+express+")";
-			if (i != this.params.length-1) res += ",";
+		if (this.params) {
+			for (var i=0; i<this.params.length; i++) {
+				var express = this.params[i].generate(ctx, scope);
+				res += "("+express+")";
+				if (i != this.params.length-1) res += ",";
+			}
 		}
 		return res + ")";
 	}
@@ -1045,13 +1136,22 @@ EdenAST_Action.prototype.setBody = function(body) {
 
 EdenAST_Action.prototype.generate = function(ctx) {
 	var body = this.body.generate(ctx);
-	var res = "context.lookup(\""+this.name+"\").define("+body+", {name: \"Script\"}).observe("+JSON.stringify(this.triggers)+");\n";
+	var res = "context.lookup(\""+this.name+"\").define("+body+", {name: \"Script\"})";
+	if (this.triggers.length > 0) {
+		res += ".observe("+JSON.stringify(this.triggers)+");\n";
+	}
 	return res;
 }
 
-EdenAST_Action.prototype.execute = function(root, ctx) {
+EdenAST_Action.prototype.execute = function(root, ctx, base) {
 	var body = this.body.generate(ctx);
-	root.lookup(this.name).define(eval(body), {name: "Script"}).observe(this.triggers);
+	var sym = root.lookup(this.name);
+	sym.eden_definition = base.getSource(this);
+	if (this.triggers.length > 0) {
+		sym.define(eval(body), {name: "Script"}, []).observe(this.triggers);
+	} else {
+		sym.define(eval(body), {name: "Script"}, []);
+	}
 }
 
 EdenAST_Action.prototype.error = fnEdenAST_error;
@@ -1229,6 +1329,22 @@ EdenAST_For.prototype.generate = function(ctx) {
 	res += incer + ")\n";
 	res += this.statement.generate(ctx);
 	return res;
+}
+
+EdenAST_For.prototype.execute = function(root, ctx, base) {
+	if (this.sstart) {
+		this.sstart.execute(root,ctx,base);
+	}
+
+	var express = this.condition.generate(ctx, "scope");
+	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
+		express += ".value";
+	}
+	var expfunc = eval("(function(context,scope){ return " + express + "; })");
+
+	for (; expfunc(root,root.scope); this.inc.execute(root,ctx,base)) {
+		this.statement.execute(root,ctx,base);
+	}
 }
 
 

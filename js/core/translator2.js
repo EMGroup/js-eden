@@ -922,22 +922,19 @@ EdenAST.prototype.pACTION = function() {
 
 	if (this.token == ":") {
 		this.next();
-	} else {
-		action.errors.push(new EdenError(this, EDEN_ERROR_ACTIONCOLON));
-		return action;
+
+		var olist = this.pOLIST();
+		if (olist.length == 0) {
+			action.errors.push(new EdenError(this, EDEN_ERROR_ACTIONNOWATCH));
+			return action;
+		} else if (olist[olist.length-1] == "NONAME") {
+			action.errors.push(new EdenError(this, EDEN_ERROR_ACTIONCOMMAS));
+			return action;
+		}
+		action.triggers = olist;
 	}
 
-	var olist = this.pOLIST();
-	if (olist.length == 0) {
-		action.errors.push(new EdenError(this, EDEN_ERROR_ACTIONNOWATCH));
-		return action;
-	} else if (olist[olist.length-1] == "NONAME") {
-		action.errors.push(new EdenError(this, EDEN_ERROR_ACTIONCOMMAS));
-		return action;
-	}
-	action.triggers = olist;
-
-	action.setBody(this.pACTIONBODY());
+	action.setBody(this.pFUNCBODY());
 	this.parent = parent;
 	return action;
 }

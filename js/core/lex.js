@@ -240,7 +240,13 @@ EdenStream.prototype.parseString = function(data) {
 	var result = "";
 
 	while (this.valid() && this.peek() != 34) {
-		result += String.fromCharCode(this.get());
+		var chr = String.fromCharCode(this.get());
+		if (chr == "\\") {
+			chr = String.fromCharCode(this.get());
+			result += "\\"+chr;
+		} else {
+			result += chr;
+		}
 	}
 
 	// Remove end quote
@@ -253,6 +259,12 @@ EdenStream.prototype.parseString = function(data) {
 
 EdenStream.prototype.parseCharacter = function(data) {
 	var result = String.fromCharCode(this.get());
+
+	// Escaped char
+	if (result == "\\") {
+		result = String.fromCharCode(this.get());
+	}
+
 	// Remove quote.
 	if (this.valid()) {
 		this.skip();
