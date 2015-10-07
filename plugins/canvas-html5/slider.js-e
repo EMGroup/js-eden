@@ -156,11 +156,11 @@ Slider.prototype.draw = function (context) {
 			root.lookup("mouseDownZone").assign(undefined, root.scope, Symbol.hciAgent, mouseFollow);
 		})
 		.on("mouseup", function () {
-			root.lookup(name + "_value").assign(parseFloat(this.value), Symbol.hciAgent, true);
+			root.lookup(name + "_value").assign(parseFloat(this.value), root.scope, Symbol.hciAgent, true);
 			edenUI.plugins.Canvas2D.endClick();
 		})
 		.on("keyup", function () {
-			root.lookup(name + "_value").assign(parseFloat(this.value), Symbol.hciAgent, true);		
+			root.lookup(name + "_value").assign(parseFloat(this.value), root.scope, Symbol.hciAgent, true);		
 		})
 		.on("mouseenter", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
@@ -174,10 +174,10 @@ Slider.prototype.draw = function (context) {
 		var previewValue = previewSym.value();
 		if (value === undefined) {
 			if (previewValue !== undefined) {
-				valueSym.assign(previewValue, agent);
+				valueSym.assign(previewValue, root.scope, agent);
 				setValue(valueSym, previewValue, true);
 			} else {
-				valueSym.assign(this.min, agent);
+				valueSym.assign(this.min, root.scope, agent);
 			}
 		} else {
 			setValue(valueSym, value, true);

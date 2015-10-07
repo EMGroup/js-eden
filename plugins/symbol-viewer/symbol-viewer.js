@@ -99,8 +99,8 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		content.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
 			var editorViewName = "edit_" + edenName;
 			edenUI.createView(editorViewName, "ScriptInput");
-			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, Symbol.hciAgent);
-			edenUI.eden.root.lookup("_view_" + edenName + "_title").assign(mtitle + " (" + edenName + ")", Symbol.hciAgent);
+			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
+			edenUI.eden.root.lookup("_view_" + edenName + "_title").assign(mtitle + " (" + edenName + ")", eden.root.scope, Symbol.hciAgent);
 			edenUI.createView("edit_" + edenName, "ScriptInput");
 			var allVals = "";
 			var symbol;
@@ -572,9 +572,9 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 					inputBoxElem.selectionEnd = currentEden.length - 1;
 				}
 			} else if (value === true) {
-				me.symbol.assign(false, Symbol.hciAgent, true);
+				me.symbol.assign(false, eden.root.scope, Symbol.hciAgent, true);
 			} else {
-				me.symbol.assign(true, Symbol.hciAgent, true);
+				me.symbol.assign(true, eden.root.scope, Symbol.hciAgent, true);
 			}
 		});
 	}

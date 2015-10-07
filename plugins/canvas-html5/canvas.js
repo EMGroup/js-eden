@@ -287,7 +287,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		if (edenUI.eden.isValidIdentifier(name)) {
 			var clickSym = root.lookup(name + "_click");
 			if (clickSym.value() === undefined) {
-				clickSym.assign(false, root.lookup(agentName));
+				clickSym.assign(false, root.scope, root.lookup(agentName));
 			}
 		}
 		return name;
@@ -297,7 +297,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		if (edenUI.eden.isValidIdentifier(name)) {
 			var clickSym = root.lookup(name + "_click");
 			if (clickSym.value() === undefined) {
-				clickSym.assign(false, root.lookup(agentName));
+				clickSym.assign(false, root.scope, root.lookup(agentName));
 			}
 		}
 		return name;
@@ -744,7 +744,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var pinchSym = root.lookup("touchPinch");
 					var touchPinchValue = pinchSym.value();
 					touchPinchValue = touchPinchValue + deltaY;
-					pinchSym.assign(touchPinchValue, Symbol.hciAgent, followMouse);
+					pinchSym.assign(touchPinchValue, root.scope, Symbol.hciAgent, followMouse);
 				} else {
 					//Zoom on pinch gesture or Ctrl + mouse wheel.
 					var zoom = zoomSym.value();
@@ -752,7 +752,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					if (zoom < 0.05) {
 						zoom = 0.05;
 					}
-					zoomSym.assign(zoom, Symbol.hciAgent, followMouse);
+					zoomSym.assign(zoom, root.scope, Symbol.hciAgent, followMouse);
 				}
 				root.endAutocalcOff();
 				return;
