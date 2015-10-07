@@ -39,7 +39,7 @@ SlideButton.prototype.draw = function(context) {
 	if (this.enabled == true) { dis = ""; }
 	else { disabledHTML = 'disabled="true"'; }
 
-	var can = $("#jspe-dialog-canvascontent");
+	var can = $("#jspe-canvascontent");
 	var buthtml = $('<input type="button" id="' + me + '" value="' + this.label + '" ' + disabledHTML + ' style="position: absolute; left: ' + this.x + 'px; top: ' + this.y + 'px;"/>').click(function() {
 		root.lookup(me2 + "_clicked").assign(true, root.scope, agent);
 	}).appendTo(can);
@@ -138,7 +138,7 @@ ${{
 }}$;
 
 proc clearSlides { ${{
-  $("#jspe-dialog-canvascontent > :not(canvas)").each(function() {
+  $("#jspe-canvascontent > :not(canvas)").each(function() {
 	if(/jspe_/.test(this.id)) {
 		this.togarbage = true;
 	}
@@ -147,7 +147,7 @@ proc clearSlides { ${{
 }}$; };
 
 proc cleanupSlides { ${{
-  $("#jspe-dialog-canvascontent > :not(canvas)").each(function() {
+  $("#jspe-canvascontent > :not(canvas)").each(function() {
 	if (this.togarbage == true) {
 		$(this).remove();
 	}
@@ -158,7 +158,7 @@ proc drawSlides : slides {
   clearSlides();
   ${{
   var slides = context.lookup('slides').value();
-  var jspe = $('#jspe-dialog-canvas').get(0).getContext('2d');
+  var jspe = $('#jspe-canvas').get(0).getContext('2d');
 
   if (slides === undefined) { return; }
 
@@ -196,7 +196,7 @@ buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 170, 4, buttonNe
 textIncrease is SlideButton("buttonTextIncrease", "Font++", jspeleft + 345, 4, true);
 textDecrease is SlideButton("buttonTextDecrease", "Font--", jspeleft + 278, 4, true);
 
-## buttonSave = SlideButton("buttonSave","Add Slide", int(${{ $('#jspe-dialog-canvas').position().left }}$) + 100, ${{ $('#jspe-dialog-canvas').height()+15 }}$, true);
+## buttonSave = SlideButton("buttonSave","Add Slide", int(${{ $('#jspe-canvas').position().left }}$) + 100, ${{ $('#jspe-canvas').height()+15 }}$, true);
 
 slides is [buttonPrev, slideNumberLabel, buttonNext, slideList[currentSlide], textIncrease, textDecrease];
 
