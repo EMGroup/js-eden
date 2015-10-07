@@ -121,7 +121,7 @@ proc createCanvas {
 		pictureSym.addJSObserver("switchPicture", function(sym, newObsName) {
 			edenUI.plugins.Canvas2D.setPictureObs(viewName, newObsName);			
 		});
-		pictureSym.assign(obsName, root.lookup("createCanvas"));
+		pictureSym.assign(obsName, root.lookup("createView"));
 	} }}$;
 
 	createView(viewName, "Canvas2D", obsName);
