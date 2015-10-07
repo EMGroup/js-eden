@@ -108,3 +108,8 @@ var Language = {
 	values: { "true":"true", "false":"false" },
 	errors: {}
 };
+
+// expose as node.js module
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+	exports.Language = Language;
+}

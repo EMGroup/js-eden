@@ -673,7 +673,7 @@ function concatAndResolveUrl(url, concat) {
 
 		var ast = new EdenAST(code);
 		if (ast.script.errors.length == 0) {
-			ast.script.execute(eden.root,eden.root.scope, ast);
+			ast.script.execute(this.root,this.root.scope, ast);
 		} else {
 			console.error(ast.script.errors[0].prettyPrint());
 		}

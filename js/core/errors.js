@@ -466,4 +466,9 @@ EdenError.prototype.prettyPrint = function() {
 	return errmsg;
 };
 
+// expose as node.js module
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+	exports.EdenError = EdenError;
+}
+
 

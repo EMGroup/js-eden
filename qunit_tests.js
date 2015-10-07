@@ -27,10 +27,10 @@ qunit.run([
 			'js/core/translator.js',
 			'js/language/lang.js',
 			'js/language/en.js',
-			'js/core/ast.js',
-			'js/core/translator2.js',
 			'js/core/lex.js',
-			'js/core/errors.js'
+			'js/core/ast.js',
+			'js/core/errors.js',
+			'js/core/translator2.js'
 		],
 		code: 'js/core/eden.js',
 		tests: 'js/test/test.js'

@@ -478,3 +478,9 @@ function edenTokenTest(code) {
 
 	return result;
 };
+
+// expose as node.js module
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+	exports.EdenStream = EdenStream;
+	exports.EdenSyntaxData = EdenSyntaxData;
+}

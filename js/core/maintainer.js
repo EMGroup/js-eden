@@ -135,7 +135,7 @@
 		} else {
 			//console.log(override.current);
 			currentval = override.current;
-			currentscope = eden.root.scope;
+			currentscope = this.parent;
 		}
 
 		if (this.cache[name] === undefined) {
@@ -154,7 +154,7 @@
 		} else {
 			this.cache[name].up_to_date = false;
 			this.cache[name].value = undefined;
-			this.cache[name].scope = eden.root.scope;
+			this.cache[name].scope = this.parent;
 		}
 		var sym = this.context.lookup(name.substr(1));
 		for (var d in sym.subscribers) {

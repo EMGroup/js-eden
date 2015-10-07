@@ -1630,3 +1630,42 @@ EdenAST_Script.prototype.generate = function(ctx) {
 	result = result + "}";
 	return result;
 }
+
+
+
+// expose as node.js module
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+	exports.EdenAST_Script = EdenAST_Script;
+	exports.EdenAST_Declarations = EdenAST_Declarations;
+	exports.EdenAST_CodeBlock = EdenAST_CodeBlock;
+	exports.EdenAST_Break = EdenAST_Break;
+	exports.EdenAST_Continue = EdenAST_Continue;
+	exports.EdenAST_Case = EdenAST_Case;
+	exports.EdenAST_Default = EdenAST_Default;
+	exports.EdenAST_For = EdenAST_For;
+	exports.EdenAST_While = EdenAST_While;
+	exports.EdenAST_Return = EdenAST_Return;
+	exports.EdenAST_Function = EdenAST_Function;
+	exports.EdenAST_Action = EdenAST_Action;
+	exports.EdenAST_FunctionCall = EdenAST_FunctionCall;
+	exports.EdenAST_Switch = EdenAST_Switch;
+	exports.EdenAST_If = EdenAST_If;
+	exports.EdenAST_Primary = EdenAST_Primary;
+	exports.EdenAST_Subscribers = EdenAST_Subscribers;
+	exports.EdenAST_Modify = EdenAST_Modify;
+	exports.EdenAST_Assignment = EdenAST_Assignment;
+	exports.EdenAST_Definition = EdenAST_Definition;
+	exports.EdenAST_Append = EdenAST_Append;
+	exports.EdenAST_Include = EdenAST_Include;
+	exports.EdenAST_Require = EdenAST_Require;
+	exports.EdenAST_LValueComponent = EdenAST_LValueComponent;
+	exports.EdenAST_LValue = EdenAST_LValue;
+	exports.EdenAST_Length = EdenAST_Length;
+	exports.EdenAST_BinaryOp = EdenAST_BinaryOp;
+	exports.EdenAST_TernaryOp = EdenAST_TernaryOp;
+	exports.EdenAST_UnaryOp = EdenAST_UnaryOp;
+	exports.EdenAST_ScopePath = EdenAST_ScopePath;
+	exports.EdenAST_Scope = EdenAST_Scope;
+	exports.EdenAST_Index = EdenAST_Index;
+	exports.EdenAST_Literal = EdenAST_Literal;
+}

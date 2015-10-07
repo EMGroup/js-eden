@@ -1981,3 +1981,8 @@ EdenAST.prototype.pSCRIPT = function() {
 	return ast;
 };
 
+// expose as node.js module
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+	exports.EdenAST = EdenAST;
+}
+
