@@ -25,6 +25,12 @@ qunit.run([
 			'js/core/runtime.js',
 			'js/core/polyglot.js',
 			'js/core/translator.js',
+			'js/language/lang.js',
+			'js/language/en.js',
+			'js/core/ast.js',
+			'js/core/translator2.js',
+			'js/core/lex.js',
+			'js/core/errors.js'
 		],
 		code: 'js/core/eden.js',
 		tests: 'js/test/test.js'

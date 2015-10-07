@@ -432,6 +432,14 @@ EdenAST_LValue.prototype.generate = function(ctx) {
 		}
 		return res;
 	}
+	if (ctx && ctx.params && ctx.params.list.indexOf(this.observable) != -1) {
+		this.islocal = true;
+		var res = this.observable;
+		for (var i=0; i<this.lvaluep.length; i++) {
+			res += this.lvaluep[i].generate(ctx, "scope");
+		}
+		return res;
+	}
 	return "context.lookup(\"" + this.observable + "\")";
 }
 
@@ -1131,6 +1139,9 @@ EdenAST_FunctionCall.prototype.generate = function(ctx, scope) {
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {
 				var express = this.params[i].generate(ctx, scope);
+				if (this.params[i].doesReturnBound && this.params[i].doesReturnBound()) {
+					express += ".value";
+				}
 				res += "("+express+")";
 				if (i != this.params.length-1) res += ",";
 			}
@@ -1518,7 +1529,7 @@ EdenAST_CodeBlock.prototype.generate = function(ctx) {
 		for (var i=0; i<this.params.list.length; i++) {
 			//res += "new ScopeOverride(\"" + this.params.list[i] + "\", arguments["+(i)+"])";
 			//if (i != this.params.list.length-1) res += ",";
-			res += "var " + this.params.list[i] + " = arguments["+i+"];\n";
+			res += "var " + this.params.list[i] + " = edenCopy(arguments["+i+"]);\n";
 		}
 	}
 	//res += "]);\n";
