@@ -116,15 +116,14 @@ proc createCanvas {
 	}
 
 	initPicture = ${{ function (viewName, obsName) {
-		edenUI.plugins.Canvas2D.setPictureObs(viewName, obsName);
 		pictureSym = root.lookup("_view_" + viewName + "_observable");
 		pictureSym.addJSObserver("switchPicture", function(sym, newObsName) {
-			edenUI.plugins.Canvas2D.setPictureObs(viewName, newObsName);			
+			edenUI.plugins.Canvas2D.setPictureObs(viewName, newObsName);
 		});
 		pictureSym.assign(obsName, root.lookup("createView"));
 	} }}$;
 
-	createView(viewName, "Canvas2D", obsName);
+	createView(viewName, "Canvas2D");
 	initPicture(viewName, obsName);	
 	`"_view_" // viewName // "_title"` = viewTitle;
 }
