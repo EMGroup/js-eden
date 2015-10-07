@@ -31,7 +31,7 @@ test("A symbol just assigned to is marked up to date", function () {
 	var A = root.lookup('A');
 
 	A.assign(10, root.scope);
-	equal(A.up_to_date, true);
+	equal(A.cache.up_to_date, true);
 });
 
 test("Assigning to a symbol sets the value", function (assert) {
@@ -50,7 +50,7 @@ test("Querying the value of a symbol which relies on a definition should mark it
 	B.define(function() { return A.value(); }).subscribe('A');
 	B.value();
 
-	equal(B.up_to_date, true);
+	equal(B.cache.up_to_date, true);
 });
 
 test("Defining an observable in terms of a constant causes it's value to be the constant", function (assert) {

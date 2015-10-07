@@ -1318,6 +1318,16 @@ EdenAST_While.prototype.setStatement = function(statement) {
 	}
 }
 
+EdenAST_While.prototype.generate = function(ctx) {
+	var res = "while (" + this.condition.generate(ctx,"scope");
+	if (this.condition.doesReturnBound && this.doesReturnBound()) {
+		res += ".value";
+	}
+	res += ") ";
+	res += this.statement.generate(ctx) + "\n";
+	return res;
+}
+
 
 
 //------------------------------------------------------------------------------
