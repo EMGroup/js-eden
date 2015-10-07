@@ -424,6 +424,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		edenUI.eden.root.lookup(pictureObs).addJSObserver("refreshView", function (symbol, value) {
 			me.drawPictures(pictureObs);
 		});
+		this.drawPicture(viewName, pictureObs);
 	};
 	
 	this.createDialog = function (name, mtitle, pictureObs) {

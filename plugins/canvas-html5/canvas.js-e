@@ -24,7 +24,7 @@ mouseWindow = @;
 mouseX is mousePosition == @? @ : mousePosition.x;
 mouseY is mousePosition == @? @ : mousePosition.y;
 mouseZone = @;
-px is 1 / _view_picture_scale;
+pixel is 1 / _view_picture_scale;
 touchPanX = 0;
 touchPanXSpeed = 0;
 touchPinch = 0;
@@ -117,7 +117,11 @@ proc createCanvas {
 
 	initPicture = ${{ function (viewName, obsName) {
 		edenUI.plugins.Canvas2D.setPictureObs(viewName, obsName);
-		edenUI.plugins.Canvas2D.drawPicture(viewName, obsName);
+		pictureSym = root.lookup("_view_" + viewName + "_observable");
+		pictureSym.addJSObserver("switchPicture", function(sym, newObsName) {
+			edenUI.plugins.Canvas2D.setPictureObs(viewName, newObsName);			
+		});
+		pictureSym.assign(obsName, root.lookup("createCanvas"));
 	} }}$;
 
 	createView(viewName, "Canvas2D", obsName);
