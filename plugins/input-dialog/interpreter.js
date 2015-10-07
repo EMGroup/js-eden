@@ -525,7 +525,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					} else if (curast.type == "assignment") {
 						var myval = curast.expression.execute(eden.root,undefined);
 						// TODO compare eden value string?
-						if (myval != value) {
+						if (!rt.equal(myval,value)) {
 							//addWarningLine(i+1, "This line says '"+name+"' = '" + myval + "', but somewhere else it changed to '"+value+"'. Please choose a resolution.");
 							commentOutLine(i+1);
 						}
