@@ -799,6 +799,7 @@
 			symbol = this.dynamicDependencies[d];
 			symbol.assertNotDependentOn(name, path);
 		}
+		path.pop();
 	};
 
 	/**

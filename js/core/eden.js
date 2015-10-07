@@ -356,6 +356,48 @@ function concatAndResolveUrl(url, concat) {
 		}		
 	}
 
+	/**Derives a regular expression from a string.  The string can be a simple search keyword or a
+	 * string containing a regular expression.  The following rules are applied to interpret the
+	 * string:
+	 * (1) If the search string is less than 4 characters long and doesn't contain any regular
+	 *     expression meta characters then the search matches against the beginning of the target string
+	 *     (i.e. there is an implied ^), otherwise the search keyword can be matched anywhere in the
+	 *     target.
+	 * (2) If the search string contains a capital letter then the search is case sensitive,
+	 *     otherwise it is case insensitive.
+	 */
+	EdenUI.regExpFromStr = function (str, flags, exactMatch) {
+		var regExpStr;
+		if (flags === undefined) {
+			flags = "";
+		}
+		if (!/[A-Z]/.test(str)) {
+			flags = flags + "i";
+		}
+		if (str.length < 4 && !/[\\^$*+?.()|{[]/.test(str)) {
+			regExpStr = "^(" + str + ")";
+			if (exactMatch) {
+				regExpStr = regExpStr + "$";
+			}
+			return new RegExp(regExpStr, flags);
+		} else {
+			try {
+				regExpStr = str;
+				if (exactMatch) {
+					regExpStr = "^(" + regExpStr + ")$";
+				}
+				return new RegExp(regExpStr, flags);
+			} catch (e) {
+				//User typed in a bad regexp.  Unmatched (, { or [.
+				var validPart = /^([^\\({[]*(\\.)?)*/.match(str)[0];
+				if (exactMatch) {
+					validPart = "^(" + validPart + ")";
+				}
+				return new RegExp(validPart, flags);
+			}
+		}
+	}
+
 	/**
 	 * @constructor
 	 * @struct
@@ -615,7 +657,13 @@ function concatAndResolveUrl(url, concat) {
 			});
 		});
 		promise.then(function () {
-			success && success.call(agent);
+			if (success !== undefined) {
+				try {
+					success.call(agent);
+				} catch (e) {
+					me.error(e);
+				}
+			}
 		});
 	};
 

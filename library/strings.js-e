@@ -345,7 +345,7 @@ func escapeRE {
 			return undefined;
 		}
 		
-		metaRE = /([\\^$*+?.()|{[\]])/g;
+		metaRE = /([\\^$*+?.()|{[])/g;
 		return str.replace(metaRE, "\\$1");
 	}}$;
 }

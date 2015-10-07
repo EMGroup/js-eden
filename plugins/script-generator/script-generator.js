@@ -167,7 +167,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 
 		var excludeRE;
 		if (excludeStr !== undefined && excludeStr != "") {
-			excludeRE = new RegExp(excludeStr);
+			excludeRE = EdenUI.regExpFromStr(excludeStr);
 		}
 
 		for (var name in root.symbols) {
@@ -279,7 +279,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 
 		} // end for each symbol
 		
-		if (root.lookup("randomSeed").value() !== undefined) {
+		if (root.lookup("randomSeed").value() !== undefined && (excludeRE === undefined || !excludeRE.test("randomIndex"))) {
 			assignments.push("randomIndex = " + root.lookup("randomIndex").value() + ";");
 		}
 		
@@ -329,9 +329,11 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			}
 		}
 		lines.push("");
-		lines.push(comments.picture);
-		lines.push(picture);
-		lines.push("");
+		if (excludeRE === undefined || !excludeRE.test("picture")) {
+			lines.push(comments.picture);
+			lines.push(picture);
+			lines.push("");
+		}
 		if (views.length > 0) {
 			lines.push(comments.views);
 			for (var i = 0; i < views.length; i++) {

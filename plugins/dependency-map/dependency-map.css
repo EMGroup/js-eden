@@ -1,5 +1,6 @@
-.dependency-map-content{
-	overflow:hidden;
-	width:100%;
-	height:100%;
+.dependency-map-controls {
+	position: absolute;
+	left: 10px;
+	top: 5px;
+	z-index: 1;
 }
