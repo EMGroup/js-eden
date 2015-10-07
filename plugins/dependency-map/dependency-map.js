@@ -2,7 +2,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 
 	var me = this;
 
-	this.createDialog = function(name,mtitle) {
+	this.createDialog = function(name, mtitle) {
 		var graph = undefined;
 		
 		//Create new Graph
@@ -12,45 +12,52 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 		graph.newNodes = [];
 		graph.newEdges = [];
 		
-		code_entry = $('<div id=\"'+name+'-content\" class=\"dependency-map-content\"></div>')
-			.append($('<canvas id="'+name+'-content-canvas" />').width("100%").height("100%").attr("height", 500).attr("width",500)).append($('<input style="position:absolute; width:400px; z-index:10; right:30px; top:5px;" id="'+name+'-content-regex"/>').on("input",function(){me.updateGraph(this.value, graph)})).on("mouseover",function(){me.updateGraph(this.children[1].value, graph)});
+		var content = $('<div id="' + name + '" style="overflow: hidden"></div>');
 
-		$dialog = $('<div id="'+name+'"></div>')
-			.html(code_entry)
-			.dialog(
-				{
-					title: mtitle,
-					width: 600,
-					height: 450,
-					minHeight: 120,
-					minWidth: 230
+		var canvas = $('<canvas></canvas>')
+			.springy({
+				graph: graph,
+				nodeSelected: function (node) {
+					//console.log(node);
 				}
-			)
-			
-		jQuery(
-			function(){
-				ab = jQuery("#"+name+"-content-canvas").springy({
-					graph: graph,
-					nodeSelected: function(node){
-						me.nodeClicked(node);
-					}
-				});
-			}
-		);
+			});
+		content.append(canvas);
+
+		var controls = $('<div class="dependency-map-controls"></div>');
+		content.append(controls);
+		var searchBox = $('<input type="text" placeholder="search"/>');
+		var searchBoxElem = searchBox.get(0);
+		var exactMatches = $('<input type="checkbox" checked="checked"/>');
+		var exactMatchesElem = exactMatches.get(0);
+		controls.append(searchBox);
+		controls.append($('<label>Exact matches only </label>').append(exactMatches));
+		
+		function update() {
+			me.updateGraph(graph, searchBoxElem.value, exactMatchesElem.checked);
+		}
+
+		searchBox.on("input", update);
+		exactMatches.on("change", update);
+		content.on("mouseenter", update);
+
+		content.dialog({
+			title: mtitle,
+			width: 600,
+			height: 450,
+			minHeight: 120,
+			minWidth: 230,
+			dialogClass: "upadded-dialog"
+		});
 	}
 		
-	this.nodeClicked = function(node){
-		//console.log(node);
-	}
-	
-	this.updateGraph = function(regex, graph){
-		//Make a regex
-		
-	try{	
-		var re = graph.re = new RegExp("^("+regex+")$");
-	}catch(syntaxError){
-		return;
-	}	
+	this.updateGraph = function(graph, regex, exactMatch){
+		var re;
+		if (regex == "") {
+			re = /^$/;
+		} else {
+			re = EdenUI.regExpFromStr(regex, "", exactMatch);
+		}
+		graph.re = re;
 		graph.newNodes = [];
 		graph.newEdges = [];
 		for(var i in root.symbols){
@@ -58,7 +65,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 			var nodeSym = root.symbols[i];
 			var nodename = nodeSym.name.slice(1);
 			
-			if(re.test(nodename)){
+			if(re.test(nodename)) {
 				//Get the nodes which are now in the graph
 				
 				//If its not in the graph and it passed the regex
@@ -71,7 +78,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 				}
 				//Inward nodes
 				var depArray = nodeSym.dependencies;
-				for(var ii in depArray){
+				for (var ii in depArray) {
 					var nodename2 = depArray[ii].name.slice(1);
 
 					if((graph.newNodes).indexOf(nodename2)==-1){
@@ -81,7 +88,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 				}
 
 				depArray = nodeSym.dynamicDependencies;
-				for(var ii in depArray){
+				for (var ii in depArray) {
 					var nodename2 = depArray[ii].name.slice(1);
 
 					if((graph.newNodes).indexOf(nodename2)==-1){
@@ -91,7 +98,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 				}
 
 				depArray = nodeSym.observees;
-				for(var ii in depArray){
+				for (var ii in depArray) {
 					var nodename2 = depArray[ii].name.slice(1);
 
 					if((graph.newNodes).indexOf(nodename2)==-1){
@@ -103,7 +110,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 				
 				//outward nodes
 				var subArray = nodeSym.subscribers;
-				for(var ii in subArray){
+				for (var ii in subArray) {
 					var subscriber = subArray[ii];
 					var nodename2 = subscriber.name.slice(1);
 					
@@ -114,7 +121,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 					graph.newEdges.push([nodename,nodename2, dashed]);
 				}
 				subArray = nodeSym.observers;
-				for(var ii in subArray){
+				for (var ii in subArray) {
 					var nodename2 = subArray[ii].name.slice(1);
 					
 					if((graph.newNodes).indexOf(nodename2)==-1){

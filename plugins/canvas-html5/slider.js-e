@@ -194,7 +194,7 @@ Slider.prototype.scale = function (scale, zoom, origin) {
 	var width = Math.round(this.length * scale);
 	style.width = width + "px";
 	if (this.step === undefined) {
-		element.step = String((element.max - element.min) / (width  - 1)).slice(0, 18);
+		element.step = String((element.max - element.min) / (width  - 1)).slice(0, 16);
 	}
 };
 

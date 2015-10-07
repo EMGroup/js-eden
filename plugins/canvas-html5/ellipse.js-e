@@ -39,6 +39,9 @@ func Ellipse { ${{
 	if (fillcolour === undefined && outlinecolour === undefined) {
 		outlinecolour = "black";
 	}
+	if (fillcolour === undefined && outlinecolour === undefined) {
+		outlinecolour = "black";
+	}
 	if (drawingOptions !== undefined && eden.isValidIdentifier(drawingOptions.name)) {
 		var clickSym = root.lookup(drawingOptions.name + "_click");
 		if (clickSym.value() === undefined) {
