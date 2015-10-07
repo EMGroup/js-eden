@@ -28,9 +28,9 @@ function EdenAST(code) {
 	this.next();
 
 	// Start parse with SCRIPT production
-	//console.time("MakeEdenAST");
+	console.time("MakeEdenAST");
 	this.script = this.pSCRIPT();
-	//console.timeEnd("MakeEdenAST");
+	console.timeEnd("MakeEdenAST");
 }
 
 
@@ -39,9 +39,13 @@ EdenAST.prototype.generate = function() {
 }
 
 EdenAST.prototype.execute = function(root) {
-	var gen = this.script.generate();
-	console.log("Execute: " + gen);
-	eval(gen)(root);
+	//var gen = this.script.generate();
+	//console.log("Execute: " + gen);
+	//eval(gen)(root);
+
+	console.time("EdenASTToJS");
+	this.script.execute(root, undefined, this);
+	console.timeEnd("EdenASTToJS");
 }
 
 

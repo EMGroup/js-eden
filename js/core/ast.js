@@ -164,6 +164,8 @@ EdenAST_Index.prototype.generate = function(ctx, scope) {
 	return "[("+ix+")-1]";
 }
 
+EdenAST_Index.prototype.error = fnEdenAST_error;
+
 
 //------------------------------------------------------------------------------
 
@@ -207,6 +209,8 @@ EdenAST_ScopePath.prototype.generate = function(ctx, scope) {
 	this.scopestr = "_scopes[" + (ctx.scopes.length-1) + "]";
 	return this.primary.generate(ctx, "_scopes["+(ctx.scopes.length-1)+"]");
 }
+
+EdenAST_ScopePath.prototype.error = fnEdenAST_error;
 
 
 
@@ -279,12 +283,6 @@ EdenAST_TernaryOp.prototype.generate = function(ctx, scope) {
 
 	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
 		cond += ".value";
-	}
-	if (this.first.doesReturnBound && this.first.doesReturnBound()) {
-		first += ".value";
-	}
-	if (this.second.doesReturnBound && this.second.doesReturnBound()) {
-		second += ".value";
 	}
 
 	return "("+cond+")?("+first+"):("+second+")";
@@ -503,6 +501,8 @@ EdenAST_Require.prototype.setSource = function(start, end) {
 	this.end = end;
 }
 
+EdenAST_Require.prototype.error = fnEdenAST_error;
+
 
 
 //------------------------------------------------------------------------------
@@ -534,6 +534,8 @@ EdenAST_Include.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
+
+EdenAST_Include.prototype.error = fnEdenAST_error;
 
 
 //------------------------------------------------------------------------------

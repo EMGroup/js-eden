@@ -15,8 +15,10 @@ sum is _sum with i = 1;
 
 round is ${{ Math.round(context.lookup("number").value(scope)) }}$;
 
-prototype_Colour is ["colour",r,g,b,a];
-Colour is prototype_Colour with
+null is true;
+
+##prototype_Colour is ["colour",r,g,b,a];
+Colour is null with
 	r = r if r else 0,
 	g = g if g else 0,
 	b = b if b else 0,
@@ -25,13 +27,13 @@ Colour is prototype_Colour with
 black is Colour with r=0,g=0,b=0;
 white is Colour with r=255,g=255,b=255;
 
-prototype_Point is [x,y];
-point is prototype_Point with
-	x = x if x else 0,
-	y = y if y else 0;
+##prototype_Point is [x,y];
+point is null with
+	x = x if x != @ else 0,
+	y = y if y != @ else 0;
 
-prototype_Line is ["line", start,end,colour,width];
-line is prototype_Line with
+##prototype_Line is ["line", start,end,colour,width];
+line is null with
 	start = start if start else point,
 	end = end if end else point,
 	color = colour if colour else black;
@@ -43,8 +45,11 @@ translate is __translate with
 	tx = tx if tx else 0,
 	ty = ty if ty else 0;
 
-__rotate is [((p[1]-o[1])*cos(theta)-(p[2]-o[2])*sin(theta))+o[1], ((p[1]-o[1])*sin(theta)-(p[2]-o[2])*cos(theta))+o[2]];
-rotate is __rotate with p = p if p else point, o = o if o else [0,0];
+##__rotate is [((p[1]-o[1])*cos(theta)-(p[2]-o[2])*sin(theta))+o[1], ((p[1]-o[1])*sin(theta)-(p[2]-o[2])*cos(theta))+o[2]];
+__rotate is point with
+	x = ((p.x-o.x)*cos(theta) - (p.y-o.y)*sin(theta)) + o.x,
+	y = ((p.x-o.x)*sin(theta) - (p.y-o.y)*cos(theta)) + o.y;
+rotate is __rotate with p = p if p != @ else point, o = o if o != @ else point;
 
 __scale is [p[1]*scalex,p[2]*scaley];
 scale is __scale with

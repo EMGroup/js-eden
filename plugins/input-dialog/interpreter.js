@@ -812,6 +812,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		$dialogContents.on('input', '.hidden-textarea', function (e) {
+			console.log(e);
 			inputchanged = true;
 
 			// Typing status, error messages and result value are delayed
@@ -1059,7 +1060,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	};*/
 
 	this.submit = function (statement, base) {
+		console.time("EdenASTToJS");
 		statement.execute(eden.root,undefined, base);
+		console.timeEnd("EdenASTToJS");
 	};
 
 	this.getRidOfInstructions = function () {
