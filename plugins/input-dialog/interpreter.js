@@ -360,7 +360,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var dragstart = 0;
 		var dragvalue = 0;
 		var draglast = 0;
-		var dragline = 0;
+		var dragline = -1;
 		var typingtimer;
 		var amtyping = false;
 		var typinginterval = 2000;
@@ -519,17 +519,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					if (curast.type == "definition") {
 						// Compare eden definitions
 						if (symbol.eden_definition != highlighter.ast.getSource(curast)) {
-							addWarningLine(i+1, "Definition has been changed elsewhere.");
+							//addWarningLine(i+1, "Definition has been changed elsewhere.");
+							commentOutLine(i+1);
 						}
 					} else if (curast.type == "assignment") {
 						var myval = curast.expression.execute(eden.root,undefined);
 						// TODO compare eden value string?
 						if (myval != value) {
-							addWarningLine(i+1, "This line says '"+name+"' = '" + myval + "', but somewhere else it changed to '"+value+"'. Please choose a resolution.");
+							//addWarningLine(i+1, "This line says '"+name+"' = '" + myval + "', but somewhere else it changed to '"+value+"'. Please choose a resolution.");
+							commentOutLine(i+1);
 						}
 					}
 					count++;
 				}
+			}
+			if (count > 0) {
+				updateEntireHighlight();
 			}
 		}
 
@@ -631,6 +636,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			for (var i=0; i<newlines.length; i++) {
 				lines.splice(lineno, 0, newlines[i]);
 			}
+			intextarea.value = lines.join("\n");
+		}
+
+		function commentOutLine(lineno) {
+			var lines = intextarea.value.split("\n");
+			lines[lineno-1] = "##" + lines[lineno-1];
 			intextarea.value = lines.join("\n");
 		}
 
@@ -808,7 +819,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			clearTimeout(typingtimer);
 			if (amtyping == false) {
 				hideInfoBox();
-				outputbox.innerHTML = "<div class='loader'></div>";
+				//outputbox.innerHTML = "<div class='loader'></div>";
 				amtyping = true;
 			}
 			typingtimer = setTimeout(doneTyping, typinginterval);

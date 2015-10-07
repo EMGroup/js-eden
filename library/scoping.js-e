@@ -44,7 +44,7 @@ translate is __translate with
 	ty = ty if ty else 0;
 
 __rotate is [((p[1]-o[1])*cos(theta)-(p[2]-o[2])*sin(theta))+o[1], ((p[1]-o[1])*sin(theta)-(p[2]-o[2])*cos(theta))+o[2]];
-rotate is __rotate with p = p if p else point;
+rotate is __rotate with p = p if p else point, o = o if o else [0,0];
 
 __scale is [p[1]*scalex,p[2]*scaley];
 scale is __scale with

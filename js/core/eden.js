@@ -681,6 +681,9 @@ function concatAndResolveUrl(url, concat) {
 		//this.polyglot.execute(code, origin, prefix, agent, success);
 	};
 
+
+	//Eden.prototype.execute = Eden.prototype.execute2;
+
 	/**
 	 * @param {string} includePath
 	 * @param {string?} prefix Prefix used for relative includes.

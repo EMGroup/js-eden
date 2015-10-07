@@ -347,6 +347,7 @@ EdenAST.prototype.pEXPRESSION_PPPPP = function() {
  *  boolean |
  *  character
  *  JAVASCRIPT |
+ *	$ NUMBER |
  *	[ ELIST ] |
  *	& LVALUE |
  *	! PRIMARY |
@@ -362,6 +363,9 @@ EdenAST.prototype.pFACTOR = function() {
 			this.next();
 		}
 		return expression;
+	} else if (this.token == "$") {
+		this.next();
+		// TODO $ parameters
 	} else if (this.token == "[") {
 		this.next();
 
