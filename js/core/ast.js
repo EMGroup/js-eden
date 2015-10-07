@@ -387,6 +387,7 @@ function EdenAST_LValue(observable, lvaluep) {
 	this.errors = [];
 	this.observable = observable;
 	this.lvaluep = lvaluep;
+	this.islocal = false;
 
 	for (var i = 0; i < lvaluep.length; i++) {
 		this.errors.push.apply(this.errors, lvaluep[i].errors);
@@ -423,6 +424,14 @@ EdenAST_LValue.prototype.executeCompList = function(ctx) {
 }
 
 EdenAST_LValue.prototype.generate = function(ctx) {
+	if (ctx && ctx.locals && ctx.locals.list.indexOf(this.observable) != -1) {
+		this.islocal = true;
+		var res = this.observable;
+		for (var i=0; i<this.lvaluep.length; i++) {
+			res += this.lvaluep[i].generate(ctx, "scope");
+		}
+		return res;
+	}
 	return "context.lookup(\"" + this.observable + "\")";
 }
 
@@ -624,7 +633,10 @@ EdenAST_Definition.prototype.generateDef = function(ctx) {
 EdenAST_Definition.prototype.generate = function(ctx) {
 	var result = this.lvalue.generate(ctx);
 
-	if (this.lvalue.hasListIndices()) {
+	if (this.lvalue.islocal) {
+		// TODO Report error, this is invalid;
+		return "";
+	} else if (this.lvalue.hasListIndices()) {
 		var clist = this.lvalue.generateCompList(this);
 		result += ".addExtension("+this.lvalue.generateIdStr()+", function(context, scope, value) {\n\tvalue";
 		result += clist + " = ";
@@ -712,9 +724,17 @@ EdenAST_Assignment.prototype.left = function(lvalue) {
 EdenAST_Assignment.prototype.generate = function(ctx) {
 	var result = this.lvalue.generate(ctx);
 
-	if (this.lvalue.hasListIndices()) {
+	if (this.lvalue.islocal) {
+		result += " = ";
+		result += this.expression.generate(ctx, "scope");
+		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+			result += ".value";
+		}
+		result += ";\n";
+		return result;
+	} else if (this.lvalue.hasListIndices()) {
 		result += ".listAssign(";
-		result += this.expression.generate(this, "scope");
+		result += this.expression.generate(ctx, "scope");
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			result += ".value";
 		}
@@ -724,7 +744,7 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 		return result;
 	} else {
 		result += ".assign(\n\t";
-		result += this.expression.generate(this, "scope");
+		result += this.expression.generate(ctx, "scope");
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			result += ".value";
 		}
@@ -735,7 +755,7 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 
 EdenAST_Assignment.prototype.execute = function(root, ctx) {
 	var rhs = "(function(context,scope) { return ";
-	rhs += this.expression.generate(this, "scope");
+	rhs += this.expression.generate(ctx, "scope");
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 		rhs += ".value";
 	}
@@ -896,6 +916,28 @@ EdenAST_Primary.prototype.prepend = function(extra) {
 };
 
 EdenAST_Primary.prototype.generate = function(ctx, scope) {
+	// Check if this primary is a local variable.
+	if (ctx && ctx.locals && ctx.locals.list.indexOf(this.observable) != -1) {
+		this.returnsbound = false;
+		var res = this.observable;
+		for (var i=0; i<this.extras.length; i++) {
+			res += this.extras[i].generate(ctx, scope);
+		}
+		return res;
+	}
+	// Check if this primary is a parameter.
+	if (ctx && ctx.params) {
+		var ix = ctx.params.list.indexOf(this.observable);
+		if (ix != -1) {
+			this.returnsbound = false;
+			var res = this.observable;
+			for (var i=0; i<this.extras.length; i++) {
+				res += this.extras[i].generate(ctx, scope);
+			}
+			return res;
+		}
+	}
+
 	var res = "context.lookup(";
 
 	if (this.observable == "__BACKTICKS__") {
@@ -1460,25 +1502,27 @@ EdenAST_CodeBlock.prototype.setScript = function(script) {
 }
 
 EdenAST_CodeBlock.prototype.generate = function(ctx) {
-	var res = "(function(context, pscope) {\n";
-	res += "var lscope = new Scope(context,pscope,[";
+	var res = "(function(context, scope) {\n";
+	//res += "var lscope = new Scope(context,pscope,[";
 	if (this.locals && this.locals.list) {
 		for (var i=0; i<this.locals.list.length; i++) {
-			res += "new ScopeOverride(\"" + this.locals.list[i] + "\", undefined)";
-			if (i != this.locals.list.length-1) res += ",";
+			//res += "new ScopeOverride(\"" + this.locals.list[i] + "\", undefined)";
+			//if (i != this.locals.list.length-1) res += ",";
+			res += "var " + this.locals.list[i] + ";\n";
 		}
 	}
-	res += "]);\n";
+	//res += "]);\n";
 	res += "return (function() {\n";
-	res += "var scope = new Scope(context,lscope,[";
+	//res += "var scope = new Scope(context,lscope,[";
 	if (this.params && this.params.list) {
 		for (var i=0; i<this.params.list.length; i++) {
-			res += "new ScopeOverride(\"" + this.params.list[i] + "\", arguments["+(i)+"])";
-			if (i != this.params.list.length-1) res += ",";
+			//res += "new ScopeOverride(\"" + this.params.list[i] + "\", arguments["+(i)+"])";
+			//if (i != this.params.list.length-1) res += ",";
+			res += "var " + this.params.list[i] + " = arguments["+i+"];\n";
 		}
 	}
-	res += "]);\n";
-	res += this.script.generate(ctx) + "}); })";
+	//res += "]);\n";
+	res += this.script.generate(this) + "}); })";
 	return res;
 }
 
