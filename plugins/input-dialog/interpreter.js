@@ -396,7 +396,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 
 			highlightContent(ast, lineno, pos);
-			rebuildNotifications();
+			//rebuildNotifications();
 		}
 
 		function updateLineCachedHighlight() {
@@ -418,7 +418,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 
 			highlightContent(ast, -1, pos);
-			rebuildNotifications();
+			//rebuildNotifications();
 		}
 
 		function checkUndefined(dependencies) {
