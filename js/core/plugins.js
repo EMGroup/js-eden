@@ -60,10 +60,8 @@
 	 *
 	 * @param {string} name Unique identifier for the view.
 	 * @param {string} type Used to group different types of views.
-	 * @param {*} initData Data passed to the plug-in's createDialog function and ascribed meaning
-	 * by the particular plug-in. (optional)
 	 */
-	EdenUI.prototype.createView = function (name, type, initData) {
+	EdenUI.prototype.createView = function (name, type, creatingAgent) {
 		if (!(type in this.views)) {
 			this.eden.error(new Error("View type " + type + " is unavailable.  Check that the associated plug-in is loaded."));
 			return;
@@ -72,18 +70,26 @@
 			// Single instance view type (e.g. error log)
 			name = this.views[type].name;
 		}
-		
-		if (this.activeDialogs[name] !== undefined) {
+
+		var currentType = this.activeDialogs[name];
+		var titleSym = view(name, "title");
+		var title = titleSym.value();
+		if (currentType == type) {
 			this.showView(name);
 			this.brieflyHighlightView(name);
 			return this.viewInstances[name];
+		} else if (currentType !== undefined) {
+			if (title == this.views[currentType].title) {
+				title = undefined;
+			}
+			this.destroyView(name, false);
 		}
 
 		var me = this;
 		var agent = root.lookup("createView");
 		var desktopTop = this.plugins.MenuBar? this.menuBarHeight : 0;
-		var title = this.views[type].title;
-		var viewData = this.views[type].dialog(name + "-dialog", title, initData);
+		var defaultTitle = this.views[type].title;
+		var viewData = this.views[type].dialog(name + "-dialog", defaultTitle);
 		if (viewData === undefined) {
 			viewData = {};
 		}
@@ -179,17 +185,35 @@
 		 *   _view_b_x = _view_a_x + _view_a_width;
 		 * will position the windows with a slight overlap, though no information will be hidden.
 		 */
-		view(name, 'width').assign(diag.dialog("option", "width") - this.scrollBarSize, agent);
-		view(name, 'height').assign(diag.dialog("option", "height") - this.titleBarHeight, agent);
+		var typeSym = view(name, 'type');
+		typeSym.removeJSObserver("changeType");
+		typeSym.assign(type, creatingAgent);
+		typeSym.addJSObserver("changeType", function (sym, newType) {
+			me.createView(name, newType);
+		});
+ 
+		widthSym = view(name, 'width');
+		if (widthSym.value() === undefined) {
+			widthSym.assign(diag.dialog("option", "width") - this.scrollBarSize, agent);
+		}
+		var heightSym = view(name, 'height');
+		if (heightSym.value() === undefined) {
+			heightSym.assign(diag.dialog("option", "height") - this.titleBarHeight, agent);
+		}
 		var topLeft = diag.closest('.ui-dialog').offset();
-		view(name, 'x').assign(topLeft.left, agent);
-		view(name, 'y').assign(topLeft.top - desktopTop, agent);
+		var xSym = view(name, 'x');
+		if (xSym.value() === undefined) {
+			xSym.assign(topLeft.left, agent);
+		}
+		var ySym = view(name, 'y');
+		if (ySym === undefined) {
+			ySym.assign(topLeft.top - desktopTop, agent);
+		}
 
 		/* Plug-ins can append status information to their title bar.  Only use if there is genuinely
 		 * no space to put the information inside the window (e.g. canvas) or an established precedent for
 		 * putting such information into the title bar (e.g. if other views also acquire a zoom facility).
 		 */
-		var titleSym = view(name, "title");
 		var theTitleBarInfo = viewData.titleBarInfo;
 		delete viewData.titleBarInfo;
 		Object.defineProperty(viewData, "titleBarInfo", {
@@ -205,7 +229,7 @@
 			enumerable: true
 		});
 		//Set the title bar text and allow the construal to change it later.
-		titleSym.addJSObserver("updateTitleBar", function (symbol, value) {
+		function updateTitleBar(symbol, value) {
 			var title = value;
 			if (viewData.titleBarInfo !== undefined) {
 				title = title + " (" + viewData.titleBarInfo + ")";
@@ -214,8 +238,13 @@
 			if (me.plugins.MenuBar) {
 				me.plugins.MenuBar.updateViewsMenu();
 			}
-		});
-		titleSym.assign(title, agent);
+		}
+		titleSym.addJSObserver("updateTitleBar", updateTitleBar);
+		if (title === undefined) {
+			titleSym.assign(defaultTitle, agent);
+		} else {
+			updateTitleBar(titleSym, title);
+		}
 
 		//Allow mouse drags that position the dialog partially outside of the browser window but not over the menu bar.
 		diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, desktopTop, Number.MAX_VALUE, Number.MAX_VALUE]);
@@ -350,7 +379,7 @@
 				1, //Suggest hiding the window as the default option.
 				function (optNum) {
 					if (optNum == 0) {
-						me.destroyView(name);
+						me.destroyView(name, true);
 					} else if (optNum == 1) {
 						if (me.plugins.MenuBar) {
 							me.hideView(name);
@@ -362,21 +391,23 @@
 			);
 			return false;
 		} else {
-			this.destroyView(name);
+			this.destroyView(name, true);
 			return true;
 		}
 	}
 
-	EdenUI.prototype.destroyView = function (name) {
-		if (!(name in this.viewInstances)) {
-			//View already closed or never existed.
+	EdenUI.prototype.destroyView = function (name, forgetObservables) {
+		if (!(name in this.viewInstances) || this.viewInstances[name].closing) {
+			//View already closed, never existed or already closing.
 			return;
 		}
 		this.viewInstances[name].closing = true;
-		root.lookup("forgetAll").definition(root)("^_[vV]iew_" + name + "_", true, false, true);
 		if (this.viewInstances[name].destroy) {
 			//Call clean-up handler.
 			this.viewInstances[name].destroy();
+		}
+		if (forgetObservables) {
+			root.lookup("forgetAll").definition(root)("^_[vV]iew_" + name + "_", true, false, true);
 		}
 		var theDialog = dialog(name);
 		theDialog.dialog('destroy');
@@ -682,7 +713,7 @@
 
 	EdenUI.prototype.newProject = function () {
 		this.eden.reset();
-		this.destroyView("jspe");
+		this.destroyView("jspe", true);
 		if ("Canvas2D" in this.plugins) {
 			this.eden.executeEden('createCanvas("picture");', "new project", "", Symbol.hciAgent, noop);
 		}

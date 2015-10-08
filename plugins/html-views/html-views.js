@@ -38,7 +38,7 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 	}
 
 	//Register the HTML view options
-	edenUI.views["HTMLContent"] = {dialog: this.createDialog, title: "HTML Content", category: edenUI.viewCategories.visualization};
+	edenUI.views["HTMLContent"] = {dialog: this.createDialog, title: "HTML Content", category: edenUI.viewCategories.visualization, holdsContent: true};
 
 	//Load the Eden wrapper functions
 	edenUI.eden.include("plugins/html-views/html.js-e", success);

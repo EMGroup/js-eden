@@ -10,7 +10,7 @@ include("compatibility/scifest2015.js-e");
 include_css("compatibility/construit.c5.css");
 
 destroyView("picture");
-createCanvas("default", "picture", "Canvas 2D");
+createCanvas("default", "picture", "Canvas Picture");
 
 proc CanvasHTML5_DrawPicture {
 	${{

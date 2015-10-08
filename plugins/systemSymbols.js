@@ -71,6 +71,7 @@ Eden.systemAgentNames = {
 	"createHTMLView": true,
 	"createProjectList": true,
 	"createView": true,
+	"createViews": true,
 	"destroyView": true,
 	"eager": true,
 	"error": true,
@@ -402,7 +403,7 @@ Eden.isitSystemSymbol = function(name){
 }
 
 Eden.isitSystemObservable = function(name) {
-	if (/^_view_/.test(name) && !/_(background_colour|observable|offset|scale)$/.test(name)) {
+	if (/^_view_.*_(x|y|width|height|title|type|zoom)/.test(name)) {
 	  return true;
 	}
 	return name in Eden.systemObservableNames;

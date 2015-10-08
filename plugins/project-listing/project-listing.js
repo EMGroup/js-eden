@@ -240,11 +240,8 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 	}
 
-	this.createDialog = function(name, mtitle, url) {
-		if (url === undefined) {
-			url = defaultURL;
-		}
-
+	this.createDialog = function(name, mtitle) {
+		var viewName = name.slice(0, -7);
 		var instance = new ProjectListProjects();
 
 		var content = $('<div class="projectlist-listing"></div>');
@@ -270,10 +267,17 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 			minWidth: 230,
 			dialogClass: "unpadded-dialog"
 		});
-
 		instance.element = content.get(0);
-		instance.loadProjectData(url, true);
-		return {data: instance};
+
+		var sourceSym = edenUI.eden.root.lookup("_view_" + viewName + "_source");
+		if (sourceSym.value() == undefined) {
+			sourceSym.assign(defaultURL, edenUI.eden.root.lookup("createView"));
+		}
+		function reload(sym, url) {
+			instance.loadProjectData(url, true);		
+		}
+		sourceSym.addJSObserver("reload", reload);
+		reload(sourceSym, sourceSym.value());
 	};
 
 	//Add views supported by this plugin.

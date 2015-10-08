@@ -10,7 +10,7 @@ body {
 	width: 400%;
 	min-height: 100%;
 	/* Internet Explorer*/
-	scrollbar-face-color: rgba(255, 255, 255, 0.1);
+	scrollbar-face-color: rgba(255, 255, 255, 0.2);
 	scrollbar-track-color: transparent;
 }
 
@@ -20,7 +20,7 @@ body::-webkit-scrollbar {
 }
 
 body::-webkit-scrollbar-thumb {
-	background-color: rgba(255, 255, 255, 0.1);
+	background-color: rgba(255, 255, 255, 0.2);
 }
 
 input[type=checkbox] {

@@ -146,6 +146,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 	 */
 	this.generateScriptLines = function (excludeStr, includeViews, viewToExclude) {
 
+		var viewObsPrefixToExclude = new RegExp("^_view_" + viewToExclude + "_");
 		var definitions = [];
 		var assignments = [];
 		var procedures = [];
@@ -196,12 +197,22 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			  continue;
 			}
 			if (/^_view_/.test(name)) {
-				isView = true;
-				if ((!includeViews || name.search("^_view_" + viewToExclude) != -1) &&
-					isSystemObs && symbol.definition === undefined)
-				{
+				if (viewObsPrefixToExclude.test(name)) {
+					//Exclude the script generator view
 					continue;
 				}
+				if (!includeViews) {
+					if (/_type$/.test(name)) {
+						if (!edenUI.views[symbol.cached_value].hasContent) {
+							//Exclude views that are not part of the construal, e.g. symbol lists.
+							continue;
+						}
+					} else if (isSystemObs && symbol.eden_definition === undefined) {
+						//Exclude positioning information (unless defined by dependency)
+						continue;
+					}
+				}
+				isView = true;
 			}
 
 			/* Deal with symbols that are set implicitly when the construal is loaded from file.
@@ -339,6 +350,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			for (var i = 0; i < views.length; i++) {
 				lines.push(views[i]);
 			}
+			lines.push("createViews();");
 			lines.push("");
 		}
 		lines.push(comments.autocalcOn);

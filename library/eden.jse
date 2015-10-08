@@ -125,12 +125,14 @@ func forgetAll {
 		var obsToDelete = undefined;
 		var includeAgent = {name: "/include"};
 		
-		if (arguments.length == 0 || arguments.length > 4) {
-			eden.error(new Error("forgetAll: This function requires at least 1 argument and at most 3 arguments."), "error");
+		if (arguments.length > 4) {
+			eden.error(new Error("forgetAll: This function requires at most 3 arguments."), "error");
 			return [[], undefined, []];
 		}
-		
-		if (typeof(arguments[0]) == "string") {
+
+		if (arguments.length == 0) {
+			searchStr = "";
+		} else if (typeof(arguments[0]) == "string") {
 			searchStr = arguments[0];
 		} else if (Array.isArray(arguments[0])) {
 			obsToDelete = arguments[0];
@@ -491,12 +493,12 @@ include("library/generate_function.js-e");
 
 initialViews = ${{getParameterByName("views") }}$;
 if (initialViews == "" || initialViews == "default") {
-	createView("projects", "ProjectList");
+	createProjectList();
 	_view_projects_x = 0;
 	_view_projects_y = 0;
 	_view_projects_width = 210;
 	_view_projects_height = screenHeight;
-	createCanvas("picture", "Canvas Picture");
+	createCanvas("picture");
 	_view_picture_x = _view_projects_width + _views_frame_width;
 	_view_picture_y = 0;
 	if (${{ "logo" in edenUI.branding }}$) {
