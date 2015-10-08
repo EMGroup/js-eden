@@ -368,6 +368,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var highlighter = new EdenHighlight(outdiv);
 		var autoexec = power;
 		var inputchanged = false;
+		var refreshentire = false;
 
 		function preloadScript(sym, value) {
 			var res = "";
@@ -678,7 +679,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 			}
 
-			$(outdiv).on('mouseup', '.eden-extendedline', function(e) {
+			/*$(outdiv).on('mouseup', '.eden-extendedline', function(e) {
 				if (e.offsetX < 0) {
 					var lineno = currentlineno+1;
 					var filters = [];
@@ -692,7 +693,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						insertLines(lineno+1, filters);
 					}
 				}
-			});
+			});*/
 
 			/* Number dragging code, but only if live */
 			if (autoexec) {
@@ -812,7 +813,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		$dialogContents.on('input', '.hidden-textarea', function (e) {
-			console.log(e);
+			//console.log(e);
 			inputchanged = true;
 
 			// Typing status, error messages and result value are delayed
@@ -827,7 +828,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			// Regenerate the AST and highlight the code.
 			var scrollpos = $codearea.get(0).scrollTop;
-			updateLineHighlight();
+			if (refreshentire) {
+				updateEntireHighlight();
+				refreshentire = false;
+			} else {
+				updateLineHighlight();
+			}
 			$codearea.scrollTop(scrollpos);
 
 
@@ -922,6 +928,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					var scrollpos = $codearea.get(0).scrollTop;
 					updateLineCachedHighlight();
 					$codearea.scrollTop(scrollpos);
+				} else if (e.keyCode == 13 || (e.keyCode == 8 && intextarea.value.charCodeAt(intextarea.selectionStart-1) == 10)) {
+					refreshentire = true;
 				}
 
 			} else if (e.ctrlKey) {
@@ -936,8 +944,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					powerOff();
 				} else if (e.keyCode === 65) {
 					// Ctrl+A to select all.
-					selectAll();
 					outdiv.focus();
+					selectAll();
 				}
 			}
 		}).on('keyup', '.hidden-textarea', function(e) {

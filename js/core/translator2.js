@@ -109,7 +109,7 @@ EdenAST.prototype.next = function() {
 		// Skip block comments
 		if (this.token == "/*") {
 			var count = 0;
-			while (this.token != "*/" || count > 0) {
+			while (this.stream.valid() && (this.token != "*/" || count > 0)) {
 				this.token = this.stream.readToken();
 				if (this.token == "/*") {
 					count++;
@@ -370,6 +370,8 @@ EdenAST.prototype.pFACTOR = function() {
 	} else if (this.token == "$") {
 		this.next();
 		// TODO $ parameters
+		console.error("$ parameters deprecated");
+		return new EdenAST_Literal("ERROR", undefined);
 	} else if (this.token == "[") {
 		this.next();
 
