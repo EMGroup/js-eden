@@ -309,6 +309,7 @@ div.outputcontent {
 	white-space: pre;
 	/*overflow: auto;*/
 	/*background: white;*/
+	transform: translateZ(0);
 }
 
 div.input-dialog {

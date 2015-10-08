@@ -345,7 +345,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createCommon = function (name, mtitle, code, power, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div><div class="buttonsDiv"><button class="observe-input">&#xf0c9;</button><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div><div class="buttonsDiv"><button class="observe-input">&#xf0c9;</button><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button></div><div class="outputbox"></div></div></div>')
 		var text = "";	
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
@@ -944,8 +944,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					powerOff();
 				} else if (e.keyCode === 65) {
 					// Ctrl+A to select all.
-					outdiv.focus();
+					e.preventDefault();
 					selectAll();
+					outdiv.focus();
 				}
 			}
 		}).on('keyup', '.hidden-textarea', function(e) {
