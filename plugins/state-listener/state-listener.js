@@ -90,7 +90,7 @@ EdenUI.plugins.StateListener = function(edenUI, success){
 					randomSeed = randomSeedSym.value();
 					
 					if (randomSeed === undefined) {
-						randomSeedSym.assign((new Date()).getTime(), undefined, true);
+						randomSeedSym.assign((new Date()).getTime(), eden.root.scope, undefined, true);
 					} else {
 						pushSymbol("randomSeed");
 					}

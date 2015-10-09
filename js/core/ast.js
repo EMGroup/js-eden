@@ -62,6 +62,7 @@ EdenAST_Literal.prototype.execute = function(root, ctx) {
 						rhs += this.generate(ctx, "scope");
 						rhs += ";})";
 						return eval(rhs)(root,root.scope);
+	case "JAVASCRIPT"	: return eval(this.value);
 	}
 }
 
