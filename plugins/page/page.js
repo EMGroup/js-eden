@@ -134,6 +134,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 
 	function generateCanvas(content) {
 		var box = content[6];
+		var width = content[3];
+		var height = content[4];
 
 		var container; // = $("<div class='page-canvas'></div>");
 
@@ -151,6 +153,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			//canvasdestroy.push(embedded.destroy);
 		} else {
 			canvases[content[1]].code_entry.appendTo(container);
+			canvastodo.push(function() { canvases[content[1]].resize(content[3],content[4]); });
 		}
 
 		if (content[5] != "none") {
