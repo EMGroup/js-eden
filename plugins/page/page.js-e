@@ -36,12 +36,13 @@ Script is prototype_Script with
 	float = float if float else "none",
 	width = width if width else "50%";
 
-prototype_Canvas is ["canvas", name,source,width,height,float];
+prototype_Canvas is ["canvas", name,source,width,height,float,box];
 Canvas is prototype_Canvas with
 	name = name if name else "Picture",
 	source = source if source else "picture",
 	width = width if width else 500,
 	height = height if height else 200,
+	box = box if box != @ else false,
 	float = float if float else "none";
 
 prototype_Break is ["break"];

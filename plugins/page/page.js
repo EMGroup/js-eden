@@ -133,7 +133,16 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	}
 
 	function generateCanvas(content) {
-		var container = $("<div class='page-canvas'></div>");
+		var box = content[6];
+
+		var container; // = $("<div class='page-canvas'></div>");
+
+		if (box) {
+			container = $("<div class='page-canvas page-script-live-box'></div>");
+		} else {
+			container = $("<div class='page-canvas'></div>");
+		}
+
 		if (canvases[content[1]] === undefined) {
 			var embedded = edenUI.views["Canvas2D"].embedded(content[1],content[1],content[2]);
 			canvases[content[1]] = embedded;
