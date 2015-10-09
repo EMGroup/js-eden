@@ -794,7 +794,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var sel = window.getSelection();
 			range.setStart(el, 0);
 			var lineno = findElementLineNumber(el);
-			var ele = outdiv.childNodes[lineno].firstChild.lastChild;
+			var ele = outdiv.childNodes[lineno];
+			while (ele.lastChild) ele = ele.lastChild;
 			range.setEnd(ele, ele.textContent.length);
 			range.collapse(true);
 			sel.removeAllRanges();
@@ -806,7 +807,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var range = document.createRange();
 			var sel = window.getSelection();
 			var lineno = findElementLineNumber(el);
-			var ele = outdiv.childNodes[lineno].firstChild.firstChild.firstChild;
+			var ele = outdiv.childNodes[lineno];
+			while (ele.firstChild) ele = ele.firstChild;
 			console.log(ele);
 			range.setEnd(ele, 0);
 			range.setStart(el, 0);

@@ -828,28 +828,43 @@ EdenAST_Modify.prototype.left = function(lvalue) {
 
 EdenAST_Modify.prototype.generate = function(ctx) {
 	var lval = this.lvalue.generate(ctx);
-	var result = lval + ".assign(\n\t";
+	var result = lval;
+
+	if (this.lvalue.islocal == false) result += ".assign(\n\t";
+	else result += " = ";
 
 	// TODO Convert to rt
 	if (this.kind == "+=") {
-		result += lval + ".value(scope) + ";
-		result += this.expression.generate(ctx);
+		result += lval;
+		if (this.lvalue.islocal == false) result += ".value(scope)";
+		result += " + " + this.expression.generate(ctx);
 	} else if (this.kind == "-=") {
-		result += lval + ".value(scope) - ";
-		result += this.expression.generate(ctx);
+		result += lval;
+		if (this.lvalue.islocal == false) result += ".value(scope)";
+		result += " - " + this.expression.generate(ctx);
 	} else if (this.kind == "/=") {
-		result += lval + ".value(scope) / ";
-		result += this.expression.generate(ctx);
+		result += lval;
+		if (this.lvalue.islocal == false) result += ".value(scope)";
+		result += " / " + this.expression.generate(ctx);
 	} else if (this.kind == "*=") {
-		result += lval + ".value(scope) * ";
-		result += this.expression.generate(ctx);
+		result += lval;
+		if (this.lvalue.islocal == false) result += ".value(scope)";
+		result += " * " + this.expression.generate(ctx);
 	} else if (this.kind == "++") {
-		result += lval + ".value(scope)+1";
+		result += lval;
+		if (this.lvalue.islocal == false) result += ".value(scope)";
+		result += "+1";
 	} else if (this.kind == "--") {
-		result += lval + ".value(scope)-1";
+		result += lval;
+		if (this.lvalue.islocal == false) result += ".value(scope)";
+		result += "-1";
 	}
 
-	result = result + ", scope);\n"
+	if (this.lvalue.islocal == false) {
+		result = result + ", scope);\n";
+	} else {
+		result += ";\n";
+	}
 	return result;
 };
 
