@@ -16,4 +16,4 @@ before_script:
 - node jseden-dev-server &
 script:
 - npm test
-- ./node_modules/.bin/mocha selenium-tests/test.js
+#- ./node_modules/.bin/mocha selenium-tests/test.js
