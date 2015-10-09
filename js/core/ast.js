@@ -829,7 +829,7 @@ EdenAST_Definition.prototype.execute = function(root, ctx, base) {
 			deps.push(d);
 		}
 		sym.eden_definition = base.getSource(this);
-		sym.define(eval(rhs), undefined, deps);
+		sym.define(eval(rhs), {name: "execute"}, deps);
 	}
 		
 }
@@ -880,7 +880,7 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			result += ".value";
 		}
-		result += ", scope, undefined, false, ";
+		result += ", scope, this, false, ";
 		result += this.lvalue.generateCompList(ctx);
 		result += ");\n";
 		return result;
@@ -890,7 +890,7 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			result += ".value";
 		}
-		result += ", scope);\n"
+		result += ", scope, this);\n"
 		return result;
 	}
 };
@@ -904,9 +904,9 @@ EdenAST_Assignment.prototype.execute = function(root, ctx) {
 	rhs += ";})";
 
 	if (this.lvalue.hasListIndices()) {
-		root.lookup(this.lvalue.observable).listAssign(eval(rhs)(root,root.scope), root.scope, undefined, false, this.lvalue.executeCompList());
+		root.lookup(this.lvalue.observable).listAssign(eval(rhs)(root,root.scope), root.scope, {name: "execute"}, false, this.lvalue.executeCompList());
 	} else {
-		root.lookup(this.lvalue.observable).assign(eval(rhs)(root,root.scope),root.scope);
+		root.lookup(this.lvalue.observable).assign(eval(rhs)(root,root.scope),root.scope, {name: "execute"});
 	}
 };
 
@@ -1338,7 +1338,7 @@ EdenAST_Action.prototype.setBody = function(body) {
 
 EdenAST_Action.prototype.generate = function(ctx) {
 	var body = this.body.generate(ctx);
-	var res = "context.lookup(\""+this.name+"\").define("+body+", {name: \"Script\"})";
+	var res = "context.lookup(\""+this.name+"\").define("+body+", {name: \"execute\"})";
 	if (this.triggers.length > 0) {
 		res += ".observe("+JSON.stringify(this.triggers)+");\n";
 	}
@@ -1350,9 +1350,9 @@ EdenAST_Action.prototype.execute = function(root, ctx, base) {
 	var sym = root.lookup(this.name);
 	sym.eden_definition = base.getSource(this);
 	if (this.triggers.length > 0) {
-		sym.define(eval(body), {name: "Script"}, []).observe(this.triggers);
+		sym.define(eval(body), {name: "execute"}, []).observe(this.triggers);
 	} else {
-		sym.define(eval(body), {name: "Script"}, []);
+		sym.define(eval(body), {name: "execute"}, []);
 	}
 }
 
@@ -1384,7 +1384,7 @@ EdenAST_Function.prototype.setBody = function(body) {
 
 EdenAST_Function.prototype.generate = function(ctx) {
 	var body = this.body.generate(ctx);
-	var res = "context.lookup(\""+this.name+"\").define("+body+", {name: \"Script\"}, []);\n";
+	var res = "context.lookup(\""+this.name+"\").define("+body+", {name: \"execute\"}, []);\n";
 	return res;
 }
 
@@ -1392,7 +1392,7 @@ EdenAST_Function.prototype.execute = function(root,ctx,base) {
 	var body = this.body.generate(ctx);
 	var sym = root.lookup(this.name);
 	sym.eden_definition = base.getSource(this);	
-	sym.define(eval(body), {name: "Script"},[]);
+	sym.define(eval(body), {name: "execute"},[]);
 }
 
 EdenAST_Function.prototype.error = fnEdenAST_error;
@@ -1475,6 +1475,63 @@ EdenAST_While.prototype.generate = function(ctx) {
 	res += ") ";
 	res += this.statement.generate(ctx) + "\n";
 	return res;
+}
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_Do() {
+	this.type = "do";
+	this.parent = undefined;
+	this.errors = [];
+	this.condition = undefined;
+	this.statement = undefined;
+	this.start = 0;
+	this.end = 0;
+};
+
+EdenAST_Do.prototype.error = fnEdenAST_error;
+
+EdenAST_Do.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+EdenAST_Do.prototype.setCondition = function(condition) {
+	this.condition = condition;
+	this.errors.push.apply(this.errors, condition.errors);
+}
+
+EdenAST_Do.prototype.setStatement = function(statement) {
+	this.statement = statement;
+	if (statement) {
+		this.errors.push.apply(this.errors, statement.errors);
+	}
+}
+
+EdenAST_Do.prototype.generate = function(ctx) {
+	var res = "do\n";
+	res += this.statement.generate(ctx) + "\n";
+	res += "while (" + this.condition.generate(ctx,"scope");
+	if (this.condition.doesReturnBound && this.doesReturnBound()) {
+		res += ".value";
+	}
+	res += ");";
+	return res;
+}
+
+
+EdenAST_Do.prototype.execute = function(root,ctx,base) {
+	var express = this.condition.generate(ctx, "scope");
+	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
+		express += ".value";
+	}
+	var expfunc = eval("(function(context,scope){ return " + express + "; })");
+
+	do {
+		this.statement.execute(root,ctx,base);
+	} while (expfunc(root,root.scope));
 }
 
 

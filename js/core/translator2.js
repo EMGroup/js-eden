@@ -1341,6 +1341,52 @@ EdenAST.prototype.pWHILE = function() {
 
 
 /**
+ * Do Production
+ * DO -> STATEMENT while ( EXPRESSION );
+ */
+EdenAST.prototype.pDO = function() {
+	var w = new EdenAST_Do();
+	var parent = this.parent;
+	this.parent = w;
+
+	w.setStatement(this.pSTATEMENT());
+
+	if (w.statement === undefined) {
+		w.error(new EdenError(this, EDEN_ERROR_WHILENOSTATEMENT));
+		return w;
+	}
+
+	if (this.token != "while") {
+		w.error(new EdenError(this, EDEN_ERROR_WHILEOFDO));
+		return w;
+	} else {
+		this.next();
+	}
+
+	if (this.token != "(") {
+		w.error(new EdenError(this, EDEN_ERROR_WHILEOPEN));
+		return w;
+	} else {
+		this.next();
+	}
+
+	w.setCondition(this.pEXPRESSION());
+	if (w.errors.length > 0) return w;
+
+	if (this.token != ")") {
+		w.error(new EdenError(this, EDEN_ERROR_WHILECLOSE));
+		return w;
+	} else {
+		this.next();
+	}
+
+	this.parent = parent;
+	return w;
+}
+
+
+
+/**
  * SWITCH Production
  * SWITCH -> ( EXPRESSION ) STATEMENT
  */
@@ -1844,6 +1890,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 	//case "when"		:	this.next(); stat = this.pWHEN(); break;
 	case "for"		:	this.next(); stat = this.pFOR(); break;
 	case "while"	:	this.next(); stat = this.pWHILE(); break;
+	case "do"		:	this.next(); stat = this.pDO(); break;
 	case "switch"	:	this.next(); stat = this.pSWITCH(); break;
 	case "case"		:	this.next(); stat = this.pCASE(); break;
 	case "insert"	:	this.next(); stat = this.pINSERT(); break;

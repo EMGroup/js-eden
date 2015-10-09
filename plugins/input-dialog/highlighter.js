@@ -217,7 +217,7 @@ EdenHighlight.prototype.highlightLine = function(ast, position) {
 			tokentext = tokentext.replace(">","&gt;");
 		}
 
-		line += "<span class='"+classes+"' title=\""+title+"\">" + tokentext + "</span>";
+		line += "<span class='"+classes+"'>" + tokentext + "</span>";
 	}
 	return line;
 }

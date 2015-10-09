@@ -9,6 +9,7 @@ STATEMENT	->
 	func FUNCTION |
 	for FOR |
 	while WHILE |
+	do DO |
 	switch SWITCH |
 	case CASE |
 	default : |
@@ -46,6 +47,7 @@ SHIFT		-> LVALUE ;
 SWITCH		-> ( EXPRESSION ) STATEMENT
 CASE 		-> string : | number : | character :
 
+DO			-> STATEMENT while EXPRESSION;
 FOR			-> ( STATEMENT'_OPT ; EXPRESSION_OPT ; STATEMENT'_OPT ) STATEMENT
 WHILE		-> ( EOPT ) STATEMENT 
 SOPT		-> STATEMENT' | epsilon

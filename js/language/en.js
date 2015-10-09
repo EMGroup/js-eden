@@ -229,6 +229,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_PROPERTYNAME */ [
 	"Invalid property name"
+],
+/* EDEN_ERROR_WHILEOFDO */ [
+	"Missing 'while' after 'do' statement(s)"
 ]
 ];
 
