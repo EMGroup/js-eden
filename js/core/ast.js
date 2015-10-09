@@ -1860,6 +1860,7 @@ if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 	exports.EdenAST_Default = EdenAST_Default;
 	exports.EdenAST_For = EdenAST_For;
 	exports.EdenAST_While = EdenAST_While;
+	exports.EdenAST_Do = EdenAST_Do;
 	exports.EdenAST_Return = EdenAST_Return;
 	exports.EdenAST_Function = EdenAST_Function;
 	exports.EdenAST_Action = EdenAST_Action;
@@ -1872,6 +1873,8 @@ if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 	exports.EdenAST_Assignment = EdenAST_Assignment;
 	exports.EdenAST_Definition = EdenAST_Definition;
 	exports.EdenAST_Append = EdenAST_Append;
+	exports.EdenAST_Insert = EdenAST_Insert;
+	exports.EdenAST_Delete = EdenAST_Delete;
 	exports.EdenAST_Include = EdenAST_Include;
 	exports.EdenAST_Require = EdenAST_Require;
 	exports.EdenAST_LValueComponent = EdenAST_LValueComponent;
