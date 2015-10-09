@@ -113,10 +113,8 @@ EdenAST.prototype.next = function() {
 				this.token = this.stream.readToken();
 				if (this.token == "/*") {
 					count++;
-					this.token = this.stream.readToken();
 				} else if (this.token == "*/") {
 					count--;
-					this.token = this.stream.readToken();
 				}
 			}
 			this.token = this.stream.readToken();
