@@ -806,9 +806,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var range = document.createRange();
 			var sel = window.getSelection();
 			var lineno = findElementLineNumber(el);
-			var ele = outdiv.childNodes[lineno].firstChild;
-			range.setStart(ele, 0);
-			range.setEnd(el, 0);
+			var ele = outdiv.childNodes[lineno].firstChild.firstChild.firstChild;
+			console.log(ele);
+			range.setEnd(ele, 0);
+			range.setStart(el, 0);
 			range.collapse(true);
 			sel.removeAllRanges();
 			sel.addRange(range);
