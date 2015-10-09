@@ -546,7 +546,7 @@ EdenAST_Include.prototype.generate = function(ctx) {
 }
 
 EdenAST_Include.prototype.execute = function(root, ctx, base) {
-	eden.include2(this.expression.execute(root, ctx));
+	root.base.include2(this.expression.execute(root, ctx));
 }
 
 EdenAST_Include.prototype.setSource = function(start, end) {

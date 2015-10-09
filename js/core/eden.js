@@ -394,6 +394,7 @@ function concatAndResolveUrl(url, concat) {
 	 */
 	function Eden(root) {
 		this.root = root;
+		root.base = this;
 
 		/**
 		 * @type {number}

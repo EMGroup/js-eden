@@ -538,7 +538,7 @@ test("include defers execution", function () {
 
 	stop();
 	try {
-		eden.execute2('include("https://test.com/test.js"); x = 2;');
+		eden.execute('include("https://test.com/test.js"); x = 2;');
 	} catch (e) {
 		eden.include = include;
 		throw e;

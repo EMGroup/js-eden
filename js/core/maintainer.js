@@ -237,6 +237,8 @@
 		 */
 		this.parent = parent || this;
 
+		this.base = undefined;
+
 		/**
 		 * @type {Folder}
 		 * @private
