@@ -601,6 +601,119 @@ EdenAST_Append.prototype.error = fnEdenAST_error;
 
 //------------------------------------------------------------------------------
 
+function EdenAST_Insert() {
+	this.type = "insert";
+	this.destination = undefined;
+	this.index = undefined;
+	this.value = undefined;
+	this.errors = [];
+	this.start = 0;
+	this.end = 0;
+}
+
+EdenAST_Insert.prototype.setDest = function(dest) {
+	this.destination = dest;
+	if (dest.errors.length > 0) {
+		this.errors.push.apply(this.errors, dest.errors);
+	}
+}
+
+EdenAST_Insert.prototype.setIndex = function(index) {
+	this.index = index;
+	if (index.errors.length > 0) {
+		this.errors.push.apply(this.errors, index.errors);
+	}
+}
+
+EdenAST_Insert.prototype.setValue = function(value) {
+	this.value = value;
+	if (value.errors.length > 0) {
+		this.errors.push.apply(this.errors, value.errors);
+	}
+}
+
+EdenAST_Insert.prototype.generate = function(ctx) {
+	var ix = this.index.generate(ctx, "scope");
+	if (this.index.doesReturnBound && this.index.doesReturnBound()) {
+		ix += ".value";
+	}
+	var val = this.value.generate(ctx, "scope");
+	if (this.value.doesReturnBound && this.value.doesReturnBound()) {
+		val += ".value";
+	}
+	var lvalue = this.destination.generate(ctx);
+	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.splice(("+ix+")-1, 0, ("+val+")); }, this);";
+}
+
+EdenAST_Insert.prototype.execute = function(root, ctx, base) {
+	var ix = this.index.execute(root,ctx,base);
+	var val = this.value.execute(root,ctx,base);
+	root.lookup(this.destination.observable).mutate(root.scope, function(s) {
+		root.scope.lookup(s.name).value.splice(ix-1, 0, val);
+	}, undefined);
+}
+
+EdenAST_Insert.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+EdenAST_Insert.prototype.error = fnEdenAST_error;
+
+
+
+
+//------------------------------------------------------------------------------
+
+function EdenAST_Delete() {
+	this.type = "delete";
+	this.destination = undefined;
+	this.index = undefined;
+	this.errors = [];
+	this.start = 0;
+	this.end = 0;
+}
+
+EdenAST_Delete.prototype.setDest = function(dest) {
+	this.destination = dest;
+	if (dest.errors.length > 0) {
+		this.errors.push.apply(this.errors, dest.errors);
+	}
+}
+
+EdenAST_Delete.prototype.setIndex = function(index) {
+	this.index = index;
+	if (index.errors.length > 0) {
+		this.errors.push.apply(this.errors, index.errors);
+	}
+}
+
+EdenAST_Delete.prototype.generate = function(ctx) {
+	var ix = this.index.generate(ctx, "scope");
+	if (this.index.doesReturnBound && this.index.doesReturnBound()) {
+		ix += ".value";
+	}
+	var lvalue = this.destination.generate(ctx);
+	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.splice(("+ix+")-1, 1); }, this);";
+}
+
+EdenAST_Delete.prototype.execute = function(root, ctx, base) {
+	var ix = this.index.execute(root,ctx,base);
+	root.lookup(this.destination.observable).mutate(root.scope, function(s) {
+		root.scope.lookup(s.name).value.splice(ix-1, 1);
+	}, undefined);
+}
+
+EdenAST_Delete.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+EdenAST_Delete.prototype.error = fnEdenAST_error;
+
+
+//------------------------------------------------------------------------------
+
 function EdenAST_Definition(expression) {
 	this.type = "definition";
 	this.parent = undefined;

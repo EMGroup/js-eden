@@ -783,6 +783,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var range = document.createRange();
 			var sel = window.getSelection();
 			range.setStart(el, 0);
+			range.setEnd(el, 0);
 			range.collapse(true);
 			sel.removeAllRanges();
 			sel.addRange(range);
@@ -809,7 +810,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var lineno = findElementLineNumber(el);
 			var ele = outdiv.childNodes[lineno];
 			while (ele.firstChild) ele = ele.firstChild;
-			console.log(ele);
 			range.setEnd(ele, 0);
 			range.setStart(el, 0);
 			range.collapse(true);
@@ -1030,10 +1030,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				//$(intextarea).focus();
 			} else {
 				// Move caret to clicked location
+				intextarea.focus();
 				intextarea.selectionEnd = end;
 				intextarea.selectionStart = end;
-				var scrollpos = $codearea.get(0).scrollTop;
-				intextarea.focus();		
+				var scrollpos = $codearea.get(0).scrollTop;		
 				updateEntireHighlight();
 				$codearea.scrollTop(scrollpos);
 			}
