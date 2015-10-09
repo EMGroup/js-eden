@@ -788,6 +788,32 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			sel.addRange(range);
 		}
 
+		function selectToEOL() {
+			var el = $(outdiv).find(".fake-caret").get(0);
+			var range = document.createRange();
+			var sel = window.getSelection();
+			range.setStart(el, 0);
+			var lineno = findElementLineNumber(el);
+			var ele = outdiv.childNodes[lineno].firstChild.lastChild;
+			range.setEnd(ele, ele.textContent.length);
+			range.collapse(true);
+			sel.removeAllRanges();
+			sel.addRange(range);
+		}
+
+		function selectToBOL() {
+			var el = $(outdiv).find(".fake-caret").get(0);
+			var range = document.createRange();
+			var sel = window.getSelection();
+			var lineno = findElementLineNumber(el);
+			var ele = outdiv.childNodes[lineno].firstChild;
+			range.setStart(ele, 0);
+			range.setEnd(el, 0);
+			range.collapse(true);
+			sel.removeAllRanges();
+			sel.addRange(range);
+		}
+
 		function selectAll() {
 			var range = document.createRange();
 			range.selectNodeContents(outdiv);
@@ -918,11 +944,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					intextarea.selectionStart =
 					intextarea.selectionEnd = start + 1;
 					updateLineHighlight();
-				} else if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
+				} else if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 36 || e.keyCode == 35) {
 					// Shift arrow selection, move to editable div.
 					if (e.shiftKey) {
-						setCaretToFakeCaret();
 						outdiv.focus();
+						if (e.keyCode == 35) {
+							selectToEOL();
+						} else if (e.keyCode == 36) {
+							selectToBOL();
+						} else {
+							setCaretToFakeCaret();
+						}
 						return;
 					}
 					var scrollpos = $codearea.get(0).scrollTop;
@@ -945,8 +977,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				} else if (e.keyCode === 65) {
 					// Ctrl+A to select all.
 					e.preventDefault();
-					selectAll();
 					outdiv.focus();
+					selectAll();
 				}
 			}
 		}).on('keyup', '.hidden-textarea', function(e) {
@@ -981,7 +1013,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 			}
 		}).on('blur', '.hidden-textarea', function(e) {
-			$(outdiv).find(".fake-caret").remove();
+			$(outdiv).find(".fake-caret").addClass("fake-blur-caret");
+		}).on('focus', '.hidden-textarea', function(e) {
+			$(outdiv).find(".fake-caret").removeClass("fake-blur-caret");
 		}).on('mouseup', '.outputcontent', function(e) {
 			var end = getCaretCharacterOffsetWithin(outdiv);
 			var start = getStartCaretCharacterOffsetWithin(outdiv);

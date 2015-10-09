@@ -226,6 +226,9 @@ EdenAST_UnaryOp.prototype.error = fnEdenAST_error;
 
 EdenAST_UnaryOp.prototype.generate = function(ctx, scope) {
 	var r = this.r.generate(ctx, scope);
+	if (this.r.doesReturnBound && this.r.doesReturnBound()) {
+		r += ".value";
+	}
 	if (this.op == "!") {
 		return "!("+r+")";
 	} else if (this.op == "&") {

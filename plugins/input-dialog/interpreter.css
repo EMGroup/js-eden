@@ -16,6 +16,7 @@
 	background-color: white;
 	overflow: auto;
 	-webkit-font-smoothing: antialiased;
+	-webkit-transform: translate3d(0,0,0);
 }
 
 @font-face {
@@ -46,6 +47,10 @@ span.fake-caret {
 	animation-duration: 1s;
 	animation-iteration-count: infinite;
 	transform: translateZ(0);*/
+}
+
+span.fake-blur-caret {
+	background: #ccc;
 }
 
 div.outputbox {
@@ -309,7 +314,6 @@ div.outputcontent {
 	white-space: pre;
 	/*overflow: auto;*/
 	/*background: white;*/
-	transform: translateZ(0);
 }
 
 div.input-dialog {
