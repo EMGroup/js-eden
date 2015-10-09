@@ -166,7 +166,7 @@ EdenHighlight.prototype.highlightLine = function(ast, position) {
 			while (stream.valid() && stream.peek() != 10) {
 				comment += String.fromCharCode(stream.get());
 			}
-			tokentext = "##" + comment.replace(">","&gt;").replace("<","&lt;");
+			tokentext = "##" + comment; //.replace(">","&gt;").replace("<","&lt;");
 		} else if (token == "local" || token == "auto" || token == "para") {
 			classes += "eden-storage";
 		} else if (type == "keyword") {
@@ -175,14 +175,8 @@ EdenHighlight.prototype.highlightLine = function(ast, position) {
 			classes += "eden-number";
 		} else if (token == "STRING") {
 			classes += "eden-string";
-			tokentext = tokentext.replace("&","&amp;");
-			tokentext = tokentext.replace("<","&lt;");
-			tokentext = tokentext.replace(">","&gt;");
 		} else if (token == "CHARACTER") {
 			classes += "eden-string";
-			tokentext = tokentext.replace("&","&amp;");
-			tokentext = tokentext.replace("<","&lt;");
-			tokentext = tokentext.replace(">","&gt;");
 		} else if (token == "BOOLEAN") {
 			classes += "eden-constant";	
 		} else if (token == "OBSERVABLE") {
@@ -199,18 +193,28 @@ EdenHighlight.prototype.highlightLine = function(ast, position) {
 			}
 		} else if (token == "JAVASCRIPT") {
 			classes += "eden-javascript";
-			tokentext = tokentext.replace("<","&lt;");
-			tokentext = tokentext.replace(">","&gt;");
 		} else {
 			classes += "eden-operator";
-			tokentext = tokentext.replace("<","&lt;");
-			tokentext = tokentext.replace(">","&gt;");
 		}
 
 		// Insert caret if needed
 		if (stream.prevposition < position && stream.position > position) {
 			var caret = position - stream.prevposition;
-			tokentext = tokentext.slice(0,caret) + "<span class='fake-caret'></span>" + tokentext.slice(caret);
+			var textleft = tokentext.slice(0,caret);
+			var textright = tokentext.slice(caret);
+
+			textleft = textleft.replace("&","&amp;");
+			textleft = textleft.replace("<","&lt;");
+			textleft = textleft.replace(">","&gt;");
+			textright = textright.replace("&","&amp;");
+			textright = textright.replace("<","&lt;");
+			textright = textright.replace(">","&gt;");
+
+			tokentext = textleft + "<span class='fake-caret'></span>" + textright;
+		} else {
+			tokentext = tokentext.replace("&","&amp;");
+			tokentext = tokentext.replace("<","&lt;");
+			tokentext = tokentext.replace(">","&gt;");
 		}
 
 		line += "<span class='"+classes+"' title=\""+title+"\">" + tokentext + "</span>";

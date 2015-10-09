@@ -991,6 +991,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				var scrollpos = $codearea.get(0).scrollTop;
 				updateLineCachedHighlight();
 				$codearea.scrollTop(scrollpos);
+			} else if (e.ctrlKey && e.keyCode == 86) {
+				// Paste needs to update content
+				updateEntireHighlight();
 			}
 		}).on('keydown', '.outputcontent', function(e) {
 			if (e.ctrlKey) {

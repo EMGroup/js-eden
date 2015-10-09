@@ -247,6 +247,7 @@ function EdenAST_TernaryOp(op) {
 	this.first = undefined;
 	this.second = undefined;
 	this.condition = undefined;
+	this.returnsbound = true;
 }
 EdenAST_TernaryOp.prototype.error = fnEdenAST_error;
 
@@ -279,6 +280,10 @@ EdenAST_TernaryOp.prototype.left = function(pleft) {
 	}
 };
 
+EdenAST_TernaryOp.prototype.doesReturnBound = function() {
+	return this.returnsbound;
+}
+
 EdenAST_TernaryOp.prototype.generate = function(ctx, scope) {
 	var cond = this.condition.generate(ctx, scope);
 	var first = this.first.generate(ctx, scope);
@@ -288,7 +293,18 @@ EdenAST_TernaryOp.prototype.generate = function(ctx, scope) {
 		cond += ".value";
 	}
 
-	return "("+cond+")?("+first+"):("+second+")";
+	if (this.first.doesReturnBound && this.second.doesReturnBound && this.first.doesReturnBound() && this.second.doesReturnBound()) {
+		return "("+cond+")?("+first+"):("+second+")";
+	} else {
+		if (this.first.doesReturnBound && this.first.doesReturnBound()) {
+			first += ".value";
+		}
+		if (this.second.doesReturnBound && this.second.doesReturnBound()) {
+			second += ".value";
+		}
+		this.returnsbound = false;
+		return "("+cond+")?("+first+"):("+second+")";
+	}
 }
 
 EdenAST_TernaryOp.prototype.execute = function(root, ctx) {
