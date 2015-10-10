@@ -1,14 +1,9 @@
-##class is [name,members];
-##__object_single_member is `class[2][i]`;
-##object is [class] // __object_single_member with i=1..class[2]#;
-##member is this[indexOf(name,this[1][2])+1];
-membersof is ${{ Eden.membersOf(context.lookup("object").value(scope)) }}$;
-typeof is ${{ Eden.typeOf(context.lookup("object").value(scope)) }}$;
-prototypeof is ${{ Eden.prototypeOf(context.lookup("object").value(scope)) }}$;
-##classof is this[1];
+typeof is ${{ scope.primaryCause() }}$;
+from is ${{ scope.hasCause(context.lookup("name").value(scope)) }}$;
+has is ${{ scope.hasOverride(context.lookup("name").value(scope)) }}$;
 
-_override_item is value if i == index else list[i];
-override is _override_item with i = 1 .. list#;
+##_override_item is value if i == index else list[i];
+##override is _override_item with i = 1 .. list#;
 
 _sum is (list[i] + _sum with (i = i + 1)) if i <= list# else 0;
 sum is _sum with i = 1;
@@ -55,4 +50,9 @@ __scale is [p[1]*scalex,p[2]*scaley];
 scale is __scale with
 	scalex = scalex if scalex else 0,
 	scaley = scaley if scaley else 0;
+
+## View Scopes
+
+Leaf is content if content else ["## New Leaf"];
+ScriptView is createView(name, "ScriptInput", code) if name else @;
 

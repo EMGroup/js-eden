@@ -1048,21 +1048,39 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			updateEntireHighlight();
 		}
 
-		return $dialogContents;
+		var viewdata = {
+			contents: $dialogContents,
+			update: function(data) {
+				console.log("View Update:");
+				console.log(data);
+				if (data instanceof Symbol) {
+					inputchanged = true;	// To make sure it goes into history.
+					intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(data.value());
+					updateEntireHighlight();
+				} else if (data instanceof Array) {
+					inputchanged = true;	// To make sure it goes into history.
+					intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(data);
+					updateEntireHighlight();
+				}
+			},
+			setValue: function (value) { intextarea.value = value; }
+		}
+
+		return viewdata;
 	};
 
 	this.createDialog = function(name, mtitle, code) {
 		var simpleName = name.slice(0, -7);
-		$dialogContents = me.createCommon(simpleName, mtitle, code, false, false);
+		var viewdata = me.createCommon(simpleName, mtitle, code, false, false);
 
 		var idealheight = 224;
 		if (code) {
-			var linecount = $dialogContents.find("textarea").val().split("\n").length;
+			var linecount = viewdata.contents.find("textarea").val().split("\n").length;
 			idealheight = EdenUI.plugins.ScriptInput.getRequiredHeight(linecount + 1);
 		}
 
 		$dialog = $('<div id="'+name+'"></div>')
-			.html($dialogContents)
+			.html(viewdata.contents)
 			.dialog({
 				title: mtitle,
 				width: 500,
@@ -1072,9 +1090,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				dialogClass: "input-dialog"
 			});
 
-		var confirmClose = !("MenuBar" in edenUI.plugins);
+		viewdata.confirmClose = !("MenuBar" in edenUI.plugins);
 
-		return {confirmClose: confirmClose, setValue: function (value) { intextarea.value = value; }};
+		return viewdata;
 	};
 
 	this.createEmbedded = function(name, mtitle, code, power) {

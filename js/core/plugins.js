@@ -75,6 +75,7 @@
 		
 		if (this.activeDialogs[name] !== undefined) {
 			this.showView(name);
+			this.updateView(name, initData);
 			this.brieflyHighlightView(name);
 			return this.viewInstances[name];
 		}
@@ -425,6 +426,13 @@
 		}
 		return this.activeDialogs[name];
 	};
+
+	EdenUI.prototype.updateView = function (name, data) {
+		var view = this.viewInstances[name];
+		if (view && view.update) {
+			view.update(data);
+		}
+	}
 
 	/**Highlights a view until the stopHighlightingView method is called.
 	 * N.B. More than one view can be highlighted simultaneously, but only one can be raised.

@@ -98,15 +98,15 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 		content.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
 			var editorViewName = "edit_" + edenName;
-			edenUI.createView(editorViewName, "ScriptInput");
-			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
-			edenUI.eden.root.lookup("_view_" + edenName + "_title").assign(mtitle + " (" + edenName + ")", eden.root.scope, Symbol.hciAgent);
-			edenUI.createView("edit_" + edenName, "ScriptInput");
-			var allVals = "";
+			//edenUI.createView(editorViewName, "ScriptInput");
+			//edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
+			//edenUI.eden.root.lookup("_view_" + edenName + "_title").assign(mtitle + " (" + edenName + ")", eden.root.scope, Symbol.hciAgent);
+			//edenUI.createView("edit_" + edenName, "ScriptInput");
+			var allVals = [];
 			var symbol;
 			for(var symbolname in symbollist.symbols){
 				symbol = edenUI.eden.root.lookup(symbolname);
-				var val;
+				/*var val;
 				if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
 					val = symbol.eden_definition;
 				} else {
@@ -116,9 +116,12 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 						val = symbolname + " = " + Eden.edenCodeForValue(symbol.value()) + ";";
 					}
 				}
-				allVals += val + "\n";
+				allVals += val + "\n";*/
+				allVals.push(symbol);
 			}
-				$('#' + editorViewName + '-dialog').find('textarea').val(allVals);
+				//$('#' + editorViewName + '-dialog').find('textarea').val(allVals);
+			edenUI.createView(editorViewName, "ScriptInput", allVals);
+			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
 		});
 
 

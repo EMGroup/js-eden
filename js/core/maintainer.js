@@ -54,6 +54,10 @@
 	}
 
 
+	/**
+	 * Store  a set of overrides and a separate cache of alternative values
+	 * for all symbols depending upon those overrides.
+	 */
 	function Scope(context, parent, overrides, range, cause) {
 		this.parent = parent;
 		this.context = context;
@@ -63,6 +67,54 @@
 		this.range = range;
 
 		this.rebuild();
+	}
+
+	/**
+	 * Query if somewhere in the scope hierarchy there is a cause matching
+	 * the one given. Returns a boolean.
+	 */
+	Scope.prototype.hasCause = function(cause) {
+		var scope = this;
+		var causename = "/"+cause;
+		while (scope) {
+			if (scope.cause.name == causename) return true;
+			scope = scope.parent;
+		}
+		return false;
+	}
+
+	Scope.prototype.allCauses = function() {
+		var res = [];
+		var scope = this;
+		while (scope) {
+			if (scope.cause) res.push(scope.cause);
+			scope = scope.parent;
+		}
+		return res;
+	}
+
+	Scope.prototype.allOverrides = function() {
+		
+	}
+
+	Scope.prototype.hasOverride = function(override) {
+		var scope = this;
+		while (scope) {
+			for (var i=0; i<scope.overrides.length; i++) {
+				if (scope.overrides[i].name == override) return true;
+			}
+			scope = scope.parent;
+		}
+		return false;
+	}
+
+	Scope.prototype.primaryCause = function() {
+		if (this.cause && this.cause.name == "/null") {
+			if (this.parent && this.parent.cause) {
+				return this.parent.cause.name.slice(1);
+			}
+		}
+		return "null";
 	}
 
 	Scope.prototype.isRange = function() {
@@ -82,6 +134,10 @@
 		if (this.cause) {
 			this.add(this.cause.name);
 		}
+
+		this.add("/typeof");
+		this.add("/has");
+		this.add("/from");
 
 		/* Process the overrides */
 		for (var i = 0; i < this.overrides.length; i++) {
@@ -107,7 +163,7 @@
 	}
 
 	Scope.prototype.add = function(name) {
-		var cache = new ScopeCache( false, undefined );
+		var cache = new ScopeCache( false, undefined, this.parent);
 		this.cache[name] = cache;
 		return cache;
 	}

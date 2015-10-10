@@ -313,7 +313,11 @@ div.outputcontent {
 	font: 14px/20px Roboto Mono,monospace;
 	white-space: pre;
 	/*overflow: auto;*/
-	/*background: white;*/
+	background: white;
+}
+
+div.output-shrink {
+	transform: translate(15%) scale(0.7);
 }
 
 div.input-dialog {

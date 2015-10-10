@@ -85,7 +85,8 @@ module.exports = function (grunt) {
 					'./js/core/lex.js',
 					'./js/core/errors.js',
 					'./js/core/ast.js',
-					'./js/core/translator2.js'
+					'./js/core/translator2.js',
+					'./js/wrappers.js'
 				],
 				'./plugins/jseden-plugins.min.js': [
 					'./plugins/input-dialog/interpreter.js',

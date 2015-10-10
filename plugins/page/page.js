@@ -115,7 +115,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 				}
 			}
 
-			embedded.appendTo(container);
+			embedded.contents.appendTo(container);
 			return container;
 		} else {
 			var hl = new EdenHighlight();
@@ -196,7 +196,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 
 		// Detach all scripts
 		for (var si in scripts) {
-			scripts[si].detach();
+			scripts[si].contents.detach();
 		}
 
 		theme = value[2];
