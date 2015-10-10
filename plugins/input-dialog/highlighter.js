@@ -203,18 +203,18 @@ EdenHighlight.prototype.highlightLine = function(ast, position) {
 			var textleft = tokentext.slice(0,caret);
 			var textright = tokentext.slice(caret);
 
-			textleft = textleft.replace("&","&amp;");
-			textleft = textleft.replace("<","&lt;");
-			textleft = textleft.replace(">","&gt;");
-			textright = textright.replace("&","&amp;");
-			textright = textright.replace("<","&lt;");
-			textright = textright.replace(">","&gt;");
+			textleft = textleft.replace(/&/g,"&amp;");
+			textleft = textleft.replace(/</g,"&lt;");
+			textleft = textleft.replace(/>/g,"&gt;");
+			textright = textright.replace(/&/g,"&amp;");
+			textright = textright.replace(/</g,"&lt;");
+			textright = textright.replace(/>/g,"&gt;");
 
 			tokentext = textleft + "<span class='fake-caret'></span>" + textright;
 		} else {
-			tokentext = tokentext.replace("&","&amp;");
-			tokentext = tokentext.replace("<","&lt;");
-			tokentext = tokentext.replace(">","&gt;");
+			tokentext = tokentext.replace(/&/g,"&amp;");
+			tokentext = tokentext.replace(/</g,"&lt;");
+			tokentext = tokentext.replace(/>/g,"&gt;");
 		}
 
 		line += "<span class='"+classes+"'>" + tokentext + "</span>";

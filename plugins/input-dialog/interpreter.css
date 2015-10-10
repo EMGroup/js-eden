@@ -479,6 +479,27 @@ button.observe-input{
 	border: 0;
 }
 
+button.leaves-input{
+	height:25px;
+	width:30px;
+	color: #3465a4;
+	margin-right: 5px;
+	font-family: "FontAwesome";
+	cursor: pointer;
+	font-size: 16px;
+	background: none;
+	border: 0;
+}
+
+button.leaves-input:hover {
+	color: #5585c2;
+	text-shadow: 3px 3px 4px #999;
+}
+
+button.leaves-input:active {
+	padding-top: 2px;
+}
+
 button.observe-input:hover {
 	color: #5585c2;
 	text-shadow: 3px 3px 4px #999;

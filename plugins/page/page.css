@@ -153,6 +153,7 @@ div.page-canvas {
 	/*margin-top: 20px;*/
 	margin-bottom: 20px;
 	background: none;
+	overflow: hidden;
 }
 
 div.page-icon {

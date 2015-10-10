@@ -345,7 +345,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createCommon = function (name, mtitle, code, power, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div><div class="buttonsDiv"><button class="observe-input">&#xf0c9;</button><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div><div class="buttonsDiv"><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button><button class="observe-input">&#xf142;</button></div><div class="outputbox"></div></div></div>')
+		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var text = "";	
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
@@ -356,6 +357,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var suggestions = $dialogContents.find('.eden_suggestions');
 		suggestions.hide();
 		$(infobox).hide();
+
+		//$dialogContents.append($optmenu);
+		//$optmenu.menu();
 
 		var dragstart = 0;
 		var dragvalue = 0;
@@ -541,8 +545,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function doneTyping() {
 			amtyping = false;
-			// Clear the typing animation
-			outputbox.innerHTML = "";
 
 			if (autoexec && highlighter.ast.script.errors.length == 0) {
 				// Get current line number
@@ -583,30 +585,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 								addWarningLine(currentlineno);
 								showInfoBox("warning", observable + " " + Language.ui.input_window.is_undef);
 							}
-						// Not undefined but still check if a dependency is undefined.
+						// Not undefined
 						} else {
-							var undef = checkUndefined(ast.dependencies);
-							if (undef.length > 0) {
-								var undefstr = "";
-								for (var i=0; i<undef.length; i++) {
-									undefstr += undef[i];
-									if (i != undef.length - 1) undefstr += ",";
-								}
-								if (undef.length == 1) {
-									addWarningLine(currentlineno);
-									showInfoBox("warning", "<b>" + observable + "</b> "+Language.ui.input_window.uses+" "+undefstr+" "+Language.ui.input_window.which_undef);
-									
-								} else {
-									addWarningLine(currentlineno);
-									showInfoBox("warning", "<b>" + observable + "</b> "+Language.ui.input_window.uses_undef+" "+undefstr);
-								}
-							// Not undefined and no undefined dependencies so show value :)
-							} else {
-								//var rep = makeRepresentative(val,15,sym);
-								hideInfoBox();
-								//outputbox.innerHTML = "<div class='info-validitem'><span>"+observable + "<span class='valueof'>&#xf178;</span></span></div>";
-								//rep.appendTo($(outputbox).find("div"));
-							}
+							hideInfoBox();
 						}
 					} else {
 						hideInfoBox();
@@ -616,7 +597,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 			} else if (highlighter.ast.script.errors.length != 0) {
 				showInfoBox("error", highlighter.ast.script.errors[0].messageText());
-				addErrorLine(highlighter.ast.script.errors[0].line, highlighter.ast.script.errors[0].messageText());
+				//addErrorLine(highlighter.ast.script.errors[0].line, highlighter.ast.script.errors[0].messageText());
 			} else {
 				hideInfoBox();
 			}
