@@ -163,6 +163,24 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		return container;
 	}
 
+	function generateList(content) {
+		var list;
+		if (content[1]) {
+			list = $("<ul></ul>");
+		} else {
+			list = $("<ol></ol>");
+		}
+
+		if (content[2] && content[2] instanceof Array) {
+			for (var i=0; i<content[2].length; i++) {
+				var item = $("<li>"+content[2][i]+"</li>");
+				list.append(item);
+			}
+		}
+
+		return list;
+	}
+
 	function generateContent(content, level) {
 		if (!content) return "";
 		if (!(content instanceof Array)) return "";
@@ -177,6 +195,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			case "script"	: res.append(generateScript(content[i])); break;
 			case "canvas"	: res.append(generateCanvas(content[i])); break;
 			case "break"	: res.append($("<div class='clear'></div>")); break;
+			case "list"		: res.append(generateList(content[i])); break;
 			}
 		}
 		return res;

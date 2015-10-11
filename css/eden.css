@@ -33,7 +33,7 @@ ul li {
 
 h2, ul li {
 	font-family: Verdana,Arial,sans-serif;
-	font-weight: lighter;
+	/*font-weight: lighter;*/
 	color: black;
 }
 

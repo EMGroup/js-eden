@@ -1,6 +1,7 @@
 typeof is ${{ scope.primaryCause() }}$;
 from is ${{ scope.hasCause(context.lookup("name").value(scope)) }}$;
 has is ${{ scope.hasOverride(context.lookup("name").value(scope)) }}$;
+cause is ${{ scope.cause }}$;
 
 ##_override_item is value if i == index else list[i];
 ##override is _override_item with i = 1 .. list#;
@@ -54,5 +55,6 @@ scale is __scale with
 ## View Scopes
 
 Leaf is content if content else ["## New Leaf"];
-ScriptView is createView(name, "ScriptInput", code) if name else @;
+ScriptView is null;
+##createView(name, "ScriptInput", code) if name else @;
 

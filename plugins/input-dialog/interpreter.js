@@ -1048,14 +1048,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			updateEntireHighlight();
 		}
 
+		var agent = new Eden.Agent(["code"]);
+
 		var viewdata = {
 			contents: $dialogContents,
 			update: function(data) {
 				console.log("View Update:");
 				console.log(data);
 				if (data instanceof Symbol) {
+					agent.setScope(data.getValueScope(eden.root.scope));
 					inputchanged = true;	// To make sure it goes into history.
-					intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(data.value());
+					intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(agent.code);
 					updateEntireHighlight();
 				} else if (data instanceof Array) {
 					inputchanged = true;	// To make sure it goes into history.
@@ -1108,9 +1111,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	};*/
 
 	this.submit = function (statement, base) {
-		console.time("EdenASTToJS");
+		//console.time("EdenASTToJS");
 		statement.execute(eden.root,undefined, base);
-		console.timeEnd("EdenASTToJS");
+		//console.timeEnd("EdenASTToJS");
 	};
 
 	this.getRidOfInstructions = function () {

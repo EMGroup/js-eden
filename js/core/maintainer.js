@@ -153,7 +153,10 @@
 			return symcache;
 		} else {
 			if (this.parent) {
+				//var inherit = this.parent.lookup(name);
+				//this.cache[name] = new ScopeCache(inherit.value, inherit.up_to_date, this);
 				return this.parent.lookup(name);
+				//return this.cache[name];
 			} else {
 				//console.log("Symbol without cache: " + name);
 				this.cache[name] = new ScopeCache(true, undefined);

@@ -458,6 +458,12 @@ EdenAST_LValue.prototype.generate = function(ctx) {
 		}
 		return res;
 	}
+
+	// TODO: Pointer dependencies currently causing huge page redraw problems.
+	//if (ctx && ctx.dependencies) {
+	//	ctx.dependencies[this.observable] = true;
+	//}
+
 	return "context.lookup(\"" + this.observable + "\")";
 }
 
@@ -869,7 +875,7 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 
 	if (this.lvalue.islocal) {
 		result += " = ";
-		result += this.expression.generate(ctx, "scope");
+		result += this.expression.generate(this, "scope");
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			result += ".value";
 		}
@@ -877,17 +883,17 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 		return result;
 	} else if (this.lvalue.hasListIndices()) {
 		result += ".listAssign(";
-		result += this.expression.generate(ctx, "scope");
+		result += this.expression.generate(this, "scope");
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			result += ".value";
 		}
 		result += ", scope, this, false, ";
-		result += this.lvalue.generateCompList(ctx);
+		result += this.lvalue.generateCompList(this);
 		result += ");\n";
 		return result;
 	} else {
 		result += ".assign(\n\t";
-		result += this.expression.generate(ctx, "scope");
+		result += this.expression.generate(this, "scope");
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			result += ".value";
 		}
@@ -1750,7 +1756,7 @@ EdenAST_CodeBlock.prototype.generate = function(ctx) {
 		}
 	}
 	//res += "]);\n";
-	res += this.script.generate(this) + "}); })";
+	res += this.script.generate(this, "scope") + "}); })";
 	return res;
 }
 
@@ -1839,10 +1845,10 @@ EdenAST_Script.prototype.execute = function(root, ctx, base) {
 	}
 }
 
-EdenAST_Script.prototype.generate = function(ctx) {
+EdenAST_Script.prototype.generate = function(ctx, scope) {
 	var result = "{\n";
 	for (var i = 0; i < this.statements.length; i++) {
-		result = result + this.statements[i].generate(ctx);
+		result = result + this.statements[i].generate(ctx, scope);
 	}
 	result = result + "}";
 	return result;

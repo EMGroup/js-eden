@@ -25,6 +25,10 @@ prototype_Paragraph is ["p", text];
 Paragraph is prototype_Paragraph with
 	text = text if text else "Some text goes here";
 
+prototype_List is ["list",unordered,items];
+List is prototype_List with
+	unordered = unordered if unordered else true;
+
 prototype_Script is ["script", static,code,name,box,lines,power,float,width];
 Script is prototype_Script with
 	static = static if static != @ else true,
