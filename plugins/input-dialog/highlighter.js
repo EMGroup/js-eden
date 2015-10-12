@@ -341,17 +341,25 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 				stream.skip();
 			//}
 		}
+
 		//var $out = $(this.outelement);
 		//var parent = $out.parent();
 		//$out.detach();
 		if (this.outelement.childNodes[hline-2]) {
+			linestart = stream.position+1;
 			line = this.highlightLine(ast, position);
-			this.outelement.childNodes[hline-2].className = "eden-line";
+			lineerror = (linestart <= errstart) && (stream.position >= errend);
+			if (lineerror) {
+				this.outelement.childNodes[hline-2].className = "eden-line eden-errorline";
+			} else {
+				this.outelement.childNodes[hline-2].className = "eden-line";
+			}
 			this.outelement.childNodes[hline-2].innerHTML = "<span>"+line+"</span>";
 			stream.skip();
 			if (stream.valid() == false) return;
 		}
 		if (this.outelement.childNodes[hline-1]) {
+			linestart = stream.position+1;
 			line = this.highlightLine(ast, position);
 			lineerror = (linestart <= errstart) && (stream.position >= errend);
 			if (lineerror) {
@@ -364,8 +372,14 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 			if (stream.valid() == false) return;
 		}
 		if (this.outelement.childNodes[hline]) {
+			linestart = stream.position+1;
 			line = this.highlightLine(ast, position);
-			this.outelement.childNodes[hline].className = "eden-line";
+			lineerror = (linestart <= errstart) && (stream.position >= errend);
+			if (lineerror) {
+				this.outelement.childNodes[hline].className = "eden-line eden-errorline";
+			} else {
+				this.outelement.childNodes[hline].className = "eden-line";
+			}
 			this.outelement.childNodes[hline].innerHTML = "<span>"+line+"</span>";
 			//stream.skip();
 			//if (stream.valid() == false) return;

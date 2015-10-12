@@ -241,6 +241,7 @@ EdenStream.prototype.parseString = function(data) {
 
 	while (this.valid() && this.peek() != 34) {
 		var chr = String.fromCharCode(this.get());
+		if (chr == "\n"){ this.unget(); return; }
 		if (chr == "\\") {
 			chr = String.fromCharCode(this.get());
 			result += "\\"+chr;
