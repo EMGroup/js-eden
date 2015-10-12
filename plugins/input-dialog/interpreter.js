@@ -37,6 +37,7 @@ function getCaretCharacterOffsetWithin(element) {
 	        preCaretRange.selectNodeContents(element);
 	        preCaretRange.setEnd(range.endContainer, range.endOffset);
 	        caretOffset = preCaretRange.toString().length;
+			//console.log(preCaretRange.toString());
 	    }
 	} else if ( (sel = doc.selection) && sel.type != "Control") {
 	    var textRange = sel.createRange();
@@ -345,7 +346,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createCommon = function (name, mtitle, code, power, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div><div class="buttonsDiv"><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button><button class="observe-input">&#xf142;</button></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div><div class="buttonsDiv"><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button><button class="observe-input">&#xf142;</button></div><div class="outputbox"></div></div></div>')
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var text = "";	
 		var position = 0;
@@ -1036,12 +1037,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				//$(intextarea).focus();
 			} else {
 				// Move caret to clicked location
+				var curline = currentlineno;
 				intextarea.focus();
 				intextarea.selectionEnd = end;
 				intextarea.selectionStart = end;
-				//var scrollpos = $codearea.get(0).scrollTop;		
-				updateEntireHighlight();
-				//$codearea.scrollTop(scrollpos);
+				var scrollpos = $codearea.get(0).scrollTop;		
+				updateLineHighlight();
+				highlighter.highlight(highlighter.ast, curline, end);
+				$codearea.scrollTop(scrollpos);
 			}
 		}).on('click', '.previous-input', function(e) {
 			previous();
