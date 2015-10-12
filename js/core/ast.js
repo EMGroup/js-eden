@@ -875,7 +875,7 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 
 	if (this.lvalue.islocal) {
 		result += " = ";
-		result += this.expression.generate(this, "scope");
+		result += this.expression.generate(ctx, "scope");
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			result += ".value";
 		}
@@ -883,17 +883,17 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 		return result;
 	} else if (this.lvalue.hasListIndices()) {
 		result += ".listAssign(";
-		result += this.expression.generate(this, "scope");
+		result += this.expression.generate(ctx, "scope");
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			result += ".value";
 		}
 		result += ", scope, this, false, ";
-		result += this.lvalue.generateCompList(this);
+		result += this.lvalue.generateCompList(ctx);
 		result += ");\n";
 		return result;
 	} else {
 		result += ".assign(\n\t";
-		result += this.expression.generate(this, "scope");
+		result += this.expression.generate(ctx, "scope");
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			result += ".value";
 		}
