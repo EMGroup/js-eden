@@ -273,7 +273,7 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 					if (position >= linestart && position <= stream.position) {
 						result += "<div class='eden-currentline eden-errorline'><span>";
 					} else {
-						result += "<div class='eden-errorline'><span>";
+						result += "<div class='eden-line eden-errorline'><span>";
 					}
 					lineerror = false;
 				} else if (position >= linestart && position <= stream.position) {
@@ -346,7 +346,7 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 		//var parent = $out.parent();
 		//$out.detach();
 		if (this.outelement.childNodes[hline-2]) {
-			linestart = stream.position+1;
+			linestart = stream.position;
 			line = this.highlightLine(ast, position);
 			lineerror = (linestart <= errstart) && (stream.position >= errend);
 			if (lineerror) {
@@ -359,7 +359,7 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 			if (stream.valid() == false) return;
 		}
 		if (this.outelement.childNodes[hline-1]) {
-			linestart = stream.position+1;
+			linestart = stream.position;
 			line = this.highlightLine(ast, position);
 			lineerror = (linestart <= errstart) && (stream.position >= errend);
 			if (lineerror) {
@@ -372,7 +372,7 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 			if (stream.valid() == false) return;
 		}
 		if (this.outelement.childNodes[hline]) {
-			linestart = stream.position+1;
+			linestart = stream.position;
 			line = this.highlightLine(ast, position);
 			lineerror = (linestart <= errstart) && (stream.position >= errend);
 			if (lineerror) {
