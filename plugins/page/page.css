@@ -98,7 +98,7 @@ h2.page-header:before {
 	color: #8fa3c4;
 }
 
-p.page-paragraph {
+div.page-paragraph {
 	font-size: 14pt;
 	line-height: 150%;
 	color: black;

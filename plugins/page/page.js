@@ -71,7 +71,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			text = p[1];
 		}
 
-		return $("<p class='page-paragraph'>"+text+"</p>");
+		return $("<div class='page-paragraph'>"+text+"</div>");
 	}
 
 	function generateScript(script) {
