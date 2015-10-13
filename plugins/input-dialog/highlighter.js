@@ -90,6 +90,29 @@ EdenHighlight.isType = function(str) {
 }
 
 
+EdenHighlight.prototype.generateLineClass = function(linestart, lineerror, position) {
+	var className = "";
+	if (position >= linestart && position <= this.ast.stream.position) {
+		if (lineerror) {
+			className = "eden-currentline eden-errorline";
+		} else {
+			className = "eden-currentline";
+		}
+	} else {
+		if (lineerror) {
+			className = "eden-line eden-errorline";
+		} else {
+			if (this.ast.stream.code.charAt(linestart) == "#") {
+				className = "eden-commentline";
+			} else {
+				className = "eden-line";
+			}
+		}
+	}
+	return className;
+}
+
+
 EdenHighlight.prototype.highlightLine = function(ast, position) {
 	var line = "";
 	var errstart = -1;
@@ -269,23 +292,7 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 
 				lineerror = (linestart <= errstart) && (stream.position >= errend);
 
-				if (lineerror) {
-					if (position >= linestart && position <= stream.position) {
-						result += "<div class='eden-currentline eden-errorline'>";
-					} else {
-						result += "<div class='eden-line eden-errorline'>";
-					}
-					lineerror = false;
-				} else if (position >= linestart && position <= stream.position) {
-					this.currentline = this.line - 1;
-					result += "<div class='eden-currentline'>";
-				} else {
-					if (stream.code.charAt(linestart) == "#") { // || stream.peek3() == "#") {
-						result += "<div class='eden-commentline'>";
-					} else {
-						result += "<div class='eden-line'>";
-					}
-				}
+				result += "<div class='"+this.generateLineClass(linestart,lineerror,position)+"'>";
 
 				linestart = stream.position+1;
 				result += line + "\n</div>";
@@ -299,18 +306,7 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 		lineerror = (linestart <= errstart) && (stream.position >= errend);
 
 		if (line != "") {
-			if (lineerror) {
-				if (position >= linestart && position <= stream.position) {
-					result += "<div class='eden-currentline eden-errorline'>" + line + "</div>";
-				} else {
-					result += "<div class='eden-errorline'>" + line + "</div>";
-				}
-			} else if (position >= linestart && position <= stream.position) {
-				this.currentline = this.line;
-				result += "<div class='eden-currentline'>" + line + "</div>";
-			} else {
-				result += "<div class='eden-line'>" + line + "</div>";
-			}
+			result += "<div class='" + this.generateLineClass(linestart,lineerror,position) + "'>"+line+"</div>";
 		} else {
 			if (position >= stream.position) {
 				result += "<div class='eden-currentline'><span class='fake-caret'></span></div>";
@@ -350,22 +346,10 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 				linestart = stream.position;
 				line = this.highlightLine(ast, position);
 				lineerror = (linestart <= errstart) && (stream.position >= errend);
-				if (position >= linestart && position <= stream.position) {
-					if (lineerror) {
-						this.outelement.childNodes[hline-i].className = "eden-currentline eden-errorline";
-					} else {
-						this.outelement.childNodes[hline-i].className = "eden-currentline";
-					}
-				} else {
-					if (lineerror) {
-						this.outelement.childNodes[hline-i].className = "eden-line eden-errorline";
-					} else {
-						this.outelement.childNodes[hline-i].className = "eden-line";
-					}
-				}
+				this.outelement.childNodes[hline-i].className = this.generateLineClass(linestart,lineerror,position);
 				this.outelement.childNodes[hline-i].innerHTML = line+"\n";
 				stream.skip();
-				if (stream.valid() == false) return;
+				//if (stream.valid() == false) return;
 			}
 		}
 		/*if (this.outelement.childNodes[hline-1]) {
