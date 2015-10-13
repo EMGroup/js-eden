@@ -43,7 +43,7 @@
 	EdenUI.prototype.dialogBorderWidth = 3.133;
 	EdenUI.prototype.titleBarHeight = 34.659 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.scrollBarSize = 14 + EdenUI.prototype.dialogBorderWidth;
-	EdenUI.prototype.scrollBarSize2 = 14;
+	EdenUI.prototype.scrollBarSize2 = window.innerHeight-$(window).height();
 	EdenUI.prototype.dialogFrameWidth = EdenUI.prototype.scrollBarSize + 2 * EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.dialogFrameHeight = EdenUI.prototype.titleBarHeight + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.bottomBarHeight = 34.906;
@@ -71,11 +71,19 @@
 			name = this.views[type].name;
 		}
 
+		var me = this;
+		var agent = root.lookup("createView");
+
 		var currentType = this.activeDialogs[name];
+		var visibilitySym = view(name, "visibility");
+		var visibility = visibilitySym.value();
 		var titleSym = view(name, "title");
 		var title = titleSym.value();
+
 		if (currentType == type) {
-			this.showView(name);
+			if (visibility != "visible") {
+				visibilitySym.assign("visible", agent);
+			}
 			this.brieflyHighlightView(name);
 			return this.viewInstances[name];
 		} else if (currentType !== undefined) {
@@ -85,8 +93,6 @@
 			this.destroyView(name, false);
 		}
 
-		var me = this;
-		var agent = root.lookup("createView");
 		var desktopTop = this.plugins.MenuBar? this.menuBarHeight : 0;
 		var defaultTitle = this.views[type].title;
 		var viewData = this.views[type].dialog(name + "-dialog", defaultTitle);
@@ -209,6 +215,30 @@
 		if (ySym === undefined) {
 			ySym.assign(topLeft.top - desktopTop, agent);
 		}
+		function updateVisibility(sym, state) {
+			var windowState = diag.dialogExtend("state");
+			if (state == "hidden") {
+				if (windowState != "minimized") {
+					me.minimizeView(name);
+				}
+			} else if (state == "maximized") {
+				if (windowState != "maximized") {
+					//me.maximizeView(name);
+				}
+			} else {
+				if (!diag.dialog("isOpen") || windowState == "minimized" || windowState == "collapsed") {
+					me.showView(name);
+				}
+			}
+		}
+		if (visibility != "visible") {
+			if (visibility === undefined) {
+				visibilitySym.assign("visible", agent);
+			} else {
+				updateVisibility(visibilitySym, visibility);
+			}
+		}
+		visibilitySym.addJSObserver("changeState", updateVisibility);
 
 		/* Plug-ins can append status information to their title bar.  Only use if there is genuinely
 		 * no space to put the information inside the window (e.g. canvas) or an established precedent for

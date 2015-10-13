@@ -23,6 +23,29 @@ function getParameterByName(name) {
 	}
 }
 
+function getStyleBySelector(selector) {
+	var sheetList = document.styleSheets;
+	for (var i = sheetList.length - 1; i >= 0; i--) {
+	   var ruleList = sheetList[i].cssRules;
+	   for (var j = 0; j < ruleList.length; j++) {
+		   if (ruleList[j].type == CSSRule.STYLE_RULE && ruleList[j].selectorText == selector) {
+			   return ruleList[j].style;
+		   }
+	   }
+	}
+	//No matching rule found so create one.
+	var styleElement = document.getElementById("javascript-injected-styles");
+	if (styleElement === null) {
+		var headElement = document.getElementsByTagName("head")[0];
+		styleElement = document.createElement("style");
+		styleElement.id = "javascript-injected-styles";
+		headElement.appendChild(styleElement);
+	}
+	var stylesheet = styleElement.sheet;
+	stylesheet.insertRule(selector + "{ }", 0);
+	return stylesheet.cssRules[0].style;
+}
+
 /*
  * Implementations of functionality specified in web standards but not yet supported by all of
  * supported JS-EDEN runtime platforms.
@@ -32,19 +55,6 @@ if (!("isInteger" in Number)) {
 	Number.isInteger = function (n) {
 		return parseInt(n) === n;
 	};
-}
-
-if (!("keys") in Object) {
-	//Not in IE 8.
-	Object.keys = function (obj) {
-		var result = [];
-		for (var name in obj) {
-			if (obj.hasOwnProperty(name)) {
-				result.push(name);
-			}
-		}
-		return result;
-	}
 }
 
 /**

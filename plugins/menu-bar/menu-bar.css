@@ -94,14 +94,14 @@
 }
 
 .menubar-item-label {
-	width: 200px;
+	width: calc(100% - 50px);
 	padding: 5px;
 	vertical-align: middle;
 }
 
 .menubar-item-fullwidth {
 	box-sizing: border-box;
-	width: 250px;
+	width: 100%;
 	padding: 5px;
 }
 
@@ -137,6 +137,7 @@
 	box-shadow: 4px 6px 7px 0px #111111;
 	color: black;
 	width: 250px;
+	overflow-y: auto;
 }
 
 .menubar-view {

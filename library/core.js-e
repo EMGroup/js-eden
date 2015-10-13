@@ -49,11 +49,18 @@ proc createViews {
 }
 
 proc showView {
+	para name;
+	`"_view_" // name // "_visibility"` = "visible";
 	${{
 		var name = arguments[0];
-		edenUI.showView(name);
+		edenUI.showView(name); //Explicitly invoke this to make sure the view gets moved to the top.
 		edenUI.brieflyHighlightView(name);
 	}}$;
+}
+
+proc hideView {
+	para name;
+	`"_view_" // name // "_visibility"` = "hidden";
 }
 
 proc highlightView {
@@ -67,13 +74,6 @@ proc stopHighlightingView {
 	${{
 		var name = arguments[0];
 		edenUI.stopHighlightingView(name, false, false);
-	}}$;
-}
-
-proc hideView {
-	${{
-		var name = arguments[0];
-		edenUI.minimizeView(name);
 	}}$;
 }
 

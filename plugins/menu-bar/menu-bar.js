@@ -38,6 +38,9 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	menudiv.appendTo("body");
 	$('<div id="menubar-bottom"></div>').appendTo("body");
 
+	var menuStyle = getStyleBySelector(".menubar-menu");
+	menuStyle.maxHeight = "calc(100vh - " + String(30 + edenUI.scrollBarSize2) + "px)";
+
 	this.updateStatus = function (text) {
 		menustatus.html(Eden.htmlEscape(text, true, true));
 	};
@@ -54,7 +57,9 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	}
 
 	function showMenu(name) {
-		$("#menubar-mainitem-"+name).show();
+		var menu = $("#menubar-mainitem-"+name);
+		menu.show();
+		menu.scrollTop(0);
 		menuShowing = true;
 	}
 
@@ -94,7 +99,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		};
 
 		menuitem.on('mousedown', toggleMenu);
-		menuitem.on('mouseover', function () {
+		menuitem.on('mouseenter', function () {
 			if (menuShowing) {
 				hideMenu();
 				showMenu(name);
