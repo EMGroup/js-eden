@@ -240,7 +240,7 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 
 	if (ast.stream.code.length == 0) {
 		if (this.outelement) {
-			this.outelement.innerHTML = "<div class='eden-currentline'><span><span class='fake-caret'></span>&nbsp;</span></div>";
+			this.outelement.innerHTML = "<div class='eden-currentline'><span class='fake-caret'></span></div>";
 		}
 		return;
 	}
@@ -271,24 +271,24 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 
 				if (lineerror) {
 					if (position >= linestart && position <= stream.position) {
-						result += "<div class='eden-currentline eden-errorline'><span>";
+						result += "<div class='eden-currentline eden-errorline'>";
 					} else {
-						result += "<div class='eden-line eden-errorline'><span>";
+						result += "<div class='eden-line eden-errorline'>";
 					}
 					lineerror = false;
 				} else if (position >= linestart && position <= stream.position) {
 					this.currentline = this.line - 1;
-					result += "<div class='eden-currentline'><span>";
+					result += "<div class='eden-currentline'>";
 				} else {
 					if (stream.code.charAt(linestart) == "#") { // || stream.peek3() == "#") {
-						result += "<div class='eden-commentline'><span>";
+						result += "<div class='eden-commentline'>";
 					} else {
-						result += "<div class='eden-line'><span>";
+						result += "<div class='eden-line'>";
 					}
 				}
 
 				linestart = stream.position+1;
-				result += line + "</span>\n</div>";
+				result += line + "\n</div>";
 				line = "";
 				stream.skip();
 				continue;
@@ -301,21 +301,21 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 		if (line != "") {
 			if (lineerror) {
 				if (position >= linestart && position <= stream.position) {
-					result += "<div class='eden-currentline eden-errorline'><span>" + line + "</span></div>";
+					result += "<div class='eden-currentline eden-errorline'>" + line + "</div>";
 				} else {
-					result += "<div class='eden-errorline'><span>" + line + "</span></div>";
+					result += "<div class='eden-errorline'>" + line + "</div>";
 				}
 			} else if (position >= linestart && position <= stream.position) {
 				this.currentline = this.line;
-				result += "<div class='eden-currentline'><span>" + line + "</span></div>";
+				result += "<div class='eden-currentline'>" + line + "</div>";
 			} else {
-				result += "<div class='eden-line'><span>" + line + "</span></div>";
+				result += "<div class='eden-line'>" + line + "</div>";
 			}
 		} else {
 			if (position >= stream.position) {
-				result += "<div class='eden-currentline'><span><span class='fake-caret'></span></span></div>";
+				result += "<div class='eden-currentline'><span class='fake-caret'></span></div>";
 			} else {
-				result += "<div class='eden-line'><span></span></div>";
+				result += "<div class='eden-line'></div>";
 			}
 		}
 
@@ -363,7 +363,7 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 						this.outelement.childNodes[hline-i].className = "eden-line";
 					}
 				}
-				this.outelement.childNodes[hline-i].innerHTML = "<span>"+line+"</span>\n";
+				this.outelement.childNodes[hline-i].innerHTML = line+"\n";
 				stream.skip();
 				if (stream.valid() == false) return;
 			}
