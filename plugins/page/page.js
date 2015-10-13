@@ -51,9 +51,6 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		if (!header) return "";
 		if (header[0] != "header") return "";
 
-		console.log("HEADER");
-		console.log(header);
-
 		switch(header[3]) {
 		case 0	: return $("<div class='clear'/><h1 class='page-header'>"+header[1]+"</h1>");
 		case 1	: return $("<h2 class='page-header'>"+header[1]+"</h2>");
@@ -118,7 +115,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			embedded.contents.appendTo(container);
 			return container;
 		} else {
-			var hl = new EdenHighlight();
+			var res = $("<div class='page-script-static'></div>");
+			var hl = new EdenHighlight(res.get(0));
 			var text;
 			if (code instanceof Array) {
 				text = EdenUI.plugins.ScriptInput.buildScriptFromList(code);
@@ -126,9 +124,9 @@ EdenUI.plugins.Page = function(edenUI, success) {
 				text = code;
 			}
 			var ast = new EdenAST(text);
-			var hs = hl.highlight(ast,-1,-1);
+			hl.highlight(ast,-1,-1);
 
-			return $("<div class='page-script-static'>"+hs+"</div>");
+			return res;
 		}
 	}
 

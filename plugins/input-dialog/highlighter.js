@@ -335,7 +335,7 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 	var stream = ast.stream;
 	var title = "";
 
-	//if (this.outelement === undefined) return;
+	if (this.outelement === undefined) return;
 
 	if (ast.stream.code.length == 0) {
 		if (this.outelement) {
@@ -353,7 +353,7 @@ EdenHighlight.prototype.highlight = function(ast, hline, position) {
 
 	stream.reset();
 
-	var line = "";
+	var line = undefined;
 	var lineerror = false;
 	var linestart = 0;
 	var token = "INVALID";

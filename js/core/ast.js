@@ -904,6 +904,8 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 
 EdenAST_Assignment.prototype.execute = function(root, ctx) {
 	var rhs = "(function(context,scope) { return ";
+	if (this.expression === undefined) return;
+
 	rhs += this.expression.generate(ctx, "scope");
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 		rhs += ".value";
