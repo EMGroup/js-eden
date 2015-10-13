@@ -346,7 +346,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createCommon = function (name, mtitle, code, power, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" class="outputcontent"></div></div><textarea class="hidden-textarea" tabindex="1" ></textarea><div class="info-bar"></div><div class="control-bar"><div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div><div class="buttonsDiv"><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button><button class="observe-input">&#xf142;</button></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" class="outputcontent"></div></div><textarea class="hidden-textarea" tabindex="1" ></textarea><div class="info-bar"></div><div class="outputbox"></div></div></div>')
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var text = "";	
 		var position = 0;
@@ -720,7 +720,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 							draglast = newval;
 							e.target.innerHTML = "" + newval;
 
-							replaceLine(dragline, e.target.parentNode.textContent);
+							var content = e.target.parentNode.textContent;
+							if (content.charAt(content.length-1) == "\n") {
+								content = content.slice(0,-1);
+							}
+							replaceLine(dragline, content);
 
 							var ast = new EdenAST(intextarea.value);
 
@@ -1120,6 +1124,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			idealheight = EdenUI.plugins.ScriptInput.getRequiredHeight(linecount + 1);
 		}
 
+		var buttonbar = $('<div class="control-bar"><div class="buttonsDiv"><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button><button class="observe-input">&#xf142;</button></div>');
+		buttonbar.appendTo(viewdata.contents);
+
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(viewdata.contents)
 			.dialog({
@@ -1137,7 +1144,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	};
 
 	this.createEmbedded = function(name, mtitle, code, power) {
-		return me.createCommon(name, mtitle, code, power, true);
+		var viewdata = me.createCommon(name, mtitle, code, power, true);
+		viewdata.contents.find('.inputCodeArea').css("bottom","0px");
+		var undockbutton = $('<div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div>');
+		undockbutton.appendTo(viewdata.contents);
+		return viewdata;
 	}
 
 	/*this.next = function (el) {

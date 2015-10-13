@@ -142,8 +142,8 @@ div.page-script-live {
 div.page-script-live-box {
 	box-shadow: 0 0 10px #719ECE;
 	border: 1px solid #ccc;
-	border-bottom-left-radius: 6px;
-	border-bottom-right-radius: 6px;
+	/*border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;*/
 }
 
 div.page-canvas {

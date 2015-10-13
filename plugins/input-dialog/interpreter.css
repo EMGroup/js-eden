@@ -405,7 +405,13 @@ div.scriptswitch:hover {
 .buttonsLeftDiv {
 	position: absolute;
 	bottom: 2px;
-	left: 10px;
+	left: 2px;
+	opacity: 0.5;
+	z-index: 4;
+}
+
+.buttonsLeftDiv:hover {
+	opacity: 1.0;
 }
 
 

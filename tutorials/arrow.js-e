@@ -42,7 +42,7 @@ ws_script1 is Script with
 		&arrow_height,
 		&arrow_colour
 	],
-	lines = 6,
+	lines = 5,
 	width = 400;
 
 ws_p2 is Paragraph with text = [
@@ -73,7 +73,7 @@ ws_script2 is Script with
 		&arrow_mainline,
 		&arrow_mid
 	],
-	lines = 6,
+	lines = 5,
 	width = 400;
 
 ws_pic2 is Canvas with
@@ -106,7 +106,7 @@ ws_script3 is Script with
 		"",
 		&arrow_bottomline
 	],
-	lines = 13,
+	lines = 12,
 	width = 500;
 
 ws_p5 is Paragraph with text = [
@@ -141,7 +141,7 @@ ws_script4 is Script with
 		"    arrow_bottomline];",
 		"picture is arrow;"
 	],
-	lines = 6;
+	lines = 5;
 
 ws_p8 is Paragraph with text = [
 "The position of the arrow can be changed by changing 'arrow_left', for example.",
@@ -160,7 +160,7 @@ ws_script5 is Script with
 		"",
 		&picture_2
 	],
-	lines = 5,
+	lines = 4,
 	width = 400;
 
 ws_pic3 is Canvas with
