@@ -346,7 +346,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createCommon = function (name, mtitle, code, power, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" class="outputcontent"></div></div><textarea class="hidden-textarea" tabindex="1" ></textarea><div class="info-bar"></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="outputbox"></div></div></div>')
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var text = "";	
 		var position = 0;
