@@ -346,7 +346,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createCommon = function (name, mtitle, code, power, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable class="outputcontent"></div></div><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="info-bar"></div><div class="outputbox"></div></div></div>')
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var text = "";	
 		var position = 0;
@@ -1019,8 +1019,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				updateEntireHighlight();
 			}
 		}).on('keydown', '.outputcontent', function(e) {
-			if (e.ctrlKey) {
-
+			if (e.keyCode == 17 || (e.ctrlKey && e.keyCode == 67)) {
+				// Ignore Ctrl and Ctrl+C.
 			} else if (!(e.shiftKey && (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40))) {
 				var end = getCaretCharacterOffsetWithin(outdiv);
 				var start = getStartCaretCharacterOffsetWithin(outdiv);
@@ -1111,6 +1111,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			setValue: function (value) { intextarea.value = value; }
 		}
 
+		// Initialise highlight content
+		updateEntireHighlight();
+
 		return viewdata;
 	};
 
@@ -1137,6 +1140,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				minWidth: 500,
 				dialogClass: "input-dialog"
 			});
+
+		/*$dialog.on('focus', function(e) {
+			viewdata.contents.find('.hidden-textarea').focus();
+		});*/
 
 		viewdata.confirmClose = !("MenuBar" in edenUI.plugins);
 
