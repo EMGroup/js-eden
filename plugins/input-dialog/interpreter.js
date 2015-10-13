@@ -346,7 +346,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 	this.createCommon = function (name, mtitle, code, power, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable tabindex="1" class="outputcontent"></div></div><textarea class="hidden-textarea"></textarea><div class="info-bar"></div><div class="control-bar"><div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div><div class="buttonsDiv"><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button><button class="observe-input">&#xf142;</button></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" class="outputcontent"></div></div><textarea class="hidden-textarea" tabindex="1" ></textarea><div class="info-bar"></div><div class="control-bar"><div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div><div class="buttonsDiv"><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button><button class="observe-input">&#xf142;</button></div><div class="outputbox"></div></div></div>')
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var text = "";	
 		var position = 0;
@@ -394,6 +394,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		eden.root.lookup("_view_"+name+"_script").addJSObserver("setScript", preloadScript);
 
 		function updateLineHighlight() {
+			//setTimeout(function() {
 			var ast = new EdenAST(intextarea.value);
 			var lineno = -1;
 			var pos = -1;
@@ -404,9 +405,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			highlightContent(ast, lineno, pos);
 			//rebuildNotifications();
+			//}, 0);
 		}
 
 		function updateLineCachedHighlight() {
+			//setTimeout(function() {
 			var lineno = -1;
 			var pos = -1;
 			if (document.activeElement === intextarea) {
@@ -415,9 +418,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 
 			highlightContent(highlighter.ast, lineno, pos);
+			//}, 0);
 		}
 
 		function updateEntireHighlight() {
+			//setTimeout(function() {
 			var ast = new EdenAST(intextarea.value);
 			var pos = -1;
 			if (document.activeElement === intextarea) {
@@ -426,6 +431,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			highlightContent(ast, -1, pos);
 			//rebuildNotifications();
+			//}, 0);
 		}
 
 		function checkUndefined(dependencies) {
@@ -654,7 +660,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			var disttop = el.offsetTop - area.scrollTop + 15;
 			var distbottom = area.clientHeight + area.scrollTop - el.offsetTop - 15;
-			console.log("From Left: " + disttop + ", From Right: " + distbottom);
 
 			if (distleft < 80) area.scrollLeft = area.scrollLeft - (80-distleft);
 			if (distright < 80) area.scrollLeft = area.scrollLeft + (80-distright);
@@ -683,6 +688,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			// Adjust scroll position if required
 			checkScroll();
+
+			if (document.activeElement !== intextarea) {
+				$(outdiv).find(".fake-caret").addClass("fake-blur-caret");
+			}
 
 			/*$(outdiv).on('mouseup', '.eden-extendedline', function(e) {
 				if (e.offsetX < 0) {
@@ -1027,6 +1036,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}).on('blur', '.hidden-textarea', function(e) {
 			$(outdiv).find(".fake-caret").addClass("fake-blur-caret");
+			hideInfoBox();
 		}).on('focus', '.hidden-textarea', function(e) {
 			$(outdiv).find(".fake-caret").removeClass("fake-blur-caret");
 		}).on('mouseup', '.outputcontent', function(e) {
