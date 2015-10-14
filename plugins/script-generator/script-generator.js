@@ -32,6 +32,13 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		var excludeRegExElem = excludeRegEx.get(0);
 		controlsLeft.append(excludeRegEx);
 
+		var unicode = $('<input type="checkbox" />');
+		label = $('<label>Unicode strings</label>');
+		label.prepend(unicode);
+		controlsRight.append(label);
+		var unicodeElem = unicode.get(0);
+		unicodeElem.checked = edenUI.getOptionValue("optUnicode") !== "false";
+
 		var includeViews = $('<input type="checkbox" />');
 		label = $('<label>Preserve screen layout</label>');
 		label.prepend(includeViews);
@@ -65,7 +72,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		};
 
 		var updateScript = function () {
-			script.html(generateScriptHTML(excludeRegExElem.value, includeViewsElem.checked, viewName));			
+			script.html(generateScriptHTML(excludeRegExElem.value, unicodeElem.checked, includeViewsElem.checked, viewName));			
 		};
 
 		fileChooser.on("change", function (event) {
@@ -84,6 +91,10 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		});
 
 		excludeRegEx.on("keyup", updateScript);
+		unicode.on("change", function (event) {
+			edenUI.setOptionValue("optUnicode", event.target.checked)
+			updateScript(event);
+		});
 		includeViews.on("change", updateScript);
 		regenerate.click(function () {
 			updateFileChooser();
@@ -105,8 +116,8 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		});
 	};
 
-	var generateScriptHTML = function (excludeStr, includeViews, viewToExclude) {
-		var lines = me.generateScriptLines(excludeStr, includeViews, viewToExclude);
+	var generateScriptHTML = function (excludeStr, unicode, includeViews, viewToExclude) {
+		var lines = me.generateScriptLines(excludeStr, unicode, includeViews, viewToExclude);
 		var html = "";
 		for (var i = 0; i < lines.length; i++) {
 			html = html + Eden.htmlEscape(lines[i], true) + "\n";
@@ -144,7 +155,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 	 * @return {Array} An array where each item is a string representing a piece of EDEN code and
 	 * of the items together represent a complete script capable of rebuilding the current state.
 	 */
-	this.generateScriptLines = function (excludeStr, includeViews, viewToExclude) {
+	this.generateScriptLines = function (excludeStr, unicode, includeViews, viewToExclude) {
 
 		var viewObsPrefixToExclude = new RegExp("^_view_" + viewToExclude + "_");
 		var definitions = [];
@@ -273,7 +284,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 
 				var value = symbol.cached_value;
 				var edenForValue;
-				if (typeof(value) == "string" && /[^ -~\t\n]/.test(value)) {
+				if (!unicode && typeof(value) == "string" && /[^ -~\t\n]/.test(value)) {
 					/* Ensure that strings don't contain any special characters that might get mangled
 					 * by mistaken character set auto-recognition performed by browsers or code editors.
 					 * Stick to ASCII printable only and use XML/HTML entity syntax for the rest. */
