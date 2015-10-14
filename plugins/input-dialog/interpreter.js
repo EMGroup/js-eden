@@ -802,23 +802,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var el = $(outdiv).find(".fake-caret").get(0);
 			var range = document.createRange();
 			var sel = window.getSelection();
-			range.setStart(el, 0);
-			range.setEnd(el, 0);
+			range.setStart(el.nextSibling, 0);
 			range.collapse(true);
 			sel.removeAllRanges();
 			sel.addRange(range);
 		}
 
-		function selectToEOL() {
+		/*function selectToEOL() {
 			var el = $(outdiv).find(".fake-caret").get(0);
 			var range = document.createRange();
 			var sel = window.getSelection();
-			range.setStart(el, 0);
+			range.setStart(el.nextSibling, 0);
 			var lineno = findElementLineNumber(el);
 			var ele = outdiv.childNodes[lineno];
 			while (ele.lastChild) ele = ele.lastChild;
 			range.setEnd(ele, ele.textContent.length);
-			range.collapse(true);
+			//range.collapse(true);
 			sel.removeAllRanges();
 			sel.addRange(range);
 		}
@@ -830,12 +829,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var lineno = findElementLineNumber(el);
 			var ele = outdiv.childNodes[lineno];
 			while (ele.firstChild) ele = ele.firstChild;
+			// TODO Firefox requires this the other way around
 			range.setEnd(ele, 0);
 			range.setStart(el, 0);
-			range.collapse(true);
+			//range.collapse(true);
 			sel.removeAllRanges();
 			sel.addRange(range);
-		}
+		}*/
 
 		function selectAll() {
 			var range = document.createRange();
@@ -952,7 +952,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					suggestions.hide("fast");
 				}*/
 		}).on('keydown', '.hidden-textarea', function(e) {
-			if (!e.ctrlKey && e.keyCode != 17) {
+			if (!e.ctrlKey && e.keyCode != 17 && e.keyCode != 16) {
 				if (e.keyCode == 9) {
 					e.preventDefault();
 					var start = intextarea.selectionStart;
@@ -971,13 +971,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					// Shift arrow selection, move to editable div.
 					if (e.shiftKey) {
 						outdiv.focus();
-						if (e.keyCode == 35) {
-							selectToEOL();
-						} else if (e.keyCode == 36) {
-							selectToBOL();
-						} else {
-							setCaretToFakeCaret();
-						}
+						setCaretToFakeCaret();
 						return;
 					}
 					//var scrollpos = $codearea.get(0).scrollTop;
@@ -1019,9 +1013,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				updateEntireHighlight();
 			}
 		}).on('keydown', '.outputcontent', function(e) {
-			if (e.keyCode == 17 || (e.ctrlKey && e.keyCode == 67)) {
+			if (e.keyCode == 16 || e.keyCode == 17 || (e.ctrlKey && e.keyCode == 67)) {
 				// Ignore Ctrl and Ctrl+C.
-			} else if (!(e.shiftKey && (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40))) {
+			// If not shift selecting...
+			} else if (!(e.shiftKey && (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 35 || e.keyCode == 36))) {
 				var end = getCaretCharacterOffsetWithin(outdiv);
 				var start = getStartCaretCharacterOffsetWithin(outdiv);
 
