@@ -572,10 +572,10 @@ span.eden-operator {
 
 span.eden-error {
 	background-color: #ffdcdc;
-	box-sizing: border-box;
+	/*box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
-	border: 1px dotted #d57878;
+	border: 1px dotted #d57878;*/
 }
 
 span.eden-select {

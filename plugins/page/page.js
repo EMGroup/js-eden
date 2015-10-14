@@ -115,7 +115,13 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			embedded.contents.appendTo(container);
 			return container;
 		} else {
-			var res = $("<div class='page-script-static'></div>");
+			var res;
+			if (box) {
+				res = $("<div class='page-script-static page-script-live-box'></div>");
+			} else {
+				res = $("<div class='page-script-static'></div>");
+			}
+
 			var hl = new EdenHighlight(res.get(0));
 			var text;
 			if (code instanceof Array) {
@@ -125,6 +131,17 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			}
 			var ast = new EdenAST(text);
 			hl.highlight(ast,-1,-1);
+
+			if (float != "none") {
+				res.css("float",float);
+			}
+			if (width != "50%") {
+				if (typeof width == "number") {
+					res.width(width);
+				} else {
+					res.css("width", width);
+				}
+			}
 
 			return res;
 		}
