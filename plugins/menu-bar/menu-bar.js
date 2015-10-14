@@ -54,13 +54,23 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	function hideMenu() {
 		$(".menubar-menu").hide();
 		menuShowing = false;
+		//Reset search box
+		var newWindowMenu = $("#menubar-mainitem-views");
+		newWindowMenu.children().css("display", "");
+		document.getElementById("menubar-view-type-search").value = "";
 	}
 
 	function showMenu(name) {
 		var menu = $("#menubar-mainitem-"+name);
 		menu.show();
-		menu.scrollTop(0);
 		menuShowing = true;
+		var textboxes = menu.find('input[type="text"]');
+		if (textboxes.length > 0) {
+			setTimeout(function () {
+				textboxes[0].focus();
+				menu.scrollTop(0);
+			}, 0);
+		}
 	}
 
 	$(document.body).on('mousedown', function () {
@@ -95,7 +105,6 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 				showMenu(name);
 			}
 			e.stopPropagation();
-			e.preventDefault();
 		};
 
 		menuitem.on('mousedown', toggleMenu);
@@ -127,12 +136,9 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			edenUI.createView("view_" + viewNumber, this.view);
 		}
 		me.updateViewsMenu();
-		e.stopPropagation();
-		e.preventDefault();
 	}
 	
 	function onClickCloseWindow(e) {
-		e.preventDefault();
 		var name = this.parentNode.viewname;
 		if (edenUI.viewInstances[name].confirmClose) {
 			hideMenu();
@@ -142,7 +148,6 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	}
 	
 	function onClickPinWindow(e) {
-		e.preventDefault();
 		var image = e.currentTarget.children[0];
 		var name = this.parentNode.viewname;
 
@@ -180,7 +185,6 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 				edenUI.stopHighlightingView(viewName, true, false);
 			},
 			click: function (e) {
-				e.preventDefault();
 				edenUI.stopHighlightingView(viewName, true, true);
 				hideMenu();
 			}
@@ -191,6 +195,50 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		var views = $("#menubar-mainitem-views");
 		var existingViews = $("#menubar-mainitem-existing-views");
 		views.html("");
+
+		var searchBox = $('<input id="menubar-view-type-search" class="menubar-search-box" type="text" placeholder="search"/>');
+		var searchItemPart = $('<div class="menubar-item-fullwidth"></div>');
+		searchItemPart.append(searchBox);
+		var searchItem = $("<div class='menubar-item-search'></div>");
+		searchItem.append(searchItemPart);
+		
+		searchBox.on("input", function (event) {
+			var searchStr = event.target.value;
+			var re = new RegExp("(^|\\s)"+ searchStr, "i");
+			var lastCategory;
+			var categoryMatch = false;
+			views.children().each(function (index, element) {
+				if (element.classList.contains("menubar-item-search")) {
+					return;
+				}
+				var inner = element.children[0];
+				var name = inner.innerHTML;
+				var isCategory = inner.classList.contains("menubar-item-separator");
+				if (isCategory) {
+					if (searchStr.length > 1) {
+						categoryMatch = re.test(name);
+					}
+					lastCategory = element;
+					if (categoryMatch) {
+						element.style.display = "";
+					} else {
+						element.style.display = "none";
+					}
+				} else {
+					if (categoryMatch) {
+						element.style.display = "";
+					} else if (re.test(name)) {
+						element.style.display = "";
+						lastCategory.style.display = "";
+					} else {
+						element.style.display = "none";
+					}
+				}
+			});
+			setTimeout(function () {
+				views.scrollTop(0);
+			}, 0);
+		});
 
 		// First add supported view types
 		var viewArray = [];
@@ -250,6 +298,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			}
 			item.viewEntry.appendTo(views);
 		}
+		views.append(searchItem);
 
 		existingViews.html("");
 

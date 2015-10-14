@@ -58,14 +58,27 @@
 }
 
 .menubar-item-separator {
-	margin-top: 10px;
 	margin-bottom: 1px;
 	background-color: #E8E8E8;
 	font-weight: bold;
 }
 
-.menubar-item:first-child .menubar-item-separator {
-	margin-top: 0px;
+.menubar-item-search {
+    padding-top: 3px;
+	margin-top: 2px;
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+	cursor: default;
+	background-color: #CCDDFF;
+}
+
+.menubar-search-box {
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.menubar-item-separator ~:not([style*='display: none']) {
+	margin-top: 10px;
 }
 
 .menubar-item:hover {
