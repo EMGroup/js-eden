@@ -436,7 +436,7 @@ EdenAST_LValue.prototype.executeCompList = function(ctx) {
 	var res = [];
 	for (var i=0; i<this.lvaluep.length; i++) {
 		if (this.lvaluep[i].kind == "index") {
-			res.push(eval(this.lvaluep[i].indexexp.generate(ctx)));
+			res.push(eval(this.lvaluep[i].indexexp.generate(ctx, "scope")));
 		}
 	}
 	return res;
@@ -1313,9 +1313,13 @@ EdenAST_FunctionCall.prototype.generate = function(ctx, scope) {
 	}
 }
 
-EdenAST_FunctionCall.prototype.execute = function(root, ctx) {
+EdenAST_FunctionCall.prototype.execute = function(root, ctx, base) {
 	var func = "(function(context,scope) { return " + this.generate(ctx, "scope") + "; })";
-	return eval(func)(root,root.scope);
+	try {
+		return eval(func)(root,root.scope);
+	} catch(e) {
+		this.errors.push(new EdenError(base, EDEN_ERROR_FUNCCALL, e));
+	}
 }
 
 EdenAST_FunctionCall.prototype.error = fnEdenAST_error;
@@ -1849,6 +1853,9 @@ EdenAST_Script.prototype.append = function (ast) {
 EdenAST_Script.prototype.execute = function(root, ctx, base) {
 	for (var i = 0; i < this.statements.length; i++) {
 		this.statements[i].execute(root,ctx, base);
+		if (this.statements[i].errors.length > 0) {
+			this.errors.push.apply(this.errors, this.statements[i].errors);
+		}
 	}
 }
 

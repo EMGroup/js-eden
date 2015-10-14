@@ -235,6 +235,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_ASSIGNEXEC */ [
 	"Problem whilst executing an assignment"
+],
+/* EDEN_ERROR_FUNCCALL */ [
+	"Problem whilst executing a function call"
 ]
 ];
 

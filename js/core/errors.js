@@ -53,7 +53,8 @@ var EDEN_ERROR_DEFINELISTIX = 49;
 var EDEN_ERROR_OUTOFBOUNDS = 50;
 var EDEN_ERROR_PROPERTYNAME = 51;
 var EDEN_ERROR_WHILEOFDO = 52;
-var EDEN_ERROR_ASSIGNEXEC = 53;
+var EDEN_ERROR_ASSIGNEXEC = 53;		// RUNTIME
+var EDEN_ERROR_FUNCCALL = 54;		// RUNTIME
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -380,12 +381,17 @@ var eden_error_db = [
 /* EDEN_ERROR_ASSIGNEXEC */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_FUNCCALL */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
 	}
 ]
 
-function EdenError(context, errno) {
+function EdenError(context, errno, extra) {
 	this.context = context;
 	this.errno = errno;
+	this.extra = extra;
 	this.token = context.token;
 	this.prevtoken = context.previous;
 	this.line = context.stream.line;
@@ -448,7 +454,12 @@ EdenError.prototype.buildSuggestion = function() {
 
 EdenError.prototype.messageText = function() {
 	var err = eden_error_db[this.errno];
-	return Language.errors[this.errno][err.message.call(this)];
+	var txt = Language.errors[this.errno][err.message.call(this)]
+	if (this.extra === undefined) {
+		return txt;
+	} else {
+		return txt + ": " + this.extra;
+	}
 }
 
 EdenError.prototype.prettyPrint = function() {

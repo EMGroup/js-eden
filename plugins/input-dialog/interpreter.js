@@ -465,6 +465,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			if (statement.errors.length > 0) {
 				showInfoBox("error", statement.errors[0].messageText());
+				addErrorLine(line+1);
 			}
 		}
 
@@ -510,7 +511,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function addErrorLine(lineno, msg) {
 			var $line = $(outdiv.childNodes[lineno-1]);
-			$line.addClass("eden-actual-errorline");
+			$line.addClass("eden-errorline");
 		}
 
 		function notifyOutOfDate(symbol, value) {
@@ -1088,6 +1089,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 				if (highlighter.ast.script.errors.length > 0) {
 					showInfoBox("error", highlighter.ast.script.errors[0].messageText());
+					//addErrorLine(highlighter.ast.script.errors[0].line);
 				}
 			} else {
 				powerOff();
