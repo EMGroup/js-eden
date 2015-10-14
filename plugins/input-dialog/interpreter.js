@@ -982,7 +982,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 
 			} else if (e.ctrlKey) {
-				if (e.keyCode === 38) {
+				if (e.shiftKey) {
+					if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 36 || e.keyCode == 35) {
+						// Ctrl+Shift arrow selection, move to editable div.
+						outdiv.focus();
+						setCaretToFakeCaret();
+						return;
+					}
+				} else if (e.keyCode === 38) {
 					// up
 					previous();
 				} else if (e.keyCode === 40) {
