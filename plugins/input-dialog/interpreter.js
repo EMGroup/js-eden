@@ -462,6 +462,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			// Execute only the currently changed root statement
 			me.submit(statement, highlighter.ast);
+
+			if (statement.errors.length > 0) {
+				showInfoBox("error", statement.errors[0].messageText());
+			}
 		}
 
 		function showInfoBox(type, message) {
@@ -1081,6 +1085,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				powerOn();
 				updateEntireHighlight();
 				me.submit(highlighter.ast.script, highlighter.ast);
+
+				if (highlighter.ast.script.errors.length > 0) {
+					showInfoBox("error", highlighter.ast.script.errors[0].messageText());
+				}
 			} else {
 				powerOff();
 			}

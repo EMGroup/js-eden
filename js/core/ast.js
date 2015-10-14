@@ -418,10 +418,11 @@ EdenAST_LValue.prototype.hasListIndices = function() {
 	return this.lvaluep && this.lvaluep.length > 0 && this.lvaluep[0].kind == "index";
 }
 
-EdenAST_LValue.prototype.generateCompList = function(ctx) {
+EdenAST_LValue.prototype.generateCompList = function(ctx, scope) {
 	var res = "[";
 	for (var i=0; i<this.lvaluep.length; i++) {
-		res += this.lvaluep[i].indexexp.generate(ctx);
+		res += this.lvaluep[i].indexexp.generate(ctx,scope);
+		if (i < this.lvaluep.length-1) res += ",";
 	}
 	res += "]";
 	return res;
@@ -786,7 +787,7 @@ EdenAST_Definition.prototype.generate = function(ctx) {
 		// TODO Report error, this is invalid;
 		return "";
 	} else if (this.lvalue.hasListIndices()) {
-		var clist = this.lvalue.generateCompList(this);
+		var clist = this.lvalue.generateCompList(this, "scope");
 		result += ".addExtension("+this.lvalue.generateIdStr()+", function(context, scope, value) {\n\tvalue";
 		result += clist + " = ";
 		result += this.expression.generate(this, "scope");
@@ -821,7 +822,7 @@ EdenAST_Definition.prototype.execute = function(root, ctx, base) {
 
 	if (this.lvalue.hasListIndices()) {
 		var rhs = "(function(context,scope,value) { value";
-		rhs += this.lvalue.generateCompList(this) + " = ";
+		rhs += this.lvalue.generateCompList(this, "scope") + " = ";
 		rhs += this.expression.generate(this, "scope");
 		rhs += ";})";
 		var deps = [];
@@ -888,7 +889,7 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 			result += ".value";
 		}
 		result += ", scope, this, false, ";
-		result += this.lvalue.generateCompList(ctx);
+		result += this.lvalue.generateCompList(ctx, "scope");
 		result += ");\n";
 		return result;
 	} else {
@@ -902,7 +903,7 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 	}
 };
 
-EdenAST_Assignment.prototype.execute = function(root, ctx) {
+EdenAST_Assignment.prototype.execute = function(root, ctx, base) {
 	var rhs = "(function(context,scope) { return ";
 	if (this.expression === undefined) return;
 
@@ -912,10 +913,14 @@ EdenAST_Assignment.prototype.execute = function(root, ctx) {
 	}
 	rhs += ";})";
 
-	if (this.lvalue.hasListIndices()) {
-		root.lookup(this.lvalue.observable).listAssign(eval(rhs)(root,root.scope), root.scope, {name: "execute"}, false, this.lvalue.executeCompList());
-	} else {
-		root.lookup(this.lvalue.observable).assign(eval(rhs)(root,root.scope),root.scope, {name: "execute"});
+	try {
+		if (this.lvalue.hasListIndices()) {
+			root.lookup(this.lvalue.observable).listAssign(eval(rhs)(root,root.scope), root.scope, {name: "execute"}, false, this.lvalue.executeCompList());
+		} else {
+			root.lookup(this.lvalue.observable).assign(eval(rhs)(root,root.scope),root.scope, {name: "execute"});
+		}
+	} catch(e) {
+		this.errors.push(new EdenError(base, EDEN_ERROR_ASSIGNEXEC, e));
 	}
 };
 

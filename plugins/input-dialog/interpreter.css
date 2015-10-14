@@ -67,7 +67,7 @@ div.outputbox {
 div.info-bar {
 	position: absolute;
 	left: 100px;
-	right: 100px;
+	min-width: 200px;
 	bottom: -15px;
 	min-height: 30px;
 	background-color: #395069;
@@ -83,6 +83,7 @@ div.info-bar {
 div.info-item {
 	margin-top: 6px;
 	margin-left: 50px;
+	margin-right: 5px;
 }
 
 div.info-validitem {
@@ -683,14 +684,14 @@ div.eden-actual-errorline {
 }
 
 div.eden-warnline {
-	position: relative;
+	/*position: relative;*/
 	/*display: inline-block;*/
-	width: 100%;
+	/*width: 100%;
 	margin-left: -5px;
 	padding-left: 5px;
-	padding-right: 1px;
+	padding-right: 1px;*/
 	/*padding-right: 5px;*/
-	background-color: #ffffa8;
+	/*background-color: #ffffa8;*/
 	/*background-image: url('/images/exclamation.png');
 	background-repeat: no-repeat;
 	background-position: -10px;

@@ -232,6 +232,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_WHILEOFDO */ [
 	"Missing 'while' after 'do' statement(s)"
+],
+/* EDEN_ERROR_ASSIGNEXEC */ [
+	"Problem whilst executing an assignment"
 ]
 ];
 
