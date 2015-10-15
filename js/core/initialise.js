@@ -112,7 +112,7 @@ function initialiseJSEden(callback) {
 		})
 		.on('keydown', null, 'backspace', function (e) {
 			var tagName = e.target.tagName.toUpperCase();
-			if (tagName != "INPUT" && tagName != "TEXTAREA") {
+			if (!(tagName == "INPUT" || tagName == "TEXTAREA" || e.target.contentEditable == "true")) {
 				e.preventDefault();
 			}
 		});

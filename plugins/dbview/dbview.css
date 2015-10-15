@@ -1,0 +1,45 @@
+table.dbview-table {
+	font-family: proxima-nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 12pt;
+	border-collapse: collapse;
+}
+
+table.dbview-table td {
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	border-color: #98bf21;
+	border-width: 1px;
+	border-style: solid;
+}
+
+table.dbview-table th {
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	border-color: #98bf21;
+	border-width: 1px;
+	border-style: solid;
+	border-collapse: collapse;
+	background-color: #A7C942;
+	font-weight: bold;
+	color: white;
+}
+
+.dbview-inherited {
+	opacity: 0.4;
+}
+
+.dbview-formula {
+	color: green;
+}
+
+.dbview-outofdate {
+	color: red;
+}
+
+.dbview-disabled {
+	background-color: #eee;
+}

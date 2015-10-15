@@ -747,32 +747,32 @@ EdenAST_Definition.prototype.setSource = function(start, end) {
 }
 
 EdenAST_Definition.prototype.generateDef = function(ctx) {
-	var result = "function(context, scope, cache) {\n";
+	var result = "function(scope) {\n";
 	var express = this.expression.generate(this, "scope");
 
 	// Generate array of all scopes used in this definition (if any).
-	if (this.scopes.length > 0) {
+	/*if (this.scopes.length > 0) {
 		result += "\tvar _scopes = [];\n";
 		for (var i=0; i<this.scopes.length; i++) {
 			result += "\t_scopes.push(" + this.scopes[i];
 			result += ");\n";
 		}
-	}
+	}*/
 
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-		result += "\t var result = "+express+";\n";
+		result += "\treturn "+express+".value;\n}";
 
 		// Save the resulting values scope binding into the cache entry.
-		result += "\tif (cache) cache.scope = result.scope;\n";
+		/*result += "\tif (cache) cache.scope = result.scope;\n";
 
 		// Make sure to copy a value if its an ungenerated one.
 		if (this.scopes.length == 0) {
 			result += "\treturn edenCopy(result.value);\n}";
 		} else {
 			result += "\treturn result.value;\n}";
-		}
+		}*/
 	} else {
-		result += "\tif (cache) cache.scope = scope;\n";
+		//result += "\tif (cache) cache.scope = scope;\n";
 		result += "\treturn " + express + ";\n}";
 	}
 
@@ -818,7 +818,7 @@ EdenAST_Definition.prototype.generate = function(ctx) {
 EdenAST_Definition.prototype.execute = function(root, ctx, base) {
 	//console.log("RHS = " + rhs);
 	var source = base.getSource(this);
-	var sym = root.lookup(this.lvalue.observable);
+	//var sym = root.lookup(this.lvalue.observable);
 
 	if (this.lvalue.hasListIndices()) {
 		var rhs = "(function(context,scope,value) { value";
@@ -836,8 +836,9 @@ EdenAST_Definition.prototype.execute = function(root, ctx, base) {
 		for (var d in this.dependencies) {
 			deps.push(d);
 		}
-		sym.eden_definition = base.getSource(this);
-		sym.define(eval(rhs), {name: "execute"}, deps);
+		//sym.eden_definition = base.getSource(this);
+		//sym.define(eval(rhs), {name: "execute"}, deps);
+		Database.setFormula(this.lvalue.observable, 0, eval(rhs));
 	}
 		
 }
@@ -904,7 +905,7 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 };
 
 EdenAST_Assignment.prototype.execute = function(root, ctx, base) {
-	var rhs = "(function(context,scope) { return ";
+	var rhs = "(function(scope) { return ";
 	if (this.expression === undefined) return;
 
 	rhs += this.expression.generate(ctx, "scope");
@@ -917,7 +918,7 @@ EdenAST_Assignment.prototype.execute = function(root, ctx, base) {
 		if (this.lvalue.hasListIndices()) {
 			root.lookup(this.lvalue.observable).listAssign(eval(rhs)(root,root.scope), root.scope, {name: "execute"}, false, this.lvalue.executeCompList());
 		} else {
-			root.lookup(this.lvalue.observable).assign(eval(rhs)(root,root.scope),root.scope, {name: "execute"});
+			Database.setValue(this.lvalue.observable, 0, eval(rhs)(0), {name: "execute"});
 		}
 	} catch(e) {
 		this.errors.push(new EdenError(base, EDEN_ERROR_ASSIGNEXEC, e));
@@ -1109,32 +1110,32 @@ EdenAST_Primary.prototype.generate = function(ctx, scope) {
 		}
 	}
 
-	var res = "context.lookup(";
+	var res = "Database.getValueEntry(";
 
 	if (this.observable == "__BACKTICKS__") {
 		res += this.backtick.generate(ctx, scope) + ")";
 	} else {
 		if (ctx && ctx.dependencies) ctx.dependencies[this.observable] = true;
-		res += "\""+this.observable+"\")";
+		res += "\""+this.observable+"\"";
 	}
 
-	if (this.extras.length == 0) {
+	//if (this.extras.length == 0) {
 		//if (ctx.scopes.length > 0) {
-			res += ".boundValue("+scope+")";
+	//		res += ".boundValue("+scope+")";
 		//} else {
 		//	res += ".boundValue(scope)";
 		//}
-	} else {
-		this.returnsbound = false;
+	//} else {
+	//	this.returnsbound = false;
 		//if (ctx.scopes.length > 0) {
-			res += ".value("+scope+")";
+			res += ", "+scope+")";
 		//} else {
 		//	res += ".value(scope)";
 		//}
 		for (var i=0; i<this.extras.length; i++) {
 			res += this.extras[i].generate(ctx, scope);
 		}
-	}
+	//}
 
 	return res;
 }

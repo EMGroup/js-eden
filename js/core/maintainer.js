@@ -140,8 +140,10 @@
 		this.add("/from");
 
 		/* Process the overrides */
-		for (var i = 0; i < this.overrides.length; i++) {
-			this.addOverride(this.overrides[i]);
+		if (this.overrides) {
+			for (var i = 0; i < this.overrides.length; i++) {
+				this.addOverride(this.overrides[i]);
+			}
 		}
 	}
 

@@ -495,7 +495,7 @@ include("library/html.js-e");
 include("library/declarevar.js-e");
 include("library/generate_function.js-e");
 
-include2("library/scoping.js-e");
+##include2("library/scoping.js-e");
 
 initialViews = ${{getParameterByName("views") }}$;
 if (initialViews == "" || initialViews == "default") {
