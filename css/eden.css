@@ -15,7 +15,7 @@ body {
 }
 
 body::-webkit-scrollbar {
-	background: transparent;
+	background: #29454B;
 	height: 14px;
 }
 

@@ -325,6 +325,14 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		lines.push(comments.autocalcOff);
 		lines.push(autocalcOff);
 		lines.push("");
+		lines.push(comments.functions);
+		for (var i = 0; i < functions.length; i++) {
+			lines.push(functions[i]);
+			if (i !== functions.length - 1) {
+				lines.push("");
+			}
+		}
+		lines.push("");
 		lines.push(comments.assignments);
 		for (var i = 0; i < assignments.length; i++) {
 			lines.push(assignments[i]);
@@ -339,14 +347,6 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		for (var i = 0; i < procedures.length; i++) {
 			lines.push(procedures[i]);
 			if (i !== procedures.length - 1) {
-				lines.push("");
-			}
-		}
-		lines.push("");
-		lines.push(comments.functions);
-		for (var i = 0; i < functions.length; i++) {
-			lines.push(functions[i]);
-			if (i !== functions.length - 1) {
 				lines.push("");
 			}
 		}
