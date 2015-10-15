@@ -391,7 +391,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			updateEntireHighlight();
 		}
 
-		eden.root.lookup("_view_"+name+"_script").addJSObserver("setScript", preloadScript);
+		var obs_script = "_view_"+name+"_script";
+		var obs_next = "_view_"+name+"_next";
+		var obs_prev = "_view_"+name+"_prev";
+		var agent = new Eden.Agent([obs_script], eden.root);
+		agent.on(obs_script, preloadScript);
+
+		//eden.root.lookup("_view_"+name+"_script").addJSObserver("setScript", preloadScript);
 
 		function updateLineHighlight() {
 			//setTimeout(function() {
@@ -866,7 +872,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			inputchanged = false;
 		}
 
-		$dialogContents.on('input', '.hidden-textarea', function (e) {
+		function inputChanged(e) {
 			//console.log(e);
 			inputchanged = true;
 
@@ -956,7 +962,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				} else {
 					suggestions.hide("fast");
 				}*/
-		}).on('keydown', '.hidden-textarea', function(e) {
+		}
+
+		$dialogContents.on('input', '.hidden-textarea', inputChanged
+		).on('keydown', '.hidden-textarea', function(e) {
 			if (!e.ctrlKey && e.keyCode != 17 && e.keyCode != 16) {
 				if (e.keyCode == 9) {
 					e.preventDefault();
@@ -1038,7 +1047,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					$(intextarea).focus();
 					intextarea.selectionEnd = start;
 					intextarea.selectionStart = start;					
-					updateEntireHighlight();
+					//updateEntireHighlight();
+					refreshentire = true;
+					inputChanged();
 				} else {
 					intextarea.focus();
 					intextarea.selectionEnd = end;

@@ -67,6 +67,23 @@ test("Modulus operator without whitespace doesn't get confused by language switc
 });
 
 //
+// Precedence
+//
+edenModule("Precedence");
+
+test("Subraction order", function() {
+	eden.execute2("x is a - b - c; a = 10; b = 3; c = 4;");
+	equal(root.lookup('x').value(), 3);
+});
+
+test("Multiplication and addition", function() {
+	eden.execute2("x is a + b * c; a = 10; b = 3; c = 4;");
+	equal(root.lookup('x').value(), 22);
+	eden.execute2("x is a * b + c; a = 10; b = 3; c = 4;");
+	equal(root.lookup('x').value(), 34);
+});
+
+//
 // ternary
 //
 edenModule("Ternary");
@@ -74,8 +91,8 @@ edenModule("Ternary");
 test("Ternary precedence", function () {
 	eden.execute2("x = 1 if 1 else 1 + 1;");
 	equal(root.lookup('x').value(), 1);
-	eden.execute2("x = 1 if 1 + 1 else 1;");
-	equal(root.lookup('x').value(), 1);
+	eden.execute2("x = 1 + 1 if 1 else 1;");
+	equal(root.lookup('x').value(), 2);
 	//eden.execute2("x = 0 ? 'a' : 1 ? 'b' : 'c';");
 	eden.execute2("x = 'a' if 0 else 'b' if 1 else 'c';");
 	equal(root.lookup('x').value(), 'b');

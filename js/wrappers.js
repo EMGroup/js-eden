@@ -45,7 +45,7 @@ Eden.Agent.prototype.on = function(name, cb) {
 	var me = this;
 	this._watches.push(name);
 	eden.root.lookup(name).addJSObserver(this._name, function(sym,value) {
-		if (sym.last_modified_by != me._name) cb.call(me, sym.name.slice(1));
+		if (sym.last_modified_by != me._name) cb.call(me, sym.name.slice(1), value);
 	});
 }
 
