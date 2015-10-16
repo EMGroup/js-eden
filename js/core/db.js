@@ -7,11 +7,12 @@
 
 (function (global) {
 
-	function ValueEntry () {
+	function ValueEntry (name) {
+		this.name = name;
 		this.value = undefined;
 		this.origin_scope = 0;
 		this.up_to_date = true;
-		this.subscribers = undefined;
+		this.dependants = [];
 	}
 
 	function FormulaEntry() {
@@ -80,20 +81,49 @@
 
 
 
+	Database.bringInRelatives = function(name, scopeid) {
+		var pscope = scopes[scopeid].parent;
+		if (pscope === undefined) return;
+		var inherited = this._getValueEntry(name, pscope);
+
+		console.log("BRING IN RELATIVES: " + name + ", " + scopeid);
+
+		if (inherited) {
+			for (var i=0; i<inherited.dependants.length; i++) {
+				// Same scope references are relative, so bring them in
+				if (inherited.origin_scope == inherited.dependants[i].origin_scope) {
+					var dentry = values[inherited.dependants[i].name + "/" + scopeid];
+					if (dentry === undefined) {
+						dentry = new ValueEntry(inherited.dependants[i].name);
+						dentry.origin_scope = scopeid;
+						dentry.up_to_date = false;
+						values[inherited.dependants[i].name + "/" + scopeid] = dentry;
+						this.bringInRelatives(dentry.name, scopeid);
+					}
+				}
+			}
+		}
+	}
+
+
+
 	Database.setValue = function(name, scopeid, value) {
 		var entry = values[name + "/" + scopeid];
 		if (entry === undefined) {
 			// Construct a new value entry;
-			entry = new ValueEntry();
+			entry = new ValueEntry(name);
 			entry.value = value;
 			entry.origin_scope = scopeid;
 			values[name + "/" + scopeid] = entry;
+
+			this.bringInRelatives(name, scopeid);
 		} else {
 			entry.value = value;
 			entry.origin_scope = scopeid;
-			entry.up_to_date = true;
-			// Remove and link to a formula.
+
 			// Notify anyone dependent on this value
+			this.expire(entry);
+			entry.up_to_date = true;
 		}
 		triggerGlobal("setvalue", name, scopeid, value);
 	}
@@ -108,7 +138,42 @@
 
 
 
-	Database.getValueEntry = function(name, scopeid) {
+	/**
+	 * Internal version of getValue that is used by formuli. It also adds
+	 * a dependency on the value retrieved.
+	 */
+	Database._getValue = function(origin, name, scopeid) {
+		var entry = this.getValueEntry(name, scopeid);
+		if (entry === undefined) {
+			this.setValue(name, scopeid, undefined);
+			entry = this.getValueEntry(name, scopeid);
+		}
+
+		entry.dependants.push(origin);
+		return entry.value;
+	}
+
+
+
+	Database.expire = function(entry) {
+		// Nothing to do if already expired
+		if (entry.up_to_date === false) return
+
+		entry.up_to_date = false;
+		var dependants = entry.dependants;
+		entry.dependants = [];
+
+		for (var i=0; i<dependants.length; i++) {
+			this.expire(dependants[i]);
+		}
+	}
+
+
+
+	/**
+	 * Get the value entry, but without updating value if out-of-date.
+	 */
+	Database._getValueEntry = function(name, scopeid) {
 		var entry = values[name + "/" + scopeid];
 		if (entry === undefined) {
 			var scope = scopes[scopeid];
@@ -118,6 +183,17 @@
 				return this.getValueEntry(name, scope.parent);
 			}
 		}
+
+		return entry;
+	}
+
+
+
+	/**
+	 * Get the value entry but make sure value is up-to-date.
+	 */
+	Database.getValueEntry = function(name, scopeid) {
+		var entry = this._getValueEntry(name, scopeid);
 
 		if (entry.up_to_date === false) {
 			//Need to find and evaluate associated formula in this scope
@@ -160,15 +236,13 @@
 
 		var value = values[name + "/" + scopeid];
 		if (value === undefined) {
-			value = new ValueEntry();
+			value = new ValueEntry(name);
 			values[name + "/" + scopeid] = value;
 		}
-		value.up_to_date = false;
 		value.origin_scope = scopeid;
+		this.expire(value);
 
 		triggerGlobal("setformula", name, scopeid);
-
-		// TODO Notify all value dependencies.
 	}
 
 

@@ -760,7 +760,7 @@ EdenAST_Definition.prototype.generateDef = function(ctx) {
 	}*/
 
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-		result += "\treturn "+express+".value;\n}";
+		result += "\treturn "+express+";\n}";
 
 		// Save the resulting values scope binding into the cache entry.
 		/*result += "\tif (cache) cache.scope = result.scope;\n";
@@ -1057,7 +1057,7 @@ function EdenAST_Primary() {
 	this.observable = "";
 	this.extras = [];
 	this.backtick = undefined;
-	this.returnsbound = true;
+	this.returnsbound = false;
 };
 
 EdenAST_Primary.prototype.setBackticks = function(backtick) {
@@ -1110,7 +1110,7 @@ EdenAST_Primary.prototype.generate = function(ctx, scope) {
 		}
 	}
 
-	var res = "Database.getValueEntry(";
+	var res = "Database._getValue(this,";
 
 	if (this.observable == "__BACKTICKS__") {
 		res += this.backtick.generate(ctx, scope) + ")";
