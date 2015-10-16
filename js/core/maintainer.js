@@ -83,6 +83,7 @@
 		this.autocalc_state = true;
 
 		this.needsExpire = [];
+		this.needsTrigger = {};
 		
 		/** Symbols that might be ready to be garbage collected.
 		 * @private
@@ -261,17 +262,21 @@
 		}
 		this.expireAndFireActions();
 	};
+	
+	Folder.prototype.triggerSymbol = function (sym) {
+		this.needsTrigger[sym.name] = sym;
+		this.expireAndFireActions();
+	}
 
 	Folder.prototype.expireAndFireActions = function () {
 		if (!this.autocalc_state) {
 			return;
 		}
 
-		var actions_to_fire = [];
 		var symbols_to_force = [];
 		for (var i = 0; i < this.needsExpire.length; i++) {
 			var sym = this.needsExpire[i];
-			sym.expire(symbols_to_force, actions_to_fire);
+			sym.expire(symbols_to_force, this.needsTrigger);
 			this.notifyGlobals(sym, false);
 		}
 		var expired = this.needsExpire;
@@ -281,6 +286,8 @@
 			var sym = symbols_to_force[i];
 			sym.evaluateIfDependenciesExist();
 		}
+		var actions_to_fire = this.needsTrigger;
+		this.needsTrigger = {};
 		fireActions(actions_to_fire);
 		fireJSActions(expired);
 		fireJSActions(symbols_to_force);
@@ -550,8 +557,8 @@
 			symbol.addObserver(this.name, this);
 		}
 
-		if (this.context.autocalc_state) {
-			this.trigger();
+		if (this.context) {
+			this.context.triggerSymbol(this);
 		}
 		return this;
 	};
@@ -689,8 +696,8 @@
 	};
 
 	function fireActions(actions_to_fire){
-		for (var i = 0; i < actions_to_fire.length; i++) {
-			var action = actions_to_fire[i];
+		for (var action_name in actions_to_fire) {
+			var action = actions_to_fire[action_name];
 
 			// if one action fails, it shouldn't prevent all the other
 			// scheduled actions from firing
@@ -739,7 +746,7 @@
 		}
 
 		for (var observer_name in this.observers) {
-			actions_to_fire.push(this.observers[observer_name]);
+			actions_to_fire[observer_name] = this.observers[observer_name];
 		}
 
 		// recursively mark out of date and collect

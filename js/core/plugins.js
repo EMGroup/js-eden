@@ -128,7 +128,8 @@
 				return doClose;
 			},
 			focus: function () {
-				me.minimizeObscuredViews(name);
+				//Disabled pending fix.
+				//me.minimizeObscuredViews(name);
 			}
 		});
 		var dialogWindow = this.getDialogWindow(name);

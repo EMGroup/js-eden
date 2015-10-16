@@ -389,7 +389,7 @@ function concatAndResolveUrl(url, concat) {
 				return new RegExp(regExpStr, flags);
 			} catch (e) {
 				//User typed in a bad regexp.  Unmatched (, { or [.
-				var validPart = /^([^\\({[]*(\\.)?)*/.match(str)[0];
+				var validPart = str.match(/^([^\\({[]*(\\.)?)*/)[0];
 				if (exactMatch) {
 					validPart = "^(" + validPart + ")";
 				}

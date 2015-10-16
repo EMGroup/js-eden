@@ -336,11 +336,22 @@ test("autocalc off prevents agent firing at definition time", function () {
 	equal(root.lookup('y').value(), 1);
 });
 
-test("assigning something other than 1 to autocalc doesn't flush actions", function () {
+test("assigning something other than 1 or true to autocalc doesn't flush actions", function () {
 	eden.execute('autocalc = 0; x = 0; proc p : x { y = 1; }; autocalc = 0;');
 	equal(root.lookup('y').value(), undefined);
 });
 
+test("defining a proc with autocalc off causes it to trigger when autocalc is enabled", function () {
+	eden.execute('autocalc = 0; x = 0; y = 1; proc p : y { x++; }');
+	equal(root.lookup("x").value(), 0);
+	eden.execute('autocalc = 1;');
+	equal(root.lookup("x").value(), 1);
+});
+
+test("updating multiple trigger observables with autocalc off causes the proc to trigger exactly once when autocalc is enabled", function () {
+	eden.execute('autocalc = 0; x = 0; y = 1; z = 1; proc p : y, z { x++; }; y = 2; z = 2; autocalc = 1;');
+	equal(root.lookup("x").value(), 1);
+});
 //
 // last modified by
 //
