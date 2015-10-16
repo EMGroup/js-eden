@@ -206,7 +206,7 @@ EdenAST_ScopePath.prototype.setPrimary = function(prim) {
 }
 
 EdenAST_ScopePath.prototype.generate = function(ctx, scope) {
-	ctx.scopes.push(this.path.generate(ctx, scope)+".scope");
+	ctx.scopes.push(this.path.generate(ctx, scope)+".origin_scope");
 	this.scopestr = "_scopes[" + (ctx.scopes.length-1) + "]";
 	return this.primary.generate(ctx, "_scopes["+(ctx.scopes.length-1)+"]");
 }
@@ -751,16 +751,16 @@ EdenAST_Definition.prototype.generateDef = function(ctx) {
 	var express = this.expression.generate(this, "scope");
 
 	// Generate array of all scopes used in this definition (if any).
-	/*if (this.scopes.length > 0) {
+	if (this.scopes.length > 0) {
 		result += "\tvar _scopes = [];\n";
 		for (var i=0; i<this.scopes.length; i++) {
 			result += "\t_scopes.push(" + this.scopes[i];
 			result += ");\n";
 		}
-	}*/
+	}
 
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-		result += "\treturn "+express+";\n}";
+		result += "\tvar res = "+express+";\n\tthis.origin_scope = res.origin_scope;\n\treturn res.value;\n}";
 
 		// Save the resulting values scope binding into the cache entry.
 		/*result += "\tif (cache) cache.scope = result.scope;\n";
@@ -1057,7 +1057,7 @@ function EdenAST_Primary() {
 	this.observable = "";
 	this.extras = [];
 	this.backtick = undefined;
-	this.returnsbound = false;
+	this.returnsbound = true;
 };
 
 EdenAST_Primary.prototype.setBackticks = function(backtick) {
@@ -1110,7 +1110,7 @@ EdenAST_Primary.prototype.generate = function(ctx, scope) {
 		}
 	}
 
-	var res = "Database._getValue(this,";
+	var res = "Database.getEntryD(this,";
 
 	if (this.observable == "__BACKTICKS__") {
 		res += this.backtick.generate(ctx, scope) + ")";

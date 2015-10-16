@@ -13,7 +13,7 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 	var me = this;
 
 	this.createDialog = function(name,mtitle) {
-		var code_entry = $('<div id=\"'+name+'-content\" class=\"dbview-content\"></div>');
+		var code_entry = $('<div id=\"'+name+'-content\" class=\"dbview-content\"><div class="dbview-controls"><div class="dbview-select"><span class="dbview-label">Select:</span><input class="dbview-select-text" type="text"></input></div><div class="dbview-where"><span class="dbview-label">Where:</span><input class="dbview-where-text" type="text"></input></div></div></div>');
 		var table = $('<table class="dbview-table"></table>');
 		table.appendTo(code_entry);
 		var columns;
@@ -50,11 +50,11 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 					else col = $('<td contenteditable></td>');
 					col.appendTo(row);
 					var entry = Database.getValueEntry(columns[c], rows[r]);
-					var form = Database.getFormula(columns[c], rows[r]);
+					//var form = Database.getFormula(columns[c], rows[r]);
 					if (entry === undefined) continue;
 					col.html(entry.value);
 					if (entry.origin_scope != parseInt(rows[r])) col.addClass("dbview-inherited");
-					if (form !== undefined) col.addClass("dbview-formula");
+					if (entry.formula !== undefined) col.addClass("dbview-formula");
 				}
 				row.appendTo(table);
 			}
@@ -81,7 +81,8 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 				width: 600,
 				height: 450,
 				minHeight: 120,
-				minWidth: 230
+				minWidth: 230,
+				dialogClass: "dbview-dialog"
 			});
 		return {confirmClose: true};
 	}

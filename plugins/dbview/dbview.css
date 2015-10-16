@@ -1,7 +1,62 @@
+div.dbview-dialog {
+	background: #f1f1f1;
+	border-width: 1px;
+	border-color: #777;
+	border-style: solid;
+	padding: 0;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 15px #4a6887;
+}
+
+div.dbview-dialog .ui-dialog-titlebar {
+	border-top-width: 0;
+	border-left-width: 0;
+	border-right-width: 0;
+	border-bottom-color: #777;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 10px #4a6887;
+	background: -webkit-linear-gradient(#fafafa, #cccccc); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#fafafa, #cccccc); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
+}
+
+div.dbview-controls {
+	position: absolute;
+	padding-top: 10px;
+	top: 0px;
+	height: 50px;
+	width: 100%;
+	left: 0px;
+	border-bottom-color: #777;
+	border-bottom-style: solid;
+	border-bottom-width: 1px;
+	box-shadow: 0 0 10px #4a6887;
+	background-color: none;
+	font-family: proxima-nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 10pt;
+}
+
+span.dbview-label {
+	font-weight: bold;
+	width: 200px;
+	text-align: right;
+}
+
 table.dbview-table {
+	position: absolute;
+	top: 70px;
+	left: 10px;
 	font-family: proxima-nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 12pt;
 	border-collapse: collapse;
+	background-color: white;
 }
 
 table.dbview-table td {
@@ -29,7 +84,7 @@ table.dbview-table th {
 }
 
 .dbview-inherited {
-	opacity: 0.4;
+	opacity: 0.3;
 }
 
 .dbview-formula {
@@ -42,4 +97,24 @@ table.dbview-table th {
 
 .dbview-disabled {
 	background-color: #eee;
+}
+
+.dbview-currentscope {
+	background-color: blue;
+}
+
+.dbview-currentcell {
+	background-color: red;
+}
+
+.dbview-valuesource {
+	background-color: orange;
+}
+
+.dbview-dependency {
+	background-color: purple;
+}
+
+.dbview-indirectdep {
+	background-color: green;
 }
