@@ -13,7 +13,7 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 	var me = this;
 
 	this.createDialog = function(name,mtitle) {
-		var code_entry = $('<div id=\"'+name+'-content\" class=\"dbview-content\"><div class="dbview-controls"><div class="dbview-select"><span class="dbview-label">Select:</span><input class="dbview-select-text" type="text"></input></div><div class="dbview-where"><span class="dbview-label">Where:</span><input class="dbview-where-text" type="text"></input></div></div></div>');
+		var code_entry = $('<div id=\"'+name+'-content\" class=\"dbview-content\"><div class="dbview-controls"><div class="dbview-select"><span class="dbview-label">Select:</span><input class="dbview-select-text" type="text"></input><span class="dbview-label">Where:</span><input class="dbview-where-text" type="text"></input></div></div></div>');
 		var table = $('<table class="dbview-table"></table>');
 		table.appendTo(code_entry);
 		var columns;

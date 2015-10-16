@@ -70,7 +70,7 @@
 	Database.newScope = function(parent) {
 		var scope = new DBScope(parent);
 		scopes.push(scope);
-		this.setValue("scope_id", scopes.length-1, scopes.length-1);
+		this.setValue("scope", scopes.length-1, scopes.length-1);
 		triggerGlobal("newscope", scopes.length-1);
 		return scopes.length-1;
 	}

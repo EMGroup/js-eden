@@ -45,8 +45,9 @@ div.dbview-controls {
 
 span.dbview-label {
 	font-weight: bold;
-	width: 200px;
 	text-align: right;
+	margin-left: 30px;
+	margin-right: 10px;
 }
 
 table.dbview-table {
