@@ -14,13 +14,6 @@
 EdenUI.plugins.HTMLContent = function(edenUI, success) {
 	var me = this;
 
-	this.html = function(name,content) {
-		if (!(name in edenUI.viewInstances)) {
-			edenUI.createView(name,"HTMLContent");
-		}
-		$("#"+name+"-dialog-content").html(content);
-	}
-
 	this.createDialog = function(name,mtitle) {
 	
 		var code_entry = $('<div id=\"'+name+'-content\" class=\"htmlviews-content\"></div>');

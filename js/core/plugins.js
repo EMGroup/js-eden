@@ -61,7 +61,7 @@
 	 * @param {string} name Unique identifier for the view.
 	 * @param {string} type Used to group different types of views.
 	 */
-	EdenUI.prototype.createView = function (name, type, creatingAgent) {
+	EdenUI.prototype.createView = function (name, type) {
 		if (!(type in this.views)) {
 			this.eden.error(new Error("View type " + type + " is unavailable.  Check that the associated plug-in is loaded."));
 			return;
@@ -86,7 +86,10 @@
 			}
 			this.brieflyHighlightView(name);
 			return this.viewInstances[name];
-		} else if (currentType !== undefined) {
+		}
+
+		this.eden.root.beginAutocalcOff();
+		if (currentType !== undefined) {
 			if (title == this.views[currentType].title) {
 				title = undefined;
 			}
@@ -192,11 +195,26 @@
 		 * will position the windows with a slight overlap, though no information will be hidden.
 		 */
 		var typeSym = view(name, 'type');
-		typeSym.removeJSObserver("changeType");
-		typeSym.assign(type, creatingAgent);
-		typeSym.addJSObserver("changeType", function (sym, newType) {
-			me.createView(name, newType);
-		});
+		if (typeSym.value() != type) {
+			typeSym.removeJSObserver("changeType");
+			typeSym.assign(type, agent);
+			typeSym.addJSObserver("changeType", function (sym, newType) {
+				if (newType !== undefined && root.lookup("_views_list").value().indexOf(name) !== -1) {
+					me.createView(name, newType);
+				}
+			});
+		}
+		var viewListSym = root.lookup("_views_list");
+		var viewList = viewListSym.value();
+		if (Array.isArray(viewList)) {
+			if (viewList.indexOf(name) === -1) {
+				viewList = viewList.slice();
+				viewList.push(name);
+				viewListSym.assign(viewList, agent);
+			}
+		} else {
+			viewListSym.assign([name], agent);
+		}
  
 		widthSym = view(name, 'width');
 		if (widthSym.value() === undefined) {
@@ -377,9 +395,7 @@
 				'};\n' +
 				'proc _View_'+name+'_size : _view_'+name+'_width,_view_'+name+'_height {\n' +
 					'${{ edenUI.resizeView("'+name+'"); }}$; \n' +
-				'}; \
-				if (_views_list == @) { _views_list = []; } \
-				append _views_list, "'+name+'";';
+				'};';
 
 			if (position) {
 				code += '_view_'+name+'_position = [\"'+position.join('\", \"')+'\"];\n';
@@ -390,6 +406,7 @@
 
 		// Now construct eden agents and observables for dialog control.
 		this.eden.execute(viewEdenCode(), "createView", "", {name: "/createView"}, noop);
+		this.eden.root.endAutocalcOff();
 		this.emit('createView', [name, type]);
 		return viewData;
 	};
@@ -436,8 +453,9 @@
 			//Call clean-up handler.
 			this.viewInstances[name].destroy();
 		}
+		root.lookup("forgetAll").definition(root)("^_View_" + name + "_", true, false, true);
 		if (forgetObservables) {
-			root.lookup("forgetAll").definition(root)("^_[vV]iew_" + name + "_", true, false, true);
+			root.lookup("forgetAll").definition(root)("^_view_" + name + "_", true, false, true);
 		}
 		var theDialog = dialog(name);
 		theDialog.dialog('destroy');
@@ -445,18 +463,22 @@
 		theDialog.html("");
 		delete this.activeDialogs[name];
 		delete this.viewInstances[name];
-		
-		var viewListSym = root.lookup("_views_list");
-		var viewList = viewListSym.value();
-		if (Array.isArray(viewList)) {
-			var index = viewList.indexOf(name);
-			var newViewList;
-			if (index == 0) {
-				newViewList = viewList.slice(1);
-			} else {
-				newViewList = viewList.slice(0, index).concat(viewList.slice(index + 1));
+
+		if (forgetObservables) {
+			var viewListSym = root.lookup("_views_list");
+			var viewList = viewListSym.value();
+			if (Array.isArray(viewList)) {
+				var index = viewList.indexOf(name);
+				if (index !== -1) {
+					var newViewList;
+					if (index == 0) {
+						newViewList = viewList.slice(1);
+					} else {
+						newViewList = viewList.slice(0, index).concat(viewList.slice(index + 1));
+					}
+					viewListSym.assign(newViewList);
+				}
 			}
-			viewListSym.assign(newViewList);
 		}
 		
 		this.emit('destroyView', [name]);

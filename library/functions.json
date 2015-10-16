@@ -1397,10 +1397,6 @@
 				"view_type": ""
 			}
 		},
-		"createViews": {
-			"parameters": {
-			}
-		},
 		"destroyView": {
 			"parameters": {
 				"view_name": ""

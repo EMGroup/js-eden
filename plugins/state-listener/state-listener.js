@@ -1,24 +1,7 @@
 EdenUI.plugins.StateListener = function(edenUI, success){
 	var me = this;
-	var defaultview = "";
 
-	this.html = function(name,content) {
-	//This doesn't look like its ever being called
-		if (name == "DEFAULT") {
-			if (defaultview == "") {
-				edenUI.createView(name,"StateListener");
-			}
-			$("#"+defaultview+"-content").html(content).onclick;
-		} else {
-			$("#"+name+"-dialog-content").html(content).onclick;
-		}
-	}
-	
 	this.createDialog = function(name,mtitle) {
-
-		if (defaultview == "") {
-			defaultview = name;
-		}
 
 		var viewData = {confirmClose: false};
 		

@@ -71,7 +71,6 @@ Eden.systemAgentNames = {
 	"createHTMLView": true,
 	"createProjectList": true,
 	"createView": true,
-	"createViews": true,
 	"destroyView": true,
 	"eager": true,
 	"error": true,
