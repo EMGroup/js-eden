@@ -917,7 +917,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var el = $(outdiv).find(".fake-caret").get(0);
 			var range = document.createRange();
 			var sel = window.getSelection();
-			range.setStart(el.nextSibling, 0);
+			if (el.nextSibling) el = el.nextSibling;
+			range.setStart(el, 0);
 			range.collapse(true);
 			sel.removeAllRanges();
 			sel.addRange(range);
