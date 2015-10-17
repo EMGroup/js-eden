@@ -197,6 +197,14 @@ EdenAST.prototype.pTERM_P = function() {
 	var right = this.pEXPRESSION_PPP();
 
 	if (right) {
+		// Do we need a refactor of the AST?
+		if (right.r.type == "binaryop" && right.r.op == "-") {
+			var r = right.r;
+			right.r = r.l;
+			right.left(left);
+			r.l = right;
+			return r;
+		}
 		right.left(left);
 		return right;
 	}
@@ -238,6 +246,14 @@ EdenAST.prototype.pTERM_PP = function() {
 	var right = this.pEXPRESSION_PPPP();
 
 	if (right) {
+		// Do we need a refactor of the AST?
+		if (right.r.type == "binaryop" && right.r.op == "/") {
+			var r = right.r;
+			right.r = r.l;
+			right.left(left);
+			r.l = right;
+			return r;
+		}
 		right.left(left);
 		return right;
 	}
