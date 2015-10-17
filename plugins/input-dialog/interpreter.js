@@ -367,8 +367,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var draglast = 0;
 		var dragline = -1;
 		var typingtimer;
+		var rebuildtimer;
 		var amtyping = false;
 		var typinginterval = 2000;
+		var rebuildinterval = 10;
 		var currentlineno = 0;
 		var currentcharno = 0;
 		var highlighter = new EdenHighlight(outdiv);
@@ -872,6 +874,32 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			inputchanged = false;
 		}
 
+		function doRebuild() {
+			// Regenerate the AST and highlight the code.
+			if (refreshentire) {
+				updateEntireHighlight();
+				refreshentire = false;
+			} else {
+				updateLineHighlight();
+			}
+
+
+			// If we should run the statement (there are no errors)
+			if (autoexec && highlighter.ast.script.errors.length == 0) {
+				powerOk();
+				submitLine(highlighter.ast, currentlineno-1);
+			} else if (autoexec) {
+				powerError();
+			}
+		}
+
+		function rebuild() {
+			// Using a timer to make rebuild async. Allows input and keyup to
+			// trigger a single rebuild which overcomes Chrome input event bug.
+			clearTimeout(rebuildtimer);
+			rebuildtimer = setTimeout(doRebuild, rebuildinterval);
+		}
+
 		function inputChanged(e) {
 			//console.log(e);
 			inputchanged = true;
@@ -886,24 +914,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 			typingtimer = setTimeout(doneTyping, typinginterval);
 
-			// Regenerate the AST and highlight the code.
-			//var scrollpos = $codearea.get(0).scrollTop;
-			if (refreshentire) {
-				updateEntireHighlight();
-				refreshentire = false;
-			} else {
-				updateLineHighlight();
-			}
-			//$codearea.scrollTop(scrollpos);
-
-
-			// If we should run the statement (there are no errors)
-			if (autoexec && highlighter.ast.script.errors.length == 0) {
-				powerOk();
-				submitLine(highlighter.ast, currentlineno-1);
-			} else if (autoexec) {
-				powerError();
-			}
+			rebuild();
 
 				/* Suggestions Box */
 				//console.log(window.getSelection().getRangeAt(0));
@@ -967,6 +978,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		$dialogContents.on('input', '.hidden-textarea', inputChanged
 		).on('keydown', '.hidden-textarea', function(e) {
 			if (!e.ctrlKey && e.keyCode != 17 && e.keyCode != 16) {
+				// Make TAB key insert TABs instead of changing focus
 				if (e.keyCode == 9) {
 					e.preventDefault();
 					var start = intextarea.selectionStart;
@@ -988,10 +1000,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						setCaretToFakeCaret();
 						return;
 					}
-					//var scrollpos = $codearea.get(0).scrollTop;
+					
+					// Update fake caret position at key repeat rate
 					updateLineCachedHighlight();
-					//$codearea.scrollTop(scrollpos);
 				} else if (e.keyCode == 13 || (e.keyCode == 8 && intextarea.value.charCodeAt(intextarea.selectionStart-1) == 10)) {
+					// Adding or removing lines requires a full re-highlight at present
 					refreshentire = true;
 				}
 
@@ -1032,6 +1045,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			} else if (e.ctrlKey && (e.keyCode == 86 || e.keyCode == 90)) {
 				// Paste and undo/redo need to update content
 				updateEntireHighlight();
+			} else {
+				rebuild();
 			}
 		}).on('keydown', '.outputcontent', function(e) {
 			if (e.keyCode == 16 || e.keyCode == 17 || (e.ctrlKey && e.keyCode == 67)) {
@@ -1041,7 +1056,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				var end = getCaretCharacterOffsetWithin(outdiv);
 				var start = getStartCaretCharacterOffsetWithin(outdiv);
 
-				if (e.keyCode == 8) {
+				/*if (e.keyCode == 8) {
 					// Remove selected text and move cursor to start of it.
 					intextarea.value = intextarea.value.slice(0,start) + intextarea.value.slice(end);
 					$(intextarea).focus();
@@ -1050,11 +1065,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					//updateEntireHighlight();
 					refreshentire = true;
 					inputChanged();
-				} else {
+				} else {*/
 					intextarea.focus();
 					intextarea.selectionEnd = end;
 					intextarea.selectionStart = start;
-				}
+				//}
 			}
 		}).on('blur', '.hidden-textarea', function(e) {
 			$(outdiv).find(".fake-caret").addClass("fake-blur-caret");
@@ -1073,10 +1088,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				intextarea.focus();
 				intextarea.selectionEnd = end;
 				intextarea.selectionStart = end;
-				var scrollpos = $codearea.get(0).scrollTop;		
+				//var scrollpos = $codearea.get(0).scrollTop;		
 				updateLineHighlight();
 				highlighter.highlight(highlighter.ast, curline, end);
-				$codearea.scrollTop(scrollpos);
+				//$codearea.scrollTop(scrollpos);
 			}
 		}).on('click', '.previous-input', function(e) {
 			previous();
