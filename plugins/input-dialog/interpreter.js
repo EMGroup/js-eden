@@ -378,6 +378,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var inputchanged = false;
 		var refreshentire = false;
 
+
+
+		/**
+		 * Generate the script text from a list. The list can contain strings
+		 * for each line, or a symbol reference to get the current definition.
+		 * Used on load and when _script changes.
+		 */
 		function preloadScript(sym, value) {
 			var res = "";
 			if (value instanceof Array) {
@@ -393,15 +400,24 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			updateEntireHighlight();
 		}
 
+
+
+		// Use the agent wrapper for dealing with view interaction via symbols.
 		var obs_script = "_view_"+name+"_script";
 		var obs_next = "_view_"+name+"_next";
 		var obs_prev = "_view_"+name+"_prev";
 		var obs_override = "_view_"+name+"_override";
 		var agent = new Eden.Agent([obs_script,obs_next,obs_prev,obs_override], eden.root.scope);
+
+		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);
 
-		//eden.root.lookup("_view_"+name+"_script").addJSObserver("setScript", preloadScript);
 
+
+		/**
+		 * Re-parse the entire script and then re-highlight the current line
+		 * (and one line either size).
+		 */
 		function updateLineHighlight() {
 			//setTimeout(function() {
 			var ast = new EdenAST(intextarea.value);
@@ -417,6 +433,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			//}, 0);
 		}
 
+
+
+		/**
+		 * Re-highlight the current line without re-parsing the script.
+		 * Used when moving around the script without actually causing a code
+		 * change that needs a reparse.
+		 */
 		function updateLineCachedHighlight() {
 			//setTimeout(function() {
 			var lineno = -1;
@@ -430,8 +453,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			//}, 0);
 		}
 
+
+
+		/**
+		 * Parse the script and do a complete re-highlight. This is slow but
+		 * is required when there are changes across multiple lines (or there
+		 * could be such changes), for example when pasting.
+		 */
 		function updateEntireHighlight() {
-			//setTimeout(function() {
 			var ast = new EdenAST(intextarea.value);
 			var pos = -1;
 			if (document.activeElement === intextarea) {
@@ -439,10 +468,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 
 			highlightContent(ast, -1, pos);
-			//rebuildNotifications();
-			//}, 0);
 		}
 
+
+
+		/**
+		 * Check if any of the listed symbols are undefined. Used in generating
+		 * warnings about use of undefined observables.
+		 */
 		function checkUndefined(dependencies) {
 			var res = [];
 			for (var d in dependencies) {
@@ -452,6 +485,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 			return res;
 		}
+
+
 
 		/* Execute a particular line of script.
 		 * If the statement is part of a larger statement block then execute
@@ -472,12 +507,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			// Execute only the currently changed root statement
 			me.submit(statement, highlighter.ast);
 
+			// Oops, mark the errors
 			if (statement.errors.length > 0) {
 				showInfoBox("error", statement.errors[0].messageText());
 				addErrorLine(line+1);
 			}
 		}
 
+
+
+		/**
+		 * Displays the error/warning box.
+		 */
 		function showInfoBox(type, message) {
 			if (type == "warning") {
 				infobox.innerHTML = "<div class='info-warnitem'><span>"+message+"</span></div>";
@@ -487,10 +528,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			$(infobox).show("fast");
 		}
 
+
+
 		function hideInfoBox() {
 			$(infobox).hide("fast");
 		}
 
+
+
+		/* UNUSED DUE TO PERFORMANCE BUG */
 		function rebuildNotifications() {
 			for (var i=0; i<highlighter.ast.lines.length; i++) {
 				if (highlighter.ast.lines[i] &&
@@ -500,6 +546,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
+
+
+		/**
+		 * Add a warning icon to the left of the specified line
+		 */
 		function addWarningLine(lineno, msg) {
 			var $line = $(outdiv.childNodes[lineno-1]);
 			$line.addClass("eden-warnline");
@@ -663,24 +714,41 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			return -1;
 		}
 
+
+
+		/**
+		 * Update scroll position if cursor is near to an edge.
+		 */
 		function checkScroll() {
+			// Get the cursor
 			var el = $(outdiv).find(".fake-caret").get(0);
 			if (el === undefined) return;
 			var area = $codearea.get(0);
+
+			// How far from left or right?
 			var distleft = el.offsetLeft - area.scrollLeft + 25;
 			var distright = area.clientWidth + area.scrollLeft - el.offsetLeft - 25;
 
+			// Need to find the current line element
 			while (el.parentNode != outdiv) el = el.parentNode;
 
+			// How far is this line from the top or bottom
 			var disttop = el.offsetTop - area.scrollTop + 15;
 			var distbottom = area.clientHeight + area.scrollTop - el.offsetTop - 15;
 
+			// Move if needed.
 			if (distleft < 80) area.scrollLeft = area.scrollLeft - (80-distleft);
 			if (distright < 80) area.scrollLeft = area.scrollLeft + (80-distright);
 			if (disttop < 40) area.scrollTop = area.scrollTop - (40-disttop);
 			if (distbottom < 40) area.scrollTop = area.scrollTop + (40-distbottom);
 		}
 
+
+
+		/**
+		 * Call the highlighter to generate the new highlight output, and then
+		 * post process this to allow for extra warnings and number dragging.
+		 */
 		function highlightContent(ast, lineno, position) {
 			highlighter.highlight(ast, lineno, position);
 
@@ -703,6 +771,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			// Adjust scroll position if required
 			checkScroll();
 
+			// Make sure caret remains inactive if we don't have focus
 			if (document.activeElement !== intextarea) {
 				$(outdiv).find(".fake-caret").addClass("fake-blur-caret");
 			}
@@ -771,8 +840,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
+
+
 		/**
-		 * Return the current line.
+		 * Return the current line. Also, set currentlineno.
 		 */
 		function getLineNumber(textarea) {
 			var lines = textarea.value.substr(0, textarea.selectionStart).split("\n");
@@ -781,28 +852,50 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			return currentlineno;
 		}
 
+
+
+		/**
+		 * Turn the power button grey and disable live coding.
+		 */
 		function powerOff() {
 			powerOk();
 			$powerbutton.removeClass("power-on").addClass("power-off");
 			autoexec = false;
 		}
 
+
+
+		/**
+		 * Turn the power button green and enable live coding.
+		 */
 		function powerOn() {
 			$powerbutton.removeClass("power-off").addClass("power-on");
 			autoexec = true;
 		}
 
+
+
+		/**
+		 * If we are live coding, turn the power button red.
+		 */
 		function powerError() {
 			if (autoexec) {
 				$powerbutton.addClass("power-error");
 			}
 		}
 
+
+
+		/**
+		 * Remove error status, turning power button green again.
+		 */
 		function powerOk() {
 			if ($powerbutton.hasClass("power-error")) {
 				$powerbutton.removeClass("power-error");
 			}
 		}
+
+
 
 		function powerToggle() {
 			if (autoexec) {
@@ -812,6 +905,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
+
+
+		/**
+		 * Move the caret of the contenteditable div showing the highlighted
+		 * script to be the same location as the fake caret in the highlight
+		 * itself. This enables shift selection using the browsers internal
+		 * mechanism.
+		 */
 		function setCaretToFakeCaret() {
 			var el = $(outdiv).find(".fake-caret").get(0);
 			var range = document.createRange();
@@ -822,6 +923,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			sel.addRange(range);
 		}
 
+
+
+		/* UNUSED */
 		function selectAll() {
 			var range = document.createRange();
 			range.selectNodeContents(outdiv);
@@ -830,6 +934,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			sel.addRange(range);
 		}
 
+
+
+		/**
+		 * Move script to previous in history, or toggle symbol for custom
+		 * previous/next functionality.
+		 */
 		function previous() {
 			if (agent[obs_override] == true) {
 				agent[obs_prev] = true;
@@ -843,6 +953,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
+
+
+		/**
+		 * Move script to next in history, or toggle symbol for custom
+		 * previous/next functionality.
+		 */
 		function next() {
 			if (agent[obs_override] == true) {
 				agent[obs_next] = true;
@@ -856,6 +972,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
+
+
+		/**
+		 * Script contents have changed, so re-parse, re-highlight and
+		 * if live, re-execute. Used in a short interval timeout from the
+		 * raw input/keyup events.
+		 */
 		function doRebuild() {
 			// Regenerate the AST and highlight the code.
 			if (refreshentire) {
@@ -875,6 +998,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
+
+
+		/**
+		 * Set the rebuild timeout. Note: rebuildinterval MUST be less that the
+		 * keyboard repeat rate or you will not see a change when holding keys
+		 * down.
+		 */
 		function rebuild() {
 			// Using a timer to make rebuild async. Allows input and keyup to
 			// trigger a single rebuild which overcomes Chrome input event bug.
@@ -882,6 +1012,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			rebuildtimer = setTimeout(doRebuild, rebuildinterval);
 		}
 
+
+
+		/**
+		 * Event handler for input change.
+		 */
 		function inputChanged(e) {
 			inputchanged = true;
 
@@ -955,8 +1090,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}*/
 		}
 
+
+
+		// Set the event handlers
 		$dialogContents.on('input', '.hidden-textarea', inputChanged
 		).on('keydown', '.hidden-textarea', function(e) {
+			// If not Ctrl or Shift key then
 			if (!e.ctrlKey && e.keyCode != 17 && e.keyCode != 16) {
 				// Make TAB key insert TABs instead of changing focus
 				if (e.keyCode == 9) {
@@ -1089,13 +1228,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		});
 
+		// Initialise contents if given some code
 		if (code) {
 			inputchanged = true;	// To make sure it goes into history.
 			intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(code);
 			updateEntireHighlight();
 		}
 
-		var agent = new Eden.Agent(["code"]);
+		//var agent = new Eden.Agent(["code"]);
 
 		var viewdata = {
 			contents: $dialogContents,
