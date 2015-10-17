@@ -17,6 +17,7 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 		var table = $('<table class="dbview-table"></table>');
 		table.appendTo(code_entry);
 		var columns;
+		var rows;
 
 		function rebuild() {
 			var tabele = table.get(0);
@@ -24,7 +25,7 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 
 			var data = Database.getValues();
 			columns = [];
-			var rows = [];
+			rows = [];
 			for (var d in data) {
 				var labels = d.split("/");
 				var name = labels[0];
@@ -46,7 +47,7 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 				var row = $('<tr></tr>');
 				for (var c=0; c<columns.length; c++) {
 					var col;
-					if (columns[c] == "scope_id") col = $('<td class="dbview-disabled"></td>');
+					if (columns[c] == "scope") col = $('<td class="dbview-disabled"></td>');
 					else col = $('<td contenteditable></td>');
 					col.appendTo(row);
 					var entry = Database.getValueEntry(columns[c], rows[r]);
@@ -60,13 +61,56 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 			}
 		}
 
+
+		function findEntry(name, scope) {
+			var col = columns.indexOf(name);
+			var row = rows.indexOf(scope.toString());
+			if (col < 0 || row < 0) return undefined;
+			return {col: col, row: row};
+		}
+
+
+		function clearHighlights() {
+			table.find('.dbview-dependant').removeClass("dbview-dependant");
+		}
+
+
+		function highlightSourceScope(entry) {
+			
+		}
+
+		function highlightDependants(entry) {
+			for (var i=0; i<entry.dependants.length; i++) {
+				var loc = findEntry(entry.dependants[i].name, entry.dependants[i].origin_scope);
+				//console.log(loc);
+				if (loc) {
+					//console.log(table.get(0).childNodes);
+					$(table.get(0).firstChild.childNodes[loc.row+1].childNodes[loc.col]).addClass("dbview-dependant");
+				}
+			}
+		}
+
 		table.on('input', 'td', function(e) {
 			var col = e.target.cellIndex;
 			var row = e.target.parentNode.rowIndex-1;
 			if (col < 0 || row < 0) return;
 			var value = e.target.textContent;
-			console.log("Edited: " + columns[col] + "/" + row);
+			//console.log("Edited: " + columns[col] + "/" + row);
 			Database.setValue(columns[col],row, value); 
+		}).on('mouseenter', 'td', function(e) {
+			var col = e.target.cellIndex;
+			var row = e.target.parentNode.rowIndex-1;
+			var entry = Database._getValueEntry(columns[col],rows[row]);
+
+			if (entry) {
+				highlightSourceScope(entry);
+				if (entry.formula) {
+					//highlightDependencies(entry);
+				}
+				highlightDependants(entry);
+			}
+		}).on('mouseleave', 'td', function(e) {
+			clearHighlights();
 		});
 
 		rebuild();

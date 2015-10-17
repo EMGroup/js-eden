@@ -201,12 +201,27 @@
 		// Nothing to do if already expired
 		if (entry.up_to_date === false) return
 
-		entry.up_to_date = false;
+		// It may not have a definition and still be expired by mistake
+		if (entry.formula !== undefined) {
+			entry.up_to_date = false;
+		}
 		var dependants = entry.dependants;
 		entry.dependants = [];
 
 		for (var i=0; i<dependants.length; i++) {
 			this.expire(dependants[i]);
+		}
+
+		// Also need to expire all overrides that use this formula
+		if (entry.overrides) {
+			for (var i=0; i<entry.overrides.length; i++) {
+				var oent = this._getValueEntry(entry.name, entry.overrides[i]);
+				if (oent) {
+					this.expire(oent);
+				} else {
+					console.log("ERROR: " + entry.name + "/" + entry.overrides[i]);
+				}
+			}
 		}
 	}
 
@@ -292,11 +307,11 @@
 		this.expire(value);
 
 		// Also need to expire all overrides that use this formula
-		if (value.overrides) {
+		/*if (value.overrides) {
 			for (var i=0; i<value.overrides.length; i++) {
 				this.expire(this._getValueEntry(name, value.overrides[i]));
 			}
-		}
+		}*/
 
 		triggerGlobal("setformula", name, scopeid);
 	}

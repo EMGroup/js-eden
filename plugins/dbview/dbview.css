@@ -104,16 +104,16 @@ table.dbview-table th {
 	background-color: blue;
 }
 
-.dbview-currentcell {
-	background-color: red;
+.dbview-table td:hover {
+	background-color: #d5e1ed;
 }
 
 .dbview-valuesource {
 	background-color: orange;
 }
 
-.dbview-dependency {
-	background-color: purple;
+.dbview-dependant {
+	background-color: #edd5eb;
 }
 
 .dbview-indirectdep {
