@@ -88,6 +88,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			var embedded;
 			if (scripts[name]) {
 				embedded = scripts[name];
+				// Make sure code is up-to-date
+				embedded.update(code);
 			} else {
 				embedded = edenUI.views.ScriptInput.embed(name, name, code, power);
 				scripts[name] = embedded;
@@ -98,7 +100,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			} else {
 				container = $("<div class='page-script-live'></div>");
 			}
-			var height = EdenUI.plugins.ScriptInput.getRequiredHeight(script[5]);
+			var height = EdenUI.plugins.ScriptInput.getRequiredHeight(lines);
 			container.height(height);
 
 			if (float != "none") {

@@ -1118,8 +1118,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var viewdata = {
 			contents: $dialogContents,
 			update: function(data) {
-				console.log("View Update:");
-				console.log(data);
 				if (data instanceof Symbol) {
 					agent.setScope(data.getValueScope(eden.root.scope));
 					inputchanged = true;	// To make sure it goes into history.
