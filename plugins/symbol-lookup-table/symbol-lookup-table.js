@@ -1,4 +1,4 @@
-EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
+EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 
 	this.createDialog = function(name,mtitle) {
 
@@ -16,7 +16,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 	}
 
 	//Register the HTML view options
-	edenui.views["SymbolLookUpTable"] = {dialog: this.createDialog, title: "Symbol Look-Up Table", category: edenUI.viewCategories.comprehension, menuPriority: 3};
+	edenUI.views["SymbolLookUpTable"] = {dialog: this.createDialog, title: "Symbol Look-Up Table", category: edenUI.viewCategories.comprehension, menuPriority: 3};
 	
 	this.search = function (viewName) {
 		//Update a symbol look-up table with search results for a new regexp.
@@ -53,7 +53,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 		"</tr>";
 		tableBodyHTML = "";
 		
-		var re = new RegExp("^(" + regexString + ")", "i");
+		var re = EdenUI.regExpFromStr(regexString);
 		var partialTable = [];
 		var matchingNames = {};
 		var symbol;

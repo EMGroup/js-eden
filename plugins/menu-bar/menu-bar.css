@@ -84,8 +84,22 @@
 	background: linear-gradient(#fafafa, #cccccc); */
 }
 
-.menubar-item:first-child .menubar-item-separator {
-	margin-top: 0px;
+.menubar-item-search {
+    padding-top: 3px;
+	margin-top: 2px;
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+	cursor: default;
+	background-color: #CCDDFF;
+}
+
+.menubar-search-box {
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.menubar-item-separator ~:not([style*='display: none']) {
+	margin-top: 10px;
 }
 
 .menubar-item:hover {
@@ -114,14 +128,20 @@
 }
 
 .menubar-item-label {
-	width: 200px;
+	width: calc(100% - 50px);
 	padding: 5px;
 	vertical-align: middle;
 }
 
+.menubar-view-name {
+	color: #A0A0A0;
+	float: right;
+	font-style: italic;
+}
+
 .menubar-item-fullwidth {
 	box-sizing: border-box;
-	width: 250px;
+	width: 100%;
 	padding: 5px;
 }
 
@@ -160,6 +180,11 @@
 	color: black;
 	width: 250px;
 	text-align: left;
+	overflow-y: auto;
+}
+
+#menubar-mainitem-existing-views {
+	width: 305px;
 }
 
 .menubar-view {

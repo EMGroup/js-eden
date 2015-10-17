@@ -14,13 +14,6 @@
 EdenUI.plugins.HTMLContent = function(edenUI, success) {
 	var me = this;
 
-	this.html = function(name,content) {
-		if (!(name in edenUI.viewInstances)) {
-			edenUI.createView(name,"HTMLContent");
-		}
-		$("#"+name+"-dialog-content").html(content);
-	}
-
 	this.createDialog = function(name,mtitle) {
 	
 		var code_entry = $('<div id=\"'+name+'-content\" class=\"htmlviews-content\"></div>');
@@ -38,7 +31,7 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 	}
 
 	//Register the HTML view options
-	edenUI.views["HTMLContent"] = {dialog: this.createDialog, title: "HTML Content", category: edenUI.viewCategories.visualization};
+	edenUI.views["HTMLContent"] = {dialog: this.createDialog, title: "HTML Content", category: edenUI.viewCategories.visualization, holdsContent: true};
 
 	//Load the Eden wrapper functions
 	edenUI.eden.include("plugins/html-views/html.js-e", success);

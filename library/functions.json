@@ -1238,9 +1238,9 @@
 		},
 		"forgetAll": {
 			"parameters": {
-				"regular_expression_or_list": "",
+				"[regular_expression_or_list": "",
 				"[case_sensitive": "",
-				"[confirm]]" : ""
+				"[confirm]]]" : ""
 			},
 			"return": "",
 			"description": "Removes from the symbol table all symbols whose names match a given regular expression"
@@ -1379,7 +1379,8 @@
 		},
 		"createHTMLView": {
 			"parameters": {
-				"observable_name": "",
+				"[view_name]": "",
+				"picture_observable": "",
 				"[window_title]": ""
 			}
 		},
@@ -1393,8 +1394,7 @@
 		"createView": {
 			"parameters": {
 				"view_name": "",
-				"view_type": "",
-				"[view_type_specific_value]" : ""
+				"view_type": ""
 			}
 		},
 		"destroyView": {

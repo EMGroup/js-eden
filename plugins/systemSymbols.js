@@ -3,6 +3,7 @@
  */
  Eden.initiallyDefined = [
 	"_view_picture_background_colour",
+	"_view_picture_observable",
 	"_view_picture_offset",
 	"_view_picture_scale",
 	"edenclocks",
@@ -13,7 +14,7 @@
 	"mouseFollow",
 	"mouseWheelEnabled",
 	"picture",
-	"px",
+	"pixel",
 	"radiansPerUnit",
 	"randomGenerator",
 	"randomSeed",
@@ -43,7 +44,7 @@ Eden.systemObservableNames = {
 	"mouseX": true,
 	"mouseY": true,
 	"mouseZone": true,
-	"px": true,
+	"pixel": true,
 	"randomGeneratorState": true,
 	"randomIndex": true,
 	"screenHeight": true,
@@ -284,7 +285,7 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"mouseY": true,
 		"mouseZone": true,
 		"picture": true,
-		"px": true,
+		"pixel": true,
 		"radiansPerUnit": true,
 		"touchScrollX": true,
 		"touchScrollXDir": true,
@@ -401,7 +402,7 @@ Eden.isitSystemSymbol = function(name){
 }
 
 Eden.isitSystemObservable = function(name) {
-	if (/^_view_/.test(name) && !/_(background_colour|offset|scale)$/.test(name)) {
+	if (/^_view_.*_(x|y|width|height|title|zoom)/.test(name)) {
 	  return true;
 	}
 	return name in Eden.systemObservableNames;

@@ -25,18 +25,15 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	contents = {};
 	var canvasNameToElements = {};
 	var pictureObsToViews = {};
-	var viewsToPictureObs = {};
 	var redrawDelay = 40;
 
-	this.drawPictures = function (pictureObs) {
-		for (var viewName in pictureObsToViews[pictureObs]) {
-			this.drawPicture(viewName, pictureObs);
-		}
-	}
-
-	this.destroyViews = function (pictureObs) {
-		for (var viewName in pictureObsToViews[pictureObs]) {
-			edenUI.destroyView(viewName);
+	/**So that forgetAll can kill the view.
+	  */
+	this.destroyViews = function (pictureSelectName) {
+		var match = pictureSelectName.match(/^_view_(.*)_observable$/);
+		if (match !== null) {
+			var viewName = match[1];
+			edenUI.destroyView(viewName, true);
 		}
 	}
 
@@ -53,6 +50,35 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				}
 			}
 		}
+	};
+
+	this.setPictureObs = function (viewName, pictureObs) {
+		var oldPictureObs = canvases[viewName].pictureObs;
+		if (oldPictureObs !== undefined) {
+			delete pictureObsToViews[oldPictureObs][viewName];
+		}
+
+		if (!(pictureObs in pictureObsToViews)) {
+			pictureObsToViews[pictureObs] = {};
+		}
+		pictureObsToViews[pictureObs][viewName] = true;
+		canvases[viewName].pictureObs = pictureObs;
+
+		root.lookup(pictureObs).addJSObserver("repaintView", function (symbol, value) {
+			me.drawPictures(pictureObs);
+		});
+		this.drawPicture(viewName, pictureObs);
+	};
+
+	this.drawPictures = function (pictureObs) {
+		for (var viewName in pictureObsToViews[pictureObs]) {
+			this.drawPicture(viewName, pictureObs);
+		}
+	};
+
+	this.drawPictureForView = function (canvasName) {
+		var pictureObs = root.lookup("_view_" + canvasName + "_observable").value();
+		this.drawPicture(canvasName, pictureObs);
 	};
 
 	this.drawPicture = function(canvasname, pictureObs) {
@@ -74,6 +100,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var previousElements = canvasNameToElements[canvasname];
 					var nextElements = {};
 
+					var pictureObs = canvas.pictureObs;
 					var picture = root.lookup(pictureObs).value();
 					var context = canvas.getContext('2d');
 					var content = contents[canvasname];
@@ -153,7 +180,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 									} catch (e) {
 										if (item !== undefined) {
 											console.log(e);
-											var debug = edenUI.eden.root.lookup("debug").value();
+											var debug = root.lookup("debug").value();
 											if (typeof(debug) == "object" && debug.jsExceptions) {
 												debugger;
 											}
@@ -354,7 +381,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			}
 		} else {
 			viewName = pictureOrView;
-			pictureObs = viewsToPictureObs[viewName];
+			if (!(viewName in canvases)) {
+				return undefined;
+			}
+			pictureObs = canvases[viewName].pictureObs;
 		}
 		return this.findDrawableHit(viewName, pictureObs, x, y, fromBottom, testAll);
 	}
@@ -371,7 +401,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			picture = pictureOrView.value();
 		} else {
 			viewName = pictureOrView;
-			pictureObs = viewsToPictureObs[viewName];
+			if (!(viewName in canvases)) {
+				return undefined;
+			}
+			pictureObs = canvases[viewName].pictureObs;
 			picture = root.lookup(pictureObs).value();
 		}
 
@@ -411,23 +444,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		leftButton: false, middleButton: false, rightButton: false, button4: false, button5: false,
 		buttonCount: 0, insideCanvas: false, capturing: false
 	};
-
-	this.setPictureObs = function (viewName, pictureObs) {
-		for (var otherPictureObs in pictureObsToViews) {
-			delete pictureObsToViews[otherPictureObs][viewName];
-		}
-		if (!(pictureObs in pictureObsToViews)) {
-			pictureObsToViews[pictureObs] = {};
-		}
-		pictureObsToViews[pictureObs][viewName] = true;
-		viewsToPictureObs[viewName] = pictureObs;
-
-		edenUI.eden.root.lookup(pictureObs).addJSObserver("refreshView", function (symbol, value) {
-			me.drawPictures(pictureObs);
-		});
-	};
 	
-	this.createCommon = function(name, mtitle, pictureObs) {
+	this.createCommon = function(name, mtitle) {
 		//Remove -dialog name suffix.
 		var agent = root.lookup("createView");
 		var code_entry, jqCanvas;
@@ -450,12 +468,17 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			jqCanvas = code_entry.find(".canvashtml-canvas");
 		}
 
+		var pictureSelectSym = root.lookup("_view_" + canvasName + "_observable");
+		pictureSelectSym.addJSObserver("refreshView", function(sym, newObsName) {
+			edenUI.plugins.Canvas2D.setPictureObs(canvasName, newObsName);
+		});
+
 		var backgroundColourSym = root.lookup("_view_" + canvasName + "_background_colour");
 		if (backgroundColourSym.value() === undefined) {
 		  backgroundColourSym.assign("white", root.scope, agent);
 		}
 		backgroundColourSym.addJSObserver("repaintView", function (symbol, value) {
-			me.drawPicture(canvasName, pictureObs);
+			me.drawPictureForView(canvasName);
 		});
 
 		//Events triggered by changes to the various sizing observables.
@@ -479,27 +502,24 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			}
 			var zoom = zoomSym.value();
 
-			/* Use cached_value in some places below because the grid snapping UI adjusts the values
-			 * to make them align to the grid after the results of any dependencies have been calculated!
-			 */
 			var width = widthSym.value();
 			if (width !== undefined) {
 				width = Math.ceil(widthSym.value() * scaleSym.value() * zoom + offsetX);
 				canvas.width = width;
 			} else if (zoom > 1) {
-				canvas.width = Math.ceil(viewWidthSym.cache.value * zoom);
+				canvas.width = Math.ceil(viewWidthSym.value() * zoom);
 			} else {
-				canvas.width = Math.floor(viewWidthSym.cache.value);
+				canvas.width = Math.floor(viewWidthSym.value());
 			}
 
 			var height;
 			if (heightSym.value() !== undefined) {
 				height = Math.ceil(heightSym.value() * scaleSym.value() * zoom + offsetY);
 			} else if (zoom > 1) {
-				height = Math.ceil(viewHeightSym.cache.value * zoom);
+				height = Math.ceil(viewHeightSym.value() * zoom);
 			} else {
-				height = viewHeightSym.cache.value;
-				if (width !== undefined && width > Math.floor(viewWidthSym.cache.value)) {
+				height = viewHeightSym.value();
+				if (width !== undefined && width > Math.floor(viewWidthSym.value())) {
 					height = height - edenUI.scrollBarSize;
 				}
 				height = Math.floor(height - 1);
@@ -507,7 +527,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			canvas.height = height;
 
 			canvas.rescale = true;
-			me.drawPicture(canvasName, pictureObs);
+			me.drawPictureForView(canvasName);
 		}
 		var scale = scaleSym.value();
 		if (scale === undefined) {
@@ -525,7 +545,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			if (isZooming) {
 				isZooming = false;
 				canvas.rescale = true;
-				me.drawPicture(canvasName, pictureObs);
+				me.drawPictureForView(canvasName);
 				if (!zoomingQueued) {
 					zoomingQueued = true;
 					setTimeout(zoomOnDelay, 1000);
@@ -558,7 +578,13 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			offsetY = offset.y;
 		}
 		offsetSym.addJSObserver("repaintView", resizeCanvas);
+		if (widthSym.value() == undefined) {
+			widthSym.assign(undefined, root.scope, agent);
+		}
 		widthSym.addJSObserver("repaintView", resizeCanvas);
+		if (heightSym.value() == undefined) {
+			heightSym.assign(undefined, root.scope, agent);
+		}
 		heightSym.addJSObserver("repaintView", resizeCanvas);
 		var initialWidth = widthSym.value();
 		if (initialWidth === undefined) {
@@ -866,14 +892,17 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			root.lookup('mouseWindow').assign(canvasName, root.scope, Symbol.hciAgent, followMouse);
 			mousePositionSym.assign(mousePos, root.scope, Symbol.hciAgent, followMouse);
 
-			var drawableHit = me.findDrawableHit(canvasName, pictureObs, x, y, false, false);
-			var zoneHit;
-			if (drawableHit === undefined) {
-				zoneHit = undefined;
-			} else {
-				zoneHit = drawableHit.name;
+			var pictureObs = pictureSelectSym.value();
+			if (pictureObs !== undefined) {
+				var drawableHit = me.findDrawableHit(canvasName, pictureObs, x, y, false, false);
+				var zoneHit;
+				if (drawableHit === undefined) {
+					zoneHit = undefined;
+				} else {
+					zoneHit = drawableHit.name;
+				}
+				root.lookup("mouseZone").assign(zoneHit, root.scope, Symbol.hciAgent, followMouse);
 			}
-			root.lookup("mouseZone").assign(zoneHit, root.scope, Symbol.hciAgent, followMouse);
 			
 			root.endAutocalcOff();
 
@@ -1024,14 +1053,24 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			dialogClass: "canvas-dialog unpadded-dialog"
 		});
 
-		me.setPictureObs(canvasName, pictureObs);
 		viewData = {
 			confirmClose: true,
 			destroy: function () {
+				var elementsHashtable = canvasNameToElements[canvasName];
+				for (var hash in elementsHashtable) {
+					var elementList = elementsHashtable[hash];
+					for (var i = 0; i < elementList.length; i++) {
+						var element = elementList[i];
+						//Preserve jQuery events
+						$(element).detach();
+					}
+				}
 				delete canvases[canvasName];
 				delete contents[canvasName];
-				delete pictureObsToViews[pictureObs][canvasName];
-				delete viewsToPictureObs[canvasName];
+				var pictureObs = pictureSelectSym.value();
+				if (pictureObs !== undefined) {
+					delete pictureObsToViews[pictureObs][canvasName];
+				}
 			},
 			resize: function (width, height) {
 				var offset = offsetSym.value();
@@ -1086,10 +1125,14 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					}
 				}
 				if (redraw) {
-					me.drawPicture(canvasName, pictureObs);
+					me.drawPictureForView(canvasName);
 				}
 			}
 		};
+		var pictureObs = pictureSelectSym.value();
+		if (pictureObs !== undefined) {
+			edenUI.plugins.Canvas2D.setPictureObs(canvasName, pictureObs)
+		}
 		return viewData;
 	}
 
@@ -1192,8 +1235,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		root.lookup("mouseCaptured").assign(locked, root.scope, undefined, followMouse);
 	});
 
-	edenUI.views["Canvas2D"] = {dialog: this.createDialog, embedded: this.createEmbedded, title: "Canvas 2D", category: edenUI.viewCategories.visualization};
-	//edenUI.eden.include("plugins/canvas-html5/canvas.js-e", success);
+	edenUI.views["Canvas2D"] = {dialog: this.createDialog, embedded: this.createEmbedded, title: "Canvas 2D", category: edenUI.viewCategories.visualization, holdsContent: true};
 	edenUI.eden.include("plugins/canvas-html5/jseden-canvas.min.js-e", success);
 };
 

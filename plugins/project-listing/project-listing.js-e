@@ -4,7 +4,7 @@
 ## See LICENSE.txt
 
 proc createProjectList {
-	auto url, viewTitle, viewName, createOrUpdateView;
+	auto url, viewTitle, viewName;
 	if ($# == 0) {
 		viewName = "projects";
 	} else if ($# == 1) {
@@ -37,15 +37,11 @@ proc createProjectList {
 		return;
 	}
 
-	createOrUpdateView = ${{ function (viewName, url) {
-		if (edenUI.activeDialogs[viewName] == "ProjectList") {
-			edenUI.viewInstances[viewName].data.loadProjectData(url, true);
-		} else {
-			edenUI.createView(viewName, "ProjectList", url);
-		}
-	} }}$;
+	createView(viewName, "ProjectList");
 
-	createOrUpdateView(viewName, url);
+	if (url != @) {
+		`"_view_" // viewName // "_source"` = url;
+	}
 
 	if (viewTitle != @) {
 		`"_view_" // viewName // "_title"` = viewTitle;

@@ -53,34 +53,55 @@ proc createHTMLView {
 	} else if ($# == 2) {
 		obsName = $[1];
 		viewTitle = $[2];
+	} else if ($# == 3) {
+		viewName = $[1];
+		obsName = $[2];
+		viewTitle = $[3];
+		if (!isString(viewName)) {
+			error("createHTMLView: The first argument must be a string, not a " // type(viewName));
+			return;
+		}
 	} else {
-		error("createHTMLView: This procedure requires at least 1 argument and at most 2 arguments.");
+		error("createHTMLView: This procedure requires at least 1 argument and at most 3 arguments.");
 		return;
 	}
 
 	if (isPointer(obsName)) {
 		obsName = nameof(obsName);
 	} else if (!isString(obsName)) {
-		error("createHTMLView: The first argument must be a string or a pointer, not a " // type(obsName));
+		error("createHTMLView: The observable name must be expressed as a string or a pointer, not a " // type(obsName));
 		return;
 	}
-	
-	viewName = obsName;
+	if (viewName == @) {
+		viewName = obsName;
+	}
 	if (viewTitle == @) {
-		viewTitle = uppercase(substr(obsName, 1, 1)) // substr(obsName, 2);
+		viewTitle = uppercase(substr(viewName, 1, 1)) // substr(viewName, 2);
 	} else if (!isString(viewTitle)) {
-		error("createHTMLView: The second argument must be a string, not a " // type(viewTitle));
+		error("createHTMLView: The window title must be a string, not a " // type(viewTitle));
 		return;
 	}
 
 	createView(viewName, "HTMLContent");
-	createJSObserver = ${{ function (obsName, viewName) {
-		var observer = function (symbol, value) {
-			root.lookup("html").definition(root)(viewName, value);
-		};
-		root.lookup(obsName).addJSObserver("refreshView", observer);
+	createJSObserver = ${{ function (initialObsName, viewName) {
+
+		var obsSelectSym = root.lookup("_view_" + viewName + "_observable");
+
+		function bind(obsSym, obsName) {
+			var updateView = function (symbol, value) {
+				if (obsSelectSym.value() == obsName) {
+					root.lookup("html").definition(root)(viewName, value);
+				}
+			};
+			obsSym.addJSObserver("repaintView", updateView);
+			updateView(obsSym, obsSym.value());
+		}
+
+		obsSelectSym.addJSObserver("refreshView", function (sym, obsName) {
+			bind(root.lookup(obsName), obsName);
+		});
 	} }}$;
 	createJSObserver(obsName, viewName);
-	html(viewName, `obsName`);
+	`"_view_" // viewName // "_observable"` = obsName;
 	`"_view_" // viewName // "_title"` = viewTitle;
 }

@@ -125,12 +125,14 @@ func forgetAll {
 		var obsToDelete = undefined;
 		var includeAgent = {name: "/include"};
 		
-		if (arguments.length == 0 || arguments.length > 4) {
-			eden.error(new Error("forgetAll: This function requires at least 1 argument and at most 3 arguments."), "error");
+		if (arguments.length > 4) {
+			eden.error(new Error("forgetAll: This function requires at most 3 arguments."), "error");
 			return [[], undefined, []];
 		}
-		
-		if (typeof(arguments[0]) == "string") {
+
+		if (arguments.length == 0) {
+			searchStr = "";
+		} else if (typeof(arguments[0]) == "string") {
 			searchStr = arguments[0];
 		} else if (Array.isArray(arguments[0])) {
 			obsToDelete = arguments[0];
