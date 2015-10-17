@@ -396,7 +396,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var obs_script = "_view_"+name+"_script";
 		var obs_next = "_view_"+name+"_next";
 		var obs_prev = "_view_"+name+"_prev";
-		var agent = new Eden.Agent([obs_script], eden.root);
+		var obs_override = "_view_"+name+"_override";
+		var agent = new Eden.Agent([obs_script,obs_next,obs_prev,obs_override], eden.root.scope);
 		agent.on(obs_script, preloadScript);
 
 		//eden.root.lookup("_view_"+name+"_script").addJSObserver("setScript", preloadScript);
@@ -821,35 +822,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			sel.addRange(range);
 		}
 
-		/*function selectToEOL() {
-			var el = $(outdiv).find(".fake-caret").get(0);
-			var range = document.createRange();
-			var sel = window.getSelection();
-			range.setStart(el.nextSibling, 0);
-			var lineno = findElementLineNumber(el);
-			var ele = outdiv.childNodes[lineno];
-			while (ele.lastChild) ele = ele.lastChild;
-			range.setEnd(ele, ele.textContent.length);
-			//range.collapse(true);
-			sel.removeAllRanges();
-			sel.addRange(range);
-		}
-
-		function selectToBOL() {
-			var el = $(outdiv).find(".fake-caret").get(0);
-			var range = document.createRange();
-			var sel = window.getSelection();
-			var lineno = findElementLineNumber(el);
-			var ele = outdiv.childNodes[lineno];
-			while (ele.firstChild) ele = ele.firstChild;
-			// TODO Firefox requires this the other way around
-			range.setEnd(ele, 0);
-			range.setStart(el, 0);
-			//range.collapse(true);
-			sel.removeAllRanges();
-			sel.addRange(range);
-		}*/
-
 		function selectAll() {
 			var range = document.createRange();
 			range.selectNodeContents(outdiv);
@@ -859,19 +831,29 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		function previous() {
-			if (inputchanged && intextarea.value != "") me.addHistory(intextarea.value);
-			powerOff();
-			intextarea.value = edenUI.plugins.ScriptInput.previousHistory();
-			updateEntireHighlight();
-			inputchanged = false;
+			if (agent[obs_override] == true) {
+				agent[obs_prev] = true;
+				agent[obs_prev] = false;
+			} else {
+				if (inputchanged && intextarea.value != "") me.addHistory(intextarea.value);
+				powerOff();
+				intextarea.value = edenUI.plugins.ScriptInput.previousHistory();
+				updateEntireHighlight();
+				inputchanged = false;
+			}
 		}
 
 		function next() {
-			if (inputchanged && intextarea.value != "") me.addHistory(intextarea.value);
-			powerOff();
-			intextarea.value = edenUI.plugins.ScriptInput.nextHistory();
-			updateEntireHighlight();
-			inputchanged = false;
+			if (agent[obs_override] == true) {
+				agent[obs_next] = true;
+				agent[obs_next] = false;
+			} else {
+				if (inputchanged && intextarea.value != "") me.addHistory(intextarea.value);
+				powerOff();
+				intextarea.value = edenUI.plugins.ScriptInput.nextHistory();
+				updateEntireHighlight();
+				inputchanged = false;
+			}
 		}
 
 		function doRebuild() {
@@ -901,7 +883,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		function inputChanged(e) {
-			//console.log(e);
 			inputchanged = true;
 
 			// Typing status, error messages and result value are delayed
@@ -909,7 +890,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			clearTimeout(typingtimer);
 			if (amtyping == false) {
 				hideInfoBox();
-				//outputbox.innerHTML = "<div class='loader'></div>";
 				amtyping = true;
 			}
 			typingtimer = setTimeout(doneTyping, typinginterval);
@@ -1056,20 +1036,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				var end = getCaretCharacterOffsetWithin(outdiv);
 				var start = getStartCaretCharacterOffsetWithin(outdiv);
 
-				/*if (e.keyCode == 8) {
-					// Remove selected text and move cursor to start of it.
-					intextarea.value = intextarea.value.slice(0,start) + intextarea.value.slice(end);
-					$(intextarea).focus();
-					intextarea.selectionEnd = start;
-					intextarea.selectionStart = start;					
-					//updateEntireHighlight();
-					refreshentire = true;
-					inputChanged();
-				} else {*/
-					intextarea.focus();
-					intextarea.selectionEnd = end;
-					intextarea.selectionStart = start;
-				//}
+				intextarea.focus();
+				intextarea.selectionEnd = end;
+				intextarea.selectionStart = start;
 			}
 		}).on('blur', '.hidden-textarea', function(e) {
 			$(outdiv).find(".fake-caret").addClass("fake-blur-caret");
@@ -1080,18 +1049,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var end = getCaretCharacterOffsetWithin(outdiv);
 			var start = getStartCaretCharacterOffsetWithin(outdiv);
 			if (start != end) {
-			
-				//$(intextarea).focus();
+				// Fix to overcome current line highlight bug on mouse select.
+				refreshentire = true;
 			} else {
 				// Move caret to clicked location
 				var curline = currentlineno;
 				intextarea.focus();
 				intextarea.selectionEnd = end;
-				intextarea.selectionStart = end;
-				//var scrollpos = $codearea.get(0).scrollTop;		
+				intextarea.selectionStart = end;		
 				updateLineHighlight();
 				highlighter.highlight(highlighter.ast, curline, end);
-				//$codearea.scrollTop(scrollpos);
 			}
 		}).on('click', '.previous-input', function(e) {
 			previous();
