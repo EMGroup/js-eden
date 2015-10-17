@@ -558,9 +558,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		zoomSym.addJSObserver("repaintView", function (symbol, zoom) {
 			var zoomPercent = Math.round(zoom * 100);
 			if (zoom == 1) {
-				viewData.titleBarInfo = undefined;
+				// TODO FIX
+				//viewData.titleBarInfo = undefined;
 			} else {
-				viewData.titleBarInfo = zoomPercent + "%";
+				//viewData.titleBarInfo = zoomPercent + "%";
 			}
 			//Redraw bigger but don't change the canvas size while the user is zooming in and out (avoids flicker).
 			isZooming = true;
@@ -942,7 +943,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			zoomSym: zoomSym,
 			widthSym: widthSym,
 			heightSym: heightSym,
-			scaleSym: scaleSym
+			scaleSym: scaleSym,
+			pictureSelectSym: pictureSelectSym
 		};
 	}
 
@@ -1041,6 +1043,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		var widthSym = canvasdata.widthSym;
 		var heightSym = canvasdata.heightSym;
 		var scaleSym = canvasdata.scaleSym;
+		var pictureSelectSym = canvasdata.pictureSelectSym;
 
 		$('<div id="'+name+'"></div>')
 		.html(code_entry)
