@@ -211,28 +211,28 @@
 			if (viewList.indexOf(name) === -1) {
 				viewList = viewList.slice();
 				viewList.push(name);
-				viewListSym.assign(viewList, root.lookup, creatingAgent);
+				viewListSym.assign(viewList, root.scope, creatingAgent);
 			}
 		} else {
-			viewListSym.assign([name], root.lookup, creatingAgent);
+			viewListSym.assign([name], root.scope, creatingAgent);
 		}
  
 		widthSym = view(name, 'width');
 		if (widthSym.value() === undefined) {
-			widthSym.assign(diag.dialog("option", "width") - this.scrollBarSize, root.lookup, agent);
+			widthSym.assign(diag.dialog("option", "width") - this.scrollBarSize, root.scope, agent);
 		}
 		var heightSym = view(name, 'height');
 		if (heightSym.value() === undefined) {
-			heightSym.assign(diag.dialog("option", "height") - this.titleBarHeight, root.lookup, agent);
+			heightSym.assign(diag.dialog("option", "height") - this.titleBarHeight, root.scope, agent);
 		}
 		var topLeft = diag.closest('.ui-dialog').offset();
 		var xSym = view(name, 'x');
 		if (xSym.value() === undefined) {
-			xSym.assign(topLeft.left, root.lookup, agent);
+			xSym.assign(topLeft.left, root.scope, agent);
 		}
 		var ySym = view(name, 'y');
 		if (ySym.value() === undefined) {
-			ySym.assign(topLeft.top - desktopTop, root.lookup, agent);
+			ySym.assign(topLeft.top - desktopTop, root.scope, agent);
 		}
 		function updateVisibility(sym, state) {
 			var windowState = diag.dialogExtend("state");
@@ -252,7 +252,7 @@
 		}
 		if (visibility != "visible") {
 			if (visibility === undefined) {
-				visibilitySym.assign("visible", root.lookup, agent);
+				visibilitySym.assign("visible", root.scope, agent);
 			} else {
 				updateVisibility(visibilitySym, visibility);
 			}
