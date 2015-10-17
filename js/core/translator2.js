@@ -1480,7 +1480,7 @@ EdenAST.prototype.pFUNCBODY = function() {
 		codebody.errors.push(new EdenError(this, EDEN_ERROR_FUNCCLOSE));
 		return codebody;
 	} else {
-		this.next();
+		//this.next();
 	}
 
 	return codebody;
@@ -1899,10 +1899,11 @@ EdenAST.prototype.pSTATEMENT = function() {
 	var start = this.stream.prevposition;
 	var curline = this.stream.line - 1;
 	var stat = undefined;
+	var end = -1;
 
 	switch (this.token) {
-	case "proc"		:	this.next(); stat = this.pACTION(); break;
-	case "func"		:	this.next(); stat = this.pFUNCTION(); break;
+	case "proc"		:	this.next(); stat = this.pACTION(); end = this.stream.position; this.next(); break;
+	case "func"		:	this.next(); stat = this.pFUNCTION(); end = this.stream.position; this.next(); break;
 	//case "when"		:	this.next(); stat = this.pWHEN(); break;
 	case "for"		:	this.next(); stat = this.pFOR(); break;
 	case "while"	:	this.next(); stat = this.pWHILE(); break;
@@ -1997,6 +1998,8 @@ EdenAST.prototype.pSTATEMENT = function() {
 						if (this.token != ";") {
 							formula.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
 						} else {
+							// End source here to avoid bringing comments in
+							end = this.stream.position;
 							this.next();
 						}
 						stat = formula; break;
@@ -2008,7 +2011,11 @@ EdenAST.prototype.pSTATEMENT = function() {
 	}
 	
 	stat.parent = this.parent;
-	stat.setSource(start, this.stream.prevposition);
+	if (end == -1) {
+		stat.setSource(start, this.stream.prevposition);
+	} else {
+		stat.setSource(start, end);
+	}
 	this.lines[curline] = stat;
 	return stat;
 };

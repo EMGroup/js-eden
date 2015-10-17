@@ -70,7 +70,7 @@ ${{
 		// Keep track of what to call the next view that is created using the menu bar.
 		var numViewsSym = root.lookup("_views_number_created");
 		if (numViewsSym.value() < maxViewNumber) {
-			numViewsSym.assign(maxViewNumber, root.lookup("createView"));
+			numViewsSym.assign(maxViewNumber, root.scope, root.lookup("createView"));
 		}
 	});
 }}$;
