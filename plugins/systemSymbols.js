@@ -402,7 +402,7 @@ Eden.isitSystemSymbol = function(name){
 }
 
 Eden.isitSystemObservable = function(name) {
-	if (/^_view_.*_(x|y|width|height|title|type|zoom)/.test(name)) {
+	if (/^_view_.*_(x|y|width|height|title|zoom)/.test(name)) {
 	  return true;
 	}
 	return name in Eden.systemObservableNames;

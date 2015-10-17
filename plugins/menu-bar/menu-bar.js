@@ -128,12 +128,17 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		var root = edenUI.eden.root;
 		var followMouse = root.lookup("mouseFollow").value();
 		var viewNumberSym = root.lookup("_views_number_created");
+		/* The number of views created is synchronized across clients even if the views themselves
+		 * are not, in case mouseFollow is enabled later.
+		 */
 		var viewNumber = viewNumberSym.value() + 1;
 		viewNumberSym.assign(viewNumber, Symbol.hciAgent, true);
+		var viewType = this.view;
+		var viewName = viewType.slice(0, 1).toLowerCase() + viewType.slice(1) + viewNumber;
 		if (followMouse) {
-			edenUI.eden.execute("createView(\"view_" + viewNumber + "\", \"" + this.view + "\");");
+			edenUI.eden.execute('createView("' + viewName + '", "' + viewType + '");');
 		} else {
-			edenUI.createView("view_" + viewNumber, this.view);
+			edenUI.createView(viewName, viewType);
 		}
 		me.updateViewsMenu();
 	}
@@ -309,7 +314,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		for (viewName in edenUI.activeDialogs) {
 			var myHover = hoverFunc(viewName);
 			var title = edenUI.eden.root.lookup("_view_" + viewName + "_title").value();
-			label = menuItemPart('menubar-item-label', title +' [' + viewName + ']');
+			label = menuItemPart('menubar-item-label', title + ' <span class="menubar-view-name">[' + viewName + ']</span>');
 			label.click(myHover.click);
 
 			var pinImageURL;

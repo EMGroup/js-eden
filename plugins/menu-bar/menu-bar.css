@@ -112,6 +112,12 @@
 	vertical-align: middle;
 }
 
+.menubar-view-name {
+	color: #A0A0A0;
+	float: right;
+	font-style: italic;
+}
+
 .menubar-item-fullwidth {
 	box-sizing: border-box;
 	width: 100%;
@@ -151,6 +157,10 @@
 	color: black;
 	width: 250px;
 	overflow-y: auto;
+}
+
+#menubar-mainitem-existing-views {
+	width: 305px;
 }
 
 .menubar-view {

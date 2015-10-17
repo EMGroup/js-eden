@@ -21,7 +21,7 @@ proc createView {
 	${{
 		var name = arguments[0];
 		var type = arguments[1];
-		edenUI.createView(name, type);
+		edenUI.createView(name, type, this);
 	}}$;
 }
 
@@ -51,7 +51,7 @@ ${{
 
 			viewNames[viewName] = true;
 
-			var match = viewName.match(/^view_(\d+)$/);
+			var match = viewName.match(/(\d+)$/);
 			if (match !== null) {
 				var viewNumber = parseInt(match[1]);
 				if (viewNumber > maxViewNumber) {

@@ -61,7 +61,7 @@
 	 * @param {string} name Unique identifier for the view.
 	 * @param {string} type Used to group different types of views.
 	 */
-	EdenUI.prototype.createView = function (name, type) {
+	EdenUI.prototype.createView = function (name, type, creatingAgent) {
 		if (!(type in this.views)) {
 			this.eden.error(new Error("View type " + type + " is unavailable.  Check that the associated plug-in is loaded."));
 			return;
@@ -123,9 +123,7 @@
 					viewData.closing = false;
 					return true;
 				}
-				var doClose = me.closeView(name);
-				root.collectGarbage();
-				return doClose;
+				return me.closeView(name);
 			},
 			focus: function () {
 				//Disabled pending fix.
@@ -198,7 +196,7 @@
 		var typeSym = view(name, 'type');
 		if (typeSym.value() != type) {
 			typeSym.removeJSObserver("changeType");
-			typeSym.assign(type, agent);
+			typeSym.assign(type, creatingAgent);
 			typeSym.addJSObserver("changeType", function (sym, newType) {
 				if (newType !== undefined && root.lookup("_views_list").value().indexOf(name) !== -1) {
 					me.createView(name, newType);
@@ -211,10 +209,10 @@
 			if (viewList.indexOf(name) === -1) {
 				viewList = viewList.slice();
 				viewList.push(name);
-				viewListSym.assign(viewList, agent);
+				viewListSym.assign(viewList, creatingAgent);
 			}
 		} else {
-			viewListSym.assign([name], agent);
+			viewListSym.assign([name], creatingAgent);
 		}
  
 		widthSym = view(name, 'width');
@@ -231,7 +229,7 @@
 			xSym.assign(topLeft.left, agent);
 		}
 		var ySym = view(name, 'y');
-		if (ySym === undefined) {
+		if (ySym.value() === undefined) {
 			ySym.assign(topLeft.top - desktopTop, agent);
 		}
 		function updateVisibility(sym, state) {
@@ -428,6 +426,7 @@
 				function (optNum) {
 					if (optNum == 0) {
 						me.destroyView(name, true);
+						edenUI.eden.root.collectGarbage();
 					} else if (optNum == 1) {
 						if (me.plugins.MenuBar) {
 							me.hideView(name);
@@ -440,6 +439,7 @@
 			return false;
 		} else {
 			this.destroyView(name, true);
+			edenUI.eden.root.collectGarbage();
 			return true;
 		}
 	}

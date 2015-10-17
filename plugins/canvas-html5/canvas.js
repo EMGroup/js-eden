@@ -946,6 +946,15 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		viewData = {
 			confirmClose: true,
 			destroy: function () {
+				var elementsHashtable = canvasNameToElements[canvasName];
+				for (var hash in elementsHashtable) {
+					var elementList = elementsHashtable[hash];
+					for (var i = 0; i < elementList.length; i++) {
+						var element = elementList[i];
+						//Preserve jQuery events
+						$(element).detach();
+					}
+				}
 				delete canvases[canvasName];
 				delete contents[canvasName];
 				var pictureObs = pictureSelectSym.value();

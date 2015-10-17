@@ -74,7 +74,7 @@ proc createView {
 			newType = oldType;
 		}
 		
-		edenUI.createView(name, newType);
+		edenUI.createView(name, newType, this);
 	}}$;
 };
 

@@ -268,7 +268,7 @@ function concatAndResolveUrl(url, concat) {
 	};
 
 	EdenUI.prototype.showErrorWindow = function () {
-		this.createView("errors", "ErrorLog");
+		this.createView("errors", "ErrorLog", window);
 		return $("#errors-dialog");
 	};
 

@@ -149,7 +149,7 @@
 	}
 
 	Folder.prototype.collectGarbage = function () {
-		for (name in this.potentialGarbage) {
+		for (var name in this.potentialGarbage) {
 			if (this.potentialGarbage[name].garbage) {
 				delete this.symbols[name.slice(this.name.length)];
 			}

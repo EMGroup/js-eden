@@ -158,6 +158,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 	this.generateScriptLines = function (excludeStr, unicode, includeViews, viewToExclude) {
 
 		var viewObsPrefixToExclude = new RegExp("^_view_" + viewToExclude + "_");
+		var defaultViewNames = ["input", "picture", "projects"];
 		var definitions = [];
 		var assignments = [];
 		var procedures = [];
@@ -182,7 +183,34 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			excludeRE = EdenUI.regExpFromStr(excludeStr);
 		}
 
+		if ((excludeRE === undefined || !excludeRE.test("_views_list"))) {
+			var viewsToInclude = [];
+			if (includeViews) {
+				for (var viewName in edenUI.activeDialogs) {
+					if (viewName != viewToExclude) {
+						viewsToInclude.push(viewName);
+					}
+				}
+			} else {
+				for (var viewName in edenUI.activeDialogs) {
+					if (edenUI.views[edenUI.activeDialogs[viewName]].holdsContent) {
+						viewsToInclude.push(viewName);
+					}
+				}
+			}
+			for (var i = 0; i < defaultViewNames.length; i++) {
+				var viewName = defaultViewNames[i];
+				if (viewsToInclude.indexOf(viewName) === -1) {
+					viewsToInclude.push(viewName);
+				}
+			}
+			if (viewsToInclude.length != defaultViewNames.length) {
+				views.push('_views_list = ["' + viewsToInclude.join('", "') + '"];');
+			}
+		}
+
 		for (var name in root.symbols) {
+			var exclude = false;
 
 			if (excludeRE !== undefined && excludeRE.test(name)) {
 				continue;
@@ -213,13 +241,19 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 					continue;
 				}
 				if (!includeViews) {
-					if (/_type$/.test(name)) {
-						if (!edenUI.views[symbol.cached_value].hasContent) {
-							//Exclude views that are not part of the construal, e.g. symbol lists.
-							continue;
-						}
-					} else if (isSystemObs && symbol.eden_definition === undefined) {
+					if (isSystemObs) {
 						//Exclude positioning information (unless defined by dependency)
+						continue;
+					}
+					exclude = true;
+					for (var i = 0; i < viewsToInclude.length; i++) {
+						var viewName = viewsToInclude[i];
+						if ((new RegExp("^_view_" + viewName + "_")).test(name)) {
+							exclude = false;
+							break;
+						}
+					}
+					if (exclude) {
 						continue;
 					}
 				}
@@ -304,7 +338,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		if (root.lookup("randomSeed").value() !== undefined && (excludeRE === undefined || !excludeRE.test("randomIndex"))) {
 			assignments.push("randomIndex = " + root.lookup("randomIndex").value() + ";");
 		}
-		
+
 		//Script Generation
 		var lines = [];
 			
@@ -361,7 +395,6 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			for (var i = 0; i < views.length; i++) {
 				lines.push(views[i]);
 			}
-			lines.push("createViews();");
 			lines.push("");
 		}
 		lines.push(comments.autocalcOn);
