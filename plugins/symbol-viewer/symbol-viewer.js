@@ -96,41 +96,30 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		me.instances.push(symbollist);
 		symbollist.search("");
 
-		content.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
-			var editorViewName = "edit_" + edenName;
-			//edenUI.createView(editorViewName, "ScriptInput");
-			//edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
-			//edenUI.eden.root.lookup("_view_" + edenName + "_title").assign(mtitle + " (" + edenName + ")", eden.root.scope, Symbol.hciAgent);
-			//edenUI.createView("edit_" + edenName, "ScriptInput");
-			var allVals = [];
-			var symbol;
-			for(var symbolname in symbollist.symbols){
-				symbol = edenUI.eden.root.lookup(symbolname);
-				/*var val;
-				if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
-					val = symbol.eden_definition;
-				} else {
-					if (symbol.definition) {
-						val = symbol.eden_definition + ";";
-					} else {
-						val = symbolname + " = " + Eden.edenCodeForValue(symbol.value()) + ";";
-					}
-				}
-				allVals += val + "\n";*/
-				allVals.push(symbol);
-			}
-				//$('#' + editorViewName + '-dialog').find('textarea').val(allVals);
-			edenUI.createView(editorViewName, "ScriptInput", allVals);
-			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
-		});
-
-
 		// Make changes in search box update the list.
 		var searchBox = content.find(".symbollist-search-box-outer > .symbollist-search");
 		searchBox.keyup(function() {
 			symbollist.search(this.value);
 		});
 		var searchBoxElem = searchBox.get(0);
+
+		content.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
+			var editorViewName = "edit_" + edenName;
+			//edenUI.createView(editorViewName, "ScriptInput");
+			//edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
+			//edenUI.eden.root.lookup("_view_" + edenName + "_title").assign(mtitle + " (" + edenName + ")", eden.root.scope, Symbol.hciAgent);
+			//edenUI.createView("edit_" + edenName, "ScriptInput");
+			var allVals = ["## Selection: " + searchBoxElem.value];
+			var symbol;
+			for(var symbolname in symbollist.symbols){
+				symbol = edenUI.eden.root.lookup(symbolname);
+				allVals.push(symbol);
+				allVals.push("");
+			}
+				//$('#' + editorViewName + '-dialog').find('textarea').val(allVals);
+			edenUI.createView(editorViewName, "ScriptInput", undefined).update(allVals);
+			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
+		});
 
 		document.getElementById(name + "-category-filter").addEventListener("change", function (event) {
 			symbollist.search(searchBoxElem.value, event.target.value);
@@ -458,7 +447,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 			}
 			singleClickPerformed = false;
 			var editorViewName = "edit_" + me.name;
-			edenUI.createView(editorViewName, "ScriptInput", [symbol]);
+			edenUI.createView(editorViewName, "ScriptInput", undefined).update([symbol]);
 			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + me.name, edenUI.eden.root.scope, Symbol.hciAgent);
 			/*var val;
 			if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
