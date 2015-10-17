@@ -124,7 +124,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 				res = $("<div class='page-script-static'></div>");
 			}
 
-			var hl = new EdenHighlight(res.get(0));
+			var hl = new EdenUI.Highlight(res.get(0));
 			var text;
 			if (code instanceof Array) {
 				text = EdenUI.plugins.ScriptInput.buildScriptFromList(code);
