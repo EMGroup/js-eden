@@ -209,7 +209,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var rebuildinterval = 10;
 		var currentlineno = 0;
 		var currentcharno = 0;
-		var highlighter = new EdenHighlight(outdiv);
+		var highlighter = new EdenUI.Highlight(outdiv);
 		var autoexec = power;
 		var inputchanged = false;
 		var refreshentire = false;
@@ -1080,6 +1080,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				intextarea.selectionStart = end;		
 				updateLineHighlight();
 				highlighter.highlight(highlighter.ast, curline, end);
+				checkScroll();
 			}
 		}
 
