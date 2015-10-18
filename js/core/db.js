@@ -37,16 +37,33 @@
 		setvalue: [],
 		setformula: []
 	};
+	var eventQueue = [];
 
 	var Database = {};
 
 
 
+	function processEvents() {
+		for (var i=0; i<eventQueue.length; i++) {
+			processEvent.apply(this, eventQueue[i]);
+		}
+		eventQueue = [];
+	}
+
+
+	function processEvent(event) {
+		for (var i=0; i<global_events[event].length; i++) {
+			global_events[event][i].apply(this, arguments);
+		}
+	}
+
+
 	function triggerGlobal(event) {
 		if (global_events[event] === undefined) return;
 
-		for (var i=0; i<global_events[event].length; i++) {
-			global_events[event][i].apply(this, arguments);
+		eventQueue.push(arguments);
+		if (eventQueue.length == 1) {
+			setTimeout(processEvents,10);
 		}
 	}
 
@@ -88,7 +105,7 @@
 		if (pscope === undefined) return;
 		var inherited = this._getValueEntry(name, pscope);
 
-		console.log("BRING IN RELATIVES: " + name + ", " + scopeid);
+		console.log("BRING IN RELATIVES: " + name + ", " + scopeid + "pscole = " + pscope);
 
 		if (inherited) {
 			// Record this override in the original parent.

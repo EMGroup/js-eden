@@ -77,6 +77,13 @@ function EdenAST_Scope() {
 	this.primary = new EdenAST_Primary();
 }
 
+EdenAST_Scope.prototype.setStatement = function(statement) {
+	this.statement = statement;
+	if (statement && statement.errors.length > 0) {
+		this.errors.push.apply(this.errors, statement.errors);
+	}
+}
+
 EdenAST_Scope.prototype.error = fnEdenAST_error;
 
 EdenAST_Scope.prototype.prepend = function(extra) {
@@ -112,12 +119,12 @@ EdenAST_Scope.prototype.generate = function(ctx, scope) {
 	var res;
 
 	//if (ctx.scopes.length > 0) {
-		res = "new Scope(context, "+scope+", [";
+		res = "(function(){ var ns = Database.newScope("+scope+");\n";
 	//} else {
 	//	res = "new Scope(context, scope, [";
 	//}
 
-	for (var o in this.overrides) {
+	/*for (var o in this.overrides) {
 		var startstr = this.overrides[o].start.generate(ctx,scope);
 		if (this.range) {
 			if (this.overrides[o].start.doesReturnBound && this.overrides[o].start.doesReturnBound()) {
@@ -137,8 +144,12 @@ EdenAST_Scope.prototype.generate = function(ctx, scope) {
 	}
 	res = res.slice(0,-1);
 	res += "], "+this.range+", context.lookup(\""+this.primary.getObservable()+"\"))";
-	ctx.scopes.push(res);
-	return this.primary.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]");
+	ctx.scopes.push(res);*/
+
+	res += this.statement.generate(ctx, "ns");
+	res += "\nreturn ns; }).call(this)";
+
+	return this.primary.generate(ctx,res);
 }
 
 
@@ -760,7 +771,7 @@ EdenAST_Definition.prototype.generateDef = function(ctx) {
 	}
 
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-		result += "\tvar res = "+express+";\n\tthis.origin_scope = res.origin_scope;\n\treturn res.value;\n}";
+		result += "\tconsole.log(scope);\n\tvar res = "+express+";\n\tthis.origin_scope = res.origin_scope;\n\treturn res.value;\n}";
 
 		// Save the resulting values scope binding into the cache entry.
 		/*result += "\tif (cache) cache.scope = result.scope;\n";
@@ -836,6 +847,7 @@ EdenAST_Definition.prototype.execute = function(root, ctx, base) {
 		for (var d in this.dependencies) {
 			deps.push(d);
 		}
+
 		//sym.eden_definition = base.getSource(this);
 		//sym.define(eval(rhs), {name: "execute"}, deps);
 		Database.setFormula(this.lvalue.observable, 0, eval(rhs));
@@ -872,8 +884,9 @@ EdenAST_Assignment.prototype.left = function(lvalue) {
 	}
 };
 
-EdenAST_Assignment.prototype.generate = function(ctx) {
-	var result = this.lvalue.generate(ctx);
+EdenAST_Assignment.prototype.generate = function(ctx, scope) {
+	var result = ""; // = this.lvalue.generate(ctx);
+	if (scope === undefined) scope = "scope";
 
 	if (this.lvalue.islocal) {
 		result += " = ";
@@ -894,12 +907,12 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 		result += ");\n";
 		return result;
 	} else {
-		result += ".assign(\n\t";
+		result = "Database.setValue(\"" + this.lvalue.observable + "\", " + scope + ", ";
 		result += this.expression.generate(ctx, "scope");
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			result += ".value";
 		}
-		result += ", scope, this);\n"
+		result += ", this);\n"
 		return result;
 	}
 };

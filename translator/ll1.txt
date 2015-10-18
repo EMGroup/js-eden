@@ -131,13 +131,13 @@ PRIMARY'''	->
 	| [ EXPRESSION ] PRIMARY''
 	| PRIMARY''''
 
-PRIMARY''''	-> with SCOPE | epsilon
+PRIMARY''''	-> with STATEMENT | epsilon
 
-SCOPE		-> ( SCOPE' ) | SCOPE'
-SCOPE'		-> observable SCOPE''
-SCOPE''		-> = EXPRESSION SCOPE''' | in EXPRESSION SCOPE'''
-SCOPE'''	-> .. EXPRESSION SCOPE'''' | SCOPE''''
-SCOPE''''	-> , SCOPE' | epsilon
+//SCOPE		-> ( SCOPE' ) | SCOPE'
+//SCOPE'		-> observable SCOPE''
+//SCOPE''		-> = EXPRESSION SCOPE''' | in EXPRESSION SCOPE'''
+//SCOPE'''	-> .. EXPRESSION SCOPE'''' | SCOPE''''
+//SCOPE''''	-> , SCOPE' | epsilon
 	
 
 ELIST		-> EXPRESSION ELIST' | epsilon																FIRST: ( - number & ! observable

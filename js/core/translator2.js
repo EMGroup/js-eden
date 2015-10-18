@@ -746,7 +746,7 @@ EdenAST.prototype.pPRIMARY_PPPP = function() {
  * SCOPE -> ( SCOPE' ) | SCOPE'
  */
 EdenAST.prototype.pSCOPE = function() {
-	if (this.token == "(") {
+	/*if (this.token == "(") {
 		this.next();
 		var scope = this.pSCOPE_P();
 		if (this.token != ")") {
@@ -757,7 +757,11 @@ EdenAST.prototype.pSCOPE = function() {
 		}
 		return scope;
 	}
-	return this.pSCOPE_P();
+	return this.pSCOPE_P();*/
+
+	var scope = new EdenAST_Scope();
+	scope.setStatement(this.pSTATEMENT());
+	return scope;
 }
 
 
