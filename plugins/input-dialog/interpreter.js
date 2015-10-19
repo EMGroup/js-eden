@@ -1279,8 +1279,12 @@ EdenUI.plugins.ScriptInput.buildScriptFromList = function(value) {
  * Returns the required height in pixels to display the specified number
  * of lines. Used for embedding an input window.
  */
-EdenUI.plugins.ScriptInput.getRequiredHeight = function(lines) {
-	return 15 + 30 + 20 * lines + 20;
+EdenUI.plugins.ScriptInput.getRequiredHeight = function(lines, embed) {
+	if (embed) {
+		return 15 + 20 * lines;
+	} else {
+		return 15 + 30 + 20 * lines + 20;
+	}
 };
 
 

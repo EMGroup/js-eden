@@ -144,6 +144,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 					res.css("width", width);
 				}
 			}
+			var height = EdenUI.plugins.ScriptInput.getRequiredHeight(lines, true);
+			res.height(height);
 
 			return res;
 		}
