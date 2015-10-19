@@ -235,9 +235,6 @@
 
 			prevtoken = token;
 			token = stream.readToken();
-			var type = stream.tokenType(token);
-			var classes = "";
-			var tokentext = stream.tokenText();
 
 			if (token == "EOF") {
 				if (wsline != "") {
@@ -253,6 +250,11 @@
 				stream.skip();
 				continue;
 			}
+
+
+			var type = stream.tokenType(token);
+			var classes = "";
+			var tokentext = stream.tokenText();
 
 			// Is this token inside the error if there is one?
 			if (errstart != -1) {
