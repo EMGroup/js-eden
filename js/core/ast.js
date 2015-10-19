@@ -236,6 +236,8 @@ EdenAST_UnaryOp.prototype.generate = function(ctx, scope) {
 		return r;
 	} else if (this.op == "-") {
 		return "-("+r+")";
+	} else if (this.op == "*") {
+		return r + ".value("+scope+")";
 	}
 }
 

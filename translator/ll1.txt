@@ -110,6 +110,7 @@ F			->
 	string |
 	[ ELIST ] |
 	& LVALUE |
+	* PRIMARY |
 	! EXPRESSION |
 	PRIMARY																						FIRST: ( - number & ! observable
 
