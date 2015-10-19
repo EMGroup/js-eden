@@ -41,6 +41,9 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	menudiv.appendTo("body");
 	$('<div id="menubar-bottom"></div>').appendTo("body");
 
+	var menuStyle = getStyleBySelector(".menubar-menu");
+	menuStyle.maxHeight = "calc(100vh - " + String(30 + edenUI.scrollBarSize2) + "px)";
+
 	this.updateStatus = function (text) {
 		menustatus.html(Eden.htmlEscape(text, true, true));
 	};
@@ -54,11 +57,23 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	function hideMenu() {
 		$(".menubar-menu").hide();
 		menuShowing = false;
+		//Reset search box
+		var newWindowMenu = $("#menubar-mainitem-views");
+		newWindowMenu.children().css("display", "");
+		document.getElementById("menubar-view-type-search").value = "";
 	}
 
 	function showMenu(name) {
-		$("#menubar-mainitem-"+name).show();
+		var menu = $("#menubar-mainitem-"+name);
+		menu.show();
 		menuShowing = true;
+		var textboxes = menu.find('input[type="text"]');
+		if (textboxes.length > 0) {
+			setTimeout(function () {
+				textboxes[0].focus();
+				menu.scrollTop(0);
+			}, 0);
+		}
 	}
 
 	$(document.body).on('mousedown', function () {
@@ -93,11 +108,10 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 				showMenu(name);
 			}
 			e.stopPropagation();
-			e.preventDefault();
 		};
 
 		menuitem.on('mousedown', toggleMenu);
-		menuitem.on('mouseover', function () {
+		menuitem.on('mouseenter', function () {
 			if (menuShowing) {
 				hideMenu();
 				showMenu(name);
@@ -117,20 +131,22 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		var root = edenUI.eden.root;
 		var followMouse = root.lookup("mouseFollow").value();
 		var viewNumberSym = root.lookup("_views_number_created");
+		/* The number of views created is synchronized across clients even if the views themselves
+		 * are not, in case mouseFollow is enabled later.
+		 */
 		var viewNumber = viewNumberSym.value() + 1;
 		viewNumberSym.assign(viewNumber, root.scope, Symbol.hciAgent, true);
+		var viewType = this.view;
+		var viewName = viewType.slice(0, 1).toLowerCase() + viewType.slice(1) + viewNumber;
 		if (followMouse) {
-			edenUI.eden.execute("createView(\"view_" + viewNumber + "\", \"" + this.view + "\");");
+			edenUI.eden.execute('createView("' + viewName + '", "' + viewType + '");');
 		} else {
-			edenUI.createView("view_" + viewNumber, this.view);
+			edenUI.createView(viewName, viewType);
 		}
 		me.updateViewsMenu();
-		e.stopPropagation();
-		e.preventDefault();
 	}
 	
 	function onClickCloseWindow(e) {
-		e.preventDefault();
 		var name = this.parentNode.viewname;
 		if (edenUI.viewInstances[name].confirmClose) {
 			hideMenu();
@@ -140,7 +156,6 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	}
 	
 	function onClickPinWindow(e) {
-		e.preventDefault();
 		var image = e.currentTarget.children[0];
 		var name = this.parentNode.viewname;
 
@@ -178,7 +193,6 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 				edenUI.stopHighlightingView(viewName, true, false);
 			},
 			click: function (e) {
-				e.preventDefault();
 				edenUI.stopHighlightingView(viewName, true, true);
 				hideMenu();
 			}
@@ -189,6 +203,50 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		var views = $("#menubar-mainitem-views");
 		var existingViews = $("#menubar-mainitem-existing-views");
 		views.html("");
+
+		var searchBox = $('<input id="menubar-view-type-search" class="menubar-search-box" type="text" placeholder="search"/>');
+		var searchItemPart = $('<div class="menubar-item-fullwidth"></div>');
+		searchItemPart.append(searchBox);
+		var searchItem = $("<div class='menubar-item-search'></div>");
+		searchItem.append(searchItemPart);
+		
+		searchBox.on("input", function (event) {
+			var searchStr = event.target.value;
+			var re = new RegExp("(^|\\s)"+ searchStr, "i");
+			var lastCategory;
+			var categoryMatch = false;
+			views.children().each(function (index, element) {
+				if (element.classList.contains("menubar-item-search")) {
+					return;
+				}
+				var inner = element.children[0];
+				var name = inner.innerHTML;
+				var isCategory = inner.classList.contains("menubar-item-separator");
+				if (isCategory) {
+					if (searchStr.length > 1) {
+						categoryMatch = re.test(name);
+					}
+					lastCategory = element;
+					if (categoryMatch) {
+						element.style.display = "";
+					} else {
+						element.style.display = "none";
+					}
+				} else {
+					if (categoryMatch) {
+						element.style.display = "";
+					} else if (re.test(name)) {
+						element.style.display = "";
+						lastCategory.style.display = "";
+					} else {
+						element.style.display = "none";
+					}
+				}
+			});
+			setTimeout(function () {
+				views.scrollTop(0);
+			}, 0);
+		});
 
 		// First add supported view types
 		var viewArray = [];
@@ -248,6 +306,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			}
 			item.viewEntry.appendTo(views);
 		}
+		views.append(searchItem);
 
 		existingViews.html("");
 
@@ -258,7 +317,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		for (viewName in edenUI.activeDialogs) {
 			var myHover = hoverFunc(viewName);
 			var title = edenUI.eden.root.lookup("_view_" + viewName + "_title").value();
-			label = menuItemPart('menubar-item-label', title +' [' + viewName + ']');
+			label = menuItemPart('menubar-item-label', title + ' <span class="menubar-view-name">[' + viewName + ']</span>');
 			label.click(myHover.click);
 
 			var pinImageURL;

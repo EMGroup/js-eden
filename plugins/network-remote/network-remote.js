@@ -1,26 +1,10 @@
 EdenUI.plugins.NetworkRemote = function(edenUI, success){
 	var me = this;
-	var defaultview = "";
 	var program;
 	var longwait = false;
 	var connected = false;
-	this.html = function(name,content) {
-	//This doesn't look like its ever being called
-		if (name == "DEFAULT") {
-			if (defaultview == "") {
-				edenUI.createView(name,"NetworkRemote");
-			}
-			$("#"+defaultview+"-content").html(content).onclick;
-		} else {
-			$("#"+name+"-dialog-content").html(content).onclick;
-		}
-	}
 	
 	this.createDialog = function(name,mtitle) {
-
-		if (defaultview == "") {
-			defaultview = name;
-		}
 
 		var viewData = {confirmClose: false};
 

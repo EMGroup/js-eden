@@ -21,7 +21,6 @@ ${{
 		this.fullLength = Math.sqrt(xDistance * xDistance + yDistance * yDistance);
 		this.length1 = mid * this.fullLength;
 		var length2 = this.fullLength - this.length1;
-		
 
 		var radiansPerUnit = root.lookup("radiansPerUnit").value();
 		this.delta1 = elasticity * this.length1;
@@ -143,13 +142,22 @@ radiansPerUnit ~> [Curve];
 
 ${{
 	Curve.prototype.draw = function (context) {
+		if (this.colours.length == 1) {
+			context.strokeStyle = this.colours[0];
+		} else {
+			var gradient = context.createLinearGradient(0, 0, this.fullLength, 0);
+			for (var i = 0; i < this.colours.length; i++) {
+				gradient.addColorStop(i / (this.colours.length - 1), this.colours[i]);
+			}
+			context.strokeStyle = gradient;
+		}
+
 		context.translate(this.x1, this.y1);
 		context.rotate(this.theta3);
 		context.beginPath();
 		context.moveTo(0, 0);
 		context.bezierCurveTo(this.deltaX1, this.deltaY1, this.length1 - this.delta1, this.radius, this.length1, this.radius);
 		context.bezierCurveTo(this.length1 + this.delta2, this.radius, this.fullLength - this.deltaX2, this.deltaY2, this.fullLength, 0);
-		context.strokeStyle = "black";
 		context.stroke();
 	};
 

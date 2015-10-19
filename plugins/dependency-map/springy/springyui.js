@@ -152,8 +152,10 @@ jQuery.fn.springy = function(params) {
 //Adding scary code here to get jsedens version to work
 
 var contentdiv = canvas.parentNode;
+if (contentdiv !== null) {
 	canvas.height = contentdiv.clientHeight;
 	canvas.width = contentdiv.clientWidth;
+}
 
 //!
 //!

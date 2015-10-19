@@ -21,17 +21,73 @@ proc createView {
 	${{
 		var name = arguments[0];
 		var type = arguments[1];
-		var initData = arguments[2];
-		edenUI.createView(name, type, initData);
+		edenUI.createView(name, type, this);
 	}}$;
 }
 
+${{
+	root.lookup("_views_list").addJSObserver("createAndDestroy", function (sym, viewNameList) {
+		var maxViewNumber = 0;
+		var viewNames = {};
+		var viewName, typeSym, viewType;
+		// Create any new views whose names have been inserted into the list.
+		function addTypeObserver(symbol, name) {
+			symbol.addJSObserver("changeType", function (sym, newType) {
+				if (newType !== undefined && root.lookup("_views_list").value().indexOf(name) !== -1) {
+					edenUI.createView(name, newType);
+				}
+			});		
+		}
+		for (var i = 0; i < viewNameList.length; i++) {
+			viewName = viewNameList[i];
+			typeSym = root.lookup("_view_" + viewName + "_type");
+			viewType = typeSym.value();
+
+			if (viewType === undefined) {
+				addTypeObserver(typeSym, viewName);
+			} else if (!(viewName in edenUI.activeDialogs)) {
+				edenUI.createView(viewName, viewType);
+			}
+
+			viewNames[viewName] = true;
+
+			var match = viewName.match(/(\d+)$/);
+			if (match !== null) {
+				var viewNumber = parseInt(match[1]);
+				if (viewNumber > maxViewNumber) {
+					maxViewNumber = viewNumber;
+				}
+			}
+		}
+		/* Destroy any views whose names have been removed from the list but preserve their observables.
+		 * Use the destroyView procedure to destroy a view and forget its observables. 
+		 */
+		for (viewName in edenUI.activeDialogs) {
+			if (!(viewName in viewNames)) {
+				edenUI.destroyView(viewName, false);
+			}
+		}
+		// Keep track of what to call the next view that is created using the menu bar.
+		var numViewsSym = root.lookup("_views_number_created");
+		if (numViewsSym.value() < maxViewNumber) {
+			numViewsSym.assign(maxViewNumber, root.scope, root.lookup("createView"));
+		}
+	});
+}}$;
+
 proc showView {
+	para name;
+	`"_view_" // name // "_visibility"` = "visible";
 	${{
 		var name = arguments[0];
-		edenUI.showView(name);
+		edenUI.showView(name); //Explicitly invoke this to make sure the view gets moved to the top.
 		edenUI.brieflyHighlightView(name);
 	}}$;
+}
+
+proc hideView {
+	para name;
+	`"_view_" // name // "_visibility"` = "hidden";
 }
 
 proc highlightView {
@@ -48,17 +104,10 @@ proc stopHighlightingView {
 	}}$;
 }
 
-proc hideView {
-	${{
-		var name = arguments[0];
-		edenUI.minimizeView(name);
-	}}$;
-}
-
 proc destroyView {
 	${{
 		var name = arguments[0];
-		edenUI.destroyView(name);
+		edenUI.destroyView(name, true);
 	}}$;
 }
 

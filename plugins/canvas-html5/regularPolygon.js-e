@@ -28,7 +28,12 @@ ${{
 		} else {
 			nudge = 0;
 		}
-		var rotation2 = -rotation - Math.PI * (0.5 - 2 / n); //Zero rotation means "pointing upwards"
+		var rotation2;
+		if (n % 4 == 0) {
+			rotation2 = -rotation - Math.PI * (0.5 - 1 / n);
+		} else {
+			rotation2 = -rotation - Math.PI * (0.5 - 2 / n); //Zero rotation means "pointing upwards"
+		}
 		for (var i = 0; i < n; i++) {
 			var j = i;
 			currentPolygonVertices = [];
@@ -58,7 +63,12 @@ ${{
 		}
 		
 		var radius = this.r - lineWidth / 2;
-		var rotation = -this.rotation - Math.PI * (0.5 - 2 / this.n);
+		var rotation;
+		if (this.n % 4 == 0) {
+			rotation = -this.rotation - Math.PI * (0.5 - 1 / this.n);
+		} else {
+			rotation = -this.rotation - Math.PI * (0.5 - 2 / this.n); //Zero rotation means "pointing upwards"
+		}
 		var nudge;
 		if (this.drawingOptions !== undefined && this.drawingOptions.valign == "bottom") {
 			nudge = lineWidth;

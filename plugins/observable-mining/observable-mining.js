@@ -174,28 +174,6 @@ EdenUI.plugins.ObservableMining = function (edenUI, success) {
 				minWidth: 200,
 				dialogClass: "unpadded-dialog"
 			});
-
-		/*code_entry.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
-			console.log(name);
-			edenUI.createView("edit_" + edenName, "ScriptInput");
-			var allVals = "";
-			var symbol;
-			for(var symbolname in symbollist.symbols){
-				symbol = edenUI.eden.root.lookup(symbolname);
-				var val;
-				if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
-					val = symbol.eden_definition;
-				} else {
-					if (symbol.definition) {
-						val = symbol.eden_definition + ";";
-					} else {
-						val = symbolname + " = " + Eden.edenCodeForValue(symbol.value()) + ";";
-					}
-				}
-				allVals += val + "\n";
-			}
-				$('#edit_' + edenName + '-dialog').find('textarea').val(allVals);
-		});*/
 	};
 
 	/**
@@ -389,7 +367,6 @@ EdenUI.plugins.ObservableMining.Symbol = function () {
 	this.editing = false;
 
 	this.update = this.updateObservable;
-
 	var me = this;
 	this.element.hover(
 		function() {
@@ -416,7 +393,6 @@ EdenUI.plugins.ObservableMining.Symbol = function () {
 			}
 		}
 
-		//me.element.effect({ effect: "size", scale: "box", to: {width: me.element.width(), height: 60 }});
 		me.element.animate({'height': '60px'}, {duration: 200, complete: function() {
 			var text = $('<textarea class="mine_edit_box" style="display: none"></textarea>');
 			text.val(val);
@@ -424,21 +400,6 @@ EdenUI.plugins.ObservableMining.Symbol = function () {
 			text.show('fast');
 		}});
 		me.editing = true;
-		/*edenUI.createView("edit_" + me.name, "ScriptInput");
-		var val;
-		if (typeof me.symbol.value() === 'function' && me.symbol.eden_definition !== undefined) {
-			val = me.symbol.eden_definition;
-		} else {
-			if (me.symbol.definition) {
-				val = me.symbol.eden_definition + ";";
-			} else {
-				val = me.name + " = " + Eden.edenCodeForValue(me.symbol.value()) + ";";
-			}
-		}
-
-		$('#edit_' + me.name + '-dialog').find('textarea').val(
-			val
-		);*/
 	}).draggable({
 		distance: 40, axis: "x", scroll: false,
 		drag: function(event, ui) {
@@ -454,9 +415,7 @@ EdenUI.plugins.ObservableMining.Symbol = function () {
 		stop: function(event, ui) {
 			if (me.dodelete) {
 				me.meta.significance *= SymbolMeta.SigDeleteRate;
-				console.log("Old I: " + me.meta.interestingness);
 				me.symbolChanged(me.symbol, false);
-				console.log("New I: " + me.meta.interestingness);
 				me.element.hide( "drop", { direction: "right" }, "slow", function() {
 					me.element.remove();
 				});
@@ -464,7 +423,6 @@ EdenUI.plugins.ObservableMining.Symbol = function () {
 		}
 	});
 
-	//this.update();
 };
 
 function _formatFramerVal(value) {

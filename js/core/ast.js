@@ -245,6 +245,10 @@ EdenAST_UnaryOp.prototype.generate = function(ctx, scope) {
 		return "!("+r+")";
 	} else if (this.op == "&") {
 		return r;
+	} else if (this.op == "-") {
+		return "-("+r+")";
+	} else if (this.op == "*") {
+		return r + ".value("+scope+")";
 	}
 }
 
@@ -743,6 +747,7 @@ function EdenAST_Definition(expression) {
 	this.end = 0;
 	this.dependencies = {};
 	this.scopes = [];
+	this.backtickCount = 0;
 };
 
 EdenAST_Definition.prototype.left = function(lvalue) {
@@ -870,6 +875,7 @@ function EdenAST_Assignment(expression) {
 	this.start = 0;
 	this.end = 0;
 	this.scopes = [];
+	this.backtickCount = 0;
 };
 
 EdenAST_Assignment.prototype.setSource = function(start, end) {
@@ -1126,7 +1132,16 @@ EdenAST_Primary.prototype.generate = function(ctx, scope) {
 	var res = "Database.getEntryD(this,";
 
 	if (this.observable == "__BACKTICKS__") {
-		res += this.backtick.generate(ctx, scope) + ")";
+		var id = 0;
+		if (ctx && ctx.backtickCount !== undefined) {
+			id = ctx.backtickCount;
+			ctx.backtickCount++;
+		}
+		res = "context.currentObservable.subscribeDynamic(" + id + "," + this.backtick.generate(ctx, scope);
+		if (this.backtick.doesReturnBound && this.backtick.doesReturnBound()) {
+			res += ".value";
+		}
+		res += ")";
 	} else {
 		if (ctx && ctx.dependencies) ctx.dependencies[this.observable] = true;
 		res += "\""+this.observable+"\"";

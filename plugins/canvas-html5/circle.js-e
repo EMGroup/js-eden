@@ -40,6 +40,9 @@ func Circle { ${{
 			outlinecolour = arguments[4];
 		}
 	}
+	if (fillcolour === undefined && outlinecolour === undefined) {
+		outlinecolour = "black";
+	}
 	return new Circle(x, y, radius, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 

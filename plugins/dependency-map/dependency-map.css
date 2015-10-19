@@ -1,3 +1,4 @@
+
 .dependency-map-content{
 	overflow:hidden;
 	width:100%;
@@ -32,3 +33,11 @@ div.dependency-map-dialog .ui-dialog-titlebar {
 	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
 	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
 }
+
+.dependency-map-controls {
+	position: absolute;
+	left: 10px;
+	top: 5px;
+	z-index: 1;
+}
+

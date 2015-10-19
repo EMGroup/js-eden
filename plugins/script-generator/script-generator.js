@@ -32,6 +32,13 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		var excludeRegExElem = excludeRegEx.get(0);
 		controlsLeft.append(excludeRegEx);
 
+		var unicode = $('<input type="checkbox" />');
+		label = $('<label>Unicode strings</label>');
+		label.prepend(unicode);
+		controlsRight.append(label);
+		var unicodeElem = unicode.get(0);
+		unicodeElem.checked = edenUI.getOptionValue("optUnicode") !== "false";
+
 		var includeViews = $('<input type="checkbox" />');
 		label = $('<label>Preserve screen layout</label>');
 		label.prepend(includeViews);
@@ -65,7 +72,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		};
 
 		var updateScript = function () {
-			script.html(generateScriptHTML(excludeRegExElem.value, includeViewsElem.checked, viewName));			
+			script.html(generateScriptHTML(excludeRegExElem.value, unicodeElem.checked, includeViewsElem.checked, viewName));			
 		};
 
 		fileChooser.on("change", function (event) {
@@ -84,6 +91,10 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		});
 
 		excludeRegEx.on("keyup", updateScript);
+		unicode.on("change", function (event) {
+			edenUI.setOptionValue("optUnicode", event.target.checked)
+			updateScript(event);
+		});
 		includeViews.on("change", updateScript);
 		regenerate.click(function () {
 			updateFileChooser();
@@ -105,8 +116,8 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		});
 	};
 
-	var generateScriptHTML = function (excludeStr, includeViews, viewToExclude) {
-		var lines = me.generateScriptLines(excludeStr, includeViews, viewToExclude);
+	var generateScriptHTML = function (excludeStr, unicode, includeViews, viewToExclude) {
+		var lines = me.generateScriptLines(excludeStr, unicode, includeViews, viewToExclude);
 		var html = "";
 		for (var i = 0; i < lines.length; i++) {
 			html = html + Eden.htmlEscape(lines[i], true) + "\n";
@@ -144,8 +155,10 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 	 * @return {Array} An array where each item is a string representing a piece of EDEN code and
 	 * of the items together represent a complete script capable of rebuilding the current state.
 	 */
-	this.generateScriptLines = function (excludeStr, includeViews, viewToExclude) {
+	this.generateScriptLines = function (excludeStr, unicode, includeViews, viewToExclude) {
 
+		var viewObsPrefixToExclude = new RegExp("^_view_" + viewToExclude + "_");
+		var defaultViewNames = ["input", "picture", "projects"];
 		var definitions = [];
 		var assignments = [];
 		var procedures = [];
@@ -167,10 +180,37 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 
 		var excludeRE;
 		if (excludeStr !== undefined && excludeStr != "") {
-			excludeRE = new RegExp(excludeStr);
+			excludeRE = EdenUI.regExpFromStr(excludeStr);
+		}
+
+		if ((excludeRE === undefined || !excludeRE.test("_views_list"))) {
+			var viewsToInclude = [];
+			if (includeViews) {
+				for (var viewName in edenUI.activeDialogs) {
+					if (viewName != viewToExclude) {
+						viewsToInclude.push(viewName);
+					}
+				}
+			} else {
+				for (var viewName in edenUI.activeDialogs) {
+					if (edenUI.views[edenUI.activeDialogs[viewName]].holdsContent) {
+						viewsToInclude.push(viewName);
+					}
+				}
+			}
+			for (var i = 0; i < defaultViewNames.length; i++) {
+				var viewName = defaultViewNames[i];
+				if (viewsToInclude.indexOf(viewName) === -1) {
+					viewsToInclude.push(viewName);
+				}
+			}
+			if (viewsToInclude.length != defaultViewNames.length) {
+				views.push('_views_list = ["' + viewsToInclude.join('", "') + '"];');
+			}
 		}
 
 		for (var name in root.symbols) {
+			var exclude = false;
 
 			if (excludeRE !== undefined && excludeRE.test(name)) {
 				continue;
@@ -196,12 +236,28 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			  continue;
 			}
 			if (/^_view_/.test(name)) {
-				isView = true;
-				if ((!includeViews || name.search("^_view_" + viewToExclude) != -1) &&
-					isSystemObs && symbol.definition === undefined)
-				{
+				if (viewObsPrefixToExclude.test(name)) {
+					//Exclude the script generator view
 					continue;
 				}
+				if (!includeViews) {
+					if (isSystemObs) {
+						//Exclude positioning information (unless defined by dependency)
+						continue;
+					}
+					exclude = true;
+					for (var i = 0; i < viewsToInclude.length; i++) {
+						var viewName = viewsToInclude[i];
+						if ((new RegExp("^_view_" + viewName + "_")).test(name)) {
+							exclude = false;
+							break;
+						}
+					}
+					if (exclude) {
+						continue;
+					}
+				}
+				isView = true;
 			}
 
 			/* Deal with symbols that are set implicitly when the construal is loaded from file.
@@ -262,7 +318,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 
 				var value = symbol.cached_value;
 				var edenForValue;
-				if (typeof(value) == "string" && /[^ -~\t\n]/.test(value)) {
+				if (!unicode && typeof(value) == "string" && /[^ -~\t\n]/.test(value)) {
 					/* Ensure that strings don't contain any special characters that might get mangled
 					 * by mistaken character set auto-recognition performed by browsers or code editors.
 					 * Stick to ASCII printable only and use XML/HTML entity syntax for the rest. */
@@ -279,10 +335,10 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 
 		} // end for each symbol
 		
-		if (root.lookup("randomSeed").value() !== undefined) {
+		if (root.lookup("randomSeed").value() !== undefined && (excludeRE === undefined || !excludeRE.test("randomIndex"))) {
 			assignments.push("randomIndex = " + root.lookup("randomIndex").value() + ";");
 		}
-		
+
 		//Script Generation
 		var lines = [];
 			
@@ -303,6 +359,14 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		lines.push(comments.autocalcOff);
 		lines.push(autocalcOff);
 		lines.push("");
+		lines.push(comments.functions);
+		for (var i = 0; i < functions.length; i++) {
+			lines.push(functions[i]);
+			if (i !== functions.length - 1) {
+				lines.push("");
+			}
+		}
+		lines.push("");
 		lines.push(comments.assignments);
 		for (var i = 0; i < assignments.length; i++) {
 			lines.push(assignments[i]);
@@ -321,17 +385,11 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			}
 		}
 		lines.push("");
-		lines.push(comments.functions);
-		for (var i = 0; i < functions.length; i++) {
-			lines.push(functions[i]);
-			if (i !== functions.length - 1) {
-				lines.push("");
-			}
+		if (excludeRE === undefined || !excludeRE.test("picture")) {
+			lines.push(comments.picture);
+			lines.push(picture);
+			lines.push("");
 		}
-		lines.push("");
-		lines.push(comments.picture);
-		lines.push(picture);
-		lines.push("");
 		if (views.length > 0) {
 			lines.push(comments.views);
 			for (var i = 0; i < views.length; i++) {

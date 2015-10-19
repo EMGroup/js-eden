@@ -71,7 +71,9 @@ Slider.prototype.draw = function (context) {
 			'type="range" ' +
 			'min="' + this.min + '" ' +
 			'max="' + this.max + '" ';
-		if (this.step !== undefined) {
+		if (this.step === undefined) {
+			inputHTML = inputHTML + 'step="0.0000001"';		
+		} else {
 			inputHTML = inputHTML + 'step="' + this.step + '"';
 		}
 		inputHTML = inputHTML + '/>';
@@ -173,11 +175,13 @@ Slider.prototype.draw = function (context) {
 		var value = valueSym.value();
 		var previewValue = previewSym.value();
 		if (value === undefined) {
-			if (previewValue !== undefined) {
+			if (previewValue === undefined) {
+				var defaultValue = (this.max - this.min) / 2 + this.min;
+				valueSym.assign(defaultValue, root.scope, agent);
+				setValue(valueSym, defaultValue, true);
+			} else {
 				valueSym.assign(previewValue, root.scope, agent);
 				setValue(valueSym, previewValue, true);
-			} else {
-				valueSym.assign(this.min, root.scope, agent);
 			}
 		} else {
 			setValue(valueSym, value, true);
@@ -197,8 +201,8 @@ Slider.prototype.scale = function (scale, zoom, origin) {
 	}
 	var width = Math.round(this.length * scale);
 	style.width = width + "px";
-	if (this.step === undefined) {
-		element.step = String((element.max - element.min) / (width  - 1)).slice(0, 18);
+	if (this.step == undefined) {
+		element.step = String((element.max - element.min) / (width  - 1)).slice(0, 16);
 	}
 };
 
