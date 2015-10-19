@@ -202,6 +202,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var dragvalue = 0;
 		var draglast = 0;
 		var dragline = -1;
+		var dragint = false;
 		var typingtimer;
 		var rebuildtimer;
 		var amtyping = false;
@@ -672,7 +673,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
 					axis: 'x',
 					drag: function(e,u) {
-						var newval = Math.round(dragvalue + ((u.position.left - dragstart) / 2));
+						var newval;
+						if (dragint) {
+							newval = Math.round(dragvalue + ((u.position.left - dragstart) / 2));
+						} else {
+							newval = dragvalue + ((u.position.left - dragstart) * 0.005);
+							newval = newval.toFixed(4);
+						}
+
+						// TODO: this is no good for floats
 						if (newval != draglast) {
 							draglast = newval;
 							e.target.innerHTML = "" + newval;
@@ -695,9 +704,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						// Calculate the line we are on
 						dragline = findElementLineNumber(e.target);
 						dragstart = u.position.left;
-						dragvalue = parseInt(e.target.textContent);
+						var content = e.target.textContent;
+						if (content.indexOf(".") == -1) {
+							dragvalue = parseInt(content);
+							dragint = true;
+						} else {
+							dragvalue = parseFloat(content);
+							dragint = false;
+						}
 						draglast = dragvalue;
-						// TODO: detect floats and also detect increment scale.
+
 						$(e.target).addClass("eden-select");
 						$(outdiv).css("cursor","ew-resize");
 					},
@@ -1067,6 +1083,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * the highlighted output instead.
 		 */
 		function onOutputMouseUp(e) {
+			// To prevent false cursor movement when dragging numbers...
 			if (document.activeElement === outdiv) {
 				var end = getCaretCharacterOffsetWithin(outdiv);
 				var start = getStartCaretCharacterOffsetWithin(outdiv);
