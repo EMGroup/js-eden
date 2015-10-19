@@ -304,7 +304,14 @@
 			} else if (token == "JAVASCRIPT") {
 				classes += "eden-javascript";
 			} else {
-				classes += "eden-operator";
+				// Bind negative to number if no whitespace.
+				if (token == "-" && stream.isNumeric(stream.peek())) {
+					token = stream.readToken();
+					tokentext = "-" + stream.tokenText();
+					classes += "eden-number";
+				} else {
+					classes += "eden-operator";
+				}
 			}
 
 			// Insert caret in middle of token if needed

@@ -704,7 +704,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					stop: function(e,u) {
 						$(e.target).removeClass("eden-select");
 						$(outdiv).css("cursor","text");
-						updateEntireHighlight();
+						//updateEntireHighlight();
 						dragline = -1;
 						inputchanged = true;
 					},
@@ -1067,20 +1067,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * the highlighted output instead.
 		 */
 		function onOutputMouseUp(e) {
-			var end = getCaretCharacterOffsetWithin(outdiv);
-			var start = getStartCaretCharacterOffsetWithin(outdiv);
-			if (start != end) {
-				// Fix to overcome current line highlight bug on mouse select.
-				refreshentire = true;
-			} else {
-				// Move caret to clicked location
-				var curline = currentlineno;
-				intextarea.focus();
-				intextarea.selectionEnd = end;
-				intextarea.selectionStart = end;		
-				updateLineHighlight();
-				highlighter.highlight(highlighter.ast, curline, end);
-				checkScroll();
+			if (document.activeElement === outdiv) {
+				var end = getCaretCharacterOffsetWithin(outdiv);
+				var start = getStartCaretCharacterOffsetWithin(outdiv);
+				if (start != end) {
+					// Fix to overcome current line highlight bug on mouse select.
+					refreshentire = true;
+				} else {
+					// Move caret to clicked location
+					var curline = currentlineno;
+					intextarea.focus();
+					intextarea.selectionEnd = end;
+					intextarea.selectionStart = end;		
+					highlighter.highlight(highlighter.ast, curline, end);
+					updateLineHighlight();
+					checkScroll();
+				}
 			}
 		}
 
