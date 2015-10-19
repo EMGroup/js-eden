@@ -150,138 +150,60 @@ EdenAST.prototype.peekNext = function(count) {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * T -> T' E''
+ * T -> T' { < T' | <= T' | > T' | >= T' | == T' | != T' }
  */
 EdenAST.prototype.pTERM = function() {
 	var left = this.pTERM_P();
-	var right = this.pEXPRESSION_PP();
 
-	if (right) {
-		right.left(left);
-		return right;
-	}
-	return left;
-}
-
-
-
-/*
- * E'-> && T E' | || T E' | epsilon
- */
-EdenAST.prototype.pEXPRESSION_P = function() {
-	if (this.token == "&&" || this.token == "||") {
-		var binop = new EdenAST_BinaryOp(this.token);
-		this.next();
-
-		var term = this.pTERM();
-		var right = this.pEXPRESSION_P();
-
-		if (right) {
-			right.left(term);
-			binop.setRight(right);
-		} else {
-			binop.setRight(term);
-		}
-		return binop;
-	}
-	return undefined;
-}
-
-
-
-/*
- * T' -> T'' E'''
- */
-EdenAST.prototype.pTERM_P = function() {
-	var left = this.pTERM_PP();
-	var right = this.pEXPRESSION_PPP();
-
-	if (right) {
-		// Do we need a refactor of the AST?
-		if (right.r.type == "binaryop" && right.r.op == "-") {
-			var r = right.r;
-			right.r = r.l;
-			right.left(left);
-			r.l = right;
-			return r;
-		}
-		right.left(left);
-		return right;
-	}
-	return left;
-}
-
-
-
-/*
- * E'' -> < T' E'' | <= T' E'' | > T' E'' | >= T' E'' | == T' E'' | != T' E'' | epsilon
- */
-EdenAST.prototype.pEXPRESSION_PP = function() {
-	if (this.token == "<" || this.token == "<=" || this.token == ">"
+	while (this.token == "<" || this.token == "<=" || this.token == ">"
 			|| this.token == ">=" || this.token == "==" || this.token == "!=") {
 		var binop = new EdenAST_BinaryOp(this.token);
 		this.next();
-
-		var term = this.pTERM_P();
-		var right = this.pEXPRESSION_PP();
-
-		if (right) {
-			right.left(term);
-			binop.setRight(right);
-		} else {
-			binop.setRight(term);
-		}
-		return binop;
+		binop.left(left);
+		binop.setRight(this.pTERM_P());
+		left = binop;
 	}
-	return undefined;
-}
 
-
-
-/*
- * T'' -> T''' E''''
- */
-EdenAST.prototype.pTERM_PP = function() {
-	var left = this.pTERM_PPP();
-	var right = this.pEXPRESSION_PPPP();
-
-	if (right) {
-		// Do we need a refactor of the AST?
-		if (right.r.type == "binaryop" && right.r.op == "/") {
-			var r = right.r;
-			right.r = r.l;
-			right.left(left);
-			r.l = right;
-			return r;
-		}
-		right.left(left);
-		return right;
-	}
 	return left;
 }
 
 
 
 /*
- * E''' -> + T'' E''' | - T'' E''' | // T'' E''' | epsilon
+ * T' -> T'' { + T'' | - T'' | // T''}
  */
-EdenAST.prototype.pEXPRESSION_PPP = function() {
-	if (this.token == "+" || this.token == "-" || this.token == "//") {
+EdenAST.prototype.pTERM_P = function() {
+	var left = this.pTERM_PP();
+
+	while (this.token == "+" || this.token == "-" || this.token == "//") {
 		var binop = new EdenAST_BinaryOp(this.token);
 		this.next();
-
-		var term = this.pTERM_PP();
-		var right = this.pEXPRESSION_PPP();
-
-		if (right) {
-			right.left(term);
-			binop.setRight(right);
-		} else {
-			binop.setRight(term);
-		}
-		return binop;
+		binop.left(left);
+		binop.setRight(this.pTERM_PP());
+		left = binop;
 	}
-	return undefined;
+
+	return left;
+}
+
+
+
+/*
+ * T'' -> T''' { * T''' | / T''' | % T''' | ^ T'''}
+ */
+EdenAST.prototype.pTERM_PP = function() {
+	var left = this.pTERM_PPP();
+
+	while (this.token == "*" || this.token == "/" || this.token == "%"
+			|| this.token == "^") {
+		var binop = new EdenAST_BinaryOp(this.token);
+		this.next();
+		binop.left(left);
+		binop.setRight(this.pTERM_PPP());
+		left = binop;
+	}
+
+	return left;
 }
 
 
@@ -298,31 +220,6 @@ EdenAST.prototype.pTERM_PPP = function() {
 		return right;
 	}
 	return left;
-}
-
-
-
-/*
- * E'''' -> * T''' E'''' | / T''' E'''' | % T''' E'''' | ^ T''' E'''' | epsilon
- */
-EdenAST.prototype.pEXPRESSION_PPPP = function() {
-	if (this.token == "*" || this.token == "/" || this.token == "%"
-			|| this.token == "^") {
-		var binop = new EdenAST_BinaryOp(this.token);
-		this.next();
-
-		var term = this.pTERM_PPP();
-		var right = this.pEXPRESSION_PPPP();
-
-		if (right) {
-			right.left(term);
-			binop.setRight(right);
-		} else {
-			binop.setRight(term);
-		}
-		return binop;
-	}
-	return undefined;
 }
 
 
@@ -422,7 +319,9 @@ EdenAST.prototype.pFACTOR = function() {
 		return lit
 	} else if (this.token == "-") {
 		this.next();
-		if (this.token == "NUMBER") {
+		var negop = new EdenAST_UnaryOp("-", this.pFACTOR());
+		return negop;
+		/*if (this.token == "NUMBER") {
 			var lit = new EdenAST_Literal("NUMBER", 0.0 - this.data.value);
 			this.next();
 			return lit;
@@ -430,7 +329,7 @@ EdenAST.prototype.pFACTOR = function() {
 			var res = new EdenAST_Literal("UNDEFINED","@");
 			res.errors.push(new EdenError(this, EDEN_ERROR_NEGNUMBER));
 			return res;
-		}
+		}*/
 	} else if (this.token == "STRING") {
 		var lit = new EdenAST_Literal("STRING", this.data.value);
 		this.next();
@@ -919,18 +818,19 @@ EdenAST.prototype.pEXPRESSION_PPPPPP = function() {
 
 /**
  * EXPRESSION Production
- * EXPRESSION -> T E'
+ * EXPRESSION -> T { && T | || T }
  */
 EdenAST.prototype.pEXPRESSION = function() {
 	var left = this.pTERM();
-	var right = this.pEXPRESSION_P();
 
-	if (right) {
-		right.left(left);
-		//right.parent = this.parent;
-		return right;
+	while (this.token == "&&" || this.token == "||") {
+		var binop = new EdenAST_BinaryOp(this.token);
+		this.next();
+		binop.left(left);
+		binop.setRight(this.pTERM());
+		left = binop;
 	}
-	//left.parent = this.parent;
+
 	return left;
 }
 

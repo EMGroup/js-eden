@@ -103,7 +103,7 @@ T''''		-> F E''''''																		FIRST: ( - number & ! observable
 E''''''		-> ? EXPRESSION : EXPRESSION | if EXPRESSION else EXPRESSION | epsilon												FIRST: ? epsilon
 F			->
 	( EXPRESSION ) |
-	- number |
+	- F |
 	number |
 	boolean |
 	character |
