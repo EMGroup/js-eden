@@ -495,13 +495,16 @@ func coladjls {
 	return result;
 }
 
+##Simplified version of a system library function, for dissection by teachers and students.
 func isinlist {
 	para ls, obj;
 	auto i;
-	result = false;
-	for (i=1; i<=ls#; i++)
-		if (ls[i]==obj) result = true;
-	return result;
+	for (i = 1; i <= ls#; i++) {
+		if (ls[i] == obj) {
+			return true;
+		}
+	}
+	return false;
 }
 
 func count {
