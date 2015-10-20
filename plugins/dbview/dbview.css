@@ -116,6 +116,10 @@ table.dbview-table th {
 	background-color: #edd5eb;
 }
 
+.dbview-dependency {
+	background-color: #edd97d;
+}
+
 .dbview-indirectdep {
 	background-color: green;
 }

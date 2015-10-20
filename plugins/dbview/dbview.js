@@ -18,6 +18,9 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 		table.appendTo(code_entry);
 		var columns;
 		var rows;
+		var select = code_entry.find(".dbview-select-text").get(0);
+		var where = code_entry.find(".dbview-where-text").get(0);
+		var selectre = undefined;
 
 		function rebuild() {
 			var tabele = table.get(0);
@@ -30,8 +33,10 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 				var labels = d.split("/");
 				var name = labels[0];
 				var scope = labels[1];
-				if (columns.indexOf(name) == -1) columns.push(name);
-				if (rows.indexOf(scope) == -1) rows.push(scope);
+				if (selectre === undefined || selectre.test(name)) {
+					if (columns.indexOf(name) == -1) columns.push(name);
+					if (rows.indexOf(scope) == -1) rows.push(scope);
+				}
 			}
 
 			// Build columns
@@ -72,6 +77,7 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 
 		function clearHighlights() {
 			table.find('.dbview-dependant').removeClass("dbview-dependant");
+			table.find('.dbview-dependency').removeClass("dbview-dependency");
 		}
 
 
@@ -86,6 +92,19 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 				if (loc) {
 					//console.log(table.get(0).childNodes);
 					$(table.get(0).firstChild.childNodes[loc.row+1].childNodes[loc.col]).addClass("dbview-dependant");
+				}
+			}
+		}
+
+		function highlightDependencies(entry) {
+			if (entry.formula && entry.formula.dependencies) {
+				for (var i=0; i<entry.formula.dependencies.length; i++) {
+					var loc = findEntry(entry.formula.dependencies[i], entry.origin_scope);
+					//console.log(loc);
+					if (loc) {
+						//console.log(table.get(0).childNodes);
+						$(table.get(0).firstChild.childNodes[loc.row+1].childNodes[loc.col]).addClass("dbview-dependency");
+					}
 				}
 			}
 		}
@@ -105,12 +124,17 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 			if (entry) {
 				highlightSourceScope(entry);
 				if (entry.formula) {
-					//highlightDependencies(entry);
+					highlightDependencies(entry);
 				}
 				highlightDependants(entry);
 			}
 		}).on('mouseleave', 'td', function(e) {
 			clearHighlights();
+		});
+
+		code_entry.on('input', '.dbview-select-text', function(e) {
+			selectre = EdenUI.regExpFromStr(select.value);
+			rebuild();
 		});
 
 		rebuild();

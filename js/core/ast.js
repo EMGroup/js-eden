@@ -776,7 +776,7 @@ EdenAST_Definition.prototype.generateDef = function(ctx) {
 	}
 
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-		result += "\tconsole.log(scope);\n\tvar res = "+express+";\n\tthis.origin_scope = res.origin_scope;\n\treturn res.value;\n}";
+		result += "\tvar res = "+express+";\n\tthis.origin_scope = res.origin_scope;\n\treturn res.value;\n}";
 
 		// Save the resulting values scope binding into the cache entry.
 		/*result += "\tif (cache) cache.scope = result.scope;\n";
@@ -855,7 +855,7 @@ EdenAST_Definition.prototype.execute = function(root, ctx, base) {
 
 		//sym.eden_definition = base.getSource(this);
 		//sym.define(eval(rhs), {name: "execute"}, deps);
-		Database.setFormula(this.lvalue.observable, 0, eval(rhs));
+		Database.setFormula(this.lvalue.observable, 0, eval(rhs), deps);
 	}
 		
 }

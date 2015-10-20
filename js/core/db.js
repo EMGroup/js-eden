@@ -20,7 +20,7 @@
 	function FormulaEntry() {
 		this.formula = undefined;
 		this.origin_scope = 0;
-		//this.subscribers = [];
+		this.dependencies = [];
 	}
 
 	function DBScope(parent) {
@@ -302,7 +302,7 @@
 
 
 
-	Database.setFormula = function(name, scopeid, func) {
+	Database.setFormula = function(name, scopeid, func, deps) {
 		var entry = formulas[name + "/" + scopeid];
 		if (entry === undefined) {
 			entry = new FormulaEntry();
@@ -310,6 +310,9 @@
 		}
 		entry.origin_scope = scopeid;
 		entry.formula = func;
+		if (deps) {
+			entry.dependencies = deps;
+		}
 
 		// TODO Notify all formula dependencies.
 
