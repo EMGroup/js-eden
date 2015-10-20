@@ -22,7 +22,7 @@ ${{
 }
 
 ${{
-var Button = function (name, label, x, y, enabled, fillcolour, textcolour) {
+Button = function (name, label, x, y, enabled, fillcolour, textcolour) {
 	this.name = name;
 	this.label = label;
 	this.x = x;

@@ -4,7 +4,7 @@
 ##changes made to the environment subsequent to the SciFest 2015 event at Joensuu (21-27 April 2015)
 ##but before the next major JS-EDEN release.
 
-_view_list is _views_log;
+_view_list is _views_list;
 
 ##Form controls used to take a "name" parameter.
 
@@ -81,6 +81,17 @@ func Textbox { ${{
 	enabled = arg;
 	return new Textbox(name, x, y, width, height, placeholder, enabled);
 }}$; }
+
+func indexOf {
+	para searchValue, target, start, isSorted;
+	if (isString(target)) {
+		return substringPosition(searchValue, target, start);
+	} else {
+		return positionInList(searchValue, target, start, isSorted);
+	}
+}
+
+indexOfRE is positionOfRE;
 
 ##Default to base e instead of base 10.
 func log {
@@ -190,6 +201,8 @@ func translate {
 
 ${{
 	Eden.systemObservableNames["_view_list"] = true;
+	Eden.systemFunctionNames["indexOf"] = true;
+	Eden.systemFunctionNames["indexOfRE"] = true;
 	Eden.systemFunctionNames["rotate"] = true;
 	Eden.systemFunctionNames["scale"] = true;
 	Eden.systemFunctionNames["translate"] = true;

@@ -14,6 +14,16 @@
 EdenUI.plugins.HTMLContent = function(edenUI, success) {
 	var me = this;
 
+	/**Don't delete this method.  It looks like obsolete code from the old way that views were
+	 * implemented but it is not obsolete.  It is required for the EDEN html() procedure to work!
+	 */
+	this.html = function(name,content) {
+		if (!(name in edenUI.viewInstances)) {
+			edenUI.createView(name,"HTMLContent");
+		}
+		$("#"+name+"-dialog-content").html(content);
+	}
+
 	this.createDialog = function(name,mtitle) {
 	
 		var code_entry = $('<div id=\"'+name+'-content\" class=\"htmlviews-content\"></div>');

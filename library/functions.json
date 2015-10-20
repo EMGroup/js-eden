@@ -171,20 +171,29 @@
 			"return": "",
 			"description": ""
 		},
-		"indexOf": {
+		"positionInList": {
 			"parameters": {
 				"search_value": "",
-				"string_or_list": "",
-				"[start": "",
+				"list": "",
+				"[starting_offset": "",
 				"[is_sorted]]": ""
 			},
 			"return": "",
 			"description": ""
 		},
-		"indexOfRE": {
+		"positionOfRE": {
 			"parameters": {
 				"regular_expression": "",
 				"[case_sensitive]": "",
+				"target_string": "",
+				"[starting_offset]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"substringPosition": {
+			"parameters": {
+				"search_string": "",
 				"target_string": "",
 				"[starting_offset]": ""
 			},
@@ -307,6 +316,13 @@
 		"isString": {
 			"parameters": {
 				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isValue": {
+			"parameters": {
+				"expression": ""
 			},
 			"return": "",
 			"description": ""

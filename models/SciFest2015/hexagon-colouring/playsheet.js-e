@@ -247,6 +247,13 @@ Can you match each observable in the script with something on the screen?
 </p>
 ");
 
+point1 is {centre.x+2*radius, centre.y};
+point2 is {centre.x+radius, centre.y-sqrt(3)*radius};
+point5 is {centre.x-radius, centre.y+sqrt(3)*radius};
+point4 is {centre.x-2*radius, centre.y};
+point6 is {centre.x+radius, centre.y+sqrt(3)*radius};
+point3 is {centre.x-radius, centre.y-sqrt(3)*radius};
+
 slideC2_hexmath is Slide("
 <h3>The maths behind the hexagon</h3>
 <p>

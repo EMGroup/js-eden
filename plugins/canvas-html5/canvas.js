@@ -1028,14 +1028,20 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 	root.lookup("mouseDownZone").addJSObserver("recordClick", function (symbol, zone) {
 		if (eden.isValidIdentifier(zone)) {
-			root.lookup(zone + "_click").assign(true, Symbol.hciAgent);
+			var clickSym = root.lookup(zone + "_click");
+			if (clickSym.value() === false) {
+				clickSym.assign(true, Symbol.hciAgent);
+			}
 		}
 	});
 	
 	this.endClick = function () {
 		var zoneDown = root.lookup("mouseDownZone").value();
 		if (eden.isValidIdentifier(zoneDown)) {
-			root.lookup(zoneDown + "_click").assign(false, Symbol.hciAgent);
+			var clickSym = root.lookup(zoneDown + "_click");
+			if (clickSym.value() === true) {
+				clickSym.assign(false, Symbol.hciAgent);
+			}
 		}
 	};
 
