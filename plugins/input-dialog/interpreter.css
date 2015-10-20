@@ -289,9 +289,9 @@ textarea.hidden-textarea {
 	/*word-wrap: normal;*/
 	overflow: auto;
 	font: 14px/20px Roboto Mono,monospace;
-	left: -9999px;
-	width: 1000px;
-	height: 200px;
+	left: 5px;
+	right: 5px;
+	height: 50px;
 }
 
 div.outputcontent {
