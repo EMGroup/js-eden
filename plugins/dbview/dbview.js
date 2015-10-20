@@ -21,6 +21,7 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 		var select = code_entry.find(".dbview-select-text").get(0);
 		var where = code_entry.find(".dbview-where-text").get(0);
 		var selectre = undefined;
+		var whereexp = undefined;
 
 		function rebuild() {
 			var tabele = table.get(0);
@@ -135,6 +136,12 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 		code_entry.on('input', '.dbview-select-text', function(e) {
 			selectre = EdenUI.regExpFromStr(select.value);
 			rebuild();
+		})
+		.on('input', '.dbview-where-text', function(e) {
+			whereexp = new EdenAST(where.value, true);
+			if (whereexp.script.errors.length == 0) {
+				rebuild();
+			}
 		});
 
 		rebuild();

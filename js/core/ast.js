@@ -147,6 +147,7 @@ EdenAST_Scope.prototype.generate = function(ctx, scope) {
 	ctx.scopes.push(res);*/
 
 	res += this.statement.generate(ctx, "ns");
+	res += "Database.setValue(\"owner\", ns, \""+ctx.lvalue.observable+"\");";
 	res += "\nreturn ns; }).call(this)";
 
 	return this.primary.generate(ctx,res);
@@ -796,8 +797,10 @@ EdenAST_Definition.prototype.generateDef = function(ctx) {
 	return result;
 }
 
-EdenAST_Definition.prototype.generate = function(ctx) {
-	var result = this.lvalue.generate(ctx);
+EdenAST_Definition.prototype.generate = function(ctx, scope) {
+	var result; // = this.lvalue.generate(ctx);
+
+	if (scope === undefined) scope = "scope";
 
 	if (this.lvalue.islocal) {
 		// TODO Report error, this is invalid;
@@ -821,12 +824,12 @@ EdenAST_Definition.prototype.generate = function(ctx) {
 		result += ");\n";
 		return result;
 	} else {
-	 	result += ".define(" + this.generateDef(ctx);
+	 	result  = "Database.setFormula(\""+this.lvalue.observable+"\", "+scope+", " + this.generateDef(ctx);
 		var deps = [];
 		for (var d in this.dependencies) {
 			deps.push(d);
 		}
-		result = result + ", this, "+JSON.stringify(deps)+");\n";
+		result = result +", "+JSON.stringify(deps)+");\n";
 		return result;
 	}
 };

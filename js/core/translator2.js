@@ -13,7 +13,7 @@
  * report the errors found. To use, pass the script to the constructor.
  * @param code String containing the script.
  */
-function EdenAST(code) {
+function EdenAST(code, expression) {
 	this.stream = new EdenStream(code);
 	this.data = new EdenSyntaxData();
 	this.token = "INVALID";
@@ -29,7 +29,11 @@ function EdenAST(code) {
 
 	// Start parse with SCRIPT production
 	//console.time("MakeEdenAST");
-	this.script = this.pSCRIPT();
+	if (expression) {
+		this.script = this.pEXPRESSION();
+	} else {
+		this.script = this.pSCRIPT();
+	}
 	//console.timeEnd("MakeEdenAST");
 }
 
