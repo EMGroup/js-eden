@@ -344,7 +344,7 @@ EdenAST.prototype.pFACTOR = function() {
 		return lit;
 	} else if (this.token == "!") {
 		this.next();
-		var primary = this.pEXPRESSION();
+		var primary = this.pFACTOR();
 		return new EdenAST_UnaryOp("!", primary);
 	} else if (this.token == "&") {
 		this.next();
