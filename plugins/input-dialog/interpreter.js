@@ -214,6 +214,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var autoexec = power;
 		var inputchanged = false;
 		var refreshentire = false;
+		var edited = false;
 
 
 
@@ -701,6 +702,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						}
 					},
 					start: function(e,u) {
+						edited = true;
 						// Calculate the line we are on
 						dragline = findElementLineNumber(e.target);
 						dragstart = u.position.left;
@@ -859,6 +861,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * down.
 		 */
 		function rebuild() {
+			edited = true;
 			// Using a timer to make rebuild async. Allows input and keyup to
 			// trigger a single rebuild which overcomes Chrome input event bug.
 			clearTimeout(rebuildtimer);
@@ -1187,15 +1190,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var viewdata = {
 			contents: $dialogContents,
 			update: function(data) {
-				if (data instanceof Symbol) {
-					agent.setScope(data.getValueScope(eden.root.scope));
-					inputchanged = true;	// To make sure it goes into history.
-					intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(agent.code);
-					updateEntireHighlight();
-				} else if (data instanceof Array) {
-					inputchanged = true;	// To make sure it goes into history.
-					intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(data);
-					updateEntireHighlight();
+				if (edited == false) {
+					if (data instanceof Symbol) {
+						agent.setScope(data.getValueScope(eden.root.scope));
+						inputchanged = true;	// To make sure it goes into history.
+						intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(agent.code);
+						updateEntireHighlight();
+					} else if (data instanceof Array) {
+						inputchanged = true;	// To make sure it goes into history.
+						intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(data);
+						updateEntireHighlight();
+					}
 				}
 			},
 			setValue: function (value) { intextarea.value = value; }
