@@ -15,6 +15,7 @@
 		this.dependants = [];			// List of value entries dependant on this
 		this.formula = undefined;		// Formula entry defining this value
 		this.overrides = undefined;		// List of scopes with overrides of this
+		this.events = undefined;		// Set of handlers for different event types.
 	}
 
 	function FormulaEntry() {
@@ -25,60 +26,122 @@
 
 	function DBScope(parent) {
 		this.parent = parent;
+		this.events = undefined;		// Set of handlers for different event types.
 	}
 
 	var values = {};
 	var formulas = {};
 	var scopes = [];
 	var observables = {};
-	var global_events = {
+	var agents = {};
+	var todoAgents = {};
+	var todoTimeout = undefined;
+	var globalevents = {events: {
 		newscope: [],
 		newobservable: [],
 		setvalue: [],
 		setformula: []
-	};
-	var eventQueue = [];
+	}};
 
 	var Database = {};
 
 
 
 	function processEvents() {
-		for (var i=0; i<eventQueue.length; i++) {
-			processEvent.apply(this, eventQueue[i]);
-		}
-		eventQueue = [];
-	}
+		var todos = todoAgents;
+		todoAgents = {};
+		todoTimeout = undefined;
 
-
-	function processEvent(event) {
-		for (var i=0; i<global_events[event].length; i++) {
-			global_events[event][i].apply(this, arguments);
+		for (var a in todos) {
+			console.log("Agent Trigger: " + a);
+			agents[a].apply(this, todos[a]);
 		}
 	}
 
 
-	function triggerGlobal(event) {
+
+	function trigger(event) {
+		if (this.events === undefined || this.events[event] === undefined) return;
+
+		for (var i=0; i<this.events[event].length; i++) {
+			var agent = this.events[event][i];
+			if (todoAgents[agent] === undefined) todoAgents[agent] = [];
+			todoAgents[agent].push(arguments);
+			//agents[global_events[event][i]].apply(this, arguments);
+		}
+
+		if (todoTimeout === undefined) {
+			todoTimeout = setTimeout(processEvents,10);
+		}
+	}
+
+
+
+	/*function triggerGlobal(event) {
 		if (global_events[event] === undefined) return;
 
-		eventQueue.push(arguments);
-		if (eventQueue.length == 1) {
-			setTimeout(processEvents,10);
+		for (var i=0; i<global_events[event].length; i++) {
+			var agent = global_events[event][i];
+			if (todoAgents[agent] === undefined) todoAgents[agent] = [];
+			todoAgents[agent].push(arguments);
+			//agents[global_events[event][i]].apply(this, arguments);
 		}
+
+		if (todoTimeout === undefined) {
+			todoTimeout = setTimeout(processEvents,10);
+		}
+	}*/
+
+
+
+	Database.addAgent = function(name, cb) {
+		agents[name] = cb;
 	}
 
 
 
 	Database.on = function(event) {
-		switch (event) {
-		case "newscope"			:	global_events.newscope.push(arguments[1]); break;
-		case "newobservable"	:	global_events.newobservable.push(arguments[1]); break;
-		case "setvalue"			:	if (typeof arguments[1] == "function") {
-										global_events.setvalue.push(arguments[1]); break;
-									}
-		case "setformula"		:	if (typeof arguments[1] == "function") {
-										global_events.setformula.push(arguments[1]); break;
-									}
+
+		// A global notification
+		if (arguments.length == 2) {
+			switch (event) {
+			case "newscope"			:
+			case "newobservable"	:
+			case "setvalue"			:
+			case "setformula"		:	globalevents.events[event].push(arguments[1]); break;
+			}
+		// A selector to specify notifications
+		} else if (arguments.length == 3) {
+			var selector = arguments[1];
+			// Specify a scope, an observable or an observable and scope...
+			// List multiple combinations
+			var items = selector.split(",");
+			for (var i=0; i<items.length; i++) {
+				var comps = items[i].trim().split("/");
+				var name = comps[0].trim();
+
+				if (name == "*" || name == "") {
+					// Match any observable.
+					if (comps.length == 1) {
+						// No scope given, so globally match everything.
+						return this.on(event, arguments[2]);
+					} else {
+						// Trigger on scope changes
+						
+					}
+				} else {
+					// Match a particular observable
+					if (comps.length == 1) {
+						// In any scope
+					} else {
+						// In a specific scope.
+						var entry = this._getValueEntry(name, parseInt(comps[1]));
+						if (entry.events === undefined) entry.events = {};
+						if (entry.events[event] === undefined) entry.events[event] = [];
+						entry.events[event].push(arguments[2]);
+					}
+				}
+			}
 		}
 	}
 
@@ -88,7 +151,7 @@
 		var scope = new DBScope(parent);
 		scopes.push(scope);
 		this.setValue("scope", scopes.length-1, scopes.length-1);
-		triggerGlobal("newscope", scopes.length-1);
+		trigger.call(globalevents, "newscope", scopes.length-1);
 		return scopes.length-1;
 	}
 
@@ -105,7 +168,7 @@
 		if (pscope === undefined) return;
 		var inherited = this._getValueEntry(name, pscope);
 
-		console.log("BRING IN RELATIVES: " + name + ", " + scopeid + "pscole = " + pscope);
+		//console.log("BRING IN RELATIVES: " + name + ", " + scopeid + "pscole = " + pscope);
 
 		if (inherited) {
 			// Record this override in the original parent.
@@ -156,7 +219,10 @@
 			this.expire(entry);
 			entry.up_to_date = true;
 		}
-		triggerGlobal("setvalue", name, scopeid, value);
+
+		trigger.call(globalevents, "setvalue", name, scopeid, value);
+		trigger.call(scopes[scopeid], "setvalue", name, scopeid, value);
+		trigger.call(entry, "setvalue", name, scopeid, value);
 	}
 
 
@@ -222,6 +288,12 @@
 		if (entry.formula !== undefined) {
 			entry.up_to_date = false;
 		}
+
+		// Trigger agents listening for change events
+		trigger.call(globalevents, "change", entry.name, entry.origin_scope);
+		trigger.call(scopes[entry.origin_scope], "change", entry.name, entry.origin_scope);
+		trigger.call(entry, "change", entry.name, entry.origin_scope);
+
 		var dependants = entry.dependants;
 		entry.dependants = [];
 
@@ -314,8 +386,6 @@
 			entry.dependencies = deps;
 		}
 
-		// TODO Notify all formula dependencies.
-
 		var value = values[name + "/" + scopeid];
 		if (value === undefined) {
 			value = new ValueEntry(name);
@@ -324,16 +394,13 @@
 			this.bringInRelatives(name, scopeid);
 		}
 		value.origin_scope = scopeid;
+
+		// Trigger agents listening for setformula events
+		trigger.call(globalevents, "setformula", name, scopeid);
+		trigger.call(scopes[scopeid], "setformula", name, scopeid);
+		trigger.call(value, "setformula", name, scopeid);
+
 		this.expire(value);
-
-		// Also need to expire all overrides that use this formula
-		/*if (value.overrides) {
-			for (var i=0; i<value.overrides.length; i++) {
-				this.expire(this._getValueEntry(name, value.overrides[i]));
-			}
-		}*/
-
-		triggerGlobal("setformula", name, scopeid);
 	}
 
 

@@ -146,8 +146,9 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 
 		rebuild();
 
-		Database.on("setvalue", rebuild);
-		Database.on("setformula", rebuild);
+		Database.addAgent("DBViewUpdater", rebuild);
+		Database.on("setvalue", "DBViewUpdater");
+		Database.on("setformula", "DBViewUpdater");
 
 		$('<div id="'+name+'"></div>')
 			.html(code_entry)

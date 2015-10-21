@@ -480,7 +480,7 @@ func include2 {
 }
 
 ##Autocalc compatibility
-autocalc = 1;
+autocalc = 0;
 
 ##Include the rest of the library
 
@@ -498,6 +498,8 @@ include("library/declarevar.js-e");
 include("library/generate_function.js-e");
 
 ##include2("library/scoping.js-e");
+
+autocalc = 1;
 
 initialViews = ${{getParameterByName("views") }}$;
 if (initialViews == "" || initialViews == "default") {
