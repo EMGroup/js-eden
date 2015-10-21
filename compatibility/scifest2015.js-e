@@ -35,12 +35,21 @@ func Checkbox { ${{
 
 func Combobox { ${{
   var name = arguments[0];
-  var options = arguments[1];
+  var values = arguments[1];
   var x = arguments[2];
   var y = arguments[3];
   var enabled = arguments[4];
-  if (enabled === undefined) enabled = true;
-  return new Combobox(name, options, x, y, enabled);
+  return new DropDownList(name, values, values, x, y, enabled);
+}}$; }
+
+func RadioButtons { ${{
+	var name = arguments[0];
+	var values = arguments[1];
+	var x = arguments[2];
+	var y = arguments[3];
+	var enabled = arguments[4];
+	var horizontal = arguments[5];
+	return new RadioButtons(name, values, values, x, y, undefined, horizontal, enabled);
 }}$; }
 
 func Slider { ${{

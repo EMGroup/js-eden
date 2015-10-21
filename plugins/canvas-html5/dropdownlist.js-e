@@ -1,0 +1,122 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+DropDownList = function (name, values, labels, x, y, enabled) {
+	this.name = name;
+	this.values = values;
+	this.labels = labels;
+	this.x = x;
+	this.y = y;
+	this.enabled = enabled;
+}
+
+DropDownList.prototype.hash = function () {
+	return this.name+"$$"+
+				(Array.isArray(this.values)? this.values.join("$$") : "") +
+				(Array.isArray(this.labels)? this.labels.join("$$") : "") +
+				this.x+"$$"+
+				this.y+"$$"+
+				this.enabled;
+};
+
+}}$;
+
+func DropDownList { ${{
+  var name = root.currentObservableName();
+  if (name === undefined) {
+	eden.error(new Error("DropDownList: Every drop down list must be defined by making a dependency."), "error");
+	return undefined;
+  }
+  var values = arguments[0];
+  var labels = arguments[1];
+  var x = arguments[2];
+  var y = arguments[3];
+  var enabled = arguments[4];
+  return new DropDownList(name, values, labels, x, y, enabled);
+}}$; }
+
+
+${{
+
+DropDownList.prototype.makeOptionsHTML = function() {
+	var html = "";
+	for (var i = 0; i < this.values.length; i++) {
+		html = html + '\n<option value="' + this.values[i] + '">' + this.labels[i] + '</option>';
+	}
+	return html;
+}
+
+DropDownList.prototype.draw = function(context) {
+	var dropDownList;
+
+	if (this.elements === undefined) {
+		var me = this;
+		var name = this.name;
+
+		var disabled = this.enabled === false? 'disabled="disabled"' : '';
+		var dropDownListJQ = $('<select ' + disabled + ' style="position: absolute"></select>');
+		dropDownListJQ.html(this.makeOptionsHTML(this.values));
+
+		dropDownList = dropDownListJQ.get(0);
+		var valueSym = root.lookup(name + '_value');
+		var initialValue = valueSym.value();
+		if (initialValue === undefined) {
+			valueSym.assign(me.values[0], root.lookup("DropDownList"), true);
+		} else {
+			dropDownList.value = initialValue;
+		}
+		valueSym.addJSObserver("updateDropDownList", function (symbol, value) {
+			dropDownList.value = value;
+		});
+
+		dropDownListJQ.change(function(event) {
+			valueSym.assign(event.target.value, Symbol.hciAgent, true);
+		})
+		.on("mousedown", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseDownZone").assign(undefined, Symbol.hciAgent, mouseFollow);
+		})
+		.on("mouseup", function () {
+			edenUI.plugins.Canvas2D.endClick();
+		})
+		.on("mouseenter", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(name, Symbol.hciAgent, mouseFollow);
+		});
+
+		this.elements = [dropDownList];
+
+	} else {
+
+		//Case when the user has performed direct assignment to one or more JavaScript properties.
+		dropDownList = this.elements[0];
+		$(dropDownList).html(this.makeOptionsHTML());
+
+		dropDownList.value = valueSym.value();
+
+		if (this.enabled == true) { 
+			dropDownList.disabled = false; 
+		} else {
+			dropDownList.disabled = true;
+		}
+
+	}
+};
+
+DropDownList.prototype.scale = function (scale, zoom, origin) {
+	var style = this.elements[0].style;
+	style.left = Math.round(this.x * scale + origin.x) + "px";
+	style.top = Math.round(this.y * scale + origin.y) + "px";
+	style.fontSize = zoom + "em";
+};
+
+DropDownList.prototype.toString = function() {
+	return "DropDownList(" + Eden.edenCodeForValues(this.values, this.labels, this.x, this.y, this.enabled) + ")";
+};
+
+DropDownList.prototype.getEdenCode = DropDownList.prototype.toString;
+
+}}$;

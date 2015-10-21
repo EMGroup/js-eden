@@ -5,15 +5,15 @@
 
 ${{
 Ellipse = function(x, y, xradius, yradius, fillcolour, outlinecolour, drawingOptions) {
-  this.x = x;
-  this.y = y;
-  this.xradius = xradius;
-  this.yradius = yradius;
-  this.fillcolour = fillcolour;
-  this.outlinecolour = outlinecolour;
-  this.drawingOptions = drawingOptions;
-  this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Ellipse");
-  this.obsName = root.currentObservableName();
+	this.x = x;
+	this.y = y;
+	this.xradius = xradius;
+	this.yradius = yradius;
+	this.fillcolour = fillcolour;
+	this.outlinecolour = outlinecolour;
+	this.drawingOptions = drawingOptions;
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Ellipse");
+	this.obsName = root.currentObservableName();
 }
 }}$;
 
@@ -46,36 +46,41 @@ func Ellipse { ${{
 
 ${{
 
-Ellipse.prototype.draw = function(context) {
-	var scaleOutline;
-	if (this.outlinecolour === undefined || this.outlinecolour == "transparent") {
-		scaleOutline = false;
-	} else if (this.drawingOptions === undefined || !("scaleOutline" in this.drawingOptions)) {
-		scaleOutline = (this.fillcolour !== undefined && this.fillcolour != "transparent");
-	} else {
-		scaleOutline = this.drawingOptions.scaleOutline;
-	}
-	if (!scaleOutline) {
-		context.save();
-	}
+Ellipse.prototype.draw = function (context, scale) {
+	if (this.xradius > 0 && this.yradius > 0) {
 
-	this.tracePath(context, scaleOutline);
+		var scaleOutline;
+		if (this.outlinecolour === undefined || this.outlinecolour == "transparent") {
+			scaleOutline = false;
+		} else if (this.drawingOptions === undefined || !("scaleOutline" in this.drawingOptions)) {
+			scaleOutline = (this.fillcolour !== undefined && this.fillcolour != "transparent");
+		} else {
+			scaleOutline = this.drawingOptions.scaleOutline;
+		}
+		if (!scaleOutline) {
+			context.save();
+		}
 
-	if (this.fillcolour !== undefined) {
-		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
-		context.fill();
-	}
+		var lineWidth = this.tracePath(context, scale, scaleOutline);
 
-	if (!scaleOutline) {
-		context.restore();
-	}
-	if (this.outlinecolour !== undefined) {
-		context.strokeStyle = this.outlinecolour;
-		context.stroke();
+		if (this.fillcolour !== undefined) {
+			edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
+			context.fill();
+		}
+
+		if (!scaleOutline) {
+			context.restore();
+			context.lineWidth = lineWidth;
+		}
+		if (this.outlinecolour !== undefined) {
+			context.strokeStyle = this.outlinecolour;
+			context.stroke();
+		}
+
 	}
 };
 
-Ellipse.prototype.tracePath = function (context, scaleOutline) {
+Ellipse.prototype.tracePath = function (context, scale, scaleOutline) {
 	var scaleFactor = this.yradius / this.xradius;
 	var lineWidth;
 	if (this.outlinecolour !== undefined && this.outlinecolour != "transparent") {
@@ -88,14 +93,24 @@ Ellipse.prototype.tracePath = function (context, scaleOutline) {
 		lineWidth = 0;
 	}
 
+	var adjustedXRadius;
+	//Not sure what to do when xradius is bigger than 1/2 line width but less than line width, but it isn't correct atm.
+	if (this.xradius <= context.lineWidth / 2) {
+		lineWidth = this.xradius;
+		context.lineWidth = lineWidth;
+		adjustedXRadius = this.xradius / 2;
+	} else {
+		adjustedXRadius = this.xradius - lineWidth / 2;
+	}
 	context.scale(1, scaleFactor);
 	context.beginPath();
-	context.arc(this.x, this.y / scaleFactor, this.xradius - lineWidth / 2, 0, 2 * Math.PI, false);
+	context.arc(this.x, this.y / scaleFactor, adjustedXRadius, 0, 2 * Math.PI, false);
 	context.closePath();
+	return lineWidth;
 }
 
 Ellipse.prototype.isHit = function (context, scale, x, y) {
-	this.tracePath(context, false);
+	this.tracePath(context, scale, false);
 	return context.isPointInPath(x,y);
 }
 

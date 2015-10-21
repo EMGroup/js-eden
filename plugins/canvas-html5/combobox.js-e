@@ -4,9 +4,9 @@
 ## See LICENSE.txt
 
 ${{
-Combobox = function (name, options, x, y, enabled) {
+Combobox = function (name, suggestions, x, y, enabled) {
 	this.name = name;
-	this.options = options;
+	this.suggestions = suggestions;
 	this.x = x;
 	this.y = y;
 	this.enabled = enabled;
@@ -14,7 +14,7 @@ Combobox = function (name, options, x, y, enabled) {
 
 Combobox.prototype.hash = function () {
 	return this.name+"$$"+
-				this.options.join("$$")+
+				(Array.isArray(this.suggestions)? this.suggestions.join("$$") : "") +
 				this.x+"$$"+
 				this.y+"$$"+
 				this.enabled;
@@ -28,49 +28,48 @@ func Combobox { ${{
 	eden.error(new Error("Combobox: Every combobox must be defined by making a dependency."), "error");
 	return undefined;
   }
-  var options = arguments[0];
+  var suggestions = arguments[0];
   var x = arguments[1];
   var y = arguments[2];
   var enabled = arguments[3];
-  if (enabled === undefined) enabled = true;
-  return new Combobox(name, options, x, y, enabled);
+  return new Combobox(name, suggestions, x, y, enabled);
 }}$; }
 
 
 ${{
 
-function makeOptionsHTML(values) {
+Combobox.prototype.makeOptionsHTML = function() {
 	var html = "";
-	for (var i = 0; i < values.length; i++) {
-		html = html + "\n<option value=\"" + values[i] + "\">" + values[i] + "</option>";
+	for (var i = 0; i < this.suggestions.length; i++) {
+		html = html + '\n<option value="' + this.suggestions[i] + '"/>';
 	}
 	return html;
 }
 
 Combobox.prototype.draw = function(context) {
-	var dropDownList;
+	var input, suggestions;
 
 	if (this.elements === undefined) {
 		var me = this;
 		var name = this.name;
 
-		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
-		var dropDownListJQ = $("<select " + disabled + " style=\"position: absolute\"></select>");
-		dropDownListJQ.html(makeOptionsHTML(this.options));
+		var disabled = this.enabled === false? 'disabled="disabled"' : '';
+		var inputJQ = $('<input type="text" list="' + name + '-suggestions" ' + disabled + ' style="position: absolute">');
+		input = inputJQ.get(0);
+		var suggestionsJQ = $('<datalist id="' + this.name + '-suggestions"></datalist>');
+		suggestions = suggestionsJQ.get(0);
+		suggestionsJQ.html(this.makeOptionsHTML(this.values));
 
-		dropDownList = dropDownListJQ.get(0);
 		var valueSym = root.lookup(name + '_value');
 		var initialValue = valueSym.value();
-		if (initialValue === undefined) {
-			valueSym.assign(me.options[0], root.lookup("Combobox"), true);
-		} else {
-			dropDownList.value = initialValue;
+		if (initialValue !== undefined) {
+			input.value = initialValue;
 		}
 		valueSym.addJSObserver("updateCombobox", function (symbol, value) {
-			dropDownList.value = value;
+			input.value = value;
 		});
 
-		dropDownListJQ.change(function(event) {
+		inputJQ.on("input", function(event) {
 			valueSym.assign(event.target.value, Symbol.hciAgent, true);
 		})
 		.on("mousedown", function () {
@@ -85,20 +84,21 @@ Combobox.prototype.draw = function(context) {
 			root.lookup("mouseZone").assign(name, Symbol.hciAgent, mouseFollow);
 		});
 
-		this.elements = [dropDownList];
+		this.elements = [input, suggestions];
 
 	} else {
 
 		//Case when the user has performed direct assignment to one or more JavaScript properties.
-		dropDownList = this.elements[0];
-		$(dropDownList).html(makeOptionsHTML(this.options));
+		input = this.elements[0];
+		suggestions = this.elements[1];
+		$(suggestions).html(this.makeOptionsHTML());
 
-		dropDownList.value = valueSym.value();
+		input.value = valueSym.value();
 
 		if (this.enabled == true) { 
-			dropDownList.disabled = false; 
+			input.disabled = false; 
 		} else {
-			dropDownList.disabled = true;
+			input.disabled = true;
 		}
 
 	}
@@ -112,7 +112,7 @@ Combobox.prototype.scale = function (scale, zoom, origin) {
 };
 
 Combobox.prototype.toString = function() {
-	return "Combobox(" + Eden.edenCodeForValues(this.options, this.x, this.y, this.enabled) + ")";
+	return "Combobox(" + Eden.edenCodeForValues(this.suggestions, this.x, this.y, this.enabled) + ")";
 };
 
 Combobox.prototype.getEdenCode = Combobox.prototype.toString;

@@ -104,7 +104,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var context = canvas.getContext('2d');
 					var content = contents[canvasname];
 					if (content === undefined) {
-						//View has been detroyed.
+						//View has been destroyed.
 						return;
 					}
 				  
@@ -114,7 +114,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					}
 					context.setTransform(1, 0, 0, 1, 0, 0);
 					me.setFillStyle(context, backgroundColour);
-					content.parentElement.style.backgroundColor = backgroundColour;
+					content.style.backgroundColor = backgroundColour;
 					context.fillRect(0, 0, canvas.width, canvas.height);
 
 					var scale = root.lookup("_view_" + canvasname + "_scale").value();
