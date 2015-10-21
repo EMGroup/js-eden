@@ -4,17 +4,19 @@
 ## See LICENSE.txt
 
 ${{
-Combobox = function (name, options, x, y, enabled) {
+DropDownList = function (name, values, labels, x, y, enabled) {
 	this.name = name;
-	this.options = options;
+	this.values = values;
+	this.labels = labels;
 	this.x = x;
 	this.y = y;
 	this.enabled = enabled;
 }
 
-Combobox.prototype.hash = function () {
+DropDownList.prototype.hash = function () {
 	return this.name+"$$"+
-				this.options.join("$$")+
+				(Array.isArray(this.values)? this.values.join("$$") : "") +
+				(Array.isArray(this.labels)? this.labels.join("$$") : "") +
 				this.x+"$$"+
 				this.y+"$$"+
 				this.enabled;
@@ -22,51 +24,51 @@ Combobox.prototype.hash = function () {
 
 }}$;
 
-func Combobox { ${{
+func DropDownList { ${{
   var name = root.currentObservableName();
   if (name === undefined) {
-	eden.error(new Error("Combobox: Every combobox must be defined by making a dependency."), "error");
+	eden.error(new Error("DropDownList: Every DropDownList must be defined by making a dependency."), "error");
 	return undefined;
   }
-  var options = arguments[0];
-  var x = arguments[1];
-  var y = arguments[2];
-  var enabled = arguments[3];
-  if (enabled === undefined) enabled = true;
-  return new Combobox(name, options, x, y, enabled);
+  var values = arguments[0];
+  var labels = arguments[1];
+  var x = arguments[2];
+  var y = arguments[3];
+  var enabled = arguments[4];
+  return new DropDownList(name, values, labels, x, y, enabled);
 }}$; }
 
 
 ${{
 
-function makeOptionsHTML(values) {
+DropDownList.prototype.makeOptionsHTML = function() {
 	var html = "";
-	for (var i = 0; i < values.length; i++) {
-		html = html + "\n<option value=\"" + values[i] + "\">" + values[i] + "</option>";
+	for (var i = 0; i < this.values.length; i++) {
+		html = html + '\n<option value="' + this.values[i] + '">' + this.labels[i] + '</option>';
 	}
 	return html;
 }
 
-Combobox.prototype.draw = function(context) {
+DropDownList.prototype.draw = function(context) {
 	var dropDownList;
 
 	if (this.elements === undefined) {
 		var me = this;
 		var name = this.name;
 
-		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
-		var dropDownListJQ = $("<select " + disabled + " style=\"position: absolute\"></select>");
-		dropDownListJQ.html(makeOptionsHTML(this.options));
+		var disabled = this.enabled === false? 'disabled="disabled"' : '';
+		var dropDownListJQ = $('<select ' + disabled + ' style="position: absolute"></select>');
+		dropDownListJQ.html(this.makeOptionsHTML(this.values));
 
 		dropDownList = dropDownListJQ.get(0);
 		var valueSym = root.lookup(name + '_value');
 		var initialValue = valueSym.value();
 		if (initialValue === undefined) {
-			valueSym.assign(me.options[0], root.lookup("Combobox"), true);
+			valueSym.assign(me.values[0], root.lookup("DropDownList"), true);
 		} else {
 			dropDownList.value = initialValue;
 		}
-		valueSym.addJSObserver("updateCombobox", function (symbol, value) {
+		valueSym.addJSObserver("updateDropDownList", function (symbol, value) {
 			dropDownList.value = value;
 		});
 
@@ -91,7 +93,7 @@ Combobox.prototype.draw = function(context) {
 
 		//Case when the user has performed direct assignment to one or more JavaScript properties.
 		dropDownList = this.elements[0];
-		$(dropDownList).html(makeOptionsHTML(this.options));
+		$(dropDownList).html(this.makeOptionsHTML());
 
 		dropDownList.value = valueSym.value();
 
@@ -104,17 +106,17 @@ Combobox.prototype.draw = function(context) {
 	}
 };
 
-Combobox.prototype.scale = function (scale, zoom, origin) {
+DropDownList.prototype.scale = function (scale, zoom, origin) {
 	var style = this.elements[0].style;
 	style.left = Math.round(this.x * scale + origin.x) + "px";
 	style.top = Math.round(this.y * scale + origin.y) + "px";
 	style.fontSize = zoom + "em";
 };
 
-Combobox.prototype.toString = function() {
-	return "Combobox(" + Eden.edenCodeForValues(this.options, this.x, this.y, this.enabled) + ")";
+DropDownList.prototype.toString = function() {
+	return "DropDownList(" + Eden.edenCodeForValues(this.values, this.labels, this.x, this.y, this.enabled) + ")";
 };
 
-Combobox.prototype.getEdenCode = Combobox.prototype.toString;
+DropDownList.prototype.getEdenCode = DropDownList.prototype.toString;
 
 }}$;

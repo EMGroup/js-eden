@@ -28,8 +28,8 @@ body::-webkit-scrollbar-thumb {
 	background-color: rgba(255, 255, 255, 0.2);
 }
 
-input[type=checkbox] {
-	vertical-align: -0.25em;
+input[type=checkbox], input[type=radio] {
+	vertical-align: middle;
 }
 
 ul li {
@@ -71,6 +71,12 @@ h2, ul li {
 	border-width: 1px;
 	margin: 0px;
 	padding: 2px;
+}
+
+.canvas-horizontal-radio-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
 }
 
 .unpadded-dialog .ui-dialog-content {
