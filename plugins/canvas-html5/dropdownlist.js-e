@@ -27,7 +27,7 @@ DropDownList.prototype.hash = function () {
 func DropDownList { ${{
   var name = root.currentObservableName();
   if (name === undefined) {
-	eden.error(new Error("DropDownList: Every drop down list must be defined by making a dependency."), "error");
+	eden.error(new Error("DropDownList: Every DropDownList must be defined by making a dependency."), "error");
 	return undefined;
   }
   var values = arguments[0];
