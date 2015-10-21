@@ -4,7 +4,7 @@ file, so turn autocalc off for the time being */
 
 autocalc = 0;
 
-func max { return $1<$2 ? $2 : $1; };
+/*func max { return $1<$2 ? $2 : $1; };*/
 
 target=1;
 capA = 5;
@@ -37,13 +37,14 @@ finish is ((contentA==target)||(contentB==target))&&!updating;
 func avail
 {
 	/* indicates whether the menu option with parameter $1 is open */
+	para opt;
 	auto t;
-	t = menustatus[$1];
+	t = menustatus[opt];
 	return t;
 }
 
 input = @;
-option = @;
+opt = @;
 step = 0;
 
 proc init_pour : input
@@ -55,21 +56,21 @@ proc init_pour : input
 	if (int(input) == 5) {
 		content5 = contentA + contentB;
 		contentB is content5 - contentA;
-		option = valid6 ? 6 : 7;
+		opt = valid6 ? 6 : 7;
 	} else {
-		option = int(input);
+		opt = int(input);
 	}
 	step = 0;
 }
 
 proc pour : step
 {
-	if (option == @) {
+	if (opt == @) {
 		return;
 	}
 
-	if (avail(option)) {
-		switch (option) {
+	if (avail(opt)) {
+		switch (opt) {
 		case 1:
 			contentA = contentA + 1;
 			break;
@@ -89,7 +90,7 @@ proc pour : step
 			contentA = contentA + 1;
 			break;
 		default:
-			writeln("option = ", option);
+			writeln("option = ", opt);
 			return;
 		}
 

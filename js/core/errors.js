@@ -55,6 +55,8 @@ var EDEN_ERROR_PROPERTYNAME = 51;
 var EDEN_ERROR_WHILEOFDO = 52;
 var EDEN_ERROR_ASSIGNEXEC = 53;		// RUNTIME
 var EDEN_ERROR_FUNCCALL = 54;		// RUNTIME
+var EDEN_ERROR_AFTEROPEN = 55;
+var EDEN_ERROR_AFTERCLOSE = 56;
 
 var eden_error_db = [
 /* EDEN_ERROR_PROCNAME */
@@ -383,6 +385,14 @@ var eden_error_db = [
 		suggestion: {expected: [], next: []}
 	},
 /* EDEN_ERROR_FUNCCALL */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_AFTEROPEN */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_AFTERCLOSE */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
 	}
