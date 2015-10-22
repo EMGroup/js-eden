@@ -11,7 +11,6 @@
 		this.name = name;
 		this.value = undefined;
 		this.origin_scope = 0;			// Scope of the value
-		this.up_to_date = true;
 		this.dependants = [];			// List of value entries dependant on this
 		this.formula = undefined;		// Formula entry defining this value
 		this.overrides = undefined;		// List of scopes with overrides of this
@@ -127,7 +126,11 @@
 						return this.on(event, arguments[2]);
 					} else {
 						// Trigger on scope changes
-						
+						var scope = scopes[comps[1]];
+						if (scope === undefined) return;
+						if (scope.events === undefined) scope.events = {};
+						if (scope.events[event] === undefined) scope.events[event] = [];
+						scope.events[event].push(arguments[2]);
 					}
 				} else {
 					// Match a particular observable
