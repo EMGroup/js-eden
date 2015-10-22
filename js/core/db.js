@@ -11,6 +11,7 @@
 		this.name = name;
 		this.value = undefined;
 		this.origin_scope = 0;			// Scope of the value
+		this.expired = false;
 		this.dependants = [];			// List of value entries dependant on this
 		this.formula = undefined;		// Formula entry defining this value
 		this.overrides = undefined;		// List of scopes with overrides of this
