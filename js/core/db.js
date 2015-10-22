@@ -135,7 +135,7 @@
 						// In any scope
 					} else {
 						// In a specific scope.
-						var entry = this._getValueEntry(name, parseInt(comps[1]));
+						var entry = this.getValueEntry(name, parseInt(comps[1]));
 						if (entry.events === undefined) entry.events = {};
 						if (entry.events[event] === undefined) entry.events[event] = [];
 						entry.events[event].push(arguments[2]);
@@ -166,7 +166,7 @@
 	Database.bringInRelatives = function(name, scopeid) {
 		var pscope = scopes[scopeid].parent;
 		if (pscope === undefined) return;
-		var inherited = this._getValueEntry(name, pscope);
+		var inherited = this.getValueEntry(name, pscope);
 
 		//console.log("BRING IN RELATIVES: " + name + ", " + scopeid + "pscole = " + pscope);
 
@@ -185,15 +185,15 @@
 						dentry = new ValueEntry(inherited.dependants[i].name);
 						dentry.origin_scope = scopeid;
 						dentry.formula = inherited.dependants[i].formula;
-						dentry.up_to_date = false;
 						values[inherited.dependants[i].name + "/" + scopeid] = dentry;
+						this.expire(dentry);
 						this.bringInRelatives(dentry.name, scopeid);
 					}
 				} //else {
 
 				//TODO: This can be made more efficient, but for now allows
 				// dependencies across scope to be updated correctly.
-				this.expire(inherited.dependants[i]);
+				//this.expire(inherited.dependants[i]);
 				//}
 			}
 		}
@@ -213,11 +213,11 @@
 			this.bringInRelatives(name, scopeid);
 		} else {
 			entry.value = value;
+			entry.formula = undefined;
 			entry.origin_scope = scopeid;
 
 			// Notify anyone dependent on this value
 			this.expire(entry);
-			entry.up_to_date = true;
 		}
 
 		trigger.call(globalevents, "setvalue", name, scopeid, value);
@@ -281,45 +281,60 @@
 
 
 	Database.expire = function(entry) {
-		// Nothing to do if already expired
-		if (entry.up_to_date === false) return
-
+		var doexpire = false;
 		// It may not have a definition and still be expired by mistake
 		if (entry.formula !== undefined) {
-			entry.up_to_date = false;
+			var formula = this.getFormula(entry.name, entry.origin_scope);
+			var newvalue = formula.formula.call(entry, entry.origin_scope);
+
+			// Has an actual change happened?
+			if (newvalue != entry.value) {
+				entry.value = newvalue;
+				doexpire = true;
+			}
+		} else {
+			doexpire = true;
 		}
 
-		// Trigger agents listening for change events
-		trigger.call(globalevents, "change", entry.name, entry.origin_scope);
-		trigger.call(scopes[entry.origin_scope], "change", entry.name, entry.origin_scope);
-		trigger.call(entry, "change", entry.name, entry.origin_scope);
+		if (doexpire) {
+			var dependants = entry.dependants;
+			entry.dependants = [];
 
-		var dependants = entry.dependants;
-		entry.dependants = [];
+			// Make it unique
+			dependants = dependants.reduce(function(prev,cur,ix,arr) {
+				if (prev.indexOf(cur) == -1) prev.push(cur);
+				return prev;
+			}, []);
 
-		for (var i=0; i<dependants.length; i++) {
-			this.expire(dependants[i]);
-		}
+			for (var i=0; i<dependants.length; i++) {
+				this.expire(dependants[i]);
+			}
 
-		// Also need to expire all overrides that use this formula
-		if (entry.overrides) {
-			for (var i=0; i<entry.overrides.length; i++) {
-				var oent = this._getValueEntry(entry.name, entry.overrides[i]);
-				if (oent) {
-					this.expire(oent);
-				} else {
-					console.log("ERROR: " + entry.name + "/" + entry.overrides[i]);
+			// Also need to expire all overrides that use this formula
+			if (entry.overrides) {
+				for (var i=0; i<entry.overrides.length; i++) {
+					var oent = this.getValueEntry(entry.name, entry.overrides[i]);
+					if (oent) {
+						this.expire(oent);
+					} else {
+						console.log("ERROR: " + entry.name + "/" + entry.overrides[i]);
+					}
 				}
 			}
+
+			// Trigger agents listening for change events
+			trigger.call(globalevents, "change", entry.name, entry.origin_scope);
+			trigger.call(scopes[entry.origin_scope], "change", entry.name, entry.origin_scope);
+			trigger.call(entry, "change", entry.name, entry.origin_scope);
 		}
 	}
 
 
 
 	/**
-	 * Get the value entry, but without updating value if out-of-date.
+	 * Get the value entry
 	 */
-	Database._getValueEntry = function(name, scopeid) {
+	Database.getValueEntry = function(name, scopeid) {
 		var entry = values[name + "/" + scopeid];
 		if (entry === undefined) {
 			var scope = scopes[scopeid];
@@ -328,25 +343,6 @@
 			} else {
 				return this.getValueEntry(name, scope.parent);
 			}
-		}
-
-		return entry;
-	}
-
-
-
-	/**
-	 * Get the value entry but make sure value is up-to-date first.
-	 */
-	Database.getValueEntry = function(name, scopeid) {
-		var entry = this._getValueEntry(name, scopeid);
-
-		if (entry && entry.up_to_date === false) {
-			//Need to find and evaluate associated formula in this scope
-			var formula = this.getFormula(name, scopeid);
-			entry.origin_scope = scopeid;
-			entry.value = formula.formula.call(entry, scopeid);
-			entry.up_to_date = true;
 		}
 
 		return entry;
@@ -395,12 +391,12 @@
 		}
 		value.origin_scope = scopeid;
 
+		this.expire(value);
+
 		// Trigger agents listening for setformula events
 		trigger.call(globalevents, "setformula", name, scopeid);
 		trigger.call(scopes[scopeid], "setformula", name, scopeid);
 		trigger.call(value, "setformula", name, scopeid);
-
-		this.expire(value);
 	}
 
 

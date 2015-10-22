@@ -120,7 +120,7 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 		}).on('mouseenter', 'td', function(e) {
 			var col = e.target.cellIndex;
 			var row = e.target.parentNode.rowIndex-1;
-			var entry = Database._getValueEntry(columns[col],rows[row]);
+			var entry = Database.getValueEntry(columns[col],rows[row]);
 
 			if (entry) {
 				highlightSourceScope(entry);
