@@ -22,6 +22,10 @@
  */
 
 (function (global) {
+	function Pointer(initialValue) {
+		this.value = initialValue;
+	}
+
 	function copy(value) {
 		var i, copied;
 		if (value instanceof Array) {
@@ -329,6 +333,11 @@
 		this.needsExpire = [];
 		this.needsTrigger = {};
 		
+		/** expiryCount is used locally inside the expireAndFireActions method.  It's created here
+		 * for efficient reuse reasons, to eliminate the need to create and garbage collect many objects.
+		 */
+		this.expiryCount = new Pointer(0);
+
 		/** Symbols that might be ready to be garbage collected.
 		 * @private
 		 */
@@ -517,24 +526,31 @@
 			return;
 		}
 
-		var symbols_to_force = [];
+		this.expiryCount.value = 0;
+		var symbolNamesToForce = {};
 		for (var i = 0; i < this.needsExpire.length; i++) {
 			var sym = this.needsExpire[i];
-			sym.expire(symbols_to_force, this.needsTrigger);
+			sym.expire(symbolNamesToForce, this.expiryCount, this.needsTrigger);
 			this.notifyGlobals(sym, false);
 		}
 		var expired = this.needsExpire;
 		this.needsExpire = [];
-		for (var i = 0; i < symbols_to_force.length; i++) {
+		var symbolNamesArray = Object.keys(symbolNamesToForce);
+		symbolNamesArray.sort(function (name1, name2) {
+			return symbolNamesToForce[name1] - symbolNamesToForce[name2];
+		});
+		var symbolsToForce = [];
+		for (var i = 0; i < symbolNamesArray.length; i++) {
 			// force re-eval
-			var sym = symbols_to_force[i];
+			var sym = this.symbols[symbolNamesArray[i].slice(this.name.length)];
 			sym.evaluateIfDependenciesExist();
+			symbolsToForce.push(sym);
 		}
 		var actions_to_fire = this.needsTrigger;
 		this.needsTrigger = {};
 		fireActions(actions_to_fire);
 		fireJSActions(expired);
-		fireJSActions(symbols_to_force);
+		fireJSActions(symbolsToForce);
 	};
 
 	function makeRandomName()
@@ -728,6 +744,7 @@
 				this.evalResolved = true;
 			}
 		} catch (e) {
+			this.logError(e);
 			cache.value = undefined;
 			cache.up_to_date = false;
 		}
@@ -1085,10 +1102,11 @@
 	 * this change
 	 * @param {Object.<string,Symbol>} actions_to_fire set to accumulate all the actions that should be notified about this expiry
 	 */
-	Symbol.prototype.expire = function (symbols_to_force, actions_to_fire) {
+	Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to_fire) {
 		if (this.definition) {
 			this.cache.up_to_date = false;
-			symbols_to_force.push(this);
+			symbols_to_force[this.name] = insertionIndex.value;
+			insertionIndex.value++;
 		}
 
 		for (var observer_name in this.observers) {
@@ -1099,7 +1117,7 @@
 		for (var subscriber_name in this.subscribers) {
 			var subscriber = this.subscribers[subscriber_name];
 			if (subscriber) {
-				subscriber.expire(symbols_to_force, actions_to_fire);
+				subscriber.expire(symbols_to_force, insertionIndex, actions_to_fire);
 			}
 		}
 

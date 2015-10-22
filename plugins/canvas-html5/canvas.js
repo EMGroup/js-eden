@@ -53,21 +53,23 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	};
 
 	this.setPictureObs = function (viewName, pictureObs) {
-		var oldPictureObs = canvases[viewName].pictureObs;
-		if (oldPictureObs !== undefined) {
-			delete pictureObsToViews[oldPictureObs][viewName];
-		}
+		if (viewName in canvases) {
+			var oldPictureObs = canvases[viewName].pictureObs;
+			if (oldPictureObs !== undefined) {
+				delete pictureObsToViews[oldPictureObs][viewName];
+			}
 
-		if (!(pictureObs in pictureObsToViews)) {
-			pictureObsToViews[pictureObs] = {};
-		}
-		pictureObsToViews[pictureObs][viewName] = true;
-		canvases[viewName].pictureObs = pictureObs;
+			if (!(pictureObs in pictureObsToViews)) {
+				pictureObsToViews[pictureObs] = {};
+			}
+			pictureObsToViews[pictureObs][viewName] = true;
+			canvases[viewName].pictureObs = pictureObs;
 
-		root.lookup(pictureObs).addJSObserver("repaintView", function (symbol, value) {
-			me.drawPictures(pictureObs);
-		});
-		this.drawPicture(viewName, pictureObs);
+			root.lookup(pictureObs).addJSObserver("repaintView", function (symbol, value) {
+				me.drawPictures(pictureObs);
+			});
+			this.drawPicture(viewName, pictureObs);
+		}
 	};
 
 	this.drawPictures = function (pictureObs) {
@@ -105,7 +107,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var context = canvas.getContext('2d');
 					var content = contents[canvasname];
 					if (content === undefined) {
-						//View has been detroyed.
+						//View has been destroyed.
 						return;
 					}
 				  
@@ -115,7 +117,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					}
 					context.setTransform(1, 0, 0, 1, 0, 0);
 					me.setFillStyle(context, backgroundColour);
-					content.parentElement.style.backgroundColor = backgroundColour;
+					content.style.backgroundColor = backgroundColour;
 					context.fillRect(0, 0, canvas.width, canvas.height);
 
 					var scale = root.lookup("_view_" + canvasname + "_scale").value();
@@ -1141,14 +1143,20 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 	root.lookup("mouseDownZone").addJSObserver("recordClick", function (symbol, zone) {
 		if (eden.isValidIdentifier(zone)) {
-			root.lookup(zone + "_click").assign(true, root.scope, Symbol.hciAgent);
+			var clickSym = root.lookup(zone + "_click");
+			if (clickSym.value() === false) {
+				clickSym.assign(true, root.scope, Symbol.hciAgent);
+			}
 		}
 	});
 	
 	this.endClick = function () {
 		var zoneDown = root.lookup("mouseDownZone").value();
 		if (eden.isValidIdentifier(zoneDown)) {
-			root.lookup(zoneDown + "_click").assign(false, root.scope, Symbol.hciAgent);
+			var clickSym = root.lookup(zoneDown + "_click");
+			if (clickSym.value() === true) {
+				clickSym.assign(false, root.scope, Symbol.hciAgent);
+			}
 		}
 	};
 

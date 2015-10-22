@@ -231,11 +231,14 @@ func forgetAll {
 			} else {
 				regExp = new RegExp(searchStr, "i");
 			}
+			var viewsRE = /^_[vV]iew(s?)_/;
 			
 			for (var name in root.symbols) {
 				if (regExp.test(name)) {
-					if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
-						continue;
+					if (!includeSystemSymbols) {
+						if (Eden.isitSystemSymbol(name) || viewsRE.test(name)) {
+							continue;
+						}
 					}
 					
 					initialDefinition = eden.initialDefinition(name);
@@ -484,6 +487,8 @@ autocalc = 1;
 
 ##Include the rest of the library
 
+autocalc = 0;
+
 include("library/types.js-e");
 include("library/core.js-e");
 include("library/lists.js-e");
@@ -496,6 +501,8 @@ include("library/edenclocks.js-e");
 include("library/html.js-e");
 include("library/declarevar.js-e");
 include("library/generate_function.js-e");
+
+autocalc = 1;
 
 include2("library/scoping.js-e");
 

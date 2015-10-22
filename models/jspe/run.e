@@ -190,7 +190,7 @@ buttonPrevEnabled is currentSlide > 1;
 buttonNextEnabled is currentSlide < slideList#;
 
 buttonPrev is SlideButton("buttonPrev","Previous Slide", jspeleft, 4, buttonPrevEnabled);
-slideNumberLabel is Text(currentSlide // " of " // slideList#, jspeleft + 140, 10, {align: "centre"});
+slideNumberLabel is Text(currentSlide // " of " // slideList#, jspeleft + 135, 7, {align: "centre"});
 buttonNext is SlideButton("buttonNext","Next Slide", jspeleft + 170, 4, buttonNextEnabled);
 
 textIncrease is SlideButton("buttonTextIncrease", "Font++", jspeleft + 345, 4, true);

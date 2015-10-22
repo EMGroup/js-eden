@@ -1,4 +1,6 @@
-﻿func verticalBulb {
+﻿include("compatibility/scifest2015.js-e");
+
+func verticalBulb {
 	para position, r, on;
 	auto x, y, ratio, items;
 	x = position.x;

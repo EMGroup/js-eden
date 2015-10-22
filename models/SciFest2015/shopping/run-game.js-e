@@ -1,3 +1,4 @@
+include("compatibility/scifest2015.js-e");
 include("models/SciFest2015/shopping/basic-shopping.js-e");
 include("models/SciFest2015/shopping/shopping-game.js-e");
 

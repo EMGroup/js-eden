@@ -171,20 +171,29 @@
 			"return": "",
 			"description": ""
 		},
-		"indexOf": {
+		"positionInList": {
 			"parameters": {
 				"search_value": "",
-				"string_or_list": "",
-				"[start": "",
+				"list": "",
+				"[starting_offset": "",
 				"[is_sorted]]": ""
 			},
 			"return": "",
 			"description": ""
 		},
-		"indexOfRE": {
+		"positionOfRE": {
 			"parameters": {
 				"regular_expression": "",
 				"[case_sensitive]": "",
+				"target_string": "",
+				"[starting_offset]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"substringPosition": {
+			"parameters": {
+				"search_string": "",
 				"target_string": "",
 				"[starting_offset]": ""
 			},
@@ -307,6 +316,13 @@
 		"isString": {
 			"parameters": {
 				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isValue": {
+			"parameters": {
+				"expression": ""
 			},
 			"return": "",
 			"description": ""
@@ -976,6 +992,7 @@
 		},
 		"Checkbox": {
 			"parameters": {
+				"[label]": "",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[tristate": "Allow the user to click to produce an undefined value",
@@ -1043,11 +1060,13 @@
 		},
 		"RadioButtons": {
 			"parameters": {
-				"options": "A list of strings providing the options",
+				"values": "A list of strings providing the options",
+				"labels": "",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"[enabled": "Boolean to determine if the radio buttons are enabled",
-				"[is_horizontal]]": ""
+				"[width": "Width in pixels",
+				"[is_horizontal": "",
+				"[enabled]]]": "Boolean to determine if the radio buttons are enabled"
 			},
 			"return": "",
 			"description": ""
@@ -1073,20 +1092,34 @@
 				"width": "",
 				"[height]": "",
 				"[placeholder_text]": "",
+				"[max_characters]": "",
 				"[enabled]": ""
 			},
 			"return": "",
 			"description": ""
 		},
-		"Combobox": {
+		"DropDownList": {
 			"parameters": {
-				"options": "A list of strings providing the options",
+				"values": "A list of strings providing the options",
+				"labels": "",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"[enabled]": "Boolean for combobox enabled"
+				"[enabled]": "Boolean to determine if list selection is enabled"
 			},
-			"return": "Combobox object",
-			"description": "Creates a drop-down select box for the canvas"
+			"return": "DropDownList object",
+			"description": "Creates a drop-down list for the canvas"
+		},
+		"Combobox": {
+			"parameters": {
+				"suggestions": "",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"[width]": "",
+				"[placeholder]": "",
+				"[enabled]": "Boolean to determine if list selection is enabled"
+			},
+			"return": "DropDownList object",
+			"description": "Creates a drop-down list for the canvas"
 		},
 		"BulletSlide": {
 			"parameters": {
