@@ -53,21 +53,23 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	};
 
 	this.setPictureObs = function (viewName, pictureObs) {
-		var oldPictureObs = canvases[viewName].pictureObs;
-		if (oldPictureObs !== undefined) {
-			delete pictureObsToViews[oldPictureObs][viewName];
-		}
+		if (viewName in canvases) {
+			var oldPictureObs = canvases[viewName].pictureObs;
+			if (oldPictureObs !== undefined) {
+				delete pictureObsToViews[oldPictureObs][viewName];
+			}
 
-		if (!(pictureObs in pictureObsToViews)) {
-			pictureObsToViews[pictureObs] = {};
-		}
-		pictureObsToViews[pictureObs][viewName] = true;
-		canvases[viewName].pictureObs = pictureObs;
+			if (!(pictureObs in pictureObsToViews)) {
+				pictureObsToViews[pictureObs] = {};
+			}
+			pictureObsToViews[pictureObs][viewName] = true;
+			canvases[viewName].pictureObs = pictureObs;
 
-		root.lookup(pictureObs).addJSObserver("repaintView", function (symbol, value) {
-			me.drawPictures(pictureObs);
-		});
-		this.drawPicture(viewName, pictureObs);
+			root.lookup(pictureObs).addJSObserver("repaintView", function (symbol, value) {
+				me.drawPictures(pictureObs);
+			});
+			this.drawPicture(viewName, pictureObs);
+		}
 	};
 
 	this.drawPictures = function (pictureObs) {
