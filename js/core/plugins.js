@@ -780,7 +780,7 @@
 	}
 
 	/**Creates a modal dialogue box that permits the user to choose from a small number of fixed
-	 * options.  The user cannot must choose an option before they can have any other interaction
+	 * options.  The user must choose an option before they can have any other interaction
 	 * with JS-EDEN.
 	 * @param {string} title The text to go in the window's title bar.
 	 * @param {string} message The text to display as a prompt message.  Can include HTML.

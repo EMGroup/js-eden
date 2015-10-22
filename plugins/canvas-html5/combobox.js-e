@@ -4,11 +4,13 @@
 ## See LICENSE.txt
 
 ${{
-Combobox = function (name, suggestions, x, y, enabled) {
+Combobox = function (name, suggestions, x, y, width, placeholder, enabled) {
 	this.name = name;
 	this.suggestions = suggestions;
 	this.x = x;
 	this.y = y;
+	this.width = width;
+	this.placeholder = placeholder;
 	this.enabled = enabled;
 }
 
@@ -17,22 +19,40 @@ Combobox.prototype.hash = function () {
 				(Array.isArray(this.suggestions)? this.suggestions.join("$$") : "") +
 				this.x+"$$"+
 				this.y+"$$"+
+				this.width+"$$"+
+				this.placeholder+"$$"+
 				this.enabled;
 };
 
 }}$;
 
 func Combobox { ${{
-  var name = root.currentObservableName();
-  if (name === undefined) {
+	var name = root.currentObservableName();
+	if (name === undefined) {
 	eden.error(new Error("Combobox: Every combobox must be defined by making a dependency."), "error");
 	return undefined;
-  }
-  var suggestions = arguments[0];
-  var x = arguments[1];
-  var y = arguments[2];
-  var enabled = arguments[3];
-  return new Combobox(name, suggestions, x, y, enabled);
+	}
+	var suggestions = arguments[0];
+	var x = arguments[1];
+	var y = arguments[2];
+	var width, placeholder;
+	var argsProcessed = 3;
+
+	var arg = arguments[argsProcessed];
+	var argType = typeof(arg);
+	if (arg === undefined || argType == "number") {
+		width = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);
+	}
+	if (arg === undefined || argType == "string") {
+		placeholder = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+	}
+	var enabled = arg;
+	return new Combobox(name, suggestions, x, y, width, placeholder, enabled);
 }}$; }
 
 
@@ -54,7 +74,10 @@ Combobox.prototype.draw = function(context) {
 		var name = this.name;
 
 		var disabled = this.enabled === false? 'disabled="disabled"' : '';
-		var inputJQ = $('<input type="text" list="' + name + '-suggestions" ' + disabled + ' style="position: absolute">');
+		var placeholder = ' placeholder="' + (this.placeholder === undefined? name : this.placeholder) + '"';
+		var inputJQ = $('<input type="text" list="' + name + '-suggestions" ' + disabled +
+			placeholder + ' style="position: absolute"/>');
+
 		input = inputJQ.get(0);
 		var suggestionsJQ = $('<datalist id="' + this.name + '-suggestions"></datalist>');
 		suggestions = suggestionsJQ.get(0);
@@ -108,6 +131,9 @@ Combobox.prototype.scale = function (scale, zoom, origin) {
 	var style = this.elements[0].style;
 	style.left = Math.round(this.x * scale + origin.x) + "px";
 	style.top = Math.round(this.y * scale + origin.y) + "px";
+	if (this.width !== undefined) {
+		style.width = Math.round(this.width * scale - 6) + "px";
+	}
 	style.fontSize = zoom + "em";
 };
 

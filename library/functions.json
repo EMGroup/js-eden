@@ -1092,6 +1092,7 @@
 				"width": "",
 				"[height]": "",
 				"[placeholder_text]": "",
+				"[max_characters]": "",
 				"[enabled]": ""
 			},
 			"return": "",
@@ -1103,6 +1104,18 @@
 				"labels": "",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
+				"[enabled]": "Boolean to determine if list selection is enabled"
+			},
+			"return": "DropDownList object",
+			"description": "Creates a drop-down list for the canvas"
+		},
+		"Combobox": {
+			"parameters": {
+				"suggestions": "",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"[width]": "",
+				"[placeholder]": "",
 				"[enabled]": "Boolean to determine if list selection is enabled"
 			},
 			"return": "DropDownList object",

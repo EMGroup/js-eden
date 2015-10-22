@@ -32,6 +32,10 @@ input[type=checkbox], input[type=radio] {
 	vertical-align: middle;
 }
 
+::placeholder { color: #AAAAAA; opacity: 1; font-style: italic; }
+::-webkit-input-placeholder { color: #AAAAAA; opacity: 1; font-style: italic; }
+::-moz-placeholder { color: #AAAAAA; opacity: 1; font-style: italic; }
+
 ul li {
 	list-style-type: square;
 }
@@ -47,8 +51,12 @@ h2, ul li {
 }
 
 .canvashtml-content {
-	/* Should be synchronized with defaultFontSizePx and defaultLineHeight in plugins/canvas-html5/canvas.js */
+	/* Should be synchronized with defaultFontSizePx in plugins/canvas-html5/canvas.js */
 	font-size: 13.3px;
+}
+
+.canvashtml-content {
+	/* Should be synchronized with defaultLineHeight in plugins/canvas-html5/canvas.js */
 	line-height: 1.75;
 }
 
@@ -66,11 +74,11 @@ h2, ul li {
 	padding: 0px;
 }
 
-.canvashtml-content textarea {
+.canvashtml-content textarea, .canvashtml-content input[type="text"] {
 	/* See Textbox.prototype.scale in plugins/textbox.js-e */
-	border-width: 1px;
+	border: 1px inset #BBBBBB;
 	margin: 0px;
-	padding: 2px;
+	padding: 1px 2px;
 }
 
 .canvas-horizontal-radio-buttons {
