@@ -88,7 +88,7 @@ func Textbox { ${{
 		arg = arguments[argsProcessed];
 	}
 	enabled = arg;
-	return new Textbox(name, x, y, width, height, placeholder, enabled);
+	return new Textbox(name, x, y, width, height, placeholder, undefined, enabled);
 }}$; }
 
 func indexOf {
