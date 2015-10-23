@@ -170,7 +170,7 @@
 	}
 
 	Scope.prototype.add = function(name) {
-		var cache = new ScopeCache( false, undefined, this.parent);
+		var cache = new ScopeCache( false, undefined, this);
 		this.cache[name] = cache;
 		return cache;
 	}
