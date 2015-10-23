@@ -1251,6 +1251,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	this.submit = function (statement, base) {
 		//console.time("EdenASTToJS");
 		statement.execute(eden.root,undefined, base);
+		Database.sync();
 		//console.timeEnd("EdenASTToJS");
 	};
 

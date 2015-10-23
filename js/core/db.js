@@ -42,6 +42,7 @@
 		setvalue: [],
 		setformula: []
 	}};
+	var todoqueue = [];
 
 	var Database = {};
 
@@ -60,37 +61,20 @@
 
 
 
+	/**
+	 * Mark all agents listening to this event as being in need of firing. The
+	 * actual firing of the agent code is done later at sync.
+	 */
 	function trigger(event) {
 		if (this.events === undefined || this.events[event] === undefined) return;
 
+		// Add all listeners for this event to a queue for later firing.
 		for (var i=0; i<this.events[event].length; i++) {
 			var agent = this.events[event][i];
 			if (todoAgents[agent] === undefined) todoAgents[agent] = [];
 			todoAgents[agent].push(arguments);
-			//agents[global_events[event][i]].apply(this, arguments);
-		}
-
-		if (todoTimeout === undefined) {
-			todoTimeout = setTimeout(processEvents,10);
 		}
 	}
-
-
-
-	/*function triggerGlobal(event) {
-		if (global_events[event] === undefined) return;
-
-		for (var i=0; i<global_events[event].length; i++) {
-			var agent = global_events[event][i];
-			if (todoAgents[agent] === undefined) todoAgents[agent] = [];
-			todoAgents[agent].push(arguments);
-			//agents[global_events[event][i]].apply(this, arguments);
-		}
-
-		if (todoTimeout === undefined) {
-			todoTimeout = setTimeout(processEvents,10);
-		}
-	}*/
 
 
 
@@ -100,8 +84,16 @@
 
 
 
+	/**
+	 * Map agents to specific events on a selection of observables and scopes.
+	 * If only 2 arguments are given then the agents listens globally for the
+	 * specified event, the second argument being the agent name. If 3
+	 * arguments are given then the second is a selector specifying which
+	 * observables and in which scope to watch. The selector can contain
+	 * wildcards for the observable name and scope number. Multiple selectors
+	 * can be given using a comma.
+	 */
 	Database.on = function(event) {
-
 		// A global notification
 		if (arguments.length == 2) {
 			switch (event) {
@@ -151,6 +143,41 @@
 
 
 
+	/**
+	 * Finish a block of changes and make sure all changes are propagated and
+	 * make the entire system consistent again. Finally, trigger any agents
+	 * that may be waiting for the event notifications. This must always be
+	 * called after changes are finished being made.
+	 */
+	Database.sync = function() {
+		// Go over todoqueue and expire all
+		for (var i=0; i<todoqueue.length; i++) {
+			if (todoqueue[i].expired) {
+				this.update(todoqueue[i]);
+			}
+		}
+		todoqueue = [];
+
+		// Now get ready to activate any agents listening to events.
+		if (todoTimeout === undefined) {
+			todoTimeout = setTimeout(processEvents,10);
+		}
+	}
+
+
+
+	Database.wait = function(time, continuation) {
+		Database.sync();
+		// Possibly wait some amount of time.
+		if (time === undefined) {
+			return;
+		} else {
+			// Wait and call continuation.
+		}
+	}
+
+
+
 	Database.newScope = function(parent) {
 		var scope = new DBScope(parent);
 		scopes.push(scope);
@@ -167,7 +194,14 @@
 
 
 
+	/**
+	 * When making a new observable in a given scope, bring in any other
+	 * observables that are dependant on that one in the parent scope. It is
+	 * this which allows scope overrides to also generate new values of
+	 * dependant formuli.
+	 */
 	Database.bringInRelatives = function(name, scopeid) {
+		// Get the parent version of this observable
 		var pscope = scopes[scopeid].parent;
 		if (pscope === undefined) return;
 		var inherited = this.getValueEntry(name, pscope);
@@ -181,24 +215,24 @@
 			}
 			inherited.overrides.push(scopeid);
 
+			// For each of the parents dependants
 			for (var i=0; i<inherited.dependants.length; i++) {
 				// Same scope references are relative, so bring them in
 				if (inherited.origin_scope == inherited.dependants[i].origin_scope) {
 					var dentry = values[inherited.dependants[i].name + "/" + scopeid];
+					// If not already in this scope, bring it in with the formula
+					// being inherited from the parent definition
 					if (dentry === undefined) {
 						dentry = new ValueEntry(inherited.dependants[i].name);
 						dentry.origin_scope = scopeid;
 						dentry.formula = inherited.dependants[i].formula;
 						values[inherited.dependants[i].name + "/" + scopeid] = dentry;
+
+						// Must expire and bring in next batch of relatives.
 						this.expire(dentry);
 						this.bringInRelatives(dentry.name, scopeid);
 					}
-				} //else {
-
-				//TODO: This can be made more efficient, but for now allows
-				// dependencies across scope to be updated correctly.
-				//this.expire(inherited.dependants[i]);
-				//}
+				}
 			}
 		}
 	}
@@ -220,7 +254,6 @@
 			entry.formula = undefined;
 			entry.origin_scope = scopeid;
 
-			// Notify anyone dependent on this value
 			this.expire(entry);
 		}
 
@@ -285,8 +318,21 @@
 
 
 	Database.expire = function(entry) {
+		entry.expired = true;
+		todoqueue.push(entry);
+	}
+
+
+
+	/**
+	 * Make sure this entries value is up-to-date if expired. If the value
+	 * consequently changes then also expire all entries dependant upon it.
+	 */
+	Database.update = function(entry) {
+		entry.expired = false;
+
 		var doexpire = false;
-		// It may not have a definition and still be expired by mistake
+		// It may not have a definition and still be expired
 		if (entry.formula !== undefined) {
 			var formula = this.getFormula(entry.name, entry.origin_scope);
 			var newvalue = formula.formula.call(entry, entry.origin_scope);
@@ -336,7 +382,8 @@
 
 
 	/**
-	 * Get the value entry
+	 * Get the value entry. If the entry is expired it will be updated, along
+	 * with any symbols it depends upon.
 	 */
 	Database.getValueEntry = function(name, scopeid) {
 		var entry = values[name + "/" + scopeid];
@@ -347,6 +394,16 @@
 			} else {
 				return this.getValueEntry(name, scope.parent);
 			}
+		}
+
+		// Do an immediate update if this entry is expired. Note: reading
+		// a symbol in an agent without doing a sync will cause that symbol
+		// and any it depends upon to be force updated. This could reduce
+		// performance if any subsequent changes are made to the read symbol.
+		if (entry.expired) {
+			this.update(entry);
+			// XXX: Not syncing entire DB could be problematic here!!!!!
+			//Database.sync();
 		}
 
 		return entry;
