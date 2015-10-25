@@ -33,7 +33,7 @@ touchPinchEnabled = false;
 
 ${{
 	root.lookup("mouseCapture").addJSObserver("releaseCapture", function (obs, lock) {
-		if (!lock) {
+		if (!lock && document.exitPointerLock) {
 			document.exitPointerLock();
 		}
 	});
