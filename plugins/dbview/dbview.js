@@ -56,7 +56,7 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 					if (columns[c] == "scope") col = $('<td class="dbview-disabled"></td>');
 					else col = $('<td contenteditable></td>');
 					col.appendTo(row);
-					var entry = Database.getValueEntry(columns[c], rows[r]);
+					var entry = Database.getEntry(columns[c], rows[r]);
 					//var form = Database.getFormula(columns[c], rows[r]);
 					if (entry === undefined) continue;
 					col.html(entry.value);
@@ -116,11 +116,12 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 			if (col < 0 || row < 0) return;
 			var value = e.target.textContent;
 			//console.log("Edited: " + columns[col] + "/" + row);
-			Database.setValue(columns[col],row, value); 
+			Database.setValue(columns[col],row, value);
+			Database.sync();
 		}).on('mouseenter', 'td', function(e) {
 			var col = e.target.cellIndex;
 			var row = e.target.parentNode.rowIndex-1;
-			var entry = Database.getValueEntry(columns[col],rows[row]);
+			var entry = Database.getEntry(columns[col],rows[row]);
 
 			if (entry) {
 				highlightSourceScope(entry);

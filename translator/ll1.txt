@@ -4,7 +4,9 @@ SCRIPT		-> STATEMENT SCRIPT | epsilon														FIRST: proc func observable e
 
 STATEMENT	->
 	{ SCRIPT } |
-	when WHEN |
+	agent AGENT |
+	on ON |
+	wait WAIT |
 	proc ACTION |
 	func FUNCTION |
 	for FOR |
@@ -23,12 +25,11 @@ STATEMENT	->
 	append APPEND |
 	shift SHIFT |
 	require REQUIRE |
-	await AWAIT |
-	after AFTER |
-	option OPTION |
 	include INCLUDE |
 	LVALUE STATEMENT'' ; |
 	epsilon
+
+WAIT		->	EXPRESSION | epsilon
 
 INCLUDE		-> ( EXPRESSION ) ; INCLUDE'
 INCLUDE'	-> include INCLUDE | epsilon
@@ -63,8 +64,8 @@ ACTIONBODY	-> { LOCALS SCRIPT }
 PARAS		-> para OLIST ; PARAS | epsilon
 LOCALS		-> auto OLIST ; LOCALS | local OLIST ; LOCALS | epsilon
 
-AGENT		-> observable : AGENT'
-AGENT'		-> when EXPRESSION do ACTIONBODY | do ACTIONBODY
+AGENT		-> observable ACTIONBODY
+ON			-> EXPRESSION do observable
 
 OLIST		-> observable OLIST'
 OLIST'		-> , observable OLIST' | epsilon
@@ -75,8 +76,8 @@ LLIST'		-> , LVALUE LLIST' | epsilon
 
 STATEMENT'	-> LVALUE STATEMENT'' | epsilon
 STATEMENT''	->
-	is EXPRESSION |
-	= EXPRESSION |
+	is EXPRESSION SCOPE |
+	= EXPRESSION SCOPE |
 	+= EXPRESSION |
 	-= EXPRESSION |
 	/= EXPRESSION |
@@ -130,15 +131,9 @@ PRIMARY'''	->
 	. PRIMARY
 	| ( ELIST ) PRIMARY''
 	| [ EXPRESSION ] PRIMARY''
-	| PRIMARY''''
+	| epsilon
 
-PRIMARY''''	-> with STATEMENT | epsilon
-
-//SCOPE		-> ( SCOPE' ) | SCOPE'
-//SCOPE'		-> observable SCOPE''
-//SCOPE''		-> = EXPRESSION SCOPE''' | in EXPRESSION SCOPE'''
-//SCOPE'''	-> .. EXPRESSION SCOPE'''' | SCOPE''''
-//SCOPE''''	-> , SCOPE' | epsilon
+SCOPE		-> with STATEMENT | epsilon
 	
 
 ELIST		-> EXPRESSION ELIST' | epsilon																FIRST: ( - number & ! observable

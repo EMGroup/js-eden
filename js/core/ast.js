@@ -119,7 +119,7 @@ EdenAST_Scope.prototype.generate = function(ctx, scope) {
 	var res;
 
 	//if (ctx.scopes.length > 0) {
-		res = "(function(){ var ns = Database.newScope("+scope+");\n";
+		res = "(function(scope){\n";
 	//} else {
 	//	res = "new Scope(context, scope, [";
 	//}
@@ -146,11 +146,11 @@ EdenAST_Scope.prototype.generate = function(ctx, scope) {
 	res += "], "+this.range+", context.lookup(\""+this.primary.getObservable()+"\"))";
 	ctx.scopes.push(res);*/
 
-	res += this.statement.generate(ctx, "ns");
-	res += "Database.setValue(\"owner\", ns, \""+ctx.lvalue.observable+"\");";
-	res += "\nreturn ns; }).call(this)";
+	res += this.statement.generate(ctx, "scope");
+	res += "Database.setValue(\"owner\", scope, \""+ctx.lvalue.observable+"\");";
+	res += "\n})";
 
-	return this.primary.generate(ctx,res);
+	return res;
 }
 
 
@@ -749,7 +749,17 @@ function EdenAST_Definition(expression) {
 	this.dependencies = {};
 	this.scopes = [];
 	this.backtickCount = 0;
+	this.scope = undefined;
 };
+
+EdenAST_Definition.prototype.setScope = function(scope) {
+	this.scope = scope;
+	if (scope !== undefined) {
+		if (scope.errors.length > 0) {
+			this.errors.push.apply(this.errors, scope.errors);
+		}
+	}
+}
 
 EdenAST_Definition.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
@@ -767,34 +777,22 @@ EdenAST_Definition.prototype.generateDef = function(ctx) {
 	var result = "function(scope) {\n";
 	var express = this.expression.generate(this, "scope");
 
-	// Generate array of all scopes used in this definition (if any).
-	if (this.scopes.length > 0) {
-		result += "\tvar _scopes = [];\n";
-		for (var i=0; i<this.scopes.length; i++) {
-			result += "\t_scopes.push(" + this.scopes[i];
-			result += ");\n";
-		}
-	}
-
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 		result += "\tvar res = "+express+";\n\tthis.origin_scope = res.origin_scope;\n\treturn res.value;\n}";
-
-		// Save the resulting values scope binding into the cache entry.
-		/*result += "\tif (cache) cache.scope = result.scope;\n";
-
-		// Make sure to copy a value if its an ungenerated one.
-		if (this.scopes.length == 0) {
-			result += "\treturn edenCopy(result.value);\n}";
-		} else {
-			result += "\treturn result.value;\n}";
-		}*/
 	} else {
-		//result += "\tif (cache) cache.scope = scope;\n";
 		result += "\treturn " + express + ";\n}";
 	}
 
 	
 	return result;
+}
+
+EdenAST_Definition.prototype.generateScope = function(ctx) {
+	if (this.scope) {
+		return this.scope.generate(ctx);
+	} else {
+		return "undefined";
+	}
 }
 
 EdenAST_Definition.prototype.generate = function(ctx, scope) {
@@ -829,7 +827,7 @@ EdenAST_Definition.prototype.generate = function(ctx, scope) {
 		for (var d in this.dependencies) {
 			deps.push(d);
 		}
-		result = result +", "+JSON.stringify(deps)+");\n";
+		result = result +", "+JSON.stringify(deps)+", " + this.generateScope(this) + ");\n";
 		return result;
 	}
 };
@@ -851,6 +849,7 @@ EdenAST_Definition.prototype.execute = function(root, ctx, base) {
 		sym.addExtension(this.lvalue.generateIdStr(), eval(rhs), source, undefined, deps);
 	} else {
 		var rhs = "("+this.generateDef(ctx)+")";
+		var scopefunc = eval(this.generateScope(this));
 		var deps = [];
 		for (var d in this.dependencies) {
 			deps.push(d);
@@ -858,7 +857,7 @@ EdenAST_Definition.prototype.execute = function(root, ctx, base) {
 
 		//sym.eden_definition = base.getSource(this);
 		//sym.define(eval(rhs), {name: "execute"}, deps);
-		Database.setFormula(this.lvalue.observable, 0, eval(rhs), deps);
+		Database.setFormula(this.lvalue.observable, 0, eval(rhs), deps, scopefunc);
 	}
 		
 }
@@ -879,7 +878,17 @@ function EdenAST_Assignment(expression) {
 	this.end = 0;
 	this.scopes = [];
 	this.backtickCount = 0;
+	this.scope = undefined;
 };
+
+EdenAST_Assignment.prototype.setScope = function(scope) {
+	this.scope = scope;
+	if (scope !== undefined) {
+		if (scope.errors.length > 0) {
+			this.errors.push.apply(this.errors, scope.errors);
+		}
+	}
+}
 
 EdenAST_Assignment.prototype.setSource = function(start, end) {
 	this.start = start;
@@ -1132,7 +1141,7 @@ EdenAST_Primary.prototype.generate = function(ctx, scope) {
 		}
 	}
 
-	var res = "Database.getEntryD(this,";
+	var res = "Database.getEntryD_UTD(this,";
 
 	if (this.observable == "__BACKTICKS__") {
 		var id = 0;

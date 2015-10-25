@@ -409,7 +409,7 @@ EdenAST.prototype.pPRIMARY = function() {
  *	( ELIST ) PRIMARY''
  *	| . PRIMARY
  *	| [ EXPRESSION ] PRIMARY'''
- *	| PRIMARY''''
+ *	| epsilon
  */
 EdenAST.prototype.pPRIMARY_P = function() {
 	if (this.token == "[") {
@@ -460,7 +460,7 @@ EdenAST.prototype.pPRIMARY_P = function() {
 		scopepath.setPrimary(rhs);
 		return scopepath;
 	} else {
-		return this.pPRIMARY_PPPP();
+		return new EdenAST_Primary();
 	}
 
 	/*var result = [];
@@ -594,7 +594,7 @@ EdenAST.prototype.pPRIMARY_PP = function() {
  *	. PRIMARY
  *	| ( ELIST ) PRIMARY''
  *	| [ EXPRESSION ] PRIMARY''
- *	| PRIMARY''''
+ *	| epsilon
  */
 EdenAST.prototype.pPRIMARY_PPP = function() {
 	if (this.token == "[") {
@@ -643,22 +643,6 @@ EdenAST.prototype.pPRIMARY_PPP = function() {
 		var scopepath = new EdenAST_ScopePath();
 		scopepath.setPrimary(rhs);
 		return scopepath;
-	} else {
-		return this.pPRIMARY_PPPP();
-	}
-}
-
-
-/**
- * Primary Quad Prime Production.
- * PRIMARY'''' -> with SCOPE | epsilon
- */
-EdenAST.prototype.pPRIMARY_PPPP = function() {
-	if (this.token == "with") {
-		this.next();
-		return this.pSCOPE();
-	} else {
-		return new EdenAST_Primary();
 	}
 }
 
@@ -666,25 +650,15 @@ EdenAST.prototype.pPRIMARY_PPPP = function() {
 
 /**
  * SCOPE Production
- * SCOPE -> ( SCOPE' ) | SCOPE'
+ * SCOPE -> with STATEMENT | epsilon
  */
 EdenAST.prototype.pSCOPE = function() {
-	/*if (this.token == "(") {
+	if (this.token == "with") {
 		this.next();
-		var scope = this.pSCOPE_P();
-		if (this.token != ")") {
-			scope.errors.push(new EdenError(this, EDEN_ERROR_SCOPECLOSE));
-			return scope;
-		} else {
-			this.next();
-		}
+		var scope = new EdenAST_Scope();
+		scope.setStatement(this.pSTATEMENT());
 		return scope;
 	}
-	return this.pSCOPE_P();*/
-
-	var scope = new EdenAST_Scope();
-	scope.setStatement(this.pSTATEMENT());
-	return scope;
 }
 
 
@@ -1464,8 +1438,8 @@ EdenAST.prototype.pLVALUE = function() {
 /**
  * STATEMENT PrimePrime Production
  * STATEMENT''	->
- *	is EXPRESSION |
- *	= EXPRESSION |
+ *	is EXPRESSION SCOPE |
+ *	= EXPRESSION SCOPE |
  *	+= EXPRESSION |
  *	-= EXPRESSION |
  *	/= EXPRESSION |
@@ -1477,10 +1451,16 @@ EdenAST.prototype.pLVALUE = function() {
 EdenAST.prototype.pSTATEMENT_PP = function() {
 	if (this.token == "is") {
 		this.next();
-		return new EdenAST_Definition(this.pEXPRESSION());
+		var def = new EdenAST_Definition(this.pEXPRESSION());
+		if (def.errors.length > 0) return def;
+		def.setScope(this.pSCOPE());
+		return def;
 	} else if (this.token == "=") {
 		this.next();
-		return new EdenAST_Assignment(this.pEXPRESSION());
+		var ass = new EdenAST_Assignment(this.pEXPRESSION());
+		if (ass.errors.length > 0) return ass;
+		ass.setScope(this.pSCOPE());
+		return ass;
 	} else if (this.token == "+=") {
 		this.next();
 		return new EdenAST_Modify("+=", this.pEXPRESSION());

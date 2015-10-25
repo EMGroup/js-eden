@@ -10,7 +10,8 @@
 	function ValueEntry (name) {
 		this.name = name;
 		this.value = undefined;
-		this.origin_scope = 0;			// Scope of the value
+		this.origin_scope = 0;			// Scope of the entry
+		this.value_scope = 0;			// Scope of the formula/value.
 		this.expired = false;
 		this.dependants = [];			// List of value entries dependant on this
 		this.formula = undefined;		// Formula entry defining this value
@@ -34,6 +35,7 @@
 	var scopes = [];
 	var observables = {};
 	var agents = {};
+	var agentrate = 15;
 	var todoAgents = {};
 	var todoTimeout = undefined;
 	var globalevents = {events: {
@@ -48,6 +50,10 @@
 
 
 
+	/**
+	 * Fire any waiting agents and make sure the database is synchronised after
+	 * they have finished. This is called by a timeout.
+	 */
 	function processEvents() {
 		var todos = todoAgents;
 		todoAgents = {};
@@ -55,7 +61,32 @@
 
 		for (var a in todos) {
 			console.log("Agent Trigger: " + a);
-			agents[a].apply(this, todos[a]);
+			var gen = agents[a].apply(this, todos[a]);
+			runAgent(gen);
+
+			// An agent may cause changes that need synching.
+			if (todoqueue.length > 0) {
+				Database.sync();
+			}
+		}
+	}
+
+
+
+	/**
+	 * Process the agent generator, adding delays as required. Agents may use
+	 * "yield [time]" to pause. yield 0 causes a sync, yield < 0 is a return
+	 * and yield > 0 will delay by that number of milliseconds.
+	 */
+	function runAgent(agent) {
+		if (agent === undefined) return;
+		var delay = agent.next();
+		if (delay == 0) {
+			Database.sync();
+			runAgent(agent);
+		} else if (delay > 0) {
+			Database.sync();
+			setTimeout(function() {runAgent(agent)}, delay);
 		}
 	}
 
@@ -86,12 +117,19 @@
 
 	/**
 	 * Map agents to specific events on a selection of observables and scopes.
-	 * If only 2 arguments are given then the agents listens globally for the
+	 * If only 2 arguments are given then the agent listens globally for the
 	 * specified event, the second argument being the agent name. If 3
 	 * arguments are given then the second is a selector specifying which
 	 * observables and in which scope to watch. The selector can contain
 	 * wildcards for the observable name and scope number. Multiple selectors
 	 * can be given using a comma.
+	 *
+	 * Events include:
+	 *     newscope
+	 *     newobservable
+	 *     setvalue
+	 *     setformula
+	 *     change
 	 */
 	Database.on = function(event) {
 		// A global notification
@@ -131,7 +169,7 @@
 						// In any scope
 					} else {
 						// In a specific scope.
-						var entry = this.getValueEntry(name, parseInt(comps[1]));
+						var entry = this.getEntry(name, parseInt(comps[1]));
 						if (entry.events === undefined) entry.events = {};
 						if (entry.events[event] === undefined) entry.events[event] = [];
 						entry.events[event].push(arguments[2]);
@@ -160,19 +198,7 @@
 
 		// Now get ready to activate any agents listening to events.
 		if (todoTimeout === undefined) {
-			todoTimeout = setTimeout(processEvents,10);
-		}
-	}
-
-
-
-	Database.wait = function(time, continuation) {
-		Database.sync();
-		// Possibly wait some amount of time.
-		if (time === undefined) {
-			return;
-		} else {
-			// Wait and call continuation.
+			todoTimeout = setTimeout(processEvents,agentrate);
 		}
 	}
 
@@ -204,7 +230,7 @@
 		// Get the parent version of this observable
 		var pscope = scopes[scopeid].parent;
 		if (pscope === undefined) return;
-		var inherited = this.getValueEntry(name, pscope);
+		var inherited = this.getEntry(name, pscope);
 
 		//console.log("BRING IN RELATIVES: " + name + ", " + scopeid + "pscole = " + pscope);
 
@@ -225,6 +251,7 @@
 					if (dentry === undefined) {
 						dentry = new ValueEntry(inherited.dependants[i].name);
 						dentry.origin_scope = scopeid;
+						dentry.value_scope = scopeid;
 						dentry.formula = inherited.dependants[i].formula;
 						values[inherited.dependants[i].name + "/" + scopeid] = dentry;
 
@@ -265,28 +292,36 @@
 
 
 	Database.getValue = function(name, scopeid) {
-		var entry = this.getValueEntry(name, scopeid);
+		var entry = this.getEntry(name, scopeid);
+
+		// Do an immediate update if this entry is expired. Note: reading
+		// a symbol in an agent without doing a sync will cause that symbol
+		// and any it depends upon to be force updated. This could reduce
+		// performance if any subsequent changes are made to the read symbol.
+		if (entry.expired) {
+			this.update(entry);
+			// XXX: Not syncing entire DB could be problematic here!!!!!
+			//Database.sync();
+		}
+
 		if (entry !== undefined) return entry.value;
 		return undefined;
 	}
 
 
 
-	/**
-	 * Internal version of getValue that is used by formuli. It also adds
-	 * a dependency on the value retrieved.
-	 */
-	Database._getValue = function(origin, name, scopeid) {
-		var entry = this.getValueEntry(name, scopeid);
-
-		// Must be created if doesn't exist in order to record dependency
-		if (entry === undefined) {
-			this.setValue(name, scopeid, undefined);
-			entry = this.getValueEntry(name, scopeid);
+	Database.getEntryD_UTD = function(origin, name, scopeid) {
+		var entry = this.getEntryD(origin, name, scopeid);
+		// Do an immediate update if this entry is expired. Note: reading
+		// a symbol in an agent without doing a sync will cause that symbol
+		// and any it depends upon to be force updated. This could reduce
+		// performance if any subsequent changes are made to the read symbol.
+		if (entry.expired) {
+			this.update(entry);
+			// XXX: Not syncing entire DB could be problematic here!!!!!
+			//Database.sync();
 		}
-
-		entry.dependants.push(origin);
-		return entry.value;
+		return entry;
 	}
 
 
@@ -297,21 +332,15 @@
 	 */
 	Database.getEntryD = function(origin, name, scopeid) {
 		// Get the up-to-date value entry
-		var entry = this.getValueEntry(name, scopeid);
+		var entry = this.getEntry(name, scopeid);
 
 		// Must be created if doesn't exist in order to record dependency
 		if (entry === undefined) {
 			this.setValue(name, scopeid, undefined);
-			entry = this.getValueEntry(name, scopeid);
+			entry = this.getEntry(name, scopeid);
 		}
 
 		entry.dependants.push(origin);
-		/*if (entry.overrides) {
-			for (var i=0; i<entry.overrides.length; i++) {
-				//var oentry = this._getValueEntry(name, entry.overrides[i]);
-				this.bringInRelatives(name, entry.overrides[i]);
-			}
-		}*/
 		return entry;
 	}
 
@@ -335,7 +364,7 @@
 		// It may not have a definition and still be expired
 		if (entry.formula !== undefined) {
 			var formula = this.getFormula(entry.name, entry.origin_scope);
-			var newvalue = formula.formula.call(entry, entry.origin_scope);
+			var newvalue = formula.formula.call(entry, entry.value_scope);
 
 			// Has an actual change happened?
 			if (newvalue != entry.value) {
@@ -363,7 +392,7 @@
 			// Also need to expire all overrides that use this formula
 			if (entry.overrides) {
 				for (var i=0; i<entry.overrides.length; i++) {
-					var oent = this.getValueEntry(entry.name, entry.overrides[i]);
+					var oent = this.getEntry(entry.name, entry.overrides[i]);
 					if (oent) {
 						this.expire(oent);
 					} else {
@@ -382,28 +411,17 @@
 
 
 	/**
-	 * Get the value entry. If the entry is expired it will be updated, along
-	 * with any symbols it depends upon.
+	 * Get the value entry.
 	 */
-	Database.getValueEntry = function(name, scopeid) {
+	Database.getEntry = function(name, scopeid) {
 		var entry = values[name + "/" + scopeid];
 		if (entry === undefined) {
 			var scope = scopes[scopeid];
 			if (scope === undefined || scope.parent === undefined) {
 				return undefined;
 			} else {
-				return this.getValueEntry(name, scope.parent);
+				return this.getEntry(name, scope.parent);
 			}
-		}
-
-		// Do an immediate update if this entry is expired. Note: reading
-		// a symbol in an agent without doing a sync will cause that symbol
-		// and any it depends upon to be force updated. This could reduce
-		// performance if any subsequent changes are made to the read symbol.
-		if (entry.expired) {
-			this.update(entry);
-			// XXX: Not syncing entire DB could be problematic here!!!!!
-			//Database.sync();
 		}
 
 		return entry;
@@ -431,7 +449,7 @@
 
 
 
-	Database.setFormula = function(name, scopeid, func, deps) {
+	Database.setFormula = function(name, scopeid, func, deps, scopegen) {
 		var entry = formulas[name + "/" + scopeid];
 		if (entry === undefined) {
 			entry = new FormulaEntry();
@@ -439,18 +457,53 @@
 		}
 		entry.origin_scope = scopeid;
 		entry.formula = func;
-		if (deps) {
-			entry.dependencies = deps;
-		}
 
 		var value = values[name + "/" + scopeid];
 		if (value === undefined) {
 			value = new ValueEntry(name);
 			value.formula = entry;
+
+			if (scopegen) {
+				var parscope;
+				if (deps && deps.length == 1) {
+					parscope = this.getEntry(deps[0],scopeid).value_scope;
+				} else {
+					parscope = scopeid;
+				}
+				value.value_scope = Database.newScope(parscope);
+				scopegen.call(value, value.value_scope);
+			} else {
+				value.value_scope = scopeid;
+			}
+
 			values[name + "/" + scopeid] = value;
 			this.bringInRelatives(name, scopeid);
+		} else {
+			value.formula = entry;
+
+			if (value.value_scope == scopeid && scopegen) {
+				if (deps && deps.length == 1) {
+					parscope = this.getEntry(deps[0],scopeid).value_scope;
+				} else {
+					parscope = scopeid;
+				}
+				value.value_scope = Database.newScope(parscope);
+			}
+			// Generate the value scope if it is needed.
+			if (scopegen) {
+				scopegen.call(value, value.value_scope);
+			}
 		}
 		value.origin_scope = scopeid;
+
+		if (deps) {
+			entry.dependencies = deps;
+
+			// Add all static dependencies
+			for (var i=0; i<deps.length; i++) {
+				this.getEntryD(value, deps[i], scopeid);
+			}
+		}
 
 		this.expire(value);
 
@@ -463,6 +516,12 @@
 
 	// Initialise root scope
 	Database.newScope(undefined);
+
+	// Create the special null entry that has no scope
+	var nullentry = new ValueEntry("null");
+	nullentry.origin_scope = undefined;
+	nullentry.value_scope = undefined;
+	values["null/0"] = nullentry;
 
 
 	// expose API
