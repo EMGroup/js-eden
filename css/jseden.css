@@ -259,6 +259,7 @@ div.loaddialog {
 	position: fixed;
 	text-align: center;
 	border-radius: 4px;
+	z-index: 200000;
 }
 
 div.loadmessage {
