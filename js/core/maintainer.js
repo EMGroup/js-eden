@@ -22,6 +22,10 @@
  */
 
 (function (global) {
+	function Pointer(initialValue) {
+		this.value = initialValue;
+	}
+
 	function copy(value) {
 		var i, copied;
 		if (value instanceof Array) {
@@ -329,6 +333,11 @@
 		this.needsExpire = [];
 		this.needsTrigger = {};
 		
+		/** expiryCount is used locally inside the expireAndFireActions method.  It's created here
+		 * for efficient reuse reasons, to eliminate the need to create and garbage collect many objects.
+		 */
+		this.expiryCount = new Pointer(0);
+
 		/** Symbols that might be ready to be garbage collected.
 		 * @private
 		 */
@@ -517,24 +526,40 @@
 			return;
 		}
 
-		var symbols_to_force = [];
+		var me = this;
+		this.expiryCount.value = 0;
+		var symbolNamesToForce = {};
 		for (var i = 0; i < this.needsExpire.length; i++) {
 			var sym = this.needsExpire[i];
-			sym.expire(symbols_to_force, this.needsTrigger);
-			this.notifyGlobals(sym, false);
+			sym.expire(symbolNamesToForce, this.expiryCount, this.needsTrigger);
 		}
 		var expired = this.needsExpire;
 		this.needsExpire = [];
-		for (var i = 0; i < symbols_to_force.length; i++) {
+		var symbolNamesArray = Object.keys(symbolNamesToForce);
+		symbolNamesArray.sort(function (name1, name2) {
+			return symbolNamesToForce[name1] - symbolNamesToForce[name2];
+		});
+		var symbolsToForce = [];
+		for (var i = 0; i < symbolNamesArray.length; i++) {
 			// force re-eval
-			var sym = symbols_to_force[i];
+			var sym = this.symbols[symbolNamesArray[i].slice(this.name.length)];
 			sym.evaluateIfDependenciesExist();
+			symbolsToForce.push(sym);
 		}
 		var actions_to_fire = this.needsTrigger;
 		this.needsTrigger = {};
 		fireActions(actions_to_fire);
 		fireJSActions(expired);
-		fireJSActions(symbols_to_force);
+		fireJSActions(symbolsToForce);
+
+		setTimeout(function () {
+			for (var i = 0; i < expired.length; i++) {
+				me.notifyGlobals(expired[i], false);
+			}
+			for (var i = 0; i < symbolsToForce.length; i++) {
+				me.notifyGlobals(symbolsToForce[i], false);
+			}
+		}, 0);
 	};
 
 	function makeRandomName()
@@ -728,6 +753,7 @@
 				this.evalResolved = true;
 			}
 		} catch (e) {
+			this.logError(e);
 			cache.value = undefined;
 			cache.up_to_date = false;
 		}
@@ -1061,9 +1087,9 @@
 
 	Symbol.prototype.fireJSObservers = function () {
 		for (var jsObserverName in this.jsObservers) {
-			//try {
+			try {
 				this.jsObservers[jsObserverName](this, this.cache.value);
-			/*} catch (error) {
+			} catch (error) {
 				this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
 				var debug;
 				if (this.context) {
@@ -1075,7 +1101,7 @@
 				if (debug) {
 					debugger;
 				}
-			}*/
+			}
 		}
 	}
 
@@ -1085,30 +1111,26 @@
 	 * this change
 	 * @param {Object.<string,Symbol>} actions_to_fire set to accumulate all the actions that should be notified about this expiry
 	 */
-	Symbol.prototype.expire = function (symbols_to_force, actions_to_fire) {
-		if (this.definition) {
-			this.cache.up_to_date = false;
-			symbols_to_force.push(this);
+	Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to_fire) {
+		if (this.cache.up_to_date) {
+			for (var observer_name in this.observers) {
+				actions_to_fire[observer_name] = this.observers[observer_name];
+			}
 		}
 
-		for (var observer_name in this.observers) {
-			actions_to_fire[observer_name] = this.observers[observer_name];
+		if (this.definition) {
+			this.cache.up_to_date = false;
+			symbols_to_force[this.name] = insertionIndex.value;
+			insertionIndex.value++;
 		}
 
 		// recursively mark out of date and collect
 		for (var subscriber_name in this.subscribers) {
 			var subscriber = this.subscribers[subscriber_name];
 			if (subscriber) {
-				subscriber.expire(symbols_to_force, actions_to_fire);
+				subscriber.expire(symbols_to_force, insertionIndex, actions_to_fire);
 			}
 		}
-
-		var me = this;
-		setTimeout(function () {
-			if (me.context !== undefined) {
-				me.context.notifyGlobals(me, false);
-			}
-		}, 0);
 	};
 
 	Symbol.prototype.isDependentOn = function (name) {
@@ -1172,9 +1194,7 @@
 	Symbol.prototype.addSubscriber = function (name, symbol) {
 		this.garbage = false;
 		this.assertNotDependentOn(name);
-		//if (symbol.name != this.name) {
-			this.subscribers[name] = symbol;
-		//}
+		this.subscribers[name] = symbol;
 	};
 
 	/**

@@ -112,7 +112,8 @@ module.exports = function (grunt) {
 					'./plugins/view-layout/view-layout.js',
 					'./plugins/adm/adm-input.js',
 					'./plugins/speech-synthesis/speech-synthesis.js'
-				]}
+				]
+			}
 		}
 	},
 
@@ -137,6 +138,14 @@ module.exports = function (grunt) {
 	  plugincss: {
 	    files: ['plugins/**/*.css'],
 		tasks: ['cssmin']
+	  },
+
+	  merge: {
+		  files: [
+			'library/**/*.js-e', 'library/**/*.jse',
+			'plugins/canvas-html5/**/*.js-e', 'plugins/canvas-html5/**/*.jse',			
+		],
+		  tasks: ['merge']
 	  },
 
       // reload browser when parser changes
@@ -175,7 +184,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-gh-pages');
 
-  grunt.registerTask('default', ['uglify', 'cssmin', 'connect', 'watch']);
   grunt.registerTask('merge', 'Merge all JSE files', function() {
 		var data = mergeFile("./library/eden.jse");
 		grunt.file.write("./library/jseden-lib.min.jse", data);
@@ -183,4 +191,6 @@ module.exports = function (grunt) {
 		data = mergeFile("./plugins/canvas-html5/canvas.js-e");
 		grunt.file.write("./plugins/canvas-html5/jseden-canvas.min.js-e", data);
 	});
+  grunt.registerTask('build', ['jison', 'uglify', 'cssmin', 'merge']);
+  grunt.registerTask('default', ['build', 'connect', 'watch']);
 };

@@ -231,11 +231,14 @@ func forgetAll {
 			} else {
 				regExp = new RegExp(searchStr, "i");
 			}
+			var viewsRE = /^_[vV]iew(s?)_/;
 			
 			for (var name in root.symbols) {
 				if (regExp.test(name)) {
-					if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
-						continue;
+					if (!includeSystemSymbols) {
+						if (Eden.isitSystemSymbol(name) || viewsRE.test(name)) {
+							continue;
+						}
 					}
 					
 					initialDefinition = eden.initialDefinition(name);

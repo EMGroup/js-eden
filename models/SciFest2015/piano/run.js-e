@@ -1,3 +1,4 @@
+include("compatibility/scifest2015.js-e");
 include("library/functional_programming.js-e");
 option trackObservableRefsInFuncs = false;
 
