@@ -64,7 +64,7 @@ func Slider { ${{
   if (orientation === undefined) orientation = "horizontal";
   var enabled = arguments[8];
   if (enabled === undefined) enabled = true;
-  return new Slider(name, min, max, step, x, y, length, orientation, enabled);
+  return new Slider(name, min, max, step, undefined, undefined, undefined, x, y, length, orientation, enabled);
 }}$; }
 
 func Textbox { ${{
