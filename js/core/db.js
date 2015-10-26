@@ -81,12 +81,17 @@
 	function runAgent(agent) {
 		if (agent === undefined) return;
 		var delay = agent.next();
-		if (delay == 0) {
+		console.log("RunAgent: " + delay.value);
+		if (delay.done == false) {
+			if (delay.value == 0) {
+				Database.sync();
+				runAgent(agent);
+			} else if (delay.value > 0) {
+				Database.sync();
+				setTimeout(function() {runAgent(agent)}, delay.value);
+			}
+		} else {
 			Database.sync();
-			runAgent(agent);
-		} else if (delay > 0) {
-			Database.sync();
-			setTimeout(function() {runAgent(agent)}, delay);
 		}
 	}
 

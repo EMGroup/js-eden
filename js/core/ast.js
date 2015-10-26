@@ -1037,40 +1037,43 @@ EdenAST_Modify.prototype.left = function(lvalue) {
 
 EdenAST_Modify.prototype.generate = function(ctx) {
 	var lval = this.lvalue.generate(ctx);
-	var result = lval;
+	var result;
 
-	if (this.lvalue.islocal == false) result += ".assign(\n\t";
-	else result += " = ";
+	if (this.lvalue.islocal) {
+		result = this.lvalue.observable + " = ";
+	} else {
+		result = "Database.setValue(\""+this.lvalue.observable+"\", scope, ";
+	}
 
 	// TODO Convert to rt
 	if (this.kind == "+=") {
 		result += lval;
-		if (this.lvalue.islocal == false) result += ".value(scope)";
+		if (this.lvalue.islocal == false) result += ".value";
 		result += " + " + this.expression.generate(ctx);
 	} else if (this.kind == "-=") {
 		result += lval;
-		if (this.lvalue.islocal == false) result += ".value(scope)";
+		if (this.lvalue.islocal == false) result += ".value";
 		result += " - " + this.expression.generate(ctx);
 	} else if (this.kind == "/=") {
 		result += lval;
-		if (this.lvalue.islocal == false) result += ".value(scope)";
+		if (this.lvalue.islocal == false) result += ".value";
 		result += " / " + this.expression.generate(ctx);
 	} else if (this.kind == "*=") {
 		result += lval;
-		if (this.lvalue.islocal == false) result += ".value(scope)";
+		if (this.lvalue.islocal == false) result += ".value";
 		result += " * " + this.expression.generate(ctx);
 	} else if (this.kind == "++") {
 		result += lval;
-		if (this.lvalue.islocal == false) result += ".value(scope)";
+		if (this.lvalue.islocal == false) result += ".value";
 		result += "+1";
 	} else if (this.kind == "--") {
 		result += lval;
-		if (this.lvalue.islocal == false) result += ".value(scope)";
+		if (this.lvalue.islocal == false) result += ".value";
 		result += "-1";
 	}
 
 	if (this.lvalue.islocal == false) {
-		result = result + ", scope);\n";
+		result = result + ");\n";
 	} else {
 		result += ";\n";
 	}
