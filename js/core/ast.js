@@ -516,6 +516,55 @@ EdenAST_LValueComponent.prototype.error = fnEdenAST_error;
 
 //------------------------------------------------------------------------------
 
+function EdenAST_After() {
+	this.type = "after";
+	this.errors = [];
+	this.expression = undefined;
+	this.statement = undefined;
+	this.start = 0;
+	this.end = 0;
+}
+
+EdenAST_After.prototype.setExpression = function(express) {
+	this.expression = express;
+	if (express.errors.length > 0) {
+		this.errors.push.apply(this.errors,express.errors);
+	}
+}
+
+EdenAST_After.prototype.setStatement = function(state) {
+	this.statement = state;
+	if (state.errors.length > 0) {
+		this.errors.push.apply(this.errors,state.errors);
+	}
+}
+
+EdenAST_After.prototype.generate = function(ctx, scope) {
+	if (scope === undefined) scope = "eden.root.scope";
+	var statement = "(function() {" + this.statement.generate(ctx, scope)+"})";
+	var express = this.expression.generate(ctx,scope);
+	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+		express += ".value";
+	}
+	return "setTimeout("+statement+", "+express+");\n";
+}
+
+EdenAST_After.prototype.execute = function(root, ctx, base) {
+	var statement = "(function() { var scope = eden.root.scope;\n" + this.statement.generate(ctx, "root.scope")+"})";
+	setTimeout(eval(statement),this.expression.execute(root,ctx,base));
+}
+
+EdenAST_After.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+EdenAST_After.prototype.error = fnEdenAST_error;
+
+
+
+//------------------------------------------------------------------------------
+
 function EdenAST_Require() {
 	this.type = "require";
 	this.errors = [];
@@ -1289,6 +1338,17 @@ EdenAST_Switch.prototype.setStatement = function(statement) {
 	this.errors.push.apply(this.errors, statement.errors);
 };
 
+EdenAST_Switch.prototype.generate = function(ctx, scope) {
+	if (scope === undefined) scope = "eden.root.scope";
+	var res = "switch(";
+	res += this.expression.generate(ctx,scope);
+	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+		res += ".value";
+	}
+	res += ") " + this.statement.generate(ctx,scope);
+	return res;
+};
+
 EdenAST_Switch.prototype.error = fnEdenAST_error;
 
 
@@ -1351,7 +1411,7 @@ EdenAST_FunctionCall.prototype.generate = function(ctx, scope) {
 				if (i != this.params.length-1) res += ",";
 			}
 		}
-		return res + ")";
+		return res + ");";
 	}
 }
 
@@ -1693,6 +1753,10 @@ EdenAST_Default.prototype.setSource = function(start, end) {
 	this.end = end;
 }
 
+EdenAST_Default.prototype.generate = function(ctx, scope) {
+	return "default: ";
+}
+
 
 
 //------------------------------------------------------------------------------
@@ -1717,6 +1781,10 @@ EdenAST_Case.prototype.setSource = function(start, end) {
 	this.end = end;
 }
 
+EdenAST_Case.prototype.generate = function(ctx, scope) {
+	return "case " + this.literal + ": ";
+}
+
 EdenAST_Case.prototype.error = fnEdenAST_error;
 
 
@@ -1738,6 +1806,10 @@ EdenAST_Continue.prototype.setSource = function(start, end) {
 	this.end = end;
 }
 
+EdenAST_Continue.prototype.generate = function(ctx, scope) {
+	return "continue; ";
+}
+
 
 
 //------------------------------------------------------------------------------
@@ -1755,6 +1827,10 @@ EdenAST_Break.prototype.error = fnEdenAST_error;
 EdenAST_Break.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
+}
+
+EdenAST_Break.prototype.generate = function(ctx, scope) {
+	return "break; ";
 }
 
 

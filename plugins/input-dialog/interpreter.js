@@ -183,7 +183,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	 * Common input window view constructor.
 	 */
 	this.createCommon = function (name, mtitle, code, power, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable class="outputcontent"></div></div><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="info-bar"></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable class="outputcontent"></div></div><div class="info-bar"></div><div class="outputbox"></div></div></div>')
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
@@ -214,6 +214,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var autoexec = power;
 		var inputchanged = false;
 		var refreshentire = false;
+		var edited = false;
 
 
 
@@ -701,6 +702,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						}
 					},
 					start: function(e,u) {
+						edited = true;
 						// Calculate the line we are on
 						dragline = findElementLineNumber(e.target);
 						dragstart = u.position.left;
@@ -859,6 +861,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * down.
 		 */
 		function rebuild() {
+			edited = true;
 			// Using a timer to make rebuild async. Allows input and keyup to
 			// trigger a single rebuild which overcomes Chrome input event bug.
 			clearTimeout(rebuildtimer);
@@ -1187,15 +1190,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var viewdata = {
 			contents: $dialogContents,
 			update: function(data) {
-				if (data instanceof Symbol) {
-					agent.setScope(data.getValueScope(eden.root.scope));
-					inputchanged = true;	// To make sure it goes into history.
-					intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(agent.code);
-					updateEntireHighlight();
-				} else if (data instanceof Array) {
-					inputchanged = true;	// To make sure it goes into history.
-					intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(data);
-					updateEntireHighlight();
+				if (edited == false) {
+					if (data instanceof Symbol) {
+						agent.setScope(data.getValueScope(eden.root.scope));
+						inputchanged = true;	// To make sure it goes into history.
+						intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(agent.code);
+						updateEntireHighlight();
+					} else if (data instanceof Array) {
+						inputchanged = true;	// To make sure it goes into history.
+						intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(data);
+						updateEntireHighlight();
+					}
 				}
 			},
 			setValue: function (value) { intextarea.value = value; }

@@ -348,7 +348,7 @@ EdenAST.prototype.pFACTOR = function() {
 		return lit;
 	} else if (this.token == "!") {
 		this.next();
-		var primary = this.pEXPRESSION();
+		var primary = this.pFACTOR();
 		return new EdenAST_UnaryOp("!", primary);
 	} else if (this.token == "&") {
 		this.next();
@@ -1718,7 +1718,29 @@ EdenAST.prototype.pREQUIRE = function() {
  */
 EdenAST.prototype.pAFTER = function() {
 	var after = new EdenAST_After();
-	
+
+	if (this.token != "(") {
+		after.error(new EdenError(this, EDEN_ERROR_AFTEROPEN));
+		return after;
+	} else {
+		this.next();
+	}
+
+	var express = this.pEXPRESSION();
+	after.setExpression(express);
+	if (after.errors.length > 0) return after;
+
+	if (this.token != ")") {
+		after.error(new EdenError(this, EDEN_ERROR_AFTEROPEN));
+		return after;
+	} else {
+		this.next();
+	}
+
+	var statement = this.pSTATEMENT();
+
+	after.setStatement(statement);
+	return after;
 }
 
 

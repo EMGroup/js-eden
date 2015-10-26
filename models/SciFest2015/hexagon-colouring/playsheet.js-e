@@ -247,6 +247,13 @@ Can you match each observable in the script with something on the screen?
 </p>
 ");
 
+point1 is {centre.x+2*radius, centre.y};
+point2 is {centre.x+radius, centre.y-sqrt(3)*radius};
+point5 is {centre.x-radius, centre.y+sqrt(3)*radius};
+point4 is {centre.x-2*radius, centre.y};
+point6 is {centre.x+radius, centre.y+sqrt(3)*radius};
+point3 is {centre.x-radius, centre.y-sqrt(3)*radius};
+
 slideC2_hexmath is Slide("
 <h3>The maths behind the hexagon</h3>
 <p>
@@ -338,7 +345,7 @@ This affects the observables of the grid cell we're currently looking at.
 To explore this, type <code>curr|can</code> into the search box of an Observable List.
 <p>
 You can see how we view the grid as an array (see currPos) and how the computer refers to it as a list (see currListIndex).
-Can see the dependency trail using RE 'currPos|canBeRedCurr|currListIndex' in a Dependency Map viewer.
+Can see the dependency trail using RE<br/>'currPos|canBeRedCurr|currListIndex' in a Dependency Map viewer.
 </p>
 <p>
 Exercise: survey the hexagon grid and figure out what all the observables in the Observable list all mean - i.e. link them to specific natural language descriptions.

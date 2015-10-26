@@ -45,75 +45,72 @@ func array {
 ##order and a binary search algorithm will be used for increased efficiency,
 ##otherwise a linear search will be used.
 ##
-##This function can also be used to find the position of substring within a string.
-##
 ##A new JS-EDEN specific function.
-func indexOf {
-	para searchValue, list, lowerBound, isSorted;
-	auto low, high, middle, element, i, haystackType;
-	if ($# < 2 || $# > 4) {
-		error("indexOf: this function requires a minimum of 2 arguments and a maximum of 4 arguments.");
-		return @;
-	}
-	
-	if (list == @ || searchValue == @) {
-		return @;
-	}
-	
-	haystackType = type(list);
-	if (haystackType == "string") {
-		if (type(searchValue) != "string") {
-			error("indexOf: the first argument is a string so the second argument must also be a string and not a " // type(searchValue));
-			return @;
+func positionInList {
+	${{
+		if (arguments.length < 2 || arguments.length > 4) {
+			eden.error(new Error("positionInList: This function requires a minimum of 2 arguments and a maximum of 4 arguments."), "error");
+			return undefined;
 		}
-		if(!isSorted || searchValue# > 1) {
-			${{
-				if (arguments[1].length < arguments[0].length) {
-					//console.log("Warning: possible usage error for indexOf.  The source string has fewer characters than the search string.");
+		
+		var searchValue = arguments[0];
+		var list = arguments[1];
+		var lowerBound = arguments[2]
+		var isSorted = arguments[3];
+		var low, high, middle, element;
+
+		if (list === undefined) {
+			return undefined;
+		} else if (!Array.isArray(list)) {
+			eden.error(new Error("positionInList: The second argument must be a a list, not a " + typeof(list)), "error");
+			return undefined;
+		} 
+
+		if (lowerBound === undefined) {
+			low = 0;
+		} else if (typeof(lowerBound) != "number") {
+			eden.error(new Error("positionInList: The third argument must be a number, not a " + typeof(lowerBound)), "error");
+			return undefined;
+		} else if (lowerBound > 0) {
+			low = lowerBound - 1;
+		} else {
+			low = 0;
+		}
+
+		if (isSorted !== undefined && typeof(isSorted) != "boolean") {
+			eden.error(new Error("positionInList: The fourth argument must be a Boolean, not a " + type(isSorted)), "error");
+			return undefined;
+		}
+
+		high = list.length - 1;
+		if (high == 0) {
+			return 0;
+		}
+
+		if (isSorted) {
+			while (low <= high) {
+				middle = Math.floor((low + high) / 2);
+				element = list[middle];
+				if (element > searchValue) {
+					high = middle - 1;
+				} else if (element < searchValue) {
+					low = middle + 1;
+				} else {
+					return middle + 1;
 				}
-				return arguments[1].indexOf(arguments[0], arguments[2]) + 1;
-			}}$;
+			}
+		} else if (low == 0) {
+			return list.indexOf(searchValue) + 1;
+		} else {
+			low = Math.floor(low);
+			for (var i = low; i <= high; i++) {
+				if (list[i] == searchValue) {
+					return i + 1;
+				}
+			}
 		}
-	} else if (haystackType != "list") {
-		error("indexOf: the first argument must be a string or a list.");
-		return @;
-	}
-
-	if (list# < searchValue#) {
-		##${{ console.log("Warning: possible usage error in indexOf.  The source has fewer elements/characters than the search value."); }}$;
-	}
-	
-	if (lowerBound == @) {
-		low = 1;
-	} else {
-		low = lowerBound;
-	}
-	
-	high = list#;
-	if (high == 0) {
 		return 0;
-	}
-
-	if (isSorted) {
-		while (low <= high) {
-			middle = int((low + high) / 2);
-			element = list[middle];
-			if (element > searchValue) {
-				high = middle - 1;
-			} else if (element < searchValue) {
-				low = middle + 1;
-			} else {
-				return middle;
-			}
-		}
-	} else {
-		for (i = low; i <= high; i++) {
-			if (list[i] == searchValue) {
-				return i;
-			}
-		}
-	}
-	return 0;
+	}}$;
 }
 
 ##A new JS-EDEN specific function.

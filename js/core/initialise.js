@@ -57,6 +57,27 @@ if (!("isInteger" in Number)) {
 	};
 }
 
+
+/* Allow touch events to act like mouse events */
+function touchHandler(event) {
+    var touch = event.changedTouches[0];
+
+    var simulatedEvent = document.createEvent("MouseEvent");
+        simulatedEvent.initMouseEvent({
+        touchstart: "mousedown",
+        touchmove: "mousemove",
+        touchend: "mouseup"
+    }[event.type], true, true, window, 1,
+        touch.screenX, touch.screenY,
+        touch.clientX, touch.clientY, false,
+        false, false, false, 0, null);
+
+    touch.target.dispatchEvent(simulatedEvent);
+    if (event.target.className.indexOf("ui-dialog-titlebar") != -1 || event.target.className.indexOf("ui-resizable-handle") != -1) {
+		event.preventDefault();
+	}
+}
+
 /**
  * Currently supported URL parameters (HTTP GET):
  * views: One of a several preset values.  Currently either "none" (no canvas, input window or project list created) or "default".
@@ -108,6 +129,11 @@ function initialiseJSEden(callback) {
 	}
 
 	$(document).ready(function () {
+		document.addEventListener("touchstart", touchHandler, true);
+		document.addEventListener("touchmove", touchHandler, true);
+		document.addEventListener("touchend", touchHandler, true);
+		document.addEventListener("touchcancel", touchHandler, true);
+
 		edenUI = new EdenUI(eden);
 		document.body.scrollLeft = 0; //Chrome remembers position on refresh.
 		document.body.scrollTop = 0;

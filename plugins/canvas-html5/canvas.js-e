@@ -329,6 +329,7 @@ include("plugins/canvas-html5/circle.js-e");
 include("plugins/canvas-html5/combobox.js-e");
 include("plugins/canvas-html5/curve.js-e");
 include("plugins/canvas-html5/div.js-e");
+include("plugins/canvas-html5/dropdownlist.js-e");
 include("plugins/canvas-html5/ellipse.js-e");
 include("plugins/canvas-html5/fillPattern.js-e");
 include("plugins/canvas-html5/greyPixelList.js-e");

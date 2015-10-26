@@ -4,7 +4,7 @@
 ##changes made to the environment subsequent to the SciFest 2015 event at Joensuu (21-27 April 2015)
 ##but before the next major JS-EDEN release.
 
-_view_list is _views_log;
+_view_list is _views_list;
 
 ##Form controls used to take a "name" parameter.
 
@@ -35,12 +35,21 @@ func Checkbox { ${{
 
 func Combobox { ${{
   var name = arguments[0];
-  var options = arguments[1];
+  var values = arguments[1];
   var x = arguments[2];
   var y = arguments[3];
   var enabled = arguments[4];
-  if (enabled === undefined) enabled = true;
-  return new Combobox(name, options, x, y, enabled);
+  return new DropDownList(name, values, values, x, y, enabled);
+}}$; }
+
+func RadioButtons { ${{
+	var name = arguments[0];
+	var values = arguments[1];
+	var x = arguments[2];
+	var y = arguments[3];
+	var enabled = arguments[4];
+	var horizontal = arguments[5];
+	return new RadioButtons(name, values, values, x, y, undefined, horizontal, enabled);
 }}$; }
 
 func Slider { ${{
@@ -79,8 +88,19 @@ func Textbox { ${{
 		arg = arguments[argsProcessed];
 	}
 	enabled = arg;
-	return new Textbox(name, x, y, width, height, placeholder, enabled);
+	return new Textbox(name, x, y, width, height, placeholder, undefined, enabled);
 }}$; }
+
+func indexOf {
+	para searchValue, target, start, isSorted;
+	if (isString(target)) {
+		return substringPosition(searchValue, target, start);
+	} else {
+		return positionInList(searchValue, target, start, isSorted);
+	}
+}
+
+indexOfRE is positionOfRE;
 
 ##Default to base e instead of base 10.
 func log {
@@ -190,6 +210,8 @@ func translate {
 
 ${{
 	Eden.systemObservableNames["_view_list"] = true;
+	Eden.systemFunctionNames["indexOf"] = true;
+	Eden.systemFunctionNames["indexOfRE"] = true;
 	Eden.systemFunctionNames["rotate"] = true;
 	Eden.systemFunctionNames["scale"] = true;
 	Eden.systemFunctionNames["translate"] = true;

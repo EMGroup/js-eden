@@ -238,12 +238,12 @@ func RE {
 	}}$;
 }
 
-## indexOfRE(patternStr, caseSensitive (optional), targetStr, startOffset (optional))
-## indexOfRE(reObject, targetStr, startOffset (optional, requires g flag))
-func indexOfRE {
+## positionOfRE(patternStr, caseSensitive (optional), targetStr, startOffset (optional))
+## positionOfRE(reObject, targetStr, startOffset (optional, requires g flag))
+func positionOfRE {
 	${{
 		if (arguments.length < 2 || arguments.length > 4) {
-			eden.error(new Error("indexOfRE: The function requires at least 2 arguments and at most 4 arguments"), "error");
+			eden.error(new Error("positionOfRE: The function requires at least 2 arguments and at most 4 arguments"), "error");
 			return undefined;
 		}
 		var pattern = arguments[0];
@@ -253,7 +253,7 @@ func indexOfRE {
 		} else if (pattern instanceof RegExp) {
 			reFromObject = true;
 		} else if (typeof(pattern) != "string") {
-			eden.error(new Error("indexOfRE: The first argument must be a string or a regular expression object, not a " + typeof(pattern)), "error");
+			eden.error(new Error("positionOfRE: The first argument must be a string or a regular expression object, not a " + typeof(pattern)), "error");
 			return undefined;
 		}
 		
@@ -269,7 +269,7 @@ func indexOfRE {
 				argsProcessed = 2;
 			} else if (reFromObject) {
 				if (arguments[1] !== undefined) {
-					eden.error(new Error("indexOfRE: Case sensitivity cannot be specified separately when the regular expression is selected using the RE function."), "error");
+					eden.error(new Error("positionOfRE: Case sensitivity cannot be specified separately when the regular expression is selected using the RE function."), "error");
 				}
 				return undefined;
 			} else if (typeof(arguments[1]) == "boolean") {
@@ -277,19 +277,19 @@ func indexOfRE {
 				subject = arguments[2];
 				argsProcessed = 3;				
 			} else {
-				eden.error(new Error("indexOfRE: The second argument must be a string or a boolean, not a " + typeof(arguments[1])), "error");
+				eden.error(new Error("positionOfRE: The second argument must be a string or a boolean, not a " + typeof(arguments[1])), "error");
 				return undefined;
 			}
 			if (arguments.length > argsProcessed) {
 				offset = arguments[argsProcessed];
 				if (typeof(offset) == "number") {
 					if (!Number.isInteger(offset) || offset < 1) {
-						eden.error(new Error("indexOfRE: The starting offset must be a positive integer."), "error");
+						eden.error(new Error("positionOfRE: The starting offset must be a positive integer."), "error");
 						return undefined;
 					}
 					offset--;
 				} else {
-					eden.error(new Error("indexOfRE: The starting offset must be a positive integer, not a " + typeof(offset)), "error");
+					eden.error(new Error("positionOfRE: The starting offset must be a positive integer, not a " + typeof(offset)), "error");
 					return undefined;
 				}
 			}
@@ -300,7 +300,7 @@ func indexOfRE {
 		if (subject === undefined) {
 			return undefined;
 		} else if (typeof(subject) != "string") {
-				eden.error(new Error("indexOfRE: The value to match against must be a string, not a " + typeof(caseSensitive)), "error");
+				eden.error(new Error("positionOfRE: The value to match against must be a string, not a " + typeof(caseSensitive)), "error");
 				return undefined;
 		}
 		
@@ -550,6 +550,61 @@ func substr {
 		}
 		
 		return result;
+	}}$;
+}
+
+##Returns the position of first argument in if it occurs somewhere as a substring
+##in the string given by the second argument, zero if it's not a substring, or
+##undefined if the substring is undefined or target string is undefined.
+##
+##The optional third argument allows a initial portion of the list to be omitted
+##from the search.
+##
+##A new JS-EDEN specific function.
+func substringPosition {
+	${{
+		if (arguments.length < 2 || arguments.length > 3) {
+			eden.error(new Error("substringPosition: This function requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
+			return undefined;
+		}
+		
+		var substring = arguments[0];
+		var target = arguments[1];
+		var from = arguments[2]
+
+		if (substring === undefined) {
+			return undefined;
+		} else if (typeof(substring) != "string") {
+			eden.error(new Error("substringPosition: The first argument must be a a string, not a " + typeof(substring)), "error");
+			return undefined;
+		}
+
+		if (target === undefined) {
+			return undefined;
+		} else if (typeof(target) != "string") {
+			eden.error(new Error("substringPosition: The second argument must be a a string, not a " + typeof(target)), "error");
+			return undefined;
+		}
+
+		if (from === undefined) {
+			from = 1;
+		} else if (typeof(from) != "number") {
+			eden.error(new Error("substringPosition: The third argument must be a number, not a " + typeof(from)), "error");
+			return undefined;
+		} else if (from < 1) {
+			from = 1;
+		}
+
+		if (from == 1) {
+			return target.indexOf(substring) + 1;
+		} else {
+			var index = target.slice(from - 1).indexOf(substring);
+			if (index === -1) {
+				return 0;
+			} else {
+				return index + from;
+			}
+		}
 	}}$;
 }
 

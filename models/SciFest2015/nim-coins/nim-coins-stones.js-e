@@ -1,4 +1,6 @@
-﻿## This is a JS-EDEN script automatically generated using the environment's script generator feature.
+﻿include("compatibility/scifest2015.js-e");
+
+## This is a JS-EDEN script automatically generated using the environment's script generator feature.
 
 ## JS-EDEN is an open source empirical modelling environment based on research, principles and work
 ## conducted at University of Warwick.

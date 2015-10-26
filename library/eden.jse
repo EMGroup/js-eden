@@ -231,11 +231,14 @@ func forgetAll {
 			} else {
 				regExp = new RegExp(searchStr, "i");
 			}
+			var viewsRE = /^_[vV]iew(s?)_/;
 			
 			for (var name in root.symbols) {
 				if (regExp.test(name)) {
-					if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
-						continue;
+					if (!includeSystemSymbols) {
+						if (Eden.isitSystemSymbol(name) || viewsRE.test(name)) {
+							continue;
+						}
 					}
 					
 					initialDefinition = eden.initialDefinition(name);
@@ -483,6 +486,8 @@ func include2 {
 autocalc = 0;
 
 ##Include the rest of the library
+
+autocalc = 0;
 
 include("library/types.js-e");
 include("library/core.js-e");

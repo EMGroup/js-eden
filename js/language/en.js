@@ -238,6 +238,12 @@ Language.errors = [
 ],
 /* EDEN_ERROR_FUNCCALL */ [
 	"Problem whilst executing a function call"
+],
+/* EDEN_ERROR_AFTEROPEN */ [
+	"Missing an open ( in 'after' statement"
+],
+/* EDEN_ERROR_AFTERCLOSE */ [
+	"Missing a close ) in 'after' statement"
 ]
 ];
 

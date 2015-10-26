@@ -1,3 +1,5 @@
+include("compatibility/scifest2015.js-e");
+
 ## This is a JS-EDEN script automatically generated using the environment's script generator feature.
 
 ## JS-EDEN is an open source empirical modelling environment based on research, principles and work
@@ -10,8 +12,6 @@ autocalc = 0;
 ## Include Files:
 
 ## Observable Assignments:
-_menubar_status = "Output: false";
-randomSeed = @;
 centre = {225, 420};
 radius = 25;
 hexcols = [["white", "white"], ["white", "white", "white", "white"], ["white", "white", "white"], ["white", "white", "white", "white"], ["white", "white"]];
@@ -318,13 +318,13 @@ inCurrBlue is ((currCentre.x - mousePosition.x) > -15) && ((currCentre.x - mouse
 				&& ((currCentre.y - mousePosition.y) > -5) && ((currCentre.y - mousePosition.y) < 5);
 inCurrReset is ((currCentre.x - mousePosition.x) > -25) && ((currCentre.x - mousePosition.x) < -15)
 				&& ((currCentre.y - mousePosition.y) > -5) && ((currCentre.y - mousePosition.y) < 5);
-canBeRedCurr is !indexOf("red", currColAdj);
+canBeRedCurr is !isinlist(currColAdj, "red");
 potentialRed is Rectangle(currCentre.x - radius, currCentre.y-5,10,10,"red");
-canBeGreenCurr is !indexOf("green", currColAdj);
+canBeGreenCurr is !isinlist(currColAdj, "green");
 potentialGreen is Rectangle(currCentre.x-radius+10, currCentre.y-5,10,10,"green");
-canBeYellowCurr is !indexOf("yellow", currColAdj);
+canBeYellowCurr is !isinlist(currColAdj, "yellow");
 potentialYellow is Rectangle(currCentre.x-radius+20, currCentre.y-5,10,10,"yellow");
-canBeBlueCurr is !indexOf("blue", currColAdj);
+canBeBlueCurr is !isinlist(currColAdj, "blue");
 potentialBlue is Rectangle(currCentre.x-radius+30, currCentre.y-5,10,10,"blue");
 resetBtn is Rectangle(currCentre.x-radius+40,currCentre.y - 5,10,10,"white");
 setcolbuttons is ((canBeRedCurr) ? [potentialRed] : []) // ((canBeGreenCurr) ? [potentialGreen] : []) // ((canBeYellowCurr) ? [potentialYellow] : []) // ((canBeBlueCurr) ? [potentialBlue] : []) // [resetBtn];
@@ -413,21 +413,21 @@ str34 is (currListIndex==[4,4]?"34":"$$");
 str43 is (currListIndex==[5,1]?"43":"$$");
 str44 is (currListIndex==[5,2]?"44":"$$");
 dispListPtr is Text(str([[str00,str01],[str10,str11,str12,str13],[str21,str22,str23],[str31,str32,str33,str34],[str43,str44]]), 20, 50, 12);
-pos00ok is !(val00=="white") && !indexOf(val00, coladjls(adjPoslist[hexIndexListPos([0,0])[1]][hexIndexListPos([0,0])[2]]));
-pos01ok is !(val01=="white") && !indexOf(val01, coladjls(adjPoslist[hexIndexListPos([0,1])[1]][hexIndexListPos([0,1])[2]]));
-pos10ok is !(val10=="white") && !indexOf(val10, coladjls(adjPoslist[hexIndexListPos([1,0])[1]][hexIndexListPos([1,0])[2]]));
-pos11ok is !(val11=="white") && !indexOf(val11, coladjls(adjPoslist[hexIndexListPos([1,1])[1]][hexIndexListPos([1,1])[2]]));
-pos12ok is !(val12=="white") && !indexOf(val12, coladjls(adjPoslist[hexIndexListPos([1,2])[1]][hexIndexListPos([1,2])[2]]));
-pos13ok is !(val13=="white") && !indexOf(val13, coladjls(adjPoslist[hexIndexListPos([1,3])[1]][hexIndexListPos([1,3])[2]]));
-pos21ok is !(val21=="white") && !indexOf(val21, coladjls(adjPoslist[hexIndexListPos([2,1])[1]][hexIndexListPos([2,1])[2]]));
-pos22ok is !(val22=="white") && !indexOf(val22, coladjls(adjPoslist[hexIndexListPos([2,2])[1]][hexIndexListPos([2,2])[2]]));
-pos23ok is !(val23=="white") && !indexOf(val23, coladjls(adjPoslist[hexIndexListPos([2,3])[1]][hexIndexListPos([2,3])[2]]));
-pos31ok is !(val31=="white") && !indexOf(val31, coladjls(adjPoslist[hexIndexListPos([3,1])[1]][hexIndexListPos([3,1])[2]]));
-pos32ok is !(val32=="white") && !indexOf(val32, coladjls(adjPoslist[hexIndexListPos([3,2])[1]][hexIndexListPos([3,2])[2]]));
-pos33ok is !(val33=="white") && !indexOf(val33, coladjls(adjPoslist[hexIndexListPos([3,3])[1]][hexIndexListPos([3,3])[2]]));
-pos34ok is !(val34=="white") && !indexOf(val34, coladjls(adjPoslist[hexIndexListPos([3,4])[1]][hexIndexListPos([3,4])[2]]));
-pos43ok is !(val43=="white") && !indexOf(val43, coladjls(adjPoslist[hexIndexListPos([4,3])[1]][hexIndexListPos([4,3])[2]]));
-pos44ok is !(val44=="white") && !indexOf(val44, coladjls(adjPoslist[hexIndexListPos([4,4])[1]][hexIndexListPos([4,4])[2]]));
+pos00ok is !(val00=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([0,0])[1]][hexIndexListPos([0,0])[2]]), val00);
+pos01ok is !(val01=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([0,1])[1]][hexIndexListPos([0,1])[2]]), val01);
+pos10ok is !(val10=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([1,0])[1]][hexIndexListPos([1,0])[2]]), val10);
+pos11ok is !(val11=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([1,1])[1]][hexIndexListPos([1,1])[2]]), val11);
+pos12ok is !(val12=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([1,2])[1]][hexIndexListPos([1,2])[2]]), val12);
+pos13ok is !(val13=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([1,3])[1]][hexIndexListPos([1,3])[2]]), val13);
+pos21ok is !(val21=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([2,1])[1]][hexIndexListPos([2,1])[2]]), val21);
+pos22ok is !(val22=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([2,2])[1]][hexIndexListPos([2,2])[2]]), val22);
+pos23ok is !(val23=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([2,3])[1]][hexIndexListPos([2,3])[2]]), val23);
+pos31ok is !(val31=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([3,1])[1]][hexIndexListPos([3,1])[2]]), val31);
+pos32ok is !(val32=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([3,2])[1]][hexIndexListPos([3,2])[2]]), val32);
+pos33ok is !(val33=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([3,3])[1]][hexIndexListPos([3,3])[2]]), val33);
+pos34ok is !(val34=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([3,4])[1]][hexIndexListPos([3,4])[2]]), val34);
+pos43ok is !(val43=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([4,3])[1]][hexIndexListPos([4,3])[2]]), val43);
+pos44ok is !(val44=="white") && !isinlist(coladjls(adjPoslist[hexIndexListPos([4,4])[1]][hexIndexListPos([4,4])[2]]), val44);
 allvals is [val00, val01,val10, val11, val12, val13,val21, val22, val23,val31,val32,val33,val34,val43,val44];
 allposoks is [pos00ok, pos01ok,pos10ok, pos11ok, pos12ok, pos13ok,pos21ok, pos22ok, pos23ok,pos31ok,pos32ok,pos33ok,pos34ok,pos43ok,pos44ok];
 noofredcells is count(allvals, "red");
@@ -495,6 +495,18 @@ func coladjls {
 	return result;
 }
 
+##Simplified version of a system library function, for dissection by teachers and students.
+func isinlist {
+	para ls, obj;
+	auto i;
+	for (i = 1; i <= ls#; i++) {
+		if (ls[i] == obj) {
+			return true;
+		}
+	}
+	return false;
+}
+
 func count {
 	para ls, item;
 	auto i, result;
@@ -511,4 +523,3 @@ picture is hexagons // setcolbuttons // hexnumdisplays // [solvedText, resetHexG
 autocalc = 1;
 
 ## End of automatically generated script.
-
