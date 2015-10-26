@@ -57,7 +57,6 @@ if (!("isInteger" in Number)) {
 	};
 }
 
-
 /* Allow touch events to act like mouse events */
 function touchHandler(event) {
     var touch = event.changedTouches[0];
@@ -77,6 +76,12 @@ function touchHandler(event) {
 		event.preventDefault();
 	}
 }
+
+var confirmUnload = function (event) {
+	var prompt = "Leaving this page will discard the current script. Your work will not be saved.";
+	event.returnValue = prompt;
+	return prompt;
+};
 
 /**
  * Currently supported URL parameters (HTTP GET):
@@ -153,13 +158,8 @@ function initialiseJSEden(callback) {
 			}
 		});
 		
-		window.onbeforeunload = function () {
-			var prompt = edenUI.getOptionValue('optConfirmUnload');
-			if (prompt != "false") {
-				return Language.ui.general.leaving;
-			} else {
-				return undefined;
-			}
+		if (edenUI.getOptionValue('optConfirmUnload') != "false") {
+			window.addEventListener("beforeunload", confirmUnload);
 		}
 
 		var loadLanguage = function(lang, callback) {

@@ -378,7 +378,13 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			item.appendTo(optionsMenu);
 		}
 
-		addCheckboxOption("optConfirmUnload", Language.ui.menu_bar.opt_confirm, true);
+		addCheckboxOption("optConfirmUnload", Language.ui.menu_bar.opt_confirm, true, function(optName, confirm) {
+			if (confirm) {
+				window.addEventListener("beforeunload", confirmUnload);
+			} else {
+				window.removeEventListener("beforeunload", confirmUnload);
+			}
+		});
 		addCheckboxOption("optHideOnMinimize", Language.ui.menu_bar.opt_hide, false);
 		addCheckboxOption("optCollapseToTitleBar", Language.ui.menu_bar.opt_collapse, false, function (optName, collapse) {
 			var action;
@@ -397,6 +403,8 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			} else {
 				pathname = "/index.html";
 			}
+			var currentPath = document.location.pathname;
+			pathname = currentPath.slice(0, currentPath.lastIndexOf("/")) + pathname;
 			if (pathname != document.location.pathname) {
 				hideMenu();
 				edenUI.modalDialog(

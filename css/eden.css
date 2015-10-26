@@ -46,47 +46,6 @@ h2, ul li {
 	color: black;
 }
 
-.canvashtml-canvas {
-	outline: none;
-}
-
-.canvashtml-content {
-	/* Should be synchronized with defaultFontSizePx in plugins/canvas-html5/canvas.js */
-	font-size: 13.3px;
-}
-
-.canvashtml-content {
-	/* Should be synchronized with defaultLineHeight in plugins/canvas-html5/canvas.js */
-	line-height: 1.75;
-}
-
-.canvashtml-content input {
-	margin: 0px;
-	padding: 0px;
-}
-
-.canvashtml-content input[type="range"]:disabled {
-	opacity: 0.45;
-}
-
-.canvashtml-content select {
-	margin: 0px;
-	padding: 0px;
-}
-
-.canvashtml-content textarea, .canvashtml-content input[type="text"] {
-	/* See Textbox.prototype.scale in plugins/textbox.js-e */
-	border: 1px inset #BBBBBB;
-	margin: 0px;
-	padding: 1px 2px;
-}
-
-.canvas-horizontal-radio-buttons {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
-}
-
 .unpadded-dialog .ui-dialog-content {
 	padding: 0px;
 }

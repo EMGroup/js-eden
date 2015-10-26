@@ -12,7 +12,8 @@ See LICENSE.txt
 		try {
 		  if (window.localStorage) {
 			  if (window.localStorage.getItem("developer") === "true") {
-				document.location.pathname = "index-dev.html";
+				var currentPath = document.location.pathname;
+				document.location.pathname = currentPath.slice(0, currentPath.lastIndexOf("/")) + "/index-dev.html";
 			  }
 		  }
 		} catch (e) {
