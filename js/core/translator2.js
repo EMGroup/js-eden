@@ -643,6 +643,8 @@ EdenAST.prototype.pPRIMARY_PPP = function() {
 		var scopepath = new EdenAST_ScopePath();
 		scopepath.setPrimary(rhs);
 		return scopepath;
+	} else {
+		return new EdenAST_Primary();
 	}
 }
 
@@ -1780,6 +1782,13 @@ EdenAST.prototype.pINCLUDE = function() {
 
 
 
+EdenAST.prototype.pWAIT = function() {
+	var express = this.pEXPRESSION();
+	return new EdenAST_Wait(express);
+}
+
+
+
 /**
  * STATEMENT Production
  * STATEMENT ->
@@ -1831,6 +1840,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 	case "require"	:	this.next(); stat = this.pREQUIRE(); break;
 	case "await"	:	this.next(); stat = this.pAWAIT(); break;
 	case "after"	:	this.next(); stat = this.pAFTER(); break;
+	case "wait"		:	this.next(); stat = this.pWAIT(); break;
 	//case "option"	:	this.next(); stat = this.pOPTION(); break;
 	case "include"	:	this.next(); stat = this.pINCLUDE(); break;
 	case "default"	:	this.next();

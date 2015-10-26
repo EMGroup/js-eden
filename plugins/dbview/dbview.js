@@ -59,7 +59,7 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 					var entry = Database.getEntry(columns[c], rows[r]);
 					//var form = Database.getFormula(columns[c], rows[r]);
 					if (entry === undefined) continue;
-					col.html(entry.value);
+					col.html("<div class='dbview-cellcontent'>"+Eden.edenCodeForValue(entry.value)+"</div>");
 					if (entry.origin_scope != parseInt(rows[r])) col.addClass("dbview-inherited");
 					if (entry.formula !== undefined) col.addClass("dbview-formula");
 				}

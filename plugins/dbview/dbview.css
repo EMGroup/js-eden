@@ -70,6 +70,11 @@ table.dbview-table td {
 	border-style: solid;
 }
 
+div.dbview-cellcontent {
+	overflow: hidden;
+	height: 20px;
+}
+
 table.dbview-table th {
 	padding-left: 5px;
 	padding-right: 5px;

@@ -4,7 +4,8 @@ file, so turn autocalc off for the time being */
 
 autocalc = 0;
 
-/*func max { return $1<$2 ? $2 : $1; };*/
+function max { para a,b; return a<b ? b : a; };
+function int { ${{ return Math.floor(arguments[0]); }}$ };
 
 target=1;
 capA = 5;
@@ -34,7 +35,7 @@ valid7 is valid4 && valid1;
 Error=0; updating=0;
 finish is ((contentA==target)||(contentB==target))&&!updating;
 
-func avail
+function avail
 {
 	/* indicates whether the menu option with parameter $1 is open */
 	para opt;
@@ -45,7 +46,7 @@ func avail
 
 input = @;
 opt = @;
-step = 0;
+step = @;
 
 proc init_pour : input
 {
@@ -94,9 +95,8 @@ proc pour : step
 			return;
 		}
 
-		after (viscosity) {
-			step++;
-		}
+		wait viscosity;
+		step++;
 	} else {
 		contentA = contentA;
 		contentB = contentB;

@@ -103,7 +103,13 @@
 		for (var i=0; i<this.events[event].length; i++) {
 			var agent = this.events[event][i];
 			if (todoAgents[agent] === undefined) todoAgents[agent] = [];
-			todoAgents[agent].push(arguments);
+
+			var args = [];
+			for (var j=0; j<arguments.length; j++) {
+				args.push(arguments[j]);
+			}
+
+			todoAgents[agent].push(args);
 		}
 	}
 
@@ -143,6 +149,8 @@
 		// A selector to specify notifications
 		} else if (arguments.length == 3) {
 			var selector = arguments[1];
+
+			console.log("Register agent on: " + event + ", "+selector+", "+arguments[2]);
 			// Specify a scope, an observable or an observable and scope...
 			// List multiple combinations
 			var items = selector.split(",");
@@ -227,6 +235,8 @@
 	 * dependant formuli.
 	 */
 	Database.bringInRelatives = function(name, scopeid) {
+		console.log("BRING IN RELATIVES: " + name + ", " + scopeid);
+
 		// Get the parent version of this observable
 		var pscope = scopes[scopeid].parent;
 		if (pscope === undefined) return;
@@ -353,6 +363,16 @@
 
 
 
+	function safeCall(entry) {
+		try {
+			return entry.formula.formula.call(entry, entry.value_scope);
+		} catch(e) {
+			console.log(e);
+		}
+	}
+
+
+
 	/**
 	 * Make sure this entries value is up-to-date if expired. If the value
 	 * consequently changes then also expire all entries dependant upon it.
@@ -363,8 +383,8 @@
 		var doexpire = false;
 		// It may not have a definition and still be expired
 		if (entry.formula !== undefined) {
-			var formula = this.getFormula(entry.name, entry.origin_scope);
-			var newvalue = formula.formula.call(entry, entry.value_scope);
+			//var formula = this.getFormula(entry.name, entry.origin_scope);
+			var newvalue = safeCall(entry); //formula.formula.call(entry, entry.value_scope);
 
 			// Has an actual change happened?
 			if (newvalue != entry.value) {

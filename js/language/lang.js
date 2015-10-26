@@ -16,6 +16,7 @@ var Language = {
 		"function": "function",
 		"proc": "proc",
 		"agent": "agent",
+		"wait": "wait",
 		"auto": "auto",
 		"para": "para",
 		"local": "local",
