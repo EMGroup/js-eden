@@ -13,8 +13,9 @@ var Language = {
 	},
 
 	keywords: {
-		"func": "func",
+		"function": "function",
 		"proc": "proc",
+		"agent": "agent",
 		"auto": "auto",
 		"para": "para",
 		"local": "local",
@@ -33,7 +34,6 @@ var Language = {
 		"return": "return",
 		"when": "when",
 		"include": "include",
-		"option": "option",
 		"await": "await",
 		"insert": "insert",
 		"append": "append",

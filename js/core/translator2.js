@@ -583,7 +583,7 @@ EdenAST.prototype.pPRIMARY_PP = function() {
 			return primary;
 		}
 	} else {
-		return this.pPRIMARY_PPPP();
+		return new EdenAST_Primary(); //this.pPRIMARY_PPPP();
 	}
 }
 
@@ -1795,7 +1795,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 
 	switch (this.token) {
 	case "proc"		:	this.next(); stat = this.pACTION(); end = this.stream.position; this.next(); break;
-	case "func"		:	this.next(); stat = this.pFUNCTION(); end = this.stream.position; this.next(); break;
+	case "function"	:	this.next(); stat = this.pFUNCTION(); end = this.stream.position; this.next(); break;
 	//case "when"		:	this.next(); stat = this.pWHEN(); break;
 	case "for"		:	this.next(); stat = this.pFOR(); break;
 	case "while"	:	this.next(); stat = this.pWHILE(); break;
@@ -1809,7 +1809,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 	case "require"	:	this.next(); stat = this.pREQUIRE(); break;
 	case "await"	:	this.next(); stat = this.pAWAIT(); break;
 	case "after"	:	this.next(); stat = this.pAFTER(); break;
-	case "option"	:	this.next(); stat = this.pOPTION(); break;
+	//case "option"	:	this.next(); stat = this.pOPTION(); break;
 	case "include"	:	this.next(); stat = this.pINCLUDE(); break;
 	case "default"	:	this.next();
 						var def = new EdenAST_Default();

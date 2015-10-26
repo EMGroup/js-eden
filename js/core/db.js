@@ -377,16 +377,19 @@
 
 		if (doexpire) {
 			var dependants = entry.dependants;
-			entry.dependants = [];
 
-			// Make it unique
-			dependants = dependants.reduce(function(prev,cur,ix,arr) {
-				if (prev.indexOf(cur) == -1) prev.push(cur);
-				return prev;
-			}, []);
+			if (dependants) {
+				entry.dependants = [];
 
-			for (var i=0; i<dependants.length; i++) {
-				this.expire(dependants[i]);
+				// Make it unique
+				dependants = dependants.reduce(function(prev,cur,ix,arr) {
+					if (prev.indexOf(cur) == -1) prev.push(cur);
+					return prev;
+				}, []);
+
+				for (var i=0; i<dependants.length; i++) {
+					this.expire(dependants[i]);
+				}
 			}
 
 			// Also need to expire all overrides that use this formula

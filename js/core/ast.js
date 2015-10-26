@@ -58,10 +58,10 @@ EdenAST_Literal.prototype.execute = function(root, ctx) {
 	case "CHARACTER":
 	case "BOOLEAN"	:
 	case "STRING"	:	return this.value;
-	case "LIST"		:	var rhs = "(function(context,scope) { return ";
+	case "LIST"		:	var rhs = "(function(scope) { return ";
 						rhs += this.generate(ctx, "scope");
 						rhs += ";})";
-						return eval(rhs)(root,root.scope);
+						return eval(rhs)(0);
 	case "JAVASCRIPT"	: return eval(this.value);
 	}
 }
@@ -249,7 +249,7 @@ EdenAST_UnaryOp.prototype.generate = function(ctx, scope) {
 	} else if (this.op == "-") {
 		return "-("+r+")";
 	} else if (this.op == "*") {
-		return r + ".value("+scope+")";
+		return r + ".value";
 	}
 }
 
@@ -325,10 +325,10 @@ EdenAST_TernaryOp.prototype.generate = function(ctx, scope) {
 }
 
 EdenAST_TernaryOp.prototype.execute = function(root, ctx) {
-	var rhs = "(function(context,scope) { return ";
+	var rhs = "(function(scope) { return ";
 	rhs += this.generate(ctx, "scope");
 	rhs += ";})";
-	return eval(rhs)(root,root.scope);
+	return eval(rhs)(0);
 }
 
 
@@ -383,10 +383,10 @@ EdenAST_BinaryOp.prototype.generate = function(ctx, scope) {
 }
 
 EdenAST_BinaryOp.prototype.execute = function(root, ctx) {
-	var rhs = "(function(context,scope) { return ";
+	var rhs = "(function(scope) { return ";
 	rhs += this.generate(ctx);
 	rhs += ";})";
-	return eval(rhs)(root,root.scope);
+	return eval(rhs)(0);
 }
 
 
@@ -481,7 +481,7 @@ EdenAST_LValue.prototype.generate = function(ctx) {
 	//	ctx.dependencies[this.observable] = true;
 	//}
 
-	return "context.lookup(\"" + this.observable + "\")";
+	return "Database.getEntry(\"" + this.observable + "\")";
 }
 
 function EdenAST_LValueComponent(kind) {
@@ -1181,10 +1181,10 @@ EdenAST_Primary.prototype.generate = function(ctx, scope) {
 }
 
 EdenAST_Primary.prototype.execute = function(root, ctx) {
-	var rhs = "(function(context,scope) { return ";
+	var rhs = "(function(scope) { return ";
 	rhs += this.generate(ctx, "scope");
 	rhs += ";})";
-	return eval(rhs)(root,root.scope);
+	return eval(rhs)(0);
 }
 
 EdenAST_Primary.prototype.error = fnEdenAST_error;
@@ -1243,13 +1243,13 @@ EdenAST_If.prototype.generate = function(ctx) {
 }
 
 EdenAST_If.prototype.execute = function(root, ctx) {
-	var cond = "(function(context,scope) { return ";
+	var cond = "(function(scope) { return ";
 	cond += this.condition.generate(ctx, "scope");
 	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
 		cond += ".value";
 	}
 	cond += ";})";
-	if (eval(cond)(root,root.scope)) {
+	if (eval(cond)(0)) {
 		this.statement.execute(root, ctx);
 	} else {
 		if (this.elsestatement) {
@@ -1326,8 +1326,9 @@ EdenAST_FunctionCall.prototype.left = function(lvalue) {
 
 EdenAST_FunctionCall.prototype.generate = function(ctx, scope) {
 	if (this.lvalue === undefined) {
-		var res = "(";
+		var res = ".value.call(this";
 		if (this.params) {
+			if (this.params.length > 0) res += ",";
 			for (var i=0; i<this.params.length; i++) {
 				var express = this.params[i].generate(ctx, scope);
 				if (this.params[i].doesReturnBound && this.params[i].doesReturnBound()) {
@@ -1339,7 +1340,7 @@ EdenAST_FunctionCall.prototype.generate = function(ctx, scope) {
 		}
 		return res + ")";
 	} else {
-		var res = this.lvalue.generate(ctx) + ".value(scope)(";
+		var res = this.lvalue.generate(ctx) + ".value(";
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {
 				var express = this.params[i].generate(ctx, scope);
@@ -1355,9 +1356,9 @@ EdenAST_FunctionCall.prototype.generate = function(ctx, scope) {
 }
 
 EdenAST_FunctionCall.prototype.execute = function(root, ctx, base) {
-	var func = "(function(context,scope) { return " + this.generate(ctx, "scope") + "; })";
+	var func = "(function(scope) { return " + this.generate(ctx, "scope") + "; })";
 	try {
-		return eval(func)(root,root.scope);
+		return eval(func)(0);
 	} catch(e) {
 		this.errors.push(new EdenError(base, EDEN_ERROR_FUNCCALL, e));
 	}
@@ -1443,15 +1444,13 @@ EdenAST_Function.prototype.setBody = function(body) {
 
 EdenAST_Function.prototype.generate = function(ctx) {
 	var body = this.body.generate(ctx);
-	var res = "context.lookup(\""+this.name+"\").define("+body+", {name: \"execute\"}, []);\n";
+	var res = "Database.setFormula(\""+this.name+"\",0,"+body+", [], undefined);\n";
 	return res;
 }
 
 EdenAST_Function.prototype.execute = function(root,ctx,base) {
 	var body = this.body.generate(ctx);
-	var sym = root.lookup(this.name);
-	sym.eden_definition = base.getSource(this);	
-	sym.define(eval(body), {name: "execute"},[]);
+	Database.setFormula(this.name, 0, eval(body), [], undefined);
 }
 
 EdenAST_Function.prototype.error = fnEdenAST_error;
@@ -1788,26 +1787,20 @@ EdenAST_CodeBlock.prototype.setScript = function(script) {
 }
 
 EdenAST_CodeBlock.prototype.generate = function(ctx) {
-	var res = "(function(context, scope) {\n";
-	//res += "var lscope = new Scope(context,pscope,[";
+	var res = "(function(scope) {\n";
 	if (this.locals && this.locals.list) {
 		for (var i=0; i<this.locals.list.length; i++) {
-			//res += "new ScopeOverride(\"" + this.locals.list[i] + "\", undefined)";
-			//if (i != this.locals.list.length-1) res += ",";
 			res += "var " + this.locals.list[i] + ";\n";
 		}
 	}
-	//res += "]);\n";
+
 	res += "return (function() {\n";
-	//res += "var scope = new Scope(context,lscope,[";
 	if (this.params && this.params.list) {
 		for (var i=0; i<this.params.list.length; i++) {
-			//res += "new ScopeOverride(\"" + this.params.list[i] + "\", arguments["+(i)+"])";
-			//if (i != this.params.list.length-1) res += ",";
 			res += "var " + this.params.list[i] + " = edenCopy(arguments["+i+"]);\n";
 		}
 	}
-	//res += "]);\n";
+
 	res += this.script.generate(this, "scope") + "}); })";
 	return res;
 }
