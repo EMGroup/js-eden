@@ -111,5 +111,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-gh-pages');
 
-  grunt.registerTask('default', ['uglify', 'connect', 'watch']);
+  grunt.registerTask('build', ['jison', 'uglify']);
+  grunt.registerTask('default', ['build', 'connect', 'watch']);
 };

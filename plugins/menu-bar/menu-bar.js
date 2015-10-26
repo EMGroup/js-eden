@@ -374,7 +374,13 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			item.appendTo(optionsMenu);
 		}
 
-		addCheckboxOption("optConfirmUnload", "Confirm closing environment", true);
+		addCheckboxOption("optConfirmUnload", "Confirm closing environment", true, function(optName, confirm) {
+			if (confirm) {
+				window.addEventListener("beforeunload", confirmUnload);
+			} else {
+				window.removeEventListener("beforeunload", confirmUnload);
+			}
+		});
 		addCheckboxOption("optHideOnMinimize", "Hide windows on minimize", false);
 		addCheckboxOption("optCollapseToTitleBar", "Collapse to title bar on double click", false, function (optName, collapse) {
 			var action;
@@ -392,6 +398,8 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			} else {
 				pathname = "/index.html";
 			}
+			var currentPath = document.location.pathname;
+			pathname = currentPath.slice(0, currentPath.lastIndexOf("/")) + pathname;
 			if (pathname != document.location.pathname) {
 				hideMenu();
 				edenUI.modalDialog(

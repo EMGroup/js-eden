@@ -1075,12 +1075,15 @@
 			"parameters": {
 				"min": "",
 				"max": "",
-				"step": "",
+				"[step": "",
+				"[label_interval": "",
+				"[tick_mark_interval": "",
+				"[label_divisor]]]]": "",
 				"x": "",
 				"y": "",
 				"size_in_pixels": "",
-				"[orientation": "",
-				"[enabled]]": ""
+				"[orientation]": "",
+				"[enabled]": ""
 			},
 			"return": "",
 			"description": ""

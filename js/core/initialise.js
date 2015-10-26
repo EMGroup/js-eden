@@ -57,6 +57,12 @@ if (!("isInteger" in Number)) {
 	};
 }
 
+var confirmUnload = function (event) {
+	var prompt = "Leaving this page will discard the current script. Your work will not be saved.";
+	event.returnValue = prompt;
+	return prompt;
+};
+
 /**
  * Currently supported URL parameters (HTTP GET):
  * views: One of a several preset values.  Currently either "none" (no canvas, input window or project list created) or "default".
@@ -121,13 +127,8 @@ function initialiseJSEden() {
 			}
 		});
 		
-		window.onbeforeunload = function () {
-			var prompt = edenUI.getOptionValue('optConfirmUnload');
-			if (prompt != "false") {
-				return "Leaving this page will discard the current script. Your work will not be saved.";
-			} else {
-				return undefined;
-			}
+		if (edenUI.getOptionValue('optConfirmUnload') != "false") {
+			window.addEventListener("beforeunload", confirmUnload);
 		}
 
 		var loadPlugins = function (pluginList, callback) {
