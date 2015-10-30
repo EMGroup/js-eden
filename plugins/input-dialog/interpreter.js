@@ -1255,7 +1255,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 	this.submit = function (statement, base) {
 		//console.time("EdenASTToJS");
-		statement.execute(eden.root,undefined, base);
+		try {
+			statement.execute(eden.root,undefined, base);
+		} catch (e) {
+			eden.error(e);
+		}
 		//console.timeEnd("EdenASTToJS");
 	};
 

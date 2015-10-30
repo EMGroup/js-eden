@@ -712,6 +712,7 @@
 			this.context.beginEvaluation(this);
 		}
 		try {
+			cache.up_to_date = true;
 			//NOTE: Don't do copy here, be clever about it.
 			//cache.value = copy(this.definition(this.context, scope));
 			cache.value = this.definition(this.context, scope, cache);
@@ -723,7 +724,6 @@
 				}
 			}
 
-			cache.up_to_date = true;
 			if (!this.evalResolved) {
 				var replacedDef = this.eden_definition;
 				//Replace eval() in EDEN definition with the actual value.
