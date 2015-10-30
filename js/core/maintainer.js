@@ -526,12 +526,12 @@
 			return;
 		}
 
+		var me = this;
 		this.expiryCount.value = 0;
 		var symbolNamesToForce = {};
 		for (var i = 0; i < this.needsExpire.length; i++) {
 			var sym = this.needsExpire[i];
 			sym.expire(symbolNamesToForce, this.expiryCount, this.needsTrigger);
-			this.notifyGlobals(sym, false);
 		}
 		var expired = this.needsExpire;
 		this.needsExpire = [];
@@ -551,6 +551,15 @@
 		fireActions(actions_to_fire);
 		fireJSActions(expired);
 		fireJSActions(symbolsToForce);
+
+		setTimeout(function () {
+			for (var i = 0; i < expired.length; i++) {
+				me.notifyGlobals(expired[i], false);
+			}
+			for (var i = 0; i < symbolsToForce.length; i++) {
+				me.notifyGlobals(symbolsToForce[i], false);
+			}
+		}, 0);
 	};
 
 	function makeRandomName()
@@ -1078,9 +1087,9 @@
 
 	Symbol.prototype.fireJSObservers = function () {
 		for (var jsObserverName in this.jsObservers) {
-			//try {
+			try {
 				this.jsObservers[jsObserverName](this, this.cache.value);
-			/*} catch (error) {
+			} catch (error) {
 				this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
 				var debug;
 				if (this.context) {
@@ -1092,7 +1101,7 @@
 				if (debug) {
 					debugger;
 				}
-			}*/
+			}
 		}
 	}
 
@@ -1103,14 +1112,16 @@
 	 * @param {Object.<string,Symbol>} actions_to_fire set to accumulate all the actions that should be notified about this expiry
 	 */
 	Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to_fire) {
+		if (this.cache.up_to_date) {
+			for (var observer_name in this.observers) {
+				actions_to_fire[observer_name] = this.observers[observer_name];
+			}
+		}
+
 		if (this.definition) {
 			this.cache.up_to_date = false;
 			symbols_to_force[this.name] = insertionIndex.value;
 			insertionIndex.value++;
-		}
-
-		for (var observer_name in this.observers) {
-			actions_to_fire[observer_name] = this.observers[observer_name];
 		}
 
 		// recursively mark out of date and collect
@@ -1120,13 +1131,6 @@
 				subscriber.expire(symbols_to_force, insertionIndex, actions_to_fire);
 			}
 		}
-
-		var me = this;
-		setTimeout(function () {
-			if (me.context !== undefined) {
-				me.context.notifyGlobals(me, false);
-			}
-		}, 0);
 	};
 
 	Symbol.prototype.isDependentOn = function (name) {
@@ -1190,9 +1194,7 @@
 	Symbol.prototype.addSubscriber = function (name, symbol) {
 		this.garbage = false;
 		this.assertNotDependentOn(name);
-		//if (symbol.name != this.name) {
-			this.subscribers[name] = symbol;
-		//}
+		this.subscribers[name] = symbol;
 	};
 
 	/**

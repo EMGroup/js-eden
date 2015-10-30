@@ -8,7 +8,6 @@
 /**
  * JS-Eden Project Listing Plugin.
  * A plugin to display a list of models hosted online.
- * TODO Add a search box.
  * @class ProjectList Plugin
  */
 EdenUI.plugins.ProjectList = function(edenUI, success) {

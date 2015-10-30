@@ -26,3 +26,123 @@ div.canvas-dialog .ui-dialog-titlebar {
 	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
 	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
 }
+
+.canvashtml-canvas {
+	outline: none;
+}
+
+.canvashtml-content {
+	/* Should be synchronized with defaultFontSizePx in plugins/canvas-html5/canvas.js */
+	font-size: 13.3px;
+}
+
+.canvashtml-content {
+	/* Should be synchronized with defaultLineHeight in plugins/canvas-html5/canvas.js */
+	line-height: 1.75;
+}
+
+.canvashtml-content input {
+	margin: 0px;
+	padding: 0px;
+}
+
+.canvashtml-content input[type="range"]:disabled {
+	opacity: 0.45;
+}
+
+.canvashtml-content select {
+	margin: 0px;
+	padding: 0px;
+}
+
+.canvashtml-content textarea, .canvashtml-content input[type="text"] {
+	/* See Textbox.prototype.scale in plugins/textbox.js-e */
+	border: 1px inset #BBBBBB;
+	margin: 0px;
+	padding: 1px 2px;
+}
+
+.canvas-horizontal-radio-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+}
+
+.slider-horizontal, .slider-up, .slider-down {
+	position: absolute;
+}
+
+.slider-horizontal input[type="range"] {
+	position: absolute;
+	width: 100%;
+}
+
+.slider-horizontal .slider-label {
+	position: absolute;
+	top: 29px;
+	text-align: center;
+}
+
+.slider-horizontal .slider-major-tick-mark {
+	position: absolute;
+	top: 21px;
+	height: 6px;
+	border: 1px solid #CCCCCC
+}
+
+.slider-horizontal .slider-minor-tick-mark  {
+	position: absolute;
+	top: 21px;
+	height: 2px;
+	border: 1px solid #CCCCCC
+}
+
+.slider-up input[type="range"] {
+	position: absolute;
+	transform: rotate(-90deg);
+}
+
+.slider-up .slider-label {
+	position: absolute;
+	left: 18px;
+	line-height: 1;
+}
+
+.slider-up .slider-major-tick-mark {
+	position: absolute;
+	left: 0px;
+	width: 11px;
+	border: 1px solid #CCCCCC
+}
+
+.slider-up .slider-minor-tick-mark {
+	position: absolute;
+	left: 0px;
+	width: 7px;
+	border: 1px solid #CCCCCC
+}
+
+.slider-down input[type="range"] {
+	position: absolute;
+	transform: rotate(90deg);
+}
+
+.slider-down .slider-label {
+	position: absolute;
+	right: 18px;
+	line-height: 1;
+}
+
+.slider-down .slider-major-tick-mark {
+	position: absolute;
+	right: 0px;
+	width: 11px;
+	border: 1px solid #CCCCCC
+}
+
+.slider-down .slider-minor-tick-mark {
+	position: absolute;
+	right: 0px;
+	width: 7px;
+	border: 1px solid #CCCCCC
+}

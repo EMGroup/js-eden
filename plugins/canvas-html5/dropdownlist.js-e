@@ -64,7 +64,7 @@ DropDownList.prototype.draw = function(context) {
 		var valueSym = root.lookup(name + '_value');
 		var initialValue = valueSym.value();
 		if (initialValue === undefined) {
-			valueSym.assign(me.values[0], root.lookup("DropDownList"), true);
+			valueSym.assign(me.values[0], root.scope, root.lookup("DropDownList"), true);
 		} else {
 			dropDownList.value = initialValue;
 		}
@@ -73,18 +73,18 @@ DropDownList.prototype.draw = function(context) {
 		});
 
 		dropDownListJQ.change(function(event) {
-			valueSym.assign(event.target.value, Symbol.hciAgent, true);
+			valueSym.assign(event.target.value, root.scope, Symbol.hciAgent, true);
 		})
 		.on("mousedown", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseDownZone").assign(undefined, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseDownZone").assign(undefined, root.scope, Symbol.hciAgent, mouseFollow);
 		})
 		.on("mouseup", function () {
 			edenUI.plugins.Canvas2D.endClick();
 		})
 		.on("mouseenter", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseZone").assign(name, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
 		});
 
 		this.elements = [dropDownList];

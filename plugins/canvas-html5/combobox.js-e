@@ -85,7 +85,6 @@ Combobox.prototype.draw = function(context) {
 
 		var valueSym = root.lookup(name + '_value');
 		var initialValue = valueSym.value();
-
 		if (initialValue !== undefined) {
 			input.value = initialValue;
 		}

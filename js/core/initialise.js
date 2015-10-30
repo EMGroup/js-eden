@@ -14,13 +14,29 @@ var eden;
 function getParameterByName(name) {
 	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
 	var regexS = "[\\?&]"+name+"=([^&#]*)";
-	var regex = new RegExp( regexS );
-	var results = regex.exec( window.location.href );
-	if (results === null) {
+	var regex = new RegExp(regexS);
+	var url = window.location.href;
+	var result = regex.exec(url);
+	if (result === null) {
 		return "";
 	} else {
-		return decodeURIComponent(results[1].replace(/\+/g, " "));
+		return decodeURIComponent(result[1].replace(/\+/g, " "));
 	}
+}
+
+function getArrayParameterByName(name, isArray) {
+	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+	var regexS = "[\\?&]"+name+"=([^&#]*)";
+	var regex = new RegExp(regexS, "g");
+	var url = window.location.href;
+	var result = regex.exec(url);
+	var values = [];
+	while (result !== null) {
+		var value = decodeURIComponent(result[1].replace(/\+/g, " "));
+		values.push(value);
+		result = regex.exec(url);
+	}
+	return values;
 }
 
 function getStyleBySelector(selector) {
@@ -57,7 +73,6 @@ if (!("isInteger" in Number)) {
 	};
 }
 
-
 /* Allow touch events to act like mouse events */
 function touchHandler(event) {
     var touch = event.changedTouches[0];
@@ -78,6 +93,12 @@ function touchHandler(event) {
 	}
 }
 
+var confirmUnload = function (event) {
+	var prompt = "Leaving this page will discard the current script. Your work will not be saved.";
+	event.returnValue = prompt;
+	return prompt;
+};
+
 /**
  * Currently supported URL parameters (HTTP GET):
  * views: One of a several preset values.  Currently either "none" (no canvas, input window or project list created) or "default".
@@ -92,9 +113,9 @@ function initialiseJSEden(callback) {
 	eden = new Eden(root);
 	
 	var menuBar = getParameterByName("menus") != "false";
-	var plugins = getParameterByName("plugins");
+	var pluginsStr = getParameterByName("plugins");
 	var views = getParameterByName("views");
-	var include = getParameterByName("include");
+	var include = getArrayParameterByName("include");
 	var exec = getParameterByName("exec");
 	var lang = getParameterByName("lang");
 
@@ -102,28 +123,43 @@ function initialiseJSEden(callback) {
 		lang = "en";
 	}
 
-	if (plugins == "") {
-		//Default plug-ins
-		plugins = [
-			"Canvas2D",
-			"DependencyMap",
-			"HTMLContent",
-			"PluginManager",
-			"ProjectList",
-			"ScriptGenerator",
-			"ScriptInput",
-			"StateTimeLine",
-			"SymbolLookUpTable",
-			"SymbolViewer"
-		];
+	var plugins;
+
+	var defaultPlugins = [
+		"Canvas2D",
+		"DependencyMap",
+		"HTMLContent",
+		"PluginManager",
+		"ProjectList",
+		"ScriptGenerator",
+		"ScriptInput",
+		"StateTimeLine",
+		"SymbolLookUpTable",
+		"SymbolViewer"
+	];
+
+	if (pluginsStr == "") {
+		plugins = defaultPlugins;
 	} else {
-		plugins = plugins.split(",");
+		/* A leading + sign indicates to load the default plug-ins in addition to the ones listed in
+		 * the URL.  However, some web servers convert a + into a space, so check for that too!
+		 */
+		var includeDefaultPlugins = (pluginsStr[0] == " " || pluginsStr[0] == "+");
+		if (includeDefaultPlugins) {
+			pluginsStr = pluginsStr.slice(1);
+		}
+		plugins = pluginsStr.split(",");
+		if (includeDefaultPlugins) {
+			plugins = plugins.concat(defaultPlugins);
+		}
+
 		if (views == "" || views == "default") {
 			plugins.push("Canvas2D");
 			plugins.push("ProjectList");
 			plugins.push("ScriptInput");
 		}
 	}
+
 	if (menuBar) {
 		plugins.unshift("MenuBar");
 	}
@@ -153,13 +189,8 @@ function initialiseJSEden(callback) {
 			}
 		});
 		
-		window.onbeforeunload = function () {
-			var prompt = edenUI.getOptionValue('optConfirmUnload');
-			if (prompt != "false") {
-				return Language.ui.general.leaving;
-			} else {
-				return undefined;
-			}
+		if (edenUI.getOptionValue('optConfirmUnload') != "false") {
+			window.addEventListener("beforeunload", confirmUnload);
 		}
 
 		var loadLanguage = function(lang, callback) {
@@ -204,7 +235,7 @@ function initialiseJSEden(callback) {
 						rt.config = config;
 
 						eden.captureInitialState();
-						if (include) {
+						if (include.length > 0) {
 							eden.include(include, doneLoading);
 						} else {
 							doneLoading();
