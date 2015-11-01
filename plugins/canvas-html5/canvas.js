@@ -656,7 +656,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 			if (mouseInfo.buttonCount == 1) {
 				var mousePos = root.lookup('mousePosition').value();
-				root.lookup('mouseDownWindow').assign(canvasName, Symbol.hciAgent, followMouse);
+				root.lookup('mouseDownView').assign(canvasName, Symbol.hciAgent, followMouse);
 				root.lookup('mouseDown').assign(mousePos, Symbol.hciAgent, followMouse);
 				var hitZone = root.lookup("mouseZone").value();
 				root.lookup("mouseDownZone").assign(hitZone, Symbol.hciAgent, followMouse);
@@ -860,7 +860,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					}
 					if (prevButtons == "" && buttonsStr != "") {
 						root.lookup("mouseDown").assign(undefined, Symbol.hciAgent, followMouse);
-						root.lookup("mouseDownWindow").assign(undefined, Symbol.hciAgent, followMouse);
+						root.lookup("mouseDownView").assign(undefined, Symbol.hciAgent, followMouse);
 					}
 					root.endAutocalcOff();
 				}
@@ -890,7 +890,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			var mousePos;
 			mousePos = new Point(x, y);
 
-			root.lookup('mouseWindow').assign(canvasName, Symbol.hciAgent, followMouse);
+			root.lookup('mouseView').assign(canvasName, Symbol.hciAgent, followMouse);
 			mousePositionSym.assign(mousePos, Symbol.hciAgent, followMouse);
 
 			var pictureObs = pictureSelectSym.value();
@@ -1094,7 +1094,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					mousePressedSym.assign(false, Symbol.hciAgent, followMouse);
 				}
 				root.lookup('mouseUp').assign(undefined, Symbol.hciAgent, followMouse);
-				root.lookup('mouseWindow').assign(undefined, Symbol.hciAgent, followMouse);
+				root.lookup('mouseView').assign(undefined, Symbol.hciAgent, followMouse);
 				edenUI.plugins.Canvas2D.endClick();
 			}
 		}

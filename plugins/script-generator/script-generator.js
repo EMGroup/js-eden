@@ -134,8 +134,8 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 
 	var comments = {
 		header1: "## This is a JS-EDEN script automatically generated using the environment's script generator feature.",
-		header2: "## JS-EDEN is an open source empirical modelling environment based on research, principles and work",
-		header3: "## conducted at University of Warwick.",
+		header2: "## JS-EDEN is an open source environment for making construuals based on research, principles and",
+		header3: "## work conducted at University of Warwick.",
 		homePage: "## Web site: https://github.com/EMGroup/js-eden",
 		include: "## Include Files:",
 		autocalcOff: "## Turn off automatic calculation until the construal is fully loaded.",

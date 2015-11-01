@@ -138,7 +138,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 			 * the most recently defined symbols at the top (excluding the coordinates of GUI
 			 * window positions, etc. which should hopefully end up at the bottom of the table.
 			 */
-			if (/^((_view_.*)|mousePosition|mouseWindow)$/.test(row[1])) {
+			if (/^((_view_.*)|mousePosition|mouseView)$/.test(row[1])) {
 				tableBodyHTML = tableBodyHTML + rowHTML;
 			} else {
 				tableBodyHTML = rowHTML + tableBodyHTML;

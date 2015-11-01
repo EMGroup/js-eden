@@ -71,7 +71,7 @@
 	##Stop to complete an exercise 60 seconds into the video.
 	exercisePoints = [60];
 	exercisesCompleted = [false];
-	exerciseNumber is indexOf(int(vid_time), exercisePoints);
+	exerciseNumber is positionInList(int(vid_time), exercisePoints);
 	vid_controls is exerciseNumber == 0 || exercisesCompleted[exerciseNumber];
 	vid_paused is vid_controls == false;
 */

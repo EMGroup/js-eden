@@ -116,9 +116,9 @@ function initialiseJSEden() {
 		plugins = defaultPlugins;
 	} else {
 		/* A leading + sign indicates to load the default plug-ins in addition to the ones listed in
-		 * the URL.  However, some web servers convert a + into a space, so check for that too!
+		 * the URL.  However, plus signs and spaces are interchangeable in HTTP GET parameters!
 		 */
-		var includeDefaultPlugins = (pluginsStr[0] == " " || pluginsStr[0] == "+");
+		var includeDefaultPlugins = (pluginsStr[0] == " ");
 		if (includeDefaultPlugins) {
 			pluginsStr = pluginsStr.slice(1);
 		}
