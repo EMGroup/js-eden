@@ -4,6 +4,8 @@
 ##changes made to the environment subsequent to the SciFest 2015 event at Joensuu (21-27 April 2015)
 ##but before the next major JS-EDEN release.
 
+mouseWindow is mouseView;
+mouseDownWindow is mouseDownView;
 _view_list is _views_list;
 
 ##Form controls used to take a "name" parameter.
@@ -209,6 +211,8 @@ func translate {
 }
 
 ${{
+	Eden.systemObservableNames["mouseWindow"] = true;
+	Eden.systemObservableNames["mouseDownWindow"] = true;
 	Eden.systemObservableNames["_view_list"] = true;
 	Eden.systemFunctionNames["indexOf"] = true;
 	Eden.systemFunctionNames["indexOfRE"] = true;
