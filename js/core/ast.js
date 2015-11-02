@@ -1265,7 +1265,7 @@ EdenAST_If.prototype.generate = function(ctx) {
 	return res;
 }
 
-EdenAST_If.prototype.execute = function(root, ctx) {
+EdenAST_If.prototype.execute = function(root, ctx, base) {
 	var cond = "(function(context,scope) { return ";
 	cond += this.condition.generate(ctx, "scope");
 	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
@@ -1273,10 +1273,10 @@ EdenAST_If.prototype.execute = function(root, ctx) {
 	}
 	cond += ";})";
 	if (eval(cond)(root,root.scope)) {
-		this.statement.execute(root, ctx);
+		this.statement.execute(root, ctx, base);
 	} else {
 		if (this.elsestatement) {
-			return this.elsestatement.execute(root, ctx);
+			return this.elsestatement.execute(root, ctx, base);
 		}
 	}
 }

@@ -694,7 +694,7 @@ EdenAST.prototype.pSCOPE_P = function() {
 	var obs = this.data.value;
 	this.next();
 
-	if (this.token != "=") {
+	if (this.token != "is") {
 		var scope = new EdenAST_Scope();
 		scope.error(new EdenError(this, EDEN_ERROR_SCOPEEQUALS));
 		return scope;

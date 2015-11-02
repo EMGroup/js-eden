@@ -1,14 +1,14 @@
 ws_title is Title with
-	text = "Modelling Shapes",
-	subtitle = "Creating a Reusable Arrow",
-	logo = ws_icon;
+	text is "Modelling Shapes",
+	subtitle is "Creating a Reusable Arrow",
+	logo is ws_icon;
 
 ws_icon is Icon with
-	content = "&#xf060;",
-	colour = "white",
-	size = 150;
+	content is "&#xf060;",
+	colour is "white",
+	size is 150;
 
-ws_p1 is Paragraph with text = [
+ws_p1 is Paragraph with text is [
 "When making more complex models, you may wish to create",
 "reusable complex shapes.",
 "In this example we will go through the process of first",
@@ -20,96 +20,96 @@ ws_p1 is Paragraph with text = [
 ];
 
 ws_pic1 is Canvas with
-	name = "ArrowFinished",
-	width = 400,
-	height = 150,
-	source = "picture",
-	float = "right";
+	name is "ArrowFinished",
+	width is 400,
+	height is 150,
+	source is "picture",
+	float is "right";
 
 ws_h1 is Header with
-	text = "Basic Arrow Properties";
+	text is "Basic Arrow Properties";
 
 ws_script1 is Script with
-	name = "arrowbasicsscript",
-	static = false,
-	box = true,
-	power = true,
-	float = "left",
-	code = [
+	name is "arrowbasicsscript",
+	static is false,
+	box is true,
+	power is true,
+	float is "left",
+	code is [
 		&arrow_left,
 		&arrow_top,
 		&arrow_width,
 		&arrow_height,
 		&arrow_colour
 	],
-	lines = 5,
-	width = 400;
+	lines is 5,
+	width is 400;
 
-ws_p2 is Paragraph with text = [
+ws_p2 is Paragraph with text is [
 "The first step is to identify what the basic controllable properties of the arrow might be.",
 "An arrow needs a position on the screen, a size and a colour, so observables are created for these and given some sensible initial values."
 ];
 
-ws_p3 is Paragraph with text = [
+ws_p3 is Paragraph with text is [
 "Changing these basic values will change the black arrow in the picture above.",
 "Changing width and height will also affect the other arrows because they don't have a specific size of their own."
 ];
 
 ws_h2 is Header with
-	text = "The Initial Lines";
+	text is "The Initial Lines";
 
-ws_p4 is Paragraph with text = [
+ws_p4 is Paragraph with text is [
 "Our arrows will be made up of 3 lines: one main central line and 2 angled lines at one end.",
 "We begin by drawing the main central line (contained in a temporary box to show boundaries):"
 ];
 
 ws_script2 is Script with
-	name = "arrowmainlinescript",
-	static = false,
-	box = true,
-	power = true,
-	float = "left",
-	code = [
+	name is "arrowmainlinescript",
+	static is false,
+	box is true,
+	power is true,
+	float is "left",
+	code is [
 		&arrow_mainline,
 		&arrow_mid
 	],
-	lines = 5,
-	width = 400;
+	lines is 5,
+	width is 400;
 
 ws_pic2 is Canvas with
-	name = "ArrowMainLine",
-	width = 300,
-	height = 150,
-	source = "picture_1",
-	float = "left";
+	name is "ArrowMainLine",
+	width is 300,
+	height is 150,
+	source is "picture_1",
+	float is "left";
 
 boundRect is Rectangle(arrow_left, arrow_top + 40, arrow_width, arrow_height, @, "#ccc");
 
 picture_1 is [
 	boundRect,
-	arrow_mainline with (arrow_top = arrow_top + 40),
-	boundRect with (arrow_left = arrow_left + arrow_width + 20),
-	arrow_mainline with (arrow_top = arrow_top + 40, arrow_left = arrow_left + arrow_width + 20),
-	arrow_topline with (arrow_top = arrow_top + 40, arrow_left = arrow_left + arrow_width + 20)
+	arrow_mainline with (arrow_top is arrow_top + 40),
+	boundRect with (arrow_left is arrow_left + arrow_width + 20),
+	arrow_mainline with (arrow_top is arrow_top + 40, arrow_left is arrow_left + arrow_width + 20),
+	arrow_topline with (arrow_top is arrow_top + 40, arrow_left is arrow_left + arrow_width + 20)
 ];
 
 ws_script3 is Script with
-	name = "arrowanglelinescript",
-	static = false,
-	box = true,
-	power = true,
-	float = "left",
-	code = [
+	name is "arrowanglelinescript",
+	static is false,
+	box is true,
+	power is true,
+	float is "left",
+	code is [
 		&arrow_topline,
 		"",
 		&arrow_pointyness,
 		"",
 		&arrow_bottomline
 	],
-	lines = 12,
-	width = 500;
+	lines is 12,
+	width is 500;
 
-ws_p5 is Paragraph with text = [
+ws_p5 is Paragraph with text is [
 "And here are the definitions for the two angled lines.",
 "For the mainline we decided to centre it vertically.",
 "To do this, a new observable called 'arrow_mid' is created and given a formula to calculate the vertical mid point.",
@@ -117,79 +117,79 @@ ws_p5 is Paragraph with text = [
 "Similarly, for the angled lines, a new pointyness property is added because we decided it would be good to control this."
 ];
 
-ws_p6 is Paragraph with text = [
+ws_p6 is Paragraph with text is [
 "Generally it is better to put numbers like pointyness into new observables rather than put them directly into, for example, the already large definition of a line.",
 "It allows for greater flexibility and observability later.",
 "It would also be good practice if we put the formula for calculating the angled line coordinates into another observable, as we did with 'arrow_mid'.",
 "Maybe try making this change in the input box?"
 ];
 
-ws_h3 is Header with text = "Making Copies";
+ws_h3 is Header with text is "Making Copies";
 
-ws_p7 is Paragraph with text = [
+ws_p7 is Paragraph with text is [
 "An arrow is now a list of three lines and can be added to a picture:"
 ];
 
 ws_script4 is Script with
-	name = "arrowlistscript",
-	static = true,
-	box = true,
-	code = [
+	name is "arrowlistscript",
+	static is true,
+	box is true,
+	code is [
 		"arrow is [",
 		"    arrow_mainline,",
 		"    arrow_topline,",
 		"    arrow_bottomline];",
 		"picture is arrow;"
 	],
-	lines = 5;
+	lines is 5;
 
-ws_p8 is Paragraph with text = [
+ws_p8 is Paragraph with text is [
 "The position of the arrow can be changed by changing 'arrow_left', for example.",
 "To make another arrow, we would like to say something like: 'this is an arrow but with this different value for arrow_left'.",
 "This is exactly what is possible using the 'with' keyword:"
 ];
 
 ws_script5 is Script with
-	name = "arrowbasicwithscript",
-	static = false,
-	box = true,
-	power = true,
-	float = "left",
-	code = [
+	name is "arrowbasicwithscript",
+	static is false,
+	box is true,
+	power is true,
+	float is "left",
+	code is [
 		&myarrow,
 		"",
 		&picture_2
 	],
-	lines = 4,
-	width = 400;
+	lines is 4,
+	width is 400;
 
 ws_pic3 is Canvas with
-	name = "ArrowWith",
-	width = 300,
-	height = 150,
-	source = "picture_2",
-	float = "left";
+	name is "ArrowWith",
+	width is 300,
+	height is 150,
+	source is "picture_2",
+	float is "left";
 
 picture_2 is arrow // myarrow;
 
-ws_p9 is Paragraph with text = [
+ws_p9 is Paragraph with text is [
 "Any number of arrows can be created in this way, and any of the observables that arrow depends upon can be substituted with different values.",
 "The result can be the picture shown at the top of this page.",
 "If you need to substitute multiple observables at the same time then separate each with a comma. For example:"
 ];
 
 ws_script6 is Script with
-	name = "arrowmultiwithscript",
-	static = true,
-	box = true,
-	code = [
+	name is "arrowmultiwithscript",
+	static is true,
+	box is true,
+	code is [
 		"myarrow2 is arrow with",
-		"    arrow_left = 100,",
-		"    arrow_pointyness = 0.5;"
+		"    arrow_left is 100,",
+		"    arrow_pointyness is 0.5;"
 	],
-	lines = 4;
+	lines is 4;
 
-ws_h4 is Header with text = "Constructor Pattern [Advanced]";
+ws_h4 is Header with text is "Constructor Pattern [Advanced]";
 
 arrow_left = 10;
 arrow_mid is arrow_top + (arrow_height / 2);
@@ -223,32 +223,32 @@ arrow is [
 	arrow_bottomline];
 
 myarrow is arrow with
-	arrow_left = 100;
+	arrow_left is 100;
 
 Arrow is arrow with
-	arrow_left = x if x else 10,
-	arrow_top = y if y else 10,
-	arrow_height = height if height else arrow_height,
-	arrow_width = width if width else arrow_width,
-	arrow_colour = colour if colour else "black",
-	arrow_pointyness = pointyness if pointyness else arrow_pointyness;
+	arrow_left is x if x else 10,
+	arrow_top is y if y else 10,
+	arrow_height is height if height else arrow_height,
+	arrow_width is width if width else arrow_width,
+	arrow_colour is colour if colour else "black",
+	arrow_pointyness is pointyness if pointyness else arrow_pointyness;
 
 arrow1 is Arrow with
-	x = 200, y = 90, colour="purple";
+	x is 200, y is 90, colour is "purple";
 
 arrow2 is Arrow with
-	x = 100, y = 70, colour="red";
+	x is 100, y is 70, colour is "red";
 
 arrow3 is Arrow with
-	x = 123, y = 26, colour="green";
+	x is 123, y is 26, colour is "green";
 
 picture is arrow // arrow1 // arrow2 // arrow3;
 
 ws_contents is [ws_pic1, ws_p1, ws_h1, ws_script1, ws_p2, ws_p3, ws_h2, ws_p4, ws_script2, ws_pic2, Break, ws_script3, ws_p5, ws_p6, ws_h3, ws_p7, ws_script4,
 					ws_p8, ws_script5, ws_pic3, Break, ws_p9, ws_script6, ws_h4];
 ws_page is Page with
-	content = ws_contents,
-	title = ws_title;
+	content is ws_contents,
+	title is ws_title;
 
 page is ws_page;
 

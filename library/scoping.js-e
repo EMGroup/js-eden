@@ -6,8 +6,8 @@ cause is ${{ scope.cause }}$;
 ##_override_item is value if i == index else list[i];
 ##override is _override_item with i = 1 .. list#;
 
-_sum is (list[i] + _sum with (i = i + 1)) if i <= list# else 0;
-sum is _sum with i = 1;
+_sum is (list[i] + _sum with (i is i + 1)) if i <= list# else 0;
+sum is _sum with i is 1;
 
 round is ${{ Math.round(context.lookup("number").value(scope)) }}$;
 
@@ -15,42 +15,42 @@ null is true;
 
 ##prototype_Colour is ["colour",r,g,b,a];
 Colour is null with
-	r = r if r else 0,
-	g = g if g else 0,
-	b = b if b else 0,
-	a = a if a else 1.0;
+	r is r if r else 0,
+	g is g if g else 0,
+	b is b if b else 0,
+	a is a if a else 1.0;
 
-black is Colour with r=0,g=0,b=0;
-white is Colour with r=255,g=255,b=255;
+black is Colour with r is 0,g is 0,b is 0;
+white is Colour with r is 255,g is 255,b is 255;
 
 ##prototype_Point is [x,y];
 point is null with
-	x = x if x != @ else 0,
-	y = y if y != @ else 0;
+	x is x if x != @ else 0,
+	y is y if y != @ else 0;
 
 ##prototype_Line is ["line", start,end,colour,width];
 line is null with
-	start = start if start else point,
-	end = end if end else point,
-	color = colour if colour else black;
+	start is start if start else point,
+	end is end if end else point,
+	color is colour if colour else black;
 
 __translate is point with
-	x = p.x+tx,
-	y = p.y+ty;
+	x is p.x+tx,
+	y is p.y+ty;
 translate is __translate with
-	tx = tx if tx else 0,
-	ty = ty if ty else 0;
+	tx is tx if tx else 0,
+	ty is ty if ty else 0;
 
 ##__rotate is [((p[1]-o[1])*cos(theta)-(p[2]-o[2])*sin(theta))+o[1], ((p[1]-o[1])*sin(theta)-(p[2]-o[2])*cos(theta))+o[2]];
 __rotate is point with
-	x = ((p.x-o.x)*cos(theta) - (p.y-o.y)*sin(theta)) + o.x,
-	y = ((p.x-o.x)*sin(theta) - (p.y-o.y)*cos(theta)) + o.y;
-rotate is __rotate with p = p if p != @ else point, o = o if o != @ else point;
+	x is ((p.x-o.x)*cos(theta) - (p.y-o.y)*sin(theta)) + o.x,
+	y is ((p.x-o.x)*sin(theta) - (p.y-o.y)*cos(theta)) + o.y;
+rotate is __rotate with p is p if p != @ else point, o is o if o != @ else point;
 
 __scale is [p[1]*scalex,p[2]*scaley];
 scale is __scale with
-	scalex = scalex if scalex else 0,
-	scaley = scaley if scaley else 0;
+	scalex is scalex if scalex else 0,
+	scaley is scaley if scaley else 0;
 
 ## View Scopes
 
