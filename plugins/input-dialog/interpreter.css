@@ -290,7 +290,7 @@ textarea.hidden-textarea {
 	overflow: auto;
 	font: 14px/20px Roboto Mono,monospace;
 	left: 5px;
-	right: 5px;
+	width: 1000%;
 	height: 50px;
 }
 
@@ -339,6 +339,15 @@ div.input-dialog {
 
 div.input-dialog .ui-dialog-content {
 	overflow: visible;
+}
+
+div.inputhider {
+	overflow: hidden;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
 }
 
 div.input-dialog .ui-dialog-titlebar {
