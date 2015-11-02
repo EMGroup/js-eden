@@ -514,17 +514,17 @@ test("delete", function () {
 edenModule("Scoping");
 
 test("Scope override of single observable", function () {
-	eden.execute2("x is a * a; y is x with a = 5;");
+	eden.execute2("x is a * a; y is x with a is 5;");
 	equal(root.lookup('y').value(), 25);
 });
 
 test("Scope override of multiple observables", function () {
-	eden.execute2("x is a * b; y is x with a = 5, b = 6;");
+	eden.execute2("x is a * b; y is x with a is 5, b is 6;");
 	equal(root.lookup('y').value(), 30);
 });
 
 test("Range scope", function () {
-	eden.execute2("x is a; y is x with a = 1..5;");
+	eden.execute2("x is a; y is x with a is 1..5;");
 	deepEqual(root.lookup('y').value(), [1,2,3,4,5]);
 });
 

@@ -201,7 +201,7 @@ Language.errors = [
 	"Expected an observable name for a scope override"
 ],
 /* EDEN_ERROR_SCOPEEQUALS */ [
-	"Missing an '=' in giving a scope override"
+	"Missing an 'is' in giving a scope override"
 ],
 /* EDEN_ERROR_SCOPECLOSE */ [
 	"Missing a closing '}' after scope"
