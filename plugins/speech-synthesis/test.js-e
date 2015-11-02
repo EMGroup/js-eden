@@ -6,14 +6,14 @@ testAssertion is `test // "Check"`;
 assertionOkay is definitionRHS(test // "Check") == "@"? true : testAssertion;
 
 testNames is findTestNames(tests);
-testName_value is testNames[1];
-test is tests[indexOf(testName_value, testNames)];
+testSelection_value is testNames[1];
+test is tests[positionInList(testSelection_value, testNames)];
 logText = "";
 
-testSelection is Combobox("testName", testNames, 10, 10);
+testSelection is DropDownList(testNames, testNames, 10, 10);
 buttonsLeft = 260;
 execButton is Button("exec", "Execute", buttonsLeft, 10);
-nextButton is Button("next", "Next", execButton.x + 65, 10, indexOf(testName_value, testNames) != testNames#);
+nextButton is Button("next", "Next", execButton.x + 65, 10, positionInList(testSelection_value, testNames) != testNames#);
 statusText is assertionOkay? "Automated validation checks passed." : "Fail: An unexpected state has occurred.";
 status is Text(statusText, 10, 40, @, assertionOkay? "#008000" : "red");
 logDisplay is Div(logText, 10, 65);
@@ -22,12 +22,12 @@ info is Div(testDescription, 10,  65 + logDisplayHeight);
 complete = false;
 picture is [testSelection, execButton, nextButton, logDisplay, info] // (complete? [status] : []);
 
-proc hideStatus : testName_value {
+proc hideStatus : testSelection_value {
 	complete = false;
 }
 
-proc runTest : exec_clicked {
-	if (exec_clicked) {
+proc runTest : execButton_clicked {
+	if (execButton_clicked) {
 		complete = false;
 		logText = "";
 		
@@ -73,11 +73,11 @@ proc cleanup : complete {
 	}
 }
 
-proc nextTest : next_clicked {
+proc nextTest : nextButton_clicked {
 	auto index;
-	if (next_clicked) {
-		index = indexOf(testName_value, testNames) + 1;
-		testName_value = testNames[index];
+	if (nextButton_clicked) {
+		index = positionInList(testSelection_value, testNames) + 1;
+		testSelection_value = testNames[index];
 	}
 }
 
