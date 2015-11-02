@@ -55,5 +55,8 @@ Break is prototype_Break;
 ## Initial Default Page
 
 defaultpage is Page with title=Title, content=[Header,Paragraph];
-page is defaultpage;
+
+if (page == @) {
+	page is defaultpage;
+}
 
