@@ -76,21 +76,27 @@ func Text {
 		var x = arguments[1];
 		var y = arguments[2];
 		var size, fillcolour, outlinecolour, options;
+
+		var argType = typeof(arguments[3]);
+		var sizePresent = argType == "number" ||
+			(argType == "string" && /^\d*(\.\d+)?[a-zA-Z%]+$/.test(arguments[3]));
+
 		var numArgs = arguments.length;
-		var argType = typeof(arguments[numArgs - 1]);
-		if (argType == "string" && (numArgs == 6 || arguments[numArgs - 1].indexOf(" ") !== -1)) {
-			options = arguments[numArgs - 1];
+		var lastArg = arguments[numArgs - 1];
+		argType = typeof(lastArg);
+		if (argType == "string" && !sizePresent && (numArgs == 6 || lastArg.indexOf(" ") !== -1)) {
+			options = lastArg;
 			if (numArgs > 4) {
 				fillcolour = arguments[3];
 				if (numArgs > 5) {
 					outlinecolour = arguments[4];
 				}
 			}
-		} else if (argType == "object" && !(arguments[numArgs - 1] instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
-			options = arguments[numArgs - 1];
+		} else if (argType == "object" && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+			options = lastArg;
 			if (numArgs > 4) {
 				var argsProcessed;
-				if (typeof(arguments[3]) != "string" || /^\d*(\.\d+)?[a-zA-Z%]+$/.test(arguments[3])) {
+				if (sizePresent || arguments[3] === undefined) {
 					size = arguments[3];
 					argsProcessed = 4;
 				} else {
@@ -108,7 +114,7 @@ func Text {
 			size = arguments[3];
 			fillcolour = arguments[4];
 			outlinecolour = arguments[5];
-			options = arguments[6];
+			options = arguments[6]; //Deliberately left in, even though size parameter will currently be ignored if this is specified.
 		}
 
 		if (size === undefined) {
