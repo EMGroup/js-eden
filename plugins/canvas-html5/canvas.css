@@ -5,9 +5,6 @@
 .canvashtml-content {
 	/* Should be synchronized with defaultFontSizePx in plugins/canvas-html5/canvas.js */
 	font-size: 13.3px;
-}
-
-.canvashtml-content {
 	/* Should be synchronized with defaultLineHeight in plugins/canvas-html5/canvas.js */
 	line-height: 1.75;
 }

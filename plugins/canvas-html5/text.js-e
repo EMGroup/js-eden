@@ -4,16 +4,13 @@
 ## See LICENSE.txt
 
 ${{
-Text = function(text, x, y, size, sizeUnits, fillcolour, outlinecolour, options) {
+Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 	this.text = text;
 	this.x = x;
 	this.y = y;
-	this.size = size;
-	this.sizeUnits = sizeUnits;
 	this.fillcolour = fillcolour;
 	this.outlinecolour = outlinecolour;
 
-	//See also (below): this.css, this.font, this.optionString
 	var css;
 
 	if (options instanceof Object) {
@@ -33,10 +30,11 @@ Text = function(text, x, y, size, sizeUnits, fillcolour, outlinecolour, options)
 		if (options.bold) {
 			css = css + "bold ";
 		}
+		css = css + size + " ";
 		if (options.fontFace === undefined) {
-			this.font = "sans-serif";
+			css = css + "sans-serif";
 		} else {
-			this.font = options.fontFace;
+			css = css + options.fontFace + " sans-serif";
 		}
 
 	} else if (typeof(options) == "string") {
@@ -56,10 +54,8 @@ Text = function(text, x, y, size, sizeUnits, fillcolour, outlinecolour, options)
 			options = options.replace(halignRE, "");
 		}
 		css = options + " sans-serif";
-		this.sizeUnits = undefined;
 	} else {
-		css = "";
-		this.font = "sans-serif";
+		css = size + " sans-serif";
 		this.drawingOptions = {valign: "top"};
 	}
 	if (this.drawingOptions.align == "centre") {
@@ -79,25 +75,32 @@ func Text {
 		var text = arguments[0];
 		var x = arguments[1];
 		var y = arguments[2];
-		var size, sizeUnits, fillcolour, outlinecolour, options;
+		var size, fillcolour, outlinecolour, options;
 		var numArgs = arguments.length;
 		var argType = typeof(arguments[numArgs - 1]);
-		if (argType == "string" && arguments[numArgs - 1].indexOf(" ") !== -1) {
+		if (argType == "string" && (numArgs == 6 || arguments[numArgs - 1].indexOf(" ") !== -1)) {
 			options = arguments[numArgs - 1];
-			if (numArgs >= 5) {
+			if (numArgs > 4) {
 				fillcolour = arguments[3];
-				if (numArgs >= 6) {
-					outlinecolour = arguments[5];
+				if (numArgs > 5) {
+					outlinecolour = arguments[4];
 				}
 			}
 		} else if (argType == "object" && !(arguments[numArgs - 1] instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
 			options = arguments[numArgs - 1];
-			if (numArgs >= 5) {
-				size = arguments[3];
-				if (numArgs >= 6) {
-					fillcolour = arguments[4];
-					if (numArgs >= 7) {
-						outlinecolour = arguments[5];
+			if (numArgs > 4) {
+				var argsProcessed;
+				if (typeof(arguments[3]) != "string" || /^\d*(\.\d+)?[a-zA-Z%]+$/.test(arguments[3])) {
+					size = arguments[3];
+					argsProcessed = 4;
+				} else {
+					argsProcessed = 3;
+				}
+				if (numArgs > argsProcessed + 1) {
+					fillcolour = arguments[argsProcessed];
+					argsProcessed++;
+					if (numArgs > argsProcessed + 1) {
+						outlinecolour = arguments[argsProcessed];
 					}
 				}
 			}
@@ -109,19 +112,14 @@ func Text {
 		}
 
 		if (size === undefined) {
-			size = 13.3;
-			sizeUnits = "px";
+			size = "1em";
 		} else if (typeof(size) == "number") {
-			sizeUnits = "px";
-		} else {
-			var match = /^(\d*(\.\d*)?)([a-z%]*)$/.exec(size);
-			size = parseFloat(match[1]);
-			sizeUnits = match[3];
+			size = size + "px";
 		}
 		if (outlinecolour === undefined && fillcolour === undefined) {
 			fillcolour = "black";
 		}
-		return new Text(text, x, y, size, sizeUnits, fillcolour, outlinecolour, options);
+		return new Text(text, x, y, size, fillcolour, outlinecolour, options);
 	}}$;
 }
 
@@ -129,23 +127,23 @@ ${{
 
 Text.prototype.draw = function (context, scale) {
 
-	if (this.sizeUnits === undefined) {
-		context.font = this.css;
-	} else {
-		context.font = this.css + (this.size / scale) + this.sizeUnits + " " + this.font;
-	}
+	var inverseScale = 1 / scale;
+	context.scale(inverseScale, inverseScale);
+	context.font = this.css;
 	context.textBaseline = this.drawingOptions.valign;
 	if ("align" in this.drawingOptions) {
 		context.textAlign = this.drawingOptions.align;
 	}
-	var x = this.x + context.lineWidth / 2 + 1 / scale;
-	var y = this.y + 1 / scale;
+	var lineWidth = context.lineWidth;
+	var x = (this.x + lineWidth / 2) * scale + 1;
+	var y = this.y * scale + 1;
 
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
 		context.fillText(this.text, x, y);
 	}
 	if (this.outlinecolour !== undefined) {
+		context.lineWidth = lineWidth * scale;
 		context.strokeStyle = this.outlinecolour;
 		context.strokeText(this.text, x, y);	
 	}
@@ -157,17 +155,11 @@ Text.prototype.isHit = function (context, scale, px, py) {
 	var width, height;
 	
 	if (this.width === undefined) {
-		var fontCSS;
-		if (this.sizeUnits === undefined) {
-			fontCSS = this.css;
-		} else {
-			fontCSS = this.css + this.size + this.sizeUnits + " " + this.font;
-		}
 		var div = document.createElement("div");
 		div.innerHTML = this.text;
 		div.style.position = 'absolute';
 		div.style.top  = '-9999px';
-		div.style.font = fontCSS;
+		div.style.font = this.css;
 		document.body.appendChild(div);
 		this.width = div.offsetWidth;
 		this.height = div.offsetHeight;
@@ -188,7 +180,7 @@ Text.prototype.toString = function() {
 		s = s + Eden.edenCodeForValues(this.fillcolour, this.outlinecolour) + ", " +
 			"\"" + this.optionString + "\")";
 	} else {
-		s = s + '"' + this.size + this.sizeUnits + '", ' +
+		s = s + '"' + this.size + '", ' +
 			Eden.edenCodeForValues(this.fillcolour, this.outlinecolour, this.drawingOptions) + ")";
 	}
 	return s;
@@ -199,40 +191,37 @@ Text.prototype.getEdenCode = Text.prototype.toString;
 Text.parseArgs = function () {
 	var text = arguments[0];
 
-	var size, sizeUnits, options, optionsObj, scale;
-	if (typeof(arguments[1]) == "object") {
-		options = arguments[1];
+	var size, options, optionsObj, scale;
+	var argsProcessed = 1;
+	var arg = arguments[1];
+	var argType = typeof(arg);
+
+	if (arg === undefined || argType == "number" || (argType == "string" && /^\d*(\.\d+)?[a-zA-Z%]+$/.test(arg))) {
+		size = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);
+	}
+	if (argType === undefined || argType == "object" || argType == "string") {
+		options = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+	}
+	scale = arg;
+
+	if (typeof(options) == "string") {
+		if (size !== undefined) {
+			eden.error(new Error("textWidth/textHeight: The size argument cannot be specified when the options parameter is given as a string.  The font size should be included in the options string.  See https://drafts.csswg.org/css2/fonts.html#font-shorthand"), "error");
+			return undefined;
+		}
 	} else {
-		var size = arguments[1];
-		if (typeof(arguments[2]) == "number") {
-			scale = arguments[2];
-		} else {
-			options = arguments[2];
-			scale = arguments[3];
-			if (size !== undefined && typeof(options) == "string") {
-				eden.error(new Error("textWidth/textHeight: The size argument must be @ when the options parameter is given as a string.  The font size should be included in the options string.  See https://drafts.csswg.org/css2/fonts.html#font-shorthand"), "error");
-				return undefined;
-			}
+		if (size === undefined) {
+			size = "1em";
+		} else if (typeof(size) == "number") {
+			size = size + "px";
 		}
 	}
 
-	if (size === undefined) {
-		size = 13.3;
-		sizeUnits = "px";
-	} else if (typeof(size) == "number") {
-		sizeUnits = "px";
-	} else if (scale !== undefined) {
-		var match = /^(\d*(\.\d*)?)([a-z%]*)$/.exec(size);
-		if (match === null) {
-			eden.error(new Error("textWidth/textHeight: Giving the options parameter as a string is not supported when the scale parameter is used."), "error");
-			return undefined;
-		} else {
-			size = parseFloat(match[1]) / scale;
-			sizeUnits = match[3];
-		}
-	} else {
-		sizeUnits = "";
-	}
 	if (scale === undefined) {
 		scale = 1;
 	}
@@ -251,18 +240,18 @@ Text.parseArgs = function () {
 		if (options.bold) {
 			css = css + "bold ";
 		}
-		css = css + size + sizeUnits + " ";
+		css = css + size + " ";
 		if (options.fontFace === undefined) {
 			css = css + "sans-serif";
 		} else {
-			css = css + options.fontFace;
+			css = css + options.fontFace + " sans-serif";
 		}
 	} else if (typeof(options) == "string") {
 		options = options.replace(/\b(top|hanging|middle|baseline|alphabetic|ideographic|bottom|left|right|center|centre|start|end)\b\s*/g, "");
 		css = options + " sans-serif";
 		optionsObj = {};
 	} else {
-		css = size + sizeUnits + " sans-serif";
+		css = size + " sans-serif";
 		optionsObj = {};
 	}
 	return [css, optionsObj, scale];
@@ -284,7 +273,10 @@ func textWidth {
 			canvas =  canvases[canvasName];
 			break;
 		}
-		
+		if (canvas === undefined) {
+			return undefined;
+		}
+
 		var context = canvas.getContext("2d");
 		context.save();
 		edenUI.plugins.Canvas2D.configureContextDefaults(context, 1);
@@ -292,7 +284,7 @@ func textWidth {
 		context.font = css;
 		context.textBaseline = "top";
 		var metrics = context.measureText(text);
-		var width = metrics.width + context.lineWidth + 2 / scale;
+		var width = Math.ceil(metrics.width + context.lineWidth) / scale;
 		context.restore();
 		return width;
 	}}$;
@@ -313,12 +305,33 @@ func textHeight {
 
 		var div = document.createElement("div");
 		div.innerHTML = text;
-		div.style.position = 'absolute';
-		div.style.top  = '-9999px';
-		div.style.font = fontCSS;
-		document.body.appendChild(div);
-		var height = div.offsetHeight;
-		document.body.removeChild(div);
-		return height + lineWidth / 2 + 2 / scale;
+		var style = div.style;
+		style.position = 'absolute';
+		style.top  = '-9999px';
+		style.borderWidth = "0pt";
+		style.padding = "0pt";
+		style.whiteSpace = "nowrap";
+		style.font = fontCSS;
+
+		//Find an existing canvas (any one).
+		var canvas, parent;
+		for (var canvasName in canvases) {
+			canvas =  canvases[canvasName];
+			break;
+		}
+		if (canvas) {
+			parent = canvas.parentNode;
+		}
+		if (!parent) {
+			parent = document.body;
+		}
+
+		parent.appendChild(div);
+		var height = div.scrollHeight;
+		parent.removeChild(div);
+		/* N.B. even when the vertical alignment is "top" Chrome still leaves a small top margin
+		 * where as Firefox doesn't.
+		 */
+		return (height + lineWidth / 2) / scale;
 	}}$;
 }
