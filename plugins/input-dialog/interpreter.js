@@ -219,6 +219,21 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 		/**
+		 * If the input window is a dialog then set its title.
+		 */
+		function setTitle(title) {
+			var p = $dialogContents.get(0).parentNode;
+			if (p) {
+				p = p.parentNode;
+				if (p) {
+					$(p).find(".ui-dialog-title").html(title);
+				}
+			}
+		}
+
+
+
+		/**
 		 * Generate the script text from a list. The list can contain strings
 		 * for each line, or a symbol reference to get the current definition.
 		 * Used on load and when _script changes.
@@ -627,6 +642,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 */
 		function highlightContent(ast, lineno, position) {
 			highlighter.highlight(ast, lineno, position);
+
+			// If the first line is a comment, set the title to that
+			if (lineno == -1 || lineno == 1) {
+				if (ast.stream.code.charAt(0) == "#") {
+					//console.log("SET TITLE: " + ast.stream.code.split("\n")[0].substr(2));
+					setTitle(ast.stream.code.split("\n")[0].substr(2));
+				}
+			}
 
 			// Post process lines, adding links and warnings
 			for (var i=0; i<ast.lines.length; i++) {
