@@ -107,6 +107,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		edenUI.setOptionValue('history', JSON.stringify(this.history.slice(-50)));
 	}
 
+	this.updateHistory = function(text) {
+		if (text == "") return;
+		this.history[this.index] = text;
+		edenUI.setOptionValue('history', JSON.stringify(this.history.slice(-50)));
+	}
+
 	this.getHistory = function(index) {
 		if (me.history.length == 0) {
 			return "";
@@ -1139,7 +1145,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				agent[obs_prev] = true;
 				agent[obs_prev] = false;
 			} else {
-				if (inputchanged && intextarea.value != "") me.addHistory(intextarea.value);
+				if (inputchanged && intextarea.value != "") me.updateHistory(intextarea.value);
 				powerOff();
 				intextarea.value = edenUI.plugins.ScriptInput.previousHistory();
 				updateEntireHighlight();
@@ -1158,7 +1164,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				agent[obs_next] = true;
 				agent[obs_next] = false;
 			} else {
-				if (inputchanged && intextarea.value != "") me.addHistory(intextarea.value);
+				if (inputchanged && intextarea.value != "") me.updateHistory(intextarea.value);
 				powerOff();
 				intextarea.value = edenUI.plugins.ScriptInput.nextHistory();
 				updateEntireHighlight();
