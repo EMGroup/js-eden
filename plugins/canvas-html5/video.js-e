@@ -207,7 +207,7 @@ ${{
 				var controls = controlsSym.value();
 				if (controls === undefined) {
 					if (controlsSym.eden_definition === undefined || controlsSym.definition === undefined) {
-						controlsSym.assign(true, this);
+						controlsSym.assign(true, agent);
 					} else {
 						videoElement.controls = true;
 					}
