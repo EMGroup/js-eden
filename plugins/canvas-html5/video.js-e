@@ -19,6 +19,9 @@
 ##vid_size
 ##	A Point object representing the width and height of the video as it is displayed on the canvas.
 ##
+##vid_scale
+##	A number representing the canvas scale factor used to express vid_size.
+##
 ##vid_controls
 ##	Whether or not the built-in playback controls are available to the user or not.
 ##
@@ -224,6 +227,7 @@ ${{
 
 			videoElement.style.position = "absolute";
 			this.cachedOrigin = new Point(0, 0);
+			this.cachedScaleFactor = 1;
 			var positionSym = root.lookup(name + "_position");
 			var position = positionSym.value();
 			if (position === undefined) {
@@ -237,28 +241,44 @@ ${{
 
 	//Size and preloading
 
-			var sizeSym = root.lookup(name + "_size");
-			var size = sizeSym.value();
-			var doInitialResize;
 			var preloadWhat;
 			if (this.preload) {
 				preloadWhat = "auto";
 			} else {
 				preloadWhat = "none";
 			}
-			if (!(size instanceof Point) && !this.preload) {
-				preloadWhat = "metadata";
+
+			if (this.type == "Video") {
+
+				this.cachedZoom = 1;
+				var sizeSym = root.lookup(name + "_size");
+				var scaleSym = root.lookup(name + "_scale");
+				var size = sizeSym.value();
+				if (!(size instanceof Point) && !this.preload) {
+					preloadWhat = "metadata";
+				}
+				sizeSym.addJSObserver("resize", function (symbol, size) {
+					var scale = scaleSym.value();
+					if (scale !== undefined) {
+						me.doScaling(size, scale);
+					}
+				});
+				scaleSym.addJSObserver("resize", function (symbol, scale) {
+					if (scale !== undefined) {
+						me.doScaling(sizeSym.value(), scale);
+					}
+				});
+				videoElement.addEventListener("loadedmetadata", function (event) {
+					if (sizeSym.value() === undefined) {
+						root.beginAutocalcOff();
+						scaleSym.assign(1, agent);
+						sizeSym.assign(new Point(videoElement.videoWidth, videoElement.videoHeight), agent);
+						root.endAutocalcOff();
+					}
+				});
+
 			}
 			videoElement.preload = preloadWhat;
-			sizeSym.addJSObserver("resize", function (symbol, size) {
-				me.doScaling(size);
-			});
-			videoElement.addEventListener("loadedmetadata", function (event) {
-				var sizeSym = root.lookup(name + "_size");
-				if (sizeSym.value() === undefined) {
-					sizeSym.assign(new Point(videoElement.videoWidth, videoElement.videoHeight), agent);
-				}
-			});
 
 
 	//Paused or playing
@@ -420,18 +440,32 @@ ${{
 	}
 
 	AudioVisual.prototype.scale = function (scale, zoom , origin) {
-		this.cachedScaleFactor = zoom;
+		this.cachedScaleFactor = scale;
 		this.cachedOrigin = origin;
-		var position = root.lookup(this.name + "_position").value();
+
+		var name = this.name;
+		var position = root.lookup(name + "_position").value();
 		this.doTranslation(position);
-		var size = root.lookup(this.name + "_size").value();
-		this.doScaling(size);
+
+		if (this.type == "Video") {
+			this.cachedZoom = zoom;
+			var scaleSym = root.lookup(name + "_scale");
+			var videoScale = scaleSym.value();
+
+			if (videoScale === undefined) {
+				videoScale = scale / zoom;
+				scaleSym.assign(videoScale, root.lookup(this.type));
+			} else {
+				var size = root.lookup(name + "_size").value();
+				this.doScaling(size, videoScale);
+			}
+		}
 	}
 
-	AudioVisual.prototype.doScaling = function (size) {
+	AudioVisual.prototype.doScaling = function (size, scale) {
 		if (size instanceof Point) {
 			var element = this.elements[0];
-			var scaleFactor = this.cachedScaleFactor;
+			var scaleFactor = this.cachedZoom * scale;
 			element.width = size.x * scaleFactor;
 			element.height = size.y * scaleFactor;
 		}
