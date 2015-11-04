@@ -491,12 +491,16 @@
 						this.outelement.childNodes[i].className = "eden-line eden-executedline";
 					} else if (ast.lines[i].executed == 2) {
 						this.outelement.childNodes[i].className = "eden-line eden-guardedline";
+					} else if (ast.lines[i].errors.length > 0) {
+						this.outelement.childNodes[i].className += " eden-errorblock";
 					}
 				} else if (ast.lines[i] === undefined && i > 0 && ast.lines[i-1] && ast.lines[i-1].parent) {
 					if (ast.lines[i-1].executed == 1) {
 						this.outelement.childNodes[i].className = "eden-line eden-executedline";
 					} else if (ast.lines[i-1].executed == 2) {
 						this.outelement.childNodes[i].className = "eden-line eden-guardedline";
+					} else if (ast.lines[i-1].errors.length > 0) {
+						this.outelement.childNodes[i].className += " eden-errorblock";
 					}
 				}
 			}

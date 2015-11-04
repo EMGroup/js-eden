@@ -667,6 +667,22 @@ div.eden-guardedline:before {
 	border-right: 2px solid #ffee00;
 }
 
+div.eden-errorblock:before {
+	position: absolute;
+	content: " ";
+	font-family: "FontAwesome";
+	/*background-image: url('../../images/exclamation.png');
+	background-repeat: no-repeat;
+	background-position: center;*/
+	left: -22px;
+	padding-left: 4px;
+	color: red;
+	/*background-color: #f2c2c2;*/
+	width: 16px;
+	height: 20px;
+	border-right: 2px solid #ff0000;
+}
+
 div.eden-errorline {
 	/*position: relative;*/
 	/*display: inline-block;*/
