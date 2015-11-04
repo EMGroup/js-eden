@@ -646,7 +646,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			// If the first line is a comment, set the title to that
 			if (lineno == -1 || lineno == 1) {
 				if (ast.stream.code.charAt(0) == "#") {
-					//console.log("SET TITLE: " + ast.stream.code.split("\n")[0].substr(2));
 					setTitle(ast.stream.code.split("\n")[0].substr(2));
 				}
 			}

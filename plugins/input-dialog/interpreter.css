@@ -286,11 +286,11 @@ div.control-bar {
 textarea.hidden-textarea {
 	position: absolute;
 	white-space: pre;
-	/*word-wrap: normal;*/
+	/*word-wrap: nowrap;*/
 	overflow: auto;
 	font: 14px/20px Roboto Mono,monospace;
 	left: 5px;
-	width: 1000%;
+	width: 80%;
 	height: 50px;
 }
 
