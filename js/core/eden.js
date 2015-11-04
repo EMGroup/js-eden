@@ -123,6 +123,10 @@ function concatAndResolveUrl(url, concat) {
 		this.$uimsg.hide();
 		this.messagetimeout = undefined;
 		this.messagedisplaytime = 5000;
+
+		$(document).ajaxError(function(event, j, a, err) {
+			eden.error(new Error(err + ": " + a.url));
+		});
 		
 		//Never called anymore.
 		this.eden.listenTo('executeFileLoad', this, function (path) {
