@@ -104,6 +104,7 @@ Eden.systemAgentNames = {
 
 Eden.systemFunctionNames = {
 	"Arc": true,
+	"Audio": true,
 	"BulletSlide": true,
 	"Button": true,
 	"Checkbox": true,
@@ -314,6 +315,7 @@ Eden.symbolCategories["Canvas 2D"] = {
 	},
 	func: {
 		"Arc": true,
+		"Audio": true,
 		"Button": true,
 		"canvasURL": true,
 		"centroid": true,
