@@ -17,6 +17,7 @@ var Language = {
 		"proc": "proc",
 		"auto": "auto",
 		"para": "para",
+		"action": "action",
 		"local": "local",
 		"if": "if",
 		"is": "is",

@@ -21,6 +21,7 @@ function EdenAST(code) {
 	this.src = "input";
 	this.lines = [];
 	this.parent = undefined;
+	this.scripts = {};
 
 	this.stream.data = this.data;
 
@@ -1262,11 +1263,21 @@ EdenAST.prototype.pWHILE = function() {
 
 /**
  * Do Production
- * DO -> STATEMENT while ( EXPRESSION );
+ * DO -> observable;
  */
 EdenAST.prototype.pDO = function() {
 	var w = new EdenAST_Do();
-	var parent = this.parent;
+
+	if (this.token != "OBSERVABLE") {
+		w.errors.push(new EdenError(this, 0));
+		return w;
+	} else {
+		w.setName(this.data.value);
+		this.next();
+	}
+	return w;
+
+	/*var parent = this.parent;
 	this.parent = w;
 
 	w.setStatement(this.pSTATEMENT());
@@ -1301,7 +1312,7 @@ EdenAST.prototype.pDO = function() {
 	}
 
 	this.parent = parent;
-	return w;
+	return w;*/
 }
 
 
@@ -1830,7 +1841,8 @@ EdenAST.prototype.pSTATEMENT = function() {
 	switch (this.token) {
 	case "proc"		:	this.next(); stat = this.pACTION(); end = this.stream.position; this.next(); break;
 	case "func"		:	this.next(); stat = this.pFUNCTION(); end = this.stream.position; this.next(); break;
-	//case "when"		:	this.next(); stat = this.pWHEN(); break;
+	case "when"		:	this.next(); stat = this.pWHEN(); break;
+	case "action"	:	this.next(); stat = this.pNAMEDSCRIPT(); end = this.stream.position; break;
 	case "for"		:	this.next(); stat = this.pFOR(); break;
 	case "while"	:	this.next(); stat = this.pWHILE(); break;
 	case "do"		:	this.next(); stat = this.pDO(); break;
@@ -1947,12 +1959,54 @@ EdenAST.prototype.pSTATEMENT = function() {
 };
 
 
+
+EdenAST.prototype.pNAMEDSCRIPT = function() {
+	var name;
+
+	if (this.token != "OBSERVABLE") {
+		var script = new EdenAST_Script();
+		script.errors.push(new EdenError(this, 0));
+		return script;
+	} else {
+		name = this.data.value;
+		this.next();
+	}
+
+	if (this.token != "{") {
+		var script = new EdenAST_Script();
+		script.errors.push(new EdenError(this, 0));
+		return script;
+	} else {
+		this.next();
+	}
+
+	var script = this.pSCRIPT();
+	if (script.errors.length > 0) return script;
+
+	script.setName(name);
+
+	if (this.token != "}") {
+		script.error(new EdenError(this, 0));
+		return script;
+	} else {
+		this.next();
+	}
+
+	this.scripts[script.name] = script;
+
+	return script;
+}
+
+
+
 /**
  * SCRIPT Production
  * SCRIPT -> STATEMENT SCRIPT | epsilon
  */
 EdenAST.prototype.pSCRIPT = function() {
 	var ast = new EdenAST_Script();
+	var parent = this.parent;
+	this.parent = ast;
 
 	while (this.token != "EOF") {
 		var statement = this.pSTATEMENT();
@@ -1978,6 +2032,7 @@ EdenAST.prototype.pSCRIPT = function() {
 		}
 	}
 
+	this.parent = parent;
 	return ast;
 };
 

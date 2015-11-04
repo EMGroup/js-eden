@@ -358,7 +358,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (!statement) return;
 
 			// Find root statement and execute that one
-			while (statement.parent !== undefined) statement = statement.parent;
+			while (statement.parent !== undefined && statement.parent.parent !== undefined) statement = statement.parent;
 
 			// Execute only the currently changed root statement
 			me.submit(statement, highlighter.ast);

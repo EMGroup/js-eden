@@ -1578,8 +1578,9 @@ function EdenAST_Do() {
 	this.type = "do";
 	this.parent = undefined;
 	this.errors = [];
-	this.condition = undefined;
-	this.statement = undefined;
+	/*this.condition = undefined;
+	this.statement = undefined;*/
+	this.name = undefined;
 	this.start = 0;
 	this.end = 0;
 };
@@ -1591,7 +1592,11 @@ EdenAST_Do.prototype.setSource = function(start, end) {
 	this.end = end;
 }
 
-EdenAST_Do.prototype.setCondition = function(condition) {
+EdenAST_Do.prototype.setName = function(name) {
+	this.name = name;
+}
+
+/*EdenAST_Do.prototype.setCondition = function(condition) {
 	this.condition = condition;
 	this.errors.push.apply(this.errors, condition.errors);
 }
@@ -1601,22 +1606,25 @@ EdenAST_Do.prototype.setStatement = function(statement) {
 	if (statement) {
 		this.errors.push.apply(this.errors, statement.errors);
 	}
-}
+}*/
+
+
 
 EdenAST_Do.prototype.generate = function(ctx) {
-	var res = "do\n";
+	/*var res = "do\n";
 	res += this.statement.generate(ctx) + "\n";
 	res += "while (" + this.condition.generate(ctx,"scope");
 	if (this.condition.doesReturnBound && this.doesReturnBound()) {
 		res += ".value";
 	}
 	res += ");";
-	return res;
+	return res;*/
+	return "";
 }
 
 
 EdenAST_Do.prototype.execute = function(root,ctx,base) {
-	var express = this.condition.generate(ctx, "scope");
+	/*var express = this.condition.generate(ctx, "scope");
 	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
 		express += ".value";
 	}
@@ -1624,7 +1632,9 @@ EdenAST_Do.prototype.execute = function(root,ctx,base) {
 
 	do {
 		this.statement.execute(root,ctx,base);
-	} while (expfunc(root,root.scope));
+	} while (expfunc(root,root.scope));*/
+
+	base.scripts[this.name].executeReal(root,ctx,base);
 }
 
 
@@ -1920,6 +1930,7 @@ EdenAST_Declarations.prototype.error = fnEdenAST_error;
 
 function EdenAST_Script() {
 	this.type = "script";
+	this.name = undefined;
 	this.parent = undefined;
 	this.errors = [];
 	this.statements = [];
@@ -1928,6 +1939,10 @@ function EdenAST_Script() {
 };
 
 EdenAST_Script.prototype.error = fnEdenAST_error;
+
+EdenAST_Script.prototype.setName = function(name) {
+	this.name = name;
+}
 
 EdenAST_Script.prototype.setSource = function(start, end) {
 	this.start = start;
@@ -1941,12 +1956,23 @@ EdenAST_Script.prototype.append = function (ast) {
 	}
 }
 
-EdenAST_Script.prototype.execute = function(root, ctx, base) {
+EdenAST_Script.prototype.executeReal = function(root, ctx, base) {
 	for (var i = 0; i < this.statements.length; i++) {
 		this.statements[i].execute(root,ctx, base);
 		if (this.statements[i].errors.length > 0) {
 			this.errors.push.apply(this.errors, this.statements[i].errors);
 		}
+	}
+}
+
+EdenAST_Script.prototype.execute = function(root, ctx, base) {
+	// Un named actions execute immediately.
+	if (this.name === undefined) {
+		this.executeReal(root,ctx,base);
+	} else {
+		// Add this named script to a local symbol table.
+		base.scripts[this.name] = this;
+		console.log("Added script: " + this.name);
 	}
 }
 
