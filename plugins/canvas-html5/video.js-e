@@ -1,10 +1,11 @@
 ##Bugs:
-##Need to disable autocalc while producing the element and making assignments to observables.
-##Triggered procedures are possibly called twice when making assignments.
+##Triggered procedures are possibly called twice when making assignments?
 ##If _paused is defined by dependency and is true while seeking then the video starts playing while the mouse button is still held down.
 ##_chapter doesn't yet update correctly if the a backward seek is performed.
-##toString method needs implementing.
 ##Attempting to play back video in reverse (vid_speed < 0) only works on Safari on Mac.  A workaround is possible.
+##Todo:
+##Add support for poster images.
+##Add mode that draws the video onto the canvas.
 ##Useful site for extracting YouTube video URLs: http://www.downvids.net/
 
 ##For a Video drawable named "vid", the following observables are available.  All are read/write.
@@ -65,7 +66,7 @@
 ##Example:
 /*
 	vid_url = "...";
-	vid = Video("vid");
+	vid is Video();
 	picture is [vid];
 
 	##Stop to complete an exercise 60 seconds into the video.
@@ -84,13 +85,26 @@ func Video {
 			return undefined;
 		}
 		var preload = arguments[0];
-		return new Video(name, preload);
+		return new AudioVisual(name, "Video", preload);
+	}}$;
+}
+
+func Audio {
+	${{
+		var name = root.currentObservableName();
+		if (name === undefined) {
+			eden.error(new Error("Audio: Every audio player must be defined by making a dependency."), "error");
+			return undefined;
+		}
+		var preload = arguments[0];
+		return new AudioVisual(name, "Audio", preload);
 	}}$;
 }
 
 ${{
-	function Video(name, preload) {
+	function AudioVisual(name, type, preload) {
 		this.name = name;
+		this.type = type;
 		this.preload = preload;
 		
 		Object.defineProperty(this, "duration", {
@@ -117,18 +131,18 @@ ${{
 
 	}
 	
-	Video.prototype.hash = function () {
+	AudioVisual.prototype.hash = function () {
 		return this.name;
 	}
 }}$;
 
 ${{
-	Video.prototype.draw = function (context) {		
+	AudioVisual.prototype.draw = function (context) {
 		if (this.elements === undefined ) {
 			var me = this;
 			var name = this.name;
-			var agent = root.lookup("Video");
-
+			var agent = root.lookup(this.type);
+			root.beginAutocalcOff();
 
 	//Chapters
 
@@ -179,67 +193,66 @@ ${{
 
 	//Create HTML tag
 
-			var videoElement = document.createElement("video");
+			var videoElement = document.createElement(this.type.toLowerCase());
 
 
 	//Playback controls
 
-			var controlsSym = root.lookup(name + "_controls");
-			var controls = controlsSym.value();
-			if (controls === undefined) {
-				controls = true;
-				if (controlsSym.eden_definition === undefined || controlsSym.definition === undefined) {
-					controlsSym.assign(true, this);
+			if (this.type == "Video") {
+
+				var controlsSym = root.lookup(name + "_controls");
+				var controls = controlsSym.value();
+				if (controls === undefined) {
+					if (controlsSym.eden_definition === undefined || controlsSym.definition === undefined) {
+						controlsSym.assign(true, this);
+					} else {
+						videoElement.controls = true;
+					}
+				} else {
+					videoElement.controls = controls;
 				}
+				controlsSym.addJSObserver("showHideControls", function (symbol, showControls) {
+					videoElement.controls = showControls;
+				});
+
+			} else {
+				videoElement.controls = true;
 			}
-			videoElement.controls = controls;
-			controlsSym.addJSObserver("showHideControls", function (symbol, showControls) {
-				videoElement.controls = showControls;
-			});
 
 
 	//Position on screen
 
 			videoElement.style.position = "absolute";
+			this.cachedOrigin = new Point(0, 0);
 			var positionSym = root.lookup(name + "_position");
 			var position = positionSym.value();
 			if (position === undefined) {
 				position = new Point(0, 0);
 				positionSym.assign(position, agent);
 			}
-			var repositionAction = function (symbol, position) {
-				if (position instanceof Point) {
-					videoElement.style.left = position.x + "px";
-					videoElement.style.top = position.y + "px";
-				}
-			}
-			repositionAction(positionSym, position);
-			positionSym.addJSObserver("reposition", repositionAction);
+			positionSym.addJSObserver("reposition", function (sym, position) {
+				me.doTranslation(position);
+			});
 
 
 	//Size and preloading
 
 			var sizeSym = root.lookup(name + "_size");
 			var size = sizeSym.value();
-			var resizeAction = function (symbol, size) {
-				if (size instanceof Point) {
-					videoElement.width = size.x;
-					videoElement.height = size.y;
-				}
-			}
+			var doInitialResize;
 			var preloadWhat;
 			if (this.preload) {
 				preloadWhat = "auto";
 			} else {
 				preloadWhat = "none";
 			}
-			if (size instanceof Point) {
-				resizeAction(sizeSym, size);
-			} else if (!this.preload) {
+			if (!(size instanceof Point) && !this.preload) {
 				preloadWhat = "metadata";
 			}
 			videoElement.preload = preloadWhat;
-			sizeSym.addJSObserver("resize", resizeAction);
+			sizeSym.addJSObserver("resize", function (symbol, size) {
+				me.doScaling(size);
+			});
 			videoElement.addEventListener("loadedmetadata", function (event) {
 				var sizeSym = root.lookup(name + "_size");
 				if (sizeSym.value() === undefined) {
@@ -341,6 +354,7 @@ ${{
 				}
 			});
 			videoElement.addEventListener("ratechange", function (event) {
+				root.beginAutocalcOff();
 				var speedSym = root.lookup(name + "_speed");
 				var speed = videoElement.playbackRate;
 				if (speedSym.eden_definition === undefined || speedSym.definition === undefined) {
@@ -351,6 +365,7 @@ ${{
 				} else if (!root.lookup(name + "_paused").value()) {
 					videoElement.play();
 				}
+				root.endAutocalcOff();
 			});
 
 
@@ -396,14 +411,46 @@ ${{
 				videoElement.load();
 			});
 
+
+	//Finalize creation
+
 			this.elements = [videoElement];
+			root.endAutocalcOff();
 		}
 	}
-	
-	Video.prototype.toString = function () {
-		return "Video(" + Eden.edenCodeForValues(this.preload) + ")";
+
+	AudioVisual.prototype.scale = function (scale, zoom , origin) {
+		this.cachedScaleFactor = zoom;
+		this.cachedOrigin = origin;
+		var position = root.lookup(this.name + "_position").value();
+		this.doTranslation(position);
+		var size = root.lookup(this.name + "_size").value();
+		this.doScaling(size);
+	}
+
+	AudioVisual.prototype.doScaling = function (size) {
+		if (size instanceof Point) {
+			var element = this.elements[0];
+			var scaleFactor = this.cachedScaleFactor;
+			element.width = size.x * scaleFactor;
+			element.height = size.y * scaleFactor;
+		}
+	}
+
+	AudioVisual.prototype.doTranslation = function (position) {
+		if (position instanceof Point) {
+			var style = this.elements[0].style;
+			var origin = this.cachedOrigin;
+			var scaleFactor = this.cachedScaleFactor;
+			style.left = (origin.x + position.x * scaleFactor) + "px";
+			style.top = (origin.y + position.y * scaleFactor) + "px";
+		}
+	}
+
+	AudioVisual.prototype.toString = function () {
+		return this.type + "(" + Eden.edenCodeForValues(this.preload) + ")";
 	}
 	
-	Video.prototype.getEdenCode = Video.prototype.toString;
+	AudioVisual.prototype.getEdenCode = AudioVisual.prototype.toString;
 
 }}$;

@@ -1140,6 +1140,13 @@
 			"return": "",
 			"description": ""
 		},
+		"Audio": {
+			"parameters": {
+				"[preload]": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"Slide": {
 			"parameters": {
 				"html": "",
