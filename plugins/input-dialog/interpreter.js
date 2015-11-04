@@ -653,6 +653,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (lineno == -1 || lineno == 1) {
 				if (ast.stream.code.charAt(0) == "#") {
 					setTitle(ast.stream.code.split("\n")[0].substr(2));
+				} else {
+					setTitle(Language.ui.input_window.title);
 				}
 			}
 
@@ -1187,7 +1189,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		.on('click', '.next-input', onNext);
 
 		// Create power button
-		var $powerbutton = $('<div class="scriptswitch power-off" title="Live Coding">&#xF011;</div>');
+		var $powerbutton = $('<div class="scriptswitch power-off" title="Live Making">&#xF011;</div>');
 		$dialogContents.append($powerbutton);
 		var powerbutton = $powerbutton.get(0);
 		if (power) powerOn();

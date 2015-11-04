@@ -249,7 +249,7 @@ Language.errors = [
 
 Language.ui = {
 	"input_window": {
-		title: "Script Input Window",
+		title: "Script View",
 		description: "Provides the ability to type in definitional scripts using the keyboard, submit them for interpretation and recall the input history.",
 		success: "Yay!",
 		is_undef_because: "is undefined because",
