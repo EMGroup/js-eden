@@ -23,6 +23,8 @@ function EdenAST(code) {
 	this.parent = undefined;
 	this.scripts = {};
 
+	console.log("NEWAST");
+
 	this.stream.data = this.data;
 
 	// Get First Token;
@@ -1120,6 +1122,8 @@ EdenAST.prototype.pLLIST_P = function() {
  */
 EdenAST.prototype.pIF = function() {
 	var ifast = new EdenAST_If();
+	var parent = this.parent;
+	this.parent = ifast;
 
 	if (this.token != "(") {
 		ifast.errors.push(new EdenError(this, EDEN_ERROR_IFCONDOPEN));
@@ -1142,6 +1146,7 @@ EdenAST.prototype.pIF = function() {
 	if (ifast.errors.length > 0) return ifast;
 
 	ifast.setElse(this.pIF_P());
+	this.parent = parent;
 	return ifast;
 }
 
@@ -1841,7 +1846,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 	switch (this.token) {
 	case "proc"		:	this.next(); stat = this.pACTION(); end = this.stream.position; this.next(); break;
 	case "func"		:	this.next(); stat = this.pFUNCTION(); end = this.stream.position; this.next(); break;
-	case "when"		:	this.next(); stat = this.pWHEN(); break;
+	//case "when"		:	this.next(); stat = this.pWHEN(); break;
 	case "action"	:	this.next(); stat = this.pNAMEDSCRIPT(); end = this.stream.position; break;
 	case "for"		:	this.next(); stat = this.pFOR(); break;
 	case "while"	:	this.next(); stat = this.pWHILE(); break;

@@ -143,7 +143,7 @@
 	 * Choose what kind of line this should be, current line, an error, a comment
 	 * or just a plain line. Returns the CSS class(es) needed.
 	 */
-	function generateLineClass(stream, linestart, lineerror, position) {
+	function generateLineClass(source, stream, linestart, lineerror, position) {
 		var className = "";
 		if (position >= linestart && position <= stream.position) {
 			if (lineerror) {
@@ -160,6 +160,20 @@
 				} else {
 					className = "eden-line";
 				}
+			}
+		}
+		//console.log(source.ast.lines[source.line-1]);
+		if (source.ast.lines[source.line-1]) {
+			if (source.ast.lines[source.line-1].executed == 1) {
+				className += " eden-executedline";
+			} else if (source.ast.lines[source.line-1].executed == 2) {
+				className += " eden-guardedline";
+			}
+		} else if (source.ast.lines[source.line-1] === undefined && source.line-1 > 0 && source.ast.lines[source.line-1-1] && source.ast.lines[source.line-1-1].parent) {
+			if (source.ast.lines[source.line-1-1].executed == 1) {
+				className += " eden-executedline";
+			} else if (source.ast.lines[source.line-1-1].executed == 2) {
+				className += " eden-guardedline";
 			}
 		}
 		return className;
@@ -398,12 +412,11 @@
 				var ch= stream.peek();
 				var lineclass = "";
 				if (ch == 10) {
-					this.line++;
-
 					lineerror = (linestart <= errstart) && (stream.position >= errend);
 
 					var lineelement = document.createElement('div');
-					lineelement.className = generateLineClass(stream, linestart,lineerror,position);
+					lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
+					this.line++;
 					if (line !== undefined) {
 						lineelement.appendChild(line);
 					}
@@ -424,7 +437,7 @@
 
 			if (line !== undefined) {
 				var lineelement = document.createElement('div');
-				lineelement.className = generateLineClass(stream, linestart,lineerror,position);
+				lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
 				lineelement.appendChild(line);
 				this.outelement.appendChild(lineelement);
 			} else {
@@ -453,6 +466,7 @@
 
 			// Highlight 3 lines, 1 before and after what we want
 			for (var i=2; i>=0; i--) {
+				this.line = hline-i+1;
 				var node = this.outelement.childNodes[hline-i];
 				if (node !== undefined) {
 					//Remove existing content
@@ -461,11 +475,29 @@
 					linestart = stream.position;
 					line = this.highlightLine(ast, position);
 					lineerror = (linestart <= errstart) && (stream.position >= errend);
-					node.className = generateLineClass(stream, linestart,lineerror,position);
+					node.className = generateLineClass(this, stream, linestart,lineerror,position);
 					node.appendChild(line);
 					var blank = document.createTextNode("\n");
 					node.appendChild(blank);
 					stream.skip();
+				}
+			}
+
+			// Now check for dirty lines to change line class
+			console.log(ast.lines);
+			for (var i=0; i<this.outelement.childNodes.length; i++) {
+				if (ast.lines[i]) {
+					if (ast.lines[i].executed == 1) {
+						this.outelement.childNodes[i].className = "eden-line eden-executedline";
+					} else if (ast.lines[i].executed == 2) {
+						this.outelement.childNodes[i].className = "eden-line eden-guardedline";
+					}
+				} else if (ast.lines[i] === undefined && i > 0 && ast.lines[i-1] && ast.lines[i-1].parent) {
+					if (ast.lines[i-1].executed == 1) {
+						this.outelement.childNodes[i].className = "eden-line eden-executedline";
+					} else if (ast.lines[i-1].executed == 2) {
+						this.outelement.childNodes[i].className = "eden-line eden-guardedline";
+					}
 				}
 			}
 		}

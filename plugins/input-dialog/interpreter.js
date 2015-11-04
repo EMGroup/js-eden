@@ -221,6 +221,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var inputchanged = false;
 		var refreshentire = false;
 		var edited = false;
+		var dirty = false;
 
 
 
@@ -278,13 +279,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * (and one line either size).
 		 */
 		function updateLineHighlight() {
+			console.log("REBUILD");
 			var ast = new EdenAST(intextarea.value);
+			highlighter.ast = ast;
 			var lineno = -1; // Note: -1 means update all.
 			var pos = -1;
 			if (document.activeElement === intextarea) {
 				pos = intextarea.selectionEnd;
 				lineno = getLineNumber(intextarea);
 			}
+
+			runScript();
 
 			highlightContent(ast, lineno, pos);
 			//rebuildNotifications();
@@ -316,11 +321,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * could be such changes), for example when pasting.
 		 */
 		function updateEntireHighlight() {
+			console.log("REBUILD ALL");
 			var ast = new EdenAST(intextarea.value);
+			highlighter.ast = ast;
 			var pos = -1;
 			if (document.activeElement === intextarea) {
 				pos = intextarea.selectionEnd;
 			}
+
+			runScript();
 
 			highlightContent(ast, -1, pos);
 		}
@@ -354,7 +363,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				line--;
 			}
 
-			var statement = ast.lines[line];
+			var statement;
+			if (lineno == -1) {
+				statement = ast.script;
+			} else {
+				statement = ast.lines[line];
+			}
 			if (!statement) return;
 
 			// Find root statement and execute that one
@@ -724,11 +738,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 							replaceLine(dragline, content);
 
 							var ast = new EdenAST(intextarea.value);
+							highlighter.ast = ast;
 
 							// Execute if no errors!
 							if (autoexec && ast.script.errors.length == 0) {
 								submitLine(ast, dragline);
 							}
+
+							highlightContent(ast, dragline, -1);
 						}
 					},
 					start: function(e,u) {
@@ -869,16 +886,25 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (refreshentire) {
 				updateEntireHighlight();
 				refreshentire = false;
-			} else {
+			} else { // if (dirty) {
 				updateLineHighlight();
+			/*} else {
+				updateLineCachedHighlight();*/
 			}
+			dirty = false;
+		}
 
 
+
+		function runScript() {
 			// If we should run the statement (there are no errors)
 			if (autoexec && highlighter.ast.script.errors.length == 0) {
 				powerOk();
+				console.log("Currentline: " + currentlineno);
 				submitLine(highlighter.ast, currentlineno-1);
+				//console.log(highlighter.ast.lines);
 			} else if (autoexec) {
+				console.log(highlighter.ast.script.errors);
 				powerError();
 			}
 		}
@@ -905,6 +931,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 */
 		function onInputChanged(e) {
 			inputchanged = true;
+			dirty = true;
 
 			// Typing status, error messages and result value are delayed
 			// by "typinginterval", so restart timeout.
@@ -1001,7 +1028,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					// put caret at right position again
 					intextarea.selectionStart =
 					intextarea.selectionEnd = start + 1;
-					updateLineHighlight();
+					//updateLineHighlight();
+					rebuild();
 				} else if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 36 || e.keyCode == 35) {
 					// Shift arrow selection, move to editable div.
 					if (e.shiftKey) {
@@ -1130,7 +1158,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					intextarea.selectionEnd = end;
 					intextarea.selectionStart = end;		
 					highlighter.highlight(highlighter.ast, curline, end);
-					updateLineHighlight();
+					updateLineCachedHighlight();
 					checkScroll();
 				}
 			}
@@ -1200,7 +1228,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (autoexec) {
 				powerOn();
 				updateEntireHighlight();
-				me.submit(highlighter.ast.script, highlighter.ast);
+				//me.submit(highlighter.ast.script, highlighter.ast);
 
 				if (highlighter.ast.script.errors.length > 0) {
 					showInfoBox("error", highlighter.ast.script.errors[0].messageText());
