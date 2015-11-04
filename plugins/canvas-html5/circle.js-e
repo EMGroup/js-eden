@@ -48,10 +48,10 @@ func Circle { ${{
 
 ${{
 
-Circle.prototype.draw = function (context, scale) {
+Circle.prototype.draw = function (context) {
 	if (this.radius > 0) {
 
-		this.tracePath(context, scale);
+		this.tracePath(context);
 		if (this.fillcolour !== undefined) {
 			edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
 			context.fill();
@@ -64,7 +64,7 @@ Circle.prototype.draw = function (context, scale) {
 	}
 };
 
-Circle.prototype.tracePath = function (context, scale) {
+Circle.prototype.tracePath = function (context) {
 	var halfLineWidth;
 	if (this.outlinecolour !== undefined) {
 		halfLineWidth = context.lineWidth / 2;
@@ -85,7 +85,7 @@ Circle.prototype.tracePath = function (context, scale) {
 }
 
 Circle.prototype.isHit = function (context, scale, x, y) {
-	this.tracePath(context, scale);
+	this.tracePath(context);
 	return context.isPointInPath(x,y);
 }
 

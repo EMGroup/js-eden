@@ -28,30 +28,40 @@ Eden.systemObservableNames = {
 	"PI": true,
 	"autocalc": true,
 	"debug": true,
+	"edenclocks": true,
+	"edenclocks_paused": true,
 	"mouseButton": true,
 	"mouseButtons": true,
+	"mouseCapture": true,
 	"mouseCaptured": true,
+	"mouseContextMenuEnabled": true,
 	"mouseDoubleClicks": true,
 	"mouseDown": true,
 	"mouseDownView": true,
 	"mouseDownZone": true,
+	"mouseFollow": true,
 	"mousePosition": true,
 	"mousePressed": true,
 	"mouseUp": true,
 	"mouseWheel": true,
+	"mouseWheelEnabled": true,
 	"mouseWheelSpeed": true,
 	"mouseView": true,
 	"mouseX": true,
 	"mouseY": true,
 	"mouseZone": true,
 	"pixel": true,
+	"radiansPerUnit": true,
+	"randomGenerator": true,
 	"randomGeneratorState": true,
 	"randomIndex": true,
+	"randomSeed": true,
 	"screenHeight": true,
 	"screenWidth": true,
 	"touchPanX": true,
 	"touchPanXSpeed": true,
 	"touchPinch": true,
+	"touchPinchEnabled": true,
 	"_views_frame_width": true,
 	"_views_frame_height": true,
 	"_views_list": true,
@@ -82,7 +92,6 @@ Eden.systemAgentNames = {
 	"removeedenclock": true,
 	"resizeView": true,
 	"setedenclock": true,
-	"setProperty": true,
     "showObservables": true,
 	"showView": true,
 	"stopHighlightingView": true,
@@ -163,7 +172,6 @@ Eden.systemFunctionNames = {
 	"forget": true,
 	"forgetAll": true,
 	"generate_function": true,
-	"hasProperty": true,
 	"hsl2colour": true,
 	"htmlBulletList": true,
 	"htmlNumberedList": true,
@@ -203,7 +211,6 @@ Eden.systemFunctionNames = {
 	"positionInList": true,
 	"positionOfRE": true,
 	"pow": true,
-	"properties": true,
 	"rand": true,
 	"random": true,
 	"randomBoolean": true,
@@ -260,6 +267,9 @@ Eden.symbolCategories = {};
 Eden.symbolCategories["Canvas 2D"] = {
 	obs: {
 		"_view_picture_background_colour": true,
+		"_view_picture_canvas_bottom": true,
+		"_view_picture_canvas_right": true,
+		"_view_picture_observable": true,
 		"_view_picture_offset": true,
 		"_view_picture_scale": true,
 		"_view_picture_title": true,
@@ -405,7 +415,7 @@ Eden.isitSystemSymbol = function(name){
 }
 
 Eden.isitSystemObservable = function(name) {
-	if (/^_view_.*_(x|y|width|height|title|zoom)/.test(name)) {
+	if (/^_view_/.test(name)) {
 	  return true;
 	}
 	return name in Eden.systemObservableNames;

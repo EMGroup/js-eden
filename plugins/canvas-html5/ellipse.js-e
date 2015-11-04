@@ -46,7 +46,7 @@ func Ellipse { ${{
 
 ${{
 
-Ellipse.prototype.draw = function (context, scale) {
+Ellipse.prototype.draw = function (context) {
 	if (this.xradius > 0 && this.yradius > 0) {
 
 		var scaleOutline;
@@ -61,7 +61,7 @@ Ellipse.prototype.draw = function (context, scale) {
 			context.save();
 		}
 
-		var lineWidth = this.tracePath(context, scale, scaleOutline);
+		var lineWidth = this.tracePath(context, scaleOutline);
 
 		if (this.fillcolour !== undefined) {
 			edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
@@ -80,7 +80,7 @@ Ellipse.prototype.draw = function (context, scale) {
 	}
 };
 
-Ellipse.prototype.tracePath = function (context, scale, scaleOutline) {
+Ellipse.prototype.tracePath = function (context, scaleOutline) {
 	var scaleFactor = this.yradius / this.xradius;
 	var lineWidth;
 	if (this.outlinecolour !== undefined && this.outlinecolour != "transparent") {
@@ -110,7 +110,7 @@ Ellipse.prototype.tracePath = function (context, scale, scaleOutline) {
 }
 
 Ellipse.prototype.isHit = function (context, scale, x, y) {
-	this.tracePath(context, scale, false);
+	this.tracePath(context, false);
 	return context.isPointInPath(x,y);
 }
 

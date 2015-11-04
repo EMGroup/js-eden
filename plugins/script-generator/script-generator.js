@@ -170,6 +170,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		var autocalcOn = "autocalc = 1;"
 		var autocalcOff = "autocalc = 0;"
 		var commentColumn = 32;
+		var hciAgentName = Symbol.hciAgent.name;
 
 		var picture = root.lookup("picture").eden_definition;
 		if (picture === undefined) {
@@ -217,7 +218,6 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			}
 		
 			var symbol = root.symbols[name];
-			var isSystemObs = Eden.isitSystemObservable(name);
 			var isView = false;
 
 			if (symbol.last_modified_by == "include" || symbol.last_modified_by == "system" || symbol.last_modified_by == "createView") {
@@ -226,7 +226,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			if (/^(autocalc|picture|randomIndex|randomGeneratorState|screenWidth|screenHeight)$/.test(name)) {
 				continue;
 			}
-			if (/^(mouse|touch)[A-Z]/.test(name) && isSystemObs) {
+			if (/^(mouse|touch)[A-Z]/.test(name) && symbol.last_modified_by === hciAgentName ) {
 				continue;
 			}
 			if (/_click(ed)?$/.test(name) && symbol.eden_definition === undefined) {
@@ -241,7 +241,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 					continue;
 				}
 				if (!includeViews) {
-					if (isSystemObs) {
+					if (/_(x|y|width|height|title|zoom)$/.test(name)) {
 						//Exclude positioning information (unless defined by dependency)
 						continue;
 					}
