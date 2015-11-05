@@ -1840,14 +1840,15 @@ EdenAST.prototype.pINCLUDE = function() {
 EdenAST.prototype.pSTATEMENT = function() {
 	var start = this.stream.prevposition;
 	var curline = this.stream.line - 1;
+	var endline = -1;
 	var stat = undefined;
 	var end = -1;
 
 	switch (this.token) {
-	case "proc"		:	this.next(); stat = this.pACTION(); end = this.stream.position; this.next(); break;
-	case "func"		:	this.next(); stat = this.pFUNCTION(); end = this.stream.position; this.next(); break;
+	case "proc"		:	this.next(); stat = this.pACTION(); end = this.stream.position; endline = this.stream.line; this.next(); break;
+	case "func"		:	this.next(); stat = this.pFUNCTION(); end = this.stream.position; endline = this.stream.line; this.next(); break;
 	//case "when"		:	this.next(); stat = this.pWHEN(); break;
-	case "action"	:	this.next(); stat = this.pNAMEDSCRIPT(); end = this.stream.position; break;
+	case "action"	:	this.next(); stat = this.pNAMEDSCRIPT(); end = this.stream.position; endline = this.stream.line; this.next(); break;
 	case "for"		:	this.next(); stat = this.pFOR(); break;
 	case "while"	:	this.next(); stat = this.pWHILE(); break;
 	case "do"		:	this.next(); stat = this.pDO(); break;
@@ -1921,6 +1922,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 							script.error(new EdenError(this, 0, "Missing a closing '}'", undefined, undefined));
 							return script;
 						}
+						endline = this.stream.line;
 						this.next();
 						stat = script; break;
 	case "OBSERVABLE" :	var lvalue = this.pLVALUE();
@@ -1960,8 +1962,8 @@ EdenAST.prototype.pSTATEMENT = function() {
 		stat.setSource(start, end);
 	}
 	this.lines[curline] = stat;
-	var endline = this.stream.line - 1;
-	for (var i=curline; i<=endline; i++) {
+	//var endline = this.stream.line;
+	for (var i=curline+1; i<endline; i++) {
 		if (this.lines[i] === undefined) this.lines[i] = stat;
 	}
 	return stat;
@@ -1998,7 +2000,7 @@ EdenAST.prototype.pNAMEDSCRIPT = function() {
 		script.error(new EdenError(this, 0));
 		return script;
 	} else {
-		this.next();
+		//this.next();
 	}
 
 	this.scripts[script.name] = script;

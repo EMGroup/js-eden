@@ -445,7 +445,7 @@
 			} else {
 				var lineelement = document.createElement('div');
 				if (position >= stream.position) {
-					lineelement.className = "eden-currentline";
+					lineelement.className = "eden-line";
 					var caret = document.createElement('span');
 					caret.className = "fake-caret";
 					lineelement.appendChild(caret);

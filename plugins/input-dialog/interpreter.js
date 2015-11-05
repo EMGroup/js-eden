@@ -929,6 +929,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
+		function clearExecutedState() {
+			for (var i=0; i<highlighter.ast.lines.length; i++) {
+				if (highlighter.ast.lines[i]) {
+					if (highlighter.ast.lines[i].executed > 0) {
+						highlighter.ast.lines[i].executed = 0;
+					}
+				}
+			}
+		}
+
+
+
 		/**
 		 * Event handler for input change.
 		 */
@@ -1169,6 +1181,24 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
+		function onGutterClick(e) {
+			console.log(e);
+			var lineno = -1;
+
+			for (var i=0; i<gutter.gutter.childNodes.length; i++) {
+				if (e.target === gutter.gutter.childNodes[i]) {
+					lineno = i+1;
+					break;
+				}
+			}
+
+			clearExecutedState();
+			submitLine(highlighter.ast, lineno);
+			gutter.generate(highlighter.ast, lineno);
+		}
+
+
+
 		/**
 		 * Move script to previous in history, or toggle symbol for custom
 		 * previous/next functionality.
@@ -1217,7 +1247,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		.on('focus', '.hidden-textarea', onTextFocus)
 		.on('mouseup', '.outputcontent', onOutputMouseUp)
 		.on('click', '.previous-input', onPrevious)
-		.on('click', '.next-input', onNext);
+		.on('click', '.next-input', onNext)
+		.on('click', '.eden-gutter-item', onGutterClick);
 
 		// Create power button
 		var $powerbutton = $('<div class="scriptswitch power-off" title="Live Making">&#xF011;</div>');

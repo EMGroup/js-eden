@@ -754,15 +754,19 @@ div.eden-gutter {
 }
 
 div.eden-gutter-item {
-	width: 18px;
+	width: 17px;
 	height: 16px;
 	border-right: 1px solid #e5e5e5;
-	padding-left: 4px;
+	padding-left: 5px;
 	padding-top: 4px;
 }
 
+div.eden-gutter-item:hover {
+	cursor: pointer;
+	background-color: silver;
+}
+
 div.eden-gutter-current {
-	border-right-width: 2px;
 	border-right-color: silver;
 }
 
@@ -782,7 +786,6 @@ div.eden-gutter-guarded {
 }
 
 div.eden-gutter-error {
-	content: "\f06a";
 	font-family: "FontAwesome";
 	color: red;
 	font-size: 10pt;
