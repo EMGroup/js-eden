@@ -52,7 +52,7 @@ ${{
 		} else if (this.radius !== undefined) {
 			return "RotateAboutPoint(" + Eden.edenCodeForValues(this.angle2, this.origin, this.radius, this.items) + ")";
 		} else {
-			return "RotateAboutCentre(" + Eden.edenCodeForValues(this.angle, this.centre, this.origin, this.centre, this.items) + ")";
+			return "RotateAboutCentre(" + Eden.edenCodeForValues(this.angle, this.centre, this.origin, this.items) + ")";
 		}
 	}
 
@@ -110,4 +110,3 @@ func RotateAboutPoint {
 }
 
 radiansPerUnit ~> [CombinedRotation, RotateAboutCentre, RotateAboutPoint];
-
