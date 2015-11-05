@@ -1,0 +1,67 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+
+	function Scaling(scaleX, scaleY, translateX, translateY, items) {
+		this.scaleX = scaleX;
+		this.scaleY = scaleY;
+		this.translateX = translateX;
+		this.translateY = translateY;
+		this.items = items;
+	}
+
+	Scaling.prototype = new EdenUI.plugins.Canvas2D.Transform;
+
+	Scaling.prototype.transform = function (context) {
+		context.scale(this.scaleX, this.scaleY);
+		var translateX = this.translateX;
+		if (translateX) {
+			context.translate(translateX, this.translateY);
+		}
+	}
+
+	Scaling.prototype.toString = function () {
+		return "Scale(" + Eden.edenCodeForValues(this.scaleX, this.scaleY, this.translateX, this.translateY, this.items) + ")";
+	}
+
+	Scaling.prototype.getEdenCode = Scaling.prototype.toString;
+
+}}$;
+
+func Scale {
+	${{
+		var scaleX, scaleY, translateX, translateY, items;
+
+		var argNum = arguments.length - 1;
+		var arg;
+
+		items = arguments[argNum];
+		argNum--;
+		if (argNum > 0) {
+			arg = arguments[argNum];
+			if (arg instanceof Point) {
+				translateX = arg.x;
+				translateY = arg.y;
+				argNum--;
+			} else if (argNum >= 2) {
+				translateY = arg;
+				argNum--;
+				translateX = arguments[argNum];
+				argNum--;
+			}
+			if (argNum > 0) {
+				scaleY = arguments[argNum];
+			}
+		}
+
+		scaleX = arguments[0];
+		if (scaleY === undefined) {
+			scaleY = scaleX;
+		}
+
+		return new Scaling(scaleX, scaleY, translateX, translateY, items);
+	}}$;
+}

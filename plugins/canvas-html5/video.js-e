@@ -7,6 +7,7 @@
 ##Add support for poster images.
 ##Add mode that draws the video onto the canvas.
 ##Useful site for extracting YouTube video URLs: http://www.downvids.net/
+##Alternative site: http://www.youtubeinmp4.com/
 
 ##For a Video drawable named "vid", the following observables are available.  All are read/write.
 ##

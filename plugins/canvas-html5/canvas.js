@@ -151,6 +151,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 						while (pictureLists.length > 0) {
 							var currentPicture = pictureLists.pop();
 							var index = pictureListIndices.pop();
+							
+							if (index > 0 && currentPicture[index - 1] instanceof EdenUI.plugins.Canvas2D.Transform) {
+								context.restore();
+							}
 
 							while (index < currentPicture.length) {
 								var item = currentPicture[index];
@@ -161,6 +165,17 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 									pictureLists.push(currentPicture);
 									pictureListIndices.push(index + 1);
 									currentPicture = item;
+									index = 0;
+									continue;
+								} else if (item instanceof EdenUI.plugins.Canvas2D.Transform) {
+									pictureLists.push(currentPicture);
+									pictureListIndices.push(index + 1);
+									context.save();
+									item.transform(context);
+									currentPicture = item.items;
+									if (!Array.isArray(currentPicture)) {
+										currentPicture = [currentPicture];
+									}
 									index = 0;
 									continue;
 								}
@@ -1251,6 +1266,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 };
 
 EdenUI.plugins.Canvas2D.FillStyle = function () {
+	//Abstract superclass.
+}
+
+EdenUI.plugins.Canvas2D.Transform = function () {
 	//Abstract superclass.
 }
 
