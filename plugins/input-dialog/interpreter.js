@@ -216,7 +216,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var amtyping = false;
 		var typinginterval = 2000;
 		var rebuildinterval = 10;
-		var currentlineno = 0;
+		var currentlineno = 1;
 		var currentcharno = 0;
 		var highlighter = new EdenUI.Highlight(outdiv);
 		var autoexec = power;
@@ -331,7 +331,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				pos = intextarea.selectionEnd;
 			}
 
+			var cacheline = currentlineno;
+			currentlineno = 0;
 			runScript();
+			currentlineno = cacheline;
 
 			highlightContent(ast, -1, pos);
 		}
@@ -380,10 +383,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			me.submit(statement, highlighter.ast);
 
 			// Oops, mark the errors
-			if (statement.errors.length > 0) {
+			/*if (statement.errors.length > 0) {
 				showInfoBox("error", statement.errors[0].messageText());
 				addErrorLine(line+1);
-			}
+			}*/
 		}
 
 
@@ -391,12 +394,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		/**
 		 * Displays the error/warning box.
 		 */
-		function showInfoBox(type, message) {
+		function showInfoBox(x, y, type, message) {
 			if (type == "warning") {
 				infobox.innerHTML = "<div class='info-warnitem'><span>"+message+"</span></div>";
 			} else if (type == "error") {
 				infobox.innerHTML = "<div class='info-erroritem'><span>"+message+"</span></div>";
 			}
+			$info = $(infobox);
+			$info.css("top",""+y+"px");
+			$info.css("left", ""+x+"px");
 			$(infobox).show("fast");
 		}
 
@@ -544,31 +550,31 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 								}
 								if (undef.length == 1) {
 									addWarningLine(currentlineno);
-									showInfoBox("warning", "<b>" + observable + "</b> "+ Language.ui.input_window.is_undef_because +" "+undefstr+" " + Language.ui.input_window.is_undef);
+									//showInfoBox("warning", "<b>" + observable + "</b> "+ Language.ui.input_window.is_undef_because +" "+undefstr+" " + Language.ui.input_window.is_undef);
 								} else {
 									addWarningLine(currentlineno);
-									showInfoBox("warning", "<b>" + observable + "</b> "+ Language.ui.input_window.is_undef_because +" "+undefstr+" " + Language.ui.input_window.are_undef);
+									//showInfoBox("warning", "<b>" + observable + "</b> "+ Language.ui.input_window.is_undef_because +" "+undefstr+" " + Language.ui.input_window.are_undef);
 								}
 							// Its undefined but we don't know why
 							} else {
 								addWarningLine(currentlineno);
-								showInfoBox("warning", observable + " " + Language.ui.input_window.is_undef);
+								//showInfoBox("warning", observable + " " + Language.ui.input_window.is_undef);
 							}
 						// Not undefined
 						} else {
-							hideInfoBox();
+							//hideInfoBox();
 						}
 					} else {
-						hideInfoBox();
+						//hideInfoBox();
 					}
 				} else {
-					hideInfoBox();
+					//hideInfoBox();
 				}
 			} else if (highlighter.ast.script.errors.length != 0) {
-				showInfoBox("error", highlighter.ast.script.errors[0].messageText());
+				//showInfoBox("error", highlighter.ast.script.errors[0].messageText());
 				//addErrorLine(highlighter.ast.script.errors[0].line, highlighter.ast.script.errors[0].messageText());
 			} else {
-				hideInfoBox();
+				//hideInfoBox();
 			}
 		}
 
@@ -1159,6 +1165,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * the highlighted output instead.
 		 */
 		function onOutputMouseUp(e) {
+			hideInfoBox();
+
 			// To prevent false cursor movement when dragging numbers...
 			if (document.activeElement === outdiv) {
 				var end = getCaretCharacterOffsetWithin(outdiv);
@@ -1182,7 +1190,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 		function onGutterClick(e) {
-			console.log(e);
+			//console.log(e);
 			var lineno = -1;
 
 			for (var i=0; i<gutter.gutter.childNodes.length; i++) {
@@ -1192,9 +1200,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 			}
 
-			clearExecutedState();
-			submitLine(highlighter.ast, lineno);
-			gutter.generate(highlighter.ast, lineno);
+			if (highlighter.ast.lines[lineno-1]) {
+				if (highlighter.ast.lines[lineno-1].errors.length > 0) {
+					if (highlighter.ast.lines[lineno-1].errors[0].line == lineno) {
+						showInfoBox(e.target.offsetLeft+20, e.target.offsetTop+25, "error", highlighter.ast.lines[lineno-1].errors[0].messageText());
+					}
+				} else {
+					clearExecutedState();
+					submitLine(highlighter.ast, lineno);
+					gutter.generate(highlighter.ast, lineno);
+				}
+			}
 		}
 
 
@@ -1263,10 +1279,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				powerOn();
 				updateEntireHighlight();
 				//me.submit(highlighter.ast.script, highlighter.ast);
-
-				if (highlighter.ast.script.errors.length > 0) {
-					showInfoBox("error", highlighter.ast.script.errors[0].messageText());
-				}
 			} else {
 				powerOff();
 			}
