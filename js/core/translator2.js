@@ -1960,6 +1960,10 @@ EdenAST.prototype.pSTATEMENT = function() {
 		stat.setSource(start, end);
 	}
 	this.lines[curline] = stat;
+	var endline = this.stream.line - 1;
+	for (var i=curline; i<=endline; i++) {
+		if (this.lines[i] === undefined) this.lines[i] = stat;
+	}
 	return stat;
 };
 

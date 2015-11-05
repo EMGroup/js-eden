@@ -382,7 +382,7 @@
 
 		if (ast.stream.code.length == 0) {
 			if (this.outelement) {
-				this.outelement.innerHTML = "<div class='eden-currentline'><span class='fake-caret'></span></div>";
+				this.outelement.innerHTML = "<div class='eden-line'><span class='fake-caret'></span></div>";
 			}
 			return;
 		}
@@ -415,7 +415,8 @@
 					lineerror = (linestart <= errstart) && (stream.position >= errend);
 
 					var lineelement = document.createElement('div');
-					lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
+					lineelement.className = "eden-line";
+					//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
 					this.line++;
 					if (line !== undefined) {
 						lineelement.appendChild(line);
@@ -437,7 +438,8 @@
 
 			if (line !== undefined) {
 				var lineelement = document.createElement('div');
-				lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
+				lineelement.className = "eden-line";
+				//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
 				lineelement.appendChild(line);
 				this.outelement.appendChild(lineelement);
 			} else {
@@ -475,7 +477,7 @@
 					linestart = stream.position;
 					line = this.highlightLine(ast, position);
 					lineerror = (linestart <= errstart) && (stream.position >= errend);
-					node.className = generateLineClass(this, stream, linestart,lineerror,position);
+					//node.className = generateLineClass(this, stream, linestart,lineerror,position);
 					node.appendChild(line);
 					var blank = document.createTextNode("\n");
 					node.appendChild(blank);
@@ -484,7 +486,7 @@
 			}
 
 			// Now check for dirty lines to change line class
-			console.log(ast.lines);
+			/*console.log(ast.lines);
 			for (var i=0; i<this.outelement.childNodes.length; i++) {
 				if (ast.lines[i]) {
 					if (ast.lines[i].executed == 1) {
@@ -503,7 +505,7 @@
 						this.outelement.childNodes[i].className += " eden-errorblock";
 					}
 				}
-			}
+			}*/
 		}
 	};
 }(typeof window !== 'undefined' ? window : global));

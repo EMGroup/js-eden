@@ -297,7 +297,7 @@ textarea.hidden-textarea {
 div.outputcontent {
 	display: inline-block;
 	/* width: 100%;*/
-	min-width: calc(100% - 20px);
+	min-width: calc(100% - 22px);
 	min-height: 100%;
 	resize: none;
 	margin-left: 22px;
@@ -305,7 +305,7 @@ div.outputcontent {
 	border-left-style: solid;
 	border-left-color: #e5e5e5;
 	box-sizing: border-box;
-	padding-left: 5px;
+	padding-left: 8px;
 	padding-top: 15px;
 	padding-right: 1px;
 	/*padding: 4px;*/
@@ -315,7 +315,8 @@ div.outputcontent {
 	font: 14px/20px Roboto Mono,monospace;
 	white-space: pre;
 	/*overflow: auto;*/
-	background: #f5f5f5;
+	/*background: #f5f5f5;*/
+	background: white;
 }
 
 div.output-shrink {
@@ -739,6 +740,52 @@ div.eden-warnline {
 	border-left-color: silver;*/
 	/*box-shadow: none;*/
 	/*z-index: 1;*/
+}
+
+div.eden-gutter {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 20px;
+	padding-top: 15px;
+	margin: 0;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+div.eden-gutter-item {
+	width: 18px;
+	height: 16px;
+	border-right: 1px solid #e5e5e5;
+	padding-left: 4px;
+	padding-top: 4px;
+}
+
+div.eden-gutter-current {
+	border-right-width: 2px;
+	border-right-color: silver;
+}
+
+div.eden-gutter-errorblock {
+	border-right-width: 2px;
+	border-right-color: #ff0000;
+}
+
+div.eden-gutter-executed {
+	border-right-width: 2px;
+	border-right-color: #00ff00;
+}
+
+div.eden-gutter-guarded {
+	border-right-width: 2px;
+	border-right-color: #ffee00;
+}
+
+div.eden-gutter-error {
+	content: "\f06a";
+	font-family: "FontAwesome";
+	color: red;
+	font-size: 10pt;
 }
 
 div.eden-warnline:before {

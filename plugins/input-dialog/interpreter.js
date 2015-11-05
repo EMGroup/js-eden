@@ -201,6 +201,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		suggestions.hide();
 		$(infobox).hide();
 
+		var gutter = new EdenScriptGutter($codearea.get(0));
+
 		//$dialogContents.append($optmenu);
 		//$optmenu.menu();
 
@@ -662,6 +664,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 */
 		function highlightContent(ast, lineno, position) {
 			highlighter.highlight(ast, lineno, position);
+			gutter.generate(ast,lineno);
 
 			// If the first line is a comment, set the title to that
 			if (lineno == -1 || lineno == 1) {
