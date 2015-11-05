@@ -1,0 +1,43 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+
+	function Translation(x, y, items) {
+		this.x = x;
+		this.y = y;
+		this.items = items;
+	}
+
+	Translation.prototype = new EdenUI.plugins.Canvas2D.Transform;
+
+	Translation.prototype.transform = function (context) {
+		context.translate(this.x, this.y);
+	}
+
+	Translation.prototype.toString = function () {
+		return "Translate(" + Eden.edenCodeForValues(this.x, this.y, this.items) + ")";
+	}
+
+	Translation.prototype.getEdenCode = Translation.prototype.toString;
+
+}}$;
+
+func Translate {
+	${{
+		var x, y, items;
+		if (arguments[0] instanceof Point) {
+			var p = arguments[0];
+			x = p.x;
+			y = p.y;
+			items = arguments[1];
+		} else {
+			x = arguments[0];
+			y = arguments[1];
+			items = arguments[2];
+		}
+		return new Translation(x, y, items);
+	}}$;
+}

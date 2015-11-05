@@ -49,6 +49,9 @@ ${{
 				this.vertices = this.vertices.concat(currentPolygonVertices);
 			}
 		}
+		if (outlinecolour === undefined) {
+			this.calculatePolygons(0);
+		}
 	}
 
 	RegularPolygon.prototype.calculatePolygons = function (lineWidth) {

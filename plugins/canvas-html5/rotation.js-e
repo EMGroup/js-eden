@@ -1,0 +1,113 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+
+	function Rotation(angle, centre, origin, angle2, radius, items) {
+		this.angle = angle;
+		this.centre = centre;
+		this.origin = origin;
+		this.angle2 = angle2;
+		this.radius = radius;
+		this.items = items;
+
+		var radiansPerUnit = root.lookup("radiansPerUnit").value();
+		if (angle2 === undefined) {
+			this.radians2 = 0;
+		} else {
+			this.radians2 = -angle2 * radiansPerUnit;
+		}
+		if (angle === undefined) {
+			this.radians = 0;
+		} else {
+			this.radians = -angle * radiansPerUnit - this.radians2;
+		}
+	}
+
+	Rotation.prototype = new EdenUI.plugins.Canvas2D.Transform();
+	
+	Rotation.prototype.transform = function (context) {
+		var origin = this.origin;
+		var centre = this.centre;
+		var radius = this.radius;
+
+		context.translate(origin.x, origin.y);
+
+		if (radius !== undefined) {
+			context.rotate(this.radians2);
+			context.translate(radius, 0);
+		}
+		context.rotate(this.radians);
+
+		if (centre !== undefined) {
+			context.translate(-centre.x, -centre.y);
+		}
+	}
+
+	Rotation.prototype.toString = function() {
+		if (this.radius !== undefined && this.centre !== undefined) {
+			return "CombinedRotation(" + Eden.edenCodeForValues(this.angle, this.centre, this.origin, this.angle2, this.radius, this.items) + ")";
+		} else if (this.radius !== undefined) {
+			return "RotateAboutPoint(" + Eden.edenCodeForValues(this.angle2, this.origin, this.radius, this.items) + ")";
+		} else {
+			return "RotateAboutCentre(" + Eden.edenCodeForValues(this.angle, this.centre, this.origin, this.centre, this.items) + ")";
+		}
+	}
+
+	Rotation.prototype.getEdenCode = Rotation.prototype.toString;
+
+}}$;
+
+func CombinedRotation {
+	${{
+		var angle, centre, origin, angle2, radius, items;
+		angle = arguments[0];
+		centre = arguments[1];
+		origin = arguments[2];
+
+		if (arguments.length == 6) {
+			angle2 = arguments[3];
+			radius = arguments[4];
+			items = arguments[5];
+		} else {
+			angle2 = angle;
+			radius = arguments[3];
+			items = arguments[4];		
+		}
+
+		return new Rotation(angle, centre, origin, angle2, radius, items);
+	}}$;
+}
+
+func RotateAboutCentre {
+	${{
+		var angle = arguments[0];
+		var centre = arguments[1];
+		var origin = arguments[2];
+		var items = arguments[3];
+		return new Rotation(angle, centre, origin, 0, undefined, items);
+	}}$;
+}
+
+func RotateAboutPoint {
+	${{
+		var angle, origin, radius, centre, items;
+		angle = arguments[0];
+		origin = arguments[1];
+		radius = arguments[2];
+
+		if (arguments.length == 5) {
+			centre = arguments[3];
+			items = arguments[4];
+		} else {
+			items = arguments[3];
+		}
+
+		return new Rotation(0, centre, origin, angle, radius, items);
+	}}$;
+}
+
+radiansPerUnit ~> [CombinedRotation, RotateAboutCentre, RotateAboutPoint];
+
