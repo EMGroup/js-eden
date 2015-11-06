@@ -46,7 +46,7 @@ func centroid {
 	return {x, y};
 }
 
-func length {
+func distance {
 	${{
 		var from, to;
 		if (arguments.length == 1) {
@@ -64,17 +64,17 @@ func length {
 			if (from == undefined) {
 				return undefined;
 			} else if (!(from instanceof Point)) {
-				eden.error(new Error("length: The first argument must be a Point or a Line, not a " + typeof(from)), "error");
+				eden.error(new Error("distance: The first argument must be a Point or a Line, not a " + typeof(from)), "error");
 				return undefined;
 			}
 		} else {
-			eden.error(new Error("length: This function requires at least 1 argument and at most 2 arguments"), "error");
+			eden.error(new Error("distance: This function requires at least 1 argument and at most 2 arguments"), "error");
 			return undefined;
 		}
 		if (to == undefined) {
 			return undefined;
 		} else if (!(to instanceof Point)) {
-			eden.error(new Error("length: The destination point must be a Point, not a " + typeof(to)), "error");
+			eden.error(new Error("distance: The destination point must be a Point, not a " + typeof(to)), "error");
 			return undefined;
 		}
 		if (from.x == undefined || from.y == undefined || to.x == undefined || to.y == undefined) {

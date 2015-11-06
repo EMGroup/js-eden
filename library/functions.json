@@ -327,7 +327,7 @@
 			"return": "",
 			"description": ""
 		},
-		"length": {
+		"distance": {
 			"parameters": {
 				"[from]": "",
 				"point_or_line": ""
@@ -901,6 +901,57 @@
 			"return": "Rectangle object",
 			"description": "Creates a rectangle element for display on the canvas"
 		},
+		"RotateAboutCentre": {
+			"parameters": {
+				"angle": "",
+				"centre_of_rotation": "",
+				"centre_of_rotated_image": "",
+				"picture_list": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"RotateAboutPoint": {
+			"parameters": {
+				"angle": "",
+				"centre_point": "",
+				"radius": "",
+				"[centre_of_rotation]": "",
+				"picture_list": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"CombinedRotation": {
+			"parameters": {
+				"image_angle": "",
+				"centre_of_rotation": "",
+				"orbit_centre": "",
+				"[orbit_angle]": "",
+				"orbit_radius": "",
+				"picture_list": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"Scale": {
+			"parameters": {
+				"scale_x": "",
+				"[scale_y]": "",
+				"[translation_point_or_xy_pair]": "",
+				"items": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"Translate": {
+			"parameters": {
+				"point_or_xy_argument_pair": "",
+				"picture_list": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"RoundedRectangle": {
 			"parameters": {
 				"x": "X-coordinate for top left",
@@ -1134,6 +1185,13 @@
 			"description": ""
 		},
 		"Video": {
+			"parameters": {
+				"[preload]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"Audio": {
 			"parameters": {
 				"[preload]": ""
 			},
