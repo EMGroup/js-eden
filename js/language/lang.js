@@ -33,6 +33,7 @@ var Language = {
 		"continue": "continue",
 		"return": "return",
 		"when": "when",
+		"wait": "wait",
 		"include": "include",
 		"option": "option",
 		"await": "await",

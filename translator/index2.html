@@ -51,11 +51,11 @@
 				}
 
 				var parserAST = new EdenAST(edenSource);
-				var parserOutput = parserAST.prettyPrint();
-				document.getElementById('parser-output').innerHTML = parserOutput;
 				if (parserAST.script.errors.length == 0) {
 					document.getElementById('parser-output2').innerHTML = parserAST.generate(undefined, "eden.root.scope");
 				}
+				var parserOutput = parserAST.prettyPrint();
+				document.getElementById('parser-output').innerHTML = parserOutput;
 			}
 
 			var previousSource = getParameterByName("s");

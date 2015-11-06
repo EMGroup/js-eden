@@ -274,6 +274,28 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);
 
+		edenUI.eden.root.addGlobal(function(sym, create) {
+			if (highlighter.ast) {
+				var whens = highlighter.ast.triggers[sym.name.slice(1)];
+				if (whens) {
+					//clearExecutedState();
+					for (var i=0; i<whens.length; i++) {
+						whens[i].execute(eden.root, undefined, highlighter.ast);
+					}
+					//gutter.generate(highlighter.ast,-1);
+				}
+			}
+		});
+
+
+
+		function refreshGutter() {
+			gutter.generate(highlighter.ast,-1);
+			clearExecutedState();
+			setTimeout(refreshGutter, 500);
+		}
+		setTimeout(refreshGutter,500);
+
 
 
 		/**
@@ -322,7 +344,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * is required when there are changes across multiple lines (or there
 		 * could be such changes), for example when pasting.
 		 */
-		function updateEntireHighlight() {
+		function updateEntireHighlight(rerun) {
 			console.log("REBUILD ALL");
 			var ast = new EdenAST(intextarea.value);
 			highlighter.ast = ast;
@@ -332,7 +354,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 
 			var cacheline = currentlineno;
-			currentlineno = 0;
+			if (rerun) {
+				// Execute entire script
+				currentlineno = 0;
+			} else {
+				// Don't execute
+				currentlineno = -1;
+			}
 			runScript();
 			currentlineno = cacheline;
 
@@ -1203,7 +1231,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (highlighter.ast.lines[lineno-1]) {
 				if (highlighter.ast.lines[lineno-1].errors.length > 0) {
 					if (highlighter.ast.lines[lineno-1].errors[0].line == lineno) {
-						showInfoBox(e.target.offsetLeft+20, e.target.offsetTop+25, "error", highlighter.ast.lines[lineno-1].errors[0].messageText());
+						showInfoBox(e.target.offsetLeft+20, e.target.offsetTop-$codearea.get(0).scrollTop+25, "error", highlighter.ast.lines[lineno-1].errors[0].messageText());
 					}
 				} else {
 					clearExecutedState();
@@ -1277,7 +1305,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			if (autoexec) {
 				powerOn();
-				updateEntireHighlight();
+				updateEntireHighlight(true);
 				//me.submit(highlighter.ast.script, highlighter.ast);
 			} else {
 				powerOff();

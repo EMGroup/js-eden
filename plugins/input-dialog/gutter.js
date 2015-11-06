@@ -40,6 +40,8 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 				className += " eden-gutter-executed";
 			} else if (ast.lines[i].executed == 2) {
 				className += " eden-gutter-guarded";
+			} else if (ast.lines[i].executed == 3) {
+				className += " eden-gutter-errorblock";
 			}
 		}
 

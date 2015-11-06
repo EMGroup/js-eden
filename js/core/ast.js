@@ -1660,7 +1660,12 @@ EdenAST_Do.prototype.execute = function(root,ctx,base) {
 		this.statement.execute(root,ctx,base);
 	} while (expfunc(root,root.scope));*/
 
-	base.scripts[this.name].executeReal(root,ctx,base);
+	if (base.scripts[this.name]) {
+		base.scripts[this.name].executeReal(root,ctx,base);
+	} else {
+		this.executed = 3;
+		if (this.parent) this.parent.executed = 3;
+	}
 }
 
 
@@ -1850,6 +1855,34 @@ EdenAST_Break.prototype.generate = function(ctx, scope) {
 
 //------------------------------------------------------------------------------
 
+function EdenAST_Wait() {
+	this.type = "wait";
+	this.parent = undefined;
+	this.errors = [];
+	this.start = 0;
+	this.end = 0;
+	this.delay = 0;
+};
+
+EdenAST_Wait.prototype.error = fnEdenAST_error;
+
+EdenAST_Wait.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+EdenAST_Wait.prototype.setDelay = function(delay) {
+	this.delay = delay;
+}
+
+EdenAST_Wait.prototype.generate = function(ctx, scope) {
+	return "yield "+this.delay;
+}
+
+
+
+//------------------------------------------------------------------------------
+
 function EdenAST_CodeBlock() {
 	this.type = "codeblock";
 	this.errors = [];
@@ -1904,24 +1937,78 @@ EdenAST_CodeBlock.prototype.generate = function(ctx) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_ConditionalAction() {
-	this.type = "conditionalaction";
+function EdenAST_When() {
+	this.type = "when";
 	this.errors = [];
 	this.expression = undefined;
 	this.statement = undefined;
+	this.start = 0;
+	this.end = 0;
+	this.executed = 0;
+	this.parent = undefined;
+	this.dependencies = {};
 };
 
-EdenAST_ConditionalAction.prototype.setExpression = function (express) {
+EdenAST_When.prototype.setExpression = function (express) {
 	this.expression = express;
-	this.errors.push.apply(this.errors, express.errors);
+	if (express) {
+		this.errors.push.apply(this.errors, express.errors);
+	}
 }
 
-EdenAST_ConditionalAction.prototype.setStatement = function (statement) {
+EdenAST_When.prototype.setStatement = function (statement) {
 	this.statement = statement;
-	this.errors.push.apply(this.errors, statement.errors);
+	if (statement) {
+		this.errors.push.apply(this.errors, statement.errors);
+	}
 }
 
-EdenAST_ConditionalAction.prototype.error = fnEdenAST_error;
+EdenAST_When.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+EdenAST_When.prototype.generate = function(base) {
+	var cond = "(function(context,scope) { return ";
+	cond += this.expression.generate(this, "scope");
+	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+		cond += ".value";
+	}
+	cond += ";})";
+	this.compiled = eval(cond);
+
+	// Register with base to be triggered
+	for (var d in this.dependencies) {
+		if (base.triggers[d]) {
+			if (base.triggers[d].indexOf(this) == -1) {
+				base.triggers[d].push(this);
+			}
+		} else {
+			var trigs = [this];
+			base.triggers[d] = trigs;
+		}
+	}
+
+	return "";
+}
+
+EdenAST_When.prototype.execute = function(root, ctx, base) {
+	this.executed = 1;
+	var cond = "(function(context,scope) { return ";
+	cond += this.expression.generate(this, "scope");
+	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+		cond += ".value";
+	}
+	cond += ";})";
+
+	if (this.compiled(root,root.scope)) {
+		this.statement.execute(root, ctx, base);
+	} else {
+		this.executed = 2;
+	}
+}
+
+EdenAST_When.prototype.error = fnEdenAST_error;
 
 
 
@@ -1986,12 +2073,37 @@ EdenAST_Script.prototype.append = function (ast) {
 }
 
 EdenAST_Script.prototype.executeReal = function(root, ctx, base) {
+	var gen = this.executeGenerator(root,ctx,base);
+	runEdenAction(gen);
+}
+
+EdenAST_Script.prototype.executeGenerator = function*(root, ctx, base) {
 	this.executed = 1;
 	for (var i = 0; i < this.statements.length; i++) {
-		this.statements[i].execute(root,ctx, base);
+		if (this.statements[i].type == "wait") {
+			yield this.statements[i].delay;
+		} else {
+			this.statements[i].execute(root,ctx, base);
+		}
+
 		if (this.statements[i].errors.length > 0) {
 			this.errors.push.apply(this.errors, this.statements[i].errors);
 		}
+		//yield 1000;
+	}
+}
+
+function runEdenAction(action) {
+	if (action === undefined) return;
+	var delay = action.next();
+	console.log("RunAction: " + delay.value);
+	if (delay.done == false) {
+		if (delay.value == 0) {
+			runEdenAction(agent);
+		} else if (delay.value > 0) {
+			setTimeout(function() {runEdenAction(action)}, delay.value);
+		}
+	} else {
 	}
 }
 

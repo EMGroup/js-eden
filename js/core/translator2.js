@@ -22,6 +22,7 @@ function EdenAST(code) {
 	this.lines = [];
 	this.parent = undefined;
 	this.scripts = {};
+	this.triggers = {};
 
 	console.log("NEWAST");
 
@@ -881,10 +882,40 @@ EdenAST.prototype.pACTION = function() {
 
 /**
  * WHEN Production
- * WHEN -> : WHEN' | ( EXPRESSION ) ACTIONBODY
+ * WHEN -> ( EXPRESSION ) STATEMENT
  */
 EdenAST.prototype.pWHEN = function() {
-	if (this.token == ":") {
+	var when = new EdenAST_When();
+	var parent = this.parent;
+	this.parent = when;
+
+	if (this.token != "(") {
+		when.errors.push(new EdenError(this, 0));
+		return when;
+	} else {
+		this.next();
+	}
+
+	when.setExpression(this.pEXPRESSION());
+	if (when.errors.length > 0) return when;
+
+	if (this.token != ")") {
+		when.errors.push(new EdenError(this, 0));
+		return when;
+	} else {
+		this.next();
+	}
+
+	when.setStatement(this.pSTATEMENT());
+	if (when.errors.length > 0) return when;
+
+	// Compile the expression and log dependencies
+	when.generate(this);
+
+	this.parent = parent;
+	return when;
+
+	/*if (this.token == ":") {
 		this.next();
 
 		var when = this.pWHEN_P();
@@ -917,7 +948,7 @@ EdenAST.prototype.pWHEN = function() {
 	when.setStatement(this.pSTATEMENT());
 	if (when.errors.length > 0) return when;
 
-	return when;
+	return when;*/
 }
 
 
@@ -1808,6 +1839,32 @@ EdenAST.prototype.pINCLUDE = function() {
 
 
 
+EdenAST.prototype.pWAIT = function() {
+	var wait = new EdenAST_Wait();
+
+	if (this.token == ";") {
+		this.next();
+		return wait;
+	} else {
+		if (this.token == "NUMBER") {
+			wait.setDelay(this.data.value);
+			this.next();
+		} else {
+			wait.errors.push(new EdenError(this, 0));
+			return wait;
+		}
+
+		if (this.token != ";") {
+			wait.errors.push(new EdenError(this, 0));
+			return wait;
+		}
+		this.next();
+	}
+	return wait;
+}
+
+
+
 /**
  * STATEMENT Production
  * STATEMENT ->
@@ -1847,11 +1904,12 @@ EdenAST.prototype.pSTATEMENT = function() {
 	switch (this.token) {
 	case "proc"		:	this.next(); stat = this.pACTION(); end = this.stream.position; endline = this.stream.line; this.next(); break;
 	case "func"		:	this.next(); stat = this.pFUNCTION(); end = this.stream.position; endline = this.stream.line; this.next(); break;
-	//case "when"		:	this.next(); stat = this.pWHEN(); break;
+	case "when"		:	this.next(); stat = this.pWHEN(); end = this.stream.position; endline = this.stream.line; break;
 	case "action"	:	this.next(); stat = this.pNAMEDSCRIPT(); end = this.stream.position; endline = this.stream.line; this.next(); break;
 	case "for"		:	this.next(); stat = this.pFOR(); break;
 	case "while"	:	this.next(); stat = this.pWHILE(); break;
 	case "do"		:	this.next(); stat = this.pDO(); break;
+	case "wait"		:	this.next(); stat = this.pWAIT(); break;
 	case "switch"	:	this.next(); stat = this.pSWITCH(); break;
 	case "case"		:	this.next(); stat = this.pCASE(); break;
 	case "insert"	:	this.next(); stat = this.pINSERT(); break;
