@@ -5,7 +5,7 @@ function EdenScriptGutter(parent) {
 }
 
 EdenScriptGutter.prototype.generate = function(ast, lineno) {
-	var linediff = ast.lines.length - this.gutter.childNodes.length;
+	/*var linediff = ast.lines.length - this.gutter.childNodes.length;
 
 	if (linediff < 0) {
 		linediff = Math.abs(linediff);
@@ -20,14 +20,27 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			item.className = "eden-gutter-item";
 			this.gutter.appendChild(item);
 		}
+	}*/
+
+	// Reset all lines if number of lines changes
+	if (ast.lines.length != this.gutter.childNodes.length) {
+		while (this.gutter.firstChild) {
+			this.gutter.removeChild(this.gutter.firstChild);
+		}
+		for (var i=0; i<ast.lines.length; i++) {
+			var ele = document.createElement("div");
+			ele.className = "eden-gutter-item";
+			this.gutter.appendChild(ele);
+		}
 	}
 
 	for (var i=0; i<ast.lines.length; i++) {
+		//this.gutter.appendChild(document.createElement("div"));
 		var className = "eden-gutter-item";
 		var content = "";
-		if (i == lineno-1) {
+		/*if (i == lineno-1) {
 			className += " eden-gutter-current";
-		}
+		}*/
 		if (ast.lines[i]) {
 			if (ast.lines[i].errors.length > 0) {
 				className += " eden-gutter-errorblock";
@@ -45,7 +58,13 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			}
 		}
 
-		this.gutter.childNodes[i].className = className;
-		this.gutter.childNodes[i].innerHTML = content;
+		if (className != "eden-gutter-item") {
+			var newnode = document.createElement("div");
+			newnode.className = className;
+			newnode.innerHTML = content;
+			//this.gutter.childNodes[i].className = className;
+			//this.gutter.childNodes[i].innerHTML = content;
+			this.gutter.replaceChild(newnode, this.gutter.childNodes[i]);
+		}
 	}
 }

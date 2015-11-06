@@ -282,7 +282,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					for (var i=0; i<whens.length; i++) {
 						whens[i].execute(eden.root, undefined, highlighter.ast);
 					}
-					//gutter.generate(highlighter.ast,-1);
+					gutter.generate(highlighter.ast,-1);
+					clearExecutedState();
 				}
 			}
 		});
@@ -294,7 +295,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			clearExecutedState();
 			setTimeout(refreshGutter, 500);
 		}
-		setTimeout(refreshGutter,500);
+		//setTimeout(refreshGutter,500);
 
 
 
@@ -1235,7 +1236,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 				} else {
 					clearExecutedState();
-					submitLine(highlighter.ast, lineno);
+					submitLine(highlighter.ast, lineno-1);
 					gutter.generate(highlighter.ast, lineno);
 				}
 			}

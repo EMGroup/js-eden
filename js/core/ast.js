@@ -1862,6 +1862,7 @@ function EdenAST_Wait() {
 	this.start = 0;
 	this.end = 0;
 	this.delay = 0;
+	this.executed = 0;
 };
 
 EdenAST_Wait.prototype.error = fnEdenAST_error;
@@ -2052,6 +2053,7 @@ function EdenAST_Script() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.active = false;
 };
 
 EdenAST_Script.prototype.error = fnEdenAST_error;
@@ -2073,8 +2075,10 @@ EdenAST_Script.prototype.append = function (ast) {
 }
 
 EdenAST_Script.prototype.executeReal = function(root, ctx, base) {
+	if (this.active) return;
+	this.active = true;
 	var gen = this.executeGenerator(root,ctx,base);
-	runEdenAction(gen);
+	runEdenAction(this, gen);
 }
 
 EdenAST_Script.prototype.executeGenerator = function*(root, ctx, base) {
@@ -2082,6 +2086,7 @@ EdenAST_Script.prototype.executeGenerator = function*(root, ctx, base) {
 	for (var i = 0; i < this.statements.length; i++) {
 		if (this.statements[i].type == "wait") {
 			yield this.statements[i].delay;
+			this.statements[i].executed = 1;
 		} else {
 			this.statements[i].execute(root,ctx, base);
 		}
@@ -2093,17 +2098,20 @@ EdenAST_Script.prototype.executeGenerator = function*(root, ctx, base) {
 	}
 }
 
-function runEdenAction(action) {
-	if (action === undefined) return;
+function runEdenAction(source, action) {
+	if (action === undefined) {
+		source.active = false;
+	}
 	var delay = action.next();
-	console.log("RunAction: " + delay.value);
+	//console.log("RunAction: " + delay.value);
 	if (delay.done == false) {
 		if (delay.value == 0) {
-			runEdenAction(agent);
+			runEdenAction(source, action);
 		} else if (delay.value > 0) {
-			setTimeout(function() {runEdenAction(action)}, delay.value);
+			setTimeout(function() {runEdenAction(source, action)}, delay.value);
 		}
 	} else {
+		source.active = false;
 	}
 }
 
