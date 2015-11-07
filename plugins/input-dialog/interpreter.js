@@ -264,15 +264,28 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
+		/**
+		 * Load a file from the server as the script.
+		 */
+		function loadFile(sym, value) {
+			$.get(value, function(data) {
+				intextarea.value = data;
+				updateEntireHighlight();
+			}, "text");
+		}
+
+
 		// Use the agent wrapper for dealing with view interaction via symbols.
 		var obs_script = "_view_"+name+"_script";
 		var obs_next = "_view_"+name+"_next";
 		var obs_prev = "_view_"+name+"_prev";
 		var obs_override = "_view_"+name+"_override";
-		var agent = new Eden.Agent([obs_script,obs_next,obs_prev,obs_override], eden.root.scope);
+		var obs_file = "_view_"+name+"_file";
+		var agent = new Eden.Agent([obs_script,obs_next,obs_prev,obs_override, obs_file], eden.root.scope);
 
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);
+		agent.on(obs_file, loadFile);
 
 		edenUI.eden.root.addGlobal(function(sym, create) {
 			if (highlighter.ast) {
