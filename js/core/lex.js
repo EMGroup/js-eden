@@ -14,6 +14,7 @@ function EdenStream(code) {
 	this.position_stack = [0];
 	this.prevposition = 0;
 	this.line = 1;
+	this.prevline = 1;
 	this.data = new EdenSyntaxData();
 };
 
@@ -360,8 +361,8 @@ var edenKeywords = {
 
 
 EdenStream.prototype.readToken = function() {
+	this.prevline = this.line;
 	this.skipWhiteSpace();
-
 	this.prevposition = this.position;
 
 	if (this.eof()) return "EOF";

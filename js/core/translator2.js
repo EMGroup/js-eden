@@ -1904,7 +1904,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 	switch (this.token) {
 	case "proc"		:	this.next(); stat = this.pACTION(); end = this.stream.position; endline = this.stream.line; this.next(); break;
 	case "func"		:	this.next(); stat = this.pFUNCTION(); end = this.stream.position; endline = this.stream.line; this.next(); break;
-	case "when"		:	this.next(); stat = this.pWHEN(); end = this.stream.position; endline = this.stream.line; break;
+	case "when"		:	this.next(); stat = this.pWHEN(); end = this.stream.prevposition; endline = this.stream.prevline; break;
 	case "action"	:	this.next(); stat = this.pNAMEDSCRIPT(); end = this.stream.position; endline = this.stream.line; this.next(); break;
 	case "for"		:	this.next(); stat = this.pFOR(); break;
 	case "while"	:	this.next(); stat = this.pWHILE(); break;
