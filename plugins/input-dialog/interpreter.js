@@ -275,17 +275,27 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 
+
+		function switchPower(sym, value) {
+			if (value) powerOn();
+			else powerOff();
+		}
+
+
+
 		// Use the agent wrapper for dealing with view interaction via symbols.
 		var obs_script = "_view_"+name+"_script";
 		var obs_next = "_view_"+name+"_next";
 		var obs_prev = "_view_"+name+"_prev";
 		var obs_override = "_view_"+name+"_override";
 		var obs_file = "_view_"+name+"_file";
-		var agent = new Eden.Agent([obs_script,obs_next,obs_prev,obs_override, obs_file], eden.root.scope);
+		var obs_power = "_view_"+name+"_power";
+		var agent = new Eden.Agent([obs_script,obs_next,obs_prev,obs_override, obs_file, obs_power], eden.root.scope);
 
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);
 		agent.on(obs_file, loadFile);
+		agent.on(obs_power, switchPower);
 
 		edenUI.eden.root.addGlobal(function(sym, create) {
 			if (highlighter.ast) {
@@ -1380,7 +1390,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				width: 500,
 				height: idealheight,
 				minHeight: 203,
-				minWidth: 500,
+				minWidth: 300,
 				dialogClass: "input-dialog"
 			});
 

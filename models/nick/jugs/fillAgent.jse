@@ -1,0 +1,57 @@
+input = @;
+opt = @;
+step = 0;
+
+when (input != @) {
+	updating = 1;
+	if (int(input) == 5) {
+		content5 = contentA + contentB;
+		contentB is content5 - contentA;
+		opt = 6 if valid6 else 7;
+	} else {
+		opt = int(input);
+	}
+	step = 0;
+}
+
+action delay {
+	wait 150;
+	step++;
+}
+
+when (step >= 0) if (opt == 1 && avail(opt)) {
+	contentA++;
+	do delay;
+}
+
+when (step >= 0) if (opt == 2 && avail(opt)) {
+	contentB++;
+	do delay;
+}
+
+when (step >= 0) if (opt == 3 && avail(opt)) {
+	contentA--;
+	do delay;
+}
+
+when (step >= 0) if (opt == 4 && avail(opt)) {
+	contentB--;
+	do delay;
+}
+
+when (step >= 0) if (opt == 6 && avail(opt)) {
+	contentA--;
+	do delay;
+}
+
+when (step >= 0) if (opt == 7 && avail(opt)) {
+	contentA++;
+	do delay;
+}
+
+when (step >= 0) if (!avail(opt)) {
+	contentA = contentA;
+	contentB = contentB;
+	updating = 0;
+}
+
