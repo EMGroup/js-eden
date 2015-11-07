@@ -84,13 +84,14 @@ module.exports = function (grunt) {
 					'./js/core/initialise.js',
 					'./js/core/lex.js',
 					'./js/core/errors.js',
-					'./js/core/ast.js',
+					//'./js/core/ast.js',
 					'./js/core/translator2.js',
 					'./js/wrappers.js'
 				],
 				'./plugins/jseden-plugins.min.js': [
 					'./plugins/input-dialog/interpreter.js',
 					'./plugins/input-dialog/highlighter.js',
+					'./plugins/input-dialog/gutter.js',
 					'./plugins/project-listing/project-listing.js',
 					'./plugins/plugin-listing/plugin-listing.js',
 					'./plugins/menu-bar/menu-bar.js',
