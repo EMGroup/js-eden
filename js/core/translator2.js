@@ -2003,6 +2003,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 						} else {
 							// End source here to avoid bringing comments in
 							end = this.stream.position;
+							endline = this.stream.line;
 							this.next();
 						}
 						stat = formula; break;

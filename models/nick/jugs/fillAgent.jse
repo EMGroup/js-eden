@@ -1,55 +1,51 @@
+## Pour Agent
+
 input = @;
 opt = @;
-step = 0;
 
-when (input != @) {
+## Init Pour Agent
+when (input) {
 	updating = 1;
-	if (int(input) == 5) {
+	if (input == 5) {
 		content5 = contentA + contentB;
 		contentB is content5 - contentA;
 		opt = 6 if valid6 else 7;
 	} else {
-		opt = int(input);
+		opt = input;
 	}
-	step = 0;
 }
 
-action delay {
+when (opt == 1 && valid1) {
 	wait 150;
-	step++;
-}
-
-when (step >= 0) if (opt == 1 && avail(opt)) {
 	contentA++;
-	do delay;
 }
 
-when (step >= 0) if (opt == 2 && avail(opt)) {
+when (opt == 2 && valid2) {
+	wait 150;
 	contentB++;
-	do delay;
 }
 
-when (step >= 0) if (opt == 3 && avail(opt)) {
+when (opt == 3 && valid3) {
+	wait 150;
 	contentA--;
-	do delay;
 }
 
-when (step >= 0) if (opt == 4 && avail(opt)) {
+when (opt == 4 && valid4) {
+	wait 150;
 	contentB--;
-	do delay;
 }
 
-when (step >= 0) if (opt == 6 && avail(opt)) {
+when (opt == 6 && valid6) {
+	wait 150;
 	contentA--;
-	do delay;
 }
 
-when (step >= 0) if (opt == 7 && avail(opt)) {
+when (opt == 7 && valid7) {
+	wait 150;
 	contentA++;
-	do delay;
 }
 
-when (step >= 0) if (!avail(opt)) {
+when (menustatus[opt] == false && updating == 1) {
 	contentA = contentA;
 	contentB = contentB;
 	updating = 0;

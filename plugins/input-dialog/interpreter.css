@@ -746,19 +746,19 @@ div.eden-gutter {
 	position: absolute;
 	left: 0;
 	top: 0;
-	width: 20px;
+	width: 22px;
 	padding-top: 15px;
 	margin: 0;
 	height: 100%;
-	box-sizing: border-box;
 }
 
 div.eden-gutter-item {
-	width: 17px;
-	height: 16px;
-	border-right: 1px solid #e5e5e5;
+	width: 22px;
+	height: 20px;
+	border-right: 1px solid transparent;
 	padding-left: 5px;
 	padding-top: 4px;
+	box-sizing: border-box;
 }
 
 div.eden-gutter-item:hover {

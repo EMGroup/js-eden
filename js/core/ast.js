@@ -1948,6 +1948,7 @@ function EdenAST_When() {
 	this.executed = 0;
 	this.parent = undefined;
 	this.dependencies = {};
+	this.active = false;
 };
 
 EdenAST_When.prototype.setExpression = function (express) {
@@ -1994,6 +1995,8 @@ EdenAST_When.prototype.generate = function(base) {
 }
 
 EdenAST_When.prototype.execute = function(root, ctx, base) {
+	if (this.active) return;
+	this.active = true;
 	this.executed = 1;
 	var cond = "(function(context,scope) { return ";
 	cond += this.expression.generate(this, "scope");
@@ -2007,6 +2010,7 @@ EdenAST_When.prototype.execute = function(root, ctx, base) {
 	} else {
 		this.executed = 2;
 	}
+	this.active = false;
 }
 
 EdenAST_When.prototype.error = fnEdenAST_error;
@@ -2085,10 +2089,11 @@ EdenAST_Script.prototype.executeGenerator = function*(root, ctx, base) {
 	this.executed = 1;
 	for (var i = 0; i < this.statements.length; i++) {
 		if (this.statements[i].type == "wait") {
-			yield this.statements[i].delay;
 			this.statements[i].executed = 1;
+			yield this.statements[i].delay;
 		} else {
 			this.statements[i].execute(root,ctx, base);
+			//yield 200;
 		}
 
 		if (this.statements[i].errors.length > 0) {
