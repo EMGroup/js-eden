@@ -9,7 +9,7 @@
 /**
  * Abstract Syntax Tree generator for JS-Eden code.
  * Each production in the grammar has a function in this class. It makes use
- * of the EdenStream class to tokenise the script, and the EdenError class to
+ * of the EdenStream class to tokenise the script, and the Eden.SyntaxError class to
  * report the errors found. To use, pass the script to the constructor.
  * @param code String containing the script.
  */
@@ -23,8 +23,6 @@ function EdenAST(code) {
 	this.parent = undefined;
 	this.scripts = {};
 	this.triggers = {};
-
-	console.log("NEWAST");
 
 	this.stream.data = this.data;
 
@@ -277,7 +275,7 @@ EdenAST.prototype.pFACTOR = function() {
 		this.next();
 		var expression = this.pEXPRESSION();
 		if (this.token != ")") {
-			expression.error(new EdenError(this, EDEN_ERROR_EXPCLOSEBRACKET));
+			expression.error(new Eden.SyntaxError(this, Eden.SyntaxError.EXPCLOSEBRACKET));
 		} else {
 			this.next();
 		}
@@ -305,7 +303,7 @@ EdenAST.prototype.pFACTOR = function() {
 		if (literal.errors.length > 0) return literal;
 
 		if (this.token != "]") {
-			literal.errors.push(new EdenError(this, EDEN_ERROR_LISTLITCLOSE));
+			literal.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LISTLITCLOSE));
 		} else {
 			this.next();
 		}
@@ -331,7 +329,7 @@ EdenAST.prototype.pFACTOR = function() {
 			return lit;
 		} else {
 			var res = new EdenAST_Literal("UNDEFINED","@");
-			res.errors.push(new EdenError(this, EDEN_ERROR_NEGNUMBER));
+			res.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.NEGNUMBER));
 			return res;
 		}*/
 	} else if (this.token == "STRING") {
@@ -377,7 +375,7 @@ EdenAST.prototype.pPRIMARY = function() {
 		
 		if (this.token != "`") {
 			var primary = new EdenAST_Primary();
-			primary.errors.push(new EdenError(this, EDEN_ERROR_BACKTICK));
+			primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BACKTICK));
 			return primary;
 		} else {
 			this.next();
@@ -396,7 +394,7 @@ EdenAST.prototype.pPRIMARY = function() {
 		return primary;
 	} else {
 		var primary = new EdenAST_Primary();
-		primary.errors.push(new EdenError(this, EDEN_ERROR_BADFACTOR));
+		primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADFACTOR));
 		return primary;
 	}
 }
@@ -442,7 +440,7 @@ EdenAST.prototype.pPRIMARY_P = function() {
 
 			if (this.token != ")") {
 				if (func.errors.length > 0) return func;
-				func.errors.push(new EdenError(this, EDEN_ERROR_FUNCCALLEND));
+				func.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCCALLEND));
 				return func;
 			} else {
 				this.next();
@@ -481,7 +479,7 @@ EdenAST.prototype.pPRIMARY_P = function() {
 
 			if (this.token != ")") {
 				if (func.errors.length > 0) return result;
-				func.errors.push(new EdenError(this, EDEN_ERROR_FUNCCALLEND));
+				func.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCCALLEND));
 				return result;
 			} else {
 				this.next();
@@ -494,7 +492,7 @@ EdenAST.prototype.pPRIMARY_P = function() {
 			if (comp.indexexp.type == "literal" &&
 					comp.indexexp.datatype == "NUMBER" &&
 					comp.indexexp.value < 1) {
-				comp.error(new EdenError(this, EDEN_ERROR_OUTOFBOUNDS));
+				comp.error(new Eden.SyntaxError(this, Eden.SyntaxError.OUTOFBOUNDS));
 			}
 
 			result.push(comp);
@@ -502,7 +500,7 @@ EdenAST.prototype.pPRIMARY_P = function() {
 			if (comp.errors.length > 0) return result;
 
 			if (this.token != "]") {
-				comp.errors.push(new EdenError(this, EDEN_ERROR_LISTINDEXCLOSE));
+				comp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LISTINDEXCLOSE));
 				return result;
 			} else {
 				this.next();
@@ -512,7 +510,7 @@ EdenAST.prototype.pPRIMARY_P = function() {
 			var comp = new EdenAST_LValueComponent("property");
 
 			if (this.token != "OBSERVABLE") {
-				comp.errors.push(new EdenError(this, EDEN_ERROR_PROPERTYNAME));
+				comp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.PROPERTYNAME));
 			} else {
 				comp.property(this.data.value);
 				this.next();
@@ -547,7 +545,7 @@ EdenAST.prototype.pPRIMARY_PP = function() {
 		var express = this.pEXPRESSION();
 
 		if (this.token != "]") {
-			index.errors.push(new EdenError(this, EDEN_ERROR_LISTINDEXCLOSE));
+			index.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LISTINDEXCLOSE));
 			return index;
 		} else {
 			this.next();
@@ -572,7 +570,7 @@ EdenAST.prototype.pPRIMARY_PP = function() {
 
 			if (this.token != ")") {
 				if (func.errors.length > 0) return func;
-				func.errors.push(new EdenError(this, EDEN_ERROR_FUNCCALLEND));
+				func.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCCALLEND));
 				return func;
 			} else {
 				this.next();
@@ -627,7 +625,7 @@ EdenAST.prototype.pPRIMARY_PPP = function() {
 
 			if (this.token != ")") {
 				if (func.errors.length > 0) return func;
-				func.errors.push(new EdenError(this, EDEN_ERROR_FUNCCALLEND));
+				func.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCCALLEND));
 				return func;
 			} else {
 				this.next();
@@ -673,7 +671,7 @@ EdenAST.prototype.pSCOPE = function() {
 		this.next();
 		var scope = this.pSCOPE_P();
 		if (this.token != ")") {
-			scope.errors.push(new EdenError(this, EDEN_ERROR_SCOPECLOSE));
+			scope.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPECLOSE));
 			return scope;
 		} else {
 			this.next();
@@ -692,7 +690,7 @@ EdenAST.prototype.pSCOPE = function() {
 EdenAST.prototype.pSCOPE_P = function() {
 	if (this.token != "OBSERVABLE") {
 		var scope = new EdenAST_Scope();
-		scope.error(new EdenError(this, EDEN_ERROR_SCOPENAME));
+		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPENAME));
 		return scope;
 	}
 	var obs = this.data.value;
@@ -700,7 +698,7 @@ EdenAST.prototype.pSCOPE_P = function() {
 
 	if (this.token != "is") {
 		var scope = new EdenAST_Scope();
-		scope.error(new EdenError(this, EDEN_ERROR_SCOPEEQUALS));
+		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPEEQUALS));
 		return scope;
 	}
 	this.next();
@@ -794,7 +792,7 @@ EdenAST.prototype.pEXPRESSION_PPPPPP = function() {
 		if (tern.errors.length > 0) return tern;
 
 		if (this.token != ":") {
-			tern.errors.push(new EdenError(this, EDEN_ERROR_TERNIFCOLON));
+			tern.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.TERNIFCOLON));
 			return tern;
 		} else {
 			this.next();
@@ -810,7 +808,7 @@ EdenAST.prototype.pEXPRESSION_PPPPPP = function() {
 		if (tern.errors.length > 0) return tern;
 
 		if (this.token != "else") {
-			tern.errors.push(new EdenError(this, EDEN_ERROR_TERNIFCOLON));
+			tern.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.TERNIFCOLON));
 			return tern;
 		} else {
 			this.next();
@@ -856,7 +854,7 @@ EdenAST.prototype.pACTION = function() {
 		action.name = this.data.value;
 		this.next();
 	} else {
-		action.errors.push(new EdenError(this, EDEN_ERROR_PROCNAME));
+		action.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.PROCNAME));
 		return action;
 	}
 
@@ -865,10 +863,10 @@ EdenAST.prototype.pACTION = function() {
 
 		var olist = this.pOLIST();
 		if (olist.length == 0) {
-			action.errors.push(new EdenError(this, EDEN_ERROR_ACTIONNOWATCH));
+			action.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONNOWATCH));
 			return action;
 		} else if (olist[olist.length-1] == "NONAME") {
-			action.errors.push(new EdenError(this, EDEN_ERROR_ACTIONCOMMAS));
+			action.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCOMMAS));
 			return action;
 		}
 		action.triggers = olist;
@@ -890,7 +888,7 @@ EdenAST.prototype.pWHEN = function() {
 	this.parent = when;
 
 	if (this.token != "(") {
-		when.errors.push(new EdenError(this, 0));
+		when.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.WHENOPEN));
 		return when;
 	} else {
 		this.next();
@@ -900,7 +898,7 @@ EdenAST.prototype.pWHEN = function() {
 	if (when.errors.length > 0) return when;
 
 	if (this.token != ")") {
-		when.errors.push(new EdenError(this, 0));
+		when.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.WHENCLOSE));
 		return when;
 	} else {
 		this.next();
@@ -913,67 +911,6 @@ EdenAST.prototype.pWHEN = function() {
 	when.generate(this);
 
 	this.parent = parent;
-	return when;
-
-	/*if (this.token == ":") {
-		this.next();
-
-		var when = this.pWHEN_P();
-		when.kind("change");
-
-			//when.errors.unshift(new EdenError(this, EDEN_ERROR_ACTIONCOLON));
-
-		return when;
-	}
-
-	var when = new EdenAST_ConditionalAction();
-
-	if (this.token != "(") {
-		when.error(new EdenError(this, EDEN_ERROR_WHENTYPE));
-		return when;
-	}
-
-	this.next();
-
-	when.setExpression(this.pEXPRESSION());
-	if (when.errors.length > 0) return when;
-
-	if (this.token != ")") {
-		when.error(new EdenError(this, 0, "Missing a ')' after a 'when' conditional", undefined, ")"));
-		return when;
-	} else {
-		this.next();
-	}
-
-	when.setStatement(this.pSTATEMENT());
-	if (when.errors.length > 0) return when;
-
-	return when;*/
-}
-
-
-/**
- * WHEN Prime Production
- * WHEN' -> OLIST ACTIONBODY
- */
-EdenAST.prototype.pWHEN_P = function() {
-	var when = new EdenAST_Action();
-
-	var olist = this.pOLIST();
-	if (olist.length == 0) {
-		when.error(new EdenError(this, 0, "'when touch' or 'when change' needs a list of observables to watch", undefined, undefined));
-	} else if (olist[olist.length-1] == "NONAME") {
-		when.error(new EdenError(this, 0, "Too many ',' or a missing observable", undefined, undefined));
-	}
-	when.triggers = olist;
-
-	var body = this.pACTIONBODY();
-	
-	if (body === undefined) {
-		when.error(new EdenError(this, 0, "A 'when' needs to be followed by a body of code", undefined, undefined));
-	} else {
-		when.setBody(body);
-	}
 	return when;
 }
 
@@ -1027,7 +964,7 @@ EdenAST.prototype.pACTIONBODY = function() {
 	var codebody = new EdenAST_CodeBlock();
 
 	if (this.token != "{") {
-		codebody.errors.push(new EdenError(this, EDEN_ERROR_ACTIONOPEN));
+		codebody.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONOPEN));
 		return codebody;
 	} else {
 		this.next();
@@ -1038,7 +975,7 @@ EdenAST.prototype.pACTIONBODY = function() {
 	codebody.setScript(this.pSCRIPT());
 
 	if (this.token != "}") {
-		codebody.errors.push(new EdenError(this, EDEN_ERROR_ACTIONCLOSE));
+		codebody.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
 		return codebody;
 	} else {
 		this.next();
@@ -1063,14 +1000,14 @@ EdenAST.prototype.pPARAMS = function() {
 		params.list = olist;
 
 		if (olist.length == 0 || olist[olist.length-1] == "NONAME") {
-			params.errors.push(new EdenError(this, EDEN_ERROR_PARAMNAME));
+			params.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.PARAMNAME));
 			return params;
 		}
 
 		if (this.token == ";") {
 			this.next();
 		} else {
-			params.errors.push(new EdenError(this, EDEN_ERROR_PARAMSEMICOLON));
+			params.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.PARAMSEMICOLON));
 			return params;
 		}
 	}
@@ -1094,14 +1031,14 @@ EdenAST.prototype.pLOCALS = function() {
 		locals.list = olist;
 
 		if (olist.length == 0 || olist[olist.length-1] == "NONAME") {
-			locals.errors.push(new EdenError(this, EDEN_ERROR_LOCALNAME));
+			locals.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LOCALNAME));
 			return locals;
 		}
 
 		if (this.token == ";") {
 			this.next();
 		} else {
-			locals.errors.push(new EdenError(this, EDEN_ERROR_LOCALSEMICOLON));
+			locals.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LOCALSEMICOLON));
 			return locals;
 		}
 	}
@@ -1157,7 +1094,7 @@ EdenAST.prototype.pIF = function() {
 	this.parent = ifast;
 
 	if (this.token != "(") {
-		ifast.errors.push(new EdenError(this, EDEN_ERROR_IFCONDOPEN));
+		ifast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IFCONDOPEN));
 		return ifast;
 	} else {
 		this.next();
@@ -1167,7 +1104,7 @@ EdenAST.prototype.pIF = function() {
 	if (ifast.errors.length > 0) return ifast;
 
 	if (this.token != ")") {
-		ifast.errors.push(new EdenError(this, EDEN_ERROR_IFCONDCLOSE));
+		ifast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IFCONDCLOSE));
 		return ifast;
 	} else {
 		this.next();
@@ -1205,7 +1142,7 @@ EdenAST.prototype.pFOR = function() {
 	var forast = new EdenAST_For();
 
 	if (this.token != "(") {
-		forast.error(new EdenError(this, EDEN_ERROR_FOROPEN));
+		forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FOROPEN));
 		return forast;
 	} else {
 		this.next();
@@ -1218,7 +1155,7 @@ EdenAST.prototype.pFOR = function() {
 		if (forast.errors.length > 0) return forast;
 
 		if (this.token != ";") {
-			forast.error(new EdenError(this, EDEN_ERROR_FORSTART));
+			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORSTART));
 			return forast;
 		} else {
 			this.next();
@@ -1232,7 +1169,7 @@ EdenAST.prototype.pFOR = function() {
 		if (forast.errors.length > 0) return forast;
 
 		if (this.token != ";") {
-			forast.error(new EdenError(this, EDEN_ERROR_FORCOND));
+			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCOND));
 			return forast;
 		} else {
 			this.next();
@@ -1246,7 +1183,7 @@ EdenAST.prototype.pFOR = function() {
 		if (forast.errors.length > 0) return forast;
 
 		if (this.token != ")") {
-			forast.error(new EdenError(this, EDEN_ERROR_FORCLOSE));
+			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCLOSE));
 			return forast;
 		} else {
 			this.next();
@@ -1268,7 +1205,7 @@ EdenAST.prototype.pWHILE = function() {
 	this.parent = w;
 
 	if (this.token != "(") {
-		w.error(new EdenError(this, EDEN_ERROR_WHILEOPEN));
+		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILEOPEN));
 		return w;
 	} else {
 		this.next();
@@ -1278,7 +1215,7 @@ EdenAST.prototype.pWHILE = function() {
 	if (w.errors.length > 0) return w;
 
 	if (this.token != ")") {
-		w.error(new EdenError(this, EDEN_ERROR_WHILECLOSE));
+		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILECLOSE));
 		return w;
 	} else {
 		this.next();
@@ -1287,7 +1224,7 @@ EdenAST.prototype.pWHILE = function() {
 	w.setStatement(this.pSTATEMENT());
 
 	if (w.statement === undefined) {
-		w.error(new EdenError(this, EDEN_ERROR_WHILENOSTATEMENT));
+		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILENOSTATEMENT));
 		return w;
 	}
 
@@ -1305,7 +1242,7 @@ EdenAST.prototype.pDO = function() {
 	var w = new EdenAST_Do();
 
 	if (this.token != "OBSERVABLE") {
-		w.errors.push(new EdenError(this, 0));
+		w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DONAME));
 		return w;
 	} else {
 		w.setName(this.data.value);
@@ -1319,19 +1256,19 @@ EdenAST.prototype.pDO = function() {
 	w.setStatement(this.pSTATEMENT());
 
 	if (w.statement === undefined) {
-		w.error(new EdenError(this, EDEN_ERROR_WHILENOSTATEMENT));
+		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILENOSTATEMENT));
 		return w;
 	}
 
 	if (this.token != "while") {
-		w.error(new EdenError(this, EDEN_ERROR_WHILEOFDO));
+		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILEOFDO));
 		return w;
 	} else {
 		this.next();
 	}
 
 	if (this.token != "(") {
-		w.error(new EdenError(this, EDEN_ERROR_WHILEOPEN));
+		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILEOPEN));
 		return w;
 	} else {
 		this.next();
@@ -1341,7 +1278,7 @@ EdenAST.prototype.pDO = function() {
 	if (w.errors.length > 0) return w;
 
 	if (this.token != ")") {
-		w.error(new EdenError(this, EDEN_ERROR_WHILECLOSE));
+		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILECLOSE));
 		return w;
 	} else {
 		this.next();
@@ -1361,7 +1298,7 @@ EdenAST.prototype.pSWITCH = function() {
 	var swi = new EdenAST_Switch();
 
 	if (this.token != "(") {
-		swi.error(new EdenError(this, EDEN_ERROR_SWITCHOPEN));
+		swi.error(new Eden.SyntaxError(this, Eden.SyntaxError.SWITCHOPEN));
 		return swi;
 	} else {
 		this.next();
@@ -1371,7 +1308,7 @@ EdenAST.prototype.pSWITCH = function() {
 	if (swi.errors.length > 0) return swi;
 
 	if (this.token != ")") {
-		swi.error(new EdenError(this, EDEN_ERROR_SWITCHCLOSE));
+		swi.error(new Eden.SyntaxError(this, Eden.SyntaxError.SWITCHCLOSE));
 		return swi;
 	} else {
 		this.next();
@@ -1396,7 +1333,7 @@ EdenAST.prototype.pFUNCTION = function() {
 		func.name = this.data.value;
 		this.next();
 	} else {
-		func.errors.push(new EdenError(this, EDEN_ERROR_FUNCNAME));
+		func.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCNAME));
 		return func;
 	}
 
@@ -1415,7 +1352,7 @@ EdenAST.prototype.pFUNCBODY = function() {
 	var codebody = new EdenAST_CodeBlock();
 
 	if (this.token != "{") {
-		codebody.errors.push(new EdenError(this, EDEN_ERROR_FUNCOPEN));
+		codebody.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCOPEN));
 		return codebody;
 	} else {
 		this.next();
@@ -1428,7 +1365,7 @@ EdenAST.prototype.pFUNCBODY = function() {
 	codebody.setScript(this.pSCRIPT());
 
 	if (this.token != "}") {
-		codebody.errors.push(new EdenError(this, EDEN_ERROR_FUNCCLOSE));
+		codebody.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCCLOSE));
 		return codebody;
 	} else {
 		//this.next();
@@ -1460,17 +1397,17 @@ EdenAST.prototype.pLVALUE_P = function() {
 			components.push(comp);
 
 			if (expression.errors.length > 0) {
-				comp.errors.unshift(new EdenError(this, EDEN_ERROR_LISTINDEXEXP));
+				comp.errors.unshift(new Eden.SyntaxError(this, Eden.SyntaxError.LISTINDEXEXP));
 			}
 
 			if (comp.indexexp.type == "literal" &&
 				comp.indexexp.datatype == "NUMBER" &&
 				comp.indexexp.value < 1) {
-				comp.error(new EdenError(this, EDEN_ERROR_OUTOFBOUNDS));
+				comp.error(new Eden.SyntaxError(this, Eden.SyntaxError.OUTOFBOUNDS));
 			}
 
 			if (this.token != "]") {
-				comp.error(new EdenError(this, EDEN_ERROR_LISTINDEXCLOSE));
+				comp.error(new Eden.SyntaxError(this, Eden.SyntaxError.LISTINDEXCLOSE));
 				return components;
 			}
 			this.next();
@@ -1490,7 +1427,7 @@ EdenAST.prototype.pLVALUE_P = function() {
 EdenAST.prototype.pLVALUE = function() {
 	if (this.token != "OBSERVABLE") {
 		var ast = new EdenAST_LValue("NONAME", []);
-		ast.error(new EdenError(this, EDEN_ERROR_LVALUE));
+		ast.error(new Eden.SyntaxError(this, Eden.SyntaxError.LVALUE));
 		return ast;
 	}
 	var obs = this.data.value;
@@ -1537,7 +1474,7 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
 		var subscribers = new EdenAST_Subscribers();
 
 		if (this.token != "[") {
-			subscribers.error(new EdenError(this, EDEN_ERROR_SUBSCRIBEOPEN));
+			subscribers.error(new Eden.SyntaxError(this, Eden.SyntaxError.SUBSCRIBEOPEN));
 			return subscribers;
 		} else {
 			this.next();
@@ -1547,7 +1484,7 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
 		if (subscribers.errors.length > 0) return subscribers;
 
 		if (this.token != "]") {
-			subscribers.error(new EdenError(this, EDEN_ERROR_SUBSCRIBECLOSE));
+			subscribers.error(new Eden.SyntaxError(this, Eden.SyntaxError.SUBSCRIBECLOSE));
 			return subscribers;
 		} else {
 			this.next();
@@ -1569,7 +1506,7 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
 			if (fcall.errors.length > 0) return fcall;
 
 			if (this.token != ")") {
-				fcall.error(new EdenError(this, EDEN_ERROR_FUNCCLOSE));
+				fcall.error(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCCLOSE));
 				return fcall;
 			}
 		}
@@ -1579,7 +1516,7 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
 	}
 
 	var errors = [];
-	errors.push(new EdenError(this, EDEN_ERROR_DEFINITION));
+	errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DEFINITION));
 
 	var errast = new EdenAST_Assignment(undefined);
 	errast.errors.unshift(errors[0]);
@@ -1614,12 +1551,12 @@ EdenAST.prototype.pCASE = function() {
 		cas.setLiteral(this.token, this.data.value);
 		this.next();
 	} else {
-		cas.error(new EdenError(this, EDEN_ERROR_CASELITERAL));
+		cas.error(new Eden.SyntaxError(this, Eden.SyntaxError.CASELITERAL));
 		return cas;
 	}
 
 	if (this.token != ":") {
-		cas.error(new EdenError(this, EDEN_ERROR_CASECOLON));
+		cas.error(new Eden.SyntaxError(this, Eden.SyntaxError.CASECOLON));
 		return cas;
 	} else {
 		this.next();
@@ -1641,7 +1578,7 @@ EdenAST.prototype.pINSERT = function() {
 	if (insert.errors.length > 0) return insert;
 
 	if (this.token != ",") {
-		insert.error(new EdenError(this, EDEN_ERROR_INSERTCOMMA));
+		insert.error(new Eden.SyntaxError(this, Eden.SyntaxError.INSERTCOMMA));
 		return insert;
 	} else {
 		this.next();
@@ -1651,7 +1588,7 @@ EdenAST.prototype.pINSERT = function() {
 	if (insert.errors.length > 0) return insert;
 
 	if (this.token != ",") {
-		insert.error(new EdenError(this, EDEN_ERROR_INSERTCOMMA));
+		insert.error(new Eden.SyntaxError(this, Eden.SyntaxError.INSERTCOMMA));
 		return insert;
 	} else {
 		this.next();
@@ -1661,7 +1598,7 @@ EdenAST.prototype.pINSERT = function() {
 	if (insert.errors.length > 0) return insert;
 
 	if (this.token != ";") {
-		insert.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+		insert.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return insert;
 	} else {
 		this.next();
@@ -1683,7 +1620,7 @@ EdenAST.prototype.pDELETE = function() {
 	if (del.errors.length > 0) return del;
 
 	if (this.token != ",") {
-		del.error(new EdenError(this, EDEN_ERROR_DELETECOMMA));
+		del.error(new Eden.SyntaxError(this, Eden.SyntaxError.DELETECOMMA));
 		return del;
 	} else {
 		this.next();
@@ -1693,7 +1630,7 @@ EdenAST.prototype.pDELETE = function() {
 	if (del.errors.length > 0) return del;
 
 	if (this.token != ";") {
-		del.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+		del.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return del;
 	} else {
 		this.next();
@@ -1715,7 +1652,7 @@ EdenAST.prototype.pAPPEND = function() {
 	if (append.errors.length > 0) return append;
 
 	if (this.token != ",") {
-		append.error(new EdenError(this, EDEN_ERROR_APPENDCOMMA));
+		append.error(new Eden.SyntaxError(this, Eden.SyntaxError.APPENDCOMMA));
 		return append;
 	} else {
 		this.next();
@@ -1725,7 +1662,7 @@ EdenAST.prototype.pAPPEND = function() {
 	if (append.errors.length > 0) return append;
 
 	if (this.token != ";") {
-		append.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+		append.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return append;
 	} else {
 		this.next();
@@ -1747,7 +1684,7 @@ EdenAST.prototype.pSHIFT = function() {
 	if (shif.errors.length > 0) return shif;
 
 	if (this.token != ";") {
-		shif.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+		shif.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return shif;
 	} else {
 		this.next();
@@ -1779,7 +1716,7 @@ EdenAST.prototype.pAFTER = function() {
 	var after = new EdenAST_After();
 
 	if (this.token != "(") {
-		after.error(new EdenError(this, EDEN_ERROR_AFTEROPEN));
+		after.error(new Eden.SyntaxError(this, Eden.SyntaxError.AFTEROPEN));
 		return after;
 	} else {
 		this.next();
@@ -1790,7 +1727,7 @@ EdenAST.prototype.pAFTER = function() {
 	if (after.errors.length > 0) return after;
 
 	if (this.token != ")") {
-		after.error(new EdenError(this, EDEN_ERROR_AFTEROPEN));
+		after.error(new Eden.SyntaxError(this, Eden.SyntaxError.AFTEROPEN));
 		return after;
 	} else {
 		this.next();
@@ -1846,16 +1783,11 @@ EdenAST.prototype.pWAIT = function() {
 		this.next();
 		return wait;
 	} else {
-		if (this.token == "NUMBER") {
-			wait.setDelay(this.data.value);
-			this.next();
-		} else {
-			wait.errors.push(new EdenError(this, 0));
-			return wait;
-		}
+		var express = this.pEXPRESSION();
+		wait.setDelay(express);
 
 		if (this.token != ";") {
-			wait.errors.push(new EdenError(this, 0));
+			wait.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 			return wait;
 		}
 		this.next();
@@ -1924,8 +1856,8 @@ EdenAST.prototype.pSTATEMENT = function() {
 	case "default"	:	this.next();
 						var def = new EdenAST_Default();
 						if (this.token != ":") {
-							def.error(new EdenError(this,
-										EDEN_ERROR_DEFAULTCOLON));
+							def.error(new Eden.SyntaxError(this,
+										Eden.SyntaxError.DEFAULTCOLON));
 						} else {
 							this.next();
 						}
@@ -1943,8 +1875,8 @@ EdenAST.prototype.pSTATEMENT = function() {
 						}
 
 						if (this.token != ";") {
-							ret.error(new EdenError(this,
-										EDEN_ERROR_SEMICOLON));
+							ret.error(new Eden.SyntaxError(this,
+										Eden.SyntaxError.SEMICOLON));
 						} else {
 							this.next();
 						}
@@ -1955,8 +1887,8 @@ EdenAST.prototype.pSTATEMENT = function() {
 						if (cont.errors.length > 0) return cont;
 
 						if (this.token != ";") {
-							cont.error(new EdenError(this,
-										EDEN_ERROR_SEMICOLON));
+							cont.error(new Eden.SyntaxError(this,
+										Eden.SyntaxError.SEMICOLON));
 						} else {
 							this.next();
 						}
@@ -1967,8 +1899,8 @@ EdenAST.prototype.pSTATEMENT = function() {
 						if (breakk.errors.length > 0) return breakk;
 
 						if (this.token != ";") {
-							breakk.error(new EdenError(this,
-											EDEN_ERROR_SEMICOLON));
+							breakk.error(new Eden.SyntaxError(this,
+											Eden.SyntaxError.SEMICOLON));
 						} else {
 							this.next();
 						}
@@ -1977,7 +1909,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 	case "{"		:	this.next();
 						var script = this.pSCRIPT();
 						if (this.token != "}") {
-							script.error(new EdenError(this, 0, "Missing a closing '}'", undefined, undefined));
+							script.error(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
 							return script;
 						}
 						endline = this.stream.line;
@@ -1990,16 +1922,13 @@ EdenAST.prototype.pSTATEMENT = function() {
 
 						if (formula.errors.length > 0) {
 							stat = formula;
+							// To correctly report multi-line def errors.
+							endline = this.stream.line;
 							break;
 						}
-
-						// Cannot define list elements
-						//if (formula.type == "definition" && lvalue.lvaluep.length > 0) {
-						//	formula.error(new EdenError(this, EDEN_ERROR_DEFINELISTIX));
-						//}
 		
 						if (this.token != ";") {
-							formula.error(new EdenError(this, EDEN_ERROR_SEMICOLON));
+							formula.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 						} else {
 							// End source here to avoid bringing comments in
 							end = this.stream.position;
@@ -2035,7 +1964,7 @@ EdenAST.prototype.pNAMEDSCRIPT = function() {
 
 	if (this.token != "OBSERVABLE") {
 		var script = new EdenAST_Script();
-		script.errors.push(new EdenError(this, 0));
+		script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONNAME));
 		return script;
 	} else {
 		name = this.data.value;
@@ -2044,7 +1973,7 @@ EdenAST.prototype.pNAMEDSCRIPT = function() {
 
 	if (this.token != "{") {
 		var script = new EdenAST_Script();
-		script.errors.push(new EdenError(this, 0));
+		script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONOPEN));
 		return script;
 	} else {
 		this.next();
@@ -2056,7 +1985,7 @@ EdenAST.prototype.pNAMEDSCRIPT = function() {
 	script.setName(name);
 
 	if (this.token != "}") {
-		script.error(new EdenError(this, 0));
+		script.error(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
 		return script;
 	} else {
 		//this.next();
@@ -2092,7 +2021,7 @@ EdenAST.prototype.pSCRIPT = function() {
 			}
 		} else {
 			if (this.token != "}" && this.token != ";") {
-				ast.errors.push(new EdenError(this, EDEN_ERROR_STATEMENT));
+				ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
 			}
 			if (this.token == ";") {
 				this.next();

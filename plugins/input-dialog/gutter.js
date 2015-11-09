@@ -22,6 +22,8 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 		}
 	}*/
 
+	console.log(ast.lines);
+
 	// Reset all lines if number of lines changes
 	if (ast.lines.length != this.gutter.childNodes.length) {
 		while (this.gutter.firstChild) {

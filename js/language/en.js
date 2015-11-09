@@ -2,13 +2,8 @@
 //Language.symbols.push.apply(Language.symbols, {...});
 
 Language.errors = [
-/* EDEN_ERROR_PROCNAME */ [
-	"'proc' names cannot be keywords",
-	"'proc' action names cannot be a literal value",
-	"'proc' actions need a name",
-	"Unexpected closing bracket",
-	"A 'proc' needs a name before it's watch list",
-	"A 'proc' needs a name and a watch list"
+/* EDEN_ERROR_UNKNOWN */ [
+	"An unknown error occurred"
 ],
 /* EDEN_ERROR_EXPCLOSEBRACKET */ [
 	"Wrong kind of bracket, expected a ')'",
@@ -244,6 +239,26 @@ Language.errors = [
 ],
 /* EDEN_ERROR_AFTERCLOSE */ [
 	"Missing a close ) in 'after' statement"
+],
+/* EDEN_ERROR_ACTIONNAME */ [
+	"Actions need a name"
+],
+/* EDEN_ERROR_WHENOPEN */ [
+	"Missing an '(' before 'when' expression"
+],
+/* EDEN_ERROR_WHENCLOSE */ [
+	"Missing a close ')' after 'when' expression"
+],
+/* EDEN_ERROR_DONAME */ [
+	"'do' requires an action name to call"
+],
+/* EDEN_ERROR_PROCNAME */ [
+	"'proc' names cannot be keywords",
+	"'proc' action names cannot be a literal value",
+	"'proc' actions need a name",
+	"Unexpected closing bracket",
+	"A 'proc' needs a name before it's watch list",
+	"A 'proc' needs a name and a watch list"
 ]
 ];
 

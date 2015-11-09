@@ -1,75 +1,95 @@
-/* Error Handling Class */
+/*
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
 
-var EDEN_ERROR_PROCNAME = 0;
-var EDEN_ERROR_EXPCLOSEBRACKET = 1
-var EDEN_ERROR_BADFACTOR = 2;
-var EDEN_ERROR_ACTIONCOLON = 3;
-var EDEN_ERROR_ACTIONNOWATCH = 4;
-var EDEN_ERROR_ACTIONCOMMAS = 5;
-var EDEN_ERROR_ACTIONOPEN = 6;
-var EDEN_ERROR_ACTIONCLOSE = 7;
-var EDEN_ERROR_LOCALNAME = 8;
-var EDEN_ERROR_LOCALSEMICOLON = 9;
-var EDEN_ERROR_WHENTYPE = 10;
-var EDEN_ERROR_LISTINDEXEXP = 11;
-var EDEN_ERROR_LISTINDEXCLOSE = 12;
-var EDEN_ERROR_LVALUE = 13;
-var EDEN_ERROR_SEMICOLON = 14;
-var EDEN_ERROR_STATEMENT = 15;
-var EDEN_ERROR_DEFINITION = 16;
-var EDEN_ERROR_FUNCCALLEND = 17;
-var EDEN_ERROR_LISTLITCLOSE = 18;
-var EDEN_ERROR_TERNIFCOLON = 19;
-var EDEN_ERROR_IFCONDOPEN = 20;
-var EDEN_ERROR_IFCONDCLOSE = 21;
-var EDEN_ERROR_PARAMNAME = 22;
-var EDEN_ERROR_PARAMSEMICOLON = 23;
-var EDEN_ERROR_FUNCOPEN = 24;
-var EDEN_ERROR_FUNCCLOSE = 25;
-var EDEN_ERROR_FUNCNAME = 26;
-var EDEN_ERROR_FOROPEN = 27;
-var EDEN_ERROR_FORCLOSE = 28;
-var EDEN_ERROR_FORSTART = 29;
-var EDEN_ERROR_FORCOND = 30;
-var EDEN_ERROR_SUBSCRIBEOPEN = 31;
-var EDEN_ERROR_SUBSCRIBECLOSE = 32;
-var EDEN_ERROR_SWITCHOPEN = 33;
-var EDEN_ERROR_SWITCHCLOSE = 34;
-var EDEN_ERROR_DEFAULTCOLON = 35;
-var EDEN_ERROR_CASELITERAL = 36;
-var EDEN_ERROR_CASECOLON = 37;
-var EDEN_ERROR_INSERTCOMMA = 38;
-var EDEN_ERROR_DELETECOMMA = 39;
-var EDEN_ERROR_APPENDCOMMA = 40;
-var EDEN_ERROR_SCOPENAME = 41;
-var EDEN_ERROR_SCOPEEQUALS = 42;
-var EDEN_ERROR_SCOPECLOSE = 43;
-var EDEN_ERROR_BACKTICK = 44;
-var EDEN_ERROR_WHILEOPEN = 45;
-var EDEN_ERROR_WHILECLOSE = 46;
-var EDEN_ERROR_WHILENOSTATEMENT = 47;
-var EDEN_ERROR_NEGNUMBER = 48;
-var EDEN_ERROR_DEFINELISTIX = 49;
-var EDEN_ERROR_OUTOFBOUNDS = 50;
-var EDEN_ERROR_PROPERTYNAME = 51;
-var EDEN_ERROR_WHILEOFDO = 52;
-var EDEN_ERROR_ASSIGNEXEC = 53;		// RUNTIME
-var EDEN_ERROR_FUNCCALL = 54;		// RUNTIME
-var EDEN_ERROR_AFTEROPEN = 55;
-var EDEN_ERROR_AFTERCLOSE = 56;
 
-var eden_error_db = [
-/* EDEN_ERROR_PROCNAME */
-	{	message: function() {
-			var type = this.context.stream.tokenType(this.token);
-			if (type == "keyword") return 0;
-			if (type == "boolean" || type == "character" || type == "string" || type == "number") return 1;
-			if (this.token == ":") return 4;
-			if (this.token == "{") return 5;
-			if (this.token == "closebracket") return 3;
-			return 2; 
-		},
-		suggestion: {expected: ["OBSERVABLE"], next: [":"]}
+
+/**
+ * Constructor for syntax errors detected in the new parser. It captures the
+ * type of error, the context and location.
+ */
+Eden.SyntaxError = function(context, errno, extra) {
+	this.type = "syntax";
+	this.context = context;
+	this.errno = errno;
+	this.extra = extra;
+	this.token = context.token;
+	this.prevtoken = context.previous;
+	this.line = context.stream.line;
+	this.position = context.stream.position;
+	this.prevposition = context.stream.prevposition;
+};
+
+Eden.SyntaxError.UNKNOWN = 0;
+Eden.SyntaxError.EXPCLOSEBRACKET = 1
+Eden.SyntaxError.BADFACTOR = 2;
+Eden.SyntaxError.ACTIONCOLON = 3;
+Eden.SyntaxError.ACTIONNOWATCH = 4;
+Eden.SyntaxError.ACTIONCOMMAS = 5;
+Eden.SyntaxError.ACTIONOPEN = 6;
+Eden.SyntaxError.ACTIONCLOSE = 7;
+Eden.SyntaxError.LOCALNAME = 8;
+Eden.SyntaxError.LOCALSEMICOLON = 9;
+Eden.SyntaxError.WHENTYPE = 10;
+Eden.SyntaxError.LISTINDEXEXP = 11;
+Eden.SyntaxError.LISTINDEXCLOSE = 12;
+Eden.SyntaxError.LVALUE = 13;
+Eden.SyntaxError.SEMICOLON = 14;
+Eden.SyntaxError.STATEMENT = 15;
+Eden.SyntaxError.DEFINITION = 16;
+Eden.SyntaxError.FUNCCALLEND = 17;
+Eden.SyntaxError.LISTLITCLOSE = 18;
+Eden.SyntaxError.TERNIFCOLON = 19;
+Eden.SyntaxError.IFCONDOPEN = 20;
+Eden.SyntaxError.IFCONDCLOSE = 21;
+Eden.SyntaxError.PARAMNAME = 22;
+Eden.SyntaxError.PARAMSEMICOLON = 23;
+Eden.SyntaxError.FUNCOPEN = 24;
+Eden.SyntaxError.FUNCCLOSE = 25;
+Eden.SyntaxError.FUNCNAME = 26;
+Eden.SyntaxError.FOROPEN = 27;
+Eden.SyntaxError.FORCLOSE = 28;
+Eden.SyntaxError.FORSTART = 29;
+Eden.SyntaxError.FORCOND = 30;
+Eden.SyntaxError.SUBSCRIBEOPEN = 31;
+Eden.SyntaxError.SUBSCRIBECLOSE = 32;
+Eden.SyntaxError.SWITCHOPEN = 33;
+Eden.SyntaxError.SWITCHCLOSE = 34;
+Eden.SyntaxError.DEFAULTCOLON = 35;
+Eden.SyntaxError.CASELITERAL = 36;
+Eden.SyntaxError.CASECOLON = 37;
+Eden.SyntaxError.INSERTCOMMA = 38;
+Eden.SyntaxError.DELETECOMMA = 39;
+Eden.SyntaxError.APPENDCOMMA = 40;
+Eden.SyntaxError.SCOPENAME = 41;
+Eden.SyntaxError.SCOPEEQUALS = 42;
+Eden.SyntaxError.SCOPECLOSE = 43;
+Eden.SyntaxError.BACKTICK = 44;
+Eden.SyntaxError.WHILEOPEN = 45;
+Eden.SyntaxError.WHILECLOSE = 46;
+Eden.SyntaxError.WHILENOSTATEMENT = 47;
+Eden.SyntaxError.NEGNUMBER = 48;
+Eden.SyntaxError.DEFINELISTIX = 49;
+Eden.SyntaxError.OUTOFBOUNDS = 50;
+Eden.SyntaxError.PROPERTYNAME = 51;
+Eden.SyntaxError.WHILEOFDO = 52;
+Eden.SyntaxError.ASSIGNEXEC = 53;		// RUNTIME
+Eden.SyntaxError.FUNCCALL = 54;		// RUNTIME
+Eden.SyntaxError.AFTEROPEN = 55;
+Eden.SyntaxError.AFTERCLOSE = 56;
+Eden.SyntaxError.ACTIONNAME = 57;
+Eden.SyntaxError.WHENOPEN = 58;
+Eden.SyntaxError.WHENCLOSE = 59;
+Eden.SyntaxError.DONAME = 60;
+Eden.SyntaxError.PROCNAME = 61;
+
+Eden.SyntaxError.db = [
+/* EDEN_ERROR_UNKNOWN */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
 	},
 /* EDEN_ERROR_EXPCLOSEBRACKET */
 	{	message: function() {
@@ -395,21 +415,40 @@ var eden_error_db = [
 /* EDEN_ERROR_AFTERCLOSE */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_ACTIONNAME */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_WHENOPEN */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_WHENCLOSE */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_DONAME */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_PROCNAME */
+	{	message: function() {
+			var type = this.context.stream.tokenType(this.token);
+			if (type == "keyword") return 0;
+			if (type == "boolean" || type == "character" || type == "string" || type == "number") return 1;
+			if (this.token == ":") return 4;
+			if (this.token == "{") return 5;
+			if (this.token == "closebracket") return 3;
+			return 2; 
+		},
+		suggestion: {expected: ["OBSERVABLE"], next: [":"]}
 	}
-]
+];
 
-function EdenError(context, errno, extra) {
-	this.context = context;
-	this.errno = errno;
-	this.extra = extra;
-	this.token = context.token;
-	this.prevtoken = context.previous;
-	this.line = context.stream.line;
-	this.position = context.stream.position;
-	this.prevposition = context.stream.prevposition;
-};
 
-EdenError.prototype.extractBefore = function(maxchar) {
+
+Eden.SyntaxError.prototype.extractBefore = function(maxchar) {
 	var pos = this.prevposition;
 	while (pos > 0 && maxchar > 0) {
 		if (this.context.stream.code.charCodeAt(pos) == 10) {
@@ -424,11 +463,11 @@ EdenError.prototype.extractBefore = function(maxchar) {
 	return this.context.stream.code.substr(pos, this.prevposition - pos);
 };
 
-EdenError.prototype.extractToken = function() {
+Eden.SyntaxError.prototype.extractToken = function() {
 	return this.context.stream.code.substr(this.prevposition, this.position - this.prevposition);
 };
 
-EdenError.prototype.extractAfter = function(maxchar) {
+Eden.SyntaxError.prototype.extractAfter = function(maxchar) {
 	var pos = this.position;
 	while (pos < this.context.stream.code.length && maxchar > 0) {
 		if (this.context.stream.code.charCodeAt(pos) == 10) {
@@ -441,7 +480,7 @@ EdenError.prototype.extractAfter = function(maxchar) {
 	return this.context.stream.code.substr(this.position, pos - this.position);
 };
 
-EdenError.prototype.buildSuggestion = function() {
+Eden.SyntaxError.prototype.buildSuggestion = function() {
 	var autofix = eden_error_db[this.errno].suggestion;
 	// Did we get a token that we expect to get next?
 	if (autofix.next.indexOf(this.token) != -1) {
@@ -462,8 +501,8 @@ EdenError.prototype.buildSuggestion = function() {
 	}
 };
 
-EdenError.prototype.messageText = function() {
-	var err = eden_error_db[this.errno];
+Eden.SyntaxError.prototype.messageText = function() {
+	var err = Eden.SyntaxError.db[this.errno];
 	var txt = Language.errors[this.errno][err.message.call(this)]
 	if (this.extra === undefined) {
 		return txt;
@@ -472,12 +511,12 @@ EdenError.prototype.messageText = function() {
 	}
 }
 
-EdenError.prototype.prettyPrint = function() {
+Eden.SyntaxError.prototype.prettyPrint = function() {
 	// Move stream to correct location
 	this.context.stream.pushPosition();
 	this.context.stream.move(this.position);
 
-	var err = eden_error_db[this.errno];
+	var err = Eden.SyntaxError.db[this.errno];
 
 	var msg = Language.errors[this.errno][err.message.call(this)];
 	var errmsg =
@@ -497,11 +536,23 @@ EdenError.prototype.prettyPrint = function() {
 	return errmsg;
 };
 
-// expose as node.js module
-if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
-	exports.EdenError = EdenError;
-	exports.EDEN_ERROR_SEMICOLON = EDEN_ERROR_SEMICOLON;
-	exports.EDEN_ERROR_STATEMENT = EDEN_ERROR_STATEMENT;
+Eden.SyntaxError.prototype.toString = function() {
+	return this.prettyPrint();
+}
+
+
+
+
+/**
+ * Constructor for AST runtime errors. This must be given positional info
+ * because it can't be extracted from context.
+ */
+Eden.RuntimeError = function(context, errno, line, statement, extra) {
+	this.type = "runtime";
+	this.line = line;
+	this.statement = statement;
+	this.extra = extra;
+	this.errno = errno;
 }
 
 

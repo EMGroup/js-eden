@@ -1861,8 +1861,9 @@ function EdenAST_Wait() {
 	this.errors = [];
 	this.start = 0;
 	this.end = 0;
-	this.delay = 0;
+	this.delay = undefined;
 	this.executed = 0;
+	this.compiled_delay = undefined;
 };
 
 EdenAST_Wait.prototype.error = fnEdenAST_error;
@@ -1874,10 +1875,24 @@ EdenAST_Wait.prototype.setSource = function(start, end) {
 
 EdenAST_Wait.prototype.setDelay = function(delay) {
 	this.delay = delay;
+	if (delay && delay.errors.length > 0) {
+		this.errors.push.apply(this.errors, delay.errors);
+	}
+}
+
+EdenAST_Wait.prototype.compile = function(ctx) {
+	if (this.delay === undefined) return;
+	var source = "(function(context,scope) { return ";
+	source += this.delay.generate(ctx, "scope");
+	if (this.delay.doesReturnBound && this.delay.doesReturnBound()) {
+		source += ".value";
+	}
+	source += ";})";
+	this.compiled_delay = eval(source);
 }
 
 EdenAST_Wait.prototype.generate = function(ctx, scope) {
-	return "yield "+this.delay;
+	return "yield "+this.delay+";";
 }
 
 
@@ -2090,7 +2105,12 @@ EdenAST_Script.prototype.executeGenerator = function*(root, ctx, base) {
 	for (var i = 0; i < this.statements.length; i++) {
 		if (this.statements[i].type == "wait") {
 			this.statements[i].executed = 1;
-			yield this.statements[i].delay;
+			this.statements[i].compile(ctx);
+			if (this.statements[i].compiled_delay) {
+				yield this.statements[i].compiled_delay(root,root.scope);
+			} else {
+				yield 0;
+			}
 		} else {
 			this.statements[i].execute(root,ctx, base);
 			//yield 200;

@@ -327,7 +327,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * (and one line either size).
 		 */
 		function updateLineHighlight() {
-			console.log("REBUILD");
 			var ast = new EdenAST(intextarea.value);
 			highlighter.ast = ast;
 			var lineno = -1; // Note: -1 means update all.
@@ -369,7 +368,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * could be such changes), for example when pasting.
 		 */
 		function updateEntireHighlight(rerun) {
-			console.log("REBUILD ALL");
 			var ast = new EdenAST(intextarea.value);
 			highlighter.ast = ast;
 			var pos = -1;
