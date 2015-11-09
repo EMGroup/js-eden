@@ -313,15 +313,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
-		function refreshGutter() {
-			gutter.generate(highlighter.ast,-1);
-			clearExecutedState();
-			setTimeout(refreshGutter, 500);
-		}
-		//setTimeout(refreshGutter,500);
-
-
-
 		/**
 		 * Re-parse the entire script and then re-highlight the current line
 		 * (and one line either size).
@@ -568,7 +559,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * Called by a timeout after a period of inactivity. Displays any
 		 * error and warning messages.
 		 */
-		function doneTyping() {
+		/*function doneTyping() {
 			amtyping = false;
 
 			if (autoexec && highlighter.ast.script.errors.length == 0) {
@@ -626,7 +617,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			} else {
 				//hideInfoBox();
 			}
-		}
+		}*/
 
 
 
@@ -1004,15 +995,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			inputchanged = true;
 			dirty = true;
 
-			// Typing status, error messages and result value are delayed
-			// by "typinginterval", so restart timeout.
-			clearTimeout(typingtimer);
-			if (amtyping == false) {
-				hideInfoBox();
-				amtyping = true;
-			}
-			typingtimer = setTimeout(doneTyping, typinginterval);
-
 			rebuild();
 
 				/* Suggestions Box */
@@ -1252,8 +1234,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			if (highlighter.ast.lines[lineno-1]) {
 				if (highlighter.ast.lines[lineno-1].errors.length > 0) {
-					if (highlighter.ast.lines[lineno-1].errors[0].line == lineno) {
-						showInfoBox(e.target.offsetLeft+20, e.target.offsetTop-$codearea.get(0).scrollTop+25, "error", highlighter.ast.lines[lineno-1].errors[0].messageText());
+					var err = highlighter.ast.lines[lineno-1].errors[0];
+					if (err.line == lineno || err.type == "runtime") {
+						showInfoBox(e.target.offsetLeft+20, e.target.offsetTop-$codearea.get(0).scrollTop+25, "error", err.messageText());
 					}
 				} else {
 					clearExecutedState();

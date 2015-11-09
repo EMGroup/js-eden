@@ -16,32 +16,32 @@ when (input) {
 }
 
 when (opt == 1 && valid1) {
-	wait 150;
+	wait viscosity;
 	contentA++;
 }
 
 when (opt == 2 && valid2) {
-	wait 150;
+	wait viscosity;
 	contentB++;
 }
 
 when (opt == 3 && valid3) {
-	wait 150;
+	wait viscosity;
 	contentA--;
 }
 
 when (opt == 4 && valid4) {
-	wait 150;
+	wait viscosity;
 	contentB--;
 }
 
 when (opt == 6 && valid6) {
-	wait 150;
+	wait viscosity;
 	contentA--;
 }
 
 when (opt == 7 && valid7) {
-	wait 150;
+	wait viscosity;
 	contentA++;
 }
 

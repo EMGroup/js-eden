@@ -799,6 +799,12 @@ div.eden-gutter-error {
 	font-size: 10pt;
 }
 
+div.eden-gutter-warning {
+	font-family: "FontAwesome";
+	color: orange;
+	font-size: 10pt;
+}
+
 div.eden-warnline:before {
 	position: absolute;
 	content: "\f071";

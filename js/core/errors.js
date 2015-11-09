@@ -76,8 +76,8 @@ Eden.SyntaxError.DEFINELISTIX = 49;
 Eden.SyntaxError.OUTOFBOUNDS = 50;
 Eden.SyntaxError.PROPERTYNAME = 51;
 Eden.SyntaxError.WHILEOFDO = 52;
-Eden.SyntaxError.ASSIGNEXEC = 53;		// RUNTIME
-Eden.SyntaxError.FUNCCALL = 54;		// RUNTIME
+//Eden.SyntaxError.ASSIGNEXEC = 53;		// RUNTIME
+//Eden.SyntaxError.FUNCCALL = 54;		// RUNTIME
 Eden.SyntaxError.AFTEROPEN = 55;
 Eden.SyntaxError.AFTERCLOSE = 56;
 Eden.SyntaxError.ACTIONNAME = 57;
@@ -547,12 +547,21 @@ Eden.SyntaxError.prototype.toString = function() {
  * Constructor for AST runtime errors. This must be given positional info
  * because it can't be extracted from context.
  */
-Eden.RuntimeError = function(context, errno, line, statement, extra) {
+Eden.RuntimeError = function(context, errno, statement, extra) {
 	this.type = "runtime";
-	this.line = line;
+	this.line = -1;
 	this.statement = statement;
 	this.extra = extra;
 	this.errno = errno;
+}
+
+Eden.RuntimeError.UNKNOWN = 0;
+Eden.RuntimeError.ASSIGNEXEC = 1;
+Eden.RuntimeError.FUNCCALL = 2;
+Eden.RuntimeError.ACTIONNAME = 3;
+
+Eden.RuntimeError.prototype.messageText = function() {
+	return this.extra;
 }
 
 

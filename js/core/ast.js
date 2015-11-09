@@ -924,6 +924,8 @@ function EdenAST_Assignment(expression) {
 	this.scopes = [];
 	this.backtickCount = 0;
 	this.executed = 0;
+	this.compiled = undefined;
+	this.value = undefined;
 };
 
 EdenAST_Assignment.prototype.setSource = function(start, end) {
@@ -970,25 +972,43 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 	}
 };
 
-EdenAST_Assignment.prototype.execute = function(root, ctx, base) {
-	this.executed = 1;
+
+
+/**
+ * Compile the right-hand-side into a javascript function. If already compiled
+ * it does nothing.
+ */
+EdenAST_Assignment.prototype.compile = function(ctx) {
+	if (this.compiled) return;
+
 	var rhs = "(function(context,scope) { return ";
-	if (this.expression === undefined) return;
 
 	rhs += this.expression.generate(ctx, "scope");
+
+	// Remove the scope if a boundValue is returned.
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 		rhs += ".value";
 	}
 	rhs += ";})";
 
+	this.compiled = eval(rhs);
+}
+
+EdenAST_Assignment.prototype.execute = function(root, ctx, base) {
+	if (this.expression === undefined) return;
+	this.executed = 1;
+	this.compile(ctx);
+
 	try {
 		if (this.lvalue.hasListIndices()) {
-			root.lookup(this.lvalue.observable).listAssign(eval(rhs)(root,root.scope), root.scope, {name: "execute"}, false, this.lvalue.executeCompList());
+			this.value = this.compiled(root,root.scope);
+			root.lookup(this.lvalue.observable).listAssign(this.value, root.scope, {name: "execute"}, false, this.lvalue.executeCompList());
 		} else {
-			root.lookup(this.lvalue.observable).assign(eval(rhs)(root,root.scope),root.scope, {name: "execute"});
+			this.value = this.compiled(root,root.scope);
+			root.lookup(this.lvalue.observable).assign(this.value,root.scope, {name: "execute"});
 		}
 	} catch(e) {
-		this.errors.push(new EdenError(base, EDEN_ERROR_ASSIGNEXEC, e));
+		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
 	}
 };
 

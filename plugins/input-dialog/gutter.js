@@ -22,8 +22,6 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 		}
 	}*/
 
-	console.log(ast.lines);
-
 	// Reset all lines if number of lines changes
 	if (ast.lines.length != this.gutter.childNodes.length) {
 		while (this.gutter.firstChild) {
@@ -44,19 +42,29 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			className += " eden-gutter-current";
 		}*/
 		if (ast.lines[i]) {
-			if (ast.lines[i].errors.length > 0) {
+			var stat = ast.lines[i];
+
+			if (stat.errors.length > 0) {
 				className += " eden-gutter-errorblock";
-				if (ast.lines[i].errors[0].line == i+1) {
+				if (stat.errors[0].line == i+1) {
+					className += " eden-gutter-error";
+					content = "&#xf06a";
+				} else if (stat.errors[0].type == "runtime") {
 					className += " eden-gutter-error";
 					content = "&#xf06a";
 				}
-			}
-			if (ast.lines[i].executed == 1) {
-				className += " eden-gutter-executed";
-			} else if (ast.lines[i].executed == 2) {
-				className += " eden-gutter-guarded";
-			} else if (ast.lines[i].executed == 3) {
-				className += " eden-gutter-errorblock";
+			} else {
+				if (stat.type == "assignment" && stat.value === undefined && stat.compiled) {
+					className += " eden-gutter-executed eden-gutter-warning";
+					content = "&#xf071";
+				}
+				if (stat.executed == 1) {
+					className += " eden-gutter-executed";
+				} else if (stat.executed == 2) {
+					className += " eden-gutter-guarded";
+				} else if (stat.executed == 3) {
+					className += " eden-gutter-errorblock";
+				}
 			}
 		}
 
