@@ -1,0 +1,5 @@
+## Mario Controls
+
+mario_action = 0;	## Idle
+mario_action = 1;	## Walk left
+mario_action = 2;	## Walk right

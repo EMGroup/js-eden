@@ -1,0 +1,33 @@
+## Mario Motion
+
+##mario_x = 1;
+
+mario_velocity = 70;
+mario_refreshrate = 50;
+mario_dx is (mario_velocity / 1000) * mario_refreshrate;
+
+mario_tile_x1 is 1+floor(mario_x / tile_width);
+mario_tile_x2 is 1+floor((mario_x-10) / tile_width);
+mario_tile_y is 1+floor(mario_y / tile_height);
+mario_canmoveright is tiles[mario_tile_y][mario_tile_x2+1] == 45;
+mario_canmoveleft is tiles[mario_tile_y][mario_tile_x-1] == 45;
+
+
+## Walk right
+when (mario_action == 2 && mario_canmoveright) {
+	wait mario_refreshrate;
+	mario_x = mario_x + mario_dx;
+	if (mario_canmoveright == false) {
+		mario_action = 0;
+	}
+}
+
+## Walk left
+when (mario_action == 1 && mario_canmoveleft) {
+	wait mario_refreshrate;
+	mario_x = mario_x - mario_dx;
+	if (mario_canmoveleft == false) {
+		mario_action = 0;
+	}
+}
+

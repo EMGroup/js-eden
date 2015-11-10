@@ -1,0 +1,59 @@
+
+## Mario Animations
+
+mario_url = "models/nick/mario/mario_sprite_sheet.png";
+mario_url_flip = "models/nick/mario/mario_sprite_sheet_flip.png";
+
+mario_x = 10;
+mario_y = 190;
+
+## width, height, startx, starty, frames, reversed, image
+mario_anims = [
+[25,35,568,270,7, false, mario_url],		## ?
+[24,35,542,317,8, false, mario_url],		## Walking right
+[21,35,556,112,4, false, mario_url],		## Idle
+[24,35,41,317,8, true, mario_url_flip]	## Walking left
+];
+
+mario_anim = 2;
+mario_animated = true;
+mario_frame = 0;
+
+mario_fxp is mario_anims[mario_anim][3];
+mario_fx is mario_fxp+abs(mario_frame % mario_anims[mario_anim][5])*mario_fw;
+mario_fy is mario_anims[mario_anim][4];
+mario_fw is mario_anims[mario_anim][1];
+mario_fh is mario_anims[mario_anim][2];
+
+mario_image is Image(mario_x, mario_y, mario_fw,mario_fh, mario_fx, mario_fy, mario_fx+mario_fw, mario_fy+mario_fh, mario_anims[mario_anim][7]);
+
+when (mario_frame != @ && mario_animated) {
+	wait mario_refreshrate;
+	if (mario_animated) {
+		if (mario_anims[mario_anim][6] == false) {
+		mario_frame++;
+		} else {
+			mario_frame--;
+		}
+	}
+}
+
+when (mario_action == 1) {
+	mario_anim = 4;
+	mario_animated = true;
+	mario_frame = 0;
+}
+
+when (mario_action == 2) {
+	mario_anim = 2;
+	mario_animated = true;
+	mario_frame = 0;
+}
+
+when (mario_action == 0) {
+	mario_animated = false;
+	mario_frame = 0;
+	mario_anim = 3;
+}
+
+
