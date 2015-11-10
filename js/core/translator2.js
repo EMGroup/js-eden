@@ -21,8 +21,9 @@ function EdenAST(code) {
 	this.src = "input";
 	this.lines = [];
 	this.parent = undefined;
-	this.scripts = {};
-	this.triggers = {};
+	this.scripts = {};			// Actions table
+	this.triggers = {};			// Guarded actions
+	this.definitions = {};		// Definitions mapping
 
 	this.stream.data = this.data;
 

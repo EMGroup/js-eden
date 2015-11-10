@@ -1433,7 +1433,7 @@ EdenAST_FunctionCall.prototype.execute = function(root, ctx, base) {
 	try {
 		return eval(func)(root,root.scope);
 	} catch(e) {
-		this.errors.push(new EdenError(base, EDEN_ERROR_FUNCCALL, e));
+		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e));
 	}
 }
 

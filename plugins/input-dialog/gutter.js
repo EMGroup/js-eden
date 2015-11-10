@@ -55,7 +55,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 				}
 			} else {
 				if (stat.type == "assignment" && stat.value === undefined && stat.compiled) {
-					className += " eden-gutter-executed eden-gutter-warning";
+					className += " eden-gutter-warning";
 					content = "&#xf071";
 				}
 				if (stat.executed == 1) {
