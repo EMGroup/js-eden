@@ -38,8 +38,14 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 	
 	this.loadCrossDomain = function (response) {
 		if (response.success) {
-			var json = JSON.parse(response.success)
-			crossDomainTarget.populateProjectData(json, crossDomainURL, crossDomainLoadAsRoot);
+			if (typeof(crossDomainTarget) == "string") {
+				//Copy code into an input window.
+				copyToInput(crossDomainTarget, response.success);
+			} else {
+				//Update list of projects.
+				var json = JSON.parse(response.success)
+				crossDomainTarget.populateProjectData(json, crossDomainURL, crossDomainLoadAsRoot);
+			}
 		}
 	}
 
@@ -53,7 +59,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		//Get a list of projects from the server.
 		var me = this;
 		if (/^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(url)) {
-			//Absolute URL.  Might be cross-domain.  Use JSONP.
+			//Absolute URL.  Might be cross-domain.  Use proxy server.
 			crossDomainTarget = this;
 			crossDomainURL = url;
 			crossDomainLoadAsRoot = asRoot;
@@ -73,6 +79,29 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		}
 	};
 	
+	ProjectListProjects.prototype.loadProjectCode = function (url) {
+		//Retrieve a .js-e file from the server.
+		var me = this;
+		if (/^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(url)) {
+			//Absolute URL.  Might be cross-domain.  Use proxy server.
+			crossDomainTarget = this.json.target;
+			crossDomainURL = url;
+			$.ajax({
+				url: rt.config.proxyBaseURL + "?url=" + url + "&callback=edenUI.plugins.ProjectList.loadCrossDomain",
+				dataType: "script",
+			});
+		} else {
+			$.ajax({
+				url: url,
+				dataType: "text",
+				success: function (data) {
+					copyToInput(me.json.target, data);
+				},
+				cache: false
+			});
+		}
+	};
+
 	ProjectListProjects.prototype.populateProjectData = function (data, url, asRoot) {
 		this.json = data;
 		if (asRoot) {
@@ -98,11 +127,20 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		}
 	}
 
+	function copyToInput(viewName, code) {
+		edenUI.createView(viewName, "ScriptInput").setValue(code);
+		edenUI.eden.root.lookup("_view_" + viewName + "_title").assign(viewName);
+		edenUI.showView(viewName);
+		edenUI.brieflyHighlightView(viewName);
+	}
+	
 	ProjectListProjects.prototype.projectClick = function (details) {
 		// Actually load the project by executing js-e file.
 		var projectURL = details.runfile;
 		if (projectURL !== undefined) {
-			if (!edenUI.eden.isInInitialState()) {
+			if (this.json.target !== undefined) {
+				this.loadProjectCode(projectURL);
+			} else if (!edenUI.eden.isInInitialState()) {
 				edenUI.modalDialog(
 					"Open Project Action",
 					"<p>The work space contains an existing construal.</p>\
@@ -167,6 +205,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		this.element.parentElement.scrollTop = 0;
 		var searchResults = $(this.element).find(".projectlist-results");
 		searchResults.html('');
+		var isSnippetList = this.json.target !== undefined;
 
 		if (this.json.projects !== undefined) {
 			//Search through projects to find those matching the query.
@@ -191,7 +230,9 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		}
 
 		//Add feature of the day option
-		if (this.rootURL == defaultURL && this.atRoot && (pattern == "" || re.test("Feature of The Day"))) {
+		if (!isSnippetList && this.rootURL == defaultURL && this.atRoot &&
+			(pattern == "" || re.test("Feature of The Day"))
+		) {
 			var sticker;
 			var lastVisited = edenUI.getOptionValue("fotdLastVisited");
 			if (lastVisited === null || parseInt(lastVisited) < fotdLastUpdated) {
@@ -209,7 +250,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		}
 
 		//Add new project option
-		if (!hasMatches || re.test("New Project")) {
+		if (!isSnippetList && (!hasMatches || re.test("New Project"))) {
 			var emptyProject = $(
 				'<div class="projectlist-result-element">' +
 					'<div class="projectlist-result-name">New Project</div>' + 

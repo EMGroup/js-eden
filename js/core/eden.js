@@ -678,6 +678,19 @@ function concatAndResolveUrl(url, concat) {
 		return Object.keys(this.included);
 	}
 
+	/**
+	 * @param {string} name
+	 * @param {Symbol} symbol
+	 * @return {string}
+	 */
+	Eden.prototype.getDefinition = function (name, symbol) {
+		if (symbol.eden_definition) {
+			return symbol.eden_definition + ";";
+		} else {
+			return name + " = " + symbol.cached_value + ";";
+		}
+	};
+
 	/**Given any JavaScript value returns a string representing the EDEN code that would be required
 	 * to obtain the same value when interpreted.
 	 * @param {*} value The value to find an EDEN representation for.
@@ -1269,19 +1282,6 @@ function concatAndResolveUrl(url, concat) {
 		};
 		
 		return parser.parse(source);
-	};
-
-	/**
-	 * @param {string} name
-	 * @param {Symbol} symbol
-	 * @return {string}
-	 */
-	Eden.prototype.getDefinition = function (name, symbol) {
-		if (symbol.eden_definition) {
-			return symbol.eden_definition + ";";
-		} else {
-			return name + " = " + symbol.cached_value + ";";
-		}
 	};
 
 	// expose API
