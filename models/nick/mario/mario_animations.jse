@@ -4,7 +4,7 @@
 mario_url = "models/nick/mario/mario_sprite_sheet.png";
 mario_url_flip = "models/nick/mario/mario_sprite_sheet_flip.png";
 
-mario_x = 10;
+mario_x = 100;
 mario_y = 190;
 
 ## width, height, startx, starty, frames, reversed, image

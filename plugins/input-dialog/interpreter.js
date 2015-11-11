@@ -270,7 +270,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function loadFile(sym, value) {
 			$.get(value, function(data) {
 				intextarea.value = data;
-				updateEntireHighlight();
+				updateEntireHighlight(autoexec);
 			}, "text");
 		}
 

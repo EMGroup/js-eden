@@ -107,6 +107,9 @@ EdenAST.prototype.next = function() {
 	this.previous = this.token;
 	this.token = this.stream.readToken();
 
+	//Cache prev line so it isn't affected by comments
+	var prevline = this.stream.prevline;
+
 	//Skip comments
 	while (true) {
 		// Skip block comments
@@ -129,6 +132,8 @@ EdenAST.prototype.next = function() {
 			break;
 		}
 	}
+
+	this.stream.prevline = prevline;
 };
 
 
