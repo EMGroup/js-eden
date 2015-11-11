@@ -75,6 +75,8 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			//this.gutter.childNodes[i].className = className;
 			//this.gutter.childNodes[i].innerHTML = content;
 			this.gutter.replaceChild(newnode, this.gutter.childNodes[i]);
+		} else {
+			this.gutter.childNodes[i].className = className;
 		}
 	}
 }

@@ -289,8 +289,8 @@ textarea.hidden-textarea {
 	/*word-wrap: nowrap;*/
 	overflow: auto;
 	font: 14px/20px Roboto Mono,monospace;
-	left: 5px;
-	width: 80%;
+	/*left: 5px;
+	width: 80%;*/
 	height: 50px;
 	tab-size: 2;
 }
