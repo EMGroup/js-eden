@@ -33,6 +33,7 @@ Eden.Agent = function(parent, name) {
 	this.scope = eden.root.scope;
 	this.ast = undefined;
 	this.state = {};
+	this.enabled = true;
 }
 
 
@@ -155,12 +156,62 @@ Eden.Agent.prototype.when = function(triggers, condition, action) {
 
 
 
+Eden.Agent.prototype.hasErrors = function() {
+	return this.ast.script.errors.length > 0;
+}
+
+
+
+/* Execute a particular line of script.
+ * If the statement is part of a larger statement block then execute
+ * that instead (eg. a proc).
+ */
+Eden.Agent.prototype.executeLine = function (lineno) {
+	var line = lineno;
+	// Make sure we are not in the middle of a proc or func.
+	while ((line > 0) && (this.ast.lines[line] === undefined)) {
+		line--;
+	}
+
+	var statement;
+	if (lineno == -1) {
+		statement = this.ast.script;
+	} else {
+		statement = this.ast.lines[line];
+	}
+	if (!statement) return;
+
+	// Find root statement and execute that one
+	while (statement.parent !== undefined && statement.parent.parent !== undefined) statement = statement.parent;
+
+	// Execute only the currently changed root statement
+	this.executeStatement(statement);
+}
+
+
+
+Eden.Agent.prototype.executeStatement = function(statement) {
+	try {
+		statement.execute(eden.root,undefined, this.ast);
+	} catch (e) {
+		eden.error(e);
+	}
+}
+
+
+
 /**
  * Provide a source script as a string. This then generates an AST used to
  * create definitions, actions etc.
  */
 Eden.Agent.prototype.setSource = function(source) {
 	this.ast = new EdenAST(source);
+}
+
+
+
+Eden.Agent.prototype.getSource = function() {
+	return this.ast.stream.code;
 }
 
 

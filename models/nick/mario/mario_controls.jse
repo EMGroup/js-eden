@@ -3,3 +3,4 @@
 mario_action = 0;	## Idle
 mario_action = 1;	## Walk left
 mario_action = 2;	## Walk right
+mario_action = 3;	## Jump
