@@ -738,9 +738,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 			}
 
-			// Adjust scroll position if required
-			checkScroll();
-
 			// Make sure caret remains inactive if we don't have focus
 			if (document.activeElement !== intextarea) {
 				$(outdiv).find(".fake-caret").addClass("fake-blur-caret");
@@ -941,6 +938,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			/*} else {
 				updateLineCachedHighlight();*/
 			}
+			// Adjust scroll position if required
+			checkScroll();
 			dirty = false;
 		}
 
@@ -1093,6 +1092,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					
 					// Update fake caret position at key repeat rate
 					updateLineCachedHighlight();
+					// Adjust scroll position if required
+					checkScroll();
 				} else if (e.keyCode == 13 || (e.keyCode == 8 && intextarea.value.charCodeAt(intextarea.selectionStart-1) == 10)) {
 					// Adding or removing lines requires a full re-highlight at present
 					refreshentire = true;
@@ -1214,7 +1215,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					intextarea.selectionStart = end;		
 					highlighter.highlight(highlighter.ast, curline, end);
 					updateLineCachedHighlight();
-					checkScroll();
+					//checkScroll();
 				}
 			}
 		}
