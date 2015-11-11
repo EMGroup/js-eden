@@ -1,6 +1,26 @@
 ## Mario Controls
 
-mario_action = 0;	## Idle
-mario_action = 1;	## Walk left
-mario_action = 2;	## Walk right
-mario_action = 3;	## Jump
+do stop;
+do walkLeft;
+do walkRight;
+do jump;
+
+action stop {
+	mario_walking = false;
+}
+
+action walkLeft {
+	mario_direction = 0;
+	mario_walking = true;
+}
+
+action walkRight {
+	mario_direction = 1;
+	mario_walking = true;
+}
+
+action jump {
+	mario_jumping = true;
+	##mario_jumping = false;
+}
+

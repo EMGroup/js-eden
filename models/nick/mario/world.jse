@@ -25,7 +25,7 @@ tiles_url = "models/nick/mario/tiles.png";
 tile_spacing = 2;
 tile_width = 16;
 tile_height = 16;
-stage_left = 0;
+stage_left = -16;
 stage_top = 0;
 
 action buildTiles {

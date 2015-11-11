@@ -3,7 +3,7 @@
 ##mario_x = 1;
 
 mario_velocity = 70;
-mario_vjump = 70;
+mario_vjump = 130;
 mario_refreshrate = 50;
 mario_dx is (mario_vx / 1000) * mario_refreshrate;
 mario_dy is (mario_vy / 1000) * mario_refreshrate;
@@ -20,6 +20,8 @@ mario_vx = 0;
 mario_vy = 0;
 
 mario_jumping = false;
+mario_walking = false;
+mario_direction = 0;
 
 ## Clear velocity X on collision (right)
 when (mario_vx > 0 && mario_canmoveright == false) {
@@ -42,27 +44,32 @@ when (mario_vx != 0 && mario_x) {
 		mario_x = mario_x + mario_dx;
 }
 
-when (mario_jumping && mario_y) {
+when (mario_canmovedown || mario_vy > 0) {
 	wait mario_refreshrate;
 	mario_y = mario_y - mario_dy;
+
+	if (mario_canmovedown == false) {
+		mario_y = floor(mario_y / tile_height) * tile_height;
+	}
+
 	mario_vy = mario_vy - (9.8);
 }
 
-when (mario_action == 0) {
+when (!mario_walking) {
 	mario_vx = 0;
 }
 
 ## Walk right
-when (mario_action == 2 && !mario_jumping) {
+when (mario_walking && mario_direction == 1 && !mario_canmovedown) {
 	mario_vx = mario_velocity;
 }
 
 ## Walk left
-when (mario_action == 1 && !mario_jumping) {
+when (mario_walking && mario_direction == 0 && !mario_canmovedown) {
 	mario_vx = -mario_velocity;
 }
 
-when (mario_action == 3) {
+when (mario_jumping && !mario_canmovedown) {
 	mario_vy = mario_vjump;
-	mario_jumping = true;
 }
+

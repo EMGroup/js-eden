@@ -25,7 +25,7 @@ mario_fy is mario_anims[mario_anim][4];
 mario_fw is mario_anims[mario_anim][1];
 mario_fh is mario_anims[mario_anim][2];
 
-mario_image is Image(mario_x, mario_y, mario_fw,mario_fh, mario_fx, mario_fy, mario_fx+mario_fw, mario_fy+mario_fh, mario_anims[mario_anim][7]);
+mario_image is Image(mario_x+stage_left, mario_y+stage_top, mario_fw,mario_fh, mario_fx, mario_fy, mario_fx+mario_fw, mario_fy+mario_fh, mario_anims[mario_anim][7]);
 
 when (mario_frame != @ && mario_animated) {
 	wait mario_refreshrate;
@@ -38,19 +38,19 @@ when (mario_frame != @ && mario_animated) {
 	}
 }
 
-when (mario_action == 1) {
+when (mario_walking && mario_direction == 0) {
 	mario_anim = 4;
 	mario_animated = true;
 	mario_frame = 0;
 }
 
-when (mario_action == 2) {
+when (mario_walking && mario_direction == 1) {
 	mario_anim = 2;
 	mario_animated = true;
 	mario_frame = 0;
 }
 
-when (mario_action == 0) {
+when (!mario_walking) {
 	mario_animated = false;
 	mario_frame = 0;
 	mario_anim = 3;
