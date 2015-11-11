@@ -908,6 +908,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			range.collapse(true);
 			sel.removeAllRanges();
 			sel.addRange(range);
+			// Finally, delete the fake caret
+			$(outdiv).remove(".fake-caret");
 		}
 
 
@@ -1085,8 +1087,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				} else if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 36 || e.keyCode == 35) {
 					// Shift arrow selection, move to editable div.
 					if (e.shiftKey) {
-						outdiv.focus();
 						setCaretToFakeCaret();
+						outdiv.focus();
 						return;
 					}
 					
@@ -1103,8 +1105,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (e.shiftKey) {
 					if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 36 || e.keyCode == 35) {
 						// Ctrl+Shift arrow selection, move to editable div.
-						outdiv.focus();
 						setCaretToFakeCaret();
+						outdiv.focus();
 						return;
 					}
 				} else if (e.keyCode === 38) {
@@ -1177,7 +1179,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * of current location for selection purposes.
 		 */
 		function onTextBlur(e) {
-			$(outdiv).find(".fake-caret").addClass("fake-blur-caret");
+			//$(outdiv).find(".fake-caret").addClass("fake-blur-caret");
+			// Finally, delete the fake caret
+			$(outdiv).find(".fake-caret").remove();
 			hideInfoBox();
 		}
 
@@ -1187,7 +1191,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * Make the caret visible.
 		 */
 		function onTextFocus(e) {
-			$(outdiv).find(".fake-caret").removeClass("fake-blur-caret");
+			//$(outdiv).find(".fake-caret").removeClass("fake-blur-caret");
 		}
 
 

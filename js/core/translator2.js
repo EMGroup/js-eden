@@ -914,7 +914,7 @@ EdenAST.prototype.pWHEN = function() {
 	if (when.errors.length > 0) return when;
 
 	// Compile the expression and log dependencies
-	when.generate(this);
+	when.compile(this);
 
 	this.parent = parent;
 	return when;

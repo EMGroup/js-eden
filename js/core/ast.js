@@ -1902,12 +1902,14 @@ EdenAST_Wait.prototype.setDelay = function(delay) {
 
 EdenAST_Wait.prototype.compile = function(ctx) {
 	if (this.delay === undefined) return;
+	if (this.compiled_delay) return;
 	var source = "(function(context,scope) { return ";
 	source += this.delay.generate(ctx, "scope");
 	if (this.delay.doesReturnBound && this.delay.doesReturnBound()) {
 		source += ".value";
 	}
 	source += ";})";
+	console.log(this);
 	this.compiled_delay = eval(source);
 }
 
@@ -2005,7 +2007,11 @@ EdenAST_When.prototype.setSource = function(start, end) {
 	this.end = end;
 }
 
-EdenAST_When.prototype.generate = function(base) {
+EdenAST_When.prototype.generate = function() {
+	return "";
+}
+
+EdenAST_When.prototype.compile = function(base) {
 	var cond = "(function(context,scope) { return ";
 	cond += this.expression.generate(this, "scope");
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
@@ -2033,12 +2039,7 @@ EdenAST_When.prototype.execute = function(root, ctx, base) {
 	if (this.active) return;
 	this.active = true;
 	this.executed = 1;
-	var cond = "(function(context,scope) { return ";
-	cond += this.expression.generate(this, "scope");
-	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-		cond += ".value";
-	}
-	cond += ";})";
+	//this.compile(base);
 
 	if (this.compiled(root,root.scope)) {
 		this.statement.execute(root, ctx, base);

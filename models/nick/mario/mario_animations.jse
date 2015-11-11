@@ -1,4 +1,3 @@
-
 ## Mario Animations
 
 mario_url = "models/nick/mario/mario_sprite_sheet.png";
@@ -18,6 +17,7 @@ mario_anims = [
 mario_anim = 2;
 mario_animated = true;
 mario_frame = 0;
+mario_refreshrate = 50;
 
 mario_fxp is mario_anims[mario_anim][3];
 mario_fx is mario_fxp+abs(mario_frame % mario_anims[mario_anim][5])*mario_fw;
