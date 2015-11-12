@@ -224,6 +224,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var refreshentire = false;
 		var edited = false;
 		var dirty = false;
+		var tabscrollix = 0;
 
 		var scriptagent = new Eden.Agent();
 		scriptagent.enabled = power;
@@ -241,14 +242,26 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			tab.className = classname;
 			tab.innerHTML = title;
 			tab.setAttribute("data-name", name);
+			if (tabs.childNodes.length < tabscrollix+1) {
+				tab.style.display = "none";
+			}
 			tabs.appendChild(tab);
 		}
 
 		function rebuildTabs() {
 			while (tabs.firstChild) tabs.removeChild(tabs.firstChild);
+
+			var left = document.createElement("div");
+			left.className = "agent-tableft";
+			tabs.appendChild(left);
+
 			for (var a in Eden.Agent.agents) {
 				addTab(a, Eden.Agent.agents[a].title, a == scriptagent.name);
 			}
+
+			var right = document.createElement("div");
+			right.className = "agent-tabright";
+			tabs.appendChild(right);
 		}
 
 		rebuildTabs();
@@ -1291,6 +1304,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
+		function onTabLeft() {
+			if (tabscrollix > 0) {
+				tabscrollix--;
+				tabs.childNodes[tabscrollix+1].style.display = "initial";
+			}
+		}
+
+		function onTabRight() {
+			if (tabscrollix < tabs.childNodes.length-2) {
+				tabs.childNodes[tabscrollix+1].style.display = "none";
+				tabscrollix++;
+			}
+		}
+
+
+
 		// Set the event handlers
 		$dialogContents
 		.on('input', '.hidden-textarea', onInputChanged)
@@ -1303,7 +1332,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		.on('click', '.previous-input', onPrevious)
 		.on('click', '.next-input', onNext)
 		.on('click', '.eden-gutter-item', onGutterClick)
-		.on('click', '.agent-tab', onTabClick);
+		.on('click', '.agent-tab', onTabClick)
+		.on('click', '.agent-tableft', onTabLeft)
+		.on('click', '.agent-tabright', onTabRight);
 
 		// Create power button
 		var $powerbutton = $('<div class="scriptswitch power-off" title="Live Making">&#xF011;</div>');

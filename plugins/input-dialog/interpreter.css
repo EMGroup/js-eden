@@ -29,6 +29,49 @@ div.agent-tabs {
 	box-sizing: border-box;
 	border-bottom: 1px solid #719ECE;
 	overflow: hidden;
+	padding-left: 20px;
+}
+
+div.agent-tableft {
+	position: absolute;
+	left: 10px;
+	top: 0px;
+	width: 20px;
+	line-height: 35px;
+	height: 35px;
+	cursor: pointer;
+}
+
+div.agent-tableft:hover {
+	color: #719ECE;
+}
+
+div.agent-tableft:after {
+	content: "\f053";
+	font-family: "FontAwesome";
+	font-size: 11pt;
+	font-weight: bold;
+}
+
+div.agent-tabright {
+	position: absolute;
+	right: 10px;
+	top: 0px;
+	width: 20px;
+	line-height: 35px;
+	height: 35px;
+	cursor: pointer;
+}
+
+div.agent-tabright:hover {
+	color: #719ECE;
+}
+
+div.agent-tabright:after {
+	content: "\f054";
+	font-family: "FontAwesome";
+	font-size: 11pt;
+	font-weight: bold;
 }
 
 div.agent-tab {
@@ -435,7 +478,7 @@ div.input-dialog .ui-dialog-title {
 
 div.scriptswitch {
 	position: absolute;
-	top: 7px;
+	top: 40px;
 	right: 20px;
 	font-family: "FontAwesome";
 	font-size: 22px;
