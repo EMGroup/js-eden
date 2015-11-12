@@ -4,7 +4,7 @@
 	tab-size: 2;
 	/*margin: 5px;*/
 	position: absolute;
-	top: 0;
+	top: 35px;
 	bottom: 30px;
 	left: 0;
 	right: 0;
@@ -18,6 +18,57 @@
 	-webkit-font-smoothing: antialiased;
 	-webkit-transform: translate3d(0,0,0);
 }
+
+div.agent-tabs {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 35px;
+	background-color: #cecece;
+	box-sizing: border-box;
+	border-bottom: 1px solid #719ECE;
+	overflow: hidden;
+}
+
+div.agent-tab {
+	float: left;
+	margin-left: 10px;
+	width: 120px;
+	height: 100%;
+	font-family: Verdana,Arial,sans-serif;
+	font-size: 8pt;
+	color: #888;
+	text-align: center;
+	font-weight: bold;
+	line-height: 35px;
+	-webkit-font-smoothing: antialiased;
+	font-smoothing: antialiased;
+	cursor: pointer;
+}
+
+div.agent-tab-notcurrent:hover {
+	background-color: #d4d4d4;
+	box-sizing: border-box;
+	border-left: 1px solid #aaa;
+	border-right: 1px solid #aaa;
+	border-bottom: 2px solid #aaa;
+	color: #666;
+}
+
+div.agent-tab-current {
+	background-color: #dbdbdb;
+	box-sizing: border-box;
+	border-bottom: 2px solid #719ECE;
+	border-left: 1px solid #aaa;
+	border-right: 1px solid #aaa;
+	color: #222;
+}
+
+div.agent-tab-current:hover {
+	background-color: #e5e5e5;
+}
+
 
 @font-face {
 	font-family: "FontAwesome";
@@ -375,6 +426,7 @@ div.input-dialog .ui-dialog-titlebar {
 div.input-dialog .ui-dialog-title {
 	float: none;
 	-webkit-font-smoothing: antialiased;
+	font-smoothing: antialiased;
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 5px;
@@ -383,7 +435,7 @@ div.input-dialog .ui-dialog-title {
 
 div.scriptswitch {
 	position: absolute;
-	top: 10px;
+	top: 7px;
 	right: 20px;
 	font-family: "FontAwesome";
 	font-size: 22px;

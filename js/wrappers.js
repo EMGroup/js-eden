@@ -34,6 +34,40 @@ Eden.Agent = function(parent, name) {
 	this.ast = undefined;
 	this.state = {};
 	this.enabled = true;
+	this.owned = false;
+	this.oracles = [];
+	this.handles = [];
+	this.title = "Agent";
+
+	Eden.Agent.agents[this.name] = this;
+	Eden.Agent.triggerChange(this);
+}
+
+Eden.Agent.agents = {};
+
+Eden.Agent.onChange = function(cb) {
+	Eden.Agent.changecbs.push(cb);
+}
+
+Eden.Agent.changecbs = [];
+
+Eden.Agent.triggerChange = function(agent) {
+	for (var i=0; i<Eden.Agent.changecbs.length; i++) {
+		Eden.Agent.changecbs[i](agent);
+	}
+}
+
+
+
+Eden.Agent.prototype.setTitle = function(title) {
+	this.title = title;
+	Eden.Agent.triggerChange(this);
+}
+
+
+
+Eden.Agent.prototype.setOwned = function(owned) {
+	this.owned = owned;
 }
 
 

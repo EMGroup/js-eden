@@ -189,7 +189,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	 * Common input window view constructor.
 	 */
 	this.createCommon = function (name, mtitle, code, power, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputhider"><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable class="outputcontent"></div></div></div><div class="info-bar"></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputhider"><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="agent-tabs"></div><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable class="outputcontent"></div></div></div><div class="info-bar"></div><div class="outputbox"></div></div></div>')
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
@@ -198,6 +198,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var infobox = $dialogContents.find('.info-bar').get(0);
 		var outputbox = $dialogContents.find('.outputbox').get(0);
 		var suggestions = $dialogContents.find('.eden_suggestions');
+		var tabs = $dialogContents.find('.agent-tabs').get(0);
 		suggestions.hide();
 		$(infobox).hide();
 
@@ -219,18 +220,48 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var currentlineno = 1;
 		var currentcharno = 0;
 		var highlighter = new EdenUI.Highlight(outdiv);
-		var autoexec = power;
 		var inputchanged = false;
 		var refreshentire = false;
 		var edited = false;
 		var dirty = false;
 
+		var scriptagent = new Eden.Agent();
+		scriptagent.enabled = power;
+		scriptagent.setOwned(true);
+
+		
+		function addTab(name, title, current) {
+			var tab = document.createElement("div");
+			var classname = "agent-tab";
+			if (current) {
+				classname += " agent-tab-current";
+			} else {
+				classname += " agent-tab-notcurrent";
+			}
+			tab.className = classname;
+			tab.innerHTML = title;
+			tab.setAttribute("data-name", name);
+			tabs.appendChild(tab);
+		}
+
+		function rebuildTabs() {
+			while (tabs.firstChild) tabs.removeChild(tabs.firstChild);
+			for (var a in Eden.Agent.agents) {
+				addTab(a, Eden.Agent.agents[a].title, a == scriptagent.name);
+			}
+		}
+
+		rebuildTabs();
+		Eden.Agent.onChange(rebuildTabs);
 
 
 		/**
 		 * If the input window is a dialog then set its title.
 		 */
 		function setTitle(title) {
+			scriptagent.setTitle(title);
+			rebuildTabs();
+
 			var p = $dialogContents.get(0).parentNode;
 			if (p) {
 				p = p.parentNode;
@@ -270,7 +301,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function loadFile(sym, value) {
 			$.get(value, function(data) {
 				intextarea.value = data;
-				updateEntireHighlight(autoexec);
+				updateEntireHighlight(scriptagent.enabled);
 			}, "text");
 		}
 
@@ -290,7 +321,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var obs_override = "_view_"+name+"_override";
 		var obs_file = "_view_"+name+"_file";
 		var obs_power = "_view_"+name+"_power";
-		var agent = new Eden.Agent([obs_script,obs_next,obs_prev,obs_override, obs_file, obs_power], eden.root.scope);
+		var agent = new Eden.Agent("scriptview_"+name, eden.root.scope);
+		agent.setReadonly([obs_script,obs_next,obs_prev,obs_override, obs_file, obs_power]);
 
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);
@@ -318,8 +350,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * (and one line either size).
 		 */
 		function updateLineHighlight() {
-			var ast = new EdenAST(intextarea.value);
-			highlighter.ast = ast;
+			scriptagent.setSource(intextarea.value);
+			highlighter.ast = scriptagent.ast;
 			var lineno = -1; // Note: -1 means update all.
 			var pos = -1;
 			if (document.activeElement === intextarea) {
@@ -327,9 +359,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				lineno = getLineNumber(intextarea);
 			}
 
-			runScript();
+			runScript(lineno);
 
-			highlightContent(ast, lineno, pos);
+			highlightContent(scriptagent.ast, lineno, pos);
 			//rebuildNotifications();
 		}
 
@@ -359,25 +391,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * could be such changes), for example when pasting.
 		 */
 		function updateEntireHighlight(rerun) {
-			var ast = new EdenAST(intextarea.value);
-			highlighter.ast = ast;
+			scriptagent.setSource(intextarea.value);
+			highlighter.ast = scriptagent.ast;
 			var pos = -1;
 			if (document.activeElement === intextarea) {
 				pos = intextarea.selectionEnd;
 			}
 
-			var cacheline = currentlineno;
 			if (rerun) {
-				// Execute entire script
-				currentlineno = 0;
-			} else {
-				// Don't execute
-				currentlineno = -1;
+				runScript(-1);
 			}
-			runScript();
-			currentlineno = cacheline;
 
-			highlightContent(ast, -1, pos);
+			highlightContent(scriptagent.ast, -1, pos);
 		}
 
 
@@ -394,40 +419,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 			}
 			return res;
-		}
-
-
-
-		/* Execute a particular line of script.
-		 * If the statement is part of a larger statement block then execute
-		 * that instead (eg. a proc).
-		 */
-		function submitLine(ast, lineno) {
-			var line = lineno;
-			// Make sure we are not in the middle of a proc or func.
-			while ((line > 0) && (ast.lines[line] === undefined)) {
-				line--;
-			}
-
-			var statement;
-			if (lineno == -1) {
-				statement = ast.script;
-			} else {
-				statement = ast.lines[line];
-			}
-			if (!statement) return;
-
-			// Find root statement and execute that one
-			while (statement.parent !== undefined && statement.parent.parent !== undefined) statement = statement.parent;
-
-			// Execute only the currently changed root statement
-			me.submit(statement, highlighter.ast);
-
-			// Oops, mark the errors
-			/*if (statement.errors.length > 0) {
-				showInfoBox("error", statement.errors[0].messageText());
-				addErrorLine(line+1);
-			}*/
 		}
 
 
@@ -513,7 +504,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		/* UNUSED */
 		function notifyOutOfDate(symbol, value) {
 			// If power is off, don't show conflict warnings
-			if (!autoexec) return;
+			if (!scriptagent.enabled) return;
 
 			// Find the symbol in the ast lines and highlight that line
 			var count = 0;
@@ -760,7 +751,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			});*/
 
 			/* Number dragging code, but only if live */
-			if (autoexec) {
+			if (scriptagent.enabled) {
 				$(outdiv).find('.eden-number').draggable({
 					helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
 					axis: 'x',
@@ -784,15 +775,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 							}
 							replaceLine(dragline, content);
 
-							var ast = new EdenAST(intextarea.value);
-							highlighter.ast = ast;
+							scriptagent.setSource(intextarea.value);
+							highlighter.ast = scriptagent.ast;
 
 							// Execute if no errors!
-							if (autoexec && ast.script.errors.length == 0) {
-								submitLine(ast, dragline);
+							if (scriptagent.enabled && !scriptagent.hasErrors()) {
+								scriptagent.executeLine(dragline);
 							}
 
-							highlightContent(ast, dragline, -1);
+							highlightContent(scriptagent.ast, dragline, -1);
 						}
 					},
 					start: function(e,u) {
@@ -846,7 +837,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function powerOff() {
 			powerOk();
 			$powerbutton.removeClass("power-on").addClass("power-off");
-			autoexec = false;
+			scriptagent.enabled = false;
 		}
 
 
@@ -856,7 +847,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 */
 		function powerOn() {
 			$powerbutton.removeClass("power-off").addClass("power-on");
-			autoexec = true;
+			scriptagent.enabled = true;
 		}
 
 
@@ -865,7 +856,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * If we are live coding, turn the power button red.
 		 */
 		function powerError() {
-			if (autoexec) {
+			if (scriptagent.enabled) {
 				$powerbutton.addClass("power-error");
 			}
 		}
@@ -884,7 +875,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 		function powerToggle() {
-			if (autoexec) {
+			if (scriptagent.enabled) {
 				powerOff();
 			} else {
 				powerOn();
@@ -947,15 +938,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
-		function runScript() {
+		function runScript(line) {
 			// If we should run the statement (there are no errors)
-			if (autoexec && highlighter.ast.script.errors.length == 0) {
+			if (scriptagent.enabled && !scriptagent.hasErrors()) {
 				powerOk();
-				console.log("Currentline: " + currentlineno);
-				submitLine(highlighter.ast, currentlineno-1);
+				scriptagent.executeLine(line);
 				//console.log(highlighter.ast.lines);
-			} else if (autoexec) {
-				console.log(highlighter.ast.script.errors);
+			} else if (scriptagent.enabled) {
 				powerError();
 			}
 		}
@@ -1245,7 +1234,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 				} else {
 					clearExecutedState();
-					submitLine(highlighter.ast, lineno-1);
+					scriptagent.executeLine(lineno-1);
 					gutter.generate(highlighter.ast, lineno);
 				}
 			}
@@ -1291,6 +1280,23 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
+		function onTabClick(e) {
+			var name = e.target.getAttribute("data-name");
+			console.log(name);
+			if (Eden.Agent.agents[name] && Eden.Agent.agents[name].owned == false) {
+				scriptagent.setOwned(false);
+				scriptagent = Eden.Agent.agents[name];
+				scriptagent.setOwned(true);
+				if (scriptagent.ast) {
+					intextarea.value = scriptagent.ast.stream.code;
+					updateEntireHighlight();
+				}
+				rebuildTabs();
+			}
+		}
+
+
+
 		// Set the event handlers
 		$dialogContents
 		.on('input', '.hidden-textarea', onInputChanged)
@@ -1302,7 +1308,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		.on('mouseup', '.outputcontent', onOutputMouseUp)
 		.on('click', '.previous-input', onPrevious)
 		.on('click', '.next-input', onNext)
-		.on('click', '.eden-gutter-item', onGutterClick);
+		.on('click', '.eden-gutter-item', onGutterClick)
+		.on('click', '.agent-tab', onTabClick);
 
 		// Create power button
 		var $powerbutton = $('<div class="scriptswitch power-off" title="Live Making">&#xF011;</div>');
@@ -1311,9 +1318,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		if (power) powerOn();
 
 		$powerbutton.click(function (e) {
-			autoexec = !autoexec;
+			scriptagent.enabled = !scriptagent.enabled;
 
-			if (autoexec) {
+			if (scriptagent.enabled) {
 				powerOn();
 				updateEntireHighlight(true);
 				//me.submit(highlighter.ast.script, highlighter.ast);
@@ -1392,18 +1399,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		//undockbutton.appendTo(viewdata.contents);
 		return viewdata;
 	}
-
-
-
-	this.submit = function (statement, base) {
-		//console.time("EdenASTToJS");
-		try {
-			statement.execute(eden.root,undefined, base);
-		} catch (e) {
-			eden.error(e);
-		}
-		//console.timeEnd("EdenASTToJS");
-	};
 
 
 

@@ -1,27 +1,19 @@
 require("Canvas2D");
 
+include2("models/nick/mario/mario_animations.jse");
+include2("models/nick/mario/mario_motion.jse");
+include2("models/nick/mario/mario_controls.jse");
+include2("models/nick/mario/world.jse");
+
 createView("marioAnims","ScriptInput");
 _view_marioAnims_power = true;
-_view_marioAnims_file = "models/nick/mario/mario_animations.jse";
 _view_marioAnims_x += 200;
-
-createView("marioMotion","ScriptInput");
-_view_marioMotion_power = true;
-_view_marioMotion_file = "models/nick/mario/mario_motion.jse";
-_view_marioMotion_x += 225;
-_view_marioMotion_y += 20;
 
 createView("marioControls","ScriptInput");
 ##_view_marioControls_power = true;
-_view_marioControls_file = "models/nick/mario/mario_controls.jse";
 _view_marioControls_x = 42;
 _view_marioControls_y = 380;
 
-createView("world","ScriptInput");
-_view_world_power = true;
-_view_world_file = "models/nick/mario/world.jse";
-_view_world_x += 245;
-_view_world_y += 40;
 
 _view_picture_background_colour = "#5c94fc";
 _view_picture_height = 270;
