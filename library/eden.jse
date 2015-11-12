@@ -482,6 +482,11 @@ func include2 {
 	${{ edenUI.eden.include2(arguments[0], success) }}$;
 }
 
+func agentFromFile {
+	para name, file;
+	${{ edenUI.eden.agentFromFile(arguments[0],arguments[1]) }}$;
+}
+
 ##Autocalc compatibility
 autocalc = 1;
 

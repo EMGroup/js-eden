@@ -40,7 +40,7 @@ Eden.Agent = function(parent, name) {
 	this.title = "Agent";
 
 	Eden.Agent.agents[this.name] = this;
-	Eden.Agent.triggerChange(this);
+	Eden.Agent.triggerChange(this, "create");
 
 	var me = this;
 
@@ -68,10 +68,21 @@ Eden.Agent.onChange = function(cb) {
 
 Eden.Agent.changecbs = [];
 
-Eden.Agent.triggerChange = function(agent) {
+Eden.Agent.triggerChange = function(agent, reason) {
 	for (var i=0; i<Eden.Agent.changecbs.length; i++) {
-		Eden.Agent.changecbs[i](agent);
+		Eden.Agent.changecbs[i](agent, reason);
 	}
+}
+
+
+
+Eden.Agent.prototype.loadFromFile = function(filename) {
+	var me = this;
+	$.get(filename, function(data) {
+		me.setSource(data);
+		me.executeLine(-1);
+		Eden.Agent.triggerChange(me, "loaded");
+	});
 }
 
 
@@ -90,7 +101,7 @@ Eden.Agent.prototype.clearExecutedState = function() {
 
 Eden.Agent.prototype.setTitle = function(title) {
 	this.title = title;
-	Eden.Agent.triggerChange(this);
+	Eden.Agent.triggerChange(this, "title");
 }
 
 
@@ -268,13 +279,24 @@ Eden.Agent.prototype.executeStatement = function(statement) {
  * create definitions, actions etc.
  */
 Eden.Agent.prototype.setSource = function(source) {
+	var gettitle = this.ast === undefined;
 	this.ast = new EdenAST(source);
+
+	if (gettitle) {
+		if (this.ast.stream.code.charAt(0) == "#") {
+			this.setTitle(this.ast.stream.code.split("\n")[0].substr(2));
+		}
+	}
 }
 
 
 
 Eden.Agent.prototype.getSource = function() {
-	return this.ast.stream.code;
+	if (this.ast) {
+		return this.ast.stream.code;
+	} else {
+		return "";
+	}
 }
 
 

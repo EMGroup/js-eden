@@ -248,6 +248,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			tabs.appendChild(tab);
 		}
 
+
+
 		function rebuildTabs() {
 			while (tabs.firstChild) tabs.removeChild(tabs.firstChild);
 
@@ -266,6 +268,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		rebuildTabs();
 		Eden.Agent.onChange(rebuildTabs);
+		
 
 
 		/**
@@ -327,6 +330,29 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
+		function changeAgent(sym, value) {
+			if (value && Eden.Agent.agents[value] && Eden.Agent.agents[value].owned == false) {
+				scriptagent.setOwned(false);
+				scriptagent = Eden.Agent.agents[value];
+				scriptagent.setOwned(true);
+				if (scriptagent.ast) {
+					intextarea.value = scriptagent.ast.stream.code;
+					highlightContent(scriptagent.ast, -1, 0);
+				}
+
+				tabscrollix = 0;
+				for (var a in Eden.Agent.agents) {
+					if (a == scriptagent.name) break;
+					tabscrollix++;
+				}
+				if (tabscrollix > 0) tabscrollix--;
+
+				rebuildTabs();
+			}
+		}
+
+
+
 		// Use the agent wrapper for dealing with view interaction via symbols.
 		var obs_script = "_view_"+name+"_script";
 		var obs_next = "_view_"+name+"_next";
@@ -334,13 +360,44 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var obs_override = "_view_"+name+"_override";
 		var obs_file = "_view_"+name+"_file";
 		var obs_power = "_view_"+name+"_power";
-		var agent = new Eden.Agent("scriptview_"+name, eden.root.scope);
-		agent.setReadonly([obs_script,obs_next,obs_prev,obs_override, obs_file, obs_power]);
+		var obs_agent = "_view_"+name+"_agent";
+		var obs_showtabs = "_view_"+name+"_showtabs";
+		var agent = new Eden.Agent(undefined, "scriptview_"+name);
+		agent.declare(obs_agent);
+		//agent.setReadonly([obs_script,obs_next,obs_prev,obs_override, obs_file, obs_power, obs_agent, obs_showtabs]);
+
+		agent.enabled = false;
+		agent.setSource("## "+name+"\n\
+_view_"+name+"_script = "+Eden.edenCodeForValue(agent[obs_script])+";\n\
+_view_"+name+"_next = "+Eden.edenCodeForValue(agent[obs_next])+";\n\
+_view_"+name+"_prev = "+Eden.edenCodeForValue(agent[obs_prev])+";\n\
+_view_"+name+"_override = "+Eden.edenCodeForValue(agent[obs_override])+";\n\
+_view_"+name+"_power = "+Eden.edenCodeForValue(agent[obs_power])+";\n\
+_view_"+name+"_agent = "+Eden.edenCodeForValue(agent[obs_agent])+";\n\
+_view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent[obs_showtabs])+";\n\
+");
 
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);
 		agent.on(obs_file, loadFile);
 		agent.on(obs_power, switchPower);
+		agent.on(obs_agent, changeAgent);
+
+
+		function checkAgent(ag, reason) {
+			console.log(ag.name);
+			if (agent && agent.state[obs_agent] !== undefined) {
+				console.log(agent.state[obs_agent]);
+				if (ag.name == agent.state[obs_agent] && ag.name != scriptagent.name) {
+					changeAgent(undefined, ag.name);
+				} else if (ag.name == scriptagent.name && reason == "loaded") {
+					intextarea.value = ag.getSource();
+					highlightContent(scriptagent.ast, -1, 0);
+				}
+			}
+		}
+		Eden.Agent.onChange(checkAgent);
+
 
 		/*edenUI.eden.root.addGlobal(function(sym, create) {
 			if (highlighter.ast) {
@@ -1290,16 +1347,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function onTabClick(e) {
 			var name = e.target.getAttribute("data-name");
 			console.log(name);
-			if (Eden.Agent.agents[name] && Eden.Agent.agents[name].owned == false) {
-				scriptagent.setOwned(false);
-				scriptagent = Eden.Agent.agents[name];
-				scriptagent.setOwned(true);
-				if (scriptagent.ast) {
-					intextarea.value = scriptagent.ast.stream.code;
-					updateEntireHighlight();
-				}
-				rebuildTabs();
-			}
+			agent[obs_agent] = name;
+			changeAgent(undefined, name);
 		}
 
 

@@ -735,6 +735,13 @@ function concatAndResolveUrl(url, concat) {
 	};
 
 
+
+	Eden.prototype.agentFromFile = function(name, url) {
+		var agent = new Eden.Agent(undefined, name);
+		agent.loadFromFile(url);
+	}
+
+
 	//Eden.prototype.execute = Eden.prototype.execute2;
 
 	/**

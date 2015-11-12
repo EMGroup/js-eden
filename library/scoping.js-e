@@ -1,3 +1,5 @@
+## Scope Library
+
 typeof is ${{ scope.primaryCause() }}$;
 from is ${{ scope.hasCause(context.lookup("name").value(scope)) }}$;
 has is ${{ scope.hasOverride(context.lookup("name").value(scope)) }}$;
