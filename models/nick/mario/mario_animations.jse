@@ -38,16 +38,29 @@ when (mario_frame != @ && mario_animated) {
 	}
 }
 
-when (mario_walking && mario_direction == 0) {
+when (mario_walking && mario_direction == 0 && !mario_jumping) {
 	mario_anim = 4;
 	mario_animated = true;
 	mario_frame = 0;
 }
 
-when (mario_walking && mario_direction == 1) {
+when (mario_walking && mario_direction == 1 && !mario_jumping) {
 	mario_anim = 2;
 	mario_animated = true;
 	mario_frame = 0;
+}
+
+when (mario_jumping && mario_canmovedown) {
+	if (mario_walking) {
+	if (mario_direction == 0) {
+		mario_anim = 4;
+		mario_frame = 5;
+	} else {
+		mario_anim = 2;
+		mario_frame = 2;
+	}
+	}
+	mario_animated = false;
 }
 
 when (!mario_walking) {
@@ -55,5 +68,7 @@ when (!mario_walking) {
 	mario_frame = 0;
 	mario_anim = 3;
 }
+
+
 
 

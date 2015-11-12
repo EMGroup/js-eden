@@ -27,5 +27,6 @@ _view_picture_background_colour = "#5c94fc";
 _view_picture_height = 270;
 _view_picture_canvas_right is _view_picture_width + 20;
 _view_picture_canvas_bottom is _view_picture_height + 20;
-picture is [transformed_tiles, mario_image];
+_view_picture_title = "Mario Demo";
+picture is [backgroundimg, transformed_tiles, mario_image];
 
