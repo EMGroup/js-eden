@@ -41,6 +41,23 @@ Eden.Agent = function(parent, name) {
 
 	Eden.Agent.agents[this.name] = this;
 	Eden.Agent.triggerChange(this);
+
+	var me = this;
+
+	// Watch to trigger whens
+	eden.root.addGlobal(function(sym, create) {
+		if (me.ast && me.enabled) {
+			var whens = me.ast.triggers[sym.name.slice(1)];
+			if (whens) {
+				//clearExecutedState();
+				for (var i=0; i<whens.length; i++) {
+					whens[i].execute(eden.root, undefined, me.ast);
+				}
+				//gutter.generate(this.ast,-1);
+				//me.clearExecutedState();
+			}
+		}
+	});
 }
 
 Eden.Agent.agents = {};
@@ -54,6 +71,18 @@ Eden.Agent.changecbs = [];
 Eden.Agent.triggerChange = function(agent) {
 	for (var i=0; i<Eden.Agent.changecbs.length; i++) {
 		Eden.Agent.changecbs[i](agent);
+	}
+}
+
+
+
+Eden.Agent.prototype.clearExecutedState = function() {
+	for (var i=0; i<this.ast.lines.length; i++) {
+		if (this.ast.lines[i]) {
+			if (this.ast.lines[i].executed > 0) {
+				this.ast.lines[i].executed = 0;
+			}
+		}
 	}
 }
 

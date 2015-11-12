@@ -329,7 +329,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.on(obs_file, loadFile);
 		agent.on(obs_power, switchPower);
 
-		edenUI.eden.root.addGlobal(function(sym, create) {
+		/*edenUI.eden.root.addGlobal(function(sym, create) {
 			if (highlighter.ast) {
 				var whens = highlighter.ast.triggers[sym.name.slice(1)];
 				if (whens) {
@@ -341,7 +341,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					clearExecutedState();
 				}
 			}
-		});
+		});*/
+
+
+		setInterval(function() {
+			gutter.generate(scriptagent.ast, -1);
+			scriptagent.clearExecutedState();
+		}, 50);
 
 
 
@@ -966,18 +972,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
-		function clearExecutedState() {
-			for (var i=0; i<highlighter.ast.lines.length; i++) {
-				if (highlighter.ast.lines[i]) {
-					if (highlighter.ast.lines[i].executed > 0) {
-						highlighter.ast.lines[i].executed = 0;
-					}
-				}
-			}
-		}
-
-
-
 		/**
 		 * Event handler for input change.
 		 */
@@ -1233,7 +1227,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						showInfoBox(e.target.offsetLeft+20, e.target.offsetTop-$codearea.get(0).scrollTop+25, "error", err.messageText());
 					}
 				} else {
-					clearExecutedState();
+					scriptagent.clearExecutedState();
 					scriptagent.executeLine(lineno-1);
 					gutter.generate(highlighter.ast, lineno);
 				}
