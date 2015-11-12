@@ -69,12 +69,17 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 		}
 
 		if (className != "eden-gutter-item") {
-			var newnode = document.createElement("div");
-			newnode.className = className;
-			newnode.innerHTML = content;
-			//this.gutter.childNodes[i].className = className;
-			//this.gutter.childNodes[i].innerHTML = content;
-			this.gutter.replaceChild(newnode, this.gutter.childNodes[i]);
+			if (content == "") {
+				var newnode = document.createElement("div");
+				newnode.className = className;
+				newnode.innerHTML = "";
+				//this.gutter.childNodes[i].className = className;
+				//this.gutter.childNodes[i].innerHTML = content;
+				this.gutter.replaceChild(newnode, this.gutter.childNodes[i]);
+			} else {
+				this.gutter.childNodes[i].className = className;
+				this.gutter.childNodes[i].innerHTML = content;
+			}
 		} else {
 			this.gutter.childNodes[i].className = this.gutter.childNodes[i].className.replace(" eden-gutter-error","").replace(" eden-gutter-errorblock","");
 		}

@@ -911,7 +911,7 @@ div.eden-warnline:before {
 	left: -22px;
 	padding-left: 4px;
 	color: orange;
-	background-color: #f2f2a0;
+	/*background-color: #f2f2a0;*/
 	width: 16px;
 	height: 20px;
 }

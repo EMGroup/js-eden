@@ -963,7 +963,7 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 		return result;
 	} else {
 		result += ".assign(\n\t";
-		result += this.expression.generate(ctx, "scope");
+		result += this.expression.generate(this, "scope");
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			result += ".value";
 		}
@@ -981,9 +981,19 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
 EdenAST_Assignment.prototype.compile = function(ctx) {
 	if (this.compiled) return;
 
-	var rhs = "(function(context,scope) { return ";
+	var rhs = "(function(context,scope) { \n";
+	var express = this.expression.generate(this, "scope");
 
-	rhs += this.expression.generate(ctx, "scope");
+	// Generate array of all scopes used in this definition (if any).
+	if (this.scopes.length > 0) {
+		rhs += "\tvar _scopes = [];\n";
+		for (var i=0; i<this.scopes.length; i++) {
+			rhs += "\t_scopes.push(" + this.scopes[i];
+			rhs += ");\n";
+		}
+	}
+
+	rhs += "return " + express;
 
 	// Remove the scope if a boundValue is returned.
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {

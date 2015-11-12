@@ -193,6 +193,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
+		var codearea = $codearea.get(0);
 		var intextarea = $dialogContents.find('.hidden-textarea').get(0);
 		var outdiv = $dialogContents.find('.outputcontent').get(0);
 		var infobox = $dialogContents.find('.info-bar').get(0);
@@ -340,14 +341,28 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					highlightContent(scriptagent.ast, -1, 0);
 				}
 
-				tabscrollix = 0;
-				for (var a in Eden.Agent.agents) {
-					if (a == scriptagent.name) break;
-					tabscrollix++;
+				// If changed in code and not by click
+				// then automatically move to correct tab
+				if (sym) {
+					tabscrollix = 0;
+					for (var a in Eden.Agent.agents) {
+						if (a == scriptagent.name) break;
+						tabscrollix++;
+					}
+					if (tabscrollix > 0) tabscrollix--;
 				}
-				if (tabscrollix > 0) tabscrollix--;
 
 				rebuildTabs();
+			}
+		}
+
+
+
+		function toggleTabs(sym, value) {
+			if (value) {
+				codearea.style.top = "35px";
+			} else {
+				codearea.style.top = "0";
 			}
 		}
 
@@ -364,24 +379,40 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var obs_showtabs = "_view_"+name+"_showtabs";
 		var agent = new Eden.Agent(undefined, "scriptview_"+name);
 		agent.declare(obs_agent);
+		agent.declare(obs_showtabs);
+		agent.declare(obs_script);
+		agent.declare(obs_power);
+		agent.declare(obs_file);
+		agent.declare(obs_override);
+		agent.declare(obs_next);
+		agent.declare(obs_prev);
 		//agent.setReadonly([obs_script,obs_next,obs_prev,obs_override, obs_file, obs_power, obs_agent, obs_showtabs]);
 
-		agent.enabled = false;
-		agent.setSource("## "+name+"\n\
-_view_"+name+"_script = "+Eden.edenCodeForValue(agent[obs_script])+";\n\
-_view_"+name+"_next = "+Eden.edenCodeForValue(agent[obs_next])+";\n\
-_view_"+name+"_prev = "+Eden.edenCodeForValue(agent[obs_prev])+";\n\
-_view_"+name+"_override = "+Eden.edenCodeForValue(agent[obs_override])+";\n\
-_view_"+name+"_power = "+Eden.edenCodeForValue(agent[obs_power])+";\n\
-_view_"+name+"_agent = "+Eden.edenCodeForValue(agent[obs_agent])+";\n\
-_view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent[obs_showtabs])+";\n\
-");
+		agent.enabled = true;
 
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);
 		agent.on(obs_file, loadFile);
 		agent.on(obs_power, switchPower);
 		agent.on(obs_agent, changeAgent);
+		agent.on(obs_showtabs, toggleTabs);
+
+		// Initialise states
+		if (agent.state[obs_showtabs] === undefined) {
+			agent.state[obs_showtabs] = !embedded;
+		}
+		toggleTabs(undefined, agent.state[obs_showtabs]);
+
+		// Set source text.
+		agent.setSource("## "+name+"\n\
+_view_"+name+"_script = "+Eden.edenCodeForValue(agent.state[obs_script])+";\n\
+_view_"+name+"_next = "+Eden.edenCodeForValue(agent.state[obs_next])+";\n\
+_view_"+name+"_prev = "+Eden.edenCodeForValue(agent.state[obs_prev])+";\n\
+_view_"+name+"_override = "+Eden.edenCodeForValue(agent.state[obs_override])+";\n\
+_view_"+name+"_power = "+Eden.edenCodeForValue(agent.state[obs_power])+";\n\
+_view_"+name+"_agent = "+Eden.edenCodeForValue(agent.state[obs_agent])+";\n\
+_view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\n\
+");
 
 
 		function checkAgent(ag, reason) {

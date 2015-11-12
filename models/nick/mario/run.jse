@@ -12,11 +12,12 @@ _view_input_width = 600;
 _view_input_height = 515;
 _view_input_agent = "marioMotion";
 
+_view_marioControls_agent = "marioControl";
+_view_marioControls_showtabs = false;
 createView("marioControls","ScriptInput");
 ##_view_marioControls_power = true;
 _view_marioControls_x = 42;
 _view_marioControls_y = 380;
-_view_marioControls_agent = "marioControl";
 
 
 _view_picture_background_colour = "#5c94fc";

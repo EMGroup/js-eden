@@ -6,12 +6,21 @@ mario_url_flip = "models/nick/mario/mario_sprite_sheet_flip.png";
 mario_x = 100;
 mario_y = 190;
 
+Animation is [width, height, sx, sy, frames, reversed, image];
+
 ## width, height, startx, starty, frames, reversed, image
+##mario_anims = [
+##[25,35,568,270,7, false, mario_url],		## ?
+##[24,35,542,317,8, false, mario_url],		## Walking right
+##[21,35,556,112,4, false, mario_url],		## Idle
+##[24,35,41,317,8, true, mario_url_flip]	## Walking left
+##];
+
 mario_anims = [
-[25,35,568,270,7, false, mario_url],		## ?
-[24,35,542,317,8, false, mario_url],		## Walking right
-[21,35,556,112,4, false, mario_url],		## Idle
-[24,35,41,317,8, true, mario_url_flip]	## Walking left
+Animation with (width is 25, height is 35, sx is 568, sy is 270, frames is 7, reversed is false, image is mario_url),
+Animation with (width is 24, height is 35, sx is 542, sy is 317, frames is 8, reversed is false, image is mario_url),
+Animation with (width is 21, height is 35, sx is 556, sy is 112, frames is 4, reversed is false, image is mario_url),
+Animation with (width is 24, height is 35, sx is 41, sy is 317, frames is 8, reversed is true, image is mario_url_flip)
 ];
 
 mario_anim = 2;
