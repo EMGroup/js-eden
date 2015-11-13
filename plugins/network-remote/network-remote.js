@@ -56,12 +56,13 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 				var connection = new WebSocket(url);
 				
 				eden.listenTo('executeBegin',this,function(origin,code){
-					if(origin != "net")
-						connection.send(code);	
+					if(origin)
+						connection.send(JSON.stringify({name: origin.name, code: code}));
 				});
 				eden.listenTo('beforeAssign',this,function(symbol, value, origin){
 					if (origin != "net") {
-						connection.send(symbol.name.slice(1) + "=" + Eden.edenCodeForValue(value) + ";");						
+						connection.send(JSON.stringify({name: undefined, code: symbol.name.slice(1) + "=" + Eden.edenCodeForValue(value) + ";"}));
+						//connection.send(symbol.name.slice(1) + "=" + Eden.edenCodeForValue(value) + ";");						
 					}
 				});
 				$("#nr-status").html('<p>Connected to: ' + url + "</p>");
@@ -100,7 +101,7 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
  				function pushSymbol(name) {
  					var root = edenUI.eden.root;
  					var currentDef = root.lookup("definitionOf").definition(root)(name);
- 					connection.send(currentDef);
+ 					connection.send(JSON.stringify({code: currentDef}));
  				}
 
 				// most important part - incoming messages
@@ -109,9 +110,13 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 					
 					for(var i = 0; i < program.length; i++){
 						line = program[i].code;
-						$("#nr-status").html('<p>Received: ' + line + "</p>");
-						var ast = new EdenAST(line);
-						ast.script.execute(eden.root, undefined, ast);
+						$("#nr-status").html('<p>Received: ' + line.code + "</p>");
+						var ast = new EdenAST(line.code);
+						if (Eden.Agent.agents[line.name]) {
+							ast.script.execute(eden.root, undefined, Eden.Agent.agents[line.name].ast);
+						} else {
+							ast.script.execute(eden.root, undefined, ast);
+						}
 						//eden.execute(line,"net","",{name:"/execute"},noop);
 					}
 					//me.playCode(0);

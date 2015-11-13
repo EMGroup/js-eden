@@ -133,9 +133,9 @@ function concatAndResolveUrl(url, concat) {
 			edenUI.updateStatus("Loading "+path);
 		});
 
-		this.eden.listenTo('executeBegin', this, function (path) {
+		/*this.eden.listenTo('executeBegin', this, function (path) {
 			edenUI.updateStatus("Parsing "+path+"...");
-		});
+		});*/
 
 		this.eden.listenTo('executeError', this, function (e, options) {
 			var errorMessageHTML = Eden.htmlEscape(e.message);

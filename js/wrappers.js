@@ -269,7 +269,7 @@ Eden.Agent.prototype.executeStatement = function(statement) {
 		statement.execute(eden.root,undefined, this.ast);
 		var code = this.ast.getSource(statement);
 		console.log(code);
-		eden.emit('executeBegin', ["agent", code]);
+		eden.emit('executeBegin', [this, code]);
 	} catch (e) {
 		eden.error(e);
 	}

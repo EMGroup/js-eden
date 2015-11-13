@@ -84,7 +84,8 @@ function processCode(socket, data){
 	var sender = -1;
 	var replay = false;
 	var codeLines = [];
-	codeLines.push({time: 0, code: data});
+	console.log(data);
+	codeLines.push({time: 0, code: JSON.parse(data)});
 	for(var i = 0; i < socketsInSession.length; i++){
 		if(socketsInSession[i] !== socket){
 			socketsInSession[i].send(JSON.stringify(codeLines));
