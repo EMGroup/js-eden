@@ -1328,7 +1328,8 @@ _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\
 				if (highlighter.ast.lines[lineno-1].errors.length > 0) {
 					var err = highlighter.ast.lines[lineno-1].errors[0];
 					if (err.line == lineno || err.type == "runtime") {
-						showInfoBox(e.target.offsetLeft+20, e.target.offsetTop-$codearea.get(0).scrollTop+25, "error", err.messageText());
+						var taboffset = (agent.state[obs_showtabs]) ? 35 : 0;
+						showInfoBox(e.target.offsetLeft+20, e.target.offsetTop-$codearea.get(0).scrollTop+25+taboffset, "error", err.messageText());
 					}
 				} else {
 					scriptagent.clearExecutedState();
