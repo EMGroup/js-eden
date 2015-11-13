@@ -234,7 +234,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		
 		function addTab(name, title, current) {
 			var tab = document.createElement("div");
-			var classname = "agent-tab";
+			var classname = "agent-tab noselect";
 			if (current) {
 				classname += " agent-tab-current";
 			} else {
@@ -340,6 +340,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					intextarea.value = scriptagent.ast.stream.code;
 					highlightContent(scriptagent.ast, -1, 0);
 				}
+
+				if (scriptagent.enabled) powerOn();
+				else powerOff();
 
 				// If changed in code and not by click
 				// then automatically move to correct tab
@@ -1049,7 +1052,7 @@ _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\
 			// If we should run the statement (there are no errors)
 			if (scriptagent.enabled && !scriptagent.hasErrors()) {
 				powerOk();
-				scriptagent.executeLine(line);
+				scriptagent.executeLine(line-1);
 				//console.log(highlighter.ast.lines);
 			} else if (scriptagent.enabled) {
 				powerError();
