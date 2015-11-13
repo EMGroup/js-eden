@@ -55,9 +55,13 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 				var url = "ws://" + $("#nr-ipaddr").val() + ":" + $("#nr-port").val() + '/'; 
 				var connection = new WebSocket(url);
 				
-				eden.listenTo('executeBegin',this,function(origin,code){
+				Eden.Agent.listenTo('execute',this,function(origin,code,line){
 					if(origin)
-						connection.send(JSON.stringify({name: origin.name, code: code}));
+						connection.send(JSON.stringify({name: origin.name, line: line, code: code}));
+				});
+				Eden.Agent.listenTo("owned", this, function(origin, cause) {
+					if (cause == "net") return;
+					connection.send(JSON.stringify({name: origin.name, owned: origin.owned}));
 				});
 				eden.listenTo('beforeAssign',this,function(symbol, value, origin){
 					if (origin != "net") {
@@ -110,14 +114,21 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 					
 					for(var i = 0; i < program.length; i++){
 						line = program[i].code;
-						$("#nr-status").html('<p>Received: ' + line.code + "</p>");
-						var ast = new EdenAST(line.code);
-						if (Eden.Agent.agents[line.name]) {
-							ast.script.execute(eden.root, undefined, Eden.Agent.agents[line.name].ast);
-						} else {
-							ast.script.execute(eden.root, undefined, ast);
+
+						if (line.code) {
+							$("#nr-status").html('<p>Received: ' + line.code + "</p>");
+							var ast = new EdenAST(line.code);
+							if (Eden.Agent.agents[line.name]) {
+								ast.script.execute(eden.root, undefined, Eden.Agent.agents[line.name].ast);
+							} else {
+								ast.script.execute(eden.root, undefined, ast);
+							}
+						} else if (line.owned !== undefined) {
+							console.log("OWNED BY OTHER: " + line.name + " = " + line.owned);
+							if (Eden.Agent.agents[line.name]) {
+								Eden.Agent.agents[line.name].setOwned(line.owned, "net");
+							}
 						}
-						//eden.execute(line,"net","",{name:"/execute"},noop);
 					}
 					//me.playCode(0);
 					return;

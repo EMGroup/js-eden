@@ -28,6 +28,8 @@ var fs = require('fs');
 var port = 8001;
 var debug = false;
 
+var agents = {};
+
 var savefilename;
 
 function printUsage(){
@@ -83,9 +85,23 @@ function processCode(socket, data){
 	var socketsInSession = allSockets[sessionKey];
 	var sender = -1;
 	var replay = false;
+	var code = JSON.parse(data);
 	var codeLines = [];
-	console.log(data);
-	codeLines.push({time: 0, code: JSON.parse(data)});
+
+	if (code.owned !== undefined) {
+		if (agents[code.name] === undefined) {
+			agents[code.name] = {owned: code.owned};
+		} else {
+			// Check for double ownership race condition
+			if (agents[code.name].owned && code.owned) {
+				socket.send(JSON.stringify([{time: 0, code :{name: code.name, owned: false}}]));
+				return;
+			}
+			agents[code.name].owned = code.owned;
+		}
+	}
+
+	codeLines.push({time: 0, code: code});
 	for(var i = 0; i < socketsInSession.length; i++){
 		if(socketsInSession[i] !== socket){
 			socketsInSession[i].send(JSON.stringify(codeLines));

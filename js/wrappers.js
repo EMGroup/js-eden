@@ -40,7 +40,7 @@ Eden.Agent = function(parent, name) {
 	this.title = "Agent";
 
 	Eden.Agent.agents[this.name] = this;
-	Eden.Agent.triggerChange(this, "create");
+	Eden.Agent.emit("create", [this]);
 
 	var me = this;
 
@@ -62,17 +62,9 @@ Eden.Agent = function(parent, name) {
 
 Eden.Agent.agents = {};
 
-Eden.Agent.onChange = function(cb) {
-	Eden.Agent.changecbs.push(cb);
-}
-
-Eden.Agent.changecbs = [];
-
-Eden.Agent.triggerChange = function(agent, reason) {
-	for (var i=0; i<Eden.Agent.changecbs.length; i++) {
-		Eden.Agent.changecbs[i](agent, reason);
-	}
-}
+Eden.Agent.listeners = {};
+Eden.Agent.emit = emit;
+Eden.Agent.listenTo = listenTo;
 
 
 
@@ -81,7 +73,7 @@ Eden.Agent.prototype.loadFromFile = function(filename) {
 	$.get(filename, function(data) {
 		me.setSource(data);
 		me.executeLine(-1);
-		Eden.Agent.triggerChange(me, "loaded");
+		Eden.Agent.emit("loaded", [me]);
 	});
 }
 
@@ -101,13 +93,20 @@ Eden.Agent.prototype.clearExecutedState = function() {
 
 Eden.Agent.prototype.setTitle = function(title) {
 	this.title = title;
-	Eden.Agent.triggerChange(this, "title");
+	Eden.Agent.emit("title", [this]);
 }
 
 
 
-Eden.Agent.prototype.setOwned = function(owned) {
+Eden.Agent.prototype.setOwned = function(owned, cause) {
 	this.owned = owned;
+	Eden.Agent.emit("owned", [this,cause]);
+}
+
+
+
+Eden.Agent.prototype.patchSource = function(line, patch) {
+	
 }
 
 
@@ -259,17 +258,17 @@ Eden.Agent.prototype.executeLine = function (lineno) {
 	while (statement.parent !== undefined && statement.parent.parent !== undefined) statement = statement.parent;
 
 	// Execute only the currently changed root statement
-	this.executeStatement(statement);
+	this.executeStatement(statement, line);
 }
 
 
 
-Eden.Agent.prototype.executeStatement = function(statement) {
+Eden.Agent.prototype.executeStatement = function(statement, line) {
 	try {
 		statement.execute(eden.root,undefined, this.ast);
 		var code = this.ast.getSource(statement);
 		console.log(code);
-		eden.emit('executeBegin', [this, code]);
+		Eden.Agent.emit('execute', [this, code, line]);
 	} catch (e) {
 		eden.error(e);
 	}

@@ -226,6 +226,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var edited = false;
 		var dirty = false;
 		var tabscrollix = 0;
+		var readonly = false;
 
 		var scriptagent = new Eden.Agent();
 		scriptagent.enabled = power;
@@ -268,7 +269,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		rebuildTabs();
-		Eden.Agent.onChange(rebuildTabs);
+		Eden.Agent.listenTo("create", this, rebuildTabs);
+		Eden.Agent.listenTo("title", this, rebuildTabs);
 		
 
 
@@ -332,10 +334,21 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 		function changeAgent(sym, value) {
-			if (value && Eden.Agent.agents[value] && Eden.Agent.agents[value].owned == false) {
-				scriptagent.setOwned(false);
+			if (value && Eden.Agent.agents[value]) {
+				if (readonly == false) scriptagent.setOwned(false);
 				scriptagent = Eden.Agent.agents[value];
-				scriptagent.setOwned(true);
+
+				if (Eden.Agent.agents[value].owned == false) {
+					scriptagent.setOwned(true);
+					readonly = false;
+					outdiv.className = "outputcontent";
+					outdiv.contentEditable = true;
+				} else {
+					readonly = true;
+					outdiv.className = "outputcontent readonly";
+					outdiv.contentEditable = false;
+				}
+
 				if (scriptagent.ast) {
 					intextarea.value = scriptagent.ast.stream.code;
 					highlightContent(scriptagent.ast, -1, 0);
@@ -418,19 +431,40 @@ _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\
 ");
 
 
-		function checkAgent(ag, reason) {
-			//console.log(ag.name);
+		function changeOwnership(ag, cause) {
+			if (scriptagent.name == ag.name && cause == "net") {
+				if (!ag.owned) {
+					//ag.setOwned(true);
+					//readonly = false;
+					//outdiv.className = "outputcontent";
+					//outdiv.contentEditable = true;
+				} else {
+					readonly = true;
+					outdiv.className = "outputcontent readonly";
+					outdiv.contentEditable = false;
+				}
+			}
+		}
+		function agentCreated(ag) {
 			if (agent && agent.state[obs_agent] !== undefined) {
-				//console.log(agent.state[obs_agent]);
 				if (ag.name == agent.state[obs_agent] && ag.name != scriptagent.name) {
 					changeAgent(undefined, ag.name);
-				} else if (ag.name == scriptagent.name && reason == "loaded") {
+				}
+			}
+		}
+		function agentLoaded(ag) {
+			if (agent && agent.state[obs_agent] !== undefined) {
+				if (ag.name == agent.state[obs_agent] && ag.name != scriptagent.name) {
+					changeAgent(undefined, ag.name);
+				} else if (ag.name == scriptagent.name) {
 					intextarea.value = ag.getSource();
 					highlightContent(scriptagent.ast, -1, 0);
 				}
 			}
 		}
-		Eden.Agent.onChange(checkAgent);
+		Eden.Agent.listenTo("create", this, agentCreated);
+		Eden.Agent.listenTo("loaded", this, agentLoaded);
+		Eden.Agent.listenTo("owned", this, changeOwnership);
 
 
 		/*edenUI.eden.root.addGlobal(function(sym, create) {

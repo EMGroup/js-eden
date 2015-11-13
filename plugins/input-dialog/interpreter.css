@@ -414,6 +414,11 @@ div.outputcontent {
 	background: white;
 }
 
+div.readonly {
+	opacity: 0.6;
+	background-color: #f5f5f5;
+}
+
 div.output-shrink {
 	transform: translate(15%) scale(0.7);
 }
