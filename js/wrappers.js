@@ -267,6 +267,9 @@ Eden.Agent.prototype.executeLine = function (lineno) {
 Eden.Agent.prototype.executeStatement = function(statement) {
 	try {
 		statement.execute(eden.root,undefined, this.ast);
+		var code = this.ast.getSource(statement);
+		console.log(code);
+		eden.emit('executeBegin', ["agent", code]);
 	} catch (e) {
 		eden.error(e);
 	}

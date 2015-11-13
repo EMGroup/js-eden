@@ -74,7 +74,7 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 					randomSeed = randomSeedSym.value();
 					
 					if (randomSeed === undefined) {
-						randomSeedSym.assign((new Date()).getTime(), undefined, true);
+						randomSeedSym.assign((new Date()).getTime(), eden.root.scope, undefined, true);
 					} else {
 						pushSymbol("randomSeed");
 					}
@@ -110,7 +110,9 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 					for(var i = 0; i < program.length; i++){
 						line = program[i].code;
 						$("#nr-status").html('<p>Received: ' + line + "</p>");
-						eden.execute(line,"net","",{name:"/execute"},noop);
+						var ast = new EdenAST(line);
+						ast.script.execute(eden.root, undefined, ast);
+						//eden.execute(line,"net","",{name:"/execute"},noop);
 					}
 					//me.playCode(0);
 					return;

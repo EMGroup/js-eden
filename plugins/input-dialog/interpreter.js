@@ -419,9 +419,9 @@ _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\
 
 
 		function checkAgent(ag, reason) {
-			console.log(ag.name);
+			//console.log(ag.name);
 			if (agent && agent.state[obs_agent] !== undefined) {
-				console.log(agent.state[obs_agent]);
+				//console.log(agent.state[obs_agent]);
 				if (ag.name == agent.state[obs_agent] && ag.name != scriptagent.name) {
 					changeAgent(undefined, ag.name);
 				} else if (ag.name == scriptagent.name && reason == "loaded") {
