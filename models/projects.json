@@ -1,53 +1,20 @@
 {
 	"projects": [
 		{
-			"name": "Jugs",
-			"author": "Meurig Beynon",
-			"year": "1998",
-			"description": "Original jugs model converted into JS-Eden form",
-			"runfile": "models/jugs/run.e"
+			"name": "Worksheets",
+			"projects": "models/worksheets.json"
 		},
 		{
-			"name": "JSPE",
-			"author": "Matt Cranham and Hui Zhu",
-			"year": "2012",
-			"description": "Installs a presentation environment.",
-			"runfile": "models/jspe/run.e"
+			"name": "Games",
+			"projects": "models/games.json"
 		},
 		{
-			"name": "Jugs Presentation",
-			"author": "Meurig Beynon",
-			"year": "2013",
-			"description": "Presents the Jugs Model in the presentation environment JSPE",
-			"runfile": "models/cs405/JUGSinJS-E/jugspres.e"
+			"name": "SciFest Models",
+			"projects": "models/SciFest2015/projects.json"
 		},
 		{
-			"name": "Ratio",
-			"author": "Joe Butler",
-			"year": "2014",
-			"description": "Experiencing the relationship between ratio quantities",
-			"runfile": "models/ratio/run.e"
-		},
-		{
-			"name": "Malaria",
-			"author": "Meurig Beynon and Will Beynon",
-			"year": "2012",
-			"description": "Modelling Malaria",
-			"runfile": "models/malaria/malariaA.jse"
-		},
-		{
-			"name": "Number-Line Port",
-			"author": "Jess Nickson",
-			"year": "2011",
-			"description": "Port of 'The Inequality Game' game by Antony Harfield to JS-Eden",
-			"runfile": "models/numberLine/run.e"
-		},
-		{
-			"name": "2-Ball Eightball",
-			"author": "Jess Nickson",
-			"year": "2012",
-			"description": "Initial shot for a game of Eightball",
-			"runfile": "models/poolTable/2Ball/run.e"
+			"name": "Old Models",
+			"projects": "models/old.json"
 		}
 	]
 }
