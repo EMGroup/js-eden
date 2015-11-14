@@ -77,6 +77,14 @@ func CombinedRotation {
 			items = arguments[4];		
 		}
 
+		if (!(centre instanceof Point)) {
+			eden.error(new Error("CombinedRotation: The centre of rotation must be a Point, not a " + typeof(centre)), "error");
+			return undefined;
+		}
+		if (!(origin instanceof Point)) {
+			eden.error(new Error("CombinedRotation: The centre of the circular orbit must be a Point, not a " + typeof(origin)), "error");
+			return undefined;
+		}
 		return new Rotation(angle, centre, origin, angle2, radius, items);
 	}}$;
 }
@@ -87,6 +95,15 @@ func RotateAboutCentre {
 		var centre = arguments[1];
 		var origin = arguments[2];
 		var items = arguments[3];
+
+		if (!(centre instanceof Point)) {
+			eden.error(new Error("RotateAboutCentre: The centre of rotation must be a Point, not a " + typeof(centre)), "error");
+			return undefined;
+		}
+		if (!(origin instanceof Point)) {
+			eden.error(new Error("RotateAboutCentre: The destination position must be a Point, not a " + typeof(origin)), "error");
+			return undefined;
+		}
 		return new Rotation(angle, centre, origin, 0, undefined, items);
 	}}$;
 }
@@ -105,6 +122,14 @@ func RotateAboutPoint {
 			items = arguments[3];
 		}
 
+		if (!(centre instanceof Point)) {
+			eden.error(new Error("RotateAboutPoint: The centre point of the source picture must be a Point, not a " + typeof(centre)), "error");
+			return undefined;
+		}
+		if (!(origin instanceof Point)) {
+			eden.error(new Error("RotateAboutPoint: The centre of the circle must be a Point, not a " + typeof(origin)), "error");
+			return undefined;
+		}
 		return new Rotation(0, centre, origin, angle, radius, items);
 	}}$;
 }

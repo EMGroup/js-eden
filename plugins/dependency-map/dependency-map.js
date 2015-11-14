@@ -33,7 +33,13 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 		controls.append($('<label>Exact matches only </label>').append(exactMatches));
 		
 		function update() {
-			me.updateGraph(graph, searchBoxElem.value, exactMatchesElem.checked);
+			var re;
+			if (searchBoxElem.value == "") {
+				re = /^$/;
+			} else {
+				re = edenUI.regExpFromStr(searchBox, "", exactMatchesElem.checked);
+			}
+			me.updateGraph(graph, re);
 		}
 
 		searchBox.on("input", update);
@@ -50,13 +56,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 		});
 	}
 		
-	this.updateGraph = function(graph, regex, exactMatch){
-		var re;
-		if (regex == "") {
-			re = /^$/;
-		} else {
-			re = EdenUI.regExpFromStr(regex, "", exactMatch);
-		}
+	this.updateGraph = function(graph, re) {
 		graph.re = re;
 		graph.newNodes = [];
 		graph.newEdges = [];

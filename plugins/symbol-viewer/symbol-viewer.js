@@ -93,7 +93,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			});
 
 		me.instances.push(symbollist);
-		symbollist.search("");
+		symbollist.search(new RegExp(""));
 
 		content.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
 			var editorViewName = "edit_" + edenName;
@@ -124,17 +124,19 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		// Make changes in search box update the list.
 		var searchBox = content.find(".symbollist-search-box-outer > .symbollist-search");
 		searchBox.keyup(function() {
-			symbollist.search(this.value);
+			var regExp = edenUI.regExpFromStr($(this));
+			symbollist.search(regExp);
 		});
-		var searchBoxElem = searchBox.get(0);
 
 		document.getElementById(name + "-category-filter").addEventListener("change", function (event) {
-			symbollist.search(searchBoxElem.value, event.target.value);
+			var regExp = edenUI.regExpFromStr($(searchBox));
+			symbollist.search(regExp, event.target.value);
 		});
 
 		if (type == "obs") {
 			document.getElementById(name + "-type-filter").addEventListener("change", function (event) {
-				symbollist.search(searchBoxElem.value, undefined, event.target.value);
+				var regExp = edenUI.regExpFromStr($(searchBox));
+				symbollist.search(regExp, undefined, event.target.value);
 			});
 		}
 
@@ -297,8 +299,8 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
  *
  * @param pattern A regular expression for symbol names.
  */
-EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (pattern, category, subtypes) {
-	this.regExp = EdenUI.regExpFromStr(pattern);
+EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (regExp, category, subtypes) {
+	this.regExp = regExp;
 	if (category !== undefined) {
 		this.category = category;
 		this.customCategory = (category != "user" && category != "system" && category != "all");

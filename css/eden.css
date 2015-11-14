@@ -51,6 +51,10 @@ h2, ul li {
 }
 
 /* Search results */
+.invalid_form {
+	background-color: #FFCCCC;
+}
+
 .result_name {
 	font-size: 10pt;
 }

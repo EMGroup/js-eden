@@ -29,7 +29,6 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		controlsLeft.append(fileChooser);
 
 		var excludeRegEx = $('<input placeholder="excluded symbols"/>');
-		var excludeRegExElem = excludeRegEx.get(0);
 		controlsLeft.append(excludeRegEx);
 
 		var unicode = $('<input type="checkbox" />');
@@ -72,7 +71,8 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		};
 
 		var updateScript = function () {
-			script.html(generateScriptHTML(excludeRegExElem.value, unicodeElem.checked, includeViewsElem.checked, viewName));			
+			var excludeRE = edenUI.regExpFromStr(excludeRegEx);
+			script.html(generateScriptHTML(excludeRE, unicodeElem.checked, includeViewsElem.checked, viewName));			
 		};
 
 		fileChooser.on("change", function (event) {
@@ -116,8 +116,8 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		});
 	};
 
-	var generateScriptHTML = function (excludeStr, unicode, includeViews, viewToExclude) {
-		var lines = me.generateScriptLines(excludeStr, unicode, includeViews, viewToExclude);
+	var generateScriptHTML = function (excludeRE, unicode, includeViews, viewToExclude) {
+		var lines = me.generateScriptLines(excludeRE, unicode, includeViews, viewToExclude);
 		var html = "";
 		for (var i = 0; i < lines.length; i++) {
 			html = html + Eden.htmlEscape(lines[i], true) + "\n";
@@ -155,7 +155,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 	 * @return {Array} An array where each item is a string representing a piece of EDEN code and
 	 * of the items together represent a complete script capable of rebuilding the current state.
 	 */
-	this.generateScriptLines = function (excludeStr, unicode, includeViews, viewToExclude) {
+	this.generateScriptLines = function (excludeRE, unicode, includeViews, viewToExclude) {
 
 		var viewObsPrefixToExclude = new RegExp("^_view_" + viewToExclude + "_");
 		var defaultViewNames = ["input", "picture", "projects"];
@@ -177,11 +177,6 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			picture = "picture is [];"
 		} else {
 			picture = picture + ";";
-		}
-
-		var excludeRE;
-		if (excludeStr !== undefined && excludeStr != "") {
-			excludeRE = EdenUI.regExpFromStr(excludeStr);
 		}
 
 		if ((excludeRE === undefined || !excludeRE.test("_views_list"))) {
