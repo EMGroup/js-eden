@@ -736,9 +736,9 @@ function concatAndResolveUrl(url, concat) {
 
 
 
-	Eden.prototype.agentFromFile = function(name, url) {
+	Eden.prototype.agentFromFile = function(name, url, execute) {
 		var agent = new Eden.Agent(undefined, name);
-		agent.loadFromFile(url);
+		agent.loadFromFile(url, execute);
 	}
 
 

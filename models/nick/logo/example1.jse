@@ -1,0 +1,50 @@
+## Example 1
+
+## Square
+{
+do forward 100;
+do left 90;
+}
+
+## Fan
+{
+do forward 100;
+do left 112;
+}
+
+do reset;
+
+
+## Action Specification
+
+action forward {
+	move_offset = $1;
+}
+
+action left {
+	angle = angle + $1;
+}
+
+action right {
+	angle = angle - $1;
+}
+
+action back {
+	move_offset = -$1;
+}
+
+action pendown {
+	pen = true;
+}
+
+action penup {
+	pen = false;
+}
+
+action reset {
+	lines = [];
+	angle = 0;
+	position_x = floor(_view_picture_width / 2);
+	position_y = floor(_view_picture_height / 2);
+}
+

@@ -227,6 +227,7 @@ EdenAST_Parameter.prototype.error = fnEdenAST_error;
 
 EdenAST_Parameter.prototype.generate = function(ctx, scope) {
 	if (ctx && ctx.getParameterByNumber) {
+		ctx.dirty = true;
 		return ""+ctx.getParameterByNumber(this.index);
 	}
 }
@@ -950,12 +951,15 @@ function EdenAST_Assignment(expression) {
 	this.backtickCount = 0;
 	this.executed = 0;
 	this.compiled = undefined;
+	this.dirty = false;
 	this.value = undefined;
 };
 
 EdenAST_Assignment.prototype.getParameterByNumber = function(index) {
 	if (this.parent && this.parent.getParameterByNumber) {
-		return this.parent.getParameterByNumber(index);
+		var p = this.parent.getParameterByNumber(index);
+		console.log("Param "+index+" = " + p);
+		return p;
 	}
 	return undefined;
 }
@@ -1011,7 +1015,8 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
  * it does nothing.
  */
 EdenAST_Assignment.prototype.compile = function(ctx) {
-	if (this.compiled) return;
+	if (this.compiled && !this.dirty) return;
+	this.dirty = false;
 
 	var rhs = "(function(context,scope) { \n";
 	var express = this.expression.generate(this, "scope");
@@ -1970,7 +1975,6 @@ EdenAST_Wait.prototype.compile = function(ctx) {
 		source += ".value";
 	}
 	source += ";})";
-	console.log(this);
 	this.compiled_delay = eval(source);
 }
 
@@ -2160,7 +2164,6 @@ function EdenAST_Script() {
 
 EdenAST_Script.prototype.getParameterByNumber = function(index) {
 	if (this.parameters) {
-		console.log(this.parameters);
 		return this.parameters[index-1];
 	}
 	return undefined;
@@ -2204,14 +2207,12 @@ EdenAST_Script.prototype.executeGenerator = function*(root, ctx, base, parameter
 			}
 		} else {
 			this.parameters = parameters;
-			this.statements[i].execute(root,ctx, base);
-			//yield 200;
+			this.statements[i].execute(root,this, base);
 		}
 
 		if (this.statements[i].errors.length > 0) {
 			this.errors.push.apply(this.errors, this.statements[i].errors);
 		}
-		//yield 1000;
 	}
 }
 

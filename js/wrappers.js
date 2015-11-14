@@ -68,11 +68,16 @@ Eden.Agent.listenTo = listenTo;
 
 
 
-Eden.Agent.prototype.loadFromFile = function(filename) {
+Eden.Agent.prototype.loadFromFile = function(filename, execute) {
 	var me = this;
+	var doexecute = execute;
+
+	if (execute === undefined) doexecute = true;
+	if (!doexecute) this.enabled = false;
+
 	$.get(filename, function(data) {
 		me.setSource(data);
-		me.executeLine(-1);
+		if (doexecute) me.executeLine(-1);
 		Eden.Agent.emit("loaded", [me]);
 	});
 }

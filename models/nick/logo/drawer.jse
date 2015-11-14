@@ -1,0 +1,28 @@
+## Logo Drawer
+
+angle = 0;
+move_offset = 0;
+pen = true;
+
+newpos_x is position_x + move_offset*sin(angle-180);
+newpos_y is position_y + move_offset*cos(angle-180);
+
+when (move_offset) {
+	if (pen) {
+		lines = lines // [Line(position_x,position_y,newpos_x,newpos_y)];
+	}
+	position_x = newpos_x;
+	position_y = newpos_y;
+}
+
+lines = [];
+position_x = floor(_view_picture_width / 2);
+position_y = floor(_view_picture_height / 2);
+
+turtle is Image(0, 0, 20, 26, "models/nick/logo/turtle.png");
+turtle_rotated is RotateAboutCentre(angle, Point(10,13), Point(position_x,position_y), [turtle]);
+
+picture is [lines,turtle_rotated];
+
+
+
