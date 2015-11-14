@@ -228,8 +228,8 @@ Language.errors = [
 /* EDEN_ERROR_WHILEOFDO */ [
 	"Missing 'while' after 'do' statement(s)"
 ],
-/* EDEN_ERROR_ASSIGNEXEC */ [
-	"Problem whilst executing an assignment"
+/* EDEN_ERROR_PARAMNUMBER */ [
+	"Using '$' for parameters requires a number starting at 1"
 ],
 /* EDEN_ERROR_FUNCCALL */ [
 	"Problem whilst executing a function call"

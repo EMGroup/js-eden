@@ -217,6 +217,24 @@ EdenAST_ScopePath.prototype.error = fnEdenAST_error;
 
 //------------------------------------------------------------------------------
 
+function EdenAST_Parameter(index) {
+	this.type = "parameter";
+	this.index = index;
+	this.errors = [];
+}
+
+EdenAST_Parameter.prototype.error = fnEdenAST_error;
+
+EdenAST_Parameter.prototype.generate = function(ctx, scope) {
+	if (ctx && ctx.getParameterByNumber) {
+		return ""+ctx.getParameterByNumber(this.index);
+	}
+}
+
+
+
+//------------------------------------------------------------------------------
+
 function EdenAST_UnaryOp(op, right) {
 	this.type = "unaryop";
 	this.op = op;
@@ -798,6 +816,13 @@ function EdenAST_Definition(expression) {
 	this.executed = 0;
 };
 
+EdenAST_Definition.prototype.getParameterByNumber = function(index) {
+	if (this.parent && this.parent.getParameterByNumber) {
+		return this.parent.getParameterByNumber(index);
+	}
+	return undefined;
+}
+
 EdenAST_Definition.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
 	if (lvalue.errors.length > 0) {
@@ -928,6 +953,13 @@ function EdenAST_Assignment(expression) {
 	this.value = undefined;
 };
 
+EdenAST_Assignment.prototype.getParameterByNumber = function(index) {
+	if (this.parent && this.parent.getParameterByNumber) {
+		return this.parent.getParameterByNumber(index);
+	}
+	return undefined;
+}
+
 EdenAST_Assignment.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
@@ -1039,6 +1071,13 @@ function EdenAST_Modify(kind, expression) {
 	this.end = 0;
 	this.executed = 0;
 };
+
+EdenAST_Modify.prototype.getParameterByNumber = function(index) {
+	if (this.parent && this.parent.getParameterByNumber) {
+		return this.parent.getParameterByNumber(index);
+	}
+	return undefined;
+}
 
 EdenAST_Modify.prototype.setSource = function(start, end) {
 	this.start = start;
@@ -1638,6 +1677,7 @@ function EdenAST_Do() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.parameters = [];
 };
 
 EdenAST_Do.prototype.error = fnEdenAST_error;
@@ -1645,6 +1685,13 @@ EdenAST_Do.prototype.error = fnEdenAST_error;
 EdenAST_Do.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
+}
+
+EdenAST_Do.prototype.addParameter = function(express) {
+	this.parameters.push(express);
+	if (express && express.errors.length > 0) {
+		this.errors.push.apply(this.errors, express.errors);
+	}
 }
 
 EdenAST_Do.prototype.setName = function(name) {
@@ -1691,7 +1738,11 @@ EdenAST_Do.prototype.execute = function(root,ctx,base) {
 	} while (expfunc(root,root.scope));*/
 
 	if (base.scripts[this.name]) {
-		base.scripts[this.name].executeReal(root,ctx,base);
+		var params = [];
+		for (var i=0; i<this.parameters.length; i++) {
+			params.push(this.parameters[i].execute(root,ctx,base));
+		}
+		base.scripts[this.name].executeReal(root,ctx,base, params);
 	} else {
 		this.executed = 3;
 		if (this.parent) this.parent.executed = 3;
@@ -2104,7 +2155,16 @@ function EdenAST_Script() {
 	this.end = 0;
 	this.executed = 0;
 	this.active = false;
+	this.parameters = undefined;
 };
+
+EdenAST_Script.prototype.getParameterByNumber = function(index) {
+	if (this.parameters) {
+		console.log(this.parameters);
+		return this.parameters[index-1];
+	}
+	return undefined;
+}
 
 EdenAST_Script.prototype.error = fnEdenAST_error;
 
@@ -2124,14 +2184,14 @@ EdenAST_Script.prototype.append = function (ast) {
 	}
 }
 
-EdenAST_Script.prototype.executeReal = function(root, ctx, base) {
+EdenAST_Script.prototype.executeReal = function(root, ctx, base, parameters) {
 	if (this.active) return;
 	this.active = true;
-	var gen = this.executeGenerator(root,ctx,base);
+	var gen = this.executeGenerator(root,ctx,base, parameters);
 	runEdenAction(this, gen);
 }
 
-EdenAST_Script.prototype.executeGenerator = function*(root, ctx, base) {
+EdenAST_Script.prototype.executeGenerator = function*(root, ctx, base, parameters) {
 	this.executed = 1;
 	for (var i = 0; i < this.statements.length; i++) {
 		if (this.statements[i].type == "wait") {
@@ -2143,6 +2203,7 @@ EdenAST_Script.prototype.executeGenerator = function*(root, ctx, base) {
 				yield 0;
 			}
 		} else {
+			this.parameters = parameters;
 			this.statements[i].execute(root,ctx, base);
 			//yield 200;
 		}

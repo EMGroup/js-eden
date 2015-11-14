@@ -415,7 +415,8 @@ div.outputcontent {
 }
 
 div.readonly {
-	opacity: 0.6;
+	-webkit-filter: grayscale(60%);
+	filter: grayscale(60%);
 	background-color: #f5f5f5;
 }
 
@@ -866,10 +867,10 @@ div.eden-gutter-item {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+	cursor: pointer;
 }
 
 div.eden-gutter-item:hover {
-	cursor: pointer;
 	background-color: silver;
 }
 

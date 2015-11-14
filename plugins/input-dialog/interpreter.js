@@ -1358,9 +1358,9 @@ _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\
 				}
 			}
 
-			if (highlighter.ast.lines[lineno-1]) {
-				if (highlighter.ast.lines[lineno-1].errors.length > 0) {
-					var err = highlighter.ast.lines[lineno-1].errors[0];
+			if (scriptagent.ast.lines[lineno-1]) {
+				if (scriptagent.ast.lines[lineno-1].errors.length > 0) {
+					var err = scriptagent.ast.lines[lineno-1].errors[0];
 					if (err.line == lineno || err.type == "runtime") {
 						var taboffset = (agent.state[obs_showtabs]) ? 35 : 0;
 						showInfoBox(e.target.offsetLeft+20, e.target.offsetTop-$codearea.get(0).scrollTop+25+taboffset, "error", err.messageText());
@@ -1368,7 +1368,7 @@ _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\
 				} else {
 					scriptagent.clearExecutedState();
 					scriptagent.executeLine(lineno-1);
-					gutter.generate(highlighter.ast, lineno);
+					gutter.generate(scriptagent.ast, lineno);
 				}
 			}
 		}

@@ -288,9 +288,13 @@ EdenAST.prototype.pFACTOR = function() {
 		return expression;
 	} else if (this.token == "$") {
 		this.next();
-		// TODO $ parameters
-		console.error("$ parameters deprecated");
-		return new EdenAST_Literal("ERROR", undefined);
+		if (this.token != "NUMBER" || this.data.value < 1) {
+			var p = new EdenAST_Parameter(-1);
+			p.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.PARAMNUMBER));
+			return p;
+		}
+		this.next();
+		return new EdenAST_Parameter(this.data.value);
 	} else if (this.token == "[") {
 		this.next();
 
@@ -1242,7 +1246,7 @@ EdenAST.prototype.pWHILE = function() {
 
 /**
  * Do Production
- * DO -> observable;
+ * DO -> observable ELIST;
  */
 EdenAST.prototype.pDO = function() {
 	var w = new EdenAST_Do();
@@ -1254,44 +1258,24 @@ EdenAST.prototype.pDO = function() {
 		w.setName(this.data.value);
 		this.next();
 	}
+
+	if (this.token != ";") {
+		var elist = this.pELIST();
+
+		for (var i=0; i<elist.length; i++) {
+			w.addParameter(elist[i]);
+			if (w.errors.length > 0) return w;
+		}
+	}
+
+	if (this.token != ";") {
+		w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
+		return w;
+	} else {
+		this.next();
+	}
+
 	return w;
-
-	/*var parent = this.parent;
-	this.parent = w;
-
-	w.setStatement(this.pSTATEMENT());
-
-	if (w.statement === undefined) {
-		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILENOSTATEMENT));
-		return w;
-	}
-
-	if (this.token != "while") {
-		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILEOFDO));
-		return w;
-	} else {
-		this.next();
-	}
-
-	if (this.token != "(") {
-		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILEOPEN));
-		return w;
-	} else {
-		this.next();
-	}
-
-	w.setCondition(this.pEXPRESSION());
-	if (w.errors.length > 0) return w;
-
-	if (this.token != ")") {
-		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILECLOSE));
-		return w;
-	} else {
-		this.next();
-	}
-
-	this.parent = parent;
-	return w;*/
 }
 
 

@@ -76,7 +76,7 @@ Eden.SyntaxError.DEFINELISTIX = 49;
 Eden.SyntaxError.OUTOFBOUNDS = 50;
 Eden.SyntaxError.PROPERTYNAME = 51;
 Eden.SyntaxError.WHILEOFDO = 52;
-//Eden.SyntaxError.ASSIGNEXEC = 53;		// RUNTIME
+Eden.SyntaxError.PARAMNUMBER = 53;
 //Eden.SyntaxError.FUNCCALL = 54;		// RUNTIME
 Eden.SyntaxError.AFTEROPEN = 55;
 Eden.SyntaxError.AFTERCLOSE = 56;
@@ -400,7 +400,7 @@ Eden.SyntaxError.db = [
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
 	},
-/* EDEN_ERROR_ASSIGNEXEC */
+/* EDEN_ERROR_PARAMNUMBER */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
 	},
@@ -481,7 +481,7 @@ Eden.SyntaxError.prototype.extractAfter = function(maxchar) {
 };
 
 Eden.SyntaxError.prototype.buildSuggestion = function() {
-	var autofix = eden_error_db[this.errno].suggestion;
+	var autofix = Eden.SyntaxError.db[this.errno].suggestion;
 	// Did we get a token that we expect to get next?
 	if (autofix.next.indexOf(this.token) != -1) {
 		// So insert an expected token because its missing
