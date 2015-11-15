@@ -39,7 +39,7 @@ Eden.Agent = function(parent, name) {
 	this.handles = [];
 	this.title = "Agent";
 	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || [];
-	this.history_index = this.history.length - 1;
+	this.index = this.history.length - 1;
 	this.snapshot = edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
 	this.autosavetimer = undefined;
 
@@ -75,8 +75,46 @@ Eden.Agent.listenTo = listenTo;
 Eden.Agent.AUTOSAVE_INTERVAL = 2000;
 
 
+Eden.Agent.save = function() {
+	// Save list of agents to restore later.
+	var agents = [];
+	for (var a in Eden.Agent.agents) {
+		agents.push({name: a, enabled: Eden.Agent.agents[a].enabled});
+	}
+	edenUI.setOptionValue("agents", JSON.stringify(agents));
+}
+
+
+Eden.Agent.restore = function() {
+	var ag = JSON.parse(edenUI.getOptionValue('agents'));
+
+	if (ag) {
+		for (var i=0; i<ag.length; i++) {
+			if (Eden.Agent.agents[ag[i].name] === undefined) {
+				var agi = new Eden.Agent(undefined, ag[i].name);
+				agi.enabled = ag[i].enabled;
+				agi.setSource(agi.snapshot);
+
+				if (agi.enabled) {
+					agi.executeLine(-1);
+				}
+			}
+		}
+	}
+}
+
+
+
+Eden.Agent.prototype.isSaved = function() {
+	return this.autosavetimer === undefined;
+}
+
+
 
 Eden.Agent.prototype.autoSave = function() {
+	if (this.ast === undefined || this.ast.script.errors.length > 0) {
+		return;
+	}
 	var savedmp = new diff_match_patch();
 
 	// Calculate redo diff
@@ -96,6 +134,10 @@ Eden.Agent.prototype.autoSave = function() {
 	// Save history and set last snapshot
 	this.addHistory(redo,undo);
 	this.setSnapshot(this.ast.stream.code);
+
+	this.autosavetimer = undefined;
+
+	Eden.Agent.emit("autosave", [this]);
 }
 
 
@@ -140,6 +182,16 @@ Eden.Agent.prototype.undo = function() {
 
 	this.setSnapshot(r[0]);
 	this.setSource(r[0]);
+}
+
+
+
+Eden.Agent.prototype.canUndo = function() {
+	return this.index >= 0;
+}
+
+Eden.Agent.prototype.canRedo = function() {
+	return this.index < this.history.length-1;
 }
 
 
@@ -392,6 +444,8 @@ Eden.Agent.prototype.setSource = function(source) {
 		var t = this.dmp.patch_toText(p);
 		console.timeEnd("MakePATCH");
 		console.log(t);
+	} else {
+		this.setSnapshot(source);
 	}
 
 	var gettitle = this.ast === undefined;

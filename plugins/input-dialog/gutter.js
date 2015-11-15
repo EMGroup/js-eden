@@ -81,7 +81,8 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 				this.gutter.childNodes[i].innerHTML = content;
 			}
 		} else {
-			this.gutter.childNodes[i].className = this.gutter.childNodes[i].className.replace(" eden-gutter-error","").replace(" eden-gutter-errorblock","");
+			this.gutter.childNodes[i].innerHTML = "";
+			this.gutter.childNodes[i].className = this.gutter.childNodes[i].className.replace(" eden-gutter-errorblock","").replace(" eden-gutter-error","");
 		}
 	}
 }

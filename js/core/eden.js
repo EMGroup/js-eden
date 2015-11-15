@@ -801,10 +801,10 @@ function concatAndResolveUrl(url, concat) {
 				var deferred = $.Deferred();
 				if (previousPromise) {
 					return previousPromise.then(function () {
-						//eden.execute2(data, url, newPrefix, agent, deferred.resolve);
-						var nagent = new Eden.Agent();
-						nagent.setSource(data);
-						nagent.executeLine(-1);
+						eden.execute2(data, url, newPrefix, agent, deferred.resolve);
+						//var nagent = new Eden.Agent();
+						//nagent.setSource(data);
+						//nagent.executeLine(-1);
 						if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
 							addIncludeURL(url);
 						}
@@ -812,10 +812,10 @@ function concatAndResolveUrl(url, concat) {
 						return deferred.promise;
 					});
 				} else {
-					//eden.execute2(data, url, newPrefix, agent, deferred.resolve);
-					var nagent = new Eden.Agent();
-					nagent.setSource(data);
-					nagent.executeLine(-1);
+					eden.execute2(data, url, newPrefix, agent, deferred.resolve);
+					//var nagent = new Eden.Agent();
+					//nagent.setSource(data);
+					//nagent.executeLine(-1);
 					if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
 						addIncludeURL(url);
 					}

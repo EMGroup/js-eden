@@ -96,56 +96,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 	var me = this;
 	var inputAgent = {name: Symbol.getInputAgentName()};
-	this.history = [];
-	this.index = 0;
-	this.history = JSON.parse(edenUI.getOptionValue('history')) || [];
-	this.index = this.history.length;
-
-	this.addHistory = function(text) {
-		this.history.push(text);
-		this.index = this.history.length;
-		edenUI.setOptionValue('history', JSON.stringify(this.history.slice(-50)));
-	}
-
-	this.updateHistory = function(text) {
-		if (text == "") return;
-		this.history[this.index] = text;
-		edenUI.setOptionValue('history', JSON.stringify(this.history.slice(-50)));
-	}
-
-	this.getHistory = function(index) {
-		if (me.history.length == 0) {
-			return "";
-		} else {
-			return me.history[this.index];
-		}
-	}
-
-	this.previousHistory = function (){
 	
-		if (this.index <= 0) {
-			this.index = 1;
-		}
-		if (this.index > me.history.length) {
-			this.index = me.history.length;
-		}
-		return this.getHistory(--this.index);
-	}
-
-	this.nextHistory = function(){
-	
-		if (this.index < 0) {
-			this.index = 0;
-		}
-		if (this.index >= me.history.length-1) {
-			this.index++;
-			return "";
-		}
-		return this.getHistory(++this.index);
-	}
-
-	var historydialog = undefined;
-
 
 	var closeInput = function(options) {
 		var $dialog = options.$dialog;
@@ -159,20 +110,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		$(options.editor.getInputField()).focus();
 	}
 
-	this.generateHistory = function() {
-
-		result = "";
-		for (var i=0; i<me.history.length; i++) {
-			var theclass = "input-history-line";
-			result = result + "<div class=\""+theclass+"\"><p style=\"word-wrap: break-word;\">" + Eden.htmlEscape(me.history[i]) + "</p></div>";
-		}
-		return result;
-	}
 
 	this.createHistory = function(name,mtitle) {
 
 		historydialog = $('<div id="'+name+'"></div>')
-			.html("<div class=\"history\">"+edenUI.plugins.ScriptInput.generateHistory()+"</div>")
+			.html("<div class=\"history\">"+"</div>")
 			.dialog({
 				title: mtitle,
 				width: 500,
@@ -225,16 +167,24 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var currentlineno = 1;
 		var currentcharno = 0;
 		var highlighter = new EdenUI.Highlight(outdiv);
-		var inputchanged = false;
 		var refreshentire = false;
 		var edited = false;
 		var dirty = false;
 		var tabscrollix = 0;
 		var readonly = false;
 
-		var scriptagent = new Eden.Agent();
+		var scriptagent;
+
+		if (Eden.Agent.agents[name+"_scratch"] === undefined) {
+			scriptagent = new Eden.Agent(undefined, name+"_scratch");
+		} else {
+			scriptagent = Eden.Agent.agents[name+"_scratch"];
+		}
 		scriptagent.enabled = power;
 		scriptagent.setOwned(true);
+
+		// Load script from agent memory
+		intextarea.value = scriptagent.snapshot;
 
 
 
@@ -249,13 +199,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var nextbut = $buttonbar.find(".next-input");
 			var prevbut = $buttonbar.find(".previous-input");
 
-			if (readonly || this.index >= this.history.length-1) {
+			if (readonly || !scriptagent.canRedo()) {
 				nextbut.removeClass("control-enabled");
 			} else {
 				nextbut.addClass("control-enabled");
 			}
 
-			if (readonly || this.index == 0) {
+			if (readonly || !scriptagent.canUndo()) {
 				prevbut.removeClass("control-enabled");
 			} else {
 				prevbut.addClass("control-enabled");
@@ -282,6 +232,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				tab.style.display = "none";
 			}
 			tabs.appendChild(tab);
+		}
+
+
+
+		function autoSaved(ag) {
+			if (ag === scriptagent) {
+				setSubTitle("[saved]");
+				updateHistoryButtons();
+			}
 		}
 
 
@@ -314,6 +273,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		rebuildTabs();
 		Eden.Agent.listenTo("create", this, rebuildTabs);
 		Eden.Agent.listenTo("title", this, rebuildTabs);
+		Eden.Agent.listenTo("autosave", this, autoSaved);
 		
 
 
@@ -329,6 +289,24 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				p = p.parentNode;
 				if (p) {
 					$(p).find(".ui-dialog-title").html(title);
+				}
+			}
+		}
+
+
+
+		function setSubTitle(text) {
+			var p = $dialogContents.get(0).parentNode;
+			if (p) {
+				p = p.parentNode;
+				if (p) {
+					var title = $(p).find(".ui-dialog-subtitle").get(0);
+					if (title === undefined) {
+						title = document.createElement("span");
+						title.className = "ui-dialog-subtitle";
+						$(p).find(".ui-dialog-title").get(0).parentNode.appendChild(title);
+					}
+					title.textContent = text;
 				}
 			}
 		}
@@ -384,10 +362,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (Eden.Agent.agents[value].owned == false) {
 					scriptagent.setOwned(true);
 					readonly = false;
+					setSubTitle("");
 					outdiv.className = "outputcontent";
 					outdiv.contentEditable = true;
 				} else {
 					readonly = true;
+					setSubTitle("[readonly]");
 					outdiv.className = "outputcontent readonly";
 					outdiv.contentEditable = false;
 				}
@@ -411,6 +391,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					if (tabscrollix > 0) tabscrollix--;
 				}
 
+				updateHistoryButtons();
 				rebuildTabs();
 			}
 		}
@@ -503,6 +484,7 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 					//outdiv.contentEditable = true;
 				} else {
 					readonly = true;
+					setSubTitle("[readonly]");
 					outdiv.className = "outputcontent readonly";
 					outdiv.contentEditable = false;
 				}
@@ -606,7 +588,7 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 			}
 
 			if (rerun) {
-				runScript(-1);
+				runScript(0);
 			}
 
 			highlightContent(scriptagent.ast, -1, pos);
@@ -1016,7 +998,6 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 						$(outdiv).css("cursor","text");
 						//updateEntireHighlight();
 						dragline = -1;
-						inputchanged = true;
 					},
 					cursor: 'move',
 					cursorAt: {top: -5, left: -5}
@@ -1163,6 +1144,12 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 		 */
 		function rebuild() {
 			edited = true;
+
+			// Check saved status
+			if (scriptagent.isSaved()) {
+				setSubTitle("");
+			}
+
 			// Using a timer to make rebuild async. Allows input and keyup to
 			// trigger a single rebuild which overcomes Chrome input event bug.
 			clearTimeout(rebuildtimer);
@@ -1175,7 +1162,6 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 		 * Event handler for input change.
 		 */
 		function onInputChanged(e) {
-			inputchanged = true;
 			dirty = true;
 
 			rebuild();
@@ -1444,10 +1430,10 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 			if (agent[obs_override] == true) {
 				agent[obs_prev] = true;
 				agent[obs_prev] = false;
-			} else {
+			} else if (!readonly && scriptagent.canUndo()) {
 				scriptagent.undo();
 				intextarea.value = scriptagent.snapshot;
-				updateEntireHighlight();
+				updateEntireHighlight(true);
 				updateHistoryButtons();
 			}
 		}
@@ -1462,10 +1448,10 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 			if (agent[obs_override] == true) {
 				agent[obs_next] = true;
 				agent[obs_next] = false;
-			} else {
+			} else if (!readonly && scriptagent.canRedo()) {
 				scriptagent.redo();
 				intextarea.value = scriptagent.snapshot;
-				updateEntireHighlight();
+				updateEntireHighlight(true);
 				updateHistoryButtons();
 			}
 		}
@@ -1528,7 +1514,6 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 
 		// Initialise contents if given some code
 		if (code) {
-			inputchanged = true;	// To make sure it goes into history.
 			intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(code);
 			updateEntireHighlight();
 		}
@@ -1539,11 +1524,9 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 				if (edited == false) {
 					if (data instanceof Symbol) {
 						agent.setScope(data.getValueScope(eden.root.scope));
-						inputchanged = true;	// To make sure it goes into history.
 						intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(agent.code);
 						updateEntireHighlight();
 					} else if (data instanceof Array) {
-						inputchanged = true;	// To make sure it goes into history.
 						intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(data);
 						updateEntireHighlight();
 					}
