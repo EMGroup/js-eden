@@ -381,7 +381,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 				window.removeEventListener("beforeunload", confirmUnload);
 			}
 		});
-		addCheckboxOption("optSimpleWildcards", "Simplified Searching", true);
+		addCheckboxOption("optSimpleWildcards", "Simplified searching", true);
 		addCheckboxOption("optHideOnMinimize", "Hide windows on minimize", false);
 		addCheckboxOption("optCollapseToTitleBar", "Collapse to title bar on double click", false, function (optName, collapse) {
 			var action;
