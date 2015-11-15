@@ -181,7 +181,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 		if (edenUI.getOptionValue("optSimpleWildcards") == "false") {
 			searchStr = searchBox.value + "|^" + symbolName + "$";
 		} else {
-			searchStr = searchBox.value + " or " + symbolName;			
+			searchStr = searchBox.value + " " + Language.ui.search.disjunction + " " + symbolName;			
 		}
 		searchBox.value = searchStr;
 		this.search(viewName);
