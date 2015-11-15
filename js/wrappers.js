@@ -105,6 +105,23 @@ Eden.Agent.restore = function() {
 
 
 
+Eden.Agent.remove = function(agent) {
+	Eden.Agent.agents[agent.name] = undefined;
+
+	var previousAgent;
+	for (var a in Eden.Agent.agents) {
+		if (a == agent.name) break;
+		previousAgent = a;
+	}
+
+	delete Eden.Agent.agents[agent.name];
+	Eden.Agent.emit("remove", [agent.name, previousAgent]);
+	// TODO Do cleanup here.
+	agent.enabled = false;
+}
+
+
+
 Eden.Agent.prototype.isSaved = function() {
 	return this.autosavetimer === undefined;
 }
@@ -370,7 +387,8 @@ Eden.Agent.prototype.on = function(name, cb) {
 	var me = this;
 	this.watches.push(name);
 	eden.root.lookup(name).addJSObserver(this.name, function(sym,value) {
-		if (sym.last_modified_by != me.name) cb.call(me, sym.name.slice(1), value);
+		//if (sym.last_modified_by != me.name)
+		cb.call(me, sym.name.slice(1), value);
 	});
 }
 

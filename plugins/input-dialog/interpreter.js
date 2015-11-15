@@ -156,6 +156,32 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var powerbutton = $powerbutton.get(0);
 		if (power) powerOn();
 
+		var $optionsmenu = $('<div class="options-menu noselect"></div>');
+		var optionsmenu = $optionsmenu.get(0);
+		$optionsmenu.appendTo($dialogContents);
+
+		function createMenuItem(icon, name, action) {
+			var item = $('<div class="options-menu-item"><span class="options-menu-icon">'+icon+'</span><span>'+name+'</span></div>');
+			$optionsmenu.append(item);
+			item.click(action);
+		}
+
+		function hideMenu() {
+			$optionsmenu.hide("slide", { direction: "down"}, 200);
+		}
+
+		function buildMenu() {
+			while (optionsmenu.firstChild) optionsmenu.removeChild(optionsmenu.firstChild);
+
+			createMenuItem((agent.state[obs_showtabs]) ? "&#xf00c;" : "&#xf00d;", "Show Tabs", function(e) { agent.state[obs_showtabs] = !agent.state[obs_showtabs]; buildMenu(); });
+			createMenuItem((agent.state[obs_showbuttons]) ? "&#xf00c;" : "&#xf00d;", "Show Controls", function(e) { agent.state[obs_showbuttons] = !agent.state[obs_showbuttons]; buildMenu(); });
+			//createMenuItem("&#xf00d;", "Show Hidden", function(e) {  });
+			createMenuItem("&#xf067;", "Import Agent", function(e) { });
+			createMenuItem("&#xf05e;", "Remove Agent", function(e) { Eden.Agent.remove(scriptagent); hideMenu(); });
+			createMenuItem("&#xf036;", "View History", function(e) { });
+			createMenuItem("&#xf0d0;", "Insert Template", function(e) { });
+		}
+
 		var dragstart = 0;
 		var dragvalue = 0;
 		var draglast = 0;
@@ -245,6 +271,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
+		function removedAgent(name,prev) {
+			if (scriptagent.name == name) {
+				if (prev) {
+					changeAgent(undefined, prev);
+				} else {
+					for (var a in Eden.Agent.agents) {
+						changeAgent(undefined, a);
+						return
+					}
+					changeAgent(undefined, undefined);
+				}
+			}
+		}
+
+
+
 		/**
 		 * Generate the agent script tabs at the top. Needs to be re-run when
 		 * new tabs are added or titles are changed.
@@ -273,6 +315,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		rebuildTabs();
 		Eden.Agent.listenTo("create", this, rebuildTabs);
 		Eden.Agent.listenTo("title", this, rebuildTabs);
+		Eden.Agent.listenTo("remove", this, removedAgent);
 		Eden.Agent.listenTo("autosave", this, autoSaved);
 		
 
@@ -391,6 +434,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					if (tabscrollix > 0) tabscrollix--;
 				}
 
+				updateHistoryButtons();
+				rebuildTabs();
+			} else {
+				intextarea.value = "";
+				readonly = true;
+				setTitle("Script View");
+				setSubTitle("[No Agents]");
+				outdiv.className = "outputcontent readonly";
+				outdiv.contentEditable = false;
+				outdiv.innerHTML = "";
 				updateHistoryButtons();
 				rebuildTabs();
 			}
@@ -531,6 +584,9 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 			gutter.generate(scriptagent.ast, -1);
 			scriptagent.clearExecutedState();
 		}, 50);
+
+
+		buildMenu();
 
 
 
@@ -1371,6 +1427,7 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 		 */
 		function onOutputMouseUp(e) {
 			hideInfoBox();
+			hideMenu();
 
 			// To prevent false cursor movement when dragging numbers...
 			if (document.activeElement === outdiv) {
@@ -1484,6 +1541,12 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 
 
 
+		function onMenu() {
+			$optionsmenu.toggle("slide", { direction: "down"}, 200);
+		}
+
+
+
 		// Set the event handlers
 		$dialogContents
 		.on('input', '.hidden-textarea', onInputChanged)
@@ -1495,20 +1558,23 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 		.on('mouseup', '.outputcontent', onOutputMouseUp)
 		.on('click', '.previous-input', onPrevious)
 		.on('click', '.next-input', onNext)
+		.on('click', '.menu-input', onMenu)
 		.on('click', '.eden-gutter-item', onGutterClick)
 		.on('click', '.agent-tab', onTabClick)
 		.on('click', '.agent-tableft', onTabLeft)
 		.on('click', '.agent-tabright', onTabRight);
 
 		$powerbutton.click(function (e) {
-			scriptagent.enabled = !scriptagent.enabled;
+			if (!readonly) {
+				scriptagent.enabled = !scriptagent.enabled;
 
-			if (scriptagent.enabled) {
-				powerOn();
-				updateEntireHighlight(true);
-				//me.submit(highlighter.ast.script, highlighter.ast);
-			} else {
-				powerOff();
+				if (scriptagent.enabled) {
+					powerOn();
+					updateEntireHighlight(true);
+					//me.submit(highlighter.ast.script, highlighter.ast);
+				} else {
+					powerOff();
+				}
 			}
 		});
 

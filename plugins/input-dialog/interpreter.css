@@ -95,14 +95,14 @@ div.agent-tab-notcurrent:hover {
 	box-sizing: border-box;
 	border-left: 1px solid #aaa;
 	border-right: 1px solid #aaa;
-	border-bottom: 2px solid #aaa;
+	border-bottom: 3px solid #aaa;
 	color: #666;
 }
 
 div.agent-tab-current {
 	background-color: #dbdbdb;
 	box-sizing: border-box;
-	border-bottom: 2px solid #719ECE;
+	border-bottom: 3px solid #719ECE;
 	border-left: 1px solid #aaa;
 	border-right: 1px solid #aaa;
 	color: #222;
@@ -338,7 +338,7 @@ div.input-dialog {
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
 	box-shadow: 0 0 15px #4a6887;
-	overflow: visible;
+	overflow: hidden;
 }
 
 div.input-dialog .ui-dialog-content {
@@ -650,6 +650,42 @@ div.eden_suggestions {
 	overflow-y: auto;
 	max-height: 150px;
     box-shadow: 0 0 10px #719ECE;
-	z-index: 2;
+}
+
+div.options-menu {
+	position: absolute;
+	display: none;
+	bottom: 30px;
+	right: 0px;
+	z-index: 5;
+	width: 140px;
+	min-height: 50px;
+	background-color: #f5f5f5;
+	border-top: 1px solid #e5e5e5;
+	border-left: 1px solid #e5e5e5;
+	/*box-shadow: 0 0 7px black;*/
+}
+
+div.options-menu-item {
+	width: 100%;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	cursor: pointer;
+}
+
+div.options-menu-item:hover {
+	background-color: #3465a4;
+	color: white;
+}
+
+div.options-menu-item span {
+	margin-right: 8px;
+}
+
+span.options-menu-icon {
+	font-family: "FontAwesome";
+	font-size: 11pt;
+	margin-left: 8px;
+	width: 16px;
 }
 
