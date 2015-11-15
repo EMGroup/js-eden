@@ -94,21 +94,18 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			});
 
 		me.instances.push(symbollist);
-		symbollist.search("");
+		symbollist.search(new RegExp(""));
 
 		// Make changes in search box update the list.
 		var searchBox = content.find(".symbollist-search-box-outer > .symbollist-search");
-		searchBox.keyup(function() {
-			symbollist.search(this.value);
-		});
 		var searchBoxElem = searchBox.get(0);
+		searchBox.keyup(function() {
+			var regExp = edenUI.regExpFromStr($(this));
+			symbollist.search(regExp);
+		});
 
 		content.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
 			var editorViewName = "edit_" + edenName;
-			//edenUI.createView(editorViewName, "ScriptInput");
-			//edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
-			//edenUI.eden.root.lookup("_view_" + edenName + "_title").assign(mtitle + " (" + edenName + ")", eden.root.scope, Symbol.hciAgent);
-			//edenUI.createView("edit_" + edenName, "ScriptInput");
 			var allVals = ["## Selection: " + searchBoxElem.value];
 			var symbol;
 			for(var symbolname in symbollist.symbols){
@@ -116,18 +113,19 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 				allVals.push(symbol);
 				allVals.push("");
 			}
-				//$('#' + editorViewName + '-dialog').find('textarea').val(allVals);
 			edenUI.createView(editorViewName, "ScriptInput", undefined).update(allVals);
 			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
 		});
 
 		document.getElementById(name + "-category-filter").addEventListener("change", function (event) {
-			symbollist.search(searchBoxElem.value, event.target.value);
+			var regExp = edenUI.regExpFromStr($(searchBox));
+			symbollist.search(regExp, event.target.value);
 		});
 
 		if (type == "obs") {
 			document.getElementById(name + "-type-filter").addEventListener("change", function (event) {
-				symbollist.search(searchBoxElem.value, undefined, event.target.value);
+				var regExp = edenUI.regExpFromStr($(searchBox));
+				symbollist.search(regExp, undefined, event.target.value);
 			});
 		}
 
@@ -290,8 +288,8 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
  *
  * @param pattern A regular expression for symbol names.
  */
-EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (pattern, category, subtypes) {
-	this.regExp = EdenUI.regExpFromStr(pattern);
+EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (regExp, category, subtypes) {
+	this.regExp = regExp;
 	if (category !== undefined) {
 		this.category = category;
 		this.customCategory = (category != "user" && category != "system" && category != "all");
