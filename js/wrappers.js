@@ -449,7 +449,7 @@ Eden.Agent.prototype.setSource = function(source) {
 	}
 
 	var gettitle = this.ast === undefined;
-	this.ast = new EdenAST(source);
+	this.ast = new Eden.AST(source);
 
 	if (gettitle) {
 		if (this.ast.stream.code.charAt(0) == "#") {

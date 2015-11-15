@@ -13,7 +13,7 @@
  * report the errors found. To use, pass the script to the constructor.
  * @param code String containing the script.
  */
-function EdenAST(code) {
+Eden.AST = function(code) {
 	this.stream = new EdenStream(code);
 	this.data = new EdenSyntaxData();
 	this.token = "INVALID";
@@ -31,45 +31,45 @@ function EdenAST(code) {
 	this.next();
 
 	// Start parse with SCRIPT production
-	//console.time("MakeEdenAST");
+	//console.time("MakeEden.AST");
 	this.script = this.pSCRIPT();
-	//console.timeEnd("MakeEdenAST");
+	//console.timeEnd("MakeEden.AST");
 }
 
 
-EdenAST.prototype.generate = function() {
+Eden.AST.prototype.generate = function() {
 	return this.script.generate();
 }
 
-EdenAST.prototype.execute = function(root) {
+Eden.AST.prototype.execute = function(root) {
 	//var gen = this.script.generate();
 	//console.log("Execute: " + gen);
 	//eval(gen)(root);
 
-	//console.time("EdenASTToJS");
+	//console.time("Eden.ASTToJS");
 	this.script.execute(root, undefined, this);
-	//console.timeEnd("EdenASTToJS");
+	//console.timeEnd("Eden.ASTToJS");
 }
 
 
-EdenAST.prototype.getSource = function(ast) {
+Eden.AST.prototype.getSource = function(ast) {
 	return this.stream.code.slice(ast.start,ast.end).trim();
 }
 
 
-EdenAST.prototype.getRoot = function() {
+Eden.AST.prototype.getRoot = function() {
 	return this.script;
 }
 
 
 
-EdenAST.prototype.getErrors = function() {
+Eden.AST.prototype.getErrors = function() {
 	return this.script.errors;
 }
 
 
 
-EdenAST.prototype.hasErrors = function() {
+Eden.AST.prototype.hasErrors = function() {
 	return this.script.errors.length > 0;
 }
 
@@ -78,7 +78,7 @@ EdenAST.prototype.hasErrors = function() {
  * Dump the AST as stringified JSON, or pretty print any error messages.
  * @return String of AST or errors.
  */
-EdenAST.prototype.prettyPrint = function() {
+Eden.AST.prototype.prettyPrint = function() {
 	var result = "";
 
 	if (this.script.errors.length > 0) {
@@ -103,7 +103,7 @@ EdenAST.prototype.prettyPrint = function() {
 /**
  * Move to next token.
  */
-EdenAST.prototype.next = function() {
+Eden.AST.prototype.next = function() {
 	this.previous = this.token;
 	this.token = this.stream.readToken();
 
@@ -138,7 +138,7 @@ EdenAST.prototype.next = function() {
 
 
 
-EdenAST.prototype.peekNext = function(count) {
+Eden.AST.prototype.peekNext = function(count) {
 	var res;
 	var localdata = {value: ""};
 	this.stream.data = localdata;
@@ -160,12 +160,12 @@ EdenAST.prototype.peekNext = function(count) {
 /**
  * T -> T' { < T' | <= T' | > T' | >= T' | == T' | != T' }
  */
-EdenAST.prototype.pTERM = function() {
+Eden.AST.prototype.pTERM = function() {
 	var left = this.pTERM_P();
 
 	while (this.token == "<" || this.token == "<=" || this.token == ">"
 			|| this.token == ">=" || this.token == "==" || this.token == "!=") {
-		var binop = new EdenAST_BinaryOp(this.token);
+		var binop = new Eden.AST.BinaryOp(this.token);
 		this.next();
 		binop.left(left);
 		binop.setRight(this.pTERM_P());
@@ -180,11 +180,11 @@ EdenAST.prototype.pTERM = function() {
 /*
  * T' -> T'' { + T'' | - T'' | // T''}
  */
-EdenAST.prototype.pTERM_P = function() {
+Eden.AST.prototype.pTERM_P = function() {
 	var left = this.pTERM_PP();
 
 	while (this.token == "+" || this.token == "-" || this.token == "//") {
-		var binop = new EdenAST_BinaryOp(this.token);
+		var binop = new Eden.AST.BinaryOp(this.token);
 		this.next();
 		binop.left(left);
 		binop.setRight(this.pTERM_PP());
@@ -199,12 +199,12 @@ EdenAST.prototype.pTERM_P = function() {
 /*
  * T'' -> T''' { * T''' | / T''' | % T''' | ^ T'''}
  */
-EdenAST.prototype.pTERM_PP = function() {
+Eden.AST.prototype.pTERM_PP = function() {
 	var left = this.pTERM_PPP();
 
 	while (this.token == "*" || this.token == "/" || this.token == "%"
 			|| this.token == "^") {
-		var binop = new EdenAST_BinaryOp(this.token);
+		var binop = new Eden.AST.BinaryOp(this.token);
 		this.next();
 		binop.left(left);
 		binop.setRight(this.pTERM_PPP());
@@ -219,7 +219,7 @@ EdenAST.prototype.pTERM_PP = function() {
 /*
  * T''' -> T'''' E'''''	
  */
-EdenAST.prototype.pTERM_PPP = function() {
+Eden.AST.prototype.pTERM_PPP = function() {
 	var left = this.pTERM_PPPP();
 	var right = this.pEXPRESSION_PPPPP();
 
@@ -235,7 +235,7 @@ EdenAST.prototype.pTERM_PPP = function() {
 /*
  * T'''' -> F E''''''
  */
-EdenAST.prototype.pTERM_PPPP = function() {
+Eden.AST.prototype.pTERM_PPPP = function() {
 	var left = this.pFACTOR();
 	var right = this.pEXPRESSION_PPPPPP();
 
@@ -251,10 +251,10 @@ EdenAST.prototype.pTERM_PPPP = function() {
 /*
  * E''''' -> # | epsilon
  */
-EdenAST.prototype.pEXPRESSION_PPPPP = function() {
+Eden.AST.prototype.pEXPRESSION_PPPPP = function() {
 	if (this.token == "#") {
 		this.next();
-		return new EdenAST_Length();
+		return new Eden.AST.Length();
 	}
 	return undefined;
 }
@@ -276,7 +276,7 @@ EdenAST.prototype.pEXPRESSION_PPPPP = function() {
  *	! PRIMARY |
  *	PRIMARY	
  */
-EdenAST.prototype.pFACTOR = function() {
+Eden.AST.prototype.pFACTOR = function() {
 	if (this.token == "(") {
 		this.next();
 		var expression = this.pEXPRESSION();
@@ -289,12 +289,12 @@ EdenAST.prototype.pFACTOR = function() {
 	} else if (this.token == "$") {
 		this.next();
 		if (this.token != "NUMBER" || this.data.value < 1) {
-			var p = new EdenAST_Parameter(-1);
+			var p = new Eden.AST.Parameter(-1);
 			p.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.PARAMNUMBER));
 			return p;
 		}
 		this.next();
-		return new EdenAST_Parameter(this.data.value);
+		return new Eden.AST.Parameter(this.data.value);
 	} else if (this.token == "[") {
 		this.next();
 
@@ -303,7 +303,7 @@ EdenAST.prototype.pFACTOR = function() {
 			elist = this.pELIST();
 		}
 
-		var literal = new EdenAST_Literal("LIST", elist);
+		var literal = new Eden.AST.Literal("LIST", elist);
 		for (var i = 0; i < elist.length; i++) {
 			if (elist[i].errors.length > 0) {
 				literal.errors.push.apply(literal.errors, elist[i].errors);
@@ -320,52 +320,52 @@ EdenAST.prototype.pFACTOR = function() {
 		return literal;
 	} else if (this.token == "@") {
 		this.next();
-		return new EdenAST_Literal("UNDEFINED", "@");
+		return new Eden.AST.Literal("UNDEFINED", "@");
 	} else if (this.token == "JAVASCRIPT") {
-		var lit = new EdenAST_Literal("JAVASCRIPT", this.data.value);
+		var lit = new Eden.AST.Literal("JAVASCRIPT", this.data.value);
 		this.next();
 		return lit;
 	} else if (this.token == "NUMBER") {
-		var lit = new EdenAST_Literal("NUMBER", this.data.value);
+		var lit = new Eden.AST.Literal("NUMBER", this.data.value);
 		this.next();
 		return lit
 	} else if (this.token == "-") {
 		this.next();
-		var negop = new EdenAST_UnaryOp("-", this.pFACTOR());
+		var negop = new Eden.AST.UnaryOp("-", this.pFACTOR());
 		return negop;
 		/*if (this.token == "NUMBER") {
-			var lit = new EdenAST_Literal("NUMBER", 0.0 - this.data.value);
+			var lit = new Eden.AST.Literal("NUMBER", 0.0 - this.data.value);
 			this.next();
 			return lit;
 		} else {
-			var res = new EdenAST_Literal("UNDEFINED","@");
+			var res = new Eden.AST.Literal("UNDEFINED","@");
 			res.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.NEGNUMBER));
 			return res;
 		}*/
 	} else if (this.token == "STRING") {
-		var lit = new EdenAST_Literal("STRING", this.data.value);
+		var lit = new Eden.AST.Literal("STRING", this.data.value);
 		this.next();
 		return lit
 	} else if (this.token == "BOOLEAN") {
-		var lit = new EdenAST_Literal("BOOLEAN", this.data.value);
+		var lit = new Eden.AST.Literal("BOOLEAN", this.data.value);
 		this.next();
 		return lit;
 	} else if (this.token == "CHARACTER") {
-		var lit = new EdenAST_Literal("CHARACTER", this.data.value);
+		var lit = new Eden.AST.Literal("CHARACTER", this.data.value);
 		this.next();
 		return lit;
 	} else if (this.token == "!") {
 		this.next();
 		var primary = this.pFACTOR();
-		return new EdenAST_UnaryOp("!", primary);
+		return new Eden.AST.UnaryOp("!", primary);
 	} else if (this.token == "&") {
 		this.next();
 		var lvalue = this.pLVALUE();
-		return new EdenAST_UnaryOp("&", lvalue);
+		return new Eden.AST.UnaryOp("&", lvalue);
 	} else if (this.token == "*") {
 		this.next();
 		var lvalue = this.pPRIMARY();
-		return new EdenAST_UnaryOp("*", lvalue);
+		return new Eden.AST.UnaryOp("*", lvalue);
 	} else {
 		var primary = this.pPRIMARY();
 		return primary;
@@ -378,13 +378,13 @@ EdenAST.prototype.pFACTOR = function() {
  * PRIMARY Production
  * PRIMARY -> observable PRIMARY' | ` EXPRESSION ` PRIMARY'
  */
-EdenAST.prototype.pPRIMARY = function() {
+Eden.AST.prototype.pPRIMARY = function() {
 	if (this.token == "`") {
 		this.next();
 		var btick = this.pEXPRESSION();
 		
 		if (this.token != "`") {
-			var primary = new EdenAST_Primary();
+			var primary = new Eden.AST.Primary();
 			primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BACKTICK));
 			return primary;
 		} else {
@@ -403,7 +403,7 @@ EdenAST.prototype.pPRIMARY = function() {
 		primary.setObservable(observable);
 		return primary;
 	} else {
-		var primary = new EdenAST_Primary();
+		var primary = new Eden.AST.Primary();
 		primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADFACTOR));
 		return primary;
 	}
@@ -419,10 +419,10 @@ EdenAST.prototype.pPRIMARY = function() {
  *	| [ EXPRESSION ] PRIMARY'''
  *	| PRIMARY''''
  */
-EdenAST.prototype.pPRIMARY_P = function() {
+Eden.AST.prototype.pPRIMARY_P = function() {
 	if (this.token == "[") {
 		this.next();
-		var index = new EdenAST_Index();
+		var index = new Eden.AST.Index();
 		var express = this.pEXPRESSION();
 
 		if (this.token != "]") {
@@ -437,7 +437,7 @@ EdenAST.prototype.pPRIMARY_P = function() {
 		return primary;
 	} else if (this.token == "(") {
 		this.next();
-		var func = new EdenAST_FunctionCall();	
+		var func = new Eden.AST.FunctionCall();	
 
 		if (this.token == ")") {
 			this.next();
@@ -464,7 +464,7 @@ EdenAST.prototype.pPRIMARY_P = function() {
 	} else if (this.token == ".") {
 		this.next();
 		var rhs = this.pPRIMARY();
-		var scopepath = new EdenAST_ScopePath();
+		var scopepath = new Eden.AST.ScopePath();
 		scopepath.setPrimary(rhs);
 		return scopepath;
 	} else {
@@ -474,7 +474,7 @@ EdenAST.prototype.pPRIMARY_P = function() {
 	/*var result = [];
 	while (true) {
 		if (this.token == "(") {
-			var func = new EdenAST_FunctionCall();
+			var func = new Eden.AST.FunctionCall();
 			this.next();
 
 			result.push(func);
@@ -496,7 +496,7 @@ EdenAST.prototype.pPRIMARY_P = function() {
 			}
 		} else if (this.token == "[") {
 			this.next();
-			var comp = new EdenAST_LValueComponent("index");
+			var comp = new Eden.AST.LValueComponent("index");
 			comp.index(this.pEXPRESSION());
 
 			if (comp.indexexp.type == "literal" &&
@@ -517,7 +517,7 @@ EdenAST.prototype.pPRIMARY_P = function() {
 			}
 		} else if (this.token == ".") {
 			this.next();
-			var comp = new EdenAST_LValueComponent("property");
+			var comp = new Eden.AST.LValueComponent("property");
 
 			if (this.token != "OBSERVABLE") {
 				comp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.PROPERTYNAME));
@@ -548,10 +548,10 @@ EdenAST.prototype.pPRIMARY_P = function() {
  *	| [ EXPRESSION ] PRIMARY''
  *	| PRIMARY''''
  */
-EdenAST.prototype.pPRIMARY_PP = function() {
+Eden.AST.prototype.pPRIMARY_PP = function() {
 	if (this.token == "[") {
 		this.next();
-		var index = new EdenAST_Index();
+		var index = new Eden.AST.Index();
 		var express = this.pEXPRESSION();
 
 		if (this.token != "]") {
@@ -567,7 +567,7 @@ EdenAST.prototype.pPRIMARY_PP = function() {
 		return primary;
 	} else if (this.token == "(") {
 		this.next();
-		var func = new EdenAST_FunctionCall();
+		var func = new Eden.AST.FunctionCall();
 
 		if (this.token == ")") {
 			this.next();
@@ -604,10 +604,10 @@ EdenAST.prototype.pPRIMARY_PP = function() {
  *	| [ EXPRESSION ] PRIMARY''
  *	| PRIMARY''''
  */
-EdenAST.prototype.pPRIMARY_PPP = function() {
+Eden.AST.prototype.pPRIMARY_PPP = function() {
 	if (this.token == "[") {
 		this.next();
-		var index = new EdenAST_Index();
+		var index = new Eden.AST.Index();
 		var express = this.pEXPRESSION();
 
 		if (this.token != "]") {
@@ -622,7 +622,7 @@ EdenAST.prototype.pPRIMARY_PPP = function() {
 		return primary;
 	} else if (this.token == "(") {
 		this.next();
-		var func = new EdenAST_FunctionCall();		
+		var func = new Eden.AST.FunctionCall();		
 
 		if (this.token == ")") {
 			this.next();
@@ -648,7 +648,7 @@ EdenAST.prototype.pPRIMARY_PPP = function() {
 	} else if (this.token == ".") {
 		this.next();
 		var rhs = this.pPRIMARY();
-		var scopepath = new EdenAST_ScopePath();
+		var scopepath = new Eden.AST.ScopePath();
 		scopepath.setPrimary(rhs);
 		return scopepath;
 	} else {
@@ -661,12 +661,12 @@ EdenAST.prototype.pPRIMARY_PPP = function() {
  * Primary Quad Prime Production.
  * PRIMARY'''' -> with SCOPE | epsilon
  */
-EdenAST.prototype.pPRIMARY_PPPP = function() {
+Eden.AST.prototype.pPRIMARY_PPPP = function() {
 	if (this.token == "with") {
 		this.next();
 		return this.pSCOPE();
 	} else {
-		return new EdenAST_Primary();
+		return new Eden.AST.Primary();
 	}
 }
 
@@ -676,7 +676,7 @@ EdenAST.prototype.pPRIMARY_PPPP = function() {
  * SCOPE Production
  * SCOPE -> ( SCOPE' ) | SCOPE'
  */
-EdenAST.prototype.pSCOPE = function() {
+Eden.AST.prototype.pSCOPE = function() {
 	if (this.token == "(") {
 		this.next();
 		var scope = this.pSCOPE_P();
@@ -697,9 +697,9 @@ EdenAST.prototype.pSCOPE = function() {
  * SCOPE Prime Production
  * SCOPE' -> observable SCOPE''
  */
-EdenAST.prototype.pSCOPE_P = function() {
+Eden.AST.prototype.pSCOPE_P = function() {
 	if (this.token != "OBSERVABLE") {
-		var scope = new EdenAST_Scope();
+		var scope = new Eden.AST.Scope();
 		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPENAME));
 		return scope;
 	}
@@ -707,14 +707,14 @@ EdenAST.prototype.pSCOPE_P = function() {
 	this.next();
 
 	if (this.token != "is") {
-		var scope = new EdenAST_Scope();
+		var scope = new Eden.AST.Scope();
 		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPEEQUALS));
 		return scope;
 	}
 	this.next();
 	var expression = this.pEXPRESSION();
 	if (expression.errors.length > 0) {
-		var scope = new EdenAST_Scope();
+		var scope = new Eden.AST.Scope();
 		scope.addOverride(obs, expression, undefined);
 		return scope;
 	}
@@ -724,7 +724,7 @@ EdenAST.prototype.pSCOPE_P = function() {
 		this.next();
 		exp2 = this.pEXPRESSION();
 		if (exp2.errors.length > 0) {
-			var scope = new EdenAST_Scope();
+			var scope = new Eden.AST.Scope();
 			scope.addOverride(obs, expression, exp2);
 			return scope;
 		}
@@ -741,12 +741,12 @@ EdenAST.prototype.pSCOPE_P = function() {
  * Scope Prime Prime Production
  * SCOPE'' -> , SCOPE | epsilon
  */
-EdenAST.prototype.pSCOPE_PP = function() {
+Eden.AST.prototype.pSCOPE_PP = function() {
 	if (this.token == ",") {
 		this.next();
 		return this.pSCOPE_P();
 	} else {
-		return new EdenAST_Scope();
+		return new Eden.AST.Scope();
 	}
 }
 
@@ -756,7 +756,7 @@ EdenAST.prototype.pSCOPE_PP = function() {
  * ELIST Production
  * ELIST -> EXPRESSION ELIST' | epsilon
  */
-EdenAST.prototype.pELIST = function() {
+Eden.AST.prototype.pELIST = function() {
 	var expression = this.pEXPRESSION();
 	if (expression.errors.length > 0) {
 		return [expression];
@@ -772,7 +772,7 @@ EdenAST.prototype.pELIST = function() {
  * ELIST Prime Production
  * ELIST' -> , EXPRESSION ELIST' | epsilon
  */
-EdenAST.prototype.pELIST_P = function() {
+Eden.AST.prototype.pELIST_P = function() {
 	var result = [];
 	while (this.token == ",") {
 		this.next();
@@ -793,10 +793,10 @@ EdenAST.prototype.pELIST_P = function() {
  *  if EXPRESSION else EXPRESSION |
  *  epsilon
  */
-EdenAST.prototype.pEXPRESSION_PPPPPP = function() {
+Eden.AST.prototype.pEXPRESSION_PPPPPP = function() {
 	if (this.token == "?") {
 		this.next();
-		var tern = new EdenAST_TernaryOp("?");
+		var tern = new Eden.AST.TernaryOp("?");
 		tern.setFirst(this.pEXPRESSION());
 
 		if (tern.errors.length > 0) return tern;
@@ -812,7 +812,7 @@ EdenAST.prototype.pEXPRESSION_PPPPPP = function() {
 		return tern;
 	} else if (this.token == "if") {
 		this.next();
-		var tern = new EdenAST_TernaryOp("?");
+		var tern = new Eden.AST.TernaryOp("?");
 		tern.setCondition(this.pEXPRESSION());
 
 		if (tern.errors.length > 0) return tern;
@@ -836,11 +836,11 @@ EdenAST.prototype.pEXPRESSION_PPPPPP = function() {
  * EXPRESSION Production
  * EXPRESSION -> T { && T | || T }
  */
-EdenAST.prototype.pEXPRESSION = function() {
+Eden.AST.prototype.pEXPRESSION = function() {
 	var left = this.pTERM();
 
 	while (this.token == "&&" || this.token == "||") {
-		var binop = new EdenAST_BinaryOp(this.token);
+		var binop = new Eden.AST.BinaryOp(this.token);
 		this.next();
 		binop.left(left);
 		binop.setRight(this.pTERM());
@@ -855,8 +855,8 @@ EdenAST.prototype.pEXPRESSION = function() {
  * ACTION Production
  * ACTION -> observable : OLIST ACTIONBODY
  */
-EdenAST.prototype.pACTION = function() {
-	var action = new EdenAST_Action();
+Eden.AST.prototype.pACTION = function() {
+	var action = new Eden.AST.Action();
 	var parent = this.parent;
 	this.parent = action;
 
@@ -892,8 +892,8 @@ EdenAST.prototype.pACTION = function() {
  * WHEN Production
  * WHEN -> ( EXPRESSION ) STATEMENT
  */
-EdenAST.prototype.pWHEN = function() {
-	var when = new EdenAST_When();
+Eden.AST.prototype.pWHEN = function() {
+	var when = new Eden.AST.When();
 	var parent = this.parent;
 	this.parent = when;
 
@@ -930,7 +930,7 @@ EdenAST.prototype.pWHEN = function() {
  * OLIST Production.
  * OLIST -> observable OLIST'
  */
-EdenAST.prototype.pOLIST = function() {
+Eden.AST.prototype.pOLIST = function() {
 	if (this.token != "OBSERVABLE") {
 		return [];
 	}
@@ -948,7 +948,7 @@ EdenAST.prototype.pOLIST = function() {
  * OLIST Prime Production
  * OLIST' -> , observable OLIST' | epsilon
  */
-EdenAST.prototype.pOLIST_P = function() {
+Eden.AST.prototype.pOLIST_P = function() {
 	var olist = [];
 	while (this.token == ",") {
 		this.next();
@@ -970,8 +970,8 @@ EdenAST.prototype.pOLIST_P = function() {
  * ACTIONBODY Production
  * ACTIONBODY -> { LOCALS SCRIPT }
  */
-EdenAST.prototype.pACTIONBODY = function() {
-	var codebody = new EdenAST_CodeBlock();
+Eden.AST.prototype.pACTIONBODY = function() {
+	var codebody = new Eden.AST.CodeBlock();
 
 	if (this.token != "{") {
 		codebody.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONOPEN));
@@ -1000,8 +1000,8 @@ EdenAST.prototype.pACTIONBODY = function() {
  * PARAMS Production
  * PARAS -> para OLIST ; PARAS | epsilon
  */
-EdenAST.prototype.pPARAMS = function() {
-	var params = new EdenAST_Declarations();
+Eden.AST.prototype.pPARAMS = function() {
+	var params = new Eden.AST.Declarations();
 
 	while (this.token == "para") {
 		this.next();
@@ -1031,8 +1031,8 @@ EdenAST.prototype.pPARAMS = function() {
  * LOCALS Production
  * LOCALS -> auto OLIST ; LOCALS | local OLIST ; LOCALS | epsilon
  */
-EdenAST.prototype.pLOCALS = function() {
-	var locals = new EdenAST_Declarations();
+Eden.AST.prototype.pLOCALS = function() {
+	var locals = new Eden.AST.Declarations();
 
 	while (this.token == "auto" || this.token == "local") {
 		this.next();
@@ -1062,11 +1062,11 @@ EdenAST.prototype.pLOCALS = function() {
  * LLIST Production
  * LLIST -> LVALUE LLIST'
  */
-EdenAST.prototype.pLLIST = function() {
+Eden.AST.prototype.pLLIST = function() {
 	var lvalue = this.pLVALUE();
 	var llist = this.pLLIST_P();
 	if (llist === undefined) {
-		llist = new EdenAST_LList();
+		llist = new Eden.AST.LList();
 	}
 
 	llist.append(lvalue);
@@ -1078,13 +1078,13 @@ EdenAST.prototype.pLLIST = function() {
  * LLIST Prime Production
  * LLIST' -> , LVALUE LLIST' | epsilon
  */
-EdenAST.prototype.pLLIST_P = function() {
+Eden.AST.prototype.pLLIST_P = function() {
 	if (this.token == ",") {
 		this.next();
 		var lvalue = this.pLVALUE();
 		var llist = this.pLLIST_P();
 		if (llist === undefined) {
-			llist = new EdenAST_LList();
+			llist = new Eden.AST.LList();
 		}
 		llist.append(lvalue);
 		return llist;
@@ -1098,8 +1098,8 @@ EdenAST.prototype.pLLIST_P = function() {
  * IF Production
  * IF -> ( EXPRESSION ) STATEMENT IF'
  */
-EdenAST.prototype.pIF = function() {
-	var ifast = new EdenAST_If();
+Eden.AST.prototype.pIF = function() {
+	var ifast = new Eden.AST.If();
 	var parent = this.parent;
 	this.parent = ifast;
 
@@ -1134,7 +1134,7 @@ EdenAST.prototype.pIF = function() {
  * IF Prime Production
  * IF' -> else STATEMENT | epsilon
  */
-EdenAST.prototype.pIF_P = function() {
+Eden.AST.prototype.pIF_P = function() {
 	if (this.token == "else") {
 		this.next();
 		return this.pSTATEMENT();
@@ -1148,8 +1148,8 @@ EdenAST.prototype.pIF_P = function() {
  * FOR Production
  * FOR -> ( STATEMENT'_OPT ; EXPRESSION_OPT ; STATEMENT'_OPT ) STATEMENT
  */
-EdenAST.prototype.pFOR = function() {
-	var forast = new EdenAST_For();
+Eden.AST.prototype.pFOR = function() {
+	var forast = new Eden.AST.For();
 
 	if (this.token != "(") {
 		forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FOROPEN));
@@ -1209,8 +1209,8 @@ EdenAST.prototype.pFOR = function() {
  * WHILE Production
  * WHILE -> ( EOPT ) STATEMENT
  */
-EdenAST.prototype.pWHILE = function() {
-	var w = new EdenAST_While();
+Eden.AST.prototype.pWHILE = function() {
+	var w = new Eden.AST.While();
 	var parent = this.parent;
 	this.parent = w;
 
@@ -1248,8 +1248,8 @@ EdenAST.prototype.pWHILE = function() {
  * Do Production
  * DO -> observable ELIST;
  */
-EdenAST.prototype.pDO = function() {
-	var w = new EdenAST_Do();
+Eden.AST.prototype.pDO = function() {
+	var w = new Eden.AST.Do();
 
 	if (this.token != "OBSERVABLE") {
 		w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DONAME));
@@ -1284,8 +1284,8 @@ EdenAST.prototype.pDO = function() {
  * SWITCH Production
  * SWITCH -> ( EXPRESSION ) STATEMENT
  */
-EdenAST.prototype.pSWITCH = function() {
-	var swi = new EdenAST_Switch();
+Eden.AST.prototype.pSWITCH = function() {
+	var swi = new Eden.AST.Switch();
 
 	if (this.token != "(") {
 		swi.error(new Eden.SyntaxError(this, Eden.SyntaxError.SWITCHOPEN));
@@ -1314,8 +1314,8 @@ EdenAST.prototype.pSWITCH = function() {
  * FUNCTION Production
  * FUNCTION -> observable FUNCBODY
  */
-EdenAST.prototype.pFUNCTION = function() {
-	var func = new EdenAST_Function();
+Eden.AST.prototype.pFUNCTION = function() {
+	var func = new Eden.AST.Function();
 	var parent = this.parent;
 	this.parent = func;
 
@@ -1338,8 +1338,8 @@ EdenAST.prototype.pFUNCTION = function() {
  * FUNCBODY Production
  * FUNCBODY -> { PARAS LOCALS SCRIPT }
  */
-EdenAST.prototype.pFUNCBODY = function() {
-	var codebody = new EdenAST_CodeBlock();
+Eden.AST.prototype.pFUNCBODY = function() {
+	var codebody = new Eden.AST.CodeBlock();
 
 	if (this.token != "{") {
 		codebody.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCOPEN));
@@ -1370,7 +1370,7 @@ EdenAST.prototype.pFUNCBODY = function() {
  * LVALUE' -> [ EXPRESSION ] LVALUE' | . observable LVALUE' | epsilon
  * Returns an array of lvalue extra details, possibly empty.
  */
-EdenAST.prototype.pLVALUE_P = function() {
+Eden.AST.prototype.pLVALUE_P = function() {
 	var components = [];
 
 	// Get all lvalue extras such as list indices and object properties.
@@ -1381,7 +1381,7 @@ EdenAST.prototype.pLVALUE_P = function() {
 			this.next();
 
 			// Make an index tree element.
-			var comp = new EdenAST_LValueComponent("index");
+			var comp = new Eden.AST.LValueComponent("index");
 			var expression = this.pEXPRESSION();
 			comp.index(expression);
 			components.push(comp);
@@ -1414,15 +1414,15 @@ EdenAST.prototype.pLVALUE_P = function() {
  * LVALUE Production
  * LVALUE -> observable LVALUE'
  */
-EdenAST.prototype.pLVALUE = function() {
+Eden.AST.prototype.pLVALUE = function() {
 	if (this.token != "OBSERVABLE") {
-		var ast = new EdenAST_LValue("NONAME", []);
+		var ast = new Eden.AST.LValue("NONAME", []);
 		ast.error(new Eden.SyntaxError(this, Eden.SyntaxError.LVALUE));
 		return ast;
 	}
 	var obs = this.data.value;
 	this.next();
-	return new EdenAST_LValue(obs, this.pLVALUE_P());
+	return new Eden.AST.LValue(obs, this.pLVALUE_P());
 };
 
 
@@ -1440,28 +1440,28 @@ EdenAST.prototype.pLVALUE = function() {
  *	-- |
  *  ( ELIST )
  */
-EdenAST.prototype.pSTATEMENT_PP = function() {
+Eden.AST.prototype.pSTATEMENT_PP = function() {
 	if (this.token == "is") {
 		this.next();
-		return new EdenAST_Definition(this.pEXPRESSION());
+		return new Eden.AST.Definition(this.pEXPRESSION());
 	} else if (this.token == "=") {
 		this.next();
-		return new EdenAST_Assignment(this.pEXPRESSION());
+		return new Eden.AST.Assignment(this.pEXPRESSION());
 	} else if (this.token == "+=") {
 		this.next();
-		return new EdenAST_Modify("+=", this.pEXPRESSION());
+		return new Eden.AST.Modify("+=", this.pEXPRESSION());
 	} else if (this.token == "-=") {
 		this.next();
-		return new EdenAST_Modify("-=", this.pEXPRESSION());
+		return new Eden.AST.Modify("-=", this.pEXPRESSION());
 	} else if (this.token == "/=") {
 		this.next();
-		return new EdenAST_Modify("/=", this.pEXPRESSION());
+		return new Eden.AST.Modify("/=", this.pEXPRESSION());
 	} else if (this.token == "*=") {
 		this.next();
-		return new EdenAST_Modify("*=", this.pEXPRESSION());
+		return new Eden.AST.Modify("*=", this.pEXPRESSION());
 	} else if (this.token == "~>") {
 		this.next();
-		var subscribers = new EdenAST_Subscribers();
+		var subscribers = new Eden.AST.Subscribers();
 
 		if (this.token != "[") {
 			subscribers.error(new Eden.SyntaxError(this, Eden.SyntaxError.SUBSCRIBEOPEN));
@@ -1483,12 +1483,12 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
 		return subscribers;
 	} else if (this.token == "++") {
 		this.next();
-		return new EdenAST_Modify("++", undefined);
+		return new Eden.AST.Modify("++", undefined);
 	} else if (this.token == "--") {
 		this.next();
-		return new EdenAST_Modify("--", undefined);
+		return new Eden.AST.Modify("--", undefined);
 	} else if (this.token == "(") {
-		var fcall = new EdenAST_FunctionCall();
+		var fcall = new Eden.AST.FunctionCall();
 		this.next();
 
 		if (this.token != ")") {
@@ -1508,7 +1508,7 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
 	var errors = [];
 	errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DEFINITION));
 
-	var errast = new EdenAST_Assignment(undefined);
+	var errast = new Eden.AST.Assignment(undefined);
 	errast.errors.unshift(errors[0]);
 	return errast;
 };
@@ -1519,7 +1519,7 @@ EdenAST.prototype.pSTATEMENT_PP = function() {
  * STATEMENT Prime Production
  * STATEMENT' -> LVALUE STATEMENT''
  */
-EdenAST.prototype.pSTATEMENT_P = function() {
+Eden.AST.prototype.pSTATEMENT_P = function() {
 	var lvalue = this.pLVALUE();
 	if (lvalue.errors.length > 0) return lvalue;
 	var formula = this.pSTATEMENT_PP();
@@ -1534,8 +1534,8 @@ EdenAST.prototype.pSTATEMENT_P = function() {
  * CASE Production
  * CASE -> STRING : | NUMBER : | CHARACTER :
  */
-EdenAST.prototype.pCASE = function() {
-	var cas = new EdenAST_Case();
+Eden.AST.prototype.pCASE = function() {
+	var cas = new Eden.AST.Case();
 
 	if (this.token == "STRING" || this.token == "NUMBER") {
 		cas.setLiteral(this.token, this.data.value);
@@ -1561,8 +1561,8 @@ EdenAST.prototype.pCASE = function() {
  * INSERT Production
  * INSERT -> LVALUE , EXPRESSION , EXPRESSION ;
  */
-EdenAST.prototype.pINSERT = function() {
-	var insert = new EdenAST_Insert();
+Eden.AST.prototype.pINSERT = function() {
+	var insert = new Eden.AST.Insert();
 	
 	insert.setDest(this.pLVALUE());
 	if (insert.errors.length > 0) return insert;
@@ -1603,8 +1603,8 @@ EdenAST.prototype.pINSERT = function() {
  * DELETE Production
  * DELETE -> LVALUE , EXPRESSION ;
  */
-EdenAST.prototype.pDELETE = function() {
-	var del = new EdenAST_Delete();
+Eden.AST.prototype.pDELETE = function() {
+	var del = new Eden.AST.Delete();
 	
 	del.setDest(this.pLVALUE());
 	if (del.errors.length > 0) return del;
@@ -1635,8 +1635,8 @@ EdenAST.prototype.pDELETE = function() {
  * APPEND Production
  * APPEND -> LVALUE , EXPRESSION ;
  */
-EdenAST.prototype.pAPPEND = function() {
-	var append = new EdenAST_Append();
+Eden.AST.prototype.pAPPEND = function() {
+	var append = new Eden.AST.Append();
 	
 	append.setDest(this.pLVALUE());
 	if (append.errors.length > 0) return append;
@@ -1667,8 +1667,8 @@ EdenAST.prototype.pAPPEND = function() {
  * SHIFT Production
  * SHIFT -> LVALUE ;
  */
-EdenAST.prototype.pSHIFT = function() {
-	var shif = new EdenAST_Shift();
+Eden.AST.prototype.pSHIFT = function() {
+	var shif = new Eden.AST.Shift();
 
 	shif.setDest(this.pLVALUE());
 	if (shif.errors.length > 0) return shif;
@@ -1689,8 +1689,8 @@ EdenAST.prototype.pSHIFT = function() {
  * REQUIRE Production
  * REQUIRE -> EXPRESSION ;
  */
-EdenAST.prototype.pREQUIRE = function() {
-	var req = new EdenAST_Require();
+Eden.AST.prototype.pREQUIRE = function() {
+	var req = new Eden.AST.Require();
 	var express = this.pEXPRESSION();
 	req.setExpression(express);
 	return req;
@@ -1702,8 +1702,8 @@ EdenAST.prototype.pREQUIRE = function() {
  * AFTER Production
  * AFTER -> ( EXPRESSION ) STATEMENT
  */
-EdenAST.prototype.pAFTER = function() {
-	var after = new EdenAST_After();
+Eden.AST.prototype.pAFTER = function() {
+	var after = new Eden.AST.After();
 
 	if (this.token != "(") {
 		after.error(new Eden.SyntaxError(this, Eden.SyntaxError.AFTEROPEN));
@@ -1735,8 +1735,8 @@ EdenAST.prototype.pAFTER = function() {
  * AWAIT Production
  * AWAIT -> EXPRESSION ;
  */
-EdenAST.prototype.pAWAIT = function() {
-	var shif = new EdenAST_Shift();
+Eden.AST.prototype.pAWAIT = function() {
+	var shif = new Eden.AST.Shift();
 	
 }
 
@@ -1746,8 +1746,8 @@ EdenAST.prototype.pAWAIT = function() {
  * OPTION Production
  * OPTION -> OBSERVABLE = OPTION'
  */
-EdenAST.prototype.pOPTION = function() {
-	var shif = new EdenAST_Shift();
+Eden.AST.prototype.pOPTION = function() {
+	var shif = new Eden.AST.Shift();
 	
 }
 
@@ -1757,17 +1757,17 @@ EdenAST.prototype.pOPTION = function() {
  * INCLUDE Production
  * INCLUDE -> ( EXPRESSION ) ; INCLUDE'
  */
-EdenAST.prototype.pINCLUDE = function() {
+Eden.AST.prototype.pINCLUDE = function() {
 	var express = this.pEXPRESSION();
-	var inc = new EdenAST_Include();//this.pINCLUDE_P();
+	var inc = new Eden.AST.Include();//this.pINCLUDE_P();
 	inc.prepend(express);
 	return inc;
 }
 
 
 
-EdenAST.prototype.pWAIT = function() {
-	var wait = new EdenAST_Wait();
+Eden.AST.prototype.pWAIT = function() {
+	var wait = new Eden.AST.Wait();
 
 	if (this.token == ";") {
 		this.next();
@@ -1816,7 +1816,7 @@ EdenAST.prototype.pWAIT = function() {
 	LVALUE STATEMENT'' ; |
 	epsilon
  */
-EdenAST.prototype.pSTATEMENT = function() {
+Eden.AST.prototype.pSTATEMENT = function() {
 	var start = this.stream.prevposition;
 	var curline = this.stream.line - 1;
 	var endline = -1;
@@ -1844,7 +1844,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 	case "option"	:	this.next(); stat = this.pOPTION(); break;
 	case "include"	:	this.next(); stat = this.pINCLUDE(); break;
 	case "default"	:	this.next();
-						var def = new EdenAST_Default();
+						var def = new Eden.AST.Default();
 						if (this.token != ":") {
 							def.error(new Eden.SyntaxError(this,
 										Eden.SyntaxError.DEFAULTCOLON));
@@ -1854,7 +1854,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 						stat = def; break;
 	case "if"		:	this.next(); stat = this.pIF(); break;
 	case "return"	:	this.next();
-						var ret = new EdenAST_Return();
+						var ret = new Eden.AST.Return();
 
 						if (this.token != ";") {
 							ret.setResult(this.pEXPRESSION());
@@ -1873,7 +1873,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 
 						stat = ret; break;
 	case "continue"	:	this.next();
-						var cont = new EdenAST_Continue();
+						var cont = new Eden.AST.Continue();
 						if (cont.errors.length > 0) return cont;
 
 						if (this.token != ";") {
@@ -1885,7 +1885,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 
 						stat = cont; break;
 	case "break"	:	this.next();
-						var breakk = new EdenAST_Break();
+						var breakk = new Eden.AST.Break();
 						if (breakk.errors.length > 0) return breakk;
 
 						if (this.token != ";") {
@@ -1928,7 +1928,7 @@ EdenAST.prototype.pSTATEMENT = function() {
 						stat = formula; break;
 	case "JAVASCRIPT" : var js = this.data.value;
 						this.next();
-						stat = new EdenAST_Literal("JAVASCRIPT", js);
+						stat = new Eden.AST.Literal("JAVASCRIPT", js);
 						break;
 	default : return undefined;
 	}
@@ -1949,11 +1949,11 @@ EdenAST.prototype.pSTATEMENT = function() {
 
 
 
-EdenAST.prototype.pNAMEDSCRIPT = function() {
+Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	var name;
 
 	if (this.token != "OBSERVABLE") {
-		var script = new EdenAST_Script();
+		var script = new Eden.AST.Script();
 		script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONNAME));
 		return script;
 	} else {
@@ -1962,7 +1962,7 @@ EdenAST.prototype.pNAMEDSCRIPT = function() {
 	}
 
 	if (this.token != "{") {
-		var script = new EdenAST_Script();
+		var script = new Eden.AST.Script();
 		script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONOPEN));
 		return script;
 	} else {
@@ -1992,8 +1992,8 @@ EdenAST.prototype.pNAMEDSCRIPT = function() {
  * SCRIPT Production
  * SCRIPT -> STATEMENT SCRIPT | epsilon
  */
-EdenAST.prototype.pSCRIPT = function() {
-	var ast = new EdenAST_Script();
+Eden.AST.prototype.pSCRIPT = function() {
+	var ast = new Eden.AST.Script();
 	var parent = this.parent;
 	this.parent = ast;
 
@@ -2027,6 +2027,6 @@ EdenAST.prototype.pSCRIPT = function() {
 
 // expose as node.js module
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
-	exports.EdenAST = EdenAST;
+	exports.Eden.AST = Eden.AST;
 }
 

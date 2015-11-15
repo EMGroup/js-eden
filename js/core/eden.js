@@ -762,7 +762,7 @@ function concatAndResolveUrl(url, concat) {
 			agent = {name: '/execute'};
 		}
 
-		var ast = new EdenAST(code);
+		var ast = new Eden.AST(code);
 		if (ast.script.errors.length == 0) {
 			ast.script.execute(this.root,this.root.scope, ast);
 		} else {

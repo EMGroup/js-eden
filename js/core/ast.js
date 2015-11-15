@@ -1,11 +1,11 @@
 /* AST Structures */
 
 
-function fnEdenAST_error(err) {
+function fnEdenASTerror(err) {
 	this.errors.unshift(err);
 };
 
-function fnEdenAST_left(left) {
+function fnEdenASTleft(left) {
 	this.l = left;
 	if (left.errors.length > 0) {
 		this.errors.push.apply(this.errors, left.errors);
@@ -15,7 +15,7 @@ function fnEdenAST_left(left) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-function EdenAST_Literal(type, literal) {
+Eden.AST.Literal = function(type, literal) {
 	this.type = "literal";
 	this.parent = undefined;
 	this.datatype = type;
@@ -24,14 +24,14 @@ function EdenAST_Literal(type, literal) {
 	this.start = 0;
 	this.end = 0;
 }
-EdenAST_Literal.prototype.error = fnEdenAST_error;
+Eden.AST.Literal.prototype.error = fnEdenASTerror;
 
-EdenAST_Literal.prototype.setSource = function(start, end) {
+Eden.AST.Literal.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Literal.prototype.generate = function(ctx) {
+Eden.AST.Literal.prototype.generate = function(ctx) {
 	switch (this.datatype) {
 	case "NUMBER"	:	return this.value;
 	case "LIST"		:	var res = "[";
@@ -52,7 +52,7 @@ EdenAST_Literal.prototype.generate = function(ctx) {
 	}
 }
 
-EdenAST_Literal.prototype.execute = function(root, ctx) {
+Eden.AST.Literal.prototype.execute = function(root, ctx) {
 	switch(this.datatype) {
 	case "NUMBER"	:
 	case "CHARACTER":
@@ -69,33 +69,33 @@ EdenAST_Literal.prototype.execute = function(root, ctx) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Scope() {
+Eden.AST.Scope = function() {
 	this.type = "scope";
 	this.errors = [];
 	this.range = false;
 	this.overrides = {};
-	this.primary = new EdenAST_Primary();
+	this.primary = new Eden.AST.Primary();
 }
 
-EdenAST_Scope.prototype.error = fnEdenAST_error;
+Eden.AST.Scope.prototype.error = fnEdenASTerror;
 
-EdenAST_Scope.prototype.prepend = function(extra) {
+Eden.AST.Scope.prototype.prepend = function(extra) {
 	this.primary.prepend(extra);
 }
 
-EdenAST_Scope.prototype.setObservable = function(obs) {
+Eden.AST.Scope.prototype.setObservable = function(obs) {
 	this.primary.setObservable(obs);
 }
 
-EdenAST_Scope.prototype.getObservable = function() {
+Eden.AST.Scope.prototype.getObservable = function() {
 	return this.primary.getObservable();
 }
 
-EdenAST_Scope.prototype.doesReturnBound = function() {
+Eden.AST.Scope.prototype.doesReturnBound = function() {
 	return this.primary.doesReturnBound();
 }
 
-EdenAST_Scope.prototype.addOverride = function(obs, exp1, exp2) {
+Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2) {
 	if (exp2) {
 		this.range = true;
 		this.overrides[obs] = { start: exp1, end: exp2 };
@@ -108,7 +108,7 @@ EdenAST_Scope.prototype.addOverride = function(obs, exp1, exp2) {
 	}
 }
 
-EdenAST_Scope.prototype.generate = function(ctx, scope) {
+Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 	var res;
 
 	//if (ctx.scopes.length > 0) {
@@ -144,20 +144,20 @@ EdenAST_Scope.prototype.generate = function(ctx, scope) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Index() {
+Eden.AST.Index = function() {
 	this.type = "index";
 	this.expression = undefined;
 	this.errors = [];
 }
 
-EdenAST_Index.prototype.setExpression = function(express) {
+Eden.AST.Index.prototype.setExpression = function(express) {
 	this.expression = express;
 	if (express.errors.length > 0) {
 		this.errors.push.apply(this.errors,express.errors);
 	}
 }
 
-EdenAST_Index.prototype.generate = function(ctx, scope) {
+Eden.AST.Index.prototype.generate = function(ctx, scope) {
 	var ix = this.expression.generate(ctx, scope);
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 		ix += ".value";
@@ -165,67 +165,67 @@ EdenAST_Index.prototype.generate = function(ctx, scope) {
 	return "[("+ix+")-1]";
 }
 
-EdenAST_Index.prototype.error = fnEdenAST_error;
+Eden.AST.Index.prototype.error = fnEdenASTerror;
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_ScopePath() {
+Eden.AST.ScopePath = function() {
 	this.type = "scopepath";
 	this.errors = [];
 	this.primary = undefined;
-	this.path = new EdenAST_Primary();
+	this.path = new Eden.AST.Primary();
 	this.scopestr = undefined;
 }
 
-EdenAST_ScopePath.prototype.prepend = function(extra) {
+Eden.AST.ScopePath.prototype.prepend = function(extra) {
 	this.path.prepend(extra);
 }
 
-EdenAST_ScopePath.prototype.setObservable = function(obs) {
+Eden.AST.ScopePath.prototype.setObservable = function(obs) {
 	this.path.setObservable(obs);
 }
 
-EdenAST_ScopePath.prototype.getObservable = function() {
+Eden.AST.ScopePath.prototype.getObservable = function() {
 	return this.primary.getObservable();
 }
 
-EdenAST_ScopePath.prototype.doesReturnBound = function() {
+Eden.AST.ScopePath.prototype.doesReturnBound = function() {
 	return this.primary.doesReturnBound();
 }
 
-EdenAST_ScopePath.prototype.getScopeString = function() {
+Eden.AST.ScopePath.prototype.getScopeString = function() {
 	return this.scopestr;
 }
 
-EdenAST_ScopePath.prototype.setPrimary = function(prim) {
+Eden.AST.ScopePath.prototype.setPrimary = function(prim) {
 	this.primary = prim;
 	if (this.primary.errors.length > 0) {
 		this.errors.push.apply(this.errors, prim.errors);
 	}
 }
 
-EdenAST_ScopePath.prototype.generate = function(ctx, scope) {
+Eden.AST.ScopePath.prototype.generate = function(ctx, scope) {
 	ctx.scopes.push(this.path.generate(ctx, scope)+".scope");
 	this.scopestr = "_scopes[" + (ctx.scopes.length-1) + "]";
 	return this.primary.generate(ctx, "_scopes["+(ctx.scopes.length-1)+"]");
 }
 
-EdenAST_ScopePath.prototype.error = fnEdenAST_error;
+Eden.AST.ScopePath.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Parameter(index) {
+Eden.AST.Parameter = function(index) {
 	this.type = "parameter";
 	this.index = index;
 	this.errors = [];
 }
 
-EdenAST_Parameter.prototype.error = fnEdenAST_error;
+Eden.AST.Parameter.prototype.error = fnEdenASTerror;
 
-EdenAST_Parameter.prototype.generate = function(ctx, scope) {
+Eden.AST.Parameter.prototype.generate = function(ctx, scope) {
 	if (ctx && ctx.getParameterByNumber) {
 		ctx.dirty = true;
 		return ""+ctx.getParameterByNumber(this.index);
@@ -236,15 +236,15 @@ EdenAST_Parameter.prototype.generate = function(ctx, scope) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_UnaryOp(op, right) {
+Eden.AST.UnaryOp = function(op, right) {
 	this.type = "unaryop";
 	this.op = op;
 	this.errors = right.errors;
 	this.r = right;
 }
-EdenAST_UnaryOp.prototype.error = fnEdenAST_error;
+Eden.AST.UnaryOp.prototype.error = fnEdenASTerror;
 
-EdenAST_UnaryOp.prototype.generate = function(ctx, scope) {
+Eden.AST.UnaryOp.prototype.generate = function(ctx, scope) {
 	var r = this.r.generate(ctx, scope);
 	if (this.r.doesReturnBound && this.r.doesReturnBound()) {
 		r += ".value";
@@ -264,7 +264,7 @@ EdenAST_UnaryOp.prototype.generate = function(ctx, scope) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_TernaryOp(op) {
+Eden.AST.TernaryOp = function(op) {
 	this.type = "ternaryop";
 	this.op = op;
 	this.errors = [];
@@ -273,30 +273,30 @@ function EdenAST_TernaryOp(op) {
 	this.condition = undefined;
 	this.returnsbound = true;
 }
-EdenAST_TernaryOp.prototype.error = fnEdenAST_error;
+Eden.AST.TernaryOp.prototype.error = fnEdenASTerror;
 
-EdenAST_TernaryOp.prototype.setFirst = function(first) {
+Eden.AST.TernaryOp.prototype.setFirst = function(first) {
 	this.first = first;
 	if (first.errors.length > 0) {
 		this.errors.push.apply(this.errors, first.errors);
 	}
 };
 
-EdenAST_TernaryOp.prototype.setSecond = function(second) {
+Eden.AST.TernaryOp.prototype.setSecond = function(second) {
 	this.second = second;
 	if (second.errors.length > 0) {
 		this.errors.push.apply(this.errors, second.errors);
 	}
 };
 
-EdenAST_TernaryOp.prototype.setCondition = function(cond) {
+Eden.AST.TernaryOp.prototype.setCondition = function(cond) {
 	this.condition = cond;
 	if (cond.errors.length > 0) {
 		this.errors.push.apply(this.errors, cond.errors);
 	}
 };
 
-EdenAST_TernaryOp.prototype.left = function(pleft) {
+Eden.AST.TernaryOp.prototype.left = function(pleft) {
 	if (this.condition === undefined) {
 		this.condition = pleft;
 	} else {
@@ -304,11 +304,11 @@ EdenAST_TernaryOp.prototype.left = function(pleft) {
 	}
 };
 
-EdenAST_TernaryOp.prototype.doesReturnBound = function() {
+Eden.AST.TernaryOp.prototype.doesReturnBound = function() {
 	return this.returnsbound;
 }
 
-EdenAST_TernaryOp.prototype.generate = function(ctx, scope) {
+Eden.AST.TernaryOp.prototype.generate = function(ctx, scope) {
 	var cond = this.condition.generate(ctx, scope);
 	var first = this.first.generate(ctx, scope);
 	var second = this.second.generate(ctx, scope);
@@ -331,7 +331,7 @@ EdenAST_TernaryOp.prototype.generate = function(ctx, scope) {
 	}
 }
 
-EdenAST_TernaryOp.prototype.execute = function(root, ctx) {
+Eden.AST.TernaryOp.prototype.execute = function(root, ctx) {
 	var rhs = "(function(context,scope) { return ";
 	rhs += this.generate(ctx, "scope");
 	rhs += ";})";
@@ -342,22 +342,22 @@ EdenAST_TernaryOp.prototype.execute = function(root, ctx) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_BinaryOp(op) {
+Eden.AST.BinaryOp = function(op) {
 	this.type = "binaryop";
 	this.op = op;
 	this.errors = [];
 	this.l = undefined;
 	this.r = undefined;
 }
-EdenAST_BinaryOp.prototype.left = fnEdenAST_left;
-EdenAST_BinaryOp.prototype.error = fnEdenAST_error;
+Eden.AST.BinaryOp.prototype.left = fnEdenASTleft;
+Eden.AST.BinaryOp.prototype.error = fnEdenASTerror;
 
-EdenAST_BinaryOp.prototype.setRight = function(right) {
+Eden.AST.BinaryOp.prototype.setRight = function(right) {
 	this.r = right;
 	this.errors.push.apply(this.errors, right.errors);
 }
 
-EdenAST_BinaryOp.prototype.generate = function(ctx, scope) {
+Eden.AST.BinaryOp.prototype.generate = function(ctx, scope) {
 	var left = this.l.generate(ctx, scope);
 	var right = this.r.generate(ctx, scope);
 	var opstr;
@@ -389,7 +389,7 @@ EdenAST_BinaryOp.prototype.generate = function(ctx, scope) {
 	}
 }
 
-EdenAST_BinaryOp.prototype.execute = function(root, ctx) {
+Eden.AST.BinaryOp.prototype.execute = function(root, ctx) {
 	var rhs = "(function(context,scope) { return ";
 	rhs += this.generate(ctx);
 	rhs += ";})";
@@ -400,17 +400,17 @@ EdenAST_BinaryOp.prototype.execute = function(root, ctx) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Length() {
+Eden.AST.Length = function() {
 	this.type = "length";
 	this.errors = [];
 	this.l = undefined;
 }
 
-EdenAST_Length.prototype.left = fnEdenAST_left;
+Eden.AST.Length.prototype.left = fnEdenASTleft;
 
-EdenAST_Length.prototype.error = fnEdenAST_error;
+Eden.AST.Length.prototype.error = fnEdenASTerror;
 
-EdenAST_Length.prototype.generate = function(ctx, scope) {
+Eden.AST.Length.prototype.generate = function(ctx, scope) {
 	var left = this.l.generate(ctx, scope);
 	// Get value out of a BoundValue
 	if (this.l.doesReturnBound && this.l.doesReturnBound()) {
@@ -423,7 +423,7 @@ EdenAST_Length.prototype.generate = function(ctx, scope) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_LValue(observable, lvaluep) {
+Eden.AST.LValue = function(observable, lvaluep) {
 	this.type = "lvalue";
 	this.errors = [];
 	this.observable = observable;
@@ -435,13 +435,13 @@ function EdenAST_LValue(observable, lvaluep) {
 	}
 };
 
-EdenAST_LValue.prototype.error = fnEdenAST_error;
+Eden.AST.LValue.prototype.error = fnEdenASTerror;
 
-EdenAST_LValue.prototype.hasListIndices = function() {
+Eden.AST.LValue.prototype.hasListIndices = function() {
 	return this.lvaluep && this.lvaluep.length > 0 && this.lvaluep[0].kind == "index";
 }
 
-EdenAST_LValue.prototype.generateCompList = function(ctx, scope) {
+Eden.AST.LValue.prototype.generateCompList = function(ctx, scope) {
 	var res = "[";
 	for (var i=0; i<this.lvaluep.length; i++) {
 		res += this.lvaluep[i].indexexp.generate(ctx,scope);
@@ -451,11 +451,11 @@ EdenAST_LValue.prototype.generateCompList = function(ctx, scope) {
 	return res;
 }
 
-EdenAST_LValue.prototype.generateIdStr = function() {
+Eden.AST.LValue.prototype.generateIdStr = function() {
 	return "\""+this.generateCompList()+"\"";
 }
 
-EdenAST_LValue.prototype.executeCompList = function(ctx) {
+Eden.AST.LValue.prototype.executeCompList = function(ctx) {
 	var res = [];
 	for (var i=0; i<this.lvaluep.length; i++) {
 		if (this.lvaluep[i].kind == "index") {
@@ -465,7 +465,7 @@ EdenAST_LValue.prototype.executeCompList = function(ctx) {
 	return res;
 }
 
-EdenAST_LValue.prototype.generate = function(ctx) {
+Eden.AST.LValue.prototype.generate = function(ctx) {
 	if (ctx && ctx.locals && ctx.locals.list.indexOf(this.observable) != -1) {
 		this.islocal = true;
 		var res = this.observable;
@@ -491,7 +491,7 @@ EdenAST_LValue.prototype.generate = function(ctx) {
 	return "context.lookup(\"" + this.observable + "\")";
 }
 
-function EdenAST_LValueComponent(kind) {
+Eden.AST.LValueComponent = function(kind) {
 	this.type = "lvaluecomponent";
 	this.errors = [];
 	this.kind = kind;
@@ -499,17 +499,17 @@ function EdenAST_LValueComponent(kind) {
 	this.observable = undefined;
 };
 
-EdenAST_LValueComponent.prototype.index = function(pindex) {
+Eden.AST.LValueComponent.prototype.index = function(pindex) {
 	this.indexexp = pindex;
 	this.errors.push.apply(this.errors, pindex.errors);
 };
 
-EdenAST_LValueComponent.prototype.property = function(pprop) {
+Eden.AST.LValueComponent.prototype.property = function(pprop) {
 	this.observable = pprop;
 	//this.errors.push.apply(this.errors, pprop.errors);
 }
 
-EdenAST_LValueComponent.prototype.generate = function(ctx) {
+Eden.AST.LValueComponent.prototype.generate = function(ctx) {
 	if (this.kind == "index") {
 		return "[("+this.indexexp.generate(ctx)+")-1]";
 	//} else if (this.kind == "property") {
@@ -517,13 +517,13 @@ EdenAST_LValueComponent.prototype.generate = function(ctx) {
 	}
 }
 
-EdenAST_LValueComponent.prototype.error = fnEdenAST_error;
+Eden.AST.LValueComponent.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_After() {
+Eden.AST.After = function () {
 	this.type = "after";
 	this.errors = [];
 	this.expression = undefined;
@@ -533,21 +533,21 @@ function EdenAST_After() {
 	this.executed = 0;
 }
 
-EdenAST_After.prototype.setExpression = function(express) {
+Eden.AST.After.prototype.setExpression = function(express) {
 	this.expression = express;
 	if (express.errors.length > 0) {
 		this.errors.push.apply(this.errors,express.errors);
 	}
 }
 
-EdenAST_After.prototype.setStatement = function(state) {
+Eden.AST.After.prototype.setStatement = function(state) {
 	this.statement = state;
 	if (state.errors.length > 0) {
 		this.errors.push.apply(this.errors,state.errors);
 	}
 }
 
-EdenAST_After.prototype.generate = function(ctx, scope) {
+Eden.AST.After.prototype.generate = function(ctx, scope) {
 	if (scope === undefined) scope = "eden.root.scope";
 	var statement = "(function() {" + this.statement.generate(ctx, scope)+"})";
 	var express = this.expression.generate(ctx,scope);
@@ -557,23 +557,23 @@ EdenAST_After.prototype.generate = function(ctx, scope) {
 	return "setTimeout("+statement+", "+express+");\n";
 }
 
-EdenAST_After.prototype.execute = function(root, ctx, base) {
+Eden.AST.After.prototype.execute = function(root, ctx, base) {
 	var statement = "(function() { var scope = eden.root.scope;\n" + this.statement.generate(ctx, "root.scope")+"})";
 	setTimeout(eval(statement),this.expression.execute(root,ctx,base));
 }
 
-EdenAST_After.prototype.setSource = function(start, end) {
+Eden.AST.After.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_After.prototype.error = fnEdenAST_error;
+Eden.AST.After.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Require() {
+Eden.AST.Require = function() {
 	this.type = "require";
 	this.errors = [];
 	this.expression = undefined;
@@ -582,34 +582,34 @@ function EdenAST_Require() {
 	this.executed = 0;
 }
 
-EdenAST_Require.prototype.setExpression = function(express) {
+Eden.AST.Require.prototype.setExpression = function(express) {
 	this.expression = express;
 	if (express.errors.length > 0) {
 		this.errors.push.apply(this.errors,express.errors);
 	}
 }
 
-EdenAST_Require.prototype.generate = function(ctx) {
+Eden.AST.Require.prototype.generate = function(ctx) {
 	return "edenUI.loadPlugin("+this.expression.generate(ctx, "scope")+");";
 }
 
-EdenAST_Require.prototype.execute = function(root, ctx, base) {
+Eden.AST.Require.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	edenUI.loadPlugin(this.expression.execute(root, ctx));
 }
 
-EdenAST_Require.prototype.setSource = function(start, end) {
+Eden.AST.Require.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Require.prototype.error = fnEdenAST_error;
+Eden.AST.Require.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Include() {
+Eden.AST.Include = function() {
 	this.type = "include";
 	this.errors = [];
 	this.expression = undefined;
@@ -618,33 +618,33 @@ function EdenAST_Include() {
 	this.executed = 0;
 }
 
-EdenAST_Include.prototype.prepend = function(express) {
+Eden.AST.Include.prototype.prepend = function(express) {
 	this.expression = express;
 	if (express.errors.length > 0) {
 		this.errors.push.apply(this.errors,express.errors);
 	}
 }
 
-EdenAST_Include.prototype.generate = function(ctx) {
+Eden.AST.Include.prototype.generate = function(ctx) {
 	return "eden.include2("+this.expression.generate(ctx, "scope")+");";
 }
 
-EdenAST_Include.prototype.execute = function(root, ctx, base) {
+Eden.AST.Include.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	root.base.include2(this.expression.execute(root, ctx));
 }
 
-EdenAST_Include.prototype.setSource = function(start, end) {
+Eden.AST.Include.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Include.prototype.error = fnEdenAST_error;
+Eden.AST.Include.prototype.error = fnEdenASTerror;
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Append() {
+Eden.AST.Append = function() {
 	this.type = "append";
 	this.destination = undefined;
 	this.index = undefined;
@@ -653,21 +653,21 @@ function EdenAST_Append() {
 	this.end = 0;
 }
 
-EdenAST_Append.prototype.setDest = function(dest) {
+Eden.AST.Append.prototype.setDest = function(dest) {
 	this.destination = dest;
 	if (dest.errors.length > 0) {
 		this.errors.push.apply(this.errors, dest.errors);
 	}
 }
 
-EdenAST_Append.prototype.setIndex = function(index) {
+Eden.AST.Append.prototype.setIndex = function(index) {
 	this.index = index;
 	if (index.errors.length > 0) {
 		this.errors.push.apply(this.errors, index.errors);
 	}
 }
 
-EdenAST_Append.prototype.generate = function(ctx) {
+Eden.AST.Append.prototype.generate = function(ctx) {
 	var express = this.index.generate(ctx, "scope");
 	if (this.index.doesReturnBound && this.index.doesReturnBound()) {
 		express += ".value";
@@ -676,17 +676,25 @@ EdenAST_Append.prototype.generate = function(ctx) {
 	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.push("+express+"); }, this);";
 }
 
-EdenAST_Append.prototype.setSource = function(start, end) {
+Eden.AST.Append.prototype.execute = function(root, ctx, base) {
+	this.executed = 1;
+	var val = this.index.execute(root,ctx,base);
+	root.lookup(this.destination.observable).mutate(root.scope, function(s) {
+		root.scope.lookup(s.name).value.push(val);
+	}, undefined);
+}
+
+Eden.AST.Append.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Append.prototype.error = fnEdenAST_error;
+Eden.AST.Append.prototype.error = fnEdenASTerror;
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Insert() {
+Eden.AST.Insert = function() {
 	this.type = "insert";
 	this.destination = undefined;
 	this.index = undefined;
@@ -697,28 +705,28 @@ function EdenAST_Insert() {
 	this.executed = 0;
 }
 
-EdenAST_Insert.prototype.setDest = function(dest) {
+Eden.AST.Insert.prototype.setDest = function(dest) {
 	this.destination = dest;
 	if (dest.errors.length > 0) {
 		this.errors.push.apply(this.errors, dest.errors);
 	}
 }
 
-EdenAST_Insert.prototype.setIndex = function(index) {
+Eden.AST.Insert.prototype.setIndex = function(index) {
 	this.index = index;
 	if (index.errors.length > 0) {
 		this.errors.push.apply(this.errors, index.errors);
 	}
 }
 
-EdenAST_Insert.prototype.setValue = function(value) {
+Eden.AST.Insert.prototype.setValue = function(value) {
 	this.value = value;
 	if (value.errors.length > 0) {
 		this.errors.push.apply(this.errors, value.errors);
 	}
 }
 
-EdenAST_Insert.prototype.generate = function(ctx) {
+Eden.AST.Insert.prototype.generate = function(ctx) {
 	var ix = this.index.generate(ctx, "scope");
 	if (this.index.doesReturnBound && this.index.doesReturnBound()) {
 		ix += ".value";
@@ -731,7 +739,7 @@ EdenAST_Insert.prototype.generate = function(ctx) {
 	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.splice(("+ix+")-1, 0, ("+val+")); }, this);";
 }
 
-EdenAST_Insert.prototype.execute = function(root, ctx, base) {
+Eden.AST.Insert.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var ix = this.index.execute(root,ctx,base);
 	var val = this.value.execute(root,ctx,base);
@@ -740,19 +748,19 @@ EdenAST_Insert.prototype.execute = function(root, ctx, base) {
 	}, undefined);
 }
 
-EdenAST_Insert.prototype.setSource = function(start, end) {
+Eden.AST.Insert.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Insert.prototype.error = fnEdenAST_error;
+Eden.AST.Insert.prototype.error = fnEdenASTerror;
 
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Delete() {
+Eden.AST.Delete = function() {
 	this.type = "delete";
 	this.destination = undefined;
 	this.index = undefined;
@@ -762,21 +770,21 @@ function EdenAST_Delete() {
 	this.executed = 0;
 }
 
-EdenAST_Delete.prototype.setDest = function(dest) {
+Eden.AST.Delete.prototype.setDest = function(dest) {
 	this.destination = dest;
 	if (dest.errors.length > 0) {
 		this.errors.push.apply(this.errors, dest.errors);
 	}
 }
 
-EdenAST_Delete.prototype.setIndex = function(index) {
+Eden.AST.Delete.prototype.setIndex = function(index) {
 	this.index = index;
 	if (index.errors.length > 0) {
 		this.errors.push.apply(this.errors, index.errors);
 	}
 }
 
-EdenAST_Delete.prototype.generate = function(ctx) {
+Eden.AST.Delete.prototype.generate = function(ctx) {
 	var ix = this.index.generate(ctx, "scope");
 	if (this.index.doesReturnBound && this.index.doesReturnBound()) {
 		ix += ".value";
@@ -785,7 +793,7 @@ EdenAST_Delete.prototype.generate = function(ctx) {
 	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.splice(("+ix+")-1, 1); }, this);";
 }
 
-EdenAST_Delete.prototype.execute = function(root, ctx, base) {
+Eden.AST.Delete.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var ix = this.index.execute(root,ctx,base);
 	root.lookup(this.destination.observable).mutate(root.scope, function(s) {
@@ -793,17 +801,17 @@ EdenAST_Delete.prototype.execute = function(root, ctx, base) {
 	}, undefined);
 }
 
-EdenAST_Delete.prototype.setSource = function(start, end) {
+Eden.AST.Delete.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Delete.prototype.error = fnEdenAST_error;
+Eden.AST.Delete.prototype.error = fnEdenASTerror;
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Definition(expression) {
+Eden.AST.Definition = function(expression) {
 	this.type = "definition";
 	this.parent = undefined;
 	this.errors = expression.errors;
@@ -817,26 +825,26 @@ function EdenAST_Definition(expression) {
 	this.executed = 0;
 };
 
-EdenAST_Definition.prototype.getParameterByNumber = function(index) {
+Eden.AST.Definition.prototype.getParameterByNumber = function(index) {
 	if (this.parent && this.parent.getParameterByNumber) {
 		return this.parent.getParameterByNumber(index);
 	}
 	return undefined;
 }
 
-EdenAST_Definition.prototype.left = function(lvalue) {
+Eden.AST.Definition.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
 	if (lvalue.errors.length > 0) {
 		this.errors.push.apply(this.errors, lvalue.errors);
 	}
 };
 
-EdenAST_Definition.prototype.setSource = function(start, end) {
+Eden.AST.Definition.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Definition.prototype.generateDef = function(ctx) {
+Eden.AST.Definition.prototype.generateDef = function(ctx) {
 	var result = "function(context, scope, cache) {\n";
 	var express = this.expression.generate(this, "scope");
 
@@ -870,7 +878,7 @@ EdenAST_Definition.prototype.generateDef = function(ctx) {
 	return result;
 }
 
-EdenAST_Definition.prototype.generate = function(ctx) {
+Eden.AST.Definition.prototype.generate = function(ctx) {
 	var result = this.lvalue.generate(ctx);
 
 	if (this.lvalue.islocal) {
@@ -905,7 +913,7 @@ EdenAST_Definition.prototype.generate = function(ctx) {
 	}
 };
 
-EdenAST_Definition.prototype.execute = function(root, ctx, base) {
+Eden.AST.Definition.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	//console.log("RHS = " + rhs);
 	var source = base.getSource(this);
@@ -933,13 +941,13 @@ EdenAST_Definition.prototype.execute = function(root, ctx, base) {
 		
 }
 
-EdenAST_Definition.prototype.error = fnEdenAST_error;
+Eden.AST.Definition.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Assignment(expression) {
+Eden.AST.Assignment = function(expression) {
 	this.type = "assignment";
 	this.parent = undefined;
 	this.errors = (expression) ? expression.errors : [];
@@ -955,7 +963,7 @@ function EdenAST_Assignment(expression) {
 	this.value = undefined;
 };
 
-EdenAST_Assignment.prototype.getParameterByNumber = function(index) {
+Eden.AST.Assignment.prototype.getParameterByNumber = function(index) {
 	if (this.parent && this.parent.getParameterByNumber) {
 		var p = this.parent.getParameterByNumber(index);
 		console.log("Param "+index+" = " + p);
@@ -964,19 +972,19 @@ EdenAST_Assignment.prototype.getParameterByNumber = function(index) {
 	return undefined;
 }
 
-EdenAST_Assignment.prototype.setSource = function(start, end) {
+Eden.AST.Assignment.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Assignment.prototype.left = function(lvalue) {
+Eden.AST.Assignment.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
 	if (lvalue.errors.length > 0) {
 		this.errors.push.apply(this.errors, lvalue.errors);
 	}
 };
 
-EdenAST_Assignment.prototype.generate = function(ctx) {
+Eden.AST.Assignment.prototype.generate = function(ctx) {
 	var result = this.lvalue.generate(ctx);
 
 	if (this.lvalue.islocal) {
@@ -1014,7 +1022,7 @@ EdenAST_Assignment.prototype.generate = function(ctx) {
  * Compile the right-hand-side into a javascript function. If already compiled
  * it does nothing.
  */
-EdenAST_Assignment.prototype.compile = function(ctx) {
+Eden.AST.Assignment.prototype.compile = function(ctx) {
 	if (this.compiled && !this.dirty) return;
 	this.dirty = false;
 
@@ -1041,7 +1049,7 @@ EdenAST_Assignment.prototype.compile = function(ctx) {
 	this.compiled = eval(rhs);
 }
 
-EdenAST_Assignment.prototype.execute = function(root, ctx, base) {
+Eden.AST.Assignment.prototype.execute = function(root, ctx, base) {
 	if (this.expression === undefined) return;
 	this.executed = 1;
 	this.compile(ctx);
@@ -1059,13 +1067,13 @@ EdenAST_Assignment.prototype.execute = function(root, ctx, base) {
 	}
 };
 
-EdenAST_Assignment.prototype.error = fnEdenAST_error;
+Eden.AST.Assignment.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Modify(kind, expression) {
+Eden.AST.Modify = function(kind, expression) {
 	this.type = "modify";
 	this.parent = undefined;
 	this.errors = (expression) ? expression.errors : [];
@@ -1077,26 +1085,26 @@ function EdenAST_Modify(kind, expression) {
 	this.executed = 0;
 };
 
-EdenAST_Modify.prototype.getParameterByNumber = function(index) {
+Eden.AST.Modify.prototype.getParameterByNumber = function(index) {
 	if (this.parent && this.parent.getParameterByNumber) {
 		return this.parent.getParameterByNumber(index);
 	}
 	return undefined;
 }
 
-EdenAST_Modify.prototype.setSource = function(start, end) {
+Eden.AST.Modify.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Modify.prototype.left = function(lvalue) {
+Eden.AST.Modify.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
 	if (lvalue.errors.length > 0) {
 		this.errors.push.apply(this.errors, lvalue.errors);
 	}
 };
 
-EdenAST_Modify.prototype.generate = function(ctx) {
+Eden.AST.Modify.prototype.generate = function(ctx) {
 	var lval = this.lvalue.generate(ctx);
 	var result = lval;
 
@@ -1138,7 +1146,7 @@ EdenAST_Modify.prototype.generate = function(ctx) {
 	return result;
 };
 
-EdenAST_Modify.prototype.execute = function(root, ctx) {
+Eden.AST.Modify.prototype.execute = function(root, ctx) {
 	this.executed = 1;
 	// TODO: allow this to work on list indices
 	var sym = root.lookup(this.lvalue.observable);
@@ -1164,37 +1172,37 @@ EdenAST_Modify.prototype.execute = function(root, ctx) {
 	}
 }
 
-EdenAST_Modify.prototype.error = fnEdenAST_error;
+Eden.AST.Modify.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Subscribers() {
+Eden.AST.Subscribers = function() {
 	this.type = "subscribers";
 	this.errors = [];
 	this.list = [];
 	this.lvalue = undefined;
 };
 
-EdenAST_Subscribers.prototype.left = function(lvalue) {
+Eden.AST.Subscribers.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
 	if (lvalue.errors.length > 0) {
 		this.errors.push.apply(this.errors, lvalue.errors);
 	}
 };
 
-EdenAST_Subscribers.prototype.setList = function(list) {
+Eden.AST.Subscribers.prototype.setList = function(list) {
 	this.list = list;
 }
 
-EdenAST_Subscribers.prototype.error = fnEdenAST_error;
+Eden.AST.Subscribers.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Primary() {
+Eden.AST.Primary = function() {
 	this.type = "primary";
 	this.errors = [];
 	this.observable = "";
@@ -1203,24 +1211,24 @@ function EdenAST_Primary() {
 	this.returnsbound = true;
 };
 
-EdenAST_Primary.prototype.setBackticks = function(backtick) {
+Eden.AST.Primary.prototype.setBackticks = function(backtick) {
 	this.backtick = backtick;
 	this.errors.push.apply(this.errors, backtick.errors);
 };
 
-EdenAST_Primary.prototype.setObservable = function(obs) {
+Eden.AST.Primary.prototype.setObservable = function(obs) {
 	this.observable = obs;
 }
 
-EdenAST_Primary.prototype.getObservable = function() {
+Eden.AST.Primary.prototype.getObservable = function() {
 	return this.observable;
 }
 
-EdenAST_Primary.prototype.doesReturnBound = function() {
+Eden.AST.Primary.prototype.doesReturnBound = function() {
 	return this.returnsbound;
 }
 
-EdenAST_Primary.prototype.prepend = function(extra) {
+Eden.AST.Primary.prototype.prepend = function(extra) {
 	this.extras.unshift(extra);
 	if (extra.type == "functioncall") {
 		this.returnsbound = false;
@@ -1230,7 +1238,7 @@ EdenAST_Primary.prototype.prepend = function(extra) {
 	}
 };
 
-EdenAST_Primary.prototype.generate = function(ctx, scope) {
+Eden.AST.Primary.prototype.generate = function(ctx, scope) {
 	// Check if this primary is a local variable.
 	if (ctx && ctx.locals && ctx.locals.list.indexOf(this.observable) != -1) {
 		this.returnsbound = false;
@@ -1292,20 +1300,20 @@ EdenAST_Primary.prototype.generate = function(ctx, scope) {
 	return res;
 }
 
-EdenAST_Primary.prototype.execute = function(root, ctx) {
+Eden.AST.Primary.prototype.execute = function(root, ctx) {
 	var rhs = "(function(context,scope) { return ";
 	rhs += this.generate(ctx, "scope");
 	rhs += ";})";
 	return eval(rhs)(root,root.scope);
 }
 
-EdenAST_Primary.prototype.error = fnEdenAST_error;
+Eden.AST.Primary.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_If() {
+Eden.AST.If = function() {
 	this.type = "if";
 	this.parent = undefined;
 	this.errors = [];
@@ -1317,31 +1325,31 @@ function EdenAST_If() {
 	this.executed = 0;
 };
 
-EdenAST_If.prototype.setSource = function(start, end) {
+Eden.AST.If.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_If.prototype.setCondition = function(condition) {
+Eden.AST.If.prototype.setCondition = function(condition) {
 	this.condition = condition;
 	this.errors.push.apply(this.errors, condition.errors);
 };
 
-EdenAST_If.prototype.setStatement = function(statement) {
+Eden.AST.If.prototype.setStatement = function(statement) {
 	this.statement = statement;
 	if (statement) {
 		this.errors.push.apply(this.errors, statement.errors);
 	}
 };
 
-EdenAST_If.prototype.setElse = function(statement) {
+Eden.AST.If.prototype.setElse = function(statement) {
 	this.elsestatement = statement;
 	if (statement) {
 		this.errors.push.apply(this.errors, statement.errors);
 	}
 };
 
-EdenAST_If.prototype.generate = function(ctx) {
+Eden.AST.If.prototype.generate = function(ctx) {
 	var res = "if (";
 	res += this.condition.generate(ctx, "scope");
 	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
@@ -1355,7 +1363,7 @@ EdenAST_If.prototype.generate = function(ctx) {
 	return res;
 }
 
-EdenAST_If.prototype.execute = function(root, ctx, base) {
+Eden.AST.If.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var cond = "(function(context,scope) { return ";
 	cond += this.condition.generate(ctx, "scope");
@@ -1373,13 +1381,13 @@ EdenAST_If.prototype.execute = function(root, ctx, base) {
 	}
 }
 
-EdenAST_If.prototype.error = fnEdenAST_error;
+Eden.AST.If.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Switch() {
+Eden.AST.Switch = function() {
 	this.type = "switch";
 	this.parent = undefined;
 	this.errors = [];
@@ -1389,22 +1397,22 @@ function EdenAST_Switch() {
 	this.end = 0;
 };
 
-EdenAST_Switch.prototype.setSource = function(start, end) {
+Eden.AST.Switch.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Switch.prototype.setExpression = function(expression) {
+Eden.AST.Switch.prototype.setExpression = function(expression) {
 	this.expression = expression;
 	this.errors.push.apply(this.errors, expression.errors);
 };
 
-EdenAST_Switch.prototype.setStatement = function(statement) {
+Eden.AST.Switch.prototype.setStatement = function(statement) {
 	this.statement = statement;
 	this.errors.push.apply(this.errors, statement.errors);
 };
 
-EdenAST_Switch.prototype.generate = function(ctx, scope) {
+Eden.AST.Switch.prototype.generate = function(ctx, scope) {
 	if (scope === undefined) scope = "eden.root.scope";
 	var res = "switch(";
 	res += this.expression.generate(ctx,scope);
@@ -1415,13 +1423,13 @@ EdenAST_Switch.prototype.generate = function(ctx, scope) {
 	return res;
 };
 
-EdenAST_Switch.prototype.error = fnEdenAST_error;
+Eden.AST.Switch.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_FunctionCall() {
+Eden.AST.FunctionCall = function() {
 	this.type = "functioncall";
 	this.parent = undefined;
 	this.errors = [];
@@ -1432,26 +1440,26 @@ function EdenAST_FunctionCall() {
 	this.executed = 0;
 };
 
-EdenAST_FunctionCall.prototype.setSource = function(start, end) {
+Eden.AST.FunctionCall.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_FunctionCall.prototype.setParams = function(params) {
+Eden.AST.FunctionCall.prototype.setParams = function(params) {
 	this.params = params;
 	for (var i = 0; i < params.length; i++) {
 		this.errors.push.apply(this.errors, params[i].errors);
 	}
 };
 
-EdenAST_FunctionCall.prototype.left = function(lvalue) {
+Eden.AST.FunctionCall.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
 	if (lvalue.errors.length > 0) {
 		this.errors.push.apply(this.errors, lvalue.errors);
 	}
 };
 
-EdenAST_FunctionCall.prototype.generate = function(ctx, scope) {
+Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
 	if (this.lvalue === undefined) {
 		var res = "(";
 		if (this.params) {
@@ -1481,7 +1489,7 @@ EdenAST_FunctionCall.prototype.generate = function(ctx, scope) {
 	}
 }
 
-EdenAST_FunctionCall.prototype.execute = function(root, ctx, base) {
+Eden.AST.FunctionCall.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var func = "(function(context,scope) { return " + this.generate(ctx, "scope") + "; })";
 	try {
@@ -1491,13 +1499,13 @@ EdenAST_FunctionCall.prototype.execute = function(root, ctx, base) {
 	}
 }
 
-EdenAST_FunctionCall.prototype.error = fnEdenAST_error;
+Eden.AST.FunctionCall.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Action() {
+Eden.AST.Action = function() {
 	this.type = "action";
 	this.parent = undefined;
 	this.kindofaction = "touch";
@@ -1510,21 +1518,21 @@ function EdenAST_Action() {
 	this.executed = 0;
 };
 
-EdenAST_Action.prototype.setSource = function(start, end) {
+Eden.AST.Action.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Action.prototype.kind = function(k) {
+Eden.AST.Action.prototype.kind = function(k) {
 	this.kindofaction = k;
 };
 
-EdenAST_Action.prototype.setBody = function(body) {
+Eden.AST.Action.prototype.setBody = function(body) {
 	this.body = body;
 	this.errors.push.apply(this.errors, body.errors);
 }
 
-EdenAST_Action.prototype.generate = function(ctx) {
+Eden.AST.Action.prototype.generate = function(ctx) {
 	var body = this.body.generate(ctx);
 	var res = "context.lookup(\""+this.name+"\").define("+body+", {name: \"execute\"})";
 	if (this.triggers.length > 0) {
@@ -1533,7 +1541,7 @@ EdenAST_Action.prototype.generate = function(ctx) {
 	return res;
 }
 
-EdenAST_Action.prototype.execute = function(root, ctx, base) {
+Eden.AST.Action.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var body = this.body.generate(ctx);
 	var sym = root.lookup(this.name);
@@ -1545,13 +1553,13 @@ EdenAST_Action.prototype.execute = function(root, ctx, base) {
 	}
 }
 
-EdenAST_Action.prototype.error = fnEdenAST_error;
+Eden.AST.Action.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Function() {
+Eden.AST.Function = function() {
 	this.type = "function";
 	this.parent = undefined;
 	this.errors = [];
@@ -1562,23 +1570,23 @@ function EdenAST_Function() {
 	this.executed = 0;
 };
 
-EdenAST_Function.prototype.setSource = function(start, end) {
+Eden.AST.Function.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Function.prototype.setBody = function(body) {
+Eden.AST.Function.prototype.setBody = function(body) {
 	this.body = body;
 	this.errors.push.apply(this.errors, body.errors);
 }
 
-EdenAST_Function.prototype.generate = function(ctx) {
+Eden.AST.Function.prototype.generate = function(ctx) {
 	var body = this.body.generate(ctx);
 	var res = "context.lookup(\""+this.name+"\").define("+body+", {name: \"execute\"}, []);\n";
 	return res;
 }
 
-EdenAST_Function.prototype.execute = function(root,ctx,base) {
+Eden.AST.Function.prototype.execute = function(root,ctx,base) {
 	this.executed = 1;
 	var body = this.body.generate(ctx);
 	var sym = root.lookup(this.name);
@@ -1586,13 +1594,13 @@ EdenAST_Function.prototype.execute = function(root,ctx,base) {
 	sym.define(eval(body), {name: "execute"},[]);
 }
 
-EdenAST_Function.prototype.error = fnEdenAST_error;
+Eden.AST.Function.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Return() {
+Eden.AST.Return = function() {
 	this.type = "return";
 	this.parent = undefined;
 	this.errors = [];
@@ -1601,19 +1609,19 @@ function EdenAST_Return() {
 	this.end = 0;
 };
 
-EdenAST_Return.prototype.setSource = function(start, end) {
+Eden.AST.Return.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Return.prototype.error = fnEdenAST_error;
+Eden.AST.Return.prototype.error = fnEdenASTerror;
 
-EdenAST_Return.prototype.setResult = function(result) {
+Eden.AST.Return.prototype.setResult = function(result) {
 	this.result = result;
 	this.errors.push.apply(this.errors, result.errors);
 }
 
-EdenAST_Return.prototype.generate = function(ctx) {
+Eden.AST.Return.prototype.generate = function(ctx) {
 	if (this.result) {
 		var res = this.result.generate(ctx, "scope");
 		if (this.result.doesReturnBound && this.result.doesReturnBound()) {
@@ -1629,7 +1637,7 @@ EdenAST_Return.prototype.generate = function(ctx) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_While() {
+Eden.AST.While = function() {
 	this.type = "while";
 	this.parent = undefined;
 	this.errors = [];
@@ -1639,26 +1647,26 @@ function EdenAST_While() {
 	this.end = 0;
 };
 
-EdenAST_While.prototype.error = fnEdenAST_error;
+Eden.AST.While.prototype.error = fnEdenASTerror;
 
-EdenAST_While.prototype.setSource = function(start, end) {
+Eden.AST.While.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_While.prototype.setCondition = function(condition) {
+Eden.AST.While.prototype.setCondition = function(condition) {
 	this.condition = condition;
 	this.errors.push.apply(this.errors, condition.errors);
 }
 
-EdenAST_While.prototype.setStatement = function(statement) {
+Eden.AST.While.prototype.setStatement = function(statement) {
 	this.statement = statement;
 	if (statement) {
 		this.errors.push.apply(this.errors, statement.errors);
 	}
 }
 
-EdenAST_While.prototype.generate = function(ctx) {
+Eden.AST.While.prototype.generate = function(ctx) {
 	var res = "while (" + this.condition.generate(ctx,"scope");
 	if (this.condition.doesReturnBound && this.doesReturnBound()) {
 		res += ".value";
@@ -1672,7 +1680,7 @@ EdenAST_While.prototype.generate = function(ctx) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Do() {
+Eden.AST.Do = function() {
 	this.type = "do";
 	this.parent = undefined;
 	this.errors = [];
@@ -1685,30 +1693,30 @@ function EdenAST_Do() {
 	this.parameters = [];
 };
 
-EdenAST_Do.prototype.error = fnEdenAST_error;
+Eden.AST.Do.prototype.error = fnEdenASTerror;
 
-EdenAST_Do.prototype.setSource = function(start, end) {
+Eden.AST.Do.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Do.prototype.addParameter = function(express) {
+Eden.AST.Do.prototype.addParameter = function(express) {
 	this.parameters.push(express);
 	if (express && express.errors.length > 0) {
 		this.errors.push.apply(this.errors, express.errors);
 	}
 }
 
-EdenAST_Do.prototype.setName = function(name) {
+Eden.AST.Do.prototype.setName = function(name) {
 	this.name = name;
 }
 
-/*EdenAST_Do.prototype.setCondition = function(condition) {
+/*Eden.AST.Do.prototype.setCondition = function(condition) {
 	this.condition = condition;
 	this.errors.push.apply(this.errors, condition.errors);
 }
 
-EdenAST_Do.prototype.setStatement = function(statement) {
+Eden.AST.Do.prototype.setStatement = function(statement) {
 	this.statement = statement;
 	if (statement) {
 		this.errors.push.apply(this.errors, statement.errors);
@@ -1717,7 +1725,7 @@ EdenAST_Do.prototype.setStatement = function(statement) {
 
 
 
-EdenAST_Do.prototype.generate = function(ctx) {
+Eden.AST.Do.prototype.generate = function(ctx) {
 	/*var res = "do\n";
 	res += this.statement.generate(ctx) + "\n";
 	res += "while (" + this.condition.generate(ctx,"scope");
@@ -1730,7 +1738,7 @@ EdenAST_Do.prototype.generate = function(ctx) {
 }
 
 
-EdenAST_Do.prototype.execute = function(root,ctx,base) {
+Eden.AST.Do.prototype.execute = function(root,ctx,base) {
 	this.executed = 1;
 	/*var express = this.condition.generate(ctx, "scope");
 	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
@@ -1758,7 +1766,7 @@ EdenAST_Do.prototype.execute = function(root,ctx,base) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_For() {
+Eden.AST.For = function() {
 	this.type = "for";
 	this.parent = undefined;
 	this.errors = [];
@@ -1771,42 +1779,42 @@ function EdenAST_For() {
 	this.executed = 0;
 };
 
-EdenAST_For.prototype.error = fnEdenAST_error;
+Eden.AST.For.prototype.error = fnEdenASTerror;
 
-EdenAST_For.prototype.setSource = function(start, end) {
+Eden.AST.For.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_For.prototype.setStart = function(start) {
+Eden.AST.For.prototype.setStart = function(start) {
 	this.sstart = start;
 	if (start) {
 		this.errors.push.apply(this.errors, start.errors);
 	}
 }
 
-EdenAST_For.prototype.setCondition = function(condition) {
+Eden.AST.For.prototype.setCondition = function(condition) {
 	this.condition = condition;
 	if (condition) {
 		this.errors.push.apply(this.errors, condition.errors);
 	}
 }
 
-EdenAST_For.prototype.setIncrement = function(inc) {
+Eden.AST.For.prototype.setIncrement = function(inc) {
 	this.inc = inc;
 	if (inc) {
 		this.errors.push.apply(this.errors, inc.errors);
 	}
 }
 
-EdenAST_For.prototype.setStatement = function(statement) {
+Eden.AST.For.prototype.setStatement = function(statement) {
 	this.statement = statement;
 	if (statement) {
 		this.errors.push.apply(this.errors, statement.errors);
 	}
 }
 
-EdenAST_For.prototype.generate = function(ctx) {
+Eden.AST.For.prototype.generate = function(ctx) {
 	var res = "for (";
 	if (this.sstart) {
 		res += this.sstart.generate(ctx) + " ";
@@ -1821,7 +1829,7 @@ EdenAST_For.prototype.generate = function(ctx) {
 	return res;
 }
 
-EdenAST_For.prototype.execute = function(root, ctx, base) {
+Eden.AST.For.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	if (this.sstart) {
 		this.sstart.execute(root,ctx,base);
@@ -1842,7 +1850,7 @@ EdenAST_For.prototype.execute = function(root, ctx, base) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Default() {
+Eden.AST.Default = function() {
 	this.type = "default";
 	this.parent = undefined;
 	this.errors = [];
@@ -1850,14 +1858,14 @@ function EdenAST_Default() {
 	this.end = 0;
 };
 
-EdenAST_Default.prototype.error = fnEdenAST_error;
+Eden.AST.Default.prototype.error = fnEdenASTerror;
 
-EdenAST_Default.prototype.setSource = function(start, end) {
+Eden.AST.Default.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Default.prototype.generate = function(ctx, scope) {
+Eden.AST.Default.prototype.generate = function(ctx, scope) {
 	return "default: ";
 }
 
@@ -1865,7 +1873,7 @@ EdenAST_Default.prototype.generate = function(ctx, scope) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Case() {
+Eden.AST.Case = function() {
 	this.type = "case";
 	this.parent = undefined;
 	this.datatype = "";
@@ -1875,27 +1883,27 @@ function EdenAST_Case() {
 	this.end = 0;
 };
 
-EdenAST_Case.prototype.setLiteral = function(datatype, literal) {
+Eden.AST.Case.prototype.setLiteral = function(datatype, literal) {
 	this.datatype = datatype;
 	this.literal = literal;
 }
 
-EdenAST_Case.prototype.setSource = function(start, end) {
+Eden.AST.Case.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Case.prototype.generate = function(ctx, scope) {
+Eden.AST.Case.prototype.generate = function(ctx, scope) {
 	return "case " + this.literal + ": ";
 }
 
-EdenAST_Case.prototype.error = fnEdenAST_error;
+Eden.AST.Case.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Continue() {
+Eden.AST.Continue = function() {
 	this.type = "continue";
 	this.parent = undefined;
 	this.errors = [];
@@ -1903,14 +1911,14 @@ function EdenAST_Continue() {
 	this.end = 0;
 };
 
-EdenAST_Continue.prototype.error = fnEdenAST_error;
+Eden.AST.Continue.prototype.error = fnEdenASTerror;
 
-EdenAST_Continue.prototype.setSource = function(start, end) {
+Eden.AST.Continue.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Continue.prototype.generate = function(ctx, scope) {
+Eden.AST.Continue.prototype.generate = function(ctx, scope) {
 	return "continue; ";
 }
 
@@ -1918,7 +1926,7 @@ EdenAST_Continue.prototype.generate = function(ctx, scope) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Break() {
+Eden.AST.Break = function() {
 	this.type = "break";
 	this.parent = undefined;
 	this.errors = [];
@@ -1926,14 +1934,14 @@ function EdenAST_Break() {
 	this.end = 0;
 };
 
-EdenAST_Break.prototype.error = fnEdenAST_error;
+Eden.AST.Break.prototype.error = fnEdenASTerror;
 
-EdenAST_Break.prototype.setSource = function(start, end) {
+Eden.AST.Break.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Break.prototype.generate = function(ctx, scope) {
+Eden.AST.Break.prototype.generate = function(ctx, scope) {
 	return "break; ";
 }
 
@@ -1941,7 +1949,7 @@ EdenAST_Break.prototype.generate = function(ctx, scope) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Wait() {
+Eden.AST.Wait = function() {
 	this.type = "wait";
 	this.parent = undefined;
 	this.errors = [];
@@ -1952,21 +1960,21 @@ function EdenAST_Wait() {
 	this.compiled_delay = undefined;
 };
 
-EdenAST_Wait.prototype.error = fnEdenAST_error;
+Eden.AST.Wait.prototype.error = fnEdenASTerror;
 
-EdenAST_Wait.prototype.setSource = function(start, end) {
+Eden.AST.Wait.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Wait.prototype.setDelay = function(delay) {
+Eden.AST.Wait.prototype.setDelay = function(delay) {
 	this.delay = delay;
 	if (delay && delay.errors.length > 0) {
 		this.errors.push.apply(this.errors, delay.errors);
 	}
 }
 
-EdenAST_Wait.prototype.compile = function(ctx) {
+Eden.AST.Wait.prototype.compile = function(ctx) {
 	if (this.delay === undefined) return;
 	if (this.compiled_delay) return;
 	var source = "(function(context,scope) { return ";
@@ -1978,7 +1986,7 @@ EdenAST_Wait.prototype.compile = function(ctx) {
 	this.compiled_delay = eval(source);
 }
 
-EdenAST_Wait.prototype.generate = function(ctx, scope) {
+Eden.AST.Wait.prototype.generate = function(ctx, scope) {
 	return "yield "+this.delay+";";
 }
 
@@ -1986,7 +1994,7 @@ EdenAST_Wait.prototype.generate = function(ctx, scope) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_CodeBlock() {
+Eden.AST.CodeBlock = function() {
 	this.type = "codeblock";
 	this.errors = [];
 	this.params = undefined;
@@ -1994,24 +2002,24 @@ function EdenAST_CodeBlock() {
 	this.script = undefined;
 };
 
-EdenAST_CodeBlock.prototype.error = fnEdenAST_error;
+Eden.AST.CodeBlock.prototype.error = fnEdenASTerror;
 
-EdenAST_CodeBlock.prototype.setLocals = function(locals) {
+Eden.AST.CodeBlock.prototype.setLocals = function(locals) {
 	this.locals = locals;
 	this.errors.push.apply(this.errors, locals.errors);
 }
 
-EdenAST_CodeBlock.prototype.setParams = function(params) {
+Eden.AST.CodeBlock.prototype.setParams = function(params) {
 	this.params = params;
 	this.errors.push.apply(this.errors, params.errors);
 }
 
-EdenAST_CodeBlock.prototype.setScript = function(script) {
+Eden.AST.CodeBlock.prototype.setScript = function(script) {
 	this.script = script;
 	this.errors.push.apply(this.errors, script.errors);
 }
 
-EdenAST_CodeBlock.prototype.generate = function(ctx) {
+Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 	var res = "(function(context, scope) {\n";
 	//res += "var lscope = new Scope(context,pscope,[";
 	if (this.locals && this.locals.list) {
@@ -2040,7 +2048,7 @@ EdenAST_CodeBlock.prototype.generate = function(ctx) {
 
 //------------------------------------------------------------------------------
 
-function EdenAST_When() {
+Eden.AST.When = function() {
 	this.type = "when";
 	this.errors = [];
 	this.expression = undefined;
@@ -2053,30 +2061,30 @@ function EdenAST_When() {
 	this.active = false;
 };
 
-EdenAST_When.prototype.setExpression = function (express) {
+Eden.AST.When.prototype.setExpression = function (express) {
 	this.expression = express;
 	if (express) {
 		this.errors.push.apply(this.errors, express.errors);
 	}
 }
 
-EdenAST_When.prototype.setStatement = function (statement) {
+Eden.AST.When.prototype.setStatement = function (statement) {
 	this.statement = statement;
 	if (statement) {
 		this.errors.push.apply(this.errors, statement.errors);
 	}
 }
 
-EdenAST_When.prototype.setSource = function(start, end) {
+Eden.AST.When.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_When.prototype.generate = function() {
+Eden.AST.When.prototype.generate = function() {
 	return "";
 }
 
-EdenAST_When.prototype.compile = function(base) {
+Eden.AST.When.prototype.compile = function(base) {
 	var cond = "(function(context,scope) { return ";
 	cond += this.expression.generate(this, "scope");
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
@@ -2100,7 +2108,7 @@ EdenAST_When.prototype.compile = function(base) {
 	return "";
 }
 
-EdenAST_When.prototype.execute = function(root, ctx, base) {
+Eden.AST.When.prototype.execute = function(root, ctx, base) {
 	if (this.active) return;
 	this.active = true;
 	this.executed = 1;
@@ -2114,42 +2122,42 @@ EdenAST_When.prototype.execute = function(root, ctx, base) {
 	this.active = false;
 }
 
-EdenAST_When.prototype.error = fnEdenAST_error;
+Eden.AST.When.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_LList() {
+Eden.AST.LList = function() {
 	this.type = "lvaluelist";
 	this.errors = [];
 	this.llist = [];
 };
 
-EdenAST_LList.prototype.append = function(lvalue) {
+Eden.AST.LList.prototype.append = function(lvalue) {
 	this.llist.push(lvalue);
 	this.errors.push.apply(this.errors, lvalue.errors);
 };
 
-EdenAST_LList.prototype.error = fnEdenAST_error;
+Eden.AST.LList.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Declarations() {
+Eden.AST.Declarations = function() {
 	this.type = "declarations";
 	this.errors = [];
 	this.list = [];
 };
 
-EdenAST_Declarations.prototype.error = fnEdenAST_error;
+Eden.AST.Declarations.prototype.error = fnEdenASTerror;
 
 
 
 //------------------------------------------------------------------------------
 
-function EdenAST_Script() {
+Eden.AST.Script = function() {
 	this.type = "script";
 	this.name = undefined;
 	this.parent = undefined;
@@ -2162,39 +2170,39 @@ function EdenAST_Script() {
 	this.parameters = undefined;
 };
 
-EdenAST_Script.prototype.getParameterByNumber = function(index) {
+Eden.AST.Script.prototype.getParameterByNumber = function(index) {
 	if (this.parameters) {
 		return this.parameters[index-1];
 	}
 	return undefined;
 }
 
-EdenAST_Script.prototype.error = fnEdenAST_error;
+Eden.AST.Script.prototype.error = fnEdenASTerror;
 
-EdenAST_Script.prototype.setName = function(name) {
+Eden.AST.Script.prototype.setName = function(name) {
 	this.name = name;
 }
 
-EdenAST_Script.prototype.setSource = function(start, end) {
+Eden.AST.Script.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
 }
 
-EdenAST_Script.prototype.append = function (ast) {
+Eden.AST.Script.prototype.append = function (ast) {
 	this.statements.push(ast);
 	if (ast.errors.length > 0) {
 		this.errors.push.apply(this.errors, ast.errors);
 	}
 }
 
-EdenAST_Script.prototype.executeReal = function(root, ctx, base, parameters) {
+Eden.AST.Script.prototype.executeReal = function(root, ctx, base, parameters) {
 	if (this.active) return;
 	this.active = true;
 	var gen = this.executeGenerator(root,ctx,base, parameters);
 	runEdenAction(this, gen);
 }
 
-EdenAST_Script.prototype.executeGenerator = function*(root, ctx, base, parameters) {
+Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, parameters) {
 	this.executed = 1;
 	for (var i = 0; i < this.statements.length; i++) {
 		if (this.statements[i].type == "wait") {
@@ -2233,7 +2241,7 @@ function runEdenAction(source, action) {
 	}
 }
 
-EdenAST_Script.prototype.execute = function(root, ctx, base) {
+Eden.AST.Script.prototype.execute = function(root, ctx, base) {
 	// Un named actions execute immediately.
 	if (this.name === undefined) {
 		this.executeReal(root,ctx,base);
@@ -2244,7 +2252,7 @@ EdenAST_Script.prototype.execute = function(root, ctx, base) {
 	}
 }
 
-EdenAST_Script.prototype.generate = function(ctx, scope) {
+Eden.AST.Script.prototype.generate = function(ctx, scope) {
 	var result = "{\n";
 	for (var i = 0; i < this.statements.length; i++) {
 		result = result + this.statements[i].generate(ctx, scope);
@@ -2254,43 +2262,3 @@ EdenAST_Script.prototype.generate = function(ctx, scope) {
 }
 
 
-
-// expose as node.js module
-if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
-	exports.EdenAST_Script = EdenAST_Script;
-	exports.EdenAST_Declarations = EdenAST_Declarations;
-	exports.EdenAST_CodeBlock = EdenAST_CodeBlock;
-	exports.EdenAST_Break = EdenAST_Break;
-	exports.EdenAST_Continue = EdenAST_Continue;
-	exports.EdenAST_Case = EdenAST_Case;
-	exports.EdenAST_Default = EdenAST_Default;
-	exports.EdenAST_For = EdenAST_For;
-	exports.EdenAST_While = EdenAST_While;
-	exports.EdenAST_Do = EdenAST_Do;
-	exports.EdenAST_Return = EdenAST_Return;
-	exports.EdenAST_Function = EdenAST_Function;
-	exports.EdenAST_Action = EdenAST_Action;
-	exports.EdenAST_FunctionCall = EdenAST_FunctionCall;
-	exports.EdenAST_Switch = EdenAST_Switch;
-	exports.EdenAST_If = EdenAST_If;
-	exports.EdenAST_Primary = EdenAST_Primary;
-	exports.EdenAST_Subscribers = EdenAST_Subscribers;
-	exports.EdenAST_Modify = EdenAST_Modify;
-	exports.EdenAST_Assignment = EdenAST_Assignment;
-	exports.EdenAST_Definition = EdenAST_Definition;
-	exports.EdenAST_Append = EdenAST_Append;
-	exports.EdenAST_Insert = EdenAST_Insert;
-	exports.EdenAST_Delete = EdenAST_Delete;
-	exports.EdenAST_Include = EdenAST_Include;
-	exports.EdenAST_Require = EdenAST_Require;
-	exports.EdenAST_LValueComponent = EdenAST_LValueComponent;
-	exports.EdenAST_LValue = EdenAST_LValue;
-	exports.EdenAST_Length = EdenAST_Length;
-	exports.EdenAST_BinaryOp = EdenAST_BinaryOp;
-	exports.EdenAST_TernaryOp = EdenAST_TernaryOp;
-	exports.EdenAST_UnaryOp = EdenAST_UnaryOp;
-	exports.EdenAST_ScopePath = EdenAST_ScopePath;
-	exports.EdenAST_Scope = EdenAST_Scope;
-	exports.EdenAST_Index = EdenAST_Index;
-	exports.EdenAST_Literal = EdenAST_Literal;
-}
