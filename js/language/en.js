@@ -281,6 +281,7 @@ Language.ui = {
 		title: "Menu Bar",
 		description: "Creates the menu bar.",
 		opt_confirm: "Confirm closing environment",
+		opt_simple_search: "Simplified searching",
 		opt_hide: "Hide windows on minimize",
 		opt_collapse: "Collapse to title bar on double click",
 		opt_debug: "Debug JS-EDEN",

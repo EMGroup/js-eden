@@ -46,46 +46,6 @@ func centroid {
 	return {x, y};
 }
 
-func distance {
-	${{
-		var from, to;
-		if (arguments.length == 1) {
-			if (arguments[0] instanceof Line) {
-				var line = arguments[0];
-				from = new Point(line.x1, line.y1);
-				to = new Point(line.x2, line.y2);
-			} else {
-				to = arguments[0];
-				from = new Point(0, 0);
-			}
-		} else if (arguments.length == 2) {
-			from = arguments[0];
-			to = arguments[1];
-			if (from == undefined) {
-				return undefined;
-			} else if (!(from instanceof Point)) {
-				eden.error(new Error("distance: The first argument must be a Point or a Line, not a " + typeof(from)), "error");
-				return undefined;
-			}
-		} else {
-			eden.error(new Error("distance: This function requires at least 1 argument and at most 2 arguments"), "error");
-			return undefined;
-		}
-		if (to == undefined) {
-			return undefined;
-		} else if (!(to instanceof Point)) {
-			eden.error(new Error("distance: The destination point must be a Point, not a " + typeof(to)), "error");
-			return undefined;
-		}
-		if (from.x == undefined || from.y == undefined || to.x == undefined || to.y == undefined) {
-			return undefined;
-		}
-		var xDist = to.x - from.x;
-		var yDist = to.y - from.y;
-		return Math.sqrt(xDist * xDist + yDist * yDist);
-	}}$;
-}
-
 func rotatePoint {
 	para point, theta, centre;
 	auto translatedX, translatedY, rotatedX, rotatedY, cosTheta, sinTheta;

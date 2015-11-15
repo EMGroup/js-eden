@@ -327,10 +327,18 @@
 			"return": "",
 			"description": ""
 		},
-		"distance": {
+		"distanceMoved": {
 			"parameters": {
 				"[from]": "",
 				"point_or_line": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"angleTurned": {
+			"parameters": {
+				"[origin]": "",
+				"point": ""
 			},
 			"return": "",
 			"description": ""

@@ -19,11 +19,9 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 	edenUI.views["SymbolLookUpTable"] = {dialog: this.createDialog, title: "Symbol Look-Up Table", category: edenUI.viewCategories.comprehension, menuPriority: 3};
 	
 	this.search = function (viewName) {
-		//Update a symbol look-up table with search results for a new regexp.
-		var regExp = document.getElementById(viewName + "-regexp").value;
-		if(regExp == undefined) {
-			return;
-		}
+		//Update a symbol look-up table with search results for a new search.
+		var inputBox = $("#" + viewName + "-regexp");
+		var regExp = edenUI.regExpFromStr(inputBox);
 		document.getElementById(viewName + "-table-div").innerHTML = generateBottomHTML(regExp, viewName);
 	}
 	
@@ -34,12 +32,12 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 				controls +
 			"</div>" +
 			"<div id='" + viewName + "-table-div' class='lower'>" +
-				generateBottomHTML("", viewName) +
+				generateBottomHTML(new RegExp(""), viewName) +
 			"</div>";
 		return indiv;
 	}
 	
-	var generateBottomHTML = function(regexString, viewName) {
+	var generateBottomHTML = function(regExp, viewName) {
 		var tableHeadHTML = "<tr>"+
 			"<td class=\"lower\"><b>Name</b></td>"+
 			"<td class=\"lower\"><b>Type</b></td>" +
@@ -53,7 +51,6 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 		"</tr>";
 		tableBodyHTML = "";
 		
-		var re = EdenUI.regExpFromStr(regexString);
 		var partialTable = [];
 		var matchingNames = {};
 		var symbol;
@@ -61,7 +58,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 		for (var name in root.symbols) {
 			symbol = root.symbols[name];
 			
-			if (!re.test(name)) {
+			if (!regExp.test(name)) {
 				continue;
 			}
 			
@@ -73,13 +70,13 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 			} else {
 				definition = Eden.htmlEscape(symbol.eden_definition);
 				if (definition.indexOf("proc") == 0) {
-					if (Eden.isitSystemAgent(name) && !(new RegExp("\\b" + name + "\\b")).test(regexString)) {
+					if (Eden.isitSystemAgent(name) && !(new RegExp("\\b" + name + "\\b")).test(regExp.source)) {
 						continue;
 					}
 					kind = "Agent";
 					value = "";
 				} else if (definition.indexOf("func") == 0) {
-					if (Eden.isitSystemFunction(name) && !(new RegExp("\\b" + name + "\\b")).test(regexString)) {
+					if (Eden.isitSystemFunction(name) && !(new RegExp("\\b" + name + "\\b")).test(regExp.source)) {
 						continue;
 					}
 					kind = "Function";
@@ -180,7 +177,12 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 	
 	this.addSymbolToSearch = function (viewName, symbolName) {
 		var searchBox = document.getElementById(viewName + "-regexp");
-		var searchStr = searchBox.value + "|" + symbolName + "$";
+		var searchStr;
+		if (edenUI.getOptionValue("optSimpleWildcards") == "false") {
+			searchStr = searchBox.value + "|^" + symbolName + "$";
+		} else {
+			searchStr = searchBox.value + " or " + symbolName;			
+		}
 		searchBox.value = searchStr;
 		this.search(viewName);
 	}

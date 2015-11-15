@@ -333,6 +333,7 @@ Language.ui = {
 		title: "Pasek Menu",
 		description: "Tworzy pasek menu.",
 		opt_confirm: "Potwierdź zamknięcie środowiska",
+		opt_simple_search: "Uproszczone wyszukiwanie",
 		opt_hide: "Ukryj okna, gdy zminimalizowane",
 		opt_collapse: "Zwiń do paska tytułu po dwukrotnym kliknięciu myszki",
 		opt_debug: "Debug JS-EDEN",

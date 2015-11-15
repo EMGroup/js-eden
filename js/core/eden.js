@@ -395,43 +395,81 @@ function concatAndResolveUrl(url, concat) {
 	/**Derives a regular expression from a string.  The string can be a simple search keyword or a
 	 * string containing a regular expression.  The following rules are applied to interpret the
 	 * string:
-	 * (1) If the search string is less than 4 characters long and doesn't contain any regular
-	 *     expression meta characters then the search matches against the beginning of the target string
-	 *     (i.e. there is an implied ^), otherwise the search keyword can be matched anywhere in the
-	 *     target.
-	 * (2) If the search string contains a capital letter then the search is case sensitive,
+	 * (1) If the search string is less than 4 characters long and "simple searching" is enabled and
+	 *     the string doesn't contain any meta characters, then the search matches against the
+	 *     beginning of the target string (i.e. there is an implied ^), otherwise the search keyword
+	 *     can be matched anywhere in the target string (unless the exactMatch option is specified).
+	 * (2) If simple searching is enabled then * is interpreted like a regular expression .*, ? like
+	 *     .? and *, ?, and or like | and there are the only meta characters that are enabled.
+	 * (3) If the search string contains a capital letter then the search is case sensitive,
 	 *     otherwise it is case insensitive.
+	 * If a jQuery object is passed instead of a string then the search string will be read
+	 * from the element's .value property and the element will be styled with an indication of
+	 * whether the regular expression is a valid one or not.
 	 */
-	EdenUI.regExpFromStr = function (str, flags, exactMatch) {
-		var regExpStr;
+	EdenUI.prototype.regExpFromStr = function (str, flags, exactMatch) {
+		var regExpStr, regExpObj;
+		var valid = true;
+		var inputBox;
+
+		if (typeof(str) == "object") {
+			inputBox = str;
+			str = inputBox[0].value;
+		}
 		if (flags === undefined) {
 			flags = "";
 		}
+
+		//Guess desirability of case sensitivity based on the presence or absence of capital letters.
 		if (!/[A-Z]/.test(str)) {
 			flags = flags + "i";
 		}
-		if (str.length < 4 && !/[\\^$*+?.()|{[]/.test(str)) {
-			regExpStr = "^(" + str + ")";
-			if (exactMatch) {
-				regExpStr = regExpStr + "$";
+
+		//Handle substitutions to replace simple wildcards with real regexp ones.
+		var simpleWildcards = this.getOptionValue("optSimpleWildcards") !== "false";
+		if (simpleWildcards) {
+			//Mode where * acts as .* , ? as .? , or as |, no other special characters.
+			str = str.replace(/([\\+^.|(){[])/g, "\\$1").replace(/([*?])/g, ".$1");
+			var alternatives = str.split(/\s+or\s+/i);
+			for (var i = 0; i < alternatives.length; i++) {
+				if (/[?*]/.test(alternatives[i])) {
+					alternatives[i] = "^(" + alternatives[i] + ")$";
+				}
 			}
-			return new RegExp(regExpStr, flags);
+			str = alternatives.join("|");
+		}
+
+		if (simpleWildcards && !exactMatch && str.length < 4) {
+			//Assume very short strings are intended to be prefixes in simple search mode.
+			regExpStr = "^(" + str + ")";
+			regExpObj = new RegExp(regExpStr, flags);
 		} else {
+			//Attempt to construct a regexp.
 			try {
 				regExpStr = str;
 				if (exactMatch) {
 					regExpStr = "^(" + regExpStr + ")$";
 				}
-				return new RegExp(regExpStr, flags);
+				regExpObj = new RegExp(regExpStr, flags);
 			} catch (e) {
-				//User typed in a bad regexp.  Unmatched (, { or [.
-				var validPart = str.match(/^([^\\({[]*(\\.)?)*/)[0];
+				//User typed in a bad regexp string.  Unmatched (, { or [ or begins with *, +, ? or {
+				valid = false;
+				var validPart = str.match(/^([^*+?\\([]([^\\({[]*(\\.)?)*)?/)[0];
 				if (exactMatch) {
 					validPart = "^(" + validPart + ")";
 				}
-				return new RegExp(validPart, flags);
+				regExpObj = new RegExp(validPart, flags);
 			}
 		}
+
+		if (inputBox) {
+			if (valid) {
+				inputBox.removeClass("invalid_form");
+			} else {
+				inputBox.addClass("invalid_form");
+			}
+		}
+		return regExpObj;
 	}
 
 	/**

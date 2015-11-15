@@ -186,8 +186,7 @@ Text.prototype.toString = function() {
 		s = s + Eden.edenCodeForValues(this.fillcolour, this.outlinecolour) + ", " +
 			"\"" + this.optionString + "\")";
 	} else {
-		s = s + '"' + this.size + '", ' +
-			Eden.edenCodeForValues(this.fillcolour, this.outlinecolour, this.drawingOptions) + ")";
+		s = s + Eden.edenCodeForValues(this.size, this.fillcolour, this.outlinecolour, this.drawingOptions) + ")";
 	}
 	return s;
 };

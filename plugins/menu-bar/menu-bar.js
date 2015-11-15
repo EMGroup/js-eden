@@ -385,6 +385,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 				window.removeEventListener("beforeunload", confirmUnload);
 			}
 		});
+		addCheckboxOption("optSimpleWildcards", Language.ui.menu_bar.opt_simple_search, true);
 		addCheckboxOption("optHideOnMinimize", Language.ui.menu_bar.opt_hide, false);
 		addCheckboxOption("optCollapseToTitleBar", Language.ui.menu_bar.opt_collapse, false, function (optName, collapse) {
 			var action;
