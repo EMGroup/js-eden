@@ -205,18 +205,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var gutter = new EdenScriptGutter($codearea.get(0));
 
-		//$dialogContents.append($optmenu);
-		//$optmenu.menu();
+		var $buttonbar = $('<div class="control-bar"><div class="buttonsDiv"><button class="control-button search-mode" title="Query state">&#xf002;</button><button class="control-button share-agent" title="Share on network">&#xf0e8;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
+		$buttonbar.appendTo($dialogContents);
+		var buttonbar = $buttonbar.get(0);
+		// Create power button
+		var $powerbutton = $('<div class="scriptswitch power-off" title="Enable Automation">&#xF011;</div>');
+		$buttonbar.append($powerbutton);
+		var powerbutton = $powerbutton.get(0);
+		if (power) powerOn();
 
 		var dragstart = 0;
 		var dragvalue = 0;
 		var draglast = 0;
 		var dragline = -1;
 		var dragint = false;
-		var typingtimer;
 		var rebuildtimer;
 		var amtyping = false;
-		var typinginterval = 2000;
 		var rebuildinterval = 10;
 		var currentlineno = 1;
 		var currentcharno = 0;
@@ -231,6 +235,36 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var scriptagent = new Eden.Agent();
 		scriptagent.enabled = power;
 		scriptagent.setOwned(true);
+
+
+
+		function updateShareButton() {
+			var sharebut = $buttonbar.find(".share-agent");
+			sharebut.removeClass("control-enabled");
+		}
+
+
+
+		function updateHistoryButtons() {
+			var nextbut = $buttonbar.find(".next-input");
+			var prevbut = $buttonbar.find(".previous-input");
+
+			if (readonly || this.index >= this.history.length-1) {
+				nextbut.removeClass("control-enabled");
+			} else {
+				nextbut.addClass("control-enabled");
+			}
+
+			if (readonly || this.index == 0) {
+				prevbut.removeClass("control-enabled");
+			} else {
+				prevbut.addClass("control-enabled");
+			}
+		}
+
+		updateShareButton();
+		updateHistoryButtons();
+
 
 		
 		function addTab(name, title, current) {
@@ -252,22 +286,31 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
+		/**
+		 * Generate the agent script tabs at the top. Needs to be re-run when
+		 * new tabs are added or titles are changed.
+		 */
 		function rebuildTabs() {
+			// Remove existing tabs
 			while (tabs.firstChild) tabs.removeChild(tabs.firstChild);
 
+			// Add scroll left
 			var left = document.createElement("div");
-			left.className = "agent-tableft";
+			left.className = "agent-tableft noselect";
 			tabs.appendChild(left);
 
+			// Add tab for each agent
 			for (var a in Eden.Agent.agents) {
 				addTab(a, Eden.Agent.agents[a].title, a == scriptagent.name);
 			}
 
+			// Add scroll right
 			var right = document.createElement("div");
-			right.className = "agent-tabright";
+			right.className = "agent-tabright noselect";
 			tabs.appendChild(right);
 		}
 
+		// Need to rebuild tabs when new agents are created or titles change.
 		rebuildTabs();
 		Eden.Agent.listenTo("create", this, rebuildTabs);
 		Eden.Agent.listenTo("title", this, rebuildTabs);
@@ -384,6 +427,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
+		function toggleButtons(sym, value) {
+			if (value) {
+				buttonbar.style.display = "inherit";
+				codearea.style.bottom = "30px";
+			} else {
+				buttonbar.style.display = "none";
+				codearea.style.bottom = "0";
+			}
+		}
+
+
+
 		// Use the agent wrapper for dealing with view interaction via symbols.
 		var obs_script = "_view_"+name+"_script";
 		var obs_next = "_view_"+name+"_next";
@@ -393,6 +448,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var obs_power = "_view_"+name+"_power";
 		var obs_agent = "_view_"+name+"_agent";
 		var obs_showtabs = "_view_"+name+"_showtabs";
+		var obs_showbuttons = "_view_"+name+"_showbuttons";
 		var agent = new Eden.Agent(undefined, "scriptview_"+name);
 		agent.declare(obs_agent);
 		agent.declare(obs_showtabs);
@@ -402,6 +458,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.declare(obs_override);
 		agent.declare(obs_next);
 		agent.declare(obs_prev);
+		agent.declare(obs_showbuttons);
 		//agent.setReadonly([obs_script,obs_next,obs_prev,obs_override, obs_file, obs_power, obs_agent, obs_showtabs]);
 
 		agent.enabled = true;
@@ -412,12 +469,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.on(obs_power, switchPower);
 		agent.on(obs_agent, changeAgent);
 		agent.on(obs_showtabs, toggleTabs);
+		agent.on(obs_showbuttons, toggleButtons);
 
 		// Initialise states
 		if (agent.state[obs_showtabs] === undefined) {
 			agent.state[obs_showtabs] = !embedded;
 		}
 		toggleTabs(undefined, agent.state[obs_showtabs]);
+		if (agent.state[obs_showbuttons] === undefined) {
+			agent.state[obs_showbuttons] = !embedded;
+		}
+		toggleButtons(undefined, agent.state[obs_showbuttons]);
 
 		// Set source text.
 		agent.setSource("## "+name+"\n\
@@ -428,6 +490,7 @@ _view_"+name+"_override = "+Eden.edenCodeForValue(agent.state[obs_override])+";\
 _view_"+name+"_power = "+Eden.edenCodeForValue(agent.state[obs_power])+";\n\
 _view_"+name+"_agent = "+Eden.edenCodeForValue(agent.state[obs_agent])+";\n\
 _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\n\
+_view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons])+";\n\
 ");
 
 
@@ -1058,8 +1121,6 @@ _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\
 			sel.addRange(range);
 		}
 
-
-
 		/**
 		 * Script contents have changed, so re-parse, re-highlight and
 		 * if live, re-execute. Used in a short interval timeout from the
@@ -1384,11 +1445,10 @@ _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\
 				agent[obs_prev] = true;
 				agent[obs_prev] = false;
 			} else {
-				if (inputchanged && intextarea.value != "") me.updateHistory(intextarea.value);
-				powerOff();
-				intextarea.value = edenUI.plugins.ScriptInput.previousHistory();
+				scriptagent.undo();
+				intextarea.value = scriptagent.snapshot;
 				updateEntireHighlight();
-				inputchanged = false;
+				updateHistoryButtons();
 			}
 		}
 
@@ -1403,11 +1463,10 @@ _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\
 				agent[obs_next] = true;
 				agent[obs_next] = false;
 			} else {
-				if (inputchanged && intextarea.value != "") me.updateHistory(intextarea.value);
-				powerOff();
-				intextarea.value = edenUI.plugins.ScriptInput.nextHistory();
+				scriptagent.redo();
+				intextarea.value = scriptagent.snapshot;
 				updateEntireHighlight();
-				inputchanged = false;
+				updateHistoryButtons();
 			}
 		}
 
@@ -1418,6 +1477,7 @@ _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\
 			console.log(name);
 			agent[obs_agent] = name;
 			changeAgent(undefined, name);
+			updateHistoryButtons();
 		}
 
 
@@ -1453,12 +1513,6 @@ _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\
 		.on('click', '.agent-tab', onTabClick)
 		.on('click', '.agent-tableft', onTabLeft)
 		.on('click', '.agent-tabright', onTabRight);
-
-		// Create power button
-		var $powerbutton = $('<div class="scriptswitch power-off" title="Live Making">&#xF011;</div>');
-		$dialogContents.append($powerbutton);
-		var powerbutton = $powerbutton.get(0);
-		if (power) powerOn();
 
 		$powerbutton.click(function (e) {
 			scriptagent.enabled = !scriptagent.enabled;
@@ -1516,9 +1570,6 @@ _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\
 			idealheight = EdenUI.plugins.ScriptInput.getRequiredHeight(linecount + 1);
 		}
 
-		var buttonbar = $('<div class="control-bar"><div class="buttonsDiv"><button class="previous-input">&#xf112;</button><button class="next-input">&#xf064;</button><button class="observe-input">&#xf142;</button></div>');
-		buttonbar.appendTo(viewdata.contents);
-
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(viewdata.contents)
 			.dialog({
@@ -1537,9 +1588,6 @@ _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\
 
 	this.createEmbedded = function(name, mtitle, code, power) {
 		var viewdata = me.createCommon(name, mtitle, code, power, true);
-		viewdata.contents.find('.inputCodeArea').css("bottom","0px");
-		//var undockbutton = $('<div class="buttonsLeftDiv"><button class="clone-input">&#xf24d;</button></div>');
-		//undockbutton.appendTo(viewdata.contents);
 		return viewdata;
 	}
 

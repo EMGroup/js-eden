@@ -19,6 +19,11 @@ do reset;
 
 action forward {
 	move_offset = $1;
+	if (pen) {
+		lines = lines // [Line(position_x,position_y,newpos_x,newpos_y)];
+	}
+	position_x = newpos_x;
+	position_y = newpos_y;
 }
 
 action left {
@@ -30,7 +35,7 @@ action right {
 }
 
 action back {
-	move_offset = -$1;
+	do forward -$1;
 }
 
 action pendown {

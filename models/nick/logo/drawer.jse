@@ -4,16 +4,10 @@ angle = 0;
 move_offset = 0;
 pen = true;
 
+colour = "black";
+
 newpos_x is position_x + move_offset*sin(angle-180);
 newpos_y is position_y + move_offset*cos(angle-180);
-
-when (move_offset) {
-	if (pen) {
-		lines = lines // [Line(position_x,position_y,newpos_x,newpos_y)];
-	}
-	position_x = newpos_x;
-	position_y = newpos_y;
-}
 
 lines = [];
 position_x = floor(_view_picture_width / 2);

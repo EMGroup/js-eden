@@ -2,6 +2,7 @@ require("Canvas2D");
 
 agentFromFile("logoDrawer","models/nick/logo/drawer.jse");
 agentFromFile("logoExample","models/nick/logo/example1.jse", false);
+agentFromFile("logoExample2","models/nick/logo/example2.jse", false);
 
 _view_input_power = false;
 _view_input_x = 690;

@@ -38,6 +38,12 @@ Eden.Agent = function(parent, name) {
 	this.oracles = [];
 	this.handles = [];
 	this.title = "Agent";
+	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || [];
+	this.history_index = this.history.length - 1;
+	this.snapshot = edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
+	this.autosavetimer = undefined;
+
+	this.dmp = new diff_match_patch();
 
 	Eden.Agent.agents[this.name] = this;
 	Eden.Agent.emit("create", [this]);
@@ -66,6 +72,92 @@ Eden.Agent.listeners = {};
 Eden.Agent.emit = emit;
 Eden.Agent.listenTo = listenTo;
 
+Eden.Agent.AUTOSAVE_INTERVAL = 2000;
+
+
+
+Eden.Agent.prototype.autoSave = function() {
+	var savedmp = new diff_match_patch();
+
+	// Calculate redo diff
+	var d = savedmp.diff_main(this.snapshot, this.ast.stream.code, false);
+	var p = savedmp.patch_make(this.snapshot, this.ast.stream.code, d);
+	var redo = savedmp.patch_toText(p);
+	console.log(redo);
+
+	// Calculate undo diff
+	d = savedmp.diff_main(this.ast.stream.code, this.snapshot, false);
+	p = savedmp.patch_make(this.ast.stream.code, this.snapshot, d);
+	var undo = savedmp.patch_toText(p);
+	console.log(undo);
+
+	if (undo == "") return;
+
+	// Save history and set last snapshot
+	this.addHistory(redo,undo);
+	this.setSnapshot(this.ast.stream.code);
+}
+
+
+
+Eden.Agent.prototype.setSnapshot = function(source) {
+	this.snapshot = source;
+	edenUI.setOptionValue('agent_'+this.name+'_snap', source);
+}
+
+
+
+Eden.Agent.prototype.addHistory = function(redo, undo) {
+	// Discard any future
+	if (this.history.length-1 != this.index) {
+		this.history = this.history.slice(0, this.index);
+	}
+
+	this.history.push({redo: redo, undo: undo});
+	this.index = this.history.length - 1;
+	edenUI.setOptionValue('agent_'+this.name+'_history', JSON.stringify(this.history));
+}
+
+
+
+Eden.Agent.prototype.clearHistory = function() {
+	this.history = [];
+	this.index = this.history.length - 1;
+	edenUI.setOptionValue('agent_'+this.name+'_history', JSON.stringify(this.history));
+}
+
+
+
+Eden.Agent.prototype.undo = function() {
+	if (this.index < 0) return;
+
+	var hist = this.history[this.index];
+	this.index--;
+
+	var undodmp = new diff_match_patch();
+	var p = undodmp.patch_fromText(hist.undo);
+	var r = undodmp.patch_apply(p, this.snapshot);
+
+	this.setSnapshot(r[0]);
+	this.setSource(r[0]);
+}
+
+
+
+Eden.Agent.prototype.redo = function() {
+	if (this.index >= this.history.length-1) return;
+
+	this.index++;
+	var hist = this.history[this.index];
+
+	var redodmp = new diff_match_patch();
+	var p = redodmp.patch_fromText(hist.redo);
+	var r = redodmp.patch_apply(p, this.snapshot);
+
+	this.setSnapshot(r[0]);
+	this.setSource(r[0]);
+}
+
 
 
 Eden.Agent.prototype.loadFromFile = function(filename, execute) {
@@ -76,6 +168,8 @@ Eden.Agent.prototype.loadFromFile = function(filename, execute) {
 	if (!doexecute) this.enabled = false;
 
 	$.get(filename, function(data) {
+		me.setSnapshot(data);
+		me.clearHistory();
 		me.setSource(data);
 		if (doexecute) me.executeLine(-1);
 		Eden.Agent.emit("loaded", [me]);
@@ -272,7 +366,7 @@ Eden.Agent.prototype.executeStatement = function(statement, line) {
 	try {
 		statement.execute(eden.root,undefined, this.ast);
 		var code = this.ast.getSource(statement);
-		console.log(code);
+		console.log("PATCH line = " + line + " code = "+code);
 		Eden.Agent.emit('execute', [this, code, line]);
 	} catch (e) {
 		eden.error(e);
@@ -286,6 +380,20 @@ Eden.Agent.prototype.executeStatement = function(statement, line) {
  * create definitions, actions etc.
  */
 Eden.Agent.prototype.setSource = function(source) {
+
+	if (this.ast) {
+		var me = this;
+		clearTimeout(this.autosavetimer);
+		this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Agent.AUTOSAVE_INTERVAL);
+
+		console.time("MakePATCH");
+		var d = this.dmp.diff_main(this.ast.stream.code, source, false);
+		var p = this.dmp.patch_make(this.ast.stream.code, source, d);
+		var t = this.dmp.patch_toText(p);
+		console.timeEnd("MakePATCH");
+		console.log(t);
+	}
+
 	var gettitle = this.ast === undefined;
 	this.ast = new EdenAST(source);
 

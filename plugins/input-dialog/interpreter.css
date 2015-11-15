@@ -230,66 +230,6 @@ div.info-erroritem:before {
 	height: 22px;
 }
 
-.loader:before,
-.loader:after,
-.loader {
-  border-radius: 50%;
-  width: 2.5em;
-  height: 2.5em;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
-  -webkit-animation: load7 1.8s infinite ease-in-out;
-  animation: load7 1.8s infinite ease-in-out;
-}
-.loader {
-  font-size: 4px;
-  /*margin: 80px auto;*/
-  margin: auto;
-  position: relative;
-  top: 0;
-  text-indent: -9999em;
-  -webkit-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-animation-delay: -0.16s;
-  animation-delay: -0.16s;
-}
-.loader:before {
-  left: -3.5em;
-  -webkit-animation-delay: -0.32s;
-  animation-delay: -0.32s;
-}
-.loader:after {
-  left: 3.5em;
-}
-.loader:before,
-.loader:after {
-  content: '';
-  position: absolute;
-  top: 0;
-}
-@-webkit-keyframes load7 {
-  0%,
-  80%,
-  100% {
-    box-shadow: 0 2.5em 0 -1.3em #999;
-  }
-  40% {
-    box-shadow: 0 2.5em 0 0 #999;
-  }
-}
-@keyframes load7 {
-  0%,
-  80%,
-  100% {
-    box-shadow: 0 2.5em 0 -1.3em #999;
-  }
-  40% {
-    box-shadow: 0 2.5em 0 0 #999;
-  }
-}
-
-
 div.outputbox canvas {
 	box-shadow: 0 0 5px #0a0a0a;
 }
@@ -321,6 +261,7 @@ div.control-bar {
 	border-bottom-right-radius: 6px;
 	border-top-left-radius: 0px;
 	border-top-right-radius: 0px;
+	border-top: 1px solid #e5e5e5;
 	z-index: 6;
 }
 
@@ -484,10 +425,10 @@ div.input-dialog .ui-dialog-title {
 
 div.scriptswitch {
 	position: absolute;
-	top: 40px;
-	right: 20px;
+	top: 6px;
+	left: 20px;
 	font-family: "FontAwesome";
-	font-size: 22px;
+	font-size: 20px;
 	z-index: 10;
 	cursor: pointer;
 }
@@ -498,7 +439,7 @@ div.power-on {
 }
 
 div.power-off {
-	color: #aaa;
+	color: #222;
 }
 
 div.power-error {
@@ -528,11 +469,10 @@ div.scriptswitch:hover {
 	opacity: 1.0;
 }
 
-
-button.clone-input {
+button.control-button {
 	height:25px;
 	width:30px;
-	color: #3465a4;
+	color: #aaa;
 	font-family: "FontAwesome";
 	cursor: pointer;
 	font-size: 16px;
@@ -540,99 +480,18 @@ button.clone-input {
 	border: 0;
 }
 
-button.clone-input:hover {
-	color: #5585c2;
-	text-shadow: 3px 3px 4px #999;
-}
-
-button.clone-input:active {
-	padding-top: 2px;
-}
-
-
-button.previous-input{
-	height:25px;
-	width:30px;
+button.control-enabled {
 	color: #3465a4;
-	margin-right: 5px;
-	font-family: "FontAwesome";
-	cursor: pointer;
-	font-size: 16px;
-	background: none;
-	border: 0;
 }
 
-button.previous-input:hover {
+button.control-enabled:hover {
 	color: #5585c2;
 	text-shadow: 3px 3px 4px #999;
 }
 
-button.previous-input:active {
+button.control-enabled:active {
 	padding-top: 2px;
 }
-
-button.next-input{
-	height:25px;
-	width:30px;
-	color: #3465a4;
-	font-family: "FontAwesome";
-	cursor: pointer;
-	font-size: 16px;
-	background: none;
-	border: 0;
-}
-
-button.next-input:hover {
-	color: #5585c2;
-	text-shadow: 3px 3px 4px #999;
-}
-
-button.next-input:active {
-	padding-top: 2px;
-}
-
-button.observe-input{
-	height:25px;
-	width:30px;
-	color: #3465a4;
-	margin-right: 5px;
-	font-family: "FontAwesome";
-	cursor: pointer;
-	font-size: 16px;
-	background: none;
-	border: 0;
-}
-
-button.leaves-input{
-	height:25px;
-	width:30px;
-	color: #3465a4;
-	margin-right: 5px;
-	font-family: "FontAwesome";
-	cursor: pointer;
-	font-size: 16px;
-	background: none;
-	border: 0;
-}
-
-button.leaves-input:hover {
-	color: #5585c2;
-	text-shadow: 3px 3px 4px #999;
-}
-
-button.leaves-input:active {
-	padding-top: 2px;
-}
-
-button.observe-input:hover {
-	color: #5585c2;
-	text-shadow: 3px 3px 4px #999;
-}
-
-button.observe-input:active {
-	padding-top: 2px;
-}
-
 
 
 span.eden-keyword {
@@ -851,7 +710,7 @@ div.eden-gutter {
 	width: 22px;
 	padding-top: 15px;
 	margin: 0;
-	height: 100%;
+	height: calc(100% - 15px);
 }
 
 div.eden-gutter-item {
