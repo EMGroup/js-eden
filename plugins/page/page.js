@@ -131,7 +131,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			} else {
 				text = code;
 			}
-			var ast = new EdenAST(text);
+			var ast = new Eden.AST(text);
 			hl.highlight(ast,-1,-1);
 
 			if (float != "none") {
