@@ -505,7 +505,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 						if (script.slice(-1) != ";") {
 							script = script + ";";
 						}
-						edenUI.plugins.ScriptInput.submitEdenCode(me.name + " " + operation + " " + script);
+						eden.execute2(me.name + " " + operation + " " + script);
 						closeEditor();
 						EdenUI.plugins.SymbolViewer.inlineEditorSymbol = undefined;
 				}
