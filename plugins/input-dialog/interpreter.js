@@ -180,6 +180,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			createMenuItem("&#xf05e;", "Remove Agent", function(e) { Eden.Agent.remove(scriptagent); hideMenu(); });
 			createMenuItem("&#xf036;", "View History", function(e) { });
 			createMenuItem("&#xf0d0;", "Insert Template", function(e) { });
+			if (embedded) {
+				createMenuItem("&#xf24d;", "Un-embed", function(e) { });
+			}
 		}
 
 		var dragstart = 0;
@@ -345,6 +348,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 		function setSubTitle(text) {
+			if (embedded) return;
 			var p = $dialogContents.get(0).parentNode;
 			if (p) {
 				p = p.parentNode;
@@ -519,7 +523,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 		toggleTabs(undefined, agent.state[obs_showtabs]);
 		if (agent.state[obs_showbuttons] === undefined) {
-			agent.state[obs_showbuttons] = !embedded;
+			agent.state[obs_showbuttons] = true;
 		}
 		toggleButtons(undefined, agent.state[obs_showbuttons]);
 
