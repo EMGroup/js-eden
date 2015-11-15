@@ -162,20 +162,22 @@ div.info-bar {
 	position: absolute;
 	left: 100px;
 	min-width: 200px;
-	padding-right: 10px;
+	padding-right: 20px;
 	min-height: 30px;
-	background-color: #395069;
-	opacity: 0.9;
-	box-shadow: 0 0 10px black;
-	font-size: 11pt;
-	font-weight: normal;
 	vertical-align: middle;
-	color: white;
 	z-index: 7;
+	color: white;
+	border-radius: 20px;
+	font: bold 12px "Helvetica Neue", Sans-Serif;
+	box-shadow: 0 0 7px black;
+	opacity: 0.9;
+	text-align: center;
+	background: #204a87;
+	border: 2px solid white;
 }
 
 div.info-item {
-	margin-top: 6px;
+	margin-top: 7px;
 	margin-left: 50px;
 	margin-right: 5px;
 }
@@ -197,24 +199,25 @@ div.info-validitem {
 }*/
 
 div.info-warnitem {
-	margin-top: 6px;
+	margin-top: 7px;
 	margin-left: 50px;
 	margin-bottom: 6px;
 }
 
 div.info-warnitem:before {
 	position: absolute;
-	content: "";
-	left: 18px;
-	top: 4px;
-	background-image: url('../../images/bullet_error.png');
-	background-repeat: no-repeat;
+	content: "\f06a";
+	font-family: "FontAwesome";
+	font-size: 14pt;
+	color: white;
+	left: 10px;
+	top: 6px;
 	width: 22px;
 	height: 22px;
 }
 
 div.info-erroritem {
-	margin-top: 6px;
+	margin-top: 7px;
 	margin-left: 50px;
 	margin-bottom: 6px;
 }
@@ -223,8 +226,9 @@ div.info-erroritem:before {
 	position: absolute;
 	content: "\f06a";
 	font-family: "FontAwesome";
+	font-size: 14pt;
 	color: white;
-	left: 18px;
+	left: 10px;
 	top: 6px;
 	width: 22px;
 	height: 22px;
@@ -246,17 +250,7 @@ div.control-bar {
 	right: 0;
 	bottom: 0;
 	height: 30px;
-	/*background-color: #f1f1f1;*/
-	/*background: -webkit-linear-gradient(#fafafa, #eeeeee); 
-	background: -o-linear-gradient(#fafafa, #eeeeee); 
-	background: -moz-linear-gradient(#fafafa, #eeeeee); 
-	background: linear-gradient(#fafafa, #eeeeee); */
 	background: #f5f5f5;
-
-	/*border-left-width: 20px;
-	border-left-style: solid;
-	border-left-color: #f5f5f5;
-	box-sizing: border-box;*/
 	border-bottom-left-radius: 6px;
 	border-bottom-right-radius: 6px;
 	border-top-left-radius: 0px;
@@ -265,10 +259,7 @@ div.control-bar {
 	z-index: 6;
 }
 
-.ui-tooltip, .arrow:after {
-	background: #204a87;
-	border: 2px solid white;
-}
+
 .ui-tooltip {
 	min-width: 50px;
 	padding: 5px 10px;
@@ -278,39 +269,8 @@ div.control-bar {
 	box-shadow: 0 0 7px black;
 	opacity: 0.9;
 	text-align: center;
-}
-.arrow {
-	width: 70px;
-	height: 16px;
-	overflow: hidden;
-	position: absolute;
-	left: 50%;
-	margin-left: -35px;
-	bottom: -16px;
-}
-.arrow.top {
-	top: -10px;
-	bottom: auto;
-}
-.arrow.left {
-	left: 20%;
-}
-.arrow:after {
-	background-color: black;
-	content: "";
-	position: absolute;
-	left: 20px;
-	top: -20px;
-	width: 25px;
-	height: 25px;
-	box-shadow: 6px 5px 9px -9px black;
-	-webkit-transform: rotate(45deg);
-	-ms-transform: rotate(45deg);
-	transform: rotate(45deg);
-}
-.arrow.top:after {
-	bottom: -20px;
-	top: auto;
+	background: #204a87;
+	border: 2px solid white;
 }
 
 .eden-drag-helper {
@@ -470,18 +430,6 @@ div.scriptswitch:hover {
 	right: 30px;
 }
 
-.buttonsLeftDiv {
-	position: absolute;
-	bottom: 2px;
-	left: 2px;
-	opacity: 0.5;
-	z-index: 4;
-}
-
-.buttonsLeftDiv:hover {
-	opacity: 1.0;
-}
-
 button.control-button {
 	height:25px;
 	width:30px;
@@ -569,152 +517,6 @@ span.eden-select {
 	/*border: 1px dotted #3465a4;*/
 }
 
-div.eden-currentline {
-	position: relative;
-	/*display: inline-block;*/
-	width: 100%;
-	height: 20px;
-	margin-left: -5px;
-	padding-left: 5px;
-	padding-right: 1px;
-	background-color: white;
-	/*box-shadow: 0 0 10px #719ECE;*/
-	z-index: 3;
-}
-
-div.eden-currentline:before {
-	position: absolute;
-	content: "";
-	/*background-image: url('/images/exclamation.png');
-	background-repeat: no-repeat;
-	background-position: center;*/
-	left: -20px;
-	background-color: white;
-	width: 19px;
-	height: 20px;
-}
-
-div.eden-executedline {
-	
-}
-
-div.eden-commentline {
-	position: relative;
-	/*display: inline-block;*/
-	width: 100%;
-	margin-left: -5px;
-	padding-left: 5px;
-	padding-right: 1px;
-	background-color: #f5f5f5;
-	/*box-shadow: 0 0 10px #719ECE;*/
-	z-index: 1;
-}
-
-div.eden-executedline:before {
-	position: absolute;
-	content: " ";
-	font-family: "FontAwesome";
-	/*background-image: url('../../images/exclamation.png');
-	background-repeat: no-repeat;
-	background-position: center;*/
-	left: -22px;
-	padding-left: 4px;
-	color: red;
-	/*background-color: #f2c2c2;*/
-	width: 16px;
-	height: 20px;
-	border-right: 2px solid #00ff00;
-}
-
-div.eden-guardedline:before {
-	position: absolute;
-	content: " ";
-	font-family: "FontAwesome";
-	/*background-image: url('../../images/exclamation.png');
-	background-repeat: no-repeat;
-	background-position: center;*/
-	left: -22px;
-	padding-left: 4px;
-	color: red;
-	/*background-color: #f2c2c2;*/
-	width: 16px;
-	height: 20px;
-	border-right: 2px solid #ffee00;
-}
-
-div.eden-errorblock:before {
-	position: absolute;
-	content: " ";
-	font-family: "FontAwesome";
-	/*background-image: url('../../images/exclamation.png');
-	background-repeat: no-repeat;
-	background-position: center;*/
-	left: -22px;
-	padding-left: 4px;
-	color: red;
-	/*background-color: #f2c2c2;*/
-	width: 16px;
-	height: 20px;
-	border-right: 2px solid #ff0000;
-}
-
-div.eden-errorline {
-	/*position: relative;*/
-	/*display: inline-block;*/
-	/*width: 100%;
-	margin-left: -5px;
-	padding-left: 5px;
-	padding-right: 1px;
-	height: 20px;*/
-	/*padding-right: 5px;*/
-	/*background-color: #ffcccc;*/
-	/*background-image: url('/images/exclamation.png');
-	background-repeat: no-repeat;
-	background-position: -10px;
-	border-left-style: solid;
-	border-left-width: 10px;
-	border-left-color: silver;*/
-	/*box-shadow: none;*/
-	/*z-index: 1;*/
-}
-
-div.eden-errorline:before {
-	position: absolute;
-	content: "\f06a";
-	font-family: "FontAwesome";
-	/*background-image: url('../../images/exclamation.png');
-	background-repeat: no-repeat;
-	background-position: center;*/
-	left: -22px;
-	padding-left: 4px;
-	color: red;
-	/*background-color: #f2c2c2;*/
-	width: 16px;
-	height: 20px;
-}
-
-div.eden-actual-errorline {
-	background-color: #ffcccc;
-}
-
-div.eden-warnline {
-	/*position: relative;*/
-	/*display: inline-block;*/
-	/*width: 100%;
-	margin-left: -5px;
-	padding-left: 5px;
-	padding-right: 1px;*/
-	/*padding-right: 5px;*/
-	/*background-color: #ffffa8;*/
-	/*background-image: url('/images/exclamation.png');
-	background-repeat: no-repeat;
-	background-position: -10px;
-	border-left-style: solid;
-	border-left-width: 10px;
-	border-left-color: silver;*/
-	/*box-shadow: none;*/
-	/*z-index: 1;*/
-}
 
 div.eden-gutter {
 	position: absolute;
@@ -820,30 +622,6 @@ div.eden-line {
 	padding-right: 1px;
 }
 
-div.eden-parentline:before {
-	position: absolute;
-	content: "\f0c1";
-	font-family: "FontAwesome";
-	left: -20px;
-	padding-left: 4px;
-	color: black;
-	width: 16px;
-	height: 20px;
-	cursor: pointer;
-}
-
-div.eden-extendedline:before {
-	position: absolute;
-	content: "\f13a";
-	font-family: "FontAwesome";
-	left: -20px;
-	padding-left: 4px;
-	color: black;
-	width: 16px;
-	height: 20px;
-	cursor: pointer;
-}
-
 
 span.eden-info {
 	float: right;
@@ -875,6 +653,3 @@ div.eden_suggestions {
 	z-index: 2;
 }
 
-div.eden-representative {
-
-}
