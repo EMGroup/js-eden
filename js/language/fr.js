@@ -335,6 +335,9 @@ Language.ui = {
 		main_existing: "Fen\u00eatres Existantes",
 		main_options: "Les Options"
 	},
+	"search": {
+		disjunction: "ou"
+	},
 	"general": {
 		finished_loading: "JS-EDEN a termin\u00e9 le chargement.",
 		leaving: "Laissant cette page sera jeter le script courant. Votre travail ne sera pas sauvegard\u00e9."

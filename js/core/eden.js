@@ -430,7 +430,7 @@ function concatAndResolveUrl(url, concat) {
 		if (simpleWildcards) {
 			//Mode where * acts as .* , ? as .? , or as |, no other special characters.
 			str = str.replace(/([\\+^.|(){[])/g, "\\$1").replace(/([*?])/g, ".$1");
-			var alternatives = str.split(/\s+or\s+/i);
+			var alternatives = str.split(new RegExp("\\s+" + Language.ui.search.disjunction + "\\s+", "i"));
 			for (var i = 0; i < alternatives.length; i++) {
 				if (/[?*]/.test(alternatives[i])) {
 					alternatives[i] = "^(" + alternatives[i] + ")$";

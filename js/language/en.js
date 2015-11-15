@@ -289,6 +289,9 @@ Language.ui = {
 		main_existing: "Existing Windows",
 		main_options: "Options"
 	},
+	"search": {
+		disjunction: "or"
+	},
 	"general": {
 		finished_loading: "JS-EDEN has finished loading.",
 		leaving: "Leaving this page will discard the current script. Your work will not be saved."

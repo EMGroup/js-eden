@@ -341,6 +341,9 @@ Language.ui = {
 		main_existing: "Istniejące Okno",
 		main_options: "Opcje"
 	},
+	"search": {
+		disjunction: "lub"
+	},
 	"general": {
 		finished_loading: "JS-EDEN zakończył ładowanie.",
 		leaving: "Opuszczenie tej strony wyczyści aktualny skrypt. Twoja praca nie będzie zapisana."
