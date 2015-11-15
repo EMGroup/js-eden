@@ -74,6 +74,27 @@ div.agent-tabright:after {
 	font-weight: bold;
 }
 
+div.agent-newtab {
+	float:left;
+	margin-left: 20px;
+	width: 20px;
+	line-height: 35px;
+	height: 35px;
+	cursor: pointer;
+	color: #666;
+}
+
+div.agent-newtab:after {
+	content: "\f0fe";
+	font-family: "FontAwesome";
+	font-size: 14pt;
+	font-weight: normal;
+}
+
+div.agent-newtab:hover {
+	color: #719ECE;
+}
+
 div.agent-tab {
 	float: left;
 	margin-left: 10px;

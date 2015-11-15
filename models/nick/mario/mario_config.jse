@@ -3,10 +3,10 @@ _view_input_x = 690;
 _view_input_y = _view_picture_y;
 _view_input_width = 600;
 _view_input_height = 515;
-_view_input_agent = "mario/marioMotion";
+_view_input_agent = "mario/mario/motion";
 
 createView("marioControls","ScriptInput");
-_view_marioControls_agent = "mario/marioControl";
+_view_marioControls_agent = "mario/mario/control";
 _view_marioControls_showtabs = false;
 _view_marioControls_x = 42;
 _view_marioControls_y = 380;

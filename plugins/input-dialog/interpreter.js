@@ -201,10 +201,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var scriptagent;
 
-		if (Eden.Agent.agents[name+"_scratch"] === undefined) {
-			scriptagent = new Eden.Agent(undefined, name+"_scratch");
+		if (Eden.Agent.agents["view/script/"+name] === undefined) {
+			scriptagent = new Eden.Agent(undefined, "view/script/"+name);
 		} else {
-			scriptagent = Eden.Agent.agents[name+"_scratch"];
+			scriptagent = Eden.Agent.agents["view/script/"+name];
 		}
 		scriptagent.enabled = power;
 		scriptagent.setOwned(true);
@@ -273,6 +273,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function removedAgent(name,prev) {
 			if (scriptagent.name == name) {
+				if (tabscrollix > 0) tabscrollix--;
 				if (prev) {
 					changeAgent(undefined, prev);
 				} else {
@@ -304,6 +305,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			for (var a in Eden.Agent.agents) {
 				addTab(a, Eden.Agent.agents[a].title, a == scriptagent.name);
 			}
+
+			// Add new tab button
+			var newtab = document.createElement("div");
+			newtab.className = "agent-newtab noselect";
+			tabs.appendChild(newtab);
 
 			// Add scroll right
 			var right = document.createElement("div");
@@ -349,10 +355,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						title.className = "ui-dialog-subtitle";
 						$(p).find(".ui-dialog-title").get(0).parentNode.appendChild(title);
 					}
-					title.textContent = text;
+					title.textContent = scriptagent.name + " " + text;
 				}
 			}
 		}
+
+		setSubTitle("");
 
 
 
@@ -483,7 +491,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var obs_agent = "_view_"+name+"_agent";
 		var obs_showtabs = "_view_"+name+"_showtabs";
 		var obs_showbuttons = "_view_"+name+"_showbuttons";
-		var agent = new Eden.Agent(undefined, "scriptview_"+name);
+		var agent = new Eden.Agent(undefined,"view/script/"+name+"/config");
 		agent.declare(obs_agent);
 		agent.declare(obs_showtabs);
 		agent.declare(obs_script);
@@ -1533,7 +1541,7 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 		}
 
 		function onTabRight() {
-			if (tabscrollix < tabs.childNodes.length-2) {
+			if (tabscrollix < tabs.childNodes.length-3) {
 				tabs.childNodes[tabscrollix+1].style.display = "none";
 				tabscrollix++;
 			}
