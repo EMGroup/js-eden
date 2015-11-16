@@ -349,7 +349,7 @@ function concatAndResolveUrl(url, concat) {
 	/**Changes an option's value without committing the change to local storage.
 	 */
 	EdenUI.prototype.setDefaultOptionValue = function (optionName, value) {
-		if (!(optionName in this.options)) {
+		if (this.getOptionValue(optionName) === null) {
 			this.options[optionName] = String(value);
 			this.emit("optionChange", [optionName, String(value)]);
 		}
