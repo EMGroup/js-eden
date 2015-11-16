@@ -39,9 +39,15 @@ Eden.Agent = function(parent, name) {
 	this.handles = [];
 	this.title = "Agent";
 	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || [];
-	this.index = this.history.length - 1;
+	this.index = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_index')) || 0;
 	this.snapshot = edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
 	this.autosavetimer = undefined;
+
+	if (this.snapshot) {
+		this.setSource(this.snapshot);
+	} else {
+		this.setSource("");
+	}
 
 	this.dmp = new diff_match_patch();
 
@@ -166,15 +172,28 @@ Eden.Agent.prototype.setSnapshot = function(source) {
 
 
 
+Eden.Agent.prototype.saveHistory = function() {
+	edenUI.setOptionValue('agent_'+this.name+'_history', JSON.stringify(this.history));
+}
+
+
+
+Eden.Agent.prototype.saveHistoryIndex = function() {
+	edenUI.setOptionValue('agent_'+this.name+'_index', JSON.stringify(this.index));
+}
+
+
+
 Eden.Agent.prototype.addHistory = function(redo, undo) {
 	// Discard any future
 	if (this.history.length-1 != this.index) {
-		this.history = this.history.slice(0, this.index);
+		this.history = this.history.slice(0, this.index+1);
 	}
 
-	this.history.push({redo: redo, undo: undo});
+	this.history.push({time: Date.now() / 1000 | 0, redo: redo, undo: undo});
 	this.index = this.history.length - 1;
-	edenUI.setOptionValue('agent_'+this.name+'_history', JSON.stringify(this.history));
+	this.saveHistory();
+	this.saveHistoryIndex();
 }
 
 
@@ -182,29 +201,105 @@ Eden.Agent.prototype.addHistory = function(redo, undo) {
 Eden.Agent.prototype.clearHistory = function() {
 	this.history = [];
 	this.index = this.history.length - 1;
-	edenUI.setOptionValue('agent_'+this.name+'_history', JSON.stringify(this.history));
+	this.saveHistory();
+	this.saveHistoryIndex();
+}
+
+
+
+/**
+ * Move agent back to a specific point in history.
+ */
+Eden.Agent.prototype.rollback = function(index) {
+	var snap = this.generateSnapshot(index);
+	console.log("Rollback: " + snap);
+
+	this.index = index;
+	this.saveHistoryIndex();
+	
+	this.setSnapshot(snap);
+	this.setSource(snap);
+
+	Eden.Agent.emit("rollback", [this]);
+}
+
+
+
+/**
+ * Generate a history snapshot.
+ */
+Eden.Agent.prototype.generateSnapshot = function(index) {
+	if (this.history[index].snapshot) return this.history[index].snapshot;
+
+	// TODO find nearest existing snapshot and use that...
+
+	var undodmp = new diff_match_patch();
+	var snap = this.snapshot;
+
+	var i = this.index;
+
+	if (i > index) {
+		while (i > index) {
+			var hist = this.history[i];
+			i--;
+			var p = undodmp.patch_fromText(hist.undo);
+			var r = undodmp.patch_apply(p, snap);
+			snap = r[0];
+		}
+	} else {
+		while (i < index) {
+			i++;
+			var hist = this.history[i];
+			var p = undodmp.patch_fromText(hist.redo);
+			var r = undodmp.patch_apply(p, snap);
+			snap = r[0];
+		}
+	}
+
+	return snap;
+}
+
+
+
+/**
+ * Make a particular history index a snapshot point.
+ */
+Eden.Agent.prototype.makeSnapshot = function(index) {
+	if (this.history[index].snapshot) return;
+	var snap = this.generateSnapshot(index);
+	this.history[index].snapshot = snap;
+	this.saveHistory();
 }
 
 
 
 Eden.Agent.prototype.undo = function() {
 	if (this.index < 0) return;
+	if (this.history.length == 0) return;
 
 	var hist = this.history[this.index];
 	this.index--;
 
-	var undodmp = new diff_match_patch();
-	var p = undodmp.patch_fromText(hist.undo);
-	var r = undodmp.patch_apply(p, this.snapshot);
+	var snap;
 
-	this.setSnapshot(r[0]);
-	this.setSource(r[0]);
+	if (this.index >= 0 && this.history[this.index].snapshot) {
+		snap = this.history[this.index].snapshot;
+	} else {
+		var undodmp = new diff_match_patch();
+		var p = undodmp.patch_fromText(hist.undo);
+		var r = undodmp.patch_apply(p, this.snapshot);
+		snap = r[0];
+	}
+
+	this.saveHistoryIndex();
+	this.setSnapshot(snap);
+	this.setSource(snap);
 }
 
 
 
 Eden.Agent.prototype.canUndo = function() {
-	return this.index >= 0;
+	return this.history.length > 0 && this.index >= 0;
 }
 
 Eden.Agent.prototype.canRedo = function() {
@@ -218,13 +313,20 @@ Eden.Agent.prototype.redo = function() {
 
 	this.index++;
 	var hist = this.history[this.index];
+	var snap;
 
-	var redodmp = new diff_match_patch();
-	var p = redodmp.patch_fromText(hist.redo);
-	var r = redodmp.patch_apply(p, this.snapshot);
+	if (hist.snapshot) {
+		snap = hist.snapshot;
+	} else {
+		var redodmp = new diff_match_patch();
+		var p = redodmp.patch_fromText(hist.redo);
+		var r = redodmp.patch_apply(p, this.snapshot);
+		snap = r[0];
+	}
 
-	this.setSnapshot(r[0]);
-	this.setSource(r[0]);
+	this.saveHistoryIndex();
+	this.setSnapshot(snap);
+	this.setSource(snap);
 }
 
 

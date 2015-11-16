@@ -176,9 +176,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			createMenuItem((agent.state[obs_showtabs]) ? "&#xf00c;" : "&#xf00d;", "Show Tabs", function(e) { agent.state[obs_showtabs] = !agent.state[obs_showtabs]; buildMenu(); });
 			createMenuItem((agent.state[obs_showbuttons]) ? "&#xf00c;" : "&#xf00d;", "Show Controls", function(e) { agent.state[obs_showbuttons] = !agent.state[obs_showbuttons]; buildMenu(); });
 			//createMenuItem("&#xf00d;", "Show Hidden", function(e) {  });
-			createMenuItem("&#xf067;", "Import Agent", function(e) { });
+			createMenuItem("&#xf0c0;", "Browse Agents", function(e) { });
 			createMenuItem("&#xf05e;", "Remove Agent", function(e) { Eden.Agent.remove(scriptagent); hideMenu(); });
-			createMenuItem("&#xf036;", "View History", function(e) { });
+			createMenuItem("&#xf036;", "View History", function(e) { showSubDialog("showHistory", function(status, index) {
+				if (status) {
+					scriptagent.rollback(index);
+				}
+			}, scriptagent); hideMenu(); });
 			createMenuItem("&#xf0d0;", "Insert Template", function(e) { });
 			if (embedded) {
 				createMenuItem("&#xf24d;", "Un-embed", function(e) { });
@@ -572,8 +576,16 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 				}
 			}
 		}
+		function agentRollback(ag) {
+			if (ag === scriptagent) {
+				intextarea.value = scriptagent.snapshot;
+				updateEntireHighlight(true);
+				updateHistoryButtons();
+			}
+		}
 		Eden.Agent.listenTo("create", this, agentCreated);
 		Eden.Agent.listenTo("loaded", this, agentLoaded);
+		Eden.Agent.listenTo("rollback", this, agentRollback);
 		Eden.Agent.listenTo("owned", this, changeOwnership);
 
 
@@ -1205,9 +1217,9 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 
 
 
-		function showSubDialog(name, callback) {
+		function showSubDialog(name, callback, data) {
 			if (EdenUI.plugins.ScriptInput.dialogs[name]) {
-				EdenUI.plugins.ScriptInput.dialogs[name]($dialogContents, callback);
+				EdenUI.plugins.ScriptInput.dialogs[name]($dialogContents, callback, data);
 			}
 		}
 
@@ -1572,7 +1584,6 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 				if (status) {
 					var agent = new Eden.Agent(undefined, value);
 					agent.enabled = false;
-					agent.setSource("## "+value);
 					changeAgent(undefined, value);
 				}
 			});
