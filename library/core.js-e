@@ -176,7 +176,7 @@ proc showObservables { ${{
 
 	searchLang = arguments[2];
 	if (searchLang === undefined) {
-		if (/[\\+^|(){[]|\.\*|\.\?/.test(searchStr)) {
+		if (/[\\+^$|({[]|\.\*|\.\?/.test(searchStr)) {
 			//Auto detect regular expression being used.
 			searchLang = "regexp";
 		}
