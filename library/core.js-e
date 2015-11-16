@@ -150,12 +150,12 @@ ${{
 }}$;
 
 proc showObservables { ${{
-    if (arguments.length > 2) {
-		eden.error(new Error("showObservables: This procedure requires at most 2 parameters."), "error");
+    if (arguments.length > 3) {
+		eden.error(new Error("showObservables: This procedure requires at most 3 parameters."), "error");
 		return;
 	}
 	
-	var searchStr, viewName;
+	var searchStr, viewName, searchLang;
 	
 	searchStr = arguments[0];
 	if (searchStr === undefined) {
@@ -173,7 +173,25 @@ proc showObservables { ${{
 		eden.error(new Error("showObservables: The second argument must be a string, not a " + typeof(viewName)), "error");
 		return;
 	}
-	
+
+	searchLang = arguments[2];
+	if (searchLang !== undefined && typeof(searchLang) != "string") {
+		eden.error(new Error("showObservables: The third argument must be a string, not a " + typeof(viewName)), "error");
+		return;	
+	}
+
+	var preferRegExps = edenUI.getOptionValue("optSimpleWildcards") === "false";
+	if (preferRegExps) {
+		if (searchLang == "regexp") {
+			//No need for explicit override, user prefers regexps (for now) anyway.
+			searchLang = undefined;
+		} else {
+			//Construal specified simple search (or unspecified), but user prefers regexps, so translate.
+			var fromLang = searchLang === undefined? "simple" : searchLang;
+			searchStr = edenUI.regExpFromStr(searchStr, "", false, fromLang).source;
+		}
+	}
+
 	var inputBox = $('#' + viewName + '-dialog .symbollist-search');
 	if (inputBox.length == 0) {
 		edenUI.createView(viewName, "SymbolList");
@@ -183,6 +201,7 @@ proc showObservables { ${{
 		edenUI.showView(viewName);
 	}
 	edenUI.brieflyHighlightView(viewName);
+	root.lookup("_view_" + viewName + "_search_lang").assign(searchLang, this);
 	inputBox.val(searchStr);
     inputBox.keyup();
 }}$; }

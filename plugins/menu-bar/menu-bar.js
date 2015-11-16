@@ -367,8 +367,14 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 					inputElement.checked = !inputElement.checked;
 				}
 				edenUI.setOptionValue(optionName, inputElement.checked);
-				if (onChange) {
-					onChange(optionName, inputElement.checked);
+			});
+			edenUI.listenTo("optionChange", undefined, function (changedName, value) {
+				if (changedName == optionName) {
+					var ticked = (value === "true");
+					inputElement.checked = ticked;
+					if (onChange) {
+						onChange(optionName, ticked);
+					}
 				}
 			});
 			item.appendTo(optionsMenu);

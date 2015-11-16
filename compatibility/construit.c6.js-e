@@ -1,0 +1,20 @@
+##Shim construal construit.c5
+##
+##Run on the later versions of JS-EDEN to temporarily reverse incompatible
+##changes made to the environment subsequent to the CONSTRUIT! C6 meeting.
+
+##Search syntax used to always be regular expressions.
+
+${{
+	edenUI.setTemporaryOptionValue("optSimpleWildcards", false);
+}}$;
+
+proc oldShowObservables {
+	para newShowObservables, params;
+	if (params[1]# < 4) {
+		newShowObservables("^(" // params[1] // ")", params[2], "regexp");
+	} else {
+		newShowObservables(params[1], params[2], "regexp");	
+	}
+}
+patch(&oldShowObservables, &showObservables);

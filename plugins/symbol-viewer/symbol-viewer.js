@@ -39,7 +39,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	var generateHTML = function (viewName, viewType) {
 		var html = "\
 			<div class=\"symbollist-search-box-outer\"> \
-				<input type=\"text\" class=\"symbollist-search symbollist-control\" placeholder=\"search\" /> \
+				<input type=\"text\" class=\"symbollist-search symbollist-control\" /> \
 				<a class=\"symbollist-edit symbollist-control symbollist-rightmost-control\">Edit Listed</a><br/> \
 				<select id=\"" + viewName + "-category-filter\" class=\"symbollist-control\"> \
 					<option value=\"user\">Construal</option>";
@@ -120,22 +120,39 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 				$('#' + editorViewName + '-dialog').find('textarea').val(allVals);
 		});
 
+		//Show different placeholder text to indicate the search syntax being used.
+		var searchBox = content.find(".symbollist-search-box-outer > .symbollist-search");
+		var searchLangSym = root.lookup("_view_" + edenName + "_search_lang");
+		function setSearchLanguage(sym, language) {
+			var regExp = edenUI.regExpFromStr($(searchBox), "", false, language);
+			symbollist.search(regExp);
+
+			if (language == "regexp") {
+				$(searchBox).attr("placeholder", "search regular expression");
+			} else {
+				$(searchBox).attr("placeholder", "search");
+			}
+		};
+		setSearchLanguage(searchLangSym, searchLangSym.value());
+		searchLangSym.addJSObserver("refreshView", setSearchLanguage);
 
 		// Make changes in search box update the list.
-		var searchBox = content.find(".symbollist-search-box-outer > .symbollist-search");
 		searchBox.keyup(function() {
-			var regExp = edenUI.regExpFromStr($(this));
+			var searchLang = searchLangSym.value();
+			var regExp = edenUI.regExpFromStr($(this), "", false, searchLang);
 			symbollist.search(regExp);
 		});
 
 		document.getElementById(name + "-category-filter").addEventListener("change", function (event) {
-			var regExp = edenUI.regExpFromStr($(searchBox));
+			var searchLang = searchLangSym.value();
+			var regExp = edenUI.regExpFromStr($(searchBox), "", false, searchLang);
 			symbollist.search(regExp, event.target.value);
 		});
 
 		if (type == "obs") {
 			document.getElementById(name + "-type-filter").addEventListener("change", function (event) {
-				var regExp = edenUI.regExpFromStr($(searchBox));
+				var searchLang = searchLangSym.value();
+				var regExp = edenUI.regExpFromStr($(searchBox), "", false, searchLang);
 				symbollist.search(regExp, undefined, event.target.value);
 			});
 		}
