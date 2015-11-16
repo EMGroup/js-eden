@@ -175,7 +175,12 @@ proc showObservables { ${{
 	}
 
 	searchLang = arguments[2];
-	if (searchLang !== undefined && typeof(searchLang) != "string") {
+	if (searchLang === undefined) {
+		if (/[\\+^|(){[]|\.\*|\.\?/.test(searchStr)) {
+			//Auto detect regular expression being used.
+			searchLang = "regexp";
+		}
+	} else if (typeof(searchLang) != "string") {
 		eden.error(new Error("showObservables: The third argument must be a string, not a " + typeof(viewName)), "error");
 		return;	
 	}

@@ -434,11 +434,6 @@ function concatAndResolveUrl(url, concat) {
 			flags = "";
 		}
 
-		//Guess desirability of case sensitivity based on the presence or absence of capital letters.
-		if (!/[A-Z]/.test(str)) {
-			flags = flags + "i";
-		}
-
 		//Determine the syntax that the user used to express their search.
 		var simpleWildcards;
 		if (searchLang === undefined) {
@@ -462,6 +457,11 @@ function concatAndResolveUrl(url, concat) {
 				}
 			}
 			str = alternatives.join("|");
+		}
+
+		//Guess desirability of case sensitivity based on the presence or absence of capital letters.
+		if (!/[A-Z]/.test(str)) {
+			flags = flags + "i";
 		}
 
 		if (simpleWildcards && !exactMatch && str.length < 4) {
