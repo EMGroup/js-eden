@@ -328,37 +328,6 @@ EdenStream.prototype.parseKeyword = function(word) {
 };
 
 
-var edenKeywords = {
-"func": true,
-"proc": true,
-"auto": true,
-"para": true,
-"local": true,
-"if": true,
-"is": true,
-"else": true,
-"eval": true,
-"for": true,
-"while": true,
-"do": true,
-"switch": true,
-"case": true,
-"default": true,
-"break": true,
-"continue": true,
-"return": true,
-"when": true,
-"include": true,
-"option": true,
-"await": true,
-"insert": true,
-"append": true,
-"delete": true,
-"require": true,
-"after": true,
-"shift": true
-};
-
 
 EdenStream.prototype.readToken = function() {
 	this.prevline = this.line;

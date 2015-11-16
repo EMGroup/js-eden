@@ -1766,6 +1766,43 @@ Eden.AST.prototype.pINCLUDE = function() {
 
 
 
+/**
+ * IMPORT Production
+ * IMPORT -> name IMPORT'
+ * IMPORT' -> / IMPORT | ;
+ */
+Eden.AST.prototype.pIMPORT = function() {
+	var imp = new Eden.AST.Import();
+
+	if (this.token != "OBSERVABLE") {
+		imp.errors.push(new Eden.SyntaxError(this, 0));
+		return imp;
+	}
+
+	var path = this.data.value;
+	this.next();
+
+	while (this.token == "/") {
+		this.next();
+		if (this.token != "OBSERVABLE") {
+			imp.errors.push(new Eden.SyntaxError(this, 0));
+			return imp;
+		}
+		path += "/" + this.data.value;
+		this.next();
+	}
+
+	if (this.token != ";") {
+		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
+		return imp;
+	}
+
+	imp.setPath(path);
+	return imp;
+}
+
+
+
 Eden.AST.prototype.pWAIT = function() {
 	var wait = new Eden.AST.Wait();
 
@@ -1839,10 +1876,11 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "append"	:	this.next(); stat = this.pAPPEND(); break;
 	case "shift"	:	this.next(); stat = this.pSHIFT(); break;
 	case "require"	:	this.next(); stat = this.pREQUIRE(); break;
-	case "await"	:	this.next(); stat = this.pAWAIT(); break;
+	//case "await"	:	this.next(); stat = this.pAWAIT(); break;
 	case "after"	:	this.next(); stat = this.pAFTER(); break;
-	case "option"	:	this.next(); stat = this.pOPTION(); break;
+	//case "option"	:	this.next(); stat = this.pOPTION(); break;
 	case "include"	:	this.next(); stat = this.pINCLUDE(); break;
+	case "import"	:	this.next(); stat = this.pIMPORT(); break;
 	case "default"	:	this.next();
 						var def = new Eden.AST.Default();
 						if (this.token != ":") {

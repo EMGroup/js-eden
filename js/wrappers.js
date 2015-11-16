@@ -81,6 +81,50 @@ Eden.Agent.listenTo = listenTo;
 Eden.Agent.AUTOSAVE_INTERVAL = 2000;
 
 
+
+Eden.Agent.loadDB = function(url) {
+	var me = this;
+
+	$.get(url, function(data) {
+		Eden.Agent.db = data;
+	});
+}
+Eden.Agent.loadDB("resources/agents.db.json");
+
+
+
+Eden.Agent.importAgent = function(path) {
+	if (Eden.Agent.db === undefined) return;
+	if (Eden.Agent.agents[path] !== undefined) return;
+
+	var components = path.split("/");
+	var root = Eden.Agent.db[components[0]];
+	for (var i=1; i<components.length; i++) {
+		if (root === undefined) return;
+		root = root.children[components[i]];
+	}
+
+	if (root === undefined) return;
+	console.log("Agent import: " + root.title);
+
+	if (root.file || root.local) {
+		var ag = new Eden.Agent(undefined, path);
+		ag.enabled = (root.enabled === undefined) ? false : root.enabled;
+
+		if (root.file) {
+			ag.loadFromFile(root.file, ag.enabled);
+		}
+	}
+
+	if (root.children) {
+		for (var a in root.children) {
+			Eden.Agent.importAgent(path+"/"+a);
+		}
+	}
+}
+
+
+
 Eden.Agent.save = function() {
 	// Save list of agents to restore later.
 	var agents = [];

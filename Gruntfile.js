@@ -62,6 +62,7 @@ module.exports = function (grunt) {
 					'plugins/state-listener/state-listener.css',
 					'plugins/network-remote/network-remote.css',
 					'plugins/input-dialog/interpreter.css',
+					'plugins/input-dialog/subdialogs.css',
 					'plugins/adm/adm-input.css',
 					'plugins/script-generator/script-generator.css'
 				]
@@ -90,6 +91,7 @@ module.exports = function (grunt) {
 				],
 				'./plugins/jseden-plugins.min.js': [
 					'./plugins/input-dialog/interpreter.js',
+					'./plugins/input-dialog/subdialogs.js',
 					'./plugins/input-dialog/highlighter.js',
 					'./plugins/input-dialog/gutter.js',
 					'./plugins/project-listing/project-listing.js',

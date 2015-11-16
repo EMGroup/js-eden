@@ -1,0 +1,37 @@
+{
+	"mario": {
+		"title": "Mario Game",
+		"children": {
+			"mario": {
+				"title": "Mario Character Agents",
+				"children": {
+					"motion": {
+						"file": "models/nick/mario/mario_motion.jse",
+						"title": "Mario Movement Agent",
+						"enabled": true
+					},
+					"animation": {
+						"file": "models/nick/mario/mario_animations.jse",
+						"title": "Mario Animation Agent",
+						"enabled": true
+					},
+					"control": {
+						"file": "models/nick/mario/mario_controls.jse",
+						"title": "Mario Controls",
+						"enabled": false
+					}
+				}
+			},
+			"world": {
+				"title": "World Builder",
+				"file": "models/nick/mario/world.jse",
+				"enabled": true
+			},
+			"config": {
+				"title": "Game Configuration",
+				"file": "models/nick/mario/mario_config.jse",
+				"enabled": true
+			}
+		}
+	}
+}

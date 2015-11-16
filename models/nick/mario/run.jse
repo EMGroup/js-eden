@@ -3,6 +3,6 @@ require("Canvas2D");
 agentFromFile("mario/mario/animation","models/nick/mario/mario_animations.jse");
 agentFromFile("mario/mario/motion","models/nick/mario/mario_motion.jse");
 agentFromFile("mario/mario/control","models/nick/mario/mario_controls.jse", false);
-agentFromFile("mario/mario/world","models/nick/mario/world.jse");
-agentFromFile("mario/mario/config","models/nick/mario/mario_config.jse");
+agentFromFile("mario/world","models/nick/mario/world.jse");
+agentFromFile("mario/config","models/nick/mario/mario_config.jse");
 

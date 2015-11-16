@@ -642,6 +642,40 @@ Eden.AST.Include.prototype.setSource = function(start, end) {
 Eden.AST.Include.prototype.error = fnEdenASTerror;
 
 
+
+//------------------------------------------------------------------------------
+
+Eden.AST.Import = function() {
+	this.type = "import";
+	this.errors = [];
+	this.path = "";
+	this.start = 0;
+	this.end = 0;
+	this.executed = 0;
+}
+
+Eden.AST.Import.prototype.setPath = function(path) {
+	this.path = path;
+}
+
+Eden.AST.Import.prototype.generate = function(ctx) {
+	return "Eden.Agent.importAgent(\""+this.path+"\");";
+}
+
+Eden.AST.Import.prototype.execute = function(root, ctx, base) {
+	this.executed = 1;
+	Eden.Agent.importAgent(this.path);
+}
+
+Eden.AST.Import.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+Eden.AST.Import.prototype.error = fnEdenASTerror;
+
+
+
 //------------------------------------------------------------------------------
 
 Eden.AST.Append = function() {

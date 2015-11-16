@@ -168,7 +168,7 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 		console.log(e);
 		var index = parseInt(e.currentTarget.getAttribute("data-index"));
 		active = index;
-		activeelement.removeClass("current");
+		if (activeelement) activeelement.removeClass("current");
 		activeelement = $(e.currentTarget);
 		activeelement.addClass("current");
 	})

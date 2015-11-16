@@ -6,6 +6,8 @@ div.script-obscurer {
 	bottom: 0;
 	background-color: rgba(0,0,0,0.5);
 	z-index: 12;
+	font-family: Verdana,Arial,sans-serif;
+	font-size: 8pt;
 }
 
 
