@@ -228,9 +228,15 @@ function initialiseJSEden(callback) {
 		}
 
 		// Load the Eden library scripts
+		var librarySource;
+		if (document.location.pathname.slice(-15) == "/index-dev.html") {
+			librarySource = "library/eden.jse";
+		} else {
+			librarySource = "library/jseden-lib.min.jse";
+		}
 		loadLanguage(lang, function() {
 			loadPlugins(plugins, function () {
-				eden.include("library/jseden-lib.min.jse", {name: '/system'}, function () {
+				eden.include(librarySource, {name: '/system'}, function () {
 					$.getJSON('config.json', function (config) {
 						rt.config = config;
 
