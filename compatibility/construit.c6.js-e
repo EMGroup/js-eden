@@ -6,15 +6,5 @@
 ##Search syntax used to always be regular expressions.
 
 ${{
-	edenUI.setTemporaryOptionValue("optSimpleWildcards", false);
+	edenUI.setDefaultOptionValue("optSimpleWildcards", false);
 }}$;
-
-proc oldShowObservables {
-	para newShowObservables, params;
-	if (params[1]# < 4) {
-		newShowObservables("^(" // params[1] // ")", params[2], "regexp");
-	} else {
-		newShowObservables(params[1], params[2], "regexp");	
-	}
-}
-patch(&oldShowObservables, &showObservables);
