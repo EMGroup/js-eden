@@ -1205,6 +1205,14 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 
 
 
+		function showSubDialog(name, callback) {
+			if (EdenUI.plugins.ScriptInput.dialogs[name]) {
+				EdenUI.plugins.ScriptInput.dialogs[name]($dialogContents, callback);
+			}
+		}
+
+
+
 		/**
 		 * Set the rebuild timeout. Note: rebuildinterval MUST be less that the
 		 * keyboard repeat rate or you will not see a change when holding keys
@@ -1559,6 +1567,19 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 
 
 
+		function onNewTab() {
+			showSubDialog("newAgent", function(status, value) {
+				if (status) {
+					var agent = new Eden.Agent(undefined, value);
+					agent.enabled = false;
+					agent.setSource("## "+value);
+					changeAgent(undefined, value);
+				}
+			});
+		}
+
+
+
 		// Set the event handlers
 		$dialogContents
 		.on('input', '.hidden-textarea', onInputChanged)
@@ -1574,7 +1595,8 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 		.on('click', '.eden-gutter-item', onGutterClick)
 		.on('click', '.agent-tab', onTabClick)
 		.on('click', '.agent-tableft', onTabLeft)
-		.on('click', '.agent-tabright', onTabRight);
+		.on('click', '.agent-tabright', onTabRight)
+		.on('click', '.agent-newtab', onNewTab);
 
 		$powerbutton.click(function (e) {
 			if (!readonly) {

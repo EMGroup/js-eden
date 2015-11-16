@@ -1,0 +1,182 @@
+div.script-obscurer {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0,0,0,0.5);
+	z-index: 12;
+}
+
+
+input.script-subdialog-text {
+	margin-top: 4px;
+	margin-bottom: 10px;
+	width: calc(100% - 30px);
+	font-size: 1.2em;
+}
+
+span.script-subdialog-title {
+	font-weight: bold;
+}
+
+span.valid:after {
+	margin-left: 5px;
+	content: "\f00c";
+	font-family: "FontAwesome";
+	font-size: 11pt;
+	font-weight: normal;
+	color: green;
+}
+
+span.invalid:after {
+	margin-left: 5px;
+	content: "\f00d";
+	font-family: "FontAwesome";
+	font-size: 11pt;
+	font-weight: normal;
+	color: red;
+}
+
+span.missing:after {
+	margin-left: 5px;
+	content: "\f00d";
+	font-family: "FontAwesome";
+	font-size: 11pt;
+	font-weight: normal;
+	color: #aaa;
+}
+
+
+div.script-subdialog-newagent {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 15%;
+	width: 250px;
+	background-color: #f5f5f5;
+	padding: 20px;
+	box-shadow: 0 0 7px black;
+	border-radius: 5px;
+}
+
+
+
+
+
+
+
+button.button-icon-green {
+	line-height: 100%;
+	margin-right: 8px;
+	margin-left: 8px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 8px;
+	padding-right: 8px;
+	font-weight: bold;
+	color: white;
+	border-width: 1px;
+	border-radius: 5px;
+	border: 1px solid #448b05;
+	box-shadow: 0 0 4px #777;
+	background: -webkit-linear-gradient(#63d400, #4fb300); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#63d400, #4fb300); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#63d400, #4fb300); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#63d400, #4fb300); /* Standard syntax */
+	outline: none;
+}
+
+button.button-icon-green:active {
+	box-shadow: 0 0 7px #222;
+	outline: none;
+}
+
+button.button-icon-green:before {
+	position: relative;
+	left: -8px;
+	padding: 5px;
+	font-weight: normal;
+	font-family: "FontAwesome";
+	/*font-size: 10pt;*/
+	color: white;
+	border-width: 0;
+	border-radius: 5px 0 0 5px;
+	/*border-bottom: 3px solid #2c6506;*/
+	border-right: 1px solid #448b05;
+	background: -webkit-linear-gradient(#63d400, #4fb300); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#63d400, #4fb300); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#63d400, #4fb300); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#63d400, #4fb300); /* Standard syntax */
+}
+
+button.button-icon-green:hover:before {
+	background: -webkit-linear-gradient(#4dac01, #448d01); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#4dac01, #448d01); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#4dac01, #448d01); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#4dac01, #448d01); /* Standard syntax */
+}
+
+
+
+button.button-icon-silver {
+	line-height: 100%;
+	margin-right: 8px;
+	margin-left: 8px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 8px;
+	padding-right: 8px;
+	font-weight: normal;
+	color: black;
+	border-width: 1px;
+	border-radius: 5px;
+	border: 1px solid #8b8b8b;
+	box-shadow: 0 0 4px #888;
+	background: -webkit-linear-gradient(#e0e0e0, #bfbfbf); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#e0e0e0, #bfbfbf); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#e0e0e0, #bfbfbf); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#e0e0e0, #bfbfbf); /* Standard syntax */
+	outline: none;
+}
+
+button.button-icon-silver:active {
+	box-shadow: 0 0 7px #222;
+	outline: none;
+}
+
+button.button-icon-silver:before {
+	position: relative;
+	left: -8px;
+	padding: 5px;
+	font-weight: normal;
+	font-family: "FontAwesome";
+	/*font-size: 10pt;*/
+	color: #3465a4;
+	border-width: 0;
+	border-radius: 5px 0 0 5px;
+	/*border-bottom: 3px solid #2c6506;*/
+	border-right: 1px solid #8b8b8b;
+}
+
+button.button-icon-silver:hover:before {
+	background: -webkit-linear-gradient(#b8b8b8, #999999); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#b8b8b8, #999999); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#b8b8b8, #999999); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#b8b8b8, #999999); /* Standard syntax */
+}
+
+
+
+button.button-ok:before {
+	content: "\f00c";
+}
+
+button.button-add:before {
+	content: "\f067";
+}
+
+button.button-cancel:before {
+	content: "\f00d";
+}
+
+
