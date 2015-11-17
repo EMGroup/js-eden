@@ -19,7 +19,8 @@ var Language = {
 		"remote": "remote",
 		"local": "local",
 		"rebase": "rebase",
-		"hidden": "hidden"
+		"hidden": "hidden",
+		"visible": "visible"
 	},
 
 	keywords: {

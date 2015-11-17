@@ -678,6 +678,12 @@ Eden.AST.Import.prototype.addOption = function(opt) {
 		if (this.options.indexOf("local") >= 0) return false;
 		if (this.options.indexOf("remote") >= 0) return false;
 		if (this.options.indexOf("rebase") >= 0) return true;
+	} else if (opt == "hidden") {
+		if (this.options.indexOf("hidden") >= 0) return true;
+		if (this.options.indexOf("visible") >= 0) return false;
+	} else if (opt == "visible") {
+		if (this.options.indexOf("hidden") >= 0) return false;
+		if (this.options.indexOf("visible") >= 0) return true;
 	}
 
 	this.options.push(opt);

@@ -215,13 +215,13 @@ Eden.Agent.prototype.autoSave = function() {
 	var d = savedmp.diff_main(this.snapshot, this.ast.stream.code, false);
 	var p = savedmp.patch_make(this.snapshot, this.ast.stream.code, d);
 	var redo = savedmp.patch_toText(p);
-	console.log(redo);
+	//console.log(redo);
 
 	// Calculate undo diff
 	d = savedmp.diff_main(this.ast.stream.code, this.snapshot, false);
 	p = savedmp.patch_make(this.ast.stream.code, this.snapshot, d);
 	var undo = savedmp.patch_toText(p);
-	console.log(undo);
+	//console.log(undo);
 
 	if (undo == "") return;
 
@@ -242,6 +242,7 @@ Eden.Agent.prototype.setOptions = function(options) {
 		if (options.indexOf("enabled") >= 0) this.setEnabled(true);
 		if (options.indexOf("readonly") >= 0) this.owned = true;
 		if (options.indexOf("hidden") >= 0) this.hidden = true;
+		if (options.indexOf("visible") >= 0) this.hidden = false;
 	}
 }
 
@@ -303,7 +304,7 @@ Eden.Agent.prototype.clearHistory = function() {
  */
 Eden.Agent.prototype.rollback = function(index) {
 	var snap = this.generateSnapshot(index);
-	console.log("Rollback: " + snap);
+	//console.log("Rollback: " + snap);
 
 	this.index = index;
 	this.saveHistoryIndex();
@@ -633,7 +634,7 @@ Eden.Agent.prototype.executeStatement = function(statement, line) {
 	try {
 		statement.execute(eden.root,undefined, this.ast);
 		var code = this.ast.getSource(statement);
-		console.log("PATCH line = " + line + " code = "+code);
+		//console.log("PATCH line = " + line + " code = "+code);
 		Eden.Agent.emit('execute', [this, code, line]);
 	} catch (e) {
 		eden.error(e);
@@ -653,12 +654,12 @@ Eden.Agent.prototype.setSource = function(source) {
 		clearTimeout(this.autosavetimer);
 		this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Agent.AUTOSAVE_INTERVAL);
 
-		console.time("MakePATCH");
+		//console.time("MakePATCH");
 		var d = this.dmp.diff_main(this.ast.stream.code, source, false);
 		var p = this.dmp.patch_make(this.ast.stream.code, source, d);
 		var t = this.dmp.patch_toText(p);
-		console.timeEnd("MakePATCH");
-		console.log(t);
+		//console.timeEnd("MakePATCH");
+		//console.log(t);
 	} else {
 		this.setSnapshot(source);
 	}

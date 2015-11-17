@@ -214,11 +214,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		} else {
 			scriptagent = Eden.Agent.agents["view/script/"+name];
 		}
-		scriptagent.setEnabled(power);
-		scriptagent.setOwned(true);
-
 		// Load script from agent memory
 		intextarea.value = scriptagent.snapshot;
+		scriptagent.setEnabled(power);
+		scriptagent.setOwned(true);
 
 
 
@@ -382,17 +381,19 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 */
 		function preloadScript(sym, value) {
 			var res = "";
-			if (value instanceof Array) {
-				for (var i=0; i < value.length; i++) {
-					if (typeof value[i] == "string") {
-						res += value[i] + "\n";
-					} else if (typeof value[i] == "object") {
-						res += value[i].eden_definition+"\n";
+			if (value) {
+				if (value instanceof Array) {
+					for (var i=0; i < value.length; i++) {
+						if (typeof value[i] == "string") {
+							res += value[i] + "\n";
+						} else if (typeof value[i] == "object") {
+							res += value[i].eden_definition+"\n";
+						}
 					}
 				}
+				intextarea.value = res;
+				updateEntireHighlight();
 			}
-			intextarea.value = res;
-			updateEntireHighlight();
 		}
 
 
@@ -459,7 +460,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			} else {
 				if (value !== undefined) {
 					intextarea.value = "";
-					console.log("SET READONLY");
 					readonly = true;
 					setTitle("Script View");
 					setSubTitle("[No Agents]");
@@ -586,6 +586,7 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 		}
 		function agentRollback(ag) {
 			if (ag === scriptagent) {
+				//console.log("ROLLBACK");
 				intextarea.value = scriptagent.snapshot;
 				updateEntireHighlight(true);
 				updateHistoryButtons();
