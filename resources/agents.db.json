@@ -30,7 +30,7 @@
 			"config": {
 				"title": "Game Configuration",
 				"file": "models/nick/mario/mario_config.jse",
-				"enabled": false
+				"enabled": true
 			}
 		}
 	},
