@@ -1816,7 +1816,7 @@ Eden.AST.prototype.pIMPORT = function() {
 		this.next();
 	}
 
-	if (this.token != ";" && this.token != "OBSERVABLE") {
+	if (this.token != ";" && this.token != "OBSERVABLE" && this.token != "local") {
 		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return imp;
 	}

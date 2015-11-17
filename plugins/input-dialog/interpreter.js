@@ -214,7 +214,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		} else {
 			scriptagent = Eden.Agent.agents["view/script/"+name];
 		}
-		scriptagent.enabled = power;
+		scriptagent.setEnabled(power);
 		scriptagent.setOwned(true);
 
 		// Load script from agent memory
@@ -418,6 +418,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function changeAgent(sym, value) {
 			if (value && Eden.Agent.agents[value]) {
+				if (value == scriptagent.name) return;
 				if (readonly == false) scriptagent.setOwned(false);
 				scriptagent = Eden.Agent.agents[value];
 
@@ -456,15 +457,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				updateHistoryButtons();
 				rebuildTabs();
 			} else {
-				intextarea.value = "";
-				readonly = true;
-				setTitle("Script View");
-				setSubTitle("[No Agents]");
-				outdiv.className = "outputcontent readonly";
-				outdiv.contentEditable = false;
-				outdiv.innerHTML = "";
-				updateHistoryButtons();
-				rebuildTabs();
+				if (value !== undefined) {
+					intextarea.value = "";
+					console.log("SET READONLY");
+					readonly = true;
+					setTitle("Script View");
+					setSubTitle("[No Agents]");
+					outdiv.className = "outputcontent readonly";
+					outdiv.contentEditable = false;
+					outdiv.innerHTML = "";
+					updateHistoryButtons();
+					rebuildTabs();
+				}
 			}
 		}
 
@@ -515,7 +519,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.declare(obs_showbuttons);
 		//agent.setReadonly([obs_script,obs_next,obs_prev,obs_override, obs_file, obs_power, obs_agent, obs_showtabs]);
 
-		agent.enabled = true;
+		agent.setEnabled(true);
 
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);
@@ -1109,7 +1113,7 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 		function powerOff() {
 			powerOk();
 			$powerbutton.removeClass("power-on").addClass("power-off");
-			scriptagent.enabled = false;
+			scriptagent.setEnabled(false);
 		}
 
 
@@ -1119,7 +1123,7 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 		 */
 		function powerOn() {
 			$powerbutton.removeClass("power-off").addClass("power-on");
-			scriptagent.enabled = true;
+			scriptagent.setEnabled(true);
 		}
 
 
@@ -1587,7 +1591,7 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 			showSubDialog("newAgent", function(status, value) {
 				if (status) {
 					var agent = new Eden.Agent(undefined, value);
-					agent.enabled = false;
+					agent.setEnabled(false);
 					changeAgent(undefined, value);
 				}
 			});
@@ -1615,7 +1619,7 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 
 		$powerbutton.click(function (e) {
 			if (!readonly) {
-				scriptagent.enabled = !scriptagent.enabled;
+				scriptagent.setEnabled(!scriptagent.enabled);
 
 				if (scriptagent.enabled) {
 					powerOn();

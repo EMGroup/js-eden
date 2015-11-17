@@ -33,9 +33,9 @@ Eden.Agent = function(parent, name, title, options) {
 	this.scope = eden.root.scope;
 	this.ast = undefined;
 	this.state = {};
-	this.enabled = (options && options.indexOf("disabled") >= 0) ? false : true;
+	this.enabled = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_enabled')) || false;
 	this.hidden = false;
-	this.owned = (options && options.indexOf("readonly") >= 0) ? true : false;
+	this.owned = false;
 	this.oracles = [];
 	this.handles = [];
 	this.title = (title) ? title : "Agent";
@@ -44,8 +44,13 @@ Eden.Agent = function(parent, name, title, options) {
 	this.snapshot = edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
 	this.autosavetimer = undefined;
 
+	this.setOptions(options);
+
 	if (this.snapshot) {
 		this.setSource(this.snapshot);
+		if (this.enabled) {
+			this.executeLine(-1);
+		}
 	} else {
 		this.setSource("");
 	}
@@ -96,7 +101,16 @@ Eden.Agent.loadDB("resources/agents.db.json");
 
 Eden.Agent.importAgent = function(path, options) {
 	if (Eden.Agent.db === undefined) return;
-	if (Eden.Agent.agents[path] !== undefined) return Eden.Agent.agents[path];
+	if (Eden.Agent.agents[path] !== undefined) {
+		Eden.Agent.agents[path].setOptions(options);
+		return Eden.Agent.agents[path];
+	}
+
+	// If local, just load and let it get its data...
+	if (options && options.indexOf("local") >= 0) {
+		var ag = new Eden.Agent(undefined, path, "Agent", options);
+		return ag;
+	}
 
 	var components = path.split("/");
 	var root = Eden.Agent.db[components[0]];
@@ -222,9 +236,29 @@ Eden.Agent.prototype.autoSave = function() {
 
 
 
+Eden.Agent.prototype.setOptions = function(options) {
+	if (options) {
+		if (options.indexOf("disabled") >= 0) this.setEnabled(false);
+		if (options.indexOf("enabled") >= 0) this.setEnabled(true);
+		if (options.indexOf("readonly") >= 0) this.owned = true;
+		if (options.indexOf("hidden") >= 0) this.hidden = true;
+	}
+}
+
+
+
 Eden.Agent.prototype.setSnapshot = function(source) {
 	this.snapshot = source;
 	edenUI.setOptionValue('agent_'+this.name+'_snap', source);
+}
+
+
+
+Eden.Agent.prototype.setEnabled = function(enabled) {
+	if (this.enabled != enabled) {
+		this.enabled = enabled;
+		edenUI.setOptionValue('agent_'+this.name+'_enabled', JSON.stringify(this.enabled));
+	}	
 }
 
 
@@ -393,7 +427,7 @@ Eden.Agent.prototype.loadFromFile = function(filename, execute) {
 	var doexecute = execute;
 
 	if (execute === undefined) doexecute = true;
-	if (!doexecute) this.enabled = false;
+	if (!doexecute) this.setEnabled(false);
 
 	if (!doexecute) {
 		console.log("Load without execute: " + filename);
