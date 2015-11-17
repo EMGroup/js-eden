@@ -260,6 +260,13 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope) {
 	}
 }
 
+Eden.AST.UnaryOp.prototype.execute = function(root, ctx, base) {
+	var rhs = "(function(context,scope) { return ";
+	rhs += this.generate(ctx, "scope");
+	rhs += ";})";
+	return eval(rhs)(root,root.scope);
+}
+
 
 
 //------------------------------------------------------------------------------
@@ -1759,6 +1766,7 @@ Eden.AST.Do = function() {
 	/*this.condition = undefined;
 	this.statement = undefined;*/
 	this.name = undefined;
+	this.script = undefined;
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
@@ -1776,6 +1784,13 @@ Eden.AST.Do.prototype.addParameter = function(express) {
 	this.parameters.push(express);
 	if (express && express.errors.length > 0) {
 		this.errors.push.apply(this.errors, express.errors);
+	}
+}
+
+Eden.AST.Do.prototype.setScript = function(script) {
+	this.script = script;
+	if (this.script && this.script.errors.length > 0) {
+		this.errors.push.apply(this.errors, script.errors);
 	}
 }
 
@@ -1813,7 +1828,12 @@ Eden.AST.Do.prototype.generate = function(ctx) {
 Eden.AST.Do.prototype.execute = function(root,ctx,base) {
 	this.executed = 1;
 
-	var script = base.getActionByName(this.name);
+	var script;
+	if (this.script) {
+		script = this.script;
+	} else {
+		script = base.getActionByName(this.name);
+	}
 
 	if (script) {
 		var params = [];
@@ -2281,7 +2301,9 @@ Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, paramete
 			}
 		} else {
 			this.parameters = parameters;
-			this.statements[i].execute(root,this, base);
+			// Only execute statement if it isn't a script.
+			if (this.statements[i].type != "script")
+				this.statements[i].execute(root,this, base);
 		}
 
 		if (this.statements[i].errors.length > 0) {
@@ -2309,13 +2331,13 @@ function runEdenAction(source, action) {
 
 Eden.AST.Script.prototype.execute = function(root, ctx, base) {
 	// Un named actions execute immediately.
-	if (this.name === undefined) {
+	//if (this.name === undefined) {
 		this.executeReal(root,ctx,base);
-	} else {
+	//} else {
 		// Add this named script to a local symbol table.
 		//base.scripts[this.name] = this;
 		//console.log("Added script: " + this.name);
-	}
+	//}
 }
 
 Eden.AST.Script.prototype.generate = function(ctx, scope) {

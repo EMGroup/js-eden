@@ -1272,7 +1272,16 @@ Eden.AST.prototype.pWHILE = function() {
 Eden.AST.prototype.pDO = function() {
 	var w = new Eden.AST.Do();
 
-	if (this.token != "OBSERVABLE") {
+	if (this.token == "{") {
+		this.next();
+		var script = this.pSCRIPT();
+		if (this.token != "}") {
+
+		}
+		this.next();
+		w.setScript(script);
+		return w;
+	} else if (this.token != "OBSERVABLE") {
 		w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DONAME));
 		return w;
 	} else {
