@@ -664,7 +664,13 @@ Eden.AST.Import.prototype.generate = function(ctx) {
 
 Eden.AST.Import.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
-	Eden.Agent.importAgent(this.path);
+	var ag = Eden.Agent.importAgent(this.path);
+	if (ag) {
+		for (var i=0; i<base.imports.length; i++) {
+			if (base.imports[i] === ag) return;
+		}
+		base.imports.push(ag);
+	}
 }
 
 Eden.AST.Import.prototype.setSource = function(start, end) {
@@ -1000,7 +1006,7 @@ Eden.AST.Assignment = function(expression) {
 Eden.AST.Assignment.prototype.getParameterByNumber = function(index) {
 	if (this.parent && this.parent.getParameterByNumber) {
 		var p = this.parent.getParameterByNumber(index);
-		console.log("Param "+index+" = " + p);
+		//console.log("Param "+index+" = " + p);
 		return p;
 	}
 	return undefined;
@@ -1774,24 +1780,18 @@ Eden.AST.Do.prototype.generate = function(ctx) {
 
 Eden.AST.Do.prototype.execute = function(root,ctx,base) {
 	this.executed = 1;
-	/*var express = this.condition.generate(ctx, "scope");
-	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
-		express += ".value";
-	}
-	var expfunc = eval("(function(context,scope){ return " + express + "; })");
 
-	do {
-		this.statement.execute(root,ctx,base);
-	} while (expfunc(root,root.scope));*/
+	var script = base.getActionByName(this.name);
 
-	if (base.scripts[this.name]) {
+	if (script) {
 		var params = [];
 		for (var i=0; i<this.parameters.length; i++) {
 			params.push(this.parameters[i].execute(root,ctx,base));
 		}
-		base.scripts[this.name].executeReal(root,ctx,base, params);
+		script.executeReal(root,ctx,base, params);
 	} else {
 		this.executed = 3;
+		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ACTIONNAME, this, "Action '"+this.name+"' does not exist"));
 		if (this.parent) this.parent.executed = 3;
 	}
 }

@@ -175,7 +175,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			createMenuItem((agent.state[obs_showtabs]) ? "&#xf00c;" : "&#xf00d;", "Show Tabs", function(e) { agent.state[obs_showtabs] = !agent.state[obs_showtabs]; buildMenu(); });
 			createMenuItem((agent.state[obs_showbuttons]) ? "&#xf00c;" : "&#xf00d;", "Show Controls", function(e) { agent.state[obs_showbuttons] = !agent.state[obs_showbuttons]; buildMenu(); });
-			//createMenuItem("&#xf00d;", "Show Hidden", function(e) {  });
+			createMenuItem((showhidden) ? "&#xf00c;" : "&#xf00d;", "Show Hidden", function(e) { showhidden = !showhidden; rebuildTabs(); });
 			createMenuItem("&#xf0c0;", "Browse Agents", function(e) { });
 			createMenuItem("&#xf05e;", "Remove Agent", function(e) { Eden.Agent.remove(scriptagent); hideMenu(); });
 			createMenuItem("&#xf036;", "View History", function(e) { showSubDialog("showHistory", function(status, index) {
@@ -205,6 +205,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var dirty = false;
 		var tabscrollix = 0;
 		var readonly = false;
+		var showhidden = false;
 
 		var scriptagent;
 
@@ -310,7 +311,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			// Add tab for each agent
 			for (var a in Eden.Agent.agents) {
-				addTab(a, Eden.Agent.agents[a].title, a == scriptagent.name);
+				var ag = Eden.Agent.agents[a];
+				if (!showhidden && ag.hidden) continue;
+				addTab(a, ag.title, a == scriptagent.name);
 			}
 
 			// Add new tab button
@@ -500,6 +503,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var obs_showtabs = "_view_"+name+"_showtabs";
 		var obs_showbuttons = "_view_"+name+"_showbuttons";
 		var agent = new Eden.Agent(undefined,"view/script/"+name+"/config");
+		agent.hidden = true;
 		agent.declare(obs_agent);
 		agent.declare(obs_showtabs);
 		agent.declare(obs_script);
@@ -978,7 +982,7 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 				if (ast.stream.code.charAt(0) == "#") {
 					setTitle(ast.stream.code.split("\n")[0].substr(2));
 				} else {
-					setTitle(Language.ui.input_window.title);
+					//setTitle(Language.ui.input_window.title);
 				}
 			}
 
@@ -1658,7 +1662,7 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 		var simpleName = name.slice(0, -7);
 		var viewdata = me.createCommon(simpleName, mtitle, code, false, false);
 
-		var idealheight = 224;
+		var idealheight = 305;
 		if (code) {
 			var linecount = viewdata.contents.find("textarea").val().split("\n").length;
 			idealheight = EdenUI.plugins.ScriptInput.getRequiredHeight(linecount + 1);

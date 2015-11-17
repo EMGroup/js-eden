@@ -21,7 +21,7 @@ function makeRandomName()
 
 
 
-Eden.Agent = function(parent, name) {
+Eden.Agent = function(parent, name, title) {
 	this.name = undefined;
 	if (name === undefined) {
 		this.name = makeRandomName();
@@ -34,10 +34,11 @@ Eden.Agent = function(parent, name) {
 	this.ast = undefined;
 	this.state = {};
 	this.enabled = true;
+	this.hidden = false;
 	this.owned = false;
 	this.oracles = [];
 	this.handles = [];
-	this.title = "Agent";
+	this.title = (title) ? title : "Agent";
 	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || [];
 	this.index = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_index')) || 0;
 	this.snapshot = edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
@@ -95,7 +96,7 @@ Eden.Agent.loadDB("resources/agents.db.json");
 
 Eden.Agent.importAgent = function(path) {
 	if (Eden.Agent.db === undefined) return;
-	if (Eden.Agent.agents[path] !== undefined) return;
+	if (Eden.Agent.agents[path] !== undefined) return Eden.Agent.agents[path];
 
 	var components = path.split("/");
 	var root = Eden.Agent.db[components[0]];
@@ -107,8 +108,9 @@ Eden.Agent.importAgent = function(path) {
 	if (root === undefined) return;
 	console.log("Agent import: " + root.title);
 
+	var ag;
 	if (root.file || root.local) {
-		var ag = new Eden.Agent(undefined, path);
+		ag = new Eden.Agent(undefined, path, root.title);
 		ag.enabled = (root.enabled === undefined) ? false : root.enabled;
 
 		if (root.file) {
@@ -121,6 +123,8 @@ Eden.Agent.importAgent = function(path) {
 			Eden.Agent.importAgent(path+"/"+a);
 		}
 	}
+
+	return ag;
 }
 
 
@@ -382,6 +386,10 @@ Eden.Agent.prototype.loadFromFile = function(filename, execute) {
 	if (execute === undefined) doexecute = true;
 	if (!doexecute) this.enabled = false;
 
+	if (!doexecute) {
+		console.log("Load without execute: " + filename);
+	}
+
 	$.get(filename, function(data) {
 		me.setSnapshot(data);
 		me.clearHistory();
@@ -613,7 +621,11 @@ Eden.Agent.prototype.setSource = function(source) {
 	}
 
 	var gettitle = this.ast === undefined;
-	this.ast = new Eden.AST(source);
+	if (this.ast) {
+		this.ast = new Eden.AST(source, this.ast.imports);
+	} else {
+		this.ast = new Eden.AST(source);
+	}
 
 	if (gettitle) {
 		if (this.ast.stream.code.charAt(0) == "#") {

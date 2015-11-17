@@ -1,5 +1,8 @@
 ## Example 1
 
+import logo/basic;
+_view_input_agent = "logo/example1";
+
 ## Square
 {
 do forward 100;
@@ -13,43 +16,4 @@ do left 112;
 }
 
 do reset;
-
-
-## Action Specification
-
-action forward {
-	move_offset = $1;
-	if (pen) {
-		lines = lines // [Line(position_x,position_y,newpos_x,newpos_y)];
-	}
-	position_x = newpos_x;
-	position_y = newpos_y;
-}
-
-action left {
-	angle = angle + $1;
-}
-
-action right {
-	angle = angle - $1;
-}
-
-action back {
-	do forward -$1;
-}
-
-action pendown {
-	pen = true;
-}
-
-action penup {
-	pen = false;
-}
-
-action reset {
-	lines = [];
-	angle = 0;
-	position_x = floor(_view_picture_width / 2);
-	position_y = floor(_view_picture_height / 2);
-}
 

@@ -13,7 +13,7 @@
  * report the errors found. To use, pass the script to the constructor.
  * @param code String containing the script.
  */
-Eden.AST = function(code) {
+Eden.AST = function(code, imports) {
 	this.stream = new EdenStream(code);
 	this.data = new EdenSyntaxData();
 	this.token = "INVALID";
@@ -24,6 +24,7 @@ Eden.AST = function(code) {
 	this.scripts = {};			// Actions table
 	this.triggers = {};			// Guarded actions
 	this.definitions = {};		// Definitions mapping
+	this.imports = (imports) ? imports : [];
 
 	this.stream.data = this.data;
 
@@ -34,6 +35,22 @@ Eden.AST = function(code) {
 	//console.time("MakeEden.AST");
 	this.script = this.pSCRIPT();
 	//console.timeEnd("MakeEden.AST");
+}
+
+
+Eden.AST.prototype.getActionByName = function(name) {
+	var script = this.scripts[name];
+
+	if (script === undefined) {
+		for (var i=0; i<this.imports.length; i++) {
+			if (this.imports[i] && this.imports[i].ast) {
+				script = this.imports[i].ast.getActionByName(name);
+				if (script) return script;
+			}
+		}
+	}
+
+	return script;
 }
 
 

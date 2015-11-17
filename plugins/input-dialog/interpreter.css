@@ -525,6 +525,10 @@ span.eden-operator {
 	color: black;
 }
 
+span.eden-path {
+	color: blue;
+}
+
 span.eden-error {
 	background-color: #ffdcdc;
 	/*box-sizing: border-box;

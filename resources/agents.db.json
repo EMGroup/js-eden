@@ -33,5 +33,35 @@
 				"enabled": true
 			}
 		}
+	},
+	"logo": {
+		"title": "Logo Demo",
+		"children": {
+			"drawer": {
+				"file": "models/nick/logo/drawer.jse",
+				"title": "Drawing setup",
+				"enabled": true
+			},
+			"config": {
+				"file": "models/nick/logo/config.jse",
+				"title": "Screen Layout",
+				"enabled": true
+			},
+			"basic": {
+				"file": "models/nick/logo/basic.jse",
+				"title": "Logo Basic Commands",
+				"enabled": true
+			},
+			"example1": {
+				"file": "models/nick/logo/example1.jse",
+				"title": "Example 1",
+				"enabled": true
+			},
+			"example2": {
+				"file": "models/nick/logo/example2.jse",
+				"title": "Example 1",
+				"enabled": true
+			}
+		}
 	}
 }

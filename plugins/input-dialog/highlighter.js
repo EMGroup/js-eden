@@ -194,6 +194,7 @@
 		var linestart = 0;
 		var token = "INVALID";
 		var prevtoken = "INVALID";
+		var mode = 0;
 
 		// Get error position information
 		if (ast.script.errors.length > 0) {
@@ -295,6 +296,7 @@
 				classes += "eden-storage";
 			} else if (type == "keyword") {
 				classes += "eden-keyword";
+				if (stream.data.value == "import") mode = 1;
 			} else if (token == "NUMBER") {
 				classes += "eden-number";
 			} else if (token == "STRING") {
@@ -313,7 +315,11 @@
 				} else if (edenSpecials[stream.data.value]) {
 					classes += "eden-special";
 				} else {
-					classes += "eden-observable";
+					if (mode == 0) {
+						classes += "eden-observable";
+					} else if (mode == 1) {
+						classes += "eden-path";
+					}
 				}
 			} else if (token == "JAVASCRIPT") {
 				classes += "eden-javascript";
@@ -324,7 +330,12 @@
 					tokentext = "-" + stream.tokenText();
 					classes += "eden-number";
 				} else {
-					classes += "eden-operator";
+					if (token == ";") mode = 0;
+					if (mode == 0) {
+						classes += "eden-operator";
+					} else if (mode == 1) {
+						classes += "eden-path";
+					}
 				}
 			}
 

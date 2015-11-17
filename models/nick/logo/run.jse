@@ -1,7 +1,4 @@
 require("Canvas2D");
 
-agentFromFile("logoDrawer","models/nick/logo/drawer.jse");
-agentFromFile("logoExample","models/nick/logo/example1.jse", false);
-agentFromFile("logoExample2","models/nick/logo/example2.jse", false);
-agentFromFile("logoConfig","models/nick/logo/config.jse");
+execute2("import logo/example1;");
 

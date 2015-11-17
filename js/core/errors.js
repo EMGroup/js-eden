@@ -21,6 +21,12 @@ Eden.SyntaxError = function(context, errno, extra) {
 	this.line = context.stream.line;
 	this.position = context.stream.position;
 	this.prevposition = context.stream.prevposition;
+
+	// Adjust line number for semicolon error
+	if (errno == Eden.SyntaxError.SEMICOLON) {
+		//if (context.stream.valid()) this.line--;
+		this.line = context.stream.prevline;
+	}
 };
 
 Eden.SyntaxError.UNKNOWN = 0;
