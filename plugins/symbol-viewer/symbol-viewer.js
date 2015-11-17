@@ -123,14 +123,25 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		//Show different placeholder text to indicate the search syntax being used.
 		var searchBox = content.find(".symbollist-search-box-outer > .symbollist-search");
 		var searchLangSym = root.lookup("_view_" + edenName + "_search_lang");
+
+		function makeRegExp() {
+			var searchStr = searchBox[0].value;
+			var searchLang = searchLangSym.value();
+			if (searchLang === undefined && /[\\+^$|({[]|\.\*|\.\?/.test(searchStr)) {
+				searchLang = "regexp";
+			}
+			return edenUI.regExpFromStr(searchBox, "", false, searchLang);
+		}
+
 		function setSearchLanguage(sym, language) {
-			var regExp = edenUI.regExpFromStr($(searchBox), "", false, language);
-			symbollist.search(regExp);
+			symbollist.search(makeRegExp());
 
 			if (language == "regexp") {
-				$(searchBox).attr("placeholder", "search regular expression");
+				searchBox.attr("placeholder", "search regular expression");
+			} else if (language == "simple") {
+				searchBox.attr("placeholder", "simple search");				
 			} else {
-				$(searchBox).attr("placeholder", "search");
+				searchBox.attr("placeholder", "search");
 			}
 		};
 		setSearchLanguage(searchLangSym, searchLangSym.value());
@@ -138,22 +149,16 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 		// Make changes in search box update the list.
 		searchBox.keyup(function() {
-			var searchLang = searchLangSym.value();
-			var regExp = edenUI.regExpFromStr($(this), "", false, searchLang);
-			symbollist.search(regExp);
+			symbollist.search(makeRegExp());
 		});
 
 		document.getElementById(name + "-category-filter").addEventListener("change", function (event) {
-			var searchLang = searchLangSym.value();
-			var regExp = edenUI.regExpFromStr($(searchBox), "", false, searchLang);
-			symbollist.search(regExp, event.target.value);
+			symbollist.search(makeRegExp(), event.target.value);
 		});
 
 		if (type == "obs") {
 			document.getElementById(name + "-type-filter").addEventListener("change", function (event) {
-				var searchLang = searchLangSym.value();
-				var regExp = edenUI.regExpFromStr($(searchBox), "", false, searchLang);
-				symbollist.search(regExp, undefined, event.target.value);
+				symbollist.search(makeRegExp(), undefined, event.target.value);
 			});
 		}
 

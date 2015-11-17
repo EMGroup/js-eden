@@ -1562,7 +1562,8 @@
 		"showObservables": {
 			"parameters": {
 				"[search_string": "",
-				"[view_name]]": ""
+				"[view_name": "",
+				"[search_syntax]]]": ""
 			}
 		},
 		"showView": {

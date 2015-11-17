@@ -443,9 +443,9 @@ function concatAndResolveUrl(url, concat) {
 				}
 				regExpObj = new RegExp(regExpStr, flags);
 			} catch (e) {
-				//User typed in a bad regexp string.  Unmatched (, { or [ or begins with *, +, ? or {
+				//User typed in a bad regexp string.  Unmatched (, ) or [ or begins with *, +, ? or { or ends with backslash.
 				valid = false;
-				var validPart = str.match(/^([^*+?\\([]([^\\({[]*(\\.)?)*)?/)[0];
+				var validPart = str.match(/^([^*+?\\(){[]([^\\()[]*(\\.)?)*)?/)[0];
 				if (exactMatch) {
 					validPart = "^(" + validPart + ")";
 				}
