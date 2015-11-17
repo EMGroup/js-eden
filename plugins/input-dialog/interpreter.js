@@ -458,7 +458,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				updateHistoryButtons();
 				rebuildTabs();
 			} else {
-				if (value !== undefined) {
+				// TODO Allow for there being no agents...
+				/*if (value !== undefined) {
 					intextarea.value = "";
 					readonly = true;
 					setTitle("Script View");
@@ -468,7 +469,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					outdiv.innerHTML = "";
 					updateHistoryButtons();
 					rebuildTabs();
-				}
+				}*/
 			}
 		}
 
