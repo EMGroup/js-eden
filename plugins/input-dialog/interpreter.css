@@ -529,6 +529,10 @@ span.eden-path {
 	color: blue;
 }
 
+span.eden-importopt {
+	color: #ad7fa8;
+}
+
 span.eden-error {
 	background-color: #ffdcdc;
 	/*box-sizing: border-box;

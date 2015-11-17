@@ -259,6 +259,15 @@ Language.errors = [
 	"Unexpected closing bracket",
 	"A 'proc' needs a name before it's watch list",
 	"A 'proc' needs a name and a watch list"
+],
+/* EDEN_ERROR_IMPORTPATH */ [
+	"Incorrect import path, must be names and '/'"
+],
+/* EDEN_ERROR_IMPORTOPTION */ [
+	"Invalid import option"
+],
+/* EDEN_ERROR_IMPORTCOMB */ [
+	"Combination of options not allowed"
 ]
 ];
 

@@ -21,7 +21,7 @@ function makeRandomName()
 
 
 
-Eden.Agent = function(parent, name, title) {
+Eden.Agent = function(parent, name, title, options) {
 	this.name = undefined;
 	if (name === undefined) {
 		this.name = makeRandomName();
@@ -33,9 +33,9 @@ Eden.Agent = function(parent, name, title) {
 	this.scope = eden.root.scope;
 	this.ast = undefined;
 	this.state = {};
-	this.enabled = true;
+	this.enabled = (options && options.indexOf("disabled") >= 0) ? false : true;
 	this.hidden = false;
-	this.owned = false;
+	this.owned = (options && options.indexOf("readonly") >= 0) ? true : false;
 	this.oracles = [];
 	this.handles = [];
 	this.title = (title) ? title : "Agent";
@@ -94,7 +94,7 @@ Eden.Agent.loadDB("resources/agents.db.json");
 
 
 
-Eden.Agent.importAgent = function(path) {
+Eden.Agent.importAgent = function(path, options) {
 	if (Eden.Agent.db === undefined) return;
 	if (Eden.Agent.agents[path] !== undefined) return Eden.Agent.agents[path];
 
@@ -108,10 +108,19 @@ Eden.Agent.importAgent = function(path) {
 	if (root === undefined) return;
 	console.log("Agent import: " + root.title);
 
+	// Build options
+	if (options === undefined) options = [];
+	if (options.indexOf("enabled") == -1 && options.indexOf("disabled") == -1) {
+		if (root.enabled == true) options.push("enabled");
+		if (root.enabled == false) options.push("disabled");
+		if (root.enabled === undefined) options.push("enabled");
+	}
+	if (root.readonly == true) options.push("readonly"); 
+
 	var ag;
 	if (root.file || root.local) {
-		ag = new Eden.Agent(undefined, path, root.title);
-		ag.enabled = (root.enabled === undefined) ? false : root.enabled;
+		ag = new Eden.Agent(undefined, path, root.title, options);
+		//ag.enabled = (root.enabled === undefined) ? false : root.enabled;
 
 		if (root.file) {
 			ag.loadFromFile(root.file, ag.enabled);

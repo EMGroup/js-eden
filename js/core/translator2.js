@@ -38,6 +38,10 @@ Eden.AST = function(code, imports) {
 }
 
 
+
+/**
+ * Recursive search of all imports for the required action code.
+ */
 Eden.AST.prototype.getActionByName = function(name) {
 	var script = this.scripts[name];
 
@@ -1786,13 +1790,16 @@ Eden.AST.prototype.pINCLUDE = function() {
 /**
  * IMPORT Production
  * IMPORT -> name IMPORT'
- * IMPORT' -> / IMPORT | ;
+ * IMPORT' -> / IMPORT | IMPORT''
+ * IMPORT'' -> enabled IMPORT'' | disabled IMPORT'' | local IMPORT'' |
+ *					remote IMPORT'' | rebase IMPORT'' | readonly IMPORT'' |
+ * 					;
  */
 Eden.AST.prototype.pIMPORT = function() {
 	var imp = new Eden.AST.Import();
 
 	if (this.token != "OBSERVABLE") {
-		imp.errors.push(new Eden.SyntaxError(this, 0));
+		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTPATH));
 		return imp;
 	}
 
@@ -1802,10 +1809,28 @@ Eden.AST.prototype.pIMPORT = function() {
 	while (this.token == "/") {
 		this.next();
 		if (this.token != "OBSERVABLE") {
-			imp.errors.push(new Eden.SyntaxError(this, 0));
+			imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTPATH));
 			return imp;
 		}
 		path += "/" + this.data.value;
+		this.next();
+	}
+
+	if (this.token != ";" && this.token != "OBSERVABLE") {
+		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
+		return imp;
+	}
+
+	while (this.token == "OBSERVABLE" || this.token == "local") {
+		if (Language.importoptions[this.data.value]) {
+			if (imp.addOption(this.data.value) == false) {
+				imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTCOMB));
+				return imp;
+			}
+		} else {
+			imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTOPTION));
+			return imp;
+		}
 		this.next();
 	}
 

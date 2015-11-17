@@ -652,10 +652,36 @@ Eden.AST.Import = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.options = [];
 }
 
 Eden.AST.Import.prototype.setPath = function(path) {
 	this.path = path;
+}
+
+Eden.AST.Import.prototype.addOption = function(opt) {
+	if (opt == "enabled") {
+		if (this.options.indexOf("enabled") >= 0) return true;
+		if (this.options.indexOf("disabled") >= 0) return false;
+	} else if (opt == "disabled") {
+		if (this.options.indexOf("enabled") >= 0) return false;
+		if (this.options.indexOf("disabled") >= 0) return true;
+	} else if (opt == "local") {
+		if (this.options.indexOf("local") >= 0) return true;
+		if (this.options.indexOf("remote") >= 0) return false;
+		if (this.options.indexOf("rebase") >= 0) return false;
+	} else if (opt == "remote") {
+		if (this.options.indexOf("local") >= 0) return false;
+		if (this.options.indexOf("remote") >= 0) return true;
+		if (this.options.indexOf("rebase") >= 0) return false;
+	}  else if (opt == "rebase") {
+		if (this.options.indexOf("local") >= 0) return false;
+		if (this.options.indexOf("remote") >= 0) return false;
+		if (this.options.indexOf("rebase") >= 0) return true;
+	}
+
+	this.options.push(opt);
+	return true;
 }
 
 Eden.AST.Import.prototype.generate = function(ctx) {
@@ -664,7 +690,7 @@ Eden.AST.Import.prototype.generate = function(ctx) {
 
 Eden.AST.Import.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
-	var ag = Eden.Agent.importAgent(this.path);
+	var ag = Eden.Agent.importAgent(this.path, this.options);
 	if (ag) {
 		for (var i=0; i<base.imports.length; i++) {
 			if (base.imports[i] === ag) return;

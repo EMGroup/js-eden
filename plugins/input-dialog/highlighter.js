@@ -129,6 +129,8 @@
 		this.outelement = output;
 		this.line = 1;
 		this.currentline = -1;
+		this.mode = 0;
+		this.mode_at_line = {};
 	}
 
 
@@ -194,7 +196,10 @@
 		var linestart = 0;
 		var token = "INVALID";
 		var prevtoken = "INVALID";
-		var mode = 0;
+
+		// Set the mode for this line based upon mode at end of previous line
+		if (this.mode_at_line[this.line-1]) this.mode = this.mode_at_line[this.line-1];
+		else this.mode = 0;
 
 		// Get error position information
 		if (ast.script.errors.length > 0) {
@@ -285,58 +290,68 @@
 				classes += "eden-error ";
 			}
 
-			if (token == "##") {
-				classes += "eden-comment";
-				var comment = "";
-				while (stream.valid() && stream.peek() != 10) {
-					comment += String.fromCharCode(stream.get());
-				}
-				tokentext = "##" + comment;
-			} else if (token == "local" || token == "auto" || token == "para") {
-				classes += "eden-storage";
-			} else if (type == "keyword") {
-				classes += "eden-keyword";
-				if (stream.data.value == "import") mode = 1;
-			} else if (token == "NUMBER") {
-				classes += "eden-number";
-			} else if (token == "STRING") {
-				classes += "eden-string";
-			} else if (token == "CHARACTER") {
-				classes += "eden-string";
-			} else if (token == "BOOLEAN") {
-				classes += "eden-constant";	
-			} else if (token == "OBSERVABLE") {
-				if (edenFunctions[stream.data.value]) {
-					classes += "eden-function";
-				} else if (EdenUI.Highlight.isType(stream.data.value)) {
-					classes += "eden-type";
-				} else if (edenValues[stream.data.value]) {
-					classes += "eden-constant";
-				} else if (edenSpecials[stream.data.value]) {
-					classes += "eden-special";
-				} else {
-					if (mode == 0) {
-						classes += "eden-observable";
-					} else if (mode == 1) {
-						classes += "eden-path";
+			if (this.mode == 0) {
+				if (token == "##") {
+					classes += "eden-comment";
+					var comment = "";
+					while (stream.valid() && stream.peek() != 10) {
+						comment += String.fromCharCode(stream.get());
 					}
-				}
-			} else if (token == "JAVASCRIPT") {
-				classes += "eden-javascript";
-			} else {
-				// Bind negative to number if no whitespace.
-				if (token == "-" && stream.isNumeric(stream.peek())) {
-					token = stream.readToken();
-					tokentext = "-" + stream.tokenText();
+					tokentext = "##" + comment;
+				} else if (token == "local" || token == "auto" || token == "para") {
+					classes += "eden-storage";
+				} else if (type == "keyword") {
+					classes += "eden-keyword";
+					if (stream.data.value == "import") this.mode = 1;
+				} else if (token == "NUMBER") {
 					classes += "eden-number";
+				} else if (token == "STRING") {
+					classes += "eden-string";
+				} else if (token == "CHARACTER") {
+					classes += "eden-string";
+				} else if (token == "BOOLEAN") {
+					classes += "eden-constant";	
+				} else if (token == "OBSERVABLE") {
+					if (edenFunctions[stream.data.value]) {
+						classes += "eden-function";
+					} else if (EdenUI.Highlight.isType(stream.data.value)) {
+						classes += "eden-type";
+					} else if (edenValues[stream.data.value]) {
+						classes += "eden-constant";
+					} else if (edenSpecials[stream.data.value]) {
+						classes += "eden-special";
+					} else {
+						classes += "eden-observable";
+					}
+				} else if (token == "JAVASCRIPT") {
+					classes += "eden-javascript";
 				} else {
-					if (token == ";") mode = 0;
-					if (mode == 0) {
+					// Bind negative to number if no whitespace.
+					if (token == "-" && stream.isNumeric(stream.peek())) {
+						token = stream.readToken();
+						tokentext = "-" + stream.tokenText();
+						classes += "eden-number";
+					} else if (token == "/*") {
+						this.mode = 2;
+						classes += "eden-comment";
+					} else {
 						classes += "eden-operator";
-					} else if (mode == 1) {
-						classes += "eden-path";
 					}
 				}
+			} else if (this.mode == 1) {
+				if (token == ";") {
+					this.mode = 0;
+					classes += "eden-operator";
+				} else if (Language.importoptions[stream.data.value]) {
+					classes += "eden-importopt";
+				} else {
+					classes += "eden-path";
+				}
+			} else if (this.mode == 2) {
+				if (token == "*/") {
+					this.mode = 0;
+				}
+				classes += "eden-comment";
 			}
 
 			// Insert caret in middle of token if needed
@@ -368,6 +383,8 @@
 				line.appendChild(tokenspan);
 			}
 		}
+
+		this.mode_at_line[this.line] = this.mode;
 		return line;
 	}
 
@@ -418,6 +435,7 @@
 
 			// Clear!
 			this.outelement.innerHTML = "";
+			this.mode_at_line = {};
 
 			while (stream.valid()) {
 				var ch= stream.peek();

@@ -91,6 +91,9 @@ Eden.SyntaxError.WHENOPEN = 58;
 Eden.SyntaxError.WHENCLOSE = 59;
 Eden.SyntaxError.DONAME = 60;
 Eden.SyntaxError.PROCNAME = 61;
+Eden.SyntaxError.IMPORTPATH = 62;
+Eden.SyntaxError.IMPORTOPTION = 63;
+Eden.SyntaxError.IMPORTCOMB = 64;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -449,6 +452,18 @@ Eden.SyntaxError.db = [
 			return 2; 
 		},
 		suggestion: {expected: ["OBSERVABLE"], next: [":"]}
+	},
+/* EDEN_ERROR_IMPORTPATH */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_IMPORTOPTION */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_IMPORTCOMB */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
 	}
 ];
 

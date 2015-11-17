@@ -12,6 +12,15 @@ var Language = {
 		}
 	},
 
+	importoptions: {
+		"enabled": "enabled",
+		"disabled": "disabled",
+		"readonly": "readonly",
+		"remote": "remote",
+		"local": "local",
+		"rebase": "rebase"
+	},
+
 	keywords: {
 		"func": "func",
 		"proc": "proc",
