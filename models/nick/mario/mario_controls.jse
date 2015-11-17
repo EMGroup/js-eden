@@ -1,26 +1,9 @@
 ## Mario Controls
 
+import mario/mario/motion;
+
 do stop;
 do walkLeft;
 do walkRight;
 do jump;
-
-action stop {
-	mario_walking = false;
-}
-
-action walkLeft {
-	mario_direction = 0;
-	mario_walking = true;
-}
-
-action walkRight {
-	mario_direction = 1;
-	mario_walking = true;
-}
-
-action jump {
-	mario_jumping = true;
-	##mario_jumping = false;
-}
 

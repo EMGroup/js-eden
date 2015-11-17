@@ -24,6 +24,25 @@ mario_jumping = false;
 mario_walking = false;
 mario_direction = 0;
 
+action stop {
+	mario_walking = false;
+}
+
+action walkLeft {
+	mario_direction = 0;
+	mario_walking = true;
+}
+
+action walkRight {
+	mario_direction = 1;
+	mario_walking = true;
+}
+
+action jump {
+	mario_jumping = true;
+	##mario_jumping = false;
+}
+
 ## Clear velocity X on collision (right)
 when (mario_vx > 0 && mario_canmoveright == false) {
 	mario_vx = 0;
