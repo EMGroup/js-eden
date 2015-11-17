@@ -1,0 +1,10 @@
+##Shim construal construit.c6
+##
+##Run on the later versions of JS-EDEN to temporarily reverse incompatible
+##changes made to the environment subsequent to the CONSTRUIT! C6 meeting.
+
+##Search syntax used to always be regular expressions.
+
+${{
+	edenUI.setDefaultOptionValue("optSimpleWildcards", false);
+}}$;

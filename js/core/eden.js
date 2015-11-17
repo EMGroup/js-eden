@@ -370,6 +370,7 @@ function concatAndResolveUrl(url, concat) {
 	 */
 	EdenUI.prototype.setOptionValue = function(optionName, value) {
 		this.options[optionName] = String(value);
+		this.emit("optionChange", [optionName, String(value)]);
 		try {
 			if (window.localStorage) {
 				window.localStorage.setItem(optionName, value);
@@ -381,15 +382,25 @@ function concatAndResolveUrl(url, concat) {
 		}
 	}
 
+	/**Changes an option's value without committing the change to local storage.
+	 */
+	EdenUI.prototype.setDefaultOptionValue = function (optionName, value) {
+		if (this.getOptionValue(optionName) === null) {
+			this.options[optionName] = String(value);
+			this.emit("optionChange", [optionName, String(value)]);
+		}
+	}
+
 	EdenUI.prototype.unsetOptionValue = function (optionName) {
 		delete this.options[optionName];
+		this.emit("optionChange", [optionName, null]);
 		try {
 			if (window.localStorage) {
 				window.localStorage.removeItem(optionName);
 			}
 		} catch (e) {
 			//Cookies are blocked.
-		}		
+		}
 	}
 
 	/**Derives a regular expression from a string.  The string can be a simple search keyword or a
@@ -406,8 +417,13 @@ function concatAndResolveUrl(url, concat) {
 	 * If a jQuery object is passed instead of a string then the search string will be read
 	 * from the element's .value property and the element will be styled with an indication of
 	 * whether the regular expression is a valid one or not.
+	 * @param {String} str The search string.
+	 * @param {String} flags Any regular expression flags to add.
+	 * @param {boolean} exactMatch True to force searching for an exact match, false or no specified otherwise.
+	 * @param {String} searchLang "simple" for simple wildcards, "regexp" for full regular expression
+	 * syntax.  Default is to the preference set by the user.
 	 */
-	EdenUI.prototype.regExpFromStr = function (str, flags, exactMatch) {
+	EdenUI.prototype.regExpFromStr = function (str, flags, exactMatch, searchLang) {
 		var regExpStr, regExpObj;
 		var valid = true;
 		var inputBox;
@@ -420,23 +436,34 @@ function concatAndResolveUrl(url, concat) {
 			flags = "";
 		}
 
-		//Guess desirability of case sensitivity based on the presence or absence of capital letters.
-		if (!/[A-Z]/.test(str)) {
-			flags = flags + "i";
+		//Determine the syntax that the user used to express their search.
+		var simpleWildcards;
+		if (searchLang === undefined) {
+			simpleWildcards = this.getOptionValue("optSimpleWildcards") !== "false";
+		} else if (searchLang == "simple") {
+			simpleWildcards = true;
+		} else if (searchLang == "regexp") {
+			simpleWildcards = false;
+		} else {
+			throw new Error("EdenUI.regExpFromStr: Unsupported search language " + searchLang);
 		}
 
 		//Handle substitutions to replace simple wildcards with real regexp ones.
-		var simpleWildcards = this.getOptionValue("optSimpleWildcards") !== "false";
 		if (simpleWildcards) {
 			//Mode where * acts as .* , ? as .? , or as |, no other special characters.
-			str = str.replace(/([\\+^.|(){[])/g, "\\$1").replace(/([*?])/g, ".$1");
-			var alternatives = str.split(new RegExp("\\s+" + Language.ui.search.disjunction + "\\s+", "i"));
+			str = str.replace(/([\\+^$.|(){[])/g, "\\$1").replace(/([*?])/g, ".$1");
+			var alternatives = str.split(new RegExp("\\s+(?:" + Language.ui.search.disjunction + "|or)\\s+", "i"));
 			for (var i = 0; i < alternatives.length; i++) {
 				if (/[?*]/.test(alternatives[i])) {
 					alternatives[i] = "^(" + alternatives[i] + ")$";
 				}
 			}
 			str = alternatives.join("|");
+		}
+
+		//Guess desirability of case sensitivity based on the presence or absence of capital letters.
+		if (!/[A-Z]/.test(str)) {
+			flags = flags + "i";
 		}
 
 		if (simpleWildcards && !exactMatch && str.length < 4) {
