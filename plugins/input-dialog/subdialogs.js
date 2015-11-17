@@ -219,3 +219,45 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 	element.append(obscurer);
 }
 
+
+
+
+
+EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, data) {
+	var obscurer = $('<div class="script-obscurer noselect"></div>');
+	var content = $('<div class="script-subdialog-agents noselect"><span class="script-subdialog-title">Browse Agents:</span><br/><div class="script-agents-list"></div><div class="script-agents-buttons"><button class="button-icon-green button-add">Add</button><button style="float: right;" class="button-icon-silver button-cancel">Cancel</button></div></div>');
+	var list = content.find(".script-agents-list");
+	var valid = true;
+
+	function addAgents(depth, root, path) {
+		if (root === undefined) return;
+
+		for (var a in root) {
+			var npath = (path=="")?a:path+"/"+a;
+			var item = $('<div class="script-agents-item" style="padding-left: '+(20+depth*20)+'px"></div>');
+			item.html(a+" - <i>"+root[a].title+"</i>");
+			if (Eden.Agent.agents[npath]) item.addClass("loaded");
+			item.get(0).setAttribute("data-path", npath);
+			list.append(item);
+			addAgents(depth+1, root[a].children, npath);
+		}
+	}
+	addAgents(0, Eden.Agent.db, "");
+
+	content
+	.on("click", ".script-agents-item", function(e) {
+		console.log(e.currentTarget.getAttribute("data-path"));
+		
+	})
+	.on("click", ".button-ok", function() {
+		
+	})
+	.on("click", ".button-cancel", function() {
+		element.get(0).removeChild(obscurer.get(0));
+		callback(false);
+	});
+
+	obscurer.append(content);
+	element.append(obscurer);
+}
+

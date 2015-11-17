@@ -147,7 +147,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var gutter = new EdenScriptGutter($codearea.get(0));
 
-		var $buttonbar = $('<div class="control-bar"><div class="buttonsDiv"><button class="control-button search-mode" title="Query state">&#xf002;</button><button class="control-button share-agent" title="Share on network">&#xf0e8;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
+		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDiv"><button class="control-button search-mode" title="Query state">&#xf002;</button><button class="control-button share-agent" title="Share on network">&#xf0e8;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
 		$buttonbar.appendTo($dialogContents);
 		var buttonbar = $buttonbar.get(0);
 		// Create power button
@@ -176,7 +176,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			createMenuItem((agent.state[obs_showtabs]) ? "&#xf00c;" : "&#xf00d;", "Show Tabs", function(e) { agent.state[obs_showtabs] = !agent.state[obs_showtabs]; buildMenu(); });
 			createMenuItem((agent.state[obs_showbuttons]) ? "&#xf00c;" : "&#xf00d;", "Show Controls", function(e) { agent.state[obs_showbuttons] = !agent.state[obs_showbuttons]; buildMenu(); });
 			createMenuItem((showhidden) ? "&#xf00c;" : "&#xf00d;", "Show Hidden", function(e) { showhidden = !showhidden; rebuildTabs(); });
-			createMenuItem("&#xf0c0;", "Browse Agents", function(e) { });
+			createMenuItem("&#xf0c0;", "Browse Agents", function(e) { showSubDialog("browseAgents", function(){}); });
 			createMenuItem("&#xf05e;", "Remove Agent", function(e) { Eden.Agent.remove(scriptagent); hideMenu(); });
 			createMenuItem("&#xf036;", "View History", function(e) { showSubDialog("showHistory", function(status, index) {
 				if (status) {
@@ -260,6 +260,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 			tab.className = classname;
 			tab.innerHTML = title;
+			tab.draggable = true;
 			tab.setAttribute("data-name", name);
 			if (tabs.childNodes.length < tabscrollix+1) {
 				tab.style.display = "none";
@@ -1601,6 +1602,20 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 
 
 
+		function onTabDragStart(e) {
+			e.originalEvent.dataTransfer.setData("text", e.target.getAttribute("data-name"));
+		}
+
+		function onTabDragOver(e) {
+			e.preventDefault();
+		}
+
+		function onTabDrop(e) {
+			console.log(e.originalEvent.dataTransfer.getData("text"));
+		}
+
+
+
 		// Set the event handlers
 		$dialogContents
 		.on('input', '.hidden-textarea', onInputChanged)
@@ -1617,7 +1632,12 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 		.on('click', '.agent-tab', onTabClick)
 		.on('click', '.agent-tableft', onTabLeft)
 		.on('click', '.agent-tabright', onTabRight)
-		.on('click', '.agent-newtab', onNewTab);
+		.on('click', '.agent-newtab', onNewTab)
+		.on('dragstart', '.agent-tab', onTabDragStart)
+		.on('dragover', onTabDragOver)
+		.on('drop', onTabDrop);
+
+		//$dialogContents.get(0).ondrop = function(e) { console.log(e); };
 
 		$powerbutton.click(function (e) {
 			if (!readonly) {
