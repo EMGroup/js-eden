@@ -321,7 +321,7 @@ Eden.Agent.prototype.rollback = function(index) {
  * Generate a history snapshot.
  */
 Eden.Agent.prototype.generateSnapshot = function(index) {
-	if (this.history[index].snapshot) return this.history[index].snapshot;
+	if (index >= 0 && this.history[index].snapshot) return this.history[index].snapshot;
 
 	// TODO find nearest existing snapshot and use that...
 

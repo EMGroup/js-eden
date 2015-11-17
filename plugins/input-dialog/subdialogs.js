@@ -157,6 +157,20 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 		hist.append(item);
 	}
 
+	// Add base item.
+	var item = $('<div class="script-history-item"></div>');
+	if (active == i) {
+		item.addClass("current");
+		item.addClass("original");
+		activeelement = item;
+	}
+	item.get(0).setAttribute("data-index", "-1");
+	var bookmark = $('<div class="script-history-bookmark"></div>');
+	var content2 = $('<div contenteditable class="script-history-content">Base Source</div>');
+	item.append(bookmark);
+	item.append(content2);
+	hist.append(item);
+
 	content
 	.on("input", ".script-history-content", function(e) {
 		var index = parseInt(e.target.parentNode.getAttribute("data-index"));
