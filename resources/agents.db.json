@@ -30,7 +30,7 @@
 			"config": {
 				"title": "Game Configuration",
 				"file": "models/nick/mario/mario_config.jse",
-				"enabled": true
+				"enabled": false
 			}
 		}
 	},
@@ -45,7 +45,7 @@
 			"config": {
 				"file": "models/nick/logo/config.jse",
 				"title": "Screen Layout",
-				"enabled": true
+				"enabled": false
 			},
 			"basic": {
 				"file": "models/nick/logo/basic.jse",

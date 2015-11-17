@@ -1,7 +1,6 @@
 ## Example 2
 
 import logo/drawer;
-import logo/config;
 _view_input_agent = "logo/example2";
 
 ## Fan
