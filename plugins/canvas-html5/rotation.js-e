@@ -118,14 +118,14 @@ func RotateAboutPoint {
 		if (arguments.length == 5) {
 			centre = arguments[3];
 			items = arguments[4];
+			if (!(centre instanceof Point)) {
+				eden.error(new Error("RotateAboutPoint: The centre point of the source picture must be a Point, not a " + typeof(centre)), "error");
+				return undefined;
+			}
 		} else {
 			items = arguments[3];
 		}
 
-		if (!(centre instanceof Point)) {
-			eden.error(new Error("RotateAboutPoint: The centre point of the source picture must be a Point, not a " + typeof(centre)), "error");
-			return undefined;
-		}
 		if (!(origin instanceof Point)) {
 			eden.error(new Error("RotateAboutPoint: The centre of the circle must be a Point, not a " + typeof(origin)), "error");
 			return undefined;

@@ -946,15 +946,17 @@
 			"parameters": {
 				"scale_x": "",
 				"[scale_y]": "",
-				"[translation_point_or_xy_pair]": "",
-				"items": ""
+				"[[centre_of_enlargement_point/xy]": "",
+				"centre_of_scaled_image_point/xy]": "",
+				"picture_list": ""
 			},
 			"return": "",
 			"description": ""
 		},
 		"Translate": {
 			"parameters": {
-				"point_or_xy_argument_pair": "",
+				"[centre_of_source_point/xy]": "",
+				"centre_of_destination_point/xy": "",
 				"picture_list": ""
 			},
 			"return": "",
@@ -1562,7 +1564,8 @@
 		"showObservables": {
 			"parameters": {
 				"[search_string": "",
-				"[view_name]]": ""
+				"[view_name": "",
+				"[search_syntax]]]": ""
 			}
 		},
 		"showView": {

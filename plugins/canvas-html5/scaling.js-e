@@ -5,9 +5,11 @@
 
 ${{
 
-	function Scaling(scaleX, scaleY, translateX, translateY, items) {
+	function Scaling(scaleX, scaleY, centreX, centreY, translateX, translateY, items) {
 		this.scaleX = scaleX;
 		this.scaleY = scaleY;
+		this.centreX = centreX;
+		this.centreY = centreY;
 		this.translateX = translateX;
 		this.translateY = translateY;
 		this.items = items;
@@ -16,15 +18,21 @@ ${{
 	Scaling.prototype = new EdenUI.plugins.Canvas2D.Transform;
 
 	Scaling.prototype.transform = function (context) {
-		context.scale(this.scaleX, this.scaleY);
 		var translateX = this.translateX;
 		if (translateX) {
 			context.translate(translateX, this.translateY);
 		}
+
+		context.scale(this.scaleX, this.scaleY);
+
+		var centreX = this.centreX;
+		if (centreX) {
+			context.translate(-centreX, -this.centreY);
+		}
 	}
 
 	Scaling.prototype.toString = function () {
-		return "Scale(" + Eden.edenCodeForValues(this.scaleX, this.scaleY, this.translateX, this.translateY, this.items) + ")";
+		return "Scale(" + Eden.edenCodeForValues(this.scaleX, this.scaleY, centreX, centreY, this.translateX, this.translateY, this.items) + ")";
 	}
 
 	Scaling.prototype.getEdenCode = Scaling.prototype.toString;
@@ -33,7 +41,7 @@ ${{
 
 func Scale {
 	${{
-		var scaleX, scaleY, translateX, translateY, items;
+		var scaleX, scaleY, centreX, centreY, translateX, translateY, items;
 
 		var argNum = arguments.length - 1;
 		var arg;
@@ -53,7 +61,23 @@ func Scale {
 				argNum--;
 			}
 			if (argNum > 0) {
+				arg = arguments[argNum];
+				if (arg instanceof Point) {
+					centreX = arg.x;
+					centreY = arg.y;
+					argNum--;
+				} else if (argNum >= 2) {
+					centreY = arg;
+					argNum--;
+					centreX = arguments[argNum];
+					argNum--;
+				}
+			}
+			if (argNum == 1) {
 				scaleY = arguments[argNum];
+			} else if (argNum > 0) {
+				eden.error(new Error("Scale: invalid parameters."), "error");
+				return undefined;
 			}
 		}
 
@@ -62,6 +86,6 @@ func Scale {
 			scaleY = scaleX;
 		}
 
-		return new Scaling(scaleX, scaleY, translateX, translateY, items);
+		return new Scaling(scaleX, scaleY, centreX, centreY, translateX, translateY, items);
 	}}$;
 }
