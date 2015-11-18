@@ -109,6 +109,7 @@ div.agent-tab {
 	-webkit-font-smoothing: antialiased;
 	font-smoothing: antialiased;
 	cursor: pointer;
+	overflow: hidden;
 }
 
 div.agent-tab-notcurrent:hover {

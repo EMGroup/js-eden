@@ -9,30 +9,44 @@ EdenUI.plugins.ScriptInput.dialogs = {};
 
 EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 	var obscurer = $('<div class="script-obscurer noselect"></div>');
-	var content = $('<div class="script-subdialog-newagent noselect"><span class="script-subdialog-title">Create or import agent:</span><br/><input class="script-subdialog-text" type="text" spellcheck="false" placeholder="model/component/agent"></input><span class="status missing"></span><br><button class="button-icon-green button-add">Add</button><button style="float: right;" class="button-icon-silver button-cancel">Cancel</button></div>');
+	var content = $('<div class="script-subdialog-newagent noselect"><span class="script-subdialog-title">Create or import agent:</span><br/><input class="script-subdialog-text" type="text" spellcheck="false" list="agentlist" placeholder="model/component/agent"></input><datalist id="agentlist"></datalist><span class="status missing"></span><br><button class="button-icon-green button-add">Add</button><button style="float: right;" class="button-icon-silver button-cancel">Cancel</button></div>');
 	var input = content.find('.script-subdialog-text');
-	var status = input.get(0).nextSibling;
+	var status = input.get(0).nextSibling.nextSibling;
+	var datalist = content.find('#agentlist');
 	var valid = false;
 
+	datalist.empty();
+	for (var a in Eden.Agent.agents) {
+		var opt = $('<option>'+a+'</option>');
+		datalist.append(opt);
+	}
+
 	content
-	.on("input", ".script-subdialog-text", function() {
+	.on("input blur", ".script-subdialog-text", function() {
 		var value = input.get(0).value;
+		console.log(value);
 
 		if (value == "") {
 			valid = false;
 			status.className = "missing";
 		} else if (/^[a-z][a-z0-9]*[\/][a-z0-9\/]+$/i.test(value)) {
 			if (Eden.Agent.agents[value] === undefined) {
-				if (edenUI.getOptionValue("agent_"+value+"_snap")) {
-					status.className = "valid";
-					valid = true;
-				} else {
-					status.className = "addnew";
-					valid = true;
-				}
+				Eden.DB.getMeta(value, function(path,meta) {
+					if (meta) {
+						status.className = "download";
+						valid = true;
+					} else {
+						status.className = "addnew";
+						valid = true;
+					}
+				});
 			} else {
-				status.className = "warning";
-				valid = false;
+				if (Eden.Agent.agents[value].owned) {
+					status.className = "readonly";
+				} else {
+					status.className = "edit";
+				}
+				valid = true;
 			}
 		} else {
 			status.className = "invalid";

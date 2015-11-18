@@ -125,6 +125,25 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}).find(".history");
 	}
 
+	
+
+	$(document.body).delegate(null, 'drop', function(e) {
+		var value = e.originalEvent.dataTransfer.getData("agent");
+		if (!value || value == "") {
+			console.log(e.originalEvent.dataTransfer.files);
+			e.preventDefault();
+			return;
+		}
+
+		var valsplit = value.split("/");
+		var viewname = valsplit.join("");
+		eden.root.lookup("_view_"+viewname+"_tabs").assign([value], eden.root.scope);
+		edenUI.createView(viewname, "ScriptInput");
+		eden.root.lookup("_view_"+viewname+"_agent").assign(value, eden.root.scope);
+	}).delegate(null, 'dragover', function(e) {
+		e.preventDefault();
+	});
+
 
 
 	/**
@@ -190,7 +209,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 				hideMenu();
 			});
-			createMenuItem("&#xf036;", "View History", function(e) { showSubDialog("showHistory", function(status, index) {
+			createMenuItem("&#xf1da;", "View History", function(e) { showSubDialog("showHistory", function(status, index) {
 				if (status) {
 					scriptagent.rollback(index);
 				}
@@ -445,6 +464,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (value == scriptagent.name) return;
 				if (readonly == false) scriptagent.setOwned(false);
 				scriptagent = Eden.Agent.agents[value];
+				setTitle(scriptagent.title);
 
 				if (Eden.Agent.agents[value].owned == false) {
 					scriptagent.setOwned(true);
@@ -469,14 +489,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 				// If changed in code and not by click
 				// then automatically move to correct tab
-				if (sym) {
+				/*if (sym) {
 					tabscrollix = 0;
 					for (var a in Eden.Agent.agents) {
 						if (a == scriptagent.name) break;
 						tabscrollix++;
 					}
 					if (tabscrollix > 0) tabscrollix--;
-				}
+				}*/
 
 				updateHistoryButtons();
 				rebuildTabs();
@@ -1629,7 +1649,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 							agent.state[obs_tabs] = tabs;
 						}
 						agent.state[obs_agent] = value;
-						changeAgent(undefined, value);
+						//changeAgent(undefined, value);
 					});
 				}
 			});
@@ -1638,7 +1658,15 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 
 
 		function onTabDragStart(e) {
-			e.originalEvent.dataTransfer.setData("text", e.target.getAttribute("data-name"));
+			var name = e.target.getAttribute("data-name");
+			e.originalEvent.dataTransfer.setData("agent", name);
+			if (scriptagent.name == name) {
+				scriptagent.setOwned(false);
+				readonly = true;
+				setSubTitle("[readonly]");
+				outdiv.className = "outputcontent readonly";
+				outdiv.contentEditable = false;
+			}
 		}
 
 		function onTabDragOver(e) {
@@ -1646,7 +1674,38 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		}
 
 		function onTabDrop(e) {
-			console.log(e.originalEvent.dataTransfer.getData("text"));
+			var value = e.originalEvent.dataTransfer.getData("agent");
+			console.log(value);
+			var tabs = agent.state[obs_tabs];
+			if (tabs.indexOf(value) == -1) {
+				tabs.push(value);
+				agent.state[obs_tabs] = tabs;
+			}
+			agent.state[obs_agent] = value;
+		}
+
+		function onTabDragEnd(e) {
+			var value = e.target.getAttribute("data-name");
+			if (e.originalEvent.dataTransfer.dropEffect != 'none') {
+				console.log("DRAGEND: " + value);
+				var tabs = agent.state[obs_tabs];
+				var ix = tabs.indexOf(value);
+				if (ix >= 0) {
+					tabs.splice(ix,1);
+					ix--;
+					if (ix < 0) ix = 0;
+					if (ix < tabs.length) {
+						agent.state[obs_agent] = tabs[ix];
+					}
+					agent.state[obs_tabs] = tabs;
+				}
+			} else if (scriptagent.name == value) {
+				scriptagent.setOwned(true);
+				readonly = false;
+				setSubTitle("");
+				outdiv.className = "outputcontent";
+				outdiv.contentEditable = true;
+			}
 		}
 
 
@@ -1669,6 +1728,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		.on('click', '.agent-tabright', onTabRight)
 		.on('click', '.agent-newtab', onNewTab)
 		.on('dragstart', '.agent-tab', onTabDragStart)
+		.on('dragend', '.agent-tab', onTabDragEnd)
 		.on('dragover', onTabDragOver)
 		.on('drop', onTabDrop);
 

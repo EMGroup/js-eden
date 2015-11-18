@@ -107,7 +107,7 @@ Eden.Agent.importAgent = function(path, options, callback) {
 	} else {
 		Eden.DB.getMeta(path, function(path, meta) {
 			var ag = new Eden.Agent(undefined, path, meta, options);
-			if (meta.file) {
+			if (meta && meta.file) {
 				ag.loadFromFile(meta.file, ag.enabled);
 			}
 			if (callback) callback(ag);

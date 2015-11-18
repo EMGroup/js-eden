@@ -22,13 +22,13 @@ span.script-subdialog-title {
 	font-weight: bold;
 }
 
-span.valid:after {
+span.download:after {
 	margin-left: 5px;
-	content: "\f00c";
+	content: "\f019";
 	font-family: "FontAwesome";
 	font-size: 11pt;
 	font-weight: normal;
-	color: green;
+	color: orange;
 }
 
 span.invalid:after {
@@ -58,9 +58,18 @@ span.addnew:after {
 	color: green;
 }
 
-span.warning:after {
+span.edit:after {
 	margin-left: 5px;
-	content: "\f12a";
+	content: "\f040";
+	font-family: "FontAwesome";
+	font-size: 11pt;
+	font-weight: normal;
+	color: green;
+}
+
+span.readonly:after {
+	margin-left: 5px;
+	content: "\f023";
 	font-family: "FontAwesome";
 	font-size: 11pt;
 	font-weight: normal;
