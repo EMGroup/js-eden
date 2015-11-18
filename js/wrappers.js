@@ -101,6 +101,7 @@ Eden.Agent.AUTOSAVE_INTERVAL = 2000;
 
 
 Eden.Agent.importAgent = function(path, options, callback) {
+	console.log("IMPORT: " + path);
 	//if (Eden.Agent.db === undefined) return;
 	if (Eden.Agent.agents[path] !== undefined) {
 		Eden.Agent.agents[path].setOptions(options);
@@ -123,6 +124,16 @@ Eden.Agent.importAgent = function(path, options, callback) {
 			if (callback) callback(ag);
 		});
 	}
+
+	// Import all children as well
+	Eden.DB.getDirectory(path, function(dir) {
+		console.log(dir);
+		if (dir && dir.children) {
+			for (var a in dir.children) {
+				Eden.Agent.importAgent(path+"/"+a, undefined, undefined);
+			}
+		}
+	});
 
 
 	/*var components = path.split("/");

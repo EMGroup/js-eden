@@ -84,8 +84,25 @@ Eden.DB.updateMeta = function(path, entry, value) {
 
 Eden.DB.getDirectory = function(path, callback) {
 	// Check local directory...
+	var comp = path.split("/");
+	var root = Eden.DB.directory;
+	var changed = false;
+
+	for (var i=0; i<comp.length; i++) {
+		if (root[comp[i]] === undefined) {
+			callback(undefined);
+			return;
+		}
+		if (i == comp.length-1) {
+			root = root[comp[i]];
+		} else {
+			root = root[comp[i]].children;
+		}
+	}
 	// If marked as missing, go to server.
 	// Also update from server async.
+
+	callback(root);
 }
 
 Eden.DB.getMeta = function(path, callback) {

@@ -196,7 +196,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			createMenuItem((agent.state[obs_showtabs]) ? "&#xf00c;" : "&#xf00d;", "Show Tabs", function(e) { agent.state[obs_showtabs] = !agent.state[obs_showtabs]; buildMenu(); });
 			createMenuItem((agent.state[obs_showbuttons]) ? "&#xf00c;" : "&#xf00d;", "Show Controls", function(e) { agent.state[obs_showbuttons] = !agent.state[obs_showbuttons]; buildMenu(); });
-			createMenuItem("&#xf0c0;", "Browse Agents", function(e) { showSubDialog("browseAgents", function(){}); });
+			createMenuItem("&#xf0c0;", "Browse Agents", function(e) { showSubDialog("browseAgents", function(){}); hideMenu(); });
 			createMenuItem("&#xf21b;", "Hide Agent", function(e) {
 				var tabs = agent.state[obs_tabs];
 				var ix = tabs.indexOf(scriptagent.name);
@@ -218,7 +218,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}, scriptagent); hideMenu(); });
 			createMenuItem("&#xf0d0;", "Insert Template", function(e) { });
 			if (embedded) {
-				createMenuItem("&#xf24d;", "Un-embed", function(e) { });
+				createMenuItem("&#xf24d;", "Un-embed", function(e) {
+					
+				});
 			}
 		}
 
@@ -1677,8 +1679,37 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		}
 
 		function onTabDrop(e) {
+			e.stopPropagation();
+			e.preventDefault();
 			var value = e.originalEvent.dataTransfer.getData("agent");
-			console.log(value);
+			
+			if (!value || value == "") {
+				if (window.FileReader) {
+					var files = e.originalEvent.dataTransfer.files;
+					for (var i=0; i<files.length; i++) {
+						var file = files[i];
+						if (file.name.match(/.*\.jse/)) {
+							var agentname = file.name.slice(0,-4);
+							agentname.replace(/[-\/\s]/g, "");
+							agentname = "local/file/"+agentname;
+
+							var reader = new FileReader();
+							reader.onload = function(e2) {
+								var ag = new Eden.Agent(undefined, agentname);
+								ag.setSource(e2.target.result);
+								var tabs = agent.state[obs_tabs];
+								if (tabs.indexOf(agentname) == -1) {
+									tabs.push(agentname);
+									agent.state[obs_tabs] = tabs;
+								}
+							}
+							reader.readAsText(file);
+						}
+					}
+				}
+				return;
+			}
+
 			var tabs = agent.state[obs_tabs];
 			if (tabs.indexOf(value) == -1) {
 				tabs.push(value);
@@ -1785,8 +1816,6 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 
 		// Initialise highlight content
 		updateEntireHighlight();
-
-		console.log(this);
 
 		return viewdata;
 	};

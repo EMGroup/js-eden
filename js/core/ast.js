@@ -703,13 +703,14 @@ Eden.AST.Import.prototype.generate = function(ctx) {
 
 Eden.AST.Import.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
-	var ag = Eden.Agent.importAgent(this.path, this.options);
-	if (ag) {
-		for (var i=0; i<base.imports.length; i++) {
-			if (base.imports[i] === ag) return;
+	Eden.Agent.importAgent(this.path, this.options, function(ag) {
+		if (ag) {
+			for (var i=0; i<base.imports.length; i++) {
+				if (base.imports[i] === ag) return;
+			}
+			base.imports.push(ag);
 		}
-		base.imports.push(ag);
-	}
+	});
 }
 
 Eden.AST.Import.prototype.setSource = function(start, end) {
