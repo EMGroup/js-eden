@@ -5,7 +5,9 @@
 
 ${{
 
-	function Translation(x, y, items) {
+	function Translation(centreX, centreY, x, y, items) {
+		this.centreX = centreX;
+		this.centreY = centreY;
 		this.x = x;
 		this.y = y;
 		this.items = items;
@@ -14,11 +16,11 @@ ${{
 	Translation.prototype = new EdenUI.plugins.Canvas2D.Transform;
 
 	Translation.prototype.transform = function (context) {
-		context.translate(this.x, this.y);
+		context.translate(this.x - this.centreX, this.y - this.centreY);
 	}
 
 	Translation.prototype.toString = function () {
-		return "Translate(" + Eden.edenCodeForValues(this.x, this.y, this.items) + ")";
+		return "Translate(" + Eden.edenCodeForValues(this.centreX, this.centreY, this.x, this.y, this.items) + ")";
 	}
 
 	Translation.prototype.getEdenCode = Translation.prototype.toString;
@@ -27,17 +29,57 @@ ${{
 
 func Translate {
 	${{
-		var x, y, items;
-		if (arguments[0] instanceof Point) {
-			var p = arguments[0];
-			x = p.x;
-			y = p.y;
-			items = arguments[1];
-		} else {
-			x = arguments[0];
-			y = arguments[1];
-			items = arguments[2];
+		var centreX, centreY, x, y, items;
+		var argNum = arguments.length - 1;
+		if (argNum == 0) {
+			eden.error(new Error("Translate: This function requires at least 2 arguments."), "error");
+			return undefined;
 		}
-		return new Translation(x, y, items);
+		items = arguments[argNum];
+		argNum--;
+		arg = arguments[argNum];
+		if (arg instanceof Point) {
+			x = arg.x;
+			y = arg.y;
+			argNum--;
+		} else if (argNum >= 1) {
+			y = arg;
+			argNum--;
+			x = arguments[argNum];
+			argNum--;
+		}
+		if (argNum >= 0) {
+			arg = arguments[argNum];
+			if (arg instanceof Point) {
+				centreX = arg.x;
+				centreY = arg.y;
+				argNum--;
+			} else if (argNum >= 1) {
+				centreY = arg;
+				argNum--;
+				centreX = arguments[argNum];
+				argNum--;
+			}		
+		}
+		if (argNum >= 0) {
+			eden.error(new Error("Translate: invalid parameters."), "error");
+			return undefined;
+		}
+
+		if (typeof(x) !== "number") {
+			eden.error(new Error("Translate: The destination X coordinate must be a number, not a " + typeof(x)), "error");
+			return undefined;
+		}
+		if (typeof(y) !== "number") {
+			eden.error(new Error("Translate: The destination Y coordinate must be a number, not a " + typeof(y)), "error");
+			return undefined;
+		}
+		if (centreX === undefined) {
+			centreX = 0;
+		}
+		if (centreY === undefined) {
+			centreY = 0;
+		}
+		return new Translation(centreX, centreY, x, y, items);
 	}}$;
 }
