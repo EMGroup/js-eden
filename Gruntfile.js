@@ -87,7 +87,7 @@ module.exports = function (grunt) {
 					'./js/core/errors.js',
 					//'./js/core/ast.js',
 					'./js/core/translator2.js',
-					'./js/database.js',
+					'./js/core/database.js',
 					'./js/wrappers.js'
 				],
 				'./plugins/jseden-plugins.min.js': [
