@@ -29,7 +29,7 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 		if (value == "") {
 			valid = false;
 			status.className = "missing";
-		} else if (/^[a-z][a-z0-9]*[\/][a-z0-9\/]+$/i.test(value)) {
+		} else if (/^[a-z][a-z0-9\/]+$/i.test(value)) {
 			if (Eden.Agent.agents[value] === undefined) {
 				Eden.DB.getMeta(value, function(path,meta) {
 					if (meta) {

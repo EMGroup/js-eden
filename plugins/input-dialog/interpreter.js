@@ -1647,9 +1647,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 			showSubDialog("newAgent", function(status, value) {
 				if (status) {
 					Eden.Agent.importAgent(value, undefined, function(ag) {
-						if (ag) {
-							ag.setEnabled(false);
-						} else {
+						if (ag === undefined) {
 							ag = new Eden.Agent(undefined, value, undefined, undefined);
 						}
 						var tabs = agent.state[obs_tabs];

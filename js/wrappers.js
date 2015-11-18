@@ -101,7 +101,7 @@ Eden.Agent.AUTOSAVE_INTERVAL = 2000;
 
 
 Eden.Agent.importAgent = function(path, options, callback) {
-	console.log("IMPORT: " + path);
+	console.log("IMPORT: " + path + " options = " + JSON.stringify(options));
 	//if (Eden.Agent.db === undefined) return;
 	if (Eden.Agent.agents[path] !== undefined) {
 		Eden.Agent.agents[path].setOptions(options);
@@ -114,7 +114,7 @@ Eden.Agent.importAgent = function(path, options, callback) {
 	function finish() {
 		console.log("FINISH");
 		// Import all children as well
-		Eden.DB.getDirectory(path, function(dir) {
+		/*Eden.DB.getDirectory(path, function(dir) {
 			console.log(dir);
 			if (dir && dir.children) {
 				for (var a in dir.children) {
@@ -122,10 +122,10 @@ Eden.Agent.importAgent = function(path, options, callback) {
 				}
 			}
 
-			console.log(path);
+			console.log(path);*/
 
 			if (callback) callback(ag);
-		});
+		//});
 	}
 
 	// If local, just load and let it get its data...
