@@ -350,8 +350,20 @@
 			} else if (this.mode == 2) {
 				if (token == "*/") {
 					this.mode = 0;
+					classes += "eden-comment";
+				} else if (token == "@") {
+					this.mode = 3;
+					classes += "eden-doxytag";
+				} else {
+					classes += "eden-comment";
 				}
-				classes += "eden-comment";
+			} else if (this.mode == 3) {
+				this.mode = 2;
+				if (Language.doxytags[stream.data.value]) {
+					classes += "eden-doxytag";
+				} else {
+					classes += "eden-doxytagerror";
+				}
 			}
 
 			// Insert caret in middle of token if needed

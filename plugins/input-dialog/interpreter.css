@@ -85,7 +85,7 @@ div.agent-newtab {
 }
 
 div.agent-newtab:after {
-	content: "\f0fe";
+	content: "\f234";
 	font-family: "FontAwesome";
 	font-size: 14pt;
 	font-weight: normal;
@@ -532,6 +532,18 @@ span.eden-path {
 span.eden-importopt {
 	color: #ad7fa8;
 }
+
+span.eden-doxytag {
+	font-style: normal;
+	font-weight: bold;
+}
+
+span.eden-doxytagerror {
+	font-style: normal;
+	font-weight: bold;
+	color: #cc0000;
+}
+
 
 span.eden-error {
 	background-color: #ffdcdc;

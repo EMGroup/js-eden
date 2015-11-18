@@ -175,9 +175,21 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			createMenuItem((agent.state[obs_showtabs]) ? "&#xf00c;" : "&#xf00d;", "Show Tabs", function(e) { agent.state[obs_showtabs] = !agent.state[obs_showtabs]; buildMenu(); });
 			createMenuItem((agent.state[obs_showbuttons]) ? "&#xf00c;" : "&#xf00d;", "Show Controls", function(e) { agent.state[obs_showbuttons] = !agent.state[obs_showbuttons]; buildMenu(); });
-			createMenuItem((showhidden) ? "&#xf00c;" : "&#xf00d;", "Show Hidden", function(e) { showhidden = !showhidden; rebuildTabs(); });
 			createMenuItem("&#xf0c0;", "Browse Agents", function(e) { showSubDialog("browseAgents", function(){}); });
-			createMenuItem("&#xf05e;", "Remove Agent", function(e) { Eden.Agent.remove(scriptagent); hideMenu(); });
+			createMenuItem("&#xf21b;", "Hide Agent", function(e) {
+				var tabs = agent.state[obs_tabs];
+				var ix = tabs.indexOf(scriptagent.name);
+				if (ix >= 0) {
+					tabs.splice(ix,1);
+					ix--;
+					if (ix < 0) ix = 0;
+					if (ix < tabs.length) {
+						agent.state[obs_agent] = tabs[ix];
+					}
+					agent.state[obs_tabs] = tabs;
+				}
+				hideMenu();
+			});
 			createMenuItem("&#xf036;", "View History", function(e) { showSubDialog("showHistory", function(status, index) {
 				if (status) {
 					scriptagent.rollback(index);
@@ -262,7 +274,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			tab.innerHTML = title;
 			tab.draggable = true;
 			tab.setAttribute("data-name", name);
-			if (tabs.childNodes.length < tabscrollix+1) {
+			if (tabs.childNodes.length < tabscrollix) {
 				tab.style.display = "none";
 			}
 			tabs.appendChild(tab);
@@ -310,10 +322,20 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			tabs.appendChild(left);
 
 			// Add tab for each agent
-			for (var a in Eden.Agent.agents) {
+			/*for (var a in Eden.Agent.agents) {
 				var ag = Eden.Agent.agents[a];
 				if (!showhidden && ag.hidden) continue;
 				addTab(a, ag.title, a == scriptagent.name);
+			}*/
+			var agents = agent.state[obs_tabs];
+			if (agents && agents instanceof Array) {
+				for (var i=0; i<agents.length; i++) {
+					var title = agents[i];
+					if (Eden.Agent.agents[agents[i]]) {
+						title = Eden.Agent.agents[agents[i]].title;
+					}
+					addTab(agents[i], title, agents[i] == scriptagent.name);
+				}
 			}
 
 			// Add new tab button
@@ -328,9 +350,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		// Need to rebuild tabs when new agents are created or titles change.
-		rebuildTabs();
-		Eden.Agent.listenTo("create", this, rebuildTabs);
-		Eden.Agent.listenTo("title", this, rebuildTabs);
+		//rebuildTabs();
+		//Eden.Agent.listenTo("create", this, rebuildTabs);
+		//Eden.Agent.listenTo("title", this, rebuildTabs);
 		Eden.Agent.listenTo("remove", this, removedAgent);
 		Eden.Agent.listenTo("autosave", this, autoSaved);
 		
@@ -508,8 +530,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var obs_agent = "_view_"+name+"_agent";
 		var obs_showtabs = "_view_"+name+"_showtabs";
 		var obs_showbuttons = "_view_"+name+"_showbuttons";
+		var obs_tabs = "_view_"+name+"_tabs";
 		var agent = new Eden.Agent(undefined,"view/script/"+name+"/config");
-		agent.hidden = true;
 		agent.declare(obs_agent);
 		agent.declare(obs_showtabs);
 		agent.declare(obs_script);
@@ -519,6 +541,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.declare(obs_next);
 		agent.declare(obs_prev);
 		agent.declare(obs_showbuttons);
+		agent.declare(obs_tabs);
 		//agent.setReadonly([obs_script,obs_next,obs_prev,obs_override, obs_file, obs_power, obs_agent, obs_showtabs]);
 
 		agent.setEnabled(true);
@@ -530,16 +553,20 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.on(obs_agent, changeAgent);
 		agent.on(obs_showtabs, toggleTabs);
 		agent.on(obs_showbuttons, toggleButtons);
+		agent.on(obs_tabs, rebuildTabs);
 
 		// Initialise states
 		if (agent.state[obs_showtabs] === undefined) {
 			agent.state[obs_showtabs] = !embedded;
 		}
-		toggleTabs(undefined, agent.state[obs_showtabs]);
+		//toggleTabs(undefined, agent.state[obs_showtabs]);
 		if (agent.state[obs_showbuttons] === undefined) {
 			agent.state[obs_showbuttons] = true;
 		}
-		toggleButtons(undefined, agent.state[obs_showbuttons]);
+		//toggleButtons(undefined, agent.state[obs_showbuttons]);
+		if (agent.state[obs_tabs] === undefined) {
+			agent.state[obs_tabs] = ["view/script/"+name];
+		}
 
 		// Set source text.
 		agent.setSource("## "+name+"\n\
@@ -551,6 +578,7 @@ _view_"+name+"_power = "+Eden.edenCodeForValue(agent.state[obs_power])+";\n\
 _view_"+name+"_agent = "+Eden.edenCodeForValue(agent.state[obs_agent])+";\n\
 _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\n\
 _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons])+";\n\
+_view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 ");
 
 
@@ -1561,8 +1589,8 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 		function onTabClick(e) {
 			var name = e.target.getAttribute("data-name");
 			console.log(name);
-			agent[obs_agent] = name;
-			changeAgent(undefined, name);
+			agent.state[obs_agent] = name;
+			//changeAgent(undefined, name);
 			updateHistoryButtons();
 		}
 
@@ -1593,9 +1621,16 @@ _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons
 		function onNewTab() {
 			showSubDialog("newAgent", function(status, value) {
 				if (status) {
-					var agent = new Eden.Agent(undefined, value);
-					agent.setEnabled(false);
-					changeAgent(undefined, value);
+					Eden.Agent.importAgent(value, undefined, function(ag) {
+						ag.setEnabled(false);
+						var tabs = agent.state[obs_tabs];
+						if (tabs.indexOf(value) == -1) {
+							tabs.push(value);
+							agent.state[obs_tabs] = tabs;
+						}
+						agent.state[obs_agent] = value;
+						changeAgent(undefined, value);
+					});
 				}
 			});
 		}

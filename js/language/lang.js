@@ -23,6 +23,14 @@ var Language = {
 		"visible": "visible"
 	},
 
+	doxytags: {
+		"title": "title",
+		"author": "author",
+		"version": "version",
+		"param": "param",
+		"return": "return"
+	},
+
 	keywords: {
 		"func": "func",
 		"proc": "proc",

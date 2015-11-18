@@ -1,67 +1,111 @@
 {
-	"mario": {
-		"title": "Mario Game",
-		"children": {
-			"mario": {
-				"title": "Mario Character Agents",
-				"children": {
-					"motion": {
-						"file": "models/nick/mario/mario_motion.jse",
-						"title": "Mario Movement Agent",
-						"enabled": true
-					},
-					"animation": {
-						"file": "models/nick/mario/mario_animations.jse",
-						"title": "Mario Animation Agent",
-						"enabled": true
-					},
-					"control": {
-						"file": "models/nick/mario/mario_controls.jse",
-						"title": "Mario Controls",
-						"enabled": false
+	"directory": {
+		"mario": {
+			"title": "Mario Game",
+			"children": {
+				"mario": {
+					"title": "Mario Character Agents",
+					"children": {
+						"motion": {
+							"title": "Mario Movement Agent",
+							"children": {}
+						},
+						"animation": {
+							"title": "Mario Animation Agent",
+							"children": {}
+						},
+						"control": {
+							"title": "Mario Controls",
+							"children": {}
+						}
 					}
+				},
+				"world": {
+					"children": {}
+				},
+				"config": {
+					"title": "Game Configuration",
+					"children": {}
 				}
-			},
-			"world": {
-				"title": "World Builder",
-				"file": "models/nick/mario/world.jse",
-				"enabled": true
-			},
-			"config": {
-				"title": "Game Configuration",
-				"file": "models/nick/mario/mario_config.jse",
-				"enabled": true
+			}
+		},
+		"logo": {
+			"title": "Logo Demo",
+			"children": {
+				"drawer": {
+					"title": "Drawing setup",
+					"children": {}
+				},
+				"config": {
+					"title": "Screen Layout",
+					"children": {}
+				},
+				"basic": {
+					"title": "Logo Basic Commands",
+					"children": {}
+				},
+				"example1": {
+					"title": "Example 1",
+					"children": {}
+				},
+				"example2": {
+					"title": "Example 1",
+					"children": {}
+				}
 			}
 		}
 	},
-	"logo": {
-		"title": "Logo Demo",
-		"children": {
-			"drawer": {
-				"file": "models/nick/logo/drawer.jse",
-				"title": "Drawing setup",
-				"enabled": true
-			},
-			"config": {
-				"file": "models/nick/logo/config.jse",
-				"title": "Screen Layout",
-				"enabled": false
-			},
-			"basic": {
-				"file": "models/nick/logo/basic.jse",
-				"title": "Logo Basic Commands",
-				"enabled": true
-			},
-			"example1": {
-				"file": "models/nick/logo/example1.jse",
-				"title": "Example 1",
-				"enabled": true
-			},
-			"example2": {
-				"file": "models/nick/logo/example2.jse",
-				"title": "Example 1",
-				"enabled": true
-			}
+
+	"meta": {
+		"mario/mario/motion": {
+			"file": "models/nick/mario/mario_motion.jse",
+			"title": "Mario Movement Agent",
+			"enabled": true
+		},
+		"mario/mario/animation": {
+			"file": "models/nick/mario/mario_animations.jse",
+			"title": "Mario Animation Agent",
+			"enabled": true
+		},
+		"mario/mario/control": {
+			"file": "models/nick/mario/mario_controls.jse",
+			"title": "Mario Controls",
+			"enabled": false
+		},
+		"mario/world": {
+			"title": "World Builder",
+			"file": "models/nick/mario/world.jse",
+			"enabled": true
+		},
+		"mario/config": {
+			"title": "Game Configuration",
+			"file": "models/nick/mario/mario_config.jse",
+			"enabled": true
+		},
+		"logo/drawer": {
+			"file": "models/nick/logo/drawer.jse",
+			"title": "Drawing setup",
+			"enabled": true
+		},
+		"logo/config": {
+			"file": "models/nick/logo/config.jse",
+			"title": "Screen Layout",
+			"enabled": false
+		},
+		"logo/basic": {
+			"file": "models/nick/logo/basic.jse",
+			"title": "Logo Basic Commands",
+			"enabled": true
+		},
+		"logo/example1": {
+			"file": "models/nick/logo/example1.jse",
+			"title": "Example 1",
+			"enabled": true
+		},
+		"logo/example2": {
+			"file": "models/nick/logo/example2.jse",
+			"title": "Example 1",
+			"enabled": true
 		}
 	}
 }

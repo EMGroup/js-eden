@@ -21,7 +21,7 @@ function makeRandomName()
 
 
 
-Eden.Agent = function(parent, name, title, options) {
+Eden.Agent = function(parent, name, meta, options) {
 	this.name = undefined;
 	if (name === undefined) {
 		this.name = makeRandomName();
@@ -33,12 +33,12 @@ Eden.Agent = function(parent, name, title, options) {
 	this.scope = eden.root.scope;
 	this.ast = undefined;
 	this.state = {};
-	this.enabled = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_enabled')) || false;
-	this.hidden = false;
+	this.enabled = (meta && meta.enabled !== undefined) ? meta.enabled : false;
 	this.owned = false;
 	this.oracles = [];
 	this.handles = [];
-	this.title = (title) ? title : "Agent";
+	this.meta = meta;
+	this.title = (meta && meta.title) ? meta.title : this.name;
 	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || [];
 	this.index = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_index')) || 0;
 	this.snapshot = edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
@@ -59,6 +59,7 @@ Eden.Agent = function(parent, name, title, options) {
 
 	Eden.Agent.agents[this.name] = this;
 	Eden.Agent.emit("create", [this]);
+	Eden.DB.updateDirectory(this.name);
 
 	var me = this;
 
@@ -78,7 +79,7 @@ Eden.Agent = function(parent, name, title, options) {
 	});
 }
 
-Eden.Agent.agents = {};
+Eden.Agent.agents = {};		// Imported agents
 
 Eden.Agent.listeners = {};
 Eden.Agent.emit = emit;
@@ -88,31 +89,33 @@ Eden.Agent.AUTOSAVE_INTERVAL = 2000;
 
 
 
-Eden.Agent.loadDB = function(url) {
-	var me = this;
 
-	$.get(url, function(data) {
-		Eden.Agent.db = data;
-	});
-}
-Eden.Agent.loadDB("resources/agents.db.json");
-
-
-
-Eden.Agent.importAgent = function(path, options) {
-	if (Eden.Agent.db === undefined) return;
+Eden.Agent.importAgent = function(path, options, callback) {
+	//if (Eden.Agent.db === undefined) return;
 	if (Eden.Agent.agents[path] !== undefined) {
 		Eden.Agent.agents[path].setOptions(options);
-		return Eden.Agent.agents[path];
+		if (callback) callback(Eden.Agent.agents[path]);
+		return;
 	}
 
 	// If local, just load and let it get its data...
 	if (options && options.indexOf("local") >= 0) {
-		var ag = new Eden.Agent(undefined, path, "Agent", options);
-		return ag;
+		Eden.DB.getMeta(path, function(path, meta) {
+			var ag = new Eden.Agent(undefined, path, meta, options);
+			if (callback) callback(ag);
+		});
+	} else {
+		Eden.DB.getMeta(path, function(path, meta) {
+			var ag = new Eden.Agent(undefined, path, meta, options);
+			if (meta.file) {
+				ag.loadFromFile(meta.file, ag.enabled);
+			}
+			if (callback) callback(ag);
+		});
 	}
 
-	var components = path.split("/");
+
+	/*var components = path.split("/");
 	var root = Eden.Agent.db[components[0]];
 	for (var i=1; i<components.length; i++) {
 		if (root === undefined) return;
@@ -147,7 +150,7 @@ Eden.Agent.importAgent = function(path, options) {
 		}
 	}
 
-	return ag;
+	return ag;*/
 }
 
 
@@ -241,8 +244,6 @@ Eden.Agent.prototype.setOptions = function(options) {
 		if (options.indexOf("disabled") >= 0) this.setEnabled(false);
 		if (options.indexOf("enabled") >= 0) this.setEnabled(true);
 		if (options.indexOf("readonly") >= 0) this.owned = true;
-		if (options.indexOf("hidden") >= 0) this.hidden = true;
-		if (options.indexOf("visible") >= 0) this.hidden = false;
 	}
 }
 
@@ -258,7 +259,8 @@ Eden.Agent.prototype.setSnapshot = function(source) {
 Eden.Agent.prototype.setEnabled = function(enabled) {
 	if (this.enabled != enabled) {
 		this.enabled = enabled;
-		edenUI.setOptionValue('agent_'+this.name+'_enabled', JSON.stringify(this.enabled));
+		Eden.DB.updateMeta(this.name, "enabled", enabled);
+		//edenUI.setOptionValue('agent_'+this.name+'_enabled', JSON.stringify(this.enabled));
 	}	
 }
 
@@ -459,6 +461,7 @@ Eden.Agent.prototype.clearExecutedState = function() {
 
 Eden.Agent.prototype.setTitle = function(title) {
 	this.title = title;
+	Eden.DB.updateMeta(this.name, "title", title);
 	Eden.Agent.emit("title", [this]);
 }
 

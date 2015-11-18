@@ -235,14 +235,24 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 		for (var a in root) {
 			var npath = (path=="")?a:path+"/"+a;
 			var item = $('<div class="script-agents-item" style="padding-left: '+(20+depth*20)+'px"></div>');
-			item.html(a+" - <i>"+root[a].title+"</i>");
+
+			(function(item, path) {
+				var meta = Eden.DB.getMeta(path, function(path, meta) {
+					if (meta) {
+						item.html(a+" - <i>"+meta.title+"</i>");
+					} else {
+						item.html(a);
+					}
+				});
+			}).call(this, item, npath);
+
 			if (Eden.Agent.agents[npath]) item.addClass("loaded");
 			item.get(0).setAttribute("data-path", npath);
 			list.append(item);
 			addAgents(depth+1, root[a].children, npath);
 		}
 	}
-	addAgents(0, Eden.Agent.db, "");
+	addAgents(0, Eden.DB.directory, "");
 
 	content
 	.on("click", ".script-agents-item", function(e) {
