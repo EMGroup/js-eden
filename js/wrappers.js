@@ -85,6 +85,16 @@ Eden.Agent.listeners = {};
 Eden.Agent.emit = emit;
 Eden.Agent.listenTo = listenTo;
 
+Eden.Agent.unlisten = function(target) {
+	for (var e in Eden.Agent.listeners) {
+		for (var i=0; i<Eden.Agent.listeners[e].length; i++) {
+			if (Eden.Agent.listeners[e][i].target === target) {
+				Eden.Agent.listeners[e].splice(i,1);
+			}
+		}
+	}
+}
+
 Eden.Agent.AUTOSAVE_INTERVAL = 2000;
 
 

@@ -101,6 +101,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	var closeInput = function(options) {
 		var $dialog = options.$dialog;
 		$dialog.dialog('close');
+		console.log("CLOSE");
+		console.log(options);
 	}
 
 	var openInput = function(options) {
@@ -311,7 +313,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 		function removedAgent(name,prev) {
-			if (scriptagent.name == name) {
+			if (scriptagent && scriptagent.name == name) {
 				if (tabscrollix > 0) tabscrollix--;
 				if (prev) {
 					changeAgent(undefined, prev);
@@ -372,8 +374,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		//rebuildTabs();
 		//Eden.Agent.listenTo("create", this, rebuildTabs);
 		//Eden.Agent.listenTo("title", this, rebuildTabs);
-		Eden.Agent.listenTo("remove", this, removedAgent);
-		Eden.Agent.listenTo("autosave", this, autoSaved);
+		Eden.Agent.listenTo("remove", agent, removedAgent);
+		Eden.Agent.listenTo("autosave", agent, autoSaved);
 		
 
 
@@ -642,10 +644,10 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 				updateHistoryButtons();
 			}
 		}
-		Eden.Agent.listenTo("create", this, agentCreated);
-		Eden.Agent.listenTo("loaded", this, agentLoaded);
-		Eden.Agent.listenTo("rollback", this, agentRollback);
-		Eden.Agent.listenTo("owned", this, changeOwnership);
+		Eden.Agent.listenTo("create", agent, agentCreated);
+		Eden.Agent.listenTo("loaded", agent, agentLoaded);
+		Eden.Agent.listenTo("rollback", agent, agentRollback);
+		Eden.Agent.listenTo("owned", agent, changeOwnership);
 
 
 		/*edenUI.eden.root.addGlobal(function(sym, create) {
@@ -663,7 +665,8 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		});*/
 
 
-		setInterval(function() {
+		var gutterinterval = setInterval(function() {
+			if (scriptagent === undefined) return;
 			gutter.generate(scriptagent.ast, -1);
 			scriptagent.clearExecutedState();
 		}, 50);
@@ -1768,11 +1771,22 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 					}
 				}
 			},
+			close: function() {
+				console.log("CLOSE SCRIPT");
+				clearInterval(gutterinterval);
+				Eden.Agent.unlisten(agent);
+				scriptagent.setOwned(false);
+				scriptagent = undefined;
+				Eden.Agent.remove(agent);
+				agent = undefined;
+			},
 			setValue: function (value) { intextarea.value = value; }
 		}
 
 		// Initialise highlight content
 		updateEntireHighlight();
+
+		console.log(this);
 
 		return viewdata;
 	};
@@ -1797,7 +1811,8 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 				height: idealheight,
 				minHeight: 203,
 				minWidth: 300,
-				dialogClass: "input-dialog"
+				dialogClass: "input-dialog",
+				close: viewdata.close
 			});
 
 		viewdata.confirmClose = !("MenuBar" in edenUI.plugins);
