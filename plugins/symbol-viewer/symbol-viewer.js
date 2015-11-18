@@ -127,9 +127,6 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		function makeRegExp() {
 			var searchStr = searchBox[0].value;
 			var searchLang = searchLangSym.value();
-			if (searchLang === undefined && /[\\+^$|({[]|\.\*|\.\?/.test(searchStr)) {
-				searchLang = "regexp";
-			}
 			return edenUI.regExpFromStr(searchBox, "", false, searchLang);
 		}
 

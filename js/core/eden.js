@@ -403,7 +403,13 @@ function concatAndResolveUrl(url, concat) {
 		//Determine the syntax that the user used to express their search.
 		var simpleWildcards;
 		if (searchLang === undefined) {
-			simpleWildcards = this.getOptionValue("optSimpleWildcards") !== "false";
+			//The following line should match the same heuristic check in showObservables in core.js-e
+			if (/[\\+^$|({[]|(\.\*[^\s*?])/.test(str)) {
+				//User appears to be using a regular expression even though their usual preference might be simple search.
+				simpleWildcards = false;
+			} else {
+				simpleWildcards = this.getOptionValue("optSimpleWildcards") !== "false";
+			}
 		} else if (searchLang == "simple") {
 			simpleWildcards = true;
 		} else if (searchLang == "regexp") {
