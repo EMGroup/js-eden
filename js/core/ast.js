@@ -2286,7 +2286,7 @@ Eden.AST.Script.prototype.executeReal = function(root, ctx, base, parameters) {
 	if (this.active) return;
 	this.active = true;
 	var gen = this.executeGenerator(root,ctx,base, parameters);
-	runEdenAction(this, gen);
+	runEdenAction.call(base,this, gen);
 }
 
 Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, parameters) {
@@ -2300,6 +2300,8 @@ Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, paramete
 			} else {
 				yield 0;
 			}
+		} else if (this.statements[i].type == "import") {
+			yield this.statements[i];
 		} else {
 			this.parameters = parameters;
 			// Only execute statement if it isn't a script.
@@ -2314,16 +2316,32 @@ Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, paramete
 }
 
 function runEdenAction(source, action) {
+	var me = this;
+
 	if (action === undefined) {
 		source.active = false;
 	}
 	var delay = action.next();
 	//console.log("RunAction: " + delay.value);
 	if (delay.done == false) {
-		if (delay.value == 0) {
-			runEdenAction(source, action);
+		if (typeof delay.value == "object") {
+			if (delay.value.type == "import") {
+				delay.value.executed = 1;
+				Eden.Agent.importAgent(delay.value.path, delay.value.options, function(ag) {
+					if (ag) {
+						for (var i=0; i<me.imports.length; i++) {
+							if (me.imports[i] === ag) return;
+						}
+						me.imports.push(ag);
+					}
+
+					runEdenAction.call(me,source, action);
+				});
+			}
+		} else if (delay.value == 0) {
+			runEdenAction.call(this,source, action);
 		} else if (delay.value > 0) {
-			setTimeout(function() {runEdenAction(source, action)}, delay.value);
+			setTimeout(function() {runEdenAction.call(me, source, action)}, delay.value);
 		}
 	} else {
 		source.active = false;

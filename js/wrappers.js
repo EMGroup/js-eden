@@ -109,69 +109,47 @@ Eden.Agent.importAgent = function(path, options, callback) {
 		return;
 	}
 
+	var ag;
+
+	function finish() {
+		console.log("FINISH");
+		// Import all children as well
+		Eden.DB.getDirectory(path, function(dir) {
+			console.log(dir);
+			if (dir && dir.children) {
+				for (var a in dir.children) {
+					Eden.Agent.importAgent(path+"/"+a, undefined, undefined);
+				}
+			}
+
+			console.log(path);
+
+			if (callback) callback(ag);
+		});
+	}
+
 	// If local, just load and let it get its data...
 	if (options && options.indexOf("local") >= 0) {
 		Eden.DB.getMeta(path, function(path, meta) {
-			var ag = new Eden.Agent(undefined, path, meta, options);
-			if (callback) callback(ag);
+			if (meta) {
+				ag = new Eden.Agent(undefined, path, meta, options);
+				//if (callback) callback(ag);
+			}
+			finish();
 		});
 	} else {
 		Eden.DB.getMeta(path, function(path, meta) {
-			var ag = new Eden.Agent(undefined, path, meta, options);
-			if (meta && meta.file) {
-				ag.loadFromFile(meta.file, ag.enabled);
+			if (meta) {			
+				ag = new Eden.Agent(undefined, path, meta, options);
+				if (meta.file) {
+					ag.loadFromFile(meta.file, ag.enabled, finish);
+					return;
+				}
+				//if (callback) callback(ag);
 			}
-			if (callback) callback(ag);
+			finish();
 		});
 	}
-
-	// Import all children as well
-	Eden.DB.getDirectory(path, function(dir) {
-		console.log(dir);
-		if (dir && dir.children) {
-			for (var a in dir.children) {
-				Eden.Agent.importAgent(path+"/"+a, undefined, undefined);
-			}
-		}
-	});
-
-
-	/*var components = path.split("/");
-	var root = Eden.Agent.db[components[0]];
-	for (var i=1; i<components.length; i++) {
-		if (root === undefined) return;
-		root = root.children[components[i]];
-	}
-
-	if (root === undefined) return;
-	console.log("Agent import: " + root.title);
-
-	// Build options
-	if (options === undefined) options = [];
-	if (options.indexOf("enabled") == -1 && options.indexOf("disabled") == -1) {
-		if (root.enabled == true) options.push("enabled");
-		if (root.enabled == false) options.push("disabled");
-		if (root.enabled === undefined) options.push("enabled");
-	}
-	if (root.readonly == true) options.push("readonly"); 
-
-	var ag;
-	if (root.file || root.local) {
-		ag = new Eden.Agent(undefined, path, root.title, options);
-		//ag.enabled = (root.enabled === undefined) ? false : root.enabled;
-
-		if (root.file) {
-			ag.loadFromFile(root.file, ag.enabled);
-		}
-	}
-
-	if (root.children) {
-		for (var a in root.children) {
-			Eden.Agent.importAgent(path+"/"+a);
-		}
-	}
-
-	return ag;*/
 }
 
 
@@ -446,7 +424,7 @@ Eden.Agent.prototype.redo = function() {
 
 
 
-Eden.Agent.prototype.loadFromFile = function(filename, execute) {
+Eden.Agent.prototype.loadFromFile = function(filename, execute, callback) {
 	var me = this;
 	var doexecute = execute;
 
@@ -462,6 +440,8 @@ Eden.Agent.prototype.loadFromFile = function(filename, execute) {
 		me.clearHistory();
 		me.setSource(data);
 		if (doexecute) me.executeLine(-1);
+		console.log("Callback: " + filename);
+		if (callback) callback();
 		Eden.Agent.emit("loaded", [me]);
 	});
 }
