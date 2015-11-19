@@ -450,7 +450,7 @@ Eden.Agent.prototype.loadFromFile = function(filename, execute, callback) {
 		console.log("Callback: " + filename);
 		if (callback) callback();
 		Eden.Agent.emit("loaded", [me]);
-	});
+	}, "text");
 }
 
 

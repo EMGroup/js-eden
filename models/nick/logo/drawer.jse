@@ -1,4 +1,7 @@
-## Logo Drawer
+/**
+ * @title Logo Display
+ * @author Nicolas Pope
+ */
 
 angle = 0;
 move_offset = 0;

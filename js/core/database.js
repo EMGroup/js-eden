@@ -28,7 +28,7 @@ Eden.DB.loadRemoteRoot = function(url) {
 			Eden.DB.updateDirectory(a);
 		}
 		Eden.DB.remoteMeta = data.meta;
-	});
+	}, "json");
 }
 Eden.DB.loadRemoteRoot("resources/agents.db.json");
 

@@ -1,4 +1,7 @@
-## Logo Basic Commands
+/**
+ * @title Logo Basic Commands
+ * @author Nicolas Pope
+ */
 
 import logo/drawer;
 
