@@ -13,6 +13,15 @@ function fnEdenASTleft(left) {
 };
 
 
+
+Eden.AST.DoxyComment = function(content, start, end) {
+	this.type = "doxycomment";
+	this.content = content;
+	this.startline = start;
+	this.endline = end;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Eden.AST.Literal = function(type, literal) {

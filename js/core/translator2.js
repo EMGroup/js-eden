@@ -26,6 +26,9 @@ Eden.AST = function(code, imports) {
 	this.definitions = {};		// Definitions mapping
 	this.imports = (imports) ? imports : [];
 
+	this.lastDoxyComment = undefined;
+	this.mainDoxyComment = undefined;
+
 	this.stream.data = this.data;
 
 	// Get First Token;
@@ -136,6 +139,10 @@ Eden.AST.prototype.next = function() {
 		// Skip block comments
 		if (this.token == "/*") {
 			var count = 1;
+			var isDoxy = false;
+			var start = this.stream.position-2;
+			var startline = this.stream.line;
+			if (this.stream.peek() == 42) isDoxy = true;
 			while (this.stream.valid() && (this.token != "*/" || count > 0)) {
 				this.token = this.stream.readToken();
 				if (this.token == "/*") {
@@ -143,6 +150,10 @@ Eden.AST.prototype.next = function() {
 				} else if (this.token == "*/") {
 					count--;
 				}
+			}
+			if (isDoxy) {
+				this.lastDoxyComment = new Eden.AST.DoxyComment(this.stream.code.substring(startline, this.stream.position), start, this.stream.line);
+				if (startline == 1) this.mainDoxyComment = this.lastDoxyComment;
 			}
 			this.token = this.stream.readToken();
 		// Skip line comments

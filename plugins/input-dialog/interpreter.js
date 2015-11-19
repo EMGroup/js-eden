@@ -1037,12 +1037,22 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 			highlighter.highlight(ast, lineno, position);
 			gutter.generate(ast,lineno);
 
-			// If the first line is a comment, set the title to that
-			if (lineno == -1 || lineno == 1) {
-				if (ast.stream.code.charAt(0) == "#") {
-					setTitle(ast.stream.code.split("\n")[0].substr(2));
-				} else {
-					//setTitle(Language.ui.input_window.title);
+			// Process the scripts main doxy comment for changes.
+			if (ast.mainDoxyComment && (lineno == -1 || (lineno >= 1 && lineno <= ast.mainDoxyComment.endline))) {
+				// Find all doc tags
+				var taglines = ast.mainDoxyComment.content.match(/@[a-z]+.*\n/ig);
+				for (var i=0; i<taglines.length; i++) {
+					// Extract tag and content
+					var ix = taglines[i].search(/\s/);
+					if (ix >= 0) {
+						var tag = taglines[i].substring(0,ix);
+						var content = taglines[i].substr(ix).trim();
+
+						// Set title tag found
+						if (tag == "@title") {
+							setTitle(content);
+						}
+					}
 				}
 			}
 
