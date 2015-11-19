@@ -150,6 +150,7 @@ Eden.Agent.hasLocalModifications = function(name) {
 	try {
 		if (window.localStorage) {
 			var ix = JSON.parse(window.localStorage.getItem('agent_'+name+'_index'));
+			if (ix === null) return false;
 			if (ix >= 0) return true;
 			return false;
 		}

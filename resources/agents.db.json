@@ -77,6 +77,16 @@
 			"file": "models/nick/mario/world.jse",
 			"enabled": true
 		},
+		"mario/mario": {
+			"title": "Mario Character",
+			"file": "models/nick/mario/mario_mario.jse",
+			"enabled": true
+		},
+		"mario": {
+			"title": "Mario Game",
+			"file": "models/nick/mario/mario.jse",
+			"enabled": true
+		},
 		"mario/config": {
 			"title": "Game Configuration",
 			"file": "models/nick/mario/mario_config.jse",
