@@ -382,6 +382,11 @@ Eden.AST.prototype.pFACTOR = function() {
 	} else if (this.token == "STRING") {
 		var lit = new Eden.AST.Literal("STRING", this.data.value);
 		this.next();
+		// Allow multiple strings to be combined as lines
+		while (this.token == "STRING") {
+			lit.value += "\n"+this.data.value;
+			this.next();
+		}
 		return lit
 	} else if (this.token == "BOOLEAN") {
 		var lit = new Eden.AST.Literal("BOOLEAN", this.data.value);

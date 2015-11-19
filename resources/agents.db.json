@@ -57,6 +57,11 @@
 	},
 
 	"meta": {
+		"jspe": {
+			"file": "models/jspe/jspe.jse",
+			"title": "Presentation Environment",
+			"enabled": true
+		},
 		"examples/gridalgebra": {
 			"file": "models/scoped/gridalgebra.jse",
 			"title": "Grid Algebra Basics",
@@ -102,6 +107,26 @@
 		"compatibility/scifest2015": {
 			"file": "compatibility/scifest2015.js-e",
 			"title": "SciFest 2015 Compatibility Shim",
+			"enabled": true
+		},
+		"scifest2015/nimcoins/coins": {
+			"file": "models/SciFest2015/nim-coins/nim-coins.js-e",
+			"title": "SciFest 2015 Nim Coins",
+			"enabled": true
+		},
+		"scifest2015/nimcoins/stones": {
+			"file": "models/SciFest2015/nim-coins/nim-coins-stones-new.js-e",
+			"title": "SciFest 2015 Nim Coins",
+			"enabled": true
+		},
+		"scifest2015/nimcoins/playsheet": {
+			"file": "models/SciFest2015/nim-coins/playsheet-new.js-e",
+			"title": "SciFest 2015 Nim Coins",
+			"enabled": true
+		},
+		"scifest2015/nimcoins": {
+			"file": "models/SciFest2015/nim-coins/nim.js-e",
+			"title": "SciFest 2015 Nim Coins",
 			"enabled": true
 		},
 		"scifest2015/shopping": {

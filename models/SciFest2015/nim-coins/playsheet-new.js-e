@@ -1,0 +1,412 @@
+/**
+ * @title Nim Coins Playsheet
+ */
+
+import jspe enabled;
+
+hiddenCol = "white";
+
+introNIM is Slide(
+"<h3>The Game of Nim</h3>"
+"<p>"
+"Nim is a game where two players take it in turn to take stones from piles."
+"On your turn, you can take one or more stones from <i>just one</i> of the piles."
+"You win if you take the last stone."
+"</p>"
+"<p>"
+"<b>How it works ...</b>"
+"<p>"
+"You can play the game with a partner. On the Canvas 2D window, there are three piles of stones, each containing up to 15 stones - each stone is shown as a red circle. You can use the buttons to take stones from whichever pile you choose. When you've finished, press 'End Turn'. Press 'Start New Game' to generate three new piles."
+"</p>"
+"<p>"
+"<b>Questions</b>"
+"<ul>"
+"<li>"
+"Suppose that two piles have 1 and 2 stones left and that the other pile has 4 stones. Who will win with best play? What if the other pile has 3 stones?"
+"</li>"
+"</li>"
+"<li>Why is it a bad thing to be faced with two piles of equal size?</li>"
+"<li>When one pile has more stones than either of the others, which pile should you take from?</li>"
+"</ul>"
+"</p>"
+"<p>"
+"<b>Things you can do ...</b>"
+"<jseden>"
+"showObservables(\"pile1|pileSizeOne|firstPlayer|numberofturns|activePile|currentPlayer$|colOne11\");"
+"arrangeWindows([\"picture\", \"showObservables\", \"jspe\"]);"
+"</jseden>"
+"</p>"
+"<p>"
+"The observable <code>pileSizeOne</code> is the number of stones in pile 1. Click on it. You can change its value."
+"</p>"
+"<p>"
+"Add two new buttons to the display:"
+"<jseden>"
+"picture is  pictureBlend // [expertPlayer, randomPlayer];"
+"</jseden>"
+"to make the moves of a NIM expert and a NIM beginner. (You must press 'End Turn' when they have finished their move.)"
+"</p>"
+"<p>"
+"Some text on the screen has been hidden - it's coloured white. To make it visible, execute:"
+"<jseden>"
+"hiddenCol = \"red\";"
+"</jseden>"
+"</p>"
+"<p>"
+"Study this to work out the strategy for the expert player."
+"</p>"
+);
+
+slideA_obsNim is Slide(
+"<h3>About the construal ...</h3>"
+"<p>"
+"NIM is a game with some maths behind it, and we'll be looking into this later. We'll do that by playing around with a special kind of computer model of NIM that we've made - what we call a 'construal'."
+"</p>"
+"<p>"
+"What do you think about when you're playing NIM?"
+"You look at the three piles of stones, and count how many stones there are in each."
+"You think about whether it's your turn to play."
+"You need to know whether your opponent has finished her turn or is just pausing."
+"You know when it's the end of the game."
+"These are all examples of <b>observables</b>. "
+"Though you can't always see an observable directly, you are aware of it."
+"What you think about depends on how much you know about playing NIM."
+"For instance, as you will see later, the expert NIM player may be observing the piles and counting the number of stones in quite a different way from the beginner. "
+"</p>"
+"<p>"
+"The construal keeps track of the observables.  Click the \"execute\" link below to see some interesting observables."
+"</p>"
+"<jseden>"
+"showObservables(\"pile1|pileSizeOne|firstPlayer|numberofturns|activePile|currentPlayer$|colOne11\");"
+"arrangeWindows([\"picture\", \"showObservables\", \"jspe\"]);"
+"</jseden>"
+"<p>"
+"Hover the mouse over the 'green' observables to see how they are defined. Play a few moves and watch how they change value. <i>Can you guess what each of the observables in the Observable List means?</i>"
+"</p>"
+"<p>"
+"You can also open an observable list by selecting \"Observable List\" from the \"New Window\" menu.  You can type different things into the search box to look at different groups of observables."
+"</p>"
+);
+
+A_introNim is [introNIM, slideA_obsNim];
+
+slideList is A_introNim;
+
+slideB_2pileNIM is Slide(
+"<h3>NIM with two piles</h3>"
+"<p>"
+"A good way to get to understand more about NIM is to look at simple positions."
+"Faced with a position, the question we have to ask is whether - if we always make the best move - we win the game."
+"See if you can answer this question for each of the following positions, where one of the piles is empty."
+"[To set up the position for play, first click on the 'Start New Game' button, then click on 'execute' to define the pile sizes.]"
+"<jseden>"
+"pileSizeOne = 1; pileSizeTwo = 1; pileSizeThree = 0;"
+"</jseden>"
+"<jseden>"
+"pileSizeOne = 2; pileSizeTwo = 0; pileSizeThree = 2;"
+"</jseden>"
+"<jseden>"
+"pileSizeOne = 0; pileSizeTwo = 2; pileSizeThree = 7;"
+"</jseden>"
+"</p>"
+"<p>"
+"The first two examples suggest that it's not a good thing to be faced with two piles of equal size. It certainly isn't if there's only one left in each pile. But if you take away any number of stones from one of the two equal piles, your opponent can always put you back in the situation where both piles have the same size ... and are smaller! And of course if at some stage you take all the stones in a pile, your opponent picks up all the stones in the other pile, and wins. This means that if it's your turn and there are two piles with a different number of stones you know exactly what to do."
+"</p>"
+"<jseden>"
+"pileSizeOne = 7; pileSizeTwo = 0; pileSizeThree = 5;"
+"</jseden>"
+);
+
+slideB_3pileNIM is Slide(
+"<h3>NIM with three piles</h3>"
+"<p>"
+"After looking at NIM with two piles of stones, we know something about positions with three piles. Any position where two of the three piles are the same size is a winning position. So we're only interested in positions where there are at least three piles, and they have three different sizes."
+"</p>"
+"<p>"
+"You can still think about whether you're in a winning position though. For instance, one of these positions is won with best play: "
+"<jseden>"
+"pileSizeOne = 1; pileSizeTwo = 2; pileSizeThree = 3;"
+"</jseden>"
+"<jseden>"
+"pileSizeOne = 1; pileSizeTwo = 2; pileSizeThree = 4;"
+"</jseden>"
+"</p>"
+"<p>"
+"Which do you think it is? ... and how about this position?"
+"</p>"
+"<jseden>"
+"pileSizeOne = 1; pileSizeTwo = 2; pileSizeThree = 7;"
+"</jseden>"
+"<p>"
+"... or this one?"
+"</p>"
+"<jseden>"
+"pileSizeOne = 1; pileSizeTwo = 6; pileSizeThree = 3;"
+"</jseden>"
+);
+
+slideB_autoplayers is Slide (
+"<h3>Automated NIM players</h3>"
+"<p>"
+"Playing NIM against yourself can be rather boring. To make it easier for you, we have made some automatic players to act as your opponents."
+"To introduce these, you add two new buttons to the display:"
+"<jseden>"
+"picture is  pictureBlend // [expertPlayer, randomPlayer];"
+"</jseden>  "
+"</p>"
+"<p>"
+"Clicking on 'Expert play' will show you the best move you can make in any NIM position. If you like to win, click on 'Novice play' instead!"
+"To make it easier to keep track of whose turn it is, you will have to click on the 'End Turn' button.  "
+"</p>"
+"<p>"
+"You can use the expert and novice players to test how well you can handle simple positions. "
+"</p>"
+);
+
+
+B_simpleNIM is [slideB_2pileNIM, slideB_3pileNIM, slideB_autoplayers];
+
+slideList is A_introNim // B_simpleNIM;
+
+C_binaryObs is [C_addbinaryreps];
+
+C_addbinaryreps is Slide(
+"<h3>Some new observables for NIM </h3>"
+"<p>"
+"You can work out how to play NIM by looking at the sizes of the piles in a different way."
+"It's rather like using a microscope to see what you couldn't see before. There is some text on the screen that has been hidden -"
+"it is coloured white. To make this visible, execute:"
+"<jseden>"
+"hiddenCol = \"red\";"
+"</jseden>"
+"</p>"
+"<p>"
+"The extra observables are in red. The size of each pile is shown as a number between 1 and 7, and, below that, as it would be written in binary."
+"To write a number in binary you express it as a sum of the numbers 4, 2 and 1 - there will always be just one way to do this. For example:"
+"6 is 4+2 and 5 is 4+1 etc. We read 6 as '1 times four + 1 times two + 0 times one' and write it as 100."
+"</p>"
+"<p>"
+"The most important new 'observable' has the label 'Nim-Sum in binary'. This is calculated by adding up the 1s and 0s in each column using binary arithmetic, where 0+0=0, 1+0=0+1=1 and 1+1=0. We call it the <b>Nim-Sum</b>."
+"</p>"
+"<p> "
+"Now look back at the simple positions you studied before."
+"Watch what happens to the Nim-Sum as you play a game of NIM from a position where you know how to win - or how your opponent is going to win!"
+"How does the Nim-Sum history change when you switch from novice to expert play?"
+"</p>"
+);
+
+slideList is A_introNim // B_simpleNIM // C_binaryObs;
+
+## make an automatic player at this point?
+
+D_theNimstrategy is Slide(
+"<h3>The Nim strategy</h3>"
+"<p>"
+"It is true, but not obvious, that when you are in a position where the Nim-Sum of the piles is zero your opponent wins with best play."
+"So 'the Nim-Sum is zero' means 'you should lose'."
+"</p>"
+"<p>"
+"The Nim-Sum is certainly zero when you have just lost the game - your opponent has just picked up the last stone."
+"</p>"
+"<p>"
+"Can we prove that any other position in which the Nim-Sum is zero is lost? Looking at the Nim-Sum history of simple games suggests: "
+"<ul>"
+"<li>when the Nim-Sum is zero, every move leads to a non-zero Nim-Sum.</li>"
+"<p></p>"
+"<li>when the Nim-Sum is non-zero, there is always a move that makes the Nim-Sum zero.</li>"
+"</ul>"
+"</p>"
+"<p>"
+"If both these two statements are true, then once you are faced with a position in which the Nim-Sum is zero, you will lose to an expert opponent."
+"Whatever move you make, your opponent will be able to put you back in a position with Nim-Sum zero, and there will be fewer stones in the piles than there were before."
+"At some point you lose, as there will be no stones left."
+"</p>"
+);
+
+D_whyyousometimescantwin is Slide(
+"<h3>The NIM winning strategy - why you sometimes can't win!</h3>"
+"<p>"
+"<i>Why, when the Nim-Sum is zero, every move leads to a non-zero Nim-Sum.</i>"
+"<p>"
+"Suppose the Nim-Sum is zero, and I show you all except one of the pile sizes in binary. We can make that happen by writing out the string in invisible ink."
+"Right now, the size of the first pile is shown in binary in the colour 'hiddenCol' - currently 'red': "
+"<jseden>"
+"currentBinarySumPileOneLabel is Text(currentBinarySumPileOneLabelTxt,7*scaleWidth,12.5*scaleWidth,scaleWidth/2,hiddenCol);"
+"</jseden>"
+"</p>"
+"<p>"
+"[you can use this definition afterwards to make the it visible again]."
+"</p>"
+"<p>"
+"To make it invisible, we can display it in white:"
+"<jseden>"
+"currentBinarySumPileOneLabel is Text(currentBinarySumPileOneLabelTxt,7*scaleWidth,12.5*scaleWidth,scaleWidth/2,\"white\");"
+"</jseden>"
+"</p>"
+"<p>"
+"Though you can't see the string anymore, you can figure it out, since the binary sum of each column is zero."
+"This means that you can't take a stone from pile one (or any other pile!) without making the Nim-Sum non-zero."
+"</p>"
+);
+
+D_howyouusuallycanwin is Slide(
+"<h3>The NIM winning strategy - how you usually can win!</h3>"
+"<p>"
+"<i>How, when the Nim-Sum is non-zero, you find a way to make the Nim-Sum zero.</i>"
+"</p>"
+"<p>"
+"You can learn the secret of winning at NIM (most of the time!) by watching the expert player."
+"The trick is to know which pile to choose - once you make a good choice you will be able to make the Nim-Sum zero by taking stones from it. "
+"</p>"
+"<p>"
+"Start a new game and watch how the expert plays. The pile that is chosen at each turn is marked by a star."
+"Pay attention to the first column in the binary of the Nim-Sum that has a 1 in it."
+"The binary for the chosen pile always contains a 1 in that column."
+"This is enough to ensure that it taking stones from that pile will create the binary needed to make all the columns to the right sum to 0. "
+"</p>"
+);
+
+D_abouttheNIMstrategy is [D_theNimstrategy, D_whyyousometimescantwin, D_howyouusuallycanwin];
+
+slideList is A_introNim // B_simpleNIM // C_binaryObs // D_abouttheNIMstrategy;
+
+E_nimwithcoins is Slide(
+"<h3>Nim with coins</h3>"
+"<p>""
+"A variation on Nim can be played with coins, not stones. (This is to be played with UK currency.) We change the rules so that before taking coins away from a pile, you can first change two 1p coins for one 2p coins, five 1p coins into one 5p piece etc. Now that you know how to play normal NIM, you can see how far you can master NIM with coins. For instance: if you are faced with two piles each with two 1p pieces, can you now win the game? To explore this further, execute:"
+"<jseden>"
+"pictureBlend is "
+"[header,pileLabelOne,pileLabelTwo,pileLabelThree,pileButtonOne,pileButtonTwo,pileButtonThree,currentPlayerHeader,currentPlayerLabel,endTurnButton,winnerHeader,winnerLabel,resetButton,currentBinarySumPileOneHeader,currentBinarySumPileTwoHeader,currentBinarySumPileThreeHeader,currentBinarySumPileOneLabel,currentBinarySumPileTwoLabel,currentBinarySumPileThreeLabel,currentBinarySumLabel,currentBinarySumHeader,currentBinarySumSymbol,binarySumHistory] // coinsPileOneDisplay // coinsPileTwoDisplay // coinsPileThreeDisplay;"
+"</jseden>"
+"</p>"
+);
+
+slideList is A_introNim // B_simpleNIM // C_binaryObs // D_abouttheNIMstrategy // E_nimwithcoins;
+
+s17 is Slide(
+"<h3>Observations that inform the proof</h3>"
+"<p>"
+"Proofs are arrived at by considering many different situations and making observations."
+"You may be able to follow a proof even though you don\'t know what observations went into its construction."
+"This is similar to what happens when you use a program - what the user is allowed to explore is constrained by the programmer to be as safe and uncontroversial as possible."
+"Quite a lot of experience of playing Nim might be required before the significance of zero Nim-Sum could be observed."
+"This condition is here simply \'pulled-out-of-the-hat\'."
+"</p>"
+"<p>"
+"The Nim construal is reasonably well-suited to exploring and documenting the contexts for observation that play a role in arriving at a proof."
+"For instance, we can assign sizes to the piles at will:"
+"<jseden>%eden "
+"pileSizeOne = 10; pileSizeTwo =14; pileSizeThree = 5;</jseden>"
+"</p>"
+"<p>"
+"Limitations are: the interface to the construal is clumsy and relatively inflexible when compared with pencil and paper."
+"For instance, it would not be easy to generalise the construal to more than 3 piles, and the number of stones in each pile is limited to 15."
+"Fortunately, the empirical evidence from studying this limited form of Nim is sufficient to infer general principles."
+"</p>"
+);
+
+s18 is Slide(
+"<h3>"
+"Assertions relevant to understanding the winning strategy"
+"</h3>"
+"<p>"
+"<b>Exercise 5:</b>"
+"Mathematical proofs are typically constructed through making conjectures and looking for evidence to confirm or refute them."
+"Here are some assertions that came to mind in formulating a proof of the existence of a Nim winning strategy."
+"See if you can find out whether they are valid, open questions or misconceptions. "
+"</p>"
+"<ul>"
+"<li>The number of stones to be removed in making a winning move is the number whose binary representation is the Nim-Sum."
+"Consider, for instance:"
+"<jseden>"
+"pileSizeOne = 10; pileSizeTwo =14; pileSizeThree = 6;</jseden>"
+"</li>"
+"<li>Once you know the number of stones to be removed in a winning move, you can take them from any pile that is large enough.</li>"
+"<li>There may be two or more winning moves, and these do not necessarily involve removing the same number of stones.</li>"
+"</ul>"
+"</h3>"
+);
+
+s19 is Slide(
+"<p>To access answers to the questions on the previous slide, you can execute the following redefinition:"
+"<jseden>slideList=[slide10,slide11,slide12,slide13,slide14,"
+"slide15,slide16,slide17,slide18,slide19,"
+"slide20,slide21,slide22,slide23,slide25,"
+"slide26,slide27,slide28,slide32,slide29,"
+"slide30,slide31];"
+"</jseden>"
+"</p>"
+"<p>To hide answers to the questions on the previous slide, you can execute the following redefinition:"
+"<jseden>pres_slides=[slide10,slide11,slide12,slide13,slide14,"
+"slide15,slide16,slide17,slide18,slide19,"
+"slide20,slide21,slide22,slide23,slide25,"
+"slide26,slide27,slide28,slide32, slide30,slide31];</jseden>"
+"</p>"
+"<p>"
+"If appropriate, answers will be shown on the next slide."
+"</p>"
+);
+
+s20 is Slide(
+"<h3>Answers</h3>"
+"The assertions are respectively false, false and true. Consider, for instance:"
+"<jseden>"
+"pileSizeOne = 11; pileSizeTwo =14; pileSizeThree = 6;</jseden>"
+"<ul>"
+"<li>You can take 1 stone from pile 2. </li>"
+"<li>You can take 3 stones from pile 1, but you can't take 3 stones from pile 3.</li>"
+"</ul>"
+"<p>"
+"These observations respectively disprove assertions 1 and 2."
+"Taken together, they prove the validity of assertion 3."
+"</p>"
+);
+
+s21 is Slide(
+"<hr>"
+"<hr>"
+"<p>"
+"<b>Exercise 6:</b> "
+"<ol>"
+"<li>Add a textual annotation of the form \"This situation is won/lost with best play\", linked by dependency to the current Nim-Sum.</li>"
+"<li>Change the background colour of clickable buttons on the interface to distinguish them from mere display panels.</li>"
+"<li>Adapt the interface so that when play is in progress, the text showing the active pile is highlighted in green and the text for the other two piles is red. </li>"
+"<li>Adapt the interface to the windows displaying piles of stones so that you can click on individual stones to remove them.</li>"
+"<li>Dispose the stones in a 8-4-2-1 rather than a 5-4-3-2-1 formation in the <b>winPileOne</b>, <b>winPileTwo</b> and <b>winPileThree</b> windows, and display the stones in a way that reflects the binary representation of the pile size (so that for instance, when there are five stones in a pile, this is displayed as 4+1 stones).</li>"
+"<li>"
+"When the Nim-Sum is non-zero highlight the piles from which stones can be taken to achieve Nim-Sum zero, and display the number of stones to be taken."
+"</li>"
+"<li>"
+"Automate a Nim player that implements best play."
+"</li>"
+"</ol>"
+"</p>"
+"<hr>"
+"<hr>"
+);
+
+s22 is Slide(
+"<h3>Empirical Modelling as disposition</h3>"
+"<p>"
+"Disposing the stones in 8-4-2-1 formation is interesting in cognitive terms."
+"It makes it much easier to execute the winning strategy when playing Nim."
+"</p>"
+"<p>"
+"To test this out, you can load the file dispose_8_4_2_1.e which provides a solution to Exercise 6.5."
+"<jseden>include(\"dispose_8_4_2_1.e\");</jseden>"
+"</p>"
+);
+
+/*
+automated player - expert-random: hover over Player.. to invoke
+prolonging the game even when lost
+money version - how affects play - e.g. 7 2 and options for change 5p and 2p
+other version of NIM
+Bachet's game
+Hackenbush - John Conway
+
+prog vs construal - different ways in which pileSize... can be changed 
+
+Proof in coloured rectangles on the array of binary strings
+
+*/

@@ -153,48 +153,48 @@ currentBinarySumHeader is Text("Nim-Sum in binary:",scaleWidth,16.5*scaleWidth,s
 currentBinarySumLabel is Text(currentBinarySumLabelTxt,7*scaleWidth,16.5*scaleWidth,scaleWidth/2,hiddenCol);
 binarySumHistoryHeader is Text("Nim-Sum History:",30,450,"blue");
 binarySumHistoryLabel is Text(binarySumHistoryLabelTxt,190,450,"black");
-loc1One is {2*scaleWidth,3*scaleWidth};
-coin1Onepic is HTMLImage("coin1Onepic",loc1One.x,loc1One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix1One));
-loc2One is {3*scaleWidth,4*scaleWidth};
-coin2Onepic is HTMLImage("coin2Onepic",loc2One.x,loc2One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix2One));
-loc3One is {scaleWidth,2*scaleWidth};
-coin3Onepic is HTMLImage("coin3Onepic",loc3One.x,loc3One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix3One));
-loc4One is {scaleWidth,4*scaleWidth};
-coin4Onepic is HTMLImage("coin4Onepic",loc4One.x,loc4One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix4One));
-loc5One is {3*scaleWidth,2*scaleWidth};
-coin5Onepic is HTMLImage("coin5Onepic",loc5One.x,loc5One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix5One));
-loc6One is {scaleWidth,3*scaleWidth};
-coin6Onepic is HTMLImage("coin6Onepic",loc6One.x,loc6One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix6One));
-loc7One is {3*scaleWidth,3*scaleWidth};
-coin7Onepic is HTMLImage("coin6Onepic",loc7One.x,loc7One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix7One));
-loc1Two is {(offsetTwo + 2)*scaleWidth,3*scaleWidth};
-coin1Twopic is HTMLImage("coin1Twopic",loc1Two.x,loc1Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix1Two));
-loc2Two is {(offsetTwo + 3)*scaleWidth,4*scaleWidth};
-coin2Twopic is HTMLImage("coin2Twopic",loc2Two.x,loc2Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix2Two));
-loc3Two is {(offsetTwo + 1)*scaleWidth,2*scaleWidth};
-coin3Twopic is HTMLImage("coin3Twopic",loc3Two.x,loc3Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix3Two));
-loc4Two is {(offsetTwo + 1)*scaleWidth,4*scaleWidth};
-coin4Twopic is HTMLImage("coin4Twopic",loc4Two.x,loc4Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix4Two));
-loc5Two is {(offsetTwo + 3)*scaleWidth,2*scaleWidth};
-coin5Twopic is HTMLImage("coin5Twopic",loc5Two.x,loc5Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix5Two));
-loc6Two is {(offsetTwo + 1)*scaleWidth,3*scaleWidth};
-coin6Twopic is HTMLImage("coin6Twopic",loc6Two.x,loc6Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix6Two));
-loc7Two is {(offsetTwo + 3)*scaleWidth,3*scaleWidth};
-coin7Twopic is HTMLImage("coin6Twopic",loc7Two.x,loc7Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix7Two));
-loc1Three is {(offsetThree + 2)*scaleWidth,3*scaleWidth};
-coin1Threepic is HTMLImage("coin1Threepic",loc1Three.x,loc1Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix1Three));
-loc2Three is {(offsetThree + 3)*scaleWidth,4*scaleWidth};
-coin2Threepic is HTMLImage("coin2Threepic",loc2Three.x,loc2Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix2Three));
-loc3Three is {(offsetThree + 1)*scaleWidth,2*scaleWidth};
-coin3Threepic is HTMLImage("coin3Threepic",loc3Three.x,loc3Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix3Three));
-loc4Three is {(offsetThree + 1)*scaleWidth,4*scaleWidth};
-coin4Threepic is HTMLImage("coin4Threepic",loc4Three.x,loc4Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix4Three));
-loc5Three is {(offsetThree + 3)*scaleWidth,2*scaleWidth};
-coin5Threepic is HTMLImage("coin5Threepic",loc5Three.x,loc5Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix5Three));
-loc6Three is {(offsetThree + 1)*scaleWidth,3*scaleWidth};
-coin6Threepic is HTMLImage("coin6Threepic",loc6Three.x,loc6Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix6Three));
-loc7Three is {(offsetThree + 3)*scaleWidth,3*scaleWidth};
-coin7Threepic is HTMLImage("coin6Threepic",loc7Three.x,loc7Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix7Three));
+loc1One is [2*scaleWidth,3*scaleWidth];
+coin1Onepic is HTMLImage("coin1Onepic",loc1One[1],loc1One[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix1One));
+loc2One is [3*scaleWidth,4*scaleWidth];
+coin2Onepic is HTMLImage("coin2Onepic",loc2One[1],loc2One[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix2One));
+loc3One is [scaleWidth,2*scaleWidth];
+coin3Onepic is HTMLImage("coin3Onepic",loc3One[1],loc3One[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix3One));
+loc4One is [scaleWidth,4*scaleWidth];
+coin4Onepic is HTMLImage("coin4Onepic",loc4One[1],loc4One[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix4One));
+loc5One is [3*scaleWidth,2*scaleWidth];
+coin5Onepic is HTMLImage("coin5Onepic",loc5One[1],loc5One[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix5One));
+loc6One is [scaleWidth,3*scaleWidth];
+coin6Onepic is HTMLImage("coin6Onepic",loc6One[1],loc6One[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix6One));
+loc7One is [3*scaleWidth,3*scaleWidth];
+coin7Onepic is HTMLImage("coin6Onepic",loc7One[1],loc7One[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix7One));
+loc1Two is [(offsetTwo + 2)*scaleWidth,3*scaleWidth];
+coin1Twopic is HTMLImage("coin1Twopic",loc1Two[1],loc1Two[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix1Two));
+loc2Two is [(offsetTwo + 3)*scaleWidth,4*scaleWidth];
+coin2Twopic is HTMLImage("coin2Twopic",loc2Two[1],loc2Two[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix2Two));
+loc3Two is [(offsetTwo + 1)*scaleWidth,2*scaleWidth];
+coin3Twopic is HTMLImage("coin3Twopic",loc3Two[1],loc3Two[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix3Two));
+loc4Two is [(offsetTwo + 1)*scaleWidth,4*scaleWidth];
+coin4Twopic is HTMLImage("coin4Twopic",loc4Two[1],loc4Two[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix4Two));
+loc5Two is [(offsetTwo + 3)*scaleWidth,2*scaleWidth];
+coin5Twopic is HTMLImage("coin5Twopic",loc5Two[1],loc5Two[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix5Two));
+loc6Two is [(offsetTwo + 1)*scaleWidth,3*scaleWidth];
+coin6Twopic is HTMLImage("coin6Twopic",loc6Two[1],loc6Two[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix6Two));
+loc7Two is [(offsetTwo + 3)*scaleWidth,3*scaleWidth];
+coin7Twopic is HTMLImage("coin6Twopic",loc7Two[1],loc7Two[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix7Two));
+loc1Three is [(offsetThree + 2)*scaleWidth,3*scaleWidth];
+coin1Threepic is HTMLImage("coin1Threepic",loc1Three[1],loc1Three[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix1Three));
+loc2Three is [(offsetThree + 3)*scaleWidth,4*scaleWidth];
+coin2Threepic is HTMLImage("coin2Threepic",loc2Three[1],loc2Three[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix2Three));
+loc3Three is [(offsetThree + 1)*scaleWidth,2*scaleWidth];
+coin3Threepic is HTMLImage("coin3Threepic",loc3Three[1],loc3Three[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix3Three));
+loc4Three is [(offsetThree + 1)*scaleWidth,4*scaleWidth];
+coin4Threepic is HTMLImage("coin4Threepic",loc4Three[1],loc4Three[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix4Three));
+loc5Three is [(offsetThree + 3)*scaleWidth,2*scaleWidth];
+coin5Threepic is HTMLImage("coin5Threepic",loc5Three[1],loc5Three[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix5Three));
+loc6Three is [(offsetThree + 1)*scaleWidth,3*scaleWidth];
+coin6Threepic is HTMLImage("coin6Threepic",loc6Three[1],loc6Three[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix6Three));
+loc7Three is [(offsetThree + 3)*scaleWidth,3*scaleWidth];
+coin7Threepic is HTMLImage("coin6Threepic",loc7Three[1],loc7Three[2],scaleWidth,scaleWidth,imagelocation // coindisplay(ix7Three));
 coinsPileOneDisplay is prefixlsn([coin1Onepic, coin2Onepic, coin3Onepic, coin4Onepic, coin5Onepic, coin6Onepic, coin7Onepic], pileSizeOne);
 coinsPileTwoDisplay is prefixlsn([coin1Twopic, coin2Twopic, coin3Twopic, coin4Twopic, coin5Twopic, coin6Twopic, coin7Twopic], pileSizeTwo);
 coinsPileThreeDisplay is prefixlsn([coin1Threepic, coin2Threepic, coin3Threepic, coin4Threepic, coin5Threepic, coin6Threepic, coin7Threepic], pileSizeThree);
@@ -347,37 +347,37 @@ pileSizeBinaryStringOneTwoThree is [pileSizeBinaryStringOne, pileSizeBinaryStrin
 expertPlayer is Button("expert", "Expert play",  17*scaleWidth, 6*scaleWidth, activePile==0);
 randomPlayer is Button("novice", "Random play",  17*scaleWidth, 7*scaleWidth, activePile==0);
 pileSizeOneTwoThree is [&pileSizeOne, &pileSizeTwo, &pileSizeThree];
-slideA_setupNIM is Slide("
-<h3>Getting started</h3>
-<p>
-Launch the scifest interpreter at ... and click on ... in the Project
-List to load ...
-</p>
-");
-D_whyNimstrategyworks is Slide("
-<h3>Devising a winning strategy</h3>
-<p>
-If the Nim-Sum is zero, you can see that the number of stones in any pile is the Nim-Sum for the rest of the piles.
-This means that if you take a stone from any pile, the Nim-Sum is no longer zero.
-You can see this in the Nim-Sum history - the next number after a zero in the history is never zero. 
-</p>
-<p>
-To prove the existence of an action that will transform a situation in which the Nim-Sum is non-zero into a situation where the Nim-Sum is zero, it is enough to show that there is an index i for which the number whose binary representation is the Nim-Sum of the other n-1 numbers is less than or equal to the i-th number.
-</p>
-<p>
-For this purpose, we simple have to locate a number X that has 1 in its binary representation in the leftmost position k in which a 1 appears in the current Nim-Sum.
-</p>
-<p>
-If the Nim-Sum of the n-1 numbers other than X has a 1 in any position to the left of k in its binary representation, then so does X, since the Nim-Sum has a 0 in this position.
-</p>
-");
+slideA_setupNIM is Slide(
+"<h3>Getting started</h3>"
+"<p>"
+"Launch the scifest interpreter at ... and click on ... in the Project"
+"List to load ..."
+"</p>"
+);
+D_whyNimstrategyworks is Slide(
+"<h3>Devising a winning strategy</h3>"
+"<p>"
+"If the Nim-Sum is zero, you can see that the number of stones in any pile is the Nim-Sum for the rest of the piles."
+"This means that if you take a stone from any pile, the Nim-Sum is no longer zero."
+"You can see this in the Nim-Sum history - the next number after a zero in the history is never zero. "
+"</p>"
+"<p>"
+"To prove the existence of an action that will transform a situation in which the Nim-Sum is non-zero into a situation where the Nim-Sum is zero, it is enough to show that there is an index i for which the number whose binary representation is the Nim-Sum of the other n-1 numbers is less than or equal to the i-th number."
+"</p>"
+"<p>"
+"For this purpose, we simple have to locate a number X that has 1 in its binary representation in the leftmost position k in which a 1 appears in the current Nim-Sum."
+"</p>"
+"<p>"
+"If the Nim-Sum of the n-1 numbers other than X has a 1 in any position to the left of k in its binary representation, then so does X, since the Nim-Sum has a 0 in this position."
+"</p>"
+);
 
 ## Action Definitions:
 proc expertTick{
 
         if ((activePile != 0) && (currentNimSum!=0)){
                 after (expertMoveSpeed) {
-                        *pileSizeOneTwoThree[activePile]--;
+                        ##*pileSizeOneTwoThree[activePile]--;
                         expertTick();
                 }
         }
@@ -482,7 +482,7 @@ proc randomMove: novice_clicked {
 				while (*pileSizeOneTwoThree[i]==0) i = (i+1)%3+1;
 				activePile = i;
 			}
-			*pileSizeOneTwoThree[i]--;
+			##*pileSizeOneTwoThree[i]--;
 		##	endTurnButton_clicked = true;	
 	}
 }

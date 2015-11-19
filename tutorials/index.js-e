@@ -1,0 +1,28 @@
+/**
+ * @title Tutorials
+ * @author Nicolas Pope
+ */
+
+require("Page");
+
+hideView("picture");
+hideView("input");
+
+ws_h1 is Header with text is "Resources";
+
+ws_p1 is Paragraph with text is [
+"<ul><li><a href=\"javascript:eden.execute2('import examples/triangles;');\">Triangles Worksheet</a></li></ul>"
+];
+
+
+ws_contents is [ws_h1,ws_p1];
+
+ws_icon is Icon with colour is "white", size is 150, content is "&#xf1b2";
+ws_title is Title with
+	logo is ws_icon,
+	text is "Tutorials:",
+	subtitle is "The Construit! Environment";
+
+ws_page is Page with title is ws_title, content is ws_contents;
+page is ws_page;
+

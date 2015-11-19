@@ -1822,7 +1822,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 				Eden.Agent.remove(agent);
 				agent = undefined;
 			},
-			setValue: function (value) { intextarea.value = value; }
+			setValue: function (value) { powerOff(); intextarea.value = value; updateEntireHighlight(); }
 		}
 
 		if (power) powerOn();
