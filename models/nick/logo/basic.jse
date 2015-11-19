@@ -32,9 +32,34 @@ action penup {
 }
 
 action reset {
+	do clearscreen;
+	do home;
+}
+
+action clearscreen {
 	lines = [];
+}
+
+action hideturtle {
+	hide_turtle = true;
+}
+
+action showturtle {
+	hide_turtle = false;
+}
+
+action home {
 	angle = 0;
 	position_x = floor(_view_picture_width / 2);
 	position_y = floor(_view_picture_height / 2);
+}
+
+action setxy {
+	position_x = $1;
+	position_y = $2;
+}
+
+action label {
+	lines = lines // [Text($1,position_x, position_y)];
 }
 

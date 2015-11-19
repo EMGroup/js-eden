@@ -3,6 +3,7 @@
 angle = 0;
 move_offset = 0;
 pen = true;
+hide_turtle = false;
 
 colour = "black";
 
@@ -16,7 +17,6 @@ position_y = floor(_view_picture_height / 2);
 turtle is Image(0, 0, 20, 26, "models/nick/logo/turtle.png");
 turtle_rotated is RotateAboutCentre(angle, Point(10,13), Point(position_x,position_y), [turtle]);
 
-picture is [lines,turtle_rotated];
-
+picture is [lines] if hide_turtle else [lines,turtle_rotated];
 
 
