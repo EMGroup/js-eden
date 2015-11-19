@@ -57,6 +57,26 @@
 	},
 
 	"meta": {
+		"hexcolouring/model": {
+			"file": "http://jseden.dcs.warwick.ac.uk/nick/models/wmb/construit/hexcol/newhexcolouring.js-e",
+			"title": "Hex Colouring Revisited",
+			"enabled": true
+		},
+		"hexcolouring/worksheet": {
+			"file": "http://jseden.dcs.warwick.ac.uk/nick/models/wmb/construit/hexcol/hexcolworksheet.js-e",
+			"title": "Hex Colouring Worksheet",
+			"enabled": true
+		},
+		"hexcolouring/textcolupdate": {
+			"file": "http://jseden.dcs.warwick.ac.uk/nick/models/wmb/construit/hexcol/textcolupdate.js-e",
+			"title": "Text Colour Update",
+			"enabled": true
+		},
+		"hexcolouring": {
+			"file": "models/external/hexcol.jse",
+			"title": "Hex Colouring WMB",
+			"enabled": true
+		},
 		"givingchange": {
 			"file": "models/givingchange/load.js-e",
 			"title": "Giving Change",
@@ -97,17 +117,25 @@
 			"title": "Room Revisited",
 			"enabled": true
 		},
+		"purse": {
+			"file": "models/external/purse.jse",
+			"title": "Purse Construal",
+			"enabled": true
+		},
 		"purse/wmb": {
 			"file": "http://jseden.dcs.warwick.ac.uk/nick/models/wmb/construit/purse/newpurse.js-e",
-			"title": "Purse Model"
+			"title": "Purse Model",
+			"enabled": true
 		},
 		"purse/wmb/tutorial": {
 			"file": "http://jseden.dcs.warwick.ac.uk/nick/models/wmb/construit/purse/newpursetutorial.js-e",
-			"title": "Purse Tutorial"
+			"title": "Purse Tutorial",
+			"enabled": true
 		},
 		"purse/wmb/intro": {
 			"file": "http://jseden.dcs.warwick.ac.uk/nick/models/wmb/construit/purse/intro.js-e",
-			"title": "Purse Introduction"
+			"title": "Purse Introduction",
+			"enabled": true
 		},
 		"tutorials": {
 			"file": "tutorials/index.js-e",

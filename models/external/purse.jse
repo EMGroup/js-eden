@@ -1,0 +1,15 @@
+/**
+ * @title Purse Construal
+ * @author Meurig Beynon
+ */
+
+require("Page");
+
+import purse/wmb enabled;
+import purse/wmb/tutorial enabled;
+import purse/wmb/intro enabled;
+
+bindCSSNumericProperty("div.main-page", "width", "pageWidth", "%");
+pageWidth = 60;
+
+_view_picture_x is screenWidth - _view_picture_width - _views_frame_width;
