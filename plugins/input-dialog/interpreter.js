@@ -175,7 +175,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var $powerbutton = $('<div class="scriptswitch power-off" title="Enable Automation">&#xF011;</div>');
 		$buttonbar.append($powerbutton);
 		var powerbutton = $powerbutton.get(0);
-		if (power) powerOn();
 
 		var $optionsmenu = $('<div class="options-menu noselect"></div>');
 		var optionsmenu = $optionsmenu.get(0);
@@ -1700,9 +1699,9 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 					var files = e.originalEvent.dataTransfer.files;
 					for (var i=0; i<files.length; i++) {
 						var file = files[i];
-						if (file.name.match(/.*\.jse/)) {
+						if (file.name.match(/.*\.jse|.*\.js-e/)) {
 							var agentname = file.name.slice(0,-4);
-							agentname.replace(/[-\/\s]/g, "");
+							agentname = agentname.replace(/[\.\-\/\s]/g, "");
 							agentname = "local/file/"+agentname;
 
 							var reader = new FileReader();
@@ -1825,6 +1824,8 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 			},
 			setValue: function (value) { intextarea.value = value; }
 		}
+
+		if (power) powerOn();
 
 		// Initialise highlight content
 		updateEntireHighlight();

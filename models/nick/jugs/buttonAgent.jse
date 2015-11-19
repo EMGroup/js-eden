@@ -1,4 +1,7 @@
-## Button Command Agent
+/**
+ * @title Button Command Agent
+ * @author Nicolas Pope
+ */
 
 when (but1_click) {
 	input = 1;

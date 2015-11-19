@@ -1,3 +1,7 @@
+/**
+ * @title Jugs Display
+ */
+
 active_tab = "canvas";
 
 jugwidth = 60;

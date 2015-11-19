@@ -1,0 +1,8 @@
+/**
+ * @title Mario Game
+ * @author Nicolas Pope
+ */
+
+import mario/mario enabled;
+import mario/world enabled;
+import mario/config enabled;

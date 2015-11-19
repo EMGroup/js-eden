@@ -1,4 +1,7 @@
-## Mario Animations
+/**
+ * @title Mario Animations
+ * @author Nicolas Pope
+ */
 
 mario_url = "models/nick/mario/mario_sprite_sheet.png";
 mario_url_flip = "models/nick/mario/mario_sprite_sheet_flip.png";

@@ -1,0 +1,8 @@
+/**
+ * @title Mario Character Agents
+ * @author Nicolas Pope
+ */
+
+import mario/mario/animation enabled;
+import mario/mario/motion enabled;
+import mario/mario/control disabled;

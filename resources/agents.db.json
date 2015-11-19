@@ -57,6 +57,88 @@
 	},
 
 	"meta": {
+		"examples/gridalgebra": {
+			"file": "models/scoped/gridalgebra.jse",
+			"title": "Grid Algebra Basics",
+			"enabled": true
+		},
+		"examples/sinewave": {
+			"file": "models/scoped/sincurve.js-e",
+			"title": "Sine Wave Demo",
+			"enabled": true
+		},
+		"examples/room": {
+			"file": "models/scoped/room.js-e",
+			"title": "Room Revisited",
+			"enabled": true
+		},
+		"purse/wmb": {
+			"file": "http://jseden.dcs.warwick.ac.uk/nick/models/wmb/construit/purse/newpurse.js-e",
+			"title": "Purse Model"
+		},
+		"purse/wmb/tutorial": {
+			"file": "http://jseden.dcs.warwick.ac.uk/nick/models/wmb/construit/purse/newpursetutorial.js-e",
+			"title": "Purse Tutorial"
+		},
+		"purse/wmb/intro": {
+			"file": "http://jseden.dcs.warwick.ac.uk/nick/models/wmb/construit/purse/intro.js-e",
+			"title": "Purse Introduction"
+		},
+		"tutorials": {
+			"file": "tutorials/index.js-e",
+			"title": "CONSTRUIT! Tutorials",
+			"enabled": true
+		},
+		"tutorials/scoping/arrow": {
+			"file": "tutorials/arrow.js-e",
+			"title": "Making Arrows",
+			"enabled": true
+		},
+		"examples/triangles": {
+			"file": "tutorials/triangles.js-e",
+			"title": "Triangles Worksheet",
+			"enabled": true
+		},
+		"compatibility/scifest2015": {
+			"file": "compatibility/scifest2015.js-e",
+			"title": "SciFest 2015 Compatibility Shim",
+			"enabled": true
+		},
+		"scifest2015/shopping": {
+			"file": "models/SciFest2015/shopping/shopping.js-e",
+			"title": "SciFest 2015 Shopping",
+			"enabled": true
+		},
+		"scifest2015/shopping/basic": {
+			"file": "models/SciFest2015/shopping/basic-shopping.js-e",
+			"title": "Basic Shopping",
+			"enabled": true
+		},
+		"jugs": {
+			"file": "models/nick/jugs/jugs_run.jse",
+			"title": "Jugs Model",
+			"enabled": true
+		},
+		"jugs/jugs": {
+			"file": "models/nick/jugs/jugs.jse",
+			"title": "Jugs Core",
+			"enabled": true
+		},
+		"jugs/buttons": {
+			"file": "models/nick/jugs/buttonAgent.jse",
+			"title": "Jugs Buttons",
+			"enabled": true
+		},
+		"jugs/fill": {
+			"file": "models/nick/jugs/fillAgent.jse",
+			"title": "Jugs Fill Agent",
+			"enabled": true
+		},
+		"jugs/display": {
+			"file": "models/nick/jugs/display.jse",
+			"title": "Jugs Display",
+			"enabled": true
+		},
 		"mario/mario/motion": {
 			"file": "models/nick/mario/mario_motion.jse",
 			"title": "Mario Movement Agent",

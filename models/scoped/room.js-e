@@ -1,3 +1,7 @@
+/**
+ * @title Room Revisited
+ * @author Nicolas Pope
+ */
 
 room_width = 200;
 room_height = 200;
@@ -5,55 +9,59 @@ room_height = 200;
 point is [x,y];
 point_x is p[1];
 point_y is p[2];
-room_pos is point{x = 230, y = 160 };
-room_size is point{x = room_width, y = room_height};
+room_pos is point with x is 230, y is 160;
+room_size is point with (x is room_width, y is room_height);
 
-top_left_point is [point_x - point_x{p=s} / 2, point_y - point_y{p=s} / 2];
-top_right_point is [point_x + point_x{p=s} / 2, point_y - point_y{p=s} / 2];
-bottom_left_point is [point_x - point_x{p=s} / 2, point_y + point_y{p=s} / 2];
-bottom_right_point is [point_x + point_x{p=s} / 2, point_y + point_y{p=s} / 2];
+top_left_point is [point_x - point_x with (p is s) / 2, point_y - point_y with (p is s) / 2];
+top_right_point is [point_x + point_x with (p is s) / 2, point_y - point_y with (p is s) / 2];
+bottom_left_point is [point_x - point_x with (p is s) / 2, point_y + point_y with (p is s) / 2];
+bottom_right_point is [point_x + point_x with (p is s) / 2, point_y + point_y with (p is s) / 2];
 
 colour = "black";
 lineFromPoints is Line(a[1],a[2],b[1],b[2],colour);
 
 scale_x is [p[1] * scale, p[2]];
 __translate is [p[1] + x, p[2] + y];
-translate is __translate{ x = (x)?x:0, y = (y)?y:0 };
+translate is __translate with (x is (x)?x:0, y is (y)?y:0);
 
 rotate is [((p[1]-o[1])*cos(theta)-(p[2]-o[2])*sin(theta))+o[1], ((p[1]-o[1])*sin(theta)-(p[2]-o[2])*cos(theta))+o[2]];
 
-room_tl is top_left_point{ p = room_pos, s = room_size };
-room_tr is top_right_point{ p = room_pos, s = room_size };
-room_bl is bottom_left_point{ p = room_pos, s = room_size };
-room_br is bottom_right_point{ p = room_pos, s = room_size };
+room_tl is top_left_point with p is room_pos, s is room_size;
+room_tr is top_right_point with p is room_pos, s is room_size;
+room_bl is bottom_left_point with p is room_pos, s is room_size;
+room_br is bottom_right_point with p is room_pos, s is room_size;
 
-door_left is translate{p=room_br, x=(0 - room_width*0.35)};
-door_right is translate{p=room_br, x=(0 - room_width*0.1)};
-door_open_point is rotate{p=door_left,o=door_right,theta=door_angle};
+door_left is translate with p is room_br, x is (0 - room_width*0.35);
+door_right is translate with p is room_br, x is (0 - room_width*0.1);
+door_open_point is rotate with p is door_left, o is door_right, theta is door_angle;
 
 door_angle is (door_open == 1)?door_open_angle:door_close_angle;
 door_open_angle = 78;
 door_close_angle = 0;
 door_open = 1;
 
-proc door_control : mousePressed {
+when (mousePressed) {
+	door_open = 0 if door_open else 1;
+}
+
+/*proc door_control : mousePressed {
   if (mousePressed) {
     door_open = (door_open)?0:1;
   }
-}
+}*/
 
-room_top is lineFromPoints{ a = room_tl, b = room_tr };
-room_bottom is lineFromPoints{ a = room_bl, b = door_left };
-room_bottom2 is lineFromPoints{ b = room_br, a = door_right };
-room_left is lineFromPoints{ a = room_tl, b = room_bl };
-room_right is lineFromPoints{ a = room_tr, b = room_br };
-door_line is lineFromPoints{ a = door_right, b = door_open_point, colour = "green" };
+room_top is lineFromPoints with a is room_tl, b is room_tr;
+room_bottom is lineFromPoints with a is room_bl, b is door_left;
+room_bottom2 is lineFromPoints with b is room_br, a is door_right;
+room_left is lineFromPoints with a is room_tl, b is room_bl;
+room_right is lineFromPoints with a is room_tr, b is room_br;
+door_line is lineFromPoints with a is door_right, b is door_open_point, colour is "green";
 
 room is [room_top,room_bottom,room_left,room_right,room_bottom2,door_line];
 
-bed_x is point_x{p=bed_pos};
-bed_y is point_y{p=bed_pos};
-bed_pos is translate{p=room_pos, x=0-(room_width*0.35), y=0-(room_height * 0.25)};
+bed_x is point_x with p is bed_pos;
+bed_y is point_y with p is bed_pos;
+bed_pos is translate with p is room_pos, x is 0-(room_width*0.35), y is 0-(room_height * 0.25);
 bed_scale = 0.5;
 bed_length is 180*bed_scale;
 bed_width is 90*bed_scale;
@@ -76,6 +84,6 @@ bed_right_line is Line(bed_top_right_x,bed_top_right_y,bed_bottom_right_x,bed_bo
 bed_name is Text("Bed",bed_x-25,bed_y-50,25);
 
 bed_pic is [bed_top_line,bed_bottom_line,bed_left_line,bed_right_line];
-bed_pic2 is bed_pic{ bed_x = bed_x+60 };
+bed_pic2 is bed_pic with bed_x is bed_x+60;
 picture is bed_pic // bed_pic2 // room;
 

@@ -1,4 +1,7 @@
-## Mario Controls
+/**
+ * @title Mario Controls
+ * @author Nicolas Pope
+ */
 
 import mario/mario/motion;
 

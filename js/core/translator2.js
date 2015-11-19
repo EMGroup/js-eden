@@ -320,13 +320,18 @@ Eden.AST.prototype.pFACTOR = function() {
 		return expression;
 	} else if (this.token == "$") {
 		this.next();
-		if (this.token != "NUMBER" || this.data.value < 1) {
+		var index = 0;
+		if (this.token == "#") {
+			index = -1;
+		} else if (this.token != "NUMBER" || this.data.value < 1) {
 			var p = new Eden.AST.Parameter(-1);
 			p.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.PARAMNUMBER));
 			return p;
+		} else {
+			index = this.data.value
 		}
 		this.next();
-		return new Eden.AST.Parameter(this.data.value);
+		return new Eden.AST.Parameter(index);
 	} else if (this.token == "[") {
 		this.next();
 

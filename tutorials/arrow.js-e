@@ -1,3 +1,10 @@
+/**
+ * @title Making Arrows
+ * @author Nicolas Pope
+ */
+
+require("Page");
+
 ws_title is Title with
 	text is "Modelling Shapes",
 	subtitle is "Creating a Reusable Arrow",

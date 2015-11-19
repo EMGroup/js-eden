@@ -649,6 +649,7 @@ Eden.Agent.prototype.executeStatement = function(statement, line) {
 		Eden.Agent.emit('execute', [this, code, line]);
 	} catch (e) {
 		eden.error(e);
+		throw e;
 	}
 }
 

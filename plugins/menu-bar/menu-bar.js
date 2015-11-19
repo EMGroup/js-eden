@@ -437,7 +437,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 				);
 			} else {
 				//No need to restart, but do apply changes.
-				root.lookup("debug").mutate(function (symbol) { symbol.cached_value.jsExceptions = enabled; }, Symbol.hciAgent);
+				root.lookup("debug").mutate(root.scope, function (symbol) { symbol.cache.value.jsExceptions = enabled; }, Symbol.hciAgent);
 			}
 		});
 	}

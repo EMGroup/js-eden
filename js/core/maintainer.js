@@ -1101,6 +1101,7 @@
 				if (debug) {
 					debugger;
 				}
+				throw error;
 			}
 		}
 	}

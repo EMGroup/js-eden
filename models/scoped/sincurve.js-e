@@ -11,5 +11,5 @@ x2 is i * linelength + linelength;
 y2 is 150 + amp * sin(freq * (i * linelength + linelength));
 
 myline is Line(x1, y1, x2, y2, colour);
-lines is myline{i = 1 .. density };
-picture is lines // myline{colour = "black"};
+lines is myline with i is 1 .. density;
+picture is lines // myline with colour is "black";

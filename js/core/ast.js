@@ -235,6 +235,10 @@ Eden.AST.Parameter = function(index) {
 Eden.AST.Parameter.prototype.error = fnEdenASTerror;
 
 Eden.AST.Parameter.prototype.generate = function(ctx, scope) {
+	if (this.index == -1) {
+		if (ctx && ctx.parameters) return ""+ctx.parameters.length;
+		return "0";
+	}
 	if (ctx && ctx.getParameterByNumber) {
 		ctx.dirty = true;
 		return ""+ctx.getParameterByNumber(this.index);
@@ -475,7 +479,11 @@ Eden.AST.LValue.prototype.executeCompList = function(ctx) {
 	var res = [];
 	for (var i=0; i<this.lvaluep.length; i++) {
 		if (this.lvaluep[i].kind == "index") {
-			res.push(eval(this.lvaluep[i].indexexp.generate(ctx, "scope")));
+			var iexp = this.lvaluep[i].indexexp.generate(ctx, "scope");
+			if (this.lvaluep[i].indexexp.doesReturnBound && this.lvaluep[i].indexexp.doesReturnBound()) {
+				iexp += ".value";
+			}
+			res.push(eval("(function(context,scope) { return "+iexp+"; })")(eden.root,eden.root.scope));
 		}
 	}
 	return res;
@@ -1272,6 +1280,8 @@ Eden.AST.Subscribers = function() {
 	this.errors = [];
 	this.list = [];
 	this.lvalue = undefined;
+	this.start = undefined;
+	this.end = undefined;
 };
 
 Eden.AST.Subscribers.prototype.left = function(lvalue) {
@@ -1280,6 +1290,15 @@ Eden.AST.Subscribers.prototype.left = function(lvalue) {
 		this.errors.push.apply(this.errors, lvalue.errors);
 	}
 };
+
+Eden.AST.Subscribers.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+Eden.AST.Subscribers.prototype.execute = function(root, ctx, base) {
+	
+}
 
 Eden.AST.Subscribers.prototype.setList = function(list) {
 	this.list = list;

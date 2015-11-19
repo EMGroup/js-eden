@@ -1,4 +1,7 @@
-## World
+/**
+ * @title Mario World
+ * @author Nicolas Pope
+ */
 
 backgroundimg is Image(0,0,650,300,"models/nick/mario/background1.png");
 

@@ -1,3 +1,9 @@
+/**
+ * @title Triangles Worksheet
+ * @author Nicolas Pope
+ */
+
+require("Page");
 
 ws_h1 is Header with text is "Exercise 1";
 
