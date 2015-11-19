@@ -1040,16 +1040,18 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 			if (ast.mainDoxyComment && (lineno == -1 || (lineno >= 1 && lineno <= ast.mainDoxyComment.endline))) {
 				// Find all doc tags
 				var taglines = ast.mainDoxyComment.content.match(/@[a-z]+.*\n/ig);
-				for (var i=0; i<taglines.length; i++) {
-					// Extract tag and content
-					var ix = taglines[i].search(/\s/);
-					if (ix >= 0) {
-						var tag = taglines[i].substring(0,ix);
-						var content = taglines[i].substr(ix).trim();
+				if (taglines) {
+					for (var i=0; i<taglines.length; i++) {
+						// Extract tag and content
+						var ix = taglines[i].search(/\s/);
+						if (ix >= 0) {
+							var tag = taglines[i].substring(0,ix);
+							var content = taglines[i].substr(ix).trim();
 
-						// Set title tag found
-						if (tag == "@title") {
-							setTitle(content);
+							// Set title tag found
+							if (tag == "@title") {
+								setTitle(content);
+							}
 						}
 					}
 				}

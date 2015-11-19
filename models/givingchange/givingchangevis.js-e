@@ -1,0 +1,29 @@
+/**
+ * @title Giving Change Visuals
+ * @author Meurig Beynon
+ */
+
+imagelocation = "http://www.dcs.warwick.ac.uk/~jonny/ukcurrency/";
+listcoindisplay is ["1p.gif", "2p.gif", "5p.gif", "10p.gif", "20p.jpg", "50p.jpg", "pound.gif", "2pounds.gif"];
+## coin1pic is HTMLImage("coin1pic",0,0,scaleWidth,scaleWidth,imagelocation // listcoindisplay[ix1]);
+
+coin1pic is HTMLImage("coin1pic",0,0,scaleWidth,scaleWidth,imagelocation // listcoindisplay[ix1]) if (ix1>0) else "";
+coin2pic is HTMLImage("coin2pic", scaleWidth,0,scaleWidth,scaleWidth,imagelocation // listcoindisplay[ix2]) if (ix2>0) else "";
+coin3pic is HTMLImage("coin3pic", scaleWidth*2,0,scaleWidth,scaleWidth,imagelocation // listcoindisplay[ix3]) if (ix3>0) else "";
+coin4pic is HTMLImage("coin4pic", scaleWidth*3,0,scaleWidth,scaleWidth,imagelocation // listcoindisplay[ix4]) if (ix4>0) else "";
+coin5pic is HTMLImage("coin5pic", scaleWidth*4,0,scaleWidth,scaleWidth,imagelocation // listcoindisplay[ix5]) if (ix5>0) else "";
+coin6pic is HTMLImage("coin6pic", scaleWidth*5,0,scaleWidth,scaleWidth,imagelocation // listcoindisplay[ix6]) if (ix6>0) else "";
+coin7pic is HTMLImage("coin7pic", scaleWidth*6,0,scaleWidth,scaleWidth,imagelocation // listcoindisplay[ix7]) if (ix7>0) else "";
+coin8pic is HTMLImage("coin8pic", scaleWidth*7,0,scaleWidth,scaleWidth,imagelocation // listcoindisplay[ix8]) if (ix8>0) else "";
+
+picture is [coin1pic, coin2pic, coin3pic, coin4pic, coin5pic,coin6pic, coin7pic, coin8pic];
+ix1 is coinixlist[1];
+ix2 is coinixlist[2];
+ix3 is coinixlist[3];
+ix4 is coinixlist[4];
+ix5 is coinixlist[5];
+ix6 is coinixlist[6];
+ix7 is coinixlist[7];
+ix8 is coinixlist[8];
+
+scaleWidth = 62;

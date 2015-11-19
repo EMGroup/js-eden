@@ -8,10 +8,10 @@ cause is ${{ scope.cause }}$;
 ##_override_item is value if i == index else list[i];
 ##override is _override_item with i = 1 .. list#;
 
-_sum is (list[i] + _sum with (i is i + 1)) if i <= list# else 0;
-sum is _sum with i is 1;
+##_sum is (list[i] + _sum with (i is i + 1)) if i <= list# else 0;
+##sum is _sum with i is 1;
 
-round is ${{ Math.round(context.lookup("number").value(scope)) }}$;
+##round is ${{ Math.round(context.lookup("number").value(scope)) }}$;
 
 null is true;
 

@@ -382,7 +382,7 @@ func octaltr {
 }
 
 
-func rgb2color {
+/*func rgb2colour {
   para redval, greenval, blueval;
   auto s, i;
 
@@ -403,14 +403,14 @@ func rgb2color {
 		// octaltr(int(greenval/16)) // octaltr(int(greenval - int(greenval/16)*16))
 		// octaltr(int(blueval/16)) // octaltr(int(blueval - int(blueval/16)*16));
   return s;
-}
+}*/
 
 ## changing the colour of the blood ...
 
-## blood is Circle(250,250,205,rgb2color(255,255,0), "red");
+## blood is Circle(250,250,205,rgb2colour(255,255,0), "red");
 rb = 255; gb = 0; bb = 0;
-## blood is Circle(250,250,205,rgb2color(rb,gb,bb), "red");
-blood is Circle(250,250,bloodrad,rgb2color(rb,gb,bb), "red");
+## blood is Circle(250,250,205,rgb2colour(rb,gb,bb), "red");
+blood is Circle(250,250,bloodrad,rgb2colour(rb,gb,bb), "red");
 
 rb is 255 - 10 * ntodecls(freeinblood)#;
 gb is 15 * ntodecls(freeinblood)#;
@@ -473,7 +473,7 @@ picture is (spororad < 15) ? [cyclepoint, explanation, mosquitobite, blood, orga
 
 blood is Circle(250,250,200,"red", "red");
 
-blood is Circle(250,250,200,rgb2color(rb,gb,bb), "red");
+blood is Circle(250,250,200,rgb2colour(rb,gb,bb), "red");
 
 
 freeinblood is (spororad==15) ? 10 : 0;
@@ -731,7 +731,7 @@ gametes is currgrand1 +  currgrand2 + currgrand3 + currgrand4 + currgrand5 + cur
 
 title is Div("<b>A simple construal of stages in the malaria parasite life cycle</b>", 20,15,600,20);
 
-blood is Circle(centtarget[1],centtarget[2],bloodrad,rgb2color(rb,gb,bb),"red");
+blood is Circle(centtarget[1],centtarget[2],bloodrad,rgb2colour(rb,gb,bb),"red");
 organs is Circle(centtarget[1],centtarget[2],bloodrad-bloodwidth,"white", "red");
 
 currentstate is (sporolocx == centtarget[1]+bloodrad+5) ? "Body is free of infection" : (!sporoinliver) ? "Stage 1: Sporozoites travel to the liver" : ((sporoinliver && (spororad<15)) ? "Stage 2: Sporozoites invade liver cells and - when activated - grow and divide to produce merozoites" : ((gametes == 0) ? "Stage 3: Merozoites exit the liver calls to cyclically invade red blood cells" : "Stage 4: Some infected blood cells leave the cycle of asexual multiplication"  ));

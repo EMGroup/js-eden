@@ -1828,7 +1828,7 @@ Eden.AST.prototype.pINCLUDE = function() {
 Eden.AST.prototype.pIMPORT = function() {
 	var imp = new Eden.AST.Import();
 
-	if (this.token != "OBSERVABLE") {
+	if (this.token != "OBSERVABLE" && Language.keywords[this.token] === undefined) {
 		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTPATH));
 		return imp;
 	}
@@ -1838,7 +1838,7 @@ Eden.AST.prototype.pIMPORT = function() {
 
 	while (this.token == "/") {
 		this.next();
-		if (this.token != "OBSERVABLE") {
+		if (this.token != "OBSERVABLE" && Language.keywords[this.token] === undefined) {
 			imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTPATH));
 			return imp;
 		}

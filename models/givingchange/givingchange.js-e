@@ -1,0 +1,41 @@
+﻿/**
+ * @title Giving Change Model
+ * @author Meurig Beynon
+ */
+
+amount = 8;
+coinlist = [];
+coinixlist = [];
+
+denoms is [1,2,5,10,20,50,100,200];
+
+denomsold is [1,2,3,6,12,24,30];
+## denoms = denomsold;
+
+
+gtdenom is amount>=denom;
+
+gt1 is gtdenom with denom is denoms[1];
+gt2 is gtdenom with denom is denoms[2];
+gt5 is gtdenom with denom is denoms[3];
+gt10 is gtdenom with denom is denoms[4];
+gt20 is gtdenom with denom is denoms[5];
+gt50 is gtdenom with denom is denoms[6];
+gt100 is gtdenom with denom is denoms[7];
+gt200 is gtdenom with denom is denoms[8];
+
+gtlist is [gt1, gt2, gt5, gt10, gt20, gt50, gt100, gt200];
+
+gt1num is 1 if gt1 else 0;
+gt2num is 1 if gt2 else 0;
+gt5num is 1 if gt5 else 0;
+gt10num is 1 if gt10 else 0;
+gt20num is 1 if gt20 else 0;
+gt50num is 1 if gt50 else 0;
+gt100num is 1 if gt100 else 0;
+gt200num is 1 if gt200 else 0;
+
+gtnumlist is [gt1num, gt2num, gt5num, gt10num, gt20num, gt50num, gt100num, gt200num];
+gtnumsum is gt1num + gt2num + gt5num + gt10num + gt20num + gt50num + gt100num + gt200num;
+
+maxdenom is denoms[gtnumsum];

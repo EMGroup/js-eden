@@ -57,6 +57,26 @@
 	},
 
 	"meta": {
+		"givingchange": {
+			"file": "models/givingchange/load.js-e",
+			"title": "Giving Change",
+			"enabled": true
+		},
+		"givingchange/action": {
+			"file": "models/givingchange/givingchangeaction.js-e",
+			"title": "Giving Change Action",
+			"enabled": true
+		},
+		"givingchange/visuals": {
+			"file": "models/givingchange/givingchangevis.js-e",
+			"title": "Giving Change Visuals",
+			"enabled": true
+		},
+		"givingchange/model": {
+			"file": "models/givingchange/givingchange.js-e",
+			"title": "Giving Change Model",
+			"enabled": true
+		},
 		"jspe": {
 			"file": "models/jspe/jspe.jse",
 			"title": "Presentation Environment",
