@@ -101,8 +101,9 @@ Eden.Agent.AUTOSAVE_INTERVAL = 2000;
 
 
 Eden.Agent.importAgent = function(path, options, callback) {
-	console.log("IMPORT: " + path + " options = " + JSON.stringify(options));
+	//console.log("IMPORT: " + path + " options = " + JSON.stringify(options));
 	//if (Eden.Agent.db === undefined) return;
+
 	if (Eden.Agent.agents[path] !== undefined) {
 		Eden.Agent.agents[path].setOptions(options);
 		if (callback) callback(Eden.Agent.agents[path]);
@@ -128,27 +129,32 @@ Eden.Agent.importAgent = function(path, options, callback) {
 		//});
 	}
 
-	// If local, just load and let it get its data...
-	if (options && options.indexOf("local") >= 0) {
-		Eden.DB.getMeta(path, function(path, meta) {
-			if (meta) {
-				ag = new Eden.Agent(undefined, path, meta, options);
-				//if (callback) callback(ag);
+	Eden.DB.getMeta(path, function(path, meta) {
+		if (meta) {			
+			ag = new Eden.Agent(undefined, path, meta, options);
+			if (((options && options.indexOf("remote") >= 0)
+					|| (options === undefined || (options && options.indexOf("local") == -1) && !Eden.Agent.hasLocalModifications(path)))
+					&& meta.file) {
+				ag.loadFromFile(meta.file, ag.enabled, finish);
+				return;
 			}
-			finish();
-		});
-	} else {
-		Eden.DB.getMeta(path, function(path, meta) {
-			if (meta) {			
-				ag = new Eden.Agent(undefined, path, meta, options);
-				if (meta.file) {
-					ag.loadFromFile(meta.file, ag.enabled, finish);
-					return;
-				}
-				//if (callback) callback(ag);
-			}
-			finish();
-		});
+			//if (callback) callback(ag);
+		}
+		finish();
+	});
+}
+
+
+
+Eden.Agent.hasLocalModifications = function(name) {
+	try {
+		if (window.localStorage) {
+			var ix = JSON.parse(window.localStorage.getItem('agent_'+name+'_index'));
+			if (ix >= 0) return true;
+			return false;
+		}
+	} catch (e) {
+		return false;
 	}
 }
 

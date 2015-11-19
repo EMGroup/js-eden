@@ -1,4 +1,8 @@
-## Mario Motion
+/**
+ * @title Mario Motion
+ * @author Nicolas Pope
+ * Version 1
+ */
 
 ##mario_x = 1;
 
