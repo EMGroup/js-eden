@@ -76,6 +76,70 @@ Eden.AST.prototype.execute = function(root) {
 }
 
 
+Eden.AST.prototype.clearExecutedState = function() {
+	for (var i=0; i<this.lines.length; i++) {
+		if (this.lines[i]) {
+			if (this.lines[i].executed > 0) {
+				this.lines[i].executed = 0;
+			}
+		}
+	}
+}
+
+
+/* Execute a particular line of script.
+ * If the statement is part of a larger statement block then execute
+ * that instead (eg. a proc).
+ */
+Eden.AST.prototype.executeLine = function(lineno) {
+	var line = lineno;
+	// Make sure we are not in the middle of a proc or func.
+	while ((line > 0) && (this.lines[line] === undefined)) {
+		line--;
+	}
+
+	var statement;
+	if (lineno == -1) {
+		statement = this.script;
+	} else {
+		statement = this.lines[line];
+	}
+	if (!statement) return;
+
+	// Find root statement and execute that one
+	while (statement.parent !== undefined && statement.parent.parent !== undefined) statement = statement.parent;
+
+	// Execute only the currently changed root statement
+	this.executeStatement(statement, line);
+}
+
+
+Eden.AST.prototype.getBlockLines = function(lineno) {
+	var line = lineno;
+
+	while (line > 0 && this.lines[line] && this.lines[line].parent !== this.script) line--;
+	var startstatement = this.lines[line];
+	var startline = line;
+
+	while (line < this.lines.length-1 && this.lines[line+1] && (this.lines[line+1] === startstatement || this.lines[line+1].parent !== this.script)) line++;
+	var endline = line;
+
+	console.log("Start: " + startline + " End: " + endline);
+
+	return [startline,endline];
+}
+
+
+Eden.AST.prototype.executeStatement = function(statement, line) {
+	try {
+		statement.execute(eden.root,undefined, this);
+	} catch (e) {
+		eden.error(e);
+		//throw e;
+	}
+}
+
+
 Eden.AST.prototype.getSource = function(ast) {
 	return this.stream.code.slice(ast.start,ast.end).trim();
 }

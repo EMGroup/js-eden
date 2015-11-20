@@ -564,10 +564,11 @@ div.eden-gutter {
 	position: absolute;
 	left: 0;
 	top: 0;
-	width: 22px;
+	right: 0;
 	padding-top: 15px;
 	margin: 0;
 	height: calc(100% - 15px);
+	overflow: visible;
 }
 
 div.eden-gutter-item {
@@ -586,8 +587,46 @@ div.eden-gutter-item {
 	cursor: pointer;
 }
 
-div.eden-gutter-item:hover {
+div.eden-gutter-item.select {
+	background-color: #3465a4;
+}
+
+div.eden-gutter-item.select:before {
+	opacity: 0.1;
+	background-color: #3465a4;
+	position: absolute;
+	width: calc(100% - 5px);
+	height: 20px;
+	margin-top: -4px;
+	content: " ";
+}
+
+div.eden-gutter-item.hover {
 	background-color: silver;
+}
+
+div.eden-gutter-item.hover:before {
+	opacity: 0.1;
+	background-color: #aaa;
+	position: absolute;
+	width: calc(100% - 5px);
+	height: 20px;
+	margin-top: -4px;
+	content: " ";
+}
+
+div.eden-gutter-item.live {
+	background-color: #00ff00;
+}
+
+div.eden-gutter-item.live:before {
+	opacity: 0.1;
+	background-color: #00ff00;
+	position: absolute;
+	width: calc(100% - 5px);
+	height: 20px;
+	margin-top: -4px;
+	content: " ";
 }
 
 div.eden-gutter-current {
@@ -662,6 +701,7 @@ div.eden-line {
 	margin-left: -5px;
 	padding-left: 5px;
 	padding-right: 1px;
+	z-index: 2;
 }
 
 

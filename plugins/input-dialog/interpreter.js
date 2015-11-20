@@ -1558,7 +1558,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 
 
 
-		function onGutterClick(e) {
+		/*function onGutterClick(e) {
 			//console.log(e);
 			var lineno = -1;
 
@@ -1582,7 +1582,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 					gutter.generate(scriptagent.ast, lineno);
 				}
 			}
-		}
+		}*/
 
 
 
@@ -1769,7 +1769,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		.on('click', '.previous-input', onPrevious)
 		.on('click', '.next-input', onNext)
 		.on('click', '.menu-input', onMenu)
-		.on('click', '.eden-gutter-item', onGutterClick)
+		//.on('click', '.eden-gutter-item', onGutterClick)
 		.on('click', '.agent-tab', onTabClick)
 		.on('click', '.agent-tableft', onTabLeft)
 		.on('click', '.agent-tabright', onTabRight)

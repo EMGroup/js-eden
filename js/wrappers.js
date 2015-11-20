@@ -456,13 +456,7 @@ Eden.Agent.prototype.loadFromFile = function(filename, execute, callback) {
 
 
 Eden.Agent.prototype.clearExecutedState = function() {
-	for (var i=0; i<this.ast.lines.length; i++) {
-		if (this.ast.lines[i]) {
-			if (this.ast.lines[i].executed > 0) {
-				this.ast.lines[i].executed = 0;
-			}
-		}
-	}
+	this.ast.clearExecutedState();
 }
 
 
@@ -618,30 +612,15 @@ Eden.Agent.prototype.hasErrors = function() {
  * that instead (eg. a proc).
  */
 Eden.Agent.prototype.executeLine = function (lineno) {
-	var line = lineno;
-	// Make sure we are not in the middle of a proc or func.
-	while ((line > 0) && (this.ast.lines[line] === undefined)) {
-		line--;
-	}
-
-	var statement;
-	if (lineno == -1) {
-		statement = this.ast.script;
-	} else {
-		statement = this.ast.lines[line];
-	}
-	if (!statement) return;
-
-	// Find root statement and execute that one
-	while (statement.parent !== undefined && statement.parent.parent !== undefined) statement = statement.parent;
-
-	// Execute only the currently changed root statement
-	this.executeStatement(statement, line);
+	this.ast.executeLine(lineno);
+	//var code = this.getSource(statement);
+		//console.log("PATCH line = " + line + " code = "+code);
+	Eden.Agent.emit('execute', [this, undefined, lineno]);
 }
 
 
 
-Eden.Agent.prototype.executeStatement = function(statement, line) {
+/*Eden.Agent.prototype.executeStatement = function(statement, line) {
 	try {
 		statement.execute(eden.root,undefined, this.ast);
 		var code = this.ast.getSource(statement);
@@ -651,7 +630,7 @@ Eden.Agent.prototype.executeStatement = function(statement, line) {
 		eden.error(e);
 		throw e;
 	}
-}
+}*/
 
 
 
