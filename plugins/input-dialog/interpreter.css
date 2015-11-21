@@ -1,7 +1,7 @@
 .inputCodeArea {
-	-moz-tab-size: 2;
-	-o-tab-size: 2;
-	tab-size: 2;
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
 	/*margin: 5px;*/
 	position: absolute;
 	top: 35px;
@@ -310,7 +310,7 @@ textarea.hidden-textarea {
 	/*left: 5px;
 	width: 80%;*/
 	height: 50px;
-	tab-size: 2;
+	tab-size: 4;
 }
 
 div.outputcontent {
@@ -587,22 +587,8 @@ div.eden-gutter-item {
 	cursor: pointer;
 }
 
-div.eden-gutter-item.select {
-	background-color: #3465a4;
-}
-
-div.eden-gutter-item.select:before {
-	opacity: 0.1;
-	background-color: #3465a4;
-	position: absolute;
-	width: calc(100% - 5px);
-	height: 20px;
-	margin-top: -4px;
-	content: " ";
-}
-
 div.eden-gutter-item.hover {
-	background-color: silver;
+	background-color: #cecece;
 }
 
 div.eden-gutter-item.hover:before {
@@ -615,8 +601,33 @@ div.eden-gutter-item.hover:before {
 	content: " ";
 }
 
-div.eden-gutter-item.live {
-	background-color: #00ff00;
+div.eden-gutter-item.select {
+	/*opacity: 0.5;*/
+	background-color: #94adcc;
+}
+
+div.eden-gutter-item.select:before {
+	opacity: 0.1;
+	background-color: #3465a4;
+	position: absolute;
+	width: calc(100% - 5px);
+	height: 20px;
+	margin-top: -4px;
+	content: " ";
+}
+
+/*div.eden-gutter-item.live {
+}*/
+
+div.eden-gutter-item.live:after {
+	/*opacity: 0.5;*/
+	width: 6px;
+	height: 20px;
+	position: absolute;
+	margin-top: -4px;
+	margin-left: -5px;
+	background-color: #7bfa7b;
+	content: " ";
 }
 
 div.eden-gutter-item.live:before {
@@ -629,16 +640,16 @@ div.eden-gutter-item.live:before {
 	content: " ";
 }
 
-div.eden-gutter-current {
+div.eden-gutter-item.current {
 	border-right-color: silver;
 }
 
-div.eden-gutter-errorblock {
+div.eden-gutter-item.errorblock {
 	border-right-width: 2px;
 	border-right-color: #ff0000;
 }
 
-div.eden-gutter-executed {
+div.eden-gutter-item.executed {
 	border-right-width: 2px;
 	border-right-color: #00ff00;
 	animation: clearborder 0.4s linear;
@@ -651,18 +662,18 @@ div.eden-gutter-executed {
   }
 }
 
-div.eden-gutter-guarded {
+div.eden-gutter-item.guarded {
 	border-right-width: 2px;
 	border-right-color: #ffee00;
 }
 
-div.eden-gutter-error {
+div.eden-gutter-item.error {
 	font-family: "FontAwesome";
 	color: red;
 	font-size: 10pt;
 }
 
-div.eden-gutter-warning {
+div.eden-gutter-item.warning {
 	font-family: "FontAwesome";
 	color: orange;
 	font-size: 10pt;

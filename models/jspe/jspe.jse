@@ -1,3 +1,8 @@
+/**
+ * @title JS-Presentation Environment
+ * @author Antony Harfield
+ */
+
 require("Canvas2D");
 
 include_css("models/jspe/jspe.css");
@@ -229,7 +234,11 @@ $('#canvas_buttonNext').attr('id', 'jspe_buttonNext');
 func TitleSlide {
 	para title, subtitle;
 	auto slideHTML;
-	if ($# == 0 || $# > 2) {
+	auto argc;
+
+	argc = ${{arguments.length}}$;
+
+	if (argc == 0 || argc > 2) {
 		error("TitleSlide: This function requires at least 1 argument and at most 2 arguments.");
 		return @;
 	}
@@ -253,15 +262,20 @@ func TitleSlide {
 }
 
 func TitledSlide {
+	para p1, p2, p3;
 	auto title, subtitle, content, slideHTML;
-	if ($# == 2) {
-		title = $[1];
+	auto argc;
+
+	argc = ${{arguments.length}}$;
+
+	if (argc == 2) {
+		title = p1;
 		subtitle = @;
-		content = $[2];
-	} else if ($# == 3) {
-		title = $[1];
-		subtitle = $[2];
-		content = $[3];
+		content = p2;
+	} else if (argc == 3) {
+		title = p1;
+		subtitle = p2;
+		content = p3;
 	} else {
 		error("TitledSlide: This function must have a minimum of 2 arguments and a maximum of 3 arguments.");
 		return @;
@@ -292,36 +306,41 @@ func TitledSlide {
 }
 
 func BulletSlide {
+	para p1,p2,p3;
 	auto title, subtitle, bullets, slideHTML, lists, savedListPositions, currentList, currentPosition, currentItem, i, errorStr;
-	if ($# == 0) {
+	auto argc;
+
+	argc = ${{arguments.length}}$;
+
+	if (argc == 0) {
 		error("BulletSlide: This function requires a minimum of one argument.");
 		return @;
-	} else if ($# == 1 && (isList($[1]) || $[1] == @)) {
+	} else if (argc == 1 && (isList(p1) || p1 == @)) {
 		title = @;
 		subtitle = @;
-		bullets = $[1];
-	} else if ($# == 2 && isList($[2])) {
+		bullets = p1;
+	} else if (argc == 2 && isList(p2)) {
 		subtitle = @;
-		bullets = $[2];
+		bullets = p2;
 	} else {
-		if ($[2] == @ || isString($[2])) {
-			subtitle = $[2];
+		if (p2 == @ || isString(p2)) {
+			subtitle = p2;
 		} else {
-			error("BulletSlide: The second argument must be a string, not a " // type($[2]));
+			error("BulletSlide: The second argument must be a string, not a " // type(p2));
 			return @;
 		}
-		if ($# == 3 && isList($[3])) {
-			bullets = $[3];
+		if (argc == 3 && isList(p3)) {
+			bullets = p3;
 		} else {
-			bullets = sublist($, 3, $#);
+			bullets = sublist(${{arguments}}$, 3, argc);
 		}
 	}
 	
-	if ($# > 1) {
-		if ($[1] == @ || isString($[1])) {
-			title = $[1];
+	if (argc > 1) {
+		if (p1 == @ || isString(p1)) {
+			title = p1;
 		} else	{
-			error("BulletSlide: The first argument must be a string, not a " // type($[1]));
+			error("BulletSlide: The first argument must be a string, not a " // type(p1));
 			return @;
 		}
 	}

@@ -195,7 +195,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			createMenuItem((agent.state[obs_showtabs]) ? "&#xf00c;" : "&#xf00d;", "Show Tabs", function(e) { agent.state[obs_showtabs] = !agent.state[obs_showtabs]; buildMenu(); });
 			createMenuItem((agent.state[obs_showbuttons]) ? "&#xf00c;" : "&#xf00d;", "Show Controls", function(e) { agent.state[obs_showbuttons] = !agent.state[obs_showbuttons]; buildMenu(); });
-			createMenuItem("&#xf0c0;", "Browse Agents", function(e) { showSubDialog("browseAgents", function(){}); hideMenu(); });
+			createMenuItem("&#xf0c0;", "Browse Agents", function(e) { showBrowseDialog(); hideMenu(); });
 			createMenuItem("&#xf21b;", "Hide Agent", function(e) {
 				var tabs = agent.state[obs_tabs];
 				var ix = tabs.indexOf(scriptagent.name);
@@ -252,6 +252,25 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		intextarea.value = scriptagent.snapshot;
 		scriptagent.setEnabled(power);
 		scriptagent.setOwned(true);
+
+
+
+		function showBrowseDialog() {
+			showSubDialog("browseAgents", function(valid, selected){
+				if (valid ) {
+					var tabs = agent.state[obs_tabs];
+					for (var a in selected) {
+						if (selected[a]) {
+							Eden.Agent.importAgent(a, ["disabled"]);
+							if (tabs.indexOf(a) == -1) {
+								tabs.push(a);
+							}
+						}
+					}
+					agent.state[obs_tabs] = tabs;
+				}
+			}, agent.state[obs_tabs]);
+		}
 
 
 
@@ -1669,6 +1688,8 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 						agent.state[obs_agent] = value;
 						//changeAgent(undefined, value);
 					});
+				} else if (value) {
+					showBrowseDialog();
 				}
 			});
 		}

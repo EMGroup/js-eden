@@ -57,6 +57,21 @@
 	},
 
 	"meta": {
+		"claytontunnel/alarm/panel": {
+			"file": "models/nick/claytonTunnel/alarm.panel",
+			"title": "Alarm Panel",
+			"enabled": true
+		},
+		"claytontunnel/clock": {
+			"file": "models/nick/claytonTunnel/clock.panel",
+			"title": "Clock Panel",
+			"enabled": true
+		},
+		"claytontunnel/alarm/buttons": {
+			"file": "models/nick/claytonTunnel/alarm.buttons",
+			"title": "Alarm Buttons",
+			"enabled": true
+		},
 		"hexcolouring/model": {
 			"file": "http://jseden.dcs.warwick.ac.uk/nick/models/wmb/construit/hexcol/newhexcolouring.js-e",
 			"title": "Hex Colouring Revisited",

@@ -88,16 +88,21 @@ Eden.DB.getDirectory = function(path, callback) {
 	var root = Eden.DB.directory;
 	var changed = false;
 
+	if (path == "") {
+		callback(root);
+		return;
+	}
+
 	for (var i=0; i<comp.length; i++) {
 		if (root[comp[i]] === undefined) {
 			callback(undefined);
 			return;
 		}
-		if (i == comp.length-1) {
-			root = root[comp[i]];
-		} else {
+		//if (i == comp.length-1) {
+		//	root = root[comp[i]];
+		//} else {
 			root = root[comp[i]].children;
-		}
+		//}
 	}
 	// If marked as missing, go to server.
 	// Also update from server async.

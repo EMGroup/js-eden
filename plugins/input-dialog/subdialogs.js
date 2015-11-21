@@ -9,7 +9,7 @@ EdenUI.plugins.ScriptInput.dialogs = {};
 
 EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 	var obscurer = $('<div class="script-obscurer noselect"></div>');
-	var content = $('<div class="script-subdialog-newagent noselect"><span class="script-subdialog-title">Create or import agent:</span><br/><input class="script-subdialog-text" type="text" spellcheck="false" list="agentlist" placeholder="model/component/agent"></input><datalist id="agentlist"></datalist><span class="status missing"></span><br><button class="button-icon-green button-add">Add</button><button style="float: right;" class="button-icon-silver button-cancel">Cancel</button></div>');
+	var content = $('<div class="script-subdialog-newagent noselect"><span class="script-subdialog-title">Create or import agent:</span><br/><input class="script-subdialog-text" type="text" spellcheck="false" list="agentlist" placeholder="model/component/agent"></input><datalist id="agentlist"></datalist><span class="status missing"></span><br><button class="button-icon-green button-add">Add</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">Cancel</button><button style="position: absolute; right: 100px;" class="button-icon-silver button-agents">Browse</button></div>');
 	var input = content.find('.script-subdialog-text');
 	var status = input.get(0).nextSibling.nextSibling;
 	var datalist = content.find('#agentlist');
@@ -58,6 +58,10 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 			element.get(0).removeChild(obscurer.get(0));
 			callback(true, input.get(0).value);
 		}
+	})
+	.on("click", ".button-agents", function() {
+		element.get(0).removeChild(obscurer.get(0));
+		callback(false, true);
 	})
 	.on("click", ".button-cancel", function() {
 		element.get(0).removeChild(obscurer.get(0));
@@ -243,38 +247,96 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 	var list = content.find(".script-agents-list");
 	var valid = true;
 
-	function addAgents(depth, root, path) {
-		if (root === undefined) return;
+	var selected = {};
 
-		for (var a in root) {
-			var npath = (path=="")?a:path+"/"+a;
-			var item = $('<div class="script-agents-item" style="padding-left: '+(20+depth*20)+'px"></div>');
+	function addAgents(parent, depth, path) {
+		Eden.DB.getDirectory(path, function(dir) {
+			console.log(dir);
+			if (dir === undefined) return;
+			for (var a in dir) {
+				var npath = (path=="")?a:path+"/"+a;
+				var item = $('<div class="script-agents-item"></div>');
+				var expand = $('<div class="script-agents-expand" style="width: '+(27+depth*15)+'px"></div>');
+				var content = $('<div class="script-agents-content"></div>');
+				var checkbox = $('<input type="checkbox"></input>');
 
-			(function(item, path) {
-				var meta = Eden.DB.getMeta(path, function(path, meta) {
-					if (meta) {
-						item.html(a+" - <i>"+meta.title+"</i>");
-					} else {
-						item.html(a);
-					}
-				});
-			}).call(this, item, npath);
+				(function(content, path) {
+					var meta = Eden.DB.getMeta(path, function(path, meta) {
+						if (meta) {
+							content.html(a+" - <i>"+meta.title+"</i>");
+						} else {
+							content.html(a);
+						}
+					});
+				}).call(this, content, npath);
 
-			if (Eden.Agent.agents[npath]) item.addClass("loaded");
-			item.get(0).setAttribute("data-path", npath);
-			list.append(item);
-			addAgents(depth+1, root[a].children, npath);
+				if (Eden.Agent.agents[npath]) {
+					item.addClass("loaded");
+				}
+
+				if (data.indexOf(npath) >= 0) {
+					checkbox.get(0).checked = true;
+				}
+
+				item.get(0).setAttribute("data-path", npath);
+				item.get(0).setAttribute("data-depth", ""+(depth+1));
+				item.append(expand);
+				item.append(checkbox);
+				item.append(content);
+
+				if (parent === undefined || parent.nextSibling === undefined) {
+					list.append(item);
+				} else {
+					list.get(0).insertBefore(item.get(0),parent.nextSibling);
+				}
+				//addAgents(depth+1, root[a].children, npath);
+			}
+		});
+	}
+	addAgents(undefined, 0, "");
+
+	function removeAgents(base) {
+		var depth = parseInt(base.getAttribute("data-depth"));
+		var start = base.nextSibling;
+		while (start) {
+			var ndepth = parseInt(start.getAttribute("data-depth"));
+			if (ndepth > depth) {
+				var next = start.nextSibling;
+				list.get(0).removeChild(start);
+				start = next;
+			} else {
+				break;
+			}
 		}
 	}
-	addAgents(0, Eden.DB.directory, "");
 
 	content
 	.on("click", ".script-agents-item", function(e) {
-		console.log(e.currentTarget.getAttribute("data-path"));
 		
 	})
-	.on("click", ".button-ok", function() {
-		
+	.on("click", ".script-agents-expand", function(e) {
+		var path = e.currentTarget.parentNode.getAttribute("data-path");
+		var depth = parseInt(e.currentTarget.parentNode.getAttribute("data-depth"));
+		if (e.currentTarget.className.indexOf("expanded") < 0) {
+			addAgents(e.currentTarget.parentNode, depth, path);
+			changeClass(e.currentTarget, "expanded", true);
+		} else {
+			//addAgents(e.currentTarget, depth, path);
+			removeAgents(e.currentTarget.parentNode);
+			changeClass(e.currentTarget, "expanded", false);
+		}
+	})
+	.on("change", ".script-agents-item input", function(e) {
+		var path = e.currentTarget.parentNode.getAttribute("data-path");
+		if (e.currentTarget.checked) {
+			selected[path] = true;
+		} else {
+			selected[path] = false;
+		}
+	})
+	.on("click", ".button-add", function() {
+		element.get(0).removeChild(obscurer.get(0));
+		callback(true, selected);
 	})
 	.on("click", ".button-cancel", function() {
 		element.get(0).removeChild(obscurer.get(0));

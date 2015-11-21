@@ -1,17 +1,25 @@
 
-function changeClass(ele, c, add) {
-	var list = ele.className.split(" ");
+function changeClassString(str, c, add) {
+	var list = str.split(" ");
 	var ix = list.indexOf(c);
 	if (ix == -1) {
 		if (add) {
 			list.push(c);
-			ele.className = list.join(" ");
+			return list.join(" ");
 		}
 	} else {
 		if (!add) {
 			list.splice(ix,1);
-			ele.className = list.join(" ");
+			return list.join(" ");
 		}
+	}
+	return str;
+}
+
+function changeClass(ele, c, add) {
+	var res = changeClassString(ele.className, c, add);
+	if (res != ele.className) {
+		ele.className = res;
 	}
 }
 
@@ -27,6 +35,9 @@ function EdenScriptGutter(parent) {
 	var dragselect = false;
 	var dragselectcount = 0;
 	var holdtimeout;
+	var downline = 0;
+	var alreadyselected = false;
+	var shiftdown;
 
 	function onHold() {
 		console.log("GUTTER HOLD");
@@ -34,9 +45,9 @@ function EdenScriptGutter(parent) {
 
 		for (var i=0; i<me.lines.length; i++) {
 			if (me.lines[i].selected) {
-				changeClass(me.gutter.childNodes[i], "select", false);
+				//changeClass(me.gutter.childNodes[i], "select", false);
 				changeClass(me.gutter.childNodes[i], "live", true);
-				me.lines[i].selected = false;
+				//me.lines[i].selected = false;
 				me.lines[i].live = true;
 			}
 		}
@@ -44,32 +55,45 @@ function EdenScriptGutter(parent) {
 
 	this.$gutter
 	.on('mousedown', '.eden-gutter-item', function(e) {
+		shiftdown = e.shiftKey;
 		var line = parseInt(e.target.getAttribute("data-line"));
+		downline = line;
+		alreadyselected = (me.lines[line]) ? me.lines[line].selected : false;
 		if (me.ast.lines[line]) {
 			var lines = me.ast.getBlockLines(line);
 			for (var i=lines[0]; i<=lines[1]; i++) {
-				me.lines[i].selected = !me.lines[i].selected;
+				if (shiftdown) me.lines[i].selected = !me.lines[i].selected;
+				else me.lines[i].selected = true;
 				changeClass(me.gutter.childNodes[i], "select", me.lines[i].selected);
 				changeClass(me.gutter.childNodes[i], "hover", false);
 			}
 		}
 		
-		dragselecting = false;
-		dragselect = true;
+		//dragselecting = false;
+		//dragselect = true;
 		holdtimeout = setTimeout(onHold, 2000);
 	})
 	.on('mouseup', '.eden-gutter-item', function(e) {
-		if (!dragselecting) {
+		if (!shiftdown) {
 			//changeClass(e.target, "select", false);
 			me.executeSelected();
-			clearTimeout(holdtimeout);
-			holdtimeout = undefined;
+			if (!alreadyselected) {
+				if (me.ast.lines[downline]) {
+					var lines = me.ast.getBlockLines(downline);
+					for (var i=lines[0]; i<=lines[1]; i++) {
+						me.lines[i].selected = false;
+						changeClass(me.gutter.childNodes[i], "select", false);
+					}
+				}
+			}
 		}
-		dragselect = false;
+		clearTimeout(holdtimeout);
+		holdtimeout = undefined;
+		//dragselect = false;
 	})
 	.on('mouseenter', '.eden-gutter-item', function(e) {
 		var line = parseInt(e.target.getAttribute("data-line"));
-		if (dragselect) {
+		/*if (dragselect) {
 			if (me.ast.lines[line]) {
 				var lines = me.ast.getBlockLines(line);
 				for (var i=lines[0]; i<=lines[1]; i++) {
@@ -81,29 +105,36 @@ function EdenScriptGutter(parent) {
 				//changeClass(e.target, "select", me.lines[line].selected);
 				dragselectcount++;
 			}
-		} else {
+		} else {*/
 			if (me.ast.lines[line]) {
 				var lines = me.ast.getBlockLines(line);
 				for (var i=lines[0]; i<=lines[1]; i++) {
 					changeClass(me.gutter.childNodes[i], "hover", true);
 				}
 			}
-		}
+		//}
 	})
 	.on('mouseleave', '.eden-gutter-item', function(e) {
 		var line = parseInt(e.target.getAttribute("data-line"));
-		if (dragselect) dragselecting = true;
+		//if (dragselect) dragselecting = true;
 		clearTimeout(holdtimeout);
 		holdtimeout = undefined;
-		if (!dragselect) {
+		//if (!dragselect) {
 			if (me.ast.lines[line]) {
 				var lines = me.ast.getBlockLines(line);
 				for (var i=lines[0]; i<=lines[1]; i++) {
 					changeClass(me.gutter.childNodes[i], "hover", false);
 				}
 			}
-		}
+		//}
 	});
+}
+
+
+
+EdenScriptGutter.prototype.clear = function() {
+	this.ast = undefined;
+	this.lines = [];
 }
 
 
@@ -114,11 +145,12 @@ EdenScriptGutter.prototype.executeSelected = function() {
 	for (var i=0; i<this.lines.length; i++) {
 		if (this.lines[i].selected) {
 			var sellines = this.ast.getBlockLines(i);
-			for (var j=sellines[0]; j<=sellines[1]; j++) {
-				this.lines[j].selected = false;
-				changeClass(this.gutter.childNodes[j], "select", false);
-			}
+			//for (var j=sellines[0]; j<=sellines[1]; j++) {
+				//this.lines[j].selected = false;
+				//changeClass(this.gutter.childNodes[j], "select", false);
+			//}
 			this.ast.executeLine(i);
+			i = sellines[1]+1;
 		}
 	}
 }
@@ -161,6 +193,8 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 		//this.gutter.appendChild(document.createElement("div"));
 		var className = "eden-gutter-item";
 		var content = "";
+		var doreplace = false;
+		var doupdate = false;
 		/*if (i == lineno-1) {
 			className += " eden-gutter-current";
 		}*/
@@ -168,30 +202,41 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			var stat = ast.lines[i];
 
 			if (stat.errors.length > 0) {
-				className += " eden-gutter-errorblock";
+				className += " errorblock";
 				if (stat.errors[0].line == i+1) {
-					className += " eden-gutter-error";
+					className += " error";
 					content = "&#xf06a";
 				} else if (stat.errors[0].type == "runtime") {
-					className += " eden-gutter-error";
+					className += " error";
 					content = "&#xf06a";
 				}
+				doupdate = true;
 			} else {
 				if (stat.type == "assignment" && stat.value === undefined && stat.compiled) {
-					className += " eden-gutter-warning";
+					className += " warning";
 					content = "&#xf071";
+					doupdate = true;
 				}
 				if (stat.executed == 1) {
-					className += " eden-gutter-executed";
+					className += " executed";
+					doreplace = true;
 				} else if (stat.executed == 2) {
-					className += " eden-gutter-guarded";
+					className += " guarded";
+					doupdate = true;
 				} else if (stat.executed == 3) {
-					className += " eden-gutter-errorblock";
+					className += " errorblock";
+					doupdate = true;
 				}
+			}
+
+			if (this.lines[i].selected) className += " select";
+			if (this.lines[i].live) {
+				className += " live";
+				//doreplace = false;
 			}
 		}
 
-		if (className != "eden-gutter-item") {
+		if (doreplace) {
 			if (content == "") {
 				var newnode = document.createElement("div");
 				newnode.className = className;
@@ -205,9 +250,10 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 				this.gutter.childNodes[i].className = className;
 				this.gutter.childNodes[i].innerHTML = content;
 			}
-		} else {
-			this.gutter.childNodes[i].innerHTML = "";
-			this.gutter.childNodes[i].className = this.gutter.childNodes[i].className.replace(" eden-gutter-errorblock","").replace(" eden-gutter-error","");
+		} else { // if (doupdate) {
+			if (this.gutter.childNodes[i].className.indexOf("hover") >= 0) className += " hover";
+			this.gutter.childNodes[i].innerHTML = content;
+			this.gutter.childNodes[i].className = className;
 		}
 	}
 }

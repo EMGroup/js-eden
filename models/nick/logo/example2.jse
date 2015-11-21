@@ -1,4 +1,7 @@
-## Example 2
+/**
+ * @title Logo Example 2
+ * @author Nicolas Pope
+ */
 
 import logo/drawer;
 _view_input_agent = "logo/example2";

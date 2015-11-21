@@ -78,10 +78,11 @@ span.readonly:after {
 
 
 div.script-subdialog-newagent {
+	position: relative;
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 45px;
-	width: 250px;
+	width: 300px;
 	background-color: #f5f5f5;
 	padding: 20px;
 	box-shadow: 0 0 7px black;
@@ -216,7 +217,7 @@ div.script-agents-list {
 div.script-agents-buttons {
 	position: absolute;
 	bottom: 0;
-	height: 30px;
+	height: 35px;
 	left: 20px;
 	right: 20px;
 }
@@ -224,14 +225,52 @@ div.script-agents-buttons {
 div.script-agents-item {
 	/*position: relative;*/
 	width: 100%;
-	border-bottom: 1px solid #e5e5e5;
+	/*border-bottom: 1px solid #3465a4;*/
 	height: 20px;
 	overflow: hidden;
-	line-height: 20px;
+}
+
+div.script-agents-item:hover {
+	background-color: #e5e5e5;
+}
+
+div.script-agents-item input {
+	float: left;
 }
 
 div.script-agents-item.loaded {
 	font-weight: bold;
+}
+
+div.script-agents-expand {
+	height: 20px;
+	/*width: 20px;*/
+	float: left;
+	padding-top: 2px;
+	/*padding-right: 5px;*/
+	/*border-right: 2px solid #aaa;*/
+	cursor: pointer;
+	text-align: right;
+	padding-right: 7px;
+}
+
+div.script-agents-expand:before {
+	/*margin-left: 5px;*/
+	content: "\f0da";
+	font-family: "FontAwesome";
+	font-size: 12pt;
+	font-weight: normal;
+	color: #3465a4;
+}
+
+div.script-agents-expand.expanded:before {
+	content: "\f0d7";
+}
+
+div.script-agents-content {
+	float: left;
+	padding: 5px;
+	padding-left: 15px;
 }
 
 
@@ -239,12 +278,12 @@ div.script-agents-item.loaded {
 
 
 button.button-icon-green {
-	line-height: 100%;
+	/*line-height: 100%;*/
 	margin-right: 15px;
 	margin-left: 15px;
 	padding-top: 5px;
 	padding-bottom: 5px;
-	padding-left: 8px;
+	padding-left: 28px;
 	padding-right: 8px;
 	font-weight: bold;
 	color: white;
@@ -265,8 +304,9 @@ button.button-icon-green:active {
 }
 
 button.button-icon-green:before {
-	position: relative;
-	left: -8px;
+	position: absolute;
+	margin-left: -28px;
+	margin-top: -5px;
 	padding: 5px;
 	font-weight: normal;
 	font-family: "FontAwesome";
@@ -282,22 +322,21 @@ button.button-icon-green:before {
 	background: linear-gradient(#63d400, #4fb300); /* Standard syntax */
 }
 
-button.button-icon-green:hover:before {
-	background: -webkit-linear-gradient(#4dac01, #448d01); /* For Safari 5.1 to 6.0 */
-	background: -o-linear-gradient(#4dac01, #448d01); /* For Opera 11.1 to 12.0 */
-	background: -moz-linear-gradient(#4dac01, #448d01); /* For Firefox 3.6 to 15 */
-	background: linear-gradient(#4dac01, #448d01); /* Standard syntax */
-}
+/*button.button-icon-green:hover:before {
+	background: -webkit-linear-gradient(#4dac01, #448d01); 
+	background: -o-linear-gradient(#4dac01, #448d01); 
+	background: -moz-linear-gradient(#4dac01, #448d01); 
+	background: linear-gradient(#4dac01, #448d01); 
+}*/
 
 
 
 button.button-icon-silver {
-	line-height: 100%;
 	margin-right: 15px;
 	margin-left: 15px;
 	padding-top: 5px;
 	padding-bottom: 5px;
-	padding-left: 8px;
+	padding-left: 28px;
 	padding-right: 8px;
 	font-weight: normal;
 	color: black;
@@ -318,8 +357,9 @@ button.button-icon-silver:active {
 }
 
 button.button-icon-silver:before {
-	position: relative;
-	left: -8px;
+	position: absolute;
+	margin-left: -28px;
+	margin-top: -5px;
 	padding: 5px;
 	font-weight: normal;
 	font-family: "FontAwesome";
@@ -329,13 +369,6 @@ button.button-icon-silver:before {
 	border-radius: 5px 0 0 5px;
 	/*border-bottom: 3px solid #2c6506;*/
 	border-right: 1px solid #8b8b8b;
-}
-
-button.button-icon-silver:hover:before {
-	background: -webkit-linear-gradient(#b8b8b8, #999999); /* For Safari 5.1 to 6.0 */
-	background: -o-linear-gradient(#b8b8b8, #999999); /* For Opera 11.1 to 12.0 */
-	background: -moz-linear-gradient(#b8b8b8, #999999); /* For Firefox 3.6 to 15 */
-	background: linear-gradient(#b8b8b8, #999999); /* Standard syntax */
 }
 
 
@@ -350,6 +383,10 @@ button.button-add:before {
 
 button.button-cancel:before {
 	content: "\f00d";
+}
+
+button.button-agents:before {
+	content: "\f0c0";
 }
 
 
