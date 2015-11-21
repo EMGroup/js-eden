@@ -1,0 +1,50 @@
+%eden
+
+tkeden_vbfeatures=1;
+
+propagateType = -1;
+
+include("./telegraph.panel");
+include("./telegraph.buttons");
+include("./site.panel.1");
+
+%scout
+window  BrownTitleWin;
+integer BrownTitleWin_x, BrownTitleWin_y;
+integer BrownTitleStringLen;
+
+BrownTitleStringLen = strlen("Brown")*2;
+BrownTitleWin_x = telegraphWin_pos_x + (telegraphWin_size_x/2) -(BrownTitleStringLen.c / 2);
+BrownTitleWin_y = telegraphWin_pos_y - 5.r/2;
+
+BrownTitleWin = {
+   frame : ([{BrownTitleWin_x, BrownTitleWin_y}, 2, BrownTitleStringLen]),
+   string : "Brown",
+   font: "*-18-*",
+   fgcolor : "blue",
+   alignment : CENTRE
+};
+
+telegraphPanel = <occupiedButton / clearButton / BrownTitleWin /  telegraphWin>;
+
+screen = telegraphPanel & sitePanel;
+
+%eden
+
+proc autoClearButton {
+     auto initTime;
+     initTime = startTime[1];
+     clearButton_mouse_1 = [1,4,0,35,27];
+     while ((startTime[1] - initTime) <=3) {
+        eager();
+     }
+     clearButton_mouse_1 = [1,5,0,35,27];
+}
+     
+
+
+propagateType = 1;
+synchronize = 1;
+stop=FALSE;
+
+
