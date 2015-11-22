@@ -166,7 +166,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		suggestions.hide();
 		$(infobox).hide();
 
-		var gutter = new EdenScriptGutter($codearea.get(0));
+		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
 
 		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDiv"><button class="control-button search-mode" title="Query state">&#xf002;</button><button class="control-button share-agent" title="Share on network">&#xf0e8;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
 		$buttonbar.appendTo($dialogContents);
@@ -770,23 +770,6 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 				}
 			}
 			return res;
-		}
-
-
-
-		/**
-		 * Displays the error/warning box.
-		 */
-		function showInfoBox(x, y, type, message) {
-			if (type == "warning") {
-				infobox.innerHTML = "<div class='info-warnitem'><span>"+message+"</span></div>";
-			} else if (type == "error") {
-				infobox.innerHTML = "<div class='info-erroritem'><span>"+message+"</span></div>";
-			}
-			$info = $(infobox);
-			$info.css("top",""+y+"px");
-			$info.css("left", ""+x+"px");
-			$(infobox).show("fast");
 		}
 
 

@@ -1445,6 +1445,7 @@
 	global.Scope = Scope;
 	global.ScopeOverride = ScopeOverride;
 	global.edenCopy = copy;
+	global.BoundValue = BoundValue;
 	
 	// expose as node.js module
 	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {

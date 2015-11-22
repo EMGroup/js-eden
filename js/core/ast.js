@@ -411,7 +411,7 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope) {
 
 Eden.AST.BinaryOp.prototype.execute = function(root, ctx) {
 	var rhs = "(function(context,scope) { return ";
-	rhs += this.generate(ctx);
+	rhs += this.generate(ctx, "scope");
 	rhs += ";})";
 	return eval(rhs)(root,root.scope);
 }
@@ -486,8 +486,18 @@ Eden.AST.LValue.prototype.setExpression = function(express) {
 
 Eden.AST.LValue.prototype.getSymbol = function(root, ctx, base) {
 	if (this.name) return root.lookup(this.name);
-	if (this.primary) return this.primary.execute(root,ctx,base);
-	if (this.express) return root.lookup(this.express.execute(root,ctx,base));
+	if (this.primary) {
+		var sym = this.primary.execute(root,ctx,base);
+		if (sym instanceof BoundValue) sym = sym.value;
+		return sym;
+	}
+	if (this.express) {
+		console.log(this.express);
+		var name = this.express.execute(root,ctx,base);
+		console.log(name);
+		if (name instanceof BoundValue) name = name.value;
+		return root.lookup(name);
+	}
 }
 
 
@@ -546,7 +556,7 @@ Eden.AST.LValue.prototype.generate = function(ctx) {
 	}
 
 	if (this.primary) return this.primary.generate(ctx);
-	if (this.express) return "context.lookup(\""+this.express.generate(ctx)+"\")";
+	if (this.express) return "context.lookup("+this.express.generate(ctx, "scope")+")";
 
 	// TODO: Pointer dependencies currently causing huge page redraw problems.
 	//if (ctx && ctx.dependencies) {

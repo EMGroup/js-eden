@@ -23,7 +23,7 @@ function changeClass(ele, c, add) {
 	}
 }
 
-function EdenScriptGutter(parent) {
+function EdenScriptGutter(parent, infob) {
 	var me = this;
 	this.$gutter = $('<div class="eden-gutter"></div>');
 	this.gutter = this.$gutter.get(0);
@@ -38,6 +38,22 @@ function EdenScriptGutter(parent) {
 	var downline = 0;
 	var alreadyselected = false;
 	var shiftdown;
+	var infobox = infob;
+
+	/**
+	 * Displays the error/warning box.
+	 */
+	function showInfoBox(x, y, type, message) {
+		if (type == "warning") {
+			infobox.innerHTML = "<div class='info-warnitem'><span>"+message+"</span></div>";
+		} else if (type == "error") {
+			infobox.innerHTML = "<div class='info-erroritem'><span>"+message+"</span></div>";
+		}
+		$info = $(infobox);
+		$info.css("top",""+y+"px");
+		$info.css("left", ""+x+"px");
+		$(infobox).show("fast");
+	}
 
 	function onHold() {
 		console.log("GUTTER HOLD");
@@ -60,6 +76,7 @@ function EdenScriptGutter(parent) {
 		downline = line;
 		alreadyselected = (me.lines[line]) ? me.lines[line].selected : false;
 		if (me.ast.lines[line]) {
+			if (me.ast.lines[line].errors.length > 0) return;
 			var lines = me.ast.getBlockLines(line);
 			for (var i=lines[0]; i<=lines[1]; i++) {
 				if (shiftdown) me.lines[i].selected = !me.lines[i].selected;
@@ -73,8 +90,23 @@ function EdenScriptGutter(parent) {
 		//dragselect = true;
 		holdtimeout = setTimeout(onHold, 2000);
 	})
+	.on('click', '.eden-gutter-item', function(e) {
+		var line = parseInt(e.target.getAttribute("data-line"));
+		if (me.ast.lines[line]) {
+			if (me.ast.lines[line].errors.length > 0) {
+				var err = me.ast.lines[line].errors[0];
+				if (err.line == line+1 || err.type == "runtime") {
+					var taboffset = 35; // TODO (agent.state[obs_showtabs]) ? 35 : 0;
+					console.error(err.messageText());
+					showInfoBox(e.target.offsetLeft+20, e.target.offsetTop-me.gutter.parentNode.scrollTop+25+taboffset, "error", err.messageText());
+				}
+			}
+		}
+	})
 	.on('mouseup', '.eden-gutter-item', function(e) {
 		if (!shiftdown) {
+			var line = parseInt(e.target.getAttribute("data-line"));
+			if (me.ast.lines[line] && me.ast.lines[line].errors.length > 0) return;
 			//changeClass(e.target, "select", false);
 			me.executeSelected();
 			if (!alreadyselected) {

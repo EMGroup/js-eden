@@ -2103,6 +2103,12 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						endline = this.stream.line;
 						this.next();
 						stat = script; break;
+	case "JAVASCRIPT" : var js = this.data.value;
+						this.next();
+						stat = new Eden.AST.Literal("JAVASCRIPT", js);
+						break;
+	case "`"		  :
+	case "*"		  :
 	case "OBSERVABLE" :	var lvalue = this.pLVALUE();
 						if (lvalue.errors.length > 0) return lvalue;
 						var formula = this.pSTATEMENT_PP();
@@ -2124,10 +2130,6 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							this.next();
 						}
 						stat = formula; break;
-	case "JAVASCRIPT" : var js = this.data.value;
-						this.next();
-						stat = new Eden.AST.Literal("JAVASCRIPT", js);
-						break;
 	default : return undefined;
 	}
 	

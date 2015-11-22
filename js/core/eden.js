@@ -261,6 +261,7 @@ function concatAndResolveUrl(url, concat) {
 		}
 
 		if (this.plugins[name] === undefined) {
+			this.plugins[name] = true; // To prevent cycles
 			this.plugins[name] = new EdenUI.plugins[name](this, wrappedSuccess);
 		} else {
 			wrappedSuccess();
