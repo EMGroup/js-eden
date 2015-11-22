@@ -5,6 +5,8 @@
 
 require("Page");
 
+import lib/html;
+
 import hexcolouring/model enabled;
 import hexcolouring/worksheet enabled;
 import hexcolouring/textcolupdate enabled;

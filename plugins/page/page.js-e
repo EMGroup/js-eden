@@ -1,4 +1,9 @@
-## Page Plugin
+/**
+ * @title Page Plugin
+ * @author Nicolas Pope
+ */
+
+require("Page");
 
 prototype_Page is ["page", title,theme,content];
 Page is prototype_Page with

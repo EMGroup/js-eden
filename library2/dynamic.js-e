@@ -183,19 +183,7 @@ func isDependent {
 	}}$;
 }
 
-##Given a value, this function returns the string representing the simplest
-##EDEN code that evaluates as that value.  For example, edenCode applied to a
-##string is the string formed by adding quotes to the original string.
-func edenCode {
-	${{
-		if (arguments.length != 1) {
-			eden.error(new Error("edenCode: This function requires exactly 1 argument."), "error");
-			return undefined;
-		 } else {
-			return Eden.edenCodeForValue(arguments[0]);
-		 }
-	}}$;
-}
+
 
 ##Given a string or a pointer, returns true if the referenced observable is
 ##defined through dependency or false if it's defined through assignment or not

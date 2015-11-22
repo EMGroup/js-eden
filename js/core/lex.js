@@ -278,20 +278,6 @@ EdenStream.prototype.parseCharacter = function(data) {
 	data.value = result;
 }
 
-EdenStream.prototype.parseJavascript = function(data) {
-	var result = "";
-
-	while (this.valid()) {
-		if (this.peek() == 125 && this.peek2() == 125 && this.peek3() == 36) {
-			this.skip(); this.skip(); this.skip();
-			break;
-		}
-		result += String.fromCharCode(this.get());
-	}
-
-	data.value = result;
-};
-
 
 
 EdenStream.prototype.parseNumber = function(data) {
@@ -312,24 +298,6 @@ EdenStream.prototype.parseNumber = function(data) {
 	data.value = parseFloat(result);
 };
 
-
-EdenStream.prototype.parseKeyword = function(word) {
-	this.skipWhiteSpace();
-	this.pushPosition();
-	for (var i = 0; i < word.length; i++) {
-		if (this.get() != word.charCodeAt(i)) {
-			this.popPosition();
-			return false;
-		}
-	}
-	if (this.isAlphaNumeric(this.peek())) {
-		this.popPosition();
-		return false;
-	} else {
-		this.discardPosition();
-		return true;
-	}
-};
 
 
 
@@ -427,7 +395,7 @@ EdenStream.prototype.readToken = function() {
 
 	if (this.parseAlphaNumeric(this.data)) {
 		if (Language.keywords.hasOwnProperty(this.data.value)) return Language.keywords[this.data.value];
-		if (Language.values.hasOwnProperty(this.data.value) == "true" || Language.values[this.data.value] == "false") {
+		if (Language.values.hasOwnProperty(this.data.value)) {
 			this.data.value = Language.values[this.data.value];
 			return "BOOLEAN";
 		}

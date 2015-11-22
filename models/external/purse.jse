@@ -5,6 +5,8 @@
 
 require("Page");
 
+import lib/html enabled;
+
 import purse/wmb enabled;
 import purse/wmb/tutorial enabled;
 import purse/wmb/intro enabled;

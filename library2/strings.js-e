@@ -8,6 +8,20 @@
  * Functions that operate on strings.
  */
 
+##Given a value, this function returns the string representing the simplest
+##EDEN code that evaluates as that value.  For example, edenCode applied to a
+##string is the string formed by adding quotes to the original string.
+func edenCode {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("edenCode: This function requires exactly 1 argument."), "error");
+			return undefined;
+		 } else {
+			return Eden.edenCodeForValue(arguments[0]);
+		 }
+	}}$;
+}
+
 ##Concatenates a collection of values, separating each one by a given separator string, separator
 ##element or separator list.  The values can either be provided as multiple arguments or
 ##alternatively as a single list type argument.

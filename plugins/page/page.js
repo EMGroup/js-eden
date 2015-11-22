@@ -258,7 +258,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	//Note this plugin does not have a view
 
 	//Load the Eden wrapper functions (new syntax).
-	edenUI.eden.include2("plugins/page/page.js-e", success);
+	//edenUI.eden.include2("plugins/page/page.js-e", success);
+	Eden.Agent.importAgent("plugins/page", ["enabled"], success);
 };
 
 /* Plugin meta information */

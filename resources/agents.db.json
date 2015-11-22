@@ -57,6 +57,11 @@
 	},
 
 	"meta": {
+		"plugins/page": {
+			"file": "plugins/page/page.js-e",
+			"title": "Page Plugin",
+			"enabled": true
+		},
 		"lib": {
 			"file": "library2/eden.jse",
 			"title": "Eden Base Library",
