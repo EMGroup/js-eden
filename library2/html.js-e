@@ -1,19 +1,26 @@
-## Copyright (c) 2014, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
-##
-##Functions for mapping between content or styling described by EDEN observables and syntactically
-##correct HTML mark-up or CSS.
+/**
+ * @title Bridging HTML/CSS
+ * Copyright (c) 2014, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ *
+ * Functions for mapping between content or styling described by EDEN observables and syntactically
+ * correct HTML mark-up or CSS.
+ */
 
 ##Given an EDEN list of strings, returns a string containing HTML mark-up for formatting the given
 ##items as an unordered (bullet point) list.
 func htmlBulletList {
+	para p1;
 	auto items, item, result, i;
-	if ($# == 1 && isList($[1])) {
-		items = $[1];
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 1 && isList(p1)) {
+		items = p1;
 	} else {
-		items = $;
+		items = ${{ arguments }}$;
 	}
 	
 	if (items# == 0) {
@@ -39,43 +46,47 @@ func htmlBulletList {
 ##Given an EDEN list of strings, returns a string containing HTML mark-up for
 ##formatting the given items as an ordered (numbered) list.
 func htmlNumberedList {
+	para p1,p2;
 	auto items, item, result, i, numberingType, start;
-	if ($# == 0) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 0) {
 		return "";
-	} else if ($# <= 3 && $[$#] == @) {
+	} else if (argc <= 3 && ${{ arguments[arguments.length-1] }}$ == @) {
 		return "";
-	} else if ($# <= 3 && isList($[$#])) {
-		items = $[$#];
-		if (isString($[1])) {
-			numberingType = $[1];
-			if ($# == 3) {
-				if (isInt($[2])) {
-					start = $[2];
-				} else if ($[2] == @) {
+	} else if (argc <= 3 && isList(${{ arguments[arguments.length-1] }}$)) {
+		items = ${{ arguments[arguments.length-1] }}$;
+		if (isString(p1)) {
+			numberingType = p1;
+			if (argc == 3) {
+				if (isInt(p2)) {
+					start = p2;
+				} else if (p2 == @) {
 					numberingType = "symbols(\"?\")";
 				} else {
-					error("htmlNumberedList: The second argument must be an integer, not a " // type($[2]));
+					error("htmlNumberedList: The second argument must be an integer, not a " // type(p2));
 					return "";
 				}
 			}
-		} else if (isInt($[1]) && $# == 2) {
-			start = $[1];
-		} else if ($[1] == @) {
+		} else if (isInt(p1) && argc == 2) {
+			start = p1;
+		} else if (p1 == @) {
 			numberingType = "symbols(\"?\")";		
-		} else if ($# > 1) {
-			error("htmlNumberedList: The first argument must be a string or an integer, not a " // type($[1]));
+		} else if (argc > 1) {
+			error("htmlNumberedList: The first argument must be a string or an integer, not a " // type(p1));
 			return "";
 		}
 	} else {
-		if ($# >= 2 && (isString($[1]) || $[1] == @) && (isInt($[2]) || $[2] == @)) {
-			numberingType = $[1];
-			start = $[2];
-			items = sublist($, 3);
-		} else if ($# >= 1 && (isInt($[1]) || $[1] == @)) {
-			start = $[1];
-			items = sublist($, 2);
+		if (argc >= 2 && (isString(p1) || p1 == @) && (isInt(p2) || p2 == @)) {
+			numberingType = p1;
+			start = p2;
+			items = sublist(${{arguments}}$, 3);
+		} else if (argc >= 1 && (isInt(p1) || p1 == @)) {
+			start = p1;
+			items = sublist(${{arguments}}$, 2);
 		} else {
-			items = $;
+			items = ${{arguments}}$;
 		}
 	}
 	
@@ -87,7 +98,7 @@ func htmlNumberedList {
 	if (start != @) {
 		result = result // " start=\"" // str(start) // "\"";
 	}
-	if (numberingType =~ "^[1aAiI]$") {
+	if (${{ numberingType.match(/^[1aAiI]$/) }}$) {
 		result = result // " type=\"" // numberingType // "\"";
 	} else if (numberingType != @) {
 		result = result // " style='list-style-type: " // numberingType // "'";
@@ -113,13 +124,17 @@ func htmlNumberedList {
 ##drawables or for appropriate CSS properties.  If four arguments are supplied
 ##then the forth value determines the opacity (range 0.0 to 1.0).
 func rgb2colour {
+	para p1,p2,p3,p4;
 	auto r, g, b, a;
-	if ($# < 3 || $# > 4) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 3 || argc > 4) {
 		error("rgb: This function requires at least 3 arguments and at most 4 arguments.");
 		return "black";
 	}
 	
-	r = $[1]; g = $[2]; b = $[3]; a = @;
+	r = p1; g = p2; b = p3; a = @;
 	
 	if (r == @) {
 		r = 0;
@@ -148,8 +163,8 @@ func rgb2colour {
 		b = round(b);
 	}
 
-	if ($# == 4) {
-		a = $[4];
+	if (argc == 4) {
+		a = p4;
 		if (isNumber(a)) {
 			if (a < 0) {
 				a = 0;
@@ -175,13 +190,17 @@ func rgb2colour {
 ##properties.  If four arguments are supplied then the forth value determines
 ##the opacity (range 0.0 to 1.0).
 func hsl2colour {
+	para p1,p2,p3,p4;
 	auto h, s, l, a;
-	if ($# < 3 || $# > 4) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 3 || argc > 4) {
 		error("hsl: This function requires at least 3 arguments and at most 4 arguments.");
 		return "black";
 	}
 	
-	h = $[1]; s = $[2]; l = $[3]; a = @;
+	h = p1; s = p2; l = p3; a = @;
 	
 	if (h == @) {
 		h = 0;
@@ -216,8 +235,8 @@ func hsl2colour {
 		l = 100;
 	}
 
-	if ($# == 4) {
-		a = $[4];
+	if (argc == 4) {
+		a = p4;
 		if (isNumber(a)) {
 			if (a < 0) {
 				a = 0;

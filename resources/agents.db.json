@@ -97,6 +97,16 @@
 			"title": "Dynamic Scripts",
 			"enabled": true
 		},
+		"lib/clocks": {
+			"file": "library2/edenclocks.js-e",
+			"title": "Eden Clocks Agent",
+			"enabled": true
+		},
+		"lib/html": {
+			"file": "library2/html.js-e",
+			"title": "Bridging HTML/CSS",
+			"enabled": true
+		},
 		"claytontunnel/alarm/panel": {
 			"file": "models/nick/claytonTunnel/alarm.panel",
 			"title": "Alarm Panel",
