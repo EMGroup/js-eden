@@ -471,6 +471,8 @@
 					this.line++;
 					if (line !== undefined) {
 						lineelement.appendChild(line);
+					} else {
+						this.mode_at_line[this.line-1] = this.mode;
 					}
 					var blank = document.createTextNode("\n");
 					lineelement.appendChild(blank);

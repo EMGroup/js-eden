@@ -231,7 +231,6 @@ Eden.AST.prototype.next = function() {
 				this.token = this.stream.readToken();
 			}
 			this.data.value = this.stream.code.substring(start, this.stream.position-3);
-			console.log("JS: " + this.data.value);
 			this.token = "JAVASCRIPT";
 		} else {
 			break;
