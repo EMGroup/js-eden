@@ -272,7 +272,7 @@ EdenStream.prototype.parseCharacter = function(data) {
 	}
 
 	// Remove quote.
-	if (this.valid()) {
+	if (this.valid() && this.peek() == 39) {
 		this.skip();
 	}
 	data.value = result;

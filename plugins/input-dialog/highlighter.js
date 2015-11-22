@@ -85,6 +85,22 @@
 	"green": true
 	};
 
+	var jskeywords = {
+	"var": true,
+	"if": true,
+	"while": true,
+	"typeof": true,
+	"this": true,
+	"function": true,
+	"return": true,
+	"else": true,
+	"break": true,
+	"continue": true,
+	"switch": true,
+	"for": true,
+	"prototype": true
+	}
+
 
 
 	/**
@@ -370,7 +386,15 @@
 					classes += "eden-doxytagerror";
 				}
 			} else if (this.mode == 4) {
-				classes += "eden-javascript";
+				if (token == "OBSERVABLE" || type == "keyword") {
+					if (jskeywords.hasOwnProperty(stream.data.value)) {
+						classes += "eden-javascript-bold";
+					} else {
+						classes += "eden-javascript";
+					}
+				} else {
+					classes += "eden-javascript";
+				}
 				if (token == "}}$") {
 					this.mode = 0;
 				}

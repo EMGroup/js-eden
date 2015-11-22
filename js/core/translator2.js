@@ -478,7 +478,7 @@ Eden.AST.prototype.pFACTOR = function() {
 		return new Eden.AST.UnaryOp("&", lvalue);
 	} else if (this.token == "*") {
 		this.next();
-		var lvalue = this.pPRIMARY();
+		var lvalue = this.pFACTOR();
 		return new Eden.AST.UnaryOp("*", lvalue);
 	} else {
 		var primary = this.pPRIMARY();

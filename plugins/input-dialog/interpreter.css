@@ -508,6 +508,11 @@ span.eden-javascript {
 	color: #c4a000;
 }
 
+span.eden-javascript-bold {
+	color: #c4a000;
+	font-weight: bold;
+}
+
 span.eden-comment {
 	font-style: italic;
 	color: #888a85;
