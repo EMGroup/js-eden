@@ -200,6 +200,10 @@ EdenStream.prototype.tokenType = function(token) {
 	if (token == "BOOLEAN") {
 		return "boolean";
 	}
+	if (typeof token != "string") {
+		console.error(token);
+		return "INVALID";
+	}
 	if (this.isAlphaNumeric(token.charCodeAt(0))) {
 		return "keyword";
 	}
@@ -350,8 +354,7 @@ EdenStream.prototype.readToken = function() {
 				return "#";
 	case 36	:	if (this.peek() == 123 && this.peek2() == 123) {
 					this.skip(); this.skip();
-					this.parseJavascript(this.data);
-					return "JAVASCRIPT";
+					return "${{";
 				}
 				return "$";
 	case 37	:	return "%";
@@ -410,7 +413,11 @@ EdenStream.prototype.readToken = function() {
 	case 124:	if (this.peek() == 124) { this.skip(); return "||"; }
 				if (this.peek() == 61) { this.skip(); return "|="; }
 				return "|";
-	case 125:	return "}";
+	case 125:	if (this.peek() == 125 && this.peek2() == 36) {
+					this.skip(); this.skip();
+					return "}}$";
+				}	
+				return "}";
 	case 126:	if (this.peek() == 62) { this.skip(); return "~>"; }
 				return "~";
 	default: break; 
@@ -419,8 +426,8 @@ EdenStream.prototype.readToken = function() {
 	this.unget();
 
 	if (this.parseAlphaNumeric(this.data)) {
-		if (Language.keywords[this.data.value]) return Language.keywords[this.data.value];
-		if (Language.values[this.data.value] == "true" || Language.values[this.data.value] == "false") {
+		if (Language.keywords.hasOwnProperty(this.data.value)) return Language.keywords[this.data.value];
+		if (Language.values.hasOwnProperty(this.data.value) == "true" || Language.values[this.data.value] == "false") {
 			this.data.value = Language.values[this.data.value];
 			return "BOOLEAN";
 		}
@@ -429,8 +436,9 @@ EdenStream.prototype.readToken = function() {
 
 	// Ignore invalid tokens
 	this.skip();
-	return this.readToken();
-	//return "INVALID";
+	//return this.readToken();
+	console.error("Invalid Token: " + ch);
+	return "INVALID";
 };
 
 

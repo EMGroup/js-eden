@@ -171,7 +171,7 @@ Eden.AST.Index.prototype.generate = function(ctx, scope) {
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 		ix += ".value";
 	}
-	return "[("+ix+")-1]";
+	return "[rt.index("+ix+")]";
 }
 
 Eden.AST.Index.prototype.error = fnEdenASTerror;
@@ -535,7 +535,7 @@ Eden.AST.LValueComponent.prototype.property = function(pprop) {
 
 Eden.AST.LValueComponent.prototype.generate = function(ctx) {
 	if (this.kind == "index") {
-		return "[("+this.indexexp.generate(ctx)+")-1]";
+		return "[rt.index("+this.indexexp.generate(ctx)+")]";
 	//} else if (this.kind == "property") {
 	//	return "[context.lookup(\""+obs+"\").value(scope)[0][1].indexOf(\""+this.observable+"\")+1]";
 	}
@@ -833,7 +833,7 @@ Eden.AST.Insert.prototype.generate = function(ctx) {
 		val += ".value";
 	}
 	var lvalue = this.destination.generate(ctx);
-	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.splice(("+ix+")-1, 0, ("+val+")); }, this);";
+	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.splice(rt.index("+ix+"), 0, ("+val+")); }, this);";
 }
 
 Eden.AST.Insert.prototype.execute = function(root, ctx, base) {
@@ -887,7 +887,7 @@ Eden.AST.Delete.prototype.generate = function(ctx) {
 		ix += ".value";
 	}
 	var lvalue = this.destination.generate(ctx);
-	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.splice(("+ix+")-1, 1); }, this);";
+	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.splice(rt.index("+ix+"), 1); }, this);";
 }
 
 Eden.AST.Delete.prototype.execute = function(root, ctx, base) {

@@ -17,6 +17,15 @@ Point.prototype.getEdenCode = Point.prototype.toString;
 
 // functions to act in the same way as EDEN operators
 var rt = {
+	index: function (ix) {
+		var type = typeof ix;
+		if (type == "number") {
+			return ix-1;
+		} else {
+			return ix;
+		}
+	},
+
 	length: function (value) {
 		if (value === null || value === undefined) {
 			return undefined;

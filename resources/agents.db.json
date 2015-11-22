@@ -57,6 +57,46 @@
 	},
 
 	"meta": {
+		"lib": {
+			"file": "library2/eden.jse",
+			"title": "Eden Base Library",
+			"enabled": true
+		},
+		"lib/core": {
+			"file": "library2/core.js-e",
+			"title": "Core Library",
+			"enabled": true
+		},
+		"lib/type": {
+			"file": "library2/types.js-e",
+			"title": "Type Check Functions",
+			"enabled": true
+		},
+		"lib/math": {
+			"file": "library2/maths.jse",
+			"title": "Math Library",
+			"enabled": true
+		},
+		"lib/string": {
+			"file": "library2/strings.js-e",
+			"title": "String Functions",
+			"enabled": true
+		},
+		"lib/list": {
+			"file": "library2/lists.js-e",
+			"title": "List Library",
+			"enabled": true
+		},
+		"lib/geometry": {
+			"file": "library2/algebra.jse",
+			"title": "Geometry Library",
+			"enabled": true
+		},
+		"lib/dynamic": {
+			"file": "library2/dynamic.js-e",
+			"title": "Dynamic Scripts",
+			"enabled": true
+		},
 		"claytontunnel/alarm/panel": {
 			"file": "models/nick/claytonTunnel/alarm.panel",
 			"title": "Alarm Panel",

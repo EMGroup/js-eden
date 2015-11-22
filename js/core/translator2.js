@@ -216,7 +216,7 @@ Eden.AST.prototype.next = function() {
 				}
 			}
 			if (isDoxy) {
-				this.lastDoxyComment = new Eden.AST.DoxyComment(this.stream.code.substring(startline, this.stream.position), start, this.stream.line);
+				this.lastDoxyComment = new Eden.AST.DoxyComment(this.stream.code.substring(start, this.stream.position), startline, this.stream.line);
 				if (startline == 1) this.mainDoxyComment = this.lastDoxyComment;
 			}
 			this.token = this.stream.readToken();
@@ -224,6 +224,15 @@ Eden.AST.prototype.next = function() {
 		} else if (this.token == "##") {
 			this.stream.skipLine();
 			this.token = this.stream.readToken();
+		} else if (this.token == "${{") {
+			var start = this.stream.position;
+			var startline = this.stream.line;
+			while (this.stream.valid() && (this.token != "}}$" || count > 0)) {
+				this.token = this.stream.readToken();
+			}
+			this.data.value = this.stream.code.substring(start, this.stream.position-3);
+			console.log("JS: " + this.data.value);
+			this.token = "JAVASCRIPT";
 		} else {
 			break;
 		}

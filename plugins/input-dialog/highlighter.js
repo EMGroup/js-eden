@@ -256,6 +256,10 @@
 			prevtoken = token;
 			token = stream.readToken();
 
+			if (typeof token != "string") {
+				console.error("Token error: line = " + this.line + " position = " + stream.position);
+			}
+
 			if (token == "EOF") {
 				if (wsline != "") {
 					// Add any trailing whitespace
@@ -323,8 +327,9 @@
 					} else {
 						classes += "eden-observable";
 					}
-				} else if (token == "JAVASCRIPT") {
+				} else if (token == "${{") {
 					classes += "eden-javascript";
+					this.mode = 4;
 				} else {
 					// Bind negative to number if no whitespace.
 					if (token == "-" && stream.isNumeric(stream.peek())) {
@@ -363,6 +368,11 @@
 					classes += "eden-doxytag";
 				} else {
 					classes += "eden-doxytagerror";
+				}
+			} else if (this.mode == 4) {
+				classes += "eden-javascript";
+				if (token == "}}$") {
+					this.mode = 0;
 				}
 			}
 

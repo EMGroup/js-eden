@@ -1,0 +1,242 @@
+/**
+ * @title Core Library
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+/**
+ * Execute a string as JS-Eden script.
+ */
+func execute {
+	${{ eden.execute2(arguments[0], "execute", "", {name: "/execute"}, function () { } ); }}$;
+}
+
+/**
+ * Generate a new dictionary object.
+ */
+func Object {
+	return ${{ {} }}$;
+}
+
+func Point {
+	${{
+		var x = arguments[0];
+		var y = arguments[1];
+		return new Point(x, y);
+	}}$;
+}
+
+proc createView {
+	${{
+		var name = arguments[0];
+		var type = arguments[1];
+		edenUI.createView(name, type, this);
+	}}$;
+}
+
+${{
+	root.lookup("_views_list").addJSObserver("createAndDestroy", function (sym, viewNameList) {
+		var maxViewNumber = 0;
+		var viewNames = {};
+		var viewName, typeSym, viewType;
+		// Create any new views whose names have been inserted into the list.
+		function addTypeObserver(symbol, name) {
+			symbol.addJSObserver("changeType", function (sym, newType) {
+				if (newType !== undefined && root.lookup("_views_list").value().indexOf(name) !== -1) {
+					edenUI.createView(name, newType);
+				}
+			});		
+		}
+		for (var i = 0; i < viewNameList.length; i++) {
+			viewName = viewNameList[i];
+			typeSym = root.lookup("_view_" + viewName + "_type");
+			viewType = typeSym.value();
+
+			if (viewType === undefined) {
+				addTypeObserver(typeSym, viewName);
+			} else if (!(viewName in edenUI.activeDialogs)) {
+				edenUI.createView(viewName, viewType);
+			}
+
+			viewNames[viewName] = true;
+
+			var match = viewName.match(/(\d+)$/);
+			if (match !== null) {
+				var viewNumber = parseInt(match[1]);
+				if (viewNumber > maxViewNumber) {
+					maxViewNumber = viewNumber;
+				}
+			}
+		}
+		/* Destroy any views whose names have been removed from the list but preserve their observables.
+		 * Use the destroyView procedure to destroy a view and forget its observables. 
+		 */
+		for (viewName in edenUI.activeDialogs) {
+			if (!(viewName in viewNames)) {
+				edenUI.destroyView(viewName, false);
+			}
+		}
+		// Keep track of what to call the next view that is created using the menu bar.
+		var numViewsSym = root.lookup("_views_number_created");
+		if (numViewsSym.value() < maxViewNumber) {
+			numViewsSym.assign(maxViewNumber, root.scope, root.lookup("createView"));
+		}
+	});
+}}$;
+
+proc showView {
+	para name;
+	${{ eden.root.lookup("_view_"+name+"_visibility").assign("visible", eden.root.scope); }}$;
+	##`"_view_" // name // "_visibility"` = "visible";
+	${{
+		var name = arguments[0];
+		edenUI.showView(name); //Explicitly invoke this to make sure the view gets moved to the top.
+		edenUI.brieflyHighlightView(name);
+	}}$;
+}
+
+proc hideView {
+	para name;
+	${{ eden.root.lookup("_view_"+name+"_visibility").assign("hidden", eden.root.scope); }}$;
+	##`"_view_" // name // "_visibility"` = "hidden";
+}
+
+proc highlightView {
+	${{
+		var name = arguments[0];
+		edenUI.highlightView(name, false);
+	}}$;
+}
+
+proc stopHighlightingView {
+	${{
+		var name = arguments[0];
+		edenUI.stopHighlightingView(name, false, false);
+	}}$;
+}
+
+proc destroyView {
+	${{
+		var name = arguments[0];
+		edenUI.destroyView(name, true);
+	}}$;
+}
+
+proc moveView {
+	para name, x, y;
+	autocalc = 0;
+	##together {
+		${{ eden.root.lookup("_view_"+name+"_x").assign(x, eden.root.scope); }}$;
+		${{ eden.root.lookup("_view_"+name+"_y").assign(y, eden.root.scope); }}$;
+		##`"_view_" // name // "_x"` = x;
+		##`"_view_" // name // "_y"` = y;
+	##}
+	autocalc = 1;
+}
+
+proc resizeView {
+	para name, width, height;
+	autocalc = 0;
+	##together {
+		${{ eden.root.lookup("_view_"+name+"_width").assign(width, eden.root.scope); }}$;
+		${{ eden.root.lookup("_view_"+name+"_height").assign(height, eden.root.scope); }}$;
+		##`"_view_" // name // "_width"` = width;
+		##`"_view_" // name // "_height"` = height;
+	##}
+	autocalc = 1;
+}
+
+##The summed dimensions of all window borders, title bars, scroll bars and any other parts that are
+##not part of a view's content.  _view_xxx_width + _views_frame_width gives the first x position where
+##another view can be placed without overlapping with xxx.
+_views_frame_width = ${{ edenUI.dialogFrameWidth }}$;
+_views_frame_height = ${{ edenUI.dialogFrameHeight }}$;
+##The size of the grid squares that windows snap to.
+_views_unit_x = ${{ edenUI.gridSizeX }}$;
+_views_unit_y = ${{ edenUI.gridSizeY }}$;
+
+##The maximum width a view can be if it fits within the browser window without scrolling.
+screenWidth = ${{ window.innerWidth }}$ - _views_frame_width;
+##The maximum height a view can be if it fits within the browser window without scrolling.
+screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2 - (edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0)}}$;
+${{
+	window.addEventListener("resize", function (event) {
+		root.beginAutocalcOff();
+		root.lookup("screenWidth").assign(window.innerWidth - edenUI.dialogFrameWidth, root.scope, Symbol.hciAgent);
+		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2 - (edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0), root.scope, Symbol.hciAgent);
+		root.endAutocalcOff();
+	});
+}}$;
+
+proc showObservables { ${{
+    if (arguments.length > 3) {
+		eden.error(new Error("showObservables: This procedure requires at most 3 parameters."), "error");
+		return;
+	}
+	
+	var searchStr, viewName, searchLang;
+	
+	searchStr = arguments[0];
+	if (searchStr === undefined) {
+		searchStr = "";
+	}
+	if (typeof(searchStr) != "string") {
+		eden.error(new Error("showObservables: The first argument must be a string, not a " + typeof(searchStr)), "error");
+		return;
+	}
+	
+	viewName = arguments[1];
+	if (viewName === undefined) {
+		viewName = "showObservables";
+	} else if (typeof(viewName) != "string") {
+		eden.error(new Error("showObservables: The second argument must be a string, not a " + typeof(viewName)), "error");
+		return;
+	}
+
+	searchLang = arguments[2];
+	if (searchLang !== undefined && typeof(searchLang) != "string") {
+		eden.error(new Error("showObservables: The third argument must be a string, not a " + typeof(viewName)), "error");
+		return;	
+	}
+
+	var preferRegExps = edenUI.getOptionValue("optSimpleWildcards") === "false";
+	if (preferRegExps) {
+		if (searchLang == "regexp") {
+			//No need for explicit override, user prefers regexps (for now) anyway.
+			searchLang = undefined;
+		} else {
+			//Construal specified simple search (or unspecified), but user prefers regexps, so translate.
+			var fromLang;
+			if (searchLang === undefined) {
+				//The following line should match the same heuristic check in edenUI.regExpFromStr
+				if (/[\\+^$|({[]|(\.\*[^\s*?])/.test(searchStr)) {
+					//Auto detect regular expression being used.
+					fromLang = "regexp";
+				} else {
+					fromLang = "simple";
+				}
+			}
+			if (fromLang != "regexp") {
+				searchStr = edenUI.regExpFromStr(searchStr, "", false, fromLang).source;
+			}
+		}
+	} else if (searchLang == "simple") {
+		//No need for explicit override, user prefers simple search (for now) anyway.
+		searchLang = undefined;
+	}
+
+	var inputBox = $('#' + viewName + '-dialog .symbollist-search');
+	if (inputBox.length == 0) {
+		edenUI.createView(viewName, "SymbolList");
+		root.lookup("_view_" + viewName + "_title").assign("Symbol List (" + viewName + ")", root.scope, this);
+		inputBox = $('#' + viewName + '-dialog .symbollist-search');
+	} else {
+		edenUI.showView(viewName);
+	}
+	edenUI.brieflyHighlightView(viewName);
+	root.lookup("_view_" + viewName + "_search_lang").assign(searchLang, root.scope, this);
+	inputBox.val(searchStr);
+    inputBox.keyup();
+}}$; }
