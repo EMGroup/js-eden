@@ -3,9 +3,7 @@
  * @author Nicolas Pope
  */
 
-##require("Page");
-
-import plugins/page;
+import plugins/page enabled;
 
 ws_title is Title with
 	text is "Modelling Shapes",

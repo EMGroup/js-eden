@@ -1535,17 +1535,33 @@ Eden.AST.prototype.pLVALUE_P = function() {
 
 /**
  * LVALUE Production
- * LVALUE -> observable LVALUE'
+ * LVALUE -> observable LVALUE' | * PRIMARY LVALUE' | ` EXPRESSION ` LVALUE'
  */
 Eden.AST.prototype.pLVALUE = function() {
-	if (this.token != "OBSERVABLE") {
-		var ast = new Eden.AST.LValue("NONAME", []);
-		ast.error(new Eden.SyntaxError(this, Eden.SyntaxError.LVALUE));
-		return ast;
+	var lvalue = new Eden.AST.LValue();
+
+	if (this.token == "*") {
+		this.next();
+		lvalue.setPrimary(this.pPRIMARY());
+	} else if (this.token == "`") {
+		this.next();
+		lvalue.setExpression(this.pEXPRESSION());
+		if (lvalue.errors.length > 0) return lvalue;
+		if (this.token != '`') {
+			lvalue.error(new Eden.SyntaxError(this, 0));
+			return lvalue;
+		}
+		this.next();
+	} else if (this.token == "OBSERVABLE") {
+		lvalue.setObservable(this.data.value);
+		this.next();
+	} else {
+		lvalue.error(new Eden.SyntaxError(this, Eden.SyntaxError.LVALUE));
+		return lvalue;
 	}
-	var obs = this.data.value;
-	this.next();
-	return new Eden.AST.LValue(obs, this.pLVALUE_P());
+
+	lvalue.setExtras(this.pLVALUE_P());
+	return lvalue;
 };
 
 

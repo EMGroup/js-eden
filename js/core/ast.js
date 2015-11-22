@@ -443,19 +443,53 @@ Eden.AST.Length.prototype.generate = function(ctx, scope) {
 
 //------------------------------------------------------------------------------
 
-Eden.AST.LValue = function(observable, lvaluep) {
+Eden.AST.LValue = function() {
 	this.type = "lvalue";
 	this.errors = [];
-	this.observable = observable;
-	this.lvaluep = lvaluep;
+	this.name = undefined;
+	this.express = undefined;
+	this.primary = undefined;
+	this.lvaluep = undefined;
 	this.islocal = false;
-
-	for (var i = 0; i < lvaluep.length; i++) {
-		this.errors.push.apply(this.errors, lvaluep[i].errors);
-	}
 };
 
 Eden.AST.LValue.prototype.error = fnEdenASTerror;
+
+
+Eden.AST.LValue.prototype.setExtras = function(extras) {
+	this.lvaluep = extras;
+	if (extras) {
+		for (var i = 0; i < extras.length; i++) {
+			this.errors.push.apply(this.errors, extras[i].errors);
+		}
+	}
+}
+
+
+Eden.AST.LValue.prototype.setObservable = function(name) {
+	this.name = name;
+}
+
+Eden.AST.LValue.prototype.setPrimary = function(primary) {
+	this.primary = primary;
+	if (primary && primary.errors.length > 0) {
+		this.errors.push.apply(this.errors, primary.errors);
+	}
+}
+
+Eden.AST.LValue.prototype.setExpression = function(express) {
+	this.express = express;
+	if (express && express.errors.length > 0) {
+		this.errors.push.apply(this.errors, express.errors);
+	}
+}
+
+Eden.AST.LValue.prototype.getSymbol = function(root, ctx, base) {
+	if (this.name) return root.lookup(this.name);
+	if (this.primary) return this.primary.execute(root,ctx,base);
+	if (this.express) return root.lookup(this.express.execute(root,ctx,base));
+}
+
 
 Eden.AST.LValue.prototype.hasListIndices = function() {
 	return this.lvaluep && this.lvaluep.length > 0 && this.lvaluep[0].kind == "index";
@@ -490,30 +524,39 @@ Eden.AST.LValue.prototype.executeCompList = function(ctx) {
 }
 
 Eden.AST.LValue.prototype.generate = function(ctx) {
-	if (ctx && ctx.locals && ctx.locals.list.indexOf(this.observable) != -1) {
-		this.islocal = true;
-		var res = this.observable;
-		for (var i=0; i<this.lvaluep.length; i++) {
-			res += this.lvaluep[i].generate(ctx, "scope");
+	if (this.name) {
+		if (ctx && ctx.locals && ctx.locals.list.indexOf(this.name) != -1) {
+			this.islocal = true;
+			var res = this.name;
+			for (var i=0; i<this.lvaluep.length; i++) {
+				res += this.lvaluep[i].generate(ctx, "scope");
+			}
+			return res;
 		}
-		return res;
-	}
-	if (ctx && ctx.params && ctx.params.list.indexOf(this.observable) != -1) {
-		this.islocal = true;
-		var res = this.observable;
-		for (var i=0; i<this.lvaluep.length; i++) {
-			res += this.lvaluep[i].generate(ctx, "scope");
+		if (ctx && ctx.params && ctx.params.list.indexOf(this.name) != -1) {
+			this.islocal = true;
+			var res = this.name;
+			for (var i=0; i<this.lvaluep.length; i++) {
+				res += this.lvaluep[i].generate(ctx, "scope");
+			}
+			return res;
 		}
-		return res;
+
+		return "context.lookup(\"" + this.name + "\")";
 	}
+
+	if (this.primary) return this.primary.generate(ctx);
+	if (this.express) return "context.lookup(\""+this.express.generate(ctx)+"\")";
 
 	// TODO: Pointer dependencies currently causing huge page redraw problems.
 	//if (ctx && ctx.dependencies) {
 	//	ctx.dependencies[this.observable] = true;
 	//}
-
-	return "context.lookup(\"" + this.observable + "\")";
 }
+
+
+
+
 
 Eden.AST.LValueComponent = function(kind) {
 	this.type = "lvaluecomponent";
@@ -1014,7 +1057,7 @@ Eden.AST.Definition.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	//console.log("RHS = " + rhs);
 	var source = base.getSource(this);
-	var sym = root.lookup(this.lvalue.observable);
+	var sym = this.lvalue.getSymbol(root,ctx,base);
 
 	if (this.lvalue.hasListIndices()) {
 		var rhs = "(function(context,scope,value) { value";
@@ -1154,10 +1197,10 @@ Eden.AST.Assignment.prototype.execute = function(root, ctx, base) {
 	try {
 		if (this.lvalue.hasListIndices()) {
 			this.value = this.compiled(root,root.scope);
-			root.lookup(this.lvalue.observable).listAssign(this.value, root.scope, {name: "execute"}, false, this.lvalue.executeCompList());
+			this.lvalue.getSymbol(root,ctx,base).listAssign(this.value, root.scope, {name: "execute"}, false, this.lvalue.executeCompList());
 		} else {
 			this.value = this.compiled(root,root.scope);
-			root.lookup(this.lvalue.observable).assign(this.value,root.scope, {name: "execute"});
+			this.lvalue.getSymbol(root,ctx,base).assign(this.value,root.scope, {name: "execute"});
 		}
 	} catch(e) {
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
@@ -1243,10 +1286,10 @@ Eden.AST.Modify.prototype.generate = function(ctx) {
 	return result;
 };
 
-Eden.AST.Modify.prototype.execute = function(root, ctx) {
+Eden.AST.Modify.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	// TODO: allow this to work on list indices
-	var sym = root.lookup(this.lvalue.observable);
+	var sym = this.lvalue.getSymbol(root,ctx,base);
 
 	if (this.kind == "++") {
 		sym.assign(sym.value(root.scope)+1, root.scope);
