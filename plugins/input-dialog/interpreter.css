@@ -38,7 +38,7 @@ span.tab-icon {
 }
 
 span.tab-icon.executed {
-	color: green;
+	color: #4e9a06;
 }
 
 span.tab-icon.noagent {

@@ -479,7 +479,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 		// Initialise sub title after dialog creation
-		//setTimeout(function() { if (scriptagent === undefined) setSubTitle("[No Agents]"); }, 0);
+		setTimeout(function() { if (scriptagent === undefined) setSubTitle("[No Agents]"); }, 0);
 
 
 
@@ -686,7 +686,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 
 
 		function changeOwnership(ag, cause) {
-			if (scriptagent.name == ag.name && cause == "net") {
+			if (scriptagent && scriptagent.name == ag.name && cause == "net") {
 				if (!ag.owned) {
 					//ag.setOwned(true);
 					//readonly = false;
@@ -1856,6 +1856,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 			e.originalEvent.dataTransfer.setData("agent", name);
 			if (scriptagent.name == name) {
 				scriptagent.setOwned(false);
+				scriptagent = undefined;
 				readonly = true;
 				setSubTitle("[readonly]");
 				//outdiv.className = "outputcontent readonly";
@@ -1923,13 +1924,22 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 					}
 					agent.state[obs_tabs] = tabs;
 				}
-			} else if (scriptagent.name == value) {
-				scriptagent.setOwned(true);
+				if(tabs.length == 0) {
+					/*outdiv.contentEditable = false;
+					outdiv.className = "outputcontent readonly";
+					outdiv.innerHTML = "";
+					scriptagent = undefined;
+					readonly = true;*/
+					agent.state[obs_agent] = undefined;
+				}
+			} else { //if (scriptagent.name == value) {
+				agent.state[obs_agent] = value;
+				/*scriptagent.setOwned(true);
 				readonly = false;
 				setSubTitle("");
 				//outdiv.className = "outputcontent";
 				changeClass(outdiv, "readonly", false);
-				outdiv.contentEditable = true;
+				outdiv.contentEditable = true;*/
 			}
 		}
 
