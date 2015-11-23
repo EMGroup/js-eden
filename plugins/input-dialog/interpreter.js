@@ -168,13 +168,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
 
-		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="Query state">&#xf002;</button><button class="control-button share-agent" title="Share on network">&#xf0e8;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
+		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="Inspect">&#xf002;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
 		$buttonbar.appendTo($dialogContents);
 		var buttonbar = $buttonbar.get(0);
-		// Create power button
-		var $powerbutton = $('<div class="scriptswitch power-off" title="Enable Automation">&#xF011;</div>');
-		$buttonbar.append($powerbutton);
-		var powerbutton = $powerbutton.get(0);
 
 		var $optionsmenu = $('<div class="options-menu noselect"></div>');
 		var optionsmenu = $optionsmenu.get(0);
@@ -281,12 +277,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
-		function updateShareButton() {
-			var sharebut = $buttonbar.find(".share-agent");
-			sharebut.removeClass("control-enabled");
-		}
-
-
 		function updateInspectButton() {
 			var inspectbut = $buttonbar.find(".search-mode");
 			if (inspectmode) {
@@ -315,7 +305,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
-		updateShareButton();
 		updateHistoryButtons();
 
 
@@ -1244,7 +1233,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		 */
 		function powerOff() {
 			powerOk();
-			$powerbutton.removeClass("power-on").addClass("power-off");
+			//$powerbutton.removeClass("power-on").addClass("power-off");
 			scriptagent.setEnabled(false);
 		}
 
@@ -1254,7 +1243,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		 * Turn the power button green and enable live coding.
 		 */
 		function powerOn() {
-			$powerbutton.removeClass("power-off").addClass("power-on");
+			//$powerbutton.removeClass("power-off").addClass("power-on");
 			scriptagent.setEnabled(true);
 		}
 
@@ -1265,7 +1254,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		 */
 		function powerError() {
 			if (scriptagent.enabled) {
-				$powerbutton.addClass("power-error");
+				//$powerbutton.addClass("power-error");
 			}
 		}
 
@@ -1275,9 +1264,9 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		 * Remove error status, turning power button green again.
 		 */
 		function powerOk() {
-			if ($powerbutton.hasClass("power-error")) {
-				$powerbutton.removeClass("power-error");
-			}
+			//if ($powerbutton.hasClass("power-error")) {
+			//	$powerbutton.removeClass("power-error");
+			//}
 		}
 
 
@@ -1983,7 +1972,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 
 		//$dialogContents.get(0).ondrop = function(e) { console.log(e); };
 
-		$powerbutton.click(function (e) {
+		/*$powerbutton.click(function (e) {
 			if (!readonly) {
 				scriptagent.setEnabled(!scriptagent.enabled);
 
@@ -1995,7 +1984,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 					powerOff();
 				}
 			}
-		});
+		});*/
 
 		// Initialise contents if given some code
 		if (code) {

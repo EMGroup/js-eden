@@ -57,6 +57,10 @@
 	},
 
 	"meta": {
+		"view/script/input": {
+			"file": "models/blank.js-e",
+			"title": "Script View"
+		},
 		"plugins/page": {
 			"file": "plugins/page/page.js-e",
 			"title": "Page Plugin",

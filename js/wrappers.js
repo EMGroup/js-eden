@@ -253,7 +253,9 @@ Eden.Agent.prototype.setOptions = function(options) {
 
 Eden.Agent.prototype.setSnapshot = function(source) {
 	this.snapshot = source;
-	edenUI.setOptionValue('agent_'+this.name+'_snap', source);
+	if (this.history.length > 0) {
+		edenUI.setOptionValue('agent_'+this.name+'_snap', source);
+	}
 }
 
 
@@ -269,13 +271,17 @@ Eden.Agent.prototype.setEnabled = function(enabled) {
 
 
 Eden.Agent.prototype.saveHistory = function() {
-	edenUI.setOptionValue('agent_'+this.name+'_history', JSON.stringify(this.history));
+	if (this.history.length > 0) {
+		edenUI.setOptionValue('agent_'+this.name+'_history', JSON.stringify(this.history));
+	}
 }
 
 
 
 Eden.Agent.prototype.saveHistoryIndex = function() {
-	edenUI.setOptionValue('agent_'+this.name+'_index', JSON.stringify(this.index));
+	if (this.index >= 0) {
+		edenUI.setOptionValue('agent_'+this.name+'_index', JSON.stringify(this.index));
+	}
 }
 
 
