@@ -94,9 +94,11 @@ Eden.AST.prototype.clearExecutedState = function() {
 Eden.AST.prototype.executeLine = function(lineno) {
 	var line = lineno;
 	// Make sure we are not in the middle of a proc or func.
-	while ((line > 0) && (this.lines[line] === undefined)) {
-		line--;
-	}
+	//while ((line > 0) && (this.lines[line] === undefined)) {
+	//	line--;
+	//}
+
+	console.log("Executeline: " + lineno);
 
 	var statement;
 	if (lineno == -1) {
@@ -104,29 +106,40 @@ Eden.AST.prototype.executeLine = function(lineno) {
 	} else {
 		statement = this.lines[line];
 	}
-	if (!statement) return;
+	if (statement === undefined) return;
 
 	// Find root statement and execute that one
-	while (statement.parent !== undefined && statement.parent.parent !== undefined) statement = statement.parent;
+	//while (statement.parent !== undefined && statement.parent.parent !== undefined) statement = statement.parent;
+	statement = this.getBase(statement);
 
 	// Execute only the currently changed root statement
 	this.executeStatement(statement, line);
 }
 
 
+Eden.AST.prototype.getBase = function(statement) {
+	var base = statement;
+	while (base.parent && base.parent != this.script) base = base.parent;
+	return base; 
+}
+
+
 Eden.AST.prototype.getBlockLines = function(lineno) {
 	var line = lineno;
+	var me = this;
 
-	var startstatement = this.lines[line];
+	var startstatement = this.getBase(this.lines[line]);
 
-	while (line > 0 && this.lines[line-1] && this.lines[line-1] === startstatement) line--;
+	//if (this.lines[line] != startstatement) {
+	while (line > 0 && this.lines[line-1] && this.getBase(this.lines[line-1]) == startstatement) line--;
+	//}
 	var startline = line;
 
-	while (line < this.lines.length-1 && this.lines[line+1] && (this.lines[line+1] === startstatement || this.lines[line+1].parent !== this.script)) line++;
+	while (line < this.lines.length-1 && this.lines[line+1] && (this.lines[line+1] === startstatement || this.lines[line+1].parent != this.script)) line++;
 	var endline = line;
 
-	console.log("Start: " + startline + " End: " + endline);
-	console.log(startstatement);
+	//console.log("Start: " + startline + " End: " + endline);
+	//console.log(startstatement);
 
 	return [startline,endline];
 }
@@ -2108,6 +2121,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "JAVASCRIPT" : var js = this.data.value;
 						this.next();
 						stat = new Eden.AST.Literal("JAVASCRIPT", js);
+						endline = this.stream.line;
 						break;
 	case "`"		  :
 	case "*"		  :

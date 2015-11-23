@@ -1499,6 +1499,7 @@ Eden.AST.If.prototype.setCondition = function(condition) {
 Eden.AST.If.prototype.setStatement = function(statement) {
 	this.statement = statement;
 	if (statement) {
+		statement.parent = this;
 		this.errors.push.apply(this.errors, statement.errors);
 	}
 };
@@ -1506,6 +1507,7 @@ Eden.AST.If.prototype.setStatement = function(statement) {
 Eden.AST.If.prototype.setElse = function(statement) {
 	this.elsestatement = statement;
 	if (statement) {
+		statement.parent = this;
 		this.errors.push.apply(this.errors, statement.errors);
 	}
 };
@@ -1738,7 +1740,10 @@ Eden.AST.Function.prototype.setSource = function(start, end) {
 
 Eden.AST.Function.prototype.setBody = function(body) {
 	this.body = body;
-	this.errors.push.apply(this.errors, body.errors);
+	if (body) {
+		body.parent = this;
+		this.errors.push.apply(this.errors, body.errors);
+	}
 }
 
 Eden.AST.Function.prototype.generate = function(ctx) {
@@ -2168,6 +2173,7 @@ Eden.AST.CodeBlock = function() {
 	this.params = undefined;
 	this.locals = undefined;
 	this.script = undefined;
+	this.parent = undefined;
 };
 
 Eden.AST.CodeBlock.prototype.error = fnEdenASTerror;
@@ -2184,7 +2190,10 @@ Eden.AST.CodeBlock.prototype.setParams = function(params) {
 
 Eden.AST.CodeBlock.prototype.setScript = function(script) {
 	this.script = script;
-	this.errors.push.apply(this.errors, script.errors);
+	if (script) {
+		script.parent = this;
+		this.errors.push.apply(this.errors, script.errors);
+	}
 }
 
 Eden.AST.CodeBlock.prototype.generate = function(ctx) {
