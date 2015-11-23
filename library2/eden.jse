@@ -551,6 +551,7 @@ if (initialViews == "" || initialViews == "default") {
 		picture is [Image(_view_picture_width / 2 - ${{edenUI.branding.logo.width}}$ / 2, _view_picture_height / 2 - ${{edenUI.branding.logo.height}}$ / 2, ${{edenUI.branding.logo.url}}$)];
 	}
 	createView("input", "ScriptInput");
+	_view_input_agent = "view/script/input";
 	_view_input_x = screenWidth / 2 + 30;
 	_view_input_y = screenHeight / 2 - (_view_input_height / 2);
 }

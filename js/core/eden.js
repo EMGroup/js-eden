@@ -281,6 +281,7 @@ function concatAndResolveUrl(url, concat) {
 	EdenUI.prototype.updateStatus = function(message) {
 		// If loading, update the loader message
 		if (!this.loaded) {
+			console.log(message);
 			$(".loadmessage").html(message);
 		} else {
 			// Otherwise show status bubble for a bit.

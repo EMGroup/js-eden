@@ -208,6 +208,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 					agent.state[obs_tabs] = tabs;
 				}
+				if (tabs.length == 0) agent.state[obs_agent] = undefined;
 				hideMenu();
 			});
 			createMenuItem("&#xf1da;", "View History", function(e) { showSubDialog("showHistory", function(status, index) {
@@ -238,13 +239,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var edited = false;
 		var dirty = false;
 		var tabscrollix = 0;
-		var readonly = false;
+		var readonly = true;
 		var showhidden = false;
 		var inspectmode = false;
 
 		var scriptagent;
+		outdiv.className = "outputcontent readonly";
+		outdiv.contentEditable = false;
+		outdiv.innerHTML = "";
 
-		if (Eden.Agent.agents["view/script/"+name] === undefined) {
+		/*if (Eden.Agent.agents["view/script/"+name] === undefined) {
 			scriptagent = new Eden.Agent(undefined, "view/script/"+name);
 		} else {
 			scriptagent = Eden.Agent.agents["view/script/"+name];
@@ -252,16 +256,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		// Load script from agent memory
 		intextarea.value = scriptagent.snapshot;
 		scriptagent.setEnabled(power);
-		scriptagent.setOwned(true);
-
+		scriptagent.setOwned(true);*/
 
 
 		function showBrowseDialog() {
 			showSubDialog("browseAgents", function(valid, selected){
 				if (valid ) {
 					var tabs = agent.state[obs_tabs];
+					var lasttab = scriptagent.name;
 					for (var a in selected) {
 						if (selected[a]) {
+							lasttab = a;
 							Eden.Agent.importAgent(a, ["disabled"]);
 							if (tabs.indexOf(a) == -1) {
 								tabs.push(a);
@@ -269,6 +274,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						}
 					}
 					agent.state[obs_tabs] = tabs;
+					agent.state[obs_agent] = lasttab;
 				}
 			}, agent.state[obs_tabs]);
 		}
@@ -328,8 +334,20 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				tabname = "..."+tabname.slice(-15);
 			}
 
+			var iconclass;
+			if (Eden.Agent.agents[name]) {
+				if (Eden.Agent.agents[name].executed) {
+					iconclass = "tab-icon executed";
+				} else {
+					iconclass = "tab-icon";
+				}
+			} else {
+				iconclass = "tab-icon noagent";
+			}
+
+
 			tab.className = classname;
-			tab.innerHTML = tabname;
+			tab.innerHTML = "<span class='"+iconclass+"'>&#xf007;</span>"+tabname;
 			tab.draggable = true;
 			tab.setAttribute("data-name", name);
 			if (tabs.childNodes.length < tabscrollix) {
@@ -392,7 +410,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					if (Eden.Agent.agents[agents[i]]) {
 						title = Eden.Agent.agents[agents[i]].title;
 					}
-					addTab(agents[i], title, agents[i] == scriptagent.name);
+					addTab(agents[i], title, (scriptagent && agents[i] == scriptagent.name));
 				}
 			}
 
@@ -413,6 +431,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		//Eden.Agent.listenTo("title", this, rebuildTabs);
 		Eden.Agent.listenTo("remove", agent, removedAgent);
 		Eden.Agent.listenTo("autosave", agent, autoSaved);
+		Eden.Agent.listenTo("execute", agent, rebuildTabs);
 		
 
 
@@ -420,8 +439,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * If the input window is a dialog then set its title.
 		 */
 		function setTitle(title) {
-			scriptagent.setTitle(title);
-			rebuildTabs();
+			if (scriptagent) {
+				scriptagent.setTitle(title);
+				rebuildTabs();
+			}
 
 			var p = $dialogContents.get(0).parentNode;
 			if (p) {
@@ -446,12 +467,19 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						title.className = "ui-dialog-subtitle";
 						$(p).find(".ui-dialog-title").get(0).parentNode.appendChild(title);
 					}
-					title.textContent = scriptagent.name + " " + text;
+
+					if (scriptagent) {
+						title.textContent = scriptagent.name + " " + text;
+					} else {
+						title.textContent = text;
+					}
 				}
 			}
 		}
 
-		setSubTitle("");
+
+		// Initialise sub title after dialog creation
+		//setTimeout(function() { if (scriptagent === undefined) setSubTitle("[No Agents]"); }, 0);
 
 
 
@@ -500,7 +528,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function changeAgent(sym, value) {
 			if (value && Eden.Agent.agents[value]) {
-				if (value == scriptagent.name) return;
+				if (scriptagent && value == scriptagent.name) return;
 				if (readonly == false) scriptagent.setOwned(false);
 				scriptagent = Eden.Agent.agents[value];
 				setTitle(scriptagent.title);
@@ -525,8 +553,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					highlightContent(scriptagent.ast, -1, 0);
 				}
 
-				if (scriptagent.enabled) powerOn();
-				else powerOff();
+				//if (scriptagent.enabled) powerOn();
+				//else powerOff();
 
 				// If changed in code and not by click
 				// then automatically move to correct tab
@@ -541,20 +569,33 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 				disableInspectMode();
 				updateHistoryButtons();
-				rebuildTabs();
-			} else {
-				// TODO Allow for there being no agents...
-				/*if (value !== undefined) {
-					intextarea.value = "";
-					readonly = true;
-					setTitle("Script View");
-					setSubTitle("[No Agents]");
-					outdiv.className = "outputcontent readonly";
-					outdiv.contentEditable = false;
-					outdiv.innerHTML = "";
-					updateHistoryButtons();
+
+				// Make sure tab exists
+				var tabs = agent.state[obs_tabs];
+				if (tabs.indexOf(value) == -1) {
+					tabs.push(value);
+					agent.state[obs_tabs] = tabs;
+				} else {
 					rebuildTabs();
-				}*/
+				}
+			} else {
+				if (scriptagent && readonly == false) scriptagent.setOwned(false);
+				intextarea.value = "";
+				readonly = true;
+				outdiv.className = "outputcontent readonly";
+				outdiv.contentEditable = false;
+				outdiv.innerHTML = "";
+				scriptagent = undefined;
+				setTitle("Script View");
+				setSubTitle("[No Agents]");
+
+				if (value) {
+					if (Eden.Agent.agents[value] === undefined) {
+						Eden.Agent.importAgent(value, ["noexec"], function(ag) {
+							if (ag) changeAgent(undefined, value);
+						});
+					}
+				}
 			}
 		}
 
@@ -627,7 +668,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 		//toggleButtons(undefined, agent.state[obs_showbuttons]);
 		if (agent.state[obs_tabs] === undefined) {
-			agent.state[obs_tabs] = ["view/script/"+name];
+			agent.state[obs_tabs] = [];
 		}
 
 		// Set source text.
@@ -640,7 +681,7 @@ _view_"+name+"_power = "+Eden.edenCodeForValue(agent.state[obs_power])+";\n\
 _view_"+name+"_agent = "+Eden.edenCodeForValue(agent.state[obs_agent])+";\n\
 _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\n\
 _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons])+";\n\
-_view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
+_view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 ");
 
 
@@ -662,16 +703,16 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		}
 		function agentCreated(ag) {
 			if (agent && agent.state[obs_agent] !== undefined) {
-				if (ag.name == agent.state[obs_agent] && ag.name != scriptagent.name) {
+				if (ag.name == agent.state[obs_agent] && (scriptagent === undefined || ag.name != scriptagent.name)) {
 					changeAgent(undefined, ag.name);
 				}
 			}
 		}
 		function agentLoaded(ag) {
 			if (agent && agent.state[obs_agent] !== undefined) {
-				if (ag.name == agent.state[obs_agent] && ag.name != scriptagent.name) {
+				if (ag.name == agent.state[obs_agent] && (scriptagent === undefined || ag.name != scriptagent.name)) {
 					changeAgent(undefined, ag.name);
-				} else if (ag.name == scriptagent.name) {
+				} else if (scriptagent && ag.name == scriptagent.name) {
 					intextarea.value = ag.getSource();
 					highlightContent(scriptagent.ast, -1, 0);
 				}
@@ -763,6 +804,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		 * could be such changes), for example when pasting.
 		 */
 		function updateEntireHighlight(rerun) {
+			if (scriptagent === undefined) return;
 			scriptagent.setSource(intextarea.value);
 			highlighter.ast = scriptagent.ast;
 			var pos = -1;

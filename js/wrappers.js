@@ -43,14 +43,12 @@ Eden.Agent = function(parent, name, meta, options) {
 	this.index = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_index')) || 0;
 	this.snapshot = edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
 	this.autosavetimer = undefined;
+	this.executed = false;
 
 	this.setOptions(options);
 
 	if (this.snapshot) {
 		this.setSource(this.snapshot);
-		if (this.enabled) {
-			this.executeLine(-1);
-		}
 	} else {
 		this.setSource("");
 	}
@@ -105,28 +103,26 @@ Eden.Agent.importAgent = function(path, options, callback) {
 	//if (Eden.Agent.db === undefined) return;
 
 	if (Eden.Agent.agents[path] !== undefined) {
-		Eden.Agent.agents[path].setOptions(options);
-		if (callback) callback(Eden.Agent.agents[path]);
+		var ag = Eden.Agent.agents[path];
+		ag.setOptions(options);
+		if (options && options.indexOf("noexec") == -1) {
+			ag.execute();
+			console.log("Import execute: " + ag.name);
+		}
+		if (callback) callback(ag);
 		return;
 	}
 
 	var ag;
 
 	function finish() {
-		console.log("FINISH");
-		// Import all children as well
-		/*Eden.DB.getDirectory(path, function(dir) {
-			console.log(dir);
-			if (dir && dir.children) {
-				for (var a in dir.children) {
-					Eden.Agent.importAgent(path+"/"+a, undefined, undefined);
-				}
+		if (ag) {
+			if (options && options.indexOf("noexec") == -1) {
+				ag.execute();
+				console.log("Import execute: " + ag.name);
 			}
-
-			console.log(path);*/
-
-			if (callback) callback(ag);
-		//});
+		}
+		if (callback) callback(ag);
 	}
 
 	Eden.DB.getMeta(path, function(path, meta) {
@@ -135,7 +131,7 @@ Eden.Agent.importAgent = function(path, options, callback) {
 			if (((options && options.indexOf("remote") >= 0)
 					|| (options === undefined || (options && options.indexOf("local") == -1) && !Eden.Agent.hasLocalModifications(path)))
 					&& meta.file) {
-				ag.loadFromFile(meta.file, ag.enabled, finish);
+				ag.loadFromFile(meta.file, finish);
 				return;
 			}
 			//if (callback) callback(ag);
@@ -161,7 +157,7 @@ Eden.Agent.hasLocalModifications = function(name) {
 
 
 
-Eden.Agent.save = function() {
+/*Eden.Agent.save = function() {
 	// Save list of agents to restore later.
 	var agents = [];
 	for (var a in Eden.Agent.agents) {
@@ -187,7 +183,7 @@ Eden.Agent.restore = function() {
 			}
 		}
 	}
-}
+}*/
 
 
 
@@ -431,23 +427,14 @@ Eden.Agent.prototype.redo = function() {
 
 
 
-Eden.Agent.prototype.loadFromFile = function(filename, execute, callback) {
+Eden.Agent.prototype.loadFromFile = function(filename, callback) {
 	var me = this;
-	var doexecute = execute;
-
-	if (execute === undefined) doexecute = true;
-	if (!doexecute) this.setEnabled(false);
-
-	if (!doexecute) {
-		console.log("Load without execute: " + filename);
-	}
+	this.executed = false;
 
 	$.get(filename, function(data) {
 		me.setSnapshot(data);
 		me.clearHistory();
 		me.setSource(data);
-		if (doexecute) me.executeLine(-1);
-		console.log("Callback: " + filename);
 		if (callback) callback();
 		Eden.Agent.emit("loaded", [me]);
 	}, "text");
@@ -613,9 +600,17 @@ Eden.Agent.prototype.hasErrors = function() {
  */
 Eden.Agent.prototype.executeLine = function (lineno) {
 	this.ast.executeLine(lineno);
-	//var code = this.getSource(statement);
-		//console.log("PATCH line = " + line + " code = "+code);
-	Eden.Agent.emit('execute', [this, undefined, lineno]);
+	Eden.Agent.emit('executeline', [this, undefined, lineno]);
+}
+
+
+
+Eden.Agent.prototype.execute = function(force) {
+	if (this.executed == false || force) {
+		this.executeLine(-1);
+		this.executed = true;
+		Eden.Agent.emit('execute', [this]);
+	}
 }
 
 
