@@ -271,6 +271,11 @@
 
 			// End of whitespace, so add it to the line
 			if (wsline != "") {
+				// Import path group mode needs ending
+				if (this.mode == 8) {
+					line = linestack.pop();
+					this.mode = 1;
+				}
 				var textnode = document.createTextNode(wsline);
 				line.appendChild(textnode);
 				wsline = "";
@@ -329,7 +334,9 @@
 					classes += "eden-storage";
 				} else if (type == "keyword") {
 					classes += "eden-keyword";
-					if (stream.data.value == "import") this.mode = 1;
+					if (stream.data.value == "import") {
+						this.mode = 7;
+					}
 				} else if (token == "NUMBER") {
 					classes += "eden-number";
 				} else if (token == "STRING") {
@@ -377,8 +384,17 @@
 						classes += "eden-operator";
 					}
 				}
-			} else if (this.mode == 1) {
+			} else if (this.mode == 1 || this.mode == 7 || this.mode == 8) {
+				if (this.mode == 7) {
+					linestack.push(line);
+					var nline = document.createElement("span");
+					nline.className = "eden-pathblock";
+					line.appendChild(nline);
+					line = nline;
+					this.mode = 8;
+				}
 				if (token == ";") {
+					if (this.mode == 8) line = linestack.pop();
 					this.mode = 0;
 					classes += "eden-operator";
 				} else if (Language.importoptions[stream.data.value]) {
@@ -443,6 +459,9 @@
 			} else {
 				var tokenspan = document.createElement('span');
 				tokenspan.className = classes;
+				if (classes == "eden-observable") {
+					tokenspan.setAttribute("data-observable", tokentext);
+				}
 				tokenspan.appendChild(document.createTextNode(tokentext));
 				line.appendChild(tokenspan);
 			}

@@ -240,6 +240,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var tabscrollix = 0;
 		var readonly = false;
 		var showhidden = false;
+		var inspectmode = false;
 
 		var scriptagent;
 
@@ -1392,6 +1393,26 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 
 
 
+		function enableInspectMode() {
+			//outdiv.style.cursor = "pointer";
+			//outdiv.contentEditable = false;
+			outdiv.className = "outputcontent inspect";
+			inspectmode = true;
+			console.log("ENABLE INSPECT");
+		}
+
+		function disableInspectMode() {
+			//outdiv.style.cursor = "initial";
+			//outdiv.contentEditable = true;
+			outdiv.className = "outputcontent";
+			inspectmode = false;
+			console.log("DISABLE INSPECT");
+			updateEntireHighlight();
+			intextarea.focus();
+		}
+
+
+
 		/**
 		 * Various keys have special actions that require intercepting. Tab key
 		 * must insert a tab, shift arrows etc cause selection and require a
@@ -1399,63 +1420,67 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		 * rehighlight.
 		 */
 		function onTextKeyDown(e) {
-			// If not Ctrl or Shift key then
-			if (!e.ctrlKey && e.keyCode != 17 && e.keyCode != 16) {
-				// Make TAB key insert TABs instead of changing focus
-				if (e.keyCode == 9) {
-					e.preventDefault();
-					var start = intextarea.selectionStart;
-					var end = intextarea.selectionEnd;
+			if (e.keyCode == 18) {
+				enableInspectMode();
+			} else if (!e.altKey) {
+				// If not Ctrl or Shift key then
+				if (!e.ctrlKey && e.keyCode != 17 && e.keyCode != 16) {
+					// Make TAB key insert TABs instead of changing focus
+					if (e.keyCode == 9) {
+						e.preventDefault();
+						var start = intextarea.selectionStart;
+						var end = intextarea.selectionEnd;
 
-					// set textarea value to: text before caret + tab + text after caret
-					intextarea.value = intextarea.value.substring(0, start)
-								+ "\t"
-								+ intextarea.value.substring(end);
+						// set textarea value to: text before caret + tab + text after caret
+						intextarea.value = intextarea.value.substring(0, start)
+									+ "\t"
+									+ intextarea.value.substring(end);
 
-					// put caret at right position again
-					intextarea.selectionStart =
-					intextarea.selectionEnd = start + 1;
-					//updateLineHighlight();
-					rebuild();
-				} else if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 36 || e.keyCode == 35) {
-					// Shift arrow selection, move to editable div.
-					if (e.shiftKey) {
-						setCaretToFakeCaret();
-						outdiv.focus();
-						return;
-					}
+						// put caret at right position again
+						intextarea.selectionStart =
+						intextarea.selectionEnd = start + 1;
+						//updateLineHighlight();
+						rebuild();
+					} else if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 36 || e.keyCode == 35) {
+						// Shift arrow selection, move to editable div.
+						if (e.shiftKey) {
+							setCaretToFakeCaret();
+							outdiv.focus();
+							return;
+						}
 					
-					// Update fake caret position at key repeat rate
-					updateLineCachedHighlight();
-					// Adjust scroll position if required
-					checkScroll();
-				} else if (e.keyCode == 13 || (e.keyCode == 8 && intextarea.value.charCodeAt(intextarea.selectionStart-1) == 10)) {
-					// Adding or removing lines requires a full re-highlight at present
-					refreshentire = true;
-				}
-
-			} else if (e.ctrlKey) {
-				if (e.shiftKey) {
-					if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 36 || e.keyCode == 35) {
-						// Ctrl+Shift arrow selection, move to editable div.
-						setCaretToFakeCaret();
-						outdiv.focus();
-						return;
+						// Update fake caret position at key repeat rate
+						updateLineCachedHighlight();
+						// Adjust scroll position if required
+						checkScroll();
+					} else if (e.keyCode == 13 || (e.keyCode == 8 && intextarea.value.charCodeAt(intextarea.selectionStart-1) == 10)) {
+						// Adding or removing lines requires a full re-highlight at present
+						refreshentire = true;
 					}
-				} else if (e.keyCode === 38) {
-					// up
-					onPrevious();
-				} else if (e.keyCode === 40) {
-					// down
-					onNext();
-				} else if (e.keyCode === 86) {
-					// Pasting so disable live code
-					powerOff();
-				} else if (e.keyCode === 65) {
-					// Ctrl+A to select all.
-					e.preventDefault();
-					outdiv.focus();
-					selectAll();
+
+				} else if (e.ctrlKey) {
+					if (e.shiftKey) {
+						if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 36 || e.keyCode == 35) {
+							// Ctrl+Shift arrow selection, move to editable div.
+							setCaretToFakeCaret();
+							outdiv.focus();
+							return;
+						}
+					} else if (e.keyCode === 38) {
+						// up
+						onPrevious();
+					} else if (e.keyCode === 40) {
+						// down
+						onNext();
+					} else if (e.keyCode === 86) {
+						// Pasting so disable live code
+						powerOff();
+					} else if (e.keyCode === 65) {
+						// Ctrl+A to select all.
+						e.preventDefault();
+						outdiv.focus();
+						selectAll();
+					}
 				}
 			}
 		}
@@ -1468,20 +1493,24 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		 * rebuild does happen.
 		 */
 		function onTextKeyUp(e) {
-			if (!e.ctrlKey && (	e.keyCode == 37 ||	//Arrow keys
-								e.keyCode == 38 ||
-								e.keyCode == 39 ||
-								e.keyCode == 40 ||
-								e.keyCode == 36 ||	// Home key
-								e.keyCode == 35)) {	// End key
-				//var scrollpos = $codearea.get(0).scrollTop;
-				updateLineCachedHighlight();
-				//$codearea.scrollTop(scrollpos);
-			} else if (e.ctrlKey && (e.keyCode == 86 || e.keyCode == 90)) {
-				// Paste and undo/redo need to update content
-				updateEntireHighlight();
-			} else {
-				rebuild();
+			if (e.keyCode == 18) {
+				disableInspectMode();
+			} else if (!e.altKey) {
+				if (!e.ctrlKey && (	e.keyCode == 37 ||	//Arrow keys
+									e.keyCode == 38 ||
+									e.keyCode == 39 ||
+									e.keyCode == 40 ||
+									e.keyCode == 36 ||	// Home key
+									e.keyCode == 35)) {	// End key
+					//var scrollpos = $codearea.get(0).scrollTop;
+					updateLineCachedHighlight();
+					//$codearea.scrollTop(scrollpos);
+				} else if (e.ctrlKey && (e.keyCode == 86 || e.keyCode == 90)) {
+					// Paste and undo/redo need to update content
+					updateEntireHighlight();
+				} else {
+					rebuild();
+				}
 			}
 		}
 
@@ -1492,16 +1521,29 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		 * text is selected that needs replacing.
 		 */
 		function onOutputKeyDown(e) {
-			if (e.keyCode == 16 || e.keyCode == 17 || (e.ctrlKey && e.keyCode == 67)) {
-				// Ignore Ctrl and Ctrl+C.
-			// If not shift selecting...
-			} else if (!(e.shiftKey && (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 35 || e.keyCode == 36))) {
-				var end = getCaretCharacterOffsetWithin(outdiv);
-				var start = getStartCaretCharacterOffsetWithin(outdiv);
+			if (e.keyCode == 18) {
+				enableInspectMode();
+			} else if (!e.altKey) {
+				if (outdiv.style.cursor == "pointer") outdiv.style.cursor = "initial";
+				if (e.keyCode == 16 || e.keyCode == 17 || (e.ctrlKey && e.keyCode == 67)) {
+					// Ignore Ctrl and Ctrl+C.
+				// If not shift selecting...
+				} else if (!(e.shiftKey && (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 35 || e.keyCode == 36))) {
+					var end = getCaretCharacterOffsetWithin(outdiv);
+					var start = getStartCaretCharacterOffsetWithin(outdiv);
 
-				intextarea.focus();
-				intextarea.selectionEnd = end;
-				intextarea.selectionStart = start;
+					intextarea.focus();
+					intextarea.selectionEnd = end;
+					intextarea.selectionStart = start;
+				}
+			}
+		}
+
+
+
+		function onOutputKeyUp(e) {
+			if (e.keyCode == 18) {
+				disableInspectMode();
 			}
 		}
 
@@ -1516,6 +1558,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 			// Finally, delete the fake caret
 			$(outdiv).find(".fake-caret").remove();
 			hideInfoBox();
+			//disableInspectMode();
 		}
 
 
@@ -1529,6 +1572,23 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 
 
 
+		function openTab(path) {
+			Eden.Agent.importAgent(path, ["disabled"], function(ag) {
+				if (ag === undefined) {
+					ag = new Eden.Agent(undefined, path, undefined, undefined);
+				}
+				var tabs = agent.state[obs_tabs];
+				if (tabs.indexOf(path) == -1) {
+					tabs.push(path);
+					agent.state[obs_tabs] = tabs;
+				}
+				agent.state[obs_agent] = path;
+				intextarea.focus();
+			});
+		}
+
+
+
 		/**
 		 * Clicking on the highlighted script needs to move the cursor position.
 		 * Unless a selection is being made, in which case keep the focus on
@@ -1538,23 +1598,60 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 			hideInfoBox();
 			hideMenu();
 
-			// To prevent false cursor movement when dragging numbers...
-			if (document.activeElement === outdiv) {
-				var end = getCaretCharacterOffsetWithin(outdiv);
-				var start = getStartCaretCharacterOffsetWithin(outdiv);
-				if (start != end) {
-					// Fix to overcome current line highlight bug on mouse select.
-					refreshentire = true;
-				} else {
-					// Move caret to clicked location
-					var curline = currentlineno;
-					intextarea.focus();
-					intextarea.selectionEnd = end;
-					intextarea.selectionStart = end;		
-					highlighter.highlight(highlighter.ast, curline, end);
-					updateLineCachedHighlight();
-					//checkScroll();
+			if (inspectmode) {
+				if (e.target.className == "eden-path") {
+					//console.log();
+					disableInspectMode();
+					openTab(e.target.parentNode.textContent);
+				} else if (e.target.className == "eden-observable") {
+					var obs = e.target.getAttribute("data-observable");
+					e.target.textContent =  Eden.edenCodeForValue(eden.root.lookup(obs).value());
+					e.target.className += " select";
+				} else if (e.target.className == "eden-observable select") {
+					var obs = e.target.getAttribute("data-observable");
+					e.target.textContent = obs;
+					e.target.className = "eden-observable";
 				}
+			} else {
+				// To prevent false cursor movement when dragging numbers...
+				if (document.activeElement === outdiv) {
+					var end = getCaretCharacterOffsetWithin(outdiv);
+					var start = getStartCaretCharacterOffsetWithin(outdiv);
+					if (start != end) {
+						// Fix to overcome current line highlight bug on mouse select.
+						refreshentire = true;
+					} else {
+						// Move caret to clicked location
+						var curline = currentlineno;
+						intextarea.focus();
+						intextarea.selectionEnd = end;
+						intextarea.selectionStart = end;		
+						highlighter.highlight(highlighter.ast, curline, end);
+						updateLineCachedHighlight();
+						//checkScroll();
+					}
+				}
+			}
+		}
+
+
+
+		function onMouseEnter(e) {
+			if (inspectmode) {
+				//console.log(e.target);
+				if (e.target.className == "eden-path") {
+					changeClass(e.target.parentNode, "hover", true);
+				} else if (e.target.className == "eden-observable") {
+					//changeClass(e.target, "hover", true);
+				}
+			}
+		}
+
+		function onMouseLeave(e) {
+			if (e.target.className == "eden-path") {
+				changeClass(e.target.parentNode, "hover", false);
+			} else if (e.target.className == "eden-observable") {
+				//changeClass(e.target, "hover", false);
 			}
 		}
 
@@ -1628,7 +1725,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 			var name = e.target.getAttribute("data-name");
 			console.log(name);
 			agent.state[obs_agent] = name;
-			//changeAgent(undefined, name);
+			intextarea.focus();
 			updateHistoryButtons();
 		}
 
@@ -1767,9 +1864,12 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		.on('keydown', '.hidden-textarea', onTextKeyDown)
 		.on('keyup', '.hidden-textarea', onTextKeyUp)
 		.on('keydown', '.outputcontent', onOutputKeyDown)
+		.on('keyup', '.outputcontent', onOutputKeyUp)
 		.on('blur', '.hidden-textarea', onTextBlur)
 		.on('focus', '.hidden-textarea', onTextFocus)
 		.on('mouseup', '.outputcontent', onOutputMouseUp)
+		.on('mouseenter', 'span', onMouseEnter)
+		.on('mouseleave', 'span', onMouseLeave)
 		.on('click', '.previous-input', onPrevious)
 		.on('click', '.next-input', onNext)
 		.on('click', '.menu-input', onMenu)

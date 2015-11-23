@@ -344,6 +344,12 @@ div.readonly {
 	background-color: #f5f5f5;
 }
 
+div.inspect {
+	-webkit-filter: hue-rotate(50deg);
+	filter: hue-rotate(50deg);
+	background-color: #f5f5f5;
+}
+
 div.output-shrink {
 	transform: translate(15%) scale(0.7);
 }
@@ -566,6 +572,19 @@ span.eden-error {
 span.eden-select {
 	background-color: #cfe4ff;
 	/*border: 1px dotted #3465a4;*/
+}
+
+span.eden-observable.select {
+	background-color: #bbb;
+}
+
+span.eden-observable.hover {
+	cursor: pointer;
+}
+
+span.eden-pathblock.hover {
+	cursor: pointer;
+	text-decoration: underline;
 }
 
 
