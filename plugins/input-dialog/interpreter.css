@@ -578,11 +578,11 @@ span.eden-observable.select {
 	background-color: #bbb;
 }
 
-span.eden-observable.hover {
+div.outputcontent.inspect span.eden-observable {
 	cursor: pointer;
 }
 
-span.eden-pathblock.hover {
+div.outputcontent.inspect span.eden-pathblock:hover {
 	cursor: pointer;
 	text-decoration: underline;
 }

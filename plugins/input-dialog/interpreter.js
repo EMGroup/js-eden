@@ -312,8 +312,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			} else {
 				classname += " agent-tab-notcurrent";
 			}
+
+			var tabname = name;
+			if (tabname.length > 18) {
+				tabname = "..."+tabname.slice(-15);
+			}
+
 			tab.className = classname;
-			tab.innerHTML = title;
+			tab.innerHTML = tabname;
 			tab.draggable = true;
 			tab.setAttribute("data-name", name);
 			if (tabs.childNodes.length < tabscrollix) {
@@ -1420,7 +1426,8 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		 * rehighlight.
 		 */
 		function onTextKeyDown(e) {
-			if (e.keyCode == 18) {
+			// Alt and AltGr for inspect mode.
+			if (e.keyCode == 18 || e.keyCode == 225) {
 				enableInspectMode();
 			} else if (!e.altKey) {
 				// If not Ctrl or Shift key then
@@ -1493,7 +1500,8 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		 * rebuild does happen.
 		 */
 		function onTextKeyUp(e) {
-			if (e.keyCode == 18) {
+			// Alt and AltGr for disable inspect mode.
+			if (e.keyCode == 18 || e.keyCode == 225) {
 				disableInspectMode();
 			} else if (!e.altKey) {
 				if (!e.ctrlKey && (	e.keyCode == 37 ||	//Arrow keys
@@ -1521,7 +1529,8 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		 * text is selected that needs replacing.
 		 */
 		function onOutputKeyDown(e) {
-			if (e.keyCode == 18) {
+			// Alt and AltGr for inspect mode.
+			if (e.keyCode == 18 || e.keyCode == 225) {
 				enableInspectMode();
 			} else if (!e.altKey) {
 				if (outdiv.style.cursor == "pointer") outdiv.style.cursor = "initial";
@@ -1542,7 +1551,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 
 
 		function onOutputKeyUp(e) {
-			if (e.keyCode == 18) {
+			if (e.keyCode == 18 || e.keyCode == 225) {
 				disableInspectMode();
 			}
 		}
@@ -1612,6 +1621,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 					e.target.textContent = obs;
 					e.target.className = "eden-observable";
 				}
+				e.preventDefault();
 			} else {
 				// To prevent false cursor movement when dragging numbers...
 				if (document.activeElement === outdiv) {
@@ -1636,7 +1646,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 
 
 
-		function onMouseEnter(e) {
+		/*function onMouseEnter(e) {
 			if (inspectmode) {
 				//console.log(e.target);
 				if (e.target.className == "eden-path") {
@@ -1653,7 +1663,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 			} else if (e.target.className == "eden-observable") {
 				//changeClass(e.target, "hover", false);
 			}
-		}
+		}*/
 
 
 
@@ -1868,8 +1878,8 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		.on('blur', '.hidden-textarea', onTextBlur)
 		.on('focus', '.hidden-textarea', onTextFocus)
 		.on('mouseup', '.outputcontent', onOutputMouseUp)
-		.on('mouseenter', 'span', onMouseEnter)
-		.on('mouseleave', 'span', onMouseLeave)
+		//.on('mouseenter', 'span', onMouseEnter)
+		//.on('mouseleave', 'span', onMouseLeave)
 		.on('click', '.previous-input', onPrevious)
 		.on('click', '.next-input', onNext)
 		.on('click', '.menu-input', onMenu)
