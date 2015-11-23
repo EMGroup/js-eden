@@ -173,7 +173,7 @@ EdenScriptGutter.prototype.clear = function() {
 
 EdenScriptGutter.prototype.executeSelected = function() {
 	console.log("Execute Selected");
-	console.log(this.lines);
+
 	for (var i=0; i<this.lines.length; i++) {
 		if (this.lines[i].selected) {
 			var sellines = this.ast.getBlockLines(i);

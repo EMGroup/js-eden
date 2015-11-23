@@ -117,14 +117,16 @@ Eden.AST.prototype.executeLine = function(lineno) {
 Eden.AST.prototype.getBlockLines = function(lineno) {
 	var line = lineno;
 
-	while (line > 0 && this.lines[line] && this.lines[line].parent !== this.script) line--;
 	var startstatement = this.lines[line];
+
+	while (line > 0 && this.lines[line-1] && this.lines[line-1] === startstatement) line--;
 	var startline = line;
 
 	while (line < this.lines.length-1 && this.lines[line+1] && (this.lines[line+1] === startstatement || this.lines[line+1].parent !== this.script)) line++;
 	var endline = line;
 
 	console.log("Start: " + startline + " End: " + endline);
+	console.log(startstatement);
 
 	return [startline,endline];
 }

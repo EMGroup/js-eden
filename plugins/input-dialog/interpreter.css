@@ -550,6 +550,10 @@ span.eden-doxytagerror {
 	color: #cc0000;
 }
 
+span.eden-backticks {
+	background-color: #f6e1f4;
+}
+
 
 span.eden-error {
 	background-color: #ffdcdc;

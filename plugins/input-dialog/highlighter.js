@@ -213,6 +213,8 @@
 		var token = "INVALID";
 		var prevtoken = "INVALID";
 
+		var linestack = [];
+
 		// Set the mode for this line based upon mode at end of previous line
 		if (this.mode_at_line[this.line-1]) this.mode = this.mode_at_line[this.line-1];
 		else this.mode = 0;
@@ -229,6 +231,11 @@
 		var line = document.createElement('span');
 
 		while (true) {
+			if (this.mode == 6) {
+				this.mode = 0;
+				line = linestack.pop();
+			}
+
 			// Do we need to insert a caret between tokens?
 			if (stream.position == position) {
 				if (wsline != "") {
@@ -310,7 +317,7 @@
 				classes += "eden-error ";
 			}
 
-			if (this.mode == 0) {
+			if (this.mode == 0 || this.mode == 5) {
 				if (token == "##") {
 					classes += "eden-comment";
 					var comment = "";
@@ -342,6 +349,17 @@
 						classes += "eden-special";
 					} else {
 						classes += "eden-observable";
+					}
+				} else if (token == "`") {
+					if (this.mode == 5) {
+						this.mode = 6;
+					} else {
+						this.mode = 5;
+						linestack.push(line);
+						var nline = document.createElement("span");
+						nline.className = "eden-backticks";
+						line.appendChild(nline);
+						line = nline;
 					}
 				} else if (token == "${{") {
 					classes += "eden-javascript";
@@ -429,6 +447,9 @@
 				line.appendChild(tokenspan);
 			}
 		}
+
+		// Just in case of error
+		if (linestack.length > 0) line = linestack[0];
 
 		this.mode_at_line[this.line] = this.mode;
 		return line;

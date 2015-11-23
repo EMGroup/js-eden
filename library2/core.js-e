@@ -88,8 +88,8 @@ ${{
 
 proc showView {
 	para name;
-	${{ eden.root.lookup("_view_"+name+"_visibility").assign("visible", eden.root.scope); }}$;
-	##`"_view_" // name // "_visibility"` = "visible";
+	##${{ eden.root.lookup("_view_"+name+"_visibility").assign("visible", eden.root.scope); }}$;
+	`"_view_" // name // "_visibility"` = "visible";
 	${{
 		var name = arguments[0];
 		edenUI.showView(name); //Explicitly invoke this to make sure the view gets moved to the top.
@@ -99,8 +99,8 @@ proc showView {
 
 proc hideView {
 	para name;
-	${{ eden.root.lookup("_view_"+name+"_visibility").assign("hidden", eden.root.scope); }}$;
-	##`"_view_" // name // "_visibility"` = "hidden";
+	##${{ eden.root.lookup("_view_"+name+"_visibility").assign("hidden", eden.root.scope); }}$;
+	`"_view_" // name // "_visibility"` = "hidden";
 }
 
 proc highlightView {
@@ -128,10 +128,10 @@ proc moveView {
 	para name, x, y;
 	autocalc = 0;
 	##together {
-		${{ eden.root.lookup("_view_"+name+"_x").assign(x, eden.root.scope); }}$;
-		${{ eden.root.lookup("_view_"+name+"_y").assign(y, eden.root.scope); }}$;
-		##`"_view_" // name // "_x"` = x;
-		##`"_view_" // name // "_y"` = y;
+		##${{ eden.root.lookup("_view_"+name+"_x").assign(x, eden.root.scope); }}$;
+		##${{ eden.root.lookup("_view_"+name+"_y").assign(y, eden.root.scope); }}$;
+		`"_view_" // name // "_x"` = x;
+		`"_view_" // name // "_y"` = y;
 	##}
 	autocalc = 1;
 }
@@ -140,10 +140,10 @@ proc resizeView {
 	para name, width, height;
 	autocalc = 0;
 	##together {
-		${{ eden.root.lookup("_view_"+name+"_width").assign(width, eden.root.scope); }}$;
-		${{ eden.root.lookup("_view_"+name+"_height").assign(height, eden.root.scope); }}$;
-		##`"_view_" // name // "_width"` = width;
-		##`"_view_" // name // "_height"` = height;
+		##${{ eden.root.lookup("_view_"+name+"_width").assign(width, eden.root.scope); }}$;
+		##${{ eden.root.lookup("_view_"+name+"_height").assign(height, eden.root.scope); }}$;
+		`"_view_" // name // "_width"` = width;
+		`"_view_" // name // "_height"` = height;
 	##}
 	autocalc = 1;
 }
