@@ -509,12 +509,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					scriptagent.setOwned(true);
 					readonly = false;
 					setSubTitle("");
-					outdiv.className = "outputcontent";
+					changeClass(outdiv, "readonly", false);
+					//outdiv.className = "outputcontent";
 					outdiv.contentEditable = true;
 				} else {
 					readonly = true;
 					setSubTitle("[readonly]");
-					outdiv.className = "outputcontent readonly";
+					//outdiv.className = "outputcontent readonly";
+					changeClass(outdiv, "readonly", true);
 					outdiv.contentEditable = false;
 				}
 
@@ -652,7 +654,8 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 				} else {
 					readonly = true;
 					setSubTitle("[readonly]");
-					outdiv.className = "outputcontent readonly";
+					//outdiv.className = "outputcontent readonly";
+					changeClass(outdiv, "readonly", true);
 					outdiv.contentEditable = false;
 				}
 			}
@@ -1413,22 +1416,28 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		function enableInspectMode() {
 			//outdiv.style.cursor = "pointer";
 			//outdiv.contentEditable = false;
-			outdiv.className = "outputcontent inspect";
+			changeClass(outdiv, "inspect", true);
 			inspectmode = true;
 			console.log("ENABLE INSPECT");
 			// TODO Remove caret and merge those spans
 			updateInspectButton();
+			setSubTitle("[inspecting]");
 		}
 
 		function disableInspectMode() {
 			//outdiv.style.cursor = "initial";
 			//outdiv.contentEditable = true;
-			outdiv.className = "outputcontent";
+			changeClass(outdiv, "inspect", false);
 			inspectmode = false;
 			console.log("DISABLE INSPECT");
 			updateEntireHighlight();
 			intextarea.focus();
 			updateInspectButton();
+			if (readonly) {
+				setSubTitle("[readonly]");
+			} else {
+				setSubTitle("");
+			}
 		}
 
 
@@ -1807,7 +1816,8 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 				scriptagent.setOwned(false);
 				readonly = true;
 				setSubTitle("[readonly]");
-				outdiv.className = "outputcontent readonly";
+				//outdiv.className = "outputcontent readonly";
+				changeClass(outdiv, "readonly", true);
 				outdiv.contentEditable = false;
 			}
 		}
@@ -1875,7 +1885,8 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 				scriptagent.setOwned(true);
 				readonly = false;
 				setSubTitle("");
-				outdiv.className = "outputcontent";
+				//outdiv.className = "outputcontent";
+				changeClass(outdiv, "readonly", false);
 				outdiv.contentEditable = true;
 			}
 		}

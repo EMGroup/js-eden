@@ -339,15 +339,15 @@ div.outputcontent {
 }
 
 div.readonly {
-	-webkit-filter: grayscale(60%);
-	filter: grayscale(60%);
+	-webkit-filter: grayscale(70%);
+	filter: grayscale(70%);
 	background-color: #f5f5f5;
 }
 
 div.inspect {
-	-webkit-filter: hue-rotate(50deg);
-	filter: hue-rotate(50deg);
-	background-color: #f5f5f5;
+	-webkit-filter: hue-rotate(120deg);
+	filter: hue-rotate(120deg);
+	/*background-color: #f5f5f5;*/
 }
 
 div.output-shrink {
