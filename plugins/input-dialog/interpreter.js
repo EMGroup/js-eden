@@ -168,7 +168,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
 
-		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDiv"><button class="control-button search-mode" title="Query state">&#xf002;</button><button class="control-button share-agent" title="Share on network">&#xf0e8;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
+		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="Query state">&#xf002;</button><button class="control-button share-agent" title="Share on network">&#xf0e8;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
 		$buttonbar.appendTo($dialogContents);
 		var buttonbar = $buttonbar.get(0);
 		// Create power button
@@ -278,6 +278,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function updateShareButton() {
 			var sharebut = $buttonbar.find(".share-agent");
 			sharebut.removeClass("control-enabled");
+		}
+
+
+		function updateInspectButton() {
+			var inspectbut = $buttonbar.find(".search-mode");
+			if (inspectmode) {
+				changeClass(inspectbut.get(0), "active", true);
+			} else {
+				changeClass(inspectbut.get(0), "active", false);
+			}
 		}
 
 
@@ -527,6 +537,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					if (tabscrollix > 0) tabscrollix--;
 				}*/
 
+				disableInspectMode();
 				updateHistoryButtons();
 				rebuildTabs();
 			} else {
@@ -1405,6 +1416,8 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 			outdiv.className = "outputcontent inspect";
 			inspectmode = true;
 			console.log("ENABLE INSPECT");
+			// TODO Remove caret and merge those spans
+			updateInspectButton();
 		}
 
 		function disableInspectMode() {
@@ -1415,6 +1428,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 			console.log("DISABLE INSPECT");
 			updateEntireHighlight();
 			intextarea.focus();
+			updateInspectButton();
 		}
 
 
@@ -1868,6 +1882,16 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 
 
 
+		function onInspect(e) {
+			if (inspectmode) {
+				disableInspectMode();
+			} else {
+				enableInspectMode();
+			}
+		}
+
+
+
 		// Set the event handlers
 		$dialogContents
 		.on('input', '.hidden-textarea', onInputChanged)
@@ -1883,6 +1907,7 @@ _view_"+name+"_tabs = [\"view/script/"+name+"\"];\n\
 		.on('click', '.previous-input', onPrevious)
 		.on('click', '.next-input', onNext)
 		.on('click', '.menu-input', onMenu)
+		.on('click', '.search-mode', onInspect)
 		//.on('click', '.eden-gutter-item', onGutterClick)
 		.on('click', '.agent-tab', onTabClick)
 		.on('click', '.agent-tableft', onTabLeft)

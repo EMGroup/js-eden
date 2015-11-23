@@ -443,6 +443,9 @@
 				// Left text
 				var tokenspan = document.createElement('span');
 				tokenspan.className = classes;
+				if (classes == "eden-observable") {
+					tokenspan.setAttribute("data-observable", tokentext);
+				}
 				tokenspan.appendChild(document.createTextNode(textleft));
 				line.appendChild(tokenspan);
 
@@ -454,6 +457,9 @@
 				// Right text
 				tokenspan = document.createElement('span');
 				tokenspan.className = classes;
+				if (classes == "eden-observable") {
+					tokenspan.setAttribute("data-observable", tokentext);
+				}
 				tokenspan.appendChild(document.createTextNode(textright));
 				line.appendChild(tokenspan);
 			} else {

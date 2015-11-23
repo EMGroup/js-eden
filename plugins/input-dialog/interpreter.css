@@ -469,6 +469,10 @@ button.control-button {
 	border: 0;
 }
 
+button.control-button.active {
+	color: red;
+}
+
 button.control-enabled {
 	color: #3465a4;
 }
