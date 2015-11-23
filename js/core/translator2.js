@@ -1154,7 +1154,7 @@ Eden.AST.prototype.pLOCALS = function() {
 		this.next();
 
 		var olist = this.pOLIST();
-		locals.list = olist;
+		locals.list.push.apply(locals.list,olist);
 
 		if (olist.length == 0 || olist[olist.length-1] == "NONAME") {
 			locals.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LOCALNAME));

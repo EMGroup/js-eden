@@ -267,7 +267,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					for (var a in selected) {
 						if (selected[a]) {
 							lasttab = a;
-							Eden.Agent.importAgent(a, ["disabled"]);
+							Eden.Agent.importAgent(a, ["noexec"]);
 							if (tabs.indexOf(a) == -1) {
 								tabs.push(a);
 							}
@@ -1647,7 +1647,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 
 
 		function openTab(path) {
-			Eden.Agent.importAgent(path, ["disabled"], function(ag) {
+			Eden.Agent.importAgent(path, ["noexec"], function(ag) {
 				if (ag === undefined) {
 					ag = new Eden.Agent(undefined, path, undefined, undefined);
 				}
@@ -1831,7 +1831,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		function onNewTab() {
 			showSubDialog("newAgent", function(status, value) {
 				if (status) {
-					Eden.Agent.importAgent(value, undefined, function(ag) {
+					Eden.Agent.importAgent(value, ["noexec"], function(ag) {
 						if (ag === undefined) {
 							ag = new Eden.Agent(undefined, value, undefined, undefined);
 						}
