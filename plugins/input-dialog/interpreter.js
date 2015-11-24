@@ -240,19 +240,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var inspectmode = false;
 
 		var scriptagent;
-		outdiv.className = "outputcontent readonly";
-		outdiv.contentEditable = false;
-		outdiv.innerHTML = "";
 
-		/*if (Eden.Agent.agents["view/script/"+name] === undefined) {
-			scriptagent = new Eden.Agent(undefined, "view/script/"+name);
+		// If there is explicit code, then use that
+		if (code) {
+			preloadScript(undefined, code);
 		} else {
-			scriptagent = Eden.Agent.agents["view/script/"+name];
+			outdiv.className = "outputcontent readonly";
+			outdiv.contentEditable = false;
+			outdiv.innerHTML = "";
 		}
-		// Load script from agent memory
-		intextarea.value = scriptagent.snapshot;
-		scriptagent.setEnabled(power);
-		scriptagent.setOwned(true);*/
 
 
 		function showBrowseDialog() {
@@ -480,6 +476,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function preloadScript(sym, value) {
 			var res = "";
 			if (value) {
+				if (Eden.Agent.agents["view/script/"+name] === undefined) {
+					scriptagent = new Eden.Agent(undefined, "view/script/"+name, ["noexec"]);
+				} else {
+					scriptagent = Eden.Agent.agents["view/script/"+name];
+				}
+				scriptagent.setOwned(true);
 				if (value instanceof Array) {
 					for (var i=0; i < value.length; i++) {
 						if (typeof value[i] == "string") {
@@ -490,6 +492,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 				}
 				intextarea.value = res;
+				scriptagent.setSource(res);
 				updateEntireHighlight();
 			}
 		}
