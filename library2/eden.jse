@@ -491,7 +491,7 @@ func doDefault {
 ## Temporary: Include using the new parser.
 func include2 {
 	para file;
-	${{ edenUI.eden.include2(arguments[0], success) }}$;
+	${{ edenUI.eden.include2(arguments[0]) }}$;
 }
 
 func execute2 {
