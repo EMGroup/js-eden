@@ -191,6 +191,16 @@
 			"title": "Room Revisited",
 			"enabled": true
 		},
+		"vendingmachine": {
+			"file": "models/external/vendingmachine.jse",
+			"title": "Making From Scratch",
+			"enabled": true
+		},
+		"vendingmachine/worksheet": {
+			"file": "http://jseden.dcs.warwick.ac.uk/nick/models/wmb/construit/teachersWSC2/makefromscratchworksheet.js-e",
+			"title": "Vending Machine Worksheet",
+			"enabled": true
+		},
 		"purse": {
 			"file": "models/external/purse.jse",
 			"title": "Purse Construal",
