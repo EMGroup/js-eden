@@ -1991,7 +1991,7 @@ EdenUI.plugins.ScriptInput.buildScriptFromList = function(value) {
  */
 EdenUI.plugins.ScriptInput.getRequiredHeight = function(lines, embed) {
 	if (embed) {
-		return 15 + 20 * lines;
+		return 15 + 40 + 20 * lines + 20;
 	} else {
 		return 15 + 30 + 20 * lines + 20;
 	}

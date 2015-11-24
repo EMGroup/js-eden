@@ -100,7 +100,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			} else {
 				container = $("<div class='page-script-live'></div>");
 			}
-			var height = EdenUI.plugins.ScriptInput.getRequiredHeight(lines);
+			var height = EdenUI.plugins.ScriptInput.getRequiredHeight(lines, true);
 			container.height(height);
 
 			if (float != "none") {
