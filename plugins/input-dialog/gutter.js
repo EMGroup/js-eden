@@ -71,30 +71,51 @@ function EdenScriptGutter(parent, infob) {
 
 	this.$gutter
 	.on('mousedown', '.eden-gutter-item', function(e) {
-		shiftdown = e.shiftKey;
+		if (me.ast.hasErrors()) return;
+
 		var line = parseInt(e.target.getAttribute("data-line"));
+
+		shiftdown = e.shiftKey;
 		downline = line;
 		alreadyselected = (me.lines[line]) ? me.lines[line].selected : false;
+
+		// There is a statement on this line.
 		if (me.ast.lines[line]) {
-			if (me.ast.lines[line].errors.length > 0) return;
+			// For all lines associated with this statement block...
 			var lines = me.ast.getBlockLines(line);
 			for (var i=lines[0]; i<=lines[1]; i++) {
+				// Invert selection if shift key
 				if (shiftdown) me.lines[i].selected = !me.lines[i].selected;
 				else me.lines[i].selected = true;
+
+				// Update style
 				changeClass(me.gutter.childNodes[i], "select", me.lines[i].selected);
 				changeClass(me.gutter.childNodes[i], "hover", false);
 			}
+
+			// If live already and no shift key
+			if (me.lines[line].live && !shiftdown) {
+				// Make all lines of this statement block non-live
+				for (var i=lines[0]; i<=lines[1]; i++) {
+					me.lines[i].live = false;
+					changeClass(me.gutter.childNodes[i], "live", false);
+				}
+			}
 		}
 		
-		//dragselecting = false;
-		//dragselect = true;
-		holdtimeout = setTimeout(onHold, 2000);
+		// Hold for 1.5s to make live
+		holdtimeout = setTimeout(onHold, 1500);
 	})
 	.on('click', '.eden-gutter-item', function(e) {
 		var line = parseInt(e.target.getAttribute("data-line"));
+
+		// If there is a statement
 		if (me.ast.lines[line]) {
+			// And if it has errors
 			if (me.ast.lines[line].errors.length > 0) {
 				var err = me.ast.lines[line].errors[0];
+
+				// If the error is on this line then display it
 				if (err.line == line+1 || err.type == "runtime") {
 					var taboffset = 35; // TODO (agent.state[obs_showtabs]) ? 35 : 0;
 					console.error(err.messageText());
@@ -104,6 +125,8 @@ function EdenScriptGutter(parent, infob) {
 		}
 	})
 	.on('mouseup', '.eden-gutter-item', function(e) {
+		if (me.ast.hasErrors()) return;
+
 		if (!shiftdown) {
 			var line = parseInt(e.target.getAttribute("data-line"));
 			if (me.ast.lines[line] && me.ast.lines[line].errors.length > 0) return;
@@ -124,6 +147,8 @@ function EdenScriptGutter(parent, infob) {
 		//dragselect = false;
 	})
 	.on('mouseenter', '.eden-gutter-item', function(e) {
+		if (me.ast.hasErrors()) return;
+
 		var line = parseInt(e.target.getAttribute("data-line"));
 		/*if (dragselect) {
 			if (me.ast.lines[line]) {
@@ -139,6 +164,11 @@ function EdenScriptGutter(parent, infob) {
 			}
 		} else {*/
 			if (me.ast.lines[line]) {
+				if (me.lines[line].live) {
+					me.gutter.childNodes[line].innerHTML = "<span class='eden-gutter-stop'>&#xf04d</span";
+				} else {
+					me.gutter.childNodes[line].innerHTML = "<span class='eden-gutter-play'>&#xf04b</span";
+				}
 				var lines = me.ast.getBlockLines(line);
 				for (var i=lines[0]; i<=lines[1]; i++) {
 					changeClass(me.gutter.childNodes[i], "hover", true);
@@ -153,6 +183,7 @@ function EdenScriptGutter(parent, infob) {
 		holdtimeout = undefined;
 		//if (!dragselect) {
 			if (me.ast.lines[line]) {
+				me.gutter.childNodes[line].innerHTML = "";
 				var lines = me.ast.getBlockLines(line);
 				for (var i=lines[0]; i<=lines[1]; i++) {
 					changeClass(me.gutter.childNodes[i], "hover", false);
@@ -282,7 +313,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 				this.gutter.childNodes[i].className = className;
 				this.gutter.childNodes[i].innerHTML = content;
 			}
-		} else { // if (doupdate) {
+		} else if (doupdate) {
 			if (this.gutter.childNodes[i].className.indexOf("hover") >= 0) className += " hover";
 			this.gutter.childNodes[i].innerHTML = content;
 			this.gutter.childNodes[i].className = className;

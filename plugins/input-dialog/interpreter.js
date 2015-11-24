@@ -151,7 +151,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	/**
 	 * Common input window view constructor.
 	 */
-	this.createCommon = function (name, mtitle, code, power, embedded) {
+	this.createCommon = function (name, mtitle, code, embedded) {
 		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputhider"><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="agent-tabs"></div><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable class="outputcontent"></div></div></div><div class="info-bar"></div><div class="outputbox"></div></div></div>')
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var position = 0;
@@ -259,7 +259,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			showSubDialog("browseAgents", function(valid, selected){
 				if (valid ) {
 					var tabs = agent.state[obs_tabs];
-					var lasttab = scriptagent.name;
+					var lasttab = (scriptagent) ? scriptagent.name : undefined;
 					for (var a in selected) {
 						if (selected[a]) {
 							lasttab = a;
@@ -502,59 +502,50 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function loadFile(sym, value) {
 			$.get(value, function(data) {
 				intextarea.value = data;
-				updateEntireHighlight(scriptagent.enabled);
+				updateEntireHighlight(scriptagent.executed);
 			}, "text");
 		}
 
 
 
-		function switchPower(sym, value) {
-			if (value) powerOn();
-			else powerOff();
-		}
-
-
-
+		/**
+		 * Respond to requests to change the current tab to a particular agent.
+		 * This is triggered from the observable _view_[name]_agent which is
+		 * set by the UI on tab change etc.
+		 */
 		function changeAgent(sym, value) {
+			// A valid and imported agent is given
 			if (value && Eden.Agent.agents[value]) {
+				// Already the current tab so continue...
 				if (scriptagent && value == scriptagent.name) return;
+				// Release ownership of current tab
 				if (readonly == false) scriptagent.setOwned(false);
+				// Switch to new tab.
 				scriptagent = Eden.Agent.agents[value];
 				setTitle(scriptagent.title);
 
+				// Not already owned so we can take ownership
 				if (Eden.Agent.agents[value].owned == false) {
 					scriptagent.setOwned(true);
 					readonly = false;
 					setSubTitle("");
 					changeClass(outdiv, "readonly", false);
-					//outdiv.className = "outputcontent";
 					outdiv.contentEditable = true;
+				// Otherwise it needs to be readonly
 				} else {
 					readonly = true;
 					setSubTitle("[readonly]");
-					//outdiv.className = "outputcontent readonly";
+					// The readonly class changes colour scheme
 					changeClass(outdiv, "readonly", true);
 					outdiv.contentEditable = false;
 				}
 
+				// We have a parsed source so update contents of script view.
 				if (scriptagent.ast) {
 					intextarea.value = scriptagent.ast.stream.code;
 					highlightContent(scriptagent.ast, -1, 0);
+					intextarea.focus();
 				}
-
-				//if (scriptagent.enabled) powerOn();
-				//else powerOff();
-
-				// If changed in code and not by click
-				// then automatically move to correct tab
-				/*if (sym) {
-					tabscrollix = 0;
-					for (var a in Eden.Agent.agents) {
-						if (a == scriptagent.name) break;
-						tabscrollix++;
-					}
-					if (tabscrollix > 0) tabscrollix--;
-				}*/
 
 				disableInspectMode();
 				updateHistoryButtons();
@@ -567,8 +558,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				} else {
 					rebuildTabs();
 				}
+			// Otherwise, no valid agent so try and resolve
 			} else {
+				// Release ownership of any current tab
 				if (scriptagent && readonly == false) scriptagent.setOwned(false);
+				// Clear and disable the script view
 				intextarea.value = "";
 				readonly = true;
 				outdiv.className = "outputcontent readonly";
@@ -578,6 +572,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				setTitle("Script View");
 				setSubTitle("[No Agents]");
 
+				// Attempt to import the agent without execution and then
+				// update the script view if successful.
 				if (value) {
 					if (Eden.Agent.agents[value] === undefined) {
 						Eden.Agent.importAgent(value, ["noexec"], function(ag) {
@@ -618,7 +614,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var obs_prev = "_view_"+name+"_prev";
 		var obs_override = "_view_"+name+"_override";
 		var obs_file = "_view_"+name+"_file";
-		var obs_power = "_view_"+name+"_power";
 		var obs_agent = "_view_"+name+"_agent";
 		var obs_showtabs = "_view_"+name+"_showtabs";
 		var obs_showbuttons = "_view_"+name+"_showbuttons";
@@ -627,21 +622,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.declare(obs_agent);
 		agent.declare(obs_showtabs);
 		agent.declare(obs_script);
-		agent.declare(obs_power);
 		agent.declare(obs_file);
 		agent.declare(obs_override);
 		agent.declare(obs_next);
 		agent.declare(obs_prev);
 		agent.declare(obs_showbuttons);
 		agent.declare(obs_tabs);
-		//agent.setReadonly([obs_script,obs_next,obs_prev,obs_override, obs_file, obs_power, obs_agent, obs_showtabs]);
-
 		agent.setEnabled(true);
 
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);
 		agent.on(obs_file, loadFile);
-		agent.on(obs_power, switchPower);
 		agent.on(obs_agent, changeAgent);
 		agent.on(obs_showtabs, toggleTabs);
 		agent.on(obs_showbuttons, toggleButtons);
@@ -666,7 +657,6 @@ _view_"+name+"_script = "+Eden.edenCodeForValue(agent.state[obs_script])+";\n\
 _view_"+name+"_next = "+Eden.edenCodeForValue(agent.state[obs_next])+";\n\
 _view_"+name+"_prev = "+Eden.edenCodeForValue(agent.state[obs_prev])+";\n\
 _view_"+name+"_override = "+Eden.edenCodeForValue(agent.state[obs_override])+";\n\
-_view_"+name+"_power = "+Eden.edenCodeForValue(agent.state[obs_power])+";\n\
 _view_"+name+"_agent = "+Eden.edenCodeForValue(agent.state[obs_agent])+";\n\
 _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\n\
 _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons])+";\n\
@@ -889,8 +879,6 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 
 		/* UNUSED */
 		function notifyOutOfDate(symbol, value) {
-			// If power is off, don't show conflict warnings
-			if (!scriptagent.enabled) return;
 
 			// Find the symbol in the ast lines and highlight that line
 			var count = 0;
@@ -1111,45 +1099,13 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 				}
 			}
 
-			// Post process lines, adding links and warnings
-			for (var i=0; i<ast.lines.length; i++) {
-				if (ast.lines[i]) {
-					if (ast.lines[i].type == "definition") {
-						var sym = eden.root.lookup(ast.lines[i].lvalue.observable);
-						if (sym.extend) {
-							if (ast.lines[i].lvalue.lvaluep.length > 0) {
-								addParentLine(i+1);
-							} else {
-								addExtendedLine(i+1);
-							}
-						}
-					}
-				}
-			}
-
 			// Make sure caret remains inactive if we don't have focus
 			if (document.activeElement !== intextarea) {
 				$(outdiv).find(".fake-caret").addClass("fake-blur-caret");
 			}
 
-			/*$(outdiv).on('mouseup', '.eden-extendedline', function(e) {
-				if (e.offsetX < 0) {
-					var lineno = currentlineno+1;
-					var filters = [];
-					var curast = highlighter.ast.lines[lineno];
-					console.log(curast);
-					if (curast) {
-						var sym = eden.root.lookup(curast.lvalue.observable);
-						for (var e in sym.extend) {
-							filters.push(sym.extend[e].source);
-						}
-						insertLines(lineno+1, filters);
-					}
-				}
-			});*/
-
 			/* Number dragging code, but only if live */
-			if (scriptagent.enabled) {
+			//if (scriptagent.enabled) {
 				$(outdiv).find('.eden-number').draggable({
 					helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
 					axis: 'x',
@@ -1176,8 +1132,10 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 							scriptagent.setSource(intextarea.value);
 							highlighter.ast = scriptagent.ast;
 
+							//console.log("Dragline: " + dragline);
+
 							// Execute if no errors!
-							if (scriptagent.enabled && !scriptagent.hasErrors()) {
+							if (gutter.lines[dragline] && gutter.lines[dragline].live && !scriptagent.hasErrors()) {
 								scriptagent.executeLine(dragline);
 							}
 
@@ -1211,7 +1169,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 					cursor: 'move',
 					cursorAt: {top: -5, left: -5}
 				});
-			}
+			//}
 		}
 
 
@@ -1224,59 +1182,6 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 			currentlineno = lines.length;
 			currentcharno = lines[lines.length-1].length;
 			return currentlineno;
-		}
-
-
-
-		/**
-		 * Turn the power button grey and disable live coding.
-		 */
-		function powerOff() {
-			powerOk();
-			//$powerbutton.removeClass("power-on").addClass("power-off");
-			scriptagent.setEnabled(false);
-		}
-
-
-
-		/**
-		 * Turn the power button green and enable live coding.
-		 */
-		function powerOn() {
-			//$powerbutton.removeClass("power-off").addClass("power-on");
-			scriptagent.setEnabled(true);
-		}
-
-
-
-		/**
-		 * If we are live coding, turn the power button red.
-		 */
-		function powerError() {
-			if (scriptagent.enabled) {
-				//$powerbutton.addClass("power-error");
-			}
-		}
-
-
-
-		/**
-		 * Remove error status, turning power button green again.
-		 */
-		function powerOk() {
-			//if ($powerbutton.hasClass("power-error")) {
-			//	$powerbutton.removeClass("power-error");
-			//}
-		}
-
-
-
-		function powerToggle() {
-			if (scriptagent.enabled) {
-				powerOff();
-			} else {
-				powerOn();
-			}
 		}
 
 
@@ -1335,12 +1240,8 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 
 		function runScript(line) {
 			// If we should run the statement (there are no errors)
-			if (scriptagent.enabled && !scriptagent.hasErrors()) {
-				powerOk();
+			if (gutter.lines[line-1] && gutter.lines[line-1].live && !scriptagent.hasErrors()) {
 				scriptagent.executeLine(line-1);
-				//console.log(highlighter.ast.lines);
-			} else if (scriptagent.enabled) {
-				powerError();
 			}
 		}
 
@@ -1534,8 +1435,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 						// down
 						onNext();
 					} else if (e.keyCode === 86) {
-						// Pasting so disable live code
-						powerOff();
+
 					} else if (e.keyCode === 65) {
 						// Ctrl+A to select all.
 						e.preventDefault();
@@ -1970,22 +1870,6 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		.on('dragover', onTabDragOver)
 		.on('drop', onTabDrop);
 
-		//$dialogContents.get(0).ondrop = function(e) { console.log(e); };
-
-		/*$powerbutton.click(function (e) {
-			if (!readonly) {
-				scriptagent.setEnabled(!scriptagent.enabled);
-
-				if (scriptagent.enabled) {
-					powerOn();
-					updateEntireHighlight(true);
-					//me.submit(highlighter.ast.script, highlighter.ast);
-				} else {
-					powerOff();
-				}
-			}
-		});*/
-
 		// Initialise contents if given some code
 		if (code) {
 			intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(code);
@@ -2015,10 +1899,8 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 				Eden.Agent.remove(agent);
 				agent = undefined;
 			},
-			setValue: function (value) { powerOff(); intextarea.value = value; updateEntireHighlight(); }
+			setValue: function (value) { intextarea.value = value; updateEntireHighlight(); }
 		}
-
-		if (power) powerOn();
 
 		// Initialise highlight content
 		updateEntireHighlight();
@@ -2055,8 +1937,8 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		return viewdata;
 	};
 
-	this.createEmbedded = function(name, mtitle, code, power) {
-		var viewdata = me.createCommon(name, mtitle, code, power, true);
+	this.createEmbedded = function(name, mtitle, code) {
+		var viewdata = me.createCommon(name, mtitle, code, true);
 		return viewdata;
 	}
 

@@ -75,7 +75,7 @@ clock_size = 80;
 clockWin_pos_x = 730;
 clockWin_pos_y = 20;
 
-clockPanel is [clock_face_edge, clock_face_center, clock_face_shortNoon,
+clockPanel is [clock_face_edge, clock_face_shortNoon,
 clock_face_one, clock_face_two, clock_face_three, clock_face_four,
 clock_face_five, clock_face_six, clock_face_seven, clock_face_eight,
 clock_face_nine, clock_face_ten, clock_face_eleven, clock_hourHand,
