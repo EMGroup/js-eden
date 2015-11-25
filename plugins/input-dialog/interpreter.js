@@ -191,10 +191,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		var tabcm = new EdenUI.ContextMenu(tabs, function(action, target) { console.log(action); });
-		tabcm.addItem("&#xf04b;","Execute",function(){ return true; }, executeTab);
+		tabcm.addItem("&#xf04b;","Run",function(){ return true; }, executeTab);
 		tabcm.addItem("&#xf093;","Export",function(){ return false; });
 		tabcm.addSeparator();
-		tabcm.addItem("&#xf21b;","Hide Agent",function(){ return true; }, hideTab);
+		tabcm.addItem("&#xf21b;","Hide",function(){ return true; }, hideTab);
 
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
 
@@ -439,14 +439,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			right.className = "agent-tabright noselect";
 			tabs.appendChild(right);
 		}
-
-		// Need to rebuild tabs when new agents are created or titles change.
-		//rebuildTabs();
-		//Eden.Agent.listenTo("create", this, rebuildTabs);
-		//Eden.Agent.listenTo("title", this, rebuildTabs);
-		Eden.Agent.listenTo("remove", agent, removedAgent);
-		Eden.Agent.listenTo("autosave", agent, autoSaved);
-		Eden.Agent.listenTo("execute", agent, rebuildTabs);
 		
 
 
@@ -746,6 +738,11 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		Eden.Agent.listenTo("loaded", agent, agentLoaded);
 		Eden.Agent.listenTo("rollback", agent, agentRollback);
 		Eden.Agent.listenTo("owned", agent, changeOwnership);
+
+		// Need to rebuild tabs when new agents are created or titles change.
+		Eden.Agent.listenTo("remove", agent, removedAgent);
+		Eden.Agent.listenTo("autosave", agent, autoSaved);
+		Eden.Agent.listenTo("execute", agent, rebuildTabs);
 
 
 		/*edenUI.eden.root.addGlobal(function(sym, create) {

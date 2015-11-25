@@ -6,11 +6,11 @@
 
 require("Canvas2D");
 
-import jugs/jugs enabled;
-import jugs/display enabled;
-import jugs/wmbupdate enabled;
-import jugs/fill enabled;
-import jugs/buttons enabled;
+import jugs/jugs;
+import jugs/display;
+import jugs/wmbupdate;
+import jugs/fill;
+import jugs/buttons;
 
 _view_picture_x = 40;
 _view_picture_y = 30;

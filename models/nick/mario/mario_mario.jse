@@ -3,6 +3,6 @@
  * @author Nicolas Pope
  */
 
-import mario/mario/animation enabled;
-import mario/mario/motion enabled;
-import mario/mario/control disabled;
+import mario/mario/animation;
+import mario/mario/motion;
+import mario/mario/control noexec;

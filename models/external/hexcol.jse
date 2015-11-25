@@ -7,9 +7,9 @@ require("Page");
 
 import lib/html;
 
-import hexcolouring/model enabled;
-import hexcolouring/worksheet enabled;
-import hexcolouring/textcolupdate enabled;
+import hexcolouring/model;
+import hexcolouring/worksheet;
+import hexcolouring/textcolupdate;
 
 bindCSSNumericProperty("div.main-page", "width", "pageWidth", "%");
 pageWidth = 50;

@@ -64,6 +64,8 @@ module.exports = function (grunt) {
 					'plugins/input-dialog/interpreter.css',
 					'plugins/input-dialog/subdialogs.css',
 					'plugins/input-dialog/contextmenu.css',
+					'plugins/input-dialog/highlighter.css',
+					'plugins/input-dialog/gutter.css',
 					'plugins/adm/adm-input.css',
 					'plugins/script-generator/script-generator.css'
 				]

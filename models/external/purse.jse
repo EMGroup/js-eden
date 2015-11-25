@@ -5,11 +5,11 @@
 
 require("Page");
 
-import lib/html enabled;
+import lib/html;
 
-import purse/wmb enabled;
-import purse/wmb/tutorial enabled;
-import purse/wmb/intro enabled;
+import purse/wmb;
+import purse/wmb/tutorial;
+import purse/wmb/intro;
 
 bindCSSNumericProperty("div.main-page", "width", "pageWidth", "%");
 pageWidth = 60;
