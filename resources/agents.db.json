@@ -57,6 +57,46 @@
 	},
 
 	"meta": {
+		"nick/circuit/bulb": {
+			"file": "models/nick/simple-circuit/bulb.js-e",
+			"title": "Bulb Circuit Element"
+		},
+		"nick/circuit/bulb/vertical": {
+			"file": "models/nick/simple-circuit/bulb-vertical.js-e",
+			"title": "Bulb - Vertical"
+		},
+		"nick/circuit/bulb/horizontal": {
+			"file": "models/nick/simple-circuit/bulb-horizontal.js-e",
+			"title": "Bulb - Horizontal"
+		},
+		"nick/circuit/switch": {
+			"file": "models/nick/simple-circuit/switch.js-e",
+			"title": "Switch Circuit Element"
+		},
+		"nick/circuit/switch/vertical": {
+			"file": "models/nick/simple-circuit/switch-vertical.js-e",
+			"title": "Switch - Vertical"
+		},
+		"nick/circuit/switch/horizontal": {
+			"file": "models/nick/simple-circuit/switch-horizontal.js-e",
+			"title": "Switch - Horizontal"
+		},
+		"nick/circuit/battery": {
+			"file": "models/nick/simple-circuit/battery.js-e",
+			"title": "Battery Circuit Element"
+		},
+		"nick/circuit/battery/vertical": {
+			"file": "models/nick/simple-circuit/battery-vertical.js-e",
+			"title": "Battery - Vertical"
+		},
+		"nick/circuit/battery/horizontal": {
+			"file": "models/nick/simple-circuit/battery-horizontal.js-e",
+			"title": "Battery - Horizontal"
+		},
+		"nick/circuit": {
+			"file": "models/nick/simple-circuit/simple-circuit.js-e",
+			"title": "Electrical Circuit"
+		},
 		"c5/circuit": {
 			"file": "models/construit-c14-teacher-cpd/simple-circuit.js-e",
 			"title": "Electrical Circuit"

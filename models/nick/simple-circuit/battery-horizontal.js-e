@@ -1,0 +1,12 @@
+/**
+ * @title Battery - Horizontal
+ */
+
+if (battery_ratio == @) {
+	battery_ratio = 0.45;
+}
+
+battery_h_line1 is Line(x, y - length / 2, x, y + length / 2);
+battery_h_line2 is Line(x + spacing, y - length / 2 * battery_ratio, x + spacing, y + length / 2 * battery_ratio);
+battery_h is [battery_h_line1,battery_h_line2];
+

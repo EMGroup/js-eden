@@ -1,0 +1,13 @@
+/**
+ * @title Switch - Vertical
+ * @author Nicolas Pope
+ */
+
+switch_v_length2 is length - radius;
+switch_v_openLine is Line(x, y + radius, x + switch_v_length2 / sqrt(2), y + switch_v_length2 / sqrt(2));
+switch_v_openCircle is Circle(x + switch_v_length2 / sqrt(2), y + switch_v_length2 / sqrt(2), radius, "white", "black");
+switch_v_closedLine is Line(x, y + radius, x, y + switch_v_length2);
+switch_v_connection1 is Circle(x, y + radius, radius, "white", "black");
+switch_v_connection2 is Circle(x, y + switch_v_length2, radius, "white", "black");
+switch_v is ([switch_v_openLine,switch_v_openCircle] if !closed else [switch_v_closedLine]) // [switch_v_connection1, switch_v_connection2];
+

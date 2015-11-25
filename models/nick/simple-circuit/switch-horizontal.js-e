@@ -1,0 +1,13 @@
+/**
+ * @title Horizontal Switch
+ * @author Nicolas Pope
+ */
+
+switch_h_length2 is length - radius;
+switch_h_openLine is Line(x + radius, y, x + switch_h_length2 / sqrt(2), y - switch_h_length2 / sqrt(2));
+switch_h_openCircle is Circle(x + switch_h_length2 / sqrt(2), y - switch_h_length2 / sqrt(2), radius, "white", "black");
+switch_h_closedLine is Line(x + radius, y, x + switch_h_length2, y);
+switch_h_connection1 is Circle(x + radius, y, radius, "white", "black");
+switch_h_connection2 is Circle(x + switch_h_length2, y, radius, "white", "black");
+switch_h is ([switch_h_openLine,switch_h_openCircle] if !closed else [switch_h_closedLine]) // [switch_h_connection1, switch_h_connection2];
+
