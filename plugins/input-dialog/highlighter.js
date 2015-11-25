@@ -152,7 +152,8 @@
 
 
 	EdenUI.Highlight.isType = function(str) {
-		return (str.charCodeAt(0) >= 65 && str.charCodeAt(0) <= 90);
+		return false;
+		//return (str.charCodeAt(0) >= 65 && str.charCodeAt(0) <= 90);
 	}
 
 

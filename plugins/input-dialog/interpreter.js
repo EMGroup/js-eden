@@ -210,7 +210,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
 
-		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="Inspect">&#xf002;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
+		var $buttonbar = $('<div class="control-bar noselect"><!--div class="buttonsDivLeft"><button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button></div--><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="Inspect">&#xf002;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
 		$buttonbar.appendTo($dialogContents);
 		var buttonbar = $buttonbar.get(0);
 

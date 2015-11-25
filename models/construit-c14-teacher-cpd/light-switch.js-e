@@ -1,4 +1,5 @@
-include("compatibility/scifest2015.js-e");
+##include("compatibility/scifest2015.js-e");
+import compatibility/scifest2015;
 
 room is Rectangle(50,50, 100, 100, (lightison) ? "yellow" : "black");
 lightswitch is Button("lightswitch", switchlabel, 200, 50);
@@ -6,7 +7,7 @@ switchlabel is (lightison) ? "Turn off" : "Turn on";
 
 proc press_switch: lightswitch_clicked {
 	if (lightswitch_clicked) {
-		lightison = not lightison;
+		lightison = !lightison;
 	}
 }
 
@@ -28,9 +29,10 @@ proc lightis_off: buttonno_clicked {
 	}
 }
 resulttext is myanswercorrect? "Correct answer!" : "Oops.. are you sure?";
-myanswercorrect is ((myanswer == "Y") and (lightison)) or ((myanswer == "N") and (!lightison));
+myanswercorrect is ((myanswer == "Y") && (lightison)) || ((myanswer == "N") && (!lightison));
 
 resulttextcolor is (myanswercorrect) ? "green" : "red";
 
 picture is [room, lightswitch, question, buttonyes, buttonno, result];
+
 

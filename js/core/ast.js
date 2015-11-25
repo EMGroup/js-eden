@@ -1255,23 +1255,31 @@ Eden.AST.Modify.prototype.generate = function(ctx) {
 	if (this.lvalue.islocal == false) result += ".assign(\n\t";
 	else result += " = ";
 
+	var express;
+	if (this.expression) {
+		express = this.expression.generate(ctx,"scope");
+		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+			express += ".value";
+		}
+	}
+
 	// TODO Convert to rt
 	if (this.kind == "+=") {
 		result += lval;
 		if (this.lvalue.islocal == false) result += ".value(scope)";
-		result += " + " + this.expression.generate(ctx);
+		result += " + " + express;
 	} else if (this.kind == "-=") {
 		result += lval;
 		if (this.lvalue.islocal == false) result += ".value(scope)";
-		result += " - " + this.expression.generate(ctx);
+		result += " - " + express;
 	} else if (this.kind == "/=") {
 		result += lval;
 		if (this.lvalue.islocal == false) result += ".value(scope)";
-		result += " / " + this.expression.generate(ctx);
+		result += " / " + express;
 	} else if (this.kind == "*=") {
 		result += lval;
 		if (this.lvalue.islocal == false) result += ".value(scope)";
-		result += " * " + this.expression.generate(ctx);
+		result += " * " + express;
 	} else if (this.kind == "++") {
 		result += lval;
 		if (this.lvalue.islocal == false) result += ".value(scope)";

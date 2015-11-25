@@ -449,6 +449,12 @@ div.input-dialog .ui-dialog-subtitle {
 	right: 30px;
 }
 
+.buttonsDivLeft {
+	position: absolute;
+	bottom: 2px;
+	left: 20px;
+}
+
 button.control-button {
 	height:25px;
 	width:30px;
