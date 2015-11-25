@@ -1262,7 +1262,15 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	});
 
 	edenUI.views["Canvas2D"] = {dialog: this.createDialog, embedded: this.createEmbedded, title: "Canvas 2D", category: edenUI.viewCategories.visualization, holdsContent: true};
-	edenUI.eden.include("plugins/canvas-html5/jseden-canvas.min.js-e", success);
+
+	var jseSource;
+	if (document.location.pathname.slice(-15) == "/index-dev.html") {
+		jseSource = "canvas.js-e";
+	} else {
+		jseSource = "jseden-canvas.min.js-e";
+	}
+
+	edenUI.eden.include("plugins/canvas-html5/" + jseSource, success);
 };
 
 EdenUI.plugins.Canvas2D.FillStyle = function () {
