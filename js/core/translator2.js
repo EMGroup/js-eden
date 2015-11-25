@@ -98,7 +98,7 @@ Eden.AST.prototype.executeLine = function(lineno) {
 	//	line--;
 	//}
 
-	console.log("Executeline: " + lineno);
+	//console.log("Executeline: " + lineno);
 
 	var statement;
 	if (lineno == -1) {

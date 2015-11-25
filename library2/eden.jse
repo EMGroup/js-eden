@@ -515,6 +515,7 @@ import lib/type;
 import lib/core;
 import lib/math;
 import lib/string;
+import lib/scoping;
 
 /*import lib/list;
 import lib/algebra;
@@ -539,8 +540,6 @@ include("library/declarevar.js-e");
 include("library/generate_function.js-e");*/
 
 autocalc = 1;
-
-include2("library/scoping.js-e");
 
 initialViews = ${{getParameterByName("views") }}$;
 if (initialViews == "" || initialViews == "default") {

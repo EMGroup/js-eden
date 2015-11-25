@@ -116,6 +116,11 @@
 			"title": "Bridging HTML/CSS",
 			"enabled": true
 		},
+		"lib/scoping": {
+			"file": "library2/scoping.js-e",
+			"title": "Scoping Prototypes",
+			"enabled": true
+		},
 		"claytontunnel/alarm/panel": {
 			"file": "models/nick/claytonTunnel/alarm.panel",
 			"title": "Alarm Panel",

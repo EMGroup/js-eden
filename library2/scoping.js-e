@@ -1,4 +1,7 @@
-## Scope Library
+/**
+ * @title Scoping Prototypes
+ * @author Nicolas Pope
+ */
 
 typeof is ${{ scope.primaryCause() }}$;
 from is ${{ scope.hasCause(context.lookup("name").value(scope)) }}$;

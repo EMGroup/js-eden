@@ -8,6 +8,8 @@
 var root;
 var eden;
 
+var doneLoading;
+
 /**
  * Utility function to extract URL query string parameters.
  */
@@ -118,6 +120,7 @@ function initialiseJSEden(callback) {
 	var include = getArrayParameterByName("include");
 	var exec = getParameterByName("exec");
 	var lang = getParameterByName("lang");
+	var imports = getArrayParameterByName("import");
 
 	if (lang == "") {
 		lang = "en";
@@ -213,7 +216,9 @@ function initialiseJSEden(callback) {
 			loadPlugin();
 		};
 		
-		var doneLoading = function () {
+		doneLoading = function () {
+			eden.captureInitialState();
+
 			// Remove spinning loader and message
 			edenUI.finishedLoading();
 
@@ -221,7 +226,7 @@ function initialiseJSEden(callback) {
 				if (exec.slice(-1) != ";") {
 					exec = exec + ";";
 				}
-				eden.execute(exec, "URL", "", {name: "execute"}, function () { });
+				eden.execute2(exec, "URL", "", {name: "execute"}, function () { });
 			}
 
 			if (callback) callback();
@@ -234,21 +239,50 @@ function initialiseJSEden(callback) {
 		} else {
 			librarySource = "library/jseden-lib.min.jse";
 		}*/
+
+		var bootscript = "import lib;\n";
+		for (var i=0; i<imports.length; i++) {
+			bootscript += "import " + imports[i]+";\n" 
+		}
+		bootscript += "${{ doneLoading(); }}$;\n";
+		console.log("BOOTSCRIPT: " + bootscript);
+
 		loadLanguage(lang, function() {
 			loadPlugins(plugins, function () {
-				Eden.Agent.importAgent("lib",["enabled"], function() {
+				//Eden.Agent.importAgent("lib", undefined, function() {
 				//eden.include(librarySource, {name: '/system'}, function () {
 					$.getJSON('config.json', function (config) {
 						rt.config = config;
 
-						eden.captureInitialState();
+						eden.execute2(bootscript);
+
+						/*eden.captureInitialState();
+
 						if (include.length > 0) {
 							eden.include(include, doneLoading);
 						} else {
 							doneLoading();
 						}
+
+						console.log("LOADING IMPORTS");
+
+						if (imports.length > 0) {
+							function chainedImport(i) {
+								console.log("IMPORT: " + imports[i]);
+								if (i >= imports.length) {
+									doneLoading();
+									return;
+								}
+								Eden.Agent.importAgent(imports[i], undefined, function() {
+									chainedImport(i+1);
+								});
+							}
+							chainedImport(0);
+						} else {
+							doneLoading();
+						}*/
 					});
-				});
+				//});
 			});
 		});
 	});

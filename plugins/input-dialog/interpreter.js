@@ -166,6 +166,36 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		suggestions.hide();
 		$(infobox).hide();
 
+		function executeTab(tab) {
+			var name = tab.getAttribute("data-name");
+			if (Eden.Agent.agents[name]) {
+				Eden.Agent.agents[name].execute(true);
+				rebuildTabs();
+			}
+		}
+
+		function hideTab(tab) {
+			var name = tab.getAttribute("data-name");
+			var tabs = agent.state[obs_tabs];
+			var ix = tabs.indexOf(name);
+			if (ix >= 0) {
+				tabs.splice(ix,1);
+				ix--;
+				if (ix < 0) ix = 0;
+				if (ix < tabs.length) {
+					agent.state[obs_agent] = tabs[ix];
+				}
+				agent.state[obs_tabs] = tabs;
+			}
+			if (tabs.length == 0) agent.state[obs_agent] = undefined;
+		}
+
+		var tabcm = new EdenUI.ContextMenu(tabs, function(action, target) { console.log(action); });
+		tabcm.addItem("&#xf04b;","Execute",function(){ return true; }, executeTab);
+		tabcm.addItem("&#xf093;","Export",function(){ return false; });
+		tabcm.addSeparator();
+		tabcm.addItem("&#xf21b;","Hide Agent",function(){ return true; }, hideTab);
+
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
 
 		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="Inspect">&#xf002;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
@@ -553,6 +583,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				disableInspectMode();
 				updateHistoryButtons();
 
+				gutter.setAgent(value);
+
 				// Make sure tab exists
 				var tabs = agent.state[obs_tabs];
 				if (tabs.indexOf(value) == -1) {
@@ -574,6 +606,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				scriptagent = undefined;
 				setTitle("Script View");
 				setSubTitle("[No Agents]");
+
+				gutter.clear();
 
 				// Attempt to import the agent without execution and then
 				// update the script view if successful.
@@ -1507,6 +1541,13 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 
 
 
+		function onOutputPaste(e) {
+			intextarea.focus();
+			setTimeout(updateEntireHighlight, 0);
+		}
+
+
+
 		function onOutputKeyUp(e) {
 			if (e.keyCode == 18 || e.keyCode == 225) {
 				disableInspectMode();
@@ -1689,7 +1730,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 
 
 		function onTabClick(e) {
-			var name = e.target.getAttribute("data-name");
+			var name = e.currentTarget.getAttribute("data-name");
 			console.log(name);
 			agent.state[obs_agent] = name;
 			intextarea.focus();
@@ -1854,6 +1895,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		.on('keyup', '.hidden-textarea', onTextKeyUp)
 		.on('keydown', '.outputcontent', onOutputKeyDown)
 		.on('keyup', '.outputcontent', onOutputKeyUp)
+		.on('paste', '.outputcontent', onOutputPaste)
 		.on('blur', '.hidden-textarea', onTextBlur)
 		.on('focus', '.hidden-textarea', onTextFocus)
 		.on('mouseup', '.outputcontent', onOutputMouseUp)

@@ -63,6 +63,7 @@ module.exports = function (grunt) {
 					'plugins/network-remote/network-remote.css',
 					'plugins/input-dialog/interpreter.css',
 					'plugins/input-dialog/subdialogs.css',
+					'plugins/input-dialog/contextmenu.css',
 					'plugins/adm/adm-input.css',
 					'plugins/script-generator/script-generator.css'
 				]
@@ -95,6 +96,7 @@ module.exports = function (grunt) {
 					'./plugins/input-dialog/subdialogs.js',
 					'./plugins/input-dialog/highlighter.js',
 					'./plugins/input-dialog/gutter.js',
+					'./plugins/input-dialog/contextmenu.js',
 					'./plugins/project-listing/project-listing.js',
 					'./plugins/plugin-listing/plugin-listing.js',
 					'./plugins/menu-bar/menu-bar.js',

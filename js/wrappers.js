@@ -117,7 +117,7 @@ Eden.Agent.importAgent = function(path, options, callback) {
 
 	function finish() {
 		if (ag) {
-			if (options && options.indexOf("noexec") == -1) {
+			if (options === undefined || options.indexOf("noexec") == -1) {
 				ag.execute();
 				console.log("Import execute: " + ag.name);
 			}
@@ -438,6 +438,7 @@ Eden.Agent.prototype.loadFromFile = function(filename, callback) {
 	this.executed = false;
 
 	$.get(filename, function(data) {
+		console.log("File loaded: " + filename);
 		me.setSnapshot(data);
 		me.clearHistory();
 		me.setSource(data);

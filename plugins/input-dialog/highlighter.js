@@ -384,6 +384,7 @@
 						classes += "eden-operator";
 					}
 				}
+			// Import path and options
 			} else if (this.mode == 1 || this.mode == 7 || this.mode == 8) {
 				if (this.mode == 7) {
 					linestack.push(line);
@@ -474,7 +475,10 @@
 		}
 
 		// Just in case of error
-		if (linestack.length > 0) line = linestack[0];
+		if (linestack.length > 0) {
+			line = linestack[0];
+			this.mode = 0;
+		}
 
 		this.mode_at_line[this.line] = this.mode;
 		return line;
