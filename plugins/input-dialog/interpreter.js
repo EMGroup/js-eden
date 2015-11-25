@@ -174,6 +174,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
+		function stopTab(tab) {
+			var name = tab.getAttribute("data-name");
+			if (Eden.Agent.agents[name]) {
+				Eden.Agent.agents[name].executed = false;
+				rebuildTabs();
+			}
+		}
+
 		function hideTab(tab) {
 			var name = tab.getAttribute("data-name");
 			var tabs = agent.state[obs_tabs];
@@ -191,9 +199,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		var tabcm = new EdenUI.ContextMenu(tabs, function(action, target) { console.log(action); });
-		tabcm.addItem("&#xf04b;","Run",function(){ return true; }, executeTab);
-		tabcm.addItem("&#xf093;","Export",function(){ return false; });
+		tabcm.addItem("&#xf04b;","Run (force)",function(){ return true; }, executeTab);
+		tabcm.addItem("&#xf04d;","Stop",function(tab){
+			var name = tab.getAttribute("data-name");
+			return Eden.Agent.agents[name] && Eden.Agent.agents[name].executed;
+		}, stopTab);
 		tabcm.addSeparator();
+		tabcm.addItem("&#xf093;","Export",function(){ return false; });
 		tabcm.addItem("&#xf21b;","Hide",function(){ return true; }, hideTab);
 
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);

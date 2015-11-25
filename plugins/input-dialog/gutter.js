@@ -166,9 +166,9 @@ function EdenScriptGutter(parent, infob) {
 		} else {*/
 			if (me.ast.lines[line]) {
 				if (me.lines[line].live) {
-					me.gutter.childNodes[line].innerHTML = "<span class='eden-gutter-stop'>&#xf04d</span";
+					me.gutter.childNodes[line].innerHTML = "<span class='eden-gutter-stop'>&#xf04d;</span";
 				} else {
-					me.gutter.childNodes[line].innerHTML = "<span class='eden-gutter-play'>&#xf04b</span";
+					me.gutter.childNodes[line].innerHTML = "<span class='eden-gutter-play'>&#xf04b;</span";
 				}
 				var lines = me.ast.getBlockLines(line);
 				for (var i=lines[0]; i<=lines[1]; i++) {
@@ -199,6 +199,9 @@ function EdenScriptGutter(parent, infob) {
 EdenScriptGutter.prototype.clear = function() {
 	this.ast = undefined;
 	this.lines = [];
+	while (this.gutter.firstChild) {
+		this.gutter.removeChild(this.gutter.firstChild);
+	}
 }
 
 

@@ -34,7 +34,7 @@ EdenUI.ContextMenu = function(origin, callback) {
 		me.element.css("left", ""+e.clientX+"px");
 
 		for (var i=0; i<me.items.length; i++) {
-			changeClass(me.items[i].element, "disabled", !me.items[i].status());
+			changeClass(me.items[i].element, "disabled", !me.items[i].status(e.target));
 		}
 
 		me.element.slideDown("fast");
