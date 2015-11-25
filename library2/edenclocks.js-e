@@ -18,7 +18,7 @@
 
 edenclocks = [];
 edenclocks_paused = false;
-debug.edenclocks = false;
+debug["edenclocks"] = false;
 
 ${{
 	root.edenclocks = {};
@@ -153,7 +153,7 @@ proc setedenclock {
 	} else if (millis != @ && !isNumber(millis)) {
 		error("setedenclock: The second argument must be a number or undefined, not a " // type(millis));
 	} else {
-		if (debug.edenclocks) {
+		if (debug["edenclocks"]) {
 			${{ console.log("edenclocks: setedenclock(" + arguments[0].name.slice(1) + ", " + arguments[1] + ")"); }}$;
 		}
 		for (i = 1; i <= edenclocks#; i++) {
@@ -177,7 +177,7 @@ proc removeedenclock {
 	} else if (!isPointer(clockPtr)) {
 		error("removeedenclock: The argument must be a pointer, not a " // type(clockPtr));
 	} else {
-		if (debug.edenclocks) {
+		if (debug["edenclocks"]) {
 			${{ console.log("edenclocks: removeedenclock(" + arguments[0].name.slice(1) + ")"); }}$;
 		}
 		for (i = 1; i <= edenclocks#; i++) {

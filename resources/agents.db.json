@@ -57,6 +57,14 @@
 	},
 
 	"meta": {
+		"c5/circuit": {
+			"file": "models/construit-c14-teacher-cpd/simple-circuit.js-e",
+			"title": "Electrical Circuit"
+		},
+		"c5/lightswitch": {
+			"file": "models/construit-c14-teacher-cpd/light-switch.js-e",
+			"title": "Light Switch"
+		},
 		"view/script/input": {
 			"file": "models/blank.js-e",
 			"title": "Script View"

@@ -817,7 +817,12 @@ Eden.AST.Append.prototype.generate = function(ctx) {
 		express += ".value";
 	}
 	var lvalue = this.destination.generate(ctx);
-	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.push("+express+"); }, this);";
+
+	if (this.destination.islocal) {
+		return lvalue + ".push("+express+");\n";
+	} else {
+		return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.push("+express+"); }, this);";
+	}
 }
 
 Eden.AST.Append.prototype.execute = function(root, ctx, base) {
