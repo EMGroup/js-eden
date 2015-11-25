@@ -5,6 +5,8 @@
 
 require("Canvas2D");
 
+import lib/include;
+
 include_css("models/jspe/jspe.css");
 
 if (_view_jspe_width == @) {

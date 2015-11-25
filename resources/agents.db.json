@@ -139,6 +139,11 @@
 			"title": "String Functions",
 			"enabled": true
 		},
+		"lib/include": {
+			"file": "library2/include_js.js-e",
+			"title": "Include CSS",
+			"enabled": true
+		},
 		"lib/list": {
 			"file": "library2/lists.js-e",
 			"title": "List Library",
