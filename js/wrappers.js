@@ -636,7 +636,7 @@ Eden.Agent.prototype.execute = function(force, auto) {
 
 
 
-Eden.Agent.prototype.applyPatch = function(patch) {
+Eden.Agent.prototype.applyPatch = function(patch, lineno) {
 	var redodmp = new diff_match_patch();
 	var p = redodmp.patch_fromText(patch);
 	var r = redodmp.patch_apply(p, this.snapshot);
@@ -646,7 +646,7 @@ Eden.Agent.prototype.applyPatch = function(patch) {
 	this.setSnapshot(snap);
 	this.setSource(snap,true);
 
-	Eden.Agent.emit("patched", [this]);
+	Eden.Agent.emit("patched", [this, lineno]);
 }
 
 
@@ -655,7 +655,7 @@ Eden.Agent.prototype.applyPatch = function(patch) {
  * Provide a source script as a string. This then generates an AST used to
  * create definitions, actions etc.
  */
-Eden.Agent.prototype.setSource = function(source, net) {
+Eden.Agent.prototype.setSource = function(source, net, lineno) {
 
 	if (this.ast) {
 		if (!net) {
@@ -671,7 +671,7 @@ Eden.Agent.prototype.setSource = function(source, net) {
 			//console.log(t);
 
 			if (t != "") {
-				Eden.Agent.emit("patch", [this, t]);
+				Eden.Agent.emit("patch", [this, t, lineno]);
 			}
 		}
 	} else {

@@ -67,9 +67,9 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 						connection.send(data);
 					}
 				});
-				Eden.Agent.listenTo('patch',this,function(origin,patch){
+				Eden.Agent.listenTo('patch',this,function(origin,patch,lineno){
 					if(origin) {
-						var data = JSON.stringify({action: "patch", name: origin.name, patch: patch});
+						var data = JSON.stringify({action: "patch", name: origin.name, patch: patch, lineno: lineno});
 						connection.send(data);
 					}
 				});
@@ -142,7 +142,7 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 						//console.log(line);
 
 						switch (line.action) {
-						case "patch"		:	Eden.Agent.importAgent(line.name, ["noexec"], function(ag) { ag.applyPatch(line.patch) });
+						case "patch"		:	Eden.Agent.importAgent(line.name, ["noexec"], function(ag) { ag.applyPatch(line.patch, line.lineno) });
 												break;
 						case "ownership"	:	Eden.Agent.importAgent(line.name, ["noexec"], function(ag) { ag.setOwned(line.owned, "net"); });
 												break;

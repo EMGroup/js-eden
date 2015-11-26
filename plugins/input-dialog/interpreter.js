@@ -747,10 +747,17 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 			}
 		}
 
-		function agentPatched(ag) {
+		function agentPatched(ag, lineno) {
 			if (ag && scriptagent && ag.name === scriptagent.name) {
 				intextarea.value = ag.snapshot;
-				updateEntireHighlight();
+
+				if (lineno >= 0) {
+					console.log("PARTIAL HIGHLIGHT");
+					highlighter.ast = scriptagent.ast;
+					highlightContent(highlighter.ast, lineno, -1);
+				} else {
+					updateEntireHighlight();
+				}
 			}
 		}
 
@@ -798,14 +805,15 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		 * (and one line either size).
 		 */
 		function updateLineHighlight() {
-			scriptagent.setSource(intextarea.value);
-			highlighter.ast = scriptagent.ast;
 			var lineno = -1; // Note: -1 means update all.
 			var pos = -1;
 			if (document.activeElement === intextarea) {
 				pos = intextarea.selectionEnd;
 				lineno = getLineNumber(intextarea);
 			}
+
+			scriptagent.setSource(intextarea.value, false, lineno);
+			highlighter.ast = scriptagent.ast;
 
 			runScript(lineno);
 
