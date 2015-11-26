@@ -708,10 +708,11 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		function changeOwnership(ag, cause) {
 			if (scriptagent && scriptagent.name == ag.name && cause == "net") {
 				if (!ag.owned) {
-					//ag.setOwned(true);
-					//readonly = false;
-					//outdiv.className = "outputcontent";
-					//outdiv.contentEditable = true;
+					ag.setOwned(true);
+					readonly = false;
+					changeClass(outdiv, "readonly", false);
+					outdiv.contentEditable = true;
+					setSubTitle("");
 				} else {
 					readonly = true;
 					setSubTitle("[readonly]");
