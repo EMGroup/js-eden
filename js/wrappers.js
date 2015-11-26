@@ -44,14 +44,15 @@ Eden.Agent = function(parent, name, meta, options) {
 	this.snapshot = edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
 	this.autosavetimer = undefined;
 	this.executed = false;
-
-	this.setOptions(options);
+	this.options = options;
 
 	if (this.snapshot) {
 		this.setSource(this.snapshot);
 	} else {
 		//this.setSource("");
 	}
+
+	this.setOptions(options);
 
 	this.dmp = new diff_match_patch();
 
@@ -99,40 +100,41 @@ Eden.Agent.AUTOSAVE_INTERVAL = 2000;
 
 
 Eden.Agent.importAgent = function(path, options, callback) {
-	//console.log("IMPORT: " + path + " options = " + JSON.stringify(options));
-	//if (Eden.Agent.db === undefined) return;
-
-	if (Eden.Agent.agents[path] !== undefined) {
-		var ag = Eden.Agent.agents[path];
-		ag.setOptions(options);
-		if (options === undefined || (options && options.indexOf("noexec") == -1)) {
-			ag.execute(false, true);
-			//console.log("Import execute: " + ag.name);
-		}
-		if (callback) callback(ag);
-		return;
-	}
-
 	var ag;
 
 	function finish() {
 		if (ag) {
 			if (options === undefined || options.indexOf("noexec") == -1) {
-				ag.execute(false, true);
+				ag.execute((options && options.indexOf("force") >= 0), true);
 				//console.log("Import execute: " + ag.name);
 			}
 		}
 		if (callback) callback(ag);
 	}
 
+	if (Eden.Agent.agents[path] !== undefined) {
+		var ag = Eden.Agent.agents[path];
+		ag.setOptions(options);
+
+		if (options && options.indexOf("reload") >= 0) {
+			ag.loadFromFile(ag.meta.file, finish);
+		} else {
+			finish();
+		}
+		return;
+	}
+
 	Eden.DB.getMeta(path, function(path, meta) {
 		if (meta) {			
 			ag = new Eden.Agent(undefined, path, meta, options);
-			if (((options && options.indexOf("remote") >= 0)
-					|| (options === undefined || (options && options.indexOf("local") == -1) && !Eden.Agent.hasLocalModifications(path)))
+			if ((options === undefined
+					|| (options && options.indexOf("local") == -1)
+					|| !Eden.Agent.hasLocalModifications(path))
 					&& meta.file) {
 				ag.loadFromFile(meta.file, finish);
 				return;
+			} else {
+				ag.setOptions(["local"]);
 			}
 			//if (callback) callback(ag);
 		}
@@ -243,9 +245,20 @@ Eden.Agent.prototype.autoSave = function() {
 
 Eden.Agent.prototype.setOptions = function(options) {
 	if (options) {
-		if (options.indexOf("disabled") >= 0) this.setEnabled(false);
-		if (options.indexOf("enabled") >= 0) this.setEnabled(true);
+		this.options = options;
+
+		if (options.indexOf("remote") >= 0) this.clearHistory();
+		if (options.indexOf("local") == -1) {
+			this.index = -1;
+			this.saveHistoryIndex();
+		} else {
+			this.index = this.history.length - 1;
+			this.saveHistoryIndex();
+		}
 		if (options.indexOf("readonly") >= 0) this.owned = true;
+	} else {
+		this.index = -1;
+		this.saveHistoryIndex();
 	}
 }
 
@@ -286,11 +299,18 @@ Eden.Agent.prototype.saveHistoryIndex = function() {
 
 
 
-Eden.Agent.prototype.addHistory = function(redo, undo) {
+Eden.Agent.prototype.clearFuture = function() {
 	// Discard any future
 	if (this.history.length-1 != this.index) {
 		this.history = this.history.slice(0, this.index+1);
 	}
+}
+
+
+
+Eden.Agent.prototype.addHistory = function(redo, undo) {
+	// Discard any future
+	this.clearFuture();
 
 	this.history.push({time: Date.now() / 1000 | 0, redo: redo, undo: undo});
 	this.index = this.history.length - 1;
@@ -440,8 +460,13 @@ Eden.Agent.prototype.loadFromFile = function(filename, callback) {
 	$.get(filename, function(data) {
 		console.log("File loaded: " + filename);
 		me.setSnapshot(data);
-		me.clearHistory();
-		me.setSource(data);
+		
+		// Do we need to do an automatic fast-forward?
+		if (me.options && me.options.indexOf("rebase") >= 0) {
+			while (me.canRedo()) me.redo();
+		}
+
+		me.setSource(me.snapshot);
 		if (callback) callback();
 		Eden.Agent.emit("loaded", [me]);
 	}, "text");
@@ -643,6 +668,7 @@ Eden.Agent.prototype.applyPatch = function(patch, lineno) {
 	var snap = r[0];	
 
 	//this.saveHistoryIndex();
+	this.clearFuture();
 	this.setSnapshot(snap);
 	this.setSource(snap,true);
 
