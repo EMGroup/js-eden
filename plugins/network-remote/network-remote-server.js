@@ -80,6 +80,16 @@ function logToFile(msg){
 	});
 }
 
+function sendToAllExcept(sessionKey, except, data) {
+	var socketsInSession = allSockets[sessionKey];
+	var str = JSON.stringify(data);
+	for(var i = 0; i < socketsInSession.length; i++){
+		if(socketsInSession[i] !== except){
+			socketsInSession[i].send(str);
+		}
+	}
+}
+
 function processCode(socket, data){
 	var sessionKey = socketKeys[socket.upgradeReq.headers["sec-websocket-key"]];
 	var socketsInSession = allSockets[sessionKey];
@@ -88,9 +98,10 @@ function processCode(socket, data){
 	var code = JSON.parse(data);
 	var codeLines = [];
 
+	// Need to manage ownership of script edit permissions
 	if (code.action == "ownership") {
 		if (agents[code.name] === undefined) {
-			agents[code.name] = {owned: code.owned};
+			agents[code.name] = {owned: code.owned, socket: socket};
 		} else {
 			// Check for double ownership race condition
 			if (agents[code.name].owned && code.owned) {
@@ -98,17 +109,22 @@ function processCode(socket, data){
 				return;
 			}
 			agents[code.name].owned = code.owned;
+			agents[code.name].socket = socket;
 		}
 	}
 
 	codeLines.push({time: 0, code: code});
+	var str = JSON.stringify(codeLines);
 	for(var i = 0; i < socketsInSession.length; i++){
 		if(socketsInSession[i] !== socket){
-			socketsInSession[i].send(JSON.stringify(codeLines));
+			socketsInSession[i].send(str);
 		}else{
 			sender = i;
 		}
 	}
+
+	//sendToAllExcept(socket, codeLines);
+
 	var msg = "REPLAY: " + sender + ":" + sessionKey + ":" + Date.now() + ":" + data;
 	if(debug)
 		console.log(msg);
@@ -134,6 +150,17 @@ function closeSocket(socket){
 	var socketKey = socket.upgradeReq.headers["sec-websocket-key"];
 	var sessionKey = socketKeys[socketKey];
 	var session = sessionKeys[sessionKey];
+
+	// Unlock all scripts owned by this socket.
+	var unlocks = [];
+	for (var a in agents) {
+		if (agents[a] && agents[a].socket === socket) {
+			agents[a].owned = false;
+			agents[a].socket = undefined;
+			unlocks.push({time: 0, code :{action: "ownership", name: a, owned: false}});
+		}
+	}
+	sendToAllExcept(sessionKey, socket, unlocks);
 
 	var i = allSockets[sessionKey].indexOf(socket);
 	if(i != -1)
