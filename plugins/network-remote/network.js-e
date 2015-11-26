@@ -1,0 +1,19 @@
+/**
+ * @title Network Remote
+ * @author Nicolas Pope and Jonny Foss
+ */
+
+require("NetworkRemote");
+
+action networkControl {
+	${{
+	var p1 = ctx.getParameterByNumber(1);
+	if (p1 instanceof BoundValue) p1 = p1.value;
+	var p2 = ctx.getParameterByNumber(2);
+	if (p2 instanceof BoundValue) p2 = p2.value;
+	if (edenUI.plugins.NetworkRemote.sendControl) {
+		edenUI.plugins.NetworkRemote.sendControl(p1, p2);
+	}
+	}}$;
+}
+

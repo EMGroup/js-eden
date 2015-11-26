@@ -114,6 +114,10 @@
 			"title": "Page Plugin",
 			"enabled": true
 		},
+		"plugins/network": {
+			"file": "plugins/network-remote/network.js-e",
+			"title": "Network Remote"
+		},
 		"lib": {
 			"file": "library2/eden.jse",
 			"title": "Eden Base Library",

@@ -83,7 +83,8 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 				});
 				eden.listenTo('beforeAssign',this,function(symbol, value, origin){
 					if (origin != "net") {
-						connection.send(JSON.stringify({action: "assign", name: undefined, code: symbol.name.slice(1) + "=" + Eden.edenCodeForValue(value) + ";"}));
+						console.log("ASSIGN: " + symbol.name + " = " + Eden.edenCodeForValue(value));
+						connection.send(JSON.stringify({action: "assign", symbol: symbol.name.slice(1), value: value}));
 						//connection.send(symbol.name.slice(1) + "=" + Eden.edenCodeForValue(value) + ";");						
 					}
 				});
@@ -133,6 +134,12 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
  					connection.send(JSON.stringify({code: currentDef}));
  				}
 
+				me.sendControl = function(key, value) {
+					console.log("Send Control: " + key + "= " + value);
+					console.log(value);
+					connection.send(JSON.stringify({action: "control", key: key, value: value}));
+				}
+
 				// most important part - incoming messages
 				connection.onmessage = function (message) {
 					program = JSON.parse(message.data);
@@ -150,8 +157,7 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 												Eden.Agent.importAgent(line.name, ["noexec"], function(ag) { ag.executeLine(line.lineno, true); });
 												//}
 												break;
-						case "assign"		:	var ast = new Eden.AST(line.code);
-												ast.script.execute(eden.root,undefined,ast);
+						case "assign"		:	eden.root.lookup(line.symbol).assign(line.value,eden.root.scope);
 												break;
 						}
 

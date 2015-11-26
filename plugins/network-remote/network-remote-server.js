@@ -111,6 +111,10 @@ function processCode(socket, data){
 			agents[code.name].owned = code.owned;
 			agents[code.name].socket = socket;
 		}
+	} else if (code.action == "control") {
+		// TODO Forward to some plugin
+		console.log("Control: " + code.key + " = " + code.value);
+		return;
 	}
 
 	codeLines.push({time: 0, code: code});
