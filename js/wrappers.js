@@ -50,7 +50,7 @@ Eden.Agent = function(parent, name, meta, options) {
 	if (this.snapshot) {
 		this.setSource(this.snapshot);
 	} else {
-		this.setSource("");
+		//this.setSource("");
 	}
 
 	this.dmp = new diff_match_patch();
@@ -105,9 +105,9 @@ Eden.Agent.importAgent = function(path, options, callback) {
 	if (Eden.Agent.agents[path] !== undefined) {
 		var ag = Eden.Agent.agents[path];
 		ag.setOptions(options);
-		if (options && options.indexOf("noexec") == -1) {
-			ag.execute();
-			console.log("Import execute: " + ag.name);
+		if (options === undefined || (options && options.indexOf("noexec") == -1)) {
+			ag.execute(false, true);
+			//console.log("Import execute: " + ag.name);
 		}
 		if (callback) callback(ag);
 		return;
@@ -118,8 +118,8 @@ Eden.Agent.importAgent = function(path, options, callback) {
 	function finish() {
 		if (ag) {
 			if (options === undefined || options.indexOf("noexec") == -1) {
-				ag.execute();
-				console.log("Import execute: " + ag.name);
+				ag.execute(false, true);
+				//console.log("Import execute: " + ag.name);
 			}
 		}
 		if (callback) callback(ag);
@@ -470,12 +470,6 @@ Eden.Agent.prototype.setOwned = function(owned, cause) {
 
 
 
-Eden.Agent.prototype.patchSource = function(line, patch) {
-	
-}
-
-
-
 Eden.Agent.prototype.setReadonly = function(ro) {
 	this.oracles.push.apply(this.oracles, ro);
 
@@ -605,18 +599,24 @@ Eden.Agent.prototype.hasErrors = function() {
  * If the statement is part of a larger statement block then execute
  * that instead (eg. a proc).
  */
-Eden.Agent.prototype.executeLine = function (lineno) {
+Eden.Agent.prototype.executeLine = function (lineno, auto) {
 	this.ast.executeLine(lineno);
-	Eden.Agent.emit('executeline', [this, undefined, lineno]);
+
+	if (!auto) {
+		Eden.Agent.emit('executeline', [this, lineno]);
+	}
 }
 
 
 
-Eden.Agent.prototype.execute = function(force) {
+Eden.Agent.prototype.execute = function(force, auto) {
 	if (this.executed == false || force) {
-		this.executeLine(-1);
+		this.executeLine(-1, auto);
 		this.executed = true;
-		Eden.Agent.emit('execute', [this]);
+
+		if (!auto) {
+			Eden.Agent.emit('execute', [this, force]);
+		}
 	}
 }
 
@@ -636,25 +636,50 @@ Eden.Agent.prototype.execute = function(force) {
 
 
 
+Eden.Agent.prototype.applyPatch = function(patch) {
+	var redodmp = new diff_match_patch();
+	var p = redodmp.patch_fromText(patch);
+	var r = redodmp.patch_apply(p, this.snapshot);
+	var snap = r[0];	
+
+	//this.saveHistoryIndex();
+	this.setSnapshot(snap);
+	this.setSource(snap,true);
+
+	Eden.Agent.emit("patched", [this]);
+}
+
+
+
 /**
  * Provide a source script as a string. This then generates an AST used to
  * create definitions, actions etc.
  */
-Eden.Agent.prototype.setSource = function(source) {
+Eden.Agent.prototype.setSource = function(source, net) {
 
 	if (this.ast) {
-		var me = this;
-		clearTimeout(this.autosavetimer);
-		this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Agent.AUTOSAVE_INTERVAL);
+		if (!net) {
+			var me = this;
+			clearTimeout(this.autosavetimer);
+			this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Agent.AUTOSAVE_INTERVAL);
 
-		//console.time("MakePATCH");
-		var d = this.dmp.diff_main(this.ast.stream.code, source, false);
-		var p = this.dmp.patch_make(this.ast.stream.code, source, d);
-		var t = this.dmp.patch_toText(p);
-		//console.timeEnd("MakePATCH");
-		//console.log(t);
+			//console.time("MakePATCH");
+			var d = this.dmp.diff_main(this.ast.stream.code, source, false);
+			var p = this.dmp.patch_make(this.ast.stream.code, source, d);
+			var t = this.dmp.patch_toText(p);
+			//console.timeEnd("MakePATCH");
+			//console.log(t);
+
+			if (t != "") {
+				Eden.Agent.emit("patch", [this, t]);
+			}
+		}
 	} else {
 		this.setSnapshot(source);
+
+		if (!net) {
+			Eden.Agent.emit("source", [this, source]);
+		}
 	}
 
 	var gettitle = this.ast === undefined;

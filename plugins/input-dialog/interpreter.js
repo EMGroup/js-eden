@@ -746,6 +746,15 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 				updateHistoryButtons();
 			}
 		}
+
+		function agentPatched(ag) {
+			if (ag && scriptagent && ag.name === scriptagent.name) {
+				intextarea.value = ag.snapshot;
+				updateEntireHighlight();
+			}
+		}
+
+
 		Eden.Agent.listenTo("create", agent, agentCreated);
 		Eden.Agent.listenTo("loaded", agent, agentLoaded);
 		Eden.Agent.listenTo("rollback", agent, agentRollback);
@@ -755,6 +764,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		Eden.Agent.listenTo("remove", agent, removedAgent);
 		Eden.Agent.listenTo("autosave", agent, autoSaved);
 		Eden.Agent.listenTo("execute", agent, rebuildTabs);
+		Eden.Agent.listenTo("patched", agent, agentPatched);
 
 
 		/*edenUI.eden.root.addGlobal(function(sym, create) {

@@ -3,6 +3,8 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 	var program;
 	var longwait = false;
 	var connected = false;
+
+	Eden.Agent.importAgent("lib/dynamic");
 	
 	this.createDialog = function(name,mtitle) {
 
@@ -55,17 +57,33 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 				var url = "ws://" + $("#nr-ipaddr").val() + ":" + $("#nr-port").val() + '/'; 
 				var connection = new WebSocket(url);
 				
-				Eden.Agent.listenTo('execute',this,function(origin,code,line){
+				/*Eden.Agent.listenTo('execute',this,function(origin,force){
 					if(origin)
-						connection.send(JSON.stringify({name: origin.name, line: line, code: code}));
+						connection.send(JSON.stringify({action: "execute", name: origin.name, force: force}));
+				});*/
+				Eden.Agent.listenTo('executeline',this,function(origin,lineno){
+					if(origin) {
+						var data = JSON.stringify({action: "executeline", name: origin.name, lineno: lineno});
+						connection.send(data);
+					}
 				});
+				Eden.Agent.listenTo('patch',this,function(origin,patch){
+					if(origin) {
+						var data = JSON.stringify({action: "patch", name: origin.name, patch: patch});
+						connection.send(data);
+					}
+				});
+				/*Eden.Agent.listenTo('source',this,function(origin,source){
+					if(origin)
+						connection.send(JSON.stringify({action: "source", name: origin.name, source: source}));
+				});*/
 				Eden.Agent.listenTo("owned", this, function(origin, cause) {
 					if (cause == "net") return;
-					connection.send(JSON.stringify({name: origin.name, owned: origin.owned}));
+					connection.send(JSON.stringify({action: "ownership", name: origin.name, owned: origin.owned}));
 				});
 				eden.listenTo('beforeAssign',this,function(symbol, value, origin){
 					if (origin != "net") {
-						connection.send(JSON.stringify({name: undefined, code: symbol.name.slice(1) + "=" + Eden.edenCodeForValue(value) + ";"}));
+						connection.send(JSON.stringify({action: "assign", name: undefined, code: symbol.name.slice(1) + "=" + Eden.edenCodeForValue(value) + ";"}));
 						//connection.send(symbol.name.slice(1) + "=" + Eden.edenCodeForValue(value) + ";");						
 					}
 				});
@@ -89,6 +107,13 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 					$("#nr-ipaddr").attr("disabled","disabled");
 					$("#nr-port").attr("disabled","disabled");
 					$("#nr-key").attr("disabled","disabled");
+
+					// Make sure ownership data is sent
+					for (var a in Eden.Agent.agents) {
+						if (Eden.Agent.agents[a].owned) {
+							connection.send(JSON.stringify({action: "ownership", name: a, owned: true}));
+						}
+					}
 				};
 				connection.onerror = function (error) {
 					connected = false;
@@ -114,10 +139,27 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 					
 					for(var i = 0; i < program.length; i++){
 						line = program[i].code;
+						//console.log(line);
+
+						switch (line.action) {
+						case "patch"		:	Eden.Agent.importAgent(line.name, ["noexec"], function(ag) { ag.applyPatch(line.patch) });
+												break;
+						case "ownership"	:	Eden.Agent.importAgent(line.name, ["noexec"], function(ag) { ag.setOwned(line.owned, "net"); });
+												break;
+						case "executeline"	:	//if (line.lineno >= 0) {
+												Eden.Agent.importAgent(line.name, ["noexec"], function(ag) { ag.executeLine(line.lineno, true); });
+												//}
+												break;
+						case "assign"		:	var ast = new Eden.AST(line.code);
+												ast.script.execute(eden.root,undefined,ast);
+												break;
+						}
+
+						/*continue;
 
 						if (line.code) {
 							$("#nr-status").html('<p>Received: ' + line.code + "</p>");
-							var ast = new EdenAST(line.code);
+							var ast = new Eden.AST(line.code);
 							if (Eden.Agent.agents[line.name]) {
 								ast.script.execute(eden.root, undefined, Eden.Agent.agents[line.name].ast);
 							} else {
@@ -128,7 +170,7 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 							if (Eden.Agent.agents[line.name]) {
 								Eden.Agent.agents[line.name].setOwned(line.owned, "net");
 							}
-						}
+						}*/
 					}
 					//me.playCode(0);
 					return;

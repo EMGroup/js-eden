@@ -214,11 +214,13 @@ EdenScriptGutter.prototype.setAgent = function(name) {
 		this.gutter.removeChild(this.gutter.firstChild);
 	}
 	this.lines = this.agents[name];
+	this.agent = Eden.Agent.agents[name];
 }
 
 
 
 EdenScriptGutter.prototype.executeSelected = function() {
+	if (this.agent === undefined) return;
 	console.log("Execute Selected");
 
 	for (var i=0; i<this.lines.length; i++) {
@@ -228,7 +230,7 @@ EdenScriptGutter.prototype.executeSelected = function() {
 				//this.lines[j].selected = false;
 				//changeClass(this.gutter.childNodes[j], "select", false);
 			//}
-			this.ast.executeLine(i);
+			this.agent.executeLine(i);
 			i = sellines[1]+1;
 		}
 	}

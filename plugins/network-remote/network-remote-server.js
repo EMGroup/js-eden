@@ -88,13 +88,13 @@ function processCode(socket, data){
 	var code = JSON.parse(data);
 	var codeLines = [];
 
-	if (code.owned !== undefined) {
+	if (code.action == "ownership") {
 		if (agents[code.name] === undefined) {
 			agents[code.name] = {owned: code.owned};
 		} else {
 			// Check for double ownership race condition
 			if (agents[code.name].owned && code.owned) {
-				socket.send(JSON.stringify([{time: 0, code :{name: code.name, owned: false}}]));
+				socket.send(JSON.stringify([{time: 0, code :{action: "ownership", name: code.name, owned: true}}]));
 				return;
 			}
 			agents[code.name].owned = code.owned;
