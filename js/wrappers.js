@@ -108,6 +108,9 @@ Eden.Agent.importAgent = function(path, options, callback) {
 				ag.execute((options && options.indexOf("force") >= 0), true);
 				//console.log("Import execute: " + ag.name);
 			}
+		} else if (options && options.indexOf("create") >= 0) {
+			// Auto create agents that don't exist
+			ag = new Eden.Agent(undefined, path, undefined, options);
 		}
 		if (callback) callback(ag);
 	}

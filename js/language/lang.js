@@ -20,7 +20,8 @@ var Language = {
 		"noexec": "noexec",
 		"reload": "reload",
 		"force": "force",
-		"async": "async"
+		"async": "async",
+		"create": "create"
 	},
 
 	doxytags: {
