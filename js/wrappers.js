@@ -98,15 +98,47 @@ Eden.Agent.AUTOSAVE_INTERVAL = 2000;
 
 
 
+/**
+ * Import an agent script from some source. This is a vitally important function
+ * that attempts to find a named agent either locally or on one or more
+ * repository servers and activate it.
 
+ * If the agent is already loaded then, by default, this function does nothing
+ *     except call the callback function.
+ *
+ * If not loaded then it searches for a version hosted in a repository.
+ *
+ * If a remote version is found it is loaded, local changes are kept available
+ *     but are not applied automatically, meaning the agent loaded is the one
+ *     on the server.
+ *
+ * If no remote version exists then it attempts to load a local version.
+ *
+ * If no local version exists either then it either returns undefined or, if
+ *     the "create" option is given it will create a new empty agent with that
+ *     name.
+ *
+ * Other options allow you to force particular versions:
+ *     - remote: brings in the remote version and deletes local changes
+ *     - local: ignores remote version, using local only version.
+ *     - rebase: gets the remote version but automatically applies all local
+ *               changes in the local history.
+ *     - reload: Even if already loaded, go get a new version from the server.
+ *
+ * When first imported using the "import" script command the agents are also
+ * executed. Importing by other means forces this not to be the case, however,
+ * there are also options to control this:
+ *     - force: Always execute, even if previously executed.
+ *     - noexec: Do not execute.
+ */
 Eden.Agent.importAgent = function(path, options, callback) {
 	var ag;
 
 	function finish() {
 		if (ag) {
+			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
 				ag.execute((options && options.indexOf("force") >= 0), true);
-				//console.log("Import execute: " + ag.name);
 			}
 		} else if (options && options.indexOf("create") >= 0) {
 			// Auto create agents that don't exist
@@ -115,10 +147,12 @@ Eden.Agent.importAgent = function(path, options, callback) {
 		if (callback) callback(ag);
 	}
 
+	// Does it already exist
 	if (Eden.Agent.agents[path] !== undefined) {
 		var ag = Eden.Agent.agents[path];
 		ag.setOptions(options);
 
+		// Force a reload?
 		if (options && options.indexOf("reload") >= 0) {
 			ag.loadFromFile(ag.meta.file, finish);
 		} else {
@@ -127,9 +161,13 @@ Eden.Agent.importAgent = function(path, options, callback) {
 		return;
 	}
 
+	// Ask database for info about this agent
 	Eden.DB.getMeta(path, function(path, meta) {
+		// It exists in the database
 		if (meta) {			
 			ag = new Eden.Agent(undefined, path, meta, options);
+
+			// Get from server or use local?
 			if ((options === undefined
 					|| (options && options.indexOf("local") == -1)
 					|| !Eden.Agent.hasLocalModifications(path))
@@ -139,7 +177,6 @@ Eden.Agent.importAgent = function(path, options, callback) {
 			} else {
 				ag.setOptions(["local"]);
 			}
-			//if (callback) callback(ag);
 		}
 		finish();
 	});
@@ -159,36 +196,6 @@ Eden.Agent.hasLocalModifications = function(name) {
 		return false;
 	}
 }
-
-
-
-/*Eden.Agent.save = function() {
-	// Save list of agents to restore later.
-	var agents = [];
-	for (var a in Eden.Agent.agents) {
-		agents.push({name: a, enabled: Eden.Agent.agents[a].enabled});
-	}
-	edenUI.setOptionValue("agents", JSON.stringify(agents));
-}
-
-
-Eden.Agent.restore = function() {
-	var ag = JSON.parse(edenUI.getOptionValue('agents'));
-
-	if (ag) {
-		for (var i=0; i<ag.length; i++) {
-			if (Eden.Agent.agents[ag[i].name] === undefined) {
-				var agi = new Eden.Agent(undefined, ag[i].name);
-				agi.enabled = ag[i].enabled;
-				agi.setSource(agi.snapshot);
-
-				if (agi.enabled) {
-					agi.executeLine(-1);
-				}
-			}
-		}
-	}
-}*/
 
 
 

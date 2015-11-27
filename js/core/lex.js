@@ -1,5 +1,6 @@
 function EdenSyntaxData() {
 	this.value = undefined;
+	this.error = false;
 }
 
 /**
@@ -160,10 +161,10 @@ EdenStream.prototype.skipLine = function() {
 
 
 /**
- * Check if a character matches [a-zA-Z0-9_]
+ * Check if a character matches [a-zA-Z0-9_] or unicode...
  */
 EdenStream.prototype.isAlphaNumeric = function(ch) {
-	return (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch == 95) || (ch >= 0xc0);
+	return (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch == 95) || (ch >= 128); //(ch >= 0xc0);
 };
 
 
@@ -247,6 +248,8 @@ EdenStream.prototype.parseString = function(data) {
 	while (this.valid() && this.peek() != 34) {
 		var chr = String.fromCharCode(this.get());
 		if (chr == "\n"){ this.unget(); return; }
+		// TODO, the following allows multi-line strings if highlighter can
+		//if (chr == "\n") this.line++;
 		if (chr == "\\") {
 			chr = String.fromCharCode(this.get());
 			result += "\\"+chr;
@@ -256,8 +259,10 @@ EdenStream.prototype.parseString = function(data) {
 	}
 
 	// Remove end quote
-	if (this.valid()) {
+	if (this.valid() && this.peek() == 34) {
 		this.skip();
+	} else {
+		data.error = true;
 	}
 
 	data.value = result;
@@ -271,11 +276,14 @@ EdenStream.prototype.parseCharacter = function(data) {
 		result = String.fromCharCode(this.get());
 	}
 
+	data.value = result;
+
 	// Remove quote.
 	if (this.valid() && this.peek() == 39) {
 		this.skip();
+	} else {
+		data.error = true;
 	}
-	data.value = result;
 }
 
 

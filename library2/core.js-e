@@ -8,6 +8,7 @@
 
 /**
  * Execute a string as JS-Eden script.
+ *   @param script The script to interpret.
  */
 func execute {
 	${{ eden.execute2(arguments[0], "execute", "", {name: "/execute"}, function () { } ); }}$;
@@ -15,25 +16,26 @@ func execute {
 
 /**
  * Generate a new dictionary object.
+ *   @return An empty javascript object.
  */
 func Object {
 	return ${{ {} }}$;
 }
 
+/**
+ * Make a point object.
+ *   @param x X-Coordinate
+ *   @param y Y-Coordinate
+ *   @return Javascript Point Object
+ */
 func Point {
-	${{
-		var x = arguments[0];
-		var y = arguments[1];
-		return new Point(x, y);
-	}}$;
+	para x,y;
+	${{ return new Point(x, y); }}$;
 }
 
 proc createView {
-	${{
-		var name = arguments[0];
-		var type = arguments[1];
-		edenUI.createView(name, type, this);
-	}}$;
+	para name, type;
+	${{ edenUI.createView(name, type, this); }}$;
 }
 
 ${{
@@ -88,10 +90,8 @@ ${{
 
 proc showView {
 	para name;
-	##${{ eden.root.lookup("_view_"+name+"_visibility").assign("visible", eden.root.scope); }}$;
 	`"_view_" // name // "_visibility"` = "visible";
 	${{
-		var name = arguments[0];
 		edenUI.showView(name); //Explicitly invoke this to make sure the view gets moved to the top.
 		edenUI.brieflyHighlightView(name);
 	}}$;
@@ -99,37 +99,28 @@ proc showView {
 
 proc hideView {
 	para name;
-	##${{ eden.root.lookup("_view_"+name+"_visibility").assign("hidden", eden.root.scope); }}$;
 	`"_view_" // name // "_visibility"` = "hidden";
 }
 
 proc highlightView {
-	${{
-		var name = arguments[0];
-		edenUI.highlightView(name, false);
-	}}$;
+	para name;
+	${{ edenUI.highlightView(name, false); }}$;
 }
 
 proc stopHighlightingView {
-	${{
-		var name = arguments[0];
-		edenUI.stopHighlightingView(name, false, false);
-	}}$;
+	para name;
+	${{ edenUI.stopHighlightingView(name, false, false); }}$;
 }
 
 proc destroyView {
-	${{
-		var name = arguments[0];
-		edenUI.destroyView(name, true);
-	}}$;
+	para name;
+	${{ edenUI.destroyView(name, true); }}$;
 }
 
 proc moveView {
 	para name, x, y;
 	autocalc = 0;
 	##together {
-		##${{ eden.root.lookup("_view_"+name+"_x").assign(x, eden.root.scope); }}$;
-		##${{ eden.root.lookup("_view_"+name+"_y").assign(y, eden.root.scope); }}$;
 		`"_view_" // name // "_x"` = x;
 		`"_view_" // name // "_y"` = y;
 	##}
@@ -140,26 +131,27 @@ proc resizeView {
 	para name, width, height;
 	autocalc = 0;
 	##together {
-		##${{ eden.root.lookup("_view_"+name+"_width").assign(width, eden.root.scope); }}$;
-		##${{ eden.root.lookup("_view_"+name+"_height").assign(height, eden.root.scope); }}$;
 		`"_view_" // name // "_width"` = width;
 		`"_view_" // name // "_height"` = height;
 	##}
 	autocalc = 1;
 }
 
-##The summed dimensions of all window borders, title bars, scroll bars and any other parts that are
-##not part of a view's content.  _view_xxx_width + _views_frame_width gives the first x position where
-##another view can be placed without overlapping with xxx.
+/*
+ * The summed dimensions of all window borders, title bars, scroll bars and any
+ * other parts that are not part of a view's content.  _view_xxx_width +
+ * _views_frame_width gives the first x position where another view can be
+ * placed without overlapping with xxx.
+ */
 _views_frame_width = ${{ edenUI.dialogFrameWidth }}$;
 _views_frame_height = ${{ edenUI.dialogFrameHeight }}$;
-##The size of the grid squares that windows snap to.
+## The size of the grid squares that windows snap to.
 _views_unit_x = ${{ edenUI.gridSizeX }}$;
 _views_unit_y = ${{ edenUI.gridSizeY }}$;
 
-##The maximum width a view can be if it fits within the browser window without scrolling.
+## The maximum width a view can be if it fits within the browser window without scrolling.
 screenWidth = ${{ window.innerWidth }}$ - _views_frame_width;
-##The maximum height a view can be if it fits within the browser window without scrolling.
+## The maximum height a view can be if it fits within the browser window without scrolling.
 screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2 - (edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0)}}$;
 ${{
 	window.addEventListener("resize", function (event) {

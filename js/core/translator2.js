@@ -267,7 +267,7 @@ Eden.AST.prototype.next = function() {
 			var startline = this.stream.line;
 
 			// Go until terminating javascript block token
-			while (this.stream.valid() && (this.token != "}}$" || count > 0)) {
+			while (this.stream.valid() && this.token != "}}$") {
 				this.token = this.stream.readToken();
 			}
 
@@ -674,13 +674,19 @@ Eden.AST.prototype.pPRIMARY_P = function() {
 			// Expression list.
 			var elist = this.pELIST();
 			func.setParams(elist);
-			if (func.errors.length > 0) return func;
+			if (func.errors.length > 0) {
+				var primary = new Eden.AST.Primary();
+				primary.prepend(func);
+				return primary;
+			}
 
 			// Check for closing bracket
 			if (this.token != ")") {
-				if (func.errors.length > 0) return func;
-				func.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCCALLEND));
-				return func;
+				var primary = new Eden.AST.Primary();
+				primary.prepend(func);
+				if (func.errors.length > 0) return primary;
+				primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCCALLEND));
+				return primary;
 			} else {
 				this.next();
 			}
