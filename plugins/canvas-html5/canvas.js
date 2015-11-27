@@ -456,7 +456,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		return drawablesHit;
 	}
 
-	this.mouseInfo = {
+	var mouseInfo = {
 		leftButton: false, middleButton: false, rightButton: false, button4: false, button5: false,
 		buttonCount: 0, insideCanvas: false, capturing: false
 	};
@@ -618,8 +618,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		jqCanvas.on("mousedown", function(e) {
 			var followMouse = root.lookup("mouseFollow").value();
 			root.beginAutocalcOff();
-
-			var mouseInfo = me.mouseInfo;
 			mouseInfo.insideCanvas = true;
 
 			var buttonName;			
@@ -681,8 +679,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		}).on("mouseup",function(e) {
 			var followMouse = root.lookup("mouseFollow").value();
 			root.beginAutocalcOff();
-
-			var mouseInfo = me.mouseInfo;
 			mouseInfo.insideCanvas = true;
 
 			var buttonName;
@@ -830,12 +826,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			root.endAutocalcOff();
 
 		}).on("mouseout", function (e) {
-			me.mouseInfo.insideCanvas = false;
+			mouseInfo.insideCanvas = false;
 			var followMouse = root.lookup("mouseFollow").value();
 			root.lookup("mouseZone").assign(undefined, Symbol.hciAgent, followMouse);
 		
 		}).on("mouseenter", function (e) {
-			var mouseInfo = me.mouseInfo;
 			if (!mouseInfo.insideCanvas) {
 				mouseInfo.insideCanvas = true;
 				var buttonsStr;
@@ -891,7 +886,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			var combinedScale = scale * zoom;
 			var x, y;
 
-			if (me.mouseInfo.capturing) {
+			if (mouseInfo.capturing) {
 				var previousPosition = mousePositionSym.value();
 				var e2 = e.originalEvent;
 				x = previousPosition.x + e2.movementX / combinedScale;
@@ -1062,13 +1057,23 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		}
 	};
 
+	this.canvasNameFromElement = function (element) {
+		while (element) {
+			var id = element.id;
+			if (id.slice(-21) == "-dialog-canvascontent") {
+				return id.slice(0, -21);
+			}
+			element = element.parentElement;
+		}
+		return null;
+	};
+
 	//To catch when a mouse button is pressed down over a canvas window and then released outside of any
 	//canvas window.
 	document.addEventListener("mouseup", function (e) {
 		var followMouse = root.lookup("mouseFollow").value();
 		root.beginAutocalcOff();
 
-		var mouseInfo = me.mouseInfo;
 		if (!mouseInfo.insideCanvas) {
 			var buttonName;
 			switch (e.button) {
@@ -1117,7 +1122,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	});
 
 	document.addEventListener("mousedown", function (e) {
-		var mouseInfo = me.mouseInfo;
 		if (!mouseInfo.insideCanvas) {
 			var buttonName;
 			switch (e.button) {
@@ -1143,7 +1147,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 	document.addEventListener("pointerlockchange", function (e) {
 		var locked = document.pointerLockElement !== null;
-		me.mouseInfo.capturing = locked;
+		mouseInfo.capturing = locked;
 		var followMouse = root.lookup("mouseFollow").value();
 		root.lookup("mouseCaptured").assign(locked, undefined, followMouse);
 	});
