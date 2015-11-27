@@ -195,6 +195,10 @@ Eden.AST.ScopePath.prototype.setObservable = function(obs) {
 	this.path.setObservable(obs);
 }
 
+Eden.AST.ScopePath.prototype.setBackticks = function(btick) {
+	this.path.setBackticks(btick);
+}
+
 Eden.AST.ScopePath.prototype.getObservable = function() {
 	return this.primary.getObservable();
 }
@@ -230,18 +234,28 @@ Eden.AST.Parameter = function(index) {
 	this.type = "parameter";
 	this.index = index;
 	this.errors = [];
+	this.returnsbound = false;
 }
 
 Eden.AST.Parameter.prototype.error = fnEdenASTerror;
 
+Eden.AST.Parameter.prototype.doesReturnBound = function() {
+	return this.returnsbound;
+}
+
 Eden.AST.Parameter.prototype.generate = function(ctx, scope) {
 	if (this.index == -1) {
 		if (ctx && ctx.parameters) return ""+ctx.parameters.length;
+		this.returnsbound = false;
 		return "0";
 	}
 	if (ctx && ctx.getParameterByNumber) {
 		ctx.dirty = true;
-		return ""+ctx.getParameterByNumber(this.index);
+		var res = ctx.getParameterByNumber(this.index);
+		if (res instanceof BoundValue) this.returnsbound = true;
+		else this.returnsbound = false;
+		//return ""+res;
+		return "ctx.getParameterByNumber("+this.index+")";
 	}
 }
 
@@ -1670,6 +1684,32 @@ Eden.AST.FunctionCall.prototype.execute = function(root, ctx, base) {
 }
 
 Eden.AST.FunctionCall.prototype.error = fnEdenASTerror;
+
+
+
+//------------------------------------------------------------------------------
+
+Eden.AST.DummyStatement = function() {
+	this.type = "dummy";
+	this.parent = undefined;
+	this.errors = [];
+	
+}
+
+Eden.AST.DummyStatement.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+Eden.AST.DummyStatement.prototype.generate = function() {
+	return "";
+}
+
+Eden.AST.DummyStatement.prototype.execute = function() {
+}
+
+Eden.AST.DummyStatement.prototype.error = fnEdenASTerror;
+
 
 
 

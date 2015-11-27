@@ -216,7 +216,7 @@ Eden.SyntaxError.db = [
 		suggestion: {expected: ["(","OBSERVABLE","NUMBER"], next: ["]","OBSERVABLE","NUMBER","+","-","/","*","%","^"]}
 	},
 /* EDEN_ERROR_LISTINDEXCLOSE */
-	{	message: function() { return 0; },
+	{	message: function() { return 1; },
 		suggestion: {expected: ["]"], next: ["[",".","=","+=","-=","==","+","-","/","*",";","/=","*=","%","^","is"]}
 	},
 /* EDEN_ERROR_LVALUE */

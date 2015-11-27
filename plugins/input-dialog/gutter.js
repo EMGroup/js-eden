@@ -312,6 +312,11 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 					className += " errorblock";
 					doupdate = true;
 				}
+
+				// Need to remove any old error messages
+				if (this.gutter.childNodes[i].className.indexOf("error") >= 0) {
+					doupdate = true;
+				}
 			}
 
 			if (this.lines && this.lines[i]) {
