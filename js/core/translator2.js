@@ -1096,6 +1096,7 @@ Eden.AST.prototype.pACTION = function() {
 		this.next();
 	} else {
 		action.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.PROCNAME));
+		this.parent = parent;
 		return action;
 	}
 
@@ -1105,9 +1106,11 @@ Eden.AST.prototype.pACTION = function() {
 		var olist = this.pOLIST();
 		if (olist.length == 0) {
 			action.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONNOWATCH));
+			this.parent = parent;
 			return action;
 		} else if (olist[olist.length-1] == "NONAME") {
 			action.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCOMMAS));
+			this.parent = parent;
 			return action;
 		}
 		action.triggers = olist;
@@ -1130,23 +1133,37 @@ Eden.AST.prototype.pWHEN = function() {
 
 	if (this.token != "(") {
 		when.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.WHENOPEN));
+		this.parent = parent;
 		return when;
 	} else {
 		this.next();
 	}
 
 	when.setExpression(this.pEXPRESSION());
-	if (when.errors.length > 0) return when;
+	if (when.errors.length > 0) {
+		this.parent = parent;
+		return when;
+	}
 
 	if (this.token != ")") {
 		when.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.WHENCLOSE));
+		this.parent = parent;
 		return when;
 	} else {
 		this.next();
 	}
 
 	when.setStatement(this.pSTATEMENT());
-	if (when.errors.length > 0) return when;
+	if (when.errors.length > 0) {
+		this.parent = parent;
+		return when;
+	}
+	if (when.statement === undefined) {
+		when.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.WHENNOSTATEMENT));
+		when.active = true;
+		this.parent = parent;
+		return when;
+	}
 
 	// Compile the expression and log dependencies
 	when.compile(this);
@@ -1304,28 +1321,37 @@ Eden.AST.prototype.pIF = function() {
 	// Force if statements to have brackets around condition
 	if (this.token != "(") {
 		ifast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IFCONDOPEN));
+		this.parent = parent;
 		return ifast;
 	} else {
 		this.next();
 	}
 
 	ifast.setCondition(this.pEXPRESSION());
-	if (ifast.errors.length > 0) return ifast;
+	if (ifast.errors.length > 0) {
+		this.parent = parent;
+		return ifast;
+	}
 
 	// Must close said bracket
 	if (this.token != ")") {
 		ifast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IFCONDCLOSE));
+		this.parent = parent;
 		return ifast;
 	} else {
 		this.next();
 	}
 
 	ifast.setStatement(this.pSTATEMENT());
-	if (ifast.errors.length > 0) return ifast;
+	if (ifast.errors.length > 0) {
+		this.parent = parent;
+		return ifast;
+	}
 
 	// Can't have an if without a statement
 	if (ifast.statement === undefined) {
 		ifast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IFNOSTATEMENT));
+		this.parent = parent;
 		return ifast;
 	}
 
@@ -1358,9 +1384,12 @@ Eden.AST.prototype.pIF_P = function() {
  */
 Eden.AST.prototype.pFOR = function() {
 	var forast = new Eden.AST.For();
+	var parent = this.parent;
+	this.parent = forast;
 
 	if (this.token != "(") {
 		forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FOROPEN));
+		this.parent = parent;
 		return forast;
 	} else {
 		this.next();
@@ -1370,10 +1399,14 @@ Eden.AST.prototype.pFOR = function() {
 		this.next();
 	} else {
 		forast.setStart(this.pSTATEMENT_P());
-		if (forast.errors.length > 0) return forast;
+		if (forast.errors.length > 0) {
+			this.parent = parent;
+			return forast;
+		}
 
 		if (this.token != ";") {
 			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORSTART));
+			this.parent = parent;
 			return forast;
 		} else {
 			this.next();
@@ -1384,10 +1417,14 @@ Eden.AST.prototype.pFOR = function() {
 		this.next();
 	} else {
 		forast.setCondition(this.pEXPRESSION());
-		if (forast.errors.length > 0) return forast;
+		if (forast.errors.length > 0) {
+			this.parent = parent;
+			return forast;
+		}
 
 		if (this.token != ";") {
 			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCOND));
+			this.parent = parent;
 			return forast;
 		} else {
 			this.next();
@@ -1398,10 +1435,14 @@ Eden.AST.prototype.pFOR = function() {
 		this.next();
 	} else {
 		forast.setIncrement(this.pSTATEMENT_P());
-		if (forast.errors.length > 0) return forast;
+		if (forast.errors.length > 0) {
+			this.parent = parent;
+			return forast;
+		}
 
 		if (this.token != ")") {
 			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCLOSE));
+			this.parent = parent;
 			return forast;
 		} else {
 			this.next();
@@ -1409,6 +1450,7 @@ Eden.AST.prototype.pFOR = function() {
 	}
 
 	forast.setStatement(this.pSTATEMENT());
+	this.parent = parent;
 	return forast;
 }
 
@@ -1424,16 +1466,21 @@ Eden.AST.prototype.pWHILE = function() {
 
 	if (this.token != "(") {
 		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILEOPEN));
+		this.parent = parent;
 		return w;
 	} else {
 		this.next();
 	}
 
 	w.setCondition(this.pEXPRESSION());
-	if (w.errors.length > 0) return w;
+	if (w.errors.length > 0) {
+		this.parent = parent;
+		return w;
+	}
 
 	if (this.token != ")") {
 		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILECLOSE));
+		this.parent = parent;
 		return w;
 	} else {
 		this.next();
@@ -1443,6 +1490,7 @@ Eden.AST.prototype.pWHILE = function() {
 
 	if (w.statement === undefined) {
 		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILENOSTATEMENT));
+		this.parent = parent;
 		return w;
 	}
 
@@ -1458,6 +1506,8 @@ Eden.AST.prototype.pWHILE = function() {
  */
 Eden.AST.prototype.pDO = function() {
 	var w = new Eden.AST.Do();
+	var parent = this.parent;
+	this.parent = w;
 
 	if (this.token == "{") {
 		this.next();
@@ -1465,13 +1515,16 @@ Eden.AST.prototype.pDO = function() {
 		if (this.token != "}") {
 			w.setScript(script);
 			w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
+			this.parent = parent;
 			return w;
 		}
 		this.next();
 		w.setScript(script);
+		this.parent = parent;
 		return w;
 	} else if (this.token != "OBSERVABLE") {
 		w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DONAME));
+		this.parent = parent;
 		return w;
 	} else {
 		w.setName(this.data.value);
@@ -1483,17 +1536,22 @@ Eden.AST.prototype.pDO = function() {
 
 		for (var i=0; i<elist.length; i++) {
 			w.addParameter(elist[i]);
-			if (w.errors.length > 0) return w;
+			if (w.errors.length > 0) {
+				this.parent = parent;
+				return w;
+			}
 		}
 	}
 
 	if (this.token != ";") {
 		w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
+		this.parent = parent;
 		return w;
 	} else {
 		this.next();
 	}
 
+	this.parent = parent;
 	return w;
 }
 
@@ -1505,25 +1563,33 @@ Eden.AST.prototype.pDO = function() {
  */
 Eden.AST.prototype.pSWITCH = function() {
 	var swi = new Eden.AST.Switch();
+	var parent = this.parent;
+	this.parent = swi;
 
 	if (this.token != "(") {
 		swi.error(new Eden.SyntaxError(this, Eden.SyntaxError.SWITCHOPEN));
+		this.parent = parent;
 		return swi;
 	} else {
 		this.next();
 	}
 
 	swi.setExpression(this.pEXPRESSION());
-	if (swi.errors.length > 0) return swi;
+	if (swi.errors.length > 0) {
+		this.parent = parent;
+		return swi;
+	}
 
 	if (this.token != ")") {
 		swi.error(new Eden.SyntaxError(this, Eden.SyntaxError.SWITCHCLOSE));
+		this.parent = parent;
 		return swi;
 	} else {
 		this.next();
 	}
 
 	swi.setStatement(this.pSTATEMENT());
+	this.parent = parent;
 	return swi;
 }
 
@@ -1543,6 +1609,7 @@ Eden.AST.prototype.pFUNCTION = function() {
 		this.next();
 	} else {
 		func.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCNAME));
+		this.parent = parent;
 		return func;
 	}
 
@@ -1643,8 +1710,10 @@ Eden.AST.prototype.pLVALUE = function() {
 		this.next();
 		lvalue.setExpression(this.pEXPRESSION());
 		if (lvalue.errors.length > 0) return lvalue;
+
+		// Closing backtick required
 		if (this.token != '`') {
-			lvalue.error(new Eden.SyntaxError(this, 0));
+			lvalue.error(new Eden.SyntaxError(this, Eden.SyntaxError.BACKTICK));
 			return lvalue;
 		}
 		this.next();
@@ -1959,31 +2028,12 @@ Eden.AST.prototype.pAFTER = function() {
 	}
 
 	var statement = this.pSTATEMENT();
+	if (statement === undefined) {
+		after.error(new Eden.SyntaxError(this, Eden.SyntaxError.AFTERNOSTATEMENT));
+	}
 
 	after.setStatement(statement);
 	return after;
-}
-
-
-
-/**
- * AWAIT Production
- * AWAIT -> EXPRESSION ;
- */
-Eden.AST.prototype.pAWAIT = function() {
-	var shif = new Eden.AST.Shift();
-	
-}
-
-
-
-/**
- * OPTION Production
- * OPTION -> OBSERVABLE = OPTION'
- */
-Eden.AST.prototype.pOPTION = function() {
-	var shif = new Eden.AST.Shift();
-	
 }
 
 
@@ -2132,9 +2182,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "append"	:	this.next(); stat = this.pAPPEND(); break;
 	case "shift"	:	this.next(); stat = this.pSHIFT(); break;
 	case "require"	:	this.next(); stat = this.pREQUIRE(); break;
-	//case "await"	:	this.next(); stat = this.pAWAIT(); break;
 	case "after"	:	this.next(); stat = this.pAFTER(); break;
-	//case "option"	:	this.next(); stat = this.pOPTION(); break;
 	case "include"	:	this.next(); stat = this.pINCLUDE(); break;
 	case "import"	:	this.next(); stat = this.pIMPORT(); break;
 	case "default"	:	this.next();
@@ -2266,6 +2314,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	var name;
 
+	// Expect an action name with same syntax as an observable name
 	if (this.token != "OBSERVABLE") {
 		var script = new Eden.AST.Script();
 		script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONNAME));

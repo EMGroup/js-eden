@@ -55,8 +55,6 @@ var Language = {
 		"wait": "wait",
 		"include": "include",
 		"import": "import",
-		/*"option": "option",
-		"await": "await",*/
 		"insert": "insert",
 		"append": "append",
 		"delete": "delete",

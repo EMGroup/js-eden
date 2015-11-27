@@ -89,6 +89,8 @@ Eden.SyntaxError.IMPORTPATH = 62;
 Eden.SyntaxError.IMPORTOPTION = 63;
 Eden.SyntaxError.IMPORTCOMB = 64;
 Eden.SyntaxError.IFNOSTATEMENT = 65;
+Eden.SyntaxError.AFTERNOSTATEMENT = 66;
+Eden.SyntaxError.WHENNOSTATEMENT = 67;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -463,6 +465,14 @@ Eden.SyntaxError.db = [
 /* EDEN_ERROR_IFNOSTATEMENT */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_AFTERNOSTATEMENT */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_WHENNOSTATEMENT */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
 	}
 ];
 
@@ -579,6 +589,7 @@ Eden.RuntimeError.UNKNOWN = 0;
 Eden.RuntimeError.ASSIGNEXEC = 1;
 Eden.RuntimeError.FUNCCALL = 2;
 Eden.RuntimeError.ACTIONNAME = 3;
+Eden.RuntimeError.NOAGENT = 4;
 
 Eden.RuntimeError.prototype.messageText = function() {
 	return this.extra;

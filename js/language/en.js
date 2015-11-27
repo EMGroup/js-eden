@@ -271,6 +271,12 @@ Language.errors = [
 ],
 /* EDEN_ERROR_IFNOSTATEMENT */ [
 	"Missing statement after 'if'"
+],
+/* EDEN_ERROR_AFTERNOSTATEMENT */ [
+	"Missing statement after 'after'"
+],
+/* EDEN_ERROR_WHENNOSTATEMENT */ [
+	"Missing statement after 'when'"
 ]
 ];
 

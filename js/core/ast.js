@@ -781,12 +781,17 @@ Eden.AST.Import.prototype.generate = function(ctx) {
 
 Eden.AST.Import.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
+	var me = this;
 	Eden.Agent.importAgent(this.path, this.options, function(ag) {
 		if (ag) {
 			for (var i=0; i<base.imports.length; i++) {
 				if (base.imports[i] === ag) return;
 			}
 			base.imports.push(ag);
+		} else {
+			me.executed = 3;
+			me.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOAGENT, me, "\""+me.path+"\" does not exist"));
+			if (me.parent) me.parent.executed = 3;
 		}
 	});
 }
@@ -2283,6 +2288,7 @@ Eden.AST.When = function() {
 	this.parent = undefined;
 	this.dependencies = {};
 	this.active = false;
+	this.compiled = undefined;
 };
 
 Eden.AST.When.prototype.setExpression = function (express) {
