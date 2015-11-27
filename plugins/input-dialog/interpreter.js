@@ -1952,22 +1952,33 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		var viewdata = {
 			contents: $dialogContents,
 			update: function(data) {
-				if (edited == false) {
-					if (data instanceof Symbol) {
-						agent.setScope(data.getValueScope(eden.root.scope));
-						intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(agent.code);
-						updateEntireHighlight();
-					} else if (data instanceof Array) {
-						intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(data);
-						updateEntireHighlight();
+				var agname = "view/script/edit/"+name;
+				Eden.Agent.importAgent(agname, ["noexec"], function(ag) {
+					if (ag === undefined) {
+						ag = new Eden.Agent(undefined, agname, undefined, undefined);
 					}
-				}
+
+					agent.state[obs_agent] = agname;
+
+					if (edited == false) {
+						if (data instanceof Symbol) {
+							agent.setScope(data.getValueScope(eden.root.scope));
+							intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(agent.code);
+							updateEntireHighlight();
+						} else if (data instanceof Array) {
+							intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(data);
+							updateEntireHighlight();
+						}
+					}
+				});
 			},
 			close: function() {
 				console.log("CLOSE SCRIPT");
 				clearInterval(gutterinterval);
 				Eden.Agent.unlisten(agent);
-				scriptagent.setOwned(false);
+				if (scriptagent) {
+					scriptagent.setOwned(false);
+				}
 				scriptagent = undefined;
 				Eden.Agent.remove(agent);
 				agent = undefined;
