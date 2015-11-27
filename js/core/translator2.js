@@ -1354,6 +1354,12 @@ Eden.AST.prototype.pIF = function() {
 	ifast.setStatement(this.pSTATEMENT());
 	if (ifast.errors.length > 0) return ifast;
 
+	// Can't have an if without a statement
+	if (ifast.statement === undefined) {
+		ifast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IFNOSTATEMENT));
+		return ifast;
+	}
+
 	ifast.setElse(this.pIF_P());
 	this.parent = parent;
 	return ifast;
@@ -2277,7 +2283,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	this.lines[curline] = stat;
 	//var endline = this.stream.line;
 	for (var i=curline+1; i<endline; i++) {
-		if (this.lines[i] === undefined) this.lines[i] = stat;
+		if (this.lines[i] === undefined || stat.errors.length > 0) this.lines[i] = stat;
 	}
 	return stat;
 };

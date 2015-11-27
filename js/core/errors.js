@@ -18,15 +18,9 @@ Eden.SyntaxError = function(context, errno, extra) {
 	this.extra = extra;
 	this.token = context.token;
 	this.prevtoken = context.previous;
-	this.line = context.stream.line;
+	this.line = context.stream.prevline;
 	this.position = context.stream.position;
 	this.prevposition = context.stream.prevposition;
-
-	// Adjust line number for semicolon error
-	if (errno == Eden.SyntaxError.SEMICOLON) {
-		//if (context.stream.valid()) this.line--;
-		this.line = context.stream.prevline;
-	}
 };
 
 Eden.SyntaxError.UNKNOWN = 0;
@@ -94,6 +88,7 @@ Eden.SyntaxError.PROCNAME = 61;
 Eden.SyntaxError.IMPORTPATH = 62;
 Eden.SyntaxError.IMPORTOPTION = 63;
 Eden.SyntaxError.IMPORTCOMB = 64;
+Eden.SyntaxError.IFNOSTATEMENT = 65;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -462,6 +457,10 @@ Eden.SyntaxError.db = [
 		suggestion: {expected: [], next: []}
 	},
 /* EDEN_ERROR_IMPORTCOMB */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_IFNOSTATEMENT */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
 	}

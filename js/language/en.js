@@ -268,6 +268,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_IMPORTCOMB */ [
 	"Combination of options not allowed"
+],
+/* EDEN_ERROR_IFNOSTATEMENT */ [
+	"Missing statement after 'if'"
 ]
 ];
 
