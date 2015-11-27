@@ -1220,9 +1220,12 @@ Eden.AST.prototype.pOLIST_P = function() {
  */
 Eden.AST.prototype.pACTIONBODY = function() {
 	var codebody = new Eden.AST.CodeBlock();
+	var parent = this.parent;
+	this.parent = codebody;
 
 	if (this.token != "{") {
 		codebody.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONOPEN));
+		this.parent = parent;
 		return codebody;
 	} else {
 		this.next();
@@ -1230,16 +1233,21 @@ Eden.AST.prototype.pACTIONBODY = function() {
 
 	// An action body can have locals but no paras
 	codebody.setLocals(this.pLOCALS());
-	if (codebody.locals.errors.length > 0) return codebody;
+	if (codebody.locals.errors.length > 0) {
+		this.parent = parent;
+		return codebody;
+	}
 	codebody.setScript(this.pSCRIPT());
 
 	if (this.token != "}") {
 		codebody.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
+		this.parent = parent;
 		return codebody;
 	} else {
 		this.next();
 	}
 
+	this.parent = parent;
 	return codebody;
 }
 
@@ -1626,27 +1634,38 @@ Eden.AST.prototype.pFUNCTION = function() {
  */
 Eden.AST.prototype.pFUNCBODY = function() {
 	var codebody = new Eden.AST.CodeBlock();
+	var parent = this.parent;
+	this.parent = codebody;
 
 	if (this.token != "{") {
 		codebody.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCOPEN));
+		this.parent = parent;
 		return codebody;
 	} else {
 		this.next();
 	}
 
 	codebody.setParams(this.pPARAMS());
-	if (codebody.params.errors.length > 0) return codebody;
+	if (codebody.params.errors.length > 0) {
+		this.parent = parent;
+		return codebody;
+	}
 	codebody.setLocals(this.pLOCALS());
-	if (codebody.locals.errors.length > 0) return codebody;
+	if (codebody.locals.errors.length > 0) {
+		this.parent = parent;
+		return codebody;
+	}
 	codebody.setScript(this.pSCRIPT());
 
 	if (this.token != "}") {
 		codebody.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCCLOSE));
+		this.parent = parent;
 		return codebody;
 	} else {
 		//this.next();
 	}
 
+	this.parent = parent;
 	return codebody;
 }
 

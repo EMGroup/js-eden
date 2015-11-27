@@ -1744,7 +1744,10 @@ Eden.AST.Action.prototype.kind = function(k) {
 
 Eden.AST.Action.prototype.setBody = function(body) {
 	this.body = body;
-	this.errors.push.apply(this.errors, body.errors);
+	if (body) {
+		body.parent = this;
+		this.errors.push.apply(this.errors, body.errors);
+	}
 }
 
 Eden.AST.Action.prototype.generate = function(ctx) {
