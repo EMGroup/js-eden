@@ -1211,6 +1211,7 @@ Eden.AST.prototype.pACTIONBODY = function() {
 		this.next();
 	}
 
+	// An action body can have locals but no paras
 	codebody.setLocals(this.pLOCALS());
 	if (codebody.locals.errors.length > 0) return codebody;
 	codebody.setScript(this.pSCRIPT());
@@ -1234,11 +1235,12 @@ Eden.AST.prototype.pACTIONBODY = function() {
 Eden.AST.prototype.pPARAMS = function() {
 	var params = new Eden.AST.Declarations();
 
+	// Get all parameter aliases.
 	while (this.token == "para") {
 		this.next();
 
 		var olist = this.pOLIST();
-		params.list = olist;
+		params.list.push.apply(params.list,olist);
 
 		if (olist.length == 0 || olist[olist.length-1] == "NONAME") {
 			params.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.PARAMNAME));
@@ -1265,6 +1267,7 @@ Eden.AST.prototype.pPARAMS = function() {
 Eden.AST.prototype.pLOCALS = function() {
 	var locals = new Eden.AST.Declarations();
 
+	// Get all locals, there may be many lines of such declarations
 	while (this.token == "auto" || this.token == "local") {
 		this.next();
 
@@ -1290,42 +1293,6 @@ Eden.AST.prototype.pLOCALS = function() {
 
 
 /**
- * LLIST Production
- * LLIST -> LVALUE LLIST'
- */
-Eden.AST.prototype.pLLIST = function() {
-	var lvalue = this.pLVALUE();
-	var llist = this.pLLIST_P();
-	if (llist === undefined) {
-		llist = new Eden.AST.LList();
-	}
-
-	llist.append(lvalue);
-	return llist;
-}
-
-
-/**
- * LLIST Prime Production
- * LLIST' -> , LVALUE LLIST' | epsilon
- */
-Eden.AST.prototype.pLLIST_P = function() {
-	if (this.token == ",") {
-		this.next();
-		var lvalue = this.pLVALUE();
-		var llist = this.pLLIST_P();
-		if (llist === undefined) {
-			llist = new Eden.AST.LList();
-		}
-		llist.append(lvalue);
-		return llist;
-	}
-	return undefined;
-}
-
-
-
-/**
  * IF Production
  * IF -> ( EXPRESSION ) STATEMENT IF'
  */
@@ -1334,6 +1301,7 @@ Eden.AST.prototype.pIF = function() {
 	var parent = this.parent;
 	this.parent = ifast;
 
+	// Force if statements to have brackets around condition
 	if (this.token != "(") {
 		ifast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IFCONDOPEN));
 		return ifast;
@@ -1344,6 +1312,7 @@ Eden.AST.prototype.pIF = function() {
 	ifast.setCondition(this.pEXPRESSION());
 	if (ifast.errors.length > 0) return ifast;
 
+	// Must close said bracket
 	if (this.token != ")") {
 		ifast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IFCONDCLOSE));
 		return ifast;
@@ -1360,6 +1329,7 @@ Eden.AST.prototype.pIF = function() {
 		return ifast;
 	}
 
+	// Get the optional else part.
 	ifast.setElse(this.pIF_P());
 	this.parent = parent;
 	return ifast;
@@ -1376,6 +1346,7 @@ Eden.AST.prototype.pIF_P = function() {
 		this.next();
 		return this.pSTATEMENT();
 	}
+	// Doesn't have to exist...
 	return undefined;
 }
 
@@ -1492,7 +1463,9 @@ Eden.AST.prototype.pDO = function() {
 		this.next();
 		var script = this.pSCRIPT();
 		if (this.token != "}") {
-
+			w.setScript(script);
+			w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
+			return w;
 		}
 		this.next();
 		w.setScript(script);
