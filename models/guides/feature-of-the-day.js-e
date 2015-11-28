@@ -148,7 +148,6 @@ picture is [img];
 		implementation (background canvas, HTML layer, transparent foreground canvas).</li>
 		<li><code>zoneOnTopAt</code> and <code>zonesAt</code> fail to detect if a point is occupied
 		by a HTML image or user interface control.</li>
-		<li>There's no zoneOnBottomAt function.</li>
 		<li>The extent to which <code>zoneOnTopAt</code> and <code>zonesAt</code> are useful remains unclear.</li>
 		<li>The shapes that establish the mouse zones inside a <code>HTMLImage</code> aren't resized
 		automatically if the image is resized.</li>

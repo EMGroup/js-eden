@@ -1044,9 +1044,11 @@
 				"label": "Text for the button",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"[enabled": "Boolean for button enabled",
+				"[width": "Width, in pixels",
+				"[min_height]]": "Minimum height, in pixels",
+				"[enabled]": "Boolean for button enabled",
 				"[fill_colour": "Background colour of the button",
-				"[text_colour]]]": "Colour of the text written on the button"
+				"[text_colour]]": "Colour of the text written on the button"
 			},
 			"return": "Button object",
 			"description": "Creates a button element for display on the canvas"
