@@ -205,7 +205,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			return Eden.Agent.agents[name] && Eden.Agent.agents[name].executed;
 		}, stopTab);
 		tabcm.addSeparator();
-		tabcm.addItem("&#xf093;","Export",function(){ return false; });
+		tabcm.addItem("&#xf093;","Upload",function(){ return false; });
 		tabcm.addItem("&#xf21b;","Hide",function(){ return true; }, hideTab);
 
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
