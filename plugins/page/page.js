@@ -127,7 +127,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			}
 			var container;
 			if (box) {
-				container = $("<div class='page-script-live page-script-live-box'></div>");
+				container = $("<div id='"+name+"-dialog' class='page-script-live page-script-live-box'></div>");
 			} else {
 				container = $("<div class='page-script-live'></div>");
 			}

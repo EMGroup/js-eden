@@ -255,11 +255,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 			}, scriptagent); hideMenu(); });
 			createMenuItem("&#xf0d0;", "Insert Template", function(e) { });
-			if (embedded) {
-				createMenuItem("&#xf24d;", "Un-embed", function(e) {
-					
-				});
-			}
 		}
 
 		var dragstart = 0;
@@ -1957,7 +1952,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 				Eden.Agent.importAgent(agname, ["noexec", "create"], function(ag) {
 					agent.state[obs_agent] = agname;
 
-					if (edited == false) {
+					//if (edited == false) {
 						if (data instanceof Symbol) {
 							agent.setScope(data.getValueScope(eden.root.scope));
 							intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(agent.code);
@@ -1965,8 +1960,11 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 						} else if (data instanceof Array) {
 							intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(data);
 							updateEntireHighlight();
+						} else if (typeof data == "string") {
+							intextarea.value = data;
+							updateEntireHighlight();
 						}
-					}
+					//}
 				});
 			},
 			close: function() {
