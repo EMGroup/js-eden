@@ -20,7 +20,7 @@ ${{
 	var fillcolour = arguments[5];
 	var textcolour = arguments[6];
 	if (enabled === undefined) enabled = true;
-	return new Button(name, label, x, y, enabled, fillcolour, textcolour);
+	return new Button(name, label, x, y, undefined, undefined, enabled, fillcolour, textcolour);
 }}$;
 }
 
