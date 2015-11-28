@@ -847,8 +847,8 @@ Eden.AST.Append.prototype.generate = function(ctx) {
 Eden.AST.Append.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var val = this.index.execute(root,ctx,base);
-	root.lookup(this.destination.observable).mutate(root.scope, function(s) {
-		root.scope.lookup(s.name).value.push(val);
+	root.lookup(this.destination.name).mutate(root.scope, function(s) {
+		s.value().push(val);
 	}, undefined);
 }
 
@@ -915,8 +915,8 @@ Eden.AST.Insert.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var ix = this.index.execute(root,ctx,base);
 	var val = this.value.execute(root,ctx,base);
-	root.lookup(this.destination.observable).mutate(root.scope, function(s) {
-		root.scope.lookup(s.name).value.splice(ix-1, 0, val);
+	root.lookup(this.destination.name).mutate(root.scope, function(s) {
+		s.value().splice(ix-1, 0, val);
 	}, undefined);
 }
 
@@ -968,8 +968,8 @@ Eden.AST.Delete.prototype.generate = function(ctx) {
 Eden.AST.Delete.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var ix = this.index.execute(root,ctx,base);
-	root.lookup(this.destination.observable).mutate(root.scope, function(s) {
-		root.scope.lookup(s.name).value.splice(ix-1, 1);
+	root.lookup(this.destination.name).mutate(root.scope, function(s) {
+		s.value().splice(ix-1, 1);
 	}, undefined);
 }
 
@@ -1179,7 +1179,7 @@ Eden.AST.Assignment.prototype.generate = function(ctx) {
 		return result;
 	} else {
 		result += ".assign(\n\t";
-		result += this.expression.generate(this, "scope");
+		result += this.expression.generate(ctx, "scope");
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			result += ".value";
 		}

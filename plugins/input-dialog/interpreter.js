@@ -582,6 +582,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					intextarea.value = scriptagent.ast.stream.code;
 					highlightContent(scriptagent.ast, -1, 0);
 					intextarea.focus();
+				} else {
+					intextarea.value = "";
+					intextarea.focus();
+					updateEntireHighlight();
 				}
 
 				disableInspectMode();
@@ -1792,17 +1796,8 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		function onNewTab() {
 			showSubDialog("newAgent", function(status, value) {
 				if (status) {
-					Eden.Agent.importAgent(value, ["noexec"], function(ag) {
-						if (ag === undefined) {
-							ag = new Eden.Agent(undefined, value, undefined, undefined);
-						}
-						var tabs = agent.state[obs_tabs];
-						if (tabs.indexOf(value) == -1) {
-							tabs.push(value);
-							agent.state[obs_tabs] = tabs;
-						}
+					Eden.Agent.importAgent(value, ["noexec","create"], function(ag) {
 						agent.state[obs_agent] = value;
-						//changeAgent(undefined, value);
 					});
 				} else if (value) {
 					showBrowseDialog();
