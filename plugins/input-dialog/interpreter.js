@@ -283,15 +283,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var scriptagent;
 
-		// If there is explicit code, then use that
-		if (code) {
-			preloadScript(undefined, code);
-		} else {
-			outdiv.className = "outputcontent readonly";
-			outdiv.contentEditable = false;
-			outdiv.innerHTML = "";
-		}
-
 
 		function showBrowseDialog() {
 			showSubDialog("browseAgents", function(valid, selected){
@@ -510,24 +501,26 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function preloadScript(sym, value) {
 			var res = "";
 			if (value) {
-				if (Eden.Agent.agents["view/script/"+name] === undefined) {
+				/*if (Eden.Agent.agents["view/script/"+name] === undefined) {
 					scriptagent = new Eden.Agent(undefined, "view/script/"+name, ["noexec"]);
 				} else {
 					scriptagent = Eden.Agent.agents["view/script/"+name];
-				}
-				scriptagent.setOwned(true);
-				if (value instanceof Array) {
-					for (var i=0; i < value.length; i++) {
-						if (typeof value[i] == "string") {
-							res += value[i] + "\n";
-						} else if (typeof value[i] == "object") {
-							res += value[i].eden_definition+"\n";
+				}*/
+
+				Eden.Agent.importAgent("view/script/"+name, ["noexec","create"], function(ag) {
+					if (value instanceof Array) {
+						for (var i=0; i < value.length; i++) {
+							if (typeof value[i] == "string") {
+								res += value[i] + "\n";
+							} else if (typeof value[i] == "object") {
+								res += value[i].eden_definition+"\n";
+							}
 						}
 					}
-				}
-				intextarea.value = res;
-				scriptagent.setSource(res);
-				updateEntireHighlight();
+					ag.setSource(res);
+					
+					agent.state[obs_agent] = "view/script/"+name;
+				});
 			}
 		}
 
@@ -694,6 +687,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		//toggleButtons(undefined, agent.state[obs_showbuttons]);
 		if (agent.state[obs_tabs] === undefined) {
 			agent.state[obs_tabs] = [];
+		}
+
+		// If there is explicit code, then use that
+		if (code) {
+			//preloadScript(undefined, code);
+			agent.state[obs_script] = code;
+		} else {
+			outdiv.className = "outputcontent readonly";
+			outdiv.contentEditable = false;
+			outdiv.innerHTML = "";
 		}
 
 		// Set source text.
@@ -1942,20 +1945,16 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		.on('drop', onTabDrop);
 
 		// Initialise contents if given some code
-		if (code) {
+		/*if (code) {
 			intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(code);
 			updateEntireHighlight();
-		}
+		}*/
 
 		var viewdata = {
 			contents: $dialogContents,
 			update: function(data) {
-				var agname = "view/script/edit/"+name;
-				Eden.Agent.importAgent(agname, ["noexec"], function(ag) {
-					if (ag === undefined) {
-						ag = new Eden.Agent(undefined, agname, undefined, undefined);
-					}
-
+				var agname = "view/script/"+name;
+				Eden.Agent.importAgent(agname, ["noexec", "create"], function(ag) {
 					agent.state[obs_agent] = agname;
 
 					if (edited == false) {

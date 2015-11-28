@@ -203,6 +203,7 @@ Eden.Agent.hasLocalModifications = function(name) {
 
 
 Eden.Agent.remove = function(agent) {
+	if (agent === undefined) return;
 	Eden.Agent.agents[agent.name] = undefined;
 
 	var previousAgent;
