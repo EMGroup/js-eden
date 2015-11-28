@@ -51,6 +51,10 @@ div.canvas-dialog .ui-dialog-titlebar {
 	opacity: 0.45;
 }
 
+.canvashtml-content input[type="button"] {
+	padding: 1px 4px;
+}
+
 .canvashtml-content select {
 	margin: 0px;
 	padding: 0px;
