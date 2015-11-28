@@ -122,6 +122,10 @@
 			"file": "plugins/input-dialog/scriptview-font.js-e",
 			"title": "Script View Font Controls"
 		},
+		"plugins/scriptview": {
+			"file": "plugins/input-dialog/scriptview.js-e",
+			"title": "Script View Extras"
+		},
 		"lib": {
 			"file": "library2/eden.jse",
 			"title": "Eden Base Library",
