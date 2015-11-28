@@ -1111,8 +1111,9 @@
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[width": "Width in virtual pixel units",
-				"[height": "Height in virtual pixel units",
-				"[at_scale]]]": "The value of _view_xxx_scale needed to make 1 virtual pixel equal 1 real pixel",
+				"[height]": "Height in virtual pixel units",
+				"[sizeIsPercentage]": "Whether width and height are in pixel or percentage units",
+				"[at_scale]]": "The value of _view_xxx_scale needed to make 1 virtual pixel equal 1 real pixel",
 				"url": "Source file for the image",
 				"[zones]": "List of two element lists. The first element of each is the name of an image area. The second is a Circle, Rectangle or Polygon object."
 			},
