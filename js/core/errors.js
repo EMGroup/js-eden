@@ -93,6 +93,8 @@ Eden.SyntaxError.AFTERNOSTATEMENT = 66;
 Eden.SyntaxError.WHENNOSTATEMENT = 67;
 Eden.SyntaxError.LITCHAREMPTY = 68;
 Eden.SyntaxError.LITCHARCLOSE = 69;
+Eden.SyntaxError.LITSTRLINE = 70;
+Eden.SyntaxError.LITSTRCLOSE = 71;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -483,6 +485,14 @@ Eden.SyntaxError.db = [
 /* EDEN_ERROR_LITCHARCLOSE */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_LITSTRLINE */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_LITSTRCLOSE */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
 	}
 ];
 
@@ -602,7 +612,20 @@ Eden.RuntimeError.ACTIONNAME = 3;
 Eden.RuntimeError.NOAGENT = 4;
 
 Eden.RuntimeError.prototype.messageText = function() {
+	switch (this.errno) {
+	case Eden.RuntimeError.ACTIONNAME	: return this.extra;
+	case Eden.RuntimeError.NOAGENT		: return this.extra;
+	default: break;
+	}
+
+	if (String(this.extra).match(/.*is not a function/)) {
+		return "Function does not exist";
+	}
 	return this.extra;
+}
+
+Eden.RuntimeError.prototype.prettyPrint = function() {
+	return "Run-time Error:\n"+this.extra.stack;
 }
 
 

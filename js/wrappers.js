@@ -136,6 +136,9 @@ Eden.Agent.importAgent = function(path, options, callback) {
 
 	function finish() {
 		if (ag) {
+			if (ag.ast && ag.ast.script.errors.length > 0) {
+				console.error(ag.ast.script.errors[0].prettyPrint());
+			}
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
 				ag.execute((options && options.indexOf("force") >= 0), true);
@@ -723,12 +726,6 @@ Eden.Agent.prototype.setSource = function(source, net, lineno) {
 		this.ast = new Eden.AST(source, this.ast.imports);
 	} else {
 		this.ast = new Eden.AST(source);
-	}
-
-	if (gettitle) {
-		if (this.ast.stream.code.charAt(0) == "#") {
-			this.setTitle(this.ast.stream.code.split("\n")[0].substr(2));
-		}
 	}
 }
 

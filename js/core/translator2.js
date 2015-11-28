@@ -509,13 +509,22 @@ Eden.AST.prototype.pFACTOR = function() {
 	// TODO Multi-line strings
 	} else if (this.token == "STRING") {
 		var lit = new Eden.AST.Literal("STRING", this.data.value);
-		this.next();
+		if (!this.data.error) this.next();
 		// Allow multiple strings to be combined as lines
-		while (this.token == "STRING") {
+		while (this.data.error == false && this.token == "STRING") {
 			lit.value += "\n"+this.data.value;
 			this.next();
 		}
-		return lit
+
+		if (this.data.error) {
+			if (this.data.value == "LINEBREAK") {
+				lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LITSTRLINE));
+			} else {
+				lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LITSTRCLOSE));
+			}
+		}
+
+		return lit;
 	// Boolean literal
 	} else if (this.token == "BOOLEAN") {
 		var lit = new Eden.AST.Literal("BOOLEAN", this.data.value);

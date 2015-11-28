@@ -247,7 +247,12 @@ EdenStream.prototype.parseString = function(data) {
 
 	while (this.valid() && this.peek() != 34) {
 		var chr = String.fromCharCode(this.get());
-		if (chr == "\n"){ this.unget(); return; }
+		if (chr == "\n"){
+			this.unget();
+			data.error = true;
+			data.value = "LINEBREAK";
+			return;
+		}
 		// TODO, the following allows multi-line strings if highlighter can
 		//if (chr == "\n") this.line++;
 		if (chr == "\\") {
@@ -261,6 +266,7 @@ EdenStream.prototype.parseString = function(data) {
 	// Remove end quote
 	if (this.valid() && this.peek() == 34) {
 		this.skip();
+		data.error = false;
 	} else {
 		data.error = true;
 	}

@@ -119,7 +119,7 @@ function EdenScriptGutter(parent, infob) {
 				// If the error is on this line then display it
 				if (err.line == line+1 || err.type == "runtime") {
 					var taboffset = 35; // TODO (agent.state[obs_showtabs]) ? 35 : 0;
-					console.error(err.messageText());
+					console.error(err.prettyPrint());
 					showInfoBox(e.target.offsetLeft+20, e.target.offsetTop-me.gutter.parentNode.scrollTop+25+taboffset, "error", err.messageText());
 				}
 			}

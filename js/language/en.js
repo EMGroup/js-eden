@@ -283,6 +283,12 @@ Language.errors = [
 ],
 /* EDEN_ERROR_LITCHARCLOSE */ [
 	"Missing a closing quote after character literal"
+],
+/* EDEN_ERROR_LITSTRLINE */ [
+	"Strings cannot be split over multiple lines"
+],
+/* EDEN_ERROR_LITSTRCLOSE */ [
+	"Missing a closing quote after a string"
 ]
 ];
 
