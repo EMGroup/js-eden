@@ -7,7 +7,7 @@ function writeVersion(version) {
   fs.writeFileSync('version.json', JSON.stringify(version));
 }
 
-exec('git describe --abbrev=0 HEAD', function (error, stdout) {
+exec('git describe --tags --abbrev=0 HEAD', function (error, stdout) {
   var tag;
   if (!error) {
     tag = stdout.replace('\n', '');
