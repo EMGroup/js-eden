@@ -24,6 +24,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	var canvases = {};
 	var scripts = {};
 
+	var scriptnum = 0;
+
 	function generateIcon(icon) {
 		if (!icon) return "";
 		if (icon[0] != "icon") return "";
@@ -71,8 +73,9 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		var scripts = [];
 
 		// Do a find replace for the jseden tag
-		text = text.replace(/<jseden>([\s\S]*?)<\/jseden>/g,
-		function (match, code, offset, string) {
+		text = text.replace(/<jseden([\s\S]*?)>([\s\S]*?)<\/jseden>/g,
+		function (match, attributes, code, offset, string) {
+			console.log("ATTRIBS: " + attributes);
 			scripts.push(code);
 			return "$$$$";
 		});
@@ -86,7 +89,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			for (var i=0; i<splittext.length-1; i++) {
 				outer.append($("<div class='page-paragraph'>"+splittext[i]+"</div>"));
 				var linecount = scripts[i].split("\n").length;
-				var script = generateScript(["script", false, [scripts[i]], makeRandomName(), true, linecount, false, false, "70%"]);
+				var script = generateScript(["script", false, [scripts[i]], undefined, true, linecount, false, false, "50%"]);
 				outer.append(script);
 			}
 			outer.append($("<div class='page-paragraph'>"+splittext[splittext.length-1]+"</div>"));
@@ -106,6 +109,11 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		var power = script[6];
 		var float = script[7];
 		var width = script[8];
+
+		if (name === undefined) {
+			name = "embedded"+scriptnum;
+			scriptnum++;
+		}
 
 		if (isStatic == false) {
 			var embedded;
@@ -138,6 +146,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			}
 
 			embedded.contents.appendTo(container);
+			container.resizable();
 			return container;
 		} else {
 			var res;
@@ -245,6 +254,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 
 	function generatePage(symbol, value) {
 		if (!(value instanceof Array)) return;
+
+		scriptnum = 0;
 
 		// Now destroy the canvases
 		/*for (var i=0; i<canvasdestroy.length; i++) {
