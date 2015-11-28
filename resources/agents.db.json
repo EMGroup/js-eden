@@ -57,6 +57,14 @@
 	},
 
 	"meta": {
+		"menace": {
+			"file": "models/MENACE/menacecommentary.js-e",
+			"title": "MENACE"
+		},
+		"menace/worksheet": {
+			"file": "models/MENACE/worksheet.js-e",
+			"title": "MENACE Worksheet"
+		},
 		"nick/circuit/bulb": {
 			"file": "models/nick/simple-circuit/bulb.js-e",
 			"title": "Bulb Circuit Element"

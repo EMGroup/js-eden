@@ -1,0 +1,1626 @@
+
+html(
+"<h3>About the MENACE construal</h3>"
+"<p>"
+"MENACE is the acronym of Donald Michie's <i>Matchbox Educable Noughts-And-Crosses Engine</i>. "
+"The construction of a MENACE construal is scaffolded using an extended presentation that makes use of the JSPE. "
+"(You may need to click the '&gt;&gt;' button in the JSPE panel to start the presentation.) "
+"</p>"
+"<p>"
+"The idea behind the presentation is to trace the stream-of-thought that has been followed in building up resources that can aid understanding of MENACE, and can in principle be the basis for an emulation of its behaviour."
+"As the presentation proceeds, a wide range of auxiliary issues that relate to making construals in general as well as to MENACE specifically are briefly reviewed and motivated."
+"The aim of presenting the construal in this way is to show how (or determine whether!) schoolteachers with backgrounds in computing and mathematics can collaboratively compile teaching resources that both have independent interest and, when taken together, contribute to a fully developed construal that can help to explain and illustrate the principles behind MENACE."
+"Were we to adopt a conventional approach to programming, writing an emulator for MENACE would perhaps be considered to be a relatively advanced topic."
+"In making construals, we aspire to reduce the conventional programming content to the specification of functions and procedures in a basic procedural style in such a way that all functions and procedures are direct by-products of an application-oriented thought process."
+"A relevant research question is \"to what extent can the difficulty in making a MENACE construal and associated emulator suitable for classroom use and experiment be reduced merely to understanding the principles of MENACE itself?\". "
+"</p>"
+"<p>"
+"The development of the MENACE construal builds upon a pre-existing simple construal of the game of noughts-and-crosses which is a useful resource for teaching making construals in its own right."
+"There is provision in the presentation for this to be loaded from an online directory."
+"For convenience, to make the presentation more self-contained, a copy of the relevant file, called <b>simpleNandC.js-e</b>, will be explicitly included."
+);
+
+## the file: simpleNandC.js-e
+
+x = 1;
+o = -1;
+u = 0;
+
+boardstate = [u,u,u,u,u,u,u,u,u];
+
+s1 is boardstate[1];
+s2 is boardstate[2];
+s3 is boardstate[3];
+s4 is boardstate[4];
+s5 is boardstate[5];
+s6 is boardstate[6];
+s7 is boardstate[7];
+s8 is boardstate[8];
+s9 is boardstate[9];
+
+allsquares is boardstate;
+
+WN is Point(100+size*0.5, 100+size*4.5);
+NW is Point(100+size*2.5, 100+size*6.5);
+NE is Point(100+size*4.5, 100+size*6.5);
+EN is Point(100+size*6.5, 100+size*4.5);
+ES is Point(100+size*6.5, 100+size*2.5);
+SE is Point(100+size*4.5, 100+size*0.5);
+SW is Point(100+size*2.5, 100+size*0.5);
+WS is Point(100+size*0.5, 100+size*2.5);
+sq1 is Point(100+size*1.5, 100+size*5.5);
+sq2 is Point(100+size*3.5, 100+size*5.5);
+sq3 is Point(100+size*5.5, 100+size*5.5);
+sq4 is Point(100+size*1.5, 100+size*3.5);
+sq5 is Point(100+size*3.5, 100+size*3.5);
+sq6 is Point(100+size*5.5, 100+size*3.5);
+sq7 is Point(100+size*1.5, 100+size*1.5);
+sq8 is Point(100+size*3.5, 100+size*1.5);
+sq9 is Point(100+size*5.5, 100+size*1.5);
+WNEN is Line(WN["x"],WN["y"],EN["x"],EN["y"]);
+WSES is Line(WS["x"],WS["y"],ES["x"],ES["y"]);
+NWSW is Line(NW["x"],NW["y"],SW["x"],SW["y"]);
+NESE is Line(NE["x"],NE["y"],SE["x"],SE["y"]);
+
+picture is [WNEN, WSES, NWSW, NESE];
+
+size = 40;
+
+lab1 is (s7 == o) ? "O" : ((s7 == x) ? "X" : "");
+piece1 is Text(lab1,sq1["x"]-10, sq1["y"]+10, "black", 32);
+lab2 is (s8 == o) ? "O" : ((s8 == x) ? "X" : "");
+piece2 is Text(lab2,sq2["x"]-10, sq2["y"]+10, "black", 32);
+lab3 is (s9 == o) ? "O" : ((s9 == x) ? "X" : "");
+piece3 is Text(lab3,sq3["x"]-10, sq3["y"]+10, "black", 32);
+lab4 is (s4 == o) ? "O" : ((s4 == x) ? "X" : "");
+piece4 is Text(lab4,sq4["x"]-10, sq4["y"]+10, "black", 32);
+lab5 is (s5 == o) ? "O" : ((s5 == x) ? "X" : "");
+piece5 is Text(lab5,sq5["x"]-10, sq5["y"]+10, "black", 32);
+lab6 is (s6 == o) ? "O" : ((s6 == x) ? "X" : "");
+piece6 is Text(lab6,sq6["x"]-10, sq6["y"]+10, "black", 32);
+lab7 is (s1 == o) ? "O" : ((s1 == x) ? "X" : "");
+piece7 is Text(lab7,sq7["x"]-10, sq7["y"]+10, "black", 32);
+lab8 is (s2 == o) ? "O" : ((s2 == x) ? "X" : "");
+piece8 is Text(lab8,sq8["x"]-10, sq8["y"]+10, "black", 32);
+lab9 is (s3 == o) ? "O" : ((s3 == x) ? "X" : "");
+piece9 is Text(lab9,sq9["x"]-10, sq9["y"]+10, "black", 32);
+
+picture is [WNEN, WSES, NWSW, NESE, piece1, piece2, piece3, piece4, piece5, piece6, piece7, piece8, piece9];
+
+near = 50;
+
+mouseXnear1 is ((mouseX-160)*(mouseX-160)<near);
+mouseXnear2 is ((mouseX-240)*(mouseX-240)<near);
+mouseXnear3 is ((mouseX-320)*(mouseX-320)<near);
+mouseYnear1 is ((mouseY-160)*(mouseY-160)<near);
+mouseYnear2 is ((mouseY-240)*(mouseY-240)<near);
+mouseYnear3 is ((mouseY-320)*(mouseY-320)<near);
+mouseXselect is (mouseXnear1 ? 1 : (mouseXnear2 ? 2 : (mouseXnear3 ? 3 : 0)));
+mouseYselect is (mouseYnear1 ? 1 : (mouseYnear2 ? 2 : (mouseYnear3 ? 3 : 0)));
+
+proc makemove: mousePressed {
+	if ((mousePressed) && (mouseXselect*mouseYselect != 0))
+		boardstate[(mouseYselect-1)*3 + mouseXselect] = player;
+}
+
+chooseplayer is Combobox("setPlayer", ["O","X"], 10, 10, true);
+player is (setPlayer_value == "O") ? o : ((setPlayer_value == "X") ? x : "");
+picture is [WNEN, WSES, NWSW, NESE, piece1, piece2, piece3, piece4, piece5, piece6, piece7, piece8, piece9, chooseplayer];
+
+allsquares is [s1,s2,s3,s4,s5,s6,s7,s8,s9];
+nofsquares is allsquares#;
+lin1 is [s1,s2,s3];
+lin2 is [s4,s5,s6];
+lin3 is [s7,s8,s9];
+lin4 is [s1,s4,s7];
+lin5 is [s2,s5,s8];
+lin6 is [s3,s6,s9];
+lin7 is [s1,s5,s9];
+lin8 is [s3,s5,s7];
+alllines is [lin1,lin2,lin3,lin4,lin5,lin6,lin7,lin8];
+
+func xxline {
+        para lline;
+        auto i, b;
+        b = 1;
+        for (i=1; i<=lline#; i++) {
+                b = b && (lline[i] == x);
+                }
+        return b;
+        }
+
+func ooline {
+        para lline;
+        auto i, b;
+        b = 1;
+        for (i=1; i<=lline#; i++) {
+                b = b && (lline[i] == o);
+                }
+        return b;
+        }
+
+func checkxwon {
+	para p1;
+	auto i, b;
+	b = 0;
+	for (i=1; i<=p1#; i++) {
+		b = b || xxline(p1[i]);
+		}
+	return b;
+	}
+
+func checkowon {
+	para p1;
+	auto i, b;
+	b = 0;
+	for (i=1; i<=p1#; i++) {
+		b = b || ooline(p1[i]);
+		}
+	return b;
+	}
+	
+xwon is checkxwon(alllines);
+owon is checkowon(alllines);
+
+func nofpieces {
+	para p1, p2;
+	auto count, total;
+	total = 0;
+	for (count=1; count <= p1#; count++)
+		if (p1[count] == p2)
+			total++;
+	return total;
+	}
+
+nofsquares is allsquares#;
+nofx is nofpieces(allsquares, x);
+nofo is nofpieces(allsquares, o);
+full is (nofx + nofo == nofsquares);
+draw is (! xwon) && (! owon) && full;
+status is (xwon?"X wins ":"") // (owon?"O wins ":"") //
+	(draw?"Draw ":"") // "";
+	
+## use display via symbol list with 'xwon|owon|draw|full|nof'
+
+/*
+
+## observing whether the first line is winning for player o: 
+
+func oline {
+	para l;
+	auto i, result;
+	result = 1;
+	for (i=1; i<=3; i++) if(l[i]==x) result = 0;
+	return result;
+}  
+	
+ostat1 is oline(alllines[1]);
+
+*/
+
+##include("models/jspe/run.e"); 
+
+import jspe;
+
+## Elizabeth's Table() function
+
+func Table {
+	para name, x, y, width, height, dataRows;
+	auto html, i, j;
+	html = "<table>\n";
+	for (j = 1; j <= dataRows#; j++) {
+		html = html // "	<tr>\n";
+		for (i = 1; i <= dataRows[j]#; i++) {
+			html = html // "		<td>";
+			html = html // dataRows[j][i];
+			html = html // "</td>\n";
+		}
+		html = html // "	</tr>\n";
+	}
+	html = html // "</table>\n";
+	return Div(name, x, y, width, height, html);
+}
+
+buttonPrev is SlideButton("buttonPrev","<<     Slide #" // str(currentSlide), jspeleft, 0, buttonPrevEnabled);
+
+buttonNext is SlideButton("buttonNext",">>", jspeleft+150, 0, buttonNextEnabled);
+
+## to protect against loss of information whilst constructing patterns
+
+${{
+  
+var workIsDone = false;
+window.onbeforeunload = confirmBrowseAway;
+
+function confirmBrowseAway()
+{
+  if (!workIsDone) {
+    return "Are you sure? If you leave this page now, your work will NOT be saved.";
+  }
+};
+  
+}}$;
+
+iggy4 is Slide(
+"<h3>About MENACE</h3>"
+"<p>"
+"The Matchbox Educable Noughts And Crosses Engine (MENACE) was devised by Prof Donald Michie ..."
+"</p> "
+"<p>"
+"MENACE consists of an array of about 300 matchboxes each of which corresponds to a distinct position in a game of noughts-and-crosses."
+"Each matchbox contains a set of beads that are coloured-coded."
+"A bead of a particular colour corresponds to a possible move in the position represented by the matchbox."
+"MENACE 'plays' nought-and-crosses by identifying the matchbox corresponding to the current position, then selecting a bead at random from the matchbox, and making the corresponding move."
+"By monitoring the outcomes of games, the distribution of coloured beads in each matchbox can be adjusted to increase the probability of making a good move.    "
+"</p>"
+"<p>"
+"... some relevant references"
+"<ul>"
+"<li><a href='http://boingboing.net/2009/11/02/mechanical-computer.html' target='_blank'>http://boingboing.net/2009/11/02/mechanical-computer.html</a></li>"
+"<li>http://comjnl.oxfordjournals.org/content/6/3/232.full.pdf+html</li>"
+"<li>http://www.it.uu.se/edu/course/homepage/ai/menace</li>"
+"</ul>"
+"</p>"
+);
+
+menace1 is Slide(
+"<h3>The general idea behind MENACE</h3>"
+"<p>"
+"In concept, MENACE is based on the idea that"
+""
+"<ul>"
+"<li>"
+"we can create a representation of 'all possible' N+C positions and of the valid moves in each position."
+"</li>"
+"<li>"
+"we can monitor the paths that games take through the possible positions and moves to their outcome"
+"</li>"
+"<li>"
+"we can attach a weighting to the possible moves in each position so that moves that feature more prominently in winning outcomes have a higher weighting."
+"</li>"
+"</ul>"
+"By making the choice of move reflect its weighting, you can create a stronger noughts-and-crosses player."
+"</p>"
+);
+
+iggy5 is Slide(
+"<h3>Modelling noughts-and-crosses</h3>"
+"<p>"
+"As a first step towards making a computer model that helps us to understand more about MENACE, we'll first introduce a model of Noughts and Crosses."
+"<jseden>include(\"models/NoughtsCrosses/simpleNandC.js-e\");</jseden>"
+## on later versions of JS-EDEN
+## <jseden>include(\"http://jseden.dcs.warwick.ac.uk/models/NoughtsCrosses/simpleNandC.js-e\");</jseden>
+"</p>"
+"<p>"
+"On the default HTML5 canvas, there are some lines. They represent a grid on which you can play noughts and crosses."
+"In the top left corner, there is a drop down menu in which you can select whether you wish to make a move for O or X (adding a 'nought' or a 'cross' to the grid)."
+"To play in a particular square, you simply click with the mouse near the centre of the square. Try playing a game ... "
+"</p>"
+"<p>"
+"What you are interacting with when playing noughts and crosses in this environment is quite different from a traditional computer program."
+"Perhaps you can think of some reasons why?"
+"</p>"
+"<!--"
+"<p>"
+"The computer model will be referred to as a <b>construal</b> of noughts-and-crosses."
+"</p>"
+"-->"
+);
+
+slideList is [iggy4, menace1, iggy5];
+
+
+iggy5b is Slide(
+"<h3>... some reasons why the model is unlike a program ...</h3>"
+"<p>"
+"<ul>"
+"<li>The computer seeems to be doing very little that you can't do with a pen and paper</li>"
+"<li>There's no obvious computation in progress, as when a calculation is being performed - you put an O on the grid, and apparently 'nothing else happens'</li>"
+"<li>There aren't many buttons to press that do things for you</li>"
+"<li>It isn't clear what the point of the 'artefact' is</li>"
+"</ul>"
+"also ..."
+"<ul>"
+"<li>You can cheat - even the rules of noughts and crosses aren't being imposed</li>"
+"</ul>"
+"</p>"
+"<p>"
+"Call this peculiar 'interactive artefact' a <b>construal</b>."
+"Making a construal is based on principles altogether very different from writing a user-friendly program."
+"</p>"
+"<p>"
+"Cf. What are the principles of writing a user-friendly program?"
+"<ul>"
+"<li>Clear purpose and function pre-specified</li>"
+"<li>Guidelines for the user - the user knows what to do</li>"
+"<li>Powerful use of qualities that the computer possesses - </li>"
+"<ul>"
+"<li>colourful</li>"
+"<li>eventful</li>"
+"<li>efficient</li>"
+"</ul>"
+"</ul>"
+"</p>"
+);
+
+## cf Steve / WMB on the theme of distinctions between a program and a construal - though may be premature here
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6];
+
+iggy6 is Slide(
+"<h3>How does a construal differ from a program?</h3>"
+"<ol>"
+"<li>much more to the construal than meets the eye (literally) - your task is typically to 'explore' the construal rather than 'use it'</li>"
+"<li>to appreciate the construal you need to do more than perform obvious interactions and interpret them in the routine way that a trad user of a program does</li>"
+"<li>you will need to look more closely into how the construal is constructed</li>"
+"</ol>"
+"Some reflections on this difference ... "
+"<ul>"
+"<li>"
+"note that 3. is also quite different from using a program, where you are not directly exposed to the code that describes its behaviour - indeed the code could be transformed into a completely form without the user knowing the difference - this is one aspect of having an 'interface' to a program"
+"</li>"
+"<li>"
+"what you are thinking about when you interact / how do you experience the interaction?"
+"it may well be that your interpretation and experience is personal and doesn't conform to the expectations of the maker ..."
+"the emphasis is on what's going through your mind when you interact with the construal - "
+"For instance, might be allocating football supporters to areas of a ground / two members of staff to timetable slots / trying to make a pattern with particular symmetries / designing a logo for a Noughts-and-Crosses tournament"
+"</li>"
+"<li>"
+"in interacting you are not encouraged to conceive interaction as 'via an interface' - the boundary between what is given and what can be changed isn't well-defined"
+"</li>"
+"<li>"
+"The principal focus in making a construal is on framing the environment in which interaction will occur rather than on specifying the goal-directed actions that agents perform in these environments ('get out of goal'). Chinese notion: moulding the context for action can radically simplify the specification of actions. "
+"</li>"
+"<li>"
+"Your interaction with a construal is meaningful primarily because of association between experience of this interaction and experience of interaction 'in the external world' - or at any rate external to the computer. 'The fundamental diagram for making construals'."
+"</li>"
+"</ul>"
+);
+
+iggy7 is Slide(
+"<h3>A 'construal comprehension' exercise</h3>"
+"<i>What do you pay attention to when playing noughts-and-crosses?</i>"
+"<p>"
+"<ol>"
+"<li>what symbols are on the board/grid</li>"
+"<li>Where the symbols are</li>"
+"<li>What the winning lines are</li>"
+"<li>Whether the game is over</li>"
+"<li>Whether either player has won</li>"
+"<li>Whether the board position is valid</li>"
+"<li>Whose turn it is</li>"
+"<li>What colour are the symbols?</li>"
+"</ol>"
+"Note that there is a dependency - a player with rudimentary familiarity with the rules knows whether someone has won etc as soon as they take in the position of the symbols on the board. (You wouldn't ordinarily think about the distinction between 'glancing at the board' and 'seeing whether the game is finished' etc. But there may be situations in which these observations should be distinguished.)"
+""
+"</p>"
+""
+"<p>Exercise: identify the observables in the construal that answer the above questions (if they exist!). If they don't exist, consider how you would introduce them. In each case, explain:"
+"<ul>"
+"<li>O: as precisely as can what the observables in the construal refer to</li>"
+"<li>D: which observables are defined by dependencies, and how these are specified</li>"
+"<li>A: what you would need to do to modify the observables, and decide what role(s) you would be acting in if you did change them.</li>"
+"</ul>"
+"In what situations might observations that are perceived as routinely linked by dependency be distinguished? What other observables might there be?</p>"
+);
+
+iggy7a is Slide(
+"<h3>Some answers / useful interactions</h3>"
+"<ul>"
+"<li>Good to use the Script Generator to get an overall view of the construal (in conjunction with the RE to exclude (most of the) irrelevant observables: 'slide|igg|comm|.*Slid|dr|[bB]utton'). {ODA} Can use the Dependency Map feature to view which observables depend on others ... good to see whether you can predict which these might be in advance of inspecting their definitions."
+"Note that there are three primitive kinds of view component observable | function | agent lists, which approximately correspond to ODA. Also have a Symbol List, where observable / function / agent generically called symbols</li>"
+"<li>1 and 2: interpret o, x and u. Check out boardstate / s1, s2, ..., s9 as observables for state of board. Why not just use 's1=u;' etc?</li>"
+"<li>3 alllines</li>"
+"<li>4 end_of_game / status - not explicit, but can introduce via:"
+"<jseden>end_of_game is xwon || owon || draw;</jseden>"
+"<br />"
+"</li>"
+"<li>5 owon / xwon</li>"
+"<li>6 doesn't exist - make a definition for it?</li>"
+"<li>7 the current player is determined by what value is currently selected via the ComboBox - this is the nearest equivalent in the construal to the person currently with the move. But 'makemove' isn't really topical here - it means 'put something on the board' / 'manually display something on the board'. Subtheme: what 'knowledge/perception of context' is encoded in the construal so that it can be accessed by the computer, and to what extent is this simply in the mind of the maker?</li>"
+"<li>someone thinks they've won when they don't know the rules / someone knows that O has won but doesn't know why</li>"
+"</ul>"
+"<p>"
+"Note that the checkxwon and checkowon functions are generic - they determine whether a line of arbitrary length comprises only x's or only o's. The oline function was originally introduced with a view to eliminating complex procedural functions, and specifying dependencies simply with scripts. "
+"</p>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a];
+
+iggy8a is Slide(
+"<h3>Some layout issues</h3>"
+"<p>"
+"When we initially make a visualisation, we typically do this in a rough-and-ready way. Worth studying the way in which the noughts and crosses board has been constructed, and its limitations."
+"</p>"
+"<p>"
+"The exploration of a construal is an empirical activity, for which no prescription can be made. Identifying observables and finding observable names involves some idea of the naming conventions and an element of serendipity. Here's a possible way in which we can find out how the noughts-and-crosses board is constructed without any prior knowledge of the observables involved:"
+"<ul>"
+"<li>You may be able to guess that the board contains component lines: the relevant constructor is called Line(). You can insert this observable into a Dependency Map viewer to discover that there are four observables of type line, called NESE, WSES etc. Their interpretation should be apparent from their names. Should you wish to confirm that you understand the correspondence (which you might if you did not appreciate the standard connotations of the symbols N, S, E and W), you can inspect NESE via the Symbol Lookup Table viewer, and modify its current definition:"
+"<jseden>NESE is Line(NE[\"x\"],NE[\"y\"],SE[\"x\"],SE[\"y\"]);</jseden>"
+"to a form such as:"
+"<jseden>NESE is Line(NE[\"x\"],NE[\"y\"],SE[\"x\"],SE[\"y\"], \"red\");</jseden>"
+"Having identified the line NESE, you can observe from its definition that it connects two points NE amd SE, and add the observables NESE and NE to the Dependency Map to display the relationship between these observables.</li>"
+"<li>From the dependency map you can see that NE depends on an observable 'size' which suggests that the size of the board can be changed. Inspecting 'size' in a Symbol List reveals that its current value is 40.</li>"
+"<li>You can change 'size' to 20, and it will make the board half-size."
+"<jseden>"
+"size = 20;"
+"</jseden>"
+"<br />"
+"But, at half-size, there is a problem ...</li>"
+"<ul>"
+);
+
+iggy8c is Slide(
+"<h3>A problem with the smaller grid ...</h3>"
+"... mouse actions no longer work."
+"<ul>"
+"<li>A mouse action shows up on an Agent List view. You have to inspect the Agent List carefully to identify it, but it is relatively easy to see that almost all the listed actions are generic. Putting makemove in the SLT reveals that it has a definition that is independent of size. To establish this view all observables associated with 'mouse' by typing 'mou' into a Symbol List view, and establish by inspecting the definitions of the observables mouseXselect, mouseXnear1 etc that they do not depend on size. [Actually no visible reference to 'near' in the Symbol List display of the definition of mouseXnear1 - bug here.]</li>"
+"<li>The above experimental interaction is the basis for a new definition of the observables mouseXnear1 etc viz:"
+"<jseden>"
+"mouseYnear1 is ((mouseY-100-size*1.5)*(mouseY-100-size*1.5)&lt;near);"
+"mouseYnear2 is ((mouseY-100-size*3.5)*(mouseY-100-size*3.5)&lt;near);"
+"mouseYnear3 is ((mouseY-100-size*5.5)*(mouseY-100-size*5.5)&lt;near);"
+"mouseXnear1 is ((mouseX-100-size*1.5)*(mouseX-100-size*1.5)&lt;near);"
+"mouseXnear2 is ((mouseX-100-size*3.5)*(mouseX-100-size*3.5)&lt;near);"
+"mouseXnear3 is ((mouseX-100-size*5.5)*(mouseX-100-size*3.5)&lt;near);"
+"</jseden>"
+"</li>"
+"</ul>"
+"Note how the efficacy of these search techniques depends critically on how the model has been constructed. There is a general principle here, that applies to the construal and its referent. Dependencies are an essential primitive ingredient in enabling one interactive experience to evoke another, and play a crucial role in grounding observables."
+"</p>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c];
+
+iggy9 is Slide(
+"<h3>Modelling MENACE is one way of making an automatic player</h3>"
+"<p>"
+"Several types of automated player are conceivable:"
+"<ol>"
+"<li>a remake of the oxoJoy static evaluator that is defined using a simple script rather than a procedural function written with lines containing a non-specific number of squares in mind. <!--- see Joe's JS EMperor version--></li>"
+"<li>implementation of the Wikipedia best player (following rules) - with some basic reference to LSD</li>"
+"<li>generating a legal move at random</li>"
+"</ol>"
+"<p>Exercises in the context of discussion of agency. What do we attend to when playing noughts-and-crosses? LSD notions.</p>"
+"</p>"
+"<p>"
+"And more ambitious than these approaches - incorporating machine-learning prospects: MENACE construal"
+"</p>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9];
+
+menace2 is Slide(
+"<h3>Refinements of the basic concept</h3>"
+"<p>"
+"In MENACE each position is represented by a matchbox, and each possible move by a coloured bead with one of nine colours. It would not be feasible to construct an array of matchboxes so that every distinct position had its own matchbox. Michie optimises by taking into account the fact that many positions in N+C are the same up to symmetry. This makes the number of matchboxes manageable. It also has the effect of consolidating the information that is gained about what are essentially equivalent positions in one place."
+"</p>"
+"<p>"
+"It may well be possible to make a representation on a computer in which every possible position is distinguished. (I have not yet succeeeded in doing this!) There are arguments against doing this: apart from the consolidation of empirical data about moves that are not essentially different, there is a better chance that the human observer can appreciate the smaller model, and find more effective modes of visualisation and manipulation to understand their interaction with it.  "
+"</p>"
+"<p>"
+"Michie's matchbox-with-beads representation offers a natural concrete way in which to select a move in a given position (select a bead from the appropriate matchbox at random and make a move based on its colour), together with a mechanism for building in ways of changing the weighting associated with moves (increase the number of beads of a colour if it corresponds to a move with better winning prospects). It makes good sense to combine using MENACE to play the game at the same time as it is adapting its behaviour so as to reflect the end-results of its play. (We might like to call this 'learning' from 'experience'.) When imitating the MENACE principle with a computer, a conceptually simpler strategy can be adopted: the computer can be cast in the role of an observer who witnesses a very large number of games without participating and subsequently adjusts the weighting of moves so as to determine its own strategy of play. "
+"</p>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2];
+
+menace3 is Slide(
+"<h3>Making a construal to support MENACE-like investigations</h3>"
+"<p>"
+"The first step towards making a construal for MENACE is to address the two broad needs: representing all the possible positions and moves in N+C, and setting up a way to simulate and record the paths taken in the course of suitably generated games."
+"</p>"
+"<p>"
+"A natural way to encode an N+C position is to interpret the o,x,u asociated with each cell as a -1,-0,1 value modulo 3, and to interpret the state of the board as a nine-digit ternary number in the range -9841 to +9841, where 9841 is the integer part of (3^9)/2. You can define an observable numpos associated with the position boardstate as follows: "
+"<jseden>"
+"numpos is s1*pow(3,0) + s2*pow(3,1) + s3*pow(3,2) + s4*pow(3,3) + s5*pow(3,4) + s6*pow(3,5) + s7*pow(3,6) + s8*pow(3,7) + s9*pow(3,8);"
+"</jseden>"
+"The value of numpos is dependent on boardstate. "
+"</p>"
+"<p>"
+"The following script inverts this dependency: if ixpos is the index of some N+C position, then boardstateix it defines the associated board position."
+"</p>"
+"<jseden>"
+"ixpos = 9605;"
+"pos_s1 is mod3(ixpos);"
+"ixpos1 is (ixpos-pos_s1)/3;"
+"pos_s2 is mod3(ixpos1);"
+"ixpos2 is (ixpos1-pos_s2)/3;"
+"pos_s3 is mod3(ixpos2);"
+"ixpos3 is (ixpos2-pos_s3)/3;"
+"pos_s4 is mod3(ixpos3);"
+"ixpos4 is (ixpos3-pos_s4)/3;"
+"pos_s5 is mod3(ixpos4);"
+"ixpos5 is (ixpos4-pos_s5)/3;"
+"pos_s6 is mod3(ixpos5);"
+"ixpos6 is (ixpos5-pos_s6)/3;"
+"pos_s7 is mod3(ixpos6);"
+"ixpos7 is (ixpos6-pos_s7)/3;"
+"pos_s8 is mod3(ixpos7);"
+"ixpos8 is (ixpos7-pos_s8)/3;"
+"pos_s9 is mod3(ixpos8);"
+"boardstateix is [pos_s1, pos_s2, pos_s3, pos_s4, pos_s5, pos_s6, pos_s7, pos_s8, pos_s9];"
+"</jseden>"
+"The function mod3() that is introduced here has the following definition:"
+"<jseden>"
+"func mod3 {"
+"	para n;"
+"	auto nmod3;"
+"	nmod3 = (n%3>=0) ? n%3 : 3+n%3;"
+"	return (nmod3==0) ? 0 : ((nmod3==2) ? -1 : 1);"
+"}"
+"</jseden>"
+"It generates -1,0 or 1 as a remainder on dividing a given number by 3, and its definition is complicated by the fact that the % operator doesn't always return the same remainder on division by 3 when it should e.g. -2 returns -2, and 1 returns 1. "
+);
+
+## Theme: adaptation to the foibles of the MC environment
+## blurring the distinction between the environment and the construal
+
+## current value of numpos not being displayed in the symbol list?
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3];
+
+menace4 is Slide(
+"<h3>Functions from scripts</h3>"
+"The scripts on the previous slide can be translated into functions, as follows:"
+"<jseden>"
+"## translating a position index into a boardstate:"
+"func mkbrdstate {"
+"	para posix;"
+"	auto i, posixi, result;"
+"	posixi = posix;"
+"	result = [mod3(posixi)];"	
+"	for (i=1; i<=8; i++) {	"
+"		posixi = (posixi-mod3(posixi))/3;"
+"		result = result // [mod3(posixi)];	"
+"	}"
+"	return result;"
+"}"
+"</jseden>"
+"and the inverse function:"
+"<jseden>"
+"## translating a position (where defined) into an index for that position"
+"func mknumpos {"
+"	para bs;"
+"	auto bs1, bs2, bs3, bs4, bs5, bs6, bs7, bs8, bs9, result;"
+"	bs1 = bs[1]; bs2 = bs[2]; bs3 = bs[3];"
+"	bs4 = bs[4]; bs5 = bs[5]; bs6 = bs[6];"
+"	bs7 = bs[7]; bs8 = bs[8]; bs9 = bs[9];"
+"	result = bs1*pow(3,0)+bs2*pow(3,1)+bs3*pow(3,2)+bs4*pow(3,3)+bs5*pow(3,4)+bs6*pow(3,5)+bs7*pow(3,6)+bs8*pow(3,7)+bs9*pow(3,8);"
+"	return result;"
+"}"
+"</jseden>"
+"<p>"
+"The process of converting a script to a function can in principle be automated. In this way, framing a script can be regarded as a way to develop a program by making a construal."
+"</p>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4];
+
+menace5 is Slide(
+"<h3>Miscellaneous reflections</h3>"
+"<p>"
+"You can improve the interface to suit a particular experimental purpose. For instance, numpos depends on boardstate, which can be changed manually by using the mouse. Initially, there's no provision for deleting O and X symbols by clicking in a cell, hence this redefinition: "
+"<jseden>"
+"chooseplayer is Combobox(\"setPlayer\", [\"O\",\"X\",\"U\"], 10, 10, true);"
+"player is (setPlayer_value == \"O\") ? o : ((setPlayer_value == \"X\") ? x : u);"
+"</jseden>"
+"</p>"
+"<p>"
+"A theme here might be configuration and instrumentation - customising the interface to a very specific targeted mode of observation and experiment cf. lab work."
+"</p>"
+"<p>"
+"Support for investigations, such as what is the largest value of numpos for which numpos is valid in N+C? What criterion can be used to determine the sign of numpos by inspecting the board? [Note the support that the construal gives for empirical study directed at solving such puzzles.]"
+"</p>"
+"<p>"
+"Checking the Dependency Map first to be sure that there is no risk of creating a cyclic dependency, you can introduce the dependency:"
+"<jseden>"
+"boardstate is boardstateix;"
+"</jseden>"
+"This makes it possible to see the position that is associated with a given index ixpos."
+"</p>"
+"<p>"
+"Configuration can operate at many levels - for instance, can revise the JSPE interface:"
+"<jseden>"
+"buttonPrev is SlideButton(\"buttonPrev\",\"Previous Slide: now #\" // str(currentSlide), jspeleft, 0, buttonPrevEnabled);"
+"</jseden>"
+"</p>"
+"This can be restored thus:"
+"<jseden>"
+"buttonPrev is SlideButton(\"buttonPrev\",\"&lt;&lt;     Slide #\" // str(currentSlide), jspeleft, 0, buttonPrevEnabled);"
+"buttonNext is SlideButton(\"buttonNext\",\"&gt;&gt;\", jspeleft+150, 0, buttonNextEnabled);"
+"</jseden>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5];
+
+menace6 is Slide(
+"<h3>Representing the possible moves in Noughts and Crosses</h3>"
+"<p>"
+"The previous slides show how to associate an index with each position in Noughts and Crosses."
+"The important observables associated with a position are: whose turn it is to move, whether or not the position is a terminal position, and what position is reached by playing in each of the nine squares, subject to its being unoccupied. "
+"</p>"
+"<p>"
+"On the assumption that O plays first, we can identify the player whose turn it is via:"
+"<jseden>"
+"toplay is (nofo>nofx) ? x : o;"
+"</jseden>"
+"and record this information using a single symbol:"
+"<jseden>"
+"whotoplay is (toplay==o) ? \"O\" : \"X\";"
+"</jseden>"
+"</p>"
+"There is already an observable called 'status' with the following definition:"
+"<jseden>"
+"status is (xwon?\"X wins \":\"\") // (owon?\"O wins \":\"\") // (draw?\"Draw \":\"\") // \"\";"
+"</jseden>"
+"To keep the information about a position concise, we introduce a single symbol to record the status:"
+"<jseden>"
+"symstatus is ((!xwon) && (!owon) && (!draw)) ? \"U\" : ((xwon?\"X\":\"\") // (owon?\"O\":\"\") // (draw?\"D\":\"\"));"
+"</jseden>"
+"The observable 'symstatus' is 'O', 'X' or 'D' according to whether O has won, X has won or the game is drawn and is otherwise 'U' to designate 'undefined'."
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6];
+
+menace7 is Slide(
+"<h3>Building up a table for possible moves</h3>"
+"<p>"
+"If the current position in a noughts-and-crosses game is recorded in 'boardstate', we can define the result of playing in each of the nine squares - with the convention that if a square is already occupied then the resulting boardstate is undefined (designated by '@'). To do this, we first define a function that returns a sublist of a list that is specified by given 'first' and 'last' indices:"
+"<jseden>"
+""
+"func seglist {"
+"		para ls, first, last;"
+"		auto i, result;"
+"		result = [];"
+"		for (i=first; i<=last; i++)"
+"			result = result // ls[i];"
+"		return result;"
+"}"
+""
+"boardstate_1 is (boardstate[1]==u) ? [toplay] // seglist(boardstate, 2, boardstate#):@;"
+"boardstate_2 is (boardstate[2]==u) ? seglist(boardstate, 1, 1) // [toplay] // seglist(boardstate, 3, boardstate#):@;"
+"boardstate_3 is (boardstate[3]==u) ? seglist(boardstate, 1, 2) // [toplay] // seglist(boardstate, 4, boardstate#):@;"
+"boardstate_4 is (boardstate[4]==u) ? seglist(boardstate, 1, 3) // [toplay] // seglist(boardstate, 5, boardstate#):@;"
+"boardstate_5 is (boardstate[5]==u) ? seglist(boardstate, 1, 4) // [toplay] // seglist(boardstate, 6, boardstate#):@;"
+"boardstate_6 is (boardstate[6]==u) ? seglist(boardstate, 1, 5) // [toplay] // seglist(boardstate, 7, boardstate#):@;"
+"boardstate_7 is (boardstate[7]==u) ? seglist(boardstate, 1, 6) // [toplay] // seglist(boardstate, 8, boardstate#):@;"
+"boardstate_8 is (boardstate[8]==u) ? seglist(boardstate, 1, 7) // [toplay] // seglist(boardstate, 9, boardstate#):@;"
+"boardstate_9 is (boardstate[9]==u) ? seglist(boardstate, 1, 8) // [toplay]:@;"
+"</jseden>"
+"</p>"
+"<p>"
+"There are two different kinds of ways of observing the move information. For purposes of calculating the sequence of positions followed in a game, it is useful to consider a move as mapping the number representing the initial position to the number representing the next position (if defined). For the purpose of displaying the information about what possible moves can be made, it is helpful to have a string representation that can be used in a tabular display. "
+"</p>"
+); 
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7];
+
+menace8 is Slide(
+"<h3>Displaying a table of possible moves</h3>"
+"<p>"
+"To display the possible moves in a table, we exploit a prototype Table() constructor devised by Elizabeth Hudnott. Before introducing the table, we record the current state of the <b>picture</b> observable so that it can be easily recalled."
+"<jseden>"
+"## include(\"models/elizabeth/experiments/tables.js-e\");"
+"## include(\"http://jseden.dcs.warwick.ac.uk/construit/models/elizabeth/experiments/tables.js-e\");"
+"picture is [WNEN, WSES, NWSW, NESE, piece1, piece2, piece3, piece4, piece5, piece6, piece7, piece8, piece9, chooseplayer];"
+"</jseden>"
+"In order to define the contents of a table, we need to make a list of strings to populate each row."
+"For this purpose, we convert the indices of positions into strings, and record the observables associated with each position as a list of strings: "
+"<jseden>"
+"func mkstrpos {"
+"para bs;"
+"return (bs!=@) ? str(mknumpos(bs)) : \"@\";"
+"}"
+""
+"bsrow is [str(numpos), whotoplay, symstatus, mkstrpos(boardstate_1), mkstrpos(boardstate_2), mkstrpos(boardstate_3), mkstrpos(boardstate_4), mkstrpos(boardstate_5), mkstrpos(boardstate_6), mkstrpos(boardstate_7), mkstrpos(boardstate_8), mkstrpos(boardstate_9)];"
+"</jseden>"
+"</p>"
+"<p>"
+"To display the information about the current position 'boardstate' as a row of a table: "
+"<jseden>"
+"picture is [WNEN, WSES, NWSW, NESE, piece1, piece2, piece3, piece4, piece5, piece6, piece7, piece8, piece9, chooseplayer, tableNandCPos];"
+"tableNandCPos is Table(\"NandCpos\", 300,10, 800, 500, [[\"\",\"Turn\",\"Status\",\"s1\",\"s2\",\"s3\",\"s4\",\"s5\",\"s6\",\"s7\",\"s8\",\"s9\"], bsrow]);"
+"</jseden>"
+"</p>"
+"<p>"
+"With this display in place, it is possible to change the noughts-and-crosses position via the ComboBox on the Canvas and read off the information relating to this position in the table. "
+"</p>"
+);
+
+menace8a is Slide(
+"<h3>Entering more positions into the table</h3>"
+"<p>"
+"The table of possible positions to be considered is potentially a large table."
+"As set up so far, the table has a single entry which is dependent on the current value of 'boardstate'."
+"To set up the table so that we can record positions as we encounter them, we can introduce the following pattern of definitions:"
+"<jseden>"
+"currrowlist = [];"
+"rowlist is currrowlist // [bsrow];"
+"tableNandCPos is Table(\"NandCpos\", 300,10, 800, 500, [[\"\",\"Turn\",\"Status\",\"s1\",\"s2\",\"s3\",\"s4\",\"s5\",\"s6\",\"s7\",\"s8\",\"s9\"]] // rowlist);"
+"</jseden>"
+"</p>"
+"<p>"
+"This doesn't change the current value of the table observable, but makes it easy to add new rows."
+"For instance, if we make an assignment:"
+"<jseden>"
+"currrowlist = rowlist;"
+"</jseden>"
+"we in effect record the current value of the table (in the process 'freezing' it), and append a row whose value depends on the current value of boardstate."
+"On this basis, by surveying different values of boardstate and repeating this assignment, we can make a record of positions as they are encountered."
+"</p>"
+"<p>"
+"When using this technique to record the positions encountered in a noughts-and-crosses manually, it is convenient to recofigure the Combobox so that it alternates between the O and X defaults:"
+"<jseden>"
+"chooseplayer is Combobox(\"setPlayer\", [(toplay==o)?\"O\":\"X\",(toplay==o)?\"X\":\"O\"], 10, 10, true);"
+"</jseden>"
+"</p>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a];
+
+menace8b is Slide(
+"<h3>Automating the generation of positions</h3>"
+"<p>"
+"We convert information about positions into <i>strings</i> in order to inform the maker of the construal."
+"Human interpretation of experience is so flexible that the maker may not even consciously register the distinction between seeing a 'O' in the top-left hand corner of the board and knowing that in the current position O has played in the first square, so that 'the value of s1 is o'."
+"The purpose of making construals is in some respects to exploit and reinforce precisely this power of the human imagination to make associations without thinking about them."
+"It may also be a valuable  means to expose and challenge such unthinking associations."
+"</p>"
+"<p>"
+"When positions are to be processed by the computer, as (e.g.) in automating the generation of moves, it is appropriate to maintain observables with numerical values:"
+"<jseden>"
+""
+"NONE = 10000;"
+""
+"func mkixpos {"
+"para bs;"
+"return (bs!=@) ? mknumpos(bs) : NONE;"
+"}"
+""
+"bsmoves is [numpos, toplay, symstatus, mkixpos(boardstate_1), mkixpos(boardstate_2), mkixpos(boardstate_3), mkixpos(boardstate_4), mkixpos(boardstate_5), mkixpos(boardstate_6), mkixpos(boardstate_7), mkixpos(boardstate_8), mkixpos(boardstate_9)];"
+"</jseden>"
+"</p>"
+"<p>"
+"The function mkixpos is a modified form of mknumpos that handles an undefined argument more gracefully, explicitly returning a dummy value NONE."
+"If mknumpos is used instead, the value of bsmoves evaluates to undefined."
+"</p>"
+"<p>"
+"At this point, it is possible to imagine writing a procedure to generate all noughts-and-crosses positions automatically but this may not be straightforward - or even feasible. My attempt to do this with coarse algorithms for list processing crashed the browser after generating more than a thousand distinct positions. Before introducing symmmetries to address this problem, we first consider a conceptually simple way to trace and record many games. "
+"</p>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace1, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b];
+
+permnine1 is Slide(
+"<h3>A digression on generating permutations</h3>"
+"<p>"
+"One way of generating a game of noughts and crosses is to enter Os and Xs as specified by a permutation of {1,2,3,4,5,6,7,8,9}"
+"until such time as the end of the game is reached."
+"This is a possible way in which to generate the 'large number of games' to be witnessed by an observer who is going to adjust the weights attached"
+"to moves (as discussed previously)."
+"Generating games in this way will mean that the games that end after fewest moves will feature most often - there may be good reason to consider this advantageous."
+"</p>"
+"<p>"
+"Particular points of interest are:"
+"<ul>"
+"<li>the fact that making construals to express understandings about permutations is quite independent of the broader"
+"theme of MENACE yet can be readily integrated with this theme subsequently.</li>"
+"<li>the potential that making construals has for supporting the intuitions behiind abstract mathematics and the scope it gives for 'concretisation'</li>"
+"<li>the issues that arise when relating making construals (and specifically framing scripts of definitions) with conventional programming techniques.</li>"
+"<li></li>"
+"</ul>"
+"</p>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace1, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, perm1];
+
+permnine2 is Slide(
+"<h3>Some basic ideas and functions</h3>"
+"<p>"
+"The general idea is to set up scripts to make a correspondence between permutations of 9 symbols - in total 9!=362880 - and indices from 0 to 362879."
+"One way to do this (this could be how I'm doing it below!) is to map the permutation that can be expressed (in a unique way) as a product of cycles:"
+"(123456789)^a * (12345678)^b * (1234567)^c * (123456)^d * (12345)^e * (1234)^f * (123)^g * (12)^h"
+"where a is in the range 0-8, b in the range 0-7 etc, to the number a*8!+b*7!+c*6!+d*5!+e*4!+f*3!+g*2!+h*1! "
+"</p>"
+"<p>"
+"A permutation will be represented by a list in JS-EDEN. We require two functions, one of which may be in a JS-EDEN library: "
+"<jseden>"
+"func fac {"
+"	para n;"
+"	auto i, result;"
+"	result = 1;"
+"	for (i=1; i<=n; i++) result = result * i;"
+"	return result;"
+"}"
+""
+"fac_1 = 1; fac_2 = fac(2); fac_3 = fac(3); fac_4 = fac(4);"
+"fac_5 = fac(5); fac_6 = fac(6); fac_7 = fac(7); fac_8 = fac(8);"
+"</jseden>"
+"</p>"
+"and a lookup function that determines the location of a specific index from 1 to 9 in a permutation represented as a list:"
+"<jseden>"
+"func keyloc {"
+"	para permls, key;"
+"	auto i, result;"
+"	result = 0;"
+"	for (i=1; i<=permls#; i++)"
+"		if (permls[i] == key) result = i; "
+"	return result;"
+"}"
+"</jseden>"
+);
+
+
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2];
+
+## how slides are represented in the slideList is odd
+
+permnine3 is Slide(
+"<h3>A simple draft script</h3>"
+"<p>"
+"The translation of a permutation of {1,2,3,4,5,6,7,8,9} to a sequence of numbers a,b,c,d,e,f,g,h that can be used to determine an index for it can"
+"be done simply by writing a function that takes a permutation of {1,2, .., n} and removes n to leave a permutation of {1,2, ..., n-1}. By applying this"
+"function to remove 9, 8, ..., 3 successively from an initial permutation you derive permutations of {1,2, .., n} for n = 8, 7, ..., 2. The location of n"
+"in each of these permutations supplies the coefficients a,b,c,d,e,f,g,h:"
+"</p>"
+"<jseden>"
+"perm1 = [1,2,3,4,5,6,7,8,9];"
+"currperm = perm1;"
+""
+"func droppermkey {"
+"	para permls, key;"
+"	auto i, result;"
+"	result = [];"
+"	for (i=1; i<=permls#; i++)"
+"		if (permls[i]!=key) result = result // [permls[i]];"
+"	return result;"
+"}"
+""
+"currpermdrop9 is droppermkey(currperm, 9);"
+"currpermdrop8 is droppermkey(currpermdrop9, 8);"
+"currpermdrop7 is droppermkey(currpermdrop8, 7);"
+"currpermdrop6 is droppermkey(currpermdrop7, 6);"
+"currpermdrop5 is droppermkey(currpermdrop6, 5);"
+"currpermdrop4 is droppermkey(currpermdrop5, 4);"
+"currpermdrop3 is droppermkey(currpermdrop4, 3);"
+""
+"loc9 is keyloc(currperm, 9) - 1;"
+"loc8 is keyloc(currpermdrop9, 8) - 1; "
+"loc7 is keyloc(currpermdrop8, 7) - 1; "
+"loc6 is keyloc(currpermdrop7, 6) - 1; "
+"loc5 is keyloc(currpermdrop6, 5) - 1;"
+"loc4 is keyloc(currpermdrop5, 4) - 1;"
+"loc3 is keyloc(currpermdrop4, 3) - 1;"
+"loc2 is keyloc(currpermdrop3, 2) - 1; "
+""
+"indexcurrperm is (loc9*fac_8 + loc8*fac_7 + loc7*fac_6 + loc6*fac_5 + loc5*fac_4 + loc4*fac_3 + loc3*fac_2 + loc2*fac_1);"
+""
+"</jseden>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2, permnine3];
+
+permnine4 is Slide(
+"<h3>Testing for function development</h3>"
+"<p>"
+"Entering the RE 'currperm|index' into a symbol list sets up an environment in which to test and refine the mapping from a permutation to an index. Assigning different values to currperm will show the value of indexcurrperm and the intermediate results used in computing this. Inspection shows that the indices of the permutations are in what can be deemed to be 'reverse' order, so that if currperm = [1,2,3,4,5,6,7,8,9] then indexcurrperm is 362879, and if currperm = [9,8,7,6,5,4,3,2,1] then indexcurrperm is 0. This can be remedied by revising the script:"
+""
+"<jseden>"
+"loc9 is 8-(keyloc(currperm, 9) - 1);"
+"loc8 is 7-(keyloc(currpermdrop9, 8) - 1);"
+"loc7 is 6-(keyloc(currpermdrop8, 7) - 1);"
+"loc6 is 5-(keyloc(currpermdrop7, 6) - 1);"
+"loc5 is 4-(keyloc(currpermdrop6, 5) - 1);"
+"loc4 is 3-(keyloc(currpermdrop5, 4) - 1);"
+"loc3 is 2-(keyloc(currpermdrop4, 3) - 1);"
+"loc2 is 1-(keyloc(currpermdrop3, 2) - 1); "
+"</jseden>"
+"</p>"
+"<p>"
+"Now if currperm = [1,2,3,4,5,6,7,8,9] then indexcurrperm is 0, and if currperm = [9,8,7,6,5,4,3,2,1] then indexcurrperm is 362879."
+"</p>"
+);
+
+permnine5 is Slide(
+"<h3>Reflections</h3>"
+"<ul>"
+"<li>Make inverse of perm9 to index? how to compute perm from its index?"
+"</li><li>"
+"Mathematical visualisation"
+"</li><li>"
+"Visualisation of programs / program comprehension / invariants - cf. tracing procedural code (cf. bug in github version?)"
+"</li><li>"
+"Bret Victor's 'Learnable Programming'"
+"</li>"
+"<li>"
+"<pre>"
+"objects and constraints"
+""
+"testing possibilities - can prevent conditions arising, or monitor and advise:"
+"natural ingredients of the test harness are developed in the course of making construals (but typically discarded)"
+""
+"more appropriate to constrain as construals becomes mature"
+"</pre>"
+"</li>"
+"</ul>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2, permnine3, permnine4, permnine5];
+
+gamesNandC1 is Slide(
+"<h3>Tracing a noughts-and-crosses game</h3>"
+"<p>"
+"Playing a game of noughts-and-crosses based on a given permutation ('currperm') of {1,2,3,4,5,6,7,8,9} has the following"
+"component actions:"
+"</p>"
+"<ul>"
+"<li><p>Starting a new game:"
+"<jseden>"
+"game=[];"
+"mvnum=0;"
+"ixpos = 0;"
+"boardstate = boardstateix;"
+"game = game // [ixpos]; "
+"</jseden>"
+"</p>"
+"</li>"
+"<li>"
+"<p>"
+"Making a move:"
+"<jseden>"
+"mvnum++;"
+"ixpos = bsmoves[currperm[mvnum]+3];"
+"boardstate = boardstateix; ## visualise state"
+"game = game // [ixpos];"
+"</jseden>"
+"- to be repeated until such time as the game is over. "
+"</li>"
+"</ul>"
+"</p>"
+);
+
+gamesNandC1b is Slide(
+"<h3>Recording a noughts-and-crosses game</h3>"
+"<p>"
+"To trace the positions of the game in a table, and record the game in a list of games, we shall substitute another table to record games. For convenience, we record the current definition of picture, with the original form of the table to display lists of positions, at this point: "
+"<jseden>"
+"picture is [WNEN, WSES, NWSW, NESE, piece1, piece2, piece3, piece4, piece5, piece6, piece7, piece8, piece9, chooseplayer, tableNandCPos];"
+"</jseden>"
+"</p>"
+"<p>"
+"We can then embellish the definitions on the previous slide as follows:"
+"<ol>"
+"<li>"
+"Initialise the list of games, and the introduce a new observable currposlist to record the moves of games:"
+"<jseden>"
+"gamelist = []; currposlist = [];"
+"movelist is currposlist // [bsrow];"
+"</jseden>"
+"and initialise a new table to display the contents of the observable currposlist:"
+"<jseden>"
+"tableNandCGames is Table(\"NandCpos\", 300,10, 800, 500, [[\"\",\"Turn\",\"Status\",\"s1\",\"s2\",\"s3\",\"s4\",\"s5\",\"s6\",\"s7\",\"s8\",\"s9\"]] // currposlist);"
+"picture is [WNEN, WSES, NWSW, NESE, piece1, piece2, piece3, piece4, piece5, piece6, piece7, piece8, piece9, chooseplayer, tableNandCGames];"
+"</jseden>"
+"</li>"
+"<li>"
+"<p>Start the next game, first assigning a new value for currperm:</p>"
+"<jseden>"
+"game=[]; mvnum=0; ixpos = 0; boardstate = boardstateix; game = game // [ixpos]; "
+"currposlist = movelist;"
+"</jseden>"
+"</li>"
+"<li>"
+"<jseden>"
+"mvnum++;"
+"ixpos = bsmoves[currperm[mvnum]+3]; boardstate = boardstateix; game = game // [ixpos];"
+"currposlist = movelist;"
+"</jseden>"
+"- to be repeated until the game is over"
+"</li>"
+"<li>"
+"<p>"
+"When the game is over, record the game and outcome in the list of games, and initiate a new game:"
+"<jseden>"
+"gamelist = gamelist // [game, symstatus];"
+"</jseden>"
+"</p>"
+"</li>"
+"</ol>"
+""
+"</p>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2, permnine3, permnine4, permnine5, gamesNandC1, gamesNandC1b];
+
+## another activity: review the level of conventional programming difficulty in the functions / actions specified in the construal
+## assess the potential for lowering the threshold / raising the ceiling (important parameters - threshold and ceiling)
+
+gamesNandC2 is Slide(
+"<h3>'Human Computing'</h3>"
+"<p>"
+"The prescription for tracing and recording games of noughts and crosses described on the previous slide is an interesting blend of"
+"manual ('human') and automated ('computer') interaction and interpretation."
+"It illustrates what Steve Russ has characterised as 'human computing' (cf. the use of an abacus to perform a calculation)."
+"As an example, consider the instructions <i>'first assigning a new value for currperm'</i> and <i>'when the game is over'</i>."
+"Such actions and interpretations can be of course automated, but there may be specific advantages in blending human and computer"
+"agency from a pedagogical or pragmatic perspective. As a teacher, we may need to be open-minded about the scope for misinterpretation on the part of a learner, for instance, and have to take account of this characteristically human behaviour.  "
+"</p>"
+"<p>"
+"With some basic knowledge of how to prescribe a procedure, it should be relatively straightforward to develop a fully automated procedure for playing and recording 'randomly generated' games of noughts-and-crosses."
+"One way to assign a random permutation of {1,2,3,4,5,6,7,8,9} to currperm for instance is to introduce the following function:"
+"<jseden>"
+"func insertcurrpermix {"
+"        para currperm0, ix;"
+"        auto i, sum0;"
+"        i=1;"
+"        sum0 = 0;"
+"        while (sum0 < int(random(1)*(ix-1))) {"
+"                if (currperm0[i]==0) sum0++;"
+"                i++;"
+"        }"
+"        while ((currperm0[i]!=0)&&(i < currperm0#)) i++;"
+"        currperm0[i] = ix;"
+"        return currperm0;"
+"}"
+"</jseden>"
+"to enable the following sequence of actions to be performed:"
+"<jseden>"
+"nextperm0 = [0,0,0,0,0,0,0,0,0];"
+"nextperm1 is insertcurrpermix(nextperm0, 9);"
+"nextperm2 is insertcurrpermix(nextperm1, 8);"
+"nextperm3 is insertcurrpermix(nextperm2, 7);"
+"nextperm4 is insertcurrpermix(nextperm3, 6);"
+"nextperm5 is insertcurrpermix(nextperm4, 5);"
+"nextperm6 is insertcurrpermix(nextperm5, 4);"
+"nextperm7 is insertcurrpermix(nextperm6, 3);"
+"nextperm8 is insertcurrpermix(nextperm7, 2);"
+"nextperm9 is insertcurrpermix(nextperm8, 1);"
+""
+"currperm = nextperm9;"
+"</jseden> "
+"</p>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2, permnine3, permnine4, permnine5, gamesNandC1, gamesNandC1b, gamesNandC2];
+
+gamesNandC3 is Slide(
+"<h3>Support for Human Computing</h3>"
+"<p>"
+"Relevant issues concern how best to conceptualise and to develop the MCE to support 'human computing'."
+"An interesting alternative to thinking of the computer as a monolithic agent is to consider tasks such as 'starting a new game', 'making a move' etc as associated with different agents."
+"Modulo a technical issue regarding the JS-EDEN interface, it is possible to enter conceptually different actions through separate Input Windows, for instance."
+"A richer conceptual framework for making construals is provided by the 'Abstract Definitive Machine' - conceived 25 years ago, but only recently prototyped in its most appropriate form in JS-EDEN (by Ruth King in her WEB-EM-10 submission in January 2014). "
+"</p>"
+"<p>"
+"The different qualities of the human and the computer in carrying out recipes are highlighted in the rest of the study of MENACE."
+"Consider for instance, how the human calculator remembers whether something has already been calculated and may have noted the result (cf. memoisation), can perceive symmetries and shortcut calculation accordingly through on-the-fly translation and reinterpretation to eliminate redundancy, and can adapt calculation procedures in a pragmatic way using a different techniques for different instances etc. Much complexity in conventional programming relates to implementing the book-keeping that is associated with refining calculation processes so that they are feasible and efficient, and one pervasive ingredient in this is organising computation to ensure the maintenance of dependencies. There are limitations in the ways that functional programming attempts to address this through declarative variables (cf. smears of history to capture observables) and literate programming (cf. use of the JSPE)."
+"</p>"
+);
+
+## space around < is needed in a JSPE context
+## ## comments don't survive in a <jseden> context 
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2, permnine3, permnine4, permnine5, gamesNandC1, gamesNandC1b, gamesNandC2, gamesNandC3];
+
+gamesNandC4 is Slide(
+"<h3>Implementing MENACE?</h3>"
+"<p>"
+"In principle, the resources that we have developed to this point are sufficient to support some form of 'machine learning' such as"
+"we described in introducing the idea behind MENACE."
+"Playing randomly generated games of noughts and crosses will clearly build a large inventory of games for which the sequence"
+"of moves and the outcome have been recorded."
+"The space of positions is so large that generating comprehensive data is difficult - if not infeasible - with our current MCE, and"
+"the knowledge that can be inferred from games will probably be too sparse to yield an effective strategy. Following Michie's example, it is now appropriate to consolidate the data by taking account of the symmetries in the game of noughts-and-crosses."
+"</p>"
+"<p>"
+"</p>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2, permnine3, permnine4, permnine5, gamesNandC1, gamesNandC1b, gamesNandC2, gamesNandC3, gamesNandC4];
+
+symmetryNandC1 is Slide(
+"<h3>Symmetries in noughts-and-crosses</h3>"
+"<p>"
+"The symmetries of the noughts-and-crosses board (which - it should be borne in mind - not only permute the"
+"squares but also respect the winning lines) are the symmetries of the square, as defined by D8, the dihedral group of order 8."
+"[D8 was coincidentally the subject of a study of groups of order 8 that made use of Web EDEN, the online precursor to JS-EDEN. For details, consult the Web EDEN presentations that <a href=\"http://www.dcs.warwick.ac.uk/~wmb/webeden/Group8OpenDayNov2008.html\" target=\_blank\">display the multiplication table</a> and <a href=\"http://www.dcs.warwick.ac.uk/~wmb/webeden/groups8structure.html\" target=\_blank\">illustrate subgroups and quotients</a> of D8.]"
+"</p>"
+"<p>"
+"The eight symmetries of a square comprise four rotations by through multiples of a right angle, and four symmetries that are obtained by first performing a reflection about the diagonal (a 'flip') followed by such a rotation. The rotations will be denoted by the observables elt1, eltR, eltR2 and eltR3 and the reflections followed by a rotation by eltF, eltFR, eltFR2 and eltFR3. When these symmetry operations act on the noughts-and-crosses board they permute the squares in the following way:"
+"<jseden>"
+""
+"## four rotations"
+""
+"elt1 = [1,2,3,4,5,6,7,8,9];"
+"eltR = [3,6,9,2,5,8,1,4,7];"
+"eltR2 = [9,8,7,6,5,4,3,2,1];"
+"eltR3 = [7,4,1,8,5,2,9,6,3];"
+""
+"## reflections followed by a rotation"
+""
+"eltF = [1,4,7,2,5,8,3,6,9];"
+"eltFR = [3,2,1,6,5,4,9,8,7];"
+"eltFR2 = [9,6,3,8,5,2,7,4,1];"
+"eltFR3 = [7,8,9,4,5,6,1,2,3];"
+""
+"</jseden>"
+""
+"</p>"
+"<p>"
+"Two positions in the game of noughts-and-crosses will be regarded as essentially the same if one can be mapped to the other"
+"by applying one of the eight above symmetry operations. "
+"</p>"
+);
+
+symmetryNandC2 is Slide(
+"<h3>Defining the symmetry classes</h3>"
+"<p>"
+"The group D8 can be represented by its list of elements:"
+"<jseden>"
+"D8 is [elt1, eltR, eltR2, eltR3, eltF, eltFR, eltFR2, eltFR3];"
+"</jseden>"
+"</p>"
+"<p>"
+"The way in which a position is transformed by applying a symmetry operation is represented by the function mappos:"
+"<jseden>"
+"func mappos {"
+"	para NandCpos, eltD8;"
+"	auto i, result;"
+"	result = [];"
+"	for (i=1; i<=9; i++) {"
+"		result = result // [NandCpos[eltD8[i]]];"
+"	}"
+"	return result;"
+"}"
+"</jseden>"
+" "
+"</p>"
+"<p>"
+"The general principle is that for each position we shall determine all the positions that are equivalent up to symmetry,"
+"and record the numerical indices of these positions in an ordered list."
+"The assumption is being made that we are only concerned with positions that arise when O makes the first move. "
+"We use the largest index in the set as the 'canonical' representative for the symmetry class: to test whether two positions are the same up to symmetry we then only need to check whether the canonical representatives of their symmetry classes are the same."
+"</p>"
+);
+
+## continuity in stream of thought - don't have to attend carefuly to whether something has been said twice
+## cf. the idempotence of relational data base assertions
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2, permnine3, permnine4, permnine5, gamesNandC1, gamesNandC1b, gamesNandC2, gamesNandC3, gamesNandC4, symmetryNandC1, symmetryNandC2];
+
+symmetryNandC3 is Slide(
+"<h3>Computing the equivalence classes</h3>"
+"<p>"
+"The ordered list of positions in a symmetry class is built up by inserting the elements one-by-one:"
+"<jseden>"
+"func insertpos {"
+"	para psls, ixps;"
+"	auto i, result;"
+"	if (psls#==0) result = [ixps];"
+"	else {"
+"		if (ixps < psls[1]) result = [ixps] // psls;"
+"		if (ixps > psls[psls#]) result = psls // [ixps];"
+"		for (i=1; i<=psls#; i++) {"
+"			if (ixps == psls[i]) result = psls;"
+"		}"
+"		for (i=1; i < psls#; i++) {"
+"			if ((psls[i] < ixps)&&(ixps < psls[i+1]))"
+"				result = seglist(psls, 1, i) // [ixps] // seglist(psls, i+1, psls#);"
+"		}"
+"	}"
+"	"
+"	return result;"
+"}"
+"</jseden>"
+"</p><p>"
+"The statements in the body of the insertpos function correspond precisely to the various possible cases:"
+"<ul>"
+"<li>insertion into an empty list</li>"
+"<li>insertion of elements smaller / larger than all the elements in the list</li>"
+"<li>attempted reinsertion of an element already in the list</li>"
+"<li>insertion of an element in its appropriate place between two elements an ordered list</li>"
+"</ul>"
+"The aspiration in making construals is to ensure that the procedural programming of functions is"
+"conceptually as simple as possible - hence the above explanation."
+"When the function was originally specified in connection with making an inventory of positions without taking symmetry"
+"into account, the possibility of insertion into an empty list was omitted. Unobtrusive retrospective correction of errors and remedying of acts of omission is a feature of making construals (cf. the typical consequences of errors in program development)."
+"</p>"
+"<p>"
+"The following functions can then be used to compute the equivalence class for a position ('symclosure')"
+"and the canonical representative within that class ('symrep'):"
+"<jseden>"
+"func symclosure {"
+"	para NandCpos;"
+"	auto i, result;"
+"	result = [mknumpos(NandCpos)];"
+"	for (i=1; i<=8; i++)"
+"		result = insertpos(result, mknumpos(mappos(NandCpos, D8[i])));"
+"	return result;"
+"}"
+""
+"func symrep {"
+"	para NandCpos;"
+"	auto symclospos;"
+"	symclospos = symclosure(NandCpos);"
+"	return symclospos[symclospos#];"
+"}"
+""
+"</jseden>"
+"</p>"
+);
+
+## the insertpos function above doesn't display properly in the JSPE unless there are spaces around the '<' signs
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2, permnine3, permnine4, permnine5, gamesNandC1, gamesNandC1b, gamesNandC2, gamesNandC3, gamesNandC4, symmetryNandC1, symmetryNandC2, symmetryNandC3];
+
+symmetryNandC4 is Slide(
+"<h3>Generating all noughts-and-crosses positions up to symmetry</h3>"
+"<p>"
+"The simplest approach to the systematic generation of all possible positions involves repeatedly inserting into a list that initially contains only the empty position all the positions that can be reached by a single move from an element in the list until the length of the list becomes stable. This was infeasible without consideration of symmetry, but does work if applied with patience to the equivalence classes under symmetry. "
+"</p>"
+"<p>"
+"To generate all the positions up to symmetry in this way, we initialise an observable 'poslist' to the list containing 0"
+"- the index of the empty board."
+"We then extend poslist stage by stage by (in a very crude manner!) iterating through poslist element by element inserting"
+"in the indices of those positions that can be reached by a single move in that position, as determined by setting the observable bsmoves to the appropriate value through manipulation of the observables ixpos, boardstate and boardstateix."
+"The procedure is derived from a manual process that was first played out by the maker of the construal and subsequently automated."
+"It is characteristic of procedures derived in this way that they are full of redundancy, inefficient, and use procedural constructs in an unsubtle way."
+"<jseden>"
+"poslist = [0];"
+"poslistlen is poslist#;"
+""
+"proc processsymrow {"
+"	para bsm;"
+"	auto i;"
+"	if (bsm[3]==\"U\") {"
+"		for (i=4; i<=12; i++) {"
+"			if (bsm[i]!=NONE) poslist = insertpos(poslist, symrep(mkbrdstate(bsm[i])));"
+"		}"
+"	}"
+"}"
+""
+"proc extsymposlist {"
+"	auto i, pll;"
+"	pll = poslist#;"
+"	for (i=1; i<=pll; i++) {"
+"		ixpos = poslist[i];"
+"		boardstate = boardstateix;"
+"		processsymrow(bsmoves);"
+"	}"
+"}"
+"</jseden>"
+"</p>"
+"<p>"
+"It is a fact that you should NOT attempt to verify (unless you have an hour or so to spare and don't mind locking up the browser)"
+"that if you now keep repeating the generation of distinct classes of positions that are equivalent up to symmetry,"
+"and monitor the contents and length ('poslistlen') of the list of positions generated ('poslist') by invoking:"
+"<jseden>"
+"extsymposlist();"
+"</jseden>"
+"the length of poslist will eventually stabilise at 764, and poslist will be an enumeration of the canonical representatives of the symmetry classes of positions."
+"To save you the trouble, the resulting assignment to poslist is explicitly recorded on the next slide."
+"</p>"
+);
+
+## Scratch style parsing ccould be especially useful with JSPE entry?
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2, permnine3, permnine4, permnine5, gamesNandC1, gamesNandC1b, gamesNandC2, gamesNandC3, gamesNandC4, symmetryNandC1, symmetryNandC2, symmetryNandC3, symmetryNandC4];
+
+symmetryNandC5 is Slide(
+"To save the trouble of calculating the representatives of all the positions up to symmetry, the result is recorded in this definition:"
+"<jseden>"
+"poslist = [-4921, -4843, -4840, -4789, -4762, -871, -865, -709, -657, -631, -628, -189, -81, -7, -3, -1, 0, 45, 47, 51, 71, 74, 77, 78, 80, 1163, 1215, 1217, 1235, 1239, 1241, 1244, 1269, 1287, 1293, 1295, 1296, 1298, 1311, 1313, 1316, 1319, 1320, 1322, 1371, 1377, 1379, 1395, 1397, 1401, 1403, 1404, 1406, 1425, 1431, 1433, 1449, 1451, 1452, 1455, 1457, 1458, 1460, 1473, 1475, 1476, 1478, 1481, 1482, 1484, 1503, 1506, 1509, 1511, 1512, 1527, 1529, 1530, 1532, 1535, 1536, 1538, 1553, 1554, 1556, 1562, 1611, 1635, 1637, 1689, 1691, 1692, 1715, 1716, 1718, 1743, 1769, 1770, 1772, 1839, 1917, 1919, 1920, 1995, 1997, 1998, 2000, 2073, 2079, 2081, 2082, 2099, 2103, 2105, 2106, 2108, 2151, 2153, 2154, 2157, 2159, 2160, 2162, 2177, 2180, 2183, 2184, 2186, 2229, 2231, 2232, 2234, 2237, 2238, 2240, 2255, 2258, 2264, 2313, 2315, 2316, 2319, 2337, 2339, 2340, 2342, 2345, 2346, 2348, 2363, 2366, 2372, 2391, 2393, 2394, 2396, 2399, 2400, 2417, 2418, 2420, 2426, 2471, 2472, 2474, 2480, 3423, 3501, 3503, 3504, 4071, 4077, 4079, 4080, 4125, 4131, 4149, 4151, 4152, 4155, 4157, 4158, 4160, 4179, 4203, 4205, 4206, 4209, 4211, 4212, 4227, 4229, 4230, 4232, 4235, 4236, 4238, 4755, 4759, 4833, 4835, 4836, 4839, 4840, 4907, 4911, 4913, 4914, 4916, 4920, 5511, 5515, 5529, 5535, 5537, 5538, 5541, 5543, 5565, 5569, 5583, 5587, 5589, 5591, 5592, 5595, 5596, 5597, 5607, 5609, 5610, 5613, 5615, 5616, 5618, 5621, 5622, 5624, 5637, 5643, 5645, 5646, 5649, 5650, 5651, 5661, 5663, 5664, 5667, 5668, 5669, 5670, 5672, 5675, 5676, 5678, 5685, 5687, 5688, 5690, 5693, 5694, 5696, 5702, 5743, 5769, 5771, 5821, 5823, 5824, 5847, 5849, 5850, 5852, 5901, 5902, 5903, 5904, 5927, 5928, 5930, 6211, 6213, 6217, 6219, 6231, 6235, 6237, 6239, 6240, 6243, 6244, 6245, 6246, 6255, 6257, 6258, 6261, 6263, 6264, 6266, 6269, 6270, 6272, 6283, 6285, 6289, 6291, 6292, 6293, 6294, 6297, 6298, 6299, 6300, 6307, 6309, 6311, 6312, 6315, 6316, 6317, 6318, 6320, 6323, 6324, 6326, 6333, 6335, 6336, 6338, 6341, 6342, 6344, 6350, 6363, 6364, 6365, 6366, 6369, 6370, 6371, 6372, 6374, 6377, 6378, 6380, 6387, 6388, 6389, 6390, 6392, 6395, 6396, 6398, 6404, 6413, 6414, 6416, 6422, 6445, 6447, 6451, 6469, 6471, 6472, 6473, 6474, 6477, 6478, 6479, 6480, 6495, 6497, 6498, 6500, 6503, 6504, 6506, 6523, 6525, 6526, 6527, 6528, 6531, 6532, 6549, 6550, 6551, 6552, 6554, 6557, 6558, 6560, 6575, 6576, 6578, 6584, 6603, 6604, 6605, 6606, 6608, 6611, 6612, 6629, 6630, 6632, 6638, 6939, 6941, 6945, 6947, 7013, 7017, 7019, 7020, 7022, 7025, 7026, 7028, 7091, 7094, 7097, 7098, 7100, 7106, 7171, 7173, 7174, 7175, 7176, 7179, 7180, 7181, 7182, 7184, 7187, 7188, 7199, 7202, 7205, 7206, 7208, 7214, 7251, 7252, 7253, 7254, 7256, 7259, 7260, 7262, 7268, 7277, 7280, 7286, 7331, 7332, 7334, 7340, 7663, 7669, 7671, 7675, 7677, 7679, 7687, 7689, 7693, 7695, 7696, 7697, 7698, 7701, 7702, 7703, 7704, 7706, 7711, 7713, 7715, 7719, 7720, 7721, 7722, 7724, 7727, 7728, 7730, 7741, 7743, 7744, 7747, 7749, 7750, 7751, 7752, 7755, 7756, 7757, 7758, 7765, 7767, 7768, 7769, 7770, 7773, 7774, 7775, 7776, 7778, 7781, 7782, 7784, 7791, 7792, 7793, 7794, 7796, 7799, 7800, 7802, 7808, 7821, 7822, 7824, 7827, 7828, 7829, 7830, 7835, 7836, 7845, 7846, 7847, 7848, 7850, 7853, 7854, 7856, 7862, 7871, 7872, 7874, 7880, 7903, 7905, 7909, 7911, 7912, 7913, 7914, 7917, 7918, 7919, 7920, 7927, 7929, 7931, 7935, 7936, 7937, 7938, 7940, 7943, 7944, 7946, 7953, 7955, 7961, 7962, 7964, 7970, 7981, 7983, 7984, 7985, 7986, 7989, 7990, 7991, 7992, 7997, 7998, 8007, 8008, 8009, 8010, 8012, 8015, 8016, 8018, 8024, 8033, 8034, 8036, 8042, 8061, 8062, 8063, 8064, 8069, 8070, 8087, 8088, 8090, 8096, 8143, 8169, 8171, 8195, 8223, 8224, 8249, 8250, 8252, 8303, 8304, 8389, 8391, 8395, 8397, 8399, 8403, 8405, 8413, 8415, 8416, 8417, 8418, 8421, 8422, 8423, 8424, 8426, 8429, 8430, 8432, 8439, 8440, 8441, 8442, 8444, 8447, 8448, 8450, 8456, 8467, 8469, 8470, 8471, 8472, 8475, 8476, 8477, 8478, 8480, 8483, 8484, 8486, 8493, 8494, 8495, 8496, 8498, 8501, 8502, 8504, 8510, 8519, 8520, 8522, 8528, 8547, 8548, 8549, 8550, 8552, 8555, 8556, 8558, 8564, 8573, 8574, 8576, 8582, 8629, 8631, 8632, 8633, 8634, 8637, 8638, 8639, 8640, 8642, 8645, 8646, 8648, 8655, 8656, 8657, 8658, 8660, 8663, 8664, 8666, 8672, 8681, 8682, 8684, 8690, 8709, 8710, 8711, 8712, 8714, 8717, 8718, 8720, 8726, 8735, 8736, 8738, 8744, 8789, 8790, 8792, 8798, 8871, 8872, 8873, 8874, 8876, 8879, 8880, 8897, 8898, 8900, 8906, 8952, 8954, 8960, 9200, 9204, 9206, 9212, 9278, 9284, 9358, 9360, 9362, 9366, 9368, 9374, 9386, 9392, 9438, 9440, 9446, 9600, 9602, 9608];"
+"</jseden>"
+""
+"<p>"
+"This definition can be inspected more easily by first using the 'copy to input' option."
+"To get better access to the values of observables of this size, you can also write out the value using "
+"<jseden>"
+"writeln(poslist);"
+"</jseden>"
+"</p>"
+"<p>"
+"and consult the answer as displayed in the console of the browser."
+"</p>"
+);
+
+slideList is [iggy1, iggy2, iggy3, iggy4, iggy5, iggy5b, iggy5c, iggy6, iggy7, iggy7a, iggy8, iggy8a, iggy8b, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2, permnine3, permnine4, permnine5, gamesNandC1, gamesNandC2, gamesNandC3, gamesNandC4, symmetryNandC1, symmetryNandC2, symmetryNandC3, symmetryNandC4, symmetryNandC5];
+
+symmetryNandC6 is Slide(
+"<h3>An alternative approach to listing all positions up to symmetry</h3>"
+"<p>"
+"The above approach directly constructs an ordered list of the positions up to symmetry."
+"A more efficient way to generate all positions is to successively generate positions with 0,1,2, ...,9 symbols"
+"('level 0', 'level 1', ...) and record a separate list for positions at each level."
+"Functions that can be used to compute the positions at one level from the previous level are:  "
+"</p>"
+"<jseden>"
+"func extsymrow {"
+"	para bsm;"
+"	auto i, result;"
+"	result= [];"
+"	if (bsm[3]==\"U\") {"
+"		for (i=4; i<=12; i++) {"
+"			if (bsm[i]!=NONE) result = insertpos(result, symrep(mkbrdstate(bsm[i])));"
+"		}"
+"	}"
+"	return result;"
+"}"
+""
+"func extsymposlistlevel {"
+"	para poslistleveln;"
+"	auto i, pll, poslistlevelnplus;"
+"	poslistlevelnplus = [];"
+"	pll = poslistleveln#;"
+"	for (i=1; i<=pll; i++) {"
+"		ixpos = poslistleveln[i];"
+"		boardstate = boardstateix;"
+"		poslistlevelnplus = mergeposlists(poslistlevelnplus, extsymrow(bsmoves));"
+"	}"
+"	return poslistlevelnplus;"
+"}"	
+""
+"func mergeposlists {"
+"	para posl1, posl2;"
+"	auto i, result;"
+"	result = posl1;"
+"	for (i=1; i<=posl2#; i++) {"
+"		result = insertpos(result, posl2[i]);"
+"	}"
+"	return result;"
+"}"
+"</jseden>"
+"</p>"
+"<p>"
+"The positions can then be generated level by level in the ten observables:"
+"<jseden>"
+"poslevel0 = [0];"
+"poslevel1 = extsymposlistlevel(poslevel0); poslev1len is poslevel1#;"
+"poslevel2 = extsymposlistlevel(poslevel1); poslev2len is poslevel2#;"
+"poslevel3 = extsymposlistlevel(poslevel2); poslev3len is poslevel3#;"
+"poslevel4 = extsymposlistlevel(poslevel3); poslev4len is poslevel4#;"
+"poslevel5 = extsymposlistlevel(poslevel4); poslev5len is poslevel5#;"
+"poslevel6 = extsymposlistlevel(poslevel5); poslev6len is poslevel6#;"
+"poslevel7 = extsymposlistlevel(poslevel6); poslev7len is poslevel7#;"
+"poslevel8 = extsymposlistlevel(poslevel7); poslev8len is poslevel8#;"
+"poslevel9 = extsymposlistlevel(poslevel8); poslev9len is poslevel9#;"
+"</jseden>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2, permnine3, permnine4, permnine5, gamesNandC1, gamesNandC1b, gamesNandC2, gamesNandC3, gamesNandC4, symmetryNandC1, symmetryNandC2, symmetryNandC3, symmetryNandC4, symmetryNandC5, symmetryNandC6];
+
+symmetryNandC7 is Slide(
+"<h3>More about the number of positions up to symmetry</h3>"
+"<p>"
+"By consulting the values of the observables poslevel1, poslevel2, ..., poslevel9, we"
+"find that the number of positions up to symmetry at each level is then"
+"<blockquote>"
+"0: 1, 1: 3, 2: 12, 3: 38, 4: 108, 5: 174, 6: 204, 7: 153, 8: 57, 9: 15"
+"</blockquote>"
+"The observable allsympos has the value 765:"
+"<jseden>"
+"allsympos is poslevel0# + poslevel1# + poslevel2# + poslevel3# + poslevel4# + poslevel5# + poslevel6# + poslevel7# + poslevel8# + poslevel9#;"
+"</jseden>"
+"[This is the correct total according to Wikipedia, but there is apparently a discrepancy here with"
+"the length of poslist as computed directly (764).]"
+"</p>"
+"<p>"
+"To single out the non-terminal positions, we can use:"
+"<jseden>"
+"func filterpos {"
+"	para posls;"
+"	auto i, result;"
+"	result = [];"
+"	for (i=1; i<=posls#; i++) {"
+"		ixpos = posls[i];"
+"		boardstate = boardstateix;"
+"		if (symstatus == \"U\") result = result // [posls[i]];  "
+"	}"
+"	return result;"
+"}"
+"</jseden>"
+"All positions at levels 1-4 are non-terminal, and all at level 9 are terminal."
+"<jseden>"
+"fposlevel5 is filterpos(poslevel5); fposlevel5len is fposlevel5#;"
+"fposlevel6 is filterpos(poslevel6); fposlevel6len is fposlevel6#;"
+"fposlevel7 is filterpos(poslevel7); fposlevel7len is fposlevel7#;"
+"fposlevel8 is filterpos(poslevel8); fposlevel8len is fposlevel8#;"
+"</jseden>"
+"The lengths of these lists are 153, 183, 95 and 34 respectively."
+""
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2, permnine3, permnine4, permnine5, gamesNandC1, gamesNandC1b, gamesNandC2, gamesNandC3, gamesNandC4, symmetryNandC1, symmetryNandC2, symmetryNandC3, symmetryNandC4, symmetryNandC5, symmetryNandC6, symmetryNandC7];
+
+/*
+
+## at this point in the development find that the context can be problematic
+## for instance the table observables may have been used to record different lists
+## and may need to be restored
+
+tableNandCPos is Table("NandCpos", 300,10, 800, 500, [["","Turn","Status","s1","s2","s3","s4","s5","s6","s7","s8","s9"]] // rowlist);
+rowlist is currrowlist // [bsrow];
+
+## there is a general issue here about maintenance of context
+## it's possible that multiple input windows with their own initialisation might help here
+## an input could simply be a context setter for instance
+## note the special semantic options - this input window only inputs redefinitions of a specific observable
+## OR always inputs the same set of definitions
+## motivation from modes of everyday agency
+
+*/
+
+symmetryNandC8 is Slide(
+"<h3>Making a table of all positions up to symmetry</h3>"
+"<p>"
+"To make up a table of rows comprising representatives of all the positions up to symmetry, we first initialise the tableNandCpos observable to an appropriate form:"
+"<jseden>"
+"tableNandCPos is Table(\"NandCpos\", 300,10, 800, 500, [[\"\",\"Turn\",\"Status\",\"s1\",\"s2\",\"s3\",\"s4\",\"s5\",\"s6\",\"s7\",\"s8\",\"s9\"]] // rowlist);"
+"rowlist is currrowlist // [bsrow];"
+"</jseden>"
+"</p><p>"
+"To initialise the table:"
+"<jseden>"
+"ixpos = 0;"
+"boardstate = boardstateix;"
+"currrowlist = []; ## initialise"
+"rowlist is currrowlist // [bsrow];"
+"</jseden>"
+"</p>"
+"<p>"
+"Manual simulation to populate the table from the levels:"
+"<jseden>"
+"currrowlist = rowlist;"
+"ixpos =poslevel1[1] ;"
+"boardstate = boardstateix;"
+""
+"currrowlist = rowlist;"
+"ixpos =poslevel1[2] ;"
+"boardstate = boardstateix;"
+""
+"currrowlist = rowlist;"
+"ixpos =poslevel1[3] ;"
+"boardstate = boardstateix;"
+""
+"currrowlist = rowlist;"
+"ixpos =poslevel2[1] ;"
+"boardstate = boardstateix;"
+"</jseden>"
+"</p>"
+"<p>"
+"etc ... from which we can derive the following automatic procedure:"
+"<jseden>"
+"poslevels is [poslevel0, poslevel1, poslevel2, poslevel3, poslevel4, poslevel5, poslevel6, poslevel7, poslevel8, poslevel9];"
+""
+"proc populatetable {"
+"	para level;"
+"	auto i;"
+"	for (i=1; i<=poslevels[level]#; i++) {"
+"		currrowlist = rowlist;"
+"		ixpos = poslevels[level][i];"
+"		boardstate = boardstateix;"
+"	}"
+"}"
+"</jseden>"
+"</p>"
+);
+
+symmetryNandC9 is Slide(
+"<h3>Constructing all positions up to symmetry</h3>"
+"<p>"
+"To populate the table from an initially empty currrowlist can then use:"
+"<jseden>"
+"populatetable(1);"
+"populatetable(2);"
+"populatetable(3);"
+"populatetable(4);"
+"populatetable(5);"
+"populatetable(6);"
+"populatetable(7);"
+"populatetable(8);"
+"populatetable(9);"
+"populatetable(10);"
+"</jseden>"
+"This preserves the levels which may be useful for displaying the sequence of moves in a game."
+"It isn't so useful for searching for positions manually."
+"</p>"
+"<p>"
+"As described it doesn't terminate quie correctly - the content of the table is in the observable rowlist,"
+"so that the last row subject to change with bsrow. To fix this, use:"
+"<jseden>"
+"currrowlist = rowlist;"
+"</jseden>"
+"which temporarily makes rowlist longer than currowlist, and undermines the table as displayed. To address this, can then change definition of the table:"
+"<jseden>"
+"tableNandCPos is Table(\"NandCpos\", 300,10, 800, 500, [[\"\",\"Turn\",\"Status\",\"s1\",\"s2\",\"s3\",\"s4\",\"s5\",\"s6\",\"s7\",\"s8\",\"s9\"]] // currrowlist);"
+"</jseden>"
+"</p>"
+"<p>"
+"Assuming that poslist has been computed (or assigned) can [check this!] generate a sorted list of positions up to symmetry using: "
+"<jseden>"
+"currrowlist = [];"
+""
+"proc populatetablesorted {"
+"	auto i;"
+"	for (i=1; i<=poslist#; i++) {"
+"		currrowlist = rowlist;"
+"		ixpos = poslist[i];"
+"		boardstate = boardstateix;"
+"	}"
+"}"
+"</jseden>"
+"</p>"
+);
+
+slideList is [iggy4, menace1, iggy5, iggy5b, iggy6, iggy7, iggy7a, iggy8a, iggy8c, iggy9, menace2, menace3, menace4, menace5, menace6, menace7, menace8, menace8a, menace8b, permnine1, permnine2, permnine3, permnine4, permnine5, gamesNandC1, gamesNandC1b, gamesNandC2, gamesNandC3, gamesNandC4, symmetryNandC1, symmetryNandC2, symmetryNandC3, symmetryNandC4, symmetryNandC5, symmetryNandC6, symmetryNandC7, symmetryNandC8, symmetryNandC9];
+
+/*
+
+## Elizabeth's Table() function
+
+func Table {
+	para name, x, y, width, height, dataRows;
+	auto html, i, j;
+	html = "<table>\n";
+	for (j = 1; j <= dataRows#; j++) {
+		html = html // "	<tr>\n";
+		for (i = 1; i <= dataRows[j]#; i++) {
+			html = html // "		<td>";
+			html = html // dataRows[j][i];
+			html = html // "</td>\n";
+		}
+		html = html // "	</tr>\n";
+	}
+	html = html // "</table>\n";
+	return Div(name, x, y, width, height, html);
+}
+
+## Elizabeth's useful code for retrieving definitions of observables:
+
+func edenCode {
+	${{
+		var code = "";
+		if (arguments[0] == null) {
+			code = "@";
+		} else if (typeof(arguments[0]) == "undefined") {
+			code = "@";
+		} else if (typeof(arguments[0]) == "string") {
+			code = "\"" + arguments[0] + "\"";
+		} else if (Array.isArray(arguments[0])) {
+			code = "[";
+			for (var i = 0; i < arguments[0].length - 1; i++) {
+				code = code + root.lookup("edenCode").definition(root)(arguments[0][i]) + ", ";
+			}
+			if (arguments[0].length > 0) {
+				code = code + root.lookup("edenCode").definition(root)(arguments[0][arguments[0].length - 1]);
+			}
+			code = code + "]";
+		} else {
+			code = arguments[0].toString();
+		}
+		return code;
+	}}$;
+}
+
+func definitionRHS {
+	${{
+		var name = arguments[0];
+		var symbol = root.lookup(name);
+		if (symbol.eden_definition != undefined) {
+			var lhsRegExp = new RegExp("^\\s*" + name + "\\s+is\\s+", "");
+			return symbol.eden_definition.replace(lhsRegExp, "");
+		} else {
+			return root.lookup("edenCode").definition(root)(symbol.cached_value);
+		}	
+	}}$;
+}
+
+## example use:
+## execute("slideList is " // definitionRHS("slideList") // " // [elizabethHudnottSlide];");
+## execute("currrowlist = " // definitionRHS("currrowlist") // ";");
+
+*/
+
+## registering what has already been defined in a jspe environment
