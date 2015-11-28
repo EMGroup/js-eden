@@ -210,7 +210,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
 
-		var $buttonbar = $('<div class="control-bar noselect"><!--div class="buttonsDivLeft"><button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button></div--><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="Inspect">&#xf002;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
+		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDivLeft"><!--button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button--></div><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="Inspect">&#xf002;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
 		$buttonbar.appendTo($dialogContents);
 		var buttonbar = $buttonbar.get(0);
 
@@ -1174,11 +1174,12 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 			}
 
 			/* Number dragging code, but only if live */
-			//if (scriptagent.enabled) {
+			if (!readonly) {
 				$(outdiv).find('.eden-number').draggable({
 					helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
 					axis: 'x',
 					drag: function(e,u) {
+						if (readonly) return;
 						var newval;
 						if (dragint) {
 							newval = Math.round(dragvalue + ((u.position.left - dragstart) / 2));
@@ -1212,6 +1213,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 						}
 					},
 					start: function(e,u) {
+						if (readonly) return;
 						edited = true;
 						// Calculate the line we are on
 						dragline = findElementLineNumber(e.target);
@@ -1230,6 +1232,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 						$(outdiv).css("cursor","ew-resize");
 					},
 					stop: function(e,u) {
+						if (readonly) return;
 						$(e.target).removeClass("eden-select");
 						$(outdiv).css("cursor","text");
 						//updateEntireHighlight();
@@ -1238,7 +1241,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 					cursor: 'move',
 					cursorAt: {top: -5, left: -5}
 				});
-			//}
+			}
 		}
 
 
