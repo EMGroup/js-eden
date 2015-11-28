@@ -13,20 +13,54 @@ ${{
 	var label = arguments[0];
 	var x = arguments[1];
 	var y = arguments[2];
-	var enabled = arguments[3];
-	var fillcolour = arguments[4];
-	var textcolour = arguments[5];
-	if (enabled === undefined) enabled = true;
-	return new Button(name, label, x, y, enabled, fillcolour, textcolour);
+
+	var arg = arguments[3];
+	var argType = typeof(arg);
+	var argsProcessed = 3;
+
+	var width, minHeight, enabled;
+
+	if (argType == "number") {
+		width = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);
+
+		if (argType == "number") {
+			minHeight = arg;
+			argsProcessed++;
+			arg = arguments[argsProcessed];
+			argType = typeof(arg);
+		}
+	}
+
+	if (argType == "boolean") {
+		enabled = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);	
+	} else {
+		enabled = true;
+	}
+
+	if (argsProcessed < arguments.length - 2) {
+		argsProcessed = arguments.length - 2;
+	}
+
+	var fillcolour = arguments[argsProcessed];
+	var textcolour = arguments[argsProcessed + 1];
+	return new Button(name, label, x, y, width, minHeight, enabled, fillcolour, textcolour);
 }}$;
 }
 
 ${{
-Button = function (name, label, x, y, enabled, fillcolour, textcolour) {
+Button = function (name, label, x, y, width, minHeight, enabled, fillcolour, textcolour) {
 	this.name = name;
 	this.label = label;
 	this.x = x;
 	this.y = y;
+	this.width = width;
+	this.minHeight = minHeight;
 	this.enabled = enabled;
 	this.fillcolour = fillcolour;
 	this.textcolour = textcolour;
@@ -37,6 +71,8 @@ Button.prototype.hash = function () {
 				this.label+"$$"+
 				this.x+"$$"+
 				this.y+"$$"+
+				this.width+"$$"+
+				this.minHeight+"$$"+
 				this.enabled+"$$"+
 				this.fillcolour+"$$"+
 				this.textcolour;
@@ -124,6 +160,18 @@ Button.prototype.scale = function (scale, zoom, origin) {
 	style.left = Math.round(this.x * scale + origin.x) + "px";
 	style.top = Math.round(this.y * scale + origin.y) + "px";
 	style.fontSize = zoom + "em";
+
+	if (this.width === undefined) {
+		style.width = "";
+	} else {
+		style.width = Math.round(this.width * zoom) + "px";
+	}
+
+	if (this.minHeight === undefined) {
+		style.minHeight = "";
+	} else {
+		style.minHeight = Math.ceil(this.minHeight * zoom) + "px";
+	}
 };
 
 Button.prototype.toString = function () {
