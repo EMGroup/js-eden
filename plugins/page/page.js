@@ -68,7 +68,33 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			text = p[1];
 		}
 
-		return $("<div class='page-paragraph'>"+text+"</div>");
+		var scripts = [];
+
+		// Do a find replace for the jseden tag
+		text = text.replace(/<jseden>([\s\S]*?)<\/jseden>/g,
+		function (match, code, offset, string) {
+			scripts.push(code);
+			console.log("SCRIPT: " + code);
+			return "$$$$";
+		});
+
+		console.log("PARA TEXT: " + text);
+
+		var splittext = text.split("$$$$");
+
+		if (splittext.length == 1) {
+			return $("<div class='page-paragraph'>"+text+"</div>");
+		} else {
+			var outer = $("<div></div");
+			for (var i=0; i<splittext.length-1; i++) {
+				outer.append($("<div class='page-paragraph'>"+splittext[i]+"</div>"));
+				var linecount = scripts[i].split("\n").length;
+				var script = generateScript(["script", false, [scripts[i]], makeRandomName(), true, linecount, false, false, "70%"]);
+				outer.append(script);
+			}
+			outer.append($("<div class='page-paragraph'>"+splittext[splittext.length-1]+"</div>"));
+			return outer;
+		}
 	}
 
 	function generateScript(script) {
