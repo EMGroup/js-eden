@@ -904,7 +904,11 @@ Eden.AST.Insert.prototype.generate = function(ctx) {
 		val += ".value";
 	}
 	var lvalue = this.destination.generate(ctx);
-	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.splice(rt.index("+ix+"), 0, ("+val+")); }, this);";
+	if (this.destination.islocal) {
+		return lvalue + ".splice(rt.index("+ix+"), 0, ("+val+"));";
+	} else {
+		return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.splice(rt.index("+ix+"), 0, ("+val+")); }, this);";
+	}
 }
 
 Eden.AST.Insert.prototype.execute = function(root, ctx, base) {

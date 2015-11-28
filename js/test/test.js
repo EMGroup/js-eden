@@ -114,15 +114,8 @@ test("Single quoting a character works", function () {
 });
 
 test("Empty quotes won't parse", function () {
-	//try {
-		//eden.translateToJavaScript("'';");
-		var ast = new EdenAST("a = '';");
-		if (ast.script.errors.length > 0) {
-			ok(true);
-		}
-	//} catch (e) {
-	//	ok(true);
-	//}
+	var ast = new Eden.AST("a = '';");
+	equal(ast.script.errors.length,1);
 });
 
 test("Single quoting an escaped quote character works", function () {
@@ -173,10 +166,10 @@ test("number comparison", function () {
 //
 edenModule("Control flow");
 
-test("Do while loop", function () {
+/*test("Do while loop", function () {
 	eden.execute2("x = 0; do { x++; } while (x < 5);");
 	equal(root.lookup('x').value(), 5);
-});
+});*/
 
 test("For loop", function () {
 	eden.execute2("x = 0; for (i = 0; i < 10; i++) { x++; }");
@@ -458,7 +451,7 @@ test("Lists are value types", function () {
 
 test("List index on the result of a function call should parse", function () {
 	//expect(0);
-	var ast = new EdenAST("x = f()[1];");
+	var ast = new Eden.AST("x = f()[1];");
 	equal(ast.script.errors.length, 0);
 });
 

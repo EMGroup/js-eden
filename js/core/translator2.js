@@ -522,9 +522,16 @@ Eden.AST.prototype.pFACTOR = function() {
 		this.next();
 		return lit;
 	// Character literal
-	// TODO No error on missing closing quote atm.!!!!
 	} else if (this.token == "CHARACTER") {
 		var lit = new Eden.AST.Literal("CHARACTER", this.data.value);
+		if (this.data.error) {
+			if (this.data.value == "") {
+				lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LITCHAREMPTY));
+			} else {
+				lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LITCHARCLOSE));
+			}
+			return lit;
+		}
 		this.next();
 		return lit;
 	// Unary boolean not
@@ -2321,6 +2328,8 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	}
 	
 	stat.parent = this.parent;
+
+	// Update statements start and end so original source can be extracted.
 	if (end == -1) {
 		stat.setSource(start, this.stream.prevposition);
 	} else {

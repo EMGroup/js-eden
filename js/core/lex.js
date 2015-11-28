@@ -271,6 +271,12 @@ EdenStream.prototype.parseString = function(data) {
 EdenStream.prototype.parseCharacter = function(data) {
 	var result = String.fromCharCode(this.get());
 
+	if (result == "'") {
+		data.value = "";
+		data.error = true;
+		return;
+	}
+
 	// Escaped char
 	if (result == "\\") {
 		result = String.fromCharCode(this.get());

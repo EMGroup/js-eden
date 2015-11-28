@@ -277,6 +277,12 @@ Language.errors = [
 ],
 /* EDEN_ERROR_WHENNOSTATEMENT */ [
 	"Missing statement after 'when'"
+],
+/* EDEN_ERROR_LITCHAREMPTY */ [
+	"Missing a character between single quotes"
+],
+/* EDEN_ERROR_LITCHARCLOSE */ [
+	"Missing a closing quote after character literal"
 ]
 ];
 

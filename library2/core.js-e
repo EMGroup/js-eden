@@ -11,7 +11,8 @@
  *   @param script The script to interpret.
  */
 func execute {
-	${{ eden.execute2(arguments[0], "execute", "", {name: "/execute"}, function () { } ); }}$;
+	para script;
+	${{ eden.execute2(script, "execute", "", {name: "/execute"}, function () { } ); }}$;
 }
 
 /**
@@ -33,6 +34,14 @@ func Point {
 	${{ return new Point(x, y); }}$;
 }
 
+/**
+ * Create new window of a particular type. Some examples of common types are:
+ *   Canvas2D, ScriptView, SymbolList.
+ *
+ *   @param name Some custom but unique name for the window.
+ *   @param type One of the allowed types of window.
+ *   @return A view data object.
+ */
 proc createView {
 	para name, type;
 	${{ edenUI.createView(name, type, this); }}$;

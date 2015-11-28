@@ -91,6 +91,8 @@ Eden.SyntaxError.IMPORTCOMB = 64;
 Eden.SyntaxError.IFNOSTATEMENT = 65;
 Eden.SyntaxError.AFTERNOSTATEMENT = 66;
 Eden.SyntaxError.WHENNOSTATEMENT = 67;
+Eden.SyntaxError.LITCHAREMPTY = 68;
+Eden.SyntaxError.LITCHARCLOSE = 69;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -471,6 +473,14 @@ Eden.SyntaxError.db = [
 		suggestion: {expected: [], next: []}
 	},
 /* EDEN_ERROR_WHENNOSTATEMENT */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_LITCHAREMPTY */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_LITCHARCLOSE */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
 	}

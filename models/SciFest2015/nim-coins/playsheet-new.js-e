@@ -2,7 +2,7 @@
  * @title Nim Coins Playsheet
  */
 
-import jspe enabled;
+import jspe;
 
 hiddenCol = "white";
 
