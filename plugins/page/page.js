@@ -74,11 +74,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		text = text.replace(/<jseden>([\s\S]*?)<\/jseden>/g,
 		function (match, code, offset, string) {
 			scripts.push(code);
-			console.log("SCRIPT: " + code);
 			return "$$$$";
 		});
-
-		console.log("PARA TEXT: " + text);
 
 		var splittext = text.split("$$$$");
 
