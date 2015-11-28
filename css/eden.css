@@ -1,15 +1,40 @@
-body, html {
-	margin: 0;
+html {
+	margin: 0px;
 	height: 100%;
 }
 
 body {
-	background: linear-gradient(#29454B, #000000);
-
-	/* MSIE */
-	filter: progid:DXImageTransform.Microsoft.Gradient(
-	StartColorStr='#09284B', EndColorStr='#000000', GradientType=0);
+	background-color: #29454B;
+	background-image: linear-gradient(#29454B, black);
+	margin: 0px;
+	width: 400%;
+	min-height: 100%;
+	/* Internet Explorer*/
+	/*scrollbar-face-color: rgb(84, 106, 111);
+	scrollbar-track-color: #29454B;*/
 }
+
+/** {
+	scrollbar-face-color: #BBBBBB;
+	scrollbar-track-color: #EEEEEE;	
+}
+
+body::-webkit-scrollbar {
+	background: #29454B;
+	height: 14px;
+}
+
+body::-webkit-scrollbar-thumb {
+	background-color: rgba(255, 255, 255, 0.2);
+}*/
+
+input[type=checkbox], input[type=radio] {
+	vertical-align: middle;
+}
+
+::placeholder { color: #AAAAAA; opacity: 1; font-style: italic; }
+::-webkit-input-placeholder { color: #AAAAAA; opacity: 1; font-style: italic; }
+::-moz-placeholder { color: #AAAAAA; opacity: 1; font-style: italic; }
 
 ul li {
 	list-style-type: square;
@@ -17,12 +42,8 @@ ul li {
 
 h2, ul li {
 	font-family: Verdana,Arial,sans-serif;
-	font-weight: lighter;
+	/*font-weight: lighter;*/
 	color: black;
-}
-
-.canvashtml-content {
-	font-size: 1em;
 }
 
 .unpadded-dialog .ui-dialog-content {
@@ -30,8 +51,22 @@ h2, ul li {
 }
 
 /* Search results */
+.invalid_form {
+	background-color: #FFCCCC;
+}
+
 .result_name {
 	font-size: 10pt;
+}
+
+.result_separator {
+	font-weight: bold;
+}
+
+.result_value {
+	opacity: 0.5;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 div.error-item {
@@ -60,4 +95,57 @@ div.error-item {
 	font-family: sans-serif;
 	font-size: 9pt;
 	padding: 9px;
+}
+
+.noselect {
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+#dialog-extend-fixed-container {
+	pointer-events: none;
+}
+
+#dialog-extend-fixed-container .ui-dialog {
+	pointer-events: auto;
+}
+
+.ui-dialog-buttonset button:not(:first-child) {
+    margin-left: 27px;
+}
+
+@keyframes window-activated {
+	from {border-color: white;}
+	to {border-color: red;}
+}
+
+.window-activated:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border: 4px solid red;
+	animation-name: window-activated;
+	animation-duration: 0.15s;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+	animation-timing-function: linear;
+}
+
+/* use a pseudo element to make a border without causing the window contents to move */
+.window-highlighted:after {
+	content: "";
+	position: absolute;
+	z-index: 2147483645; /* one less than the z-index used for the raised window */
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border: 4px solid yellow;
+	pointer-events: none;
 }

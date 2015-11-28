@@ -1,0 +1,220 @@
+func speakingLanguages {
+	${{
+		if (!("speechSynthesis" in window)) {
+			return [];
+		}
+		var voices = window.speechSynthesis.getVoices();
+		var langs = {};
+		for (var i = 0; i < voices.length; i++) {
+			langs[voices[i].lang] = true;
+		}
+		return Object.keys(langs);
+	}}$;
+}
+
+func SpeakingWords {
+	${{
+		var id, text, lang, gender, volume, rate, pitch;
+		if (arguments.length == 1) {
+			text = arguments[0];
+		} else {
+			var argsProcessed;
+			if (arguments.length == 7) {
+				id = arguments[0];
+				text = arguments[1];
+				lang = arguments[2];
+				gender = arguments[3];
+				argsProcessed = 4;
+			} else {
+				if (/^[a-zA-Z_]\w*$/.test(arguments[0])) {
+					id = arguments[0];
+					text = arguments[1];
+					argsProcessed = 2;
+				} else {
+					text = arguments[0];
+					argsProcessed = 1;
+				}
+				if (arguments[argsProcessed] === undefined || typeof(arguments[argsProcessed]) == "string") {
+					lang = arguments[argsProcessed];
+					argsProcessed++;
+					if (typeof(arguments[argsProcessed]) == "string") {
+						gender = arguments[argsProcessed];
+						argsProcessed++;
+					}
+				}
+			}
+			volume = arguments[argsProcessed];
+			rate = arguments[argsProcessed + 1];
+			pitch = arguments[argsProcessed + 2];
+		}
+
+		if (volume === undefined) {
+			volume = 1;
+		} else if (typeof(volume) != "number") {
+			eden.error(new Error("SpeakingWords: The volume must be a number, not a " + typof(volume)), "error");
+			return undefined;
+		} else if (volume < 0) {
+			eden.error(new Error("SpeakingWords: The volume cannot be less than 0."), "error");
+			return undefined;
+		} else if (volume > 1) {
+			eden.error(new Error("SpeakingWords: The volume cannot be greater than 1."), "error");
+			return undefined;
+		}
+		if (rate !== undefined) {
+			if (typeof(rate) != "number") {
+				eden.error(new Error("SpeakingWords: The speaking rate must be a number, not a " + typof(rate)), "error");
+				return undefined;
+			} else if (rate < 0.1) {
+				eden.error(new Error("SpeakingWords: The speaking rate cannot be less than 0.1"), "error");
+				return undefined;
+			} else if (rate > 10) {
+				eden.error(new Error("SpeakingWords: The speaking rate cannot be greater than 10."), "error");
+				return undefined;
+			}
+		}
+		if (pitch !== undefined) {
+			if (typeof(pitch) != "number") {
+				eden.error(new Error("SpeakingWords: The pitch must be a number, not a " + typof(pitch)), "error");
+				return undefined;
+			} else if (pitch < 0) {
+				eden.error(new Error("SpeakingWords: The pitch cannot be less than 0."), "error");
+				return undefined;
+			} else if (pitch > 2) {
+				eden.error(new Error("SpeakingWords: The pitch cannot be greater than 2."), "error");
+				return undefined;
+			}
+		}
+		return new SpeakingWords(id, text, lang, gender, volume, rate, pitch);
+	}}$;
+}
+
+proc speak {
+	para speech;
+	if ($# != 1) {
+		error("speak: This procedure requires exactly one argument");
+		return;
+	} else if (${{ !(arguments[0] instanceof SpeakingWords) }}$) {
+		error("speak: The argument must be a SpeakingWords object, not a " // type(speech));
+		return;
+	}
+	append speakingList, speech;
+}
+
+proc setDefaultVoice {
+	${{
+		var langSet = false, genderSet = false, rateSet = false, pitchSet = false;
+		var lang, gender, rate, pitch;
+		
+		if (arguments.length > 4) {
+			eden.error(new Error("setDefaultVoice: This procedure accepts a maximum of 4 arguments."), "error");
+			return;
+		}
+		
+		if (arguments.length == 0) {
+			langSet = true;
+			genderSet = true;
+			rateSet = true;
+			pitchSet = true;
+		} if (arguments.length == 4) {
+			lang = arguments[0];
+			gender = arguments[1];
+			rate = arguments[2];
+			pitch = arguments[3];
+			langSet = true;
+			genderSet = true;
+			rateSet = true;
+			pitchSet = true;
+		} else {
+			var argsProcessed = 0;
+			if (typeof(arguments[0]) == "string" || (arguments[0] === undefined && arguments.length == 3)) {
+				lang = arguments[0];
+				langSet = true;
+				if (typeof(arguments[1]) == "string") {
+					gender = arguments[1];
+					genderSet = true;
+					argsProcessed = 2;
+				} else {
+					argsProcessed = 1;
+				}
+			}
+			if (argsProcessed < arguments.length) {
+				rate = arguments[argsProcessed];
+				rateSet = true;
+				argsProcessed++;
+			}
+			if (argsProcessed < arguments.length) {
+				pitch = arguments[argsProcessed];
+				pitchSet = true;
+				argsProcessed++;
+			}
+		}
+
+		if (lang !== undefined && typeof(lang) != "string") {
+			eden.error(new Error("setDefaultVoice: The language argument must be undefined or a string, not a " + typeof(lang)), "error");
+			return;
+		}
+		if (gender !== undefined && typeof(gender) != "string") {
+			eden.error(new Error("setDefaultVoice: The gender argument must be undefined or a string, not a " + typeof(gender)), "error");
+			return;
+		}
+		if (rate !== undefined && typeof(rate) != "number") {
+			eden.error(new Error("setDefaultVoice: The rate argument must be undefined or a number, not a " + typeof(rate)), "error");
+			return;
+		}
+		if (pitch !== undefined && typeof(pitch) != "number") {
+			eden.error(new Error("setDefaultVoice: The pitch argument must be undefined or a number, not a " + typeof(pitch)), "error");
+			return;
+		}
+
+		if (rate !== undefined && (rate < 0.1 || rate > 10)) {
+			eden.error(new Error("setDefaultVoice: The rate argument must be between 0.1 and 10 inclusive, not " + rate), "error");
+			return;
+		}
+
+		if (pitch !== undefined && (pitch < 0 || pitch > 2)) {
+			eden.error(new Error("setDefaultVoice: The pitch argument must be between 0 and 2 inclusive, not " + rate), "error");
+			return;
+		}
+
+		if (langSet) {
+			if (lang === undefined) {
+				edenUI.unsetOptionValue("speechSynthDefaultLanguage");
+			} else {
+				edenUI.setOptionValue("speechSynthDefaultLanguage", lang);
+			}
+			if (!genderSet) {
+				edenUI.unsetOptionValue("speechSynthDefaultGender");			
+			}
+		}
+		if (genderSet) {
+			if (gender === undefined) {
+				edenUI.unsetOptionValue("speechSynthDefaultGender");
+			} else {
+				edenUI.setOptionValue("speechSynthDefaultGender", gender);
+			}
+		}
+		if (rateSet) {
+			if (rate === undefined) {
+				edenUI.unsetOptionValue("speechSynthDefaultRate");
+			} else {
+				edenUI.setOptionValue("speechSynthDefaultRate", rate);
+			}
+		}
+		if (pitchSet) {
+			if (pitch === undefined) {
+				edenUI.unsetOptionValue("speechSynthDefaultPitch");
+			} else {
+				edenUI.setOptionValue("speechSynthDefaultPitch", pitch);
+			}
+		}
+	}}$;
+}
+
+speaking = false;
+speakingID = "";
+speakingText = "";
+speakingSpeech = @;
+speakingPaused = false;
+speakingList = [];
+speakingIndex = 1;
+speakingCharIndex = 1;

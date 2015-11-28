@@ -1,0 +1,11 @@
+{
+	"projects": [
+		{
+			"name": "Mario",
+			"author": "Nick Pope",
+			"year": "2015",
+			"description": "Basic Mario game framework",
+			"runfile": "models/nick/mario/run.jse"
+		}
+	]
+}

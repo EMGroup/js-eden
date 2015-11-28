@@ -1,0 +1,10 @@
+##Runs all test cases written in EDEN to test the library code.
+
+##Dependent libraries not loaded at start-up.
+include("library/dynamic.js-e");
+include("library/assertions.js-e");
+
+##Run all available test suites.
+include("library/test/test_types.js-e");
+
+writeln("Tests complete.");

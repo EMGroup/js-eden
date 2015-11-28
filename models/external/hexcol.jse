@@ -1,0 +1,17 @@
+/**
+ * @title Hex Colouring WMB
+ * @author Meurig Beynon
+ */
+
+require("Page");
+
+import lib/html;
+
+import hexcolouring/model;
+import hexcolouring/worksheet;
+import hexcolouring/textcolupdate;
+
+bindCSSNumericProperty("div.main-page", "width", "pageWidth", "%");
+pageWidth = 50;
+
+_view_picture_x is screenWidth - _view_picture_width - _views_frame_width;

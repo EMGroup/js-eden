@@ -1,0 +1,9 @@
+Array = ["a","b","c","d","e","f"];
+key = "d";
+
+low = 1;
+high is Array#;
+mid is floor((low + high) / 2);
+value is Array[mid];
+
+binsearch is (value == key) ? mid : (value > key) ? binsearch{high = mid - 1} : binsearch{low = mid + 1};

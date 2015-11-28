@@ -1,0 +1,12 @@
+##require("Page");
+createView("input_dialog","ScriptInput");
+
+_view_input_dialog_x = 693;
+_view_input_dialog_y = 88;
+_view_input_dialog_width = 585;
+_view_input_dialog_height = 457;
+
+##a is b;
+
+##_view_input_dialog_script = ["## Testing script",&a];
+

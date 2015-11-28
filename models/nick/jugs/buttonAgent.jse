@@ -1,0 +1,24 @@
+/**
+ * @title Button Command Agent
+ * @author Nicolas Pope
+ */
+
+when (but1_click) {
+	input = 1;
+}
+
+when (but2_click) {
+	input = 2;
+}
+
+when (but3_click) {
+	input = 3;
+}
+
+when (but4_click) {
+	input = 4;
+}
+
+when (but5_click) {
+	input = 5;
+}

@@ -1,0 +1,58 @@
+/**
+ * @title Light Switch
+ */
+
+##import compatibility/scifest2015;
+
+room is Rectangle(50,50, 100, 100, "yellow" if lightison else "black");
+lightswitch is Button(switchlabel, 200, 50);
+switchlabel is "Turn off" if lightison else "Turn on";
+
+
+when (lightswitch_click) {
+	lightison = !lightison;
+}
+
+
+/*proc press_switch: lightswitch_clicked {
+	if (lightswitch_clicked) {
+		lightison = !lightison;
+	}
+}*/
+
+question is Text("Is the light on?", 50, 200, "14px","blue" );
+result is Text(resulttext, 150, 230, "14px", resulttextcolor);
+
+buttonyes is Button("Yes", 60, 230, true, "lightblue" if myanswer == "Y" else "white");
+buttonno is Button("No", 110, 230, true, "lightblue" if myanswer == "N" else "white");
+
+
+when (buttonyes_click) {
+	myanswer = "Y";
+}
+
+when (buttonno_click) {
+	myanswer = "N";
+}
+
+
+/*proc lightis_on: buttonyes_clicked {
+	if (buttonyes_clicked) {
+		myanswer = "Y";
+	}
+}
+
+proc lightis_off: buttonno_clicked {
+	if (buttonno_clicked) {
+		myanswer = "N";
+	}
+}*/
+
+resulttext is myanswercorrect? "Correct answer!" : "Oops.. are you sure?";
+myanswercorrect is ((myanswer == "Y") && (lightison)) || ((myanswer == "N") && (!lightison));
+
+resulttextcolor is "green" if myanswercorrect else "red";
+
+picture is [room, lightswitch, question, buttonyes, buttonno, result];
+
+

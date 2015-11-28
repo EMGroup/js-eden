@@ -1,0 +1,66 @@
+/**
+ * @title Grid Algebra Basics
+ * @author Nicolas Pope
+ */
+
+##Text is ${{ new Text(scope.lookup("/text").value,scope.lookup("/x").value,scope.lookup("/y").value,scope.lookup("/size").value || 13.3,scope.lookup("/sizeUnits").value || "px",scope.lookup("/fillcolour").value || "black",scope.lookup("/outlinecolour").value, "scope.lookup("/options").value) }}$;
+
+x = 1;
+y = 1;
+square is Rectangle(offsetX + x*40,offsetY + y*40,40,40);
+squares is square with x is 1 .. squaresx, y is 1 .. squaresy;
+
+squaretext is Text(
+str(x*y),
+offsetX + 10 + x * 40,
+offsetY + 10 + y * 40,
+16);
+
+squaresx = 20;
+squaresy = 10;
+offsetX = 0-20;
+offsetY = 20;
+
+hidden_default is true;
+hidden = hidden_default with x is 1 .. squaresx, y is 1 .. squaresy;
+
+textitem is (hidden[x+((y-1)*squaresx)])?squaretext:@;
+squaretexts is textitem with x is 1 .. squaresx, y is 1 .. squaresy;
+
+picture is squares // squaretexts;
+
+
+################################################################################
+
+hidden[74] = true;
+
+when (mousePressed) {
+	x = floor((mouseX - offsetX) / 40);
+	y = floor((mouseY - offsetY) / 40);
+	index = x + ((y-1) * squaresx);
+	if (x > 0 && y > 0 && x <= squaresx && y <= squaresy) {
+		hidden[index] = !hidden[index];
+	}
+}
+
+/*proc hide : mousePressed {
+	local x;
+	local y;
+	local index;
+	if (mousePressed) {
+		x = floor((mouseX - offsetX) / 40);
+		y = floor((mouseY - offsetY) / 40);
+		index = x + ((y-1) * squaresx);
+		if (x > 0 && y > 0 && x <= squaresx && y <= squaresy) {
+			hidden[index] = !hidden[index];
+		}
+	}
+}*/
+
+
+################################################################################
+
+title is Text("Grid Algebra", 10, 10, 20);
+picture is squares // squaretexts // [title];
+
+

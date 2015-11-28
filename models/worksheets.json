@@ -1,0 +1,18 @@
+{
+	"projects": [
+		{
+			"name": "Triangles",
+			"author": "Nick Pope",
+			"year": "2015",
+			"description": "Demo worksheet for testing knowledge of triangles",
+			"runfile": "tutorials/start2.js-e"
+		},
+		{
+			"name": "Arrow",
+			"author": "Nick Pope",
+			"year": "2015",
+			"description": "How to make generic arrow shapes",
+			"runfile": "tutorials/startarrow.js-e"
+		}
+	]
+}

@@ -1,0 +1,62 @@
+_override_item is (i == index) ? value : list[i];
+override is _override_item{ i = 1 .. list# };
+
+_sum is (i <= list#) ? list[i] + _sum{ i = i + 1 } : 0;
+sum is _sum{ i = 1 };
+
+round is ${{ Math.round(context.lookup("number").value(scope)) }}$;
+
+__translate is [p[1] + x, p[2] + y];
+translate is __translate{ x = (x)?x:0, y = (y)?y:0 };
+
+__rotate is [((p[1]-o[1])*cos(theta)-(p[2]-o[2])*sin(theta))+o[1], ((p[1]-o[1])*sin(theta)-(p[2]-o[2])*cos(theta))+o[2]];
+rotate is __rotate{ p = (p)?p:[0,0] };
+
+__scale is [p[1]*scalex,p[2]*scaley];
+scale is __scale{ scalex = (scalex)?scalex:0, scaley = (scaley)?scaley:0 };
+
+
+###############################################################################
+
+__object_single_member is [`members[i]`];
+object is [type, members] // __object_single_member{i=1..members#};
+
+member is this[indexOf(name,this[2])+2];
+
+################################################################################
+
+__Text is ${{ new Text(
+	scope.lookup("/text").value,
+	scope.lookup("/x").value,
+	scope.lookup("/y").value,
+	scope.lookup("/size").value || 13.3,
+	scope.lookup("/sizeUnits").value || "px",
+	scope.lookup("/fillcolour").value || "black",
+	scope.lookup("/outlinecolour").value,
+	scope.lookup("/options").value) }}$;
+
+Text is __Text{
+	x = (x)?x:10,
+	y = (y)?y:10,
+	text = (text)?text:"Hello World",
+	size = (size)?size:12
+};
+
+
+__Line is ${{ new Line(
+	scope.lookup("/x1").value,
+	scope.lookup("/y1").value,
+	scope.lookup("/x2").value,
+	scope.lookup("/y2").value,
+	scope.lookup("/colour").value,
+	scope.lookup("/options").value) }}$;
+
+Line is __Line{
+	x1 = (x1)?x1:0,
+	y1 = (y1)?y1:0,
+	x2 = (x2)?x2:100,
+	y2 = (y2)?y2:100,
+	colour = (colour)?colour:"black"
+};
+
+

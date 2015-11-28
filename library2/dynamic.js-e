@@ -1,0 +1,354 @@
+/**
+ * @title Dynamic Scripts
+ * Copyright (c) 2014, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ *
+ * Functions and procedures that allow EDEN code to inspect, manipulate and
+ * construct parts of scripts at runtime.
+ */
+
+/**
+ * Makes the identify y an alias for the identifier x. It's
+ * similar to definition "y is x" except that if y is subsequently redefined or
+ * assigned to then x inherits y's new definition or assigned value.  Thus the
+ * aliasing operation also simultaneously acts like the definition "x is y".
+ * This procedure is used when combining two construals to produce a larger
+ * construal where the component construals share a common concept but use
+ * different observable names to refer to that concept.
+ *
+ * @param aliasN Name for the new alias.
+ * @param original Original observable being aliased.
+ *
+ * To remove the alias execute:
+ *	forget("_alias_aliasedName");
+ *	forget("_alias_originalObservable");
+ * where aliasedName and originalObservable are respectively the string values of
+ * the first and second arguments the alias procedure was previously invoked with.
+ */
+proc alias {
+	para aliasN, original;
+	auto str;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc != 2) {
+		error("alias: This procedure requires exactly two arguments.");
+		return;
+	}
+	
+	if (isPointer(aliasN)) {
+		aliasN = nameof(aliasN);
+	} else if (!isString(aliasN)) {
+		error("alias: The first argument must be a string or a pointer, not a " // type(aliasN));
+		return;
+	}
+
+	if (isPointer(original)) {
+		original = nameof(original);
+	} else if (!isString(original)) {
+		error("alias: The second argument must be a string or a pointer, not a " // type(original));
+		return;
+	}
+
+	str = aliasN // " is " // original // ";\n\n";
+	##Assignment to alias: assign to original, reinstate the definition: alias is original.
+	##Assignment to original: alias maintained by dependency, do nothing.
+	##Redefinition of alias: if the new definition of alias doesn't depend on
+	##	original then the relationship is reversed and original becomes an alias of
+	##	alias.  If the definition of alias does depend on original then alias is no
+	##	longer an alias and this proc is forgotten.
+	##Redefinition of original: nothing special happens.  The dependency alias is original
+	##	continues to apply and in turn original is dependent on something else.
+
+	str = str // "proc _alias_" // aliasN // " : " // aliasN // " {\n";
+	str = str // "	if (!isDependency(&" // aliasN // ")) {\n";
+	str = str // "		" // original // " = " // aliasN // ";\n";
+	str = str // "		execute(\"" // aliasN // " is " // original // ";\");\n";
+	str = str // "	} else if (definitionRHS(&" // aliasN // ") != \"" // original // "\") {\n";
+	str = str // "		forget(\"_alias_" // aliasN // "\");\n";
+	str = str // "		if (!isDependent(&" // aliasN // ", \"" // original // "\")) {\n";
+	str = str // "			alias(\"" // original // "\", \"" // aliasN // "\");\n";
+	str = str // "		}\n";
+	str = str // "	}\n";
+	str = str // "}\n";
+	execute(str);
+}
+
+##This function is the reverse of execute.  Given pointer or a string that names
+##an observable it returns the code used to define the observable that is named
+##or being pointed to, that is, this function returns the text of the most
+##recent assignment or "is" statement that determines the observable's current
+##value.
+func definitionOf {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("definitionOf: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		
+		var observable = arguments[0];
+		var name, symbol
+		if (observable === undefined) {
+			return undefined;
+		} else if (observable instanceof Symbol) {
+			symbol = observable;
+			name = symbol.name.slice(1);
+		} else if (typeof(observable) == "string") {
+			name = observable;
+			symbol = root.lookup(name);		
+		} else {
+			eden.error(new Error("definitionOf: The argument must be a pointer or a string, not a " + typeof(observable)), "error");
+			return undefined;
+		}
+		
+		if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
+			return symbol.eden_definition + ";";
+		} else {
+			return name + " = " + Eden.edenCodeForValue(symbol.cache.value) + ";";
+		}
+	}}$;
+}
+
+##Similar to definitionOf but the result only includes the right-hand side of
+##the definition and excludes the terminating semi-colon.
+##E.g. if an observable b is defined as:
+## b is a + 3;
+##then definitionOf("b") returns "b is a + 3;" and definitionRHS("b") returns "a + 3".
+func definitionRHS {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("definitionRHS: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		
+		var observable = arguments[0];
+		var name, symbol
+		if (observable === undefined) {
+			return undefined;
+		} else if (observable instanceof Symbol) {
+			symbol = observable;
+			name = symbol.name.slice(1);
+		} else if (typeof(observable) == "string") {
+			name = observable;
+			symbol = root.lookup(name);		
+		} else {
+			eden.error(new Error("definitionRHS: The argument must be a pointer or a string, not a " + typeof(observable)), "error");
+			return undefined;
+		}
+
+		if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
+			var lhsRegExp = new RegExp("^\\s*" + name + "\\s+is\\s+", "");
+			var rhs = symbol.eden_definition.replace(lhsRegExp, "");
+			rhs = rhs.replace(/^\[\s*\]/, "[]");
+			rhs = rhs.replace(/\[\s*\]$/, "[]");
+			return rhs;
+		} else {
+			return Eden.edenCodeForValue(symbol.cache.value);
+		}	
+	}}$;
+}
+
+##Returns true if the observable named by the second argument appears in the definition of the
+##observable named by the first argument.
+func isDependent {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("isDependent: This function requires exactly 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var searchName, symbol;
+		
+		if (typeof(arguments[0]) == "string") {
+			symbol = root.lookup(arguments[0]);
+		} else if (arguments[0] instanceof Symbol) {
+			symbol = arguments[0];
+		} else {
+			eden.error(new Error("isDependent: The first argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
+			return undefined;
+		}
+
+		if (typeof(arguments[1]) == "string") {
+			searchName = "/" + arguments[1];
+		} else if (arguments[1] instanceof Symbol) {
+			searchName = arguments[1].name;
+		} else {
+			eden.error(new Error("isDependent: The second argument must be a string or a pointer, not a " + typeof(arguments[1])), "error");
+			return undefined;
+		}
+		
+		return symbol.isDependentOn(searchName);
+	}}$;
+}
+
+
+
+##Given a string or a pointer, returns true if the referenced observable is
+##defined through dependency or false if it's defined through assignment or not
+##defined at all.
+func isDependency {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isDependency: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		
+		var symbol;
+		
+		if (typeof(arguments[0]) == "string") {
+			symbol = root.lookup(arguments[0]);
+		} else if (arguments[0] instanceof Symbol) {
+			symbol = arguments[0];
+		} else {
+			eden.error(new Error("isDependency: The argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
+			return undefined;
+		}
+		
+		return symbol.eden_definition !== undefined && symbol.definition !== undefined;
+	}}$;
+}
+
+##Replaces a func or a proc with a new func or proc defined in terms of the
+##function or procedure previously known by the same name.  The first argument
+##is a pointer to the patch function or patch procedure.  This should be a func
+##or a proc with exactly two parameters.  The first is a func/proc typed
+##parameter that will be instantiated with the old func/proc.  The second is a
+##list typed parameter that will instantiated with the argument list of the
+##resulting "patched function" or "patched procedure".  The second argument to
+##patch is a pointer to the "current", "old" or "original" func or proc to which
+##the patch is to be applied.
+##
+##Example:
+##
+## func f {
+## 	para x;
+##	return x * 2;
+## }
+##
+## func fPatch {
+## 	para oldF, params;
+##	##Do whatever the "old f" function did but offset the value of the parameter
+## 	##by one.
+##	return oldF(params[1] + 1);
+## }
+##
+## patch(&fPatch, &f);
+##
+## f(1) now returns 4 and fPatch has been forgotten.  Note that the old definition of f is no longer
+## available to view in the environment so be sure to save a copy first.
+##
+proc patch {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("patch: This procedure requires exactly 2 arguments.", "error"));
+			return;
+		}
+		if (!(arguments[0] instanceof Symbol)) {
+			eden.error(new Error("patch: The first argument must be a pointer to a func or a proc, not a " + typeof(arguments[0])), "error");
+			return;
+		}
+		if (!(arguments[1] instanceof Symbol)) {
+			eden.error(new Error("patch: The second argument must be a pointer to a func or a proc, not a " + typeof(arguments[1])), "error");
+			return;
+		}
+		
+		var funcName = arguments[1].name.slice(1);
+		var patchName = arguments[0].name.slice(1);
+
+		var patchFunc = arguments[0].value();
+		var originalFunc = arguments[1].value();
+		
+		if (typeof(patchFunc) != "function") {
+			eden.error(new Error("patch: The first argument must be a pointer to a func or a proc, not a pointer to a " + typeof(patchFunc)), "error");
+			return;
+		}
+		if (typeof(originalFunc) != "function") {
+			eden.error(new Error("patch: The second argument must be a pointer to a func or a proc, not a pointer to a " + typeof(originalFunc)), "error");
+			return;
+		}
+
+		root.lookup(funcName).assign(function () {
+			return patchFunc(originalFunc, Array.prototype.slice.call(arguments));
+		}, root.scope, this);
+
+		arguments[0].forget();
+	}}$;
+}
+
+##This procedure inspects the current definition of a list observable and
+##redefines the observable such that its new definition is like the old one but
+##with an extra item (or items) added onto the end of the list.  It is similar
+##to append but append is shorthand for an assignment whereas withAppendedItem
+##is shorthand for a dependency definition.  The first argument is a string or a
+##pointer identifying the observable to be redefined.  The second argument is
+##a string containing EDEN code for defining the new item(s).
+##
+##Examples:
+## list is [a];
+## b = 2;
+##
+## For each example begin in the state defined above.
+##
+##Example 1:
+##	withAppendedItem(&list, "b");
+##Equivalent to executing: list is [a, b];
+##
+##Example 2:
+##	withAppendedItem(&list, "b, a + b");
+##Equivalent to executing list is [a, b, a + b];
+##
+##Example 3:
+##	withAppendedItem(&list, edenCode(b));
+##Equivalent to executing list is [a, 2];
+##(withAppendedItem deliberately rejects non-string values to avoid accidentally
+##freezing the current value of the appended expression.)
+##
+proc withAppendedItem {
+	para target, appendItem;
+	auto listObs, oldRHS, currentValue, last2Chars;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+	
+	if (argc != 2) {
+		error("withAppendedItems: This procedure requires at exactly 2 arguments.");
+		return @;
+	} else if (isString(target)) {
+		oldRHS = definitionRHS(target);
+		listObs = target;
+		currentValue = `listObs`;
+	} else if (isPointer(target)) {
+		oldRHS = definitionRHS(target);
+		listObs = nameof(target);
+		currentValue = *(target);
+	} else {
+		error("withAppendedItem: The first argument must be a string or a pointer, not a " // type(target));
+		return @;
+	}
+	
+	if (currentValue != @ && !isList(currentValue)) {
+		error("withAppendedItem: " // listObs // " must be a list type observable, not a " // type(currentValue) // " observable.");
+		return @;
+	}
+	
+	if (!isString(appendItem)) {
+		error("withAppendedItem: The second argument must be a string, not a " // type(appendItem) // ".  Place the expression inside quotes (ordinarily), or use edenCode() to append a fixed value.");
+		return @;
+	}
+
+	if (oldRHS# >= 2) {
+		last2Chars = substr(oldRHS, oldRHS# - 1, oldRHS#);
+	} else {
+		last2Chars = @;
+	}
+
+	if (oldRHS == "@" || oldRHS == "[]") {
+		execute(listObs // " is [" // appendItem // "];");
+	} else if (last2Chars != @ && last2Chars[2] == "]" && last2Chars[1] != "[") {
+		##Use a comma instead of ] // [
+		execute(listObs // " is " // substr(oldRHS, 1, oldRHS# - 1) // ", " // appendItem // "];");	
+	} else {
+		execute(listObs // " is " // oldRHS // " // [" // appendItem // "];");
+	}
+}

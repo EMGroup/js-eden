@@ -8,33 +8,33 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 	this.text = text;
 	this.x = x;
 	this.y = y;
-	this.size = size;
 	this.fillcolour = fillcolour;
 	this.outlinecolour = outlinecolour;
 
-	var fontCSS;
-	if (options instanceof Object) {		
+	var css;
+
+	if (options instanceof Object) {
 		if (!("valign" in options)) {
 			options.valign = "top";
 		}
 		this.drawingOptions = options;
 
 		if (options.italic) {
-			fontCSS = "italic ";
+			css = "italic ";
 		} else {
-			fontCSS = "";
+			css = "";
 		}
 		if (options.smallCaps) {
-			fontCSS = fontCSS + "small-caps ";
+			css = css + "small-caps ";
 		}
 		if (options.bold) {
-			fontCSS = fontCSS + "bold ";
+			css = css + "bold ";
 		}
-		fontCSS = fontCSS + size + " ";
+		css = css + size + " ";
 		if (options.fontFace === undefined) {
-			fontCSS = fontCSS + "sans-serif";
+			css = css + "sans-serif";
 		} else {
-			fontCSS = fontCSS + options.fontFace;
+			css = css + options.fontFace + " sans-serif";
 		}
 
 	} else if (typeof(options) == "string") {
@@ -53,9 +53,9 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 			this.drawingOptions.align = searchResults[0];
 			options = options.replace(halignRE, "");
 		}
-		fontCSS = options + " sans-serif";
+		css = options + " sans-serif";
 	} else {
-		fontCSS = size + " sans-serif";
+		css = size + " sans-serif";
 		this.drawingOptions = {valign: "top"};
 	}
 	if (this.drawingOptions.align == "centre") {
@@ -64,7 +64,9 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 	if (this.drawingOptions.valign == "baseline") {
 		this.drawingOptions.valign = "alphabetic";
 	}
-	this.fontCSS = fontCSS;
+	this.css = css;
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(options, "Text");
+	this.obsName = root.currentObservableName();
 }
 }}$;
 
@@ -74,24 +76,37 @@ func Text {
 		var x = arguments[1];
 		var y = arguments[2];
 		var size, fillcolour, outlinecolour, options;
+
+		var argType = typeof(arguments[3]);
+		var sizePresent = argType == "number" ||
+			(argType == "string" && /^\d*(\.\d+)?[a-zA-Z%]+$/.test(arguments[3]));
+
 		var numArgs = arguments.length;
-		var argType = typeof(arguments[numArgs - 1]);
-		if (argType == "string" && arguments[numArgs - 1].indexOf(" ") !== -1) {
-			options = arguments[numArgs - 1];
-			if (numArgs >= 5) {
+		var lastArg = arguments[numArgs - 1];
+		argType = typeof(lastArg);
+		if (argType == "string" && !sizePresent && (numArgs == 6 || lastArg.indexOf(" ") !== -1)) {
+			options = lastArg;
+			if (numArgs > 4) {
 				fillcolour = arguments[3];
-				if (numArgs >= 6) {
-					outlinecolour = arguments[5];
+				if (numArgs > 5) {
+					outlinecolour = arguments[4];
 				}
 			}
-		} else if (argType == "object" && !(arguments[numArgs - 1] instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
-			options = arguments[numArgs - 1];
-			if (numArgs >= 5) {
-				size = arguments[3];
-				if (numArgs >= 6) {
-					fillcolour = arguments[4];
-					if (numArgs >= 7) {
-						outlinecolour = arguments[5];
+		} else if (argType == "object" && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+			options = lastArg;
+			if (numArgs > 4) {
+				var argsProcessed;
+				if (sizePresent || arguments[3] === undefined) {
+					size = arguments[3];
+					argsProcessed = 4;
+				} else {
+					argsProcessed = 3;
+				}
+				if (numArgs > argsProcessed + 1) {
+					fillcolour = arguments[argsProcessed];
+					argsProcessed++;
+					if (numArgs > argsProcessed + 1) {
+						outlinecolour = arguments[argsProcessed];
 					}
 				}
 			}
@@ -99,7 +114,7 @@ func Text {
 			size = arguments[3];
 			fillcolour = arguments[4];
 			outlinecolour = arguments[5];
-			options = arguments[6];
+			options = arguments[6]; //Deliberately left in, even though size parameter will currently be ignored if this is specified.
 		}
 
 		if (size === undefined) {
@@ -110,46 +125,218 @@ func Text {
 		if (outlinecolour === undefined && fillcolour === undefined) {
 			fillcolour = "black";
 		}
-		
 		return new Text(text, x, y, size, fillcolour, outlinecolour, options);
 	}}$;
 }
 
 ${{
 
-Text.prototype.draw = function (context) {
-	context.font = this.fontCSS;
+Text.prototype.draw = function (context, scale) {
+
+	var inverseScale = 1 / scale;
+	context.scale(inverseScale, inverseScale);
+	context.font = this.css;
 	context.textBaseline = this.drawingOptions.valign;
 	if ("align" in this.drawingOptions) {
 		context.textAlign = this.drawingOptions.align;
 	}
+	var lineWidth = context.lineWidth;
+	var x = (this.x + lineWidth / 2) * scale + 1;
+	var y = this.y * scale + 1;
 
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
-		context.fillText(this.text, this.x, this.y);
+		context.fillText(this.text, x, y);
 	}
 	if (this.outlinecolour !== undefined) {
+		context.lineWidth = lineWidth * scale;
 		context.strokeStyle = this.outlinecolour;
-		context.strokeText(this.text, this.x, this.y);	
+		context.strokeText(this.text, x, y);	
 	}
 };
 
+Text.prototype.isHit = function (context, scale, px, py) {
+	var x = this.x + 1 / scale;
+	var y = this.y + 1 / scale;
+	var width, height;
+	
+	if (this.width === undefined) {
+		var div = document.createElement("div");
+		div.innerHTML = this.text;
+		div.style.position = 'absolute';
+		div.style.top  = '-9999px';
+		div.style.font = this.css;
+		document.body.appendChild(div);
+		this.width = div.offsetWidth;
+		this.height = div.offsetHeight;
+		document.body.removeChild(div);
+	}
+
+	var lineWidth = context.lineWidth;
+	width = this.width / scale + lineWidth;
+	height = this.height / scale + lineWidth / 2;
+
+	return px >= x && px < x + width && py >= y && py < y + height;
+}
+
 Text.prototype.toString = function() {
-	var s = "Text(\"" + this.text + "\", " + this.x + ", " + this.y + ", ";
+	var s = "Text(" + Eden.edenCodeForValues(this.text, this.x, this.y) + ", ";
 
 	if (this.optionString !== undefined) {
-		s = s + Eden.edenCodeForValue(this.fillcolour) + ", " +
-			Eden.edenCodeForValue(this.outlinecolour) + ", " +
+		s = s + Eden.edenCodeForValues(this.fillcolour, this.outlinecolour) + ", " +
 			"\"" + this.optionString + "\")";
 	} else {
-		s = s + Eden.edenCodeForValue(this.size) + ", " +
-			Eden.edenCodeForValue(this.fillcolour) + ", " +
-			Eden.edenCodeForValue(this.outlinecolour) + ", " +
-			Eden.edenCodeForValue(this.drawingOptions) + ")";
+		s = s + Eden.edenCodeForValues(this.size, this.fillcolour, this.outlinecolour, this.drawingOptions) + ")";
 	}
 	return s;
 };
 
 Text.prototype.getEdenCode = Text.prototype.toString;
 
+Text.parseArgs = function () {
+	var text = arguments[0];
+
+	var size, options, optionsObj, scale;
+	var argsProcessed = 1;
+	var arg = arguments[1];
+	var argType = typeof(arg);
+
+	if (arg === undefined || argType == "number" || (argType == "string" && /^\d*(\.\d+)?[a-zA-Z%]+$/.test(arg))) {
+		size = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);
+	}
+	if (argType === undefined || argType == "object" || argType == "string") {
+		options = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+	}
+	scale = arg;
+
+	if (typeof(options) == "string") {
+		if (size !== undefined) {
+			eden.error(new Error("textWidth/textHeight: The size argument cannot be specified when the options parameter is given as a string.  The font size should be included in the options string.  See https://drafts.csswg.org/css2/fonts.html#font-shorthand"), "error");
+			return undefined;
+		}
+	} else {
+		if (size === undefined) {
+			size = "1em";
+		} else if (typeof(size) == "number") {
+			size = size + "px";
+		}
+	}
+
+	if (scale === undefined) {
+		scale = 1;
+	}
+
+	var css;
+	if (options instanceof Object) {
+		optionsObj = options;
+		if (options.italic) {
+			css = "italic ";
+		} else {
+			css = "";
+		}
+		if (options.smallCaps) {
+			css = css + "small-caps ";
+		}
+		if (options.bold) {
+			css = css + "bold ";
+		}
+		css = css + size + " ";
+		if (options.fontFace === undefined) {
+			css = css + "sans-serif";
+		} else {
+			css = css + options.fontFace + " sans-serif";
+		}
+	} else if (typeof(options) == "string") {
+		options = options.replace(/\b(top|hanging|middle|baseline|alphabetic|ideographic|bottom|left|right|center|centre|start|end)\b\s*/g, "");
+		css = options + " sans-serif";
+		optionsObj = {};
+	} else {
+		css = size + " sans-serif";
+		optionsObj = {};
+	}
+	return [css, optionsObj, scale];
+};
+
 }}$;
+
+func textWidth {
+	${{
+		var text = arguments[0];
+		var options = Text.parseArgs.apply(undefined, arguments);
+		var css = options[0];
+		var optionsObj = options[1];
+		var scale = options[2];
+
+		//Find an existing canvas (any one).
+		var canvas;
+		for (var canvasName in canvases) {
+			canvas =  canvases[canvasName];
+			break;
+		}
+		if (canvas === undefined) {
+			return undefined;
+		}
+
+		var context = canvas.getContext("2d");
+		context.save();
+		edenUI.plugins.Canvas2D.configureContextDefaults(context, 1);
+		edenUI.plugins.Canvas2D.configureContext(context, 1, 1, optionsObj);
+		context.font = css;
+		context.textBaseline = "top";
+		var metrics = context.measureText(text);
+		var width = Math.ceil(metrics.width + context.lineWidth) / scale;
+		context.restore();
+		return width;
+	}}$;
+}
+
+func textHeight {
+	${{
+		var text = arguments[0];
+		var options = Text.parseArgs.apply(undefined, arguments);
+		var fontCSS = options[0];
+		var optionsObj = options[1];
+		var scale = options[2];
+
+		var lineWidth = optionsObj.lineWidth;
+		if (lineWidth === undefined) {
+			lineWidth = 2;
+		}
+
+		var div = document.createElement("div");
+		div.innerHTML = text;
+		var style = div.style;
+		style.position = 'absolute';
+		style.top  = '-9999px';
+		style.borderWidth = "0pt";
+		style.padding = "0pt";
+		style.whiteSpace = "nowrap";
+		style.font = fontCSS;
+
+		//Find an existing canvas (any one).
+		var canvas, parent;
+		for (var canvasName in canvases) {
+			canvas =  canvases[canvasName];
+			break;
+		}
+		if (canvas) {
+			parent = canvas.parentNode;
+		}
+		if (!parent) {
+			parent = document.body;
+		}
+
+		parent.appendChild(div);
+		var height = div.scrollHeight;
+		parent.removeChild(div);
+		/* N.B. even when the vertical alignment is "top" Chrome still leaves a small top margin
+		 * where as Firefox doesn't.
+		 */
+		return (height + lineWidth / 2) / scale;
+	}}$;
+}

@@ -1,0 +1,64 @@
+/**
+ * @title Triangles Worksheet
+ * @author Nicolas Pope
+ */
+
+require("Page");
+
+ws_h1 is Header with text is "Exercise 1";
+
+ws_p1 is Paragraph with text is [
+"Below is a triangle with the lengths of sides A and B given.",
+"But what is the length of side C? Enter a formula to calculate it from the lengths of A and B so that if you change A and B it still shows the correct answer for C.",
+"Line C will go green when you have the correct answer."
+];
+
+lengthA = 100;
+lengthB = 80;
+originX = 100;
+originY = 100;
+
+lineA is Line(originX,originY,originX,originY-lengthA,"purple");
+lineB is Line(originX,originY,originX+lengthB,originY,"purple");
+lineC is Line(originX,originY-lengthA,originX+lengthB,originY,colourC);
+
+check is floor(lengthC) == floor(sqrt(lengthA*lengthA+lengthB*lengthB));
+checkA is check with lengthA is 78, lengthB is 34;
+checkB is check with lengthA is 12, lengthB is 45;
+
+colourC is "green" if checkA && checkB else "red";
+
+lengthC is 0;
+
+ws_pic1 is Canvas with name is "WSPic1", source is "picture_1", height is 150, width is 700;
+
+textLA is Text("A = " // str(lengthA), originX+lengthB+50,5,26);
+textLB is Text("B = " // str(lengthB), originX+lengthB+50,35,26);
+textLC is Text("C = " // str(floor(lengthC)), originX+lengthB+50,65,26);
+textA is Text("A", originX-30, originY-(lengthA / 2)+10, 26);
+textB is Text("B", originX+(lengthB / 2)-10, originY+5, 26);
+textC is Text("C", originX+(lengthB / 2)+10, originY-(lengthA / 2)-20, 26);
+
+picture_1 is [lineA,lineB,lineC,textA,textB,textC,textLA,textLB,textLC];
+
+ws_script1 is Script with static is false, name is "WSScript1", lines is 4, code is [
+"lengthA = 100;",
+"lengthB = 80;",
+"lengthC is 0;"
+];
+
+ws_h2 is Header with text is "Exercise 2";
+
+ws_p2 is Paragraph with text is "... complete exercise 1 first ...";
+
+ws_contents is [ws_h1,ws_p1,ws_pic1,ws_script1,ws_h2,ws_p2];
+
+ws_icon is Icon with colour is "white", size is 150, content is "&#xf1b2";
+ws_title is Title with
+	logo is ws_icon,
+	text is "Worksheet 2:",
+	subtitle is "Learning about Triangles";
+
+ws_page is Page with title is ws_title, content is ws_contents;
+page is ws_page;
+

@@ -1,0 +1,83 @@
+/**
+ * @title Clock Panel
+ * @author Nicolas Pope, Patrick Sun
+ */
+
+import lib/geometry;
+
+func addPoints {
+	para p1, p2;
+	return Point( ${{p1.x+p2.x}}$, ${{p1.y+p2.y}}$ );
+}
+
+func subPoints {
+	para p1, p2;
+	return Point( ${{p1.x-p2.x}}$, ${{p1.y-p2.y}}$ );
+}
+
+
+clock_clockPosX is clock_size / 2;
+clock_clockPosY is clock_size / 2;
+clock_face_faceRadius is clock_size / 2 - clock_size / 30;
+clock_face_facePosX is clock_clockPosX;
+clock_face_facePosY is clock_clockPosY;
+clock_face_edge is Circle(clock_face_facePosX, clock_face_facePosY, clock_face_faceRadius);
+clock_face_center is Point(clock_face_facePosX, clock_face_facePosY);
+clock_face_noon_1 is Point(clock_face_facePosX, clock_face_facePosY - clock_face_faceRadius + clock_face_faceRadius / 20);
+clock_face_noon_2 is Point(clock_face_facePosX, clock_face_facePosY - clock_face_faceRadius + clock_face_faceRadius / 5);
+clock_face_noon is LineSequence([clock_face_noon_1, clock_face_noon_2]);
+clock_face_shortNoon_1 is subPoints(clock_face_noon_1, Point(0, clock_face_faceRadius / 20));
+clock_face_shortNoon_2 is clock_face_noon_2;
+clock_face_shortNoon is LineSequence([clock_face_shortNoon_1, clock_face_shortNoon_2]);
+clock_face_one is LineSequence([rotatePoint(clock_face_shortNoon_1, 1*hourangle, clock_face_center), rotatePoint(clock_face_shortNoon_2, 1*hourangle, clock_face_center)]);
+clock_face_two is LineSequence([rotatePoint(clock_face_shortNoon_1, 2*hourangle, clock_face_center), rotatePoint(clock_face_shortNoon_2, 2*hourangle, clock_face_center)]);
+clock_face_three is LineSequence([rotatePoint(clock_face_shortNoon_1, 3*hourangle, clock_face_center), rotatePoint(clock_face_shortNoon_2, 3*hourangle, clock_face_center)]);
+clock_face_four is LineSequence([rotatePoint(clock_face_shortNoon_1, 4*hourangle, clock_face_center), rotatePoint(clock_face_shortNoon_2, 4*hourangle, clock_face_center)]);
+clock_face_five is LineSequence([rotatePoint(clock_face_shortNoon_1, 5*hourangle, clock_face_center), rotatePoint(clock_face_shortNoon_2, 5*hourangle, clock_face_center)]);
+clock_face_six is LineSequence([rotatePoint(clock_face_shortNoon_1, 6*hourangle, clock_face_center), rotatePoint(clock_face_shortNoon_2, 6*hourangle, clock_face_center)]);
+clock_face_seven is LineSequence([rotatePoint(clock_face_shortNoon_1, 7*hourangle, clock_face_center), rotatePoint(clock_face_shortNoon_2, 7*hourangle, clock_face_center)]);
+clock_face_eight is LineSequence([rotatePoint(clock_face_shortNoon_1, 8*hourangle, clock_face_center), rotatePoint(clock_face_shortNoon_2, 8*hourangle, clock_face_center)]);
+clock_face_nine is LineSequence([rotatePoint(clock_face_shortNoon_1, 9*hourangle, clock_face_center), rotatePoint(clock_face_shortNoon_2, 9*hourangle, clock_face_center)]);
+clock_face_ten is LineSequence([rotatePoint(clock_face_shortNoon_1, 10*hourangle, clock_face_center), rotatePoint(clock_face_shortNoon_2, 10*hourangle, clock_face_center)]);
+clock_face_eleven is LineSequence([rotatePoint(clock_face_shortNoon_1, 11*hourangle, clock_face_center), rotatePoint(clock_face_shortNoon_2, 11*hourangle, clock_face_center)]);
+
+hourangle = -(360/12);
+
+clock_hourConst is 180 * 0.166666;
+clock_hourAngle is -((clock_hour + 9) + (clock_min * clock_hourMinsConst)) * clock_hourConst +90;
+clock_hourMinsConst = 0.016667;
+clock_center is Point(clock_clockPosX,clock_clockPosY);
+clock_hourHand is LineSequence([addPoints(clock_center,rotatePoint(Point(0, clock_hourHandLen), clock_hourAngle)), clock_center], "blue");
+clock_minHand is LineSequence([addPoints(clock_center, rotatePoint(Point(0, clock_minHandLen), clock_minAngle)), clock_center], "blue");
+clock_secHand is LineSequence([addPoints(clock_center, rotatePoint(Point(0, clock_secHandLen), clock_secAngle)), clock_center], "red");
+clock_hourHandLen is clock_size / 3;
+clock_minHandLen is 3 * clock_size / 8;
+clock_secHandLen is clock_minHandLen + clock_size / 20;
+clock_hour = 8;
+clock_min = 30;
+clock_sec = 0;
+clock_minConst is 180 * 0.033333;
+clock_minAngle is -((clock_min + 45) * clock_minConst) + 90;
+clock_secConst is clock_minConst;
+clock_secAngle is -((clock_sec + 45) * clock_secConst) + 90;
+
+
+
+##%eden
+##clockPort = "clock";
+##clockWin_size_x is _CLOCK_size;
+##clockWin_size_y is _CLOCK_size;
+##A_CLOCK_hourHand = "color=blue,arrow=first";
+##A_CLOCK_minHand = "color=blue,arrow=first";
+##A_CLOCK_secHand = "color=red";
+
+clock_size = 80;
+clockWin_pos_x = 730;
+clockWin_pos_y = 20;
+
+clockPanel is [clock_face_edge, clock_face_shortNoon,
+clock_face_one, clock_face_two, clock_face_three, clock_face_four,
+clock_face_five, clock_face_six, clock_face_seven, clock_face_eight,
+clock_face_nine, clock_face_ten, clock_face_eleven, clock_hourHand,
+clock_secHand, clock_minHand];
+

@@ -1,0 +1,100 @@
+/**
+ * @title Mario Motion
+ * @author Nicolas Pope
+ * Version 1
+ */
+
+##mario_x = 1;
+
+mario_velocity = 70;
+mario_vjump = 180;
+mario_refreshrate = 50;
+gravity = 25.8;
+mario_dx is (mario_vx / 1000) * mario_refreshrate;
+mario_dy is (mario_vy / 1000) * mario_refreshrate;
+
+mario_tile_x1 is 1+floor(mario_x / tile_width);
+mario_tile_x2 is 1+floor((mario_x-10) / tile_width);
+mario_tile_y is 1+floor(mario_y / tile_height);
+mario_tile_y2 is 1+floor((mario_y+2) / tile_height);
+mario_canmoveright is tiles[mario_tile_y][mario_tile_x2+1] == 0;
+mario_canmoveleft is tiles[mario_tile_y][mario_tile_x1-1] == 0;
+mario_canmovedown is tiles[mario_tile_y2+1][mario_tile_x1] == 0 && mario_y < 500;
+
+mario_vx = 0;
+mario_vy = 0;
+
+mario_jumping = false;
+mario_walking = false;
+mario_direction = 0;
+
+action stop {
+	mario_walking = false;
+}
+
+action walkLeft {
+	mario_direction = 0;
+	mario_walking = true;
+}
+
+action walkRight {
+	mario_direction = 1;
+	mario_walking = true;
+}
+
+action jump {
+	mario_jumping = true;
+	##mario_jumping = false;
+}
+
+## Clear velocity X on collision (right)
+when (mario_vx > 0 && mario_canmoveright == false) {
+	mario_vx = 0;
+}
+
+## Clear velocity X on collision (left)
+when (mario_vx < 0 && mario_canmoveleft == false) {
+	mario_vx = 0;
+}
+
+when (mario_vy < 0 && mario_canmovedown == false) {
+	mario_vy = 0;
+	mario_jumping = false;
+}
+
+## Move if it needs moving
+when (mario_vx != 0 && mario_x) {
+		wait mario_refreshrate;
+		mario_x = mario_x + mario_dx;
+}
+
+when (mario_canmovedown || mario_vy > 0) {
+	wait mario_refreshrate;
+	mario_y = mario_y - mario_dy;
+
+	if (mario_canmovedown == false) {
+		mario_y = floor((mario_y+2) / tile_height) * tile_height;
+	}
+
+	mario_vy = mario_vy - gravity;
+}
+
+when (!mario_walking) {
+	mario_vx = 0;
+}
+
+## Walk right
+when (mario_walking && mario_direction == 1 && !mario_canmovedown) {
+	mario_vx = mario_velocity;
+}
+
+## Walk left
+when (mario_walking && mario_direction == 0 && !mario_canmovedown) {
+	mario_vx = -mario_velocity;
+}
+
+when (mario_jumping && !mario_canmovedown) {
+	mario_vy = mario_vjump;
+}
+
+

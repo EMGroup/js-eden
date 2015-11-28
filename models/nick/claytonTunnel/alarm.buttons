@@ -1,0 +1,16 @@
+/**
+ * @title Alarm Off Button
+ * @author Nicolas Pope, Patrick Sun
+ */
+
+offButton is Button(offString, offButton_x, offButton_y);
+offString = "OFF";
+offButton_x is alarmWin_pos_x + (alarmWin_size_x / 2) - (100);
+offButton_y is alarmWin_pos_y + 11 * alarmWin_size_y / 10;
+
+##alarmPanel is [offButton];
+
+when (offButton_click) {
+	alarm_ringing = false;
+}
+

@@ -1,0 +1,86 @@
+/**
+ * @title Mario Animations
+ * @author Nicolas Pope
+ */
+
+mario_url = "models/nick/mario/mario_sprite_sheet.png";
+mario_url_flip = "models/nick/mario/mario_sprite_sheet_flip.png";
+
+mario_x = 100;
+mario_y = 190;
+
+Animation is [width, height, sx, sy, frames, reversed, image];
+
+## width, height, startx, starty, frames, reversed, image
+##mario_anims = [
+##[25,35,568,270,7, false, mario_url],		## ?
+##[24,35,542,317,8, false, mario_url],		## Walking right
+##[21,35,556,112,4, false, mario_url],		## Idle
+##[24,35,41,317,8, true, mario_url_flip]	## Walking left
+##];
+
+mario_anims = [
+Animation with (width is 25, height is 35, sx is 568, sy is 270, frames is 7, reversed is false, image is mario_url),
+Animation with (width is 24, height is 35, sx is 542, sy is 317, frames is 8, reversed is false, image is mario_url),
+Animation with (width is 21, height is 35, sx is 556, sy is 112, frames is 4, reversed is false, image is mario_url),
+Animation with (width is 24, height is 35, sx is 41, sy is 317, frames is 8, reversed is true, image is mario_url_flip)
+];
+
+mario_anim = 2;
+mario_animated = true;
+mario_frame = 0;
+mario_refreshrate = 50;
+
+mario_fxp is mario_anims[mario_anim][3];
+mario_fx is mario_fxp+abs(mario_frame % mario_anims[mario_anim][5])*mario_fw;
+mario_fy is mario_anims[mario_anim][4];
+mario_fw is mario_anims[mario_anim][1];
+mario_fh is mario_anims[mario_anim][2];
+
+mario_image is Image(mario_x+stage_left, mario_y+stage_top, mario_fw,mario_fh, mario_fx, mario_fy, mario_fx+mario_fw, mario_fy+mario_fh, mario_anims[mario_anim][7]);
+
+when (mario_frame != @ && mario_animated) {
+	wait mario_refreshrate;
+	if (mario_animated) {
+		if (mario_anims[mario_anim][6] == false) {
+		mario_frame++;
+		} else {
+			mario_frame--;
+		}
+	}
+}
+
+when (mario_walking && mario_direction == 0 && !mario_jumping) {
+	mario_anim = 4;
+	mario_animated = true;
+	mario_frame = 0;
+}
+
+when (mario_walking && mario_direction == 1 && !mario_jumping) {
+	mario_anim = 2;
+	mario_animated = true;
+	mario_frame = 0;
+}
+
+when (mario_jumping && mario_canmovedown) {
+	if (mario_walking) {
+	if (mario_direction == 0) {
+		mario_anim = 4;
+		mario_frame = 5;
+	} else {
+		mario_anim = 2;
+		mario_frame = 2;
+	}
+	}
+	mario_animated = false;
+}
+
+when (!mario_walking) {
+	mario_animated = false;
+	mario_frame = 0;
+	mario_anim = 3;
+}
+
+
+
+

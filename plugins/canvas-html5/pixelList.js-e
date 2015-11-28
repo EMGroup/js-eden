@@ -41,16 +41,31 @@
 
 func PixelList {
 	${{
-		var ptrToData = arguments[0];
-		var x = arguments[1];
-		var y = arguments[2];
-		var width = arguments[3];
-		return new PixelList(ptrToData, x, y, width);
+		var name;
+		var argsProcessed;
+		if (typeof(arguments[0]) == "string") {
+			name = arguments[0];
+			argsProcessed = 1;
+		} else {
+			argsProcessed = 0;
+		}
+		var ptrToData = arguments[argsProcessed];
+		argsProcessed++;
+		var x = arguments[argsProcessed];
+		argsProcessed++;
+		var y = arguments[argsProcessed];
+		argsProcessed++;
+		var width = arguments[argsProcessed];
+		argsProcessed++;
+		return new PixelList(name, ptrToData, x, y, width);
 	}}$;
 }
 
 ${{
-function PixelList(ptrToData, x, y, width) {
+function PixelList(name, ptrToData, x, y, width) {
+	this.name = edenUI.plugins.Canvas2D.initZoneFromName(name, "PixelList");
+	this.obsName = root.currentObservableName();
+
 	this.data = ptrToData.value();
 	this.x = x;
 	this.y = y;
@@ -69,13 +84,18 @@ PixelList.prototype.draw = function (context) {
 	context.putImageData(imageData, this.x, this.y);
 }
 
+PixelList.prototype.isHit = function (context, scale, x, y) {
+	return x >= this.x && x < this.x + this.width && y >= this.y && y < this.y + this.height;
+}
+
 PixelList.prototype.toString = function() {
-	return "PixelList(" + (this.data.length / 4).toString() + " pixel values, " + this.x + ", " + this.y + ", " + this.width + ")";
+	return "PixelList(" + Eden.edenCodeForValue(this.name) + ", " +
+		String(this.data.length / 4) + " pixel values, " +
+		Eden.edenCodeForValues(this.x, this.y, this.width) + ")";
 }
 
 PixelList.prototype.getEdenCode = function() {
-	return "PixelList(" + Eden.edenCodeForValue(this.data) + ", " + this.x + ", " + this.y + ", " +
-		this.width + ")";
+	return "PixelList(" + Eden.edenCodeForValues(this.name, this.data, this.x, this.y, this.width) + ")";
 }
 
 }}$;

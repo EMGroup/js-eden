@@ -5,13 +5,15 @@
 
 ${{
 Ellipse = function(x, y, xradius, yradius, fillcolour, outlinecolour, drawingOptions) {
-  this.x = x;
-  this.y = y;
-  this.xradius = xradius;
-  this.yradius = yradius;
-  this.fillcolour = fillcolour;
-  this.outlinecolour = outlinecolour;
-  this.drawingOptions = drawingOptions;
+	this.x = x;
+	this.y = y;
+	this.xradius = xradius;
+	this.yradius = yradius;
+	this.fillcolour = fillcolour;
+	this.outlinecolour = outlinecolour;
+	this.drawingOptions = drawingOptions;
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Ellipse");
+	this.obsName = root.currentObservableName();
 }
 }}$;
 
@@ -20,37 +22,100 @@ func Ellipse { ${{
 	var y = arguments[1];
 	var xradius = arguments[2];
 	var yradius = arguments[3];
-	var fillcolour = arguments[4];
-	var outlinecolour = arguments[5];
+	var fillcolour, outlinecolour, drawingOptions;
+	var lastArg = arguments[arguments.length - 1];
+	var processUpTo;
+	if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+		drawingOptions = lastArg;
+		processUpTo = arguments.length - 2;
+	} else {
+		processUpTo = arguments.length - 1;
+	}
+	if (processUpTo >= 4) {
+		fillcolour = arguments[4];
+		if (processUpTo == 5) {
+			outlinecolour = arguments[5];
+		}
+	}
+
 	if (fillcolour === undefined && outlinecolour === undefined) {
 		outlinecolour = "black";
 	}
-	var drawingOptions = arguments[6];
 	return new Ellipse(x, y, xradius, yradius, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
 ${{
 
-Ellipse.prototype.draw = function(context) {
-	var scaleFactor = this.yradius / this.xradius;
-	context.scale(1, scaleFactor);
-	context.beginPath();
-	context.arc(this.x, this.y / scaleFactor, this.xradius, 0, 2 * Math.PI, false);
-	context.closePath();
- 
-	if (this.fillcolour !== undefined) {
-		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
-		context.fill();
-	}
-	if (this.outlinecolour !== undefined) {
-		context.strokeStyle = this.outlinecolour;
-		context.stroke();
+Ellipse.prototype.draw = function (context) {
+	if (this.xradius > 0 && this.yradius > 0) {
+
+		var scaleOutline;
+		if (this.outlinecolour === undefined || this.outlinecolour == "transparent") {
+			scaleOutline = false;
+		} else if (this.drawingOptions === undefined || !("scaleOutline" in this.drawingOptions)) {
+			scaleOutline = (this.fillcolour !== undefined && this.fillcolour != "transparent");
+		} else {
+			scaleOutline = this.drawingOptions.scaleOutline;
+		}
+		if (!scaleOutline) {
+			context.save();
+		}
+
+		var lineWidth = this.tracePath(context, scaleOutline);
+
+		if (this.fillcolour !== undefined) {
+			edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
+			context.fill();
+		}
+
+		if (!scaleOutline) {
+			context.restore();
+			context.lineWidth = lineWidth;
+		}
+		if (this.outlinecolour !== undefined) {
+			context.strokeStyle = this.outlinecolour;
+			context.stroke();
+		}
+
 	}
 };
 
+Ellipse.prototype.tracePath = function (context, scaleOutline) {
+	var scaleFactor = this.yradius / this.xradius;
+	var lineWidth;
+	if (this.outlinecolour !== undefined && this.outlinecolour != "transparent") {
+		if (scaleOutline) {
+			lineWidth = context.lineWidth;
+		} else {
+			lineWidth = context.lineWidth / scaleFactor;
+		}
+	} else {
+		lineWidth = 0;
+	}
+
+	var adjustedXRadius;
+	//Not sure what to do when xradius is bigger than 1/2 line width but less than line width, but it isn't correct atm.
+	if (this.xradius <= context.lineWidth / 2) {
+		lineWidth = this.xradius;
+		context.lineWidth = lineWidth;
+		adjustedXRadius = this.xradius / 2;
+	} else {
+		adjustedXRadius = this.xradius - lineWidth / 2;
+	}
+	context.scale(1, scaleFactor);
+	context.beginPath();
+	context.arc(this.x, this.y / scaleFactor, adjustedXRadius, 0, 2 * Math.PI, false);
+	context.closePath();
+	return lineWidth;
+}
+
+Ellipse.prototype.isHit = function (context, scale, x, y) {
+	this.tracePath(context, false);
+	return context.isPointInPath(x,y);
+}
+
 Ellipse.prototype.toString = function() {
-	var s = "Ellipse(" + this.x + ", " + this.y + ", " + this.xradius + ", " + this.yradius + ", " +
-		Eden.edenCodeForValue(this.fillcolour) + ", " + Eden.edenCodeForValue(this.outlinecolour);
+	var s = "Ellipse(" + Eden.edenCodeForValues(this.x, this.y, this.xradius, this.yradius, this.fillcolour, this.outlinecolour);
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

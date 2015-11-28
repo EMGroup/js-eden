@@ -1,0 +1,15 @@
+/**
+ * @title Bulb - Vertical
+ * @author Nicolas Pope
+ */
+
+if (bulb_ratio == @) {
+	bulb_ratio = 0.55;
+}
+
+bulb_v_outer is Circle(x, y, r, on? "yellow" : @, "black");
+bulb_v_line1 is Line(x, y - r, x, y - ( 1 - bulb_ratio) * r);
+bulb_v_line2 is Line(x, y + (1 - bulb_ratio) * r, x, y + r);
+bulb_v_element is Arc(x, y, (1 - bulb_ratio) * r, -90, 90);
+bulb_v is [bulb_v_outer, bulb_v_line1, bulb_v_line2, bulb_v_element];
+

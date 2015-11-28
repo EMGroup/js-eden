@@ -23,6 +23,13 @@
 			"return": "",
 			"description": ""
 		},
+		"centroid": {
+			"parameters": {
+				"point_list_or_point1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"char": {
 			"parameters": {
 				"value": ""
@@ -164,20 +171,29 @@
 			"return": "",
 			"description": ""
 		},
-		"indexOf": {
+		"positionInList": {
 			"parameters": {
 				"search_value": "",
-				"string_or_list": "",
-				"[start": "",
+				"list": "",
+				"[starting_offset": "",
 				"[is_sorted]]": ""
 			},
 			"return": "",
 			"description": ""
 		},
-		"indexOfRE": {
+		"positionOfRE": {
 			"parameters": {
 				"regular_expression": "",
 				"[case_sensitive]": "",
+				"target_string": "",
+				"[starting_offset]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"substringPosition": {
+			"parameters": {
+				"search_string": "",
 				"target_string": "",
 				"[starting_offset]": ""
 			},
@@ -276,6 +292,13 @@
 			"return": "",
 			"description": ""
 		},
+		"isPoint": {
+			"parameters": {
+				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"isPointer": {
 			"parameters": {
 				"value": ""
@@ -293,6 +316,29 @@
 		"isString": {
 			"parameters": {
 				"value": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"isValue": {
+			"parameters": {
+				"expression": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"distanceMoved": {
+			"parameters": {
+				"[from]": "",
+				"point_or_line": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"angleTurned": {
+			"parameters": {
+				"[origin]": "",
+				"point": ""
 			},
 			"return": "",
 			"description": ""
@@ -419,6 +465,21 @@
 			"return": "",
 			"description": ""
 		},
+		"randomBoolean": {
+			"parameters": {
+				"[probability_true]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"randomFloat": {
+			"parameters": {
+				"lower_bound": "",
+				"upper_bound": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"randomInteger": {
 			"parameters": {
 				"lower_bound": "",
@@ -463,6 +524,15 @@
 			"return": "",
 			"description": ""
 		},
+		"rotatePoint": {
+			"parameters": {
+				"point": "",
+				"angle": "",
+				"[centre]": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"round": {
 			"parameters": {
 				"number": "",
@@ -471,10 +541,20 @@
 			"return": "",
 			"description": ""
 		},
-		"scale": {
+		"roundMultiple": {
 			"parameters": {
-				"scale_factor": "",
-				"vector": ""
+				"number": "Floating point number",
+				"multiple": "The unit to round to, e.g. 0.1 for the nearest 10th"
+			},
+			"return": "Nearest value, rounded down",
+			"description": "Finds the nearest value by rounding down"
+		},
+		"scalePoint": {
+			"parameters": {
+				"point": "",
+				"scale_x": "",
+				"[scale_y]": "",
+				"[centre]": ""
 			},
 			"return": "",
 			"description": ""
@@ -585,11 +665,26 @@
 			"return": "",
 			"description": ""
 		},
+		"substitute": {
+			"parameters": {
+				"string_with_placeholders": "",
+				"object_or_list_or_value1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"substr": {
 			"parameters": {
 				"string": "",
 				"from": "",
 				"[to]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"sum": {
+			"parameters": {
+				"list_or_item1...": ""
 			},
 			"return": "",
 			"description": ""
@@ -660,13 +755,33 @@
 				"text": "Text string to display",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"[size" : "",
+				"[size]" : "",
 				"[fill_colour": "Text colour in HTML form",
-				"[outline_colour]]]": "",
-				"[options]": ""
+				"[outline_colour]]": "",
+				"[options]": "Options, in string or object format"
 			},
 			"return": "Text object",
 			"description": "Creates a text element for display on the canvas"
+		},
+		"textWidth": {
+			"parameters": {
+				"text": "Text string to measure",
+				"[size]" : "",
+				"[options]": "",
+				"[canvas_scale]": ""
+			},
+			"return": "The width of the given text, in pixels",
+			"description": "Measures the width of a piece of text drawn using the Text function."
+		},
+		"textHeight": {
+			"parameters": {
+				"text": "Text string to measure",
+				"[size]" : "",
+				"[options]": "",
+				"[canvas_scale]": ""
+			},
+			"return": "The height of the given text, in pixels",
+			"description": "Measures the height of a piece of text drawn using the Text function."
 		},
 		"Arc": {
 			"parameters": {
@@ -675,11 +790,30 @@
 				"radius": "",
 				"start_angle": "",
 				"end_angle": "",
-				"colour": "",
+				"[colour]": "",
 				"[drawing_options]": ""
 			},
 			"return": "",
 			"description": ""
+		},
+		"Curve": {
+			"parameters": {
+				"x1": "",
+				"y1": "",
+				"x2": "",
+				"y2": "",
+				"radius": "",
+				"curviness": "Usually between 0 (like a right angle) and 1 (like half of an ellipse)",
+				"[start_angle": "",
+				"[end_angle": "",
+				"[skew": "Between 0 and 1",
+				"[overshoot]]]]": "",
+				"[is_right_and_up]": "",
+				"[colour(s)]": "",
+				"[drawing_options]": ""
+			},
+			"return": "",
+			"description": ""		
 		},
 		"FillPattern": {
 			"parameters": {
@@ -695,10 +829,10 @@
 				"x_radius": "Ellipse x-axis radius from centre",
 				"y_radius": "Ellipse y-axis radius from centre",
 				"[fill_colour": "Fill colour for the ellipse on the canvas",
-				"[outline_colour": "Outline colour of the ellipse on the canvas",
-				"[drawing_options]]]": ""
+				"[outline_colour]]": "Outline colour of the ellipse on the canvas",
+				"[drawing_options]": ""
 			},
-			"return": "Circle object",
+			"return": "Ellipse object",
 			"description": "Creates an ellipse element for display on the canvas"
 		},
 		"Line": {
@@ -707,8 +841,8 @@
 				"y1": "Y-coordinate for start",
 				"x2": "X-coordinate for end",
 				"y2": "Y-coordinate for end",
-				"[colour(s)": "A HTML colour value for the whole line or a list of HTML colour values to create a gradient",
-				"[drawing_options]]" : ""
+				"[colour(s)]": "A HTML colour value for the whole line or a list of HTML colour values to create a gradient",
+				"[drawing_options]" : ""
 			},
 			"return": "Line object",
 			"description": "Creates a line element for display on the canvas"
@@ -729,11 +863,11 @@
 		"LineSequence": {
 			"parameters": {
 				"points": "List of coordinates in the form Point(x, y) from the top left corner of the canvas",
-				"[colour(s)": "Colour of the line as a HTML colour value, or a list of such colour values",
-				"[drawing_options]]": ""
+				"[colour(s)]": "Colour of the line as a HTML colour value, or a list of such colour values",
+				"[drawing_options]": ""
 			},
-			"return": "Polygon object",
-			"description": "Creates a polygon element for display on the canvas"
+			"return": "LineSequences object",
+			"description": "Creates sequence of joined lines for display on the canvas"
         },
 		"PixelList": {
 			"parameters": {
@@ -747,6 +881,7 @@
 		},
 		"GreyPixelList": {
 			"parameters": {
+				"[name]": "",
 				"pointer_to_grayscale_values_list": "",
 				"x": "",
 				"y": "",
@@ -768,11 +903,64 @@
 				"width": "",
 				"height": "",
 				"[fill_colour": "",
-				"[outline_colour": "Colour of the rectangle outline in HTML form",
-				"[drawing_options]]]": ""
+				"[outline_colour]]": "Colour of the rectangle outline in HTML form",
+				"[drawing_options]": ""
 			},
 			"return": "Rectangle object",
 			"description": "Creates a rectangle element for display on the canvas"
+		},
+		"RotateAboutCentre": {
+			"parameters": {
+				"angle": "",
+				"centre_of_rotation": "",
+				"centre_of_rotated_image": "",
+				"picture_list": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"RotateAboutPoint": {
+			"parameters": {
+				"angle": "",
+				"centre_point": "",
+				"radius": "",
+				"[centre_of_rotation]": "",
+				"picture_list": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"CombinedRotation": {
+			"parameters": {
+				"image_angle": "",
+				"centre_of_rotation": "",
+				"orbit_centre": "",
+				"[orbit_angle]": "",
+				"orbit_radius": "",
+				"picture_list": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"Scale": {
+			"parameters": {
+				"scale_x": "",
+				"[scale_y]": "",
+				"[[centre_of_enlargement_point/xy]": "",
+				"centre_of_scaled_image_point/xy]": "",
+				"picture_list": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"Translate": {
+			"parameters": {
+				"[centre_of_source_point/xy]": "",
+				"centre_of_destination_point/xy": "",
+				"picture_list": ""
+			},
+			"return": "",
+			"description": ""
 		},
 		"RoundedRectangle": {
 			"parameters": {
@@ -782,20 +970,36 @@
 				"height": "",
 				"corner_radius": "",
 				"[fill_colour": "",
-				"[outline_colour": "Colour of the rectangle outline in HTML form",
-				"[drawing_options]]]": ""
+				"[outline_colour]]": "Colour of the rectangle outline in HTML form",
+				"[drawing_options]": ""
 			},
 			"return": "Rectangle object",
 			"description": "Creates a rectangle element for display on the canvas"
 		},
 		"Polygon": {
 			"parameters": {
-				"points": "List of coordinates in the form Point(x, y) from the top left corner of the canvas",
+				"points": "List of coordinates in the form {x, y} from the top left corner of the canvas",
 				"[fill_colour": "Colour of the polygon (fill) in HTML form",
-				"[outline_colour(s)": "",
-				"[drawing_options]]]": ""
+				"[outline_colour]]": "",
+				"[drawing_options]": ""
 			},
 			"return": "Polygon object",
+			"description": "Creates a polygon element for display on the canvas"
+        },
+		"RegularPolygon": {
+			"parameters": {
+				"centre_x": "",
+				"centre_y": "",
+				"radius": "",
+				"n_sides": "",
+				"[star_factor]": "",
+				"[is_interior_outlined]": "",
+				"[rotation]": "",
+				"[fill_colour": "Colour to fill the interior of the polygon with",
+				"[outline_colour]]": "",
+				"[drawing_options]": ""
+			},
+			"return": "RegularPolygon object",
 			"description": "Creates a polygon element for display on the canvas"
         },
 		"Sector": {
@@ -806,18 +1010,19 @@
 				"start_angle": "",
 				"end_angle": "",
 				"[fill_colour": "",
-				"[outline_colour": "",
-				"[drawing_options]]]": ""
+				"[outline_colour]]": "",
+				"[drawing_options]": ""
 			},
 			"return": "",
 			"description": ""
 		},
 		"Shadow": {
 			"parameters": {
-				"colour": "",
-				"blur": "",
+				"[colour]": "",
 				"x_offset": "",
-				"y_offset": ""
+				"y_offset": "",
+				"length": "",
+				"[scales]": "True if the shadow scales in accordance with the canvas's scale observable, or false if the shadow is just cosmetic and shouldn't scale."
 			},
 			"return": "",
 			"description": ""
@@ -828,26 +1033,27 @@
 				"y": "Centre Y-coordinate",
 				"radius": "Circle radius from centre",
 				"[fill_colour": "Fill colour for the circle on the canvas",
-				"[outline_colour": "Outline colour of the circle on the canvas",
-				"[drawing_options]]]": ""
+				"[outline_colour]]": "Outline colour of the circle on the canvas",
+				"[drawing_options]": ""
 			},
 			"return": "Circle object",
 			"description": "Creates a circle element for display on the canvas"
 		},
 		"Button": {
 			"parameters": {
-				"name": "for [name]_clicked",
 				"label": "Text for the button",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"[enabled]": "Boolean for button enabled"
+				"[enabled": "Boolean for button enabled",
+				"[fill_colour": "Background colour of the button",
+				"[text_colour]]]": "Colour of the text written on the button"
 			},
 			"return": "Button object",
 			"description": "Creates a button element for display on the canvas"
 		},
 		"Checkbox": {
 			"parameters": {
-				"name": "for [name]_checked",
+				"[label]": "",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[tristate": "Allow the user to click to produce an undefined value",
@@ -862,16 +1068,17 @@
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[width": "Width in pixels or as a string or undefined",
-				"[height": "Height in pixels or as a string or undefined",
+				"[height]]": "Height in pixels or as a string or undefined",
 				"[id]" : "",
 				"[css_class_list]" : "",
-				"[style]]]" : "An optional CSS style string"
+				"[style]" : "An optional CSS style string"
 			},
 			"return": "Div object",
 			"description": "Creates a html element for display on the canvas"
 		},
 		"Image": {
 			"parameters": {
+				"[name]": "",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[width": "Width in pixels",
@@ -888,9 +1095,7 @@
 		},
 		"imageWithZones": {
 			"parameters": {
-				"name": "Name for click events",
-				"x": "X-coordinate",
-				"y": "Y-coordinate",
+				"[name]": "Name for click events",
 				"[width": "Width in pixels",
 				"height]": "Height in pixels",
 				"url": "Source file for the image",
@@ -902,54 +1107,84 @@
 		},
 		"HTMLImage": {
 			"parameters": {
-				"name": "Name for click events",
+				"[name]": "Name for click events",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"[width": "Width in pixels",
-				"height]": "Height in pixels",
+				"[width": "Width in virtual pixel units",
+				"[height]": "Height in virtual pixel units",
+				"[sizeIsPercentage]": "Whether width and height are in pixel or percentage units",
+				"[at_scale]]": "The value of _view_xxx_scale needed to make 1 virtual pixel equal 1 real pixel",
 				"url": "Source file for the image",
 				"[zones]": "List of two element lists. The first element of each is the name of an image area. The second is a Circle, Rectangle or Polygon object."
 			},
 			"return": "Image object",
 			"description": "Creates a HTML image element for display on the canvas above the geometric shapes.  Doesn't taint the canvas."
 		},
+		"RadioButtons": {
+			"parameters": {
+				"values": "A list of strings providing the options",
+				"labels": "",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"[width": "Width in pixels",
+				"[is_horizontal": "",
+				"[enabled]]]": "Boolean to determine if the radio buttons are enabled"
+			},
+			"return": "",
+			"description": ""
+		},
 		"Slider": {
 			"parameters": {
-				"name": "",
 				"min": "",
 				"max": "",
-				"step": "",
+				"[step": "",
+				"[label_interval": "",
+				"[tick_mark_interval": "",
+				"[label_divisor]]]]": "",
 				"x": "",
 				"y": "",
 				"size_in_pixels": "",
-				"[orientation": "",
-				"[enabled]]": ""
+				"[orientation]": "",
+				"[enabled]": ""
 			},
 			"return": "",
 			"description": ""
 		},
 		"Textbox": {
 			"parameters": {
-				"name": "",
 				"x": "",
 				"y": "",
-				"width_in_px": "",
-				"[rows": "",
-				"[enabled]]": ""
+				"width": "",
+				"[height]": "",
+				"[placeholder_text]": "",
+				"[max_characters]": "",
+				"[enabled]": ""
 			},
 			"return": "",
 			"description": ""
 		},
-		"Combobox": {
+		"DropDownList": {
 			"parameters": {
-				"name": "for [name]_clicked",
-				"options": "A list of strings providing the options",
+				"values": "A list of strings providing the options",
+				"labels": "",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
-				"[enabled]": "Boolean for combobox enabled"
+				"[enabled]": "Boolean to determine if list selection is enabled"
 			},
-			"return": "Combobox object",
-			"description": "Creates a drop-down select box for the canvas"
+			"return": "DropDownList object",
+			"description": "Creates a drop-down list for the canvas"
+		},
+		"Combobox": {
+			"parameters": {
+				"suggestions": "",
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"[width]": "",
+				"[placeholder]": "",
+				"[enabled]": "Boolean to determine if list selection is enabled"
+			},
+			"return": "DropDownList object",
+			"description": "Creates a drop-down list for the canvas"
 		},
 		"BulletSlide": {
 			"parameters": {
@@ -962,7 +1197,13 @@
 		},
 		"Video": {
 			"parameters": {
-				"name": "",
+				"[preload]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"Audio": {
+			"parameters": {
 				"[preload]": ""
 			},
 			"return": "",
@@ -970,7 +1211,8 @@
 		},
 		"Slide": {
 			"parameters": {
-				"html": ""
+				"html": "",
+				"[css_class_or_class_list]": "Adds the CSS class name jspe-<specified-name>-slide to the slide."
 			},
 			"return": "",
 			"description": ""
@@ -1044,7 +1286,15 @@
 		"ceil": {
 			"parameters": {
 				"number": "Floating point number",
-				"multiple": "The unit to round to, e.g. 0.1 for the nearest 10th"
+				"[multiple]": "The unit to round to, e.g. 0.1 for the nearest 10th"
+			},
+			"return": "Nearest value, rounded up",
+			"description": "Finds the nearest value that is not less than the number"
+		},
+		"roundUp": {
+			"parameters": {
+				"number": "Floating point number",
+				"[decimal_places]": ""
 			},
 			"return": "Nearest value, rounded up",
 			"description": "Finds the nearest value that is not less than the number"
@@ -1059,7 +1309,15 @@
 		"floor": {
 			"parameters": {
 				"number": "Floating point number",
-				"multiple": "The unit to round to, e.g. 0.1 for the nearest 10th"
+				"[multiple]": "The unit to round to, e.g. 0.1 for the nearest 10th"
+			},
+			"return": "Nearest value, rounded down",
+			"description": "Finds the nearest value by rounding down"
+		},
+		"roundDown": {
+			"parameters": {
+				"number": "Floating point number",
+				"[decimal_places]": ""
 			},
 			"return": "Nearest value, rounded down",
 			"description": "Finds the nearest value by rounding down"
@@ -1085,12 +1343,267 @@
 		},
 		"forgetAll": {
 			"parameters": {
-				"regular_expression_or_list": "",
+				"[regular_expression_or_list": "",
 				"[case_sensitive": "",
-				"[confirm]]" : ""
+				"[confirm]]]" : ""
 			},
 			"return": "",
 			"description": "Removes from the symbol table all symbols whose names match a given regular expression"
+		},
+		"shapeOnTopAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"zoneOnTopAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"observableOnTopAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"shapeOnBottomAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"zoneOnBottomAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"observableOnBottomAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"shapesAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"zonesAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"observablesAt": {
+			"parameters": {
+				"view_name_or_ptr_to_picture": "",
+				"point_or_xy_argument_pair" : "",
+				"[search_all]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"observableForShape": {
+			"parameters": {
+				"shape": ""
+			},
+			"return": "",
+			"description": ""
+		}
+	},
+	"procedures": {
+		"alias": {
+			"parameters": {
+				"pointer1": "",
+				"pointer2": ""
+			}
+		},
+		"arrangeWindows": {
+			"parameters": {
+				"[list_of_view_names]": ""
+			}
+		},
+		"attemptMouseCapture": {
+			"parameters": { }
+		},
+		"bindCSSNumericProperty": {
+			"parameters": {
+				"[id]": "",
+				"css_selector": "",
+				"css_property_name": "",
+				"observable_name": "",
+				"css_units": ""
+			}
+		},
+		"bindCSSProperty": {
+			"parameters": {
+				"[id]": "",
+				"css_selector": "",
+				"css_property_name": "",
+				"observable_name": ""
+			}
+		},
+		"bindCSSRule": {
+			"parameters": {
+				"[id]": "",
+				"css_selector": "",
+				"string_or_object_observable_name": ""
+			}
+		},
+		"createCanvas": {
+			"parameters": {
+				"[view_name]": "",
+				"picture_observable": "",
+				"[window_title]": ""
+			}
+		},
+		"createHTMLView": {
+			"parameters": {
+				"[view_name]": "",
+				"picture_observable": "",
+				"[window_title]": ""
+			}
+		},
+		"createProjectList": {
+			"parameters": {
+				"[url": "",
+				"[[window_title]": "",
+				"view_name]]": ""
+			}
+		},
+		"createView": {
+			"parameters": {
+				"view_name": "",
+				"view_type": ""
+			}
+		},
+		"destroyView": {
+			"parameters": {
+				"view_name": ""
+			}
+		},
+		"eager": {
+			"parameters": { }
+		},
+		"error": {
+			"parameters": {
+				"message": ""
+			}
+		},
+		"hideView": {
+			"parameters": {
+				"view_name": ""
+			}
+		},
+		"highlightView": {
+			"parameters": {
+				"view_name": ""
+			}
+		},
+		"html": {
+			"parameters": {
+				"[view_name]": "",
+				"html": ""
+			}
+		},
+		"moveView": {
+			"parameters": {
+				"view_name": "",
+				"x": "",
+				"y": ""
+			}
+		},
+		"patch": {
+			"parameters": {
+				"pointer1": "",
+				"pointer2": ""
+			}
+		},
+		"removeedenclock": {
+			"parameters": {
+				"pointer": ""
+			}
+		},
+		"resizeView": {
+			"parameters": {
+				"view_name": "",
+				"width": "",
+				"height": ""
+			}
+		},
+		"setedenclock": {
+			"parameters": {
+				"pointer_to_proc_or_integer": "",
+				"milliseconds": ""
+			}
+		},
+		"showObservables": {
+			"parameters": {
+				"[search_string": "",
+				"[view_name": "",
+				"[search_syntax]]]": ""
+			}
+		},
+		"showView": {
+			"parameters": {
+				"view_name": ""
+			}
+		},
+		"stopHighlightingView": {
+			"parameters": {
+				"view_name": ""
+			}
+		},
+		"todo": {
+			"parameters": {
+				"string_containing_code": ""
+			}
+		},
+		"touch": {
+			"parameters": {
+				"pointer_1...": ""
+			}
+		},
+		"unbind": {
+			"parameters": {
+				"observable_name": ""
+			}
+		},
+		"withAppendedItem": {
+			"parameters": {
+				"pointer_to_list": "",
+				"string_containing_expression": ""
+			}
+		},
+		"writeln": {
+			"parameters": {
+				"message": ""
+			}
 		}
 	}
 }

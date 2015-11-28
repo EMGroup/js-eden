@@ -1,0 +1,49 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+proc createProjectList {
+	auto url, viewTitle, viewName;
+	if ($# == 0) {
+		viewName = "projects";
+	} else if ($# == 1) {
+		url = $[1];
+		viewName = "projects";
+	} else if ($# == 2) {
+		url = $[1];
+		viewTitle = $[2];
+		viewName = viewTitle;
+	} else if ($# == 3) {
+		url = $[1];
+		viewTitle = $[2];
+		viewName = $[3];
+		if (viewTitle != @ && !isString(viewTitle)) {
+			error("createProjectList: The second argument must be a string, not a " // type(viewTitle));
+			return;
+		}
+	} else {
+		error("createProjectList: This procedure requires at most 3 arguments.");
+		return;
+	}
+	
+	if (url != @ && !isString(url)) {
+		error("createProjectList: The first argument must be a string, not a " // type(url));
+		return;
+	}
+	
+	if (!isString(viewName)) {
+		error("createProjectList: The view name must be a string, not a " // type(viewName));
+		return;
+	}
+
+	createView(viewName, "ProjectList");
+
+	if (url != @) {
+		`"_view_" // viewName // "_source"` = url;
+	}
+
+	if (viewTitle != @) {
+		`"_view_" // viewName // "_title"` = viewTitle;
+	}
+}

@@ -1,87 +1,64 @@
+/*
+ * Joint stylesheet for the Project List and Plug-in Manager plug-ins.
+ */
+
+.projectlist-listing {
+	padding: 3px;
+}
+
+.projectlist-prologue {
+	background-color: #f8fafc;
+	font-family: sans-serif;
+	font-weight: bold;
+	font-size: 10pt;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 10px;
+	padding-bottom: 11px;
+}
+
 .projectlist-result-element {
-	/*border-bottom-width: 1px;
-	border-bottom-style: solid;
-	border-bottom-color: #d0d0d0;*/
-	position: relative;
-	left: 0px;
-	right: 0px;
-	/*height: 16px;*/
 	cursor: pointer;
-	overflow: hidden;
-	position: relative;
-	padding-left: 15px;
-	padding-right: 15px;
+	padding: 10px;
 	margin-bottom: 2px;
 	font-size: 8pt;
 	background-color: #eaeaea;
 }
 
-.projectlist-search {
-	/*position: absolute;
-	left: 0px;
-	top: 0px;*/
-	/*width: 196px;*/
-	height: 24px;
-	border-style: solid;
-	border-width: 1px;
-	border-color: #117fe5;
-	background-color: white;
-	padding: 2px;
-	float: left;
-	margin-left: 5px;
+.projectlist-result-element:hover {
+	background-color: #f2f2f2;
+}
+
+/* This rule has to come after the rule for .projectlist-result-element so that these declarations
+ * take precedence.
+ */
+.pluginmanager-loaded {
+	background-color: #cecece;
+	cursor: default;
 }
 
 .projectlist-search-box-outer {
-	margin: 15px;
-	position: relative;
-	height: 24px;
-	margin-bottom: 20px;
-	font-size: 10pt;
+	padding-left: 9px;
+	padding-right: 3px;
+	padding-bottom: 6px;
+	margin-bottom: 4px;
+	background-color: #f8fafc;
 }
 
-.projectlist-search-box {
-	/*position: absolute;
-	left: 0px;
-	top: 0px;*/
-	/*width: 196px;*/
-	height: 24px;
-	border-style: solid;
-	border-width: 1px;
-	border-color: #117fe5;
-	background-color: white;
-	padding: 2px;
-	float: left;
+.projectlist-search {
+	width: 100%;
+	border: 1px solid #cccccc;
 }
 
-.projectlist-result_name {
-	font-family: "Arial";
+.projectlist-result-name {
+	font-family: sans-serif;
 	font-weight: bold;
 	font-size: 10pt;
+	margin-bottom: 2pt;
 }
 
-.projectlist-result_value {
+.projectlist-result-metadata {
 	color: #909090;
-	overflow: hidden;
-}
-
-.type-project {
-	list-style-type: none;
-	padding: 10px 0;
-}
-
-.projectlist-search-icon {
-	background-image: url('../../images/Search_Icon_32.png');
-	height: 32px;
-	width: 32px;
-	background-repeat: no-repeat;
-	float: left;
-}
-
-.projectlist-config-icon {
-	background-image: url('../../images/Configuration_Settings_Icon_32.png');
-	height: 32px;
-	width: 32px;
-	background-repeat: no-repeat;
-	float: right;
-	cursor: pointer;
+	line-height: 1.35;
+	margin-top: 2pt;
 }

@@ -1,0 +1,566 @@
+/*
+ * Copyright (c) 2015, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ *
+ * Provides the Feature of The Day function, accessible from the Project List.
+ */
+ 
+## N.B. When adding new slides to this presentation, don't forget to get to update the definition of
+## fotdLastUpdated is plugins/project-listing/project-listing.js
+
+include("models/jspe/run.e");
+
+##Set a persistent setting that records when the user mostly recently accessed FoTD, so that we know
+##when to display the small "New" icon indicating that new slides have been added to this presentation
+##that they haven't seen yet.
+${{
+	edenUI.setOptionValue("fotdLastVisited", (new Date()).getTime());
+	var element = document.getElementById("fotd-sticker");
+	if (element) {
+		element.style.visibility = "hidden";
+	}
+}}$;
+
+introducedDateCSS = "font-size: 133%";
+bindCSSRule("#jspe", ".date", &introducedDateCSS);
+
+slideZones is Slide("
+	<h1>Hit Detection for Shapes</h1>
+	<div class='date'>2nd September 2015</div>
+
+	<p>You can now easily detect when the mouse pointer is positioned over any particular shape of
+	interest.  You can also detect when the user clicks on a shape using a convenient <code>_click</code>
+	observable, similar to the <code>_clicked</code> observables that already existed for buttons.</p>
+
+	<p>To detect when the mouse pointer interacts with a shape you need to give the shape a name.
+	You do this in the same way that other pieces of supplementary information are added to shapes,
+	this is, using the <em>drawing options</em>.</p>
+
+<jseden>
+r1 is Rectangle(0, 0, 200, 200, \"red\", @, {name: \"red\"});
+r2 is Rectangle(100, 100, 200, 200, \"blue\", @, {name: \"blue\"});
+picture is [r1, r2];
+</jseden>
+
+	<p>Now open a symbol list and use the drop-down list to view all of the relevant observables,
+	including system observables.</p>
+<jseden>
+showObservables(\"mouseZone|mouseDownZone|.*_click\");
+</jseden>
+
+	<p>Notice that the system has created two additional observables, <code>red_click</code> and
+	blue_click.  These have the value <code>true</code> assigned to them whenever the left mouse
+	button is pressed down and the mouse pointer is positioned over the relevant shape.  The names
+	of the shapes do not have to be unique, which is useful if several individual shapes model a
+	larger semantic component.</p>
+	
+	<p>The <code>mouseZone</code> observable records which zone the mouse pointer is currently
+	positioned over, even when the mouse button is not pressed.  The <code>mouseDownZone</code>
+	observable records which zone the mouse was in when the mouse button most recently changed from
+	being not pressed to becoming pressed down.  The names used to differentiate the different
+	mouse zones can be any EDEN values that you like, even expressions that we wouldn't normally
+	think of as being \"names\".  For instance, we've had some exciting successes experimenting using
+	integers as mouse zone identifiers.  However, a <code>_click</code> observable will
+	only be generated for zones identified by strings that conform to the pattern of permitted
+	EDEN observable names.</p>
+	
+	<p>Where two shapes overlap only the topmost one (the visible one) has its <code>_click</code>
+	observable set to <code>true</code>.  We might also be interested in knowing about <em>all</em>
+	of the shapes that intersect with the mouse pointer.  Alternatively, the bottommost shape may be
+	the one of interest.  The final section addresses these situations.</p>
+
+	<h2>Invisible Shapes</h2>
+	<p>What if you want to detect if the mouse pointer is located in particular part of the canvas
+	without drawing a shape there?  Setting the new <code>visible</code> drawing option to <code>false</code>
+	allows you to keep an observable in the <code>picture</code> list and have it work as a
+	mouse zone without actually drawing the shape.  The following example creates an invisible zone
+	above the blue rectangle and to the right of the red rectangle.</p>
+
+<jseden>
+zone3 is Rectangle(200, 0, 100, 100, @, @, {name: \"hidden\", visible: false});
+picture is [r1, r2, zone3];
+</jseden>
+	
+	<h2>Zones Within <code>HTMLImage</code></h2>
+	<p>As was previously also possible, you can create zones over particular pieces of a HTML image.
+	This functionality has now been revised and integrated into the general mouse zone framework.
+	If you're a web developer then you'll probably be familiar with concept and used to
+	using the term \"image map\". Indeed, the special syntax that we'll introduce shortly for adding
+	hotspots to HTML images uses HTML image maps under the covers.</p>
+	
+	<p>However, given that any canvas
+	item can now have a <code>_click</code> observable associated with it, and that shapes can
+	already be used to create invisible mouse zones, why do we need to do anything special for <code>HTMLImage</code>?
+	Well, you <em>can</em> use the <strong><code>Image</code></strong> function and overlay
+	invisible shapes on top of the image drawn, but the same is not true of <code>HTMLImage</code>.
+	Why?  Because HTML images and pre-designed user interface controls are always drawn on top of the
+	other items in the <code>picture</code> list, irrespective of how the picture list is ordered,
+	and therefore the invisible shapes will end up underneath the HTML image!  This is a
+	limitation of how the canvas works.  So what are the benefits of using <code>HTMLImage</code>
+	instead of <code>Image</code>?</p>
+	<ul>
+		<li>The positions of invisible shapes are always described relative to the canvas origin
+		point.  The positions of hotspots attached to HTML images are specified relative to the <em>top
+		left corner of the image</em> irrespective of the position of the image on the screen.
+		Consequently your construal will be a bit simpler.</li>
+		<li>Using HTML image maps will likely provide better performance than using canvas shapes.</li>
+		<li>The <code>Image</code> function <em>taints</em> the canvas, whereas <code>HTMLImage</code>
+		does not.  Once the canvas becomes tainted the <code>canvasURL</code> function will no longer
+		work.  Other features that require an untainted canvas may be added in the future.  For example, one
+		exciting possibility is the prospect of automatic collision detection between shapes.</li>
+	</ul>
+	<p>In all other respects we aim to equip the <code>Image</code> and <code>HTMLImage</code> functions with
+	equivalent functionality.  These two functions provide an interesting case study for comparing
+	what can be achieved with canvas drawing relative to HTML.  See also the section titled <a href='#jspe-slide-limitations'>
+	Bugs, Limitations &amp; Future Changes</a> for further discussion of the areas where the matched feature
+	set ambition is not currently realized and the situations when <code>Image</code> may be the better function to
+	use.</p>
+	
+	<p>With these considerations in mind, assuming that <code>HTMLImage</code> is the most appropriate
+	function for making your construal (and if you're using mouse zones within an image then it
+	probably is), let's discuss how to add mouse zones to images.</p>
+	
+	<p>Firstly, we can associate a mouse zone with the entire image.  If we also plan on adding mouse
+	zones for particular areas within the image then mouse zone of the overall image corresponds to the mouse
+	zone of the background, that is the parts of the image that don't have a more specific mouse zone
+	attached to them.  Adding a mouse zone to the overall image is accomplished using the <var>name</var>
+	parameter of <code>HTMLImage</code> (or <code>Image</code>), which is the first parameter.</p>
+	
+	<jseden>
+img is HTMLImage(\"logo\", 0, 30, \"images/construit-logo.jpg\");
+picture is [img];
+	</jseden>
+	
+	<p>Now we add our mouse zones for individual portions of the image.  Let's add a circular shaped
+	mouse zone for the the O of the CONSTRUIT! logo, and a rectangular shaped zone for the letter R.</p>
+
+	<h2>Hit Detection at Any Point</h2>
+
+	<h2>A Stack of Shapes</h2>
+
+	<h2 id='jspe-slide-limitations'>Bugs, Limitations &amp; Future Changes</h2>
+	<ul>
+		<li>Shapes (invisible or otherwise) cannot appear on top of HTML images or pre-designed
+		user interface controls.  Conceptually JS-EDEN functions as if all of the HTML elements are
+		implicitly shuffled to the end of the picture list.  We could consider moving to a three layer
+		implementation (background canvas, HTML layer, transparent foreground canvas).</li>
+		<li><code>zoneOnTopAt</code> and <code>zonesAt</code> fail to detect if a point is occupied
+		by a HTML image or user interface control.</li>
+		<li>There's no zoneOnBottomAt function.</li>
+		<li>The extent to which <code>zoneOnTopAt</code> and <code>zonesAt</code> are useful remains unclear.</li>
+		<li>The shapes that establish the mouse zones inside a <code>HTMLImage</code> aren't resized
+		automatically if the image is resized.</li>
+		<li>The capabilities of <code>Image</code> and <code>HTMLImage</code> are currently out of
+		synch.  <code>Image</code> supports cropping and pixelation, whereas <code>HTMLImage</code>
+		does not.  <code>HTMLImage</code> supports providing the width and height relative to a
+		given canvas scale factor, whereas the width and height arguments for <code>Image</code> are
+		always dimensions under scale factor 1.  There's no reason why these features cannot be
+		equalized.</li>
+		<li><code>Image</code> is a canvas \"shape\" but takes a separate parameter for associating
+		a mouse zone and doesn't accept an outline colour or drawing options.  Why?  There's no
+		reason why images produced by <code>Image</code> shouldn't have outlines, shadows and opacity,
+		since they're drawn using the same implementation mechanism as the elementary shapes (opacity
+		probably being the most useful missing option).  At present the syntaxes of <code>Image</code>
+		and <code>HTMLImage</code> are similar and it would be nice to keep this consistency.
+		Could images drawn using <code>HTMLImage</code> (and HTML elements in general) be made to
+		support a subset of the drawing options available for shapes?  Answer: yes.</li>
+	</ul>
+	<p>All of the above might get fixed in a future version of JS-EDEN.</p>
+");
+
+slideViewHighlight is Slide("
+	<h1>Highlighting Views</h1>
+	<div class='date'>4th September 2015</div>
+
+	<p>You can now programmatically attach a highlighting effect to one or more views in order to
+	draw the user's attention to them.</p>
+
+<jseden>
+highlightView(\"picture\");
+highlightView(\"input\");
+</jseden>
+
+	<p>To remove the highlighting, use the <code>stopHighlightingView</code> procedure.</p>
+
+<jseden>
+stopHighlightingView(\"picture\");
+stopHighlightingView(\"input\");
+</jseden>
+
+	<p>This feature could be used, for instance, when writing instructional guides that introduce
+	students to a new construal, or to introduce them to JS-EDEN itself.</p>
+
+	<h2>Limitations &amp; Future Changes</h2>
+	<p>The current technique doesn't use definitions.  Ideally we would talk about an observable
+	representing the <em>set</em> of currently highlighted views.  However, JS-EDEN doesn't
+	currently have a notation for defining sets.  Features may be updated from time to time as
+	continuing improvements are made.</p>
+");
+
+slideLang1 is Slide(<%
+	<h1>New EDEN Language Developments</h1>
+	<div class="date">5th September 2015</div>
+
+	<p>Although the essentials of the EDEN language have remained remarkably stable since <a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/publications/mscbyresearch/eyung/" target="eyung">
+	its introduction in 1989</a>, our development team are often making incremental improvements.
+	Today we're reviewing the extensions that we've made to the core JS-EDEN language syntax
+	during the 2014/15 academic year.</p>
+
+	<h2><code>local</code> as a Synonym for <code>auto</code></h2>
+	<p>You'll know that local variables inside functions and procedures are declared using the <code>auto</code>
+	keyword.  But why the word "auto"?  What do you think of when you read the word auto in JS-EDEN
+	code?  What does it mean to you?  What was it <em>intended</em> to mean?  <em>Why</em> was the
+	word "auto" chosen?</p>
+
+	<p>The word auto refers to the memory being used to store the variable's value being
+	allocated "automatically" by the compiler when the function is entered, and then deallocated
+	automatically when the function's execution is complete.  This is as opposed to allocating memory
+	in other ways, for example, by using <code>malloc</code>, a CPU register or <code>static</code> allocation.
+	The syntax of EDEN was designed based on C and C permits these other methods of memory allocation.
+	However, the current JS-EDEN implementation of EDEN compiles EDEN code into JavaScript rather than the
+	machine code that a C compiler produces.  In JavaScript memory is always allocated automatically,
+	so the word "auto" has come to have little meaning.  The older tkeden interpreter for EDEN was written in C.</p>
+
+	<p>Consequently, we're now introducing the keyword <code>local</code> to the EDEN language.  It
+	performs exactly the same job as the <code>auto</code> keyword, it's just a bit more self-explanatory.
+	The <code>auto</code> keyword still works too, so if you've already made construals that use
+	<code>auto</code> then it's not a problem.</p>
+
+	<h2>New Operators: <code>^</code>, <code>=~</code> and <code>!~</code></h2>
+	<p>A frequently asked question was, "How do I raise a number 'to the power of'?".  We'd included
+	the <code>pow</code> function but it seemed that not many people discovered this.  You complained, "Why
+	not just use the ^ like Excel?"  Well, we listened and we made changes.  Expressions like <code>x^y</code>
+	now parse as you'd expect and produce the intended result.  The silly <code>pow</code> function
+	has been banished into history.  This should hopefully make learning EDEN a smidgen easier for those who have
+	previous experience with spreadsheets or a programming language that also uses <code>^</code>
+	for exponentiation.  Don't forget though that if you need to, you can always revert to an earlier
+	version of the system library when working with an older contrual.</p>
+	
+	<jseden>
+	createProjectList("compatibility/projects.json", "Compatibility Shims", "compatibility");
+	</jseden>
+
+	<p>After loading a compatibility shim, use the Script Generator to view the definitions of deprecated
+	or highly revised system-defined observables, functions and procedures and copy-and-paste them
+	individually into your own construal if you prefer to do it that way.</p>
+	
+	<p>We've also added two more new operators to EDEN.  These ones are inspired by the Perl programming language.
+	<code><var>string1</var>&nbsp;=~&nbsp;<var>string2</var></code> tests if <var>string1</var>
+	matches the regular expression contained inside <var>string2</var>.  It returns a Boolean value
+	(or undefined, <code>@</code>, if either operand is undefined).  Unfortunately, the syntax for
+	performing a case insensitive match is a little clunky:</p>
+	
+	<p><code><var>string1</var>&nbsp;=~&nbsp;RE(<var>string2</var>,&nbsp;false)</code></p>
+	
+	<p>However, the advantage of this syntax is that the decision whether to perform a case sensitive
+	or a case insensitive match can easily be specified using dependency.  The alternative, to force
+	users to define a string containing the traditional regular expression "flags" would be even
+	clunkier in an EDEN environment. The <code>!~</code> operator tests if a string
+	<em>does <strong>not</strong> match</em> a given regular expression.</p>
+	
+	<p>Finally, the <code>+</code> and <code>-</code> operators can now be used to add one 2-dimensional
+	point to another, or to subtract one point from another, as well as continuing to serve their usual
+	purpose for addition and subtraction of simple numbers.  Furthermore, it has become common practice
+	to express points in a shorthand form&mdash;like <code>{2, 3}</code> for instance&mdash;rather than the longer
+	<code>Point(2, 3)</code> form.  This last feature actually isn't new, but few people seemed to know of
+	its existence (including most people at Warwick) until it was rediscovered at about Christmas time.</p>
+
+	<h2>Backticks, <code>eval()</code> and Dependency Link</h2>
+	<h3><code>eval()</code></h3>
+	<p>The <code>eval()</code> construct performs the equivalent of <a href="https://support.office.com/en-gb/article/Replace-a-formula-with-its-result-56f2929c-970b-45c1-823e-a87b304d28b8" target="evalExcel">
+	pressing the F9 key in Microsoft Excel when the cursor is positioned in the formula bar</a>.  It's
+	like a cross between writing an assignment and writing a dependency.  Part of the expression is
+	evaluated immediately and once only, the other part stands as a formula and is recalculated
+	automatically whenever needed.</p>
+	
+	<jseden>
+	x = 2;
+	y = 3;
+	z is eval(x) + y; ## Effectively the same as defining z is 2 + y;
+	## z equals 5 at this point.
+	x = 3;
+	## z still equals 5.
+	y = 5;
+	## z now equals 7.
+	</jseden>
+
+	<h3>Dependency Link</h3>
+	<p>The dependency link feature solves three problems that we occasionally encounter when
+	making construals.  Consider the following script fragment.</p>
+
+	<jseden>
+	x = 2;
+	func f {
+		para a;
+		return a + x;
+	}
+	y is f(3);
+	## y now equals 5.
+	x = 3;
+	## y still equals 5.  Unexpected!
+	</jseden>
+
+	<p>Here the interpreter isn't clever enough to figure out that <code>y</code> indirectly depends on <code>x</code>.
+	This can be solved in two ways.  Firstly, we could add an extra parameter to <code>f</code> and
+	rewrite the dependency as <code>y is f(3, x)</code>.  This is the usually the most intelligible way of expressing
+	the relationships between <code>y</code>, <code>f</code> and <code>x</code>.  An exception is
+	when a function already has say ten parameters and <code>x</code> very rarely changes.  The piano
+	construal contains examples of such complicated functions.  This is where the new <dfn>dependency
+	link</dfn> feature is useful.</p>
+
+	<jseden>
+	x ~> [f];
+	</jseden>
+
+	<p>This manually instructs JS-EDEN that changes to <code>x</code> affect the results of <code>f</code>.</p>
+	
+	<p>Now let's look at a second case.</p>
+	
+	<jseden>
+	func f {
+		para a, b;
+		return g(a, b) + 6;
+	}
+	
+	func g {
+		para a, b;
+		return a + b;
+	}
+	x is f(3, 2);
+	## x now equals 11.
+	
+	## Now let's refine our understanding of the concept expressed by g.
+	
+	func g {
+		para a, b;
+		return a + b - 1;
+	}
+	
+	## x still equals 11.  Unexpected!
+	</jseden>
+
+	<p>Again, the dependency link feature can solve the problem:</p>
+	
+	<jseden>
+	g ~> [f];
+	</jseden>
+
+	<p>And finally, one more situation where the ability to manually create a dependency link is helpful:</p>
+
+	<jseden>
+	proc p : x {
+		writeln("Triggered!");
+	}
+	
+	## Now we refine our understanding and would like p triggered by y also.
+	## How to do this without having to resubmit p in its entirety?
+	
+	## Answer:
+	y ~> [p];
+	</jseden>
+
+	<p>In the first two situations you might ask, "Why can't we just make JS-EDEN smarter so that it
+	defines the necessary dependency link automatically?" Hopefully, in the long-term we can do this,
+	though at the present time our attempts are encountering some teething problems.</p>
+	
+	<h3>Backticks</h3>
+	<p>The backticks operator enables you to say things like, "The observable whose name I have stored in
+	this string."  It is best illustrated using an example.</p>
+	
+	<jseden>
+	a1 = "This is the text stored in observable a1";
+	a2 = "This is the text stored in observable a2";
+	number = 1;
+	a is `"a" // str(number)`;
+	## Now a equals "This is the text stored in observable a1"
+	number = 2;
+	## Now a equals "This is the text stored in observable a2"
+	`"a" // str(number)` = "This is a new sentence";
+	## Now a2 and a both equal "This is a new sentence"
+	</jseden>
+
+	<h3>History</h3>
+	<p>tkeden (JS-EDEN's predecessor) supported <code>eval()</code> and dependency link but these
+	features have only recently been added to JS-EDEN.  Backticks existed previously in JS-EDEN but
+	they didn't work properly if backticks were used on the right-hand side of a dependency definition.
+	For example, in the example above the comment describing the final state would be inaccurate.
+	<code>a2</code> would indeed equal, "This is a new sentence", but <code>a</code>, would still
+	equal, "This is the text stored in observable a2", because the
+	indirect dependency of <code>a</code> on <code>a2</code> that the backticks operator implies
+	would not have been detected by JS-EDEN.  Indeed, a sentence in the <i>Eden quick reference</i>
+	(for tkeden) states that there were problems if backticks were used on the right-hand side
+	of dependency definitions in tkeden too.</p>
+
+	<h2>Writing Long Strings with Less Hassle</h2>
+	<h3>How Do We Write a String?</h3>
+	<p>Sometimes it's necessary to write long strings in JS-EDEN.  Creating JSPE slides is a common
+	example.  And when producing such texts, until today you had to remember to put a backslash (\)
+	character before any instances of double quotes.  For example, to write, "This is a quote", you
+	would have to type, \"This is a quote\".  It's easy to forget to do this and in doing so to
+	render the entire script unparsable.  Writing EDEN code inside JSPE slides was a particularly
+	problematic area with lots of double quotes needing to be escaped.</p>
+	
+	<p>We've now introduced a way around this problem.  There is now a second way to write strings.</p>
+	
+	<jseden>
+	x is Slide(<% Long piece of text containing "quotations". %\>);
+	</jseden>
+	
+	<p>The <code>&lt;% &hellip; %&gt;</code> syntax is inspired by server-side scripting languages such ASP and PHP.
+	Inside an instance of the <code>&lt;% &hellip; %&gt;</code> construct it is not necessary to escape anything and nor is it
+	possible to escape anything, with one exception.  Write <code>%\&gt;</code> if you need write a string
+	containing the character sequence <code>%&gt;</code>.  The sequence <code>\n</code> produces a string containing <code>\n</code>,
+	and not a newline character as it would using the normal <code>"&hellip;"</code> syntax.
+	It is not possible to write a string using the new syntax that contains the three character sequence %\&gt;.
+	Finally, if every line of the text is indented by at least <var>n</var> tab or space characters
+	then <var>n</var> tabs or spaces are removed from the beginning of every line before the finished
+	string is produced.  This allows you to indent your JS-EDEN code neatly without adding unwanted white
+	space to the middle of your string.</p>
+	
+	<h3>The <code>substitute</code> Function</h3>
+	<p>The <code>substitute</code> built-in function is a second new feature that's also designed to
+	facilitate writing long pieces of text.  Previously, you would write something like:</p>
+	
+	<jseden>
+	slide1 is Slide("Hello.  My name is " // name // " and I am " // str(age) // " years old.");
+	</jseden>
+	
+	<p>The extra string delimiters, concatenation operator invocations and data type conversions disrupt
+	the flow of the text.  The <code>substitute</code> function provides various new alternative ways of
+	writing the string that you might find preferable.  The <code>substitute</code> function automatically
+	converts all of its operands into strings without the need to manually invoke the <code>str</code>
+	function yourself.</p>
+	
+	<h4>Using a Dictionary (object)</h4>
+	<p>Each field name (before the colon) is bound to an expression (after the colon).</p>
+	<jseden>
+	slide1 is Slide(substitute("Hello.  My name is {name} and I am {age} years old.", {name: name, age: age}));
+	</jseden>
+	
+	<h4>Using the Ordinal Positions of the Arguments</h4>
+	<p>The fields are given numeric names and value of field <code>{<var>i</var>}</code> is the <var>i</var>th
+	argument after the template string.</p>
+	<jseden>
+	slide1 is Slide(substitute("Hello.  My name is {1} and I am {2} years old.", name, age));
+	</jseden>
+	
+	<h4>Using a List</h4>
+	<jseden>
+	slide1Data is [name, age];
+	slide1 is Slide(substitute("Hello.  My name is {1} and I am {2} years old.", slide1Data));
+	</jseden>
+	
+	<h4>Using Pointers</h4>
+	<p>The value for the field named <i>age</i> is held in the observable also named <code>age</code>.</p>
+	<jseden>
+	slide1 is Slide(substitute("Hello.  My name is {name} and I am {age} years old.", &name, &age));
+	</jseden>
+	
+	<h2>Grouping Assignments Together</h2>
+	<p>Sometimes it's necessary to perform two or more assignments simultaneously, by which I mean not
+	necessarily literally in parallel, but in a single computational step (or "atomically") from the
+	viewpoint of triggered procedures.</p>
+	
+	<jseden>
+	z = 0;
+	## Trigger this procedure when x or y changes, but not twice if both change.
+	proc p : x, y {
+		z++;
+	}
+	</jseden>
+	
+	<p>Previously we might have achieved this objective by using the following idiom.</p>
+	
+	<jseden>
+	temporaryObservable = autocalc;
+	autocalc = 0;
+	x = 2;
+	y = 3;
+	autocalc = temporaryObservable;
+	forget(&temporaryObservable);
+	</jseden>
+	
+	<p>Now we can accomplish the same thing, but in a much neater way, by using the new <code>together</code>
+	statement, which does exactly what it says, executes the statements contained within it together as a
+	joint group.</p>
+	
+	<jseden>
+	together {
+		x = 2;
+		y = 3;
+	}
+	</jseden>
+	
+	<p><code>together</code> blocks can be nested, for example one <code>together</code> block
+	inside a procedure that calls another procedure that has its own <code>together</code> block.
+	No triggered procedures will be executed until the thread of execution leaves the final
+	<code>together</code> block.</p>
+
+	<h2>Future Developments</h2>
+	<p>We're working on some more core language developments and hope to be writing about
+	them on <i>Feature of The Day</i> in the coming weeks.</p>
+%>);
+
+slideCurves is Slide(<%
+	<h1>Drawing Curves</h1>
+	<div class='date'>4th October 2015</div>
+	<p>You can already create rich diagrams using JS-EDEN.  But until now they've lacked any
+	curved features except for simple circles, circular arcs and ellipses.  There's been nothing
+	complex or non-perfectly elliptical.  We're about to introduce something to rectify that! 
+	Unlike many other environments the shape of a curve drawn with the new <code>Curve</code>
+	function can be easily understood directly from the values of its numeric parameters.</p>
+	<dl>
+		<dt><var>x1, y1, x2, y2</var></dt>
+		<dd>These define the start and end points of the curve.  Imagine a line drawn from <var>(x1,&nbsp;y1)</var>
+		to <var>(x2,&nbsp;y2)</var>.  We'll call this direction the <dfn>forward axis</dfn>.  Imagine also a
+		line perpendicular to forward axis.  We'll call this the <dfn>perpendicular axis</dfn>.  The
+		line from <var>(x1,&nbsp;y1)</var> to <var>(x2,&nbsp;y2)</var> is similar to major radius of
+		an ellipse.</dd>
+		<dt>radius</dt>
+		<dd>The curve's radius is the distance along the perpendicular axis from the forward axis to
+		the furthest point that the curve reaches along the perpendicular axis.  It's similar to the
+		minor radius of an ellipse.</dd>
+		<dt>curviness</dt>
+		<dd>The <dfn>curviness</dfn> is a value, usually between 0 and 1, that governs how similar the
+		curve is to looking like half of an ellipse versus how similar it is to looking like a pair of
+		straight lines.  A curviness of 0 means that the curve is hardly a curve at all and is almost a pair of
+		diagonal straight lines.  A curviness of 1 means that the curve looks similar to an ellipse.
+		Curviness values greater than 1 cause the curve to broaden so that part of it extends along
+		the forward axis further than the limits of <var>(x1,&nbsp;y1)</var> and <var>(x2,&nbsp;y2)</var>,
+		though these remain the start and end points.  Negative curviness values cause the curve to intersect
+		itself in a fish tail effect.</dd>
+		<dt>start_angle, end_angle</dt>
+		<dd>Remember the two imaginary diagonal lines?  These values control the angles made between
+		those lines and the forward axis.  These parameters can also be left undefined, in which case
+		the curve will have it's "natural angle" with respect to the forward axis as it arrives at
+		the start point (or the end point, or both).  These parameters roughly specify the tangents to
+		the curve at the start and end points.  However, as the curviness value approaches 1 these
+		angles start to be ignored.  Note that if both angles are specified then the parameters
+		<var>x1, y1, x2, y2, start_angle, end_angle</var> form a complete specification of the two
+		diagonal lines and that their point of intersection may be closer or further away from the
+		forward axis that the distance specified by the <var>radius</var> parameter.  If the point of
+		intersection is closer then the influence of the radius parameter will pull the straight lines
+		into becoming concave curves, resulting in an overall bell curve shape appearance.</dd>
+		<dt>skew</dt>
+		<dd>The <dfn>skew</dfn> parameter controls how far along the forward axis the point which is
+		furthest away from the forward axis occurs.  The skew is usually a value between 0 and 1, with
+		0.5 being the default.  Symmetric curves have a skew value of 0.5.  Values less than 0 or
+		greater than 1 result in an effect that looks like a bird's beak.  Together the skew and the
+		radius arguments define the point on the curve where the tangent is parallel to the forward axis.</dd>
+		<dt>overshoot</dt>
+		<dd>If <var>start_angle</var> or <var>end_angle</var> are greater than 90&deg; then the
+		overshoot parameter comes into effect in order to determine how far the forward axis is extended
+		beyond the start and end points of the curve.</dd>
+		<dt>is_right_and_up</dt>
+		<dd>Setting this Boolean parameter to true causes the whole curve to rotate 180&deg;.  When this
+		argument is false the curve is drawn facing towards the left and bottom of the canvas.  When
+		it is true the curve is drawn facing the right and top of the canvas.</dd>
+		<dt>colour(s), drawing_options</dt>
+		<dd>The usual suspects common to all canvas drawing.</dd>
+	</dl>
+%>);
+
+slideList is [slideZones, slideViewHighlight, slideLang1, slideCurves];
+currentSlide = slideList#;

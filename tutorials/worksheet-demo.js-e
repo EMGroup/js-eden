@@ -1,0 +1,124 @@
+
+ws_p1 is Paragraph with text is [
+"In the JS-Eden environment, we can construct models using the principles of observables, dependencies and agency.",
+"Observables are things you can see and change, they should correspond to something in your experience of what you are modelling.",
+"Dependencies describe immediate relationships between your observables, corresponding to indivisible and automatic connections found in experience.",
+"Agency acts as a mechanism for causing change, perhaps in some sequence of events or in response to some observation."
+];
+
+ws_h1 is Header with text is "Script Input Windows";
+
+ws_p2 is Paragraph with text is [
+"A script input window is the primary place for creating the observables, dependencies and agents that make up a model.",
+"If you are already a programmer, however, be aware that it is not a sequentially executed script but rather just a view of the system.",
+"Experiment by changing the numbers below and watching the values change on the page:"
+];
+
+a = 5;
+b = 6;
+myReal = 1.234;
+myString = "Hello World";
+myList = [myReal, myString];
+
+ws_pic1 is Canvas with name is "WSPic1", source is "picture_1", height is 50, width is 700;
+
+textB is Text("a -> " // str(a), 45,5,26);
+textC is Text("b -> " // str(b), 150,5,26);
+textD is Text("myString -> " // myString, 250,5,26);
+
+picture_1 is [textB,textC,textD];
+
+ws_script1 is Script with static is false, name is "WSScript1", lines is 6, code is [
+&a,
+&b,
+"",
+&myReal,
+&myString,
+"myList = [myReal, myString];"
+];
+
+ws_p3 is Paragraph with text is [
+"You can see from the script above that there are 4 types of observable: whole numbers (integers), real numbers, strings of text and lists.",
+"If you tried changing the values you would have noticed the liveness of the input. Whenever you enter something valid it does it straight away.",
+"To disable this and allow working off-line, click the power button in the top right corner.",
+"You may have noticed that when you changed 'a' or 'b' above, the script input in the example below flashed yellow.",
+"This is because that line of script is no longer synchronised with the actual definition of 'a' or 'b', in other words: it's out-of-date because someone else changed it."
+];
+
+ws_p4 is Paragraph with text is [
+"JS-Eden has operators and functions like most programming languages.",
+"Here are some examples of both:"
+];
+
+ws_script2 is Script with static is false, name is "WSScript2", lines is 7, code is [
+"a = 20 + 15;",
+"b = a * 2;",
+"c = a % 5;",
+"",
+"x = max(2,8);",
+"y = sqrt(16);",
+"z = floor(5.9);"
+];
+
+ws_h2 is Header with level is 1, text is "Creating Dependencies";
+
+ws_p5 is Paragraph with text is [
+"As shown above, you create a new observable using '='. However, there is another way of creating an observable, by giving a dependency definition.",
+"In the example below, two observables are created: 'c' and 'd',",
+"where 'c' is given a value corresponding to 'a1 + b1' and 'd' is given a dependency definition of 'a1 + b1'.",
+"Both 'c' and 'd' should be the same, but try changing 'a1':"
+];
+
+a1 = 10;
+b1 = 5;
+d is a1 + b1;
+c = a1 + b1;
+
+ws_pic2 is Canvas with name is "WSPic2", source is "picture_2", height is 50, width is 700;
+
+textC2 is Text("c -> " // str(c), 155,5,26);
+textD2 is Text("d -> " // str(d), 325,5,26);
+
+picture_2 is [textC2,textD2];
+
+ws_script3 is Script with static is false, name is "WSScript3", lines is 3, code is [
+"c = a1 + b1;",
+&d,
+"a1 = 10;"
+];
+
+ws_p6 is Paragraph with text is [
+"Are 'c' and 'd' still the same? They are not, because 'd' has changed.",
+"It has updated to maintain the dependency of 'd is a1 + b1'.",
+"In JS-Eden, 'is' is used to create dependencies between observables, much like dependencies between cells in a spreadsheet."
+];
+
+ws_contents is [ws_p1,ws_h1,ws_p2,ws_pic1,ws_script1,ws_p3,ws_p4,ws_script2,ws_h2,ws_p5,ws_pic2,ws_script3,ws_p6];
+
+ws_title is Title with
+	text is "Worksheet 1:",
+	subtitle is "Getting Started with JS-Eden";
+
+ws_page is Page with title is ws_title, content is ws_contents;
+page is ws_page;
+
+
+createView("InputDialog","ScriptInput");
+_view_InputDialog_script = [
+&ws_p1,"",
+&ws_h1,"",
+&ws_p2,"",
+&ws_pic1,"",
+&textB,
+&textC,
+&textD,"",
+&ws_script1,"",
+&ws_p3,"",
+&ws_p4,"",
+&ws_script2,"",
+&ws_h2,"",
+&ws_p5,"",
+&ws_pic2,"",
+&ws_script3,"",
+&ws_p6];
+

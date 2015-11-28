@@ -30,14 +30,14 @@ test("A symbol just assigned to is marked up to date", function () {
 	var root = new Folder();
 	var A = root.lookup('A');
 
-	A.assign(10);
-	equal(A.up_to_date, true);
+	A.assign(10, root.scope);
+	equal(A.cache.up_to_date, true);
 });
 
 test("Assigning to a symbol sets the value", function (assert) {
 	var root = new Folder();
 	var A = root.lookup('A');
-	A.assign(10);
+	A.assign(10, root.scope);
 	equal(A.value(), 10);
 });
 
@@ -46,11 +46,11 @@ test("Querying the value of a symbol which relies on a definition should mark it
 	var A = root.lookup('A');
 	var B = root.lookup('B');
 
-	A.assign(10);
+	A.assign(10, root.scope);
 	B.define(function() { return A.value(); }).subscribe('A');
 	B.value();
 
-	equal(B.up_to_date, true);
+	equal(B.cache.up_to_date, true);
 });
 
 test("Defining an observable in terms of a constant causes it's value to be the constant", function (assert) {
@@ -108,7 +108,7 @@ test("Assigning to a symbol removes subscriptions from symbols subscribed to", f
 	var A = root.lookup('A');
 	var B = root.lookup('B');
 	A.subscribe('B');
-	A.assign(2);
+	A.assign(2, root.scope);
 
 	equal(B.subscribers[A.name], undefined);
 });
@@ -132,10 +132,10 @@ test("Assigning to an observed symbol causes the triggered action to fire", func
 		var watchB = root.lookup('watchB');
 		var B = root.lookup('B');
 
-		watchB.assign(action);
+		watchB.assign(action, root.scope);
 		watchB.observe('B');
 
-		B.assign(10);
+		B.assign(10, root.scope);
 	});
 });
 
@@ -151,10 +151,10 @@ test("An observed symbol updated via dependency causes its observer to fire", fu
 
 		B.define(function() { A.value() + 1; }).subscribe('A');
 
-		watchB.assign(action);
+		watchB.assign(action, root.scope);
 		watchB.observe('B');
 
-		A.assign(10);
+		A.assign(10, root.scope);
 	});
 });
 

@@ -1,0 +1,10 @@
+/**
+ * @title Bulb Circuit Element
+ * @author Nicolas Pope
+ */
+
+import nick/circuit/bulb/vertical;
+import nick/circuit/bulb/horizontal;
+
+Bulb is bulb_v if orientation == "vertical" else bulb_h;
+

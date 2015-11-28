@@ -1,0 +1,26 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+##
+## Modified version of the JSPE where resizing the canvas will automatically move and resize the
+## slides and the input window.
+##
+
+include("models/jspe/run.e");
+
+_view_jspe_x is _view_picture_x + _view_picture_width + _views_frame_width + _views_unit_x;
+_view_picture_x = 0;
+_view_input_x = 0;
+_view_input_y is
+	_view_picture_x == 0 && _view_input_x == 0?
+	_view_picture_y + _view_picture_height + _views_frame_height + _views_unit_y / 2 : 
+	eval(_view_input_y);
+_view_input_width is
+	_view_picture_x == 0 && _view_input_x == 0?
+	min(0.4 * screenWidth, _view_picture_width) :
+	eval(_view_input_width);
+_view_input_height is
+	_view_picture_x == 0 && _view_input_x == 0?
+	screenHeight - _view_input_y :
+	eval(_view_input_height);

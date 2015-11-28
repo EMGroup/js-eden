@@ -1,0 +1,49 @@
+/**
+ * @title Jugs Display
+ */
+
+active_tab = "canvas";
+
+jugwidth = 60;
+base = 200;
+scale = 20;
+left = 50;
+
+jugA_left is Line(left,base,left,base - (scale * capA));
+jugA_right is Line(left+jugwidth,base,left+jugwidth,base - (scale * capA));
+jugA_base is Line(left,base,left+jugwidth,base);
+
+##picture is [jugA_left,jugA_right,jugA_base];
+
+spacing = 30;
+right is left+jugwidth+spacing;
+
+jugB_left is Line(right,base,right,base - (scale * capB));
+jugB_right is Line(right+jugwidth,base,right+jugwidth,base - (scale * capB));
+jugB_base is Line(right,base,right+jugwidth,base);
+
+picture is [jugA_left,jugA_right,jugA_base,jugB_left,jugB_right,jugB_base];
+
+linewidth = 0;
+
+jugA_water is Rectangle(left+linewidth,base - (scale * contentA),jugwidth-(2*linewidth),scale * contentA,"blue");
+
+picture is [jugA_left,jugA_right,jugA_base,jugB_left,jugB_right,jugB_base,jugA_water];
+
+jugB_water is Rectangle(right+linewidth,base - (scale * contentB),jugwidth-(2*linewidth),scale * contentB,"blue");
+
+picture is [jugA_left,jugA_right,jugA_base,jugB_left,jugB_right,jugB_base,jugA_water,jugB_water];
+
+statuslabel is Text(targ // " " // totstat, 250, base - ((capB * scale) / 2), "black");
+
+picture is [jugA_left,jugA_right,jugA_base,jugB_left,jugB_right,jugB_base,jugA_water,jugB_water,statuslabel];
+
+but1 is Button(menu[1], 50, base+30, valid1);
+but2 is Button(menu[2], 50+70, base+30, valid2);
+but3 is Button(menu[3], 50+150, base+30, valid3);
+but4 is Button(menu[4], 50+250, base+30, valid4);
+but5 is Button(menu[5], 50+340, base+30, valid5);
+
+picture is [but1,but2,but3,but4,but5,jugA_left,jugA_right,jugA_base,jugB_left,jugB_right,jugB_base,jugA_water,jugB_water,statuslabel];
+
+}

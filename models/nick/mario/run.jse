@@ -1,0 +1,4 @@
+require("Canvas2D");
+
+execute2("import mario;");
+

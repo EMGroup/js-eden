@@ -16,29 +16,29 @@
 
 edenclocks = [];
 edenclocks_paused = false;
-_debug_edenclocks = false;
+debug.edenclocks = false;
 
 ${{
 	root.edenclocks = {};
 	var edenclocks = root.lookup("edenclocks");
 	edenclocks.addJSObserver("setClocks", function (symbol, clocks) {
 		var newClockNames = {};
-		var debugSym = root.lookup("_debug_edenclocks");
-		var debug = debugSym.value();
+		var debugSym = root.lookup("debug");
+		var debug = debugSym.value().edenclocks;
 		var pausedSym = root.lookup("edenclocks_paused");
 
 		if (Array.isArray(clocks)) {
 			var incrementClock = function (symbol) {
-				if (!pausedSym.cached_value) {
-					symbol.assign(symbol.cached_value + 1, edenclocks);
-					if (debugSym.cached_value) {
+				if (!pausedSym.cache.value) {
+					symbol.assign(symbol.cache.value + 1, root.scope, edenclocks);
+					if (debugSym.cache.value.edenclocks) {
 						console.log("edenclocks: clock " + symbol.name);
 					}
 				}
 			};
 			var callClockProc = function (symbol) {
-				if (!pausedSym.cached_value) {
-					if (debugSym.cached_value) {
+				if (!pausedSym.cache.value) {
+					if (debugSym.cache.value.edenclocks) {
 						console.log("edenclocks: clock " + symbol.name);
 					}				
 					symbol.definition(root)();
@@ -50,7 +50,7 @@ ${{
 				} else {
 					var currentValue = target.value();
 					if (currentValue === undefined) {
-						target.assign(0, edenclocks);
+						target.assign(0, root.scope, edenclocks);
 						return window.setInterval(incrementClock, interval, target);
 					} else if (typeof(currentValue) == "number") {
 						return window.setInterval(incrementClock, interval, target);					
@@ -148,7 +148,7 @@ proc setedenclock {
 	} else if ($[2] != @ && !isNumber($[2])) {
 		error("setedenclock: The second argument must be a number or undefined, not a " // type($[2]));
 	} else {
-		if (_debug_edenclocks) {
+		if (debug.edenclocks) {
 			${{ console.log("edenclocks: setedenclock(" + arguments[0].name.slice(1) + ", " + arguments[1] + ")"); }}$;
 		}
 		for (i = 1; i <= edenclocks#; i++) {
@@ -169,7 +169,7 @@ proc removeedenclock {
 	} else if (!isPointer($[1])) {
 		error("removeedenclock: The argument must be a pointer, not a " // type($[1]));
 	} else {
-		if (_debug_edenclocks) {
+		if (debug.edenclocks) {
 			${{ console.log("edenclocks: removeedenclock(" + arguments[0].name.slice(1) + ")"); }}$;
 		}
 		for (i = 1; i <= edenclocks#; i++) {

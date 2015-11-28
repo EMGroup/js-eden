@@ -4,8 +4,9 @@
 ## See LICENSE.txt
 
 ${{
-Checkbox = function (name, x, y, tristate, enabled) {
+Checkbox = function (name, label, x, y, tristate, enabled) {
 	this.name = name;
+	this.label = label;
 	this.x = x;
 	this.y = y;
 	this.tristate = tristate;
@@ -13,7 +14,8 @@ Checkbox = function (name, x, y, tristate, enabled) {
 }
 
 Checkbox.prototype.hash = function () {
-	return this.name+"$$"+
+	return this.label+"$$"+
+				this.name+"$$"+
 				this.x+"$$"+
 				this.y+"$$"+
 				this.tristate+"$$"+
@@ -22,46 +24,71 @@ Checkbox.prototype.hash = function () {
 }}$;
 
 func Checkbox { ${{
-  var name = arguments[0];
-  var x = arguments[1];
-  var y = arguments[2];
-  var tristate = arguments[3];
+  var name = root.currentObservableName();
+  if (name === undefined) {
+	eden.error(new Error("Checkbox: Every checkbox must be defined by making a dependency."), "error");
+	return undefined;
+  }
+  var argsProcessed = 0;
+  var label;
+  if (typeof(arguments[0]) == "string") {
+	label = arguments[0];
+	argsProcessed++;
+  }
+  var x = arguments[argsProcessed];
+  var y = arguments[argsProcessed + 1];
+  var tristate = arguments[argsProcessed + 2];
   if (tristate === undefined) tristate = false;
-  var enabled = arguments[4];
+  var enabled = arguments[argsProcessed + 3];
   if (enabled === undefined) enabled = true;
-  return new Checkbox(name, x, y, tristate, enabled);
+  return new Checkbox(name, label, x, y, tristate, enabled);
 }}$; }
 
 ${{
 
 Checkbox.prototype.draw = function(context) {
-	if(this.elements === undefined){
+
+	if (this.elements === undefined) {
 		var me = this;
 		var name = this.name;
-		var id = "canvas_" + this.name;
+
+		var inputJQ = $('<input type="checkbox"/>');
+		var inputElement = inputJQ.get(0);
+		var element;
+		if (this.label === undefined) {
+			element = inputElement;
+		} else {
+			var labelJQ = $('<label> ' + this.label + '</label>');
+			labelJQ.prepend(inputJQ);
+			element  = labelJQ.get(0);
+		}
+		element.style.position = "absolute";
+
+		inputElement.disabled = (this.enabled === false);
+		
 		var valueSym = root.lookup(name + "_checked");
 		var value = valueSym.value();
-		var agent = root.lookup("Checkbox");
-
-		var jqElement = $("<input type=\"checkbox\" style=\"position: absolute\" />");
-		var element = jqElement.get(0);
-		
-		element.id = id;
-		element.disabled = (this.enabled === false);
-		element.style.left = this.x + "px";
-		element.style.top = this.y + "px";
-		
 		if (value === undefined) {
 			if (this.tristate) {
-				element.indeterminate = true;
+				inputElement.indeterminate = true;
 			} else {
-				valueSym.assign(false, agent);
+				valueSym.assign(false, root.scope, root.lookup("Checkbox"));
 			}
 		} else {
-			element.checked = value;
+			inputElement.checked = value;
 		}
+		valueSym.addJSObserver("updateCheckbox", function (obs, value) {
+			var element = me.elements[0];
+			if (value === undefined) {
+				element.indeterminate = true;
+				element.checked = false;
+			} else {
+				element.indeterminate = false;
+				element.checked = (value == true);
+			}
+		});
 
-		jqElement.change(function (event) {
+		inputJQ.change(function (event) {
 			var element = event.target;
 			var value;
 			if (element.indeterminate) {
@@ -75,29 +102,45 @@ Checkbox.prototype.draw = function(context) {
 			} else {
 				value = element.checked;
 			}
-			valueSym.assign(value, agent, true);
+			valueSym.assign(value, root.scope, Symbol.hciAgent, true);
+		})
+		.on("mousedown", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseDownZone").assign(undefined, root.scope, Symbol.hciAgent, mouseFollow);
+		})
+		.on("mouseup", function () {
+			edenUI.plugins.Canvas2D.endClick();
+		})
+		.on("mouseenter", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
 		});
 		
-		valueSym.addJSObserver("updateCheckbox", function (obs, value) {
-			var element = me.elements[0];
-			if (value === undefined) {
-				element.indeterminate = true;
-				element.checked = false;
-			} else {
-				element.indeterminate = false;
-				element.checked = (value == true);
-			}
-		});
-
 		this.elements = [element];
 	}
 };
-}}$;
 
-${{
+Checkbox.prototype.scale = function (scale, zoom, origin) {
+	var outerElement = this.elements[0];
+	var inputElement;
+	if (outerElement.tagName.toLowerCase() == "label") {
+		inputElement = outerElement.children[0];
+	} else {
+		inputElement = outerElement;
+	}
+	var outerStyle = outerElement.style;
+	var inputStyle = inputElement.style;
+
+	outerStyle.left = Math.round(this.x * scale + origin.x) + "px";
+	outerStyle.top = Math.round(this.y * scale + origin.y) + "px";
+
+	var checkboxSize = Math.round(13 * zoom) + "px";
+	inputStyle.width = checkboxSize;
+	inputStyle.height = checkboxSize;
+};
+
 Checkbox.prototype.toString = function() {
-  return "Checkbox(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.tristate + ", " +
-	this.enabled + ")";
+  return "Checkbox(" + Eden.edenCodeForValues(this.x, this.y, this.tristate, this.enabled) + ")";
 };
 
 Checkbox.prototype.getEdenCode = Checkbox.prototype.toString;

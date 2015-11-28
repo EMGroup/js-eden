@@ -8,23 +8,33 @@ See LICENSE.txt
 
 <html>
 <head>
-	<title>JS-Eden</title>
+	<script type="text/javascript">
+		try {
+		  if (window.localStorage) {
+			  if (window.localStorage.getItem("developer") === "true") {
+				var currentPath = document.location.pathname;
+				document.location.pathname = currentPath.slice(0, currentPath.lastIndexOf("/")) + "/index-dev.html";
+			  }
+		  }
+		} catch (e) {
+		  //Cookies are blocked.
+		}
+	</script>
+	<title>JS-EDEN</title>
 
 	<link rel="stylesheet" type="text/css" href="css/jseden.css">
 	<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.2.custom.min.css">
 	<link rel="stylesheet" type="text/css" href="css/eden.css">
-	<link rel="stylesheet" type="text/css" href="plugins/project-listing/project-listing.css">
-	<link rel="stylesheet" type="text/css" href="plugins/menu-bar/menu-bar.css">
-	<link rel="stylesheet" type="text/css" href="plugins/symbol-viewer/symbol-viewer.css">
-	<link rel="stylesheet" type="text/css" href="plugins/symbol-lookup-table/symbol-lookup-table.css" />
-	<link rel="stylesheet" type="text/css" href="plugins/dependency-map/dependency-map.css" />
-	<link rel="stylesheet" type="text/css" href="plugins/state-timeline/state-timeline.css" />
-	<link rel="stylesheet" type="text/css" href="plugins/state-listener/state-listener.css" />
-	<link rel="stylesheet" type="text/css" href="plugins/input-dialog/interpreter.css" />
-	<link rel="stylesheet" type="text/css" href="plugins/adm/adm-input.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/jseden-plugins.min.css">
 
 	<script type="text/javascript" src="js/lib/jquery-1.8.3.min.js"></script>
 	<script type="text/javascript" src="js/lib/jquery-ui-1.9.2.custom.min.js"></script>
+	<style type="text/css">
+		/*If we ever upgrade to jquery.ui version 1.10 or later then remove the following rule. */
+		.ui-front {
+			z-index: 10000 !important;
+		}
+	</style>
 	<script type="text/javascript" src="js/lib/jquery.dialogextend.min.js"></script>
 </head>
 <body>
@@ -33,58 +43,22 @@ See LICENSE.txt
 <script src="js/lib/jquery.color.js"></script>
 <script src="js/lib/jquery.hotkeys.js"></script>
 <script src="js/lib/json2.js"></script>
-<script src="js/core/runtime.js"></script>
+<script src="js/lib/diff_match_patch.js"></script>
+<script src="js/core/jseden.min.js"></script>
+<script src="js/core/ast.js"></script>
 <script src="js/dummyconsole.js"></script>
 <script src="js/arrayCompareFix.js"></script>
-<script src="js/core/window-highlighter.js"></script>
-<script src="js/core/maintainer.js"></script>
-<script src="js/core/polyglot.js"></script>
-<script src="js/core/translator.js"></script>
-<script src="js/core/eden.js"></script>
-<script src="js/core/plugins.js"></script>
-<script src="js/core/initialise.js"></script>
-<script src="plugins/input-dialog/interpreter.js"></script>
-<script src="plugins/project-listing/project-listing.js"></script>
-<script src="plugins/plugin-listing/plugin-listing.js"></script>
-<script src="plugins/menu-bar/menu-bar.js"></script>
-<script src="plugins/canvas-html5/canvas.js"></script>
-<script src="plugins/symbol-viewer/symbol-viewer.js"></script>
-<script src="plugins/html-views/html-views.js"></script>
-<script src="plugins/expression-tree/expression-tree.js"></script>
-
-<script src="plugins/systemSymbols.js"></script>
-<script src="plugins/symbol-lookup-table/symbol-lookup-table.js"></script>
-<script src="plugins/script-generator/script-generator.js"></script>
-<script src="plugins/dependency-map/springy/springy.js"></script>
-<script src="plugins/dependency-map/springy/springyui.js"></script>
-<script src="plugins/dependency-map/dependency-map.js"></script>
-<script src="plugins/state-timeline/state-timeline.js"></script>
-<script src="plugins/state-listener/state-listener.js"></script>
-<script src="plugins/view-layout/view-layout.js"></script>
-<script src="plugins/adm/adm-input.js"></script>
+<script src="plugins/jseden-plugins.min.js"></script>
 
 <script type="text/javascript">
 	initialiseJSEden();
-	var current = null;
-	var cycleView = function () {
-		var $windows = $('.ui-dialog-content');
-		var i;
-		if (!current) {
-			current = $windows.get(0);
-		} else {
-			for (i = 0; i < $windows.length; ++i) {
-				if ($windows.get(i) === current) {
-					current = $windows.get((i + 1) % $windows.length);
-					break;
-				}
-			}
-		}
-		if ($(current).is(':data(dialog)')) {
-			$(current).dialog('open').dialog('moveToTop').dialogExtend('restore');
-		}
-	};
-	$(document).on('keydown', null, 'ctrl+m', cycleView);
 </script>
+
+<div class="loaddialog">
+<img src="images/construit-logo.jpg"/>
+<div class="mainloader">Loading...</div>
+<div class="loadmessage">Loading...</div>
+</div>
 
 <div id="tooltip" style="display:none"></div>
 </body>

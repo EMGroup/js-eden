@@ -1,4 +1,6 @@
+include("compatibility/scifest2015.js-e");
 include("library/functional_programming.js-e");
+option trackObservableRefsInFuncs = false;
 
 ##Searches the string given by the first argument for a match against the
 ##regular expression given by the second argument (given as either a string

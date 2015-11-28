@@ -1,0 +1,69 @@
+/**
+ * @title Logo Example 2
+ * @author Nicolas Pope
+ */
+
+import logo/drawer;
+_view_input_agent = "logo/example2";
+
+## Fan
+action fan {
+do forward 100;
+do left 112;
+}
+
+tick = 1;
+when (tick) {
+	do fan;
+	wait 100;
+	tick++;
+	if (tick % 40 == 0) {
+		do penup;
+		do forward 150;
+		do pendown;
+	}
+}
+
+do reset;
+
+
+## Action Specification
+
+action forward {
+	move_offset = $1;
+	if (pen) {
+		lines = lines // [Line(position_x,position_y,newpos_x,newpos_y, colour)];
+	}
+	position_x = newpos_x;
+	position_y = newpos_y;
+}
+
+action left {
+	angle = angle + $1;
+}
+
+action right {
+	angle = angle - $1;
+}
+
+action back {
+	do forward -$1;
+}
+
+action pendown {
+	pen = true;
+}
+
+action penup {
+	pen = false;
+}
+
+action reset {
+	lines = [];
+	angle = 0;
+	pen = true;
+	position_x = floor(_view_picture_width / 2);
+	position_y = floor(_view_picture_height / 2);
+}
+
+

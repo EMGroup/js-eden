@@ -48,7 +48,7 @@ Eden.plugins.Canvas2D = function (context) {
 		}
 
 		//Create the view
-		eden.createView(me.canvasName,"Canvas2D");
+		edenUI.createView(me.canvasName,"Canvas2D");
 		
 		//Store the canvas
 		me.canvas = $("#"+me.canvasName+"-dialog-canvas")[0];

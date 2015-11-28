@@ -1,4 +1,4 @@
-EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
+EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 
 	this.createDialog = function(name,mtitle) {
 
@@ -16,14 +16,12 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 	}
 
 	//Register the HTML view options
-	edenui.views["SymbolLookUpTable"] = {dialog: this.createDialog, title: "Symbol Look-Up Table", category: edenUI.viewCategories.comprehension, menuPriority: 3};
+	edenUI.views["SymbolLookUpTable"] = {dialog: this.createDialog, title: "Symbol Look-Up Table", category: edenUI.viewCategories.comprehension, menuPriority: 3};
 	
 	this.search = function (viewName) {
-		//Update a symbol look-up table with search results for a new regexp.
-		var regExp = document.getElementById(viewName + "-regexp").value;
-		if(regExp == undefined) {
-			return;
-		}
+		//Update a symbol look-up table with search results for a new search.
+		var inputBox = $("#" + viewName + "-regexp");
+		var regExp = edenUI.regExpFromStr(inputBox);
 		document.getElementById(viewName + "-table-div").innerHTML = generateBottomHTML(regExp, viewName);
 	}
 	
@@ -34,12 +32,12 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 				controls +
 			"</div>" +
 			"<div id='" + viewName + "-table-div' class='lower'>" +
-				generateBottomHTML("", viewName) +
+				generateBottomHTML(new RegExp(""), viewName) +
 			"</div>";
 		return indiv;
 	}
 	
-	var generateBottomHTML = function(regexString, viewName) {
+	var generateBottomHTML = function(regExp, viewName) {
 		var tableHeadHTML = "<tr>"+
 			"<td class=\"lower\"><b>Name</b></td>"+
 			"<td class=\"lower\"><b>Type</b></td>" +
@@ -47,12 +45,12 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 			"<td class=\"lower\"><b>Current Value</b></td>"+
 			"<td class=\"lower\"><b>Watches</b></td>"+
 			"<td class=\"lower\"><b>Updates</b>"+
+			"<td class=\"lower\"><b>Backticks</b>"+
 			"<td class=\"lower\"><b>Last Modified By</b></td>" +
 			"<td class=\"lower\"><b>JavaScript Actions</b></td>" +
 		"</tr>";
 		tableBodyHTML = "";
 		
-		var re = new RegExp("^(" + regexString + ")", "i");
 		var partialTable = [];
 		var matchingNames = {};
 		var symbol;
@@ -60,32 +58,32 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 		for (var name in root.symbols) {
 			symbol = root.symbols[name];
 			
-			if (!re.test(name)) {
+			if (!regExp.test(name)) {
 				continue;
 			}
 			
 			var kind, definition, value;
 			if (symbol.eden_definition === undefined) {
 				definition = "-";
-				kind = typeof(symbol.cached_value) == "function"? "Function" : "Observable";
-				value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cached_value));
+				kind = typeof(symbol.cache.value) == "function"? "Function" : "Observable";
+				value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cache.value));
 			} else {
 				definition = Eden.htmlEscape(symbol.eden_definition);
 				if (definition.indexOf("proc") == 0) {
-					if (Eden.isitSystemAgent(name) && !(new RegExp("\\b" + name + "\\b")).test(regexString)) {
+					if (Eden.isitSystemAgent(name) && !(new RegExp("\\b" + name + "\\b")).test(regExp.source)) {
 						continue;
 					}
 					kind = "Agent";
 					value = "";
 				} else if (definition.indexOf("func") == 0) {
-					if (Eden.isitSystemFunction(name) && !(new RegExp("\\b" + name + "\\b")).test(regexString)) {
+					if (Eden.isitSystemFunction(name) && !(new RegExp("\\b" + name + "\\b")).test(regExp.source)) {
 						continue;
 					}
 					kind = "Function";
 					value = "";
 				} else {
 					kind = "Dependency";
-					value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cached_value));
+					value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cache.value));
 				}
 			}
 			partialTable.push([symbol, name, kind, definition, value]);
@@ -95,11 +93,23 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 		for (var i = 0; i < partialTable.length; i++) {
 			var row = partialTable[i];
 			symbol = row[0];
-			var watches = referencedObservables(symbol.observees, matchingNames, viewName).concat(
-				referencedObservables(symbol.dependencies, matchingNames, viewName));
+			var observees = referencedObservables(symbol.observees, matchingNames, viewName)
+			var dependencies = referencedObservables(symbol.dependencies, matchingNames, viewName);
+			var watches = observees;
+			if (observees != "" && dependencies != "") {
+				watches = watches + ", ";
+			}
+			watches = watches + dependencies;
 
-			var updates = referencedObservables(symbol.observers, matchingNames, viewName).concat(
-				referencedObservables(symbol.subscribers, matchingNames, viewName));
+			var observers = referencedObservables(symbol.observers, matchingNames, viewName);
+			var subscribers = referencedObservables(symbol.subscribers, matchingNames, viewName);
+			var updates = observers;
+			if (observers != "" && subscribers != "") {
+				updates = updates + ", ";
+			}
+			updates = updates + subscribers;
+
+			var backticks = referencedObservablesList(symbol.dynamicDependencyTable, matchingNames, viewName);
 
 			var lastModifiedBy = symbol.last_modified_by ? symbol.last_modified_by : 'Not yet defined';
 			lastModifiedBy = referencedObservable(lastModifiedBy, matchingNames, viewName);
@@ -114,6 +124,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 					"<td class=\"lower\"><p>" + row[4] + "</p></td>" +
 					"<td class=\"lower\"><p>" + watches + "</p></td>" +
 					"<td class=\"lower\"><p>" + updates + "</p></td>" +
+					"<td class=\"lower\"><p>" + backticks + "</p></td>" +
 					"<td class=\"lower\"><p>" + lastModifiedBy + "</p></td>" +
 					"<td class=\"lower\"><p>" + jsObservers + "</p></td>" +
 				"</tr>";
@@ -124,7 +135,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 			 * the most recently defined symbols at the top (excluding the coordinates of GUI
 			 * window positions, etc. which should hopefully end up at the bottom of the table.
 			 */
-			if (/^((_view_.*)|mousePosition|mouseWindow)$/.test(row[1])) {
+			if (/^((_view_.*)|mousePosition|mouseView)$/.test(row[1])) {
 				tableBodyHTML = tableBodyHTML + rowHTML;
 			} else {
 				tableBodyHTML = rowHTML + tableBodyHTML;
@@ -142,6 +153,18 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 		return list.join(", ");
 	}
 	
+	var referencedObservablesList = function(referencedObs, obsInTable, viewName) {
+		var list = [];
+		for (var i = 0; i < referencedObs.length; i++) {
+			var name = referencedObs[i];
+			if (name === undefined) {
+				name = "";
+			}
+			list.push(referencedObservable(name, obsInTable, viewName));
+		}
+		return list.join(", ");
+	}
+
 	var referencedObservable = function(name, obsInTable, viewName) {
 		if (name[0] == "*" || name == "include" || name == "Not yet defined") {
 			return name;
@@ -154,7 +177,12 @@ EdenUI.plugins.SymbolLookUpTable = function (edenui, success) {
 	
 	this.addSymbolToSearch = function (viewName, symbolName) {
 		var searchBox = document.getElementById(viewName + "-regexp");
-		var searchStr = searchBox.value + "|" + symbolName + "$";
+		var searchStr;
+		if (edenUI.getOptionValue("optSimpleWildcards") == "false") {
+			searchStr = searchBox.value + "|^" + symbolName + "$";
+		} else {
+			searchStr = searchBox.value + " " + Language.ui.search.disjunction + " " + symbolName;			
+		}
 		searchBox.value = searchStr;
 		this.search(viewName);
 	}

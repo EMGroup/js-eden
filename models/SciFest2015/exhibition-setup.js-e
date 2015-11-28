@@ -1,0 +1,15 @@
+##Configures JS-EDEN for presenting the construals on an exhibition stand.
+
+##Configure views.
+include("models/jspe/auto-resizing-jspe.js-e");
+destroyView("input");
+moveView("picture", 0, 0);
+_view_picture_height is screenHeight - _view_picture_y;
+
+##Prompt to initiate logging.
+require("NetworkRemote");
+createView("logging", "NetworkRemote");
+mouseFollow = true;
+
+##Adjust font size.
+jspeFontSize = 14;

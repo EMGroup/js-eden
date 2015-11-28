@@ -1,25 +1,99 @@
-.procedure-results {
-	overflow-y: hidden;
-	font-size: 12px;
-	bottom: 0px;
+.symbollist-dialog .ui-dialog-content {
+	overflow: hidden;
+	padding-left: 0.7em;
+	padding-right: 0.35em;
+	padding-top: 0.5em;
+	padding-bottom: 0.35em;
+}
+
+.symbollist-outer {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+.symbollist-results {
+	overflow-y: auto;
 }
 
 .symbollist-result-element {
-	margin-bottom: 3px;
+	margin-bottom: 5px;
 	cursor: pointer;
 	overflow: hidden;
-	font-size: 8pt;
-	font-family: monospace;
+	font: 12px/18px Roboto Mono,monospace;
+	-webkit-font-smoothing: antialiased;
 	white-space: nowrap;
+	padding-left: 3px;
+	padding-right: 3px;
+}
+.symbollist-result-element:hover {
+	background-color: #eaeaea;
+}
+
+.symbollist-inline-editor {
+	background-color: #eaeaea;	
+}
+
+.symbollist-inline-editor .result_value {
+	opacity: 1;
 }
 
 .symbollist-search {
 	width: calc(100% - 80px);
 }
 
+.symbollist-dialog {
+	background: #f1f1f1;
+	/*background: none;*/
+	border-width: 1px;
+	border-color: #777;
+	border-style: solid;
+	padding: 0;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 15px #4a6887;
+}
+
+.symbollist-contents {
+	background: #f1f1f1;
+}
+
+div.symbollist-dialog .ui-dialog-titlebar {
+	border-top-width: 0;
+	border-left-width: 0;
+	border-right-width: 0;
+	border-bottom-color: #777;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 10px #4a6887;
+	background: -webkit-linear-gradient(#fafafa, #cccccc); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#fafafa, #cccccc); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
+}
+
+.symbollist-results {
+	/*padding: 3px;*/
+}
+
+.observablelist-dialog {
+	background: white;
+	height: 100%;
+	overflow: auto;
+}
+
 .symbollist-search-box-outer {
-	border-bottom: 1px solid #BBBBBB;
-	margin-bottom: 4px;
+	box-shadow: 0 0 10px #719ECE;
+	border-bottom: 1px solid #719ECE;
+	background: #f1f1f1;
+	margin-bottom: 8px;
+	padding-top: 4px;
 	padding-bottom: 1px;
 }
 

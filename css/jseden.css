@@ -96,150 +96,7 @@ div.scrolldown {
 	margin-bottom: 5px;
 }
 
-div#functions-results {
-	overflow-y: hidden;
-	font-size: 12px;
-	bottom: 0px;
-}
-
-div#procedure-results {
-	overflow-y: hidden;
-	font-size: 12px;
-	bottom: 0px;
-}
-
-div#drawable-results {
-	overflow-y: hidden;
-        font-size: 12px;
-        bottom: 0px;
-}
-
-div#project-results {
-	overflow-y: hidden;
-	font-size: 12px;
-	bottom: 0px;
-}
-
-
-div.result-element {
-	/*border-bottom-width: 1px;
-	border-bottom-style: solid;
-	border-bottom-color: #d0d0d0;*/
-	position: relative;
-	left: 0px;
-	right: 0px;
-	height: 16px;
-	cursor: pointer;
-	overflow: hidden;
-	position: relative;
-	padding-left: 15px;
-	padding-right: 15px;
-	margin-bottom: 2px;
-}
-
-div#model-title {
-	font-size: 18pt;
-	font-family: 'Arial';
-	font-weight: bold;
-	position: absolute;
-	color: white;
-	top: 30px;
-	left: 490px;
-}
-
-div.demotip {
-	position: absolute;
-	font-size: 14pt;
-	font-weight: bold;
-	color: #ab0000;
-	opacity: 0.5;
-}
-
-div#observable-info {
-	position: absolute;
-	display: hidden;
-	min-width: 200px;
-	max-width: 450px;
-	min-height: 30px;
-	font-size: 12pt;
-}
-
-div#functions-info {
-        position: absolute;
-        display: hidden;
-        min-width: 200px;
-        max-width: 450px;
-        min-height: 30px;
-        font-size: 12pt;
-}
-
 div.results-lim {
-	overflow: hidden;
-}
-
-div#observable-info-point {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 10px;
-	bottom: 0px;
-	background-image: url('../images/point-edge.png');
-	background-repeat: no-repeat;
-	background-position: left center;
-}
-
-div#observable-info-content {
-	position: absolute;
-	left: 8px;
-	min-height: 30px;
-	background-color: #fafafa;
-	border-width: 1px;
-	border-color: #117fe5;
-	border-style: solid;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-}
-
-div#observable-info-name {
-	font-size: 12px;
-	font-family: 'Courier New';
-	margin: 2px;
-	margin-left: 4px;
-}
-
-div#functions-info-point {
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        width: 10px;
-        bottom: 0px;
-        background-image: url('../images/point-edge.png');
-        background-repeat: no-repeat;
-        background-position: left center;
-}
-
-div#functions-info-content {
-        position: absolute;
-        left: 8px;
-        min-height: 30px;
-        background-color: #fafafa;
-        border-width: 1px;
-        border-color: #117fe5;
-        border-style: solid;
-        -moz-border-radius: 5px;
-        border-radius: 5px;
-}
-
-div#functions-info-name {
-        font-size: 12px;
-        font-family: 'Courier New';
-        margin: 2px;
-        margin-left: 4px;
-}
-
-.result_value {
-	opacity: 0.5;
-	white-space: nowrap;
 	overflow: hidden;
 }
 
@@ -262,14 +119,6 @@ div#functions-info-name {
 .hasdef_text {
 	color: #00D400;
 	font-weight: bold;
-}
-
-textarea#observable-info-definition {
-		
-}
-
-textarea#functions-info-definition {
-
 }
 
 div#eden-input {
@@ -342,3 +191,127 @@ div.obs_inspector {
 div.history-error {
 	color: red;
 }
+
+div.message-box {
+	position: fixed;
+	width: 300px;
+	top: 45px;
+	/*min-height: 50px;*/
+	margin-left: calc(50% - 150px);
+	text-align: center;
+	background-color: #395069;
+	opacity: 0.9;
+	box-shadow: 0 0 10px black;
+	font: normal 11pt "Helvetica Neue", Sans-Serif;
+	vertical-align: middle;
+	color: white;
+	z-index: 20000;
+}
+
+div.message-errortext {
+	margin-top: 15px;
+	margin-left: 45px;
+	margin-bottom: 15px;
+	margin-right: 15px;
+}
+
+div.message-errortext:before {
+	position: absolute;
+	content: "";
+	left: 18px;
+	top: 10px;
+	content: "\f06a";
+	font-family: "FontAwesome";
+	font-size: 28px;
+	color: white;
+	width: 30px;
+	height: 30px;
+}
+
+div.message-infotext {
+	margin-top: 15px;
+	margin-left: 45px;
+	margin-bottom: 15px;
+	margin-right: 15px;
+}
+
+div.message-infotext:before {
+	position: absolute;
+	left: 18px;
+	top: 10px;
+	content: "\f05a";
+	font-family: "FontAwesome";
+	font-size: 28px;
+	color: white;
+	width: 30px;
+	height: 30px;
+}
+
+div.loaddialog {
+	width: 650px;
+	padding: 20px;
+	/*height: 150px;*/
+	background-color: white;
+	color: black;
+	font: bold 12px "Helvetica Neue", Sans-Serif;
+	margin-left: calc(50% - 325px);
+	top: 20%;
+	position: fixed;
+	text-align: center;
+	border-radius: 6px;
+	z-index: 200000;
+	box-shadow: 0 0 15px #4a6887;
+}
+
+div.loadmessage {
+	margin-top: 20px;
+}
+
+/* SPINNING LOADER */
+
+.mainloader {
+  /*margin-left: 50%;
+  margin-right: 50%;
+  top: 20%;*/
+  font-size: 6px;
+  /*position: fixed;*/
+	position: relative;
+	margin: auto;
+  text-indent: -9999em;
+  border-top: 1.1em solid rgba(0, 0, 0, 0.2);
+  border-right: 1.1em solid rgba(0, 0, 0, 0.2);
+  border-bottom: 1.1em solid rgba(0, 0, 0, 0.2);
+  border-left: 1.1em solid #666;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation: mainload8 1.1s infinite linear;
+  animation: mainload8 1.1s infinite linear;
+}
+.mainloader,
+.mainloader:after {
+  border-radius: 50%;
+  width: 8em;
+  height: 8em;
+}
+@-webkit-keyframes mainload8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes mainload8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+

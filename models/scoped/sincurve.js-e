@@ -1,0 +1,15 @@
+linelength is 517 / density;
+density = 67;
+amp = 76;
+i = 39;
+freq = 3;
+colour = "red";
+
+x1 is i * linelength;
+y1 is 150 + amp * sin(freq * i * linelength);
+x2 is i * linelength + linelength;
+y2 is 150 + amp * sin(freq * (i * linelength + linelength));
+
+myline is Line(x1, y1, x2, y2, colour);
+lines is myline with i is 1 .. density;
+picture is lines // myline with colour is "black";

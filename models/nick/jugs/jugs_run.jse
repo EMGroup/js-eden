@@ -1,0 +1,32 @@
+
+/**
+ * @title Jugs Model
+ * @author Nicolas Pope
+ */
+
+require("Canvas2D");
+
+import jugs/jugs;
+import jugs/display;
+import jugs/wmbupdate;
+import jugs/fill;
+import jugs/buttons;
+
+_view_picture_x = 40;
+_view_picture_y = 30;
+_view_picture_width = 450;
+_view_picture_height = 350;
+
+createView("fillAgent","ScriptInput");
+_view_fillAgent_agent = "jugs/fill";
+_view_fillAgent_x = 530;
+_view_fillAgent_y = 30;
+_view_fillAgent_width = 430;
+_view_fillAgent_height = 530;
+
+createView("buttonAgent","ScriptInput");
+_view_buttonAgent_agent = "jugs/buttons";
+_view_buttonAgent_x = 990;
+_view_buttonAgent_y = 30;
+_view_buttonAgent_width = 270;
+_view_buttonAgent_height = 530;

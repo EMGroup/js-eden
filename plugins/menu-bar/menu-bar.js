@@ -12,6 +12,9 @@
  * @class MenuBar Plugin
  */
 EdenUI.plugins.MenuBar = function (edenUI, success) {
+	EdenUI.plugins.MenuBar.title = Language.ui.menu_bar.title;
+	EdenUI.plugins.MenuBar.description = Language.ui.menu_bar.description;
+
 	var me = this;
 	this.itemViews = {};
 
@@ -29,11 +32,17 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		this.updateViewsMenu();
 	});
 
+	var pinnedIcon = "images/pin.png";
+	var notPinnedIcon = "images/pin-greyed.png";
+
 	var menudiv = $('<div id="menubar-main"></div>');
 	var menustatus = $('<div id="menubar-status"></div>');
 	menustatus.appendTo(menudiv);
 	menudiv.appendTo("body");
 	$('<div id="menubar-bottom"></div>').appendTo("body");
+
+	var menuStyle = getStyleBySelector(".menubar-menu");
+	menuStyle.maxHeight = "calc(100vh - " + String(30 + edenUI.scrollBarSize2) + "px)";
 
 	this.updateStatus = function (text) {
 		menustatus.html(Eden.htmlEscape(text, true, true));
@@ -48,11 +57,23 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	function hideMenu() {
 		$(".menubar-menu").hide();
 		menuShowing = false;
+		//Reset search box
+		var newWindowMenu = $("#menubar-mainitem-views");
+		newWindowMenu.children().css("display", "");
+		document.getElementById("menubar-view-type-search").value = "";
 	}
 
 	function showMenu(name) {
-		$("#menubar-mainitem-"+name).show();
+		var menu = $("#menubar-mainitem-"+name);
+		menu.show();
 		menuShowing = true;
+		var textboxes = menu.find('input[type="text"]');
+		if (textboxes.length > 0) {
+			setTimeout(function () {
+				textboxes[0].focus();
+				menu.scrollTop(0);
+			}, 0);
+		}
 	}
 
 	$(document.body).on('mousedown', function () {
@@ -62,13 +83,18 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	function addMainGroup() {
 		var group = $('<div></div>');
 		group.appendTo(menudiv);
+		group.menuGroupWidth = 0;
 		return group;
 	}
 	
 	function addMainItem(name, title, group) {
 		var menuitem = $('<div class="menubar-mainitem"></div>');
-		menuitem.html(title+'<div id="menubar-mainitem-'+name+'" class="menubar-menu"></div>');
+		menuitem.html(title);
 		menuitem.appendTo(group);
+		var width = menuitem[0].clientWidth + 10;
+		group.menuGroupWidth = group.menuGroupWidth + width + 10; //10px padding
+		menuitem[0].style.width =  width + "px";
+		menuitem.html(title + '<div id="menubar-mainitem-'+ name + '" class="menubar-menu"></div>');
 
 		$("#menubar-mainitem-"+name).hide();
 
@@ -82,11 +108,10 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 				showMenu(name);
 			}
 			e.stopPropagation();
-			e.preventDefault();
 		};
 
 		menuitem.on('mousedown', toggleMenu);
-		menuitem.on('mouseover', function () {
+		menuitem.on('mouseenter', function () {
 			if (menuShowing) {
 				hideMenu();
 				showMenu(name);
@@ -105,23 +130,42 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		hideMenu();
 		var root = edenUI.eden.root;
 		var followMouse = root.lookup("mouseFollow").value();
-		var viewNumberSym = root.lookup("_view_number");
+		var viewNumberSym = root.lookup("_views_number_created");
+		/* The number of views created is synchronized across clients even if the views themselves
+		 * are not, in case mouseFollow is enabled later.
+		 */
 		var viewNumber = viewNumberSym.value() + 1;
-		viewNumberSym.assign(viewNumber, Symbol.hciAgent, followMouse);
+		viewNumberSym.assign(viewNumber, root.scope, Symbol.hciAgent, true);
+		var viewType = this.view;
+		var viewName = viewType.slice(0, 1).toLowerCase() + viewType.slice(1) + viewNumber;
 		if (followMouse) {
-			edenUI.eden.execute("createView(\"view_" + viewNumber + "\", \"" + this.view + "\");");
+			edenUI.eden.execute('createView("' + viewName + '", "' + viewType + '");');
 		} else {
-			edenUI.createView("view_" + viewNumber, this.view);
+			edenUI.createView(viewName, viewType);
 		}
 		me.updateViewsMenu();
-		e.stopPropagation();
-		e.preventDefault();
 	}
 	
 	function onClickCloseWindow(e) {
-		e.preventDefault();
-		edenUI.destroyView(this.parentNode.viewname);
+		var name = this.parentNode.viewname;
+		if (edenUI.viewInstances[name].confirmClose) {
+			hideMenu();
+		}
+		edenUI.closeView(name);
 		existingViewsInstructions();
+	}
+	
+	function onClickPinWindow(e) {
+		var image = e.currentTarget.children[0];
+		var name = this.parentNode.viewname;
+
+		if (edenUI.viewInstances[name].pinned) {
+			edenUI.unpinView(name);
+			image.src = notPinnedIcon;
+		} else {
+			edenUI.pinView(name);
+			image.src = pinnedIcon;
+		}
 	}
 
 	function menuItem(parts) {
@@ -137,21 +181,19 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	}
 
 	function menuSeparator(name) {
-		return $("<div class='menubar-item'><div class='menubar-item-fullwidth menubar-item-separator'>" + name + "</div></div>");
+		return $("<div class='menubar-item menubar-nonselectable'><div class='menubar-item-fullwidth menubar-item-separator'>" + name + "</div></div>");
 	}
 
 	function hoverFunc(viewName) {
 		return {
 			mouseover: function (e) {
-				edenUI.highlight(viewName);
+				edenUI.highlightView(viewName, true);
 			},
 			mouseout: function (e) {
-				edenUI.stopHighlight(viewName);
+				edenUI.stopHighlightingView(viewName, true, false);
 			},
 			click: function (e) {
-				e.preventDefault();
-				edenUI.stopHighlight();
-				edenUI.showView(viewName);
+				edenUI.stopHighlightingView(viewName, true, true);
 				hideMenu();
 			}
 		};
@@ -162,13 +204,56 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		var existingViews = $("#menubar-mainitem-existing-views");
 		views.html("");
 
+		var searchBox = $('<input id="menubar-view-type-search" class="menubar-search-box" type="text" placeholder="search"/>');
+		var searchItemPart = $('<div class="menubar-item-fullwidth"></div>');
+		searchItemPart.append(searchBox);
+		var searchItem = $("<div class='menubar-item-search'></div>");
+		searchItem.append(searchItemPart);
+		
+		searchBox.on("input", function (event) {
+			var searchStr = event.target.value;
+			var re = new RegExp("(^|\\s)"+ searchStr, "i");
+			var lastCategory;
+			var categoryMatch = false;
+			views.children().each(function (index, element) {
+				if (element.classList.contains("menubar-item-search")) {
+					return;
+				}
+				var inner = element.children[0];
+				var name = inner.innerHTML;
+				var isCategory = inner.classList.contains("menubar-item-separator");
+				if (isCategory) {
+					if (searchStr.length > 1) {
+						categoryMatch = re.test(name);
+					}
+					lastCategory = element;
+					if (categoryMatch) {
+						element.style.display = "";
+					} else {
+						element.style.display = "none";
+					}
+				} else {
+					if (categoryMatch) {
+						element.style.display = "";
+					} else if (re.test(name)) {
+						element.style.display = "";
+						lastCategory.style.display = "";
+					} else {
+						element.style.display = "none";
+					}
+				}
+			});
+			setTimeout(function () {
+				views.scrollTop(0);
+			}, 0);
+		});
+
 		// First add supported view types
 		var viewArray = [];
 		var viewName;
 		var viewType;
 		var viewEntry;
-		var label;
-		var close;
+		var label, pin, close;
 
 		for (viewType in edenUI.views) {
 			var viewDetails = edenUI.views[viewType];
@@ -181,7 +266,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 
 			viewEntry = menuItem([label]);
 			viewEntry[0].view = viewType;
-			viewEntry.bind("click", onClickNewWindow);
+			viewEntry.click(onClickNewWindow);
 
 			viewArray.push({title: title, viewEntry: viewEntry,
 				categoryLabel: categoryLabel, categoryPriority: categoryPriority, itemPriority: itemPriority});
@@ -221,6 +306,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			}
 			item.viewEntry.appendTo(views);
 		}
+		views.append(searchItem);
 
 		existingViews.html("");
 
@@ -231,13 +317,22 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		for (viewName in edenUI.activeDialogs) {
 			var myHover = hoverFunc(viewName);
 			var title = edenUI.eden.root.lookup("_view_" + viewName + "_title").value();
-			label = menuItemPart('menubar-item-label', title +' [' + viewName + ']');
-			label.bind("click", myHover.click);
+			label = menuItemPart('menubar-item-label', title + ' <span class="menubar-view-name">[' + viewName + ']</span>');
+			label.click(myHover.click);
+
+			var pinImageURL;
+			if (edenUI.viewInstances[viewName].pinned) {
+				pinImageURL = pinnedIcon;
+			} else {
+				pinImageURL = notPinnedIcon;
+			}
+			pin = menuItemPart('menubar-item-pin', '<img src="' + pinImageURL + '" width="18" height="18" class="menubar-item-pin-icon"/>');
+			pin.click(onClickPinWindow);
 
 			close = menuItemPart('menubar-item-close', '<div class="menubar-item-close-icon">X</div>');
-			close.bind("click", onClickCloseWindow);
+			close.click(onClickCloseWindow);
 
-			viewEntry = menuItem([label, close]);
+			viewEntry = menuItem([label, pin, close]);
 			viewEntry.bind('mouseover', myHover.mouseover);
 			viewEntry.bind('mouseout', myHover.mouseout);
 			viewEntry[0].viewname = viewName;
@@ -247,12 +342,109 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		}
 	};
 
+	function checkedHTML(isChecked) {
+		return isChecked && isChecked != "false"? 'checked="checked"' : '';
+	}
+	
 	// Add main menu items
 	var jsedenGroup = addMainGroup();
-	addMainItem("views", "New Window", jsedenGroup);
-	addMainItem("existing-views", "Existing Windows", jsedenGroup);
+	function createMenus() {
+		addMainItem("views", Language.ui.menu_bar.main_views, jsedenGroup);
+		addMainItem("existing-views", Language.ui.menu_bar.main_existing, jsedenGroup);
+		me.updateViewsMenu();
 
-	// Put js-eden version in right corner
+		addMainItem("options", Language.ui.menu_bar.main_options, jsedenGroup);	
+
+		var optionsMenu = $("#menubar-mainitem-options");
+
+		function addCheckboxOption(optionName, description, defaultValue, onChange) {
+			var initialOptionValue = edenUI.getOptionValue(optionName);
+			if (initialOptionValue === null) {
+				initialOptionValue = defaultValue;
+			}
+			var checkbox = menuItemPart("menubar-item-input", '<input id="menu-' + optionName +'" type="checkbox"' + checkedHTML(initialOptionValue) + ' />');
+			var inputElement = checkbox.get(0).children[0];
+			var label = menuItemPart('menubar-item-label', description);
+			var item = menuItem([checkbox, label]);
+			item.click(function (event) {
+				if (event.target != inputElement) {
+					inputElement.checked = !inputElement.checked;
+				}
+				edenUI.setOptionValue(optionName, inputElement.checked);
+			});
+			edenUI.listenTo("optionChange", undefined, function (changedName, value) {
+				if (changedName == optionName) {
+					var ticked = (value === "true");
+					inputElement.checked = ticked;
+					if (onChange) {
+						onChange(optionName, ticked);
+					}
+				}
+			});
+			item.appendTo(optionsMenu);
+		}
+
+		addCheckboxOption("optConfirmUnload", Language.ui.menu_bar.opt_confirm, true, function(optName, confirm) {
+			if (confirm) {
+				window.addEventListener("beforeunload", confirmUnload);
+			} else {
+				window.removeEventListener("beforeunload", confirmUnload);
+			}
+		});
+		addCheckboxOption("optSimpleWildcards", Language.ui.menu_bar.opt_simple_search, true);
+		addCheckboxOption("optHideOnMinimize", Language.ui.menu_bar.opt_hide, false);
+		addCheckboxOption("optCollapseToTitleBar", Language.ui.menu_bar.opt_collapse, false, function (optName, collapse) {
+			var action;
+			if (collapse) {
+				action = "collapse";
+			} else {
+				action = "maximize";
+			}
+			$(".ui-dialog-content").each(function () { $(this).dialogExtend("option", "dblclick", action); });
+		});
+
+		addCheckboxOption("developer", Language.ui.menu_bar.opt_debug, false, function (optName, enabled) {
+			var pathname;
+			if (enabled) {
+				pathname = "/index-dev.html";
+			} else {
+				pathname = "/index.html";
+			}
+			var currentPath = document.location.pathname;
+			pathname = currentPath.slice(0, currentPath.lastIndexOf("/")) + pathname;
+			if (pathname != document.location.pathname) {
+				hideMenu();
+				edenUI.modalDialog(
+					"Restart Required",
+					'<p>JS-EDEN must be restarted for this change to fully take effect.  Would you like to restart JS-EDEN now?</p>',
+					["Restart Now", "Restart Later"],
+					1,
+					function (button) {
+						if (button == 0) {
+							//Restart, switching between minified and non-minified.
+							window.onbeforeunload = undefined;
+							document.location.pathname = pathname;
+						} else if (button == 1) {
+							//Don't restart but apply the debugging preference in as many areas as possible without restarting.
+							root.lookup("debug").mutate(function (symbol) { symbol.cached_value.jsExceptions = enabled; }, Symbol.hciAgent);
+						} else {
+							//Cancel the change.
+							var checkbox = document.getElementById("menu-developer");
+							checkbox.checked = !checkbox.checked;
+							edenUI.setOptionValue("developer", checkbox.checked);
+						}
+					}
+				);
+			} else {
+				//No need to restart, but do apply changes.
+				root.lookup("debug").mutate(root.scope, function (symbol) { symbol.cache.value.jsExceptions = enabled; }, Symbol.hciAgent);
+			}
+		});
+	}
+
+	createMenus();
+
+	// Put JS-EDEN version number or name in top-right corner.
 	$.ajax({
 		url: "version.json",
 		dataType: "json",
@@ -260,6 +452,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			var versionHtml = '';
 			if (data.tag) {
 				versionHtml += 'Version ' + data.tag;
+				document.title = document.title + " " + data.tag;
 			}
 			if (data.sha) {
 				versionHtml += ' Commit <a href="https://github.com/EMgroup/js-eden/commit/' + data.sha +'">' + data.sha + '</a>';
@@ -269,12 +462,11 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		cache: false
 	});
 
-	this.updateViewsMenu();
-
 	//Additional menus defined by the construal.
 	var construalGroup = addMainGroup();
 	
 	edenUI.eden.root.lookup("menus").addJSObserver("updateMenus", function (symbol, menus) {
+		construalGroup.menuGroupWidth = 0;
 		var previousChildren = construalGroup.children();
 		previousChildren.detach();
 		if (Array.isArray(menus)) {
@@ -287,9 +479,14 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 					menu.generate(menuDiv);
 				} else {
 					construalGroup.append(menu.element);
+					construalGroup.menuGroupWidth = construalGroup.menuGroupWidth + menu.element.clientWidth;
 				}
 			}
 		}
+		var statusStyle = menustatus[0].style;
+		var statusLeft = 20 + jsedenGroup.menuGroupWidth + construalGroup.menuGroupWidth;
+		statusStyle.left = statusLeft + "px";
+		statusStyle.minWidth = "calc(100% - " + (2 * statusLeft) + "px)";
 	});
 	
 	this.Menu = function (text, items) {
@@ -308,6 +505,11 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		}
 	}
 
+	this.Menu.prototype.toString = function () {
+		return "Menu(" + Eden.edenCodeForValues(this.text, this.items) + ")";
+	}	
+	this.Menu.prototype.getEdenCode = this.Menu.prototype.toString;
+
 	this.SimpleMenuItem = function (name, text) {
 		this.name = name;
 		this.text = text;
@@ -321,15 +523,19 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			item.bind("click", function (event) {
 				hideMenu();
 				var symbol = root.lookup(name + "_clicked");
-				symbol.assign(true);
-				symbol.assign(false);
+				symbol.assign(true, root.scope);
+				symbol.assign(false, root.scope);
 			});
 			this.element = item.get(0);
 		}
 	}
+	
+	this.SimpleMenuItem.prototype.toString = function () {
+		return "MenuItem(" + Eden.edenCodeForValues(this.name, this.text) + ")";
+	}	
+	this.SimpleMenuItem.prototype.getEdenCode = this.SimpleMenuItem.prototype.toString;
 
 	edenUI.eden.include("plugins/menu-bar/menu-bar.js-e", success);
 };
 
-EdenUI.plugins.MenuBar.title = "Menu Bar";
-EdenUI.plugins.MenuBar.description = "Creates the menu bar.";
+

@@ -1,0 +1,118 @@
+/**
+ * @title Alarm Panel
+ * @author Nicolas Pope, Patrick Sun
+ */
+
+import claytontunnel/alarm/buttons enabled;
+
+alarm_face is Circle(alarm_size / 2, alarm_size / 3, (alarm_size / 3 - alarm_size / 50), alarm_colour);
+alarm_colour = "pink";
+alarm_label is Text("ALARM", alarm_size / 2 - 25, alarm_size / 3 - 10, 14, "black");
+
+alarm_ringing = false;
+alarm_flash = false;
+
+alarm_ringlabel is Text("ringing" if alarm_ringing && alarm_flash else "", alarm_size / 2 - 25, alarm_size / 3 - 20, 15, "red");
+
+/*viewport alarm
+openshape ALARM
+within ALARM {
+    int size
+    
+    circle face
+    point face_centre
+    int face_radius
+    
+   face_centre = {size div 2, size div 3}
+   face_radius = (size div 3) - (size div 50)
+   face = circle(face_centre, face_radius)
+    
+   ? A_ALARM_face = "color=mistyrose2,fill=solid,outlinecolor=black";
+    
+    
+    label subtitle
+    subtitle = label("ALARM", face_centre)
+   ? A_ALARM_subtitle = "color=black,font=*-14-*"; 
+    
+    int len
+    boolean ringing, flash
+    line ringline0, ringline1, ringline2
+    point ringline0_pos, ringline1_pos, ringline2_pos
+    line ringline3, ringline4
+    point ringline3_pos, ringline4_pos
+    
+    len = size div 8
+    ringline0_pos = face_centre + {0, size div 2.5}
+    ringline1_pos = face_centre + {size div 2.5 @ pi div 4}
+    ringline2_pos = face_centre + {size div 2.5 @ 3 * pi div 4 }
+    ringline3_pos = face_centre + {size div 2.5 @ 3 * pi div 8}
+    ringline4_pos = face_centre + {size div 2.5 @ 5 * pi div 8 }
+    
+    ringline0 = [ringline0_pos, if (ringing && flash) then (ringline0_pos + {0, len}) else (ringline0_pos)]
+    ringline1 = [ringline1_pos, if (ringing && flash) then (ringline1_pos + {len @ pi div 4}) else (ringline1_pos)]
+    ringline2 = [ringline2_pos, if (ringing && flash) then (ringline2_pos + {len @ 3 * pi div 4}) else (ringline2_pos)]
+    ringline3 = [ringline3_pos, if (ringing && flash) then (ringline3_pos + {len @ 3 * pi div 8}) else (ringline3_pos)]
+    ringline4 = [ringline4_pos, if (ringing && flash) then (ringline4_pos + {len @ 5 * pi div 8}) else (ringline4_pos)]
+    
+    ?A_ALARM_ringline0 = "color=red";
+    ?A_ALARM_ringline1 = "color=red";
+    ?A_ALARM_ringline2 = "color=red";
+    ?A_ALARM_ringline3 = "color=red";
+    ?A_ALARM_ringline4 = "color=red";
+    
+    label ringtitle
+    ringtitle = label(if (ringing && flash) then ("ringing") else (""), ringline0_pos + {0, len + (size div 8)})
+    
+    ?A_ALARM_ringtitle = "color=red,font=*-14-*";
+    
+}
+
+%scout
+
+display alarmPanel;
+
+window alarmWin;
+point alarmWin_pos, alarmWin_size;
+integer alarmWin_pos_x, alarmWin_pos_y;
+integer alarmWin_size_x, alarmWin_size_y;
+string alarmPort;
+
+alarmWin_pos = {alarmWin_pos_x, alarmWin_pos_y};
+alarmWin_size = {alarmWin_size_x, alarmWin_size_y};
+
+alarmWin = {
+   box : [alarmWin_pos, alarmWin_pos + alarmWin_size],
+   pict : alarmPort,
+   type : DONALD,
+   relief : "raised",
+   xmin : 0,
+   ymin : 0,
+   xmax : alarmWin_size_x,
+   ymax : alarmWin_size_y
+};
+
+
+*/
+
+when (alarm_ringing && alarm_flash != @) {
+	wait 200;
+	alarm_flash = !alarm_flash;
+}
+
+alarmPort = "alarm";
+alarmWin_size_x is alarm_size;
+alarmWin_size_y is alarm_size;
+alarm_ringing = false;
+alarm_flash = false;
+alarm_size = 150;
+alarmWin_pos_x = 208;
+alarmWin_pos_y = 320;
+
+createView("alarmWin", "Canvas2D");
+_view_alarmWin_observable = "alarmPanel";
+_view_alarmWin_width = alarmWin_size_x;
+_view_alarmWin_height = alarmWin_size_y;
+_view_alarmWin_title = "Alarm";
+
+alarmPanel is [alarm_face, alarm_label, offButton, alarm_ringlabel];
+alarmWin is [Translate(alarmWin_pos_x, alarmWin_pos_y, alarmPanel)];

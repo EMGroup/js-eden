@@ -69,8 +69,7 @@ ${{
 	};
 
 	LinearGradient.prototype.toString = function() {
-		return "LinearGradient(" + this.x1 + ", " + this.y1 + ", " + this.x2 +
-			", " + this.y2 + ", " + Eden.edenCodeForValue(this.colourStops) + ")";
+		return "LinearGradient(" + Eden.edenCodeForValues(this.x1, this.y1, this.x2, this.y2, this.colourStops) + ")";
 		
 	};
 

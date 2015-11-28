@@ -1,0 +1,466 @@
+include("models/jspe/run.e");
+
+## erratum
+
+mirror12 is Line(visraypt(1,2)[1] - size12, visraypt(1,2)[2] + size12*mirrorGrid[1][2], visraypt(1,2)[1] + size12, visraypt(1,2)[2] - size12*mirrorGrid[1][2], mirrorcol);
+
+/*
+
+What is the lightbox?
+
+Have a screenshot to hand to explain what it is:
+The Light Box is a square box with 16 cells inside it that are arranged in a 4 by 4 square grid.
+The box can be configured in many different ways by placing mirrors within some of the cells.
+A cell may not have a mirror in it.
+If there is, the mirror is oriented across the diagonal of a cell so that it goes from SW to NE ("forward") or NW to SE ("backward").
+
+The Light Box is a good object to experiment with.
+
+
+
+Preamble with the physical lightbox - it has some configuration within it, and you have to decide what the configuration is.
+
+For this purpose, you experiment ...
+
+... what you think is happening inside the box is an example of a 'construal'
+
+'how you think it works'
+
+Issues - limits of observation:
+	- can't take the top off the box
+	- have to very careful in the experimenting to align the input ray carefully so as to get any output at all!
+	- not safe to squint into the box
+	
+	- spurious possibilities for observation in the physical system
+		- probably easy to send a ray of light right through without hitting a mirror but difficult if hits 7 mirrors
+			how easy it is to get a ray to come out might be an observable
+	
+	- also matter of the speed of light - could we in principle measure the delay between input and output?
+	
+Quote from Feynman about physics and mathematics / ignorance - and uncertainty
+
+The idea of disproving a hypothesis is just as important as establishing it: and the may be partial results:
+- you might not know how the mirrors are arranged but you can certainly discount certain possibilities.
+
+Questions that come to mind ...
+
+	is it possible that we don't get an output - for instance can the light 
+		go into the lightbox, round and round and never come out?
+		come out at the same point as it goes in?
+
+	what is our construal of the light going round and round inside the box?
+		must be passing around a cycle of mirrors, but how could it enter such a cycle?
+	
+	what is our construal of the light coming back out where it goes in?
+		would happen if we oriented the mirrors in a different way, for sure
+		seems though that the only way a ray of light could emerge where it entered
+			is if the ray itself was reflected back on iself
+	
+	both of these could perhaps happen if we could turn a mirror round faster than the speed of light
+	... so context is very important
+	
+	what would happen if we shone a ray back in the direction that it has just come out:
+		it would come out where it started
+	
+	it seems then that every mirror configuration connects inputs in pairs
+	- so its a product of disjoint transpositions associated with a partition of 16 into 8 pairs
+	
+	how many partitions of 16 into pairs are there, and can we realise them all?
+
+	counting things might be helpful: how many mirror configurations are there?
+	
+	... making a construal won't necessarily give us answers, but will help us to document our
+		understanding as it develops
+		
+	... just how we get to understand things / approach things we don't understand is very personal
+		give you some resources / ideas to play with
+
+*/
+
+introLB is Slide("
+<h3>The Light Box</h3>
+<p>
+The Light Box is a square box with 16 cells inside arranged in a 4-by-4 grid. Each cell can contain a mirror
+that faces forwards (/) or backwards (\). Try out the physical light box ... can you find the hidden mirrors?
+</p>
+<p>
+<b>How it works ...</b>
+<ul>
+<li>Hover the mouse over a cell. Click on the grey circle to set up your mirrors.
+<li>Click on the torches to send light rays through the box.</li>
+</ul>
+</p>
+<p>
+<b>Questions</b>
+<ul>
+<li>can you figure out where all the mirrors are by looking at the rays?</li>
+<li>What is the longest ray you can make?</li>
+<li>What is the total length of the rays?</li>
+<li>
+Can you arrange four mirrors so that the behaviour of all the rays is the same no matter what the status of one of the mirrors is?
+</li>
+</ul>
+</p>
+<p>
+<b>Things you can do ...</b>
+<jseden>
+showObservables(\"mirrorGrid|inl1_toggle|grid|rayN11col|ray12N|mirrors\");
+arrangeWindows([\"picture\", \"showObservables\", \"jspe\"]);
+</jseden>
+</p>
+<p>
+The observable <code>rayN11col</code> is the colour of the torch at the top left. Click on it. You can change its value.
+</p>
+<p>
+Call a secret agent to set up hidden mirrors so that (I think!) you can find out where all the mirrors are. Let's see if I'm right:
+<jseden>
+callsecretagent = true;
+</jseden>
+</p>
+");
+
+slideA1_introLB is Slide("
+
+<h3>About the construal ...</h3>
+<p>
+What do you think about when you're playing with the lightbox?
+You look at the place where a light ray enters the box, and where it comes out.
+You think about where the mirrors might be positioned within the box. These are examples of observables. 
+Though you can't always see an observable directly, you are aware of it.
+What you think about will depend on what you can observe, or is of interest to you in your experiment.
+For instance, if we could measure how long it took for a ray of light to pass through the box, or how much brightness had been lost,
+we might be able to say how far it had travelled and how many mirrors it had hit. 
+</p>
+<p>
+The construal keeps track of the observables.  Click the \"execute\" link below to see some interesting observables.
+</p>
+<jseden>
+showObservables(\"mirrorGrid|inl1_toggle|grid|rayN11col|ray12N|mirrors\");
+arrangeWindows([\"picture\", \"showObservables\", \"jspe\"]);
+</jseden>
+<p>
+Hover the mouse over the 'green' observables to see how they are defined. Hover over the cells in the grid and a grey circle will appear at its centre. You can change the status of the mirror in the cell by clicking on this grey circle and see how the values of the observables change. You'll see that as you click the mirror cycles through three states: forward-facing, backward-facing or not there. <i>Can you guess what each of the observables in the Observable List means?</i>
+</p>
+<p>
+You can also open an observable list by selecting \"Observable List\" from the \"New Window\" menu.  You can type different things into the search box to look at different groups of observables.
+</p>
+");
+
+slideA2_randomconfig is Slide("
+<h3>Emulating the physical Light Box</h3>
+<p>
+You can make a game out of the lightbox by imitating what you've done with the physical box:
+</p>
+<p>you first cover the board, then execute:
+<jseden>
+mirrorGrid = [[randomInteger(1,3)-2, randomInteger(1,3)-2, randomInteger(1,3)-2, randomInteger(1,3)-2], [randomInteger(1,3)-2, randomInteger(1,3)-2, randomInteger(1,3)-2, randomInteger(1,3)-2], [randomInteger(1,3)-2, randomInteger(1,3)-2, randomInteger(1,3)-2, randomInteger(1,3)-2], [randomInteger(1,3)-2, randomInteger(1,3)-2, randomInteger(1,3)-2, randomInteger(1,3)-2]];
+</jseden>
+</p>
+<p>
+Then try to work out where the mirrors are!
+</p>
+<p>
+After some experimenting, you may wonder what you <i>can</i> work out about the mirrors.
+For instance, you may start to ask questions like:<i><ol>
+<li>is it always possible to figure out where all the mirrors are by looking at the rays?</li> 
+<li>is it possible to be sure about the position of even just one mirror?</li>
+<li>is it <b>ever</b> possible to figure out where all the mirrors are by looking at the rays?</li> 
+</ol></i>
+</p>
+");
+
+A_introLB is [introLB, slideA1_introLB, slideA2_randomconfig];
+
+B_answerstoques is Slide("
+<h3>What do I know?</h3>
+<p>
+Making construals is a personal journey. I'll tell you something about mine and illustrate it with examples.
+It is up to you to make your own.
+</p>
+<p>To tell you what I know would spoil it for you. Besides, though at first I expected some answers to be obvious, I was surprised.
+Indeed, I still don't know very much about the Light Box! In the next few slides, I'll pose some questions and challenges.
+I've collected some examples of mirror arrangements at the end of this playsheet. Some of them will at once give you answers
+that it would be more fun to find for yourself. I expect that you may be able to find new answers.
+</p>
+");
+
+B_answers1to3 is Slide("
+<h3>More about questions 1 to 3</h3>
+<p>
+1. I suggest you try to find two configurations of mirrors where the light rays behave in exactly the same way.
+</p>
+<p>
+2. The answer to this is 'yes', but I don't have a very interesting example of where this is true.
+</p>
+<p>
+3. I've prepared a version of the covered light box experiment where the mirror configuration is one that you may be able to determine.
+(I'm not sure that I know why it's determined, but I suspect it might be.) To prevent you from reading off the answer from my definition of
+<code>mirrorGrid</code>, I've hidden everything by getting a secret agent to set the configuration up:
+<jseden>
+callsecretagent = true;
+</jseden>
+</p>
+");
+
+B_itgetsworse is Slide("
+<h3>It gets worse</h3>
+<p>
+Before we move on to questions that we may be able to answer, here's a challenge:
+</p>
+<p>
+<i>
+Can you arrange four mirrors so that the behaviour of all the rays is the same no matter what the status of one of the mirrors is? 
+</i>
+</p>
+<p>
+Of course, if you can, you will know the answer to question 1 - if you don't know it already. 
+</p>
+<p>
+There are ways in which we could use the light box construal to help us to explore the answers.
+In its current state, not all the inputs generate rays of different colours.
+You can check this out by copying-and-pasting <code>ray.*col</code> into the Observable List search box.
+This will show you that all the rays that come from the north, west, east and south are red, green, black and orange respectively.
+If you have more than one input ray and you're in any doubt about where a ray comes out, you can change it's colour:
+<jseden>
+rayE24col = \"purple\";
+</jseden> 
+</p>
+<p>
+It might be an interesting exercise to find different colours for all the 16 inputs so that it is as easy as possible to tell them apart.
+</p>
+</p>
+");
+
+B_morequesLB is [B_answerstoques, B_answers1to3, B_itgetsworse];
+
+C1_reraylengths is Slide("<h3>Re the length of rays</h3>
+<p>
+Some natural questions arise when you start exploring the light box: 
+<i>
+<ol>
+<li>What is the total length of the rays? Is it fixed? What values can it take?</li>
+<li>How might you construct a long / the longest ray?</li>
+</ol>
+</i>
+</p>
+<p>
+To help you explore these questions, you can create some new observables:
+<br>
+... the lengths of the individual rays ...
+</p>
+<jseden>
+lenray11N is ray11N#-1;
+lenray12N is ray12N#-1;
+lenray13N is ray13N#-1;
+lenray14N is ray14N#-1;
+lenray11W is ray11W#-1;
+lenray21W is ray21W#-1;
+lenray31W is ray31W#-1;
+lenray41W is ray41W#-1;
+lenray41S is ray41S#-1;
+lenray42S is ray42S#-1;
+lenray43S is ray43S#-1;
+lenray44S is ray44S#-1;
+lenray44E is ray44E#-1;
+lenray34E is ray34E#-1;
+lenray24E is ray24E#-1;
+lenray14E is ray14E#-1;
+</jseden>
+<p>
+&hellip;and the total length of all the rays:
+</p>
+<jseden>
+totalraylength is (lenray11N + lenray12N + lenray13N + lenray14N + lenray11W + lenray21W + lenray31W + lenray41W + lenray41S + lenray42S + lenray43S + lenray44S + lenray44E + lenray34E + lenray24E + lenray14E)/2;
+</jseden>
+<p>
+&hellip;and the length of the longest ray in the current configuration:
+</p>
+<jseden>
+longestraylength is max(lenray11N, lenray12N, lenray13N, lenray14N, lenray11W, lenray21W, lenray31W, lenray41W, lenray41S, lenray42S, lenray43S, lenray44S, lenray44E, lenray34E, lenray24E, lenray14E);
+</jseden>
+<p>
+You can keep a live check on these values by copying-and-pasting <code>len|total</code> into an Observable List. 
+</p>
+"); 
+
+C_andfinally is Slide("
+<h3>
+And finally - some questions we CAN answer? ..
+</h3>
+<p>
+Some questions that should be easier to answer:
+<i>
+<ul>
+<li>
+How small can the total length of the rays be?
+</li>
+<li>
+How small can an individual ray be?
+</li>
+<li>
+How small can the size of the ray of maximal length be?
+</li>
+</ul>
+</i>
+</p>
+... and some, for the more mathematically minded, that may not be!
+<i>
+<ol>
+<li>
+Why is the mapping of inputs to outputs always a permutation of 1,...,16?
+Which permutations occur?
+</li>
+<li>
+Why is the pairing of inputs to outputs always a partition of {1,...,16}?
+Do all partitions occur?
+</li>
+<li>
+Can you count the number of permutations and partitions that arise this way?
+How does this compare with the number of mirror configurations?
+</li>
+</ol>
+</i>
+");
+
+C_mathsasconstrual is Slide("
+<h3>Maths as construal ...</h3>
+<p>
+You can make a construal in your head that answers maths question 3.
+In fact, counting is a kind of construal - putting things into a state where we can see structure - like laying out the coins in our purse in a row.
+</p>
+<p>
+The rays in the lightbox match the 16 inputs into 8 pairs. A permutation of 16 is an arrangement of the numbers 1 to 16. Here's one:
+<pre>
+7 3 9 8 10 16 15 4 11 2 12 1 14 6 3 5
+</pre>
+which you can think of as a possible pairing of inputs by rays:
+<pre>
+7 3 | 9 8 | 10 16 | 15 4 | 11 2 | 12 1 | 14 6 | 3 5
+</pre>
+The same pairing will come from:
+<pre>
+7 3 | 9 8 | 10 16 | 15 4 | 11 2 | 12 1 | 14 6 | 3 5
+</pre>
+</p>
+<p>
+Which permutations of 1 to 16 will give the same pairing?
+</p>
+<p>
+Exchanging the numbers in each pair gives the same pairing. There are X ways to make such exchanges.
+So does making a permutation of the 8 pairs. There Y ways to do this.
+That means that each possible pairing of inputs comes from XY different permutations of 1 to 16.
+So if there are Z permutations of the numbers 1 to 16, there will be Z/XY possible pairings.
+</p>
+<p>
+We need to compare the number of possible pairings with the number of mirror configurations, which is of course T.
+You get the answer to question 3 by comparing Z/Y and XT.
+With the right construals of Z/Y and XT, you won't need a calculator to get the answer
+</p>
+<p>
+All you need to know to answer question 2 are the right construals of X, Y, Z and T. Beware that, with the wrong construal of 'possible pairing', you may think that we have also answered question 2, but that is another matter!
+</p>
+");
+
+C_whatisnotmaths is Slide("
+<h3>The actual and idealised Light Box</h3>
+<p>
+We're grateful to Rod Moore for making the physical light box. It was not an easy task: if a mirror isn't perfect or it's orientation isn't quite right, 'errors' in the path of a ray multiply each time it is reflected.  
+</p>
+<p>
+Our construal of the Light Box doesn't reflect this. You can see this from a mistake we made in defining one of the mirrors. We fixed the error, but we can put the bad definition back:
+<jseden>
+callgremlin = true;
+</jseden>
+</p>
+<p>
+See if you can find the mistake - as a hint, it has to do with the first two mirrors in the top row of the box. Physically crazy things happen as a result of our mistake - the length and orientation of a mirror change, but the rays of light that hit the mirror behave as if nothing had happened.
+In this way, you can see that our construal is an idealisation - a sort of illusion about the physical world. Even though our mistake doesn't affect the way the rays are reflected, and we can still tell what state the mirror is meant to be in, the 'broken mirror' troubles us. We simply have to call an engineer ...
+<jseden>
+callengineer = true;
+</jseden>
+</p>
+");
+
+C_miscquesLB is [C1_reraylengths, C_andfinally, C_mathsasconstrual, C_whatisnotmaths];
+
+D_aspromised is Slide("
+<h3>Grids to reflect on - as promised</h3>
+</p>
+<jseden>
+mirrorGrid = [[0, 0, 0, 0], [-1, 0, 0, -1], [-1, 0, 0, 1], [0, 0, 0, 0]];
+</jseden>
+<p>
+<jseden>
+mirrorGrid = [[0, 0, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
+</jseden>
+</p>
+<jseden>
+mirrorGrid = [[0, 0, 0, 0], [-1, -1, 0, -1], [-1, 1, 0, 1], [0, 0, 0, 0]];
+</jseden>
+</p>
+<jseden>
+mirrorGrid = [[0, 0, 0, 0], [-1, -1, -1, -1], [-1, 1, 1, 1], [0, 0, 0, 0]];
+</jseden>
+<jseden>
+mirrorGrid = [[0, 0, 0, 0], [0, -1, -1, -1], [-1, 1, 1, 1], [0, 0, 0, 0]];
+</jseden>
+<jseden>
+mirrorGrid = [[0, 0, 0, 0], [1, -1, -1, -1], [-1, 1, 1, 1], [0, 0, 0, 0]];
+</jseden>
+</p>
+<jseden>
+mirrorGrid = [[1, 0, -1, 0], [-1, 0, -1, -1], [0, 1, 1, 1], [0, 1, -1, 0]];
+</jseden>
+<jseden>
+mirrorGrid = [[0, 0, 0, 0], [1, -1, 0, -1], [-1, 1, 0, 1], [0, 0, 0, 0]];
+</jseden>
+<jseden>
+mirrorGrid = [[0, 1, -1, 0], [1, -1, 1, -1], [-1, 1, -1, 1], [0, -1, 1, 0]];
+</jseden>
+<jseden>
+mirrorGrid = [[0, 1, -1, 0], [1, 0, 0, -1], [-1, 0, 0, 1], [0, -1, 1, 0]];
+</jseden>
+<jseden>
+mirrorGrid = [[1, -1, 1, -1], [-1, 0, 1, -1], [1, 0, -1, 0], [-1, 1, -1, -1]];
+</jseden>
+<jseden>
+mirrorGrid = [[1, 0, 1, -1], [0, 1, 0, 1], [1, 0, 1, 0], [-1, 1, 0, 1]];
+</jseden>
+</p>
+");
+
+slideList is A_introLB // B_morequesLB // C_miscquesLB // [D_aspromised];
+
+## candidate for unique output
+
+## mirrorGrid = [[1, 0, 1, -1], [0, 1, 0, 1], [1, 0, 1, 0], [-1, 1, 0, 1]];
+
+callsecretagent= false;
+
+proc setupmirrorconfig : callsecretagent {
+	if (callsecretagent) {
+		gridVisible = false;
+		if (!gridVisible) mirrorGrid = [[1, 0, 1, -1], [0, 1, 0, 1], [1, 0, 1, 0], [-1, 1, 0, 1]];
+		callsecretagent = false;
+	}
+}
+
+callgremlin = false;
+
+proc messupmirrorconfig : callgremlin {
+	if (callgremlin) {
+		mirror12 is Line(visraypt(1,2)[1] - size12, visraypt(1,2)[2] + size11*mirrorGrid[1][2], visraypt(1,2)[1] + size12, visraypt(1,2)[2] - size12*mirrorGrid[1][2], mirrorcol);
+		callgremlin = false;
+	}
+}
+
+
+callengineer = false;
+
+proc restoremirrorconfig : callengineer {
+	if (callengineer) {
+		mirror12 is Line(visraypt(1,2)[1] - size12, visraypt(1,2)[2] + size12*mirrorGrid[1][2], visraypt(1,2)[1] + size12, visraypt(1,2)[2] - size12*mirrorGrid[1][2], mirrorcol);
+		callenginer = false;
+	}
+}
+

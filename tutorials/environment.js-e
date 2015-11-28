@@ -1,0 +1,38 @@
+createView("input_dialog","ScriptInput");
+createCanvas("picture");
+
+include("tutorials/common.js-e");
+
+_view_input_dialog_x = 483;
+_view_input_dialog_y = 77;
+_view_input_dialog_width = 585;
+_view_input_dialog_height = 320;
+
+b = 4;
+c = b + 2;
+
+textB is Text("b -> " // str(b), 45,30,26);
+textC is Text("c -> " // str(c), 45,60,26);
+
+picture is [textB,textC];
+
+_view_input_dialog_script = [
+"## Tutorial 1",
+"## The JS-Eden Environment",
+"",
+"b = 4;",
+"c = b + 2;",
+"",
+"## Models are constructed mostly by entering definitions in",
+"## this script input window. However, it is not like a program,",
+"## only the statements that you change are updated. This means,",
+"## for example, that if you edit 'b', then 'c' will not change",
+"## value unless you also edit 'c'.",
+"",
+"## Note: You can also drag numbers with the mouse to change them"
+];
+
+_view_picture_x = 147;
+_view_picture_y = 143;
+_view_picture_width = 210;
+_view_picture_height = 190;

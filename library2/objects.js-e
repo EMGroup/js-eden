@@ -1,0 +1,203 @@
+## Copyright (c) 2014, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+##
+##Functions applicable to JavaScript objects of any prototype (or none).
+
+##hasProperty(p, obj) returns true if the object obj has a property named p.
+##(p is a string) and false otherwise.
+func hasProperty {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("hasProperty: This function requires exactly 2 arguments."), "error");
+		}
+		if (typeof(arguments[0]) != "string") {
+			eden.error(new Error("hasProperty: The first argument must be a string, not a " + typeof(arguments[0])), "error");
+			return undefined;
+		}
+		if (typeof(arguments[1]) != "object") {
+			eden.error(new Error("hasProperty: The second argument must be an object, not a " + typeof(arguments[1])), "error");
+			return undefined;
+		}
+		if (arguments[1] === null) {
+			eden.error(new Error("hasProperty: The second argument cannot be null."), "error");
+			return false;
+		}
+		var property = arguments[0];
+		var obj = arguments[1];
+		return property in obj;
+	}}$;
+}
+
+##lookup(p, obj) returns the value of the property of obj named p.
+func lookup {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("lookup: This function requires exactly 2 arguments."), "error");
+		}
+		if (arguments[0] === undefined) {
+			return udefined;
+		}
+		if (arguments[1] === undefined || arguments[1] === null) {
+			return undefined;
+		}
+		if (typeof(arguments[0]) != "string") {
+			eden.error(new Error("lookup: The first argument must be a string, not a " + typeof(arguments[0])), "error");
+			return undefined;
+		}
+		if (typeof(arguments[1]) != "object") {
+			eden.error(new Error("lookup: The second argument must be an object, not a " + typeof(arguments[1])), "error");
+			return undefined;
+		}
+		var property = arguments[0];
+		var obj = arguments[1];
+		return obj[property];
+	}}$;
+}
+
+##setProperty(p, v, obj) sets the property of obj named p to the value v.
+proc setProperty {
+	${{
+		if (arguments.length != 3) {
+			eden.error(new Error("setProperty: This procedure requires exactly 3 arguments."), "error");
+		}
+		if (typeof(arguments[0]) != "string") {
+			eden.error(new Error("setProperty: The first argument must be a string, not a " + typeof(arguments[0])), "error");
+			return undefined;
+		}
+		if (typeof(arguments[2]) != "object") {
+			eden.error(new Error("setProperty: The third argument must be an object, not a " + typeof(arguments[2])), "error");
+			return undefined;
+		}
+		if (arguments[2] === null) {
+			eden.error(new Error("setProperty: The third argument cannot be null."), "error");
+			return undefined;
+		}
+		if (Array.isArray(arguments[2])) {
+			eden.error(new Error("setProperty: The third argument must be an object, not a list."), "error");
+			return undefined;
+		}
+		var property = arguments[0];
+		var value = arguments[1];
+		var obj = arguments[2];
+		obj[property] = value;
+	}}$;
+}
+
+##Returns a list of all of the property names belonging to an object.
+func properties {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("properties: This function requires exactly 1 argument."), "error");
+		}
+		if (arguments[0] === undefined) {
+			return undefined;
+		}
+		if (typeof(arguments[0]) != "object") {
+			eden.error(new Error("properties: The argument must be an object, not a " + typeof(arguments[0])), "error");
+			return undefined;
+		}
+		if (arguments[0] === null) {
+			return [];
+		}
+		var obj = arguments[0];
+		var index = 0;
+		var props = [];
+		for (var key in obj) {
+			props[index] = key;
+			index++;
+		}
+		return props;
+	}}$;
+}
+
+##The if...then...else procedural statement is parallelled by the declarative
+##tenary operator (a? b : c).  This function provides a similar parallel for the
+##switch statement.
+##
+##Several different argument formats are available.
+##
+##(1) choose(i, list)
+##The ith item from the list will be returned.  Unlike the expression list[i],
+##if i is greater than the number of items in the list or if i is undefined then
+##an error will be raised.
+##
+##(2) choose(p, obj)
+##Returns the value of property named p belonging to the object obj.  If obj
+##does not have a property named p or if p or obj are undefined then an error
+##will be raised.
+##
+##(3) choose(findKey, keyList, valueList)
+##Searches through keyList for findKey.  Suppose that findKey is found and let
+##the first index at which it is found in keyList be i.  valueList[i] is
+##returned.  Raises an error if findkey is not found in the keyList.
+##
+##(4) choose(findKey, key1, val1...keyN, valN)
+##Searches for lowest value of I such that keyI is equal to findKey and then
+##returns the associated value valI.  Raises an error if findkey is not found.
+##
+##For formats (3) and (4), if findKey is the Boolean constant true and the keys
+##are Boolean expressions then choose is a declarative version of if...else if...
+##
+func choose {
+	auto index, keys, items, i;
+	if ($# < 2) {
+		error("choose: This function requires at least 2 arguments.");
+		return @;
+	}
+
+	index = $[1];
+	if (isInt(index) && $# == 2 && isList($[2])) {
+		items = $[2];
+		if (index <= 0) {
+			error("choose: Cannot choose item " // str(index) // " from a list.");
+			return @;
+		} else if (index > items#) {
+			error("choose: Cannot choose item " // str(index) // " from a list of " // str(items#) // " items.");
+			return @;
+		} else {
+			return items[index];
+		}
+	} else if ($# == 2 && isObject($[2])) {
+		if (!isString(index)) {
+			error("choose: Cannot choose item " // str(index) // ".  Not a valid object key.");
+			return @;
+		}
+		items = $[2];
+		if (!hasProperty(index, items)) {
+			error("choose: Cannot choose item " // index // ".  " // index // " is not a property of the given object.");
+			return @;
+		} else {
+			return lookup(index, items);
+		}
+	} else if ($# == 3 && isList($[2]) && isList($[3])) {
+		keys = $[2];
+		items = $[3];
+		for (i = 1; i <= keys#; i++) {
+			if (keys[i] == index) {
+				if (i <= items#) {
+					return items[i];
+				} else {
+					error("choose: Cannot choose item " // str(index) // ". Not enough values provided.");
+					return @;
+				}
+			}
+		}
+		error("choose: Cannot choose item " // str(index) // ".  Key not found.");
+		return @;
+	} else {
+		items = sublist($, 2, $#);
+		if (items# % 2 != 0) {
+			error("choose: The number of keys given must match the number of values.");
+			return @;
+		}
+		for (i = 1; i < items#; i = i + 2) {
+			if (items[i] == index) {
+				return items[i + 1];
+			}
+		}
+		error("choose: Cannot choose item " // str(index) // ".  Key not found.");
+		return @;
+	}
+}

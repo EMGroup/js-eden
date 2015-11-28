@@ -4,18 +4,36 @@
 ## See LICENSE.txt
 
 ##Initialize observables
+mouseButton = "";
 mouseButtons = "";
 mouseCapture = false;
 mouseCaptured = false;
 mouseContextMenuEnabled = false;
 mouseDoubleClicks = 0;
+mouseDown = @;
+mouseDownView = @;
+mouseDownZone = @;
 mouseFollow = false;
+mousePosition = @;
+mousePressed = false;
+mouseUp = @;
 mouseWheel = 0;
-touchScrollX = 0;
+mouseWheelEnabled = false;
+mouseWheelSpeed = 0;
+mouseView = @;
+mouseX is mousePosition == @? @ : mousePosition.x;
+mouseY is mousePosition == @? @ : mousePosition.y;
+mouseZone = @;
+pixel is 1 / _view_picture_scale;
+touchPanX = 0;
+touchPanXSpeed = 0;
+touchPinch = 0;
+touchPinchEnabled = false;
+
 
 ${{
 	root.lookup("mouseCapture").addJSObserver("releaseCapture", function (obs, lock) {
-		if (!lock) {
+		if (!lock && document.exitPointerLock) {
 			document.exitPointerLock();
 		}
 	});
@@ -46,7 +64,7 @@ ${{
 ##
 proc attemptMouseCapture {
 	${{
-		var canvasName = root.lookup("mouseWindow").value();
+		var canvasName = root.lookup("mouseView").value();
 		if (canvasName !== undefined) {
 			canvases[canvasName].requestPointerLock();
 		}
@@ -58,13 +76,11 @@ proc attemptMouseCapture {
 ##is the name of the observable who's value provides the list of drawables.  The
 ##second, optional parameter, is the text to place into the window's title bar.
 proc createCanvas {
-	auto viewName, obsName, viewTitle, drawPicture;
+	auto obsName, viewTitle, viewName;
 	if ($# == 1) {
 		obsName = $[1];
-		viewName = obsName;
 	} else if ($# == 2) {
 		obsName = $[1];
-		viewName = obsName;
 		viewTitle = $[2];
 	} else if ($# == 3) {
 		viewName = $[1];
@@ -75,15 +91,19 @@ proc createCanvas {
 			return;
 		}
 	} else {
-		error("createCanvas: This procedure requires at least 1 argument and at most 2 arguments.");
+		error("createCanvas: This procedure requires at least 1 argument and at most 3 arguments.");
 		return;
 	}
 	
-	if (!isString(obsName)) {
-		error("createCanvas: The observable name must be expressed as a string, not a " // type(obsName));
+	if (isPointer(obsName)) {
+		obsName = nameof(obsName);
+	} else if (!isString(obsName)) {
+		error("createCanvas: The observable name must be expressed as a string or a pointer, not a " // type(obsName));
 		return;
 	}
-
+	if (viewName == @) {
+		viewName = obsName;
+	}
 	if (viewTitle != @ && !isString(viewTitle)) {
 		error("createCanvas: The window title must be a string, not a " // type(viewTitle));
 		return;
@@ -93,14 +113,11 @@ proc createCanvas {
 		`obsName` = [];
 	}
 
-	drawPicture = ${{ function (viewName, obsName) {
-		edenUI.plugins.Canvas2D.drawPicture(viewName, obsName);
-	} }}$;
-	
-	createView(viewName, "Canvas2D", obsName);	
-	drawPicture(viewName, obsName);
-	
-	if (viewTitle != @) {
+	createView(viewName, "Canvas2D");
+	`"_view_" // viewName // "_observable"` = obsName;
+	if (viewTitle == @) {
+		execute("_view_" // viewName // "_title is \"Canvas \" // _view_" // viewName // "_observable;");
+	} else {
 		`"_view_" // viewName // "_title"` = viewTitle;
 	}
 }
@@ -134,12 +151,185 @@ func canvasURL {
 	}}$;
 }
 
+func shapeOnTopAt {
+	${{
+		var target = arguments[0];
+		var x, y, testAll;
+		if (arguments.length < 2 || arguments.length > 4) {
+			eden.error(new Error("shapeOnTopAt: This function requires at least 2 arguments and at most 4 arguments."), "error");
+			return undefined;
+		}
+		if (arguments[1] instanceof Point) {
+			x = arguments[1].x;
+			y = arguments[1].y;
+			testAll = arguments[2];
+		} else {
+			x = arguments[1];
+			y = arguments[2];
+			testAll = arguments[3];
+		}
+
+		if (target === undefined || x === undefined || y === undefined) {
+			return undefined;
+		} else if (!(target instanceof Symbol) && typeof(target) != "string") {
+			eden.error(new Error("shapeOnTopAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
+			return undefined;
+		} else if (typeof(x) != "number") {
+			eden.error(new Error("shapeOnTopAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
+			return undefined;
+		} else if (typeof(y) != "number") {
+			eden.error(new Error("shapeOnTopAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
+			return undefined;
+		}
+		return edenUI.plugins.Canvas2D.findDrawableHit2(target, x, y, false, testAll);
+	}}$;
+}
+
+func shapeOnBottomAt {
+	${{
+		var target = arguments[0];
+		var x, y, testAll;
+		if (arguments.length < 2 || arguments.length > 4) {
+			eden.error(new Error("shapeOnBottomAt: This function requires at least 2 arguments and at most 4 arguments."), "error");
+			return undefined;
+		}
+		if (arguments[1] instanceof Point) {
+			x = arguments[1].x;
+			y = arguments[1].y;
+			testAll = arguments[2];
+		} else {
+			x = arguments[1];
+			y = arguments[2];
+			testAll = arguments[3];
+		}
+
+		if (target === undefined || x === undefined || y === undefined) {
+			return undefined;
+		} else if (!(target instanceof Symbol) && typeof(target) != "string") {
+			eden.error(new Error("shapeOnBottomAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
+			return undefined;
+		} else if (typeof(x) != "number") {
+			eden.error(new Error("shapeOnBottomAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
+			return undefined;
+		} else if (typeof(y) != "number") {
+			eden.error(new Error("shapeOnBottomAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
+			return undefined;
+		}
+		return edenUI.plugins.Canvas2D.findDrawableHit2(target, x, y, true, testAll);
+	}}$;
+}
+
+func zoneOnTopAt {
+	auto drawable;
+	drawable = apply(shapeOnTopAt, $);
+	if (drawable == @) {
+		return @;
+	} else {
+		return drawable.name;
+	}
+}
+
+func zoneOnBottomAt {
+	auto drawable;
+	drawable = apply(shapeOnBottomAt, $);
+	if (drawable == @) {
+		return @;
+	} else {
+		return drawable.name;
+	}
+}
+
+func observableForShape {
+	${{
+		var drawable = arguments[0];
+		if (drawable === undefined) {
+			return undefined;
+		} else if ("obsName" in drawable) {
+			return drawable.obsName;
+		} else {
+			return drawable.name;
+		}
+	}}$;
+}
+
+func observableOnTopAt {
+	auto drawable;
+	drawable = apply(shapeOnTopAt, $);
+	return observableForShape(drawable);
+}
+
+func observableOnBottomAt {
+	auto drawable;
+	drawable = apply(shapeOnBottomAt, $);
+	return observableForShape(drawable);
+}
+
+func shapesAt {
+	${{
+		var target = arguments[0];
+		var x, y, testAll;
+		if (arguments.length < 2 || arguments.length > 4) {
+			eden.error(new Error("shapesAt: This function requires at least 2 arguments and at most 4 arguments."), "error");
+			return undefined;
+		}
+		if (arguments[1] instanceof Point) {
+			x = arguments[1].x;
+			y = arguments[1].y;
+			testAll = arguments[2];
+		} else {
+			x = arguments[1];
+			y = arguments[2];
+			testAll = arguments[3];
+		}
+
+		if (target === undefined || x === undefined || y === undefined) {
+			return undefined;
+		} else if (!(target instanceof Symbol) && typeof(target) != "string") {
+			eden.error(new Error("shapesAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
+			return undefined;
+		} else if (typeof(x) != "number") {
+			eden.error(new Error("shapesAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
+			return undefined;
+		} else if (typeof(y) != "number") {
+			eden.error(new Error("shapesAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
+			return undefined;
+		}
+		return edenUI.plugins.Canvas2D.findAllDrawablesHit(target, x, y, testAll);
+	}}$;
+}
+
+func zonesAt {
+	auto drawables, zones, i;
+	drawables = apply(shapesAt, $);
+	zones = [];
+	for (i = 1; i <= drawables#; i++) {
+		append zones, drawables[i].name;
+	}
+	return zones;
+}
+
+func observablesAt {
+	auto drawables, obsList, obsName, i;
+	drawables = apply(shapesAt, $);
+	obsList = [];
+	for (i = 1; i <= drawables#; i++) {
+		obsName = observableForShape(drawables[i]);
+		if (obsName != @) {
+			append obsList, obsName;
+		}
+	}
+	return obsList;
+}
+
+
 include("plugins/canvas-html5/arc.js-e");
 include("plugins/canvas-html5/button.js-e");
-include("plugins/canvas-html5/circle.js-e");
 include("plugins/canvas-html5/checkbox.js-e");
+include("plugins/canvas-html5/circle.js-e");
 include("plugins/canvas-html5/combobox.js-e");
+include("plugins/canvas-html5/curve.js-e");
 include("plugins/canvas-html5/div.js-e");
+include("plugins/canvas-html5/dropdownlist.js-e");
 include("plugins/canvas-html5/ellipse.js-e");
 include("plugins/canvas-html5/fillPattern.js-e");
 include("plugins/canvas-html5/greyPixelList.js-e");
@@ -152,14 +342,16 @@ include("plugins/canvas-html5/polygon.js-e");
 include("plugins/canvas-html5/rectangle.js-e");
 include("plugins/canvas-html5/slider.js-e");
 include("plugins/canvas-html5/text.js-e");
-include("plugins/canvas-html5/point.js-e");
 include("plugins/canvas-html5/pixel.js-e");
 include("plugins/canvas-html5/pixelList.js-e");
 include("plugins/canvas-html5/radialGradient.js-e");
 include("plugins/canvas-html5/radioButtons.js-e");
 include("plugins/canvas-html5/regularPolygon.js-e");
+include("plugins/canvas-html5/rotation.js-e");
 include("plugins/canvas-html5/roundedRectangle.js-e");
+include("plugins/canvas-html5/scaling.js-e");
 include("plugins/canvas-html5/sector.js-e");
 include("plugins/canvas-html5/shadow.js-e");
 include("plugins/canvas-html5/textbox.js-e");
+include("plugins/canvas-html5/translation.js-e");
 include("plugins/canvas-html5/video.js-e");

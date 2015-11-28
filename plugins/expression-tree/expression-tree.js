@@ -1,24 +1,7 @@
 EdenUI.plugins.ExpressionTree = function(edenUI, success){
 	var me = this;
-	var defaultview = "";
 
-	this.html = function(name,content) {
-	//This doesn't look like its ever being called
-		if (name == "DEFAULT") {
-			if (defaultview == "") {
-				edenUI.createView(name,"ExpressionTree");
-			}
-			$("#"+defaultview+"-content").html(content).onclick;
-		} else {
-			$("#"+name+"-dialog-content").html(content).onclick;
-		}
-	}
-	
 	this.createDialog = function(name,mtitle) {
-
-		if (defaultview == "") {
-			defaultview = name;
-		}
 
 		var etHTML = "<div style=\"width: 300px; height: 450px\" class=\"etdiv\"><div id=\"infovis\" style=\"width: 300px; height: 450px\"></div></div>";
 		
@@ -264,6 +247,8 @@ var json = {
 	edenInfixOperators["<="] = {precedence: 6, associativity: "left", text: "<=", whitespace: true};
 	edenInfixOperators[">"] = {precedence: 6, associativity: "left", text: ">=", whitespace: true};
 	edenInfixOperators[">="] = {precedence: 6, associativity: "left", text: ">", whitespace: true};
+	edenInfixOperators["=~"] = {precedence: 6, associativity: "left", text: "=~", whitespace: true};
+	edenInfixOperators["!~"] = {precedence: 6, associativity: "left", text: "!=", whitespace: true};
 	edenInfixOperators["//"] = {precedence: 7, associativity: "left", text: "//", whitespace: true};
 	edenInfixOperators["+"] = {precedence: 8, associativity: "left", text: "+", whitespace: true};
 	edenInfixOperators["-"] = {precedence: 8, associativity: "left", text: "-", whitespace: true};
@@ -373,7 +358,6 @@ var json = {
 
 	//Register the HTML view options
 	edenUI.views["ExpressionTree"] = {dialog: this.createDialog, title: "Expression Tree", category: edenUI.viewCategories.interpretation, menuPriority: 0};
-	edenUI.eden.include("plugins/expression-tree/expression-tree.js-e", success);
 };
 /* Plugin meta information */
 EdenUI.plugins.ExpressionTree.title = "Expression Tree";

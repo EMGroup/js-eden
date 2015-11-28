@@ -1,0 +1,22 @@
+/**
+ * @title Logo Example 1
+ * @author Nicolas Pope
+ */
+
+import logo/basic;
+_view_input_agent = "logo/example1";
+
+## Square
+{
+do forward 100;
+do left 90;
+}
+
+## Fan
+{
+do forward 100;
+do left 112;
+}
+
+do reset;
+

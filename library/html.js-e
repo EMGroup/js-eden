@@ -29,7 +29,7 @@ func htmlBulletList {
 		} else {
 			item = str(item);
 		}
-		result = result // "<li style=\"margin-bottom: 7pt; line-height: 150%\">" // item // "</li>\n";
+		result = result // "<li style=\"margin-bottom: 7pt\">" // item // "</li>\n";
 	}
 	
 	result = result // "</ul>\n";
@@ -101,7 +101,7 @@ func htmlNumberedList {
 		} else {
 			item = str(item);
 		}
-		result = result // "<li style=\"margin-bottom: 7pt; line-height: 150%\">" // item // "</li>\n";
+		result = result // "<li style=\"margin-bottom: 7pt\">" // item // "</li>\n";
 	}
 	
 	result = result // "</ol>\n";
@@ -237,6 +237,8 @@ func hsl2colour {
 	}
 }
 
+_option_global_css = false;
+
 ##This procedure binds the value of CSS property to an EDEN observable.  Any future changes to the
 ##value of the observable are instantaneously reflected by corresponding changes in the styling of
 ##HTML content.
@@ -245,8 +247,8 @@ func hsl2colour {
 ##to limit the scope of the styling changes.  For example, a scope of "jspe_slide" would be used to
 ##apply styling to the content of JSPE slides.  The second parameter specifies a CSS selector name.
 ##If the selector name contains a reference to a CSS ID (#something) or a CSS class name (.something)
-##then the scope parameter can be omitted.  Otherwise it must be specified unless the _authoringMode
-##observable has been assigned the value "tool development".  That is, by default, global stylistic changes
+##then the scope parameter can be omitted.  Otherwise it must be specified unless the
+##_option_global_css observable has been assigned the value true.  That is, by default, global stylistic changes
 ##that affect, for example, all <div> tags on the screen are not permitted because this might result in
 ##unforeseen effects that make the JS-EDEN environment unusable.  Even omitting a scope and using
 ##a class name selector may cause unwanted effects if the class name happens to be used internally
@@ -500,14 +502,15 @@ proc unbind {
 			eden.error(new Error("unbind: This procedure requires exactly 1 argument."), "error");
 			return;
 		}
-		var obsName = arguments[0];
-		if (obsName instanceof Symbol) {
-			obsName = obsName.name.slice(1);
-		} else if (typeof(obsName) != "string") {
-			eden.error(new Error("unbind: The argument must be a string or a pointer, not a " + typeof(obsName)), "error");
+		var obsSym;
+		if (arguments[0] instanceof Symbol) {
+			obsSym = arguments[0];
+		} else if (typeof(arguments[0]) == "string") {
+			obsSym = root.lookup(arguments[0]);
+		} else {
+			eden.error(new Error("unbind: The argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
 			return;
 		}
-		var obsSym = root.lookup(obsName);
 		obsSym.removeJSObserver("bind");
 	}}$;
 }
@@ -532,7 +535,7 @@ ${{
 		var regExp = /^\s*(([^",]|("[^"]*"))+)(,|$)/g
 		var match, individualSelector;
 		var selectors = [];
-		var authoringMode = (root.lookup("_authoringMode").value() == "tool development");
+		var authoringMode = root.lookup("_option_global_css").value();
 		
 		while ((match = regExp.exec(selector)) !== null) {
 			individualSelector = match[1];
@@ -544,7 +547,7 @@ ${{
 				selectors.push(individualSelector);
 			} else {
 				eden.error(new Error("Cannot alter CSS globally for selector " + individualSelector +
-					" when not in tool authoring mode.  Please specify a scope in which to restrict the changes."),
+					" when not in tool authoring mode (_option_global_css = false).  Please specify a scope in which to restrict the changes."),
 					"error");
 				return undefined;
 			}

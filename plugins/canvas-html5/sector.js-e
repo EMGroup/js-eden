@@ -10,9 +10,15 @@ Sector = function(x, y, r, sAngle, eAngle, fillcolour, outlinecolour,drawingOpti
 	this.r = r;
 	this.sAngle = sAngle;
 	this.eAngle = eAngle;
+	var radiansPerUnit = root.lookup("radiansPerUnit").value();
+	this.sRadians = sAngle * radiansPerUnit;
+	this.eRadians = eAngle * radiansPerUnit;
+
     this.fillcolour = fillcolour;
 	this.outlinecolour = outlinecolour;
 	this.drawingOptions = drawingOptions;
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Sector");
+	this.obsName = root.currentObservableName();
 }
 }}$;
 
@@ -22,26 +28,48 @@ func Sector { ${{
 	var r = arguments[2];
 	var sAngle = arguments[3];
 	var eAngle = arguments[4];
-	var fillcolour = arguments[5];
-	var outlinecolour = arguments[6];
+	var fillcolour, outlinecolour, drawingOptions;
+	var lastArg = arguments[arguments.length - 1];
+	var processUpTo;
+	if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+		drawingOptions = lastArg;
+		processUpTo = arguments.length - 2;
+	} else {
+		processUpTo = arguments.length - 1;
+	}
+	if (processUpTo >= 5) {
+		fillcolour = arguments[5];
+		if (processUpTo == 6) {
+			outlinecolour = arguments[6];
+		}
+	}
 	if (fillcolour === undefined && outlinecolour === undefined) {
 		fillcolour = "black";
 	}
-	var drawingOptions = arguments[7];
 	return new Sector(x, y, r, sAngle, eAngle, fillcolour, outlinecolour, drawingOptions);
 }}$; };
+radiansPerUnit ~> [Sector];
 
 ${{
 
 Sector.prototype.draw = function (context) {
-	var radiansPerUnit = root.lookup("radiansPerUnit").value();
-	var eAngleInRadians = -this.eAngle * radiansPerUnit;
-	var endX = this.x + this.r * Math.cos(eAngleInRadians);
-	var endY = this.y + this.r * Math.sin(eAngleInRadians);
 
+	this.tracePath(context);
+
+	if (this.fillcolour !== undefined) {
+		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
+		context.fill();
+	}
+	if (this.outlinecolour !== undefined) {
+		context.strokeStyle = this.outlinecolour;
+		context.stroke();
+	}
+};
+
+Sector.prototype.tracePath = function (context) {
 	var anticlockwise;
 	if (this.drawingOptions !== undefined && "direction" in this.drawingOptions) {
-		switch (this.drawingOptions.direction.toLowerCase()) {
+		switch (this.drawingOptions.direction) {
 		case "anticlockwise":
 		case "acw":
 		case "ccw":
@@ -55,36 +83,38 @@ Sector.prototype.draw = function (context) {
 			anticlockwise = false;
 			break;
 		default:
+			//Invalid value specified.
 			anticlockwise = true;
 		}
 	} else {
+		//Default to "auto" 
 		anticlockwise = this.sAngle < this.eAngle;
 	}
 
+	var radius;
+	if (this.outlinecolour === undefined) {
+		radius = this.r;
+	} else if (this.drawingOptions !== undefined && this.drawingOptions.lineWidth % 2 == 1) {
+		var scale = this.drawingOptions.lineWidth / context.lineWidth;
+		context.translate(0.5 / scale, 0.5 / scale);
+		radius = this.r - 0.5 * context.lineWidth + 0.5 / scale;
+	} else {
+		radius = this.r - 0.5 * context.lineWidth;
+	}
+
 	context.beginPath();
-	context.arc(this.x, this.y, this.r, -this.sAngle * radiansPerUnit, eAngleInRadians, anticlockwise);
+	context.arc(this.x, this.y, radius, -this.sRadians, -this.eRadians, anticlockwise);
 	context.lineTo(this.x, this.y);
 	context.closePath();
- 
-	if (this.fillcolour !== undefined) {
-		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
-		context.fill();
-	}
-	if (this.outlinecolour !== undefined) {
-		context.strokeStyle = this.outlinecolour;
-		context.stroke();
-	}
 };
 
+Sector.prototype.isHit = function (context, scale, x, y) {
+	this.tracePath(context);
+	return context.isPointInPath(x,y);
+}
+
 Sector.prototype.toString = function() {
-	var s = "Sector(" +
-		this.x + ", " +
-		this.y + ", " +
-		this.r + ", " +
-		this.sAngle + ", " +
-		this.eAngle + ", " +
-		Eden.edenCodeForValue(this.fillcolour) + ", " +
-		Eden.edenCodeForValue(this.outlinecolour);
+	var s = "Sector(" + Eden.edenCodeForValues(this.x, this.y, this.r, this.sAngle, this.eAngle, this.fillcolour, this.outlinecolour);
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

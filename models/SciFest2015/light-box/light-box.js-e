@@ -1,20 +1,10 @@
-##Originally known as version 3.
+/**
+ * @title Light Box Model
+ */
 
-## to protect against loss of information whilst constructing patterns
+##import compatibility/scifest2015;
 
-${{
-  
-var workIsDone = false;
-window.onbeforeunload = confirmBrowseAway;
-
-function confirmBrowseAway()
-{
-  if (!workIsDone) {
-    return "Reloading this page will discard the current script.";
-  }
-};
-  
-}}$;
+##include("compatibility/scifest2015.js-e");
 
 ## This is a JS-EDEN script automatically generated using the environment's script generator feature.
 
@@ -30,7 +20,7 @@ autocalc = 0;
 ## Observable Assignments:
 _menubar_status = "Output: [{150, 10}, {150, 110}, {150, 210}, {150, 310}, {250, 310}, {350, 310}, {350, 210}, {450, 210}, {450, 310}, {550, 310}]";
 randomSeed = @;
-startPos = {100, 60};
+startPos = [100, 60];
 scaleHeight = 100;
 scaleWidth = 100;
 mirrorGrid = [[-1, 1, -1, 0], [1, 1, -1, 0], [-1, 1, 0, 0], [1, 0, 0, 0]];
@@ -114,34 +104,34 @@ cell42 = @;
 cell43 = @;
 cell44 = @;
 mirrorcol = "blue";
-near = 500;
+near = 1000;
 
 ## Observable Definitions:
-cell11_clicked is mousePressed && ((visraypt(1,1)[1] - mousePosition.x) * (visraypt(1,1)[1] - mousePosition.x) + (visraypt(1,1)[2] - mousePosition.y) * (visraypt(1,1)[2] - mousePosition.y) < near);
-cell21_clicked is mousePressed && ((visraypt(2,1)[1] - mousePosition.x) * (visraypt(2,1)[1] - mousePosition.x) + (visraypt(2,1)[2] - mousePosition.y) * (visraypt(2,1)[2] - mousePosition.y) < near);
-cell31_clicked is mousePressed && ((visraypt(3,1)[1] - mousePosition.x) * (visraypt(3,1)[1] - mousePosition.x) + (visraypt(3,1)[2] - mousePosition.y) * (visraypt(3,1)[2] - mousePosition.y) < near);
-cell41_clicked is mousePressed && ((visraypt(4,1)[1] - mousePosition.x) * (visraypt(4,1)[1] - mousePosition.x) + (visraypt(4,1)[2] - mousePosition.y) * (visraypt(4,1)[2] - mousePosition.y) < near);
-cell12_clicked is mousePressed && ((visraypt(1,2)[1] - mousePosition.x) * (visraypt(1,2)[1] - mousePosition.x) + (visraypt(1,2)[2] - mousePosition.y) * (visraypt(1,2)[2] - mousePosition.y) < near);
-cell22_clicked is mousePressed && ((visraypt(2,2)[1] - mousePosition.x) * (visraypt(2,2)[1] - mousePosition.x) + (visraypt(2,2)[2] - mousePosition.y) * (visraypt(2,2)[2] - mousePosition.y) < near);
-cell32_clicked is mousePressed && ((visraypt(3,2)[1] - mousePosition.x) * (visraypt(3,2)[1] - mousePosition.x) + (visraypt(3,2)[2] - mousePosition.y) * (visraypt(3,2)[2] - mousePosition.y) < near);
-cell42_clicked is mousePressed && ((visraypt(4,2)[1] - mousePosition.x) * (visraypt(4,2)[1] - mousePosition.x) + (visraypt(4,2)[2] - mousePosition.y) * (visraypt(4,2)[2] - mousePosition.y) < near);
-cell13_clicked is mousePressed && ((visraypt(1,3)[1] - mousePosition.x) * (visraypt(1,3)[1] - mousePosition.x) + (visraypt(1,3)[2] - mousePosition.y) * (visraypt(1,3)[2] - mousePosition.y) < near);
-cell23_clicked is mousePressed && ((visraypt(2,3)[1] - mousePosition.x) * (visraypt(2,3)[1] - mousePosition.x) + (visraypt(2,3)[2] - mousePosition.y) * (visraypt(2,3)[2] - mousePosition.y) < near);
-cell33_clicked is mousePressed && ((visraypt(3,3)[1] - mousePosition.x) * (visraypt(3,3)[1] - mousePosition.x) + (visraypt(3,3)[2] - mousePosition.y) * (visraypt(3,3)[2] - mousePosition.y) < near);
-cell43_clicked is mousePressed && ((visraypt(4,3)[1] - mousePosition.x) * (visraypt(4,3)[1] - mousePosition.x) + (visraypt(4,3)[2] - mousePosition.y) * (visraypt(4,3)[2] - mousePosition.y) < near);
-cell14_clicked is mousePressed && ((visraypt(1,4)[1] - mousePosition.x) * (visraypt(1,4)[1] - mousePosition.x) + (visraypt(1,4)[2] - mousePosition.y) * (visraypt(1,4)[2] - mousePosition.y) < near);
-cell24_clicked is mousePressed && ((visraypt(2,4)[1] - mousePosition.x) * (visraypt(2,4)[1] - mousePosition.x) + (visraypt(2,4)[2] - mousePosition.y) * (visraypt(2,4)[2] - mousePosition.y) < near);
-cell34_clicked is mousePressed && ((visraypt(3,4)[1] - mousePosition.x) * (visraypt(3,4)[1] - mousePosition.x) + (visraypt(3,4)[2] - mousePosition.y) * (visraypt(3,4)[2] - mousePosition.y) < near);
-cell44_clicked is mousePressed && ((visraypt(4,4)[1] - mousePosition.x) * (visraypt(4,4)[1] - mousePosition.x) + (visraypt(4,4)[2] - mousePosition.y) * (visraypt(4,4)[2] - mousePosition.y) < near);
-board is Rectangle(startPos.x,startPos.y,4*scaleWidth,4*scaleHeight,"black");
-inl1 is Button("inl1","InL1",startPos.x - 50, startPos.y + 50,true);
-inl2 is Button("inl2","InL2",startPos.x - 50, startPos.y + 150,true);
-inl3 is Button("inl3","InL3",startPos.x - 50, startPos.y + 250,true);
-inl4 is Button("inl4","InL4",startPos.x - 50, startPos.y + 350,true);
-inu1 is Button("inu1","InU1",startPos.x + 50, startPos.y + 450,true);
-inu2 is Button("inu2","InU2",startPos.x + 150, startPos.y + 450,true);
-inu3 is Button("inu3","InU3",startPos.x + 250, startPos.y + 450,true);
-inu4 is Button("inu4","InU4",startPos.x + 350, startPos.y + 450,true);
+cell11_clicked is mousePressed && ((visraypt(1,1)[1] - mouseX) * (visraypt(1,1)[1] - mouseX) + (visraypt(1,1)[2] - mouseY) * (visraypt(1,1)[2] - mouseY) < near);
+cell21_clicked is mousePressed && ((visraypt(2,1)[1] - mouseX) * (visraypt(2,1)[1] - mouseX) + (visraypt(2,1)[2] - mouseY) * (visraypt(2,1)[2] - mouseY) < near);
+cell31_clicked is mousePressed && ((visraypt(3,1)[1] - mouseX) * (visraypt(3,1)[1] - mouseX) + (visraypt(3,1)[2] - mouseY) * (visraypt(3,1)[2] - mouseY) < near);
+cell41_clicked is mousePressed && ((visraypt(4,1)[1] - mouseX) * (visraypt(4,1)[1] - mouseX) + (visraypt(4,1)[2] - mouseY) * (visraypt(4,1)[2] - mouseY) < near);
+cell12_clicked is mousePressed && ((visraypt(1,2)[1] - mouseX) * (visraypt(1,2)[1] - mouseX) + (visraypt(1,2)[2] - mouseY) * (visraypt(1,2)[2] - mouseY) < near);
+cell22_clicked is mousePressed && ((visraypt(2,2)[1] - mouseX) * (visraypt(2,2)[1] - mouseX) + (visraypt(2,2)[2] - mouseY) * (visraypt(2,2)[2] - mouseY) < near);
+cell32_clicked is mousePressed && ((visraypt(3,2)[1] - mouseX) * (visraypt(3,2)[1] - mouseX) + (visraypt(3,2)[2] - mouseY) * (visraypt(3,2)[2] - mouseY) < near);
+cell42_clicked is mousePressed && ((visraypt(4,2)[1] - mouseX) * (visraypt(4,2)[1] - mouseX) + (visraypt(4,2)[2] - mouseY) * (visraypt(4,2)[2] - mouseY) < near);
+cell13_clicked is mousePressed && ((visraypt(1,3)[1] - mouseX) * (visraypt(1,3)[1] - mouseX) + (visraypt(1,3)[2] - mouseY) * (visraypt(1,3)[2] - mouseY) < near);
+cell23_clicked is mousePressed && ((visraypt(2,3)[1] - mouseX) * (visraypt(2,3)[1] - mouseX) + (visraypt(2,3)[2] - mouseY) * (visraypt(2,3)[2] - mouseY) < near);
+cell33_clicked is mousePressed && ((visraypt(3,3)[1] - mouseX) * (visraypt(3,3)[1] - mouseX) + (visraypt(3,3)[2] - mouseY) * (visraypt(3,3)[2] - mouseY) < near);
+cell43_clicked is mousePressed && ((visraypt(4,3)[1] - mouseX) * (visraypt(4,3)[1] - mouseX) + (visraypt(4,3)[2] - mouseY) * (visraypt(4,3)[2] - mouseY) < near);
+cell14_clicked is mousePressed && ((visraypt(1,4)[1] - mouseX) * (visraypt(1,4)[1] - mouseX) + (visraypt(1,4)[2] - mouseY) * (visraypt(1,4)[2] - mouseY) < near);
+cell24_clicked is mousePressed && ((visraypt(2,4)[1] - mouseX) * (visraypt(2,4)[1] - mouseX) + (visraypt(2,4)[2] - mouseY) * (visraypt(2,4)[2] - mouseY) < near);
+cell34_clicked is mousePressed && ((visraypt(3,4)[1] - mouseX) * (visraypt(3,4)[1] - mouseX) + (visraypt(3,4)[2] - mouseY) * (visraypt(3,4)[2] - mouseY) < near);
+cell44_clicked is mousePressed && ((visraypt(4,4)[1] - mouseX) * (visraypt(4,4)[1] - mouseX) + (visraypt(4,4)[2] - mouseY) * (visraypt(4,4)[2] - mouseY) < near);
+board is Rectangle(startPos[1],startPos[2],4*scaleWidth,4*scaleHeight,"black");
+inl1 is Button("Torch W1",startPos[1] - 90, startPos[2] + 50,true);
+inl2 is Button("Torch W2",startPos[1] - 90, startPos[2] + 150,true);
+inl3 is Button("Torch W3",startPos[1] - 90, startPos[2] + 250,true);
+inl4 is Button("Torch W4",startPos[1] - 90, startPos[2] + 350,true);
+inu1 is Button("Torch S1",startPos[1] + 50, startPos[2] + 450,true);
+inu2 is Button("Torch S2",startPos[1] + 150, startPos[2] + 450,true);
+inu3 is Button("Torch S3",startPos[1] + 250, startPos[2] + 450,true);
+inu4 is Button("Torch S4",startPos[1] + 350, startPos[2] + 450,true);
 inputslu is [inl1_toggle, inl2_toggle, inl3_toggle, inl4_toggle, inu1_toggle, inu2_toggle, inu3_toggle, inu4_toggle];
 inputsrd is [inr1_toggle, inr2_toggle, inr3_toggle, inr4_toggle, ind1_toggle, ind2_toggle, ind3_toggle, ind4_toggle];
 inputs is inputslu // inputsrd;
@@ -172,68 +162,69 @@ ray24E is makeray(2,4,"E",mirrors);
 ray14E is makeray(1,4,"E",mirrors);
 alltherays is [ray11N, ray12N, ray13N, ray14N, ray11W, ray21W, ray31W, ray41W, ray41S, ray42S, ray43S, ray44S, ray14E, ray24E, ray34E, ray44E];
 raysselected is [ind1_toggle, ind2_toggle, ind3_toggle, ind4_toggle, inl1_toggle,inl2_toggle,inl3_toggle,inl4_toggle,inu1_toggle,inu2_toggle,inu3_toggle,inu4_toggle, inr1_toggle, inr2_toggle, inr3_toggle, inr4_toggle];
-rays is subsetrays(alltherays, raysselected);
-inr1 is Button("inr1","InR1",startPos.x +450, startPos.y + 50,true);
-inr2 is Button("inr2","InR2",startPos.x +450, startPos.y + 150,true);
-inr3 is Button("inr3","InR3",startPos.x + 450, startPos.y + 250,true);
-inr4 is Button("inr4","InR4",startPos.x + 450, startPos.y + 350,true);
-ind1 is Button("ind1","InD1",startPos.x + 50, startPos.y  - 50,true);
-ind2 is Button("ind2","InD2",startPos.x + 150, startPos.y - 50,true);
-ind3 is Button("ind3","InD3",startPos.x + 250, startPos.y - 50,true);
-ind4 is Button("ind4","InD4",startPos.x + 350, startPos.y - 50,true);
+##rays is subsetrays(alltherays, raysselected);
+inr1 is Button("Torch E1",startPos[1] +450, startPos[2] + 50,true);
+inr2 is Button("Torch E2",startPos[1] +450, startPos[2] + 150,true);
+inr3 is Button("Torch E3",startPos[1] + 450, startPos[2] + 250,true);
+inr4 is Button("Torch E4",startPos[1] + 450, startPos[2] + 350,true);
+ind1 is Button("Torch N1",startPos[1] + 50, startPos[2]  - 50,true);
+ind2 is Button("Torch N2",startPos[1] + 150, startPos[2] - 50,true);
+ind3 is Button("Torch N3",startPos[1] + 250, startPos[2] - 50,true);
+ind4 is Button("Torch N4",startPos[1] + 350, startPos[2] - 50,true);
 testPt is Circle(visraypt(rix,cix)[1], visraypt(rix,cix)[2], 10);
 testLS is LineSequence(rayloctovis(ray11N), "blue");
+onRadius = 4;
 onN11col is (ind1_toggle==1) ? rayN11col : "white";
-onN11 is Circle(visraypt(0,1)[1], visraypt(0,1)[2], 2, onN11col, onN11col);
+onN11 is Circle(visraypt(0,1)[1], visraypt(0,1)[2], onRadius, onN11col, onN11col);
 onN12col is (ind2_toggle==1) ? rayN12col : "white";
-onN12 is Circle(visraypt(0,2)[1], visraypt(0,2)[2], 2, onN12col, onN12col);
+onN12 is Circle(visraypt(0,2)[1], visraypt(0,2)[2], onRadius, onN12col, onN12col);
 onN13col is (ind3_toggle==1) ? rayN13col : "white";
-onN13 is Circle(visraypt(0,3)[1], visraypt(0,3)[2], 2, onN13col, onN13col);
+onN13 is Circle(visraypt(0,3)[1], visraypt(0,3)[2], onRadius, onN13col, onN13col);
 onN14col is (ind4_toggle==1) ? rayN14col : "white";
-onN14 is Circle(visraypt(0,4)[1], visraypt(0,4)[2], 2, onN14col, onN14col);
+onN14 is Circle(visraypt(0,4)[1], visraypt(0,4)[2], onRadius, onN14col, onN14col);
 onW11col is (inl1_toggle==1) ? rayW11col : "white";
-onW11 is Circle(visraypt(1,0)[1], visraypt(1,0)[2], 2, onW11col, onW11col);
+onW11 is Circle(visraypt(1,0)[1], visraypt(1,0)[2], onRadius, onW11col, onW11col);
 onW21col is (inl2_toggle==1) ? rayW21col : "white";
-onW21 is Circle(visraypt(2,0)[1], visraypt(2,0)[2], 2, onW21col, onW21col);
+onW21 is Circle(visraypt(2,0)[1], visraypt(2,0)[2], onRadius, onW21col, onW21col);
 onW31col is (inl3_toggle==1) ? rayW31col : "white";
-onW31 is Circle(visraypt(3,0)[1], visraypt(3,0)[2], 2, onW31col, onW31col);
+onW31 is Circle(visraypt(3,0)[1], visraypt(3,0)[2], onRadius, onW31col, onW31col);
 onW41col is (inl4_toggle==1) ? rayW41col : "white";
-onW41 is Circle(visraypt(4,0)[1], visraypt(4,0)[2], 2, onW41col, onW41col);
+onW41 is Circle(visraypt(4,0)[1], visraypt(4,0)[2], onRadius, onW41col, onW41col);
 onE14col is (inr1_toggle==1) ? rayE14col : "white";
-onE14 is Circle(visraypt(1,5)[1], visraypt(1,4)[2], 2, onE14col, onE14col);
+onE14 is Circle(visraypt(1,5)[1], visraypt(1,4)[2], onRadius, onE14col, onE14col);
 onE24col is (inr2_toggle==1) ? rayE24col : "white";
-onE24 is Circle(visraypt(2,5)[1], visraypt(2,4)[2], 2, onE24col, onE24col);
+onE24 is Circle(visraypt(2,5)[1], visraypt(2,4)[2], onRadius, onE24col, onE24col);
 onE34col is (inr3_toggle==1) ? rayE34col : "white";
-onE34 is Circle(visraypt(3,5)[1], visraypt(3,4)[2], 2, onE34col, onE34col);
+onE34 is Circle(visraypt(3,5)[1], visraypt(3,4)[2], onRadius, onE34col, onE34col);
 onE44col is (inr4_toggle==1) ? rayE44col : "white";
-onE44 is Circle(visraypt(4,5)[1], visraypt(4,4)[2], 2, onE44col, onE44col);
+onE44 is Circle(visraypt(4,5)[1], visraypt(4,4)[2], onRadius, onE44col, onE44col);
 onS41col is (inu1_toggle==1) ? rayS41col : "white";
-onS41 is Circle(visraypt(5,1)[1], visraypt(5,1)[2], 2, onS41col, onS41col);
+onS41 is Circle(visraypt(5,1)[1], visraypt(5,1)[2], onRadius, onS41col, onS41col);
 onS42col is (inu2_toggle==1) ? rayS42col : "white";
-onS42 is Circle(visraypt(5,2)[1], visraypt(5,2)[2], 2, onS42col, onS42col);
+onS42 is Circle(visraypt(5,2)[1], visraypt(5,2)[2], onRadius, onS42col, onS42col);
 onS43col is (inu3_toggle==1) ? rayS43col : "white";
-onS43 is Circle(visraypt(5,3)[1], visraypt(5,3)[2], 2, onS43col, onS43col);
+onS43 is Circle(visraypt(5,3)[1], visraypt(5,3)[2], onRadius, onS43col, onS43col);
 onS44col is (inu4_toggle==1) ? rayS44col : "white";
-onS44 is Circle(visraypt(5,4)[1], visraypt(5,4)[2], 2, onS44col, onS44col);
-resetButt is Button("reset", "RESET", 5, 5, true);
-ray11Nvis is LineSequence(rayloctovis(ray11N), onN11col);
-ray12Nvis is LineSequence(rayloctovis(ray12N), onN12col);
-ray13Nvis is LineSequence(rayloctovis(ray13N), onN13col);
-ray14Nvis is LineSequence(rayloctovis(ray14N), onN14col);
-ray11Wvis is LineSequence(rayloctovis(ray11W), onW11col);
-ray21Wvis is LineSequence(rayloctovis(ray21W), onW21col);
-ray31Wvis is LineSequence(rayloctovis(ray31W), onW31col);
-ray41Wvis is LineSequence(rayloctovis(ray41W), onW41col);
-ray14Evis is LineSequence(rayloctovis(ray14E), onE14col);
-ray24Evis is LineSequence(rayloctovis(ray24E), onE24col);
-ray34Evis is LineSequence(rayloctovis(ray34E), onE34col);
-ray44Evis is LineSequence(rayloctovis(ray44E), onE44col);
-ray41Svis is LineSequence(rayloctovis(ray41S), onS41col);
-ray42Svis is LineSequence(rayloctovis(ray42S), onS42col);
-ray43Svis is LineSequence(rayloctovis(ray43S), onS43col);
-ray44Svis is LineSequence(rayloctovis(ray44S), onS44col);
+onS44 is Circle(visraypt(5,4)[1], visraypt(5,4)[2], onRadius, onS44col, onS44col);
+resetButt is Button("RESET", 5, 5, true);
+ray11Nvis is (ind1_toggle == 1)? LineSequence(rayloctovis(ray11N), rayN11col) : @;
+ray12Nvis is (ind2_toggle == 1)? LineSequence(rayloctovis(ray12N), rayN12col) : @;
+ray13Nvis is (ind3_toggle == 1)? LineSequence(rayloctovis(ray13N), rayN13col) : @;
+ray14Nvis is (ind4_toggle == 1)? LineSequence(rayloctovis(ray14N), rayN14col) : @;
+ray11Wvis is (inl1_toggle == 1)? LineSequence(rayloctovis(ray11W), rayW11col) : @;
+ray21Wvis is (inl2_toggle == 1)? LineSequence(rayloctovis(ray21W), rayW21col) : @;
+ray31Wvis is (inl3_toggle == 1)? LineSequence(rayloctovis(ray31W), rayW31col) : @;
+ray41Wvis is (inl4_toggle == 1)? LineSequence(rayloctovis(ray41W), rayW41col) : @;
+ray14Evis is (inr1_toggle == 1)? LineSequence(rayloctovis(ray14E), rayE14col) : @;
+ray24Evis is (inr2_toggle == 1)? LineSequence(rayloctovis(ray24E), rayE24col) : @;
+ray34Evis is (inr3_toggle == 1)? LineSequence(rayloctovis(ray34E), rayE34col) : @;
+ray44Evis is (inr4_toggle == 1)? LineSequence(rayloctovis(ray44E), rayE44col) : @;
+ray41Svis is (inu1_toggle == 1)? LineSequence(rayloctovis(ray41S), rayS41col) : @;
+ray42Svis is (inu2_toggle == 1)? LineSequence(rayloctovis(ray42S), rayS42col) : @;
+ray43Svis is (inu3_toggle == 1)? LineSequence(rayloctovis(ray43S), rayS43col) : @;
+ray44Svis is (inu4_toggle == 1)? LineSequence(rayloctovis(ray44S), rayS44col) : @;
 LBcoverSize is (gridVisible) ? 0 : 4;
-LBcover is Rectangle(startPos.x,startPos.y,scaleWidth*LBcoverSize,scaleHeight*LBcoverSize, mirrorcol);
+LBcover is Rectangle(startPos[1],startPos[2],scaleWidth*LBcoverSize,scaleHeight*LBcoverSize, mirrorcol);
 mirrorvis is [mirror11, mirror21, mirror31, mirror41, mirror12, mirror22, mirror32, mirror42, mirror13, mirror23, mirror33, mirror43, mirror14, mirror24, mirror34, mirror44];
 mirror11 is Line(visraypt(1,1)[1] - size11, visraypt(1,1)[2] + size11*mirrorGrid[1][1], visraypt(1,1)[1] + size11, visraypt(1,1)[2] - size11*mirrorGrid[1][1], mirrorcol);
 mirror21 is Line(visraypt(2,1)[1] - size21, visraypt(2,1)[2] + size21*mirrorGrid[2][1], visraypt(2,1)[1] + size21, visraypt(2,1)[2] - size21*mirrorGrid[2][1], mirrorcol);
@@ -271,49 +262,49 @@ size44 is (mirrorGrid[4][4]==0) ? 0 : 50;
 ## Action Definitions:
 proc inu1_click : inu1_clicked {
 	if(inu1_clicked){
-		inu1_toggle = inu1_toggle != 1 ? 1 : 0;
+		inu1_toggle = (inu1_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc inu2_click : inu2_clicked {
 	if(inu2_clicked){
-		inu2_toggle = inu2_toggle != 1 ? 1 : 0;
+		inu2_toggle = (inu2_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc inu3_click : inu3_clicked {
 	if(inu3_clicked){
-		inu3_toggle = inu3_toggle != 1 ? 1 : 0;
+		inu3_toggle = (inu3_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc inu4_click : inu4_clicked {
 	if(inu4_clicked){
-		inu4_toggle = inu4_toggle != 1 ? 1 : 0;
+		inu4_toggle = (inu4_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc inl1_click : inl1_clicked {
 	if(inl1_clicked){
-		inl1_toggle = inl1_toggle != 1 ? 1 : 0;
+		inl1_toggle = (inl1_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc inl2_click : inl2_clicked {
 	if(inl2_clicked){
-		inl2_toggle = inl2_toggle != 1 ? 1 : 0;
+		inl2_toggle = (inl2_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc inl3_click : inl3_clicked {
 	if(inl3_clicked){
-		inl3_toggle = inl3_toggle != 1 ? 1 : 0;
+		inl3_toggle = (inl3_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc inl4_click : inl4_clicked {
 	if(inl4_clicked){
-		inl4_toggle = inl4_toggle != 1 ? 1 : 0;
+		inl4_toggle = (inl4_toggle != 1) ? 1 : 0;
 	}
 }
 
@@ -415,56 +406,71 @@ proc cell44_click : cell44_clicked{
 
 proc ind1_click : ind1_clicked {
 	if(ind1_clicked){
-		ind1_toggle = ind1_toggle != 1 ? 1 : 0;
+		ind1_toggle = (ind1_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc ind2_click : ind2_clicked {
 	if(ind2_clicked){
-		ind2_toggle = ind2_toggle != 1 ? 1 : 0;
+		ind2_toggle = (ind2_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc ind3_click : ind3_clicked {
 	if(ind3_clicked){
-		ind3_toggle = ind3_toggle != 1 ? 1 : 0;
+		ind3_toggle = (ind3_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc ind4_click : ind4_clicked {
 	if(ind4_clicked){
-		ind4_toggle = ind4_toggle != 1 ? 1 : 0;
+		ind4_toggle = (ind4_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc inr1_click : inr1_clicked {
 	if(inr1_clicked){
-		inr1_toggle = inr1_toggle != 1 ? 1 : 0;
+		inr1_toggle = (inr1_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc inr2_click : inr2_clicked {
 	if(inr2_clicked){
-		inr2_toggle = inr2_toggle != 1 ? 1 : 0;
+		inr2_toggle = (inr2_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc inr3_click : inr3_clicked {
 	if(inr3_clicked){
-		inr3_toggle = inr3_toggle != 1 ? 1 : 0;
+		inr3_toggle = (inr3_toggle != 1) ? 1 : 0;
 	}
 }
 
 proc inr4_click : inr4_clicked {
 	if(inr4_clicked){
-		inr4_toggle = inr4_toggle != 1 ? 1 : 0;
+		inr4_toggle = (inr4_toggle != 1) ? 1 : 0;
 	}
 }
 
-proc reset : reset_clicked {
+proc reset : resetButt_clicked {
 	autocalc = 0;
-	if (reset_clicked) {
-		ind1_toggle = ind2_toggle = ind3_toggle = ind4_toggle = inl1_toggle = inl2_toggle = inl3_toggle = inl4_toggle = inu1_toggle = inu2_toggle = inu3_toggle = inu4_toggle = inr1_toggle = inr2_toggle = inr3_toggle = inr4_toggle = 0;
+	if (resetButt_clicked) {
+		ind1_toggle = 0;
+		ind2_toggle = 0;
+		ind3_toggle = 0;
+		ind4_toggle = 0;
+		inl1_toggle = 0;
+		inl2_toggle = 0;
+		inl3_toggle = 0;
+		inl4_toggle = 0;
+		inu1_toggle = 0;
+		inu2_toggle = 0;
+		inu3_toggle = 0;
+		inu4_toggle = 0;
+		inr1_toggle = 0;
+		inr2_toggle = 0;
+		inr3_toggle = 0;
+		inr4_toggle = 0;
 	}
 	autocalc=1;
 }
@@ -513,7 +519,7 @@ func makeray {
 	ir = inr;
 	ic = inc;
 	dir = initdir;
-	result = [[ir-incrc(initdir)[2],ic-incrc(initdir)[1]], [ir,ic]];
+	result = [[inr-incrc(initdir)[2],inc-incrc(initdir)[1]], [inr,inc]];
 	while ((ir>0) && (ir<5) && (ic>0) && (ic<5)) {
 		newrcurr = newr;
 		newccurr = newc;
@@ -528,7 +534,7 @@ func makeray {
 
 func visraypt {
 para r,c;
-return [startPos.x + scaleWidth * (c-0.5), startPos.y + scaleHeight * (r-0.5)];
+return [startPos[1] + scaleWidth * (c-0.5), startPos[2] + scaleHeight * (r-0.5)];
 }
 
 func rayloctovis {
@@ -548,7 +554,7 @@ func selmirror {
 
 func mkpt {
 	para pairls;
-	return {pairls[1], pairls[2]};
+	return Point(pairls[1], pairls[2]);
 }
 
 ## Picture Definition:
@@ -559,12 +565,73 @@ autocalc = 1;
 
 ## End of automatically generated script.
 
-coverButt is Button("cover", (gridVisible) ? "COVER" : "UNCOVER", 5, 25, true);
+coverButt is Button((gridVisible) ? "COVER" : "UNCOVER", 5, 25, true);
 
 picture is [inl1,inl2,inl3,inl4,inu1,inu2,inu3,inu4, inr1, inr2, inr3, inr4, ind1, ind2, ind3, ind4, onN11, onN12, onN13, onN14, onW11, onW21, onW31, onW41, onE14, onE24, onE34, onE44, onS41, onS42, onS43, onS44, ray11Nvis, ray12Nvis, ray13Nvis, ray14Nvis, ray11Wvis, ray21Wvis, ray31Wvis, ray41Wvis, ray14Evis, ray24Evis, ray34Evis, ray44Evis, ray41Svis, ray42Svis, ray43Svis, ray44Svis, resetButt, coverButt, LBcover] // mirrorvis;
 
-proc toggle_cover : cover_clicked {
-	if (cover_clicked) {
+proc toggle_cover : coverButt_clicked {
+	if (coverButt_clicked) {
 		gridVisible = (gridVisible) ? false : true;
 	}
 }
+
+## there is an error in the specification of mirror12:
+## mirror12 is Line(visraypt(1,2)[1] - size12, visraypt(1,2)[2] + size11*mirrorGrid[1][2], visraypt(1,2)[1] + size12, visraypt(1,2)[2] - size12*mirrorGrid[1][2], mirrorcol);
+
+mirror12 is Line(visraypt(1,2)[1] - size12, visraypt(1,2)[2] + size12*mirrorGrid[1][2], visraypt(1,2)[1] + size12, visraypt(1,2)[2] - size12*mirrorGrid[1][2], mirrorcol);
+
+## a more friendly clicking regime:
+near = 1000;
+
+near11 is (sqrt((mouseX - startPos[1] - scaleWidth * (1-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (1-0.5)) ^ 2) < 25);
+near12 is (sqrt((mouseX - startPos[1] - scaleWidth * (2-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (1-0.5)) ^ 2) < 25);
+near13 is (sqrt((mouseX - startPos[1] - scaleWidth * (3-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (1-0.5)) ^ 2) < 25);
+near14 is (sqrt((mouseX - startPos[1] - scaleWidth * (4-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (1-0.5)) ^ 2) < 25);
+
+near21 is (sqrt((mouseX - startPos[1] - scaleWidth * (1-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (2-0.5)) ^ 2) < 25);
+near22 is (sqrt((mouseX - startPos[1] - scaleWidth * (2-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (2-0.5)) ^ 2) < 25);
+near23 is (sqrt((mouseX - startPos[1] - scaleWidth * (3-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (2-0.5)) ^ 2) < 25);
+near24 is (sqrt((mouseX - startPos[1] - scaleWidth * (4-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (2-0.5)) ^ 2) < 25);
+
+near31 is (sqrt((mouseX - startPos[1] - scaleWidth * (1-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (3-0.5)) ^ 2) < 25);
+near32 is (sqrt((mouseX - startPos[1] - scaleWidth * (2-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (3-0.5)) ^ 2) < 25);
+near33 is (sqrt((mouseX - startPos[1] - scaleWidth * (3-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (3-0.5)) ^ 2) < 25);
+near34 is (sqrt((mouseX - startPos[1] - scaleWidth * (4-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (3-0.5)) ^ 2) < 25);
+
+near41 is (sqrt((mouseX - startPos[1] - scaleWidth * (1-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (4-0.5)) ^ 2) < 25);
+near42 is (sqrt((mouseX - startPos[1] - scaleWidth * (2-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (4-0.5)) ^ 2) < 25);
+near43 is (sqrt((mouseX - startPos[1] - scaleWidth * (3-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (4-0.5)) ^ 2) < 25);
+near44 is (sqrt((mouseX - startPos[1] - scaleWidth * (4-0.5)) ^ 2 + (mouseY - startPos[2] - scaleHeight * (4-0.5)) ^ 2) < 25);
+
+nearIJs is [near11,near12,near13,near14, near21,near22,near23,near24, near31,near32,near33,near34, near41,near42,near43,near44];
+
+func currLBgridpt {
+
+	para nearto;
+	
+	if (nearto[1]) return [1,1];
+	if (nearto[2]) return [1,2];
+	if (nearto[3]) return [1,3];
+	if (nearto[4]) return [1,4];
+	
+	if (nearto[5]) return [2,1];
+	if (nearto[6]) return [2,2];
+	if (nearto[7]) return [2,3];
+	if (nearto[8]) return [2,4];
+	
+	if (nearto[9]) return [3,1];
+	if (nearto[10]) return [3,2];
+	if (nearto[11]) return [3,3];
+	if (nearto[12]) return [3,4];
+	
+	if (nearto[13]) return [4,1];
+	if (nearto[14]) return [4,2];
+	if (nearto[15]) return [4,3];
+	if (nearto[16]) return [4,4];
+};
+
+currgridpt is currLBgridpt(nearIJs);
+
+locatorCircle is Circle(startPos[1] + scaleWidth * (currgridpt[2]-0.5), startPos[2] + scaleHeight * (currgridpt[1]-0.5), 6, "lightgrey");
+
+picture is [inl1,inl2,inl3,inl4,inu1,inu2,inu3,inu4, inr1, inr2, inr3, inr4, ind1, ind2, ind3, ind4, onN11, onN12, onN13, onN14, onW11, onW21, onW31, onW41, onE14, onE24, onE34, onE44, onS41, onS42, onS43, onS44, ray11Nvis, ray12Nvis, ray13Nvis, ray14Nvis, ray11Wvis, ray21Wvis, ray31Wvis, ray41Wvis, ray14Evis, ray24Evis, ray34Evis, ray44Evis, ray41Svis, ray42Svis, ray43Svis, ray44Svis, resetButt, coverButt, LBcover] // mirrorvis // [locatorCircle];

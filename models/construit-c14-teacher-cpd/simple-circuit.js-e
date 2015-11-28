@@ -1,0 +1,180 @@
+/**
+ * @title Electrical Circuit
+ */
+
+##﻿include("compatibility/scifest2015.js-e");
+
+import compatibility/scifest2015;
+
+func verticalBulb {
+	para position, r, on;
+	auto x, y, ratio, items;
+	x = position["x"];
+	y = position["y"];
+	ratio = 0.55;
+	items = [];
+	append items, Circle(x, y, r, on? "yellow" : @, "black");
+	append items, Line(x, y - r, x, y - ( 1 - ratio) * r);
+	append items, Line(x, y + (1 - ratio) * r, x, y + r);
+	append items, Arc(x, y, (1 - ratio) * r, -90, 90);
+	return items;
+}
+
+func horizontalSwitch {
+	para position, length, radius, closed;
+	auto x, y, items;
+	x = position["x"];
+	y = position["y"];
+	length = length - radius;
+	items = [];
+	if (!closed) {
+		append items, Line(x + radius, y, x + length / sqrt(2), y - length / sqrt(2));
+		append items, Circle(x + length / sqrt(2), y - length / sqrt(2), radius, "white", "black");
+	} else {
+		append items, Line(x + radius, y, x + length, y);
+	}
+	append items, Circle(x + radius, y, radius, "white", "black");
+	append items, Circle(x + length, y, radius, "white", "black");
+	return items;
+}
+
+func verticalSwitch {
+	para position, length, radius, closed;
+	auto x, y, items;
+	x = position["x"];
+	y = position["y"];
+	length = length - radius;
+	items = [];
+	if (!closed) {
+		append items, Line(x, y + radius, x + length / sqrt(2), y + length / sqrt(2));
+		append items, Circle(x + length / sqrt(2), y + length / sqrt(2), radius, "white", "black");
+	} else {
+		append items, Line(x, y + radius, x, y + length);
+	}
+	append items, Circle(x, y + radius, radius, "white", "black");
+	append items, Circle(x, y + length, radius, "white", "black");
+	return items;
+}
+
+func horizontalBattery {
+	para position, length, spacing;
+	auto x, y, items, ratio;
+	x = position["x"];
+	y = position["y"];
+	ratio = 0.45;
+	items = [];
+	append items, Line(x, y - length / 2, x, y + length / 2);
+	append items, Line(x + spacing, y - length / 2 * ratio, x + spacing, y + length / 2 * ratio);
+	return items;
+}
+
+width = 450;
+height = 300;
+symbolSize is width / 12;
+switchLength is symbolSize * 1.05;
+junctionRadius is switchLength / 10;
+bulbRadius is symbolSize * 0.65;
+
+left = 30;
+absoluteTop = 30;
+right is left + width;
+top is absoluteTop + switchLength / sqrt(2);
+bottom is top + height;
+
+batteryRelativeX = 0.1;
+masterSwitchRelativeX = 0.3;
+switchesRelativeY = 0.3;
+switch1RelativeY is switchesRelativeY;
+switch2RelativeY is switchesRelativeY;
+junctionRelativeX = 0.6;
+junction1RelativeX is junctionRelativeX;
+junction2RelativeX is junctionRelativeX;
+bulbsRelativeY = 0.7;
+bulb1RelativeY is bulbsRelativeY;
+bulb2RelativeY is bulbsRelativeY;
+
+batteryPosition is Point(left + width * batteryRelativeX, top);
+masterSwitchPosition is Point(left + width * masterSwitchRelativeX, top);
+junction1Position is Point(left + width * junction1RelativeX, top);
+junction2Position is Point(left + width * junction1RelativeX, bottom);
+switch1Position is Point(junction1Position["x"], top + height * switch1RelativeY);
+switch2Position is Point(right, top + height * switch2RelativeY);
+bulb1Position is Point(left + junction1RelativeX * width, top + bulb1RelativeY * height);
+bulb2Position is Point(right, top + bulb2RelativeY * height);
+
+battery1 is horizontalBattery(batteryPosition, symbolSize, symbolSize / 6);
+masterSwitch is horizontalSwitch(masterSwitchPosition, switchLength, junctionRadius, masterSwitchClosed);
+switch1 is verticalSwitch(switch1Position, switchLength, junctionRadius, switch1Closed);
+switch2 is verticalSwitch(switch2Position, switchLength, junctionRadius, switch2Closed);
+bulb1 is verticalBulb(bulb1Position, bulbRadius, bulb1On); 
+bulb2 is verticalBulb(bulb2Position, bulbRadius, bulb2On); 
+
+wireBatteryMasterSwitch is LineSequence([Point(batteryPosition["x"] + symbolSize / 6, top), masterSwitchPosition]);
+wireMasterSwitchSwitch2 is LineSequence([
+	Point(masterSwitchPosition["x"] + switchLength, masterSwitchPosition["y"]),
+	junction1Position,
+	Point(right, top),
+	switch2Position
+]);
+wireJunction1Switch1 is LineSequence([junction1Position, switch1Position]);
+wireSwitch1Bulb1 is Line(switch1Position["x"], switch1Position["y"] + switchLength, bulb1Position["x"], bulb1Position["y"] - bulbRadius);
+wireBulb1Junction2 is LineSequence([Point(bulb1Position["x"], bulb1Position["y"] + bulbRadius), junction2Position]);
+wireSwitch2Bulb2 is Line(switch2Position["x"], switch2Position["y"] + switchLength, bulb2Position["x"], bulb2Position["y"] - bulbRadius);
+wireBulb2Battery is LineSequence([
+	Point(bulb2Position["x"], bulb2Position["y"] + bulbRadius),
+	Point(right, bottom),
+	Point(left, bottom),
+	Point(left, top),	
+	batteryPosition
+]);
+
+wires is [wireBatteryMasterSwitch, wireMasterSwitchSwitch2, wireJunction1Switch1, wireSwitch1Bulb1, wireBulb1Junction2, wireSwitch2Bulb2, wireBulb2Battery];
+
+junction1 is Circle(junction1Position["x"], junction1Position["y"], junctionRadius, "black");
+junction2 is Circle(junction2Position["x"], junction2Position["y"], junctionRadius, "black");
+junctions is [junction1, junction2];
+
+circuit is wires // junctions // battery1 // masterSwitch // switch1 // switch2 // bulb1 // bulb2;
+picture is circuit;
+
+masterSwitchClosed = false;
+switch1Closed = false;
+switch2Closed = false;
+##The bulbs will light even if the wires are not in place!  This construal needs refinement!
+bulb1On is masterSwitchClosed && switch1Closed;
+bulb2On is masterSwitchClosed && switch2Closed;
+
+clickSensitivity = 10;
+
+proc throwMasterSwitch : mousePressed {
+	if (mousePressed &&
+		mouseX >= masterSwitchPosition["x"] - clickSensitivity &&
+		mouseX <= masterSwitchPosition["x"] + switchLength + clickSensitivity &&
+		mouseY >= masterSwitchPosition["y"] - switchLength / sqrt(2) - clickSensitivity &&
+		mouseY <= masterSwitchPosition["y"] + junctionRadius + clickSensitivity
+	) {
+		masterSwitchClosed = !masterSwitchClosed;
+	}
+}
+
+proc throwSwitch1 : mousePressed {
+	if (mousePressed &&
+		mouseY >= switch1Position["y"] - clickSensitivity &&
+		mouseY <= switch1Position["y"] + switchLength + clickSensitivity &&
+		mouseX <= switch1Position["x"] + switchLength / sqrt(2) + clickSensitivity &&
+		mouseX >= switch1Position["x"] - junctionRadius - clickSensitivity
+	) {
+		switch1Closed = !switch1Closed;
+	}
+}
+
+proc throwSwitch2 : mousePressed {
+	if (mousePressed &&
+		mouseY >= switch2Position["y"] - clickSensitivity &&
+		mouseY <= switch2Position["y"] + switchLength + clickSensitivity &&
+		mouseX <= switch2Position["x"] + switchLength / sqrt(2) + clickSensitivity &&
+		mouseX >= switch2Position["x"] - junctionRadius - clickSensitivity
+	) {
+		switch2Closed = !switch2Closed;
+	}
+}

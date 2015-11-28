@@ -1,32 +1,42 @@
 ##Radio Buttons
 ${{
-RadioButtons = function (name, buttonValues, x, y, enabled, horizontal){
+RadioButtons = function (name, values, labels, x, y, width, horizontal, enabled) {
 	this.name = name;
-	this.buttonValues = buttonValues;
+	this.values = values;
+	this.labels = labels;
 	this.x = x;
 	this.y = y;
-    this.enabled = enabled;
+	this.width = width;
 	this.horizontal = horizontal;
+    this.enabled = enabled;
 }
 
 RadioButtons.prototype.hash = function () {
 	return this.name+"$$"+
-				this.buttonValues.join("$$")+
+				(Array.isArray(this.values)? this.values.join("$$") : "") +
+				(Array.isArray(this.labels)? this.labels.join("$$") : "") +
 				this.x+"$$"+
 				this.y+"$$"+
-				this.enabled+"$$"+
-				this.horizontal;
+				this.width+"$$"+
+				this.horizontal+"$$"+
+				this.enabled
 };
 }}$;
 
 func RadioButtons { ${{
-  var name = arguments[0];
-  var buttonValues = arguments[1];
-  var x = arguments[2];
-  var y = arguments[3];
-  var enabled = arguments[4];
-  var horizontal = arguments[5];
-  return (new RadioButtons(name, buttonValues, x, y, enabled, horizontal));
+	var name = root.currentObservableName();
+	if (name === undefined) {
+		eden.error(new Error("RadioButtons: Every set of radio buttons must be defined by making a dependency."), "error");
+		return undefined;
+	}
+	var values = arguments[0];
+	var labels = arguments[1];
+	var x = arguments[2];
+	var y = arguments[3];
+	var width = arguments[4];
+	var horizontal = arguments[5];
+	var enabled = arguments[6];
+	return new RadioButtons(name, values, labels, x, y, width, horizontal, enabled);
 }}$; }
 
 ${{
@@ -34,35 +44,27 @@ ${{
 RadioButtons.prototype.makeHTML = function() {
 	var build = "";
 
-	for (var i = 0; i < this.buttonValues.length; i++) {
-		build = build + "<input type=\"radio\" name=\"" + this.name + "\" value=\"" + this.buttonValues[i] + "\">" + this.buttonValues[i] + "<br/>";
+	for (var i = 0; i < this.values.length; i++) {
+		build = build + '<label><input type="radio" name="' + this.name + '" value="' + this.values[i] + '"/> ' +
+			this.labels[i] + '</label> &nbsp;<br/>';
 	}
 
-	
 	if (this.horizontal) {
-		return "<form id=\"canvas_" + this.name + "\" style=\"position: absolute; top: " + this.y + "px; left: " + this.x + "px; display: inline-flex\">" + 
-			build + "</form>";
+		return '<form style="position: absolute" class="canvas-horizontal-radio-buttons">' + build + '</form>';
 	} else {
-		return "<form id=\"canvas_" + this.name + "\" style=\"position: absolute; top: " + this.y + "px; left: " + this.x + "px\">" +
-			build + "</form>";
+		return '<form style="position: absolute">' + build + '</form>';
 	}
 };
 
 RadioButtons.prototype.draw = function (context) {
-	var name = this.name;
-	var agent = root.lookup("RadioButtons");
 
 	if(this.elements === undefined) {
+		var name = this.name;
 
 		//Make the HTML
 		var formJQ = $(this.makeHTML());
 
-		formJQ.change(function(event) {
-			root.lookup(name + "_value").assign(event.target.value, agent, true);
-		});
-		
 		var formElement = formJQ.get(0);
-		var valueSym = root.lookup(name + "_value");
 		var updateValue = function (buttonGroup, value) {
 			for (var i = 0; i < buttonGroup.length; i++) {
 				if (buttonGroup[i].value == value) {
@@ -75,21 +77,51 @@ RadioButtons.prototype.draw = function (context) {
 			}
 		
 		};
+		var valueSym = root.lookup(name + "_value");
 		var initialValue = valueSym.value();
 		if (initialValue !== undefined) {
-			updateValue(formElement, initialValue);
+			updateValue(formElement.elements, initialValue);
 		}
 		valueSym.addJSObserver("updateUI", function (symbol, value) {
-			updateValue(formElement, value);
+			updateValue(formElement.elements, value);
+		});
+
+		formJQ.change(function(event) {
+			root.lookup(name + "_value").assign(event.target.value, root.scope, Symbol.hciAgent, true);
+		})
+		.on("mousedown", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseDownZone").assign(undefined, root.scope, Symbol.hciAgent, mouseFollow);
+		})
+		.on("mouseup", function () {
+			edenUI.plugins.Canvas2D.endClick();
+		})
+		.on("mouseenter", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
 		});
 
 		this.elements = [formElement];
 	}
 };
 
+RadioButtons.prototype.scale = function (scale, zoom, origin) {
+	var elem = this.elements[0];
+	var style = elem.style;
+	style.left = Math.round(this.x * scale + origin.x) + "px";
+	style.top = Math.round(this.y * scale + origin.y) + "px";
+	if (this.width === undefined) {
+		style.width = "";
+	} else {
+		style.width = Math.round(this.width * scale) + "px";
+	}
+	style.fontSize = zoom + "em";
+	var buttonSize = Math.round(13 * zoom) + "px";
+	$(elem).find("input").css({width: buttonSize, height: buttonSize});
+};
+
 RadioButtons.prototype.toString = function() {
-  return "RadioButtons(" + this.name + ", " + Eden.edenCodeForValue(this.buttonValues) + ", " +
-	this.x + ", " + this.y + ", " + this.enabled + ", " + this.horizontal + ")";
+  return "RadioButtons(" + Eden.edenCodeForValues(this.values, this.labels, this.x, this.y, this.width, this.horizontal, this.enabled) + ")";
 };
 
 RadioButtons.prototype.getEdenCode = RadioButtons.prototype.toString;

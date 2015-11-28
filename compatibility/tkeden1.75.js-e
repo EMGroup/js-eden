@@ -35,10 +35,6 @@ proc unpauseedenclocks {
 	edenclocks_paused = false;
 }
 
-func pow {
-  return ${{ Math.pow(arguments[0],arguments[1]); }}$;
-}
-
 func rand {
   ${{
 	return Math.floor(Math.random()*32767);
@@ -80,6 +76,13 @@ func strcat {
 	return result;
 }
 
+symboldefinition is definitionOf;
+
+func symboltext {
+	return definitionRHS($[1]) // ";";
+}
+
+
 ##JS-EDEN tail func returns @ for an undefined argument, refuses the empty list
 ##or a non-list argument, and refuses if more than one argument is provided.
 func oldTail {
@@ -92,3 +95,16 @@ func oldTail {
 }
 
 patch(&oldTail, &tail);
+
+${{
+	Eden.systemAgentNames["srand"] = true;
+	Eden.systemAgentNames["pauseedenclocks"] = true;
+	Eden.systemAgentNames["unpauseedenclocks"] = true;
+
+	Eden.systemFunctionNames["listcat"] = true;
+	Eden.systemFunctionNames["rand"] = true;
+	Eden.systemFunctionNames["rgb2color"] = true;
+	Eden.systemFunctionNames["strcat"] = true;
+	Eden.systemFunctionNames["symboldefinition"] = true;
+	Eden.systemFunctionNames["symboltext"] = true;
+}}$;

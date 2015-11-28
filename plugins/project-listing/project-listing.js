@@ -7,31 +7,191 @@
 
 /**
  * JS-Eden Project Listing Plugin.
- * A plugin to display a list of models hosted on the server. The list can
- * either be displayed in a dialog using createProjectList or be displayed
- * in an existing div element using embedProjectList. It includes a search box
- * to allow searching of the projects available.
+ * A plugin to display a list of models hosted online.
  * @class ProjectList Plugin
  */
-
- 
 EdenUI.plugins.ProjectList = function(edenUI, success) {
 
-	var me = this;
+	var fotdLastUpdated = Date.UTC(2015, 9 - 1, 5); //For some reason months parameter expects numbers 0-11.
 
-	/** @public */
-	this.instances = new Array();
+	var defaultURL = getParameterByName("projects");
+	var prologue = "";
 
-	/**
-	 * Update all project list views. Used when the projects.json file gets
-	 * loaded to make sure projects are being listed correctly.
-	 * TODO: The search input of each view gets ignored.
-	 * @private
-	 */
-	var updateAllCollections = function(pattern) {
-		for (x in me.instances) {
-			updateCollection(me.instances[x],pattern);
+	if ("projectList" in edenUI.branding) {
+		if ("prologue" in edenUI.branding.projectList) {
+			prologue = '<div class="projectlist-prologue">' + edenUI.branding.projectList.prologue.html + '</div>';
+			if ("href" in edenUI.branding.projectList.prologue) {
+				prologue = '<a href="' + edenUI.branding.projectList.prologue.href + '" target="project-listing-link" style="text-decoration: none">' + prologue + '</a>';
+			}
 		}
+		if (defaultURL == "" && "data" in edenUI.branding.projectList) {
+			defaultURL = edenUI.branding.projectList.data;
+		}
+	}
+	if (defaultURL == "") {
+		defaultURL = "models/projects.json";
+	}
+
+	var crossDomainTarget;
+	var crossDomainURL;
+	var crossDomainLoadAsRoot;
+	
+	this.loadCrossDomain = function (response) {
+		if (response.success) {
+			if (typeof(crossDomainTarget) == "string") {
+				//Copy code into an input window.
+				copyToInput(crossDomainTarget, response.success);
+			} else {
+				//Update list of projects.
+				var json = JSON.parse(response.success)
+				crossDomainTarget.populateProjectData(json, crossDomainURL, crossDomainLoadAsRoot);
+			}
+		}
+	}
+
+	function ProjectListProjects() {
+		this.json = {projects: []};
+		this.rootURL = undefined;
+		this.atRoot = true;
+	}
+
+	ProjectListProjects.prototype.loadProjectData = function (url, asRoot) {
+		//Get a list of projects from the server.
+		var me = this;
+		if (/^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(url)) {
+			//Absolute URL.  Might be cross-domain.  Use proxy server.
+			crossDomainTarget = this;
+			crossDomainURL = url;
+			crossDomainLoadAsRoot = asRoot;
+			$.ajax({
+				url: rt.config.proxyBaseURL + "?url=" + url + "&callback=edenUI.plugins.ProjectList.loadCrossDomain",
+				dataType: "script",
+			});
+		} else {
+			$.ajax({
+				url: url,
+				dataType: "json",
+				success: function (data) {
+					me.populateProjectData(data, url, asRoot);
+				},
+				cache: false
+			});
+		}
+	};
+	
+	ProjectListProjects.prototype.loadProjectCode = function (url) {
+		//Retrieve a .js-e file from the server.
+		var me = this;
+		if (/^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(url)) {
+			//Absolute URL.  Might be cross-domain.  Use proxy server.
+			crossDomainTarget = this.json.target;
+			crossDomainURL = url;
+			$.ajax({
+				url: rt.config.proxyBaseURL + "?url=" + url + "&callback=edenUI.plugins.ProjectList.loadCrossDomain",
+				dataType: "script",
+			});
+		} else {
+			$.ajax({
+				url: url,
+				dataType: "text",
+				success: function (data) {
+					copyToInput(me.json.target, data);
+				},
+				cache: false
+			});
+		}
+	};
+
+	ProjectListProjects.prototype.populateProjectData = function (data, url, asRoot) {
+		this.json = data;
+		if (asRoot) {
+			this.rootURL = url;
+			this.atRoot = true;
+		} else {
+			this.atRoot = url == this.rootURL;
+			if (!this.atRoot) {
+				var rootProject = {
+					name: "Return to main list",
+					projects: this.rootURL
+				};
+				this.json.projects.push(rootProject);
+			}
+		}
+		this.updateCollection("");
+	};
+	
+	function openProject(url) {
+		EdenUI.plugins.ScriptGenerator.loadBaseConstrual(url);
+		if (edenUI.plugins.ScriptInput) {
+			edenUI.plugins.ScriptInput.addHistory('include("' + url + '");');
+		}
+	}
+
+	function copyToInput(viewName, code) {
+		edenUI.createView(viewName, "ScriptInput");
+		edenUI.eden.root.lookup("_view_" + viewName + "_title").assign(viewName, root.scope);
+		edenUI.eden.root.lookup("_view_" + viewName + "_script").assign([code], root.scope);
+		edenUI.showView(viewName);
+		edenUI.brieflyHighlightView(viewName);
+	}
+	
+	ProjectListProjects.prototype.projectClick = function (details) {
+		// Actually load the project by executing js-e file.
+		var projectURL = details.runfile;
+		if (projectURL !== undefined) {
+			if (this.json.target !== undefined) {
+				this.loadProjectCode(projectURL);
+			} else if (!edenUI.eden.isInInitialState()) {
+				edenUI.modalDialog(
+					"Open Project Action",
+					"<p>The work space contains an existing construal.</p>\
+					<p>You can either abandon the existing construal or choose to merge the project with the existing definitions.</p>\
+					<p>Which would you like to do?</p>",
+					["Open Project", "Merge"],
+					0,
+					function (optionNo) {
+						if (optionNo == 2) {
+							return;
+						}
+						if (optionNo == 0) {
+							edenUI.newProject();
+						}
+						openProject(projectURL);
+					}
+				);
+			} else {
+				edenUI.newProject();
+				openProject(projectURL);
+			}
+		}
+		var projectListURL = details.projects;
+		if (projectListURL !== undefined) {
+			this.loadProjectData(projectListURL, false);
+		}
+	};
+
+	//Generate the jQuery for a project
+	ProjectListProjects.prototype.makeProject = function (projectData) {
+		var me = this;
+		var project = $('<div class="projectlist-result-element"></div>');
+
+		var projectHTML = '<div class="projectlist-result-name">' + projectData.name + '</div>';
+		if (projectData.description !== undefined) {
+			projectHTML = projectHTML + '<div class="projectlist-result-metadata">' + projectData.description + '</div>';
+		}
+		if (projectData.author !== undefined || projectData.year !== undefined) {
+			projectHTML = projectHTML + '<div class="projectlist-result-metadata">';
+			if (projectData.author !== undefined) {
+				projectHTML = projectHTML + "By " + projectData.author;
+			}
+			if (projectData.year !== undefined) {
+				projectHTML = projectHTML + " (" + projectData.year + ")";
+			}
+			projectHTML = projectHTML + '</div>'
+		}
+		project.html(projectHTML);
+		project.click(function () {me.projectClick(projectData);} );
+		return project;
 	}
 
 	/**
@@ -40,128 +200,130 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 	 * existing project list and generates new results matching the pattern.
 	 * @private
 	 */
-	var updateCollection = function(element,pattern) {
-		procspos = 0;
+	ProjectListProjects.prototype.updateCollection = function (pattern) {
 
 		//Clear any existing project search results.
-		var projresults = $(element).find(".projectlist-results");
-		projresults.html('');
+		this.element.parentElement.scrollTop = 0;
+		var searchResults = $(this.element).find(".projectlist-results");
+		searchResults.html('');
+		var isSnippetList = this.json.target !== undefined;
 
-		//Search through projects to find those matching the query.
-		var reg = new RegExp("^"+pattern+".*");
-		var i = 0;
+		if (this.json.projects !== undefined) {
+			//Search through projects to find those matching the query.
+			var re = new RegExp("(^|\\s)"+ pattern, "im");
+			var hasMatches = false;
+			for (var i = 0; i < this.json.projects.length; i++) {
+				//If not a match then skip to next project
+				if (
+					!re.test(this.json.projects[i].name) &&
+					!re.test(this.json.projects[i].description) &&
+					!re.test(this.json.projects[i].author) &&
+					!re.test(this.json.projects[i].year)
+				) {
+					continue;
+				}
+				hasMatches = true;
 
-		if (me.projects === undefined) {
-			return;
+				var projectData = this.json.projects[i];
+				var project = this.makeProject(projectData);
+				searchResults.append(project);
+			}
 		}
 
-		while (me.projects.projects[i] !== undefined) {
-			//If not a match then skip to next project
-			if (me.projects.projects[i].name.search(reg) == -1) { i = i + 1; continue; }
-
-			//Generate the html element for the project
-			var proj = $('<div class="projectlist-result-element"></div>');
-			//Optimise by putting project details into html element.
-			proj[0].project = me.projects.projects[i];
-
-			proj.html(
-				"<li class=\"type-project\"><div class=\"projectlist-result_name\">"
-				+ me.projects.projects[i].name
-				+ "</div><div class='projectlist-result_value'>"
-				+ me.projects.projects[i].description
-				+ "</div><div class='projectlist-result_value'> by "
-				+ me.projects.projects[i].author
-				+ " ("
-				+ me.projects.projects[i].year
-				+ ")</div></li>"
-			).appendTo(projresults);
-
-			i = i + 1;
-		}
-
-		//Now add animations to each project result
-		projresults.find(".projectlist-result-element").hover(
-			function() {
-				if (this != me.selected_project) {
-					$(this).animate({backgroundColor: "#f2f2f2"}, 100);
-				}
-			}, function() {
-				if (this != me.selected_project) {
-					$(this).animate({backgroundColor: "#eaeaea"}, 100);
-				}
-			}	
-
-		//Also add mouse click functionality (load the project).
-		).click(function () {
-			if (me.selected_project != null) {
-				$(me.selected_project).animate({backgroundColor: "white"}, 100);
+		//Add feature of the day option
+		if (!isSnippetList && this.rootURL == defaultURL && this.atRoot &&
+			(pattern == "" || re.test("Feature of The Day"))
+		) {
+			var sticker;
+			var lastVisited = edenUI.getOptionValue("fotdLastVisited");
+			if (lastVisited === null || parseInt(lastVisited) < fotdLastUpdated) {
+				sticker = '<img id="fotd-sticker" src="images/new-sticker.png" width="24" height="14" style="vertical-align: 5%" />';
+			} else {
+				sticker = "";
 			}
-			me.selected_project = this;
-			$(this).animate({backgroundColor: "#dbe5f1"}, 100);
-
-			if (this.project !== undefined) {
-				// Actually load the project by executing js-e file.
-				var url = this.project.runfile;
-				$.ajax({
-					url: url,
-					dataType: "text",
-					success: function (data) {
-						EdenUI.plugins.ScriptGenerator.loadBaseConstrual(url, data);
-					}
-				});
-			}
-		});
-	}
-
-	/**
-	 * Generate the base HTML structure of a project list dialog.
-	 * @private
-	 */
-	var generateHTML = function() {
-		return "\
-<div class=\"projectlist-listing\">\
-	<div class=\"projectlist-results\"></div>\
-</div>";
-	}
-
-	/** @public */
-	this.createDialog = function(name,mtitle) {
-		code_entry = $('<div></div>');
-		code_entry.html(generateHTML());
-
-		$dialog = $('<div id="'+name+'"></div>')
-			.html(code_entry)
-			.dialog({
-				title: mtitle,
-				width: 310,
-				height: 400,
-				minHeight: 120,
-				minWidth: 230
+			var project = this.makeProject({
+				name: "Feature of The Day " + sticker,
+				description: "Learn about the latest features added to JS-EDEN.",
+				author: "JS-EDEN Development Team",
+				runfile: "models/guides/feature-of-the-day.js-e"
 			});
+			searchResults.prepend(project);
+		}
 
-		me.instances.push(code_entry[0]);
-		updateCollection(code_entry[0], "");
-		//The -1 is stop Chrome from displaying scrollbars on start up.
-		return {position: ['right', 'bottom-1']};
+		//Add new project option
+		if (!isSnippetList && (!hasMatches || re.test("New Project"))) {
+			var emptyProject = $(
+				'<div class="projectlist-result-element">' +
+					'<div class="projectlist-result-name">New Project</div>' + 
+					'<div class="projectlist-result-metadata">An empty work space.</div>' +
+					'<div class="projectlist-result-metadata">By JS-EDEN Development Team</div>' +
+				'</div>'
+			).click(function () {
+				if (!eden.isInInitialState()) {
+					edenUI.modalDialog(
+						"Reset Work Space",
+						'<p>This action will discard the current script. Your work will not be saved.</p>\
+						<p>Are you sure you wish to continue?</p>',
+						["Reset Work Space"],
+						1,
+						function (optionNo) {
+							if (optionNo == 0) {
+								edenUI.newProject();
+							}
+						}
+					);
+				} else {
+					edenUI.newProject();
+				}
+			});
+			searchResults.prepend(emptyProject);
+		}
+
+	}
+
+	this.createDialog = function(name, mtitle) {
+		var viewName = name.slice(0, -7);
+		var instance = new ProjectListProjects();
+
+		var content = $('<div class="projectlist-listing"></div>');
+		content.append(prologue);
+
+		var searchDiv = $('<div class="projectlist-search-box-outer"></div>');
+		var searchBox = $('<input type="text" class="projectlist-search" placeholder="search" />')
+		.on("keyup", function (event) {
+			instance.updateCollection(event.target.value);
+		});
+		searchDiv.append(searchBox);
+		content.append(searchDiv);
+
+		content.append('<div class="projectlist-results noselect"></div>');
+
+		$('<div id="'+name+'"></div>')
+		.html(content)
+		.dialog({
+			title: mtitle,
+			width: 310,
+			height: 400,
+			minHeight: 120,
+			minWidth: 230,
+			dialogClass: "unpadded-dialog"
+		});
+		instance.element = content.get(0);
+
+		var sourceSym = edenUI.eden.root.lookup("_view_" + viewName + "_source");
+		if (sourceSym.value() == undefined) {
+			sourceSym.assign(defaultURL, root.scope, edenUI.eden.root.lookup("createView"));
+		}
+		function reload(sym, url) {
+			instance.loadProjectData(url, true);		
+		}
+		sourceSym.addJSObserver("reload", reload);
+		reload(sourceSym, sourceSym.value());
 	};
-
-	//Get a list of projects from the server.
-	$.ajax({
-		//url: "models/projects.json",
-		url: "models/SciFest2015/projects.json",
-		dataType: 'json',
-		success: function(data) {
-			me.projects = data;
-			edenUI.projects = me.projects;
-			updateAllCollections("");
-		},
-		cache: false,
-		async: true
-	});
 
 	//Add views supported by this plugin.
 	edenUI.views["ProjectList"] = {dialog: this.createDialog, title: "Project List", category: edenUI.viewCategories.interpretation};
-	success();
+	edenUI.eden.include("plugins/project-listing/project-listing.js-e", success);
 };
 
 /* Plugin meta information */

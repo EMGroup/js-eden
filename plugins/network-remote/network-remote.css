@@ -1,0 +1,11 @@
+/*CSS*/
+.sldiv {
+	padding-bottom:10px;
+}
+
+.sldiv input[type="text"]{
+	width:100%;
+}
+.sldiv input[type="button"]{
+	margin-top: 20px;
+}

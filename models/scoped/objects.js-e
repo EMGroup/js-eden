@@ -1,0 +1,15 @@
+## Object Demo
+
+class is [type, members];
+__object_single_member is [`class[2][i]`];
+object is [class] // __object_single_member{i=1..class[2]#};
+
+name = "";
+member is this[indexOf(name,this[1][2])+1];
+
+
+myclass is class{members=["a","b","c"], type="myclass"};
+
+myobj is object{class=myclass, a = 444, b = 555, c = 89};
+myobj_c is member{this=myobj,name="c"};
+

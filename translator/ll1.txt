@@ -1,0 +1,147 @@
+EDEN LL(1) Grammar
+
+SCRIPT		-> STATEMENT SCRIPT | epsilon														FIRST: proc func observable epsilon
+
+STATEMENT	->
+	{ SCRIPT } |
+	when WHEN |
+	proc ACTION |
+	func FUNCTION |
+	for FOR |
+	while WHILE |
+	do DO |
+	switch SWITCH |
+	case CASE |
+	default : |
+	if IF |
+	return EOPT ; |
+	continue ; |
+	break ; |
+	? LVALUE ; |
+	insert INSERT |
+	delete DELETE |
+	append APPEND |
+	shift SHIFT |
+	require REQUIRE |
+	await AWAIT |
+	after AFTER |
+	option OPTION |
+	include INCLUDE |
+	LVALUE STATEMENT'' ; |
+	epsilon
+
+INCLUDE		-> ( EXPRESSION ) ; INCLUDE'
+INCLUDE'	-> include INCLUDE | epsilon
+
+OPTION		-> OBSERVABLE = OPTION'
+OPTION'		-> number | string | boolean
+
+AFTER		-> ( EXPRESSION ) STATEMENT
+AWAIT		-> EXPRESSION ;
+REQUIRE		-> EXPRESSION ;
+INSERT		-> LVALUE , EXPRESSION , EXPRESSION ;
+DELETE		-> LVALUE , EXPRESSION ;
+APPEND		-> LVALUE , EXPRESSION ;
+SHIFT		-> LVALUE ;
+
+SWITCH		-> ( EXPRESSION ) STATEMENT
+CASE 		-> string : | number : | character :
+
+DO			-> STATEMENT while EXPRESSION;
+FOR			-> ( STATEMENT'_OPT ; EXPRESSION_OPT ; STATEMENT'_OPT ) STATEMENT
+WHILE		-> ( EOPT ) STATEMENT 
+SOPT		-> STATEMENT' | epsilon
+EOPT		-> EXPRESSION | epsilon
+
+IF			-> ( EXPRESSION ) STATEMENT IF'
+IF'			-> else STATEMENT | epsilon
+
+FUNCTION	-> observable FUNCBODY
+ACTION		-> observable : OLIST ACTIONBODY
+FUNCBODY	-> { PARAS LOCALS SCRIPT }
+ACTIONBODY	-> { LOCALS SCRIPT }
+PARAS		-> para OLIST ; PARAS | epsilon
+LOCALS		-> auto OLIST ; LOCALS | local OLIST ; LOCALS | epsilon
+
+AGENT		-> observable : AGENT'
+AGENT'		-> when EXPRESSION do ACTIONBODY | do ACTIONBODY
+
+OLIST		-> observable OLIST'
+OLIST'		-> , observable OLIST' | epsilon
+
+LLIST		-> LVALUE LLIST'
+LLIST'		-> , LVALUE LLIST' | epsilon
+
+
+STATEMENT'	-> LVALUE STATEMENT'' | epsilon
+STATEMENT''	->
+	is EXPRESSION |
+	= EXPRESSION |
+	+= EXPRESSION |
+	-= EXPRESSION |
+	/= EXPRESSION |
+	*= EXPRESSION |
+	~> [OLIST] |
+	++ |
+	--|
+	( ELIST )
+
+LVALUE		-> observable LVALUE' | * PRIMARY | ` EXPRESSION `																FIRST: observable
+LVALUE'		-> [ EXPRESSION ] LVALUE' | . observable LVALUE' | epsilon							FIRST: [ . epsilon
+
+EXPRESSION	-> T E'																				FIRST: ( - number & ! observable
+E'			-> && T E' | || T E' | epsilon														FIRST: && || epsilon
+T			-> T' E''																			FIRST: ( - number & ! observable
+E''			-> < T' E'' | <= T' E'' | > T' E'' | >= T' E'' | == T' E'' | != T' E'' | epsilon	FIRST: < <= > >= == != epsilon
+T'			-> T'' E'''																			FIRST: ( - number & ! observable
+E'''		-> + T'' E''' | - T'' E''' | // T'' E''' | epsilon									FIRST: + - // epsilon
+T''			-> T''' E''''																		FIRST: ( - number & ! observable
+E''''		-> * T''' E'''' | / T''' E'''' | % T''' E'''' | ^ T''' E'''' | epsilon				FIRST: * / % ^ epsilon
+T'''		-> T'''' E'''''																		FIRST: ( - number & ! observable
+E'''''		-> # | epsilon																		FIRST: # epsilon
+T''''		-> F E''''''																		FIRST: ( - number & ! observable
+E''''''		-> ? EXPRESSION : EXPRESSION | if EXPRESSION else EXPRESSION | epsilon												FIRST: ? epsilon
+F			->
+	( EXPRESSION ) |
+	- F |
+	number |
+	boolean |
+	character |
+	string |
+	[ ELIST ] |
+	& LVALUE |
+	* PRIMARY |
+	! EXPRESSION |
+	PRIMARY																						FIRST: ( - number & ! observable
+
+PRIMARY		-> observable PRIMARY' | ` EXPRESSION ` PRIMARY'																FIRST: observable
+PRIMARY'	->
+	( ELIST ) PRIMARY''
+	| . PRIMARY
+	| [ EXPRESSION ] PRIMARY'''
+	| PRIMARY''''											
+
+PRIMARY''	->
+	( ELIST ) PRIMARY''
+	| [ EXPRESSION ] PRIMARY''
+	| PRIMARY''''
+
+PRIMARY'''	->
+	. PRIMARY
+	| ( ELIST ) PRIMARY''
+	| [ EXPRESSION ] PRIMARY''
+	| PRIMARY''''
+
+PRIMARY''''	-> with SCOPE | epsilon
+
+SCOPE		-> ( SCOPE' ) | SCOPE'
+SCOPE'		-> observable SCOPE''
+SCOPE''		-> = EXPRESSION SCOPE''' | in EXPRESSION SCOPE'''
+SCOPE'''	-> .. EXPRESSION SCOPE'''' | SCOPE''''
+SCOPE''''	-> , SCOPE' | epsilon
+	
+
+ELIST		-> EXPRESSION ELIST' | epsilon																FIRST: ( - number & ! observable
+ELIST'		-> , EXPRESSION ELIST' | epsilon																FIRST: , epsilon
+
+

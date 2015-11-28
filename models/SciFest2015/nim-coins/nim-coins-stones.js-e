@@ -1,0 +1,687 @@
+/**
+ * @title Nim Coins Stones
+ */
+
+import compatibility/scifest2015;
+
+## This is a JS-EDEN script automatically generated using the environment's script generator feature.
+
+## JS-EDEN is an open source empirical modelling environment based on research, principles and work
+## conducted at University of Warwick.
+## Web site: https://github.com/EMGroup/js-eden
+
+## Turn off automatic calculation until the construal is fully loaded.
+autocalc = 0;
+
+## Observable Assignments:
+_menubar_status = "Output: [\"W\", 1]";
+randomSeed = @;
+pileSizeOne = 5;
+pileSizeTwo = 9;
+pileSizeThree = 5;
+activePile = 0;
+numberOfTurns = 0;
+firstPlayer = "PLAYER 1";
+secondPlayer = "PLAYER 2";
+prePad = "0000";
+preLength = 4;
+sPrefix = "0000";
+prefixLength = 4;
+indexCount = 0;
+binaryNimSumString = "1001";
+c1 = 0;
+c2 = 1;
+c3 = 0;
+magnitudeIndex = 0;
+magnitudeValue = 16;
+test = "";
+bChar = "1";
+winnerLabelTxt = "TBA";
+binarySumHistoryLabelTxt = "";
+pileButtonTwo_clicked = false;
+pileButtonThree_clicked = false;
+history = "1,0";
+buttonPrev_clicked = true;
+buttonNext_clicked = true;
+maxSizeForPile = 7;
+s1 = "111";
+scaleWidth = 30;
+imagelocation = "http://www.dcs.warwick.ac.uk/~jonny/ukcurrency/";
+ix1One = 1;
+ix2One = 1;
+ix3One = 1;
+ix4One = 1;
+ix5One = 1;
+ix6One = 1;
+ix7One = 1;
+ix1Two = 1;
+ix2Two = 1;
+ix3Two = 1;
+ix4Two = 1;
+ix5Two = 1;
+ix6Two = 1;
+ix7Two = 1;
+offsetTwo = 5;
+ix1Three = 1;
+ix2Three = 1;
+ix3Three = 1;
+ix4Three = 1;
+ix5Three = 1;
+ix6Three = 1;
+ix7Three = 1;
+offsetThree = 10;
+ix1 = 1;
+ix2 = 1;
+ix3 = 1;
+ix4 = 1;
+ix5 = 1;
+ix6 = 1;
+ix7 = 1;
+hiddenCol = "red";
+coin1Twopic_click = false;
+coin2Twopic_click = false;
+coin3Twopic_click = false;
+coin4Twopic_click = false;
+coin5Twopic_click = false;
+coin6Twopic_click = false;
+coin1Threepic_click = false;
+coin2Threepic_click = false;
+coin3Threepic_click = false;
+coin4Threepic_click = false;
+coin5Threepic_click = false;
+coin6Threepic_click = false;
+coin1Onepic_click = false;
+coin2Onepic_click = false;
+coin3Onepic_click = false;
+coin4Onepic_click = false;
+coin5Onepic_click = false;
+coin6Onepic_click = false;
+winPileOneNW = [65, 105];
+winPileTwoNW = [225, 105];
+winPileThreeNW = [380, 105];
+stoneSize = 5;
+phasePlay = 1;
+expertMoveSpeed = 400;
+
+## Observable Definitions:
+pile1able is (pileSizeOne>0) && ((activePile == 0) || (activePile == 1));
+pile2able is (pileSizeTwo>0) && ((activePile == 0) || (activePile == 2));
+pile3able is (pileSizeThree>0) && ((activePile == 0) || (activePile == 3));
+pileSizeMax is max(pileSizeOne, pileSizeTwo, pileSizeThree);
+pileLabelOneTxt is str(pileSizeOne);
+pileLabelTwoTxt is str(pileSizeTwo);
+pileLabelThreeTxt is str(pileSizeThree);
+currentPlayer is establishPlayer(numberOfTurns, firstPlayer, secondPlayer);
+currentPlayerLabelTxt is currentPlayer;
+decimalSum is pileSizeOne + pileSizeTwo + pileSizeThree;
+nimSumLength is decimalToBinary(pileSizeMax)#;
+currentNimSum is nimSum(pileSizeOne, pileSizeTwo, pileSizeThree, nimSumLength);
+pileSizeBinaryStringOne is normalise(decimalToBinary(pileSizeOne), nimSumLength);
+pileSizeBinaryStringTwo is normalise(decimalToBinary(pileSizeTwo), nimSumLength);
+pileSizeBinaryStringThree is normalise(decimalToBinary(pileSizeThree), nimSumLength);
+currentNimSumBinaryString is normalise(decimalToBinary(currentNimSum), nimSumLength);
+activePileMarkOne is (activePile==1) ? " " // decodeHTML("&star;") :"";
+currentBinarySumPileOneLabelTxt is pileSizeBinaryStringOne;
+activePileMarkTwo is (activePile==2) ? " " // decodeHTML("&star;") :"";
+currentBinarySumPileTwoLabelTxt is pileSizeBinaryStringTwo;
+activePileMarkThree is (activePile==3) ? " " // decodeHTML("&star;") :"";
+currentBinarySumPileThreeLabelTxt is pileSizeBinaryStringThree;
+currentBinarySumLabelTxt is currentNimSumBinaryString;
+header is Text("NIM",7*scaleWidth,0.5*scaleWidth,scaleWidth,"black");
+pileLabelOne is Text("Pile 1 size: " // pileLabelOneTxt,scaleWidth,10*scaleWidth,scaleWidth/2,hiddenCol);
+pileLabelTwo is Text("Pile 2 size: " // pileLabelTwoTxt,6*scaleWidth,10*scaleWidth,scaleWidth/2,hiddenCol);
+pileLabelThree is Text("Pile 3 size: " // pileLabelThreeTxt,11*scaleWidth,10*scaleWidth,scaleWidth/2,hiddenCol);
+pileButtonOne is Button("pileButtonOne","Take from pile 1",20,160,pile1able);
+pileButtonTwo is Button("pileButtonTwo","Take from pile 2",180,160,pile2able);
+pileButtonThree is Button("pileButtonThree","Take from pile 3",340,160,pile3able);
+currentPlayerHeader is Text("It is the turn of:",scaleWidth,6.5*scaleWidth,scaleWidth/2, "blue");
+currentPlayerLabel is Text(currentPlayerLabelTxt,6.5*scaleWidth,6.5*scaleWidth,scaleWidth/2,"black");
+endTurnButton is Button("endTurnButton","End Turn",12*scaleWidth,6.5*scaleWidth,1);
+winnerHeader is Text("The NIM winner is:",scaleWidth,8*scaleWidth,scaleWidth/2,"blue");
+winnerLabel is Text(winnerLabelTxt,6.5*scaleWidth,8*scaleWidth,scaleWidth/2,"black");
+resetButton is Button("resetButton","Start New Game",11*scaleWidth,8*scaleWidth,1);
+currentBinarySumPileOneHeader is Text("In binary: " // currentBinarySumPileOneLabelTxt,scaleWidth,11*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumPileTwoHeader is Text("In binary:" // currentBinarySumPileTwoLabelTxt,6*scaleWidth,11*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumPileThreeHeader is Text("In binary:" // currentBinarySumPileThreeLabelTxt,11*scaleWidth,11*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumPileOneMarkTxt is pileSizeBinaryStringOne // activePileMarkOne;
+currentBinarySumPileOneLabel is Text(currentBinarySumPileOneMarkTxt,7*scaleWidth,12.5*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumPileTwoMarkTxt is pileSizeBinaryStringTwo // activePileMarkTwo;
+currentBinarySumPileTwoLabel is Text(currentBinarySumPileTwoMarkTxt,7*scaleWidth,13.5*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumPileThreeMarkTxt is pileSizeBinaryStringThree // activePileMarkThree;
+currentBinarySumPileThreeLabel is Text(currentBinarySumPileThreeMarkTxt,7*scaleWidth,14.5*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumHeader is Text("Nim-Sum in binary:",scaleWidth,16.5*scaleWidth,scaleWidth/2,hiddenCol);
+currentBinarySumLabel is Text(currentBinarySumLabelTxt,7*scaleWidth,16.5*scaleWidth,scaleWidth/2,hiddenCol);
+binarySumHistoryHeader is Text("Nim-Sum History:",30,450,"blue");
+binarySumHistoryLabel is Text(binarySumHistoryLabelTxt,190,450,"black");
+loc1One is {2*scaleWidth,3*scaleWidth};
+coin1Onepic is HTMLImage("coin1Onepic",loc1One.x,loc1One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix1One));
+loc2One is {3*scaleWidth,4*scaleWidth};
+coin2Onepic is HTMLImage("coin2Onepic",loc2One.x,loc2One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix2One));
+loc3One is {scaleWidth,2*scaleWidth};
+coin3Onepic is HTMLImage("coin3Onepic",loc3One.x,loc3One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix3One));
+loc4One is {scaleWidth,4*scaleWidth};
+coin4Onepic is HTMLImage("coin4Onepic",loc4One.x,loc4One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix4One));
+loc5One is {3*scaleWidth,2*scaleWidth};
+coin5Onepic is HTMLImage("coin5Onepic",loc5One.x,loc5One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix5One));
+loc6One is {scaleWidth,3*scaleWidth};
+coin6Onepic is HTMLImage("coin6Onepic",loc6One.x,loc6One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix6One));
+loc7One is {3*scaleWidth,3*scaleWidth};
+coin7Onepic is HTMLImage("coin6Onepic",loc7One.x,loc7One.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix7One));
+loc1Two is {(offsetTwo + 2)*scaleWidth,3*scaleWidth};
+coin1Twopic is HTMLImage("coin1Twopic",loc1Two.x,loc1Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix1Two));
+loc2Two is {(offsetTwo + 3)*scaleWidth,4*scaleWidth};
+coin2Twopic is HTMLImage("coin2Twopic",loc2Two.x,loc2Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix2Two));
+loc3Two is {(offsetTwo + 1)*scaleWidth,2*scaleWidth};
+coin3Twopic is HTMLImage("coin3Twopic",loc3Two.x,loc3Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix3Two));
+loc4Two is {(offsetTwo + 1)*scaleWidth,4*scaleWidth};
+coin4Twopic is HTMLImage("coin4Twopic",loc4Two.x,loc4Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix4Two));
+loc5Two is {(offsetTwo + 3)*scaleWidth,2*scaleWidth};
+coin5Twopic is HTMLImage("coin5Twopic",loc5Two.x,loc5Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix5Two));
+loc6Two is {(offsetTwo + 1)*scaleWidth,3*scaleWidth};
+coin6Twopic is HTMLImage("coin6Twopic",loc6Two.x,loc6Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix6Two));
+loc7Two is {(offsetTwo + 3)*scaleWidth,3*scaleWidth};
+coin7Twopic is HTMLImage("coin6Twopic",loc7Two.x,loc7Two.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix7Two));
+loc1Three is {(offsetThree + 2)*scaleWidth,3*scaleWidth};
+coin1Threepic is HTMLImage("coin1Threepic",loc1Three.x,loc1Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix1Three));
+loc2Three is {(offsetThree + 3)*scaleWidth,4*scaleWidth};
+coin2Threepic is HTMLImage("coin2Threepic",loc2Three.x,loc2Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix2Three));
+loc3Three is {(offsetThree + 1)*scaleWidth,2*scaleWidth};
+coin3Threepic is HTMLImage("coin3Threepic",loc3Three.x,loc3Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix3Three));
+loc4Three is {(offsetThree + 1)*scaleWidth,4*scaleWidth};
+coin4Threepic is HTMLImage("coin4Threepic",loc4Three.x,loc4Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix4Three));
+loc5Three is {(offsetThree + 3)*scaleWidth,2*scaleWidth};
+coin5Threepic is HTMLImage("coin5Threepic",loc5Three.x,loc5Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix5Three));
+loc6Three is {(offsetThree + 1)*scaleWidth,3*scaleWidth};
+coin6Threepic is HTMLImage("coin6Threepic",loc6Three.x,loc6Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix6Three));
+loc7Three is {(offsetThree + 3)*scaleWidth,3*scaleWidth};
+coin7Threepic is HTMLImage("coin6Threepic",loc7Three.x,loc7Three.y,scaleWidth,scaleWidth,imagelocation // coindisplay(ix7Three));
+coinsPileOneDisplay is prefixlsn([coin1Onepic, coin2Onepic, coin3Onepic, coin4Onepic, coin5Onepic, coin6Onepic, coin7Onepic], pileSizeOne);
+coinsPileTwoDisplay is prefixlsn([coin1Twopic, coin2Twopic, coin3Twopic, coin4Twopic, coin5Twopic, coin6Twopic, coin7Twopic], pileSizeTwo);
+coinsPileThreeDisplay is prefixlsn([coin1Threepic, coin2Threepic, coin3Threepic, coin4Threepic, coin5Threepic, coin6Threepic, coin7Threepic], pileSizeThree);
+sumStr is (nimSumLength==4) ? "====" : ((nimSumLength==3) ? "===" : ((nimSumLength==2) ? "==" : "="));
+currentBinarySumSymbol is Text(sumStr,7*scaleWidth,15.5*scaleWidth,scaleWidth/2,hiddenCol);
+binarySumHistory is Text("Nim-Sum History: "  // binarySumHistoryLabelTxt,scaleWidth,17.5*scaleWidth,scaleWidth/2,hiddenCol);
+maxPileSize is (phasePlay == 2) ? 7 : 15;
+p0 is [winPileOneNW[1]+10, winPileOneNW[2]-40];
+p4 is [winPileOneNW[1]+10,winPileOneNW[2]+0];
+p3 is [winPileOneNW[1]-10, winPileOneNW[2]+0];
+p2 is [winPileOneNW[1]+20, winPileOneNW[2]-20];
+p5 is [winPileOneNW[1]+30,winPileOneNW[2]+0];
+p6 is [winPileOneNW[1]-20,winPileOneNW[2]+20];
+p1 is [winPileOneNW[1]+0,winPileOneNW[2]-20];
+p7 is [winPileOneNW[1]+0, winPileOneNW[2]+20];
+p8 is [winPileOneNW[1]+20,winPileOneNW[2]+20];
+p9 is [winPileOneNW[1]+40,winPileOneNW[2]+20];
+p10 is [winPileOneNW[1]-30, winPileOneNW[2]+40];
+p11 is [winPileOneNW[1]-10, winPileOneNW[2]+40];
+p12 is [winPileOneNW[1]+10, winPileOneNW[2]+40];
+p13 is [winPileOneNW[1]+30, winPileOneNW[2]+40];
+p14 is [winPileOneNW[1]+50, winPileOneNW[2]+40];
+colOne0 is (pileSizeOne>14) ? "red" : "yellow";
+stone0 is Circle(p0[1],p0[2],stoneSize,colOne0,"yellow");
+colOne1 is (pileSizeOne>13) ? "red" : "yellow";
+stone1 is Circle(p1[1],p1[2],stoneSize,colOne1,"yellow");
+colOne2 is (pileSizeOne>12) ? "red" : "yellow";
+stone2 is Circle(p2[1],p2[2],stoneSize,colOne2,"yellow");
+colOne3 is (pileSizeOne>11) ? "red" : "yellow";
+stone3 is Circle(p3[1],p3[2],stoneSize,colOne3,"yellow");
+colOne4 is (pileSizeOne>10) ? "red" : "yellow";
+stone4 is Circle(p4[1],p4[2],stoneSize,colOne4,"yellow");
+colOne5 is (pileSizeOne>9) ? "red" : "yellow";
+stone5 is Circle(p5[1],p5[2],stoneSize,colOne5,"yellow");
+colOne6 is (pileSizeOne>8) ? "red" : "yellow";
+stone6 is Circle(p6[1],p6[2],stoneSize,colOne6,"yellow");
+colOne7 is (pileSizeOne>7) ? "red" : "yellow";
+stone7 is Circle(p7[1],p7[2],stoneSize,colOne7,"yellow");
+colOne8 is (pileSizeOne>6) ? "red" : "yellow";
+stone8 is Circle(p8[1],p8[2],stoneSize,colOne8,"yellow");
+colOne9 is (pileSizeOne>5) ? "red" : "yellow";
+stone9 is Circle(p9[1],p9[2],stoneSize,colOne9,"yellow");
+colOne10 is (pileSizeOne>4) ? "red" : "yellow";
+stone10 is Circle(p10[1],p10[2],stoneSize,colOne10,"yellow");
+colOne11 is (pileSizeOne>3) ? "red" : "yellow";
+stone11 is Circle(p11[1],p11[2],stoneSize,colOne11,"yellow");
+colOne12 is (pileSizeOne>2) ? "red" : "yellow";
+stone12 is Circle(p12[1],p12[2],stoneSize,colOne12,"yellow");
+colOne13 is (pileSizeOne>1) ? "red" : "yellow";
+stone13 is Circle(p13[1],p13[2],stoneSize,colOne13,"yellow");
+colOne14 is (pileSizeOne>0) ? "red" : "yellow";
+stone14 is Circle(p14[1],p14[2],stoneSize,colOne14,"yellow");
+pp0 is [winPileTwoNW[1]+10, winPileTwoNW[2]-40];
+pp4 is [winPileTwoNW[1]+10,winPileTwoNW[2]+0];
+pp3 is [winPileTwoNW[1]-10, winPileTwoNW[2]+0];
+pp2 is [winPileTwoNW[1]+20, winPileTwoNW[2]-20];
+pp5 is [winPileTwoNW[1]+30,winPileTwoNW[2]+0];
+pp6 is [winPileTwoNW[1]-20,winPileTwoNW[2]+20];
+pp1 is [winPileTwoNW[1]+0,winPileTwoNW[2]-20];
+pp7 is [winPileTwoNW[1]+0, winPileTwoNW[2]+20];
+pp8 is [winPileTwoNW[1]+20,winPileTwoNW[2]+20];
+pp9 is [winPileTwoNW[1]+40,winPileTwoNW[2]+20];
+pp10 is [winPileTwoNW[1]-30, winPileTwoNW[2]+40];
+pp11 is [winPileTwoNW[1]-10, winPileTwoNW[2]+40];
+pp12 is [winPileTwoNW[1]+10, winPileTwoNW[2]+40];
+pp13 is [winPileTwoNW[1]+30, winPileTwoNW[2]+40];
+pp14 is [winPileTwoNW[1]+50, winPileTwoNW[2]+40];
+colTwo0 is (pileSizeTwo>14) ? "red" : "yellow";
+p2stone0 is Circle(pp0[1],pp0[2],stoneSize,colTwo0,"yellow");
+colTwo1 is (pileSizeTwo>13) ? "red" : "yellow";
+p2stone1 is Circle(pp1[1],pp1[2],stoneSize,colTwo1,"yellow");
+colTwo2 is (pileSizeTwo>12) ? "red" : "yellow";
+p2stone2 is Circle(pp2[1],pp2[2],stoneSize,colTwo2,"yellow");
+colTwo3 is (pileSizeTwo>11) ? "red" : "yellow";
+p2stone3 is Circle(pp3[1],pp3[2],stoneSize,colTwo3,"yellow");
+colTwo4 is (pileSizeTwo>10) ? "red" : "yellow";
+p2stone4 is Circle(pp4[1],pp4[2],stoneSize,colTwo4,"yellow");
+colTwo5 is (pileSizeTwo>9) ? "red" : "yellow";
+p2stone5 is Circle(pp5[1],pp5[2],stoneSize,colTwo5,"yellow");
+colTwo6 is (pileSizeTwo>8) ? "red" : "yellow";
+p2stone6 is Circle(pp6[1],pp6[2],stoneSize,colTwo6,"yellow");
+colTwo7 is (pileSizeTwo>7) ? "red" : "yellow";
+p2stone7 is Circle(pp7[1],pp7[2],stoneSize,colTwo7,"yellow");
+colTwo8 is (pileSizeTwo>6) ? "red" : "yellow";
+p2stone8 is Circle(pp8[1],pp8[2],stoneSize,colTwo8,"yellow");
+colTwo9 is (pileSizeTwo>5) ? "red" : "yellow";
+p2stone9 is Circle(pp9[1],pp9[2],stoneSize,colTwo9,"yellow");
+colTwo10 is (pileSizeTwo>4) ? "red" : "yellow";
+p2stone10 is Circle(pp10[1],pp10[2],stoneSize,colTwo10,"yellow");
+colTwo11 is (pileSizeTwo>3) ? "red" : "yellow";
+p2stone11 is Circle(pp11[1],pp11[2],stoneSize,colTwo11,"yellow");
+colTwo12 is (pileSizeTwo>2) ? "red" : "yellow";
+p2stone12 is Circle(pp12[1],pp12[2],stoneSize,colTwo12,"yellow");
+colTwo13 is (pileSizeTwo>1) ? "red" : "yellow";
+p2stone13 is Circle(pp13[1],pp13[2],stoneSize,colTwo13,"yellow");
+colTwo14 is (pileSizeTwo>0) ? "red" : "yellow";
+p2stone14 is Circle(pp14[1],pp14[2],stoneSize,colTwo14,"yellow");
+ppp0 is [winPileThreeNW[1]+10, winPileThreeNW[2]-40];
+ppp4 is [winPileThreeNW[1]+10,winPileThreeNW[2]+0];
+ppp3 is [winPileThreeNW[1]-10, winPileThreeNW[2]+0];
+ppp2 is [winPileThreeNW[1]+20, winPileThreeNW[2]-20];
+ppp5 is [winPileThreeNW[1]+30,winPileThreeNW[2]+0];
+ppp6 is [winPileThreeNW[1]-20,winPileThreeNW[2]+20];
+ppp1 is [winPileThreeNW[1]+0,winPileThreeNW[2]-20];
+ppp7 is [winPileThreeNW[1]+0, winPileThreeNW[2]+20];
+ppp8 is [winPileThreeNW[1]+20,winPileThreeNW[2]+20];
+ppp9 is [winPileThreeNW[1]+40,winPileThreeNW[2]+20];
+ppp10 is [winPileThreeNW[1]-30, winPileThreeNW[2]+40];
+ppp11 is [winPileThreeNW[1]-10, winPileThreeNW[2]+40];
+ppp12 is [winPileThreeNW[1]+10, winPileThreeNW[2]+40];
+ppp13 is [winPileThreeNW[1]+30, winPileThreeNW[2]+40];
+ppp14 is [winPileThreeNW[1]+50, winPileThreeNW[2]+40];
+colThree0 is (pileSizeThree>14) ? "red" : "yellow";
+p3stone0 is Circle(ppp0[1],ppp0[2],stoneSize,colThree0,"yellow");
+colThree1 is (pileSizeThree>13) ? "red" : "yellow";
+p3stone1 is Circle(ppp1[1],ppp1[2],stoneSize,colThree1,"yellow");
+colThree2 is (pileSizeThree>12) ? "red" : "yellow";
+p3stone2 is Circle(ppp2[1],ppp2[2],stoneSize,colThree2,"yellow");
+colThree3 is (pileSizeThree>11) ? "red" : "yellow";
+p3stone3 is Circle(ppp3[1],ppp3[2],stoneSize,colThree3,"yellow");
+colThree4 is (pileSizeThree>10) ? "red" : "yellow";
+p3stone4 is Circle(ppp4[1],ppp4[2],stoneSize,colThree4,"yellow");
+colThree5 is (pileSizeThree>9) ? "red" : "yellow";
+p3stone5 is Circle(ppp5[1],ppp5[2],stoneSize,colThree5,"yellow");
+colThree6 is (pileSizeThree>8) ? "red" : "yellow";
+p3stone6 is Circle(ppp6[1],ppp6[2],stoneSize,colThree6,"yellow");
+colThree7 is (pileSizeThree>7) ? "red" : "yellow";
+p3stone7 is Circle(ppp7[1],ppp7[2],stoneSize,colThree7,"yellow");
+colThree8 is (pileSizeThree>6) ? "red" : "yellow";
+p3stone8 is Circle(ppp8[1],ppp8[2],stoneSize,colThree8,"yellow");
+colThree9 is (pileSizeThree>5) ? "red" : "yellow";
+p3stone9 is Circle(ppp9[1],ppp9[2],stoneSize,colThree9,"yellow");
+colThree10 is (pileSizeThree>4) ? "red" : "yellow";
+p3stone10 is Circle(ppp10[1],ppp10[2],stoneSize,colThree10,"yellow");
+colThree11 is (pileSizeThree>3) ? "red" : "yellow";
+p3stone11 is Circle(ppp11[1],ppp11[2],stoneSize,colThree11,"yellow");
+colThree12 is (pileSizeThree>2) ? "red" : "yellow";
+p3stone12 is Circle(ppp12[1],ppp12[2],stoneSize,colThree12,"yellow");
+colThree13 is (pileSizeThree>1) ? "red" : "yellow";
+p3stone13 is Circle(ppp13[1],ppp13[2],stoneSize,colThree13,"yellow");
+colThree14 is (pileSizeThree>0) ? "red" : "yellow";
+p3stone14 is Circle(ppp14[1],ppp14[2],stoneSize,colThree14,"yellow");
+stonesPileOne is [stone0,stone1,stone2,stone3,stone4,stone5,stone6,stone7,stone8,stone9,stone10,stone11,stone12,stone13,stone14];
+stonesPileTwo is [p2stone0,p2stone1,p2stone2,p2stone3,p2stone4,p2stone5,p2stone6,p2stone7,p2stone8,p2stone9,p2stone10,p2stone11,p2stone12,p2stone13,p2stone14];
+stonesPileThree is [p3stone0,p3stone1,p3stone2,p3stone3,p3stone4,p3stone5,p3stone6,p3stone7,p3stone8,p3stone9,p3stone10,p3stone11,p3stone12,p3stone13,p3stone14];
+pictureInit is [header,pileButtonOne,pileButtonTwo,pileButtonThree,currentPlayerHeader,currentPlayerLabel,endTurnButton,winnerHeader,winnerLabel,resetButton] // stonesPileOne // stonesPileTwo // stonesPileThree;
+pictureAnalyse is [header,pileLabelOne,pileLabelTwo,pileLabelThree,pileButtonOne,pileButtonTwo,pileButtonThree,currentPlayerHeader,currentPlayerLabel,endTurnButton,winnerHeader,winnerLabel,resetButton,currentBinarySumPileOneHeader,currentBinarySumPileTwoHeader,currentBinarySumPileThreeHeader,currentBinarySumPileOneLabel,currentBinarySumPileTwoLabel,currentBinarySumPileThreeLabel,currentBinarySumLabel,currentBinarySumHeader,currentBinarySumSymbol,binarySumHistory] // coinsPileOneDisplay // coinsPileTwoDisplay // coinsPileThreeDisplay;
+pictureBlend is [header,pileLabelOne,pileLabelTwo,pileLabelThree,pileButtonOne,pileButtonTwo,pileButtonThree,currentPlayerHeader,currentPlayerLabel,endTurnButton,winnerHeader,winnerLabel,resetButton,currentBinarySumPileOneHeader,currentBinarySumPileTwoHeader,currentBinarySumPileThreeHeader,currentBinarySumPileOneLabel,currentBinarySumPileTwoLabel,currentBinarySumPileThreeLabel,currentBinarySumHeader,currentBinarySumLabel,currentBinarySumSymbol,binarySumHistory] // stonesPileOne // stonesPileTwo // stonesPileThree;
+pileSizeBinaryStringOneTwoThree is [pileSizeBinaryStringOne, pileSizeBinaryStringTwo, pileSizeBinaryStringThree];
+expertPlayer is Button("expert", "Expert play",  17*scaleWidth, 6*scaleWidth, activePile==0);
+randomPlayer is Button("novice", "Random play",  17*scaleWidth, 7*scaleWidth, activePile==0);
+pileSizeOneTwoThree is [&pileSizeOne, &pileSizeTwo, &pileSizeThree];
+slideA_setupNIM is Slide("
+<h3>Getting started</h3>
+<p>
+Launch the scifest interpreter at ... and click on ... in the Project
+List to load ...
+</p>
+");
+D_whyNimstrategyworks is Slide("
+<h3>Devising a winning strategy</h3>
+<p>
+If the Nim-Sum is zero, you can see that the number of stones in any pile is the Nim-Sum for the rest of the piles.
+This means that if you take a stone from any pile, the Nim-Sum is no longer zero.
+You can see this in the Nim-Sum history - the next number after a zero in the history is never zero. 
+</p>
+<p>
+To prove the existence of an action that will transform a situation in which the Nim-Sum is non-zero into a situation where the Nim-Sum is zero, it is enough to show that there is an index i for which the number whose binary representation is the Nim-Sum of the other n-1 numbers is less than or equal to the i-th number.
+</p>
+<p>
+For this purpose, we simple have to locate a number X that has 1 in its binary representation in the leftmost position k in which a 1 appears in the current Nim-Sum.
+</p>
+<p>
+If the Nim-Sum of the n-1 numbers other than X has a 1 in any position to the left of k in its binary representation, then so does X, since the Nim-Sum has a 0 in this position.
+</p>
+");
+
+## Action Definitions:
+proc expertTick{
+
+        if ((activePile != 0) && (currentNimSum!=0)){
+                after (expertMoveSpeed) {
+                        *pileSizeOneTwoThree[activePile]--;
+                        expertTick();
+                }
+        }
+}
+
+proc takePile1 : pileButtonOne_clicked {
+	if (pileButtonOne_clicked){
+		if (pileSizeOne>0) {
+			if (activePile == 0) {
+				activePile=1;
+				pileSizeOne--;
+			}
+			else
+			if (activePile == 1) {
+				pileSizeOne--;
+			}
+		}
+	}
+}
+
+proc takePile2 : pileButtonTwo_clicked {
+	if (pileButtonTwo_clicked){
+		if (pileSizeTwo>0) {
+			if (activePile == 0) {
+				activePile=2;
+				pileSizeTwo--;
+			} 
+			else
+			if (activePile == 2) {
+				pileSizeTwo--;
+			}
+		}
+	}
+}
+
+proc takePile3 : pileButtonThree_clicked{
+	if (pileButtonThree_clicked){
+		if (pileSizeThree>0) {
+			if (activePile == 0) {
+				activePile=3;
+				pileSizeThree--;
+			}
+			else
+			if (activePile == 3) {
+				pileSizeThree--;
+			}
+		}
+	}
+}
+
+proc declareWinner : decimalSum {
+	if (decimalSum == 0) {
+		winnerLabelTxt = str(currentPlayer);
+	}
+}
+
+proc endTurn : endTurnButton_clicked {
+	if (endTurnButton_clicked) {
+	
+		if (activePile != 0) {
+			activePile = 0;
+			numberOfTurns++;
+			history = binarySumHistoryLabelTxt;
+	
+			if (history == "") {
+				binarySumHistoryLabelTxt = str(currentNimSum);
+			}
+			else {
+				binarySumHistoryLabelTxt = history // "," // str(currentNimSum);
+			}
+		}
+	}
+}
+
+proc resetGame : resetButton_clicked {
+	if (resetButton_clicked) {
+		pileSizeOne = randomInteger(1,maxPileSize);
+		pileSizeTwo = randomInteger(1,maxPileSize);
+		pileSizeThree = randomInteger(1,maxPileSize);
+		numberOfTurns = 0;
+		activePile = 0;
+		binarySumHistoryLabelTxt = "";
+		winnerLabelTxt = "TBA";
+	}
+}
+
+proc expertMove: expert_clicked {
+        if (expert_clicked){
+                if ((activePile == 0) && (currentNimSum!=0)) {
+                        activePile=expertPlayIndex(currentNimSumBinaryString)[2];
+                        expertTick();
+                }
+                else novice_clicked = true;
+        }
+}
+
+proc randomMove: novice_clicked {
+	auto i;
+	i=randomInteger(1,3);
+	if (novice_clicked){
+			if (activePile == 0) {
+				while (*pileSizeOneTwoThree[i]==0) i = (i+1)%3+1;
+				activePile = i;
+			}
+			*pileSizeOneTwoThree[i]--;
+		##	endTurnButton_clicked = true;	
+	}
+}
+
+## Function Definitions:
+func sublist{
+   ${{
+   var src = arguments[0];
+   var firstix = arguments[1];
+   var lastix = arguments[2];
+   return src.slice(firstix-1, lastix);
+   }}$;
+}
+
+func max{
+   ${{
+   var n1 = arguments[0];
+   var n2 = arguments[1];
+   var n3 = arguments[2];
+   return Math.max(n1,n2,n3);
+   }}$;
+}
+
+func substr {
+   ${{
+   var src = arguments[0];
+   var firstix = arguments[1];
+   var lastix = arguments[2];
+   return src.substr(firstix-1, lastix-firstix+1);
+   }}$;
+}
+
+func establishPlayer {
+	para turns, p1, p2;
+	auto player;
+	
+	if (turns%2 == 1) {
+		player = p2;
+		return player;
+	}
+	else {
+		player = p1;
+		return player;
+	}
+}
+
+func decimalToBinary {
+	para decimal, pad;
+	auto st;
+		
+	st = "";
+    if (decimal==0)
+	st= strcat("0",st);
+	 while (decimal > 0)
+	  {
+		if((decimal % 2) > 0) {
+			st = strcat("1", st); 
+		}
+		else {
+			st = strcat("0", st);
+		}
+	decimal = int(decimal / 2);
+	};
+	
+	return st;
+}
+
+func nimSum {
+	para pileOne, pileTwo, pileThree, nLen;
+	auto nimSumValue, s1, s2, s3;
+	sPrefix = "";
+	prefixLength = 0;
+    
+	for(prefixLength=0;prefixLength<nLen;prefixLength++)
+	{
+	   sPrefix = strcat(sPrefix, "0");
+	
+	}
+		
+	s1 = strcat(sPrefix, decimalToBinary(pileOne));
+	s2 = strcat(sPrefix, decimalToBinary(pileTwo));
+	s3 = strcat(sPrefix, decimalToBinary(pileThree));
+	s1 = substr(s1, s1# - nLen + 1, s1#);
+	s2 = substr(s2, s2# - nLen + 1, s2#);
+	s3 = substr(s3, s3# - nLen + 1, s3#);
+	indexCount = s1#;
+	binaryNimSumString = "";
+	
+	while (indexCount>0) {
+		c1 = int(str(s1[indexCount]));
+		c2 = int(str(s2[indexCount]));
+		c3 = int(str(s3[indexCount]));
+		if (((c1+c2+c3) % 2) == 0) {
+			binaryNimSumString = strcat("0", binaryNimSumString);
+		}
+		else {
+			binaryNimSumString = strcat("1", binaryNimSumString);
+		}
+		
+		indexCount--;
+	}
+	magnitudeIndex = binaryNimSumString#;
+	magnitudeValue = 1;
+	nimSumValue = 0;
+	test = "";
+	
+	while (magnitudeIndex > 0) {
+		bChar = binaryNimSumString[magnitudeIndex];
+		
+		if(bChar == '1') {
+			nimSumValue = nimSumValue + magnitudeValue;
+		}
+		magnitudeValue = magnitudeValue * 2;
+		magnitudeIndex--;
+	}
+	return nimSumValue;
+}
+
+func normalise {
+	para binaryString, precision;
+	auto paddedbinaryString, s1;
+	
+	prePad = "";
+	preLength = 0;
+	for(preLength=0;preLength<precision;preLength++)
+	{
+	    prePad = strcat(prePad, "0");
+	
+	}
+	
+	s1 = strcat(prePad, binaryString);
+	s1 = substr(s1, s1# - precision + 1, s1#);
+	return s1;
+}
+
+func coindisplay {
+	para ix;
+	if (ix==1) return "1p.gif";
+	if (ix==2) return "2p.gif";
+	if (ix==3) return "5p.gif";
+	if (ix==4) return "10p.gif";
+	if (ix==5) return "20p.jpg";
+	if (ix==6) return "50p.jpg";
+	if (ix==7) return "pound.gif";
+	if (ix==8) return "2pounds.gif";
+}
+
+func prefixlsn {
+	para ls, n;
+	auto result, i;
+	result = [];
+	for (i=1;i<=n;i++) result = result // ls[i];
+	return result;
+}
+
+func expertPlayIndex {
+	para binstr;
+	auto i,j;
+	i=1;
+	while (substr(binstr,i,i)=="0") i++;
+	if (i>nimSumLength)
+		## choose one of the three piles at random
+		return ["L", randomInteger(1,3)]; 
+	else {
+		j=1;
+		while (substr(pileSizeBinaryStringOneTwoThree[j],i,i)=="0") j++;	
+		return ["W",j];
+	}		
+}
+
+func strcat{
+  ${{
+		var s1 = arguments[0];
+		var s2 = arguments[1];
+		return s1+s2;
+   }}$;
+}
+
+func rnd{
+   ${{
+   var num =arguments[0];
+   return Math.round(Math.random()*num);
+   
+   }}$;
+}
+
+## Picture Definition:
+picture is  pictureBlend;
+
+## Turn on automatic calculation and execute any triggered actions pending.
+autocalc = 1;
+
+## Definitions implied by loading the original script (execute procedure):
+
+## Definitions implied by loading the original script (other):
+/*
+  Slide = @;                      ## Referenced but not defined.
+  expert_clicked = @;             ## Referenced but not defined.
+  novice_clicked = @;             ## Referenced but not defined.
+*/
+
+## End of automatically generated script.

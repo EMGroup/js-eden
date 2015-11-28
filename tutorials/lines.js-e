@@ -1,0 +1,41 @@
+createView("input_dialog","ScriptInput");
+createCanvas("picture");
+
+_view_input_dialog_x = 483;
+_view_input_dialog_y = 22;
+_view_input_dialog_width = 585;
+_view_input_dialog_height = 380;
+
+lengthA = 100;
+lengthB = 80;
+x = 75;
+y = 150;
+
+lineA is Line(x, y, x + lengthA, y);
+lineB is Line(x, y, x, y - lengthB);
+lineC is Line(x + lengthA, y, x, y - lengthB);
+
+picture is [lineA,lineB,lineC];
+
+_view_input_dialog_script = [
+"## Tutorial 4",
+"## Lines and the Picture window",
+"",
+"lengthA = 100;",
+"lengthB = 80;",
+"x = 75;",
+"y = 150;",
+"",
+&lineA,
+&lineB,
+&lineC,
+"",
+"## Try changing 'x', 'y' and the lengths to see the lines",
+"## update. A 'Line' takes 4 numbers: x1, y1, x2 and y2 which",
+"## defines its start and end point on the screen."
+];
+
+_view_picture_x = 147;
+_view_picture_y = 110;
+_view_picture_width = 228;
+_view_picture_height = 226;

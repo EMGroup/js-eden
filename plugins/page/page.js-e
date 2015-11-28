@@ -1,0 +1,67 @@
+/**
+ * @title Page Plugin
+ * @author Nicolas Pope
+ */
+
+require("Page");
+
+prototype_Page is ["page", title,theme,content];
+Page is prototype_Page with
+	theme is theme if theme else "default";
+
+prototype_Title is ["title", text,subtitle,logo,menus];
+Title is prototype_Title with
+	text is text if text else "Title",
+	subtitle is subtitle if subtitle else "Subtitle";
+
+prototype_Icon is ["icon", content,size,colour];
+Icon is prototype_Icon with
+	content is content if content else "@",
+	size is size if size else 20,
+	colour is colour if colour else "black";
+
+prototype_Header is ["header", text,tag,level];
+Header is prototype_Header with
+	text is text if text else "Header",
+	tag is tag if tag else 0,
+	level is level if level else 0;
+
+prototype_Paragraph is ["p", text];
+Paragraph is prototype_Paragraph with
+	text is text if text else "Some text goes here";
+
+prototype_List is ["list",unordered,items];
+List is prototype_List with
+	unordered is unordered if unordered else true;
+
+prototype_Script is ["script", static,code,name,box,lines,power,float,width];
+Script is prototype_Script with
+	static is static if static != @ else true,
+	code is code if code else "",
+	name is name if name else "EmbeddedInput",
+	box is box if box != @ else true,
+	lines is lines if lines else 5,
+	power is power if power != @ else false,
+	float is float if float else "none",
+	width is width if width else "50%";
+
+prototype_Canvas is ["canvas", name,source,width,height,float,box];
+Canvas is prototype_Canvas with
+	name is name if name else "Picture",
+	source is source if source else "picture",
+	width is width if width else 500,
+	height is height if height else 200,
+	box is box if box != @ else false,
+	float is float if float else "none";
+
+prototype_Break is ["break"];
+Break is prototype_Break;
+
+## Initial Default Page
+
+defaultpage is Page with title is Title, content is [Header,Paragraph];
+
+if (page == @) {
+	page is defaultpage;
+}
+

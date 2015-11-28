@@ -1,47 +1,556 @@
 .inputCodeArea {
-	-moz-tab-size: 2;
-	-o-tab-size: 2;
-	tab-size: 2;
-
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+	/*margin: 5px;*/
 	position: absolute;
-	top: 0px;
-	bottom: 35px;
-	left: 1px;
-	right: 1px;
-	border: 1px solid blue;
-	font-family: monospace;
-	font-size: 14px;
+	top: 35px;
+	bottom: 30px;
+	left: 0;
+	right: 0;
+	border-color: #719ECE;
+    /*box-shadow: 0 0 10px #719ECE;*/
+	color: #2b4957;/*#233b46;*/
+	/*padding-top: 8px;
+	padding-left: 5px;*/
+	background-color: #f5f5f5;
+	overflow: auto;
+	-webkit-font-smoothing: antialiased;
+	-webkit-transform: translate3d(0,0,0);
 }
 
-.inputCodeArea textarea {
-	width: 100%;
-	height: 100%;
-	resize: none;
-	border: 0;
-	padding: 0;
+div.agent-tabs {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 35px;
+	background-color: #cecece;
+	box-sizing: border-box;
+	border-bottom: 1px solid #719ECE;
+	overflow: hidden;
+	padding-left: 20px;
 }
+
+span.tab-icon {
+	font-family: "FontAwesome";
+	font-size: 10pt;
+	margin-right: 10px;
+}
+
+span.tab-icon.executed {
+	color: #00FF00;
+	text-shadow: 0px 0px 6px #46800d;
+}
+
+span.tab-icon.noagent {
+	color: #aaa;
+}
+
+div.agent-tableft {
+	position: absolute;
+	left: 10px;
+	top: 0px;
+	width: 20px;
+	line-height: 35px;
+	height: 35px;
+	cursor: pointer;
+}
+
+div.agent-tableft:hover {
+	color: #719ECE;
+}
+
+div.agent-tableft:after {
+	content: "\f053";
+	font-family: "FontAwesome";
+	font-size: 11pt;
+	font-weight: bold;
+}
+
+div.agent-tabright {
+	position: absolute;
+	right: 10px;
+	top: 0px;
+	width: 20px;
+	line-height: 35px;
+	height: 35px;
+	cursor: pointer;
+}
+
+div.agent-tabright:hover {
+	color: #719ECE;
+}
+
+div.agent-tabright:after {
+	content: "\f054";
+	font-family: "FontAwesome";
+	font-size: 11pt;
+	font-weight: bold;
+}
+
+div.agent-newtab {
+	float:left;
+	margin-left: 20px;
+	width: 20px;
+	line-height: 35px;
+	height: 35px;
+	cursor: pointer;
+	color: #666;
+}
+
+div.agent-newtab:after {
+	content: "\f234";
+	font-family: "FontAwesome";
+	font-size: 14pt;
+	font-weight: normal;
+}
+
+div.agent-newtab:hover {
+	color: #719ECE;
+}
+
+div.agent-tab {
+	float: left;
+	margin-left: 10px;
+	width: 140px;
+	height: 100%;
+	font-family: Verdana,Arial,sans-serif;
+	font-size: 8pt;
+	/*color: #888;*/
+	color: #222;
+	opacity: 0.70;
+	text-align: center;
+	font-weight: bold;
+	line-height: 35px;
+	-webkit-font-smoothing: antialiased;
+	font-smoothing: antialiased;
+	cursor: pointer;
+	overflow: hidden;
+}
+
+div.agent-tab-notcurrent:hover {
+	background-color: #d4d4d4;
+	box-sizing: border-box;
+	border-left: 1px solid #aaa;
+	border-right: 1px solid #aaa;
+	border-bottom: 3px solid #aaa;
+	color: #666;
+}
+
+div.agent-tab-current {
+	background-color: #dbdbdb;
+	box-sizing: border-box;
+	border-bottom: 3px solid #719ECE;
+	border-left: 1px solid #aaa;
+	border-right: 1px solid #aaa;
+	color: #222;
+	opacity: 1.0;
+}
+
+div.agent-tab-current:hover {
+	background-color: #e5e5e5;
+}
+
+
+@font-face {
+	font-family: "FontAwesome";
+	src: url("../../fonts/fontawesome-webfont.eot");
+	src:	url("../../fonts/fontawesome-webfont.eot?#iefix") format('eot'),
+			url("../../fonts/fontawesome-webfont.woff") format('woff'),
+			url("../../fonts/fontawesome-webfont.ttf") format('truetype'),
+			url("../../fonts/fontawesome-webfont.svg#FontAwesome") format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+/*@keyframes blinking {
+	from, to { background-color: black }
+	50% { background-color: transparent }
+}*/
+
+span.fake-caret {
+	position: absolute;
+	height: 20px;
+	width: 1px;
+	border: 0;
+	background: #777;
+	margin: 0;
+	padding: 0;
+	/*animation-name: blinking;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+	transform: translateZ(0);*/
+}
+
+span.fake-blur-caret {
+	background: transparent;
+}
+
+div.outputbox {
+	position: absolute;
+	bottom: 0px;
+	height: 30px;
+	background: none;
+	left: 150px;
+	right: 150px;
+	font-size: 12pt;
+	text-align: center;
+}
+
+div.info-bar {
+	position: absolute;
+	left: 100px;
+	min-width: 200px;
+	padding-right: 20px;
+	min-height: 30px;
+	vertical-align: middle;
+	z-index: 7;
+	color: white;
+	border-radius: 20px;
+	font: bold 12px "Helvetica Neue", Sans-Serif;
+	box-shadow: 0 0 7px black;
+	opacity: 0.9;
+	text-align: center;
+	background: #204a87;
+	border: 2px solid white;
+}
+
+div.info-item {
+	margin-top: 7px;
+	margin-left: 50px;
+	margin-right: 5px;
+}
+
+div.info-validitem {
+	margin-top: 6px;
+	/*margin-bottom: 6px;*/
+}
+
+/*div.info-validitem:before {
+	position: absolute;
+	content: "";
+	left: 18px;
+	top: 4px;
+	background-image: url('../../images/bullet_accept.png');
+	background-repeat: no-repeat;
+	width: 22px;
+	height: 22px;
+}*/
+
+div.info-warnitem {
+	margin-top: 7px;
+	margin-left: 50px;
+	margin-bottom: 6px;
+}
+
+div.info-warnitem:before {
+	position: absolute;
+	content: "\f06a";
+	font-family: "FontAwesome";
+	font-size: 14pt;
+	color: white;
+	left: 10px;
+	top: 6px;
+	width: 22px;
+	height: 22px;
+}
+
+div.info-erroritem {
+	margin-top: 7px;
+	margin-left: 50px;
+	margin-bottom: 6px;
+}
+
+div.info-erroritem:before {
+	position: absolute;
+	content: "\f06a";
+	font-family: "FontAwesome";
+	font-size: 14pt;
+	color: white;
+	left: 10px;
+	top: 6px;
+	width: 22px;
+	height: 22px;
+}
+
+div.outputbox canvas {
+	box-shadow: 0 0 5px #0a0a0a;
+}
+
+span.valueof {
+	font-family: "FontAwesome";
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+div.control-bar {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 30px;
+	background: #f5f5f5;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
+	border-top: 1px solid #e5e5e5;
+	z-index: 6;
+}
+
+
+.ui-tooltip {
+	min-width: 50px;
+	padding: 5px 10px;
+	color: white;
+	border-radius: 20px;
+	font: bold 12px "Helvetica Neue", Sans-Serif;
+	box-shadow: 0 0 7px black;
+	opacity: 0.9;
+	text-align: center;
+	background: #204a87;
+	border: 2px solid white;
+}
+
+.eden-drag-helper {
+	width: 10px;
+	height: 10px;
+	float: left;
+}
+
+textarea.hidden-textarea {
+	position: absolute;
+	white-space: pre;
+	word-wrap: normal;
+	overflow: auto;
+	font: 14px/20px Roboto Mono,monospace;
+	/*left: 5px;
+	width: 80%;*/
+	height: 50px;
+	tab-size: 4;
+}
+
+div.outputcontent {
+	display: inline-block;
+	/* width: 100%;*/
+	min-width: calc(100% - 22px);
+	min-height: 100%;
+	resize: none;
+	margin-left: 22px;
+	border-left-width: 1px;
+	border-left-style: solid;
+	border-left-color: #e5e5e5;
+	box-sizing: border-box;
+	padding-left: 8px;
+	padding-top: 15px;
+	padding-right: 1px;
+	/*padding: 4px;*/
+	/*margin: 5px;*/
+	cursor: text;
+	outline: none;
+	font: 14px/20px Roboto Mono,monospace;
+	white-space: pre;
+	/*overflow: auto;*/
+	/*background: #f5f5f5;*/
+	background: white;
+}
+
+div.readonly {
+	-webkit-filter: grayscale(70%);
+	filter: grayscale(70%);
+	background-color: #f5f5f5;
+}
+
+div.inspect {
+	-webkit-filter: hue-rotate(120deg);
+	filter: hue-rotate(120deg);
+	/*background-color: #f5f5f5;*/
+}
+
+div.output-shrink {
+	transform: translate(15%) scale(0.7);
+}
+
+div.input-dialog {
+	/*background: #e1e1e1;*/
+	background: none;
+	border-width: 1px;
+	border-color: #777;
+	border-style: solid;
+	padding: 0;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 15px #4a6887;
+	overflow: hidden;
+}
+
+div.input-dialog .ui-dialog-content {
+	overflow: visible;
+}
+
+div.inputhider {
+	overflow: hidden;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+div.input-dialog .ui-dialog-titlebar {
+	height: 30px;
+	text-align: center;
+	border-top-width: 0;
+	border-left-width: 0;
+	border-right-width: 0;
+	border-bottom-color: #777;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 10px #4a6887;
+	background: -webkit-linear-gradient(#fafafa, #cccccc); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#fafafa, #cccccc); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
+	z-index: 6;
+
+}
+
+div.input-dialog .ui-dialog-title {
+	float: none;
+	-webkit-font-smoothing: antialiased;
+	font-smoothing: antialiased;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 5px;
+	display: table;
+}
+
+div.input-dialog .ui-dialog-subtitle {
+	float: none;
+	-webkit-font-smoothing: antialiased;
+	font-smoothing: antialiased;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 0;
+	display: table;
+	font-weight: normal;
+	color: #777;
+}
+
 
 .buttonsDiv {
 	position: absolute;
 	bottom: 2px;
-	right: 0px;
+	right: 30px;
 }
 
-.subButtonsDiv{
+.buttonsDivLeft {
 	position: absolute;
 	bottom: 2px;
-	left: 0px;
+	left: 20px;
 }
 
-.submitButton{
+button.control-button {
 	height:25px;
-	width:120px;
+	width:30px;
+	color: #aaa;
+	font-family: "FontAwesome";
+	cursor: pointer;
+	font-size: 16px;
+	background: none;
+	border: 0;
 }
-.previousButton{
-	height:25px;
-	width:120px;
+
+button.control-button.active {
+	color: red;
 }
-.nextButton{
-	height:25px;
-	width:120px;
+
+button.control-enabled {
+	color: #3465a4;
 }
+
+button.control-enabled:hover {
+	color: #5585c2;
+	text-shadow: 3px 3px 4px #999;
+}
+
+button.control-enabled:active {
+	padding-top: 2px;
+}
+
+
+
+
+span.eden-info {
+	float: right;
+	color: silver;
+}
+
+div.eden_suggestions {
+	position: absolute;
+	width: 200px;
+	/*height: 20px;*/
+	left: 100px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 10px;
+	padding-right: 10px;
+	margin-right: 25px;
+	border-left: 1px solid #719ECE;
+	border-right: 1px solid #719ECE;
+	border-bottom: 1px solid #719ECE;
+	background: white;
+	color: #2b4957;
+	opacity: 0.9;
+	font: 12px/20px Roboto Mono,monospace;
+	z-index: 2000;
+	overflow-x: hidden;
+	overflow-y: auto;
+	max-height: 150px;
+    box-shadow: 0 0 10px #719ECE;
+}
+
+div.options-menu {
+	position: absolute;
+	display: none;
+	bottom: 30px;
+	right: 0px;
+	z-index: 5;
+	width: 150px;
+	min-height: 50px;
+	background-color: #f5f5f5;
+	border-top: 1px solid #e5e5e5;
+	border-left: 1px solid #e5e5e5;
+	/*box-shadow: 0 0 7px black;*/
+	font-family: Verdana,Arial,sans-serif;
+	font-size: 8pt;
+}
+
+div.options-menu-item {
+	width: 100%;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	cursor: pointer;
+}
+
+div.options-menu-item:hover {
+	background-color: #3465a4;
+	color: white;
+}
+
+div.options-menu-item span {
+	margin-right: 8px;
+}
+
+span.options-menu-icon {
+	font-family: "FontAwesome";
+	font-size: 11pt;
+	margin-left: 18px;
+	width: 16px;
+}
+

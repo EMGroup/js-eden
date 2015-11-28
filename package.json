@@ -23,6 +23,8 @@
     "grunt-contrib-watch": "~0.6.1",
     "grunt-contrib-connect": "~0.8.0",
     "grunt-contrib-livereload": "~0.1.2",
+    "grunt-contrib-uglify": "~0.9.2",
+    "grunt-contrib-cssmin": "~0.14.0",
     "grunt-gh-pages": "~0.9.1",
     "wd": "~0.3.11",
     "mocha": "~2.0.1",

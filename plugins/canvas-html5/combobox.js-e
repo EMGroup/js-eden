@@ -4,100 +4,141 @@
 ## See LICENSE.txt
 
 ${{
-Combobox = function (name, options, x, y, enabled) {
+Combobox = function (name, suggestions, x, y, width, placeholder, enabled) {
 	this.name = name;
-	this.options = options;
+	this.suggestions = suggestions;
 	this.x = x;
 	this.y = y;
+	this.width = width;
+	this.placeholder = placeholder;
 	this.enabled = enabled;
 }
 
 Combobox.prototype.hash = function () {
 	return this.name+"$$"+
-				this.options.join("$$")+
+				(Array.isArray(this.suggestions)? this.suggestions.join("$$") : "") +
 				this.x+"$$"+
 				this.y+"$$"+
+				this.width+"$$"+
+				this.placeholder+"$$"+
 				this.enabled;
 };
 
 }}$;
 
 func Combobox { ${{
-  var name = arguments[0];
-  var options = arguments[1];
-  var x = arguments[2];
-  var y = arguments[3];
-  var enabled = arguments[4];
-  if (enabled === undefined) enabled = true;
-  return new Combobox(name, options, x, y, enabled);
+	var name = root.currentObservableName();
+	if (name === undefined) {
+	eden.error(new Error("Combobox: Every combobox must be defined by making a dependency."), "error");
+	return undefined;
+	}
+	var suggestions = arguments[0];
+	var x = arguments[1];
+	var y = arguments[2];
+	var width, placeholder;
+	var argsProcessed = 3;
+
+	var arg = arguments[argsProcessed];
+	var argType = typeof(arg);
+	if (arg === undefined || argType == "number") {
+		width = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);
+	}
+	if (arg === undefined || argType == "string") {
+		placeholder = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+	}
+	var enabled = arg;
+	return new Combobox(name, suggestions, x, y, width, placeholder, enabled);
 }}$; }
 
 
 ${{
 
-function makeOptionsHTML(values) {
+Combobox.prototype.makeOptionsHTML = function() {
 	var html = "";
-	for (var i = 0; i < values.length; i++) {
-		html = html + "\n<option value=\"" + values[i] + "\">" + values[i] + "</option>";
+	for (var i = 0; i < this.suggestions.length; i++) {
+		html = html + '\n<option value="' + this.suggestions[i] + '"/>';
 	}
 	return html;
 }
 
 Combobox.prototype.draw = function(context) {
-	var me = this;
-	var id = "canvas_" + this.name;
-	var agent = root.lookup("Combobox");
-	var valueName = this.name + '_value';
-	var valueSym = root.lookup(valueName);
+	var input, suggestions;
 
-	var dropDownList;
 	if (this.elements === undefined) {
+		var me = this;
+		var name = this.name;
 
-		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
-		var dropDownListJQ = $("<select id=\"" + id + "\" " + disabled + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></select>");
-		dropDownListJQ.html(makeOptionsHTML(this.options));
+		var disabled = this.enabled === false? 'disabled="disabled"' : '';
+		var placeholder = ' placeholder="' + (this.placeholder === undefined? name : this.placeholder) + '"';
+		var inputJQ = $('<input type="text" list="' + name + '-suggestions" ' + disabled +
+			placeholder + ' style="position: absolute"/>');
 
-		dropDownListJQ.change(function(event) {
-			root.lookup(valueName).assign(event.target.value, agent, true);
-		});
+		input = inputJQ.get(0);
+		var suggestionsJQ = $('<datalist id="' + this.name + '-suggestions"></datalist>');
+		suggestions = suggestionsJQ.get(0);
+		suggestionsJQ.html(this.makeOptionsHTML(this.values));
 
-		dropDownList = dropDownListJQ.get(0);
+		var valueSym = root.lookup(name + '_value');
 		var initialValue = valueSym.value();
-		if (initialValue === undefined) {
-			valueSym.assign(me.options[0], agent, true);
-		} else {
-			dropDownList.value = initialValue;
+		if (initialValue !== undefined) {
+			input.value = initialValue;
 		}
-
 		valueSym.addJSObserver("updateCombobox", function (symbol, value) {
-			dropDownList.value = value;
+			input.value = value;
 		});
 
-		this.elements = [dropDownList];
+		inputJQ.on("input", function(event) {
+			valueSym.assign(event.target.value, root.scope, Symbol.hciAgent, true);
+		})
+		.on("mousedown", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseDownZone").assign(undefined, root.scope, Symbol.hciAgent, mouseFollow);
+		})
+		.on("mouseup", function () {
+			edenUI.plugins.Canvas2D.endClick();
+		})
+		.on("mouseenter", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
+		});
+
+		this.elements = [input, suggestions];
 
 	} else {
 
 		//Case when the user has performed direct assignment to one or more JavaScript properties.
-		dropDownList = this.elements[0];
-		$(dropDownList).html(makeOptionsHTML(this.options));
+		input = this.elements[0];
+		suggestions = this.elements[1];
+		$(suggestions).html(this.makeOptionsHTML());
 
-		dropDownList.value = valueSym.value();
+		input.value = valueSym.value();
 
 		if (this.enabled == true) { 
-			dropDownList.disabled = false; 
+			input.disabled = false; 
 		} else {
-			dropDownList.disabled = true;
+			input.disabled = true;
 		}
 
-		dropDownList.style.left = "" + this.x + "px";
-		dropDownList.style.top = "" + this.y + "px";
 	}
 };
-}}$;
-${{
+
+Combobox.prototype.scale = function (scale, zoom, origin) {
+	var style = this.elements[0].style;
+	style.left = Math.round(this.x * scale + origin.x) + "px";
+	style.top = Math.round(this.y * scale + origin.y) + "px";
+	if (this.width !== undefined) {
+		style.width = Math.round(this.width * scale - 6) + "px";
+	}
+	style.fontSize = zoom + "em";
+};
+
 Combobox.prototype.toString = function() {
-	return "Combobox(\"" + this.name + "\", " + Eden.edenCodeForValue(this.options) + ", " +
-		this.x + ", " + this.y + ", " + this.enabled+")";
+	return "Combobox(" + Eden.edenCodeForValues(this.suggestions, this.x, this.y, this.enabled) + ")";
 };
 
 Combobox.prototype.getEdenCode = Combobox.prototype.toString;

@@ -1,0 +1,31 @@
+a = 5;
+b = 4;
+c is a + b;
+
+myscript is Script with static=false, code = [
+"a = " // a // ";",
+"b = 4;",
+&c
+];
+
+myheader is Header with
+	text="Scripts that aren't scripts";
+
+myparagraph is Paragraph with text = [
+"Before getting into the syntax and details of JS-Eden scripts, try to get a feel for the non-sequential nature of these scripts.",
+"In the example below, if you edit 'a' or 'b', the value of 'c' will not change. Only the line modified is evaluated.",
+"These scripts are views of a collection of definitions, rather than describing actions to perform."
+];
+
+mytitle is Title with
+	text="Tutorials:",
+	subtitle="Getting Started";
+
+mycanvas is Canvas;
+
+mypage is Page with title=mytitle, content=[myheader,myparagraph,myscript,mycanvas];
+page is mypage;
+
+myline is Line(10,10,100,100);
+picture is [myline];
+

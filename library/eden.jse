@@ -3,6 +3,9 @@
 ##
 ## See LICENSE.txt
 
+##Debugging flags.
+debug = {jsExceptions: ${{edenUI.getOptionValue("developer") == "true" }}$ };
+
 ##MISSING FUNCTIONS
 
 proc eager {
@@ -21,29 +24,15 @@ func time {
 
 proc writeln {
   ${{
-	var message = root.lookup("str").definition(root)(arguments[0]);
+	var message = root.lookup("str").definition(root, root.scope)(arguments[0]);
 	console.log(message);
 	message = "Output: " + message;
-	root.lookup("_menubar_status").assign(message, this);
+	root.lookup("_menubar_status").assign(message, root.scope, this);
 	if (!root.autocalc_state) {
 		edenUI.plugins.MenuBar.updateStatus(message);
 	}
   }}$;
 }
-
-##A kind of privilege level that the JS-EDEN user is constrained by.
-##
-##Possible values:
-##	"tool development": The user is allowed to write JS-EDEN code that modifies JS-EDEN itself, for
-##		example code that modifies the CSS of the user interface.
-##	"making construals": The normal mode without the extra privileges conferred by "tool development"
-##		mode.
-##	"warnings": Puts extra checks in place to warn the user about situations that are normally
-##		permissible in "making construals" mode (and reasonable in some exceptional circumstances)
-##		but that are likely indicative of mistakes made by the user in most circumstances.  An
-##		example is referring to an observable name that hasn't been defined yet.  This mode isn't
-##		implemented yet.
-_authoringMode = "making construals";
 
 ##Raises an error if fewer or greater than two arguments are given.
 ##Returns undefined if either argument is undefined.
@@ -76,8 +65,11 @@ func forget {
 		
 		if (typeof(arguments[0]) == "string") {
 			nameToDelete = arguments[0];
-			symbolToDelete = root.lookup(nameToDelete);
 			if (!(nameToDelete in root.symbols)) {
+				return 1;
+			}
+			symbolToDelete = root.lookup(nameToDelete);
+			if (symbolToDelete.garbage) {
 				return 1;
 			}
 			nameToDelete = "/" + nameToDelete;
@@ -90,22 +82,15 @@ func forget {
 		}
 		
 		if (nameToDelete == "/picture") {
-			root.lookup("picture").assign(undefined, this);
+			root.lookup("picture").assign(undefined, root.scope, this);
 			return 3;
 		}
 
-		for (var dependency in symbolToDelete.subscribers) {
-			return 2;
-		}
-		for (var triggeredProc in symbolToDelete.observers) {
+		if (!symbolToDelete.canSafelyBeForgotten()) {
 			return 2;
 		}
 
-		for (var triggerName in symbolToDelete.observees) {
-			var triggerSymbol = root.lookup(triggerName.slice(1));
-			delete triggerSymbol.observers[nameToDelete];
-		}
-		delete root.symbols[nameToDelete.slice(1)];
+		symbolToDelete.forget();
 		return 0;
 	}}$;
 };
@@ -138,13 +123,16 @@ func forgetAll {
 		var searchStr, caseSensitive, requireConfirm, includeSystemSymbols;
 		var regExp, symbol;
 		var obsToDelete = undefined;
+		var includeAgent = {name: "/include"};
 		
-		if (arguments.length == 0 || arguments.length > 4) {
-			eden.error(new Error("forgetAll: This function requires at least 1 argument and at most 3 arguments."), "error");
+		if (arguments.length > 4) {
+			eden.error(new Error("forgetAll: This function requires at most 3 arguments."), "error");
 			return [[], undefined, []];
 		}
-		
-		if (typeof(arguments[0]) == "string") {
+
+		if (arguments.length == 0) {
+			searchStr = "";
+		} else if (typeof(arguments[0]) == "string") {
 			searchStr = arguments[0];
 		} else if (Array.isArray(arguments[0])) {
 			obsToDelete = arguments[0];
@@ -165,7 +153,7 @@ func forgetAll {
 			caseSensitive = true;
 		}
 		
-		if (arguments.length >= 2 && obsToDelete !== undefined) {
+		if (obsToDelete !== undefined && arguments.length > 2) {
 			eden.error(new Error("forgetAll: Cannot specify case sensitivity when selecting using a list."), "error");
 			return [[], undefined, []];
 		}
@@ -176,6 +164,8 @@ func forgetAll {
 				return [[], undefined, []];
 			}
 			requireConfirm = arguments[2];
+		} else if (obsToDelete !== undefined && arguments.length == 2) {
+			requireConfirm = arguments[1];
 		} else {
 			requireConfirm = true;
 		}
@@ -192,8 +182,9 @@ func forgetAll {
 		
 		var references = {};
 		var unableToDelete = [];
-		var setToUndefined = {};
+		var reset = {};
 
+		var initialDefinition;
 		if (obsToDelete !== undefined) {
 
 			//Observables given as a list.
@@ -204,7 +195,7 @@ func forgetAll {
 					symbol = obsToDelete[i];
 				} else if (typeof(obsToDelete[i]) == "string") {
 					name = obsToDelete[i];
-					symbol = root.symbols[name];
+					symbol = root.lookup(name);
 				} else if (obsToDelete === undefined) {
 					continue;
 				} else {
@@ -216,11 +207,10 @@ func forgetAll {
 					unableToDelete.push(name);
 					continue;
 				}
-				
-				if (name == "picture") {
-					/* A symbol (e.g. picture) has a critical jsObserver attached that can't be
-					 * easily recreated by the user, so set it to undefined instead of forgetting. */
-					setToUndefined[name] = symbol;
+
+				initialDefinition = eden.initialDefinition(name);
+				if (initialDefinition) {
+					reset[name] = initialDefinition;
 				} else {
 					var referencedBy = [];
 					for (var dependency in symbol.subscribers) {
@@ -241,17 +231,21 @@ func forgetAll {
 			} else {
 				regExp = new RegExp(searchStr, "i");
 			}
+			var viewsRE = /^_[vV]iew(s?)_/;
 			
 			for (var name in root.symbols) {
 				if (regExp.test(name)) {
-					if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
-						continue;
+					if (!includeSystemSymbols) {
+						if (Eden.isitSystemSymbol(name) || viewsRE.test(name)) {
+							continue;
+						}
 					}
 					
-					symbol = root.symbols[name];
-					if (name == "picture") {
-						setToUndefined[name] = symbol;
+					initialDefinition = eden.initialDefinition(name);
+					if (initialDefinition) {
+						reset[name] = initialDefinition;
 					} else {
+						symbol = root.symbols[name];
 						var referencedBy = [];
 						for (var dependency in symbol.subscribers) {
 							referencedBy.push(dependency.slice(1));
@@ -274,7 +268,7 @@ func forgetAll {
 			if (name in canForget) {
 				return canForget[name];
 			}
-			if (name in setToUndefined) {
+			if (name in reset) {
 				return true;
 			}
 			if (!(name in references)) {
@@ -300,27 +294,25 @@ func forgetAll {
 		
 		var namesToDelete = [];
 		for (name in references) {
-			if (references.hasOwnProperty(name)) {
-				var success = isSafeToForget(name);
-				if (success) {
-					namesToDelete.push(name);
-				} else {
-					unableToDelete.push(name);
-				}
+			var success = isSafeToForget(name);
+			if (success) {
+				namesToDelete.push(name);
+			} else {
+				unableToDelete.push(name);
 			}
 		}
 		
 		var confirmed;
-		var unsetList = Object.keys(setToUndefined);
-		var deletePlusUnset = namesToDelete.concat(unsetList);
-		if (deletePlusUnset.length >0 && requireConfirm) {
-			if (deletePlusUnset.length <= 50) {
-				confirmed = confirm("You are about to delete the following " + deletePlusUnset.length +
-					" symbols.  Is this correct?\n\n" + deletePlusUnset.join("\n"));
+		var resetList = Object.keys(reset);
+		var deletePlusReset = namesToDelete.concat(resetList);
+		if (deletePlusReset.length >0 && requireConfirm) {
+			if (deletePlusReset.length <= 50) {
+				confirmed = confirm("You are about to delete the following " + deletePlusReset.length +
+					" symbols.  Is this correct?\n\n" + deletePlusReset.join("\n"));
 			} else {
-				var numNotDisplayed = deletePlusUnset.length - 50;
-				confirmed = confirm("You are about to delete " + deletePlusUnset.length +
-					" symbols.  Is this correct?\n\n" + deletePlusUnset.slice(0, 50).join("\n") +
+				var numNotDisplayed = deletePlusReset.length - 50;
+				confirmed = confirm("You are about to delete " + deletePlusReset.length +
+					" symbols.  Is this correct?\n\n" + deletePlusReset.slice(0, 50).join("\n") +
 					"\n...\n(" + numNotDisplayed + " more)");
 			}
 		} else {
@@ -328,35 +320,35 @@ func forgetAll {
 		}
 		
 		if (confirmed) {
-			if (unsetList.length > 0) {
-				for (name in setToUndefined) {
-					if (setToUndefined.hasOwnProperty(name)) {
-						setToUndefined[name].assign(undefined, this);
-					}
-				}
+			var noop = function () { };
+			var wasInInitialState = eden.isInInitialState();
+			root.beginAutocalcOff();
+
+			for (name in reset) {
+				eden.execute(reset[name], "forgetAll", "", includeAgent, noop);
 			}
+
 			for (var i = 0; i < namesToDelete.length; i++) {
 				var name = namesToDelete[i];
 				symbol = root.symbols[name];
-				var nameInFolder = "/" + name;
-				for (var triggerName in symbol.observees) {
-					if (triggerName in root.symbols) {
-						var triggerSymbol = root.symbols[triggerName];
-						delete triggerSymbol.observers[nameInFolder];
+				if (symbol !== undefined) {
+					if ("refreshView" in symbol.jsObservers) {
+						/* Clear the view's contents before deleting the associated symbol, so at least
+						 * it's clear that the view is no longer valid and isn't merely "hung". */
+						symbol.assign(undefined, root.scope);
+						// Close the window if it's a canvas picture observable.
+						if ("Canvas2D" in edenUI.plugins) {
+							edenUI.plugins.Canvas2D.destroyViews(name);
+						}
 					}
-				}
-				if ("refreshView" in symbol.jsObservers) {
-					/* Clear the view's contents before deleting the associated symbol, so at least
-					 * it's clear that the view is no longer valid and isn't merely "hung". */
-					symbol.assign(undefined);
-					window.setTimeout(function () {
-						delete root.symbols[name];
-					}, 41);
-				} else {
-					delete root.symbols[name];				
+					symbol.forget();
 				}
 			}
-			return [namesToDelete, unableToDelete, unsetList];
+			if (wasInInitialState) {
+				eden.captureInitialState(); //Re-assert still in initial state.		
+			}
+			root.endAutocalcOff();
+			return [namesToDelete, unableToDelete, resetList];
 		} else {
 			return [[], unableToDelete, []];
 		}
@@ -366,10 +358,10 @@ func forgetAll {
 proc error {
 	${{
 		if (arguments.length > 1) {
-			eden.error(new Error("error: This procedure requires at most 1 argument"), "error");
+			eden.error(new Error("error: This procedure requires exactly 1 argument."), "error");
 		}
 		if (arguments.length == 0) {
-			eden.error(new Error("Runtime error"), "error");
+			eden.error(new Error("error: This procedure requires exactly 1 argument."), "error");
 		} else {
 			eden.error(new Error(arguments[0]), "error");
 		}
@@ -393,7 +385,6 @@ func nameof {
 			"keys" in pointer &&
 			Array.isArray(pointer.keys) &&
 			pointer.keys.length > 0 &&
-			typeof(pointer.keys[0]) == "number" &&
 			"parent" in pointer &&
 			pointer.parent instanceof Symbol
 		) {
@@ -430,10 +421,7 @@ proc todo {
 
 proc touch {
 	${{
-		var autocalcEnabledOnEntry = root.autocalc_state;
-		if (autocalcEnabledOnEntry) {
-			root.autocalc(false);
-		}
+		root.beginAutocalcOff();
 		for (var i = 0; i < arguments.length; i++) {
 			if (arguments[i] instanceof Symbol) {
 				root.expireSymbol(arguments[i]);
@@ -441,9 +429,7 @@ proc touch {
 				eden.error(new Error("touch: Argument " + (i+1) + " must be a pointer, not a " + typeof(arguments[i])), "error");
 			}
 		}
-		if (autocalcEnabledOnEntry) {
-			root.autocalc(true);
-		}
+		root.endAutocalcOff();
 	}}$;
 }
 
@@ -465,20 +451,45 @@ func doDefault {
 }
 
 proc arrangeWindows {
-  auto i;
-  auto name;
-  auto curr_x;
+	para windowOrder;
+	auto name, curr_x, i;
 
-  curr_x = 0;
-  for (i = 1; i <= _view_list#; ++i) {
-    name = _view_list[i];
-    if (`"_view_"//name//"_position"` != @) {
-      continue;
-    }
-    `"_view_"//name//"_x"` = curr_x;
-    `"_view_"//name//"_y"` = 110;
-    curr_x += `"_view_"//name//"_width"` + 10;
-  }
+	if (windowOrder == @) {
+		windowOrder = _views_list;
+	} else  {
+		for (i =  1; i <= _views_list#; i++) {
+			if (positionInList(_views_list[i], windowOrder) == 0) {
+				windowOrder = windowOrder // [_views_list[i]];
+			}
+		}
+	}
+  
+	curr_x = 0;
+	for (i = 1; i <= windowOrder#; ++i) {
+		name = windowOrder[i];
+		if (`"_view_"//name//"_position"` != @) {
+			continue;
+		}
+		`"_view_"//name//"_x"` = curr_x;
+		`"_view_"//name//"_y"` = 0;
+		curr_x += `"_view_"//name//"_width"` + 27;
+	}
+}
+
+## Temporary: Include using the new parser.
+func include2 {
+	para file;
+	${{ edenUI.eden.include2(arguments[0], success) }}$;
+}
+
+func execute2 {
+	para script;
+	${{ edenUI.eden.execute2(arguments[0]) }}$;
+}
+
+func agentFromFile {
+	para name, file, exec;
+	${{ edenUI.eden.agentFromFile(arguments[0],arguments[1],arguments[2]) }}$;
 }
 
 ##Autocalc compatibility
@@ -486,12 +497,13 @@ autocalc = 1;
 
 ##Include the rest of the library
 
+autocalc = 0;
+
 include("library/types.js-e");
 include("library/core.js-e");
 include("library/lists.js-e");
 include("library/maths.jse");
 include("library/strings.js-e");
-require("Canvas2D");
 include("library/algebra.jse");
 include("library/include_js.js-e");
 include("library/dynamic.js-e");
@@ -500,15 +512,20 @@ include("library/html.js-e");
 include("library/declarevar.js-e");
 include("library/generate_function.js-e");
 
+autocalc = 1;
+
+include2("library/scoping.js-e");
+
 initialViews = ${{getParameterByName("views") }}$;
 if (initialViews == "" || initialViews == "default") {
-	require("ProjectList");
-	require("ScriptInput");
-	createView("projects", "ProjectList");
-	createCanvas("picture");
-	createView("inputwindow", "ScriptInput");
+	createCanvas("picture", "Canvas Picture");
+	_view_picture_x = (screenWidth / 2 - 30) - _view_picture_width;
+	_view_picture_y = screenHeight / 2 - _view_picture_height / 2;
+	if (${{ "logo" in edenUI.branding }}$) {
+		picture is [Image(_view_picture_width / 2 - ${{edenUI.branding.logo.width}}$ / 2, _view_picture_height / 2 - ${{edenUI.branding.logo.height}}$ / 2, ${{edenUI.branding.logo.url}}$)];
+	}
+	createView("input", "ScriptInput");
+	_view_input_x = screenWidth / 2 + 30;
+	_view_input_y = screenHeight / 2 - (_view_input_height / 2);
 }
 forget(&initialViews);
-
-arrangeWindows();
-

@@ -1,0 +1,68 @@
+/**
+ * @title Logo Basic Commands
+ * @author Nicolas Pope
+ */
+
+import logo/drawer;
+
+action forward {
+	move_offset = $1;
+	if (pen) {
+		lines = lines // [Line(position_x,position_y,newpos_x,newpos_y)];
+	}
+	position_x = newpos_x;
+	position_y = newpos_y;
+}
+
+action left {
+	angle = angle + $1;
+}
+
+action right {
+	angle = angle - $1;
+}
+
+action back {
+	do forward -$1;
+}
+
+action pendown {
+	pen = true;
+}
+
+action penup {
+	pen = false;
+}
+
+action reset {
+	do clearscreen;
+	do home;
+}
+
+action clearscreen {
+	lines = [];
+}
+
+action hideturtle {
+	hide_turtle = true;
+}
+
+action showturtle {
+	hide_turtle = false;
+}
+
+action home {
+	angle = 0;
+	position_x = floor(_view_picture_width / 2);
+	position_y = floor(_view_picture_height / 2);
+}
+
+action setxy {
+	position_x = $1;
+	position_y = $2;
+}
+
+action label {
+	lines = lines // [Text($1,position_x, position_y)];
+}
+

@@ -47,38 +47,61 @@ proc html {
 ##parameter is the name of the observable who's value provides the HTML code.  The
 ##second, optional parameter, is the text to place into the window's title bar.
 proc createHTMLView {
-	auto viewName, obsName, viewTitle, createJSObserver;
+	auto obsName, viewTitle, viewName, createJSObserver;
 	if ($# == 1) {
 		obsName = $[1];
 	} else if ($# == 2) {
 		obsName = $[1];
 		viewTitle = $[2];
-		if (viewTitle != @ && !isString(viewTitle)) {
-			error("createHTMLView: The second argument must be a string, not a " // type(viewTitle));
+	} else if ($# == 3) {
+		viewName = $[1];
+		obsName = $[2];
+		viewTitle = $[3];
+		if (!isString(viewName)) {
+			error("createHTMLView: The first argument must be a string, not a " // type(viewName));
 			return;
 		}
 	} else {
-		error("createHTMLView: This procedure requires at least 1 argument and at most 2 arguments.");
+		error("createHTMLView: This procedure requires at least 1 argument and at most 3 arguments.");
 		return;
 	}
-	
-	if (!isString(obsName)) {
-		error("createHTMLView: The first argument must be a string, not a " // type(obsName));
-		return;
-	}
-	
-	viewName = obsName;
-	createView(viewName, "HTMLContent");
 
-	createJSObserver = ${{ function (obsName, viewName) {
-		var observer = function (symbol, value) {
-			root.lookup("html").definition(root)(viewName, value);
-		};
-		root.lookup(obsName).addJSObserver("refreshView", observer);
+	if (isPointer(obsName)) {
+		obsName = nameof(obsName);
+	} else if (!isString(obsName)) {
+		error("createHTMLView: The observable name must be expressed as a string or a pointer, not a " // type(obsName));
+		return;
+	}
+	if (viewName == @) {
+		viewName = obsName;
+	}
+	if (viewTitle == @) {
+		viewTitle = uppercase(substr(viewName, 1, 1)) // substr(viewName, 2);
+	} else if (!isString(viewTitle)) {
+		error("createHTMLView: The window title must be a string, not a " // type(viewTitle));
+		return;
+	}
+
+	createView(viewName, "HTMLContent");
+	createJSObserver = ${{ function (initialObsName, viewName) {
+
+		var obsSelectSym = root.lookup("_view_" + viewName + "_observable");
+
+		function bind(obsSym, obsName) {
+			var updateView = function (symbol, value) {
+				if (obsSelectSym.value() == obsName) {
+					root.lookup("html").definition(root)(viewName, value);
+				}
+			};
+			obsSym.addJSObserver("repaintView", updateView);
+			updateView(obsSym, obsSym.value());
+		}
+
+		obsSelectSym.addJSObserver("refreshView", function (sym, obsName) {
+			bind(root.lookup(obsName), obsName);
+		});
 	} }}$;
 	createJSObserver(obsName, viewName);
-	html(viewName, `obsName`);
-	if (viewTitle != @) {
-		`"_view_" // viewName // "_title"` = viewTitle;
-	}
+	`"_view_" // viewName // "_observable"` = obsName;
+	`"_view_" // viewName // "_title"` = viewTitle;
 }

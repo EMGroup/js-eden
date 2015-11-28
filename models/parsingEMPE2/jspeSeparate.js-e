@@ -58,13 +58,13 @@ SlideButton.prototype.draw = function(context) {
 
 	var can = $("#jspe-dialog-canvascontent");
 	var buthtml = $("<input type=\"button\" id=\"" + me + "\" value=\"" + this.label + "\" " + dis + " style=\"position: absolute; left: " + this.x + "px; top: " + this.y + "px;\"></input").click(function() {
-		root.lookup(me2 + "_clicked").assign(true);
+		root.lookup(me2 + "_clicked").assign(true, root.scope);
 	}).appendTo(can);
 
 	buthtml.get(0).togarbage = false;
 
 	//Initialise
-	root.lookup(me2 + "_clicked").assign(false);
+	root.lookup(me2 + "_clicked").assign(false, root.scope);
   } else {
 	but.value = this.label;
 	but.togarbage = false;
@@ -132,7 +132,7 @@ ${{
   copy = function(e) {
 
 	// Copies to EDEN interpreter window
-	$('#inputwindow-dialog-input').text($(e).siblings('pre').html());
+	$('#input-dialog-input').text($(e).siblings('pre').html());
 
   }
 

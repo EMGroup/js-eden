@@ -1,0 +1,153 @@
+div.canvas-dialog {
+	background: #f1f1f1;
+	border-width: 1px;
+	border-color: #777;
+	border-style: solid;
+	padding: 0;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 15px #4a6887;
+}
+
+div.canvas-dialog .ui-dialog-content {
+	overflow: hidden;
+}
+
+div.canvas-dialog .ui-dialog-titlebar {
+	border-top-width: 0;
+	border-left-width: 0;
+	border-right-width: 0;
+	border-bottom-color: #777;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 10px #4a6887;
+	background: -webkit-linear-gradient(#fafafa, #cccccc); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#fafafa, #cccccc); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
+}
+
+.canvashtml-canvas {
+	outline: none;
+}
+
+.canvashtml-content {
+	/* Should be synchronized with defaultFontSizePx in plugins/canvas-html5/canvas.js */
+	font-size: 13.3px;
+	/* Should be synchronized with defaultLineHeight in plugins/canvas-html5/canvas.js */
+	line-height: 1.75;
+}
+
+.canvashtml-content input {
+	margin: 0px;
+	padding: 0px;
+}
+
+.canvashtml-content input[type="range"]:disabled {
+	opacity: 0.45;
+}
+
+.canvashtml-content input[type="button"] {
+	padding: 1px 4px;
+}
+
+.canvashtml-content select {
+	margin: 0px;
+	padding: 0px;
+}
+
+.canvashtml-content textarea, .canvashtml-content input[type="text"] {
+	/* See Textbox.prototype.scale in plugins/textbox.js-e */
+	border: 1px inset #BBBBBB;
+	margin: 0px;
+	padding: 1px 2px;
+}
+
+.canvas-horizontal-radio-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+}
+
+.slider-horizontal, .slider-up, .slider-down {
+	position: absolute;
+}
+
+.slider-horizontal input[type="range"] {
+	position: absolute;
+	width: 100%;
+}
+
+.slider-horizontal .slider-label {
+	position: absolute;
+	top: 29px;
+	text-align: center;
+}
+
+.slider-horizontal .slider-major-tick-mark {
+	position: absolute;
+	top: 21px;
+	height: 6px;
+	border: 1px solid #CCCCCC
+}
+
+.slider-horizontal .slider-minor-tick-mark  {
+	position: absolute;
+	top: 21px;
+	height: 2px;
+	border: 1px solid #CCCCCC
+}
+
+.slider-up input[type="range"] {
+	position: absolute;
+	transform: rotate(-90deg);
+}
+
+.slider-up .slider-label {
+	position: absolute;
+	left: 18px;
+	line-height: 1;
+}
+
+.slider-up .slider-major-tick-mark {
+	position: absolute;
+	left: 0px;
+	width: 11px;
+	border: 1px solid #CCCCCC
+}
+
+.slider-up .slider-minor-tick-mark {
+	position: absolute;
+	left: 0px;
+	width: 7px;
+	border: 1px solid #CCCCCC
+}
+
+.slider-down input[type="range"] {
+	position: absolute;
+	transform: rotate(90deg);
+}
+
+.slider-down .slider-label {
+	position: absolute;
+	right: 18px;
+	line-height: 1;
+}
+
+.slider-down .slider-major-tick-mark {
+	position: absolute;
+	right: 0px;
+	width: 11px;
+	border: 1px solid #CCCCCC
+}
+
+.slider-down .slider-minor-tick-mark {
+	position: absolute;
+	right: 0px;
+	width: 7px;
+	border: 1px solid #CCCCCC
+}

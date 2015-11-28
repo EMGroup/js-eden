@@ -10,7 +10,8 @@
 %s JS
 %x D
 %x QUOTE
-%s LINECOMMENT
+%x MULTILINE
+%x LINECOMMENT
 %s BLOCKCOMMENT
 %%
 
@@ -19,33 +20,40 @@
 <BLOCKCOMMENT>.       {}
 "/*"                  { yy.commentNesting++; this.begin('BLOCKCOMMENT'); }
 
+<INITIAL>"##"         { this.begin('LINECOMMENT'); }
 <LINECOMMENT>[\n\r]   { this.popState(); }
 <LINECOMMENT>.        {}
-<INITIAL>"##"         { this.begin('LINECOMMENT'); }
+<LINECOMMENT><<EOF>>  { this.popState(); return 'EOF'; }
 
-"${{"                 { this.begin('JS'); return "OPENJS"; }
+<INITIAL>"${{"        { this.begin('JS'); return "OPENJS"; }
 <JS>"}}$"             { this.popState(); return 'ENDJS'; }
-<JS>([\n\r]|.)        return 'JSCODE'
+<JS>(.|\n|\r)         return 'JSCODE'
 
+<INITIAL>"\""         { this.begin('D'); return '"'; }
 <D>"\\".              return 'STRINGCHARACTER'
 <D>'"'                { this.popState(); return '"'; }
 <D>(.|\n|\r)          return 'STRINGCHARACTER'
-"\""                  { this.begin('D'); return '"'; }
 
-<QUOTE>"\\".         return 'STRINGCHARACTER'
+<INITIAL>"<%"[ \t]*   { this.begin('MULTILINE'); return '<%'; }
+<MULTILINE>"%\\>"     return 'STRINGCHARACTER'
+<MULTILINE>([ ]|\t)*"%>" { this.popState(); return '%>'; }
+<MULTILINE>(.|\n|\r)  return 'STRINGCHARACTER'
+
+<INITIAL>"'"          { this.begin('QUOTE'); return "'"; }
+<QUOTE>"\\".          return 'STRINGCHARACTER'
 <QUOTE>"'"            { this.popState(); return "'"; }
-<QUOTE>.              return 'STRINGCHARACTER'
-"'"                   { this.begin('QUOTE'); return "'"; }
+<QUOTE>(.|\n|\r)      return 'STRINGCHARACTER'
 
 \s+                   /* skip whitespace */
 "@"                   return 'UNDEFINED'
-[0-9]+("."[0-9]+)?\b  return 'NUMBER'
+(([0-9]+("."[0-9]*)?)|("."[0-9]+))([eE]("+"|"-")?[0-9]+)?\b  return 'NUMBER'
 "0x"[0-9a-fA-F]+\b    return 'NUMBER'
 "Infinity"            return 'NUMBER'
 "true"                return 'BOOLEAN'
 "false"               return 'BOOLEAN'
 "is"                  { yy.enterDefinition(); yy.evalExps = []; return 'IS'; }
 "eval"                { yy.enterEval(); return 'EVAL'; }
+"option"              return 'OPTION'
 "include"             return 'INCLUDE'
 "await"               return 'AWAIT'
 "require"             return 'REQUIRE'
@@ -65,9 +73,11 @@
 "break"               return 'BREAK'
 "continue"            return 'CONTINUE'
 "return"              return 'RETURN'
-"func"                %{ yy.paras.unshift({}); yy.locals.unshift({}); return 'FUNC'; %}
-"proc"                %{ yy.paras.unshift({}); yy.locals.unshift({}); return 'PROC'; %}
+"together"            return 'TOGETHER'
+"func"                %{ yy.paras.unshift({}); yy.locals.unshift({}); yy.funcBodyDependencies.unshift({}); return 'FUNC'; %}
+"proc"                %{ yy.paras.unshift({}); yy.locals.unshift({}); yy.funcBodyDependencies.unshift({}); return 'PROC'; %}
 "auto"                return 'AUTO'
+"local"               return 'AUTO'
 "para"                return 'PARA'
 "and"                 return 'AND'
 "or"                  return 'OR'
@@ -122,6 +132,7 @@
 "("                   return '('
 ")"                   return ')'
 
+".."                  return '..'   
 "."                   return '.'
 "`"                   return '`'
 
@@ -164,10 +175,12 @@
 
 script
     : statement-list-opt EOF
-      { return '(function (root, eden, includePrefix, done) {' +
+      {
+		var code = yy.code($1.cps, $1.code + ' root.collectGarbage();');
+		return '(function (root, eden, scope, includePrefix, done) {' +
                  '(function(context, rt) { ' +
                     yy.printObservableDeclarations() +
-                    yy.withIncludes($1, 'done') +
+                    yy.withIncludes(code, 'done') +
                  '}).call(this, root, rt);' +
                '})';
       }
@@ -181,7 +194,10 @@ lvalue
     } else if (yy.locals.length !== 0 && yy.locals[0][$1] !== undefined) {
         $$ = "local_" + $1;
     } else {
-        if (yy.inDefinition() && !yy.inEval()) yy.addDependency($1);
+ 		if (!yy.inEval()) {
+			if (yy.funcBodyDependencies.length !== 0) yy.addFuncBodyDependency($1);
+			if (yy.inDefinition()) yy.addDependency($1);
+		}
         $$ = yy.observable($1);
     }
     %}
@@ -196,7 +212,13 @@ lvalue
     | '(' lvalue ')'
         { $$ = $2; }
     | '`' expression '`'
-        { $$ = 'context.lookup(' + $expression + ')'; }
+        {
+			if (!yy.inEval() && yy.inDefinition()) {
+				$$ = 'context.currentObservable.subscribeDynamic(' + yy.backticks() + ', ' + $expression + ')';
+			} else {
+				$$ = 'context.lookup(' + $expression + ')';
+			}
+		}
 
 // XXX: this introduces some shift reduce conflicts apparently, but not sure what the conflict output means
 // so not sure where to look for problems
@@ -289,28 +311,28 @@ expression
         { $$ = '' + $1 + ' || ' + $3; }
 
     | '{' expression ',' expression '}'
-        { $$ = "context.lookup('Point').value().call(this, " + $2 +"," + $4 +")" }
+        { $$ = "context.lookup('Point').value(scope).call(this, " + $2 +"," + $4 +")" }
 
     | expression '//' expression
-        { $$ = $1 + '.concat(' + $3 +')'; }
+        { $$ = 'rt.concat(' + $1 + ', ' + $3 + ')'; }
 
     //
     // assignment operators
     //
     | lvalue '=' expression
-        { $$ = $lvalue + '.assign(' + $expression + ', this).value()'; }
+        { $$ = $lvalue + '.assign(' + $expression + ', scope, this).value(scope)'; }
     | lvalue '+=' expression
-        { $$ = $lvalue + '.assign(' + $lvalue + '.value() + ' + $expression + ', this).value()'; }
+        { $$ = $lvalue + '.assign(' + $lvalue + '.value(scope) + ' + $expression + ', scope, this).value(scope)'; }
     | lvalue '-=' expression
-        { $$ = $lvalue + '.assign(' + $lvalue + '.value() - ' + $expression + ', this).value()'; }
+        { $$ = $lvalue + '.assign(' + $lvalue + '.value(scope) - ' + $expression + ', scope, this).value(scope)'; }
     | '++' lvalue
-        { $$ = $lvalue + '.assign(' + $lvalue + '.value() + 1, this).value()'; }
+        { $$ = $lvalue + '.assign(' + $lvalue + '.value(scope) + 1, scope, this).value(scope)'; }
     | lvalue '++'
-        { $$ = $lvalue + '.assign(' + $lvalue + '.value() + 1, this).value() - 1'; }
+        { $$ = $lvalue + '.assign(' + $lvalue + '.value(scope) + 1, scope, this).value(scope) - 1'; }
     | '--' lvalue
-        { $$ = $lvalue + '.assign(' + $lvalue + '.value() - 1, this).value()'; }
+        { $$ = $lvalue + '.assign(' + $lvalue + '.value(scope) - 1, scope, this).value(scope)'; }
     | lvalue '--'
-        { $$ = $lvalue + '.assign(' + $lvalue + '.value() - 1, this).value() + 1'; }
+        { $$ = $lvalue + '.assign(' + $lvalue + '.value(scope) - 1, scope, this).value(scope) + 1'; }
 
     //
     // ternary operator
@@ -336,12 +358,13 @@ literal
     | list-literal
     | object-literal
     | string-literal
+	| multiline-string-literal
     | char-literal
     ;
 
 char-literal
     : "'" STRINGCHARACTER "'"
-        { $$ = '"' + $2 + '"'; }
+        { $$ = "'" + $2 + "'"; }
     ;
 
 string-literal
@@ -360,6 +383,59 @@ string-contents
         { $$ = $1 !== '\n' ? $1 : '\\n'; }
     | STRINGCHARACTER string-contents
         { $$ = ($1 !== '\n' ? $1 : '\\n') + $2; }
+    ;
+
+multiline-string-literal
+    : '<%' multiline-string-contents-opt '%>'
+        {
+			var str = $2;
+			var match = str.match(/^([^\\]|\\\\)*(\\n)+(\s+)/);
+			if (match !== null) {
+				var re = new RegExp("(([^\\\\]|\\\\\\\\)*)\\\\n" + match[3], "g");
+				str = str.replace(re, "$" + "1\\n");
+			}
+			if (str[0] == "\\" && str[1] == "n") {
+				str = str.slice(2);
+			}
+			$$ = '"' + str + '"';
+		}
+    ;
+
+multiline-string-contents-opt
+    : multiline-string-contents
+    |
+        { $$ = ""; }
+    ;
+
+multiline-string-contents
+    : STRINGCHARACTER
+		{
+			if ($1 == '\n') {
+				$$ = '\\n';
+			} else if ($1 == '"') {
+				$$ = '\\"';
+			} else if ($1 == '\\') {
+				$$ = '\\\\';
+			} else if ($1 == '%\\>') {
+				$$ = '%>';
+			} else {
+				$$ = $1;
+			}
+		}
+    | STRINGCHARACTER multiline-string-contents
+		{
+			if ($1 == '\n') {
+				$$ = '\\n' + $2;
+			} else if ($1 == '"') {
+				$$ = '\\"' + $2;
+			} else if ($1 == '\\') {
+				$$ = '\\\\' + $2;
+			} else if ($1 == '%\\>') {
+				$$ = '%>' + $2;
+			} else {
+				$$ = $1 + $2;
+			}
+		}
     ;
 
 list-literal
@@ -389,11 +465,50 @@ pair
         { $$ = $1 + ': ' + $3; }
     ;
 
+scope-list-opt
+    : scope-list
+    |
+        { $$ = ""; }
+    ;
+
+scope-list
+    : scope-pair
+    | scope-pair ',' scope-list
+        { $$ = $1 + ', ' + $3; }
+    ;
+
+scope-pair
+    : OBSERVABLE '=' expression
+        { $$ = 'new ScopeOverride("' + $1 + '", ' + $3 + ')'; }
+    ;
+
+scoperange-list-opt
+    : scoperange-list
+    |
+        { $$ = ""; }
+    ;
+
+scoperange-list
+    : scoperange-pair
+    | scoperange-pair ',' scoperange-list
+        { $$ = $1 + ', ' + $3; }
+    ;
+
+scoperange-pair
+    : OBSERVABLE '=' expression '..' expression
+        { $$ = 'new ScopeOverride("' + $1 + '", ' + $3 + ', ' + $5 + ')'; }
+	| scope-pair
+    ;
+
 primary-expression
     : lvalue
-        { $$ = $lvalue + '.value()'; }
+        { $$ = $lvalue + '.value(scope)'; }
     | lvalue '.' OBSERVABLE '(' expression-list-opt ')'
-        { $$ = $lvalue + '.value().' + $3 + '(' + $5 + ')'; }
+        { $$ = $lvalue + '.value(scope).' + $3 + '(' + $5 + ')'; }
+	| lvalue '{' scope-list-opt '}'
+		{ $$ = $1 + '.value(new Scope(context, scope, [' + $3 + '], ' + $1 + '))'; }
+	| lvalue '{' scoperange-list-opt '}'
+		{ $$ = $1 + '.multiValue(context, scope, [' + $3 + '], ' + $1 + ')'; }
     | primary-expression '(' expression-list-opt ')'
         { $$ = '' + $1 + '.call('+ ['this'].concat($3) + ')'; }
     | primary-expression '[' expression ']'
@@ -409,6 +524,11 @@ statement
     | dependency-link
     | query-command
     | compound-statement
+	| OPTION OBSERVABLE '=' literal
+		{
+			yy.setParsingOption($2, eval($4));
+			$$ = yy.sync('');
+		}
     | AFTER '(' expression ')' statement
         { $$ = yy.sync('setTimeout(function() ' + $statement.code + ', ' + $expression + ');'); }
     | IF '(' expression ')' statement
@@ -444,20 +564,22 @@ statement
         { $$ = yy.sync('return;'); }
     | RETURN expression ';'
         { $$ = yy.sync('return ' + $expression + ';'); }
+	| TOGETHER statement
+		{ $$ = yy.code($statement.cps, 'context.beginAutocalcOff(); ' + $statement.code + ' context.endAutocalcOff();'); }
     | include-statement-list
         { $$ = yy.async('eden.include', '['+$1.join(', ')+']', 'includePrefix', 'this'); }
     | REQUIRE expression ';'
         { $$ = yy.async('edenUI.loadPlugin', $expression, 'this'); }
     | AWAIT expression ';'
-        { $$ = yy.async($expression + '.callAsync'); }
+        { $$ = yy.async($expression); }
     | INSERT lvalue ',' expression ',' expression ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ' - 1, 0, ' + $expression2 + '); }, this);'); }
+        { $$ = yy.sync($lvalue + '.mutate(scope, function(s) { scope.lookup(s.name).value.splice(' + $expression1 + ' - 1, 0, ' + $expression2 + '); }, this);'); }
     | DELETE lvalue ',' expression ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.splice(' + $expression1 + ' - 1, 1); }, this);'); }
+        { $$ = yy.sync($lvalue + '.mutate(scope, function(s) { scope.lookup(s.name).value.splice(' + $expression1 + ' - 1, 1); }, this);'); }
     | APPEND lvalue ',' expression ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.push(' + $expression1 + '); }, this);'); }
+        { $$ = yy.sync($lvalue + '.mutate(scope, function(s) { scope.lookup(s.name).value.push(' + $expression1 + '); }, this);'); }
     | SHIFT lvalue ';'
-        { $$ = yy.sync($lvalue + '.mutate(function(s) { s.cached_value.shift(); }, this);'); }
+        { $$ = yy.sync($lvalue + '.mutate(scope, function(s) { scope.lookup(s.name).value.shift(); }, this);'); }
     | CASE literal ':'
         { $$ = yy.sync('case ' + $literal + ': '); }
     | DEFAULT ':'
@@ -501,9 +623,11 @@ function-definition
     : function-declarator function-body
         {
         var eden_definition = JSON.stringify(yy.extractEdenDefinition(@1.first_line, @1.first_column, @2.last_line, @2.last_column));
+        var subscribers = JSON.stringify(yy.getFuncBodyDependencies());
         yy.paras.pop();
         yy.locals.pop();
-        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context) { return " + $2 + "}, this).eden_definition = " + eden_definition + ";"); }
+		yy.funcBodyDependencies.pop();
+        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context, scope) { return " + $2 + "}, this," + subscribers + ").eden_definition = " + eden_definition + ";"); }
     ;
 
 function-declarator
@@ -552,7 +676,7 @@ para-alias
 
 function-body
     : '{' para-alias-opt local-var-decl-list-opt statement-list-opt '}'
-        { $$ = 'function() { var args = new Symbol().assign(Array.prototype.slice.call(arguments)); ' + $2 + ' ' + $3 + ' ' + $4.code + '}'; }
+        { $$ = 'function() { var argsa = []; for(var i=0; i<arguments.length; i++) argsa.push(arguments[i]); var args = new Symbol().assign(argsa, scope); ' + $2 + ' ' + $3 + ' ' + $4.code + '}'; }
     ;
 
 
@@ -561,9 +685,10 @@ action-specification
     : function-declarator dependency-list function-body
         {
         var eden_definition = JSON.stringify(yy.extractEdenDefinition(@1.first_line, @1.first_column, @3.last_line, @3.last_column));
-        yy.paras.pop();
+		yy.paras.pop();
         yy.locals.pop();
-        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context) { return " + $3 + "; }, this).observe(" + JSON.stringify($2) + ").eden_definition = " + eden_definition + ";");
+		yy.funcBodyDependencies.pop();
+        $$ = yy.sync("context.lookup('" + $1 + "').define(function(context, scope) { return " + $3 + "; }, this).observe(" + JSON.stringify($2) + ").eden_definition = " + eden_definition + ";");
         }
     ;
 
@@ -619,14 +744,14 @@ formula-definition
 
         $$ = yy.sync(
 				yy.evalExps.join("\n") +	//Evaluate eval() expressions and save them in the context.
-				yy.printEvalIDs($1) + 		//Mapping used by Symbol.prototype.value to update eden_definition, changing eval() to the actual value.
+				yy.printEvalIDs($1) + 		//Mapping used by Symbol.prototype.evaluate to update eden_definition, changing eval() to the actual value.
 				"(" +
                yy.observable($1) +
                  ".eden_definition = " + eden_definition + ", " +
 
                yy.observable($1) +
                  ".define(" +
-                   "function(context) { return " + $3 + "; }," +
+                   "function(context, scope) { return " + $3 + "; }," +
                    "this, " +
                    JSON.stringify(yy.getDependencies()) +
                  ")" +

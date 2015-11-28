@@ -5,8 +5,27 @@
  * See LICENSE.txt
  */
 
+//data types
+Point = function(x, y) {
+  this.x = x;
+  this.y = y;
+}
+Point.prototype.toString = function() {
+  return "{" + Eden.edenCodeForValue(this.x) + ", " + Eden.edenCodeForValue(this.y) + "}";
+};
+Point.prototype.getEdenCode = Point.prototype.toString;
+
 // functions to act in the same way as EDEN operators
 var rt = {
+	index: function (ix) {
+		var type = typeof ix;
+		if (type == "number") {
+			return ix-1;
+		} else {
+			return ix;
+		}
+	},
+
 	length: function (value) {
 		if (value === null || value === undefined) {
 			return undefined;
@@ -41,15 +60,21 @@ var rt = {
 	add: function (a, b) {
 		if (a === undefined || b === undefined) {
 			return undefined;
+		} else if (a instanceof Point) {
+			return new Point(a.x + b.x, a.y + b.y);
+		} else {
+			return a + b;
 		}
-		return a + b;
 	},
 
 	subtract: function (a, b) {
 		if (a === undefined || b === undefined) {
 			return undefined;
+		} else if (a instanceof Point) {
+			return new Point(a.x - b.x, a.y - b.y);
+		} else {
+			return a - b;
 		}
-		return a - b;
 	},
 
 	multiply: function (a, b) {
@@ -78,6 +103,14 @@ var rt = {
 			return undefined;
 		}
 		return Math.pow(a, b);
+	},
+
+	concat: function (a, b) {
+		if (Array.isArray(a)) {
+			return a.concat(b);
+		} else {
+			return String(a) + b;
+		}
 	},
 
 	regExpMatch: function (subject, pattern) {

@@ -1,0 +1,22 @@
+/**
+ * @title Script View Support
+ * @author Nicolas Pope
+ */
+
+##require("ScriptView");
+
+action addSubmitButton {
+	${{
+	var viewname = ctx.getParameterByNumber(1);
+	if (viewname instanceof BoundValue) viewname = viewname.value;
+	var submit = $('<button class="control-button control-enabled">&#xf04b;</button>');
+	$("#"+viewname+"-dialog div.buttonsDivLeft").append(submit);
+	submit.click(function() {
+		var agname = eden.root.lookup("_view_"+viewname+"_agent").value();
+		if (Eden.Agent.agents[agname]) {
+			Eden.Agent.agents[agname].execute(true);
+		}
+	});
+	}}$;
+}
+

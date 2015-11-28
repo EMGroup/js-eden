@@ -1,0 +1,131 @@
+## Turn off automatic calculation until the construal is fully loaded.
+autocalc = 0;
+
+## Observable Assignments:
+scaleWidth = 60;
+coin3pic_click = true;
+buttonPrev_clicked = false;
+buttonNext_clicked = false;
+isAnswered = true;
+answerCorrect = true;
+
+## Observable Definitions:
+ix1 is int(random()*8)+1;
+ix2 is int(random()*8)+1;
+ix3 is int(random()*8)+1;
+ix4 is int(random()*8)+1;
+ix5 is int(random()*8)+1;
+ix6 is int(random()*8)+1;
+ix7 is int(random()*8)+1;
+ix8 is int(random()*8)+1;
+totalcost is (items[chosenItem][2] + items[chosenItem2][2]);
+spendingmoney is (purse[1]+purse[2]+purse[3]+purse[4])/100;
+item1pic is HTMLImage("item1pic",scaleWidth*0.5,5.5*scaleWidth-2*scaleWidth*itemsselected[1],scaleWidth,scaleWidth,imagelocation // itemdisplay(chosenItem));
+item2pic is HTMLImage("item2pic", scaleWidth*1.8, 5.5*scaleWidth-2*scaleWidth*itemsselected[2],scaleWidth,scaleWidth,imagelocation // itemdisplay(chosenItem2));
+item1text is Text(pricedisplay(chosenItem, items), 0.6*scaleWidth,7*scaleWidth, 18);
+item2text is Text(pricedisplay(chosenItem2, items), 1.9*scaleWidth,7*scaleWidth, 18);
+item3text is Text(pricedisplay(3, items), 3.2*scaleWidth,7*scaleWidth,scaleWidth/5);
+item4text is Text(pricedisplay(4, items), 4.5*scaleWidth,7*scaleWidth,scaleWidth/5);
+item5text is Text(pricedisplay(5, items), 5.8*scaleWidth,7*scaleWidth,scaleWidth/5);
+item6text is Text(pricedisplay(6, items), 7.1*scaleWidth,7*scaleWidth,scaleWidth/5);
+ItemsOfferedText is Text("For Sale", 8.3*scaleWidth,7*scaleWidth,scaleWidth/4, "blue");
+yesBtn is Button("yesBtn","YES", 3*scaleWidth, 3*scaleWidth);
+noBtn is Button("noBtn", "NO", 4*scaleWidth, 3*scaleWidth);
+chosenItem is int(random()*6)+1;
+chosenItem2 is int(random()*6)+1;
+bill is (items[chosenItem][2] + items[chosenItem2][2]);
+MoneyText is Text("Your money", 4.2*scaleWidth,0.5*scaleWidth, 18, "blue");
+EnoughText is Text("Have you enough money?", 1.0*scaleWidth,2.0*scaleWidth, 18, "red");
+AnswerText is Text("Yes or No?", 1.0*scaleWidth,3*scaleWidth, 18, "red");
+ItemText is Text("Items to buy", 4.0*scaleWidth,7*scaleWidth, 18, "blue");
+Response is (isAnswered) ? ((answerCorrect) ? Text("Well done! Try another one?", 1.0*scaleWidth, 4*scaleWidth, 18, "green") : Text("Not right yet, have another go?", 1.0*scaleWidth, 4*scaleWidth, 18,"green")) : @;
+resetBtn is Button("resetBtn", "New Puzzle", 1*scaleWidth, 4.5*scaleWidth, isAnswered && answerCorrect);
+
+coin1text is Text(denomdisplay(ix1), 0.4*scaleWidth,1.2*scaleWidth,scaleWidth/4);
+coin2text is Text(denomdisplay(ix2), 1.4*scaleWidth,1.2*scaleWidth,scaleWidth/4);
+coin3text is Text(denomdisplay(ix3), 2.4*scaleWidth,1.2*scaleWidth,scaleWidth/4);
+coin4text is Text(denomdisplay(ix4), 3.4*scaleWidth,1.2*scaleWidth,scaleWidth/4);
+
+## Action Definitions:
+proc coin1picMove {}
+
+proc coin2picMove {}
+
+proc coin3picMove {}
+
+proc coin4picMove {}
+
+proc item1picMove {}
+
+proc item2picMove {}
+
+proc answerYes : yesBtn_clicked{
+  if(yesBtn_clicked){
+      isAnswered = true;
+      answerCorrect = false;
+      if(haveenoughmoney){
+        answerCorrect = true;
+      }
+    }
+}
+
+proc answerNo : noBtn_clicked{
+  if(noBtn_clicked){
+      isAnswered = true;
+      answerCorrect = false;
+      if(!haveenoughmoney){
+        answerCorrect = true;
+      }
+  }
+}
+
+proc newPuzzle : resetBtn_clicked{
+  if(resetBtn_clicked){
+    resetPuzzle();
+  }
+}
+
+## Function Definitions:
+
+func resetPuzzle {
+  isAnswered = false;
+
+  ix1 is int(random()*8)+1;
+
+  ix2 is int(random()*8)+1;
+
+  ix3 is int(random()*8)+1;
+
+  ix4 is int(random()*8)+1;
+
+  ix5 is int(random()*8)+1;
+
+  ix6 is int(random()*8)+1;
+
+  ix7 is int(random()*8)+1;
+
+  ix8 is int(random()*8)+1;
+
+  chosenItem is int(random()*6)+1;
+  chosenItem2 is int(random()*6)+1;
+}
+
+func coindisplay {
+	para ix;
+	if (ix==1) return "GBP-1p-heads.gif";
+	if (ix==2) return "GBP-2-pence-heads.gif";
+	if (ix==3) return "GBP-5-pence-heads.gif";
+	if (ix==4) return "GBP-10-pence-heads.gif";
+	if (ix==5) return "GBP-20-pence-heads.jpg";
+	if (ix==6) return "GBP-50-pence-heads.jpg";
+	if (ix==7) return "GBP-1-pound-heads.gif";
+	if (ix==8) return "GBP-2-pounds-heads.gif";
+}
+
+## Picture Definition:
+picture is [coin1pic,coin2pic,coin3pic,coin4pic, item1pic,item2pic,item1text, item2text, MoneyText,EnoughText,AnswerText,ItemText, yesBtn, noBtn, Response, resetBtn];
+
+## Turn on automatic calculation and execute any triggered actions pending.
+autocalc = 1;
+
+resetPuzzle();

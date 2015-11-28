@@ -1,0 +1,10 @@
+/**
+ * @title Switch
+ * @author Nicolas Pope
+ */
+
+import nick/circuit/switch/horizontal;
+import nick/circuit/switch/vertical;
+
+Switch is switch_h if orientation == "horizontal" else switch_v;
+

@@ -1,0 +1,12 @@
+/**
+ * @title Mario Controls
+ * @author Nicolas Pope
+ */
+
+import mario/mario/motion;
+
+do stop;
+do walkLeft;
+do walkRight;
+do jump;
+

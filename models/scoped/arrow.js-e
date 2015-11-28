@@ -1,0 +1,18 @@
+__left_arrow_left = 10;
+__left_arrow_mid is __left_arrow_top + (__left_arrow_height / 2);
+__left_arrow_top = 10;
+__left_arrow_height = 20;
+__left_arrow_right is __left_arrow_left + __left_arrow_width;
+__left_arrow_width = 50;
+__left_arrow_colour = "black";
+__left_arrow_pointyness = 0.3;
+
+__left_arrow_mainline is Line(__left_arrow_left, __left_arrow_mid, __left_arrow_right, __left_arrow_mid, __left_arrow_colour);
+__left_arrow_topline is Line(__left_arrow_left, __left_arrow_mid, __left_arrow_left + floor(__left_arrow_pointyness * __left_arrow_width), __left_arrow_top, __left_arrow_colour);
+__left_arrow_bottomline is Line(__left_arrow_left, __left_arrow_mid, __left_arrow_left + floor(__left_arrow_pointyness * __left_arrow_width), __left_arrow_top + __left_arrow_height, __left_arrow_colour);
+
+__left_arrow is [__left_arrow_mainline, __left_arrow_topline, __left_arrow_bottomline];
+
+LeftArrow is __left_arrow with __left_arrow_left = (x)?x:10, __left_arrow_top = (y)?y:10, __left_arrow_height = (height)?height:20, __left_arrow_width = (width)?width:50, __left_arrow_colour = (colour)?colour:"black", __left_arrow_pointyness = (pointyness)?pointyness:0.3;
+
+picture is LeftArrow;

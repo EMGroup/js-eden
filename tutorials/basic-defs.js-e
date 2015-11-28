@@ -1,0 +1,41 @@
+##createView("input_dialog","ScriptInput");
+##createCanvas("picture");
+
+b = 4;
+c = 5;
+d = b + c;
+e is b + c;
+
+textB is Text("b -> " // str(b), 45,30,26);
+textC is Text("c -> " // str(c), 45,60,26);
+textD is Text("d -> " // str(d), 45,90,26);
+textE is Text("e -> " // str(e), 45,120,26);
+
+picture_1 is [textB,textC,textD,textE];
+
+tut1_header is Header with text = "Basic Definitions";
+
+tut1_para1 is Paragraph with text = [
+"Try changing 'b' or 'c' and watch how 'e' changes but 'd'",
+"does not. This is called a dependency definition.",
+"'d' is only updated when first written or rewritten."
+];
+
+tut1_pic1 is Canvas with source="picture_1", name="Picture1";
+
+tut1_contents is [tut1_header, tut1_para1, tut1_pic1, tut1_script1];
+
+tut1_script1 is Script with static=false, name="Tut1Script", code=[
+"b = 4;",
+"c = 5;",
+"d = b + c;",
+"e is b + c;"
+];
+
+tut1_title is Title with
+	text="Tutorials:",
+	subtitle="Getting Started";
+
+tut1_page is Page with title=tut1_title, content=tut1_contents;
+page is tut1_page;
+

@@ -1,0 +1,10 @@
+﻿/**
+ * @title Giving Change Action
+ * @author Meurig Beyon
+ */
+
+when (amount>0) {
+coinlist = coinlist // [maxdenom];
+coinixlist = coinixlist // [gtnumsum];
+amount = amount - maxdenom;
+}

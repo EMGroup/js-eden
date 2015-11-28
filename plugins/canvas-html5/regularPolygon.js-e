@@ -1,36 +1,155 @@
 ${{
-	RegularPolygon = function (x, y, r, n, star, rotation, fillcolour, outlinecolours, outlineInterior, drawingOptions) {
+	RegularPolygon = function (x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolour, drawingOptions) {
 		this.x = x;
-		this. y = y;
+		this.y = y;
 		this.r = r;
 		this.n = n;
 		this.star = star;
+		this.interiorOutline = interiorOutline;
 		this.rotation = rotation;
 		this.fillcolour = fillcolour;
-		this.outlinecolours = outlinecolours;
+		this.outlinecolour = outlinecolour;
 		this.drawingOptions = drawingOptions;
-		
-		this.polygons = [];
-		this.outlines = [];
-		
-		rotation = -rotation - Math.PI * (0.5 - 2 / n);
-		var exteriorAngle = (2 * Math.PI) / n;
+		this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "RegularPolygon");
+		this.obsName = root.currentObservableName();
+
+		this.exteriorAngle = (2 * Math.PI) / n;
+		this.vertices = [];
 		var pointsDone = new Array(n);
 		var px, py;
+		var currentPolygonVertices, currentPoint;
+		var nudge;
+		if (drawingOptions !== undefined && drawingOptions.valign == "bottom") {
+			if (drawingOptions.lineWidth !== undefined) {
+				nudge = drawingOptions.lineWidth;
+			} else {
+				nudge = 2;
+			}
+		} else {
+			nudge = 0;
+		}
+		var rotation2;
+		if (n % 4 == 0) {
+			rotation2 = -rotation - Math.PI * (0.5 - 1 / n);
+		} else {
+			rotation2 = -rotation - Math.PI * (0.5 - 2 / n); //Zero rotation means "pointing upwards"
+		}
 		for (var i = 0; i < n; i++) {
 			var j = i;
-			var points = [];
+			currentPolygonVertices = [];
 			while (pointsDone[j] !== true) {
-				px = x + r * Math.cos(rotation + j * exteriorAngle);
-				py = y + r * Math.sin(rotation + j * exteriorAngle);
-				points.push(new Point(px, py));
+				px = x + r * Math.cos(rotation2 + j * this.exteriorAngle);
+				py = y + r * Math.sin(rotation2 + j * this.exteriorAngle) + nudge;
+				currentPoint = new Point(px, py);
+				currentPolygonVertices.push(currentPoint);
 				pointsDone[j] = true;
 				j = (j + star) % n;
 			}
-			if (points.length > 0) {
-				this.polygons.push(new Polygon(points, fillcolour, outlinecolours, drawingOptions));
+			if (currentPolygonVertices.length > 0) {
+				this.vertices = this.vertices.concat(currentPolygonVertices);
 			}
 		}
+		if (outlinecolour === undefined) {
+			this.calculatePolygons(0);
+		}
+	}
+
+	RegularPolygon.prototype.calculatePolygons = function (lineWidth) {
+		var separatePolygonsPossiblyNeeded;
+		if (this.fillcolour !== undefined && this.fillcolour != "transparent" &&
+			this.outlinecolour !== undefined &&
+			this.n / this.star != 2
+		) {
+			separatePolygonsPossiblyNeeded = true;
+		} else {
+			separatePolygonsPossiblyNeeded = false;		
+		}
+		
+		var radius = this.r - lineWidth / 2;
+		var rotation;
+		if (this.n % 4 == 0) {
+			rotation = -this.rotation - Math.PI * (0.5 - 1 / this.n);
+		} else {
+			rotation = -this.rotation - Math.PI * (0.5 - 2 / this.n); //Zero rotation means "pointing upwards"
+		}
+		var nudge;
+		if (this.drawingOptions !== undefined && this.drawingOptions.valign == "bottom") {
+			nudge = lineWidth;
+		} else {
+			nudge = 0;
+		}
+
+		var pointsDone = new Array(this.n);
+		var px, py;
+		var polygons = [];
+		var currentPolygonVertices, currentPoint;
+		for (var i = 0; i < this.n; i++) {
+			var j = i;
+			currentPolygonVertices = [];
+			while (pointsDone[j] !== true) {
+				px = this.x + radius * Math.cos(rotation + j * this.exteriorAngle);
+				py = this.y + radius * Math.sin(rotation + j * this.exteriorAngle) + nudge;
+				currentPoint = new Point(px, py);
+				currentPolygonVertices.push(currentPoint);
+				pointsDone[j] = true;
+				j = (j + this.star) % this.n;
+			}
+			if (currentPolygonVertices.length > 0) {
+				polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, this.outlinecolour, this.drawingOptions));
+			}
+		}
+		if (separatePolygonsPossiblyNeeded) {
+			if (polygons.length == 1) {
+				if (!this.interiorOutline) {
+					/* Case: single constituent polygon (e.g. five-pointed star) with an outline but
+					 * not an outline drawn in inside the shape (i.e. a star or a pentagon rather
+					 * than a pentagram).
+					 * Solution: add extra polygons to over-paint those inside edges that we don't want.
+					 * N.B. We can (and do) safely ignore these extra polygons when performing hit testing.
+					 */
+					var smallerRadius = this.r - lineWidth;
+					currentPolygonVertices = [];
+					i = 0;
+					do {
+						px = this.x + smallerRadius * Math.cos(rotation + i * this.exteriorAngle);
+						py = this.y + smallerRadius * Math.sin(rotation + i * this.exteriorAngle);
+						currentPoint = new Point(px, py);
+						currentPolygonVertices.push(currentPoint);
+						i = (i + this.star) % this.n;
+					} while (i != 0);
+					polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, undefined, this.drawingOptions));
+				} else {
+					/* Case: the user wants to see the edges that intersect the interior of the
+					 * polygon.
+					 */
+				}
+				this.filledPolygons = polygons;
+				this.outlinePolygons = [];
+			} else {
+				/* Case: multiple constituent polygons (specifically, more than 2).  Occurs when
+				 * n / star is an integer greater than 2.
+				 * Solution: Paint the fill and the outline as separate polygons.  The requirement
+				 * to show or hide the interior edges determines whether the outlines are painted
+				 * first or the fill is painted first.
+				 */
+				this.filledPolygons = [];
+				this.outlinePolygons = [];
+				for (var i = 0; i < polygons.length; i++) {
+					this.filledPolygons.push(new Polygon(polygons[i].vertices, this.fillcolour, undefined, this.drawingOptions));
+				}
+				for (var i = 0; i < polygons.length; i++) {
+					this.outlinePolygons.push(new Polygon(polygons[i].vertices, undefined, this.outlinecolour, this.drawingOptions));
+				}
+			}
+		} else {
+			/* Case: the outline doesn't have intersecting edges (or only degenerate ones, i.e. n / star = 2),
+			 * or doesn't have an outline, or doesn't have a fill colour.
+			 * N.B: n / star = 2 is the degenerate case when a polygon is reduced to being a set of unconnected lines.
+			 * Solution: One set of polygons that paint either the fill or the outline (the shape doesn't have both).
+			 */
+			this.filledPolygons = polygons;
+			this.outlinePolygons = [];
+		}	
 	}
 }}$;
 
@@ -40,39 +159,128 @@ func RegularPolygon {
 		var y = arguments[1];
 		var r = arguments[2];
 		var n = arguments[3];
-		var star = 1, rotation = 0;
-		var argsProcessed;
+		var star = 1, rotation = 0, interiorOutline = true;
+		var fillcolour, outlinecolour, drawingOptions;
+		var argsProcessed = 4;
 		if (typeof(arguments[4]) == "number") {
-			if (typeof(arguments[5]) == "number") {
-				star = arguments[4];
-				rotation = arguments[5] * root.lookup("radiansPerUnit").value();
-				argsProcessed = 6;
-			} else {
-				star = arguments[4];
-				argsProcessed = 5;
-			}
-		} else {
-			argsProcessed = 4;
+			star = arguments[4];
+			argsProcessed++;
 		}
-		var fillcolour = arguments[argsProcessed];
-		var outlinecolours = ["black"];
-		var outlineInterior = true;
-		var drawingOptions = {};
-		return new RegularPolygon(x, y, r, n, star, rotation, fillcolour, outlinecolours, outlineInterior, drawingOptions);
+		if (typeof(arguments[argsProcessed]) == "boolean") {
+			interiorOutline = arguments[argsProcessed];
+			argsProcessed++;
+		}
+		if (typeof(arguments[argsProcessed]) == "number") {
+				rotation = arguments[argsProcessed] * root.lookup("radiansPerUnit").value();
+				argsProcessed++;
+		}
+
+		var lastArg = arguments[arguments.length - 1];
+		var processUpTo;
+		if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+			drawingOptions = lastArg;
+			processUpTo = arguments.length - 2;
+		} else {
+			processUpTo = arguments.length - 1;
+		}
+		if (processUpTo >= argsProcessed) {
+			fillcolour = arguments[argsProcessed];
+			argsProcessed++;
+			if (processUpTo == argsProcessed) {
+				outlinecolour = arguments[argsProcessed];
+			}
+		}
+
+		if (outlinecolour === undefined) {
+			if (fillcolour === undefined) {
+				outlinecolour = "black";
+			}
+		}
+
+		if (drawingOptions !== undefined) {
+			if (!("join" in drawingOptions)) {
+				drawingOptions.join = "round";
+			}
+		}
+		return new RegularPolygon(x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolour, drawingOptions);
 	}}$;
 }
+radiansPerUnit ~> [RegularPolygon];
 
 ${{
-	RegularPolygon.prototype.draw = function (context) {
-		for (var i = 0; i < this.polygons.length; i++) {
-			this.polygons[i].draw(context);
+RegularPolygon.prototype.draw = function (context) {
+	var lineWidth = context.lineWidth;
+	if (!this.interiorOutline) {
+		lineWidth = lineWidth * 2;
+	}
+	if (this.outlinecolour !== undefined) {
+		if (lineWidth !== this.cachedPolygonLineWidth) {
+			this.calculatePolygons(lineWidth);
+			this.cachedPolygonLineWidth = lineWidth;
 		}
 	}
-	
-	RegularPolygon.prototype.toString = function () {
-		return "";
+
+	if (this.interiorOutline) {
+		for (var i = 0; i < this.filledPolygons.length; i++) {
+			this.filledPolygons[i].draw(context);
+		}
+		for (var i = 0; i < this.outlinePolygons.length; i++) {
+			this.outlinePolygons[i].draw(context);
+		}
+	} else {
+		context.lineWidth = lineWidth;
+		for (var i = 0; i < this.outlinePolygons.length; i++) {
+			this.outlinePolygons[i].draw(context);
+		}
+		context.lineWidth = lineWidth / 2;
+		for (var i = 0; i < this.filledPolygons.length; i++) {
+			this.filledPolygons[i].draw(context);
+		}
 	}
+}
+
+RegularPolygon.prototype.isHit = function (context, scale, x, y) {
+	var hit;
+	var ratio = this.n / this.star;
+	var limit;
+	if (this.fillcolour !== undefined && this.fillcolour != "transparent" &&
+		this.outlinecolour !== undefined &&
+		ratio != 2 &&
+		(this.star == 1 || ratio != Math.floor(ratio)) &&
+		!this.interiorOutline
+	) {
+		limit = this.filledPolygons.length / 2;
+	} else {
+		limit = this.filledPolygons.length;
+	}
+	for (var i = 0; i < limit; i++) {
+		hit = this.filledPolygons[i].isHit(context, scale, x, y);
+		if (hit) {
+			return true;
+		}
+	}
+	return false;
+};
+
+RegularPolygon.prototype.toString = function () {
+	var s = "RegularPolygon(" + Eden.edenCodeForValues(this.x, this.y, this.r, this.n, this.star,
+		this.interiorOutline, this.rotation, this.fillcolour, this.outlinecolour);
+
+	if (this.drawingOptions !== undefined) {
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
+	}
+	s = s + ")";
+	return s;
+}
+
+RegularPolygon.prototype.getEdenCode = RegularPolygon.prototype.toString;
 	
-	RegularPolygon.prototype.getEdenCode;
-	
+RegularPolygon.prototype.imageMapArea = function () {
+	return this.filledPolygons[0].imageMapArea();
+}
+
+RegularPolygon.prototype.centre = function () {
+	return new Point(this.x, this.y);
+}
+
 }}$;

@@ -1,20 +1,23 @@
 #menubar-main {
-	position: absolute;
+	position: fixed;
 	left: 0px;
 	right: 0px;
 	top: 0px;
-	height: 25px;
+	height: 29px;
 	background-color: black;
 	color:	white;
 	font-size: 14px;
 	font-family: 'arial';
 	padding-left: 20px;
-	padding-top: 4px;
+	/*padding-top: 4px;*/
 	padding-right: 20px;
+	z-index: 2147483647; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */
 }
 
 .menubar-mainitem:hover {
-	font-weight: bold;
+	/*font-weight: bold;*/
+	background-color: white;
+	color: black;
 }
 
 .menubar-menu {
@@ -26,12 +29,13 @@
 }
 
 #menubar-bottom {
-	position: absolute;
+	position: fixed;
 	left: 0px;
 	right: 0px;
 	top: 29px;
 	height: 5px;
 	background-image: url('../../images/menu-bottomgrad.png');
+	z-index: 2147483646;
 }
 
 .menubar-mainitem {
@@ -40,18 +44,20 @@
 	-moz-user-select: none;
 	-webkit-user-select: none;
 	-ms-user-select: none;
-	padding-top: 4px;
-	padding-left: 5px;
+	padding-top: 8px;
+	padding-left: 5px; /*See addMainItem */
 	padding-right: 5px;
 	padding-bottom: 8px;
 	text-decoration: none;
 	font-size: 12px;
 	font-family: 'arial';
+	font-weight: bold;
 	color: #dadada;
 	float: left;
-	width: 104px;
 	cursor: pointer;
-	z-index: 5;
+	text-align: center;
+	overflow: visible;
+	height: 13px;
 }
 
 .menubar-item {
@@ -60,18 +66,52 @@
 
 .menubar-item-separator {
 	margin-top: 10px;
-	margin-bottom: 1px;
-	background-color: #E8E8E8;
+	margin-bottom: 5px;
 	font-weight: bold;
-	cursor: default;
+	border-top-color: #777;
+	border-top-width: 1px;
+	border-top-style: solid;
+	border-left-width: 0;
+	border-right-width: 0;
+	border-bottom-color: #777;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	box-shadow: 0 0 10px #4a6887;
+	background-color: #eee;
+	/*background: -webkit-linear-gradient(#fafafa, #cccccc); 
+	background: -o-linear-gradient(#fafafa, #cccccc); 
+	background: -moz-linear-gradient(#fafafa, #cccccc); 
+	background: linear-gradient(#fafafa, #cccccc); */
 }
 
-.menubar-item:first-child .menubar-item-separator {
-	margin-top: 0px;
+.menubar-item-search {
+    padding-top: 3px;
+	margin-top: 2px;
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+	cursor: default;
+	background-color: #CCDDFF;
+}
+
+.menubar-search-box {
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.menubar-item-separator ~:not([style*='display: none']) {
+	margin-top: 10px;
 }
 
 .menubar-item:hover {
 	background-color: rgba(111, 198, 245, 0.3);
+}
+
+.menubar-nonselectable {
+	cursor: default;
+}
+
+.menubar-nonselectable.menubar-item:hover {
+	background-color: inherit;
 }
 
 .menubar-item-clickable {
@@ -83,53 +123,75 @@
 	color: white;
 }
 
-.menubar-item-label {
-	width: 190px;
+.menubar-item>* {
 	display: inline-block;
+}
+
+.menubar-item-label {
+	width: calc(100% - 50px);
 	padding: 5px;
+	vertical-align: middle;
+}
+
+.menubar-view-name {
+	color: #A0A0A0;
+	float: right;
+	font-style: italic;
 }
 
 .menubar-item-fullwidth {
 	box-sizing: border-box;
-	width: 230px;
+	width: 100%;
 	padding: 5px;
 }
 
 .menubar-item-close {
 	text-align: center;
 	color: red;
-	position: absolute;
-	width: 40px;
-	height: 100%;
-	right: 0;
-	top: 0;
+	width: 20px;
+}
+
+.menubar-item-input {
+	text-align: center;
+	width: 30px;
+}
+
+.menubar-item-pin-icon {
+	padding-top: 1px;
+	padding-bottom: 1px;
+	vertical-align: middle;
 }
 
 .menubar-item-close-icon {
-	display: inline-block;
 	padding: 5px;
 }
 
 .menubar-menu {
 	position: relative;
 	font-weight: normal;
+	left: -5px;
 	margin-top: 6px;
-	background-color: #FFFFE0;
-	border-color: #A0A0A0;
+	padding-bottom: 6px;
+	background-color: white;
+	border-color: #777;
 	border-style: solid;
-	border-width: 0px 0px 1px 2px;
-	box-shadow: 4px 6px 7px 0px #111111;
+	border-width: 0px 0px 1px 1px;
+	box-shadow: 4px 6px 7px 0px #222;
 	color: black;
-	width: 230px;
-	z-index: 2147483647; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */
+	width: 250px;
+	text-align: left;
+	overflow-y: auto;
+}
+
+#menubar-mainitem-existing-views {
+	width: 305px;
 }
 
 .menubar-view {
 	padding-left: 2em;
 }
 
-/* use a pseudo element to make a border without
- * causing the window contents to move */
+/* use a pseudo element to make a border without causing the window contents to move */
 .menubar-window-raise:after {
 	content: "";
 	position: absolute;
@@ -155,8 +217,6 @@
 
 #menubar-status {
 	position: absolute;
-	left: 300px;
-	right: 300px;
 	text-align: center;
 	padding-top: 4px;
 	color: #e0e0e0;

@@ -10,20 +10,21 @@ Div = function (html, x, y, width, height, id, classNames, style) {
 	this.y = y;
 	this.width = width;
 	this.height = height;
-	this.id = id;
+	this.name = id;
+	this.obsName = root.currentObservableName();
 	this.classNames = classNames;
 	this.style = style;
 }
 
 Div.prototype.hash = function () {
 	return this.x+"$$"+
-				this.y+"$$"+
-				this.width+"$$"+
-				this.height+"$$"+
-				this.html+"$$"+
-				this.id+"$$"+
-				this.classNames+"$$"
-				this.style;
+		this.y+"$$"+
+		this.width+"$$"+
+		this.height+"$$"+
+		this.html+"$$"+
+		this.name+"$$"+
+		this.classNames+"$$"+
+		this.style;
 };
 }}$;
 
@@ -31,45 +32,46 @@ func Div { ${{
 	var html = arguments[0];
 	var x = arguments[1];
 	var y = arguments[2];
-	var width = arguments[3];
-	var height = arguments[4];
+	var width, height;   //Number of pixels, string (e.g. "50%") or undefined (automatic)
+	var id, classNames;
+	var style = "";
 	
-	if (typeof(x) == "number") {
-		x = x + "px";
-	}
-	if (typeof(y) == "number") {
-		y = y + "px";
-	}
-	if (typeof(width) == "number") {
-		width = width + "px";
-	}
-	if (typeof(height) == "number") {
-		height = height + "px";
+	var argsProcessed = 3;
+	var argType = typeof(arguments[3]);
+	
+	if (argType == "number" || argType == "undefined" || (argType == "string" && /^\d/.test(arguments[3]))) {
+		width = arguments[3];
+		argsProcessed++;
+		
+		argType = typeof(arguments[4]);
+		if (argType == "number" || argType == "undefined" || (argType == "string" && /^\d/.test(arguments[4]))) {
+			height = arguments[4];
+			argsProcessed++;
+		}
 	}
 
-	var id, classNames, style = "";
-	if (arguments.length > 5) {
-		if (arguments.length == 8) {
-			id = arguments[5];
-			classNames = arguments[6];
-			style = arguments[7];
+	if (arguments.length > argsProcessed) {
+		if (arguments.length == argsProcessed + 3) {
+			id = arguments[argsProcessed];
+			classNames = arguments[argsProcessed + 1];
+			style = arguments[argsProcessed + 2];
 		} else {
-			if (Array.isArray(arguments[5])) {
-				classNames = arguments[5];
-				if (arguments.length == 7) {
-					style = arguments[6];
+			if (Array.isArray(arguments[argsProcessed])) {
+				classNames = arguments[argsProcessed];
+				if (arguments.length == argsProcessed + 2) {
+					style = arguments[argsProcessed + 1];
 				}
-			} else if (arguments.length == 7) {
-				id = arguments[5];
-				if (Array.isArray(arguments[6])) {
-					classNames = arguments[6];
+			} else if (arguments.length == argsProcessed + 2) {
+				id = arguments[argsProcessed];
+				if (Array.isArray(arguments[argsProcessed + 1])) {
+					classNames = arguments[argsProcessed + 1];
 				} else {
-					style = arguments[6];
+					style = arguments[argsProcessed + 1];
 				}
-			} else if (arguments[5].indexOf(":") == -1) {
-				id = arguments[5];
+			} else if (typeof(arguments[argsProcessed]) != "string" || arguments[argsProcessed].indexOf(":") == -1) {
+				id = arguments[argsProcessed];
 			} else {
-				style = arguments[5];
+				style = arguments[argsProcessed];
 			}
 		}
 	}	
@@ -81,28 +83,89 @@ ${{
 Div.prototype.draw = function(context) {
 
   if (this.elements === undefined) {
-
-	var divStyle = "position: absolute; left: " + this.x + "; top: " + this.y + "; ";
-	
-	if (this.width !== undefined) {
-		divStyle = divStyle + " width: " + this.width + "; ";
-	}
-	if (this.height !== undefined) {
-		divStyle = divStyle + " height: " + this.height + "; ";
-	}
-	divStyle = divStyle + this.style;
+	var me = this;
+	var divStyle = "position: absolute; " + this.style;
 
 	var divElement = document.createElement("div");
-	if (this.id !== undefined) {
-		divElement.id = this.id;
+	if (this.name !== undefined) {
+		divElement.id = this.name;
 	}
 	if (Array.isArray(this.classNames)) {
 		divElement.setAttribute("class", this.classNames.join(" "));
 	}
 	divElement.style.cssText = divStyle;
 	divElement.innerHTML = this.html;
+	var match = divElement.style.fontSize.match(/^(\d+)([a-z%]+)$/);
+	if (match !== null) {
+		this.fontSizeNumber = match[1];
+		this.fontSizeUnits = match[2];
+	}
+
+	//Create object properties that record the automatically generated width and/or height.
+	if (this.name !== undefined) {
+		divElement.onmousedown = function (event) {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseDownZone").assign(event.target.id, root.scope, Symbol.hciAgent, mouseFollow);
+		};
+		divElement.onmouseup = function (event) {
+			edenUI.plugins.Canvas2D.endClick();
+		};
+		divElement.onmouseenter = function (event) {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(event.target.id, root.scope, Symbol.hciAgent, mouseFollow);
+		};
+		edenUI.plugins.Canvas2D.initZoneFromName(name, "Div")
+
+		var widthSymName = this.name + "_width";
+		var heightSymName = this.name + "_height";
+		if (this.width === undefined || this.height === undefined || widthSymName in root.symbols || heightSymName in root.symbols) {
+			var objectElement = document.createElement("object");
+			objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
+			objectElement.onload = function () {
+				var resizeAction = function () {
+					if (me.width === undefined || widthSymName in root.symbols) {
+						root.lookup(widthSymName).assign(me.elements[0].clientWidth, root.scope);
+					}
+					if (me.height === undefined || heightSymName in root.symbols) {
+						root.lookup(heightSymName).assign(me.elements[0].clientHeight, root.scope);
+					}
+				};
+				resizeAction();
+				this.contentDocument.defaultView.addEventListener("resize", resizeAction);
+			};
+			objectElement.type = "text/html";
+			objectElement.data = "about:blank";
+			divElement.appendChild(objectElement);
+		}
+	}
+
 	this.elements = [divElement];
   }
+};
+
+Div.prototype.scale = function (scale, zoom , origin) {
+	var style = this.elements[0].style;
+	if (typeof(this.x) == "number") {
+		style.left = Math.round(this.x * scale + origin.x) + "px";
+	}
+	if (typeof(this.y) == "number") {
+		style.top = Math.round(this.y * scale + origin.y) + "px";
+	}
+	if (typeof(this.width) == "number") {
+		style.width = Math.round(this.width * scale) + "px";
+	}
+	if (typeof(this.height) == "number") {
+		style.height = Math.round(this.height * scale) + "px";
+	}
+	if (this.fontSizeNumber !== undefined) {
+		style.fontSize = String(this.fontSizeNumber * zoom) + this.fontSizeUnits;
+	} else {
+		if (zoom == 1) {
+			style.fontSize = ""; //Could be specified by CSS class rather than the style argument.
+		} else {
+			style.fontSize = zoom + "em";
+		}
+	}
 };
 
 Div.prototype.toString = function() {
@@ -110,11 +173,10 @@ Div.prototype.toString = function() {
 };
 
 Div.prototype.getEdenCode = function () {
-	var s = "Div(\"" + this.html + "\", \"" + this.x + "\", \"" + this.y + "\", " + 
-		Eden.edenCodeForValue(this.width) + ", " + Eden.edenCodeForValue(this.height);
+	var s = "Div(" + Eden.edenCodeForValues(this.html, this.x, this.y, this.width, this.height);
 
-	if (this.id !== undefined) {
-		s = s + ", \"" + this.id + "\"";
+	if (this.name !== undefined) {
+		s = s + ", \"" + this.name + "\"";
 	}
 	if (this.classNames !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.classNames);

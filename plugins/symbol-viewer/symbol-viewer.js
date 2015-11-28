@@ -39,19 +39,24 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	var generateHTML = function (viewName, viewType) {
 		var html = "\
 			<div class=\"symbollist-search-box-outer\"> \
-				<input type=\"text\" class=\"symbollist-search symbollist-control\" placeholder=\"search\" /> \
+				<input type=\"text\" class=\"symbollist-search symbollist-control\" /> \
 				<a class=\"symbollist-edit symbollist-control symbollist-rightmost-control\">Edit Listed</a><br/> \
-				<select id=\"" + viewName + "-system-filter\" class=\"symbollist-control\"> \
-					<option value=\"user\">Construal</option> \
-					<option value=\"system\">System Library</option> \
-					<option value=\"both\">All Sources</option> \
+				<select id=\"" + viewName + "-category-filter\" class=\"symbollist-control\"> \
+					<option value=\"user\">Construal</option>";
+
+		var categories = Eden.getSymbolCategories(viewType);
+		for (var i = 0; i < categories.length; i++) {
+			html = html + "<option value=\"" + categories[i] + "\">" + categories[i] + "</option>";
+		}
+		html = html+"<option value=\"system\">Complete Library</option> \
+					<option value=\"all\">All Sources</option> \
 				</select>";
 		if (viewType == "obs") {
 			html = html + "\
 				<select id=\"" + viewName + "-type-filter\" class=\"symbollist-control symbollist-rightmost-control\"> \
 					<option value=\"formulas\">Dependencies</option>\
 					<option value=\"vars\">Base Observables</option>\
-					<option value=\"both\" selected=\"selected\">All Kinds</option>\
+					<option value=\"all\" selected=\"selected\">All Kinds</option>\
 				</select>";
 		}
 		html = html + "\
@@ -70,62 +75,84 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 */
 	this.createDialog = function (name, mtitle, type) {
 		var edenName = name.slice(0, -7);
-		var code_entry = $('<div></div>');
-		code_entry.html(generateHTML(name, type));
+		var content = $('<div class="symbollist-outer"></div>');
+		content.html(generateHTML(name, type));
+
 		var symbollist = new EdenUI.plugins.SymbolViewer.SymbolList(
-			edenUI.eden.root, code_entry.find(".symbollist-results")[0], type
+			edenUI.eden.root, content.find(".symbollist-results")[0], type
 		);
 
-		$dialog = $('<div id="'+name+'"></div>')
-			.html(code_entry)
+		$dialog = $('<div id="' + name + '"></div>')
+			.append(content)
 			.dialog({
 				title: mtitle,
 				width: 360,
 				height: 400,
 				minHeight: 200,
 				minWidth: 200,
+				dialogClass: "symbollist-dialog"
 			});
 
 		me.instances.push(symbollist);
-		symbollist.search("");
+		symbollist.search(new RegExp(""));
 
-		code_entry.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
-			console.log(name);
-			edenUI.createView("edit_" + edenName, "ScriptInput");
-			var allVals = "";
+		// Make changes in search box update the list.
+		var searchBox = content.find(".symbollist-search-box-outer > .symbollist-search");
+		var searchBoxElem = searchBox.get(0);
+		searchBox.keyup(function() {
+			var regExp = edenUI.regExpFromStr($(this));
+			symbollist.search(regExp);
+		});
+
+		content.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
+			var editorViewName = "edit_" + edenName;
+			var allVals = ["## Selection: " + searchBoxElem.value];
 			var symbol;
 			for(var symbolname in symbollist.symbols){
 				symbol = edenUI.eden.root.lookup(symbolname);
-				var val;
-				if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
-					val = symbol.eden_definition;
-				} else {
-					if (symbol.definition) {
-						val = symbol.eden_definition + ";";
-					} else {
-						val = symbolname + " = " + Eden.edenCodeForValue(symbol.value()) + ";";
-					}
-				}
-				allVals += val + "\n";
+				allVals.push(symbol);
+				allVals.push("");
 			}
-				$('#edit_' + edenName + '-dialog').find('textarea').val(allVals);
+			edenUI.createView(editorViewName, "ScriptInput", undefined).update(allVals);
+			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
 		});
 
+		//Show different placeholder text to indicate the search syntax being used.
+		var searchBox = content.find(".symbollist-search-box-outer > .symbollist-search");
+		var searchLangSym = root.lookup("_view_" + edenName + "_search_lang");
+
+		function makeRegExp() {
+			var searchStr = searchBox[0].value;
+			var searchLang = searchLangSym.value();
+			return edenUI.regExpFromStr(searchBox, "", false, searchLang);
+		}
+
+		function setSearchLanguage(sym, language) {
+			symbollist.search(makeRegExp());
+
+			if (language == "regexp") {
+				searchBox.attr("placeholder", "search regular expression");
+			} else if (language == "simple") {
+				searchBox.attr("placeholder", "simple search");				
+			} else {
+				searchBox.attr("placeholder", "search");
+			}
+		};
+		setSearchLanguage(searchLangSym, searchLangSym.value());
+		searchLangSym.addJSObserver("refreshView", setSearchLanguage);
 
 		// Make changes in search box update the list.
-		var searchBox = code_entry.find(".symbollist-search-box-outer > .symbollist-search");
 		searchBox.keyup(function() {
-			symbollist.search(this.value);
+			symbollist.search(makeRegExp());
 		});
-		var searchBoxElem = searchBox.get(0);
 
-		document.getElementById(name + "-system-filter").addEventListener("change", function (event) {
-			symbollist.search(searchBoxElem.value, event.target.value);
+		document.getElementById(name + "-category-filter").addEventListener("change", function (event) {
+			symbollist.search(makeRegExp(), event.target.value);
 		});
 
 		if (type == "obs") {
 			document.getElementById(name + "-type-filter").addEventListener("change", function (event) {
-				symbollist.search(searchBoxElem.value, undefined, event.target.value);
+				symbollist.search(makeRegExp(), undefined, event.target.value);
 			});
 		}
 
@@ -193,9 +220,14 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			var instance = me.instances[x];
 			
 			// Remove symbol list from DOM to speed up manipulations
-			var symresults = $(instance.symresults);
-			var parent = symresults.parent();
-			symresults.detach();
+			// (but only if the inline editor isn't open, otherwise we'd lose focus and terminate editing prematurely.)
+			var symresults, parent, scrollPosition;
+			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === undefined) {
+				symresults = $(instance.symresults);				
+				parent = symresults.parent();
+				scrollPosition = symresults.scrollTop();
+				symresults.detach();
+			}
 
 			// For every recently created symbol
 			for (var name in symbol_create_queue) {
@@ -209,7 +241,10 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			}
 
 			// Add symbol list back into the DOM for display.
-			symresults.appendTo(parent);
+			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === undefined) {
+				symresults.appendTo(parent);
+				symresults.scrollTop(scrollPosition);
+			}
 		}
 
 		symbol_update_queue = {};
@@ -240,10 +275,10 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	edenUI.eden.root.addGlobal(symbolChanged);
 
 	// Add views supported by this plugin.
-	edenUI.views["ObservableList"] = {dialog: this.createObservableDialog, title: "Observable List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
-	edenUI.views["FunctionList"] = {dialog: this.createFunctionDialog, title: "Function List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
-	edenUI.views["AgentList"] = {dialog: this.createAgentDialog, title: "Agent List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
-	edenUI.views["SymbolList"] = {dialog: this.createSymbolDialog, title: "Symbol List", category: edenUI.viewCategories.comprehension, menuPriority: 2};
+	edenUI.views["ObservableList"] = {dialog: this.createObservableDialog, title: "Observable List", category: edenUI.viewCategories.comprehension, menuPriority: 0};
+	edenUI.views["FunctionList"] = {dialog: this.createFunctionDialog, title: "Function List", category: edenUI.viewCategories.comprehension, menuPriority: 0};
+	edenUI.views["AgentList"] = {dialog: this.createAgentDialog, title: "Agent List", category: edenUI.viewCategories.comprehension, menuPriority: 0};
+	edenUI.views["SymbolList"] = {dialog: this.createSymbolDialog, title: "Symbol List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
 
 	$(document).tooltip();
 	success();
@@ -252,6 +287,8 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 /* Plugin meta information */
 EdenUI.plugins.SymbolViewer.title = "Symbol Viewer";
 EdenUI.plugins.SymbolViewer.description = "Provide various views of the symbol table.";
+
+EdenUI.plugins.SymbolViewer.inlineEditorSymbol = undefined;
 
 /**
  * Class to represent symbol lists. Displays a list of symbol information
@@ -266,8 +303,9 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
 	this.root = root;
 	this.regExp = new RegExp("");
 	this.type = type;
-	this.showSystem = "user"; // Show "user" defined, "system" defined or "both"
-	this.subtypes = "both";   // Show "formulas", "vars" or "both"
+	this.category = "user"; // Show "user" defined, "system" defined, a custom category name or "all"
+	this.customCategory = false;
+	this.subtypes = "all";   // Show "formulas", "vars" or "all"
 	this.symresults = element;
 	this.symbols = {};
 };
@@ -277,10 +315,11 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
  *
  * @param pattern A regular expression for symbol names.
  */
-EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (pattern, showSystem, subtypes) {
-	this.regExp = new RegExp("^(" + pattern + ")", "i");
-	if (showSystem !== undefined) {
-		this.showSystem = showSystem;
+EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (regExp, category, subtypes) {
+	this.regExp = regExp;
+	if (category !== undefined) {
+		this.category = category;
+		this.customCategory = (category != "user" && category != "system" && category != "all");
 	}
 	if (subtypes !== undefined) {
 		this.subtypes = subtypes;;
@@ -323,11 +362,16 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 	if (!this.regExp.test(name)) {
 		return;
 	}
-	if (Eden.isitSystemSymbol(name)) {
-		if (this.showSystem == "user") {
+
+	if (this.customCategory) {
+		if (!Eden.isitCategory(name, this.category, this.type)) {
 			return;
 		}
-	} else if (this.showSystem == "system") {
+	} else if (Eden.isitSystemSymbol(name)) {
+		if (this.category == "user") {
+			return;
+		}
+	} else if (this.category == "system") {
 		return;
 	}
 	if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
@@ -344,8 +388,8 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 
 	// Does the symbol have a definition
 	if (!symbol.definition || !symbol.eden_definition) {
-		if (typeof(symbol.cached_value) == "function") {
-			if (/\breturn\s+([^\/;]|(\/[^*\/]))/.test(symbol.cached_value.toString())) {
+		if (typeof(symbol.cache.value) == "function") {
+			if (/\breturn\s+([^\/;]|(\/[^*\/]))/.test(symbol.cache.value.toString())) {
 				symbolType = "func";
 			} else {
 				symbolType = "agent";
@@ -363,8 +407,8 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 			symbolType = "func";
 		} else {
 			//Dependency
-			if (typeof(symbol.cached_value) == "function") {
-				if (/\breturn\s+([^\/;]|(\/[^*\/]))/.test(symbol.cached_value.toString())) {
+			if (typeof(symbol.cache.value) == "function") {
+				if (/\breturn\s+([^\/;]|(\/[^*\/]))/.test(symbol.cache.value.toString())) {
 					symbolType = "func";
 				} else {
 					symbolType = "agent";
@@ -388,7 +432,7 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 /**
  * A class for an individual symbol result which deals with HTML formatting.
  *
- * @author Nicolas Pope
+ * @author Nicolas Pope et al.
  * @constructor
  * @param symbol Internal EDEN symbol object.
  * @param name Name of the symbol.
@@ -410,47 +454,150 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
 	};
 
 	var me = this;
-	this.element.hover(
-		function() {
-			$(this).animate({backgroundColor: "#eaeaea"}, 100);
-		}, function() {
-			$(this).animate({backgroundColor: "white"}, 100);
-		}	
-	).click(function () {
-		edenUI.createView("edit_" + me.name, "ScriptInput");
-		var val;
-		if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
-			val = symbol.eden_definition;
-		} else {
-			if (symbol.definition) {
-				val = symbol.eden_definition + ";";
-			} else {
-				val = me.name + " = " + Eden.edenCodeForValue(symbol.value()) + ";";
-			}
-		}
+	var singleClickPerformed = false;
+	function closeEditor() {
+		me.element.removeClass("symbollist-inline-editor");
+		me.update();
+		me.element.scrollLeft(0);
+	}
 
-		$('#edit_' + me.name + '-dialog').find('textarea').val(
-			val
-		);
+	this.element.click(function () {
+		if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol || singleClickPerformed) {
+			return;
+		}
+		singleClickPerformed = true;
+		setTimeout(function () {
+			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol || !singleClickPerformed) {
+				return;
+			}
+			singleClickPerformed = false;
+			var editorViewName = "edit_" + me.name;
+			edenUI.createView(editorViewName, "ScriptInput", undefined).update([symbol]);
+			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + me.name, edenUI.eden.root.scope, Symbol.hciAgent);
+			/*var val;
+			if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
+				val = symbol.eden_definition;
+			} else {
+				if (symbol.definition) {
+					val = symbol.eden_definition + ";";
+				} else {
+					val = me.name + " = " + Eden.edenCodeForValue(symbol.value()) + ";";
+				}
+			}
+
+			$('#' + editorViewName + '-dialog').find('textarea').val(
+				val
+			);*/
+		}, 350);
 	});
+	if (type == "obs") {
+		this.element.dblclick(function () {
+			singleClickPerformed = false;
+			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === me) {
+				return;
+			}
+			var value = me.symbol.cache.value;
+
+			if (me.symbol.eden_definition !== undefined || typeof(value) != "boolean") {
+				EdenUI.plugins.SymbolViewer.inlineEditorSymbol = me;
+				me.element.addClass("symbollist-inline-editor");
+				var valueElement = me.element.find(".result_value");
+				var operationElement = me.element.find(".result_separator");
+				valueElement.html('');
+				var currentEden, operation;
+				if (me.symbol.eden_definition !== undefined) {
+					currentEden = me.symbol.eden_definition.replace(new RegExp("^\\s*" + name + "\\s+is\\s+"), "");
+					operation = "is";
+				} else {
+					currentEden = Eden.edenCodeForValue(value);
+					operation = "=";
+				}
+				var operationSelect = $('<select></select>');
+				if (operation == "=") {
+					operationSelect.append('<option value="is">is</option>');
+					operationSelect.append('<option value="=" selected="selected">=</option>');
+				} else {
+					operationSelect.append('<option value="is" selected="selected">is</option>');
+					operationSelect.append('<option value="=">=</option>');
+				}
+				operationElement.html(' ');
+				operationElement.append(operationSelect);
+
+				var currentEdenEscaped = Eden.htmlEscape(currentEden, true);
+				var inputBox = $('<input type="text" value="' + currentEdenEscaped + '" spellcheck="false" style="width: 100%"/>');
+				var inputBoxElem = inputBox.get(0);
+				function submitInlineEdit () {
+						var operation = operationSelect.get(0).value;
+						var script = inputBoxElem.value;
+						if (script.slice(-1) != ";") {
+							script = script + ";";
+						}
+						eden.execute2(me.name + " " + operation + " " + script);
+						closeEditor();
+						EdenUI.plugins.SymbolViewer.inlineEditorSymbol = undefined;
+				}
+				function keyboardShortcuts(event) {
+					var keyCode = event.which;
+					if (keyCode == 13) {
+						//Return key.  Submit code.
+						submitInlineEdit();
+					} else if (keyCode == 27) {
+						//Escape key.  Abandon edits.
+						closeEditor();
+						EdenUI.plugins.SymbolViewer.inlineEditorSymbol = undefined;
+					}
+				}
+				inputBox.on("keyup", keyboardShortcuts);
+				inputBox.on("blur", function () {
+					setTimeout(function () {
+						if (!operationSelect.is(document.activeElement)) {
+							closeEditor();
+							setTimeout(function () {
+								if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === me) {
+									EdenUI.plugins.SymbolViewer.inlineEditorSymbol = undefined;
+								}
+							}, 500);
+						}
+					}, 0);
+				});
+				operationSelect.on("keydown", keyboardShortcuts);
+				operationSelect.on("blur", function () {
+					setTimeout(function () {
+						if (!inputBox.is(document.activeElement)) {
+							closeEditor();
+							setTimeout(function () {
+								if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === me) {
+									EdenUI.plugins.SymbolViewer.inlineEditorSymbol = undefined;
+								}
+							}, 500);
+						}
+					}, 0);
+				});
+				valueElement.append(inputBox);
+				//Remove tooltip
+				var tooltips = me.element.find(".symbollist-result-inner");
+				if (tooltips.length > 0) {
+					tooltips.get(0).onmouseenter = undefined;
+				}
+				EdenUI.closeTooltip();
+				//Select the most likely part of the value or definition to replace.
+				inputBoxElem.focus();
+				inputBoxElem.select();
+				var firstChar = currentEden.slice(0, 1);
+				if (firstChar == '"' || firstChar == "'" || firstChar == "[" || firstChar == "{") {
+					inputBoxElem.selectionStart = 1;
+					inputBoxElem.selectionEnd = currentEden.length - 1;
+				}
+			} else if (value === true) {
+				me.symbol.assign(false, eden.root.scope, Symbol.hciAgent, true);
+			} else {
+				me.symbol.assign(true, eden.root.scope, Symbol.hciAgent, true);
+			}
+		});
+	}
 
 	this.update();
 };
-
-function _keys(obj) {
-	if (Object.keys) {
-		return Object.keys.apply(this, arguments);
-	}
-
-	var result = [];
-	var p;
-	for (p in obj) {
-		if (obj.hasOwnProperty(p)) {
-			result.push(p);
-		}
-	}
-	return result;
-}
 
 /**
  * Update the HTML output of a function type symbol. Looks for any meta data
@@ -471,7 +618,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 	if (edenfunctions.functions != undefined && edenfunctions.functions[this.name] !== undefined) {
 		this.details = edenfunctions.functions[this.name];
 		// Extract parameters for display.
-		var params = _keys(this.details.parameters || {});
+		var params = Object.keys(this.details.parameters || {});
 		detailsHTML = "<span class='result_value'> ( " + params.join(", ") + " )</span>";
 	} else {
 		detailsHTML = "";
@@ -482,7 +629,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 	if (eden_definition !== undefined && !/^func\s/.test(this.symbol.eden_definition)) {
 		var tooltip = Eden.htmlEscape(eden_definition, false, true);
 		tooltip = Eden.htmlEscape("<pre>" + tooltip + ";</pre>");
-		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
+		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
 
 	this.element.html(html);
@@ -519,13 +666,13 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 		namehtml = this.name;
 	}
 
-	var html = "<span class='result_name'>" + namehtml + "</span>" +
-		"<span class='result_value'> = " + valhtml + "</span>";
+	var html = "<span class='result_name'>" + namehtml + "</span><span class='result_separator'> = </span> " +
+		"<span class='result_value'>" + valhtml + "</span>";
 
 	if (this.symbol.definition !== undefined) {
 		var tooltip = Eden.htmlEscape(this.symbol.eden_definition, false, true);
 		tooltip = Eden.htmlEscape("<pre class='symbollist-tooltip'>" + tooltip + ";</pre>");
-		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
+		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
 
 	this.element.html(html);
@@ -536,7 +683,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
  */
 EdenUI.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function () {
 	var eden_definition = this.symbol.eden_definition;
-	var nameHTML;
+	var nameHTML, detailsHTML;
 
 	if (eden_definition !== undefined && !/^proc\s/.test(eden_definition)) {
 		nameHTML = "<span class='hasdef_text'>" + this.name + "</span>";
@@ -544,12 +691,22 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function () {
 		nameHTML = this.name;
 	}
 
-	var html = "<span class='result_name'>" + nameHTML + "</span>";
+	// If there are details for this function in the function meta data
+	if (edenfunctions.functions != undefined && edenfunctions.procedures[this.name] !== undefined) {
+		this.details = edenfunctions.procedures[this.name];
+		// Extract parameters for display.
+		var params = Object.keys(this.details.parameters || {});
+		detailsHTML = "<span class='result_value'> ( " + params.join(", ") + " )</span>";
+	} else {
+		detailsHTML = "";
+	}
+
+	var html = "<span class='result_name'>" + nameHTML + "</span>" + detailsHTML;
 
 	if (eden_definition !== undefined && !/^proc\s/.test(this.symbol.eden_definition)) {
 		var tooltip = Eden.htmlEscape(eden_definition, false, true);
 		tooltip = Eden.htmlEscape("<pre>" + tooltip + ";</pre>");
-		html = "<span onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
+		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
 
 	this.element.html(html);

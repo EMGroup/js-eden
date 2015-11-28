@@ -1,0 +1,19 @@
+email.png
+	Licence: Creative Commons Attribution 2.5 Generic
+	Author: Mark James
+	Source: https://commons.wikimedia.org/wiki/File:Email.png
+	Original Source: http://www.famfamfam.com/lab/icons/silk/
+
+new-sticker.png
+	Licence: Creative Commons Attribution 3.0 United States
+	Author: FatCow Web Hosting
+	Source: https://commons.wikimedia.org/wiki/File:Farm-Fresh_new.png
+	Original Source: http://www.fatcow.com/free-icons/
+	Edits Performed: cropping
+
+pin.png, pin-greyed.png, pin-fullsize.png
+	Licence: Creative Commons Attribution 2.0 Generic
+	Author: StockMonkeys.com
+	Source: https://www.flickr.com/photos/86530412@N02/7984329008
+	Original Source: http://www.stockmonkeys.com
+	Edits Performed: transparency added, cropping, resizing, brightness and contrast, grayscaling

@@ -1,10 +1,12 @@
 ${{
-Textbox = function (name, x, y, width, rows, enabled) {
+Textbox = function (name, x, y, width, height, placeholder, maxlength, enabled) {
 	this.name = name;
 	this.x = x;
 	this.y = y;
 	this.width = width;
-	this.rows = rows;
+	this.height = height;
+	this.placeholder = placeholder;
+	this.maxlength = maxlength;
     this.enabled = enabled;
 }
 
@@ -13,67 +15,121 @@ Textbox.prototype.hash = function () {
 				this.x+"$$"+
 				this.y+"$$"+
 				this.width+"$$"+
-				this.rows+"$$"+
+				this.height+"$$"+
+				this.placeholder+"$$"+
+				this.maxlength+"$$"+
 				this.enabled;
 };
 }}$;
 
 func Textbox { ${{
-  var name = arguments[0];
-  var x = arguments[1];
-  var y = arguments[2];
-  var width = arguments[3];
-  var rows = arguments[4];
-  if (rows === undefined) rows = 1;
-  var enabled = arguments[5];
-  if (enabled === undefined) enabled = true;
-  return new Textbox(name, x, y, width, rows, enabled);
+	var name = root.currentObservableName();
+	if (name === undefined) {
+		eden.error(new Error("Textbox: Every text box must be defined by making a dependency."), "error");
+		return undefined;
+	}
+	var x = arguments[0];
+	var y = arguments[1];
+	var width = arguments[2];
+	var height, placeholder, maxlength, enabled;
+	var argsProcessed = 3;
+	var arg = arguments[argsProcessed];
+	var argType = typeof(arg);
+	if (arg === undefined || argType == "number") {
+		height = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);
+	}
+	if (arg === undefined || argType == "string") {
+		placeholder = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);
+	}
+	if (arg === undefined || argType == "number") {
+		maxlength = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+	}
+	enabled = arg;
+	return new Textbox(name, x, y, width, height, placeholder, maxlength, enabled);
 }}$; }
 
 ${{
-Textbox.prototype.draw = function(context) {
-	var me = this;
-	var canvas_obsname = "canvas_" + this.name;
-	var id = this.name;
-	var valueSymbol = root.lookup(id + "_value");
-	var value = valueSymbol.value();
-	var agent = root.lookup("Textbox");
-	
-	if(this.elements === undefined){
+Textbox.prototype.draw = function(context) {	
 
-		var disabled = this.enabled === false? "readonly=\"readonly\"" : "";
+	if(this.elements === undefined) {
+		var me = this;
+		var name = this.name;
+
+		var disabled = this.enabled === false? 'disabled="disabled"' : '';
+		var placeholder;
+		var maxlength = this.maxlength !== undefined? ' maxlength="' + this.maxlength + '"' : '';
 		var jQuery;
-		if (this.rows > 1) {
-			jQuery = $("<textarea rows=\""+this.rows+"\" id=\""+canvas_obsname+"\" "+ disabled +
-				" style=\"position: absolute; width:" + this.width + "px; left: " + this.x + "px; top: " + this.y + "px;\" />");		
+		if (this.height === undefined) {
+			placeholder = ' placeholder="' +
+				(this.placeholder === undefined? name : this.placeholder) + '"';
+			jQuery = $('<input type="text" ' + disabled + placeholder + maxlength + ' style="position: absolute" />');
 		} else {
-			jQuery = $("<input id=\""+canvas_obsname+"\" " + disabled +
-				" style=\"position: absolute; width:" + this.width + "px; left: " + this.x + "px; top: " + this.y + "px;\" />");
+			// Placeholder text for textarea tag is buggy in IE11, so don't use it by default.
+			placeholder = this.placeholder !== undefined && this.placeholder != ""?
+				' placeholder="' + this.placeholder + '"' :
+				'';
+			jQuery = $('<textarea ' + disabled + placeholder + maxlength + ' style="position: absolute"></textarea>');
 		}
+
 		var element = jQuery.get(0);
-		
+		var valueSymbol = root.lookup(name + "_value");
+		var value = valueSymbol.value();
 		if (value === undefined) {
-			valueSymbol.assign("", agent);
+			valueSymbol.assign("", root.scope, root.lookup("Textbox"));
 		} else {
 			element.value = value;
 		}
-
-		jQuery.change(function(event) {
-			root.lookup(id + "_value").assign(event.target.value, agent, true);
-		});
-		this.elements = [element];
-
 		valueSymbol.addJSObserver("updateTextbox", function (obs, value) {
 			me.elements[0].value = value;
 		});
+
+		jQuery
+		.on("input", function(event) {
+			root.lookup(name + "_value").assign(event.target.value, root.scope, Symbol.hciAgent, true);
+		})
+		.on("mousedown", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseDownZone").assign(undefined, root.scope, Symbol.hciAgent, mouseFollow);
+		})
+		.on("mouseup", function () {
+			edenUI.plugins.Canvas2D.endClick();
+		})
+		.on("mouseenter", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
+		});
+
+		this.elements = [element];
   }
 };
-}}$;
 
-${{
+Textbox.prototype.scale = function (scale, zoom, origin) {
+	var style = this.elements[0].style;
+	style.left = Math.round(this.x * scale + origin.x) + "px";
+	style.top = Math.round(this.y * scale + origin.y) + "px";
+	style.width = Math.round(this.width * scale - 6) + "px";
+	if (this.height !== undefined) {
+		var lineHeight = edenUI.plugins.Canvas2D.defaultLineHeight;
+		var rows = Math.floor(Math.round(this.height * scale - 4) / (lineHeight * zoom));	//See css/eden.css
+		if (rows == 0) {
+			rows = 1;
+		}
+		console.log(rows);
+		style.height = (rows * lineHeight * zoom) + "px";
+	}
+	style.fontSize = (edenUI.plugins.Canvas2D.defaultFontSizePx * zoom) + "px";
+};
+
 Textbox.prototype.toString = function() {
-  return "Textbox(\"" + this.name + "\", " + this.x + ", " + this.y + ", " + this.width + ", " +
-	this.rows + ", " + this.enabled + ")";
+  return "Textbox(" + Eden.edenCodeForValues(this.x, this.y, this.width, this.height, this.placeholder, this.enabled) + ")";
 };
 
 Textbox.prototype.getEdenCode = Textbox.prototype.toString;

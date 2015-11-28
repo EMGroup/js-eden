@@ -2,12 +2,15 @@
 ##
 ##Run on the later versions of JS-EDEN to temporarily reverse incompatible
 ##changes made to the environment subsequent to the CONSTRUIT! C5 meeting
-##(11-16 December 2014) but before the next major JS-EDEN release.
+##(11-16 December 2014) but before the next major JS-EDEN release (SciFest event, 21-27 April 2015).
+
+##Reverse changes made by all later versions.
+include("compatibility/scifest2015.js-e");
 
 include_css("compatibility/construit.c5.css");
 
 destroyView("picture");
-createCanvas("default", "picture", "Canvas 2D");
+createCanvas("default", "picture", "Canvas Picture");
 
 proc CanvasHTML5_DrawPicture {
 	${{
@@ -23,8 +26,6 @@ proc drawPicture {
 
 mouseClickX is mouseUp.x;
 mouseClickY is mouseUp.y;
-mouseX is mousePosition.x;
-mouseY is mousePosition.y;
 
 func oldArc {
 	para newArc, params;
@@ -38,15 +39,7 @@ func oldArc {
 }
 patch(&oldArc, &Arc);
 
-func oldCeil {
-	para newCeil, params;
-	if (params# < 2) {
-		return newCeil(params[1], 1);
-	} else {
-		return newCeil(params[1], params[2]);
-	}
-}
-patch(&oldCeil, &ceil);
+centre = centroid;
 
 func oldCircle {
 	para newCircle, params;
@@ -81,7 +74,7 @@ proc createView {
 			newType = oldType;
 		}
 		
-		edenUI.createView(name, newType);
+		edenUI.createView(name, newType, this);
 	}}$;
 };
 
@@ -95,16 +88,6 @@ func Div { ${{
 	var style = arguments[6];
 	return new Div(html, x + "px", y + "px", width + "px", height + "px", name, undefined, style);
 }}$; }
-
-func oldFloor {
-	para newFloor, params;
-	if (params# < 2) {
-		return newFloor(params[1], 1);
-	} else {
-		return newFloor(params[1], params[2]);
-	}
-}
-patch(&oldFloor, &floor);
 
 func oldIndexOf {
 	para newIndexOf, params;
@@ -128,7 +111,7 @@ func Inputbox { ${{
   var enabled = arguments[3];
   var width = arguments[4];
   var value = arguments[5];
-  root.lookup(name + "_value").assign(value, root.lookup("Inputbox"));
+  root.lookup(name + "_value").assign(value, root.scope, root.lookup("Inputbox"));
   return new Textbox(name, x, y, width, 1, enabled);
 }}$; }
 
@@ -158,10 +141,6 @@ func Polygon {
 		}
 		return new Polygon(newPoints, colour, colour);
 	}}$;
-}
-
-func pow {
-  return ${{ Math.pow(arguments[0],arguments[1]); }}$;
 }
 
 func rand {
@@ -199,7 +178,7 @@ func Slider { ${{
   var orientation = arguments[5];
   var x = arguments[6];
   var y = arguments[7];
-  root.lookup(name + "_value").assign(value, root.lookup("Slider"));
+  root.lookup(name + "_value").assign(value, root.scope, root.lookup("Slider"));
   return new Slider(name, min, max, step, x, y, 130, orientation, true);
 }}$; }
 
@@ -247,3 +226,17 @@ func Textbox { ${{
   var enabled = arguments[3];
   return new Textbox(name, x, y, 130, 2, enabled);
 }}$; }
+
+${{
+	Eden.systemObservableNames["mouseClickX"] = true;
+	Eden.systemObservableNames["mouseClickY"] = true;
+
+	Eden.systemAgentNames["CanvasHTML5_DrawPicture"] = true;
+	Eden.systemAgentNames["drawPicture"] = true;
+
+	Eden.systemFunctionNames["centre"] = true;
+	Eden.systemFunctionNames["Inputbox"] = true;
+	Eden.systemFunctionNames["listcat"] = true;
+	Eden.systemFunctionNames["rand"] = true;
+	Eden.systemFunctionNames["strcat"] = true;
+}}$;

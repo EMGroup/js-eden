@@ -5,14 +5,16 @@
 
 ${{
 RoundedRectangle = function(x, y, width, height, radius, fillcolour, outlinecolour, drawingOptions) {
-  this.x1 = x;
-  this.y1 = y;
-  this.x2 = x + width;
-  this.y2 = y + height;
-  this.radius = radius;
-  this.fillcolour = fillcolour;
-  this.outlinecolour = outlinecolour;
-  this.drawingOptions = drawingOptions;
+	this.x1 = x;
+	this.y1 = y;
+	this.x2 = x + width;
+	this.y2 = y + height;
+	this.radius = radius;
+	this.fillcolour = fillcolour;
+	this.outlinecolour = outlinecolour;
+	this.drawingOptions = drawingOptions;
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "RoundedRectangle");
+	this.obsName = root.currentObservableName();
 }
 }}$;
 
@@ -22,28 +24,32 @@ func RoundedRectangle { ${{
 	var width = arguments[2];
 	var height = arguments[3];
 	var radius = arguments[4];
-	var fillcolour = arguments[5];
-	var outlinecolour = arguments[6];
+	var fillcolour, outlinecolour, drawingOptions;
+	var lastArg = arguments[arguments.length - 1];
+	var processUpTo;
+	if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+		drawingOptions = lastArg;
+		processUpTo = arguments.length - 2;
+	} else {
+		processUpTo = arguments.length - 1;
+	}
+	if (processUpTo >= 5) {
+		fillcolour = arguments[5];
+		if (processUpTo == 6) {
+			outlinecolour = arguments[6];
+		}
+	}
 	if (fillcolour === undefined && outlinecolour === undefined) {
 		outlinecolour = "black";
 	}
-	var drawingOptions = arguments[7];
 	return new RoundedRectangle(x, y, width, height, radius, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
 ${{
 
 RoundedRectangle.prototype.draw = function (context) {
-	context.beginPath();
-    context.moveTo(this.x1 + this.radius, this.y1);
-    context.lineTo(this.x2 - this.radius, this.y1);
-	context.arcTo(this.x2, this.y1, this.x2, this.y1 + this.radius, this.radius);
-	context.lineTo(this.x2, this.y2 - this.radius);
-	context.arcTo(this.x2, this.y2, this.x2 - this.radius, this.y2, this.radius);
-	context.lineTo(this.x1 + this.radius, this.y2);
-	context.arcTo(this.x1, this.y2, this.x1, this.y2 - this.radius, this.radius);
-	context.lineTo(this.x1, this.y1 + this.radius);
-	context.arcTo(this.x1, this.y1, this.x1 + this.radius, this.y1, this.radius);
+
+	this.tracePath(context);
 
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
@@ -55,13 +61,50 @@ RoundedRectangle.prototype.draw = function (context) {
 	}
 };
 
+RoundedRectangle.prototype.tracePath = function (context) {
+	var halfLineWidth;
+	if (this.outlinecolour !== undefined) {
+		halfLineWidth = context.lineWidth / 2;
+	} else {
+		halfLineWidth = 0;
+	}
+	var x1 = this.x1 + halfLineWidth;
+	var x2 = this.x2 - halfLineWidth;
+	var y1 = this.y1 + halfLineWidth;
+	var y2 = this.y2 - halfLineWidth;
+	
+	context.beginPath();
+    context.moveTo(x1 + this.radius, y1);
+    context.lineTo(x2 - this.radius, y1);
+	context.arcTo(x2, y1, x2, y1 + this.radius, this.radius);
+	context.lineTo(x2, y2 - this.radius);
+	context.arcTo(x2, y2, x2 - this.radius, y2, this.radius);
+	context.lineTo(x1 + this.radius, y2);
+	context.arcTo(x1, y2, x1, y2 - this.radius, this.radius);
+	context.lineTo(x1, y1 + this.radius);
+	context.arcTo(x1, y1, x1 + this.radius, y1, this.radius);
+	context.closePath();
+};
+
+RoundedRectangle.prototype.isHit = function (context, scale, x, y) {
+	this.tracePath(context);
+	return context.isPointInPath(x,y);
+}
+
 RoundedRectangle.prototype.toString = function() {
-	var s = "RoundedRectangle(" + this.x1 + ", " + this.y1 + ", " +
-		(this.x2 - this.x1) + ", " +
-		(this.y2 - this.y1) + ", " +
-		this.radius + ", " +
-		Eden.edenCodeForValue(this.fillcolour) + ", " +
-		Eden.edenCodeForValue(this.outlinecolour);
+	var s = "RoundedRectangle(" + Eden.edenCodeForValues(this.x1, this.y1) + ", ";
+	
+	if (this.x2 === undefined || this.x1 === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + String(this.x2 - this.x1) + ", ";
+	}
+	if (this.y2 === undefined || this.y1 === undefined) {
+		s = s + "@, ";
+	} else {
+		s = s + String(this.y2 - this.y1) + ", ";
+	}
+	s = s + Eden.edenCodeForValues(this.radius, this.fillcolour, this.outlinecolour);
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
