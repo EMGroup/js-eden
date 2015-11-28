@@ -34,11 +34,7 @@ test = "";
 bChar = "1";
 winnerLabelTxt = "TBA";
 binarySumHistoryLabelTxt = "";
-pileButtonTwo_clicked = false;
-pileButtonThree_clicked = false;
 history = "1,0";
-buttonPrev_clicked = true;
-buttonNext_clicked = true;
 maxSizeForPile = 7;
 s1 = "111";
 scaleWidth = 30;
@@ -654,14 +650,6 @@ func strcat{
 		var s1 = arguments[0];
 		var s2 = arguments[1];
 		return s1+s2;
-   }}$;
-}
-
-func rnd{
-   ${{
-   var num =arguments[0];
-   return Math.round(Math.random()*num);
-   
    }}$;
 }
 

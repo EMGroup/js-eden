@@ -412,14 +412,6 @@ func strcat{
    }}$;
 }
 
-func rnd{
-   ${{
-   var num =arguments[0];
-   return Math.round(Math.random()*num);
-   
-   }}$;
-}
-
 func coindisplay {
 	para ix;
 	if (ix==1) return "1p.gif";

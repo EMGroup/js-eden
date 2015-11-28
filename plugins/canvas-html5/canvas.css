@@ -19,7 +19,9 @@
 }
 
 .canvashtml-content input[type="button"] {
+	box-sizing: border-box;
 	padding: 1px 4px;
+	white-space: normal;
 }
 
 .canvashtml-content select {
