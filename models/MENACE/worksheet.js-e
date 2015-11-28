@@ -1,0 +1,56 @@
+require("Page");
+
+ws_iggy4 is Paragraph with text is iggy4["html"];
+ws_menace1 is Paragraph with text is menace1["html"];
+ws_iggy5 is Paragraph with text is iggy5["html"];
+ws_iggy5b is Paragraph with text is iggy5b["html"];
+ws_iggy6 is Paragraph with text is iggy6["html"];
+ws_iggy7 is Paragraph with text is iggy7["html"];
+ws_iggy7a is Paragraph with text is iggy7a["html"];
+ws_iggy8a is Paragraph with text is iggy8a["html"];
+ws_iggy8c is Paragraph with text is iggy8c["html"];
+ws_iggy9 is Paragraph with text is iggy9["html"];
+ws_menace2 is Paragraph with text is menace2["html"];
+ws_menace3 is Paragraph with text is menace3["html"];
+ws_menace4 is Paragraph with text is menace4["html"];
+ws_menace5 is Paragraph with text is menace5["html"];
+ws_menace6 is Paragraph with text is menace6["html"];
+ws_menace7 is Paragraph with text is menace7["html"];
+ws_menace8 is Paragraph with text is menace8["html"];
+ws_menace8a is Paragraph with text is menace8a["html"];
+ws_menace8b is Paragraph with text is menace8b["html"];
+ws_permnine1 is Paragraph with text is permnine1["html"];
+ws_permnine2 is Paragraph with text is permnine2["html"];
+ws_permnine3 is Paragraph with text is permnine3["html"];
+ws_permnine4 is Paragraph with text is permnine4["html"];
+ws_permnine5 is Paragraph with text is permnine5["html"];
+ws_gamesNandC1 is Paragraph with text is gamesNandC1["html"];
+ws_gamesNandC1b is Paragraph with text is gamesNandC1b["html"];
+ws_gamesNandC2 is Paragraph with text is gamesNandC2["html"];
+ws_gamesNandC3 is Paragraph with text is gamesNandC3["html"];
+ws_gamesNandC4 is Paragraph with text is gamesNandC4["html"];
+ws_symmetryNandC1 is Paragraph with text is symmetryNandC1["html"];
+ws_symmetryNandC2 is Paragraph with text is symmetryNandC2["html"];
+ws_symmetryNandC3 is Paragraph with text is symmetryNandC3["html"];
+ws_symmetryNandC4 is Paragraph with text is symmetryNandC4["html"];
+ws_symmetryNandC5 is Paragraph with text is symmetryNandC5["html"];
+ws_symmetryNandC6 is Paragraph with text is symmetryNandC6["html"];
+ws_symmetryNandC7 is Paragraph with text is symmetryNandC7["html"];
+ws_symmetryNandC8 is Paragraph with text is symmetryNandC8["html"];
+ws_symmetryNandC9 is Paragraph with text is symmetryNandC9["html"];
+
+ws_contents is [ws_iggy4, ws_menace1, ws_iggy5, ws_iggy5b, ws_iggy6, ws_iggy7, ws_iggy7a, ws_iggy8a, ws_iggy8c, ws_iggy9, ws_menace2, ws_menace3, ws_menace4,
+ws_menace5, ws_menace6, ws_menace7, ws_menace8, ws_menace8a, ws_menace8b, ws_permnine1, ws_permnine2, ws_permnine3, ws_permnine4, ws_permnine5, ws_gamesNandC1,
+ws_gamesNandC1b, ws_gamesNandC2, ws_gamesNandC3, ws_gamesNandC4, ws_symmetryNandC1, ws_symmetryNandC2, ws_symmetryNandC3, ws_symmetryNandC4,
+ws_symmetryNandC5, ws_symmetryNandC6, ws_symmetryNandC7, ws_symmetryNandC8, ws_symmetryNandC9];
+
+ws_icon is Icon with colour is "white", size is 150, content is "&#xf1b2";
+ws_title is Title with
+	##logo is ws_icon,
+	text is "MENACE",
+	subtitle is "The Matchbox Educable Noughts And Crosses Engine";
+
+ws_page is Page with title is ws_title, content is ws_contents;
+page is ws_page;
+
+

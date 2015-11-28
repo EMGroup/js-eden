@@ -62,9 +62,9 @@ function EdenScriptGutter(parent, infob) {
 
 		for (var i=0; i<me.lines.length; i++) {
 			if (me.lines[i].selected) {
-				//changeClass(me.gutter.childNodes[i], "select", false);
+				changeClass(me.gutter.childNodes[i], "select", false);
 				changeClass(me.gutter.childNodes[i], "live", true);
-				//me.lines[i].selected = false;
+				me.lines[i].selected = false;
 				me.lines[i].live = true;
 			}
 		}
@@ -105,7 +105,7 @@ function EdenScriptGutter(parent, infob) {
 		}
 		
 		// Hold for 1.5s to make live
-		holdtimeout = setTimeout(onHold, 1500);
+		holdtimeout = setTimeout(onHold, 1000);
 	})
 	.on('click', '.eden-gutter-item', function(e) {
 		var line = parseInt(e.target.getAttribute("data-line"));
@@ -131,6 +131,8 @@ function EdenScriptGutter(parent, infob) {
 		if (!shiftdown) {
 			var line = parseInt(e.target.getAttribute("data-line"));
 			if (me.ast.lines[line] && me.ast.lines[line].errors.length > 0) return;
+			if (me.lines[line].live) return;
+
 			//changeClass(e.target, "select", false);
 			me.executeSelected();
 			if (!alreadyselected) {
@@ -166,9 +168,9 @@ function EdenScriptGutter(parent, infob) {
 		} else {*/
 			if (me.ast.lines[line]) {
 				if (me.lines[line].live) {
-					me.gutter.childNodes[line].innerHTML = "<span class='eden-gutter-stop'>&#xf04d;</span";
+					me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-stop'>&#xf069;</span";
 				} else {
-					me.gutter.childNodes[line].innerHTML = "<span class='eden-gutter-play'>&#xf04b;</span";
+					me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-play'>&#xf04b;</span";
 				}
 				var lines = me.ast.getBlockLines(line);
 				for (var i=lines[0]; i<=lines[1]; i++) {
