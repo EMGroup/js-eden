@@ -6,16 +6,17 @@
 ##Doesn't taint the canvas if the url is located on another domain.
 
 ${{
-HTMLImage = function (name, x, y, width, height, scaleFactor, url, imageMap) {
+HTMLImage = function (name, x, y, width, height, asPercent, scaleFactor, url, imageMap) {
 	this.name = name;
 	this.obsName = root.currentObservableName();
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
+	this.asPercent = asPercent;
+	this.scaleFactor = scaleFactor;
 	this.scaledWidth = width;
 	this.scaledHeight = height;
-	this.scaleFactor = scaleFactor;
 	this.url = url;
 	this.imageMap = imageMap;	
 }
@@ -26,6 +27,7 @@ HTMLImage.prototype.hash = function () {
 				this.y+"$$"+
 				this.width+"$$"+
 				this.height+"$$"+
+				this.isPercent+"$$"+
 				this.scaleFactor+"$$"+
 				this.url+"$$"+
 				this.imageMap;
@@ -34,7 +36,7 @@ HTMLImage.prototype.hash = function () {
 
 func HTMLImage { ${{
 	var numArgs = arguments.length;
-	var argsProcessedFirst;
+	var argsProcessedFirst, arg, argType;
 	
 	var name;
 	if (typeof(arguments[0]) == "string") {
@@ -49,11 +51,11 @@ func HTMLImage { ${{
 	var y = arguments[argsProcessedFirst];
 	argsProcessedFirst++;
 
-	var width, height, url, imageMap;
+	var width, height, asPercent, url, imageMap;
 	var scaleFactor = 1;
 	var argsLeft = numArgs - argsProcessedFirst;
 
-	if (numArgs == 8 || Array.isArray(arguments[numArgs - 1])) {
+	if (numArgs == 9 || Array.isArray(arguments[numArgs - 1])) {
 		imageMap = arguments[numArgs - 1];
 		url = arguments[numArgs - 2];
 		argsLeft = argsLeft - 2;
@@ -62,16 +64,37 @@ func HTMLImage { ${{
 		argsLeft--;
 	}
 
-	if (argsLeft >= 1) {
-		width = arguments[argsProcessedFirst];
-		if (argsLeft >=2) {
-			height = arguments[argsProcessedFirst + 1];
-			if (argsLeft == 3) {
-				scaleFactor = arguments[argsProcessedFirst + 2];
-			}
+
+	if (argsLeft > 0) {
+		arg = arguments[argsProcessedFirst];
+		argType = typeof(arg);
+		if (argType == "number" || arg === undefined) {
+			width = arg;
+			argsProcessedFirst++;
+			argsLeft--;
+			arg = arguments[argsProcessedFirst];
+			argType = typeof(arg);
 		}
 	}
-	return new HTMLImage(name, x, y, width, height, scaleFactor, url, imageMap);
+	if (argsLeft > 0 && (argType == "number" || arg === undefined)) {
+		height = arg;
+		argsProcessedFirst++;
+		argsLeft--;
+		arg = arguments[argsProcessedFirst];
+		argType = typeof(arg);
+	}
+	if (argsLeft > 0 && (argType == "boolean" || arg === undefined)) {
+		asPercent = arg;
+		argsProcessedFirst++;
+		argsLeft--;
+		arg = arguments[argsProcessedFirst];
+		argType = typeof(arg);
+	}
+	if (argsLeft > 0 && argType == "number") {
+		scaleFactor = arg;
+	}
+
+	return new HTMLImage(name, x, y, width, height, asPercent, scaleFactor, url, imageMap);
 }}$; }
 
 ${{
@@ -88,13 +111,20 @@ HTMLImage.prototype.draw = function(context) {
 	html = html + '/>';
 	var imageJQ = $(html);
 
-	if (this.scaledWidth === undefined || this.scaledHeight === undefined) {
+	if (this.scaledWidth === undefined || this.scaledHeight === undefined || this.asPercent) {
 		imageJQ.on("load", function (event) {
 			var image = event.target;
-			var parentID = image.parentElement.id;
-			var canvasName = parentID.slice(0, -21) // trim -dialog-canvascontent
+			var canvasName = edenUI.plugins.Canvas2D.canvasNameFromElement(image);
 			var canvasScale = root.lookup("_view_" + canvasName + "_scale").value() * root.lookup("_view_" + canvasName + "_zoom").value();
 
+			if (me.asPercent) {
+				if (me.width !== undefined) {
+					me.scaledWidth = me.width / 100 * image.naturalWidth;
+				}
+				if (me.height !== undefined) {
+					me.scaledHeight = me.height / 100 * image.naturalHeight;
+				}
+			}
 			if (me.scaledWidth === undefined && me.scaledHeight === undefined) {
 				me.scaledWidth = image.naturalWidth;
 				me.scaledHeight = image.naturalHeight;
@@ -113,8 +143,7 @@ HTMLImage.prototype.draw = function(context) {
 
 	imageJQ.on("mousemove", function (event) {
 		var image = event.target;
-		var parentID = image.parentElement.id;
-		var canvasName = parentID.slice(0, -21) // trim -dialog-canvascontent
+		var canvasName = edenUI.plugins.Canvas2D.canvasNameFromElement(image);
 		var canvasScale = root.lookup("_view_" + canvasName + "_scale").value() * root.lookup("_view_" + canvasName + "_zoom").value();
 		var mouseFollow = root.lookup("mouseFollow").value();
 		var imagePos = $(this).offset();
