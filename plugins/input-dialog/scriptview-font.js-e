@@ -1,0 +1,30 @@
+/**
+ * @title Script View Font Changer
+ * @author Nicolas Pope
+ */
+
+action addFontButtons {
+	${{
+	var viewname = ctx.getParameterByNumber(1);
+	if (viewname instanceof BoundValue) viewname = viewname.value;
+	var fontplus = $('<button class="control-button control-enabled">&#xf067;</button>');
+	var fontminus = $('<button class="control-button">&#xf068;</button>');
+	$("#"+viewname+"-dialog div.buttonsDivLeft").append(fontplus).append(fontminus);
+	fontplus.click(function() {
+		if (fontplus.get(0).className.indexOf("enabled") >= 0) {
+			fontplus.removeClass("control-enabled");
+			fontminus.addClass("control-enabled");
+			$("#"+viewname+"-dialog div.outputcontent").css("transform", "translate(50%,50%) translate(20px) scale(2.0,2.0)");
+			$("#"+viewname+"-dialog div.eden-gutter").css("transform", "translate(50%,50%) scale(2.0,2.0)");
+		}
+	});
+	fontminus.click(function() {
+		if (fontminus.get(0).className.indexOf("enabled") >= 0) {
+			fontminus.removeClass("control-enabled");
+			fontplus.addClass("control-enabled");
+			$("#"+viewname+"-dialog div.outputcontent, .eden-gutter").css("transform", "");
+		}
+	});
+	}}$;
+}
+

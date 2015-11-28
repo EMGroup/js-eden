@@ -118,6 +118,10 @@
 			"file": "plugins/network-remote/network.js-e",
 			"title": "Network Remote"
 		},
+		"plugins/scriptview/font": {
+			"file": "plugins/input-dialog/scriptview-font.js-e",
+			"title": "Script View Font Controls"
+		},
 		"lib": {
 			"file": "library2/eden.jse",
 			"title": "Eden Base Library",
