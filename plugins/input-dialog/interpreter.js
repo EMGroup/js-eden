@@ -1569,6 +1569,11 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 									e.keyCode == 35)) {	// End key
 					//var scrollpos = $codearea.get(0).scrollTop;
 					updateLineCachedHighlight();
+
+					// Force a scroll for home and end AFTER key press...
+					if (e.keyCode == 36 || e.keyCode == 35) {
+						checkScroll();
+					}
 					//$codearea.scrollTop(scrollpos);
 				} else if (e.ctrlKey && (e.keyCode == 86 || e.keyCode == 90)) {
 					// Paste and undo/redo need to update content
