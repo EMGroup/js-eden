@@ -618,8 +618,10 @@ Eden.RuntimeError.prototype.messageText = function() {
 	default: break;
 	}
 
-	if (String(this.extra).match(/.*is not a function/)) {
+	if (String(this.extra).search("is not a function") >= 0) {
 		return "Function does not exist";
+	} else if (String(this.extra).match(/Cannot read property .* of undefined/)) {
+		return "Not a valid list";
 	}
 	return this.extra;
 }

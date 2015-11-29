@@ -12,9 +12,8 @@
  * which takes two functions, one to calculate enabled/disabled status and one
  * as the action callback.
  */
-EdenUI.ContextMenu = function(origin, callback) {
+EdenUI.ContextMenu = function(origin) {
 	this.element = $('<div class="eden-contextmenu"></div>');
-	this.callback = callback;
 	this.origin = origin;
 	this.target = undefined;
 	this.items = [];
@@ -34,7 +33,13 @@ EdenUI.ContextMenu = function(origin, callback) {
 		me.element.css("left", ""+e.clientX+"px");
 
 		for (var i=0; i<me.items.length; i++) {
-			changeClass(me.items[i].element, "disabled", !me.items[i].status(e.target));
+			var status;
+			if (typeof me.items[i].status == "function") {
+				status = me.items[i].status(e.target);
+			} else {
+				status = me.items[i].status;
+			} 
+			changeClass(me.items[i].element, "disabled", !status);
 		}
 
 		me.element.slideDown("fast");
@@ -49,6 +54,10 @@ EdenUI.ContextMenu = function(origin, callback) {
 /**
  * Add a menu item with a font icon, text, an enabled/disabled status function
  * and a callback function.
+ *   @param icon A unicode character for the icon font.
+ *   @param text Text label for action..
+ *   @param statusfunc A boolean value or a function returning a boolean.
+ *   @param actionfunc Called when action is clicked.
  */
 EdenUI.ContextMenu.prototype.addItem = function(icon, text, statusfunc, actionfunc) {
 	var item = $('<div class="eden-contextmenu-item"><span class="eden-contextmenu-icon">'+icon+'</span><span>'+text+'</span></div>');

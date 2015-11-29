@@ -14,14 +14,14 @@ s7 = 0;
 s8 = 0;
 s9 = 0;
 list_lines = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]];
-board_template = "123
-456
-789
-";
-print_template = ["", "", "", "
-", "", "", "
-", "", "", "
-"];
+board_template = "123"
+"456"
+"789"
+"";
+print_template = ["", "", "", ""
+"", "", "", ""
+"", "", "", ""
+""];
 x = 1;
 o = -1;
 u = 0;
@@ -138,12 +138,13 @@ func vis2 {
         }
 
 func concatxo {
+	para p1;
 ##	auto i;
 ##	auto result;
 	auto i, result; ## JsEden fix
 	result = print_template[1];
-	for (i=1; i<=$1#; i++) {
-		result = result // vis($1[i], i) // print_template[i+1];
+	for (i=1; i<=p1#; i++) {
+		result = result // vis(p1[i], i) // print_template[i+1];
 		}
 	return result;
 	}
@@ -169,39 +170,43 @@ func ooline {
 	}
 
 func checkxwon {
+	para p1;
 	auto i, b;
 	b = 0;
-	for (i=1; i<=$1#; i++) {
-		b = b || xxline($1[i]);
+	for (i=1; i<=p1#; i++) {
+		b = b || xxline(p1[i]);
 		}
 	return b;
 	}
 
 func checkowon {
+	para p1;
 	auto i, b;
 	b = 0;
-	for (i=1; i<=$1#; i++) {
-		b = b || ooline($1[i]);
+	for (i=1; i<=p1#; i++) {
+		b = b || ooline(p1[i]);
 		}
 	return b;
 	}
 
 func nofpieces {
+	para p1,p2;
 	auto count, total;
 	total = 0;
-	for (count=1; count <= $1#; count++)
-		if ($1[count] == $2)
+	for (count=1; count <= p1#; count++)
+		if (p1[count] == p2)
 			total++;
 	return total;
 	}
 
 func weighting {
+	para p1;
 ##	auto xs, os, blanks, plr;
 ##	auto players, opponents;
 	auto xs, os, blanks, plr, players, opponents; ## JsEden fix
-	xs = $1[1];
-	os = $1[2];
-	blanks = $1[3];
+	xs = p1[1];
+	os = p1[2];
+	blanks = p1[3];
 	players = (plr == x)?xs:os;
 	opponents = (plr == x)?os:xs;
 	if (players > 0 && opponents > 0)
@@ -277,28 +282,28 @@ sq6 is Point(100+size*5.5, 100+size*3.5);
 sq7 is Point(100+size*1.5, 100+size*1.5);
 sq8 is Point(100+size*3.5, 100+size*1.5);
 sq9 is Point(100+size*5.5, 100+size*1.5);
-WNEN is Line(WN.x,WN.y,EN.x,EN.y);
-WSES is Line(WS.x,WS.y,ES.x,ES.y);
-NWSW is Line(NW.x,NW.y,SW.x,SW.y);
-NESE is Line(NE.x,NE.y,SE.x,SE.y);
+WNEN is Line(WN["x"],WN["y"],EN["x"],EN["y"]);
+WSES is Line(WS["x"],WS["y"],ES["x"],ES["y"]);
+NWSW is Line(NW["x"],NW["y"],SW["x"],SW["y"]);
+NESE is Line(NE["x"],NE["y"],SE["x"],SE["y"]);
 lab1 is (s1 == 0) ? "" : ((s1 == 1) ? "X" : "O");
-piece1 is Text(lab1,sq1.x-10, sq1.y+10, "black", 32);
+piece1 is Text(lab1,sq1["x"]-10, sq1["y"]+10, "black", 32);
 lab2 is (s2 == 0) ? "" : ((s2 == 1) ? "X" : "O");
-piece2 is Text(lab2,sq2.x-10, sq2.y+10, "black", 32);
+piece2 is Text(lab2,sq2["x"]-10, sq2["y"]+10, "black", 32);
 lab3 is (s3 == 0) ? "" : ((s3 == 1) ? "X" : "O");
-piece3 is Text(lab3,sq3.x-10, sq3.y+10, "black", 32);
+piece3 is Text(lab3,sq3["x"]-10, sq3["y"]+10, "black", 32);
 lab4 is (s4 == 0) ? "" : ((s4 == 1) ? "X" : "O");
-piece4 is Text(lab4,sq4.x-10, sq4.y+10, "black", 32);
+piece4 is Text(lab4,sq4["x"]-10, sq4["y"]+10, "black", 32);
 lab5 is (s5 == 0) ? "" : ((s5 == 1) ? "X" : "O");
-piece5 is Text(lab5,sq5.x-10, sq5.y+10, "black", 32);
+piece5 is Text(lab5,sq5["x"]-10, sq5["y"]+10, "black", 32);
 lab6 is (s6 == 0) ? "" : ((s6 == 1) ? "X" : "O");
-piece6 is Text(lab6,sq6.x-10, sq6.y+10, "black", 32);
+piece6 is Text(lab6,sq6["x"]-10, sq6["y"]+10, "black", 32);
 lab7 is (s7 == 0) ? "" : ((s7 == 1) ? "X" : "O");
-piece7 is Text(lab7,sq7.x-10, sq7.y+10, "black", 32);
+piece7 is Text(lab7,sq7["x"]-10, sq7["y"]+10, "black", 32);
 lab8 is (s8 == 0) ? "" : ((s8 == 1) ? "X" : "O");
-piece8 is Text(lab8,sq8.x-10, sq8.y+10, "black", 32);
+piece8 is Text(lab8,sq8["x"]-10, sq8["y"]+10, "black", 32);
 lab9 is (s9 == 0) ? "" : ((s9 == 1) ? "X" : "O");
-piece9 is Text(lab9,sq9.x-10, sq9.y+10, "black", 32);
+piece9 is Text(lab9,sq9["x"]-10, sq9["y"]+10, "black", 32);
 	
 	
 ## Picture Definition:

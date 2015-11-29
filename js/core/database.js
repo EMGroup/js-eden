@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2015, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
 Eden.DB = {
 	directory: {},
 	meta: {},

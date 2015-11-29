@@ -629,7 +629,7 @@ Eden.Agent.prototype.when = function(triggers, condition, action) {
 
 
 Eden.Agent.prototype.hasErrors = function() {
-	return this.ast.script.errors.length > 0;
+	return this.ast && this.ast.script.errors.length > 0;
 }
 
 
@@ -686,7 +686,7 @@ Eden.Agent.prototype.applyPatch = function(patch, lineno) {
 	this.setSnapshot(snap);
 	this.setSource(snap,true);
 
-	Eden.Agent.emit("patched", [this, lineno]);
+	Eden.Agent.emit("patched", [this, patch, lineno]);
 }
 
 
@@ -696,6 +696,8 @@ Eden.Agent.prototype.applyPatch = function(patch, lineno) {
  * create definitions, actions etc.
  */
 Eden.Agent.prototype.setSource = function(source, net, lineno) {
+	var waserrored = this.hasErrors();
+	var haschanged = false;
 
 	if (this.ast) {
 		if (!net) {
@@ -711,6 +713,7 @@ Eden.Agent.prototype.setSource = function(source, net, lineno) {
 			//console.log(t);
 
 			if (t != "") {
+				haschanged = true;
 				Eden.Agent.emit("patch", [this, t, lineno]);
 			}
 		}
@@ -718,15 +721,26 @@ Eden.Agent.prototype.setSource = function(source, net, lineno) {
 		this.setSnapshot(source);
 
 		if (!net) {
+			haschanged = true;
 			Eden.Agent.emit("source", [this, source]);
 		}
 	}
 
-	var gettitle = this.ast === undefined;
 	if (this.ast) {
 		this.ast = new Eden.AST(source, this.ast.imports);
 	} else {
 		this.ast = new Eden.AST(source);
+	}
+
+	if (this.hasErrors() && !waserrored) {
+		Eden.Agent.emit("error", [this]);
+	} else if (!this.hasErrors() && waserrored) {
+		Eden.Agent.emit("fixed", [this]);
+	}
+
+	if (haschanged) {
+		console.log("CHANGED");
+		Eden.Agent.emit("changed", [this, source, lineno]);
 	}
 }
 
