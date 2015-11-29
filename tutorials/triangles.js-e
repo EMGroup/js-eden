@@ -53,7 +53,7 @@ ws_p2 is Paragraph with text is "... complete exercise 1 first ...";
 
 ws_contents is [ws_h1,ws_p1,ws_pic1,ws_script1,ws_h2,ws_p2];
 
-ws_icon is Icon with colour is "white", size is 150, content is "&#xf1b2";
+ws_icon is Icon with colour is "black", size is 120, content is "&#xf1b2";
 ws_title is Title with
 	logo is ws_icon,
 	text is "Worksheet 2:",

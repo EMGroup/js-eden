@@ -248,10 +248,10 @@ div.message-infotext:before {
 }
 
 div.loaddialog {
-	width: 650px;
+	width: 550px;
 	padding: 20px;
 	/*height: 150px;*/
-	background-color: white;
+	background-color: #eee;
 	color: black;
 	font: bold 12px "Helvetica Neue", Sans-Serif;
 	margin-left: calc(50% - 325px);

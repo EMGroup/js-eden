@@ -307,7 +307,7 @@ function concatAndResolveUrl(url, concat) {
 	EdenUI.prototype.finishedLoading = function() {
 		$(".loaddialog").remove();
 		this.loaded = true;
-		edenUI.updateStatus(Language.ui.general.finished_loading);
+		//edenUI.updateStatus(Language.ui.general.finished_loading);
 	};
 
 	/**

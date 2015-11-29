@@ -57,6 +57,10 @@
 	},
 
 	"meta": {
+		"welcome": {
+			"file": "models/welcome.js-e",
+			"title": "Welcome"
+		},
 		"menace": {
 			"file": "models/MENACE/menacecommentary.js-e",
 			"title": "MENACE"

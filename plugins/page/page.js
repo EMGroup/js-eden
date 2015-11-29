@@ -38,13 +38,32 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	function generateTitle(title) {
 		if (!title) return "";
 		if (title[0] != "title") return "";
-		var tit = $("<div class='page-title "+theme+"'><div class='page-title-block'><span class='page-title-text "+theme+"'>"+title[1]+"</span><br/><span class='page-subtitle-text "+theme+"'>"+title[2]+"</span></div></div>");
+		var tit = $("<div class='page-title "+theme+"'></div>");
+		var titblock = $("<div class='page-title-block'></div>");
+		var titmain;
+
+		if (title[6]) {
+			tit.css("height", ""+title[6]+"px");
+		}
+
+		if (title[1]) {
+			titmain = $("<span class='page-title-text "+theme+"'>"+title[1]+"</span>");
+		} else {
+			titmain = $("<img border=0 src=\""+title[5]+"\"></img>");
+		}
+
+		var titsub = $("<br/><span class='page-subtitle-text "+theme+"'>"+title[2]+"</span>");
+
+		titblock.append(titmain);
+		titblock.append(titsub);
+		tit.append(titblock);
+
 		if (title[3] !== undefined) {
-			var logo = $("<div class='page-title-logo'></div>");
+			/*var logo = $("<div class='page-title-logo'></div>");
 			switch(title[3][0]) {
 			case "icon"		: generateIcon(title[3]).appendTo(logo);
 			}
-			logo.appendTo(tit);
+			logo.appendTo(tit);*/
 		}
 		return tit;
 	}

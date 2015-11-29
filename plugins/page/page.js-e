@@ -9,9 +9,9 @@ prototype_Page is ["page", title,theme,content];
 Page is prototype_Page with
 	theme is theme if theme else "default";
 
-prototype_Title is ["title", text,subtitle,logo,menus];
+prototype_Title is ["title", text,subtitle,logo,menus,mainimage,height];
 Title is prototype_Title with
-	text is text if text else "Title",
+	text is text if text else @,
 	subtitle is subtitle if subtitle else "Subtitle";
 
 prototype_Icon is ["icon", content,size,colour];
