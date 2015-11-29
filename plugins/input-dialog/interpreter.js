@@ -670,6 +670,29 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
+		function zoom(sym, value) {
+			if (value === undefined || value == 0) {
+				$dialogContents.find(".outputcontent, .eden-gutter").css("transform", "");
+			} else {
+				var scalefactor;
+				var translatefactor;
+				var offsetfactor;
+				if (value < 0) {
+					scalefactor = (1.0 / (1+(Math.abs(value)/10))).toFixed(2);
+					translatefactor = (((scalefactor-1) / 2) * 100).toFixed(2);
+					offsetfactor = 20 * (scalefactor - 1);
+				} else {
+					scalefactor = (1+(Math.abs(value)/10)).toFixed(2);
+					translatefactor = (((scalefactor-1) / 2) * 100).toFixed(2);
+					offsetfactor = 20 * (scalefactor - 1);
+				}
+				$dialogContents.find(".outputcontent").css("transform", "translate("+translatefactor+"%,"+translatefactor+"%) translate("+offsetfactor+"px) scale("+scalefactor+","+scalefactor+")");
+				$dialogContents.find(".eden-gutter").css("transform", "translate("+translatefactor+"%,"+translatefactor+"%) scale("+scalefactor+","+scalefactor+")");
+			}
+		}
+
+
+
 		// Use the agent wrapper for dealing with view interaction via symbols.
 		var obs_script = "_view_"+name+"_script";
 		var obs_next = "_view_"+name+"_next";
@@ -680,6 +703,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var obs_showtabs = "_view_"+name+"_showtabs";
 		var obs_showbuttons = "_view_"+name+"_showbuttons";
 		var obs_tabs = "_view_"+name+"_tabs";
+		var obs_zoom = "_view_"+name+"_zoom";
 		var agent = new Eden.Agent(undefined,"view/script/"+name+"/config");
 		agent.declare(obs_agent);
 		agent.declare(obs_showtabs);
@@ -690,6 +714,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.declare(obs_prev);
 		agent.declare(obs_showbuttons);
 		agent.declare(obs_tabs);
+		agent.declare(obs_zoom);
 		agent.setEnabled(true);
 
 		// Whenever _script is changed, regenerate the contents.
@@ -699,6 +724,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.on(obs_showtabs, toggleTabs);
 		agent.on(obs_showbuttons, toggleButtons);
 		agent.on(obs_tabs, rebuildTabs);
+		agent.on(obs_zoom, zoom);
 
 		// Initialise states
 		if (agent.state[obs_showtabs] === undefined) {
@@ -711,6 +737,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		//toggleButtons(undefined, agent.state[obs_showbuttons]);
 		if (agent.state[obs_tabs] === undefined) {
 			agent.state[obs_tabs] = [];
+		}
+
+		if (agent.state[obs_zoom] === undefined) {
+			agent.state[obs_zoom] = 0;
 		}
 
 		// If there is explicit code, then use that
@@ -733,6 +763,7 @@ _view_"+name+"_agent = "+Eden.edenCodeForValue(agent.state[obs_agent])+";\n\
 _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\n\
 _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons])+";\n\
 _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
+_view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 ", false, -1);
 
 
@@ -1444,7 +1475,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 
 		function enableInspectMode() {
 			//outdiv.style.cursor = "pointer";
-			//outdiv.contentEditable = false;
+			outdiv.contentEditable = false;
 			changeClass(outdiv, "inspect", true);
 			inspectmode = true;
 			console.log("ENABLE INSPECT");
@@ -1466,6 +1497,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 				setSubTitle("[readonly]");
 			} else {
 				setSubTitle("");
+				outdiv.contentEditable = true;
 			}
 		}
 
@@ -1482,6 +1514,12 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 			if (e.keyCode == 18 || e.keyCode == 225) {
 				enableInspectMode();
 			} else if (!e.altKey) {
+				// Don't allow editing in inspect mode.
+				if (inspectmode) {
+					e.preventDefault();
+					return;
+				}
+
 				// If not Ctrl or Shift key then
 				if (!e.ctrlKey && e.keyCode != 17 && e.keyCode != 16) {
 					// Make TAB key insert TABs instead of changing focus
@@ -1539,6 +1577,21 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 						outdiv.focus();
 						selectAll();
 					}
+				}
+			} else {
+				// Alt key is pressed so.....
+				if (e.keyCode == 187) {
+					// Alt+Plus: Zoom in
+					agent.state[obs_zoom]++;
+					e.preventDefault();
+				} else if (e.keyCode == 189) {
+					// Alt+Minus: Zoom out
+					agent.state[obs_zoom]--;
+					e.preventDefault();
+				} else if (e.keyCode == 48) {
+					//Alt+0
+					agent.state[obs_zoom] = 0;
+					e.preventDefault();
 				}
 			}
 		}
