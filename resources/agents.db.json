@@ -194,6 +194,11 @@
 			"title": "Scoping Prototypes",
 			"enabled": true
 		},
+		"lib/functional": {
+			"file": "library2/functional_programming.js-e",
+			"title": "Functional Programming Library",
+			"enabled": true
+		},
 		"claytontunnel/alarm/panel": {
 			"file": "models/nick/claytonTunnel/alarm.panel",
 			"title": "Alarm Panel",

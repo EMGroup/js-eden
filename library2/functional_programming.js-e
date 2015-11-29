@@ -1,9 +1,12 @@
-## Copyright (c) 2014, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
-##
-##Functions commonly found in or inspired by functional programming languages.
+/**
+ * @title Functional Programming Library
+ * Copyright (c) 2014, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ *
+ * Functions commonly found in or inspired by functional programming languages.
+ */
 
 ##compose(f, g)(x) returns f(g(x)).
 ##
@@ -50,18 +53,22 @@ func compose {
 }
 
 func foldl {
+	para p1,p2,p3;
 	auto f, initialValue, list, i, value;
-	if ($# < 2) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 2) {
 		error("foldl: This function requires at least 2 arguments.");
 		return @;
-	} else if ($# == 3 && isList($[2])) {
-		f = $[1];
-		initialValue = $[2];
-		list = $[3];
+	} else if (argc == 3 && isList(p2)) {
+		f = p1;
+		initialValue = p2;
+		list = p3;
 	} else {
-		f = $[1];
-		initialValue = $[2];
-		list = sublist($, 3, $#);
+		f = p1;
+		initialValue = p2;
+		list = sublist(${{ arguments }}$, 3, argc);
 	}
 	
 	if (f == @) {
@@ -79,18 +86,22 @@ func foldl {
 }
 
 func foldr {
+	para p1,p2,p3;
 	auto f, initialValue, list, i, value;
-	if ($# < 2) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 2) {
 		error("foldr: This function requires at least 2 arguments.");
 		return @;
-	} else if ($# == 3 && isList($[2])) {
-		f = $[1];
-		initialValue = $[2];
-		list = $[3];
+	} else if (argc == 3 && isList(p2)) {
+		f = p1;
+		initialValue = p2;
+		list = p3;
 	} else {
-		f = $[1];
-		initialValue = $[2];
-		list = sublist($, 3, $#);
+		f = p1;
+		initialValue = p2;
+		list = sublist(${{ arguments }}$, 3, argc);
 	}
 	
 	if (f == @) {
@@ -110,22 +121,26 @@ func foldr {
 ##This function is useful in conjunction with compose.  It converts an argument
 ##list (a, b, c,...) into a list [a, b, c,...].
 func List {
-	return $;
+	return ${{ arguments }}$;
 }
 
 func map {
+	para p1, p2;
 	auto f, list, result, i;
-	if ($# == 0) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 0) {
 		error("map: This function requires at least 1 argument.");
 		return @;
-	} else if ($# == 2 && $[2] == @) {
+	} else if (argc == 2 && p2 == @) {
 		return @;
-	} else if ($# == 2 && isList($[2])) {
-		f = $[1];
-		list = $[2];	
+	} else if (argc == 2 && isList(p2)) {
+		f = p1;
+		list = p2;	
 	} else {
-		f = $[1];
-		list = sublist($, 2, $#);
+		f = p1;
+		list = sublist(${{ arguments }}$, 2, argc);
 	}
 
 	if (f == @) {
@@ -143,18 +158,22 @@ func map {
 }
 
 func mapPartial {
+	para p1,p2;
 	auto f, list, result, i;
-	if ($# == 0) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 0) {
 		error("mapPartial: This function requires at least 1 argument.");
 		return @;
-	} else if ($# == 2 && $[2] == @) {
+	} else if (argc == 2 && p2 == @) {
 		return @;
-	} else if ($# == 2 && isList($[2])) {
-		f = $[1];
-		list = $[2];	
+	} else if (argc == 2 && isList(p2)) {
+		f = p1;
+		list = p2;	
 	} else {
-		f = $[1];
-		list = sublist($, 2, $#);
+		f = p1;
+		list = sublist(${{ arguments }}$, 2, argc);
 	}
 
 	if (f == @) {
@@ -302,22 +321,25 @@ func partApply {
 ## See also: sequencePrevious
 ##
 func sequenceItoJ {
-	para low, high;
+	para low, high, p3, p4, p5;
 	auto increment, f, init;
 	auto i, value, prevValue, result;
-	if ($# < 3 || $# > 5) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 3 || argc > 5) {
 		error("sequenceItoJ: This function requires at least 3 arguments and at most 5 arguments.");
 		return @;
 	}
 
-	if ($# < 5 && isCallable($[3])) {
+	if (argc < 5 && isCallable(p3)) {
 		increment = 1;
-		f = $[3];
-		init = $[4];
+		f = p3;
+		init = p4;
 	} else {
-		increment = $[3];
-		f = $[4];
-		init = $[5];
+		increment = p3;
+		f = p4;
+		init = p5;
 	}
 
 	if (low == @ || high == @ || increment == @ || f == @) {
@@ -352,24 +374,27 @@ func sequenceItoJ {
 ## result = [ f(low), f(low + increment),... f(low + (n-1) * increment)]	(without init parameter)
 ##
 func sequenceN {
-	para low;
+	para low, p2, p3, p4, p5;
 	auto increment, n, f, init;
 	auto high, i, value, prevValue, result;
-	if ($# < 3 || $# > 5) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 3 || argc > 5) {
 		error("sequenceN: This function requires at least 3 arguments and at most 5 arguments.");
 		return @;
 	}
 	
-	if ($# < 5 && isCallable($[3])) {
+	if (argc < 5 && isCallable(p3)) {
 		increment = 1;
-		n = $[2];
-		f = $[3];
-		init = $[4];
+		n = p2;
+		f = p3;
+		init = p4;
 	} else {
-		increment = $[2];
-		n = $[3];
-		f = $[4];
-		init = $[5];
+		increment = p2;
+		n = p3;
+		f = p4;
+		init = p5;
 	}
 	
 	if (low == @ || n == @ || increment == @ || f == @) {
@@ -407,11 +432,14 @@ func sequenceN {
 func sequenceArithmetic {
 	para low, high;
 	auto increment, i, result;
-	if ($# < 2 || $# > 3) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 2 || argc > 3) {
 		error("sequenceArithmetic: This function requires at least 2 arguments and at most 3 arguments.");
 		return @;
 	}
-	if ($# == 2) {
+	if (argc == 2) {
 		increment = 1;
 	}
 	if (low == @ || high == @ || increment == @) {
@@ -437,20 +465,23 @@ func sequenceArithmetic {
 ## sequenceArithmeticN - A degenerate case of sequenceNSteps when the sequence values are the same
 ## as the indices, that is, the sequence is a simple arithmetic progression.
 func sequenceArithmeticN {
-	para low;
+	para low, p2, p3;
 	auto increment, n;
 	auto high, i, result;
-	if ($# < 2 || $# > 3) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 2 || argc > 3) {
 		error("sequenceArithmeticN: This function requires at least 2 arguments and at most 3 arguments.");
 		return @;
 	}
 	
-	if ($# == 2) {
+	if (argc == 2) {
 		increment = 1;
-		n = $[2];
+		n = p2;
 	} else {
-		increment = $[2];
-		n = $[3];
+		increment = p2;
+		n = p3;
 	}
 	
 	if (low == @ || n == @ || increment == @) {
@@ -479,14 +510,17 @@ func sequenceArithmeticN {
 ## result = [ f(list, 1), ... f(list, list#) ]
 ##
 func sequenceList {
-	para f;
+	para f,p2;
 	auto list, result, i;
-	if ($# == 0) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 0) {
 		error("sequenceList: This function requires at least one argument.");
-	} else if ($# == 2 && ($[2] == @ || isList($[2]))) {
-		list = $[2];
+	} else if (argc == 2 && (p2 == @ || isList(p2))) {
+		list = p2;
 	} else {
-		list = sublist($, 2);
+		list = sublist(${{ arguments }}$, 2);
 	}
 	
 	if (f == @ || list == @) {
@@ -510,9 +544,12 @@ func sequenceList {
 ## result = [ init, f(init), f(f(init)), ... ]
 ##
 func sequencePrevious {
-	para f, init;
+	para f, init, p3;
 	auto n, i, value, prevValue, result;
-	if ($# < 2 || $# > 3) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 2 || argc > 3) {
 		error("sequencePrevious: This function requires at least 2 arguments and at most 3 arguments.");
 	}
 	
@@ -523,8 +560,8 @@ func sequencePrevious {
 		return @;	
 	}
 
-	if ($# == 3) {
-		n = $[3];
+	if (argc == 3) {
+		n = p3;
 		if (n == @) {
 			return @;
 		} else if (!isInt(n)) {
@@ -552,3 +589,4 @@ func sequencePrevious {
 	}
 	return result;
 }
+
