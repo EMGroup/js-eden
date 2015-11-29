@@ -1510,6 +1510,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 * rehighlight.
 		 */
 		function onTextKeyDown(e) {
+			console.log(e.keyCode);
 			// Alt and AltGr for inspect mode.
 			if (e.keyCode == 18 || e.keyCode == 225) {
 				enableInspectMode();
@@ -1580,11 +1581,11 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				}
 			} else {
 				// Alt key is pressed so.....
-				if (e.keyCode == 187) {
+				if (e.keyCode == 187 || e.keyCode == 61) {
 					// Alt+Plus: Zoom in
 					agent.state[obs_zoom]++;
 					e.preventDefault();
-				} else if (e.keyCode == 189) {
+				} else if (e.keyCode == 189 || e.keyCode == 173) {
 					// Alt+Minus: Zoom out
 					agent.state[obs_zoom]--;
 					e.preventDefault();
