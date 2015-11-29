@@ -55,6 +55,18 @@ div.eden-gutter-item.select:before {
 	content: " ";
 }
 
+div.eden-gutter-item.play:after {
+	/*color: #666;*/
+	/*text-shadow: 0px 0px 2px black;*/
+	font-family: "FontAwesome";
+	font-size: 10pt;
+	opacity: 0.4;
+	content: "\f04b";
+	position: absolute;
+	left: 5px;
+	margin-top: 0;
+}
+
 div.eden-gutter-item.live {
 	color: #666;
 }

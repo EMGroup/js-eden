@@ -38,6 +38,7 @@ function EdenScriptGutter(parent, infob) {
 	var holdtimeout;
 	var downline = 0;
 	var alreadyselected = false;
+	var alreadylive = false;
 	var shiftdown;
 	var infobox = infob;
 
@@ -80,27 +81,39 @@ function EdenScriptGutter(parent, infob) {
 		downline = line;
 		alreadyselected = (me.lines[line]) ? me.lines[line].selected : false;
 		dragselect = true;
+		alreadylive = me.lines[line] && me.lines[line].live;
 
 		// There is a statement on this line.
 		if (me.ast.lines[line]) {
-			// For all lines associated with this statement block...
 			var lines = me.ast.getBlockLines(line);
-			for (var i=lines[0]; i<=lines[1]; i++) {
-				// Invert selection if shift key
-				if (shiftdown) me.lines[i].selected = !me.lines[i].selected;
-				else me.lines[i].selected = true;
-
-				// Update style
-				changeClass(me.gutter.childNodes[i], "select", me.lines[i].selected);
-				changeClass(me.gutter.childNodes[i], "hover", false);
-			}
 
 			// If live already and no shift key
 			if (me.lines[line].live && !shiftdown) {
-				// Make all lines of this statement block non-live
+				if (!me.lines[line].selected) {
+					// Make all lines of this statement block non-live
+					for (var i=lines[0]; i<=lines[1]; i++) {
+						me.lines[i].live = false;
+						changeClass(me.gutter.childNodes[i], "live", false);
+					}
+				} else {
+					// Make all selected lines non-live
+					for (var i=0; i<me.lines.length; i++) {
+						if (me.lines[i].selected) {
+							me.lines[i].live = false;
+							changeClass(me.gutter.childNodes[i], "live", false);
+						}
+					}
+				}
+			} else {
+				// For all lines associated with this statement block...
 				for (var i=lines[0]; i<=lines[1]; i++) {
-					me.lines[i].live = false;
-					changeClass(me.gutter.childNodes[i], "live", false);
+					// Invert selection if shift key
+					if (shiftdown) me.lines[i].selected = !me.lines[i].selected;
+					else me.lines[i].selected = true;
+
+					// Update style
+					changeClass(me.gutter.childNodes[i], "select", me.lines[i].selected);
+					changeClass(me.gutter.childNodes[i], "hover", false);
 				}
 			}
 		}
@@ -127,21 +140,18 @@ function EdenScriptGutter(parent, infob) {
 		}
 	})
 	.on('mouseup', '.eden-gutter-item', function(e) {
-		if (me.ast.hasErrors()) return;
-
-		if (!shiftdown) {
+		if (!me.ast.hasErrors() && !shiftdown) {
 			var line = parseInt(e.target.getAttribute("data-line"));
-			if (me.ast.lines[line] && me.ast.lines[line].errors.length > 0) return;
-			if (me.lines[line].live) return;
-
-			//changeClass(e.target, "select", false);
-			me.executeSelected();
-			if (!alreadyselected) {
-				if (me.ast.lines[downline]) {
-					var lines = me.ast.getBlockLines(downline);
-					for (var i=lines[0]; i<=lines[1]; i++) {
-						me.lines[i].selected = false;
-						changeClass(me.gutter.childNodes[i], "select", false);
+			if (!((me.ast.lines[line] && me.ast.lines[line].errors.length > 0) || me.lines[line].live || alreadylive)) {
+				//changeClass(e.target, "select", false);
+				me.executeSelected();
+				if (!alreadyselected) {
+					if (me.ast.lines[downline]) {
+						var lines = me.ast.getBlockLines(downline);
+						for (var i=lines[0]; i<=lines[1]; i++) {
+							me.lines[i].selected = false;
+							changeClass(me.gutter.childNodes[i], "select", false);
+						}
 					}
 				}
 			}
@@ -169,9 +179,10 @@ function EdenScriptGutter(parent, infob) {
 		} else {
 			if (me.ast.lines[line]) {
 				if (me.lines[line].live) {
-					me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-stop'>&#xf069;</span";
+					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-stop'>&#xf069;</span";
 				} else {
-					me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-play'>&#xf04b;</span";
+					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-play'>&#xf04b;</span";
+					changeClass(me.gutter.childNodes[line], "play", true);
 				}
 				var lines = me.ast.getBlockLines(line);
 				for (var i=lines[0]; i<=lines[1]; i++) {
@@ -187,6 +198,7 @@ function EdenScriptGutter(parent, infob) {
 			me.lines[line].selected = !alreadyselected;
 			changeClass(me.gutter.childNodes[line], "select", !alreadyselected);
 			changeClass(me.gutter.childNodes[line], "hover", false);
+			changeClass(me.gutter.childNodes[line], "play", false);
 		}
 
 		if (dragselect) shiftdown = true;
@@ -194,10 +206,11 @@ function EdenScriptGutter(parent, infob) {
 		holdtimeout = undefined;
 		//if (!dragselect) {
 			if (me.ast.lines[line]) {
-				me.gutter.childNodes[line].innerHTML = "";
+				//me.gutter.childNodes[line].innerHTML = "";
 				var lines = me.ast.getBlockLines(line);
 				for (var i=lines[0]; i<=lines[1]; i++) {
 					changeClass(me.gutter.childNodes[i], "hover", false);
+					changeClass(me.gutter.childNodes[i], "play", false);
 				}
 			}
 		//}
@@ -236,11 +249,6 @@ EdenScriptGutter.prototype.executeSelected = function() {
 	for (var i=0; i<this.lines.length; i++) {
 		if (this.lines[i].selected) {
 			var sellines = this.ast.getBlockLines(i);
-			console.log(sellines);
-			//for (var j=sellines[0]; j<=sellines[1]; j++) {
-				//this.lines[j].selected = false;
-				//changeClass(this.gutter.childNodes[j], "select", false);
-			//}
 			this.agent.executeLine(i);
 			i = sellines[1];
 		}
