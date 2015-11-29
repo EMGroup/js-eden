@@ -265,6 +265,7 @@ Eden.AST.prototype.next = function() {
 		} else if (this.token == "${{") {
 			var start = this.stream.position;
 			var startline = this.stream.line;
+			this.data.line = startline;
 
 			// Go until terminating javascript block token
 			while (this.stream.valid() && this.token != "}}$") {
@@ -2300,7 +2301,8 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						endline = this.stream.line;
 						this.next();
 						stat = script; break;
-	case "JAVASCRIPT" : var js = this.data.value;
+	case "JAVASCRIPT" : curline = this.data.line-1;
+						var js = this.data.value;
 						this.next();
 						stat = new Eden.AST.Literal("JAVASCRIPT", js);
 						endline = this.stream.line;
