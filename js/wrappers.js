@@ -705,12 +705,10 @@ Eden.Agent.prototype.setSource = function(source, net, lineno) {
 			clearTimeout(this.autosavetimer);
 			this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Agent.AUTOSAVE_INTERVAL);
 
-			//console.time("MakePATCH");
+			// TODO Only generate patch if there are listeners
 			var d = this.dmp.diff_main(this.ast.stream.code, source, false);
 			var p = this.dmp.patch_make(this.ast.stream.code, source, d);
 			var t = this.dmp.patch_toText(p);
-			//console.timeEnd("MakePATCH");
-			//console.log(t);
 
 			if (t != "") {
 				haschanged = true;

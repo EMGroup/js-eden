@@ -79,6 +79,7 @@ function EdenScriptGutter(parent, infob) {
 		shiftdown = e.shiftKey;
 		downline = line;
 		alreadyselected = (me.lines[line]) ? me.lines[line].selected : false;
+		dragselect = true;
 
 		// There is a statement on this line.
 		if (me.ast.lines[line]) {
@@ -147,25 +148,25 @@ function EdenScriptGutter(parent, infob) {
 		}
 		clearTimeout(holdtimeout);
 		holdtimeout = undefined;
-		//dragselect = false;
+		dragselect = false;
 	})
 	.on('mouseenter', '.eden-gutter-item', function(e) {
 		if (me.ast.hasErrors()) return;
 
 		var line = parseInt(e.target.getAttribute("data-line"));
-		/*if (dragselect) {
+		if (shiftdown && dragselect) {
 			if (me.ast.lines[line]) {
 				var lines = me.ast.getBlockLines(line);
 				for (var i=lines[0]; i<=lines[1]; i++) {
-					me.lines[i].selected = true;
-					changeClass(me.gutter.childNodes[i], "select", me.lines[i].selected);
+					me.lines[i].selected = !alreadyselected;
+					changeClass(me.gutter.childNodes[i], "select", !alreadyselected);
 					changeClass(me.gutter.childNodes[i], "hover", false);
 				}
 				//me.lines[line].selected = !me.lines[line].selected;
 				//changeClass(e.target, "select", me.lines[line].selected);
-				dragselectcount++;
+				//dragselectcount++;
 			}
-		} else {*/
+		} else {
 			if (me.ast.lines[line]) {
 				if (me.lines[line].live) {
 					me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-stop'>&#xf069;</span";
@@ -177,11 +178,18 @@ function EdenScriptGutter(parent, infob) {
 					changeClass(me.gutter.childNodes[i], "hover", true);
 				}
 			}
-		//}
+		}
 	})
 	.on('mouseleave', '.eden-gutter-item', function(e) {
 		var line = parseInt(e.target.getAttribute("data-line"));
-		//if (dragselect) dragselecting = true;
+
+		if (dragselect && !shiftdown) {
+			me.lines[line].selected = !alreadyselected;
+			changeClass(me.gutter.childNodes[line], "select", !alreadyselected);
+			changeClass(me.gutter.childNodes[line], "hover", false);
+		}
+
+		if (dragselect) shiftdown = true;
 		clearTimeout(holdtimeout);
 		holdtimeout = undefined;
 		//if (!dragselect) {
@@ -228,12 +236,13 @@ EdenScriptGutter.prototype.executeSelected = function() {
 	for (var i=0; i<this.lines.length; i++) {
 		if (this.lines[i].selected) {
 			var sellines = this.ast.getBlockLines(i);
+			console.log(sellines);
 			//for (var j=sellines[0]; j<=sellines[1]; j++) {
 				//this.lines[j].selected = false;
 				//changeClass(this.gutter.childNodes[j], "select", false);
 			//}
 			this.agent.executeLine(i);
-			i = sellines[1]+1;
+			i = sellines[1];
 		}
 	}
 }

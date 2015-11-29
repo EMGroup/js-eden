@@ -1567,19 +1567,13 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 									e.keyCode == 40 ||
 									e.keyCode == 36 ||	// Home key
 									e.keyCode == 35)) {	// End key
-					//var scrollpos = $codearea.get(0).scrollTop;
+
 					updateLineCachedHighlight();
 
 					// Force a scroll for home and end AFTER key press...
 					if (e.keyCode == 36 || e.keyCode == 35) {
 						checkScroll();
 					}
-					//$codearea.scrollTop(scrollpos);
-				} else if (e.ctrlKey && (e.keyCode == 86 || e.keyCode == 90)) {
-					// Paste and undo/redo need to update content
-					//updateEntireHighlight();
-					//refreshentire = true;
-					rebuild();
 				} else {
 					rebuild();
 				}
@@ -1715,55 +1709,6 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 				}
 			}
 		}
-
-
-
-		/*function onMouseEnter(e) {
-			if (inspectmode) {
-				//console.log(e.target);
-				if (e.target.className == "eden-path") {
-					changeClass(e.target.parentNode, "hover", true);
-				} else if (e.target.className == "eden-observable") {
-					//changeClass(e.target, "hover", true);
-				}
-			}
-		}
-
-		function onMouseLeave(e) {
-			if (e.target.className == "eden-path") {
-				changeClass(e.target.parentNode, "hover", false);
-			} else if (e.target.className == "eden-observable") {
-				//changeClass(e.target, "hover", false);
-			}
-		}*/
-
-
-
-		/*function onGutterClick(e) {
-			//console.log(e);
-			var lineno = -1;
-
-			for (var i=0; i<gutter.gutter.childNodes.length; i++) {
-				if (e.target === gutter.gutter.childNodes[i]) {
-					lineno = i+1;
-					break;
-				}
-			}
-
-			if (scriptagent.ast.lines[lineno-1]) {
-				if (scriptagent.ast.lines[lineno-1].errors.length > 0) {
-					var err = scriptagent.ast.lines[lineno-1].errors[0];
-					if (err.line == lineno || err.type == "runtime") {
-						var taboffset = (agent.state[obs_showtabs]) ? 35 : 0;
-						showInfoBox(e.target.offsetLeft+20, e.target.offsetTop-$codearea.get(0).scrollTop+25+taboffset, "error", err.messageText());
-					}
-				} else {
-					scriptagent.clearExecutedState();
-					scriptagent.executeLine(lineno-1);
-					gutter.generate(scriptagent.ast, lineno);
-				}
-			}
-		}*/
 
 
 
@@ -1923,21 +1868,10 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 					agent.state[obs_tabs] = tabs;
 				}
 				if(tabs.length == 0) {
-					/*outdiv.contentEditable = false;
-					outdiv.className = "outputcontent readonly";
-					outdiv.innerHTML = "";
-					scriptagent = undefined;
-					readonly = true;*/
 					agent.state[obs_agent] = undefined;
 				}
-			} else { //if (scriptagent.name == value) {
+			} else {
 				agent.state[obs_agent] = value;
-				/*scriptagent.setOwned(true);
-				readonly = false;
-				setSubTitle("");
-				//outdiv.className = "outputcontent";
-				changeClass(outdiv, "readonly", false);
-				outdiv.contentEditable = true;*/
 			}
 		}
 
@@ -1965,13 +1899,10 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		.on('blur', '.hidden-textarea', onTextBlur)
 		.on('focus', '.hidden-textarea', onTextFocus)
 		.on('mouseup', '.outputcontent', onOutputMouseUp)
-		//.on('mouseenter', 'span', onMouseEnter)
-		//.on('mouseleave', 'span', onMouseLeave)
 		.on('click', '.previous-input', onPrevious)
 		.on('click', '.next-input', onNext)
 		.on('click', '.menu-input', onMenu)
 		.on('click', '.search-mode', onInspect)
-		//.on('click', '.eden-gutter-item', onGutterClick)
 		.on('click', '.agent-tab', onTabClick)
 		.on('click', '.agent-tableft', onTabLeft)
 		.on('click', '.agent-tabright', onTabRight)
@@ -1981,11 +1912,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		.on('dragover', onTabDragOver)
 		.on('drop', onTabDrop);
 
-		// Initialise contents if given some code
-		/*if (code) {
-			intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(code);
-			updateEntireHighlight();
-		}*/
+
 
 		var viewdata = {
 			contents: $dialogContents,
