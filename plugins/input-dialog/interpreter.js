@@ -166,6 +166,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		suggestions.hide();
 		$(infobox).hide();
 
+
+
+		/**
+		 * Extract tab name and force execute the agent.
+		 *   @param tab A DOM tab element.
+		 */
 		function executeTab(tab) {
 			var name = tab.getAttribute("data-name");
 			if (Eden.Agent.agents[name]) {
@@ -174,6 +180,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
+
+
+		/**
+		 * Extract tab name and cancel any execution status for that agent.
+		 *   @param tab A DOM tab element.
+		 */
 		function stopTab(tab) {
 			var name = tab.getAttribute("data-name");
 			if (Eden.Agent.agents[name]) {
@@ -182,31 +194,46 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
+
+
+		/**
+		 * Hide a tab, removing it from the symbol table tab list.
+		 *   @param tab A DOM tab element.
+		 */
 		function hideTab(tab) {
 			var name = tab.getAttribute("data-name");
 			var tabs = agent.state[obs_tabs];
+
+			// Remove from tab list.
 			var ix = tabs.indexOf(name);
 			if (ix >= 0) {
 				tabs.splice(ix,1);
 				ix--;
 				if (ix < 0) ix = 0;
 				if (ix < tabs.length) {
+					// Change to previous agent...
 					agent.state[obs_agent] = tabs[ix];
 				}
 				agent.state[obs_tabs] = tabs;
 			}
+			// No agents left in tabs so clear current agent
 			if (tabs.length == 0) agent.state[obs_agent] = undefined;
 		}
 
-		var tabcm = new EdenUI.ContextMenu(tabs, function(action, target) { console.log(action); });
-		tabcm.addItem("&#xf04b;","Run (force)",function(){ return true; }, executeTab);
+
+
+		/* Build the context menu for the tab bar. */
+		var tabcm = new EdenUI.ContextMenu(tabs);
+		tabcm.addItem("&#xf04b;","Run (force)", true, executeTab);
 		tabcm.addItem("&#xf04d;","Stop",function(tab){
 			var name = tab.getAttribute("data-name");
 			return Eden.Agent.agents[name] && Eden.Agent.agents[name].executed;
 		}, stopTab);
 		tabcm.addSeparator();
-		tabcm.addItem("&#xf093;","Upload",function(){ return false; });
-		tabcm.addItem("&#xf21b;","Hide",function(){ return true; }, hideTab);
+		tabcm.addItem("&#xf093;","Upload", false);
+		tabcm.addItem("&#xf21b;","Hide",true, hideTab);
+
+
 
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
 
@@ -349,7 +376,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			var iconclass;
 			if (Eden.Agent.agents[name]) {
-				if (Eden.Agent.agents[name].executed) {
+				if (Eden.Agent.agents[name].hasErrors()) {
+					iconclass = "tab-icon errored";
+				} else if (Eden.Agent.agents[name].executed) {
 					iconclass = "tab-icon executed";
 				} else {
 					iconclass = "tab-icon";
@@ -512,7 +541,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 							}
 						}
 					}
-					ag.setSource(res);
+					ag.setSource(res, false, -1);
 					
 					agent.state[obs_agent] = "view/script/"+name;
 				});
@@ -704,7 +733,7 @@ _view_"+name+"_agent = "+Eden.edenCodeForValue(agent.state[obs_agent])+";\n\
 _view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\n\
 _view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons])+";\n\
 _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
-");
+", false, -1);
 
 
 		function changeOwnership(ag, cause) {
@@ -750,19 +779,14 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 			}
 		}
 
-		function agentPatched(ag, lineno) {
-			if (ag && scriptagent && ag.name === scriptagent.name) {
+		function agentPatched(ag, patch, lineno) {
+			if (ag && scriptagent && ag.name === scriptagent.name && readonly) {
 				intextarea.value = ag.snapshot;
-
-				if (lineno >= 0) {
-					console.log("PARTIAL HIGHLIGHT");
-					highlighter.ast = scriptagent.ast;
-					highlightContent(highlighter.ast, lineno, -1);
-				} else {
-					updateEntireHighlight();
-				}
+				highlighter.ast = scriptagent.ast;
+				highlightContent(highlighter.ast, lineno, -1);
 			}
 		}
+
 
 
 		Eden.Agent.listenTo("create", agent, agentCreated);
@@ -774,7 +798,10 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		Eden.Agent.listenTo("remove", agent, removedAgent);
 		Eden.Agent.listenTo("autosave", agent, autoSaved);
 		Eden.Agent.listenTo("execute", agent, rebuildTabs);
+		Eden.Agent.listenTo("error", agent, rebuildTabs);
+		Eden.Agent.listenTo("fixed", agent, rebuildTabs);
 		Eden.Agent.listenTo("patched", agent, agentPatched);
+		Eden.Agent.listenTo("changed", agent, agentPatched);
 
 
 		/*edenUI.eden.root.addGlobal(function(sym, create) {
@@ -851,7 +878,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		 */
 		function updateEntireHighlight(rerun) {
 			if (scriptagent === undefined) return;
-			scriptagent.setSource(intextarea.value);
+			scriptagent.setSource(intextarea.value, false, -1);
 			highlighter.ast = scriptagent.ast;
 			var pos = -1;
 			if (document.activeElement === intextarea) {
@@ -1197,7 +1224,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 							}
 							replaceLine(dragline, content);
 
-							scriptagent.setSource(intextarea.value);
+							scriptagent.setSource(intextarea.value, false, dragline);
 							highlighter.ast = scriptagent.ast;
 
 							//console.log("Dragline: " + dragline);
@@ -1294,6 +1321,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		function doRebuild() {
 			// Regenerate the AST and highlight the code.
 			if (refreshentire) {
+				console.log("REFRESH ENTIRE");
 				updateEntireHighlight();
 				refreshentire = false;
 			} else { // if (dirty) {
@@ -1518,6 +1546,12 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 
 
 
+		function onTextPaste(e) {
+			refreshentire = true;
+		}
+
+
+
 		/**
 		 * Some keys don't change content but still need a rehighlight. And,
 		 * in case the input change event is skipped (Chrome!!), make sure a
@@ -1539,7 +1573,9 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 					//$codearea.scrollTop(scrollpos);
 				} else if (e.ctrlKey && (e.keyCode == 86 || e.keyCode == 90)) {
 					// Paste and undo/redo need to update content
-					updateEntireHighlight();
+					//updateEntireHighlight();
+					//refreshentire = true;
+					rebuild();
 				} else {
 					rebuild();
 				}
@@ -1568,6 +1604,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 					intextarea.focus();
 					intextarea.selectionEnd = end;
 					intextarea.selectionStart = start;
+					if (start != end) refreshentire = true;
 				}
 			}
 		}
@@ -1844,7 +1881,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 							var reader = new FileReader();
 							reader.onload = function(e2) {
 								var ag = new Eden.Agent(undefined, agentname);
-								ag.setSource(e2.target.result);
+								ag.setSource(e2.target.result, false, -1);
 								var tabs = agent.state[obs_tabs];
 								if (tabs.indexOf(agentname) == -1) {
 									tabs.push(agentname);
@@ -1917,6 +1954,7 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		.on('input', '.hidden-textarea', onInputChanged)
 		.on('keydown', '.hidden-textarea', onTextKeyDown)
 		.on('keyup', '.hidden-textarea', onTextKeyUp)
+		.on('paste', '.hidden-textarea', onTextPaste)
 		.on('keydown', '.outputcontent', onOutputKeyDown)
 		.on('keyup', '.outputcontent', onOutputKeyUp)
 		.on('paste', '.outputcontent', onOutputPaste)

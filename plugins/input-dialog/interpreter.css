@@ -43,6 +43,11 @@ span.tab-icon.executed {
 	text-shadow: 0px 0px 6px #46800d;
 }
 
+span.tab-icon.errored {
+	color: #FF0000;
+	text-shadow: 0px 0px 6px #800d0d;
+}
+
 span.tab-icon.noagent {
 	color: #aaa;
 }

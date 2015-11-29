@@ -117,7 +117,7 @@ EdenStream.prototype.skip = function() {
  * Has the end of input been reached.
  */
 EdenStream.prototype.eof = function() {
-	return this.position == this.code.length;
+	return this.position >= this.code.length;
 };
 
 /**
@@ -425,7 +425,8 @@ EdenStream.prototype.readToken = function() {
 	// Ignore invalid tokens
 	this.skip();
 	//return this.readToken();
-	console.error("Invalid Token: " + ch);
+	//console.error("Invalid Token: " + ch);
+	throw new Error("Invalid Token: " + ch);
 	return "INVALID";
 };
 
