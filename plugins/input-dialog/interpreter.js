@@ -1321,7 +1321,6 @@ _view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
 		function doRebuild() {
 			// Regenerate the AST and highlight the code.
 			if (refreshentire) {
-				console.log("REFRESH ENTIRE");
 				updateEntireHighlight();
 				refreshentire = false;
 			} else { // if (dirty) {

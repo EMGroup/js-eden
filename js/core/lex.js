@@ -1,6 +1,7 @@
 function EdenSyntaxData() {
 	this.value = undefined;
 	this.error = false;
+	this.line = 0;
 }
 
 /**

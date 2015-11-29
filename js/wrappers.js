@@ -739,7 +739,6 @@ Eden.Agent.prototype.setSource = function(source, net, lineno) {
 	}
 
 	if (haschanged) {
-		console.log("CHANGED");
 		Eden.Agent.emit("changed", [this, source, lineno]);
 	}
 }
