@@ -40,14 +40,14 @@ Eden.Agent = function(parent, name, meta, options) {
 	this.meta = meta;
 	this.title = (meta && meta.title) ? meta.title : "Agent";
 	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || [];
-	this.index = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_index')) || 0;
-	this.snapshot = edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
+	this.index = -1; //JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_index')) || 0;
+	this.snapshot = ""; //edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
 	this.autosavetimer = undefined;
 	this.executed = false;
 	this.options = options;
 
 	if (this.snapshot) {
-		this.setSource(this.snapshot);
+		//this.setSource(this.snapshot);
 	} else {
 		//this.setSource("");
 	}
