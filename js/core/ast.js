@@ -541,7 +541,7 @@ Eden.AST.LValue.prototype.executeCompList = function(ctx) {
 			if (this.lvaluep[i].indexexp.doesReturnBound && this.lvaluep[i].indexexp.doesReturnBound()) {
 				iexp += ".value";
 			}
-			res.push(eval("(function(context,scope) { return "+iexp+"; })")(eden.root,eden.root.scope));
+			res.push(rt.index(eval("(function(context,scope) { return "+iexp+"; })")(eden.root,eden.root.scope)));
 		}
 	}
 	return res;
