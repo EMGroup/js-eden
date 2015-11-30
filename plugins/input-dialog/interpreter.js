@@ -101,7 +101,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	var closeInput = function(options) {
 		var $dialog = options.$dialog;
 		$dialog.dialog('close');
-		console.log("CLOSE");
+		//console.log("CLOSE");
 		console.log(options);
 	}
 
@@ -152,7 +152,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	 * Common input window view constructor.
 	 */
 	this.createCommon = function (name, mtitle, code, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputhider"><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="agent-tabs"></div><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable class="outputcontent"></div></div></div><div class="info-bar"></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputhider"><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="agent-tabs"></div><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" tabindex="2" contenteditable class="outputcontent"></div></div></div><div class="info-bar"></div><div class="outputbox"></div></div></div>')
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
@@ -1608,6 +1608,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			// Alt and AltGr for disable inspect mode.
 			if (e.keyCode == 18 || e.keyCode == 225) {
 				disableInspectMode();
+				e.preventDefault();
 			} else if (!e.altKey) {
 				if (!e.ctrlKey && (	e.keyCode == 37 ||	//Arrow keys
 									e.keyCode == 38 ||
@@ -1665,8 +1666,10 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 		function onOutputKeyUp(e) {
+			console.log(e);
 			if (e.keyCode == 18 || e.keyCode == 225) {
 				disableInspectMode();
+				e.preventDefault();
 			}
 		}
 
@@ -1903,7 +1906,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		function onTabDragEnd(e) {
 			var value = e.target.getAttribute("data-name");
 			if (e.originalEvent.dataTransfer.dropEffect != 'none') {
-				console.log("DRAGEND: " + value);
+				//console.log("DRAGEND: " + value);
 				var tabs = agent.state[obs_tabs];
 				var ix = tabs.indexOf(value);
 				if (ix >= 0) {
