@@ -9,9 +9,9 @@ prototype_Page is ["page", title,theme,content];
 Page is prototype_Page with
 	theme is theme if theme else "default";
 
-prototype_Title is ["title", text,subtitle,logo,menus];
+prototype_Title is ["title", text,subtitle,logo,menus,mainimage,height];
 Title is prototype_Title with
-	text is text if text else "Title",
+	text is text if text else @,
 	subtitle is subtitle if subtitle else "Subtitle";
 
 prototype_Icon is ["icon", content,size,colour];
@@ -61,7 +61,65 @@ Break is prototype_Break;
 
 defaultpage is Page with title is Title, content is [Header,Paragraph];
 
-if (page == @) {
-	page is defaultpage;
-}
+##if (page == @) {
+	##page is defaultpage;
+##}
+
+
+
+/* =============== NEW DESIGN ================================================*/
+
+
+prototype_Element is [
+	"element",
+	elementtype,
+	id,
+	class,
+	content,
+	style,
+	clickable,
+	mouseenter,
+	mouseleave,
+	mousedown,
+	mouseup,
+	mousemove,
+	src,
+	href
+];
+
+Element is prototype_Element with
+	elementtype is elementtype if elementtype else "div";
+
+Style is [
+	cssTop,
+	cssBottom,
+	cssLeft,
+	cssRight,
+	cssWidth,
+	cssHeight,
+	cssBackground,
+	cssPosition,
+	cssColor,
+	cssBorder,
+	cssFont,
+	cssFontSize,
+	cssFontFamily,
+	cssFontWeight,
+	cssBorderBottom,
+	cssBorderLeft,
+	cssBorderRight,
+	cssBorderTop,
+	cssOverflow,
+	cssPadding,
+	cssPaddingTop,
+	cssPaddingLeft,
+	cssPaddingRight,
+	cssPaddingBottom,
+	cssMargin,
+	cssMarginLeft,
+	cssMarginRight,
+	cssMarginTop,
+	cssMarginBottom,
+	cssTextShadow
+];
 

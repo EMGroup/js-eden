@@ -57,6 +57,18 @@
 	},
 
 	"meta": {
+		"worksheet": {
+			"file": "models/worksheet/worksheet.js-e",
+			"title": "Worksheet Template"
+		},
+		"worksheet/style": {
+			"file": "models/worksheet/worksheet_style.js-e",
+			"title": "Worksheet Style"
+		},
+		"welcome": {
+			"file": "models/welcome.js-e",
+			"title": "Welcome"
+		},
 		"menace": {
 			"file": "models/MENACE/menacecommentary.js-e",
 			"title": "MENACE"
@@ -310,7 +322,7 @@
 			"enabled": true
 		},
 		"tutorials/scoping/arrow": {
-			"file": "tutorials/arrow.js-e",
+			"file": "tutorials/arrow2.js-e",
 			"title": "Making Arrows",
 			"enabled": true
 		},

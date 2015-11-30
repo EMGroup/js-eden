@@ -1,0 +1,25 @@
+/**
+ * @title Welcome Page
+ * @author Nicolas Pope
+ */
+
+require("Page");
+
+ws_p1 is Paragraph with text is [
+"<h1>What are construals? And what can you do with them?</h1>"
+"Your construal of something (X) is 'how you think of X', it includes anything you might associate with X. Because you can visualise it, and interact with it, you can also make it on the computer. In fact making construals is a new way to use computers: one that is simpler, yet in some ways more powerful, than programming."
+"What is exciting is that you can make construals behave like programs - but in an unusually open and flexible way. In particular, making construals is especially well-suited to learning in an engaging, personal fashion."
+];
+
+ws_contents is [ws_p1];
+
+ws_icon is Icon with colour is "black", size is 120, content is "&#xf1b2";
+ws_title is Title with
+	logo is ws_icon,
+	mainimage is "images/construit_logo_2.png",
+	subtitle is "The Making Construals Environment",
+	height is 200;
+
+ws_page is Page with title is ws_title, content is ws_contents;
+page is ws_page;
+

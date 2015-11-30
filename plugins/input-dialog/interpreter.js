@@ -1474,22 +1474,17 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 		function enableInspectMode() {
-			//outdiv.style.cursor = "pointer";
 			outdiv.contentEditable = false;
 			changeClass(outdiv, "inspect", true);
 			inspectmode = true;
-			console.log("ENABLE INSPECT");
 			// TODO Remove caret and merge those spans
 			updateInspectButton();
 			setSubTitle("[inspecting]");
 		}
 
 		function disableInspectMode() {
-			//outdiv.style.cursor = "initial";
-			//outdiv.contentEditable = true;
 			changeClass(outdiv, "inspect", false);
 			inspectmode = false;
-			console.log("DISABLE INSPECT");
 			updateEntireHighlight();
 			intextarea.focus();
 			updateInspectButton();
@@ -1510,7 +1505,6 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 * rehighlight.
 		 */
 		function onTextKeyDown(e) {
-			console.log(e.keyCode);
 			// Alt and AltGr for inspect mode.
 			if (e.keyCode == 18 || e.keyCode == 225) {
 				enableInspectMode();
