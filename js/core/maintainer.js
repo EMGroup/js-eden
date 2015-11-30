@@ -944,6 +944,8 @@
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = undefined;
 
+		this.extend = undefined;
+
 		//if (this.context) {
 		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
 		cache.value = value;
@@ -1327,16 +1329,16 @@
 
 		var list = this.value(scope);
 		for (var i = 0; i < indices.length-1; i++) {
-			if (indices[i] < 1) {
-				console.log("ASSIGN OUT OF BOUNDS");
-			}
-			if (list) list = list[indices[i]-1];
+			//if (indices[i] < 1) {
+			//	console.log("ASSIGN OUT OF BOUNDS");
+			//}
+			if (list) list = list[indices[i]];
 		}
 		if (list) {
-			if (indices[indices.length-1] < 1) {
-				console.log("ASSIGN OUT OF BOUNDS");
-			}
-			list[indices[indices.length-1]-1] = value;
+			//if (indices[indices.length-1] < 1) {
+			//	console.log("ASSIGN OUT OF BOUNDS");
+			//}
+			list[indices[indices.length-1]] = value;
 		} else {
 			console.log("ASSIGN DIMENSION ERROR");
 		}

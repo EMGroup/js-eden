@@ -522,7 +522,7 @@ Eden.AST.LValue.prototype.hasListIndices = function() {
 Eden.AST.LValue.prototype.generateCompList = function(ctx, scope) {
 	var res = "[";
 	for (var i=0; i<this.lvaluep.length; i++) {
-		res += this.lvaluep[i].indexexp.generate(ctx,scope);
+		res += "rt.index("+this.lvaluep[i].indexexp.generate(ctx,scope)+")";
 		if (i < this.lvaluep.length-1) res += ",";
 	}
 	res += "]";
