@@ -71,14 +71,14 @@ div.page-content {
 	bottom: 0;
 }
 
-div.page-content h1 {
+div.page h1 {
 	font-size: 20pt;
 	color: #3f4857;
 	font-weight: bold;
 	/*font-family: Arial, Helvetica, sans-serif;*/
 }
 
-div.page-content h1:before {
+div.page h1:before {
 	position: absolute;
 	left: calc(10% - 40px);
 	font-family: "FontAwesome";
@@ -87,7 +87,7 @@ div.page-content h1:before {
 	color: #8fa3c4;
 }
 
-div.page-content h2 {
+div.page h2 {
 	font-size: 22pt;
 	color: #3f4857;
 	font-weight: bold;
@@ -98,13 +98,32 @@ div.clear {
 	clear: both;
 }
 
-div.page-content h2:before {
+div.page {
+	font-size: 12pt;
+	/*line-height: 150%;*/
+	color: #222;
+	/*font-family: Arial, Helvetica, sans-serif;*/
+	/*text-align: justify;*/
+	/*text-justify: inter-word*/;
+}
+
+div.page h2:before {
 	position: absolute;
 	left: calc(10% - 30px);
 	font-family: "FontAwesome";
 	content: "\f105";
 	font-size: 22pt;
 	color: #8fa3c4;
+}
+
+div.page p {
+	font-size: 12pt;
+	line-height: 150%;
+	color: #222;
+	/*font-family: Arial, Helvetica, sans-serif;*/
+	text-align: justify;
+	text-justify: inter-word;
+	margin-bottom: 40px;
 }
 
 div.page-paragraph {

@@ -1,0 +1,38 @@
+/**
+ * @title Worksheet Style
+ * @author Nicolas Pope
+ */
+
+WorksheetTitleStyle is Style with
+	cssPosition is "absolute",
+	cssLeft is 0,
+	cssTop is 0,
+	cssRight is 0,
+	cssBackground is "linear-gradient(45deg, #eee, #ccc)",
+	cssOverflow is "hidden",
+	cssBorderBottom is "2px solid #ccc",
+	cssHeight is 170;
+
+WorksheetTitleTextStyle is Style with
+	cssMarginTop is 20,
+	cssMarginLeft is 100,
+	cssTextShadow is "9px 8px 5px rgba(0, 0, 0, 0.2)",
+	cssColor is "#4a648e",
+	cssFontSize is "50pt",
+	cssFontWeight is "bold";
+
+WorksheetSubTitleTextStyle is Style with
+	cssMarginTop is 20,
+	cssMarginLeft is 120,
+	cssColor is "#666",
+	cssFontSize is "20pt";
+
+WorksheetContentStyle is Style with
+	cssPaddingTop is 40,
+	cssBottom is 0,
+	cssMarginTop is 170,
+	cssMarginLeft is "10%",
+	cssMarginRight is "10%";
+
+
+

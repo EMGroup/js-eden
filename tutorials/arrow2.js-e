@@ -1,0 +1,170 @@
+/**
+ * @title Making Arrows
+ * @author Nicolas Pope
+ */
+
+import worksheet;
+
+worksheet_title = "Modelling Shapes";
+worksheet_subtitle = "Creating a Reusable Arrow";
+
+worksheet_content = 
+"<jseden-canvas name=\"ArrowFinished\" width=400 height=150 source=\"picture\" float=\"right\"></jseden-canvas>"
+
+"<p>"
+"When making more complex models, you may wish to create"
+"reusable complex shapes."
+"In this example we will go through the process of first"
+"modelling a complex shape, an arrow, and then show how"
+"you can generate lots of arrows all over the picture."
+"Shown in the picture to the right is the finished result,"
+"except there is a problem because the arrows can only"
+"be horizontal and only face left. Oops. Back to step one..."
+"</p>"
+
+"<div class='clear'/><h1>Basic Arrow Properties</h1>"
+
+"<jseden float=\"left\" width=400>arrow_left = 10;"
+"arrow_top = 10;"
+"arrow_width = 130;"
+"arrow_height = 50;"
+"arrow_colour = \"black\";</jseden>"
+
+"<p>The first step is to identify what the basic controllable properties of the arrow might be."
+"An arrow needs a position on the screen, a size and a colour, so observables are created for these and given some sensible initial values.</p>"
+
+"<p>Changing these basic values will change the black arrow in the picture above."
+"Changing width and height will also affect the other arrows because they don't have a specific size of their own.</p>"
+
+"<div class='clear'/><h1>The Initial Lines</h1>"
+
+"<p>Our arrows will be made up of 3 lines: one main central line and 2 angled lines at one end."
+"We begin by drawing the main central line (contained in a temporary box to show boundaries):</p>"
+
+"<jseden float=\"left\" width=400>arrow_mainline is Line("
+"	arrow_left, arrow_mid,"
+"	arrow_right, arrow_mid,"
+"	arrow_colour);"
+"arrow_mid is arrow_top + (arrow_height / 2);</jseden>"
+
+"<jseden-canvas name=\"ArrowMainLine\" width=300 height=150 source=\"picture_1\" float=\"left\"></jseden-canvas>"
+
+"<jseden float=\"left\" width=500>arrow_pointyness = 0.3;"
+""
+"arrow_topline is Line("
+"	arrow_left, arrow_mid,"
+"	arrow_left + floor(arrow_pointyness * arrow_width),"
+"	arrow_top,"
+"	arrow_colour);"
+""
+"arrow_bottomline is Line("
+"	arrow_left, arrow_mid,"
+"	arrow_left + floor(arrow_pointyness * arrow_width),"
+"	arrow_top + arrow_height,"
+"	arrow_colour);</jseden>"
+
+"<p>And here are the definitions for the two angled lines."
+"For the mainline we decided to centre it vertically."
+"To do this, a new observable called 'arrow_mid' is created and given a formula to calculate the vertical mid point."
+"This observable is then used as one of the coordinates for the main line."
+"Similarly, for the angled lines, a new pointyness property is added because we decided it would be good to control this.</p>"
+
+"<p>Generally it is better to put numbers like pointyness into new observables rather than put them directly into, for example, the already large definition of a line."
+"It allows for greater flexibility and observability later."
+"It would also be good practice if we put the formula for calculating the angled line coordinates into another observable, as we did with 'arrow_mid'."
+"Maybe try making this change in the input box?</p>"
+
+"<div class='clear'/><h1>Making Copies</h1>"
+
+"<p>An arrow is now a list of three lines and can be added to a picture:</p>"
+
+"<jseden static>arrow is ["
+	"    arrow_mainline,"
+	"    arrow_topline,"
+	"    arrow_bottomline];"
+	"picture is arrow;</jseden>"
+
+"<p>The position of the arrow can be changed by changing 'arrow_left', for example."
+"To make another arrow, we would like to say something like: 'this is an arrow but with this different value for arrow_left'."
+"This is exactly what is possible using the 'with' keyword:</p>"
+
+"<jseden width=400 float=\"left\">myarrow is arrow with"
+"	arrow_left is 100;"
+""
+"picture_2 is arrow // myarrow;</jseden>"
+
+"<jseden-canvas name=\"ArrowWith\" width=300 height=150 source=\"picture_2\" float=\"left\"></jseden-canvas>"
+
+"<div class='clear'/><p>Any number of arrows can be created in this way, and any of the observables that arrow depends upon can be substituted with different values."
+"The result can be the picture shown at the top of this page."
+"If you need to substitute multiple observables at the same time then separate each with a comma. For example:</p>"
+
+"<jseden static>myarrow2 is arrow with"
+	"    arrow_left is 100,"
+	"    arrow_pointyness is 0.5;</jseden>";
+
+boundRect is Rectangle(arrow_left, arrow_top + 40, arrow_width, arrow_height, @, "#ccc");
+
+picture_1 is [
+	boundRect,
+	arrow_mainline with (arrow_top is arrow_top + 40),
+	boundRect with (arrow_left is arrow_left + arrow_width + 20),
+	arrow_mainline with (arrow_top is arrow_top + 40, arrow_left is arrow_left + arrow_width + 20),
+	arrow_topline with (arrow_top is arrow_top + 40, arrow_left is arrow_left + arrow_width + 20)
+];
+
+arrow_left = 10;
+arrow_mid is arrow_top + (arrow_height / 2);
+arrow_top = 10;
+arrow_height = 50;
+arrow_right is arrow_left + arrow_width;
+arrow_width = 130;
+arrow_colour = "black";
+arrow_pointyness = 0.3;
+
+arrow_mainline is Line(
+	arrow_left, arrow_mid,
+	arrow_right, arrow_mid,
+	arrow_colour);
+
+arrow_topline is Line(
+	arrow_left, arrow_mid,
+	arrow_left + floor(arrow_pointyness * arrow_width),
+	arrow_top,
+	arrow_colour);
+
+arrow_bottomline is Line(
+	arrow_left, arrow_mid,
+	arrow_left + floor(arrow_pointyness * arrow_width),
+	arrow_top + arrow_height,
+	arrow_colour);
+
+arrow is [
+	arrow_mainline,
+	arrow_topline,
+	arrow_bottomline];
+
+myarrow is arrow with
+	arrow_left is 100;
+
+picture_2 is arrow // myarrow;
+
+Arrow is arrow with
+	arrow_left is x if x else 10,
+	arrow_top is y if y else 10,
+	arrow_height is height if height else arrow_height,
+	arrow_width is width if width else arrow_width,
+	arrow_colour is colour if colour else "black",
+	arrow_pointyness is pointyness if pointyness else arrow_pointyness;
+
+arrow1 is Arrow with
+	x is 200, y is 90, colour is "purple";
+
+arrow2 is Arrow with
+	x is 100, y is 70, colour is "red";
+
+arrow3 is Arrow with
+	x is 123, y is 26, colour is "green";
+
+picture is arrow // arrow1 // arrow2 // arrow3;
+

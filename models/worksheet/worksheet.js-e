@@ -1,0 +1,31 @@
+/**
+ * @title Worksheet Template
+ * @author Nicolas Pope
+ */
+
+require("Page");
+
+import worksheet/style;
+
+if (worksheet_title == @) worksheet_title = "Worksheet 1";
+if (worksheet_subtitle == @) worksheet_subtitle = "Subtitle goes here";
+if (worksheet_content == @) worksheet_content = "Some content goes here";
+
+ws_title_text is Element with
+	style is WorksheetTitleTextStyle,
+	content is worksheet_title;
+
+ws_subtitle_text is Element with
+	style is WorksheetSubTitleTextStyle,
+	content is worksheet_subtitle;
+
+ws_title is Element with
+	style is WorksheetTitleStyle,
+	content is [ws_title_text, ws_subtitle_text];
+
+ws_content is Element with
+	style is WorksheetContentStyle,
+	content is worksheet_content;
+
+if (document == @) document is [ws_title, ws_content];
+

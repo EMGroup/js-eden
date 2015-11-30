@@ -61,7 +61,65 @@ Break is prototype_Break;
 
 defaultpage is Page with title is Title, content is [Header,Paragraph];
 
-if (page == @) {
-	page is defaultpage;
-}
+##if (page == @) {
+	##page is defaultpage;
+##}
+
+
+
+/* =============== NEW DESIGN ================================================*/
+
+
+prototype_Element is [
+	"element",
+	elementtype,
+	id,
+	class,
+	content,
+	style,
+	clickable,
+	mouseenter,
+	mouseleave,
+	mousedown,
+	mouseup,
+	mousemove,
+	src,
+	href
+];
+
+Element is prototype_Element with
+	elementtype is elementtype if elementtype else "div";
+
+Style is [
+	cssTop,
+	cssBottom,
+	cssLeft,
+	cssRight,
+	cssWidth,
+	cssHeight,
+	cssBackground,
+	cssPosition,
+	cssColor,
+	cssBorder,
+	cssFont,
+	cssFontSize,
+	cssFontFamily,
+	cssFontWeight,
+	cssBorderBottom,
+	cssBorderLeft,
+	cssBorderRight,
+	cssBorderTop,
+	cssOverflow,
+	cssPadding,
+	cssPaddingTop,
+	cssPaddingLeft,
+	cssPaddingRight,
+	cssPaddingBottom,
+	cssMargin,
+	cssMarginLeft,
+	cssMarginRight,
+	cssMarginTop,
+	cssMarginBottom,
+	cssTextShadow
+];
 
