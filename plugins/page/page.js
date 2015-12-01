@@ -271,8 +271,9 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		if (style && style instanceof Array) generateStyle(ele, style);
 		if (clickable && id) ele.onclick = function(e) {
 			var sym = eden.root.lookup(id+"_click");
+			console.log("ELEMENT CLICK");
 			sym.assign(true, eden.root.scope);
-			sym.assign(false, eden.root.scope);
+			//sym.assign(false, eden.root.scope);
 		}
 		if (type == "img" && src) ele.src = src;
 		if (type == "a" && href) ele.href = href;

@@ -405,6 +405,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
+		/**
+		 * Autosave event handler. When saved update status and history
+		 * buttons.
+		 */
 		function autoSaved(ag) {
 			if (ag === scriptagent) {
 				setSubTitle("[saved]");
@@ -1250,6 +1254,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				$(outdiv).find('.eden-number').draggable({
 					helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
 					axis: 'x',
+					distance: 5,
 					drag: function(e,u) {
 						if (readonly) return;
 						var newval;
