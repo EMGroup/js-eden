@@ -162,7 +162,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var infobox = $dialogContents.find('.info-bar').get(0);
 		var outputbox = $dialogContents.find('.outputbox').get(0);
 		var suggestions = $dialogContents.find('.eden_suggestions');
-		var tabs = $dialogContents.find('.agent-tabs').get(0);
+		var $tabs = $dialogContents.find('.agent-tabs');
+		var tabs = $tabs.get(0);
 		suggestions.hide();
 		$(infobox).hide();
 
@@ -302,8 +303,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var readonly = true;
 		var showhidden = false;
 		var inspectmode = false;
+		var maxtabs = 3;
 
 		var scriptagent;
+
 
 
 		function showBrowseDialog() {
@@ -394,9 +397,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			tab.innerHTML = "<span class='"+iconclass+"'>&#xf007;</span>"+tabname;
 			tab.draggable = true;
 			tab.setAttribute("data-name", name);
-			if (tabs.childNodes.length < tabscrollix) {
+			/*if (tabs.childNodes.length < tabscrollix) {
 				tab.style.display = "none";
-			}
+			}*/
 			tabs.appendChild(tab);
 		}
 
@@ -447,12 +450,24 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			
 			var agents = agent.state[obs_tabs];
 			if (agents && agents instanceof Array) {
+				var curix = -1;
+
+				if (scriptagent) {
+					// Find index of current tab
+					curix = agents.indexOf(scriptagent.name);
+				}
+
+				if (curix > tabscrollix+(maxtabs-1)) tabscrollix = curix-(maxtabs-1);
+				if (curix < tabscrollix) tabscrollix = curix;
+
 				for (var i=0; i<agents.length; i++) {
 					var title = agents[i];
 					if (Eden.Agent.agents[agents[i]]) {
 						title = Eden.Agent.agents[agents[i]].title;
 					}
-					addTab(tabcontainer, agents[i], title, (scriptagent && agents[i] == scriptagent.name), i);
+					if (tabscrollix <= i) {
+						addTab(tabcontainer, agents[i], title, (scriptagent && agents[i] == scriptagent.name), i);
+					}
 				}
 			}
 
@@ -1811,16 +1826,22 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 		function onTabLeft() {
-			if (tabscrollix > 0) {
-				tabscrollix--;
-				tabs.childNodes[1].childNodes[tabscrollix].style.display = "initial";
+			if (scriptagent === undefined) return;
+			var tabs = agent.state[obs_tabs];
+			var ix = tabs.indexOf(scriptagent.name);
+			ix--;
+			if (ix >= 0) {
+				agent.state[obs_agent] = tabs[ix];
 			}
 		}
 
 		function onTabRight() {
-			if (tabscrollix < tabs.childNodes[1].childNodes.length-3) {
-				tabs.childNodes[1].childNodes[tabscrollix].style.display = "none";
-				tabscrollix++;
+			if (scriptagent === undefined) return;
+			var tabs = agent.state[obs_tabs];
+			var ix = tabs.indexOf(scriptagent.name);
+			ix++;
+			if (ix < tabs.length) {
+				agent.state[obs_agent] = tabs[ix];
 			}
 		}
 
@@ -2000,6 +2021,9 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				Eden.Agent.remove(agent);
 				agent = undefined;
 			},
+			resize: function(e,ui) {
+				maxtabs = Math.floor((ui.size.width - 90) / 160);
+			},
 			setValue: function (value) { intextarea.value = value; updateEntireHighlight(); }
 		}
 
@@ -2030,7 +2054,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				minHeight: 203,
 				minWidth: 300,
 				dialogClass: "input-dialog",
-				close: viewdata.close
+				close: viewdata.close,
+				resizeStop: viewdata.resize
 			});
 
 		viewdata.confirmClose = !("MenuBar" in edenUI.plugins);
