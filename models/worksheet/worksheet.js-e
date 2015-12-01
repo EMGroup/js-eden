@@ -29,7 +29,7 @@ ws_content is Element with
 
 WorksheetPage is [worksheet_title, worksheet_subtitle, worksheet_content];
 
-worksheet_pages is [WorksheetPage];
+if (worksheet_pages == @) worksheet_pages is [WorksheetPage];
 worksheet_currentpage is worksheet_pages[worksheet_page];
 
 if (document == @) document is [ws_title, ws_content];
