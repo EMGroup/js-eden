@@ -47,7 +47,7 @@ action prevPage {
 ${{
 edenpagechangelock = false;
 window.onpopstate = function(e) {
-	if (e.state.wspage !== undefined) {
+	if (e.state && e.state.wspage !== undefined) {
 		edenpagechangelock = true;
 		eden.root.lookup("worksheet_page").assign(e.state.wspage, eden.root.scope);
 	}
