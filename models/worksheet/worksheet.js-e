@@ -44,17 +44,22 @@ action prevPage {
 	worksheet_page--;
 }
 
-when (worksheet_page) {
-	${{
-	history.pushState({wspage: eden.root.lookup("worksheet_page").value()}, "Worksheet");
-	}}$;
-}
-
 ${{
+edenpagechangelock = false;
 window.onpopstate = function(e) {
 	if (e.state.wspage !== undefined) {
+		edenpagechangelock = true;
 		eden.root.lookup("worksheet_page").assign(e.state.wspage, eden.root.scope);
 	}
 }
 }}$;
+
+when (worksheet_page) {
+	${{
+	if (!edenpagechangelock) {
+		history.pushState({wspage: eden.root.lookup("worksheet_page").value()}, "Worksheet");
+	}
+	edenpagechangelock = false;
+	}}$;
+}
 
