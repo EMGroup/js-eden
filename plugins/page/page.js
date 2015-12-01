@@ -172,6 +172,11 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		var scripts = [];
 		var attribs = [];
 
+		// Replace jseden scripts in event attributes
+		text = text.replace(/\"jseden:([\s\S]*?)\"/g, function(match, code) {
+			return "\"javascript: eden.execute2('"+code+"');\"";
+		});
+
 		// Do a find replace for the jseden tag
 		text = text.replace(/<jseden([\s\S]*?)>([\s\S]*?)<\/jseden[\S]*>/g,
 		function (match, attributes, code, offset, string) {
@@ -261,7 +266,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		if (content && typeof content == "string") {
 			var processed = processHTML(content);
 			if (typeof processed == "string") {
-				ele.innerHTML = content;
+				ele.innerHTML = processed;
 			} else {
 				ele.appendChild(processed);
 			}

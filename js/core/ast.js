@@ -847,6 +847,7 @@ Eden.AST.Append.prototype.generate = function(ctx) {
 Eden.AST.Append.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var val = this.index.execute(root,ctx,base);
+	if (val instanceof BoundValue) val = val.value;
 	root.lookup(this.destination.name).mutate(root.scope, function(s) {
 		s.value().push(val);
 	}, undefined);
@@ -915,6 +916,8 @@ Eden.AST.Insert.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var ix = this.index.execute(root,ctx,base);
 	var val = this.value.execute(root,ctx,base);
+	if (ix instanceof BoundValue) ix = ix.value;
+	if (val instanceof BoundValue) val = val.value;
 	root.lookup(this.destination.name).mutate(root.scope, function(s) {
 		s.value().splice(ix-1, 0, val);
 	}, undefined);
@@ -968,6 +971,7 @@ Eden.AST.Delete.prototype.generate = function(ctx) {
 Eden.AST.Delete.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var ix = this.index.execute(root,ctx,base);
+	if (ix instanceof BoundValue) ix = ix.value;
 	root.lookup(this.destination.name).mutate(root.scope, function(s) {
 		s.value().splice(ix-1, 1);
 	}, undefined);
@@ -1095,6 +1099,9 @@ Eden.AST.Definition.prototype.execute = function(root, ctx, base) {
 		var rhs = "(function(context,scope,value) { value";
 		rhs += this.lvalue.generateCompList(this, "scope") + " = ";
 		rhs += this.expression.generate(this, "scope");
+		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+			rhs += ".value";
+		}
 		rhs += ";})";
 		var deps = [];
 		for (var d in this.dependencies) {
