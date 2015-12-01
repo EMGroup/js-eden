@@ -1095,6 +1095,9 @@ Eden.AST.Definition.prototype.execute = function(root, ctx, base) {
 		var rhs = "(function(context,scope,value) { value";
 		rhs += this.lvalue.generateCompList(this, "scope") + " = ";
 		rhs += this.expression.generate(this, "scope");
+		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+			rhs += ".value";
+		}
 		rhs += ";})";
 		var deps = [];
 		for (var d in this.dependencies) {
