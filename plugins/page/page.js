@@ -510,8 +510,23 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		if (value === undefined) return;
 		if (!(value instanceof Array)) return;
 
+		for (var ci in canvases) {
+			canvases[ci].code_entry.detach();
+		}
+
+		// Detach all scripts
+		for (var si in scripts) {
+			scripts[si].contents.detach();
+		}
+
 		pagediv.html("");
 		generateContentList(pagediv.get(0), value);
+
+		// Now resize the canvases
+		for (var i=0; i<canvastodo.length; i++) {
+			canvastodo[i]();
+		}
+		canvastodo = [];
 	}
 
 
