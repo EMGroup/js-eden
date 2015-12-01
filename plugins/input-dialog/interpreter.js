@@ -101,7 +101,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	var closeInput = function(options) {
 		var $dialog = options.$dialog;
 		$dialog.dialog('close');
-		console.log("CLOSE");
+		//console.log("CLOSE");
 		console.log(options);
 	}
 
@@ -152,7 +152,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	 * Common input window view constructor.
 	 */
 	this.createCommon = function (name, mtitle, code, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputhider"><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="agent-tabs"></div><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" contenteditable class="outputcontent"></div></div></div><div class="info-bar"></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputhider"><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="agent-tabs"></div><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" tabindex="2" contenteditable class="outputcontent"></div></div></div><div class="info-bar"></div><div class="outputbox"></div></div></div>')
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
@@ -162,7 +162,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var infobox = $dialogContents.find('.info-bar').get(0);
 		var outputbox = $dialogContents.find('.outputbox').get(0);
 		var suggestions = $dialogContents.find('.eden_suggestions');
-		var tabs = $dialogContents.find('.agent-tabs').get(0);
+		var $tabs = $dialogContents.find('.agent-tabs');
+		var tabs = $tabs.get(0);
 		suggestions.hide();
 		$(infobox).hide();
 
@@ -302,8 +303,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var readonly = true;
 		var showhidden = false;
 		var inspectmode = false;
+		var maxtabs = 3;
 
 		var scriptagent;
+
 
 
 		function showBrowseDialog() {
@@ -360,8 +363,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 		
-		function addTab(name, title, current) {
+		function addTab(tabs, name, title, current, ix) {
 			var tab = document.createElement("div");
+			tab.style.left = ""+(ix*160)+"px";
 			var classname = "agent-tab noselect";
 			if (current) {
 				classname += " agent-tab-current";
@@ -369,7 +373,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				classname += " agent-tab-notcurrent";
 			}
 
-			var tabname = name;
+			var tabname = name.split("/").pop();
+
 			if (tabname.length > 18) {
 				tabname = "..."+tabname.slice(-15);
 			}
@@ -392,9 +397,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			tab.innerHTML = "<span class='"+iconclass+"'>&#xf007;</span>"+tabname;
 			tab.draggable = true;
 			tab.setAttribute("data-name", name);
-			if (tabs.childNodes.length < tabscrollix) {
+			/*if (tabs.childNodes.length < tabscrollix) {
 				tab.style.display = "none";
-			}
+			}*/
 			tabs.appendChild(tab);
 		}
 
@@ -439,27 +444,38 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			left.className = "agent-tableft noselect";
 			tabs.appendChild(left);
 
-			// Add tab for each agent
-			/*for (var a in Eden.Agent.agents) {
-				var ag = Eden.Agent.agents[a];
-				if (!showhidden && ag.hidden) continue;
-				addTab(a, ag.title, a == scriptagent.name);
-			}*/
+			var tabcontainer = document.createElement("div");
+			tabcontainer.className = "agent-tab-container";
+			tabs.appendChild(tabcontainer);
+			
 			var agents = agent.state[obs_tabs];
 			if (agents && agents instanceof Array) {
+				var curix = -1;
+
+				if (scriptagent) {
+					// Find index of current tab
+					curix = agents.indexOf(scriptagent.name);
+				}
+
+				if (curix > tabscrollix+(maxtabs-1)) tabscrollix = curix-(maxtabs-1);
+				if (curix < tabscrollix) tabscrollix = curix;
+
 				for (var i=0; i<agents.length; i++) {
 					var title = agents[i];
 					if (Eden.Agent.agents[agents[i]]) {
 						title = Eden.Agent.agents[agents[i]].title;
 					}
-					addTab(agents[i], title, (scriptagent && agents[i] == scriptagent.name));
+					if (tabscrollix <= i) {
+						addTab(tabcontainer, agents[i], title, (scriptagent && agents[i] == scriptagent.name), i);
+					}
 				}
 			}
 
 			// Add new tab button
 			var newtab = document.createElement("div");
 			newtab.className = "agent-newtab noselect";
-			tabs.appendChild(newtab);
+			newtab.style.left = ""+(agents.length*160 + 20)+"px";
+			tabcontainer.appendChild(newtab);
 
 			// Add scroll right
 			var right = document.createElement("div");
@@ -1608,6 +1624,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			// Alt and AltGr for disable inspect mode.
 			if (e.keyCode == 18 || e.keyCode == 225) {
 				disableInspectMode();
+				e.preventDefault();
 			} else if (!e.altKey) {
 				if (!e.ctrlKey && (	e.keyCode == 37 ||	//Arrow keys
 									e.keyCode == 38 ||
@@ -1665,8 +1682,10 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 		function onOutputKeyUp(e) {
+			console.log(e);
 			if (e.keyCode == 18 || e.keyCode == 225) {
 				disableInspectMode();
+				e.preventDefault();
 			}
 		}
 
@@ -1807,16 +1826,22 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 		function onTabLeft() {
-			if (tabscrollix > 0) {
-				tabscrollix--;
-				tabs.childNodes[tabscrollix+1].style.display = "initial";
+			if (scriptagent === undefined) return;
+			var tabs = agent.state[obs_tabs];
+			var ix = tabs.indexOf(scriptagent.name);
+			ix--;
+			if (ix >= 0) {
+				agent.state[obs_agent] = tabs[ix];
 			}
 		}
 
 		function onTabRight() {
-			if (tabscrollix < tabs.childNodes.length-3) {
-				tabs.childNodes[tabscrollix+1].style.display = "none";
-				tabscrollix++;
+			if (scriptagent === undefined) return;
+			var tabs = agent.state[obs_tabs];
+			var ix = tabs.indexOf(scriptagent.name);
+			ix++;
+			if (ix < tabs.length) {
+				agent.state[obs_agent] = tabs[ix];
 			}
 		}
 
@@ -1879,11 +1904,12 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 							reader.onload = function(e2) {
 								var ag = new Eden.Agent(undefined, agentname);
 								ag.setSource(e2.target.result, false, -1);
-								var tabs = agent.state[obs_tabs];
+								/*var tabs = agent.state[obs_tabs];
 								if (tabs.indexOf(agentname) == -1) {
 									tabs.push(agentname);
 									agent.state[obs_tabs] = tabs;
-								}
+								}*/
+								agent.state[obs_agent] = agentname;
 							}
 							reader.readAsText(file);
 						}
@@ -1903,7 +1929,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		function onTabDragEnd(e) {
 			var value = e.target.getAttribute("data-name");
 			if (e.originalEvent.dataTransfer.dropEffect != 'none') {
-				console.log("DRAGEND: " + value);
+				//console.log("DRAGEND: " + value);
 				var tabs = agent.state[obs_tabs];
 				var ix = tabs.indexOf(value);
 				if (ix >= 0) {
@@ -1995,6 +2021,9 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				Eden.Agent.remove(agent);
 				agent = undefined;
 			},
+			resize: function(e,ui) {
+				maxtabs = Math.floor((ui.size.width - 90) / 160);
+			},
 			setValue: function (value) { intextarea.value = value; updateEntireHighlight(); }
 		}
 
@@ -2025,7 +2054,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				minHeight: 203,
 				minWidth: 300,
 				dialogClass: "input-dialog",
-				close: viewdata.close
+				close: viewdata.close,
+				resizeStop: viewdata.resize
 			});
 
 		viewdata.confirmClose = !("MenuBar" in edenUI.plugins);

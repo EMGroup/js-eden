@@ -52,6 +52,19 @@ span.tab-icon.noagent {
 	color: #aaa;
 }
 
+div.agent-tab-container {
+	position: absolute;
+	display: flex;
+	flex-wrap: wrap;
+	left: 30px;
+	right: 30px;
+	top: 0;
+	height: 35px;
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+}
+
 div.agent-tableft {
 	position: absolute;
 	left: 10px;
@@ -81,6 +94,7 @@ div.agent-tabright {
 	line-height: 35px;
 	height: 35px;
 	cursor: pointer;
+	text-align: right;
 }
 
 div.agent-tabright:hover {
@@ -95,8 +109,8 @@ div.agent-tabright:after {
 }
 
 div.agent-newtab {
-	float:left;
 	margin-left: 20px;
+	margin-right: 10px;
 	width: 20px;
 	line-height: 35px;
 	height: 35px;
@@ -116,10 +130,13 @@ div.agent-newtab:hover {
 }
 
 div.agent-tab {
-	float: left;
-	margin-left: 10px;
-	width: 140px;
+	/*float: left;*/
+	flex-grow: 1;
+	/*width: 150px;*/
+	padding-left: 15px;
+	padding-right: 15px;
 	height: 100%;
+	margin-left: 10px;
 	font-family: Verdana,Arial,sans-serif;
 	font-size: 8pt;
 	/*color: #888;*/
@@ -128,6 +145,8 @@ div.agent-tab {
 	text-align: center;
 	font-weight: bold;
 	line-height: 35px;
+	border-left: 1px solid transparent;
+	border-right: 1px solid transparent;
 	-webkit-font-smoothing: antialiased;
 	font-smoothing: antialiased;
 	cursor: pointer;
