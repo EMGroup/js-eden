@@ -34,7 +34,7 @@ worksheet_currentpage is worksheet_pages[worksheet_page];
 
 if (document == @) document is [ws_title, ws_content];
 
-worksheet_page = 1;
+if (worksheet_page == @) worksheet_page = 1;
 
 action nextPage {
 	worksheet_page++;

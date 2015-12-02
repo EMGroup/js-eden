@@ -8,21 +8,22 @@ require("Page");
 hideView("picture");
 hideView("input");
 
-ws_h1 is Header with text is "Resources";
+import worksheet;
 
-ws_p1 is Paragraph with text is [
-"<ul><li><a href=\"javascript:eden.execute2('import examples/triangles;');\">Triangles Worksheet</a></li></ul>"
-];
+worksheet_title = "Tutorials";
+worksheet_subtitle = "Learning about the environment";
+
+worksheet_content =
+"<ul>"
+"<li><a href=\"jseden: link1_clicked = true;\">Making Worksheets</a></li>"
+"<li><a href=\"jseden: link2_clicked = true;\">Scoping - Reusable Arrows</a></li>"
+"</ul>"
+;
+
+when (link1_clicked) {
+	worksheet_page = "tutorials/worksheet";
+	import tutorials/worksheets;
+}
 
 
-ws_contents is [ws_h1,ws_p1];
-
-ws_icon is Icon with colour is "white", size is 150, content is "&#xf1b2";
-ws_title is Title with
-	logo is ws_icon,
-	text is "Tutorials:",
-	subtitle is "The Construit! Environment";
-
-ws_page is Page with title is ws_title, content is ws_contents;
-page is ws_page;
 
