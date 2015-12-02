@@ -2486,12 +2486,19 @@ function runEdenAction(source, action) {
 				delay.value.executed = 1;
 				Eden.Agent.importAgent(delay.value.path, delay.value.options, function(ag) {
 					if (ag) {
+						var already = false;
+						// Check to see if already imported to local scope...
 						for (var i=0; i<me.imports.length; i++) {
-							if (me.imports[i] === ag) return;
+							if (me.imports[i] === ag) {
+								already = true;
+								break;
+							}
 						}
-						me.imports.push(ag);
+						// If not, import it.
+						if (!already) me.imports.push(ag);
 					}
 
+					// Continue execution.
 					runEdenAction.call(me,source, action);
 				});
 			}

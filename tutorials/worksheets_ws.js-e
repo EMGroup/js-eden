@@ -41,6 +41,10 @@ worksheet_content is
 "</ul></p>"
 "<p>More advanced control of styling is possible, see a later section.</p>"
 
+"<h3>Limitations</h3>"
+"<p>These special tags have limitations at present. For example, you can't put them inside certain other kinds of element such as a list item. Try and keep them outside of other elements for the moment."
+"Other limitations are that you must use double quotes for attributes and you must use spaces between attributes. These limitations will be fixed in time.</p>"
+
 "<h2>Embedding a Canvas</h2>"
 "<p>Another tag available is &lt;jseden-canvas&gt;. This requires certain attributes to work, but allows a picture to be embedded. For example:</p>"
 "<pre>&lt;jseden-canvas name=\"someuniquename\" source=\"picture\" width=300 height=200>&ltjseden-canvas></pre>"
@@ -52,7 +56,13 @@ worksheet_content is
 "worksheet_content is \"Another page of content\";</jseden>"
 "<p>Once you have made your page templates you either need to define the <code>worksheet_pages</code> observable as a list containing each page, or, if your pages are named instead of in linear order then define a specific index. The example below contains both approaches, but only one is needed:</p>"
 "<jseden>worksheet_pages is [page1,page2,page3];"
-"worksheet_pages[\"mypagename\"] is page1;</jseden>"
+"## Or..."
+"worksheet_pages[\"mypagename\"] is page1;"
+"worksheet_pages[\"myotherpage\"] is page2;</jseden>"
+"<p>To change page, set <code>worksheet_page</code>, either to a number or string name of the page. When you do this it automatically gets added to the browser history so the back button takes you to the page you were previously on.</p>"
+
+"<h1>Advanced Layout and Style</h1>"
+"<p>The contents of a worksheet can be controlled to an even greater degree if you use the Page plugin directly. <code>worksheet_contents</code> can be a list instead of a string, this list containing page <i>Elements</i> as described <a href=\"\">here</a>. These elements can then be individually styled and easily connected with dependency.<p>"
 ;
 
 action showSource {
@@ -61,4 +71,6 @@ action showSource {
 }
 
 worksheet_pages["tutorials/worksheet"] is tutorial_worksheet;
+
+if (worksheet_page == 1 || worksheet_page == @) worksheet_page = "tutorials/worksheet";
 
