@@ -23,6 +23,7 @@
 	margin-bottom: 2px;
 	font-size: 8pt;
 	background-color: #eaeaea;
+	overflow: hidden;
 }
 
 .projectlist-result-element:hover {
@@ -61,4 +62,9 @@
 	color: #909090;
 	line-height: 1.35;
 	margin-top: 2pt;
+}
+
+.projectlist-result-screenshot {
+	max-width: 80px;
+	float: right;
 }
