@@ -381,7 +381,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			var height = EdenUI.plugins.ScriptInput.getRequiredHeight(lines, true);
 			container.height(height);
 
-			if (float != "none") {
+			if (float && float != "none") {
 				container.css("float",float);
 			}
 			if (width != "50%") {
@@ -413,7 +413,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			var ast = new Eden.AST(text);
 			hl.highlight(ast,-1,-1);
 
-			if (float != "none") {
+			if (float && float != "none") {
 				res.css("float",float);
 			}
 			if (width != "50%") {

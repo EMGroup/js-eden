@@ -1773,9 +1773,11 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 						var curline = currentlineno;
 						intextarea.focus();
 						intextarea.selectionEnd = end;
-						intextarea.selectionStart = end;		
-						highlighter.highlight(highlighter.ast, curline, end);
-						updateLineCachedHighlight();
+						intextarea.selectionStart = end;
+						if (highlighter.ast) {		
+							highlighter.highlight(highlighter.ast, curline, end);
+							updateLineCachedHighlight();
+						}
 						//checkScroll();
 					}
 				}
@@ -2015,7 +2017,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					//}
 				});
 			},
-			close: function() {
+			destroy: function() {
 				console.log("CLOSE SCRIPT");
 				clearInterval(gutterinterval);
 				Eden.Agent.unlisten(agent);
@@ -2027,7 +2029,9 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				agent = undefined;
 			},
 			resize: function(e,ui) {
-				maxtabs = Math.floor((ui.size.width - 90) / 160);
+				if (ui && ui.size) {
+					maxtabs = Math.floor((ui.size.width - 90) / 160);
+				}
 			},
 			setValue: function (value) { intextarea.value = value; updateEntireHighlight(); }
 		}
@@ -2059,7 +2063,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				minHeight: 203,
 				minWidth: 300,
 				dialogClass: "input-dialog",
-				close: viewdata.close,
+				/*close: viewdata.close,*/
 				resizeStop: viewdata.resize
 			});
 

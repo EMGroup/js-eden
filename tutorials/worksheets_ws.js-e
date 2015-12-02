@@ -1,0 +1,64 @@
+/**
+ * @title Worksheet for Worksheets
+ * @author Nicolas Pope
+ */
+
+import worksheet;
+
+tutorial_worksheet is WorksheetPage with
+worksheet_title is "Making Worksheets",
+worksheet_subtitle is "Interactive pages for Construing",
+
+worksheet_content is
+"<p>The Construit environment contains a template for making worksheets that can contain embedded scripts and pictures for illustrating a model or for use in a class."
+"This page is itself using the worksheet template and you can view it's source <a href=\"jseden: import tutorials/worksheets; do showSource;\">here</a>. The worksheet template makes use of the \"Page\" plugin that allows for dependency based construction of HTML documents and CSS styles, these can be customised to create your own worksheet templates.</p>"
+
+"<h1>Basic Template</h1>"
+"<p>If you have only a single page then nothing more than the following is needed to get started.</p>"
+"<jseden>import worksheet;"
+""
+"worksheet_title = \"Some Title\";"
+"worksheet_subtitle = \"Some Subtitle\";"
+""
+"worksheet_content = \"Put html content here\";</jseden>"
+
+"<p>First import the worksheet template which, by default, uses the observables <code>worksheet_title</code>, <code>worksheet_subtitle</code> and <code>worksheet_content</code>. You can put any html into these strings.</p>"
+
+"<h1>Embedding Views</h1>"
+"<p>Along with standard HTML you can use a special &lt;jseden&gt; tag to embedded a piece of interactive script. Or one of several other tags for embedding other kinds of view.</p>"
+"<h2>Embedding Scripts</h2>"
+"<p>For example:</p>"
+"<pre>&lt;jseden>a = 5;&lt;/jseden></pre>"
+"<p>Results in:</p>"
+"<jseden>a = 5;</jseden>"
+"<p>The jseden tag can take several attributes to control its style and other properties. These include:"
+"<ul>"
+"<li><code>name</code> - Give a non default name to this script, useful if you need to control it using its _view observables.</li>"
+"<li><code>box</code> - A boolean, should it have a box around it or not. Default is true.</li>"
+"<li><code>lines</code> - Force it to contain space for this many lines. Defaults to the number of lines in the script provided.</li>"
+"<li><code>float</code> - Make it float, can be \"left\", \"right\", \"both\" or \"none\". Default is \"none\". Allows text to wrap around it.</li>"
+"<li><code>width</code> - Width of the script. Default is 50% of the page.</li>"
+"</ul></p>"
+"<p>More advanced control of styling is possible, see a later section.</p>"
+
+"<h2>Embedding a Canvas</h2>"
+"<p>Another tag available is &lt;jseden-canvas&gt;. This requires certain attributes to work, but allows a picture to be embedded. For example:</p>"
+"<pre>&lt;jseden-canvas name=\"someuniquename\" source=\"picture\" width=300 height=200>&ltjseden-canvas></pre>"
+
+"<h1>Multiple Pages</h1>"
+"<p>To create a mult-page worksheet you need to be familar with <a href=\"\">scoping</a>. You create multiple definitions from the <code>WorksheetPage</code> template definition.</p>"
+"<jseden>page1 is WorksheetPage with"
+"worksheet_title is \"Some other title\","
+"worksheet_content is \"Another page of content\";</jseden>"
+"<p>Once you have made your page templates you either need to define the <code>worksheet_pages</code> observable as a list containing each page, or, if your pages are named instead of in linear order then define a specific index. The example below contains both approaches, but only one is needed:</p>"
+"<jseden>worksheet_pages is [page1,page2,page3];"
+"worksheet_pages[\"mypagename\"] is page1;</jseden>"
+;
+
+action showSource {
+	createView("worksheetsource","ScriptInput");
+	_view_worksheetsource_agent = "tutorials/worksheets";
+}
+
+worksheet_pages["tutorials/worksheet"] is tutorial_worksheet;
+
