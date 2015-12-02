@@ -7,8 +7,28 @@
 
 /**
  * JS-Eden Project Listing Plugin.
- * A plugin to display a list of models hosted online.
+ * A plugin to display a list of models, snippets, etc. hosted online.  Provides a hierarchical
+ * directory where the leaves are descriptions of pieces of source code that the user can select to
+ * invoke in some way. 
  * @class ProjectList Plugin
+ *
+ * The following attributes are available to use in the JSON object that defines the projects.
+ *
+ * Per project list attributes:
+ * target		The name of an input window to place the "project" source code into.  The default is
+ * 				no edit window at all, in which case the code will be executed immediately.
+ * projects		The list of projects, each specified using the attributes described in the list below.
+ *
+ * Per project attributes:
+ * author		Free-form text naming the author(s) of the project (optional).
+ * description	A sentence or two describing what the project is about.
+ * name			The name of the project.  Used to create a heading.
+ * projects		A source (typically a URL leading to another JSON file) where a subdirectory of more
+ *              projects can be found.
+ * runfile		The URL of a js-e file to load or execute when the project is clicked on.
+ * screenshot	A URL leading to an image that provides a screenshot.  Images will be resized to a
+ *				maximum of 80 pixels wide.
+ * year			Free-form text giving the year(s) or dates when the project was constructed (optional).
  */
 EdenUI.plugins.ProjectList = function(edenUI, success) {
 
@@ -174,7 +194,13 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		var me = this;
 		var project = $('<div class="projectlist-result-element"></div>');
 
-		var projectHTML = '<div class="projectlist-result-name">' + projectData.name + '</div>';
+		var projectHTML = "";
+
+		if (projectData.screenshot !== undefined) {
+			projectHTML = projectHTML + '<img src="' + projectData.screenshot + '" class="projectlist-result-screenshot"/>';
+		}
+		projectHTML = projectHTML + '<div class="projectlist-result-name">' + projectData.name + '</div>';
+		
 		if (projectData.description !== undefined) {
 			projectHTML = projectHTML + '<div class="projectlist-result-metadata">' + projectData.description + '</div>';
 		}
