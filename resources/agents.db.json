@@ -326,6 +326,10 @@
 			"title": "Making Arrows",
 			"enabled": true
 		},
+		"tutorials/worksheets": {
+			"file": "tutorials/worksheets_ws.js-e",
+			"title": "Making Worksheets"
+		},
 		"examples/triangles": {
 			"file": "tutorials/triangles.js-e",
 			"title": "Triangles Worksheet",
