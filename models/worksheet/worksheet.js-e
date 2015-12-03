@@ -13,11 +13,11 @@ if (worksheet_content == @) worksheet_content = "Some content goes here";
 
 ws_title_text is Element with
 	style is WorksheetTitleTextStyle,
-	content is worksheet_currentpage[1];
+	content is worksheet_title;
 
 ws_subtitle_text is Element with
 	style is WorksheetSubTitleTextStyle,
-	content is worksheet_currentpage[2];
+	content is worksheet_subtitle;
 
 ws_title is Element with
 	style is WorksheetTitleStyle,
@@ -25,14 +25,14 @@ ws_title is Element with
 
 ws_content is Element with
 	style is WorksheetContentStyle,
-	content is worksheet_currentpage[3];
+	content is worksheet_content;
 
-WorksheetPage is [worksheet_title, worksheet_subtitle, worksheet_content];
+WorksheetPage is [ws_title, ws_content];
 
 if (worksheet_pages == @) worksheet_pages is [WorksheetPage];
 worksheet_currentpage is worksheet_pages[worksheet_page];
 
-if (document == @) document is [ws_title, ws_content];
+if (document == @) document is worksheet_currentpage;
 
 if (worksheet_page == @) worksheet_page = 1;
 

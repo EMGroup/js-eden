@@ -1,0 +1,18 @@
+/**
+ * @title Brown Worksheet Page
+ * @author Nicolas Pope
+ */
+
+import worksheet;
+
+brown_page is WorksheetPage with
+	worksheet_title is "Brown - Clayton Tunnel",
+	worksheet_title_height is 120,
+	worksheet_subtitle is "",
+	worksheet_content is
+"<jseden-canvas name=\"brownview\" source=\"picture_brown\" width=700 height=320></jseden-canvas>"
+"<p>Explain Browns role here</p>"
+;
+
+worksheet_pages["brown"] is brown_page;
+

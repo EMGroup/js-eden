@@ -1,0 +1,16 @@
+/**
+ * @title Killick Worksheet Page
+ * @author Nicolas Pope
+ */
+
+killick_page is WorksheetPage with
+	worksheet_title is "Killick - Clayton Tunnel",
+	worksheet_title_height is 120,
+	worksheet_subtitle is "",
+	worksheet_content is
+"<jseden-canvas name=\"killickview\" source=\"picture_killick\" width=700 height=320></jseden-canvas>"
+"<p>Explain Killicks role here</p>"
+;
+
+worksheet_pages["killick"] is killick_page;
+

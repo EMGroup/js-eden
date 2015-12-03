@@ -6,6 +6,7 @@
 import worksheet;
 import claytontunnel/clock;
 import claytontunnel/telegraph;
+import claytontunnel/tunnel/display;
 import claytontunnel/killick;
 import claytontunnel/brown;
 import claytontunnel/god;
