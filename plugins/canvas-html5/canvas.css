@@ -1,3 +1,7 @@
+.canvashtml-div {
+	overflow: auto;
+}
+
 .canvashtml-canvas {
 	outline: none;
 }

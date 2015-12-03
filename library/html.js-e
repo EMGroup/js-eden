@@ -461,31 +461,9 @@ proc bindCSSRule {
 			stylesheet = styleElement.sheet;
 		}
 		
-		var cssDeclarations = stylesheet.cssRules[0].style;
+		var cssRule = stylesheet.cssRules[0];
 		var updateFunction = function (obs, value) {
-			if (value === undefined) {
-				cssDeclarations.cssText = "";
-			} else if (typeof(value) == "object") {
-				var capital = /([A-Z])/g;
-				var jsSyntax = /^\w*[A-Z]\w*$/;
-				var declarations = "";
-				for (var key in value) {
-					if (typeof(value[key]) == "string") {
-						var property;
-						if (jsSyntax.test(key)) {
-							property = key.replace(capital, function (match, capitalLetter) {
-								return "-" + capitalLetter.toLowerCase();
-							});
-						} else {
-							property = key;
-						}
-						declarations = declarations + property + ": " + value[key] + ";\n";
-					}
-				}
-				cssDeclarations.cssText = declarations;
-			} else {
-				cssDeclarations.cssText = value;
-			}
+			setCSS(cssRule, value);
 		};
 		var obsSym = root.lookup(obsName);
 		updateFunction("/" + obsName, obsSym.value());
@@ -562,6 +540,34 @@ ${{
 			}
 		} else {
 			return selectors.join(", ");
+		}
+	}
+
+	setCSS = function (elementOrCSSRule, value) {
+		var style = elementOrCSSRule.style;
+		if (value === undefined) {
+			style.cssText = "";
+		} else if (typeof(value) == "object") {
+			var capital = /([A-Z])/g;
+			function replaceCapital(match, capitalLetter) {
+				return "-" + capitalLetter.toLowerCase();
+			}
+			var jsSyntax = /^\w*[A-Z]\w*$/;
+			var declarations = "";
+			for (var key in value) {
+				if (typeof(value[key]) == "string") {
+					var property;
+					if (jsSyntax.test(key)) {
+						property = key.replace(capital, replaceCapital);
+					} else {
+						property = key;
+					}
+					declarations = declarations + property + ": " + value[key] + ";\n";
+				}
+			}
+			style.cssText = declarations;
+		} else {
+			style.cssText = value;
 		}
 	}
 }}$;
