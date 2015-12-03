@@ -243,9 +243,21 @@
 			"file": "models/nick/claytonTunnel/killick.js-e",
 			"title": "Killick"
 		},
+		"claytontunnel/killick/page": {
+			"file": "models/nick/claytonTunnel/page_killick.js-e",
+			"title": "Killick Worksheet Page"
+		},
+		"claytontunnel/tunnel/display": {
+			"file": "models/nick/claytonTunnel/display_tunnel.js-e",
+			"title": "Tunnel and Track Display"
+		},
 		"claytontunnel/brown": {
 			"file": "models/nick/claytonTunnel/brown.js-e",
 			"title": "Brown"
+		},
+		"claytontunnel/brown/page": {
+			"file": "models/nick/claytonTunnel/page_brown.js-e",
+			"title": "Brown Worksheet Page"
 		},
 		"claytontunnel": {
 			"file": "models/nick/claytonTunnel/claytontunnel.js-e",

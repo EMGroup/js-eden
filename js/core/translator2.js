@@ -2144,6 +2144,7 @@ Eden.AST.prototype.pIMPORT = function() {
 		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return imp;
 	}
+	this.next();
 
 	imp.setPath(path);
 	return imp;
