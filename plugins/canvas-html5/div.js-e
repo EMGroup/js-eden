@@ -95,9 +95,9 @@ Div.prototype.draw = function(context) {
 	}
 
 	if (Array.isArray(this.classNames)) {
-		divElement.setAttribute("class", "canvashtml-div " + this.classNames.join(" "));
+		divElement.setAttribute("class", "canvashtml-content-div " + this.classNames.join(" "));
 	} else {
-		divElement.setAttribute("class", "canvashtml-div");
+		divElement.setAttribute("class", "canvashtml-content-div");
 	}
 
 	CSSUtil.setStyle(divElement, this.style);

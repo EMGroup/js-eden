@@ -1,7 +1,3 @@
-.canvashtml-div {
-	overflow: auto;
-}
-
 .canvashtml-canvas {
 	outline: none;
 }
@@ -11,6 +7,10 @@
 	font-size: 13.3px;
 	/* Should be synchronized with defaultLineHeight in plugins/canvas-html5/canvas.js */
 	line-height: 1.75;
+}
+
+.canvashtml-content-div {
+	overflow: auto;
 }
 
 .canvashtml-content input {
