@@ -1,0 +1,40 @@
+/**
+ * @title Tunnel and Track Display
+ * @author Nicolas Pope
+ */
+
+tunnel_x = 50;
+tunnel_y = 10;
+track_width = 5;
+tunnel_width = 60;
+tunnel_length = 300;
+sleeper_spacing = 5;
+sigbox_width = 22;
+sigbox_distance = 26;
+
+sleeper_options = Object();
+sleeper_options["lineWidth"] = 1;
+
+tunnel_options = Object();
+tunnel_options["lineWidth"] = 4;
+
+track_sleeper is Line(x*sleeper_spacing+10, tunnel_y+(tunnel_width/2 - track_width/2),
+	x*sleeper_spacing+10, tunnel_y+(tunnel_width/2 + track_width/2), "brown", sleeper_options);
+
+sleepers is track_sleeper with x is 0..136;
+
+sigbox_north is Rectangle(tunnel_x - sigbox_width - sigbox_distance, tunnel_y - 10, sigbox_width, sigbox_width, "brown", "brown");
+sigbox_south is Rectangle(tunnel_x + sigbox_distance + tunnel_length, tunnel_y - 10 + tunnel_width, sigbox_width, sigbox_width, "brown", "brown");
+
+tunnel_arc1 is Arc(tunnel_x, tunnel_y+(tunnel_width/2), tunnel_width/2, 450, 270, "black", tunnel_options);
+tunnel_arc2 is Arc(tunnel_x+tunnel_length, tunnel_y+(tunnel_width/2), tunnel_width/2, 180 - 450, 180 - 270, "black", tunnel_options);
+tunnel_line1 is Line(tunnel_x, tunnel_y, tunnel_x+tunnel_length, tunnel_y, "black", tunnel_options);
+tunnel_line2 is Line(tunnel_x, tunnel_y+tunnel_width, tunnel_x+tunnel_length, tunnel_y+tunnel_width, "black", tunnel_options);
+
+track_line1 is Line(0,tunnel_y+(tunnel_width/2 - track_width/2), 
+	1000,tunnel_y+(tunnel_width/2 - track_width/2),"silver");
+
+track_line2 is Line(0,tunnel_y+(tunnel_width/2 + track_width/2), 
+	1000,tunnel_y+(tunnel_width/2 + track_width/2),"silver");
+
+tunnel is [track_line1, track_line2, sleepers, tunnel_arc1, tunnel_arc2, tunnel_line1, tunnel_line2, sigbox_north, sigbox_south];

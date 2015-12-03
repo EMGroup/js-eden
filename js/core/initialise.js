@@ -226,6 +226,7 @@ function initialiseJSEden(callback) {
 				if (exec.slice(-1) != ";") {
 					exec = exec + ";";
 				}
+				console.log("EXECUTING: " + exec);
 				eden.execute2(exec, "URL", "", {name: "execute"}, function () { });
 			}
 
