@@ -515,6 +515,7 @@ import lib/type;
 import lib/core;
 import lib/math;
 import lib/string;
+import lib/colour;
 import lib/scoping;
 
 /*import lib/list;
@@ -524,7 +525,7 @@ import lib/dynamic;
 import lib/clocks;
 import lib/html;
 import lib/declarevar;
-import lib/generatefunc;*/
+*/
 
 /*include("library/types.js-e");
 include("library/core.js-e");
@@ -537,7 +538,7 @@ include("library/dynamic.js-e");
 include("library/edenclocks.js-e");
 include("library/html.js-e");
 include("library/declarevar.js-e");
-include("library/generate_function.js-e");*/
+*/
 
 autocalc = 1;
 

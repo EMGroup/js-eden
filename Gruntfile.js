@@ -98,6 +98,7 @@ module.exports = function (grunt) {
 					'./js/ui/contextmenu.js',
 				],
 				'./plugins/jseden-plugins.min.js': [
+					'./js/util/css.js',
 					'./plugins/input-dialog/interpreter.js',
 					'./plugins/input-dialog/subdialogs.js',
 					'./plugins/input-dialog/gutter.js',

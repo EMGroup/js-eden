@@ -42,6 +42,10 @@ div.canvas-dialog .ui-dialog-titlebar {
 	line-height: 1.75;
 }
 
+.canvashtml-content-div {
+	overflow: auto;
+}
+
 .canvashtml-content input {
 	margin: 0px;
 	padding: 0px;

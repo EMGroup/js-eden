@@ -6,6 +6,7 @@
 	height: calc(100% - 35px);
 	box-sizing: border-box;
 	padding: 0px 25px;
+	overflow: auto;
 }
 
 .jspe-slide p {

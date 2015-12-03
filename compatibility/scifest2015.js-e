@@ -6,6 +6,8 @@
 
 mouseWindow is mouseView;
 mouseDownWindow is mouseDownView;
+hsl2colour is hslColour;
+rgb2colour is rgbColour;
 _view_list is _views_list;
 
 ##Form controls used to take a "name" parameter.
@@ -216,6 +218,8 @@ ${{
 	Eden.systemObservableNames["_view_list"] = true;
 	Eden.systemFunctionNames["indexOf"] = true;
 	Eden.systemFunctionNames["indexOfRE"] = true;
+	Eden.systemFunctionNames["hsl2colour"] = true;
+	Eden.systemFunctionNames["rgb2colour"] = true;
 	Eden.systemFunctionNames["rotate"] = true;
 	Eden.systemFunctionNames["scale"] = true;
 	Eden.systemFunctionNames["translate"] = true;
