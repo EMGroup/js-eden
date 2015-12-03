@@ -151,6 +151,11 @@
 			"title": "Eden Base Library",
 			"enabled": true
 		},
+		"lib/colour": {
+			"file": "library2/colour.js-e",
+			"title": "Colour functions",
+			"enabled": true
+		},
 		"lib/core": {
 			"file": "library2/core.js-e",
 			"title": "Core Library",

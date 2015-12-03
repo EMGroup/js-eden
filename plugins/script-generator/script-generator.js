@@ -157,6 +157,10 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 	 */
 	this.generateScriptLines = function (excludeRE, unicode, includeViews, viewToExclude) {
 
+		if (excludeRE == "") {
+			excludeRE = undefined;
+		}
+
 		var viewObsPrefixToExclude = new RegExp("^_view_" + viewToExclude + "_");
 		var defaultViewNames = ["input", "picture", "projects"];
 		var definitions = [];
