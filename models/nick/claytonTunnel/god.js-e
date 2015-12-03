@@ -1,0 +1,26 @@
+/**
+ * @title God View - Clayton Tunnel
+ * @author Nicolas Pope
+ */
+
+action makeKillick {
+	createView("Killick","Canvas2D");
+	_view_Killick_observable = "picture_killick";
+	_view_Killick_width = 380;
+	_view_Killick_height = 320;
+	_view_Killick_title = "Killick";
+}
+
+action makeBrown {
+	createView("Brown","Canvas2D");
+	_view_Brown_observable = "picture_brown";
+	_view_Brown_width = 380;
+	_view_Brown_height = 320;
+	_view_Brown_title = "Brown";
+}
+
+if (god) {
+	do makeKillick;
+	do makeBrown;
+}
+

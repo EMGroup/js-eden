@@ -933,6 +933,8 @@ function concatAndResolveUrl(url, concat) {
 			code = "$" + "{{ null }}" + "$";
 		} else if (type == "string") {
 			code = "\"" + value.replace(/\\/g,"\\\\").replace(/\"/g,"\\\"") + "\"";
+			// NOTE: For the new parser...
+			code = code.replace(/\n/g,"\"\n\"");
 		} else if (Array.isArray(value)) {
 			if (refStack === undefined) {
 				refStack = [];

@@ -217,7 +217,7 @@
 			"enabled": true
 		},
 		"claytontunnel/clock": {
-			"file": "models/nick/claytonTunnel/clock.panel",
+			"file": "models/nick/claytonTunnel/clock.js-e",
 			"title": "Clock Panel",
 			"enabled": true
 		},
@@ -225,6 +225,30 @@
 			"file": "models/nick/claytonTunnel/alarm.buttons",
 			"title": "Alarm Buttons",
 			"enabled": true
+		},
+		"claytontunnel/telegraph": {
+			"file": "models/nick/claytonTunnel/telegraph.js-e",
+			"title": "Telegraph"
+		},
+		"claytontunnel/telegraph/display": {
+			"file": "models/nick/claytonTunnel/display_telegraph.js-e",
+			"title": "Telegraph"
+		},
+		"claytontunnel/killick": {
+			"file": "models/nick/claytonTunnel/killick.js-e",
+			"title": "Killick"
+		},
+		"claytontunnel/brown": {
+			"file": "models/nick/claytonTunnel/brown.js-e",
+			"title": "Brown"
+		},
+		"claytontunnel": {
+			"file": "models/nick/claytonTunnel/claytontunnel.js-e",
+			"title": "Clayton Tunnel Re-made"
+		},
+		"claytontunnel/god": {
+			"file": "models/nick/claytonTunnel/god.js-e",
+			"title": "God View - Clayton Tunnel"
 		},
 		"hexcolouring/model": {
 			"file": "http://jseden.dcs.warwick.ac.uk/nick/models/wmb/construit/hexcol/newhexcolouring.js-e",

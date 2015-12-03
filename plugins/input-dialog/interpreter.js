@@ -113,18 +113,64 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 
-	this.createHistory = function(name,mtitle) {
+	function HistoryEntry(agent, source) {
+		this.script = source;
+		this.timestamp = Date.now();
+		this.agent = agent;
+	}
 
+
+	var execlog = [];
+	var histdiv = undefined;
+
+
+	/* Log the history of gutter executed statements */
+	Eden.Agent.listenTo("executeline", this, function (agent, line) {
+		if (agent && agent.ast) {
+			var statement = agent.ast.lines[line];
+			if (statement) {
+				var base = agent.ast.getBase(statement);
+				execlog.push(new HistoryEntry(agent.name, agent.ast.getSource(base)));
+				
+				if (histdiv) {
+					prettyHistory(histdiv);
+				}
+			}
+		}
+	});
+
+
+	function prettyHistory(output) {
+		var result = "";
+		for (var i=0; i<execlog.length; i++) {
+			result += "/* Agent: "+execlog[i].agent+" at "+execlog[i].timestamp+" */\n";
+			result += execlog[i].script;
+			result += "\n\n";
+		}
+
+		var ast = new Eden.AST(result);
+		var hl = new EdenUI.Highlight(output);
+		hl.highlight(ast, -1, -1);
+
+		output.scrollTop = output.scrollHeight;
+	}
+
+
+	this.createHistory = function(name,mtitle) {
 		historydialog = $('<div id="'+name+'"></div>')
-			.html("<div class=\"history\">"+"</div>")
+			.html("<div class=\"history readonly\"></div>")
 			.dialog({
 				title: mtitle,
 				width: 500,
 				height: 500,
 				minHeight: 300,
-				minWidth: 300
-
+				minWidth: 300,
+				dialogClass: "history-dialog",
+				close: function() { histdiv = undefined; }
 			}).find(".history");
+
+		histdiv = historydialog.get(0);
+		prettyHistory(historydialog.get(0));
 	}
 
 	
@@ -2089,7 +2135,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 	edenUI.views.History = {
 		dialog: this.createHistory,
-		title: "Input History",
+		title: "Execution History",
 		category: edenUI.viewCategories.history
 	};
 	

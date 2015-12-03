@@ -1,0 +1,29 @@
+/**
+ * @title Killick
+ * @author Nicolas Pope
+ */
+
+import worksheet;
+import claytontunnel/telegraph;
+import claytontunnel/clock;
+
+telegraph_killick is telegraph with
+	telegraph_x is 135,
+	telegraph_y is 108,
+	telegraph_name is "south";
+
+telegraph_south_occupied is telegraph_south_occupied_click;
+telegraph_south_clear is telegraph_south_clear_click;
+
+picture_killick is [telegraph_killick, Translate(Point(420,0),clockPanel)];
+
+killick_page is WorksheetPage with
+	worksheet_title is "Killick",
+	worksheet_subtitle is "Clayton Tunnel",
+	worksheet_content is
+"<jseden-canvas name=\"killickview\" source=\"picture_killick\" width=500 height=180></jseden-canvas>"
+"<p>Explain Killicks role here</p>"
+;
+
+worksheet_pages["killick"] is killick_page;
+
