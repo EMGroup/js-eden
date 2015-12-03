@@ -33,6 +33,7 @@ module.exports = function (grunt) {
 					'./js/core/initialise.js'
 				],
 				'./plugins/jseden-plugins.min.js': [
+					'./js/util/css.js',
 					'./plugins/input-dialog/interpreter.js',
 					'./plugins/project-listing/project-listing.js',
 					'./plugins/plugin-listing/plugin-listing.js',

@@ -100,7 +100,7 @@ Div.prototype.draw = function(context) {
 		divElement.setAttribute("class", "canvashtml-div");
 	}
 
-	setCSS(divElement, this.style);
+	CSSUtil.setStyle(divElement, this.style);
 	divElement.style.position = "absolute";
 	divElement.innerHTML = this.html;
 
