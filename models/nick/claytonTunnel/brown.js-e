@@ -1,0 +1,28 @@
+/**
+ * @title Brown
+ * @author Nicolas Pope
+ */
+
+import claytontunnel/telegraph;
+
+telegraph_brown is telegraph with
+	telegraph_x is 135,
+	telegraph_y is 108,
+	telegraph_name is "north";
+
+telegraph_north_occupied is telegraph_north_occupied_click;
+telegraph_north_clear is telegraph_north_clear_click;
+
+picture_brown is [telegraph_brown];
+
+brown_page is WorksheetPage with
+	worksheet_title is "Brown",
+	worksheet_subtitle is "Clayton Tunnel",
+	worksheet_content is
+"<jseden-canvas name=\"brownview\" source=\"picture_brown\" width=380 height=180></jseden-canvas>"
+"<p>Explain Browns role here</p>"
+;
+
+worksheet_pages["brown"] is brown_page;
+
+

@@ -2135,7 +2135,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 	edenUI.views.History = {
 		dialog: this.createHistory,
-		title: "Input History",
+		title: "Execution History",
 		category: edenUI.viewCategories.history
 	};
 	

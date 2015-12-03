@@ -1,0 +1,33 @@
+/**
+ * @title Telegraph Displays
+ * @author Nicolas Pope
+ */
+
+import lib/geometry;
+
+func addPoints {
+	para p1, p2;
+	return Point( ${{p1.x+p2.x}}$, ${{p1.y+p2.y}}$ );
+}
+
+
+telegraph_radius = 87;
+telegraph_displacement = 40;
+telegraph_needlelength is telegraph_radius * 0.8;
+telegraph_angle is 180 + (telegraph_signal * telegraph_displacement);
+
+telegraph_occtext is Text("OCCUPIED", telegraph_x - (telegraph_radius/0.6950), telegraph_y-telegraph_radius/0.9250, 16);
+telegraph_cleartext is Text("CLEAR", telegraph_x+telegraph_radius/2.0500, telegraph_y-telegraph_radius/0.9250, 16);
+telegraph_centre is Point(telegraph_x, telegraph_y);
+telegraph_node is Circle(telegraph_x, telegraph_y, telegraph_radius * 0.1, "black", "black");
+telegraph_needle is LineSequence([addPoints(telegraph_centre, rotatePoint(Point(0, telegraph_needlelength), telegraph_angle)), telegraph_centre], "red");
+telegraph_arc is Arc(telegraph_x, telegraph_y, telegraph_radius, 0, 180);
+telegraph_base is Line(telegraph_x-telegraph_radius, telegraph_y, telegraph_x+telegraph_radius, telegraph_y);
+telegraph_occ_button is Button("Occupied", telegraph_x - telegraph_radius, telegraph_y + (telegraph_radius*0.3));
+telegraph_clear_button is Button("Clear", telegraph_x + telegraph_radius - 43, telegraph_y + (telegraph_radius*0.3));
+telegraph is [telegraph_arc, telegraph_base, telegraph_needle, telegraph_node, telegraph_cleartext, telegraph_occtext, telegraph_occ_button, telegraph_clear_button];
+
+telegraph_occ_button["name"] is "telegraph_" // telegraph_name // "_occupied";
+telegraph_clear_button["name"] is "telegraph_" // telegraph_name // "_clear";
+
+

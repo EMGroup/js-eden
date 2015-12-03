@@ -1,0 +1,22 @@
+/**
+ * @title Telegraph
+ * @author Nicolas Pope
+ */
+
+telegraph_north_occupied = false;
+telegraph_south_occupied = false;
+telegraph_north_clear = false;
+telegraph_south_clear = false;
+
+import claytontunnel/telegraph/display;
+
+telegraph_north is (1 if telegraph_north_occupied else 0) + (-1 if telegraph_north_clear else 0);
+telegraph_south is (1 if telegraph_south_occupied else 0) + (-1 if telegraph_south_clear else 0);
+
+telegraph_signal_sum is telegraph_north + telegraph_south;
+telegraph_signal is 1 if telegraph_signal_sum > 0 else (-1 if telegraph_signal_sum < 0 else 0);
+
+telegraph_message is "OCCUPIED" if telegraph_signal == 1 else
+		("CLEAR" if telegraph_signal == -1 else
+		"NEUTRAL");
+

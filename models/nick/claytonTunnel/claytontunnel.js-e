@@ -1,0 +1,42 @@
+/**
+ * @title Clayton Tunnel Re-made
+ * @author Nicolas Pope
+ */
+
+import worksheet;
+import claytontunnel/clock;
+import claytontunnel/telegraph;
+import claytontunnel/killick;
+import claytontunnel/brown;
+import claytontunnel/god;
+
+destroyView("picture");
+
+
+clock_hour is clock_min / 60;
+clock_min = 8 * 60 + 30;
+clock_sec = 1;
+
+when (clock_sec == 0) {
+	clock_min++;
+}
+
+when (clock_sec != @) {
+	wait 1000;
+	clock_sec = (clock_sec + 1) % 60;
+}
+
+worksheet_title = "Clayton Tunnel";
+worksheet_subtitle = "Railway Accident Model";
+
+worksheet_content =
+"<h1>Choose Your Role</h1>"
+"<p><ul>"
+"<li><a href=\"jseden: worksheet_page=killick;\">Killick</a> - Signal man</li>"
+"<li><a href=\"jseden: worksheet_page=brown;\">Brown</a> - Signal man</li>"
+"</ul></p>"
+;
+
+killick = "killick";
+brown = "brown";
+
