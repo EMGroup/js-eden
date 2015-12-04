@@ -1,0 +1,35 @@
+/**
+ * @title Train Engine Model
+ * @author Nicolas Pope
+ */
+
+/*
+ * accelM and brakeM are inputs.
+ * v is something to be changed by an agent.
+ *     v = v + a; ## every second
+ */
+
+## accelM = 0.6;
+## brakeM = 0.5;
+## v = 0;
+
+mass= 2500.0; /* total mass of car & contents [kg] */
+
+forcK = 40.0; /* torque to force conversion [m^-1] */
+maxEngineTorque = 180; /* [kg m] */
+engineTorque is maxEngineTorque*accelM;
+
+tracF is forcK * engineTorque;
+brakK = 3750.0; /* braking (viscous) constant [N m^-1 s] */
+brakF is brakK * brakeM ;
+rollK = 0.5; /* rolling resistance factor [N m^-1 s] */
+rollF is rollK * mass;
+gradient= 0;
+gravK = 9.81; /* acceleration due to gravity [m s^-2] */
+pi = 3.14159;
+gravF is gravK * mass * sin(gradient * pi / 200);
+f is tracF-brakF-rollF-gravF-dragF;
+drag_constant = 0.7;
+dragF is drag_constant * (v*v);
+engine_a is f/ mass;
+

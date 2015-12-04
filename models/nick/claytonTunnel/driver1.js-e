@@ -1,0 +1,17 @@
+/**
+ * @title Train 1
+ * @author Nicolas Pope
+ */
+
+train1_v = 0;
+train1_position = 11000;
+
+train1 is train with
+	train_position is train1_position;
+	v is train1_v;
+
+when (clock_sec) {
+	train1_v += train1.a;
+	train1_position -= v;
+}
+

@@ -1,0 +1,31 @@
+/**
+ * @title Train 1
+ * @author Nicolas Pope
+ */
+
+import claytontunnel/train;
+
+## Controls
+train1_brakeM = 0.5;
+train1_accelM = 0.7550;
+
+train1_velocity = 0;
+train1_position = 11000;
+
+## Use the engine to calculate acceleration
+train1_a is engine_a with
+	v is train1_velocity,
+	accelM is train1_accelM,
+	brakeM is train1_brakeM;
+
+## Train image on track
+train1_picture is train_picture with
+	train_position is train1_position,
+	train_colour is "red";
+
+## Move train
+when (tick) {
+	train1_velocity += train1_a / clock_rate;
+	train1_position -= train1_velocity / clock_rate;
+}
+

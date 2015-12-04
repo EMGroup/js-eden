@@ -1155,7 +1155,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		if (eden.isValidIdentifier(zone)) {
 			var clickSym = root.lookup(zone + "_click");
 			if (clickSym.value() === false) {
-				clickSym.assign(true, root.scope, Symbol.hciAgent);
+				clickSym.assign(true, root.scope, Symbol.hciAgent, true);
 			}
 		}
 	});
@@ -1165,7 +1165,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		if (eden.isValidIdentifier(zoneDown)) {
 			var clickSym = root.lookup(zoneDown + "_click");
 			if (clickSym.value() === true) {
-				clickSym.assign(false, root.scope, Symbol.hciAgent);
+				clickSym.assign(false, root.scope, Symbol.hciAgent, true);
 			}
 		}
 	};

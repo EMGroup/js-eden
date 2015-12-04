@@ -267,6 +267,42 @@
 			"file": "models/nick/claytonTunnel/god.js-e",
 			"title": "God View - Clayton Tunnel"
 		},
+		"claytontunnel/train": {
+			"file": "models/nick/claytonTunnel/train.js-e",
+			"title": "Train"
+		},
+		"claytontunnel/train/engine": {
+			"file": "models/nick/claytonTunnel/train_engine.js-e",
+			"title": "Train Engine"
+		},
+		"claytontunnel/train1": {
+			"file": "models/nick/claytonTunnel/train1.js-e",
+			"title": "Train 1"
+		},
+		"claytontunnel/train2": {
+			"file": "models/nick/claytonTunnel/train2.js-e",
+			"title": "Train 2"
+		},
+		"claytontunnel/train3": {
+			"file": "models/nick/claytonTunnel/train3.js-e",
+			"title": "Train 3"
+		},
+		"claytontunnel/driver1": {
+			"file": "models/nick/claytonTunnel/driver1.js-e",
+			"title": "Driver 1"
+		},
+		"claytontunnel/driver2": {
+			"file": "models/nick/claytonTunnel/driver2.js-e",
+			"title": "Driver 2"
+		},
+		"claytontunnel/driver3": {
+			"file": "models/nick/claytonTunnel/driver3.js-e",
+			"title": "Driver 3"
+		},
+		"claytontunnel/train/display": {
+			"file": "models/nick/claytonTunnel/display_train.js-e",
+			"title": "Train Display"
+		},
 		"hexcolouring/model": {
 			"file": "http://jseden.dcs.warwick.ac.uk/nick/models/wmb/construit/hexcol/newhexcolouring.js-e",
 			"title": "Hex Colouring Revisited",
