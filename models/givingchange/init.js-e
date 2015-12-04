@@ -1,0 +1,10 @@
+/**
+ * @title Giving Change Initialisation
+ * @author Meurig Beynon
+ */
+
+{
+amount = 195;
+coinlist = [];
+amountleft is amount - sum(coinlist);
+}
