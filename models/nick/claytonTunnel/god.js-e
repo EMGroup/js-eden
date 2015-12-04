@@ -19,6 +19,15 @@ action makeBrown {
 	_view_Brown_title = "Brown";
 }
 
+action reset {
+	train1_position = 11000;
+	train2_position = 11000;
+	train3_position = 11000;
+	train1_velocity = 0;
+	train2_velocity = 0;
+	train3_velocity = 0;
+}
+
 if (god) {
 	do makeKillick;
 	do makeBrown;

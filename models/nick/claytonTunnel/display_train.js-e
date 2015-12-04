@@ -1,0 +1,16 @@
+/**
+ * @title Train Display
+ * @author Nicolas Pope
+ */
+
+meters_per_pixel is 2065 / tunnel_length;
+train_x is floor(train_position / meters_per_pixel);
+train_y is tunnel_y + (tunnel_width/2) - 16;
+train_colour = "red";
+train_url is "models/nick/claytonTunnel/" // train_colour // ".png";
+train_image is Image(train_x, train_y, train_url);
+
+train_picture is [train_image];
+
+## Do controls here as well.
+

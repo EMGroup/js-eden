@@ -9,23 +9,34 @@ import claytontunnel/telegraph;
 import claytontunnel/tunnel/display;
 import claytontunnel/killick;
 import claytontunnel/brown;
+import claytontunnel/train/display;
+import claytontunnel/train/engine;
+import claytontunnel/train;
+import claytontunnel/train1;
+import claytontunnel/train2;
+import claytontunnel/train3;
 import claytontunnel/god;
+
+import lib/clocks;
 
 destroyView("picture");
 
 
 clock_hour is clock_min / 60;
 clock_min = 8 * 60 + 30;
-clock_sec = 1;
+clock_sec = 0;
+clock_rate = 20;
 
 when (clock_sec == 0) {
 	clock_min++;
 }
 
-when (clock_sec != @) {
-	wait 1000;
+when (tick % clock_rate == 0) {
 	clock_sec = (clock_sec + 1) % 60;
-}
+} 
+
+tick = 0;
+setedenclock(&tick,1000/clock_rate);
 
 worksheet_title = "Clayton Tunnel";
 worksheet_subtitle = "Railway Accident Model";
@@ -35,9 +46,18 @@ worksheet_content =
 "<p><ul>"
 "<li><a href=\"jseden: worksheet_page=killick;\">Killick</a> - Signal man</li>"
 "<li><a href=\"jseden: worksheet_page=brown;\">Brown</a> - Signal man</li>"
+"<li><a href=\"jseden: worksheet_page=driver1;\">Driver 1</a> - First Train Driver</li>"
+"<li><a href=\"jseden: worksheet_page=driver2;\">Driver 2</a> - Second Train Driver (crashes)</li>"
+"<li><a href=\"jseden: worksheet_page=driver3;\">Driver 3</a> - Third Train Driver (crashes)</li>"
 "</ul></p>"
 ;
 
 killick = "killick";
 brown = "brown";
+driver1 = "driver1";
+driver2 = "driver2";
+driver3 = "driver3";
+
+
+
 
