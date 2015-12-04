@@ -5,10 +5,14 @@
 
 import claytontunnel/train;
 
-train3_brakeM = 0.5;
-train3_accelM = 1.0250;
-train3_velocity = 0;
-train3_position = brighton_position;
+action train3Reset {
+	train3_brakeM = 0.5;
+	train3_accelM = 1.0250;
+	train3_velocity = 0;
+	train3_position = brighton_position;
+}
+
+do train3Reset;
 
 train3 is train with
 	v is train3_velocity,

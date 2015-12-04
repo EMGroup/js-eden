@@ -5,12 +5,14 @@
 
 import claytontunnel/train;
 
-## Controls
-train1_brakeM = 0.5;
-train1_accelM = 0.7550;
+action train1Reset {
+	train1_brakeM = 0.5;
+	train1_accelM = 0.7550;
+	train1_velocity = 0;
+	train1_position = brighton_position;
+}
 
-train1_velocity = 0;
-train1_position = brighton_position;
+do train1Reset;
 
 train1 is train with
 	v is train1_velocity,
