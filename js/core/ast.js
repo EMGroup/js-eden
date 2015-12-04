@@ -1262,6 +1262,7 @@ Eden.AST.Modify = function(kind, expression) {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.scopes = [];
 };
 
 Eden.AST.Modify.prototype.getParameterByNumber = function(index) {
@@ -1334,6 +1335,8 @@ Eden.AST.Modify.prototype.generate = function(ctx) {
 };
 
 Eden.AST.Modify.prototype.execute = function(root, ctx, base) {
+	var _scopes = [];
+
 	this.executed = 1;
 	// TODO: allow this to work on list indices
 	var sym = this.lvalue.getSymbol(root,ctx,base);
@@ -1349,6 +1352,19 @@ Eden.AST.Modify.prototype.execute = function(root, ctx, base) {
 			rhs += ".value";
 		}
 		rhs += ";})";
+
+		var scope = eden.root.scope;
+		var context = eden.root;
+
+		for (var i=0; i<this.scopes.length; i++) {
+			_scopes.push(eval(this.scopes[i]));
+		}
+
+		this.scopes = [];
+
+		/*console.log(_scopes);
+		console.log(this.scopes);
+		console.log(rhs);*/
 
 		switch (this.kind) {
 		case "+="	: sym.assign(rt.add(sym.value(), eval(rhs)(root,root.scope)), root.scope); break;

@@ -3,7 +3,7 @@
  * @author Nicolas Pope
  */
 
-meters_per_pixel is 2065 / tunnel_length;
+meters_per_pixel is tunnel_length_meters / tunnel_length;
 train_x is floor(train_position / meters_per_pixel);
 train_y is tunnel_y + (tunnel_width/2) - 16;
 train_colour = "red";
