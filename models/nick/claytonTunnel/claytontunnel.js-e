@@ -3,6 +3,12 @@
  * @author Nicolas Pope
  */
 
+tunnel_from_brighton = 10000; ## 10km
+tunnel_length_meters = 2065;
+brighton_position is tunnel_from_brighton+tunnel_length_meters+(tunnel_x*meters_per_pixel);
+tunnel_south_position is brighton_position-tunnel_from_brighton;
+tunnel_north_position is tunnel_south_position - tunnel_length_meters;
+
 import worksheet;
 import claytontunnel/clock;
 import claytontunnel/telegraph;

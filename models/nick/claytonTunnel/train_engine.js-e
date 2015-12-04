@@ -28,8 +28,8 @@ gradient= 0;
 gravK = 9.81; /* acceleration due to gravity [m s^-2] */
 pi = 3.14159;
 gravF is gravK * mass * sin(gradient * pi / 200);
-f is tracF-brakF-rollF-gravF-dragF;
-drag_constant = 0.7;
-dragF is drag_constant * (v*v);
+f is tracF-brakF-rollF-gravF; ##-dragF;
+##drag_constant = 0.7;
+##dragF is drag_constant * (v*v);
 engine_a is f/ mass;
 

@@ -8,3 +8,16 @@ import claytontunnel/train/display;
 import claytontunnel/train/engine;
 import claytontunnel/train/controls;
 
+train_visibleDistance = 1300;
+train_inTunnelVisibleDistance = 20;
+
+train_isInTunnel is train_position < tunnel_south_position-train_inTunnelVisibleDistance
+						&& train_position > tunnel_north_position+train_inTunnelVisibleDistance;
+
+train_inSightSouth is train_position < tunnel_south_position+train_visibleDistance
+						&& train_position > tunnel_south_position-train_inTunnelVisibleDistance;
+train_inSightNorth is train_position < tunnel_north_position+train_inTunnelVisibleDistance
+						&& train_position > tunnel_north_position-train_visibleDistance;
+
+train is [engine_a, train_picture, train_isInTunnel, train_inSightSouth, train_inSightNorth];
+

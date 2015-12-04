@@ -5,23 +5,24 @@
 
 import claytontunnel/train;
 
-train3_brakeM = 0.5;
-train3_accelM = 1.0250;
-train3_velocity = 0;
-train3_position = 11000;
+action train3Reset {
+	train3_brakeM = 0.5;
+	train3_accelM = 1.0250;
+	train3_velocity = 0;
+	train3_position = brighton_position;
+}
 
-## Use the engine to calculate acceleration
-train3_a is engine_a with
+do train3Reset;
+
+train3 is train with
 	v is train3_velocity,
 	accelM is train3_accelM,
-	brakeM is train3_brakeM;
-
-train3_picture is train_picture with
+	brakeM is train3_brakeM,
 	train_position is train3_position,
-	train_colour is "orange";
+	train_colour is "red";
 
 when (tick) {
-	train3_velocity += train3_a / clock_rate;
+	train3_velocity += train3.engine_a / clock_rate;
 	train3_position -= train3_velocity / clock_rate;
 }
 
