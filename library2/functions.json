@@ -145,7 +145,7 @@
 			"return": "",
 			"description": ""
 		},
-		"hsl2colour": {
+		"hslColour": {
 			"parameters": {
 				"hue": "",
 				"saturation": "",
@@ -514,7 +514,7 @@
 			"return": "",
 			"description": ""
 		},
-		"rgb2colour": {
+		"rgbColour": {
 			"parameters": {
 				"red": "",
 				"green": "",
