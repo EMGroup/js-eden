@@ -1,0 +1,13 @@
+/**
+ * @title Giving Change Action
+ * @author Meurig Beyon
+ */
+
+## givingchangeaction
+
+click is mousePressed;
+
+when (amountleft>0 && click) {
+	coinlist = coinlist // [maxdenom];
+	wait 100;
+}

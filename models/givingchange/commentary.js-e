@@ -1,0 +1,204 @@
+/**
+ * @title Giving Change Commentary
+ * @author Meurig Beynon
+ */
+
+import worksheet;
+
+worksheet_title = "Giving Change";
+worksheet_subtitle = "Reflections on Primary Programming";
+
+worksheet_pages is [page1, page2, page3, page4, page5, page6, page7, page8, page9];
+
+page1 is WorksheetPage with worksheet_content is
+"<p>"
+"The inspiration for this construal is a program called 'Coins' developed by Phil Bagge"
+"for use in teaching programming in primary school."
+"The Coins program is written in Scratch, and details of how it can be developed and presented"
+"are available online at the url: <a href=\"http://code-it.co.uk/scratch/coins/coinsoverview\" target=\"_blank\">http://code-it.co.uk/scratch/coins/coinsoverview</a>"
+"</p>"
+"The Coins program takes as its input an amount of money in pence and outputs a list of coins whose total value is the input amount."
+"This is what is needed when giving change: Bagge subtitles Coins - 'a Change Machine'."
+"To ensure that the list of coins is as small as possible, a greedy algorithm is used."
+"Coins are output one at a time. Each time a coin is output the amount of change to be paid is adjusted."
+"At each step, the largest coin whose value is less than or equal to the outstanding amount of change is selected for output."
+"<p>"
+;
+
+page2 is WorksheetPage with worksheet_content is 
+"<p>"
+"This presentation introduces a construal of giving change that can perform the same function as Coins."
+"It is of potential interest in a number of ways:"
+"<ul>"
+"<li>it illustrates the use of the CONSTRUIT! environment for making construals</li>"
+"<li>it highlights ways in which elementary programming can be done without using conventional procedural constructs</li>"
+"<li>it motivates new thinking about how the concepts of observable and dependency might be introduced to children</li>"
+"<li>it potentially points the way to new kinds of 'unplugged' activity for teaching computing</li>"
+"</ul>"
+"</p>"
+"<p>"
+;
+
+page3 is WorksheetPage with worksheet_content is 
+"<p>"
+"<b>What are the key observables in making a construal of giving change following the principle of Bagge's Coins program?</b>"
+"<ul>"
+"<li>the amount to be returned in change</li>"
+"<li>the denominations of coins available</li>"
+"<li>the highest denomination coin which doesn't exceed the amount of change outstanding</li>"
+"<li>the coins so far returned by way of change</li>"
+"</ul>"
+"</p>"
+"<p>"
+"The conventions for 'representing' these observables are:"
+"<ul>"
+"<li>the amount to be returned in change: an integer number of pennies [amount].</li>"
+"<li>the denominations of coins available: a list specifying the number of pennies in each denomination in ascending order [denoms]</li>"
+"<li>the highest denomination coin which doesn't exceed the amount of change outstanding: and integer value [maxdenom]</li>"
+"<li>the coins so far returned by way of change: a list of coins corresponding to denominations represented by their integer value [coinlist].</li>"
+"<li>the coins so far returned by way of change: an alternative auxiliary representation as list of images corresponding to denominations [picture].</li>"
+"</ul>"
+"</p>"
+;
+
+page4 is WorksheetPage with worksheet_content is
+"<p>"
+"Can now reflect on the dependencies between these observables."
+"<ul>"
+"<li>amount and denom are both given and fixed for the purposes of giving change, but, as the change is being given, the amount outstanding changes - and can be regarded as another observable [amountleft]. This observable is dependent on the orginal amount of change being given and the coins that have already been returned, as recorded in coinlist.</li>"
+"<li>the highest denomination coin which doesn't exceed the amount of change outstanding depends on amountleft and denoms.</li>"
+"<li>the coins so far returned by way of change is updated every time a coin is added to the change - the value of coinlist is then reassigned.</li>"
+"</ul>"
+"</p>"
+;
+
+page5 is WorksheetPage with worksheet_content is
+"<p>"
+"Suitable initial values for the observables not defined by dependency might be"
+"<jseden>"
+"amount = 8;"
+"denoms = [1,2,5,10,20,50,100,200];"
+"coinlist = [];"
+"</jseden>"
+"How do we express the dependencies between the relevant observables?"
+"<ul>"
+"<li>amountleft depends on the original amount of change to be given [amount] and the coins that have already been returned, as recorded in coinlist: this can be expressed thus:"
+"<jseden>amountleft is amount - sum(coinlist);</jseden></li>"
+"<li>the highest denomination coin which doesn't exceed the amount of change outstanding depends on amountleft and denoms./li>"
+"<li>the coins so far returned by way of change is updated every time a coin is added to the change - the value of coinlist is then reassigned.</li>"
+"</ul>"
+"</p>"
+"<p>"
+"To confirm that these observables are appropriately defined:" 
+"<jseden>showObservables(\"denoms|amount|coinlist\");</jseden>"
+"</p>"
+;
+
+page6 is WorksheetPage with worksheet_content is
+"<p>"
+"How to express the dependency that determines maxdenom?"
+"</p>"
+"<p>"
+"To compare the amountleft with a particular denomination of coin:"
+"<jseden>gtdenom is amountleft>=denom;</jseden>"
+"</p>"
+"<p>"
+"Can specialise this definition to each denomination in turn:"
+"<jseden>"
+"gt1 is gtdenom with denom is denoms[1];"
+"gt2 is gtdenom with denom is denoms[2];"
+"gt5 is gtdenom with denom is denoms[3];"
+"gt10 is gtdenom with denom is denoms[4];"
+"gt20 is gtdenom with denom is denoms[5];"
+"gt50 is gtdenom with denom is denoms[6];"
+"gt100 is gtdenom with denom is denoms[7];"
+"gt200 is gtdenom with denom is denoms[8];"
+"</jseden>"
+"</p>"
+"<p>"
+"This is the counterpart of observing the relation between amount outstanding and each of the denominations."
+"</p>"
+"<p>"
+"To confirm that these observables are appropriately defined:" 
+"<jseden>showObservables(\"^gt[1-9]\", \"amountGTdenoms\");</jseden>"
+"</p>"
+;
+
+page7 is WorksheetPage with worksheet_content is
+"<p>"
+"How to express the dependency that determines maxdenom (continued)?"
+"</p>"
+"<p>"
+"To find the index of maxdenom in denoms it is enough to transform the boolean values of the gt* observables to 1s and 0s, and sum the resulting values:"
+"</p>"
+"<p>"
+"<jseden>"
+"gt1num is 1 if gt1 else 0;"
+"gt2num is 1 if gt2 else 0;"
+"gt5num is 1 if gt5 else 0;"
+"gt10num is 1 if gt10 else 0;"
+"gt20num is 1 if gt20 else 0;"
+"gt50num is 1 if gt50 else 0;"
+"gt100num is 1 if gt100 else 0;"
+"gt200num is 1 if gt200 else 0;"
+""
+"gtnumsum is gt1num + gt2num + gt5num + gt10num + gt20num + gt50num + gt100num + gt200num;"
+""
+"maxdenom is denoms[gtnumsum];"
+"</jseden>"
+"</p>"
+"<p>"
+"This defines all the basic observables needed to enact the giving change algorithm."
+"</p>"
+
+"<p>"
+"To confirm this:" 
+"<jseden>showObservables(\"denoms|amount|coinlist|maxdenom\");</jseden>"
+"</p>"
+;
+
+page8 is WorksheetPage with worksheet_content is
+"<p>"
+"To create the construal of giving change in its simplest from"
+"it only remains to add separate tabs for the agents involved."
+"</p>"
+"<p>"
+"Here is the agency that is invoked to initialise the construal:"
+"<jseden>"
+"{"
+"amount = 27;"
+"coinlist = [];"
+"amountleft is amount - sum(coinlist);"
+"}"
+"</jseden>"
+"</p>"
+"<p>"
+"Here is the agency that is invoked to enact giving change:"
+"<jseden name=\"givingchangeaction\">"
+"## givingchangeaction"
+""
+"click is mousePressed;"
+""
+"when (amountleft>0 && click) {"
+"	coinlist = coinlist // [maxdenom];"
+"	wait 100;"
+"}"
+"</jseden>"
+"</p>"
+;
+
+
+page9 is WorksheetPage with worksheet_content is
+"<p>"
+"</p>"
+;
+
+page10 is WorksheetPage with worksheet_content is
+"<p>"
+"To load and demonstrate the construal of giving change in its simplest form"
+"</p>"
+;
+
+{worksheet_page++;}
+worksheet_page = 1;
+
