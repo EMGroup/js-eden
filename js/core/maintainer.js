@@ -244,6 +244,17 @@
 		return false;
 	}
 
+	/*Scope.prototype.toString = function() {
+		var result = "{";
+		for (var a in this.cache) {
+			if (typeof this.cache[a].value != "object") {
+				result += a.slice(1) + ": " + this.context.lookup(a).value(this) + ",";
+			}
+		}
+		result += "}";
+		return result;
+	}*/
+
 	/*Scope.prototype.assign = function(name, value, modifying_agent, pushToNetwork) {
 		var data = this.lookup2("/" + name);
 

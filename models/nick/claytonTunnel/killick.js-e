@@ -16,7 +16,11 @@ telegraph_killick is telegraph with
 telegraph_south_occupied is telegraph_south_occupied_click;
 telegraph_south_clear is telegraph_south_clear_click;
 
-picture_killick is [tunnel, telegraph_killick, Translate(Point(420,146),clockPanel), train1.train_picture];
+picture_killick is [tunnel, telegraph_killick, Translate(Point(420,146),clockPanel),
+	train1.train_picture if train1.train_inSightSouth else true,
+	train2.train_picture if train2.train_inSightSouth else true,
+	train3.train_picture if train3.train_inSightSouth else true
+];
 
 import claytontunnel/killick/page;
 

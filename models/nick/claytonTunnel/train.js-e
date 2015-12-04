@@ -10,13 +10,16 @@ import claytontunnel/train/controls;
 
 train_visibleDistance = 1000;
 
-train_isInTunnel is train_position < tunnel_position_south
-						&& train_position > tunnel_position_north;
+train_isInTunnel is train_position < tunnel_south_position
+						&& train_position > tunnel_north_position;
 
-train_inSightSouth is train_position < tunnel_position_south+train_visibleDistance
-						&& train_position > tunnel_position_south;
-train_inSightNorth is train_position < tunnel_position_north
-						&& train_position > tunnel_position_north-train_visibleDistance;
+train_inSightSouth is train_position < tunnel_south_position+train_visibleDistance
+						&& train_position > tunnel_south_position;
+train_inSightNorth is train_position < tunnel_north_position
+						&& train_position > tunnel_north_position-train_visibleDistance;
 
+## Not strictly required
 train is [engine_a, train_picture, train_isInTunnel, train_inSightSouth, train_inSightNorth];
+
+##train is ${{ scope }}$;
 

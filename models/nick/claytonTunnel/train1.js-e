@@ -19,6 +19,8 @@ train1 is train with
 	train_position is train1_position,
 	train_colour is "red";
 
+train1_visibleKillick is train1.train_inSightSouth;
+
 
 ## Move train
 when (tick) {
