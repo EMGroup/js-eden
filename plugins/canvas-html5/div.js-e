@@ -68,10 +68,14 @@ func Div { ${{
 				} else {
 					style = arguments[argsProcessed + 1];
 				}
-			} else if (typeof(arguments[argsProcessed]) != "string" || arguments[argsProcessed].indexOf(":") == -1) {
-				id = arguments[argsProcessed];
 			} else {
-				style = arguments[argsProcessed];
+				argType = typeof(arguments[argsProcessed]);
+				if ((argType == "string" && arguments[argsProcessed].indexOf(":") !== -1) ||
+					argType == "object") {
+					style = arguments[argsProcessed];
+				} else {
+					id = arguments[argsProcessed];
+				}
 			}
 		}
 	}	
@@ -84,17 +88,29 @@ Div.prototype.draw = function(context) {
 
   if (this.elements === undefined) {
 	var me = this;
-	var divStyle = "position: absolute; " + this.style;
 
 	var divElement = document.createElement("div");
 	if (this.name !== undefined) {
 		divElement.id = this.name;
 	}
+
 	if (Array.isArray(this.classNames)) {
-		divElement.setAttribute("class", this.classNames.join(" "));
+		divElement.setAttribute("class", "canvashtml-content-div " + this.classNames.join(" "));
+	} else {
+		divElement.setAttribute("class", "canvashtml-content-div");
 	}
-	divElement.style.cssText = divStyle;
+
+	CSSUtil.setStyle(divElement, this.style);
+	divElement.style.position = "absolute";
 	divElement.innerHTML = this.html;
+
+	if (typeof(this.x) == "string") {
+		divElement.style.left = this.x;
+	}
+	if (typeof(this.y) == "string") {
+		divElement.style.top = this.y;
+	}
+
 	var match = divElement.style.fontSize.match(/^(\d+)([a-z%]+)$/);
 	if (match !== null) {
 		this.fontSizeNumber = match[1];
