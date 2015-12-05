@@ -1363,7 +1363,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					},
 					cursor: 'move',
 					cursorAt: {top: -5, left: -5}
-				});
+				// Following line is hack to allow click through editing...
+				}).click(function() { $(this).draggable({disabled: true}); }) .blur(function() { $(this).draggable({disabled: false}); });
 			}
 		}
 
