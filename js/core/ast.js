@@ -83,7 +83,7 @@ Eden.AST.Scope = function() {
 	this.errors = [];
 	this.range = false;
 	this.overrides = {};
-	this.primary = new Eden.AST.Primary();
+	this.expression = undefined; // = new Eden.AST.Primary();
 }
 
 Eden.AST.Scope.prototype.error = fnEdenASTerror;
@@ -92,16 +92,23 @@ Eden.AST.Scope.prototype.prepend = function(extra) {
 	this.primary.prepend(extra);
 }
 
-Eden.AST.Scope.prototype.setObservable = function(obs) {
+/*Eden.AST.Scope.prototype.setObservable = function(obs) {
 	this.primary.setObservable(obs);
 }
 
 Eden.AST.Scope.prototype.getObservable = function() {
 	return this.primary.getObservable();
+}*/
+
+Eden.AST.Scope.prototype.setExpression = function(express) {
+	this.expression = express;
+	if (express) {
+		this.errors.push.apply(this.errors, express.errors);
+	}
 }
 
 Eden.AST.Scope.prototype.doesReturnBound = function() {
-	return this.primary.doesReturnBound();
+	return (this.expression && this.expression.doesReturnBound) ? this.expression.doesReturnBound() : false;
 }
 
 Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2) {
@@ -145,9 +152,10 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 		}
 	}
 	res = res.slice(0,-1);
-	res += "], "+this.range+", context.lookup(\""+this.primary.getObservable()+"\"))";
+	// TODO Reinstate cause when known
+	res += "], "+this.range+", undefined)"; //context.lookup(\""+this.primary.getObservable()+"\"))";
 	ctx.scopes.push(res);
-	return this.primary.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]");
+	return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]");
 }
 
 

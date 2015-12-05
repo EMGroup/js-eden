@@ -912,16 +912,16 @@ Eden.AST.prototype.pPRIMARY_PPP = function() {
 
 
 /**
- * Primary Quad Prime Production.
+ * Primary Quad Prime Production. DEFUNCT
  * PRIMARY'''' -> with SCOPE | epsilon
  */
 Eden.AST.prototype.pPRIMARY_PPPP = function() {
-	if (this.token == "with") {
+	/*if (this.token == "with") {
 		this.next();
 		return this.pSCOPE();
-	} else {
+	} else {*/
 		return new Eden.AST.Primary();
-	}
+	//}
 }
 
 
@@ -1090,7 +1090,7 @@ Eden.AST.prototype.pEXPRESSION_PPPPPP = function() {
  * EXPRESSION Production
  * EXPRESSION -> T { && T | || T }
  */
-Eden.AST.prototype.pEXPRESSION = function() {
+Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
 	var left = this.pTERM();
 
 	while (this.token == "&&" || this.token == "||") {
@@ -1102,6 +1102,25 @@ Eden.AST.prototype.pEXPRESSION = function() {
 	}
 
 	return left;
+}
+
+
+
+/**
+ * Scoped Expression Production
+ * SCOPEDEXP -> EXPRESSION { with SCOPE | epsilon }
+ */
+Eden.AST.prototype.pEXPRESSION = function() {
+	var plain = this.pEXPRESSION_PLAIN();
+
+	if (this.token == "with") {
+		this.next();
+		var scope = this.pSCOPE();
+		scope.setExpression(plain);
+		return scope;
+	} else {
+		return plain;
+	}
 }
 
 
