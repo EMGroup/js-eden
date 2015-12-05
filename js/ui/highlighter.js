@@ -572,27 +572,37 @@
 				var textright = tokentext.slice(caret);
 
 				// Left text
-				var tokenspan = document.createElement('span');
-				tokenspan.className = classes;
+				var parentspan = document.createElement('span');
+				parentspan.className = classes;
 				if (classes == "eden-observable") {
-					tokenspan.setAttribute("data-observable", tokentext);
+					parentspan.setAttribute("data-observable", tokentext);
 				}
+
+				var tokenspan = document.createElement('span');
+				//tokenspan.className = classes;
+				//tokenspan.setAttribute("data-split", "true");
+				/*if (classes == "eden-observable") {
+					tokenspan.setAttribute("data-observable", tokentext);
+				}*/
 				tokenspan.appendChild(document.createTextNode(textleft));
-				line.appendChild(tokenspan);
+				parentspan.appendChild(tokenspan);
 
 				// Caret!
 				var caret = document.createElement('span');
 				caret.className = "fake-caret";
-				line.appendChild(caret);
+				parentspan.appendChild(caret);
 
 				// Right text
 				tokenspan = document.createElement('span');
-				tokenspan.className = classes;
+				/*tokenspan.className = classes;
+				tokenspan.setAttribute("data-split", "true");
 				if (classes == "eden-observable") {
 					tokenspan.setAttribute("data-observable", tokentext);
-				}
+				}*/
 				tokenspan.appendChild(document.createTextNode(textright));
-				line.appendChild(tokenspan);
+				parentspan.appendChild(tokenspan);
+
+				line.appendChild(parentspan);
 			} else {
 				var tokenspan = document.createElement('span');
 				tokenspan.className = classes;

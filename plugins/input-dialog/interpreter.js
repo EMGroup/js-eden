@@ -1792,18 +1792,22 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			hideMenu();
 
 			if (inspectmode) {
-				if (e.target.className == "eden-path") {
+				var element = e.target;
+				if (element.className == "" && element.parentNode.nodeName == "SPAN") {
+					element = element.parentNode;
+				}
+				if (element.className == "eden-path") {
 					//console.log();
 					disableInspectMode();
-					openTab(e.target.parentNode.textContent);
-				} else if (e.target.className == "eden-observable") {
-					var obs = e.target.getAttribute("data-observable");
-					e.target.textContent =  Eden.edenCodeForValue(eden.root.lookup(obs).value());
-					e.target.className += " select";
-				} else if (e.target.className == "eden-observable select") {
-					var obs = e.target.getAttribute("data-observable");
-					e.target.textContent = obs;
-					e.target.className = "eden-observable";
+					openTab(element.parentNode.textContent);
+				} else if (element.className == "eden-observable") {
+					var obs = element.getAttribute("data-observable");
+					element.textContent =  Eden.edenCodeForValue(eden.root.lookup(obs).value());
+					element.className += " select";
+				} else if (element.className == "eden-observable select") {
+					var obs = element.getAttribute("data-observable");
+					element.textContent = obs;
+					element.className = "eden-observable";
 				}
 				e.preventDefault();
 			} else {
