@@ -1,0 +1,47 @@
+<html>
+<head>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script>
+$(document).ready(function(){
+	$("#postBtn").click(function() {
+		/*$.post("http://localhost:18880/agent/add",{path:$("#path").val(), title:$("#titleTxt").val(), source: $("#sourceContent").val()},function(data){
+			$("#log").text(JSON.stringify(data));
+		}).fail(function(data){
+			$("#log").text("Error: " + JSON.stringify(data));
+		});*/
+		
+		$.ajax({
+			url: "http://localhost:18880/agent/add",
+			type: "post",
+			crossDomain: true,
+			xhrFields:{
+				withCredentials: true
+			},
+			data:{path:$("#path").val(), title:$("#titleTxt").val(), source: $("#sourceContent").val()},
+			success: function(data){
+				$("#log").text(JSON.stringify(data));
+			},
+			error: function(a){
+				console.log(a);
+			}
+		});
+	});
+	$("#listBtn").click(function(){
+		
+	});
+});
+	
+</script>
+</head>
+<body>
+<input type="text" id="path"></input><input type="button" value="List" id="listBtn"/>
+<br>
+<input type="text" id="titleTxt"></input>
+<br>
+<textarea id="sourceContent">
+</textarea>
+<input type="button" id="postBtn" value="Post">
+<textarea id="log">
+</textarea>
+</body>
+</html>
