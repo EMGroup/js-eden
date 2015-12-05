@@ -187,7 +187,7 @@ app.get('/agent/search', function(req, res){
 		depth = req.query.depth;
 	}
 	var match = req.query.path + ".%";
-	if(typeof(req.query.path) == "undefined"){
+	if(typeof(req.query.path) == "undefined" || req.query.path == ""){
 		match = "%";
 	}
 	var notmatch = match;
