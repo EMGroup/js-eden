@@ -168,7 +168,7 @@ app.get('/agent/get', function(req, res){
 		query = query + " AND saveID = ?"
 		argArray.push(req.query.version);
 	}
-	query = query + " AND agents.id = agentID ORDER BY date LIMIT 1";
+	query = query + " AND agents.id = agentID ORDER BY date desc LIMIT 1";
 	var stmt = db.prepare(query);
 	stmt.get(argArray, function(err,row){
 		res.json(row);
