@@ -186,13 +186,13 @@ app.get('/agent/search', function(req, res){
 	if(typeof(req.query.depth) != "undefined"){
 		depth = req.query.depth;
 	}
-	var match = req.query.path + ".%";
+	var match = req.query.path + "/%";
 	if(typeof(req.query.path) == "undefined" || req.query.path == ""){
 		match = "%";
 	}
 	var notmatch = match;
 	for(var i = 0; i < depth; i++){
-		var notmatch = notmatch + ".%";
+		var notmatch = notmatch + "/%";
 	}
 
 	var stmt = db.prepare("SELECT path FROM agents where path LIKE ? AND path NOT LIKE ?");
