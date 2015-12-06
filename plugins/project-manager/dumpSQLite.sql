@@ -14,7 +14,8 @@ CREATE TABLE versions (
 , "date" INTEGER  NOT NULL  DEFAULT (current_timestamp),
 "owner" INTEGER NOT NULL,
 "permission" INTEGER,
-"group" INTEGER);
+"title" TEXT,
+"group" INTEGER);	
 CREATE TABLE agents (
     "id" INTEGER PRIMARY KEY,
     "title" TEXT NOT NULL,

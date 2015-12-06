@@ -150,13 +150,13 @@ app.post('/agent/add', ensureAuthenticated, function(req, res){
 			var sstmt = db.prepare("SELECT id FROM agents WHERE path = ?");
 			sstmt.get(req.body.path, function(err,row){
 				if(typeof row != "undefined"){
-					var vstmt = db.prepare("INSERT INTO versions VALUES (NULL, ?,?,?,?,current_timestamp,?,?,?)");
+					var vstmt = db.prepare("INSERT INTO versions VALUES (NULL, ?,?,?,?,current_timestamp,?,?,?,?)");
 					var group = null;
 					var permission = 0;
 					if(req.body.permission == "public")
 						permission = 1;
 					var agentID = row["id"];
-					vstmt.run(agentID,req.body.source,req.body.tag,req.body.parent,req.user.id,function(a){
+					vstmt.run(agentID, req.body.source, req.body.tag, req.body.parent, req.user.id, permission, req.body.title,group,function(a){
 						var saveID = this.lastID;
 						res.json({agent: agentID, saveID: saveID});
 					});
@@ -177,7 +177,7 @@ app.get('/agent/list', function(req, res){
 app.get('/agent/get', function(req, res){
 	var argArray = [];
 	
-	var query = "SELECT source FROM versions, agents WHERE path = ?";
+	var query = "SELECT saveID, source FROM versions, agents WHERE path = ?";
 	argArray.push(req.query.path)	;
 	if(typeof(req.query.tag) != "undefined"){
 		query = query + " AND tag = ?";
@@ -201,7 +201,7 @@ app.get('/agent/get', function(req, res){
 
 app.get('/agent/search', function(req, res){
 	var depth = 1;
-	
+
 	if(typeof(req.query.depth) != "undefined"){
 		depth = req.query.depth;
 	}
@@ -214,9 +214,46 @@ app.get('/agent/search', function(req, res){
 		var notmatch = notmatch + "/%";
 	}
 
-	var stmt = db.prepare("SELECT path FROM agents where path LIKE ? AND path NOT LIKE ?");
-	stmt.all(match, notmatch, function(err,rows){
-		res.json(rows);
+	var stmt = db.prepare("SELECT id, path FROM agents where path LIKE ? AND path NOT LIKE ?");
+	var agents = [];
+	db.serialize(function(){
+		stmt.each(match, notmatch, function(err,row){
+			var p = row["path"];
+			var a = row["id"];
+			var vstmt = db.prepare("SELECT saveID, tag, parentSaveID, date, name, title FROM versions, oauthusers where " +
+			"owner = oauthusers.id AND versions.agentID = ? AND owner = ? ORDER BY date desc limit 1");
+
+			var myVersion;
+
+			vstmt.all(a, req.user.id, function(err,rows){
+				myVersion = rows;
+
+				var vstmt2 = db.prepare("SELECT saveID, tag, parentSaveID, date, name, title FROM versions, oauthusers where " +
+				"owner = oauthusers.id AND versions.agentID = ? AND permission = 1 ORDER BY date desc limit 1");
+
+				var publicVersion;
+
+				vstmt2.all(a, function(err,rows){
+					publicVersion = rows;
+
+					var vstmt3 = db.prepare("SELECT saveID, tag, parentSaveID, date, name, title FROM versions, oauthusers where " +
+					"owner = oauthusers.id AND versions.agentID = ? AND tag = 'OFFICIAL' AND permission = 1 ORDER BY date desc limit 1");
+					var officialVersion;
+					vstmt3.all(a, function(err,rows){
+						officialVersion = rows;
+
+						versions = {"Official": officialVersion, "PublicLatest": publicVersion, "UserLatest": myVersion};
+
+						var agent = {path: p, versions: versions};
+
+						agents.push(agent);
+						res.json(agents);
+					});
+				});
+			});
+		});
+
+
 	});
 });
 
