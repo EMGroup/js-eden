@@ -10,6 +10,8 @@ var express = require('express')
 var sqlite3 = require("sqlite3").verbose();
 var config = require("./config.js");
 var db = new sqlite3.Database('database.sqlite3');
+
+var insertAgentStmt;
 // API Access link for creating client ID and secret:
 // https://code.google.com/apis/console/
 
@@ -120,13 +122,31 @@ app.get('/login', function(req, res){
   res.render('login', { user: req.user });
 });
 
+function insertPath(pathParts,depth, finalTitle, finalCallback){
+	//Recursively insert paths to make sure there is an entry for each level
+	//so that each level can be found by the /agent/search method 
+	if(depth == pathParts.length + 1)
+		return finalCallback();	
+	var tmpPath = pathParts[0];
+	for(var i = 1; i < depth; i++){
+		tmpPath = tmpPath + "/" + pathParts[i]; 
+	}
+	var tmpTitle = tmpPath;
+	if(depth == pathParts.length)
+		tmpTitle = finalTitle;
+	insertAgentStmt.run(tmpTitle, tmpPath, function(){
+		insertPath(pathParts, depth+1, finalTitle, finalCallback);		
+	});
+}
 
 app.post('/agent/add', ensureAuthenticated, function(req, res){
 	//Requires POST variables of title, path, source, tag, parent
-
+	insertAgentStmt = db.prepare("INSERT OR IGNORE INTO agents VALUES (NULL, ?,?)");
+	
 	db.serialize(function(){
-		var stmt = db.prepare("INSERT OR IGNORE INTO agents VALUES (NULL, ?,?)", function(){
-			stmt.run(req.body.title, req.body.path);
+		var pathParts = req.body.path.split("/");
+
+		insertPath(pathParts,0,req.body.title, function(){
 			var sstmt = db.prepare("SELECT id FROM agents WHERE path = ?");
 			sstmt.get(req.body.path, function(err,row){
 				if(typeof row != "undefined"){
@@ -143,7 +163,6 @@ app.post('/agent/add', ensureAuthenticated, function(req, res){
 				}
 			});			
 		});
-
 	});
 });
 	
