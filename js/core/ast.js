@@ -752,10 +752,15 @@ Eden.AST.Import = function() {
 	this.end = 0;
 	this.executed = 0;
 	this.options = [];
+	this.tag = "default";
 }
 
 Eden.AST.Import.prototype.setPath = function(path) {
 	this.path = path;
+}
+
+Eden.AST.Import.prototype.setTag = function(tag) {
+	this.tag = tag;
 }
 
 Eden.AST.Import.prototype.addOption = function(opt) {
@@ -790,7 +795,7 @@ Eden.AST.Import.prototype.generate = function(ctx) {
 Eden.AST.Import.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var me = this;
-	Eden.Agent.importAgent(this.path, this.options, function(ag) {
+	Eden.Agent.importAgent(this.path, this.tag, this.options, function(ag, msg) {
 		if (ag) {
 			for (var i=0; i<base.imports.length; i++) {
 				if (base.imports[i] === ag) return;
@@ -798,7 +803,7 @@ Eden.AST.Import.prototype.execute = function(root, ctx, base) {
 			base.imports.push(ag);
 		} else {
 			me.executed = 3;
-			me.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOAGENT, me, "\""+me.path+"\" does not exist"));
+			me.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOAGENT, me, "\""+me.path+"@"+me.tag+"\" does not exist: "+msg));
 			if (me.parent) me.parent.executed = 3;
 		}
 	});
@@ -2516,7 +2521,7 @@ function runEdenAction(source, action) {
 		if (typeof delay.value == "object") {
 			if (delay.value.type == "import") {
 				delay.value.executed = 1;
-				Eden.Agent.importAgent(delay.value.path, delay.value.options, function(ag) {
+				Eden.Agent.importAgent(delay.value.path, delay.value.tag, delay.value.options, function(ag) {
 					if (ag) {
 						var already = false;
 						// Check to see if already imported to local scope...

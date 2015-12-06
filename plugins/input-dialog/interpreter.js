@@ -270,9 +270,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function uploadAgent(tab) {
 			var name = tab.getAttribute("data-name");
-			if (Eden.Agent.agents[name]) {
-				Eden.Agent.agents[name].upload("tag");
-			}
+			showSubDialog("uploadAgent", function(status, tag) {
+				if (Eden.Agent.agents[name] && status) {
+					if (tag == "") tag = undefined;
+					Eden.Agent.agents[name].upload(tag);
+				}
+			});
 		}
 
 
@@ -371,7 +374,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					for (var a in selected) {
 						if (selected[a]) {
 							lasttab = a;
-							Eden.Agent.importAgent(a, ["noexec"]);
+							Eden.Agent.importAgent(a, "default", ["noexec"]);
 							if (tabs.indexOf(a) == -1) {
 								tabs.push(a);
 							}
@@ -605,7 +608,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					scriptagent = Eden.Agent.agents["view/script/"+name];
 				}*/
 
-				Eden.Agent.importAgent("view/script/"+name, ["noexec","create"], function(ag) {
+				Eden.Agent.importAgent("view/script/"+name, "default", ["noexec","create"], function(ag) {
 					if (value instanceof Array) {
 						for (var i=0; i < value.length; i++) {
 							if (typeof value[i] == "string") {
@@ -712,7 +715,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				// update the script view if successful.
 				if (value) {
 					if (Eden.Agent.agents[value] === undefined) {
-						Eden.Agent.importAgent(value, ["noexec"], function(ag) {
+						Eden.Agent.importAgent(value, "default", ["noexec"], function(ag) {
 							if (ag) changeAgent(undefined, value);
 						});
 					}
@@ -1775,7 +1778,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 		function openTab(path) {
-			Eden.Agent.importAgent(path, ["noexec", "create"], function(ag) {
+			Eden.Agent.importAgent(path, "default", ["noexec", "create"], function(ag) {
 				/*if (ag === undefined) {
 					ag = new Eden.Agent(undefined, path, undefined, undefined);
 				}*/
@@ -1922,7 +1925,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		function onNewTab() {
 			showSubDialog("newAgent", function(status, value) {
 				if (status) {
-					Eden.Agent.importAgent(value, ["noexec","create"], function(ag) {
+					Eden.Agent.importAgent(value, "default", ["noexec","create"], function(ag) {
 						agent.state[obs_agent] = value;
 					});
 				} else if (value) {
@@ -2058,7 +2061,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			contents: $dialogContents,
 			update: function(data) {
 				var agname = "view/script/"+name;
-				Eden.Agent.importAgent(agname, ["noexec", "create"], function(ag) {
+				Eden.Agent.importAgent(agname, "default", ["noexec", "create"], function(ag) {
 					agent.state[obs_agent] = agname;
 
 					//if (edited == false) {

@@ -24,7 +24,7 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 	content
 	.on("input blur", ".script-subdialog-text", function() {
 		var value = input.get(0).value;
-		console.log(value);
+		//console.log(value);
 
 		if (value == "") {
 			valid = false;
@@ -62,6 +62,47 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 	.on("click", ".button-agents", function() {
 		element.get(0).removeChild(obscurer.get(0));
 		callback(false, true);
+	})
+	.on("click", ".button-cancel", function() {
+		element.get(0).removeChild(obscurer.get(0));
+		callback(false);
+	}); 
+
+	obscurer.append(content);
+	element.append(obscurer);
+}
+
+
+
+EdenUI.plugins.ScriptInput.dialogs.uploadAgent = function(element, callback) {
+	var obscurer = $('<div class="script-obscurer noselect"></div>');
+	var content = $('<div class="script-subdialog-uploadagent noselect"><span class="script-subdialog-title">Upload agent. Give an optional version name:</span><br/><input class="script-subdialog-text" type="text" spellcheck="false"></input><span class="status missing"></span><br><button class="button-icon-green button-upload">Upload</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">Cancel</button></div>');
+	var input = content.find('.script-subdialog-text');
+	var status = input.get(0).nextSibling;
+	var valid = false;
+
+
+	content
+	.on("input blur", ".script-subdialog-text", function() {
+		var value = input.get(0).value;
+		console.log(value);
+
+		if (value == "") {
+			valid = false;
+			status.className = "missing";
+		} else if (/^[a-z][a-z0-9]+$/i.test(value)) {
+			status.className = "addnew";
+			valid = true;
+		} else {
+			status.className = "invalid";
+			valid = false;
+		}
+	})
+	.on("click", ".button-upload", function() {
+		if (valid) {
+			element.get(0).removeChild(obscurer.get(0));
+			callback(true, input.get(0).value);
+		}
 	})
 	.on("click", ".button-cancel", function() {
 		element.get(0).removeChild(obscurer.get(0));

@@ -131,10 +131,19 @@ Eden.Agent.AUTOSAVE_INTERVAL = 2000;
  *     - force: Always execute, even if previously executed.
  *     - noexec: Do not execute.
  */
-Eden.Agent.importAgent = function(path, options, callback) {
+Eden.Agent.importAgent = function(path, tag, options, callback) {
 	var ag;
+	if (callback === undefined) {
+		console.trace("DEPRECATED USE OF IMPORT");
+		return;
+	}
 
-	function finish() {
+	function finish(success, msg) {
+		if (!success) {
+			callback(undefined, msg);
+			return;
+		}
+
 		if (ag) {
 			if (ag.ast && ag.ast.script.errors.length > 0) {
 				console.error(ag.ast.script.errors[0].prettyPrint());
@@ -146,6 +155,7 @@ Eden.Agent.importAgent = function(path, options, callback) {
 		} else if (options && options.indexOf("create") >= 0) {
 			// Auto create agents that don't exist
 			ag = new Eden.Agent(undefined, path, Eden.DB.createMeta(path), options);
+			Eden.DB.updateMeta(path, "tag", tag);
 		}
 		if (callback) callback(ag);
 	}
@@ -156,10 +166,11 @@ Eden.Agent.importAgent = function(path, options, callback) {
 		ag.setOptions(options);
 
 		// Force a reload?
-		if (options && options.indexOf("reload") >= 0) {
+		if ((ag.meta && ag.meta.tag != tag && tag != "default") || (options && options.indexOf("reload") >= 0)) {
+			Eden.DB.updateMeta(path, "tag", tag);
 			ag.loadSource(finish);
 		} else {
-			finish();
+			finish(true);
 		}
 		return;
 	}
@@ -167,7 +178,8 @@ Eden.Agent.importAgent = function(path, options, callback) {
 	// Ask database for info about this agent
 	Eden.DB.getMeta(path, function(path, meta) {
 		// It exists in the database
-		if (meta) {			
+		if (meta) {	
+			Eden.DB.updateMeta(path, "tag", tag);		
 			ag = new Eden.Agent(undefined, path, meta, options);
 
 			// Get from server or use local?
@@ -181,7 +193,7 @@ Eden.Agent.importAgent = function(path, options, callback) {
 				ag.setOptions(["local"]);
 			}
 		}
-		finish();
+		finish(false, "No agent");
 	});
 }
 
@@ -471,18 +483,23 @@ Eden.Agent.prototype.loadSource = function(callback) {
 	var me = this;
 	this.executed = false;
 
-	Eden.DB.getSource(me.name, function(data) {
-		console.log("Source loaded: " + me.name);
-		me.setSnapshot(data);
+	Eden.DB.getSource(me.name, me.meta.tag, function(data, msg) {
+		if (data) {
+			console.log("Source loaded: " + me.name);
+			me.setSnapshot(data);
 		
-		// Do we need to do an automatic fast-forward?
-		if (me.options && me.options.indexOf("rebase") >= 0) {
-			while (me.canRedo()) me.redo();
-		}
+			// Do we need to do an automatic fast-forward?
+			if (me.options && me.options.indexOf("rebase") >= 0) {
+				while (me.canRedo()) me.redo();
+			}
 
-		me.setSource(me.snapshot);
-		if (callback) callback();
-		Eden.Agent.emit("loaded", [me]);
+			me.setSource(me.snapshot);
+			if (callback) callback(true);
+			Eden.Agent.emit("loaded", [me]);
+		} else {
+			if (callback) callback(false, msg);
+			else console.error("AGENT ERROR: " + me.name + " - " + msg);
+		}
 	}, "text");
 }
 

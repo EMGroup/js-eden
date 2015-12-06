@@ -2141,6 +2141,18 @@ Eden.AST.prototype.pIMPORT = function() {
 		this.next();
 	}
 
+	// Check for a version tag
+	if (this.token == "@") {
+		this.next();
+		if (this.token == "OBSERVABLE") {
+			imp.setTag(this.data.value);
+		} else {
+			imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTTAG));
+			return imp;
+		}
+		this.next();
+	}
+
 	if (this.token != ";" && this.token != "OBSERVABLE" && this.token != "local") {
 		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return imp;

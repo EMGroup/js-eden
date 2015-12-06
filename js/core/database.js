@@ -57,6 +57,7 @@ Eden.DB.updateDirectory = function(name) {
 	for (var i=0; i<comp.length; i++) {
 		if (root[comp[i]] === undefined) {
 			root[comp[i]] = {
+				missing: true,
 				children: {}
 			};
 			changed = true;
@@ -116,6 +117,24 @@ Eden.DB.getDirectory = function(path, callback) {
 			callback(undefined);
 			return;
 		}
+
+		if (root[comp[i]].missing) {
+			root[comp[i]].missing = false;
+			var curpath = comp.slice(0,i+1).join("/");
+			// Go to database to get root path
+			$.get(this.remoteURL+"/agent/search?path="+curpath, function(data) {
+				for (var i=0; i<data.length; i++) {
+					Eden.DB.updateDirectory(data[i].path);
+					Eden.DB.meta[data[i].path] = {remote: true};
+				}
+				if (data.length == 0) {
+					callback(undefined);
+					return;
+				}
+				Eden.DB.getDirectory(path, callback);
+			}, "json");
+			return;
+		}
 		//if (i == comp.length-1) {
 		//	root = root[comp[i]];
 		//} else {
@@ -141,7 +160,7 @@ Eden.DB.upload = function(path, meta, source, tagname) {
 		xhrFields:{
 			withCredentials: true
 		},
-		data:{path: path, title: meta.title, source: source},
+		data:{path: path, title: meta.title, source: source, tag: tagname},
 		success: function(data){
 			console.log(data);
 			meta.saveID = data.saveID;
@@ -180,18 +199,29 @@ Eden.DB.getMeta = function(path, callback) {
 	}
 }
 
-Eden.DB.getSource = function(path, callback) {
-	console.log("LOADING: "+path);
+Eden.DB.getSource = function(path, tag, callback) {
+	console.log("LOADING: "+path+"@"+tag);
 
 	Eden.DB.getMeta(path, function(path, meta) {
 		if (meta === undefined) {
-			callback("");
+			callback(undefined, "No such agent");
 			return;
 		}
 
 		if (meta.remote) {
-			$.get(Eden.DB.remoteURL+"/agent/get?path="+path, function (data) {
-				callback(data.source);
+			var tagvalue;
+			if (tag === undefined || tag == "default") {
+				tagvalue = "";
+			} else {
+				tagvalue = "&tag="+tag;
+			}
+
+			$.get(Eden.DB.remoteURL+"/agent/get?path="+path+tagvalue, function (data) {
+				if (data == null) {
+					callback(undefined, "No such version");
+				} else {				
+					callback(data.source);
+				}
 			});
 		} else if (meta.file) {
 			$.get(meta.file, function(data) {

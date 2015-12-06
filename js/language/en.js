@@ -289,6 +289,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_LITSTRCLOSE */ [
 	"Missing a closing quote after a string"
+],
+/* EDEN_ERROR_IMPORTTAG */ [
+	"Import version tag invalid"
 ]
 ];
 

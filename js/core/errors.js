@@ -95,6 +95,7 @@ Eden.SyntaxError.LITCHAREMPTY = 68;
 Eden.SyntaxError.LITCHARCLOSE = 69;
 Eden.SyntaxError.LITSTRLINE = 70;
 Eden.SyntaxError.LITSTRCLOSE = 71;
+Eden.SyntaxError.IMPORTTAG = 72;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -491,6 +492,10 @@ Eden.SyntaxError.db = [
 		suggestion: {expected: [], next: []}
 	},
 /* EDEN_ERROR_LITSTRCLOSE */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_IMPORTTAG */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
 	}
