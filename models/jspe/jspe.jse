@@ -5,6 +5,7 @@
 
 require("Canvas2D");
 
+import lib/html;
 import lib/include;
 
 include_css("models/jspe/jspe.css");
