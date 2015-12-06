@@ -2425,6 +2425,8 @@ Eden.AST.prototype.pSCRIPT = function() {
 	var parent = this.parent;
 	this.parent = ast;
 
+	ast.setLocals(this.pLOCALS());
+
 	while (this.token != "EOF") {
 		var statement = this.pSTATEMENT();
 

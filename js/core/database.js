@@ -8,7 +8,8 @@
 Eden.DB = {
 	directory: {},
 	meta: {},
-	remoteMeta: {}
+	remoteMeta: {},
+	remoteURL: "http://localhost:18880"
 }
 
 Eden.DB.loadLocalDirectory = function() {
@@ -22,7 +23,7 @@ Eden.DB.loadLocalDirectory = function() {
 	}
 	Eden.DB.directory = localdir;
 }
-Eden.DB.loadLocalDirectory();
+//Eden.DB.loadLocalDirectory();
 
 Eden.DB.loadRemoteRoot = function(url) {
 	// For now, download entire directory and meta data from file.
@@ -35,6 +36,14 @@ Eden.DB.loadRemoteRoot = function(url) {
 			Eden.DB.updateDirectory(a);
 		}
 		Eden.DB.remoteMeta = data.meta;
+	}, "json");
+
+	// Go to database to get root path
+	$.get(this.remoteURL+"/agent/search", function(data) {
+		for (var i=0; i<data.length; i++) {
+			Eden.DB.updateDirectory(data[i].path);
+			Eden.DB.meta[data[i].path] = {remote: true};
+		}
 	}, "json");
 }
 Eden.DB.loadRemoteRoot("resources/agents.db.json");
@@ -87,6 +96,8 @@ Eden.DB.updateMeta = function(path, entry, value) {
 		}
 	} catch (e) {
 	}
+
+	return meta;
 }
 
 Eden.DB.getDirectory = function(path, callback) {
@@ -117,6 +128,36 @@ Eden.DB.getDirectory = function(path, callback) {
 	callback(root);
 }
 
+Eden.DB.upload = function(path, meta, source, tagname) {
+	if (meta === undefined) {
+		console.error("Attempting to upload agent without meta data: " + path);
+		return
+
+	}
+	$.ajax({
+		url: this.remoteURL+"/agent/add",
+		type: "post",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		data:{path: path, title: meta.title, source: source},
+		success: function(data){
+			console.log(data);
+			meta.saveID = data.saveID;
+			meta.agentID = data.agent;
+		},
+		error: function(a){
+			console.error(a);
+		}
+	});
+}
+
+Eden.DB.createMeta = function(path) {
+	Eden.DB.meta[path] = {};
+	return Eden.DB.meta[path];
+}
+
 Eden.DB.getMeta = function(path, callback) {
 	// Check local meta
 	if (Eden.DB.meta[path]) {
@@ -133,13 +174,33 @@ Eden.DB.getMeta = function(path, callback) {
 			}
 		} catch (e) {
 		}
+
 		// Otherwise, go to server for it.
 		callback(path, Eden.DB.remoteMeta[path]);
 	}
 }
 
 Eden.DB.getSource = function(path, callback) {
+	console.log("LOADING: "+path);
 
+	Eden.DB.getMeta(path, function(path, meta) {
+		if (meta === undefined) {
+			callback("");
+			return;
+		}
+
+		if (meta.remote) {
+			$.get(Eden.DB.remoteURL+"/agent/get?path="+path, function (data) {
+				callback(data.source);
+			});
+		} else if (meta.file) {
+			$.get(meta.file, function(data) {
+				callback(data);
+			}, "text");
+		} else {
+			// Assume it must be local only.
+		}
+	});
 }
 
 Eden.DB.getHistory = function(path, callback) {

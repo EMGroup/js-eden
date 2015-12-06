@@ -2436,7 +2436,15 @@ Eden.AST.Script = function() {
 	this.executed = 0;
 	this.active = false;
 	this.parameters = undefined;
+	this.locals = undefined;
 };
+
+Eden.AST.Script.prototype.setLocals = function(locals) {
+	this.locals = locals;
+	if (locals) {
+		this.errors.push.apply(this.errors, locals.errors);
+	}
+}
 
 Eden.AST.Script.prototype.getParameterByNumber = function(index) {
 	if (this.parameters) {

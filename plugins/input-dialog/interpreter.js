@@ -268,6 +268,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 
+		function uploadAgent(tab) {
+			var name = tab.getAttribute("data-name");
+			if (Eden.Agent.agents[name]) {
+				Eden.Agent.agents[name].upload("tag");
+			}
+		}
+
+
 
 		/* Build the context menu for the tab bar. */
 		var tabcm = new EdenUI.ContextMenu(tabs);
@@ -277,7 +285,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			return Eden.Agent.agents[name] && Eden.Agent.agents[name].executed;
 		}, stopTab);
 		tabcm.addSeparator();
-		tabcm.addItem("&#xf093;","Upload", false);
+		tabcm.addItem("&#xf093;","Upload", true, uploadAgent);
 		tabcm.addItem("&#xf21b;","Hide",true, hideTab);
 
 
@@ -1767,10 +1775,10 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 		function openTab(path) {
-			Eden.Agent.importAgent(path, ["noexec"], function(ag) {
-				if (ag === undefined) {
+			Eden.Agent.importAgent(path, ["noexec", "create"], function(ag) {
+				/*if (ag === undefined) {
 					ag = new Eden.Agent(undefined, path, undefined, undefined);
-				}
+				}*/
 				var tabs = agent.state[obs_tabs];
 				if (tabs.indexOf(path) == -1) {
 					tabs.push(path);

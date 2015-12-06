@@ -145,7 +145,7 @@ Eden.Agent.importAgent = function(path, options, callback) {
 			}
 		} else if (options && options.indexOf("create") >= 0) {
 			// Auto create agents that don't exist
-			ag = new Eden.Agent(undefined, path, undefined, options);
+			ag = new Eden.Agent(undefined, path, Eden.DB.createMeta(path), options);
 		}
 		if (callback) callback(ag);
 	}
@@ -157,7 +157,7 @@ Eden.Agent.importAgent = function(path, options, callback) {
 
 		// Force a reload?
 		if (options && options.indexOf("reload") >= 0) {
-			ag.loadFromFile(ag.meta.file, finish);
+			ag.loadSource(finish);
 		} else {
 			finish();
 		}
@@ -174,8 +174,8 @@ Eden.Agent.importAgent = function(path, options, callback) {
 			if ((options === undefined
 					|| (options && options.indexOf("local") == -1)
 					|| !Eden.Agent.hasLocalModifications(path))
-					&& meta.file) {
-				ag.loadFromFile(meta.file, finish);
+					&& (meta.file || meta.remote)) {
+				ag.loadSource(finish);
 				return;
 			} else {
 				ag.setOptions(["local"]);
@@ -467,12 +467,12 @@ Eden.Agent.prototype.redo = function() {
 
 
 
-Eden.Agent.prototype.loadFromFile = function(filename, callback) {
+Eden.Agent.prototype.loadSource = function(callback) {
 	var me = this;
 	this.executed = false;
 
-	$.get(filename, function(data) {
-		console.log("File loaded: " + filename);
+	Eden.DB.getSource(me.name, function(data) {
+		console.log("Source loaded: " + me.name);
 		me.setSnapshot(data);
 		
 		// Do we need to do an automatic fast-forward?
@@ -496,7 +496,7 @@ Eden.Agent.prototype.clearExecutedState = function() {
 
 Eden.Agent.prototype.setTitle = function(title) {
 	this.title = title;
-	Eden.DB.updateMeta(this.name, "title", title);
+	this.meta = Eden.DB.updateMeta(this.name, "title", title);
 	Eden.Agent.emit("title", [this]);
 }
 
@@ -672,6 +672,14 @@ Eden.Agent.prototype.execute = function(force, auto) {
 		throw e;
 	}
 }*/
+
+
+
+Eden.Agent.prototype.upload = function(tagname) {
+	if (this.ast) {
+		Eden.DB.upload(this.name, this.meta, this.ast.stream.code, tagname);
+	}
+}
 
 
 
