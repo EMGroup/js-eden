@@ -271,7 +271,7 @@ app.get('/agent/search', function(req, res){
 		stmt.each(match, notmatch, function(err,row){
 			var p = row["path"];
 			var a = row["id"];
-			var vstmt = db.prepare("SELECT path, saveID, tag, parentSaveID, date, name, title FROM versions, oauthusers where " +
+			var vstmt = db.prepare("SELECT saveID, tag, parentSaveID, date, name, title FROM versions, oauthusers where " +
 			"owner = oauthusers.id AND versions.agentID = ? AND owner = ? ORDER BY date desc limit 1");
 
 			var myVersion;
@@ -279,7 +279,7 @@ app.get('/agent/search', function(req, res){
 			vstmt.all(a, tmpUser, function(err,rows){
 				myVersion = rows;
 
-				var vstmt2 = db.prepare("SELECT path, saveID, tag, parentSaveID, date, name, title FROM versions, oauthusers where " +
+				var vstmt2 = db.prepare("SELECT saveID, tag, parentSaveID, date, name, title FROM versions, oauthusers where " +
 				"owner = oauthusers.id AND versions.agentID = ? AND permission = 1 ORDER BY date desc limit 1");
 
 				var publicVersion;
@@ -287,7 +287,7 @@ app.get('/agent/search', function(req, res){
 				vstmt2.all(a, function(err,rows){
 					publicVersion = rows;
 
-					var vstmt3 = db.prepare("SELECT path, saveID, tag, parentSaveID, date, name, title FROM versions, oauthusers where " +
+					var vstmt3 = db.prepare("SELECT saveID, tag, parentSaveID, date, name, title FROM versions, oauthusers where " +
 					"owner = oauthusers.id AND versions.agentID = ? AND tag = 'OFFICIAL' AND permission = 1 ORDER BY date desc limit 1");
 					var officialVersion;
 					vstmt3.all(a, function(err,rows){
