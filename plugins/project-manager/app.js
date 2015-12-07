@@ -272,12 +272,16 @@ app.get('/agent/search', function(req, res){
 
 app.get('/agent/versions', function(req, res){
 	var vstmt = db.prepare("SELECT saveID, tag, parentSaveID, date, name, versions.title FROM versions, oauthusers, agents where " +
-	"path = ? AND agents.id = versions.agentID AND owner = oauthusers.id AND (oauthusers.id = ? OR permission = 1) ORDER BY date desc");
+	"path = ? AND agents.id = versions.agentID AND owner = oauthusers.id AND (oauthusers.id = ? OR permission = 1) ORDER BY date desc LIMIT 100 OFFSET ?");
 	var tmpUser = -1;
 	if(typeof req.user != "undefined")
 		tmpUser = req.user.id;
 	
-	vstmt.all(req.query.path, tmpUser,function(err,rows){
+	var offset = 0;
+	if(typeof req.query.offset != "undefined")
+		offset = req.query.offset;
+	
+	vstmt.all(req.query.path, tmpUser, offset, function(err,rows){
 		res.json(rows);
 	});
 });
