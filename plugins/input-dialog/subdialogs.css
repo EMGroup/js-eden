@@ -176,6 +176,24 @@ div.script-history-bookmark:before {
 	color: #aaa;
 }
 
+div.script-history-stored {
+	height: 16px;
+	width: 20px;
+	float: left;
+	padding: 5px;
+	border-right: 1px solid #e5e5e5;
+	cursor: pointer;
+}
+
+div.script-history-stored:before {
+	margin-left: 5px;
+	content: "\f1c0";
+	font-family: "FontAwesome";
+	font-size: 11pt;
+	font-weight: normal;
+	color: #aaa;
+}
+
 div.script-history-bookmark.bookmarked:before {
 	content: "\f005";
 	color: orange;

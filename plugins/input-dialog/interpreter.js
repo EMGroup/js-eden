@@ -334,9 +334,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (tabs.length == 0) agent.state[obs_agent] = undefined;
 				hideMenu();
 			});
-			createMenuItem("&#xf1da;", "View History", function(e) { showSubDialog("showHistory", function(status, index) {
+			createMenuItem("&#xf1da;", "View History", function(e) { showSubDialog("showHistory", function(status, index, version) {
 				if (status) {
-					scriptagent.rollback(index);
+					if (version != scriptagent.meta.saveID) {
+						scriptagent.changeVersion(version, function() {
+							scriptagent.rollback(index);
+						});
+					} else {
+						scriptagent.rollback(index);
+					}
 				}
 			}, scriptagent); hideMenu(); });
 			createMenuItem("&#xf0d0;", "Insert Template", function(e) { });

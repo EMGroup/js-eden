@@ -219,6 +219,24 @@ Eden.DB.createMeta = function(path) {
 	return Eden.DB.meta[path];
 }
 
+Eden.DB.getVersions = function(path, callback) {
+	$.ajax({
+		url: this.remoteURL+"/agent/versions?path="+path,
+		type: "get",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		success: function(data){
+			console.log(data);
+			callback(data);
+		},
+		error: function(a){
+			console.error(a);
+		}
+	});
+}
+
 Eden.DB.getMeta = function(path, callback) {
 	// Check local meta
 	if (Eden.DB.meta[path]) {
@@ -254,8 +272,10 @@ Eden.DB.getSource = function(path, tag, callback) {
 			var tagvalue;
 			if (tag === undefined || tag == "default") {
 				tagvalue = "";
-			} else {
+			} else if (typeof tag == "string") {
 				tagvalue = "&tag="+tag;
+			} else {
+				tagvalue = "&version="+tag;
 			}
 
 			$.get(Eden.DB.remoteURL+"/agent/get?path="+path+tagvalue, function (data) {

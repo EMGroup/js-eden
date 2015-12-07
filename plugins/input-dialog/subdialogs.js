@@ -188,51 +188,71 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 	var valid = true;
 	var active = data.index;
 	var activeelement;
+	var version = data.meta.saveID;
 
-	for (var i=data.history[data.meta.saveID].length-1; i>=0; i--) {
-		var item = $('<div class="script-history-item"></div>');
-		if (active == i) {
-			item.addClass("current");
-			item.addClass("original");
-			activeelement = item;
-		}
-		item.get(0).setAttribute("data-index", ""+i);
-		var bookmark = $('<div class="script-history-bookmark"></div>');
-		var time = $('<div class="script-history-time"></div>');
-		var content2 = $('<div class="script-history-content"></div>');
-		time.html(get_time_diff(data.history[data.meta.saveID][i].time));
-		time.get(0).title = data.history[data.meta.saveID][i].time;
-		if (data.history[data.meta.saveID][i].bookmark) {
-			bookmark.addClass("bookmarked");
-		}
-		if (data.history[data.meta.saveID][i].title) {
-			content2.html(data.history[data.meta.saveID][i].title);
-		} else {
-			content2.html("[Autosave]");
-		}
-		item.append(bookmark);
-		item.append(content2);
-		item.append(time);
-		hist.append(item);
+	function clearHistory() {
+		var histele = hist.get(0);
+		while (histele.firstChild) histele.removeChild(histele.firstChild);
+		activeelement = undefined;
 	}
 
-	// Add base items.
-	for (var ver in data.history) {
-		if (ver === undefined) continue;
-
-		var item = $('<div class="script-history-item"></div>');
-		if (active == i) {
-			item.addClass("current");
-			item.addClass("original");
-			activeelement = item;
+	function buildHistory(saveID) {
+		if (data.history[saveID]) {
+			for (var i=data.history[saveID].length-1; i>=0; i--) {
+				var item = $('<div class="script-history-item"></div>');
+				if (active == i) {
+					item.addClass("current");
+					item.addClass("original");
+					activeelement = item;
+				}
+				item.get(0).setAttribute("data-index", ""+i);
+				var bookmark = $('<div class="script-history-bookmark"></div>');
+				var time = $('<div class="script-history-time"></div>');
+				var content2 = $('<div class="script-history-content"></div>');
+				time.html(get_time_diff(data.history[saveID][i].time));
+				time.get(0).title = data.history[saveID][i].time;
+				if (data.history[saveID][i].bookmark) {
+					bookmark.addClass("bookmarked");
+				}
+				if (data.history[saveID][i].title) {
+					content2.html(data.history[saveID][i].title);
+				} else {
+					content2.html("[Autosave]");
+				}
+				item.append(bookmark);
+				item.append(content2);
+				item.append(time);
+				hist.append(item);
+			}
 		}
-		item.get(0).setAttribute("data-version", ""+ver);
-		var bookmark = $('<div class="script-history-bookmark"></div>');
-		var content2 = $('<div class="script-history-content">'+ver+'</div>');
-		item.append(bookmark);
-		item.append(content2);
-		hist.append(item);
+
+		// Add base items.
+		Eden.DB.getVersions(data.name, function(versions) {
+			if (versions == null) return;
+
+			for (var i=0; i<versions.length; i++) {
+				var item = $('<div class="script-history-item"></div>');
+				if (versions[i].saveID == version) {
+					item.addClass("original");
+					if (active == -1) {
+						item.addClass("current");
+						activeelement = item;
+					}
+				}
+				item.get(0).setAttribute("data-version", ""+versions[i].saveID);
+				var bookmark = $('<div class="script-history-stored"></div>');
+				var t = versions[i].date.split(/[- :]/);
+				var time = $('<div class="script-history-time">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</div>');
+				var content2 = $('<div class="script-history-content">'+versions[i].tag+' by '+versions[i].name+'</div>');
+				item.append(bookmark);
+				item.append(content2);
+				item.append(time);
+				hist.append(item);
+			}
+		});
 	}
+
+	buildHistory(data.meta.saveID);
 
 	content
 	.on("input", ".script-history-content", function(e) {
@@ -245,7 +265,12 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 		console.log(e);
 		var ver = e.currentTarget.getAttribute("data-version");
 		if (ver) {
+			if (ver != "origin") ver = parseInt(ver);
+			console.log("Change version: " + ver);
 			// Rebuild with a different version history
+			version = ver;
+			clearHistory();
+			buildHistory(version);
 			active = -1;
 		} else {
 			var index = parseInt(e.currentTarget.getAttribute("data-index"));
@@ -275,8 +300,8 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 	.on("click", ".button-ok", function() {
 		if (valid) {
 			element.get(0).removeChild(obscurer.get(0));
-			console.log("Rollback to: " + active);
-			callback(true, active);
+			console.log("Rollback to: " + active + "@"+version);
+			callback(true, active, version);
 		}
 	})
 	.on("click", ".button-cancel", function() {

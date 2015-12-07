@@ -480,7 +480,7 @@ Eden.Agent.prototype.redo = function() {
 
 
 Eden.Agent.prototype.changeVersion = function(tag, callback) {
-	Eden.Agent.importAgent(me.name, tag, me.options, callback);
+	Eden.Agent.importAgent(this.name, tag, this.options, callback);
 }
 
 
