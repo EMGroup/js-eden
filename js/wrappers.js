@@ -29,6 +29,10 @@ Eden.Agent = function(parent, name, meta, options) {
 		this.name = name;
 	}
 
+	if (meta === undefined) {
+		console.error("Meta undefined for " + name);
+	}
+
 	this.watches = [];
 	this.scope = eden.root.scope;
 	this.ast = undefined;
@@ -39,7 +43,12 @@ Eden.Agent = function(parent, name, meta, options) {
 	this.handles = [];
 	this.meta = meta;
 	this.title = (meta && meta.title) ? meta.title : "Agent";
-	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || [];
+	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || {origin:[]};
+
+	if (meta && this.history[meta.saveID] === undefined) {
+		this.history[meta.saveID] = [];
+	}
+
 	this.index = -1; //JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_index')) || 0;
 	this.snapshot = ""; //edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
 	this.autosavetimer = undefined;
@@ -131,11 +140,20 @@ Eden.Agent.AUTOSAVE_INTERVAL = 2000;
  *     - force: Always execute, even if previously executed.
  *     - noexec: Do not execute.
  */
-Eden.Agent.importAgent = function(path, options, callback) {
+Eden.Agent.importAgent = function(path, tag, options, callback) {
 	var ag;
+	if (callback === undefined) {
+		console.trace("DEPRECATED USE OF IMPORT");
+		return;
+	}
 
-	function finish() {
+	function finish(success, msg) {
 		if (ag) {
+			if (!success) {
+				callback(undefined, msg);
+				return;
+			}
+
 			if (ag.ast && ag.ast.script.errors.length > 0) {
 				console.error(ag.ast.script.errors[0].prettyPrint());
 			}
@@ -145,8 +163,13 @@ Eden.Agent.importAgent = function(path, options, callback) {
 			}
 		} else if (options && options.indexOf("create") >= 0) {
 			// Auto create agents that don't exist
-			ag = new Eden.Agent(undefined, path, undefined, options);
+			ag = new Eden.Agent(undefined, path, Eden.DB.createMeta(path), options);
+			Eden.DB.updateMeta(path, "tag", tag);
+		} else if (!success) {
+			callback(undefined, msg);
+			return;
 		}
+
 		if (callback) callback(ag);
 	}
 
@@ -156,10 +179,11 @@ Eden.Agent.importAgent = function(path, options, callback) {
 		ag.setOptions(options);
 
 		// Force a reload?
-		if (options && options.indexOf("reload") >= 0) {
-			ag.loadFromFile(ag.meta.file, finish);
+		if ((ag.meta && ag.meta.tag != tag && tag != "default") || (options && options.indexOf("reload") >= 0)) {
+			Eden.DB.updateMeta(path, "tag", tag);
+			ag.loadSource(finish);
 		} else {
-			finish();
+			finish(true);
 		}
 		return;
 	}
@@ -167,21 +191,24 @@ Eden.Agent.importAgent = function(path, options, callback) {
 	// Ask database for info about this agent
 	Eden.DB.getMeta(path, function(path, meta) {
 		// It exists in the database
-		if (meta) {			
+		if (meta) {	
+			Eden.DB.updateMeta(path, "tag", tag);		
 			ag = new Eden.Agent(undefined, path, meta, options);
 
 			// Get from server or use local?
 			if ((options === undefined
 					|| (options && options.indexOf("local") == -1)
 					|| !Eden.Agent.hasLocalModifications(path))
-					&& meta.file) {
-				ag.loadFromFile(meta.file, finish);
+					&& (meta.file || meta.remote)) {
+				ag.loadSource(finish);
 				return;
 			} else {
 				ag.setOptions(["local"]);
+				finish(true);
+				return;
 			}
 		}
-		finish();
+		finish(false, "No agent");
 	});
 }
 
@@ -264,15 +291,12 @@ Eden.Agent.prototype.setOptions = function(options) {
 		if (options.indexOf("remote") >= 0) this.clearHistory();
 		if (options.indexOf("local") == -1) {
 			this.index = -1;
-			this.saveHistoryIndex();
 		} else {
-			this.index = this.history.length - 1;
-			this.saveHistoryIndex();
+			this.index = this.history[this.meta.saveID].length - 1;
 		}
 		if (options.indexOf("readonly") >= 0) this.owned = true;
 	} else {
 		this.index = -1;
-		this.saveHistoryIndex();
 	}
 }
 
@@ -280,65 +304,55 @@ Eden.Agent.prototype.setOptions = function(options) {
 
 Eden.Agent.prototype.setSnapshot = function(source) {
 	this.snapshot = source;
-	if (this.history.length > 0) {
-		edenUI.setOptionValue('agent_'+this.name+'_snap', source);
-	}
-}
-
-
-
-Eden.Agent.prototype.setEnabled = function(enabled) {
-	if (this.enabled != enabled) {
-		this.enabled = enabled;
-		Eden.DB.updateMeta(this.name, "enabled", enabled);
-		//edenUI.setOptionValue('agent_'+this.name+'_enabled', JSON.stringify(this.enabled));
-	}	
+	//if (this.history.length > 0) {
+	//	edenUI.setOptionValue('agent_'+this.name+'_snap', source);
+	//}
 }
 
 
 
 Eden.Agent.prototype.saveHistory = function() {
-	if (this.history.length > 0) {
+	//if (this.history.length > 0) {
 		edenUI.setOptionValue('agent_'+this.name+'_history', JSON.stringify(this.history));
-	}
-}
-
-
-
-Eden.Agent.prototype.saveHistoryIndex = function() {
-	if (this.index >= 0) {
-		edenUI.setOptionValue('agent_'+this.name+'_index', JSON.stringify(this.index));
-	}
+	//}
 }
 
 
 
 Eden.Agent.prototype.clearFuture = function() {
 	// Discard any future
-	if (this.history.length-1 != this.index) {
-		this.history = this.history.slice(0, this.index+1);
+	if (this.history[this.meta.saveID].length-1 != this.index) {
+		this.history[this.meta.saveID] = this.history[this.meta.saveID].slice(0, this.index+1);
 	}
 }
 
 
 
 Eden.Agent.prototype.addHistory = function(redo, undo) {
+	if (this.meta === undefined) {
+		console.error("Cannot save history of metaless agent");
+		return;
+	}
+
 	// Discard any future
 	this.clearFuture();
 
-	this.history.push({time: Date.now() / 1000 | 0, redo: redo, undo: undo});
-	this.index = this.history.length - 1;
+	this.history[this.meta.saveID].push({time: Date.now() / 1000 | 0, redo: redo, undo: undo});
+	this.index = this.history[this.meta.saveID].length - 1;
 	this.saveHistory();
-	this.saveHistoryIndex();
 }
 
 
 
 Eden.Agent.prototype.clearHistory = function() {
-	this.history = [];
-	this.index = this.history.length - 1;
+	if (this.meta === undefined) {
+		console.error("Cannot clear history of metaless agent");
+		return;
+	}
+
+	this.history[this.meta.saveID] = [];
+	this.index = -1;
 	this.saveHistory();
-	this.saveHistoryIndex();
 }
 
 
@@ -351,8 +365,6 @@ Eden.Agent.prototype.rollback = function(index) {
 	//console.log("Rollback: " + snap);
 
 	this.index = index;
-	this.saveHistoryIndex();
-	
 	this.setSnapshot(snap);
 	this.setSource(snap);
 
@@ -365,7 +377,7 @@ Eden.Agent.prototype.rollback = function(index) {
  * Generate a history snapshot.
  */
 Eden.Agent.prototype.generateSnapshot = function(index) {
-	if (index >= 0 && this.history[index].snapshot) return this.history[index].snapshot;
+	if (index >= 0 && this.history[this.meta.saveID][index].snapshot) return this.history[this.meta.saveID][index].snapshot;
 
 	// TODO find nearest existing snapshot and use that...
 
@@ -376,7 +388,7 @@ Eden.Agent.prototype.generateSnapshot = function(index) {
 
 	if (i > index) {
 		while (i > index) {
-			var hist = this.history[i];
+			var hist = this.history[this.meta.saveID][i];
 			i--;
 			var p = undodmp.patch_fromText(hist.undo);
 			var r = undodmp.patch_apply(p, snap);
@@ -385,7 +397,7 @@ Eden.Agent.prototype.generateSnapshot = function(index) {
 	} else {
 		while (i < index) {
 			i++;
-			var hist = this.history[i];
+			var hist = this.history[this.meta.saveID][i];
 			var p = undodmp.patch_fromText(hist.redo);
 			var r = undodmp.patch_apply(p, snap);
 			snap = r[0];
@@ -401,9 +413,9 @@ Eden.Agent.prototype.generateSnapshot = function(index) {
  * Make a particular history index a snapshot point.
  */
 Eden.Agent.prototype.makeSnapshot = function(index) {
-	if (this.history[index].snapshot) return;
+	if (this.history[this.meta.saveID][index].snapshot) return;
 	var snap = this.generateSnapshot(index);
-	this.history[index].snapshot = snap;
+	this.history[this.meta.saveID][index].snapshot = snap;
 	this.saveHistory();
 }
 
@@ -411,15 +423,15 @@ Eden.Agent.prototype.makeSnapshot = function(index) {
 
 Eden.Agent.prototype.undo = function() {
 	if (this.index < 0) return;
-	if (this.history.length == 0) return;
+	if (this.history[this.meta.saveID].length == 0) return;
 
-	var hist = this.history[this.index];
+	var hist = this.history[this.meta.saveID][this.index];
 	this.index--;
 
 	var snap;
 
-	if (this.index >= 0 && this.history[this.index].snapshot) {
-		snap = this.history[this.index].snapshot;
+	if (this.index >= 0 && this.history[this.meta.saveID][this.index].snapshot) {
+		snap = this.history[this.meta.saveID][this.index].snapshot;
 	} else {
 		var undodmp = new diff_match_patch();
 		var p = undodmp.patch_fromText(hist.undo);
@@ -427,7 +439,6 @@ Eden.Agent.prototype.undo = function() {
 		snap = r[0];
 	}
 
-	this.saveHistoryIndex();
 	this.setSnapshot(snap);
 	this.setSource(snap);
 }
@@ -435,11 +446,13 @@ Eden.Agent.prototype.undo = function() {
 
 
 Eden.Agent.prototype.canUndo = function() {
-	return this.history.length > 0 && this.index >= 0;
+	if (this.meta === undefined) return false;
+	return this.history[this.meta.saveID].length > 0 && this.index >= 0;
 }
 
 Eden.Agent.prototype.canRedo = function() {
-	return this.index < this.history.length-1;
+	if (this.meta === undefined) return false;
+	return this.index < this.history[this.meta.saveID].length-1;
 }
 
 
@@ -448,7 +461,7 @@ Eden.Agent.prototype.redo = function() {
 	if (this.index >= this.history.length-1) return;
 
 	this.index++;
-	var hist = this.history[this.index];
+	var hist = this.history[this.meta.saveID][this.index];
 	var snap;
 
 	if (hist.snapshot) {
@@ -460,29 +473,44 @@ Eden.Agent.prototype.redo = function() {
 		snap = r[0];
 	}
 
-	this.saveHistoryIndex();
 	this.setSnapshot(snap);
 	this.setSource(snap);
 }
 
 
 
-Eden.Agent.prototype.loadFromFile = function(filename, callback) {
+Eden.Agent.prototype.changeVersion = function(tag, callback) {
+	Eden.Agent.importAgent(me.name, tag, me.options, callback);
+}
+
+
+
+Eden.Agent.prototype.loadSource = function(callback) {
 	var me = this;
 	this.executed = false;
 
-	$.get(filename, function(data) {
-		console.log("File loaded: " + filename);
-		me.setSnapshot(data);
-		
-		// Do we need to do an automatic fast-forward?
-		if (me.options && me.options.indexOf("rebase") >= 0) {
-			while (me.canRedo()) me.redo();
-		}
+	Eden.DB.getSource(me.name, me.meta.tag, function(data, msg) {
+		if (data) {
+			console.log("Source loaded: " + me.name);
+			// Make sure we have a local history for this
+			if (me.history[me.meta.saveID] === undefined) {
+				me.history[me.meta.saveID] = [];
+			}
 
-		me.setSource(me.snapshot);
-		if (callback) callback();
-		Eden.Agent.emit("loaded", [me]);
+			me.setSnapshot(data);
+		
+			// Do we need to do an automatic fast-forward?
+			if (me.options && me.options.indexOf("rebase") >= 0) {
+				while (me.canRedo()) me.redo();
+			}
+
+			me.setSource(me.snapshot);
+			if (callback) callback(true);
+			Eden.Agent.emit("loaded", [me]);
+		} else {
+			if (callback) callback(false, msg);
+			else console.error("AGENT ERROR: " + me.name + " - " + msg);
+		}
 	}, "text");
 }
 
@@ -672,6 +700,19 @@ Eden.Agent.prototype.execute = function(force, auto) {
 		throw e;
 	}
 }*/
+
+
+
+Eden.Agent.prototype.upload = function(tagname) {
+	var me = this;
+	if (this.ast) {
+		Eden.DB.upload(this.name, this.meta, this.ast.stream.code, tagname, function() {
+			if (me.history[me.meta.saveID] === undefined) {
+				me.history[me.meta.saveID] = [];
+			}
+		});
+	}
+}
 
 
 

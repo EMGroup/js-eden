@@ -407,6 +407,10 @@
 			"title": "Making Arrows",
 			"enabled": true
 		},
+		"tutorials/scoping": {
+			"file": "tutorials/scoping.js-e",
+			"title": "Scoping"
+		},
 		"tutorials/worksheets": {
 			"file": "tutorials/worksheets_ws.js-e",
 			"title": "Making Worksheets"

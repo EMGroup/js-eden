@@ -83,7 +83,7 @@ Eden.AST.Scope = function() {
 	this.errors = [];
 	this.range = false;
 	this.overrides = {};
-	this.primary = new Eden.AST.Primary();
+	this.expression = undefined; // = new Eden.AST.Primary();
 }
 
 Eden.AST.Scope.prototype.error = fnEdenASTerror;
@@ -92,16 +92,23 @@ Eden.AST.Scope.prototype.prepend = function(extra) {
 	this.primary.prepend(extra);
 }
 
-Eden.AST.Scope.prototype.setObservable = function(obs) {
+/*Eden.AST.Scope.prototype.setObservable = function(obs) {
 	this.primary.setObservable(obs);
 }
 
 Eden.AST.Scope.prototype.getObservable = function() {
 	return this.primary.getObservable();
+}*/
+
+Eden.AST.Scope.prototype.setExpression = function(express) {
+	this.expression = express;
+	if (express) {
+		this.errors.push.apply(this.errors, express.errors);
+	}
 }
 
 Eden.AST.Scope.prototype.doesReturnBound = function() {
-	return this.primary.doesReturnBound();
+	return (this.expression && this.expression.doesReturnBound) ? this.expression.doesReturnBound() : false;
 }
 
 Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2) {
@@ -145,9 +152,10 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 		}
 	}
 	res = res.slice(0,-1);
-	res += "], "+this.range+", context.lookup(\""+this.primary.getObservable()+"\"))";
+	// TODO Reinstate cause when known
+	res += "], "+this.range+", undefined)"; //context.lookup(\""+this.primary.getObservable()+"\"))";
 	ctx.scopes.push(res);
-	return this.primary.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]");
+	return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]");
 }
 
 
@@ -744,10 +752,15 @@ Eden.AST.Import = function() {
 	this.end = 0;
 	this.executed = 0;
 	this.options = [];
+	this.tag = "default";
 }
 
 Eden.AST.Import.prototype.setPath = function(path) {
 	this.path = path;
+}
+
+Eden.AST.Import.prototype.setTag = function(tag) {
+	this.tag = tag;
 }
 
 Eden.AST.Import.prototype.addOption = function(opt) {
@@ -782,7 +795,7 @@ Eden.AST.Import.prototype.generate = function(ctx) {
 Eden.AST.Import.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var me = this;
-	Eden.Agent.importAgent(this.path, this.options, function(ag) {
+	Eden.Agent.importAgent(this.path, this.tag, this.options, function(ag, msg) {
 		if (ag) {
 			for (var i=0; i<base.imports.length; i++) {
 				if (base.imports[i] === ag) return;
@@ -790,7 +803,7 @@ Eden.AST.Import.prototype.execute = function(root, ctx, base) {
 			base.imports.push(ag);
 		} else {
 			me.executed = 3;
-			me.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOAGENT, me, "\""+me.path+"\" does not exist"));
+			me.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOAGENT, me, "\""+me.path+"@"+me.tag+"\" does not exist: "+msg));
 			if (me.parent) me.parent.executed = 3;
 		}
 	});
@@ -2428,7 +2441,15 @@ Eden.AST.Script = function() {
 	this.executed = 0;
 	this.active = false;
 	this.parameters = undefined;
+	this.locals = undefined;
 };
+
+Eden.AST.Script.prototype.setLocals = function(locals) {
+	this.locals = locals;
+	if (locals) {
+		this.errors.push.apply(this.errors, locals.errors);
+	}
+}
 
 Eden.AST.Script.prototype.getParameterByNumber = function(index) {
 	if (this.parameters) {
@@ -2500,7 +2521,7 @@ function runEdenAction(source, action) {
 		if (typeof delay.value == "object") {
 			if (delay.value.type == "import") {
 				delay.value.executed = 1;
-				Eden.Agent.importAgent(delay.value.path, delay.value.options, function(ag) {
+				Eden.Agent.importAgent(delay.value.path, delay.value.tag, delay.value.options, function(ag) {
 					if (ag) {
 						var already = false;
 						// Check to see if already imported to local scope...

@@ -147,4 +147,5 @@ when (mousePressed &&
 	switch2Closed = !switch2Closed;
 }
 
+showView("picture");
 

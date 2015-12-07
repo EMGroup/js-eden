@@ -5,10 +5,11 @@
 
 import worksheet;
 
-worksheet_title = "Modelling Shapes";
-worksheet_subtitle = "Creating a Reusable Arrow";
+arrow_worksheet is WorksheetPage with
+worksheet_title is "Modelling Shapes",
+worksheet_subtitle is "Creating a Reusable Arrow",
 
-worksheet_content = 
+worksheet_content is
 "<jseden-canvas name=\"ArrowFinished\" width=400 height=150 source=\"picture\" float=\"right\"></jseden-canvas>"
 
 "<p>"
@@ -167,4 +168,7 @@ arrow3 is Arrow with
 	x is 123, y is 26, colour is "green";
 
 picture is arrow // arrow1 // arrow2 // arrow3;
+
+worksheet_pages["tutorials/scoping/arrow"] is arrow_worksheet;
+if (worksheet_page == 1 || worksheet_page == @) worksheet_page = "tutorials/scoping/arrow";
 

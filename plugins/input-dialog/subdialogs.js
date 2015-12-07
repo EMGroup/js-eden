@@ -24,7 +24,7 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 	content
 	.on("input blur", ".script-subdialog-text", function() {
 		var value = input.get(0).value;
-		console.log(value);
+		//console.log(value);
 
 		if (value == "") {
 			valid = false;
@@ -62,6 +62,47 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 	.on("click", ".button-agents", function() {
 		element.get(0).removeChild(obscurer.get(0));
 		callback(false, true);
+	})
+	.on("click", ".button-cancel", function() {
+		element.get(0).removeChild(obscurer.get(0));
+		callback(false);
+	}); 
+
+	obscurer.append(content);
+	element.append(obscurer);
+}
+
+
+
+EdenUI.plugins.ScriptInput.dialogs.uploadAgent = function(element, callback) {
+	var obscurer = $('<div class="script-obscurer noselect"></div>');
+	var content = $('<div class="script-subdialog-uploadagent noselect"><span class="script-subdialog-title">Upload agent. Give an optional version name:</span><br/><input class="script-subdialog-text" type="text" spellcheck="false"></input><span class="status missing"></span><br><button class="button-icon-green button-upload">Upload</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">Cancel</button></div>');
+	var input = content.find('.script-subdialog-text');
+	var status = input.get(0).nextSibling;
+	var valid = false;
+
+
+	content
+	.on("input blur", ".script-subdialog-text", function() {
+		var value = input.get(0).value;
+		console.log(value);
+
+		if (value == "") {
+			valid = false;
+			status.className = "missing";
+		} else if (/^[a-z][a-z0-9]+$/i.test(value)) {
+			status.className = "addnew";
+			valid = true;
+		} else {
+			status.className = "invalid";
+			valid = false;
+		}
+	})
+	.on("click", ".button-upload", function() {
+		if (valid) {
+			element.get(0).removeChild(obscurer.get(0));
+			callback(true, input.get(0).value);
+		}
 	})
 	.on("click", ".button-cancel", function() {
 		element.get(0).removeChild(obscurer.get(0));
@@ -148,7 +189,7 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 	var active = data.index;
 	var activeelement;
 
-	for (var i=data.history.length-1; i>=0; i--) {
+	for (var i=data.history[data.meta.saveID].length-1; i>=0; i--) {
 		var item = $('<div class="script-history-item"></div>');
 		if (active == i) {
 			item.addClass("current");
@@ -158,14 +199,14 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 		item.get(0).setAttribute("data-index", ""+i);
 		var bookmark = $('<div class="script-history-bookmark"></div>');
 		var time = $('<div class="script-history-time"></div>');
-		var content2 = $('<div contenteditable class="script-history-content"></div>');
-		time.html(get_time_diff(data.history[i].time));
-		time.get(0).title = data.history[i].time;
-		if (data.history[i].bookmark) {
+		var content2 = $('<div class="script-history-content"></div>');
+		time.html(get_time_diff(data.history[data.meta.saveID][i].time));
+		time.get(0).title = data.history[data.meta.saveID][i].time;
+		if (data.history[data.meta.saveID][i].bookmark) {
 			bookmark.addClass("bookmarked");
 		}
-		if (data.history[i].title) {
-			content2.html(data.history[i].title);
+		if (data.history[data.meta.saveID][i].title) {
+			content2.html(data.history[data.meta.saveID][i].title);
 		} else {
 			content2.html("[Autosave]");
 		}
@@ -175,47 +216,57 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 		hist.append(item);
 	}
 
-	// Add base item.
-	var item = $('<div class="script-history-item"></div>');
-	if (active == i) {
-		item.addClass("current");
-		item.addClass("original");
-		activeelement = item;
+	// Add base items.
+	for (var ver in data.history) {
+		if (ver === undefined) continue;
+
+		var item = $('<div class="script-history-item"></div>');
+		if (active == i) {
+			item.addClass("current");
+			item.addClass("original");
+			activeelement = item;
+		}
+		item.get(0).setAttribute("data-version", ""+ver);
+		var bookmark = $('<div class="script-history-bookmark"></div>');
+		var content2 = $('<div class="script-history-content">'+ver+'</div>');
+		item.append(bookmark);
+		item.append(content2);
+		hist.append(item);
 	}
-	item.get(0).setAttribute("data-index", "-1");
-	var bookmark = $('<div class="script-history-bookmark"></div>');
-	var content2 = $('<div contenteditable class="script-history-content">Base Source</div>');
-	item.append(bookmark);
-	item.append(content2);
-	hist.append(item);
 
 	content
 	.on("input", ".script-history-content", function(e) {
 		var index = parseInt(e.target.parentNode.getAttribute("data-index"));
-		data.history[index].title = e.target.textContent;
+		data.history[data.meta.saveID][index].title = e.target.textContent;
 		data.saveHistory();
 		data.makeSnapshot(index);
 	})
 	.on("click", ".script-history-item", function(e) {
 		console.log(e);
-		var index = parseInt(e.currentTarget.getAttribute("data-index"));
-		active = index;
+		var ver = e.currentTarget.getAttribute("data-version");
+		if (ver) {
+			// Rebuild with a different version history
+			active = -1;
+		} else {
+			var index = parseInt(e.currentTarget.getAttribute("data-index"));
+			active = index;
+		}
 		if (activeelement) activeelement.removeClass("current");
 		activeelement = $(e.currentTarget);
 		activeelement.addClass("current");
 	})
 	.on("click", ".script-history-bookmark", function(e) {
 		var index = parseInt(e.target.parentNode.getAttribute("data-index"));
-		if (data.history[index].bookmark === undefined) {
-			data.history[index].bookmark = true;
+		if (data.history[data.meta.saveID][index].bookmark === undefined) {
+			data.history[data.meta.saveID][index].bookmark = true;
 		} else {		
-			data.history[index].bookmark = !data.history[index].bookmark;
+			data.history[data.meta.saveID][index].bookmark = !data.history[data.meta.saveID][index].bookmark;
 		}
 
 		// Save bookmark
 		data.saveHistory();
 
-		if (data.history[index].bookmark) {
+		if (data.history[data.meta.saveID][index].bookmark) {
 			e.target.className = "script-history-bookmark bookmarked";
 		} else {
 			e.target.className = "script-history-bookmark";

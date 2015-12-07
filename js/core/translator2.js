@@ -912,16 +912,16 @@ Eden.AST.prototype.pPRIMARY_PPP = function() {
 
 
 /**
- * Primary Quad Prime Production.
+ * Primary Quad Prime Production. DEFUNCT
  * PRIMARY'''' -> with SCOPE | epsilon
  */
 Eden.AST.prototype.pPRIMARY_PPPP = function() {
-	if (this.token == "with") {
+	/*if (this.token == "with") {
 		this.next();
 		return this.pSCOPE();
-	} else {
+	} else {*/
 		return new Eden.AST.Primary();
-	}
+	//}
 }
 
 
@@ -1090,7 +1090,7 @@ Eden.AST.prototype.pEXPRESSION_PPPPPP = function() {
  * EXPRESSION Production
  * EXPRESSION -> T { && T | || T }
  */
-Eden.AST.prototype.pEXPRESSION = function() {
+Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
 	var left = this.pTERM();
 
 	while (this.token == "&&" || this.token == "||") {
@@ -1102,6 +1102,25 @@ Eden.AST.prototype.pEXPRESSION = function() {
 	}
 
 	return left;
+}
+
+
+
+/**
+ * Scoped Expression Production
+ * SCOPEDEXP -> EXPRESSION { with SCOPE | epsilon }
+ */
+Eden.AST.prototype.pEXPRESSION = function() {
+	var plain = this.pEXPRESSION_PLAIN();
+
+	if (this.token == "with") {
+		this.next();
+		var scope = this.pSCOPE();
+		scope.setExpression(plain);
+		return scope;
+	} else {
+		return plain;
+	}
 }
 
 
@@ -2122,6 +2141,18 @@ Eden.AST.prototype.pIMPORT = function() {
 		this.next();
 	}
 
+	// Check for a version tag
+	if (this.token == "@") {
+		this.next();
+		if (this.token == "OBSERVABLE") {
+			imp.setTag(this.data.value);
+		} else {
+			imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTTAG));
+			return imp;
+		}
+		this.next();
+	}
+
 	if (this.token != ";" && this.token != "OBSERVABLE" && this.token != "local") {
 		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return imp;
@@ -2405,6 +2436,8 @@ Eden.AST.prototype.pSCRIPT = function() {
 	var ast = new Eden.AST.Script();
 	var parent = this.parent;
 	this.parent = ast;
+
+	ast.setLocals(this.pLOCALS());
 
 	while (this.token != "EOF") {
 		var statement = this.pSTATEMENT();

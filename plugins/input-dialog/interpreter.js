@@ -268,6 +268,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 
+		function uploadAgent(tab) {
+			var name = tab.getAttribute("data-name");
+			showSubDialog("uploadAgent", function(status, tag) {
+				if (Eden.Agent.agents[name] && status) {
+					if (tag == "") tag = undefined;
+					Eden.Agent.agents[name].upload(tag);
+				}
+			});
+		}
+
+
 
 		/* Build the context menu for the tab bar. */
 		var tabcm = new EdenUI.ContextMenu(tabs);
@@ -277,7 +288,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			return Eden.Agent.agents[name] && Eden.Agent.agents[name].executed;
 		}, stopTab);
 		tabcm.addSeparator();
-		tabcm.addItem("&#xf093;","Upload", false);
+		tabcm.addItem("&#xf093;","Upload", true, uploadAgent);
 		tabcm.addItem("&#xf21b;","Hide",true, hideTab);
 
 
@@ -363,7 +374,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					for (var a in selected) {
 						if (selected[a]) {
 							lasttab = a;
-							Eden.Agent.importAgent(a, ["noexec"]);
+							Eden.Agent.importAgent(a, "default", ["noexec"]);
 							if (tabs.indexOf(a) == -1) {
 								tabs.push(a);
 							}
@@ -597,7 +608,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					scriptagent = Eden.Agent.agents["view/script/"+name];
 				}*/
 
-				Eden.Agent.importAgent("view/script/"+name, ["noexec","create"], function(ag) {
+				Eden.Agent.importAgent("view/script/"+name, "default", ["noexec","create"], function(ag,msg) {
+					if (ag === undefined) {
+						console.error("Could not create agent: view/script/"+name+"@default: "+msg);
+						return;
+					}
 					if (value instanceof Array) {
 						for (var i=0; i < value.length; i++) {
 							if (typeof value[i] == "string") {
@@ -704,7 +719,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				// update the script view if successful.
 				if (value) {
 					if (Eden.Agent.agents[value] === undefined) {
-						Eden.Agent.importAgent(value, ["noexec"], function(ag) {
+						Eden.Agent.importAgent(value, "default", ["noexec"], function(ag) {
 							if (ag) changeAgent(undefined, value);
 						});
 					}
@@ -781,7 +796,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.declare(obs_showbuttons);
 		agent.declare(obs_tabs);
 		agent.declare(obs_zoom);
-		agent.setEnabled(true);
 
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);
@@ -1363,7 +1377,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					},
 					cursor: 'move',
 					cursorAt: {top: -5, left: -5}
-				});
+				// Following line is hack to allow click through editing...
+				}).click(function() { $(this).draggable({disabled: true}); }) .blur(function() { $(this).draggable({disabled: false}); });
 			}
 		}
 
@@ -1766,10 +1781,10 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 		function openTab(path) {
-			Eden.Agent.importAgent(path, ["noexec"], function(ag) {
-				if (ag === undefined) {
+			Eden.Agent.importAgent(path, "default", ["noexec", "create"], function(ag) {
+				/*if (ag === undefined) {
 					ag = new Eden.Agent(undefined, path, undefined, undefined);
-				}
+				}*/
 				var tabs = agent.state[obs_tabs];
 				if (tabs.indexOf(path) == -1) {
 					tabs.push(path);
@@ -1792,18 +1807,22 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			hideMenu();
 
 			if (inspectmode) {
-				if (e.target.className == "eden-path") {
+				var element = e.target;
+				if (element.className == "" && element.parentNode.nodeName == "SPAN") {
+					element = element.parentNode;
+				}
+				if (element.className == "eden-path") {
 					//console.log();
 					disableInspectMode();
-					openTab(e.target.parentNode.textContent);
-				} else if (e.target.className == "eden-observable") {
-					var obs = e.target.getAttribute("data-observable");
-					e.target.textContent =  Eden.edenCodeForValue(eden.root.lookup(obs).value());
-					e.target.className += " select";
-				} else if (e.target.className == "eden-observable select") {
-					var obs = e.target.getAttribute("data-observable");
-					e.target.textContent = obs;
-					e.target.className = "eden-observable";
+					openTab(element.parentNode.textContent);
+				} else if (element.className == "eden-observable") {
+					var obs = element.getAttribute("data-observable");
+					element.textContent =  Eden.edenCodeForValue(eden.root.lookup(obs).value());
+					element.className += " select";
+				} else if (element.className == "eden-observable select") {
+					var obs = element.getAttribute("data-observable");
+					element.textContent = obs;
+					element.className = "eden-observable";
 				}
 				e.preventDefault();
 			} else {
@@ -1909,7 +1928,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		function onNewTab() {
 			showSubDialog("newAgent", function(status, value) {
 				if (status) {
-					Eden.Agent.importAgent(value, ["noexec","create"], function(ag) {
+					Eden.Agent.importAgent(value, "default", ["noexec","create"], function(ag) {
 						agent.state[obs_agent] = value;
 					});
 				} else if (value) {
@@ -2045,7 +2064,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			contents: $dialogContents,
 			update: function(data) {
 				var agname = "view/script/"+name;
-				Eden.Agent.importAgent(agname, ["noexec", "create"], function(ag) {
+				Eden.Agent.importAgent(agname, "default", ["noexec", "create"], function(ag) {
 					agent.state[obs_agent] = agname;
 
 					//if (edited == false) {
