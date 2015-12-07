@@ -218,6 +218,10 @@ app.get('/agent/search', function(req, res){
 
 	var stmt = db.prepare("SELECT id, path FROM agents where path LIKE ? AND path NOT LIKE ?");
 	var agents = [];
+	var tmpUser = -1;
+	if(typeof req.user != "undefined")
+		tmpUser = req.user.id;
+	
 	db.serialize(function(){
 		stmt.each(match, notmatch, function(err,row){
 			var p = row["path"];
@@ -227,9 +231,7 @@ app.get('/agent/search', function(req, res){
 
 			var myVersion;
 
-			expected++;
-
-			vstmt.all(a, req.user.id, function(err,rows){
+			vstmt.all(a, tmpUser, function(err,rows){
 				myVersion = rows;
 
 				var vstmt2 = db.prepare("SELECT saveID, tag, parentSaveID, date, name, title FROM versions, oauthusers where " +
@@ -259,9 +261,24 @@ app.get('/agent/search', function(req, res){
 					});
 				});
 			});
+		},function(err,num){
+			expected = num;
+			if(num == 0){
+				res.json(null);
+			}
 		});
+	});
+});
 
-
+app.get('/agent/versions', function(req, res){
+	var vstmt = db.prepare("SELECT saveID, tag, parentSaveID, date, name, versions.title FROM versions, oauthusers, agents where " +
+	"path = ? AND agents.id = versions.agentID AND owner = oauthusers.id AND (oauthusers.id = ? OR permission = 1) ORDER BY date desc");
+	var tmpUser = -1;
+	if(typeof req.user != "undefined")
+		tmpUser = req.user.id;
+	
+	vstmt.all(req.query.path, tmpUser,function(err,rows){
+		res.json(rows);
 	});
 });
 
