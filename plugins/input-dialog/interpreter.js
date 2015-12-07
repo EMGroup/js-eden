@@ -608,7 +608,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					scriptagent = Eden.Agent.agents["view/script/"+name];
 				}*/
 
-				Eden.Agent.importAgent("view/script/"+name, "default", ["noexec","create"], function(ag) {
+				Eden.Agent.importAgent("view/script/"+name, "default", ["noexec","create"], function(ag,msg) {
+					if (ag === undefined) {
+						console.error("Could not create agent: view/script/"+name+"@default: "+msg);
+						return;
+					}
 					if (value instanceof Array) {
 						for (var i=0; i < value.length; i++) {
 							if (typeof value[i] == "string") {
@@ -792,7 +796,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.declare(obs_showbuttons);
 		agent.declare(obs_tabs);
 		agent.declare(obs_zoom);
-		agent.setEnabled(true);
 
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);

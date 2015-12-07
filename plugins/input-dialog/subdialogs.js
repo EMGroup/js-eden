@@ -189,7 +189,7 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 	var active = data.index;
 	var activeelement;
 
-	for (var i=data.history.length-1; i>=0; i--) {
+	for (var i=data.history[data.meta.saveID].length-1; i>=0; i--) {
 		var item = $('<div class="script-history-item"></div>');
 		if (active == i) {
 			item.addClass("current");
@@ -200,13 +200,13 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 		var bookmark = $('<div class="script-history-bookmark"></div>');
 		var time = $('<div class="script-history-time"></div>');
 		var content2 = $('<div contenteditable class="script-history-content"></div>');
-		time.html(get_time_diff(data.history[i].time));
-		time.get(0).title = data.history[i].time;
-		if (data.history[i].bookmark) {
+		time.html(get_time_diff(data.history[data.meta.saveID][i].time));
+		time.get(0).title = data.history[data.meta.saveID][i].time;
+		if (data.history[data.meta.saveID][i].bookmark) {
 			bookmark.addClass("bookmarked");
 		}
-		if (data.history[i].title) {
-			content2.html(data.history[i].title);
+		if (data.history[data.meta.saveID][i].title) {
+			content2.html(data.history[data.meta.saveID][i].title);
 		} else {
 			content2.html("[Autosave]");
 		}
@@ -233,7 +233,7 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 	content
 	.on("input", ".script-history-content", function(e) {
 		var index = parseInt(e.target.parentNode.getAttribute("data-index"));
-		data.history[index].title = e.target.textContent;
+		data.history[data.meta.saveID][index].title = e.target.textContent;
 		data.saveHistory();
 		data.makeSnapshot(index);
 	})
@@ -247,16 +247,16 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 	})
 	.on("click", ".script-history-bookmark", function(e) {
 		var index = parseInt(e.target.parentNode.getAttribute("data-index"));
-		if (data.history[index].bookmark === undefined) {
-			data.history[index].bookmark = true;
+		if (data.history[data.meta.saveID][index].bookmark === undefined) {
+			data.history[data.meta.saveID][index].bookmark = true;
 		} else {		
-			data.history[index].bookmark = !data.history[index].bookmark;
+			data.history[data.meta.saveID][index].bookmark = !data.history[data.meta.saveID][index].bookmark;
 		}
 
 		// Save bookmark
 		data.saveHistory();
 
-		if (data.history[index].bookmark) {
+		if (data.history[data.meta.saveID][index].bookmark) {
 			e.target.className = "script-history-bookmark bookmarked";
 		} else {
 			e.target.className = "script-history-bookmark";

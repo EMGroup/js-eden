@@ -36,6 +36,7 @@ Eden.DB.loadRemoteRoot = function(url) {
 			Eden.DB.updateDirectory(a);
 		}
 		Eden.DB.remoteMeta = data.meta;
+		data.meta.saveID = "origin";
 	}, "json");
 
 	// Go to database to get root path
@@ -83,6 +84,7 @@ Eden.DB.updateMeta = function(path, entry, value) {
 		meta = Eden.DB.remoteMeta[path];
 
 		if (meta === undefined) {
+			console.error("NO META");
 			meta = {};
 		}
 
@@ -97,8 +99,6 @@ Eden.DB.updateMeta = function(path, entry, value) {
 		}
 	} catch (e) {
 	}
-
-	return meta;
 }
 
 Eden.DB.getDirectory = function(path, callback) {
@@ -162,9 +162,8 @@ Eden.DB.upload = function(path, meta, source, tagname) {
 		},
 		data:{path: path, title: meta.title, source: source, tag: tagname},
 		success: function(data){
-			console.log(data);
-			meta.saveID = data.saveID;
-			meta.agentID = data.agent;
+			//console.log(data);
+			Eden.DB.updateMeta(path, "saveID", data.saveID);
 		},
 		error: function(a){
 			console.error(a);
@@ -173,7 +172,7 @@ Eden.DB.upload = function(path, meta, source, tagname) {
 }
 
 Eden.DB.createMeta = function(path) {
-	Eden.DB.meta[path] = {};
+	Eden.DB.meta[path] = {saveID: "origin"};
 	return Eden.DB.meta[path];
 }
 
@@ -229,6 +228,7 @@ Eden.DB.getSource = function(path, tag, callback) {
 			}, "text");
 		} else {
 			// Assume it must be local only.
+			callback("");
 		}
 	});
 }

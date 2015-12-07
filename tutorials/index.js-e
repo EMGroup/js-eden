@@ -16,13 +16,25 @@ worksheet_subtitle = "Learning about the environment";
 worksheet_content =
 "<ul>"
 "<li><a href=\"jseden: link1_clicked = true;\">Making Worksheets</a></li>"
-"<li><a href=\"jseden: link2_clicked = true;\">Scoping - Reusable Arrows</a></li>"
+"<li><a href=\"jseden: link2_clicked = true;\">Scoping</a></li>"
+"<li><a href=\"jseden: link3_clicked = true;\">Scoping - Reusable Arrows</a></li>"
+"<li><a href=\"jseden: link4_clicked = true;\">Definition Extensions</a></li>"
 "</ul>"
 ;
 
 when (link1_clicked) {
 	worksheet_page = "tutorials/worksheet";
 	import tutorials/worksheets;
+}
+
+when (link2_clicked) {
+	worksheet_page = "tutorials/scoping";
+	import tutorials/scoping;
+}
+
+when (link3_clicked) {
+	worksheet_page = "tutorials/scoping/arrow";
+	import tutorials/scoping/arrow;
 }
 
 

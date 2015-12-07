@@ -39,7 +39,12 @@ Eden.Agent = function(parent, name, meta, options) {
 	this.handles = [];
 	this.meta = meta;
 	this.title = (meta && meta.title) ? meta.title : "Agent";
-	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || [];
+	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || {origin:[]};
+
+	if (meta && this.history[meta.saveID] === undefined) {
+		this.history[meta.saveID] = [];
+	}
+
 	this.index = -1; //JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_index')) || 0;
 	this.snapshot = ""; //edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
 	this.autosavetimer = undefined;
@@ -139,12 +144,12 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 	}
 
 	function finish(success, msg) {
-		if (!success) {
-			callback(undefined, msg);
-			return;
-		}
-
 		if (ag) {
+			if (!success) {
+				callback(undefined, msg);
+				return;
+			}
+
 			if (ag.ast && ag.ast.script.errors.length > 0) {
 				console.error(ag.ast.script.errors[0].prettyPrint());
 			}
@@ -156,7 +161,11 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			// Auto create agents that don't exist
 			ag = new Eden.Agent(undefined, path, Eden.DB.createMeta(path), options);
 			Eden.DB.updateMeta(path, "tag", tag);
+		} else if (!success) {
+			callback(undefined, msg);
+			return;
 		}
+
 		if (callback) callback(ag);
 	}
 
@@ -191,6 +200,8 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 				return;
 			} else {
 				ag.setOptions(["local"]);
+				finish(true);
+				return;
 			}
 		}
 		finish(false, "No agent");
@@ -276,15 +287,12 @@ Eden.Agent.prototype.setOptions = function(options) {
 		if (options.indexOf("remote") >= 0) this.clearHistory();
 		if (options.indexOf("local") == -1) {
 			this.index = -1;
-			this.saveHistoryIndex();
 		} else {
-			this.index = this.history.length - 1;
-			this.saveHistoryIndex();
+			this.index = this.history[this.meta.saveID].length - 1;
 		}
 		if (options.indexOf("readonly") >= 0) this.owned = true;
 	} else {
 		this.index = -1;
-		this.saveHistoryIndex();
 	}
 }
 
@@ -292,65 +300,55 @@ Eden.Agent.prototype.setOptions = function(options) {
 
 Eden.Agent.prototype.setSnapshot = function(source) {
 	this.snapshot = source;
-	if (this.history.length > 0) {
-		edenUI.setOptionValue('agent_'+this.name+'_snap', source);
-	}
-}
-
-
-
-Eden.Agent.prototype.setEnabled = function(enabled) {
-	if (this.enabled != enabled) {
-		this.enabled = enabled;
-		Eden.DB.updateMeta(this.name, "enabled", enabled);
-		//edenUI.setOptionValue('agent_'+this.name+'_enabled', JSON.stringify(this.enabled));
-	}	
+	//if (this.history.length > 0) {
+	//	edenUI.setOptionValue('agent_'+this.name+'_snap', source);
+	//}
 }
 
 
 
 Eden.Agent.prototype.saveHistory = function() {
-	if (this.history.length > 0) {
+	//if (this.history.length > 0) {
 		edenUI.setOptionValue('agent_'+this.name+'_history', JSON.stringify(this.history));
-	}
-}
-
-
-
-Eden.Agent.prototype.saveHistoryIndex = function() {
-	if (this.index >= 0) {
-		edenUI.setOptionValue('agent_'+this.name+'_index', JSON.stringify(this.index));
-	}
+	//}
 }
 
 
 
 Eden.Agent.prototype.clearFuture = function() {
 	// Discard any future
-	if (this.history.length-1 != this.index) {
-		this.history = this.history.slice(0, this.index+1);
+	if (this.history[this.meta.saveID].length-1 != this.index) {
+		this.history[this.meta.saveID] = this.history[this.meta.saveID].slice(0, this.index+1);
 	}
 }
 
 
 
 Eden.Agent.prototype.addHistory = function(redo, undo) {
+	if (this.meta === undefined) {
+		console.error("Cannot save history of metaless agent");
+		return;
+	}
+
 	// Discard any future
 	this.clearFuture();
 
-	this.history.push({time: Date.now() / 1000 | 0, redo: redo, undo: undo});
-	this.index = this.history.length - 1;
+	this.history[this.meta.saveID].push({time: Date.now() / 1000 | 0, redo: redo, undo: undo});
+	this.index = this.history[this.meta.saveID].length - 1;
 	this.saveHistory();
-	this.saveHistoryIndex();
 }
 
 
 
 Eden.Agent.prototype.clearHistory = function() {
-	this.history = [];
-	this.index = this.history.length - 1;
+	if (this.meta === undefined) {
+		console.error("Cannot clear history of metaless agent");
+		return;
+	}
+
+	this.history[this.meta.saveID] = [];
+	this.index = -1;
 	this.saveHistory();
-	this.saveHistoryIndex();
 }
 
 
@@ -363,8 +361,6 @@ Eden.Agent.prototype.rollback = function(index) {
 	//console.log("Rollback: " + snap);
 
 	this.index = index;
-	this.saveHistoryIndex();
-	
 	this.setSnapshot(snap);
 	this.setSource(snap);
 
@@ -377,7 +373,7 @@ Eden.Agent.prototype.rollback = function(index) {
  * Generate a history snapshot.
  */
 Eden.Agent.prototype.generateSnapshot = function(index) {
-	if (index >= 0 && this.history[index].snapshot) return this.history[index].snapshot;
+	if (index >= 0 && this.history[this.meta.saveID][index].snapshot) return this.history[this.meta.saveID][index].snapshot;
 
 	// TODO find nearest existing snapshot and use that...
 
@@ -388,7 +384,7 @@ Eden.Agent.prototype.generateSnapshot = function(index) {
 
 	if (i > index) {
 		while (i > index) {
-			var hist = this.history[i];
+			var hist = this.history[this.meta.saveID][i];
 			i--;
 			var p = undodmp.patch_fromText(hist.undo);
 			var r = undodmp.patch_apply(p, snap);
@@ -397,7 +393,7 @@ Eden.Agent.prototype.generateSnapshot = function(index) {
 	} else {
 		while (i < index) {
 			i++;
-			var hist = this.history[i];
+			var hist = this.history[this.meta.saveID][i];
 			var p = undodmp.patch_fromText(hist.redo);
 			var r = undodmp.patch_apply(p, snap);
 			snap = r[0];
@@ -413,9 +409,9 @@ Eden.Agent.prototype.generateSnapshot = function(index) {
  * Make a particular history index a snapshot point.
  */
 Eden.Agent.prototype.makeSnapshot = function(index) {
-	if (this.history[index].snapshot) return;
+	if (this.history[this.meta.saveID][index].snapshot) return;
 	var snap = this.generateSnapshot(index);
-	this.history[index].snapshot = snap;
+	this.history[this.meta.saveID][index].snapshot = snap;
 	this.saveHistory();
 }
 
@@ -423,15 +419,15 @@ Eden.Agent.prototype.makeSnapshot = function(index) {
 
 Eden.Agent.prototype.undo = function() {
 	if (this.index < 0) return;
-	if (this.history.length == 0) return;
+	if (this.history[this.meta.saveID].length == 0) return;
 
-	var hist = this.history[this.index];
+	var hist = this.history[this.meta.saveID][this.index];
 	this.index--;
 
 	var snap;
 
-	if (this.index >= 0 && this.history[this.index].snapshot) {
-		snap = this.history[this.index].snapshot;
+	if (this.index >= 0 && this.history[this.meta.saveID][this.index].snapshot) {
+		snap = this.history[this.meta.saveID][this.index].snapshot;
 	} else {
 		var undodmp = new diff_match_patch();
 		var p = undodmp.patch_fromText(hist.undo);
@@ -439,7 +435,6 @@ Eden.Agent.prototype.undo = function() {
 		snap = r[0];
 	}
 
-	this.saveHistoryIndex();
 	this.setSnapshot(snap);
 	this.setSource(snap);
 }
@@ -447,11 +442,13 @@ Eden.Agent.prototype.undo = function() {
 
 
 Eden.Agent.prototype.canUndo = function() {
-	return this.history.length > 0 && this.index >= 0;
+	if (this.meta === undefined) return false;
+	return this.history[this.meta.saveID].length > 0 && this.index >= 0;
 }
 
 Eden.Agent.prototype.canRedo = function() {
-	return this.index < this.history.length-1;
+	if (this.meta === undefined) return false;
+	return this.index < this.history[this.meta.saveID].length-1;
 }
 
 
@@ -460,7 +457,7 @@ Eden.Agent.prototype.redo = function() {
 	if (this.index >= this.history.length-1) return;
 
 	this.index++;
-	var hist = this.history[this.index];
+	var hist = this.history[this.meta.saveID][this.index];
 	var snap;
 
 	if (hist.snapshot) {
@@ -472,7 +469,6 @@ Eden.Agent.prototype.redo = function() {
 		snap = r[0];
 	}
 
-	this.saveHistoryIndex();
 	this.setSnapshot(snap);
 	this.setSource(snap);
 }
@@ -513,7 +509,7 @@ Eden.Agent.prototype.clearExecutedState = function() {
 
 Eden.Agent.prototype.setTitle = function(title) {
 	this.title = title;
-	this.meta = Eden.DB.updateMeta(this.name, "title", title);
+	Eden.DB.updateMeta(this.name, "title", title);
 	Eden.Agent.emit("title", [this]);
 }
 
