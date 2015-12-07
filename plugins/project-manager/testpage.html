@@ -17,7 +17,7 @@ $(document).ready(function(){
 			xhrFields:{
 				withCredentials: true
 			},
-			data:{path:$("#path").val(), title:$("#titleTxt").val(), source: $("#sourceContent").val()},
+			data:{path:$("#path").val(), title:$("#titleTxt").val(), source: $("#sourceContent").val(), tag: $("#tagTxt").val()},
 			success: function(data){
 				$("#log").text(JSON.stringify(data));
 			},
@@ -37,6 +37,8 @@ $(document).ready(function(){
 Path: <input type="text" id="path"></input>
 
 <!--<input type="button" value="List" id="listBtn"/>-->
+<br>
+Tag: <input type="text" id="tagTxt"></input>
 <br>
 Title: <input type="text" id="titleTxt"></input>
 <br>
