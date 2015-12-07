@@ -1,0 +1,134 @@
+/**
+ * @title Scoping
+ * @author Nicolas Pope
+ */
+
+import worksheet;
+
+scoping_worksheet is WorksheetPage with
+worksheet_title is "Scoping",
+worksheet_subtitle is "Growing your Models",
+worksheet_content is
+
+"<p>"
+"Making models is easy, but scaling those up and reusing existing models and definitions is not. A new feature added to JS-Eden, that we have called scoping,"
+"is intended to improve scalability in a way that still keeps to the ODA principles and attempts to reduce reliance on functions for generic script."
+"Any existing script of definitions can automatically take advantage of scoping without needing a translation process from one paradigm to another.</p>"
+
+"<h1>What is Scoping?</h1>"
+"<p>Essentially the idea is to use an existing set of definitions, but to temporarily change the value of some observables to produce a different"
+"result. This is best illustrated with an example:<p>"
+
+"<jseden>a = 5;"
+"b is a * a;"
+"c is b with a is 6;</jseden>"
+
+"<p>To test out the example above, click in the margin (gutter) to the left of each line to execute it. Note that because of the <i>is</i> definitions the order of"
+"execution does not matter. It is easy to see that <code>b</code> should have the value to 25. To check this, after executing all the lines, use the inspect"
+"tool (the magnifying glass button) and the click on <code>b</code> to see its value. Click again to change it back to b.</p>"
+"<p>If you do the same with <code>c</code> you will find it has the value of 36. The value of <code>a</code> has been substituted with 6 when getting"
+"the result of <code>b</code>. Now we have a generic way of reusing a definition in a way that previously would have required a function, in this case"
+"a square function.</p>"
+
+"<h1>Indirect Replacement</h1>"
+"<p>The previous example replaced the value of an observable directly used by the definition being queried. However, we are not restricted to this and can replace"
+"observables that indirectly determine the value, the system will follow the dependency graph and bring in every intermediate observable required. With"
+"this entire scripts can be made generic from a concrete example without changing anything.</p>"
+
+"<h1>Making Prototypes</h1>"
+"<p>Often certain group of definitions acts as a kind of prototype, for example a light-bulb drawing as used in the <a href=\"jseden: import nick/circuit;\">simple circuit</a> model."
+"Below is an example of a function that was previously used as a constructor of generic light-bulbs:</p>"
+
+"<jseden>func verticalBulb {"
+"	para position, r, on;"
+"	auto x, y, ratio, items;"
+"	x = position[\"x\"];"
+"	y = position[\"y\"];"
+"	ratio = 0.55;"
+"	items = [];"
+"	append items, Circle(x, y, r, on? \"yellow\" : @, \"black\");"
+"	append items, Line(x, y - r, x, y - ( 1 - ratio) * r);"
+"	append items, Line(x, y + (1 - ratio) * r, x, y + r);"
+"	append items, Arc(x, y, (1 - ratio) * r, -90, 90);"
+"	return items;"
+"}</jseden>"
+
+"<p>This may have originally been modelled as a set of definitions, and only later converted to a generic function. With scoping this conversion is"
+"not required, so below is a scoped version of the above function:</p>"
+
+"<jseden>bulb_ratio = 0.55;"
+"bulb_v_outer is Circle(x, y, r, on? \"yellow\" : @, \"black\");"
+"bulb_v_line1 is Line(x, y - r, x, y - ( 1 - bulb_ratio) * r);"
+"bulb_v_line2 is Line(x, y + (1 - bulb_ratio) * r, x, y + r);"
+"bulb_v_element is Arc(x, y, (1 - bulb_ratio) * r, -90, 90);"
+"bulb_v is [bulb_v_outer, bulb_v_line1, bulb_v_line2, bulb_v_element];</jseden>"
+
+"<p>Used as follows:</p>"
+
+"<jseden>bulb1 is bulb_v with"
+"	x is bulb1Position[\"x\"],"
+"	y is bulb1Position[\"y\"],"
+"	r is bulbRadius,"
+"	on is bulb1On;</jseden>"
+
+"<p>An indepth example can be found in the <a href=\"jseden:import tutorials/scoping/arrow; worksheet_page = arrowpage;\">arrow</a> tutorial.</p>"
+
+"<h1>Range Scoping</h1>"
+"<p>The next fairly obvious question one encounters when using scoping is: can we substitute an observable with a whole range of different values and"
+"generate a list of different results? Yes, using the <code>..</code> range syntax.</p>"
+
+"<jseden>listitems_single is onsale[i][1] if chosen[i] else @;"
+"listitems is listitems_single with i is 1..onsale#;</jseden>"
+
+"<p>Here we first give the single case with a looping observable <code>i</code> that is undefined or manually iterated through to test it. Then, using"
+"range scoping, <code>i</code> is given the values from 1 to the length of the <code>onsale</code> list. The single case is then evaluated with all those"
+"different values of <code>i</code> which are all added to a list of results. <code>listitems</code> is therefore a list.</p>"
+
+"<p>Some notes on range scoping:"
+"<ul>"
+"<li>Multiple ranges can be given, but the result is a single list rather than a list of lists. To get a list of lists you would have to"
+"split the ranges over multiple definitions.</li>"
+"<li>If the single case returns undefined for a particular case, that value is ommited from the result instead of being inserted as undefined.</li>"
+"</ul></p>"
+
+"<h1>Scope Recursion</h1>"
+"<p>Whilst hopefully a rare requirement, scopes can be used recursively. This potentially gets around the cyclic dependency limitation and allows"
+"declarative looping without needing functions. Here is an example of a definition that sums the contents of a list:</p>"
+
+"<jseden>sum is _sum with i is 1;"
+"_sum is (list[i] + (_sum with i is i + 1)) if i <= list# else 0;</jseden>"
+
+"<p>Used as follows:</p>"
+"<jseden>mysum is sum with list is [1,2,3,4,5];</jseden>"
+
+"<h1>Accessing Internal Values</h1>"
+"<p>When generating a scoped value a whole bunch of other observables may be brought in along with the overrides and the final result. These can be"
+"accessed later using a dot notation. However, there are restrictions (at the moment) on where this dot notation can be used. For example, if you put"
+"a scope generated value into a list the original scope information is lost, so it can only be used directly on observables. Also, scoped expressions"
+"may not generate what we call a <i>bound value</i> and so generally expressions can't use the dot notation either. Here is an example where it can be used:</p>"
+
+"<jseden>a is Point(x,y);"
+"b is a with x is 10, y is 50;"
+"c is b.x;</jseden>"
+
+"<p>Any observable can be queried within a particular scope, but if that scope doesn't have a different version of that value it simply returns the value found"
+"out in the main scope. For example the value of <code>d</code> below would be 55 regardless of what <code>b</code> is (unless b is a scope where"
+"<code>g</code> has been overriden):</p>"
+
+"<jseden>g = 55;"
+"d is b.g;</jseden>"
+
+"<h1>Syntax</h1>"
+"<p>A few notes on the syntax:<ul>"
+"<li>Entire expressions can be scoped.</li>"
+"<li>Precidence is still being sorted out, right now <code>with</code> binds to an entire expression first, not a specific observable within it.</li>"
+"<li><code>is</code> must be used, not <code>=</code>.</li>"
+"<li>Be careful, you cannot override an observable twice in a scoping hierarchy unless allowed for.</li>"
+"</ul></p>"
+;
+
+arrowpage = "tutorials/scoping/arrow";
+worksheet_pages["tutorials/scoping"] is scoping_worksheet;
+
+if (worksheet_page == 1 || worksheet_page == @) worksheet_page = "tutorials/scoping";
+
