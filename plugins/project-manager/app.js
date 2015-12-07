@@ -199,6 +199,12 @@ app.get('/agent/get', function(req, res){
 	
 	var query = "SELECT path, saveID, source, tag, parentSaveID, date, name, versions.title FROM versions, agents, oauthusers WHERE ";
 	var validQuery = false;
+	var tag = "OFFICIAL";
+	if(typeof(req.query.tag) != "undefined"){
+		tag = req.query.tag;
+	}else if(typeof(req.query.version != "undefined")){
+		tag = null;
+	}
 	
 	if(typeof(req.query.path) != "undefined"){
 		query = query + "path = ?";
@@ -212,7 +218,7 @@ app.get('/agent/get', function(req, res){
 		argArray.push(req.query.version);
 		validQuery = true;
 	}
-	if(typeof(req.query.tag) != "undefined"){
+	if(tag){
 		query = query + " AND tag = ?";
 		argArray.push(req.query.tag);
 	}
@@ -302,9 +308,8 @@ app.get('/agent/search', function(req, res){
 			});
 		},function(err,num){
 			expected = num;
-			if(num == 0){
+			if(num == 0)
 				res.json(null);
-			}
 		});
 	});
 });
