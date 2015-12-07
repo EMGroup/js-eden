@@ -198,7 +198,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 	Eden.DB.getMeta(path, function(path, meta) {
 		// It exists in the database
 		if (meta) {	
-			console.log(meta);
+			//console.log(meta);
 			Eden.DB.updateMeta(path, "tag", tag);		
 			ag = new Eden.Agent(undefined, path, meta, options);
 
@@ -207,7 +207,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 				ag.loadSource(finish);
 				return;
 			} else {
-				console.log("FOUND LOCAL " + path);
+				//console.log("FOUND LOCAL " + path);
 				ag.setSnapshot("");
 				ag.setSource("");
 				// Auto rebase local only agents

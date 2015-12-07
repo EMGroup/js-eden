@@ -45,6 +45,7 @@ Eden.DB.loadRemoteRoot = function(url) {
 				withCredentials: true
 			},
 			success: function(data){
+				//console.log(data);
 				for (var i=0; i<data.length; i++) {
 					Eden.DB.updateDirectory(data[i].path);
 					Eden.DB.meta[data[i].path] = {remote: true};
@@ -151,9 +152,22 @@ Eden.DB.getDirectory = function(path, callback) {
 						return
 					}
 
+					console.log(data);
+
 					for (var i=0; i<data.length; i++) {
+						var version;
+
+						if (data[i] && data[i].versions) {
+							if (data[i].versions.Official.length > 0) version = data[i].versions.Official[0];
+							else if (data[i].versions.UserLatest.length > 0) version = data[i].versions.UserLatest[0];
+							else if (data[i].versions.PublicLatest.length > 0) version = data[i].versions.PublicLatest[0];
+							else version = {};
+						} else {
+							version = {};
+						}
+
 						Eden.DB.updateDirectory(data[i].path);
-						Eden.DB.meta[data[i].path] = {remote: true};
+						Eden.DB.meta[data[i].path] = {remote: true, title: version.title, author: version.name, date: version.date, saveID: version.saveID, tag: version.tag};
 					}
 					if (data.length == 0) {
 						callback(undefined);
@@ -206,7 +220,7 @@ Eden.DB.upload = function(path, meta, source, tagname, callback) {
 		},
 		data:{path: path, title: meta.title, source: source, tag: tagname},
 		success: function(data){
-			console.log(data);
+			//console.log(data);
 			Eden.DB.updateMeta(path, "saveID", data.saveID);
 			Eden.DB.updateMeta(path, "tag", tagname);
 			if (callback) callback();
@@ -231,7 +245,7 @@ Eden.DB.getVersions = function(path, callback) {
 			withCredentials: true
 		},
 		success: function(data){
-			console.log(data);
+			//console.log(data);
 			callback(data);
 		},
 		error: function(a){
