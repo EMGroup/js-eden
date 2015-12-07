@@ -2144,7 +2144,7 @@ Eden.AST.prototype.pIMPORT = function() {
 	// Check for a version tag
 	if (this.token == "@") {
 		this.next();
-		if (this.token == "OBSERVABLE") {
+		if (this.token == "OBSERVABLE" || this.token == "NUMBER") {
 			imp.setTag(this.data.value);
 		} else {
 			imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTTAG));

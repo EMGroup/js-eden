@@ -336,15 +336,15 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 				var content = $('<div class="script-agents-content"></div>');
 				var checkbox = $('<input type="checkbox"></input>');
 
-				(function(content, path) {
-					var meta = Eden.DB.getMeta(path, function(path, meta) {
+				(function(content, path, name) {
+					Eden.DB.getMeta(path, function(path, meta) {
 						if (meta) {
-							content.html(a+" - <i>"+meta.title+"</i>");
+							content.html(name+" - <i>"+meta.title+"</i>");
 						} else {
-							content.html(a);
+							content.html(name);
 						}
 					});
-				}).call(this, content, npath);
+				}).call(this, content, npath, a);
 
 				if (Eden.Agent.agents[npath]) {
 					item.addClass("loaded");

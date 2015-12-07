@@ -27,7 +27,6 @@ Eden.DB.loadLocalDirectory = function() {
 
 Eden.DB.loadRemoteRoot = function(url) {
 	// For now, download entire directory and meta data from file.
-
 	var me = this;
 
 	$.get(url, function(data) {
@@ -36,27 +35,26 @@ Eden.DB.loadRemoteRoot = function(url) {
 			Eden.DB.updateDirectory(a);
 		}
 		Eden.DB.remoteMeta = data.meta;
-		//data.meta.saveID = "origin";
-	}, "json");
-
-	// Go to database to get root path
-	$.ajax({
-		url: this.remoteURL+"/agent/search",
-		type: "get",
-		crossDomain: true,
-		xhrFields:{
-			withCredentials: true
-		},
-		success: function(data){
-			for (var i=0; i<data.length; i++) {
-				Eden.DB.updateDirectory(data[i].path);
-				Eden.DB.meta[data[i].path] = {remote: true};
+		
+		// Go to database to get root path
+		$.ajax({
+			url: me.remoteURL+"/agent/search",
+			type: "get",
+			crossDomain: true,
+			xhrFields:{
+				withCredentials: true
+			},
+			success: function(data){
+				for (var i=0; i<data.length; i++) {
+					Eden.DB.updateDirectory(data[i].path);
+					Eden.DB.meta[data[i].path] = {remote: true};
+				}
+			},
+			error: function(a){
+				console.error(a);
 			}
-		},
-		error: function(a){
-			console.error(a);
-		}
-	});
+		});
+	}, "json");
 
 	/*$.get(this.remoteURL+"/agent/search", function(data) {
 		for (var i=0; i<data.length; i++) {
@@ -148,6 +146,11 @@ Eden.DB.getDirectory = function(path, callback) {
 					withCredentials: true
 				},
 				success: function(data){
+					if (data == null) {
+						callback(undefined);
+						return
+					}
+
 					for (var i=0; i<data.length; i++) {
 						Eden.DB.updateDirectory(data[i].path);
 						Eden.DB.meta[data[i].path] = {remote: true};
@@ -245,6 +248,7 @@ Eden.DB.getMeta = function(path, callback) {
 		try {
 			if (window.localStorage) {
 				var meta = JSON.parse(window.localStorage.getItem('agent_'+path+'_meta'));
+				
 				if (meta) {
 					Eden.DB.meta[path] = meta;
 					callback(path, meta);
@@ -254,8 +258,11 @@ Eden.DB.getMeta = function(path, callback) {
 		} catch (e) {
 		}
 
-		// Otherwise, go to server for it.
-		callback(path, Eden.DB.remoteMeta[path]);
+		// Otherwise, go to server for it.	
+		Eden.DB.getDirectory(path, function(p) {
+			if (p) callback(path, Eden.DB.meta[path]);
+			else callback(path, Eden.DB.remoteMeta[path]);
+		});
 	}
 }
 
