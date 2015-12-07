@@ -1,6 +1,12 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
 ${{
 Textbox = function (name, x, y, width, height, placeholder, maxlength, enabled) {
 	this.name = name;
+	this.obsName = root.currentObservableName();
 	this.x = x;
 	this.y = y;
 	this.width = width;
@@ -23,16 +29,29 @@ Textbox.prototype.hash = function () {
 }}$;
 
 func Textbox { ${{
-	var name = root.currentObservableName();
-	if (name === undefined) {
-		eden.error(new Error("Textbox: Every text box must be defined by making a dependency."), "error");
-		return undefined;
+	var argsProcesssed;
+
+	var name;
+	if (typeof(arguments[0]) == "string") {
+		name = arguments[0];
+		argsProcessed = 1;
+	} else {
+		name = root.currentObservableName();
+		argsProcessed = 0;
+		if (name === undefined) {
+			eden.error(new Error("Textbox: Every text box have a name."), "error");
+			return undefined;
+		}
 	}
-	var x = arguments[0];
-	var y = arguments[1];
-	var width = arguments[2];
+
+	var x = arguments[argsProcessed];
+	argsProcessed++;
+	var y = arguments[argsProcessed];
+	argsProcessed++;
+	var width = arguments[argsProcessed];
+	argsProcessed++;
+
 	var height, placeholder, maxlength, enabled;
-	var argsProcessed = 3;
 	var arg = arguments[argsProcessed];
 	var argType = typeof(arg);
 	if (arg === undefined || argType == "number") {
@@ -129,7 +148,13 @@ Textbox.prototype.scale = function (scale, zoom, origin) {
 };
 
 Textbox.prototype.toString = function() {
-  return "Textbox(" + Eden.edenCodeForValues(this.x, this.y, this.width, this.height, this.placeholder, this.enabled) + ")";
+	if (this.name == this.obsName) {
+		return "Textbox(" + Eden.edenCodeForValues(this.x, this.y, this.width,
+			this.height, this.placeholder, this.enabled) + ")";
+	} else {
+		return "Textbox(" + Eden.edenCodeForValues(this.name, this.x, this.y, this.width,
+			this.height, this.placeholder, this.enabled) + ")";	
+	}
 };
 
 Textbox.prototype.getEdenCode = Textbox.prototype.toString;

@@ -14,19 +14,23 @@ func speakingLanguages {
 
 func SpeakingWords {
 	${{
+		var numArgs = arguments.length;
 		var id, text, lang, gender, volume, rate, pitch;
-		if (arguments.length == 1) {
+		if (numArgs == 0 || numArgs > 7) {
+			eden.error(new Error("SpeakingWords: This function requires at least 1 argument and at most 7 arguments."), "error");
+			return undefined;
+		} else if (numArgs == 1) {
 			text = arguments[0];
 		} else {
 			var argsProcessed;
-			if (arguments.length == 7) {
+			if (numArgs == 7) {
 				id = arguments[0];
 				text = arguments[1];
 				lang = arguments[2];
 				gender = arguments[3];
 				argsProcessed = 4;
 			} else {
-				if (/^[a-zA-Z_]\w*$/.test(arguments[0])) {
+				if (eden.isValidIdentifier(arguments[0])) {
 					id = arguments[0];
 					text = arguments[1];
 					argsProcessed = 2;

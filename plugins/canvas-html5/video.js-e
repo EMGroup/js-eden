@@ -1,3 +1,8 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
 ##Bugs:
 ##Triggered procedures are possibly called twice when making assignments?
 ##If _paused is defined by dependency and is true while seeking then the video starts playing while the mouse button is still held down.
@@ -83,24 +88,42 @@
 
 func Video {
 	${{
-		var name = root.currentObservableName();
-		if (name === undefined) {
-			eden.error(new Error("Video: Every video must be defined by making a dependency."), "error");
-			return undefined;
+		var argsProcessed;
+
+		var name;
+		if (typeof(arguments[0]) == "string") {
+			name = arguments[0];
+			argsProcessed = 1;
+		} else {
+			name = root.currentObservableName();
+			argsProcessed = 0;
+			if (name === undefined) {
+				eden.error(new Error("Video: Every video must have a name."), "error");
+				return undefined;
+			}
 		}
-		var preload = arguments[0];
+		var preload = arguments[argsProcessed];
 		return new AudioVisual(name, "Video", preload);
 	}}$;
 }
 
 func Audio {
 	${{
-		var name = root.currentObservableName();
-		if (name === undefined) {
-			eden.error(new Error("Audio: Every audio player must be defined by making a dependency."), "error");
-			return undefined;
+		var argsProcessed;
+
+		var name;
+		if (typeof(arguments[0]) == "string") {
+			name = arguments[0];
+			argsProcessed = 1;
+		} else {
+			name = root.currentObservableName();
+			argsProcessed = 0;
+			if (name === undefined) {
+				eden.error(new Error("Audio: Every audio player must have a name."), "error");
+				return undefined;
+			}
 		}
-		var preload = arguments[0];
+		var preload = arguments[argsProcessed];
 		return new AudioVisual(name, "Audio", preload);
 	}}$;
 }
@@ -108,6 +131,7 @@ func Audio {
 ${{
 	function AudioVisual(name, type, preload) {
 		this.name = name;
+		this.obsName = root.currentObservableName();
 		this.type = type;
 		this.preload = preload;
 		
@@ -483,7 +507,11 @@ ${{
 	}
 
 	AudioVisual.prototype.toString = function () {
-		return this.type + "(" + Eden.edenCodeForValues(this.preload) + ")";
+		if (this.name == this.obsName) {
+			return this.type + "(" + Eden.edenCodeForValues(this.preload) + ")";
+		} else {
+			return this.type + "(" + Eden.edenCodeForValues(this.name, this.preload) + ")";		
+		}
 	}
 	
 	AudioVisual.prototype.getEdenCode = AudioVisual.prototype.toString;

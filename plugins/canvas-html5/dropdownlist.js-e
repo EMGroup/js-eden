@@ -6,6 +6,7 @@
 ${{
 DropDownList = function (name, values, labels, x, y, enabled) {
 	this.name = name;
+	this.obsName = root.currentObservableName();
 	this.values = values;
 	this.labels = labels;
 	this.x = x;
@@ -25,17 +26,32 @@ DropDownList.prototype.hash = function () {
 }}$;
 
 func DropDownList { ${{
-  var name = root.currentObservableName();
-  if (name === undefined) {
-	eden.error(new Error("DropDownList: Every DropDownList must be defined by making a dependency."), "error");
-	return undefined;
-  }
-  var values = arguments[0];
-  var labels = arguments[1];
-  var x = arguments[2];
-  var y = arguments[3];
-  var enabled = arguments[4];
-  return new DropDownList(name, values, labels, x, y, enabled);
+	var argsProcesed;
+
+	var name;
+	if (typeof(arguments[0]) == "string") {
+		name = arguments[0];
+		argsProcessed = 1;
+	} else {
+		name = root.currentObservableName();
+		argsProcessed = 0;
+		if (name === undefined) {
+			eden.error(new Error("DropDownList: Every DropDownList must have a name."), "error");
+			return undefined;
+		}
+	}
+
+	var values = arguments[argsProcessed];
+	argsProcessed++;
+	var labels = arguments[argsProcessed];
+	argsProcessed++;
+	var x = arguments[argsProcessed];
+	argsProcessed++;
+	var y = arguments[argsProcessed];
+	argsProcessed++;
+	var enabled = arguments[argsProcessed];
+
+	return new DropDownList(name, values, labels, x, y, enabled);
 }}$; }
 
 
@@ -114,7 +130,13 @@ DropDownList.prototype.scale = function (scale, zoom, origin) {
 };
 
 DropDownList.prototype.toString = function() {
-	return "DropDownList(" + Eden.edenCodeForValues(this.values, this.labels, this.x, this.y, this.enabled) + ")";
+	if (this.name == this.obsName) {
+		return "DropDownList(" + Eden.edenCodeForValues(this.values, this.labels, this.x,
+			this.y, this.enabled) + ")";
+	} else {
+		return "DropDownList(" + Eden.edenCodeForValues(this.name, this.values, this.labels, this.x,
+			this.y, this.enabled) + ")";
+	}
 };
 
 DropDownList.prototype.getEdenCode = DropDownList.prototype.toString;

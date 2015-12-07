@@ -65,8 +65,7 @@ ${{
 function PixelList(name, ptrToData, x, y, width) {
 	this.name = edenUI.plugins.Canvas2D.initZoneFromName(name, "PixelList");
 	this.obsName = root.currentObservableName();
-
-	this.data = ptrToData.value();
+	this.data = ptrToData? ptrToData.value() : [];
 	this.x = x;
 	this.y = y;
 	this.width = width;

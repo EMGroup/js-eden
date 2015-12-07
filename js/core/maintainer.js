@@ -110,8 +110,8 @@
 		  */
 		this.saved_autocalc_level = 0;
 
-		/** The symbol currently being evaluated. */
-		this.currentObservable = undefined;
+		/** The stack of symbols currently being evaluated. */
+		this.currentObservables = [];
 	}
 
 	/**
@@ -129,23 +129,19 @@
 	};
 
 	Folder.prototype.currentObservableName = function () {
-		if (this.currentObservable === undefined) {
+		if (this.currentObservables.length == 0) {
 			return undefined;
 		} else {
-			return this.currentObservable.name.slice(1);
+			return this.currentObservables[this.currentObservables.length - 1].name.slice(1);
 		}
 	}
 
 	Folder.prototype.beginEvaluation = function (symbol) {
-		if (this.currentObservable === undefined) {
-			this.currentObservable = symbol;
-		}
+		this.currentObservables.push(symbol)
 	}
 
 	Folder.prototype.endEvaluation = function (symbol) {
-		if (this.currentObservable === symbol) {
-			this.currentObservable = undefined;
-		}
+		this.currentObservables.pop();
 	}
 
 	/**
