@@ -40,12 +40,30 @@ Eden.DB.loadRemoteRoot = function(url) {
 	}, "json");
 
 	// Go to database to get root path
-	$.get(this.remoteURL+"/agent/search", function(data) {
+	$.ajax({
+		url: this.remoteURL+"/agent/search",
+		type: "get",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		success: function(data){
+			for (var i=0; i<data.length; i++) {
+				Eden.DB.updateDirectory(data[i].path);
+				Eden.DB.meta[data[i].path] = {remote: true};
+			}
+		},
+		error: function(a){
+			console.error(a);
+		}
+	});
+
+	/*$.get(this.remoteURL+"/agent/search", function(data) {
 		for (var i=0; i<data.length; i++) {
 			Eden.DB.updateDirectory(data[i].path);
 			Eden.DB.meta[data[i].path] = {remote: true};
 		}
-	}, "json");
+	}, "json");*/
 }
 Eden.DB.loadRemoteRoot("resources/agents.db.json");
 
@@ -122,7 +140,30 @@ Eden.DB.getDirectory = function(path, callback) {
 			root[comp[i]].missing = false;
 			var curpath = comp.slice(0,i+1).join("/");
 			// Go to database to get root path
-			$.get(this.remoteURL+"/agent/search?path="+curpath, function(data) {
+			$.ajax({
+				url: this.remoteURL+"/agent/search?path="+curpath,
+				type: "get",
+				crossDomain: true,
+				xhrFields:{
+					withCredentials: true
+				},
+				success: function(data){
+					for (var i=0; i<data.length; i++) {
+						Eden.DB.updateDirectory(data[i].path);
+						Eden.DB.meta[data[i].path] = {remote: true};
+					}
+					if (data.length == 0) {
+						callback(undefined);
+						return;
+					}
+					Eden.DB.getDirectory(path, callback);
+				},
+				error: function(a){
+					console.error(a);
+				}
+			});
+
+			/*$.get(this.remoteURL+"/agent/search?path="+curpath, function(data) {
 				for (var i=0; i<data.length; i++) {
 					Eden.DB.updateDirectory(data[i].path);
 					Eden.DB.meta[data[i].path] = {remote: true};
@@ -132,7 +173,7 @@ Eden.DB.getDirectory = function(path, callback) {
 					return;
 				}
 				Eden.DB.getDirectory(path, callback);
-			}, "json");
+			}, "json");*/
 			return;
 		}
 		//if (i == comp.length-1) {
@@ -162,7 +203,7 @@ Eden.DB.upload = function(path, meta, source, tagname) {
 		},
 		data:{path: path, title: meta.title, source: source, tag: tagname},
 		success: function(data){
-			//console.log(data);
+			console.log(data);
 			Eden.DB.updateMeta(path, "saveID", data.saveID);
 		},
 		error: function(a){

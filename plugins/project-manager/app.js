@@ -201,6 +201,8 @@ app.get('/agent/get', function(req, res){
 
 app.get('/agent/search', function(req, res){
 	var depth = 1;
+	var expected = 0;
+	var counted = 0;
 
 	if(typeof(req.query.depth) != "undefined"){
 		depth = req.query.depth;
@@ -225,6 +227,8 @@ app.get('/agent/search', function(req, res){
 
 			var myVersion;
 
+			expected++;
+
 			vstmt.all(a, req.user.id, function(err,rows){
 				myVersion = rows;
 
@@ -246,8 +250,12 @@ app.get('/agent/search', function(req, res){
 
 						var agent = {path: p, versions: versions};
 
+						counted++;
+
 						agents.push(agent);
-						res.json(agents);
+						if (counted == expected) {
+							res.json(agents);
+						}
 					});
 				});
 			});
