@@ -270,6 +270,18 @@ app.get('/agent/search', function(req, res){
 	});
 });
 
+app.get('/agent/versions', function(req, res){
+	var vstmt = db.prepare("SELECT saveID, tag, parentSaveID, date, name, versions.title FROM versions, oauthusers, agents where " +
+	"path = ? AND agents.id = versions.agentID AND owner = oauthusers.id AND (oauthusers.id = ? OR permission = 1) ORDER BY date desc");
+	var tmpUser = -1;
+	if(typeof req.user != "undefined")
+		tmpUser = req.user.id;
+	
+	vstmt.all(req.query.path, tmpUser,function(err,rows){
+		res.json(rows);
+	});
+});
+
 // GET /auth/google
 //   Use passport.authenticate() as route middleware to authenticate the
 //   request.  The first step in Google authentication will involve
