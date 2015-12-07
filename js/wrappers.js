@@ -148,12 +148,15 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 	}
 
 	function finish(success, msg) {
+		// There is an agent
 		if (ag) {
+			// But something went wrong loading its source
 			if (!success) {
 				callback(undefined, msg);
 				return;
 			}
 
+			// Errors on load
 			if (ag.ast && ag.ast.script.errors.length > 0) {
 				console.error(ag.ast.script.errors[0].prettyPrint());
 			}
@@ -161,15 +164,18 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			if (options === undefined || options.indexOf("noexec") == -1) {
 				ag.execute((options && options.indexOf("force") >= 0), true);
 			}
+		// There is no existing agent but create it
 		} else if (options && options.indexOf("create") >= 0) {
 			// Auto create agents that don't exist
 			ag = new Eden.Agent(undefined, path, Eden.DB.createMeta(path), options);
 			Eden.DB.updateMeta(path, "tag", tag);
+		// There is no existing agent and we are not to create it.
 		} else if (!success) {
 			callback(undefined, msg);
 			return;
 		}
 
+		// Umm. Shouldn't get here?
 		if (callback) callback(ag);
 	}
 
@@ -192,18 +198,20 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 	Eden.DB.getMeta(path, function(path, meta) {
 		// It exists in the database
 		if (meta) {	
+			//console.log(meta);
 			Eden.DB.updateMeta(path, "tag", tag);		
 			ag = new Eden.Agent(undefined, path, meta, options);
 
 			// Get from server or use local?
-			if ((options === undefined
-					|| (options && options.indexOf("local") == -1)
-					|| !Eden.Agent.hasLocalModifications(path))
-					&& (meta.file || meta.remote)) {
+			if (meta.file || meta.remote) {
 				ag.loadSource(finish);
 				return;
 			} else {
-				ag.setOptions(["local"]);
+				//console.log("FOUND LOCAL " + path);
+				ag.setSnapshot("");
+				ag.setSource("");
+				// Auto rebase local only agents
+				while (ag.canRedo()) ag.redo();
 				finish(true);
 				return;
 			}
@@ -289,14 +297,9 @@ Eden.Agent.prototype.setOptions = function(options) {
 		this.options = options;
 
 		if (options.indexOf("remote") >= 0) this.clearHistory();
-		if (options.indexOf("local") == -1) {
-			this.index = -1;
-		} else {
-			this.index = this.history[this.meta.saveID].length - 1;
-		}
 		if (options.indexOf("readonly") >= 0) this.owned = true;
 	} else {
-		this.index = -1;
+		//this.index = -1;
 	}
 }
 
@@ -480,7 +483,7 @@ Eden.Agent.prototype.redo = function() {
 
 
 Eden.Agent.prototype.changeVersion = function(tag, callback) {
-	Eden.Agent.importAgent(me.name, tag, me.options, callback);
+	Eden.Agent.importAgent(this.name, tag, this.options, callback);
 }
 
 
@@ -703,10 +706,10 @@ Eden.Agent.prototype.execute = function(force, auto) {
 
 
 
-Eden.Agent.prototype.upload = function(tagname) {
+Eden.Agent.prototype.upload = function(tagname, ispublic) {
 	var me = this;
 	if (this.ast) {
-		Eden.DB.upload(this.name, this.meta, this.ast.stream.code, tagname, function() {
+		Eden.DB.upload(this.name, this.meta, this.ast.stream.code, tagname, ispublic, function() {
 			if (me.history[me.meta.saveID] === undefined) {
 				me.history[me.meta.saveID] = [];
 			}

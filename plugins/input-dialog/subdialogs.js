@@ -76,8 +76,9 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 
 EdenUI.plugins.ScriptInput.dialogs.uploadAgent = function(element, callback) {
 	var obscurer = $('<div class="script-obscurer noselect"></div>');
-	var content = $('<div class="script-subdialog-uploadagent noselect"><span class="script-subdialog-title">Upload agent. Give an optional version name:</span><br/><input class="script-subdialog-text" type="text" spellcheck="false"></input><span class="status missing"></span><br><button class="button-icon-green button-upload">Upload</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">Cancel</button></div>');
-	var input = content.find('.script-subdialog-text');
+	var content = $('<div class="script-subdialog-uploadagent noselect"><span class="script-subdialog-title">Upload agent. Give an optional version name:</span><br/><input class="script-subdialog-text tagname" type="text" spellcheck="false"></input><span class="status missing"></span><br><input class="script-subdialog-check makepublic" type="checkbox">Public</input><br><br><button class="button-icon-green button-upload">Upload</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">Cancel</button></div>');
+	var input = content.find('.tagname');
+	var publiccheck = content.find('.makepublic');
 	var status = input.get(0).nextSibling;
 	var valid = false;
 
@@ -101,7 +102,7 @@ EdenUI.plugins.ScriptInput.dialogs.uploadAgent = function(element, callback) {
 	.on("click", ".button-upload", function() {
 		if (valid) {
 			element.get(0).removeChild(obscurer.get(0));
-			callback(true, input.get(0).value);
+			callback(true, input.get(0).value, publiccheck.get(0).checked);
 		}
 	})
 	.on("click", ".button-cancel", function() {
@@ -188,51 +189,79 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 	var valid = true;
 	var active = data.index;
 	var activeelement;
+	var version = data.meta.saveID;
 
-	for (var i=data.history[data.meta.saveID].length-1; i>=0; i--) {
-		var item = $('<div class="script-history-item"></div>');
-		if (active == i) {
-			item.addClass("current");
-			item.addClass("original");
-			activeelement = item;
-		}
-		item.get(0).setAttribute("data-index", ""+i);
-		var bookmark = $('<div class="script-history-bookmark"></div>');
-		var time = $('<div class="script-history-time"></div>');
-		var content2 = $('<div class="script-history-content"></div>');
-		time.html(get_time_diff(data.history[data.meta.saveID][i].time));
-		time.get(0).title = data.history[data.meta.saveID][i].time;
-		if (data.history[data.meta.saveID][i].bookmark) {
-			bookmark.addClass("bookmarked");
-		}
-		if (data.history[data.meta.saveID][i].title) {
-			content2.html(data.history[data.meta.saveID][i].title);
-		} else {
-			content2.html("[Autosave]");
-		}
-		item.append(bookmark);
-		item.append(content2);
-		item.append(time);
-		hist.append(item);
+	function clearHistory() {
+		var histele = hist.get(0);
+		while (histele.firstChild) histele.removeChild(histele.firstChild);
+		activeelement = undefined;
 	}
 
-	// Add base items.
-	for (var ver in data.history) {
-		if (ver === undefined) continue;
-
-		var item = $('<div class="script-history-item"></div>');
-		if (active == i) {
-			item.addClass("current");
-			item.addClass("original");
-			activeelement = item;
+	function buildHistory(saveID) {
+		if (data.history[saveID]) {
+			for (var i=data.history[saveID].length-1; i>=0; i--) {
+				var item = $('<div class="script-history-item"></div>');
+				if (active == i) {
+					item.addClass("current");
+					item.addClass("original");
+					activeelement = item;
+				}
+				item.get(0).setAttribute("data-index", ""+i);
+				var bookmark = $('<div class="script-history-bookmark"></div>');
+				var time = $('<div class="script-history-time"></div>');
+				var content2 = $('<div class="script-history-content"></div>');
+				time.html(get_time_diff(data.history[saveID][i].time));
+				time.get(0).title = data.history[saveID][i].time;
+				if (data.history[saveID][i].bookmark) {
+					bookmark.addClass("bookmarked");
+				}
+				if (data.history[saveID][i].title) {
+					content2.html(data.history[saveID][i].title);
+				} else {
+					content2.html("[Autosave]");
+				}
+				item.append(bookmark);
+				item.append(content2);
+				item.append(time);
+				hist.append(item);
+			}
 		}
-		item.get(0).setAttribute("data-version", ""+ver);
-		var bookmark = $('<div class="script-history-bookmark"></div>');
-		var content2 = $('<div class="script-history-content">'+ver+'</div>');
-		item.append(bookmark);
-		item.append(content2);
-		hist.append(item);
+
+		// Add base items.
+		Eden.DB.getVersions(data.name, function(versions) {
+			if (versions == null) return;
+
+			for (var i=0; i<versions.length; i++) {
+				var item = $('<div class="script-history-item"></div>');
+				if (versions[i].saveID == version) {
+					item.addClass("original");
+					if (active == -1) {
+						item.addClass("current");
+						activeelement = item;
+					}
+				}
+				item.get(0).setAttribute("data-version", ""+versions[i].saveID);
+				var storedclass = "script-history-stored";
+				if (versions[i]["public"] == false) {
+					storedclass += " private";
+				} else if (versions[i].mine) {
+					storedclass += " mine";
+				} else {
+					storedclass += " public";
+				}
+				var bookmark = $('<div class="'+storedclass+'"></div>');
+				var t = versions[i].date.split(/[- :]/);
+				var time = $('<div class="script-history-time">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</div>');
+				var content2 = $('<div class="script-history-content">'+versions[i].tag+' by '+versions[i].name+'</div>');
+				item.append(bookmark);
+				item.append(content2);
+				item.append(time);
+				hist.append(item);
+			}
+		});
 	}
+
+	buildHistory(data.meta.saveID);
 
 	content
 	.on("input", ".script-history-content", function(e) {
@@ -245,7 +274,12 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 		console.log(e);
 		var ver = e.currentTarget.getAttribute("data-version");
 		if (ver) {
+			if (ver != "origin") ver = parseInt(ver);
+			console.log("Change version: " + ver);
 			// Rebuild with a different version history
+			version = ver;
+			clearHistory();
+			buildHistory(version);
 			active = -1;
 		} else {
 			var index = parseInt(e.currentTarget.getAttribute("data-index"));
@@ -275,8 +309,8 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 	.on("click", ".button-ok", function() {
 		if (valid) {
 			element.get(0).removeChild(obscurer.get(0));
-			console.log("Rollback to: " + active);
-			callback(true, active);
+			console.log("Rollback to: " + active + "@"+version);
+			callback(true, active, version);
 		}
 	})
 	.on("click", ".button-cancel", function() {
@@ -311,15 +345,15 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 				var content = $('<div class="script-agents-content"></div>');
 				var checkbox = $('<input type="checkbox"></input>');
 
-				(function(content, path) {
-					var meta = Eden.DB.getMeta(path, function(path, meta) {
+				(function(content, path, name) {
+					Eden.DB.getMeta(path, function(path, meta) {
 						if (meta) {
-							content.html(a+" - <i>"+meta.title+"</i>");
+							content.html(name+" - <i>"+meta.title+"</i>");
 						} else {
-							content.html(a);
+							content.html(name);
 						}
 					});
-				}).call(this, content, npath);
+				}).call(this, content, npath, a);
 
 				if (Eden.Agent.agents[npath]) {
 					item.addClass("loaded");
