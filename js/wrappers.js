@@ -29,6 +29,10 @@ Eden.Agent = function(parent, name, meta, options) {
 		this.name = name;
 	}
 
+	if (meta === undefined) {
+		console.error("Meta undefined for " + name);
+	}
+
 	this.watches = [];
 	this.scope = eden.root.scope;
 	this.ast = undefined;
@@ -475,6 +479,12 @@ Eden.Agent.prototype.redo = function() {
 
 
 
+Eden.Agent.prototype.changeVersion = function(tag, callback) {
+	Eden.Agent.importAgent(me.name, tag, me.options, callback);
+}
+
+
+
 Eden.Agent.prototype.loadSource = function(callback) {
 	var me = this;
 	this.executed = false;
@@ -482,6 +492,11 @@ Eden.Agent.prototype.loadSource = function(callback) {
 	Eden.DB.getSource(me.name, me.meta.tag, function(data, msg) {
 		if (data) {
 			console.log("Source loaded: " + me.name);
+			// Make sure we have a local history for this
+			if (me.history[me.meta.saveID] === undefined) {
+				me.history[me.meta.saveID] = [];
+			}
+
 			me.setSnapshot(data);
 		
 			// Do we need to do an automatic fast-forward?
@@ -689,8 +704,13 @@ Eden.Agent.prototype.execute = function(force, auto) {
 
 
 Eden.Agent.prototype.upload = function(tagname) {
+	var me = this;
 	if (this.ast) {
-		Eden.DB.upload(this.name, this.meta, this.ast.stream.code, tagname);
+		Eden.DB.upload(this.name, this.meta, this.ast.stream.code, tagname, function() {
+			if (me.history[me.meta.saveID] === undefined) {
+				me.history[me.meta.saveID] = [];
+			}
+		});
 	}
 }
 

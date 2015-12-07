@@ -36,7 +36,7 @@ Eden.DB.loadRemoteRoot = function(url) {
 			Eden.DB.updateDirectory(a);
 		}
 		Eden.DB.remoteMeta = data.meta;
-		data.meta.saveID = "origin";
+		//data.meta.saveID = "origin";
 	}, "json");
 
 	// Go to database to get root path
@@ -188,7 +188,7 @@ Eden.DB.getDirectory = function(path, callback) {
 	callback(root);
 }
 
-Eden.DB.upload = function(path, meta, source, tagname) {
+Eden.DB.upload = function(path, meta, source, tagname, callback) {
 	if (meta === undefined) {
 		console.error("Attempting to upload agent without meta data: " + path);
 		return
@@ -205,6 +205,8 @@ Eden.DB.upload = function(path, meta, source, tagname) {
 		success: function(data){
 			console.log(data);
 			Eden.DB.updateMeta(path, "saveID", data.saveID);
+			Eden.DB.updateMeta(path, "tag", tagname);
+			if (callback) callback();
 		},
 		error: function(a){
 			console.error(a);
@@ -259,7 +261,8 @@ Eden.DB.getSource = function(path, tag, callback) {
 			$.get(Eden.DB.remoteURL+"/agent/get?path="+path+tagvalue, function (data) {
 				if (data == null) {
 					callback(undefined, "No such version");
-				} else {				
+				} else {		
+					Eden.DB.updateMeta(path, "saveID", data.saveID);		
 					callback(data.source);
 				}
 			});
