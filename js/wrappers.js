@@ -706,10 +706,10 @@ Eden.Agent.prototype.execute = function(force, auto) {
 
 
 
-Eden.Agent.prototype.upload = function(tagname) {
+Eden.Agent.prototype.upload = function(tagname, ispublic) {
 	var me = this;
 	if (this.ast) {
-		Eden.DB.upload(this.name, this.meta, this.ast.stream.code, tagname, function() {
+		Eden.DB.upload(this.name, this.meta, this.ast.stream.code, tagname, ispublic, function() {
 			if (me.history[me.meta.saveID] === undefined) {
 				me.history[me.meta.saveID] = [];
 			}

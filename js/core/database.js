@@ -157,6 +157,7 @@ Eden.DB.getDirectory = function(path, callback) {
 					for (var i=0; i<data.length; i++) {
 						var version;
 
+						// Select correct default version meta-data
 						if (data[i] && data[i].versions) {
 							if (data[i].versions.Official.length > 0) version = data[i].versions.Official[0];
 							else if (data[i].versions.UserLatest.length > 0) version = data[i].versions.UserLatest[0];
@@ -205,7 +206,7 @@ Eden.DB.getDirectory = function(path, callback) {
 	callback(root);
 }
 
-Eden.DB.upload = function(path, meta, source, tagname, callback) {
+Eden.DB.upload = function(path, meta, source, tagname, ispublic, callback) {
 	if (meta === undefined) {
 		console.error("Attempting to upload agent without meta data: " + path);
 		return
@@ -218,7 +219,7 @@ Eden.DB.upload = function(path, meta, source, tagname, callback) {
 		xhrFields:{
 			withCredentials: true
 		},
-		data:{path: path, title: meta.title, source: source, tag: tagname},
+		data:{path: path, title: meta.title, source: source, tag: tagname, permission: (ispublic) ? "public" : undefined},
 		success: function(data){
 			//console.log(data);
 			Eden.DB.updateMeta(path, "saveID", data.saveID);
@@ -299,12 +300,23 @@ Eden.DB.getSource = function(path, tag, callback) {
 				tagvalue = "&version="+tag;
 			}
 
-			$.get(Eden.DB.remoteURL+"/agent/get?path="+path+tagvalue, function (data) {
-				if (data == null) {
-					callback(undefined, "No such version");
-				} else {		
-					Eden.DB.updateMeta(path, "saveID", data.saveID);		
-					callback(data.source);
+			$.ajax({
+				url: Eden.DB.remoteURL+"/agent/get?path="+path+tagvalue,
+				type: "get",
+				crossDomain: true,
+				xhrFields:{
+					withCredentials: true
+				},
+				success: function(data){
+					if (data == null) {
+						callback(undefined, "No such version");
+					} else {		
+						Eden.DB.updateMeta(path, "saveID", data.saveID);		
+						callback(data.source);
+					}
+				},
+				error: function(a){
+					console.error(a);
 				}
 			});
 		} else if (meta.file) {

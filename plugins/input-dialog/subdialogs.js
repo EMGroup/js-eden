@@ -76,8 +76,9 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 
 EdenUI.plugins.ScriptInput.dialogs.uploadAgent = function(element, callback) {
 	var obscurer = $('<div class="script-obscurer noselect"></div>');
-	var content = $('<div class="script-subdialog-uploadagent noselect"><span class="script-subdialog-title">Upload agent. Give an optional version name:</span><br/><input class="script-subdialog-text" type="text" spellcheck="false"></input><span class="status missing"></span><br><button class="button-icon-green button-upload">Upload</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">Cancel</button></div>');
-	var input = content.find('.script-subdialog-text');
+	var content = $('<div class="script-subdialog-uploadagent noselect"><span class="script-subdialog-title">Upload agent. Give an optional version name:</span><br/><input class="script-subdialog-text tagname" type="text" spellcheck="false"></input><span class="status missing"></span><br><input class="script-subdialog-check makepublic" type="checkbox">Public</input><br><br><button class="button-icon-green button-upload">Upload</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">Cancel</button></div>');
+	var input = content.find('.tagname');
+	var publiccheck = content.find('.makepublic');
 	var status = input.get(0).nextSibling;
 	var valid = false;
 
@@ -101,7 +102,7 @@ EdenUI.plugins.ScriptInput.dialogs.uploadAgent = function(element, callback) {
 	.on("click", ".button-upload", function() {
 		if (valid) {
 			element.get(0).removeChild(obscurer.get(0));
-			callback(true, input.get(0).value);
+			callback(true, input.get(0).value, publiccheck.get(0).checked);
 		}
 	})
 	.on("click", ".button-cancel", function() {
@@ -240,7 +241,15 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 					}
 				}
 				item.get(0).setAttribute("data-version", ""+versions[i].saveID);
-				var bookmark = $('<div class="script-history-stored"></div>');
+				var storedclass = "script-history-stored";
+				if (versions[i]["public"] == false) {
+					storedclass += " private";
+				} else if (versions[i].mine) {
+					storedclass += " mine";
+				} else {
+					storedclass += " public";
+				}
+				var bookmark = $('<div class="'+storedclass+'"></div>');
 				var t = versions[i].date.split(/[- :]/);
 				var time = $('<div class="script-history-time">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</div>');
 				var content2 = $('<div class="script-history-content">'+versions[i].tag+' by '+versions[i].name+'</div>');
