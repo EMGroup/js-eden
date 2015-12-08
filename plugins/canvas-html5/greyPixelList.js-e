@@ -89,7 +89,7 @@ ${{
 function GreyPixelList(name, ptrToData, x, y, width, redMultiply, greenMultiply, blueMultiply, redAdd, greenAdd, blueAdd) {
 	this.name = edenUI.plugins.Canvas2D.initZoneFromName(name, "GreyPixelList");
 	this.obsName = root.currentObservableName();
-	this.data = ptrToData.value();
+	this.data = ptrToData? ptrToData.value() : [];
 	this.x = x;
 	this.y = y;
 	this.width = width;
