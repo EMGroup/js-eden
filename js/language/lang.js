@@ -42,7 +42,6 @@ var Language = {
 		"if": "if",
 		"is": "is",
 		"else": "else",
-		"eval": "eval",
 		"for": "for",
 		"while": "while",
 		"do": "do",

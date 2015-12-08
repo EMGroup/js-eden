@@ -1,61 +1,4 @@
 {
-	"directory": {
-		"mario": {
-			"title": "Mario Game",
-			"children": {
-				"mario": {
-					"title": "Mario Character Agents",
-					"children": {
-						"motion": {
-							"title": "Mario Movement Agent",
-							"children": {}
-						},
-						"animation": {
-							"title": "Mario Animation Agent",
-							"children": {}
-						},
-						"control": {
-							"title": "Mario Controls",
-							"children": {}
-						}
-					}
-				},
-				"world": {
-					"children": {}
-				},
-				"config": {
-					"title": "Game Configuration",
-					"children": {}
-				}
-			}
-		},
-		"logo": {
-			"title": "Logo Demo",
-			"children": {
-				"drawer": {
-					"title": "Drawing setup",
-					"children": {}
-				},
-				"config": {
-					"title": "Screen Layout",
-					"children": {}
-				},
-				"basic": {
-					"title": "Logo Basic Commands",
-					"children": {}
-				},
-				"example1": {
-					"title": "Example 1",
-					"children": {}
-				},
-				"example2": {
-					"title": "Example 1",
-					"children": {}
-				}
-			}
-		}
-	},
-
 	"meta": {
 		"worksheet": {
 			"file": "models/worksheet/worksheet.js-e",
@@ -155,6 +98,10 @@
 			"file": "library2/colour.js-e",
 			"title": "Colour functions",
 			"enabled": true
+		},
+		"lib/agent": {
+			"file": "library2/agents.js-e",
+			"title": "Agent Support Library"
 		},
 		"lib/core": {
 			"file": "library2/core.js-e",
