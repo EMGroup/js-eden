@@ -162,8 +162,7 @@ app.post('/agent/add', ensureAuthenticated, function(req, res){
 					if(req.body.tag == "OFFICIAL"){
 						var checkOwner = db.prepare("SELECT owner FROM versions WHERE agentID = ? ORDER BY date ASC LIMIT 1");
 						checkOwner.all(agentID, function(err,rows){
-							if(rows[0]["owner"] == req.user.id){
-								console.log(res);
+							if(typeof(rows[0]) == "undefined" || rows[0]["owner"] == req.user.id){
 								doInsert(vstmt, agentID, req.body.source, req.body.tag, req.body.parent, req.user.id, permission, req.body.title, group, res);
 							}else{
 								return res.json({error: "2", description: "Not Official Owner"});
@@ -197,14 +196,20 @@ app.get('/agent/list', function(req, res){
 app.get('/agent/get', function(req, res){
 	var argArray = [];
 	
-	var query = "SELECT path, saveID, source, tag, parentSaveID, date, name, versions.title FROM versions, agents, oauthusers WHERE ";
-	var validQuery = false;
-	var tag = "OFFICIAL";
+	var version = null;
+	var tag = null;
 	if(typeof(req.query.tag) != "undefined"){
 		tag = req.query.tag;
-	}else if(typeof(req.query.version != "undefined")){
-		tag = null;
 	}
+	if(typeof(req.query.version != "undefined")){
+		tag = null;
+	}	
+	
+
+	var query = "SELECT path, saveID, source, tag, parentSaveID, date, name, versions.title FROM versions, agents, oauthusers WHERE ";
+	var validQuery = false;
+
+
 	
 	if(typeof(req.query.path) != "undefined"){
 		query = query + "path = ?";

@@ -1,7 +1,12 @@
-##Radio Buttons
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
 ${{
 RadioButtons = function (name, values, labels, x, y, width, horizontal, enabled) {
 	this.name = name;
+	this.obsName = root.currentObservableName();
 	this.values = values;
 	this.labels = labels;
 	this.x = x;
@@ -24,18 +29,38 @@ RadioButtons.prototype.hash = function () {
 }}$;
 
 func RadioButtons { ${{
-	var name = root.currentObservableName();
-	if (name === undefined) {
-		eden.error(new Error("RadioButtons: Every set of radio buttons must be defined by making a dependency."), "error");
-		return undefined;
+	var argsProcessed;
+
+	var name;
+	if (typeof(arguments[0]) == "string") {
+		name = arguments[0];
+		argsProcessed = 1;
+	} else {
+		name = root.currentObservableName();
+		argsProcessed = 0;
+		if (name === undefined) {
+			eden.error(new Error("RadioButtons: Every group of radio buttons must have a name."), "error");
+			return undefined;
+		}
 	}
-	var values = arguments[0];
-	var labels = arguments[1];
-	var x = arguments[2];
-	var y = arguments[3];
-	var width = arguments[4];
-	var horizontal = arguments[5];
-	var enabled = arguments[6];
+
+	var values = arguments[argsProcessed];
+	argsProcessed++;
+	var labels = arguments[argsProcessed];
+	argsProcessed++;
+	var x = arguments[argsProcessed];
+	argsProcessed++;
+	var y = arguments[argsProcessed];
+	argsProcessed++;
+	var width;
+	if (typeof(arguments[argsProcessed]) ==  "number" || arguments.length - argsProcessed > 2) {
+		width = arguments[argsProcessed];
+		argsProcessed++;
+	}
+	var horizontal = arguments[argsProcessed];
+	argsProcessed++;
+	var enabled = arguments[argsProcessed];
+
 	return new RadioButtons(name, values, labels, x, y, width, horizontal, enabled);
 }}$; }
 
@@ -121,7 +146,13 @@ RadioButtons.prototype.scale = function (scale, zoom, origin) {
 };
 
 RadioButtons.prototype.toString = function() {
-  return "RadioButtons(" + Eden.edenCodeForValues(this.values, this.labels, this.x, this.y, this.width, this.horizontal, this.enabled) + ")";
+	if (this.name == this.obsName) {
+		return "RadioButtons(" + Eden.edenCodeForValues(this.values, this.labels, this.x,
+			this.y, this.width, this.horizontal, this.enabled) + ")";
+	} else {
+		return "RadioButtons(" + Eden.edenCodeForValues(this.name, this.values, this.labels, this.x,
+			this.y, this.width, this.horizontal, this.enabled) + ")";
+	}
 };
 
 RadioButtons.prototype.getEdenCode = RadioButtons.prototype.toString;

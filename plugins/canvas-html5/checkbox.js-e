@@ -6,6 +6,7 @@
 ${{
 Checkbox = function (name, label, x, y, tristate, enabled) {
 	this.name = name;
+	this.obsName = root.currentObservableName();
 	this.label = label;
 	this.x = x;
 	this.y = y;
@@ -24,24 +25,37 @@ Checkbox.prototype.hash = function () {
 }}$;
 
 func Checkbox { ${{
-  var name = root.currentObservableName();
-  if (name === undefined) {
-	eden.error(new Error("Checkbox: Every checkbox must be defined by making a dependency."), "error");
-	return undefined;
-  }
-  var argsProcessed = 0;
-  var label;
-  if (typeof(arguments[0]) == "string") {
-	label = arguments[0];
-	argsProcessed++;
-  }
-  var x = arguments[argsProcessed];
-  var y = arguments[argsProcessed + 1];
-  var tristate = arguments[argsProcessed + 2];
-  if (tristate === undefined) tristate = false;
-  var enabled = arguments[argsProcessed + 3];
-  if (enabled === undefined) enabled = true;
-  return new Checkbox(name, label, x, y, tristate, enabled);
+	var argsProcessed;
+
+	var name;
+	if (typeof(arguments[1]) == "string" || arguments[1] === undefined) {
+		name = arguments[0];
+		argsProcessed = 1;
+	} else {
+		name = root.currentObservableName();
+		argsProcessed = 0;
+		if (name === undefined) {
+			eden.error(new Error("Checkbox: Every checkbox must have a name."), "error");
+			return undefined;
+		}
+	}
+
+	var label;
+	if (typeof(arguments[argsProcessed]) == "string" || arguments[argsProcessed] === undefined) {
+		label = arguments[argsProcessed];
+		argsProcessed++;
+	}
+
+	var x = arguments[argsProcessed];
+	var y = arguments[argsProcessed + 1];
+
+	var tristate = arguments[argsProcessed + 2];
+	if (tristate === undefined) tristate = false;
+
+	var enabled = arguments[argsProcessed + 3];
+	if (enabled === undefined) enabled = true;
+
+	return new Checkbox(name, label, x, y, tristate, enabled);
 }}$; }
 
 ${{
@@ -140,7 +154,11 @@ Checkbox.prototype.scale = function (scale, zoom, origin) {
 };
 
 Checkbox.prototype.toString = function() {
-  return "Checkbox(" + Eden.edenCodeForValues(this.x, this.y, this.tristate, this.enabled) + ")";
+	if (this.name == this.obsName) {
+		return "Checkbox(" + Eden.edenCodeForValues(this.x, this.y, this.tristate, this.enabled) + ")";
+	} else {
+		return "Checkbox(" + Eden.edenCodeForValues(this.name, this.x, this.y, this.tristate, this.enabled) + ")";	
+	}
 };
 
 Checkbox.prototype.getEdenCode = Checkbox.prototype.toString;
