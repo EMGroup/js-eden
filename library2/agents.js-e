@@ -1,0 +1,56 @@
+/**
+ * @title Agent Support Library
+ * @author Nicolas Pope
+ */
+
+
+/**
+ * Execute the statement found on a particular line number within an agent
+ * script. To use:
+ *     do executeLine "my/agent", line;
+ * Where line numbers start at 0. A line of -1 executes entire script.
+ */
+action executeLine {
+	${{
+	var agentname = ctx.getParameterByNumber(1);
+	if (agentname instanceof BoundValue) agentname = agentname.value;
+	var lineno = ctx.getParameterByNumber(2);
+	if (lineno instanceof BoundValue) lineno = lineno.value;
+
+	Eden.Agent.agents[agentname].executeLine(lineno);
+	}}$;
+}
+
+action execute {
+	${{
+	var agentname = ctx.getParameterByNumber(1);
+	if (agentname instanceof BoundValue) agentname = agentname.value;
+
+	Eden.Agent.agents[agentname].execute(true);
+	}}$;
+}
+
+action addManifest {
+	${{
+	var url = ctx.getParameterByNumber(1);
+	if (url instanceof BoundValue) url = url.value;
+
+	Eden.DB.loadManifestFile(url);
+	}}$;
+}
+
+action connect {
+	${{
+	var url = ctx.getParameterByNumber(1);
+	if (url instanceof BoundValue) url = url.value;
+
+	Eden.DB.connect(url);
+	}}$;
+}
+
+action disconnect {
+	${{
+	Eden.DB.disconnect();
+	}}$;
+}
+
