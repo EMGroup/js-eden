@@ -166,6 +166,7 @@ Eden.DB.processManifestEntry = function(path, entry) {
 		}
 	}
 
+	if (entry.title) meta.title = entry.title;
 	if (entry.remote) meta.remote = true;
 	if (entry.file) meta.file = entry.file;
 	Eden.DB.updateDirectory(path);
@@ -311,7 +312,7 @@ Eden.DB.upload = function(path, meta, source, tagname, ispublic, callback) {
 					eden.error((data) ? data.description : "No response from server");
 					if (callback) callback(false);
 				} else {
-					meta.updateVersion(data.saveID, tagname);
+					meta.updateVersion(data.saveID, data.tag, meta.title, meta.name);
 					if (callback) callback(true);
 				}
 			},
@@ -424,7 +425,7 @@ Eden.DB.getSource = function(path, tag, callback) {
 						console.error("No such version");
 						//console.log(data);
 					} else {			
-						meta.updateVersion(data.saveID, data.tag);	
+						meta.updateVersion(data.saveID, data.tag, data.title, data.name);	
 						callback(data.source);
 					}
 				},
@@ -434,7 +435,7 @@ Eden.DB.getSource = function(path, tag, callback) {
 			});
 		} else if (meta.file) {
 			$.get(meta.file, function(data) {
-				meta.updateVersion("origin", "default");
+				meta.updateVersion("origin", "default", meta.title, meta.name);
 				callback(data);
 			}, "text");
 		} else {
