@@ -5,18 +5,30 @@
 
 func Button {
 ${{
-	var name = root.currentObservableName();
-	if (name === undefined) {
-		eden.error(new Error("Button: Every button must be defined by making a dependency."), "error");
-		return undefined;
-	}
-	var label = arguments[0];
-	var x = arguments[1];
-	var y = arguments[2];
+	var argsProcessed;
 
-	var arg = arguments[3];
+	var name, label;
+	if (typeof(arguments[1]) == "string") {
+		name = arguments[0];
+		label = arguments[1];
+		argsProcessed = 2;
+	} else {
+		name = root.currentObservableName();
+		if (name === undefined) {
+			eden.error(new Error("Button: Every button must a name."), "error");
+			return undefined;
+		}
+		label = arguments[0];
+		argsProcessed = 1;
+	}
+
+	var x = arguments[argsProcessed];
+	argsProcessed++;
+	var y = arguments[argsProcessed];
+	argsProcessed++;
+
+	var arg = arguments[argsProcessed];
 	var argType = typeof(arg);
-	var argsProcessed = 3;
 
 	var width, minHeight, enabled;
 
@@ -56,6 +68,7 @@ ${{
 ${{
 Button = function (name, label, x, y, width, minHeight, enabled, fillcolour, textcolour) {
 	this.name = name;
+	this.obsName = root.currentObservableName();
 	this.label = label;
 	this.x = x;
 	this.y = y;
@@ -175,7 +188,11 @@ Button.prototype.scale = function (scale, zoom, origin) {
 };
 
 Button.prototype.toString = function () {
-	return "Button(" + Eden.edenCodeForValues(this.label, this.x, this.y, this.enabled) + ")";
+	if (this.name == this.obsName) {
+		return "Button(" + Eden.edenCodeForValues(this.label, this.x, this.y, this.enabled) + ")";
+	} else {
+		return "Button(" + Eden.edenCodeForValues(this.name, this.label, this.x, this.y, this.enabled) + ")";	
+	}
 };
 
 Button.prototype.getEdenCode = Button.prototype.toString;

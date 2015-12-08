@@ -6,6 +6,7 @@
 ${{
 Combobox = function (name, suggestions, x, y, width, placeholder, enabled) {
 	this.name = name;
+	this.obsName = root.currentObservableName();
 	this.suggestions = suggestions;
 	this.x = x;
 	this.y = y;
@@ -27,16 +28,28 @@ Combobox.prototype.hash = function () {
 }}$;
 
 func Combobox { ${{
-	var name = root.currentObservableName();
-	if (name === undefined) {
-	eden.error(new Error("Combobox: Every combobox must be defined by making a dependency."), "error");
-	return undefined;
+	var argsProcessed;
+
+	var name;
+	if (typeof(arguments[0]) == "string") {
+		name = arguments[0];
+		argsProcessed = 1;
+	} else {
+		name = root.currentObservableName();
+		argsProcessed = 0;
+		if (name === undefined) {
+			eden.error(new Error("Combobox: Every combobox must have a name."), "error");
+			return undefined;
+		}
 	}
-	var suggestions = arguments[0];
-	var x = arguments[1];
-	var y = arguments[2];
+
+	var suggestions = arguments[argsProcessed];
+	argsProcessed++;
+	var x = arguments[argsProcessed];
+	argsProcessed++;
+	var y = arguments[argsProcessed];
+	argsProcessed++;
 	var width, placeholder;
-	var argsProcessed = 3;
 
 	var arg = arguments[argsProcessed];
 	var argType = typeof(arg);
@@ -52,6 +65,7 @@ func Combobox { ${{
 		arg = arguments[argsProcessed];
 	}
 	var enabled = arg;
+
 	return new Combobox(name, suggestions, x, y, width, placeholder, enabled);
 }}$; }
 
@@ -138,7 +152,11 @@ Combobox.prototype.scale = function (scale, zoom, origin) {
 };
 
 Combobox.prototype.toString = function() {
-	return "Combobox(" + Eden.edenCodeForValues(this.suggestions, this.x, this.y, this.enabled) + ")";
+	if (this.name == this.obsName) {
+		return "Combobox(" + Eden.edenCodeForValues(this.suggestions, this.x, this.y, this.enabled) + ")";
+	} else {
+		return "Combobox(" + Eden.edenCodeForValues(this.name, this.suggestions, this.x, this.y, this.enabled) + ")";
+	}
 };
 
 Combobox.prototype.getEdenCode = Combobox.prototype.toString;

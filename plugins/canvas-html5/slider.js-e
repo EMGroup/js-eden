@@ -6,6 +6,7 @@
 ${{
 Slider = function(name, min, max, step, labelInterval, tickMarkInterval, labelDivisor, x, y, length, orientation, enabled) {
 	this.name = name;
+	this.obsName = root.currentObservableName();
 	this.min = min;
 	this.max = max;
 	this.step = step;
@@ -36,39 +37,47 @@ Slider.prototype.hash = function () {
 }}$;
 
 func Slider { ${{
-	var name = root.currentObservableName();
-	if (name === undefined) {
-		eden.error(new Error("Slider: Every slider must be defined by making a dependency."), "error");
-		return undefined;
+	var argsProcessed;
+
+	var name;
+	if (typeof(arguments[0]) == "string") {
+		name = arguments[0];
+		argsProcessed = 1;
+	} else {
+		name = root.currentObservableName();
+		argsProcessed = 0;
+		if (name === undefined) {
+			eden.error(new Error("Slider: Every slider must have a name."), "error");
+			return undefined;
+		}
 	}
-	var min = arguments[0];
-	var max = arguments[1];
+	var min = arguments[argsProcessed];
+	argsProcessed++;
+	var max = arguments[argsProcessed];
+	argsProcessed++;
 
 	var step, labelInterval, labelDivisor, tickMarkInterval, x, y, length, orientation, enabled;
-	var argsProcessed, arg, argType;
-	if (typeof(arguments[8]) == "number") {
-		step = arguments[2];
-		labelInterval = arguments[3];
-		tickMarkInterval = arguments[4];
-		labelDivisor = arguments[5];
-		argsProcessed = 6;
-	} else if (typeof(arguments[7]) == "number") {
-		step = arguments[2];
-		labelInterval = arguments[3];
-		tickMarkInterval = arguments[4];
-		argsProcessed = 5;
-	} else if (typeof(arguments[6]) == "number") {
-		step = arguments[2];
-		labelInterval = arguments[3];
-		argsProcessed = 4;
-	} else if (typeof(arguments[5]) == "number") {
-		step = arguments[2];
-		argsProcessed = 3;
-	} else {
-		if (max - min > 1 && Math.floor(min) == min && Math.floor(max) == max) {
-			step = 1;
-		}
-		argsProcessed = 2;
+	var arg, argType;
+	if (typeof(arguments[argsProcessed + 6]) == "number") {
+		step = arguments[argsProcessed];
+		labelInterval = arguments[argsProcessed + 1];
+		tickMarkInterval = arguments[argsProcessed + 2];
+		labelDivisor = arguments[argsProcessed + 3];
+		argsProcessed = argsProcessed + 4;
+	} else if (typeof(arguments[argsProcessed + 5]) == "number") {
+		step = arguments[argsProcessed];
+		labelInterval = arguments[argsProcessed + 1];
+		tickMarkInterval = arguments[argsProcessed + 2];
+		argsProcessed = argsProcessed + 3;
+	} else if (typeof(arguments[argsProcessed + 4]) == "number") {
+		step = arguments[argsProcessed];
+		labelInterval = arguments[argsProcessed + 1];
+		argsProcessed = argsProcessed + 2;
+	} else if (typeof(arguments[argsProcessed + 3]) == "number") {
+		step = arguments[argsProcessed];
+		argsProcessed++;
+	} else if (max - min > 1 && Math.floor(min) == min && Math.floor(max) == max) {
+		step = 1;
 	}
 	x = arguments[argsProcessed];
 	y = arguments[argsProcessed + 1];
@@ -339,8 +348,13 @@ Slider.prototype.scale = function (scale, zoom, origin) {
 };
 
 Slider.prototype.toString = function() {
-  return "Slider(" + Eden.edenCodeForValues(this.min, this.max, this.step, this.x, this.y,
-	this.length, this.orientation, this.enabled) + ")";
+	if (this.name == this.obsName) {
+		return "Slider(" + Eden.edenCodeForValues(this.min, this.max, this.step, this.x,
+			this.y, this.length, this.orientation, this.enabled) + ")";
+	} else {
+		return "Slider(" + Eden.edenCodeForValues(this.name, this.min, this.max, this.step, this.x,
+			this.y, this.length, this.orientation, this.enabled) + ")";	
+	}
 };
 
 Slider.prototype.getEdenCode = Slider.prototype.toString;

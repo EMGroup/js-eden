@@ -155,6 +155,8 @@ ${{
 
 func RegularPolygon {
 	${{
+		var maxArgs = 10;
+		var numArgs = arguments.length;
 		var x = arguments[0];
 		var y = arguments[1];
 		var r = arguments[2];
@@ -166,22 +168,27 @@ func RegularPolygon {
 			star = arguments[4];
 			argsProcessed++;
 		}
+		if (numArgs - argsProcessed > maxArgs - 5) { argsProcessed = 5; }
+
 		if (typeof(arguments[argsProcessed]) == "boolean") {
 			interiorOutline = arguments[argsProcessed];
 			argsProcessed++;
 		}
+		if (numArgs - argsProcessed > maxArgs - 6) { argsProcessed = 6; }
+
 		if (typeof(arguments[argsProcessed]) == "number") {
 				rotation = arguments[argsProcessed] * root.lookup("radiansPerUnit").value();
 				argsProcessed++;
 		}
+		if (numArgs - argsProcessed > maxArgs - 7) { argsProcessed = 7; }
 
-		var lastArg = arguments[arguments.length - 1];
+		var lastArg = arguments[numArgs - 1];
 		var processUpTo;
 		if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
 			drawingOptions = lastArg;
-			processUpTo = arguments.length - 2;
+			processUpTo = numArgs - 2;
 		} else {
-			processUpTo = arguments.length - 1;
+			processUpTo = numArgs - 1;
 		}
 		if (processUpTo >= argsProcessed) {
 			fillcolour = arguments[argsProcessed];

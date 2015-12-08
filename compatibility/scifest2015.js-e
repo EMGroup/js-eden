@@ -10,22 +10,7 @@ hsl2colour is hslColour;
 rgb2colour is rgbColour;
 _view_list is _views_list;
 
-##Form controls used to take a "name" parameter.
-
-func Button {
-${{
-	var name = arguments[0];
-	var label = arguments[1];
-	var x = arguments[2];
-	var y = arguments[3];
-	var enabled = arguments[4];
-	var fillcolour = arguments[5];
-	var textcolour = arguments[6];
-	if (enabled === undefined) enabled = true;
-	return new Button(name, label, x, y, undefined, undefined, enabled, fillcolour, textcolour);
-}}$;
-}
-
+##Checkboxes now have an optional label argument.
 func Checkbox { ${{
   var name = arguments[0];
   var x = arguments[1];
@@ -34,9 +19,11 @@ func Checkbox { ${{
   if (tristate === undefined) tristate = false;
   var enabled = arguments[4];
   if (enabled === undefined) enabled = true;
-  return new Checkbox(name, x, y, tristate, enabled);
+  return new Checkbox(name, undefined, x, y, tristate, enabled);
 }}$; }
 
+##Combobox now produces comoboboxes, not pure drop down lists anymore.
+##Drop down lists now have separate values and labels.
 func Combobox { ${{
   var name = arguments[0];
   var values = arguments[1];
@@ -46,6 +33,7 @@ func Combobox { ${{
   return new DropDownList(name, values, values, x, y, enabled);
 }}$; }
 
+##Radio button groups now have separate values and labels.
 func RadioButtons { ${{
 	var name = arguments[0];
 	var values = arguments[1];
@@ -54,45 +42,6 @@ func RadioButtons { ${{
 	var enabled = arguments[4];
 	var horizontal = arguments[5];
 	return new RadioButtons(name, values, values, x, y, undefined, horizontal, enabled);
-}}$; }
-
-func Slider { ${{
-  var name = arguments[0];
-  var min = arguments[1];
-  var max = arguments[2];
-  var step = arguments[3];
-  var x = arguments[4];
-  var y = arguments[5];
-  var length = arguments[6];
-  var orientation = arguments[7];
-  if (orientation === undefined) orientation = "horizontal";
-  var enabled = arguments[8];
-  if (enabled === undefined) enabled = true;
-  return new Slider(name, min, max, step, undefined, undefined, undefined, x, y, length, orientation, enabled);
-}}$; }
-
-func Textbox { ${{
-	var name = arguments[0];
-	var x = arguments[1];
-	var y = arguments[2];
-	var width = arguments[3];
-	var height, placeholder, enabled;
-	var argsProcessed = 4;
-	var arg = arguments[argsProcessed];
-	var argType = typeof(arg);
-	if (arg === undefined || argType == "number") {
-		height = arg;
-		argsProcessed++;
-		arg = arguments[argsProcessed];
-		argType = typeof(arg);
-	}
-	if (arg === undefined || argType == "string") {
-		placeholder = arg;
-		argsProcessed++;
-		arg = arguments[argsProcessed];
-	}
-	enabled = arg;
-	return new Textbox(name, x, y, width, height, placeholder, undefined, enabled);
 }}$; }
 
 func indexOf {
