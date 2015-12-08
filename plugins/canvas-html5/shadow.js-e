@@ -6,8 +6,19 @@
 func Shadow {
 	${{
 		var colour, blur, xOffset, yOffset, scale;
+
+		var processUpTo;
+		var numArgs = arguments.length;
+		var lastArg = arguments[numArgs - 1];
+		if (lastArg === true || lastArg === false || numArgs == 5) {
+			scale = lastArg;
+			processUpTo = numArgs - 1;
+		} else {
+			processUpTo = numArgs;
+		}
+
 		var argsProcessed;
-		if (typeof(arguments[0]) == "string") {
+		if (typeof(arguments[0]) == "string" || (arguments[0] === undefined && processUpTo > 3)) {
 			colour = arguments[0];
 			argsProcessed = 1;
 		} else {
@@ -22,8 +33,6 @@ func Shadow {
 		yOffset = arguments[argsProcessed];
 		argsProcessed++;
 		blur = arguments[argsProcessed];
-		argsProcessed++;
-		scale = arguments[argsProcessed];
 		return new Shadow(colour, xOffset, yOffset, blur, scale);
 	}}$;
 }
