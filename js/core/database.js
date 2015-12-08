@@ -178,7 +178,6 @@ Eden.DB.processManifestEntry = function(path, entry) {
 
 
 Eden.DB.updateDirectory = function(name) {
-	console.log("Update directory: " + name);
 	// Find location, create if needed
 	var comp = name.split("/");
 	var root = Eden.DB.directory;
@@ -358,15 +357,12 @@ Eden.DB.getVersions = function(path, callback) {
 }
 
 Eden.DB.getMeta = function(path, callback) {
-	console.log("REQUEST META");
 	// Check local meta
 	/*if (Eden.DB.meta[path]) {
 		callback(path, Eden.DB.meta[path]);
 	} else {*/
 		// Otherwise, go to server for it.	
 		Eden.DB.getDirectory(path, function(p) {
-			console.log("GET META");
-			console.log(p);
 			callback(path, Eden.DB.meta[path]);
 		});
 	//}
