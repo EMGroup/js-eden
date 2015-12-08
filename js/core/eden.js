@@ -149,7 +149,11 @@ function concatAndResolveUrl(url, concat) {
 			//this.showErrorWindow().prepend(formattedError)
 			//this.showErrorWindow().prop('scrollTop', 0);
 
-			edenUI.showMessage("error", "Error: " + e.message);
+			var msg;
+			if (typeof e == "string") msg = e;
+			else msg = e.message;
+
+			edenUI.showMessage("error", "Error: " + msg);
 		});
 
 		/**

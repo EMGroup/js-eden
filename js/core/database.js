@@ -9,10 +9,68 @@ Eden.DB = {
 	directory: {},
 	meta: {},
 	remoteMeta: {},
-	remoteURL: "http://localhost:18880"
+	remoteURL: undefined
 }
 
-Eden.DB.loadLocalDirectory = function() {
+
+
+Eden.DB.Meta = function() {
+	this.remote = false;
+	this.title = "Agent";
+	this.author = undefined;
+	this.saveID = "origin";
+	this.tag = "origin";
+	this.defaultID = -1;
+	this.latestID = -1;
+	this.file = undefined;
+}
+
+Eden.DB.Meta.prototype.updateDefault = function(id, title, author) {
+	if (id > this.defaultID) this.defaultID = id;
+	if (this.latestID == -1) this.latestID = id;
+	if (this.saveID == -1) {
+		this.title = title;
+		this.author = author;
+	}
+}
+
+Eden.DB.Meta.prototype.updateLatest = function(id, title, author) {
+	if (id > this.latestID) this.latestID = id;
+	if (this.saveID == -1 && this.defaultID == -1) {
+		this.title = title;
+		this.author = author;
+	}
+	if (this.defaultID == -1) this.defaultID = id;
+}
+
+Eden.DB.Meta.prototype.updateVersion = function(saveID, tag, title, author) {
+	this.saveID = saveID;
+	this.title = title;
+	this.author = author;
+
+	if (tag) {
+		this.tag = tag;
+	} else {
+		this.tag = saveID;
+	}
+}
+
+
+
+Eden.DB.isConnected = function() {
+	return Eden.DB.remoteURL !== undefined;
+}
+
+Eden.DB.connect = function(url) {
+	Eden.DB.remoteURL = url;
+	Eden.DB.loadDatabaseRoot();
+}
+
+Eden.DB.disconnect = function() {
+	Eden.DB.remoteURL = undefined;
+}
+
+/*Eden.DB.loadLocalDirectory = function() {
 	var localdir;
 	try {
 		if (window.localStorage) {
@@ -22,21 +80,16 @@ Eden.DB.loadLocalDirectory = function() {
 		localdir = {};
 	}
 	Eden.DB.directory = localdir;
-}
+}*/
 //Eden.DB.loadLocalDirectory();
 
-Eden.DB.loadRemoteRoot = function(url) {
-	// For now, download entire directory and meta data from file.
-	var me = this;
 
-	$.get(url, function(data) {
-		//Eden.Agent.db = data;
-		for (var a in data.meta) {
-			Eden.DB.updateDirectory(a);
-		}
-		Eden.DB.remoteMeta = data.meta;
-		
-		// Go to database to get root path
+
+
+Eden.DB.loadDatabaseRoot = function() {
+	var me = this;
+	// Go to database to get root path
+	if (Eden.DB.isConnected()) {
 		$.ajax({
 			url: me.remoteURL+"/agent/search",
 			type: "get",
@@ -45,28 +98,86 @@ Eden.DB.loadRemoteRoot = function(url) {
 				withCredentials: true
 			},
 			success: function(data){
-				//console.log(data);
-				for (var i=0; i<data.length; i++) {
-					Eden.DB.updateDirectory(data[i].path);
-					Eden.DB.meta[data[i].path] = {remote: true};
+				if (data == null || data.error) {
+					console.error(data);
+					eden.error((data) ? data.description : "No response from server");
+				} else {
+					Eden.DB.processManifestList(data, true);
 				}
 			},
 			error: function(a){
 				console.error(a);
+				eden.error(a);
+				Eden.DB.disconnect();
 			}
 		});
-	}, "json");
-
-	/*$.get(this.remoteURL+"/agent/search", function(data) {
-		for (var i=0; i<data.length; i++) {
-			Eden.DB.updateDirectory(data[i].path);
-			Eden.DB.meta[data[i].path] = {remote: true};
-		}
-	}, "json");*/
+	}
 }
-Eden.DB.loadRemoteRoot("resources/agents.db.json");
+
+
+
+/**
+ * Load agent meta-data from a JSON file instead of a database.
+ */
+Eden.DB.loadManifestFile = function(url) {
+	var me = this;
+	$.get(url, function(data) {
+		me.processManifestObject(data.meta);
+	}, "json");
+}
+// Default manifest file
+Eden.DB.loadManifestFile("resources/agents.db.json");
+
+
+
+Eden.DB.processManifestObject = function(data) {
+	if (!data) return;
+	for (var a in data) {
+		this.processManifestEntry(a, data[a]);
+	}
+}
+
+Eden.DB.processManifestList = function(data, remote) {
+	if (!data) return;
+	for (var i=0; i<data.length; i++) {
+		var meta = this.processManifestEntry(data[i].path, data[i]);
+		meta.remote = remote;
+	}
+}
+
+
+
+Eden.DB.processManifestEntry = function(path, entry) {
+	var meta = Eden.DB.meta[path];
+	if (meta === undefined) meta = new Eden.DB.Meta();
+
+	// Update version data if available
+	if (entry.versions) {
+		if (entry.versions.Official.length > 0) {
+			var version = entry.versions.Official[0];
+			meta.updateDefault(version.saveID, version.title, version.name);
+		}
+		if (entry.versions.UserLatest.length > 0) {
+			var version = entry.versions.UserLatest[0];
+			meta.updateLatest(version.saveID, version.title, version.name);
+		} else if (entry.versions.PublicLatest.length > 0) {
+			var version = entry.versions.PublicLatest[0];
+			meta.updateLatest(version.saveID, version.title, version.name);
+		}
+	}
+
+	if (entry.remote) meta.remote = true;
+	if (entry.file) meta.file = entry.file;
+	Eden.DB.updateDirectory(path);
+	Eden.DB.meta[path] = meta;
+	return meta;
+}
+
+
+
 
 Eden.DB.updateDirectory = function(name) {
+	console.log("Update directory: " + name);
 	// Find location, create if needed
 	var comp = name.split("/");
 	var root = Eden.DB.directory;
@@ -82,20 +193,13 @@ Eden.DB.updateDirectory = function(name) {
 		}
 		root = root[comp[i]].children;
 	}
-
-	// Save locally if changed.
-	if (changed) {
-		try {
-			if (window.localStorage) {
-				window.localStorage.setItem('agent_directory', JSON.stringify(Eden.DB.directory));
-			}
-		} catch (e) {
-		}
-	}
 }
 
 Eden.DB.updateMeta = function(path, entry, value) {
 	var meta = Eden.DB.meta[path];
+
+	console.error("DEPRECATED UPDATEMETA");
+	console.trace("Meta");
 
 	if (meta === undefined) {
 		meta = Eden.DB.remoteMeta[path];
@@ -109,13 +213,6 @@ Eden.DB.updateMeta = function(path, entry, value) {
 	}
 
 	meta[entry] = value;
-	// Save locally
-	try {
-		if (window.localStorage) {
-			window.localStorage.setItem('agent_'+path+'_meta', JSON.stringify(meta));
-		}
-	} catch (e) {
-	}
 }
 
 Eden.DB.getDirectory = function(path, callback) {
@@ -135,73 +232,51 @@ Eden.DB.getDirectory = function(path, callback) {
 			return;
 		}
 
+		// This path has not yet been loaded from the database
 		if (root[comp[i]].missing) {
 			root[comp[i]].missing = false;
-			var curpath = comp.slice(0,i+1).join("/");
-			// Go to database to get root path
-			$.ajax({
-				url: this.remoteURL+"/agent/search?path="+curpath,
-				type: "get",
-				crossDomain: true,
-				xhrFields:{
-					withCredentials: true
-				},
-				success: function(data){
-					if (data == null) {
-						callback(undefined);
-						return
-					}
+			if (Eden.DB.isConnected()) {
+				var curpath = comp.slice(0,i+1).join("/");
+				// Go to database to get path
+				$.ajax({
+					url: this.remoteURL+"/agent/search?path="+curpath,
+					type: "get",
+					crossDomain: true,
+					xhrFields:{
+						withCredentials: true
+					},
+					success: function(data){
+						if (data && data.error) {
+							console.error(data);
+							eden.error((data) ? data.description : "No response from server");
+							callback(undefined);
+							return;
+						} else if (data) {
+							Eden.DB.processManifestList(data, true);
 
-					console.log(data);
+							if (data.length == 0) {
+								callback(undefined);
+								return;
+							}
 
-					for (var i=0; i<data.length; i++) {
-						var version;
-
-						// Select correct default version meta-data
-						if (data[i] && data[i].versions) {
-							if (data[i].versions.Official.length > 0) version = data[i].versions.Official[0];
-							else if (data[i].versions.UserLatest.length > 0) version = data[i].versions.UserLatest[0];
-							else if (data[i].versions.PublicLatest.length > 0) version = data[i].versions.PublicLatest[0];
-							else version = {};
+							// Recursive call because we may need to go deeper...
+							Eden.DB.getDirectory(path, callback);
 						} else {
-							version = {};
+							callback(root);
 						}
-
-						Eden.DB.updateDirectory(data[i].path);
-						Eden.DB.meta[data[i].path] = {remote: true, title: version.title, author: version.name, date: version.date, saveID: version.saveID, tag: version.tag};
+					},
+					error: function(a){
+						console.error(a);
 					}
-					if (data.length == 0) {
-						callback(undefined);
-						return;
-					}
-					Eden.DB.getDirectory(path, callback);
-				},
-				error: function(a){
-					console.error(a);
-				}
-			});
-
-			/*$.get(this.remoteURL+"/agent/search?path="+curpath, function(data) {
-				for (var i=0; i<data.length; i++) {
-					Eden.DB.updateDirectory(data[i].path);
-					Eden.DB.meta[data[i].path] = {remote: true};
-				}
-				if (data.length == 0) {
-					callback(undefined);
-					return;
-				}
-				Eden.DB.getDirectory(path, callback);
-			}, "json");*/
-			return;
+				});
+				return;
+			}
+			//callback(undefined);
+			//return;
 		}
-		//if (i == comp.length-1) {
-		//	root = root[comp[i]];
-		//} else {
-			root = root[comp[i]].children;
-		//}
+
+		root = root[comp[i]].children;
 	}
-	// If marked as missing, go to server.
-	// Also update from server async.
 
 	callback(root);
 }
@@ -209,80 +284,95 @@ Eden.DB.getDirectory = function(path, callback) {
 Eden.DB.upload = function(path, meta, source, tagname, ispublic, callback) {
 	if (meta === undefined) {
 		console.error("Attempting to upload agent without meta data: " + path);
+		eden.error("Attempting to upload agent without meta data: " + path);
+		if (callback) callback(false);
 		return
 
 	}
-	$.ajax({
-		url: this.remoteURL+"/agent/add",
-		type: "post",
-		crossDomain: true,
-		xhrFields:{
-			withCredentials: true
-		},
-		data:{path: path, title: meta.title, source: source, tag: tagname, permission: (ispublic) ? "public" : undefined},
-		success: function(data){
-			//console.log(data);
-			Eden.DB.updateMeta(path, "saveID", data.saveID);
-			Eden.DB.updateMeta(path, "tag", tagname);
-			if (callback) callback();
-		},
-		error: function(a){
-			console.error(a);
-		}
-	});
+
+	if (Eden.DB.isConnected()) {
+		$.ajax({
+			url: this.remoteURL+"/agent/add",
+			type: "post",
+			crossDomain: true,
+			xhrFields:{
+				withCredentials: true
+			},
+			data:{	path: path,
+					parentSaveID: (meta.saveID == "origin") ? undefined : meta.saveID,
+					title: meta.title,
+					source: source,
+					tag: tagname,
+					permission: (ispublic) ? "public" : undefined
+			},
+			success: function(data){
+				if (data == null || data.error) {
+					console.error(data);
+					eden.error((data) ? data.description : "No response from server");
+					if (callback) callback(false);
+				} else {
+					meta.updateVersion(data.saveID, tagname);
+					if (callback) callback(true);
+				}
+			},
+			error: function(a){
+				console.error(a);
+				eden.error(a);
+				if (callback) callback(false);
+			}
+		});
+	} else {
+		console.error("Cannot upload, not connected to server");
+		if (callback) callback(false);
+		eden.error("Cannot upload "+path+", not connected to server");
+	}
 }
 
 Eden.DB.createMeta = function(path) {
-	Eden.DB.meta[path] = {saveID: "origin"};
+	Eden.DB.meta[path] = new Eden.DB.Meta();
 	return Eden.DB.meta[path];
 }
 
 Eden.DB.getVersions = function(path, callback) {
-	$.ajax({
-		url: this.remoteURL+"/agent/versions?path="+path,
-		type: "get",
-		crossDomain: true,
-		xhrFields:{
-			withCredentials: true
-		},
-		success: function(data){
-			//console.log(data);
-			callback(data);
-		},
-		error: function(a){
-			console.error(a);
-		}
-	});
-}
-
-Eden.DB.getMeta = function(path, callback) {
-	// Check local meta
-	if (Eden.DB.meta[path]) {
-		callback(path, Eden.DB.meta[path]);
-	} else {
-		try {
-			if (window.localStorage) {
-				var meta = JSON.parse(window.localStorage.getItem('agent_'+path+'_meta'));
-				
-				if (meta) {
-					Eden.DB.meta[path] = meta;
-					callback(path, meta);
-					return;
-				}
+	if (Eden.DB.isConnected()) {
+		$.ajax({
+			url: Eden.DB.remoteURL+"/agent/versions?path="+path,
+			type: "get",
+			crossDomain: true,
+			xhrFields:{
+				withCredentials: true
+			},
+			success: function(data){
+				//console.log(data);
+				// TODO Process this version data to update defaults?
+				callback(data);
+			},
+			error: function(a){
+				console.error(a);
 			}
-		} catch (e) {
-		}
-
-		// Otherwise, go to server for it.	
-		Eden.DB.getDirectory(path, function(p) {
-			if (p) callback(path, Eden.DB.meta[path]);
-			else callback(path, Eden.DB.remoteMeta[path]);
 		});
+	} else {
+		callback(undefined);
 	}
 }
 
+Eden.DB.getMeta = function(path, callback) {
+	console.log("REQUEST META");
+	// Check local meta
+	/*if (Eden.DB.meta[path]) {
+		callback(path, Eden.DB.meta[path]);
+	} else {*/
+		// Otherwise, go to server for it.	
+		Eden.DB.getDirectory(path, function(p) {
+			console.log("GET META");
+			console.log(p);
+			callback(path, Eden.DB.meta[path]);
+		});
+	//}
+}
+
 Eden.DB.getSource = function(path, tag, callback) {
-	console.log("LOADING: "+path+"@"+tag);
+	//console.log("LOADING: "+path+"@"+tag);
 
 	Eden.DB.getMeta(path, function(path, meta) {
 		if (meta === undefined) {
@@ -290,10 +380,31 @@ Eden.DB.getSource = function(path, tag, callback) {
 			return;
 		}
 
-		if (meta.remote) {
+		if (meta.remote && Eden.DB.isConnected()) {
 			var tagvalue;
-			if (tag === undefined || tag == "default") {
-				tagvalue = "";
+
+			// Select correct version if virtual tags are used.
+			if (tag === undefined || tag == "default" || tag == "") {
+				if (meta.defaultID >= 0) {
+					tagvalue = "&version="+meta.defaultID;
+				} else if (meta.latestID >= 0) {
+					tagvalue = "&version="+meta.latestID;
+				} else if (meta.saveID == "origin") {
+					callback("");
+					return;
+				} else if (meta.saveID >= 0) {
+					tagvalue = "&version="+meta.saveID;
+				} else {
+					callback("");
+					return;
+				}
+			} else if (tag == "latest") {
+				if (meta.latestID >= 0) {
+					tagvalue = "&version="+meta.latestID;
+				} else {
+					callback("");
+					return;
+				}
 			} else if (typeof tag == "string") {
 				tagvalue = "&tag="+tag;
 			} else {
@@ -308,10 +419,12 @@ Eden.DB.getSource = function(path, tag, callback) {
 					withCredentials: true
 				},
 				success: function(data){
-					if (data == null) {
+					if (data == null || data.error) {
 						callback(undefined, "No such version");
-					} else {		
-						Eden.DB.updateMeta(path, "saveID", data.saveID);		
+						console.error("No such version");
+						//console.log(data);
+					} else {			
+						meta.updateVersion(data.saveID, data.tag);	
 						callback(data.source);
 					}
 				},
@@ -321,6 +434,7 @@ Eden.DB.getSource = function(path, tag, callback) {
 			});
 		} else if (meta.file) {
 			$.get(meta.file, function(data) {
+				meta.updateVersion("origin", "default");
 				callback(data);
 			}, "text");
 		} else {
@@ -328,10 +442,6 @@ Eden.DB.getSource = function(path, tag, callback) {
 			callback("");
 		}
 	});
-}
-
-Eden.DB.getHistory = function(path, callback) {
-
 }
 
 

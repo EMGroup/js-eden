@@ -31,6 +31,7 @@ Eden.Agent = function(parent, name, meta, options) {
 
 	if (meta === undefined) {
 		console.error("Meta undefined for " + name);
+		meta = Eden.DB.createMeta(name);
 	}
 
 	this.watches = [];
@@ -43,7 +44,7 @@ Eden.Agent = function(parent, name, meta, options) {
 	this.handles = [];
 	this.meta = meta;
 	this.title = (meta && meta.title) ? meta.title : "Agent";
-	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || {origin:[]};
+	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || {};
 
 	if (meta && this.history[meta.saveID] === undefined) {
 		this.history[meta.saveID] = [];
@@ -128,10 +129,8 @@ Eden.Agent.AUTOSAVE_INTERVAL = 2000;
  *     name.
  *
  * Other options allow you to force particular versions:
- *     - remote: brings in the remote version and deletes local changes
- *     - local: ignores remote version, using local only version.
  *     - rebase: gets the remote version but automatically applies all local
- *               changes in the local history.
+ *               changes in the local history for that version.
  *     - reload: Even if already loaded, go get a new version from the server.
  *
  * When first imported using the "import" script command the agents are also
@@ -147,6 +146,10 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 		return;
 	}
 
+	console.log("Importing: " + path + "@" + tag);
+
+	if (tag === undefined || tag == "") tag = "default";
+
 	function finish(success, msg) {
 		// There is an agent
 		if (ag) {
@@ -156,26 +159,26 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 				return;
 			}
 
-			// Errors on load
+			// Errors on load?
 			if (ag.ast && ag.ast.script.errors.length > 0) {
 				console.error(ag.ast.script.errors[0].prettyPrint());
 			}
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
+				console.log("EXECUTING ON IMPORT");
 				ag.execute((options && options.indexOf("force") >= 0), true);
 			}
 		// There is no existing agent but create it
 		} else if (options && options.indexOf("create") >= 0) {
 			// Auto create agents that don't exist
 			ag = new Eden.Agent(undefined, path, Eden.DB.createMeta(path), options);
-			Eden.DB.updateMeta(path, "tag", tag);
+			if (tag != "default") ag.meta.tag = tag;
 		// There is no existing agent and we are not to create it.
 		} else if (!success) {
 			callback(undefined, msg);
 			return;
 		}
 
-		// Umm. Shouldn't get here?
 		if (callback) callback(ag);
 	}
 
@@ -184,9 +187,10 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 		var ag = Eden.Agent.agents[path];
 		ag.setOptions(options);
 
-		// Force a reload?
+		// Force a reload? Explicit or by change of tag
 		if ((ag.meta && ag.meta.tag != tag && tag != "default") || (options && options.indexOf("reload") >= 0)) {
-			Eden.DB.updateMeta(path, "tag", tag);
+			ag.meta.tag = tag;
+			//console.log("Tag change reload!");
 			ag.loadSource(finish);
 		} else {
 			finish(true);
@@ -196,10 +200,11 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 
 	// Ask database for info about this agent
 	Eden.DB.getMeta(path, function(path, meta) {
+		//console.log(meta);
 		// It exists in the database
 		if (meta) {	
 			//console.log(meta);
-			Eden.DB.updateMeta(path, "tag", tag);		
+			meta.tag = tag;
 			ag = new Eden.Agent(undefined, path, meta, options);
 
 			// Get from server or use local?
@@ -208,6 +213,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 				return;
 			} else {
 				//console.log("FOUND LOCAL " + path);
+				meta.saveID = "origin";
 				ag.setSnapshot("");
 				ag.setSource("");
 				// Auto rebase local only agents
@@ -492,9 +498,11 @@ Eden.Agent.prototype.loadSource = function(callback) {
 	var me = this;
 	this.executed = false;
 
+	//console.log("Attempt to load source for " + me.name);
+
 	Eden.DB.getSource(me.name, me.meta.tag, function(data, msg) {
 		if (data) {
-			console.log("Source loaded: " + me.name);
+			//console.log("Source loaded: " + me.name);
 			// Make sure we have a local history for this
 			if (me.history[me.meta.saveID] === undefined) {
 				me.history[me.meta.saveID] = [];
@@ -527,7 +535,7 @@ Eden.Agent.prototype.clearExecutedState = function() {
 
 Eden.Agent.prototype.setTitle = function(title) {
 	this.title = title;
-	Eden.DB.updateMeta(this.name, "title", title);
+	this.meta.title = title;
 	Eden.Agent.emit("title", [this]);
 }
 
