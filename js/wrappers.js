@@ -44,7 +44,7 @@ Eden.Agent = function(parent, name, meta, options) {
 	this.handles = [];
 	this.meta = meta;
 	this.title = (meta && meta.title) ? meta.title : "Agent";
-	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || {origin:[]};
+	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || {};
 
 	if (meta && this.history[meta.saveID] === undefined) {
 		this.history[meta.saveID] = [];
@@ -165,6 +165,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			}
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
+				console.log("EXECUTING ON IMPORT");
 				ag.execute((options && options.indexOf("force") >= 0), true);
 			}
 		// There is no existing agent but create it
@@ -189,7 +190,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 		// Force a reload? Explicit or by change of tag
 		if ((ag.meta && ag.meta.tag != tag && tag != "default") || (options && options.indexOf("reload") >= 0)) {
 			ag.meta.tag = tag;
-			console.log("Tag change reload!");
+			//console.log("Tag change reload!");
 			ag.loadSource(finish);
 		} else {
 			finish(true);
@@ -199,7 +200,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 
 	// Ask database for info about this agent
 	Eden.DB.getMeta(path, function(path, meta) {
-		console.log(meta);
+		//console.log(meta);
 		// It exists in the database
 		if (meta) {	
 			//console.log(meta);
@@ -497,11 +498,11 @@ Eden.Agent.prototype.loadSource = function(callback) {
 	var me = this;
 	this.executed = false;
 
-	console.log("Attempt to load source for " + me.name);
+	//console.log("Attempt to load source for " + me.name);
 
 	Eden.DB.getSource(me.name, me.meta.tag, function(data, msg) {
 		if (data) {
-			console.log("Source loaded: " + me.name);
+			//console.log("Source loaded: " + me.name);
 			// Make sure we have a local history for this
 			if (me.history[me.meta.saveID] === undefined) {
 				me.history[me.meta.saveID] = [];

@@ -18,7 +18,7 @@ Eden.DB.Meta = function() {
 	this.remote = false;
 	this.title = "Agent";
 	this.author = undefined;
-	this.saveID = -1;
+	this.saveID = "origin";
 	this.tag = "origin";
 	this.defaultID = -1;
 	this.latestID = -1;
@@ -40,6 +40,7 @@ Eden.DB.Meta.prototype.updateLatest = function(id, title, author) {
 		this.title = title;
 		this.author = author;
 	}
+	if (this.defaultID == -1) this.defaultID = id;
 }
 
 Eden.DB.Meta.prototype.updateVersion = function(saveID, tag, title, author) {
@@ -176,6 +177,7 @@ Eden.DB.processManifestEntry = function(path, entry) {
 
 
 Eden.DB.updateDirectory = function(name) {
+	console.log("Update directory: " + name);
 	// Find location, create if needed
 	var comp = name.split("/");
 	var root = Eden.DB.directory;
@@ -259,6 +261,8 @@ Eden.DB.getDirectory = function(path, callback) {
 
 							// Recursive call because we may need to go deeper...
 							Eden.DB.getDirectory(path, callback);
+						} else {
+							callback(root);
 						}
 					},
 					error: function(a){
@@ -267,8 +271,8 @@ Eden.DB.getDirectory = function(path, callback) {
 				});
 				return;
 			}
-			callback(undefined);
-			return;
+			//callback(undefined);
+			//return;
 		}
 
 		root = root[comp[i]].children;
@@ -353,19 +357,22 @@ Eden.DB.getVersions = function(path, callback) {
 }
 
 Eden.DB.getMeta = function(path, callback) {
+	console.log("REQUEST META");
 	// Check local meta
 	/*if (Eden.DB.meta[path]) {
 		callback(path, Eden.DB.meta[path]);
 	} else {*/
 		// Otherwise, go to server for it.	
 		Eden.DB.getDirectory(path, function(p) {
+			console.log("GET META");
+			console.log(p);
 			callback(path, Eden.DB.meta[path]);
 		});
 	//}
 }
 
 Eden.DB.getSource = function(path, tag, callback) {
-	console.log("LOADING: "+path+"@"+tag);
+	//console.log("LOADING: "+path+"@"+tag);
 
 	Eden.DB.getMeta(path, function(path, meta) {
 		if (meta === undefined) {
@@ -415,7 +422,7 @@ Eden.DB.getSource = function(path, tag, callback) {
 					if (data == null || data.error) {
 						callback(undefined, "No such version");
 						console.error("No such version");
-						console.log(data);
+						//console.log(data);
 					} else {			
 						meta.updateVersion(data.saveID, data.tag);	
 						callback(data.source);
