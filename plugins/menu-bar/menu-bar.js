@@ -64,13 +64,6 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		var menu = $("#menubar-mainitem-"+name);
 		menu.show();
 		menuShowing = true;
-		var textboxes = menu.find('input[type="text"]');
-		if (textboxes.length > 0) {
-			setTimeout(function () {
-				textboxes[0].focus();
-				menu.scrollTop(0);
-			}, 0);
-		}
 	}
 
 	$(document.body).on('mousedown', function () {
@@ -83,9 +76,13 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		group.menuGroupWidth = 0;
 		return group;
 	}
-	
+
+	var numMenus = 0;
+
 	function addMainItem(name, title, group) {
 		var menuitem = $('<div class="menubar-mainitem"></div>');
+		numMenus++;
+		menuitem.attr("tabindex", numMenus);
 		menuitem.html(title);
 		menuitem.appendTo(group);
 		var width = menuitem[0].clientWidth + 10;
@@ -114,6 +111,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 				showMenu(name);
 			}
 		});
+		return menuitem;
 	}
 		
 	function existingViewsInstructions() {
@@ -202,13 +200,14 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		views.html("");
 
 		var searchBox = $('<input id="menubar-view-type-search" class="menubar-search-box" type="text" placeholder="search"/>');
+		var searchBoxElem = searchBox[0];
 		var searchItemPart = $('<div class="menubar-item-fullwidth"></div>');
 		searchItemPart.append(searchBox);
 		var searchItem = $("<div class='menubar-item-search'></div>");
 		searchItem.append(searchItemPart);
-		
-		searchBox.on("input", function (event) {
-			var searchStr = event.target.value;
+
+		searchBoxElem.search = function () {
+			var searchStr = searchBoxElem.value;
 			var re = new RegExp("(^|\\s)"+ searchStr, "i");
 			var lastCategory;
 			var categoryMatch = false;
@@ -240,10 +239,8 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 					}
 				}
 			});
-			setTimeout(function () {
-				views.scrollTop(0);
-			}, 0);
-		});
+		};
+		searchBox.on("input", searchBoxElem.search);
 
 		// First add supported view types
 		var viewArray = [];
@@ -346,7 +343,25 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	// Add main menu items
 	var jsedenGroup = addMainGroup();
 	function createMenus() {
-		addMainItem("views", "New Window", jsedenGroup);
+		var viewTypesMenu = addMainItem("views", "New Window", jsedenGroup);
+
+		viewTypesMenu.on("keypress", function (event) {
+			var searchBoxElem = document.getElementById("menubar-view-type-search");
+			if (searchBoxElem === event.target) {
+				return;
+			}
+			searchBoxElem.value = searchBoxElem.value + String.fromCharCode(event.which);
+			searchBoxElem.search();
+		});
+		viewTypesMenu.on("keyup", null, "backspace", function (event) {
+			var searchBoxElem = document.getElementById("menubar-view-type-search");
+			if (searchBoxElem === event.target) {
+				return;
+			}
+			searchBoxElem.value = searchBoxElem.value.slice(0, -1);
+			searchBoxElem.search();
+		});
+
 		addMainItem("existing-views", "Existing Windows", jsedenGroup);
 		me.updateViewsMenu();
 

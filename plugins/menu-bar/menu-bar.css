@@ -18,6 +18,10 @@
 	font-weight: bold;
 }
 
+.menubar-mainitem:focus {
+	outline: none;
+}
+
 .menubar-menu {
 	/* prevent text highlighting */
 	-khtml-user-select: none;
