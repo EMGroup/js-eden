@@ -279,6 +279,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 
+		function reloadAgent(tab) {
+			var name = tab.getAttribute("data-name");
+			if (name) {
+				Eden.Agent.importAgent(name, "default", ["reload"], function(){
+
+				}); 
+			}
+		}
+
+
 
 		/* Build the context menu for the tab bar. */
 		var tabcm = new EdenUI.ContextMenu(tabs);
@@ -288,6 +298,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			return Eden.Agent.agents[name] && Eden.Agent.agents[name].executed;
 		}, stopTab);
 		tabcm.addSeparator();
+		tabcm.addItem("&#xf24d;","Clone", false);
+		tabcm.addItem("&#xf021;","Reload", true, reloadAgent);
 		tabcm.addItem("&#xf093;","Upload", true, uploadAgent);
 		tabcm.addItem("&#xf21b;","Hide",true, hideTab);
 
@@ -381,7 +393,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					for (var a in selected) {
 						if (selected[a]) {
 							lasttab = a;
-							Eden.Agent.importAgent(a, "default", ["noexec"]);
+							Eden.Agent.importAgent(a, "default", ["noexec"], function(){});
 							if (tabs.indexOf(a) == -1) {
 								tabs.push(a);
 							}
@@ -885,6 +897,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				} else if (scriptagent && ag.name == scriptagent.name) {
 					intextarea.value = ag.getSource();
 					highlightContent(scriptagent.ast, -1, 0);
+					updateHistoryButtons();
 				}
 			}
 		}

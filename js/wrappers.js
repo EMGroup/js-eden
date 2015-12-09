@@ -165,7 +165,6 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			}
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
-				console.log("EXECUTING ON IMPORT");
 				ag.execute((options && options.indexOf("force") >= 0), true);
 			}
 		// There is no existing agent but create it
@@ -173,6 +172,8 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			// Auto create agents that don't exist
 			ag = new Eden.Agent(undefined, path, Eden.DB.createMeta(path), options);
 			if (tag != "default") ag.meta.tag = tag;
+			//Add this to local meta store
+			Eden.DB.addLocalMeta(path, ag.meta);
 		// There is no existing agent and we are not to create it.
 		} else if (!success) {
 			callback(undefined, msg);
@@ -508,6 +509,8 @@ Eden.Agent.prototype.loadSource = function(callback) {
 				me.history[me.meta.saveID] = [];
 			}
 
+			// Reset undo history to beginning.
+			me.index = -1;
 			me.setSnapshot(data);
 		
 			// Do we need to do an automatic fast-forward?

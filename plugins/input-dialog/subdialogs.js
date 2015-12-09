@@ -197,7 +197,7 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 		activeelement = undefined;
 	}
 
-	function buildHistory(saveID) {
+	function buildAutosaves(saveID) {
 		if (data.history[saveID]) {
 			for (var i=data.history[saveID].length-1; i>=0; i--) {
 				var item = $('<div class="script-history-item"></div>');
@@ -226,13 +226,18 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 				hist.append(item);
 			}
 		}
+	}
 
+	function buildHistory(saveID) {
 		// Add base items.
 		Eden.DB.getVersions(data.name, function(versions) {
 			if (versions == null) return;
 
+			// For every version found on the server (limited to 100)
 			for (var i=0; i<versions.length; i++) {
 				var item = $('<div class="script-history-item"></div>');
+
+				// If the current version, highlight
 				if (versions[i].saveID == version) {
 					item.addClass("original");
 					if (active == -1) {
@@ -242,6 +247,8 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 				}
 				item.get(0).setAttribute("data-version", ""+versions[i].saveID);
 				var storedclass = "script-history-stored";
+
+				// If it public/private/someone elses?
 				if (versions[i]["public"] == false) {
 					storedclass += " private";
 				} else if (versions[i].mine) {
@@ -249,7 +256,9 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 				} else {
 					storedclass += " public";
 				}
+
 				var bookmark = $('<div class="'+storedclass+'"></div>');
+				// Generate time message from SQL timestamp
 				var t = versions[i].date.split(/[- :]/);
 				var time = $('<div class="script-history-time">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</div>');
 				var content2 = $('<div class="script-history-content">'+versions[i].tag+' by '+versions[i].name+'</div>');
@@ -257,8 +266,35 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 				item.append(content2);
 				item.append(time);
 				hist.append(item);
+
+				// Add this versions autosaves if its the current one
+				if (versions[i].saveID == version) {
+					buildAutosaves(saveID);
+				}
 			}
 		});
+
+		// If there is local origin data the add this as well
+		if (data.history["origin"]) {
+			var item = $('<div class="script-history-item"></div>');
+			if (version == "origin") {
+				item.addClass("original");
+				if (active == -1) {
+					item.addClass("current");
+					activeelement = item;
+				}
+			}
+			item.get(0).setAttribute("data-version", "origin");
+			var storedclass = "script-history-bookmark";
+			var bookmark = $('<div class="'+storedclass+'"></div>');
+			var label = "origin";
+			if (data.meta && data.meta.file) label = data.meta.file;
+			var content2 = $('<div class="script-history-content">'+label+'</div>');
+			item.append(bookmark);
+			item.append(content2);
+			hist.append(item);
+			buildAutosaves("origin");
+		}
 	}
 
 	buildHistory(data.meta.saveID);
@@ -279,8 +315,8 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 			// Rebuild with a different version history
 			version = ver;
 			clearHistory();
-			buildHistory(version);
 			active = -1;
+			buildHistory(version);
 		} else {
 			var index = parseInt(e.currentTarget.getAttribute("data-index"));
 			active = index;

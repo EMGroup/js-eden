@@ -70,6 +70,20 @@ Eden.DB.disconnect = function() {
 	Eden.DB.remoteURL = undefined;
 }
 
+
+
+Eden.DB.loadLocalMeta = function() {
+	try {
+		if (window.localStorage) {
+			Eden.DB.localMeta = JSON.parse(window.localStorage.getItem('agent_localmeta')) || {};
+		}
+	} catch (e) {
+		Eden.DB.localMeta = {};
+	}
+
+	Eden.DB.processManifestObject(Eden.DB.localMeta);
+}
+
 /*Eden.DB.loadLocalDirectory = function() {
 	var localdir;
 	try {
@@ -172,6 +186,13 @@ Eden.DB.processManifestEntry = function(path, entry) {
 	Eden.DB.updateDirectory(path);
 	Eden.DB.meta[path] = meta;
 	return meta;
+}
+
+
+
+Eden.DB.addLocalMeta = function(path, meta) {
+	Eden.DB.localMeta[path] = meta;
+	edenUI.setOptionValue('agent_localmeta', JSON.stringify(Eden.DB.localMeta));
 }
 
 
@@ -356,27 +377,32 @@ Eden.DB.getVersions = function(path, callback) {
 	}
 }
 
-Eden.DB.getMeta = function(path, callback) {
-	// Check local meta
-	/*if (Eden.DB.meta[path]) {
+
+
+/**
+ * Find agent meta data which is a combination of information from all sources.
+ */
+Eden.DB.getMeta = function(path, callback) {	
+	Eden.DB.getDirectory(path, function(p) {
 		callback(path, Eden.DB.meta[path]);
-	} else {*/
-		// Otherwise, go to server for it.	
-		Eden.DB.getDirectory(path, function(p) {
-			callback(path, Eden.DB.meta[path]);
-		});
-	//}
+	});
 }
 
 Eden.DB.getSource = function(path, tag, callback) {
-	//console.log("LOADING: "+path+"@"+tag);
-
+	// Need to find out where to look
 	Eden.DB.getMeta(path, function(path, meta) {
 		if (meta === undefined) {
 			callback(undefined, "No such agent");
 			return;
 		}
 
+		if (tag == "origin") {
+			meta.saveID = "origin";
+			callback("");
+			return;
+		}
+
+		// Go to remote first if connected, overrides any local versions
 		if (meta.remote && Eden.DB.isConnected()) {
 			var tagvalue;
 
@@ -429,6 +455,7 @@ Eden.DB.getSource = function(path, tag, callback) {
 					console.error(a);
 				}
 			});
+		// There is a version stored in a file somewhere
 		} else if (meta.file) {
 			$.get(meta.file, function(data) {
 				meta.updateVersion("origin", "default", meta.title, meta.name);
@@ -436,9 +463,12 @@ Eden.DB.getSource = function(path, tag, callback) {
 			}, "text");
 		} else {
 			// Assume it must be local only.
+			meta.saveID = "origin";
 			callback("");
 		}
 	});
 }
+
+Eden.DB.loadLocalMeta();
 
 

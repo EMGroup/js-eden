@@ -42,7 +42,7 @@ EdenUI.ContextMenu = function(origin) {
 			changeClass(me.items[i].element, "disabled", !status);
 		}
 
-		me.element.slideDown("fast");
+		me.element.slideDown(100);
 		e.preventDefault();
 	}
 
