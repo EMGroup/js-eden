@@ -375,7 +375,6 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 
 	function addAgents(parent, depth, path) {
 		Eden.DB.getDirectory(path, function(dir) {
-			console.log(dir);
 			if (dir === undefined) return;
 			for (var a in dir) {
 				var npath = (path=="")?a:path+"/"+a;
