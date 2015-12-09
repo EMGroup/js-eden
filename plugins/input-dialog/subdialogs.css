@@ -249,6 +249,11 @@ div.script-subdialog-agents {
 	border-radius: 5px;
 }
 
+div.script-agents-cbcont {
+	width: 16px;
+	float: left;
+}
+
 div.script-agents-list {
 	position: absolute;
 	left: 0;
@@ -284,7 +289,7 @@ div.script-agents-item:hover {
 }
 
 div.script-agents-item input {
-	float: left;
+	/*float: left;*/
 }
 
 div.script-agents-item.loaded {
@@ -314,6 +319,17 @@ div.script-agents-expand:before {
 
 div.script-agents-expand.expanded:before {
 	content: "\f0d7";
+}
+
+div.script-agents-expand.noexpand:before {
+	font-size: 10pt;
+	content: "\f007";
+}
+
+span.script-agents-title {
+	color: #777;
+	font-style: italic;
+	margin-left: 10px;
 }
 
 div.script-agents-content {
