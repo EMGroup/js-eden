@@ -442,7 +442,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 							document.location.pathname = pathname;
 						} else if (button == 1) {
 							//Don't restart but apply the debugging preference in as many areas as possible without restarting.
-							root.lookup("debug").mutate(function (symbol) { symbol.cached_value.jsExceptions = enabled; }, Symbol.hciAgent);
+							root.lookup("debug").mutate(root.scope, function (symbol) { symbol.cache.value.jsExceptions = enabled; }, Symbol.hciAgent);
 						} else {
 							//Cancel the change.
 							var checkbox = document.getElementById("menu-developer");
@@ -467,15 +467,31 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 		success: function (data) {
 			var versionHtml = '';
 			if (data.tag) {
-				versionHtml += 'Version ' + data.tag;
+				//versionHtml += 'Version ' + data.tag;
 				document.title = document.title + " " + data.tag;
 			}
 			if (data.sha) {
-				versionHtml += ' Commit <a href="https://github.com/EMgroup/js-eden/commit/' + data.sha +'">' + data.sha + '</a>';
+				versionHtml = 'Version <a href="https://github.com/EMgroup/js-eden/commit/' + data.sha +'">' + data.tag + '</a>';
+			} else {
+				versionHtml = 'Version ' + data.tag;
 			}
 			$('<div id="menubar-version-number"></div>').html(versionHtml).appendTo($("#menubar-main"));
 		},
 		cache: false
+	});
+
+	// Login Button
+	var loginButton = $('<div id="menubar-login"><span class="icon">&#xf05e;</span>Not Connected</div>');
+	loginButton.appendTo($("#menubar-main"));
+
+	Eden.DB.listenTo("connected", this, function(url) {
+		$("#menubar-login").html('<a href="'+url+'/login" target="_blank"><span class="icon">&#xf090;</span>Login</a>');
+	});
+
+	Eden.DB.listenTo("login", this, function(name) {
+		if (name) {
+			$("#menubar-login").html('<span class="icon">&#xf007;</span>'+name);
+		}
 	});
 
 	//Additional menus defined by the construal.

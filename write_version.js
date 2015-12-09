@@ -7,10 +7,13 @@ function writeVersion(version) {
   fs.writeFileSync('version.json', JSON.stringify(version));
 }
 
-exec('git describe --tags --abbrev=0 HEAD', function (error, stdout) {
+exec('git describe --tags HEAD', function (error, stdout) {
   var tag;
   if (!error) {
     tag = stdout.replace('\n', '');
+	tag = tag.split("-");
+	if (tag.length == 3) tag.pop();
+	tag = tag.join("-");
   }
 
   exec('git rev-parse HEAD', function (error, stdout) {
