@@ -1614,7 +1614,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 */
 		function onTextKeyDown(e) {
 			// Alt and AltGr for inspect mode.
-			if (e.keyCode == 18 || e.keyCode == 225) {
+			//if (e.keyCode == 18 || e.keyCode == 225) {
+			if (e.altKey && e.keyCode == 73) {
 				enableInspectMode();
 			} else if (!e.altKey) {
 				// Don't allow editing in inspect mode.
@@ -1714,7 +1715,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 */
 		function onTextKeyUp(e) {
 			// Alt and AltGr for disable inspect mode.
-			if (e.keyCode == 18 || e.keyCode == 225) {
+			if (e.keyCode == 18 || (e.altKey && e.keyCode == 73)) {
 				disableInspectMode();
 				e.preventDefault();
 			} else if (!e.altKey) {
@@ -1745,7 +1746,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 */
 		function onOutputKeyDown(e) {
 			// Alt and AltGr for inspect mode.
-			if (e.keyCode == 18 || e.keyCode == 225) {
+			if (e.altKey && e.keyCode == 73) {
 				enableInspectMode();
 			} else if (!e.altKey) {
 				if (outdiv.style.cursor == "pointer") outdiv.style.cursor = "initial";
@@ -1774,8 +1775,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 		function onOutputKeyUp(e) {
-			console.log(e);
-			if (e.keyCode == 18 || e.keyCode == 225) {
+			if (e.keyCode == 18 || (e.altKey && e.keyCode == 73)) {
 				disableInspectMode();
 				e.preventDefault();
 			}
