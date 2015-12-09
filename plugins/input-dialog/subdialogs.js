@@ -312,11 +312,9 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 		data.makeSnapshot(index);
 	})
 	.on("click", ".script-history-item", function(e) {
-		console.log(e);
 		var ver = e.currentTarget.getAttribute("data-version");
 		if (ver) {
 			if (ver != "origin") ver = parseInt(ver);
-			console.log("Change version: " + ver);
 			// Rebuild with a different version history
 			version = ver;
 			clearHistory();
@@ -325,10 +323,10 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 		} else {
 			var index = parseInt(e.currentTarget.getAttribute("data-index"));
 			active = index;
+			if (activeelement) activeelement.removeClass("current");
+			activeelement = $(e.currentTarget);
+			activeelement.addClass("current");
 		}
-		if (activeelement) activeelement.removeClass("current");
-		activeelement = $(e.currentTarget);
-		activeelement.addClass("current");
 	})
 	.on("click", ".script-history-bookmark", function(e) {
 		var index = parseInt(e.target.parentNode.getAttribute("data-index"));

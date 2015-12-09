@@ -15,12 +15,20 @@ worksheet_subtitle = "Learning about the environment";
 
 worksheet_content =
 "<ul>"
+"<li><a href=\"jseden: link0_clicked = true;\">The Environment</a></li>"
 "<li><a href=\"jseden: link1_clicked = true;\">Making Worksheets</a></li>"
 "<li><a href=\"jseden: link2_clicked = true;\">Scoping</a></li>"
 "<li><a href=\"jseden: link3_clicked = true;\">Scoping - Reusable Arrows</a></li>"
 "<li><a href=\"jseden: link4_clicked = true;\">Definition Extensions</a></li>"
+"<li><a href=\"jseden: link5_clicked = true;\">Actions and Guarded Actions</a></li>"
+"<li><a href=\"jseden: link6_clicked = true;\">Import and Agents</a></li>"
 "</ul>"
 ;
+
+when (link0_clicked) {
+	worksheet_page = "tutorials/environment";
+	import tutorials/environment;
+}
 
 when (link1_clicked) {
 	worksheet_page = "tutorials/worksheet";
@@ -35,6 +43,21 @@ when (link2_clicked) {
 when (link3_clicked) {
 	worksheet_page = "tutorials/scoping/arrow";
 	import tutorials/scoping/arrow;
+}
+
+when (link4_clicked) {
+	worksheet_page = "tutorials/extensions";
+	import tutorials/extensions;
+}
+
+when (link5_clicked) {
+	worksheet_page = "tutorials/actions";
+	import tutorials/actions;
+}
+
+when (link6_clicked) {
+	worksheet_page = "tutorials/imports";
+	import tutorials/imports;
 }
 
 

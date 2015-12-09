@@ -307,7 +307,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
 
-		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDivLeft"><!--button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button--></div><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="Inspect">&#xf002;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
+		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDivLeft"><!--button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button--></div><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="Inspect">&#xf002;</button><button class="control-button rewind-input" title="Rewind">&#xf122;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button fa-flip-horizontal fastforward-input" title="Fast-Forward">&#xf122;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
 		$buttonbar.appendTo($dialogContents);
 		var buttonbar = $buttonbar.get(0);
 
@@ -420,18 +420,24 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function updateHistoryButtons() {
 			var nextbut = $buttonbar.find(".next-input");
+			var fastbut = $buttonbar.find(".fastforward-input");
+			var rewibut = $buttonbar.find(".rewind-input");
 			var prevbut = $buttonbar.find(".previous-input");
 
 			if (readonly || !scriptagent.canRedo()) {
 				nextbut.removeClass("control-enabled");
+				fastbut.removeClass("control-enabled");
 			} else {
 				nextbut.addClass("control-enabled");
+				fastbut.addClass("control-enabled");
 			}
 
 			if (readonly || !scriptagent.canUndo()) {
 				prevbut.removeClass("control-enabled");
+				rewibut.removeClass("control-enabled");
 			} else {
 				prevbut.addClass("control-enabled");
+				rewibut.addClass("control-enabled");
 			}
 		}
 
@@ -1907,6 +1913,42 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 
+		/**
+		 * Fast forward script through history, or toggle symbol for custom
+		 * previous/next functionality.
+		 */
+		function onFastForward() {
+			if (agent[obs_override] == true) {
+				//agent[obs_] = true;
+				//agent[obs_next] = false;
+			} else if (!readonly && scriptagent.canRedo()) {
+				while (scriptagent.canRedo()) scriptagent.redo();
+				intextarea.value = scriptagent.snapshot;
+				updateEntireHighlight(true);
+				updateHistoryButtons();
+			}
+		}
+
+
+
+		/**
+		 * Fast forward script through history, or toggle symbol for custom
+		 * previous/next functionality.
+		 */
+		function onRewind() {
+			if (agent[obs_override] == true) {
+				//agent[obs_] = true;
+				//agent[obs_next] = false;
+			} else if (!readonly && scriptagent.canUndo()) {
+				while (scriptagent.canUndo()) scriptagent.undo();
+				intextarea.value = scriptagent.snapshot;
+				updateEntireHighlight(true);
+				updateHistoryButtons();
+			}
+		}
+
+
+
 		function onTabClick(e) {
 			var name = e.currentTarget.getAttribute("data-name");
 			console.log(name);
@@ -2067,6 +2109,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		.on('mouseup', '.outputcontent', onOutputMouseUp)
 		.on('click', '.previous-input', onPrevious)
 		.on('click', '.next-input', onNext)
+		.on('click', '.rewind-input', onRewind)
+		.on('click', '.fastforward-input', onFastForward)
 		.on('click', '.menu-input', onMenu)
 		.on('click', '.search-mode', onInspect)
 		.on('click', '.agent-tab', onTabClick)
