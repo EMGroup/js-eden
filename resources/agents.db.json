@@ -358,6 +358,22 @@
 			"file": "tutorials/scoping.js-e",
 			"title": "Scoping"
 		},
+		"tutorials/environment": {
+			"file": "tutorials/environment.js-e",
+			"title": "The Environment"
+		},
+		"tutorials/extensions": {
+			"file": "tutorials/extensions.js-e",
+			"title": "Definition Extensions"
+		},
+		"tutorials/actions": {
+			"file": "tutorials/actions.js-e",
+			"title": "Actions and Guarded Actions"
+		},
+		"tutorials/imports": {
+			"file": "tutorials/imports.js-e",
+			"title": "Import and Agents"
+		},
 		"tutorials/worksheets": {
 			"file": "tutorials/worksheets_ws.js-e",
 			"title": "Making Worksheets"
