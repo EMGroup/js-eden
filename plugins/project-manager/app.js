@@ -96,8 +96,10 @@ var app = express();
   app.use(express.static("static"));
   
   app.use(function(req, res, next) {
-	  res.header("Access-Control-Allow-Origin", "http://localhost:8000");
-	  res.header("Access-Control-Allow-Origin", "http://emgroup.github.io");
+	  var allowedOrigins = ["http://localhost:8000","http://127.0.0.1:8000","http://emgroup.github.io"];
+	  if(allowedOrigins.indexOf(req.headers.origin) > -1)
+		  res.header("Access-Control-Allow-Origin", req.headers.origin);
+	  
 	  res.header("Access-Control-Allow-Credentials","true");
 	  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	  next();
