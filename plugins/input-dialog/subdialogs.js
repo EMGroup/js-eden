@@ -382,27 +382,27 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 				var item = $('<div class="script-agents-item"></div>');
 				var expand = $('<div class="script-agents-expand" style="width: '+(27+depth*15)+'px"></div>');
 				var content = $('<div class="script-agents-content"></div>');
-				var checkbox = $('<input type="checkbox"></input>');
 				var cbcontainer = $('<div class="script-agents-cbcont"></div>');
 
-				(function(content, path, name) {
+				(function(content, path, name, cbcontainer) {
 					Eden.DB.getMeta(path, function(path, meta) {
 						if (meta) {
+							var checkbox = $('<input type="checkbox"></input>');
 							content.html(name+" <span class=\"script-agents-title\">"+meta.title+"</span>");
 							cbcontainer.append(checkbox);
+
+							if (data.indexOf(path) >= 0) {
+								checkbox.get(0).checked = true;
+							}
 						} else {
 							content.html(name);
 							cbcontainer.html("&nbsp;");
 						}
 					});
-				}).call(this, content, npath, a);
+				}).call(this, content, npath, a, cbcontainer);
 
 				if (Eden.Agent.agents[npath]) {
 					item.addClass("loaded");
-				}
-
-				if (data.indexOf(npath) >= 0) {
-					checkbox.get(0).checked = true;
 				}
 
 				item.get(0).setAttribute("data-path", npath);
