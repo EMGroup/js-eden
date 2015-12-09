@@ -9,8 +9,13 @@ Eden.DB = {
 	directory: {},
 	meta: {},
 	remoteMeta: {},
-	remoteURL: undefined
+	remoteURL: undefined,
+	username: undefined
 }
+
+Eden.DB.listeners = {};
+Eden.DB.emit = emit;
+Eden.DB.listenTo = listenTo;
 
 
 
@@ -64,10 +69,66 @@ Eden.DB.isConnected = function() {
 Eden.DB.connect = function(url) {
 	Eden.DB.remoteURL = url;
 	Eden.DB.loadDatabaseRoot();
+
+	function loginLoop() {
+		if (Eden.DB.isConnected() && Eden.DB.username === undefined) {
+			setTimeout(function() {
+				Eden.DB.getLoginName(function(name) {
+					if (name) {
+						Eden.DB.emit("login", [name]);
+					} else {
+						loginLoop();
+					}
+				})
+			}, 3000);
+		}
+	}
+
+	Eden.DB.getLoginName(function(name) {
+		Eden.DB.emit("connected", [url]);
+
+		if (name) {
+			Eden.DB.emit("login", [name]);
+		} else {
+			loginLoop();
+		}
+	});
 }
 
 Eden.DB.disconnect = function() {
 	Eden.DB.remoteURL = undefined;
+	Eden.DB.emit("disconnected", []);
+}
+
+
+
+Eden.DB.getLoginName = function(callback) {
+	if (Eden.DB.isConnected()) {
+		$.ajax({
+			url: Eden.DB.remoteURL+"/user/details",
+			type: "get",
+			crossDomain: true,
+			xhrFields:{
+				withCredentials: true
+			},
+			success: function(data){
+				if (data == null || data.error) {
+					Eden.DB.username = undefined;
+					callback();
+				} else {
+					Eden.DB.username = data.name;
+					callback(data.name);
+				}
+			},
+			error: function(a){
+				console.error(a);
+				eden.error(a);
+				Eden.DB.disconnect();
+			}
+		});
+	} else {
+		callback();
+	}
 }
 
 
