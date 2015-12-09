@@ -383,13 +383,16 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 				var expand = $('<div class="script-agents-expand" style="width: '+(27+depth*15)+'px"></div>');
 				var content = $('<div class="script-agents-content"></div>');
 				var checkbox = $('<input type="checkbox"></input>');
+				var cbcontainer = $('<div class="script-agents-cbcont"></div>');
 
 				(function(content, path, name) {
 					Eden.DB.getMeta(path, function(path, meta) {
 						if (meta) {
-							content.html(name+" - <i>"+meta.title+"</i>");
+							content.html(name+" <span class=\"script-agents-title\">"+meta.title+"</span>");
+							cbcontainer.append(checkbox);
 						} else {
 							content.html(name);
+							cbcontainer.html("&nbsp;");
 						}
 					});
 				}).call(this, content, npath, a);
@@ -404,8 +407,11 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 
 				item.get(0).setAttribute("data-path", npath);
 				item.get(0).setAttribute("data-depth", ""+(depth+1));
+				if (dir[a].missing == false && dir[a].children && Object.keys(dir[a].children).length == 0) {
+					expand.addClass("noexpand");
+				}
 				item.append(expand);
-				item.append(checkbox);
+				item.append(cbcontainer);
 				item.append(content);
 
 				if (parent === undefined || parent.nextSibling === undefined) {
@@ -450,8 +456,8 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 			changeClass(e.currentTarget, "expanded", false);
 		}
 	})
-	.on("change", ".script-agents-item input", function(e) {
-		var path = e.currentTarget.parentNode.getAttribute("data-path");
+	.on("change", ".script-agents-cbcont input", function(e) {
+		var path = e.currentTarget.parentNode.parentNode.getAttribute("data-path");
 		if (e.currentTarget.checked) {
 			selected[path] = true;
 		} else {
