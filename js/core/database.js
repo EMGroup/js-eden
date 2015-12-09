@@ -68,6 +68,17 @@ Eden.DB.isConnected = function() {
 
 Eden.DB.connect = function(url) {
 	Eden.DB.remoteURL = url;
+
+	function markMissing(node) {
+		for (var a in node) {
+			node[a].missing = true;
+			if (node[a].children) {
+				markMissing(node[a].children);
+			}
+		}
+	}
+	markMissing(Eden.DB.directory);
+
 	Eden.DB.loadDatabaseRoot();
 
 	function loginLoop() {
@@ -80,7 +91,7 @@ Eden.DB.connect = function(url) {
 						loginLoop();
 					}
 				})
-			}, 3000);
+			}, 5000);
 		}
 	}
 
