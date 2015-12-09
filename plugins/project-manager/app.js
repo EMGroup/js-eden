@@ -96,7 +96,7 @@ var app = express();
   app.use(express.static("static"));
   
   app.use(function(req, res, next) {
-	  var allowedOrigins = ["http://localhost:8000","http://127.0.0.1:8000","http://emgroup.github.io","jseden.dcs.warwick.ac.uk"];
+	  var allowedOrigins = ["http://localhost:8000","http://127.0.0.1:8000","http://emgroup.github.io","http://jseden.dcs.warwick.ac.uk"];
 	  if(allowedOrigins.indexOf(req.headers.origin) > -1)
 		  res.header("Access-Control-Allow-Origin", req.headers.origin);
 	  
