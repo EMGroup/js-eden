@@ -80,7 +80,7 @@ EdenUI.plugins.ScriptInput.dialogs.uploadAgent = function(element, callback) {
 	var input = content.find('.tagname');
 	var publiccheck = content.find('.makepublic');
 	var status = input.get(0).nextSibling;
-	var valid = false;
+	var valid = true;
 
 
 	content
@@ -89,8 +89,8 @@ EdenUI.plugins.ScriptInput.dialogs.uploadAgent = function(element, callback) {
 		console.log(value);
 
 		if (value == "") {
-			valid = false;
-			status.className = "missing";
+			valid = true;
+			status.className = "addnew";
 		} else if (/^[a-z][a-z0-9]+$/i.test(value)) {
 			status.className = "addnew";
 			valid = true;
@@ -261,7 +261,9 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 				// Generate time message from SQL timestamp
 				var t = versions[i].date.split(/[- :]/);
 				var time = $('<div class="script-history-time">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</div>');
-				var content2 = $('<div class="script-history-content">'+versions[i].tag+' by '+versions[i].name+'</div>');
+				var taglabel = versions[i].tag;
+				if (versions[i].tag == null) taglabel = versions[i].saveID;				
+				var content2 = $('<div class="script-history-content">'+taglabel+' by '+versions[i].name+'</div>');
 				item.append(bookmark);
 				item.append(content2);
 				item.append(time);
@@ -293,7 +295,10 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 			item.append(bookmark);
 			item.append(content2);
 			hist.append(item);
-			buildAutosaves("origin");
+
+			if (version == "origin") {
+				buildAutosaves("origin");
+			}
 		}
 	}
 

@@ -502,7 +502,7 @@ Eden.Agent.prototype.loadSource = function(callback) {
 	//console.log("Attempt to load source for " + me.name);
 
 	Eden.DB.getSource(me.name, me.meta.tag, function(data, msg) {
-		if (data) {
+		if (data || data == "") {
 			//console.log("Source loaded: " + me.name);
 			// Make sure we have a local history for this
 			if (me.history[me.meta.saveID] === undefined) {
