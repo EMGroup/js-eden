@@ -11,6 +11,7 @@ Eden.DB = {
 	remoteMeta: {},
 	remoteURL: undefined,
 	username: undefined,
+	userid: undefined,
 	// Note: reverse order, last is popped off to try first
 	repositories: [
 		"http://jseden.dcs.warwick.ac.uk/projectmanager",
@@ -153,6 +154,8 @@ Eden.DB.getLoginName = function(callback) {
 					callback();
 				} else {
 					Eden.DB.username = data.name;
+					Eden.DB.userid = data.userID;
+					if (data.userID && !data.name) Eden.DB.username = "NoName";
 					callback(data.name);
 				}
 			},
