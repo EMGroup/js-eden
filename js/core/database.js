@@ -154,8 +154,8 @@ Eden.DB.getLoginName = function(callback) {
 					callback();
 				} else {
 					Eden.DB.username = data.name;
-					Eden.DB.userid = data.userID;
-					if (data.userID && !data.name) Eden.DB.username = "NoName";
+					Eden.DB.userid = data.id;
+					if (data.id && data.name == "") Eden.DB.username = "NoName";
 					callback(data.name);
 				}
 			},
