@@ -485,12 +485,30 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	loginButton.appendTo($("#menubar-main"));
 
 	Eden.DB.listenTo("connected", this, function(url) {
-		$("#menubar-login").html('<a href="'+url+'/login" target="_blank"><span class="icon">&#xf090;</span>Login</a>');
+		$("#menubar-login").html('<a href="'+url+'/login" target="logintarget"><span class="icon">&#xf090;</span>Login</a>');
+	});
+
+	Eden.DB.listenTo("disconnected", this, function() {
+		$("#menubar-login").html('<span class="icon">&#xf05e;</span>Not Connected');
 	});
 
 	Eden.DB.listenTo("login", this, function(name) {
 		if (name) {
+			setTimeout(function() {
+				$("#menubar-obscurer").remove();
+			}, 1000);
 			$("#menubar-login").html('<span class="icon">&#xf007;</span>'+name);
+		}
+	});
+
+	$("#menubar-login").click(function() {
+		if (Eden.DB.isConnected() && !Eden.DB.isLoggedIn()) {
+			var obscurer = $('<div id="menubar-obscurer"></div>');
+			obscurer.html("<div class=\"login-subdialog\"><iframe frameborder=\"0\" name=\"logintarget\" width=\"250\" height=\"150\" class=\"menubar-login-iframe\"></iframe><br/><button class=\"button-icon-silver button-cancel\">Cancel</button></div>");
+			$(document.body).append(obscurer);
+			obscurer.on("click", ".button-cancel", function() {
+				obscurer.remove();
+			});
 		}
 	});
 

@@ -10,7 +10,14 @@ Eden.DB = {
 	meta: {},
 	remoteMeta: {},
 	remoteURL: undefined,
-	username: undefined
+	username: undefined,
+	// Note: reverse order, last is popped off to try first
+	repositories: [
+		"http://jseden.dcs.warwick.ac.uk/projectmanager",
+		"http://localhost:18880"
+	],
+	repoindex: 0,
+	retrycount: 0
 }
 
 Eden.DB.listeners = {};
@@ -66,6 +73,10 @@ Eden.DB.isConnected = function() {
 	return Eden.DB.remoteURL !== undefined;
 }
 
+Eden.DB.isLoggedIn = function() {
+	return Eden.DB.username !== undefined;
+}
+
 Eden.DB.connect = function(url) {
 	Eden.DB.remoteURL = url;
 
@@ -78,8 +89,6 @@ Eden.DB.connect = function(url) {
 		}
 	}
 	markMissing(Eden.DB.directory);
-
-	Eden.DB.loadDatabaseRoot();
 
 	function loginLoop() {
 		if (Eden.DB.isConnected() && Eden.DB.username === undefined) {
@@ -96,6 +105,9 @@ Eden.DB.connect = function(url) {
 	}
 
 	Eden.DB.getLoginName(function(name) {
+		// Reset retrys on success
+		Eden.DB.retrycount = 0;
+		Eden.DB.loadDatabaseRoot();
 		Eden.DB.emit("connected", [url]);
 
 		if (name) {
@@ -106,9 +118,22 @@ Eden.DB.connect = function(url) {
 	});
 }
 
-Eden.DB.disconnect = function() {
+Eden.DB.disconnect = function(retry) {
 	Eden.DB.remoteURL = undefined;
 	Eden.DB.emit("disconnected", []);
+
+	if (retry) {
+		Eden.DB.retrycount++;
+		// Use exponential backoff retries
+		setTimeout(function() {
+			// Allow for repositories to be removed
+			if (Eden.DB.repoindex >= Eden.DB.repositories.length) {
+				Eden.DB.repoindex = Eden.DB.repositories.length-1;
+			}
+			Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex]);
+			Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
+		}, Math.pow(2, Math.ceil(Eden.DB.retrycount / Eden.DB.repositories.length)) * 200);
+	}
 }
 
 
@@ -132,9 +157,9 @@ Eden.DB.getLoginName = function(callback) {
 				}
 			},
 			error: function(a){
-				console.error(a);
-				eden.error(a);
-				Eden.DB.disconnect();
+				//console.error(a);
+				//eden.error(a);
+				Eden.DB.disconnect(true);
 			}
 		});
 	} else {
@@ -192,9 +217,9 @@ Eden.DB.loadDatabaseRoot = function() {
 				}
 			},
 			error: function(a){
-				console.error(a);
-				eden.error(a);
-				Eden.DB.disconnect();
+				//console.error(a);
+				//eden.error(a);
+				Eden.DB.disconnect(true);
 			}
 		});
 	}
@@ -359,7 +384,8 @@ Eden.DB.getDirectory = function(path, callback) {
 						}
 					},
 					error: function(a){
-						console.error(a);
+						//console.error(a);
+						Eden.DB.disconnect(true);
 					}
 				});
 				return;
@@ -409,8 +435,9 @@ Eden.DB.upload = function(path, meta, source, tagname, ispublic, callback) {
 				}
 			},
 			error: function(a){
-				console.error(a);
-				eden.error(a);
+				//console.error(a);
+				//eden.error(a);
+				Eden.DB.disconnect(true);
 				if (callback) callback(false);
 			}
 		});
@@ -441,7 +468,8 @@ Eden.DB.getVersions = function(path, callback) {
 				callback(data);
 			},
 			error: function(a){
-				console.error(a);
+				//console.error(a);
+				Eden.DB.disconnect(true);
 			}
 		});
 	} else {
@@ -524,7 +552,8 @@ Eden.DB.getSource = function(path, tag, callback) {
 					}
 				},
 				error: function(a){
-					console.error(a);
+					//console.error(a);
+					Eden.DB.disconnect(true);
 				}
 			});
 		// There is a version stored in a file somewhere
@@ -542,5 +571,9 @@ Eden.DB.getSource = function(path, tag, callback) {
 }
 
 Eden.DB.loadLocalMeta();
+
+// Start connection attempts.
+Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex]);
+Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
 
 
