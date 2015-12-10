@@ -576,9 +576,9 @@ Eden.DB.getSource = function(path, tag, callback) {
 Eden.DB.loadLocalMeta();
 
 // Start connection attempts.
-setTimeout(function() {
-Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex]);
-Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
-}, 2000);
+//setTimeout(function() {
+//Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex]);
+//Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
+//}, 2000);
 
 
