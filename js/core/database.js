@@ -73,6 +73,10 @@ Eden.DB.isConnected = function() {
 	return Eden.DB.remoteURL !== undefined;
 }
 
+Eden.DB.isLoggedIn = function() {
+	return Eden.DB.username !== undefined;
+}
+
 Eden.DB.connect = function(url) {
 	Eden.DB.remoteURL = url;
 
