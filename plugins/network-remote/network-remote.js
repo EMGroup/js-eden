@@ -149,12 +149,12 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 						//console.log(line);
 
 						switch (line.action) {
-						case "patch"		:	Eden.Agent.importAgent(line.name, ["noexec","create"], function(ag) { ag.applyPatch(line.patch, line.lineno) });
+						case "patch"		:	Eden.Agent.importAgent(line.name, "default", ["noexec","create"], function(ag) { ag.applyPatch(line.patch, line.lineno) });
 												break;
-						case "ownership"	:	Eden.Agent.importAgent(line.name, ["noexec","create"], function(ag) { ag.setOwned(line.owned, "net"); });
+						case "ownership"	:	Eden.Agent.importAgent(line.name, "default", ["noexec","create"], function(ag) { ag.setOwned(line.owned, "net"); });
 												break;
 						case "executeline"	:	//if (line.lineno >= 0) {
-												Eden.Agent.importAgent(line.name, ["noexec"], function(ag) { ag.executeLine(line.lineno, true); });
+												Eden.Agent.importAgent(line.name, "default", ["noexec"], function(ag) { ag.executeLine(line.lineno, true); });
 												//}
 												break;
 						case "assign"		:	eden.root.lookup(line.symbol).assign(line.value,eden.root.scope);
