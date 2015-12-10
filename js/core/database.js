@@ -210,8 +210,8 @@ Eden.DB.loadDatabaseRoot = function() {
 			},
 			success: function(data){
 				if (data == null || data.error) {
-					console.error(data);
-					eden.error((data) ? data.description : "No response from server");
+					//console.error(data);
+					//eden.error((data) ? data.description : "No response from server");
 				} else {
 					Eden.DB.processManifestList(data, true);
 				}
@@ -573,7 +573,9 @@ Eden.DB.getSource = function(path, tag, callback) {
 Eden.DB.loadLocalMeta();
 
 // Start connection attempts.
+setTimeout(function() {
 Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex]);
 Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
+}, 2000);
 
 
