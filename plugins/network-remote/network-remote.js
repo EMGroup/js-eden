@@ -4,7 +4,7 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 	var longwait = false;
 	var connected = false;
 
-	Eden.Agent.importAgent("lib/dynamic");
+	Eden.Agent.importAgent("lib/dynamic", "default", undefined, function(){});
 	
 	this.createDialog = function(name,mtitle) {
 
