@@ -16,6 +16,8 @@
  *     losing the phase differences between them.
  */
 
+import lib/list;
+
 edenclocks = [];
 edenclocks_paused = false;
 debug["edenclocks"] = false;
