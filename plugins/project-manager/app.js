@@ -21,13 +21,9 @@ passport.serializeUser(function(user, done) {
 	db.serialize(function(){
 	db.get('SELECT id FROM oauthusers WHERE oauthstring = ?', oauthcode, function(err,row){
 		if(!row){
-			var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?)");
-			stmt.run(oauthcode, user.displayName, function(){
-				return done(null, this.lastID);
-			});
-			
-			}else{
-			return done(null, row.id);
+			return done(null, {id: null, oauthcode: oauthcode, displayName: user.displayName});
+		}else{
+			return done(null, {id: row.id});
 		}
 		});
 	});
@@ -35,10 +31,15 @@ passport.serializeUser(function(user, done) {
 
 
 passport.deserializeUser(function(obj, done) {
-	db.get('SELECT id, oauthstring, name FROM oauthusers WHERE id = ?', obj, function(err, row){
-		user = {displayName: row.name, id: row.id, oauthstring: row.oauthstring}
-		return done(null, user);
-	});
+	console.log(obj);
+	if(obj.id == null){
+		return done(null, obj);
+	}else{
+		db.get('SELECT id, oauthstring, name FROM oauthusers WHERE id = ?', obj.id, function(err, row){
+			user = {displayName: row.name, id: row.id, oauthstring: row.oauthstring, origName: obj.origName};
+			return done(null, user);
+		});
+	}
 });
 
 
@@ -113,8 +114,22 @@ var app = express();
   app.use(express.static(__dirname + '/public'));
 
 
-app.get('/', function(req, res){
-  res.render('index', { user: req.user });
+  app.get('/', function(req, res){
+	  if(typeof req.user != "undefined" && req.user.id == null){
+		  res.render('registration', { user: req.user });
+
+	  }else{
+		  res.render('index', { user: req.user });
+	  }
+  });
+
+app.post('/registration', function(req,res){
+	
+	var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?)");
+	stmt.run(req.user.oauthcode, req.body.displayName, function(err){
+		req.user.id = this.lastID;
+		res.redirect('/');
+	});
 });
 
 app.get('/account', ensureAuthenticated, function(req, res){
