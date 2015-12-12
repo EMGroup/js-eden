@@ -852,6 +852,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		if (code && agent.state[obs_agent] === undefined) {
 			//preloadScript(undefined, code);
 			agent.state[obs_script] = code;
+		} else if (agent.state[obs_agent]) {
+			changeAgent(undefined, agent.state[obs_agent]);
 		} else {
 			outdiv.className = "outputcontent readonly";
 			outdiv.contentEditable = false;
