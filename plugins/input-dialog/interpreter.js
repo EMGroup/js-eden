@@ -849,7 +849,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		// If there is explicit code, then use that
-		if (code) {
+		if (code && agent.state[obs_agent] === undefined) {
 			//preloadScript(undefined, code);
 			agent.state[obs_script] = code;
 		} else {
@@ -2127,24 +2127,26 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		var viewdata = {
 			contents: $dialogContents,
 			update: function(data) {
-				var agname = "view/script/"+name;
-				Eden.Agent.importAgent(agname, "default", ["noexec", "create"], function(ag) {
-					agent.state[obs_agent] = agname;
+				if (agent.state[obs_agent] === undefined) {
+					var agname = "view/script/"+name;
+					Eden.Agent.importAgent(agname, "default", ["noexec", "create"], function(ag) {
+						agent.state[obs_agent] = agname;
 
-					//if (edited == false) {
-						if (data instanceof Symbol) {
-							agent.setScope(data.getValueScope(eden.root.scope));
-							intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(agent.code);
-							updateEntireHighlight();
-						} else if (data instanceof Array) {
-							intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(data);
-							updateEntireHighlight();
-						} else if (typeof data == "string") {
-							intextarea.value = data;
-							updateEntireHighlight();
-						}
-					//}
-				});
+						//if (edited == false) {
+							if (data instanceof Symbol) {
+								agent.setScope(data.getValueScope(eden.root.scope));
+								intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(agent.code);
+								updateEntireHighlight();
+							} else if (data instanceof Array) {
+								intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(data);
+								updateEntireHighlight();
+							} else if (typeof data == "string") {
+								intextarea.value = data;
+								updateEntireHighlight();
+							}
+						//}
+					});
+				}
 			},
 			destroy: function() {
 				console.log("CLOSE SCRIPT");
