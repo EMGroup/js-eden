@@ -746,7 +746,7 @@
 	};
 
 	/**Makes the view less likely to be obscured by other views/other page content.
-	 * @param name The view's name.
+	 * @param {string} name The view's name.
 	 */
 	EdenUI.prototype.pinView = function (name) {
 		var dialogWindow = this.getDialogWindow(name);
@@ -755,7 +755,7 @@
 	};
 
 	/**Reduce a view's importance to the same status as other windows.
-	 * @param name The view's name.
+	 * @param {string} name The view's name.
 	 */
 	EdenUI.prototype.unpinView = function (name) {
 		var dialogWindow = this.getDialogWindow(name);
