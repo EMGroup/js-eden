@@ -71,7 +71,10 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		};
 
 		var updateScript = function () {
-			var excludeRE = edenUI.regExpFromStr(excludeRegEx);
+			var excludeRE;
+			if (excludeRegEx[0].value != "") {
+				excludeRE = edenUI.regExpFromStr(excludeRegEx);
+			}
 			script.html(generateScriptHTML(excludeRE, unicodeElem.checked, includeViewsElem.checked, viewName));			
 		};
 
@@ -156,11 +159,6 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 	 * of the items together represent a complete script capable of rebuilding the current state.
 	 */
 	this.generateScriptLines = function (excludeRE, unicode, includeViews, viewToExclude) {
-
-		if (excludeRE == "") {
-			excludeRE = undefined;
-		}
-
 		var viewObsPrefixToExclude = new RegExp("^_view_" + viewToExclude + "_");
 		var defaultViewNames = ["input", "picture", "projects"];
 		var definitions = [];
