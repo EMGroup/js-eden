@@ -78,7 +78,7 @@ Eden.DB.isLoggedIn = function() {
 	return Eden.DB.username !== undefined;
 }
 
-Eden.DB.connect = function(url) {
+Eden.DB.connect = function(url, callback) {
 	Eden.DB.remoteURL = url;
 
 	function markMissing(node) {
@@ -107,15 +107,19 @@ Eden.DB.connect = function(url) {
 
 	Eden.DB.getLoginName(function(name) {
 		// Reset retrys on success
-		Eden.DB.retrycount = 0;
-		Eden.DB.loadDatabaseRoot();
-		Eden.DB.emit("connected", [url]);
+		if (Eden.DB.isConnected()) {
+			Eden.DB.retrycount = 0;
+			Eden.DB.loadDatabaseRoot(function() {
+				if (callback) callback(Eden.DB.isConnected());
+			});
+			Eden.DB.emit("connected", [url]);
 
-		if (name) {
-			Eden.DB.emit("login", [name]);
-		} else {
-			loginLoop();
-		}
+			if (name) {
+				Eden.DB.emit("login", [name]);
+			} else {
+				loginLoop();
+			}
+		} else if (callback) callback(Eden.DB.isConnected());
 	});
 }
 
@@ -163,6 +167,7 @@ Eden.DB.getLoginName = function(callback) {
 				//console.error(a);
 				//eden.error(a);
 				Eden.DB.disconnect(true);
+				callback(undefined);
 			}
 		});
 	} else {
@@ -200,7 +205,7 @@ Eden.DB.loadLocalMeta = function() {
 
 
 
-Eden.DB.loadDatabaseRoot = function() {
+Eden.DB.loadDatabaseRoot = function(callback) {
 	var me = this;
 	// Go to database to get root path
 	if (Eden.DB.isConnected()) {
@@ -218,6 +223,7 @@ Eden.DB.loadDatabaseRoot = function() {
 				} else {
 					Eden.DB.processManifestList(data, true);
 				}
+				if (callback) callback();
 			},
 			error: function(a){
 				//console.error(a);
