@@ -219,9 +219,6 @@ function initialiseJSEden(callback) {
 		doneLoading = function () {
 			eden.captureInitialState();
 
-			Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex]);
-			Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
-
 			// Remove spinning loader and message
 			edenUI.finishedLoading();
 
@@ -257,7 +254,11 @@ function initialiseJSEden(callback) {
 					$.getJSON('config.json', function (config) {
 						rt.config = config;
 
-						eden.execute2(bootscript);
+						Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex], function() {
+							eden.execute2(bootscript);
+						});
+						Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
+
 
 						/*eden.captureInitialState();
 
