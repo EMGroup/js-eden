@@ -110,6 +110,8 @@ Eden.DB.connect = function(url, callback) {
 		if (Eden.DB.isConnected()) {
 			Eden.DB.retrycount = 0;
 			Eden.DB.loadDatabaseRoot(function() {
+				// Only callback once the root directory is loaded
+				// used in init to then load imports...
 				if (callback) callback(Eden.DB.isConnected());
 			});
 			Eden.DB.emit("connected", [url]);
