@@ -197,7 +197,7 @@ proc showObservables { ${{
 					fromLang = "simple";
 				}
 			}
-			if (fromLang != "regexp") {
+			if (fromLang != "regexp" && searchStr != "") {
 				searchStr = edenUI.regExpFromStr(searchStr, "", false, fromLang).source;
 			}
 		}
