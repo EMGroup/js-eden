@@ -29,8 +29,8 @@ EdenUI.ContextMenu = function(origin) {
 
 	this.origin.oncontextmenu = function(e) {
 		me.target = e.target;
-		me.element.css("top", ""+(e.clientY+10)+"px");
-		me.element.css("left", ""+e.clientX+"px");
+		me.element.css("top", ""+(document.body.scrollTop+e.clientY+10)+"px");
+		me.element.css("left", ""+(document.body.scrollLeft+e.clientX)+"px");
 
 		for (var i=0; i<me.items.length; i++) {
 			var status;
