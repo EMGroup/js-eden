@@ -18,6 +18,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	this.defaultFontSizePx = 13.3;
 	/**Line height at default text size. See css/eden.css. */
 	this.defaultLineHeight = this.defaultFontSizePx * 1.75;
+	/**Default line width. */
+	this.defaultLineWidth = 2;
 
 	var defaultWidth = 600;
 	var defaultHeight = 500;
@@ -249,7 +251,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	this.configureContextDefaults = function (context, scale) {
 		context.lineJoin = "bevel";
 		context.miterLimit = 429496656;
-		context.lineWidth = 2 / scale;
+		context.lineWidth = this.defaultLineWidth / scale;
 	}
 	
 	this.configureContext = function (context, scale, zoom, options) {

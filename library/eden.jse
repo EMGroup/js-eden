@@ -506,7 +506,7 @@ if (initialViews == "" || initialViews == "default") {
 	_view_picture_x = _view_projects_width + _views_frame_width;
 	_view_picture_y = 0;
 	if (${{ "logo" in edenUI.branding }}$) {
-		picture is [Image(_view_picture_width / 2 - ${{edenUI.branding.logo.width}}$ / 2, _view_picture_height / 2 - ${{edenUI.branding.logo.height}}$ / 2, ${{edenUI.branding.logo.url}}$)];
+		picture is [Image(_view_picture_width / 2 - eval(${{edenUI.branding.logo.width}}$ / 2), _view_picture_height / 2 - eval(${{edenUI.branding.logo.height}}$ / 2), eval(${{edenUI.branding.logo.url}}$))];
 	}
 	createView("input", "ScriptInput");
 	if (${{edenUI.getOptionValue("developer") == "true" }}$) {

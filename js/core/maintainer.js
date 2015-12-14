@@ -421,14 +421,15 @@
 				while ((searchIndex = replacedDef.slice(searchFrom).search(re)) != -1) {
 					var combinedIndex = searchFrom + searchIndex;
 					var found = false;
-					for (exp in this.evalIDs) {
+					for (var exp in this.evalIDs) {
 						var subString = replacedDef.slice(combinedIndex + 5, combinedIndex + exp.length + 6);
 						if (subString == exp + ")") {
 							var jsValue = this.context.getEval(this.evalIDs[exp]);
+							var edenValue = Eden.edenCodeForValue(jsValue);
 							replacedDef = replacedDef.slice(0, combinedIndex) +
-								Eden.edenCodeForValue(jsValue) +
+								edenValue +
 								replacedDef.slice(combinedIndex + exp.length + 6);
-							searchFrom = combinedIndex + exp.length + 6
+							searchFrom = combinedIndex + edenValue.length;
 							found = true;
 							break;
 						}
