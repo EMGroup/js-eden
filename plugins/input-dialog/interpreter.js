@@ -292,22 +292,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		/* Build the context menu for the tab bar. */
 		var tabcm = new EdenUI.ContextMenu(tabs);
-		tabcm.addItem("&#xf04b;","Run (force)", true, executeTab);
-		tabcm.addItem("&#xf04d;","Stop",function(tab){
+		tabcm.addItem("&#xf04b;",Language.ui.input_window.run, true, executeTab);
+		tabcm.addItem("&#xf04d;",Language.ui.input_window.stop,function(tab){
 			var name = tab.getAttribute("data-name");
 			return Eden.Agent.agents[name] && Eden.Agent.agents[name].executed;
 		}, stopTab);
 		tabcm.addSeparator();
-		tabcm.addItem("&#xf24d;","Clone", false);
-		tabcm.addItem("&#xf021;","Reload", true, reloadAgent);
-		tabcm.addItem("&#xf093;","Upload", true, uploadAgent);
-		tabcm.addItem("&#xf21b;","Hide",true, hideTab);
+		tabcm.addItem("&#xf24d;",Language.ui.input_window.clone, false);
+		tabcm.addItem("&#xf021;",Language.ui.input_window.reload, true, reloadAgent);
+		tabcm.addItem("&#xf093;",Language.ui.input_window.upload, true, uploadAgent);
+		tabcm.addItem("&#xf21b;",Language.ui.input_window.hide,true, hideTab);
 
 
 
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
 
-		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDivLeft"><!--button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button--></div><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="Inspect">&#xf002;</button><button class="control-button rewind-input" title="Rewind">&#xf122;</button><button class="control-button previous-input" title="Undo">&#xf112;</button><button class="control-button next-input" title="Redo">&#xf064;</button><button class="control-button fa-flip-horizontal fastforward-input" title="Fast-Forward">&#xf122;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
+		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDivLeft"><!--button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button--></div><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="'+Language.ui.input_window.inspect+'">&#xf002;</button><button class="control-button rewind-input" title="'+Language.ui.input_window.rewind+'">&#xf122;</button><button class="control-button previous-input" title="'+Language.ui.input_window.undo+'">&#xf112;</button><button class="control-button next-input" title="'+Language.ui.input_window.redo+'">&#xf064;</button><button class="control-button fa-flip-horizontal fastforward-input" title="'+Language.ui.input_window.fast_forward+'">&#xf122;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
 		$buttonbar.appendTo($dialogContents);
 		var buttonbar = $buttonbar.get(0);
 
@@ -328,10 +328,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function buildMenu() {
 			while (optionsmenu.firstChild) optionsmenu.removeChild(optionsmenu.firstChild);
 
-			createMenuItem((agent.state[obs_showtabs]) ? "&#xf00c;" : "&#xf00d;", "Show Tabs", function(e) { agent.state[obs_showtabs] = !agent.state[obs_showtabs]; buildMenu(); });
-			createMenuItem((agent.state[obs_showbuttons]) ? "&#xf00c;" : "&#xf00d;", "Show Controls", function(e) { agent.state[obs_showbuttons] = !agent.state[obs_showbuttons]; buildMenu(); });
-			createMenuItem("&#xf0c0;", "Browse Agents", function(e) { showBrowseDialog(); hideMenu(); });
-			createMenuItem("&#xf21b;", "Hide Agent", function(e) {
+			createMenuItem((agent.state[obs_showtabs]) ? "&#xf00c;" : "&#xf00d;", Language.ui.input_window.show_tabs, function(e) { agent.state[obs_showtabs] = !agent.state[obs_showtabs]; buildMenu(); });
+			createMenuItem((agent.state[obs_showbuttons]) ? "&#xf00c;" : "&#xf00d;", Language.ui.input_window.show_controls, function(e) { agent.state[obs_showbuttons] = !agent.state[obs_showbuttons]; buildMenu(); });
+			createMenuItem("&#xf0c0;", Language.ui.input_window.browse_agents, function(e) { showBrowseDialog(); hideMenu(); });
+			createMenuItem("&#xf21b;", Language.ui.input_window.hide_agent, function(e) {
 				var tabs = agent.state[obs_tabs];
 				var ix = tabs.indexOf(scriptagent.name);
 				if (ix >= 0) {
@@ -346,7 +346,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (tabs.length == 0) agent.state[obs_agent] = undefined;
 				hideMenu();
 			});
-			createMenuItem("&#xf1da;", "View History", function(e) { showSubDialog("showHistory", function(status, index, version) {
+			createMenuItem("&#xf1da;", Language.ui.input_window.view_history, function(e) { showSubDialog("showHistory", function(status, index, version) {
 				if (status) {
 					if (version != scriptagent.meta.saveID) {
 						scriptagent.changeVersion(version, function() {
@@ -358,7 +358,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 				}
 			}, scriptagent); hideMenu(); });
-			createMenuItem("&#xf0d0;", "Insert Template", function(e) { });
+			createMenuItem("&#xf0d0;", Language.ui.input_window.insert_temp, function(e) { });
 		}
 
 		var dragstart = 0;
@@ -735,7 +735,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				outdiv.contentEditable = false;
 				outdiv.innerHTML = "";
 				scriptagent = undefined;
-				setTitle("Script View");
+				setTitle(Language.ui.input_window.title);
 				setSubTitle("[No Agents]");
 
 				gutter.clear();
