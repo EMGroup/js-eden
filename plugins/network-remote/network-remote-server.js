@@ -100,16 +100,19 @@ function processCode(socket, data){
 
 	// Need to manage ownership of script edit permissions
 	if (code.action == "ownership") {
-		if (agents[code.name] === undefined) {
-			agents[code.name] = {owned: code.owned, socket: socket};
+		if (agents[sessionKey] === undefined) {
+			agents[sessionKey] = {};
+		}
+		if (agents[sessionKey][code.name] === undefined) {
+			agents[sessionKey][code.name] = {owned: code.owned, socket: socket};
 		} else {
 			// Check for double ownership race condition
-			if (agents[code.name].owned && code.owned) {
+			if (agents[sessionKey][code.name].owned && code.owned) {
 				socket.send(JSON.stringify([{time: 0, code :{action: "ownership", name: code.name, owned: true}}]));
 				return;
 			}
-			agents[code.name].owned = code.owned;
-			agents[code.name].socket = socket;
+			agents[sessionKey][code.name].owned = code.owned;
+			agents[sessionKey][code.name].socket = socket;
 		}
 	} else if (code.action == "control") {
 		// TODO Forward to some plugin
@@ -157,14 +160,16 @@ function closeSocket(socket){
 
 	// Unlock all scripts owned by this socket.
 	var unlocks = [];
-	for (var a in agents) {
-		if (agents[a] && agents[a].socket === socket) {
-			agents[a].owned = false;
-			agents[a].socket = undefined;
-			unlocks.push({time: 0, code :{action: "ownership", name: a, owned: false}});
+	if (agents[sessionKey]) {
+		for (var a in agents[sessionKey]) {
+			if (agents[sessionKey][a] && agents[sessionKey][a].socket === socket) {
+				agents[sessionKey][a].owned = false;
+				agents[sessionKey][a].socket = undefined;
+				unlocks.push({time: 0, code :{action: "ownership", name: a, owned: false}});
+			}
 		}
+		sendToAllExcept(sessionKey, socket, unlocks);
 	}
-	sendToAllExcept(sessionKey, socket, unlocks);
 
 	var i = allSockets[sessionKey].indexOf(socket);
 	if(i != -1)
