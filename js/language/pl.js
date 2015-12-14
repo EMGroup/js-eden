@@ -18,15 +18,15 @@ Language.addKeywords( {
 	"zwróć": "return",
 	"gdy": "when",
 	"uwzględnij": "include",
-	"opcje": "option",
-	"await": "await",
 	"wstaw": "insert",
 	"dopisznakońcu": "append",
 	"usuń": "delete",
 	"wymaga": "require",
 	"po": "after",
 	"przesuń": "shift",
-	"gdzie" : "with"
+	"gdzie" : "with",
+	"akcja": "action",
+	"import": "import"
 });
 
 Language.addSymbols( {

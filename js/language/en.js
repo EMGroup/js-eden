@@ -305,10 +305,27 @@ Language.ui = {
 		are_undef: "are undefined",
 		uses: "uses",
 		which_undef: "which is undefined",
-		uses_undef: "uses the undefined observables"
+		uses_undef: "uses the undefined observables",
+		show_tabs: "Show Tabs",
+		show_controls: "Show Controls",
+		browse_agents: "Browse Agents",
+		hide_agent: "Hide Agent",
+		view_history: "View History",
+		insert_temp: "Insert Template",
+		run: "Run (force)",
+		stop: "Stop",
+		clone: "Clone",
+		reload: "Reload",
+		upload: "Upload",
+		hide: "Hide",
+		inspect: "Inspect",
+		rewind: "Rewind",
+		undo: "Undo",
+		redo: "Redo",
+		fast_forward: "Fast-Forward"
 	},
 	"canvas": {
-		title: "Picture"
+		title: "Canvas Picture"
 	},
 	"menu_bar": {
 		title: "Menu Bar",
@@ -320,12 +337,22 @@ Language.ui = {
 		opt_debug: "Debug JS-EDEN",
 		main_views: "New Window",
 		main_existing: "Existing Windows",
-		main_options: "Options"
+		main_options: "Options",
+		comprehension: "Comprehension",
+		making_defs: "Making Definitions",
+		history: "History & State",
+		visualise: "Visualisation",
+		management: "Management",
+		version: "Version",
+		login: "Login",
+		notconnect: "Not Connected"
 	},
 	"search": {
 		disjunction: "or"
 	},
 	"general": {
+		error: "Error",
+		loading: "Loading...",
 		finished_loading: "JS-EDEN has finished loading.",
 		leaving: "Leaving this page will discard the current script. Your work will not be saved."
 	}

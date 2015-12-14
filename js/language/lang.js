@@ -1,6 +1,14 @@
 var Language = {
 	language: "en",
 
+	loadSymbols: function(root) {
+		for (var s in this.symbols) {
+			if (s != this.symbols[s] && root.symbols[this.symbols[s]] === undefined) {
+				root.symbols[this.symbols[s]] = root.lookup(s);
+			}
+		}
+	},
+
 	addKeywords: function(keywords) {
 		for (var k in keywords) {
 			this.keywords[k] = keywords[k];
