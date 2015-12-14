@@ -125,6 +125,7 @@ Eden.systemFunctionNames = {
 	"List": true,
 	"Menu": true,
 	"MenuItem": true,
+	"Object": true,
 	"Pixel": true,
 	"PixelList": true,
 	"Point": true,

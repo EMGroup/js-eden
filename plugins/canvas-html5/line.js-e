@@ -92,7 +92,7 @@ Line.prototype.draw = function(context) {
 	}
 	var xShift1, xShift2, yShift1, yShift2;
 	if (this.drawingOptions !== undefined) {
-		var scale = this.drawingOptions.lineWidth / context.lineWidth;
+		var scale = (this.drawingOptions.lineWidth || edenUI.plugins.Canvas2D.defaultLineWidth) / context.lineWidth;
 		var width = (context.lineWidth / 2 + 0.5 / scale) / Math.SQRT2;
 		xShift1 = this.xShift1 * width;
 		xShift2 = this.xShift2 * width;

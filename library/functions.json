@@ -426,6 +426,14 @@
 			"return": "",
 			"description": ""
 		},
+		"Object": {
+			"parameters": {
+				"[key1": "",
+				"value1...]": ""
+			},
+			"return": "A dictionary object with the specified key-value pairs.",
+			"description": ""
+		},
 		"nameof": {
 			"parameters": {
 				"pointer": ""

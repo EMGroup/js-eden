@@ -17,10 +17,26 @@ func execute {
 
 /**
  * Generate a new dictionary object.
- *   @return An empty javascript object.
+ *	@return A dictionary object with the given key-value pairs.
  */
 func Object {
-	return ${{ {} }}$;
+	${{
+		if (arguments.length % 2 == 1) {
+			eden.error(new Error("Object: This function requires an even number of arguments, not " + arguments.length + " arguments."), "error");
+			return undefined;
+		}
+
+		var result = {};
+		for (var i = 0; i < arguments.length - 1; i = i + 2) {
+			var key = arguments[i];
+			if (typeof(key) != "string") {
+				eden.error(new Error("Object: Argument " + String(i + 1) + " must be a string, not a " + typeof(key)), "error");
+				return undefined;
+			}
+			result[key] = arguments[i + 1];
+		}
+		return result;
+	}}$;
 }
 
 /**
