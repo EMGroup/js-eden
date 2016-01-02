@@ -65,6 +65,7 @@ ${{
 function PixelList(name, ptrToData, x, y, width) {
 	this.name = edenUI.plugins.Canvas2D.initZoneFromName(name, "PixelList");
 	this.obsName = root.currentObservableName();
+	this.ptr = ptrToData;
 	this.data = ptrToData? ptrToData.value() : [];
 	this.x = x;
 	this.y = y;
@@ -88,13 +89,14 @@ PixelList.prototype.isHit = function (context, scale, x, y) {
 }
 
 PixelList.prototype.toString = function() {
-	return "PixelList(" + Eden.edenCodeForValue(this.name) + ", " +
-		String(this.data.length / 4) + " pixel values, " +
-		Eden.edenCodeForValues(this.x, this.y, this.width) + ")";
+	var s = "PixelList(";
+	if (this.name !== undefined) {
+		s = s + Eden.edenCodeForValue(this.name) + ", ";
+	}
+	s = s + Eden.edenCodeForValues(this.ptr, this.x, this.y, this.width) + ")";
+	return s;
 }
 
-PixelList.prototype.getEdenCode = function() {
-	return "PixelList(" + Eden.edenCodeForValues(this.name, this.data, this.x, this.y, this.width) + ")";
-}
+PixelList.prototype.getEdenCode = PixelList.prototype.toString;
 
 }}$;
