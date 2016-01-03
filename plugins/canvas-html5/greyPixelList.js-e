@@ -90,7 +90,7 @@ function GreyPixelList(name, ptrToData, x, y, width, redMultiply, greenMultiply,
 	this.name = edenUI.plugins.Canvas2D.initZoneFromName(name, "GreyPixelList");
 	this.obsName = root.currentObservableName();
 	this.ptr = ptrToData;
-	this.data = ptrToData? ptrToData.value() : [];
+	this.data = ptrToData instanceof Symbol? ptrToData.value() : [];
 	this.x = x;
 	this.y = y;
 	this.width = width;
