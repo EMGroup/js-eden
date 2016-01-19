@@ -23,7 +23,7 @@ func Polygon { ${{
 	var fillcolour, outlinecolour, drawingOptions;
 	var lastArg = arguments[arguments.length - 1];
 	var processUpTo;
-	if (lastArg !== undefined && (lastArg instanceof Object) && !Array.isArray(lastArg) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle) && !Array.isArray(lastArg)) {
+	if (lastArg !== undefined && (lastArg instanceof Object) && !Array.isArray(lastArg) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
 		drawingOptions = lastArg;
 		processUpTo = arguments.length - 2;
 	} else {

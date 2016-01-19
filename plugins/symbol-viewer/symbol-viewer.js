@@ -96,14 +96,6 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		me.instances.push(symbollist);
 		symbollist.search("", new RegExp(""));
 
-		// Make changes in search box update the list.
-		var searchBox = content.find(".symbollist-search-box-outer > .symbollist-search");
-		var searchBoxElem = searchBox.get(0);
-		searchBox.keyup(function() {
-			var regExp = edenUI.regExpFromStr($(this));
-			symbollist.search(searchBoxElem.value, regExp);
-		});
-
 		content.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
 			var editorViewName = "edit_" + edenName;
 			var allVals = ["## Selection: " + searchBoxElem.value];

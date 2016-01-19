@@ -72,6 +72,14 @@
 			"file": "models/blank.js-e",
 			"title": "Script View"
 		},
+		"plugins/canvas/contourLine": {
+			"file": "plugins/canvas-html5/contourLine.js-e",
+			"title": "Custom shapes defined algebraically"
+		},
+		"plugins/canvas/contourLine/guide": {
+			"file": "models/guides/contour-lines.js-e",
+			"title": "JSPE how-to presentation"
+		},
 		"plugins/page": {
 			"file": "plugins/page/page.js-e",
 			"title": "Page Plugin",
