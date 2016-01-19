@@ -796,6 +796,54 @@
 			"return": "",
 			"description": ""
 		},
+		"EuclideanSpace": {
+			"parameters": {
+				"x_min": "",
+				"y_min": "",
+				"x_max": "",
+				"y_max": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"ScalarField2D": {
+			"parameters": {
+				"pointer_to_data_source": "",
+				"euclidean_space": "",
+				"number_of_cells_across": "",
+				"number of cells down": "",
+				"[start_time": "",
+				"[end_time": "",
+				"[number_of_keyframes]]]": "",
+				"[exists_before": "",
+				"[exists_after]]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"ContourData": {
+			"parameters": {
+				"scalar_field_2d": "",
+				"[iso_value": "",
+				"[time_value]]": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"ContourLine": {
+			"parameters": {
+				"x": "",
+				"y": "",
+				"width": "",
+				"height": "",
+				"contour_data": "",
+				"[fill_colour": "",
+				"[outline_colour]]": "",
+				"[drawing_options]": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"Curve": {
 			"parameters": {
 				"x1": "",

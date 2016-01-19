@@ -8,6 +8,7 @@
 ##If _paused is defined by dependency and is true while seeking then the video starts playing while the mouse button is still held down.
 ##_chapter doesn't yet update correctly if the a backward seek is performed.
 ##Attempting to play back video in reverse (vid_speed < 0) only works on Safari on Mac.  A workaround is possible.
+##Loading a new video file will reset the playback speed to 1.
 ##Todo:
 ##Add support for poster images.
 ##Add mode that draws the video onto the canvas.
@@ -57,7 +58,7 @@
 ##	assigning another value to vid_speed won't automatically resume playback unless vid_paused is
 ##	calculated by dependency.  If vid_speed is zero when the video becomes unpaused, either by
 ##	the value of vid_paused changing from true to false or by the user clicking on the play button,
-##	then the speed will be reset to 1.  Loading a new video file will also reset the speed to 1.
+##	then the speed will be reset to 1.
 ##
 ##vid_volume
 ##	The current volume level of the video's soundtrack, between 0 and 1.  If vid_volume is specified
