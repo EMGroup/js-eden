@@ -176,8 +176,8 @@ slideFunction is TitledSlide(
 	"calculation time.  We will sample 170 points along the shortest dimension.</p>" //
 	"<jseden>" //
 	"samples = 170; \n" //
-	"samplesX is samples if width >= height else samples * width / height; \n" //
-	"samplesY is samples if height >= width else samples * height / width;" //
+	"samplesX is samples if width <= height else samples * width / height; \n" //
+	"samplesY is samples if height <= width else samples * height / width;" //
 	"</jseden>" //
 	"<p>We need to make a few adjustments to our test environment scaffolding.  Ordinarily you could " //
 	"use fixed width and height values in many cases.</p>" //
