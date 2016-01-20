@@ -919,7 +919,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		}
 
 		function agentPatched(ag, patch, lineno) {
-			if (ag && scriptagent && ag.name === scriptagent.name && readonly) {
+			if (ag && scriptagent && ag.name === scriptagent.name /*&& readonly*/) {
 				intextarea.value = ag.snapshot;
 				highlighter.ast = scriptagent.ast;
 				highlightContent(highlighter.ast, lineno, -1);
