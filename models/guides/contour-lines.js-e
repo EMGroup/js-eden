@@ -246,8 +246,8 @@ slideMorphing is TitledSlide(
 	"for <var>t</var>&nbsp;&le;&nbsp;0, the contour line of a circle at <var>t</var>&nbsp;&ge;&nbsp;10, and a linear " //
 	"combination of the two for 0&nbsp;&lt;&nbsp;<var>t</var>&nbsp;&lt;&nbsp;10.</p>" //
 	"<p>Next we take our data source and evaluate the function for all of the sample data points, " //
-	"this time sampling <em>across space and time</em>.  <strong>N.B. The following code will take a " //
-	"long time to execute.  Wait until the existing shape disappears from view.</strong></p>" //
+	"this time sampling <em>across space and time</em>.  Calculating morphing shapes can sometimes " //
+	"take a long time so please be patient.</p>" //
 	"<jseden>" //
 	"samples = 170; \n" //
 	"field is ScalarField2D(&squareToCircle, space, samplesX, samplesY, 0, 10, 2, true, true);" //
