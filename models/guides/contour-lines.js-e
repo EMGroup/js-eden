@@ -58,12 +58,12 @@ slideExplicitData is TitledSlide(
 	"<li>By providing a function that can be invoked to determine the field value for arbitrary <var>x</var> " //
 	"and <var>y</var> values in the data space (or arbitrary <var>x</var>, <var>y</var> <em>and <var>t</var></em> " //
 	"(time) values) by passing a pointer to a function to <code>ScalarField2D</code>.</li>" //
-	"<li>By passing a pointer to an object returned by one of standard built-in drawing functions, " //
-	"for example <code>Circle</code> or <code>Rectangle</code>, to <code>ScalarField2D</code>. " // "<strong>Forthcoming.</strong></li>" //
 	"<li>By writing a dependency that yields an observable of numeric type.  The dependency will have " //
 	"the <code>x</code>, <code>y</code> and optionally <code>t</code> observables repeatedly overridden " //
 	"to obtain multiple resultant values using a form of implicit (system-defined) scoping.  A " //
 	"pointer to the numeric typed observable is passed to <code>ScalarField2D</code>. " // "<strong>Forthcoming.</strong></li>" //
+	"<li>By using a system-defined dependency that provides the field values for a well-known basic shape. " //
+	"<strong>Forthcoming.</strong></li>" //
 	"</ol>" //
 	"<p>We'll start with an example where the numbers are given explicitly because it's easier to " //
 	"understand that way.  We'll start with a simple octagon shape.</p>" //
@@ -297,6 +297,12 @@ slideFutureWork is BulletSlide(
 		"implementation is about), and potentially a very valuable option.",
 		"The interpolation between key frames isn't quite fast enough to play back in real-time. " //
 		"Ideas needed.  (More pre-computation ahead of time?)",
+		"Enable using scoping to define shapes in addition to functions.",
+		"Provide built-in dependencies that parallel the conventional canvas functions for drawing shapes (<code>Circle</code>, " //
+		"<code>Ellipse</code>, <code>Polygon</code>, <code>Rectangle</code>, <code>RegularPolygon</code>, " //
+		"<code>RoundedRectangle</code>, <code>Sector</code>)",
+		"Provide built-in dependencies that implement <em>relations</em> such as union, intersection " //
+		"and difference.",
 		"3D version needed.  Same principles, different case by case analysis.  Valuable experiences " //
 		"learned from 2D implementation.  Need 3D canvas apparatus as a prerequisite."
 	]
