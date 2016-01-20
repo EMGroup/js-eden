@@ -89,7 +89,8 @@ ${{
 function GreyPixelList(name, ptrToData, x, y, width, redMultiply, greenMultiply, blueMultiply, redAdd, greenAdd, blueAdd) {
 	this.name = edenUI.plugins.Canvas2D.initZoneFromName(name, "GreyPixelList");
 	this.obsName = root.currentObservableName();
-	this.data = ptrToData? ptrToData.value() : [];
+	this.ptr = ptrToData;
+	this.data = ptrToData instanceof Symbol? ptrToData.value() : [];
 	this.x = x;
 	this.y = y;
 	this.width = width;
@@ -146,21 +147,15 @@ GreyPixelList.prototype.isHit = function (context, scale, x, y) {
 
 
 GreyPixelList.prototype.toString = function() {
-	return "GreyPixelList(" +
-		Eden.edenCodeForValue(this.name) + ", " +
-		this.data.length + " pixel values, " +
-		Eden.edenCodeForValues(this.x, this.y, this.width) + "," +
-		this.redMultiply + ", " + this.redAdd + ", " +
-		this.greenMultiply + ", " + this.greenAdd + ", " +
-		this.blueMultiply + ", " + this.blueAdd + ")";
+	var s = "GreyPixelList(";
+	if (this.name !== undefined) {
+		s = s + Eden.edenCodeForValue(this.name) + ", ";
+	}
+	s = s + Eden.edenCodeForValues(this.ptr, this.x, this.y, this.width, this.redMultiply,
+		this.redAdd, this.greenMultiply, this.greenAdd, this.blueMultiply, this.blueAdd) + ")";
+	return s;
 }
 
-GreyPixelList.prototype.getEdenCode = function() {
-	return "GreyPixelList(" +
-		Eden.edenCodeForValues(this.name, this.data, this.x, this.y, this.width) + "," +
-		this.redMultiply + ", " + this.redAdd + ", " +
-		this.greenMultiply + ", " + this.greenAdd + ", " +
-		this.blueMultiply + ", " + this.blueAdd + ")";
-}
+GreyPixelList.prototype.getEdenCode = GreyPixelList.prototype.toString;
 
 }}$;

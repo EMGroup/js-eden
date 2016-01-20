@@ -68,9 +68,7 @@ cli.main = function cliMain(opts) {
     function processGrammar(raw, lex, opts) {
         var grammar,
         parser;
-        if (!opts.json) {
-            grammar = cli.processGrammars(raw, lex, opts.json);
-        }
+        grammar = cli.processGrammars(raw, lex, opts.json);
         parser = cli.generateParserString(opts, grammar);
         return parser;
     }
@@ -143,6 +141,9 @@ cli.generateParserString = function generateParserString(opts, grammar) {
 
     if (opts['parser-type']) {
         settings.type = opts['parser-type'];
+    }
+    if (opts.moduleName) {
+        settings.moduleName = opts.moduleName;
     }
     settings.debug = opts.debug;
     if (!settings.moduleType) {

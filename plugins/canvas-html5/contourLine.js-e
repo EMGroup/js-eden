@@ -1,0 +1,1235 @@
+## Copyright (c) 2016, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+##
+## Functions for drawing contour lines (iso-lines).
+##
+
+${{
+	/**Creates an object that holds the boundaries of a two or three dimensional space in which a
+	 * function will be evaluated at various discrete points and used to form a line (or a surface).
+	 * If zMin and zMax are both left undefined then the space is two-dimensional, otherwise
+	 * it is three-dimensional.
+	 */
+	window.EuclideanSpace = function (xMin, yMin, zMin, xMax, yMax, zMax) {
+		this.xMin = xMin;
+		this.yMin = yMin;
+		this.zMin = zMin;
+		this.xMax = xMax;	
+		this.yMax = yMax;
+		this.zMax = zMax;
+	}
+
+	EuclideanSpace.prototype.toString = function () {
+		if (this.zMin === undefined && this.zMax === undefined) {
+			return "EuclideanSpace(" + Eden.edenCodeForValues(this.xMin, this.yMin, this.xMax,
+				this.yMax) + ")";
+		} else {
+			return "EuclideanSpace(" + Eden.edenCodeForValues(this.xMin, this.yMin, this.zMin,
+				this.xMax, this.yMax, this.zMax) + ")";		
+		}
+	}
+
+	EuclideanSpace.prototype.getEdenCode = EuclideanSpace.prototype.toString;
+
+	/**Creates an abstract representation of a two-dimensional shape produced by evaluating a
+	 * function at discrete points.  The vertices are expressed in an abstract space ranging from
+	 * (0, 0) to (numX - 1, numY - 1), where numX and numY are the number of points to evaluate the
+	 * function for in each direction.  That is, numX and numY control the image resolution.
+	 * @param {TwoDScalarField} field An object that provides the function values (possibly from an
+	 * internal cache).
+	 * @param {Number} isoValue The threshold value that determines which function values fall
+	 * inside the boundary of the shape.
+	 * @param {Number} t The time instant at which to evaluate the function.  May be omitted if the
+	 * function is time invariant.
+	 */
+	window.ContourData = function (field, isoValue, t) {
+		this.field = field;
+		this.isoValue = isoValue;
+		this.t = t;
+		if (field instanceof TwoDScalarField) {
+			//Compute and store vertices, ready to be plotted later (after simple translation and scaling).
+			var fieldValues = field.getValues(isoValue, t);
+			this.paths = this.computePaths(fieldValues);
+		}
+	}
+
+	/**Translates and scales the vertices from the abstract shape to fit the location and dimensions
+	 * of the output space on the canvas.
+	 * @return {Array<Array<Point>>} An array of paths, each path represented as an array of Points.
+	 */
+	ContourData.prototype.scalePaths = function (x, y, width, height, scale, lineWidth) {
+		var paths = this.paths;
+		var halfLineWidth = lineWidth / 2;
+		x = x + halfLineWidth;
+		y = y + halfLineWidth;
+		if (this.paths !== undefined) {
+			var scaledPaths = new Array(paths.length);
+			/* If the points are connected with straight lines then the nature of the algorithm
+			 * prevents the vertices from being less than 0.5 units away from the edge of the space,
+			 * except as a result of the linear interpolation post processing step, which we decide
+			 * not to apply to the edge points.  This decision means that if a value above the iso
+			 * threshold is yielded when applying the function to a point on the edge of the input
+			 * space then the perimeter of the shape also extends hard up the edge of the visual
+			 * space.  From this idea we get the values 2 and 0.5 below.
+			 */
+			var cellRenderWidth = (width - (lineWidth + 1) / scale) / (this.field.numX - 2);
+			var cellRenderHeight = (height - (lineWidth + 1) / scale) / (this.field.numY - 2);
+			for (var i = 0; i < paths.length; i++) {
+				var path = paths[i];
+				var scaledPath = new Array(path.length);
+				for (var j = 0; j < path.length; j++) {
+					var p = path[j];
+					var sx = Math.round((x + (p.x - 0.5) * cellRenderWidth) * scale) / scale;
+					var sy = Math.round((y + (p.y - 0.5) * cellRenderHeight) * scale) / scale;
+					scaledPath[j] = new Point(sx, sy);
+				}
+				scaledPaths[i] = scaledPath;
+			}
+			return scaledPaths;
+		} else {
+			return [];
+		}
+	}
+
+	ContourData.prototype.toString = function () {
+		return "ContourData(" + Eden.edenCodeForValues(this.field, this.isoValue, this.t) + ")";
+	}
+
+	ContourData.prototype.getEdenCode = ContourData.prototype.toString;
+
+	/**Computes the locations of the vertices in the abstract space and the correct order to
+	 * traverse them in order to plot the perimeter of the shape.
+	 * @param {Array<Array<Number>>} An array of function result values (i.e. the raw values and
+	 * not the TwoDScalarField object that represents all of information about the field (including
+	 * the algorithm for computing the values)).
+	 * @return {Array<Array<Point>>} An array of paths, each path represented as an array of Points.
+	 */
+	ContourData.prototype.computePaths = function (field) {
+//console.log("Field values");
+//console.log(field);
+		if (field === undefined) {
+			return [];
+		}
+		var fieldObj = this.field;
+		var isoValue = this.isoValue;
+		var t = this.t;
+
+		//Compute which cells have values above the threshold.
+		var thresholdValues = new Array(field.length);
+		for (var i = 0; i < field.length; i++) {
+			var inputColumn = field[i];
+			var thresholdColumn = new Array(inputColumn.length);
+			thresholdValues[i] = thresholdColumn;
+			for (var j = 0; j < inputColumn.length; j++) {
+				thresholdColumn[j] = inputColumn[j] >= isoValue? 1 : 0;
+			}
+		}
+
+		//Compute patterns.
+		var numColumns = fieldObj.numX - 1;
+		var numRows = fieldObj.numY - 1;
+		var completed = new Array(numColumns);
+		var patterns = new Array(numColumns);
+		for (var i = 0; i < numColumns; i++) {
+			completed[i] = new Array(numRows);
+			patterns[i] = new Array(numRows);
+		}
+
+		var middleValue;
+		var allInside = true;
+		for (var i = 0; i < numColumns; i++) {
+			var columnComplete = completed[i];
+			var patternColumn = patterns[i];
+			for (var j = 0; j < numRows; j++) {
+				var pattern =
+					15 -
+					(thresholdValues[i][j] * 8 + 
+					thresholdValues[i+1][j] * 4 +
+					thresholdValues[i+1][j+1] * 2 +
+					thresholdValues[i][j+1]);
+				if (pattern == 5 || pattern == 10) {
+					middleValue = fieldObj.middleValue(i, j, t);
+					if (middleValue >= isoValue) {
+						//Case "-5" is similar to Case 10, and Case "-10" like Case 5.
+						pattern = - pattern;
+					}
+				} // end resolve ambiguity
+				patternColumn[j] = pattern;
+				var isInside = (pattern == 0);
+				columnComplete[j] = Number(isInside || pattern == 15);
+				allInside = allInside && isInside;
+			} //end scan down a column
+		} //end scan across columns
+//console.log("Patterns");
+//console.log(patterns);
+
+		/* Traverse the grid.  For each point not yet marked as complete, trace a path (part or all
+		 * of the shape's perimeter) beginning from that point.
+		 */
+		var shapes = [];
+		this.shapes = shapes;
+		var shape;
+		if (allInside) {
+			var shape = new Array(4);
+			shape[0] = new Point(0.5, 0.5);
+			shape[1] = new Point(numColumns - 0.5, 0.5);
+			shape[2] = new Point(numColumns - 0.5, numRows - 0.5);
+			shape[3] = new Point(0.5, numRows - 0.5);
+			shapes.push(shape);
+		} else {
+			for (var i = 0; i < numColumns; i++) {
+				var columnComplete = completed[i];
+				for (var j = 0; j < numRows; j++) {
+					if (columnComplete[j] < 1) {
+						shape = this.computePathFromPoint(field, patterns, completed, i, j);
+						shapes.push(shape);
+						foundPath = true;
+					}
+				}
+			}
+		}
+		return shapes;
+	}
+
+	ContourData.prototype.computePathFromPoint = function(field, patterns, completed, beginI, beginJ) {
+		var fieldObj = this.field;
+		var maxCol = fieldObj.numX - 2;
+		var maxRow = fieldObj.numY - 2;
+		var isoValue = this.isoValue;
+
+		var prevI, prevJ;
+		var i = beginI;
+		var j = beginJ;
+
+		var points = [];
+		var sum, outX, outY, nextI, nextJ;
+		var val;
+
+//console.log("Begin path");
+		do {
+			var pattern = patterns[i][j];
+//console.log("(" + i + ", " + j + ") " + pattern);
+			switch (pattern) {
+			case 14:
+				val = field[i][j+1] - isoValue;
+				sum = 1 + val;
+				if (prevJ == j) {
+					outX = 1 - 0.5 / sum;
+					outY = 1;
+					nextI = 0;
+					nextJ = 1;
+				} else {
+					outX = 0;
+					outY = 1 - (0.5 + val) / sum;
+					nextI = -1;
+					nextJ = 0;
+				}
+				completed[i][j] = 1;
+				break;
+			case 13:
+				val = field[i+1][j+1] - isoValue;
+				sum = 1 + val;
+				if (prevJ == j) {
+					outX = 1 - (0.5 + val) / sum;
+					outY = 1;
+					nextI = 0;
+					nextJ = 1;
+				} else {
+					outX = 1;
+					outY = 1 - (0.5 + val) / sum;
+					nextI = 1;
+					nextJ = 0;
+				}
+				completed[i][j] = 1;
+				break;
+			case 11:
+				val = field[i+1][j] - isoValue;
+				sum = 1 + val;
+				if (prevJ == j) {
+					outX = 1 - (0.5 + val) / sum;
+					outY = 0;
+					nextI = 0;
+					nextJ = -1;
+				} else {
+					outX = 1;
+					outY = 1 - 0.5 / sum;
+					nextI = 1;
+					nextJ = 0;
+				}
+				completed[i][j] = 1;
+				break;
+			case 7:
+				val = field[i][j] - isoValue;
+				sum = 1 + val;
+				if (prevJ == j) {
+					outX = 1 - 0.5 / sum;
+					outY = 0;
+					nextI = 0;
+					nextJ = -1;
+				} else {
+					outX = 0;
+					outY = 1 - 0.5 / sum;
+					nextI = -1;
+					nextJ = 0;
+				}
+				completed[i][j] = 1;
+				break;
+			case 1:
+				if (prevJ == j) {
+					val = field[i+1][j+1] - isoValue;
+					sum = 1 + val;
+					outX = 1 - (0.5 + val) / sum;
+					outY = 1;
+					nextI = 0;
+					nextJ = 1;
+				} else {
+					val = field[i][j] - isoValue;
+					sum = 1 + val;
+					outX = 0;
+					outY = 1 - 0.5 / sum;
+					nextJ = 0;
+					nextI = -1;
+				}
+				completed[i][j] = 1;
+				break;
+			case 2:
+				if (prevJ == j) {
+					val = field[i][j+1] - isoValue;
+					sum = 1 + val;
+					outX = 1 - 0.5 / sum;
+					outY = 1;
+					nextI = 0;
+					nextJ = 1;
+				} else {
+					val = field[i+1][j] - isoValue;
+					sum = 1 + val;
+					outX = 1;
+					outY = 1 - 0.5 / sum;
+					nextI = 1;
+					nextJ = 0;
+				}
+				completed[i][j] = 1;
+				break;
+			case 4:
+				if (prevJ == j) {
+					val = field[i][j] - isoValue;
+					sum = 1 + val;
+					outX = 1 - 0.5 / sum;
+					outY = 0;
+					nextI = 0;
+					nextJ = -1;
+				} else {
+					val = field[i+1][j+1] - isoValue;
+					sum = 1 + val;
+					outX = 1;
+					outY = 1 - (0.5 + val) / sum;
+					nextI = 1;
+					nextJ = 0;
+				}
+				completed[i][j] = 1;
+				break;
+			case 8:
+				if (prevJ == j) {
+					val = field[i+1][j] - isoValue;
+					sum = 1 + val;
+					outX = 1 - (0.5 + val) / sum;
+					outY = 0;
+					nextI = 0;
+					nextJ = -1;
+				} else {
+					val = field[i][j+1] - isoValue;
+					sum = 1 + val;
+					outX = 0;
+					outY = 1 - (0.5 + val) / sum;
+					nextI = -1;
+					nextJ = 0;
+				}
+				completed[i][j] = 1;
+				break;
+			case 12:
+				if (prevI == i - 1) {
+					val = field[i+1][j+1] - isoValue;
+					outX = 1;
+					nextI = 1;
+				} else {
+					val = field[i][j+1] - isoValue;
+					outX = 0;
+					nextI = -1;
+				}
+				sum = 1 + val;
+				outY = 1 - (0.5 + val) / sum;
+				nextJ = 0;
+				completed[i][j] = 1;
+				break;
+			case 9:
+				if (prevJ == j - 1) {
+					val = field[i+1][j+1] - isoValue;
+					outY = 1;
+					nextJ = 1;
+				} else {
+					val = field[i+1][j] - isoValue;
+					outY = 0;
+					nextJ = -1;
+				}
+				sum = 1 + val;
+				outX = 1 - (0.5 + val) / sum;
+				nextI = 0;
+				completed[i][j] = 1;
+				break;
+			case 3:
+				if (prevI == i - 1) {
+					val = field[i+1][j] - isoValue;
+					outX = 1;
+					nextI = 1;
+				} else {
+					val = field[i][j] - isoValue;
+					outX = 0;
+					nextI = -1;
+				}
+				sum = 1 + val;
+				outY = 1 - 0.5 / sum;
+				nextJ = 0;
+				completed[i][j] = 1;
+				break;
+			case 6:
+				if (prevJ == j - 1) {
+					val = field[i][j+1] - isoValue;
+					outY = 1;
+					nextJ = 1;
+				} else {
+					val = field[i][j] - isoValue;
+					outY = 0;
+					nextJ = -1;
+				}
+				sum = 1 + val;
+				outX = 1 - 0.5 / sum;
+				nextI = 0;
+				completed[i][j] = 1;
+				break;
+			case 5:
+				switch (prevJ - j) {
+				case 0:
+					if (prevI == i + 1) {
+						val = field[i+1][j+1] - isoValue;
+						sum = 1 + val;
+						outX = 1 - (0.5 + val) / sum;
+						outY = 1;
+						nextJ = 1;
+						completed[i][j] = completed[i][j] + 0.4;
+					} else {
+						val = field[i][j] - isoValue;
+						sum = 1 + val;
+						outX = 1 - 0.5 / sum;
+						outY = 0;
+						nextJ = -1;
+						completed[i][j] = completed[i][j] + 0.6;
+					}
+					nextI = 0;
+					break;
+				case 1:
+					val = field[i+1][j+1] - isoValue;
+					sum = 1 + val;
+					outX = 1;
+					outY = 1 - (0.5 + val) / sum;
+					nextI = 1;
+					nextJ = 0;
+					completed[i][j] = completed[i][j] + 0.4;
+					break;
+				case -1:
+					val = field[i][j] - isoValue;
+					sum = 1 + val;
+					outX = 0;
+					outY = 1 - 0.5 / sum;
+					nextI = -1;
+					nextJ = 0;
+					completed[i][j] = completed[i][j] + 0.6;
+					break;
+				default:
+					if (completed[i][j] == 0.4) {
+						val = field[i][j] - isoValue;
+						sum = 1 + val;
+						outX = 0;
+						outY = 1 - 0.5 / sum;
+						nextI = -1;
+						nextJ = 0;
+						completed[i][j] = 1;
+					} else {
+						val = field[i+1][j+1] - isoValue;
+						sum = 1 + val;
+						outX = 1;
+						outY = 1 - (0.5 + val) / sum;
+						nextI = 1;
+						nextJ = 0;
+						completed[i][j] = completed[i][j] + 0.4;
+					}
+				}
+				break;
+			case 10:
+				switch (prevJ - j) {
+				case 0:
+					if (prevI == i + 1) {
+						val = field[i+1][j] - isoValue;
+						sum = 1 + val;
+						outX = 1 - (0.5 + val) / sum;
+						outY = 0;
+						nextJ = -1;
+						completed[i][j] = completed[i][j] + 0.6;
+					} else {
+						val = field[i][j+1] - isoValue;
+						sum = 1 + val;
+						outX = 1 - 0.5 / sum;
+						outY = 1;
+						nextJ = 1;
+						completed[i][j] = completed[i][j] + 0.4;
+					}
+					nextI = 0;
+					break;
+				case 1:
+					val = field[i][j+1] - isoValue;
+					sum = 1 + val;
+					outX = 0;
+					outY = 1 - (0.5 + val) / sum;
+					nextI = -1;
+					nextJ = 0;
+					completed[i][j] = completed[i][j] + 0.4;
+					break;
+				case -1:
+					val = field[i+1][j] - isoValue;
+					sum = 1 + val;
+					outX = 1;
+					outY = 1 - 0.5 / sum;
+					nextI = 1;
+					nextJ = 0;
+					completed[i][j] = completed[i][j] + 0.6;
+					break;
+				default:
+					if (completed[i][j] == 0.4) {
+						val = field[i+1][j] - isoValue;
+						sum = 1 + val;
+						outX = 1 - (0.5 + val) / sum;
+						outY = 0;
+						nextJ = -1;
+						completed[i][j] = 1;
+					} else {
+						val = field[i][j+1] - isoValue;
+						sum = 1 + val;
+						outX = 1 - 0.5 / sum;
+						outY = 1;
+						nextJ = 1;
+						completed[i][j] = completed[i][j] + 0.4;					
+					}
+					nextI = 0;
+				}
+				break;
+			case -5:
+				switch (prevJ - j) {
+				case 0:
+					if (prevI == i + 1) {
+						val = field[i][j] - isoValue;
+						sum = 1 + val;
+						outX = 1 - 0.5 / sum;
+						outY = 0;
+						nextJ = -1;
+						completed[i][j] = completed[i][j] + 0.6;
+					} else {
+						val = field[i+1][j+1] - isoValue;
+						sum = 1 + val;
+						outX = 1 - (0.5 + val) / sum;
+						outY = 1;
+						nextJ = 1;
+						completed[i][j] = completed[i][j] + 0.4;
+					}
+					nextI = 0;
+					break;
+				case 1:
+					val = field[i][j] - isoValue;
+					sum = 1 + val;
+					outX = 0;
+					outY = 1 - 0.5 / sum;
+					nextI = -1;
+					nextJ = 0;
+					completed[i][j] = completed[i][j] + 0.4;
+					break;
+				case -1:
+					val = field[i+1][j+1] - isoValue;
+					sum = 1 + val;
+					outX = 1;
+					outY = 1 - (0.5 + val) / sum;
+					nextI = 1;
+					nextJ = 0;
+					completed[i][j] = completed[i][j] + 0.6;
+					break;
+				default:
+					if (completed[i][j] == 0.4) {
+						val = field[i][j] - isoValue;
+						sum = 1 + val;
+						outX = 1 - 0.5 / sum;
+						outY = 0;
+						nextJ = -1;
+						completed[i][j] = 1;
+					} else {
+						val = field[i+1][j+1] - isoValue;
+						sum = 1 + val;
+						outX = 1 - (0.5 + val) / sum;
+						outY = 1;
+						nextJ = 1;
+						completed[i][j] = completed[i][j] + 0.4;					
+					}
+					nextI = 0;
+				}
+				break;
+			}
+
+			if (i == 0) {
+				if (outX < 0.5) {
+					outX = 0.5;
+				}
+			} else if (i == maxCol) {
+				if (outX > 0.5) {
+					outX = 0.5;
+				}
+			}
+			if (j == 0) {
+				if (outY < 0.5) {
+					outY = 0.5;
+				}
+			} else if (j == maxRow) {
+				if (outY > 0.5) {
+					outY = 0.5;
+				}
+			}
+			points.push(new Point(i + outX, j + outY));
+
+			nextI = i + nextI;
+			nextJ = j + nextJ;
+
+			var overflowX = 0, overflowY = 0;
+			var prevVal;
+			if (nextI < 0) {
+				prevVal = field[0][j] - isoValue;
+				if (prevVal >= 0) {
+					//Traverse up to find the first point in column 0 that is outside of the shape.
+					overflowY = -1;
+				} else {
+					//Traverse down to find the first point in column 0 that is outside of the shape.
+					overflowY = 1;
+				}
+			} else if (nextI > maxCol) {
+				prevVal = field[maxCol+1][j] -isoValue;
+				if (prevVal >= 0) {
+					//Traverse up to find the first point in the rightmost column that is outside of the shape.
+					overflowY = -1;
+				} else {
+					//Traverse down to find the first point in the rightmost column that is outside of the shape.
+					overflowY = 1;
+				}
+			} else if (nextJ < 0) {
+				prevVal = field[i][0] - isoValue;
+				if (prevVal >= 0) {
+					//Traverse left to find the first point in row 0 that is outside of the shape.
+					overflowX = -1;
+				} else {
+					//Traverse right to find the first point in row 0 that is outside of the shape.
+					overflowX = 1;
+				}
+			} else if (nextJ > maxRow) {
+				prevVal = field[i][maxRow+1] - isoValue;
+				if (prevVal >= 0) {
+					//Traverse left to find the first point in the bottommost row that is outside of the shape.
+					overflowX = -1;
+				} else {
+					//Traverse right to find the first point in the bottommost row that is outside of the shape.
+					overflowX = 1;
+				}
+			}
+
+			var check, put, prev, inCoord;
+			while (overflowX != 0 || overflowY != 0) {
+				if (overflowY == -1) {
+					//Traverse 1 step upwards.
+					nextJ--;
+					if (nextI < 0) {
+						check = 0;
+						put = 0;
+						prev = -1;
+					} else {
+						check = maxCol + 1;
+						put = maxCol;
+						prev = maxCol + 1;
+					}
+					if (nextJ >= 0) {
+						val = field[check][nextJ] - isoValue;
+						if (val < 0) {
+							sum = 1 + prevVal;
+							inCoord = 1 - (0.5 + prevVal) / sum;
+							nextI = put;
+							i = prev;
+							j = nextJ;
+							points.push(new Point(put + 0.5, nextJ + inCoord));
+							overflowY = 0;
+						}
+					} else {
+						//Top-left or top-right corner reached.  Start traversing right/left.
+						points.push(new Point(put + 0.5, 0.5));
+						overflowX = check == 0? 1 : -1;
+						overflowY = 0;
+						val = 0;
+					}
+				} else if (overflowY == 1) {
+					//Traverse 1 step downwards.
+					nextJ++;
+					if (nextI < 0) {
+						check = 0;
+						put = 0;
+						prev = -1;
+					} else {
+						check = maxCol + 1;
+						put = maxCol;
+						prev = maxCol + 1;
+					}
+					if (nextJ <= maxRow + 1) {
+						val = field[check][nextJ] - isoValue;
+						if (val < 0) {
+							sum = 1 + prevVal;
+							inCoord = 1 - 0.5 / sum;
+							nextI = put;
+							nextJ--;
+							i = prev;
+							j = nextJ;
+							points.push(new Point(put + 0.5, nextJ + inCoord));
+							overflowY = 0;
+						}
+					} else {
+						//Bottom-left or bottom-right corner reached.  Start traversing right/left.
+						points.push(new Point(0.5, maxRow + 0.5));
+						overflowX = check == 0? 1 : -1;
+						overflowY = 0;
+						val = 0;
+					}
+				} else if (overflowX == -1) {
+					//Traverse 1 step left.
+					nextI--;
+					if (nextJ < 0) {
+						check = 0;
+						put = 0;
+						prev = -1;
+					} else {
+						check = maxRow + 1;
+						put = maxRow;
+						prev = maxRow + 1;
+					}
+					if (nextI >= 0) {
+						val = field[nextI][check] - isoValue;
+						if (val < 0) {
+							sum = 1 + prevVal;
+							inCoord = 1 - (0.5 + prevVal) / sum;
+							nextJ = put;
+							i = nextI;
+							j = prev;
+							points.push(new Point(nextI + inCoord, put + 0.5));
+							overflowX = 0;
+						}
+					} else {
+						//Top-left or bottom-left corner reached.  Start traversing down/up.
+						points.push(new Point(0.5, put + 0.5));
+						overflowX = 0;
+						overflowY = check == 0? 1 : -1;
+						val = 0;
+					}
+				} else {
+					//Traverse 1 step right.
+					nextI++;
+					if (nextJ < 0) {
+						check = 0;
+						put = 0;
+						prev = -1;
+					} else {
+						check = maxRow + 1;
+						put = maxRow;
+						prev = maxRow + 1;
+					}
+					if (nextI <= maxCol + 1) {
+						val = field[nextI][check] - isoValue;
+						if (val < 0) {
+							sum = 1 + prevVal;
+							inCoord = 1 - 0.5 / sum;
+							nextI--;
+							nextJ = put;
+							i = nextI;
+							j = prev;
+							points.push(new Point(nextI + inCoord, put + 0.5));
+							overflowX = 0;
+						}
+					} else {
+						//Top-right or bottom-right corner reached.  Start traversing down/up.
+						points.push(new Point(maxCol + 0.5, put + 0.5));
+						overflowX = 0;
+						overflowY = check == 0? 1 : -1;
+						val = 0;
+					}					
+				}
+
+				prevVal = val;
+			}
+
+			prevI = i;
+			prevJ = j;
+			i = nextI;
+			j = nextJ;
+		} while (i != beginI || j != beginJ);
+		return points;
+	}
+
+	window.TwoDScalarField = function (ptr, space, numX, numY, tMin, tMax, numT, existsBefore, existsAfter) {
+		if (numX !== undefined) {
+			numX = Math.ceil(numX);
+		}
+		if (numY !== undefined) {
+			numY = Math.ceil(numY);
+		}
+		if (numT !== undefined) {
+			numT = Math.ceil(numT);
+		}
+
+		this.ptr = ptr;
+		this.space = space;
+		this.numX = numX;
+		this.numY = numY;
+		this.tMin = tMin;
+		this.tMax = tMax;
+		this.numT = numT;
+		this.existsBefore = existsBefore;
+		this.existsAfter = existsAfter;
+
+		if (space !== undefined) {
+			this.cellWidth = (space.xMax - space.xMin) / numX;
+			this.cellHeight = (space.yMax - space.yMin) / numY;
+		}
+	}
+
+	TwoDScalarField.prototype.toString = function () {
+		var s = "ScalarField2D(" + Eden.edenCodeForValues(this.ptr, this.space, this.numX, this.numY);
+
+		if (this.tMin !== undefined || this.tMax !== undefined || this.numT !== undefined ||
+		 this.existsBefore !== undefined || this.existsAfter !== undefined) {
+			s = s + ", " + Eden.edenCodeForValues(this.tMin, this.tMax, this.numT, this.existsBefore, this.existsAfter);
+		}
+		s = s + ")";
+		return s;
+	}
+
+	TwoDScalarField.prototype.getEdenCode = TwoDScalarField.prototype.toString;
+
+
+	window.KeyFrame2DScalarField = function (fPtr, space, numX, numY, tMin, tMax, numT, existsBefore, existsAfter) {
+		TwoDScalarField.call(this, fPtr, space, numX, numY, tMin, tMax, numT, existsBefore, existsAfter);
+		var f = fPtr.value();
+		this.f = f;
+		var keyFrames = new Array(this.numT);
+		this.keyFrames = keyFrames;
+		var minVals = new Array(this.numT);
+		this.minVals = minVals;
+		var maxVals = new Array(this.numT);
+		this.maxVals = maxVals;
+		var xMin = space.xMin;
+		var yMin = space.yMin;
+		var cellWidth = this.cellWidth;
+		var cellHeight = this.cellHeight;
+		var timeBetweenKeyframes = (tMax - tMin) / (this.numT - 1);
+		
+		for (var k = 0; k < this.numT; k++) {
+			var minVal = Infinity;
+			var maxVal = -Infinity;
+			var t = tMin + k * timeBetweenKeyframes;
+			var field = new Array(this.numX);
+			keyFrames[k] = field;
+
+			for (var i = 0; i < this.numX; i++) {
+				var column = new Array(this.numY);
+				field[i] = column;
+				var x = xMin + (i + 0.5) * cellWidth;
+			
+				for (var j = 0; j < this.numY; j++) {
+					var y = yMin + (j + 0.5) * cellHeight;
+					var value = f(x, y, t);
+					column[j] = value;
+					if (value < minVal) {
+						minVal = value;
+					} else if (value > maxVal) {
+						maxVal = value;
+					}
+				}
+			}
+			minVals[k] = minVal;
+			maxVals[k] = maxVal;
+		}
+	}
+
+	KeyFrame2DScalarField.prototype = new TwoDScalarField();
+
+	KeyFrame2DScalarField.prototype.middleValue = function (i, j, t) {
+		return this.f(
+			this.space.xMin + (i + 1) * this.cellWidth,
+			this.space.yMin + (j + 1) * this.cellHeight,
+			t);
+	}
+
+	KeyFrame2DScalarField.prototype.getValues = function (threshold, t) {
+		var tMin = this.tMin;
+		var tMax = this.tMax;
+
+		if (t !== undefined && (
+		 (t >= tMin || this.existsBefore) &&
+		 (t <= tMax || this.existsAfter))) {
+			var frameNumber = (t - tMin) / (tMax - tMin) * (this.numT - 1);
+			var frameNumberBefore = Math.floor(frameNumber);
+			var frameNumberAfter = Math.ceil(frameNumber);
+
+			if (frameNumberBefore == frameNumberAfter) {
+				return this.keyFrames[frameNumberBefore];
+			} else {
+				var numX = this.numX;
+				var numY = this.numY;
+				var values = new Array(numX);
+				var proportionAfter = frameNumber - frameNumberBefore;
+				var proportionBefore = frameNumberAfter - frameNumber;
+				var keyFrameBefore = this.keyFrames[frameNumberBefore];
+				var keyFrameAfter = this.keyFrames[frameNumberAfter];
+				var beforeMin = this.minVals[frameNumberBefore];
+				var beforeMax = this.maxVals[frameNumberBefore];
+				var afterMin = this.minVals[frameNumberAfter];
+				var afterMax = this.maxVals[frameNumberAfter];
+				var weightedMin = beforeMin * proportionBefore + afterMin * proportionAfter;
+				var weightedMax = beforeMax * proportionBefore + afterMax * proportionAfter;
+				
+				for (var i = 0; i < numX; i++) {
+					var column = new Array(numY);
+					var columnBefore = keyFrameBefore[i];
+					var columnAfter = keyFrameAfter[i];
+					values[i] = column;
+					for (var j = 0; j < numY; j++) {
+						var value1, distance1, value2, distance2;
+						value1 = columnBefore[j];
+						if (value1 >= threshold) {
+							distance1 = (value1 - threshold) / (beforeMax - threshold);
+						} else {
+							distance1 = -(threshold - value1) / (threshold - beforeMin);
+						}
+						value2 = columnAfter[j];
+						if (value2 >= threshold) {
+							distance2 = (value2 - threshold) / (afterMax - threshold);
+						} else {
+							distance2 = -(threshold - value2) / (threshold - afterMin);
+						}
+						var sumDistance = distance1 * proportionBefore + distance2 * proportionAfter;
+						if (sumDistance >= 0) {
+							column[j] = threshold + sumDistance * (weightedMax - threshold);
+						} else {
+							column[j] = threshold + sumDistance * (threshold - weightedMin);
+						}
+					}
+				}
+				return values;
+			}
+		} else {
+			return undefined;
+		}
+	}
+
+
+	window.Static2DScalarField = function (fPtr, space, numX, numY, tMin, tMax, numT, existsBefore, existsAfter) {
+		TwoDScalarField.call(this, fPtr, space, numX, numY, tMin, tMax, numT, existsBefore, existsAfter);
+		var f = fPtr.value();
+		this.f = f;
+		var field = new Array(this.numX);
+		this.field = field;
+		var xMin = space.xMin;
+		var yMin = space.yMin;
+		var cellWidth = this.cellWidth;
+		var cellHeight = this.cellHeight;
+		var t;
+		if (tMin !== undefined && tMax !== undefined) {
+			t = (tMin + tMax) / 2;
+		} else if (tMin !== undefined) {
+			t = tMin;
+		} else if (tMax !== undefined) {
+			t = tMax;
+		} else {
+			t = 0;
+		}
+		this.t = t;
+
+		for (var i = 0; i < this.numX; i++) {
+			var column = new Array(this.numY);
+			field[i] = column;
+			var x = xMin + (i + 0.5) * cellWidth;
+		
+			for (var j = 0; j < this.numY; j++) {
+				var y = yMin + (j + 0.5) * cellHeight;
+				column[j] = f(x, y, t);
+			}
+		}
+	}
+
+	Static2DScalarField.prototype = new TwoDScalarField();
+
+	Static2DScalarField.prototype.middleValue = function (i, j) {
+		return this.f(
+			this.space.xMin + (i + 1) * this.cellWidth,
+			this.space.yMin + (j + 1) * this.cellHeight,
+			this.t);
+	}
+
+	Static2DScalarField.prototype.getValues = function (threshold, t) {
+		var tMin = this.tMin;
+		var tMax = this.tMax;
+
+		if (t === undefined || (
+		 (t >= tMin || tMin === undefined || this.existsBefore !== false) &&
+		 (t <= tMax || tMax === undefined || this.existsAfter !== false))) {
+			return this.field;
+		} else {
+			 return undefined;
+		}
+	}
+
+
+	window.Explicit2DScalarField = function (listPtr, space, numX, numY, tMin, tMax, numT, existsBefore, existsAfter) {
+		var transposed = listPtr instanceof Symbol? listPtr.value() : undefined;
+		var numRows;
+		if (Array.isArray(transposed)) {
+			numRows = transposed.length;
+			if (numX === undefined) {
+				numX = transposed[0].length;
+			}
+		} else {
+			numRows = 0;
+		}
+		if (numY === undefined) {
+			numY = numRows;
+		}
+		TwoDScalarField.call(this, listPtr, space, numX, numY, tMin, tMax, numT, existsBefore, existsAfter);
+		var field = new Array(numX);
+		for (var i = 0; i < numX; i++) {
+			var column = new Array(numY);
+			field[i] = column;
+			for (var j = 0; j < numY && j < numRows; j++) {
+				var row = transposed[j];
+				var numCols = Array.isArray(row)? row.length : 0;
+				if (i < numCols) {
+					column[j] = row[i];
+				} else {
+					column[j] = -Infinity;
+				}
+			}
+			for (var j = numRows; j < numY; j++) {
+				column[j] = -Infinity;
+			}
+		}
+		this.field = field;
+	}
+
+	Explicit2DScalarField.prototype = new TwoDScalarField();
+
+	Explicit2DScalarField.prototype.middleValue = function (i, j) {
+		var field = this.field;
+		return (field[i][j] + field[i+1][j] + field[i][j+1] + field[i+1][j+1]) / 4;
+	}
+
+	Explicit2DScalarField.prototype.getValues = function (threshold, t) {
+		var tMin = this.tMin;
+		var tMax = this.tMax;
+
+		if (t === undefined || (
+		 (t >= tMin || tMin === undefined || this.existsBefore !== false) &&
+		 (t <= tMax || tMax === undefined || this.existsAfter !== false))) {
+			return this.field;
+		} else {
+			 return undefined;
+		}
+	}
+
+
+	window.ContourLine = function (x, y, width, height, isoLine, fillcolour, outlinecolour, drawingOptions) {
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+		this.line = isoLine;
+		this.fillcolour = fillcolour;
+		this.outlinecolour = outlinecolour;
+		this.drawingOptions = drawingOptions;
+	}
+
+	ContourLine.prototype.draw = function (context) {
+
+		this.tracePath(context);
+
+		if (this.fillcolour !== undefined) {
+			edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
+			context.fill("evenodd");
+		}
+
+		if (this.outlinecolour !== undefined) {
+			context.strokeStyle = this.outlinecolour;
+			context.stroke();
+		}
+	}
+
+	ContourLine.prototype.tracePath = function (context) {
+		if (!(this.line instanceof ContourData)) {
+			return;
+		}
+
+		var lineWidth;
+		if (this.drawingOptions !== undefined) {
+			lineWidth = this.drawingOptions.lineWidth || edenUI.plugins.Canvas2D.defaultLineWidth;
+		} else {
+			lineWidth = edenUI.plugins.Canvas2D.defaultLineWidth;
+		}
+		var scale = lineWidth / context.lineWidth;
+		if (this.outlinecolour === undefined) {
+			lineWidth = 0;
+		} else if (lineWidth % 2 == 1) {
+			context.translate(0.5 / scale, 0.5 / scale);
+		}
+
+		var paths = this.line.scalePaths(this.x, this.y, this.width, this.height, scale, lineWidth);
+		context.beginPath();
+		for (var i = 0; i < paths.length; i++) {
+			var path = paths[i];
+			var point = path[0];
+			var startX = point.x;
+			var startY = point.y;
+			context.moveTo(startX, startY);
+			for (var j = 1; j < path.length; j++) {
+				point = path[j];
+				context.lineTo(point.x, point.y);
+			}
+			context.lineTo(startX, startY);
+		}
+	}
+
+	ContourLine.prototype.isHit = function (context, scale, x, y) {
+		this.tracePath(context);
+		return context.isPointInPath(x,y);
+	}
+
+	ContourLine.prototype.toString = function () {
+		return "ContourLine(" + Eden.edenCodeForValues(this.x, this.y, this.width, this.height,
+			this.line, this.fillcolour, this.outlinecolour, this.drawingOptions) + ")";
+	}
+
+	ContourLine.prototype.getEdenCode = ContourLine.prototype.toString;
+	
+}}$;
+
+func EuclideanSpace {
+	${{
+		var xMin, yMin, zMin, xMax, yMax, zMax;
+		if (arguments.length > 4) {
+			xMin = arguments[0];
+			yMin = arguments[1];
+			zMin = arguments[2];
+			xMax = arguments[3];
+			yMax = arguments[4];
+			zMax = arguments[5];
+		} else {
+			xMin = arguments[0];
+			yMin = arguments[1];
+			xMax = arguments[2];
+			yMax = arguments[3];
+		}
+		return new EuclideanSpace(xMin, yMin, zMin, xMax, yMax, zMax);
+	}}$;
+}
+
+func ScalarField2D {
+	${{
+		var dataPtr = arguments[0];
+		var space = arguments[1];
+		var numX = arguments[2];
+		var numY = arguments[3];
+
+		var tMin, tMax, numT, existsBefore, existsAfter;
+		var numArgs = arguments.length;
+		var argsProcessed;
+
+		if (numArgs > 5) {
+			tMin = arguments[4];
+			tMax = arguments[5];
+			argsProcessed = 6;
+			if (numArgs == 9 || typeof(arguments[argsProcessed]) == "number") {
+				numT = arguments[6];
+				argsProcessed++;
+			} else if (tMin === undefined || tMax === undefined || tMin === tMax) {
+				numT = 1;
+			} else {
+				numT = 2;
+			}
+			existsBefore = numArgs > argsProcessed? arguments[argsProcessed] : tMin === undefined;
+			argsProcessed++;
+			existsAfter = numArgs > argsProcessed? arguments[argsProcessed] : tMax === undefined;
+		} else if (numArgs > 4) {
+			tMin = arguments[4];
+			tMax = tMin;
+			numT = 1;
+			existsBefore = true;
+			existsAfter = true;
+		}
+
+		var dataSource = dataPtr instanceof Symbol? dataPtr.value() : undefined;
+
+		if (Array.isArray(dataSource)) {
+			return new Explicit2DScalarField(dataPtr, space, numX, numY, tMin, tMax, numT, existsBefore, existsAfter);
+		} else if (tMin === undefined || tMax === undefined || tMin === tMax || numT === 1) {
+			return new Static2DScalarField(dataPtr, space, numX, numY, tMin, tMax, numT, existsBefore, existsAfter);
+		} else {
+			return new KeyFrame2DScalarField(dataPtr, space, numX, numY, tMin, tMax, numT, existsBefore, existsAfter);
+		}
+	}}$;
+}
+
+func ContourData {
+	${{
+		var field = arguments[0];
+		var isoValue = arguments[1];
+		if (isoValue === undefined) {
+			isoValue = 0;
+		}
+		var t = arguments[2];
+		return new ContourData(field, isoValue, t);
+	}}$;
+}
+
+func ContourLine {
+	${{
+		var x = arguments[0];
+		var y = arguments[1];
+		var width = arguments[2];
+		var height = arguments[3];
+		var line = arguments[4];
+
+		var fillcolour, outlinecolour, drawingOptions;
+		var lastArg = arguments[arguments.length - 1];
+		var processUpTo;
+		if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+			drawingOptions = lastArg;
+			processUpTo = arguments.length - 2;
+		} else {
+			processUpTo = arguments.length - 1;
+		}
+		if (processUpTo >= 5) {
+			fillcolour = arguments[5];
+			if (processUpTo == 6) {
+				outlinecolour = arguments[6];
+			}
+		}
+		if (fillcolour === undefined && outlinecolour === undefined) {
+			outlinecolour = "black";
+		}
+		return new ContourLine(x, y, width, height, line, fillcolour, outlinecolour, drawingOptions);
+	}}$;
+}

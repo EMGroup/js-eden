@@ -1,0 +1,306 @@
+import jspe;
+
+slideIntro is TitledSlide(
+	"Introducing Contour Lines",
+	"<p>The functions introduced in this presentation let you plot contour lines in JS-EDEN.  " //
+	"This facilitates several things.</p>" //
+	"<ul>" //
+		"<li>Plotting a list of data values as a contour line.  For example, an interactive recreation of the contour lines on a map.</li>" //
+		"<li>Drawing shapes that are defined as the union, difference and intersection of other shapes.</li>" //
+		"<li>Drawing shapes where one shape modulates another.  For example, a cog wheel could be " //
+		"described as the outline of a circle modulated by a triangular wave.</li>" //
+		"<li>Drawing shapes that morph over time (or simulated time).</li>" //
+	"</ul>"
+);
+
+slideLoading is TitledSlide(
+	"Step 1: Load the Plug-In",
+	"<p>Contour lines are part of the canvas plug-in but they're an optional part that isn't loaded " //
+	"by default.</p>" //
+	"<jseden>" //
+	"import plugins/canvas/contourLine;" //
+	"</jseden>"
+);
+
+slideSpace is TitledSlide(
+	"Step 2: Describing the Space",
+	"<p>The general idea is that we have some <dfn>data source</dfn>, that is to say, some way of " //
+	"expressing a bunch of numbers, each one associated with a point in a two-dimensional space.  If a " //
+	"number is greater than or equal to a certain <dfn>threshold value</dfn> then the associated " //
+	"point is inside the boundary of the shape, otherwise it's outside.</p>" //
+	"<p>There are actually two spaces, the <dfn>data space</dfn> (which the data source is concerned " //
+	"with) and the <dfn>visual space</dfn> where the shape appears on the screen.  The latter is a " //
+	"scaled and translated version of the former.</p>" //
+	"<p>We begin by defining the boundaries of the data space.</p>" //
+	"<jseden>" //
+	"xMin = 0; \n" //
+	"yMin = 0; \n" //
+	"xMax = 10; \n" //
+	"yMax = 10; \n" //
+	"space is EuclideanSpace(xMin, yMin, xMax, yMax);" //
+	"</jseden>" //
+	"<p>Note that in the example on the following slide we don't actually make use of the space that " //
+	"we've just defined.  This is because of the very simple nature of the data source that's used for " //
+	"the first example.</p>" //
+	"<p>Use an Observable List to keep track of the various observables as we define them.</p>" //
+	"<jseden>" //
+	"showObservables();" //
+	"</jseden>"
+);
+
+slideExplicitData is TitledSlide(
+	"Step 3: Create a Data Source",
+	"<p>The actual data values can be provided in four different ways.</p>" //
+	"<ol>" //
+	"<li>By providing the values explicitly by passing a pointer to a list of lists of numbers to the <code>ScalarField2D</code> " //
+	"function.  This is good for learning about how the contour searching process works or if you " //
+	"have pre-recorded data that has been captured by some measuring instrument.</li>" //
+	"<li>By providing a function that can be invoked to determine the field value for arbitrary <var>x</var> " //
+	"and <var>y</var> values in the data space (or arbitrary <var>x</var>, <var>y</var> <em>and <var>t</var></em> " //
+	"(time) values) by passing a pointer to a function to <code>ScalarField2D</code>.</li>" //
+	"<li>By passing a pointer to an object returned by one of standard built-in drawing functions, " //
+	"for example <code>Circle</code> or <code>Rectangle</code>, to <code>ScalarField2D</code>. " // "<strong>Forthcoming.</strong></li>" //
+	"<li>By writing a dependency that yields an observable of numeric type.  The dependency will have " //
+	"the <code>x</code>, <code>y</code> and optionally <code>t</code> observables repeatedly overridden " //
+	"to obtain multiple resultant values using a form of implicit (system-defined) scoping.  A " //
+	"pointer to the numeric typed observable is passed to <code>ScalarField2D</code>. " // "<strong>Forthcoming.</strong></li>" //
+	"</ol>" //
+	"<p>We'll start with an example where the numbers are given explicitly because it's easier to " //
+	"understand that way.  We'll start with a simple octagon shape.</p>" //
+	"<jseden>" //
+	"dataList = [ \n" //
+	"  [0,0,0,0,0,0,0], \n" //
+	"  [0,0,1,1,1,0,0], \n" //
+	"  [0,1,1,1,1,1,0], \n" //
+	"  [0,1,1,1,1,1,0], \n" //
+	"  [0,0,1,1,1,0,0], \n" //
+	"  [0,0,0,0,0,0,0]]; \n" //
+	"\n" //
+	"field is ScalarField2D(&dataList);" //
+	"</jseden>" //
+	"<p>Since we've provided the data explicitly, <code>ScalarField2D</code> is basically just a " //
+	"wrapper object in this case.  However, if we'd provided a pointer to a function then at this " //
+	"point the function would already have been invoked for the required number of sample points " //
+	"to produce a representation analogous to our <code>dataList</code> observable but hidden inside " //
+	"the object returned by the <code>ScalarField2D</code> function.</p>" //
+	"<p>You can probably guess that in the next step we're going to use 1 as the " //
+	"<em>threshold value</em> to make the zeros stand for the space outside of our octagon shape and " //
+	"to make the ones stand for the space inside.</p>" //
+	"<p>In this example the position of the points in the data space is defined by the positions of " //
+	"of the values in the array.  The size of the data space is defined by the size of the " //
+	"array.  Thus we notionally have a data space that ranges from (1,&nbsp;1) to (7,&nbsp;6) and our samples " //
+	"are 1&nbsp;unit apart.  Other methods of providing a data source require explicit specifications " //
+	"of both the data space and the sampling frequency.</p>"
+);
+
+slideComputeContour is TitledSlide(
+	"Step 4: Compute the Contour",
+	"<p>So far all we've got is a bunch of numbers.  So the next step is to apply the threshold and " //
+	"trace the outline of the shape.</p>" //
+	"<jseden>" //
+	"threshold = 1; \n" //
+	"contour is ContourData(field, threshold);" //
+	"</jseden>" //
+	"<p>Now we have an abstract specification of a shape but not an actual shape that we can project onto " //
+	"the screen.  This is analogous to how the environment comes preconfigured with a <code>Circle</code> " //
+	"function for drawing circles but doesn't have any concrete instantiations of circles specified.</p>"
+);
+
+slideSpecifyShape is TitledSlide(
+	"Step 5: Style the Shape",
+	"<p>In the previous step we computed the shape of the contour line but so far it's still an " //
+	"abstract representation of a shape without any visual representation.  We now need to size and " //
+	"position the shape in whatever way is appropriate to our needs and (if necessary) add any " //
+	"visual characteristics that we might like (for example choosing particular colours).</p>" //
+	"<p>For our testing purposes we would like the shape to fill the canvas.  However, it is helpful " //
+	"if the square cells in the data space are preserved as square cells in the visual " //
+	"space.  The following calculations work out the width and height required (in pixels) to " //
+	"achieve this goal.</p>" //
+	"<jseden>" //
+	"gridSize is min((_view_picture_width - 2) / dataList[1]#, (_view_picture_height - 2) / dataList#); \n" //
+	"width is dataList[1]# * gridSize + 2; \n" //
+	"height is dataList# * gridSize + 2; \n" //
+	"x = 0; \n" //
+	"y = 0;" //
+	"</jseden>" //
+	"<p>And here's how we position, size and style the shape:</p>" //
+	"<jseden>" //
+	"shape is ContourLine(x, y, width, height, contour, \"cyan\", \"black\");" //
+	"</jseden>" //
+	"<p>One reason for having separate <code>ContourData</code> and <code>ContourLine</code> functions " //
+	"is because it's much more computationally efficient to do things this way, given the limitations " //
+	"of the way JS-EDEN works.  The shape can be moved around the screen freely without having to " //
+	"recompute the outline from scratch each time.</p>"
+);
+
+slidePictureList is TitledSlide(
+	"Step 6: Add to the Picture List",
+	"<p>Finally, add the shape to the picture list in the usual way.</p>" //
+	"<jseden>" //
+	"picture is [shape];" //
+	"</jseden>"
+);
+
+slideFunction is TitledSlide(
+	"Using a Function",
+	"<p>Remember that we previously configured a data space that was the portion of the Euclidean plane " //
+	"bounded by (0,&nbsp;0) and (10,&nbsp;10) but that this definition remained unused.  We will now use this space " //
+	"in combination with a new data source to create a new shape.</p>" //
+	"<p>Firstly, a reminder of the definition of the data space.</p>" //
+	"<jseden>" //
+	"xMin = 0; \n" //
+	"yMin = 0; \n" //
+	"xMax = 10; \n" //
+	"yMax = 10; \n" //
+	"space is EuclideanSpace(xMin, yMin, xMax, yMax);" //
+	"</jseden>" //
+	"<p>A shape doesn't necessarily fill the available space, that is to say that its outline doesn't " //
+	"necessarily touch any of the edges of the rectangle defined above.  For tutorial purposes, let's add " //
+	"a visualization of the space itself so that the space reserved for drawing the contour is " //
+	"distinct from other blank parts of the canvas.</p>" //
+	"<jseden>" //
+	"spaceVisualization is Rectangle(x, y, width, height, \"#FFFFBB\"); \n" //
+	"picture is [spaceVisualization, shape];" //
+	"</jseden>" //
+	"<p>Next, we define a function that will return the threshold value when invoked for points that lie " //
+	"on the circumference of a circle centred on (5,&nbsp;5), values greater than the threshold for " //
+	"points inside the circle, and values less than the threshold value for points outside the circle.</p>" //
+	"<jseden>" //
+	"func isoCircle { \n" //
+	"	para x, y; \n" //
+	"	return 5 - sqrt((x - 5)^2 + (y - 5)^2); \n" //
+	"}" //
+	"</jseden>" //
+	"<p>We need to decide on the number of points to sample.  Sampling more points makes the image resemble " //
+	"a more accurate approximation of a circle, at the cost of more computation and increased " //
+	"calculation time.  We will sample 170 points along the shortest dimension.</p>" //
+	"<jseden>" //
+	"samples = 170; \n" //
+	"samplesX is samples if width >= height else samples * width / height; \n" //
+	"samplesY is samples if height >= width else samples * height / width;" //
+	"</jseden>" //
+	"<p>We need to make a few adjustments to our test environment scaffolding.  Ordinarily you could " //
+	"use fixed width and height values in many cases.</p>" //
+	"<jseden>" //
+	"gridSize is min((_view_picture_width - 2) / (xMax - xMin), (_view_picture_height - 2) / (yMax - yMin)); \n" //
+	"width is gridSize * (xMax - xMin); \n" //
+	"height is gridSize * (yMax - yMin);" //
+	"</jseden>" //
+	"<p>Okay, let's use our <code>isoCircle</code> function to define a new data source!</p>" //
+	"<jseden>" //
+	"threshold = 0.5; \n" //
+	"field is ScalarField2D(&isoCircle, space, samplesX, samplesY);" //
+	"</jseden>" //
+	"<p>Because the environment already has a built-in <code>Circle</code> function, we can use it "// 
+	"to test how accurately our contour line model of a circle matches a perfect circle.</p>" //
+	"<jseden>" //
+	"perfectCircle is Circle(x + width / 2, y + height / 2, (width / (xMax - xMin) * (xMax - xMin - threshold * 2)) / 2, \"red\", ${{ {opacity: 0.75} }}$); \n" //
+	"picture is [spaceVisualization, shape, perfectCircle];" //
+	"</jseden>" //
+	"<p>Try changing the value of the <code>samples</code> observable to see how it affects the image.</p>" //
+	"<p>Code to disable the overlay:</p>" //
+	"<jseden>" //
+	"picture is [spaceVisualization, shape];" //
+	"</jseden>"
+);
+
+slideMorphing is TitledSlide(
+	"Morphing Between Shapes",
+	"<p>This slide demonstrates how to create a shape that morphs over time.  In our previous " //
+	"example our <code>isoCircle</code> function just took two parameters, <var>x</var> and <var>y</var>. "//
+	"Now we need a function that takes three parameters, <var>x</var>, <var>y</var> and <var>t</var>. " //
+	"There are two ways of doing this.</p>" //
+	"<ol>" //
+	"<li>We could directly write a function that takes three parameters.  This would be good if we " //
+	"had a phenomenon where time was an intrinsic part of our experience.</li>" //
+	"<li>We can take two static shapes and blend them together.</li>" //
+	"</ol>" //
+	"<p>Our example will follow the second path.  We have our <code>isoCircle</code> function. " //
+	"Now let's define another, <code>isoRectangle</code>.</p>" //
+	"<jseden>" //
+	"func isoSquare { \n" //
+	"	para x, y; \n" //
+	"	return 4 - abs(x - 5) - abs(y - 5); \n" //
+	"}" //
+	"</jseden>" //
+	"<p>And now, a way to combine the two functions based on time.</p>" //
+	"<jseden>" //
+	"import lib/functional; \n" //
+	"\n" //
+	"func morph { \n" //
+	"	para f1, f2, t1, t2, x, y, t; \n" //
+	"	auto proportion; \n" //
+	"	if (t <= t1) { \n" //
+	"		return f1(x, y); \n" //
+	"	} else if (t >= t2) { \n" //
+	"		return f2(x, y); \n" //
+	"	} else { \n" //
+	"		proportion = (t - t1) / (t2 - t1); \n" //
+	"		return f1(x, y) * (1 - proportion) + f2(x, y) * proportion; \n" //
+	"	} \n" //
+	"} \n" //
+	"\n" //
+	"squareToCircle is curry(morph, isoCircle, isoSquare, 0, 10);" //
+	"</jseden>" //
+	"<p>This defines <code>squareToCircle</code> as a function that gives the contour line of a square " //
+	"for <var>t</var>&nbsp;&le;&nbsp;0, the contour line of a circle at <var>t</var>&nbsp;&ge;&nbsp;10, and a linear " //
+	"combination of the two for 0&nbsp;&lt;&nbsp;<var>t</var>&nbsp;&lt;&nbsp;10.</p>" //
+	"<p>Next we take our data source and evaluate the function for all of the sample data points, " //
+	"this time sampling <em>across space and time</em>.  <strong>N.B. The following code will take a " //
+	"long time to execute.  Wait until the existing shape disappears from view.</strong></p>" //
+	"<jseden>" //
+	"samples = 170; \n" //
+	"field is ScalarField2D(&squareToCircle, space, samplesX, samplesY, 0, 10, 2, true, true);" //
+	"</jseden>" //
+	"<p>This computes the contour between 0&nbsp;&le;&nbsp;<var>t</var>&nbsp;10 using <em>two key " //
+	"frames</em> (i.e. two time samples).  We capture <code>samplesX</code>&nbsp;&times;&nbsp;<code>samplesY</code> " //
+	"sample points at <var>t</var>&nbsp;=&nbsp;0, and another <code>samplesX</code>&nbsp;&times;&nbsp;<code>samplesY</code> " //
+	"samples at <var>t</var>&nbsp;=&nbsp;10.  If there were three key frames then another " // "<code>samplesX</code>&nbsp;&times;&nbsp;<code>samplesY</code> samples would be taken at " //
+	"<var>t</var>&nbsp;=&nbsp;5.  The final two arguments determine how the shape appears outside of " //
+	"time period when the samples are taken, i.e. for <var>t</var>&nbsp;&lt;&nbsp;0 and " //
+	"<var>t</var>&nbsp;&gt;&nbsp;10 respectively.  In this case the shape remains as a square for " //
+	"<var>t</var>&nbsp;&lt;&nbsp;0 and remains as a circle for <var>t</var>&nbsp;&gt;&nbsp;10. If " //
+	"one or both of these arguments were given the value <code>false</code> then no shape would be " //
+	"drawn at all for the relevant time period(s).</p>" //
+	"<p>The shape has disappeared because we haven't yet set the \"current time\" value.</p>" //
+	"<jseden>" //
+	"contour is ContourData(field, threshold, t); \n" //
+	"t = 0;"//
+	"</jseden>" //
+	"<p>Let's create a little time travelling interface.</p>" //
+	"<jseden>" //
+	"timeSlider is Slider(0, 10, 0.25, x + width * 0.05, _view_picture_height - 15, width * 0.9); \n" //
+	"picture is [spaceVisualization, shape, timeSlider]; \n" //
+	"t is timeSlider_preview;" //
+	"</jseden>" //
+	"<p>Linear interpolation is automatically applied between key frames.  Thus much of our <code>morph</code> " //
+	"function is redundant because we only have two key frames so <code>morph</code> is only ever called when " //
+	"<var>t</var> is equal to <code>t1</code> or <code>t2</code>.  The system-implemented interpolation " //
+	"is slightly different to <code>morph</code> so you might see some differences but it is still " //
+	"essentially linear.  Hopefully though you can see the potential to use a function not dissimilar " //
+	"to <code>morph</code> to model transitions between three or more basic shapes with either " //
+	"linear or non-linear changes.</p>"
+);
+
+slideFutureWork is BulletSlide(
+	"Work Outstanding", [
+		"Handle Pattern&nbsp;10 when the lines are flipped to look like Pattern&nbsp;5. (Elizabeth knows " //
+		"what this means&mdash;simple.)",
+		"The present implementation \"wastes\" a lot of time evaluating the function for many cells that " //
+		"are either wholly enclosed within the shape or wholly outside of it.  Consider moving to 2 (or 3?) " //
+		"layer implementation where we would first sample on a coarse grid and then subdivide those cells where " //
+		"outline lies into smaller grids of cells.  Disadvantage: if you have a shape such as an annulus " //
+		"and furthermore the size of the \"hole\" in the middle is very small then coarse sampling won't " //
+		"detect it, thus an annulus will be turned into (approximated by) a circle.  A multi-layered " //
+		"approach won't be as accurate as a fine grained grid in all situations, but it would be an " //
+		"additional option for performance vs. accuracy trade-off (which is what the whole " //
+		"implementation is about), and potentially a very valuable option.",
+		"The interpolation between key frames isn't quite fast enough to play back in real-time. " //
+		"Ideas needed.  (More pre-computation ahead of time?)",
+		"3D version needed.  Same principles, different case by case analysis.  Valuable experiences " //
+		"learned from 2D implementation.  Need 3D canvas apparatus as a prerequisite."
+	]
+);
+
+slideList is [slideIntro, slideLoading, slideSpace, slideExplicitData, slideComputeContour,
+	slideSpecifyShape, slidePictureList, slideFunction, slideMorphing, slideFutureWork];
