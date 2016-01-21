@@ -10,6 +10,76 @@ hsl2colour is hslColour;
 rgb2colour is rgbColour;
 _view_list is _views_list;
 
+##Buttons now support images on them.
+func Button {
+${{
+	var argsProcessed, arg, argType;
+	var name, label, imageURL;
+
+	if (typeof(arguments[1]) == "string") {
+		name = arguments[0];
+		label = arguments[1];
+		argsProcessed = 2;
+		arg = arguments[2];
+		argType = typeof(arg);
+		if (argType == "string") {
+			imageURL = arg;
+			argsProcessed++;
+			arg = arguments[3];
+		}
+	} else {
+		name = root.currentObservableName();
+		if (name === undefined) {
+			eden.error(new Error("Button: Every button must have a name."), "error");
+			return undefined;
+		}
+		label = arguments[0];
+		argsProcessed = 1;
+		arg = arguments[1];
+	}
+
+	var x = arg;
+	argsProcessed++;
+	var y = arguments[argsProcessed];
+	argsProcessed++;
+	arg = arguments[argsProcessed];
+	argType = typeof(arg);
+
+	var width, minHeight, enabled;
+
+	if (argType == "number") {
+		width = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);
+
+		if (argType == "number") {
+			minHeight = arg;
+			argsProcessed++;
+			arg = arguments[argsProcessed];
+			argType = typeof(arg);
+		}
+	}
+
+	if (argType == "boolean") {
+		enabled = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);	
+	} else {
+		enabled = true;
+	}
+
+	if (argsProcessed < arguments.length - 2) {
+		argsProcessed = arguments.length - 2;
+	}
+
+	var fillcolour = arguments[argsProcessed];
+	var textcolour = arguments[argsProcessed + 1];
+	return new Button(name, label, imageURL, x, y, width, minHeight, enabled, fillcolour, textcolour);
+}}$;
+}
+
 ##Checkboxes now have an optional label argument.
 func Checkbox { ${{
   var name = arguments[0];
