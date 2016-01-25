@@ -79,27 +79,18 @@ func Line { ${{
 
 ${{
 
-Line.prototype.draw = function(context) {
+Line.prototype.draw = function(context, scale) {
 	context.beginPath();
-	if (this.colours.length == 1) {
-		context.strokeStyle = this.colours[0];
-	} else {
-		var gradient = context.createLinearGradient(this.x1, this.y1, this.x2, this.y2);
-		for (var i = 0; i < this.colours.length; i++) {
-			gradient.addColorStop(i / (this.colours.length - 1), this.colours[i]);
-		}
-		context.strokeStyle = gradient;
-	}
 	var xShift1, xShift2, yShift1, yShift2;
 	if (this.drawingOptions !== undefined) {
-		var scale = (this.drawingOptions.lineWidth || edenUI.plugins.Canvas2D.defaultLineWidth) / context.lineWidth;
-		var width = (context.lineWidth / 2 + 0.5 / scale) / Math.SQRT2;
+		var zoom = (this.drawingOptions.lineWidth || edenUI.plugins.Canvas2D.defaultLineWidth) / context.lineWidth;
+		var width = (context.lineWidth / 2 + 0.5 / zoom) / Math.SQRT2;
 		xShift1 = this.xShift1 * width;
 		xShift2 = this.xShift2 * width;
 		yShift1 = this.yShift1 * width;
 		yShift2 = this.yShift2 * width;
 		if ((this.xShift1 == 0 || this.yShift1 == 0) && this.drawingOptions.lineWidth % 2 == 1) {
-			context.translate(0.5 / scale, 0.5 / scale);
+			context.translate(0.5 / zoom, 0.5 / zoom);
 		}
 	} else {
 		xShift1 = 0;
@@ -107,9 +98,29 @@ Line.prototype.draw = function(context) {
 		yShift1 = 0;
 		yShift2 = 0;
 	}
-	context.moveTo(this.x1 + xShift1, this.y1 + yShift1);
-	context.lineTo(this.x2 + xShift2, this.y2 + yShift2);
+	var x1 = this.x1 + xShift1;
+	var y1 = this.y1 + yShift1;
+	var x2 = this.x2 + xShift2;
+	var y2 = this.y2 + yShift2;
+
+	if (this.colours.length == 1) {
+		context.strokeStyle = this.colours[0];
+	} else {
+		var colourGradient = context.createLinearGradient(x1, y1, x2, y2);
+		for (var i = 0; i < this.colours.length; i++) {
+			colourGradient.addColorStop(i / (this.colours.length - 1), this.colours[i]);
+		}
+		context.strokeStyle = colourGradient;
+	}
+
+	context.moveTo(x1, y1);
+	context.lineTo(x2, y2);
 	context.stroke();
+
+	if (this.drawingOptions !== undefined && this.drawingOptions.arrowhead instanceof Arrowhead) {
+		var gradient = (y2 - y1) / (x2 - x1);
+		this.drawingOptions.arrowhead.draw(context, scale, x1, y1, gradient, false, x2, y2, gradient, false);
+	}
 };
 
 Line.prototype.toString = function() {

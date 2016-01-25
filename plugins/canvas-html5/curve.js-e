@@ -141,7 +141,7 @@ func Curve {
 radiansPerUnit ~> [Curve];
 
 ${{
-	Curve.prototype.draw = function (context) {
+	Curve.prototype.draw = function (context, scale) {
 		if (this.colours.length == 1) {
 			context.strokeStyle = this.colours[0];
 		} else {
@@ -159,6 +159,30 @@ ${{
 		context.bezierCurveTo(this.deltaX1, this.deltaY1, this.length1 - this.delta1, this.radius, this.length1, this.radius);
 		context.bezierCurveTo(this.length1 + this.delta2, this.radius, this.fullLength - this.deltaX2, this.deltaY2, this.fullLength, 0);
 		context.stroke();
+
+		if (this.drawingOptions !== undefined && this.drawingOptions.arrowhead instanceof Arrowhead) {
+			var gradient1, gradient2, t, x1, y1;
+			if (this.deltaX1 == 0 && this.deltaY1 == 0) {
+				t = 0.01;
+				x1 = 3 * (1 - t) * t * t * (this.length1 - this.delta1) + t * t * t * this.length1;
+				y1 = 3 * (1 - t) * t * t * this.radius + t * t * t * this.radius;
+				gradient1 = y1 / x1;
+			} else {
+				gradient1 = this.deltaY1 / this.deltaX1;
+			}
+			if (this.deltaX2 == 0 && this.deltaY2 == 0) {
+				t = 0.99;
+				x1 = (1 - t) * (1 - t) * (1 - t) * this.length1 +
+					3 * (1 - t) * (1 - t) * t * (this.length1 + this.delta2) +
+					3 * (1 - t) * t * t * this.fullLength +
+					t * t * t * this.fullLength;
+				y1 = (1 - t) * (1 - t) * (1 - t) * this.radius + 3 * (1 - t) * (1 - t) * t * this.radius;
+				gradient2 = -y1 / (this.fullLength - x1);
+			} else {
+				gradient2 = -this.deltaY2 / this.deltaX2;
+			}
+			this.drawingOptions.arrowhead.draw(context, scale, 0, 0, gradient1, false, this.fullLength, 0, gradient2, false);
+		}
 	};
 
 	Curve.prototype.toString = function () {

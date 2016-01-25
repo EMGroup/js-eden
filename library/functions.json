@@ -804,6 +804,17 @@
 			"return": "",
 			"description": ""
 		},
+		"Arrowhead": {
+			"parameters": {
+				"[is_at_start": "",
+				"is_at_end]": "",
+				"[[width]": "",
+				"length]": "",
+				"is_filled": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"EuclideanSpace": {
 			"parameters": {
 				"x_min": "",

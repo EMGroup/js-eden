@@ -55,10 +55,10 @@ func LineSequence { ${{
 }}$; };
 
 ${{
-LineSequence.prototype.draw = function(context) {
+LineSequence.prototype.draw = function(context, scale) {
 	if (this.drawingOptions !== undefined && this.drawingOptions.lineWidth % 2 == 1) {
-		var scale = this.drawingOptions.lineWidth / context.lineWidth;
-		context.translate(0.5 / scale, 0.5 / scale);
+		var zoom = this.drawingOptions.lineWidth / context.lineWidth;
+		context.translate(0.5 / zoom, 0.5 / zoom);
 	}
 
 	context.beginPath();
@@ -78,7 +78,18 @@ LineSequence.prototype.draw = function(context) {
 		context.lineTo(this.vertices[i].x, this.vertices[i].y);
 	}
 	
-	context.stroke();	
+	context.stroke();
+
+	if (this.drawingOptions !== undefined && this.drawingOptions.arrowhead instanceof Arrowhead) {
+		var vertex0 = this.vertices[0];
+		var vertex1 = this.vertices[1];
+		var vertexN = this.vertices[maxVertex];
+		var vertexNMinus1 = this.vertices[maxVertex - 1];
+		var gradient1 = (vertex1.y - vertex0.y) / (vertex1.x - vertex0.x);
+		var gradient2 = (vertexN.y - vertexNMinus1.y) / (vertexN.x - vertexNMinus1.x);
+		this.drawingOptions.arrowhead.draw(context, scale, vertex0.x, vertex0.y, gradient1, false,
+			vertexN.x, vertexN.y, gradient2, false);
+	}	
 };
 
 LineSequence.prototype.toString = function() {

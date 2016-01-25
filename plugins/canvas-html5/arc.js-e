@@ -51,13 +51,13 @@ radiansPerUnit ~> [Arc];
 
 ${{
 
-Arc.prototype.draw = function(context) {
+Arc.prototype.draw = function(context, scale) {
 	var anticlockwise;
 	if (this.drawingOptions !== undefined && "direction" in this.drawingOptions) {
 		var directionName = this.drawingOptions.direction;
 		var turnedThroughAC = this.eRadians - this.sRadians;
 		if (this.eRadians < this.sRadians) {
-			turnedThroughAC = turnedThroughAC + twoPI;
+			turnedThroughAC = turnedThroughAC + 2 * Math.PI;
 		}
 		switch (directionName) {
 		case "anticlockwise":
@@ -86,10 +86,36 @@ Arc.prototype.draw = function(context) {
 		//Default to "auto" 
 		anticlockwise = this.sAngle < this.eAngle;
 	}
+	var sRadians = this.sRadians;
+	var eRadians = this.eRadians;
+	var r = this.r - context.lineWidth / 2;
 	context.beginPath();
-	context.arc(this.x, this.y, this.r - context.lineWidth / 2, -this.sRadians, -this.eRadians, anticlockwise);
+	context.arc(this.x, this.y, r, -sRadians, -eRadians, anticlockwise);
 	context.strokeStyle = this.colour;
 	context.stroke();
+
+	if (this.drawingOptions !== undefined && this.drawingOptions.arrowhead instanceof Arrowhead) {
+		var cos1 = Math.cos(-sRadians);
+		var sin1 = Math.sin(-sRadians);
+		var cos2 = Math.cos(-eRadians);
+		var sin2 = Math.sin(-eRadians);
+		var x1 = this.x + r * cos1;
+		var y1 = this.y + r * sin1;
+		var x2 = this.x + r * cos2;
+		var y2 = this.y + r * sin2;
+		var gradient1 = -cos1 / sin1;
+		var gradient2 = -cos2 / sin2;
+		var reverse1, reverse2;
+		if (anticlockwise) {
+			reverse1 = sRadians <= Math.PI;
+			reverse2 = eRadians <= Math.PI;
+		} else {
+			reverse1 = sRadians > Math.PI;
+			reverse2 = eRadians > Math.PI;
+		}
+		this.drawingOptions.arrowhead.draw(context, scale, x1, y1, gradient1, reverse1, x2, y2,
+			gradient2, reverse2);
+	}
 };
 
 Arc.prototype.toString = function() {
