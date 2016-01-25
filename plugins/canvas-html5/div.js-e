@@ -117,7 +117,6 @@ Div.prototype.draw = function(context) {
 		this.fontSizeUnits = match[2];
 	}
 
-	//Create object properties that record the automatically generated width and/or height.
 	if (this.name !== undefined) {
 		divElement.onmousedown = function (event) {
 			var mouseFollow = root.lookup("mouseFollow").value();
@@ -131,28 +130,57 @@ Div.prototype.draw = function(context) {
 			root.lookup("mouseZone").assign(event.target.id, Symbol.hciAgent, mouseFollow);
 		};
 		edenUI.plugins.Canvas2D.initZoneFromName(name, "Div")
+	}
 
-		var widthSymName = this.name + "_width";
-		var heightSymName = this.name + "_height";
-		if (this.width === undefined || this.height === undefined || widthSymName in root.symbols || heightSymName in root.symbols) {
-			var objectElement = document.createElement("object");
-			objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
-			objectElement.onload = function () {
-				var resizeAction = function () {
-					if (me.width === undefined || widthSymName in root.symbols) {
-						root.lookup(widthSymName).assign(me.elements[0].clientWidth);
-					}
-					if (me.height === undefined || heightSymName in root.symbols) {
-						root.lookup(heightSymName).assign(me.elements[0].clientHeight);
-					}
-				};
-				resizeAction();
-				this.contentDocument.defaultView.addEventListener("resize", resizeAction);
-			};
-			objectElement.type = "text/html";
-			objectElement.data = "about:blank";
-			divElement.appendChild(objectElement);
+	//Create object properties that record the automatically generated width and/or height.
+	if (this.width === undefined || this.name !== undefined) {
+		var objectElement = document.createElement("object");
+		objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; " + 
+			"height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
+
+		this.resize = function () {
+			if (!me.displayed) {
+				return;
+			}
+			var element = me.elements[0];
+			var style = element.style;
+			var autoWidth = me.width === undefined;
+			var autoHeight = me.height === undefined;
+
+			if (autoWidth) {
+				var savedHeight = style.height;
+				style.width = "auto";
+				style.height = "auto";
+				var contentWidth = element.clientWidth;
+				style.width = contentWidth + "px";
+				style.height = savedHeight;
+				var scrollBarSize = element.offsetWidth - element.clientWidth;
+				if (scrollBarSize > 0) {
+					scrollBarSize = scrollBarSize + 2;
+				}
+				style.width = String(contentWidth + scrollBarSize) + "px";
+			}
+
+			if (me.name !== undefined) {
+				var widthSymName = me.name + "_width";
+				var heightSymName = me.name + "_height";
+				var scale = me.cachedScale;
+
+				if (autoWidth || widthSymName in root.symbols) {
+					root.lookup(widthSymName).assign(element.offsetWidth / scale);
+				}
+				if (autoHeight || heightSymName in root.symbols) {
+					root.lookup(heightSymName).assign(element.offsetHeight /scale);
+				}
+			}
+		};
+		objectElement.onload = function () {
+			me.displayed = true;
+			me.resize();
 		}
+		objectElement.type = "text/html";
+		objectElement.data = "about:blank";
+		divElement.appendChild(objectElement);
 	}
 
 	this.elements = [divElement];
@@ -182,6 +210,8 @@ Div.prototype.scale = function (scale, zoom , origin) {
 			style.fontSize = zoom + "em";
 		}
 	}
+	this.cachedScale = scale;
+	this.resize();
 };
 
 Div.prototype.toString = function() {

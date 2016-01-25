@@ -40,12 +40,6 @@ func Rectangle { ${{
 	if (fillcolour === undefined && outlinecolour === undefined) {
 		outlinecolour = "black";
 	}
-	if (drawingOptions !== undefined) {
-		if (!("join" in drawingOptions) && drawingOptions.lineWidth < 10) {
-			//Bug in Chrome v44, shape isn't drawn when miter join is used with larger line widths.
-			drawingOptions.join = "miter"
-		}
-	}
 	return new Rectangle(x, y, width, height, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
@@ -55,6 +49,12 @@ Rectangle.prototype.draw = function (context) {
 	var lineWidth;
 	if (this.outlinecolour !== undefined) {
 		lineWidth = context.lineWidth;
+		if (this.drawingOptions !== undefined) {
+			if (!("join" in this.drawingOptions) && lineWidth < 10) {
+				//Bug in Chrome v44, shape isn't drawn when miter join is used with larger line widths.
+				context.lineJoin = "miter"
+			}
+		}
 	} else {
 		lineWidth = 0;
 	}
