@@ -804,6 +804,17 @@
 			"return": "",
 			"description": ""
 		},
+		"Arrowhead": {
+			"parameters": {
+				"[is_at_start": "",
+				"is_at_end]": "",
+				"[[width]": "",
+				"length]": "",
+				"is_filled": ""
+			},
+			"return": "",
+			"description": ""
+		},
 		"EuclideanSpace": {
 			"parameters": {
 				"x_min": "",
@@ -1099,6 +1110,7 @@
 			"parameters": {
 				"[name]": "Prefix for _clicked observable.  Default is the name of the observable being defined.",
 				"label": "Text for the button",
+				"[imageURL]": "",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[width": "Width, in pixels",

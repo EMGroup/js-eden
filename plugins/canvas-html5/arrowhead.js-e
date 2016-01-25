@@ -1,0 +1,214 @@
+
+${{
+	Arrowhead = function(start, end, length, width, filled) {
+		this.start = start;
+		this.end = end;
+		this.length = length;
+		this.width = width;
+		this.filled = filled;
+	};
+
+	Arrowhead.prototype.toString = function () {
+		return "Arrowhead(" + Eden.edenCodeForValues(this.start, this.end, this.length, this.width,
+			this.filled) + ")";
+	};
+
+	Arrowhead.prototype.getEdenCode = Arrowhead.prototype.toString;
+
+	Arrowhead.prototype.draw = function (context, scale, x1, y1, gradient1, reverse1, x2, y2, gradient2, reverse2) {
+		var invGradient, len1, len2, len3, p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y;
+		var lineWidth = context.lineWidth;
+		var adjustment = lineWidth / 4;
+		var filled = this.filled;
+
+		var width = this.width;
+		var length = this.length;
+
+		if (length === undefined) {
+			if (lineWidth <= 4) {
+				length = 10 / scale;
+			} else {
+				length = lineWidth * 2.5 / scale;
+			}
+		} else {
+			length = length / scale;
+		}
+		if (width === undefined) {
+			width = length / 2;
+		} else {
+			width = (width / 2) / scale;
+		}
+
+		context.fillStyle = context.strokeStyle;
+
+		if (this.start) {
+			invGradient = - 1 / gradient1;
+			if ((reverse1 && invGradient == Infinity) || (!reverse1 && invGradient == -Infinity)) {
+				//Horizontal left
+				p1x = x1 + length;
+				p1y = y1 - width;
+				p2x = p1x;
+				p2y = y1 + width;
+				p3x = x1 + adjustment;
+				p3y = y1;
+			} else if (gradient1 == 0) {
+				//Horizontal right
+				p1x = x1 - length;
+				p1y = y1 - width;
+				p2x = p1x;
+				p2y = y1 + width;
+				p3x = x1 - adjustment;
+				p3y = y1;
+			} else if ((reverse1 && gradient1 == -Infinity) || (!reverse1 && gradient1 == Infinity)) {
+				//Vertical upward
+				p1x = x1 - width;
+				p1y = y1 + length;
+				p2x = x1 + width;
+				p2y = p1y;
+				p3x = x1;
+				p3y = y1 + adjustment;
+			} else if (gradient1 == Infinity || gradient1 == -Infinity) {
+				//Vertical downward
+				p1x = x1 - width;
+				p1y = y1 - length;
+				p2x = x1 + width;
+				p2y = p1y;
+				p3x = x1;
+				p3y = y1 - adjustment;
+			} else {
+				len1 = Math.sqrt(length * length / (1 + gradient1 * gradient1));
+				if (reverse1) {
+					len1 = -len1;
+				}
+				p0x = x1 + len1;
+				p0y = y1 + len1 * gradient1;
+				len2 = Math.sqrt(width * width / (1 + invGradient * invGradient));
+				p1x = p0x - len2;
+				p1y = p0y - len2 * invGradient;
+				p2x = p0x + len2;
+				p2y = p0y + len2 * invGradient;
+				len3 = Math.sqrt(adjustment * adjustment / (1 + gradient1 * gradient1));
+				p3x = x1 - len3;
+				p3y = y1 - len3 * gradient1
+			}
+
+			context.beginPath();
+			context.moveTo(p1x, p1y);
+			context.lineTo(p3x, p3y);
+			context.lineTo(p2x, p2y);
+			if (filled) {
+				context.closePath();
+				context.fill();
+			}
+			context.stroke();
+		}
+
+		if (this.end) {
+			invGradient = - 1 / gradient2;
+			if ((reverse2 && invGradient == -Infinity) || (!reverse2 && invGradient == Infinity)) {
+				//Horizontal left
+				p1x = x2 + length;
+				p1y = y2 - width;
+				p2x = p1x;
+				p2y = y2 + width;
+				p3x = x2 + adjustment;
+				p3y = y2;
+			} else if (gradient2 == 0) {
+				//Horizontal right
+				p1x = x2 - length;
+				p1y = y2 - width;
+				p2x = p1x;
+				p2y = y2 + width;
+				p3x = x2 - adjustment;
+				p3y = y2;
+			} else if ((reverse2 && gradient2 == Infinity) || (!reverse2 && gradient2 == -Infinity)) {
+				//Vertical upward
+				p1x = x2 - width;
+				p1y = y2 + length;
+				p2x = x2 + width;
+				p2y = p1y;
+				p3x = x2;
+				p3y = y2 + adjustment;
+			} else if (gradient2 == Infinity || gradient2 == -Infinity) {
+				//Vertical downward
+				p1x = x2 - width;
+				p1y = y2 - length;
+				p2x = x2 + width;
+				p2y = p1y;
+				p3x = x2;
+				p3y = y2 - adjustment;
+			} else {
+				len1 = Math.sqrt(length * length / (1 + gradient2 * gradient2));
+				if (reverse2) {
+					len1 = -len1;
+				}
+				p0x = x2 - len1;
+				p0y = y2 - len1 * gradient2;
+				len2 = Math.sqrt(width * width / (1 + invGradient * invGradient));
+				p1x = p0x - len2;
+				p1y = p0y - len2 * invGradient;
+				p2x = p0x + len2;
+				p2y = p0y + len2 * invGradient;
+				len3 = Math.sqrt(adjustment * adjustment / (1 + gradient2 * gradient2));
+				p3x = x2 - len3;
+				p3y = y2 - len3 * gradient2
+			}
+
+			context.beginPath();
+			context.moveTo(p1x, p1y);
+			context.lineTo(p3x, p3y);
+			context.lineTo(p2x, p2y);
+			if (filled) {
+				context.closePath();
+				context.fill();
+			}
+			context.stroke();
+		}
+	};
+
+}}$;
+
+func Arrowhead {
+	${{
+		var argsProcessed;
+		var numArgs = arguments.length;
+		var arg = arguments[0];
+		var argType = typeof(arg);
+
+		var start, end, length, width, filled;
+
+		if (argType == "boolean" && numArgs >= 2 &&
+		 (typeof(arguments[1]) == "boolean" || arguments[1] === undefined)) {
+			start = arg;
+			end = arguments[1];
+			argsProcessed = 2;
+			arg = arguments[2];
+			argType = typeof(arg);
+		} else {
+			start = false;
+			end = true;
+			argsProcessed = 0;
+		}
+
+		if (argType == "number") {
+			length = arg;
+			argsProcessed++;
+			arg = arguments[argsProcessed];
+			argType = typeof(arg);
+		}
+
+		if (argType == "number") {
+			width = length;
+			length = arg;
+			argsProcessed++;
+		}
+
+		if (argsProcessed < numArgs) {
+			filled = arguments[argsProcessed];
+		} else {
+			filled = true;
+		}
+
+		return new Arrowhead(start, end, length, width, filled);
+	}}$;
+}

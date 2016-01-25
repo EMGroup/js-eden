@@ -323,6 +323,7 @@ func observablesAt {
 
 
 include("plugins/canvas-html5/arc.js-e");
+include("plugins/canvas-html5/arrowhead.js-e");
 include("plugins/canvas-html5/button.js-e");
 include("plugins/canvas-html5/checkbox.js-e");
 include("plugins/canvas-html5/circle.js-e");
