@@ -1,0 +1,32 @@
+{
+	"projects": [
+		{
+				"name": "Programmer's Guide",
+				"author": "Elizabeth Hudnott",
+				"year": "2015",
+				"description": "EDEN guide for programmers of other languages and reference manual.",
+				"runfile": "models/manual/manual.js-e"
+		},
+		{
+				"name": "Canvas Reference",
+				"author": "Elizabeth Hudnott",
+				"year": "2015&ndash;",
+				"description": "Documentation of each canvas function, drawing option and observable.",
+				"runfile": "models/guides/canvas.js-e"
+		},
+		{
+				"name": "Feature of The Day",
+				"author": "Elizabeth Hudnott",
+				"year": "2015&ndash;",
+				"description": "Introductory guides to new features, updated as new features are added to JS-EDEN.",
+				"runfile": "models/guides/feature-of-the-day.js-e"
+		},
+		{
+				"name": "Contour Lines",
+				"author": "Elizabeth Hudnott",
+				"year": "2016",
+				"description": "A guide for creating new custom shapes and morphing them.",
+				"runfile": "models/guides/contour-lines.js-e"
+		}
+	]
+}
