@@ -94,6 +94,9 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 				success: function (data) {
 					me.populateProjectData(data, url, asRoot);
 				},
+				error: function (request, status, exception) {
+					eden.error(new Error(status + " " + exception.message), "projectlist");
+				},
 				cache: false
 			});
 		}

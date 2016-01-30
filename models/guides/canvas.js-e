@@ -1,0 +1,896 @@
+include("models/jspe/run.e");
+
+sections is TitledSlide("Overview",
+	"<p>There are four kinds of canvas content.</p>" //
+	htmlNumberedList([
+		"Geometric shapes",
+		"Text",
+		"Bitmapped graphics and external graphics files",
+		"User interface controls (e.g. text entry, sliders, radio buttons)"
+	])
+);
+
+geometrySection is TitledSlide("Geometry",
+	"<h3>Shapes</h3>" //
+	htmlNumberedList([
+		"Rectangles",
+		"\"Rounded Rectangles\"",
+		"Lines",
+		"Polygons",
+		"Circles",
+		"Ellipses",
+		"Circular Sectors",
+		"Circular Arcs"
+	]) //
+	"<h3>Shared Concepts</h3>" //
+	htmlBulletList([
+		"Colours",
+		"Gradient fills (advanced)",
+		"Other specialized drawing options (advanced)"
+	])
+);
+
+rectangle is TitledSlide("Rectangles",
+	"<h3>Syntax</h3>
+	<p>
+	item is Rectangle(x, y, width, height, fill_colour, outline_colour, drawing_options);<br/>
+	</p>
+	<h3>Optional Parameters</h3>
+	<p>The fill_colour, outline_colour and drawing_options parameters are optional.</p>
+	<p>These can be omitted and the system will apply some sensible default values.  I'm going to omit the drawing options parameters in all of the examples until later on in the presentation.</p>
+<h3>Example</h3>
+<jseden>
+item is Rectangle(50, 100, 200, 100, \"lime\", \"blue\");
+picture is [item];
+</jseden>"
+);
+
+colours is TitledSlide("Colours",
+	"<h3>Specifying Colours</h3>
+	<p>Values for the fill_colour and outline_colour paramters can be:</p>" //
+	htmlBulletList([
+		"Strings containing HTML named colours, such as \"lime\" and \"blue\".",
+		"Strings containing six hexadecimal digits, e.g. \"#FF00FF\" (magenta).",
+		"Invocations of the rgbColour or hslColour functions, e.g. rgbColour(255, 0, 255) (magenta again)",
+		"The undefined value @.  An \"undefined\" (or rather \"not applicable\") fill colour means that only the shape's outline is drawn.  An undefined outline colour means the shape is filled but no outline is drawn around the edges.",
+		"Invocations of a few special functions such as LinearGradient.  The LinearGradient function specifies a gradient fill pattern."
+	]) //
+"<h3>Examples</h3>
+<h4>rgb Function Example</h4>
+<jseden>
+rSlider is Slider(\"r\", 0, 255, 1, 10, 15, 255);
+gSlider is Slider(\"g\", 0, 255, 1, 10, 40, 255);
+bSlider is Slider(\"b\", 0, 255, 1, 10, 65, 255);
+
+colour is rgbColour(r_preview, g_preview, b_preview);
+rect is Rectangle(20, 100, 350, 250, colour);
+
+picture is [rSlider, gSlider, bSlider, rect];
+</jseden>
+
+<h4>hsl Function Example (Hue, Saturation &amp; Lightness)</h4>
+<jseden>
+hSlider is Slider(\"h\", 0, 360, 1, 10, 15, 255);
+s_value = 100;
+sSlider is Slider(\"s\", 0, 100, 1, 10, 40, 255);
+l_value = 50;
+lSlider is Slider(\"l\", 0, 100, 1, 10, 65, 255);
+
+colour is hslColour(h_preview, s_preview, l_preview);
+rect is Rectangle(20, 100, 350, 250, colour);
+
+picture is [hSlider, sSlider, lSlider, rect];
+</jseden>
+
+<h4>Rectangular Outline With No Fill</h4>
+<jseden>
+littleSquare is Rectangle(125, 45, 50, 50, \"cyan\", \"blue\");
+bigRect is Rectangle(50, 20, 200, 100, @, \"red\");
+picture is [littleSquare, bigRect];
+</jseden>
+
+<h4>Filled Rectangular Region With No Outline</h4>
+<jseden>
+item is Rectangle(50, 20, 200, 100, \"blue\", @);
+picture is [item];
+</jseden>
+<p>The default outline colour is @, so this rectangle can equivalently be written as
+Rectangle(50, 20, 200, 100, \"blue\")"
+);
+
+roundedRectangle is TitledSlide("\"Rounded Rectangles\"",
+	"<h3>Overview</h3>
+	<p>\"Rounded rectangles\" aren't actually rectangles but they're fashionable because they give a pleasant softer visual effect compared to a rectangle.</p>
+	<h3>Syntax</h3>
+	<p>item is RoundedRectangle(x, y, width, height, corner_radius, fill_colour, outline_colour, drawing_options);</p>
+	<h3>Optional Parameters</h3>
+	<p>The fill_colour, outline_colour and drawing_options parameters are optional.</p>
+<h3>Example</h3>
+<jseden>
+item is RoundedRectangle(50, 20, 200, 100, 20, \"lime\", \"blue\");
+picture is [item];
+</jseden>"
+);
+
+line is TitledSlide("Lines",
+	"<h3>Syntax</h3>
+	<p>item is Line(x1, y1, x2, y2, colour, drawing_options);</p>
+	<p>Draws a line from (x1,y1) to (x2,y2).</p>
+	<h3>Optional Parameters</h3>
+	<p>The colour and drawing_options parameters are optional.  The default line colour is black.</p>
+
+<h3>Example</h3>
+<jseden>
+item is Line(20, 20, 400, 300, \"red\");
+picture is [item];
+</jseden>"
+);
+
+lineSequence is TitledSlide("Line Sequences",
+	"<h3>Overview</h3>
+	<p>To draw multiple lines you can have multiple observables with each one defined using a separate invocation of the Line function.  However, if the lines are all the same colour and the second and successive lines each start where the previous line ends then there is a shorthand method.</p>
+	<h3>Syntax</h3>
+	<p>item is LineSequence(points, colour, drawing_options);</p>
+	<h3>Optional Parameters</h3>
+	<p>The colour and drawing_options parameters are optional.</p>
+
+<h3>Example</h3>
+<jseden>
+p1 = {300, 20};
+p2 = {125, 225};
+p3 is {275, p2.y};
+p4 is {p2.x, 475};
+points is [p1, p2, p3, p4];
+item is LineSequence(points, \"red\");
+picture is [item];
+</jseden>
+
+	<h3>Experienced Users' Note</h3>
+	<p>{x, y} is shorthand for Point(x, y)</p>"
+);
+
+polygon is TitledSlide("Polygons",
+	"<h3>Overview</h3>
+	Constructing polygons is similar to constructing line sequences except that there is an implied additional line joining the final point back to the start point.  If desired then the enclosed area can be filled.
+	<h3>Syntax</h3>
+	item is Polygon(points, fill_colour, outline_colour, drawing_options);
+	<h3>Optional Parameters</h3>
+	<p>The fill_colour, outline_colour and drawing_options parameters are optional.</p>
+
+<h3>Example</h3>
+<jseden>
+p1 = {300, 20};
+p2 = {450, 170};
+p3 = {150, 170};
+triangle is [p1, p2, p3];
+item is Polygon(triangle, \"lime\", \"black\");
+</jseden>
+
+	<h3>Experienced Users' Note</h3>
+	<p>Previously the points were expressed in a different format.</p>"
+);
+
+circle is TitledSlide("Circles",
+	"<h3>Syntax</h3>
+	<p>item is Circle(x, y, radius, fill_colour, outline_colour, drawing_options);</p>
+	<h3>Optional Parameters</h3>
+	<p>The fill_colour, outline_colour and drawing_options parameters are optional.</p>
+
+<h3>Example</h3>	
+<jseden>
+item is Circle(300, 150, 100, \"magenta\");
+picture is [item];
+</jseden>"
+);
+
+ellipse is TitledSlide("Ellipses",
+	"<h3>Syntax</h3>
+	<p>item is Ellipse(x, y, x_radius, y_radius, fill_colour, outline_colour, drawing_options);</p>
+	<h3>Optional Parameters</h3>
+	<p>The fill_colour, outline_colour and drawing_options parameters are optional.</p>
+
+<h3>Example</h3>	
+<jseden>
+item is Ellipse(300, 150, 250, 125, \"blue\");
+picture is [item];
+</jseden>"
+);
+
+sector is TitledSlide("Circular Sectors",
+	"<h3>Overview</h3>
+	<p>A circular sector is a piece of a circle shaped like a piece of a pie chart.</p>
+	<h3>Syntax</h3>
+	<p>item is Sector(x, y, radius, start_angle, end_angle, fill_colour, outline_colour, drawing_options);</p>" //
+	htmlBulletList(
+		"Angles are measured in degrees by default, though individual construals can choose their own measurement system by assigning to the radiansPerUnit observable.",
+		"Zero degrees is the 3&nbsp;o'clock position.",
+		"Positive numbers rotate anticlockwise from 3&nbsp;o'clock.  Negative numbers move clockwise."
+	) //
+	"<h3>Optional Parameters</h3>
+	<p>The fill_colour, outline_colour and drawing_options parameters are optional.</p>
+
+<h3>Example</h3>
+<jseden>
+x = 300;
+y = 150;
+gap = 6;
+r = 75;
+s1 is Sector(x + gap/2, y - gap/2, r, 0, 90, \"yellow\");
+s2 is Sector(x - gap/2, y - gap/2, r, 90, 180, \"blue\");
+s3 is Sector(x - gap/2, y + gap/2, r, 180, 270, \"red\");
+s4 is Sector(x + gap/2, y + gap/2, r, 270, 360, \"lime\");
+picture is [s1, s2, s3, s4];
+</jseden>"
+);
+
+arc is TitledSlide("Circular Arcs",
+	"<h3>Overview</h3>
+	<p>A circular arc is a piece of the outline of a circle.</p>
+	<h3>Syntax</h3>
+	<p>item is Arc(x, y, radius, start_angle, end_angle, colour, drawing_options);</p>
+
+<h3>Example</h3>
+<jseden>
+item is Arc(300, 200, 140, 30, 270, \"navy\");
+picture is [item];
+</jseden>"
+);
+
+drawingOptions is TitledSlide("Drawing Options Parameter",
+	"<h3>Overview</h3>
+	<p>Used to specify properties that aren't essential to describing the essence of what a coloured rectangular space is (for example), but nonetheless are sometimes useful to have available so that you can conveniently add certain embellishments to a shape.  The features that can be specified in this way include:</p>" //
+	htmlBulletList(
+		"A thicker outline",
+		"Dashed or dotted outlines",
+		"Shadow effects",
+		"Direction of rotation (arcs and sectors only)"
+	) //
+	"<h3>Syntax</h3>
+	<p>{optionName1: optionValue1,&hellip; optionNameN: optionValueN}</p>
+
+<h3>Example</h3>
+<jseden>
+dashPattern = [20, 10];
+options is {dashes: dashPattern, dashOffset: 10};
+item is Rectangle(120, 75, 300, 180, @, \"blue\", options);
+picture is [item];
+</jseden>"
+);
+
+lineWidth is TitledSlide("lineWidth Option",
+	"<h3>Overview</h3>
+	<p>The lineWidth option makes a line or the outline of a shape thicker.  The value is measured in pixels.</p>
+
+<h3>Examples</h3>
+<h4>A Thick Line</h4>
+<jseden>
+item is Line(160, 60, 340, 265, \"green\", {lineWidth: 6});
+picture is [item];
+</jseden>
+<h4>A Shape with a Thicker Outline</h4>
+<jseden>
+item is Rectangle(160, 60, 250, 140, \"cyan\", \"magenta\", {lineWidth: 10});
+picture is [item];
+</jseden>"
+);
+
+dashes is TitledSlide("dashes Option",
+	"<h3>Overview</h3>
+	<p>The dashes option makes a line into a sequence of dots and dashes, or, it makes a broken outline around the edge of a shape.</p>
+	<p>The option's value is a list of numbers.  Odd numbered list indices represent the lengths (in pixels) of the parts where the line is drawn.  Even indices represent the sizes of the gaps between dashes.</p>
+	<p>Sometimes it's easier to think in terms of how big the dashes are relative to the gaps (or vice versa) rather than in terms of absolute numbers of pixels.  Using the scale() function to multiply a vector (i.e. a list) by a scalar can be useful here.</p>
+
+<h3>Examples</h3>
+<h4>Simple Dashes Expressed Using Ratios</h4>
+<jseden>
+dashPattern = [2, 1]; ##Dashes are twice as long as spaces.
+scaleFactor = 12;
+dashLengths is scale(scaleFactor, dashPattern);
+dashedLine is Line(100, 100, 450, 100, \"#9900FF\", {lineWidth: 3, dashes: dashLengths});
+picture is [dashedLine];
+</jseden>
+
+<h4>A More Complicated Dash Pattern</h4>
+<jseden>
+dashPattern = [4, 3, 1, 3];
+scaleFactor = 5;
+picture is [dashedLine];
+</jseden>
+
+<h4>Dashed Outlines Applied to Shapes</h4>
+<jseden>
+item is Circle(285, 167, 135, @, \"blue\", {dashes: [20, 10]});
+picture is [item];
+</jseden>"
+);
+
+dashOffset is TitledSlide("dashOffset Option",
+	"<h3>Overview</h3>
+	<p>The dashOffset option controls whereabouts in the dash pattern the painting algorithm begins as it traverses around the perimeter of a shape (or along a single line).  By setting drawing to begin part way into a dash some interesting effects can be achieved.</p>
+	
+<h3>Examples</h3>
+<h4>Simple Example</h4>
+<p>The system starts painting the perimeter of a rectangle from the top-left corner.</p>
+<jseden>
+dashPattern = [20, 10];
+##The outer rectangle uses the default value of zero for dashOffset.
+rect1 is Rectangle(120, 75, 300, 180, @, \"blue\", {dashes: dashPattern});
+##Give this rectangle some proper corners by adjusting the dash offset.
+rect2 is Rectangle(180, 120, 180, 90, @, \"blue\", {dashes: dashPattern, dashOffset: 10});
+picture is [rect1, rect2];
+</jseden>
+
+<h4>Marching Caterpillars</h4>
+<jseden>
+insectLength = 15;
+gapLength = 9;
+dashPattern is [insectLength, gapLength];
+offset = 0;
+item is Rectangle(120, 75, 250, 140, @, \"green\", {dashes: dashPattern, dashOffset: offset});
+picture is [item];
+
+delay = 80;
+proc animate {
+	offset = (offset + 1) % (insectLength + gapLength);
+	after (delay) {
+		animate();
+	}
+}
+animate();
+</jseden>"
+);
+
+opacity is TitledSlide("opacity Option", "
+");
+
+shadowSlide is TitledSlide("shadow Option &amp; Shadow Function",
+	"<h3>Overview</h3>
+	<p>Using the shadow option will automatically draw shadows behind shapes.  The main advantage of the shadow option is that the shadow can be blurred to give soft looking shadows, which you couldn't do if you tried to model the shadow using a grey rectangle.  Shadows have several different features so we use the Shadow function to construct an appropriate value for the shadow drawing option.</p>
+	
+	<h3>Syntax</h3>
+	<p>shadowQualities is Shadow(colour, blur_amount, x_offset, y_offset);<br/>
+	item is Rectangle(&hellip;, {shadow: shadowQualities});</p>
+
+	<p>Shadows can be applied to any shape.  The x_offset and the y_offset control the distance between a point in the shape and its corresponding point in the shadow.  Positive offset values place the shadow to the right and down from the shape.  Negative values place the shadow to the left of or above the shape.</p>
+
+<h3>Example</h3>
+<jseden>
+##Click and drag to adjust the shadow's position.
+shadowX = 17;
+shadowY = 20;
+blur_preview = 20;
+responseRateX = 1;
+responseRateY = 2;
+shadowQualities is Shadow(\"#999999\", blur_preview, shadowX, shadowY);
+item is Rectangle(150, 150, 200, 100, \"blue\", @, {shadow: shadowQualities});
+blurSlider is Slider(\"blur\", 0, 50, 1, 160, 340, 200);
+description is Text(shadowQualities, 150, 380, \"black\");
+picture is [item, blurSlider, description];
+
+proc saveShadowPosition : mousePressed {
+	oldShadowX = shadowX;
+	oldShadowY = shadowY;
+}
+
+proc moveShadow : mousePosition {
+	if (mousePressed) {
+		shadowX = oldShadowX + (mousePosition.x - mouseDown.x) / responseRateX;
+		shadowY = oldShadowY + (mousePosition.y - mouseDown.y) / responseRateY;
+	
+	}
+}
+</jseden>"
+);
+
+direction is TitledSlide("direction Option",
+	"<h3>Overview</h3>
+	<p>Given an instruction such as, \"Draw an arc from the 0&deg; position to the 90&deg; position\", there is a complication.  Do we mean to start drawing from the 0&deg; position and rotate anticlockwise to the 90&deg; position, creating an arc that turns through a 90&deg; angle and looks like a quarter circle?  Or do we mean to turn clockwise and create an arc that turns through 270&degree;?  There are several different ways of making sense of, \"An arc from <var>x</var> degrees to <var>y</var> degrees\".  The table below lists the valid values for the direction drawing option and explains what they mean.  The default setting is \"auto\".</p>
+	
+	<table>
+		<colgroup>
+			<col style=\"width: 23%\">
+		</colgroup>
+		<tr>
+			<th>direction</th>
+			<th>Meaning</th>
+		</tr>
+		<tr>
+			<td>\"auto\"</td>
+			<td>
+				<p>The system will attempt to guess automatically whether you mean to rotate clockwise or anticlockwise.  If end_angle&nbsp;-&nbsp;start_angle is greater than 180&deg; (or less than -180&deg;) then the major arc will be drawn, that is to say the longer of the two possible arcs.  Otherwise the minor arc will be drawn.</p>
+
+				<p><em>If end_angle is greater than start_angle then the arc is drawn anticlockwise.  Otherwise it's drawn clockwise.</em></p>
+			</td>
+		</tr>
+		<tr>
+			<td>\"clockwise\"<br/>(or \"cw\")</td>
+			<td>Rotate clockwise</td>
+		<tr>
+			<td>\"anticlockwise\"<br/>(or \"acw\" or \"ccw\")</td>
+			<td>Rotate anticlockwise</td>
+		</tr>
+		<tr>
+			<td>\"major\"</td>
+			<td>Rotate in whichever direction produces the longest possible arc.</td>
+		</tr>
+		<tr>
+			<td>\"minor\"</td>
+			<td>Rotate in whichever direction produces the shortest possible arc.</td>
+		</tr>
+	</table>
+	<p>The \"major\" and \"minor\" options are only available for use with the Arc function.  The other options can be used with both Arc and Sector.</p>
+<h3>Example</h3>
+<jseden>
+controlPos = {200, 310};
+labelWidth = 90;
+controlHeight = 30;
+controlGap = 30;
+
+startLabel is Text(\"Starting angle:\", controlPos.x, controlPos.y + 7, \"black\");
+endLabel is Text(\"Ending angle:\", controlPos.x, controlPos.y + controlHeight + 7, \"black\");
+start_value = \"30\";
+end_value = \"260\";
+startEntry is Textbox(\"start\", controlPos.x + labelWidth, controlPos.y, 50);
+endEntry is Textbox(\"end\", controlPos.x + labelWidth, controlPos.y + controlHeight, 50);
+descriptions is Text(\"red = minor, green = major, magenta = anticlockwise, blue = clockwise, grey = auto\", 100, controlPos.y + 2 * controlHeight + 7, \"black\");
+
+x is controlPos.x + labelWidth;
+y is (controlPos.y - controlGap) / 2;
+rMax is y - 5;
+rStep is 20;
+sAngle is int(start_value);
+eAngle is int(end_value);
+width = 2;
+
+minor is Arc(x, y, rMax, sAngle, eAngle, \"red\", {direction: \"minor\", lineWidth: width});
+major is Arc(x, y, rMax - rStep, sAngle, eAngle, \"green\", {direction: \"major\", lineWidth: width});
+acw is Arc(x, y, rMax - 2 * rStep, sAngle, eAngle, \"magenta\", {direction: \"acw\", lineWidth: width});
+cw is Arc(x, y, rMax - 3 * rStep, sAngle, eAngle, \"blue\", {direction: \"cw\", lineWidth: width});
+autoDir is Arc(x, y, rMax - 4 * rStep, sAngle, eAngle, \"#808080\", {direction: \"auto\", lineWidth: width});
+
+picture is [startLabel, startEntry, endLabel, endEntry, descriptions, autoDir, cw, acw, major, minor];
+</jseden>"
+);
+
+capJoin is TitledSlide("cap, join &amp; miterLimit Options", "
+");
+
+arrowhead is TitledSlide("arrowhead Option", "
+	<h3>Overview</h3>
+	<p>It is possible to construct arrows using the <code>Line</code>, <code>LineSequence</code>, <code>Arc</code> and <code>Curve</code> functions.  The <em>arrowhead</em> is constructed using the <code>Arrowhead</code> function and is attached to the line or curve using a drawing option.</p>
+
+	<h3>Syntax</h3>
+	<p>arrow is Arrowhead(is_at_start, is_at_end, width, length, is_filled);<br/>
+	   line is Line(x1, y1, x2, y2, colour, {arrowhead: arrow});</p>
+
+	<h3>Optional Parameters</h3>
+	<p>All parameters are optional.  If the is_at_start and is_at_end parameters are both omitted then an arrowhead is placed at the end of the line, line sequence, arc or curve but not at the start of the line, line sequence, arc or curve.  If the length parameter is omitted then a sensible arrowhead length is automatically chosen, one which is longer for fatter line thicknesses.  If the width parameter is omitted then the width of the arrowhead is proportional to its length.  If the is_filled parameter is omitted then the arrowhead is a filled arrowhead.</p>
+
+	<h3>Expert Note</h3>
+	<p>The cap, join and miterLimit drawing options of the line or curve also effect subtle changes in the shape of the arrowhead.  This is only noticeable when the line is very thick, or when a high zoom factor is used, or if one has sharp eyesight.  It is not possible to have cap, join or miterLimit values for the arrowhead that are different to those used for the line or curve itself (because implementing this would introduce complication that is probably unnecessary).</p>
+
+	<h3>Example</h3>
+<jseden>
+arrow is Arrowhead(true, true, 10, 30, false);
+item is Line(40, 250, 560, 250, {arrowhead: arrow});
+picture is [item];
+</jseden>
+");
+
+
+linearGradient is TitledSlide("Gradient Fills (Linear)",
+	"<h3>Overview</h3>
+	<p>A gradient fill allows one point inside a filled shape to be one colour and another part of the same shape to be another colour, with a gradual fading between the two colours across the surface of the shape.  A linear gradient fill pattern is defined by two things.  Firstly, the two (or more) key colours to fade between.  Secondly, an imaginary line is defined.  All points perpendicular to a given point along that imaginary line (and inside the shape being filled) are the coloured with the same colour.</p>
+	
+	<p>When there are more than two key colours another factor comes into play.  The colours have to be positioned along the imaginary line.  One end of the line is conceptually labelled 0, and the other end 1.  Numbers in between correspond to intermediate points along the line.  For example, 0.5 means 50% of the way between the start point and the end point.  Thus the optional extra_colour_stops parameter (see below) accepts list values where each element is itself a two item list, the first value being a number between zero and one, and the second being the colour value.</p>
+	
+	<h3>Syntax</h3>
+	<p>
+		g is LinearGradient(x1, y1, x2, y2, start_colour, end_colour, extra_colour_stops);<br/>
+		item is Rectangle(&hellip;, g, outline_colour, drawing_options);
+	</p>
+
+	<p>Gradient fill patterns can be applied to any filled shape.</p>
+
+	<h3>Optional Parameters</h3>
+	<p>The start_colour and end_colour parameters can be omitted if the extra_colour_stops argument includes colours for points 0 and 1.  The extra_colour_stops parameter can be omitted if the start_colour and end_colour parameters are not omitted.</p>
+
+<h3>Examples</h3>
+<p>Run the following code to add a visualization of the imaginary gradient line to the picture.  The gradient line will be depicted as a black line overlayed on top of the filled shape.</p>
+<jseden>
+gradientLine is Line(g.x1, g.y1, g.x2, g.y2, \"black\", {lineWidth: 5});
+showGradientLine = true;
+</jseden>
+<p>Run the following code to disable the visualization.</p>
+<jseden>
+showGradientLine = false;
+</jseden>
+<h4>Horizontal Left to Right Gradient</h4>
+<jseden>
+x = 155;
+y = 10;
+width = 320;
+height = 270;
+g is LinearGradient(x, y, x + width, y, \"blue\", \"yellow\");
+item is Rectangle(x, y, width, height, g);
+picture is showGradientLine? [item, gradientLine] : [item];
+</jseden>
+<h4>Vertical Top to Bottom Gradient</h4>
+<jseden>
+x = 155;
+y = 10;
+width = 320;
+height = 270;
+g is LinearGradient(x, y, x, y + height, \"blue\", \"yellow\");
+item is Rectangle(x, y, width, height, g);
+picture is showGradientLine? [item, gradientLine] : [item];
+</jseden>
+<h4>Diagonal, Top-Left to Bottom-Right Gradient</h4>
+<jseden>
+x = 155;
+y = 10;
+width = 320;
+height = 270;
+g is LinearGradient(x, y, x + width, y + height, \"blue\", \"yellow\");
+item is Rectangle(x, y, width, height, g);
+picture is showGradientLine? [item, gradientLine] : [item];
+</jseden>
+<h4>Sunlight Simulation</h4>
+<jseden>
+##Click to reposition the rectangle into the light.
+##In this example the gradient line is not dependent on the position of the
+##rectangle.
+rectPosition = {350, 280};
+backgroundGradient is LinearGradient(0, 0, 550, 380, \"#FFFF80\", \"black\");
+background is Rectangle(0, 0, 550, 380, backgroundGradient);
+g is LinearGradient(0, 0, 550, 380, \"#FF8080\", \"#110000\");
+rect is Rectangle(rectPosition.x, rectPosition.y, 200, 100, g);
+picture is showGradientLine? [background, rect, gradientLine] : [background, rect];
+
+proc moveRect : mousePressed {
+	if (mousePressed) {
+		rectPosition = mousePosition;
+	}
+}
+</jseden>
+<h4>Gradient with 3 Colour Stops</h4>
+<jseden>
+##Fades red to purple to yellow.
+g is LinearGradient(0, 0, 550, 380, \"red\", \"#FFFF44\", [[0.4, \"#6611FF\"]]);
+item is Rectangle(0, 0, 550, 380, g);
+picture is showGradientLine? [item, gradientLine] : [item];
+</jseden>"
+);
+
+radialGradient is TitledSlide("Gradient Fills (Radial)", "
+");
+
+multicolour is TitledSlide("Multicolour Lines and Outlines", "
+");
+
+text is TitledSlide("Text",
+	"<h3>Overview</h3>
+	<p>There are two ways of rendering text.  The first is to use the Text function, which renders the text directly onto the underlying HTML5 canvas.  The second uses the Div function to render text that floats above the canvas.  The main advantage of the Div function is that you can format the text using the full range of HTML tags and CSS styling whereas the formatting options for Text are more limited.  However, there are also some formatting options that Text can do that Div cannot, such as colouring text using a gradient fill pattern.</p>
+	
+	<h3>Syntax</h3>
+	<p>
+		item is Text(text, x, y, size, fill_colour, outline_colour, drawing_options);<br/>
+		item is Text(text, x, y, fill_colour, outline_colour, font_description);<br/>
+		item is Div(html, x, y, width, height, id, css_class_list, style);
+	</p>
+	
+	<h3>Optional Parameters</h3>
+	<p>For the Text function the size, fill_colour, outline_colour, drawing_options and font_description parameters are all optional.  For the Div function the width, height, id, css_class_list and style parameters are all optional.</p>
+	
+	<h3>Text Function Parameters</h3>
+	<dl>
+		<dt>text</dt>
+		<dd>The text to display.  If the text contains HTML tags then they are displayed as is and are not interpreted as HTML.</dd>
+		<dt>x, y</dt>
+		<dd>The position of the text on the canvas.  Numbers representing pixel coordinates.</dd>
+		<dt>size</dt>
+		<dd>The size of the font.  Either a number a number that represents a height in pixels or a string that includes a number and some measurement units.  The default size is \"1em\".</dd>
+		<dt>fill_colour, outline_colour</dt>
+		<dd>The colours of the inside of the letters and the outline.  Specified in the same way as for geometric shapes.</dd>
+		<dt>drawing_options</dt>
+		<dd>
+			Many of the same drawing options apply as for the geometric shapes.  Additionally, the following text specific options can also be applied.
+			<dl>
+				<dt>bold, italic, smallCaps</dt>
+				<dd>Controls the application of the bold, italic and small caps styles.  Each option can have either true or false as its value.</dd>
+				<dt>fontFace</dt>
+				<dd>The name of a font or a generic description such as \"serif\".  The default font is sans serif.</dd>
+				<dt>align</dt>
+				<dd>The part of the text that the x-coordinate refers to.  Valid values are \"left\", \"right\", \"center\", \"centre\", \"start\" (default, same result as \"left\" for scripts read left to right) and \"end\".</dd>
+				<dt>valign</dt>
+				<dd>The part of the text that the y-coordinate refers to.  Valid values are \"top\" (default), \"hanging\", \"middle\", \"alphabetic\", \"baseline\" (synonym for \"alphabetic\"), \"ideographic\" or \"bottom\".</dd>
+			</dl>
+		</dd>
+		<dt>font description</dt>
+		<dd>A string with the font characteristics described using the same format as the <a target='css-font' href='http://www.w3schools.com/tags/canvas_font.asp'>CSS font property</a>, with a few extensions.  The string must contain a font size but can omit the font name.  The keywords for controlling horizontal and vertical alignment as described under the drawing_options parameter can appear anywhere within the font description string.</dd>
+	</dl>
+	
+	<h3>Div Function Parameters</h3>
+	<dl>
+		<dt>html</dt>
+		<dd>The text to display.  <em>Can contain HTML tags.</em></dd>
+		<dt>x, y, width, height</dt>
+		<dd>The position and size of the text on the canvas.  Each is either a number that represents a position or length in pixels or it is a string that includes a number and some measurement units, e.g. \"50%\".  Additionally, the width and/or height can be undefined, in which case the div will be automatically sized to fit its content.</dd>
+		<dt>id</dt>
+		<dd>A ID for the underlying HTML &lt;div&gt; element.  Used for applying CSS using the bindCSSProperty, bindCSSNumericProperty or bindCSSRule procedures.</dd>
+		<dt>css_class_list</dt>
+		<dd>An EDEN list of strings representing CSS class names to apply to the underlying HTML &lt;div&gt; element.  Used for applying CSS using the bindCSSProperty, bindCSSNumericProperty or bindCSSRule procedures.</dd>
+		<dt>style</dt>
+		<dd>CSS to apply directly to the underlying HTML &lt;div&gt; element (using the HTML style attribute).</dd>
+	</dl>
+
+	<h3>Experienced Users' Note</h3>
+	<p>The parameters for Div function have been reordered to more closely match the corresponding parameters of the Text function.  This brings improved consistency and reduces the cognitive load.  Similarly, the ordering of the size and fill_colour parameters of the Text function have been reordered so that the position of the fill_colour poarameter is the same as for geometric shapes.  The default vertical alignment for the Text function is now \"top\", whereas previously \"alphabetic\" alignment was used and it was impossible to choose a different alignment.</p>
+
+<h3>Examples</h3>
+<h4>Text Function</h4>
+<jseden>
+item is Text(\"Hello\", 20, 100, 100, {valign: \"baseline\"});
+##Put a little magenta fleck over the letter e.
+r is Rectangle(105, 68, 30, 5, \"magenta\");
+picture is [item, r];
+</jseden>
+<h4>Div function</h4>
+<jseden>
+item is Div(\"H<em>ello</em>\", 20,0, 350, 150, \"font-size: 100pt; font-family: serif\");
+picture is [item];
+</jseden>
+<h4>Text with a Colour Gradient</h4>
+<jseden>
+g is LinearGradient(20, 50, 240, 50, \"red\", \"blue\");
+item is Text(\"Hello\", 20, 50, 100, g);
+picture is [item];
+</jseden>"
+);
+
+bindCSS is TitledSlide("Altering CSS using Dependencies", "
+");
+
+funcCanvasURL is TitledSlide("Taking Canvas Snapshots",
+	"<h3>Overview</h3>
+	<p>It is possible capture a snapshot of the contents of the canvas at any given time in the form of a graphic that can be used elsewhere in the construal anywhere where HTML is permitted.  The function canvasURL obtains the \"filename\" where the image of the current canvas contents is stored.</p>
+	
+	<h3>Syntax</h3>
+	<p>url = canvasURL(canvas_name);</p>
+	
+	<h3>Optional Parameters</h3>
+	<p>The canvas_name parameter is optional.  If omitted then the default is to capture the canvas window that is created when JS-EDEN starts up, which is named \"picture\".</p>
+	
+	<h3>Notes</h3>
+	<p>A canvas snapshot only captures an image of what is rendered directly onto the underlying HTML canvas construction.  It doesn't capture any HTML content floating above the canvas, such as material created using the Div function.</p>
+	
+<h3>Examples</h3>
+<p>The first script below configures a view containing a HTML document.  That document contains an &lt;img&gt; tag where the src attribute is determined by an EDEN observable.  The second script updates the src attribute so that the image that's displayed is the one captured from the canvas at the time when the second script is run.  The third script captures a new snapshot whenever the mouse button is pressed or released.</p>
+<jseden>
+snapshotURL = \"\";
+htmlContent is \"
+	<h1>A HTML Display</h1>
+	<img src='\" // snapshotURL // \"'/>
+\";
+createHTMLView(\"htmlContent\");
+</jseden>
+<jseden>
+snapshotURL = canvasURL();
+</jseden>
+<jseden>
+hue = 0;
+item is Rectangle(30, 30, 200, 100, hslColour(hue, 80, 50));
+picture is [item];
+##Take a snapshot whenever the mouse button is pressed or released.
+proc takeSnapshot : mousePressed {
+	snapshotURL = canvasURL(\"picture\");	
+}
+
+proc cycle : hue {
+	after (40) {
+		hue = (hue + 1) % 360;
+	}
+}
+</jseden>"
+);
+
+images is TitledSlide("Bitmapped Graphics and External Graphics Files",
+	"<h3>Overview</h3>
+	<p>There are several ways of displaying graphics other than those defined completely in terms of EDEN definitions of geometric shapes and text.  The techniques fall into two categories.</p>" //
+	htmlNumberedList(
+		"Loading a graphic from a URL on the internet (GIF, JPEG, PNG or SVG file).",
+		"Writing some EDEN code that explicitly specifies the color of every pixel in the image."
+	) //
+	"<h3>Graphics Loaded from URLs</h3>
+	<p>As with text, there are two ways of rendering graphics files.  You can render them directly onto the canvas, or, alternatively as HTML floating on top of the canvas.  Images rendered directly onto the canvas can have shapes overlaid on top of them whereas HTML images cannot.  A HTML image named <var>x</var> comes with a convenient accompanying <var>x</var>_click observable to detect when the mouse button is pressed while the pointer is positioned over the image.  Native canvas images don't have this functionality currently though they may do in the future. (However HTML images will always detect mouse clicks faster.)  You can of course replicate the <var>x</var>_click functionality for native images by performing calculations using the <var>mousePressed</var> and <var>mouseDown</var> observables so long as you are sure that nothing has been painted over the top of the image.</p>
+	
+	<p>The other difference between the two image drawing techniques is that native canvas image drawing <em>taints</em> the canvas, whereas HTML images do not.  Once the canvas becomes tainted then no further snapshots can be taken.  This is a security restriction imposed by the web browser.</p>
+	
+	<h3>Bitmap Image Creation Using EDEN Code</h3>
+	<p>There are two functions and which one should be used depends on the complexity of your requirements.  The PixelList function draws a full colour graphic.  One of the parameters that you pass to the function is a pointer to an observable who's value is list that specifies red, green, blue and alpha values for every pixel in the image.  The GreyPixelList function is similar except that instead of red, green, blue and alpha values you only need to specify a single value for each pixel and an image will be produced using different shades of grey.  Both functions have similar applications, which includes the ability to construe things in a way similar to the use of false colour photographs in books.  PixelList allows for displaying up to three pieces of data simultaneously for each pair of x and y coordinates (red, green and blue colour dimensions) whereas GreyPixelList is limited to one piece of data for each coordinate.</p>"	
+);
+
+funcImage is TitledSlide("Image",
+	"<h3>Overview</h3>
+	<p>Draws image files using the native drawing features of the canvas.</p>
+	
+	<h3>Syntax</h3>
+	<p>item is Image(x, y, width, height, url);</p>
+	
+	<h3>Optional Parameters</h3>
+	<p>The width and height parameters can be omitted.  If they are omitted then the image will be drawn at whatever size is determined by the image file itself and no resizing will be performed.</p>
+
+<h3>Example</h3>
+<jseden>
+url = \"https://upload.wikimedia.org/wikipedia/commons/e/e7/Alfred_Stevens_Le_Bain.jpg\";
+image is Image(0, 0, 495, 390, url);
+title is Text(\"Le Bain\", 5, 5, 35, \"black\");
+picture is [image, title];
+</jseden>"
+);
+
+htmlImage is TitledSlide("HTMLImage",
+	"
+	<h3>Experienced Users' Notes</h3>
+	<p>The observable is named <var>x</var>_click, not <var>x</var>_clicked because it means, \"Potential for a click\", though it could also be a that a dragging operation is being performed instead.  It doesn't mean, \"Has been clicked\", as logically such an observable would stay true forever once the image was clicked.  Previous versions of JS-EDEN have had the functionality provided by the Image and HTMLImage functions under the guise of various different function names, including Image, Image2 and canvasImage, and including variants both with and without the _click observables, and sometimes implementations mixed the functionality of Image and HTMLImage by unnecessarily painting the image twice!  Hopefully these slides have explained why the two different functions exist and how they are and should remain distinctly different.</p>"
+);
+
+pixelList is TitledSlide("Pixel Lists",
+	"
+	"
+);
+
+greyPixelList is TitledSlide("Grey Pixel Lists",
+	"
+	"
+);
+
+button is TitledSlide("Buttons",
+	"
+	"
+);
+
+textbox is TitledSlide("Text Entry",
+	"
+	"
+);
+
+slider is TitledSlide("Sliders",
+	"
+	"
+);
+
+radioButtons is TitledSlide("Radio Buttons",
+	"
+	"
+);
+
+dropDownList is TitledSlide("Drop Down Lists",
+	"
+	"
+);
+
+checkbox is TitledSlide("Checkboxes",
+	"<h3>Overview</h3>
+	<p>Checkboxes are used to allow the user to select any number of options from a limited range of options.  Each checkbox can have one of three values: true, false or @.  A <dfn>tri-state checkbox</dfn> is one that allows the user to place the checkbox into the @ state by clicking on it.  A regular checkbox (one that is not tri-state) can only be placed into the @ value state programmatically.  The @ value can be used to mean things like \"Partly selected\" or \"Don't care\".  A common use of the @ value is when checkbox options are arranged into a hierarchy.</p>
+	
+	<h3>Syntax</h3>
+	<p>item is Checkbox(name, x, y, tri-state, enabled);</p>
+	
+	<h3>Optional Parameters</h3>
+	<p>The tri-state parameter and the enabled parameter are both optional.  If the tri-state parameter is omitted then a regular (not tri-state) checkbox will be displayed.  If the enabled parameter is omitted then the checkbox will be enabled and the user will be able to check and uncheck the checkbox by clicking it.</p>
+	
+<h3>Example</h3>
+<jseden>
+y = 15;
+lineHeight = 23;
+textOffset = 3;
+
+options_checked = false;
+options is Checkbox(\"options\", 15, y, true);
+optionsLabel is Text(\"Draw shape with special effects\", 37, y + textOffset);
+childrenEnabled is (options_checked == @);
+
+thickLine is Checkbox(\"thickLine\", 44, y + lineHeight, false, childrenEnabled);
+thickLabel is Text(\"Thickened outline\", 66, y + lineHeight + textOffset);
+
+dashedLine is Checkbox(\"dashed\", 44, y + 2 * lineHeight, false, childrenEnabled);
+dashedLabel is Text(\"Dashed outline\", 66, y + 2 * lineHeight + textOffset);
+
+shadowOpt is Checkbox(\"shadow\", 44, y + 3 * lineHeight, false, childrenEnabled);
+shadowLabel is Text(\"Shadow\", 66, y + 3 * lineHeight + textOffset);
+
+lineWidth is thickLine_checked? 3 : 1;
+dashes is dashed_checked? [15, 10] : [];
+shadow is Shadow(\"#999999\",
+	shadow_checked? 20 : 0,
+	shadow_checked? 18 : 0,
+	shadow_checked? 20 : 0
+);
+drawingOpts is {lineWidth: lineWidth, dashes: dashes, shadow: shadow};
+
+
+rect is Rectangle(250, 100, 205, 100, \"#88BBFF\", \"red\", drawingOpts);
+
+picture is [options, optionsLabel, thickLine, thickLabel, dashedLine, dashedLabel, shadowOpt, shadowLabel, rect];
+
+proc setChildren : options_checked {
+	if (options_checked != @) {
+		thickLine_checked = options_checked;
+		dashed_checked = options_checked;
+		shadow_checked = options_checked;
+	}
+}
+</jseden>
+<p><em>N.B. It is also possible to produce parent-child relationship checkboxes without using a tri-state checkbox (only the @ value programatically), and indeed such behaviour would be the normal expectation.  Tri-state checkboxes are usually used when not all of the child options are visible to the user.  For example, when setting file permissions on a folder a checked state could mean \"Make all of the files in the folder read-only\", an unchecked state, \"Make all of the files read-write\", and the @ state, \"Leave the permissions as they are now\".</em></p>"
+);
+
+furtherWork is BulletSlide("Further Work", [
+	"Allow canvas content on top of HTML content using multiple canvases and pointer-events CSS.",
+	"Separate x and y radii for rounded rectangles",
+	"Add elliptical <em>segments</em>",
+	"Radial gradient fills",
+	"Colour gradient possibility for the outline of rectangles and rounded rectangles",
+	"Translucency", [
+		"Of a group of drawables. E.g. drawing onto an OHP acetate."
+	],
+	"Coordinate space transformations", [
+		"Viewports: A combination of scaling, translation and rectangular clipping (DoNaLD windows in SCOUT), plus rotation and translucency (JS-EDEN additions)",
+		"Started creating viewports but not finished.",
+		"Any other interesting transformations besides transforming one rectangle into another (possibly rotated) rectangle?  Rotation is already stretching the notion of a viewing portal to the limit but might we want to consider reflection and shear operations separately from viewports?"
+	],
+	"Paths and filled paths", [
+		"Like line sequences and polygons but with curvy bits.", [
+			"Don't directly implement the bezierCurveTo method though.", [
+				"What do those control points really mean?",
+				"Need a construal of curved shapes."
+			]
+		]
+	],
+	"Pattern fills", [
+		"Filling a shape using a tessellated image loaded from an external file or constructed on a off-screen canvas."
+	],
+	"Off-screen canvases", [
+		"Used to draw a list of observables in an invisible space and then cut and paste the resulting image onto a visible canvas in different ways.", [
+			"Patterned fills",
+			"Sprites (for easier cloning plus efficiency gains)"
+		]
+	],
+	"Embedded canvases", [
+		"Positioned within a HTML view."
+	],
+	"Make Text better", [
+		"Ability to wind text along a path.",
+		"EDEN access to the measureText function"
+	],
+	"Ability for the system to determine which drawable the mouse pointer falls within and provide click observables.", [
+		"Use the isPointInPath canvas method for efficiency.",
+		"For further efficiency, confine checking to a particular suffix of the picture observable containing the drawables to be monitored."
+	],
+	"Clipping (including non-rectangular clipping windows) and globalCompositionOperation", [
+		"Is there some sensible way of making sense of these canvas capabilities in construal-like terms?  Stencils?",
+		"Making sense of one composition mode: using destination-out to create outlines of complex shapes described by the union of several simple shapes. <a target=\"external-link\"  href=\"http://buildnewgames.com/global-composit-operations/\">http://buildnewgames.com/global-composit-operations/</a>"
+	],
+	"Ability to perform real-time calculations on parts of the pixel data", [
+		"Using the getImageData canvas method.",
+		"E.g. invert the colours of the area around the mouse pointer or count the number of nearby blue pixels.",
+		"Initial experiments suggest the calculations will unfortunately have to be written in JavaScript because the EDEN interpreter is too slow.  However, they will be able to use dependency via root.lookup.",
+		"CSS filters provide an alternative way of implementing similar functionality but are limited to a range of presets."
+	],
+	"Ability to map a pixel's value to an EDEN observable", [
+		"Or, perhaps more sensibly, a summary of a small region of pixels: edge detection, etc."
+	],
+	"A 3rd form of PixelList that traces out a line",
+	"Graph plotting (y=f(x) or data)?  Parameteric equations?",
+	"Drop support for Pixel function once the previous three bullet points (potential use cases for Pixel) have been addressed in other ways.  A single Pixel object is rather useless (barely visible) but any significant number of them has awful performance.",
+	"Additional HTML input types", [
+		"list boxes with multiple selection, others&hellip; (in HTML5 spec)"
+	]
+]);
+
+slideList is [sections, geometrySection, rectangle, colours, roundedRectangle,
+	line, lineSequence, polygon, circle, ellipse, sector, arc, drawingOptions,
+	lineWidth, dashes, dashOffset, opacity, shadowSlide, direction, capJoin, arrowhead, linearGradient,
+	radialGradient, multicolour, text, bindCSS, funcCanvasURL, images, funcImage, htmlImage,
+	pixelList, greyPixelList, button, textbox, slider, radioButtons, dropDownList, checkbox,
+	furtherWork];
