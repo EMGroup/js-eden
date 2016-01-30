@@ -101,7 +101,7 @@ func Image { ${{
   var width = arguments[3];
   var height = arguments[4];
   var file = arguments[5];
-  return new CanvasImage(x, y, width, height, 0, 0, undefined, undefined, true, file);
+  return new CanvasImage(undefined, x, y, width, height, 0, 0, undefined, undefined, true, file);
 }}$; }
 
 func Inputbox { ${{
@@ -179,7 +179,7 @@ func Slider { ${{
   var x = arguments[6];
   var y = arguments[7];
   root.lookup(name + "_value").assign(value, root.lookup("Slider"));
-  return new Slider(name, min, max, step, x, y, 130, orientation, true);
+  return new Slider(name, min, max, step, undefined, undefined, undefined, x, y, 130, orientation, true);
 }}$; }
 
 func strcat {

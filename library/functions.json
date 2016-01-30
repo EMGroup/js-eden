@@ -1100,8 +1100,8 @@
 		},
 		"Button": {
 			"parameters": {
-				"[name]": "Prefix for _clicked observable.  Default is the name of the observable being defined.",
-				"label": "Text for the button",
+				"[[name]": "Prefix for _clicked observable.  Default is the name of the observable being defined.",
+				"label]": "Text for the button",
 				"[imageURL]": "",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
@@ -1188,7 +1188,7 @@
 			"parameters": {
 				"[name]": "Prefix for _value observable.  Default is the name of the observable being defined.",
 				"values": "A list of strings providing the options",
-				"labels": "",
+				"[labels]": "",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[width]": "Width in pixels",
@@ -1234,7 +1234,7 @@
 			"parameters": {
 				"[name]": "Prefix for _value observable.  Default is the name of the observable being defined.",
 				"values": "A list of strings providing the options",
-				"labels": "",
+				"[labels]": "",
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[enabled]": "Boolean to determine if list selection is enabled"

@@ -7,31 +7,53 @@ func Button {
 ${{
 	var argsProcessed, arg, argType;
 	var name, label, imageURL;
-
-	if (typeof(arguments[2]) == "string") {
-		name = arguments[0];
-		label = arguments[1];
-		imageURL = arguments[2];
-		argsProcessed = 3;
-		arg = arguments[3];
-	} else {
-		name = root.currentObservableName();
-		if (name === undefined) {
-			eden.error(new Error("Button: Every button must have a name."), "error");
-			return undefined;
-		}
-		label = arguments[0];
-		argsProcessed = 1;
-		arg = arguments[1];
-		argType = typeof(arg);
-		if (argType == "string") {
-			imageURL = arg;
-			argsProcessed++;
-			arg = arguments[2];
+	var nameSpecified = false;
+	for (argsProcessed = 0; argsProcessed < 3; argsProcessed++) {
+		arg = arguments[argsProcessed];
+		if (arg !== undefined && typeof(arg) != "string") {
+			break;
 		}
 	}
 
-	var x = arg;
+	if (argsProcessed == 3) {
+		name = arguments[0];
+		label = arguments[1];
+		imageURL = arguments[2];
+		nameSpecified = true;
+	} else if (argsProcessed > 0) {
+		var str = arguments[argsProcessed - 1];
+		var found = false;
+		for (var i = 0; i < Button.imageFileSuffixes.length; i++) {
+			var filenameSuffix = Button.imageFileSuffixes[i];
+			if (str.substr(-filenameSuffix.length) == filenameSuffix) {
+				imageURL = str;
+				if (argsProcessed == 2) {
+					label = arguments[0];
+				}
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			label = str;
+			if (argsProcessed == 2) {
+				name = arguments[0];
+				nameSpecified = true;
+			}
+		}
+	}
+	if (name === undefined) {
+		var obsName = root.currentObservableName();
+		if (!nameSpecified) {
+			name = obsName;
+		}
+		if (name === undefined) {
+			eden.error(new Error("Button: The button defined by observable " + obsName + " must have a name."), "error");
+			return undefined;
+		}	
+	}
+
+	var x = arguments[argsProcessed];
 	argsProcessed++;
 	var y = arguments[argsProcessed];
 	argsProcessed++;
@@ -87,6 +109,8 @@ Button = function (name, label, imageURL, x, y, width, minHeight, enabled, fillc
 	this.fillcolour = fillcolour;
 	this.textcolour = textcolour;
 };
+
+Button.imageFileSuffixes = [".jpg", ".jpeg", ".png", ".gif", ".svg", ".svgz", ".webp", ".bmp", ".ico"];
 
 Button.prototype.hash = function () {
 	return this.name+"$$"+

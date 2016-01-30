@@ -46,8 +46,13 @@ func RadioButtons { ${{
 
 	var values = arguments[argsProcessed];
 	argsProcessed++;
-	var labels = arguments[argsProcessed];
-	argsProcessed++;
+	var labels;
+	if (Array.isArray(arguments[argsProcessed])) {
+		labels = arguments[argsProcessed];
+		argsProcessed++;
+	} else {
+		labels = values;
+	}
 	var x = arguments[argsProcessed];
 	argsProcessed++;
 	var y = arguments[argsProcessed];
