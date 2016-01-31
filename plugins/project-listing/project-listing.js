@@ -26,6 +26,8 @@
  * projects		A source (typically a URL leading to another JSON file) where a subdirectory of more
  *              projects can be found.
  * runfile		The URL of a js-e file to load or execute when the project is clicked on.
+ * agent        The pathname of an agent stored in the database to access.
+ *              (Mutually exclusively with the runfile attribute.)
  * screenshot	A URL leading to an image that provides a screenshot.  Images will be resized to a
  *				maximum of 80 pixels wide.
  * year			Free-form text giving the year(s) or dates when the project was constructed (optional).
@@ -162,6 +164,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		// Actually load the project by executing js-e file.
 		var projectURL = details.runfile;
 		if (projectURL !== undefined) {
+			//Run-file mechanism (include)
 			if (this.json.target !== undefined) {
 				this.loadProjectCode(projectURL);
 			} else if (!edenUI.eden.isInInitialState()) {
@@ -186,6 +189,33 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 				edenUI.newProject();
 				openProject(projectURL);
 			}
+		} else if (details.agent !== undefined) {
+			//Import agent from database
+			projectURL = details.agent;
+			if (this.json.target !== undefined) {
+
+			} else if (!edenUI.eden.isInInitialState()) {
+				edenUI.modalDialog(
+					"Open Project Action",
+					"<p>The work space contains an existing construal.</p>\
+					<p>You can either abandon the existing construal or choose to merge the project with the existing definitions.</p>\
+					<p>Which would you like to do?</p>",
+					["Open Project", "Merge"],
+					0,
+					function (optionNo) {
+						if (optionNo == 2) {
+							return;
+						}
+						if (optionNo == 0) {
+							edenUI.newProject();
+						}
+						Eden.Agent.importAgent(projectURL, "default", [], function (agent) {});
+					}
+				);
+			} else {
+				edenUI.newProject();
+				Eden.Agent.importAgent(projectURL, "default", [], function (agent) {});
+			}			
 		}
 		var projectListURL = details.projects;
 		if (projectListURL !== undefined) {

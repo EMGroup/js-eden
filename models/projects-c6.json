@@ -1,0 +1,74 @@
+{
+	"projects": [
+		{
+			"name": "Tutorials",
+			"author": "Nick Pope",
+			"year": "2015",
+			"description": "Some tutorials on various aspects of the environment.",
+			"agent": "tutorials"
+		},
+		{
+			"name": "Triangles",
+			"author": "\"Tuesday Team\" (Nick Pope et al.)",
+			"year": "2015",
+			"description": "Test your maths knowledge.",
+			"agent": "examples/triangles"
+		},
+		{
+			"name": "Purse",
+			"author": "Meurig Beynon",
+			"year": "2015",
+			"description": "Learn the basics of construals by exploring taking money out of purse and putting it back again.",
+			"agent": "purse"
+		},
+		{
+			"name": "Construing a Vending Machine From Scratch",
+			"author": "Meurig Beynon and Elizabeth Hudnott",
+			"year": "2015",
+			"description": "Learn to make something non-trivial from scratch.",
+			"agent": "vendingmachine"
+		},
+		{
+			"name": "Giving Change",
+			"author": "Meurig Beynon",
+			"year": "2015",
+			"description": "Explore giving change using a greedy coin selection method.",
+			"agent": "givingchange"
+		},
+		{
+			"name": "Room Experiment",
+			"author": "Nick Pope",
+			"year": "2015",
+			"description": "Explore different ways of expressing geometry to make a room plan.",
+			"agent": "examples/room"
+		},
+		{
+			"name": "Hex Colouring",
+			"author": "Jonny Foss and Meurig Beynon",
+			"year": "2015",
+			"description": "A puzzle game where you colour-in hexagons.",
+			"agent": "hexcolouring"
+		},
+		{
+			"name": "Clayton Tunnel",
+			"author": "Nick Pope",
+			"year": "2015",
+			"description": "Partial construal of a famous railway disaster.",
+			"agent": "claytontunnel"
+		},
+		{
+			"name": "Shopping",
+			"author": "Meurig Beynon, Jonny Foss and Steve Russ",
+			"year": "2015",
+			"description": "Shopping construal (no slides)",
+			"agent": "scifest2015/shopping"
+		},
+		{
+			"name": "Grid Algebra (work in progress)",
+			"author": "Nick Pope, Elizabeth Hudnott, Jonny Foss and Meurig Beynon in conversation",
+			"year": "2015",
+			"description": "Example of using scoping to produce a multiplication table.",
+			"agent": "examples/gridalgebra"
+		}
+	]
+}
