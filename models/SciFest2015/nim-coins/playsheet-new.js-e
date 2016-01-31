@@ -272,7 +272,7 @@ slideList is A_introNim // B_simpleNIM // C_binaryObs // D_abouttheNIMstrategy;
 
 E_nimwithcoins is Slide(
 "<h3>Nim with coins</h3>"
-"<p>""
+"<p>"
 "A variation on Nim can be played with coins, not stones. (This is to be played with UK currency.) We change the rules so that before taking coins away from a pile, you can first change two 1p coins for one 2p coins, five 1p coins into one 5p piece etc. Now that you know how to play normal NIM, you can see how far you can master NIM with coins. For instance: if you are faced with two piles each with two 1p pieces, can you now win the game? To explore this further, execute:"
 "<jseden>"
 "pictureBlend is "

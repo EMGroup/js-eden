@@ -518,14 +518,21 @@ include2("library/scoping.js-e");
 
 initialViews = ${{getParameterByName("views") }}$;
 if (initialViews == "" || initialViews == "default") {
+	createProjectList();
+	_view_projects_x = 0;
+	_view_projects_y = 0;
+	_view_projects_width = 210;
+	_view_projects_height = screenHeight;
 	createCanvas("picture", "Canvas Picture");
-	_view_picture_x = (screenWidth / 2 - 30) - _view_picture_width;
+	_view_picture_x = max((screenWidth / 2 - 30) - _view_picture_width, _view_projects_width + _views_frame_width);
 	_view_picture_y = screenHeight / 2 - _view_picture_height / 2;
 	if (${{ "logo" in edenUI.branding }}$) {
-		picture is [Image(_view_picture_width / 2 - eval(${{edenUI.branding.logo.width}}$ / 2), _view_picture_height / 2 - eval(${{edenUI.branding.logo.height}}$ / 2), eval(${{edenUI.branding.logo.url}}$))];
+		picture is [Image(_view_picture_width / 2 - ${{edenUI.branding.logo.width}}$ / 2, _view_picture_height / 2 - ${{edenUI.branding.logo.height}}$ / 2, ${{edenUI.branding.logo.url}}$)];
 	}
 	createView("input", "ScriptInput");
-	_view_input_x = screenWidth / 2 + 30;
-	_view_input_y = screenHeight / 2 - (_view_input_height / 2);
+	_view_input_agent = "view/script/input";
+	_view_input_height = _view_picture_height;
+	_view_input_x = min(screenWidth / 2 + 30, _view_picture_x + _view_picture_width + _views_frame_width + (_view_picture_x - (_view_projects_x + _view_projects_width + _views_frame_width)));
+	_view_input_y = screenHeight / 2 - _view_input_height / 2;
 }
 forget(&initialViews);

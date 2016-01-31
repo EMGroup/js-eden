@@ -1,18 +1,24 @@
 {
 	"projects": [
 		{
-				"name": "Shopping",
-				"author": "Meurig Beynon, Jonny Foss and Steve Russ",
-				"year": "2015",
-				"description": "Basic shopping as an introductory construal.",
-				"runfile": "models/SciFest2015/shopping/run.js-e"
+			"name": "Documentation",
+			"author": "JS-EDEN Development Team",
+			"description": "Presentations explaining how to use the environment.",
+			"projects": "models/guides/projects.json"
 		},
 		{
-				"name": "Shopping Game",
-				"author": "Meurig Beynon, Jonny Foss and Steve Russ",
-				"year": "2015",
-				"description": "Test your maths skills by calculating the change.",
-				"runfile": "models/SciFest2015/shopping/run-game.js-e"
+			"name": "Shopping",
+			"author": "Meurig Beynon, Jonny Foss and Steve Russ",
+			"year": "2015",
+			"description": "Basic shopping as an introductory construal.",
+			"runfile": "models/SciFest2015/shopping/run.js-e"
+		},
+		{
+			"name": "Shopping Game",
+			"author": "Meurig Beynon, Jonny Foss and Steve Russ",
+			"year": "2015",
+			"description": "Test your maths skills by calculating the change.",
+			"runfile": "models/SciFest2015/shopping/run-game.js-e"
 		},
 		{
 			"name": "Light Switch",

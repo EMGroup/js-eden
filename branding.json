@@ -9,6 +9,6 @@
 			"html": "<img src=\"images/email.png\" width=\"16\" height=\"16\" style=\"vertical-align: -20%\"/> Newsletter Sign-Up",
 			"href": "http://www.construit.org/index.php/dissemination/newsletters"
 		},
-		"data": "models/projects.json"
+		"data": "models/projects-c6.json"
 	}
 }
