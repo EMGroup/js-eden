@@ -137,8 +137,12 @@ func Slide { ${{
 ${{
   copyToInput = function(e) {
 
-	edenUI.createView("input", "ScriptInput").setValue($(e).siblings('pre').text());
+	//edenUI.createView("input", "ScriptInput").setValue($(e).siblings('pre').text());
 	//Copies to EDEN interpreter window
+	var ag = Eden.Agent.agents["view/script/input"];
+	if (ag) {
+		ag.setSource($(e).siblings('pre').text());
+	}
   }
 
   execute = function(e) {
