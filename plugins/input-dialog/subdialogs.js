@@ -367,7 +367,7 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 
 EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, data) {
 	var obscurer = $('<div class="script-obscurer noselect"></div>');
-	var content = $('<div class="script-subdialog-agents noselect"><span class="script-subdialog-title">Browse Agents:</span><br/><div class="script-agents-list"></div><div class="script-agents-buttons"><button class="button-icon-green button-add">Add</button><button style="float: right;" class="button-icon-silver button-cancel">Cancel</button></div></div>');
+	var content = $('<div class="script-subdialog-agents noselect"><span class="script-subdialog-title">'+Language.ui.input_window.browse_agents+':</span><br/><div class="script-agents-list"></div><div class="script-agents-buttons"><button class="button-icon-green button-add">Add</button><button style="float: right;" class="button-icon-silver button-cancel">Cancel</button></div></div>');
 	var list = content.find(".script-agents-list");
 	var valid = true;
 

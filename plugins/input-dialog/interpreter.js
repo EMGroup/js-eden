@@ -127,13 +127,21 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	/* Log the history of gutter executed statements */
 	Eden.Agent.listenTo("executeline", this, function (agent, line) {
 		if (agent && agent.ast) {
-			var statement = agent.ast.lines[line];
-			if (statement) {
-				var base = agent.ast.getBase(statement);
-				execlog.push(new HistoryEntry(agent.name, agent.ast.getSource(base)));
+			if (line == -1) {
+				execlog.push(new HistoryEntry(agent.name, agent.snapshot));
 				
 				if (histdiv) {
 					prettyHistory(histdiv);
+				}
+			} else {
+				var statement = agent.ast.lines[line];
+				if (statement) {
+					var base = agent.ast.getBase(statement);
+					execlog.push(new HistoryEntry(agent.name, agent.ast.getSource(base)));
+				
+					if (histdiv) {
+						prettyHistory(histdiv);
+					}
 				}
 			}
 		}
