@@ -495,6 +495,19 @@ Eden.Agent.prototype.changeVersion = function(tag, callback) {
 
 
 
+Eden.Agent.prototype.findDefinitionLine = function(source) {
+	if (this.ast) {
+		for (var i=0; i<this.ast.lines.length; i++) {
+			if (this.ast.lines[i] && (this.ast.getSource(this.ast.lines[i]) == source)) {
+				return i;
+			}
+		}
+	}
+	return -1;
+}
+
+
+
 Eden.Agent.prototype.loadSource = function(callback) {
 	var me = this;
 	this.executed = false;
@@ -681,7 +694,7 @@ Eden.Agent.prototype.hasErrors = function() {
  * that instead (eg. a proc).
  */
 Eden.Agent.prototype.executeLine = function (lineno, auto) {
-	this.ast.executeLine(lineno);
+	this.ast.executeLine(lineno, this);
 
 	if (!auto) {
 		Eden.Agent.emit('executeline', [this, lineno]);
