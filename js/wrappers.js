@@ -495,6 +495,19 @@ Eden.Agent.prototype.changeVersion = function(tag, callback) {
 
 
 
+Eden.Agent.prototype.findDefinitionLine = function(source) {
+	if (this.ast) {
+		for (var i=0; i<this.ast.lines.length; i++) {
+			if (this.ast.lines[i] && (this.ast.getSource(this.ast.lines[i]) == source)) {
+				return i;
+			}
+		}
+	}
+	return -1;
+}
+
+
+
 Eden.Agent.prototype.loadSource = function(callback) {
 	var me = this;
 	this.executed = false;
