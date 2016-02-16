@@ -92,7 +92,7 @@ Eden.AST.prototype.clearExecutedState = function() {
  * If the statement is part of a larger statement block then execute
  * that instead (eg. a proc).
  */
-Eden.AST.prototype.executeLine = function(lineno) {
+Eden.AST.prototype.executeLine = function(lineno, agent) {
 	var line = lineno;
 	// Make sure we are not in the middle of a proc or func.
 	//while ((line > 0) && (this.lines[line] === undefined)) {
@@ -113,7 +113,7 @@ Eden.AST.prototype.executeLine = function(lineno) {
 	statement = this.getBase(statement);
 
 	// Execute only the currently changed root statement
-	this.executeStatement(statement, line);
+	this.executeStatement(statement, line, agent);
 }
 
 
@@ -153,9 +153,9 @@ Eden.AST.prototype.getBlockLines = function(lineno) {
 /**
  * Execute the given statement and catch any errors.
  */
-Eden.AST.prototype.executeStatement = function(statement, line) {
+Eden.AST.prototype.executeStatement = function(statement, line, agent) {
 	try {
-		statement.execute(eden.root,undefined, this);
+		statement.execute(eden.root,undefined, this, agent);
 	} catch (e) {
 		eden.error(e);
 		//throw e;

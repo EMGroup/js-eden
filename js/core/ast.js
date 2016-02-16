@@ -1102,7 +1102,7 @@ Eden.AST.Definition.prototype.generate = function(ctx) {
 	}
 };
 
-Eden.AST.Definition.prototype.execute = function(root, ctx, base) {
+Eden.AST.Definition.prototype.execute = function(root, ctx, base, agent) {
 	this.executed = 1;
 	//console.log("RHS = " + rhs);
 	var source = base.getSource(this);
@@ -1128,7 +1128,7 @@ Eden.AST.Definition.prototype.execute = function(root, ctx, base) {
 			deps.push(d);
 		}
 		sym.eden_definition = base.getSource(this);
-		sym.define(eval(rhs), {name: "execute"}, deps);
+		sym.define(eval(rhs), agent, deps);
 	}
 		
 }
@@ -1241,7 +1241,7 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 	this.compiled = eval(rhs);
 }
 
-Eden.AST.Assignment.prototype.execute = function(root, ctx, base) {
+Eden.AST.Assignment.prototype.execute = function(root, ctx, base, agent) {
 	if (this.expression === undefined) return;
 	this.executed = 1;
 	this.compile(ctx);
@@ -1249,10 +1249,10 @@ Eden.AST.Assignment.prototype.execute = function(root, ctx, base) {
 	try {
 		if (this.lvalue.hasListIndices()) {
 			this.value = this.compiled(root,root.scope);
-			this.lvalue.getSymbol(root,ctx,base).listAssign(this.value, root.scope, {name: "execute"}, false, this.lvalue.executeCompList());
+			this.lvalue.getSymbol(root,ctx,base).listAssign(this.value, root.scope, agent, false, this.lvalue.executeCompList());
 		} else {
 			this.value = this.compiled(root,root.scope);
-			this.lvalue.getSymbol(root,ctx,base).assign(this.value,root.scope, {name: "execute"});
+			this.lvalue.getSymbol(root,ctx,base).assign(this.value,root.scope, agent);
 		}
 	} catch(e) {
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));

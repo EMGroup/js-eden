@@ -694,7 +694,7 @@ Eden.Agent.prototype.hasErrors = function() {
  * that instead (eg. a proc).
  */
 Eden.Agent.prototype.executeLine = function (lineno, auto) {
-	this.ast.executeLine(lineno);
+	this.ast.executeLine(lineno, this);
 
 	if (!auto) {
 		Eden.Agent.emit('executeline', [this, lineno]);

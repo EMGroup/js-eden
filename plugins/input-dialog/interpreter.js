@@ -151,7 +151,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	function prettyHistory(output) {
 		var result = "";
 		for (var i=0; i<execlog.length; i++) {
-			result += "/* Agent: "+execlog[i].agent+" at "+execlog[i].timestamp+" */\n";
+			var lineno = Eden.Agent.agents[execlog[i].agent].findDefinitionLine(execlog[i].script)+1;
+			if (lineno == 0) lineno = "n/a";
+			result += "/* "+execlog[i].agent+":" + lineno + " - "+get_time_diff(execlog[i].timestamp / 1000)+" */\n";
 			result += execlog[i].script;
 			result += "\n\n";
 		}
