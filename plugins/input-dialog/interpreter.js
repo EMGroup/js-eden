@@ -113,10 +113,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 
-	function HistoryEntry(agent, source) {
+	function HistoryEntry(agent, source, runforce) {
 		this.script = source;
 		this.timestamp = Date.now();
 		this.agent = agent;
+		this.runforce = runforce;
 	}
 
 
@@ -128,7 +129,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	Eden.Agent.listenTo("executeline", this, function (agent, line) {
 		if (agent && agent.ast) {
 			if (line == -1) {
-				execlog.push(new HistoryEntry(agent.name, agent.snapshot));
+				execlog.push(new HistoryEntry(agent.name, agent.snapshot, true));
 				
 				if (histdiv) {
 					prettyHistory(histdiv);
@@ -151,9 +152,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	function prettyHistory(output) {
 		var result = "";
 		for (var i=0; i<execlog.length; i++) {
-			var lineno = Eden.Agent.agents[execlog[i].agent].findDefinitionLine(execlog[i].script)+1;
-			if (lineno == 0) lineno = "n/a";
-			result += "/* "+execlog[i].agent+":" + lineno + " - "+get_time_diff(execlog[i].timestamp / 1000)+" */\n";
+			if (execlog[i].runforce === true) {
+				result += "/* "+execlog[i].agent+":run - "+get_time_diff(execlog[i].timestamp / 1000)+" */\n";
+			} else {
+				var lineno = Eden.Agent.agents[execlog[i].agent].findDefinitionLine(execlog[i].script)+1;
+				if (lineno == 0) lineno = "n/a";
+				result += "/* "+execlog[i].agent+":" + lineno + " - "+get_time_diff(execlog[i].timestamp / 1000)+" */\n";
+			}
 			result += execlog[i].script;
 			result += "\n\n";
 		}
