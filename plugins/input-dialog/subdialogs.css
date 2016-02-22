@@ -326,6 +326,10 @@ div.script-agents-expand.noexpand:before {
 	content: "\f007";
 }
 
+div.script-agents-expand.private:before {
+	color: red;
+}
+
 span.script-agents-title {
 	color: #777;
 	font-style: italic;

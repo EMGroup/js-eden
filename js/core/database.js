@@ -92,7 +92,6 @@ Eden.DB.connect = function(url, callback) {
 	markMissing(Eden.DB.directory);
 
 	// Make sure whole directory is reloaded every 4 seconds (if needed).
-	// TODO Make sure to remove this interval on disconnect.
 	Eden.DB.refreshint = setInterval(function() {
 		for (var a in Eden.DB.directory) {
 			Eden.DB.directory[a].missing = true;
@@ -410,7 +409,7 @@ Eden.DB.getDirectory = function(path, callback) {
 							// Recursive call because we may need to go deeper...
 							Eden.DB.getDirectory(path, callback);
 						} else {
-							callback(root);
+							callback(undefined);
 						}
 					},
 					error: function(a){
