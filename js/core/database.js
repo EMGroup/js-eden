@@ -91,6 +91,14 @@ Eden.DB.connect = function(url, callback) {
 	}
 	markMissing(Eden.DB.directory);
 
+	// Make sure whole directory is reloaded every 4 seconds (if needed).
+	// TODO Make sure to remove this interval on disconnect.
+	Eden.DB.refreshint = setInterval(function() {
+		for (var a in Eden.DB.directory) {
+			Eden.DB.directory[a].missing = true;
+		}
+	}, 4000);
+
 	function loginLoop() {
 		if (Eden.DB.isConnected() && Eden.DB.username === undefined) {
 			setTimeout(function() {
@@ -128,6 +136,11 @@ Eden.DB.connect = function(url, callback) {
 Eden.DB.disconnect = function(retry) {
 	Eden.DB.remoteURL = undefined;
 	Eden.DB.emit("disconnected", []);
+
+	if (Eden.DB.refreshint) {
+		clearInterval(Eden.DB.refreshint);
+		Eden.DB.refreshint = undefined;
+	}
 
 	if (retry) {
 		Eden.DB.retrycount++;
@@ -364,6 +377,12 @@ Eden.DB.getDirectory = function(path, callback) {
 		// This path has not yet been loaded from the database
 		if (root[comp[i]].missing) {
 			root[comp[i]].missing = false;
+
+			//Make sure any children are marked as missing
+			for (var x in root[comp[i]].children) {
+				root[comp[i]].children[x].missing = true;
+			}
+
 			if (Eden.DB.isConnected()) {
 				var curpath = comp.slice(0,i+1).join("/");
 				// Go to database to get path

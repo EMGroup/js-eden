@@ -1517,7 +1517,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			edited = true;
 
 			// Check saved status
-			if (scriptagent.isSaved()) {
+			if (scriptagent && scriptagent.isSaved()) {
 				setSubTitle("");
 			}
 
