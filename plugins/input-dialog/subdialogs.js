@@ -25,11 +25,20 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 	.on("input blur", ".script-subdialog-text", function() {
 		var value = input.get(0).value;
 		//console.log(value);
+		
+		var valsplit = value.split("/");
+		var valtest = true;
+		for (var i=0; i<valsplit.length; i++) {
+				if (/^[a-z][a-z0-9]+$/i.test(valsplit[i]) == false) {
+						valtest = false;
+						break;
+				}
+		}
 
 		if (value == "") {
 			valid = false;
 			status.className = "missing";
-		} else if (/^[a-z][a-z0-9\/]+$/i.test(value)) {
+		} else if (valtest) {
 			if (Eden.Agent.agents[value] === undefined) {
 				Eden.DB.getMeta(value, function(path,meta) {
 					if (meta) {
