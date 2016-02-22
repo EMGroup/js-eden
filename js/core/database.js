@@ -31,35 +31,39 @@ Eden.DB.Meta = function() {
 	this.remote = false;
 	this.title = "Agent";
 	this.author = undefined;
-	this.saveID = "origin";
+	this.saveID = -1;
 	this.tag = "origin";
 	this.defaultID = -1;
 	this.latestID = -1;
 	this.file = undefined;
+	this.date = undefined;
 }
 
-Eden.DB.Meta.prototype.updateDefault = function(id, title, author) {
+Eden.DB.Meta.prototype.updateDefault = function(id, title, author, date) {
 	if (id > this.defaultID) this.defaultID = id;
 	if (this.latestID == -1) this.latestID = id;
 	if (this.saveID == -1) {
 		this.title = title;
 		this.author = author;
+		this.date = date;
 	}
 }
 
-Eden.DB.Meta.prototype.updateLatest = function(id, title, author) {
+Eden.DB.Meta.prototype.updateLatest = function(id, title, author, date) {
 	if (id > this.latestID) this.latestID = id;
 	if (this.saveID == -1 && this.defaultID == -1) {
 		this.title = title;
 		this.author = author;
+		this.date = date;
 	}
 	if (this.defaultID == -1) this.defaultID = id;
 }
 
-Eden.DB.Meta.prototype.updateVersion = function(saveID, tag, title, author) {
+Eden.DB.Meta.prototype.updateVersion = function(saveID, tag, title, author, date) {
 	this.saveID = saveID;
 	this.title = title;
 	this.author = author;
+	this.date = date;
 
 	if (tag) {
 		this.tag = tag;
@@ -289,14 +293,14 @@ Eden.DB.processManifestEntry = function(path, entry) {
 	if (entry.versions) {
 		if (entry.versions.Official.length > 0) {
 			var version = entry.versions.Official[0];
-			meta.updateDefault(version.saveID, version.title, version.name);
+			meta.updateDefault(version.saveID, version.title, version.name, version.date);
 		}
 		if (entry.versions.UserLatest.length > 0) {
 			var version = entry.versions.UserLatest[0];
-			meta.updateLatest(version.saveID, version.title, version.name);
+			meta.updateLatest(version.saveID, version.title, version.name, version.date);
 		} else if (entry.versions.PublicLatest.length > 0) {
 			var version = entry.versions.PublicLatest[0];
-			meta.updateLatest(version.saveID, version.title, version.name);
+			meta.updateLatest(version.saveID, version.title, version.name, version.date);
 		}
 	}
 
@@ -459,7 +463,7 @@ Eden.DB.upload = function(path, meta, source, tagname, ispublic, callback) {
 					eden.error((data) ? data.description : "No response from server");
 					if (callback) callback(false);
 				} else {
-					meta.updateVersion(data.saveID, data.tag, meta.title, meta.name);
+					meta.updateVersion(data.saveID, data.tag, meta.title, meta.name, meta.date);
 					if (callback) callback(true);
 				}
 			},
@@ -492,8 +496,6 @@ Eden.DB.getVersions = function(path, callback) {
 				withCredentials: true
 			},
 			success: function(data){
-				//console.log(data);
-				// TODO Process this version data to update defaults?
 				callback(data);
 			},
 			error: function(a){
@@ -576,7 +578,7 @@ Eden.DB.getSource = function(path, tag, callback) {
 						console.error("No such version");
 						//console.log(data);
 					} else {			
-						meta.updateVersion(data.saveID, data.tag, data.title, data.name);	
+						meta.updateVersion(data.saveID, data.tag, data.title, data.name, data.date);	
 						callback(data.source);
 					}
 				},
@@ -588,7 +590,7 @@ Eden.DB.getSource = function(path, tag, callback) {
 		// There is a version stored in a file somewhere
 		} else if (meta.file) {
 			$.get(meta.file, function(data) {
-				meta.updateVersion("origin", "default", meta.title, meta.name);
+				meta.updateVersion("origin", "default", meta.title, meta.name, data.date);
 				callback(data);
 			}, "text");
 		} else {

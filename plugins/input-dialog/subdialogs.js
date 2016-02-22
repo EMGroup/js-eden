@@ -137,7 +137,7 @@ function get_time_diff( timestamp )
     var date_diff = new Date( milisec_diff );
 
 	if (days > 5) {
-		return "";
+		return (new Date(datetime)).toDateString();
 	} else {
 		var result = "";
 		if (days > 0) {
@@ -386,7 +386,15 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 				(function(content, path, name, cbcontainer, expand) {
 					Eden.DB.getMeta(path, function(path, meta) {
 						if (meta) {
-							content.html(name+" <span class=\"script-agents-title\">"+meta.title+"</span>");
+							var datestr = "";
+							if (meta.date) {
+								var t = meta.date.split(/[- :]/);
+								datestr = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
+							}
+							
+							var titlestr = meta.title;
+							if (titlestr == "Agent") titlestr = "";
+							content.html(name+" <span class=\"script-agents-title\">"+titlestr+"</span><span class=\"script-agents-date\">"+datestr+"</span>");
 							
 							if (meta.remote && meta.defaultID == -1 && meta.latestID == -1) {
 								expand.addClass("private");

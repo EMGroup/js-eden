@@ -336,6 +336,13 @@ span.script-agents-title {
 	margin-left: 10px;
 }
 
+span.script-agents-date {
+	color: #666;
+	font-style: normal;
+	font-weight: bold;
+	margin-left: 10px;
+}
+
 div.script-agents-content {
 	float: left;
 	padding: 5px;
