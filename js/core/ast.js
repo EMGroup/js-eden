@@ -1,6 +1,43 @@
-/* AST Structures */
+/*
+ * Copyright (c) 2015, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+/**
+ * Abstract Syntax Tree Structures
+ *
+ * When a script is parsed a tree is constructed, and the structures at the
+ * nodes and leaves of the tree are defined here. Each node and leaf has a type
+ * and a list of errors. Most also have the following set of standard
+ * functions:
+ *     - error: to add a syntax or run-time error to this node.
+ *     - setSource: statement nodes need to know start and end source position
+ *     - generate: to generate javascript output from this node and its subtree
+ *     - execute: to directly execute the tree, which may go via generate above
+ *
+ * Generate functions require two parameters: 1) a context which is a
+ * definition, assignment, procedure, function or script. This gives the scope
+ * of local variables etc. 2) A scope string, a string containing the name of
+ * the javascript variable for the scope to use (scope as in js-eden scoping
+ * not javascript scope).
+ *
+ * Execute functions require three parameters: 1) Root symbol table, as in
+ * eden.root. 2) Context, same as for the generate function. 3) Base of the
+ * abstract syntax tree so that it knows how to call actions defined elsewhere
+ * within it.
+ *
+ * Additionally, each node may have type specific functions for setting node
+ * specific children or data items during construction. On the whole, these
+ * extra methods should bubble all errors found in child nodes up, ultimately
+ * to the root node.
+ *
+ * @see translator2.js for the parser that generates the tree from these nodes.
+ */
 
 
+/* Generic functions to be reused */
 function fnEdenASTerror(err) {
 	this.errors.unshift(err);
 };
@@ -13,7 +50,12 @@ function fnEdenASTleft(left) {
 };
 
 
+////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * A doxygen style comment node. The content is not parsed, the entire comment
+ * is stored raw.
+ */
 Eden.AST.DoxyComment = function(content, start, end) {
 	this.type = "doxycomment";
 	this.content = content;
@@ -24,6 +66,10 @@ Eden.AST.DoxyComment = function(content, start, end) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Literals such as numbers, strings, lists and also JavaScript expressions.
+ * These literals may or may not require execution to obtain their value.
+ */
 Eden.AST.Literal = function(type, literal) {
 	this.type = "literal";
 	this.parent = undefined;
@@ -44,6 +90,7 @@ Eden.AST.Literal.prototype.generate = function(ctx) {
 	switch (this.datatype) {
 	case "NUMBER"	:	return this.value;
 	case "LIST"		:	var res = "[";
+						// Loop over each element and generate that also.
 						for (var i=0; i<this.value.length; i++) {
 							res += this.value[i].generate(ctx,"scope");
 							if (this.value[i].doesReturnBound && this.value[i].doesReturnBound()) {
@@ -61,6 +108,10 @@ Eden.AST.Literal.prototype.generate = function(ctx) {
 	}
 }
 
+/**
+ * Execute this literal to obtain its actual javascript value, particularly
+ * important for lists and JavaScript expression literals.
+ */
 Eden.AST.Literal.prototype.execute = function(root, ctx) {
 	switch(this.datatype) {
 	case "NUMBER"	:
@@ -78,6 +129,12 @@ Eden.AST.Literal.prototype.execute = function(root, ctx) {
 
 //------------------------------------------------------------------------------
 
+/**
+ * Scope node, as specified using "with" statement. This needs to store a bunch
+ * of overrides and an expression to which these overrides are applied. It may
+ * also contain range overrides and if this is the case the scope node range
+ * property is set to true.
+ */
 Eden.AST.Scope = function() {
 	this.type = "scope";
 	this.errors = [];
@@ -100,26 +157,41 @@ Eden.AST.Scope.prototype.getObservable = function() {
 	return this.primary.getObservable();
 }*/
 
+/**
+ * Set the LHS expression the scope overrides are to be applied to.
+ */
 Eden.AST.Scope.prototype.setExpression = function(express) {
 	this.expression = express;
+	// Bubble errors if there are any
 	if (express) {
 		this.errors.push.apply(this.errors, express.errors);
 	}
 }
 
+/**
+ * Check if the expression returns a bound value or plain value.
+ */
 Eden.AST.Scope.prototype.doesReturnBound = function() {
 	return (this.expression && this.expression.doesReturnBound) ? this.expression.doesReturnBound() : false;
 }
 
+/**
+ * Add child nodes for an override. First parameter is a string observable
+ * name that has been parsed, and second is the first override value and the
+ * third is an optional second value for a range override. The second and third
+ * parameters are AST nodes containing a literal or expression.
+ */
 Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2) {
 	if (exp2) {
 		this.range = true;
 		this.overrides[obs] = { start: exp1, end: exp2 };
+		// Bubble errors of child nodes
 		this.errors.push.apply(this.errors, exp1.errors);
 		this.errors.push.apply(this.errors, exp2.errors);
 	} else {
 		this.range = false;
 		this.overrides[obs] = { start: exp1, end: undefined};
+		// Bubble errors of child nodes
 		this.errors.push.apply(this.errors, exp1.errors);
 	}
 }
@@ -133,6 +205,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 	//	res = "new Scope(context, scope, [";
 	//}
 
+	// Generate script for each override expression.
 	for (var o in this.overrides) {
 		var startstr = this.overrides[o].start.generate(ctx,scope);
 		if (this.range) {
@@ -151,16 +224,23 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 			res += "),";
 		}
 	}
+	// remove last comma
 	res = res.slice(0,-1);
 	// TODO Reinstate cause when known
 	res += "], "+this.range+", undefined)"; //context.lookup(\""+this.primary.getObservable()+"\"))";
+	// Add the scope generation string the the array of scopes in this context
 	ctx.scopes.push(res);
+	// Return the expression using the newly generated scope.
 	return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]");
 }
 
 
 //------------------------------------------------------------------------------
 
+/**
+ * An individual list index. Usually this is some expression that needs to have
+ * its value adjusted from js-eden 1 base to 0 base.
+ */
 Eden.AST.Index = function() {
 	this.type = "index";
 	this.expression = undefined;
@@ -169,6 +249,7 @@ Eden.AST.Index = function() {
 
 Eden.AST.Index.prototype.setExpression = function(express) {
 	this.expression = express;
+	// Bubble the errors
 	if (express.errors.length > 0) {
 		this.errors.push.apply(this.errors,express.errors);
 	}
@@ -179,6 +260,7 @@ Eden.AST.Index.prototype.generate = function(ctx, scope) {
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 		ix += ".value";
 	}
+	// Return final string with -1 adjustment applied.
 	return "[rt.index("+ix+")]";
 }
 
@@ -187,6 +269,11 @@ Eden.AST.Index.prototype.error = fnEdenASTerror;
 
 //------------------------------------------------------------------------------
 
+/**
+ * A Dot notation scope path structure. There is a scope on the left, applied
+ * to some primary observable name on the right. Most functions in this node
+ * forward on to children.
+ */
 Eden.AST.ScopePath = function() {
 	this.type = "scopepath";
 	this.errors = [];
@@ -221,14 +308,17 @@ Eden.AST.ScopePath.prototype.getScopeString = function() {
 
 Eden.AST.ScopePath.prototype.setPrimary = function(prim) {
 	this.primary = prim;
+	// Bubble errors from children
 	if (this.primary.errors.length > 0) {
 		this.errors.push.apply(this.errors, prim.errors);
 	}
 }
 
 Eden.AST.ScopePath.prototype.generate = function(ctx, scope) {
+	// Add scope to list of scopes in the context
 	ctx.scopes.push(this.path.generate(ctx, scope)+".scope");
 	this.scopestr = "_scopes[" + (ctx.scopes.length-1) + "]";
+	// And then use that scope to access the primary.
 	return this.primary.generate(ctx, "_scopes["+(ctx.scopes.length-1)+"]");
 }
 
@@ -238,6 +328,9 @@ Eden.AST.ScopePath.prototype.error = fnEdenASTerror;
 
 //------------------------------------------------------------------------------
 
+/**
+ * Dollar numeric action parameters as used in expressions.
+ */
 Eden.AST.Parameter = function(index) {
 	this.type = "parameter";
 	this.index = index;
@@ -252,17 +345,21 @@ Eden.AST.Parameter.prototype.doesReturnBound = function() {
 }
 
 Eden.AST.Parameter.prototype.generate = function(ctx, scope) {
+	// If -1 then get the number of parameters available.
 	if (this.index == -1) {
 		if (ctx && ctx.parameters) return ""+ctx.parameters.length;
 		this.returnsbound = false;
 		return "0";
 	}
 	if (ctx && ctx.getParameterByNumber) {
+		// An action cannot be compiled if it uses action parameters...
 		ctx.dirty = true;
+		// Search the context for this parameter to determine scope binding
 		var res = ctx.getParameterByNumber(this.index);
 		if (res instanceof BoundValue) this.returnsbound = true;
 		else this.returnsbound = false;
 		//return ""+res;
+		// Generate run-time code to obtain parameters value.
 		return "ctx.getParameterByNumber("+this.index+")";
 	}
 }
@@ -271,6 +368,9 @@ Eden.AST.Parameter.prototype.generate = function(ctx, scope) {
 
 //------------------------------------------------------------------------------
 
+/**
+ * Unary Operators.
+ */
 Eden.AST.UnaryOp = function(op, right) {
 	this.type = "unaryop";
 	this.op = op;
