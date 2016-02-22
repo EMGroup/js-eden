@@ -383,22 +383,28 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 				var content = $('<div class="script-agents-content"></div>');
 				var cbcontainer = $('<div class="script-agents-cbcont"></div>');
 
-				(function(content, path, name, cbcontainer) {
+				(function(content, path, name, cbcontainer, expand) {
 					Eden.DB.getMeta(path, function(path, meta) {
 						if (meta) {
-							var checkbox = $('<input type="checkbox"></input>');
 							content.html(name+" <span class=\"script-agents-title\">"+meta.title+"</span>");
-							cbcontainer.append(checkbox);
+							
+							if (meta.remote && meta.defaultID == -1 && meta.latestID == -1) {
+								expand.addClass("private");
+								cbcontainer.html("&nbsp;");
+							} else {
+								var checkbox = $('<input type="checkbox"></input>');
+								cbcontainer.append(checkbox);
 
-							if (data.indexOf(path) >= 0) {
-								checkbox.get(0).checked = true;
+								if (data.indexOf(path) >= 0) {
+									checkbox.get(0).checked = true;
+								}
 							}
 						} else {
 							content.html(name);
 							cbcontainer.html("&nbsp;");
 						}
 					});
-				}).call(this, content, npath, a, cbcontainer);
+				}).call(this, content, npath, a, cbcontainer, expand);
 
 				if (Eden.Agent.agents[npath]) {
 					item.addClass("loaded");
@@ -406,9 +412,9 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 
 				item.get(0).setAttribute("data-path", npath);
 				item.get(0).setAttribute("data-depth", ""+(depth+1));
-				if (dir[a].missing == false && dir[a].children && Object.keys(dir[a].children).length == 0) {
-					expand.addClass("noexpand");
-				}
+				//if (dir[a].missing == false && dir[a].children && Object.keys(dir[a].children).length == 0) {
+				//	expand.addClass("noexpand");
+				//}
 				item.append(expand);
 				item.append(cbcontainer);
 				item.append(content);
