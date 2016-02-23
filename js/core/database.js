@@ -588,14 +588,14 @@ Eden.DB.getSource = function(path, tag, callback) {
 				}
 			});
 		// There is a version stored in a file somewhere
-		} else if (meta.file) {
+		} else if (meta.file && (tag == "default")) {
 			$.get(meta.file, function(data) {
 				meta.updateVersion("origin", "default", meta.title, meta.name, data.date);
 				callback(data);
 			}, "text");
 		} else {
 			// Assume it must be local only.
-			meta.saveID = "origin";
+			meta.saveID = tag; //"origin";
 			callback("");
 		}
 	});
