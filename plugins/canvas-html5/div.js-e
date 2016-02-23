@@ -182,6 +182,8 @@ Div.prototype.draw = function(context) {
 		objectElement.type = "text/html";
 		objectElement.data = "about:blank";
 		divElement.appendChild(objectElement);
+	} else {
+		this.resize = function () { };
 	}
 
 	this.elements = [divElement];
