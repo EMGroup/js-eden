@@ -406,7 +406,7 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 							content.html(name+" <span class=\"script-agents-title\">"+titlestr+"</span><span class=\"script-agents-date\">"+datestr+"</span>");
 							
 							if (meta.remote && meta.defaultID == -1 && meta.latestID == -1) {
-								expand.addClass("private");
+								//expand.addClass("private");
 								cbcontainer.html("&nbsp;");
 							} else {
 								var checkbox = $('<input type="checkbox"></input>');
