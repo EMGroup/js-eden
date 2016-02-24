@@ -508,37 +508,68 @@ Eden.Agent.prototype.findDefinitionLine = function(source) {
 
 
 
+Eden.Agent.prototype.recovery = function() {
+	var rec = [];
+	for (var a in this.history) {
+		if (a == "recover") continue;
+		rec = rec.concat(this.history[a]);
+	}
+
+	rec.sort(function(a,b) { return a.time - b.time; });
+
+	this.history.recover = rec;
+}
+
+
+
 Eden.Agent.prototype.loadSource = function(callback) {
 	var me = this;
 	this.executed = false;
 
 	//console.log("Attempt to load source for " + me.name);
 
-	Eden.DB.getSource(me.name, me.meta.tag, function(data, msg) {
-		if (data || data == "") {
-			//console.log("Source loaded: " + me.name);
-			// Make sure we have a local history for this
-			if (me.history[me.meta.saveID] === undefined) {
-				me.history[me.meta.saveID] = [];
-			}
-
-			// Reset undo history to beginning.
-			me.index = -1;
-			me.setSnapshot(data);
+	// An emergency recovery mode for when project manager fails
+	if (me.meta.tag == "recover") {
+		me.index = -1;
+		me.setSnapshot("");
+		me.meta.saveID = "recover";
 		
-			// Do we need to do an automatic fast-forward?
-			if (me.options && me.options.indexOf("rebase") >= 0) {
-				while (me.canRedo()) me.redo();
-			}
 
-			me.setSource(me.snapshot);
-			if (callback) callback(true);
-			Eden.Agent.emit("loaded", [me]);
-		} else {
-			if (callback) callback(false, msg);
-			else console.error("AGENT ERROR: " + me.name + " - " + msg);
-		}
-	}, "text");
+		// Generate a new history from all existing histories.
+		me.recovery();
+
+		while (me.canRedo()) me.redo();
+
+		me.setSource(me.snapshot);
+		if (callback) callback(true);
+		Eden.Agent.emit("loaded", [me]);
+	} else {
+		Eden.DB.getSource(me.name, me.meta.tag, function(data, msg) {
+			if (data || data == "") {
+				//console.log("Source loaded: " + me.name);
+				// Make sure we have a local history for this
+				if (me.history[me.meta.saveID] === undefined) {
+					me.history[me.meta.saveID] = [];
+				}
+
+				// Reset undo history to beginning.
+				me.index = -1;
+				me.setSnapshot(data);
+		
+				// Do we need to do an automatic fast-forward?
+				if (me.options && me.options.indexOf("rebase") >= 0) {
+					while (me.canRedo()) me.redo();
+				}
+
+				me.setSource(me.snapshot);
+				if (callback) callback(true);
+				Eden.Agent.emit("loaded", [me]);
+			} else {
+				if (callback) callback(false, msg);
+				else console.error("AGENT ERROR: " + me.name + " - " + msg);
+			}
+		}, "text");
+	}
 }
 
 
