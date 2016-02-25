@@ -97,8 +97,24 @@ var rt = {
 	},
 
 	concat: function (a, b) {
-		if (Array.isArray(a)) {
-			return a.concat(b);
+		if (a === undefined || b === undefined) {
+			return undefined;
+		} else if (Array.isArray(a)) {
+			if (Array.isArray(b)) {
+				return a.concat(b);
+			} else {
+				eden.error(new Error(
+					"Concatenation: When the left hand side is a list then the right hand side must " +
+					"also be a list, not a " + typeof(b)
+				));
+				return undefined;
+			}
+		} else if (Array.isArray(b)) {
+			eden.error(new Error(
+				"Concatenation: When the right hand side is a list then the left hand side must " +
+				"also be a list, not a " + typeof(a)
+			));
+			return undefined;
 		} else {
 			return String(a) + b;
 		}
