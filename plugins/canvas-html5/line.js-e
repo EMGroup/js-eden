@@ -187,7 +187,10 @@ func distanceMoved {
 func angleTurned {
 	${{
 		var from, to;
-		if (arguments.length == 1) {
+		if (arguments.length == 0) {
+			//Probably not an actual function call but radiansPerUnit observable changed.
+			return undefined;
+		} else if (arguments.length == 1) {
 			to = arguments[0];
 			from = new Point(0, 0);
 		} else if (arguments.length == 2) {
@@ -200,7 +203,7 @@ func angleTurned {
 				return undefined;
 			}
 		} else {
-			eden.error(new Error("angleTurned: This function requires at least 1 argument and at most 2 arguments"), "error");
+			eden.error(new Error("angleTurned: This function requires at most 2 arguments"), "error");
 			return undefined;
 		}
 		if (to === undefined) {
