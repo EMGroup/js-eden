@@ -73,6 +73,12 @@ ws.on('message', function(data, flags) {
 			if (components.length == 2 && components[0] == "arduino") {
 				if (components[1].charAt(0) == "d") {
 					writeDigitalPin(parseInt(components[1].substring(1)), val);
+				} else if (components[1].charAt(0) == "a") {
+					if (val < 0) {
+						sendCommand(50+parseInt(components[1].substring(1)), 1, 1);
+					} else {
+						sendCommand(50+parseInt(components[1].substring(1)), 0, 1);
+					}
 				}
 			}
 		}
@@ -83,12 +89,25 @@ sp.on('data', function(data) {
 	for (var i=0; i<data.length; i+=2) {
 		var pin = data[i];
 
-		if (i+1 < data.length) {
-			var val = data[i+1];
-			ws.send(JSON.stringify({action: "assign", symbol: "arduino_d"+pin, value: (val > 0) ? true : false}));
+		if (pin < 50) {
+			if (i+1 < data.length) {
+				var val = data[i+1];
+				ws.send(JSON.stringify({action: "assign", symbol: "arduino_d"+pin, value: (val > 0) ? true : false}));
+			} else {
+				// Missing a byte
+				console.log("MISSING");
+			}
 		} else {
-			// Missing a byte
-			console.log("MISSING");
+			console.log(data);
+			if (i+2 < data.length) {
+				var val = data[i+1] + (data[i+2]*256);
+				ws.send(JSON.stringify({action: "assign", symbol: "arduino_a"+(pin-50), value: val}));
+				i++;
+			} else {
+				// Missing a byte
+				i++;
+				console.log("MISSING");
+			}
 		}
 	}
 });

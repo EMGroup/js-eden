@@ -7,6 +7,7 @@ byte value;
 int device;
 Servo srv;
 int ipins[14];
+int iapins[6];
 
 void pciSetup(byte pin)
 {
@@ -29,7 +30,15 @@ ISR (PCINT0_vect) // handle pin change interrupt for D8 to D13 here
  
 ISR (PCINT1_vect) // handle pin change interrupt for A0 to A5 here
  {
- 
+ 	int val;
+	int i;  
+
+	for (i=0; i<6; i++) {
+		if (iapins[i] == 1) {
+			Serial.write(50+i);
+			Serial.write(analogRead(A0 + i));
+		}
+	}
  }  
  
 ISR (PCINT2_vect) // handle pin change interrupt for D0 to D7 here
@@ -49,6 +58,9 @@ void setup() {
   for (i=0; i<=13; i++) {
     ipins[i] = 0;
   }
+  for (i=0; i<=5; i++) {
+    iapins[i] = 0;
+  }
   // put your setup code here, to run once:
   Serial.begin(115200);
   //srv.attach(52); // hard code servo to this pin
@@ -59,30 +71,50 @@ void setup() {
 // 3: digital port (LOW/HIGH, not implemented yet)
 // 5: servo (0-180)
 void loop() {
-	while(Serial.available() < 3);  //wait until a byte was received
+	int i;
+
+	if (Serial.available() > 0) {
+		while(Serial.available() < 3);
 		pin = Serial.read();
 		value = Serial.read();
 		device = Serial.read();
 
-		if (device == 1) {
-			if (value == 1) {
-				ipins[pin] = 1;
-				pinMode(pin, INPUT);
-				pciSetup(pin);
-			} else {
-				ipins[pin] = 0;
-				pinMode(pin, OUTPUT);
+		if (pin < 50) {
+			if (device == 1) {
+				if (value == 1) {
+					ipins[pin] = 1;
+					pinMode(pin, INPUT);
+					pciSetup(pin);
+				} else {
+					ipins[pin] = 0;
+					pinMode(pin, OUTPUT);
+				}
+			} else if (device == 4) {
+			  analogWrite(pin, value);//output received byte
+			} else if (device == 3) {
+			  if (value == 0) {
+				digitalWrite(pin, LOW);
+			  } else {
+				digitalWrite(pin, HIGH);
+			  }
+			 // srv.write(value);
+			 // delay(15);
 			}
-		} else if (device == 4) {
-		  analogWrite(pin, value);//output received byte
-		} else if (device == 3) {
-		  if (value == 0) {
-			digitalWrite(pin, LOW);
-		  } else {
-			digitalWrite(pin, HIGH);
-		  }
-		 // srv.write(value);
-		 // delay(15);
-    }
+		} else {
+			if (device == 1) {
+				iapins[pin-50] = value;
+			}
+		}
+	} else {
+		for (i=0; i<6; i++) {
+			if (iapins[i] == 1) {
+				value = analogRead(A0 + i);
+				Serial.write(50+i);
+				Serial.write(lowByte(value));
+				Serial.write(highByte(value));
+			}
+		}
+		delay(15);
+	}
 }
 /* End of Arduino sketch */
