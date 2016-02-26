@@ -49,14 +49,10 @@ function writeDigitalPin(pin, val) {
 		}
 		sendCommand(pin, (val) ? 1 : 0, 3);
 	} else if (type == "number") {
-		if (val < 0) {
-			pinMode(pin, "IN");
-		} else {
-			if (pinModes[pin] != "OUT") {
+		if (pinModes[pin] != "OUT") {
 				pinMode(pin, "OUT");
-			}
-			sendCommand(pin, val, 4);
 		}
+		sendCommand(pin, val, 4);
 	}
 }
 
@@ -70,14 +66,21 @@ ws.on('message', function(data, flags) {
 
 			// Send change to arduino device...
 			var components = name.split("_");
-			if (components.length == 2 && components[0] == "arduino") {
-				if (components[1].charAt(0) == "d") {
+			if (components.length >= 2 && components[0] == "arduino") {
+				if (components[1] == "input") {
+					if (components.length == 3 && components[2].charAt(0) == "d") {
+						if (val) pinMode(parseInt(components[2].substring(1)), "IN");
+						else pinMode(parseInt(components[2].substring(1)), "OUT");
+					}
+				} else if (components[1].charAt(0) == "d") {
 					writeDigitalPin(parseInt(components[1].substring(1)), val);
-				} else if (components[1].charAt(0) == "a") {
-					if (val < 0) {
-						sendCommand(50+parseInt(components[1].substring(1)), 1, 1);
-					} else {
-						sendCommand(50+parseInt(components[1].substring(1)), 0, 1);
+				} else if (components[1] == "enabled") {
+					if (components.length == 3 && components[2].charAt(0) == "a") {
+						if (val) {
+							sendCommand(50+parseInt(components[2].substring(1)), 1, 1);
+						} else {
+							sendCommand(50+parseInt(components[2].substring(1)), 0, 1);
+						}
 					}
 				}
 			}
