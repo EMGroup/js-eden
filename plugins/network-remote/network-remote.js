@@ -140,6 +140,12 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 					connection.send(JSON.stringify({action: "control", key: key, value: value}));
 				}
 
+				me.sendAssign = function(sym) {
+					if (sym.last_modified_by != "net") {
+						connection.send(JSON.stringify({action: "assign", symbol: sym.name.slice(1), value: sym.value()}));
+					}
+				}
+
 				// most important part - incoming messages
 				connection.onmessage = function (message) {
 					program = JSON.parse(message.data);
