@@ -20,12 +20,12 @@ function sendCommand(pin, value, command) {
 	buf.writeUInt8(pin, 0);
 	buf.writeUInt8(value, 1);
 	buf.writeUInt8(command, 2);
-	console.log(buf);
+	//console.log(buf);
 	sp.write(buf);
 }
 
 function pinMode(pin, mode) {
-	console.log("Mode for "+pin+" = "+mode);	
+	//console.log("Mode for "+pin+" = "+mode);	
 	var val = 0;
 	
 	pinModes[pin] = mode;
@@ -40,7 +40,10 @@ function pinMode(pin, mode) {
 }
 
 function writeDigitalPin(pin, val) {
-	console.log("Value for "+pin+" = "+val);
+	//console.log("Value for "+pin+" = "+val);
+
+	if (val > 255) val = true;
+	if (val < 0) val = false;
 
 	var type = typeof val;
 	if (type == "boolean") {
@@ -88,29 +91,40 @@ ws.on('message', function(data, flags) {
 	}
 });
 
-sp.on('data', function(data) {
-	for (var i=0; i<data.length; i+=2) {
-		var pin = data[i];
+var cacheData = [];
 
-		if (pin < 50) {
-			if (i+1 < data.length) {
-				var val = data[i+1];
-				ws.send(JSON.stringify({action: "assign", symbol: "arduino_d"+pin, value: (val > 0) ? true : false}));
-			} else {
-				// Missing a byte
-				console.log("MISSING");
-			}
-		} else {
-			console.log(data);
-			if (i+2 < data.length) {
-				var val = data[i+1] + (data[i+2]*256);
-				ws.send(JSON.stringify({action: "assign", symbol: "arduino_a"+(pin-50), value: val}));
-				i++;
-			} else {
-				// Missing a byte
-				i++;
-				console.log("MISSING");
-			}
+function processSerialData(obj) {
+	var pin = obj[0];
+
+	if (pin < 50) {
+		var val = obj[1];
+		ws.send(JSON.stringify({action: "assign", symbol: "arduino_d"+pin, value: (val > 0) ? true : false}));
+	} else {
+		var val = obj[1] + (obj[2]*256);
+		ws.send(JSON.stringify({action: "assign", symbol: "arduino_a"+(pin-50), value: val}));
+	}
+}
+
+sp.on('data', function(data) {
+	var i = 0;
+
+	while (i < data.length) {
+		if (cacheData.length == 0) {
+			cacheData.push(data[i]);
+			i++;
+		}
+
+		var pin = cacheData[0];
+		var expect = (pin < 50) ? 2 : 3;
+
+		while (i < data.length && cacheData.length < expect) {
+			cacheData.push(data[i]);
+			i++;
+		}
+
+		if (expect == cacheData.length) {
+			processSerialData(cacheData);
+			cacheData = [];
 		}
 	}
 });

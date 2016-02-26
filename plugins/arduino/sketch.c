@@ -8,6 +8,7 @@ int device;
 Servo srv;
 int ipins[14];
 int iapins[6];
+int avalue;
 
 void pciSetup(byte pin)
 {
@@ -108,10 +109,11 @@ void loop() {
 	} else {
 		for (i=0; i<6; i++) {
 			if (iapins[i] == 1) {
-				value = analogRead(A0 + i);
+				avalue = analogRead(A0 + i);
+				delay(5);
 				Serial.write(50+i);
-				Serial.write(lowByte(value));
-				Serial.write(highByte(value));
+				Serial.write(lowByte(avalue));
+				Serial.write(highByte(avalue));
 			}
 		}
 		delay(15);
