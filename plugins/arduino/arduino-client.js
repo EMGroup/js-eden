@@ -11,6 +11,10 @@ ws.on('open', function() {
 
 pinModes = [];
 
+for (var i=0; i<14; i++) {
+	pinModes[i] = "IN";
+}
+
 function sendCommand(pin, value, command) {
 	var buf = new Buffer(3);
 	buf.writeUInt8(pin, 0);
@@ -75,7 +79,17 @@ ws.on('message', function(data, flags) {
 	}
 });
 
-/*sp.on('data', function(data) {
-	console.log(data.toString());
-});*/
+sp.on('data', function(data) {
+	for (var i=0; i<data.length; i+=2) {
+		var pin = data[i];
+
+		if (i+1 < data.length) {
+			var val = data[i+1];
+			ws.send(JSON.stringify({action: "assign", symbol: "arduino_d"+pin, value: (val > 0) ? true : false}));
+		} else {
+			// Missing a byte
+			console.log("MISSING");
+		}
+	}
+});
 
