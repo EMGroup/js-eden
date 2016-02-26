@@ -163,7 +163,7 @@ EdenUI.plugins.NetworkRemote = function(edenUI, success){
 												Eden.Agent.importAgent(line.name, "default", ["noexec"], function(ag) { ag.executeLine(line.lineno, true); });
 												//}
 												break;
-						case "assign"		:	eden.root.lookup(line.symbol).assign(line.value,eden.root.scope);
+						case "assign"		:	eden.root.lookup(line.symbol).assign(line.value,eden.root.scope, {name: "net"});
 												break;
 						}
 
