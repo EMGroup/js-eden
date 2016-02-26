@@ -8,6 +8,7 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 	this.text = text;
 	this.x = x;
 	this.y = y;
+	this.size = size;
 	this.fillcolour = fillcolour;
 	this.outlinecolour = outlinecolour;
 
@@ -34,7 +35,7 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 		if (options.fontFace === undefined) {
 			css = css + "sans-serif";
 		} else {
-			css = css + options.fontFace + " sans-serif";
+			css = css + options.fontFace + ", sans-serif";
 		}
 
 	} else if (typeof(options) == "string") {
@@ -53,7 +54,7 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 			this.drawingOptions.align = searchResults[0];
 			options = options.replace(halignRE, "");
 		}
-		css = options + " sans-serif";
+		css = options;
 	} else {
 		css = size + " sans-serif";
 		this.drawingOptions = {valign: "top"};
@@ -249,11 +250,11 @@ Text.parseArgs = function () {
 		if (options.fontFace === undefined) {
 			css = css + "sans-serif";
 		} else {
-			css = css + options.fontFace + " sans-serif";
+			css = css + options.fontFace + ", sans-serif";
 		}
 	} else if (typeof(options) == "string") {
 		options = options.replace(/\b(top|hanging|middle|baseline|alphabetic|ideographic|bottom|left|right|center|centre|start|end)\b\s*/g, "");
-		css = options + " sans-serif";
+		css = options;
 		optionsObj = {};
 	} else {
 		css = size + " sans-serif";

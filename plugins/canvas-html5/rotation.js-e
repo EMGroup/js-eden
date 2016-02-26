@@ -62,6 +62,11 @@ ${{
 
 func CombinedRotation {
 	${{
+		if (arguments.length == 0) {
+			//Probably not an actual function call but radiansPerUnit observable changed.
+			return undefined;
+		}
+
 		var angle, centre, origin, angle2, radius, items;
 		angle = arguments[0];
 		centre = arguments[1];
@@ -91,6 +96,11 @@ func CombinedRotation {
 
 func RotateAboutCentre {
 	${{
+		if (arguments.length == 0) {
+			//Probably not an actual function call but radiansPerUnit observable changed.
+			return undefined;
+		}
+
 		var angle = arguments[0];
 		var centre = arguments[1];
 		var origin = arguments[2];
@@ -110,6 +120,11 @@ func RotateAboutCentre {
 
 func RotateAboutPoint {
 	${{
+		if (arguments.length == 0) {
+			//Probably not an actual function call but radiansPerUnit observable changed.
+			return undefined;
+		}
+
 		var angle, origin, radius, centre, items;
 		angle = arguments[0];
 		origin = arguments[1];
