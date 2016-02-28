@@ -3,13 +3,14 @@
 #include <Servo.h>
 
 int pin;
-byte value;
+int value;
 int device;
 Servo srv;
 int ipins[14];
 int iapins[6];
 int avalue;
 byte srvattached;
+byte tonepin;
 
 void pciSetup(byte pin)
 {
@@ -67,6 +68,7 @@ void setup() {
   Serial.begin(115200);
   //srv.attach(52); // hard code servo to this pin
 	srvattached = 0;
+	tonepin = 255;
 }
 // Incoming protocol: pin value device
 // supported devices
@@ -77,12 +79,15 @@ void loop() {
 	int i;
 
 	if (Serial.available() > 0) {
-		while(Serial.available() < 3);
+		while(Serial.available() < 4);
 		pin = Serial.read();
-		value = Serial.read();
+		value = Serial.read() + (Serial.read() * 256);
 		device = Serial.read();
 
-		if (pin < 50) {
+		if (device == 6) {
+			if (tonepin != 255) noTone(tonepin);
+			tonepin = pin;
+		} else if (pin < 50) {
 			if (device == 1) {
 				if (value == 1) {
 					ipins[pin] = 1;
@@ -97,6 +102,9 @@ void loop() {
 					if (value > 180) value = 180;
 					srv.write(value);
 					delay(15);
+				} else if (tonepin == pin) {
+					if (value == 0) noTone(pin);
+					else tone(pin, value);
 				} else {
 					analogWrite(pin, value);//output received byte
 				}
