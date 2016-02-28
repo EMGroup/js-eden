@@ -85,6 +85,8 @@ ws.on('message', function(data, flags) {
 							sendCommand(50+parseInt(components[2].substring(1)), 0, 1);
 						}
 					}
+				} else if (components[1] == "servo" && components[2] == "d9" && val) {
+					sendCommand(9, 1, 5);
 				}
 			}
 		}

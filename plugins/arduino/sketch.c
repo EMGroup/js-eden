@@ -9,6 +9,7 @@ Servo srv;
 int ipins[14];
 int iapins[6];
 int avalue;
+byte srvattached;
 
 void pciSetup(byte pin)
 {
@@ -65,12 +66,13 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   //srv.attach(52); // hard code servo to this pin
+	srvattached = 0;
 }
 // Incoming protocol: pin value device
 // supported devices
 // 4: analog port (for example PWM led)
 // 3: digital port (LOW/HIGH, not implemented yet)
-// 5: servo (0-180)
+// 5: enable servo pin (9).
 void loop() {
 	int i;
 
@@ -91,7 +93,13 @@ void loop() {
 					pinMode(pin, OUTPUT);
 				}
 			} else if (device == 4) {
-			  analogWrite(pin, value);//output received byte
+				if (pin == 9 && srvattached == 1) {
+					if (value > 180) value = 180;
+					srv.write(value);
+					delay(15);
+				} else {
+					analogWrite(pin, value);//output received byte
+				}
 			} else if (device == 3) {
 			  if (value == 0) {
 				digitalWrite(pin, LOW);
@@ -100,6 +108,12 @@ void loop() {
 			  }
 			 // srv.write(value);
 			 // delay(15);
+			} else if (device == 5) {
+				// Enable servo
+				if (srvattached == 0) {
+					srvattached = 1;
+					srv.attach(9);
+				}
 			}
 		} else {
 			if (device == 1) {
