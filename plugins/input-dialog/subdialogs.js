@@ -385,8 +385,17 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 	function addAgents(parent, depth, path) {
 		Eden.DB.getDirectory(path, function(dir) {
 			if (dir === undefined) return;
+			var sdir = [];
 			for (var a in dir) {
-				var npath = (path=="")?a:path+"/"+a;
+				sdir.push(a);
+			}
+			sdir.sort(function (a, b) {
+				return a.toLowerCase().localeCompare(b.toLowerCase());
+			});
+
+			for (var i=0; i<sdir.length; i++) {
+				var npath = (path=="")?sdir[i]:path+"/"+sdir[i];
+				var name = sdir[i];
 				var item = $('<div class="script-agents-item"></div>');
 				var expand = $('<div class="script-agents-expand" style="width: '+(27+depth*15)+'px"></div>');
 				var content = $('<div class="script-agents-content"></div>');
@@ -402,7 +411,8 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 							}
 							
 							var titlestr = meta.title;
-							if (titlestr == "Agent") titlestr = "";
+							if (titlestr == "Agent" || titlestr === undefined) titlestr = "";
+							
 							content.html(name+" <span class=\"script-agents-title\">"+titlestr+"</span><span class=\"script-agents-date\">"+datestr+"</span>");
 							
 							if (meta.remote && meta.defaultID == -1 && meta.latestID == -1) {
@@ -421,7 +431,7 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 							cbcontainer.html("&nbsp;");
 						}
 					});
-				}).call(this, content, npath, a, cbcontainer, expand);
+				}).call(this, content, npath, name, cbcontainer, expand);
 
 				if (Eden.Agent.agents[npath]) {
 					item.addClass("loaded");

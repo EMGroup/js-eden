@@ -278,7 +278,7 @@ div.script-agents-buttons {
 
 div.script-agents-item {
 	/*position: relative;*/
-	width: 100%;
+	min-width: 600px;
 	/*border-bottom: 1px solid #3465a4;*/
 	height: 20px;
 	overflow: hidden;

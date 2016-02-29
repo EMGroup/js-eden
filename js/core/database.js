@@ -277,6 +277,7 @@ Eden.DB.processManifestObject = function(data) {
 
 Eden.DB.processManifestList = function(data, remote) {
 	if (!data) return;
+
 	for (var i=0; i<data.length; i++) {
 		var meta = this.processManifestEntry(data[i].path, data[i]);
 		meta.remote = remote;
