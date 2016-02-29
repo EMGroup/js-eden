@@ -95,12 +95,12 @@ Eden.DB.connect = function(url, callback) {
 	}
 	markMissing(Eden.DB.directory);
 
-	// Make sure whole directory is reloaded every 4 seconds (if needed).
+	// Make sure whole directory is reloaded every 20 seconds (if needed).
 	Eden.DB.refreshint = setInterval(function() {
 		for (var a in Eden.DB.directory) {
 			Eden.DB.directory[a].missing = true;
 		}
-	}, 4000);
+	}, 20000);
 
 	function loginLoop() {
 		if (Eden.DB.isConnected() && Eden.DB.username === undefined) {
