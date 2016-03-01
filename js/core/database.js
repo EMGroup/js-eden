@@ -484,6 +484,7 @@ Eden.DB.upload = function(path, meta, source, tagname, ispublic, callback) {
 
 Eden.DB.createMeta = function(path) {
 	Eden.DB.meta[path] = new Eden.DB.Meta();
+	Eden.DB.meta[path].saveID = "origin";
 	return Eden.DB.meta[path];
 }
 
