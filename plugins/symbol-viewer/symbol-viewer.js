@@ -273,6 +273,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	edenUI.views["SymbolList"] = {dialog: this.createSymbolDialog, title: "Symbol List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
 
 	$(document).tooltip();
+	eden.root.lookup("plugins_symbolviewer_loaded").assign(true, eden.root.scope);
 	success();
 };
 
