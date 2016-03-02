@@ -26,7 +26,19 @@
 	white-space: nowrap;
 }
 .symbollist-result-element:hover {
-	background-color: #eaeaea;
+	background: #eaeaea;
+}
+
+.symbollist-exact-match-result {
+	background: linear-gradient(to right, rgba(255, 255, 255, 0.99), #f7fff7, #f7fff7);
+	color: #444444;
+	font-weight: bold;
+}
+
+.symbollist-dirty-match-result {
+	color: #333333;
+	background: #f2f2ff;
+	font-weight: bold;
 }
 
 .symbollist-inline-editor {
