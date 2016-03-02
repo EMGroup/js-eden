@@ -395,6 +395,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var showhidden = false;
 		var inspectmode = false;
 		var maxtabs = 3;
+		var tabpositions = {};
 
 		var scriptagent;
 
@@ -693,6 +694,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (value && Eden.Agent.agents[value]) {
 				// Already the current tab so continue...
 				if (scriptagent && value == scriptagent.name) return;
+				// Record tab cursor position
+				if (scriptagent) tabpositions[scriptagent.name] = intextarea.selectionStart;
 				// Release ownership of current tab
 				if (readonly == false) scriptagent.setOwned(false);
 				// Switch to new tab.
@@ -718,8 +721,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				// We have a parsed source so update contents of script view.
 				if (scriptagent.ast) {
 					intextarea.value = scriptagent.ast.stream.code;
-					highlightContent(scriptagent.ast, -1, 0);
+					if (tabpositions[scriptagent.name]) {
+						intextarea.selectionStart = tabpositions[scriptagent.name];
+						intextarea.selectionEnd = tabpositions[scriptagent.name];
+					}
+					highlightContent(scriptagent.ast, -1, (tabpositions[scriptagent.name]) ? tabpositions[scriptagent.name] : 0);
 					intextarea.focus();
+					checkScroll();
 				} else {
 					intextarea.value = "";
 					intextarea.focus();
