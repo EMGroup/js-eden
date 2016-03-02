@@ -377,6 +377,7 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 	var content = $('<div class="script-subdialog-agents noselect"><span class="script-subdialog-title">'+Language.ui.input_window.browse_agents+':</span><br/><div class="script-agents-list"></div><div class="script-agents-buttons"><button class="button-icon-green button-add">Add</button><button style="float: right;" class="button-icon-silver button-cancel">Cancel</button></div></div>');
 	var list = content.find(".script-agents-list");
 	var valid = true;
+	var scrollpos = 0;
 
 	var selected = {};
 
@@ -495,10 +496,12 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 		}
 	})
 	.on("click", ".button-add", function() {
+		scrollpos = list.scrollTop();
 		element.get(0).removeChild(obscurer.get(0));
 		callback(true, selected);
 	})
 	.on("click", ".button-cancel", function() {
+		scrollpos = list.scrollTop();
 		element.get(0).removeChild(obscurer.get(0));
 		callback(false);
 	});
@@ -507,6 +510,7 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 
 	function show() {
 		element.append(obscurer);
+		list.scrollTop(scrollpos);
 	}
 
 	return {show: show};
