@@ -398,27 +398,34 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var tabpositions = {};
 
 		var scriptagent;
+		var browseDialog = undefined;
 
 
 
 		function showBrowseDialog() {
-			showSubDialog("browseAgents", function(valid, selected){
-				if (valid ) {
-					var tabs = agent.state[obs_tabs];
-					var lasttab = (scriptagent) ? scriptagent.name : undefined;
-					for (var a in selected) {
-						if (selected[a]) {
-							lasttab = a;
-							Eden.Agent.importAgent(a, "default", ["noexec"], function(){});
-							if (tabs.indexOf(a) == -1) {
-								tabs.push(a);
+			if (browseDialog === undefined) {
+				if (EdenUI.plugins.ScriptInput.dialogs["browseAgents"]) {
+					browseDialog = EdenUI.plugins.ScriptInput.dialogs["browseAgents"]($dialogContents, function(valid, selected){
+						if (valid ) {
+							var tabs = agent.state[obs_tabs];
+							var lasttab = (scriptagent) ? scriptagent.name : undefined;
+							for (var a in selected) {
+								if (selected[a]) {
+									lasttab = a;
+									Eden.Agent.importAgent(a, "default", ["noexec"], function(){});
+									if (tabs.indexOf(a) == -1) {
+										tabs.push(a);
+									}
+								}
 							}
+							agent.state[obs_tabs] = tabs;
+							agent.state[obs_agent] = lasttab;
 						}
-					}
-					agent.state[obs_tabs] = tabs;
-					agent.state[obs_agent] = lasttab;
+					}, agent.state[obs_tabs]);
 				}
-			}, agent.state[obs_tabs]);
+			}
+
+			browseDialog.show();
 		}
 
 
