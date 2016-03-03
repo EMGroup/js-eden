@@ -116,14 +116,14 @@ var rt = {
 					"Concatenation: When the left hand side is a list then the right hand side must " +
 					"also be a list, not a " + typeof(b)
 				));
-				return undefined;
+				return a;
 			}
 		} else if (Array.isArray(b)) {
 			eden.error(new Error(
 				"Concatenation: When the right hand side is a list then the left hand side must " +
 				"also be a list, not a " + typeof(a)
 			));
-			return undefined;
+			return a + JSON.stringify(b);
 		} else {
 			return String(a) + b;
 		}
