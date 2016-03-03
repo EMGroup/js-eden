@@ -86,7 +86,7 @@ func positionInList {
 		}
 
 		high = list.length - 1;
-		if (high == 0) {
+		if (high == -1) {
 			return 0;
 		}
 
