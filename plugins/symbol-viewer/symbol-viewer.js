@@ -309,13 +309,14 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
  * @param pattern A regular expression for symbol names.
  */
 EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (searchStr, regExp, category, subtypes) {
+	this.searchStr = searchStr;
 	this.regExp = regExp;
 	if (category !== undefined) {
 		this.category = category;
 		this.customCategory = (category != "user" && category != "system" && category != "all");
 	}
 	if (subtypes !== undefined) {
-		this.subtypes = subtypes;;
+		this.subtypes = subtypes;
 	}
 
 	// Clear existing results and start again
@@ -325,14 +326,7 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (searchStr, r
 
 	// For every js-eden symbol
 	var name, symbol;
-	if (searchStr in this.root.symbols) {
-		symbol = this.root.symbols[searchStr];
-		this.addSymbol(symbol, searchStr);
-	}
 	for (name in this.root.symbols) {
-		if (name === searchStr) {
-			continue;
-		}
 		symbol = this.root.symbols[name];
 		this.addSymbol(symbol, name);
 	}
@@ -358,28 +352,46 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.updateSymbol = function (name) 
  * @param name The name of the given symbol object.
  */
 EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, name) {
+	/*If forceDisplay is true then continue processing even if the symbol fails to match an active
+	 *search filter.  Also prioritizes the symbol by placing it at the top of the results. */
+	var forceDisplay = false;
+	//Style differently for an exact match or a dirty match (i.e. wouldn't be shown if wasn't forced).
+	var accentuation;
 
-	if (!this.regExp.test(name)) {
+	if (name == this.searchStr) {
+		forceDisplay = true;
+		accentuation = "exact-match";
+	} else if (!this.regExp.test(name)) {
 		return;
 	}
+
+	var matches = true;
 
 	if (this.customCategory) {
 		if (!Eden.isitCategory(name, this.category, this.type)) {
-			return;
+			matches = false;
 		}
 	} else if (Eden.isitSystemSymbol(name)) {
 		if (this.category == "user") {
-			return;
+			matches = false;
 		}
 	} else if (this.category == "system") {
-		return;
+		matches = false;
 	}
 	if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
 		if (this.subtypes == "vars") {
-			return;
+			matches = false;
 		}
 	} else {
 		if (this.subtypes == "formulas") {
+			matches = false;
+		}
+	}
+
+	if (!matches) {
+		if (forceDisplay) {
+			accentuation = "dirty-match";
+		} else {
 			return;
 		}
 	}
@@ -423,8 +435,12 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 	var show = this.type == "all" || this.type == symbolType;
 
 	if (show) {
-		var symele = new EdenUI.plugins.SymbolViewer.Symbol(symbol, name, symbolType);
-		symele.element.appendTo(this.symresults);
+		var symele = new EdenUI.plugins.SymbolViewer.Symbol(symbol, name, symbolType, accentuation);
+		if (forceDisplay) {
+			symele.element.prependTo(this.symresults);
+		} else {
+			symele.element.appendTo(this.symresults);
+		}
 		this.symbols[name] = symele;
 	}
 };
@@ -437,14 +453,19 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
  * @param symbol Internal EDEN symbol object.
  * @param name Name of the symbol.
  * @param Already detected type of the symbol: procedure,function,observable.
+ * @param accentuation undefined, "exact-match" or "dirty-match" (doesn't match drop-down list filters)
  */
-EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type) {
+EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation) {
 	this.symbol = symbol;
 	this.name = name;
 	this.type = type;
-	this.element = $('<div class="symbollist-result-element"></div>');
 	this.details = undefined;
 	this.update = undefined;
+
+	this.element = $('<div class="symbollist-result-element"></div>');
+	if (accentuation) {
+		this.element.addClass("symbollist-" + accentuation + "-result");
+	}
 
 	// Select update method based upon symbol type.
 	switch (type) {
