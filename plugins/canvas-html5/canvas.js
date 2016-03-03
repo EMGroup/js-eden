@@ -1276,7 +1276,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		jseSource = "jseden-canvas.min.js-e";
 	}
 
-	edenUI.eden.include("plugins/canvas-html5/" + jseSource, success);
+	edenUI.eden.include("plugins/canvas-html5/" + jseSource, function() {
+		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
+		if (success) success();
+	});
 };
 
 EdenUI.plugins.Canvas2D.FillStyle = function () {

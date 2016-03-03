@@ -14,7 +14,8 @@
   "dependencies": {
 	"ws": "*",
 	"fs": "*",
-	"serialport": "*"
+	"serialport": "*",
+	"yargs": "*"
 },
   "devDependencies": {
   },

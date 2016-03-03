@@ -395,29 +395,37 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var showhidden = false;
 		var inspectmode = false;
 		var maxtabs = 3;
+		var tabpositions = {};
 
 		var scriptagent;
+		var browseDialog = undefined;
 
 
 
 		function showBrowseDialog() {
-			showSubDialog("browseAgents", function(valid, selected){
-				if (valid ) {
-					var tabs = agent.state[obs_tabs];
-					var lasttab = (scriptagent) ? scriptagent.name : undefined;
-					for (var a in selected) {
-						if (selected[a]) {
-							lasttab = a;
-							Eden.Agent.importAgent(a, "default", ["noexec"], function(){});
-							if (tabs.indexOf(a) == -1) {
-								tabs.push(a);
+			if (browseDialog === undefined) {
+				if (EdenUI.plugins.ScriptInput.dialogs["browseAgents"]) {
+					browseDialog = EdenUI.plugins.ScriptInput.dialogs["browseAgents"]($dialogContents, function(valid, selected){
+						if (valid ) {
+							var tabs = agent.state[obs_tabs];
+							var lasttab = (scriptagent) ? scriptagent.name : undefined;
+							for (var a in selected) {
+								if (selected[a]) {
+									lasttab = a;
+									Eden.Agent.importAgent(a, "default", ["noexec"], function(){});
+									if (tabs.indexOf(a) == -1) {
+										tabs.push(a);
+									}
+								}
 							}
+							agent.state[obs_tabs] = tabs;
+							agent.state[obs_agent] = lasttab;
 						}
-					}
-					agent.state[obs_tabs] = tabs;
-					agent.state[obs_agent] = lasttab;
+					}, agent.state[obs_tabs]);
 				}
-			}, agent.state[obs_tabs]);
+			}
+
+			browseDialog.show();
 		}
 
 
@@ -693,6 +701,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (value && Eden.Agent.agents[value]) {
 				// Already the current tab so continue...
 				if (scriptagent && value == scriptagent.name) return;
+				// Record tab cursor position
+				if (scriptagent) tabpositions[scriptagent.name] = intextarea.selectionStart;
 				// Release ownership of current tab
 				if (readonly == false) scriptagent.setOwned(false);
 				// Switch to new tab.
@@ -718,8 +728,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				// We have a parsed source so update contents of script view.
 				if (scriptagent.ast) {
 					intextarea.value = scriptagent.ast.stream.code;
-					highlightContent(scriptagent.ast, -1, 0);
+					if (tabpositions[scriptagent.name]) {
+						intextarea.selectionStart = tabpositions[scriptagent.name];
+						intextarea.selectionEnd = tabpositions[scriptagent.name];
+					}
+					highlightContent(scriptagent.ast, -1, (tabpositions[scriptagent.name]) ? tabpositions[scriptagent.name] : 0);
 					intextarea.focus();
+					checkScroll();
 				} else {
 					intextarea.value = "";
 					intextarea.focus();
