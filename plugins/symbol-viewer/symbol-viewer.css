@@ -30,8 +30,8 @@
 }
 
 .symbollist-exact-match-result {
-	background: linear-gradient(to right, rgba(255, 255, 255, 0.99), #f7fff7, #f7fff7);
-	color: #444444;
+	background: #f4fff4;
+	color: #333333;
 	font-weight: bold;
 }
 
