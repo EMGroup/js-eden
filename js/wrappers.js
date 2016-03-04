@@ -29,6 +29,8 @@ Eden.Agent = function(parent, name, meta, options) {
 		this.name = name;
 	}
 
+	Eden.Agent.agents[this.name] = this;
+
 	if (meta === undefined) {
 		console.error("Meta undefined for " + name);
 		meta = Eden.DB.createMeta(name);
@@ -66,7 +68,6 @@ Eden.Agent = function(parent, name, meta, options) {
 
 	this.dmp = new diff_match_patch();
 
-	Eden.Agent.agents[this.name] = this;
 	Eden.Agent.emit("create", [this]);
 	Eden.DB.updateDirectory(this.name);
 
@@ -146,7 +147,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 		return;
 	}
 
-	console.log("Importing: " + path + "@" + tag);
+	//console.trace("Importing: " + path + "@" + tag);
 
 	if (tag === undefined || tag == "") tag = "default";
 
@@ -457,11 +458,13 @@ Eden.Agent.prototype.undo = function() {
 
 Eden.Agent.prototype.canUndo = function() {
 	if (this.meta === undefined) return false;
+	if (this.history[this.meta.saveID] === undefined) this.history[this.meta.saveID] = [];
 	return this.history[this.meta.saveID].length > 0 && this.index >= 0;
 }
 
 Eden.Agent.prototype.canRedo = function() {
 	if (this.meta === undefined) return false;
+	if (this.history[this.meta.saveID] === undefined) this.history[this.meta.saveID] = [];
 	return this.index < this.history[this.meta.saveID].length-1;
 }
 

@@ -517,6 +517,7 @@ Eden.DB.getVersions = function(path, callback) {
  */
 Eden.DB.getMeta = function(path, callback) {	
 	Eden.DB.getDirectory(path, function(p) {
+		//console.log("GETMETA:" + path);
 		callback(path, Eden.DB.meta[path]);
 	});
 }

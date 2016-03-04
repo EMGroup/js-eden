@@ -418,7 +418,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 							for (var a in selected) {
 								if (selected[a]) {
 									lasttab = a;
-									Eden.Agent.importAgent(a, "default", ["noexec"], function(){});
 									if (tabs.indexOf(a) == -1) {
 										tabs.push(a);
 									}
@@ -2047,10 +2046,18 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		}
 
 
+		var dragSX;
+		var dragSY;
+
+
 
 		function onTabDragStart(e) {
 			var name = e.target.getAttribute("data-name");
 			e.originalEvent.dataTransfer.setData("agent", name);
+
+			dragSX = e.originalEvent.offsetX;
+			dragSY = e.originalEvent.offsetY;
+
 			if (scriptagent.name == name) {
 				scriptagent.setOwned(false);
 				scriptagent = undefined;
@@ -2062,6 +2069,45 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			}
 		}
 
+		function shiftTab(tabs, old_index, new_index) {
+			while (old_index < 0) {
+				old_index += tabs.length;
+			}
+			while (new_index < 0) {
+				new_index += tabs.length;
+			}
+			if (new_index >= tabs.length) {
+				var k = new_index - tabs.length;
+				while ((k--) + 1) {
+				    tabs.push(undefined);
+				}
+			}
+			tabs.splice(new_index, 0, tabs.splice(old_index, 1)[0]);
+			return tabs; // for testing purposes
+		};
+
+		/*function onDrag(e) {
+			if (e.originalEvent.offsetX - dragSX < -50) {
+				dragSX = e.originalEvent.offsetX;
+				var value = e.originalEvent.srcElement.getAttribute("data-name");
+				var tabs = agent.state[obs_tabs];
+				var ix = tabs.indexOf(value);
+				if (ix > 0) {
+					tabs = shiftTab(tabs, ix, ix-1);
+				}
+				agent.state[obs_tabs] = tabs;
+			} else if (e.originalEvent.offsetX - dragSX > 50) {
+				dragSX = e.originalEvent.offsetX;
+				var value = e.originalEvent.srcElement.getAttribute("data-name");
+				var tabs = agent.state[obs_tabs];
+				var ix = tabs.indexOf(value);
+				if (ix < tabs.length-1) {
+					tabs = shiftTab(tabs, ix, ix+1);
+				}
+				agent.state[obs_tabs] = tabs;
+			}
+		}*/
+
 		function onTabDragOver(e) {
 			e.preventDefault();
 		}
@@ -2071,6 +2117,9 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			e.preventDefault();
 			var value = e.originalEvent.dataTransfer.getData("agent");
 			
+			console.log("DROP");
+			console.log(e);
+
 			if (!value || value == "") {
 				if (window.FileReader) {
 					var files = e.originalEvent.dataTransfer.files;
@@ -2110,7 +2159,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		function onTabDragEnd(e) {
 			var value = e.target.getAttribute("data-name");
 			if (e.originalEvent.dataTransfer.dropEffect != 'none') {
-				//console.log("DRAGEND: " + value);
+				console.log("DRAGEND: " + value);
+				console.log(e);
 				var tabs = agent.state[obs_tabs];
 				var ix = tabs.indexOf(value);
 				if (ix >= 0) {
@@ -2165,6 +2215,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		.on('click', '.agent-tabright', onTabRight)
 		.on('click', '.agent-newtab', onNewTab)
 		.on('dragstart', '.agent-tab', onTabDragStart)
+		//.on('drag', '.agent-tab', onDrag)
 		.on('dragend', '.agent-tab', onTabDragEnd)
 		.on('dragover', onTabDragOver)
 		.on('drop', onTabDrop);
