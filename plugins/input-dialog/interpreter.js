@@ -760,6 +760,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				} else {
 					rebuildTabs();
 				}
+
 			// Otherwise, no valid agent so try and resolve
 			} else {
 				// Release ownership of any current tab
@@ -781,7 +782,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (value) {
 					if (Eden.Agent.agents[value] === undefined) {
 						Eden.Agent.importAgent(value, "default", ["noexec"], function(ag) {
-							if (ag) changeAgent(undefined, value);
+							if (ag) {
+								changeAgent(undefined, value);
+							}
 						});
 					}
 				}
@@ -942,6 +945,12 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					intextarea.value = ag.getSource();
 					highlightContent(scriptagent.ast, -1, 0);
 					updateHistoryButtons();
+
+					if (scriptagent.canRedo()) {
+						showSubDialog("localChanges", function(status) {
+							if (status) onFastForward();
+						});
+					}
 				}
 			}
 		}
