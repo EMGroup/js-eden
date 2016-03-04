@@ -761,14 +761,17 @@ Eden.Agent.prototype.execute = function(force, auto) {
 
 
 
-Eden.Agent.prototype.upload = function(tagname, ispublic) {
+Eden.Agent.prototype.upload = function(tagname, ispublic, callback) {
 	var me = this;
 	if (this.ast) {
-		Eden.DB.upload(this.name, this.meta, this.ast.stream.code, tagname, ispublic, function() {
+		Eden.DB.upload(this.name, this.meta, this.ast.stream.code, tagname, ispublic, function(success) {
 			if (me.history[me.meta.saveID] === undefined) {
 				me.history[me.meta.saveID] = [];
 			}
+			if (callback) callback(success);
 		});
+	} else {
+		if (callback) callback(false);
 	}
 }
 

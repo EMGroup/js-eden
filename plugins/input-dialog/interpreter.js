@@ -288,7 +288,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			showSubDialog("uploadAgent", function(status, tag, ispublic) {
 				if (Eden.Agent.agents[name] && status) {
 					if (tag == "") tag = undefined;
-					Eden.Agent.agents[name].upload(tag, ispublic);
+					Eden.Agent.agents[name].upload(tag, ispublic, function(success) {
+						if (!success) {
+							showSubDialog("uploadFailed", function(status) {
+								if (status) uploadAgent(tab);
+							});
+						}
+					});
 				}
 			});
 		}
