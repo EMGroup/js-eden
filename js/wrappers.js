@@ -90,6 +90,7 @@ Eden.Agent = function(parent, name, meta, options) {
 }
 
 Eden.Agent.agents = {};		// Imported agents
+Eden.Agent.importQueue = {};
 
 Eden.Agent.listeners = {};
 Eden.Agent.emit = emit;
@@ -147,16 +148,34 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 		return;
 	}
 
+	// If multiple imports are called before completion of first, then
+	// queue the callbacks instead of attempting to import again.
+	// NOTE: If tag or options change, these changes are lost.
+	if (Eden.Agent.importQueue[path]) {
+		Eden.Agent.importQueue[path].push(callback);
+		return;
+	}
+
+	Eden.Agent.importQueue[path] = (callback) ? [callback] : [];
+
 	//console.trace("Importing: " + path + "@" + tag);
 
 	if (tag === undefined || tag == "") tag = "default";
+
+	// Process all queued callbacks...
+	function doCallbacks(ag, msg) {
+		for (var i=0; i<Eden.Agent.importQueue[path].length; i++) {
+			Eden.Agent.importQueue[path][i](ag, msg);
+		}
+		Eden.Agent.importQueue[path] = undefined;
+	}
 
 	function finish(success, msg) {
 		// There is an agent
 		if (ag) {
 			// But something went wrong loading its source
 			if (!success) {
-				callback(undefined, msg);
+				doCallbacks(undefined, msg);
 				return;
 			}
 
@@ -177,11 +196,11 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			Eden.DB.addLocalMeta(path, ag.meta);
 		// There is no existing agent and we are not to create it.
 		} else if (!success) {
-			callback(undefined, msg);
+			doCallbacks(undefined, msg);
 			return;
 		}
 
-		if (callback) callback(ag);
+		doCallbacks(ag);
 	}
 
 	// Does it already exist
