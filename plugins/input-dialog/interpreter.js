@@ -948,7 +948,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					if (scriptagent.canRedo()) {
 						showSubDialog("localChanges", function(status) {
 							if (status) onFastForward();
-						});
+						}, scriptagent);
 					}
 				}
 			}

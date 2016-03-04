@@ -83,9 +83,9 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 
 
 
-EdenUI.plugins.ScriptInput.dialogs.localChanges = function(element, callback) {
+EdenUI.plugins.ScriptInput.dialogs.localChanges = function(element, callback, data) {
 	var obscurer = $('<div class="script-obscurer noselect"></div>');
-	var content = $('<div class="script-subdialog-uploadagent noselect"><span class="script-subdialog-title">You have local changes, use these?</span><br><br><button class="button-icon-green button-ok">Yes</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">No</button></div>');
+	var content = $('<div class="script-subdialog-uploadagent noselect"><span class="script-subdialog-text">You have local changes to '+data.name+', use these?</span><br><br><button class="button-icon-green button-ok">Yes</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">No</button></div>');
 
 
 	content
