@@ -83,6 +83,48 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 
 
 
+EdenUI.plugins.ScriptInput.dialogs.localChanges = function(element, callback) {
+	var obscurer = $('<div class="script-obscurer noselect"></div>');
+	var content = $('<div class="script-subdialog-uploadagent noselect"><span class="script-subdialog-title">You have local changes, use these?</span><br><br><button class="button-icon-green button-ok">Yes</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">No</button></div>');
+
+
+	content
+	.on("click", ".button-ok", function() {
+		element.get(0).removeChild(obscurer.get(0));
+		callback(true);
+	})
+	.on("click", ".button-cancel", function() {
+		element.get(0).removeChild(obscurer.get(0));
+		callback(false);
+	}); 
+
+	obscurer.append(content);
+	element.append(obscurer);
+}
+
+
+
+EdenUI.plugins.ScriptInput.dialogs.uploadFailed = function(element, callback) {
+	var obscurer = $('<div class="script-obscurer noselect"></div>');
+	var content = $('<div class="script-subdialog-uploadagent noselect"><span class="script-subdialog-title">Upload Failed! Try again...</span><br><br><button class="button-icon-green button-upload">Retry</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">Cancel</button></div>');
+
+
+	content
+	.on("click", ".button-upload", function() {
+		element.get(0).removeChild(obscurer.get(0));
+		callback(true);
+	})
+	.on("click", ".button-cancel", function() {
+		element.get(0).removeChild(obscurer.get(0));
+		callback(false);
+	}); 
+
+	obscurer.append(content);
+	element.append(obscurer);
+}
+
+
+
 EdenUI.plugins.ScriptInput.dialogs.uploadAgent = function(element, callback) {
 	var obscurer = $('<div class="script-obscurer noselect"></div>');
 	var content = $('<div class="script-subdialog-uploadagent noselect"><span class="script-subdialog-title">Upload agent. Give an optional version name:</span><br/><input class="script-subdialog-text tagname" type="text" spellcheck="false"></input><span class="status missing"></span><br><input class="script-subdialog-check makepublic" type="checkbox">Public</input><br><br><button class="button-icon-green button-upload">Upload</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">Cancel</button></div>');
