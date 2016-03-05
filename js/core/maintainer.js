@@ -722,7 +722,7 @@
 			cache.up_to_date = true;
 			//NOTE: Don't do copy here, be clever about it.
 			//cache.value = copy(this.definition(this.context, scope));
-			cache.value = this.definition(this.context, scope, cache);
+			cache.value = this.definition.call(this,this.context, scope, cache);
 
 			// Post process with all extensions
 			if (this.extend) {

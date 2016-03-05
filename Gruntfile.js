@@ -67,6 +67,7 @@ module.exports = function (grunt) {
 					'css/highlighter.css',
 					'plugins/input-dialog/gutter.css',
 					'plugins/adm/adm-input.css',
+					'plugins/dbview/dbview.css',
 					'plugins/script-generator/script-generator.css'
 				]
 			}
@@ -122,6 +123,7 @@ module.exports = function (grunt) {
 					'./plugins/network-remote/network-remote.js',
 					'./plugins/view-layout/view-layout.js',
 					'./plugins/adm/adm-input.js',
+					'./plugins/dbview/dbview.js',
 					'./plugins/speech-synthesis/speech-synthesis.js'
 				]
 			}
