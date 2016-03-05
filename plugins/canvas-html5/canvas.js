@@ -897,11 +897,15 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				var windowPos = $(this).offset();
 				x = (e.pageX - Math.round(windowPos.left)) / combinedScale;
 				y = (e.pageY - Math.round(windowPos.top)) / combinedScale;
+
+				var offset = root.lookup("_view_" + canvasName + "_offset").value();
+				if (offset instanceof Point) {
+					x = x - offset.x;
+					y = y - offset.y;
+				}
 			}
 
-			var mousePos;
-			mousePos = new Point(x, y);
-
+			var mousePos = new Point(x, y);
 			root.lookup('mouseView').assign(canvasName, Symbol.hciAgent, followMouse);
 			mousePositionSym.assign(mousePos, Symbol.hciAgent, followMouse);
 
