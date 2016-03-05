@@ -28,7 +28,7 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 
 		var agent = new Eden.Agent(undefined,"view/db/"+sname+"/config");
 		var obs_source = "_view_"+sname+"_source";
-		agent.declare("obs_source");
+		agent.declare(obs_source);
 
 		function rebuild() {
 			if (Array.isArray(relation) == false) {
@@ -161,6 +161,8 @@ EdenUI.plugins.DBView = function(edenUI, success) {
 			agent.setSource("_view_"+sname+"_source is "+select.value);
 			agent.execute(true, true);
 		});
+
+		relation = agent.state[obs_source];
 
 		rebuild();
 
