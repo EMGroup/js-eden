@@ -33,14 +33,14 @@
 }
 
 .symbollist-exact-match-result {
-	background: linear-gradient(to right, rgba(255, 255, 255, 0.99), #f7fff7, #f7fff7);
-	color: #444444;
+	background: #eeffee;
+	color: #333333;
 	font-weight: bold;
 }
 
 .symbollist-dirty-match-result {
 	color: #333333;
-	background: #f2f2ff;
+	background: #dfdfff;
 	font-weight: bold;
 }
 

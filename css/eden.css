@@ -64,9 +64,16 @@ h2, ul li {
 }
 
 .result_value {
-	opacity: 0.5;
+	opacity: 0.55;
 	white-space: nowrap;
 	overflow: hidden;
+}
+
+.result_parameters {
+	opacity: 0.55;
+	white-space: nowrap;
+	overflow: hidden;
+	margin-left: 1.2pt;
 }
 
 div.error-item {

@@ -93,6 +93,7 @@ Eden.systemAgentNames = {
 	"resizeView": true,
 	"setedenclock": true,
     "showObservables": true,
+    "showSymbols": true,
 	"showView": true,
 	"stopHighlightingView": true,
 	"todo": true,
