@@ -14,6 +14,7 @@ Div = function (html, x, y, width, height, id, classNames, style) {
 	this.obsName = root.currentObservableName();
 	this.classNames = classNames;
 	this.style = style;
+	this.displayed = false;
 }
 
 Div.prototype.hash = function () {
@@ -138,56 +139,59 @@ Div.prototype.draw = function(context) {
 		objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; " + 
 			"height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
 
-		this.resize = function () {
-			if (!me.displayed) {
-				return;
-			}
-			var element = me.elements[0];
-			var style = element.style;
-			var autoWidth = me.width === undefined;
-			var autoHeight = me.height === undefined;
-
-			if (autoWidth) {
-				var savedHeight = style.height;
-				style.width = "auto";
-				style.height = "auto";
-				var contentWidth = element.clientWidth;
-				style.width = contentWidth + "px";
-				style.height = savedHeight;
-				var scrollBarSize = element.offsetWidth - element.clientWidth;
-				if (scrollBarSize > 0) {
-					scrollBarSize = scrollBarSize + 2;
-				}
-				style.width = String(contentWidth + scrollBarSize) + "px";
-			}
-
-			if (me.name !== undefined) {
-				var widthSymName = me.name + "_width";
-				var heightSymName = me.name + "_height";
-				var scale = me.cachedScale;
-
-				if (autoWidth || widthSymName in root.symbols) {
-					root.lookup(widthSymName).assign(element.offsetWidth / scale);
-				}
-				if (autoHeight || heightSymName in root.symbols) {
-					root.lookup(heightSymName).assign(element.offsetHeight /scale);
-				}
-			}
-		};
 		objectElement.onload = function () {
 			me.displayed = true;
 			me.resize();
 		}
+
 		objectElement.type = "text/html";
 		objectElement.data = "about:blank";
 		divElement.appendChild(objectElement);
 	} else {
-		this.resize = function () { };
+		this.displayed = true;
 	}
 
 	this.elements = [divElement];
   }
 };
+
+Div.prototype.resize = function () {
+	if (!this.displayed) {
+		return;
+	}
+
+	var element = this.elements[0];
+	var style = element.style;
+	var autoWidth = this.width === undefined;
+	var autoHeight = this.height === undefined;
+
+	if (autoWidth) {
+		var savedHeight = style.height;
+		style.width = "auto";
+		style.height = "auto";
+		var contentWidth = element.clientWidth;
+		style.width = contentWidth + "px";
+		style.height = savedHeight;
+		var scrollBarSize = element.offsetWidth - element.clientWidth;
+		if (scrollBarSize > 0) {
+			scrollBarSize = scrollBarSize + 2;
+		}
+		style.width = String(contentWidth + scrollBarSize) + "px";
+	}
+
+	if (this.name !== undefined) {
+		var widthSymName = this.name + "_width";
+		var heightSymName = this.name + "_height";
+		var scale = this.cachedScale;
+
+		if (autoWidth || widthSymName in root.symbols) {
+			root.lookup(widthSymName).assign(element.offsetWidth / scale);
+		}
+		if (autoHeight || heightSymName in root.symbols) {
+			root.lookup(heightSymName).assign(element.offsetHeight /scale);
+		}
+	}
+}
 
 Div.prototype.scale = function (scale, zoom , origin) {
 	var style = this.elements[0].style;
