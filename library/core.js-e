@@ -150,7 +150,7 @@ ${{
 }}$;
 
 ${{
-	function showSymbols(type, searchStr, viewName, searchLang) {
+	showSymbols = function (type, searchStr, viewName, searchLang) {
 		if (arguments.length > 4) {
 			eden.error(new Error("show" + type + "s: This procedure requires at most 3 parameters."), "error");
 			return;
