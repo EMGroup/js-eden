@@ -227,7 +227,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 	// remove last comma
 	res = res.slice(0,-1);
 	// TODO Reinstate cause when known
-	res += "], "+this.range+", undefined)"; //context.lookup(\""+this.primary.getObservable()+"\"))";
+	res += "], "+this.range+", this.name.slice(1))"; //context.lookup(\""+this.primary.getObservable()+"\"))";
 	// Add the scope generation string the the array of scopes in this context
 	ctx.scopes.push(res);
 	// Return the expression using the newly generated scope.
@@ -1347,12 +1347,13 @@ Eden.AST.Assignment.prototype.execute = function(root, ctx, base, agent) {
 	this.compile(ctx);
 
 	try {
+		var sym = this.lvalue.getSymbol(root,ctx,base);
 		if (this.lvalue.hasListIndices()) {
-			this.value = this.compiled(root,root.scope);
-			this.lvalue.getSymbol(root,ctx,base).listAssign(this.value, root.scope, agent, false, this.lvalue.executeCompList());
+			this.value = this.compiled.call(sym,root,root.scope);
+			sym.listAssign(this.value, root.scope, agent, false, this.lvalue.executeCompList());
 		} else {
-			this.value = this.compiled(root,root.scope);
-			this.lvalue.getSymbol(root,ctx,base).assign(this.value,root.scope, agent);
+			this.value = this.compiled.call(sym,root,root.scope);
+			sym.assign(this.value,root.scope, agent);
 		}
 	} catch(e) {
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
@@ -1596,7 +1597,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope) {
 			id = ctx.backtickCount;
 			ctx.backtickCount++;
 		}
-		res = "context.currentObservable.subscribeDynamic(" + id + "," + this.backtick.generate(ctx, scope);
+		res = "this.subscribeDynamic(" + id + "," + this.backtick.generate(ctx, scope);
 		if (this.backtick.doesReturnBound && this.backtick.doesReturnBound()) {
 			res += ".value";
 		}

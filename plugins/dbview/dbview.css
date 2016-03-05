@@ -1,0 +1,135 @@
+div.dbview-dialog {
+	background: #f1f1f1;
+	border-width: 1px;
+	border-color: #777;
+	border-style: solid;
+	padding: 0;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 15px #4a6887;
+}
+
+div.dbview-dialog .ui-dialog-titlebar {
+	border-top-width: 0;
+	border-left-width: 0;
+	border-right-width: 0;
+	border-bottom-color: #777;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 10px #4a6887;
+	background: -webkit-linear-gradient(#fafafa, #cccccc); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#fafafa, #cccccc); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
+}
+
+div.dbview-controls {
+	position: absolute;
+	padding-top: 10px;
+	top: 0px;
+	height: 50px;
+	width: 100%;
+	left: 0px;
+	border-bottom-color: #777;
+	border-bottom-style: solid;
+	border-bottom-width: 1px;
+	box-shadow: 0 0 10px #4a6887;
+	background-color: none;
+	font-family: proxima-nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 10pt;
+}
+
+span.dbview-label {
+	font-weight: bold;
+	text-align: right;
+	margin-left: 30px;
+	margin-right: 10px;
+}
+
+table.dbview-table {
+	position: absolute;
+	top: 70px;
+	left: 10px;
+	font-family: proxima-nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 12pt;
+	border-collapse: collapse;
+	background-color: white;
+}
+
+table.dbview-table td {
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	border-color: #98bf21;
+	border-width: 1px;
+	border-style: solid;
+}
+
+div.dbview-cellcontent {
+	overflow: hidden;
+	height: 20px;
+}
+
+table.dbview-table th {
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	border-color: #98bf21;
+	border-width: 1px;
+	border-style: solid;
+	border-collapse: collapse;
+	background-color: #A7C942;
+	font-weight: bold;
+	color: white;
+}
+
+.dbview-inherited {
+	opacity: 0.3;
+}
+
+.dbview-formula {
+	color: green;
+}
+
+.dbview-outofdate {
+	color: red;
+}
+
+.dbview-disabled {
+	background-color: #eee;
+}
+
+.dbview-currentscope {
+	background-color: blue;
+}
+
+.dbview-table td:hover {
+	background-color: #d5e1ed;
+}
+
+.dbview-valuesource {
+	background-color: orange;
+}
+
+.dbview-dependant {
+	background-color: #edd5eb;
+}
+
+.dbview-dependency {
+	background-color: #edd97d;
+}
+
+.dbview-indirectdep {
+	background-color: green;
+}
+
+input.dbview-select-text {
+	width: 30em;
+	font: 10px Roboto Mono,monospace;
+}
