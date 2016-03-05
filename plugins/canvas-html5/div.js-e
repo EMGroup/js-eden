@@ -180,15 +180,16 @@ Div.prototype.resize = function () {
 	}
 
 	if (this.name !== undefined) {
+		var agent = root.lookup("Div");
 		var widthSymName = this.name + "_width";
 		var heightSymName = this.name + "_height";
 		var scale = this.cachedScale;
 
 		if (autoWidth || widthSymName in root.symbols) {
-			root.lookup(widthSymName).assign(element.offsetWidth / scale);
+			root.lookup(widthSymName).assign(element.offsetWidth / scale, agent);
 		}
 		if (autoHeight || heightSymName in root.symbols) {
-			root.lookup(heightSymName).assign(element.offsetHeight /scale);
+			root.lookup(heightSymName).assign(element.offsetHeight / scale, agent);
 		}
 	}
 }
