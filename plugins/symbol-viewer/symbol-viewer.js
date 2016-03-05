@@ -75,6 +75,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 */
 	this.createDialog = function (name, mtitle, type) {
 		var edenName = name.slice(0, -7);
+		var agent = root.lookup("createView");
 		var content = $('<div class="symbollist-outer"></div>');
 		content.html(generateHTML(name, type));
 
@@ -94,7 +95,6 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			});
 
 		me.instances.push(symbollist);
-		symbollist.search("", new RegExp(""));
 
 		content.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
 			var editorViewName = "edit_" + edenName;
@@ -112,7 +112,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		//Show different placeholder text to indicate the search syntax being used.
 		var searchBox = content.find(".symbollist-search-box-outer > .symbollist-search");
 		var searchBoxElem = searchBox[0];
-		var searchLangSym = root.lookup("_view_" + edenName + "_search_lang");
+		var searchLangSym = root.lookup("_view_" + edenName + "_search_language");
 
 		function makeRegExp() {
 			var searchLang = searchLangSym.value();
@@ -133,9 +133,23 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		setSearchLanguage(searchLangSym, searchLangSym.value());
 		searchLangSym.addJSObserver("refreshView", setSearchLanguage);
 
+		var searchStrSym = root.lookup("_view_" + edenName + "_search_string");
+		var performSearch = function (sym, searchStr) {
+			searchBoxElem.value = searchStr;
+			symbollist.search(searchStr, makeRegExp());
+		}
+		var initialSearchStr = searchStrSym.value();
+		if (initialSearchStr === undefined) {
+			searchStrSym.assign("", root.scope, agent);
+			symbollist.search("", new RegExp(""));
+		} else {
+			performSearch(searchStrSym, initialSearchStr);
+		}
+		searchStrSym.addJSObserver("refreshView", performSearch);
+
 		// Make changes in search box update the list.
 		searchBox.keyup(function() {
-			symbollist.search(searchBoxElem.value, makeRegExp());
+			searchStrSym.assign(searchBoxElem.value, root.scope, Symbol.hciAgent);
 		});
 
 		document.getElementById(name + "-category-filter").addEventListener("change", function (event) {
@@ -310,6 +324,7 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
  */
 EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (searchStr, regExp, category, subtypes) {
 	this.searchStr = searchStr;
+	this.searchStrLowerCase = searchStr.toLowerCase();
 	this.regExp = regExp;
 	if (category !== undefined) {
 		this.category = category;
@@ -358,7 +373,7 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 	//Style differently for an exact match or a dirty match (i.e. wouldn't be shown if wasn't forced).
 	var accentuation;
 
-	if (name == this.searchStr) {
+	if (name.toLowerCase() == this.searchStrLowerCase) {
 		forceDisplay = true;
 		accentuation = "exact-match";
 	} else if (!this.regExp.test(name)) {
@@ -640,7 +655,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 		this.details = edenfunctions.functions[this.name];
 		// Extract parameters for display.
 		var params = Object.keys(this.details.parameters || {});
-		detailsHTML = "<span class='result_value'> ( " + params.join(", ") + " )</span>";
+		detailsHTML = "<span class='result_parameters'>( " + params.join(", ") + " )</span>";
 	} else {
 		detailsHTML = "";
 	}
@@ -717,7 +732,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function () {
 		this.details = edenfunctions.procedures[this.name];
 		// Extract parameters for display.
 		var params = Object.keys(this.details.parameters || {});
-		detailsHTML = "<span class='result_value'> ( " + params.join(", ") + " )</span>";
+		detailsHTML = "<span class='result_parameters'>( " + params.join(", ") + " )</span>";
 	} else {
 		detailsHTML = "";
 	}
