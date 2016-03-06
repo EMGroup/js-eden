@@ -3,6 +3,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	var selectedElement = 0;
 	var currentX = 0;
 	var currentY = 0;
+	var offsetX = 0;
+	var offsetY = 0;
 	var currentMatrix = 0;
 	var elements = [];
 
@@ -17,7 +19,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		this.name = name;
 		this.x = x;
 		this.y = y;
-		this.width = 20 + (name.length * 10);
+		this.width = 20 + (name.length * 7);
 		this.height = 20;
 		this.element = this.make();
 		this.left = undefined;
@@ -56,7 +58,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		box.setAttribute("ry", "10");
 		box.setAttribute("rx", "0");
 		box.setAttribute("transform","matrix(1 0 0 1 0 0)");
-		box.setAttribute("style","fill:#000038;fill-opacity:0.60301507;fill-rule:evenodd;stroke:none;stroke-width:0.41716799px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1");
+		box.setAttribute("style","fill:#525277;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.41716799px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1");
 
 		var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
 		text.setAttribute("class", "veden-observable");
@@ -91,8 +93,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		this.right = undefined;
 
 		this.snappoints = [
-			new SnapPoint("left", 0, this.height/2),
-			new SnapPoint("right", this.width, this.height/2)
+			new SnapPoint("left", 5, this.height/2),
+			new SnapPoint("right", this.width - 5, this.height/2)
 		];
 
 		// Add to spatial datastructure ... just a list atm.
@@ -112,7 +114,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	VedenOperator.prototype.make = function () {
 		var box = document.createElementNS("http://www.w3.org/2000/svg", 'path');
 		box.setAttribute("d", "m 26,0.36220432 -26,0 c 0.45127068,0.32157 0.9835405,0.53336 1.3743821,0.92382998 0.9046334,0.90375 1.6355873,1.98054 2.1407706,3.17773 0.5051733,1.19719 0.7839656,2.51344 0.7839656,3.8984401 0,1.385 -0.2787923,2.7031996 -0.7839656,3.9003896 -0.5051833,1.19719 -1.2361372,2.273981 -2.1407706,3.177731 -0.3898106,0.38944 -0.92052889,0.60096 -1.37047829,0.92188 l 25.37243719,0 c -0.417708,-0.3028 -0.916555,-0.49769 -1.280551,-0.86133 -0.885755,-0.88489 -1.601153,-1.939121 -2.095796,-3.111331 -0.494633,-1.17221 -0.76832,-2.4622596 -0.76832,-3.8183596 0,-1.3561001 0.273687,-2.6461501 0.76832,-3.8183601 0.494643,-1.17221 1.210041,-2.22643 2.095796,-3.11133 C 24.637019,1.1008043 25.343879,0.76452432 26,0.36220432 Z");
-		box.setAttribute("style", "fill:#ff0038;fill-opacity:0.71859294;fill-rule:evenodd;stroke:none;stroke-width:0.41716799px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1");
+		box.setAttribute("style", "fill:#e71353;fill-opacity:1;stroke:none;stroke-opacity:1");
 		//node.setAttribute("transform", "scale(" + 0.4 + " " + 0.4 +")");
 		box.setAttribute("x", "0");
 		box.setAttribute("y", "0");
@@ -131,6 +133,58 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		group.setAttribute("cursor","pointer");
 		group.appendChild(box);
 		group.appendChild(text);
+		group.onmousedown = selectElement;
+		return group;
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+
+	function VedenExpGroup(x, y) {
+		this.type = "group";
+		this.x = x;
+		this.y = y;
+		this.width = 200;
+		this.height = 30;
+		this.element = this.make();
+
+		//this.left = undefined;
+		//this.right = undefined;
+
+		this.snappoints = [
+			//new SnapPoint("left", 5, this.height/2),
+			//new SnapPoint("right", this.width - 5, this.height/2)
+		];
+
+		// Add to spatial datastructure ... just a list atm.
+		elements.push(this);
+	}
+
+	VedenExpGroup.prototype.move = function(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	VedenExpGroup.prototype.accept = function(snapname, element) {
+		return false;
+		//return (snapname == "left" && this.left === undefined && element.type == "observable")
+		//		|| (snapname == "right" && this.right === undefined && element.type == "observable");
+	}
+
+	VedenExpGroup.prototype.make = function () {
+		var box = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+		box.setAttribute("width", ""+this.width);
+		box.setAttribute("height", ""+this.height);
+		box.setAttribute("x", "0");
+		box.setAttribute("y", "0");
+		box.setAttribute("ry", ""+(this.height/2));
+		box.setAttribute("rx", "0");
+		box.setAttribute("transform","matrix(1 0 0 1 0 0)");
+		box.setAttribute("style","fill:#e7e7f3;fill-opacity:1;fill-rule:evenodd;stroke:#273769;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none");
+		
+		var group = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+		group.setAttribute("transform","matrix(1 0 0 1 "+this.x+" "+this.y+")");
+		group.setAttribute("cursor","pointer");
+		group.appendChild(box);
 		group.onmousedown = selectElement;
 		return group;
 	}
@@ -185,7 +239,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	}*/
 
 	function checkSnaps(element) {
-		var dist = 5;
+		var dist = 10;
 		var res = [];
 
 		var near = findNear(element, dist);
@@ -215,8 +269,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 	function moveElement(evt){
 		if (selectedElement == 0) return;
-		dx = evt.clientX - currentX;
-		dy = evt.clientY - currentY;
+		dx = evt.layerX - currentX;
+		dy = evt.layerY - currentY;
 
 		var ele = findElement(selectedElement);
 		if (ele) {
@@ -244,8 +298,12 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		newMatrix = "matrix(" + currentMatrix.join(' ') + ")";
 				
 		selectedElement.setAttributeNS(null, "transform", newMatrix);
-		currentX = evt.clientX;
-		currentY = evt.clientY;
+		//currentX = evt.clientX;
+		//currentY = evt.clientY;
+		if (ele) {
+			currentX = ele.x + offsetX;
+			currentY = ele.y + offsetY;
+		}
 	}
 
 	function deselectElement(evt){
@@ -267,8 +325,12 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 		selectedElement.setAttribute("filter","url(#fdrop)");
 
-		currentX = evt.clientX;
-		currentY = evt.clientY;
+		var ele = findElement(selectedElement);
+
+		offsetX = evt.layerX - ele.x;
+		offsetY = evt.layerY - ele.y;
+		currentX = evt.layerX;
+		currentY = evt.layerY;
 		currentMatrix = selectedElement.getAttributeNS(null, "transform").slice(7,-1).split(' ');
 		console.log(evt);
 		  for(var i=0; i<currentMatrix.length; i++) {
@@ -297,9 +359,11 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		var op = new VedenOperator("+", 110, 10);
 		var obs1 = new VedenObservable("turtle_position_x", 140, 10);
 		var obs2 = new VedenObservable("turtle_position_y", 21, 10);
+		var group1 = new VedenExpGroup(100,100);
 		svg1.append(op.element);
 		svg1.append(obs1.element);
 		svg1.append(obs2.element);
+		svg1.append(group1.element);
 
 		$('<div id="'+name+'"></div>')
 			.html(code_entry)
