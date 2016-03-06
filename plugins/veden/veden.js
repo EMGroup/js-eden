@@ -8,46 +8,155 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	var currentMatrix = 0;
 	var elements = [];
 
-	function SnapPoint(name, x, y) {
+	function SnapPoint(name, x, y, external, acceptsTypes, acceptsPoints) {
 		this.name = name;
 		this.x = x;
 		this.y = y;
+		this.element = undefined;
+		this.external = external;
+		this.types = acceptsTypes;
+		this.points = acceptsPoints;
 	}
 
-	function VedenObservable(name, x, y) {
-		this.type = "observable";
-		this.name = name;
+	function fVedenMove(x, y) {
 		this.x = x;
 		this.y = y;
-		this.width = 20 + (name.length * 7);
-		this.height = 20;
-		this.element = this.make();
-		this.left = undefined;
-		this.right = undefined;
+		this.element.setAttribute("transform","matrix(1 0 0 1 "+this.x+" "+this.y+")");
+	}
 
-		this.snappoints = [
-			new SnapPoint("left", 0, this.height/2),
-			new SnapPoint("right", this.width, this.height/2)
-		];
+	function fVedenAttach(destpoint, srcpoint, srcelement) {
+		console.log("Attach: " + destpoint.element);
+		destpoint.element = srcelement;
 
+		/*for (var i=0; i<this.snappoints.length; i++) {
+			if (this.snappoints[i].name == destpoint) {
+				this.snappoints[i].element = srcelement;
+				return;
+			}
+		}*/
+	}
+
+	function fVedenDetachAll() {
+		for (var i=0; i<this.snappoints.length; i++) {
+			if (this.snappoints[i].element && this.snappoints[i].external) {
+				this.snappoints[i].element.detach(this);
+				this.snappoints[i].element = undefined;
+			}
+		}
+	}
+
+	function fVedenDetach(ele) {
+		for (var i=0; i<this.snappoints.length; i++) {
+			if (this.snappoints[i].element === ele) {
+				this.snappoints[i].element = undefined;
+			}
+		}
+	}
+
+	function fVedenAccept(destsnapname, srcsnapname, element) {
+		for (var i=0; i<this.snappoints.length; i++) {
+			if (this.snappoints[i].name == destsnapname) {
+				if (this.snappoints[i].element && this.snappoints[i].element !== element) return false;
+				if (this.snappoints[i].types && this.snappoints[i].types.indexOf(element.type) == -1) return false;
+				if (this.snappoints[i].points && this.snappoints[i].points.indexOf(srcsnapname) == -1) return false;
+				return true;
+			}
+		}
+	}
+
+	function inherits(child, parent) {
+		child.prototype = Object.create(parent.prototype);
+		child.prototype.constructor = child;
+	};
+
+	////////////////////////////////////////////////////////////////////////////
+
+	function VedenElement(type, x, y, width, height) {
+		this.type = type;
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+		this.allowedInside = [];
 		// Add to spatial datastructure ... just a list atm.
 		elements.push(this);
+	};
+	VedenElement.prototype.move = fVedenMove;
+	VedenElement.prototype.attach = fVedenAttach;
+	VedenElement.prototype.detachAll = fVedenDetachAll;
+	VedenElement.prototype.detach = fVedenDetach;
+	VedenElement.prototype.accept = fVedenAccept;
+
+	VedenElement.prototype.externals = function(origin) {
+		var res = [];
+		for (var i=0; i<this.snappoints.length; i++) {
+			if (this.snappoints[i].element === origin) continue;
+			if (this.snappoints[i].external && this.snappoints[i].element) res.push(this.snappoints[i].element);
+		}
+		return res;
 	}
 
-	VedenObservable.prototype.move = function(x, y) {
-		this.x = x;
-		this.y = y;
+	VedenElement.prototype.internals = function(origin) {
+		var res = [];
+		for (var i=0; i<this.snappoints.length; i++) {
+			if (this.snappoints[i].element === origin) continue;
+			if (!this.snappoints[i].external && this.snappoints[i].element) res.push(this.snappoints[i].element);
+		}
+		return res;
 	}
 
-	VedenObservable.prototype.attach = function(name, element) {
-		// Remove snap point from available.
-		// build AST.
+	VedenElement.prototype.chainedExternals = function(origin) {
+		var ext = this.externals(origin);
+		var res = [this];
+		for (var i=0; i<ext.length; i++) {
+			//res.push(ext[i]);
+			res.push.apply(res, ext[i].chainedExternals(this));
+		}
+		return res;
 	}
 
-	VedenObservable.prototype.accept = function(snapname, element) {
-		return (snapname == "left" && this.left === undefined && element.type == "operator")
-				|| (snapname == "right" && this.right === undefined && element.type == "operator");
+	VedenElement.prototype.chainedInternals = function(origin) {
+		var ext = this.internals(origin);
+		var res = [this];
+		for (var i=0; i<ext.length; i++) {
+			//res.push(ext[i]);
+			res.push.apply(res, ext[i].chainedExternals(this));
+		}
+		return res;
 	}
+
+	VedenElement.prototype.chainedDeltaMove = function(dx, dy, origin) {
+			console.log("chainedMove: " + dx);
+			//this.move(this.x + dx, this.y + dy);
+			var chain = this.chainedExternals(origin);
+			for (var i=0; i<chain.length; i++) {
+				chain[i].move(chain[i].x+dx, chain[i].y+dy);
+			}
+	}
+
+	VedenElement.prototype.chainedWidth = function(origin) {
+		var ext = this.chainedExternals(origin);
+		var res = 0;
+		for (var i=0; i<ext.length; i++) {
+			res += ext[i].width;
+		}
+		return res;
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+
+	function VedenObservable(name, x, y) {
+		VedenElement.call(this,"observable", x, y, 20 + (name.length * 7), 20);
+		this.name = name;
+		this.element = this.make();
+
+		this.snappoints = [
+			new SnapPoint("left", 0, this.height/2, true, ["operator","group"], ["right","inside"]),
+			new SnapPoint("right", this.width, this.height/2, true, ["operator"],["left"])
+		];
+	}
+
+	inherits(VedenObservable, VedenElement);
 
 	VedenObservable.prototype.make = function () {
 		var box = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
@@ -81,35 +190,17 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	////////////////////////////////////////////////////////////////////////////
 
 	function VedenOperator(op, x, y) {
-		this.type = "operator";
+		VedenElement.call(this,"operator", x, y, 26, 16);
 		this.op = op;
-		this.x = x;
-		this.y = y;
-		this.width = 26;
-		this.height = 16;
 		this.element = this.make();
 
-		this.left = undefined;
-		this.right = undefined;
-
 		this.snappoints = [
-			new SnapPoint("left", 5, this.height/2),
-			new SnapPoint("right", this.width - 5, this.height/2)
+			new SnapPoint("left", 5, this.height/2, true, ["observable","group"],["right"]),
+			new SnapPoint("right", this.width - 5, this.height/2, true, ["observable","group"],["left"])
 		];
-
-		// Add to spatial datastructure ... just a list atm.
-		elements.push(this);
 	}
 
-	VedenOperator.prototype.move = function(x, y) {
-		this.x = x;
-		this.y = y;
-	}
-
-	VedenOperator.prototype.accept = function(snapname, element) {
-		return (snapname == "left" && this.left === undefined && element.type == "observable")
-				|| (snapname == "right" && this.right === undefined && element.type == "observable");
-	}
+	inherits(VedenOperator, VedenElement);
 
 	VedenOperator.prototype.make = function () {
 		var box = document.createElementNS("http://www.w3.org/2000/svg", 'path');
@@ -140,34 +231,69 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	////////////////////////////////////////////////////////////////////////////
 
 	function VedenExpGroup(x, y) {
-		this.type = "group";
-		this.x = x;
-		this.y = y;
-		this.width = 200;
-		this.height = 30;
+		VedenElement.call(this,"group", x, y, 50, 30);
 		this.element = this.make();
 
-		//this.left = undefined;
-		//this.right = undefined;
-
 		this.snappoints = [
-			//new SnapPoint("left", 5, this.height/2),
-			//new SnapPoint("right", this.width - 5, this.height/2)
+			new SnapPoint("left", 0, this.height/2, true, ["operator"],["right"]),
+			new SnapPoint("right", this.width, this.height/2, true, ["operator"],["left"]),
+			new SnapPoint("inside", 5, this.height/2, false, ["observable"],["left"])
 		];
 
-		// Add to spatial datastructure ... just a list atm.
-		elements.push(this);
+		this.allowedInside = [
+			"observable",
+			"operator",
+			"group"
+		];
 	}
 
-	VedenExpGroup.prototype.move = function(x, y) {
-		this.x = x;
-		this.y = y;
+	inherits(VedenExpGroup, VedenElement);
+
+	VedenExpGroup.prototype.attach = function(dest, src, element) {
+		if (dest.element === element && dest.element) return;
+
+		VedenElement.prototype.attach.call(this, dest, src, element);
+		if (dest.name == "inside") {
+			var nw = element.chainedWidth(this);
+			console.log("New Width: " + nw);
+			var dw = (nw+10) - this.width;
+			this.width = nw + 10;
+			this.element.childNodes[0].setAttribute("width", this.width);
+			for (var i=0; i<this.snappoints.length; i++) {
+				if (this.snappoints[i].name == "right") {
+					this.snappoints[i].x = this.width;
+					console.log(this.snappoints[i]);
+					if (this.snappoints[i].element) {
+						this.snappoints[i].element.chainedDeltaMove(dw, 0, this);
+					}
+				}
+			}
+		}
+		//this.element.childNodes[0].setAttribute("height", h);
 	}
 
-	VedenExpGroup.prototype.accept = function(snapname, element) {
-		return false;
-		//return (snapname == "left" && this.left === undefined && element.type == "observable")
-		//		|| (snapname == "right" && this.right === undefined && element.type == "observable");
+	VedenExpGroup.prototype.detach = function(element) {
+		for (var j=0; j<this.snappoints.length; j++) {
+			if (this.snappoints[j].name == "inside" && this.snappoints[j].element === element) {
+				var nw = 50;
+				console.log("New Width: " + nw);
+				var dw = nw - this.width;
+				this.width = nw;
+				this.element.childNodes[0].setAttribute("width", this.width);
+				for (var i=0; i<this.snappoints.length; i++) {
+					if (this.snappoints[i].name == "right") {
+						this.snappoints[i].x = this.width;
+						//console.log(this.snappoints[i]);
+						if (this.snappoints[i].element) {
+							this.snappoints[i].element.chainedDeltaMove(dw, 0, this);
+						}
+					}
+				}
+			}
+		}
+
+		VedenElement.prototype.detach.call(this, element);
+		//this.element.childNodes[0].setAttribute("height", h);
 	}
 
 	VedenExpGroup.prototype.make = function () {
@@ -238,11 +364,14 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		return nearest;
 	}*/
 
-	function checkSnaps(element) {
+	function checkSnaps(element, near) {
 		var dist = 10;
 		var res = [];
 
-		var near = findNear(element, dist);
+		if (near === undefined) {
+			near = findNear(element, dist);
+		}
+
 		for (var i=0; i<near.length; i++) {
 			for (var x=0; x<element.snappoints.length; x++) {
 				for (var y=0; y<near[i].snappoints.length; y++) {
@@ -252,8 +381,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 					var yy = near[i].snappoints[y].y + near[i].y;
 					var d = ((xx - yx) * (xx - yx) + (xy - yy) * (xy - yy));
 					if (d <= dist*dist) {
-						if (element.accept(element.snappoints[x].name, near[i])
-							&& near[i].accept(near[i].snappoints[y].name, element)) {
+						if (element.accept(element.snappoints[x].name, near[i].snappoints[y].name, near[i])
+							&& near[i].accept(near[i].snappoints[y].name, element.snappoints[x].name, element)) {
 							res.push({dist: d, srcsnap: element.snappoints[x],
 								destelement: near[i],
 								destsnap: near[i].snappoints[y]});
@@ -274,23 +403,25 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 		var ele = findElement(selectedElement);
 		if (ele) {
+			var near = findNear(ele, 10);
 			ele.x += dx;
 			ele.y += dy;
-			var snaps = checkSnaps(ele);
+			var snaps = checkSnaps(ele, near);
 			if (snaps) {
 				ele.x = snaps.destelement.x + snaps.destsnap.x - snaps.srcsnap.x;
 				ele.y = snaps.destelement.y + snaps.destsnap.y - snaps.srcsnap.y;
-			}
-			/*var near = findNearest(ele);
-			if (near) {
-				if (ele.y > near.y) {
-					ele.y = near.y + near.height;
-				} else if (ele.y < near.y) {
-					ele.y = near.y - ele.height;
+				ele.attach(snaps.srcsnap, snaps.destsnap, snaps.destelement);
+				snaps.destelement.attach(snaps.destsnap, snaps.srcsnap, ele);
+			} else {
+				ele.detachAll();
+				// Now prevent overlaps... if not allowed
+				for (var i=0; i<near.length; i++) {
+					if (intersect(ele, near[i], 0) && near[i].allowedInside.indexOf(ele.type) == -1) {
+						ele.x -= dx;
+						ele.y -= dy;
+					}
 				}
-
-				ele.x = near.x;
-			}*/
+			}
 		}
 
 		currentMatrix[4] = ele.x;
@@ -322,6 +453,10 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		while (selectedElement.nodeName != "g") {
 			selectedElement = selectedElement.parentNode;
 		}
+
+		var parent = selectedElement.parentNode;
+		parent.removeChild(selectedElement);
+		parent.appendChild(selectedElement);
 
 		selectedElement.setAttribute("filter","url(#fdrop)");
 
@@ -357,10 +492,12 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		</svg>');
 		code_entry.append(svg1);
 		var op = new VedenOperator("+", 110, 10);
+		var op2 = new VedenOperator("-", 110, 200);
 		var obs1 = new VedenObservable("turtle_position_x", 140, 10);
 		var obs2 = new VedenObservable("turtle_position_y", 21, 10);
 		var group1 = new VedenExpGroup(100,100);
 		svg1.append(op.element);
+		svg1.append(op2.element);
 		svg1.append(obs1.element);
 		svg1.append(obs2.element);
 		svg1.append(group1.element);

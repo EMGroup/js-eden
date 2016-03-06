@@ -29,6 +29,11 @@ div.veden-dialog .ui-dialog-titlebar {
 
 div.veden-content {
 	height: 100%;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
 }
 
 .veden-observable {
