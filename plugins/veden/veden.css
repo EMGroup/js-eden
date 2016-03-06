@@ -35,3 +35,9 @@ div.veden-content {
 	color: white;
 	font-weight: bold;
 }
+
+.veden-operator {
+	color: white;
+	font-weight: bold;
+	font-size: 12pt;
+}
