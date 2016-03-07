@@ -38,7 +38,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	menudiv.appendTo("body");
 	$('<div id="menubar-bottom"></div>').appendTo("body");
 
-	var menuStyle = getStyleBySelector(".menubar-menu");
+	var menuStyle = CSSUtil.getStyle(".menubar-menu");
 	menuStyle.maxHeight = "calc(100vh - " + String(30 + edenUI.scrollBarSize2) + "px)";
 
 	this.updateStatus = function (text) {

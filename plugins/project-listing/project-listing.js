@@ -34,7 +34,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 	var fotdLastUpdated = Date.UTC(2015, 9 - 1, 5); //For some reason months parameter expects numbers 0-11.
 
-	var defaultURL = getParameterByName("projects");
+	var defaultURL = URLUtil.getParameterByName("projects");
 	var prologue = "";
 
 	if ("projectList" in edenUI.branding) {
@@ -52,23 +52,6 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 		defaultURL = "models/projects.json";
 	}
 
-	var crossDomainTarget;
-	var crossDomainURL;
-	var crossDomainLoadAsRoot;
-	
-	this.loadCrossDomain = function (response) {
-		if (response.success) {
-			if (typeof(crossDomainTarget) == "string") {
-				//Copy code into an input window.
-				copyToInput(crossDomainTarget, response.success);
-			} else {
-				//Update list of projects.
-				var json = JSON.parse(response.success)
-				crossDomainTarget.populateProjectData(json, crossDomainURL, crossDomainLoadAsRoot);
-			}
-		}
-	}
-
 	function ProjectListProjects() {
 		this.json = {projects: []};
 		this.rootURL = undefined;
@@ -78,51 +61,46 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 	ProjectListProjects.prototype.loadProjectData = function (url, asRoot) {
 		//Get a list of projects from the server.
 		var me = this;
-		if (/^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(url)) {
-			//Absolute URL.  Might be cross-domain.  Use proxy server.
-			crossDomainTarget = this;
-			crossDomainURL = url;
-			crossDomainLoadAsRoot = asRoot;
-			$.ajax({
-				url: rt.config.proxyBaseURL + "?url=" + url + "&callback=edenUI.plugins.ProjectList.loadCrossDomain",
-				dataType: "script",
-			});
-		} else {
-			$.ajax({
-				url: url,
-				dataType: "json",
-				success: function (data) {
-					me.populateProjectData(data, url, asRoot);
-				},
-				error: function (request, status, exception) {
-					eden.error(new Error(status + " " + exception.message), "projectlist");
-				},
-				cache: false
-			});
-		}
+		URLUtil.downloadFile({
+			url: url,
+			dataType: "json",
+			sync: false,
+			success: function (data) {
+				me.populateProjectData(data, url, asRoot);
+			},
+			error: function (request, statusText, exception) {
+				edenUI.modalDialog(
+					"Download Error",
+					"An error has occurred.  Unable to download a project list from " + url,
+					["OK"],
+					0,
+					function () { }
+				);
+				throw new Error("Project list failed to download " + url + ": " + statusText + " " + exception);
+			},
+		});
 	};
 	
 	ProjectListProjects.prototype.loadProjectCode = function (url) {
 		//Retrieve a .js-e file from the server.
 		var me = this;
-		if (/^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(url)) {
-			//Absolute URL.  Might be cross-domain.  Use proxy server.
-			crossDomainTarget = this.json.target;
-			crossDomainURL = url;
-			$.ajax({
-				url: rt.config.proxyBaseURL + "?url=" + url + "&callback=edenUI.plugins.ProjectList.loadCrossDomain",
-				dataType: "script",
-			});
-		} else {
-			$.ajax({
-				url: url,
-				dataType: "text",
-				success: function (data) {
-					copyToInput(me.json.target, data);
-				},
-				cache: false
-			});
-		}
+		URLUtil.downloadFile({
+			url: url,
+			sync: false,
+			success: function (data) {
+				copyToInput(me.json.target, data);
+			},
+			error: function (request, statusText, exception) {
+				edenUI.modalDialog(
+					"Download Error",
+					"An error has occurred.  Unable to download a construal from " + url,
+					["OK"],
+					0,
+					function () { }
+				);
+				throw new Error("Project list failed to download " + url + ": " + statusText + " " + exception);
+			}
+		});
 	};
 
 	ProjectListProjects.prototype.populateProjectData = function (data, url, asRoot) {

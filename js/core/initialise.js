@@ -8,60 +8,6 @@
 var root;
 var eden;
 
-/**
- * Utility function to extract URL query string parameters.
- */
-function getParameterByName(name) {
-	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-	var regexS = "[\\?&]"+name+"=([^&#]*)";
-	var regex = new RegExp(regexS);
-	var url = window.location.href;
-	var result = regex.exec(url);
-	if (result === null) {
-		return "";
-	} else {
-		return decodeURIComponent(result[1].replace(/\+/g, " "));
-	}
-}
-
-function getArrayParameterByName(name, isArray) {
-	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-	var regexS = "[\\?&]"+name+"=([^&#]*)";
-	var regex = new RegExp(regexS, "g");
-	var url = window.location.href;
-	var result = regex.exec(url);
-	var values = [];
-	while (result !== null) {
-		var value = decodeURIComponent(result[1].replace(/\+/g, " "));
-		values.push(value);
-		result = regex.exec(url);
-	}
-	return values;
-}
-
-function getStyleBySelector(selector) {
-	var sheetList = document.styleSheets;
-	for (var i = sheetList.length - 1; i >= 0; i--) {
-	   var ruleList = sheetList[i].cssRules;
-	   for (var j = 0; j < ruleList.length; j++) {
-		   if (ruleList[j].type == CSSRule.STYLE_RULE && ruleList[j].selectorText == selector) {
-			   return ruleList[j].style;
-		   }
-	   }
-	}
-	//No matching rule found so create one.
-	var styleElement = document.getElementById("javascript-injected-styles");
-	if (styleElement === null) {
-		var headElement = document.getElementsByTagName("head")[0];
-		styleElement = document.createElement("style");
-		styleElement.id = "javascript-injected-styles";
-		headElement.appendChild(styleElement);
-	}
-	var stylesheet = styleElement.sheet;
-	stylesheet.insertRule(selector + "{ }", 0);
-	return stylesheet.cssRules[0].style;
-}
-
 /*
  * Implementations of functionality specified in web standards but not yet supported by all of
  * supported JS-EDEN runtime platforms.
@@ -91,11 +37,11 @@ function initialiseJSEden() {
 	root = new Folder();
 	eden = new Eden(root);
 	
-	var menuBar = getParameterByName("menus") != "false";
-	var pluginsStr = getParameterByName("plugins");
-	var views = getParameterByName("views");
-	var include = getArrayParameterByName("include");
-	var exec = getParameterByName("exec");
+	var menuBar = URLUtil.getParameterByName("menus") != "false";
+	var pluginsStr = URLUtil.getParameterByName("plugins");
+	var views = URLUtil.getParameterByName("views");
+	var include = URLUtil.getArrayParameterByName("include");
+	var exec = URLUtil.getParameterByName("exec");
 
 	var plugins;
 
@@ -188,10 +134,9 @@ function initialiseJSEden() {
 
 		// Load the Eden library scripts
 		loadPlugins(plugins, function () {
-			eden.include("library/eden.jse", {name: '/system'}, function () {
-				$.getJSON('config.json', function (config) {
-					rt.config = config;
-
+			$.getJSON('config.json', function (config) {
+				rt.config = config;
+				eden.include("library/eden.jse", {name: '/system'}, function () {
 					eden.captureInitialState();
 					if (include.length > 0) {
 						eden.include(include, doneLoading);

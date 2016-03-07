@@ -87,6 +87,7 @@ Eden.systemAgentNames = {
 	"hideView": true,
 	"highlightView": true,
 	"html": true,
+	"loadTextFileIntoObservable": true,
 	"moveView": true,
 	"patch": true,
 	"removeedenclock": true,

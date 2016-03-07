@@ -495,7 +495,7 @@ include("library/html.js-e");
 include("library/declarevar.js-e");
 include("library/generate_function.js-e");
 
-initialViews = ${{getParameterByName("views") }}$;
+initialViews = ${{ URLUtil.getParameterByName("views") }}$;
 if (initialViews == "" || initialViews == "default") {
 	createProjectList();
 	_view_projects_x = 0;
