@@ -283,7 +283,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		this.height = nh;
 		this.element.childNodes[0].setAttribute("width", this.width);
 		this.element.childNodes[0].setAttribute("height", this.height);
-		this.element.childNodes[0].setAttribute("ry", this.height/2);
+		//this.element.childNodes[0].setAttribute("ry", this.height/2);
 		for (var i=0; i<this.snappoints.length; i++) {
 			// TODO UPDATE SNAPPOINT HEIGHT
 			//if (this.snappoints[i].name == "right") {
@@ -298,14 +298,73 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 	////////////////////////////////////////////////////////////////////////////
 
+	function VedenListIndex(x, y) {
+		VedenElement.call(this,"index", x, y, 40, 30);
+		this.index = 1;
+		this.element = this.make();
+
+		this.snappoints = [
+			new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["observable","index"], ["right"]),
+			new SnapPoint(this, "right", 1.0, 5, 0.5, 0, true, ["operator","index"],["left"]),
+			new SnapPoint(this, "inside", 0, 5, 0.5, 0, false, ["observable","group"],["left"])
+		];
+	}
+
+	inherits(VedenListIndex, VedenElement);
+
+	VedenListIndex.prototype.resize = function(w,h) {
+		VedenElement.prototype.resize.call(this, w, h);
+		this.element.childNodes[2].setAttribute("width", this.width);
+		this.element.childNodes[2].setAttribute("height", this.height);
+		this.element.childNodes[0].setAttribute("transform", "translate(0,"+((this.height-this.minHeight)/2)+")");
+		this.element.childNodes[1].setAttribute("transform", "translate("+this.width+","+((this.height-this.minHeight)/2)+")");
+	}
+
+	VedenListIndex.prototype.make = function () {
+		var edge1 = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+		edge1.setAttribute("d", "M -5 5 q 10 10 0 20 l 10 0 0 -20 -10 0 z");
+		edge1.setAttribute("style", "fill:#21ad1c;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.41716799px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1");
+		//node.setAttribute("transform", "scale(" + 0.4 + " " + 0.4 +")");
+		edge1.setAttribute("x", "0");
+		edge1.setAttribute("y", "0");
+
+		var edge2 = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+		edge2.setAttribute("d", "M 0 5 q 10 10 0 20 l -10 0 0 -20 10 0 z");
+		edge2.setAttribute("style", "fill:#21ad1c;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.41716799px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1");
+		edge2.setAttribute("transform", "translate(" + this.width + " " + 0 +")");
+		edge2.setAttribute("x", "0");
+		edge2.setAttribute("y", "0");
+
+		var box = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+		box.setAttribute("width", ""+this.width);
+		box.setAttribute("height", ""+this.height);
+		box.setAttribute("x", "0");
+		box.setAttribute("y", "0");
+		box.setAttribute("ry", ""+(this.height/2));
+		box.setAttribute("rx", "0");
+		box.setAttribute("transform","matrix(1 0 0 1 0 0)");
+		box.setAttribute("style","fill:#d4f9c6;fill-opacity:1;fill-rule:evenodd;stroke:#3a6927;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1");
+
+		var group = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+		group.setAttribute("transform","matrix(1 0 0 1 "+this.x+" "+this.y+")");
+		group.setAttribute("cursor","pointer");
+		group.appendChild(edge1);
+		group.appendChild(edge2);
+		group.appendChild(box);
+		group.onmousedown = selectElement;
+		return group;
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+
 	function VedenObservable(name, x, y) {
 		VedenElement.call(this,"observable", x, y, 20 + (name.length * 7), 20);
 		this.name = name;
 		this.element = this.make();
 
 		this.snappoints = [
-			new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["operator","group"], ["right","inside"]),
-			new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["operator"],["left"])
+			new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["operator","group", "index"], ["right","inside"]),
+			new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["operator","index"],["left"])
 		];
 	}
 
@@ -348,7 +407,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		this.element = this.make();
 
 		this.snappoints = [
-			new SnapPoint(this, "left", 0, 5, 0.5, 0, true, ["observable","group"],["right"]),
+			new SnapPoint(this, "left", 0, 5, 0.5, 0, true, ["observable","group","index"],["right"]),
 			new SnapPoint(this, "right", 1.0, 5, 0.5, 0, true, ["observable","group"],["left"])
 		];
 	}
@@ -676,6 +735,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		var obs5 = new VedenObservable("screenWidth", 10, 130);
 		var group1 = new VedenExpGroup(10,160);
 		var group2 = new VedenExpGroup(10,200);
+		var list1 = new VedenListIndex(10,240);
 		svg1.append(op.element);
 		svg1.append(op2.element);
 		svg1.append(op3.element);
@@ -687,6 +747,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		svg1.append(obs5.element);
 		svg1.append(group1.element);
 		svg1.append(group2.element);
+		svg1.append(list1.element);
 
 		$('<div id="'+name+'"></div>')
 			.html(code_entry)
