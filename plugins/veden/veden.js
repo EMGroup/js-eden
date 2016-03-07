@@ -118,8 +118,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		if (ix >= 0) {
 			// Also undock all subsequent children
 			for (var i=ix; i<this.children.length; i++) {
-				this.children[i].parent = undefined;
 				this.children[i].undock();
+				this.children[i].parent = undefined;
 			}
 
 			this.children = this.children.slice(0,ix);
