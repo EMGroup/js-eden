@@ -7,6 +7,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	var offsetY = 0;
 	var currentMatrix = 0;
 	var elements = [];
+	var lastsnap = undefined;
 
 	function SnapPoint(name, x, y, external, acceptsTypes, acceptsPoints) {
 		this.name = name;
@@ -27,14 +28,17 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	function fVedenAttach(destpoint, srcpoint, srcelement) {
 		//console.log("Attach: " + destpoint.element);
 		destpoint.element = srcelement;
+		srcpoint.element = this;
 
 		if (this.parent) {
 			//console.log("Has parent");
+			srcelement.parent = this.parent;
 			this.parent.updateChainWidth(this.chainedWidth(this.parent));
 		}
 
 		if (destpoint.external == false) {
 			srcelement.parent = this;
+			this.updateChainWidth(srcelement.chainedWidth(this));
 		}
 	}
 
@@ -78,6 +82,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		this.type = type;
 		this.x = x;
 		this.y = y;
+		this.undocked = false;
 		this.width = width;
 		this.height = height;
 		this.allowedInside = [];
@@ -91,10 +96,24 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	VedenElement.prototype.detach = fVedenDetach;
 	VedenElement.prototype.accept = fVedenAccept;
 
+	VedenElement.prototype.pagePosition = function() {
+		if (this.undocked) return {x: this.x, y: this.y};
+		var px = 0;
+		var py = 0;
+		var parent = this.parent;
+		while(parent) {
+			px += parent.x;
+			py += parent.y;
+			parent = parent.parent;
+		}
+		return {x: this.x+px, y: this.y+py};
+	}
+
 	VedenElement.prototype.externals = function(origin) {
 		var res = [];
 		for (var i=0; i<this.snappoints.length; i++) {
 			if (this.snappoints[i].element === origin) continue;
+			if (this.snappoints[i].element === this.parent) continue;
 			if (this.snappoints[i].external && this.snappoints[i].element) res.push(this.snappoints[i].element);
 		}
 		return res;
@@ -149,7 +168,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 	VedenElement.prototype.updateChainWidth = function(nw) {
 		//var nw = element.chainedWidth(this);
-		//console.log("New Width: " + nw);
+		console.log("New Width: " + nw);
 		var dw = (nw+10) - this.width;
 		this.width = nw + 10;
 		this.element.childNodes[0].setAttribute("width", this.width);
@@ -328,14 +347,16 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	////////////////////////////////////////////////////////////////////////////
 
 	function intersect(a, b, padding) {
-		var ax1 = a.x - padding;
-		var ay1 = a.y - padding;
-		var bx1 = b.x - padding;
-		var by1 = b.y - padding;
-		var ax2 = a.x + a.width + padding;
-		var ay2 = a.y + a.height + padding;
-		var bx2 = b.x + b.width + padding;
-		var by2 = b.y + b.height + padding;
+		var aPos = a.pagePosition();
+		var bPos = b.pagePosition();
+		var ax1 = aPos.x - padding;
+		var ay1 = aPos.y - padding;
+		var bx1 = bPos.x - padding;
+		var by1 = bPos.y - padding;
+		var ax2 = aPos.x + a.width + padding;
+		var ay2 = aPos.y + a.height + padding;
+		var bx2 = bPos.x + b.width + padding;
+		var by2 = bPos.y + b.height + padding;
 		return (ax1 < bx2 && ax2 > bx1 && ay1 < by2 && ay2 > by1);
 	}
 
@@ -382,13 +403,17 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			near = findNear(element, dist);
 		}
 
+		var elePos = element.pagePosition();
+
 		for (var i=0; i<near.length; i++) {
+			var nearPos = near[i].pagePosition();
+
 			for (var x=0; x<element.snappoints.length; x++) {
 				for (var y=0; y<near[i].snappoints.length; y++) {
-					var xx = element.snappoints[x].x + element.x;
-					var xy = element.snappoints[x].y + element.y;
-					var yx = near[i].snappoints[y].x + near[i].x;
-					var yy = near[i].snappoints[y].y + near[i].y;
+					var xx = element.snappoints[x].x + elePos.x;
+					var xy = element.snappoints[x].y + elePos.y;
+					var yx = near[i].snappoints[y].x + nearPos.x;
+					var yy = near[i].snappoints[y].y + nearPos.y;
 					var d = ((xx - yx) * (xx - yx) + (xy - yy) * (xy - yy));
 					if (d <= dist*dist) {
 						if (element.accept(element.snappoints[x].name, near[i].snappoints[y].name, near[i])
@@ -409,8 +434,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	function moveElement(evt){
 		evt.preventDefault();
 		if (selectedElement == 0) return;
-		dx = evt.clientX - currentX;
-		dy = evt.clientY - currentY;
+		dx = evt.layerX - currentX;
+		dy = evt.layerY - currentY;
 
 		var ele = findElement(selectedElement);
 		if (ele) {
@@ -418,11 +443,21 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			ele.x += dx;
 			ele.y += dy;
 			var snaps = checkSnaps(ele, near);
+
+			// TODO Could desnap from one directly to another and not be
+			// properly detached!!!!!
+
 			if (snaps) {
-				ele.x = snaps.destelement.x + snaps.destsnap.x - snaps.srcsnap.x;
-				ele.y = snaps.destelement.y + snaps.destsnap.y - snaps.srcsnap.y;
+				//if (lastsnap && snaps !== lastsnap) {
+					ele.detachAll();
+				//}
+				//lastsnap = snaps;
+
+				var destpos = snaps.destelement.pagePosition();
+				ele.x = destpos.x + snaps.destsnap.x - snaps.srcsnap.x;
+				ele.y = destpos.y + snaps.destsnap.y - snaps.srcsnap.y;
 				if (snaps.srcsnap.element === undefined) {
-					ele.attach(snaps.srcsnap, snaps.destsnap, snaps.destelement);
+					//ele.attach(snaps.srcsnap, snaps.destsnap, snaps.destelement);
 					snaps.destelement.attach(snaps.destsnap, snaps.srcsnap, ele);
 				}
 			} else {
@@ -455,6 +490,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	}
 
 	function deselectElement(evt){
+		console.log(elements);
 		evt.preventDefault();
 		if(selectedElement != 0){
 			var ele = findElement(selectedElement);
@@ -463,28 +499,15 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 				var parent = ele.element.parentNode;
 				parent.removeChild(ele.element);
 
-				var psnap;
-				var esnap;
+				var pPos = ele.parent.pagePosition();
+				var ePos = ele.pagePosition();
 
-				for (var i=0; i<ele.parent.snappoints.length; i++) {
-					if (ele.parent.snappoints[i].element === ele) {
-						psnap = ele.parent.snappoints[i];
-						break;
-					}
-				}
-
-				for (var i=0; i<ele.snappoints.length; i++) {
-					if (ele.snappoints[i].element === ele.parent) {
-						esnap = ele.snappoints[i];
-						break;
-					}
-				}
-
-				ele.move(psnap.x - esnap.x, psnap.y - esnap.y);
+				ele.move(ePos.x - pPos.x, ePos.y - pPos.y);
 
 				ele.parent.element.appendChild(ele.element);
-				ele.parent.updateChainWidth(ele.chainedWidth(ele.parent));
+				//ele.parent.updateChainWidth(ele.chainedWidth(ele.parent));
 			}
+			ele.undocked = false;
 			selectedElement.removeAttributeNS(null, "onmousemove");
 			selectedElement.removeAttributeNS(null, "onmouseout");
 			selectedElement.removeAttributeNS(null, "onmouseup");
@@ -505,6 +528,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		}
 
 		var ele = findElement(selectedElement);
+		ele.undocked = true;
 
 		// Detach from any existing points
 		var parentnode = selectedElement.parentNode;
@@ -528,8 +552,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 		offsetX = evt.layerX - ele.x;
 		offsetY = evt.layerY - ele.y;
-		currentX = evt.clientX;
-		currentY = evt.clientY;
+		currentX = evt.layerX;
+		currentY = evt.layerY;
 		console.log("Current: " + currentX+","+currentY);
 		currentMatrix = selectedElement.getAttributeNS(null, "transform").slice(7,-1).split(' ');
 		  for(var i=0; i<currentMatrix.length; i++) {
