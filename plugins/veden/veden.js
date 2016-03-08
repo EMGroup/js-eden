@@ -118,6 +118,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		this.boxIndex = -1;
 		this.boxConstantW = 10;
 		this.boxConstantH = 10;
+		this.onchange = undefined;
 		// Add to spatial datastructure ... just a list atm.
 		elements.push(this);
 	};
@@ -126,6 +127,11 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	VedenElement.prototype.detachAll = fVedenDetachAll;
 	VedenElement.prototype.detach = fVedenDetach;
 	VedenElement.prototype.accept = fVedenAccept;
+
+	VedenElement.prototype.notifyChange = function() {
+		if (this.onchange) this.onchange();
+		if (this.parent) this.parent.notifyChange();
+	}
 
 	VedenElement.prototype.removeChild = function(child) {
 		var ix = this.children.indexOf(child);
@@ -153,6 +159,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		// Calculate new width
 		this.autoResize();
 		//console.log(this.children);
+		this.notifyChange();
 	}
 
 	VedenElement.prototype.autoResize = function() {
@@ -381,6 +388,10 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 	inherits(VedenObservable, VedenElement);
 
+	VedenObservable.prototype.toString = function() {
+		return this.name;
+	}
+
 	VedenObservable.prototype.make = function () {
 		var box = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
 		box.setAttribute("width", ""+(this.width+8));
@@ -424,6 +435,10 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	}
 
 	inherits(VedenNumber, VedenElement);
+
+	VedenNumber.prototype.toString = function() {
+		return ""+this.value;
+	}
 
 	VedenNumber.prototype.make = function () {
 		var box = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
@@ -469,7 +484,6 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		input.value = this.value;
 		var me = this;
 		input.onkeypress = function(evt) {
-			console.log("INPUT CHANGE");
 			var nw = input.value.length * 7 + 30;
 			var dw = nw - me.width;
 			me.resize(nw, me.height);
@@ -479,7 +493,12 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			input.setAttribute("style", "width: "+(me.width-15)+"px;");
 			me.deltaAll(dw,0);
 			if (me.parent) me.parent.autoResize();
-		}
+		};
+		input.onkeyup = function(evt) {
+			me.value = parseFloat(input.value);
+			me.notifyChange();
+		};
+
 		fobj.appendChild(input);
 
 		var group = document.createElementNS("http://www.w3.org/2000/svg", 'g');
@@ -506,6 +525,10 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	}
 
 	inherits(VedenLValue, VedenElement);
+
+	VedenLValue.prototype.toString = function() {
+		return this.name;
+	}
 
 	VedenLValue.prototype.make = function () {
 		var box = document.createElementNS("http://www.w3.org/2000/svg", 'path');
@@ -547,6 +570,16 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	}
 
 	inherits(VedenOperator, VedenElement);
+
+	VedenOperator.prototype.toString = function() {
+		switch (this.op) {
+		case "\u002B": return " + ";
+		case "\u2212": return " - ";
+		case "\u00D7": return " * ";
+		case "\u00F7": return " / ";
+		case "\u2981": return " // ";
+		}
+	}
 
 	VedenOperator.prototype.make = function () {
 		var box = document.createElementNS("http://www.w3.org/2000/svg", 'path');
@@ -591,6 +624,10 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	}
 
 	inherits(VedenModifier, VedenElement);
+
+	VedenModifier.prototype.toString = function() {
+		return " "+this.mod+" ";
+	}
 
 	VedenModifier.prototype.make = function () {
 		var box = document.createElementNS("http://www.w3.org/2000/svg", 'path');
@@ -642,6 +679,14 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 	inherits(VedenExpGroup, VedenElement);
 
+	VedenExpGroup.prototype.toString = function() {
+		var res = "(";
+		for (var i=0; i<this.children.length; i++) {
+			res += this.children[i].toString();
+		}
+		res += ")";
+		return res;
+	}
 
 	VedenExpGroup.prototype.make = function () {
 		var box = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
@@ -681,9 +726,30 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			"operator",
 			"group"
 		];
+
+		var me = this;
+		this.onchange = function(e) {
+			var str = me.toString();
+			console.log(str);
+			var ast = new Eden.AST(str);
+			if (ast.hasErrors()) {
+				me.element.childNodes[0].setAttribute("style","fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#ff0000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3,1;stroke-opacity:1;stroke-dashoffset:0");
+			} else {
+				me.element.childNodes[0].setAttribute("style","fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#00ff00;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:3,1;stroke-opacity:1;stroke-dashoffset:0");
+			}
+		}
 	}
 
 	inherits(VedenStatement, VedenElement);
+
+	VedenStatement.prototype.toString = function() {
+		var res = "";
+		for (var i=0; i<this.children.length; i++) {
+			res += this.children[i].toString();
+		}
+		res += ";";
+		return res;
+	}
 
 	VedenStatement.prototype.make = function () {
 		var box = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
