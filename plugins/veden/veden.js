@@ -276,6 +276,19 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		return res;
 	}
 
+	VedenElement.prototype.deltaAll = function(dw,dh) {
+		for (var i=0; i<this.snappoints.length; i++) {
+			// TODO UPDATE SNAPPOINT HEIGHT
+			//if (this.snappoints[i].name == "right") {
+				//this.snappoints[i].x = this.width;
+				//console.log(this.snappoints[i]);
+				if (this.snappoints[i].element) {
+					this.snappoints[i].element.chainedDeltaMove(dw*this.snappoints[i].mx, dh*this.snappoints[i].my, this);
+				}
+			//}
+		}
+	}
+
 	VedenElement.prototype.resize = function(nw,nh) {
 		if (nw < this.minWidth) nw = this.minWidth;
 		if (nh < this.minHeight) nh = this.minHeight;
@@ -288,16 +301,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			this.element.childNodes[this.boxIndex].setAttribute("width", this.width);
 			this.element.childNodes[this.boxIndex].setAttribute("height", this.height);
 			//this.element.childNodes[0].setAttribute("ry", this.height/2);
-			for (var i=0; i<this.snappoints.length; i++) {
-				// TODO UPDATE SNAPPOINT HEIGHT
-				//if (this.snappoints[i].name == "right") {
-					//this.snappoints[i].x = this.width;
-					//console.log(this.snappoints[i]);
-					if (this.snappoints[i].element) {
-						this.snappoints[i].element.chainedDeltaMove(dw*this.snappoints[i].mx, dh*this.snappoints[i].my, this);
-					}
-				//}
-			}
+			this.deltaAll(dw,dh);
 		}
 	}
 
@@ -408,6 +412,88 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 	////////////////////////////////////////////////////////////////////////////
 
+	function VedenNumber(x, y) {
+		VedenElement.call(this,"number", x, y, 30, 20);
+		this.value = 0;
+		this.element = this.make();
+
+		this.snappoints = [
+			new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["operator","group", "index","modifier"], ["right","inside","lvalue"]),
+			new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["operator","index"],["left"])
+		];
+	}
+
+	inherits(VedenNumber, VedenElement);
+
+	VedenNumber.prototype.make = function () {
+		var box = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+		box.setAttribute("width", ""+(this.width+8));
+		box.setAttribute("height", "20");
+		box.setAttribute("x", "-4");
+		box.setAttribute("y", "0");
+		box.setAttribute("ry", "10");
+		box.setAttribute("rx", "0");
+		box.setAttribute("transform","matrix(1 0 0 1 0 0)");
+		box.setAttribute("style","fill:#1e4cb6;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1");
+
+		var box2 = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+		box2.setAttribute("width", ""+(this.width+4));
+		box2.setAttribute("height", "16");
+		box2.setAttribute("x", "-2");
+		box2.setAttribute("y", "2");
+		box2.setAttribute("ry", "8");
+		box2.setAttribute("rx", "0");
+		box2.setAttribute("transform","matrix(1 0 0 1 0 0)");
+		box2.setAttribute("style","fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1");
+
+
+		/*var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+		text.setAttribute("class", "veden-number");
+		text.setAttribute("x", ""+((this.width/2)));
+		text.setAttribute("y", ""+((this.height/2)));
+		text.setAttribute("text-anchor", "middle");
+		text.setAttribute("alignment-baseline", "middle");
+		text.setAttribute("style","fill:black;");
+		text.setAttribute("editable", "simple");
+		text.textContent = ""+this.value;*/
+
+		var fobj = document.createElementNS("http://www.w3.org/2000/svg", 'foreignObject');
+		fobj.setAttribute("x", "5");
+		fobj.setAttribute("y", "2");
+		fobj.setAttribute("width", ""+(this.width - 5));
+		fobj.setAttribute("height", ""+(this.height - 2));
+		var input = document.createElement("input");
+		input.setAttribute("type","text");
+		input.setAttribute("class", "veden-number-input");
+		input.setAttribute("style", "width: "+(this.width-15)+"px;");
+		input.value = this.value;
+		var me = this;
+		input.onkeypress = function(evt) {
+			console.log("INPUT CHANGE");
+			var nw = input.value.length * 7 + 30;
+			var dw = nw - me.width;
+			me.resize(nw, me.height);
+			box.setAttribute("width", ""+(me.width+8));
+			box2.setAttribute("width", ""+(me.width+4));
+			fobj.setAttribute("width", ""+(me.width - 5));
+			input.setAttribute("style", "width: "+(me.width-15)+"px;");
+			me.deltaAll(dw,0);
+			if (me.parent) me.parent.autoResize();
+		}
+		fobj.appendChild(input);
+
+		var group = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+		group.setAttribute("transform","matrix(1 0 0 1 "+this.x+" "+this.y+")");
+		group.setAttribute("cursor","pointer");
+		group.appendChild(box);
+		group.appendChild(box2);
+		group.appendChild(fobj);
+		group.onmousedown = selectElement;
+		return group;
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+
 	function VedenLValue(name, x, y) {
 		VedenElement.call(this,"lvalue", x, y, 20 + (name.length * 7), 20);
 		this.name = name;
@@ -455,8 +541,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		this.element = this.make();
 
 		this.snappoints = [
-			new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["observable","group","index"],["right"]),
-			new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["observable","group"],["left"])
+			new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["number","observable","group","index"],["right"]),
+			new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["number","observable","group"],["left"])
 		];
 	}
 
@@ -500,7 +586,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 		this.snappoints = [
 			new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["lvalue"],["right"]),
-			new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["observable","group"],["left"])
+			new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["number","observable","group"],["left"])
 		];
 	}
 
@@ -716,8 +802,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	}
 
 	function moveElement(evt){
-		evt.preventDefault();
 		if (selectedElement == 0) return;
+		evt.preventDefault();
 		dx = evt.layerX - currentX;
 		dy = evt.layerY - currentY;
 
@@ -777,7 +863,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 	function deselectElement(evt){
 		//console.log(elements);
-		evt.preventDefault();
+		//evt.preventDefault();
 		if(selectedElement != 0){
 			var ele = findElement(selectedElement);
 			ele.dock();
@@ -790,8 +876,10 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	}
 
 	function selectElement(evt) {
-		evt.preventDefault();
+		//evt.preventDefault();
 		if (selectedElement != 0) return;
+		if (evt.target.nodeName == "INPUT") return;
+		//console.log(evt);
 
 		selectedElement = evt.target;
 
@@ -839,9 +927,11 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		var op2 = new VedenOperator("\u2212", 50, 10);
 		var op3 = new VedenOperator("\u00D7", 90, 10);
 		var op4 = new VedenOperator("\u00F7", 130, 10);
+		var op5 = new VedenOperator("\u2981", 170, 10);
 		var obs1 = new VedenObservable("turtle_position_x", 10, 70);
 		var obs2 = new VedenObservable("turtle_position_y", 150, 70);
 		var obs3 = new VedenObservable("mouse_y", 10, 100);
+		var num1 = new VedenNumber(80, 100);
 		var obs4 = new VedenLValue("mouse_x", 150, 100);
 		var obs5 = new VedenObservable("screenWidth", 10, 130);
 		var group1 = new VedenExpGroup(10,160);
@@ -853,9 +943,11 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		svg1.append(op2.element);
 		svg1.append(op3.element);
 		svg1.append(op4.element);
+		svg1.append(op5.element);
 		svg1.append(obs1.element);
 		svg1.append(obs2.element);
 		svg1.append(obs3.element);
+		svg1.append(num1.element);
 		svg1.append(obs4.element);
 		svg1.append(obs5.element);
 		svg1.append(group1.element);
