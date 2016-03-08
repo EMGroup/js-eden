@@ -39,6 +39,7 @@ div.veden-content {
 .veden-observable {
 	color: white;
 	font-weight: bold;
+	font: 10px Roboto Mono,monospace;
 }
 
 .veden-number {

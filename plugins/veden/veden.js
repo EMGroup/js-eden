@@ -307,8 +307,10 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		if (this.boxIndex >= 0) {
 			this.element.childNodes[this.boxIndex].setAttribute("width", this.width);
 			this.element.childNodes[this.boxIndex].setAttribute("height", this.height);
+			this.element.childNodes[this.boxIndex].setAttribute("y", ""+((this.minHeight - this.height) / 2));
 			//this.element.childNodes[0].setAttribute("ry", this.height/2);
-			this.deltaAll(dw,dh);
+			//this.deltaAll(dw,dh);
+			this.deltaAll(dw,0);
 		}
 	}
 
@@ -376,8 +378,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	////////////////////////////////////////////////////////////////////////////
 
 	function VedenObservable(name, x, y) {
-		VedenElement.call(this,"observable", x, y, 10 + (name.length * 7), 20);
-		this.name = name;
+		VedenElement.call(this,"observable", x, y, 10 + (name.length * 6), 20);
+		this.name = name.split("_").join(" ");
 		this.element = this.make();
 
 		this.snappoints = [
@@ -389,7 +391,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	inherits(VedenObservable, VedenElement);
 
 	VedenObservable.prototype.toString = function() {
-		return this.name;
+		return this.name.split(" ").join("_");
 	}
 
 	VedenObservable.prototype.make = function () {
@@ -411,6 +413,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		text.setAttribute("alignment-baseline", "middle");
 		text.setAttribute("style","fill:white;");
 		text.textContent = this.name;
+		//console.log(text.getComputedTextLength());
 
 		var group = document.createElementNS("http://www.w3.org/2000/svg", 'g');
 		group.setAttribute("transform","matrix(1 0 0 1 "+this.x+" "+this.y+")");
@@ -514,8 +517,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	////////////////////////////////////////////////////////////////////////////
 
 	function VedenLValue(name, x, y) {
-		VedenElement.call(this,"lvalue", x, y, 20 + (name.length * 7), 20);
-		this.name = name;
+		VedenElement.call(this,"lvalue", x, y, 20 + (name.length * 6), 20);
+		this.name = name.split("_").join(" ");
 		this.element = this.make();
 
 		this.snappoints = [
@@ -527,7 +530,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	inherits(VedenLValue, VedenElement);
 
 	VedenLValue.prototype.toString = function() {
-		return this.name;
+		return this.name.split(" ").join("_");
 	}
 
 	VedenLValue.prototype.make = function () {
