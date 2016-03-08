@@ -86,6 +86,7 @@ module.exports = function (grunt) {
 					'./js/core/translator.js',
 					'./js/core/eden.js',
 					'./js/core/plugins.js',
+					'./js/util/url.js',
 					'./js/core/initialise.js',
 					'./js/core/lex.js',
 					'./js/core/errors.js',

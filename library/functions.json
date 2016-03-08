@@ -1564,7 +1564,7 @@
 		"createHTMLView": {
 			"parameters": {
 				"[view_name]": "",
-				"picture_observable": "",
+				"html_observable": "",
 				"[window_title]": ""
 			}
 		},
@@ -1608,6 +1608,13 @@
 			"parameters": {
 				"[view_name]": "",
 				"html": ""
+			}
+		},
+		"loadTextFileIntoObservable": {
+			"parameters": {
+				"pointer_to_observable": "",
+				"url": "",
+				"[do_synchronously]": ""
 			}
 		},
 		"moveView": {
