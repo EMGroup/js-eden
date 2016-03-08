@@ -920,7 +920,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				} else {
 					zoneHit = drawableHit.name;
 				}
-				root.lookup("mouseZone").assign(zoneHit, root.scope, Symbol.hciAgent, followMouse);
+				var zoneSym = root.lookup("mouseZone");
+				var previousZone = zoneSym.value();
+				if (zoneHit !== previousZone) {
+					zoneSym.assign(zoneHit, root.scope, Symbol.hciAgent, followMouse);
+				}
 			}
 			
 			root.endAutocalcOff();

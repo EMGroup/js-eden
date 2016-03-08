@@ -542,7 +542,7 @@ include("library/declarevar.js-e");
 
 autocalc = 1;
 
-initialViews = ${{getParameterByName("views") }}$;
+initialViews = ${{ URLUtil.getParameterByName("views") }}$;
 if (initialViews == "" || initialViews == "default") {
 	createProjectList();
 	_view_projects_x = 0;
