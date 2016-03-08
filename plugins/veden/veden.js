@@ -1013,7 +1013,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		selectedElement.parentNode.onmouseup = deselectElement;
 	}
 
-	this.createDialog = function(name,mtitle) {
+	this.createCommon = function(name,mtitle) {
 		var code_entry = $('<div id=\"'+name+'-content\" class=\"veden-content\"></div>');
 		var svg1 = $('<svg width="100%" height="100%" version="1.1"\
 			 baseProfile="full"\
@@ -1060,8 +1060,14 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		svg1.append(stat1.element);
 		svg1.append(mod1.element);
 
+		return {confirmClose: false, contents: code_entry};
+	}
+
+	this.createDialog = function(name, mtitle) {
+		var viewdata = this.createCommon(name,mtitle);
+
 		$('<div id="'+name+'"></div>')
-			.html(code_entry)
+			.html(viewdata.contents)
 			.dialog({
 				title: mtitle,
 				width: 600,
@@ -1070,11 +1076,16 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 				minWidth: 230,
 				dialogClass: "veden-dialog"
 			});
-		return {confirmClose: false};
+		return viewdata;
+	}
+
+	this.createEmbedded = function(name, mtitle) {
+		var viewdata = me.createCommon(name, mtitle);
+		return viewdata;
 	}
 
 	//Register the DBView options
-	edenUI.views["Veden"] = {dialog: this.createDialog, title: "Visual Eden", category: edenUI.viewCategories.interpretation};
+	edenUI.views["Veden"] = {dialog: this.createDialog, embed: this.createEmbedded, title: "Visual Eden", category: edenUI.viewCategories.interpretation};
 
 	success();
 }

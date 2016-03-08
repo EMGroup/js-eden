@@ -24,6 +24,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	var canvasdestroy = [];
 	var canvases = {};
 	var scripts = {};
+	var vedens = {};
 
 	var scriptnum = 0;
 
@@ -210,6 +211,9 @@ EdenUI.plugins.Page = function(edenUI, success) {
 					if (attribs[i].tagType == "canvas") {
 						var can = generateCanvas(["canvas", attribs[i].name,attribs[i].source,attribs[i].width,attribs[i].height,attribs[i].float,attribs[i].box])
 						outer.append(can);
+					} else if (attribs[i].tagType == "veden") {
+						var ve = generateVeden(["veden", attribs[i].name, attribs[i].width, attribs[i].height, attribs[i].float]);
+						outer.append(ve);
 					}
 				}
 			}
@@ -428,6 +432,50 @@ EdenUI.plugins.Page = function(edenUI, success) {
 
 			return res;
 		}
+	}
+
+	function generateVeden(script) {
+		if (!script) return;
+		if (script[0] != "veden") return;
+
+		var name = script[1];
+		var width = script[2];
+		var height = script[3];
+		var float = script[4];
+
+		var embedded;
+		if (vedens[name]) {
+			embedded = vedens[name];
+			// Make sure code is up-to-date
+			//embedded.update(code);
+		} else {
+			embedded = edenUI.views.Veden.embed(name, name);
+			vedens[name] = embedded;
+		}
+		var container;
+		//if (box) {
+			container = $("<div id='"+name+"-dialog' class='page-script-live page-script-live-box'></div>");
+		//} else {
+		//	container = $("<div class='page-script-live'></div>");
+		//}
+		//var height = EdenUI.plugins.ScriptInput.getRequiredHeight(lines, true);
+		container.height(height);
+
+		if (float && float != "none") {
+			container.css("float",float);
+		}
+		if (width != "50%") {
+			if (typeof width == "number") {
+				container.width(width);
+			} else {
+				container.css("width", width);
+			}
+		}
+
+		embedded.contents.appendTo(container);
+		container.resizable();
+		return container;
+	
 	}
 
 	function generateCanvas(content) {
