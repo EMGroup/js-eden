@@ -56,7 +56,7 @@ Veden.Number.prototype.make = function () {
 		box2.setAttribute("width", ""+(me.width+4));
 		fobj.setAttribute("width", ""+(me.width - 5));
 		input.setAttribute("style", "width: "+(me.width-15)+"px;");
-		me.deltaAll(dw,0);
+		//me.deltaAll(dw,0);
 		if (me.parent) me.parent.autoResize();
 	};
 	input.onkeyup = function(evt) {

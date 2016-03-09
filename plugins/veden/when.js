@@ -3,7 +3,8 @@ Veden.When = function(data, x, y) {
 	this.element = this.make();
 
 	this.boxIndex = 1;
-	//this.boxConstantW = 70;
+	this.boxConstantW += 10;
+	
 	this.ast = undefined;
 
 	this.statementCount = 0;
