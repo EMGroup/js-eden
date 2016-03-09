@@ -41,7 +41,12 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		if (destpoint.external == false) {
 			//srcelement.parent = this;
 			//this.updateChainWidth(srcelement.chainedWidth(this));
-			this.addChild(srcelement);
+			//this.addChild(srcelement);
+			var chain = srcelement.chainedExternals();
+			for (var i=0; i<chain.length; i++) {
+				this.addChild(chain[i]);
+				if (chain[i] !== srcelement) chain[i].dock();
+			}
 		} else if (this.parent) {
 			//console.log("Has parent");
 			//srcelement.parent = this.parent;
@@ -999,7 +1004,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 					// Now repeat snaps check to find any at distance 0
 					snaps = checkSnaps(ele, near);
 					while (snaps && snaps.dist == 0) {
-						console.log("Multisnap");
+						console.log("Multisnap:" + snaps.destsnap.name);
 						//ele.snap(snaps.destelement, snaps.srcsnap, snaps.destsnap);
 						snaps.destelement.snap(ele, snaps.destsnap, snaps.srcsnap);
 						snaps = checkSnaps(ele, near);
