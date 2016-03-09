@@ -37,8 +37,6 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 	function fVedenAttach(destpoint, srcpoint, srcelement) {
 		//console.log("Attach: " + destpoint.element);
-		destpoint.element = srcelement;
-		srcpoint.element = this;
 
 		if (destpoint.external == false) {
 			//srcelement.parent = this;
@@ -49,7 +47,21 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			//srcelement.parent = this.parent;
 			//this.parent.updateChainWidth(this.chainedWidth(this.parent));
 			this.parent.addChild(srcelement);
+			/*var chain = srcelement.chainedExternals(this.parent);
+			for (var i=0; i<chain.length; i++) {
+				this.parent.addChild(chain[i]);
+			}*/
+		} else if (srcelement.parent) {
+			//srcelement.parent.addChild(this);
+			var chain = this.chainedExternals();
+			for (var i=0; i<chain.length; i++) {
+				srcelement.parent.addChild(chain[i]);
+				chain[i].dock();
+			}
 		}
+
+		destpoint.element = srcelement;
+		srcpoint.element = this;
 	}
 
 	function fVedenDetachAll() {
@@ -80,6 +92,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		for (var i=0; i<this.snappoints.length; i++) {
 			if (this.snappoints[i].element === ele) {
 				this.snappoints[i].element = undefined;
+				break;
 			}
 		}
 	}
@@ -87,7 +100,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	function fVedenAccept(destsnapname, srcsnapname, element) {
 		for (var i=0; i<this.snappoints.length; i++) {
 			if (this.snappoints[i].name == destsnapname) {
-				if (this.snappoints[i].element && this.snappoints[i].element !== element) return false;
+				if (this.snappoints[i].element) return false; // && this.snappoints[i].element !== element) return false;
 				if (this.snappoints[i].types && this.snappoints[i].types.indexOf(element.type) == -1) return false;
 				if (this.snappoints[i].points && this.snappoints[i].points.indexOf(srcsnapname) == -1) return false;
 				return true;
@@ -137,15 +150,25 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		var ix = this.children.indexOf(child);
 		if (ix >= 0) {
 			// Also undock all subsequent children
-			for (var i=ix; i<this.children.length; i++) {
-				this.children[i].undock();
-				this.children[i].parent = undefined;
-			}
+			//for (var i=ix; i<this.children.length; i++) {
+				this.children[ix].undock();
+				this.children[ix].parent = undefined;
+			//}
 
-			this.children = this.children.slice(0,ix);
+			//this.children = this.children.slice(0,ix);
+			var nchildren = this.chainedInternals();
+			for (var i=0; i<this.children.length; i++) {
+				if (nchildren.indexOf(this.children[i]) == -1) {
+					this.children[i].undock();
+					this.children[i].parent = undefined;
+				}
+			}
+			this.children = nchildren;
 
 			// Calculate new width
 			this.autoResize();
+
+			this.notifyChange();
 
 			//console.trace("REMOVED CHILD");
 			//console.log(this.children);
@@ -257,7 +280,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 	VedenElement.prototype.chainedInternals = function(origin) {
 		var ext = this.internals(origin);
-		var res = [this];
+		var res = [];
 		for (var i=0; i<ext.length; i++) {
 			//res.push(ext[i]);
 			res.push.apply(res, ext[i].chainedExternals(this));
@@ -495,22 +518,12 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		box2.setAttribute("transform","matrix(1 0 0 1 0 0)");
 		box2.setAttribute("style","fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1");
 
-
-		/*var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-		text.setAttribute("class", "veden-number");
-		text.setAttribute("x", ""+((this.width/2)));
-		text.setAttribute("y", ""+((this.height/2)));
-		text.setAttribute("text-anchor", "middle");
-		text.setAttribute("alignment-baseline", "middle");
-		text.setAttribute("style","fill:black;");
-		text.setAttribute("editable", "simple");
-		text.textContent = ""+this.value;*/
-
 		var fobj = document.createElementNS("http://www.w3.org/2000/svg", 'foreignObject');
 		fobj.setAttribute("x", "5");
 		fobj.setAttribute("y", "2");
+		fobj.setAttribute("class", "veden-fobj");
 		fobj.setAttribute("width", ""+(this.width - 5));
-		fobj.setAttribute("height", ""+(this.height - 2));
+		fobj.setAttribute("height", ""+(this.height-4));
 		var input = document.createElement("input");
 		input.setAttribute("type","text");
 		input.setAttribute("class", "veden-number-input");
@@ -773,11 +786,12 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		this.element = this.make();
 
 		this.boxIndex = 0;
-		this.boxConstantW = 60;
+		this.boxConstantW = 50;
+		this.ast = undefined;
 
 		this.snappoints = [
 			new SnapPoint(this, "left", 0, 0, 0.5, 0, true, [],["right"]),
-			new SnapPoint(this, "lvalue", 0, 51, 0.5, 0, false, ["lvalue"],["left"])
+			new SnapPoint(this, "lvalue", 0, 41, 0.5, 0, false, ["lvalue"],["left"])
 		];
 
 		this.allowedInside = [
@@ -789,9 +803,9 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		var me = this;
 		this.onchange = function(e) {
 			var str = me.toString();
-			console.log(str);
-			var ast = new Eden.AST(str);
-			if (ast.hasErrors()) {
+			//console.log(str);
+			me.ast = new Eden.AST(str);
+			if (me.ast.hasErrors()) {
 				me.element.childNodes[0].setAttribute("style","fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#ff0000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:6,2;stroke-opacity:1;stroke-dashoffset:0");
 			} else {
 				me.element.childNodes[0].setAttribute("style","fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#00ff00;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:6,2;stroke-opacity:1;stroke-dashoffset:0");
@@ -811,6 +825,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	}
 
 	VedenStatement.prototype.make = function () {
+		var me = this;
+
 		var box = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
 		box.setAttribute("width", ""+this.width);
 		box.setAttribute("height", ""+this.height);
@@ -823,16 +839,28 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 		var block = document.createElementNS("http://www.w3.org/2000/svg", 'path');
 		//box.setAttribute("d", "m 26,0.36220432 -26,0 c 0.45127068,0.32157 0.9835405,0.53336 1.3743821,0.92382998 0.9046334,0.90375 1.6355873,1.98054 2.1407706,3.17773 0.5051733,1.19719 0.7839656,2.51344 0.7839656,3.8984401 0,1.385 -0.2787923,2.7031996 -0.7839656,3.9003896 -0.5051833,1.19719 -1.2361372,2.273981 -2.1407706,3.177731 -0.3898106,0.38944 -0.92052889,0.60096 -1.37047829,0.92188 l 25.37243719,0 c -0.417708,-0.3028 -0.916555,-0.49769 -1.280551,-0.86133 -0.885755,-0.88489 -1.601153,-1.939121 -2.095796,-3.111331 -0.494633,-1.17221 -0.76832,-2.4622596 -0.76832,-3.8183596 0,-1.3561001 0.273687,-2.6461501 0.76832,-3.8183601 0.494643,-1.17221 1.210041,-2.22643 2.095796,-3.11133 C 24.637019,1.1008043 25.343879,0.76452432 26,0.36220432 Z");
-		block.setAttribute("d", "M 15 5 a 10 10 0 1 0 0 20 l 40 0 -10 -10 10 -10 -40 0 z");		
+		block.setAttribute("d", "M 15 5 a 10 10 0 1 0 0 20 l 30 0 -10 -10 10 -10 -30 0 z");		
 		block.setAttribute("style", "fill:#c1c3c6;fill-opacity:1;stroke:none;stroke-opacity:1");
 		//node.setAttribute("transform", "scale(" + 0.4 + " " + 0.4 +")");
 		block.setAttribute("x", "0");
 		block.setAttribute("y", "0");
 		//block.setAttribute("style", "fill:url(#linearGradient4210);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1");
 
-		var me = this;
+		var play = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+		//box.setAttribute("d", "m 26,0.36220432 -26,0 c 0.45127068,0.32157 0.9835405,0.53336 1.3743821,0.92382998 0.9046334,0.90375 1.6355873,1.98054 2.1407706,3.17773 0.5051733,1.19719 0.7839656,2.51344 0.7839656,3.8984401 0,1.385 -0.2787923,2.7031996 -0.7839656,3.9003896 -0.5051833,1.19719 -1.2361372,2.273981 -2.1407706,3.177731 -0.3898106,0.38944 -0.92052889,0.60096 -1.37047829,0.92188 l 25.37243719,0 c -0.417708,-0.3028 -0.916555,-0.49769 -1.280551,-0.86133 -0.885755,-0.88489 -1.601153,-1.939121 -2.095796,-3.111331 -0.494633,-1.17221 -0.76832,-2.4622596 -0.76832,-3.8183596 0,-1.3561001 0.273687,-2.6461501 0.76832,-3.8183601 0.494643,-1.17221 1.210041,-2.22643 2.095796,-3.11133 C 24.637019,1.1008043 25.343879,0.76452432 26,0.36220432 Z");
+		play.setAttribute("d", "M 20 9 l 0 12 8 -6 -8 -6 z");		
+		play.setAttribute("style", "fill:#00ff00;fill-opacity:1;stroke:none;stroke-opacity:1");
+		//node.setAttribute("transform", "scale(" + 0.4 + " " + 0.4 +")");
+		play.setAttribute("x", "0");
+		play.setAttribute("y", "0");
+		play.onmousedown = function(e) {
+			if (me.ast && !me.ast.hasErrors()) {
+				me.ast.execute(eden.root);
+			}
+		}
+
 		this.onresize = function() {
-			block.setAttribute("d", "M 15 "+(me.height/2 - 10)+" a 10 10 0 1 0 0 20 l 40 0 -10 -10 10 -10 -40 0 z");
+			block.setAttribute("d", "M 15 "+(me.height/2 - 10)+" a 10 10 0 1 0 0 20 l 30 0 -10 -10 10 -10 -30 0 z");
 		}
 
 		var group = document.createElementNS("http://www.w3.org/2000/svg", 'g');
@@ -840,6 +868,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		group.setAttribute("cursor","pointer");
 		group.appendChild(box);
 		group.appendChild(block);
+		group.appendChild(play);
 		//group.onmousedown = selectElement;
 		return group;
 	}
@@ -944,7 +973,6 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			}
 			if (res.length == 0) return undefined;
 			res = res.sort(function(a,b) { return a.dist - b.dist });
-			if (res.length > 1) console.log(res);
 			return res[0];
 		}
 
@@ -966,13 +994,26 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 				// properly detached!!!!!
 
 				if (snaps) {
-					/*if (lastsnap && snaps.destsnap !== lastsnap.destsnap) {
-						ele.detachAll();
-					}*/
-
 					snaps.destelement.snap(ele, snaps.destsnap, snaps.srcsnap);
-					//lastsnap = snaps;
+
+					// Now repeat snaps check to find any at distance 0
+					snaps = checkSnaps(ele, near);
+					while (snaps && snaps.dist == 0) {
+						console.log("Multisnap");
+						//ele.snap(snaps.destelement, snaps.srcsnap, snaps.destsnap);
+						snaps.destelement.snap(ele, snaps.destsnap, snaps.srcsnap);
+						snaps = checkSnaps(ele, near);
+					}
+
+					/*if (lastsnap && snaps.destsnap !== lastsnap.destsnap) {
+						ele.notifyChange();
+					}
+					lastsnap = snaps;*/
 				} else {
+					/*if (lastsnap) {
+						ele.notifyChange();
+					}
+					lastsnap = undefined;*/
 					//ele.detachAll();
 					// Now prevent overlaps... if not allowed
 					/*for (var i=0; i<near.length; i++) {
@@ -1056,7 +1097,9 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			 xmlns="http://www.w3.org/2000/svg">\
 			<defs>\
     <filter id="fdrop" x="0" y="0" width="200%" height="200%">\
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />\
+      <feOffset result="offOut" in="SourceGraphic" dx="5" dy="5" />\
+	  <feColorMatrix result="matrixOut" in="offOut" type="matrix"\
+		values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0" />\
       <feGaussianBlur result="blurOut" in="offOut" stdDeviation="5" />\
       <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />\
     </filter>\
@@ -1079,6 +1122,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			var estack = [];
 			var lasty = 10;
 			var lastheight = 0;
+			var statements = [];
 
 			function pushElement(ele, a, b) {
 				ele.undocked = true;
@@ -1090,6 +1134,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			while (stream.valid()) {
 				var token = stream.readToken();
 				if (estack.length == 0) estack.push(makeElement("statement",undefined,10,lasty+lastheight+5));
+				statements.push(estack[estack.length-1]);
 
 				if (token == "OBSERVABLE" && estack[estack.length-1].type == "group") {
 					pushElement(makeElement("observable", data.value, 10, 10), "inside", "left");

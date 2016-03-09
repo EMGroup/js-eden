@@ -58,6 +58,12 @@ input.veden-number-input {
 	background-color: white;
 	color: blue;
 	font: 12px Roboto Mono,monospace;
+	height: 16px;
+}
+
+.veden-fobj {
+	overflow: hidden;
+	font-size: 8pt;
 }
 
 .veden-operator {
