@@ -212,7 +212,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 						var can = generateCanvas(["canvas", attribs[i].name,attribs[i].source,attribs[i].width,attribs[i].height,attribs[i].float,attribs[i].box])
 						outer.append(can);
 					} else if (attribs[i].tagType == "veden") {
-						var ve = generateVeden(["veden", attribs[i].name, attribs[i].width, attribs[i].height, attribs[i].float]);
+						var ve = generateVeden(["veden", attribs[i].name, attribs[i].width, attribs[i].height, attribs[i].float, scripts[i]]);
 						outer.append(ve);
 					}
 				}
@@ -442,6 +442,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		var width = script[2];
 		var height = script[3];
 		var float = script[4];
+		var code = script[5];
 
 		var embedded;
 		if (vedens[name]) {
@@ -449,7 +450,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			// Make sure code is up-to-date
 			//embedded.update(code);
 		} else {
-			embedded = edenUI.views.Veden.embed(name, name);
+			embedded = edenUI.views.Veden.embed(name, name, code);
 			vedens[name] = embedded;
 		}
 		var container;
