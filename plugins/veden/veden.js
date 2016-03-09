@@ -11,6 +11,7 @@ function SnapPoint(owner, name, mx, cx, my, cy, external, acceptsTypes, acceptsP
 	this.external = external;
 	this.types = acceptsTypes;
 	this.points = acceptsPoints;
+	this.counterpart = undefined;
 }
 
 SnapPoint.prototype.getX = function() {
@@ -42,7 +43,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		"lvalue": Veden.LValue,
 		"operator": Veden.Operator,
 		"index": Veden.ListIndex,
-		"group": Veden.ExpGroup
+		"group": Veden.ExpGroup,
+		"when": Veden.When
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -312,24 +314,26 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			}
 		}
 
-		/*makeElement("operator", "\u002B", 10, 10);
-		makeElement("operator", "\u2212", 50, 10);
-		makeElement("operator", "\u00D7", 90, 10);
-		makeElement("operator", "\u00F7", 130, 10);
-		makeElement("operator", "\u2981", 170, 10);
-		makeElement("observable", "turtle_position_x", 10, 70);
-		makeElement("observable", "turtle_position_y", 150, 70);
-		makeElement("observable", "mouse_y", 10, 100);
-		makeElement("observable", "screenWidth", 10, 130);
-		makeElement("lvalue", "mouse_x", 150, 100);
-		makeElement("number", 10, 80, 100);
-		makeElement("group", undefined, 10, 160);
-		makeElement("group", undefined, 10, 200);
-		makeElement("statement", "is", 10, 280);
-		makeElement("modifier", "is", 200, 280);*/
-
 		//generate("turtle_position_x = 100;\nturtle_position_y = 100;\nturtle_size = 1.0;");
 		if (code) generate(code);
+		else {
+			makeElement("operator", "\u002B", 10, 10);
+			makeElement("operator", "\u2212", 50, 10);
+			makeElement("operator", "\u00D7", 90, 10);
+			makeElement("operator", "\u00F7", 130, 10);
+			makeElement("operator", "\u2981", 170, 10);
+			makeElement("observable", "turtle_position_x", 10, 70);
+			makeElement("observable", "turtle_position_y", 150, 70);
+			makeElement("observable", "mouse_y", 10, 100);
+			makeElement("observable", "screenWidth", 10, 130);
+			makeElement("lvalue", "mouse_x", 150, 100);
+			makeElement("number", 10, 80, 100);
+			makeElement("group", undefined, 10, 160);
+			makeElement("group", undefined, 10, 200);
+			makeElement("when", undefined, 10, 240);
+			makeElement("statement", "is", 10, 280);
+			makeElement("modifier", "is", 200, 280);
+		}
 
 		return {confirmClose: false, contents: code_entry};
 	}

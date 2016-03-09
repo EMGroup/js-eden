@@ -59,6 +59,8 @@ Veden.Element.prototype.attach = function(destpoint, srcpoint, srcelement) {
 		}
 	}
 
+	destpoint.counterpart = srcpoint;
+	srcpoint.counterpart = destpoint;
 	destpoint.element = srcelement;
 	srcpoint.element = this;
 }
@@ -153,12 +155,15 @@ Veden.Element.prototype.addChild = function(child) {
 
 Veden.Element.prototype.autoResize = function() {
 	var nw = this.boxConstantW;
-	var nh = 0;
+	var nh = this.boxConstantH;
 	for (var i=0; i<this.children.length; i++) {
-		nw += this.children[i].width;
-		if (this.children[i].height > nh) nh = this.children[i].height;
+		//nw += this.children[i].width;
+		var cpos = this.children[i].offsetPosition();
+		if (cpos.y < (this.boxConstantH/2)) cpos.y = this.boxConstantH/2;
+		if (this.children[i].width+cpos.x > nw) nw = this.children[i].width+cpos.x;
+		if (this.children[i].height+cpos.y > nh) nh = this.children[i].height+cpos.y;
 	}
-	this.resize(nw,nh+this.boxConstantH);
+	this.resize(nw+(this.boxConstantW/2),nh+(this.boxConstantH/2));
 	if (this.parent) this.parent.autoResize();
 }
 
@@ -213,6 +218,19 @@ Veden.Element.prototype.pagePosition = function() {
 		parent = parent.parent;
 	}
 	return {x: this.x+px, y: this.y+py};
+}
+
+Veden.Element.prototype.offsetPosition = function() {
+	if (!this.undocked) return {x: this.x, y: this.y};
+	var px = 0;
+	var py = 0;
+	var parent = this.parent;
+	while(parent) {
+		px += parent.x;
+		py += parent.y;
+		parent = parent.parent;
+	}
+	return {x: this.x-px, y: this.y-py};
 }
 
 Veden.Element.prototype.externals = function(origin) {
@@ -272,14 +290,14 @@ Veden.Element.prototype.chainedWidth = function(origin) {
 	return res;
 }
 
-Veden.Element.prototype.deltaAll = function(dw,dh) {
+Veden.Element.prototype.deltaAll = function(dw,cw,dh,ch) {
 	for (var i=0; i<this.snappoints.length; i++) {
 		// TODO UPDATE SNAPPOINT HEIGHT
 		//if (this.snappoints[i].name == "right") {
 			//this.snappoints[i].x = this.width;
 			//console.log(this.snappoints[i]);
 			if (this.snappoints[i].element) {
-				this.snappoints[i].element.chainedDeltaMove(dw*this.snappoints[i].mx, dh*this.snappoints[i].my, this);
+				this.snappoints[i].element.chainedDeltaMove((dw*this.snappoints[i].mx)+cw, (dh*this.snappoints[i].my)+ch, this);
 			}
 		//}
 	}
@@ -298,10 +316,9 @@ Veden.Element.prototype.resize = function(nw,nh) {
 		this.element.childNodes[this.boxIndex].setAttribute("height", this.height);
 		//this.element.childNodes[this.boxIndex].setAttribute("y", ""+((this.minHeight - this.height) / 2));
 		//this.element.childNodes[0].setAttribute("ry", this.height/2);
-		this.move(this.x, this.y - (dh / 2))
-		this.deltaAll(dw,dh);
-		//this.deltaAll(dw,0);
+		//this.move(this.x, this.y - (dh / 2))
 	}
+	this.deltaAll(dw,0,dh,0);
 
 	if (this.onresize) this.onresize();
 }
@@ -325,11 +342,16 @@ Veden.Element.prototype.snap = function(ele, dest, src) {
 		}
 	}
 
+	var destpos = this.pagePosition();
+	ele.x = destpos.x + dest.getX() - src.getX();
+	ele.y = destpos.y + dest.getY() - src.getY();
+
 	if (src.element === undefined) {
 		//ele.attach(snaps.srcsnap, snaps.destsnap, snaps.destelement);
 		this.attach(dest, src, ele);
 	}
-	var destpos = this.pagePosition();
+
+	destpos = this.pagePosition();
 	ele.x = destpos.x + dest.getX() - src.getX();
 	ele.y = destpos.y + dest.getY() - src.getY();
 }

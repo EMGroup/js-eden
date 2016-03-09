@@ -3,7 +3,7 @@ Veden.Statement = function(kind, x, y) {
 	this.element = this.make();
 
 	this.boxIndex = 0;
-	this.boxConstantW = 50;
+	//this.boxConstantW = 50;
 	this.ast = undefined;
 
 	this.snappoints = [

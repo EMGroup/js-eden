@@ -4,7 +4,7 @@ Veden.Observable = function(name, x, y) {
 	this.element = this.make();
 
 	this.snappoints = [
-		new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["operator","group", "index","modifier"], ["right","inside","lvalue"]),
+		new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["operator","group", "index","modifier","when"], ["right","inside","lvalue","cond"]),
 		new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["operator","index"],["left"])
 	];
 }
