@@ -72,6 +72,16 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		var lastheight;
 		var statements;
 		var token;
+		var scriptagent;
+		var agent;
+		var readonly = false;
+		var svg1;
+
+		function clearSVG() {
+			elements = [];
+			var e = svg1.get(0);
+			while (e.firstChild) e.removeChild(e.firstChild);
+		}
 
 		function findElement(domele) {
 			for (var i=0; i<elements.length; i++) {
@@ -206,6 +216,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 		function selectElement(evt) {
 			//evt.preventDefault();
+			//if (readonly) return;
 			if (selectedElement != 0) return;
 			if (evt.target.nodeName == "INPUT") return;
 			//console.log(evt);
@@ -238,9 +249,173 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			selectedElement.parentNode.onmouseup = deselectElement;
 		}
 
+		/**
+		 * Respond to requests to change the current tab to a particular agent.
+		 * This is triggered from the observable _view_[name]_agent which is
+		 * set by the UI on tab change etc.
+		 */
+		function changeAgent(sym, value) {
+			// A valid and imported agent is given
+			if (value && Eden.Agent.agents[value]) {
+				// Already the current tab so continue...
+				if (scriptagent && value == scriptagent.name) return;
+				// Release ownership of current tab
+				if (scriptagent && readonly == false) scriptagent.setOwned(false);
+				// Switch to new tab.
+				scriptagent = Eden.Agent.agents[value];
+
+				// Not already owned so we can take ownership
+				if (Eden.Agent.agents[value].owned == false) {
+					scriptagent.setOwned(true);
+					readonly = false;
+					//changeClass(outdiv, "readonly", false);
+					//outdiv.contentEditable = true;
+				// Otherwise it needs to be readonly
+				} else {
+					readonly = true;
+					//setSubTitle("[readonly]");
+					// The readonly class changes colour scheme
+					//changeClass(outdiv, "readonly", true);
+					//outdiv.contentEditable = false;
+				}
+
+				// We have a parsed source so update contents of script view.
+				if (scriptagent.snapshot.length > 0) {
+					generate(scriptagent.snapshot);
+				} else {
+					// Clear the SVG
+					clearSVG();
+				}
+
+			// Otherwise, no valid agent so try and resolve
+			} else {
+				// Release ownership of any current tab
+				if (scriptagent && readonly == false) scriptagent.setOwned(false);
+				// Clear and disable the script view
+				// Clear the SVG
+				clearSVG();
+				readonly = true;
+				//outdiv.className = "outputcontent readonly";
+				//outdiv.contentEditable = false;
+	
+				scriptagent = undefined;
+				//setTitle(Language.ui.input_window.title);
+				//setSubTitle("[No Agents]");
+
+				// Attempt to import the agent without execution and then
+				// update the script view if successful.
+				if (value) {
+					if (Eden.Agent.agents[value] === undefined) {
+						Eden.Agent.importAgent(value, "default", ["noexec"], function(ag) {
+							if (ag) {
+								changeAgent(undefined, value);
+							}
+						});
+					}
+				}
+			}
+		}
+
+		function preloadScript(sym, value) {
+			var res = "";
+			if (value) {
+				console.log("PRELOAD: " + value);
+				/*if (Eden.Agent.agents["view/script/"+name] === undefined) {
+					scriptagent = new Eden.Agent(undefined, "view/script/"+name, ["noexec"]);
+				} else {
+					scriptagent = Eden.Agent.agents["view/script/"+name];
+				}*/
+
+				Eden.Agent.importAgent("view/veden/"+name, "default", ["noexec","create"], function(ag,msg) {
+					if (ag === undefined) {
+						console.error("Could not create agent: view/veden/"+name+"@default: "+msg);
+						return;
+					}
+					if (value instanceof Array) {
+						for (var i=0; i < value.length; i++) {
+							if (typeof value[i] == "string") {
+								res += value[i] + "\n";
+							} else if (typeof value[i] == "object") {
+								res += value[i].eden_definition+"\n";
+							}
+						}
+					} else {
+						res = value;
+					}
+					ag.setSource(res, false, -1);
+					
+					agent.state[obs_agent] = "view/veden/"+name;
+				});
+			}
+		}
+
+		function changeOwnership(ag, cause) {
+			if (scriptagent && ag && scriptagent.name == ag.name && cause == "net") {
+				if (!ag.owned) {
+					ag.setOwned(true);
+					readonly = false;
+					//changeClass(outdiv, "readonly", false);
+					//outdiv.contentEditable = true;
+					//setSubTitle("");
+				} else {
+					readonly = true;
+					//setSubTitle("[readonly]");
+					//outdiv.className = "outputcontent readonly";
+					//changeClass(outdiv, "readonly", true);
+					//outdiv.contentEditable = false;
+				}
+			}
+		}
+		function agentCreated(ag) {
+			if (agent && agent.state[obs_agent] !== undefined) {
+				if (ag.name == agent.state[obs_agent] && (scriptagent === undefined || ag.name != scriptagent.name)) {
+					changeAgent(undefined, ag.name);
+				}
+			}
+		}
+		function agentLoaded(ag) {
+			if (agent && agent.state[obs_agent] !== undefined) {
+				if (ag.name == agent.state[obs_agent] && (scriptagent === undefined || ag.name != scriptagent.name)) {
+					changeAgent(undefined, ag.name);
+				} else if (scriptagent && ag.name == scriptagent.name) {
+					clearSVG();
+					generate(ag.getSource());
+
+					//intextarea.value = ag.getSource();
+					//highlightContent(scriptagent.ast, -1, 0);
+					//updateHistoryButtons();
+
+					/*if (scriptagent.canRedo()) {
+						showSubDialog("localChanges", function(status) {
+							if (status) onFastForward();
+						}, scriptagent);
+					}*/
+				}
+			}
+		}
+		function agentRollback(ag) {
+			if (ag === scriptagent) {
+				//console.log("ROLLBACK");
+				clearSVG();
+				generate(scriptagent.snapshot);
+				//updateEntireHighlight(true);
+				//updateHistoryButtons();
+			}
+		}
+
+		function agentPatched(ag, patch, lineno) {
+			if (ag && scriptagent && ag.name === scriptagent.name && readonly) {
+				//intextarea.value = ag.snapshot;
+				console.log("PATCH SVG: " + ag.snapshot);
+				clearSVG();
+				generate(ag.snapshot);
+				//highlighter.ast = scriptagent.ast;
+				//highlightContent(highlighter.ast, lineno, -1);
+			}
+		}
 
 		var code_entry = $('<div id=\"'+name+'-content\" class=\"veden-content\"></div>');
-		var svg1 = $('<svg width="100%" height="100%" version="1.1"\
+		svg1 = $('<svg width="100%" height="100%" version="1.1"\
 			 baseProfile="full"\
 			 xmlns="http://www.w3.org/2000/svg">\
 			<defs>\
@@ -271,7 +446,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		}
 
 		function attachElement(dest, ele, a, b) {
-			console.log("Attach: " + ele.type + " to "+dest.type+ " at " + a + "<-"+b);
+			//console.log("Attach: " + ele.type + " to "+dest.type+ " at " + a + "<-"+b);
 			ele.undocked = true;
 			dest.snap(ele, a, b);
 			ele.dock();
@@ -412,7 +587,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		}
 
 		//generate("turtle_position_x = 100;\nturtle_position_y = 100;\nturtle_size = 1.0;");
-		if (code) generate(code);
+		if (code) {} //generate(code);
 		else {
 			makeElement("operator", "\u002B", 10, 10);
 			makeElement("operator", "\u2212", 50, 10);
@@ -431,6 +606,50 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			makeElement("statement", "is", 10, 280);
 			makeElement("modifier", "is", 200, 280);
 		}
+
+		// Use the agent wrapper for dealing with view interaction via symbols.
+		var obs_script = "_view_"+name+"_script";
+		var obs_agent = "_view_"+name+"_agent";
+		var obs_zoom = "_view_"+name+"_zoom";
+		var agent = new Eden.Agent(undefined,"view/veden/"+name+"/config");
+		agent.declare(obs_agent);
+		agent.declare(obs_script);
+		agent.declare(obs_zoom);
+
+		// Whenever _script is changed, regenerate the contents.
+		agent.on(obs_script, preloadScript);
+		agent.on(obs_agent, changeAgent);
+		//agent.on(obs_zoom, zoom);
+
+		if (agent.state[obs_zoom] === undefined) {
+			agent.state[obs_zoom] = 0;
+		}
+
+		// If there is explicit code, then use that
+		if (code && agent.state[obs_agent] === undefined) {
+			//preloadScript(undefined, code);
+			agent.state[obs_script] = code;
+		} else if (agent.state[obs_agent]) {
+			changeAgent(undefined, agent.state[obs_agent]);
+		} else {
+			//outdiv.className = "outputcontent readonly";
+			//outdiv.contentEditable = false;
+			//outdiv.innerHTML = "";
+		}
+
+		Eden.Agent.listenTo("create", agent, agentCreated);
+		Eden.Agent.listenTo("loaded", agent, agentLoaded);
+		Eden.Agent.listenTo("rollback", agent, agentRollback);
+		Eden.Agent.listenTo("owned", agent, changeOwnership);
+
+		// Need to rebuild tabs when new agents are created or titles change.
+		/*Eden.Agent.listenTo("remove", agent, removedAgent);
+		Eden.Agent.listenTo("autosave", agent, autoSaved);
+		Eden.Agent.listenTo("execute", agent, rebuildTabs);
+		Eden.Agent.listenTo("error", agent, rebuildTabs);
+		Eden.Agent.listenTo("fixed", agent, rebuildTabs);*/
+		Eden.Agent.listenTo("patched", agent, agentPatched);
+		Eden.Agent.listenTo("changed", agent, agentPatched);
 
 		return {confirmClose: false, contents: code_entry};
 	}

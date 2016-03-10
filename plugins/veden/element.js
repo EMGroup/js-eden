@@ -320,7 +320,7 @@ Veden.Element.prototype.autoMove = function(origin) {
 			var dest = this.snappoints[i];
 			if (ele && ele !== origin && ele !== this.parent) { // && this.snappoints[i].external) {
 				var destpos = (this.snappoints[i].external) ? this.offsetPosition() : {x:0,y:0};
-				console.log("Move SNAP: " + ele.type + "->" + dest.name + "("+(destpos.x + dest.getX() - src.getX())+","+(destpos.y + dest.getY() - src.getY())); 
+				//console.log("Move SNAP: " + ele.type + "->" + dest.name + "("+(destpos.x + dest.getX() - src.getX())+","+(destpos.y + dest.getY() - src.getY())); 
 				ele.move(destpos.x + dest.getX() - src.getX(), ele.y = destpos.y + dest.getY() - src.getY());
 				ele.autoMove(this);
 			}
