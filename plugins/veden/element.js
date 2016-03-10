@@ -357,7 +357,7 @@ Veden.Element.prototype.resize = function(nw,nh) {
 
 Veden.Element.prototype.snap = function(ele, dest, src) {
 	if (typeof(dest) == "string") {
-		for (var i=0; i<this.snappoints.length; i++) {
+		for (var i=this.snappoints.length-1; i>=0; i--) {
 			if (this.snappoints[i].name == dest) {
 				dest = this.snappoints[i];
 				break;
@@ -366,7 +366,7 @@ Veden.Element.prototype.snap = function(ele, dest, src) {
 	}
 
 	if (typeof(src) == "string") {
-		for (var i=0; i<ele.snappoints.length; i++) {
+		for (var i=ele.snappoints.length-1; i>=0; i--) {
 			if (ele.snappoints[i].name == src) {
 				src = ele.snappoints[i];
 				break;

@@ -291,6 +291,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 				// We have a parsed source so update contents of script view.
 				if (scriptagent.snapshot.length > 0) {
+					clearSVG();
 					generate(scriptagent.snapshot);
 				} else {
 					// Clear the SVG
@@ -416,9 +417,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		function agentPatched(ag, patch, lineno) {
 			if (ag && scriptagent && ag.name === scriptagent.name && readonly) {
 				//intextarea.value = ag.snapshot;
-				console.log("PATCH SVG: " + ag.snapshot);
 				clearSVG();
-				generate(ag.snapshot);
+				generate(patch);
 				//highlighter.ast = scriptagent.ast;
 				//highlightContent(highlighter.ast, lineno, -1);
 			}
@@ -456,6 +456,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		}
 
 		function attachElement(dest, ele, a, b) {
+			if (dest === undefined) return ele;
 			//console.log("Attach: " + ele.type + " to "+dest.type+ " at " + a + "<-"+b);
 			ele.undocked = true;
 			dest.snap(ele, a, b);
@@ -489,9 +490,29 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 				console.log(token);
 
-				if (token == "OBSERVABLE") {
+				if (token == "NUMBER") {
+					ele = attachElement(ele, makeElement("number", data.value, 10, 10), "right", "left");
+				} else if (token == "OBSERVABLE") {
 					ele = attachElement(ele, makeElement("observable", data.value, 10, 10), "right", "left");
-				}else if (token == "+") {
+
+				} else if (token == "<") {
+					ele = attachElement(ele, makeElement("operator", "\u003C", 10, 10), "right", "left");
+				} else if (token == ">") {
+					ele = attachElement(ele, makeElement("operator", "\u003E", 10, 10), "right", "left");
+				} else if (token == "==") {
+					ele = attachElement(ele, makeElement("operator", "\u2261", 10, 10), "right", "left");
+				} else if (token == "<=") {
+					ele = attachElement(ele, makeElement("operator", "\u2264", 10, 10), "right", "left");
+				} else if (token == ">=") {
+					ele = attachElement(ele, makeElement("operator", "\u2265", 10, 10), "right", "left");
+				} else if (token == "!=") {
+					ele = attachElement(ele, makeElement("operator", "\u2262", 10, 10), "right", "left");
+				} else if (token == "&&") {
+					ele = attachElement(ele, makeElement("operator", "\u2227", 10, 10), "right", "left");
+				} else if (token == "||") {
+					ele = attachElement(ele, makeElement("operator", "\u2228", 10, 10), "right", "left");
+
+				} else if (token == "+") {
 					ele = attachElement(ele, makeElement("operator", "\u002B", 10, 10), "right", "left");
 				} else if (token == "-") {
 					ele = attachElement(ele, makeElement("operator", "\u2212", 10, 10), "right", "left");
@@ -663,6 +684,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		Eden.Agent.listenTo("error", agent, rebuildTabs);
 		Eden.Agent.listenTo("fixed", agent, rebuildTabs);*/
 		Eden.Agent.listenTo("patched", agent, agentPatched);
+		Eden.Agent.listenTo("patch", agent, agentPatched);
 		Eden.Agent.listenTo("changed", agent, agentPatched);
 
 		return {confirmClose: false, contents: code_entry};
