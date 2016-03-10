@@ -79,8 +79,15 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 		function clearSVG() {
 			elements = [];
+			var ix = 0;
 			var e = svg1.get(0);
-			while (e.lastChild) e.removeChild(e.lastChild);
+			while (e.childNodes[ix]) {
+				if (e.childNodes[ix].nodeName == "g") {
+					e.removeChild(e.childNodes[ix]);
+				} else {
+					ix++;
+				}
+			}
 		}
 
 		function findElement(domele) {
@@ -228,6 +235,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 				selectedElement = selectedElement.parentNode;
 			}
 
+			console.log(selectedElement);
+
 			var ele = findElement(selectedElement);
 			ele.undock();
 
@@ -236,9 +245,10 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 			offsetX = evt.layerX - ele.x;
 			offsetY = evt.layerY - ele.y;
+			console.log("Offset: " + offsetX+","+offsetY);
 			currentX = evt.layerX;
 			currentY = evt.layerY;
-			//console.log("Current: " + currentX+","+currentY);
+			console.log("Current: " + currentX+","+currentY);
 			currentMatrix = selectedElement.getAttributeNS(null, "transform").slice(7,-1).split(' ');
 			  for(var i=0; i<currentMatrix.length; i++) {
 				currentMatrix[i] = parseFloat(currentMatrix[i]);

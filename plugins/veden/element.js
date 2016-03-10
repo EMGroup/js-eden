@@ -210,6 +210,7 @@ Veden.Element.prototype.undock = function() {
 	//console.log("Move From: "+ele.x+","+ele.y+" by "+px+","+py);
 	this.move(this.x+px, this.y+py);
 	if (parent !== this) parentnode = parent.element.parentNode;
+	console.log(parentnode);
 	parentnode.appendChild(this.element);
 }
 
