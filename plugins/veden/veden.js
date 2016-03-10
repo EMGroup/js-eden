@@ -65,6 +65,13 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 	this.createCommon = function(name,mtitle, code) {
 		var elements = [];
+		var stream;
+		var data;
+		var estack;
+		var lasty;
+		var lastheight;
+		var statements;
+		var token;
 
 		function findElement(domele) {
 			for (var i=0; i<elements.length; i++) {
@@ -256,62 +263,152 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			return ele;
 		}
 
-		function generate(str) {
-			var stream = new EdenStream(str);
-			var data = new EdenSyntaxData();
-			stream.data = data;
-			var estack = [];
-			var lasty = 10;
-			var lastheight = 0;
-			var statements = [];
+		function pushElement(ele, a, b) {
+			ele.undocked = true;
+			estack[estack.length-1].snap(ele, a, b);
+			ele.dock();
+			estack.push(ele);
+		}
 
-			function pushElement(ele, a, b) {
-				ele.undocked = true;
-				estack[estack.length-1].snap(ele, a, b);
-				ele.dock();
-				estack.push(ele);
+		function attachElement(dest, ele, a, b) {
+			console.log("Attach: " + ele.type + " to "+dest.type+ " at " + a + "<-"+b);
+			ele.undocked = true;
+			dest.snap(ele, a, b);
+			ele.dock();
+			return ele;
+		}
+
+		////////////////////////////////////////////////////////////////////////
+
+		function vExpression() {
+			var ele;
+			var base;
+
+			if (token == "OBSERVABLE") {
+				ele = makeElement("observable", data.value, 10, 10);
+			} else if (token == "NUMBER") {
+				ele = makeElement("number", data.value, 10, 10);
+			} else if (token == "(") {
+				token = stream.readToken();
+				ele = makeElement("group", undefined, 10, 10);
+				attachElement(ele, vExpression(), "inside", "left");
 			}
-			
-			while (stream.valid()) {
-				var token = stream.readToken();
-				if (estack.length == 0) estack.push(makeElement("statement",undefined,10,lasty+lastheight+5));
-				statements.push(estack[estack.length-1]);
+			base = ele;
 
-				if (token == "OBSERVABLE" && estack[estack.length-1].type == "group") {
-					pushElement(makeElement("observable", data.value, 10, 10), "inside", "left");
-				} else if (token == "OBSERVABLE" && estack[estack.length-1].type == "statement") {
-					pushElement(makeElement("lvalue", data.value, 10, 10), "lvalue", "left");
-				} else if (token == "OBSERVABLE") {
-					pushElement(makeElement("observable", data.value, 10, 10), "right", "left");
-				} else if (token == "is") {
-					pushElement(makeElement("modifier", "is", 10, 10), "right", "left");
-				} else if (token == "=") {
-					pushElement(makeElement("modifier", "=", 10, 10), "right", "left");
-				} else if (token == "NUMBER" && estack[estack.length-1].type == "group") {
-					pushElement(makeElement("number", data.value, 10, 10), "inside", "left");
-				} else if (token == "NUMBER") {
-					pushElement(makeElement("number", data.value, 10, 10), "right", "left");
-				} else if (token == ";") {
-					lastheight = estack[0].height;
-					lasty = estack[0].y;
-					estack = [];
-				} else if (token == "+") {
-					pushElement(makeElement("operator", "\u002B", 10, 10), "right", "left");
+			if (base === undefined) {
+				console.error("NO BASE ELEMENT: "+token);
+			}
+
+			while (stream.valid() && token != ";" && token != ")") {
+				token = stream.readToken();
+
+				if (token == "+") {
+					ele = attachElement(ele, makeElement("operator", "\u002B", 10, 10), "right", "left");
 				} else if (token == "-") {
-					pushElement(makeElement("operator", "\u2212", 10, 10), "right", "left");
+					ele = attachElement(ele, makeElement("operator", "\u2212", 10, 10), "right", "left");
 				} else if (token == "*") {
-					pushElement(makeElement("operator", "\u00D7", 10, 10), "right", "left");
+					ele = attachElement(ele, makeElement("operator", "\u00D7", 10, 10), "right", "left");
 				} else if (token == "/") {
-					pushElement(makeElement("operator", "\u00F7", 10, 10), "right", "left");
+					ele = attachElement(ele, makeElement("operator", "\u00F7", 10, 10), "right", "left");
 				} else if (token == "//") {
-					pushElement(makeElement("operator", "\u2981", 10, 10), "right", "left");
+					ele = attachElement(ele, makeElement("operator", "\u2981", 10, 10), "right", "left");
 				} else if (token == "(") {
-					pushElement(makeElement("group", undefined, 10, 10), "right", "left");
+					token = stream.readToken();
+					ele = attachElement(ele, makeElement("group", undefined, 10, 10), "right", "left");
+					attachElement(ele, vExpression(), "inside", "left");
 				} else if (token == ")") {
-					while (estack.length > 0 && estack[estack.length-1].type != "group") estack.pop();
-					if (estack.length > 0) estack.pop();
+					return base;
 				}
 			}
+
+			return base;
+		}
+
+		function vWhen() {
+			var ele = makeElement("when", undefined, 10, lasty+lastheight+5);
+			var base = ele;
+
+			token = stream.readToken();
+			if (token != "(") return;
+			token = stream.readToken();
+
+			attachElement(ele, vExpression(), "cond", "left");
+
+			// Read the {
+			token = stream.readToken();
+			while (stream.valid() && token != "}") {
+				token = stream.readToken();
+				if (token == "OBSERVABLE") {
+					vStatementP(base);
+				}
+			}
+
+			return ele;
+		}
+
+		function vStatementP(base) {
+			var ele;
+
+			if (token == "OBSERVABLE") {
+				ele = attachElement(base, makeElement("lvalue", data.value, 10, 10), "lvalue", "left");
+			} else {
+				console.error("Invalid statement, no lvalue");
+				return;
+			}
+
+			//base = ele;
+			token = stream.readToken();
+
+			if (token == "is") {
+				ele = attachElement(ele, makeElement("modifier", "is", 10, 10), "right", "left");
+			} else if (token == "=") {
+				ele = attachElement(ele, makeElement("modifier", "=", 10, 10), "right", "left");
+			} else {
+				console.error("No modifier: "+token);
+				return;
+			}
+
+			token = stream.readToken();
+			attachElement(ele, vExpression(), "right", "left");
+			return base;
+		}
+
+		function vStatement() {
+			var ele;
+			var base;
+
+			base = makeElement("statement", undefined, 0, lasty + lastheight+5);
+			vStatementP(base);
+
+			lastheight = base.height;
+			lasty = base.y;
+
+			return base;
+		}
+
+		function vGlobal() {
+			while (stream.valid()) {
+				token = stream.readToken();
+				if (token == "OBSERVABLE") {
+					statements.push(vStatement());
+				} else if (token == "when") {
+					statements.push(vWhen());
+				}
+			}
+		}
+
+		////////////////////////////////////////////////////////////////////////
+
+		function generate(str) {
+			stream = new EdenStream(str);
+			data = new EdenSyntaxData();
+			stream.data = data;
+			estack = [];
+			lasty = 10;
+			lastheight = 0;
+			statements = [];
+
+			vGlobal();
 		}
 
 		//generate("turtle_position_x = 100;\nturtle_position_y = 100;\nturtle_size = 1.0;");

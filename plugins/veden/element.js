@@ -373,6 +373,11 @@ Veden.Element.prototype.snap = function(ele, dest, src) {
 		}
 	}
 
+	if (dest.getX === undefined || src.getX === undefined) {
+		console.error("Missing a named snap point: "+dest+"<-"+src+" for "+ele.type);
+		return;
+	}
+
 	var destpos = this.pagePosition();
 	ele.x = destpos.x + dest.getX() - src.getX();
 	ele.y = destpos.y + dest.getY() - src.getY();
