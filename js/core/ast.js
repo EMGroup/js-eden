@@ -637,6 +637,16 @@ Eden.AST.LValue.prototype.generateCompList = function(ctx, scope) {
 	return res;
 }
 
+Eden.AST.LValue.prototype.generateIndexList = function(ctx, scope) {
+	var res = "[";
+	for (var i=0; i<this.lvaluep.length; i++) {
+		res += "rt.index("+this.lvaluep[i].indexexp.generate(ctx,scope)+")";
+		if (i < this.lvaluep.length-1) res += "][";
+	}
+	res += "]";
+	return res;
+}
+
 Eden.AST.LValue.prototype.generateIdStr = function() {
 	return "\""+this.generateCompList()+"\"";
 }
@@ -1174,7 +1184,7 @@ Eden.AST.Definition.prototype.generate = function(ctx) {
 		// TODO Report error, this is invalid;
 		return "";
 	} else if (this.lvalue.hasListIndices()) {
-		var clist = this.lvalue.generateCompList(this, "scope");
+		var clist = this.lvalue.generateIndexList(this, "scope");
 		result += ".addExtension("+this.lvalue.generateIdStr()+", function(context, scope, value) {\n\tvalue";
 		result += clist + " = ";
 		result += this.expression.generate(this, "scope");
@@ -1210,7 +1220,7 @@ Eden.AST.Definition.prototype.execute = function(root, ctx, base, agent) {
 
 	if (this.lvalue.hasListIndices()) {
 		var rhs = "(function(context,scope,value) { value";
-		rhs += this.lvalue.generateCompList(this, "scope") + " = ";
+		rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
 		rhs += this.expression.generate(this, "scope");
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			rhs += ".value";
