@@ -21,6 +21,8 @@ Veden.Element = function(type, x, y, width, height) {
 	this.boxConstantH = 10;
 	this.onchange = undefined;
 	this.onresize = undefined;
+	this.onattach = undefined;
+	this.ondetach = undefined;
 };
 
 Veden.Element.prototype.move = function(x, y) {
@@ -63,6 +65,8 @@ Veden.Element.prototype.attach = function(destpoint, srcpoint, srcelement) {
 	srcpoint.counterpart = destpoint;
 	destpoint.element = srcelement;
 	srcpoint.element = this;
+
+	if (this.onattach) this.onattach(destpoint);
 }
 
 Veden.Element.prototype.detachAll = function() {
@@ -92,6 +96,7 @@ Veden.Element.prototype.detachAll = function() {
 Veden.Element.prototype.detach = function(ele) {
 	for (var i=0; i<this.snappoints.length; i++) {
 		if (this.snappoints[i].element === ele) {
+			if (this.ondetach) this.ondetach(this.snappoints[i]);
 			this.snappoints[i].element = undefined;
 			break;
 		}
@@ -377,7 +382,7 @@ Veden.Element.prototype.snap = function(ele, dest, src) {
 		this.attach(dest, src, ele);
 	}
 
-	//destpos = this.pagePosition();
-	//ele.x = destpos.x + dest.getX() - src.getX();
-	//ele.y = destpos.y + dest.getY() - src.getY();
+	destpos = this.pagePosition();
+	ele.x = destpos.x + dest.getX() - src.getX();
+	ele.y = destpos.y + dest.getY() - src.getY();
 }

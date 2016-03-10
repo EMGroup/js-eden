@@ -1,5 +1,5 @@
 Veden.When = function(data, x, y) {
-	Veden.Element.call(this,"when", x, y, 100, 60);
+	Veden.Element.call(this,"when", x, y, 100, 30);
 	this.element = this.make();
 
 	this.boxIndex = 1;
@@ -91,6 +91,12 @@ Veden.When.prototype.make = function () {
 		//block.setAttribute("d", "M 15 "+(me.height/2 - 10)+" a 10 10 0 1 0 0 20 l 40 0 -10 -10 10 -10 -40 0 z");
 	}
 
+	this.onattach = function(s) {
+		if (s === me.snappoints[me.snappoints.length-1]) {
+			me.addStatementPoint();
+		}
+	}
+
 	var group = document.createElementNS("http://www.w3.org/2000/svg", 'g');
 	group.setAttribute("transform","matrix(1 0 0 1 "+this.x+" "+this.y+")");
 	group.setAttribute("cursor","pointer");
@@ -116,5 +122,9 @@ Veden.When.prototype.addStatementPoint = function() {
 
 	var snap = new SnapPoint(this, "lvalue", 0, 41, 0, (5 + this.statementCount*25 + 10), false, ["lvalue"],["left"]);
 	this.snappoints.push(snap);
+
+	this.minHeight = 30 + ((this.snappoints.length - 2) * 25);
+	this.resize(this.width, 0);
+	this.element.childNodes[0].setAttribute("height", ""+(this.height-35));
 }
 
