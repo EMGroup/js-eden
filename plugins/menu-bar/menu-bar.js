@@ -470,6 +470,12 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 				//versionHtml += 'Version ' + data.tag;
 				document.title = document.title + " " + data.tag;
 			}
+			var components = data.tag.slice(1).split(".");
+			var components2 = components[2].split("-");
+			eden.root.lookup("jseden_version_major").assign(parseInt(components[0]), eden.root.scope);
+			eden.root.lookup("jseden_version_minor").assign(parseInt(components[1]), eden.root.scope);
+			eden.root.lookup("jseden_version_patch").assign(parseInt(components2[0]), eden.root.scope);
+			eden.root.lookup("jseden_version_commit").assign(parseInt(components2[1]), eden.root.scope);
 			if (data.sha) {
 				versionHtml = 'Version <a href="https://github.com/EMgroup/js-eden/commit/' + data.sha +'">' + data.tag + '</a>';
 			} else {
