@@ -80,7 +80,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		function clearSVG() {
 			elements = [];
 			var e = svg1.get(0);
-			while (e.firstChild) e.removeChild(e.firstChild);
+			while (e.lastChild) e.removeChild(e.lastChild);
 		}
 
 		function findElement(domele) {
@@ -258,7 +258,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			// A valid and imported agent is given
 			if (value && Eden.Agent.agents[value]) {
 				// Already the current tab so continue...
-				if (scriptagent && value == scriptagent.name) return;
+				//if (scriptagent && value == scriptagent.name) return;
 				// Release ownership of current tab
 				if (scriptagent && readonly == false) scriptagent.setOwned(false);
 				// Switch to new tab.
@@ -455,29 +455,33 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 		////////////////////////////////////////////////////////////////////////
 
-		function vExpression() {
+		function vExpression(base, snapname) {
 			var ele;
 			var base;
 
 			if (token == "OBSERVABLE") {
-				ele = makeElement("observable", data.value, 10, 10);
+				ele = attachElement(base, makeElement("observable", data.value, 10, 10), snapname, "left");
 			} else if (token == "NUMBER") {
-				ele = makeElement("number", data.value, 10, 10);
+				ele = attachElement(base, makeElement("number", data.value, 10, 10), snapname, "left");
 			} else if (token == "(") {
 				token = stream.readToken();
-				ele = makeElement("group", undefined, 10, 10);
-				attachElement(ele, vExpression(), "inside", "left");
+				ele = attachElement(base, makeElement("group", undefined, 10, 10), snapname, "left");
+				vExpression(ele, "inside");
 			}
-			base = ele;
+			/*base = ele;
 
 			if (base === undefined) {
 				console.error("NO BASE ELEMENT: "+token);
-			}
+			}*/
 
 			while (stream.valid() && token != ";" && token != ")") {
 				token = stream.readToken();
 
-				if (token == "+") {
+				console.log(token);
+
+				if (token == "OBSERVABLE") {
+					ele = attachElement(ele, makeElement("observable", data.value, 10, 10), "right", "left");
+				}else if (token == "+") {
 					ele = attachElement(ele, makeElement("operator", "\u002B", 10, 10), "right", "left");
 				} else if (token == "-") {
 					ele = attachElement(ele, makeElement("operator", "\u2212", 10, 10), "right", "left");
@@ -490,7 +494,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 				} else if (token == "(") {
 					token = stream.readToken();
 					ele = attachElement(ele, makeElement("group", undefined, 10, 10), "right", "left");
-					attachElement(ele, vExpression(), "inside", "left");
+					vExpression(ele, "inside");
 				} else if (token == ")") {
 					return base;
 				}
@@ -507,7 +511,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			if (token != "(") return;
 			token = stream.readToken();
 
-			attachElement(ele, vExpression(), "cond", "left");
+			vExpression(ele, "cond");
 
 			// Read the {
 			token = stream.readToken();
@@ -544,7 +548,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			}
 
 			token = stream.readToken();
-			attachElement(ele, vExpression(), "right", "left");
+			vExpression(ele, "right");
 			return base;
 		}
 
@@ -655,7 +659,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 	}
 
 	this.createDialog = function(name, mtitle) {
-		var viewdata = me.createCommon(name,mtitle);
+		var viewdata = me.createCommon(name.slice(0,-7),mtitle);
 
 		$('<div id="'+name+'"></div>')
 			.html(viewdata.contents)

@@ -233,12 +233,12 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 				ag.loadSource(finish);
 				return;
 			} else {
-				//console.log("FOUND LOCAL " + path);
 				meta.saveID = "origin";
 				ag.setSnapshot("");
 				ag.setSource("");
 				// Auto rebase local only agents
 				while (ag.canRedo()) ag.redo();
+				//Eden.Agent.emit("patch", [this, ag.snapshot, -1]);
 				finish(true);
 				return;
 			}
