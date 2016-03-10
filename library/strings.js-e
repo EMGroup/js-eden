@@ -5,6 +5,47 @@
 ##
 ##Functions that operate on strings.
 
+##Fetches a URL, treats its contents are text, and assigns it to an observable.  The first argument
+##is a pointer to an observable that will hold the text.  The second argument is the url.  The
+##optional third argument is a boolean that, if true, waits for the download to finish before
+##processing the rest of the JS-EDEN script (if possible)
+proc loadTextFileIntoObservable {
+	${{
+		var me = this;
+		if (arguments.length < 2 || arguments.length > 3) {
+			eden.error(new Error("loadTextFileIntoObservable: This procedure requires at least 2 arguments and at most 3 arguments."), "error");
+			return;
+		}
+
+		var symbol = arguments[0];
+		var url = arguments[1];
+		var synchronous = arguments[2];
+
+		if (!(symbol instanceof Symbol)) {
+			eden.error(new Error("loadTextFileIntoObservable: The first argument must be a pointer, not a " + typeof(symbol)), "error");
+			return;
+		}
+		if (synchronous === undefined) {
+			synchronous = false;
+		}
+
+		URLUtil.downloadFile({
+			url: url,
+			sync: synchronous,
+			success: function (content) {
+				symbol.assign(content, root.scope, me);
+			},
+			error: function (request, problem, errorMsg) {
+				if (problem == "error") {
+					eden.error(new Error("loadTextFileIntoObservable: " + errorMsg + " for " + url));
+				} else {
+					eden.error(new Error("loadTextFileIntoObservable: " + problem + " for " + url));
+				}
+			},
+		});
+	}}$;
+}
+
 ##Concatenates a collection of values, separating each one by a given separator string, separator
 ##element or separator list.  The values can either be provided as multiple arguments or
 ##alternatively as a single list type argument.

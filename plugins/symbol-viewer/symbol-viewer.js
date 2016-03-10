@@ -149,7 +149,9 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 		// Make changes in search box update the list.
 		searchBox.keyup(function() {
-			searchStrSym.assign(searchBoxElem.value, root.scope, Symbol.hciAgent);
+			if (searchStrSym.value() !== searchBoxElem.value) {
+				searchStrSym.assign(searchBoxElem.value, root.scope, Symbol.hciAgent);
+			}
 		});
 
 		document.getElementById(name + "-category-filter").addEventListener("change", function (event) {

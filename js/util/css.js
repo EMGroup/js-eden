@@ -45,3 +45,32 @@ CSSUtil.setStyle = function (elementOrCSSRule, value) {
 		style.cssText = value;
 	}
 }
+
+/**Gets the CSS rule associated with a particular selector, creating a new rule if no existing rule
+ * has an identical selector.  The new rules are grouped together in a single additional style sheet,
+ * which is appended to the end of the document (if it doesn't already exist).  If more than one
+ * existing rule matches the given the selector then the rule declared last in the document is
+ * returned (i.e. the one that takes precedence over the others).
+ */
+CSSUtil.getStyle = function (selector) {
+	var sheetList = document.styleSheets;
+	for (var i = sheetList.length - 1; i >= 0; i--) {
+	   var ruleList = sheetList[i].cssRules;
+	   for (var j = ruleList.length - 1; j >= 0; j--) {
+		   if (ruleList[j].type == CSSRule.STYLE_RULE && ruleList[j].selectorText == selector) {
+			   return ruleList[j].style;
+		   }
+	   }
+	}
+	//No matching rule found so create one.
+	var styleElement = document.getElementById("javascript-injected-styles");
+	if (styleElement === null) {
+		var bodyElement = document.getElementsByTagName("body")[0];
+		styleElement = document.createElement("style");
+		styleElement.id = "javascript-injected-styles";
+		bodyElement.appendChild(styleElement);
+	}
+	var stylesheet = styleElement.sheet;
+	stylesheet.insertRule(selector + "{ }", stylesheet.cssRules.length);
+	return stylesheet.cssRules[0].style;
+}

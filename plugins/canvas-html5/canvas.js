@@ -899,11 +899,15 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				var windowPos = $(this).offset();
 				x = (e.pageX - Math.round(windowPos.left)) / combinedScale;
 				y = (e.pageY - Math.round(windowPos.top)) / combinedScale;
+
+				var offset = root.lookup("_view_" + canvasName + "_offset").value();
+				if (offset instanceof Point) {
+					x = x - offset.x;
+					y = y - offset.y;
+				}
 			}
 
-			var mousePos;
-			mousePos = new Point(x, y);
-
+			var mousePos = new Point(x, y);
 			root.lookup('mouseView').assign(canvasName, root.scope, Symbol.hciAgent, followMouse);
 			mousePositionSym.assign(mousePos, root.scope, Symbol.hciAgent, followMouse);
 
@@ -916,7 +920,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				} else {
 					zoneHit = drawableHit.name;
 				}
-				root.lookup("mouseZone").assign(zoneHit, root.scope, Symbol.hciAgent, followMouse);
+				var zoneSym = root.lookup("mouseZone");
+				var previousZone = zoneSym.value();
+				if (zoneHit !== previousZone) {
+					zoneSym.assign(zoneHit, root.scope, Symbol.hciAgent, followMouse);
+				}
 			}
 			
 			root.endAutocalcOff();
