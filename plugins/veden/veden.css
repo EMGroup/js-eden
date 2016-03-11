@@ -43,11 +43,8 @@ div.veden-blockslides .ui-accordion-header {
 }
 
 div.veden-stage {
-	position: absolute;
-	left: 150px;
-	top: 0;
-	right: 0px;
-	bottom: 0px;
+	margin-top: 35px;
+	height: calc(100% - 35px);
 	overflow: scroll;
 }
 
@@ -59,10 +56,10 @@ div.veden-blockslides {
 
 div.veden-maincontent {
 	position: absolute;
-	left: 0;
+	left: 150px;
 	right: 0;
 	bottom: 30px;
-	top: 0;
+	top: 0px;
 }
 
 div.veden-blockpanel {
@@ -70,7 +67,9 @@ div.veden-blockpanel {
 	float: left;
 	width: 150px;
 	height: 100%;
-	border-right: 1px solid #e5e5e5;
+	border-right: 1px solid #719ECE;
+	box-sizing: border-box;
+	box-shadow: 0 0 15px #ccc;
 }
 
 div.veden-content {

@@ -427,9 +427,12 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			}
 		}
 
-		var code_entry = $('<div id=\"'+name+'-content\" class=\"veden-content\"><div class="veden-maincontent"><div class="veden-blockpanel"></div><div class="veden-stage"></div></div></div>');
+		var code_entry = $('<div id=\"'+name+'-content\" class=\"veden-content\"><div class="veden-blockpanel"></div><div class="veden-maincontent"><div class="agent-tabs"></div><div class="veden-stage"></div></div></div>');
 		var stage = code_entry.find('.veden-stage');
 		var blocks = code_entry.find('.veden-blockpanel');
+		var tabsel = code_entry.find('.agent-tabs').get(0);
+		var tabs = new EdenUI.Tabs(tabsel);
+		tabs.build(["nick/test/veden","nick/demo/logo/","nick/worksheets/maketurtlepoop"],"nick/test/veden");
 		blocks.html('<div class="veden-blockslides">\
 			<h3>Statements</h3><div class="veden-blocks-statements" style="padding: 1em;"></div>\
 			<h3>Expressions</h3><div class="veden-blocks-expressions" style="padding: 1em;"></div>\
@@ -489,6 +492,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
   </defs>\
 		</svg>');
 		stage.append(svg1);
+		//setTimeout(function() {console.log(svg1.get(0).getBBox());}, 10);
 
 		var buttonbar = new EdenUI.ButtonBar(code_entry.get(0));
 		buttonbar.addButton("veden-menu", "&#xf142;", "", function() {
@@ -687,6 +691,10 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			statements = [];
 
 			vGlobal();
+
+			/*var svge = svg1.get(0);
+			var bbox = svge.getBBox();
+			svge.setAttribute("width", */
 		}
 
 		// Use the agent wrapper for dealing with view interaction via symbols.
