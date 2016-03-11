@@ -12,6 +12,7 @@ function SnapPoint(owner, name, mx, cx, my, cy, external, acceptsTypes, acceptsP
 	this.types = acceptsTypes;
 	this.points = acceptsPoints;
 	this.counterpart = undefined;
+	this.DOM = undefined;
 }
 
 SnapPoint.prototype.getX = function() {
@@ -127,8 +128,9 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 						var yy = near[i].snappoints[y].getY() + nearPos.y;
 						var d = ((xx - yx) * (xx - yx) + (xy - yy) * (xy - yy));
 						if (d <= dist*dist) {
-							if (element.accept(element.snappoints[x].name, near[i].snappoints[y].name, near[i])
-								&& near[i].accept(near[i].snappoints[y].name, element.snappoints[x].name, element)) {
+							if (element.accept(element.snappoints[x], near[i].snappoints[y], near[i])
+								&& near[i].accept(near[i].snappoints[y], element.snappoints[x], element)) {
+								console.log("SNAP DIST: " + d);
 								res.push({dist: d, srcsnap: element.snappoints[x],
 									destelement: near[i],
 									destsnap: near[i].snappoints[y]});
@@ -235,20 +237,21 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 				selectedElement = selectedElement.parentNode;
 			}
 
-			console.log(selectedElement);
+			//console.log(selectedElement);
 
 			var ele = findElement(selectedElement);
 			ele.undock();
+			console.log(ele);
 
 			// Add drop shadow effect
 			selectedElement.setAttribute("filter","url(#fdrop)");
 
 			offsetX = evt.layerX - ele.x;
 			offsetY = evt.layerY - ele.y;
-			console.log("Offset: " + offsetX+","+offsetY);
+			//console.log("Offset: " + offsetX+","+offsetY);
 			currentX = evt.layerX;
 			currentY = evt.layerY;
-			console.log("Current: " + currentX+","+currentY);
+			//console.log("Current: " + currentX+","+currentY);
 			currentMatrix = selectedElement.getAttributeNS(null, "transform").slice(7,-1).split(' ');
 			  for(var i=0; i<currentMatrix.length; i++) {
 				currentMatrix[i] = parseFloat(currentMatrix[i]);
@@ -330,7 +333,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		function preloadScript(sym, value) {
 			var res = "";
 			if (value) {
-				console.log("PRELOAD: " + value);
+				//console.log("PRELOAD: " + value);
 				/*if (Eden.Agent.agents["view/script/"+name] === undefined) {
 					scriptagent = new Eden.Agent(undefined, "view/script/"+name, ["noexec"]);
 				} else {
@@ -488,7 +491,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			while (stream.valid() && token != ";" && token != ")") {
 				token = stream.readToken();
 
-				console.log(token);
+				//console.log(token);
 
 				if (token == "NUMBER") {
 					ele = attachElement(ele, makeElement("number", data.value, 10, 10), "right", "left");
@@ -553,6 +556,10 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 				}
 			}
 
+			base.move(base.x, lasty+lastheight+10);
+			lastheight = base.height;
+			lasty = base.y;
+
 			return ele;
 		}
 
@@ -587,9 +594,10 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			var ele;
 			var base;
 
-			base = makeElement("statement", undefined, 0, lasty + lastheight+5);
+			base = makeElement("statement", undefined, 10, lasty + lastheight+5);
 			vStatementP(base);
 
+			base.move(base.x, lasty+lastheight+10);
 			lastheight = base.height;
 			lasty = base.y;
 

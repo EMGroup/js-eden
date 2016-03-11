@@ -23,6 +23,7 @@ Veden.Element = function(type, x, y, width, height) {
 	this.onresize = undefined;
 	this.onattach = undefined;
 	this.ondetach = undefined;
+	this.onattachchild = undefined;
 };
 
 Veden.Element.prototype.move = function(x, y) {
@@ -67,7 +68,14 @@ Veden.Element.prototype.attach = function(destpoint, srcpoint, srcelement) {
 	srcpoint.element = this;
 
 	if (this.onattach) this.onattach(destpoint);
+	if (this.parent) this.parent.notifyAttachChild(destpoint);
 }
+
+Veden.Element.prototype.notifyAttachChild = function(point) {
+	if (this.onattachchild) this.onattachchild(point);
+	if (this.parent) this.parent.notifyAttachChild(point);
+}
+
 
 Veden.Element.prototype.detachAll = function() {
 	for (var i=0; i<this.snappoints.length; i++) {
@@ -103,15 +111,11 @@ Veden.Element.prototype.detach = function(ele) {
 	}
 }
 
-Veden.Element.prototype.accept = function(destsnapname, srcsnapname, element) {
-	for (var i=0; i<this.snappoints.length; i++) {
-		if (this.snappoints[i].name == destsnapname) {
-			if (this.snappoints[i].element) return false; // && this.snappoints[i].element !== element) return false;
-			if (this.snappoints[i].types && this.snappoints[i].types.indexOf(element.type) == -1) return false;
-			if (this.snappoints[i].points && this.snappoints[i].points.indexOf(srcsnapname) == -1) return false;
-			return true;
-		}
-	}
+Veden.Element.prototype.accept = function(destsnap, srcsnap, element) {
+	if (destsnap.element) return false; // && this.snappoints[i].element !== element) return false;
+	if (destsnap.types && destsnap.types.indexOf(element.type) == -1) return false;
+	if (destsnap.points && destsnap.points.indexOf(srcsnap.name) == -1) return false;
+	return true;
 }
 
 Veden.Element.prototype.notifyChange = function() {
@@ -210,7 +214,7 @@ Veden.Element.prototype.undock = function() {
 	//console.log("Move From: "+ele.x+","+ele.y+" by "+px+","+py);
 	this.move(this.x+px, this.y+py);
 	if (parent !== this) parentnode = parent.element.parentNode;
-	console.log(parentnode);
+	//console.log(parentnode);
 	parentnode.appendChild(this.element);
 }
 
@@ -297,6 +301,15 @@ Veden.Element.prototype.chainedWidth = function(origin) {
 	return res;
 }
 
+Veden.Element.prototype.chainedHeight = function(origin) {
+	var ext = this.chainedExternals(origin);
+	var res = 0;
+	for (var i=0; i<ext.length; i++) {
+		if (ext[i].height > res) res = ext[i].height;
+	}
+	return res;
+}
+
 Veden.Element.prototype.deltaAll = function(dw,cw,dh,ch) {
 	for (var i=0; i<this.snappoints.length; i++) {
 		// TODO UPDATE SNAPPOINT HEIGHT
@@ -310,7 +323,7 @@ Veden.Element.prototype.deltaAll = function(dw,cw,dh,ch) {
 	}
 }
 
-Veden.Element.prototype.autoMove = function(origin) {
+Veden.Element.prototype.autoMove = function(origin, snap) {
 	for (var i=0; i<this.snappoints.length; i++) {
 		// TODO UPDATE SNAPPOINT HEIGHT
 		//if (this.snappoints[i].name == "right") {
@@ -323,7 +336,7 @@ Veden.Element.prototype.autoMove = function(origin) {
 				var destpos = (this.snappoints[i].external) ? this.offsetPosition() : {x:0,y:0};
 				//console.log("Move SNAP: " + ele.type + "->" + dest.name + "("+(destpos.x + dest.getX() - src.getX())+","+(destpos.y + dest.getY() - src.getY())); 
 				ele.move(destpos.x + dest.getX() - src.getX(), ele.y = destpos.y + dest.getY() - src.getY());
-				ele.autoMove(this);
+				ele.autoMove(this, src);
 			}
 		//}
 	}
@@ -345,12 +358,6 @@ Veden.Element.prototype.resize = function(nw,nh) {
 		this.move(this.x, this.y - (dh / 2))
 	}
 	if (dw || dh) this.autoMove();
-	//this.deltaAll(dw,0,dh,0);
-	//this.move(this.x, this.y - (dh / 2));
-	/*for (var i=0; i<this.children.length; i++) {
-		this.children[i].x *= dw;
-		this.children[i].y *= dh;
-	}*/
 
 	if (this.onresize) this.onresize();
 }
