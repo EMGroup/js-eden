@@ -191,6 +191,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	
 
 	$(document.body).delegate(null, 'drop', function(e) {
+		if (e.originalEvent.dataTransfer === undefined) return;
 		var value = e.originalEvent.dataTransfer.getData("agent");
 		if (!value || value == "") {
 			console.log(e.originalEvent.dataTransfer.files);

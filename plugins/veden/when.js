@@ -112,7 +112,7 @@ Veden.When.prototype.make = function () {
 			}
 
 			me.snappoints[i].cy = curtop + (chainh / 2);
-			curtop += chainh + 5;
+			curtop += chainh + ((i==0) ? 10 : 5);
 		}
 		me.autoMove();
 		me.minHeight = curtop;

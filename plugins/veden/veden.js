@@ -427,8 +427,49 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			}
 		}
 
-		var code_entry = $('<div id=\"'+name+'-content\" class=\"veden-content\"></div>');
-		svg1 = $('<svg width="100%" height="100%" version="1.1"\
+		var code_entry = $('<div id=\"'+name+'-content\" class=\"veden-content\"><div class="veden-maincontent"><div class="veden-blockpanel"></div><div class="veden-stage"></div></div></div>');
+		var stage = code_entry.find('.veden-stage');
+		var blocks = code_entry.find('.veden-blockpanel');
+		blocks.html('<div class="veden-blockslides"><h3>Statements</h3><div class="veden-blocks-statements" style="padding: 1em;"></div><h3>Expressions</h3><div class="veden-blocks-expressions" style="padding: 1em;"></div><h3>Observables</h3><div></div></div>');
+		blocks.find('.veden-blockslides').accordion({heightStyle: "content"});
+
+		function addBlock(type, data, x, y, panel) {
+			var testele = new elementFactory[type](data,x,y);
+			var svg = $('<svg width="'+(testele.width+10)+'px" height="'+(testele.height+5)+'px", version="1.1"\
+				 baseProfile="full"\
+				 xmlns="http://www.w3.org/2000/svg">\
+				</svg>');
+			svg.append(testele.element);
+			blocks.find('.veden-blocks-'+panel).append(svg);
+			svg.draggable({ opacity: 0.7, helper: "clone" });
+			svg.get(0).setAttribute("data-block",type);
+			svg.get(0).setAttribute("data-value",data);
+		}
+
+		// Now add available blocks
+		// Statements
+		addBlock("when", undefined, 0, 15, "statements");
+		addBlock("statement", undefined, 0, 5, "statements");
+		addBlock("modifier", "is", 5, 5, "statements");
+		addBlock("modifier", "=", 5, 5, "statements");
+		// Expressions
+		addBlock("operator", "\u002B", 5, 5, "expressions");
+		addBlock("operator", "\u2212", 5, 5, "expressions");
+		addBlock("operator", "\u00D7", 5, 5, "expressions");
+		addBlock("operator", "\u00F7", 5, 5, "expressions");
+		addBlock("operator", "\u2981", 5, 5, "expressions");
+		addBlock("operator", "\u003C", 5, 5, "expressions");
+		addBlock("operator", "\u003E", 5, 5, "expressions");
+		addBlock("operator", "\u2261", 5, 5, "expressions");
+		addBlock("operator", "\u2264", 5, 5, "expressions");
+		addBlock("operator", "\u2265", 5, 5, "expressions");
+		addBlock("operator", "\u2262", 5, 5, "expressions");
+		addBlock("operator", "\u2227", 5, 5, "expressions");
+		addBlock("operator", "\u2228", 5, 5, "expressions");
+		addBlock("number", 0, 5, 5, "expressions");
+		addBlock("group", undefined, 5, 5, "expressions");
+
+		svg1 = $('<svg width="1000px" height="1000px" version="1.1"\
 			 baseProfile="full"\
 			 xmlns="http://www.w3.org/2000/svg">\
 			<defs>\
@@ -441,7 +482,12 @@ EdenUI.plugins.Veden = function(edenUI, success) {
     </filter>\
   </defs>\
 		</svg>');
-		code_entry.append(svg1);
+		stage.append(svg1);
+
+		var buttonbar = new EdenUI.ButtonBar(code_entry.get(0));
+		buttonbar.addButton("veden-menu", "&#xf142;", "", function() {
+			console.log("MENU CLICKED");
+		});
 
 		function makeElement(type, data, x, y) {
 			var ele = new elementFactory[type](data, x, y);
@@ -450,6 +496,14 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			ele.element.onmousedown = selectElement;
 			return ele;
 		}
+
+		svg1.droppable({drop: function(event, ui) {
+			var type = ui.draggable[0].getAttribute("data-block");
+			if (elementFactory[type]) {
+				var data = ui.draggable[0].getAttribute("data-value");
+				makeElement(type, data, ui.position.left-150, ui.position.top);
+			}
+		}});
 
 		function pushElement(ele, a, b) {
 			ele.undocked = true;
