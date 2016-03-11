@@ -34,6 +34,14 @@ div.veden-dialog .ui-dialog-content {
 	overflow: hidden;
 }
 
+div.veden-blockslides .ui-accordion-header {
+	padding-top: 0.2em;
+	padding-bottom: 0.2em;
+	padding-left: 2.2em;
+	padding-right: 0.2em;
+	box-shadow: 0 0 10px #4a6887;
+}
+
 div.veden-stage {
 	position: absolute;
 	left: 150px;
@@ -45,6 +53,8 @@ div.veden-stage {
 
 div.veden-blockslides {
 	height: 100%;
+	overflow: hidden;
+	padding-top: 20px;
 }
 
 div.veden-maincontent {

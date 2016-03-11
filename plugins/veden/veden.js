@@ -430,8 +430,14 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		var code_entry = $('<div id=\"'+name+'-content\" class=\"veden-content\"><div class="veden-maincontent"><div class="veden-blockpanel"></div><div class="veden-stage"></div></div></div>');
 		var stage = code_entry.find('.veden-stage');
 		var blocks = code_entry.find('.veden-blockpanel');
-		blocks.html('<div class="veden-blockslides"><h3>Statements</h3><div class="veden-blocks-statements" style="padding: 1em;"></div><h3>Expressions</h3><div class="veden-blocks-expressions" style="padding: 1em;"></div><h3>Observables</h3><div></div></div>');
-		blocks.find('.veden-blockslides').accordion({heightStyle: "content"});
+		blocks.html('<div class="veden-blockslides">\
+			<h3>Statements</h3><div class="veden-blocks-statements" style="padding: 1em;"></div>\
+			<h3>Expressions</h3><div class="veden-blocks-expressions" style="padding: 1em;"></div>\
+			<h3>Values</h3><div class="veden-blocks-values" style="padding: 1em;"></div>\
+			<h3>Observables</h3><div class="veden-blocks-observables" style="padding: 1em;"></div>\
+			<h3>Functions</h3><div class="veden-blocks-functions" style="padding: 1em;"></div>\
+		</div>');
+		blocks.find('.veden-blockslides').accordion({heightStyle: "content", animate: 100});
 
 		function addBlock(type, data, x, y, panel) {
 			var testele = new elementFactory[type](data,x,y);
@@ -501,7 +507,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			var type = ui.draggable[0].getAttribute("data-block");
 			if (elementFactory[type]) {
 				var data = ui.draggable[0].getAttribute("data-value");
-				makeElement(type, data, ui.position.left-150, ui.position.top);
+				makeElement(type, data, ui.position.left-150+5, ui.position.top+5);
 			}
 		}});
 
@@ -683,27 +689,6 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			vGlobal();
 		}
 
-		//generate("turtle_position_x = 100;\nturtle_position_y = 100;\nturtle_size = 1.0;");
-		if (code) {} //generate(code);
-		else {
-			makeElement("operator", "\u002B", 10, 10);
-			makeElement("operator", "\u2212", 50, 10);
-			makeElement("operator", "\u00D7", 90, 10);
-			makeElement("operator", "\u00F7", 130, 10);
-			makeElement("operator", "\u2981", 170, 10);
-			makeElement("observable", "turtle_position_x", 10, 70);
-			makeElement("observable", "turtle_position_y", 150, 70);
-			makeElement("observable", "mouse_y", 10, 100);
-			makeElement("observable", "screenWidth", 10, 130);
-			makeElement("lvalue", "mouse_x", 150, 100);
-			makeElement("number", 10, 80, 100);
-			makeElement("group", undefined, 10, 160);
-			makeElement("group", undefined, 10, 200);
-			makeElement("when", undefined, 10, 240);
-			makeElement("statement", "is", 10, 280);
-			makeElement("modifier", "is", 200, 280);
-		}
-
 		// Use the agent wrapper for dealing with view interaction via symbols.
 		var obs_script = "_view_"+name+"_script";
 		var obs_agent = "_view_"+name+"_agent";
@@ -759,8 +744,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			.html(viewdata.contents)
 			.dialog({
 				title: mtitle,
-				width: 600,
-				height: 450,
+				width: 800,
+				height: 500,
 				minHeight: 120,
 				minWidth: 230,
 				dialogClass: "veden-dialog"
