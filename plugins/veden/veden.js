@@ -45,7 +45,9 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		"operator": Veden.Operator,
 		"index": Veden.ListIndex,
 		"group": Veden.ExpGroup,
-		"when": Veden.When
+		"when": Veden.When,
+		"boolean": Veden.Boolean,
+		"string": Veden.String
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -437,7 +439,9 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			<h3>Statements</h3><div class="veden-blocks-statements" style="padding: 1em;"></div>\
 			<h3>Expressions</h3><div class="veden-blocks-expressions" style="padding: 1em;"></div>\
 			<h3>Values</h3><div class="veden-blocks-values" style="padding: 1em;"></div>\
-			<h3>Observables</h3><div class="veden-blocks-observables" style="padding: 1em;"></div>\
+			<h3>Observables</h3><div class="veden-blocks-observables" style="padding: 1em;">\
+				<div class="veden-obs-search"><input type="text" placeholder="Search"></input><br/><button class="control-button control-enabled">&#xf067;</button><button class="control-button control-enabled edit-button">&#xf040;</button></div>\
+				<div class="veden-obs-results"></div></div>\
 			<h3>Functions</h3><div class="veden-blocks-functions" style="padding: 1em;"></div>\
 		</div>');
 		blocks.find('.veden-blockslides').accordion({heightStyle: "content", animate: 100});
@@ -454,6 +458,41 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			svg.get(0).setAttribute("data-block",type);
 			svg.get(0).setAttribute("data-value",data);
 		}
+
+		var edittoggle = false;
+
+		function updateSearchResults(query, maxresults) {
+			var ele = blocks.find('.veden-obs-results').get(0);
+			while (ele.lastChild) ele.removeChild(ele.lastChild);
+			var count = 0;
+			
+			var regex = edenUI.regExpFromStr(query, "", false, agent.state[obs_search]);
+			for (var a in eden.root.symbols) {
+				if (typeof(eden.root.symbols[a].cache.value) != "function" && regex.test(a)) {
+					count++;
+					var testele = new elementFactory[(edittoggle) ? "lvalue":"observable"](a,5,5);
+					var svg = $('<svg style="z-index: 10;" width="'+(testele.width+10)+'px" height="'+(testele.height+5)+'px", version="1.1"\
+						 baseProfile="full"\
+						 xmlns="http://www.w3.org/2000/svg">\
+						</svg>');
+					svg.append(testele.element);
+					ele.appendChild(svg.get(0));
+					svg.draggable({ opacity: 0.7, helper: "clone" });
+					svg.get(0).setAttribute("data-block",(edittoggle) ? "lvalue":"observable");
+					svg.get(0).setAttribute("data-value",a);
+				}
+				if (count >= maxresults);
+			}
+		}
+
+		blocks.find('.veden-obs-search input').on('keyup', function(e) {
+			updateSearchResults(e.target.value, 10, edittoggle);
+		});
+
+		blocks.find('.veden-obs-search .edit-button').on('click', function(e) {
+			edittoggle = !edittoggle;
+			updateSearchResults(blocks.find('.veden-obs-search input').get(0).value, 10, edittoggle);
+		});
 
 		// Now add available blocks
 		// Statements
@@ -475,8 +514,12 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		addBlock("operator", "\u2262", 5, 5, "expressions");
 		addBlock("operator", "\u2227", 5, 5, "expressions");
 		addBlock("operator", "\u2228", 5, 5, "expressions");
-		addBlock("number", 0, 5, 5, "expressions");
 		addBlock("group", undefined, 5, 5, "expressions");
+		// Values
+		addBlock("number", 0, 5, 5, "values");
+		addBlock("boolean", true, 5, 5, "values");
+		addBlock("boolean", false, 5, 5, "values");
+		addBlock("string", "text", 5, 5, "values");
 
 		svg1 = $('<svg width="1000px" height="1000px" version="1.1"\
 			 baseProfile="full"\
@@ -511,7 +554,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			var type = ui.draggable[0].getAttribute("data-block");
 			if (elementFactory[type]) {
 				var data = ui.draggable[0].getAttribute("data-value");
-				makeElement(type, data, ui.position.left-150+5, ui.position.top-30);
+				makeElement(type, data, ui.position.left-170+5, ui.position.top-30);
 			}
 		}});
 
@@ -701,10 +744,12 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		var obs_script = "_view_"+name+"_script";
 		var obs_agent = "_view_"+name+"_agent";
 		var obs_zoom = "_view_"+name+"_zoom";
+		var obs_search = "_view_"+name+"_search_language";
 		var agent = new Eden.Agent(undefined,"view/veden/"+name+"/config");
 		agent.declare(obs_agent);
 		agent.declare(obs_script);
 		agent.declare(obs_zoom);
+		agent.declare(obs_search);
 
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);

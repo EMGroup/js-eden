@@ -4,8 +4,8 @@ Veden.Operator = function(op, x, y) {
 	this.element = this.make();
 
 	this.snappoints = [
-		new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["number","observable","group","index"],["right"]),
-		new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["number","observable","group"],["left"])
+		new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["number","observable","group","index","boolean","string","list"],["right"]),
+		new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["number","observable","group","boolean","string","list"],["left"])
 	];
 }
 

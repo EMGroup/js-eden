@@ -6,9 +6,9 @@ Veden.ExpGroup = function(data, x, y) {
 	this.boxConstantW += 10;
 
 	this.snappoints = [
-		new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["operator","modifier","group"],["right","inside"]),
+		new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["operator","modifier","group","when"],["right","inside","cond"]),
 		new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["operator"],["left"]),
-		new SnapPoint(this, "inside", 0, 10, 0.5, 0, false, ["observable","number","group"],["left"])
+		new SnapPoint(this, "inside", 0, 10, 0.5, 0, false, ["observable","number","group","boolean","string","list"],["left"])
 	];
 
 	this.allowedInside = [

@@ -10,7 +10,7 @@ Veden.When = function(data, x, y) {
 	this.statementCount = 0;
 
 	this.snappoints = [
-		new SnapPoint(this, "cond", 0, 61, 0, 15, false, ["observable","group","number"],["left"])
+		new SnapPoint(this, "cond", 0, 61, 0, 15, false, ["observable","group","number","string","list","boolean"],["left"])
 	];
 
 	this.addStatementPoint();

@@ -7,7 +7,7 @@ Veden.Modifier = function(mod, x, y) {
 
 	this.snappoints = [
 		new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["lvalue"],["right"]),
-		new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["number","observable","group"],["left"])
+		new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["number","observable","group","boolean","string","list"],["left"])
 	];
 }
 
