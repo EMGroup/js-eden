@@ -444,7 +444,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 
 		function addBlock(type, data, x, y, panel) {
 			var testele = new elementFactory[type](data,x,y);
-			var svg = $('<svg width="'+(testele.width+10)+'px" height="'+(testele.height+5)+'px", version="1.1"\
+			var svg = $('<svg style="z-index: 10;" width="'+(testele.width+10)+'px" height="'+(testele.height+5)+'px", version="1.1"\
 				 baseProfile="full"\
 				 xmlns="http://www.w3.org/2000/svg">\
 				</svg>');
@@ -511,7 +511,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			var type = ui.draggable[0].getAttribute("data-block");
 			if (elementFactory[type]) {
 				var data = ui.draggable[0].getAttribute("data-value");
-				makeElement(type, data, ui.position.left-150+5, ui.position.top+5);
+				makeElement(type, data, ui.position.left-150+5, ui.position.top-30);
 			}
 		}});
 

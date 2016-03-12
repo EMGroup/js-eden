@@ -46,6 +46,9 @@ div.veden-stage {
 	margin-top: 35px;
 	height: calc(100% - 35px);
 	overflow: scroll;
+	background-color: transparent;
+    background-image: linear-gradient(to right, #909090 1px, transparent 1px), linear-gradient(to bottom, #909090 1px, transparent 1px);
+  	background-size:20px 20px;
 }
 
 div.veden-blockslides {
@@ -60,6 +63,7 @@ div.veden-maincontent {
 	right: 0;
 	bottom: 30px;
 	top: 0px;
+	background-color: #888;
 }
 
 div.veden-blockpanel {
