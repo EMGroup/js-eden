@@ -177,7 +177,7 @@ Veden.Element.prototype.autoResize = function() {
 		if (cpos.y < my) my = cpos.y;
 		if (cpos.x < mx) mx = cpos.x;
 		if (this.children[i].width+cpos.x > nw) nw = this.children[i].width+cpos.x;
-		if (this.children[i].height+cpos.y > nh) nh = this.children[i].height+cpos.y;
+		if (this.children[i].height+cpos.y > nh) nh = this.children[i].height-my+cpos.y;
 	}
 
 	// Do the actual resize using the calculated extents
