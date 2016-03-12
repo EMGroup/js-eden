@@ -4,7 +4,7 @@ Veden.LValue = function(name, x, y) {
 	this.element = this.make();
 
 	this.snappoints = [
-		new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["statement","when"], ["lvalue"]),
+		new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["statement","when","with"], ["lvalue"]),
 		new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["modifier","index"],["left"])
 	];
 }

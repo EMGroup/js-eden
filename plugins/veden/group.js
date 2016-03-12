@@ -4,6 +4,7 @@ Veden.ExpGroup = function(data, x, y) {
 
 	this.boxIndex = 2;
 	this.boxConstantW += 10;
+	//this.boxConstantH -= 10;
 
 	this.snappoints = [
 		new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["operator","modifier","group","when"],["right","inside","cond"]),

@@ -47,7 +47,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		"group": Veden.ExpGroup,
 		"when": Veden.When,
 		"boolean": Veden.Boolean,
-		"string": Veden.String
+		"string": Veden.String,
+		"with": Veden.With
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -515,6 +516,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		addBlock("operator", "\u2227", 5, 5, "expressions");
 		addBlock("operator", "\u2228", 5, 5, "expressions");
 		addBlock("group", undefined, 5, 5, "expressions");
+		addBlock("with", undefined, 5, 5, "expressions");
 		// Values
 		addBlock("number", 0, 5, 5, "values");
 		addBlock("boolean", true, 5, 5, "values");
