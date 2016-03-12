@@ -58,7 +58,8 @@ Veden.ExpGroup.prototype.make = function () {
 	rblock.setAttribute("y", "0");
 
 	var me = this;
-	this.onresize = function() {
+	this.onresize = function(dw,dh) {
+		me.move(me.x, me.y - (dh / 2));
 		rblock.setAttribute("d", "M "+(me.width-6)+" "+(me.height/2 - 10)+" a 10 10 0 1 1 0 20 l -10 0 0 -20 10 0 z");
 		lblock.setAttribute("d", "M 6 "+(me.height/2 - 10)+" a 10 10 0 1 0 0 20 l 10 0 0 -20 -10 0 z");
 	}

@@ -102,7 +102,9 @@ Veden.Element.prototype.detachAll = function() {
 		}
 	}
 	if (this.parent) {
+		var p = this.parent;
 		this.parent.removeChild(this);
+		p.notifyAttachChild();
 	}
 	//this.parent = undefined;
 }
@@ -405,10 +407,10 @@ Veden.Element.prototype.resize = function(nw,nh) {
 		//this.element.childNodes[this.boxIndex].setAttribute("y", ""+((this.minHeight - this.height) / 2));
 		//this.element.childNodes[0].setAttribute("ry", this.height/2);
 	}
-	//this.move(this.x, this.y - (dh / 2))
+	//this.move(this.x, this.y - (dh / 2));
 	if (dw || dh) this.autoMove();
 
-	if (this.onresize) this.onresize();
+	if (this.onresize) this.onresize(dw,dh);
 }
 
 Veden.Element.prototype.snap = function(ele, dest, src) {
