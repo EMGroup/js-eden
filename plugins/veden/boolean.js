@@ -11,7 +11,8 @@ Veden.Boolean = function(value, x, y) {
 				group: ["inside"],
 				index: ["inside"],
 				modifier: ["right"],
-				when: ["cond"]
+				when: ["cond"],
+				list: ["inside"]
 			}}),
 		new SnapPoint(this, "right", 1.0, 0, 0.5, 0, {
 			external: true,

@@ -54,7 +54,8 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		"when": Veden.When,
 		"boolean": Veden.Boolean,
 		"string": Veden.String,
-		"with": Veden.With
+		"with": Veden.With,
+		"list": Veden.List
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -529,6 +530,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		addBlock("boolean", true, 5, 5, "values");
 		addBlock("boolean", false, 5, 5, "values");
 		addBlock("string", "text", 5, 5, "values");
+		addBlock("list", undefined, 5, 5, "values");
 
 		svg1 = $('<svg width="100%" height="100%" version="1.1"\
 			 baseProfile="full"\
@@ -584,6 +586,28 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		}
 
 		////////////////////////////////////////////////////////////////////////
+
+		function vWith(base, snapname) {
+			var ele = attachElement(base, makeElement("with", undefined, 10, 10), snapname, "left");
+			var baseWith = ele;
+
+			while (stream.valid() && token != ";") {
+				if (token == "OBSERVABLE") {
+					ele = attachElement(ele, makeElement("lvalue", data.value, 10, 10), "lvalue", "left");
+				}
+
+				token = stream.readToken();
+
+				if (token == "is") {
+					ele = attachElement(ele, makeElement("modifier", "is", 10, 10), "right", "left");
+				}
+
+				token = stream.readToken();
+
+				vExpression(ele, "right");
+				ele = baseWith;
+			}
+		}
 
 		function vExpression(base, snapname) {
 			var ele;
@@ -646,6 +670,13 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 					ele = attachElement(ele, makeElement("group", undefined, 10, 10), "right", "left");
 					vExpression(ele, "inside");
 				} else if (token == ")") {
+					return base;
+				} else if (token == "with") {
+					token = stream.readToken();
+					vWith(ele, "right");
+					return base;
+				} else if (token == ",") {
+					token = stream.readToken();
 					return base;
 				}
 			}
