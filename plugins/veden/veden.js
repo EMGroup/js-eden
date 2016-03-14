@@ -1,18 +1,24 @@
 Veden = {};
 
-function SnapPoint(owner, name, mx, cx, my, cy, external, acceptsTypes, acceptsPoints) {
+function SnapPoint(owner, name, mx, cx, my, cy, options) {
 	this.owner = owner;
 	this.name = name;
-	this.mx = mx;
-	this.my = my;
 	this.cx = cx;
 	this.cy = cy;
+	this.mx = mx;
+	this.my = my;
 	this.element = undefined;
-	this.external = external;
-	this.types = acceptsTypes;
-	this.points = acceptsPoints;
+	this.external = (options) ? options.external : false;
+	this.permissions = (options) ? ((options.permissions) ? options.permissions : {}) : {};
 	this.counterpart = undefined;
 	this.DOM = undefined;
+	this.strong = (options) ? options.strong : false;
+}
+
+SnapPoint.prototype.accept = function(other) {
+	return ((this.element === undefined) && // || this.element === other.owner) &&
+			Array.isArray(this.permissions[other.owner.type])) &&
+			this.permissions[other.owner.type].indexOf(other.name) >= 0;
 }
 
 SnapPoint.prototype.getX = function() {
@@ -209,6 +215,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 			if (ele) {
 				currentX = ele.x + offsetX;
 				currentY = ele.y + offsetY;
+				ele.autoMove();
 			}
 		}
 
@@ -523,7 +530,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		addBlock("boolean", false, 5, 5, "values");
 		addBlock("string", "text", 5, 5, "values");
 
-		svg1 = $('<svg width="1000px" height="1000px" version="1.1"\
+		svg1 = $('<svg width="100%" height="100%" version="1.1"\
 			 baseProfile="full"\
 			 xmlns="http://www.w3.org/2000/svg">\
 			<defs>\

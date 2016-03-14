@@ -4,13 +4,23 @@ Veden.When = function(data, x, y) {
 
 	this.boxIndex = 1;
 	this.boxConstantW += 10;
+	this.blockType = Veden.Element.BLOCKTYPE_VERTICAL;
 	
 	this.ast = undefined;
 
 	this.statementCount = 0;
 
 	this.snappoints = [
-		new SnapPoint(this, "cond", 0, 61, 0, 15, false, ["observable","group","number","string","list","boolean"],["left"])
+		new SnapPoint(this, "cond", 0, 61, 0, 15, {
+			external: false,
+			permissions: {
+				observable: ["left"],
+				group: ["left"],
+				number: ["left"],
+				string: ["left"],
+				list: ["left"],
+				boolean: ["left"]
+			}})
 	];
 
 	this.addStatementPoint();
@@ -89,48 +99,19 @@ Veden.When.prototype.make = function () {
 	var group = document.createElementNS("http://www.w3.org/2000/svg", 'g');
 
 	this.onattachchild = function() {
-		//block.setAttribute("d", "M 15 "+(me.height/2 - 10)+" a 10 10 0 1 0 0 20 l 40 0 -10 -10 10 -10 -40 0 z");
-		// For each internal snap point, calculate chain height and adjust snappoint position accordingly.
-		var curtop = 5;
-		
-		console.log("START REHEIGHT");
 		for (var i=0; i<me.snappoints.length; i++) {
-			var extents;
-			if (me.snappoints[i].element) {
-				extents = me.snappoints[i].element.relativeChainExtent();
-				//extents.y -= 10;
-				//extents.height -= 10;
-			} else {
-				extents = {x: me.snappoints[i].getX(), y: me.snappoints[i].getY()-10, width: 0, height: me.snappoints[i].getY()+10};
-			}
-			
-			// Amount to move subsequent snappoint down (should not be negative).
-			extents.height = extents.height - me.snappoints[i].getY() + 10;
-			// Amount to shift snappoint down (should not be negative)
-			extents.y = me.snappoints[i].getY() - extents.y;
-			console.log(JSON.stringify(extents));
-
-			//console.log(extents);
 			if (i >= 1 && me.snappoints[i].DOM) {
-				//console.log("New y: " + i + " = " + curtop);
-				me.snappoints[i].DOM.setAttribute("d", "M 15 "+(curtop+extents.y-10)+" a 10 10 0 1 0 0 20 l 15 0 -10 -10 10 -10 -15 0 z");	
+				me.snappoints[i].DOM.setAttribute("d", "M 15 "+(me.snappoints[i].cy-10)+" a 10 10 0 1 0 0 20 l 15 0 -10 -10 10 -10 -15 0 z");	
 			} else if (i == 0) {
-				block.setAttribute("d", "M 15 "+(curtop+extents.y-10)+" a 10 10 0 1 0 0 20 l 50 0 a 10 10 0 1 1 0 -20 l -50 0 z");
-				text.setAttribute("y", ""+(curtop+extents.y-10+13));
-				lbar.setAttribute("y", ""+(curtop+extents.y));
+				block.setAttribute("d", "M 15 "+(me.snappoints[i].cy-10)+" a 10 10 0 1 0 0 20 l 50 0 a 10 10 0 1 1 0 -20 l -50 0 z");
+				text.setAttribute("y", ""+(me.snappoints[i].cy-10+13));
+				lbar.setAttribute("y", ""+(me.snappoints[i].cy));
 			}
-
-			me.snappoints[i].cy = curtop+extents.y;
-			console.log(me.snappoints[i].cy);
-			curtop += extents.y+extents.height-10 + ((i==0) ? 10 : 5);
 		}
-		console.log(me.snappoints);
-		me.autoMove();
-		me.minHeight = curtop;
-		me.resize(me.width, 0);
+		
 		me.element.childNodes[0].setAttribute("height", ""+(me.height-(me.snappoints[0].cy+18)));
-		console.log(me.height);
 	}
+	this.ondetachchild = this.onattachchild;
 
 	this.onattach = function(s) {
 		if (s === me.snappoints[me.snappoints.length-1]) {
@@ -160,7 +141,11 @@ Veden.When.prototype.addStatementPoint = function() {
 	block.setAttribute("y", "0");
 	this.element.appendChild(block);
 
-	var snap = new SnapPoint(this, "lvalue", 0, 26, 0, this.height+10, false, ["lvalue"],["left"]);
+	var snap = new SnapPoint(this, "lvalue", 0, 26, 0, this.height+10, {
+		external: false,
+		permissions: {
+			lvalue: ["left"]
+		}});
 	snap.DOM = block;
 	this.snappoints.push(snap);
 

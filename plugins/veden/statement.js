@@ -7,8 +7,16 @@ Veden.Statement = function(kind, x, y) {
 	this.ast = undefined;
 
 	this.snappoints = [
-		new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["when"],["lvalue"]),
-		new SnapPoint(this, "lvalue", 0, 41, 0.5, 0, false, ["lvalue"],["left"])
+		new SnapPoint(this, "left", 0, 0, 0.5, 0, {
+			external: true,
+			permissions: {
+				when: ["lvalue"]
+			}}),
+		new SnapPoint(this, "lvalue", 0, 41, 0.5, 0, {
+			external: false,
+			permissions: {
+				lvalue: ["left"]
+			}})
 	];
 
 	this.allowedInside = [

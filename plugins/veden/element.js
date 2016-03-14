@@ -24,7 +24,15 @@ Veden.Element = function(type, x, y, width, height) {
 	this.onattach = undefined;
 	this.ondetach = undefined;
 	this.onattachchild = undefined;
+	this.ondetachchild = undefined;
+	this.blockType = 0;
 };
+
+Veden.Element.BLOCKTYPE_BASIC = 0;
+Veden.Element.BLOCKTYPE_SINGLE = 1;
+Veden.Element.BLOCKTYPE_VERTICAL = 2;
+Veden.Element.BLOCKTYPE_HORIZONTAL = 3;
+Veden.Element.BLOCKTYPE_MULTI = 4;
 
 Veden.Element.prototype.move = function(x, y) {
 	this.x = x;
@@ -77,15 +85,58 @@ Veden.Element.prototype.attach = function(destpoint, srcpoint, srcelement) {
 	if (this.parent) this.parent.notifyAttachChild(destpoint);
 }
 
+Veden.Element.prototype.shiftVertical = function() {
+	var curtop = this.boxConstantH/2;
+
+	for (var i=0; i<this.snappoints.length; i++) {
+		var extents;
+		if (this.snappoints[i].element) {
+			extents = this.snappoints[i].element.relativeChainExtent(this);
+		} else {
+			extents = {x: this.snappoints[i].getX(), y: this.snappoints[i].getY()-10, width: 0, height: this.snappoints[i].getY()+10};
+		}
+		
+		// Amount to move subsequent snappoint down (should not be negative).
+		extents.height = extents.height - this.snappoints[i].getY() + 10;
+		// Amount to shift snappoint down (should not be negative)
+		extents.y = this.snappoints[i].getY() - extents.y;
+		//console.log(JSON.stringify(extents));
+
+		if (this.snappoints[i].external) {
+			curtop += extents.height-35 + ((i==0) ? 10 : 5);
+		} else {
+			this.snappoints[i].cy = curtop+extents.y;
+			curtop += extents.y+extents.height-10 + ((i==0) ? 10 : 5);
+		}
+	}
+
+	this.autoMove();
+	this.minHeight = curtop;
+	this.resize(this.width, 0);
+}
+
 Veden.Element.prototype.notifyAttachChild = function(point) {
+	if (this.blockType == Veden.Element.BLOCKTYPE_VERTICAL) {
+		this.shiftVertical();
+	}
+
 	if (this.onattachchild) this.onattachchild(point);
 	if (this.parent) this.parent.notifyAttachChild(point);
+}
+
+Veden.Element.prototype.notifyDetachChild = function() {
+	if (this.blockType == Veden.Element.BLOCKTYPE_VERTICAL) {
+		this.shiftVertical();
+	}
+
+	if (this.ondetachchild) this.ondetachchild();
+	if (this.parent) this.parent.notifyDetachChild();
 }
 
 
 Veden.Element.prototype.detachAll = function() {
 	for (var i=0; i<this.snappoints.length; i++) {
-		if (this.snappoints[i].element && this.snappoints[i].external) {
+		if (this.snappoints[i].element && this.snappoints[i].external && !this.snappoints[i].strong) {
 			this.snappoints[i].element.detach(this);
 
 			// Are we the parent attach point?
@@ -104,7 +155,7 @@ Veden.Element.prototype.detachAll = function() {
 	if (this.parent) {
 		var p = this.parent;
 		this.parent.removeChild(this);
-		p.notifyAttachChild();
+		p.notifyDetachChild();
 	}
 	//this.parent = undefined;
 }
@@ -120,10 +171,11 @@ Veden.Element.prototype.detach = function(ele) {
 }
 
 Veden.Element.prototype.accept = function(destsnap, srcsnap, element) {
-	if (destsnap.element) return false; // && this.snappoints[i].element !== element) return false;
+	/*if (destsnap.element) return false; // && this.snappoints[i].element !== element) return false;
 	if (destsnap.types && destsnap.types.indexOf(element.type) == -1) return false;
 	if (destsnap.points && destsnap.points.indexOf(srcsnap.name) == -1) return false;
-	return true;
+	return true;*/
+	return destsnap.accept(srcsnap) && srcsnap.accept(destsnap);
 }
 
 Veden.Element.prototype.notifyChange = function() {
@@ -356,14 +408,15 @@ Veden.Element.prototype.deltaAll = function(dw,cw,dh,ch) {
 	}
 }*/
 
-Veden.Element.prototype.relativeChainExtent = function() {
+Veden.Element.prototype.relativeChainExtent = function(origin) {
 	var x = 1000;
 	var y = 1000;
 	var width = 0;
 	var height = 0;
 
-	var chain = this.chainedExternals();
+	var chain = this.chainedExternals(origin);
 	for (var i=0; i<chain.length; i++) {
+		//if (chain[i] === this) continue;
 		var cpos = chain[i].offsetPosition();
 		if (cpos.y < y) y = cpos.y;
 		if (cpos.x < x) x = cpos.x;
@@ -408,6 +461,7 @@ Veden.Element.prototype.resize = function(nw,nh) {
 		//this.element.childNodes[0].setAttribute("ry", this.height/2);
 	}
 	//this.move(this.x, this.y - (dh / 2));
+	if (this.blockType == Veden.Element.BLOCKTYPE_SINGLE) this.move(this.x, this.y - (dh / 2));
 	if (dw || dh) this.autoMove();
 
 	if (this.onresize) this.onresize(dw,dh);

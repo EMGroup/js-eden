@@ -4,8 +4,21 @@ Veden.Boolean = function(value, x, y) {
 	this.element = this.make();
 
 	this.snappoints = [
-		new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["operator","group", "index","modifier","when"], ["right","inside","lvalue","cond"]),
-		new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["operator","index"],["left"])
+		new SnapPoint(this, "left", 0, 0, 0.5, 0, {
+			external: true,
+			permissions: {
+				operator: ["right"],
+				group: ["inside"],
+				index: ["inside"],
+				modifier: ["right"],
+				when: ["cond"]
+			}}),
+		new SnapPoint(this, "right", 1.0, 0, 0.5, 0, {
+			external: true,
+			permissions: {
+				operator: ["left"],
+				index: ["left"]
+			}})
 	];
 }
 

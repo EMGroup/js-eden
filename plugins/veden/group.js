@@ -5,11 +5,32 @@ Veden.ExpGroup = function(data, x, y) {
 	this.boxIndex = 2;
 	this.boxConstantW += 10;
 	//this.boxConstantH -= 10;
+	this.blockType = Veden.Element.BLOCKTYPE_SINGLE;
 
 	this.snappoints = [
-		new SnapPoint(this, "left", 0, 0, 0.5, 0, true, ["operator","modifier","group","when"],["right","inside","cond"]),
-		new SnapPoint(this, "right", 1.0, 0, 0.5, 0, true, ["operator"],["left"]),
-		new SnapPoint(this, "inside", 0, 10, 0.5, 0, false, ["observable","number","group","boolean","string","list"],["left"])
+		new SnapPoint(this, "left", 0, 0, 0.5, 0, {
+			external: true,
+			permissions: {
+				operator: ["right"],
+				modifier: ["right"],
+				group: ["inside"],
+				when: ["cond"]
+			}}),
+		new SnapPoint(this, "right", 1.0, 0, 0.5, 0, {
+			external: true,
+			permissions: {
+				operator: ["left"]
+			}}),
+		new SnapPoint(this, "inside", 0, 10, 0.5, 0, {
+			external: false,
+			permissions: {
+				observable: ["left"],
+				number: ["left"],
+				group: ["left"],
+				boolean: ["left"],
+				string: ["left"],
+				list: ["left"]
+			}})
 	];
 
 	this.allowedInside = [
@@ -59,7 +80,7 @@ Veden.ExpGroup.prototype.make = function () {
 
 	var me = this;
 	this.onresize = function(dw,dh) {
-		me.move(me.x, me.y - (dh / 2));
+		//me.move(me.x, me.y - (dh / 2));
 		rblock.setAttribute("d", "M "+(me.width-6)+" "+(me.height/2 - 10)+" a 10 10 0 1 1 0 20 l -10 0 0 -20 10 0 z");
 		lblock.setAttribute("d", "M 6 "+(me.height/2 - 10)+" a 10 10 0 1 0 0 20 l 10 0 0 -20 -10 0 z");
 	}

@@ -1,14 +1,25 @@
 Veden.With = function(data, x, y) {
 	Veden.Element.call(this,"with", x, y, 100, 29);
 	this.element = this.make();
-	//this.boxConstantW += 10;
+	this.boxConstantW = 0;
+	this.boxConstantH = 0;
+	this.blockType = Veden.Element.BLOCKTYPE_VERTICAL;
 	
 	this.ast = undefined;
 
 	this.statementCount = 0;
 
 	this.snappoints = [
-		new SnapPoint(this, "left", 0, 14, 0, 10, true, ["observable","group","number","string","list","boolean"],["right"])
+		new SnapPoint(this, "left", 0, 14, 0, 10, {
+			external: true,
+			permissions: {
+				observable: ["right"],
+				group: ["right"],
+				number: ["right"],
+				string: ["right"],
+				list: ["right"],
+				boolean: ["right"]
+			}})
 	];
 
 	this.addStatementPoint();
@@ -98,36 +109,18 @@ Veden.With.prototype.make = function () {
 	var group = document.createElementNS("http://www.w3.org/2000/svg", 'g');
 
 	this.onattachchild = function() {
-		//block.setAttribute("d", "M 15 "+(me.height/2 - 10)+" a 10 10 0 1 0 0 20 l 40 0 -10 -10 10 -10 -40 0 z");
-		// For each internal snap point, calculate chain height and adjust snappoint position accordingly.
-		var curtop = 0;
-		
-		console.log("START REHEIGHT");
 		for (var i=1; i<me.snappoints.length; i++) {
-			var chainh;
-			if (me.snappoints[i].element) {
-				chainh = me.snappoints[i].element.chainedHeight(me);
-			} else {
-				chainh = 20;
-			}
-			console.log(chainh);
 			if (i >= 1 && me.snappoints[i].DOM) {
-				console.log("New y: " + i + " = " + curtop);
-				me.snappoints[i].DOM.setAttribute("d", "M 15 "+(curtop+((chainh-20) / 2))+" a 10 10 0 1 0 0 20 l 15 0 -10 -10 10 -10 -15 0 z");	
+				me.snappoints[i].DOM.setAttribute("d", "M 10 "+(me.snappoints[i].cy-10)+" a 10 10 0 1 0 0 20 l 15 0 -10 -10 10 -10 -15 0 z");	
 			} else if (i == 0) {
-				block.setAttribute("d", "M 15 "+(curtop+((chainh-20) / 2))+" a 10 10 0 1 0 0 20 l 50 0 a 10 10 0 1 1 0 -20 l -50 0 z");
-				text.setAttribute("y", ""+(curtop+((chainh-20) / 2)+13));
-				lbar.setAttribute("y", ""+(curtop+(chainh / 2)));
+				block.setAttribute("d", "M 15 "+(me.snappoints[i].cy-10)+" a 10 10 0 1 0 0 20 l 50 0 a 10 10 0 1 1 0 -20 l -50 0 z");
+				text.setAttribute("y", ""+(me.snappoints[i].cy-10+13));
+				lbar.setAttribute("y", ""+(me.snappoints[i].cy));
 			}
-
-			me.snappoints[i].cy = curtop + (chainh / 2);
-			curtop += chainh + ((i==0) ? 10 : 5);
 		}
-		me.autoMove();
-		me.minHeight = curtop;
-		me.resize(me.width, 0);
-		//me.element.childNodes[0].setAttribute("height", ""+(me.height-(me.snappoints[0].cy+18)));
+		me.element.childNodes[0].setAttribute("height", ""+(me.height-(me.snappoints[0].cy)-32));
 	}
+	this.ondetachchild = this.onattachchild;
 
 	this.onattach = function(s) {
 		if (s === me.snappoints[me.snappoints.length-1]) {
@@ -158,11 +151,15 @@ Veden.With.prototype.addStatementPoint = function() {
 	block.setAttribute("y", "0");
 	this.element.appendChild(block);
 
-	var snap = new SnapPoint(this, "lvalue", 0, 21, 0, this.height+10, false, ["lvalue"],["left"]);
+	var snap = new SnapPoint(this, "lvalue", 0, 21, 0, this.height+10, {
+		external: false,
+		permissions: {
+			lvalue: ["left"]
+		}});
 	snap.DOM = block;
 	this.snappoints.push(snap);
 
-	this.minHeight = 20 + ((this.snappoints.length - 1) * 25);
+	this.minHeight = this.height + 25;
 	this.resize(this.width, 0);
 	//this.element.childNodes[0].setAttribute("height", ""+(this.height-33-5));
 }
