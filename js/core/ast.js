@@ -86,13 +86,13 @@ Eden.AST.Literal.prototype.setSource = function(start, end) {
 	this.end = end;
 }
 
-Eden.AST.Literal.prototype.generate = function(ctx) {
+Eden.AST.Literal.prototype.generate = function(ctx,scope) {
 	switch (this.datatype) {
 	case "NUMBER"	:	return this.value;
 	case "LIST"		:	var res = "[";
 						// Loop over each element and generate that also.
 						for (var i=0; i<this.value.length; i++) {
-							res += this.value[i].generate(ctx,"scope");
+							res += this.value[i].generate(ctx,scope);
 							if (this.value[i].doesReturnBound && this.value[i].doesReturnBound()) {
 								res += ".value";
 							}
