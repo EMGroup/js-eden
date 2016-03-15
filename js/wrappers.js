@@ -68,6 +68,17 @@ Eden.Agent = function(parent, name, meta, options) {
 
 	this.dmp = new diff_match_patch();
 
+	// Set up the agents state observables
+	this.obsPrefix = "agent_"+(this.name.split("/").join("_"))+"_";
+	this.declare(this.obsPrefix+"title", this.title);
+	this.declare(this.obsPrefix+"author", this.meta.author);
+	this.declare(this.obsPrefix+"date", this.meta.date);
+	this.declare(this.obsPrefix+"version", this.meta.tag);
+	this.declare(this.obsPrefix+"errors", []);
+	this.declare(this.obsPrefix+"history", this.history[this.meta.saveID]);
+	this.declare(this.obsPrefix+"active", this.executed);
+	this.declare(this.obsPrefix+"script", "");
+
 	Eden.Agent.emit("create", [this]);
 	Eden.DB.updateDirectory(this.name);
 
@@ -513,6 +524,7 @@ Eden.Agent.prototype.redo = function() {
 
 Eden.Agent.prototype.changeVersion = function(tag, callback) {
 	Eden.Agent.importAgent(this.name, tag, this.options, callback);
+	this.state[this.obsPrefix+"version"] = tag;
 }
 
 
@@ -574,6 +586,8 @@ Eden.Agent.prototype.loadSource = function(callback) {
 					me.history[me.meta.saveID] = [];
 				}
 
+				me.state[me.obsPrefix+"history"] = me.history[me.meta.saveID];
+
 				// Reset undo history to beginning.
 				me.index = -1;
 				me.setSnapshot(data);
@@ -605,6 +619,7 @@ Eden.Agent.prototype.clearExecutedState = function() {
 Eden.Agent.prototype.setTitle = function(title) {
 	this.title = title;
 	this.meta.title = title;
+	this.state[this.obsPrefix+"title"] = title;
 	Eden.Agent.emit("title", [this]);
 }
 
@@ -672,7 +687,7 @@ Eden.Agent.prototype.setReadWrite = function(rw) {
 
 
 
-Eden.Agent.prototype.declare = function(name) {
+Eden.Agent.prototype.declare = function(name, value) {
 	var sym = eden.root.lookup(name);
 	var me = this;
 
@@ -680,6 +695,14 @@ Eden.Agent.prototype.declare = function(name) {
 		get: function() { return sym.value(me.scope); },
 		set: function(v) { sym.assign(v, me.scope, me); }
 	});
+
+	if (value !== undefined) {
+		if (typeof value == "function") {
+			sym.define(value);
+		} else {
+			sym.assign(value, eden.root.scope);
+		}
+	}
 }
 
 
@@ -760,6 +783,7 @@ Eden.Agent.prototype.execute = function(force, auto) {
 	if (this.executed == false || force) {
 		this.executeLine(-1, auto);
 		this.executed = true;
+		this.state[this.obsPrefix+"active"] = true;
 
 		if (!auto) {
 			Eden.Agent.emit('execute', [this, force]);
@@ -855,12 +879,15 @@ Eden.Agent.prototype.setSource = function(source, net, lineno) {
 	}
 
 	if (this.hasErrors() && !waserrored) {
+		this.state[this.obsPrefix+"errors"] = this.ast.script.errors;
 		Eden.Agent.emit("error", [this]);
 	} else if (!this.hasErrors() && waserrored) {
+		this.state[this.obsPrefix+"errors"] = [];
 		Eden.Agent.emit("fixed", [this]);
 	}
 
 	if (haschanged) {
+		this.state[this.obsPrefix+"script"] = source;
 		Eden.Agent.emit("changed", [this, source, lineno]);
 	}
 }
