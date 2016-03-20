@@ -314,7 +314,7 @@ EdenUI.plugins.ScriptInput.dialogs.showHistory = function(element, callback, dat
 				var time = $('<div class="script-history-time">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</div>');
 				var taglabel = versions[i].tag;
 				if (versions[i].tag == null) taglabel = versions[i].saveID;				
-				var content2 = $('<div class="script-history-content">'+taglabel+' by '+versions[i].name+'</div>');
+				var content2 = $('<div class="script-history-content">'+taglabel+' ('+versions[i].saveID+') by '+versions[i].name+'</div>');
 				item.append(bookmark);
 				item.append(content2);
 				item.append(time);
