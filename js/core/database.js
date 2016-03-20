@@ -82,6 +82,43 @@ Eden.DB.isLoggedIn = function() {
 	return Eden.DB.username !== undefined;
 }
 
+Eden.DB.logOut = function(cb) {
+	if (Eden.DB.isLoggedIn()) {
+		$.ajax({
+			url: Eden.DB.remoteURL+"/logout",
+			type: "get",
+			crossDomain: true,
+			xhrFields:{
+				withCredentials: true
+			},
+			success: function(data){
+				Eden.DB.username = undefined;
+				if (cb) cb();
+
+				function loginLoop() {
+					if (Eden.DB.isConnected() && Eden.DB.username === undefined) {
+						setTimeout(function() {
+							Eden.DB.getLoginName(function(name) {
+								if (name) {
+									Eden.DB.emit("login", [name]);
+								} else {
+									loginLoop();
+								}
+							})
+						}, 5000);
+					}
+				}
+				loginLoop();
+			},
+			error: function(a){
+				//console.error(a);
+				//eden.error(a);
+				Eden.DB.disconnect(true);
+			}
+		});
+	}
+}
+
 Eden.DB.connect = function(url, callback) {
 	Eden.DB.remoteURL = url;
 

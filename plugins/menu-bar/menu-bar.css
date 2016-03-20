@@ -11,7 +11,7 @@
 	padding-left: 20px;
 	/*padding-top: 4px;*/
 	padding-right: 20px;
-	z-index: 2147483647; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */
+	z-index: 2147483646; /* probably max value for z-index on most browsers, avoids dialogs appearing on top */
 }
 
 .menubar-mainitem:hover {

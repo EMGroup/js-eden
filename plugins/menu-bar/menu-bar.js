@@ -490,6 +490,13 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	var loginButton = $('<div id="menubar-login"><span class="icon">&#xf05e;</span>Not Connected</div>');
 	loginButton.appendTo($("#menubar-main"));
 
+	var usercontext = new EdenUI.ContextMenu(loginButton.get(0));
+	usercontext.addItem("&#xf08b;","Log out", function() { return Eden.DB.isLoggedIn(); }, function() {
+		Eden.DB.logOut(function() {
+			$("#menubar-login").html('<a href="'+Eden.DB.remoteURL+'/login" target="logintarget"><span class="icon">&#xf090;</span>Login</a>');
+		}); 
+	}); 
+
 	Eden.DB.listenTo("connected", this, function(url) {
 		$("#menubar-login").html('<a href="'+url+'/login" target="logintarget"><span class="icon">&#xf090;</span>Login</a>');
 	});
@@ -503,7 +510,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			setTimeout(function() {
 				$("#menubar-obscurer").remove();
 			}, 1000);
-			$("#menubar-login").html('<span class="icon">&#xf007;</span>'+name);
+			$("#menubar-login").html('<a href="'+Eden.DB.remoteURL+'/#" target="_blank"><span class="icon">&#xf007;</span>'+name+"</a>");
 		}
 	});
 
@@ -515,6 +522,8 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 			obscurer.on("click", ".button-cancel", function() {
 				obscurer.remove();
 			});
+		} else if (Eden.DB.isConnected() && Eden.DB.isLoggedIn()) {
+			
 		}
 	});
 
