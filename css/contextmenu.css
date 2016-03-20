@@ -1,7 +1,7 @@
 div.eden-contextmenu {
 	position: absolute;
 	display: none;
-	z-index: 10000;
+	z-index: 2147483647;
 	min-width: 140px;
 	/*min-height: 50px;*/
 	background-color: #f5f5f5;
