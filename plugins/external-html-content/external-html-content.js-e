@@ -24,7 +24,7 @@ proc createExternalHTMLView {
 		return;
 	}
 
-	createView("ExternalHTMLContent", viewName);
+	createView(viewName, "ExternalHTMLContent");
 	`"_view_" // viewName // "_url"` = url;
 
 	if (title == @) {
