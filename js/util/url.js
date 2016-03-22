@@ -46,7 +46,7 @@ URLUtil.getArrayParameterByName = function (name) {
  * exception being thrown.
  */
 URLUtil.isCrossDomain = function (url) {
-	var match = url.match(/^([a-zA-Z][a-zA-Z\d+.-]*:)(\/\/)?([^\/@]*@)?([^\/:]+)(:\d+)?(\/|$)/);
+	var match = url.match(/^([a-zA-Z][a-zA-Z\d+.\-]*:)(\/\/)?([^\/@]*@)?([^\/:]+)(:\d+)?(\/|$)/);
 	return match !== null &&
 		(match[1] != window.location.protocol || match[4] != document.domain ||
 		match[5].slice(1) != window.location.port);
