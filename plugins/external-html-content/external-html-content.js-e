@@ -1,0 +1,35 @@
+/*
+ * Copyright (c) 2016, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+
+##Creates a view that displays an external web page.  The first parameter gives the name of the
+##view, the second the URL to initially display, and third (optional) argument the title bar text.
+proc createExternalHTMLView {
+	para viewName, url, title;
+	if ($# < 1 || $# > 3) {
+		error("createExternalHTMLView: This procedure requires at least 1 argument and at most 3 arguments.");
+		return;
+	} else if (!isString(viewName)) {
+		error("createExternalHTMLView: The first argument must be a string, not a " // type(viewName));
+		return;
+	} else if (!isString(url) && url != @) {
+		error("createExternalHTMLView: The second argument must be a string, not a " // type(url));
+		return;
+	} else if (!isString(title) && title != @) {
+		error("createExternalHTMLView: The third argument must be a string, not a " // type(title));
+		return;
+	}
+
+	createView(viewName, "ExternalHTMLContent");
+	`"_view_" // viewName // "_url"` = url;
+
+	if (title == @) {
+		`"_view_" // viewName // "_title"` = "Content from " // str(`"_view_" // viewName // "_url"`);
+	} else {
+		`"_view_" // viewName // "_title"` = title;	
+	}
+}

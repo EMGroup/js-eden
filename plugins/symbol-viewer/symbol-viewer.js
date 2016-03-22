@@ -135,7 +135,9 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 		var searchStrSym = root.lookup("_view_" + edenName + "_search_string");
 		var performSearch = function (sym, searchStr) {
-			searchBoxElem.value = searchStr;
+			if (searchStr !== searchBoxElem.value) {
+				searchBoxElem.value = searchStr;
+			}
 			symbollist.search(searchStr, makeRegExp());
 		}
 		var initialSearchStr = searchStrSym.value();
@@ -149,9 +151,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 		// Make changes in search box update the list.
 		searchBox.keyup(function() {
-			if (searchStrSym.value() !== searchBoxElem.value) {
-				searchStrSym.assign(searchBoxElem.value, root.scope, Symbol.hciAgent);
-			}
+			searchStrSym.assign(searchBoxElem.value, root.scope, Symbol.hciAgent);
 		});
 
 		document.getElementById(name + "-category-filter").addEventListener("change", function (event) {
