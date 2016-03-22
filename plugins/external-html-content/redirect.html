@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title>Redirecting&hellip;</title>
+	<base href="/"/>
+	<style type="text/css">
+		body {
+			font-family: sans-serif;
+			line-height: 1.6;
+		}
+	</style>
+</head>
+<body style="display: none">
+	<p>Attempting to redirect you to <a id="url"></a></p>
+
+	<p>If this message does not disappear shortly then the page cannot be shown here
+	because the creator of the page has taken steps to prevent it from being displaying inside
+	JS-EDEN.  If needed then click on the link above to open the page in a different browser tab.</p>
+
+	<script type="text/javascript" src="/js/util/url.js"></script>
+	<script type="text/javascript">
+		// <!--
+		var destinationURL = URLUtil.getParameterByName("url");
+		var urlParts = destinationURL.match(
+			/^([^\/@]*@)?([a-zA-Z\d+.\-]+\.)?([^\/:]+\.(?:[a-zA-Z]{2,3}|info)(?::\d+)?)((?:\/.*)|$)/
+		);
+		if (urlParts !== null) {
+			if (urlParts[1] !== undefined) {
+				destinationURL = "http://" + urlParts[1];
+			} else {
+				destinationURL = "http://";
+			}
+			if (urlParts[2] === undefined) {
+				destinationURL = destinationURL + "www.";
+			} else {
+				destinationURL = destinationURL + urlParts[2];
+			}
+			destinationURL = destinationURL + urlParts[3] + urlParts[4];
+		}
+		document.location = destinationURL;
+		var link = document.getElementById("url");
+		link.href = destinationURL;
+		link.target = "view_" + URLUtil.getParameterByName("viewName");
+		link.innerHTML = destinationURL;
+		setTimeout(function () {
+			document.body.style.display = "block";
+		}, 3000);
+		// -->
+	</script>
+</body>
+</html>

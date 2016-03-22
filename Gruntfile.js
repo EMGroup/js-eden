@@ -41,6 +41,7 @@ module.exports = function (grunt) {
 					'./plugins/menu-bar/menu-bar.js',
 					'./plugins/canvas-html5/canvas.js',
 					'./plugins/symbol-viewer/symbol-viewer.js',
+					'./plugins/external-html-content/external-html-content.js',
 					'./plugins/html-views/html-views.js',
 					'./plugins/expression-tree/expression-tree.js',
 					'./plugins/systemSymbols.js',

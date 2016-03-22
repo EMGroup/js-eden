@@ -1553,6 +1553,13 @@
 				"[window_title]": ""
 			}
 		},
+		"createExternalHTMLView": {
+			"parameters": {
+				"view_name": "",
+				"url": "",
+				"[window_title]": ""
+			}
+		},
 		"createHTMLView": {
 			"parameters": {
 				"[view_name]": "",
@@ -1640,7 +1647,28 @@
 				"milliseconds": ""
 			}
 		},
+		"showAgents": {
+			"parameters": {
+				"[search_string": "",
+				"[view_name": "",
+				"[search_syntax]]]": ""
+			}
+		},
+		"showFunctions": {
+			"parameters": {
+				"[search_string": "",
+				"[view_name": "",
+				"[search_syntax]]]": ""
+			}
+		},
 		"showObservables": {
+			"parameters": {
+				"[search_string": "",
+				"[view_name": "",
+				"[search_syntax]]]": ""
+			}
+		},
+		"showSymbols": {
 			"parameters": {
 				"[search_string": "",
 				"[view_name": "",

@@ -212,6 +212,19 @@ ${{
 	}
 }}$;
 
+proc showAgents {
+	${{
+		showSymbols("Agent", arguments[0], arguments[1], arguments[2]);
+	}}$;
+}
+
+
+proc showFunctions {
+	${{
+		showSymbols("Function", arguments[0], arguments[1], arguments[2]);
+	}}$;
+}
+
 proc showObservables {
 	${{
 		showSymbols("Observable", arguments[0], arguments[1], arguments[2]);
