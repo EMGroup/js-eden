@@ -218,7 +218,6 @@ proc showAgents {
 	}}$;
 }
 
-
 proc showFunctions {
 	${{
 		showSymbols("Function", arguments[0], arguments[1], arguments[2]);
