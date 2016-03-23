@@ -1,3 +1,7 @@
+back-button.svg
+	Licence: CC0 Public Domain
+	Source: https://pixabay.com/en/back-return-arrow-left-button-158491/
+
 email.png
 	Licence: Creative Commons Attribution 2.5 Generic
 	Author: Mark James

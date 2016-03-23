@@ -7,6 +7,7 @@
 
 var root;
 var eden;
+var edenUI;
 
 var doneLoading;
 
@@ -41,11 +42,35 @@ function touchHandler(event) {
 	}
 }
 
+var doingNavigateAway = false;
 var confirmUnload = function (event) {
-	var prompt = "Leaving this page will discard the current script. Your work will not be saved.";
-	event.returnValue = prompt;
-	return prompt;
+	if (!doingNavigateAway) {
+		var prompt = "Leaving this page will discard the current script. Your work will not be saved.";
+		event.returnValue = prompt;
+		return prompt;
+	}
 };
+
+window.history.pushState({}, "", "#noNavigateAway");
+window.addEventListener("popstate", function () {
+	if (document.location.hash == "") {
+		edenUI.modalDialog(
+			"Leave Environment?",
+			"<p>Leaving this page will discard the current script. Your work will not be saved.</p>" +
+			"<p>Are you sure you want to close JS-EDEN?</p>",
+			["Close JS-EDEN", "Return to Construal"],
+			1,
+			function (option) {
+				if (option == 0) {
+					doingNavigateAway = true; 
+					window.history.back(1);
+				} else {
+					window.history.forward(1);
+				}
+			}
+		);
+	}
+});
 
 /**
  * Currently supported URL parameters (HTTP GET):
