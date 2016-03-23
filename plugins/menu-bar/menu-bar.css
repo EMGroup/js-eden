@@ -39,7 +39,7 @@
 	top: 29px;
 	height: 5px;
 	background-image: url('../../images/menu-bottomgrad.png');
-	z-index: 2147483646;
+	z-index: 2147483645;
 }
 
 .menubar-mainitem {
