@@ -1,6 +1,8 @@
 .htmlviews-content {
-	font-family: 'Arial';
-	font-size: 12pt;
-	font-weight: normal;
-	background-color: white;
+	font-size: 10.5pt;
+	line-height: 1.75;
+}
+
+.htmlviews-content p {
+	text-align: justify;
 }
