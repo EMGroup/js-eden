@@ -6,14 +6,20 @@
 ##Bugs:
 ##Triggered procedures are possibly called twice when making assignments?
 ##If _paused is defined by dependency and is true while seeking then the video starts playing while the mouse button is still held down.
-##_chapter doesn't yet update correctly if the a backward seek is performed.
 ##Attempting to play back video in reverse (vid_speed < 0) only works on Safari on Mac.  A workaround is possible.
 ##Loading a new video file will reset the playback speed to 1.
+##Assigning "end" to _chapter gives improper _time.
 ##Todo:
+##Add ability to set audio player width using _width
+##Add a _duration observable (assigning prevents playing past that point).  Change .duration to .maximumDuration
 ##Add support for poster images.
+##Add click in video area to play/pause.
+##Add mouseZone support.
+##Add feedback for downloading issues.
 ##Add mode that draws the video onto the canvas.
 ##Useful site for extracting YouTube video URLs: http://www.downvids.net/
 ##Alternative site: http://www.youtubeinmp4.com/
+##MP3 files: http://www.mfiles.co.uk/mp3-files.htm
 
 ##For a Video drawable named "vid", the following observables are available.  All are read/write.
 ##
@@ -41,15 +47,16 @@
 ##	the video will play again from the beginning.
 ##
 ##vid_time
-##	The current temporal position of the video, accurate to 1/10 of a second.  Cannot be set by
-##	dependency.
+##	The current temporal position of the video, accurate to the nearest second.  Cannot be set by
+##	dependency unless the video is kept paused.
 ##
 ##vid_chapters and vid_chapter
 ##	If defined then vid_chapters should be an object where the keys are labels attributed to certain
 ##	sections of the video and the values are the times when these sections begin.  For example, if
-##	vid_chapters is {lesson1: 60, lesson2: 900} then vid_chapter will undefined during the first
-##	60 seconds of playback, contain the string "lesson1" between 60 seconds through to 15 minutes
-##	into the video, at which point the second lesson begins and vid_chapter will become "lesson2".
+##	vid_chapters is {lesson1: 60, lesson2: 900} then vid_chapter will contain the string "start"
+##	during the first 60 seconds of playback, contain the string "lesson1" between 60 seconds through
+##	to 15 minutes into the video, at which point the second lesson begins and vid_chapter will
+##	become "lesson2".  When the video has finished playing vid_chapter will become "end".
 ##
 ##vid_speed
 ##	Determines the speed of video playback, e.g. 1 for normal speed or 2 to play back at double
@@ -70,8 +77,10 @@
 ##.duration
 ##	The duration of the currently loaded video file (read-only).
 ##
-##.ended
-##	True if the current temporal position is located at the end of the video (read-only).
+##Useful methods of the drawable object itself:
+##
+##.unmute()
+##	Restores the volume to its previous level if currently playing silently.
 
 ##Example:
 /*
@@ -82,7 +91,7 @@
 	##Stop to complete an exercise 60 seconds into the video.
 	exercisePoints = [60];
 	exercisesCompleted = [false];
-	exerciseNumber is positionInList(int(vid_time), exercisePoints);
+	exerciseNumber is positionInList(vid_time, exercisePoints);
 	vid_controls is exerciseNumber == 0 || exercisesCompleted[exerciseNumber];
 	vid_paused is vid_controls == false;
 */
@@ -103,8 +112,13 @@ func Video {
 				return undefined;
 			}
 		}
-		var preload = arguments[argsProcessed];
-		return new AudioVisual(name, "Video", preload);
+		var preload;
+		if (argsProcessed < arguments.length) {
+			preload = arguments[argsProcessed];
+		} else {
+			preload = false;
+		}
+		return new Audiovisual(name, "Video", preload);
 	}}$;
 }
 
@@ -124,58 +138,119 @@ func Audio {
 				return undefined;
 			}
 		}
-		var preload = arguments[argsProcessed];
-		return new AudioVisual(name, "Audio", preload);
+		var preload;
+		if (argsProcessed < arguments.length) {
+			preload = arguments[argsProcessed];
+		} else {
+			preload = false;
+		}
+		return new Audiovisual(name, "Audio", preload);
 	}}$;
 }
 
 ${{
-	function AudioVisual(name, type, preload) {
+	function Audiovisual(name, type, preload) {
 		this.name = name;
 		this.obsName = root.currentObservableName();
 		this.type = type;
 		this.preload = preload;
+		this.atEnd = false;
 		
 		Object.defineProperty(this, "duration", {
 			enumerable: true,
 			get: function () {
-				if (this.elements === undefined) {
+				if (this.elements === undefined || !this.elements[0].duration) {
 					return 0;
 				} else {
-					return Math.floor(this.elements[0].duration * 10) / 10;
+					return this.elements[0].duration;
 				}
 			}
 		});
-
-		Object.defineProperty(this, "ended", {
-			enumerable: true,
-			get: function () {
-				if (this.elements === undefined) {
-					return false;
-				} else {
-					return this.elements[0].ended;
-				}
-			}
-		});
-
 	}
 	
-	AudioVisual.prototype.hash = function () {
+	Audiovisual.prototype.hash = function () {
 		return this.name;
 	}
-}}$;
 
-${{
-	AudioVisual.prototype.draw = function (context) {
+	function getMediaElement(audiovisual) {
+		return audiovisual.elements[0];
+	}
+
+	function loadMedia(audiovisual) {
+		var mediaElement = getMediaElement(audiovisual);
+		mediaElement.autoplay = !root.lookup(audiovisual.name + "_paused").value();
+		if (audiovisual.preload) {
+			mediaElement.preload = "auto";
+		} else {
+			mediaElement.preload = "metadata";
+		}
+		mediaElement.load();
+	}
+
+	Audiovisual.prototype.reload = function () {
+		var mediaElement = getMediaElement(this);
+		var position = mediaElement.currentTime;
+		loadMedia(this);
+		mediaElement.currentTime = position;
+	};
+
+	Audiovisual.prototype.unmute = function () {
+		getMediaElement(this).muted = false;
+	}
+
+	Audiovisual.prototype.draw = function (context) {
 		if (this.elements === undefined ) {
 			var me = this;
 			var name = this.name;
 			var agent = root.lookup(this.type);
 			root.beginAutocalcOff();
 
+	//Create HTML tag
+
+			var mediaElement = document.createElement(this.type.toLowerCase());
+
+
+	//Symbols not unique to videos
+
+			var chapterSym = root.lookup(name + "_chapter");
+			var chapterMarksSym = root.lookup(name + "_chapters");
+			var loopSym = root.lookup(name + "_looping");
+			var pausedSym = root.lookup(name + "_paused");
+			var positionSym = root.lookup(name + "_position");
+			var speedSym = root.lookup(name + "_speed");
+			var timeSym = root.lookup(name + "_time");
+			var urlSym = root.lookup(name + "_url");
+			var volumeSym = root.lookup(name + "_volume");
+
+
 	//Chapters
 
 			var chapterMarks, chapterNames, chapterIndex, nextChapterAt;
+			var goToChapter = function () {
+				var numChapters = chapterMarks.length;
+				if (chapterIndex == -1) {
+					if (numChapters > 0 && chapterMarks[0] == 0) {
+						chapterIndex = 0;
+					}
+				}
+				var chapterName;
+				if (chapterIndex == -1) {
+					chapterName = "start";
+				} else if (chapterIndex == numChapters) {
+					chapterName = "end";
+					me.atEnd = true;
+				} else {
+					chapterName = chapterNames[chapterIndex];
+				}
+				if (chapterName != chapterSym.value()) {
+					chapterSym.assign(chapterName, agent);
+				}
+				if (chapterIndex < numChapters - 1) {
+					nextChapterAt = chapterMarks[chapterIndex + 1];
+				} else {
+					nextChapterAt = undefined;
+				}
+			};
 			var setChapters = function (symbol, chapters) {
 				chapterMarks = [];
 				chapterNames = [];
@@ -184,45 +259,72 @@ ${{
 				
 				if (chapters instanceof Object) {
 					for (var chapterName in chapters) {
-						if (chapters.hasOwnProperty(chapterName)) {
-							var beginsAt = chapters[chapterName];
-							var i = 0;
-							while (i < chapterMarks.length) {
-								if (beginsAt < chapterMarks[i]) {
-									break;
-								}
-								i++;
+						var beginsAt = chapters[chapterName];
+						var i = 0;
+						while (i < chapterMarks.length) {
+							if (beginsAt < chapterMarks[i]) {
+								break;
 							}
-							chapterMarks.splice(i, 0, beginsAt);
-							chapterNames.splice(i, 0, chapterName);
+							i++;
 						}
+						chapterMarks.splice(i, 0, beginsAt);
+						chapterNames.splice(i, 0, chapterName);
 					}
 					
-					var currentPos = root.lookup(name + "_time").value();
-					while (chapterIndex < chapterMarks.length - 1 &&
-					 currentPos >= chapterMarks[chapterIndex + 1]) {
-						chapterIndex++;
-					}
-					
-					if (chapterIndex < chapterMarks.length - 1) {
-						nextChapterAt = chapterMarks[chapterIndex + 1];
+					if (!me.atEnd) {
+						var currentPos = timeSym.value();
+						while (chapterIndex < chapterMarks.length - 1 &&
+						 currentPos >= chapterMarks[chapterIndex + 1]) {
+							chapterIndex++;
+						}
+						goToChapter();
 					}
 				}
-				var chapterSym = root.lookup(name + "_chapter");
-				if (chapterIndex == -1) {
-					chapterSym.assign(undefined, agent);
-				} else {
-					chapterSym.assign(chapterNames[chapterIndex], agent);
-				}
-			};
-			var chapterMarksSym = root.lookup(name + "_chapters");
+			}; //end of function
+			if (chapterMarksSym.value() === undefined && chapterMarksSym.definition === undefined) {
+				chapterMarksSym.assign({}, agent);
+			}
 			setChapters(chapterMarksSym, chapterMarksSym.value());
 			chapterMarksSym.addJSObserver("setChapters", setChapters);
 
+			chapterSym.addJSObserver("jumpToChapter", function (symbol, value) {
+				var currentTime = mediaElement.currentTime;
+				var numChapters = chapterMarks.length;
+				var newTime;
+				if (value == "start") {
+					chapterIndex = -1;
+					newTime = 0;
+				} else if (value == "end") {
+					chapterIndex = numChapters;
+					newTime = mediaElement.duration;
+				} else {
+					var found = false;
+					for (var i = 0; i < numChapters; i++) {
+						if (value == chapterNames[i]) {
+							chapterIndex = i;
+							newTime = chapterMarks[chapterIndex];
+							break;
+						}
+					}
+				}
+				if (newTime !== undefined) {
+					timeSym.assign(newTime, agent);
+					mediaElement.currentTime = newTime;
+					goToChapter();
+				}
+			});
 
-	//Create HTML tag
+	//Looping
 
-			var videoElement = document.createElement(this.type.toLowerCase());
+			var initialLooping = loopSym.value();
+			if (initialLooping === undefined && loopSym.definition === undefined) {
+				loopSym.assign(false, agent);
+			} else if (initialLooping) {
+				mediaElement.loop = true;
+			}
+			loopSym.addJSObserver("setLooping", function (sym, value) {
+				mediaElement.loop = value;
+			});
 
 
 	//Playback controls
@@ -232,29 +334,27 @@ ${{
 				var controlsSym = root.lookup(name + "_controls");
 				var controls = controlsSym.value();
 				if (controls === undefined) {
-					if (controlsSym.eden_definition === undefined || controlsSym.definition === undefined) {
+					if (controlsSym.definition === undefined) {
 						controlsSym.assign(true, agent);
 					} else {
-						videoElement.controls = true;
+						mediaElement.controls = true;
 					}
 				} else {
-					videoElement.controls = controls;
+					mediaElement.controls = controls;
 				}
 				controlsSym.addJSObserver("showHideControls", function (symbol, showControls) {
-					videoElement.controls = showControls;
+					mediaElement.controls = showControls;
 				});
-
 			} else {
-				videoElement.controls = true;
+				mediaElement.controls = true;
 			}
 
 
 	//Position on screen
 
-			videoElement.style.position = "absolute";
+			mediaElement.style.position = "absolute";
 			this.cachedOrigin = new Point(0, 0);
 			this.cachedScaleFactor = 1;
-			var positionSym = root.lookup(name + "_position");
 			var position = positionSym.value();
 			if (position === undefined) {
 				position = new Point(0, 0);
@@ -265,24 +365,13 @@ ${{
 			});
 
 
-	//Size and preloading
+	//Size
 
-			var preloadWhat;
-			if (this.preload) {
-				preloadWhat = "auto";
-			} else {
-				preloadWhat = "none";
-			}
-
+			this.cachedZoom = 1;
 			if (this.type == "Video") {
-
-				this.cachedZoom = 1;
 				var sizeSym = root.lookup(name + "_size");
 				var scaleSym = root.lookup(name + "_scale");
 				var size = sizeSym.value();
-				if (!(size instanceof Point) && !this.preload) {
-					preloadWhat = "metadata";
-				}
 				sizeSym.addJSObserver("resize", function (symbol, size) {
 					var scale = scaleSym.value();
 					if (scale !== undefined) {
@@ -294,87 +383,133 @@ ${{
 						me.doScaling(sizeSym.value(), scale);
 					}
 				});
-				videoElement.addEventListener("loadedmetadata", function (event) {
+				mediaElement.addEventListener("loadedmetadata", function (event) {
 					if (sizeSym.value() === undefined) {
 						root.beginAutocalcOff();
 						scaleSym.assign(1, agent);
-						sizeSym.assign(new Point(videoElement.videoWidth, videoElement.videoHeight), agent);
+						sizeSym.assign(new Point(mediaElement.videoWidth, mediaElement.videoHeight), agent);
 						root.endAutocalcOff();
 					}
 				});
 
+			} else {
+			
 			}
-			videoElement.preload = preloadWhat;
 
 
 	//Paused or playing
 
-			var pausedSym = root.lookup(name + "_paused");
 			var beginPaused = pausedSym.value();
-			if (beginPaused === undefined && (pausedSym.eden_definition === undefined || pausedSym.definition === undefined)) {
+			if (beginPaused === undefined && pausedSym.definition === undefined) {
 				pausedSym.assign(true, agent);
 			} else if (beginPaused == false) {
-				videoElement.autoplay = true;
+				mediaElement.autoplay = true;
 			}
 			pausedSym.addJSObserver("pausePlay", function (symbol, pause) {
 				if (pause) {
-					videoElement.pause();
+					mediaElement.pause();
 				} else {
-					videoElement.play();
+					me.atEnd = false;
+					mediaElement.play();
 				}
 			});
-			videoElement.addEventListener("pause", function (event) {
-				var pausedSym = root.lookup(name + "_paused");
-				if (pausedSym.eden_definition === undefined || pausedSym.definition === undefined) {
+			mediaElement.addEventListener("pause", function (event) {
+				if (pausedSym.definition === undefined) {
 					pausedSym.assign(true, agent);
 				}
 			});
-			videoElement.addEventListener("playing", function (event) {
-				var pausedSym = root.lookup(name + "_paused");
-				if (pausedSym.eden_definition === undefined || pausedSym.definition === undefined) {
+			mediaElement.addEventListener("playing", function (event) {
+				if (pausedSym.definition === undefined) {
 					pausedSym.assign(false, agent);
 				}
-				if (root.lookup(name + "_speed").value() == 0) {
-					videoElement.defaultPlaybackRate = 1;
-					videoElement.playbackRate = 1;
+				if (speedSym.value() == 0) {
+					mediaElement.defaultPlaybackRate = 1;
+					mediaElement.playbackRate = 1;
 				}
 			});
 
 
 	//Seeking and time moving forward
 
-			var timeSym = root.lookup(name + "_time");
 			var time = timeSym.value();
 			if (time !== undefined) {
-				videoElement.currentTime = parseFloat(time);
+				mediaElement.currentTime = parseFloat(time);
+			} else if (timeSym.definition === undefined) {
+				timeSym.assign(0, agent);
 			}
-			timeSym.addJSObserver("seek", function (symbol, seconds) {
-				var currentTime = videoElement.currentTime;
-				var relativePosition = seconds - currentTime;
-				if (relativePosition < -1 || relativePosition > 1 ) {
-					videoElement.currentTime = seconds;
-				}
-			});
-			videoElement.addEventListener("timeupdate", function (event) {
-				var newTimeIndex = Math.floor(videoElement.currentTime * 10);
-				if (newTimeIndex != me.timeIndex) {
-					root.lookup(name + "_time").assign(newTimeIndex / 10, agent);
-					me.timeIndex = newTimeIndex;
-					
-					if (nextChapterAt !== undefined && videoElement.currentTime >= nextChapterAt) {
-						chapterIndex++;
-						root.lookup(name + "_chapter").assign(chapterNames[chapterIndex], agent);
-						if (chapterIndex < chapterMarks.length - 1) {
-							nextChapterAt = chapterMarks[chapterIndex]
-						} else {
-							nextChapterAt = undefined;
+
+			function findChapter() {
+				var oldChapterIndex  = chapterIndex;
+				var numChapters = chapterMarks.length;
+				if (me.atEnd) {
+					//Seeked to the end (and not looping)
+					chapterIndex = numChapters;
+				} else {
+					var currentTime = mediaElement.currentTime;
+					if (nextChapterAt !== undefined && currentTime >= nextChapterAt) {
+						//Seeking forward
+						while (chapterIndex < numChapters - 1 && currentTime >= chapterMarks[chapterIndex + 1]) {
+							chapterIndex++;
+						}
+					} else {
+						//Seeking backward
+						if (chapterIndex == numChapters) {
+							chapterIndex--;
+						}
+						while (chapterIndex >= 0 && chapterMarks[chapterIndex] > currentTime) {
+							chapterIndex--;
 						}
 					}
 				}
+
+				if (chapterIndex != oldChapterIndex) {
+					goToChapter();
+				}
+			}
+
+			timeSym.addJSObserver("seek", function (symbol, seconds) {
+				if (symbol.last_modified_by !== me.type) {
+					mediaElement.currentTime = seconds;
+				}
 			});
-			videoElement.addEventListener("seeked", function (event) {
-				if (!root.lookup(name + "_paused").value()) {
-					videoElement.play();
+			mediaElement.addEventListener("timeupdate", function (event) {
+				if (mediaElement.paused) {
+					return;
+				}
+				var currentTime = mediaElement.currentTime;
+				var newTimeIndex = Math.floor(currentTime);
+				if (newTimeIndex != me.timeIndex) {
+					timeSym.assign(newTimeIndex, agent);
+					me.timeIndex = newTimeIndex;					
+				}
+				if (nextChapterAt !== undefined && currentTime >= nextChapterAt) {
+					chapterIndex++;
+					chapterSym.assign(chapterNames[chapterIndex], agent);
+					if (chapterIndex < chapterMarks.length - 1) {
+						nextChapterAt = chapterMarks[chapterIndex]
+					} else {
+						nextChapterAt = undefined;
+					}
+				}
+			});
+			mediaElement.addEventListener("ended", function (event) {
+				timeSym.assign(mediaElement.duration, agent);
+				chapterIndex = chapterMarks.length;
+				goToChapter();
+			});
+			mediaElement.addEventListener("seeking", function (event) {
+				var currentTime = mediaElement.currentTime;
+				if (timeSym.value() !== currentTime) {
+					timeSym.assign(currentTime, agent);
+				}
+				me.atEnd = currentTime == mediaElement.duration;
+				findChapter();
+			});
+			mediaElement.addEventListener("seeked", function (event) {
+				var isPaused = pausedSym.value();
+				me.timeIndex = Math.floor(mediaElement.currentTime);
+				if (!isPaused) {
+					mediaElement.play();
 				}
 			});
 
@@ -382,34 +517,32 @@ ${{
 	//Playback speed
 
 			var speedResetOnLoad;
-			var speedSym = root.lookup(name + "_speed");
 			var speed = speedSym.value();
 			if (speed === undefined) {
 				speedSym.assign(1, agent);
 			} else if (speed > 0) {
-				videoElement.defaultPlaybackRate = speed;
+				mediaElement.defaultPlaybackRate = speed;
 			}
 			speedSym.addJSObserver("changePlaybackSpeed", function (symbol, speed) {
-				if (videoElement.playbackRate != speed) {
+				if (mediaElement.playbackRate != speed) {
 					if (speed > 0) {
-						videoElement.defaultPlaybackRate = speed;
+						mediaElement.defaultPlaybackRate = speed;
 					} else {
-						videoElement.defaultPlaybackRate = 1;					
+						mediaElement.defaultPlaybackRate = 1;					
 					}
-					videoElement.playbackRate = speed;
+					mediaElement.playbackRate = speed;
 				}
 			});
-			videoElement.addEventListener("ratechange", function (event) {
+			mediaElement.addEventListener("ratechange", function (event) {
 				root.beginAutocalcOff();
-				var speedSym = root.lookup(name + "_speed");
-				var speed = videoElement.playbackRate;
-				if (speedSym.eden_definition === undefined || speedSym.definition === undefined) {
+				var speed = mediaElement.playbackRate;
+				if (speedSym.definition === undefined) {
 					speedSym.assign(speed, agent);
 				}
 				if (speed == 0) {
-					videoElement.pause();
-				} else if (!root.lookup(name + "_paused").value()) {
-					videoElement.play();
+					mediaElement.pause();
+				} else if (!pausedSym.value()) {
+					mediaElement.play();
 				}
 				root.endAutocalcOff();
 			});
@@ -417,55 +550,101 @@ ${{
 
 	//Volume
 
-			var volumeSym = root.lookup(name + "_volume");
 			var volume = volumeSym.value();
 			if (volume === undefined) {
 				volumeSym.assign(1, agent);
+			} else if (volume == 0) {
+				mediaElement.muted = true;
 			} else {
-				videoElement.volume = volume;			
+				mediaElement.volume = volume;			
 			}
+			this.volumeChanging = false;
 			volumeSym.addJSObserver("adjustVolume", function (symbol, volume) {
-				videoElement.volume = volume;
-			});
-			videoElement.addEventListener("volumechange", function (event) {
-				root.lookup(name + "_volume").assign(videoElement.volume, agent);
-			});	
+				if (!me.volumeChanging) {
+					me.volumeChanging = true;
+					if (symbol.definition === undefined) {
+						if (volume == 0) {
+							mediaElement.muted = true;
+						} else {
+							mediaElement.muted = false;
+							mediaElement.volume = volume;
+						}
+					} else {
+						mediaElement.volume = volume;
+					}
+					me.volumeChanging = false;
+				}
 
+			});
+			mediaElement.addEventListener("volumechange", function (event) {
+				if (!me.volumeChanging) {
+					me.volumeChanging = true;
+					var oldVolume = volumeSym.value();
+					var newVolume = mediaElement.volume;
+					if (mediaElement.muted) {
+						if (volumeSym.definition === undefined) {
+							volumeSym.assign(0, agent);
+						}
+					} else if (oldVolume != newVolume) {
+						if (volumeSym.definition === undefined) {
+							volumeSym.assign(newVolume, agent);
+						} else {
+							mediaElement.volume = oldVolume;
+						}
+					}
+					me.volumeChanging = false;
+				}
+			});
 
 	//Loading a video file
 
-			var urlSym = root.lookup(name + "_url");
 			var url = urlSym.value();
 			if (url !== undefined) {
-				videoElement.src = url;
+				if (this.preload) {
+					mediaElement.preload  = "auto";
+				} else {
+					mediaElement.preload = "metadata";
+				}
+				mediaElement.src = url;
 			}
 			urlSym.addJSObserver("newVideo", function (symbol, url) {
-				var autoplay = !root.lookup(name + "_paused").value();
-				root.lookup(name + "_time").assign(undefined, agent);
-				me.timeIndex = undefined;
-				videoElement.autoplay = autoplay;
-				if (!autoplay) {
-					if (me.preload) {
-						videoElement.preload = "auto";
-					} else if (root.lookup(name + "_size").value() instanceof Point) {
-						videoElement.preload = "none";
-					} else {
-						videoElement.preload = "metadata";
-					}
+				if (url != mediaElement.src) {
+					timeSym.assign(0, agent);
+					me.timeIndex = 0;
+					chapterIndex = -1;
+					goToChapter();
+					mediaElement.src = url;
+					loadMedia(me);
 				}
-				videoElement.src = url;
-				videoElement.load();
 			});
+
+
+	//Mouse Zones
+
+		if (this.type == "Video") {
+			mediaElement.onmousedown = function (event) {
+				var mouseFollow = root.lookup("mouseFollow").value();
+				root.lookup("mouseDownZone").assign(me.name, Symbol.hciAgent, mouseFollow);
+			};
+			mediaElement.onmouseup = function (event) {
+				edenUI.plugins.Canvas2D.endClick();
+			};
+			edenUI.plugins.Canvas2D.initZoneFromName(this.name, this.type)
+		}
+		mediaElement.onmouseenter = function (event) {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(me.name, Symbol.hciAgent, mouseFollow);
+		};
 
 
 	//Finalize creation
 
-			this.elements = [videoElement];
+			this.elements = [mediaElement];
 			root.endAutocalcOff();
 		}
 	}
 
-	AudioVisual.prototype.scale = function (scale, zoom , origin) {
+	Audiovisual.prototype.scale = function (scale, zoom , origin) {
 		this.cachedScaleFactor = scale;
 		this.cachedOrigin = origin;
 
@@ -488,7 +667,7 @@ ${{
 		}
 	}
 
-	AudioVisual.prototype.doScaling = function (size, scale) {
+	Audiovisual.prototype.doScaling = function (size, scale) {
 		if (size instanceof Point) {
 			var element = this.elements[0];
 			var scaleFactor = this.cachedZoom * scale;
@@ -497,7 +676,7 @@ ${{
 		}
 	}
 
-	AudioVisual.prototype.doTranslation = function (position) {
+	Audiovisual.prototype.doTranslation = function (position) {
 		if (position instanceof Point) {
 			var style = this.elements[0].style;
 			var origin = this.cachedOrigin;
@@ -507,7 +686,7 @@ ${{
 		}
 	}
 
-	AudioVisual.prototype.toString = function () {
+	Audiovisual.prototype.toString = function () {
 		if (this.name == this.obsName) {
 			return this.type + "(" + Eden.edenCodeForValues(this.preload) + ")";
 		} else {
@@ -515,6 +694,21 @@ ${{
 		}
 	}
 	
-	AudioVisual.prototype.getEdenCode = AudioVisual.prototype.toString;
+	Audiovisual.prototype.getEdenCode = Audiovisual.prototype.toString;
+
+	//Create an observable for background sounds.
+	var backgroundAudioSym = root.lookup("background_audio");
+	var backgroundAudioPausedSym = root.lookup("background_audio_paused");
+	if (backgroundAudioPausedSym.value() === undefined && backgroundAudioPausedSym.definition === undefined) {
+		backgroundAudioPausedSym.assign(false);
+	}
+	var backgroundAudio = new Audiovisual("background_audio", "Audio", true);
+	backgroundAudioSym.assign(backgroundAudio);
+	backgroundAudio.draw();
+	backgroundAudioSym.addJSObserver("initialize", function (sym, value) {
+		if (value instanceof Audiovisual) {
+			value.draw();
+		}
+	});
 
 }}$;

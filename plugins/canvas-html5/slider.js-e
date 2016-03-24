@@ -349,11 +349,13 @@ Slider.prototype.scale = function (scale, zoom, origin) {
 
 Slider.prototype.toString = function() {
 	if (this.name == this.obsName) {
-		return "Slider(" + Eden.edenCodeForValues(this.min, this.max, this.step, this.x,
-			this.y, this.length, this.orientation, this.enabled) + ")";
+		return "Slider(" + Eden.edenCodeForValues(this.min, this.max, this.step, this.labelInterval,
+			this.tickMarkInterval, this.labelDivisor, this.x, this.y, this.length, this.orientation,
+			this.enabled) + ")";
 	} else {
-		return "Slider(" + Eden.edenCodeForValues(this.name, this.min, this.max, this.step, this.x,
-			this.y, this.length, this.orientation, this.enabled) + ")";	
+		return "Slider(" + Eden.edenCodeForValues(this.name, this.min, this.max, this.step,
+			this.labelInterval, this.tickMarkInterval, this.labelDivisor, this.x, this.y,
+			this.length, this.orientation, this.enabled) + ")";
 	}
 };
 
