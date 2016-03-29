@@ -4,6 +4,7 @@
 ## See LICENSE.txt
 
 ##Bugs:
+##Assigning to _chapters causes a jump back to the beginning of the current chapter.
 ##Triggered procedures are possibly called twice when making assignments?
 ##If _paused is defined by dependency and is true while seeking then the video starts playing while the mouse button is still held down.
 ##Attempting to play back video in reverse (vid_speed < 0) only works on Safari on Mac.  A workaround is possible.
@@ -14,7 +15,6 @@
 ##Add a _duration observable (assigning prevents playing past that point).  Change .duration to .maximumDuration
 ##Add support for poster images.
 ##Add click in video area to play/pause.
-##Add mouseZone support.
 ##Add feedback for downloading issues.
 ##Add mode that draws the video onto the canvas.
 ##Useful site for extracting YouTube video URLs: http://www.downvids.net/
