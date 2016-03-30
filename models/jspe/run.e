@@ -93,7 +93,7 @@ Slide.prototype.draw = function(context) {
 	var content = this.html.replace(
 		/<jseden>([\s\S]*?)<\/jseden>/g,
 		function (match, code, offset, string) {
-		return "<div><pre>" + code.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</pre><a href=\"#\" onclick=\"execute(this)\">submit</a> <a href=\"#\" onclick=\"copyToInput(this)\">copy to input</a></div>";
+		return "<div><pre>" + code.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</pre><a onclick=\"execute(this)\">submit</a> <a onclick=\"copyToInput(this)\">copy to input</a></div>";
 		}
 	);
 
