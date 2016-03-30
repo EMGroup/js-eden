@@ -46,6 +46,11 @@ h2, ul li {
 	color: black;
 }
 
+a[onclick] {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
 .unpadded-dialog .ui-dialog-content {
 	padding: 0px;
 }
