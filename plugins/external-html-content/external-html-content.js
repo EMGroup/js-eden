@@ -14,6 +14,27 @@
 EdenUI.plugins.ExternalHTMLContent = function(edenUI, success) {
 	var me = this;
 
+	window.history.pushState({}, "", "#noNavigateAway");
+	window.addEventListener("popstate", function () {
+		if (document.location.hash == "") {
+			edenUI.modalDialog(
+				"Leave Environment?",
+				"<p>Leaving this page will discard the current script. Your work will not be saved.</p>" +
+				"<p>Are you sure you want to close JS-EDEN?</p>",
+				["Close JS-EDEN", "Return to Construal"],
+				1,
+				function (option) {
+					if (option == 0) {
+						doingNavigateAway = true; 
+						window.history.back(1);
+					} else {
+						window.history.forward(1);
+					}
+				}
+			);
+		}
+	});
+
 	this.createDialog = function(name, mtitle) {
 		//Remove -dialog name suffix.
 		var viewName = name.slice(0, -7);
