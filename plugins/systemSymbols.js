@@ -446,7 +446,7 @@ Eden.isitSystemSymbol = function(name){
 }
 
 Eden.isitSystemObservable = function(name) {
-	if (/^_view_/.test(name)) {
+	if (/^(_view|background_audio)_/.test(name)) {
 	  return true;
 	}
 	return name in Eden.systemObservableNames;
