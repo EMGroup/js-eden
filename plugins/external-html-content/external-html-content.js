@@ -14,28 +14,25 @@
 EdenUI.plugins.ExternalHTMLContent = function(edenUI, success) {
 	var me = this;
 
-	window.history.pushState({}, "", "#noNavigateAway");
-	window.addEventListener("popstate", function () {
-		if (document.location.hash == "") {
-			edenUI.modalDialog(
-				"Leave Environment?",
-				"<p>Leaving this page will discard the current script. Your work will not be saved.</p>" +
-				"<p>Are you sure you want to close JS-EDEN?</p>",
-				["Close JS-EDEN", "Return to Construal"],
-				1,
-				function (option) {
-					if (option == 0) {
-						doingNavigateAway = true; 
-						window.history.back(1);
-					} else {
-						window.history.forward(1);
-					}
-				}
-			);
-		}
-	});
+	var iframeNavigatingBack = false;
+	var viewsCreated = false;
+
+	function resetNavigatingBack () {
+		iframeNavigatingBack = false;
+	}
 
 	this.createDialog = function(name, mtitle) {
+		if (!viewsCreated) {
+			//Prevent iframe back button from exiting JS-EDEN.
+			window.history.pushState({}, "", "#noNavigateAway");
+			window.addEventListener("popstate", function () {
+				if (document.location.hash == "" && iframeNavigatingBack) {
+					window.history.forward(1);
+				}
+			});
+			viewsCreated = true;
+		}
+
 		//Remove -dialog name suffix.
 		var viewName = name.slice(0, -7);
 
@@ -70,8 +67,20 @@ EdenUI.plugins.ExternalHTMLContent = function(edenUI, success) {
 
 		var toolbar = $('<div class="external-html-content-toolbar">');
 		dialog.append(toolbar);
+
+		var pinButton = $('<input type="image" src="images/pin.png" width="28" height="28" alt="Pin toolbar" style="float: left"/>');
+		pinButton.on("click", function () {
+			code_entry.toggleClass("external-html-content-pinned");
+			iframe.focus();
+		});
+		toolbar.append(pinButton);
+
 		var backButton = $('<input type="image" src="images/back-button.svg" width="28" height="28" alt="Back"/>');
 		backButton.on("click", function () {
+			if (!iframeNavigatingBack) {
+				setTimeout(resetNavigatingBack, 1000);
+			}
+			iframeNavigatingBack = true;
 			window.history.back(1);
 			iframe.focus();
 		});
