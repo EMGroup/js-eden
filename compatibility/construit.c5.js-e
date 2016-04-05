@@ -16,7 +16,11 @@ proc CanvasHTML5_DrawPicture {
 	${{
 		var viewName = arguments[0];
 		var obsName = arguments[1];
-		edenUI.plugins.Canvas2D.drawPicture(viewName, obsName);
+		var contentSym = root.lookup("_view_" + viewName + "_content");
+		var content = root.lookup(obsName).value();
+		var agent = root.lookup("CanvasHTML5_DrawPicture");
+		contentSym.assign(content, agent);
+		edenUI.plugins.Canvas2D.drawPicture(viewName);
 	}}$;
 };
 

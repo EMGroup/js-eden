@@ -56,7 +56,9 @@ module.exports = function (grunt) {
 					'./plugins/network-remote/network-remote.js',
 					'./plugins/view-layout/view-layout.js',
 					'./plugins/adm/adm-input.js',
-					'./plugins/speech-synthesis/speech-synthesis.js'
+					'./plugins/speech-synthesis/speech-synthesis.js',
+					'./plugins/midi/midi.js',
+					'./plugins/midi/emulation/midi.js-bridge.js'
 				]}
 		}
 	},

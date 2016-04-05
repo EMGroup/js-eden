@@ -6,12 +6,14 @@
 	<base href="/"/>
 	<style type="text/css">
 		body {
+			display: none;
 			font-family: sans-serif;
 			line-height: 1.6;
+			margin-top: 37px;
 		}
 	</style>
 </head>
-<body style="display: none">
+<body>
 	<p>Attempting to redirect you to <a id="url"></a></p>
 
 	<p>If this message does not disappear shortly then the page cannot be shown here
@@ -41,7 +43,7 @@
 		document.location = destinationURL;
 		var link = document.getElementById("url");
 		link.href = destinationURL;
-		link.target = "view_" + URLUtil.getParameterByName("viewName");
+		link.target = "view_" + URLUtil.getParameterByName("view");
 		link.innerHTML = destinationURL;
 		setTimeout(function () {
 			document.body.style.display = "block";

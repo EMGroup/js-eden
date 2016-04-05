@@ -3,7 +3,7 @@
  */
  Eden.initiallyDefined = [
 	"_view_picture_background_colour",
-	"_view_picture_observable",
+	"_view_picture_content",
 	"_view_picture_offset",
 	"_view_picture_scale",
 	"edenclocks",
@@ -286,7 +286,6 @@ Eden.symbolCategories["Canvas 2D"] = {
 		"_view_picture_background_colour": true,
 		"_view_picture_canvas_bottom": true,
 		"_view_picture_canvas_right": true,
-		"_view_picture_observable": true,
 		"_view_picture_offset": true,
 		"_view_picture_scale": true,
 		"_view_picture_title": true,

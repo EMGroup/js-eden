@@ -1,0 +1,345 @@
+##After number of beats b play chord c with velocity v for number of beats d
+##	[b, c, v, d]
+##
+##v and d are optional.
+##
+##b determines when the note is struck relative to when the previous note was struck.  For the first
+##note in the list the time of the "previous note" can be:
+##	the time when the currently playing performance began (scheduleMIDI),
+##	the time right now (playMIDI), or,
+##	the time when the last note will be struck of the tune currently playing (appendMIDI).
+##
+##c is a list of piano key numbers of the notes to play (range -20 to 107, i.e. C0 to G10).
+##
+##v is the force at which the notes are struck, blown or other initiated (velocity) or released
+##(release velocity).  Positive numbers strike the keys (or equivalent), negative numbers and zero
+##release a note.  Not all MIDI devices support release velocity information (i.e. negative numbers).
+##The range is -127 to +127.  If the velocity field is omitted then the notes will played at maximum
+##velocity.
+##
+##d is the duration that the notes will be played for.  Positive values specify a time in beats.  A
+##zero duration releases a note that is already being played.  If d is omitted then the notes play
+##indefinitely until they are either explicitly released (using a zero duration value) or when the
+##instrument cannot physically sustain the note any longer.  For example, piano notes have a maximum
+##note duration that is a physical characteristic of the instrument, whereas brass and woodwind
+##instruments are only limited by how much breath the player has (which for a computer player is
+##infinite).
+
+##Initializes the MIDI system.  This step is optional.  The system will self-initialize if the
+##system has not been initialized and another procedure is called.  Initializing the system
+##explicitly avoids unplanned long pauses later on however, while the user waits for the system to
+##initialize before it can play a tune.
+proc initializeMIDI {
+	${{
+		if (!edenUI.plugins.MIDI.initialized) {
+			edenUI.plugins.MIDI.initialize(root.lookup("initializeMIDI"), arguments);
+			return;
+		}
+		if (arguments.length != 0) {
+			eden.error(new Error("initializeMIDI: This procedure does not require any arguments."), "error");
+		}
+	}}$;
+}
+
+##Retrieves a list of the names of the available MIDI devices than can receive output.
+##The MIDI system must have been previously initialized by calling one of the MIDI procs first.
+func midiOutputs {
+	${{
+		if (arguments.length != 0) {
+			eden.error(new Error("midiOutputs: This function does not require any arguments."), "error");
+		}
+		return edenUI.plugins.MIDI.outputNames;
+	}}$;
+}
+
+##Creates a binding between a EDEN observable and the programs selected for the channels belonging
+##to a particular MIDI output device.
+proc bindMIDIPrograms {
+	${{
+		if (arguments.length < 1 || arguments.length > 2) {
+			eden.error(new Error("bindMIDIPrograms: This procedure requires at least 1 argument and at most 2 arguments."), "error");
+			return;
+		}
+
+		var symbol = arguments[0];
+		var outputNum = arguments[1];
+
+		try {
+			edenUI.plugins.MIDI.bindPrograms(symbol, outputNum);
+		} catch (e) {
+			eden.error(new Error("bindMIDIPrograms: " + e), "error");
+		}
+	}}$;
+}
+
+func midiDefaultPrograms {
+	${{
+		if (arguments.length != 0) {
+			eden.error(new Error("midiDefaultPrograms: This function does not require any arguments."), "error");
+		}
+		return edenUI.plugins.MIDI.defaultPrograms;
+	}}$;
+}
+
+##Converts notes expressed in the low-level sequencing notation into a list of pairs of MIDI
+##messages and timestamps.  The first argument specifies the MIDI channel that that notes will be
+##played on (1-16), the second argument specifies value of one beat (e.g. 1/4), the third the number
+##of beats per minute and the forth, the actual sequence of notes.
+func midiMessagesForTune {
+	${{
+		if (arguments.length != 4) {
+			eden.error(new Error("midiMessagesForTune: This function requires exactly 4 arguments."), "error");
+			return undefined;
+		}
+
+		var channel = arguments[0];
+		var beat = arguments[1];
+		var beatsPerMinute = arguments[2];
+		var score = arguments[3];
+
+		if (channel === undefined) {
+			return undefined;
+		} else if (!Number.isInteger(channel) || channel < 1 || channel > 16) {
+			eden.error(new Error("midiMessagesForTune: The first argument must be an integer between 1 and 16."), "error");
+			return undefined;
+		} else {
+			channel--;
+		}
+		if (beat === undefined) {
+			return undefined;
+		} else if (typeof(beat) != "number" || beat <= 0) {
+			eden.error(new Error("midiMessagesForTune: The second argument must be a positive number."), "error");
+			return undefined;
+		}
+		if (beatsPerMinute === undefined) {
+			return undefined;
+		} else if (typeof(beatsPerMinute) != "number" || beatsPerMinute <= 0) {
+			eden.error(new Error("midiMessagesForTune: The third argument must be a positive number."), "error");
+			return undefined;
+		}
+		if (score === undefined) {
+			return undefined;
+		} else if (!Array.isArray(score)) {
+			eden.error(new Error("midiMessagesForTune: The forth argument must be a list, not a " + typeof(score)), "error");
+			return undefined;
+		}
+
+		var timeUnit = 60000 / (beat * beatsPerMinute);
+
+		var relativeTime = 0;
+		var midiMessages = [];
+
+		for (var i = 0; i < score.length; i++) {
+			var eventInterval = score[i][0];
+			var notes = score[i][1];
+			var velocity = score[i][2];
+			var duration = score[i][3];
+			
+			relativeTime = relativeTime + eventInterval * timeUnit;
+			if (velocity === undefined) {
+				velocity = 127;
+			}
+
+			if (duration === 0) {
+				//Release notes instruction (with velocity information).  Translate to MIDI note off messages.
+				for (var j = 0; j < notes.length; j++) {
+					midiMessages.push(new Uint8Array([0x80 + channel - 1, notes[j] + 20, velocity]), relativeTime);
+				}
+			} else {
+				//Play notes instruction (or release notes instruction without velocity info).  Translate to MIDI note on messages.
+				for (var j = 0; j < notes.length; j++) {
+					midiMessages.push(new Uint8Array([0x90 + channel, notes[j] + 20, velocity]), relativeTime);
+				}
+				if (duration !== undefined) {
+					//Play notes instruction also contains a duration, hence we derive the corresponding MIDI note off messages.
+					
+					//Don't send a note off message if the note gets hit again immediately.
+					var simultaneousNotes = [];
+					var k = i + 1;
+					if (k < score.length) {
+						var lookAheadDuration = score[k][0];
+						while (lookAheadDuration <= duration) {
+							simultaneousNotes.unshift(score[k][1]);
+							k++;
+							if (k == score.length) {
+								break;
+							}
+							lookAheadDuration = lookAheadDuration + score[k][0];
+						}
+					}
+					for (var j = 0; j < notes.length; j++) {
+						var note = notes[j];
+						var retriggered = false;
+						for (var k = 0; k < simultaneousNotes.length; k++) {
+							if (note == simultaneousNotes[k]) {
+								retriggered = true;
+								break;
+							}
+						}
+						if (!retriggered) {
+							//Option 1: Assume the release velocity is the same as the activation velocity.
+							//midiMessages.push(new Uint8Array([0x80 + channel, note + 20, velocity]), relativeTime + duration * timeUnit);
+							
+							//Option 2: Release note without giving a release velocity.
+							midiMessages.push(new Uint8Array([0x90 + channel, note + 20, 0]), relativeTime + duration * timeUnit);
+						}
+					}
+				}
+			}
+		}
+		return midiMessages;
+	}}$;
+}
+
+##Merges two or more time-lines of MIDI messages into a single message time-line (where each input
+##time-line might have been calculated using the midiMessagesForTune function).
+func mergeMIDIMessages {
+	${{
+		var messageLists;
+		var numArgs = arguments.length;
+		if (numArgs != 1) {
+			messageLists = arguments;
+		} else {
+			messageLists = arguments[0];
+			if (messageLists === undefined) {
+				return [];
+			} else if (!Array.isArray(messageLists)) {
+				eden.error(new Error("mergeMIDIMessages: The first argument must be a list, not a " + typeof(messageLists)), "error");
+				return undefined;
+			}
+		}
+		try {
+			return edenUI.plugins.MIDI.mergeMessageLists(messageLists);
+		} catch (e) {
+			eden.error(new Error("mergeMIDIMessages: " + e), "error");
+			return undefined;
+		}
+	}}$;
+}
+
+##Sends a time-line of MIDI messages to a MIDI device for playback that begins almost immediately.
+##The first parameter is optional and specifies the number of the MIDI device to play back on, which
+##is useful the system has more than one MIDI device connected and capable of receiving output.
+##The second parameter specifies a number of milliseconds to delay before beginning playback.  If
+##the delay is given as 0 then playback will begin as soon as possible.  However, there is a small
+##computational overhead involved in converting the relative timestamps into absolute timings and a
+##chance that some timing distortions may occur if the delay is 0.
+proc playMIDI {
+	${{
+		if (!edenUI.plugins.MIDI.initialized) {
+			edenUI.plugins.MIDI.initialize(root.lookup("playMIDI"), arguments);
+			return;
+		}
+
+		var argNum = arguments.length - 1;
+		var device, delay, midiMessageStream;
+
+		if (argNum < 0 || argNum > 2) {
+			eden.error(new Error("playMIDI: This procedure requires at least 1 argument and at most 3 arguments."), "error");
+			return;
+		}
+		midiMessageStream = arguments[argNum];
+		argNum--;
+		if (argNum >= 0) {
+			delay = arguments[argNum];
+			argNum--;
+		}
+		if (argNum == 0) {
+			device = arguments[0];
+		}
+
+		try {
+			edenUI.plugins.MIDI.playMIDI(device, delay, midiMessageStream);
+		} catch (e) {
+			eden.error(new Error("playMIDI: " + e), "error");
+		}
+	}}$;
+}
+
+proc scheduleMIDI {
+
+}
+
+proc appendMIDI {
+
+}
+
+proc bindMIDINote {
+	${{
+		if (!edenUI.plugins.MIDI.initialized) {
+			edenUI.plugins.MIDI.initialize(root.lookup("bindMIDINote"), arguments);
+			return;
+		}
+
+		var numArgs = arguments.length;
+		if (numArgs < 1 || numArgs > 5) {
+			eden.error(new Error("bindMIDINote: The procedure requires at least 1 argument and most 5 arguments."), "error");
+			return;
+		}
+		
+		var name, noteSym, velocitySym, device, channel;
+		var argsProcessed = 0;
+		var arg = arguments[0];
+
+		if (typeof(arg) == "string") {
+			name = arg;
+			argsProcessed++;
+			arg = arguments[argsProcessed];
+		}
+
+		if (arg instanceof Symbol) {
+			noteSym = arg;
+			argsProcessed++;
+			arg = arguments[argsProcessed];
+		} else if (name !== undefined) {
+			noteSym = root.lookup(name + "_note");
+		} else {
+			eden.error(new Error("bindMIDINote: Either a name or a pointer to a observable denoting the note must be specified."), "error");
+			return;
+		}
+
+		if (arg instanceof Symbol) {
+			velocitySym = arg;
+			argsProcessed++;
+			arg = arguments[argsProcessed];
+		} else if (name !== undefined) {
+			velocitySym = root.lookup(name + "_velocity");
+		} else {
+			eden.error(new Error("bindMIDINote: Either a name or a pointer to a observable denoting the velocity must be specified."), "error");
+			return;
+		}
+
+		if (Number.isInteger(arguments[argsProcessed + 1])) {
+			device = arg;
+			argsProcessed++;
+			arg = arguments[argsProcessed];
+		}
+
+		if (Number.isInteger(arg)) {
+			if (arg < 1 || arg > 16) {
+				eden.error(new Error("bindMIDINote: The channel number must be an integer between 1 and 16."), "error");
+				return;
+			}
+			channel = arg - 1;
+			argsProcessed++;
+		} else {
+			channel = 0;
+		}
+		
+		if (argsProcessed < numArgs) {
+			eden.error(new Error("Invalid arguments."), "error");
+			return;
+		}
+
+		if (name === undefined) {
+			name = noteSym.name.slice(1);
+		}
+
+		noteSym.addJSObserver("bind", function (symbol, note) {
+			edenUI.plugins.MIDI.alterNote(name, device, channel, note, velocitySym.value());
+		});
+		velocitySym.addJSObserver("bind", function (symbol, velocity) {
+			edenUI.plugins.MIDI.alterVelocity(name, device, channel, noteSym.value(), velocity);
+		});
+	}}$;
+}

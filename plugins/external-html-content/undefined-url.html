@@ -1,0 +1,38 @@
+<!doctype>
+<html>
+<head>
+	<style type="text/css">
+		body {
+			font-family: sans-serif;
+			line-height: 1.6;
+			margin-top: 46px;
+			text-align: justify;
+		}
+	</style>
+</head>
+<body>
+	<h2>Undefined Content</h2>
+	<p>Give <code>_view_<span id="viewName1"></span>_url</code> a value to display a HTML document here.</p>
+	
+	<p>If <code>_view_<span id="viewName2"></span>_url</code> already has a value then this page
+	was reached by navigating back through this window's history.  In this case, click on the
+	refresh button in the toolbar to synchronize the contents of this window with the URL specified.
+	Alternatively, continue using the back or forward buttons to navigate to a more useful place in
+	the history.
+
+	<p>If the toolbar is not visible then execute the following code to make it visible.</p>
+	<blockquote style="font-family: monospace">
+		_view_<span id="viewName3"></span>_toolbar_visible = true;
+	</blockquote>
+
+	<script type="text/javascript" src="/js/util/url.js"></script>
+	<script type="text/javascript">
+		// <!--
+		var viewName = URLUtil.getParameterByName("view");
+		document.getElementById("viewName1").innerHTML = viewName;
+		document.getElementById("viewName2").innerHTML = viewName;
+		document.getElementById("viewName3").innerHTML = viewName;
+		// -->
+	</script>
+</body>
+</html>

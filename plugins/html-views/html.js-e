@@ -24,7 +24,7 @@ proc html {
 			if (typeof(viewName) != "string") {
 				eden.error(new Error("html: The name of the view to update must be a string, not a " + typeof(viewName)), "error");
 				return;
-			} else if (!/^[_a-zA-Z]\w*$/.test(viewName)) {
+			} else if (!eden.isValidIdentifier(viewName)) {
 				eden.error(new Error("html: The name of the view to update must be a valid EDEN identifier."), "error");
 				return;
 			}
@@ -34,13 +34,14 @@ proc html {
 			return;
 		}
 
-		if (content === undefined) {
-			content = "<div style=\"color: red\">undefined</div>";
+		root.lookup("_view_" + viewName + "_content").assign(content, root.lookup("html"));
+
+		if (!(viewName in edenUI.viewInstances)) {
+			edenUI.createView(viewName, "HTMLContent");
 		}
-		
-		edenUI.plugins.HTMLContent.html(viewName, content);
+
 	}}$;
-};
+}
 
 ##Creates a HTML view and a triggered procedure so that contents of the view
 ##are kept in sync with the value of a given observable at all times.  The first
@@ -83,25 +84,12 @@ proc createHTMLView {
 	}
 
 	createView(viewName, "HTMLContent");
-	createJSObserver = ${{ function (initialObsName, viewName) {
-
-		var obsSelectSym = root.lookup("_view_" + viewName + "_observable");
-
-		function bind(obsSym, obsName) {
-			var updateView = function (symbol, value) {
-				if (obsSelectSym.value() == obsName) {
-					root.lookup("html").definition(root)(viewName, value);
-				}
-			};
-			obsSym.addJSObserver("repaintView", updateView);
-			updateView(obsSym, obsSym.value());
-		}
-
-		obsSelectSym.addJSObserver("refreshView", function (sym, obsName) {
-			bind(root.lookup(obsName), obsName);
+	createJSObserver = ${{ function (viewName) {
+		root.lookup("_view_" + viewName + "_content").addJSObserver("repaintView", function (sym, value) {
+			root.lookup("html").definition(root)(viewName, value);		
 		});
 	} }}$;
-	createJSObserver(obsName, viewName);
-	`"_view_" // viewName // "_observable"` = obsName;
+	createJSObserver(viewName);
+	execute("_view_" // viewName // "_content is " // obsName // ";");
 	`"_view_" // viewName // "_title"` = viewTitle;
 }
