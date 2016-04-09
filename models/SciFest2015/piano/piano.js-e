@@ -728,7 +728,7 @@ if (keyHighlightChoices != @) {
 		append keyHighlightChoices, highlightKeyListChoice;
 		tempIndex = keyHighlightChoices#;
 	}
-	keyHighlightProcedures[tempIndex] == &highlightHighlightedKeys;
+	keyHighlightProcedures[tempIndex] = &highlightHighlightedKeys;
 
 	tempIndex = indexOf(highlightNotesInKeyChoice, keyHighlightChoices);
 	if (tempIndex == 0) {

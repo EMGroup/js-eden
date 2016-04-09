@@ -460,6 +460,7 @@ Eden.symbolCategories["Sound and Video"] = {
 		"unbind": true,
 	},
 	obs: {
+		"background_audio": true,
 		"background_audio_url": true,
 		"background_audio_paused": true,
 		"background_audio_chapter": true,
