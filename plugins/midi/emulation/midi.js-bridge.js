@@ -36,12 +36,32 @@ EdenUI.plugins.MIDIDotJS = function (edenUI, success) {
 					time = (time - window.performance.now());
 				}
 
-				if (command == 0x80) {
+				switch (command) {
+				case 0x80: //Note Off
+
 					//N.B. midi.js doesn't support release velocity.
 					midijs.noteOff(channel, data1, time / 1000);
-				} else if (command == 0x90) {
+					break;
+
+				case 0x90: //Note On
+
 					midijs.noteOn(channel, data1, data2, time / 1000);
-				} else if (command == 0xC0) {
+					break;
+
+				case 0xB0: // Control Change
+
+					switch (data1) {
+					case 7: // volume
+						var gain = (data2 / 127) * (data2 / 127) * 64;
+						MIDI.setVolume(channel, gain, time / 1000);
+						break;
+					default:
+						console.log("Unable to change MIDI control number " + data1 + " using MIDI.js");
+					}
+					break;
+
+				case 0xC0: //Program Change
+
 					if (!instrumentsLoaded[data1]) {
 						instrumentsLoaded[data1] = true;
 						midijs.loadPlugin({
@@ -56,8 +76,10 @@ EdenUI.plugins.MIDIDotJS = function (edenUI, success) {
 							midijs.programChange(channel, data1);
 						}, time);
 					}
-				} else {
-					console.error("Unable to map MIDI command " + fullCommand.toString(16) + " to midi.js");
+					break;
+
+				default: // Any command that can't or hasn't yet been mapped to MIDI.js
+					console.log("Unable to map MIDI command " + fullCommand.toString(16) + " to midi.js");
 				}
 			};
 
@@ -67,8 +89,13 @@ EdenUI.plugins.MIDIDotJS = function (edenUI, success) {
 
 			edenUI.plugins.MIDI.addSoftSynth(midijsOutput);
 			
-			var jsFiles = ["inc/shim/Base64binary.js", "build/MIDI.min.js"];
-	
+			var jsFiles = ["inc/shim/Base64binary.js"];
+			if (edenUI.getOptionValue("developer") == "true") {
+				jsFiles.push("build/MIDI.js");
+			} else {
+				jsFiles.push("build/MIDI.min.js");
+			}
+
 			function loadJS(i) {
 				if (i == jsFiles.length) {
 					midijs = window.MIDI;

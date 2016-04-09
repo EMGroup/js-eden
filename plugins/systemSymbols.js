@@ -27,6 +27,7 @@ Eden.systemObservableNames = {
 	"_menubar_status": true,
 	"PI": true,
 	"autocalc": true,
+	"background_audio": true,
 	"debug": true,
 	"edenclocks": true,
 	"edenclocks_paused": true,
@@ -105,6 +106,11 @@ Eden.systemAgentNames = {
 	"unbind": true,
 	"withAppendedItem": true,
 	"writeln": true,
+	"bindMIDIControl": true,
+	"bindMIDINote": true,
+	"bindMIDIPrograms": true,
+	"initializeMIDI": true,
+	"playMIDI": true,
 };
 
 Eden.systemFunctionNames = {
@@ -278,6 +284,10 @@ Eden.systemFunctionNames = {
 	"observablesAt" : true,
 	"shapesAt" : true,
 	"zonesAt" : true,
+	"mergeMIDIMessages": true,
+	"midiDefaultPrograms": true,
+	"midiMessagesForTune": true,
+	"midiOutputs": true,
 };
 
 Eden.symbolCategories = {};
@@ -439,6 +449,35 @@ Eden.symbolCategories["Math"] = {
 		"tan": true,
 	},
 };
+
+Eden.symbolCategories["Sound and Video"] = {
+	agent: {
+		"bindMIDIControl": true,
+		"bindMIDINote": true,
+		"bindMIDIPrograms": true,
+		"initializeMIDI": true,
+		"playMIDI": true,
+		"unbind": true,
+	},
+	obs: {
+		"background_audio_url": true,
+		"background_audio_paused": true,
+		"background_audio_chapter": true,
+		"background_audio_chapters": true,
+		"background_audio_looping": true,
+		"background_audio_speed": true,
+		"background_audio_time": true,
+		"background_audio_volume": true,
+	},
+	func: {
+		"Audio": true,
+		"Video": true,
+		"mergeMIDIMessages": true,
+		"midiDefaultPrograms": true,
+		"midiMessagesForTune": true,
+		"midiOutputs": true,
+	}
+}
 
 Eden.isitSystemSymbol = function(name){
 	return Eden.isitSystemObservable(name) || Eden.isitSystemAgent(name) || Eden.isitSystemFunction(name);

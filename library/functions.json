@@ -1506,6 +1506,34 @@
 			},
 			"return": "",
 			"description": ""
+		},
+		"mergeMIDIMessages": {
+			"parameters": {
+				"list_of_message_lists_or_list1...": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"midiDefaultPrograms": {
+			"parameters": { },
+			"return": "",
+			"description": ""
+		},
+		"midiMessagesForTune": {
+			"parameters": {
+				"[channel_number]": "",
+				"beat_note_value": "",
+				"beats_per_minute": "",
+				"notes": ""
+				
+			},
+			"return": "",
+			"description": ""
+		},
+		"midiOutputs": {
+			"parameters": { },
+			"return": "",
+			"description": ""
 		}
 	},
 	"procedures": {
@@ -1710,6 +1738,40 @@
 		"writeln": {
 			"parameters": {
 				"message": ""
+			}
+		},
+		"bindMIDIControl": {
+			"parameters": {
+				"pointer_to_value": "",
+				"[[device_number]": "",
+				"channel_number]": "",
+				"control_number_or_name": ""
+			}
+		},
+		"bindMIDINote": {
+			"parameters": {
+				"[binding_name]": "",
+				"[pointer_to_note": "",
+				"pointer_to_velocity": "",
+				"[pointer_to_is_struck]]": "",
+				"[[device_number]": "",
+				"channel_number]": ""
+			}
+		},
+		"bindMIDIPrograms": {
+			"parameters": {
+				"pointer_to_instrument_number_list": "",
+				"[device_number]": ""
+			}
+		},
+		"initializeMIDI": {
+			"parameters": { }
+		},
+		"playMIDI": {
+			"parameters": {
+				"[[device_number]": "",
+				"delay_in_milliseconds]": "",
+				"midi_message_list": ""
 			}
 		}
 	}

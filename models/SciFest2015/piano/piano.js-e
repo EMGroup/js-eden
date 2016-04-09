@@ -528,8 +528,7 @@ proc playNoteWhenClicked : mousePressed {
 }
 
 fingerLabelFontSizeInPx is naturalKeyWidth / 2;
-fingerLabelPadding = 0;
-##fingerLabelPadding is min(2, max(-1, (naturalKeyWidth - fingerLabelFontSizeInPx - 1) / 2));
+fingerLabelPadding = 1;
 fingerLabelNaturalTextColour = "red";
 fingerLabelNaturalBGColour = "white";
 fingerLabelSharpTextColour = "white";

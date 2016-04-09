@@ -1,3 +1,14 @@
+## Copyright (c) 2015, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+##
+## Procedures and functions for accessing MIDI devices.
+##
+
+##This prelude describes the format for composing tunes using lists.  This is not the only way of
+##using the MIDI features.  Real-time interaction is also possible.
+##
 ##After number of beats b play chord c with velocity v for number of beats d
 ##	[b, c, v, d]
 ##
@@ -28,7 +39,7 @@
 ##Initializes the MIDI system.  This step is optional.  The system will self-initialize if the
 ##system has not been initialized and another procedure is called.  Initializing the system
 ##explicitly avoids unplanned long pauses later on however, while the user waits for the system to
-##initialize before it can play a tune.
+##initialize before it can play a tune.  This procedure does not take any arguments.
 proc initializeMIDI {
 	${{
 		if (!edenUI.plugins.MIDI.initialized) {
@@ -43,17 +54,25 @@ proc initializeMIDI {
 
 ##Retrieves a list of the names of the available MIDI devices than can receive output.
 ##The MIDI system must have been previously initialized by calling one of the MIDI procs first.
+##This function does not take any arguments.
 func midiOutputs {
 	${{
 		if (arguments.length != 0) {
 			eden.error(new Error("midiOutputs: This function does not require any arguments."), "error");
+		}
+		if (!edenUI.plugins.MIDI.initialized) {
+			eden.error(new Error("midiOutputs: The MIDI system has not been initialized.  Use initializeMIDI() to initialize the system."), "error");
 		}
 		return edenUI.plugins.MIDI.outputNames;
 	}}$;
 }
 
 ##Creates a binding between a EDEN observable and the programs selected for the channels belonging
-##to a particular MIDI output device.
+##to a particular MIDI output device.  The first argument is a pointer to an observable that holds
+##a list of MIDI program numbers (up to 16 values, one for each MIDI channel).  The second (optional)
+##parameter is the device number (an index into the list of device names returned by the midiOutputs()
+##function).  If the device number is not specified then the JS-EDEN configured default MIDI output
+##device is assumed.
 proc bindMIDIPrograms {
 	${{
 		if (arguments.length < 1 || arguments.length > 2) {
@@ -72,6 +91,7 @@ proc bindMIDIPrograms {
 	}}$;
 }
 
+##Returns a list of JS-EDEN's choice of default program (instrument) numbers for each MIDI channel.
 func midiDefaultPrograms {
 	${{
 		if (arguments.length != 0) {
@@ -87,15 +107,25 @@ func midiDefaultPrograms {
 ##of beats per minute and the forth, the actual sequence of notes.
 func midiMessagesForTune {
 	${{
-		if (arguments.length != 4) {
-			eden.error(new Error("midiMessagesForTune: This function requires exactly 4 arguments."), "error");
+		var numArgs = arguments.length;
+		if (numArgs < 3 || numArgs > 4) {
+			eden.error(new Error("midiMessagesForTune: This function requires at least 3 arguments and at most 4 arguments."), "error");
 			return undefined;
 		}
 
-		var channel = arguments[0];
-		var beat = arguments[1];
-		var beatsPerMinute = arguments[2];
-		var score = arguments[3];
+		var channel, beat, beatsPerMinute, score;
+
+		if (typeof(arguments[2]) == "number") {
+			channel = arguments[0];
+			beat = arguments[1];
+			beatsPerMinute = arguments[2];
+			score = arguments[3];
+		} else {
+			channel = 1;
+			beat = arguments[0];
+			beatsPerMinute = arguments[1];
+			score = arguments[2];
+		}
 
 		if (channel === undefined) {
 			return undefined;
@@ -220,10 +250,11 @@ func mergeMIDIMessages {
 ##Sends a time-line of MIDI messages to a MIDI device for playback that begins almost immediately.
 ##The first parameter is optional and specifies the number of the MIDI device to play back on, which
 ##is useful the system has more than one MIDI device connected and capable of receiving output.
-##The second parameter specifies a number of milliseconds to delay before beginning playback.  If
-##the delay is given as 0 then playback will begin as soon as possible.  However, there is a small
-##computational overhead involved in converting the relative timestamps into absolute timings and a
-##chance that some timing distortions may occur if the delay is 0.
+##The second parameter specifies a number of milliseconds to delay before beginning playback.  The
+##third parameter is the time-line of MIDI messages to play.  If the delay is given as 0 then
+##playback will begin as soon as possible.  However, there is a small computational overhead
+##involved in converting the relative timestamps into absolute timings and a chance that some timing
+##distortions may occur if the delay is 0.
 proc playMIDI {
 	${{
 		if (!edenUI.plugins.MIDI.initialized) {
@@ -256,6 +287,7 @@ proc playMIDI {
 	}}$;
 }
 
+/*
 proc scheduleMIDI {
 
 }
@@ -263,21 +295,33 @@ proc scheduleMIDI {
 proc appendMIDI {
 
 }
+*/
 
+##Links JS-EDEN observables to playing a note.  Configuring a single binding is comparable to
+##declaring something like the existence of a single finger that can slide up and down a keyboard and
+##strike notes with different intensities.  The first argument specifies a common prefix to use to
+##generate the observable names (alternatively, 2 or 3 pointers can be provided instead).  xxx_note
+##sets the note to strike.  xxx_velocity sets the force at which to strike it (or apply aftertouch,
+##or release velocity if the value is negative).  xxx_strike determines if the note is struck.  If
+##xxx_strike is false then xxx_note and xxx_velocity can be manipulated without constantly striking
+##new notes, which is useful when creating dependencies.  Optionally, the device number and channel
+##number can be explicitly specified (defaults to channel 1).
 proc bindMIDINote {
 	${{
+		var agent = root.lookup("bindMIDINote");
+
 		if (!edenUI.plugins.MIDI.initialized) {
-			edenUI.plugins.MIDI.initialize(root.lookup("bindMIDINote"), arguments);
+			edenUI.plugins.MIDI.initialize(agent, arguments);
 			return;
 		}
 
 		var numArgs = arguments.length;
-		if (numArgs < 1 || numArgs > 5) {
-			eden.error(new Error("bindMIDINote: The procedure requires at least 1 argument and most 5 arguments."), "error");
+		if (numArgs < 1 || numArgs > 6) {
+			eden.error(new Error("bindMIDINote: The procedure requires at least 1 argument and most 6 arguments."), "error");
 			return;
 		}
 		
-		var name, noteSym, velocitySym, device, channel;
+		var name, noteSym, velocitySym, strikeSym, device, channel;
 		var argsProcessed = 0;
 		var arg = arguments[0];
 
@@ -309,6 +353,14 @@ proc bindMIDINote {
 			return;
 		}
 
+		if (arg instanceof Symbol) {
+			strikeSym = arg;
+			argsProcessed++;
+			arg = arguments[argsProcessed];
+		} else if (name !== undefined) {
+			strikeSym = root.lookup(name + "_strike");
+		}
+
 		if (Number.isInteger(arguments[argsProcessed + 1])) {
 			device = arg;
 			argsProcessed++;
@@ -335,11 +387,77 @@ proc bindMIDINote {
 			name = noteSym.name.slice(1);
 		}
 
-		noteSym.addJSObserver("bind", function (symbol, note) {
-			edenUI.plugins.MIDI.alterNote(name, device, channel, note, velocitySym.value());
-		});
+		if (velocitySym.value() === undefined && velocitySym.definition === undefined) {
+			velocitySym.assign(127, agent);
+		}
+
+		if (strikeSym === undefined) {
+			noteSym.addJSObserver("bind", function (symbol, note) {
+				edenUI.plugins.MIDI.alterNote(name, device, channel, note, velocitySym.value(), true);
+			});
+		} else {
+			if (strikeSym.value() === undefined && strikeSym.definition === undefined) {
+				strikeSym.assign(true, agent);
+			}
+			noteSym.addJSObserver("bind", function (symbol, note) {
+				edenUI.plugins.MIDI.alterNote(name, device, channel, note, velocitySym.value(), strikeSym.value());
+			});
+			strikeSym.addJSObserver("bind", function (symbol, isStruck) {
+				edenUI.plugins.MIDI.alterNote(name, device, channel, noteSym.value(), velocitySym.value(), isStruck);
+			});
+		}
+
 		velocitySym.addJSObserver("bind", function (symbol, velocity) {
 			edenUI.plugins.MIDI.alterVelocity(name, device, channel, noteSym.value(), velocity);
 		});
+	}}$;
+}
+
+##Links a JS-EDEN observable to a MIDI control parameter (e.g. volume, reverb).
+##The first parameter is a a pointer to the observable.
+##The second parameter is the MIDI device number (optional).
+##The third parameter is the channel number (optional, default is channel 0).
+##The forth parameter is the control (as an integer or descriptive string).
+proc bindMIDIControl {
+	${{
+		if (!edenUI.plugins.MIDI.initialized) {
+			edenUI.plugins.MIDI.initialize(root.lookup("bindMIDIControl"), arguments);
+			return;
+		}
+
+		var argsLeft = arguments.length;
+		if (argsLeft < 2 || argsLeft > 4) {
+			eden.error(new Error("bindMIDIControl: This procedure requires at least 2 arguments and at most 4 arguments."), "error");
+			return;
+		}
+
+		var symbol = arguments[0];
+		argsLeft--;
+		var control = arguments[argsLeft];
+		argsLeft--;
+		var device, channel;
+
+		if (argsLeft > 0) {
+			channel = arguments[argsLeft];
+			argsLeft--;
+			if (!Number.isInteger(channel) || channel < 1 || channel > 16) {
+				eden.error(new Error("bindMIDIControl: The channel number must be an integer between 1 and 16."), "error");
+				return;
+			}
+			channel--;
+		} else {
+			channel = 0;
+		}
+
+		if (argsLeft > 0) {
+			device = arguments[argsLeft];
+			argsLeft--;
+		}
+		
+		try {
+			edenUI.plugins.MIDI.bindControlChange(symbol, device, channel, control);
+		} catch (e) {
+			eden.error(new Error("bindMIDIControl: " + e), "error");
+		}
 	}}$;
 }
