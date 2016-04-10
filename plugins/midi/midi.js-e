@@ -416,7 +416,7 @@ proc bindMIDINote {
 ##Links a JS-EDEN observable to a MIDI control parameter (e.g. volume, reverb).
 ##The first parameter is a a pointer to the observable.
 ##The second parameter is the MIDI device number (optional).
-##The third parameter is the channel number (optional, default is channel 0).
+##The third parameter is the channel number (optional, default is channel 1).
 ##The forth parameter is the control (as an integer or descriptive string).
 proc bindMIDIControl {
 	${{
