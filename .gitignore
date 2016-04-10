@@ -3,3 +3,4 @@ node_modules/
 .vagrant
 version.json
 plugins/midi/emulation/soundfonts/
+plugins/midi/emulation/lib/MIDI.js/examples/

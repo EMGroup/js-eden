@@ -160,7 +160,7 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 				eden.error(new Error("Illegal MIDI programs list: " + Eden.edenCodeForValue(programs)));
 				return;
 			}
-			if (initialzed) {
+			if (initialized) {
 				programChange(outputNum, programs);
 			}
 		};
