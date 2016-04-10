@@ -209,6 +209,8 @@ lvalue
         { $$ = $1 + '.get(' + $3 + ' - 1)' }
     | lvalue '.' OBSERVABLE
         { $$ = $1 + '.get("' + $3 + '")' }
+	| lvalue '[' string-literal ']'
+		{ $$ = $1 + '.get(' + $3 + ')' }
     | '(' lvalue ')'
         { $$ = $2; }
     | '`' expression '`'
@@ -509,6 +511,8 @@ primary-expression
 		{ $$ = $1 + '.value(new Scope(context, scope, [' + $3 + '], ' + $1 + '))'; }
 	| lvalue '{' scoperange-list-opt '}'
 		{ $$ = $1 + '.multiValue(context, scope, [' + $3 + '], ' + $1 + ')'; }
+	| lvalue '[' string-literal ']' '(' expression-list-opt ')'
+		{ $$ = lvalue + '.value()[' + $3 + '](' + $6 + ')'; }
     | primary-expression '(' expression-list-opt ')'
         { $$ = '' + $1 + '.call('+ ['this'].concat($3) + ')'; }
     | primary-expression '[' expression ']'

@@ -931,6 +931,11 @@
 	 * @param {boolean} pushToNetwork
 	 */
 	Symbol.prototype.assign = function (value, scope, modifying_agent, pushToNetwork) {
+		if (!(scope instanceof Scope)) {
+			pushToNetwork = modifying_agent;
+			modifying_agent = scope;
+			scope = root.scope;
+		}
 		this.garbage = false;
 		value = copy(value);
 		if (pushToNetwork) {

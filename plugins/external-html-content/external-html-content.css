@@ -7,11 +7,16 @@
 }
 
 .external-html-content iframe {
+	box-sizing: border-box;
 	width: 100%;
 	height: 100%;
 	padding: 0px;
 	border: none;
 	margin: 0px;
+}
+
+iframe.external-html-content-pinned {
+	padding-top: 37px;
 }
 
 .external-html-content-toolbar {
@@ -29,11 +34,8 @@
 }
 
 .external-html-content-toolbar input {
-	padding-right: 6px;
-}
-
-.external-html-content-toolbar input:last-child {
-	padding-right: 4px;
+	padding-left: 3px;
+	padding-right: 3px;
 }
 
 .external-html-content-toolbar:hover {

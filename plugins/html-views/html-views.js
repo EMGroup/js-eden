@@ -14,21 +14,24 @@
 EdenUI.plugins.HTMLContent = function(edenUI, success) {
 	var me = this;
 
-	/**Don't delete this method.  It looks like obsolete code from the old way that views were
-	 * implemented but it is not obsolete.  It is required for the EDEN html() procedure to work!
-	 */
-	this.html = function(name,content) {
-		if (!(name in edenUI.viewInstances)) {
-			edenUI.createView(name,"HTMLContent");
-		}
-		$("#"+name+"-dialog-content").html(content);
-	}
+	this.createDialog = function(name, mtitle) {
+		//Remove -dialog name suffix.
+		var viewName = name.slice(0, -7);
 
-	this.createDialog = function(name,mtitle) {
-	
-		var code_entry = $('<div id=\"'+name+'-content\" class=\"htmlviews-content\"></div>');
+		var code_entry = $('<div id=\"' + name + '-content\" class=\"htmlviews-content\"></div>');
 
-		$('<div id="'+name+'"></div>')
+		var contentSym = root.lookup("_view_" + viewName + "_content");
+		var updateView = function (sym, value) {
+			if (value === undefined) {
+				code_entry.html('<div class="htmlviews-undefined">Give _view_' + viewName +'_content a value to display HTML formatted text here.</div>');
+			} else {
+				code_entry.html(value);
+			}
+		};
+		updateView(contentSym, contentSym.value());
+		contentSym.addJSObserver("repaintView", updateView);
+
+		$('<div id="' + name +'"></div>')
 			.html(code_entry)
 			.dialog({
 				title: mtitle,

@@ -1,8 +1,19 @@
 .htmlviews-content {
+	box-sizing: border-box;
+	height: calc(100% - 2em);
 	font-size: 10.5pt;
 	line-height: 1.75;
+	padding: 0px;
 }
 
 .htmlviews-content p {
 	text-align: justify;
+}
+
+.htmlviews-undefined {
+	font: 12pt sans-serif;
+	position: relative;
+	text-align: center;
+	top: 50%;
+	transform: translateY(-50%);
 }

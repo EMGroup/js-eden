@@ -64,8 +64,8 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 		}
 
 		me.loaded = true;
-		for (var pictureObs in me.canvasesToRepaint) {
-			edenUI.plugins.Canvas2D.drawPictures(pictureObs);
+		for (var viewName in me.canvasesToRepaint) {
+			edenUI.plugins.Canvas2D.drawPicture(viewName);
 		}
 	}
 	this.image.src = file;
@@ -125,7 +125,7 @@ func Image {
 }
 
 ${{
-CanvasImage.prototype.draw = function(context, scale, pictureObs) {
+CanvasImage.prototype.draw = function(context, scale, viewName) {
 	if (this.loaded) {
 		var smoothed = this.smoothed;
 		context.mozImageSmoothingEnabled = smoothed;
@@ -133,7 +133,7 @@ CanvasImage.prototype.draw = function(context, scale, pictureObs) {
 		context.imageSmoothingEnabled = smoothed;
 		context.drawImage(this.image, this.sx, this.sy, this.sWidth, this.sHeight, this.dx, this.dy, this.dWidth, this.dHeight);
 	} else {
-		this.canvasesToRepaint[pictureObs] = true;
+		this.canvasesToRepaint[viewName] = true;
 	}
 };
 
