@@ -98,7 +98,7 @@ func forget {
 ##Forgets all symbols whose names match a given regular expression or that are explicitly provided
 ##as a list.  The optional second argument determines if the search is case sensitive.  The optional
 ##third argument determines if the user will be prompted to confirm the deletions and the optional
-##forth "secret" parameter determines if system-defined symbols matching the search criteria will
+##forth parameter determines if system-defined symbols matching the search criteria will
 ##also be deleted.
 ##
 ##Returns a list.
@@ -116,17 +116,13 @@ func forget {
 ##
 func forgetAll {
 	${{
-		/* The forth parameter determines whether or not system defined symbols will also be
-		 * deleted.  This feature is for the system's own internal use and is not advertised to end
-		 * users.
-		 */
 		var searchStr, caseSensitive, requireConfirm, includeSystemSymbols;
 		var regExp, symbol;
 		var obsToDelete = undefined;
 		var includeAgent = {name: "/include"};
 		
 		if (arguments.length > 4) {
-			eden.error(new Error("forgetAll: This function requires at most 3 arguments."), "error");
+			eden.error(new Error("forgetAll: This function requires at most 4 arguments."), "error");
 			return [[], undefined, []];
 		}
 
@@ -171,8 +167,8 @@ func forgetAll {
 		}
 		
 		if (arguments.length > 3) {
-			if (arguments.length > 4 || typeof(arguments[3]) != "boolean") {
-				eden.error(new Error("forgetAll: This function requires at least 1 argument and at most 3 arguments."), "error");
+			if (typeof(arguments[3]) != "boolean") {
+				eden.error(new Error("forgetAll: The forth argument must be a boolean, not a " + typeof(arguments[3])), "error");
 				return [[], undefined, []];
 			}
 			includeSystemSymbols = arguments[3];
@@ -305,7 +301,7 @@ func forgetAll {
 		var confirmed;
 		var resetList = Object.keys(reset);
 		var deletePlusReset = namesToDelete.concat(resetList);
-		if (deletePlusReset.length >0 && requireConfirm) {
+		if (deletePlusReset.length > 0 && requireConfirm) {
 			if (deletePlusReset.length <= 50) {
 				confirmed = confirm("You are about to delete the following " + deletePlusReset.length +
 					" symbols.  Is this correct?\n\n" + deletePlusReset.join("\n"));
@@ -333,15 +329,17 @@ func forgetAll {
 				symbol = root.symbols[name];
 				if (symbol !== undefined) {
 					if ("refreshView" in symbol.jsObservers) {
-						/* Clear the view's contents before deleting the associated symbol, so at least
-						 * it's clear that the view is no longer valid and isn't merely "hung". */
+						/* Set the symbol to undefined before deleting it, so at least it is clear
+						 * that the view is no longer valid and isn't merely "hung".
+						 */
 						symbol.assign(undefined, root.scope);
-						// Close the window if it's a canvas picture observable.
-						if ("Canvas2D" in edenUI.plugins) {
-							edenUI.plugins.Canvas2D.destroyViews(name);
-						}
 					}
 					symbol.forget();
+					// Close the window if this observable defines the content for a view (e.g. canvas).
+					var match = name.match(/^_view_(.*)_content$/);
+					if (match !== null) {
+						edenUI.destroyView(match[1], true);
+					}
 				}
 			}
 			if (wasInInitialState) {

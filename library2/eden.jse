@@ -336,15 +336,17 @@ func forgetAll {
 				symbol = root.symbols[name];
 				if (symbol !== undefined) {
 					if ("refreshView" in symbol.jsObservers) {
-						/* Clear the view's contents before deleting the associated symbol, so at least
-						 * it's clear that the view is no longer valid and isn't merely "hung". */
+						/* Set the symbol to undefined before deleting it, so at least it is clear
+						 * that the view is no longer valid and isn't merely "hung".
+						 */
 						symbol.assign(undefined, root.scope);
-						// Close the window if it's a canvas picture observable.
-						if ("Canvas2D" in edenUI.plugins) {
-							edenUI.plugins.Canvas2D.destroyViews(name);
-						}
 					}
 					symbol.forget();
+					// Close the window if this observable defines the content for a view (e.g. canvas).
+					var match = name.match(/^_view_(.*)_content$/);
+					if (match !== null) {
+						edenUI.destroyView(match[1], true);
+					}
 				}
 			}
 			if (wasInInitialState) {

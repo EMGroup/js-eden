@@ -21,8 +21,8 @@ mouseWheel = 0;
 mouseWheelEnabled = false;
 mouseWheelSpeed = 0;
 mouseView = @;
-mouseX is mousePosition == @? @ : mousePosition.x;
-mouseY is mousePosition == @? @ : mousePosition.y;
+mouseX is mousePosition == @? @ : mousePosition["x"];
+mouseY is mousePosition == @? @ : mousePosition["y"];
 mouseZone = @;
 pixel is 1 / _view_picture_scale;
 touchPanX = 0;
@@ -77,6 +77,7 @@ proc attemptMouseCapture {
 ##second, optional parameter, is the text to place into the window's title bar.
 proc createCanvas {
 	auto obsName, viewTitle, viewName;
+	auto titleSymName, contentSymName, addJSObserver;
 	if ($# == 1) {
 		obsName = $[1];
 	} else if ($# == 2) {
@@ -114,9 +115,22 @@ proc createCanvas {
 	}
 
 	createView(viewName, "Canvas2D");
-	`"_view_" // viewName // "_observable"` = obsName;
+	execute("_view_" // viewName // "_content is " // obsName // ";");
 	if (viewTitle == @) {
-		execute("_view_" // viewName // "_title is \"Canvas \" // _view_" // viewName // "_observable;");
+		titleSymName = "_view_" // viewName // "_title";
+		contentSymName = "_view_" // viewName // "_content";
+		execute(
+			titleSymName // " is \"Canvas \" // ${{ root.lookup(\"" // contentSymName // "\").eden_definition.match(/^" //
+			contentSymName // " is (.*)$/)[1] }}$;"
+		);
+		addJSObserver = ${{
+			function (contentSymName, titleSymName) {
+				root.lookup(contentSymName).addJSObserver("updateTitle", function () {
+					root.expireSymbol(root.lookup(titleSymName));
+				});
+			}
+		}}$;
+		addJSObserver(contentSymName, titleSymName);
 	} else {
 		`"_view_" // viewName // "_title"` = viewTitle;
 	}
@@ -171,17 +185,28 @@ func shapeOnTopAt {
 
 		if (target === undefined || x === undefined || y === undefined) {
 			return undefined;
-		} else if (!(target instanceof Symbol) && typeof(target) != "string") {
+		}
+		if (target instanceof Symbol) {
+			var match = target.name.match(/^\/_view_(.*)_content$/);
+			if (match === null) {
+				eden.error(new Error("shapeOnTopAt: The first argument must be either a string or a pointer to a _view_xxx_content observable, not " +
+					Eden.edenCodeForValue(target)), "error");
+				return undefined;
+			} else {
+				target = match[1];
+			}
+		} else if (typeof(target) != "string") {
 			eden.error(new Error("shapeOnTopAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
 			return undefined;
-		} else if (typeof(x) != "number") {
+		}
+		if (typeof(x) != "number") {
 			eden.error(new Error("shapeOnTopAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
 			return undefined;
 		} else if (typeof(y) != "number") {
 			eden.error(new Error("shapeOnTopAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
 			return undefined;
 		}
-		return edenUI.plugins.Canvas2D.findDrawableHit2(target, x, y, false, testAll);
+		return edenUI.plugins.Canvas2D.findDrawableHit(target, x, y, false, testAll);
 	}}$;
 }
 
@@ -205,17 +230,28 @@ func shapeOnBottomAt {
 
 		if (target === undefined || x === undefined || y === undefined) {
 			return undefined;
-		} else if (!(target instanceof Symbol) && typeof(target) != "string") {
+		}
+		if (target instanceof Symbol) {
+			var match = target.name.match(/^\/_view_(.*)_content$/);
+			if (match === null) {
+				eden.error(new Error("shapeOnBottomAt: The first argument must be either a string or a pointer to a _view_xxx_content observable, not " +
+					Eden.edenCodeForValue(target)), "error");
+				return undefined;
+			} else {
+				target = match[1];
+			}
+		} else if (typeof(target) != "string") {
 			eden.error(new Error("shapeOnBottomAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
 			return undefined;
-		} else if (typeof(x) != "number") {
+		}
+		if (typeof(x) != "number") {
 			eden.error(new Error("shapeOnBottomAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
 			return undefined;
 		} else if (typeof(y) != "number") {
 			eden.error(new Error("shapeOnBottomAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
 			return undefined;
 		}
-		return edenUI.plugins.Canvas2D.findDrawableHit2(target, x, y, true, testAll);
+		return edenUI.plugins.Canvas2D.findDrawableHit(target, x, y, true, testAll);
 	}}$;
 }
 
@@ -284,10 +320,21 @@ func shapesAt {
 
 		if (target === undefined || x === undefined || y === undefined) {
 			return undefined;
-		} else if (!(target instanceof Symbol) && typeof(target) != "string") {
+		}
+		if (target instanceof Symbol) {
+			var match = target.name.match(/^\/_view_(.*)_content$/);
+			if (match === null) {
+				eden.error(new Error("shapesAt: The first argument must be either a string or a pointer to a _view_xxx_content observable, not " +
+					Eden.edenCodeForValue(target)), "error");
+				return undefined;
+			} else {
+				target = match[1];
+			}
+		} else if (typeof(target) != "string") {
 			eden.error(new Error("shapesAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
 			return undefined;
-		} else if (typeof(x) != "number") {
+		}
+		if (typeof(x) != "number") {
 			eden.error(new Error("shapesAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
 			return undefined;
 		} else if (typeof(y) != "number") {

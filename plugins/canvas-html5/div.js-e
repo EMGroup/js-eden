@@ -14,7 +14,26 @@ Div = function (html, x, y, width, height, id, classNames, style) {
 	this.obsName = root.currentObservableName();
 	this.classNames = classNames;
 	this.style = style;
-	this.displayed = false;
+
+	//Separate font-size from other CSS information.
+	var matcher = style.match(/(^|;)\s*font-size:\s*([^;]*)(;|$)/);
+	if (matcher !== null) {
+		var matcher2 = matcher[2].match(/^(\d+(\.\d+)?)([a-z%]+)\s*$/);
+		if (matcher2 !== null) {
+			this.fontSizeNumber = Number(matcher2[1]);
+			this.fontSizeUnits = matcher2[3];
+		}
+		this.fontSizeSpecified = true;
+	} else {
+		matcher = style.match(/(^|;)\s*font:([^\/]+\s+)?(\d+(\.\d+)?)([a-z%]+)(\/|\s|;|$)/);
+		if (matcher === null) {
+			this.fontSizeSpecified = false;
+		} else {
+			this.fontSizeNumber = Number(matcher[3]);
+			this.fontSizeUnits = matcher[5];
+			this.fontSizeSpecified = true;
+		}
+	}
 }
 
 Div.prototype.hash = function () {
@@ -111,11 +130,11 @@ Div.prototype.draw = function(context) {
 	if (typeof(this.y) == "string") {
 		divElement.style.top = this.y;
 	}
-
-	var match = divElement.style.fontSize.match(/^(\d+)([a-z%]+)$/);
-	if (match !== null) {
-		this.fontSizeNumber = match[1];
-		this.fontSizeUnits = match[2];
+	if (typeof(this.width) == "string") {
+		divElement.style.width = this.width;
+	}
+	if (typeof(this.height) == "string") {
+		divElement.style.height = this.height;
 	}
 
 	if (this.name !== undefined) {
@@ -140,15 +159,12 @@ Div.prototype.draw = function(context) {
 			"height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
 
 		objectElement.onload = function () {
-			me.displayed = true;
 			me.resize();
 		}
 
 		objectElement.type = "text/html";
 		objectElement.data = "about:blank";
 		divElement.appendChild(objectElement);
-	} else {
-		this.displayed = true;
 	}
 
 	this.elements = [divElement];
@@ -156,7 +172,9 @@ Div.prototype.draw = function(context) {
 };
 
 Div.prototype.resize = function () {
-	if (!this.displayed) {
+	var scale = this.cachedScale;
+	if (scale === undefined) {
+		//Not yet added drawn onto a canvas.
 		return;
 	}
 
@@ -183,7 +201,6 @@ Div.prototype.resize = function () {
 		var agent = root.lookup("Div");
 		var widthSymName = this.name + "_width";
 		var heightSymName = this.name + "_height";
-		var scale = this.cachedScale;
 
 		if (autoWidth || widthSymName in root.symbols) {
 			root.lookup(widthSymName).assign(element.offsetWidth / scale, root.scope, agent);
@@ -210,9 +227,9 @@ Div.prototype.scale = function (scale, zoom , origin) {
 	}
 	if (this.fontSizeNumber !== undefined) {
 		style.fontSize = String(this.fontSizeNumber * zoom) + this.fontSizeUnits;
-	} else {
+	} else if (!this.fontSizeSpecified) {
 		if (zoom == 1) {
-			style.fontSize = ""; //Could be specified by CSS class rather than the style argument.
+			style.fontSize = ""; //Could be specified by a CSS class.
 		} else {
 			style.fontSize = zoom + "em";
 		}
