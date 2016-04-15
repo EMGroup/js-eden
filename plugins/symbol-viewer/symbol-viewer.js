@@ -210,6 +210,10 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	var symbol_create_queue = {};
 	var symbol_lists_updating = false;
 
+	this.isCreationPending = function (name) {
+		return name in symbol_create_queue;
+	}
+
 	/**
 	 * The delay between updates of all the symbol viewers. A higher value
 	 * reduces the update frequency which improves performance but gives a
@@ -241,7 +245,6 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			for (var name in symbol_create_queue) {
 				var sym = symbol_create_queue[name];
 				instance.addSymbol(sym, name);
-				delete symbol_update_queue[name];
 			}
 
 			// For every recently updated symbol
@@ -270,6 +273,8 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 		if (create) {
 			symbol_create_queue[name] = sym;
+		} else if (name in symbol_create_queue) {
+			return;
 		} else {
 			symbol_update_queue[name] = sym;
 		}
@@ -345,8 +350,10 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (searchStr, r
 	// For every js-eden symbol
 	var name, symbol;
 	for (name in this.root.symbols) {
-		symbol = this.root.symbols[name];
-		this.addSymbol(symbol, name);
+		if (!edenUI.plugins.SymbolViewer.isCreationPending(name)) {
+			symbol = this.root.symbols[name];
+			this.addSymbol(symbol, name);
+		}
 	}
 };
 
