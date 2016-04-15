@@ -219,7 +219,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 	var symbol_update_queue = {};
 	var symbol_create_queue = {};
-	var sym_update_to = false;
+	var symbol_lists_updating = false;
 
 	/**
 	 * The delay between updates of all the symbol viewers. A higher value
@@ -242,7 +242,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			// (but only if the inline editor isn't open, otherwise we'd lose focus and terminate editing prematurely.)
 			var symresults, parent, scrollPosition;
 			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === undefined) {
-				symresults = $(instance.symresults);				
+				symresults = $(instance.symresults);
 				parent = symresults.parent();
 				scrollPosition = symresults.scrollTop();
 				symresults.detach();
@@ -252,6 +252,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			for (var name in symbol_create_queue) {
 				var sym = symbol_create_queue[name];
 				instance.addSymbol(sym, name);
+				delete symbol_update_queue[name];
 			}
 
 			// For every recently updated symbol
@@ -268,7 +269,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 		symbol_update_queue = {};
 		symbol_create_queue = {};
-		sym_update_to = false;
+		symbol_lists_updating = false;
 	};
 
 	/**
@@ -284,8 +285,8 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			symbol_update_queue[name] = sym;
 		}
 
-		if (!sym_update_to) {
-			sym_update_to = true;
+		if (!symbol_lists_updating) {
+			symbol_lists_updating = true;
 			setTimeout(sym_changed_to,me.delay);
 		}
 	};
