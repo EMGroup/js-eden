@@ -41,7 +41,7 @@ ${{
 					if (debugSym.cache.value.edenclocks) {
 						console.log("edenclocks: clock " + symbol.name);
 					}				
-					symbol.definition(root)();
+					symbol.definition(root, root.scope)();
 				}
 			};
 			var startClock = function (interval, target) {
