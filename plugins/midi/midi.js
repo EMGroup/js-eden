@@ -169,11 +169,25 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		programObservables[outputNum] = symbol;
 	}
 
+	var initializing = false;
+	var continuations = [];
+	var continuationsArgs = [];
 	/* Requests access to the MIDI system and sets things up.  From EDEN's perspective this gets
 	 * performed automatically on the first occasion that MIDI functionality is requested.
 	 */
 	this.initialize = function (symbol, continuationArgs) {
 			var continuation = symbol.value();
+			if (initialized) {
+				continuation.apply(null, continuationArgs);
+				return;
+			}
+
+			continuations.push(continuation);
+			continuationsArgs.push(continuationArgs);
+			if (initializing) {
+				return;
+			}
+			initializing = true;
 
 			function initializeSoftwareDrivers(index) {
 				if (index < softwareDrivers.length) {
@@ -193,8 +207,10 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 					initialized = true;
 					console.log("Done.");
 
-					//Continue with the operation originally requested (e.g. play a tune).
-					continuation.apply(this, continuationArgs);
+					//Continue with the operations originally requested (e.g. play a tune).
+					for (var i = 0; i < continuations.length; i++) {
+						continuations[i].apply(null, continuationsArgs[i]);
+					}
 				}
 			}
 
