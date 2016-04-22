@@ -33,11 +33,6 @@
 		return $("#"+viewName+"-dialog");
 	}
 
-	//Configuration options
-	//30 pixels seems like a good grid cell width on a display 1920 pixels wide.
-	EdenUI.prototype.gridSizeX = Math.floor(window.innerWidth * 30 / 1920);
-	EdenUI.prototype.gridSizeY = Math.floor(window.innerHeight * 30 / 1920);
-	
 	//Dimensions of various UI components.
 	EdenUI.prototype.menuBarHeight = 30;
 	EdenUI.prototype.dialogBorderWidth = 3.133;
@@ -47,6 +42,13 @@
 	EdenUI.prototype.dialogFrameWidth = EdenUI.prototype.scrollBarSize + 2 * EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.dialogFrameHeight = EdenUI.prototype.titleBarHeight + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.bottomBarHeight = 34.906;
+
+	//Configuration options
+	//30 pixels seems like a good grid cell width on a display 1920 pixels wide.
+	EdenUI.prototype.gridSizeX = Math.floor(window.innerWidth * 30 / 1920);
+	EdenUI.prototype.gridSizeY = Math.floor(window.innerHeight * 30 / 1920);
+	//Case when a window is moved off to the left of the screen.
+	EdenUI.prototype.minimumWindowWidthShowing = 72 + EdenUI.prototype.dialogBorderWidth;
 
 	/**
 	 * A view is a window which appears in the JsEden UI.
@@ -326,7 +328,7 @@
 				ui.size.height = ui.size.height - me.gridSizeY;
 				scrollY = -me.gridSizeY;
 			} else if (ui.position.top < document.body.scrollTop + me.gridSizeY) {
-				scrollY = -1 * me.gridSizeY;
+				scrollY = -me.gridSizeY;
 			}
 			if (diag.momentum >= 35 || diag.resizeExtend == 2) {
 				var setTimer = false;
@@ -654,18 +656,29 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.moveView = function (name) {
+		var diag = dialog(name);
 		var xSym = view(name, 'x');
 		var ySym = view(name, 'y');
 		var x = xSym.value();
 		var y = ySym.value();
-		var realX = Math.round(x / this.gridSizeX) * this.gridSizeX;
-		var realY = Math.round(y / this.gridSizeY) * this.gridSizeY;
-		xSym.cache.value = realX;
-		ySym.cache.value = realY;
+		var realX, realY;
+		var minX = this.minimumWindowWidthShowing - diag.dialog("option", "width");
+		if (x < minX) {
+			realX = minX;
+		} else {
+			realX = Math.round(x / this.gridSizeX) * this.gridSizeX;
+		}
+		if (y < 0) {
+			realY = 0;
+		} else {
+			realY = Math.round(y / this.gridSizeY) * this.gridSizeY;
+		}
+		xSym.cached_value = realX;
+		ySym.cached_value = realY;
 		if (this.plugins.MenuBar) {
 			realY = realY  + this.menuBarHeight;
 		}
-		dialog(name).parent().offset({left: realX, top: realY});
+		diag.parent().offset({left: realX, top: realY});
 	};
 
 	/**
