@@ -28,6 +28,36 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	var canvasNameToElements = {};
 	var redrawDelay = 40;
 
+	var mouseIdleTimeout, mouseIdleTimer;
+	var mouseVelocityTimestamp;
+	var newMouseMovement = false;
+	var mouseVelocityZero = false;
+	Object.defineProperty(this, "mouseIdleTimeout", {
+		set: function (timeout) {
+			clearInterval(mouseIdleTimer);
+			mouseIdleTimer = setInterval(function () {
+				if (newMouseMovement) {
+					mouseVelocityZero = false;
+					newMouseMovement = false;
+				} else if (!mouseVelocityZero) {
+						var followMouse = root.lookup("mouseFollow").value();
+						root.lookup("mouseVelocity").assign(new Point(0, 0), root.scope, Symbol.hciAgent, followMouse);
+						mouseVelocityZero = true;
+						mouseVelocityTimestamp = undefined;
+				}
+			}, timeout / 2);
+			mouseIdleTimeout = timeout;
+		},
+		get: function () {
+			return mouseIdleTimeout;
+		},
+		enumerable: true,
+	});
+
+	this.mouseVelocitySampleTime = 100;
+	this.mouseVelocityDampening = 0.3;
+	this.mouseIdleTimeout = 300;
+
 	var cleanupCanvas = function (canvasElement, previousElements) {
 		var hash;
 		for (hash in previousElements) {
@@ -700,7 +730,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				wheelScale =  me.defaultLineHeight;
 			} else if (e2.deltaMode == WheelEvent.DOM_DELTA_PAGE) {
 				if (e2.deltaX != 0) {
-					wheelScale = widthSym.value();
+					wheelScale = viewWidthSym.value();
 				} else {
 					wheelScale = height;
 				}
@@ -747,7 +777,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var deltaY = e2.deltaY * wheelScale;
 					mouseWheelValue = mouseWheelValue + deltaY;
 					mouseWheelSym.assign(mouseWheelValue, root.scope, Symbol.hciAgent, followMouse);
-					root.lookup("mouseWheelSpeed").assign(deltaY, root.scope, Symbol.hciAgent, followMouse);
+					root.lookup("mouseWheelVelocity").assign(deltaY, root.scope, Symbol.hciAgent, followMouse);
 				}
 			}
 			if (e2.deltaX !== 0) {
@@ -814,20 +844,28 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			}
 		
 		}).on("mousemove",function(e) {
+			newMouseMovement = true;
 			var followMouse = root.lookup("mouseFollow").value();
 			root.beginAutocalcOff();
 
-			var mousePositionSym = root.lookup('mousePosition');			
+			var viewSym = root.lookup('mouseView');
+			var positionSym = root.lookup('mousePosition');
+			var x, y, previousX, previousY;
+			var previousView = viewSym.value();
+			var previousPosition = positionSym.value();
+			if (previousPosition) {
+				previousX = previousPosition.x;
+				previousY = previousPosition.y;
+			}
+			
 			var scale = root.lookup("_view_" + canvasName + "_scale").value();
 			var zoom = root.lookup("_view_" + canvasName + "_zoom").value();
 			var combinedScale = scale * zoom;
-			var x, y;
 
 			if (mouseInfo.capturing) {
-				var previousPosition = mousePositionSym.value();
 				var e2 = e.originalEvent;
-				x = previousPosition.x + e2.movementX / combinedScale;
-				y = previousPosition.y + e2.movementY / combinedScale;
+				x = previousX + e2.movementX / combinedScale;
+				y = previousY + e2.movementY / combinedScale;
 			} else {
 				var windowPos = $(this).offset();
 				x = (e.pageX - Math.round(windowPos.left)) / combinedScale;
@@ -840,9 +878,35 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				}
 			}
 
+			viewSym.assign(canvasName, root.scope, Symbol.hciAgent, followMouse);
 			var mousePos = new Point(x, y);
-			root.lookup('mouseView').assign(canvasName, root.scope, Symbol.hciAgent, followMouse);
-			mousePositionSym.assign(mousePos, root.scope, Symbol.hciAgent, followMouse);
+			positionSym.assign(mousePos, root.scope, Symbol.hciAgent, followMouse);
+
+			var deltaTime;
+			var now = Date.now();
+			if (previousView == canvasName && mouseVelocityTimestamp !== undefined) {
+				deltaTime = now - mouseVelocityTimestamp;
+
+				if (deltaTime >= me.mouseVelocitySampleTime) {
+					var velocitySym = root.lookup("mouseVelocity");
+					var previousVelocity = velocitySym.value();
+					var velocityX = (x - previousX) * 1000 / deltaTime;
+					var velocityY = (y - previousY) * 1000 / deltaTime;
+					if (previousVelocity) {
+						var dampening = me.mouseVelocityDampening;
+						velocityX = dampening * previousVelocity.x + (1 - dampening) * velocityX;
+						velocityY = dampening * previousVelocity.y + (1 - dampening) * velocityY;
+					}
+					velocityX = Math.ceil(velocityX * combinedScale) / combinedScale;
+					velocityY = Math.ceil(velocityY * combinedScale) / combinedScale;
+					var mouseVelocity = new Point(velocityX, velocityY);
+					velocitySym.assign(mouseVelocity, root.scope, Symbol.hciAgent, followMouse);
+					mouseVelocityTimestamp = now;
+				}
+			} else {
+				//Mouse has just entered the canvas.
+				mouseVelocityTimestamp = now;
+			}
 
 			var drawableHit = me.findDrawableHit(canvasName, x, y, false, false);
 			var zoneHit;
