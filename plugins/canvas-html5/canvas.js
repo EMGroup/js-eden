@@ -893,8 +893,16 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var velocityY = (y - previousY) * 1000 / deltaTime;
 					if (previousVelocity) {
 						var dampening = me.mouseVelocityDampening;
-						velocityX = dampening * previousVelocity.x + (1 - dampening) * velocityX;
-						velocityY = dampening * previousVelocity.y + (1 - dampening) * velocityY;
+						var previousVelocityX = previousVelocity.x;
+						if ((velocityX > 0 && previousVelocityX > 0) ||
+							(velocityX < 0 && previousVelocityX < 0)) {
+							velocityX = dampening * previousVelocityX + (1 - dampening) * velocityX;
+						}
+						var previousVelocityY = previousVelocity.y;
+						if ((velocityY > 0 && previousVelocityY > 0) ||
+							(velocityY < 0 && previousVelocityY < 0)) {
+							velocityY = dampening * previousVelocityY + (1 - dampening) * velocityY;
+						}
 					}
 					velocityX = Math.ceil(velocityX * combinedScale) / combinedScale;
 					velocityY = Math.ceil(velocityY * combinedScale) / combinedScale;

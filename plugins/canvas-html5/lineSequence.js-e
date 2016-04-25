@@ -87,8 +87,10 @@ LineSequence.prototype.draw = function(context, scale) {
 		var vertexNMinus1 = this.vertices[maxVertex - 1];
 		var gradient1 = (vertex1.y - vertex0.y) / (vertex1.x - vertex0.x);
 		var gradient2 = (vertexN.y - vertexNMinus1.y) / (vertexN.x - vertexNMinus1.x);
-		this.drawingOptions.arrowhead.draw(context, scale, vertex0.x, vertex0.y, gradient1, false,
-			vertexN.x, vertexN.y, gradient2, false);
+		var reverse1 = vertex0.x > vertex1.x;
+		var reverse2 = vertexNMinus1.x > vertexN.x;
+		this.drawingOptions.arrowhead.draw(context, scale, vertex0.x, vertex0.y, gradient1, reverse1,
+			vertexN.x, vertexN.y, gradient2, reverse2);
 	}	
 };
 
