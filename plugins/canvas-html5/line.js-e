@@ -119,7 +119,8 @@ Line.prototype.draw = function(context, scale) {
 
 	if (this.drawingOptions !== undefined && this.drawingOptions.arrowhead instanceof Arrowhead) {
 		var gradient = (y2 - y1) / (x2 - x1);
-		this.drawingOptions.arrowhead.draw(context, scale, x1, y1, gradient, false, x2, y2, gradient, false);
+		var reversed = x1 > x2;
+		this.drawingOptions.arrowhead.draw(context, scale, x1, y1, gradient, reversed, x2, y2, gradient, reversed);
 	}
 };
 
