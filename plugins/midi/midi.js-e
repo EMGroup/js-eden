@@ -387,17 +387,26 @@ proc bindMIDINote {
 			name = noteSym.name.slice(1);
 		}
 
-		if (velocitySym.value() === undefined && velocitySym.definition === undefined) {
+		var note = noteSym.value();
+		var velocity = velocitySym.value();
+		var strike;
+
+
+		if (velocity === undefined && velocitySym.definition === undefined) {
 			velocitySym.assign(127, agent);
+			velocity = 127;
 		}
 
 		if (strikeSym === undefined) {
 			noteSym.addJSObserver("bind", function (symbol, note) {
 				edenUI.plugins.MIDI.alterNote(name, device, channel, note, velocitySym.value(), true);
 			});
+			strike = true;
 		} else {
-			if (strikeSym.value() === undefined && strikeSym.definition === undefined) {
+			strike = strikeSym.value();
+			if (strike === undefined && strikeSym.definition === undefined) {
 				strikeSym.assign(true, agent);
+				strike = true;
 			}
 			noteSym.addJSObserver("bind", function (symbol, note) {
 				edenUI.plugins.MIDI.alterNote(name, device, channel, note, velocitySym.value(), strikeSym.value());
@@ -410,6 +419,8 @@ proc bindMIDINote {
 		velocitySym.addJSObserver("bind", function (symbol, velocity) {
 			edenUI.plugins.MIDI.alterVelocity(name, device, channel, noteSym.value(), velocity);
 		});
+
+		edenUI.plugins.MIDI.alterNote(name, device, channel, note, velocity, strike);
 	}}$;
 }
 

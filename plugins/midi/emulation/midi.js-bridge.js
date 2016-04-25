@@ -79,7 +79,7 @@ EdenUI.plugins.MIDIDotJS = function (edenUI, success) {
 					break;
 
 				default: // Any command that can't or hasn't yet been mapped to MIDI.js
-					console.log("Unable to map MIDI command " + fullCommand.toString(16) + " to midi.js");
+					console.log("Unable to map MIDI command " + fullCommand.toString(16) + " to MIDI.js");
 				}
 			};
 
