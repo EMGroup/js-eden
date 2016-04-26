@@ -2280,7 +2280,11 @@ Eden.AST.Case.prototype.setSource = function(start, end) {
 }
 
 Eden.AST.Case.prototype.generate = function(ctx, scope) {
-	return "case " + this.literal + ": ";
+	if (typeof this.literal == "string") {
+		return "case \"" + this.literal + "\": "; 
+	} else {
+		return "case " + this.literal + ": ";
+	}
 }
 
 Eden.AST.Case.prototype.error = fnEdenASTerror;
