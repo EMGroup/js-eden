@@ -1763,6 +1763,13 @@ Eden.AST.Switch.prototype.generate = function(ctx, scope) {
 	return res;
 };
 
+Eden.AST.Switch.prototype.execute = function(root, ctx, base) {
+	var swi = "(function(context,scope) { ";
+	swi += this.generate(ctx, "scope");
+	swi += " })";
+	eval(swi)(root, root.scope);
+};
+
 Eden.AST.Switch.prototype.error = fnEdenASTerror;
 
 
