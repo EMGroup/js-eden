@@ -117,23 +117,11 @@ proc createCanvas {
 	createView(viewName, "Canvas2D");
 	execute("_view_" // viewName // "_content is " // obsName // ";");
 	if (viewTitle == @) {
-		titleSymName = "_view_" // viewName // "_title";
-		contentSymName = "_view_" // viewName // "_content";
-		execute(
-			titleSymName // " is \"Canvas \" // ${{ root.lookup(\"" // contentSymName // "\").eden_definition.match(/^" //
-			contentSymName // " is (.*)$/)[1] }}$;"
-		);
-		addJSObserver = ${{
-			function (contentSymName, titleSymName) {
-				root.lookup(contentSymName).addJSObserver("updateTitle", function () {
-					root.expireSymbol(root.lookup(titleSymName));
-				});
-			}
-		}}$;
-		addJSObserver(contentSymName, titleSymName);
-	} else {
-		`"_view_" // viewName // "_title"` = viewTitle;
+		##Don't attempt to make this update by dependency on redefinition of _view_viewName_content.
+		##Severe performance problems result.
+		viewTitle = "Canvas " // obsName;
 	}
+	`"_view_" // viewName // "_title"` = viewTitle;
 }
 
 ##Returns a string that can be used as the src attribute for an <img> tag inside the content of a
