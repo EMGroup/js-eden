@@ -1763,6 +1763,13 @@ Eden.AST.Switch.prototype.generate = function(ctx, scope) {
 	return res;
 };
 
+Eden.AST.Switch.prototype.execute = function(root, ctx, base) {
+	var swi = "(function(context,scope) { ";
+	swi += this.generate(ctx, "scope");
+	swi += " })";
+	eval(swi)(root, root.scope);
+};
+
 Eden.AST.Switch.prototype.error = fnEdenASTerror;
 
 
@@ -2273,7 +2280,11 @@ Eden.AST.Case.prototype.setSource = function(start, end) {
 }
 
 Eden.AST.Case.prototype.generate = function(ctx, scope) {
-	return "case " + this.literal + ": ";
+	if (typeof this.literal == "string") {
+		return "case \"" + this.literal + "\": "; 
+	} else {
+		return "case " + this.literal + ": ";
+	}
 }
 
 Eden.AST.Case.prototype.error = fnEdenASTerror;
