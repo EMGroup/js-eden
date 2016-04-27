@@ -35,6 +35,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 * @see SymbolList
 	 */
 	this.instances = [];
+	var numInstances = 0;
 
 	var generateHTML = function (viewName, viewType) {
 		var html = "\
@@ -94,6 +95,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			});
 
 		me.instances.push(symbollist);
+		numInstances++;
 
 		content.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
 			var editorViewName = "edit_" + edenName;
@@ -175,6 +177,14 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			});
 		}
 
+		var viewData = {
+			destroy: function () {
+				var index = me.instances.indexOf(symbollist);
+				me.instances.splice(index, 1);
+				numInstances--;
+			}
+		};
+		return viewData;
 	};
 
 	/**
@@ -280,19 +290,21 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 * update all visible symbol lists.
 	 */
 	var symbolChanged = function (sym, create) {
-		var name = sym.name.substr(1);
+		if (numInstances > 0) {
+			var name = sym.name.substr(1);
 
-		if (create) {
-			symbol_create_queue[name] = sym;
-		} else if (name in symbol_create_queue) {
-			return;
-		} else {
-			symbol_update_queue[name] = sym;
-		}
+			if (create) {
+				symbol_create_queue[name] = sym;
+			} else if (name in symbol_create_queue) {
+				return;
+			} else {
+				symbol_update_queue[name] = sym;
+			}
 
-		if (!symbol_lists_updating) {
-			symbol_lists_updating = true;
-			setTimeout(sym_changed_to,me.delay);
+			if (!symbol_lists_updating) {
+				symbol_lists_updating = true;
+				setTimeout(sym_changed_to,me.delay);
+			}
 		}
 	};
 
