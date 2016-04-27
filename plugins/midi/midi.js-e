@@ -28,8 +28,7 @@
 ##The range is -127 to +127.  If the velocity field is omitted then the notes will played at maximum
 ##velocity.
 ##
-##d is the duration that the notes will be played for.  Positive values specify a time in beats.  A
-##zero duration releases a note that is already being played.  If d is omitted then the notes play
+##d is the duration that the notes will be played for.  If d is omitted then the notes play
 ##indefinitely until they are either explicitly released (using a zero duration value) or when the
 ##instrument cannot physically sustain the note any longer.  For example, piano notes have a maximum
 ##note duration that is a physical characteristic of the instrument, whereas brass and woodwind
@@ -160,61 +159,92 @@ func midiMessagesForTune {
 		var midiMessages = [];
 
 		for (var i = 0; i < score.length; i++) {
-			var eventInterval = score[i][0];
-			var notes = score[i][1];
-			var velocity = score[i][2];
-			var duration = score[i][3];
-			
-			relativeTime = relativeTime + eventInterval * timeUnit;
-			if (velocity === undefined) {
-				velocity = 127;
+			var event = score[i];
+			if (event === undefined) {
+				continue;
+			} else if (!Array.isArray(event) || event.length < 2 || event.length > 4) {
+				eden.error(new Error("midiMessagesForTune: Event " + String(i+1) + " must be a list with between 2 and 4 elements."), "error");
+				return undefined;
 			}
 
-			if (duration === 0) {
-				//Release notes instruction (with velocity information).  Translate to MIDI note off messages.
-				for (var j = 0; j < notes.length; j++) {
-					midiMessages.push(new Uint8Array([0x80 + channel - 1, notes[j] + 20, velocity]), relativeTime);
+			var eventInterval = event[0];
+			var eventType = event[1];
+			var eventValue = event[2];
+			var duration = event[3];
+
+			if (eventInterval === undefined) {
+				eventInterval = beat;
+			} else if (typeof(eventInterval) != "number") {
+				eden.error(new Error("midiMessagesForTune: The time of event " + String(i+1) + " must be a number."), "error");
+				return undefined;
+			}
+			if (duration !== undefined && typeof(duration) != "number") {
+				eden.error(new Error("midiMessagesForTune: The duration of event " + String(i+1) + " must be a number or undefined."), "error");
+				return undefined;
+			}
+
+			relativeTime = relativeTime + eventInterval * timeUnit;
+
+			if (Array.isArray(eventType)) {
+				var notes = eventType;
+				var velocity = eventValue;
+				if (velocity < 0) {
+					//Release notes instruction with velocity information.  Translate to MIDI note off messages.
+					velocity = edenUI.plugins.MIDI.roundValue(velocity);
+					for (var j = 0; j < notes.length; j++) {
+						midiMessages.push(new Uint8Array([0x80 + channel, notes[j] + 20, -velocity]), relativeTime);
+					}
+				} else {
+					//Play notes instruction (or release notes instruction without velocity info).  Translate to MIDI note on messages.
+					if (velocity === undefined) {
+						velocity = 127;
+					} else {
+						velocity = edenUI.plugins.MIDI.roundValue(velocity);
+						if (velocity === undefined) {
+							eden.error(new Error("midiMessagesForTune: The velocity of event " + String(i+1) + " must be a number."), "error");
+							return undefined;
+						}
+					}
+					if (duration === undefined || duration > 0) {
+						for (var j = 0; j < notes.length; j++) {
+							midiMessages.push(new Uint8Array([0x90 + channel, notes[j] + 20, velocity]), relativeTime);
+						}
+					}
+					if (duration !== undefined) {
+						//Play notes instruction also contains a duration, hence we derive the corresponding MIDI note off messages.
+
+						//Don't send a note off message if the note gets hit again immediately.
+						var simultaneousNotes = [];
+						var k = i + 1;
+						if (k < score.length) {
+							var lookAheadDuration = score[k][0];
+							while (lookAheadDuration <= duration) {
+								simultaneousNotes.unshift(score[k][1]);
+								k++;
+								if (k == score.length) {
+									break;
+								}
+								lookAheadDuration = lookAheadDuration + score[k][0];
+							}
+						}
+						for (var j = 0; j < notes.length; j++) {
+							var note = notes[j];
+							var retriggered = false;
+							for (var k = 0; k < simultaneousNotes.length; k++) {
+								if (note == simultaneousNotes[k]) {
+									retriggered = true;
+									break;
+								}
+							}
+							if (!retriggered) {
+								midiMessages.push(new Uint8Array([0x90 + channel, note + 20, 0]), relativeTime + duration * timeUnit);
+							}
+						}
+					}
 				}
 			} else {
-				//Play notes instruction (or release notes instruction without velocity info).  Translate to MIDI note on messages.
-				for (var j = 0; j < notes.length; j++) {
-					midiMessages.push(new Uint8Array([0x90 + channel, notes[j] + 20, velocity]), relativeTime);
-				}
-				if (duration !== undefined) {
-					//Play notes instruction also contains a duration, hence we derive the corresponding MIDI note off messages.
-					
-					//Don't send a note off message if the note gets hit again immediately.
-					var simultaneousNotes = [];
-					var k = i + 1;
-					if (k < score.length) {
-						var lookAheadDuration = score[k][0];
-						while (lookAheadDuration <= duration) {
-							simultaneousNotes.unshift(score[k][1]);
-							k++;
-							if (k == score.length) {
-								break;
-							}
-							lookAheadDuration = lookAheadDuration + score[k][0];
-						}
-					}
-					for (var j = 0; j < notes.length; j++) {
-						var note = notes[j];
-						var retriggered = false;
-						for (var k = 0; k < simultaneousNotes.length; k++) {
-							if (note == simultaneousNotes[k]) {
-								retriggered = true;
-								break;
-							}
-						}
-						if (!retriggered) {
-							//Option 1: Assume the release velocity is the same as the activation velocity.
-							//midiMessages.push(new Uint8Array([0x80 + channel, note + 20, velocity]), relativeTime + duration * timeUnit);
-							
-							//Option 2: Release note without giving a release velocity.
-							midiMessages.push(new Uint8Array([0x90 + channel, note + 20, 0]), relativeTime + duration * timeUnit);
-						}
-					}
-				}
+				eden.error(new Error("midiMessagesForTune: Unknown event type " + eventType + " for event " + String(i+1)), "error");
+				return undefined;
 			}
 		}
 		return midiMessages;
@@ -232,7 +262,7 @@ func mergeMIDIMessages {
 		} else {
 			messageLists = arguments[0];
 			if (messageLists === undefined) {
-				return [];
+				return undefined;
 			} else if (!Array.isArray(messageLists)) {
 				eden.error(new Error("mergeMIDIMessages: The first argument must be a list, not a " + typeof(messageLists)), "error");
 				return undefined;
