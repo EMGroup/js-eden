@@ -131,6 +131,8 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		if (typeof(value) == "number") {
 			if (value <= 0) {
 				return 0;
+			} else if (value <= 1) {
+				return 1;
 			} else if (value >= 127) {
 				return 127;
 			} else {
@@ -299,23 +301,11 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		outputNum = resolveOutputNumber(outputNum);
 		if (delay === undefined) {
 			delay = 0;
-		} else if (typeof(delay) != "number" || delay < 0) {
-			throw new Error("The delay must be a non-negative number.");
+		} else if (typeof(delay) != "number") {
+			throw new Error("The delay must be a number.");
 		}
 		if (!Array.isArray(messageStream)) {
-			throw new Error("The message stream must be an array");
-		}
-		for (var i = 0; i < messageStream.length - 1; i = i + 2) {
-			var message = messageStream[i];
-			if (!(message instanceof Uint8Array) && !Array.isArray(message)) {
-				throw new Error("Item " + i + " must be an array or Uint8Array.");
-			}
-		}
-		for (var i = 1; i < messageStream.length; i = i + 2) {
-			var time = messageStream[i];
-			if (typeof(time) != "number" || time < 0) {
-				throw new Error("Item " + i + " must be a non-negative number.");
-			}
+			throw new Error("The message stream must be an array.");
 		}
 
 		var output = outputs[outputNum];
