@@ -343,6 +343,8 @@
 
 		this.needsExpire = [];
 		this.needsTrigger = {};
+		this.needsGlobalNotify = [];
+		this.globalNotifyIndex = 0;
 		
 		/** expiryCount is used locally inside the expireAndFireActions method.  It's created here
 		 * for efficient reuse reasons, to eliminate the need to create and garbage collect many objects.
@@ -539,6 +541,7 @@
 		for (var i = 0; i < this.needsExpire.length; i++) {
 			var sym = this.needsExpire[i];
 			sym.expire(symbolNamesToForce, this.expiryCount, this.needsTrigger);
+			sym.needsGlobalNotify = true;
 		}
 		var expired = this.needsExpire;
 		this.needsExpire = [];
@@ -551,6 +554,7 @@
 			// force re-eval
 			var sym = this.symbols[symbolNamesArray[i].slice(this.name.length)];
 			sym.evaluateIfDependenciesExist();
+			sym.needsGlobalNotify = true;
 			symbolsToForce.push(sym);
 		}
 		var actions_to_fire = this.needsTrigger;
@@ -559,14 +563,36 @@
 		fireJSActions(expired);
 		fireJSActions(symbolsToForce);
 
-		setTimeout(function () {
-			for (var i = 0; i < expired.length; i++) {
-				me.notifyGlobals(expired[i], false);
-			}
-			for (var i = 0; i < symbolsToForce.length; i++) {
-				me.notifyGlobals(symbolsToForce[i], false);
-			}
-		}, 0);
+		var globalNotifyList = this.needsGlobalNotify;
+		var alreadyNotifying = globalNotifyList.length > 0;
+
+		if (this.globalNotifyIndex >= 1000) {
+			globalNotifyList.splice(0, this.globalNotifyIndex);
+			this.globalNotifyIndex = 0;
+		}
+
+		expired.unshift(globalNotifyList.length, 0);
+		globalNotifyList.splice.apply(globalNotifyList, expired);
+		symbolsToForce.unshift(globalNotifyList.length, 0);
+		globalNotifyList.splice.apply(globalNotifyList, symbolsToForce);
+
+		if (!alreadyNotifying) {
+			setTimeout(function () {
+				var notifyList = me.needsGlobalNotify;
+				var index = 0;
+				while (index < notifyList.length) {
+					me.globalNotifyIndex++;
+					var symbol = notifyList[index];
+					if (symbol.needsGlobalNotify) {
+						symbol.needsGlobalNotify = false;
+						me.notifyGlobals(symbol, false);
+					}
+					index = me.globalNotifyIndex;
+				}
+				me.needsGlobalNotify = [];
+				me.globalNotifyIndex = 0;
+			}, 0);
+		}
 	};
 
 	function makeRandomName()
@@ -607,6 +633,7 @@
 		this.eden_definition = undefined;
 		this.evalResolved = true;
 		this.extend = undefined;
+		this.needsGlobalNotify = false;
 
 		// need to keep track of who we subscribe to so
 		// that we can unsubscribe from them when our definition changes
