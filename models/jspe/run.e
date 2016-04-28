@@ -1,7 +1,7 @@
 require("Canvas2D");
 include_css("models/jspe/jspe.css");
 
-if (_view_jspe_width == @) {
+if (Slide == @) {
 	hideView("projects");
 	createCanvas("jspe", "slides", "JSPE Slides");
 	_view_picture_x = 0;
