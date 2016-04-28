@@ -312,7 +312,10 @@
 			expired.unshift(symbolsToForce.length, 0);
 			symbolsToForce.splice.apply(symbolsToForce, expired);
 			this.needsGlobalNotify = symbolsToForce;
-			setTimeout(this.processGlobalNotifyQueue, 0);
+			var me = this;
+			setTimeout(function () {
+				me.processGlobalNotifyQueue();
+			}, 0);
 		} else {
 			//Append both expired and symbolsToForce onto the existing notification queue.
 			var globalNotifyList = this.needsGlobalNotify;
