@@ -343,6 +343,8 @@
 
 		this.needsExpire = [];
 		this.needsTrigger = {};
+		this.needsGlobalNotify = [];
+		this.globalNotifyIndex = 0;
 		
 		/** expiryCount is used locally inside the expireAndFireActions method.  It's created here
 		 * for efficient reuse reasons, to eliminate the need to create and garbage collect many objects.
@@ -533,12 +535,12 @@
 			return;
 		}
 
-		var me = this;
 		this.expiryCount.value = 0;
 		var symbolNamesToForce = {};
 		for (var i = 0; i < this.needsExpire.length; i++) {
 			var sym = this.needsExpire[i];
 			sym.expire(symbolNamesToForce, this.expiryCount, this.needsTrigger);
+			sym.needsGlobalNotify = true;
 		}
 		var expired = this.needsExpire;
 		this.needsExpire = [];
@@ -551,6 +553,7 @@
 			// force re-eval
 			var sym = this.symbols[symbolNamesArray[i].slice(this.name.length)];
 			sym.evaluateIfDependenciesExist();
+			sym.needsGlobalNotify = true;
 			symbolsToForce.push(sym);
 		}
 		var actions_to_fire = this.needsTrigger;
@@ -559,27 +562,40 @@
 		fireJSActions(expired);
 		fireJSActions(symbolsToForce);
 
-		setTimeout(function () {
-			for (var i = 0; i < expired.length; i++) {
-				me.notifyGlobals(expired[i], false);
-			}
-			for (var i = 0; i < symbolsToForce.length; i++) {
-				me.notifyGlobals(symbolsToForce[i], false);
-			}
-		}, 0);
+		if (this.globalNotifyIndex == 0) {
+			//Append expired onto symbolsToForce, create a notification queue and schedule notifications.
+			expired.unshift(symbolsToForce.length, 0);
+			symbolsToForce.splice.apply(symbolsToForce, expired);
+			this.needsGlobalNotify = symbolsToForce;
+			var me = this;
+			setTimeout(function () {
+				me.processGlobalNotifyQueue();
+			}, 0);
+		} else {
+			//Append both expired and symbolsToForce onto the existing notification queue.
+			var globalNotifyList = this.needsGlobalNotify;
+			symbolsToForce.unshift(globalNotifyList.length, 0);
+			globalNotifyList.splice.apply(globalNotifyList, symbolsToForce);
+			expired.unshift(globalNotifyList.length, 0);
+			globalNotifyList.splice.apply(globalNotifyList, expired);
+		}
 	};
 
-	function makeRandomName()
-	{
-		var text = "";
-		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-		for( var i=0; i < 10; i++ )
-		    text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-		return text;
-	}
-
+	Folder.prototype.processGlobalNotifyQueue = function () {
+		var notifyList = this.needsGlobalNotify;
+		var index = 0;
+		while (index < notifyList.length) {
+			this.globalNotifyIndex++;
+			var symbol = notifyList[index];
+			if (symbol.needsGlobalNotify) {
+				symbol.needsGlobalNotify = false;
+				this.notifyGlobals(symbol, false);
+			}
+			index = this.globalNotifyIndex;
+		}
+		this.needsGlobalNotify = [];
+		this.globalNotifyIndex = 0;
+	};
 
 	/**
 	 * A symbol table entry.
@@ -607,6 +623,7 @@
 		this.eden_definition = undefined;
 		this.evalResolved = true;
 		this.extend = undefined;
+		this.needsGlobalNotify = false;
 
 		// need to keep track of who we subscribe to so
 		// that we can unsubscribe from them when our definition changes
