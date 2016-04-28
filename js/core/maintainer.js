@@ -535,7 +535,6 @@
 			return;
 		}
 
-		var me = this;
 		this.expiryCount.value = 0;
 		var symbolNamesToForce = {};
 		for (var i = 0; i < this.needsExpire.length; i++) {
@@ -563,49 +562,40 @@
 		fireJSActions(expired);
 		fireJSActions(symbolsToForce);
 
-		var globalNotifyList = this.needsGlobalNotify;
-		var alreadyNotifying = globalNotifyList.length > 0;
-
-		if (this.globalNotifyIndex >= 1000) {
-			globalNotifyList.splice(0, this.globalNotifyIndex);
-			this.globalNotifyIndex = 0;
-		}
-
-		expired.unshift(globalNotifyList.length, 0);
-		globalNotifyList.splice.apply(globalNotifyList, expired);
-		symbolsToForce.unshift(globalNotifyList.length, 0);
-		globalNotifyList.splice.apply(globalNotifyList, symbolsToForce);
-
-		if (!alreadyNotifying) {
+		if (this.globalNotifyIndex == 0) {
+			//Append expired onto symbolsToForce, create a notification queue and schedule notifications.
+			expired.unshift(symbolsToForce.length, 0);
+			symbolsToForce.splice.apply(symbolsToForce, expired);
+			this.needsGlobalNotify = symbolsToForce;
+			var me = this;
 			setTimeout(function () {
-				var notifyList = me.needsGlobalNotify;
-				var index = 0;
-				while (index < notifyList.length) {
-					me.globalNotifyIndex++;
-					var symbol = notifyList[index];
-					if (symbol.needsGlobalNotify) {
-						symbol.needsGlobalNotify = false;
-						me.notifyGlobals(symbol, false);
-					}
-					index = me.globalNotifyIndex;
-				}
-				me.needsGlobalNotify = [];
-				me.globalNotifyIndex = 0;
+				me.processGlobalNotifyQueue();
 			}, 0);
+		} else {
+			//Append both expired and symbolsToForce onto the existing notification queue.
+			var globalNotifyList = this.needsGlobalNotify;
+			symbolsToForce.unshift(globalNotifyList.length, 0);
+			globalNotifyList.splice.apply(globalNotifyList, symbolsToForce);
+			expired.unshift(globalNotifyList.length, 0);
+			globalNotifyList.splice.apply(globalNotifyList, expired);
 		}
 	};
 
-	function makeRandomName()
-	{
-		var text = "";
-		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-		for( var i=0; i < 10; i++ )
-		    text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-		return text;
-	}
-
+	Folder.prototype.processGlobalNotifyQueue = function () {
+		var notifyList = this.needsGlobalNotify;
+		var index = 0;
+		while (index < notifyList.length) {
+			this.globalNotifyIndex++;
+			var symbol = notifyList[index];
+			if (symbol.needsGlobalNotify) {
+				symbol.needsGlobalNotify = false;
+				this.notifyGlobals(symbol, false);
+			}
+			index = this.globalNotifyIndex;
+		}
+		this.needsGlobalNotify = [];
+		this.globalNotifyIndex = 0;
+	};
 
 	/**
 	 * A symbol table entry.
