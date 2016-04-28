@@ -1,6 +1,6 @@
 /**
  * @title JS-Presentation Environment
- * @author Antony Harfield
+ * @author Original by Matt Cranham, with enhancements by Elizabeth Hudnott and Jonny Foss
  */
 
 require("Canvas2D");
