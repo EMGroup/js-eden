@@ -1,6 +1,6 @@
 /**
  * @title JS-Presentation Environment
- * @author Antony Harfield
+ * @author Original by Matt Cranham, with enhancements by Elizabeth Hudnott and Jonny Foss
  */
 
 require("Canvas2D");
@@ -11,7 +11,7 @@ import lib/list;
 
 include_css("models/jspe/jspe.css");
 
-if (_view_jspe_width == @) {
+if (Slide == @) {
 	hideView("projects");
 	createCanvas("jspe", "slides", "JSPE Slides");
 	_view_picture_x = 0;
