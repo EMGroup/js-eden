@@ -76,7 +76,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	this.drawPicture = function(viewName) {
 		var canvas = canvases[viewName];
 		if (canvas === undefined) {
-			//View has been detroyed.
+			//View has been destroyed.
 			return;
 		}
 
