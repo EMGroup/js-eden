@@ -5,6 +5,7 @@
 
 PI = ${{ Math.PI }}$;
 radiansPerUnit is PI / 180;
+${{window.radiansPerDegree = Math.PI / 180 }}$;
 
 ##Rounding functions
 
@@ -287,7 +288,33 @@ func atan {
 }
 
 func cos {
-  return ${{ Math.cos(arguments[0]*root.lookup("radiansPerUnit").value()); }}$;
+	${{
+		var x = arguments[0];
+		var radiansPerUnit = root.lookup("radiansPerUnit").value();
+		if (radiansPerUnit == radiansPerDegree) {
+			var xSymmetry, sign;
+			if (x >= 0) {
+				xSymmetry = x % 360;
+			} else {
+				xSymmetry = (-x) % 360;
+			}
+			sign = 1;
+			if (xSymmetry >= 180) {
+				xSymmetry = xSymmetry - 180;
+				sign = -1;
+			}
+			if (xSymmetry == 0) {
+				return sign;
+			} else if (xSymmetry == 90) {
+				return 0;
+			} else if (xSymmetry == 60) {
+				return 0.5 * sign;
+			} else if (xSymmetry == 120) {
+				return -0.5 * sign;
+			}
+		}
+		return Math.cos(x * radiansPerUnit);
+	}}$;
 }
 
 func exp {
@@ -536,7 +563,32 @@ func random {
 }
 
 func sin {
-  return ${{ Math.sin(arguments[0]*root.lookup("radiansPerUnit").value()); }}$;
+	${{
+		var x = arguments[0];
+		var radiansPerUnit = root.lookup("radiansPerUnit").value();
+		if (radiansPerUnit == radiansPerDegree) {
+			var xSymmetry, sign;
+			if (x >= 0) {
+				xSymmetry = x % 360;
+				sign = 1;
+			} else {
+				xSymmetry = (-x) % 360;
+				sign = -1;
+			}
+			if (xSymmetry >= 180) {
+				xSymmetry = xSymmetry - 180;
+				sign = -sign;
+			}
+			if (xSymmetry == 0) {
+				return 0;
+			} else if (xSymmetry == 90) {
+				return sign;
+			} else if (xSymmetry == 30 || xSymmetry == 150) {
+				return 0.5 * sign;
+			}
+		}
+		return Math.sin(x * radiansPerUnit);
+	}}$;
 }
 
 func sqrt {
@@ -569,6 +621,29 @@ func sum {
 }
 
 func tan {
-  return ${{ Math.tan(arguments[0]*root.lookup("radiansPerUnit").value()); }}$;
+	${{
+		var x = arguments[0];
+		var radiansPerUnit = root.lookup("radiansPerUnit").value();
+		if (radiansPerUnit == radiansPerDegree) {
+			var xSymmetry, sign;
+			if (x >= 0) {
+				xSymmetry = x % 180;
+				sign = 1;
+			} else {
+				xSymmetry = (-x) % 180;
+				sign = -1;
+			}
+			if (xSymmetry == 0) {
+				return 0;
+			} else if (xSymmetry == 90) {
+				return Infinity;
+			} else if (xSymmetry == 45) {
+				return sign;
+			} else if (xSymmetry == 135) {
+				return -sign;
+			}
+		}
+		return Math.tan(x * radiansPerUnit);
+	}}$;
 }
 
