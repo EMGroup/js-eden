@@ -4,6 +4,9 @@
 ##changes made to the environment subsequent to the SciFest 2015 event at Joensuu (21-27 April 2015)
 ##but before 14th November 2015 (build up to the CONSTRUIT! C6 meeting).
 
+##Reverse changes made by all later versions.
+include("compatibility/construit.c15.js-e");
+
 mouseWindow is mouseView;
 mouseDownWindow is mouseDownView;
 hsl2colour is hslColour;

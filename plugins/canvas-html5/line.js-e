@@ -188,8 +188,8 @@ func distanceMoved {
 func angleTurned {
 	${{
 		var from, to;
-		if (arguments.length == 0) {
-			//Probably not an actual function call but radiansPerUnit observable changed.
+		if (arguments[0] instanceof Folder) {
+			//Probably not an actual function call but semicircleAngle observable changed.
 			return undefined;
 		} else if (arguments.length == 1) {
 			to = arguments[0];
@@ -204,7 +204,7 @@ func angleTurned {
 				return undefined;
 			}
 		} else {
-			eden.error(new Error("angleTurned: This function requires at most 2 arguments"), "error");
+			eden.error(new Error("angleTurned: This function requires at at least 1 argument and most 2 arguments"), "error");
 			return undefined;
 		}
 		if (to === undefined) {
@@ -218,7 +218,7 @@ func angleTurned {
 		}
 		var relativeX = to.x - from.x;
 		var relativeY = to.y - from.y;
-		return Math.atan2(relativeY, relativeX) / root.lookup("radiansPerUnit").value();
+		return Math.atan2(relativeY, relativeX) * root.lookup("semicircleAngle").value() / Math.PI;
 	}}$;
 }
-radiansPerUnit ~> [angleTurned];
+semicircleAngle ~> [angleTurned];

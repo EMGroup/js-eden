@@ -1,10 +1,14 @@
-## Copyright (c) 2013, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
+/*
+ * @title Math Library
+ * @author Elizabeth Hudnott and Tim Monks
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
 
 PI = ${{ Math.PI }}$;
-radiansPerUnit is PI / 180;
+semicircleAngle = 180;
 
 ##Rounding functions
 
@@ -275,19 +279,65 @@ func abs {
 }
 
 func acos {
-  return ${{ Math.acos(arguments[0]) }}$ / radiansPerUnit;
+	${{
+		var x = arguments[0];
+		var semicircleAngle = root.lookup("semicircleAngle").value();
+		if (x == 0.5) {
+			return semicircleAngle / 3;
+		} else {
+			return Math.acos(x) * semicircleAngle / Math.PI;
+		}
+	}}$;
 }
 
 func asin {
-  return ${{ Math.asin(arguments[0]) }}$ / radiansPerUnit;
+	${{
+		var x = arguments[0];
+		var semicircleAngle = root.lookup("semicircleAngle").value();
+		if (x == 0.5) {
+			return semicircleAngle / 6;
+		} else {
+			return Math.asin(x) * semicircleAngle / Math.PI;
+		}
+	}}$;
 }
 
 func atan {
-  return ${{ Math.atan(arguments[0]) }}$ / radiansPerUnit;
+	${{
+		var x = arguments[0];
+		var semicircleAngle = root.lookup("semicircleAngle").value();
+		return Math.atan(x) * semicircleAngle / Math.PI;
+	}}$;
 }
 
 func cos {
-  return ${{ Math.cos(arguments[0]*root.lookup("radiansPerUnit").value()); }}$;
+	${{
+		var x = arguments[0];
+		var semicircleAngle = root.lookup("semicircleAngle").value();
+		if (Number.isInteger(semicircleAngle)) {
+			var xSymmetry, sign;
+			if (x >= 0) {
+				xSymmetry = x % (2 * semicircleAngle);
+			} else {
+				xSymmetry = (-x) % (2 * semicircleAngle);
+			}
+			sign = 1;
+			if (xSymmetry >= semicircleAngle) {
+				xSymmetry = xSymmetry - semicircleAngle;
+				sign = -1;
+			}
+			if (xSymmetry == 0) {
+				return sign;
+			} else if (xSymmetry == semicircleAngle / 2) {
+				return 0;
+			} else if (xSymmetry == semicircleAngle / 3) {
+				return 0.5 * sign;
+			} else if (xSymmetry == (5 * semicircleAngle) / 6) {
+				return -0.5 * sign;
+			}
+		}
+		return Math.cos(Math.PI * (x / semicircleAngle));
+	}}$;
 }
 
 func exp {
@@ -536,7 +586,32 @@ func random {
 }
 
 func sin {
-  return ${{ Math.sin(arguments[0]*root.lookup("radiansPerUnit").value()); }}$;
+	${{
+		var x = arguments[0];
+		var semicircleAngle = root.lookup("semicircleAngle").value();
+		if (Number.isInteger(semicircleAngle)) {
+			var xSymmetry, sign;
+			if (x >= 0) {
+				xSymmetry = x % (2 * semicircleAngle);
+				sign = 1;
+			} else {
+				xSymmetry = (-x) % (2 * semicircleAngle);
+				sign = -1;
+			}
+			if (xSymmetry >= semicircleAngle) {
+				xSymmetry = xSymmetry - semicircleAngle;
+				sign = -sign;
+			}
+			if (xSymmetry == 0) {
+				return 0;
+			} else if (xSymmetry == semicircleAngle / 2) {
+				return sign;
+			} else if (xSymmetry == semicircleAngle / 6 || xSymmetry == (5 * semicircleAngle) / 6) {
+				return 0.5 * sign;
+			}
+		}
+		return Math.sin(Math.PI * (x / semicircleAngle));
+	}}$;
 }
 
 func sqrt {
@@ -569,6 +644,30 @@ func sum {
 }
 
 func tan {
-  return ${{ Math.tan(arguments[0]*root.lookup("radiansPerUnit").value()); }}$;
+	${{
+		var x = arguments[0];
+		var semicircleAngle = root.lookup("semicircleAngle").value();
+		if (Number.isInteger(semicircleAngle)) {
+			var xSymmetry, sign;
+			if (x >= 0) {
+				xSymmetry = x % semicircleAngle;
+				sign = 1;
+			} else {
+				xSymmetry = (-x) % semicircleAngle;
+				sign = -1;
+			}
+			if (xSymmetry == 0) {
+				return 0;
+			} else if (xSymmetry == semicircleAngle / 2) {
+				return Infinity;
+			} else if (xSymmetry == semicircleAngle / 4) {
+				return sign;
+			} else if (xSymmetry == (3 * semicircleAngle) / 4) {
+				return -sign;
+			}
+		}
+		return Math.tan(Math.PI * (x / semicircleAngle));
+	}}$;
 }
 
+semicircleAngle ~> [sin, cos, tan, asin, acos, atan];

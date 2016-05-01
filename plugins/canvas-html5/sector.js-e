@@ -4,13 +4,19 @@
 ## See LICENSE.txt
 
 ${{
-Sector = function(x, y, r, sAngle, eAngle, fillcolour, outlinecolour,drawingOptions) {
+Sector = function(x, y, r, sAngle, eAngle, unitsInCircle, fillcolour, outlinecolour,drawingOptions) {
 	this.x = x;
 	this.y = y;
 	this.r = r;
 	this.sAngle = sAngle;
 	this.eAngle = eAngle;
-	var radiansPerUnit = root.lookup("radiansPerUnit").value();
+	this.unitsInCircle = unitsInCircle;
+	var radiansPerUnit;
+	if (unitsInCircle === undefined) {
+		radiansPerUnit = Math.PI / root.lookup("semicircleAngle").value();
+	} else {
+		radiansPerUnit = (2 * Math.PI) / unitsInCircle;
+	}
 	this.sRadians = sAngle * radiansPerUnit;
 	this.eRadians = eAngle * radiansPerUnit;
 
@@ -28,7 +34,7 @@ func Sector { ${{
 	var r = arguments[2];
 	var sAngle = arguments[3];
 	var eAngle = arguments[4];
-	var fillcolour, outlinecolour, drawingOptions;
+	var unitsInCircle, fillcolour, outlinecolour, drawingOptions;
 	var lastArg = arguments[arguments.length - 1];
 	var processUpTo;
 	if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
@@ -37,18 +43,25 @@ func Sector { ${{
 	} else {
 		processUpTo = arguments.length - 1;
 	}
-	if (processUpTo >= 5) {
-		fillcolour = arguments[5];
-		if (processUpTo == 6) {
-			outlinecolour = arguments[6];
-		}
+
+	var argsProcessed = 5;
+	if (typeof(arguments[argsProcessed]) == "number") {
+		unitsInCircle = arguments[argsProcessed];
+		argsProcessed++;
+	}
+	if (argsProcessed <= processUpTo) {
+		fillcolour = arguments[argsProcessed];
+		argsProcessed++;
+	}
+	if (argsProcessed <= processUpTo) {
+		outlinecolour = arguments[argsProcessed];
 	}
 	if (fillcolour === undefined && outlinecolour === undefined) {
-		fillcolour = "black";
+		outlinecolour = "black";
 	}
-	return new Sector(x, y, r, sAngle, eAngle, fillcolour, outlinecolour, drawingOptions);
+	return new Sector(x, y, r, sAngle, eAngle, unitsInCircle, fillcolour, outlinecolour, drawingOptions);
 }}$; };
-radiansPerUnit ~> [Sector];
+semicircleAngle ~> [Sector];
 
 ${{
 
@@ -114,7 +127,8 @@ Sector.prototype.isHit = function (context, scale, x, y) {
 }
 
 Sector.prototype.toString = function() {
-	var s = "Sector(" + Eden.edenCodeForValues(this.x, this.y, this.r, this.sAngle, this.eAngle, this.fillcolour, this.outlinecolour);
+	var s = "Sector(" + Eden.edenCodeForValues(this.x, this.y, this.r, this.sAngle, this.eAngle,
+		this.unitsInCircle, this.fillcolour, this.outlinecolour);
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

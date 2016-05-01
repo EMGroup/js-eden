@@ -1,0 +1,12 @@
+##Shim construal construit.c15
+##
+##Run on the later versions of JS-EDEN to temporarily reverse incompatible
+##changes made to the environment subsequent to the CONSTRUIT! C15 meeting
+##14th-19th April 2016
+
+radiansPerUnit is PI / 180;
+semicircleAngle is PI / radiansPerUnit;
+
+${{
+	Eden.systemObservableNames["radiansPerUnit"] = true;
+}}$;

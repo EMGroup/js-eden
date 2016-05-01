@@ -13,7 +13,7 @@ ${{
 		this.radius = radius;
 		this.items = items;
 
-		var radiansPerUnit = root.lookup("radiansPerUnit").value();
+		var radiansPerUnit = Math.PI / root.lookup("semicircleAngle").value();
 		if (angle2 === undefined) {
 			this.radians2 = 0;
 		} else {
@@ -62,8 +62,8 @@ ${{
 
 func CombinedRotation {
 	${{
-		if (arguments.length == 0) {
-			//Probably not an actual function call but radiansPerUnit observable changed.
+		if (arguments[0] instanceof Folder) {
+			//Probably not an actual function call but semicircleAngle observable changed.
 			return undefined;
 		}
 
@@ -96,8 +96,8 @@ func CombinedRotation {
 
 func RotateAboutCentre {
 	${{
-		if (arguments.length == 0) {
-			//Probably not an actual function call but radiansPerUnit observable changed.
+		if (arguments[0] instanceof Folder) {
+			//Probably not an actual function call but semicircleAngle observable changed.
 			return undefined;
 		}
 
@@ -120,8 +120,8 @@ func RotateAboutCentre {
 
 func RotateAboutPoint {
 	${{
-		if (arguments.length == 0) {
-			//Probably not an actual function call but radiansPerUnit observable changed.
+		if (arguments[0] instanceof Folder) {
+			//Probably not an actual function call but semicircleAngle observable changed.
 			return undefined;
 		}
 
@@ -149,4 +149,4 @@ func RotateAboutPoint {
 	}}$;
 }
 
-radiansPerUnit ~> [CombinedRotation, RotateAboutCentre, RotateAboutPoint];
+semicircleAngle ~> [CombinedRotation, RotateAboutCentre, RotateAboutPoint];
