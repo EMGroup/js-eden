@@ -189,7 +189,7 @@ func angleTurned {
 	${{
 		var from, to;
 		if (arguments.length == 0) {
-			//Probably not an actual function call but radiansPerUnit observable changed.
+			//Probably not an actual function call but semicircleAngle observable changed.
 			return undefined;
 		} else if (arguments.length == 1) {
 			to = arguments[0];
@@ -218,7 +218,7 @@ func angleTurned {
 		}
 		var relativeX = to.x - from.x;
 		var relativeY = to.y - from.y;
-		return Math.atan2(relativeY, relativeX) / root.lookup("radiansPerUnit").value();
+		return Math.atan2(relativeY, relativeX) * root.lookup("semicircleAngle").value() / Math.PI;
 	}}$;
 }
-radiansPerUnit ~> [angleTurned];
+semicircleAngle ~> [angleTurned];

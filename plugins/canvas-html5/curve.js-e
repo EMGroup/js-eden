@@ -22,7 +22,7 @@ ${{
 		this.length1 = mid * this.fullLength;
 		var length2 = this.fullLength - this.length1;
 
-		var radiansPerUnit = root.lookup("radiansPerUnit").value();
+		var radiansPerUnit = Math.PI / root.lookup("semicircleAngle").value();
 		this.delta1 = elasticity * this.length1;
 		this.delta2 = elasticity * length2;
 		var fullTurn = 2 * Math.PI;
@@ -138,7 +138,7 @@ func Curve {
 		return new Curve(x1, y1, x2, y2, r, elasticity, theta1, theta2, mid, overshoot, direction, colours, drawingOptions);
 	}}$;
 }
-radiansPerUnit ~> [Curve];
+semicircleAngle ~> [Curve];
 
 ${{
 	Curve.prototype.draw = function (context, scale) {

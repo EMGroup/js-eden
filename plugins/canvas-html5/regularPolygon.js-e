@@ -7,6 +7,7 @@ ${{
 		this.star = star;
 		this.interiorOutline = interiorOutline;
 		this.rotation = rotation;
+		this.rotationInRadians = rotation * Math.PI / root.lookup("semicircleAngle").value();
 		this.fillcolour = fillcolour;
 		this.outlinecolour = outlinecolour;
 		this.drawingOptions = drawingOptions;
@@ -30,9 +31,9 @@ ${{
 		}
 		var rotation2;
 		if (n % 4 == 0) {
-			rotation2 = -rotation - Math.PI * (0.5 - 1 / n);
+			rotation2 = -this.rotationInRadians - Math.PI * (0.5 - 1 / n);
 		} else {
-			rotation2 = -rotation - Math.PI * (0.5 - 2 / n); //Zero rotation means "pointing upwards"
+			rotation2 = -this.rotationInRadians - Math.PI * (0.5 - 2 / n); //Zero rotation means "pointing upwards"
 		}
 		for (var i = 0; i < n; i++) {
 			var j = i;
@@ -68,9 +69,9 @@ ${{
 		var radius = this.r - lineWidth / 2;
 		var rotation;
 		if (this.n % 4 == 0) {
-			rotation = -this.rotation - Math.PI * (0.5 - 1 / this.n);
+			rotation = -this.rotationInRadians - Math.PI * (0.5 - 1 / this.n);
 		} else {
-			rotation = -this.rotation - Math.PI * (0.5 - 2 / this.n); //Zero rotation means "pointing upwards"
+			rotation = -this.rotationInRadians - Math.PI * (0.5 - 2 / this.n); //Zero rotation means "pointing upwards"
 		}
 		var nudge;
 		if (this.drawingOptions !== undefined && this.drawingOptions.valign == "bottom") {
@@ -177,7 +178,7 @@ func RegularPolygon {
 		if (numArgs - argsProcessed > maxArgs - 6) { argsProcessed = 6; }
 
 		if (typeof(arguments[argsProcessed]) == "number") {
-				rotation = arguments[argsProcessed] * root.lookup("radiansPerUnit").value();
+				rotation = arguments[argsProcessed];
 				argsProcessed++;
 		}
 		if (numArgs - argsProcessed > maxArgs - 7) { argsProcessed = 7; }
@@ -212,7 +213,7 @@ func RegularPolygon {
 		return new RegularPolygon(x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolour, drawingOptions);
 	}}$;
 }
-radiansPerUnit ~> [RegularPolygon];
+semicircleAngle ~> [RegularPolygon];
 
 ${{
 RegularPolygon.prototype.draw = function (context) {

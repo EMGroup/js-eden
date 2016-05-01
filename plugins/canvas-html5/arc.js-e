@@ -10,7 +10,7 @@ Arc = function(x, y, r, sAngle, eAngle, colour, drawingOptions) {
 	this.r = r;
 	this.sAngle = sAngle;
 	this.eAngle = eAngle;
-	var radiansPerUnit = root.lookup("radiansPerUnit").value();
+	var radiansPerUnit = Math.PI / root.lookup("semicircleAngle").value();
 	var sRadians = sAngle * radiansPerUnit;
 	var eRadians = eAngle * radiansPerUnit;
 	var twoPI = 2 * Math.PI;
@@ -47,7 +47,7 @@ func Arc { ${{
 	}
 	return new Arc(x, y, r, sAngle, eAngle, colour, drawingOptions);
 }}$; };
-radiansPerUnit ~> [Arc];
+semicircleAngle ~> [Arc];
 
 ${{
 

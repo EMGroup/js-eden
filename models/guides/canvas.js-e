@@ -202,7 +202,7 @@ sector is TitledSlide("Circular Sectors",
 	<h3>Syntax</h3>
 	<p>item is Sector(x, y, radius, start_angle, end_angle, fill_colour, outline_colour, drawing_options);</p>" //
 	htmlBulletList(
-		"Angles are measured in degrees by default, though individual construals can choose their own measurement system by assigning to the radiansPerUnit observable.",
+		"Angles are measured in degrees by default, though individual construals can choose their own measurement system by assigning to the semicircleAngle observable.",
 		"Zero degrees is the 3&nbsp;o'clock position.",
 		"Positive numbers rotate anticlockwise from 3&nbsp;o'clock.  Negative numbers move clockwise."
 	) //
