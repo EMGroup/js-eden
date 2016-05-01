@@ -188,7 +188,7 @@ func distanceMoved {
 func angleTurned {
 	${{
 		var from, to;
-		if (arguments.length == 0) {
+		if (arguments[0] instanceof Folder) {
 			//Probably not an actual function call but semicircleAngle observable changed.
 			return undefined;
 		} else if (arguments.length == 1) {
@@ -204,7 +204,7 @@ func angleTurned {
 				return undefined;
 			}
 		} else {
-			eden.error(new Error("angleTurned: This function requires at most 2 arguments"), "error");
+			eden.error(new Error("angleTurned: This function requires at at least 1 argument and most 2 arguments"), "error");
 			return undefined;
 		}
 		if (to === undefined) {

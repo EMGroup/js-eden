@@ -1,7 +1,11 @@
-## Copyright (c) 2013, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
+/*
+ * @title Math Library
+ * @author Elizabeth Hudnott and Tim Monks
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
 
 PI = ${{ Math.PI }}$;
 semicircleAngle = 180;

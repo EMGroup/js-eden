@@ -62,7 +62,7 @@ ${{
 
 func CombinedRotation {
 	${{
-		if (arguments.length == 0) {
+		if (arguments[0] instanceof Folder) {
 			//Probably not an actual function call but semicircleAngle observable changed.
 			return undefined;
 		}
@@ -96,7 +96,7 @@ func CombinedRotation {
 
 func RotateAboutCentre {
 	${{
-		if (arguments.length == 0) {
+		if (arguments[0] instanceof Folder) {
 			//Probably not an actual function call but semicircleAngle observable changed.
 			return undefined;
 		}
@@ -120,7 +120,7 @@ func RotateAboutCentre {
 
 func RotateAboutPoint {
 	${{
-		if (arguments.length == 0) {
+		if (arguments[0] instanceof Folder) {
 			//Probably not an actual function call but semicircleAngle observable changed.
 			return undefined;
 		}
