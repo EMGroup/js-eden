@@ -5,7 +5,7 @@
 ##normal JS-EDEN implementations and the tkeden versions.
 
 ##Trigonometric functions in tkeden work in radians instead of degrees.
-radiansPerUnit = 1;
+semicircleAngle = PI;
 
 func listcat {
 	auto result, i;
@@ -21,6 +21,32 @@ func listcat {
 		}
 	}
 	return result;
+}
+
+##Default to base e instead of base 10.
+func log {
+	${{
+		var number = arguments[0];
+		var base = arguments[1];
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("log: The function requires at least one argument and at most two arguments."), "error");
+			return undefined;
+		}
+
+		if (number === undefined || (arguments.length == 2 && base === undefined)) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("log: The first argument must be a number, not a " + typeof(number)), "error");
+		} else if (base !== undefined && typeof(base) != "number") {
+			eden.error(new Error("log: The second argument must be a number, not a " + typeof(base)), "error");
+		}
+
+		if (base === undefined) {
+			return Math.log(number);
+		} else {
+			return Math.log(number) / Math.log(base);
+		}
+	}}$;
 }
 
 proc pauseedenclocks {
@@ -41,7 +67,8 @@ func rand {
   }}$;
 };
 
-rgb2color is rgb2colour;
+rgb2colour is rgbColour;
+rgb2color is rgbColour;
 
 func oldSort {
 	para newSort, params;

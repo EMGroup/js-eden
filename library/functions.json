@@ -1066,8 +1066,9 @@
 				"x": "",
 				"y": "",
 				"radius": "",
-				"start_angle": "",
-				"end_angle": "",
+				"start": "",
+				"end": "",
+				"[units_in_circle]": "",
 				"[fill_colour": "",
 				"[outline_colour]]": "",
 				"[drawing_options]": ""

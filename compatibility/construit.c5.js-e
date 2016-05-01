@@ -10,7 +10,7 @@ include("compatibility/scifest2015.js-e");
 include_css("compatibility/construit.c5.css");
 
 destroyView("picture");
-createCanvas("default", "picture", "Canvas Picture");
+createCanvas("default", "picture", "Canvas picture");
 
 proc CanvasHTML5_DrawPicture {
 	${{
@@ -39,7 +39,8 @@ func oldArc {
 	} else {
 		direction = "clockwise";
 	}
-	return newArc(params[1], params[2], params[3], -params[4] / radiansPerUnit, -params[5] / radiansPerUnit, params[7], {direction: direction});
+	return newArc(params[1], params[2], params[3], -params[4] * semicircleAngle / PI,
+		-params[5] * semicircleAngle / PI, params[7], {direction: direction});
 }
 patch(&oldArc, &Arc);
 
