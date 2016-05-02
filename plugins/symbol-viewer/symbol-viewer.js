@@ -96,6 +96,10 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 		me.instances.push(symbollist);
 		numInstances++;
+		if (numInstances == 1) {
+			// Register event handler for symbol changes.
+			edenUI.eden.root.addGlobal(symbolChanged);
+		}
 
 		content.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
 			var editorViewName = "edit_" + edenName;
@@ -182,6 +186,10 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 				var index = me.instances.indexOf(symbollist);
 				me.instances.splice(index, 1);
 				numInstances--;
+				if (numInstances == 0) {
+					// Register event handler for symbol changes.
+					edenUI.eden.root.removeGlobal(symbolChanged);
+				}
 			}
 		};
 		return viewData;
@@ -307,9 +315,6 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			}
 		}
 	};
-
-	// Register event handler for symbol changes.
-	edenUI.eden.root.addGlobal(symbolChanged);
 
 	// Add views supported by this plugin.
 	edenUI.views["ObservableList"] = {dialog: this.createObservableDialog, title: "Observable List", category: edenUI.viewCategories.comprehension, menuPriority: 0};

@@ -307,15 +307,17 @@
 		fireJSActions(expired);
 		fireJSActions(symbolsToForce);
 
-		if (this.globalNotifyIndex == 0) {
+		if (this.needsGlobalNotify.length == 0) {
 			//Append expired onto symbolsToForce, create a notification queue and schedule notifications.
 			expired.unshift(symbolsToForce.length, 0);
 			symbolsToForce.splice.apply(symbolsToForce, expired);
-			this.needsGlobalNotify = symbolsToForce;
-			var me = this;
-			setTimeout(function () {
-				me.processGlobalNotifyQueue();
-			}, 0);
+			if (symbolsToForce.length > 0) {
+				this.needsGlobalNotify = symbolsToForce;
+				var me = this;
+				setTimeout(function () {
+					me.processGlobalNotifyQueue();
+				}, 0);
+			}
 		} else {
 			//Append both expired and symbolsToForce onto the existing notification queue.
 			var globalNotifyList = this.needsGlobalNotify;
