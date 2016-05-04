@@ -11,7 +11,7 @@ var edenfunctions = {};
  * This plugs provides several views for inspecting the JS-Eden symbol table.
  * The views include: Functions, Observables, Agents and All.
  *
- * @author Nicolas Pope
+ * @author Nicolas Pope and Elizabeth Hudnott
  * @constructor
  * @param context The eden context this plugin is being loaded in to.
  */
@@ -298,21 +298,19 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 * update all visible symbol lists.
 	 */
 	var symbolChanged = function (sym, create) {
-		if (numInstances > 0) {
-			var name = sym.name.substr(1);
+		var name = sym.name.substr(1);
 
-			if (create) {
-				symbol_create_queue[name] = sym;
-			} else if (name in symbol_create_queue) {
-				return;
-			} else {
-				symbol_update_queue[name] = sym;
-			}
+		if (create) {
+			symbol_create_queue[name] = sym;
+		} else if (name in symbol_create_queue) {
+			return;
+		} else {
+			symbol_update_queue[name] = sym;
+		}
 
-			if (!symbol_lists_updating) {
-				symbol_lists_updating = true;
-				setTimeout(sym_changed_to,me.delay);
-			}
+		if (!symbol_lists_updating) {
+			symbol_lists_updating = true;
+			setTimeout(sym_changed_to,me.delay);
 		}
 	};
 
