@@ -1855,8 +1855,9 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 
-		function openTab(path) {
-			Eden.Agent.importAgent(path, "default", ["noexec", "create"], function(ag) {
+		function openTab(path, tag) {
+			if (tag === undefined) tag = "default";
+			Eden.Agent.importAgent(path, tag, ["noexec", "create"], function(ag) {
 				/*if (ag === undefined) {
 					ag = new Eden.Agent(undefined, path, undefined, undefined);
 				}*/
@@ -1889,7 +1890,12 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				if (element.className == "eden-path") {
 					//console.log();
 					disableInspectMode();
-					openTab(element.parentNode.textContent);
+					var path = element.parentNode.textContent.split("@");
+					if (path.length == 1) {
+						openTab(path[0]);
+					} else {
+						openTab(path[0], path[1]);
+					}
 				} else if (element.className == "eden-observable") {
 					var obs = element.getAttribute("data-observable");
 					element.textContent =  Eden.edenCodeForValue(eden.root.lookup(obs).value());
