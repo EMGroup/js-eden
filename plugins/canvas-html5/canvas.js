@@ -108,9 +108,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					content.style.backgroundColor = backgroundColour;
 					context.fillRect(0, 0, canvas.width, canvas.height);
 
-					//Configure JS-EDEN default options that are different from the HTML canvas defaults.
-					me.configureContextDefaults(context, scale);
-
 					var hash;
 					for (hash in previousElements) {
 						previousElements[hash].togarbage = true;
@@ -132,6 +129,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 							origin = new Point(0, 0);
 						}
 						context.scale(combinedScale, combinedScale);
+						//Configure JS-EDEN default options that are different from the HTML canvas defaults.
+						me.configureContextDefaults(context, scale);
 
 						var pictureLists = [picture];
 						var pictureListIndices = [0];
