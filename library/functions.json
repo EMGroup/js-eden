@@ -1515,24 +1515,32 @@
 			"return": "",
 			"description": ""
 		},
-		"midiDefaultPrograms": {
-			"parameters": { },
-			"return": "",
-			"description": ""
-		},
 		"midiMessagesForTune": {
 			"parameters": {
 				"[channel_number]": "",
 				"beat_note_value": "",
 				"beats_per_minute": "",
-				"notes": ""
-				
+				"notes": ""				
 			},
 			"return": "",
 			"description": ""
 		},
 		"midiOutputs": {
 			"parameters": { },
+			"return": "",
+			"description": ""
+		},
+		"pianoKeyNumber": {
+			"parameters": {
+				"note_name_in_scientific_pitch_notation": ""
+			},
+			"return": "",
+			"description": ""
+		},
+		"tuneFromText": {
+			"parameters": {
+				"list_of_note_and_duration_pairs": ""
+			},
 			"return": "",
 			"description": ""
 		}
@@ -1767,6 +1775,12 @@
 		},
 		"initializeMIDI": {
 			"parameters": { }
+		},
+		"loadMIDIPrograms": {
+			"parameters": {
+				"[device_number]": "",
+				"list_of_programs_or_program1...": ""
+			}
 		},
 		"playMIDI": {
 			"parameters": {

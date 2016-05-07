@@ -110,6 +110,7 @@ Eden.systemAgentNames = {
 	"bindMIDIControl": true,
 	"bindMIDINote": true,
 	"bindMIDIPrograms": true,
+	"loadMIDIPrograms": true,
 	"initializeMIDI": true,
 	"playMIDI": true,
 };
@@ -286,9 +287,10 @@ Eden.systemFunctionNames = {
 	"shapesAt" : true,
 	"zonesAt" : true,
 	"mergeMIDIMessages": true,
-	"midiDefaultPrograms": true,
 	"midiMessagesForTune": true,
 	"midiOutputs": true,
+	"pianoKeyNumber": true,
+	"tuneFromText": true,
 };
 
 Eden.symbolCategories = {};
@@ -458,6 +460,7 @@ Eden.symbolCategories["Sound and Video"] = {
 		"bindMIDINote": true,
 		"bindMIDIPrograms": true,
 		"initializeMIDI": true,
+		"loadMIDIPrograms": true,
 		"playMIDI": true,
 		"unbind": true,
 	},
@@ -476,9 +479,10 @@ Eden.symbolCategories["Sound and Video"] = {
 		"Audio": true,
 		"Video": true,
 		"mergeMIDIMessages": true,
-		"midiDefaultPrograms": true,
 		"midiMessagesForTune": true,
 		"midiOutputs": true,
+		"pianoKeyNumber": true,
+		"tuneFromText": true,
 	}
 }
 

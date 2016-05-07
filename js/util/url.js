@@ -134,7 +134,7 @@ URLUtil.downloadFile = function (settings) {
 
 		return $.ajax({
 			url: proxyURL + "?url=" + encodeURI(url) + "&callback=" + callbackName,
-			dataType: "script",
+			dataType: "script", //"script" instead of "jsonp" allows synchronous loading if the JS-EDEN host and the proxy host are on the same domain.
 			async: !synchronous,
 			error: error,
 		});
