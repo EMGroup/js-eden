@@ -119,6 +119,29 @@ function initialiseJSEden(callback) {
 	}
 
 	$(document).ready(function () {
+		// Browser version checks
+		var browser = $.browser;
+		var bversion = browser.version.split(".");
+		bversion = parseInt(bversion[0]);
+
+		function invalidVersion(msg) {
+			$(".loadmessage").html(msg);
+		}
+
+		if (browser.msie) {
+			if (bversion < 13) invalidVersion("Microsoft Internet Explorer is not supported, use Edge, Firefox or Chrome.");
+		} else if (browser.mozilla) {
+			if (bversion < 29) invalidVersion("Please upgrade your version of Firefox/Mozilla.");
+		} else if (browser.webkit && !browser.chrome) {
+			invalidVersion("Your browser is not supported by JS-Eden, please use Edge, Firefox or Chrome.");
+		} else if (browser.chrome) {
+			if (bversion < 39) invalidVersion("Please upgrade your version of Chrome"); 
+		} else if (browser.opera) {
+			invalidVersion("Opera is not supported, use Chrome or Firefox.");
+		} else {
+			invalidVersion("Your browser is not supported by JS-Eden, use Firefox or Chrome.");
+		}
+
 		document.addEventListener("touchstart", touchHandler, true);
 		document.addEventListener("touchmove", touchHandler, true);
 		document.addEventListener("touchend", touchHandler, true);
