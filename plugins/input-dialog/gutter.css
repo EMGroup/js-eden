@@ -98,6 +98,32 @@ div.eden-gutter-item.live:before {
 	content: " ";
 }
 
+div.eden-gutter-item.changed:before {
+	/*filter: contrast(20%);*/
+	-webkit-filter: blur(5px);
+	opacity: 0.1;
+	background-color: #0000ff;
+	position: absolute;
+	width: 100%;
+	height: 20px;
+	margin-top: -4px;
+	margin-left: -5px;
+	content: " ";
+}
+
+div.eden-gutter-item.notcurrent:before {
+	/*filter: contrast(20%);*/
+	-webkit-filter: blur(5px);
+	opacity: 0.1;
+	background-color: #ff00ff;
+	position: absolute;
+	width: 100%;
+	height: 20px;
+	margin-top: -4px;
+	margin-left: -5px;
+	content: " ";
+}
+
 div.eden-gutter-item.current {
 	border-right-color: silver;
 }

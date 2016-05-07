@@ -1,4 +1,15 @@
 
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr, len;
+  if (this.length === 0) return hash;
+  for (i = 0, len = this.length; i < len; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
+
 function changeClassString(str, c, add) {
 	var list = str.split(" ");
 	var ix = list.indexOf(c);
@@ -21,6 +32,13 @@ function changeClass(ele, c, add) {
 	if (res != ele.className) {
 		ele.className = res;
 	}
+}
+
+EdenUI.GutterLineState = function() {
+	this.live = false;
+	this.selected = false;
+	this.exechash = 0;
+	this.changed = false;
 }
 
 function EdenScriptGutter(parent, infob) {
@@ -259,6 +277,8 @@ EdenScriptGutter.prototype.executeSelected = function() {
 		if (this.lines[i].selected) {
 			var sellines = this.ast.getBlockLines(i);
 			this.agent.executeLine(i);
+			this.lines[i].exechash = this.ast.getSource(this.ast.lines[i]).hashCode();
+			console.log("Hash: " + this.lines[i].exechash);
 			i = sellines[1];
 		}
 	}
@@ -267,6 +287,7 @@ EdenScriptGutter.prototype.executeSelected = function() {
 
 EdenScriptGutter.prototype.generate = function(ast, lineno) {
 	this.ast = ast;
+
 	/*var linediff = ast.lines.length - this.gutter.childNodes.length;
 
 	if (linediff < 0) {
@@ -296,11 +317,25 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			ele.className = "eden-gutter-item";
 			ele.setAttribute("data-line", ""+i);
 			this.gutter.appendChild(ele);
-			if (this.lines[i] === undefined) this.lines[i] = {selected: false, live: false};
+			if (this.lines[i] === undefined) this.lines[i] = new EdenUI.GutterLineState(); //this.lines[i] = {selected: false, live: false};
 		}
 
 		globaldoupdate = true;
 	}
+
+	/*if (lineno >= 0 && ast.lines[lineno-1] && this.lines[lineno-1]) {
+		var diff = ast.getSource(ast.lines[lineno-1]).hashCode() - this.lines[lineno-1].exechash;
+		console.log("Diff: " + diff);
+		this.lines[lineno-1].changed = diff != 0;
+	} else if (lineno == -1) {
+		for (var i=0; i<ast.lines.length; i++) {
+			if (ast.lines[i] && this.lines[i]) {
+				var diff = ast.getSource(ast.lines[i]).hashCode() - this.lines[i].exechash;
+				console.log("Diff: " + diff);
+				this.lines[i].changed = diff != 0;
+			}
+		}
+	}*/
 
 	for (var i=0; i<ast.lines.length; i++) {
 		//this.gutter.appendChild(document.createElement("div"));
@@ -352,6 +387,31 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 				if (this.lines[i].live) {
 					className += " live";
 					//doreplace = false;
+				}
+				var diff = ast.getSource(ast.lines[i]).hashCode();
+				//console.log("Diff: " + diff);
+				if (this.lines[i].exechash != 0 && diff - this.lines[i].exechash != 0) {
+					className += " changed";
+					if (!this.lines[i].changed) doupdate = true;
+					this.lines[i].changed = true;
+				} else if (diff - this.lines[i].exechash == 0) {
+					if (this.lines[i].changed) doupdate = true;
+					this.lines[i].changed = false;
+
+					if (ast.lines[i].type == "definition") {
+						var sym = eden.root.symbols[ast.lines[i].lvalue.name];
+						if (sym && sym.eden_definition) {
+							var sdiff = sym.eden_definition.hashCode();
+							if (diff - sdiff != 0) {
+								className += " notcurrent";
+								if (!this.lines[i].changed) doupdate = true;
+								this.lines[i].changed = true;
+							} else if (diff - sdiff == 0) {
+								if (this.lines[i].changed) doupdate = true;
+								this.lines[i].changed = false;
+							}
+						}
+					}
 				}
 			}
 		}

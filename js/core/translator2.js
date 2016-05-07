@@ -36,6 +36,8 @@ Eden.AST = function(code, imports) {
 
 	// Start parse with SCRIPT production
 	this.script = this.pSCRIPT();
+
+	// Calculate statement hashes?
 }
 
 
