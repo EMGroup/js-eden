@@ -23,8 +23,8 @@
  * .addSoftwareDriver(init)
  * .addSoftSynth(synth)
  * .outputNames
+ * .loadPrograms
  * .bindPrograms(edenSymbol, outputNumber)
- * .defaultPrograms
  * .mergeMessageLists(listOfLists)
  * .alterNote(inputID, device, channel, note, velocity)
  * .alterVelocity(inputID, outputNumber, channelNumber, note, velocity)
@@ -70,8 +70,8 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 			var output = outputs[outputNum];
 			for (var i = 0; i < programs.length && i < 16; i++) {
 				var program = programs[i];
-				if (Number.isInteger(program) && program >= 0 && program <= 127) {
-					output.send([0xC0 + i, program]);
+				if (Number.isInteger(program) && program >= 1 && program <= 128) {
+					output.send([0xC0 + i, program - 1]);
 				}
 			}
 			if (programs.length > 16) {
@@ -97,13 +97,6 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 	 */
 	var defaultOutput = 0;
 
-	/* A set of "default" programs (instruments) that can be used to quickly configure a MIDI device
-	 * so that it is in a known state.
-	 * piano, violin, viola, cello, double bass, French horn, trumpet, trombone, tuba, percussion,
-	 * piccolo, flute, oboe, cor Anglais, clarinet, bassoon
-	 */
-	this.defaultPrograms = [0, 40, 41, 42, 43, 60, 56, 57, 58, 0, 72, 73, 68, 69, 71, 70];
-
 	Object.defineProperty(this, "outputNames", {
 		get: function () {
 			var outputNames = [];
@@ -119,6 +112,13 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		if (outputNum === undefined) {
 			return defaultOutput;
 		} else if (!Number.isInteger(outputNum)) {
+			if (initialized && typeof(outputNum) == "string") {
+				for (var i = 0; i < outputs.length; i++) {
+					if (outputNum == outputs[i].name) {
+						return i;
+					}
+				}
+			}
 			throw new Error("The output device must be given as a positive integer.");
 		} else if (outputNum < 1 || (initialized && outputNum > outputs.length)) {
 			throw new Error("No MIDI output device exists with device number " + outputNum);
@@ -147,6 +147,27 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		return Number.isInteger(note) && note >= -20 && note <= 107;
 	}
 
+	this.loadPrograms = function (outputNum, programs) {
+		outputNum = resolveOutputNumber(outputNum);
+		var output = outputs[outputNum];
+		if (!Array.isArray(programs)) {
+			throw new Error("MIDI programs must be given as a list.");
+		}
+		var numberOfProgramsToLoad = programs.length;
+		var programNumbers = new Array(numberOfProgramsToLoad);
+		for (var i = 0; i < numberOfProgramsToLoad; i++) {
+			var program = programs[i];
+			if (Number.isInteger(program) && program >= 1 && program <= 128) {
+				programNumbers[i] = program - 1;
+			} else {
+				throw new Error("Item " + i + " must be an integer between 1 and 128.");
+			}
+		}
+		if (output.loadPrograms) {
+			output.loadPrograms(programNumbers);
+		}
+	};
+
 	this.bindPrograms = function (symbol, outputNum) {
 		if (!(symbol instanceof Symbol)) {
 			throw new Error("The first argument must be a Symbol.");
@@ -155,7 +176,7 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		outputNum = resolveOutputNumber(outputNum);
 
 		if (!Array.isArray(symbol.value()) && symbol.definition === undefined) {
-			symbol.assign(this.defaultPrograms);
+			symbol.assign([1]);
 		}
 		var programObserver = function (symbol, programs) {
 			if (!Array.isArray(programs)) {
