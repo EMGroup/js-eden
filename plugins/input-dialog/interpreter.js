@@ -2200,6 +2200,17 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		}
 
 
+		function onEnterLine(e) {
+			var line = parseInt(e.target.getAttribute("data-line"));
+			gutter.startHover(line);
+		}
+
+		function onLeaveLine(e) {
+			var line = parseInt(e.target.getAttribute("data-line"));
+			gutter.endHover(line);
+		}
+
+
 
 		// Set the event handlers
 		$dialogContents
@@ -2213,6 +2224,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		.on('blur', '.hidden-textarea', onTextBlur)
 		.on('focus', '.hidden-textarea', onTextFocus)
 		.on('mouseup', '.outputcontent', onOutputMouseUp)
+		//.on('mouseenter','.eden-line', onEnterLine)
+		//.on('mouseleave','.eden-line', onLeaveLine)
 		.on('click', '.previous-input', onPrevious)
 		.on('click', '.next-input', onNext)
 		.on('click', '.rewind-input', onRewind)

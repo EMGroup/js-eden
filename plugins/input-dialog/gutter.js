@@ -71,6 +71,60 @@ function EdenScriptGutter(parent, infob) {
 		}
 	}
 
+	function startHover(line) {
+		if (shiftdown && dragselect) {
+			if (me.ast.lines[line]) {
+				var lines = me.ast.getBlockLines(line);
+				for (var i=lines[0]; i<=lines[1]; i++) {
+					me.lines[i].selected = !alreadyselected;
+					changeClass(me.gutter.childNodes[i], "select", !alreadyselected);
+					changeClass(me.gutter.childNodes[i], "hover", false);
+				}
+				//me.lines[line].selected = !me.lines[line].selected;
+				//changeClass(e.target, "select", me.lines[line].selected);
+				//dragselectcount++;
+			}
+		} else {
+			if (me.ast.lines[line]) {
+				if (me.lines[line].live) {
+					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-stop'>&#xf069;</span";
+				} else {
+					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-play'>&#xf04b;</span";
+					changeClass(me.gutter.childNodes[line], "play", true);
+				}
+				var lines = me.ast.getBlockLines(line);
+				for (var i=lines[0]; i<=lines[1]; i++) {
+					changeClass(me.gutter.childNodes[i], "hover", true);
+				}
+			}
+		}
+	}
+	me.startHover = startHover;
+
+	function endHover(line) {
+		if (dragselect && !shiftdown) {
+			me.lines[line].selected = !alreadyselected;
+			changeClass(me.gutter.childNodes[line], "select", !alreadyselected);
+			changeClass(me.gutter.childNodes[line], "hover", false);
+			changeClass(me.gutter.childNodes[line], "play", false);
+		}
+
+		if (dragselect) shiftdown = true;
+		clearTimeout(holdtimeout);
+		holdtimeout = undefined;
+		//if (!dragselect) {
+			if (me.ast.lines[line]) {
+				//me.gutter.childNodes[line].innerHTML = "";
+				var lines = me.ast.getBlockLines(line);
+				for (var i=lines[0]; i<=lines[1]; i++) {
+					changeClass(me.gutter.childNodes[i], "hover", false);
+					changeClass(me.gutter.childNodes[i], "play", false);
+				}
+			}
+		//}
+	}
+	me.endHover = endHover;
+
 	this.$gutter
 	.on('mousedown', '.eden-gutter-item', function(e) {
 		if (me.ast.hasErrors()) return;
@@ -164,56 +218,11 @@ function EdenScriptGutter(parent, infob) {
 		if (me.ast.hasErrors()) return;
 
 		var line = parseInt(e.target.getAttribute("data-line"));
-		if (shiftdown && dragselect) {
-			if (me.ast.lines[line]) {
-				var lines = me.ast.getBlockLines(line);
-				for (var i=lines[0]; i<=lines[1]; i++) {
-					me.lines[i].selected = !alreadyselected;
-					changeClass(me.gutter.childNodes[i], "select", !alreadyselected);
-					changeClass(me.gutter.childNodes[i], "hover", false);
-				}
-				//me.lines[line].selected = !me.lines[line].selected;
-				//changeClass(e.target, "select", me.lines[line].selected);
-				//dragselectcount++;
-			}
-		} else {
-			if (me.ast.lines[line]) {
-				if (me.lines[line].live) {
-					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-stop'>&#xf069;</span";
-				} else {
-					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-play'>&#xf04b;</span";
-					changeClass(me.gutter.childNodes[line], "play", true);
-				}
-				var lines = me.ast.getBlockLines(line);
-				for (var i=lines[0]; i<=lines[1]; i++) {
-					changeClass(me.gutter.childNodes[i], "hover", true);
-				}
-			}
-		}
+		startHover(line);
 	})
 	.on('mouseleave', '.eden-gutter-item', function(e) {
 		var line = parseInt(e.target.getAttribute("data-line"));
-
-		if (dragselect && !shiftdown) {
-			me.lines[line].selected = !alreadyselected;
-			changeClass(me.gutter.childNodes[line], "select", !alreadyselected);
-			changeClass(me.gutter.childNodes[line], "hover", false);
-			changeClass(me.gutter.childNodes[line], "play", false);
-		}
-
-		if (dragselect) shiftdown = true;
-		clearTimeout(holdtimeout);
-		holdtimeout = undefined;
-		//if (!dragselect) {
-			if (me.ast.lines[line]) {
-				//me.gutter.childNodes[line].innerHTML = "";
-				var lines = me.ast.getBlockLines(line);
-				for (var i=lines[0]; i<=lines[1]; i++) {
-					changeClass(me.gutter.childNodes[i], "hover", false);
-					changeClass(me.gutter.childNodes[i], "play", false);
-				}
-			}
-		//}
+		endHover(line);
 	});
 }
 

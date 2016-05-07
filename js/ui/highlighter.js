@@ -681,6 +681,7 @@
 
 					var lineelement = document.createElement('div');
 					lineelement.className = "eden-line";
+					lineelement.setAttribute("data-line",this.line-1);
 					//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
 					this.line++;
 					if (line !== undefined) {
@@ -706,6 +707,7 @@
 			if (line !== undefined) {
 				var lineelement = document.createElement('div');
 				lineelement.className = "eden-line";
+				lineelement.setAttribute("data-line",this.line-1);
 				//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
 				lineelement.appendChild(line);
 				this.outelement.appendChild(lineelement);
@@ -713,6 +715,7 @@
 				var lineelement = document.createElement('div');
 				if (position >= stream.position) {
 					lineelement.className = "eden-line";
+					lineelement.setAttribute("data-line",this.line-1);
 					var caret = document.createElement('span');
 					caret.className = "fake-caret";
 					lineelement.appendChild(caret);
