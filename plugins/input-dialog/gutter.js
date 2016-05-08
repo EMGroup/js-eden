@@ -388,9 +388,13 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 					className += " live";
 					//doreplace = false;
 				}
-				var diff = ast.getSource(ast.lines[i]).hashCode();
+				var diff = ast.lines[i].hash;
+				if (diff == 0) {
+					diff = ast.getSource(ast.lines[i]).hashCode();
+					ast.lines[i].hash = diff;
+				}
 				//console.log("Diff: " + diff);
-				if (this.lines[i].exechash != 0 && diff - this.lines[i].exechash != 0) {
+				if (this.lines[i].exechash == 0 || (this.lines[i].exechash != 0 && diff - this.lines[i].exechash != 0)) {
 					className += " changed";
 					if (!this.lines[i].changed) doupdate = true;
 					this.lines[i].changed = true;
@@ -401,7 +405,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 					if (ast.lines[i].type == "definition") {
 						var sym = eden.root.symbols[ast.lines[i].lvalue.name];
 						if (sym && sym.eden_definition) {
-							var sdiff = sym.eden_definition.hashCode();
+							var sdiff = sym.hash;
 							if (diff - sdiff != 0) {
 								className += " notcurrent";
 								if (!this.lines[i].changed) doupdate = true;

@@ -740,6 +740,7 @@ Eden.AST.After = function () {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.hash = 0;
 }
 
 Eden.AST.After.prototype.setExpression = function(express) {
@@ -789,6 +790,7 @@ Eden.AST.Require = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.hash = 0;
 }
 
 Eden.AST.Require.prototype.setExpression = function(express) {
@@ -825,6 +827,7 @@ Eden.AST.Include = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.hash = 0;
 }
 
 Eden.AST.Include.prototype.prepend = function(express) {
@@ -863,6 +866,7 @@ Eden.AST.Import = function() {
 	this.executed = 0;
 	this.options = [];
 	this.tag = "default";
+	this.hash = 0;
 }
 
 Eden.AST.Import.prototype.setPath = function(path) {
@@ -937,6 +941,7 @@ Eden.AST.Append = function() {
 	this.errors = [];
 	this.start = 0;
 	this.end = 0;
+	this.hash = 0;
 }
 
 Eden.AST.Append.prototype.setDest = function(dest) {
@@ -995,6 +1000,7 @@ Eden.AST.Insert = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.hash = 0;
 }
 
 Eden.AST.Insert.prototype.setDest = function(dest) {
@@ -1066,6 +1072,7 @@ Eden.AST.Delete = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.hash = 0;
 }
 
 Eden.AST.Delete.prototype.setDest = function(dest) {
@@ -1122,6 +1129,7 @@ Eden.AST.Definition = function(expression) {
 	this.scopes = [];
 	this.backtickCount = 0;
 	this.executed = 0;
+	this.hash = 0;
 };
 
 Eden.AST.Definition.prototype.getParameterByNumber = function(index) {
@@ -1238,6 +1246,7 @@ Eden.AST.Definition.prototype.execute = function(root, ctx, base, agent) {
 			deps.push(d);
 		}
 		sym.eden_definition = base.getSource(this);
+		sym.hash = sym.eden_definition.hashCode();
 		sym.define(eval(rhs), agent, deps);
 	}
 		
@@ -1263,6 +1272,7 @@ Eden.AST.Assignment = function(expression) {
 	this.compiled = undefined;
 	this.dirty = false;
 	this.value = undefined;
+	this.hash = 0;
 };
 
 Eden.AST.Assignment.prototype.getParameterByNumber = function(index) {
@@ -1387,6 +1397,7 @@ Eden.AST.Modify = function(kind, expression) {
 	this.end = 0;
 	this.executed = 0;
 	this.scopes = [];
+	this.hash = 0;
 };
 
 Eden.AST.Modify.prototype.getParameterByNumber = function(index) {
@@ -1512,6 +1523,7 @@ Eden.AST.Subscribers = function() {
 	this.lvalue = undefined;
 	this.start = undefined;
 	this.end = undefined;
+	this.hash = 0;
 };
 
 Eden.AST.Subscribers.prototype.left = function(lvalue) {
@@ -1547,6 +1559,7 @@ Eden.AST.Primary = function() {
 	this.extras = [];
 	this.backtick = undefined;
 	this.returnsbound = true;
+	this.hash = 0;
 };
 
 Eden.AST.Primary.prototype.setBackticks = function(backtick) {
@@ -1661,6 +1674,7 @@ Eden.AST.If = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.hash = 0;
 };
 
 Eden.AST.If.prototype.setSource = function(start, end) {
@@ -1735,6 +1749,7 @@ Eden.AST.Switch = function() {
 	this.statement = undefined;
 	this.start = 0;
 	this.end = 0;
+	this.hash = 0;
 };
 
 Eden.AST.Switch.prototype.setSource = function(start, end) {
@@ -1785,6 +1800,7 @@ Eden.AST.FunctionCall = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.hash = 0;
 };
 
 Eden.AST.FunctionCall.prototype.setSource = function(start, end) {
@@ -1889,6 +1905,7 @@ Eden.AST.Action = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.hash = 0;
 };
 
 Eden.AST.Action.prototype.setSource = function(start, end) {
@@ -1922,6 +1939,7 @@ Eden.AST.Action.prototype.execute = function(root, ctx, base) {
 	var body = this.body.generate(ctx);
 	var sym = root.lookup(this.name);
 	sym.eden_definition = base.getSource(this);
+	sym.hash = sym.eden_definition.hashCode();
 	if (this.triggers.length > 0) {
 		sym.define(eval(body), {name: "execute"}, []).observe(this.triggers);
 	} else {
@@ -1944,6 +1962,7 @@ Eden.AST.Function = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.hash = 0;
 };
 
 Eden.AST.Function.prototype.setSource = function(start, end) {
@@ -1970,6 +1989,7 @@ Eden.AST.Function.prototype.execute = function(root,ctx,base) {
 	var body = this.body.generate(ctx);
 	var sym = root.lookup(this.name);
 	sym.eden_definition = base.getSource(this);	
+	sym.hash = sym.eden_definition.hashCode();
 	sym.define(eval(body), {name: "execute"},[]);
 }
 
@@ -1986,6 +2006,7 @@ Eden.AST.Return = function() {
 	this.result = undefined;
 	this.start = 0;
 	this.end = 0;
+	this.hash = 0;
 };
 
 Eden.AST.Return.prototype.setSource = function(start, end) {
@@ -2024,6 +2045,7 @@ Eden.AST.While = function() {
 	this.statement = undefined;
 	this.start = 0;
 	this.end = 0;
+	this.hash = 0;
 };
 
 Eden.AST.While.prototype.error = fnEdenASTerror;
@@ -2071,6 +2093,7 @@ Eden.AST.Do = function() {
 	this.end = 0;
 	this.executed = 0;
 	this.parameters = [];
+	this.hash = 0;
 };
 
 Eden.AST.Do.prototype.error = fnEdenASTerror;
@@ -2163,6 +2186,7 @@ Eden.AST.For = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.hash = 0;
 };
 
 Eden.AST.For.prototype.error = fnEdenASTerror;
@@ -2242,6 +2266,7 @@ Eden.AST.Default = function() {
 	this.errors = [];
 	this.start = 0;
 	this.end = 0;
+	this.hash = 0;
 };
 
 Eden.AST.Default.prototype.error = fnEdenASTerror;
@@ -2267,6 +2292,7 @@ Eden.AST.Case = function() {
 	this.errors = [];
 	this.start = 0;
 	this.end = 0;
+	this.hash = 0;
 };
 
 Eden.AST.Case.prototype.setLiteral = function(datatype, literal) {
@@ -2299,6 +2325,7 @@ Eden.AST.Continue = function() {
 	this.errors = [];
 	this.start = 0;
 	this.end = 0;
+	this.hash = 0;
 };
 
 Eden.AST.Continue.prototype.error = fnEdenASTerror;
@@ -2322,6 +2349,7 @@ Eden.AST.Break = function() {
 	this.errors = [];
 	this.start = 0;
 	this.end = 0;
+	this.hash = 0;
 };
 
 Eden.AST.Break.prototype.error = fnEdenASTerror;
@@ -2348,6 +2376,7 @@ Eden.AST.Wait = function() {
 	this.delay = undefined;
 	this.executed = 0;
 	this.compiled_delay = undefined;
+	this.hash = 0;
 };
 
 Eden.AST.Wait.prototype.error = fnEdenASTerror;
@@ -2391,6 +2420,7 @@ Eden.AST.CodeBlock = function() {
 	this.locals = undefined;
 	this.script = undefined;
 	this.parent = undefined;
+	this.hash = 0;
 };
 
 Eden.AST.CodeBlock.prototype.error = fnEdenASTerror;
@@ -2454,6 +2484,7 @@ Eden.AST.When = function() {
 	this.dependencies = {};
 	this.active = false;
 	this.compiled = undefined;
+	this.hash = 0;
 };
 
 Eden.AST.When.prototype.setExpression = function (express) {
@@ -2564,6 +2595,7 @@ Eden.AST.Script = function() {
 	this.active = false;
 	this.parameters = undefined;
 	this.locals = undefined;
+	this.hash = 0;
 };
 
 Eden.AST.Script.prototype.setLocals = function(locals) {

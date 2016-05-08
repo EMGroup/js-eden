@@ -623,6 +623,7 @@
 
 		this.definition = undefined;
 		this.eden_definition = undefined;
+		this.hash = 0;
 		this.evalResolved = true;
 		this.extend = undefined;
 		this.needsGlobalNotify = false;
