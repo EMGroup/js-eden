@@ -68,8 +68,8 @@ func positionInList {
 
 		if (lowerBound === undefined) {
 			low = 0;
-		} else if (typeof(lowerBound) != "number") {
-			eden.error(new Error("positionInList: The third argument must be a number, not a " + typeof(lowerBound)), "error");
+		} else if (!Number.isInteger(lowerBound) || lowerBound < 1) {
+			eden.error(new Error("positionInList: The third argument must be a positive integer, not a " + typeof(lowerBound)), "error");
 			return undefined;
 		} else if (lowerBound > 0) {
 			low = lowerBound - 1;
@@ -99,10 +99,15 @@ func positionInList {
 					return middle + 1;
 				}
 			}
+		} else if (Array.isArray(searchValue)) {
+			for (var i = low; i <= high; i++) {
+				if (arrayCompare(searchValue, list[i])) {
+					return i + 1;
+				}
+			}
 		} else if (low == 0) {
 			return list.indexOf(searchValue) + 1;
 		} else {
-			low = Math.floor(low);
 			for (var i = low; i <= high; i++) {
 				if (list[i] == searchValue) {
 					return i + 1;
