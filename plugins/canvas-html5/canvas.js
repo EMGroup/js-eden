@@ -91,7 +91,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var previousElements = canvasNameToElements[viewName];
 					var nextElements = {};
 
-					var picture = root.lookup("_view_" + viewName + "_content").value();
+					var pictureObsName = "_view_" + viewName + "_content";
+					var pictureSym = root.lookup(pictureObsName);
+					var picture = pictureSym.value();
 					var context = canvas.getContext('2d');
 					var content = contents[viewName];
 					if (content === undefined) {
@@ -220,15 +222,29 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 							} //end of redraw loop (current list).
 						} // end of redraw loop (all nested lists).
 					} else { //end if picture observable is a list.
+						var obsName = pictureObsName;
+						var definition = pictureSym.eden_definition;
+						if (definition) {
+							var re = new RegExp("^" + pictureObsName + "\\s+is\\s+([a-zA-Z0-9_]+)(;)?$");
+							var match = definition.match(re);
+							if (match !== null) {
+								obsName = match[1];
+							}
+						}
 						context.save();
-						context.font = "12pt sans-serif";
+						context.font = "18px sans-serif";
 						context.fillStyle = "black";
 						context.textAlign = "center";
 						content.textBaseline = "middle";
 						context.fillText(
-							"Give _view_" + viewName + "_content a list-typed value to create a picture here.",
+							"Give the observable named '" + obsName + "' a list-typed value",
 							canvas.width / 2,
 							canvas.height / 2
+						);
+						context.fillText(
+							"to create a picture here.",
+							canvas.width / 2,
+							canvas.height / 2 + 30
 						);
 						context.restore();
 					}
@@ -871,8 +887,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 				var offset = root.lookup("_view_" + canvasName + "_offset").value();
 				if (offset instanceof Point) {
-					x = x - offset.x;
-					y = y - offset.y;
+					x = x - (offset.x / combinedScale);
+					y = y - (offset.y / combinedScale);
 				}
 			}
 
