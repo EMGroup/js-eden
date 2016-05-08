@@ -534,9 +534,9 @@ func pianoKeyNumber {
 			eden.error(new Error("pianoKeyNumber: The argument must be a string, not a " + typeof(noteName)), "error");
 			return undefined;
 		}
-		var match = noteName.match(/^([a-gA-G])((?:#*)|(?:b*))(\d*)$/);
+		var match = noteName.match(/^([a-gA-G])(#|x|(?:b*))(\d*)$/);
 		if (match === null) {
-			eden.error(new Error("pianoKeyNumber: Unrecognised note " + noteName + ".  Must match regular expression ^[a-gA-G](#*|b*)[0-9]*$"), "error");
+			eden.error(new Error("pianoKeyNumber: Unrecognised note " + noteName + ".  Must match regular expression ^[a-gA-G](#|x|b*)[0-9]*$"), "error");
 			return undefined;
 		}
 
@@ -572,12 +572,12 @@ func pianoKeyNumber {
 			keyNumber = keyNumber + (octave - 1) * 12;
 		}
 
-		if (semitoneAdjustmentSymbol != "") {
-			if (semitoneAdjustmentSymbol[0] == "#") {
-				keyNumber = keyNumber + semitoneAdjustmentSymbol.length;
-			} else {
-				keyNumber = keyNumber - semitoneAdjustmentSymbol.length;
-			}
+		if (semitoneAdjustmentSymbol == "#") {
+			keyNumber = keyNumber + 1;
+		} else if (semitoneAdjustmentSymbol) {
+			keyNumber = keyNumber + 2;
+		} else {
+			keyNumber = keyNumber - semitoneAdjustmentSymbol.length;
 		}
 		return keyNumber;
 	}}$;
