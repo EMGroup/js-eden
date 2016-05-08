@@ -39,6 +39,7 @@ EdenUI.GutterLineState = function() {
 	this.selected = false;
 	this.exechash = 0;
 	this.changed = false;
+	this.current = false;
 }
 
 function EdenScriptGutter(parent, infob) {
@@ -46,6 +47,7 @@ function EdenScriptGutter(parent, infob) {
 	this.$gutter = $('<div class="eden-gutter"></div>');
 	this.gutter = this.$gutter.get(0);
 	parent.insertBefore(this.gutter, parent.firstChild);
+	this.content = $(parent).find(".outputcontent").get(0);
 
 	this.ast = undefined;
 	this.lines = [];
@@ -340,6 +342,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 	for (var i=0; i<ast.lines.length; i++) {
 		//this.gutter.appendChild(document.createElement("div"));
 		var className = "eden-gutter-item";
+		var lineclass = "eden-line";
 		var content = "";
 		var doreplace = false;
 		var doupdate = globaldoupdate;
@@ -394,8 +397,9 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 					ast.lines[i].hash = diff;
 				}
 				//console.log("Diff: " + diff);
-				if (this.lines[i].exechash == 0 || (this.lines[i].exechash != 0 && diff - this.lines[i].exechash != 0)) {
+				if (this.lines[i].exechash == 0 || (diff - this.lines[i].exechash != 0)) {
 					className += " changed";
+					//lineclass += " line-changed";
 					if (!this.lines[i].changed) doupdate = true;
 					this.lines[i].changed = true;
 				} else if (diff - this.lines[i].exechash == 0) {
@@ -407,12 +411,13 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 						if (sym && sym.eden_definition) {
 							var sdiff = sym.hash;
 							if (diff - sdiff != 0) {
-								className += " notcurrent";
-								if (!this.lines[i].changed) doupdate = true;
-								this.lines[i].changed = true;
+								//className += " notcurrent";
+								lineclass += " line-notcurrent";
+								if (!this.lines[i].current) doupdate = true;
+								this.lines[i].current = true;
 							} else if (diff - sdiff == 0) {
-								if (this.lines[i].changed) doupdate = true;
-								this.lines[i].changed = false;
+								if (this.lines[i].current) doupdate = true;
+								this.lines[i].current = false;
 							}
 						}
 					}
@@ -425,6 +430,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 				var newnode = document.createElement("div");
 				newnode.className = className;
 				newnode.innerHTML = "";
+				this.content.childNodes[i].className = lineclass;
 				newnode.setAttribute("data-line", ""+i);
 				//newnode.setAttribute("draggable", true);
 				//this.gutter.childNodes[i].className = className;
@@ -433,11 +439,13 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			} else {
 				this.gutter.childNodes[i].className = className;
 				this.gutter.childNodes[i].innerHTML = content;
+				this.content.childNodes[i].className = lineclass;
 			}
 		} else if (doupdate) {
 			if (this.gutter.childNodes[i].className.indexOf("hover") >= 0) className += " hover";
 			this.gutter.childNodes[i].innerHTML = content;
 			this.gutter.childNodes[i].className = className;
+			this.content.childNodes[i].className = lineclass;
 		}
 	}
 }
