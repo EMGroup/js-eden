@@ -140,6 +140,9 @@ Button.prototype.draw = function (context) {
 		if (this.textcolour !== undefined) {
 			inputHtml = inputHtml + 'color: ' + this.textcolour + '; ';
 		}
+		if (this.width === undefined) {
+			inputHtml = inputHtml + 'max-width: 256px';
+		}
 		inputHtml = inputHtml + '">';
 		if (this.imageURL !== undefined) {
 			inputHtml = inputHtml + '<img src="' + this.imageURL + '" style="max-width: 100%"/><br/>';
@@ -218,13 +221,13 @@ Button.prototype.scale = function (scale, zoom, origin) {
 	if (this.width === undefined) {
 		style.width = "";
 	} else {
-		style.width = Math.round(this.width * zoom) + "px";
+		style.width = Math.round(this.width * scale) + "px";
 	}
 
 	if (this.minHeight === undefined) {
 		style.minHeight = "";
 	} else {
-		style.minHeight = Math.ceil(this.minHeight * zoom) + "px";
+		style.minHeight = Math.ceil(this.minHeight * scale) + "px";
 	}
 };
 
