@@ -63,7 +63,7 @@ func Line { ${{
 	} else {
 		processUpTo = arguments.length - 1;
 	}
-	if (processUpTo == 4) {
+	if (processUpTo >= 4) {
 		colours = arguments[4];
 	}
 
