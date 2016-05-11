@@ -178,8 +178,6 @@ proc bindCSSProperty {
 			eden.error(new Error("bindCSSProperty: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
 			return;
 		}
-
-		var stylesheetID = "css-dependencies-" + selector.replace(/\s+/g, "$$") + "$$" + property;
 		
 		selector = putCSSSelectorIntoScope(scope, selector);
 		if (selector === undefined) {
@@ -188,6 +186,7 @@ proc bindCSSProperty {
 		}
 		
 		var stylesheet;		
+		var stylesheetID = "css-dependencies-" + selector.replace(/\s+/g, "$$") + "$$" + property;
 		var styleElement = document.getElementById(stylesheetID);
 		if (styleElement === null) {
 			styleElement = document.createElement("style");
@@ -256,9 +255,6 @@ proc bindCSSNumericProperty {
 			return;
 		}
 		
-
-		var stylesheetID = "css-dependencies-" + selector.replace(/\s+/g, "$$") + "$$" + property;
-		
 		selector = putCSSSelectorIntoScope(scope, selector);
 		if (selector === undefined) {
 			//Disallowed or invalid selector.
@@ -266,6 +262,7 @@ proc bindCSSNumericProperty {
 		}
 		
 		var stylesheet;		
+		var stylesheetID = "css-dependencies-" + selector.replace(/\s+/g, "$$") + "$$" + property;
 		var styleElement = document.getElementById(stylesheetID);
 		if (styleElement === null) {
 			styleElement = document.createElement("style");
@@ -321,8 +318,6 @@ proc bindCSSRule {
 			eden.error(new Error("bindCSSRule: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
 			return;
 		}
-
-		var stylesheetID = "css-dependencies-" + selector.replace(/\s+/g, "$$");
 		
 		selector = putCSSSelectorIntoScope(scope, selector);
 		if (selector === undefined) {
@@ -331,6 +326,7 @@ proc bindCSSRule {
 		}
 		
 		var stylesheet;		
+		var stylesheetID = "css-dependencies-" + selector.replace(/\s+/g, "$$");
 		var styleElement = document.getElementById(stylesheetID);
 		if (styleElement === null) {
 			styleElement = document.createElement("style");
