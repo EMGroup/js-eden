@@ -1,6 +1,27 @@
 {
 	"projects": [
 		{
+			"name": "Mission to Mars: Part 1",
+			"author": "Russell Boyatt",
+			"year": "2016",
+			"description": "Study the orbits of the planets.",
+			"agent": "scifest2016/mars/solar1"
+		},
+		{
+			"name": "Mission to Mars: Part 2",
+			"author": "Russell Boyatt",
+			"year": "2016",
+			"description": "Figure out when to launch the rocket.",
+			"agent": "scifest2016/mars/launchdate"
+		},
+		{
+			"name": "Mission to Mars: Part 3",
+			"author": "Russell Boyatt",
+			"year": "2016",
+			"description": "How do we keep the astronauts alive on Mars?",
+			"agent": "scifest2016/mars/onmars"
+		},
+		{
 			"name": "Nim",
 			"author": "Meurig Beynon and Matthew Leeke",
 			"year": "2012-2015",
@@ -104,6 +125,13 @@
 			"year": "2015",
 			"description": "Learn to make something non-trivial from scratch.",
 			"agent": "makefromscratch"
+		},
+		{
+			"name": "Simplified Environment",
+			"author": "Elizabeth Hudnott and Meurig Beynon",
+			"year": "2016",
+			"description": "Arranges the windows in a useful way.",
+			"agent": "c2/worksheet1/setup"
 		},
 		{
 			"name": "Matching",
