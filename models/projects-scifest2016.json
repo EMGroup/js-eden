@@ -1,0 +1,123 @@
+{
+	"projects": [
+		{
+			"name": "Nim",
+			"author": "Meurig Beynon and Matthew Leeke",
+			"year": "2012-2015",
+			"description": "A competitive two player strategy game.",
+			"agent": "scifest2015/nimcoins/run"
+		},
+		{
+			"name": "Therenim",
+			"author": "Meurig Beynon, Jonny Foss and Elizabeth Hudnott",
+			"year": "2016",
+			"description": "Nim game with musical accompaniment.  Make it go silent to win the game.",
+			"agent": "scifest2016/therenim/interface"
+		},
+		{
+			"name": "Hex Colouring",
+			"author": "Jonny Foss and Meurig Beynon",
+			"year": "2015",
+			"description": "A puzzle game where you colour-in hexagons.",
+			"agent": "hexcolouring"
+		},
+		{
+			"name": "Light Box",
+			"author": "Jonny Foss and Meurig Beynon",
+			"year": "2015",
+			"description": "Reflect a laser beam using mirrors.  Crashes in Google Chrome browser.",
+			"agent": "scifest2016/lightbox"
+		},
+		{
+			"name": "Tone Matrix",
+			"author": "Elizabeth Hudnott",
+			"year": "2016",
+			"description": "Create your own musical masterpiece.",
+			"agent": "Elizabeth/Music/ToneMatrix"
+		},
+		{
+			"name": "Soundscape",
+			"author": "Elizabeth Hudnott",
+			"year": "2016",
+			"description": "Make your own musical instrument by following a tutorial.",
+			"agent": "Elizabeth/demos/midi/playNotesJSPE"
+		},
+		{
+			"name": "Piano",
+			"author": "Elizabeth Hudnott (pedagogical consultant Meg Beynon)",
+			"year": "2014",
+			"description": "Explore learning to play the piano and read music.",
+			"agent": "scifest2015/piano"
+		},
+		{
+			"name": "Ratio",
+			"author": "Steve Russ, Meurig Beynon and Jonny Foss",
+			"year": "2016",
+			"description": "An exercise in building a construal to visualise ratio."
+		},
+		{
+			"name": "Number Representation",
+			"author": "Meurig Beynon",
+			"year": "2016",
+			"description": "Learn about different number bases (such as binary) using number line visualizations.",
+			"agent": "wmb/numberreps"
+		
+		},
+		{
+			"name": "Triangles",
+			"author": "\"Tuesday Team\" (Nick Pope et al.) and Meurig Beynon",
+			"year": "2015-2016",
+			"description": "Test your maths knowledge.",
+			"agent": "examples/triangles/simple"
+		},
+		{
+			"name": "Electrical Circuit",
+			"author": "Elizabeth Hudnott and Nick Pope",
+			"year": "2015",
+			"description": "Turn bulbs on and off and explore the wiring diagram.",
+			"agent": "nick/circuit"
+		},
+		{
+			"name": "Shopping",
+			"author": "Meurig Beynon, Jonny Foss and Steve Russ",
+			"year": "2015",
+			"description": "Shopping construal (no slides)",
+			"agent": "scifest2015/shopping"
+		},
+		{
+			"name": "Purse",
+			"author": "Meurig Beynon",
+			"year": "2015",
+			"description": "Learn the basics of construals by exploring taking money out of purse and putting it back again.",
+			"agent": "purse"
+		},
+		{
+			"name": "Giving Change",
+			"author": "Meurig Beynon",
+			"year": "2015",
+			"description": "Explore giving change using a greedy coin selection method.",
+			"agent": "givingchange"
+		},
+		{
+			"name": "Construing a Vending Machine From Scratch",
+			"author": "Meurig Beynon and Elizabeth Hudnott",
+			"year": "2015",
+			"description": "Learn to make something non-trivial from scratch.",
+			"agent": "makefromscratch"
+		},
+		{
+			"name": "Matching",
+			"author": "Meurig Beynon",
+			"year": "2016",
+			"description": "Model of a mathematical problem where the task is to arrange marriages for 8 people subject to restrictions about who gets along well with who.",
+			"agent": "scifest2016/matching4"
+		},
+		{
+			"name": "Arduino Plug-in",
+			"author": "Nick Pope",
+			"year": "2016",
+			"description": "Extend JS-EDEN so that it can control an Arduino microcontroller.",
+			"agent": "plugins/arduino"
+		}
+	]
+}
