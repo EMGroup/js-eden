@@ -799,6 +799,7 @@
 		if (this.views.ErrorLog.errorWindow) {
 			this.views.ErrorLog.errorWindow.html('');
 		}
+		Eden.Agent.removeAll();
 		this.eden.captureInitialState();
 	}
 
