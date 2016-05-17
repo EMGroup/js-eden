@@ -126,7 +126,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 						var combinedScale = scale * zoom;
 						var origin = root.lookup("_view_" + viewName + "_offset").value();
 						if (origin instanceof Point) {
-							context.translate(origin.x, origin.y);
+							var originX = origin.x * combinedScale;
+							var originY = origin.y * combinedScale;
+							origin = new Point(originX, originY);
+							context.translate(originX, originY);
 						} else {
 							origin = new Point(0, 0);
 						}
@@ -489,6 +492,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		var viewHeightSym = root.lookup("_view_" + canvasName + "_height");
 		var isZooming = false;
 		function resizeCanvas () {
+			var scale = scaleSym.value();
+			var zoom = zoomSym.value();
+			var combinedScale = scale * zoom;
 			var offset = offsetSym.value();
 			var offsetX, offsetY;
 			if (offset instanceof Point) {
@@ -498,11 +504,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				offsetX = 0;
 				offsetY = 0;
 			}
-			var zoom = zoomSym.value();
 
 			var width = widthSym.value();
 			if (width !== undefined) {
-				width = Math.ceil(widthSym.value() * scaleSym.value() * zoom + offsetX);
+				width = Math.ceil((widthSym.value() + offsetX) * combinedScale);
 				canvas.width = width;
 			} else if (zoom > 1) {
 				canvas.width = Math.ceil(viewWidthSym.value() * zoom);
@@ -512,7 +517,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 			var height;
 			if (heightSym.value() !== undefined) {
-				height = Math.ceil(heightSym.value() * scaleSym.value() * zoom + offsetY);
+				height = Math.ceil((heightSym.value() + offsetY) * combinedScale);
 			} else if (zoom > 1) {
 				height = Math.ceil(viewHeightSym.value() * zoom);
 			} else {
@@ -526,7 +531,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 			canvas.rescale = true;
 			me.drawPicture(canvasName);
-		}
+		} //end function
 		var scale = scaleSym.value();
 		if (scale === undefined) {
 		  scaleSym.assign(1, agent);
@@ -887,8 +892,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 				var offset = root.lookup("_view_" + canvasName + "_offset").value();
 				if (offset instanceof Point) {
-					x = x - (offset.x / combinedScale);
-					y = y - (offset.y / combinedScale);
+					x = x - offset.x;
+					y = y - offset.y;
 				}
 			}
 
