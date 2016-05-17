@@ -1,4 +1,4 @@
-div.eden-gutter {
+svg.eden-gutter {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -11,7 +11,7 @@ div.eden-gutter {
 
 div.eden-gutter-item {
 	width: 22px;
-	height: 20px;
+	height: 16px;
 	border-right: 1px solid transparent;
 	padding-left: 5px;
 	padding-top: 3px;
@@ -23,6 +23,7 @@ div.eden-gutter-item {
     -ms-user-select: none;
     user-select: none;
 	cursor: pointer;
+	margin-top: 4px;
 }
 
 div.eden-gutter-item.hover {
@@ -98,37 +99,27 @@ div.eden-gutter-item.live:before {
 	content: " ";
 }
 
-div.eden-gutter-item.changed:before {
-	/*filter: contrast(20%);*/
-	background-color: #00ff00;
-	position: absolute;
-	width: 2px;
-	height: 20px;
-	margin-top: -5px;
-	margin-left: 0px;
-	content: " ";
-	opacity: 0.4;
-}
-
 div.eden-gutter-item.changed {
-	background-color: #dbffdb;
-	border-top: 2px solid #00ff00;
-	border-bottom: 2px solid #00ff00;
+	background-color: #92d57b;
+	/*border-top: 2px solid #00ff00;
+	border-bottom: 2px solid #00ff00;*/
+	border: none;
 }
 
 div.eden-gutter-item.changed:after {
-	/*color: #666;*/
-	/*text-shadow: 0px 0px 2px black;*/
-	font-family: "FontAwesome";
-	font-size: 7pt;
-	/*opacity: 0.4;*/
-	content: "\f04b";
-	position: absolute;
-	left: 11px;
-	margin-top: 0;
+    content: '';
+    display: block;
+    /*position: absolute;*/
+    margin-top: -3px;
+    margin-left: 17px;
+    width: 0;
+    height: 0;
+    border-color: transparent transparent transparent #92d57b;
+    border-style: solid;
+    border-width: 8px;
 }
 
-div.eden-line.line-notcurrent {
+div.line-notcurrent {
 	opacity: 0.5;
 }
 
@@ -150,8 +141,9 @@ div.eden-gutter-item.current {
 }
 
 div.eden-gutter-item.errorblock {
-	border-right-width: 2px;
-	border-right-color: #ff0000;
+	/*border-right-width: 2px;
+	border-right-color: #ff0000;*/
+	background-color: #ff0000;
 }
 
 div.eden-gutter-item.executed {
@@ -172,10 +164,11 @@ div.eden-gutter-item.guarded {
 	border-right-color: #ffee00;
 }
 
-div.eden-gutter-item.error {
+div.eden-gutter-item.error:after {
 	font-family: "FontAwesome";
 	color: red;
 	font-size: 10pt;
+	content: "\f06a";
 }
 
 div.eden-gutter-item.warning {
