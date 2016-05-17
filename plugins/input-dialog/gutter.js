@@ -431,6 +431,9 @@ EdenScriptGutter.prototype.processAST = function() {
 				line.current = (astline.hash == sym.hash);
 				line.isundefined = sym.cache.value === undefined;
 			}
+		} else {
+			line.current = true;
+			line.isundefined = false;
 		}
 
 		// If a "when" then mark condition status
