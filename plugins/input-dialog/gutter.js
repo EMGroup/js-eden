@@ -296,6 +296,20 @@ EdenScriptGutter.prototype.executeSelected = function() {
 	}
 }
 
+EdenScriptGutter.prototype.executeRange = function(a,b) {
+	if (this.agent === undefined) return;
+
+	for (var i=a; i<=b; i++) {
+		//if (this.lines[i].selected) {
+			var sellines = this.ast.getBlockLines(i);
+			this.agent.executeLine(i);
+			this.lines[i].exechash = this.ast.getSource(this.ast.lines[i]).hashCode();
+			console.log("Hash: " + this.lines[i].exechash);
+			i = sellines[1];
+		//}
+	}
+}
+
 
 EdenScriptGutter.prototype.findDeltaLine = function() {
 	var delta = this.ast.lines.length - this.lines.length;
@@ -434,6 +448,8 @@ EdenScriptGutter.prototype.processAST = function() {
 			line.status = 4;
 		} else if (line.isundefined) {
 			line.status = 5;
+		} else if (line.hash != 0) {
+			line.status = 6;
 		} else {
 			line.status = 0;
 		}
@@ -452,15 +468,61 @@ EdenScriptGutter.prototype.processAST = function() {
 }
 
 EdenScriptGutter.prototype.makeElement = function(a,b,s) {
+	var me = this;
 	if (s == 0) return undefined;
-	var element = document.createElementNS("http://www.w3.org/2000/svg", 'path');
-	var h = (b-a+1) * 20;
-	var hby2 = h / 2;
-	element.setAttribute("x", "0");
-	element.setAttribute("y", "0");
-	element.setAttribute("transform","matrix(1 0 0 1 0 0)");
-	element.setAttribute("d", "M 0 "+(a*20)+" l 22 0 10 "+hby2+" -10 "+hby2+" -22 0 0 -"+h+" z");
-	element.setAttribute("style","fill:#525277;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.41716799px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1");
+	if (s == 3) {
+		var element = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+		var h = (b-a+1) * 20;
+		var hby2 = h / 2;
+		element.setAttribute("x", "0");
+		element.setAttribute("y", "0");
+		element.setAttribute("transform","matrix(1 0 0 1 0 0)");
+		element.setAttribute("d", "M 0 "+(a*20)+" l 22 0 10 "+hby2+" -10 "+hby2+" -22 0 0 -"+h+" z");
+		element.setAttribute("style","fill:#26b300;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.41716799px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1");
+		element.onclick = function(e) {
+			console.log("Clicked: " + a + "->" + b + " with status " + s);
+			me.executeRange(a,b);
+		}
+	} else if (s == 6) {
+		var element = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+		var h = (b-a+1) * 20;
+		var hby2 = h / 2;
+		element.setAttribute("x", "0");
+		element.setAttribute("y", "0");
+		element.setAttribute("transform","matrix(1 0 0 1 0 0)");
+		element.setAttribute("d", "M 0 "+(a*20)+" l 22 0 10 "+hby2+" -10 "+hby2+" -22 0 0 -"+h+" z");
+		element.setAttribute("style","fill:#525277;fill-opacity:0.4;fill-rule:evenodd;stroke:none;stroke-width:0.41716799px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1");
+		element.onclick = function(e) {
+			console.log("Clicked: " + a + "->" + b + " with status " + s);
+			me.executeRange(a,b);
+		}
+	} else if (s == 4) {
+		var element = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+		var h = (b-a+1) * 20;
+		var hby2 = h / 2;
+		element.setAttribute("x", "0");
+		element.setAttribute("y", "0");
+		element.setAttribute("transform","matrix(1 0 0 1 0 0)");
+		element.setAttribute("d", "M 0 "+(a*20)+" l 22 0 10 "+hby2+" -10 "+hby2+" -22 0 0 -"+h+" z");
+		element.setAttribute("style","fill:#dddddd;fill-opacity:0.8;fill-rule:evenodd;stroke:none;stroke-width:0.41716799px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1");
+		element.onclick = function(e) {
+			console.log("Clicked: " + a + "->" + b + " with status " + s);
+			me.executeRange(a,b);
+		}
+	} else if (s == 2) {
+		var element = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+		var h = (b-a+1) * 20;
+		var hby2 = h / 2;
+		element.setAttribute("x", "0");
+		element.setAttribute("y", "0");
+		element.setAttribute("transform","matrix(1 0 0 1 0 0)");
+		element.setAttribute("d", "M 0 "+(a*20)+" l 22 0 a 10 "+hby2+" 0 1 1 0 "+h+" l -22 0 0 -"+h+" z");
+		element.setAttribute("style","fill:red;fill-opacity:0.8;fill-rule:evenodd;stroke:none;stroke-width:0.41716799px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1");
+		element.onclick = function(e) {
+			console.log("Clicked: " + a + "->" + b + " with status " + s);
+			me.executeRange(a,b);
+		}
+	}
 	return element;
 }
 
@@ -505,7 +567,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 
 	for (var i=0; i<this.lines.length; i++) {
 		if (this.lines[i] && this.lines[i].update) {
-			console.log("" + i + ": " + JSON.stringify(this.lines[i]));
+			//console.log("" + i + ": " + JSON.stringify(this.lines[i]));
 			// Find all equal preceeding status
 			var sline = i;
 			while (sline > 0 && this.lines[sline-1] && this.lines[sline-1].status == this.lines[i].status) sline--;
@@ -514,7 +576,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			var eline = i;
 			while (eline+1 < this.lines.length && this.lines[eline+1] && this.lines[eline+1].status == this.lines[i].status) eline++;
 
-			console.log("Lines changed: " + sline + "->" + eline);
+			//console.log("Lines changed: " + sline + "->" + eline);
 
 			// Construct combined SVG
 			var element = this.makeElement(sline, eline, this.lines[i].status);
@@ -526,6 +588,11 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			}
 			this.lines[i].element = element;
 			if (element) this.gutter.appendChild(element);
+
+			switch (this.lines[i].status) {
+			case 6: this.content.childNodes[i].className = "eden-line line-notcurrent"; break;
+			default: this.content.childNodes[i].className = "eden-line";
+			}
 
 			i = eline;
 		}
