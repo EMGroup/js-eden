@@ -14,11 +14,12 @@
 ##
 ##v and d are optional.
 ##
-##b determines when the note is struck relative to when the previous note was struck.  For the first
+##b determines when the note (or chord) is struck relative to when the previous note was struck.  For the first
 ##note in the list the time of the "previous note" can be:
 ##	the time when the currently playing performance began (scheduleMIDI),
 ##	the time right now (playMIDI), or,
 ##	the time when the last note will be struck of the tune currently playing (appendMIDI).
+##If b is undefined then the note is struck exactly one beat after the previous note.
 ##
 ##c is a list of piano key numbers of the notes to play (range -20 to 107, i.e. C0 to G10).
 ##
@@ -90,13 +91,32 @@ proc bindMIDIPrograms {
 	}}$;
 }
 
-##Returns a list of JS-EDEN's choice of default program (instrument) numbers for each MIDI channel.
-func midiDefaultPrograms {
+proc loadMIDIPrograms {
 	${{
-		if (arguments.length != 0) {
-			eden.error(new Error("midiDefaultPrograms: This function does not require any arguments."), "error");
+		if (!edenUI.plugins.MIDI.initialized) {
+			edenUI.plugins.MIDI.initialize(root.lookup("loadMIDIPrograms"), arguments);
+			return;
 		}
-		return edenUI.plugins.MIDI.defaultPrograms;
+		if (arguments.length < 1) {
+			eden.error(new Error("loadMIDIProgram: This procedure requires at least 1 argument."), "error");
+			return;
+		}
+
+		var outputNum, programs;
+		if (Array.isArray(arguments[0])) {
+			programs = arguments[0];
+		} else if (Array.isArray(arguments[1])) {
+			outputNum = arguments[0];
+			programs = arguments[1];
+		} else {
+			programs = Array.prototype.slice.call(arguments);
+		}
+
+		try {
+			edenUI.plugins.MIDI.loadPrograms(outputNum, programs);
+		} catch (e) {
+			eden.error(new Error("loadMIDIPrograms: " + e), "error");
+		}
 	}}$;
 }
 
@@ -502,3 +522,164 @@ proc bindMIDIControl {
 		}
 	}}$;
 }
+
+##Converts a musical note expressed in scientific pitch notation, e.g. "C4" to its piano key number,
+##which is 40 in this case.
+func pianoKeyNumber {
+	${{
+		var noteName = arguments[0];
+		if (noteName === undefined) {
+			return undefined;
+		} else if (typeof(noteName) != "string") {
+			eden.error(new Error("pianoKeyNumber: The argument must be a string, not a " + typeof(noteName)), "error");
+			return undefined;
+		}
+		var match = noteName.match(/^([a-gA-G])(#|x|(?:b*))(\d*)$/);
+		if (match === null) {
+			eden.error(new Error("pianoKeyNumber: Unrecognised note " + noteName + ".  Must match regular expression ^[a-gA-G](#|x|b*)[0-9]*$"), "error");
+			return undefined;
+		}
+
+		var letter = match[1].toUpperCase();
+		var semitoneAdjustmentSymbol = match[2];
+		var octave;
+		if (match[3] === "") {
+			octave = 4;
+		} else {
+			octave = parseInt(match[3]);
+		}
+		var keyNumber;
+
+		if (letter == "A") {
+			keyNumber = 1;
+		} else if (letter == "B") {
+			keyNumber = 3;
+		} else if (letter == "C") {
+			keyNumber = 4;
+		} else if (letter == "D") {
+			keyNumber = 6;
+		} else if (letter == "E") {
+			keyNumber = 8;
+		} else if (letter == "F") {
+			keyNumber = 9;
+		} else if (letter == "G") {
+			keyNumber = 11;
+		}
+		
+		if (keyNumber < 4) {
+			keyNumber = keyNumber + octave * 12;
+		} else {
+			keyNumber = keyNumber + (octave - 1) * 12;
+		}
+
+		if (semitoneAdjustmentSymbol == "#") {
+			keyNumber = keyNumber + 1;
+		} else if (semitoneAdjustmentSymbol) {
+			keyNumber = keyNumber + 2;
+		} else {
+			keyNumber = keyNumber - semitoneAdjustmentSymbol.length;
+		}
+		return keyNumber;
+	}}$;
+}
+
+##Produces a representation of a tune from notes written in Scientific Pitch Notation, for example
+##C4 as the representation of middle C.  The "tune" still needs to be translated into MIDI message
+##codes using the midiMessagesForTune function before it can be played.  The input is a list
+##of triplets of the form:
+##
+##	[notes, velocity, duration]
+##
+## Where:
+##	notes is either a single note written as a string, e.g. "C4", or a list, e.g. ["C4, "E4", "G4"].
+##		Sharp notes are written like "C#" and flat notes like "Bb".
+##	velocity is an integer between 1 and 127 and may be omitted, i.e. [notes, duration] is also a
+##		valid format.  The velocity defaults to maximum velocity, 127.
+##	duration is length of time to hold the note, e.g. 1/4 for a crotchet.
+##
+## Differences between using tuneFromText and using midiMessagesForTune directly:
+##	1) Each note is presumed to start as soon as the previous note finishes.  A rest can be
+##	   inserted using either an empty list or an empty string but it is not possible to create a
+##	   chord where different notes have different durations except by creating two different "tunes"
+##	   and merging them together using mergeMIDIMesages (that is by recording such chords using two
+##	   or more different voices).
+##  2) The English A to G naming scheme is assumed (rather than say the German scheme where B is
+##	   represented by H).
+##  3) If the octave numbers are omitted then octave 4 is assumed.  However, in some situations perhaps
+##	   neither option is convenient.
+##	4) In some situations no naming scheme is convenient and some kind of numerical representation
+##	   is easier to work with (due to the ease of doing arithmetic), be that the one provided by
+##	   midiMessagesForTune or some other numerical representation, for example a diatonic scale.
+##	5) When attempting to transcribe sheet music then tuneFromText is a significant
+##	   simplification from midiMessagesForTune.
+func tuneFromText {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("tuneFromText: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+
+		var sequence = arguments[0];
+		if (sequence === undefined) {
+			return undefined;
+		} else if (!Array.isArray(sequence)) {
+			eden.error(new Error("tuneFromText: The argument must be a list, not a " + typeof(sequence)), "error");
+			return undefined;
+		}
+
+		var pianoKeyNumber = root.lookup("pianoKeyNumber").value();
+		var noteRE = /^[a-gA-G]((?:#*)|(?:b*))\d*$/;
+
+		var result = [];
+		var prevDuration = 0;
+		for (var i = 0; i < sequence.length; i++) {
+			var event = sequence[i];
+			if (Array.isArray(event) && event.length >= 2) {
+				var length = event.length;
+				var duration = event[length - 1];
+				var translatedEvent = [];
+				var eventType = event[0];
+				var translatedNotes;
+				var isNoteEvent = true;
+				if (Array.isArray(eventType)) {
+					var notes = eventType;
+					var numNotes = notes.length;
+					translatedNotes = new Array(numNotes);
+					for (var j = 0; j < numNotes; j++) {
+						translatedNotes[j] = pianoKeyNumber(notes[j]);
+					}
+				} else if (noteRE.test(eventType)) {
+					translatedNotes = [pianoKeyNumber(eventType)];
+				} else if (eventType === "") {
+					translatedNotes = [];
+				} else {
+					translatedEvent = event;
+					translatedEvent.unshift(prevDuration);
+					isNoteEvent = false;
+				}
+				if (isNoteEvent) {
+					if (translatedNotes.length == 0) {
+						prevDuration = prevDuration + duration;
+						continue;
+					} else {
+						translatedEvent[0] = prevDuration;
+						translatedEvent[1] = translatedNotes;
+						if (length == 2) {
+							translatedEvent[2] = 127;
+						} else {
+							translatedEvent[2] = event[1];
+						}
+						translatedEvent[3] = duration;
+					}
+				}
+				result.push(translatedEvent);
+				prevDuration = duration;
+			} else {
+				result.push(event);
+			}
+		}
+		return result;
+	}}$;
+}
+
+initializeMIDI();

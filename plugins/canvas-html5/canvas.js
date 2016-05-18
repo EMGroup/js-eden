@@ -91,7 +91,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var previousElements = canvasNameToElements[viewName];
 					var nextElements = {};
 
-					var picture = root.lookup("_view_" + viewName + "_content").value();
+					var pictureObsName = "_view_" + viewName + "_content";
+					var pictureSym = root.lookup(pictureObsName);
+					var picture = pictureSym.value();
 					var context = canvas.getContext('2d');
 					var content = contents[viewName];
 					if (content === undefined) {
@@ -107,9 +109,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					me.setFillStyle(context, backgroundColour);
 					content.style.backgroundColor = backgroundColour;
 					context.fillRect(0, 0, canvas.width, canvas.height);
-
-					//Configure JS-EDEN default options that are different from the HTML canvas defaults.
-					me.configureContextDefaults(context, scale);
 
 					var hash;
 					for (hash in previousElements) {
@@ -127,11 +126,16 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 						var combinedScale = scale * zoom;
 						var origin = root.lookup("_view_" + viewName + "_offset").value();
 						if (origin instanceof Point) {
-							context.translate(origin.x, origin.y);
+							var originX = origin.x * combinedScale;
+							var originY = origin.y * combinedScale;
+							origin = new Point(originX, originY);
+							context.translate(originX, originY);
 						} else {
 							origin = new Point(0, 0);
 						}
 						context.scale(combinedScale, combinedScale);
+						//Configure JS-EDEN default options that are different from the HTML canvas defaults.
+						me.configureContextDefaults(context, scale);
 
 						var pictureLists = [picture];
 						var pictureListIndices = [0];
@@ -221,15 +225,29 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 							} //end of redraw loop (current list).
 						} // end of redraw loop (all nested lists).
 					} else { //end if picture observable is a list.
+						var obsName = pictureObsName;
+						var definition = pictureSym.eden_definition;
+						if (definition) {
+							var re = new RegExp("^" + pictureObsName + "\\s+is\\s+([a-zA-Z0-9_]+)(;)?$");
+							var match = definition.match(re);
+							if (match !== null) {
+								obsName = match[1];
+							}
+						}
 						context.save();
-						context.font = "12pt sans-serif";
+						context.font = "18px sans-serif";
 						context.fillStyle = "black";
 						context.textAlign = "center";
 						content.textBaseline = "middle";
 						context.fillText(
-							"Give _view_" + viewName + "_content a list-typed value to create a picture here.",
+							"Give the observable named '" + obsName + "' a list-typed value",
 							canvas.width / 2,
 							canvas.height / 2
+						);
+						context.fillText(
+							"to create a picture here.",
+							canvas.width / 2,
+							canvas.height / 2 + 30
 						);
 						context.restore();
 					}
@@ -473,6 +491,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		var viewHeightSym = root.lookup("_view_" + canvasName + "_height");
 		var isZooming = false;
 		function resizeCanvas () {
+			var scale = scaleSym.value();
+			var zoom = zoomSym.value();
+			var combinedScale = scale * zoom;
 			var offset = offsetSym.value();
 			var offsetX, offsetY;
 			if (offset instanceof Point) {
@@ -482,11 +503,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				offsetX = 0;
 				offsetY = 0;
 			}
-			var zoom = zoomSym.value();
 
 			var width = widthSym.value();
 			if (width !== undefined) {
-				width = Math.ceil(widthSym.value() * scaleSym.value() * zoom + offsetX);
+				width = Math.ceil((widthSym.value() + offsetX) * combinedScale);
 				canvas.width = width;
 			} else if (zoom > 1) {
 				canvas.width = Math.ceil(viewWidthSym.value() * zoom);
@@ -496,7 +516,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 			var height;
 			if (heightSym.value() !== undefined) {
-				height = Math.ceil(heightSym.value() * scaleSym.value() * zoom + offsetY);
+				height = Math.ceil((heightSym.value() + offsetY) * combinedScale);
 			} else if (zoom > 1) {
 				height = Math.ceil(viewHeightSym.value() * zoom);
 			} else {
@@ -510,7 +530,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 			canvas.rescale = true;
 			me.drawPicture(canvasName);
-		}
+		} //end function
 		var scale = scaleSym.value();
 		if (scale === undefined) {
 		  scaleSym.assign(1, root.scope, agent);

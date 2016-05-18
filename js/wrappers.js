@@ -281,6 +281,15 @@ Eden.Agent.remove = function(agent) {
 }
 
 
+Eden.Agent.removeAll = function () {
+	for (var name in Eden.Agent.agents) {
+		if (!/^(lib|view\/script)(\/|$)/.test(name)) {
+			Eden.Agent.remove(Eden.Agent.agents[name]);
+		}
+	}
+}
+
+
 
 Eden.Agent.prototype.isSaved = function() {
 	return this.autosavetimer === undefined;

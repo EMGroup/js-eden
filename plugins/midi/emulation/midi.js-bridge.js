@@ -22,7 +22,17 @@ EdenUI.plugins.MIDIDotJS = function (edenUI, success) {
 			var midijs;
 			var midijsOutput = {};
 
-			midijsOutput.name = "MIDI.js Software Synth";
+			midijsOutput.name = "MIDI.js";
+
+			midijsOutput.loadPrograms = function (programNums) {
+				for (var i = 0; i < programNums.length; i++) {
+					instrumentsLoaded[programNums[i]] = true;					
+				}
+				midijs.loadPlugin({
+					soundfontUrl: soundfontUrl,
+					instrument: programNums
+				});
+			};
 
 			midijsOutput.send = function (data, time) {
 				var fullCommand = data[0];
