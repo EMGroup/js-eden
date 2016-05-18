@@ -401,6 +401,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var readonly = true;
 		var showhidden = false;
 		var inspectmode = false;
+		var gotomode = false;
 		var maxtabs = 3;
 		var tabpositions = {};
 
@@ -1350,6 +1351,13 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 
+		function scrollToLine(line) {
+			var area = $codearea.get(0);
+			area.scrollTop = 15 + 20 * line - 100;
+		}
+
+
+
 		/**
 		 * Call the highlighter to generate the new highlight output, and then
 		 * post process this to allow for extra warnings and number dragging.
@@ -1639,6 +1647,19 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			setSubTitle("[inspecting]");
 		}
 
+		function enableGotoMode() {
+			outdiv.contentEditable = false;
+			changeClass(outdiv, "goto", true);
+			gotomode = true;
+		}
+
+		function disableGotoMode() {
+			changeClass(outdiv, "goto", false);
+			gotomode = false;
+			updateEntireHighlight();
+			intextarea.focus();
+		}
+
 		function disableInspectMode() {
 			changeClass(outdiv, "inspect", false);
 			inspectmode = false;
@@ -1729,6 +1750,9 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 						e.preventDefault();
 						outdiv.focus();
 						selectAll();
+					} else if (e.keyCode === 17) {
+						console.log(e.keyCode);
+						enableGotoMode();
 					}
 				}
 			} else {
@@ -1764,7 +1788,9 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 */
 		function onTextKeyUp(e) {
 			// Alt and AltGr for disable inspect mode.
-			if (e.keyCode == 18 || (e.altKey && e.keyCode == 73)) {
+			if (e.keyCode == 17) {
+				disableGotoMode();
+			} else if (e.keyCode == 18 || (e.altKey && e.keyCode == 73)) {
 				disableInspectMode();
 				e.preventDefault();
 			} else if (!e.altKey) {
@@ -1827,6 +1853,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			if (e.keyCode == 18 || (e.altKey && e.keyCode == 73)) {
 				disableInspectMode();
 				e.preventDefault();
+			} else if (e.keyCode == 17) {
+				disableGotoMode();
 			}
 		}
 
@@ -1904,6 +1932,39 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					var obs = element.getAttribute("data-observable");
 					element.textContent = obs;
 					element.className = "eden-observable";
+				}
+				e.preventDefault();
+			} else if (gotomode) {
+				var element = e.target;
+				if (element.className == "" && element.parentNode.nodeName == "SPAN") {
+					element = element.parentNode;
+				}
+				if (element.className == "eden-path") {
+					//console.log();
+					disableGotoMode();
+					var path = element.parentNode.textContent.split("@");
+					if (path.length == 1) {
+						openTab(path[0]);
+					} else {
+						openTab(path[0], path[1]);
+					}
+				} else if (element.className == "eden-observable") {
+					var obs = element.getAttribute("data-observable");
+					//console.log("GOTO: " + obs);
+					var sym = eden.root.symbols[obs];
+					if (sym) {
+						var a = Eden.Agent.agents[sym.last_modified_by];
+						if (a) {
+							if (a !== scriptagent) {
+								agent.state[obs_agent] = sym.last_modified_by;
+							}
+							var lineno = a.findDefinitionLine(sym.eden_definition);
+							if (lineno >= 0) setTimeout(function() {
+								scrollToLine(lineno);
+							}, 100);
+							//console.log(" in " + sym.last_modified_by + "@"+lineno);
+						}
+					}
 				}
 				e.preventDefault();
 			} else {
@@ -2200,6 +2261,17 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		}
 
 
+		function onEnterLine(e) {
+			var line = parseInt(e.target.getAttribute("data-line"));
+			gutter.startHover(line);
+		}
+
+		function onLeaveLine(e) {
+			var line = parseInt(e.target.getAttribute("data-line"));
+			gutter.endHover(line);
+		}
+
+
 
 		// Set the event handlers
 		$dialogContents
@@ -2213,6 +2285,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		.on('blur', '.hidden-textarea', onTextBlur)
 		.on('focus', '.hidden-textarea', onTextFocus)
 		.on('mouseup', '.outputcontent', onOutputMouseUp)
+		//.on('mouseenter','.eden-line', onEnterLine)
+		//.on('mouseleave','.eden-line', onLeaveLine)
 		.on('click', '.previous-input', onPrevious)
 		.on('click', '.next-input', onNext)
 		.on('click', '.rewind-input', onRewind)
