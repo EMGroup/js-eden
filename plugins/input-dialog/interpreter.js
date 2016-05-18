@@ -1950,7 +1950,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					}
 				} else if (element.className == "eden-observable") {
 					var obs = element.getAttribute("data-observable");
-					console.log("GOTO: " + obs);
+					//console.log("GOTO: " + obs);
 					var sym = eden.root.symbols[obs];
 					if (sym) {
 						var a = Eden.Agent.agents[sym.last_modified_by];
@@ -1959,10 +1959,10 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 								agent.state[obs_agent] = sym.last_modified_by;
 							}
 							var lineno = a.findDefinitionLine(sym.eden_definition);
-							setTimeout(function() {
+							if (lineno >= 0) setTimeout(function() {
 								scrollToLine(lineno);
 							}, 100);
-							console.log(" in " + sym.last_modified_by + "@"+lineno);
+							//console.log(" in " + sym.last_modified_by + "@"+lineno);
 						}
 					}
 				}
