@@ -139,31 +139,26 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	}
 
 
-	function parseAttributes(text) {
+	function parseAttributes(tagSuffix, attribText) {
 		var attribs = {};
-		if (text === undefined || text == "") return attribs;
-
-		var components = text.split(" ");
-		var start = 0;
-		if (components[0].charAt(0) == "-") {
-			start = 1;
-			attribs.tagType = components[0].substr(1);
+		attribs.tagType = tagSuffix;
+		if (attribText === undefined) {
+			return attribs;
 		}
-
-		for (var i=start; i<components.length; i++) {
-			var parts = components[i].split("=");
-			if (parts.length > 1) {
-				if (parts[1].charAt(0) == "\"") {
-					parts[1] = parts[1].slice(1,-1);
-				} else {
-					parts[1] = parseInt(parts[1]);
-				}
-				attribs[parts[0]] = parts[1];
+		var regExp = /(\w+)(?:=((?:"[^"]*")|(?:'[^']*')|\S*))?/g;
+		var match;
+		while (match = regExp.exec(attribText) !== null) {
+			if (match[2] === undefined) {
+				attribs[match[1]] = true;
 			} else {
-				attribs[parts[0]] = true;
+				var number = parseFloat(match[2]);
+				if (!isNaN(number)) {
+					attribs[match[1]] = number;
+				} else {
+					attribs[match[1]] = match[2];
+				}
 			}
 		}
-
 		return attribs;
 	}
 
@@ -174,19 +169,17 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		var attribs = [];
 
 		// Replace jseden scripts in event attributes
-		text = text.replace(/\"jseden:([\s\S]*?)\"/g, function(match, code) {
-			return "\"javascript: eden.execute2('"+code+"');\"";
-		});
+		text = text.replace(/"jseden:([^"]*)"/g, "\"javascript:eden.execute2('$1;')\"");
+		text = text.replace(/'jseden:([^']*)'/g, "'javascript:eden.execute2(\"$1;\")'");
 
 		// Do a find replace for the jseden tag
-		text = text.replace(/<jseden([\s\S]*?)>([\s\S]*?)<\/jseden[\S]*>/g,
-		function (match, attributes, code, offset, string) {
-			//console.log("ATTRIBS: " + attributes);
-			scripts.push(code);
-			attribs.push(parseAttributes(attributes));
-			//console.log(parseAttributes(attributes));
-			return "$$$$";
-		});
+		text = text.replace(/<jseden(-(\w+))?(\s+[^>]*)?>([^<]*(?:<!\/jseden\1)*)*<\/jseden\1>/g,
+			function (match, suffix, embedType, attributes, code, offset, string) {
+				scripts.push(code);
+				attribs.push(parseAttributes(embedType, attributes));
+				return "$$$$";
+			}
+		);
 
 		var splittext = text.split("$$$$");
 
@@ -197,8 +190,8 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			for (var i=0; i<splittext.length-1; i++) {
 				outer.append($("<div class='page-paragraph'>"+splittext[i]+"</div>"));
 
-				// Plain jseden tag, backwards compat with JSPE
-				if (attribs[i] === undefined || attribs[i].tagType === undefined) {
+				if (attribs[i].tagType === undefined) {
+				// Plain <jseden> tag, backwards compatible with JSPE
 					var linecount = scripts[i].split("\n").length;
 					//var script = generateScript(["script", false, [scripts[i]], undefined, true, linecount, false, false, "50%"]);
 					if (attribs[i].lines === undefined) attribs[i].lines = linecount;
@@ -207,7 +200,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 					var script = generateScript(["script", attribs[i]["static"],[scripts[i]],attribs[i].name,attribs[i].box,attribs[i].lines,false,attribs[i].float,attribs[i].width]);
 					outer.append(script);
 				} else if (attribs[i]) {
-					console.log("Some other view: " + attribs[i].tagType);
+					//Some other tag: <jseden-xxx>
 					if (attribs[i].tagType == "canvas") {
 						var can = generateCanvas(["canvas", attribs[i].name,attribs[i].source,attribs[i].width,attribs[i].height,attribs[i].float,attribs[i].box])
 						outer.append(can);
