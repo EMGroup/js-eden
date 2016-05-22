@@ -4,11 +4,12 @@
 ## See LICENSE.txt
 
 ${{
-Polygon = function(vertices, fillcolour, outlinecolour, drawingOptions) {
+Polygon = function(vertices, fillcolour, outlinecolour, drawingOptions, centreY) {
 	this.vertices = vertices;
 	this.fillcolour = fillcolour;
 	this.outlinecolour = outlinecolour;
 	this.drawingOptions = drawingOptions;
+	this.centreY = centreY; //Used by RegularPolygon
 	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Polygon");
 	this.obsName = root.currentObservableName();
 }
@@ -47,13 +48,12 @@ func Polygon { ${{
 
 ${{
 
-Polygon.prototype.draw = function (context) {
+Polygon.prototype.draw = function (context, scale) {
 	if (this.drawingOptions !== undefined && this.drawingOptions.lineWidth % 2 == 1) {
-		var scale = this.drawingOptions.lineWidth / context.lineWidth;
 		context.translate(0.5 / scale, 0.5 / scale);
 	}
 
-	this.tracePath(context);
+	this.tracePath(context, scale);
 
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
@@ -66,17 +66,25 @@ Polygon.prototype.draw = function (context) {
 	}
 };
 
-Polygon.prototype.tracePath = function (context) {
+Polygon.prototype.tracePath = function (context, scale) {
 	context.beginPath();
-	context.moveTo(this.vertices[0].x, this.vertices[0].y);
-	for (var i = 1; i < this.vertices.length; i++) {
-		context.lineTo(this.vertices[i].x, this.vertices[i].y);
+	if (scale < 0 && this.centreY !== undefined) {
+		var a = 2 * this.centreY;
+		context.moveTo(this.vertices[0].x, a - this.vertices[0].y);
+		for (var i = 1; i < this.vertices.length; i++) {
+			context.lineTo(this.vertices[i].x, a - this.vertices[i].y);
+		}
+	} else {
+		context.moveTo(this.vertices[0].x, this.vertices[0].y);
+		for (var i = 1; i < this.vertices.length; i++) {
+			context.lineTo(this.vertices[i].x, this.vertices[i].y);
+		}
 	}
 	context.closePath();
 }
 
 Polygon.prototype.isHit = function (context, scale, x, y) {
-	this.tracePath(context);
+	this.tracePath(context, scale);
 	return context.isPointInPath(x,y);
 }
 

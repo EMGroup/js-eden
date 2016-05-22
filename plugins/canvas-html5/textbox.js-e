@@ -132,8 +132,8 @@ Textbox.prototype.draw = function(context) {
 
 Textbox.prototype.scale = function (scale, zoom, origin) {
 	var style = this.elements[0].style;
-	style.left = Math.round(this.x * scale + origin.x) + "px";
-	style.top = Math.round(this.y * scale + origin.y) + "px";
+	style.left = Math.round((this.x + origin.x) * scale) + "px";
+	style.top =  Math.round((this.y + origin.y) * scale) + "px";
 	style.width = Math.round(this.width * scale - 6) + "px";
 	if (this.height !== undefined) {
 		var lineHeight = edenUI.plugins.Canvas2D.defaultLineHeight;

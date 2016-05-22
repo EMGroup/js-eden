@@ -1063,9 +1063,9 @@ ${{
 		this.drawingOptions = drawingOptions;
 	}
 
-	ContourLine.prototype.draw = function (context) {
+	ContourLine.prototype.draw = function (context, scale) {
 
-		this.tracePath(context);
+		this.tracePath(context, scale);
 
 		if (this.fillcolour !== undefined) {
 			edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
@@ -1078,7 +1078,7 @@ ${{
 		}
 	}
 
-	ContourLine.prototype.tracePath = function (context) {
+	ContourLine.prototype.tracePath = function (context, scale) {
 		if (!(this.line instanceof ContourData)) {
 			return;
 		}
@@ -1089,7 +1089,6 @@ ${{
 		} else {
 			lineWidth = edenUI.plugins.Canvas2D.defaultLineWidth;
 		}
-		var scale = lineWidth / context.lineWidth;
 		if (this.outlinecolour === undefined) {
 			lineWidth = 0;
 		} else if (lineWidth % 2 == 1) {
@@ -1113,7 +1112,7 @@ ${{
 	}
 
 	ContourLine.prototype.isHit = function (context, scale, x, y) {
-		this.tracePath(context);
+		this.tracePath(context, scale);
 		return context.isPointInPath(x,y);
 	}
 

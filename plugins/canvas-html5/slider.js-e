@@ -147,6 +147,9 @@ Slider.prototype.draw = function (context) {
 		var previewSym = root.lookup(name + "_preview");
 
 		function setValue(obs, value, force) {
+			if (typeof(value) != "number") {
+				return;
+			}
 			var previewSym = root.lookup(name + "_preview");
 			var previewValue = previewSym.value();
 			if (previewValue !== value || force) {
@@ -181,6 +184,9 @@ Slider.prototype.draw = function (context) {
 
 		valueSym.addJSObserver("updateUI", setValue);
 		previewSym.addJSObserver("updateUI", function (obs, preview) {
+			if (typeof(preview) != "number") {
+				return;
+			}
 			var previewSym = root.lookup(name + "_preview");
 			var valueSym = root.lookup(name + "_value");
 			if (previewSym.last_modified_by !== Symbol.hciAgent.name) {
@@ -339,8 +345,8 @@ Slider.prototype.scale = function (scale, zoom, origin) {
 	}
 
 	divStyle.fontSize = zoom + "em";
-	divStyle.left = Math.round(this.x * scale + origin.x) + "px";
-	divStyle.top = Math.round(this.y * scale + origin.y) + "px";
+	divStyle.left = Math.round((this.x + origin.x) * scale) + "px";
+	divStyle.top =  Math.round((this.y + origin.y) * scale) + "px";
 
 	if (this.step == undefined) {
 		slider.step = String((slider.max - slider.min) / (width  - 1)).slice(0, 16);
