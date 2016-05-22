@@ -147,16 +147,21 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		}
 		var regExp = /(\w+)(?:=((?:"[^"]*")|(?:'[^']*')|\S*))?/g;
 		var match;
-		while (match = regExp.exec(attribText) !== null) {
-			if (match[2] === undefined) {
+		while ((match = regExp.exec(attribText)) !== null) {
+			if (match[2] === undefined || match[2] == "") {
 				attribs[match[1]] = true;
 			} else {
-				var number = parseFloat(match[2]);
-				if (!isNaN(number)) {
-					attribs[match[1]] = number;
+				var firstChar = match[2][0];
+				var attribValue;
+				if (firstChar == '"' || firstChar == "'") {
+					attribValue = match[2].slice(1, -1);
 				} else {
-					attribs[match[1]] = match[2];
+					attribValue = match[2];
 				}
+				if (/^\d+$/.test(attribValue)) {
+					attribValue = parseInt(attribValue);
+				}
+				attribs[match[1]] = attribValue;
 			}
 		}
 		return attribs;
@@ -173,8 +178,9 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		text = text.replace(/'jseden:([^']*)'/g, "'javascript:eden.execute2(\"$1;\")'");
 
 		// Do a find replace for the jseden tag
-		text = text.replace(/<jseden(-(\w+))?(\s+[^>]*)?>([^<]*(?:<!\/jseden\1)*)*<\/jseden\1>/g,
+		text = text.replace(/<jseden(-(\w+))?(\s+[^>]*)?>((?:[^<]*(?:<(?!\/jseden\1>))*)*)<\/jseden\1>/g,
 			function (match, suffix, embedType, attributes, code, offset, string) {
+				console.log(match);
 				scripts.push(code);
 				attribs.push(parseAttributes(embedType, attributes));
 				return "$$$$";
