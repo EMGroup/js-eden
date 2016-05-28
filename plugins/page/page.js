@@ -145,7 +145,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		if (attribText === undefined) {
 			return attribs;
 		}
-		var regExp = /(\w+)(?:=((?:"[^"]*")|(?:'[^']*')|\S*))?/g;
+		var regExp = /([^\s=]+)(?:\s*=\s*((?:"[^"]*")|(?:'[^']*')|\S*))?/g;
 		var match;
 		while ((match = regExp.exec(attribText)) !== null) {
 			if (match[2] === undefined || match[2] == "") {
@@ -178,16 +178,18 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		text = text.replace(/'jseden:([^']*)'/g, "'javascript:eden.execute2(\"$1;\")'");
 
 		// Do a find replace for the jseden tag
-		text = text.replace(/<jseden(-(\w+))?(\s+[^>]*)?>((?:[^<]*(?:<(?!\/jseden\1>))*)*)<\/jseden\1>/g,
+		text = text.replace(/<jseden(-([\w\-]+))?(\s+(?:[^"'/>]*(?:"[^"]*")*(?:'[^']*')*)*)?(?:\/|(?:>((?:[^<]*(?:<(?!\/jseden\1>))*)*)<\/jseden\1))>/g,
 			function (match, suffix, embedType, attributes, code, offset, string) {
-				console.log(match);
+				if (code === undefined) {
+					code = "";
+				}
 				scripts.push(code);
 				attribs.push(parseAttributes(embedType, attributes));
-				return "$$$$";
+				return "\0\0";
 			}
 		);
 
-		var splittext = text.split("$$$$");
+		var splittext = text.split("\0\0");
 
 		if (splittext.length == 1) {
 			return text;
@@ -197,7 +199,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 				outer.append($("<div class='page-paragraph'>"+splittext[i]+"</div>"));
 
 				if (attribs[i].tagType === undefined) {
-				// Plain <jseden> tag, backwards compatible with JSPE
+					// Plain <jseden> tag, backwards compatible with JSPE
 					var linecount = scripts[i].split("\n").length;
 					//var script = generateScript(["script", false, [scripts[i]], undefined, true, linecount, false, false, "50%"]);
 					if (attribs[i].lines === undefined) attribs[i].lines = linecount;
@@ -327,10 +329,10 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		function (match, attributes, code, offset, string) {
 			console.log("ATTRIBS: " + attributes);
 			scripts.push(code);
-			return "$$$$";
+			return "\0\0";
 		});
 
-		var splittext = text.split("$$$$");
+		var splittext = text.split("\0\0");
 
 		if (splittext.length == 1) {
 			return $("<div class='page-paragraph'>"+text+"</div>");
