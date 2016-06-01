@@ -54,6 +54,7 @@ function initialiseJSEden() {
 		"Canvas2D",
 		"DependencyMap",
 		"HTMLContent",
+		"ObservablePalette",
 		"PluginManager",
 		"ProjectList",
 		"ScriptGenerator",
@@ -103,8 +104,9 @@ function initialiseJSEden() {
 			edenUI.stopViewCycling();
 		})
 		.on('keydown', null, 'backspace', function (e) {
-			var tagName = e.target.tagName.toUpperCase();
-			if (tagName != "INPUT" && tagName != "TEXTAREA") {
+			var elem = e.target;
+			var tagName = elem.tagName.toUpperCase();
+			if (tagName != "INPUT" && tagName != "TEXTAREA" && !elem.isContentEditable) {
 				e.preventDefault();
 			}
 		});

@@ -47,6 +47,7 @@ module.exports = function (grunt) {
 					'./plugins/systemSymbols.js',
 					'./plugins/symbol-lookup-table/symbol-lookup-table.js',
 					'./plugins/observable-mining/observable-mining.js',
+					'./plugins/observable-palette/observable-palette.js',
 					'./plugins/script-generator/script-generator.js',
 					'./plugins/dependency-map/springy/springy.js',
 					'./plugins/dependency-map/springy/springyui.js',
