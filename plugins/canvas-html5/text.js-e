@@ -137,7 +137,11 @@ Text.prototype.draw = function (context, scale) {
 
 	if (scale != 1) {
 		var inverseScale = 1 / scale;
-		context.scale(inverseScale, inverseScale);
+		if (scale >= 0) {
+			context.scale(inverseScale, inverseScale);
+		} else {
+			context.scale(-inverseScale, inverseScale);
+		}
 	}
 	context.font = this.css;
 	context.textBaseline = this.drawingOptions.valign;

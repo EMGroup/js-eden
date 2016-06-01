@@ -88,6 +88,11 @@ Arc.prototype.draw = function(context, scale) {
 	}
 	var sRadians = this.sRadians;
 	var eRadians = this.eRadians;
+	if (scale < 0) {
+		sRadians = -sRadians;
+		eRadians = -eRadians;
+		anticlockwise = !anticlockwise;
+	}
 	var r = this.r - context.lineWidth / 2;
 	context.beginPath();
 	context.arc(this.x, this.y, r, -sRadians, -eRadians, anticlockwise);

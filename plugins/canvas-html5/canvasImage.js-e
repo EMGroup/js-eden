@@ -131,7 +131,20 @@ CanvasImage.prototype.draw = function(context, scale, viewName) {
 		context.mozImageSmoothingEnabled = smoothed;
 		context.msImageSmoothingEnabled = smoothed;
 		context.imageSmoothingEnabled = smoothed;
-		context.drawImage(this.image, this.sx, this.sy, this.sWidth, this.sHeight, this.dx, this.dy, this.dWidth, this.dHeight);
+		if (scale > 0) {
+			context.drawImage(this.image, this.sx, this.sy, this.sWidth, this.sHeight, this.dx, this.dy, this.dWidth, this.dHeight);
+		} else {
+			if (!this.flippedImage) {
+				var buffer = document.createElement("canvas");
+				buffer.width = this.dWidth;
+				buffer.height = this.dHeight;
+				var bufferContext = buffer.getContext("2d");
+				bufferContext.scale(1, -1);
+				bufferContext.drawImage(this.image, this.sx, this.sy, this.sWidth, this.sHeight, 0, -this.dHeight, this.dWidth, this.dHeight);
+				this.flippedImage = buffer;
+			}
+			context.drawImage(this.flippedImage, this.dx, this.dy - this.dHeight);
+		}
 	} else {
 		this.canvasesToRepaint[viewName] = true;
 	}

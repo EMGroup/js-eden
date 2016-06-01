@@ -214,10 +214,10 @@ Div.prototype.resize = function () {
 Div.prototype.scale = function (scale, zoom , origin) {
 	var style = this.elements[0].style;
 	if (typeof(this.x) == "number") {
-		style.left = Math.round(this.x * scale + origin.x) + "px";
+		style.left = Math.round((this.x + origin.x) * scale) + "px";
 	}
 	if (typeof(this.y) == "number") {
-		style.top = Math.round(this.y * scale + origin.y) + "px";
+		style.top = Math.round((this.y + origin.y) * scale) + "px";
 	}
 	if (typeof(this.width) == "number") {
 		style.width = Math.round(this.width * scale) + "px";

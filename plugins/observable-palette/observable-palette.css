@@ -1,0 +1,216 @@
+.observable-palette-column {
+	box-sizing: border-box;
+	min-width: 260px;
+	display: table-cell;
+}
+
+.observable-palette-drag-placeholder {
+	background-color: #CCCCCC;
+}
+
+.observable-palette .ui-accordion-header.ui-state-active {
+	background: #e6e6e6;
+}
+
+.observable-palette-obs-box, .observable-palette-toolbox {
+	margin-bottom: 8px;
+	margin-right: 8px;
+}
+
+.observable-palette-toolbox {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.observable-palette-search-box {
+	flex-grow: 1;
+}
+
+.observable-palette .ui-accordion-header {
+	display: flex;
+	justify-content: space-between;
+}
+
+.observable-palette-obs-name  {
+	font-weight: bold;
+	margin-right: 5px;
+}
+
+.observable-palette-heading-right {
+	display: inline-block;
+	font-style: italic;
+	height: 14px;
+	overflow: hidden;
+}
+
+.observable-palette-heading-right a {
+	color: blue;
+	text-decoration: underline;
+}
+
+.observable-palette-heading-right a:hover {
+	color: blue;
+	text-decoration: underline;	
+}
+
+.observable-palette .ui-accordion-content {
+	padding: 1em 0.8em;
+}
+
+.observable-palette-advanced {
+	display: table-cell;
+}
+
+.observable-palette-no-advanced .observable-palette-advanced {
+	display: none;
+}
+
+.observable-palette .string-input {
+    border-color: silver;
+    border-style: dashed;
+    border-width: 1px;
+    box-sizing: border-box;
+    font-size: 13.3px;
+    line-height: 1.3;
+    margin: 6px 0px 0px 0px;
+    padding: 1px 2px 1px 3px;
+    resize: vertical;
+    vertical-align: top;
+    width: calc(100% - 22px);
+}
+
+.observable-palette .string-input:hover {
+    border-style: solid;
+    background-color: #f4f4f4;
+}
+
+.observable-palette .string-input:focus {
+    border-color: transparent;
+}
+
+.observable-palette .string-input:hover:focus {
+    background-color: initial;
+}
+
+.observable-palette .quote {
+    display: inline-block;
+    font-family: serif;
+    font-size: 20pt;
+    font-weight: bold;	
+    width: 14px;
+}
+
+.observable-palette .left-quote {
+    line-height: 100%;
+	margin: -1px 3px 0px -4px;
+}
+
+.observable-palette .right-quote  {
+    line-height: 75%;
+	margin: 0px -6px 0px 1px;
+    vertical-align: bottom;
+}
+
+.observable-palette-number-controls {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.observable-palette-slider-cell {
+	padding-top: 0px;
+	padding-bottom: 5px;
+}
+
+.observable-palette-slider {
+	margin-top: 0px;
+	width: 100%;
+}
+
+.observable-palette-limits>td {
+	padding-bottom: 0px;
+	vertical-align: bottom;
+}
+
+.observable-palette input[type="number"] {
+	border: 1px solid #CCCCCC;
+}
+
+.observable-palette-number-controls input[type="number"] {
+	width: 58px;
+}
+
+.observable-palette-left-cell {
+	border-left: 1px solid #DDDDDD;
+	padding-left: 0px;
+}
+
+.observable-palette-left-cell>*:first-child {
+	margin-left: 0px;
+}
+
+.observable-palette-right-cell {
+	border-right: 1px solid #DDDDDD;
+	padding-right: 0px;
+	text-align: right;
+}
+
+.observable-palette-right-cell>*:last-child {
+	margin-right: 0px;
+}
+
+.observable-palette-left-cell>input[type="number"]:first-child {
+	padding-left: 2px;
+}
+
+.observable-palette-right-cell>input:last-child {
+	text-align: right;
+}
+
+.observable-palette-centre-cell input[type="number"] {
+	text-align: center;
+}
+
+.observable-palette-step-label {
+	margin-left: 8px;
+}
+
+.observable-palette-number-centre {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	text-align: right;
+}
+
+.observable-palette-label {
+	text-transform: lowercase;
+	font-variant: small-caps;
+	font-size: 1.4em;
+	letter-spacing: 0.5px;
+}
+
+.observable-palette-bool {
+	font-weight: bold;
+}
+
+.observable-palette-bool input {
+	margin-right: 6px;
+}
+
+.observable-palette-definition {
+    background-color: #f8fafc;
+	border: 1px solid #e8e8e8;
+	box-shadow: 5px 3px 10px silver;
+	color: green;
+    font-family: monospace;
+    font-size: 1.25em;
+    font-weight: bold;
+	padding: 5px;
+	margin-top: 1px;
+    margin-bottom: 11px;
+	margin-right: 1px;
+}
+
+.observable-palette-obs-box .observable-palette-obs-box {
+    margin-right: 0px;
+}

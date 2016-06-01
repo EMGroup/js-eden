@@ -47,9 +47,9 @@ func RoundedRectangle { ${{
 
 ${{
 
-RoundedRectangle.prototype.draw = function (context) {
+RoundedRectangle.prototype.draw = function (context, scale) {
 
-	this.tracePath(context);
+	this.tracePath(context, scale);
 
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
@@ -61,7 +61,7 @@ RoundedRectangle.prototype.draw = function (context) {
 	}
 };
 
-RoundedRectangle.prototype.tracePath = function (context) {
+RoundedRectangle.prototype.tracePath = function (context, scale) {
 	var halfLineWidth;
 	if (this.outlinecolour !== undefined) {
 		halfLineWidth = context.lineWidth / 2;
@@ -72,6 +72,11 @@ RoundedRectangle.prototype.tracePath = function (context) {
 	var x2 = this.x2 - halfLineWidth;
 	var y1 = this.y1 + halfLineWidth;
 	var y2 = this.y2 - halfLineWidth;
+	if (scale < 0) {
+		var temp = y1 - (y2 - y1);
+		y2 = y1;
+		y1 = temp;
+	}
 	
 	context.beginPath();
     context.moveTo(x1 + this.radius, y1);
@@ -87,7 +92,7 @@ RoundedRectangle.prototype.tracePath = function (context) {
 };
 
 RoundedRectangle.prototype.isHit = function (context, scale, x, y) {
-	this.tracePath(context);
+	this.tracePath(context, scale);
 	return context.isPointInPath(x,y);
 }
 

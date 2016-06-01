@@ -124,18 +124,33 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 							zoom = 1;
 						}
 						var combinedScale = scale * zoom;
+						var invertedYAxis, absScale;
+						if (scale < 0) {
+							context.scale(-combinedScale, combinedScale);
+							combinedScale = -combinedScale;
+							absScale = -scale;
+							invertedYAxis = true;
+						} else {
+							if (combinedScale != 1) {
+								context.scale(combinedScale, combinedScale);
+							}
+							absScale = scale;
+							invertedYAxis = false;
+						}
 						var origin = root.lookup("_view_" + viewName + "_offset").value();
 						if (origin instanceof Point) {
-							var originX = origin.x * combinedScale;
-							var originY = origin.y * combinedScale;
-							origin = new Point(originX, originY);
-							context.translate(originX, originY);
+							if (invertedYAxis) {
+								var originY = canvas.height / combinedScale - origin.y;
+								context.translate(origin.x, -originY);								
+								origin = new Point(origin.x, originY);
+							} else {
+								context.translate(origin.x, origin.y);
+							}
 						} else {
 							origin = new Point(0, 0);
 						}
-						context.scale(combinedScale, combinedScale);
 						//Configure JS-EDEN default options that are different from the HTML canvas defaults.
-						me.configureContextDefaults(context, scale);
+						me.configureContextDefaults(context, absScale);
 
 						var pictureLists = [picture];
 						var pictureListIndices = [0];
@@ -181,7 +196,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 								} else {
 									context.save();
 									try {
-										var visible = me.configureContext(context, scale, zoom, item.drawingOptions);
+										var visible = me.configureContext(context, absScale, zoom, item.drawingOptions);
 										// expect draw() method to set .elements
 										if (visible) {
 											item.draw(context, scale, viewName);

@@ -25,7 +25,7 @@ func Shadow {
 			argsProcessed = 0;
 		}
 		if (colour == undefined) {
-			colour = "black";
+			colour = "#3b3b3b";
 		}
 
 		xOffset = arguments[argsProcessed];

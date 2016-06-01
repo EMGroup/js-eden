@@ -57,8 +57,7 @@ func LineSequence { ${{
 ${{
 LineSequence.prototype.draw = function(context, scale) {
 	if (this.drawingOptions !== undefined && this.drawingOptions.lineWidth % 2 == 1) {
-		var zoom = this.drawingOptions.lineWidth / context.lineWidth;
-		context.translate(0.5 / zoom, 0.5 / zoom);
+		context.translate(0.5 / scale, 0.5 / scale);
 	}
 
 	context.beginPath();

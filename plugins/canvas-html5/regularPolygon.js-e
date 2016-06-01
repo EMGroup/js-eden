@@ -96,7 +96,7 @@ ${{
 				j = (j + this.star) % this.n;
 			}
 			if (currentPolygonVertices.length > 0) {
-				polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, this.outlinecolour, this.drawingOptions));
+				polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, this.outlinecolour, this.drawingOptions, this.y));
 			}
 		}
 		if (separatePolygonsPossiblyNeeded) {
@@ -118,7 +118,7 @@ ${{
 						currentPolygonVertices.push(currentPoint);
 						i = (i + this.star) % this.n;
 					} while (i != 0);
-					polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, undefined, this.drawingOptions));
+					polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, undefined, this.drawingOptions, this.y));
 				} else {
 					/* Case: the user wants to see the edges that intersect the interior of the
 					 * polygon.
@@ -136,10 +136,10 @@ ${{
 				this.filledPolygons = [];
 				this.outlinePolygons = [];
 				for (var i = 0; i < polygons.length; i++) {
-					this.filledPolygons.push(new Polygon(polygons[i].vertices, this.fillcolour, undefined, this.drawingOptions));
+					this.filledPolygons.push(new Polygon(polygons[i].vertices, this.fillcolour, undefined, this.drawingOptions, this.y));
 				}
 				for (var i = 0; i < polygons.length; i++) {
-					this.outlinePolygons.push(new Polygon(polygons[i].vertices, undefined, this.outlinecolour, this.drawingOptions));
+					this.outlinePolygons.push(new Polygon(polygons[i].vertices, undefined, this.outlinecolour, this.drawingOptions, this.y));
 				}
 			}
 		} else {
@@ -216,7 +216,7 @@ func RegularPolygon {
 semicircleAngle ~> [RegularPolygon];
 
 ${{
-RegularPolygon.prototype.draw = function (context) {
+RegularPolygon.prototype.draw = function (context, scale) {
 	var lineWidth = context.lineWidth;
 	if (!this.interiorOutline) {
 		lineWidth = lineWidth * 2;
@@ -230,19 +230,19 @@ RegularPolygon.prototype.draw = function (context) {
 
 	if (this.interiorOutline) {
 		for (var i = 0; i < this.filledPolygons.length; i++) {
-			this.filledPolygons[i].draw(context);
+			this.filledPolygons[i].draw(context, scale);
 		}
 		for (var i = 0; i < this.outlinePolygons.length; i++) {
-			this.outlinePolygons[i].draw(context);
+			this.outlinePolygons[i].draw(context, scale);
 		}
 	} else {
 		context.lineWidth = lineWidth;
 		for (var i = 0; i < this.outlinePolygons.length; i++) {
-			this.outlinePolygons[i].draw(context);
+			this.outlinePolygons[i].draw(context, scale);
 		}
 		context.lineWidth = lineWidth / 2;
 		for (var i = 0; i < this.filledPolygons.length; i++) {
-			this.filledPolygons[i].draw(context);
+			this.filledPolygons[i].draw(context, scale);
 		}
 	}
 }

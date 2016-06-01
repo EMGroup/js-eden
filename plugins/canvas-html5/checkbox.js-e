@@ -145,8 +145,8 @@ Checkbox.prototype.scale = function (scale, zoom, origin) {
 	var outerStyle = outerElement.style;
 	var inputStyle = inputElement.style;
 
-	outerStyle.left = Math.round(this.x * scale + origin.x) + "px";
-	outerStyle.top = Math.round(this.y * scale + origin.y) + "px";
+	outerStyle.left = Math.round((this.x + origin.x) * scale) + "px";
+	outerStyle.top =  Math.round((this.y + origin.y) * scale) + "px";
 
 	var checkboxSize = Math.round(13 * zoom) + "px";
 	inputStyle.width = checkboxSize;
