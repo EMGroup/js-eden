@@ -138,8 +138,8 @@ RadioButtons.prototype.draw = function (context) {
 RadioButtons.prototype.scale = function (scale, zoom, origin) {
 	var elem = this.elements[0];
 	var style = elem.style;
-	style.left = Math.round(this.x * scale + origin.x) + "px";
-	style.top = Math.round(this.y * scale + origin.y) + "px";
+	style.left = Math.round((this.x + origin.x) * scale) + "px";
+	style.top =  Math.round((this.y + origin.y) * scale) + "px";
 	if (this.width === undefined) {
 		style.width = "";
 	} else {

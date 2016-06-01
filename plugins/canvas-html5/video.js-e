@@ -681,8 +681,8 @@ ${{
 			var style = this.elements[0].style;
 			var origin = this.cachedOrigin;
 			var scaleFactor = this.cachedScaleFactor;
-			style.left = (origin.x + position.x * scaleFactor) + "px";
-			style.top = (origin.y + position.y * scaleFactor) + "px";
+			style.left = ((origin.x + position.x) * scaleFactor) + "px";
+			style.top = ((origin.y + position.y) * scaleFactor) + "px";
 		}
 	}
 

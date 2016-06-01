@@ -65,9 +65,9 @@ semicircleAngle ~> [Sector];
 
 ${{
 
-Sector.prototype.draw = function (context) {
+Sector.prototype.draw = function (context, scale) {
 
-	this.tracePath(context);
+	this.tracePath(context, scale);
 
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
@@ -79,7 +79,7 @@ Sector.prototype.draw = function (context) {
 	}
 };
 
-Sector.prototype.tracePath = function (context) {
+Sector.prototype.tracePath = function (context, scale) {
 	var anticlockwise;
 	if (this.drawingOptions !== undefined && "direction" in this.drawingOptions) {
 		switch (this.drawingOptions.direction) {
@@ -104,25 +104,31 @@ Sector.prototype.tracePath = function (context) {
 		anticlockwise = this.sAngle < this.eAngle;
 	}
 
+	var sRadians = this.sRadians;
+	var eRadians = this.eRadians;
+	if (scale < 0) {
+		sRadians = -sRadians;
+		eRadians = -eRadians;
+		anticlockwise = !anticlockwise;
+	}
 	var radius;
 	if (this.outlinecolour === undefined) {
 		radius = this.r;
 	} else if (this.drawingOptions !== undefined && this.drawingOptions.lineWidth % 2 == 1) {
-		var scale = this.drawingOptions.lineWidth / context.lineWidth;
 		context.translate(0.5 / scale, 0.5 / scale);
-		radius = this.r - 0.5 * context.lineWidth + 0.5 / scale;
+		radius = this.r - 0.5 * context.lineWidth - 0.5 / scale;
 	} else {
 		radius = this.r - 0.5 * context.lineWidth;
 	}
 
 	context.beginPath();
-	context.arc(this.x, this.y, radius, -this.sRadians, -this.eRadians, anticlockwise);
+	context.arc(this.x, this.y, radius, -sRadians, -eRadians, anticlockwise);
 	context.lineTo(this.x, this.y);
 	context.closePath();
 };
 
 Sector.prototype.isHit = function (context, scale, x, y) {
-	this.tracePath(context);
+	this.tracePath(context, scale);
 	return context.isPointInPath(x,y);
 }
 
