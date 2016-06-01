@@ -584,13 +584,6 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		});
 	};
 
-	//Load the plug-in's style sheet.
-	$('<link/>', {
-	   rel: "stylesheet",
-	   type: "text/css",
-	   href: "plugins/observable-palette/observable-palette.css"
-	}).appendTo("head");
-
 	//Register the HTML view options
 	edenUI.views["ObservablePalette"] = {dialog: this.createDialog, title: "Observable Palette", category: edenUI.viewCategories.interpretation};
 	success();
