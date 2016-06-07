@@ -1,3 +1,13 @@
+.observable-palette p {
+	margin-top: 0px;
+	margin-bottom: 1.4em;
+}
+
+.observable-palette .result_name {
+	font-family: courier, monospace;
+	font-size: 145%;
+}
+
 .observable-palette-column {
 	box-sizing: border-box;
 	min-width: 260px;
@@ -32,7 +42,7 @@
 	justify-content: space-between;
 }
 
-.observable-palette-obs-name  {
+.observable-palette-obs-heading  {
 	font-weight: bold;
 	margin-right: 5px;
 }
