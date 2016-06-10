@@ -8,15 +8,23 @@
 EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 	var me = this;
 
-	function makeUIForObservable(agentName, obsName, obsPanel, registerObservable, removeObservable) {
+	var widgetCounter = 0;
+
+	function getWidgetNumber() {
+		var current = widgetCounter;
+		widgetCounter++;
+		return current;
+	}
+
+	function makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions) {
 		var maxHeadingLength = 128;
 		if (obsPanel) {
-			if (obsPanel.hasClass("ui-accordian")) {
+			if (obsPanel.hasClass("ui-accordion")) {
 				obsPanel.accordion("destroy")
 			}
 			obsPanel.html("");
 		} else {
-			obsPanel = $('<div class="observable-palette-obs-box"></div>');
+			obsPanel = $('<div class="observable-palette-obs-box" data-observable="' + obsName + '"></div>');
 		}
 
 		var root = edenUI.eden.root;
@@ -56,7 +64,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		function changeType(event) {
 			var value = event.target.value;
 			if (value == "hide") {
-				removeObservable(agentName, obsName);
+				functions.remove(obsName, obsPanel, widgetNum);
 				return;
 			}
 
@@ -95,21 +103,49 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			var definitionDiv = $('<div class="observable-palette-definition"></div>');
 			definitionDiv.append(Eden.htmlEscape(symbol.eden_definition) + ";");
 			controlsPanel.append(definitionDiv);
+			var commands = $('<div class="observable-palette-view-commands"></div>');
+			controlsPanel.append(commands);
+			var expand = $('<a onclick="">Expand All</a>');
+			expand.click(function () {
+				dependenciesDiv.find('.observable-palette-obs-box').accordion("option", "active", 0);
+			});
+			var collapse = $('<a onclick="">Collapse All</a>');
+			collapse.click(function () {
+				dependenciesDiv.find('.observable-palette-obs-box').accordion("option", "active", false);
+			});
+			commands.append(expand);
+			commands.append(collapse);
 
 			var dependenciesDiv = $('<div class="observable-palette-dependencies"></div>');
-			var obsPath = agentName + "/" + obsName;
+			dependenciesDiv.sortable({
+				connectWith: '.observable-palette-column',
+				forcePlaceholderSize: true,
+				handle: 'h3',
+				items: '>.observable-palette-obs-box',
+				placeholder: "observable-palette-drag-placeholder",
+				tolerance: "pointer",
+				receive: function (event, ui) {
+					var item = ui.item;
+					var droppedObsName = item.data("observable");
+					if (!symbol.isDependentOn("/" + droppedObsName)) {
+						ui.sender.sortable("cancel");
+					}
+					functions.removeDuplicates(event.target, item);
+				}
+			});
+			var dependencyPanel;
 			for (var dependencyName in symbol.dependencies) {
 				var dependency = symbol.dependencies[dependencyName];
 				dependencyName = dependencyName.slice(1);
-				var dependencyPanel;
 				if (dependency.eden_definition === undefined) {
 					dependencyPanel = makeUIForObservable(
-						obsPath,
+						dialogName,
 						dependencyName,
+						getWidgetNumber(),
 						undefined,
-						registerObservable, removeObservable
+						functions
 					);
-					registerObservable(obsPath, dependencyName, dependencyPanel);
+					functions.register(dependencyName, dependencyPanel);
 					dependenciesDiv.append(dependencyPanel);
 				} else {
 					
@@ -118,7 +154,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 
 			jsObserver = function (symbol, value) {
 				if (symbol.eden_definition === undefined) {
-					makeUIForObservable(agentName, obsName, obsPanel, registerObservable, removeObservable);
+					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions);
 				} else {
 					headingHyperlink.html(Eden.prettyPrintValue("", value, maxHeadingLength, false, false));
 				}
@@ -311,7 +347,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 
 			jsObserver = function (symbol, value) {
 				if (typeof(value) != "number" || symbol.eden_definition !== undefined) {
-					makeUIForObservable(agentName, obsName, obsPanel, registerObservable, removeObservable);
+					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions);
 				} else {
 					headingHyperlink.html(Eden.prettyPrintValue("", value, maxHeadingLength, false, false));
 					if (!editingValue) {
@@ -380,7 +416,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			});
 			jsObserver = function (symbol, value) {
 				if ((value !== true && value !== false) || symbol.eden_definition !== undefined) {
-					makeUIForObservable(agentName, obsName, obsPanel, registerObservable, removeObservable);					
+					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions);					
 				} else {
 					checkbox.checked = value;
 					setLabel(value);
@@ -407,7 +443,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 
 			jsObserver = function (symbol, value) {
 				if (typeof(value) != "string" || symbol.eden_definition !== undefined) {
-					makeUIForObservable(agentName, obsName, obsPanel, registerObservable, removeObservable);
+					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions);
 				} else {
 					textbox.value = value;
 					textbox.rows = value.split("\n").length;
@@ -422,11 +458,12 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 
 			//Create UI for undefined observable.
 			var typeList2 = typeList.clone();
+			typeList2[0].value = "undefined";
 			typeList2.on("change", changeType);
 
 			jsObserver = function (symbol, value) {
 				if (value !== undefined || symbol.eden_definition !== undefined) {
-					makeUIForObservable(agentName, obsName, obsPanel, registerObservable, removeObservable);
+					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions);
 				}
 			};
 
@@ -441,17 +478,20 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 
 			jsObserver = function (symbol, value) {
 				if (value !== undefined || symbol.eden_definition !== undefined) {
-					makeUIForObservable(agentName, obsName, obsPanel, registerObservable, removeObservable);
+					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions);
 				}
 			};
 		}
 
-		symbol.addJSObserver(agentName, jsObserver);
+		symbol.addJSObserver(dialogName + "/" + obsName + "/" + widgetNum, jsObserver);
 		obsPanel.accordion({
 			active: dataType == "undefined"? false : undefined,
 			collapsible: true,
 			heightStyle: "content"
 		});
+		obsPanel.removeFromDialog = function () {
+			functions.remove(obsName, obsPanel, widgetNum);
+		};
 		return obsPanel;
 	}
 
@@ -486,7 +526,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 
 		var removeButton = $('<button type="button">-</button>');
 		removeButton.on("click", function (event) {
-			removeObservable(dialogName, searchBoxElem.value);
+			removeAllInstances(searchBoxElem.value);
 			searchBoxElem.value = "";
 		});
 
@@ -522,64 +562,164 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		var numColumns = 7;
 		var observablesSym = root.lookup("_view_" + viewName + "_observables");
 		var initialObservableColumns = observablesSym.value();
-		if (Array.isArray(initialObservableColumns) && initialObservableColumns.length > numColumns) {
-			numColumns = initialObservableColumns.length;
+		if (Array.isArray(initialObservableColumns)) {
+			if (initialObservableColumns.length > 0 && !Array.isArray(initialObservableColumns[0])) {
+				initialObservableColumns = [initialObservableColumns];
+			}
+			if (initialObservableColumns.length > numColumns) {
+				numColumns = initialObservableColumns.length;
+			}
 		}
 
 		for (var i = 0; i < numColumns; i++) {
 			var column = $('<div class="observable-palette-column"></div>');
 			column.sortable({
-				connectWith: '.observable-palette-column',
+				connectWith: '.observable-palette-column, .observable-palette-dependencies',
 				forcePlaceholderSize: true,
 				handle: 'h3',
-				items: '.observable-palette-obs-box',
+				items: '>.observable-palette-obs-box',
 				placeholder: "observable-palette-drag-placeholder",
 				scroll: false,
 				tolerance: "pointer",
+				receive: function (event, ui) {
+					var col = event.target;
+					var item = ui.item;
+					removeDuplicates(col, item);
+				},
 			});
-			column.resizable({
-				handles: "e",
-				resize: resizeColumn,
-			});
+			if (i < numColumns - 1) {
+				column.resizable({
+					handles: "e",
+					resize: resizeColumn,
+				});
+			}
 			columns.push(column);
 			content.append(column);
 		}
 		columns[0].append(toolbox);
 
-		//For recording nested panels
-		function registerObservable(parent, obsName, panel) {
-			var path = parent + "/" + obsName;
-			observablePanels[path] = panel;
-		}
-
 		//Functions
-		function addObservable(obsName, columnNum, append) {
-			var path = dialogName + "/" + obsName;
-			var panel = observablePanels[path];
-			if (panel === undefined) {
-				panel = makeUIForObservable(dialogName, obsName, undefined, registerObservable, removeObservable);
-				observablePanels[path] = panel;
-			} else {
-				panel.detach();
-			}
-			if (append) {
-				columns[columnNum].append(panel);
-			} else {
-				if (columnNum == 0) {
-					toolbox.after(panel);
-				} else {
-					columns[columnNum].prepend(panel);
+		var functions = {
+			register:			registerObservable,
+			remove:				removeObservable,
+			removeDuplicates:	removeDuplicates,
+		};
+
+		//parent elem, child jQuery
+		function removeDuplicates(parent, child) {
+			var obsName = child.data("observable");
+			var childElem = child[0];
+			var panelArr = observablePanels[obsName];
+			//Ensure that the observable appears at most once in each column (unless nested).
+			for (var j = 0; j < panelArr.length; j++) {
+				var possiblePanel = panelArr[j];
+				var possiblePanelElem = possiblePanel[0];
+				if (possiblePanelElem !== childElem && possiblePanelElem.parentNode === parent) {
+					possiblePanel.removeFromDialog();
+					break;
 				}
 			}
 		}
 
-		function removeObservable(agentName, obsName) {
-			var path = agentName + "/" + obsName;
-			var panel = observablePanels[path];
-			if (panel) {
-				root.lookup(obsName).removeJSObserver(path);
+		//For recording nested panels
+		function registerObservable(obsName, panel) {
+			var panelArr = observablePanels[obsName];
+			if (panelArr === undefined) {
+				panelArr = [];
+				observablePanels[obsName] = panelArr;
+			}
+			panelArr.push(panel);
+		}
+
+		function addObservable(obsName, columnNum, append) {
+			var panelArr = observablePanels[obsName];
+			var panel;
+			if (panelArr === undefined) {
+				panelArr = [];
+				observablePanels[obsName] = panelArr;
+			} else {
+				for (var i = 0; i < panelArr.length; i++) {
+					var possiblePanel = panelArr[i];
+					if (possiblePanel[0].parentNode === columns[columnNum][0]) {
+						panel = possiblePanel;
+						break;
+					}
+				}
+			}
+			function add(panel) {
+				if (append) {
+					// When initializing from _view_XXX_observables
+					columns[columnNum].append(panel);
+				} else {
+					// When adding using the UI.
+					if (columnNum == 0) {
+						toolbox.after(panel);
+					} else {
+						columns[columnNum].prepend(panel);
+					}
+					panel.hide(0, "linear", function () {
+						panel.slideDown(400);
+					});
+				}
+			}
+
+			if (panel === undefined) {
+				panel = makeUIForObservable(
+					dialogName,
+					obsName,
+					getWidgetNumber(),
+					undefined,
+					functions
+				);
+				panelArr.push(panel);
+				add(panel);
+			} else {
+				panel.slideUp(400, "swing", function () {
+					panel.detach();
+					add(panel);
+				});
+			}
+		}
+
+		function removeObservable(obsName, panel, widgetNum) {
+			var panelArr = observablePanels[obsName];
+			if (panelArr !== undefined) {
+				for (var i = 0; i < panelArr.length; i++) {
+					if (panelArr[i] === panel) {
+						panelArr.splice(i, 1);
+					}
+				}
+			}
+			root.lookup(obsName).removeJSObserver(dialogName + "/" + obsName + "/" + widgetNum);
+			panel.slideUp(400, "swing", function () {
 				panel.remove();
-				delete observablePanels[path];
+			});
+		}
+
+		function removeAllInstances(obsName) {
+			var panelArr = observablePanels[obsName];
+			if (panelArr) {
+				var path = dialogName + "/" + obsName + "/";
+				var pathLen = path.length;
+				var sym = root.lookup(obsName);
+				for (var name in sym.jsObservers) {
+					if (name.slice(0, pathLen) == path) {
+						sym.removeJSObserver(name);
+					}
+				}
+
+				var newPanelArr = [];
+				for (var i = 0; i < panelArr.length; i++) {
+					var panel = panelArr[i];
+					if (panel[0].parentNode.parentNode === content[0]) {
+						panel.slideUp(400, "swing", function () {
+							panel.remove();
+						});
+					} else {
+						newPanelArr.push(panel);
+					}
+				}
+				observablePanels[obsName] = newPanelArr;
 			}
 		}
 
