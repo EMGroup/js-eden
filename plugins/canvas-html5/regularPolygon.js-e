@@ -210,7 +210,12 @@ func RegularPolygon {
 				drawingOptions.join = "round";
 			}
 		}
-		return new RegularPolygon(x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolour, drawingOptions);
+		
+		if (n === Infinity) {
+			return new Circle(x, y, r, fillcolour, outlinecolour, drawingOptions);
+		} else {
+			return new RegularPolygon(x, y, r, n, star, rotation, interiorOutline, fillcolour, outlinecolour, drawingOptions);
+		}
 	}}$;
 }
 semicircleAngle ~> [RegularPolygon];

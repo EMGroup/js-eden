@@ -9,6 +9,23 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 	var me = this;
 
 	var widgetCounter = 0;
+	var observableSearchCache = {};
+
+	function canHaveUI(symbol) {
+		var value = symbol.value();
+		return typeof(value) != "function" || !/\breturn\s+([^\/;]|(\/[^\/*]))/.test(value.toString());
+	}
+
+	root.addGlobal(function (folder, symbol, create) {
+		if (create && canHaveUI(symbol)) {
+			var name = symbol.name.slice(1);
+			for (var search in observableSearchCache) {
+				if ((new RegExp("^" + search)).test(name)) {
+					observableSearchCache[search].push(name);
+				}
+			}
+		}
+	});
 
 	function getWidgetNumber() {
 		var current = widgetCounter;
@@ -533,6 +550,24 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 				addObservable(searchBoxElem.value, 0, false);
 				searchBoxElem.value = "";
 			}
+		});
+		searchBox.autocomplete({
+			minLength: 2,
+			source: function (request, callback) {
+				var searchStr = request.term;
+				var results = observableSearchCache[searchStr];
+				if (results === undefined) {
+					var re = new RegExp("^" + searchStr);
+					results = [];
+					for (var name in root.symbols) {
+						if (re.test(name) && canHaveUI(root.symbols[name])) {
+							results.push(name);
+						}
+					}
+					observableSearchCache[searchStr] = results;
+				}
+				callback(results);
+			},
 		});
 
 		var addButton = $('<button type="button">+</button>');
