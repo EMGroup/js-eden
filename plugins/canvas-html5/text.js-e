@@ -54,7 +54,11 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 			this.drawingOptions.align = searchResults[0];
 			options = options.replace(halignRE, "");
 		}
-		css = options;
+		if (options == "") {
+			css = size + " sans-serif";
+		} else {
+			css = options;
+		}
 	} else {
 		css = size + " sans-serif";
 		this.drawingOptions = {valign: "top"};
@@ -86,18 +90,29 @@ func Text {
 		var numArgs = arguments.length;
 		var lastArg = arguments[numArgs - 1];
 		argType = typeof(lastArg);
-		if (argType == "string" && !sizePresent && (numArgs == 6 || lastArg.indexOf(" ") !== -1)) {
+		var alignPresent = argType == "string" && /^(top|hanging|middle|baseline|alphabetic|ideographic|bottom)?\s*(\b(left|right|center|centre|start|end))?$/.test(lastArg);
+		var argsProcessed;
+
+		if (argType == "string" && (alignPresent || (!sizePresent && (numArgs == 6 || lastArg.indexOf(" ") !== -1)))) {
 			options = lastArg;
-			if (numArgs > 4) {
-				fillcolour = arguments[3];
-				if (numArgs > 5) {
-					outlinecolour = arguments[4];
+			var argsLeft = numArgs - 4;
+			var argsProcessed = 3;
+			if (sizePresent) {
+				size = arguments[3];
+				argsProcessed++;
+				argsLeft--;
+			}
+			if (argsLeft > 0) {
+				fillcolour = arguments[argsProcessed];
+				argsLeft--;
+				argsProcessed++;
+				if (argsLeft > 0) {
+					outlinecolour = arguments[argsProcessed];
 				}
 			}
 		} else if (argType == "object" && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
 			options = lastArg;
 			if (numArgs > 4) {
-				var argsProcessed;
 				if (sizePresent || arguments[3] === undefined) {
 					size = arguments[3];
 					argsProcessed = 4;
@@ -223,7 +238,7 @@ Text.parseArgs = function () {
 	}
 	scale = arg;
 
-	if (typeof(options) == "string") {
+	if (typeof(options) == "string" && !/^(top|hanging|middle|baseline|alphabetic|ideographic|bottom)?\s*(\b(left|right|center|centre|start|end))?$/.test(options)) {
 		if (size !== undefined) {
 			eden.error(new Error("textWidth/textHeight: The size argument cannot be specified when the options parameter is given as a string.  The font size should be included in the options string.  See https://drafts.csswg.org/css2/fonts.html#font-shorthand"), "error");
 			return undefined;

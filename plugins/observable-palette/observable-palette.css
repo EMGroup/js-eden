@@ -1,11 +1,30 @@
+.observable-palette a {
+	color: blue;
+}
+
+.observable-palette p {
+	margin-top: 0px;
+	margin-bottom: 1.4em;
+}
+
+.observable-palette .result_name {
+	font-family: courier, monospace;
+	font-size: 145%;
+}
+
 .observable-palette-column {
 	box-sizing: border-box;
 	min-width: 260px;
 	display: table-cell;
 }
 
+.observable-palette-column>.ui-resizable-e {
+    width: 9px;
+    right: 4px;
+}
+
 .observable-palette-drag-placeholder {
-	background-color: #CCCCCC;
+	background-color: #cccccc;
 }
 
 .observable-palette .ui-accordion-header.ui-state-active {
@@ -13,8 +32,25 @@
 }
 
 .observable-palette-obs-box, .observable-palette-toolbox {
-	margin-bottom: 8px;
-	margin-right: 8px;
+	margin-right: 17px;
+}
+
+.observable-palette-obs-box {
+	margin-bottom: 14px;
+}
+
+.observable-palette-toolbox {
+	margin-bottom: 12px;
+}
+
+.observable-palette-column:last-child  .observable-palette-obs-box  {
+	margin-right: 0px;
+}
+
+.observable-palette-dependencies {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 5px;
 }
 
 .observable-palette-toolbox {
@@ -28,13 +64,16 @@
 }
 
 .observable-palette .ui-accordion-header {
+	color: #333;
+	border-color: #888;
+	border-bottom-color: #999;
 	display: flex;
 	justify-content: space-between;
 }
 
-.observable-palette-obs-name  {
+.observable-palette-obs-heading  {
 	font-weight: bold;
-	margin-right: 5px;
+	margin-right: 12px;
 }
 
 .observable-palette-heading-right {
@@ -55,19 +94,36 @@
 }
 
 .observable-palette .ui-accordion-content {
-	padding: 1em 0.8em;
+	border-color: #888;
+	padding: 1em 0.8em 0.9em;
+}
+
+.observable-palette-obs-box .ui-accordion-content {
+	background: #ffffbb;
+}
+
+.observable-palette-obs-box .observable-palette-obs-box .ui-accordion-content {
+	background: #ffff90;
 }
 
 .observable-palette-advanced {
-	display: table-cell;
+	transition: opacity 0.875s;
 }
 
 .observable-palette-no-advanced .observable-palette-advanced {
-	display: none;
+	height: 0px;
+	opacity: 0;
+	overflow: hidden;
+	transition: opacity 0.675s;
+}
+
+.observable-palette .bool_text {
+	background: white;
 }
 
 .observable-palette .string-input {
-    border-color: silver;
+	background: transparent;
+    border-color: #c3c3c3;
     border-style: dashed;
     border-width: 1px;
     box-sizing: border-box;
@@ -82,15 +138,15 @@
 
 .observable-palette .string-input:hover {
     border-style: solid;
-    background-color: #f4f4f4;
+    background-color: white;
 }
 
 .observable-palette .string-input:focus {
     border-color: transparent;
 }
 
-.observable-palette .string-input:hover:focus {
-    background-color: initial;
+.observable-palette .string-input:focus {
+    background-color: white;
 }
 
 .observable-palette .quote {
@@ -207,10 +263,38 @@
     font-weight: bold;
 	padding: 5px;
 	margin-top: 1px;
-    margin-bottom: 11px;
 	margin-right: 1px;
 }
 
+.observable-palette-view-commands {
+	margin-top: 13px;
+	margin-bottom: 12px;
+	margin-left: 16px;
+}
+
+.observable-palette-view-commands a {
+	color: #7777dd;
+	font-size: 90%;
+	letter-spacing: +0.5px;
+	margin-right: 10px;
+	text-transform: uppercase;
+}
+
+.observable-palette-view-commands a:hover {
+	color: #0000ff;
+	font-weight: bold;
+	margin-right: 4px;
+}
+
 .observable-palette-obs-box .observable-palette-obs-box {
+	margin-bottom: 12px;
     margin-right: 0px;
+}
+
+.observable-palette-obs-box:last-child {
+	margin-bottom: 0px;
+}
+
+.observable-palette-obs-box:only-child {
+	margin-top: 12px;
 }
