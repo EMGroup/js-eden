@@ -130,10 +130,19 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 					if (!symbol.isDependentOn("/" + droppedObsName)) {
 						ui.sender.sortable("cancel");
 					}
+					if (event.target.children.length == 2) {
+						commands.slideDown();
+					}
 					functions.removeDuplicates(event.target, item);
+				},
+				remove: function (event, ui) {
+					if (event.target.children.length < 2) {
+						commands.hide();
+					}
 				}
 			});
 			var dependencyPanel;
+			var numDependencies = 0;
 			for (var dependencyName in symbol.dependencies) {
 				var dependency = symbol.dependencies[dependencyName];
 				dependencyName = dependencyName.slice(1);
@@ -147,16 +156,25 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 					);
 					functions.register(dependencyName, dependencyPanel);
 					dependenciesDiv.append(dependencyPanel);
+					numDependencies++;
 				} else {
 					
 				}
 			}
+			if (numDependencies < 2) {
+				commands.hide();
+			}
 
+			var currentDefinition = symbol.eden_definition
 			jsObserver = function (symbol, value) {
-				if (symbol.eden_definition === undefined) {
+				var definition = symbol.eden_definition;
+				if (definition === undefined) {
 					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions);
 				} else {
 					headingHyperlink.html(Eden.prettyPrintValue("", value, maxHeadingLength, false, false));
+					if (definition !== currentDefinition) {
+						
+					}
 				}
 			};
 
@@ -394,7 +412,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			//Create UI for a Boolean observable.
 			var checkboxJQ = $('<input type="checkbox"/>');
 			var checkbox = checkboxJQ[0];
-			var labelJQ = $('<span></span>');
+			var labelJQ = $('<span class="bool_text"></span>');
 
 			function setLabel(bool) {
 				labelJQ.fadeOut(250, "linear", function () {
@@ -519,8 +537,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 
 		var addButton = $('<button type="button">+</button>');
 		addButton.click(function () {
-			var obsName = searchBoxElem.value;
-			addObservable(obsName, 0, false);
+			addObservable(searchBoxElem.value, 0, false);
 			searchBoxElem.value = "";
 		});
 
@@ -632,6 +649,10 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		}
 
 		function addObservable(obsName, columnNum, append) {
+			if (!edenUI.eden.isValidIdentifier(obsName)) {
+				return;
+			}
+
 			var panelArr = observablePanels[obsName];
 			var panel;
 			if (panelArr === undefined) {

@@ -73,7 +73,7 @@
 
 .observable-palette-obs-heading  {
 	font-weight: bold;
-	margin-right: 5px;
+	margin-right: 12px;
 }
 
 .observable-palette-heading-right {
@@ -107,11 +107,18 @@
 }
 
 .observable-palette-advanced {
-	display: table-cell;
+	transition: opacity 0.875s;
 }
 
 .observable-palette-no-advanced .observable-palette-advanced {
-	display: none;
+	height: 0px;
+	opacity: 0;
+	overflow: hidden;
+	transition: opacity 0.675s;
+}
+
+.observable-palette .bool_text {
+	background: white;
 }
 
 .observable-palette .string-input {
@@ -286,4 +293,8 @@
 
 .observable-palette-obs-box:last-child {
 	margin-bottom: 0px;
+}
+
+.observable-palette-obs-box:only-child {
+	margin-top: 12px;
 }
