@@ -585,7 +585,7 @@ function concatAndResolveUrl(url, concat) {
 	}
 
 	Eden.prototype.isValidIdentifier = function (name) {
-		return name && /^[_a-zA-Z]\w*$/.test(name);
+		return Boolean(name && /^[_a-zA-Z]\w*$/.test(name));
 	};
 
 	Eden.prototype.captureInitialState = function () {
