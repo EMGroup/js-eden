@@ -370,12 +370,12 @@ function concatAndResolveUrl(url, concat) {
 	/**Derives a regular expression from a string.  The string can be a simple search keyword or a
 	 * string containing a regular expression.  The following rules are applied to interpret the
 	 * string:
-	 * (1) If the search string is less than 4 characters long and "simple searching" is enabled and
+	 * (1) If the search string is less than 3 characters long and "simple searching" is enabled and
 	 *     the string doesn't contain any meta characters, then the search matches against the
 	 *     beginning of the target string (i.e. there is an implied ^), otherwise the search keyword
 	 *     can be matched anywhere in the target string (unless the exactMatch option is specified).
 	 * (2) If simple searching is enabled then * is interpreted like a regular expression .*, ? like
-	 *     .? and *, ?, and or like | and there are the only meta characters that are enabled.
+	 *     .? and *, ?, and or like | and these are the only meta characters that are enabled.
 	 * (3) If the search string contains a capital letter then the search is case sensitive,
 	 *     otherwise it is case insensitive.
 	 * If a jQuery object is passed instead of a string then the search string will be read
@@ -391,6 +391,7 @@ function concatAndResolveUrl(url, concat) {
 		var regExpStr, regExpObj;
 		var valid = true;
 		var inputBox;
+		var minWordLength = 3;
 
 		if (typeof(str) == "object") {
 			inputBox = str;
@@ -436,7 +437,7 @@ function concatAndResolveUrl(url, concat) {
 			flags = flags + "i";
 		}
 
-		if (simpleWildcards && !exactMatch && str.length < 4) {
+		if (simpleWildcards && !exactMatch && str.length < minWordLength) {
 			//Assume very short strings are intended to be prefixes in simple search mode.
 			regExpStr = "^(" + str + ")";
 			regExpObj = new RegExp(regExpStr, flags);
