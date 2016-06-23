@@ -34,8 +34,7 @@ serialp.list(function (err, ports) {
 		console.log("Network connection open...");
 		ws.send(nrKey);
 
-		// 115200
-		var sp = new SerialPort(arduinoDevice, { baudrate: 38400 }, false);
+		var sp = new SerialPort(arduinoDevice, { baudrate: 115200 }, false);
 
 		var arduino_connected = false;
 
