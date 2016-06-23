@@ -100,9 +100,9 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		if (readOnly) {
 			typeList.append('<option value="' + dataType + '">' + dataType[0].toUpperCase() + dataType.slice(1) + '</option>');
 		} else {
-			typeList.append('<option value="boolean">Boolean</option>');
 			typeList.append('<option value="number">Number</option>');
-			typeList.append('<option value="string">String</option>');
+			typeList.append('<option value="string">Text (String)</option>');
+			typeList.append('<option value="boolean">Yes/No (Boolean)</option>');
 			typeList.append('<option value="undefined">Undefined</option>');
 		}
 		typeList.append('<option value="hide">Hide</option>');
