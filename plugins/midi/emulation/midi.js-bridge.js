@@ -79,13 +79,7 @@ EdenUI.plugins.MIDIDotJS = function (edenUI, success) {
 							instrument: data1
 						});
 					}
-					if (time <= 0) {
-						midijs.programChange(channel, data1);
-					} else {
-						setTimeout(function () {
-							midijs.programChange(channel, data1);
-						}, time);
-					}
+					midijs.setInstrument(channel, data1, time);
 					break;
 
 				default: // Any command that can't or hasn't yet been mapped to MIDI.js
