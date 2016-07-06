@@ -1169,7 +1169,7 @@
 	};
 
 	Symbol.prototype.isDependentOn = function (name) {
-		if (this.dependencies[name]) {
+		if (name == this.name || this.dependencies[name]) {
 			return true;
 		}
 

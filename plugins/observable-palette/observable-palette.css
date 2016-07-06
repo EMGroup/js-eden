@@ -28,7 +28,20 @@
 }
 
 .observable-palette .ui-accordion-header.ui-state-active {
-	background: #e6e6e6;
+	background: #d9d9e9;
+}
+
+.observable-palette .ui-accordion-header {
+	background: #d9d9e9;
+}
+
+.observable-palette .observable-palette-dependency-value-box .ui-accordion-header {
+	background: #c6f0c6;
+}
+
+.observable-palette .observable-palette-dependency-value-box .observable-palette-static-header {
+	cursor: default;
+    padding: .5em .5em .5em 2.2em;
 }
 
 .observable-palette-obs-box, .observable-palette-toolbox {
@@ -50,7 +63,7 @@
 .observable-palette-dependencies {
 	box-sizing: border-box;
 	width: 100%;
-	min-height: 5px;
+	min-height: 7px;
 }
 
 .observable-palette-toolbox {
@@ -81,6 +94,8 @@
 	font-style: italic;
 	height: 14px;
 	overflow: hidden;
+	white-space: pre-wrap;
+	word-break: break-all;
 }
 
 .observable-palette-heading-right a {
@@ -137,16 +152,21 @@
 }
 
 .observable-palette .string-input:hover {
+    background: white;
+	color: grey;
     border-style: solid;
-    background-color: white;
 }
 
 .observable-palette .string-input:focus {
+    background: white;
+	color: black;
     border-color: transparent;
 }
 
-.observable-palette .string-input:focus {
-    background-color: white;
+.observable-palette .string-input:read-only {
+	background: transparent;
+	border: none;
+	color: black;
 }
 
 .observable-palette .quote {
@@ -258,17 +278,38 @@
 	border: 1px solid #e8e8e8;
 	box-shadow: 5px 3px 10px silver;
 	color: green;
+	cursor: text;
     font-family: monospace;
     font-size: 1.25em;
     font-weight: bold;
 	padding: 5px;
+	padding-left: 15px;
 	margin-top: 1px;
 	margin-right: 1px;
+	text-indent: -10px;
+}
+
+.observable-palette-definition:hover {
+	background-color: white;
+	color: grey;
+	font-weight: normal;
+}
+
+.observable-palette-definition.focussed  {
+	background-color: white;
+	color: grey;
+	font-weight: normal;
+	outline: 5px auto #5b9dd9;
+}
+
+.observable-palette-definition :focus {
+	color: black;
+	font-weight: bold;
+	outline: 0px;
 }
 
 .observable-palette-view-commands {
 	margin-top: 13px;
-	margin-bottom: 12px;
 	margin-left: 16px;
 }
 
@@ -283,18 +324,24 @@
 .observable-palette-view-commands a:hover {
 	color: #0000ff;
 	font-weight: bold;
-	margin-right: 4px;
+	margin-right: 6px;
+}
+
+.observable-palette-view-commands::before {
+	color: #aaa;
+	content: "\25be";
+	font-family: monospace;
+	font-size: 200%;
+	line-height: 0.1;
+	vertical-align: -1pt;
 }
 
 .observable-palette-obs-box .observable-palette-obs-box {
+	margin-top: 12px;
 	margin-bottom: 12px;
     margin-right: 0px;
 }
 
 .observable-palette-obs-box:last-child {
 	margin-bottom: 0px;
-}
-
-.observable-palette-obs-box:only-child {
-	margin-top: 12px;
 }

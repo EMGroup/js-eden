@@ -98,7 +98,7 @@ proc loadMIDIPrograms {
 			return;
 		}
 		if (arguments.length < 1) {
-			eden.error(new Error("loadMIDIProgram: This procedure requires at least 1 argument."), "error");
+			eden.error(new Error("loadMIDIPrograms: This procedure requires at least 1 argument."), "error");
 			return;
 		}
 
@@ -110,6 +110,10 @@ proc loadMIDIPrograms {
 			programs = arguments[1];
 		} else {
 			programs = Array.prototype.slice.call(arguments);
+			if (programs.length == 17) {
+				outputNum = programs[0];
+				programs = programs.slice(1);
+			}
 		}
 
 		try {

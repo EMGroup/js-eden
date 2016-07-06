@@ -57,6 +57,8 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 	
 	// A record of the MIDI output devices available on the system.
 	var outputs = [];
+	var numOutputsSym = root.lookup("midiNumberOfOutputs");
+	numOutputsSym.assign(0);
 
 	/* A mapping between output device number and the name of an observable that stores which
 	 * programs (instruments) have been selected for each channel of that output.
@@ -82,6 +84,7 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 
 	this.addSoftSynth = function (synth) {
 		outputs.push(synth);
+		numOutputsSym.assign(outputs.length);
 		console.log('Added software synthesizer "' + synth.name + '".');
 		if (initialized) {
 			var outputNum = outputs.length - 1;
@@ -228,6 +231,7 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 					}
 
 					initialized = true;
+					initializing = false;
 					console.log("Done.");
 
 					//Continue with the operations originally requested (e.g. play a tune).
@@ -252,6 +256,7 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 						outputs.push(output);
 						iteratedItem = iterator.next();
 					}
+					numOutputsSym.assign(outputs.length);
 				}
 				initializeSoftwareDrivers(0);
 
