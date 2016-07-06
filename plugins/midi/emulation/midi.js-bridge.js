@@ -79,13 +79,7 @@ EdenUI.plugins.MIDIDotJS = function (edenUI, success) {
 							instrument: data1
 						});
 					}
-					if (time <= 0) {
-						midijs.programChange(channel, data1);
-					} else {
-						setTimeout(function () {
-							midijs.programChange(channel, data1);
-						}, time);
-					}
+					midijs.setInstrument(channel, data1, time);
 					break;
 
 				default: // Any command that can't or hasn't yet been mapped to MIDI.js
@@ -97,8 +91,6 @@ EdenUI.plugins.MIDIDotJS = function (edenUI, success) {
 			
 			};
 
-			edenUI.plugins.MIDI.addSoftSynth(midijsOutput);
-			
 			var jsFiles = ["inc/shim/Base64binary.js"];
 			if (edenUI.getOptionValue("developer") == "true") {
 				jsFiles.push("build/MIDI.js");
@@ -112,6 +104,7 @@ EdenUI.plugins.MIDIDotJS = function (edenUI, success) {
 					midijs.loadPlugin({
 						soundfontUrl: soundfontUrl,
 						onsuccess: function () {
+							edenUI.plugins.MIDI.addSoftSynth(midijsOutput);
 							if (continuation) {
 								continuation.apply(this, continuationArgs);
 							}

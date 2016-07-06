@@ -16,6 +16,22 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		return typeof(value) != "function" || !/\breturn\s+([^\/;]|(\/[^\/*]))/.test(value.toString());
 	}
 
+	function autocompleteObservable(request, callback) {
+		var searchStr = request.term;
+		var results = observableSearchCache[searchStr];
+		if (results === undefined) {
+			var re = new RegExp("^" + searchStr);
+			results = [];
+			for (var name in root.symbols) {
+				if (re.test(name) && canHaveUI(root.symbols[name])) {
+					results.push(name);
+				}
+			}
+			observableSearchCache[searchStr] = results;
+		}
+		callback(results);
+	}
+
 	root.addGlobal(function (folder, symbol, create) {
 		if (create && canHaveUI(symbol)) {
 			var name = symbol.name.slice(1);
@@ -33,7 +49,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		return current;
 	}
 
-	function makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions) {
+	function makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, readOnly) {
 		var maxHeadingLength = 128;
 		if (obsPanel) {
 			if (obsPanel.hasClass("ui-accordion")) {
@@ -41,16 +57,24 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			}
 			obsPanel.html("");
 		} else {
-			obsPanel = $('<div class="observable-palette-obs-box" data-observable="' + obsName + '"></div>');
+			obsPanel = $('<div class="observable-palette-obs-box observable-palette-visible" data-observable="' + obsName + '"></div>');
+			if (readOnly) {
+				obsPanel.data("editor", "read-only");
+			}
 		}
 
 		var root = edenUI.eden.root;
 		var symbol = root.lookup(obsName);
 		var initialValue = symbol.value();
 		var dataType = typeof(initialValue);
+		var longValue = dataType == "string";
+		var needsPanel = !readOnly || longValue;
+		var edenDefinition = symbol.eden_definition;
 		var jsObserver;
 
-		if (symbol.eden_definition !== undefined) {
+		if (!readOnly && symbol.eden_definition !== undefined) {
+			var match = edenDefinition.match(/^\S+\s+is\s+(.*?);?$/)
+			rhs = match[1];
 			dataType = "definition";
 		}
 
@@ -59,23 +83,28 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		 * alter the observable's type.
 		 */
 		var heading = $('<h3><span class="observable-palette-obs-heading">' + obsName + '</span> </h3>');
+		if (readOnly) {
+			obsPanel.addClass("observable-palette-dependency-value-box");
+		}
 		var headingRight = $('<div class="observable-palette-heading-right"></div>');
 		heading.append(headingRight);
+		obsPanel.append(heading);
 
 		//Display the current value in the heading (possibly truncated).
-		var headingHyperlink = $(
-			'<a>' +
-			Eden.prettyPrintValue("", initialValue, maxHeadingLength, false, false) +
-			'</a>'
-		);
+		var valueStr = Eden.prettyPrintValue("", initialValue, maxHeadingLength, false, false);
+		var headingHyperlink = $('<a>' + valueStr + '</a>');
 		headingRight.append(headingHyperlink);
 
 		//UI for altering the observable's type.
 		var typeList = $('<select></select>');
-		typeList.append('<option value="boolean">Boolean</option>');
-		typeList.append('<option value="number">Number</option>');
-		typeList.append('<option value="string">String</option>');
-		typeList.append('<option value="undefined">Undefined</option>');
+		if (readOnly) {
+			typeList.append('<option value="' + dataType + '">' + dataType[0].toUpperCase() + dataType.slice(1) + '</option>');
+		} else {
+			typeList.append('<option value="number">Number</option>');
+			typeList.append('<option value="string">Text (String)</option>');
+			typeList.append('<option value="boolean">Yes/No (Boolean)</option>');
+			typeList.append('<option value="undefined">Undefined</option>');
+		}
 		typeList.append('<option value="hide">Hide</option>');
 		typeList[0].value = dataType;
 		function changeType(event) {
@@ -111,27 +140,51 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			headingRight.append(headingHyperlink);
 		});
 
-		obsPanel.append(heading);
 		var controlsPanel = $('<div></div>');
-		obsPanel.append(controlsPanel);
 
 		if (dataType == "definition") {
 
 			var definitionDiv = $('<div class="observable-palette-definition"></div>');
-			definitionDiv.append(Eden.htmlEscape(symbol.eden_definition) + ";");
-			controlsPanel.append(definitionDiv);
-			var commands = $('<div class="observable-palette-view-commands"></div>');
-			controlsPanel.append(commands);
-			var expand = $('<a onclick="">Expand All</a>');
-			expand.click(function () {
-				dependenciesDiv.find('.observable-palette-obs-box').accordion("option", "active", 0);
+			definitionDiv.append(obsName + ' is ');
+			rhsSpan = $('<span class="observable-palette-definition-rhs" contenteditable="true"></span>');
+			rhsSpan.append(Eden.htmlEscape(rhs));
+			definitionDiv.append(rhsSpan);
+			definitionDiv.append(';');
+			definitionDiv.on("click", function (event) {
+				rhsSpan.focus();
+				definitionDiv.addClass("focussed");
 			});
-			var collapse = $('<a onclick="">Collapse All</a>');
+			rhsSpan.on("blur", function (event) {
+				definitionDiv.removeClass("focussed");
+			});
+			controlsPanel.append(definitionDiv);
+			var commands = $('<div class="observable-palette-view-commands"> </div>');
+			controlsPanel.append(commands);
+			var expand = $('<a onclick="">Expand</a>');
+			expand.click(function () {
+				dependenciesDiv.find('.observable-palette-obs-box.ui-accordion').accordion("option", "active", 0);
+			});
+			var collapse = $('<a onclick="">Collapse</a>');
 			collapse.click(function () {
-				dependenciesDiv.find('.observable-palette-obs-box').accordion("option", "active", false);
+				dependenciesDiv.find('.observable-palette-obs-box.ui-accordion').accordion("option", "active", false);
+			});
+			var hide = $('<a onclick="">Hide</a>');
+			hide.click(function () {
+				var obsBoxes = dependenciesDiv.find('.observable-palette-obs-box');
+				obsBoxes.removeClass('observable-palette-visible');
+				obsBoxes.slideUp();
+			});
+			var show = $('<a onclick="">Show</a>');
+			show.click(function () {
+				var obsBoxes = dependenciesDiv.find('.observable-palette-obs-box');
+				obsBoxes.addClass('observable-palette-visible');
+				obsBoxes.slideDown();
+//TODO Re-add any that have been removed individually.
 			});
 			commands.append(expand);
 			commands.append(collapse);
+			commands.append(hide);
+			commands.append(show);
 
 			var dependenciesDiv = $('<div class="observable-palette-dependencies"></div>');
 			dependenciesDiv.sortable({
@@ -144,17 +197,19 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 				receive: function (event, ui) {
 					var item = ui.item;
 					var droppedObsName = item.data("observable");
-					if (!symbol.isDependentOn("/" + droppedObsName)) {
+					if (!symbol.isDependentOn("/" + droppedObsName) ||
+						(droppedObsName == obsName && item.data("editor") != "read-only")
+					) {
 						ui.sender.sortable("cancel");
 					}
-					if (event.target.children.length == 2) {
+					if (dependenciesDiv.children('.observable-palette-visible').length == 2) {
 						commands.slideDown();
 					}
 					functions.removeDuplicates(event.target, item);
 				},
 				remove: function (event, ui) {
-					if (event.target.children.length < 2) {
-						commands.hide();
+					if (dependenciesDiv.children('.observable-palette-visible').length < 2) {
+						commands.slideUp();
 					}
 				}
 			});
@@ -169,12 +224,14 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 						dependencyName,
 						getWidgetNumber(),
 						undefined,
-						functions
+						functions,
+						false
 					);
 					functions.register(dependencyName, dependencyPanel);
 					dependenciesDiv.append(dependencyPanel);
 					numDependencies++;
 				} else {
+//TODO handle dependencies defined in terms of dependencies.
 					
 				}
 			}
@@ -182,20 +239,32 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 				commands.hide();
 			}
 
-			var currentDefinition = symbol.eden_definition
 			jsObserver = function (symbol, value) {
-				var definition = symbol.eden_definition;
-				if (definition === undefined) {
-					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions);
+				var newDefinition = symbol.eden_definition;
+				if (newDefinition === undefined) {
+					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, false);
 				} else {
 					headingHyperlink.html(Eden.prettyPrintValue("", value, maxHeadingLength, false, false));
-					if (definition !== currentDefinition) {
-						
+					if (newDefinition !== edenDefinition) {
+//TODO adjust nested panels to match new definition
+					
 					}
 				}
 			};
 
 			controlsPanel.append(dependenciesDiv);
+
+			if (longValue) {
+				var valueDisplay = makeUIForObservable(
+					dialogName,
+					obsName,
+					getWidgetNumber(),
+					undefined,
+					functions,
+					true
+				);
+				dependenciesDiv.append(valueDisplay);
+			}
 
 		} else if (dataType == "number") {
 
@@ -246,7 +315,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			var limitsRow = $('<tr class="observable-palette-limits"></tr>');
 			table.append(limitsRow);
 			var minCell = $('<td class="observable-palette-advanced observable-palette-left-cell"></td>');
-			var minInput = $('<input type="number" value="' + initialMin + '" step=' + initialStep + '" title="Minimum slider value"/>');
+			var minInput = $('<input type="number" value="' + initialMin + '" step=' + initialStep + '" title="Smallest value"/>');
 			var minElem = minInput[0];
 			minCell.append(minInput);
 			limitsRow.append(minCell);
@@ -333,7 +402,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			});
 
 			var maxCell = $('<td  class="observable-palette-advanced observable-palette-right-cell"></td>');
-			var maxInput = $('<input type="number" value="' + initialMax + '" step=' + initialStep + '" title="Maximum slider value"/>');
+			var maxInput = $('<input type="number" value="' + initialMax + '" step=' + initialStep + '" title="Biggest value"/>');
 			var maxElem = maxInput[0];
 			maxCell.append(maxInput);
 			limitsRow.append(maxCell);
@@ -382,7 +451,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 
 			jsObserver = function (symbol, value) {
 				if (typeof(value) != "number" || symbol.eden_definition !== undefined) {
-					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions);
+					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, readOnly);
 				} else {
 					headingHyperlink.html(Eden.prettyPrintValue("", value, maxHeadingLength, false, false));
 					if (!editingValue) {
@@ -451,7 +520,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			});
 			jsObserver = function (symbol, value) {
 				if ((value !== true && value !== false) || symbol.eden_definition !== undefined) {
-					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions);					
+					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, readOnly);					
 				} else {
 					checkbox.checked = value;
 					setLabel(value);
@@ -478,7 +547,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 
 			jsObserver = function (symbol, value) {
 				if (typeof(value) != "string" || symbol.eden_definition !== undefined) {
-					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions);
+					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, readOnly);
 				} else {
 					textbox.value = value;
 					textbox.rows = value.split("\n").length;
@@ -492,38 +561,49 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		} else if (dataType == "undefined") {
 
 			//Create UI for undefined observable.
-			var typeList2 = typeList.clone();
-			typeList2[0].value = "undefined";
-			typeList2.on("change", changeType);
+			controlsPanel.append($('<p><span class="result_name">' + obsName + '</span> is currently undefined.</p>'));
+			if (!readOnly) {
+				var typeList2 = typeList.clone();
+				typeList2[0].value = "undefined";
+				typeList2.on("change", changeType);
+
+				var label = $('<label>Choose type: </label>');
+				label.append(typeList2);
+				var div = $('<div></div>');
+				div.append(label);
+				controlsPanel.append(div);
+			}
 
 			jsObserver = function (symbol, value) {
 				if (value !== undefined || symbol.eden_definition !== undefined) {
-					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions);
+					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, readOnly);
 				}
 			};
-
-			controlsPanel.append($('<p><span class="result_name">' + obsName + '</span> is currently undefined.</p>'));
-			var label = $('<label>Choose type: </label>');
-			label.append(typeList2);
-			var div = $('<div></div>');
-			div.append(label);
-			controlsPanel.append(div);
 
 		} else {
 
 			jsObserver = function (symbol, value) {
 				if (value !== undefined || symbol.eden_definition !== undefined) {
-					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions);
+					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, readOnly);
 				}
 			};
 		}
 
 		symbol.addJSObserver(dialogName + "/" + obsName + "/" + widgetNum, jsObserver);
-		obsPanel.accordion({
-			active: dataType == "undefined"? false : undefined,
-			collapsible: true,
-			heightStyle: "content"
-		});
+
+		if (needsPanel) {
+			if (readOnly) {
+				controlsPanel.find("input, textarea").attr("readonly", "readonly");
+			}
+			obsPanel.append(controlsPanel);
+			obsPanel.accordion({
+				active: dataType == "undefined"? false : undefined,
+				collapsible: true,
+				heightStyle: "content"
+			});
+		} else {
+			heading.addClass("ui-accordion-header ui-helper-reset ui-state-default ui-corner-all observable-palette-static-header");
+		}
 		obsPanel.removeFromDialog = function () {
 			functions.remove(obsName, obsPanel, widgetNum);
 		};
@@ -553,21 +633,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		});
 		searchBox.autocomplete({
 			minLength: 2,
-			source: function (request, callback) {
-				var searchStr = request.term;
-				var results = observableSearchCache[searchStr];
-				if (results === undefined) {
-					var re = new RegExp("^" + searchStr);
-					results = [];
-					for (var name in root.symbols) {
-						if (re.test(name) && canHaveUI(root.symbols[name])) {
-							results.push(name);
-						}
-					}
-					observableSearchCache[searchStr] = results;
-				}
-				callback(results);
-			},
+			source: autocompleteObservable,
 		});
 
 		var addButton = $('<button type="button">+</button>');
@@ -725,7 +791,8 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 					obsName,
 					getWidgetNumber(),
 					undefined,
-					functions
+					functions,
+					false
 				);
 				panelArr.push(panel);
 				add(panel);

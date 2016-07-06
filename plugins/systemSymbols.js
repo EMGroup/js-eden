@@ -31,6 +31,7 @@ Eden.systemObservableNames = {
 	"debug": true,
 	"edenclocks": true,
 	"edenclocks_paused": true,
+	"midiNumberOfOutputs": true,
 	"mouseButton": true,
 	"mouseButtons": true,
 	"mouseCapture": true,
@@ -474,6 +475,7 @@ Eden.symbolCategories["Sound and Video"] = {
 		"background_audio_speed": true,
 		"background_audio_time": true,
 		"background_audio_volume": true,
+		"midiNumberOfOutputs": true,
 	},
 	func: {
 		"Audio": true,
