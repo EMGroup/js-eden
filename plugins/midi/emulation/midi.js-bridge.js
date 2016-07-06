@@ -91,8 +91,6 @@ EdenUI.plugins.MIDIDotJS = function (edenUI, success) {
 			
 			};
 
-			edenUI.plugins.MIDI.addSoftSynth(midijsOutput);
-			
 			var jsFiles = ["inc/shim/Base64binary.js"];
 			if (edenUI.getOptionValue("developer") == "true") {
 				jsFiles.push("build/MIDI.js");
@@ -106,6 +104,7 @@ EdenUI.plugins.MIDIDotJS = function (edenUI, success) {
 					midijs.loadPlugin({
 						soundfontUrl: soundfontUrl,
 						onsuccess: function () {
+							edenUI.plugins.MIDI.addSoftSynth(midijsOutput);
 							if (continuation) {
 								continuation.apply(this, continuationArgs);
 							}
