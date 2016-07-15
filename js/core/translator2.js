@@ -68,7 +68,7 @@ Eden.AST.prototype.generate = function() {
 
 
 Eden.AST.prototype.execute = function(root) {
-	this.script.execute(root, undefined, this);
+	this.script.execute(root, undefined, this, root.scope);
 }
 
 
@@ -155,7 +155,7 @@ Eden.AST.prototype.getBlockLines = function(lineno) {
  */
 Eden.AST.prototype.executeStatement = function(statement, line, agent) {
 	try {
-		statement.execute(eden.root,undefined, this, agent);
+		statement.execute(eden.root,undefined, this, eden.root.scope, agent);
 	} catch (e) {
 		eden.error(e);
 		//throw e;
