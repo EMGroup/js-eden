@@ -2459,10 +2459,24 @@ Eden.AST.When = function() {
 	this.active = false;
 	this.compiled = undefined;
 	this.scope = undefined;
+	this.base = undefined;
 };
 
 Eden.AST.When.prototype.setScope = function (scope) {
 	this.scope = scope;
+}
+
+Eden.AST.When.prototype.subscribeDynamic = function(position, dependency) {
+	//console.log("Subscribe Dyn: " + dependency);
+	if (this.base.triggers[dependency]) {
+		if (this.base.triggers[dependency].indexOf(this) == -1) {
+			this.base.triggers[dependency].push(this);
+		}
+	} else {
+		var trigs = [this];
+		this.base.triggers[dependency] = trigs;
+	}
+	return eden.root.lookup(dependency);
 }
 
 Eden.AST.When.prototype.setExpression = function (express) {
@@ -2489,6 +2503,7 @@ Eden.AST.When.prototype.generate = function() {
 }
 
 Eden.AST.When.prototype.compile = function(base) {
+	this.base = base;
 	var cond = "(function(context,scope) { return ";
 	cond += this.expression.generate(this, "scope");
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
