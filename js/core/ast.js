@@ -189,7 +189,6 @@ Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2) {
 		this.errors.push.apply(this.errors, exp1.errors);
 		this.errors.push.apply(this.errors, exp2.errors);
 	} else {
-		this.range = false;
 		this.overrides[obs] = { start: exp1, end: undefined};
 		// Bubble errors of child nodes
 		this.errors.push.apply(this.errors, exp1.errors);
