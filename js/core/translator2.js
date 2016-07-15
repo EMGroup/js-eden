@@ -1221,6 +1221,13 @@ Eden.AST.prototype.pWHEN = function() {
 		return when;
 	}
 
+	if (this.token == "with") {
+		this.next();
+		var scope = this.pSCOPE();
+		when.setScope(scope);
+		if (scope.errors.length > 0) return when;
+	}
+
 	// Compile the expression and log dependencies
 	when.compile(this);
 

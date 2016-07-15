@@ -2453,7 +2453,12 @@ Eden.AST.When = function() {
 	this.dependencies = {};
 	this.active = false;
 	this.compiled = undefined;
+	this.scope = undefined;
 };
+
+Eden.AST.When.prototype.setScope = function (scope) {
+	this.scope = scope;
+}
 
 Eden.AST.When.prototype.setExpression = function (express) {
 	this.expression = express;
