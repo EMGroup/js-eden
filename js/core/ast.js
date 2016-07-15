@@ -2525,16 +2525,27 @@ Eden.AST.When.prototype.execute = function(root, ctx, base, scope) {
 		scope = this.compScope;
 	} else if (this.compScope) scope = this.compScope;
 
-	if (this.compiled(root,scope)) {
-		//var oldscope = root.scope;
-		//root.scope = scope;
-		console.log("Executing when");
-		console.log(scope);
-		this.statement.execute(root, ctx, base, scope);
-		//root.scope = oldscope;
+	if (scope.range) {
+		scope.range = false;
+
+		while (true) {
+			if (this.compiled(root,scope)) {
+				this.statement.execute(root, ctx, base, scope);
+			} else {
+				this.executed = 2;
+			}
+			if (scope.next() == false) break;
+		}
+
+		scope.range = true;
 	} else {
-		this.executed = 2;
+		if (this.compiled(root,scope)) {
+			this.statement.execute(root, ctx, base, scope);
+		} else {
+			this.executed = 2;
+		}
 	}
+
 	this.active = false;
 }
 
