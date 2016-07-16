@@ -149,6 +149,19 @@
 		}
 	}
 
+	Scope.prototype.cloneAt = function(index) {
+		var nover = [];
+		for (var i = 0; i < this.overrides.length; i++) {
+			nover.push(new ScopeOverride(this.overrides[i].name, this.overrides[i].start, this.overrides[i].end));
+		}
+		var nscope = new Scope(this.context, this.parent, nover, this.range, this.cause);
+		for (var i=0; i<index; i++) {
+			nscope.next();
+		}
+		nscope.range = false;
+		return nscope;
+	}
+
 	Scope.prototype.lookup = function(name) {
 		if (this.cache === undefined) this.rebuild();
 
@@ -242,6 +255,11 @@
 			}
 		}
 		return false;
+	}
+
+	function ScopeList() {
+		this.raw = [];
+		this.caches = [];
 	}
 
 	/*Scope.prototype.toString = function() {
@@ -669,10 +687,15 @@
 	 * Get the value of this symbol bound with the scope the value was
 	 * generated in.
 	 */
-	Symbol.prototype.boundValue = function(scope) {
-		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
+	Symbol.prototype.boundValue = function(scope, indices) {
 		var value = this.value(scope);
-		return new BoundValue(value, cache.scope);
+		var cache = (this.context === undefined || scope === this.context.scope) ? this.cache : scope.lookup(this.name);
+
+		if (indices) {
+			return new BoundValue(value[indices[0]], cache.scope.cloneAt(indices[0]));
+		} else {
+			return new BoundValue(value, cache.scope);
+		}
 	}
 	
 	/**
@@ -689,7 +712,7 @@
 
 			if (scope === undefined) scope = this.context.scope;
 
-			var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
+			var cache = (this.context === undefined || scope === this.context.scope) ? this.cache : scope.lookup(this.name);
 
 			if (this.definition) {
 				if (!cache.up_to_date) {

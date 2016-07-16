@@ -320,7 +320,7 @@ Eden.AST.ScopePath.prototype.setPrimary = function(prim) {
 
 Eden.AST.ScopePath.prototype.generate = function(ctx, scope) {
 	// Add scope to list of scopes in the context
-	ctx.scopes.push(this.path.generate(ctx, scope)+".scope");
+	ctx.scopes.push(this.path.generate(ctx, scope, true)+".scope");
 	this.scopestr = "_scopes[" + (ctx.scopes.length-1) + "]";
 	// And then use that scope to access the primary.
 	return this.primary.generate(ctx, "_scopes["+(ctx.scopes.length-1)+"]");
@@ -1580,7 +1580,7 @@ Eden.AST.Primary.prototype.prepend = function(extra) {
 	}
 };
 
-Eden.AST.Primary.prototype.generate = function(ctx, scope) {
+Eden.AST.Primary.prototype.generate = function(ctx, scope, bound) {
 	// Check if this primary is a local variable.
 	if (ctx && ctx.locals && ctx.locals.list.indexOf(this.observable) != -1) {
 		this.returnsbound = false;
@@ -1628,15 +1628,18 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope) {
 		//	res += ".boundValue(scope)";
 		//}
 	} else {
-		this.returnsbound = false;
-		//if (ctx.scopes.length > 0) {
+		this.returnsbound = (bound) ? true : false;
+		if (!bound) {
 			res += ".value("+scope+")";
-		//} else {
-		//	res += ".value(scope)";
-		//}
+		} else {
+			res += ".boundValue("+scope+",";
+		}
+
 		for (var i=0; i<this.extras.length; i++) {
 			res += this.extras[i].generate(ctx, scope);
 		}
+
+		if (bound) res += ")";
 	}
 
 	return res;
@@ -2459,6 +2462,7 @@ Eden.AST.When = function() {
 	this.active = false;
 	this.compiled = undefined;
 	this.scope = undefined;
+	this.compScope = undefined;
 	this.base = undefined;
 };
 
@@ -2524,6 +2528,10 @@ Eden.AST.When.prototype.compile = function(base) {
 		}
 	}
 
+	if (this.scope && this.compScope === undefined) {
+		this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })")(eden.root, eden.root.scope);
+	}
+
 	return "";
 }
 
@@ -2534,11 +2542,7 @@ Eden.AST.When.prototype.execute = function(root, ctx, base, scope) {
 	//this.compile(base);
 
 	var scope = root.scope;
-
-	if (this.scope && this.compScope === undefined) {
-		this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })")(root, scope);
-		scope = this.compScope;
-	} else if (this.compScope) scope = this.compScope;
+	if (this.compScope) scope = this.compScope;
 
 	if (scope.range) {
 		scope.range = false;
