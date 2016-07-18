@@ -151,13 +151,19 @@
 
 	Scope.prototype.cloneAt = function(index) {
 		var nover = [];
+
+		// Copy the overrides
 		for (var i = 0; i < this.overrides.length; i++) {
 			nover.push(new ScopeOverride(this.overrides[i].name, this.overrides[i].start, this.overrides[i].end));
 		}
+
+		// Make a new exact copy of this scope
 		var nscope = new Scope(this.context, this.parent, nover, this.range, this.cause);
+		// Move range to correct place. This is brute force.
 		for (var i=0; i<index; i++) {
 			nscope.next();
 		}
+
 		nscope.range = false;
 		return nscope;
 	}
@@ -689,9 +695,10 @@
 	 */
 	Symbol.prototype.boundValue = function(scope, indices) {
 		var value = this.value(scope);
-		var cache = (this.context === undefined || scope === this.context.scope) ? this.cache : scope.lookup(this.name);
+		var cache = scope.lookup(this.name);
 
 		if (indices) {
+			// Generate a non range scope equivalent to a specific index.
 			return new BoundValue(value[indices[0]], cache.scope.cloneAt(indices[0]));
 		} else {
 			return new BoundValue(value, cache.scope);
@@ -737,6 +744,10 @@
 		}
 
 		newscope.range = true;
+
+		// Must log scope in cache for ranges as well
+		var cache = (this.context === undefined || newscope === this.context.scope) ? this.cache : newscope.lookup(this.name);
+		cache.scope = newscope;
 
 		return results;
 	};
