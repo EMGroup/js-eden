@@ -130,6 +130,31 @@ Eden.AST.Literal.prototype.execute = function(root, ctx, base, scope) {
 //------------------------------------------------------------------------------
 
 /**
+ * Scope LHS Override Pattern.
+ */
+
+Eden.AST.ScopePattern = function() {
+	this.type = "scopepattern";
+	this.observable = "NONAME";
+	this.components = [];
+	this.errors = [];
+}
+
+Eden.AST.ScopePattern.prototype.error = fnEdenASTerror;
+
+Eden.AST.ScopePattern.prototype.setObservable = function(obs) {
+	this.observable = obs;
+}
+
+Eden.AST.ScopePattern.prototype.addListIndex = function(express) {
+	this.components.push(express);
+	if (express) {
+		this.errors.push.apply(this.errors, express.errors);
+	}
+}
+
+
+/**
  * Scope node, as specified using "with" statement. This needs to store a bunch
  * of overrides and an expression to which these overrides are applied. It may
  * also contain range overrides and if this is the case the scope node range
@@ -182,14 +207,15 @@ Eden.AST.Scope.prototype.doesReturnBound = function() {
  * parameters are AST nodes containing a literal or expression.
  */
 Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2) {
+	this.errors.push.apply(this.errors, obs.errors);
 	if (exp2) {
 		this.range = true;
-		this.overrides[obs] = { start: exp1, end: exp2 };
+		this.overrides[obs.observable] = { start: exp1, end: exp2, components: obs.components };
 		// Bubble errors of child nodes
 		this.errors.push.apply(this.errors, exp1.errors);
 		this.errors.push.apply(this.errors, exp2.errors);
-	} else {
-		this.overrides[obs] = { start: exp1, end: undefined};
+	} else if (exp1) {
+		this.overrides[obs.observable] = { start: exp1, end: undefined, components: obs.components};
 		// Bubble errors of child nodes
 		this.errors.push.apply(this.errors, exp1.errors);
 	}

@@ -961,20 +961,51 @@ Eden.AST.prototype.pSCOPE = function() {
 
 
 
+Eden.AST.prototype.pSCOPEPATTERN = function() {
+	var sname = new Eden.AST.ScopePattern();
+	if (this.token != "OBSERVABLE") {
+		sname.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPENAME));
+		return sname;
+	}
+	sname.setObservable(this.data.value);
+	this.next();
+
+	while (true) {
+		if (this.token == "[") {
+			this.next();
+			var express = this.pEXPRESSION();
+			sname.addListIndex(express);
+			if (express.errors.length > 0) return sname;
+			if (this.token != "]") {
+				sname.error(new Eden.SyntaxError(this, Eden.SyntaxError.LISTINDEXCLOSE));
+				return sname;
+			}
+			this.next();
+		} else if (this.token == ".") {
+
+		} else {
+			break;
+		}
+	}
+
+	return sname;
+}
+
+
+
 /**
  * SCOPE Prime Production
  * SCOPE' -> observable SCOPE''
  */
 Eden.AST.prototype.pSCOPE_P = function() {
-	if (this.token != "OBSERVABLE") {
+	var obs = this.pSCOPEPATTERN();
+	if (obs.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
-		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPENAME));
+		scope.addOverride(obs, undefined, undefined);
 		return scope;
 	}
-	var obs = this.data.value;
-	this.next();
 
-	if (this.token != "is") {
+	if (this.token != "is" && this.token != "=") {
 		var scope = new Eden.AST.Scope();
 		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPEEQUALS));
 		return scope;
@@ -1127,7 +1158,7 @@ Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
 Eden.AST.prototype.pEXPRESSION = function() {
 	var plain = this.pEXPRESSION_PLAIN();
 
-	if (this.token == "with") {
+	if (this.token == "with" || this.token == "::") {
 		this.next();
 		var scope = this.pSCOPE();
 		scope.setExpression(plain);
@@ -1221,7 +1252,7 @@ Eden.AST.prototype.pWHEN = function() {
 		return when;
 	}
 
-	if (this.token == "with") {
+	if (this.token == "with" || this.token == "::") {
 		this.next();
 		var scope = this.pSCOPE();
 		when.setScope(scope);
