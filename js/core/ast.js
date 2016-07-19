@@ -261,8 +261,31 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 	
 	// Add the scope generation string the the array of scopes in this context
 	ctx.scopes.push(this.generateConstructor(ctx,scope));
-	// Return the expression using the newly generated scope.
-	return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]");
+	if (this.range) {
+		var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
+		var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]");
+		var res = "(function() {\n";
+		res += scopename + ".range = false;\n";
+		res += "var results = [];\n";
+		res += "while(true) {\n";
+		res += "var val = "+express;
+		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+			res += ".value";
+		}
+		res += ";\n";
+		res += "if (val !== undefined) results.push(val);\n";
+		res += "if ("+scopename+".next() == false) break;\n";
+		res += "}\n"+scopename+".range = true;\n";
+		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+			res += "return new BoundValue(results,"+scopename+");})()";
+		} else {
+			res += "return results;})()";
+		}
+		return res;
+	} else {
+		// Return the expression using the newly generated scope.
+		return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]");
+	}
 }
 
 

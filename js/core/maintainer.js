@@ -252,19 +252,17 @@
 		}
 		for (var i = this.overrides.length-1; i >= 0; i--) {
 			var over = this.overrides[i];
-			console.log(over);
 			if (over.end === undefined && !over.isin) continue;
 
 			if (over.isin) {
 				// TODO runtime check that start is a list...
-				console.log("ITERATE OVER");
 				if (over.index < over.start.length) {
 					over.current = over.start[over.index];
 					over.index++;
 					this.updateOverride(over);
 					return true;
 				} else {
-					over.index = 0;
+					over.index = 1;
 					over.current = over.start[0];
 					this.updateOverride(over);
 				}
