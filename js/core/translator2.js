@@ -999,22 +999,24 @@ Eden.AST.prototype.pSCOPEPATTERN = function() {
  */
 Eden.AST.prototype.pSCOPE_P = function() {
 	var obs = this.pSCOPEPATTERN();
+	var isin = false;
 	if (obs.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
 		scope.addOverride(obs, undefined, undefined);
 		return scope;
 	}
 
-	if (this.token != "is" && this.token != "=") {
+	if (this.token != "is" && this.token != "=" && this.token != "in") {
 		var scope = new Eden.AST.Scope();
 		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPEEQUALS));
 		return scope;
 	}
+	if (this.token == "in") isin = true;
 	this.next();
 	var expression = this.pEXPRESSION();
 	if (expression.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
-		scope.addOverride(obs, expression, undefined);
+		scope.addOverride(obs, expression, undefined, false);
 		return scope;
 	}
 
@@ -1024,13 +1026,13 @@ Eden.AST.prototype.pSCOPE_P = function() {
 		exp2 = this.pEXPRESSION();
 		if (exp2.errors.length > 0) {
 			var scope = new Eden.AST.Scope();
-			scope.addOverride(obs, expression, exp2);
+			scope.addOverride(obs, expression, exp2, false);
 			return scope;
 		}
 	}
 
 	var scope = this.pSCOPE_PP();
-	scope.addOverride(obs, expression, exp2);
+	scope.addOverride(obs, expression, exp2, isin);
 	return scope;
 }
 

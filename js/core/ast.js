@@ -206,16 +206,17 @@ Eden.AST.Scope.prototype.doesReturnBound = function() {
  * third is an optional second value for a range override. The second and third
  * parameters are AST nodes containing a literal or expression.
  */
-Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2) {
+Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2, isin) {
 	this.errors.push.apply(this.errors, obs.errors);
+	if (isin) this.range = true;
 	if (exp2) {
 		this.range = true;
-		this.overrides[obs.observable] = { start: exp1, end: exp2, components: obs.components };
+		this.overrides[obs.observable] = { start: exp1, end: exp2, components: obs.components, isin: isin };
 		// Bubble errors of child nodes
 		this.errors.push.apply(this.errors, exp1.errors);
 		this.errors.push.apply(this.errors, exp2.errors);
 	} else if (exp1) {
-		this.overrides[obs.observable] = { start: exp1, end: undefined, components: obs.components};
+		this.overrides[obs.observable] = { start: exp1, end: undefined, components: obs.components, isin: isin};
 		// Bubble errors of child nodes
 		this.errors.push.apply(this.errors, exp1.errors);
 	}
@@ -246,7 +247,7 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 			}
 			res += ", " + endstr + "),";
 		} else {
-			res += "),";
+			res += ", undefined, "+this.overrides[o].isin+"),";
 		}
 	}
 	// remove last comma

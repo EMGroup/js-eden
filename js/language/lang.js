@@ -49,6 +49,7 @@ var Language = {
 		"local": "local",
 		"if": "if",
 		"is": "is",
+		"in": "in",
 		"else": "else",
 		"for": "for",
 		"while": "while",

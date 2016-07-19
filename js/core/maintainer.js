@@ -50,11 +50,13 @@
 	}
 
 
-	function ScopeOverride(name, start, end) {
+	function ScopeOverride(name, start, end, isin) {
 		this.name = name;
 		this.start = start;
 		this.end = end;
-		this.current = start;
+		this.current = (isin) ? start[0] : start;
+		this.isin = isin;
+		this.index = 1;
 	}
 
 
@@ -249,15 +251,32 @@
 			this.cache[o].up_to_date = false;
 		}
 		for (var i = this.overrides.length-1; i >= 0; i--) {
-			if (this.overrides[i].end === undefined) continue;
+			var over = this.overrides[i];
+			console.log(over);
+			if (over.end === undefined && !over.isin) continue;
 
-			if (this.overrides[i].current < this.overrides[i].end) {
-				this.overrides[i].current++;
-				this.updateOverride(this.overrides[i]);
-				return true;
+			if (over.isin) {
+				// TODO runtime check that start is a list...
+				console.log("ITERATE OVER");
+				if (over.index < over.start.length) {
+					over.current = over.start[over.index];
+					over.index++;
+					this.updateOverride(over);
+					return true;
+				} else {
+					over.index = 0;
+					over.current = over.start[0];
+					this.updateOverride(over);
+				}
 			} else {
-				this.overrides[i].current = this.overrides[i].start;
-				this.updateOverride(this.overrides[i]);
+				if (over.current < over.end) {
+					over.current++;
+					this.updateOverride(over);
+					return true;
+				} else {
+					over.current = over.start;
+					this.updateOverride(over);
+				}
 			}
 		}
 		return false;
