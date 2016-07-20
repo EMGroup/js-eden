@@ -206,10 +206,17 @@ Eden.AST.Scope.prototype.doesReturnBound = function() {
  * third is an optional second value for a range override. The second and third
  * parameters are AST nodes containing a literal or expression.
  */
-Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2, isin) {
+Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2, exp3, isin) {
 	this.errors.push.apply(this.errors, obs.errors);
 	if (isin) this.range = true;
-	if (exp2) {
+	if (exp3) {
+		this.range = true;
+		this.overrides[obs.observable] = { start: exp1, end: exp3, increment: exp2, components: obs.components, isin: isin };
+		// Bubble errors of child nodes
+		this.errors.push.apply(this.errors, exp1.errors);
+		this.errors.push.apply(this.errors, exp2.errors);
+		this.errors.push.apply(this.errors, exp3.errors);
+	} else if (exp2) {
 		this.range = true;
 		this.overrides[obs.observable] = { start: exp1, end: exp2, components: obs.components, isin: isin };
 		// Bubble errors of child nodes
@@ -245,9 +252,18 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 			if (this.overrides[o].end.doesReturnBound && this.overrides[o].end.doesReturnBound()) {
 				endstr += ".value";
 			}
-			res += ", " + endstr + "),";
+
+			if (this.overrides[o].increment) {
+				var incstr = this.overrides[o].increment.generate(ctx,scope);
+				if (this.overrides[o].increment.doesReturnBound && this.overrides[o].increment.doesReturnBound()) {
+					incstr += ".value";
+				}
+				res += ", " + endstr + ", " + incstr + "),";
+			} else {
+				res += ", " + endstr + "),";
+			}
 		} else {
-			res += ", undefined, "+this.overrides[o].isin+"),";
+			res += ", undefined, undefined, "+this.overrides[o].isin+"),";
 		}
 	}
 	// remove last comma

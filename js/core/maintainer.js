@@ -50,10 +50,11 @@
 	}
 
 
-	function ScopeOverride(name, start, end, isin) {
+	function ScopeOverride(name, start, end, inc, isin) {
 		this.name = name;
 		this.start = start;
 		this.end = end;
+		this.increment = inc;
 		this.current = (isin) ? start[0] : start;
 		this.isin = isin;
 		this.index = 1;
@@ -268,7 +269,11 @@
 				}
 			} else {
 				if (over.current < over.end) {
-					over.current++;
+					if (over.increment) {
+						over.current += over.increment;
+					} else {
+						over.current++;
+					}
 					this.updateOverride(over);
 					return true;
 				} else {

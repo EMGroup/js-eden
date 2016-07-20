@@ -1002,7 +1002,7 @@ Eden.AST.prototype.pSCOPE_P = function() {
 	var isin = false;
 	if (obs.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
-		scope.addOverride(obs, undefined, undefined);
+		scope.addOverride(obs, undefined, undefined, undefined, false);
 		return scope;
 	}
 
@@ -1016,7 +1016,7 @@ Eden.AST.prototype.pSCOPE_P = function() {
 	var expression = this.pEXPRESSION();
 	if (expression.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
-		scope.addOverride(obs, expression, undefined, false);
+		scope.addOverride(obs, expression, undefined, undefined, false);
 		return scope;
 	}
 
@@ -1026,13 +1026,24 @@ Eden.AST.prototype.pSCOPE_P = function() {
 		exp2 = this.pEXPRESSION();
 		if (exp2.errors.length > 0) {
 			var scope = new Eden.AST.Scope();
-			scope.addOverride(obs, expression, exp2, false);
+			scope.addOverride(obs, expression, exp2, undefined, false);
+			return scope;
+		}
+	}
+
+	var exp3 = undefined;
+	if (this.token == "..") {
+		this.next();
+		exp3 = this.pEXPRESSION();
+		if (exp3.errors.length > 0) {
+			var scope = new Eden.AST.Scope();
+			scope.addOverride(obs, expression, exp2, exp3, false);
 			return scope;
 		}
 	}
 
 	var scope = this.pSCOPE_PP();
-	scope.addOverride(obs, expression, exp2, isin);
+	scope.addOverride(obs, expression, exp2, exp3, isin);
 	return scope;
 }
 
