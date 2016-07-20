@@ -130,10 +130,11 @@ Button.prototype.draw = function (context) {
 	if (this.elements === undefined) {
 		var name = this.name;
 
-		var disabled = this.enabled === false? "disabled=\"disabled\"" : "";
+		var disabled = this.enabled === false? 'disabled="disabled" ' : ' ';
 		var inputHtml = '<button ' +
 			disabled +
-			'style="position: absolute; ';
+			'class="canvashtml-item" ' +
+			'style="';
 		if (this.fillcolour !== undefined) {
 			inputHtml = inputHtml + 'background-color: ' + this.fillcolour + '; ';
 		}

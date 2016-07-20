@@ -89,13 +89,13 @@ Textbox.prototype.draw = function(context) {
 		if (this.height === undefined) {
 			placeholder = ' placeholder="' +
 				(this.placeholder === undefined? name : this.placeholder) + '"';
-			jQuery = $('<input type="text" ' + disabled + placeholder + maxlength + ' style="position: absolute" />');
+			jQuery = $('<input type="text" ' + disabled + placeholder + maxlength + ' class="canvashtml-item" />');
 		} else {
 			// Placeholder text for textarea tag is buggy in IE11, so don't use it by default.
 			placeholder = this.placeholder !== undefined && this.placeholder != ""?
 				' placeholder="' + this.placeholder + '"' :
 				'';
-			jQuery = $('<textarea ' + disabled + placeholder + maxlength + ' style="position: absolute"></textarea>');
+			jQuery = $('<textarea ' + disabled + placeholder + maxlength + ' class="canvashtml-item"></textarea>');
 		}
 
 		var element = jQuery.get(0);

@@ -352,7 +352,7 @@ ${{
 
 	//Position on screen
 
-			mediaElement.style.position = "absolute";
+			mediaElement.className = "canvashtml-item";
 			this.cachedOrigin = new Point(0, 0);
 			this.cachedScaleFactor = 1;
 			var position = positionSym.value();

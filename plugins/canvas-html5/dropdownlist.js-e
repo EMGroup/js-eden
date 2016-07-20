@@ -78,7 +78,7 @@ DropDownList.prototype.draw = function(context) {
 		var name = this.name;
 
 		var disabled = this.enabled === false? 'disabled="disabled"' : '';
-		var dropDownListJQ = $('<select ' + disabled + ' style="position: absolute"></select>');
+		var dropDownListJQ = $('<select ' + disabled + ' class="canvashtml-item"></select>');
 		dropDownListJQ.html(this.makeOptionsHTML(this.values));
 
 		dropDownList = dropDownListJQ.get(0);

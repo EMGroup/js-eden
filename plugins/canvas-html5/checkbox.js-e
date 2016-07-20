@@ -76,7 +76,7 @@ Checkbox.prototype.draw = function(context) {
 			labelJQ.prepend(inputJQ);
 			element  = labelJQ.get(0);
 		}
-		element.style.position = "absolute";
+		element.className = "canvashtml-item";
 
 		inputElement.disabled = (this.enabled === false);
 		

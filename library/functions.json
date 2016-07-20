@@ -1141,6 +1141,17 @@
 			"return": "Div object",
 			"description": "Creates a html element for display on the canvas"
 		},
+		"FlowLayout": {
+			"parameters": {
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"[width]": "Width in pixels",
+				"picture_list": "",
+				"[drawing_options]": ""
+			},
+			"return": "FlowLayout object",
+			"description": "Creates a flex-box styled HTML div for display on the canvas"
+		},
 		"Image": {
 			"parameters": {
 				"[name]": "",

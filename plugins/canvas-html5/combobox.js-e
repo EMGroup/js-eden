@@ -90,7 +90,7 @@ Combobox.prototype.draw = function(context) {
 		var disabled = this.enabled === false? 'disabled="disabled"' : '';
 		var placeholder = ' placeholder="' + (this.placeholder === undefined? name : this.placeholder) + '"';
 		var inputJQ = $('<input type="text" list="' + name + '-suggestions" ' + disabled +
-			placeholder + ' style="position: absolute"/>');
+			placeholder + ' class="canvashtml-item"/>');
 
 		input = inputJQ.get(0);
 		var suggestionsJQ = $('<datalist id="' + this.name + '-suggestions"></datalist>');
