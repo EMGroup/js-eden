@@ -1309,7 +1309,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		jseSource = "jseden-canvas.min.js-e";
 	}
 
-	edenUI.eden.include("plugins/canvas-html5/" + jseSource, function() {
+	/*edenUI.eden.include2("plugins/canvas-html5/" + jseSource, function() {
+		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
+		if (success) success();
+	});*/
+
+	Eden.Agent.importAgent("plugins/canvas", "default", ["enabled"], function() {
 		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
 		if (success) success();
 	});
