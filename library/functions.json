@@ -1233,8 +1233,8 @@
 				"[name]": "Prefix for _value observable.  Default is the name of the observable being defined.",
 				"x": "",
 				"y": "",
-				"width": "",
-				"[height]": "",
+				"[width": "",
+				"[height]]": "",
 				"[placeholder_text]": "",
 				"[max_characters]": "",
 				"[enabled]": ""

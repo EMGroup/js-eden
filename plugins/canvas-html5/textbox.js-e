@@ -48,12 +48,18 @@ func Textbox { ${{
 	argsProcessed++;
 	var y = arguments[argsProcessed];
 	argsProcessed++;
-	var width = arguments[argsProcessed];
-	argsProcessed++;
 
-	var height, placeholder, maxlength, enabled;
+	var width, height, placeholder, maxlength, enabled;
 	var arg = arguments[argsProcessed];
 	var argType = typeof(arg);
+
+	if (arg === undefined || argType == "number") {
+		width = arguments[argsProcessed];
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);
+	}
+
 	if (arg === undefined || argType == "number") {
 		height = arg;
 		argsProcessed++;

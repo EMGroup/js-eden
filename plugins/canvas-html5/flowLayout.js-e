@@ -35,12 +35,16 @@ ${{
 
 ${{
 	FlowLayout = function(x, y, width, content, drawingOptions) {
+		this.obsName = root.currentObservableName();
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.content = content;
 		this.drawingOptions = drawingOptions;
 	};
+
+	FlowLayout.defaultSpacing = 14;
+	FlowLayout.defaultVerticalSpacing = 9;
 
 	FlowLayout.prototype.hash = function () {
 		var hash = this.x + "$$" +
@@ -49,7 +53,12 @@ ${{
 
 		if (Array.isArray(this.content)) {
 			for (var i = 0; i < this.content.length; i++) {
-				hash = hash + this.content[i].hash() + "$$";
+				var item = this.content[i];
+				if (item.elements === undefined) {
+					return hash + Math.random();
+				} else {
+					hash = hash + item.hash() + "$$";
+				}
 			}
 		}
 		
@@ -71,6 +80,8 @@ ${{
 
 	FlowLayout.prototype.draw = function (context, scale, viewName) {
 		if (this.elements === undefined && Array.isArray(this.content)) {
+			var me = this;
+
 			var container = $(
 				'<div class="canvashtml-item canvashtml-flow-layout-item" ' +
 				'style="left: ' + this.x + 'px; top: ' + this.y + 'px"' +
@@ -94,6 +105,8 @@ ${{
 				} else if (vAlign !== "top") {
 					container.css("align-items", "center");
 				}
+			} else {
+				container.css("align-items", "center");			
 			}
 
 			for (var i = 0; i < this.content.length; i++) {
@@ -103,9 +116,55 @@ ${{
 				childContainer.append(item.elements);
 				container.append(childContainer);
 			}
+
+			var objectElement = document.createElement("object");
+			objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; " + 
+				"height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
+
+			objectElement.onload = function () {
+				me.resize();
+			}
+			objectElement.type = "text/html";
+			objectElement.data = "about:blank";
+			container.append(objectElement);
+
 			this.elements = container;
 		}
 	}
+
+	FlowLayout.prototype.resize = function () {
+		var scale = this.cachedScale;
+		if (scale === undefined) {
+			//Not yet added drawn onto a canvas.
+			return;
+		}
+
+		var element = this.elements[0];
+		var style = element.style;
+		var autoWidth = this.width === undefined;
+
+		var agent = root.lookup("FlowLayout");
+		var widthSymName = this.obsName + "_width";
+		var heightSymName = this.obsName + "_height";
+
+		var spacing, vSpacing;
+		if (this.drawingOptions !== undefined) {
+			spacing = this.drawingOptions.spacing;
+			vSpacing = this.drawingOptions.vspacing;
+		}
+		if (spacing === undefined) {
+			spacing = FlowLayout.defaultSpacing;
+		}
+		if (vSpacing === undefined) {
+			vSpacing = FlowLayout.defaultVerticalSpacing;
+		}
+
+		if (autoWidth || widthSymName in root.symbols) {
+			root.lookup(widthSymName).assign((element.offsetWidth - spacing) / scale, agent);
+		}
+
+		root.lookup(heightSymName).assign((element.offsetHeight - vSpacing) / scale, agent);
+	};
 
 	FlowLayout.prototype.scale = function(scale, zoom, origin) {
 		if (!Array.isArray(this.content)) {
@@ -120,10 +179,10 @@ ${{
 			vSpacing = this.drawingOptions.vspacing;
 		}
 		if (spacing === undefined) {
-			spacing = 14;
+			spacing = FlowLayout.defaultSpacing;
 		}
 		if (vSpacing === undefined) {
-			vSpacing = 10;
+			vSpacing = FlowLayout.defaultVerticalSpacing;
 		}
 
 		var container = this.elements;
@@ -169,7 +228,7 @@ ${{
 		}
 		containerStyle.top =  Math.round((actualTop + origin.y) * scale) + "px";
 
-		for (var i = 0; i < children.length; i++) {
+		for (var i = 0; i < this.content.length; i++) {
 			var item = this.content[i];
 			var childStyle = children[i].style;
 			childStyle.paddingRight = Math.ceil((padRight + item.x) * scale) + "px";
@@ -179,6 +238,8 @@ ${{
 		children.css("padding-left", Math.floor(padLeft * scale) + "px");
 		children.css("padding-top", Math.floor(padTop * scale) + "px");
 
+		this.cachedScale = scale;
+		this.resize();
 	};
 
 	FlowLayout.prototype.getEdenCode = FlowLayout.prototype.toString;
