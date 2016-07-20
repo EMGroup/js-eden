@@ -1149,6 +1149,17 @@
 			"return": "Div object",
 			"description": "Creates a html element for display on the canvas"
 		},
+		"FlowLayout": {
+			"parameters": {
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"[width]": "Width in pixels",
+				"picture_list": "",
+				"[drawing_options]": ""
+			},
+			"return": "FlowLayout object",
+			"description": "Creates a flex-box styled HTML div for display on the canvas"
+		},
 		"Image": {
 			"parameters": {
 				"[name]": "",
@@ -1230,8 +1241,8 @@
 				"[name]": "Prefix for _value observable.  Default is the name of the observable being defined.",
 				"x": "",
 				"y": "",
-				"width": "",
-				"[height]": "",
+				"[width": "",
+				"[height]]": "",
 				"[placeholder_text]": "",
 				"[max_characters]": "",
 				"[enabled]": ""
