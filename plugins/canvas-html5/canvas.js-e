@@ -368,6 +368,7 @@ include("plugins/canvas-html5/div.js-e");
 include("plugins/canvas-html5/dropdownlist.js-e");
 include("plugins/canvas-html5/ellipse.js-e");
 include("plugins/canvas-html5/fillPattern.js-e");
+include("plugins/canvas-html5/flowLayout.js-e");
 include("plugins/canvas-html5/greyPixelList.js-e");
 include("plugins/canvas-html5/canvasImage.js-e");
 include("plugins/canvas-html5/htmlImage.js-e");

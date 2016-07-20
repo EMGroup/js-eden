@@ -76,13 +76,13 @@ RadioButtons.prototype.makeHTML = function() {
 
 	for (var i = 0; i < this.values.length; i++) {
 		build = build + '<label><input type="radio" name="' + this.name + '" value="' + this.values[i] + '"/> ' +
-			this.labels[i] + '</label> &nbsp;<br/>';
+			this.labels[i] + '</label><br/>';
 	}
 
 	if (this.horizontal) {
-		return '<form style="position: absolute" class="canvas-horizontal-radio-buttons">' + build + '</form>';
+		return '<form class="canvashtml-item canvas-horizontal-radio-buttons">' + build + '</form>';
 	} else {
-		return '<form style="position: absolute">' + build + '</form>';
+		return '<form class="canvashtml-item">' + build + '</form>';
 	}
 };
 

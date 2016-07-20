@@ -82,22 +82,22 @@ Combobox.prototype.makeOptionsHTML = function() {
 
 Combobox.prototype.draw = function(context) {
 	var input, suggestions;
+	var me = this;
+	var name = this.name;
+	var valueSym = root.lookup(name + '_value');
 
 	if (this.elements === undefined) {
-		var me = this;
-		var name = this.name;
 
 		var disabled = this.enabled === false? 'disabled="disabled"' : '';
 		var placeholder = ' placeholder="' + (this.placeholder === undefined? name : this.placeholder) + '"';
 		var inputJQ = $('<input type="text" list="' + name + '-suggestions" ' + disabled +
-			placeholder + ' style="position: absolute"/>');
+			placeholder + ' class="canvashtml-item"/>');
 
 		input = inputJQ.get(0);
 		var suggestionsJQ = $('<datalist id="' + this.name + '-suggestions"></datalist>');
 		suggestions = suggestionsJQ.get(0);
 		suggestionsJQ.html(this.makeOptionsHTML(this.values));
 
-		var valueSym = root.lookup(name + '_value');
 		var initialValue = valueSym.value();
 		if (initialValue !== undefined) {
 			input.value = initialValue;

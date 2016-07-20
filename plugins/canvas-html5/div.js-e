@@ -115,13 +115,12 @@ Div.prototype.draw = function(context) {
 	}
 
 	if (Array.isArray(this.classNames)) {
-		divElement.setAttribute("class", "canvashtml-content-div " + this.classNames.join(" "));
+		divElement.setAttribute("class", "canvashtml-item canvashtml-div-item " + this.classNames.join(" "));
 	} else {
-		divElement.setAttribute("class", "canvashtml-content-div");
+		divElement.setAttribute("class", "canvashtml-item canvashtml-div-item");
 	}
 
 	CSSUtil.setStyle(divElement, this.style);
-	divElement.style.position = "absolute";
 	divElement.innerHTML = this.html;
 
 	if (typeof(this.x) == "string") {
