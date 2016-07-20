@@ -82,10 +82,11 @@ Combobox.prototype.makeOptionsHTML = function() {
 
 Combobox.prototype.draw = function(context) {
 	var input, suggestions;
+	var me = this;
+	var name = this.name;
+	var valueSym = root.lookup(name + '_value');
 
 	if (this.elements === undefined) {
-		var me = this;
-		var name = this.name;
 
 		var disabled = this.enabled === false? 'disabled="disabled"' : '';
 		var placeholder = ' placeholder="' + (this.placeholder === undefined? name : this.placeholder) + '"';
@@ -97,7 +98,6 @@ Combobox.prototype.draw = function(context) {
 		suggestions = suggestionsJQ.get(0);
 		suggestionsJQ.html(this.makeOptionsHTML(this.values));
 
-		var valueSym = root.lookup(name + '_value');
 		var initialValue = valueSym.value();
 		if (initialValue !== undefined) {
 			input.value = initialValue;
