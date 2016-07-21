@@ -112,7 +112,7 @@ ${{
 			for (var i = 0; i < this.content.length; i++) {
 				var item = this.content[i];
 				item.draw(context, scale, viewName);
-				var childContainer = $('<div></div>');
+				var childContainer = $('<div class="canvashtml-flow-layout-child"></div>');
 				childContainer.append(item.elements);
 				container.append(childContainer);
 			}

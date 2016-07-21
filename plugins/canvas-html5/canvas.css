@@ -16,10 +16,15 @@
 .canvashtml-flow-layout-item {
 	display: flex;
 	flex-wrap: wrap;
+	pointer-events: none;
 }
 
-.canvashtml-flow-layout-item:last-child {
+.canvashtml-flow-layout-child:last-of-type {
 	flex-grow: 1;
+}
+
+.canvashtml-flow-layout-child * {
+	pointer-events: auto;
 }
 
 .canvashtml-flow-layout-item .canvashtml-item {
