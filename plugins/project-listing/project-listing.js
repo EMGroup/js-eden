@@ -360,7 +360,7 @@ EdenUI.plugins.ProjectList = function(edenUI, success) {
 
 	//Add views supported by this plugin.
 	edenUI.views["ProjectList"] = {dialog: this.createDialog, title: "Project List", category: edenUI.viewCategories.interpretation};
-	edenUI.eden.include("plugins/project-listing/project-listing.js-e", success);
+	edenUI.eden.include2("plugins/project-listing/project-listing.js-e", success);
 };
 
 /* Plugin meta information */
