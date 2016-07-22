@@ -18,7 +18,8 @@ Eden.DB = {
 		"http://localhost:18880"
 	],
 	repoindex: 0,
-	retrycount: 0
+	retrycount: 0,
+	connected: false
 }
 
 Eden.DB.listeners = {};
@@ -74,8 +75,12 @@ Eden.DB.Meta.prototype.updateVersion = function(saveID, tag, title, author, date
 
 
 
-Eden.DB.isConnected = function() {
+Eden.DB.isConnecting = function() {
 	return Eden.DB.remoteURL !== undefined;
+}
+
+Eden.DB.isConnected = function() {
+	return Eden.DB.connected;
 }
 
 Eden.DB.isLoggedIn = function() {
@@ -176,6 +181,7 @@ Eden.DB.connect = function(url, callback) {
 Eden.DB.disconnect = function(retry) {
 	Eden.DB.remoteURL = undefined;
 	Eden.DB.emit("disconnected", []);
+	Eden.DB.connected = false;
 
 	if (Eden.DB.refreshint) {
 		clearInterval(Eden.DB.refreshint);
@@ -199,7 +205,7 @@ Eden.DB.disconnect = function(retry) {
 
 
 Eden.DB.getLoginName = function(callback) {
-	if (Eden.DB.isConnected()) {
+	if (Eden.DB.isConnecting()) {
 		$.ajax({
 			url: Eden.DB.remoteURL+"/user/details",
 			type: "get",
@@ -217,6 +223,7 @@ Eden.DB.getLoginName = function(callback) {
 					if (data.id && (data.name == "" || !data.name)) Eden.DB.username = "NoName";
 					callback(Eden.DB.username);
 				}
+				Eden.DB.connected = true;
 			},
 			error: function(a){
 				//console.error(a);
@@ -554,7 +561,6 @@ Eden.DB.getVersions = function(path, callback) {
  */
 Eden.DB.getMeta = function(path, callback) {	
 	Eden.DB.getDirectory(path, function(p) {
-		//console.log("GETMETA:" + path);
 		callback(path, Eden.DB.meta[path]);
 	});
 }

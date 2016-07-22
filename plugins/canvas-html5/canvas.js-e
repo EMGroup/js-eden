@@ -99,6 +99,8 @@ proc createCanvas {
 		error("createCanvas: This procedure requires at least 1 argument and at most 3 arguments.");
 		return;
 	}
+
+	
 	
 	if (isPointer(obsName)) {
 		obsName = nameof(obsName);
@@ -106,9 +108,11 @@ proc createCanvas {
 		error("createCanvas: The observable name must be expressed as a string or a pointer, not a " // type(obsName));
 		return;
 	}
+
 	if (viewName == @) {
 		viewName = obsName;
 	}
+	
 	if (viewTitle != @ && !isString(viewTitle)) {
 		error("createCanvas: The window title must be a string, not a " // type(viewTitle));
 		return;
@@ -119,7 +123,7 @@ proc createCanvas {
 	}
 
 	createView(viewName, "Canvas2D");
-	execute("_view_" // viewName // "_content is " // obsName // ";");
+	execute2("_view_" // viewName // "_content is " // obsName // ";");
 	if (viewTitle == @) {
 		##Don't attempt to make this update by dependency on redefinition of _view_viewName_content.
 		##Severe performance problems result.
