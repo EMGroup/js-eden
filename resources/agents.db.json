@@ -80,6 +80,146 @@
 			"file": "models/guides/contour-lines.js-e",
 			"title": "JSPE how-to presentation"
 		},
+		"plugins/canvas": {
+			"file": "plugins/canvas-html5/canvas.js-e",
+			"title": "Canvas HTML5 Plugin"
+		},
+		"plugins/canvas/arc": {
+			"file": "plugins/canvas-html5/arc.js-e",
+			"title": "Canvas HTML5 Arc"
+		},
+		"plugins/canvas/arrowhead": {
+			"file": "plugins/canvas-html5/arrowhead.js-e",
+			"title": "Canvas HTML5 Arrowhead"
+		},
+		"plugins/canvas/button": {
+			"file": "plugins/canvas-html5/button.js-e",
+			"title": "Canvas HTML5 Button"
+		},
+		"plugins/canvas/checkbox": {
+			"file": "plugins/canvas-html5/checkbox.js-e",
+			"title": "Canvas HTML5 Checkbox"
+		},
+		"plugins/canvas/circle": {
+			"file": "plugins/canvas-html5/circle.js-e",
+			"title": "Canvas HTML5 Circle"
+		},
+		"plugins/canvas/combobox": {
+			"file": "plugins/canvas-html5/combobox.js-e",
+			"title": "Canvas HTML5 Combobox"
+		},
+		"plugins/canvas/curve": {
+			"file": "plugins/canvas-html5/curve.js-e",
+			"title": "Canvas HTML5 Curve"
+		},
+		"plugins/canvas/div": {
+			"file": "plugins/canvas-html5/div.js-e",
+			"title": "Canvas HTML5 Div"
+		},
+		"plugins/canvas/dropdownlist": {
+			"file": "plugins/canvas-html5/dropdownlist.js-e",
+			"title": "Canvas HTML5 Drop Down List"
+		},
+		"plugins/canvas/ellipse": {
+			"file": "plugins/canvas-html5/ellipse.js-e",
+			"title": "Canvas HTML5 Ellipse"
+		},
+		"plugins/canvas/fillpattern": {
+			"file": "plugins/canvas-html5/fillPattern.js-e",
+			"title": "Canvas HTML5 Fill Pattern"
+		},
+		"plugins/canvas/greypixellist": {
+			"file": "plugins/canvas-html5/greyPixelList.js-e",
+			"title": "Canvas HTML5 Grey Pixel List"
+		},
+		"plugins/canvas/canvasimage": {
+			"file": "plugins/canvas-html5/canvasImage.js-e",
+			"title": "Canvas HTML5 Canvas Image"
+		},
+		"plugins/canvas/htmlimage": {
+			"file": "plugins/canvas-html5/htmlImage.js-e",
+			"title": "Canvas HTML5 HTML Image"
+		},
+		"plugins/canvas/line": {
+			"file": "plugins/canvas-html5/line.js-e",
+			"title": "Canvas HTML5 Line"
+		},
+		"plugins/canvas/lineargradient": {
+			"file": "plugins/canvas-html5/linearGradient.js-e",
+			"title": "Canvas HTML5 Linear Gradient"
+		},
+		"plugins/canvas/linesequence": {
+			"file": "plugins/canvas-html5/lineSequence.js-e",
+			"title": "Canvas HTML5 Line Sequence"
+		},
+		"plugins/canvas/polygon": {
+			"file": "plugins/canvas-html5/polygon.js-e",
+			"title": "Canvas HTML5 Polygon"
+		},
+		"plugins/canvas/rectangle": {
+			"file": "plugins/canvas-html5/rectangle.js-e",
+			"title": "Canvas HTML5 Rectangle"
+		},
+		"plugins/canvas/slider": {
+			"file": "plugins/canvas-html5/slider.js-e",
+			"title": "Canvas HTML5 Slider"
+		},
+		"plugins/canvas/text": {
+			"file": "plugins/canvas-html5/text.js-e",
+			"title": "Canvas HTML5 Text"
+		},
+		"plugins/canvas/pixel": {
+			"file": "plugins/canvas-html5/pixel.js-e",
+			"title": "Canvas HTML5 Pixel"
+		},
+		"plugins/canvas/pixellist": {
+			"file": "plugins/canvas-html5/pixelList.js-e",
+			"title": "Canvas HTML5 Pixel List"
+		},
+		"plugins/canvas/radialgradient": {
+			"file": "plugins/canvas-html5/radialGradient.js-e",
+			"title": "Canvas HTML5 Radial Gradient"
+		},
+		"plugins/canvas/radiobuttons": {
+			"file": "plugins/canvas-html5/radioButtons.js-e",
+			"title": "Canvas HTML5 Radio Buttons"
+		},
+		"plugins/canvas/regularpolygon": {
+			"file": "plugins/canvas-html5/regularPolygon.js-e",
+			"title": "Canvas HTML5 Regular Polygon"
+		},
+		"plugins/canvas/rotation": {
+			"file": "plugins/canvas-html5/rotation.js-e",
+			"title": "Canvas HTML5 Rotation"
+		},
+		"plugins/canvas/roundedrectangle": {
+			"file": "plugins/canvas-html5/roundedRectangle.js-e",
+			"title": "Canvas HTML5 Rounded Rectangle"
+		},
+		"plugins/canvas/scaling": {
+			"file": "plugins/canvas-html5/scaling.js-e",
+			"title": "Canvas HTML5 Scaling"
+		},
+		"plugins/canvas/sector": {
+			"file": "plugins/canvas-html5/sector.js-e",
+			"title": "Canvas HTML5 Sector"
+		},
+		"plugins/canvas/shadow": {
+			"file": "plugins/canvas-html5/shadow.js-e",
+			"title": "Canvas HTML5 Shadow"
+		},
+		"plugins/canvas/textbox": {
+			"file": "plugins/canvas-html5/textbox.js-e",
+			"title": "Canvas HTML5 Textbox"
+		},
+		"plugins/canvas/translation": {
+			"file": "plugins/canvas-html5/translation.js-e",
+			"title": "Canvas HTML5 Translation"
+		},
+		"plugins/canvas/video": {
+			"file": "plugins/canvas-html5/video.js-e",
+			"title": "Canvas HTML5 Video"
+		},
 		"plugins/page": {
 			"file": "plugins/page/page.js-e",
 			"title": "Page Plugin",
