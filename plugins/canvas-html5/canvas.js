@@ -388,7 +388,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		var canvas = canvases[viewName];
 		var context = canvas.getContext("2d");
 		var scale = root.lookup("_view_" + viewName + "_scale").value();
-
+		return this.findDrawableHitInList(picture, context, scale, x, y, fromBottom, testAll);
+	}
+	
+	this.findDrawableHitInList = function (picture, context, scale, x, y, fromBottom, testAll) {
 		var beginIndex, increment;
 		if (fromBottom) {
 			beginIndex = 0;
@@ -402,19 +405,26 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			if (typeof(drawable) != "object") {
 				continue;
 			}
-			var id = drawable.name;
-			if (!testAll && id === undefined) {
-				continue;
-			}
+
 			var hitTest = drawable.isHit;
-			if (hitTest === undefined) {
-				continue;
-			}
-			context.save();
-			var isHit = drawable.isHit(context, scale, x, y);
-			context.restore();
-			if (isHit) {
-				return drawable;
+			if (hitTest !== undefined) {
+				if (!testAll && drawable.name === undefined) {
+					continue;
+				}
+				context.save();
+				var isHit = drawable.isHit(context, scale, x, y, fromBottom, testAll);
+				context.restore();
+				if (isHit === true) {
+					return drawable;
+				}
+			} else if (drawable.inverse) {
+				//Handle Tranforms
+				var preimage = drawable.inverse(x, y);
+				var drawableHit = this.findDrawableHitInList(drawable.items, context, scale,
+					preimage.x, preimage.y, fromBottom, testAll);
+				if (drawableHit !== undefined) {
+					return drawableHit;
+				}
 			}
 		}
 		return undefined;

@@ -19,6 +19,10 @@ ${{
 		context.translate(this.x - this.centreX, this.y - this.centreY);
 	}
 
+	Translation.prototype.inverse = function (x, y) {
+		return new Point(x - (this.x - this.centreX), y - (this.y - this.centreY));
+	}
+
 	Translation.prototype.toString = function () {
 		return "Translate(" + Eden.edenCodeForValues(this.centreX, this.centreY, this.x, this.y, this.items) + ")";
 	}
