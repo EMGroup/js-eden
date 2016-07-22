@@ -72,17 +72,17 @@ DropDownList.prototype.makeOptionsHTML = function() {
 
 DropDownList.prototype.draw = function(context) {
 	var dropDownList;
+	var me = this;
+	var name = this.name;
+	var valueSym = root.lookup(name + '_value');
 
 	if (this.elements === undefined) {
-		var me = this;
-		var name = this.name;
 
 		var disabled = this.enabled === false? 'disabled="disabled"' : '';
-		var dropDownListJQ = $('<select ' + disabled + ' style="position: absolute"></select>');
+		var dropDownListJQ = $('<select ' + disabled + ' class="canvashtml-item"></select>');
 		dropDownListJQ.html(this.makeOptionsHTML(this.values));
 
 		dropDownList = dropDownListJQ.get(0);
-		var valueSym = root.lookup(name + '_value');
 		var initialValue = valueSym.value();
 		if (initialValue === undefined) {
 			valueSym.assign(me.values[0], root.scope, root.lookup("DropDownList"), true);

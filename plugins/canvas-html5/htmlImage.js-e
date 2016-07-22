@@ -104,7 +104,7 @@ HTMLImage.prototype.draw = function(context) {
 	var name = this.name;
 	var me = this;
 
-	var html = '<img style="position: absolute"';
+	var html = '<img class="canvashtml-item"';
 	if (this.imageMap !== undefined) {
 		html = html + ' usemap="#' + id + '-map" draggable="false" class="noselect"';
 	}

@@ -1,0 +1,246 @@
+## Copyright (c) 2016, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+func FlowLayout {
+${{
+	var x = arguments[0];
+	var y = arguments[1];
+	var width, content, drawingOptions;
+
+	var argsProcessed = 2;
+	var arg = arguments[2];
+
+	if (Array.isArray(arg)) {
+		content = arg;
+		argsProcessed++;
+	} else {
+		width = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		content = arg;
+		argsProcessed++;
+	}
+
+	arg = arguments[argsProcessed];
+
+	if (typeof(arg) == "object") {
+		drawingOptions = arg;
+	}
+
+	return new FlowLayout(x, y, width, content, drawingOptions);
+}}$;
+}
+
+${{
+	FlowLayout = function(x, y, width, content, drawingOptions) {
+		this.obsName = root.currentObservableName();
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.content = content;
+		this.drawingOptions = drawingOptions;
+	};
+
+	FlowLayout.defaultSpacing = 14;
+	FlowLayout.defaultVerticalSpacing = 9;
+
+	FlowLayout.prototype.hash = function () {
+		var hash = this.x + "$$" +
+			this.y + "$$" +
+			this.width + "$$";
+
+		if (Array.isArray(this.content)) {
+			for (var i = 0; i < this.content.length; i++) {
+				var item = this.content[i];
+				if (item.elements === undefined) {
+					return hash + Math.random();
+				} else {
+					hash = hash + item.hash() + "$$";
+				}
+			}
+		}
+		
+		if (this.drawingOptions !== undefined) {
+			hash = hash +
+				this.drawingOptions.align + "$$" +
+				this.drawingOptions.valign + "$$" +
+				this.drawingOptions.spacing + "$$" +
+				this.drawingOptions.vspacing;
+		}
+
+		return hash;
+	};
+
+	FlowLayout.prototype.toString = function () {
+		return "FlowLayout(" + Eden.edenCodeForValues(this.x, this.y, this.width, this.content,
+			this.drawingOptions) + ")";
+	};
+
+	FlowLayout.prototype.draw = function (context, scale, viewName) {
+		if (this.elements === undefined && Array.isArray(this.content)) {
+			var me = this;
+
+			var container = $(
+				'<div class="canvashtml-item canvashtml-flow-layout-item" ' +
+				'style="left: ' + this.x + 'px; top: ' + this.y + 'px"' +
+				'></div>'
+			);
+			
+			if (this.drawingOptions !== undefined) {
+				var align = this.drawingOptions.align;
+				if (align == "right") {
+					container.css("justify-content", "flex-end");
+				} else if (align == "centre" || align == "center") {
+					container.css("justify-content", "center");
+				} else if (align == "justify") {
+					container.css("justify-content", "space-between");
+				}
+				var vAlign = this.drawingOptions.valign;
+				if (vAlign == "bottom") {
+					container.css("align-items", "flex-end");
+				} else if (vAlign == "baseline") {
+					container.css("align-items", "baseline");
+				} else if (vAlign !== "top") {
+					container.css("align-items", "center");
+				}
+			} else {
+				container.css("align-items", "center");			
+			}
+
+			for (var i = 0; i < this.content.length; i++) {
+				var item = this.content[i];
+				item.draw(context, scale, viewName);
+				var childContainer = $('<div class="canvashtml-flow-layout-child"></div>');
+				childContainer.append(item.elements);
+				container.append(childContainer);
+			}
+
+			var objectElement = document.createElement("object");
+			objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; " + 
+				"height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
+
+			objectElement.onload = function () {
+				me.resize();
+			}
+			objectElement.type = "text/html";
+			objectElement.data = "about:blank";
+			container.append(objectElement);
+
+			this.elements = container;
+		}
+	}
+
+	FlowLayout.prototype.resize = function () {
+		var scale = this.cachedScale;
+		if (scale === undefined) {
+			//Not yet added drawn onto a canvas.
+			return;
+		}
+
+		var element = this.elements[0];
+		var style = element.style;
+		var autoWidth = this.width === undefined;
+
+		var agent = root.lookup("FlowLayout");
+		var widthSymName = this.obsName + "_width";
+		var heightSymName = this.obsName + "_height";
+
+		var spacing, vSpacing;
+		if (this.drawingOptions !== undefined) {
+			spacing = this.drawingOptions.spacing;
+			vSpacing = this.drawingOptions.vspacing;
+		}
+		if (spacing === undefined) {
+			spacing = FlowLayout.defaultSpacing;
+		}
+		if (vSpacing === undefined) {
+			vSpacing = FlowLayout.defaultVerticalSpacing;
+		}
+
+		if (autoWidth || widthSymName in root.symbols) {
+			root.lookup(widthSymName).assign((element.offsetWidth - spacing) / scale, agent);
+		}
+
+		root.lookup(heightSymName).assign((element.offsetHeight - vSpacing) / scale, agent);
+	};
+
+	FlowLayout.prototype.scale = function(scale, zoom, origin) {
+		if (!Array.isArray(this.content)) {
+			return;
+		}
+
+		var align, vAlign, spacing, vSpacing;
+		if (this.drawingOptions !== undefined) {
+			align = this.drawingOptions.align;
+			vAlign = this.drawingOptions.valign;
+			spacing = this.drawingOptions.spacing;
+			vSpacing = this.drawingOptions.vspacing;
+		}
+		if (spacing === undefined) {
+			spacing = FlowLayout.defaultSpacing;
+		}
+		if (vSpacing === undefined) {
+			vSpacing = FlowLayout.defaultVerticalSpacing;
+		}
+
+		var container = this.elements;
+		var children = container.children();
+
+		var actualLeft, actualTop;
+		var padLeft, padRight, padTop, padBottom;
+
+		if (align == "centre" || align == "center") {
+			//Place padding on both sides (left and right)
+			padLeft = spacing / 2;
+			padRight = spacing / 2;
+			actualLeft = this.x - this.width / 2 - spacing / 2;
+		} else {
+			//Place padding on the left side.
+			padLeft = spacing;
+			padRight = 0;
+			actualLeft = this.x - spacing;
+		}
+
+		if (vAlign === undefined || vAlign == "middle") {
+			//Place padding on both sides (top and bottom)
+			padTop = vSpacing / 2;
+			padBottom = vSpacing / 2;
+			actualTop = this.y - vSpacing / 2;
+		} else {
+			//Place padding on the top side
+			padTop = vSpacing;
+			padBottom = 0;
+			actualTop = this.y - vSpacing;
+		}
+
+		var containerStyle = container[0].style;
+		if (this.width !== undefined) {
+			actualWidth = this.width + spacing;
+			containerStyle.width = Math.round(actualWidth * scale) + "px";
+		}
+		if (align == "centre" || align == "center") {
+			containerStyle.left = "calc(" + Math.round((this.x + origin.x) * scale) + "px - 50%)";
+			containerStyle.width = "100%";
+		} else {
+			containerStyle.left = Math.round((actualLeft + origin.x) * scale) + "px";
+		}
+		containerStyle.top =  Math.round((actualTop + origin.y) * scale) + "px";
+
+		for (var i = 0; i < this.content.length; i++) {
+			var item = this.content[i];
+			var childStyle = children[i].style;
+			childStyle.paddingRight = Math.ceil((padRight + item.x) * scale) + "px";
+			childStyle.paddingBottom = Math.ceil((padBottom + item.y) * scale) + "px";
+			item.scale(scale, zoom, origin);
+		}
+		children.css("padding-left", Math.floor(padLeft * scale) + "px");
+		children.css("padding-top", Math.floor(padTop * scale) + "px");
+
+		this.cachedScale = scale;
+		this.resize();
+	};
+
+	FlowLayout.prototype.getEdenCode = FlowLayout.prototype.toString;
+}}$;

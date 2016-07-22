@@ -68,15 +68,17 @@ Checkbox.prototype.draw = function(context) {
 
 		var inputJQ = $('<input type="checkbox"/>');
 		var inputElement = inputJQ.get(0);
-		var element;
+		var element, elementJQ;
 		if (this.label === undefined) {
 			element = inputElement;
+			elementJQ = inputJQ;
 		} else {
 			var labelJQ = $('<label> ' + this.label + '</label>');
 			labelJQ.prepend(inputJQ);
-			element  = labelJQ.get(0);
+			element = labelJQ.get(0);
+			elementJQ = labelJQ;
 		}
-		element.style.position = "absolute";
+		element.className = "canvashtml-item";
 
 		inputElement.disabled = (this.enabled === false);
 		
@@ -118,7 +120,8 @@ Checkbox.prototype.draw = function(context) {
 			}
 			valueSym.assign(value, root.scope, Symbol.hciAgent, true);
 		})
-		.on("mousedown", function () {
+
+		elementJQ.on("mousedown", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
 			root.lookup("mouseDownZone").assign(undefined, root.scope, Symbol.hciAgent, mouseFollow);
 		})
@@ -129,7 +132,7 @@ Checkbox.prototype.draw = function(context) {
 			var mouseFollow = root.lookup("mouseFollow").value();
 			root.lookup("mouseZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
 		});
-		
+
 		this.elements = [element];
 	}
 };

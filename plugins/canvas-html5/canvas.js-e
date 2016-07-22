@@ -364,7 +364,6 @@ func observablesAt {
 	return obsList;
 }
 
-
 import plugins/canvas/arc;
 import plugins/canvas/arrowhead;
 import plugins/canvas/button;

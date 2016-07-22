@@ -42,7 +42,29 @@ div.canvas-dialog .ui-dialog-titlebar {
 	line-height: 1.75;
 }
 
-.canvashtml-content-div {
+.canvashtml-item {
+	position: absolute;
+}
+
+.canvashtml-flow-layout-item {
+	display: flex;
+	flex-wrap: wrap;
+	pointer-events: none;
+}
+
+.canvashtml-flow-layout-child:last-of-type {
+	flex-grow: 1;
+}
+
+.canvashtml-flow-layout-child * {
+	pointer-events: auto;
+}
+
+.canvashtml-flow-layout-item .canvashtml-item {
+	position: relative;
+}
+
+.canvashtml-div-item {
 	overflow: auto;
 }
 
@@ -59,12 +81,16 @@ div.canvas-dialog .ui-dialog-titlebar {
 	border: 3px outset #BBBBBB;
 	box-sizing: border-box;
 	font-weight: bold;
+	margin-bottom: 2px;
+	margin-right: 2px;
 	padding: 4px;
 	white-space: normal;
 }
 
 .canvashtml-content button:active {
 	border: 4px inset #BBBBBB;
+	margin-bottom: 0px;
+	margin-right: 0px;
 }
 
 .canvashtml-content select {
@@ -83,6 +109,10 @@ div.canvas-dialog .ui-dialog-titlebar {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
+}
+
+.canvas-horizontal-radio-buttons label {
+	padding-right: 12px;
 }
 
 .slider-horizontal, .slider-up, .slider-down {
