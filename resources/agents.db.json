@@ -128,6 +128,10 @@
 			"file": "plugins/canvas-html5/fillPattern.js-e",
 			"title": "Canvas HTML5 Fill Pattern"
 		},
+		"plugins/canvas/flowlayout": {
+			"file": "plugins/canvas-html5/flowLayout.js-e",
+			"title": "Canvas HTML5 Flow Layout"
+		},
 		"plugins/canvas/greypixellist": {
 			"file": "plugins/canvas-html5/greyPixelList.js-e",
 			"title": "Canvas HTML5 Grey Pixel List"
