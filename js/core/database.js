@@ -214,6 +214,7 @@ Eden.DB.getLoginName = function(callback) {
 				withCredentials: true
 			},
 			success: function(data){
+				Eden.DB.connected = true;
 				if (data == null || data.error) {
 					Eden.DB.username = undefined;
 					callback();
@@ -223,7 +224,6 @@ Eden.DB.getLoginName = function(callback) {
 					if (data.id && (data.name == "" || !data.name)) Eden.DB.username = "NoName";
 					callback(Eden.DB.username);
 				}
-				Eden.DB.connected = true;
 			},
 			error: function(a){
 				//console.error(a);
