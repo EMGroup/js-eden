@@ -554,7 +554,7 @@ if (initialViews == "" || initialViews == "default") {
 	createCanvas("picture");
 	_view_picture_x = max((screenWidth / 2 - 30) - _view_picture_width, _view_projects_width + _views_frame_width);
 	_view_picture_y = screenHeight / 2 - _view_picture_height / 2;
-	if (picture == @ && ${{ "logo" in edenUI.branding }}$) {
+	if ((picture == @ || picture == []) && ${{ "logo" in edenUI.branding }}$) {
 		picture is [Image(_view_picture_width / 2 - ${{edenUI.branding.logo.width}}$ / 2, _view_picture_height / 2 - ${{edenUI.branding.logo.height}}$ / 2, ${{edenUI.branding.logo.url}}$)];
 	}
 	createView("input", "ScriptInput");

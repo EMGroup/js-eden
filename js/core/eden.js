@@ -461,29 +461,30 @@ function concatAndResolveUrl(url, concat) {
 			throw new Error("EdenUI.regExpFromStr: Unsupported search language " + searchLang);
 		}
 
+		//Guess desirability of case sensitivity based on the presence or absence of capital letters.
+		if (!/[A-Z]/.test(str)) {
+			flags = flags + "i";
+		}
+
 		//Handle substitutions to replace simple wildcards with real regexp ones.
 		if (simpleWildcards) {
 			//Mode where * acts as .* , ? as .? , or as |, no other special characters.
 			str = str.replace(/([\\+^$.|(){[])/g, "\\$1").replace(/([*?])/g, ".$1");
 			var alternatives = str.split(new RegExp("\\s+(?:" + Language.ui.search.disjunction + "|or)\\s+", "i"));
 			for (var i = 0; i < alternatives.length; i++) {
-				if (/[?*]/.test(alternatives[i])) {
-					alternatives[i] = "^(" + alternatives[i] + ")$";
+				var alternative = alternatives[i];
+				if (exactMatch || /[?*]/.test(alternative)) {
+					alternatives[i] = "^(" + alternative + ")$";
+				} else if (alternative.length < minWordLength) {
+					//Assume very short strings are intended to be prefixes in simple search mode.
+					alternatives[i] = "^(" + alternative + ")";
 				}
 			}
-			str = alternatives.join("|");
-		}
-
-		//Guess desirability of case sensitivity based on the presence or absence of capital letters.
-		if (!/[A-Z]/.test(str)) {
-			flags = flags + "i";
-		}
-
-		if (simpleWildcards && !exactMatch && str.length < minWordLength) {
-			//Assume very short strings are intended to be prefixes in simple search mode.
-			regExpStr = "^(" + str + ")";
+			regExpStr = alternatives.join("|");
 			regExpObj = new RegExp(regExpStr, flags);
+
 		} else {
+
 			//Attempt to construct a regexp.
 			try {
 				regExpStr = str;
@@ -703,6 +704,7 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {function()} success Called when include has finished successfully.
 	 */
 	Eden.prototype.include = function (includePath, prefix, agent, success) {
+		console.trace("DEPRECATED: use of include for " + includePath);
 		var me = this;
 		var includePaths;
 		if (includePath instanceof Array) {

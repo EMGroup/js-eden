@@ -1820,15 +1820,17 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
 		}
 		return res + ")";
 	} else {
-		var res = this.lvalue.generate(ctx) + ".value(scope)(";
+		var lvalstr = this.lvalue.generate(ctx);
+		var res = lvalstr + ".value(scope).call("+lvalstr;
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {
+				res += ",";
 				var express = this.params[i].generate(ctx, scope);
 				if (this.params[i].doesReturnBound && this.params[i].doesReturnBound()) {
 					express += ".value";
 				}
 				res += "("+express+")";
-				if (i != this.params.length-1) res += ",";
+				//if (i != this.params.length-1) res += ",";
 			}
 		}
 		return res + ");";
@@ -1838,11 +1840,11 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
 Eden.AST.FunctionCall.prototype.execute = function(root, ctx, base) {
 	this.executed = 1;
 	var func = "(function(context,scope) { return " + this.generate(ctx, "scope") + "; })";
-	try {
-		return eval(func)(root,root.scope);
-	} catch(e) {
-		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e));
-	}
+	//try {
+		return eval(func).call(ctx,root,root.scope);
+	//} catch(e) {
+	//	this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e));
+	//}
 }
 
 Eden.AST.FunctionCall.prototype.error = fnEdenASTerror;
@@ -2570,6 +2572,11 @@ Eden.AST.Script.prototype.setLocals = function(locals) {
 	if (locals) {
 		this.errors.push.apply(this.errors, locals.errors);
 	}
+}
+
+Eden.AST.Script.prototype.subscribeDynamic = function(ix,name) {
+	console.log("SUBDYN: " + name);
+	return eden.root.lookup(name);
 }
 
 Eden.AST.Script.prototype.getParameterByNumber = function(index) {

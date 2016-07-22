@@ -158,6 +158,8 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent) {
 		statement.execute(eden.root,undefined, this, agent);
 	} catch (e) {
 		eden.error(e);
+		console.error("Details: " + e + "\nAgent: " + agent.name);
+		console.log(statement);
 		//throw e;
 	}
 }

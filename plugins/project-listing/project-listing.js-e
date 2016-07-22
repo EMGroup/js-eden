@@ -4,20 +4,24 @@
 ## See LICENSE.txt
 
 proc createProjectList {
+	para p1,p2,p3;
 	auto url, viewTitle, viewName;
-	if ($# == 0) {
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 0) {
 		viewName = "projects";
-	} else if ($# == 1) {
-		url = $[1];
+	} else if (argc == 1) {
+		url = p1;
 		viewName = "projects";
-	} else if ($# == 2) {
-		url = $[1];
-		viewTitle = $[2];
+	} else if (argc == 2) {
+		url = p1;
+		viewTitle = p2;
 		viewName = viewTitle;
-	} else if ($# == 3) {
-		url = $[1];
-		viewTitle = $[2];
-		viewName = $[3];
+	} else if (argc == 3) {
+		url = p1;
+		viewTitle = p2;
+		viewName = p3;
 		if (viewTitle != @ && !isString(viewTitle)) {
 			error("createProjectList: The second argument must be a string, not a " // type(viewTitle));
 			return;
