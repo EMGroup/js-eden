@@ -5,7 +5,7 @@
 
 ${{
 
-	function Translation(centreX, centreY, x, y, items) {
+	Translation = function(centreX, centreY, x, y, items) {
 		this.centreX = centreX;
 		this.centreY = centreY;
 		this.x = x;

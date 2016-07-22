@@ -704,6 +704,7 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {function()} success Called when include has finished successfully.
 	 */
 	Eden.prototype.include = function (includePath, prefix, agent, success) {
+		console.trace("DEPRECATED: use of include for " + includePath);
 		var me = this;
 		var includePaths;
 		if (includePath instanceof Array) {

@@ -76,17 +76,21 @@ proc attemptMouseCapture {
 ##is the name of the observable who's value provides the list of drawables.  The
 ##second, optional parameter, is the text to place into the window's title bar.
 proc createCanvas {
+	para p1, p2, p3;
 	auto obsName, viewTitle, viewName;
 	auto titleSymName, contentSymName, addJSObserver;
-	if ($# == 1) {
-		obsName = $[1];
-	} else if ($# == 2) {
-		obsName = $[1];
-		viewTitle = $[2];
-	} else if ($# == 3) {
-		viewName = $[1];
-		obsName = $[2];
-		viewTitle = $[3];
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 1) {
+		obsName = p1;
+	} else if (argc == 2) {
+		obsName = p1;
+		viewTitle = p2;
+	} else if (argc == 3) {
+		viewName = p1;
+		obsName = p2;
+		viewTitle = p3;
 		if (!isString(viewName)) {
 			error("createCanvas: The first argument must be a string, not a " // type(viewName));
 			return;
@@ -95,6 +99,8 @@ proc createCanvas {
 		error("createCanvas: This procedure requires at least 1 argument and at most 3 arguments.");
 		return;
 	}
+
+	
 	
 	if (isPointer(obsName)) {
 		obsName = nameof(obsName);
@@ -102,9 +108,11 @@ proc createCanvas {
 		error("createCanvas: The observable name must be expressed as a string or a pointer, not a " // type(obsName));
 		return;
 	}
+
 	if (viewName == @) {
 		viewName = obsName;
 	}
+	
 	if (viewTitle != @ && !isString(viewTitle)) {
 		error("createCanvas: The window title must be a string, not a " // type(viewTitle));
 		return;
@@ -115,7 +123,7 @@ proc createCanvas {
 	}
 
 	createView(viewName, "Canvas2D");
-	execute("_view_" // viewName // "_content is " // obsName // ";");
+	execute2("_view_" // viewName // "_content is " // obsName // ";");
 	if (viewTitle == @) {
 		##Don't attempt to make this update by dependency on redefinition of _view_viewName_content.
 		##Severe performance problems result.
@@ -245,21 +253,21 @@ func shapeOnBottomAt {
 
 func zoneOnTopAt {
 	auto drawable;
-	drawable = apply(shapeOnTopAt, $);
+	drawable = apply(shapeOnTopAt, ${{ arguments }}$);
 	if (drawable == @) {
 		return @;
 	} else {
-		return drawable.name;
+		return drawable["name"];
 	}
 }
 
 func zoneOnBottomAt {
 	auto drawable;
-	drawable = apply(shapeOnBottomAt, $);
+	drawable = apply(shapeOnBottomAt, ${{ arguments }}$);
 	if (drawable == @) {
 		return @;
 	} else {
-		return drawable.name;
+		return drawable["name"];
 	}
 }
 
@@ -269,22 +277,22 @@ func observableForShape {
 		if (drawable === undefined) {
 			return undefined;
 		} else if ("obsName" in drawable) {
-			return drawable.obsName;
+			return drawable["obsName"];
 		} else {
-			return drawable.name;
+			return drawable["name"];
 		}
 	}}$;
 }
 
 func observableOnTopAt {
 	auto drawable;
-	drawable = apply(shapeOnTopAt, $);
+	drawable = apply(shapeOnTopAt, ${{ arguments }}$);
 	return observableForShape(drawable);
 }
 
 func observableOnBottomAt {
 	auto drawable;
-	drawable = apply(shapeOnBottomAt, $);
+	drawable = apply(shapeOnBottomAt, ${{ arguments }}$);
 	return observableForShape(drawable);
 }
 
@@ -335,17 +343,17 @@ func shapesAt {
 
 func zonesAt {
 	auto drawables, zones, i;
-	drawables = apply(shapesAt, $);
+	drawables = apply(shapesAt, ${{ arguments }}$);
 	zones = [];
 	for (i = 1; i <= drawables#; i++) {
-		append zones, drawables[i].name;
+		append zones, drawables[i]["name"];
 	}
 	return zones;
 }
 
 func observablesAt {
 	auto drawables, obsList, obsName, i;
-	drawables = apply(shapesAt, $);
+	drawables = apply(shapesAt, ${{ arguments }}$);
 	obsList = [];
 	for (i = 1; i <= drawables#; i++) {
 		obsName = observableForShape(drawables[i]);
@@ -356,39 +364,38 @@ func observablesAt {
 	return obsList;
 }
 
+import plugins/canvas/arc;
+import plugins/canvas/arrowhead;
+import plugins/canvas/button;
+import plugins/canvas/checkbox;
+import plugins/canvas/circle;
+import plugins/canvas/combobox;
+import plugins/canvas/curve;
+import plugins/canvas/div;
+import plugins/canvas/dropdownlist;
+import plugins/canvas/ellipse;
+import plugins/canvas/fillpattern;
+import plugins/canvas/greypixellist;
+import plugins/canvas/canvasimage;
+import plugins/canvas/htmlimage;
+import plugins/canvas/line;
+import plugins/canvas/lineargradient;
+import plugins/canvas/linesequence;
+import plugins/canvas/polygon;
+import plugins/canvas/rectangle;
+import plugins/canvas/slider;
+import plugins/canvas/text;
+import plugins/canvas/pixel;
+import plugins/canvas/pixellist;
+import plugins/canvas/radialgradient;
+import plugins/canvas/radiobuttons;
+import plugins/canvas/regularpolygon;
+import plugins/canvas/rotation;
+import plugins/canvas/roundedrectangle;
+import plugins/canvas/scaling;
+import plugins/canvas/sector;
+import plugins/canvas/shadow;
+import plugins/canvas/textbox;
+import plugins/canvas/translation;
+import plugins/canvas/video;
 
-include("plugins/canvas-html5/arc.js-e");
-include("plugins/canvas-html5/arrowhead.js-e");
-include("plugins/canvas-html5/button.js-e");
-include("plugins/canvas-html5/checkbox.js-e");
-include("plugins/canvas-html5/circle.js-e");
-include("plugins/canvas-html5/combobox.js-e");
-include("plugins/canvas-html5/curve.js-e");
-include("plugins/canvas-html5/div.js-e");
-include("plugins/canvas-html5/dropdownlist.js-e");
-include("plugins/canvas-html5/ellipse.js-e");
-include("plugins/canvas-html5/fillPattern.js-e");
-include("plugins/canvas-html5/flowLayout.js-e");
-include("plugins/canvas-html5/greyPixelList.js-e");
-include("plugins/canvas-html5/canvasImage.js-e");
-include("plugins/canvas-html5/htmlImage.js-e");
-include("plugins/canvas-html5/line.js-e");
-include("plugins/canvas-html5/linearGradient.js-e");
-include("plugins/canvas-html5/lineSequence.js-e");
-include("plugins/canvas-html5/polygon.js-e");
-include("plugins/canvas-html5/rectangle.js-e");
-include("plugins/canvas-html5/slider.js-e");
-include("plugins/canvas-html5/text.js-e");
-include("plugins/canvas-html5/pixel.js-e");
-include("plugins/canvas-html5/pixelList.js-e");
-include("plugins/canvas-html5/radialGradient.js-e");
-include("plugins/canvas-html5/radioButtons.js-e");
-include("plugins/canvas-html5/regularPolygon.js-e");
-include("plugins/canvas-html5/rotation.js-e");
-include("plugins/canvas-html5/roundedRectangle.js-e");
-include("plugins/canvas-html5/scaling.js-e");
-include("plugins/canvas-html5/sector.js-e");
-include("plugins/canvas-html5/shadow.js-e");
-include("plugins/canvas-html5/textbox.js-e");
-include("plugins/canvas-html5/translation.js-e");
-include("plugins/canvas-html5/video.js-e");
