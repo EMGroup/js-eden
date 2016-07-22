@@ -50,7 +50,7 @@ ${{
 				this.vertices = this.vertices.concat(currentPolygonVertices);
 			}
 		}
-		if (outlinecolour === undefined) {
+		if (outlinecolour === undefined && star % n != 0) {
 			this.calculatePolygons(0);
 		}
 	}
@@ -162,7 +162,7 @@ func RegularPolygon {
 		var y = arguments[1];
 		var r = arguments[2];
 		var n = arguments[3];
-		var star = 1, rotation = 0, interiorOutline = true;
+		var star, rotation, interiorOutline = true;
 		var fillcolour, outlinecolour, drawingOptions;
 		var argsProcessed = 4;
 		if (typeof(arguments[4]) == "number") {
@@ -199,6 +199,19 @@ func RegularPolygon {
 			}
 		}
 
+		if (star === undefined) {
+			star = 1;
+		}
+
+		if (rotation === undefined) {
+			if (star <= -n || star >= n) {
+				rotation = star;
+				star = 1;
+			} else {
+				rotation = 0;
+			}
+		}
+
 		if (outlinecolour === undefined) {
 			if (fillcolour === undefined) {
 				outlinecolour = "black";
@@ -222,6 +235,25 @@ semicircleAngle ~> [RegularPolygon];
 
 ${{
 RegularPolygon.prototype.draw = function (context, scale) {
+	if (this.star % this.n == 0) {
+		//Degenerate case where just have points that aren't connected into a polygon.
+		for (var i = 0; i < this.n; i++) {
+			context.beginPath();
+			var vertex = this.vertices[i];
+			context.arc(vertex.x, vertex.y, 4 / scale, 0, 2 * Math.PI, false);
+			context.closePath();
+			if (this.fillcolour !== undefined) {
+				edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
+				context.fill();
+			}
+			if (this.outlinecolour !== undefined) {
+				context.strokeStyle = this.outlinecolour;
+				context.stroke();
+			}
+		}
+		return;
+	}
+
 	var lineWidth = context.lineWidth;
 	if (!this.interiorOutline) {
 		lineWidth = lineWidth * 2;
