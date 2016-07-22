@@ -101,7 +101,7 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope) {
 						res += "]";
 						return res;
 	case "CHARACTER":
-	case "STRING"	:	var str = this.value.replace(/\n/g,"\\n");
+	case "STRING"	:	var str = this.value.replace(/\n/g,"\\n").replace(/\"/g,"\\\"");
 						return "\""+str+"\"";
 	case "BOOLEAN"	:	return this.value;
 	case "JAVASCRIPT"	: return this.value;
