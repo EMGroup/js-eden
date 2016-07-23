@@ -5,7 +5,7 @@
 
 ${{
 
-	function Scaling(scaleX, scaleY, centreX, centreY, translateX, translateY, items) {
+	Scaling = function (scaleX, scaleY, centreX, centreY, translateX, translateY, items) {
 		this.scaleX = scaleX;
 		this.scaleY = scaleY;
 		this.centreX = centreX;

@@ -5,7 +5,7 @@
 
 ${{
 
-	function Rotation(angle, centre, origin, angle2, radius, items) {
+	Rotation = function (angle, centre, origin, angle2, radius, items) {
 		this.angle = angle;
 		this.centre = centre;
 		this.origin = origin;
