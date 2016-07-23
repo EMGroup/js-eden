@@ -382,9 +382,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 	this.findDrawableHit = function (viewName, x, y, fromBottom, testAll) {
 		var picture = root.lookup("_view_" + viewName + "_content").value();
-		if (!Array.isArray(picture)) {
-			return undefined;
-		}
 		var canvas = canvases[viewName];
 		var context = canvas.getContext("2d");
 		var scale = root.lookup("_view_" + viewName + "_scale").value();
@@ -392,6 +389,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	}
 	
 	this.findDrawableHitInList = function (picture, context, scale, x, y, fromBottom, testAll) {
+		if (!Array.isArray(picture)) {
+			return undefined;
+		}
 		var beginIndex, increment;
 		if (fromBottom) {
 			beginIndex = 0;
@@ -400,6 +400,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			beginIndex = picture.length - 1;
 			increment = -1;
 		}
+
 		for (var i = beginIndex; fromBottom? i < picture.length : i >= 0; i = i + increment) {
 			var drawable = picture[i];
 			if (typeof(drawable) != "object") {
@@ -432,11 +433,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 	this.findAllDrawablesHit = function (viewName, x, y, testAll) {
 		var picture = root.lookup("_view_" + viewName + "_content").value();
-
-		if (!Array.isArray(picture)) {
-			return [];
-		}
-
 		var canvas = canvases[viewName];
 		var context = canvas.getContext("2d");
 		var scale = root.lookup("_view_" + viewName + "_scale").value();
@@ -444,6 +440,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	}
 	
 	this.findAllDrawablesHitInList = function (picture, context, scale, x, y, testAll) {
+		if (!Array.isArray(picture)) {
+			return [];
+		}
 		var drawablesHit = [];
 
 		for (var i = 0; i < picture.length; i++) {
