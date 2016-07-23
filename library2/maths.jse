@@ -443,7 +443,7 @@ func min {
 
 func mod {
 	para x, n;
-	return x>=0? x % n : (n + (x % n));
+	return x % n if x>=0 else (n + (x % n));
 }
 
 func pow {

@@ -600,7 +600,7 @@ EdenUI.plugins.MenuBar = function (edenUI, success) {
 	}	
 	this.SimpleMenuItem.prototype.getEdenCode = this.SimpleMenuItem.prototype.toString;
 
-	edenUI.eden.include("plugins/menu-bar/menu-bar.js-e", success);
+	edenUI.eden.include2("plugins/menu-bar/menu-bar.js-e", success);
 };
 
 

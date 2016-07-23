@@ -171,10 +171,25 @@
 		return nscope;
 	}
 
-	Scope.prototype.lookup = function(name) {
+	Scope.prototype.lookup = function(name, noroot) {
+		if (this.parent === undefined && noroot) return;
 		if (this.cache === undefined) this.rebuild();
 
-		var symcache = this.cache[name];
+		if (this.parent) {
+			var res = this.parent.lookup(name, true);
+			if (res !== undefined) return res;
+			res = this.cache[name];
+			if (res !== undefined) return res;
+			if (!noroot) res = this.parent.lookup(name);
+			return res;
+		} else {
+			var res = this.cache[name];
+			if (res !== undefined) return res;
+			this.cache[name] = new ScopeCache(true, undefined);
+			return this.cache[name];
+		}
+
+		/*var symcache = this.cache[name];
 		if (symcache) {
 			return symcache;
 		} else {
@@ -188,7 +203,7 @@
 				this.cache[name] = new ScopeCache(true, undefined);
 				return this.cache[name];
 			}
-		}
+		}*/
 	}
 
 	Scope.prototype.add = function(name) {

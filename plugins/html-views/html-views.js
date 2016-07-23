@@ -47,7 +47,7 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 	edenUI.views["HTMLContent"] = {dialog: this.createDialog, title: "HTML Content", category: edenUI.viewCategories.visualization, holdsContent: true};
 
 	//Load the Eden wrapper functions
-	edenUI.eden.include("plugins/html-views/html.js-e", success);
+	edenUI.eden.include2("plugins/html-views/html.js-e", success);
 };
 
 /* Plugin meta information */

@@ -408,7 +408,7 @@
 		}
 
 		// Now construct eden agents and observables for dialog control.
-		this.eden.execute(viewEdenCode(), "createView", "", {name: "/createView"}, noop);
+		this.eden.execute2(viewEdenCode(), "createView", "", {name: "/createView"}, noop);
 		this.eden.root.endAutocalcOff();
 		this.emit('createView', [name, type]);
 		return viewData;

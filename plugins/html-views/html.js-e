@@ -48,16 +48,20 @@ proc html {
 ##parameter is the name of the observable who's value provides the HTML code.  The
 ##second, optional parameter, is the text to place into the window's title bar.
 proc createHTMLView {
+	para p1,p2,p3;
 	auto obsName, viewTitle, viewName;
-	if ($# == 1) {
-		obsName = $[1];
-	} else if ($# == 2) {
-		obsName = $[1];
-		viewTitle = $[2];
-	} else if ($# == 3) {
-		viewName = $[1];
-		obsName = $[2];
-		viewTitle = $[3];
+	auto argc;
+	argc = ${{ arguments.length; }}$;
+
+	if (argc == 1) {
+		obsName = p1;
+	} else if (argc == 2) {
+		obsName = p1;
+		viewTitle = p2;
+	} else if (argc == 3) {
+		viewName = p1;
+		obsName = p2;
+		viewTitle = p3;
 		if (!isString(viewName)) {
 			error("createHTMLView: The first argument must be a string, not a " // type(viewName));
 			return;
