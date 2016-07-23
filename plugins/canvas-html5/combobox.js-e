@@ -4,7 +4,7 @@
 ## See LICENSE.txt
 
 ${{
-Combobox = function (name, suggestions, x, y, width, placeholder, enabled) {
+Combobox = function (name, suggestions, x, y, width, placeholder, maxlength, enabled) {
 	this.name = name;
 	this.obsName = root.currentObservableName();
 	this.suggestions = suggestions;
@@ -12,6 +12,7 @@ Combobox = function (name, suggestions, x, y, width, placeholder, enabled) {
 	this.y = y;
 	this.width = width;
 	this.placeholder = placeholder;
+	this.maxlength = maxlength;
 	this.enabled = enabled;
 }
 
@@ -22,6 +23,7 @@ Combobox.prototype.hash = function () {
 				this.y+"$$"+
 				this.width+"$$"+
 				this.placeholder+"$$"+
+				this.maxlength+"$$"+
 				this.enabled;
 };
 
@@ -49,7 +51,7 @@ func Combobox { ${{
 	argsProcessed++;
 	var y = arguments[argsProcessed];
 	argsProcessed++;
-	var width, placeholder;
+	var width, placeholder, maxlength;
 
 	var arg = arguments[argsProcessed];
 	var argType = typeof(arg);
@@ -64,9 +66,14 @@ func Combobox { ${{
 		argsProcessed++;
 		arg = arguments[argsProcessed];
 	}
+	if (arg === undefined || argType == "number") {
+		maxlength = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+	}
 	var enabled = arg;
 
-	return new Combobox(name, suggestions, x, y, width, placeholder, enabled);
+	return new Combobox(name, suggestions, x, y, width, placeholder, maxlength, enabled);
 }}$; }
 
 
@@ -90,11 +97,12 @@ Combobox.prototype.draw = function(context) {
 
 		var disabled = this.enabled === false? 'disabled="disabled"' : '';
 		var placeholder = ' placeholder="' + (this.placeholder === undefined? name : this.placeholder) + '"';
-		var inputJQ = $('<input type="text" list="' + name + '-suggestions" ' + disabled +
-			placeholder + ' class="canvashtml-item"/>');
+		var maxlength = this.maxlength !== undefined? ' maxlength="' + this.maxlength + '"' : '';
+		var inputJQ = $('<input type="text" list="combobox-' + name + '" ' + disabled +
+			placeholder + maxlength + ' class="canvashtml-item"/>');
 
 		input = inputJQ.get(0);
-		var suggestionsJQ = $('<datalist id="' + this.name + '-suggestions"></datalist>');
+		var suggestionsJQ = $('<datalist id="combobox-' + this.name + '"></datalist>');
 		suggestions = suggestionsJQ.get(0);
 		suggestionsJQ.html(this.makeOptionsHTML(this.values));
 
@@ -132,10 +140,10 @@ Combobox.prototype.draw = function(context) {
 
 		input.value = valueSym.value();
 
-		if (this.enabled == true) { 
-			input.disabled = false; 
-		} else {
+		if (this.enabled === false) { 
 			input.disabled = true;
+		} else {
+			input.disabled = false;
 		}
 
 	}
@@ -155,7 +163,8 @@ Combobox.prototype.toString = function() {
 	if (this.name == this.obsName) {
 		return "Combobox(" + Eden.edenCodeForValues(this.suggestions, this.x, this.y, this.enabled) + ")";
 	} else {
-		return "Combobox(" + Eden.edenCodeForValues(this.name, this.suggestions, this.x, this.y, this.enabled) + ")";
+		return "Combobox(" + Eden.edenCodeForValues(this.name, this.suggestions, this.x, this.y,
+			this.maxlength, this.enabled) + ")";
 	}
 };
 

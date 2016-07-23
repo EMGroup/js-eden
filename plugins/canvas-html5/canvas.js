@@ -412,7 +412,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					continue;
 				}
 				context.save();
-				var isHit = drawable.isHit(context, scale, x, y, fromBottom, testAll);
+				var isHit = drawable.isHit(context, scale, x, y);
 				context.restore();
 				if (isHit === true) {
 					return drawable;
@@ -440,6 +440,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		var canvas = canvases[viewName];
 		var context = canvas.getContext("2d");
 		var scale = root.lookup("_view_" + viewName + "_scale").value();
+		return this.findAllDrawablesHitInList(picture, context, scale, x, y, testAll);
+	}
+	
+	this.findAllDrawablesHitInList = function (picture, context, scale, x, y, testAll) {
 		var drawablesHit = [];
 
 		for (var i = 0; i < picture.length; i++) {
@@ -447,19 +451,26 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			if (typeof(drawable) != "object") {
 				continue;
 			}
-			var id = drawable.name;
-			if (!testAll && id === undefined) {
-				continue;
-			}
+
 			var hitTest = drawable.isHit;
-			if (hitTest === undefined) {
-				continue;
-			}
-			context.save();
-			var isHit = drawable.isHit(context, scale, x, y);
-			context.restore();
-			if (isHit) {
-				drawablesHit.push(drawable);
+			if (hitTest !== undefined) {
+				if (!testAll && drawable.name === undefined) {
+					continue;
+				}
+				context.save();
+				var isHit = drawable.isHit(context, scale, x, y);
+				context.restore();
+				if (isHit === true) {
+					drawablesHit.push(drawable);
+				}
+			} else if (drawable.inverse) {
+				//Handle Tranforms
+				var preimage = drawable.inverse(x, y);
+				var childDrawablesHit = this.findAllDrawablesHitInList(drawable.items, context,
+					scale, preimage.x, preimage.y, testAll);
+				if (childDrawablesHit.length > 0) {
+					drawablesHit = drawablesHit.concat(childDrawablesHit);
+				}
 			}
 		}
 		return drawablesHit;

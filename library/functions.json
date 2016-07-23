@@ -1261,8 +1261,9 @@
 				"x": "X-coordinate",
 				"y": "Y-coordinate",
 				"[width]": "",
-				"[placeholder]": "",
-				"[enabled]": "Boolean to determine if list selection is enabled"
+				"[placeholder_text]": "",
+				"[max_characters]": "",
+				"[enabled]": "Boolean to determine if list selection and typing are enabled"
 			},
 			"return": "DropDownList object",
 			"description": "Creates a drop-down list for the canvas"
