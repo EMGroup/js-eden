@@ -5,7 +5,7 @@
 
 ${{
 
-	function Scaling(scaleX, scaleY, centreX, centreY, translateX, translateY, items) {
+	Scaling = function (scaleX, scaleY, centreX, centreY, translateX, translateY, items) {
 		this.scaleX = scaleX;
 		this.scaleY = scaleY;
 		this.centreX = centreX;
@@ -31,8 +31,29 @@ ${{
 		}
 	}
 
+	Scaling.prototype.inverse = function (x, y) {
+		var invX = x, invY = y;
+		
+		var translateX = this.translateX;
+		if (translateX) {
+			invX = invX - translateX;
+			invY = invY - this.translateY;
+		}
+
+		invX = invX / this.scaleX;
+		invY = invY / this.scaleY;
+
+		var centreX = this.centreX;
+		if (centreX) {
+			invX = invX + centreX;
+			invY = invY + this.centreY;
+		}
+		return new Point(invX, invY);
+	}
+
 	Scaling.prototype.toString = function () {
-		return "Scale(" + Eden.edenCodeForValues(this.scaleX, this.scaleY, centreX, centreY, this.translateX, this.translateY, this.items) + ")";
+		return "Scale(" + Eden.edenCodeForValues(this.scaleX, this.scaleY, this.centreX,
+			this.centreY, this.translateX, this.translateY, this.items) + ")";
 	}
 
 	Scaling.prototype.getEdenCode = Scaling.prototype.toString;

@@ -5,7 +5,7 @@
 
 ${{
 
-	Translation = function(centreX, centreY, x, y, items) {
+	Translation = function (centreX, centreY, x, y, items) {
 		this.centreX = centreX;
 		this.centreY = centreY;
 		this.x = x;
@@ -17,6 +17,10 @@ ${{
 
 	Translation.prototype.transform = function (context) {
 		context.translate(this.x - this.centreX, this.y - this.centreY);
+	}
+
+	Translation.prototype.inverse = function (x, y) {
+		return new Point(x - (this.x - this.centreX), y - (this.y - this.centreY));
 	}
 
 	Translation.prototype.toString = function () {

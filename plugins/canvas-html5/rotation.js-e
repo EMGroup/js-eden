@@ -5,7 +5,7 @@
 
 ${{
 
-	function Rotation(angle, centre, origin, angle2, radius, items) {
+	Rotation = function (angle, centre, origin, angle2, radius, items) {
 		this.angle = angle;
 		this.centre = centre;
 		this.origin = origin;
@@ -44,6 +44,37 @@ ${{
 		if (centre !== undefined) {
 			context.translate(-centre.x, -centre.y);
 		}
+	}
+
+	Rotation.prototype.inverse = function (x, y) {
+		var origin = this.origin;
+		var centre = this.centre;
+		var radius = this.radius;
+
+		var invX = x - origin.x;
+		var invY = y - origin.y;
+		var temp, sin, cos;
+
+		if (radius !== undefined) {
+			sin = Math.sin(-this.radians2);
+			cos = Math.cos(-this.radians2);
+			temp = invX;
+			invX = cos * invX - sin * invY;
+			invY = sin * temp + cos * invY;
+			invX = invX - radius;
+		}
+
+		sin = Math.sin(-this.radians);
+		cos = Math.cos(-this.radians);
+		temp = invX;
+		invX = cos * invX - sin * invY;
+		invY = sin * temp + cos * invY;
+
+		if (centre !== undefined) {
+			invX = invX + centre.x;
+			invY = invY + centre.y;
+		}
+		return new Point(invX, invY);
 	}
 
 	Rotation.prototype.toString = function() {
