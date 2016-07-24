@@ -683,7 +683,7 @@
 		this.cache = (context) ? context.scope.add(name) : new ScopeCache( true, undefined );
 
 		this.definition = undefined;
-		this.eden_definition = undefined;
+		//this.eden_definition = undefined;
 		this.evalResolved = true;
 		this.extend = undefined;
 		this.needsGlobalNotify = false;
@@ -812,7 +812,7 @@
 			cache.up_to_date = true;
 			//NOTE: Don't do copy here, be clever about it.
 			//cache.value = copy(this.definition(this.context, scope));
-			cache.value = this.definition.call(this,this.context, scope, cache);
+			cache.value = this.definition.evaluate(this,this.context, scope, cache);
 
 			// Post process with all extensions
 			if (this.extend) {
@@ -822,7 +822,7 @@
 			}
 
 			if (!this.evalResolved) {
-				var replacedDef = this.eden_definition;
+				/*var replacedDef = this.eden_definition;
 				//Replace eval() in EDEN definition with the actual value.
 				var re = /\beval\(/;
 				var searchIndex;
@@ -847,7 +847,7 @@
 						searchFrom = combinedIndex + 5;
 					}
 				}
-				this.eden_definition = replacedDef;
+				this.eden_definition = replacedDef;*/
 				this.evalResolved = true;
 			}
 		} catch (e) {
@@ -953,28 +953,33 @@
 	 * @param {function(Folder)} definition
 	 * @param {Symbol} modifying_agent Agent modifying this Symbol.
 	 */
-	Symbol.prototype.define = function (definition, modifying_agent, subscriptions) {
+	Symbol.prototype.define = function (definition, modifying_agent, base) {
 		this.garbage = false;
 		this._setLastModifiedBy(modifying_agent);
-		this.definition = definition;
+		//this.definition = definition;
+
+		if (this.definition === undefined) this.definition = new Symbol.Definition();
+		this.definition.setBase(definition, base);
 
 		// symbol no longer observes or depends on anything
 		this.clearObservees();
 		this.clearDependencies();
 
-		var args = [];
+		/*var args = [];
 		for (var i = 2; i < arguments.length; i++) {
 			args.push(arguments[i]);
 		}
 
-		this.subscribe(args);
+		this.subscribe(args);*/
 
 		// Re-add any extension dependencies.
-		if (this.extend) {
+		/*if (this.extend) {
 			for (var e in this.extend) {
 				this.subscribe(this.extend[e].deps);
 			}
-		}
+		}*/
+
+		this.subscribe(this.definition.deps);
 
 		if (this.context) {
 			this.context.expireSymbol(this);
@@ -1041,7 +1046,7 @@
 			}
 			this.context && this.context.autocalc(value === 1);
 		}
-		this.eden_definition = undefined;
+		//this.eden_definition = undefined;
 		this.clearEvalIDs();
 		this.evalResolved = true;
 		this._setLastModifiedBy(modifying_agent);
@@ -1078,7 +1083,7 @@
 	 */
 	Symbol.prototype.assigned = function (modifying_agent) {
 		this.garbage = false;
-		this.eden_definition = undefined;
+		//this.eden_definition = undefined;
 		this.clearEvalIDs();
 		this.evalResolved = true;
 		this._setLastModifiedBy(modifying_agent);
@@ -1098,8 +1103,9 @@
 	 */
 	Symbol.prototype.assignFunction = function (f, agent) {
 		this.assign(f, this.context.scope, agent);
-		this.eden_definition = "func " + this.name.slice(1);
-		this.definition = function (context, scope) { return f; }
+		//this.eden_definition = "func " + this.name.slice(1);
+		if (this.definition === undefined) this.definition = new Symbol.Definition();
+		this.definition.setBase(function (context, scope) { return f; });
 	}
 
 	/**
@@ -1154,6 +1160,16 @@
 	Symbol.prototype.getEdenCode = function () {
 		return "&" + this.name.slice(1);
 	}
+
+
+	Symbol.prototype.getSource = function() {
+		if (this.definition) {
+			return this.definition.getFullSource();
+		} else {
+			return "";
+		}
+	}
+
 	
 	Symbol.prototype.trigger = function () {
 		var name;
@@ -1326,7 +1342,7 @@
 	}
 
 	Symbol.prototype.forget = function () {
-		this.eden_definition = undefined;
+		//this.eden_definition = undefined;
 		this.clearEvalIDs();
 		this.evalResolved = true;
 		this.definition = undefined;
@@ -1411,16 +1427,17 @@
 		})()
 	};
 
-	Symbol.prototype.addExtension = function(idstr, ext, source, modifying_agent, deps) {
-		if (this.extend === undefined) {
-			this.extend = {};
-		}
-		this.extend[idstr] = { code: ext, source: source, deps: deps };
+	Symbol.prototype.addExtension = function(idstr, ext, base, modifying_agent) {
+		if (this.definition) {
+			this.definition.setExtension(idstr, ext, base);
 
-		this.subscribe(deps);
+			this.subscribe(this.definition.deps);
 
-		if (this.context) {
-			this.context.expireSymbol(this);
+			if (this.context) {
+				this.context.expireSymbol(this);
+			}
+		} else {
+			console.log("CANNOT EXTEND AN NON DEFINED SYMBOL");
 		}
 	}
 

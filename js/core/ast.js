@@ -1192,6 +1192,7 @@ Eden.AST.Definition = function(expression) {
 	this.scopes = [];
 	this.backtickCount = 0;
 	this.executed = 0;
+	this.base = undefined;
 };
 
 Eden.AST.Definition.prototype.getParameterByNumber = function(index) {
@@ -1249,8 +1250,16 @@ Eden.AST.Definition.prototype.generateDef = function(ctx) {
 
 Eden.AST.Definition.prototype.generate = function(ctx) {
 	var result = this.lvalue.generate(ctx);
+	
+	if (this.lvalue.hasListIndices()) {
+		result += ".addExtension(this);";
+	} else {
+		result += ".define(this);";
+	}
 
-	if (this.lvalue.islocal) {
+	return result;
+
+	/*if (this.lvalue.islocal) {
 		// TODO Report error, this is invalid;
 		return "";
 	} else if (this.lvalue.hasListIndices()) {
@@ -1279,17 +1288,18 @@ Eden.AST.Definition.prototype.generate = function(ctx) {
 		}
 		result = result + ", this, "+JSON.stringify(deps)+");\n";
 		return result;
-	}
+	}*/
 };
 
 Eden.AST.Definition.prototype.execute = function(root, ctx, base, scope, agent) {
 	this.executed = 1;
+	//this.base = base;
 	//console.log("RHS = " + rhs);
 	var source = base.getSource(this);
 	var sym = this.lvalue.getSymbol(root,ctx,base,scope);
 
 	if (this.lvalue.hasListIndices()) {
-		var rhs = "(function(context,scope,value) { value";
+		/*var rhs = "(function(context,scope,value) { value";
 		rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
 		rhs += this.expression.generate(this, "scope");
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
@@ -1299,16 +1309,16 @@ Eden.AST.Definition.prototype.execute = function(root, ctx, base, scope, agent) 
 		var deps = [];
 		for (var d in this.dependencies) {
 			deps.push(d);
-		}
-		sym.addExtension(this.lvalue.generateIdStr(), eval(rhs), source, undefined, deps);
+		}*/
+		sym.addExtension(this.lvalue.generateIdStr(), this, base);
 	} else {
-		var rhs = "("+this.generateDef(ctx)+")";
+		/*var rhs = "("+this.generateDef(ctx)+")";
 		var deps = [];
 		for (var d in this.dependencies) {
 			deps.push(d);
-		}
-		sym.eden_definition = base.getSource(this);
-		sym.define(eval(rhs), agent, deps);
+		}*/
+		//sym.eden_definition = base.getSource(this);
+		sym.define(this, agent, base);
 	}
 		
 }
@@ -2000,9 +2010,9 @@ Eden.AST.Action.prototype.execute = function(root, ctx, base, scope) {
 	var sym = root.lookup(this.name);
 	sym.eden_definition = base.getSource(this);
 	if (this.triggers.length > 0) {
-		sym.define(eval(body), {name: "execute"}, []).observe(this.triggers);
+		sym.define(eval(body), {name: "execute"}, base).observe(this.triggers);
 	} else {
-		sym.define(eval(body), {name: "execute"}, []);
+		sym.define(eval(body), {name: "execute"}, base);
 	}
 }
 
@@ -2047,7 +2057,7 @@ Eden.AST.Function.prototype.execute = function(root,ctx,base,scope) {
 	var body = this.body.generate(ctx);
 	var sym = root.lookup(this.name);
 	sym.eden_definition = base.getSource(this);	
-	sym.define(eval(body), {name: "execute"},[]);
+	sym.define(eval(body), {name: "execute"}, base);
 }
 
 Eden.AST.Function.prototype.error = fnEdenASTerror;

@@ -418,7 +418,7 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 	} else if (this.category == "system") {
 		matches = false;
 	}
-	if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
+	if (symbol.definition !== undefined) {
 		if (this.subtypes == "vars") {
 			matches = false;
 		}
@@ -439,7 +439,7 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 	var symbolType = "obs";
 
 	// Does the symbol have a definition
-	if (!symbol.definition || !symbol.eden_definition) {
+	if (!symbol.definition) {
 		if (typeof(symbol.cache.value) == "function") {
 			if (/\breturn\s+([^\/;]|(\/[^*\/]))/.test(symbol.cache.value.toString())) {
 				symbolType = "func";
@@ -451,7 +451,7 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
 		}
 	} else {
 		// Find out what kind of definition it is (proc, func or plain)
-		var definition = symbol.eden_definition;
+		var definition = symbol.getSource();
 	
 		if (/^proc\s/.test(definition)) {
 			symbolType = "agent";
@@ -559,15 +559,15 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation)
 			}
 			var value = me.symbol.cache.value;
 
-			if (me.symbol.eden_definition !== undefined || typeof(value) != "boolean") {
+			if (me.symbol.definition !== undefined || typeof(value) != "boolean") {
 				EdenUI.plugins.SymbolViewer.inlineEditorSymbol = me;
 				me.element.addClass("symbollist-inline-editor");
 				var valueElement = me.element.find(".result_value");
 				var operationElement = me.element.find(".result_separator");
 				valueElement.html('');
 				var currentEden, operation;
-				if (me.symbol.eden_definition !== undefined) {
-					currentEden = me.symbol.eden_definition.replace(new RegExp("^\\s*" + name + "\\s+is\\s+"), "");
+				if (me.symbol.definition !== undefined) {
+					currentEden = me.symbol.getSource().replace(new RegExp("^\\s*" + name + "\\s+is\\s+"), "");
 					operation = "is";
 				} else {
 					currentEden = Eden.edenCodeForValue(value);
@@ -665,7 +665,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation)
  * for this function, such as parameters and description.
  */
 EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
-	var eden_definition = this.symbol.eden_definition;
+	var eden_definition = this.symbol.getSource();
 	var nameHTML;
 	var detailsHTML;
 
@@ -687,9 +687,9 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateFunction = function () {
 
 	var html = "<span class='result_name'>" + nameHTML + "</span>" + detailsHTML;
 
-	if (eden_definition !== undefined && !/^func\s/.test(this.symbol.eden_definition)) {
+	if (eden_definition !== undefined && !/^func\s/.test(this.symbol.getSource())) {
 		var tooltip = Eden.htmlEscape(eden_definition, false, true);
-		tooltip = Eden.htmlEscape("<pre>" + tooltip + ";</pre>");
+		tooltip = Eden.htmlEscape("<pre>" + tooltip + "</pre>");
 		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
 
@@ -731,8 +731,8 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 		"<span class='result_value'>" + valhtml + "</span>";
 
 	if (this.symbol.definition !== undefined) {
-		var tooltip = Eden.htmlEscape(this.symbol.eden_definition, false, true);
-		tooltip = Eden.htmlEscape("<pre class='symbollist-tooltip'>" + tooltip + ";</pre>");
+		var tooltip = Eden.htmlEscape(this.symbol.getSource(), false, true);
+		tooltip = Eden.htmlEscape("<pre class='symbollist-tooltip'>" + tooltip + "</pre>");
 		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
 
@@ -743,7 +743,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
  * Update the HTML output of a procedure symbol.
  */
 EdenUI.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function () {
-	var eden_definition = this.symbol.eden_definition;
+	var eden_definition = this.symbol.getSource();
 	var nameHTML, detailsHTML;
 
 	if (eden_definition !== undefined && !/^proc\s/.test(eden_definition)) {
@@ -764,9 +764,9 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateProcedure = function () {
 
 	var html = "<span class='result_name'>" + nameHTML + "</span>" + detailsHTML;
 
-	if (eden_definition !== undefined && !/^proc\s/.test(this.symbol.eden_definition)) {
+	if (eden_definition !== undefined && !/^proc\s/.test(this.symbol.getSource())) {
 		var tooltip = Eden.htmlEscape(eden_definition, false, true);
-		tooltip = Eden.htmlEscape("<pre>" + tooltip + ";</pre>");
+		tooltip = Eden.htmlEscape("<pre>" + tooltip + "</pre>");
 		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
 
