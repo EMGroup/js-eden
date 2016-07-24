@@ -65,6 +65,7 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options, valign, al
 	}
 
 	this.css = css;
+	this.optionsType = optionsType;
 	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(options, "Text");
 	this.obsName = root.currentObservableName();
 }
@@ -217,10 +218,11 @@ Text.prototype.isHit = function (context, scale, px, py) {
 
 Text.prototype.toString = function() {
 	var s = "Text(" + Eden.edenCodeForValues(this.text, this.x, this.y, this.size, this.fillcolour,
-		this.outlinecolour) + ", ";
+		this.outlinecolour);
+	var optionsType = this.optionsType;
 
-	if (typeof(this.options) == "string") {
-		s = s + "\"";
+	if (optionsType == "string") {
+		s = s + ", \"";
 		if (this.drawingOptions.valign) {
 			s = s + this.drawingOptions.valign + " ";
 		}
@@ -228,8 +230,8 @@ Text.prototype.toString = function() {
 			s = s + this.drawingOptions.align + " ";
 		}
 		s = s + this.css + "\")";
-	} else {
-		s = s + Eden.edenCodeForValue(this.drawingOptions) + ")";
+	} else if (optionsType == "object") {
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions) + ")";
 	}
 	return s;
 };
