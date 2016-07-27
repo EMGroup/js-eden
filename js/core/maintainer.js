@@ -143,9 +143,6 @@
 			this.add(this.cause.name);
 		}
 
-		//this.add("/typeof");
-		//this.add("/has");
-		//this.add("/from");
 		this.add("/cause");
 
 		/* Process the overrides */
