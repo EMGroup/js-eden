@@ -91,6 +91,12 @@
 		return false;
 	}
 
+	Scope.prototype.baseCause = function() {
+		var scope = this;
+		while(scope.parent && scope.parent.parent) scope = scope.parent;
+		return scope.cause.name.slice(1);
+	}
+
 	Scope.prototype.allCauses = function() {
 		var res = [];
 		var scope = this;
@@ -144,6 +150,8 @@
 		}
 
 		this.add("/cause");
+		this.add("/has");
+		this.add("/from");
 
 		/* Process the overrides */
 		for (var i = 0; i < this.overrides.length; i++) {
