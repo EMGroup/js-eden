@@ -118,10 +118,10 @@ DropDownList.prototype.draw = function(context) {
 
 		dropDownList.value = valueSym.value();
 
-		if (this.enabled == true) { 
-			dropDownList.disabled = false; 
-		} else {
+		if (this.enabled === false) { 
 			dropDownList.disabled = true;
+		} else {
+			dropDownList.disabled = false;
 		}
 
 	}

@@ -4,7 +4,7 @@
 ## See LICENSE.txt
 
 ${{
-Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
+Text = function(text, x, y, size, fillcolour, outlinecolour, options, valign, align) {
 	this.text = text;
 	this.x = x;
 	this.y = y;
@@ -12,12 +12,11 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 	this.fillcolour = fillcolour;
 	this.outlinecolour = outlinecolour;
 
+	var optionsType = typeof(options);
 	var css;
 
-	if (options instanceof Object) {
-		if (!("valign" in options)) {
-			options.valign = "top";
-		}
+	if (optionsType == "object") {
+
 		this.drawingOptions = options;
 
 		if (options.italic) {
@@ -31,48 +30,59 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options) {
 		if (options.bold) {
 			css = css + "bold ";
 		}
-		css = css + size + " ";
+		if (size !== undefined) {
+			css = css + size + "px ";
+		} else {
+			css = css + edenUI.plugins.Canvas2D.defaultFontSizePx + "px ";
+		}
 		if (options.fontFace === undefined) {
 			css = css + "sans-serif";
 		} else {
 			css = css + options.fontFace + ", sans-serif";
 		}
 
-	} else if (typeof(options) == "string") {
-		this.optionString = options;
-		var valignRE = /\b(top|hanging|middle|baseline|alphabetic|ideographic|bottom)\b\s*/;
-		this.drawingOptions = {valign: top};
-		var drawingOptions = this.drawingOptions;
-		options = options.replace(valignRE, function (match, alignment) {
-			drawingOptions.valign = alignment;
-			return "";
-		});
+	} else if (optionsType == "string") {
 
-		var halignRE = /\b(left|right|center|centre|start|end)\b/;
-		options = options.replace(halignRE, function (match, alignment) {
-			drawingOptions.align = alignment;
-			return "";
-		});
+		this.drawingOptions = {align: align, valign: valign};
+		css = options;
 
-		if (options == "") {
-			css = size + " sans-serif";
-		} else {
-			css = options;
-		}
 	} else {
-		css = size + " sans-serif";
-		this.drawingOptions = {valign: "top"};
+
+		this.drawingOptions = {align: "top"};
+		if (size !== undefined) {
+			css = size + "px sans-serif";
+		} else {
+			css = edenUI.plugins.Canvas2D.defaultFontSizePx + "px sans-serif";
+		}
+
 	}
+
 	if (this.drawingOptions.align == "centre") {
 		this.drawingOptions.align = "center";
 	}
 	if (this.drawingOptions.valign == "baseline") {
 		this.drawingOptions.valign = "alphabetic";
 	}
+
 	this.css = css;
+	this.optionsType = optionsType;
 	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(options, "Text");
 	this.obsName = root.currentObservableName();
 }
+
+// RegExp groups: (valign) (align) (style) (size) (font)
+Text.cssRegExp = new RegExp(
+		"^\\s*(" +
+		"?:(top|middle|baseline|alphabetic|ideographic|bottom)?\\s*" + 
+		"(\\b(?:left|right|center|centre))?\\s*" +
+		"((?:\\bitalic)?\\s*" +
+		"(?:\\bsmall-caps)?\\s*" +
+		"(?:\\bbold)?)\\s*" +
+		"(\\b(?:smaller|larger|(?:\\d+(?:\\.\\d+)?[a-zA-Z%]+)))?\\s*" +
+		"(\\b(?:.+,)?\\s*(?:(?:sans-)?serif|monospace|cursive|fantasy))?" +
+		")\\s*$"
+);
+
 }}$;
 
 func Text {
@@ -80,69 +90,69 @@ func Text {
 		var text = arguments[0];
 		var x = arguments[1];
 		var y = arguments[2];
-		var size, fillcolour, outlinecolour, options;
-
-		var argType = typeof(arguments[3]);
-		var sizePresent = argType == "number" ||
-			(argType == "string" && /^\d+(\.\d+)?[a-zA-Z%]+$/.test(arguments[3]));
-		//N.B. First \d+ above cannot be \d* as that matches "red".
+		var size, fillcolour, outlinecolour, options, valign, align;
 
 		var numArgs = arguments.length;
-		var lastArg = arguments[numArgs - 1];
-		argType = typeof(lastArg);
-		var alignPresent = argType == "string" && /^(top|hanging|middle|baseline|alphabetic|ideographic|bottom)?\s*(\b(left|right|center|centre|start|end))?$/.test(lastArg);
-		var argsProcessed;
+		var argsLeft = numArgs - 3;
+		var argsProcessed = 3;
 
-		if (argType == "string" && (alignPresent || (!sizePresent && (numArgs == 6 || lastArg.indexOf(" ") !== -1)))) {
-			options = lastArg;
-			var argsLeft = numArgs - 4;
-			var argsProcessed = 3;
-			if (sizePresent) {
-				size = arguments[3];
-				argsProcessed++;
-				argsLeft--;
-			}
-			if (argsLeft > 0) {
-				fillcolour = arguments[argsProcessed];
-				argsLeft--;
-				argsProcessed++;
-				if (argsLeft > 0) {
-					outlinecolour = arguments[argsProcessed];
-				}
-			}
-		} else if (argType == "object" && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
-			options = lastArg;
-			if (numArgs > 4) {
-				if (sizePresent || arguments[3] === undefined) {
-					size = arguments[3];
-					argsProcessed = 4;
-				} else {
-					argsProcessed = 3;
-				}
-				if (numArgs > argsProcessed + 1) {
-					fillcolour = arguments[argsProcessed];
-					argsProcessed++;
-					if (numArgs > argsProcessed + 1) {
-						outlinecolour = arguments[argsProcessed];
-					}
-				}
-			}
-		} else {
+		if (arguments[3] === undefined || typeof(arguments[3]) == "number") {
 			size = arguments[3];
-			fillcolour = arguments[4];
-			outlinecolour = arguments[5];
-			options = arguments[6]; //Deliberately left in, even though size parameter will currently be ignored if this is specified.
+			argsProcessed++;
+			argsLeft--;
 		}
 
-		if (size === undefined) {
-			size = "1em";
-		} else if (typeof(size) == "number") {
-			size = size + "px";
+		var lastArg = arguments[numArgs - 1];
+		var argType = typeof(lastArg);
+		var match;
+
+		if (argType == "string") {
+			match = lastArg.match(Text.cssRegExp);
 		}
+
+		if (match) {
+			argsLeft--;
+			valign = match[1];
+			align = match[2];
+			if (match[3]) {
+				// italic, bold, etc.
+				options = match[3];
+			} else {
+				options = "";
+			}
+			if (match[4]) {
+				// size
+				options = options + " " + match[4];
+			} else if (size !== undefined) {
+				options = options + " " + size + "px";
+			} else {
+				options = options + " " + edenUI.plugins.Canvas2D.defaultFontSizePx + "px";
+			}
+			if (match[5]) {
+				// font family
+				options = options + " " + match[5];
+			} else {
+				options = options + " sans-serif";
+			}
+
+		} else if (argType == "object" && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+			argsLeft--;
+			options = lastArg;
+		}
+
+		if (argsLeft > 0) {
+			fillcolour = arguments[argsProcessed];
+			argsLeft--;
+			argsProcessed++;
+			if (argsLeft > 0) {
+				outlinecolour = arguments[argsProcessed];
+			}
+		}
+
 		if (outlinecolour === undefined && fillcolour === undefined) {
 			fillcolour = "black";
 		}
-		return new Text(text, x, y, size, fillcolour, outlinecolour, options);
+		return new Text(text, x, y, size, fillcolour, outlinecolour, options, valign, align);
 	}}$;
 }
 
@@ -159,8 +169,12 @@ Text.prototype.draw = function (context, scale) {
 		}
 	}
 	context.font = this.css;
-	context.textBaseline = this.drawingOptions.valign;
-	if ("align" in this.drawingOptions) {
+	if (this.drawingOptions.valign) {
+		context.textBaseline = this.drawingOptions.valign;
+	} else {
+		context.textBaseline = "top";
+	}
+	if (this.drawingOptions.align) {
 		context.textAlign = this.drawingOptions.align;
 	}
 	var lineWidth = context.lineWidth;
@@ -203,13 +217,21 @@ Text.prototype.isHit = function (context, scale, px, py) {
 }
 
 Text.prototype.toString = function() {
-	var s = "Text(" + Eden.edenCodeForValues(this.text, this.x, this.y) + ", ";
+	var s = "Text(" + Eden.edenCodeForValues(this.text, this.x, this.y, this.size, this.fillcolour,
+		this.outlinecolour);
+	var optionsType = this.optionsType;
 
-	if (this.optionString !== undefined) {
-		s = s + Eden.edenCodeForValues(this.fillcolour, this.outlinecolour) + ", " +
-			"\"" + this.optionString + "\")";
-	} else {
-		s = s + Eden.edenCodeForValues(this.size, this.fillcolour, this.outlinecolour, this.drawingOptions) + ")";
+	if (optionsType == "string") {
+		s = s + ", \"";
+		if (this.drawingOptions.valign) {
+			s = s + this.drawingOptions.valign + " ";
+		}
+		if (this.drawingOptions.align) {
+			s = s + this.drawingOptions.align + " ";
+		}
+		s = s + this.css + "\")";
+	} else if (optionsType == "object") {
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions) + ")";
 	}
 	return s;
 };
@@ -218,71 +240,97 @@ Text.prototype.getEdenCode = Text.prototype.toString;
 
 Text.parseArgs = function () {
 	var text = arguments[0];
+	var size;
+	var css, optionsObj, scale;
 
-	var size, options, optionsObj, scale;
 	var argsProcessed = 1;
 	var arg = arguments[1];
 	var argType = typeof(arg);
 
-	if (arg === undefined || argType == "number" || (argType == "string" && /^\d+(\.\d+)?[a-zA-Z%]+$/.test(arg))) {
-		//N.B. First \d+ above cannot be \d* as that matches "red".
+	if (arg === undefined || argType == "number") {
 		size = arg;
 		argsProcessed++;
 		arg = arguments[argsProcessed];
 		argType = typeof(arg);
 	}
-	if (argType === undefined || argType == "object" || argType == "string") {
-		options = arg;
+
+	if (argType == "string") {
+
+		var match = arg.match(Text.cssRegExp);
+		if (match) {
+			if (match[3]) {
+				// italic, bold, etc.
+				css = match[3];
+			} else {
+				css = "";
+			}
+			if (match[4]) {
+				// size
+				css = css + " " + match[4];
+			} else if (size !== undefined) {
+				css = css + " " + size + "px";
+			} else {
+				css = css + " 1em";
+			}
+			if (match[5]) {
+				// font family
+				css = css + " " + match[5];
+			} else {
+				css = css + " sans-serif";
+			}
+		} else {
+			css = arg;
+		}
+
 		argsProcessed++;
 		arg = arguments[argsProcessed];
-	}
-	scale = arg;
 
-	if (typeof(options) == "string" && !/^(top|hanging|middle|baseline|alphabetic|ideographic|bottom)?\s*(\b(left|right|center|centre|start|end))?$/.test(options)) {
-		if (size !== undefined) {
-			eden.error(new Error("textWidth/textHeight: The size argument cannot be specified when the options parameter is given as a string.  The font size should be included in the options string.  See https://drafts.csswg.org/css2/fonts.html#font-shorthand"), "error");
-			return undefined;
-		}
-	} else {
-		if (size === undefined) {
-			size = "1em";
-		} else if (typeof(size) == "number") {
-			size = size + "px";
-		}
-	}
+	} else if (argType == "object") {
 
-	if (scale === undefined) {
-		scale = 1;
-	}
-
-	var css;
-	if (options instanceof Object) {
-		optionsObj = options;
-		if (options.italic) {
+		optionsObj = arg;
+		if (arg.italic) {
 			css = "italic ";
 		} else {
 			css = "";
 		}
-		if (options.smallCaps) {
+		if (arg.smallCaps) {
 			css = css + "small-caps ";
 		}
-		if (options.bold) {
+		if (arg.bold) {
 			css = css + "bold ";
 		}
-		css = css + size + " ";
-		if (options.fontFace === undefined) {
+		if (size) {
+			css = css + size + "px ";
+		} else {
+			css = css + "1em ";
+		}
+		if (arg.fontFace === undefined) {
 			css = css + "sans-serif";
 		} else {
-			css = css + options.fontFace + ", sans-serif";
+			css = css + arg.fontFace + ", sans-serif";
 		}
-	} else if (typeof(options) == "string") {
-		options = options.replace(/\b(top|hanging|middle|baseline|alphabetic|ideographic|bottom|left|right|center|centre|start|end)\b\s*/g, "");
-		css = options;
-		optionsObj = {};
-	} else {
-		css = size + " sans-serif";
-		optionsObj = {};
+
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+
+	} else if (arg === undefined) {
+
+		if (size !== undefined) {
+			css = size + "px sans-serif";
+		} else {
+			css = edenUI.plugins.Canvas2D.defaultFontSizePx + "px sans-serif";
+		}
+
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+
 	}
+
+	scale = arg;
+	if (scale === undefined) {
+		scale = 1;
+	}
+
 	return [css, optionsObj, scale];
 };
 
@@ -327,7 +375,10 @@ func textHeight {
 		var optionsObj = options[1];
 		var scale = options[2];
 
-		var lineWidth = optionsObj.lineWidth;
+		var lineWidth;
+		if (optionsObj !== undefined) {
+			lineWidth = optionsObj.lineWidth;
+		}
 		if (lineWidth === undefined) {
 			lineWidth = 2;
 		}
@@ -337,9 +388,9 @@ func textHeight {
 		var style = div.style;
 		style.position = 'absolute';
 		style.top  = '-9999px';
-		style.borderWidth = "0pt";
 		style.padding = "0pt";
 		style.whiteSpace = "nowrap";
+		style.lineHeight = "1";
 		style.font = fontCSS;
 
 		//Find an existing canvas (any one).

@@ -375,6 +375,7 @@ import plugins/canvas/div;
 import plugins/canvas/dropdownlist;
 import plugins/canvas/ellipse;
 import plugins/canvas/fillpattern;
+import plugins/canvas/flowlayout;
 import plugins/canvas/greypixellist;
 import plugins/canvas/canvasimage;
 import plugins/canvas/htmlimage;
