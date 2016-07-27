@@ -268,13 +268,12 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 	}
 	// remove last comma
 	res = res.slice(0,-1);
-	// TODO Reinstate cause when known
-	res += "], "+this.range+", this.name.slice(1))"; //context.lookup(\""+this.primary.getObservable()+"\"))";
+
+	res += "], "+this.range+", this)"; //context.lookup(\""+this.primary.getObservable()+"\"))";
 	return res;
 }
 
 Eden.AST.Scope.prototype.generate = function(ctx, scope) {
-	
 	// Add the scope generation string the the array of scopes in this context
 	ctx.scopes.push(this.generateConstructor(ctx,scope));
 	if (this.range) {
@@ -1681,7 +1680,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, bound) {
 		if (this.backtick.doesReturnBound && this.backtick.doesReturnBound()) {
 			res += ".value";
 		}
-		res += ")";
+		res += "," + scope + ")";
 	} else {
 		if (ctx && ctx.dependencies) ctx.dependencies[this.observable] = true;
 		res = "context.lookup(\""+this.observable+"\")";

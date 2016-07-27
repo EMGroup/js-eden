@@ -71,6 +71,7 @@
 		this.cache = undefined;
 		this.overrides = overrides;
 		this.cause = cause;
+		this.causecount = 0;
 		this.range = range;
 
 		this.rebuild();
@@ -879,7 +880,12 @@
 		return this;
 	};
 
-	Symbol.prototype.subscribeDynamic = function (position, dependency) {
+	Symbol.prototype.subscribeDynamic = function (position, dependency, scope) {
+		// To put the dependency on the outer scoped observable is in a scoping context
+		if (scope && scope.cause) {
+			return scope.cause.subscribeDynamic(scope.causecount++, dependency);
+		}
+
 		if (!(dependency in this.dependencies)) {
 			var symbol, refCount;
 			var previousDependency = this.dynamicDependencyTable[position];
