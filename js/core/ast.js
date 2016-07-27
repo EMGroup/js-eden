@@ -226,7 +226,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 	// remove last comma
 	res = res.slice(0,-1);
 	// TODO Reinstate cause when known
-	res += "], "+this.range+", this.name.slice(1))"; //context.lookup(\""+this.primary.getObservable()+"\"))";
+	res += "], "+this.range+", this)"; //context.lookup(\""+this.primary.getObservable()+"\"))";
 	// Add the scope generation string the the array of scopes in this context
 	ctx.scopes.push(res);
 	// Return the expression using the newly generated scope.
@@ -1610,7 +1610,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope) {
 		if (this.backtick.doesReturnBound && this.backtick.doesReturnBound()) {
 			res += ".value";
 		}
-		res += ")";
+		res += "," + scope + ")";
 	} else {
 		if (ctx && ctx.dependencies) ctx.dependencies[this.observable] = true;
 		res = "context.lookup(\""+this.observable+"\")";
