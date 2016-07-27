@@ -6,7 +6,7 @@
 typeof is ${{ scope.primaryCause() }}$;
 from is ${{ scope.hasCause(context.lookup("name").value(scope)) }}$;
 has is ${{ scope.hasOverride(context.lookup("name").value(scope)) }}$;
-cause is ${{ scope.cause }}$;
+cause is ${{ scope.baseCause() }}$;
 
 ##_override_item is value if i == index else list[i];
 ##override is _override_item with i = 1 .. list#;
