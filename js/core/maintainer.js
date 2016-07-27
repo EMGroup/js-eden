@@ -143,9 +143,10 @@
 			this.add(this.cause.name);
 		}
 
-		this.add("/typeof");
-		this.add("/has");
-		this.add("/from");
+		//this.add("/typeof");
+		//this.add("/has");
+		//this.add("/from");
+		this.add("/cause");
 
 		/* Process the overrides */
 		for (var i = 0; i < this.overrides.length; i++) {
@@ -225,10 +226,10 @@
 		}
 
 		if (this.cache[name] === undefined) {
-			this.cache[name] = new ScopeCache( true, currentval, currentscope );
+			this.cache[name] = new ScopeCache( true, currentval, this );
 		} else {
 			this.cache[name].value = currentval;
-			this.cache[name].scope = currentscope;
+			this.cache[name].scope = this;
 			this.cache[name].up_to_date = true;
 		}
 	}
@@ -236,11 +237,11 @@
 	Scope.prototype.updateSubscriber = function(name) {
 		//console.log("Adding scope subscriber...: " + name);
 		if (this.cache[name] === undefined) {
-			this.cache[name] = new ScopeCache( false, undefined, undefined);
+			this.cache[name] = new ScopeCache( false, undefined, this);
 		} else {
 			this.cache[name].up_to_date = false;
 			this.cache[name].value = undefined;
-			this.cache[name].scope = this.parent;
+			this.cache[name].scope = this;
 		}
 		var sym = this.context.lookup(name.substr(1));
 		for (var d in sym.subscribers) {
