@@ -385,10 +385,13 @@ Eden.AST.ScopePath.prototype.setPrimary = function(prim) {
 
 Eden.AST.ScopePath.prototype.generate = function(ctx, scope) {
 	// Add scope to list of scopes in the context
-	ctx.scopes.push(this.path.generate(ctx, scope, true)+".scope");
-	this.scopestr = "_scopes[" + (ctx.scopes.length-1) + "]";
+	//console.log(ctx);
+	//ctx.scopes.push(this.path.generate(ctx, scope, true)+".scope");
+	var path = this.path.generate(ctx, scope, true)+".scope"
+	//this.scopestr = "_scopes[" + (ctx.scopes.length-1) + "]";
 	// And then use that scope to access the primary.
-	return this.primary.generate(ctx, "_scopes["+(ctx.scopes.length-1)+"]");
+	//return this.primary.generate(ctx, "_scopes["+(ctx.scopes.length-1)+"]");
+	return this.primary.generate(ctx, path);
 }
 
 Eden.AST.ScopePath.prototype.error = fnEdenASTerror;
@@ -720,7 +723,7 @@ Eden.AST.LValue.prototype.generateIdStr = function() {
 	return "\""+this.generateCompList()+"\"";
 }
 
-Eden.AST.LValue.prototype.executeCompList = function(ctx) {
+Eden.AST.LValue.prototype.executeCompList = function(ctx, scope) {
 	var res = [];
 	for (var i=0; i<this.lvaluep.length; i++) {
 		if (this.lvaluep[i].kind == "index") {
@@ -728,7 +731,7 @@ Eden.AST.LValue.prototype.executeCompList = function(ctx) {
 			if (this.lvaluep[i].indexexp.doesReturnBound && this.lvaluep[i].indexexp.doesReturnBound()) {
 				iexp += ".value";
 			}
-			res.push(rt.index(eval("(function(context,scope) { return "+iexp+"; })")(eden.root,eden.root.scope)));
+			res.push(rt.index(eval("(function(context,scope) { return "+iexp+"; })")(eden.root,scope)));
 		}
 	}
 	return res;
@@ -1040,7 +1043,7 @@ Eden.AST.Append.prototype.execute = function(root, ctx, base, scope) {
 	this.executed = 1;
 	var val = this.index.execute(root,ctx,base, scope);
 	if (val instanceof BoundValue) val = val.value;
-	root.lookup(this.destination.name).mutate(root.scope, function(s) {
+	root.lookup(this.destination.name).mutate(scope, function(s) {
 		s.value().push(val);
 	}, undefined);
 }
@@ -1429,7 +1432,7 @@ Eden.AST.Assignment.prototype.execute = function(root, ctx, base, scope, agent) 
 		var sym = this.lvalue.getSymbol(root,ctx,base,scope);
 		if (this.lvalue.hasListIndices()) {
 			this.value = this.compiled.call(sym,root,scope);
-			sym.listAssign(this.value, scope, agent, false, this.lvalue.executeCompList());
+			sym.listAssign(this.value, scope, agent, false, this.lvalue.executeCompList(ctx, scope));
 		} else {
 			this.value = this.compiled.call(sym,root,scope);
 			sym.assign(this.value,scope, agent);
@@ -1560,10 +1563,10 @@ Eden.AST.Modify.prototype.execute = function(root, ctx, base, scope) {
 		console.log(rhs);*/
 
 		switch (this.kind) {
-		case "+="	: sym.assign(rt.add(sym.value(scope), eval(rhs)(root,scope)), root.scope); break;
-		case "-="	: sym.assign(rt.subtract(sym.value(scope), eval(rhs)(root,scope)), root.scope); break;
-		case "/="	: sym.assign(rt.divide(sym.value(scope), eval(rhs)(root,scope)), root.scope); break;
-		case "*="	: sym.assign(rt.multiply(sym.value(scope), eval(rhs)(root,scope)), root.scope); break;
+		case "+="	: sym.assign(rt.add(sym.value(scope), eval(rhs)(root,scope)), scope); break;
+		case "-="	: sym.assign(rt.subtract(sym.value(scope), eval(rhs)(root,scope)), scope); break;
+		case "/="	: sym.assign(rt.divide(sym.value(scope), eval(rhs)(root,scope)), scope); break;
+		case "*="	: sym.assign(rt.multiply(sym.value(scope), eval(rhs)(root,scope)), scope); break;
 		}
 	}
 }
@@ -1915,7 +1918,7 @@ Eden.AST.FunctionCall.prototype.execute = function(root, ctx, base, scope) {
 	var func = "(function(context,scope) { return " + this.generate(ctx, "scope") + "; })";
 
 	try {
-		return eval(func).call(ctx,root,root.scope);
+		return eval(func).call(ctx,root,scope);
 	} catch(e) {
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e));
 		console.error("Details: " + e + "\n" + "Function: " + this.lvalue.name);
@@ -2303,7 +2306,7 @@ Eden.AST.For.prototype.execute = function(root, ctx, base, scope) {
 	}
 	var expfunc = eval("(function(context,scope){ return " + express + "; })");
 
-	for (; expfunc(root,root.scope); this.inc.execute(root,ctx,base,scope)) {
+	for (; expfunc(root,scope); this.inc.execute(root,ctx,base,scope)) {
 		this.statement.execute(root,ctx,base,scope);
 	}
 }
@@ -2533,6 +2536,7 @@ Eden.AST.When = function() {
 	this.scope = undefined;
 	this.compScope = undefined;
 	this.base = undefined;
+	this.scopes = [];
 };
 
 Eden.AST.When.prototype.setScope = function (scope) {
