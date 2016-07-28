@@ -101,7 +101,7 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope) {
 						res += "]";
 						return res;
 	case "CHARACTER":
-	case "STRING"	:	var str = this.value.replace(/\n/g,"\\n").replace(/\"/g,"\\\"");
+	case "STRING"	:	var str = this.value.replace(/\n/g,"\\n");
 						return "\""+str+"\"";
 	case "BOOLEAN"	:	return this.value;
 	case "JAVASCRIPT"	: return this.value;
@@ -116,8 +116,8 @@ Eden.AST.Literal.prototype.execute = function(root, ctx, base, scope) {
 	switch(this.datatype) {
 	case "NUMBER"	:
 	case "CHARACTER":
-	case "BOOLEAN"	:
-	case "STRING"	:	return this.value;
+	case "BOOLEAN"	:	return this.value
+	case "STRING"	:	return eval("\""+this.value+"\"");
 	case "LIST"		:	var rhs = "(function(context,scope) { return ";
 						rhs += this.generate(ctx, "scope");
 						rhs += ";})";
