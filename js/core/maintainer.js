@@ -85,7 +85,7 @@
 		var scope = this;
 		var causename = "/"+cause;
 		while (scope) {
-			if (scope.cause.name == causename) return true;
+			if (scope.cause && scope.cause.name == causename) return true;
 			scope = scope.parent;
 		}
 		return false;
@@ -149,7 +149,8 @@
 			this.add(this.cause.name);
 		}
 
-		this.add("/cause");
+		//this.add("/cause");
+		this.add("/this");
 		this.add("/has");
 		this.add("/from");
 
