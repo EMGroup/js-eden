@@ -2612,7 +2612,7 @@ Eden.AST.When.prototype.compile = function(base) {
 	}
 
 	if (this.scope && this.compScope === undefined) {
-		this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })")(eden.root, eden.root.scope);
+		this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })").call(this,eden.root, eden.root.scope);
 	}
 
 	return "";
@@ -2625,13 +2625,16 @@ Eden.AST.When.prototype.execute = function(root, ctx, base, scope) {
 	//this.compile(base);
 
 	var scope = root.scope;
-	if (this.compScope) scope = this.compScope;
+	if (this.compScope) {
+		scope = this.compScope;
+		scope.causecount = 0;
+	}
 
 	if (scope.range) {
 		scope.range = false;
 
 		while (true) {
-			if (this.compiled(root,scope)) {
+			if (this.compiled.call(this,root,scope)) {
 				this.statement.execute(root, ctx, base, scope);
 			} else {
 				this.executed = 2;

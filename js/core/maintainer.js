@@ -97,6 +97,12 @@
 		return scope.cause.name.slice(1);
 	}
 
+	Scope.prototype.baseScope = function() {
+		var scope = this;
+		while(scope.parent && scope.parent.parent) scope = scope.parent;
+		return scope;
+	}
+
 	Scope.prototype.allCauses = function() {
 		var res = [];
 		var scope = this;
@@ -905,7 +911,8 @@
 	Symbol.prototype.subscribeDynamic = function (position, dependency, scope) {
 		// To put the dependency on the outer scoped observable is in a scoping context
 		if (scope && scope.cause) {
-			return scope.cause.subscribeDynamic(scope.causecount++, dependency);
+			var basescope = scope.baseScope();
+			return basescope.cause.subscribeDynamic(basescope.causecount++, dependency);
 		}
 
 		if (!(dependency in this.dependencies)) {
