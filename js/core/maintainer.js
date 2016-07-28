@@ -242,6 +242,12 @@
 			if (this.overrides[i].current < this.overrides[i].end) {
 				this.overrides[i].current++;
 				this.updateOverride(this.overrides[i]);
+
+				// Make sure all other overrides are also up-to-date
+				for (var j=i-1; j >= 0; j--) {
+					this.updateOverride(this.overrides[j]);
+				}
+
 				return true;
 			} else {
 				this.overrides[i].current = this.overrides[i].start;
@@ -677,7 +683,7 @@
 	 * generated in.
 	 */
 	Symbol.prototype.boundValue = function(scope) {
-		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
+		var cache = (this.context === undefined || scope === this.context.scope) ? this.cache : scope.lookup(this.name);
 		var value = this.value(scope);
 		return new BoundValue(value, cache.scope);
 	}
@@ -696,7 +702,7 @@
 
 			if (scope === undefined) scope = this.context.scope;
 
-			var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
+			var cache = (this.context === undefined || scope === this.context.scope) ? this.cache : scope.lookup(this.name);
 
 			if (this.definition) {
 				if (!cache.up_to_date) {
