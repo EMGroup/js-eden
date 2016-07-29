@@ -154,6 +154,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 						var pictureLists = [picture];
 						var pictureListIndices = [0];
+						var cssTransforms = [];
+						var cssTransform = "";
 
 						while (pictureLists.length > 0) {
 							var currentPicture = pictureLists.pop();
@@ -161,6 +163,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 							
 							if (index > 0 && currentPicture[index - 1] instanceof EdenUI.plugins.Canvas2D.Transform) {
 								context.restore();
+								cssTransforms.pop();
+								cssTransform = cssTransforms.join(" ");
 							}
 
 							while (index < currentPicture.length) {
@@ -179,6 +183,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 									pictureListIndices.push(index + 1);
 									context.save();
 									item.transform(context);
+									var newCSSTransform = item.getCSS(combinedScale);
+									cssTransform = cssTransform + newCSSTransform + " ";
+									cssTransforms.push(newCSSTransform);
 									currentPicture = item.items;
 									if (!Array.isArray(currentPicture)) {
 										currentPicture = [currentPicture];
@@ -228,14 +235,16 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 									}
 								}
 								var htmlEl = item.elements;
-								if (htmlEl) { htmlEl.togarbage = false; }
-								if (htmlEl && !existingEl) {
-									$(content).append(htmlEl);
-								}
-
 								if (htmlEl) {
+									var htmlJQ = $(htmlEl);
+									htmlJQ.css("transform", cssTransform);
+									htmlEl.togarbage = false;
+									if (!existingEl) {
+										$(content).append(htmlJQ);
+									}
 									nextElements[elHash] = htmlEl;
 								}
+
 								index++;
 							} //end of redraw loop (current list).
 						} // end of redraw loop (all nested lists).
@@ -1223,6 +1232,12 @@ EdenUI.plugins.Canvas2D.FillStyle = function () {
 
 EdenUI.plugins.Canvas2D.Transform = function () {
 	//Abstract superclass.
+}
+
+EdenUI.plugins.Canvas2D.Transform.CSSInfo = function (css, scaleX, scaleY) {
+	this.css = css;
+	this.scaleX = scaleX;
+	this.scaleY = scaleY;
 }
 
 EdenUI.plugins.Canvas2D.title = "Canvas 2D";

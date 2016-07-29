@@ -46,6 +46,35 @@ ${{
 		}
 	}
 
+	Rotation.prototype.getCSS = function (scale) {
+		var origin = this.origin;
+		var centre = this.centre;
+		var radius = this.radius;
+
+		var css, x, y, theta;
+
+		x = origin.x * scale;
+		y = origin.y * scale;
+		css = "translate(" + x + "px, " + y + "px) ";
+
+		if (radius !== undefined) {
+			theta = this.radians2;
+			x = radius * scale;
+			css = css +  "rotate(" + theta + "rad) translateX(" + x + "px) ";
+		}
+
+		theta = this.radians;
+		css = css + "rotate(" + theta + "rad) ";
+
+		if (centre !== undefined) {
+			x = -centre.x * scale;
+			y = -centre.y * scale;
+			css = css + "translate(" + x + "px, " + y + "px)";
+		}
+
+		return css;
+	}
+
 	Rotation.prototype.inverse = function (x, y) {
 		var origin = this.origin;
 		var centre = this.centre;

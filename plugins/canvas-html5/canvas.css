@@ -11,6 +11,7 @@
 
 .canvashtml-item {
 	position: absolute;
+	transform-origin: left top;
 }
 
 .canvashtml-flow-layout-item {
