@@ -714,6 +714,7 @@
 		this.cache = (context) ? context.scope.add(name) : new ScopeCache( true, undefined );
 
 		this.definition = undefined;
+		this.causecount = 0;
 		//this.eden_definition = undefined;
 		this.evalResolved = true;
 		this.extend = undefined;
@@ -843,6 +844,7 @@
 			cache.up_to_date = true;
 			//NOTE: Don't do copy here, be clever about it.
 			//cache.value = copy(this.definition(this.context, scope));
+			this.causecount = 0;
 			cache.value = this.definition.evaluate(this,this.context, scope, cache);
 
 			// Post process with all extensions
@@ -929,7 +931,7 @@
 		// To put the dependency on the outer scoped observable is in a scoping context
 		if (scope && scope.cause) {
 			var basescope = scope.baseScope();
-			return basescope.cause.subscribeDynamic(basescope.causecount++, dependency);
+			return basescope.cause.subscribeDynamic(basescope.cause.causecount++, dependency);
 		}
 
 		if (!(dependency in this.dependencies)) {

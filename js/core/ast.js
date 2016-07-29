@@ -2551,6 +2551,7 @@ Eden.AST.When = function() {
 	this.compScope = undefined;
 	this.base = undefined;
 	this.scopes = [];
+	this.causecount = 0;
 };
 
 Eden.AST.When.prototype.setScope = function (scope) {
@@ -2627,11 +2628,12 @@ Eden.AST.When.prototype.execute = function(root, ctx, base, scope) {
 	this.active = true;
 	this.executed = 1;
 	//this.compile(base);
+	this.causecount = 0;
 
 	var scope = root.scope;
 	if (this.compScope) {
 		scope = this.compScope;
-		scope.causecount = 0;
+		//scope.causecount = 0;
 	}
 
 	if (scope.range) {
