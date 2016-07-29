@@ -42,6 +42,7 @@
 		this.up_to_date = up_to_date;
 		this.value = value;
 		this.scope = scope;
+		this.scopes = undefined;
 	}
 
 	function BoundValue(value,scope) {
@@ -182,6 +183,22 @@
 		}
 
 		nscope.range = false;
+		return nscope;
+	}
+
+	Scope.prototype.clone = function() {
+		var nover = [];
+
+		// Copy the overrides
+		for (var i = 0; i < this.overrides.length; i++) {
+			var nov = new ScopeOverride(this.overrides[i].name, this.overrides[i].start, this.overrides[i].end);
+			nov.current = this.overrides[i].current;
+			nover.push(nov);
+		}
+
+		// Make a new exact copy of this scope
+		var nscope = new Scope(this.context, this.parent, nover, this.range, this.cause);
+
 		return nscope;
 	}
 
@@ -750,7 +767,7 @@
 
 		if (indices) {
 			// Generate a non range scope equivalent to a specific index.
-			return new BoundValue(value[indices[0]], cache.scope.cloneAt(indices[0]));
+			return new BoundValue(value[indices[0]], cache.scopes[indices[0]]);
 		} else {
 			return new BoundValue(value, cache.scope);
 		}

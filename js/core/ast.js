@@ -278,21 +278,25 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 	ctx.scopes.push(this.generateConstructor(ctx,scope));
 	if (this.range) {
 		var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
-		var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]");
+		var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"].clone()");
 		var res = "(function() {\n";
 		res += scopename + ".range = false;\n";
 		res += "var results = [];\n";
+		res += "var scoperesults = [];\n";
 		res += "while(true) {\n";
 		res += "var val = "+express;
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-			res += ".value";
+			//res += ".value";
+			res += ";\n\tif (val.value !== undefined) scoperesults.push(val.scope);\n\tval = val.value";
 		}
 		res += ";\n";
 		res += "if (val !== undefined) results.push(val);\n";
 		res += "if ("+scopename+".next() == false) break;\n";
 		res += "}\n"+scopename+".range = true;\n";
+
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-			res += "return new BoundValue(results,"+scopename+");})()";
+			res += "if (cache) cache.scopes = scoperesults;\n return new BoundValue(results,"+scopename+");})()";
+			//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
 		} else {
 			res += "return results;})()";
 		}
