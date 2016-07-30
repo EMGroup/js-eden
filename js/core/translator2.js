@@ -836,7 +836,7 @@ Eden.AST.prototype.pPRIMARY_PP = function() {
  * PRIMARY''' ->
  *	. PRIMARY
  *	| ( ELIST ) PRIMARY''
- *	| [ EXPRESSION ] PRIMARY''
+ *	| [ EXPRESSION ] PRIMARY'''
  *	| PRIMARY''''
  */
 Eden.AST.prototype.pPRIMARY_PPP = function() {
@@ -879,7 +879,7 @@ Eden.AST.prototype.pPRIMARY_PPP = function() {
 			this.next();
 		}
 
-		var primary = this.pPRIMARY_PP();
+		var primary = this.pPRIMARY_PPP();
 		index.setExpression(express);
 		primary.prepend(index);
 		return primary;
