@@ -48,14 +48,15 @@ Symbol.Definition.prototype.getFullSource = function() {
 
 Symbol.Definition.prototype.compile = function() {
 	var result = "(function(context, scope, cache) {\n";
+	this.scopes = [];
 	var express = this.baseAST.expression.generate(this, "scope");
 
 	// Generate array of all scopes used in this definition (if any).
 	if (this.scopes.length > 0) {
-		result += "\tvar _scopes = [];\n";
+		//result += "\tvar _scopes = [];\n";
 		for (var i=0; i<this.scopes.length; i++) {
-			result += "\t_scopes.push(" + this.scopes[i];
-			result += ");\n";
+			result += "\tvar scope" + (i+1) + " = " + this.scopes[i];
+			result += ";\n";
 		}
 	}
 

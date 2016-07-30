@@ -274,36 +274,36 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 }
 
 Eden.AST.Scope.prototype.generate = function(ctx, scope) {
-	// Add the scope generation string the the array of scopes in this context
-	ctx.scopes.push(this.generateConstructor(ctx,scope));
 	if (this.range) {
-		var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
-		var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"].clone()");
-		var res = "(function() {\n";
-		res += scopename + ".range = false;\n";
-		res += "var results = [];\n";
-		res += "var scoperesults = [];\n";
-		res += "while(true) {\n";
-		res += "var val = "+express;
+		var express = this.expression.generate(ctx,"_scope.clone()");
+		var res = "(function(scope) {\n";
+		res += "\t\tvar _scope = " + this.generateConstructor(ctx, "scope") + ";\n";
+		res += "\t\t_scope.range = false;\n";
+		res += "\t\tvar results = [];\n";
+		res += "\t\tvar scoperesults = [];\n";
+		res += "\t\twhile(true) {\n";
+		res += "\t\t\tvar val = "+express;
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			//res += ".value";
-			res += ";\n\tif (val.value !== undefined) scoperesults.push(val.scope);\n\tval = val.value";
+			res += ";\n\t\t\tif (val.value !== undefined) scoperesults.push(val.scope);\n\tval = val.value";
 		}
 		res += ";\n";
-		res += "if (val !== undefined) results.push(val);\n";
-		res += "if ("+scopename+".next() == false) break;\n";
-		res += "}\n"+scopename+".range = true;\n";
+		res += "\t\t\tif (val !== undefined) results.push(val);\n";
+		res += "\t\t\tif (_scope.next() == false) break;\n";
+		res += "\t\t}\n_scope.range = true;\n";
 
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-			res += "if (cache) cache.scopes = scoperesults;\n return new BoundValue(results,"+scopename+");})()";
+			res += "\t\tif (cache) cache.scopes = scoperesults;\n return new BoundValue(results,_scope);})("+scope+")";
 			//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
 		} else {
-			res += "return results;})()";
+			res += "\t\treturn results;})("+scope+")";
 		}
 		return res;
 	} else {
 		// Return the expression using the newly generated scope.
-		return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]");
+		// Add the scope generation string the the array of scopes in this context
+		ctx.scopes.push(this.generateConstructor(ctx,scope));
+		return this.expression.generate(ctx,"scope"+(ctx.scopes.length));
 	}
 }
 
@@ -1226,10 +1226,10 @@ Eden.AST.Definition.prototype.generateDef = function(ctx) {
 
 	// Generate array of all scopes used in this definition (if any).
 	if (this.scopes.length > 0) {
-		result += "\tvar _scopes = [];\n";
+		//result += "\tvar _scopes = [];\n";
 		for (var i=0; i<this.scopes.length; i++) {
-			result += "\t_scopes.push(" + this.scopes[i];
-			result += ");\n";
+			result += "\tvar scope" + (i+1) + " = " + this.scopes[i];
+			result += ";\n";
 		}
 	}
 
@@ -1419,10 +1419,10 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 
 	// Generate array of all scopes used in this definition (if any).
 	if (this.scopes.length > 0) {
-		rhs += "\tvar _scopes = [];\n";
+		//rhs += "\tvar _scopes = [];\n";
 		for (var i=0; i<this.scopes.length; i++) {
-			rhs += "\t_scopes.push(" + this.scopes[i];
-			rhs += ");\n";
+			rhs += "\tvar scope" + (i+1) + " = " + this.scopes[i];
+			rhs += ";\n";
 		}
 	}
 

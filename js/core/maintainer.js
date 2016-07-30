@@ -781,6 +781,8 @@
 	 */
 	Symbol.prototype.value = function (pscope) {
 		if (pscope && pscope.isRange()) {
+			var cache = (this.context === undefined || pscope === this.context.scope) ? this.cache : pscope.lookup(this.name);
+			if (cache.scope === pscope && cache.up_to_date) return cache.value;
 			return this.multiValue(pscope);
 		} else {
 			var scope = pscope;
@@ -801,13 +803,14 @@
 
 	Symbol.prototype.multiValue = function (newscope) {
 		var results = [];
-
+		var scoperesults = [];
 		newscope.range = false;
 
 		while (true) {
-			var val = this.value(newscope);
-			if (val !== undefined) {
-				results.push(val);
+			var val = this.boundValue(newscope.clone());
+			if (val.value !== undefined) {
+				results.push(val.value);
+				scoperesults.push(val.scope);
 			}
 			if (newscope.next() == false) break;
 		}
@@ -817,6 +820,7 @@
 		// Must log scope in cache for ranges as well
 		var cache = (this.context === undefined || newscope === this.context.scope) ? this.cache : newscope.lookup(this.name);
 		cache.scope = newscope;
+		cache.scopes = scoperesults;
 
 		return results;
 	};
