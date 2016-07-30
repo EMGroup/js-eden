@@ -45,9 +45,10 @@
 		this.scopes = undefined;
 	}
 
-	function BoundValue(value,scope) {
+	function BoundValue(value,scope,scopes) {
 		this.value = value;
 		this.scope = scope;
+		this.scopes = scopes;
 	}
 
 
@@ -768,7 +769,13 @@
 
 		if (indices) {
 			// Generate a non range scope equivalent to a specific index.
-			return new BoundValue(value[indices[0]], cache.scopes[indices[0]]);
+			var tscope = cache.scopes[indices[0]];
+			var tvalue = value[indices[0]];
+			for (var i=1; i<indices.length; i++) {
+				tscope = tscope[indices[i]];
+				tvalue = tvalue[indices[i]];
+			}
+			return new BoundValue(tvalue, tscope);
 		} else {
 			return new BoundValue(value, cache.scope);
 		}

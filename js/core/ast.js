@@ -276,19 +276,20 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 
 Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 	if (this.range) {
-		var express = this.expression.generate(ctx,"_scope.clone()", true);
+		var express = this.expression.generate(ctx,"scope", true);
 		var res = "(function(scope) {\n";
 		res += "\t\tvar _scope = " + this.generateConstructor(ctx, "scope") + ";\n";
 		res += "\t\t_scope.range = false;\n";
 		res += "\t\tvar results = [];\n";
 		res += "\t\tvar scoperesults = [];\n";
 		res += "\t\twhile(true) {\n";
+		res += "\t\t\tscope = _scope.clone();\n";
 		res += "\t\t\tvar val = "+express;
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			//res += ".value";
-			res += ";\n\t\t\tif (val.value !== undefined) scoperesults.push(val.scope);\n\tval = val.value";
+			res += ";\n\t\t\tif (val.value !== undefined) { if (val.scopes) scoperesults.push(val.scopes); else scoperesults.push(val.scope); }\n\tval = val.value";
 		} else {
-			res += ";\n\t\t\tif (val.value !== undefined) scoperesults.push("+scope+")";
+			res += ";\n\t\t\tif (val !== undefined) scoperesults.push("+scope+")";
 		}
 		res += ";\n";
 		res += "\t\t\tif (val !== undefined) results.push(val);\n";
@@ -296,7 +297,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 		res += "\t\t}\n_scope.range = true;\n";
 
 		//if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-			res += "\t\tif (cache) cache.scopes = scoperesults;\n return new BoundValue(results,_scope);}).call(this,"+scope+")";
+			res += "\t\treturn new BoundValue(results,_scope,scoperesults);}).call(this,"+scope+")";
 			//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
 		//} else {
 		//	res += "\t\treturn results;}).call(this,"+scope+")";

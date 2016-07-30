@@ -64,6 +64,7 @@ Symbol.Definition.prototype.compile = function() {
 		result += "\t var result = "+express+";\n";
 
 		// Save the resulting values scope binding into the cache entry.
+		result += "\tif (cache) cache.scopes = result.scopes;\n ";
 		result += "\tif (cache) cache.scope = result.scope;\n";
 
 		// Make sure to copy a value if its an ungenerated one.
