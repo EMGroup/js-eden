@@ -49,7 +49,7 @@ Symbol.Definition.prototype.getFullSource = function() {
 Symbol.Definition.prototype.compile = function() {
 	var result = "(function(context, scope, cache) {\n";
 	this.scopes = [];
-	var express = this.baseAST.expression.generate(this, "scope");
+	var express = this.baseAST.expression.generate(this, "scope", true);
 
 	// Generate array of all scopes used in this definition (if any).
 	if (this.scopes.length > 0) {

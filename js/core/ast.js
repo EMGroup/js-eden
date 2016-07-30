@@ -275,7 +275,7 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 
 Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 	if (this.range) {
-		var express = this.expression.generate(ctx,"_scope.clone()");
+		var express = this.expression.generate(ctx,"_scope.clone()", true);
 		var res = "(function(scope) {\n";
 		res += "\t\tvar _scope = " + this.generateConstructor(ctx, "scope") + ";\n";
 		res += "\t\t_scope.range = false;\n";
@@ -303,7 +303,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 		// Return the expression using the newly generated scope.
 		// Add the scope generation string the the array of scopes in this context
 		ctx.scopes.push(this.generateConstructor(ctx,scope));
-		return this.expression.generate(ctx,"scope"+(ctx.scopes.length));
+		return this.expression.generate(ctx,"scope"+(ctx.scopes.length), true);
 	}
 }
 
@@ -395,7 +395,7 @@ Eden.AST.ScopePath.prototype.generate = function(ctx, scope) {
 	//this.scopestr = "_scopes[" + (ctx.scopes.length-1) + "]";
 	// And then use that scope to access the primary.
 	//return this.primary.generate(ctx, "_scopes["+(ctx.scopes.length-1)+"]");
-	return this.primary.generate(ctx, path);
+	return this.primary.generate(ctx, path, true);
 }
 
 Eden.AST.ScopePath.prototype.error = fnEdenASTerror;
@@ -1222,7 +1222,7 @@ Eden.AST.Definition.prototype.setSource = function(start, end) {
 
 Eden.AST.Definition.prototype.generateDef = function(ctx) {
 	var result = "function(context, scope, cache) {\n";
-	var express = this.expression.generate(this, "scope");
+	var express = this.expression.generate(this, "scope", true);
 
 	// Generate array of all scopes used in this definition (if any).
 	if (this.scopes.length > 0) {
@@ -1704,8 +1704,13 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, bound) {
 	}
 
 	if (this.extras.length == 0) {
+		this.returnsbound = (bound) ? true : false;
 		//if (ctx.scopes.length > 0) {
+		if (!bound) {
+			res += ".value("+scope+")";
+		} else  {
 			res += ".boundValue("+scope+")";
+		}
 		//} else {
 		//	res += ".boundValue(scope)";
 		//}
@@ -1714,14 +1719,30 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, bound) {
 		if (!bound) {
 			res += ".value("+scope+")";
 		} else {
-			res += ".boundValue("+scope+",";
+			res += ".boundValue("+scope;
 		}
 
-		for (var i=0; i<this.extras.length; i++) {
+		var i=0;
+
+		if (bound) {
+			for (; i<this.extras.length; i++) {
+				if (this.extras[i].type != "index") break;
+				if (i == 0) res += ",[";
+				else res += ",";
+				//res += this.extras[i].generate(ctx, scope);
+				res += "rt.index("+this.extras[i].expression.generate(ctx, scope)+")";
+			}
+			if (i > 0) res += "]";
+			res += ")";
+			if (i < this.extras.length) {
+				this.returnsbound = false;
+				res += ".value";
+			}
+		}
+
+		for (; i<this.extras.length; i++) {
 			res += this.extras[i].generate(ctx, scope);
 		}
-
-		if (bound) res += ")";
 	}
 
 	return res;
