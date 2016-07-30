@@ -197,7 +197,8 @@ Eden.AST.Scope.prototype.setExpression = function(express) {
  * Check if the expression returns a bound value or plain value.
  */
 Eden.AST.Scope.prototype.doesReturnBound = function() {
-	return (this.expression && this.expression.doesReturnBound) ? this.expression.doesReturnBound() : false;
+	//return (this.expression && this.expression.doesReturnBound) ? this.expression.doesReturnBound() : false;
+	return true;
 }
 
 /**
@@ -286,24 +287,32 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			//res += ".value";
 			res += ";\n\t\t\tif (val.value !== undefined) scoperesults.push(val.scope);\n\tval = val.value";
+		} else {
+			res += ";\n\t\t\tif (val.value !== undefined) scoperesults.push("+scope+")";
 		}
 		res += ";\n";
 		res += "\t\t\tif (val !== undefined) results.push(val);\n";
 		res += "\t\t\tif (_scope.next() == false) break;\n";
 		res += "\t\t}\n_scope.range = true;\n";
 
-		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+		//if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			res += "\t\tif (cache) cache.scopes = scoperesults;\n return new BoundValue(results,_scope);}).call(this,"+scope+")";
 			//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
-		} else {
-			res += "\t\treturn results;}).call(this,"+scope+")";
-		}
+		//} else {
+		//	res += "\t\treturn results;}).call(this,"+scope+")";
+		//}
 		return res;
 	} else {
 		// Return the expression using the newly generated scope.
 		// Add the scope generation string the the array of scopes in this context
 		ctx.scopes.push(this.generateConstructor(ctx,scope));
-		return this.expression.generate(ctx,"scope"+(ctx.scopes.length), true);
+		
+		var res = this.expression.generate(ctx,"scope"+(ctx.scopes.length), true);
+		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+			return res;
+		} else {
+			return "new BoundValue("+res+", scope"+(ctx.scopes.length)+")";
+		}
 	}
 }
 
