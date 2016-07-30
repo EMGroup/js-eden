@@ -293,10 +293,10 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 		res += "\t\t}\n_scope.range = true;\n";
 
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-			res += "\t\tif (cache) cache.scopes = scoperesults;\n return new BoundValue(results,_scope);})("+scope+")";
+			res += "\t\tif (cache) cache.scopes = scoperesults;\n return new BoundValue(results,_scope);}).call(this,"+scope+")";
 			//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
 		} else {
-			res += "\t\treturn results;})("+scope+")";
+			res += "\t\treturn results;}).call(this,"+scope+")";
 		}
 		return res;
 	} else {
