@@ -69,12 +69,15 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		var dataType = typeof(initialValue);
 		var longValue = dataType == "string";
 		var needsPanel = !readOnly || longValue;
-		var edenDefinition = symbol.eden_definition;
+		var edenDefinition = symbol.definition;
 		var jsObserver;
 
-		if (!readOnly && symbol.eden_definition !== undefined) {
-			var match = edenDefinition.match(/^\S+\s+is\s+(.*?);?$/)
-			rhs = match[1];
+		if (!readOnly && edenDefinition !== undefined) {
+			var defsource = edenDefinition.getFullSource();
+			console.log(defsource);
+			//var match = defsource.match(/^\S+\s+is\s+(.*?);?$/)
+			//rhs = match[1];
+			rhs = defsource;
 			dataType = "definition";
 		}
 
@@ -145,11 +148,11 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		if (dataType == "definition") {
 
 			var definitionDiv = $('<div class="observable-palette-definition"></div>');
-			definitionDiv.append(obsName + ' is ');
+			//definitionDiv.append(obsName + ' is ');
 			rhsSpan = $('<span class="observable-palette-definition-rhs" contenteditable="true"></span>');
 			rhsSpan.append(Eden.htmlEscape(rhs));
 			definitionDiv.append(rhsSpan);
-			definitionDiv.append(';');
+			//definitionDiv.append(';');
 			definitionDiv.on("click", function (event) {
 				rhsSpan.focus();
 				definitionDiv.addClass("focussed");
@@ -218,7 +221,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			for (var dependencyName in symbol.dependencies) {
 				var dependency = symbol.dependencies[dependencyName];
 				dependencyName = dependencyName.slice(1);
-				if (dependency.eden_definition === undefined) {
+				if (dependency.definition === undefined) {
 					dependencyPanel = makeUIForObservable(
 						dialogName,
 						dependencyName,
@@ -240,7 +243,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			}
 
 			jsObserver = function (symbol, value) {
-				var newDefinition = symbol.eden_definition;
+				var newDefinition = symbol.definition;
 				if (newDefinition === undefined) {
 					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, false);
 				} else {
@@ -450,7 +453,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			});
 
 			jsObserver = function (symbol, value) {
-				if (typeof(value) != "number" || symbol.eden_definition !== undefined) {
+				if (typeof(value) != "number" || symbol.definition !== undefined) {
 					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, readOnly);
 				} else {
 					headingHyperlink.html(Eden.prettyPrintValue("", value, maxHeadingLength, false, false));
@@ -519,7 +522,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 				symbol.assign(value, symbol.hciAgent, true);
 			});
 			jsObserver = function (symbol, value) {
-				if ((value !== true && value !== false) || symbol.eden_definition !== undefined) {
+				if ((value !== true && value !== false) || symbol.definition !== undefined) {
 					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, readOnly);					
 				} else {
 					checkbox.checked = value;
@@ -546,7 +549,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			});
 
 			jsObserver = function (symbol, value) {
-				if (typeof(value) != "string" || symbol.eden_definition !== undefined) {
+				if (typeof(value) != "string" || symbol.definition !== undefined) {
 					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, readOnly);
 				} else {
 					textbox.value = value;
@@ -575,7 +578,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			}
 
 			jsObserver = function (symbol, value) {
-				if (value !== undefined || symbol.eden_definition !== undefined) {
+				if (value !== undefined || symbol.definition !== undefined) {
 					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, readOnly);
 				}
 			};
@@ -583,7 +586,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		} else {
 
 			jsObserver = function (symbol, value) {
-				if (value !== undefined || symbol.eden_definition !== undefined) {
+				if (value !== undefined || symbol.definition !== undefined) {
 					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, readOnly);
 				}
 			};
