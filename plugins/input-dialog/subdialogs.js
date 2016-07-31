@@ -171,6 +171,9 @@ function get_time_diff( timestamp )
 {
 	var datetime = timestamp * 1000;
     var now = Date.now();
+	var _date = new Date();
+	var _userOffset = _date.getTimezoneOffset()*60000;
+	datetime -= _userOffset;
 
     if( isNaN(datetime) )
     {
@@ -199,8 +202,8 @@ function get_time_diff( timestamp )
 				result += " day ago";
 			}
 		} else {
-			if (date_diff.getHours() > 0) {
-				var hours = date_diff.getHours();
+			if (date_diff.getUTCHours() > 0) {
+				var hours = date_diff.getUTCHours();
 				result += hours;
 				if (hours > 1) {
 					result += " hours ago";
@@ -208,7 +211,7 @@ function get_time_diff( timestamp )
 					result += " hour ago";
 				}
 			} else {
-				var mins = date_diff.getMinutes();
+				var mins = date_diff.getUTCMinutes();
 				if (mins > 0) {
 					result += mins;
 					if (mins > 1) {
@@ -217,7 +220,7 @@ function get_time_diff( timestamp )
 						result += " minute ago";
 					}
 				} else {
-					var secs = date_diff.getSeconds();
+					var secs = date_diff.getUTCSeconds();
 					result += secs;
 					if (secs > 1) {
 						result += " seconds ago";

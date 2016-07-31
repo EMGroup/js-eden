@@ -153,11 +153,6 @@
 		if (this.cache !== undefined) return;
 		this.cache = {};
 
-		if (this.cause) {
-			this.add(this.cause.name);
-		}
-
-		//this.add("/cause");
 		this.add("/this");
 		this.add("/has");
 		this.add("/from");
@@ -322,6 +317,11 @@
 						over.current++;
 					}
 					this.updateOverride(over);
+
+					// Make sure all other overrides are also up-to-date
+					for (var j=i-1; j >= 0; j--) {
+						this.updateOverride(this.overrides[j]);
+					}
 					return true;
 				} else {
 					over.current = over.start;
