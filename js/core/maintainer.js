@@ -142,10 +142,6 @@
 		if (this.cache !== undefined) return;
 		this.cache = {};
 
-		if (this.cause) {
-			this.add(this.cause.name);
-		}
-
 		this.add("/cause");
 		this.add("/has");
 		this.add("/from");
