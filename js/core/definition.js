@@ -61,31 +61,40 @@ Symbol.Definition.prototype.compile = function() {
 	}
 
 	if (this.baseAST.expression.doesReturnBound && this.baseAST.expression.doesReturnBound()) {
-		result += "\t var result = "+express+";\n";
+		result += "\t var bresult = "+express+";\n";
 
 		// Save the resulting values scope binding into the cache entry.
-		result += "\tif (cache) cache.scopes = result.scopes;\n ";
-		result += "\tif (cache) cache.scope = result.scope;\n";
+		result += "\tif (cache) cache.scopes = bresult.scopes;\n ";
+		result += "\tif (cache) cache.scope = bresult.scope;\n";
 
 		// Make sure to copy a value if its an ungenerated one.
-		if (this.scopes.length == 0) {
-			result += "\treturn edenCopy(result.value);\n})";
+		if (this.baseAST.expression.type != "scope") {
+			result += "\tvar result = edenCopy(bresult.value);\n";
 		} else {
-			result += "\treturn result.value;\n})";
+			result += "\tvar result = bresult.value;\n";
 		}
 	} else {
 		result += "\tif (cache) cache.scope = scope;\n";
 		result += "\tvar result = " + express + ";\n";
-		for (var e in this.extensions) {
-			result += "\tresult" + this.extensions[e].ast.lvalue.generateIndexList(this, "scope") + " = ";
-			result += this.extensions[e].ast.expression.generate(this, "scope");
-			if (this.extensions[e].ast.expression.doesReturnBound && this.extensions[e].ast.expression.doesReturnBound()) {
-				result += ".value";
-			}
-			result += ";\n";
-		}
-		result += "\treturn result;\n})";
 	}
+
+	for (var e in this.extensions) {
+		result += "\tresult" + this.extensions[e].ast.lvalue.generateIndexList(this, "scope") + " = ";
+		result += this.extensions[e].ast.expression.generate(this, "scope");
+		if (this.extensions[e].ast.expression.doesReturnBound && this.extensions[e].ast.expression.doesReturnBound()) {
+			result += ".value";
+		}
+		result += ";\n";
+	}
+
+	result += "\treturn result;\n})";
+
+	/*
+		For scope overrides: Get the raw expression with scopes removed (use a loop to undo scope chain to get expression).
+			Then get the scope for the specified index.
+			Then add all the new overrides to that scope.
+			Finally, using the raw expression, regenerate the value for that index in the new scope.
+	*/
 
 	console.log(result);
 	this.compiled = eval(result);
