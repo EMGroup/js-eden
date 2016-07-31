@@ -292,6 +292,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_IMPORTTAG */ [
 	"Import version tag invalid"
+],
+/* EDEN_ERROR_OVERRIDEASSIGN */ [
+	"Cannot assign to a scope override"
 ]
 ];
 

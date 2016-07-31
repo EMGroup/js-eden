@@ -1967,6 +1967,12 @@ Eden.AST.prototype.pSTATEMENT_PP = function() {
 Eden.AST.prototype.pSTATEMENT_P = function() {
 	var lvalue = this.pLVALUE();
 	if (lvalue.errors.length > 0) return lvalue;
+
+	if (this.token != "is" && lvalue.lvaluep.length > 0 && lvalue.lvaluep[0].kind == "scope") {
+		lvalue.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.OVERRIDEASSIGN));
+		return lvalue;
+	}
+
 	var formula = this.pSTATEMENT_PP();
 	formula.left(lvalue);
 	if (formula.errors.length > 0) return formula;
@@ -2428,6 +2434,15 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							stat.errors = lvalue.errors;
 							break;
 						}
+
+						if (this.token != "is" && lvalue.lvaluep.length > 0 && lvalue.lvaluep[0].kind == "scope") {
+							lvalue.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.OVERRIDEASSIGN));
+							stat = new Eden.AST.DummyStatement;
+							stat.lvalue = lvalue;
+							stat.errors = lvalue.errors;
+							break;
+						}
+
 						var formula = this.pSTATEMENT_PP();
 						formula.left(lvalue);
 
