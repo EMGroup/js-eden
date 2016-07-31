@@ -15,6 +15,7 @@ Symbol.Definition.prototype.setBase = function(ast, base) {
 		this.compiled = ast;
 	} else {
 		this.baseAST = ast;
+		this.extensions = {};
 		this.compile();
 		if (base) {
 			this.baseSource = base.getSource(ast);
@@ -23,6 +24,7 @@ Symbol.Definition.prototype.setBase = function(ast, base) {
 }
 
 Symbol.Definition.prototype.setExtension = function(name, ast, base) {
+	console.log("Add extension: " + name);
 	this.extensions[name] = { ast: ast, source: base.getSource(ast) };
 	this.compile();
 }
@@ -79,12 +81,36 @@ Symbol.Definition.prototype.compile = function() {
 	}
 
 	for (var e in this.extensions) {
-		result += "\tresult" + this.extensions[e].ast.lvalue.generateIndexList(this, "scope") + " = ";
-		result += this.extensions[e].ast.expression.generate(this, "scope");
-		if (this.extensions[e].ast.expression.doesReturnBound && this.extensions[e].ast.expression.doesReturnBound()) {
-			result += ".value";
+		var ext = this.extensions[e];
+		console.log(ext);
+
+		if (ext.ast.lvalue.lvaluep[0].kind == "scope") {
+			var scopeindex = ext.ast.lvalue.lvaluep[0].generateIndices(this, "scope");
+			var over = ext.ast.expression.generate(this,"scope");
+			if (ext.ast.expression.doesReturnBound && ext.ast.expression.doesReturnBound()) {
+				over += ".value";
+			}
+
+			var baseexp = this.baseAST.expression;
+			while (baseexp.type == "scope") baseexp = baseexp.expression;
+
+			if (scopeindex == "") {
+				result += "cache.scope.baseScope().addOverride(new ScopeOverride(\""+ext.ast.lvalue.lvaluep[0].observable+"\","+over+"));\n";
+				var express2 = baseexp.generate(this, "cache.scope", false);
+				result += "result = "+express2+";\n";
+			} else {
+				result += "cache.scopes"+scopeindex+".baseScope().addOverride(new ScopeOverride(\""+ext.ast.lvalue.lvaluep[0].observable+"\","+over+"));\n";
+				var express = baseexp.generate(this, "cache.scopes"+scopeindex, false);
+				result += "result"+scopeindex+" = "+express+";\n";
+			}
+		} else {
+			result += "\tresult" + this.extensions[e].ast.lvalue.generateIndexList(this, "scope") + " = ";
+			result += this.extensions[e].ast.expression.generate(this, "scope");
+			if (this.extensions[e].ast.expression.doesReturnBound && this.extensions[e].ast.expression.doesReturnBound()) {
+				result += ".value";
+			}
+			result += ";\n";
 		}
-		result += ";\n";
 	}
 
 	result += "\treturn result;\n})";

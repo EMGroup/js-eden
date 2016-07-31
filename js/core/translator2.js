@@ -1815,6 +1815,19 @@ Eden.AST.prototype.pLVALUE_P = function() {
 				return components;
 			}
 			this.next();
+		} else if (this.token == ".") {
+			var comp = new Eden.AST.LValueComponent("scope");
+			this.next();
+
+			if (this.token != "OBSERVABLE") {
+				comp.errors.unshift(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPENAME));
+				return [comp];
+			}
+
+			comp.setObservable(this.data.value);
+			comp.setComponents(components);
+			components = [comp];
+			this.next();
 		} else {
 			break;
 		}

@@ -716,7 +716,11 @@ Eden.AST.LValue.prototype.hasListIndices = function() {
 Eden.AST.LValue.prototype.generateCompList = function(ctx, scope) {
 	var res = "[";
 	for (var i=0; i<this.lvaluep.length; i++) {
-		res += "rt.index("+this.lvaluep[i].indexexp.generate(ctx,scope)+")";
+		if (this.lvaluep[i].kind == "scope") {
+			res += this.lvaluep[i].generateIndices(ctx, scope) + "." + this.lvaluep[i].observable;
+		} else {
+			res += "rt.index("+this.lvaluep[i].indexexp.generate(ctx,scope)+")";
+		}
 		if (i < this.lvaluep.length-1) res += ",";
 	}
 	res += "]";
@@ -792,7 +796,30 @@ Eden.AST.LValueComponent = function(kind) {
 	this.kind = kind;
 	this.indexexp = undefined;
 	this.observable = undefined;
+	this.components = undefined;
 };
+
+Eden.AST.LValueComponent.prototype.setObservable = function(obs) {
+	this.observable = obs;
+}
+
+Eden.AST.LValueComponent.prototype.generateIndices = function(ctx, scope) {
+	if (this.components === undefined || this.components.length == 0) return "";
+	var res = "[";
+	for (var i=0; i<this.components.length; i++) {
+		res += "rt.index("+this.components[i].indexexp.generate(ctx,scope)+")";
+		if (i < this.components.length-1) res += "][";
+	}
+	res += "]";
+	return res;
+}
+
+Eden.AST.LValueComponent.prototype.setComponents = function(comps) {
+	this.components = comps;
+	for (var i=0; i<comps.length; i++) {
+		if (comps[i].errors.length > 0) this.errors.push.apply(this.errors, comps[i].errors);
+	}
+}
 
 Eden.AST.LValueComponent.prototype.index = function(pindex) {
 	this.indexexp = pindex;
@@ -1267,7 +1294,7 @@ Eden.AST.Definition.prototype.generateDef = function(ctx) {
 Eden.AST.Definition.prototype.generate = function(ctx) {
 	var result = this.lvalue.generate(ctx);
 	
-	if (this.lvalue.hasListIndices()) {
+	if (this.lvalue.lvaluep.length > 0) {
 		result += ".addExtension(this);";
 	} else {
 		result += ".define(this);";
@@ -1314,7 +1341,7 @@ Eden.AST.Definition.prototype.execute = function(root, ctx, base, scope, agent) 
 	var source = base.getSource(this);
 	var sym = this.lvalue.getSymbol(root,ctx,base,scope);
 
-	if (this.lvalue.hasListIndices()) {
+	if (this.lvalue.lvaluep.length > 0) {
 		/*var rhs = "(function(context,scope,value) { value";
 		rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
 		rhs += this.expression.generate(this, "scope");
