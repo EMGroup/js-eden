@@ -85,6 +85,7 @@ module.exports = function (grunt) {
 					'./js/core/runtime.js',
 					'./js/core/window-highlighter.js',
 					'./js/core/maintainer.js',
+					'./js/core/definition.js',
 					'./js/core/polyglot.js',
 					'./js/core/translator.js',
 					'./js/core/eden.js',

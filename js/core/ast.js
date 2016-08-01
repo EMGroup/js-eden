@@ -2804,14 +2804,14 @@ Eden.AST.Script.prototype.append = function (ast) {
 	}
 }
 
-Eden.AST.Script.prototype.executeReal = function(root, ctx, base, scope, parameters) {
+Eden.AST.Script.prototype.executeReal = function(root, ctx, base, scope, parameters, cb) {
 	if (this.active) return;
 	this.active = true;
-	var gen = this.executeGenerator(root,ctx,base, scope, parameters);
+	var gen = this.executeGenerator(root,ctx,base, scope, parameters, cb);
 	runEdenAction.call(base,this, gen);
 }
 
-Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, scope, parameters) {
+Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, scope, parameters, cb) {
 	this.executed = 1;
 	for (var i = 0; i < this.statements.length; i++) {
 		if (this.statements[i].type == "wait") {
@@ -2835,6 +2835,8 @@ Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, scope, p
 			this.errors.push.apply(this.errors, this.statements[i].errors);
 		}
 	}
+
+	if (cb) cb();
 }
 
 function runEdenAction(source, action) {
@@ -2877,10 +2879,10 @@ function runEdenAction(source, action) {
 	}
 }
 
-Eden.AST.Script.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Script.prototype.execute = function(root, ctx, base, scope, agent, cb) {
 	// Un named actions execute immediately.
 	//if (this.name === undefined) {
-		this.executeReal(root,ctx,base, scope);
+		this.executeReal(root,ctx,base, scope, undefined, cb);
 	//} else {
 		// Add this named script to a local symbol table.
 		//base.scripts[this.name] = this;

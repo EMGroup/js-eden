@@ -755,8 +755,8 @@ Eden.Agent.prototype.hasErrors = function() {
  * If the statement is part of a larger statement block then execute
  * that instead (eg. a proc).
  */
-Eden.Agent.prototype.executeLine = function (lineno, auto) {
-	this.ast.executeLine(lineno, this);
+Eden.Agent.prototype.executeLine = function (lineno, auto, cb) {
+	this.ast.executeLine(lineno, this, cb);
 
 	if (!auto) {
 		Eden.Agent.emit('executeline', [this, lineno]);
@@ -766,9 +766,14 @@ Eden.Agent.prototype.executeLine = function (lineno, auto) {
 
 
 Eden.Agent.prototype.execute = function(force, auto) {
+	var me = this;
+
 	if (this.executed == false || force) {
-		this.executeLine(-1, auto);
-		this.executed = true;
+		this.executeLine(-1, auto, function() {
+			me.executed = true;
+
+			//Execute all whens?
+		});
 
 		if (!auto) {
 			Eden.Agent.emit('execute', [this, force]);
