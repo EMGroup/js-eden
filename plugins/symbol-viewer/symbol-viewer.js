@@ -502,6 +502,9 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation,
 	this.details = undefined;
 	this.update = undefined;
 	this.scope = (scope) ? scope : eden.root.scope;
+	this.expanded = false;
+
+	this.isoverride = this.scope.hasOverride(this.name);
 
 	this.element = $('<div class="symbollist-result-element"></div>');
 	if (accentuation) {
@@ -523,7 +526,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation,
 		me.element.scrollLeft(0);
 	}
 
-	this.element.click(function () {
+	this.element.on('click','.result_name',function () {
 		if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol || singleClickPerformed) {
 			return;
 		}
@@ -721,15 +724,16 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 	var bval = this.symbol.boundValue(this.scope);
 	var val = bval.value;
 	var valhtml = _formatVal(val);
+	var isoverride = this.isoverride;
 
 	var namehtml;
-	if (this.symbol.definition !== undefined) {
+	if (!isoverride && this.symbol.definition !== undefined) {
 		namehtml = "<span class='hasdef_text'>" + this.name + "</span>";
 	} else {
 		namehtml = this.name;
 	}
 
-	var scopehtml = (this.symbol.cache.scope !== this.symbol.context.scope) ? "<span class='result_scope'>+</span>" : "";
+	var scopehtml = (this.symbol.cache.scope !== this.symbol.context.scope) ? "<span class='result_scope'>&#xf0da;</span>" : "";
 
 	var html = scopehtml+"<span class='result_name'>" + namehtml + "</span><span class='result_separator'> = </span> " +
 		"<span class='result_value'>" + valhtml + "</span>";
@@ -743,29 +747,41 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 	this.element.html(html);
 	var me = this;
 
+	if (isoverride) this.element.addClass("symbollist-override-result");
+
 	this.element.on("click", ".result_scope", function(e) {
 		console.log("Clicked on " + me.symbol.name);
+		e.stopPropagation();
 
-		var scopelist = $("<div class='scope_list'></div>");
-		for (var x in bval.scope.cache) {
-			if (x === me.symbol.name || x == "/this" || x == "/has" || x == "/from") continue;
-			var name = x.slice(1);
-			var symele = new EdenUI.plugins.SymbolViewer.Symbol(me.symbol.context.lookup(name), name, "obs", false, bval.scope);
-			symele.element.appendTo(scopelist);
-		}
 
-		me.element.append(scopelist);
-
-		/*var path = e.currentTarget.parentNode.getAttribute("data-path");
-		var depth = parseInt(e.currentTarget.parentNode.getAttribute("data-depth"));
-		if (e.currentTarget.className.indexOf("expanded") < 0) {
-			addAgents(e.currentTarget.parentNode, depth, path);
-			changeClass(e.currentTarget, "expanded", true);
+		if (me.expanded) {
+			me.expanded = false;
+			me.element.find(".scope_list").remove();
+			me.element.find(".result_scope").html("&#xf0da;");
 		} else {
-			//addAgents(e.currentTarget, depth, path);
-			removeAgents(e.currentTarget.parentNode);
-			changeClass(e.currentTarget, "expanded", false);
-		}*/
+			me.expanded = true;
+			me.element.find(".result_scope").html("&#xf0d7;");
+			var scopelist = $("<div class='scope_list'></div>");
+			var overrides = [];
+			var normals = [];
+
+			for (var x in bval.scope.cache) {
+				if (x === me.symbol.name || x == "/this" || x == "/has" || x == "/from") continue;
+				var name = x.slice(1);
+				var symele = new EdenUI.plugins.SymbolViewer.Symbol(me.symbol.context.lookup(name), name, "obs", false, bval.scope);
+				if (symele.isoverride) overrides.push(symele);
+				else normals.push(symele);
+			}
+
+			for (var i=0; i<overrides.length; i++) {
+				overrides[i].element.appendTo(scopelist);
+			}
+			for (var i=0; i<normals.length; i++) {
+				normals[i].element.appendTo(scopelist);
+			}
+
+			me.element.append(scopelist);
+		}
 	});
 };
 

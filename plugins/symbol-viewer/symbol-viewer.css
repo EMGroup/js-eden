@@ -22,11 +22,16 @@
 	padding-left: 10px;
 	padding-right: 10px;
 	font-weight: bold;
+	font-family: "FontAwesome";
+	font-size: 10pt;
 }
 
 .symbollist-results .scope_list {
-	margin-left: 30px;
-	background-color: white;
+	margin-left: 14px;
+	padding-left: 20px;
+	border-left-style: solid;
+	border-left-width: 2px;
+	border-left-color: silver;
 }
 
 .symbollist-result-element {
@@ -44,6 +49,12 @@
 }
 
 .symbollist-exact-match-result {
+	background: #eeffee;
+	color: #333333;
+	font-weight: bold;
+}
+
+.symbollist-override-result {
 	background: #eeffee;
 	color: #333333;
 	font-weight: bold;

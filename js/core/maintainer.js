@@ -121,7 +121,7 @@
 
 	Scope.prototype.hasOverride = function(override) {
 		var scope = this;
-		while (scope) {
+		while (scope && scope.parent) {
 			for (var i=0; i<scope.overrides.length; i++) {
 				if (scope.overrides[i].name == override) return true;
 			}
