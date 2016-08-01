@@ -495,12 +495,13 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.addSymbol = function (symbol, n
  * @param Already detected type of the symbol: procedure,function,observable.
  * @param accentuation undefined, "exact-match" or "dirty-match" (doesn't match drop-down list filters)
  */
-EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation) {
+EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation, scope) {
 	this.symbol = symbol;
 	this.name = name;
 	this.type = type;
 	this.details = undefined;
 	this.update = undefined;
+	this.scope = (scope) ? scope : eden.root.scope;
 
 	this.element = $('<div class="symbollist-result-element"></div>');
 	if (accentuation) {
@@ -717,7 +718,8 @@ function _formatVal(value) {
  * of the observable to display its current value correctly.
  */
 EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
-	var val = this.symbol.value();
+	var bval = this.symbol.boundValue(this.scope);
+	var val = bval.value;
 	var valhtml = _formatVal(val);
 
 	var namehtml;
@@ -727,7 +729,9 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 		namehtml = this.name;
 	}
 
-	var html = "<span class='result_name'>" + namehtml + "</span><span class='result_separator'> = </span> " +
+	var scopehtml = (this.symbol.cache.scope !== this.symbol.context.scope) ? "<span class='result_scope'>+</span>" : "";
+
+	var html = scopehtml+"<span class='result_name'>" + namehtml + "</span><span class='result_separator'> = </span> " +
 		"<span class='result_value'>" + valhtml + "</span>";
 
 	if (this.symbol.definition !== undefined) {
@@ -737,6 +741,32 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 	}
 
 	this.element.html(html);
+	var me = this;
+
+	this.element.on("click", ".result_scope", function(e) {
+		console.log("Clicked on " + me.symbol.name);
+
+		var scopelist = $("<div class='scope_list'></div>");
+		for (var x in bval.scope.cache) {
+			if (x === me.symbol.name || x == "/this" || x == "/has" || x == "/from") continue;
+			var name = x.slice(1);
+			var symele = new EdenUI.plugins.SymbolViewer.Symbol(me.symbol.context.lookup(name), name, "obs", false, bval.scope);
+			symele.element.appendTo(scopelist);
+		}
+
+		me.element.append(scopelist);
+
+		/*var path = e.currentTarget.parentNode.getAttribute("data-path");
+		var depth = parseInt(e.currentTarget.parentNode.getAttribute("data-depth"));
+		if (e.currentTarget.className.indexOf("expanded") < 0) {
+			addAgents(e.currentTarget.parentNode, depth, path);
+			changeClass(e.currentTarget, "expanded", true);
+		} else {
+			//addAgents(e.currentTarget, depth, path);
+			removeAgents(e.currentTarget.parentNode);
+			changeClass(e.currentTarget, "expanded", false);
+		}*/
+	});
 };
 
 /**

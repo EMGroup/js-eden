@@ -459,9 +459,9 @@
 			//Call clean-up handler.
 			this.viewInstances[name].destroy();
 		}
-		root.lookup("forgetAll").definition(root)("^_View_" + name + "_", true, false, true);
+		root.lookup("forgetAll").definition.compiled(root)("^_View_" + name + "_", true, false, true);
 		if (forgetObservables) {
-			root.lookup("forgetAll").definition(root)("^_view_" + name + "_", true, false, true);
+			root.lookup("forgetAll").definition.compiled(root)("^_view_" + name + "_", true, false, true);
 		}
 		var theDialog = dialog(name);
 		theDialog.dialog('destroy');

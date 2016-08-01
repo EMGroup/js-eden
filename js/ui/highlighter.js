@@ -200,18 +200,14 @@
 
 	var edenSpecials = {
 	"autocalc": true,
-	"mouseX": true,
-	"mouseY": true,
-	"mousePosition": true,
-	"screenHeight": true,
-	"screenWidth": true,
-	"PI": true
+	"this": true,
+	"from": true,
+	"has": true
 	};
 
 	var edenValues = {
 	"true": true,
-	"false": true,
-	"green": true
+	"false": true
 	};
 
 	var jskeywords = {

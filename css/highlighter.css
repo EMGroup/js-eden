@@ -9,7 +9,8 @@ span.eden-storage {
 }
 
 span.eden-special {
-	color: #c4a000;
+	color: #1962a6;
+	font-weight: bold;
 }
 
 span.eden-constant {

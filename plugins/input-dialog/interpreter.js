@@ -2418,7 +2418,7 @@ EdenUI.plugins.ScriptInput.buildScriptFromList = function(value) {
 				res += value[i] + "\n";
 			} else if (typeof value[i] == "object") {
 				if (value[i].definition !== undefined) {
-					res += value[i].eden_definition+"\n";
+					res += value[i].getSource()+"\n";
 				} else {
 					var name = value[i].name.slice(1);
 					res += name + " = " + Eden.edenCodeForValue(value[i].value()) + ";\n";

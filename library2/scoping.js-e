@@ -22,8 +22,10 @@ Colour is "rgba("//str(r)//","//str(g)//","//str(b)//","//str(a)//")" with
 	b is 0,
 	a is 1.0;
 
-black is Colour with r is 0,g is 0,b is 0;
-white is Colour with r is 255,g is 255,b is 255;
+Colours is this ::
+	white is Colour::(r=255,g=255,b=255),
+	red is Colour::(r=255,g=0,b=0),
+	green is Colour::(r=0,g=255,b=0);
 
 ##prototype_Point is [x,y];
 point is null with
