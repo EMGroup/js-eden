@@ -777,7 +777,7 @@
 			}
 			return new BoundValue(tvalue, tscope);
 		} else {
-			return new BoundValue(value, cache.scope);
+			return new BoundValue(value, cache.scope, cache.scopes);
 		}
 	}
 	

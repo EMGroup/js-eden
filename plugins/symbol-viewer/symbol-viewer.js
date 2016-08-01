@@ -765,10 +765,12 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 			var overrides = [];
 			var normals = [];
 
-			for (var x in bval.scope.cache) {
+			var thescope = (bval.scopes) ? bval.scopes[0] : bval.scope;
+
+			for (var x in thescope.cache) {
 				if (x === me.symbol.name || x == "/this" || x == "/has" || x == "/from") continue;
 				var name = x.slice(1);
-				var symele = new EdenUI.plugins.SymbolViewer.Symbol(me.symbol.context.lookup(name), name, "obs", false, bval.scope);
+				var symele = new EdenUI.plugins.SymbolViewer.Symbol(me.symbol.context.lookup(name), name, "obs", false, thescope);
 				if (symele.isoverride) overrides.push(symele);
 				else normals.push(symele);
 			}
