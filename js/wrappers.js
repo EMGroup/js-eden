@@ -185,7 +185,11 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			}
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
-				ag.execute((options && options.indexOf("force") >= 0), true);
+				ag.execute((options && options.indexOf("force") >= 0), true, function() {
+					doCallbacks(ag);
+				});
+			} else {
+				doCallbacks(ag);
 			}
 		// There is no existing agent but create it
 		} else if (options && options.indexOf("create") >= 0) {
@@ -194,13 +198,14 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			if (tag != "default") ag.meta.tag = tag;
 			//Add this to local meta store
 			Eden.DB.addLocalMeta(path, ag.meta);
+			doCallbacks(ag);
 		// There is no existing agent and we are not to create it.
 		} else if (!success) {
 			doCallbacks(undefined, msg);
 			return;
+		} else {
+			doCallbacks(ag);
 		}
-
-		doCallbacks(ag);
 	}
 
 	// Does it already exist
@@ -765,7 +770,7 @@ Eden.Agent.prototype.executeLine = function (lineno, auto, cb) {
 
 
 
-Eden.Agent.prototype.execute = function(force, auto) {
+Eden.Agent.prototype.execute = function(force, auto, cb) {
 	var me = this;
 
 	if (this.executed == false || force) {
@@ -773,6 +778,8 @@ Eden.Agent.prototype.execute = function(force, auto) {
 			me.executed = true;
 
 			//Execute all whens?
+
+			if (cb) cb();
 		});
 
 		if (!auto) {
