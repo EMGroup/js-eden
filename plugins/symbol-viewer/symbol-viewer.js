@@ -749,6 +749,45 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 
 	if (isoverride) this.element.addClass("symbollist-override-result");
 
+	function expand() {
+		me.expanded = true;
+		me.element.find(".result_scope").html("&#xf0d7;");
+		var scopelist = $("<div class='scope_list'></div>");
+		var overrides = {};
+		var normals = {};
+
+		var thescope = (bval.scopes) ? bval.scopes[0] : bval.scope;
+
+		while (thescope && thescope.parent) {
+			for (var x in thescope.cache) {
+				if (x === me.symbol.name || x == "/this" || x == "/has" || x == "/from") continue;
+				var name = x.slice(1);
+				var scache = thescope.lookup(x);
+				// Only add it if it has been used in generating the value
+				if (scache.up_to_date) {
+					var symele = new EdenUI.plugins.SymbolViewer.Symbol(me.symbol.context.lookup(name), name, "obs", false, thescope);
+					if (symele.isoverride) overrides[name] = symele;
+					else normals[name] = symele;
+				}
+			}
+			thescope = thescope.parent;
+		}
+
+		for (var o in overrides) {
+			overrides[o].element.appendTo(scopelist);
+		}
+		for (var o in normals) {
+			normals[o].element.appendTo(scopelist);
+		}
+
+		me.element.append(scopelist);
+	}
+
+	if (this.expanded) {
+		this.element.find(".scope_list").remove();
+		expand();
+	}
+
 	this.element.on("click", ".result_scope", function(e) {
 		console.log("Clicked on " + me.symbol.name);
 		e.stopPropagation();
@@ -759,37 +798,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 			me.element.find(".scope_list").remove();
 			me.element.find(".result_scope").html("&#xf0da;");
 		} else {
-			me.expanded = true;
-			me.element.find(".result_scope").html("&#xf0d7;");
-			var scopelist = $("<div class='scope_list'></div>");
-			var overrides = {};
-			var normals = {};
-
-			var thescope = (bval.scopes) ? bval.scopes[0] : bval.scope;
-
-			while (thescope && thescope.parent) {
-				for (var x in thescope.cache) {
-					if (x === me.symbol.name || x == "/this" || x == "/has" || x == "/from") continue;
-					var name = x.slice(1);
-					var scache = thescope.lookup(x);
-					// Only add it if it has been used in generating the value
-					if (scache.up_to_date) {
-						var symele = new EdenUI.plugins.SymbolViewer.Symbol(me.symbol.context.lookup(name), name, "obs", false, thescope);
-						if (symele.isoverride) overrides[name] = symele;
-						else normals[name] = symele;
-					}
-				}
-				thescope = thescope.parent;
-			}
-
-			for (var o in overrides) {
-				overrides[o].element.appendTo(scopelist);
-			}
-			for (var o in normals) {
-				normals[o].element.appendTo(scopelist);
-			}
-
-			me.element.append(scopelist);
+			expand();
 		}
 	});
 };
