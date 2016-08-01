@@ -762,24 +762,27 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 			me.expanded = true;
 			me.element.find(".result_scope").html("&#xf0d7;");
 			var scopelist = $("<div class='scope_list'></div>");
-			var overrides = [];
-			var normals = [];
+			var overrides = {};
+			var normals = {};
 
 			var thescope = (bval.scopes) ? bval.scopes[0] : bval.scope;
 
-			for (var x in thescope.cache) {
-				if (x === me.symbol.name || x == "/this" || x == "/has" || x == "/from") continue;
-				var name = x.slice(1);
-				var symele = new EdenUI.plugins.SymbolViewer.Symbol(me.symbol.context.lookup(name), name, "obs", false, thescope);
-				if (symele.isoverride) overrides.push(symele);
-				else normals.push(symele);
+			while (thescope && thescope.parent) {
+				for (var x in thescope.cache) {
+					if (x === me.symbol.name || x == "/this" || x == "/has" || x == "/from") continue;
+					var name = x.slice(1);
+					var symele = new EdenUI.plugins.SymbolViewer.Symbol(me.symbol.context.lookup(name), name, "obs", false, thescope);
+					if (symele.isoverride) overrides[name] = symele;
+					else normals[name] = symele;
+				}
+				thescope = thescope.parent;
 			}
 
-			for (var i=0; i<overrides.length; i++) {
-				overrides[i].element.appendTo(scopelist);
+			for (var o in overrides) {
+				overrides[o].element.appendTo(scopelist);
 			}
-			for (var i=0; i<normals.length; i++) {
-				normals[i].element.appendTo(scopelist);
+			for (var o in normals) {
+				normals[o].element.appendTo(scopelist);
 			}
 
 			me.element.append(scopelist);
