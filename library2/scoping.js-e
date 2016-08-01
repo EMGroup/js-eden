@@ -3,10 +3,10 @@
  * @author Nicolas Pope
  */
 
-typeof is ${{ scope.primaryCause() }}$;
+##typeof is ${{ scope.primaryCause() }}$;
 from is ${{ scope.hasCause(context.lookup("name").value(scope)) }}$;
 has is ${{ scope.hasOverride(context.lookup("name").value(scope)) }}$;
-cause is ${{ scope.baseCause() }}$;
+this is ${{ scope.baseCause() }}$;
 
 ##_override_item is value if i == index else list[i];
 ##override is _override_item with i = 1 .. list#;
@@ -16,14 +16,11 @@ cause is ${{ scope.baseCause() }}$;
 
 ##round is ${{ Math.round(context.lookup("number").value(scope)) }}$;
 
-null is true;
-
-##prototype_Colour is ["colour",r,g,b,a];
-Colour is null with
-	r is r if r else 0,
-	g is g if g else 0,
-	b is b if b else 0,
-	a is a if a else 1.0;
+Colour is "rgba("//str(r)//","//str(g)//","//str(b)//","//str(a)//")" with
+	r is 0,
+	g is 0,
+	b is 0,
+	a is 1.0;
 
 black is Colour with r is 0,g is 0,b is 0;
 white is Colour with r is 255,g is 255,b is 255;

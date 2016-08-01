@@ -50,6 +50,7 @@ Symbol.Definition.prototype.getFullSource = function() {
 
 Symbol.Definition.prototype.compile = function() {
 	var result = "(function(context, scope, cache) {\n";
+	this.dependencies = {};
 	this.scopes = [];
 	var express = this.baseAST.expression.generate(this, "scope", true);
 
