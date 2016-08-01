@@ -771,9 +771,13 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 				for (var x in thescope.cache) {
 					if (x === me.symbol.name || x == "/this" || x == "/has" || x == "/from") continue;
 					var name = x.slice(1);
-					var symele = new EdenUI.plugins.SymbolViewer.Symbol(me.symbol.context.lookup(name), name, "obs", false, thescope);
-					if (symele.isoverride) overrides[name] = symele;
-					else normals[name] = symele;
+					var scache = thescope.lookup(x);
+					// Only add it if it has been used in generating the value
+					if (scache.up_to_date) {
+						var symele = new EdenUI.plugins.SymbolViewer.Symbol(me.symbol.context.lookup(name), name, "obs", false, thescope);
+						if (symele.isoverride) overrides[name] = symele;
+						else normals[name] = symele;
+					}
 				}
 				thescope = thescope.parent;
 			}
