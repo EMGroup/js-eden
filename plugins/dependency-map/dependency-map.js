@@ -113,6 +113,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 				var subArray = nodeSym.subscribers;
 				for (var ii in subArray) {
 					var subscriber = subArray[ii];
+					if (subscriber === undefined) continue;
 					var nodename2 = subscriber.name.slice(1);
 					
 					if((graph.newNodes).indexOf(nodename2)==-1){
