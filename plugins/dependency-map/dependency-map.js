@@ -79,6 +79,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 				//Inward nodes
 				var depArray = nodeSym.dependencies;
 				for (var ii in depArray) {
+					if (depArray[ii] === undefined) continue;
 					var nodename2 = depArray[ii].name.slice(1);
 
 					if((graph.newNodes).indexOf(nodename2)==-1){

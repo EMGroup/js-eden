@@ -319,10 +319,11 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 
 		// Remove unwanted dependencies.
 		for (var o in this.overrides) {
+			//delete ctx.dependencies[o];
 			ctx.dependencies[o] = false;
-		} 
+		}
 
-		//console.log(ctx);
+		console.log(ctx);
 		
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			return res;

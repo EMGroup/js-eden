@@ -921,14 +921,15 @@
 		this.observees = {};
 	};
 
-	Symbol.prototype.subscribe = function () {
-		var dependencies = Utils.flatten(arguments);
-		for (var i = 0; i < dependencies.length; ++i) {
-			var dependency = dependencies[i];
-			var symbol = this.context.lookup(dependency);
+	Symbol.prototype.subscribe = function (dependencies) {
+		//var dependencies = Utils.flatten(arguments);
+		for (var o in dependencies) {
+			var dependency = dependencies[o];
+
+			var symbol = this.context.lookup(o);
 
 			if (symbol.name != this.name) {
-				symbol.addSubscriber(this.name, this);
+				symbol.addSubscriber(this.name, (dependency) ? this : undefined);
 				var name = symbol.name;
 				this.dependencies[name] = symbol;
 				delete this.dynamicDependencies[name];
@@ -1029,7 +1030,7 @@
 			}
 		}*/
 
-		this.subscribe(this.definition.deps);
+		this.subscribe(this.definition.dependencies);
 
 		if (this.context) {
 			this.context.expireSymbol(this);
@@ -1481,7 +1482,7 @@
 		if (this.definition) {
 			this.definition.setExtension(idstr, ext, base);
 
-			this.subscribe(this.definition.deps);
+			this.subscribe(this.definition.dependencies);
 
 			if (this.context) {
 				this.context.expireSymbol(this);
