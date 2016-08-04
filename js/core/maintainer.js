@@ -859,11 +859,11 @@
 			cache.value = this.definition.evaluate(this,this.context, scope, cache);
 
 			// Post process with all extensions
-			if (this.extend) {
+			/*if (this.extend) {
 				for (var e in this.extend) {
 					this.extend[e].code(this.context, scope, cache.value);
 				}
-			}
+			}*/
 
 			if (!this.evalResolved) {
 				/*var replacedDef = this.eden_definition;
@@ -897,7 +897,8 @@
 		} catch (e) {
 			this.logError(e);
 			cache.value = undefined;
-			cache.up_to_date = false;
+			cache.up_to_date = true;
+			throw e;
 		}
 		if (this.context) {
 			this.context.endEvaluation(this);

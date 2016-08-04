@@ -1393,6 +1393,7 @@ Eden.AST.Assignment = function(expression) {
 	this.compiled = undefined;
 	this.dirty = false;
 	this.value = undefined;
+	this.dependencies = {};
 };
 
 Eden.AST.Assignment.prototype.getParameterByNumber = function(index) {
@@ -2778,6 +2779,7 @@ Eden.AST.Script = function() {
 	this.active = false;
 	this.parameters = undefined;
 	this.locals = undefined;
+	this.dependencies = {};
 };
 
 Eden.AST.Script.prototype.setLocals = function(locals) {

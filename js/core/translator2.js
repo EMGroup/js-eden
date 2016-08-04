@@ -25,6 +25,7 @@ Eden.AST = function(code, imports) {
 	this.triggers = {};			// Guarded actions
 	this.definitions = {};		// Definitions mapping
 	this.imports = (imports) ? imports : [];
+	this.dependencies = {};		// Dummy dependency record
 
 	this.lastDoxyComment = undefined;
 	this.mainDoxyComment = undefined;
@@ -155,7 +156,7 @@ Eden.AST.prototype.getBlockLines = function(lineno) {
  */
 Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 	try {
-		statement.execute(eden.root,undefined, this, eden.root.scope, agent, cb);
+		statement.execute(eden.root,this, this, eden.root.scope, agent, cb);
 	} catch (e) {
 		eden.error(e);
 		console.error("Details: " + e + "\nAgent: " + agent.name);
