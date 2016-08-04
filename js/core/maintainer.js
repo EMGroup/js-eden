@@ -187,7 +187,7 @@
 
 		// Copy the overrides
 		for (var i = 0; i < this.overrides.length; i++) {
-			var nov = new ScopeOverride(this.overrides[i].name, this.overrides[i].start, this.overrides[i].end);
+			var nov = new ScopeOverride(this.overrides[i].name, this.overrides[i].start, this.overrides[i].end, this.overrides[i].inc, this.overrides[i].isin);
 			nov.current = this.overrides[i].current;
 			nover.push(nov);
 		}
@@ -283,15 +283,22 @@
 			this.cache[name].value = undefined;
 			this.cache[name].scope = this;
 		}
-		var sym = this.context.lookup(name.substr(1));
+		var sym = this.context.lookup(name.slice(1));
 		for (var d in sym.subscribers) {
 			this.updateSubscriber(d);
 		}
 	}
 
+	Scope.prototype.invalidate = function(name) {
+		if (this.cache[name]) this.cache[name].up_to_date = false;
+		if (this.parent && this.parent.parent) this.parent.invalidate(name);
+	}
+
 	Scope.prototype.next = function() {
 		for (var o in this.cache) {
 			this.cache[o].up_to_date = false;
+			// Also invalidate all parents
+			if (this.parent && this.parent.parent) this.parent.invalidate(o);
 		}
 		for (var i = this.overrides.length-1; i >= 0; i--) {
 			var over = this.overrides[i];
@@ -769,13 +776,21 @@
 
 		if (indices) {
 			// Generate a non range scope equivalent to a specific index.
-			var tscope = cache.scopes[indices[0]];
-			var tvalue = value[indices[0]];
-			for (var i=1; i<indices.length; i++) {
-				tscope = tscope[indices[i]];
-				tvalue = tvalue[indices[i]];
+			if (cache.scopes) {
+				var tscope = cache.scopes[indices[0]];
+				var tvalue = value[indices[0]];
+				for (var i=1; i<indices.length; i++) {
+					tscope = tscope[indices[i]];
+					tvalue = tvalue[indices[i]];
+				}
+				return new BoundValue(tvalue, tscope);
+			} else {
+				var tvalue = value[indices[0]];
+				for (var i=1; i<indices.length; i++) {
+					tvalue = tvalue[indices[i]];
+				}
+				return new BoundValue(tvalue, cache.scope);
 			}
-			return new BoundValue(tvalue, tscope);
 		} else {
 			return new BoundValue(value, cache.scope, cache.scopes);
 		}
@@ -898,7 +913,6 @@
 			this.logError(e);
 			cache.value = undefined;
 			cache.up_to_date = true;
-			throw e;
 		}
 		if (this.context) {
 			this.context.endEvaluation(this);

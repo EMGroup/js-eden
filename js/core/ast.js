@@ -280,7 +280,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 
 		// Remove unwanted dependencies.
 		for (var o in this.overrides) {
-			ctx.dependencies[o] = false;
+			if (ctx.dependencies[o]) ctx.dependencies[o] = false;
 		} 
 
 		//console.log(ctx);
@@ -291,7 +291,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 		res += "\t\tvar results = [];\n";
 		res += "\t\tvar scoperesults = [];\n";
 		res += "\t\twhile(true) {\n";
-		res += "\t\t\tscope = _scope.clone();\n";
+		res += "\t\t\tvar scope = _scope.clone();\n";
 		res += "\t\t\tvar val = "+express;
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			//res += ".value";
@@ -320,7 +320,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 		// Remove unwanted dependencies.
 		for (var o in this.overrides) {
 			//delete ctx.dependencies[o];
-			ctx.dependencies[o] = false;
+			if (ctx.dependencies[o]) ctx.dependencies[o] = false;
 		}
 
 		console.log(ctx);
