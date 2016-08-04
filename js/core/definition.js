@@ -128,6 +128,6 @@ Symbol.Definition.prototype.compile = function() {
 
 	this.deps = [];
 	for (var d in this.dependencies) {
-		this.deps.push(d);
+		if (this.dependencies[d]) this.deps.push(d);
 	}
 }

@@ -277,6 +277,14 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 	if (this.range) {
 		var express = this.expression.generate(ctx,"scope", true);
+
+		// Remove unwanted dependencies.
+		for (var o in this.overrides) {
+			ctx.dependencies[o] = false;
+		} 
+
+		//console.log(ctx);
+
 		var res = "(function(scope) {\n";
 		res += "\t\tvar _scope = " + this.generateConstructor(ctx, "scope") + ";\n";
 		res += "\t\t_scope.range = false;\n";
@@ -304,11 +312,18 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 		//}
 		return res;
 	} else {
-		// Return the expression using the newly generated scope.
+		var res = this.expression.generate(ctx,"scope"+(ctx.scopes.length+1), true);
+
 		// Add the scope generation string the the array of scopes in this context
 		ctx.scopes.push(this.generateConstructor(ctx,scope));
+
+		// Remove unwanted dependencies.
+		for (var o in this.overrides) {
+			ctx.dependencies[o] = false;
+		} 
+
+		//console.log(ctx);
 		
-		var res = this.expression.generate(ctx,"scope"+(ctx.scopes.length), true);
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			return res;
 		} else {
@@ -1341,27 +1356,18 @@ Eden.AST.Definition.prototype.execute = function(root, ctx, base, scope, agent) 
 	var source = base.getSource(this);
 	var sym = this.lvalue.getSymbol(root,ctx,base,scope);
 
-	if (this.lvalue.lvaluep.length > 0) {
-		/*var rhs = "(function(context,scope,value) { value";
-		rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
-		rhs += this.expression.generate(this, "scope");
-		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-			rhs += ".value";
+	try {
+		if (this.lvalue.lvaluep.length > 0) {
+			sym.addExtension(this.lvalue.generateIdStr(), this, base);
+		} else {
+			sym.define(this, agent, base);
 		}
-		rhs += ";})";
-		var deps = [];
-		for (var d in this.dependencies) {
-			deps.push(d);
-		}*/
-		sym.addExtension(this.lvalue.generateIdStr(), this, base);
-	} else {
-		/*var rhs = "("+this.generateDef(ctx)+")";
-		var deps = [];
-		for (var d in this.dependencies) {
-			deps.push(d);
-		}*/
-		//sym.eden_definition = base.getSource(this);
-		sym.define(this, agent, base);
+	} catch(e) {
+		if (e.message == Eden.RuntimeError.EXTENDSTATIC) {
+			this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.EXTENDSTATIC, this, "Can only define list items if the list is defined"));
+		} else {
+			console.error("Unknown error when defining a symbol");
+		}
 	}
 		
 }
@@ -1489,7 +1495,13 @@ Eden.AST.Assignment.prototype.execute = function(root, ctx, base, scope, agent) 
 			sym.assign(this.value,scope, agent);
 		}
 	} catch(e) {
-		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
+		if (e.message == Eden.RuntimeError.ASSIGNTODEFINED) {
+			this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNTODEFINED, this, "Cannot assign to a defined list, use 'is'"));
+		} else if (e.message == Eden.RuntimeError.ASSIGNDIMENSION) {
+			this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNDIMENSION, this, "List does not have this many dimensions"));
+		} else {
+			this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
+		}
 	}
 };
 

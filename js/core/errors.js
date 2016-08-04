@@ -620,11 +620,17 @@ Eden.RuntimeError.ASSIGNEXEC = 1;
 Eden.RuntimeError.FUNCCALL = 2;
 Eden.RuntimeError.ACTIONNAME = 3;
 Eden.RuntimeError.NOAGENT = 4;
+Eden.RuntimeError.ASSIGNTODEFINED = 5;
+Eden.RuntimeError.ASSIGNDIMENSION = 6;
+Eden.RuntimeError.EXTENDSTATIC = 7;
 
 Eden.RuntimeError.prototype.messageText = function() {
 	switch (this.errno) {
 	case Eden.RuntimeError.ACTIONNAME	: return this.extra;
 	case Eden.RuntimeError.NOAGENT		: return this.extra;
+	case Eden.RuntimeError.ASSIGNTODEFINED	: return this.extra;
+	case Eden.RuntimeError.ASSIGNDIMENSION	: return this.extra;
+	case Eden.RuntimeError.EXTENDSTATIC	: return this.extra;
 	default: break;
 	}
 

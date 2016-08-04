@@ -1487,30 +1487,28 @@
 				this.context.expireSymbol(this);
 			}
 		} else {
-			console.log("CANNOT EXTEND AN NON DEFINED SYMBOL");
+			throw new Error(Eden.RuntimeError.EXTENDSTATIC);
 		}
 	}
 
 	Symbol.prototype.listAssign = function(value, scope, modifying_agent, pushToNetwork, indices) {
 		if (this.definition) {
-			console.log("ASSIGN TO DEFINED LIST ERROR");
+			throw new Error(Eden.RuntimeError.ASSIGNTODEFINED);
 			return;
 		}
 
 		var list = this.value(scope);
 		for (var i = 0; i < indices.length-1; i++) {
-			//if (indices[i] < 1) {
-			//	console.log("ASSIGN OUT OF BOUNDS");
-			//}
-			if (list) list = list[indices[i]];
+			if (list) {
+				//if (indices[i] < 0 || indices[i] >= list.length) throw new Error(Eden.RuntimeError.LISTINDEX);
+				list = list[indices[i]];
+			}
 		}
 		if (list) {
-			//if (indices[indices.length-1] < 1) {
-			//	console.log("ASSIGN OUT OF BOUNDS");
-			//}
+			//if (indices[i] < 0 || indices[i] >= list.length) throw new Error(Eden.RuntimeError.LISTINDEX);
 			list[indices[indices.length-1]] = value;
 		} else {
-			console.log("ASSIGN DIMENSION ERROR");
+			throw new Error(Eden.RuntimeError.ASSIGNDIMENSION);
 		}
 
 		this._setLastModifiedBy(modifying_agent);
