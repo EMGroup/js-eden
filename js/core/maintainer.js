@@ -52,14 +52,16 @@
 	}
 
 
-	function ScopeOverride(name, start, end, inc, isin) {
+	function ScopeOverride(name, start, options) {
 		this.name = name;
 		this.start = start;
-		this.end = end;
-		this.increment = inc;
-		this.current = (isin) ? start[0] : start;
-		this.isin = isin;
+		this.end = (options && options.range) ? options.end : undefined;
+		this.increment = (options) ? options.increment : undefined;
+		this.current = (options && options.isin) ? start[0] : start;
+		this.isin = options && options.isin;
 		this.index = 1;
+		this.isdefault = (options) ? options.isdefault : false;
+		this.oneshot = (options) ? options.oneshot : false;
 	}
 
 
@@ -199,10 +201,10 @@
 	}
 
 	Scope.prototype.lookup = function(name, noroot) {
-		if (this.parent === undefined && noroot) return;
+		//if (this.parent === undefined && noroot) return;
 		if (this.cache === undefined) this.rebuild();
 
-		if (this.parent) {
+		/*if (this.parent) {
 			var res = this.parent.lookup(name, true);
 			if (res !== undefined) return res;
 			res = this.cache[name];
@@ -214,9 +216,9 @@
 			if (res !== undefined) return res;
 			this.cache[name] = new ScopeCache(true, undefined);
 			return this.cache[name];
-		}
+		}*/
 
-		/*var symcache = this.cache[name];
+		var symcache = this.cache[name];
 		if (symcache) {
 			return symcache;
 		} else {
@@ -230,7 +232,7 @@
 				this.cache[name] = new ScopeCache(true, undefined);
 				return this.cache[name];
 			}
-		}*/
+		}
 	}
 
 	Scope.prototype.add = function(name) {
@@ -240,6 +242,10 @@
 	}
 
 	Scope.prototype.addOverride = function(override) {
+		if (override.isdefault) {
+			if (this.parent && this.parent.lookup("/"+override.name).value !== undefined) return;
+		}
+
 		this.updateOverride(override);
 		if (this.context) {
 			var sym = this.context.lookup(override.name);
@@ -298,7 +304,7 @@
 		for (var o in this.cache) {
 			this.cache[o].up_to_date = false;
 			// Also invalidate all parents
-			if (this.parent && this.parent.parent) this.parent.invalidate(o);
+			//if (this.parent && this.parent.parent) this.parent.invalidate(o);
 		}
 		for (var i = this.overrides.length-1; i >= 0; i--) {
 			var over = this.overrides[i];
@@ -1207,7 +1213,7 @@
 
 	Symbol.prototype.loggers = {
 		console: function (error) {
-			console.log("<JSEDEN:" + this.name + "> "  + error);
+			//console.log("<JSEDEN:" + this.name + "> "  + error);
 		}
 	};
 
@@ -1347,7 +1353,7 @@
 		for (var d in this.dependencies) {
 			res.push(d.slice(1));
 		}
-		console.log("Dependencies");
+
 		return res;
 	}
 

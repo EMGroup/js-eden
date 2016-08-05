@@ -1003,23 +1003,28 @@ Eden.AST.prototype.pSCOPEPATTERN = function() {
 Eden.AST.prototype.pSCOPE_P = function() {
 	var obs = this.pSCOPEPATTERN();
 	var isin = false;
+	var isdefault = false;
+	var isoneshot = false;
 	if (obs.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
 		scope.addOverride(obs, undefined, undefined, undefined, false);
 		return scope;
 	}
 
-	if (this.token != "is" && this.token != "=" && this.token != "in") {
+	if (this.token != "is" && this.token != "=" && this.token != "in" && this.token != "@=") {
 		var scope = new Eden.AST.Scope();
 		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPEEQUALS));
 		return scope;
 	}
 	if (this.token == "in") isin = true;
+	if (this.token == "@=") isdefault = true;
+	if (this.token == "=") isoneshot = true;
 	this.next();
 	var expression = this.pEXPRESSION();
 	if (expression.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
-		scope.addOverride(obs, expression, undefined, undefined, false);
+		obs.setStart(expression);
+		scope.addOverride(obs);
 		return scope;
 	}
 
@@ -1029,7 +1034,9 @@ Eden.AST.prototype.pSCOPE_P = function() {
 		exp2 = this.pEXPRESSION();
 		if (exp2.errors.length > 0) {
 			var scope = new Eden.AST.Scope();
-			scope.addOverride(obs, expression, exp2, undefined, false);
+			obs.setStart(expression);
+			obs.setEnd(exp2);
+			scope.addOverride(obs);
 			return scope;
 		}
 	}
@@ -1040,13 +1047,26 @@ Eden.AST.prototype.pSCOPE_P = function() {
 		exp3 = this.pEXPRESSION();
 		if (exp3.errors.length > 0) {
 			var scope = new Eden.AST.Scope();
-			scope.addOverride(obs, expression, exp2, exp3, false);
+			obs.setStart(expression);
+			obs.setEnd(exp3);
+			obs.setIncrement(exp2);
+			scope.addOverride(obs);
 			return scope;
 		}
 	}
 
 	var scope = this.pSCOPE_PP();
-	scope.addOverride(obs, expression, exp2, exp3, isin);
+	obs.setStart(expression);
+	obs.setIn(isin);
+	obs.setDefault(isdefault);
+	obs.setOneshot(isoneshot);
+	if (exp3 === undefined) {
+		obs.setEnd(exp2);
+	} else {
+		obs.setEnd(exp3);
+		obs.setIncrement(exp2);
+	}
+	scope.addOverride(obs);
 	return scope;
 }
 

@@ -393,7 +393,8 @@ EdenStream.prototype.readToken = function() {
 				if (this.peek() == 61) { this.skip(); return ">="; }
 				return ">";
 	case 63	:	return "?";
-	case 64	:	return "@";
+	case 64	:	if (this.peek() == 61) { this.skip(); return "@="; }
+				return "@";
 	case 91	:	return "[";
 	case 92	:	return "\"";	//TODO: Escape chars
 	case 93	:	return "]";
