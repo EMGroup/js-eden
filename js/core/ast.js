@@ -348,10 +348,9 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 		//}
 		return res;
 	} else {
-		var res = this.expression.generate(ctx,"scope"+(ctx.scopes.length+1), true);
-
-		// Add the scope generation string the the array of scopes in this context
-		ctx.scopes.push(this.generateConstructor(ctx,scope));
+		var me = this.generateConstructor(ctx,"scope"+((ctx.scopes.length == 0) ? "" : ctx.scopes.length));
+		ctx.scopes.push(me);
+		var res = this.expression.generate(ctx,"scope"+(ctx.scopes.length), true);
 
 		// Remove unwanted dependencies.
 		for (var o in this.overrides) {
