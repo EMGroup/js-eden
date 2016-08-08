@@ -86,6 +86,25 @@ Eden.AST.Literal.prototype.setSource = function(start, end) {
 	this.end = end;
 }
 
+Eden.AST.Literal.prototype.unparse = function() {
+	switch (this.datatype) {
+	case "NUMBER"	:	return this.value;
+	case "LIST"		:	var res = "[";
+						// Loop over each element and generate that also.
+						for (var i=0; i<this.value.length; i++) {
+							res += this.value[i].unparse();
+							if (i != this.value.length-1) res += ",";
+						}
+						res += "]";
+						return res;
+	case "CHARACTER":
+	case "STRING"	:	var str = this.value.replace(/\n/g,"\\n");
+						return "\""+str+"\"";
+	case "BOOLEAN"	:	return this.value;
+	case "JAVASCRIPT"	: return this.value;
+	}
+}
+
 Eden.AST.Literal.prototype.generate = function(ctx,scope) {
 	switch (this.datatype) {
 	case "NUMBER"	:	return this.value;
@@ -195,6 +214,30 @@ Eden.AST.ScopePattern.prototype.setOneshot = function(oneshot) {
 	this.oneshot = oneshot;
 }
 
+Eden.AST.ScopePattern.prototype.unparse = function() {
+	var res = this.observable;
+	if (this.isin) {
+		res += " in ";
+	} else if (this.oneshot) {
+		res += " = ";
+	} else if (this.isdefault) {
+		res += " @= ";
+	} else {
+		res += " is ";
+	}
+
+	res += this.start.unparse();
+
+	if (this.increment) {
+		res += ".." + this.increment.unparse();
+		res += ".." + this.end.unparse();
+	} else if (this.end) {
+		res += ".." + this.end.unparse();
+	}
+
+	return res;
+}
+
 Eden.AST.ScopePattern.prototype.generate = function(ctx, scope) {
 	var startstr = this.start.generate(ctx,scope);
 	if (this.range) {
@@ -223,7 +266,10 @@ Eden.AST.ScopePattern.prototype.generate = function(ctx, scope) {
 
 	optstr += "isin: " + this.isin + ", ";
 	optstr += "isdefault: " + this.isdefault + ", ";
+	//optstr += "source: \"" + this.unparse().replace(/\"/g,"\\\"") + "\",";
 	optstr += "oneshot: " + this.oneshot + "}";
+
+	//console.log(this.unparse());
 
 	return "new ScopeOverride(\""+this.observable+"\", " + startstr + ", " + optstr + ")";
 }
@@ -248,6 +294,15 @@ Eden.AST.Scope.prototype.error = fnEdenASTerror;
 
 Eden.AST.Scope.prototype.prepend = function(extra) {
 	this.primary.prepend(extra);
+}
+
+Eden.AST.Scope.prototype.unparse = function() {
+	var res = this.expression.unparse() + " ::";
+	for (var o in this.overrides) {
+		res += "\n\t" + this.overrides[o].unparse() + ",";
+	}
+	res = res.substr(0,-1);
+	return res;
 }
 
 /*Eden.AST.Scope.prototype.setObservable = function(obs) {
@@ -516,6 +571,10 @@ Eden.AST.UnaryOp = function(op, right) {
 }
 Eden.AST.UnaryOp.prototype.error = fnEdenASTerror;
 
+Eden.AST.UnaryOp.prototype.unparse = function() {
+	return this.op + this.r.unparse();
+}
+
 Eden.AST.UnaryOp.prototype.generate = function(ctx, scope) {
 	var r = this.r.generate(ctx, scope);
 	if (this.r.doesReturnBound && this.r.doesReturnBound()) {
@@ -587,6 +646,10 @@ Eden.AST.TernaryOp.prototype.doesReturnBound = function() {
 	return this.returnsbound;
 }
 
+Eden.AST.TernaryOp.prototype.unparse = function() {
+	return this.first.unparse() + " if " + this.condition.unparse() + " else " + this.second.unparse();
+}
+
 Eden.AST.TernaryOp.prototype.generate = function(ctx, scope) {
 	var cond = this.condition.generate(ctx, scope);
 	var first = this.first.generate(ctx, scope);
@@ -634,6 +697,10 @@ Eden.AST.BinaryOp.prototype.error = fnEdenASTerror;
 Eden.AST.BinaryOp.prototype.setRight = function(right) {
 	this.r = right;
 	this.errors.push.apply(this.errors, right.errors);
+}
+
+Eden.AST.BinaryOp.prototype.unparse = function() {
+	return this.l.unparse() + " " + this.op + " " + this.r.unparse();
 }
 
 Eden.AST.BinaryOp.prototype.generate = function(ctx, scope) {
@@ -688,6 +755,10 @@ Eden.AST.Length = function() {
 Eden.AST.Length.prototype.left = fnEdenASTleft;
 
 Eden.AST.Length.prototype.error = fnEdenASTerror;
+
+Eden.AST.Length.prototype.unparse = function() {
+	return this.l.unparse()+"#";
+}
 
 Eden.AST.Length.prototype.generate = function(ctx, scope) {
 	var left = this.l.generate(ctx, scope);
@@ -1747,6 +1818,14 @@ Eden.AST.Primary.prototype.prepend = function(extra) {
 		this.errors.push.apply(this.errors, extra.errors);
 	}
 };
+
+Eden.AST.Primary.prototype.unparse = function() {
+	var res = this.observable;
+	for (var i=0; i<this.extras.length; i++) {
+		
+	}
+	return res;
+}
 
 Eden.AST.Primary.prototype.generate = function(ctx, scope, bound) {
 	// Check if this primary is a local variable.

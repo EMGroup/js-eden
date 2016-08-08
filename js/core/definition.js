@@ -52,7 +52,7 @@ Symbol.Definition.prototype.compile = function() {
 	var result = "(function(context, scope, cache) {\n";
 	this.dependencies = {};
 	this.scopes = [];
-	var express = this.baseAST.expression.generate(this, "scope", true);
+	var express = this.baseAST.expression.generate(this, "scope", true, this.baseAST);
 
 	// Generate array of all scopes used in this definition (if any).
 	if (this.scopes.length > 0) {
@@ -123,7 +123,7 @@ Symbol.Definition.prototype.compile = function() {
 			Finally, using the raw expression, regenerate the value for that index in the new scope.
 	*/
 
-	console.log(result);
+	//console.log(result);
 	this.compiled = eval(result);
 
 	this.deps = [];

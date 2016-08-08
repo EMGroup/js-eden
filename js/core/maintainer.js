@@ -62,6 +62,7 @@
 		this.index = 1;
 		this.isdefault = (options) ? options.isdefault : false;
 		this.oneshot = (options) ? options.oneshot : false;
+		this.source = (options) ? options.source : "";
 	}
 
 
@@ -130,6 +131,17 @@
 			scope = scope.parent;
 		}
 		return false;
+	}
+
+	Scope.prototype.getOverride = function(override) {
+		var scope = this;
+		while (scope && scope.parent) {
+			for (var i=0; i<scope.overrides.length; i++) {
+				if (scope.overrides[i].name == override) return scope.overrides[i];
+			}
+			scope = scope.parent;
+		}
+		return undefined;
 	}
 
 	Scope.prototype.primaryCause = function() {

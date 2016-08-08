@@ -725,9 +725,13 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 	var val = bval.value;
 	var valhtml = _formatVal(val);
 	var isoverride = this.isoverride;
+	var over;
+	if (isoverride) {
+		over = this.scope.getOverride(this.name);
+	}
 
 	var namehtml;
-	if (!isoverride && this.symbol.definition !== undefined) {
+	if ((!isoverride && this.symbol.definition !== undefined) || (isoverride && !over.oneshot && !over.isdefault)) {
 		namehtml = "<span class='hasdef_text'>" + this.name + "</span>";
 	} else {
 		namehtml = this.name;
@@ -738,8 +742,12 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 	var html = scopehtml+"<span class='result_name'>" + namehtml + "</span><span class='result_separator'> = </span> " +
 		"<span class='result_value'>" + valhtml + "</span>";
 
-	if (this.symbol.definition !== undefined) {
+	if (!isoverride && this.symbol.definition !== undefined) {
 		var tooltip = Eden.htmlEscape(this.symbol.getSource(), false, true);
+		tooltip = Eden.htmlEscape("<pre class='symbollist-tooltip'>" + tooltip + "</pre>");
+		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
+	} else if (isoverride) {
+		var tooltip = Eden.htmlEscape(over.source, false, true);
 		tooltip = Eden.htmlEscape("<pre class='symbollist-tooltip'>" + tooltip + "</pre>");
 		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
 	}
