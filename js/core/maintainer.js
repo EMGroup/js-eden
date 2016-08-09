@@ -320,6 +320,7 @@
 		}
 		for (var i = this.overrides.length-1; i >= 0; i--) {
 			var over = this.overrides[i];
+
 			if (over.end === undefined && !over.isin) continue;
 
 			if (over.isin) {
@@ -335,22 +336,44 @@
 					this.updateOverride(over);
 				}
 			} else {
-				if (over.current < over.end) {
-					if (over.increment) {
-						over.current += over.increment;
-					} else {
-						over.current++;
-					}
-					this.updateOverride(over);
+				if (over.start <= over.end) {
+					if (over.current < over.end) {
+						if (over.increment) {
+							over.current += over.increment;
+						} else {
+							over.current++;
+						}
+						this.updateOverride(over);
 
-					// Make sure all other overrides are also up-to-date
-					for (var j=i-1; j >= 0; j--) {
-						this.updateOverride(this.overrides[j]);
+						// Make sure all other overrides are also up-to-date
+						for (var j=i-1; j >= 0; j--) {
+							this.updateOverride(this.overrides[j]);
+						}
+
+						return true;
+					} else {
+						over.current = over.start;
+						this.updateOverride(over);
 					}
-					return true;
 				} else {
-					over.current = over.start;
-					this.updateOverride(over);
+					if (over.current > over.end) {
+						if (over.increment) {
+							over.current += over.increment;
+						} else {
+							over.current--;
+						}
+						this.updateOverride(over);
+
+						// Make sure all other overrides are also up-to-date
+						for (var j=i-1; j >= 0; j--) {
+							this.updateOverride(this.overrides[j]);
+						}
+
+						return true;
+					} else {
+						over.current = over.start;
+						this.updateOverride(over);
+					}
 				}
 			}
 		}
