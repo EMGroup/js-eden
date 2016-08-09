@@ -18,6 +18,12 @@ ${{
 	Translation.prototype.transform = function (context) {
 		context.translate(this.x - this.centreX, this.y - this.centreY);
 	}
+	
+	Translation.prototype.getCSS = function (scale) {
+		var x = (this.x - this.centreX) * scale;
+		var y = (this.y - this.centreY) * scale;
+		return "translate(" + x + "px, " + y + "px)";
+	}
 
 	Translation.prototype.inverse = function (x, y) {
 		return new Point(x - (this.x - this.centreX), y - (this.y - this.centreY));
