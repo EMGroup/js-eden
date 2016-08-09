@@ -57,19 +57,21 @@
 		this.start = start;
 		this.end = (options && options.range) ? options.end : undefined;
 		this.increment = (options) ? options.increment : undefined;
-		this.current = (options && options.isin) ? start[0] : start;
+		this.current = (options && options.isin && !options.range) ? start[0] : start;
 		this.isin = options && options.isin;
 		this.index = 1;
 		this.isdefault = (options) ? options.isdefault : false;
 		this.oneshot = (options) ? options.oneshot : false;
+		this.range = (options) ? options.range : false;
 		this.source = (options) ? options.source : "";
+		this.options = options;
 
 		// Check for valid combinations of options
 		if (this.start < this.end && this.increment <= 0) {
 			throw new Error(Eden.RuntimeError.INFINITERANGE);
 		} else if (this.start > this.end && this.increment >= 0) {
 			throw new Error(Eden.RuntimeError.INFINITERANGE);
-		} else if (this.isin && !(this.start instanceof Array)) {
+		} else if (this.isin && this.end === undefined && !(this.start instanceof Array)) {
 			throw new Error(Eden.RuntimeError.NOLISTRANGE);
 		}
 	}
@@ -210,7 +212,7 @@
 
 		// Copy the overrides
 		for (var i = 0; i < this.overrides.length; i++) {
-			var nov = new ScopeOverride(this.overrides[i].name, this.overrides[i].start, this.overrides[i].end, this.overrides[i].inc, this.overrides[i].isin);
+			var nov = new ScopeOverride(this.overrides[i].name, this.overrides[i].start, this.overrides[i].options);
 			nov.current = this.overrides[i].current;
 			nover.push(nov);
 		}
@@ -330,10 +332,9 @@
 		for (var i = this.overrides.length-1; i >= 0; i--) {
 			var over = this.overrides[i];
 
-			if (over.end === undefined && !over.isin) continue;
+			if (!over.isin && !over.range) continue;
 
-			if (over.isin) {
-				// TODO runtime check that start is a list...
+			if (!over.range) {
 				if (over.index < over.start.length) {
 					over.current = over.start[over.index];
 					over.index++;
@@ -394,50 +395,6 @@
 		this.caches = [];
 	}
 
-	/*Scope.prototype.toString = function() {
-		var result = "{";
-		for (var a in this.cache) {
-			if (typeof this.cache[a].value != "object") {
-				result += a.slice(1) + ": " + this.context.lookup(a).value(this) + ",";
-			}
-		}
-		result += "}";
-		return result;
-	}*/
-
-	/*Scope.prototype.assign = function(name, value, modifying_agent, pushToNetwork) {
-		var data = this.lookup2("/" + name);
-
-		value = copy(value);
-
-		if (name === "autocalc") {
-			
-			if (value === true) {
-				value = 1;
-			} else if (value === false) {
-				value = 0;
-			}
-			data.context && data.context.autocalc(value === 1);
-		}
-
-		var sym = undefined;
-		if (data.context) {
-			sym = data.context.lookup(name);
-
-			if (pushToNetwork) {
-				eden.emit("beforeAssign", [sym, value, modifying_agent]);
-			}
-
-			sym.assigned(modifying_agent);
-		}
-
-		data.cache.value = value;
-		data.cache.up_to_date = true;
-
-		if (data.context) {
-			data.context.expireSymbol(sym);
-		}
-	}*/
 
 	/**
 	 * A maintainer of definitions
@@ -1073,7 +1030,6 @@
 	Symbol.prototype.define = function (definition, modifying_agent, base) {
 		this.garbage = false;
 		this._setLastModifiedBy(modifying_agent);
-		//this.definition = definition;
 
 		if (this.definition === undefined) this.definition = new Symbol.Definition();
 		this.definition.setBase(definition, base);
@@ -1081,20 +1037,6 @@
 		// symbol no longer observes or depends on anything
 		this.clearObservees();
 		this.clearDependencies();
-
-		/*var args = [];
-		for (var i = 2; i < arguments.length; i++) {
-			args.push(arguments[i]);
-		}
-
-		this.subscribe(args);*/
-
-		// Re-add any extension dependencies.
-		/*if (this.extend) {
-			for (var e in this.extend) {
-				this.subscribe(this.extend[e].deps);
-			}
-		}*/
 
 		this.subscribe(this.definition.dependencies);
 

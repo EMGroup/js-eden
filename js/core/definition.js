@@ -135,7 +135,7 @@ Symbol.Definition.prototype.compile = function() {
 			Finally, using the raw expression, regenerate the value for that index in the new scope.
 	*/
 
-	//console.log(result);
+	console.log(result);
 	this.compiled = eval(result);
 
 	this.deps = [];

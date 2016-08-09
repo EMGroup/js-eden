@@ -16,49 +16,23 @@ this is ${{ scope.baseCause() }}$;
 
 ##round is ${{ Math.round(context.lookup("number").value(scope)) }}$;
 
-Colour is "rgba("//str(r)//","//str(g)//","//str(b)//","//str(a)//")" with
-	r is 0,
-	g is 0,
-	b is 0,
-	a is 1.0;
+Colour is "rgba("//str(r)//","//str(g)//","//str(b)//","//str(a)//")" ::
+	r --> 0,
+	g --> 0,
+	b --> 0,
+	a --> 1.0;
 
+colour_white is Colour::(r->255,g->255,b->255);
+colour_red is Colour::(r->255,g->0,b->0);
+colour_green is Colour::(r->0,g->255,b->0);
 Colours is this ::
-	white is Colour::(r=255,g=255,b=255),
-	red is Colour::(r=255,g=0,b=0),
-	green is Colour::(r=0,g=255,b=0);
+	white -> colour_white,
+	red -> colour_red,
+	green -> colour_green;
 
 ##prototype_Point is [x,y];
-point is null with
-	x is x if x != @ else 0,
-	y is y if y != @ else 0;
+point is [x,y] ::
+	x --> 0,
+	y --> 0;
 
-##prototype_Line is ["line", start,end,colour,width];
-line is null with
-	start is start if start else point,
-	end is end if end else point,
-	color is colour if colour else black;
-
-__translate is point with
-	x is p.x+tx,
-	y is p.y+ty;
-translate is __translate with
-	tx is tx if tx else 0,
-	ty is ty if ty else 0;
-
-##__rotate is [((p[1]-o[1])*cos(theta)-(p[2]-o[2])*sin(theta))+o[1], ((p[1]-o[1])*sin(theta)-(p[2]-o[2])*cos(theta))+o[2]];
-__rotate is point with
-	x is ((p.x-o.x)*cos(theta) - (p.y-o.y)*sin(theta)) + o.x,
-	y is ((p.x-o.x)*sin(theta) - (p.y-o.y)*cos(theta)) + o.y;
-rotate is __rotate with p is p if p != @ else point, o is o if o != @ else point;
-
-__scale is [p[1]*scalex,p[2]*scaley];
-scale is __scale with
-	scalex is scalex if scalex else 0,
-	scaley is scaley if scaley else 0;
-
-## View Scopes
-
-Leaf is content if content else ["## New Leaf"];
-ScriptView is null;
-##createView(name, "ScriptInput", code) if name else @;
 

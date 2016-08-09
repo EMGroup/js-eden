@@ -584,6 +584,108 @@ Eden.AST.prototype.pFACTOR = function() {
 }
 
 
+/*
+ * F ->
+ *	( EXPRESSION ) |
+ *	- number |
+ *	number |
+ *	string |
+ *  boolean |
+ *  character
+ *  JAVASCRIPT |
+ *	$ NUMBER |
+ *	[ ELIST ] |
+ *	& LVALUE |
+ *	! PRIMARY |
+ *	PRIMARY	
+ */
+Eden.AST.prototype.pFACTOR_SIMPLE = function() {
+	// Literal undefined
+	if (this.token == "@") {
+		this.next();
+		return new Eden.AST.Literal("UNDEFINED", "@");
+	// Make a list literal
+	} else if (this.token == "[") {
+		this.next();
+
+		var elist = [];
+		// Check for basic empty case, if not then parse elements
+		if (this.token != "]") {
+			elist = this.pELIST_SIMPLE();
+		}
+
+		var literal = new Eden.AST.Literal("LIST", elist);
+
+		// Merge any errors found in the expressions
+		for (var i = 0; i < elist.length; i++) {
+			if (elist[i].errors.length > 0) {
+				literal.errors.push.apply(literal.errors, elist[i].errors);
+			}
+		}
+		if (literal.errors.length > 0) return literal;
+
+		// Must have a closing bracket...
+		if (this.token != "]") {
+			literal.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LISTLITCLOSE));
+		} else {
+			this.next();
+		}
+		return literal;
+	// Numeric literal
+	} else if (this.token == "NUMBER") {
+		var lit = new Eden.AST.Literal("NUMBER", this.data.value);
+		this.next();
+		return lit
+	// Unary negation operator
+	} else if (this.token == "-") {
+		this.next();
+		var negop = new Eden.AST.UnaryOp("-", this.pFACTOR());
+		return negop;
+	// String literal
+	// TODO Multi-line strings
+	} else if (this.token == "STRING") {
+		var lit = new Eden.AST.Literal("STRING", this.data.value);
+		if (!this.data.error) this.next();
+		// Allow multiple strings to be combined as lines
+		while (this.data.error == false && this.token == "STRING") {
+			lit.value += "\n"+this.data.value;
+			this.next();
+		}
+
+		if (this.data.error) {
+			if (this.data.value == "LINEBREAK") {
+				lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LITSTRLINE));
+			} else {
+				lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LITSTRCLOSE));
+			}
+		}
+
+		return lit;
+	// Boolean literal
+	} else if (this.token == "BOOLEAN") {
+		var lit = new Eden.AST.Literal("BOOLEAN", this.data.value);
+		this.next();
+		return lit;
+	// Character literal
+	} else if (this.token == "CHARACTER") {
+		var lit = new Eden.AST.Literal("CHARACTER", this.data.value);
+		if (this.data.error) {
+			if (this.data.value == "") {
+				lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LITCHAREMPTY));
+			} else {
+				lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LITCHARCLOSE));
+			}
+			return lit;
+		}
+		this.next();
+		return lit;
+	} else {
+		var primary = this.pPRIMARY();
+		return primary;
+	}
+}
+
+
 
 /**
  * PRIMARY Production
@@ -1011,16 +1113,16 @@ Eden.AST.prototype.pSCOPE_P = function() {
 		return scope;
 	}
 
-	if (this.token != "is" && this.token != "=" && this.token != "in" && this.token != "@=") {
+	if (this.token != "->" && this.token != "in" && this.token != "-->") {
 		var scope = new Eden.AST.Scope();
 		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPEEQUALS));
 		return scope;
 	}
 	if (this.token == "in") isin = true;
-	if (this.token == "@=") isdefault = true;
-	if (this.token == "=") isoneshot = true;
+	if (this.token == "-->") isdefault = true;
+	//if (this.token == "=") isoneshot = true;
 	this.next();
-	var expression = this.pEXPRESSION();
+	var expression = this.pFACTOR_SIMPLE();
 	if (expression.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
 		obs.setStart(expression);
@@ -1029,29 +1131,31 @@ Eden.AST.prototype.pSCOPE_P = function() {
 	}
 
 	var exp2 = undefined;
-	if (this.token == "..") {
-		this.next();
-		exp2 = this.pEXPRESSION();
-		if (exp2.errors.length > 0) {
-			var scope = new Eden.AST.Scope();
-			obs.setStart(expression);
-			obs.setEnd(exp2);
-			scope.addOverride(obs);
-			return scope;
-		}
-	}
-
 	var exp3 = undefined;
-	if (this.token == "..") {
-		this.next();
-		exp3 = this.pEXPRESSION();
-		if (exp3.errors.length > 0) {
-			var scope = new Eden.AST.Scope();
-			obs.setStart(expression);
-			obs.setEnd(exp3);
-			obs.setIncrement(exp2);
-			scope.addOverride(obs);
-			return scope;
+	if (isin) {
+		if (this.token == "..") {
+			this.next();
+			exp2 = this.pFACTOR_SIMPLE();
+			if (exp2.errors.length > 0) {
+				var scope = new Eden.AST.Scope();
+				obs.setStart(expression);
+				obs.setEnd(exp2);
+				scope.addOverride(obs);
+				return scope;
+			}
+		}
+
+		if (this.token == "..") {
+			this.next();
+			exp3 = this.pFACTOR_SIMPLE();
+			if (exp3.errors.length > 0) {
+				var scope = new Eden.AST.Scope();
+				obs.setStart(expression);
+				obs.setEnd(exp3);
+				obs.setIncrement(exp2);
+				scope.addOverride(obs);
+				return scope;
+			}
 		}
 	}
 
@@ -1112,6 +1216,41 @@ Eden.AST.prototype.pELIST_P = function() {
 	while (this.token == ",") {
 		this.next();
 		var expression = this.pEXPRESSION();
+		result.push(expression);
+		if (expression.errors.length > 0) {
+			return result;
+		}
+	}
+	return result;
+}
+
+
+
+/**
+ * ELIST Production
+ * ELIST -> EXPRESSION ELIST' | epsilon
+ */
+Eden.AST.prototype.pELIST_SIMPLE = function() {
+	var expression = this.pFACTOR_SIMPLE();
+	if (expression.errors.length > 0) {
+		return [expression];
+	}
+	var list = this.pELIST_SIMPLE_P();
+	list.unshift(expression);
+	return list;
+}
+
+
+
+/**
+ * ELIST Prime Production
+ * ELIST' -> , EXPRESSION ELIST' | epsilon
+ */
+Eden.AST.prototype.pELIST_SIMPLE_P = function() {
+	var result = [];
+	while (this.token == ",") {
+		this.next();
+		var expression = this.pFACTOR_SIMPLE();
 		result.push(expression);
 		if (expression.errors.length > 0) {
 			return result;

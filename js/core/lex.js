@@ -360,8 +360,11 @@ EdenStream.prototype.readToken = function() {
 				if (this.peek() == 61) { this.skip(); return "+="; }
 				return "+";
 	case 44 :	return ",";
-	case 45	:	if (this.peek() == 45) { this.skip(); return "--"; }
+	case 45	:	if (this.peek() == 45) { this.skip(); 
+					if (this.peek() == 62) { this.skip(); return "-->"; }
+					return "--"; }
 				if (this.peek() == 61) { this.skip(); return "-="; }
+				if (this.peek() == 62) { this.skip(); return "->"; }
 				//if (this.isNumeric(this.peek())) { this.parseNumber(this.data); this.data.value = -this.data.value; return "NUMBER"; }
 				return "-";
 	case 46	:	if (this.peek() == 46) { this.skip(); return ".."; }

@@ -412,8 +412,6 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 			//delete ctx.dependencies[o];
 			if (ctx.dependencies[o]) ctx.dependencies[o] = false;
 		}
-
-		console.log(ctx);
 		
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			return res;
