@@ -149,8 +149,8 @@ function initialiseJSEden(callback) {
 		document.addEventListener("touchcancel", touchHandler, true);
 
 		edenUI = new EdenUI(eden);
-		document.body.scrollLeft = 0; //Chrome remembers position on refresh.
-		document.body.scrollTop = 0;
+		window.pageXOffset = 0; //Chrome remembers position on refresh.
+		window.pageYOffset = 0;
 		edenUI.scrollBarSize2 = window.innerHeight - $(window).height();
 
 		$(document)
