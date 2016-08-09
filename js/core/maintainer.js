@@ -63,6 +63,15 @@
 		this.isdefault = (options) ? options.isdefault : false;
 		this.oneshot = (options) ? options.oneshot : false;
 		this.source = (options) ? options.source : "";
+
+		// Check for valid combinations of options
+		if (this.start < this.end && this.increment <= 0) {
+			throw new Error(Eden.RuntimeError.INFINITERANGE);
+		} else if (this.start > this.end && this.increment >= 0) {
+			throw new Error(Eden.RuntimeError.INFINITERANGE);
+		} else if (this.isin && !(this.start instanceof Array)) {
+			throw new Error(Eden.RuntimeError.NOLISTRANGE);
+		}
 	}
 
 
@@ -951,7 +960,8 @@
 				this.evalResolved = true;
 			}
 		} catch (e) {
-			this.logError(e);
+			this.definition.runtimeError(e.message);
+			//this.logError(e);
 			cache.value = undefined;
 			cache.up_to_date = true;
 		}
@@ -1248,7 +1258,7 @@
 
 	Symbol.prototype.loggers = {
 		console: function (error) {
-			//console.log("<JSEDEN:" + this.name + "> "  + error);
+			console.log("<JSEDEN:" + this.name + "> "  + error);
 		}
 	};
 

@@ -623,14 +623,18 @@ Eden.RuntimeError.NOAGENT = 4;
 Eden.RuntimeError.ASSIGNTODEFINED = 5;
 Eden.RuntimeError.ASSIGNDIMENSION = 6;
 Eden.RuntimeError.EXTENDSTATIC = 7;
+Eden.RuntimeError.INFINITERANGE = 8;
+Eden.RuntimeError.NOLISTRANGE = 9;
 
 Eden.RuntimeError.prototype.messageText = function() {
 	switch (this.errno) {
-	case Eden.RuntimeError.ACTIONNAME	: return this.extra;
-	case Eden.RuntimeError.NOAGENT		: return this.extra;
-	case Eden.RuntimeError.ASSIGNTODEFINED	: return this.extra;
-	case Eden.RuntimeError.ASSIGNDIMENSION	: return this.extra;
-	case Eden.RuntimeError.EXTENDSTATIC	: return this.extra;
+	case Eden.RuntimeError.ACTIONNAME		:
+	case Eden.RuntimeError.NOAGENT			: 
+	case Eden.RuntimeError.ASSIGNTODEFINED	: 
+	case Eden.RuntimeError.ASSIGNDIMENSION	: 
+	case Eden.RuntimeError.EXTENDSTATIC		: return this.extra
+	case Eden.RuntimeError.INFINITERANGE	: return "Range scope is infinite";
+	case Eden.RuntimeError.NOLISTRANGE		: return "Range 'in' is not a list";
 	default: break;
 	}
 
@@ -643,7 +647,11 @@ Eden.RuntimeError.prototype.messageText = function() {
 }
 
 Eden.RuntimeError.prototype.prettyPrint = function() {
-	return "Run-time Error:\n"+this.extra.stack;
+	if (this.extra && this.extra.stack) {
+		return "Run-time Error:\n"+this.extra.stack;
+	} else {
+		return "Run-time Error:\n";
+	}
 }
 
 

@@ -48,6 +48,18 @@ Symbol.Definition.prototype.getFullSource = function() {
 	return source;
 }
 
+Symbol.Definition.prototype.runtimeError = function(e, agent) {
+	var err;
+
+	if (/[0-9][0-9]*/.test(e)) {
+		err = new Eden.RuntimeError(this.baseAST, parseInt(e), this, e);
+	} else {
+		err = new Eden.RuntimeError(this.baseAST, 0, this, e);
+	}
+	this.baseAST.errors.push(err);
+	if (agent) Eden.Agent.emit("error", [agent]);
+}
+
 Symbol.Definition.prototype.compile = function() {
 	var result = "(function(context, scope, cache) {\n";
 	this.dependencies = {};
