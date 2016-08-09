@@ -233,21 +233,40 @@
 			this.cache[o].up_to_date = false;
 		}
 		for (var i = this.overrides.length-1; i >= 0; i--) {
-			if (this.overrides[i].end === undefined) continue;
+			var over = this.overrides[i];
 
-			if (this.overrides[i].current < this.overrides[i].end) {
-				this.overrides[i].current++;
-				this.updateOverride(this.overrides[i]);
+			if (over.end === undefined) continue;
 
-				// Make sure all other overrides are also up-to-date
-				for (var j=i-1; j >= 0; j--) {
-					this.updateOverride(this.overrides[j]);
+			if (over.start <= over.end) {
+				if (over.current < over.end) {
+					over.current++;
+					this.updateOverride(over);
+
+					// Make sure all other overrides are also up-to-date
+					for (var j=i-1; j >= 0; j--) {
+						this.updateOverride(this.overrides[j]);
+					}
+
+					return true;
+				} else {
+					over.current = over.start;
+					this.updateOverride(over);
 				}
-
-				return true;
 			} else {
-				this.overrides[i].current = this.overrides[i].start;
-				this.updateOverride(this.overrides[i]);
+				if (over.current > over.end) {
+					over.current--;
+					this.updateOverride(over);
+
+					// Make sure all other overrides are also up-to-date
+					for (var j=i-1; j >= 0; j--) {
+						this.updateOverride(this.overrides[j]);
+					}
+
+					return true;
+				} else {
+					over.current = over.start;
+					this.updateOverride(over);
+				}
 			}
 		}
 		return false;
