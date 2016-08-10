@@ -94,6 +94,7 @@ module.exports = function (grunt) {
 					'./js/core/initialise.js',
 					'./js/core/lex.js',
 					'./js/core/errors.js',
+					'./js/core/warnings.js',
 					//'./js/core/ast.js',
 					'./js/core/translator2.js',
 					'./js/core/database.js',

@@ -190,6 +190,14 @@ function EdenScriptGutter(parent, infob) {
 					console.error(err.prettyPrint());
 					showInfoBox(e.target.offsetLeft+20, e.target.offsetTop-me.gutter.parentNode.scrollTop+25+taboffset, "error", err.messageText());
 				}
+			} else {
+				for (var i=0; i<me.ast.warnings.length; i++) {
+					if (me.ast.warnings[i].line == line+1) {
+						var taboffset = 35;
+						showInfoBox(e.target.offsetLeft+20, e.target.offsetTop-me.gutter.parentNode.scrollTop+25+taboffset, "warning", me.ast.warnings[i].messageText());
+						break;
+					}
+				}
 			}
 		}
 	})
@@ -313,6 +321,16 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 		}*/
 		if (ast.lines[i]) {
 			var stat = ast.lines[i];
+
+			// Add any warnings to the line
+			for (var e=0; e<ast.warnings.length; e++) {
+				if (ast.warnings[e].line == i+1) {
+					className += " warning";
+					content = "&#xf071";
+					doupdate = true;
+					break;
+				}
+			}
 
 			if (stat.errors.length > 0) {
 				className += " errorblock";

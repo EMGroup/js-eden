@@ -26,6 +26,7 @@ Eden.AST = function(code, imports) {
 	this.definitions = {};		// Definitions mapping
 	this.imports = (imports) ? imports : [];
 	this.dependencies = {};		// Dummy dependency record
+	this.warnings = [];
 
 	this.lastDoxyComment = undefined;
 	this.mainDoxyComment = undefined;
@@ -1122,6 +1123,10 @@ Eden.AST.prototype.pSCOPE_P = function() {
 	if (this.token == "-->") isdefault = true;
 
 	var legacy = this.token == "is";
+
+	if (legacy) {
+		this.warnings.push(new Eden.SyntaxWarning(this, Eden.SyntaxWarning.DEPRECATED, "use of 'is' in scopes is deprecated, use 'in', '->' or '-->'"));
+	}
 
 	this.next();
 	var expression = (legacy || isin) ? this.pEXPRESSION() : this.pFACTOR_SIMPLE();
