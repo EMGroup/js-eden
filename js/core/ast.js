@@ -381,6 +381,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 		res += "\t\t_scope.range = false;\n";
 		res += "\t\tvar results = [];\n";
 		res += "\t\tvar scoperesults = [];\n";
+		res += "\t\tif (_scope.first()) {\n";
 		res += "\t\twhile(true) {\n";
 		res += "\t\t\tvar scope = _scope.clone();\n";
 		res += "\t\t\tvar val = "+express;
@@ -393,7 +394,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 		res += ";\n";
 		res += "\t\t\tif (val !== undefined) results.push(val);\n";
 		res += "\t\t\tif (_scope.next() == false) break;\n";
-		res += "\t\t}\n_scope.range = true;\n";
+		res += "\t\t}}\n_scope.range = true;\n";
 
 		//if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 			res += "\t\treturn new BoundValue(results,_scope,scoperesults);}).call(this,"+scope+")";

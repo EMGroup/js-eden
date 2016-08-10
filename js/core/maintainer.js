@@ -67,9 +67,7 @@
 		this.options = options;
 
 		// Check for valid combinations of options
-		if (this.start < this.end && this.increment <= 0) {
-			throw new Error(Eden.RuntimeError.INFINITERANGE);
-		} else if (this.start > this.end && this.increment >= 0) {
+		if (this.increment == 0) {
 			throw new Error(Eden.RuntimeError.INFINITERANGE);
 		} else if (this.isin && this.end === undefined && !(this.start instanceof Array)) {
 			throw new Error(Eden.RuntimeError.NOLISTRANGE);
@@ -323,6 +321,20 @@
 		if (this.parent && this.parent.parent) this.parent.invalidate(name);
 	}
 
+	Scope.prototype.first = function() {
+		for (var i = this.overrides.length-1; i >= 0; i--) {
+			var over = this.overrides[i];
+			if (over.end === undefined) continue;
+
+			if ((over.increment > 0 || over.increment === undefined) && over.current < over.end) {
+				return true;
+			} else if (over.increment < 0 && over.current > over.end) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	Scope.prototype.next = function() {
 		for (var o in this.cache) {
 			this.cache[o].up_to_date = false;
@@ -346,7 +358,7 @@
 					this.updateOverride(over);
 				}
 			} else {
-				if (over.start <= over.end) {
+				if (over.increment > 0 || over.increment === undefined) {
 					if (over.current < over.end) {
 						if (over.increment) {
 							over.current += over.increment;
@@ -834,6 +846,8 @@
 		var results = [];
 		var scoperesults = [];
 		newscope.range = false;
+
+		if (!newscope.first()) return [];
 
 		while (true) {
 			var val = this.boundValue(newscope.clone());
