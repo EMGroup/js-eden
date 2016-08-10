@@ -149,8 +149,6 @@ function initialiseJSEden(callback) {
 		document.addEventListener("touchcancel", touchHandler, true);
 
 		edenUI = new EdenUI(eden);
-		window.pageXOffset = 0; //Chrome remembers position on refresh.
-		window.pageYOffset = 0;
 		edenUI.scrollBarSize2 = window.innerHeight - $(window).height();
 
 		$(document)
@@ -195,6 +193,7 @@ function initialiseJSEden(callback) {
 		doneLoading = function () {
 			eden.captureInitialState();
 
+			window.scrollTo(0, 0); //Chrome remembers position on refresh.
 			// Remove spinning loader and message
 			edenUI.finishedLoading();
 
