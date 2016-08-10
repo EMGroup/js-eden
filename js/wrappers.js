@@ -32,7 +32,6 @@ Eden.Agent = function(parent, name, meta, options) {
 	Eden.Agent.agents[this.name] = this;
 
 	if (meta === undefined) {
-		console.error("Meta undefined for " + name);
 		meta = Eden.DB.createMeta(name);
 	}
 
@@ -181,7 +180,8 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 
 			// Errors on load?
 			if (ag.ast && ag.ast.script.errors.length > 0) {
-				console.error(ag.ast.script.errors[0].prettyPrint());
+				//console.error(ag.ast.script.errors[0].prettyPrint());
+				//Eden.Agent.emit("error", [ag,ag.ast.script.errors[0]]);
 			}
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
@@ -877,7 +877,7 @@ Eden.Agent.prototype.setSource = function(source, net, lineno) {
 	this.ast.agent = this;
 
 	if (this.hasErrors() && !waserrored) {
-		Eden.Agent.emit("error", [this]);
+		Eden.Agent.emit("error", [this,this.ast.script.errors[0]]);
 	} else if (!this.hasErrors() && waserrored) {
 		Eden.Agent.emit("fixed", [this]);
 	}

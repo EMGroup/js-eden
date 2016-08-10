@@ -153,6 +153,15 @@ Eden.AST.prototype.getBlockLines = function(lineno) {
 
 
 
+Eden.AST.prototype.findStatementLine = function(statement) {
+	for (var i=0; i<this.lines.length; i++) {
+		if (this.lines[i] === statement) return i+1;
+	}
+	return -1;
+}
+
+
+
 /**
  * Execute the given statement and catch any errors.
  */

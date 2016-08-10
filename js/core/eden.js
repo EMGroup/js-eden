@@ -17,14 +17,15 @@ function listenTo(eventName, target, callback) {
 function emit(eventName, eventArgs) {
 	var listenersForEvent = this.listeners[eventName];
 	if (!listenersForEvent) {
-		return;
+		return false;
 	}
 	var i;
 	for (i = 0; i < listenersForEvent.length; ++i) {
 		var target = listenersForEvent[i].target;
 		var callback = listenersForEvent[i].callback;
-		callback.apply(target, eventArgs);
+		if (callback.apply(target, eventArgs)) return true;
 	}
+	return false;
 }
 
 // import node.js modules
@@ -156,10 +157,14 @@ function concatAndResolveUrl(url, concat) {
 			edenUI.showMessage("error", "Error: " + msg);
 		});
 
-		Eden.Agent.listenTo("error", undefined, function(agent) {
-			if (!agent.owned) {
-				console.error(agent.name);
-				edenUI.showMessage("error", "Error: " + agent.name);
+		Eden.Agent.listenTo("error", undefined, function(agent,err) {
+			if (err) {
+				var msg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in " + agent.name + ":" + ((err.line != -1)?err.line:"") + " -> " + err.messageText();
+				var htmlmsg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in <a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?err.line:"") + "</a> -> " + err.messageText();
+				console.error(msg);
+				if (!agent.owned) {
+					edenUI.showMessage("error", htmlmsg);
+				}
 			}
 		});
 
@@ -210,6 +215,16 @@ function concatAndResolveUrl(url, concat) {
 			category: this.viewCategories.interpretation
 		};
 	}
+
+
+	EdenUI.prototype.gotoCode = function(agentname, line) {
+		if (!Eden.Agent.emit("goto", [Eden.Agent.agents[agentname], line])) {
+			this.createView("errorscript", "ScriptInput", window);
+			eden.root.lookup("_view_errorscript_agent").assign(agentname, eden.root.scope);
+			Eden.Agent.emit("goto", [Eden.Agent.agents[agentname], line]);
+		}
+	}
+
 
 	/**Momentarily provides a visual cue to direct the user's gaze towards a particular view.
 	 * Default implementation (in case support for displaying multiple views simultaneously isn't loaded).

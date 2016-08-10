@@ -125,6 +125,10 @@ function EdenScriptGutter(parent, infob) {
 	}
 	me.endHover = endHover;
 
+	me.selectLine = function(line) {
+		me.lines[line-1].selected = true;
+	}
+
 	this.$gutter
 	.on('mousedown', '.eden-gutter-item', function(e) {
 		if (me.ast.hasErrors()) return;

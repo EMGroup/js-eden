@@ -50,14 +50,20 @@ Symbol.Definition.prototype.getFullSource = function() {
 
 Symbol.Definition.prototype.runtimeError = function(e, agent) {
 	var err;
+	var agentobj = Eden.Agent.agents[agent];
 
 	if (/[0-9][0-9]*/.test(e)) {
-		err = new Eden.RuntimeError(this.baseAST, parseInt(e), this, e);
+		err = new Eden.RuntimeError(undefined, parseInt(e), this.baseAST, e);
 	} else {
-		err = new Eden.RuntimeError(this.baseAST, 0, this, e);
+		err = new Eden.RuntimeError(undefined, 0, this.baseAST, e);
 	}
+
+	if (agentobj) {
+		err.line = agentobj.findDefinitionLine(this.baseSource);
+	}
+
 	this.baseAST.errors.push(err);
-	if (agent) Eden.Agent.emit("error", [Eden.Agent.agents[agent]]);
+	if (agentobj) Eden.Agent.emit("error", [agentobj,err]);
 	else console.log(err.prettyPrint());
 }
 

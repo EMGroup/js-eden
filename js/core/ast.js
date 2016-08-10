@@ -1469,11 +1469,15 @@ Eden.AST.Definition.prototype.execute = function(root, ctx, base, scope) {
 			sym.define(this, base.agent, base);
 		}
 	} catch(e) {
+		var err;
 		if (e.message == Eden.RuntimeError.EXTENDSTATIC) {
-			this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.EXTENDSTATIC, this, "Can only define list items if the list is defined"));
+			err = new Eden.RuntimeError(base, Eden.RuntimeError.EXTENDSTATIC, this, "Can only define list items if the list is defined");
 		} else {
-			console.error("Unknown error when defining a symbol");
+			err = new Eden.RuntimeError(base, Eden.RuntimeError.UNKNOWN, this, e);
 		}
+		this.errors.push(err);
+		err.line = base.findStatementLine(this);
+		Eden.Agent.emit("error", [base.agent,this.errors[this.errors.length-1]]);
 	}
 		
 }
@@ -1609,7 +1613,7 @@ Eden.AST.Assignment.prototype.execute = function(root, ctx, base, scope) {
 		} else {
 			this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
 		}
-		Eden.Agent.emit("error", [base.agent]);
+		Eden.Agent.emit("error", [base.agent,this.errors[this.errors.length-1]]);
 	}
 };
 

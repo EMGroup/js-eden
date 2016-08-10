@@ -991,6 +991,15 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		Eden.Agent.listenTo("changed", agent, agentPatched);
 
 
+		Eden.Agent.listenTo("goto", agent, function(ag, line) {
+			if (agent.state[obs_tabs].indexOf(ag.name) == -1) return false;
+			agent.state[obs_agent] = ag.name;
+			scrollToLine(line);
+			gutter.selectLine(line);
+			return true;
+		});
+
+
 		/*edenUI.eden.root.addGlobal(function(sym, create) {
 			if (highlighter.ast) {
 				var whens = highlighter.ast.triggers[sym.name.slice(1)];
