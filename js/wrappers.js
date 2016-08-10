@@ -181,7 +181,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 
 			// Errors on load?
 			if (ag.ast && ag.ast.script.errors.length > 0) {
-				console.error(ag.ast.script.errors[0].prettyPrint());
+				console.error("Agent: " + path + "@" + tag + "\n" + ag.ast.script.errors[0].prettyPrint());
 			}
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
