@@ -57,7 +57,8 @@ Symbol.Definition.prototype.runtimeError = function(e, agent) {
 		err = new Eden.RuntimeError(this.baseAST, 0, this, e);
 	}
 	this.baseAST.errors.push(err);
-	if (agent) Eden.Agent.emit("error", [agent]);
+	if (agent) Eden.Agent.emit("error", [Eden.Agent.agents[agent]]);
+	else console.log(err.prettyPrint());
 }
 
 Symbol.Definition.prototype.compile = function() {

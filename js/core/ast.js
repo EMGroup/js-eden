@@ -1455,18 +1455,18 @@ Eden.AST.Definition.prototype.generate = function(ctx) {
 	}*/
 };
 
-Eden.AST.Definition.prototype.execute = function(root, ctx, base, scope, agent) {
+Eden.AST.Definition.prototype.execute = function(root, ctx, base, scope) {
 	this.executed = 1;
 	//this.base = base;
 	//console.log("RHS = " + rhs);
-	var source = base.getSource(this);
+	//var source = base.getSource(this);
 	var sym = this.lvalue.getSymbol(root,ctx,base,scope);
 
 	try {
 		if (this.lvalue.lvaluep.length > 0) {
 			sym.addExtension(this.lvalue.generateIdStr(), this, base);
 		} else {
-			sym.define(this, agent, base);
+			sym.define(this, base.agent, base);
 		}
 	} catch(e) {
 		if (e.message == Eden.RuntimeError.EXTENDSTATIC) {
@@ -1587,7 +1587,7 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 	this.compiled = eval(rhs);
 }
 
-Eden.AST.Assignment.prototype.execute = function(root, ctx, base, scope, agent) {
+Eden.AST.Assignment.prototype.execute = function(root, ctx, base, scope) {
 	if (this.expression === undefined) return;
 	this.executed = 1;
 	this.compile(ctx);
@@ -1596,10 +1596,10 @@ Eden.AST.Assignment.prototype.execute = function(root, ctx, base, scope, agent) 
 		var sym = this.lvalue.getSymbol(root,ctx,base,scope);
 		if (this.lvalue.hasListIndices()) {
 			this.value = this.compiled.call(sym,root,scope);
-			sym.listAssign(this.value, scope, agent, false, this.lvalue.executeCompList(ctx, scope));
+			sym.listAssign(this.value, scope, base.agent, false, this.lvalue.executeCompList(ctx, scope));
 		} else {
 			this.value = this.compiled.call(sym,root,scope);
-			sym.assign(this.value,scope, agent);
+			sym.assign(this.value,scope, base.agent);
 		}
 	} catch(e) {
 		if (e.message == Eden.RuntimeError.ASSIGNTODEFINED) {
@@ -1609,6 +1609,7 @@ Eden.AST.Assignment.prototype.execute = function(root, ctx, base, scope, agent) 
 		} else {
 			this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
 		}
+		Eden.Agent.emit("error", [base.agent]);
 	}
 };
 
@@ -3007,7 +3008,7 @@ function runEdenAction(source, action) {
 	}
 }
 
-Eden.AST.Script.prototype.execute = function(root, ctx, base, scope, agent, cb) {
+Eden.AST.Script.prototype.execute = function(root, ctx, base, scope, cb) {
 	// Un named actions execute immediately.
 	//if (this.name === undefined) {
 		this.executeReal(root,ctx,base, scope, undefined, cb);

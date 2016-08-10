@@ -27,6 +27,7 @@ Eden.AST = function(code, imports) {
 	this.imports = (imports) ? imports : [];
 	this.dependencies = {};		// Dummy dependency record
 	this.warnings = [];
+	this.agent = undefined;
 
 	this.lastDoxyComment = undefined;
 	this.mainDoxyComment = undefined;
@@ -94,7 +95,7 @@ Eden.AST.prototype.clearExecutedState = function() {
  * If the statement is part of a larger statement block then execute
  * that instead (eg. a proc).
  */
-Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
+Eden.AST.prototype.executeLine = function(lineno, cb) {
 	var line = lineno;
 	// Make sure we are not in the middle of a proc or func.
 	//while ((line > 0) && (this.lines[line] === undefined)) {
@@ -115,7 +116,7 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
 	statement = this.getBase(statement);
 
 	// Execute only the currently changed root statement
-	this.executeStatement(statement, line, agent, cb);
+	this.executeStatement(statement, line, cb);
 }
 
 
@@ -155,12 +156,12 @@ Eden.AST.prototype.getBlockLines = function(lineno) {
 /**
  * Execute the given statement and catch any errors.
  */
-Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
+Eden.AST.prototype.executeStatement = function(statement, line, cb) {
 	try {
-		statement.execute(eden.root,this, this, eden.root.scope, agent, cb);
+		statement.execute(eden.root,this, this, eden.root.scope, cb);
 	} catch (e) {
 		eden.error(e);
-		console.error("Details: " + e + "\nAgent: " + agent.name);
+		console.error("Details: " + e + "\nAgent: " + this.agent.name);
 		console.log(statement);
 		//throw e;
 	}

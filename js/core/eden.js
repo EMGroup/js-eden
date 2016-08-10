@@ -156,6 +156,13 @@ function concatAndResolveUrl(url, concat) {
 			edenUI.showMessage("error", "Error: " + msg);
 		});
 
+		Eden.Agent.listenTo("error", undefined, function(agent) {
+			if (!agent.owned) {
+				console.error(agent.name);
+				edenUI.showMessage("error", "Error: " + agent.name);
+			}
+		});
+
 		/**
 		 * @type {Object.<string, Array.<{target: *, callback: function(...[*])}>>}
 		 * @private
@@ -643,7 +650,7 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
 	 */
 	Eden.prototype.error = function (error, origin) {
-		if (origin != "error") {
+		/*if (origin != "error") {
 			//Errors that halt execution are always reported and cause error
 			//handling to be restored to the default behaviour to avoid confusion.
 			this.reportErrors = true;
@@ -655,7 +662,8 @@ function concatAndResolveUrl(url, concat) {
 				this.emit('executeError', [error, {errorNumber: this.errorNumber}]);
 			}
 		}
-		++this.errorNumber;
+		++this.errorNumber;*/
+		throw error;
 	};
 	
 	Eden.prototype.executeEden = function (code, origin, prefix, agent, success) {

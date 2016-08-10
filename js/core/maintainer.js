@@ -928,7 +928,7 @@
 				this.evalResolved = true;
 			}
 		} catch (e) {
-			this.definition.runtimeError(e.message);
+			this.definition.runtimeError(e.message, this.last_modified_by);
 			//this.logError(e);
 			cache.value = undefined;
 			cache.up_to_date = true;
