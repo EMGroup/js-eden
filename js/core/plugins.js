@@ -318,19 +318,19 @@
 				ui.position.top = desktopTop;
 			}
 			var scrollX = 0, scrollY = 0;
-			if (ui.position.left + ui.size.width < window.pageXOffset + me.gridSizeX) {
+			if (ui.position.left + ui.size.width < document.body.scrollLeft + me.gridSizeX) {
 				ui.size.width = ui.size.width - me.gridSizeX;
 				scrollX = -me.gridSizeX;
 			}
-			if (ui.position.top + ui.size.height < window.pageYOffset + me.gridSizeY) {
+			if (ui.position.top + ui.size.height < document.body.scrollTop + me.gridSizeY) {
 				ui.size.height = ui.size.height - me.gridSizeY;
 				scrollY = -me.gridSizeY;
-			} else if (ui.position.top < window.pageYOffset + me.gridSizeY) {
+			} else if (ui.position.top < document.body.scrollTop + me.gridSizeY) {
 				scrollY = -me.gridSizeY;
 			}
 			if (diag.momentum >= 35 || diag.resizeExtend == 2) {
 				var setTimer = false;
-				if (ui.position.left + ui.size.width > window.pageXOffset + window.innerWidth - me.gridSizeX) {
+				if (ui.position.left + ui.size.width > document.body.scrollLeft + window.innerWidth - me.gridSizeX) {
 					if (diag.resizeExtend == 0) {
 						setTimer = true;
 					} else {
@@ -338,7 +338,7 @@
 						scrollX = me.gridSizeX;
 					}
 				}
-				if (ui.position.top + ui.size.height > window.pageYOffset + window.innerHeight - me.gridSizeY) {
+				if (ui.position.top + ui.size.height > document.body.scrollTop + window.innerHeight - me.gridSizeY) {
 					if (diag.resizeExtend == 0) {
 						setTimer = true;
 					} else {
@@ -692,8 +692,8 @@
 		var newHeight = heightSym.value();
 		var right = left + newWidth + this.scrollBarSize + this.dialogBorderWidth;
 		var bottom = top + newHeight + this.titleBarHeight - 1;
-		var xMax = window.innerWidth + window.pageXOffset;
-		var yMax = window.innerHeight + window.pageYOffset - this.scrollBarSize2;
+		var xMax = window.innerWidth + document.body.scrollLeft;
+		var yMax = window.innerHeight + document.body.scrollTop - this.scrollBarSize2;
 		var bottomBarY = yMax - this.bottomBarHeight;			
 		var hciName = Symbol.hciAgent.name;
 		//Round the width.  For some reason the width set by jquery.ui isn't always aligned to the grid.
@@ -737,7 +737,7 @@
 		diag.dialog("option", "width", adjustedWidth);
 		diag.dialog("option", "height", adjustedHeight);
 		//No idea why the following line is needed but it makes things work smoother when the window is positioned more than the value of the CSS height of the body element down the page.
-		diag.parent().offset({top: top - window.pageYOffset});
+		diag.parent().offset({top: top - document.body.scrollTop});
 
 		newWidth = adjustedWidth - this.scrollBarSize;
 		newHeight = adjustedHeight - this.titleBarHeight;

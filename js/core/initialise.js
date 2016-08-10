@@ -92,8 +92,6 @@ function initialiseJSEden() {
 
 	$(document).ready(function () {
 		edenUI = new EdenUI(eden);
-		window.pageXOffset = 0; //Chrome remembers position on refresh.
-		window.pageYOffset = 0;
 		edenUI.scrollBarSize2 = window.innerHeight - $(window).height();
 
 		$(document)
@@ -128,6 +126,7 @@ function initialiseJSEden() {
 		};
 		
 		var doneLoading = function () {
+			window.scrollTo(0, 0); //Chrome remembers position on refresh.
 			if (menuBar) {
 				root.lookup("_menubar_status").assign("JS-EDEN has finished loading.", {name: "/system"});
 			}
