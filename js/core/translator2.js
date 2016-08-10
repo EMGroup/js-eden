@@ -1277,6 +1277,7 @@ Eden.AST.prototype.pELIST_SIMPLE_P = function() {
  */
 Eden.AST.prototype.pEXPRESSION_PPPPPP = function() {
 	if (this.token == "?") {
+		this.warnings.push(new Eden.SyntaxWarning(this, Eden.SyntaxWarning.DEPRECATED, "old 'if' syntax using '?'. Use new 'if' syntax"));
 		this.next();
 		var tern = new Eden.AST.TernaryOp("?");
 		tern.setFirst(this.pEXPRESSION());
@@ -1360,6 +1361,8 @@ Eden.AST.prototype.pACTION = function() {
 	var action = new Eden.AST.Action();
 	var parent = this.parent;
 	this.parent = action;
+
+	this.warnings.push(new Eden.SyntaxWarning(this, Eden.SyntaxWarning.DEPRECATED, "procs. Use 'when' statements"));
 
 	if (this.token == "OBSERVABLE") {
 		action.name = this.data.value;
@@ -1889,6 +1892,8 @@ Eden.AST.prototype.pFUNCTION = function() {
 	var parent = this.parent;
 	this.parent = func;
 
+	this.warnings.push(new Eden.SyntaxWarning(this, Eden.SyntaxWarning.DEPRECATED, "functions. Use scoping if possible"));
+
 	if (this.token == "OBSERVABLE") {
 		func.name = this.data.value;
 		this.next();
@@ -2324,6 +2329,8 @@ Eden.AST.prototype.pREQUIRE = function() {
 Eden.AST.prototype.pAFTER = function() {
 	var after = new Eden.AST.After();
 
+	this.warnings.push(new Eden.SyntaxWarning(this, Eden.SyntaxWarning.DEPRECATED, "after. Use 'when' with a 'wait'"));
+
 	if (this.token != "(") {
 		after.error(new Eden.SyntaxError(this, Eden.SyntaxError.AFTEROPEN));
 		return after;
@@ -2358,6 +2365,7 @@ Eden.AST.prototype.pAFTER = function() {
  * INCLUDE -> ( EXPRESSION ) ; INCLUDE'
  */
 Eden.AST.prototype.pINCLUDE = function() {
+	this.warnings.push(new Eden.SyntaxWarning(this, Eden.SyntaxWarning.DEPRECATED, "include. Use 'import' to bring in agents"));
 	var express = this.pEXPRESSION();
 	var inc = new Eden.AST.Include();//this.pINCLUDE_P();
 	inc.prepend(express);
