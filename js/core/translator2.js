@@ -1113,16 +1113,18 @@ Eden.AST.prototype.pSCOPE_P = function() {
 		return scope;
 	}
 
-	if (this.token != "->" && this.token != "in" && this.token != "-->") {
+	if (this.token != "->" && this.token != "in" && this.token != "-->" && this.token != "is") {
 		var scope = new Eden.AST.Scope();
 		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPEEQUALS));
 		return scope;
 	}
 	if (this.token == "in") isin = true;
 	if (this.token == "-->") isdefault = true;
-	//if (this.token == "=") isoneshot = true;
+
+	var legacy = this.token == "is";
+
 	this.next();
-	var expression = this.pFACTOR_SIMPLE();
+	var expression = (legacy || isin) ? this.pEXPRESSION() : this.pFACTOR_SIMPLE();
 	if (expression.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
 		obs.setStart(expression);
@@ -1132,10 +1134,11 @@ Eden.AST.prototype.pSCOPE_P = function() {
 
 	var exp2 = undefined;
 	var exp3 = undefined;
-	if (isin) {
+	if (isin || (legacy && this.token == "..")) {
+		isin = true;
 		if (this.token == "..") {
 			this.next();
-			exp2 = this.pFACTOR_SIMPLE();
+			exp2 = this.pEXPRESSION();
 			if (exp2.errors.length > 0) {
 				var scope = new Eden.AST.Scope();
 				obs.setStart(expression);
@@ -1147,7 +1150,7 @@ Eden.AST.prototype.pSCOPE_P = function() {
 
 		if (this.token == "..") {
 			this.next();
-			exp3 = this.pFACTOR_SIMPLE();
+			exp3 = this.pEXPRESSION();
 			if (exp3.errors.length > 0) {
 				var scope = new Eden.AST.Scope();
 				obs.setStart(expression);

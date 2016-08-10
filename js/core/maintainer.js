@@ -324,7 +324,9 @@
 	Scope.prototype.first = function() {
 		for (var i = this.overrides.length-1; i >= 0; i--) {
 			var over = this.overrides[i];
-			if (over.end === undefined) continue;
+			if (!over.isin && !over.range) continue;
+
+			if (!over.range) return over.start.length != 0;
 
 			if ((over.increment > 0 || over.increment === undefined) && over.current < over.end) {
 				return true;
@@ -358,13 +360,13 @@
 					this.updateOverride(over);
 				}
 			} else {
+				if (over.increment !== undefined) {
+					over.current += over.increment;
+				} else {
+					over.current++;
+				}
 				if (over.increment > 0 || over.increment === undefined) {
-					if (over.current < over.end) {
-						if (over.increment) {
-							over.current += over.increment;
-						} else {
-							over.current++;
-						}
+					if (over.current <= over.end) {
 						this.updateOverride(over);
 
 						// Make sure all other overrides are also up-to-date
@@ -378,12 +380,7 @@
 						this.updateOverride(over);
 					}
 				} else {
-					if (over.current > over.end) {
-						if (over.increment) {
-							over.current += over.increment;
-						} else {
-							over.current--;
-						}
+					if (over.current >= over.end) {
 						this.updateOverride(over);
 
 						// Make sure all other overrides are also up-to-date
