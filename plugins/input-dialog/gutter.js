@@ -78,7 +78,7 @@ function EdenScriptGutter(parent, infob) {
 				for (var i=lines[0]; i<=lines[1]; i++) {
 					me.lines[i].selected = !alreadyselected;
 					changeClass(me.gutter.childNodes[i], "select", !alreadyselected);
-					changeClass(me.gutter.childNodes[i], "hover", false);
+					changeClass(me.gutter.childNodes[i], "hover", me.lines[line].highlight);
 				}
 				//me.lines[line].selected = !me.lines[line].selected;
 				//changeClass(e.target, "select", me.lines[line].selected);
@@ -105,7 +105,7 @@ function EdenScriptGutter(parent, infob) {
 		if (dragselect && !shiftdown) {
 			me.lines[line].selected = !alreadyselected;
 			changeClass(me.gutter.childNodes[line], "select", !alreadyselected);
-			changeClass(me.gutter.childNodes[line], "hover", false);
+			changeClass(me.gutter.childNodes[line], "hover", me.lines[line].highlight);
 			changeClass(me.gutter.childNodes[line], "play", false);
 		}
 
@@ -117,7 +117,7 @@ function EdenScriptGutter(parent, infob) {
 				//me.gutter.childNodes[line].innerHTML = "";
 				var lines = me.ast.getBlockLines(line);
 				for (var i=lines[0]; i<=lines[1]; i++) {
-					changeClass(me.gutter.childNodes[i], "hover", false);
+					changeClass(me.gutter.childNodes[i], "hover", me.lines[line].highlight);
 					changeClass(me.gutter.childNodes[i], "play", false);
 				}
 			}
@@ -126,7 +126,8 @@ function EdenScriptGutter(parent, infob) {
 	me.endHover = endHover;
 
 	me.selectLine = function(line) {
-		me.lines[line-1].selected = true;
+		me.lines[line].highlight = true;
+		changeClass(me.gutter.childNodes[line], "hover", true);
 	}
 
 	this.$gutter
@@ -171,7 +172,7 @@ function EdenScriptGutter(parent, infob) {
 
 					// Update style
 					changeClass(me.gutter.childNodes[i], "select", me.lines[i].selected);
-					changeClass(me.gutter.childNodes[i], "hover", false);
+					changeClass(me.gutter.childNodes[i], "hover", me.lines[i].highlight);
 				}
 			}
 		}
@@ -308,7 +309,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			ele.className = "eden-gutter-item";
 			ele.setAttribute("data-line", ""+i);
 			this.gutter.appendChild(ele);
-			if (this.lines[i] === undefined) this.lines[i] = {selected: false, live: false};
+			if (this.lines[i] === undefined) this.lines[i] = {selected: false, live: false, highlight: false};
 		}
 
 		globaldoupdate = true;
@@ -371,6 +372,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 
 			if (this.lines && this.lines[i]) {
 				if (this.lines[i].selected) className += " select";
+				if (this.lines[i].highlight) className += " hover";
 				if (this.lines[i].live) {
 					className += " live";
 					//doreplace = false;

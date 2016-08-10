@@ -163,7 +163,13 @@ function concatAndResolveUrl(url, concat) {
 				var htmlmsg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in <a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?err.line:"") + "</a> -> " + err.messageText();
 				console.error(msg);
 				if (!agent.owned) {
-					edenUI.showMessage("error", htmlmsg);
+					//edenUI.showMessage("error", htmlmsg);
+					var formattedError = "<div class=\"error-item\">"+
+						htmlmsg +
+						"</div>\n\n";
+
+					me.showErrorWindow().prepend(formattedError)
+					me.showErrorWindow().prop('scrollTop', 0);
 				}
 			}
 		});

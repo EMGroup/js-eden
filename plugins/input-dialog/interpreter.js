@@ -1961,16 +1961,17 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					var obs = element.getAttribute("data-observable");
 					//console.log("GOTO: " + obs);
 					var sym = eden.root.symbols[obs];
-					if (sym) {
+					if (sym && sym.definition) {
 						var a = Eden.Agent.agents[sym.last_modified_by];
 						if (a) {
-							if (a !== scriptagent) {
+							edenUI.gotoCode(sym.last_modified_by, a.findDefinitionLine(sym.getSource()));
+							/*if (a !== scriptagent) {
 								agent.state[obs_agent] = sym.last_modified_by;
 							}
 							var lineno = a.findDefinitionLine(sym.eden_definition);
 							if (lineno >= 0) setTimeout(function() {
 								scrollToLine(lineno);
-							}, 100);
+							}, 100);*/
 							//console.log(" in " + sym.last_modified_by + "@"+lineno);
 						}
 					}
