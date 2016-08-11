@@ -500,7 +500,7 @@
 			this.symbols[name] = new Symbol(this, this.name + name);
 			this.notifyGlobals(this.symbols[name], true);
 		}
-		//this.lastlookup = name;
+		this.lastlookup = name;
 		return this.symbols[name];
 	};
 

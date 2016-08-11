@@ -162,7 +162,7 @@ function concatAndResolveUrl(url, concat) {
 				var msg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in " + agent.name + ":" + ((err.line != -1)?err.line:"") + " -> " + err.messageText();
 				var htmlmsg = ((err.type == "runtime")?"<span class='error-icon'>&#xf06a</span>" : "<span class='error-icon'>&#xf06a</span>") + " <a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?err.line:"") + "</a> " + err.messageText();
 				console.error(msg);
-				//if (!agent.owned) {
+				if (!(agent.owned && err.type == "syntax")) {
 					//edenUI.showMessage("error", htmlmsg);
 					var formattedError = $("<pre class=\"error-item\">"+
 						htmlmsg +
@@ -171,6 +171,9 @@ function concatAndResolveUrl(url, concat) {
 						var details = "";
 						if (err.statement.type == "definition" || err.statement.type == "assignment") {
 							details += "    <b>Symbol:</b> " + err.statement.lvalue.name + "\n";
+						}
+						if (err.lastsymbol) {
+							details += "    <b>Related Symbol:</b> " + err.lastsymbol + "\n";
 						}
 						if (String(err.extra).search("SyntaxError") >= 0) {
 							details += "    <b>JavaScript:</b> " + err.javascriptSource() + "\n";
@@ -187,7 +190,7 @@ function concatAndResolveUrl(url, concat) {
 
 					me.showErrorWindow().prepend(formattedError)
 					me.showErrorWindow().prop('scrollTop', 0);
-				//}
+				}
 			}
 		});
 
@@ -243,6 +246,9 @@ function concatAndResolveUrl(url, concat) {
 		);
 		this.errorWindow.on('click','.close-button',function() {
 			me.errorWindow.hide();
+		})
+		.on('click','.clear-button',function() {
+			me.errorWindow.find("#errors-dialog").html("");
 		});
 		this.errorWindow.hide();
 		this.errorWindow.appendTo($("body"));
