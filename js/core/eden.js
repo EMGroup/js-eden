@@ -165,7 +165,7 @@ function concatAndResolveUrl(url, concat) {
 				if (!agent.owned) {
 					//edenUI.showMessage("error", htmlmsg);
 					var formattedError = "<div class=\"error-item\">"+
-						htmlmsg +
+						htmlmsg + "<br/>" + err.details() +
 						"</div>\n\n";
 
 					me.showErrorWindow().prepend(formattedError)

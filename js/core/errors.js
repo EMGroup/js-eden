@@ -613,6 +613,7 @@ Eden.RuntimeError = function(context, errno, statement, extra) {
 	this.statement = statement;
 	this.extra = extra;
 	this.errno = errno;
+	this.context = context;
 }
 
 Eden.RuntimeError.UNKNOWN = 0;
@@ -644,6 +645,38 @@ Eden.RuntimeError.prototype.messageText = function() {
 		return "Not a valid list";
 	}
 	return this.extra;
+}
+
+Eden.RuntimeError.prototype.edenSource = function() {
+	if (this.statement.type == "definition") {
+		var sym = eden.root.symbols[this.statement.lvalue.name];
+		if (sym && sym.definition) {
+			return sym.getSource();
+		}
+	} else if (this.context) {
+		return this.context.getSource(this.statement);
+	}
+}
+
+Eden.RuntimeError.prototype.javascriptSource = function() {
+	return this.statement.generate({scopes: [], dependencies: {}},"scope");
+}
+
+Eden.RuntimeError.prototype.details = function() {
+	var res = "";
+	if (this.statement.type == "definition" || this.statement.type == "assignment") {
+		res += "Symbol: " + this.statement.lvalue.name + "\n";
+	}
+	if (String(this.extra).search("SyntaxError") >= 0) {
+		res += "JavaScript: " + this.javascriptSource() + "\n";
+	} else {
+		res += "Source: " + this.edenSource() + "\n";
+	}
+	if (this.extra.message) res += "Original: " + this.extra.message + "\n";
+	if (this.extra && this.extra.stack) {
+		res += "Stack: " + this.extra.stack + "\n";
+	}
+	return res;
 }
 
 Eden.RuntimeError.prototype.prettyPrint = function() {
