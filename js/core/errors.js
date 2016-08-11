@@ -614,6 +614,7 @@ Eden.RuntimeError = function(context, errno, statement, extra) {
 	this.extra = extra;
 	this.errno = errno;
 	this.context = context;
+	this.lastsymbol = eden.root.lastlookup;
 }
 
 Eden.RuntimeError.UNKNOWN = 0;
@@ -626,23 +627,29 @@ Eden.RuntimeError.ASSIGNDIMENSION = 6;
 Eden.RuntimeError.EXTENDSTATIC = 7;
 Eden.RuntimeError.INFINITERANGE = 8;
 Eden.RuntimeError.NOLISTRANGE = 9;
+Eden.RuntimeError.LEFTCONCAT = 10;
+Eden.RuntimeError.RIGHTCONCAT = 11;
 
 Eden.RuntimeError.prototype.messageText = function() {
+	var msg = (this.statement.type == "definition" || this.statement.type == "assignment") ? "'" + this.statement.lvalue.name + "': " : "";
+
 	switch (this.errno) {
 	case Eden.RuntimeError.ACTIONNAME		:
 	case Eden.RuntimeError.NOAGENT			: 
-	case Eden.RuntimeError.ASSIGNTODEFINED	: 
-	case Eden.RuntimeError.ASSIGNDIMENSION	: 
-	case Eden.RuntimeError.EXTENDSTATIC		: return this.extra
-	case Eden.RuntimeError.INFINITERANGE	: return "Range scope is infinite";
-	case Eden.RuntimeError.NOLISTRANGE		: return "Range 'in' is not a list";
+	case Eden.RuntimeError.EXTENDSTATIC		: return msg + this.extra;
+	case Eden.RuntimeError.ASSIGNTODEFINED	: return msg + "cannot assign to a defined list, use 'is'";
+	case Eden.RuntimeError.ASSIGNDIMENSION	: return msg + "list does not have this many dimensions";
+	case Eden.RuntimeError.RIGHTCONCAT		: return msg + "Concatenation: When the right hand side is a list then the left hand side must also be a list";
+	case Eden.RuntimeError.LEFTCONCAT		: return msg + "Concatenation: When the left hand side is a list then the right hand side must also be a list";
+	case Eden.RuntimeError.INFINITERANGE	: return msg + "range scope is infinite";
+	case Eden.RuntimeError.NOLISTRANGE		: return msg + "range 'in' is not a list";
 	default: break;
 	}
 
 	if (String(this.extra).search("is not a function") >= 0) {
-		return "Function does not exist";
+		return msg + "function used does not exist";
 	} else if (String(this.extra).match(/Cannot read property .* of undefined/)) {
-		return "Not a valid list";
+		return msg + "uses an undefined list";
 	}
 	return this.extra;
 }
@@ -673,9 +680,7 @@ Eden.RuntimeError.prototype.details = function() {
 		res += "Source: " + this.edenSource() + "\n";
 	}
 	if (this.extra.message) res += "Original: " + this.extra.message + "\n";
-	if (this.extra && this.extra.stack) {
-		res += "Stack: " + this.extra.stack + "\n";
-	}
+	
 	return res;
 }
 

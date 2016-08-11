@@ -102,7 +102,7 @@ Symbol.Definition.prototype.compile = function() {
 
 	for (var e in this.extensions) {
 		var ext = this.extensions[e];
-		console.log(ext);
+		//console.log(ext);
 
 		if (ext.ast.lvalue.lvaluep[0].kind == "scope") {
 			var scopeindex = ext.ast.lvalue.lvaluep[0].generateIndices(this, "scope");
@@ -142,7 +142,7 @@ Symbol.Definition.prototype.compile = function() {
 			Finally, using the raw expression, regenerate the value for that index in the new scope.
 	*/
 
-	console.log(result);
+	//console.log(result);
 	this.compiled = eval(result);
 
 	this.deps = [];

@@ -160,17 +160,34 @@ function concatAndResolveUrl(url, concat) {
 		Eden.Agent.listenTo("error", undefined, function(agent,err) {
 			if (err) {
 				var msg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in " + agent.name + ":" + ((err.line != -1)?err.line:"") + " -> " + err.messageText();
-				var htmlmsg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in <a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?err.line:"") + "</a> -> " + err.messageText();
+				var htmlmsg = ((err.type == "runtime")?"<span class='error-icon'>&#xf06a</span>" : "<span class='error-icon'>&#xf06a</span>") + " <a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?err.line:"") + "</a> " + err.messageText();
 				console.error(msg);
-				if (!agent.owned) {
+				//if (!agent.owned) {
 					//edenUI.showMessage("error", htmlmsg);
-					var formattedError = "<div class=\"error-item\">"+
-						htmlmsg + "<br/>" + err.details() +
-						"</div>\n\n";
+					var formattedError = $("<pre class=\"error-item\">"+
+						htmlmsg +
+						"</pre>\n\n");
+					formattedError.on('click', function() {
+						var details = "";
+						if (err.statement.type == "definition" || err.statement.type == "assignment") {
+							details += "    <b>Symbol:</b> " + err.statement.lvalue.name + "\n";
+						}
+						if (String(err.extra).search("SyntaxError") >= 0) {
+							details += "    <b>JavaScript:</b> " + err.javascriptSource() + "\n";
+							formattedError.html(htmlmsg + "\n" + details);
+						} else {
+							details += "    <b>Source:</b> <div class='error-source'</div>\n";
+							formattedError.html(htmlmsg + "\n" + details);
+							var ast = new Eden.AST(err.edenSource());
+							var hl = new EdenUI.Highlight(formattedError.find(".error-source").get(0));
+							hl.highlight(ast, -1, -1);
+						}
+						//formattedError.html(htmlmsg + "\n\t" + details);
+					});
 
 					me.showErrorWindow().prepend(formattedError)
 					me.showErrorWindow().prop('scrollTop', 0);
-				}
+				//}
 			}
 		});
 
@@ -202,7 +219,7 @@ function concatAndResolveUrl(url, concat) {
 		/*Category of plug-ins that pertain to the management of the JS-EDEN environment itself, e.g. Plugin Listing. */
 		this.addViewCategory("environment", "Management");		
 
-		this.views.ErrorLog = {
+		/*this.views.ErrorLog = {
 			dialog: function () {
 				if (!this.errorWindow) {
 					this.errorWindow = $(
@@ -219,14 +236,23 @@ function concatAndResolveUrl(url, concat) {
 			title: "Error Log",
 			name: "errors",
 			category: this.viewCategories.interpretation
-		};
+		};*/
+
+		this.errorWindow = $(
+			'<div class="errors-box"><button class="control-button close-button control-enabled">&#xf00d;</button><button class="control-button clear-button control-enabled">&#xf05e;</button><div id="errors-dialog"></div></div>'
+		);
+		this.errorWindow.on('click','.close-button',function() {
+			me.errorWindow.hide();
+		});
+		this.errorWindow.hide();
+		this.errorWindow.appendTo($("body"));
 	}
 
 
 	EdenUI.prototype.gotoCode = function(agentname, line) {
 		if (!Eden.Agent.emit("goto", [Eden.Agent.agents[agentname], line])) {
-			this.createView("errorscript", "ScriptInput", window);
-			eden.root.lookup("_view_errorscript_agent").assign(agentname, eden.root.scope);
+			this.createView("explorescript", "ScriptInput", window);
+			eden.root.lookup("_view_explorescript_agent").assign(agentname, eden.root.scope);
 			Eden.Agent.emit("goto", [Eden.Agent.agents[agentname], line]);
 		}
 	}
@@ -306,7 +332,8 @@ function concatAndResolveUrl(url, concat) {
 	};
 
 	EdenUI.prototype.showErrorWindow = function () {
-		this.createView("errors", "ErrorLog", window);
+		//this.createView("errors", "ErrorLog", window);
+		this.errorWindow.show();
 		return $("#errors-dialog");
 	};
 

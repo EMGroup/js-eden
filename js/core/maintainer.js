@@ -485,6 +485,8 @@
 
 		/** The stack of symbols currently being evaluated. */
 		this.currentObservables = [];
+
+		this.lastlookup = "";
 	}
 
 	/**
@@ -498,6 +500,7 @@
 			this.symbols[name] = new Symbol(this, this.name + name);
 			this.notifyGlobals(this.symbols[name], true);
 		}
+		//this.lastlookup = name;
 		return this.symbols[name];
 	};
 

@@ -1606,14 +1606,30 @@ Eden.AST.Assignment.prototype.execute = function(root, ctx, base, scope) {
 			sym.assign(this.value,scope, base.agent);
 		}
 	} catch(e) {
-		if (e.message == Eden.RuntimeError.ASSIGNTODEFINED) {
+		/*if (e.message == Eden.RuntimeError.ASSIGNTODEFINED) {
 			this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNTODEFINED, this, "Cannot assign to a defined list, use 'is'"));
 		} else if (e.message == Eden.RuntimeError.ASSIGNDIMENSION) {
 			this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNDIMENSION, this, "List does not have this many dimensions"));
 		} else {
 			this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
 		}
-		Eden.Agent.emit("error", [base.agent,this.errors[this.errors.length-1]]);
+		Eden.Agent.emit("error", [base.agent,this.errors[this.errors.length-1]]);*/
+		var agentobj = base.agent;
+		var err;
+
+		if (/[0-9][0-9]*/.test(e.message)) {
+			err = new Eden.RuntimeError(base, parseInt(e.message), this, e.message);
+		} else {
+			err = new Eden.RuntimeError(base, 0, this, e);
+		}
+
+		if (agentobj) {
+			err.line = agentobj.findDefinitionLine(base.getSource(this));
+		}
+
+		this.errors.push(err);
+		if (agentobj) Eden.Agent.emit("error", [agentobj,err]);
+		else console.log(err.prettyPrint());
 	}
 };
 
