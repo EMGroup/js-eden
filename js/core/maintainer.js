@@ -108,7 +108,11 @@
 	Scope.prototype.baseCause = function() {
 		var scope = this;
 		while(scope.parent && scope.parent.parent) scope = scope.parent;
-		return scope.cause.name.slice(1);
+		if (scope.cause) {
+			return scope.cause.name.slice(1);
+		} else {
+			return undefined;
+		}
 	}
 
 	Scope.prototype.baseScope = function() {
