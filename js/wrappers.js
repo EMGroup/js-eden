@@ -536,7 +536,7 @@ Eden.Agent.prototype.findDefinitionLine = function(name, source) {
 	if (this.ast) {
 		for (var i=0; i<this.ast.lines.length; i++) {
 			if (this.ast.lines[i]) {
-				if (this.ast.lines[i].type != "definition" && this.ast.lines[i].lvalue.name != name) continue;
+				if (this.ast.lines[i].type != "definition" || this.ast.lines[i].lvalue.name != name) continue;
 				if (this.ast.getSource(this.ast.lines[i]) == source) {
 					return i;
 				}
