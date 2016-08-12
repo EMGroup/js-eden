@@ -2382,6 +2382,10 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							endline = this.stream.line;
 							this.next();
 						}
+
+						if (this.definitions[lvalue.name] === undefined) this.definitions[lvalue.name] = [];
+						this.definitions[lvalue.name].push(formula);
+
 						stat = formula; break;
 	default : return undefined;
 	}
