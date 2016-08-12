@@ -19,16 +19,42 @@ ${{
 
 	Scaling.prototype.transform = function (context) {
 		var translateX = this.translateX;
-		if (translateX) {
+		if (translateX !== undefined) {
 			context.translate(translateX, this.translateY);
 		}
 
 		context.scale(this.scaleX, this.scaleY);
 
 		var centreX = this.centreX;
-		if (centreX) {
+		if (centreX !== undefined) {
 			context.translate(-centreX, -this.centreY);
 		}
+	}
+
+	Scaling.prototype.getCSS = function (scale) {
+		var x = this.translateX;
+		var y = this.translateY;
+		var css;
+		if (x || y) {
+			x = x * scale;
+			y = y * scale;
+			css = "translate(" + x + "px, " + y + "px) ";
+		} else {
+			css = "";
+		}
+
+		var scaleX = this.scaleX * scale;
+		var scaleY = this.scaleY * scale;
+		css = css + "scale(" + scaleX + ", " + scaleY + ") ";
+
+		x = this.centreX;
+		y = this.centreY;
+		if (x || y) {
+			x = -x / this.scaleX;
+			y = -y / this.scaleY;
+			css = css + "translate(" + x + "px, " + y + "px)";
+		}
+		return css;
 	}
 
 	Scaling.prototype.inverse = function (x, y) {

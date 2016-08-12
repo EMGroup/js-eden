@@ -33,12 +33,16 @@ WindowHighlighter.prototype.highlight = function (dialogName) {
 	this.lastDialogWidth = this.lastDialog[0].offsetWidth;
 	this.lastDialogTop = this.lastDialog[0].offsetTop;
 	this.lastDialogHeight = this.lastDialog[0].offsetHeight;
-	if (this.lastDialogLeft >= document.body.scrollLeft + window.innerWidth ||
-		this.lastDialogLeft + this.lastDialogWidth <= document.body.scrollLeft
+	var scrollX = window.pageXOffset;
+	var scrollY = window.pageYOffset;
+	if (this.lastDialogLeft >= scrollX + window.innerWidth ||
+		this.lastDialogLeft + this.lastDialogWidth < scrollX ||
+		this.lastDialogTop >= scrollY + window.innerHeight ||
+		this.lastDialogTop + this.lastDialogHeight < scrollY
 	) {
 		dialogContent.parent().offset({
-			left: document.body.scrollLeft + (window.innerWidth - this.lastDialogWidth) / 2,
-			top: document.body.scrollTop + (window.innerHeight - this.lastDialogHeight) / 2
+			left: scrollX + (window.innerWidth - this.lastDialogWidth) / 2,
+			top: scrollY + (window.innerHeight - this.lastDialogHeight) / 2
 		});
 	}
 
@@ -60,15 +64,25 @@ WindowHighlighter.prototype.stopHighlight = function (dialogName, unminimize) {
 			dialogContent.dialogExtend("minimize");
 		}
 	} else {
-		if (this.lastDialogLeft + this.lastDialogWidth > document.body.scrollLeft + window.innerWidth) {
-			document.body.scrollLeft = this.lastDialogLeft + this.lastDialogWidth - window.innerWidth;
-		} else if (this.lastDialogLeft < document.body.scrollLeft) {
-			document.body.scrollLeft = this.lastDialogLeft;
+		var scrollX = window.pageXOffset;
+		var scrollY = window.pageYOffset;
+		var needsScrolling = false;
+		if (this.lastDialogLeft + this.lastDialogWidth > scrollX + window.innerWidth) {
+			scrollX = this.lastDialogLeft + this.lastDialogWidth - window.innerWidth;
+			needsScrolling = true;
+		} else if (this.lastDialogLeft < scrollX) {
+			scrollX = this.lastDialogLeft;
+			needsScrolling = true;
 		}
-		if (this.lastDialogTop + this.lastDialogHeight > document.body.scrollTop + window.innerHeight) {
-			document.body.scrollTop = this.lastDialogTop + this.lastDialogHeight - window.innerHeight + edenUI.scrollBarSize2 + edenUI.bottomBarHeight;
-		} else if (this.lastDialogTop < document.body.scrollTop) {
-			document.body.scrollTop = this.lastDialogTop - edenUI.menuBarHeight;
+		if (this.lastDialogTop + this.lastDialogHeight > scrollY + window.innerHeight) {
+			scrollY = this.lastDialogTop + this.lastDialogHeight - window.innerHeight + edenUI.scrollBarSize2 + edenUI.bottomBarHeight;
+			needsScrolling = true;
+		} else if (this.lastDialogTop < scrollY) {
+			scrollY = this.lastDialogTop - edenUI.menuBarHeight;
+			needsScrolling = true;
+		}
+		if (needsScrolling) {
+			window.scrollTo(scrollX, scrollY);
 		}
 	}
 
