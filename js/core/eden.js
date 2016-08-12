@@ -160,7 +160,7 @@ function concatAndResolveUrl(url, concat) {
 		Eden.Agent.listenTo("error", undefined, function(agent,err) {
 			if (err) {
 				var msg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in " + agent.name + ":" + ((err.line != -1)?err.line:"") + " -> " + err.messageText();
-				var htmlmsg = ((err.type == "runtime")?"<span class='error-icon'>&#xf06a</span>" : "<span class='error-icon'>&#xf06a</span>") + " <a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?err.line:"") + "</a> " + err.messageText();
+				var htmlmsg = ((err.type == "runtime")?"<span class='error-icon'>&#xf06a</span>" : "<span class='error-icon'>&#xf06a</span>") + " <a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?(err.line+1):"") + "</a> " + err.messageText();
 				console.error(msg);
 				if (!(agent.owned && err.type == "syntax")) {
 					//edenUI.showMessage("error", htmlmsg);

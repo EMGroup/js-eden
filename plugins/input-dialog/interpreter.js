@@ -113,11 +113,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	}
 
 
-	function HistoryEntry(agent, source, runforce) {
+	function HistoryEntry(agent, symbol, source, runforce) {
 		this.script = source;
 		this.timestamp = Date.now();
 		this.agent = agent;
 		this.runforce = runforce;
+		this.symbol = symbol;
 	}
 
 
@@ -138,7 +139,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				var statement = agent.ast.lines[line];
 				if (statement) {
 					var base = agent.ast.getBase(statement);
-					execlog.push(new HistoryEntry(agent.name, agent.ast.getSource(base)));
+					execlog.push(new HistoryEntry(agent.name, (statement.lvalue) ? statement.lvalue.name : undefined, agent.ast.getSource(base)));
 				
 					if (histdiv) {
 						prettyHistory(histdiv);
@@ -155,7 +156,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (execlog[i].runforce === true) {
 				result += "/* "+execlog[i].agent+":run - "+get_time_diff(execlog[i].timestamp / 1000)+" */\n";
 			} else {
-				var lineno = Eden.Agent.agents[execlog[i].agent].findDefinitionLine(execlog[i].script)+1;
+				var lineno = Eden.Agent.agents[execlog[i].agent].findDefinitionLine(execlog[i].symbol, execlog[i].script)+1;
 				if (lineno == 0) lineno = "n/a";
 				result += "/* "+execlog[i].agent+":" + lineno + " - "+get_time_diff(execlog[i].timestamp / 1000)+" */\n";
 			}
@@ -1964,7 +1965,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					if (sym && sym.definition) {
 						var a = Eden.Agent.agents[sym.last_modified_by];
 						if (a) {
-							edenUI.gotoCode(sym.last_modified_by, a.findDefinitionLine(sym.getSource()));
+							edenUI.gotoCode(sym.last_modified_by, a.findDefinitionLine(obs, sym.getSource()));
 							/*if (a !== scriptagent) {
 								agent.state[obs_agent] = sym.last_modified_by;
 							}

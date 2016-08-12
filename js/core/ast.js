@@ -1624,7 +1624,7 @@ Eden.AST.Assignment.prototype.execute = function(root, ctx, base, scope) {
 		}
 
 		if (agentobj) {
-			err.line = agentobj.findDefinitionLine(base.getSource(this));
+			err.line = agentobj.findDefinitionLine(this.lvalue.name, base.getSource(this));
 		}
 
 		this.errors.push(err);

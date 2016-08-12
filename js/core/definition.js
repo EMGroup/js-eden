@@ -59,7 +59,7 @@ Symbol.Definition.prototype.runtimeError = function(e, agent) {
 	}
 
 	if (agentobj) {
-		err.line = agentobj.findDefinitionLine(this.baseSource);
+		err.line = agentobj.findDefinitionLine(this.baseAST.lvalue.name, this.baseSource);
 	}
 
 	this.baseAST.errors.push(err);

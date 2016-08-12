@@ -536,6 +536,18 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation,
 				return;
 			}
 			singleClickPerformed = false;
+
+			var agent = Eden.Agent.agents[symbol.last_modified_by];
+			console.log(agent);
+			if (agent && symbol.definition) {
+				var line = agent.findDefinitionLine(symbol.name.slice(1), symbol.getSource());
+				console.log(symbol.name.slice(1) + " is on line " + line);
+				if (line >= 0) {
+					edenUI.gotoCode(agent.name, line);
+					return;
+				}
+			}
+
 			var editorViewName = "edit_" + me.name;
 			edenUI.createView(editorViewName, "ScriptInput", undefined).update([symbol]);
 			edenUI.eden.root.lookup("_view_" + editorViewName + "_title").assign("Script for " + me.name, edenUI.eden.root.scope, Symbol.hciAgent);
