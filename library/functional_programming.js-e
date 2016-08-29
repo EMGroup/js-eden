@@ -54,7 +54,7 @@ func foldl {
 	if ($# < 2) {
 		error("foldl: This function requires at least 2 arguments.");
 		return @;
-	} else if ($# == 3 && isList($[2])) {
+	} else if ($# == 3 && isList($[3])) {
 		f = $[1];
 		initialValue = $[2];
 		list = $[3];
@@ -83,7 +83,7 @@ func foldr {
 	if ($# < 2) {
 		error("foldr: This function requires at least 2 arguments.");
 		return @;
-	} else if ($# == 3 && isList($[2])) {
+	} else if ($# == 3 && isList($[3])) {
 		f = $[1];
 		initialValue = $[2];
 		list = $[3];

@@ -174,12 +174,24 @@ Text.prototype.draw = function (context, scale) {
 	} else {
 		context.textBaseline = "top";
 	}
-	if (this.drawingOptions.align) {
-		context.textAlign = this.drawingOptions.align;
+
+	var lineWidth;
+	if (this.outlinecolour !== undefined) {
+		lineWidth = context.lineWidth;
+	} else {
+		lineWidth = 0;
 	}
-	var lineWidth = context.lineWidth;
+
 	var x = (this.x + lineWidth / 2) * scale + 1;
 	var y = this.y * scale + 1;
+
+	var align = this.drawingOptions.align;
+	if (align) {
+		context.textAlign = align;
+		if (align == "center") {
+			x--;
+		}
+	}
 
 	if (this.fillcolour !== undefined) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
@@ -209,7 +221,12 @@ Text.prototype.isHit = function (context, scale, px, py) {
 		document.body.removeChild(div);
 	}
 
-	var lineWidth = context.lineWidth;
+	var lineWidth;
+	if (this.outlinecolour !== undefined) {
+		lineWidth = context.lineWidth;
+	} else {
+		lineWidth = 0;
+	}
 	width = this.width / scale + lineWidth;
 	height = this.height / scale + lineWidth / 2;
 
@@ -361,7 +378,13 @@ func textWidth {
 		context.font = css;
 		context.textBaseline = "top";
 		var metrics = context.measureText(text);
-		var width = Math.ceil(metrics.width + context.lineWidth) / scale;
+		var lineWidth;
+		if (this.outlinecolour !== undefined) {
+			lineWidth = context.lineWidth;
+		} else {
+			lineWidth = 0;
+		}
+		var width = Math.ceil(metrics.width + lineWidth) / scale;
 		context.restore();
 		return width;
 	}}$;

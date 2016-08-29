@@ -66,6 +66,7 @@ div.canvas-dialog .ui-dialog-titlebar {
 }
 
 .canvashtml-div-item {
+	box-sizing: border-box;
 	overflow: auto;
 }
 
