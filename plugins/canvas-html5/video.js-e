@@ -149,7 +149,7 @@ func Audio {
 }
 
 ${{
-	function Audiovisual(name, type, preload) {
+	window.Audiovisual = function(name, type, preload) {
 		this.name = name;
 		this.obsName = root.currentObservableName();
 		this.type = type;

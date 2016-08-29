@@ -33,6 +33,7 @@
 }
 
 .canvashtml-div-item {
+	box-sizing: border-box;
 	overflow: auto;
 }
 
