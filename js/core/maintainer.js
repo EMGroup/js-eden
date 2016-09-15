@@ -233,7 +233,7 @@
 			var over = this.overrides[i];
 			if (over.end === undefined) continue;
 
-			if (over.current < over.end) {
+			if (over.current <= over.end) {
 				return true;
 			}
 		}
