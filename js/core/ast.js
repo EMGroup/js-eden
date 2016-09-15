@@ -1145,7 +1145,7 @@ Eden.AST.Definition.prototype.setSource = function(start, end) {
 
 Eden.AST.Definition.prototype.generateDef = function(ctx) {
 	var result = "function(context, scope, cache) {\n";
-	this.locals = ctx.locals;
+	this.locals = (ctx) ? ctx.locals : undefined;
 	var express = this.expression.generate(this, "scope");
 
 	// Generate array of all scopes used in this definition (if any).
