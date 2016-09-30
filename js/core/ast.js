@@ -459,7 +459,8 @@ Eden.AST.TernaryOp.prototype.generate = function(ctx, scope) {
 	}
 
 	if (this.first.doesReturnBound && this.second.doesReturnBound && this.first.doesReturnBound() && this.second.doesReturnBound()) {
-		return "("+cond+")?("+first+"):("+second+")";
+		this.returnsbound = true;
+		return "(("+cond+")?("+first+"):("+second+"))";
 	} else {
 		if (this.first.doesReturnBound && this.first.doesReturnBound()) {
 			first += ".value";
@@ -468,7 +469,7 @@ Eden.AST.TernaryOp.prototype.generate = function(ctx, scope) {
 			second += ".value";
 		}
 		this.returnsbound = false;
-		return "("+cond+")?("+first+"):("+second+")";
+		return "(("+cond+")?("+first+"):("+second+"))";
 	}
 }
 
