@@ -181,7 +181,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 
 			// Errors on load?
 			if (ag.ast && ag.ast.script.errors.length > 0) {
-				console.error(ag.ast.script.errors[0].prettyPrint());
+				console.error("Agent: " + path + "@" + tag + "\n" + ag.ast.script.errors[0].prettyPrint());
 			}
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
@@ -526,9 +526,10 @@ Eden.Agent.prototype.changeVersion = function(tag, callback) {
 
 
 
-Eden.Agent.prototype.findDefinitionLine = function(source) {
+Eden.Agent.prototype.findDefinitionLine = function(name, source) {
 	if (this.ast) {
 		for (var i=0; i<this.ast.lines.length; i++) {
+			if (this.ast.lines[i].type != "definition" && this.ast.lines[i].lvalue.name != name) continue;
 			if (this.ast.lines[i] && (this.ast.getSource(this.ast.lines[i]) == source)) {
 				return i;
 			}

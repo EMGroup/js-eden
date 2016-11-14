@@ -146,10 +146,6 @@
 		if (this.cache !== undefined) return;
 		this.cache = {};
 
-		if (this.cause) {
-			this.add(this.cause.name);
-		}
-
 		this.add("/cause");
 		this.add("/has");
 		this.add("/from");
@@ -271,6 +267,18 @@
 		}
 	}
 
+	Scope.prototype.first = function() {
+		for (var i = this.overrides.length-1; i >= 0; i--) {
+			var over = this.overrides[i];
+			if (over.end === undefined) continue;
+
+			if (over.current <= over.end) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	Scope.prototype.next = function() {
 		for (var o in this.cache) {
 			this.cache[o].up_to_date = false;
@@ -299,6 +307,11 @@
 						over.current++;
 					}
 					this.updateOverride(over);
+
+					// Make sure all other overrides are also up-to-date
+					for (var j=i-1; j >= 0; j--) {
+						this.updateOverride(this.overrides[j]);
+					}
 					return true;
 				} else {
 					over.current = over.start;
@@ -780,6 +793,8 @@
 		var results = [];
 
 		newscope.range = false;
+
+		if (!newscope.first()) return [];
 
 		while (true) {
 			var val = this.value(newscope);
