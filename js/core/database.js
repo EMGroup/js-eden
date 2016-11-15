@@ -30,7 +30,7 @@ Eden.DB.listenTo = listenTo;
 
 Eden.DB.Meta = function() {
 	this.remote = false;
-	this.title = "Agent";
+	this.title = "Script View";
 	this.author = undefined;
 	this.saveID = -1;
 	this.tag = "origin";
