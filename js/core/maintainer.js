@@ -42,6 +42,7 @@
 		this.up_to_date = up_to_date;
 		this.value = value;
 		this.scope = scope;
+		this.scopes = undefined;
 	}
 
 	function BoundValue(value,scope) {
@@ -50,11 +51,14 @@
 	}
 
 
-	function ScopeOverride(name, start, end) {
+	function ScopeOverride(name, start, end, inc, isin) {
 		this.name = name;
 		this.start = start;
 		this.end = end;
-		this.current = start;
+		this.increment = inc;
+		this.current = (isin) ? start[0] : start;
+		this.isin = isin;
+		this.index = 1;
 	}
 
 
@@ -152,6 +156,41 @@
 		}
 	}
 
+	Scope.prototype.cloneAt = function(index) {
+		var nover = [];
+
+		// Copy the overrides
+		for (var i = 0; i < this.overrides.length; i++) {
+			nover.push(new ScopeOverride(this.overrides[i].name, this.overrides[i].start, this.overrides[i].end));
+		}
+
+		// Make a new exact copy of this scope
+		var nscope = new Scope(this.context, this.parent, nover, this.range, this.cause);
+		// Move range to correct place. This is brute force.
+		for (var i=0; i<index; i++) {
+			nscope.next();
+		}
+
+		nscope.range = false;
+		return nscope;
+	}
+
+	Scope.prototype.clone = function() {
+		var nover = [];
+
+		// Copy the overrides
+		for (var i = 0; i < this.overrides.length; i++) {
+			var nov = new ScopeOverride(this.overrides[i].name, this.overrides[i].start, this.overrides[i].end);
+			nov.current = this.overrides[i].current;
+			nover.push(nov);
+		}
+
+		// Make a new exact copy of this scope
+		var nscope = new Scope(this.context, this.parent, nover, this.range, this.cause);
+
+		return nscope;
+	}
+
 	Scope.prototype.lookup = function(name) {
 		if (this.cache === undefined) this.rebuild();
 
@@ -246,25 +285,46 @@
 		}
 		for (var i = this.overrides.length-1; i >= 0; i--) {
 			var over = this.overrides[i];
+			if (over.end === undefined && !over.isin) continue;
 
-			if (over.end === undefined) continue;
-
-			if (over.current < over.end) {
-				over.current++;
-				this.updateOverride(over);
-
-				// Make sure all other overrides are also up-to-date
-				for (var j=i-1; j >= 0; j--) {
-					this.updateOverride(this.overrides[j]);
+			if (over.isin) {
+				// TODO runtime check that start is a list...
+				if (over.index < over.start.length) {
+					over.current = over.start[over.index];
+					over.index++;
+					this.updateOverride(over);
+					return true;
+				} else {
+					over.index = 1;
+					over.current = over.start[0];
+					this.updateOverride(over);
 				}
-
-				return true;
 			} else {
-				over.current = over.start;
-				this.updateOverride(over);
+				if (over.current < over.end) {
+					if (over.increment) {
+						over.current += over.increment;
+					} else {
+						over.current++;
+					}
+					this.updateOverride(over);
+
+					// Make sure all other overrides are also up-to-date
+					for (var j=i-1; j >= 0; j--) {
+						this.updateOverride(this.overrides[j]);
+					}
+					return true;
+				} else {
+					over.current = over.start;
+					this.updateOverride(over);
+				}
 			}
 		}
 		return false;
+	}
+
+	function ScopeList() {
+		this.raw = [];
+		this.caches = [];
 	}
 
 	/*Scope.prototype.toString = function() {
@@ -692,10 +752,16 @@
 	 * Get the value of this symbol bound with the scope the value was
 	 * generated in.
 	 */
-	Symbol.prototype.boundValue = function(scope) {
-		var cache = (this.context === undefined || scope === this.context.scope) ? this.cache : scope.lookup(this.name);
+	Symbol.prototype.boundValue = function(scope, indices) {
 		var value = this.value(scope);
-		return new BoundValue(value, cache.scope);
+		var cache = scope.lookup(this.name);
+
+		if (indices) {
+			// Generate a non range scope equivalent to a specific index.
+			return new BoundValue(value[indices[0]], cache.scopes[indices[0]]);
+		} else {
+			return new BoundValue(value, cache.scope);
+		}
 	}
 	
 	/**
@@ -739,6 +805,10 @@
 		}
 
 		newscope.range = true;
+
+		// Must log scope in cache for ranges as well
+		var cache = (this.context === undefined || newscope === this.context.scope) ? this.cache : newscope.lookup(this.name);
+		cache.scope = newscope;
 
 		return results;
 	};

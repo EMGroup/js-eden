@@ -380,7 +380,8 @@ EdenStream.prototype.readToken = function() {
 	case 55 :
 	case 56 :
 	case 57 :	this.unget(); this.parseNumber(this.data); return "NUMBER";
-	case 58	:	return ":";
+	case 58	:	if (this.peek() == 58) { this.skip(); return "::"; }
+				return ":";
 	case 59	:	return ";";
 	case 60	:	if (this.peek() == 60) { this.skip(); return "<<"; }
 				if (this.peek() == 61) { this.skip(); return "<="; }

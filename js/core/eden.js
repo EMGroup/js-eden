@@ -659,6 +659,7 @@ function concatAndResolveUrl(url, concat) {
 	};
 	
 	Eden.prototype.executeEden = function (code, origin, prefix, agent, success) {
+		console.trace("DEPRECATED USE OF OLD PARSER");
 		var result;
 		var me = this;
 		this.emit('executeBegin', [origin, code]);
@@ -704,7 +705,7 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {function()} success Called when include has finished successfully.
 	 */
 	Eden.prototype.include = function (includePath, prefix, agent, success) {
-		console.trace("DEPRECATED: use of include for " + includePath);
+		console.trace("DEPRECATED USE OF INCLUDE: " + includePath);
 		var me = this;
 		var includePaths;
 		if (includePath instanceof Array) {

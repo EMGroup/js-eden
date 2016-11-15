@@ -68,7 +68,7 @@ Eden.AST.prototype.generate = function() {
 
 
 Eden.AST.prototype.execute = function(root) {
-	this.script.execute(root, undefined, this);
+	this.script.execute(root, undefined, this, root.scope);
 }
 
 
@@ -155,7 +155,7 @@ Eden.AST.prototype.getBlockLines = function(lineno) {
  */
 Eden.AST.prototype.executeStatement = function(statement, line, agent) {
 	try {
-		statement.execute(eden.root,undefined, this, agent);
+		statement.execute(eden.root,undefined, this, eden.root.scope, agent);
 	} catch (e) {
 		eden.error(e);
 		console.error("Details: " + e + "\nAgent: " + agent.name);
@@ -963,29 +963,62 @@ Eden.AST.prototype.pSCOPE = function() {
 
 
 
+Eden.AST.prototype.pSCOPEPATTERN = function() {
+	var sname = new Eden.AST.ScopePattern();
+	if (this.token != "OBSERVABLE") {
+		sname.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPENAME));
+		return sname;
+	}
+	sname.setObservable(this.data.value);
+	this.next();
+
+	while (true) {
+		if (this.token == "[") {
+			this.next();
+			var express = this.pEXPRESSION();
+			sname.addListIndex(express);
+			if (express.errors.length > 0) return sname;
+			if (this.token != "]") {
+				sname.error(new Eden.SyntaxError(this, Eden.SyntaxError.LISTINDEXCLOSE));
+				return sname;
+			}
+			this.next();
+		} else if (this.token == ".") {
+
+		} else {
+			break;
+		}
+	}
+
+	return sname;
+}
+
+
+
 /**
  * SCOPE Prime Production
  * SCOPE' -> observable SCOPE''
  */
 Eden.AST.prototype.pSCOPE_P = function() {
-	if (this.token != "OBSERVABLE") {
+	var obs = this.pSCOPEPATTERN();
+	var isin = false;
+	if (obs.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
-		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPENAME));
+		scope.addOverride(obs, undefined, undefined, undefined, false);
 		return scope;
 	}
-	var obs = this.data.value;
-	this.next();
 
-	if (this.token != "is") {
+	if (this.token != "is" && this.token != "=" && this.token != "in") {
 		var scope = new Eden.AST.Scope();
 		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPEEQUALS));
 		return scope;
 	}
+	if (this.token == "in") isin = true;
 	this.next();
 	var expression = this.pEXPRESSION();
 	if (expression.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
-		scope.addOverride(obs, expression, undefined);
+		scope.addOverride(obs, expression, undefined, undefined, false);
 		return scope;
 	}
 
@@ -995,13 +1028,24 @@ Eden.AST.prototype.pSCOPE_P = function() {
 		exp2 = this.pEXPRESSION();
 		if (exp2.errors.length > 0) {
 			var scope = new Eden.AST.Scope();
-			scope.addOverride(obs, expression, exp2);
+			scope.addOverride(obs, expression, exp2, undefined, false);
+			return scope;
+		}
+	}
+
+	var exp3 = undefined;
+	if (this.token == "..") {
+		this.next();
+		exp3 = this.pEXPRESSION();
+		if (exp3.errors.length > 0) {
+			var scope = new Eden.AST.Scope();
+			scope.addOverride(obs, expression, exp2, exp3, false);
 			return scope;
 		}
 	}
 
 	var scope = this.pSCOPE_PP();
-	scope.addOverride(obs, expression, exp2);
+	scope.addOverride(obs, expression, exp2, exp3, isin);
 	return scope;
 }
 
@@ -1129,7 +1173,7 @@ Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
 Eden.AST.prototype.pEXPRESSION = function() {
 	var plain = this.pEXPRESSION_PLAIN();
 
-	if (this.token == "with") {
+	if (this.token == "with" || this.token == "::") {
 		this.next();
 		var scope = this.pSCOPE();
 		scope.setExpression(plain);
@@ -1221,6 +1265,13 @@ Eden.AST.prototype.pWHEN = function() {
 		when.active = true;
 		this.parent = parent;
 		return when;
+	}
+
+	if (this.token == "with" || this.token == "::") {
+		this.next();
+		var scope = this.pSCOPE();
+		when.setScope(scope);
+		if (scope.errors.length > 0) return when;
 	}
 
 	// Compile the expression and log dependencies
