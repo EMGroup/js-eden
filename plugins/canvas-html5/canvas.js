@@ -556,7 +556,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	
 	this.createCommon = function(name, mtitle) {
 		//Remove -dialog name suffix.
-		var agent = root.lookup("createView");
+		var agent = {name: "*Default"};
 		var code_entry, jqCanvas;
 		var canvasName = name;
 

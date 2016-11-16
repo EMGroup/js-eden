@@ -75,7 +75,7 @@
 
 
 		var me = this;
-		var agent = root.lookup("createView");
+		var agent = {name: "*Default"};
 
 		var currentType = this.activeDialogs[name];
 		var visibilitySym = view(name, "visibility");

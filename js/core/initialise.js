@@ -154,10 +154,6 @@ function Construit(options,callback) {
 		edenUI = new EdenUI(eden);
 		edenUI.scrollBarSize2 = window.innerHeight - $(window).height();
 
-		if (menuBar) {
-			edenUI.menu = new EdenUI.MenuBar();
-		}
-
 		$(document)
 		.on('keydown', null, 'ctrl+m', function () {
 			edenUI.cycleNextView();
@@ -181,6 +177,9 @@ function Construit(options,callback) {
 			$.getScript("js/language/"+lang+".js", function(data) {
 				Language.language = lang;
 				eval(data);
+				if (menuBar) {
+					edenUI.menu = new EdenUI.MenuBar();
+				}
 				callback();
 			});
 		}

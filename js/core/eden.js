@@ -831,8 +831,8 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {string?} prefix Prefix used for relative includes.
 	 * @param {function(*)} success
 	 */
-	Eden.prototype.execute2 = function (code, origin, prefix, agent, success) {
-		if (arguments.length == 1) {
+	Eden.prototype.execute2 = function (code, agent, success) {
+		/*if (arguments.length == 1) {
 			success = noop;
 			origin = 'unknown';
 			prefix = '';
@@ -843,11 +843,14 @@ function concatAndResolveUrl(url, concat) {
 			origin = 'unknown';
 			prefix = '';
 			agent = {name: '/execute'};
-		}
+		}*/
+
+		agobj = {name: 'execute'};
+		if (agent) agobj.name = agent;
 
 		var ast = new Eden.AST(code);
 		if (ast.script.errors.length == 0) {
-			ast.script.execute(this.root,this.root.scope, ast);
+			ast.script.execute(this.root,this.root.scope, ast, agobj);
 		} else {
 			console.error(ast.script.errors[0].prettyPrint());
 		}
@@ -927,7 +930,7 @@ function concatAndResolveUrl(url, concat) {
 				var deferred = $.Deferred();
 				if (previousPromise) {
 					return previousPromise.then(function () {
-						eden.execute2(data, url, newPrefix, agent, deferred.resolve);
+						eden.execute2(data, agent, deferred.resolve);
 						//var nagent = new Eden.Agent();
 						//nagent.setSource(data);
 						//nagent.executeLine(-1);
@@ -938,7 +941,7 @@ function concatAndResolveUrl(url, concat) {
 						return deferred.promise;
 					});
 				} else {
-					eden.execute2(data, url, newPrefix, agent, deferred.resolve);
+					eden.execute2(data, agent, deferred.resolve);
 					//var nagent = new Eden.Agent();
 					//nagent.setSource(data);
 					//nagent.executeLine(-1);

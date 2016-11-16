@@ -700,10 +700,10 @@ ${{
 	var backgroundAudioSym = root.lookup("background_audio");
 	var backgroundAudioPausedSym = root.lookup("background_audio_paused");
 	if (backgroundAudioPausedSym.value() === undefined && backgroundAudioPausedSym.definition === undefined) {
-		backgroundAudioPausedSym.assign(false, root.scope);
+		backgroundAudioPausedSym.assign(false, root.scope, {name: "*Default"});
 	}
 	var backgroundAudio = new Audiovisual("background_audio", "Audio", true);
-	backgroundAudioSym.assign(backgroundAudio, root.scope);
+	backgroundAudioSym.assign(backgroundAudio, root.scope,{name: "*Default"});
 	backgroundAudio.draw();
 	backgroundAudioSym.addJSObserver("initialize", function (sym, value) {
 		if (value instanceof Audiovisual) {

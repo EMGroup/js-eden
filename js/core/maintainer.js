@@ -684,10 +684,13 @@
 
 	Folder.prototype.save = function() {
 		var result = "";
-		var functions = "";
-		var definitions = "";
-		var assignments = "";
-		var procs = "";
+		var functions = "\n## Functions\n";
+		var definitions = "\n## General Definitions\n";
+		var agentdefs = "\n## Agent Definitions\n";
+		var assignments = "\n## General Assignments\n";
+		var agentassigns = "\n## Agent Assignments\n";
+		var ioassigns = "\n## Input Device Assignments\n";
+		var procs = "\n## Procedures\n";
 
 		for (var x in this.symbols) {
 			var sym = this.symbols[x];
@@ -701,12 +704,20 @@
 					}
 				} else {
 					if (sym.cache.value !== undefined) {
-						assignments += x + " = " + Eden.edenCodeForValue(sym.cache.value) + ";\n";
+						var str = x + " = " + Eden.edenCodeForValue(sym.cache.value) + ";\n";
+
+						if (agent instanceof Symbol && agent.eden_definition && agent.eden_definition.startsWith("proc")) {
+							agentassigns += str;
+						} else if (agent.name == "*Input Device") {
+							ioassigns += str;
+						} else {
+							assignments += str;
+						}
 					}
 				}
 			}
 		}
-		return functions + definitions + assignments;
+		return "## Model\n" + functions + definitions + agentdefs + assignments + agentassigns + ioassigns + procs;
 	};
 
 	/**

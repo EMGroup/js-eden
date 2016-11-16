@@ -482,7 +482,8 @@ func include2 {
 
 func execute2 {
 	para script;
-	${{ edenUI.eden.execute2(arguments[0]) }}$;
+	para agent;
+	${{ edenUI.eden.execute2(arguments[0], arguments[1]) }}$;
 }
 
 func agentFromFile {
