@@ -755,10 +755,10 @@
 		viewData.resizing = true;
 		this.eden.root.beginAutocalcOff();
 		if (widthSym.definition === undefined) {
-			widthSym.assign(newWidth, eden.root.scope, {name: widthSym.last_modified_by});
+			widthSym.assign(newWidth, eden.root.scope, widthSym.last_modified_by);
 		}
 		if (heightSym.definition === undefined) {
-			heightSym.assign(newHeight, eden.root.scope, {name: heightSym.last_modified_by});
+			heightSym.assign(newHeight, eden.root.scope, heightSym.last_modified_by);
 		}
 		this.eden.root.endAutocalcOff();
 

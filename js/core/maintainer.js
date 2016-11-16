@@ -692,7 +692,7 @@
 		for (var x in this.symbols) {
 			var sym = this.symbols[x];
 			var agent = sym.last_modified_by;
-			if (typeof agent != "object" || (agent.canUndo && agent.canUndo()) || (agent instanceof Symbol && agent.eden_definition && agent.eden_definition.startsWith("proc"))) {
+			if (typeof agent != "object" || (agent.canUndo && agent.canUndo()) || (agent instanceof Symbol && agent.eden_definition && agent.eden_definition.startsWith("proc")) || agent.name == "*Input Device") {
 				if (sym.eden_definition) {
 					if (sym.eden_definition.startsWith("func")) {
 						functions += this.symbols[x].eden_definition + "\n";
