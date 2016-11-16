@@ -155,7 +155,7 @@ CanvasImage.prototype.isHit = function (context, scale, x, y) {
 }
 
 CanvasImage.prototype.toString = function() {
-  return "Image(" +	Eden.edenCodeForValues(this.name, this.dx, this.dy, this.originalDWidth,
+  return "Image(" +	Eden.edenCodeForValues(this.dx, this.dy, this.originalDWidth,
 	this.originalDHeight, this.sx, this.sy, this.originalSX2, this.originalSY2, this.smoothed, this.image.src) + ")";
 };
 
