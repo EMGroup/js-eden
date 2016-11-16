@@ -11,7 +11,7 @@ Point = function(x, y) {
   this.y = y;
 }
 Point.prototype.toString = function() {
-  return "{" + Eden.edenCodeForValue(this.x) + ", " + Eden.edenCodeForValue(this.y) + "}";
+  return "Point(" + Eden.edenCodeForValue(this.x) + ", " + Eden.edenCodeForValue(this.y) + ")";
 };
 Point.prototype.getEdenCode = Point.prototype.toString;
 

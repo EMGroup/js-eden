@@ -2051,12 +2051,12 @@ Eden.AST.Function.prototype.generate = function(ctx) {
 	return res;
 }
 
-Eden.AST.Function.prototype.execute = function(root,ctx,base,scope) {
+Eden.AST.Function.prototype.execute = function(root,ctx,base,scope,agent) {
 	this.executed = 1;
 	var body = this.body.generate(ctx);
 	var sym = root.lookup(this.name);
 	sym.eden_definition = base.getSource(this);	
-	sym.define(eval(body), {name: "execute"},[]);
+	sym.define(eval(body), agent,[]);
 }
 
 Eden.AST.Function.prototype.error = fnEdenASTerror;
@@ -2734,14 +2734,14 @@ Eden.AST.Script.prototype.append = function (ast) {
 	}
 }
 
-Eden.AST.Script.prototype.executeReal = function(root, ctx, base, scope, parameters) {
+Eden.AST.Script.prototype.executeReal = function(root, ctx, base, scope, agent, parameters) {
 	if (this.active) return;
 	this.active = true;
-	var gen = this.executeGenerator(root,ctx,base, scope, parameters);
+	var gen = this.executeGenerator(root,ctx,base, scope, agent, parameters);
 	runEdenAction.call(base,this, gen);
 }
 
-Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, scope, parameters) {
+Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, scope, agent, parameters) {
 	this.executed = 1;
 	for (var i = 0; i < this.statements.length; i++) {
 		if (this.statements[i].type == "wait") {
@@ -2758,7 +2758,7 @@ Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, scope, p
 			this.parameters = parameters;
 			// Only execute statement if it isn't a script.
 			if (this.statements[i].type != "script")
-				this.statements[i].execute(root,this, base, scope);
+				this.statements[i].execute(root,this, base, scope, agent);
 		}
 
 		if (this.statements[i].errors.length > 0) {
@@ -2807,10 +2807,10 @@ function runEdenAction(source, action) {
 	}
 }
 
-Eden.AST.Script.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Script.prototype.execute = function(root, ctx, base, scope, agent) {
 	// Un named actions execute immediately.
 	//if (this.name === undefined) {
-		this.executeReal(root,ctx,base, scope);
+		this.executeReal(root,ctx,base, scope, agent);
 	//} else {
 		// Add this named script to a local symbol table.
 		//base.scripts[this.name] = this;

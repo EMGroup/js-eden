@@ -61,7 +61,7 @@ var confirmUnload = function (event) {
  * exec: A piece of JS-EDEN code to execute after the included construal has been loaded.
  * lang: Human language to use for parser and UI. E.g. lang=en for English.
 */
-function initialiseJSEden(callback) {
+function Construit(options,callback) {
 	root = new Folder();
 	eden = new Eden(root);
 	
@@ -70,8 +70,11 @@ function initialiseJSEden(callback) {
 	var views = URLUtil.getParameterByName("views");
 	var include = URLUtil.getArrayParameterByName("include");
 	var exec = URLUtil.getParameterByName("exec");
+	var load = URLUtil.getParameterByName("load");
 	var lang = URLUtil.getParameterByName("lang");
 	var imports = URLUtil.getArrayParameterByName("import");
+	var restore = URLUtil.getParameterByName("restore");
+	var tag = URLUtil.getParameterByName("tag");
 
 	if (lang == "") {
 		lang = "en";
@@ -116,7 +119,7 @@ function initialiseJSEden(callback) {
 	}
 
 	if (menuBar) {
-		plugins.unshift("MenuBar");
+		//plugins.unshift("MenuBar");
 	}
 
 	$(document).ready(function () {
@@ -150,6 +153,10 @@ function initialiseJSEden(callback) {
 
 		edenUI = new EdenUI(eden);
 		edenUI.scrollBarSize2 = window.innerHeight - $(window).height();
+
+		if (menuBar) {
+			edenUI.menu = new EdenUI.MenuBar();
+		}
 
 		$(document)
 		.on('keydown', null, 'ctrl+m', function () {
@@ -190,7 +197,7 @@ function initialiseJSEden(callback) {
 			loadPlugin();
 		};
 		
-		doneLoading = function () {
+		doneLoading = function (loaded) {
 			eden.captureInitialState();
 
 			window.scrollTo(0, 0); //Chrome remembers position on refresh.
@@ -204,7 +211,7 @@ function initialiseJSEden(callback) {
 				eden.execute2(exec, "URL", "", {name: "execute"}, function () { });
 			}
 
-			if (callback) callback();
+			if (callback) callback(loaded);
 		}
 
 		// Load the Eden library scripts
@@ -230,7 +237,15 @@ function initialiseJSEden(callback) {
 						rt.config = config;
 
 						Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex], function() {
-							eden.execute2(bootscript);
+							//eden.execute2(bootscript);
+
+							if (load != "" && tag != "") {
+								Eden.load(load,tag,function(){ doneLoading(true); });
+							} else if (restore != "") {
+								doneLoading(Eden.restore());
+							} else {
+								doneLoading(false);
+							}
 						});
 						Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
 

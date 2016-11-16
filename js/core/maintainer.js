@@ -682,6 +682,33 @@
 		this.globalNotifyIndex = 0;
 	};
 
+	Folder.prototype.save = function() {
+		var result = "";
+		var functions = "";
+		var definitions = "";
+		var assignments = "";
+		var procs = "";
+
+		for (var x in this.symbols) {
+			var sym = this.symbols[x];
+			var agent = sym.last_modified_by;
+			if (typeof agent != "object" || (agent.canUndo && agent.canUndo()) || (agent instanceof Symbol && agent.eden_definition && agent.eden_definition.startsWith("proc"))) {
+				if (sym.eden_definition) {
+					if (sym.eden_definition.startsWith("func")) {
+						functions += this.symbols[x].eden_definition + "\n";
+					} else {
+						definitions += this.symbols[x].eden_definition + "\n";
+					}
+				} else {
+					if (sym.cache.value !== undefined) {
+						assignments += x + " = " + Eden.edenCodeForValue(sym.cache.value) + ";\n";
+					}
+				}
+			}
+		}
+		return functions + definitions + assignments;
+	};
+
 	/**
 	 * A symbol table entry.
 	 *
@@ -969,11 +996,11 @@
 	};
 
 	Symbol.prototype._setLastModifiedBy = function (modifying_agent) {
-		if (modifying_agent === global) {
-			this.last_modified_by = Symbol.getInputAgentName();
-		} else {
-			this.last_modified_by = modifying_agent ? modifying_agent.name.replace(/^\//, '') : "*JavaScript";
-		}
+		//if (modifying_agent === global) {
+		//	this.last_modified_by = Symbol.getInputAgentName();
+		//} else {
+			this.last_modified_by = modifying_agent ? modifying_agent : "*JavaScript";
+		//}
 	};
 
 	/**

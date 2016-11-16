@@ -290,6 +290,15 @@ Eden.Agent.removeAll = function () {
 }
 
 
+Eden.Agent.save = function() {
+	var result = "";
+	for (var x in Eden.Agent.agents) {
+		result += "import " + x + "@" + Eden.Agent.agents[x].meta.saveID + ";\n"; 
+	}
+	return result;
+}
+
+
 
 Eden.Agent.prototype.isSaved = function() {
 	return this.autosavetimer === undefined;
