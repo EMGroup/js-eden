@@ -123,7 +123,7 @@ proc createCanvas {
 	}
 
 	createView(viewName, "Canvas2D");
-	execute2("_view_" // viewName // "_content is " // obsName // ";");
+	execute2("_view_" // viewName // "_content is " // obsName // ";", "*Default");
 	if (viewTitle == @) {
 		##Don't attempt to make this update by dependency on redefinition of _view_viewName_content.
 		##Severe performance problems result.

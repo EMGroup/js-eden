@@ -45,7 +45,7 @@ Eden.Agent = function(parent, name, meta, options) {
 	this.oracles = [];
 	this.handles = [];
 	this.meta = meta;
-	this.title = (meta && meta.title) ? meta.title : "Agent";
+	this.title = (meta && meta.title) ? meta.title : "Script View";
 	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || {};
 
 	if (meta && this.history[meta.saveID] === undefined) {
@@ -287,6 +287,15 @@ Eden.Agent.removeAll = function () {
 			Eden.Agent.remove(Eden.Agent.agents[name]);
 		}
 	}
+}
+
+
+Eden.Agent.save = function() {
+	var result = "";
+	for (var x in Eden.Agent.agents) {
+		result += "import " + x + "@" + Eden.Agent.agents[x].meta.saveID + ";\n"; 
+	}
+	return result;
 }
 
 

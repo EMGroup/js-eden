@@ -73,6 +73,71 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		}
 	};
 
+	this.thumbnail = function(cb) {
+		if (canvases["picture"] === undefined) {
+			if (cb) cb();
+			return;
+		}
+
+		var canvas = canvases["picture"];
+
+		var imgwidth = canvas.clientWidth;
+		var imgheight = canvas.clientHeight;
+		var canwidth = 200;
+		var canheight = 112;
+
+		var imageAspectRatio = imgwidth / imgheight;
+		var canvasAspectRatio = canwidth / canheight;
+		var renderableHeight, renderableWidth, xStart, yStart;
+
+		// If image's aspect ratio is less than canvas's we fit on height
+		// and place the image centrally along width
+		if(imageAspectRatio < canvasAspectRatio) {
+			renderableHeight = canheight;
+			renderableWidth = imgwidth * (renderableHeight / imgheight);
+			xStart = (canwidth - renderableWidth) / 2;
+			yStart = 0;
+		}
+
+		// If image's aspect ratio is greater than canvas's we fit on width
+		// and place the image centrally along height
+		else if(imageAspectRatio > canvasAspectRatio) {
+			renderableWidth = canwidth
+			renderableHeight = imgheight * (renderableWidth / imgwidth);
+			xStart = 0;
+			yStart = (canheight - renderableHeight) / 2;
+		}
+
+		// Happy path - keep aspect ratio
+		else {
+			renderableHeight = canheight;
+			renderableWidth = canwidth;
+			xStart = 0;
+			yStart = 0;
+		}
+		//context.drawImage(imageObj, xStart, yStart, renderableWidth, renderableHeight);
+
+		//$(document.body).append($('<div id="png-container" style="margin-top: 200px;"></div>'));
+
+		var tcanvas = document.createElement("canvas");
+		tcanvas.setAttribute("width","200");
+		tcanvas.setAttribute("height","112");
+		var ctx = tcanvas.getContext("2d");
+		//var DOMURL = self.URL || self.webkitURL || self;
+		//var img = new Image();
+		//var svg = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
+		//var url = DOMURL.createObjectURL(svg);
+		//img.onload = function() {
+			//console.log("SVG: " + svgele.clientWidth + "x" + svgele.clientHeight + " @ " + canvas.width + "," + canvas.height);
+		ctx.drawImage(canvas, xStart, yStart, renderableWidth, renderableHeight);
+			var png = tcanvas.toDataURL("image/png");
+			//DOMURL.revokeObjectURL(png);
+			if (cb) cb(png);
+			//document.querySelector('#png-container').innerHTML = '<img src="'+png+'"/>';
+		//};
+		//img.src = url;
+	}
+
 	this.drawPicture = function(viewName) {
 		var canvas = canvases[viewName];
 		if (canvas === undefined) {
@@ -491,7 +556,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	
 	this.createCommon = function(name, mtitle) {
 		//Remove -dialog name suffix.
-		var agent = root.lookup("createView");
+		var agent = {name: "*Default"};
 		var code_entry, jqCanvas;
 		var canvasName = name;
 
