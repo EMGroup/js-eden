@@ -684,23 +684,29 @@
 
 	Folder.prototype.save = function() {
 		var result = "";
-		var functions = "\n## Functions\n";
-		var definitions = "\n## General Definitions\n";
+		var functions = "## Functions\n";
+		var definitions = "\n## Changed Definitions\n";
+		var restdefs = "\n## Restored Definition\n";
 		var agentdefs = "\n## Agent Definitions\n";
-		var assignments = "\n## General Assignments\n";
+		var assignments = "\n## Changed Assignments\n";
 		var agentassigns = "\n## Agent Assignments\n";
 		var ioassigns = "\n## Input Device Assignments\n";
+		var restassign = "\n## Restored Assignments\n";
 		var procs = "\n## Procedures\n";
 
 		for (var x in this.symbols) {
 			var sym = this.symbols[x];
 			var agent = sym.last_modified_by;
-			if (typeof agent != "object" || (agent.canUndo && agent.canUndo()) || (agent instanceof Symbol && agent.eden_definition && agent.eden_definition.startsWith("proc")) || agent.name == "*Input Device") {
+			if (typeof agent != "object" || (agent.canUndo && agent.canUndo()) || (agent instanceof Symbol && agent.eden_definition && agent.eden_definition.startsWith("proc")) || agent.name == "*Input Device" || agent.name == "*Restore") {
 				if (sym.eden_definition) {
 					if (sym.eden_definition.startsWith("func")) {
 						functions += this.symbols[x].eden_definition + "\n";
 					} else {
-						definitions += this.symbols[x].eden_definition + "\n";
+						if (agent.name == "*Restore") {
+							restdefs += this.symbols[x].eden_definition + "\n";
+						} else {
+							definitions += this.symbols[x].eden_definition + "\n";
+						}
 					}
 				} else {
 					if (sym.cache.value !== undefined) {
@@ -710,6 +716,8 @@
 							agentassigns += str;
 						} else if (agent.name == "*Input Device") {
 							ioassigns += str;
+						} else if (agent.name == "*Restore") {
+							restassign += str;
 						} else {
 							assignments += str;
 						}
@@ -717,7 +725,7 @@
 				}
 			}
 		}
-		return "## Model\n" + functions + definitions + agentdefs + assignments + agentassigns + ioassigns + procs;
+		return functions + definitions + restdefs + agentdefs + assignments + restassign + agentassigns + ioassigns + procs;
 	};
 
 	/**

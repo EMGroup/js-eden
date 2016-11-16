@@ -149,7 +149,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		header3: "## work conducted at University of Warwick.",
 		homePage: "## Web site: https://github.com/EMGroup/js-eden",
 		imports: "## Imported Agents:",
-		changes: "## Other changes in following order: funcs, procs, definitions, assignments:",
+		changes: "## The Model",
 		end: "## End of automatically generated script.",
 	};
 

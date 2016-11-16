@@ -1317,6 +1317,9 @@ Eden.AST.Definition.prototype.execute = function(root, ctx, base, scope, agent) 
 			deps.push(d);
 		}
 		sym.eden_definition = base.getSource(this);
+		if (agent === undefined) {
+			console.trace("UNDEF AGENT: " + source);
+		}
 		sym.define(eval(rhs), agent, deps);
 	}
 		
@@ -1537,7 +1540,7 @@ Eden.AST.Modify.prototype.generate = function(ctx) {
 	return result;
 };
 
-Eden.AST.Modify.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Modify.prototype.execute = function(root, ctx, base, scope, agent) {
 	var _scopes = [];
 
 	this.executed = 1;
@@ -1545,9 +1548,9 @@ Eden.AST.Modify.prototype.execute = function(root, ctx, base, scope) {
 	var sym = this.lvalue.getSymbol(root,ctx,base);
 
 	if (this.kind == "++") {
-		sym.assign(sym.value(scope)+1, scope);
+		sym.assign(sym.value(scope)+1, scope, agent);
 	} else if (this.kind == "--") {
-		sym.assign(sym.value(scope)-1, scope);
+		sym.assign(sym.value(scope)-1, scope, agent);
 	} else {
 		var rhs = "(function(context,scope) { return ";
 		rhs += this.expression.generate(this, "scope");
@@ -1570,10 +1573,10 @@ Eden.AST.Modify.prototype.execute = function(root, ctx, base, scope) {
 		console.log(rhs);*/
 
 		switch (this.kind) {
-		case "+="	: sym.assign(rt.add(sym.value(scope), eval(rhs)(root,scope)), scope); break;
-		case "-="	: sym.assign(rt.subtract(sym.value(scope), eval(rhs)(root,scope)), scope); break;
-		case "/="	: sym.assign(rt.divide(sym.value(scope), eval(rhs)(root,scope)), scope); break;
-		case "*="	: sym.assign(rt.multiply(sym.value(scope), eval(rhs)(root,scope)), scope); break;
+		case "+="	: sym.assign(rt.add(sym.value(scope), eval(rhs)(root,scope)), scope, agent); break;
+		case "-="	: sym.assign(rt.subtract(sym.value(scope), eval(rhs)(root,scope)), scope, agent); break;
+		case "/="	: sym.assign(rt.divide(sym.value(scope), eval(rhs)(root,scope)), scope, agent); break;
+		case "*="	: sym.assign(rt.multiply(sym.value(scope), eval(rhs)(root,scope)), scope, agent); break;
 		}
 	}
 }
@@ -1785,7 +1788,7 @@ Eden.AST.If.prototype.generate = function(ctx) {
 	return res;
 }
 
-Eden.AST.If.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.If.prototype.execute = function(root, ctx, base, scope, agent) {
 	this.executed = 1;
 	var cond = "(function(context,scope) { return ";
 	cond += this.condition.generate(ctx, "scope");
@@ -1794,11 +1797,11 @@ Eden.AST.If.prototype.execute = function(root, ctx, base, scope) {
 	}
 	cond += ";})";
 	if (eval(cond)(root,scope)) {
-		this.statement.execute(root, ctx, base, scope);
+		this.statement.execute(root, ctx, base, scope, agent);
 	} else {
 		this.executed = 2;
 		if (this.elsestatement) {
-			return this.elsestatement.execute(root, ctx, base, scope);
+			return this.elsestatement.execute(root, ctx, base, scope, agent);
 		}
 	}
 }

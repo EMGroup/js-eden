@@ -850,7 +850,7 @@ function concatAndResolveUrl(url, concat) {
 
 		var ast = new Eden.AST(code);
 		if (ast.script.errors.length == 0) {
-			ast.script.execute(this.root,this.root.scope, ast, agobj);
+			ast.script.execute(this.root,this.root.scope, ast, this.root.scope, agobj);
 		} else {
 			console.error(ast.script.errors[0].prettyPrint());
 		}

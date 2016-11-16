@@ -732,7 +732,7 @@ Eden.DB.load = function(path, saveid, source, cb) {
 		//EdenUI.ScriptView.loadData(source.scriptviews);
 
 		console.log("Execute: " + source.script);
-		eden.execute2(source.script);
+		eden.execute2(source.script, "*Restore");
 
 		if (cb) cb(source);
 	}
