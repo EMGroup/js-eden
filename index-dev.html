@@ -376,9 +376,58 @@ See LICENSE.txt
 		Eden.projecttags = {};
 		var cachedprojects;
 
+		function updateSearch(q) {
+			var pbrowser = $("#project-browser");
+
+			if (q != "") {
+				if (cachedprojects === undefined) {
+					cachedprojects = pbrowser.html();
+					$(".jseden-dialog-plisting").hide();
+				}
+				pbrowser.html('<div id="jseden-searched-projects" class="jseden-dialog-plisting"></div>');
+
+				// Generate project search result...
+				var results = [];
+				var qs = q.split(" ");
+				for (var i=0; i<qs.length; i++) {
+					var regex = edenUI.regExpFromStr(qs[i]);
+					for (var t in Eden.projecttags) {
+						if (regex.test(t)) {
+							results.push.apply(results, Eden.projecttags[t]);
+						}
+					}
+				}
+
+				// Count duplicates
+				var dupcount = {};
+				var unique = [];
+				for (var i=0; i<results.length; i++) {
+					if (dupcount[results[i]] === undefined) {
+						unique.push(results[i]);
+						dupcount[results[i]] = 0;
+					}
+					dupcount[results[i]]++;
+				}
+
+				// Sort by number of duplicates
+				results = unique.sort(function(a,b) {
+					return dupcount[a] < dupcount[b];
+				});
+
+				var presults = pbrowser.find("#jseden-searched-projects");
+				displayProjects2(presults, true, results);
+
+			} else if (cachedprojects) {
+				pbrowser.html(cachedprojects);
+				cachedprojects = undefined;
+				$(".jseden-dialog-plisting").show();
+			}
+		}
+
 		$(".loadmodal").hide();
 		if (!loaded) {
-			console.log("NOT LOADED");
+			var q = URLUtil.getParameterByName("q");
+
 			var lopts = $("#loadoptions");
 			/*if (!Eden.restore()) {
 				Eden.loadFromURL("library2/NewProject.js-e");
@@ -422,52 +471,7 @@ See LICENSE.txt
 			})
 			.on("keyup",".search", function(e) {
 				var q = e.currentTarget.value;
-				console.log(q);
-				var pbrowser = $("#project-browser");
-
-				if (q != "") {
-					if (cachedprojects === undefined) {
-						cachedprojects = pbrowser.html();
-						$(".jseden-dialog-plisting").hide();
-					}
-					pbrowser.html('<div id="jseden-searched-projects" class="jseden-dialog-plisting"></div>');
-
-					// Generate project search result...
-					var results = [];
-					var qs = q.split(" ");
-					for (var i=0; i<qs.length; i++) {
-						var regex = edenUI.regExpFromStr(qs[i]);
-						for (var t in Eden.projecttags) {
-							if (regex.test(t)) {
-								results.push.apply(results, Eden.projecttags[t]);
-							}
-						}
-					}
-
-					// Count duplicates
-					var dupcount = {};
-					var unique = [];
-					for (var i=0; i<results.length; i++) {
-						if (dupcount[results[i]] === undefined) {
-							unique.push(results[i]);
-							dupcount[results[i]] = 0;
-						}
-						dupcount[results[i]]++;
-					}
-
-					// Sort by number of duplicates
-					results = unique.sort(function(a,b) {
-						return dupcount[a] < dupcount[b];
-					});
-
-					var presults = pbrowser.find("#jseden-searched-projects");
-					displayProjects2(presults, true, results);
-
-				} else if (cachedprojects) {
-					pbrowser.html(cachedprojects);
-					cachedprojects = undefined;
-					$(".jseden-dialog-plisting").show();
-				}
+				updateSearch(q);
 			})
 			.on("click",".project",function(e) {
 				var path = e.currentTarget.getAttribute("data-path");
