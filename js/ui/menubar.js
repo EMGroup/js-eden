@@ -143,42 +143,54 @@ EdenUI.MenuBar = function() {
 
 	this.sharebox.on("click",".upload", function(e) {
 		var title = me.element.find(".jseden-title").get(0).textContent;
+		var tagbox = me.sharebox.find(".projecttags");
+		var tagstr = tagbox.get(0).textContent;
+		tagstr = tagstr.toLowerCase().replace(/[\!\'\-\?\&]/g, "").split(" ");
+
 		me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
-		Eden.DB.saveSource(title, me.projectsource, function(status) {
-			if (status.path) {
-				var url = "?load="+status.path+"&tag="+status.saveID;
-				me.sharebox.find(".projecturl").html(window.location.href+url);
-				//function selectElementContents(el) {
-				var range = document.createRange();
-				range.selectNodeContents(me.sharebox.find(".projecturl").get(0));
-				var sel = window.getSelection();
-				sel.removeAllRanges();
-				sel.addRange(range);
-				//}
-			} else {
-				me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
-			}
+		edenUI.plugins.Canvas2D.thumbnail(function(thumb) {
+			Eden.DB.saveSource(title, me.projectsource, function(status) {
+				if (status.path) {
+					var url = "?load="+status.path+"&tag="+status.saveID;
+					me.sharebox.find(".projecturl").html(window.location.href+url);
+					//function selectElementContents(el) {
+					var range = document.createRange();
+					range.selectNodeContents(me.sharebox.find(".projecturl").get(0));
+					var sel = window.getSelection();
+					sel.removeAllRanges();
+					sel.addRange(range);
+					//}
+				} else {
+					me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
+				}
+			}, {thumb: thumb, tags: tagstr});
 		});
 	});
 
 	this.sharebox.on("click",".publish", function(e) {
 		var title = me.element.find(".jseden-title").get(0).textContent;
+		var tagbox = me.sharebox.find(".projecttags");
+		var tagstr = tagbox.get(0).textContent;
+		tagstr = tagstr.toLowerCase().replace(/[\!\'\-\?\&]/g, "").split(" ");
+
 		me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
-		Eden.DB.saveSource(title, me.projectsource, function(status) {
-			if (status.path) {
-				var url = "?load="+status.path+"&tag="+status.saveID;
-				me.sharebox.find(".projecturl").html(window.location.href+url);
-				//function selectElementContents(el) {
-				var range = document.createRange();
-				range.selectNodeContents(me.sharebox.find(".projecturl").get(0));
-				var sel = window.getSelection();
-				sel.removeAllRanges();
-				sel.addRange(range);
-				//}
-			} else {
-				me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
-			}
-		}, undefined, true);
+		edenUI.plugins.Canvas2D.thumbnail(function(thumb) {
+			Eden.DB.saveSource(title, me.projectsource, function(status) {
+				if (status.path) {
+					var url = "?load="+status.path+"&tag="+status.saveID;
+					me.sharebox.find(".projecturl").html(window.location.href+url);
+					//function selectElementContents(el) {
+					var range = document.createRange();
+					range.selectNodeContents(me.sharebox.find(".projecturl").get(0));
+					var sel = window.getSelection();
+					sel.removeAllRanges();
+					sel.addRange(range);
+					//}
+				} else {
+					me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
+				}
+			}, {publish: true, thumb: thumb, tags: tagstr});
+		});
 	});
 
 	this.element.on("click", ".menubar-button.share", function(e) {

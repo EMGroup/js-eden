@@ -676,12 +676,16 @@ Eden.DB.generateSource = function(title) {
 	},null,"\t");
 }
 
-Eden.DB.save = function(title, cb, tags, pub) {
-	Eden.DB.saveSource(title, Eden.DB.generateSource(title), cb, tags, pub);
+Eden.DB.save = function(title, cb, options) {
+	Eden.DB.saveSource(title, Eden.DB.generateSource(title), cb, options);
 }
 
-Eden.DB.saveSource = function(title, source, cb, tags, pub) {
+Eden.DB.saveSource = function(title, source, cb, options) {
 	var status = {};
+	var tags = (options) ? options.tags : undefined;
+	var pub = (options) ? options.publish : undefined;
+	var desc = (options) ? options.description : undefined;
+	var thumb = (options) ? options.thumb : undefined;
 
 	var reducedtitle = title.replace(/[ \!\'\-\?\&]/g, "");
 
@@ -689,7 +693,7 @@ Eden.DB.saveSource = function(title, source, cb, tags, pub) {
 
 	var metatitle = {
 		title: title,
-		thumb: undefined,
+		thumb: thumb,
 		tags: tags
 	};
 
@@ -702,10 +706,10 @@ Eden.DB.saveSource = function(title, source, cb, tags, pub) {
 		if (meta === undefined) meta = new Eden.DB.createMeta(path);
 		//console.log(source);
 
-		edenUI.plugins.Canvas2D.thumbnail(function(thumb) {
-			if (thumb) {
-				metatitle.thumb = thumb;
-			}
+		//edenUI.plugins.Canvas2D.thumbnail(function(thumb) {
+			//if (thumb) {
+			//	metatitle.thumb = thumb;
+			//}
 
 			meta.title = JSON.stringify(metatitle);
 
@@ -720,7 +724,7 @@ Eden.DB.saveSource = function(title, source, cb, tags, pub) {
 				if (cb) cb(status);
 				//console.log("UPLOAD");
 			});
-		});
+		//});
 	} else {
 		if (cb) cb(status);
 	}
@@ -728,10 +732,7 @@ Eden.DB.saveSource = function(title, source, cb, tags, pub) {
 
 Eden.DB.load = function(path, saveid, source, cb) {
 	function doload() {
-		//Eden.Statement.load(source.statements);
-		//EdenUI.ScriptView.loadData(source.scriptviews);
-
-		//console.log("Execute: " + source.script);
+		// Run the project script as the *Restore agent
 		eden.execute2(source.script, "*Restore", function() {
 			if (cb) cb(source);
 		});
