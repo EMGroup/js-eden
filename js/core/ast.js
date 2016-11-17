@@ -2632,7 +2632,7 @@ Eden.AST.When.prototype.execute = function(root, ctx, base, scope) {
 
 		while (true) {
 			if (this.compiled(root,scope)) {
-				this.statement.execute(root, ctx, base, scope);
+				this.statement.execute(root, ctx, base, scope, {name: "*When"});
 			} else {
 				this.executed = 2;
 			}
@@ -2642,7 +2642,7 @@ Eden.AST.When.prototype.execute = function(root, ctx, base, scope) {
 		scope.range = true;
 	} else {
 		if (this.compiled(root,scope)) {
-			this.statement.execute(root, ctx, base, scope);
+			this.statement.execute(root, ctx, base, scope, {name: "*When"});
 		} else {
 			this.executed = 2;
 		}

@@ -697,7 +697,7 @@
 		for (var x in this.symbols) {
 			var sym = this.symbols[x];
 			var agent = sym.last_modified_by;
-			if (typeof agent != "object" || (agent.canUndo && agent.canUndo()) || (agent instanceof Symbol && agent.eden_definition && agent.eden_definition.startsWith("proc")) || agent.name == "*Input Device" || agent.name == "*Restore") {
+			if (typeof agent != "object" || (agent.canUndo && agent.canUndo()) || (agent instanceof Symbol && agent.eden_definition && agent.eden_definition.startsWith("proc")) || agent.name == "*Input Device" || agent.name == "*Restore" || agent.name == "*JavaScript" || agent.name == "*When") {
 				if (sym.eden_definition) {
 					if (sym.eden_definition.startsWith("func")) {
 						functions += this.symbols[x].eden_definition + "\n";
@@ -712,7 +712,7 @@
 					if (sym.cache.value !== undefined) {
 						var str = x + " = " + Eden.edenCodeForValue(sym.cache.value) + ";\n";
 
-						if (agent instanceof Symbol && agent.eden_definition && agent.eden_definition.startsWith("proc")) {
+						if ((agent instanceof Symbol && agent.eden_definition && agent.eden_definition.startsWith("proc")) || agent.name == "*JavaScript" || agent.name == "*When") {
 							agentassigns += str;
 						} else if (agent.name == "*Input Device") {
 							ioassigns += str;
