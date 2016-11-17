@@ -655,6 +655,12 @@ function concatAndResolveUrl(url, concat) {
 		return this.inInitialState;
 	}
 
+	Eden.reset = function() {
+		edenUI.destroyAllViews();
+		eden.reset();
+		Eden.Agent.removeAll();
+	}
+
 	Eden.prototype.reset = function () {
 		this.root.lookup("forgetAll").definition(root, root.scope)("", true, false);
 		this.root.collectGarbage();

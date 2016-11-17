@@ -60,11 +60,12 @@ div.menubar-sharebox-content .projecturl {
 
 div.menubar-sharebox-content .projecttags {
 	padding: 5px 8px;
-	border: 1px solid silver;
+	border: 1px solid #719ECE;
+	border-radius: 4px;
 	background: white;
 	margin-top: 5px;
 	/*margin-bottom: 20px;*/
-	width: 90%;
+	/*width: 90%;*/
 	line-height: 22px;
 }
 
@@ -449,4 +450,21 @@ iframe.menubar-login-iframe {
 	color: #e0e0e0;
 	font-size: 8pt;
 	font-weight: bold;
+}
+
+.ui-accordion-header {
+	background: #29454B;
+	border-color: #29454B;
+	color: white;
+	font-weight: bold;
+}
+
+.ui-accordion-header-active {
+	background: #416d77;
+	border-color: #416d77;
+}
+
+.ui-accordion-content {
+	font-family: 'arial';
+	font-size: 14px;
 }

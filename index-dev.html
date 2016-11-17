@@ -413,8 +413,7 @@ See LICENSE.txt
 
 			window.addEventListener("popstate", function(e) {
 				if (!e.state) {
-					eden.reset();
-					Eden.Agent.removeAll();
+					Eden.reset();
 					lopts.css("display","block");
 				} else {
 					lopts.css("display","none");

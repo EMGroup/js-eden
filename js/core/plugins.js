@@ -448,6 +448,12 @@
 		}
 	}
 
+	EdenUI.prototype.destroyAllViews = function() {
+		for (var v in this.viewInstances) {
+			this.destroyView(v, true);
+		}
+	}
+
 	EdenUI.prototype.destroyView = function (name, forgetObservables) {
 		if (!(name in this.viewInstances) || this.viewInstances[name].closing) {
 			//View already closed, never existed or already closing.
