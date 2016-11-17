@@ -25,26 +25,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		var script = $('<div class="script-generator-code" spellcheck="false"></div>');
 		content.append(script);
 
-		var fileChooser = $('<select></select>');
-		controlsLeft.append(fileChooser);
-
-		var excludeRegEx = $('<input placeholder="excluded symbols"/>');
-		controlsLeft.append(excludeRegEx);
-
-		var unicode = $('<input type="checkbox" />');
-		label = $('<label>Unicode strings</label>');
-		label.prepend(unicode);
-		controlsRight.append(label);
-		var unicodeElem = unicode.get(0);
-		unicodeElem.checked = edenUI.getOptionValue("optUnicode") !== "false";
-
-		var includeViews = $('<input type="checkbox" />');
-		label = $('<label>Preserve screen layout</label>');
-		label.prepend(includeViews);
-		controlsRight.append(label);
-		var includeViewsElem = includeViews.get(0);
-
-		var regenerate = $('<button>Regenerate Script</button>');
+		var regenerate = $('<button class="script-generator-menu refresh">&#xf021;</button>');
 		controlsRight.append(regenerate);
 
 		//Add events
@@ -72,10 +53,10 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 
 		var updateScript = function () {
 			var excludeRE;
-			if (excludeRegEx[0].value != "") {
-				excludeRE = edenUI.regExpFromStr(excludeRegEx);
-			}
-			var result = generateScriptHTML(excludeRE, unicodeElem.checked, includeViewsElem.checked, viewName);	
+			//if (excludeRegEx[0].value != "") {
+			//	excludeRE = edenUI.regExpFromStr(excludeRegEx);
+			//}
+			var result = generateScriptHTML(excludeRE, false, false, viewName);	
 
 			var ast = new Eden.AST(result);
 			var hl = new EdenUI.Highlight(script.get(0));
@@ -84,34 +65,14 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			//script.get(0).scrollTop = output.scrollHeight;		
 		};
 
-		fileChooser.on("change", function (event) {
-			var url = event.target.value;
-			if (url == "") {
-				updateScript();
-				return;
-			}
-			$.ajax({
-				url: url,
-				dataType: "text",
-				success: function (data) {
-					script.html(data);
-				}
-			});
-		});
 
-		excludeRegEx.on("keyup", updateScript);
-		unicode.on("change", function (event) {
-			edenUI.setOptionValue("optUnicode", event.target.checked)
-			updateScript(event);
-		});
-		includeViews.on("change", updateScript);
 		regenerate.click(function () {
-			updateFileChooser();
+			//updateFileChooser();
 			updateScript();
 		});
 
 		//Initialize
-		updateFileChooser();
+		//updateFileChooser();
 		updateScript();
 
 		$('<div id="' + name + '"></div>')

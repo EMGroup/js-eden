@@ -352,8 +352,9 @@ See LICENSE.txt
 		}
 	}
 
+	$(".loadmodal").show();
 	Construit(undefined, function(loaded) {
-		$(".loaddialog").remove();
+		$(".loadmodal").hide();
 		if (!loaded) {
 			console.log("NOT LOADED");
 			var lopts = $("#loadoptions");
@@ -401,8 +402,12 @@ See LICENSE.txt
 				var path = e.currentTarget.getAttribute("data-path");
 				var tag = parseInt(e.currentTarget.getAttribute("data-tag"));
 				console.log("Load project: " + path + "@"+tag);
+				lopts.css("display","none");
+				$(".loadmodal").show();
+				$(".loadmessage").html("Loading " + Eden.DB.meta[path].title + "...");
 				Eden.load(path,tag,function() {
-					lopts.css("display","none");
+					$(".loadmessage").html("Loading...");
+					$(".loadmodal").hide();
 				});
 			});
 
@@ -513,10 +518,11 @@ See LICENSE.txt
 	});
 </script>
 
-<div class="loaddialog">
-<!--img src="images/construit_logo_2.png"/-->
-<div class="mainloader">Loading...</div>
-<div class="loadmessage">Loading...</div>
+<div class="loadmodal modal" style="display: block">
+	<div class="loaddialog">
+		<div class="mainloader">Loading...</div>
+		<div class="loadmessage">Loading...</div>
+	</div>
 </div>
 
 <div id="loadoptions" class="modal" style="display: none;">

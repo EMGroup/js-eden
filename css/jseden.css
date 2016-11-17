@@ -327,14 +327,14 @@ div.message-infotext:before {
 }
 
 div.loaddialog {
-	width: 550px;
+	width: 350px;
 	padding: 20px;
 	/*height: 150px;*/
 	background-color: #eee;
 	color: black;
 	font: bold 12px "Helvetica Neue", Sans-Serif;
-	margin-left: calc(50% - 325px);
-	top: 20%;
+	margin-left: calc(50% - 175px);
+	top: 30%;
 	position: fixed;
 	text-align: center;
 	border-radius: 6px;

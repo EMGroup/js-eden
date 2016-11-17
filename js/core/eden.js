@@ -317,7 +317,7 @@ function concatAndResolveUrl(url, concat) {
 	};
 
 	EdenUI.prototype.finishedLoading = function() {
-		$(".loaddialog").remove();
+		//$(".loaddialog").remove();
 		this.loaded = true;
 		//edenUI.updateStatus(Language.ui.general.finished_loading);
 	};
@@ -655,6 +655,12 @@ function concatAndResolveUrl(url, concat) {
 		return this.inInitialState;
 	}
 
+	Eden.reset = function() {
+		edenUI.destroyAllViews();
+		eden.reset();
+		Eden.Agent.removeAll();
+	}
+
 	Eden.prototype.reset = function () {
 		this.root.lookup("forgetAll").definition(root, root.scope)("", true, false);
 		this.root.collectGarbage();
@@ -850,11 +856,14 @@ function concatAndResolveUrl(url, concat) {
 
 		var ast = new Eden.AST(code);
 		if (ast.script.errors.length == 0) {
+			if (success) {
+				ast.script.statements.push({errors: [], execute: success});
+			}
 			ast.script.execute(this.root,this.root.scope, ast, this.root.scope, agobj);
 		} else {
 			console.error(ast.script.errors[0].prettyPrint());
 		}
-		success && success.call();
+		//success && success.call();
 		//this.polyglot.execute(code, origin, prefix, agent, success);
 	};
 

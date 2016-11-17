@@ -32,7 +32,7 @@ Eden.Agent = function(parent, name, meta, options) {
 	Eden.Agent.agents[this.name] = this;
 
 	if (meta === undefined) {
-		console.error("Meta undefined for " + name);
+		//console.error("Meta undefined for " + name);
 		meta = Eden.DB.createMeta(name);
 	}
 

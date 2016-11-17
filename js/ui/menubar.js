@@ -64,9 +64,22 @@ EdenUI.MenuBar = function() {
 		}
 	});
 
-	this.sharebox = $('<div class="modal"><div class="modal-content" style="width: 400px;"><div class="menubar-sharebox-title"><span class="menubar-shareicon">&#xf1e0;</span>Save and Share</div><div class="menubar-sharebox-content">Add tags to your project:<div class="projecttags" contenteditable></div><div id="projectuploadbox"></div><br/><br/>Download to file: <span class="downloadurl"></span><br/><br><button class="jseden done" style="margin-top: 20px;">Done</button></div></div></div>');
+	this.sharebox = $('<div class="modal"><div class="modal-content" style="width: 400px;"><div class="menubar-sharebox-title"><span class="menubar-shareicon">&#xf1e0;</span>Save and Share</div><div class="menubar-sharebox-content"><div id="projectoptions"></div><div id="projectuploadbox"></div><br/><br/>Download to file: <span class="downloadurl"></span><br/><br><button class="jseden done" style="margin-top: 20px;">Done</button></div></div></div>');
 	this.element.append(this.sharebox);
 	this.sharebox.hide();
+	var projectoptions = this.sharebox.find("#projectoptions");
+	projectoptions.html('<h3>Tags</h3><div>Add tags to your project:<div class=\"projecttags\" contenteditable></div></div><h3>Thumbnail</h3><div><input type="radio" name="thumbnail" value="auto" checked>Default</input><input type="radio" name="thumbnail" value="canvas">Canvas</input><input type="radio" name="thumbnail" value="manual">File</input><div id="projectthumb"></div></div><h3>Description</h3><div><textarea></textarea></div>');
+	projectoptions.accordion({
+		collapsible: true,
+		heightStyle: "content",
+		classes: {
+			"ui-accordian-header": "ui-corner-top sharebox-header",
+			"ui-accordian-header-collapsed": "ui-corner-all sharebox-header-collapsed"
+		}
+	});
+	var thumb = projectoptions.find("#projectthumb");
+	var thumbimg = $("<img></img>");
+	thumb.append(thumbimg);
 
 	var me = this;
 
@@ -177,6 +190,11 @@ EdenUI.MenuBar = function() {
 			me.sharebox.find("#projectuploadbox").html('');
 		}
 		me.sharebox.show();
+
+		// Generate the default thumbnail...
+		edenUI.plugins.Canvas2D.thumbnail(function(png) {
+			thumbimg.get(0).src = png;
+		});
 
 		//Saved to your projects and shared at:<div class="projecturl"></div>
 
