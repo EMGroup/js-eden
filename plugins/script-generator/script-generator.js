@@ -73,10 +73,18 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 				script.append(importele);
 			}
 
-			for (var i=0; i<data.definitions.length; i++) {
+			script.append($('<div class="eden-line"></div>'));
+			var output = $('<div></div>');
+			script.append(output);
+
+			/*for (var i=0; i<data.definitions.length; i++) {
 				var defele = $('<div class="eden-line"><span>'+data.definitions[i]+'</span></div>');
 				script.append(defele);
-			}		
+			}*/
+			var joined = data.definitions.join("\n") + "\n## When agents\n\n" + data.agents;
+			var ast = new Eden.AST(joined);
+			var hl = new EdenUI.Highlight(output.get(0));
+			hl.highlight(ast, -1, -1);
 		};
 
 
@@ -133,6 +141,8 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		result.imports = imports;
 		var changes = eden.root.save(forced).split("\n");
 		result.definitions = changes;
+		var agents = Eden.Agent.getActiveAgents(forced,false);
+		result.agents = agents;
 		return result;
 	};
 

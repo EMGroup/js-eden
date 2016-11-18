@@ -299,6 +299,26 @@ Eden.Agent.save = function() {
 }
 
 
+Eden.Agent.getActiveAgents = function(forced, all) {
+	var result = "";
+	for (var x in Eden.Agent.agents) {
+		var ag = Eden.Agent.agents[x];
+		if (all || ag.canUndo() || (forced && forced[x])) {
+			if (ag.executed && ag.ast) {
+				for (var i=0; i<ag.ast.lines.length; i++) {
+					if (ag.ast.lines[i] && ag.ast.lines[i].type == "when") {
+						result += ag.ast.getSource(ag.ast.lines[i]);
+						result += "\n\n";
+					}
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+
 
 Eden.Agent.prototype.isSaved = function() {
 	return this.autosavetimer === undefined;

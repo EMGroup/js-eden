@@ -685,10 +685,10 @@
 	Folder.prototype.save = function(forced) {
 		var result = "";
 		var functions = "## Functions\n";
-		var definitions = "\n## Changed Definitions\n";
+		var definitions = "\n## Definitions\n";
 		var restdefs = "\n## Restored Definition\n";
 		var agentdefs = "\n## Agent Definitions\n";
-		var assignments = "\n## Changed Assignments\n";
+		var assignments = "\n## Assignments\n";
 		var agentassigns = "\n## Agent Assignments\n";
 		var ioassigns = "\n## Input Device Assignments\n";
 		var restassign = "\n## Restored Assignments\n";
@@ -711,6 +711,8 @@
 					} else {
 						if (agent.name == "*Restore") {
 							restdefs += this.symbols[x].eden_definition + "\n";
+						} else if (agent.name == "*When") {
+							agentdefs += this.symbols[x].eden_definition + "\n";
 						} else {
 							definitions += this.symbols[x].eden_definition + "\n";
 						}
