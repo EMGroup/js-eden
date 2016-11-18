@@ -15,18 +15,18 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		var label;
 		var content = $('<div class="script-generator"></div>');
 		var controls = $('<div></div>');
-		content.append(controls);
+		//content.append(controls);
 
 		var controlsLeft = $('<div class="script-generator-controls"></div>');
-		controls.append(controlsLeft);
+		//controls.append(controlsLeft);
 		var controlsRight = $('<div class="script-generator-controls" style="float: right"></div>');
-		controls.append(controlsRight);
+		//controls.append(controlsRight);
 
-		var script = $('<div class="script-generator-code" spellcheck="false"></div>');
+		var script = $('<div class="script-generator-code readonly" spellcheck="false"></div>');
 		content.append(script);
 
-		var regenerate = $('<button class="script-generator-menu refresh">&#xf021;</button>');
-		controlsRight.append(regenerate);
+		var regenerate = $('<button class="script-generator-refresh">&#xf021;</button>');
+		content.append(regenerate);
 
 		var forcedinclude = {};
 

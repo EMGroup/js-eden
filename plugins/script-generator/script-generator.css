@@ -17,44 +17,40 @@
 	margin-right: 0px;
 }
 
-.script-generator>* {
-	margin: 4px 0px;
-}
-
-button.script-generator-menu {
+button.script-generator-refresh {
 	/*text-shadow: 0px 0px 2px black;*/
 	font-family: "FontAwesome";
 	font-size: 26px;
 	background: none;
 	border: 0;
 	cursor: pointer;
-	width: 40px;
+	width: 30px;
 	outline: none;
 	margin-right: 10px;
+	color: #aaa;
+	position: absolute;
+	top: 10px;
+	right: 40px;
+	cursor: pointer;
+	z-index: 3;
 }
 
-button.script-generator-menu:hover {
-	text-shadow: 0px 0px 2px black;
-}
-
-button.script-generator-menu.refresh {
+button.script-generator-refresh:hover {
 	color: green;
-	/*text-shadow: 0px 0px 4px silver;*/
 }
 
 div.script-generator-code {
-	flex-grow: 1;
-	margin-bottom: 0px;
-	background-color: white;
+	/*flex-grow: 1;*/
+	/*margin-bottom: 0px;*/
+	/*background-color: white;*/
 	color: black;
 	font: 14px/20px Roboto Mono, monospace;
 	white-space: pre;
 	outline: none;
-	cursor: text;
 	resize: none;
 	overflow: auto;
-	padding: 10px;
-	border: 1px solid #e5e5e5;
+	padding: 10px 20px;
+	/*border: 1px solid #e5e5e5;*/
 }
 
 div.scriptgen-dialog {
@@ -84,6 +80,10 @@ div.scriptgen-dialog .ui-dialog-titlebar {
 	background: -o-linear-gradient(#fafafa, #cccccc); /* For Opera 11.1 to 12.0 */
 	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
 	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
+}
+
+div.scriptgen-dialog .ui-dialog-content {
+	padding: 0;
 }
 
 span.scriptgen-importex {

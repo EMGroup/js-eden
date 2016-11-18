@@ -435,7 +435,7 @@ div.outputcontent {
 
 div.readonly {
 	-webkit-filter: grayscale(70%);
-	filter: grayscale(70%);
+	filter: grayscale(30%);
 	background-color: #f5f5f5;
 }
 
