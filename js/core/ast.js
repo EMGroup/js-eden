@@ -2747,6 +2747,15 @@ Eden.AST.Script.prototype.executeReal = function(root, ctx, base, scope, agent, 
 Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, scope, agent, parameters) {
 	this.executed = 1;
 	for (var i = 0; i < this.statements.length; i++) {
+		if (Eden.AST.debug) {
+			if (Eden.AST.debugstep || Eden.AST.debugspeed || Eden.AST.debugbreakpoint === this.statements[i]) {
+				Eden.AST.debugbase = base;
+				Eden.AST.debugscript = this;
+				Eden.AST.debugindex = i;
+				Eden.AST.debugstatement = this.statements[i];
+				yield 0;
+			}
+		}
 		if (this.statements[i].type == "wait") {
 			this.statements[i].executed = 1;
 			this.statements[i].compile(ctx);
@@ -2779,7 +2788,16 @@ function runEdenAction(source, action) {
 	var delay = action.next();
 	//console.log("RunAction: " + delay.value);
 	if (delay.done == false) {
-		if (typeof delay.value == "object") {
+		if (Eden.AST.debug && delay.value == 0) {
+			// Save the next step to be called later by debugger.
+			Eden.AST.debugnext = function() {runEdenAction.call(me, source, action)};
+			if (Eden.AST.debugbreakpoint === Eden.AST.debugstatement) {
+				if (Eden.AST.debugbreakpoint_cb) Eden.AST.debugbreakpoint_cb();
+			} else {
+				if (Eden.AST.debugstep_cb) Eden.AST.debugstep_cb();
+				if (Eden.AST.debugspeed) setTimeout(Eden.AST.debugnext, Eden.AST.debugspeed);
+			}
+		} else if (typeof delay.value == "object") {
 			if (delay.value.type == "import") {
 				delay.value.executed = 1;
 				Eden.Agent.importAgent(delay.value.path, delay.value.tag, delay.value.options, function(ag) {

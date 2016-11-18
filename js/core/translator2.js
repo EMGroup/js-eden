@@ -38,6 +38,18 @@ Eden.AST = function(code, imports) {
 	this.script = this.pSCRIPT();
 }
 
+// Debug controls
+Eden.AST.debug = false;
+Eden.AST.debugstep = false;
+Eden.AST.debugstep_cb = undefined;
+Eden.AST.debugspeed = 0;
+Eden.AST.debugbreakpoint = undefined;
+Eden.AST.debugbreakpoint_cb = undefined;
+Eden.AST.debugstatement = undefined;
+Eden.AST.debugbase = undefined;
+Eden.AST.debugindex = undefined;
+Eden.AST.debugscript = undefined;
+
 
 
 /**

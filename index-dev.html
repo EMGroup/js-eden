@@ -574,18 +574,25 @@ See LICENSE.txt
 			}
 
 			if (Eden.DB.isConnected()) {
-				displayProjects(true, function() {
-					if (Eden.DB.isLoggedIn()) {
-						var plist = lopts.find("#jseden-private-projects").get(0);
-						var node = plist.firstChild;
-						while (node) {
-							var next = node.nextSibling;
-							plist.removeChild(node);
-							node = next;
+				if (q && q != "") {
+					displayProjects(true, function() {
+						updateSearch(q);
+					});
+					lopts.find(".searchouter").remove();
+				} else {
+					displayProjects(true, function() {
+						if (Eden.DB.isLoggedIn()) {
+							var plist = lopts.find("#jseden-private-projects").get(0);
+							var node = plist.firstChild;
+							while (node) {
+								var next = node.nextSibling;
+								plist.removeChild(node);
+								node = next;
+							}
+							displayProjects();
 						}
-						displayProjects();
-					}
-				});
+					});
+				}
 			} else {
 				$("#project-browser").html('<div class="jseden-project-cat">Offline Examples:</div><div id="jseden-public-projects" class="jseden-dialog-plisting"></div>');
 			}
