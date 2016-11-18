@@ -455,7 +455,7 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 							}
 							
 							var titlestr = meta.title;
-							if (titlestr == "Agent" || titlestr === undefined) titlestr = "";
+							if (titlestr == "Script View" || titlestr === undefined) titlestr = "";
 							
 							content.html(name+" <span class=\"script-agents-title\">"+titlestr+"</span><span class=\"script-agents-date\">"+datestr+"</span>");
 							

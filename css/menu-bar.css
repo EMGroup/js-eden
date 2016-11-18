@@ -3,7 +3,7 @@
 	left: 0px;
 	right: 0px;
 	top: 0px;
-	height: 65px;
+	height: 55px;
 	background-color: #132023;
 	color:	white;
 	font-size: 14px;
@@ -79,7 +79,7 @@ span.project-tag {
 div.menubar-buttons {
 	position: absolute;
 	right: 20px;
-	top: 20px;
+	top: 15px;
 	width: 300px;
 	display: inline-block;
 }
@@ -151,7 +151,7 @@ button.menubar-button.main {
 
 div#eden-logo {
 	position: absolute;
-	top: 14px;
+	top: 8px;
 	left: 20px;
 	background-image: url('../images/em-logo2.png');
 	background-repeat: no-repeat;
@@ -160,10 +160,10 @@ div#eden-logo {
 }
 
 div.jseden-title {
-	font-size: 18pt;
+	font-size: 16pt;
 	font-weight: bold;
 	position: absolute;
-	top: 12px;
+	top: 8px;
 	left: 110px;
 	color: white;
 	box-sizing: border-box;
@@ -385,11 +385,11 @@ div.jseden-title:hover {
 
 #menubar-login {
 	position: absolute;
-	top: 32px;
+	top: 25px;
 	left: 110px;
 	padding-top: 8px;
 	color: #e0e0e0;
-	font-size: 14px;
+	font-size: 12px;
 	font-weight: bold;
 	cursor: pointer;
 }
@@ -406,7 +406,7 @@ div.jseden-title:hover {
 #menubar-login span.icon {
 	/*content: "\f090";*/
 	font-family: "FontAwesome";
-	font-size: 12pt;
+	font-size: 10pt;
 	padding-right: 5px;
 	text-shadow: 0 0 2px white;
 }
@@ -467,4 +467,8 @@ iframe.menubar-login-iframe {
 .ui-accordion-content {
 	font-family: 'arial';
 	font-size: 14px;
+}
+
+div#projectthumb {
+	margin-top: 10px;
 }

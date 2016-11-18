@@ -34,7 +34,7 @@
 	}
 
 	//Dimensions of various UI components.
-	EdenUI.prototype.menuBarHeight = 70;
+	EdenUI.prototype.menuBarHeight = 60;
 	EdenUI.prototype.dialogBorderWidth = 3.133;
 	EdenUI.prototype.titleBarHeight = 34.659 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.scrollBarSize = 14 + EdenUI.prototype.dialogBorderWidth;
@@ -100,7 +100,7 @@
 			this.destroyView(name, false);
 		}
 
-		var desktopTop = this.plugins.MenuBar? this.menuBarHeight : 0;
+		var desktopTop = this.menuBarHeight;
 		var defaultTitle = this.views[type].title;
 		var viewData = this.views[type].dialog(name + "-dialog", defaultTitle);
 		if (viewData === undefined) {
@@ -681,9 +681,9 @@
 		}
 		xSym.cached_value = realX;
 		ySym.cached_value = realY;
-		if (this.plugins.MenuBar) {
+		//if (this.plugins.MenuBar) {
 			realY = realY  + this.menuBarHeight;
-		}
+		//}
 		diag.parent().offset({left: realX, top: realY});
 	};
 
