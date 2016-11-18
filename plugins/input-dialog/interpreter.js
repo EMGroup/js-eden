@@ -1953,7 +1953,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					//console.log("GOTO: " + obs);
 					var sym = eden.root.symbols[obs];
 					if (sym) {
-						var a = Eden.Agent.agents[sym.last_modified_by];
+						/*var a = Eden.Agent.agents[sym.last_modified_by];
 						if (a) {
 							if (a !== scriptagent) {
 								agent.state[obs_agent] = sym.last_modified_by;
@@ -1963,7 +1963,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 								scrollToLine(lineno);
 							}, 100);
 							//console.log(" in " + sym.last_modified_by + "@"+lineno);
-						}
+						}*/
+						console.log(sym.last_modified_by);
 					}
 				}
 				e.preventDefault();

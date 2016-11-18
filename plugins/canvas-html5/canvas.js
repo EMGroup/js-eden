@@ -74,12 +74,18 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	};
 
 	this.thumbnail = function(cb) {
-		if (canvases["picture"] === undefined) {
+		var canvas = canvases["picture"];
+		if (canvas === undefined) {
+			for (var x in canvases) {
+				canvas = canvases[x];
+				break;
+			}
+		}
+
+		if (canvas === undefined) {
 			if (cb) cb();
 			return;
 		}
-
-		var canvas = canvases["picture"];
 
 		var imgwidth = canvas.clientWidth;
 		var imgheight = canvas.clientHeight;

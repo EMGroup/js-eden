@@ -34,7 +34,7 @@
 	}
 
 	//Dimensions of various UI components.
-	EdenUI.prototype.menuBarHeight = 30;
+	EdenUI.prototype.menuBarHeight = 70;
 	EdenUI.prototype.dialogBorderWidth = 3.133;
 	EdenUI.prototype.titleBarHeight = 34.659 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.scrollBarSize = 14 + EdenUI.prototype.dialogBorderWidth;
