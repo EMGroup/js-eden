@@ -643,7 +643,7 @@ Eden.DB.getSource = function(path, tag, callback) {
 				success: function(data){
 					if (data == null || data.error) {
 						callback(undefined, "No such version");
-						console.error("No such version");
+						console.error("No such version " + tag + " for " + path);
 						//console.log(data);
 					} else {			
 						meta.updateVersion(data.saveID, data.tag, data.title, data.name, data.date);	

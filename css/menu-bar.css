@@ -389,7 +389,7 @@ div.jseden-title:hover {
 	left: 110px;
 	padding-top: 8px;
 	color: #e0e0e0;
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: bold;
 	cursor: pointer;
 }
@@ -406,7 +406,7 @@ div.jseden-title:hover {
 #menubar-login span.icon {
 	/*content: "\f090";*/
 	font-family: "FontAwesome";
-	font-size: 10pt;
+	font-size: 12pt;
 	padding-right: 5px;
 	text-shadow: 0 0 2px white;
 }

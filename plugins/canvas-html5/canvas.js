@@ -467,9 +467,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	this.findDrawableHit = function (viewName, x, y, fromBottom, testAll) {
 		var picture = root.lookup("_view_" + viewName + "_content").value();
 		var canvas = canvases[viewName];
-		var context = canvas.getContext("2d");
-		var scale = root.lookup("_view_" + viewName + "_scale").value();
-		return this.findDrawableHitInList(picture, context, scale, x, y, fromBottom, testAll);
+		if (canvas) {
+			var context = canvas.getContext("2d");
+			var scale = root.lookup("_view_" + viewName + "_scale").value();
+			return this.findDrawableHitInList(picture, context, scale, x, y, fromBottom, testAll);
+		}
 	}
 	
 	this.findDrawableHitInList = function (picture, context, scale, x, y, fromBottom, testAll) {
