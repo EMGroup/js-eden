@@ -28,6 +28,15 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		var regenerate = $('<button class="script-generator-menu refresh">&#xf021;</button>');
 		controlsRight.append(regenerate);
 
+		var forcedinclude = {};
+
+		script.on("click",".scriptgen-importex",function(e) {
+			var agent = e.currentTarget.getAttribute("data-agent");
+			if (forcedinclude[agent]) forcedinclude[agent] = false;
+			else forcedinclude[agent] = true;
+			updateScript();
+		});
+
 		//Add events
 		var updateFileChooser = function () {
 			fileChooser.html('<option value="">Working Script</option>');
@@ -52,17 +61,22 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		};
 
 		var updateScript = function () {
-			var excludeRE;
-			//if (excludeRegEx[0].value != "") {
-			//	excludeRE = edenUI.regExpFromStr(excludeRegEx);
-			//}
-			var result = generateScriptHTML(excludeRE, false, false, viewName);	
+			script.html("");
+			var data = me.generateScriptLines(forcedinclude);
 
-			var ast = new Eden.AST(result);
-			var hl = new EdenUI.Highlight(script.get(0));
-			hl.highlight(ast, -1, -1);
+			for (var i=0; i<data.imports.length; i++) {
+				if (data.imports[i] == "") continue;
+				var agent = data.imports[i].split(" ")[1].split("@")[0];
+				var isplit = data.imports[i].split(" ");
+				var ihtml = '<span class="eden-keyword">'+isplit[0]+'</span> <span class="eden-path">'+isplit[1]+'</span>';
+				var importele = $('<div class="eden-line"><span class="scriptgen-importex" data-agent="'+agent+'">'+((forcedinclude[agent])?'&#xf055;':'&#xf056;')+'</span><span>'+((forcedinclude[agent])?'<span class="eden-comment">## '+data.imports[i]+'</span>':ihtml)+'</span></div>');
+				script.append(importele);
+			}
 
-			//script.get(0).scrollTop = output.scrollHeight;		
+			for (var i=0; i<data.definitions.length; i++) {
+				var defele = $('<div class="eden-line"><span>'+data.definitions[i]+'</span></div>');
+				script.append(defele);
+			}		
 		};
 
 
@@ -87,14 +101,8 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		});
 	};
 
-	var generateScriptHTML = function (excludeRE, unicode, includeViews, viewToExclude) {
-		var lines = me.generateScriptLines(excludeRE, unicode, includeViews, viewToExclude);
-		var html = "";
-		for (var i = 0; i < lines.length; i++) {
-			//html = html + Eden.htmlEscape(lines[i], true) + "\n";
-			html += lines[i] + "\n";
-		}
-		return html;
+	var generateScriptHTML = function (forced) {
+		
 	};
 
 	function pad(str, minChars) {
@@ -118,17 +126,14 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 	 * @return {Array} An array where each item is a string representing a piece of EDEN code and
 	 * of the items together represent a complete script capable of rebuilding the current state.
 	 */
-	this.generateScriptLines = function (excludeRE, unicode, includeViews, viewToExclude) {
-		var lines = [comments.header1, comments.header2, comments.header3, "", comments.homePage, "", comments.imports];
+	this.generateScriptLines = function (forced) {
+		var result = {};
+		//var lines = [comments.header1, comments.header2, comments.header3, "", comments.homePage, "", comments.imports];
 		var imports = Eden.Agent.save().split("\n");
-		lines.push.apply(lines, imports);
-		lines.push("");
-		lines.push(comments.changes);
-		var changes = eden.root.save().split("\n");
-		lines.push.apply(lines, changes);
-		lines.push("");
-		lines.push(comments.end);
-		return lines;
+		result.imports = imports;
+		var changes = eden.root.save(forced).split("\n");
+		result.definitions = changes;
+		return result;
 	};
 
 	/**Holds information about symbols implicitly defined upon loading a construal via execute

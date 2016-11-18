@@ -85,3 +85,13 @@ div.scriptgen-dialog .ui-dialog-titlebar {
 	background: -moz-linear-gradient(#fafafa, #cccccc); /* For Firefox 3.6 to 15 */
 	background: linear-gradient(#fafafa, #cccccc); /* Standard syntax */
 }
+
+span.scriptgen-importex {
+	margin-right: 15px;
+	font-family: "FontAwesome";
+	cursor: pointer;
+}
+
+span.scriptgen-importex:hover {
+	font-weight: bold;
+}
