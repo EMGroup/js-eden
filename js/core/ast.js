@@ -2214,7 +2214,7 @@ Eden.AST.Do.prototype.generate = function(ctx) {
 }
 
 
-Eden.AST.Do.prototype.execute = function(root,ctx,base,scope) {
+Eden.AST.Do.prototype.execute = function(root,ctx,base,scope, agent) {
 	this.executed = 1;
 
 	var script;
@@ -2229,7 +2229,7 @@ Eden.AST.Do.prototype.execute = function(root,ctx,base,scope) {
 		for (var i=0; i<this.parameters.length; i++) {
 			params.push(this.parameters[i].execute(root,ctx,base,scope));
 		}
-		script.executeReal(root,ctx,base, scope, params);
+		script.executeReal(root,ctx,base, scope, agent, params);
 	} else {
 		this.executed = 3;
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ACTIONNAME, this, "Action '"+this.name+"' does not exist"));
