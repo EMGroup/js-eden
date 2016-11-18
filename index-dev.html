@@ -249,6 +249,23 @@ See LICENSE.txt
 			color: black;
 		}
 
+		input.projectsearch {
+			width: 300px;
+			background: #132023;
+			color: white;
+			font-size: 10pt;
+			padding: 8px;
+			padding-left: 40px;
+			border: 2px solid #eee;
+		}
+
+		div.projectsearch:after {
+			color: white;
+			font-size: 16pt;
+			left: -285px;
+			top: 3px;
+		}
+
 	</style>
 </head>
 <body>
@@ -661,8 +678,8 @@ See LICENSE.txt
 
 <div id="loadoptions" class="" style="display: none;">
 	<div class="project-content" style="padding: 20px 0;">
-		<div class="searchouter"><input type="text" class="search" placeholder="Search..."></input></div>
-		<div class="jseden-dialog-plisting">
+		<div class="searchouter projectsearch"><input type="text" class="search projectsearch" placeholder="Search..."></input></div>
+		<div class="jseden-dialog-plisting" style="padding: 10px">
 			<div id="loadnew" class="cadence-plisting-entry noselect special"><div class="cadence-plisting-icon special">&#xf067;</div><div class="cadence-plisting-title">New Project</div></div>
 			<div id="importfile" class="cadence-plisting-entry noselect special"><div class="cadence-plisting-icon special">&#xf07c;</div><div class="cadence-plisting-title">Import File</div></div>
 			<div id="restoreold" class="cadence-plisting-entry noselect special"><div class="cadence-plisting-icon special">&#xf01e;</div><div class="cadence-plisting-title">Restore Last</div></div>
