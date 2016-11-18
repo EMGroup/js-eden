@@ -38,7 +38,8 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 				width: 600,
 				height: 450,
 				minHeight: 120,
-				minWidth: 230
+				minWidth: 230,
+				dialogClass: "htmlviews-dialog"
 			});
 		return {confirmClose: true};
 	}
