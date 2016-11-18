@@ -136,7 +136,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		//img.onload = function() {
 			//console.log("SVG: " + svgele.clientWidth + "x" + svgele.clientHeight + " @ " + canvas.width + "," + canvas.height);
 		ctx.drawImage(canvas, xStart, yStart, renderableWidth, renderableHeight);
-			var png = tcanvas.toDataURL("image/png");
+		var png;
+		try {
+			png = tcanvas.toDataURL("image/png");
+		} catch(e) {
+		}
 			//DOMURL.revokeObjectURL(png);
 			if (cb) cb(png);
 			//document.querySelector('#png-container').innerHTML = '<img src="'+png+'"/>';

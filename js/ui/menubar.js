@@ -64,11 +64,11 @@ EdenUI.MenuBar = function() {
 		}
 	});
 
-	this.sharebox = $('<div class="modal"><div class="modal-content" style="width: 400px;"><div class="menubar-sharebox-title"><span class="menubar-shareicon">&#xf1e0;</span>Save and Share</div><div class="menubar-sharebox-content"><div id="projectoptions"></div><div id="projectuploadbox"></div><br/><br/>Download to file: <span class="downloadurl"></span><br/><br><button class="jseden done" style="margin-top: 20px;">Done</button></div></div></div>');
+	this.sharebox = $('<div class="modal"><div class="modal-content" style="width: 400px;"><div class="menubar-sharebox-title"><span class="menubar-shareicon">&#xf1e0;</span>Save and Share</div><div class="menubar-sharebox-content"><div id="projectoptions"></div><div id="projectuploadbox"></div><br/><br/>Download to file: <span class="downloadurl"></span><br/><br><button class="jseden done" style="margin-top: 20px;">Finished</button></div></div></div>');
 	this.element.append(this.sharebox);
 	this.sharebox.hide();
 	var projectoptions = this.sharebox.find("#projectoptions");
-	projectoptions.html('<h3>Tags</h3><div>Add tags to your project:<div class=\"projecttags\" contenteditable></div></div><h3>Thumbnail</h3><div><input type="radio" name="thumbnail" value="auto" checked>Default</input><input type="radio" name="thumbnail" value="canvas">Canvas</input><input type="radio" name="thumbnail" value="manual">File</input><div id="projectthumb"></div></div><h3>Description</h3><div><textarea></textarea></div>');
+	projectoptions.html('<h3>Tags</h3><div>Add tags to your project:<div class=\"projecttags\" contenteditable></div></div><h3>Thumbnail</h3><div><input class="thumbnailtype" type="radio" name="thumbnail" value="auto" checked>Default</input><input class="thumbnailtype" type="radio" name="thumbnail" value="canvas">Canvas</input><input class="thumbnailtype" type="radio" name="thumbnail" value="manual">File</input><div id="projectthumb"></div></div><h3>Description</h3><div><textarea></textarea></div>');
 	projectoptions.accordion({
 		collapsible: true,
 		heightStyle: "content",
@@ -78,6 +78,7 @@ EdenUI.MenuBar = function() {
 		}
 	});
 	var thumb = projectoptions.find("#projectthumb");
+	var thumbdata;
 	var thumbimg = $("<img></img>");
 	thumb.append(thumbimg);
 
@@ -96,6 +97,86 @@ EdenUI.MenuBar = function() {
 
 	this.sharebox.on("click",".done",function() {
 		me.sharebox.hide();
+	});
+
+	this.sharebox.on("change",".thumbnailtype", function(e) {
+		var ttype = e.currentTarget.value;
+		if (ttype == "manual") {
+			thumb.html("");
+			var thumbinput = $('<input type="file"></input>');
+			thumb.append(thumbinput);
+			thumbinput.change(function() {
+				thumb.html("");
+				var fileinput = thumbinput.get(0);
+				var file = fileinput.files[0];
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					//Eden.loadFromString(e.target.result);
+					var tcanvas = document.createElement("canvas");
+					tcanvas.setAttribute("width","200");
+					tcanvas.setAttribute("height","112");
+					var ctx = tcanvas.getContext("2d");
+					var img = new Image();
+					img.src = e.target.result;
+
+
+					var imgwidth = img.width;
+					var imgheight = img.height;
+					var canwidth = 200;
+					var canheight = 112;
+
+					var imageAspectRatio = imgwidth / imgheight;
+					var canvasAspectRatio = canwidth / canheight;
+					var renderableHeight, renderableWidth, xStart, yStart;
+
+					// If image's aspect ratio is less than canvas's we fit on height
+					// and place the image centrally along width
+					if(imageAspectRatio < canvasAspectRatio) {
+						renderableHeight = canheight;
+						renderableWidth = imgwidth * (renderableHeight / imgheight);
+						xStart = (canwidth - renderableWidth) / 2;
+						yStart = 0;
+					}
+
+					// If image's aspect ratio is greater than canvas's we fit on width
+					// and place the image centrally along height
+					else if(imageAspectRatio > canvasAspectRatio) {
+						renderableWidth = canwidth
+						renderableHeight = imgheight * (renderableWidth / imgwidth);
+						xStart = 0;
+						yStart = (canheight - renderableHeight) / 2;
+					}
+
+					// Happy path - keep aspect ratio
+					else {
+						renderableHeight = canheight;
+						renderableWidth = canwidth;
+						xStart = 0;
+						yStart = 0;
+					}
+
+					ctx.drawImage(img, xStart, yStart, renderableWidth, renderableHeight);
+					var png = tcanvas.toDataURL("image/png");
+					thumbdata = png;
+					var thumbimg = $("<img></img>");
+					thumb.append(thumbimg);
+					thumbimg.get(0).src = png;
+				};
+				reader.readAsDataURL(file);
+			});
+		} else if (ttype == "canvas") {
+			thumb.html("");
+			thumbdata = undefined;
+		} else if (ttype == "auto") {
+			thumb.html("");
+			var thumbimg = $("<img></img>");
+			thumb.append(thumbimg);
+			// Generate the default thumbnail...
+			edenUI.plugins.Canvas2D.thumbnail(function(png) {
+				thumbdata = png;
+				thumbimg.get(0).src = png;
+			});
+		}
 	});
 
 	function updateTags() {
@@ -148,7 +229,7 @@ EdenUI.MenuBar = function() {
 		tagstr = tagstr.toLowerCase().replace(/[\!\'\-\?\&]/g, "").split(" ");
 
 		me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
-		edenUI.plugins.Canvas2D.thumbnail(function(thumb) {
+		//edenUI.plugins.Canvas2D.thumbnail(function(thumb) {
 			Eden.DB.saveSource(title, me.projectsource, function(status) {
 				if (status.path) {
 					var url = "?load="+status.path+"&tag="+status.saveID;
@@ -163,8 +244,8 @@ EdenUI.MenuBar = function() {
 				} else {
 					me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
 				}
-			}, {thumb: thumb, tags: tagstr});
-		});
+			}, {thumb: thumbdata, tags: tagstr});
+		//});
 	});
 
 	this.sharebox.on("click",".publish", function(e) {
@@ -174,7 +255,7 @@ EdenUI.MenuBar = function() {
 		tagstr = tagstr.toLowerCase().replace(/[\!\'\-\?\&]/g, "").split(" ");
 
 		me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
-		edenUI.plugins.Canvas2D.thumbnail(function(thumb) {
+		//edenUI.plugins.Canvas2D.thumbnail(function(thumb) {
 			Eden.DB.saveSource(title, me.projectsource, function(status) {
 				if (status.path) {
 					var url = "?load="+status.path+"&tag="+status.saveID;
@@ -189,8 +270,8 @@ EdenUI.MenuBar = function() {
 				} else {
 					me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
 				}
-			}, {publish: true, thumb: thumb, tags: tagstr});
-		});
+			}, {publish: true, thumb: thumbdata, tags: tagstr});
+		//});
 	});
 
 	this.element.on("click", ".menubar-button.share", function(e) {
@@ -206,6 +287,7 @@ EdenUI.MenuBar = function() {
 		// Generate the default thumbnail...
 		edenUI.plugins.Canvas2D.thumbnail(function(png) {
 			thumbimg.get(0).src = png;
+			thumbdata = png;
 		});
 
 		//Saved to your projects and shared at:<div class="projecturl"></div>
