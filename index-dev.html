@@ -74,8 +74,9 @@ See LICENSE.txt
 			font-family: Roboto,Arial,sans-serif;
 			color: #eee;
 			font-weight: bold;
-			background: #416d77;
+			/*background: #416d77;*/
 			padding: 10px 30px;
+			border-bottom: 1px solid #eee;
 		}
 
 		hr.jseden-project-cat {
@@ -83,6 +84,7 @@ See LICENSE.txt
 		}
 
 		div#loadoptions {
+			position: relative;
 			top: 55px;
 		}
 
@@ -92,7 +94,18 @@ See LICENSE.txt
 			margin: 5px;
 			background-repeat: no-repeat;
 			cursor: pointer;
-			color: #132023;
+			/*color: #132023;*/
+			background: #416d77;
+			border: 1px solid #777;
+			border-radius: 5px;
+			padding: 8px;
+		}
+
+		div.project-content {
+			position: relative;
+			margin: 20px auto;
+			max-width: 900px;
+			width: 80%;
 		}
 
 		div.cadence-plisting-login {
@@ -119,12 +132,16 @@ See LICENSE.txt
 		div.cadence-plisting-entry.special {
 			height: 80px;
 			width: 120px;
+			background: transparent;
+			border: none;
 		}
 
 		div.cadence-plisting-entry.more {
 			height: 60px;
 			width: 150px;
-			background: white;
+			background: transparent;
+			border: none;
+			margin-top: 10px;
 		}
 
 		div.cadence-plisting-icon {
@@ -155,22 +172,18 @@ See LICENSE.txt
 		}
 
 		div.cadence-plisting-icon.more {
-			background: white;
+			background: transparent;
 			height: 40px;
-			margin-top: 10px;
 			font-size: 40px;
-			color: #666;
+			color: #eee;
 			border: none;
-		}
-		div.cadence-plisting-icon.more:hover {
-			color: black;
 		}
 
 
 		div.cadence-plisting-title {
 			font-weight: bold;
 			font-family: Roboto,Arial,sans-serif;
-			color: #424249;
+			color: white;
 			font-size: 14px;
 			line-height: 16px;
 			padding-left: 2px;
@@ -179,7 +192,7 @@ See LICENSE.txt
 
 		div.cadence-plisting-subtitle {
 			font-family: Roboto,Arial,sans-serif;
-			color: #525259;
+			color: #eee;
 			font-size: 12px;
 			line-height: 16px;
 			padding-left: 2px;
@@ -192,6 +205,11 @@ See LICENSE.txt
 		div.cadence-plisting-entry:hover .cadence-plisting-icon {
 			border-color: #222;
 			background-color: white;
+		}
+
+		div.cadence-plisting-entry.more:hover .cadence-plisting-icon {
+			color: white;
+			background: transparent;
 		}
 
 		div.cadence-plisting-entry:hover .cadence-plisting-img {
@@ -641,8 +659,8 @@ See LICENSE.txt
 	</div>
 </div>
 
-<div id="loadoptions" class="modal" style="display: none;">
-	<div class="modal-content" style="padding: 20px 0;">
+<div id="loadoptions" class="" style="display: none;">
+	<div class="project-content" style="padding: 20px 0;">
 		<div class="searchouter"><input type="text" class="search" placeholder="Search..."></input></div>
 		<div class="jseden-dialog-plisting">
 			<div id="loadnew" class="cadence-plisting-entry noselect special"><div class="cadence-plisting-icon special">&#xf067;</div><div class="cadence-plisting-title">New Project</div></div>
