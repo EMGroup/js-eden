@@ -163,6 +163,7 @@ See LICENSE.txt
 			text-align: center;
 			/*height: 112;*/
 			overflow: hidden;
+			display: flex;
 		}
 
 		div.cadence-plisting-icon.special {
@@ -419,6 +420,8 @@ See LICENSE.txt
 		// Place to record projects by tag.
 		Eden.projecttags = {};
 		var cachedprojects;
+		var maxres = URLUtil.getParameterByName("max");
+		maxres = (maxres && maxres != "") ? parseInt(maxres) : undefined;
 
 		function updateSearch(q) {
 			var pbrowser = $("#project-browser");
@@ -472,7 +475,7 @@ See LICENSE.txt
 				});
 
 				var presults = pbrowser.find("#jseden-searched-projects");
-				displayProjects2(presults, true, fresults);
+				displayProjects2(presults, true, fresults, (maxres) ? maxres : 9);
 
 			} else if (cachedprojects) {
 				pbrowser.html(cachedprojects);
