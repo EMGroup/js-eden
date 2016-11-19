@@ -297,6 +297,33 @@
 			updateTitleBar(titleSym, title);
 		}
 
+		// Lock a dialog
+		var lockSym = view(name, 'lock');
+		function updateLock(symbol, state) {
+			if (state) {
+				diag.siblings('.ui-dialog-titlebar').css("display","none");
+				diag.dialog("option", "resizable", false);
+			} else {
+				diag.siblings('.ui-dialog-titlebar').css("display","block");
+				diag.dialog("option", "resizable", true);
+			}
+		}
+		lockSym.addJSObserver("changeState",updateLock);
+
+		// Remove the dialog border
+		var borderSym = view(name, 'noborder');
+		function updateBorder(symbol, state) {
+			var style = diag.get(0).parentNode.style;
+			if (state) {
+				style.border = "none";
+				style.boxShadow = "none";
+			} else {
+				style.border = "1px solid #777";
+				style.boxShadow = "0 0 15px #4a6887";
+			}
+		}
+		borderSym.addJSObserver("changeState",updateBorder);
+
 		//Allow mouse drags that position the dialog partially outside of the browser window but not over the menu bar.
 		diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, desktopTop, Number.MAX_VALUE, Number.MAX_VALUE]);
 		diag.resizeExtend = 0;

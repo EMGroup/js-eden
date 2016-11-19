@@ -31,7 +31,13 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 		updateView(contentSym, contentSym.value());
 		contentSym.addJSObserver("repaintView", updateView);
 
-		$('<div id="' + name +'"></div>')
+		var bgSym = root.lookup("_view_"+viewName+"_background_colour");
+		function updateBG(sym, value) {
+			diag.get(0).parentNode.style.background = value;
+		}
+		bgSym.addJSObserver("changeColour", updateBG);
+
+		var diag = $('<div id="' + name +'"></div>')
 			.html(code_entry)
 			.dialog({
 				title: mtitle,
@@ -41,6 +47,12 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 				minWidth: 230,
 				dialogClass: "htmlviews-dialog"
 			});
+
+		var bgcolour = bgSym.value();
+		if (bgcolour) {
+			updateBG(bgSym, bgcolour);
+		}
+
 		return {confirmClose: true};
 	}
 
