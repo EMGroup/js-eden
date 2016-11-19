@@ -309,6 +309,10 @@
 			}
 		}
 		lockSym.addJSObserver("changeState",updateLock);
+		var lockval = lockSym.value();
+		if (lockval !== undefined) {
+			updateLock(lockSym, lockval);
+		}
 
 		// Remove the dialog border
 		var borderSym = view(name, 'noborder');
@@ -323,6 +327,10 @@
 			}
 		}
 		borderSym.addJSObserver("changeState",updateBorder);
+		var borderval = borderSym.value();
+		if (borderval !== undefined) {
+			updateBorder(borderSym, borderval);
+		}
 
 		//Allow mouse drags that position the dialog partially outside of the browser window but not over the menu bar.
 		diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, desktopTop, Number.MAX_VALUE, Number.MAX_VALUE]);
@@ -733,6 +741,8 @@
 		var newWidth = widthSym.value();
 		var heightSym = view(name, 'height');
 		var newHeight = heightSym.value();
+		var locked = view(name, 'lock');
+		var tbarheight = (locked) ? 0 : this.titleBarHeight;
 		var right = left + newWidth + this.scrollBarSize + this.dialogBorderWidth;
 		var bottom = top + newHeight + this.titleBarHeight - 1;
 		var xMax = window.innerWidth + document.body.scrollLeft;
@@ -753,9 +763,9 @@
 		}
 
 		//Round the height.  For some reason the height set by jquery.ui isn't always aligned to the grid.
-		var adjustedHeight = Math.round((newHeight + this.titleBarHeight) / this.gridSizeY) * this.gridSizeY;
+		var adjustedHeight = Math.round((newHeight + tbarheight) / this.gridSizeY) * this.gridSizeY;
 		if (heightSym.last_modified_by != hciName) {
-			if (adjustedHeight < newHeight + this.titleBarHeight) {
+			if (adjustedHeight < newHeight + tbarheight) {
 				//...but if the height was set by EDEN code instead of the UI then don't make the window shorter than the height requested.
 				adjustedHeight = adjustedHeight + this.gridSizeY;
 			}
@@ -783,7 +793,7 @@
 		diag.parent().offset({top: top - document.body.scrollTop});
 
 		newWidth = adjustedWidth - this.scrollBarSize;
-		newHeight = adjustedHeight - this.titleBarHeight;
+		newHeight = adjustedHeight - tbarheight;
 
 		viewData.resizing = true;
 		this.eden.root.beginAutocalcOff();
