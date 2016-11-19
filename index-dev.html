@@ -454,12 +454,25 @@ See LICENSE.txt
 				}
 
 				// Sort by number of duplicates
-				results = unique.sort(function(a,b) {
-					return dupcount[a] < dupcount[b];
+				//results = unique.sort(function(a,b) {
+				//	return dupcount[a] < dupcount[b];
+				//});
+
+				// Remove any that don't match each token
+				var fresults = [];
+				for (var i=0; i<results.length; i++) {
+					if (dupcount[results[i]] == qs.length) fresults.push(results[i]);
+				}
+
+				// Now sort by date
+				fresults.sort(function(a,b) {
+					var da = Eden.DB.meta[a].date;
+					var db = Eden.DB.meta[b].date;
+					return db.localeCompare(da);
 				});
 
 				var presults = pbrowser.find("#jseden-searched-projects");
-				displayProjects2(presults, true, results);
+				displayProjects2(presults, true, fresults);
 
 			} else if (cachedprojects) {
 				pbrowser.html(cachedprojects);
@@ -619,10 +632,12 @@ See LICENSE.txt
 
 			if (Eden.DB.isConnected()) {
 				if (q && q != "") {
+					updateSearch(q);
 					displayProjects(true, function() {
 						updateSearch(q);
 					});
 					lopts.find(".searchouter").remove();
+					lopts.find(".project-content").prepend($('<div class="jseden-project-cat">'+q+':</div>'));
 				} else {
 					displayProjects(true, function() {
 						if (Eden.DB.isLoggedIn()) {
