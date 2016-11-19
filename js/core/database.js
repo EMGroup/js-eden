@@ -36,6 +36,7 @@ Eden.DB.Meta = function() {
 	this.tag = "origin";
 	this.defaultID = -1;
 	this.latestID = -1;
+	this.publicID = -1;
 	this.file = undefined;
 	this.date = undefined;
 }
@@ -74,9 +75,34 @@ Eden.DB.Meta.prototype.updateLatest = function(id, title, author, date) {
 	if (this.defaultID == -1) this.defaultID = id;
 }
 
+Eden.DB.Meta.prototype.updatePublicLatest = function(id, title, author, date) {
+	if (id > this.publicID) this.publicID = id;
+	if (this.saveID == -1 && this.defaultID == -1) {
+		if (title && title.charAt(0) == "{") {
+			var decoded = JSON.parse(title);
+			this.title = decoded.title;
+			this.thumb = decoded.thumb;
+			this.tags = decoded.tags;
+		} else {
+			this.title = title;
+		}
+		this.author = author;
+		this.date = date;
+	}
+	if (this.defaultID == -1) this.defaultID = id;
+	//if (this.latestID == -1) this.latestID = id;
+}
+
 Eden.DB.Meta.prototype.updateVersion = function(saveID, tag, title, author, date) {
 	this.saveID = saveID;
-	this.title = title;
+	if (title && title.charAt(0) == "{") {
+		var decoded = JSON.parse(title);
+		this.title = decoded.title;
+		this.thumb = decoded.thumb;
+		this.tags = decoded.tags;
+	} else {
+		this.title = title;
+	}
 	this.author = author;
 	this.date = date;
 
@@ -357,9 +383,13 @@ Eden.DB.processManifestEntry = function(path, entry) {
 		if (entry.versions.UserLatest.length > 0) {
 			var version = entry.versions.UserLatest[0];
 			meta.updateLatest(version.saveID, version.title, version.name, version.date);
-		} else if (entry.versions.PublicLatest.length > 0) {
+		}
+		if (entry.versions.PublicLatest.length > 0) {
 			var version = entry.versions.PublicLatest[0];
-			meta.updateLatest(version.saveID, version.title, version.name, version.date);
+			if (entry.versions.UserLatest.length == 0) {
+				meta.updateLatest(version.saveID, version.title, version.name, version.date);
+			}
+			meta.updatePublicLatest(version.saveID, version.title, version.name, version.date);
 		}
 	}
 
@@ -622,6 +652,15 @@ Eden.DB.getSource = function(path, tag, callback) {
 				}
 			} else if (tag == "latest") {
 				if (meta.latestID >= 0) {
+					tagvalue = "&version="+meta.latestID;
+				} else {
+					callback("");
+					return;
+				}
+			} else if (tag == "public") {
+				if (meta.publicID >= 0) {
+					tagvalue = "&version="+meta.publicID;
+				} else if (meta.latestID >= 0) {
 					tagvalue = "&version="+meta.latestID;
 				} else {
 					callback("");

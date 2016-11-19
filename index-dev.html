@@ -567,9 +567,9 @@ See LICENSE.txt
 
 					//Eden.DB.getMeta(path+"/"+x,function(path,meta) {
 					if (thumb) {
-						output.append($('<div class="cadence-plisting-entry project noselect" data-path="'+(projects[i])+'" data-tag="'+meta.latestID+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
+						output.append($('<div class="cadence-plisting-entry project noselect" data-path="'+(projects[i])+'" data-tag="'+meta.publicID+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
 					} else {
-						output.append($('<div class="cadence-plisting-entry project noselect" data-path="'+(projects[i])+'" data-tag="'+meta.latestID+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
+						output.append($('<div class="cadence-plisting-entry project noselect" data-path="'+(projects[i])+'" data-tag="'+meta.publicID+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
 						//console.log(Eden.DB.meta[path+"/"+x]);
 					}
 					//});
