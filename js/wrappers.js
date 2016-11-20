@@ -160,9 +160,12 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 
 	// If multiple imports are called before completion of first, then
 	// queue the callbacks instead of attempting to import again.
-	// NOTE: If tag or options change, these changes are lost.
+	// NOTE: If tag or options change, these changes may be lost.
 	if (Eden.Agent.importQueue[path]) {
-		Eden.Agent.importQueue[path].push(callback);
+		Eden.Agent.importQueue[path].push(function(ag,msg) {
+			if (ag) callback(ag,msg);
+			else Eden.Agent.importAgent(path, tag, options, callback);
+		});
 		return;
 	}
 
@@ -174,10 +177,12 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 
 	// Process all queued callbacks...
 	function doCallbacks(ag, msg) {
-		for (var i=0; i<Eden.Agent.importQueue[path].length; i++) {
-			Eden.Agent.importQueue[path][i](ag, msg);
-		}
+		var q = Eden.Agent.importQueue[path];
 		Eden.Agent.importQueue[path] = undefined;
+
+		for (var i=0; i<q.length; i++) {
+			q[i](ag, msg);
+		}
 	}
 
 	function finish(success, msg) {
@@ -185,7 +190,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 		if (ag) {
 			// But something went wrong loading its source
 			if (!success) {
-				doCallbacks(undefined, msg);
+				doCallbacks(undefined, "No source");
 				return;
 			}
 
@@ -204,6 +209,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			}
 		// There is no existing agent but create it
 		} else if (options && options.indexOf("create") >= 0) {
+			console.log("CREATE: " + path);
 			// Auto create agents that don't exist
 			ag = new Eden.Agent(undefined, path, Eden.DB.createMeta(path), options);
 			if (tag != "default") ag.meta.tag = tag;
@@ -211,6 +217,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			Eden.DB.addLocalMeta(path, ag.meta);
 		// There is no existing agent and we are not to create it.
 		} else if (!success) {
+			console.log(options);
 			doCallbacks(undefined, msg);
 			return;
 		}
