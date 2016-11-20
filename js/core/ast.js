@@ -112,7 +112,7 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope) {
  * Execute this literal to obtain its actual javascript value, particularly
  * important for lists and JavaScript expression literals.
  */
-Eden.AST.Literal.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Literal.prototype.execute = function(ctx, base, scope) {
 	switch(this.datatype) {
 	case "NUMBER"	:
 	case "CHARACTER":
@@ -121,7 +121,7 @@ Eden.AST.Literal.prototype.execute = function(root, ctx, base, scope) {
 	case "LIST"		:	var rhs = "(function(context,scope) { return ";
 						rhs += this.generate(ctx, "scope");
 						rhs += ";})";
-						return eval(rhs)(root,scope);
+						return eval(rhs)(eden.root,scope);
 	case "JAVASCRIPT"	: return eval(this.value);
 	}
 }
@@ -471,11 +471,11 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope) {
 	}
 }
 
-Eden.AST.UnaryOp.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.UnaryOp.prototype.execute = function(ctx, base, scope) {
 	var rhs = "(function(context,scope) { return ";
 	rhs += this.generate(ctx, "scope");
 	rhs += ";})";
-	return eval(rhs)(root,scope);
+	return eval(rhs)(eden.root,scope);
 }
 
 
@@ -550,11 +550,11 @@ Eden.AST.TernaryOp.prototype.generate = function(ctx, scope) {
 	}
 }
 
-Eden.AST.TernaryOp.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.TernaryOp.prototype.execute = function(ctx, base, scope) {
 	var rhs = "(function(context,scope) { return ";
 	rhs += this.generate(ctx, "scope");
 	rhs += ";})";
-	return eval(rhs)(root,scope);
+	return eval(rhs)(eden.root,scope);
 }
 
 
@@ -608,11 +608,11 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope) {
 	}
 }
 
-Eden.AST.BinaryOp.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.BinaryOp.prototype.execute = function(ctx, base, scope) {
 	var rhs = "(function(context,scope) { return ";
 	rhs += this.generate(ctx, "scope");
 	rhs += ";})";
-	return eval(rhs)(root,scope);
+	return eval(rhs)(eden.root,scope);
 }
 
 
@@ -683,19 +683,19 @@ Eden.AST.LValue.prototype.setExpression = function(express) {
 	}
 }
 
-Eden.AST.LValue.prototype.getSymbol = function(root, ctx, base, scope) {
-	if (this.name) return root.lookup(this.name);
+Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {
+	if (this.name) return eden.root.lookup(this.name);
 	if (this.primary) {
-		var sym = this.primary.execute(root,ctx,base,scope);
+		var sym = this.primary.execute(ctx,base,scope);
 		if (sym instanceof BoundValue) sym = sym.value;
 		return sym;
 	}
 	if (this.express) {
 		console.log(this.express);
-		var name = this.express.execute(root,ctx,base,scope);
+		var name = this.express.execute(ctx,base,scope);
 		console.log(name);
 		if (name instanceof BoundValue) name = name.value;
-		return root.lookup(name);
+		return eden.root.lookup(name);
 	}
 }
 
@@ -843,9 +843,9 @@ Eden.AST.After.prototype.generate = function(ctx, scope) {
 	return "setTimeout("+statement+", "+express+");\n";
 }
 
-Eden.AST.After.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.After.prototype.execute = function(ctx, base, scope) {
 	var statement = "(function() { var scope = eden.root.scope;\n" + this.statement.generate(ctx, "root.scope")+"})";
-	setTimeout(eval(statement),this.expression.execute(root,ctx,base,scope));
+	setTimeout(eval(statement),this.expression.execute(ctx,base,scope));
 }
 
 Eden.AST.After.prototype.setSource = function(start, end) {
@@ -879,9 +879,9 @@ Eden.AST.Require.prototype.generate = function(ctx) {
 	return "edenUI.loadPlugin("+this.expression.generate(ctx, "scope")+");";
 }
 
-Eden.AST.Require.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Require.prototype.execute = function(ctx, base, scope) {
 	this.executed = 1;
-	edenUI.loadPlugin(this.expression.execute(root, ctx, base, scope));
+	edenUI.loadPlugin(this.expression.execute(ctx, base, scope));
 }
 
 Eden.AST.Require.prototype.setSource = function(start, end) {
@@ -915,9 +915,9 @@ Eden.AST.Include.prototype.generate = function(ctx) {
 	return "eden.include2("+this.expression.generate(ctx, "scope")+");";
 }
 
-Eden.AST.Include.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Include.prototype.execute = function(ctx, base, scope) {
 	this.executed = 1;
-	root.base.include2(this.expression.execute(root, ctx, base, scope));
+	eden.root.base.include2(this.expression.execute(ctx, base, scope));
 }
 
 Eden.AST.Include.prototype.setSource = function(start, end) {
@@ -979,7 +979,7 @@ Eden.AST.Import.prototype.generate = function(ctx) {
 	return "Eden.Agent.importAgent(\""+this.path+"\");";
 }
 
-Eden.AST.Import.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Import.prototype.execute = function(ctx, base, scope) {
 	this.executed = 1;
 	var me = this;
 	Eden.Agent.importAgent(this.path, this.tag, this.options, function(ag, msg) {
@@ -1044,11 +1044,11 @@ Eden.AST.Append.prototype.generate = function(ctx) {
 	}
 }
 
-Eden.AST.Append.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Append.prototype.execute = function(ctx, base, scope) {
 	this.executed = 1;
-	var val = this.index.execute(root,ctx,base, scope);
+	var val = this.index.execute(ctx,base, scope);
 	if (val instanceof BoundValue) val = val.value;
-	root.lookup(this.destination.name).mutate(scope, function(s) {
+	eden.root.lookup(this.destination.name).mutate(scope, function(s) {
 		s.value().push(val);
 	}, undefined);
 }
@@ -1112,13 +1112,13 @@ Eden.AST.Insert.prototype.generate = function(ctx) {
 	}
 }
 
-Eden.AST.Insert.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Insert.prototype.execute = function(ctx, base, scope) {
 	this.executed = 1;
-	var ix = this.index.execute(root,ctx,base,scope);
-	var val = this.value.execute(root,ctx,base,scope);
+	var ix = this.index.execute(ctx,base,scope);
+	var val = this.value.execute(ctx,base,scope);
 	if (ix instanceof BoundValue) ix = ix.value;
 	if (val instanceof BoundValue) val = val.value;
-	root.lookup(this.destination.name).mutate(scope, function(s) {
+	eden.root.lookup(this.destination.name).mutate(scope, function(s) {
 		s.value().splice(ix-1, 0, val);
 	}, undefined);
 }
@@ -1168,11 +1168,11 @@ Eden.AST.Delete.prototype.generate = function(ctx) {
 	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.splice(rt.index("+ix+"), 1); }, this);";
 }
 
-Eden.AST.Delete.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Delete.prototype.execute = function(ctx, base, scope) {
 	this.executed = 1;
-	var ix = this.index.execute(root,ctx,base,scope);
+	var ix = this.index.execute(ctx,base,scope);
 	if (ix instanceof BoundValue) ix = ix.value;
-	root.lookup(this.destination.name).mutate(scope, function(s) {
+	eden.root.lookup(this.destination.name).mutate(scope, function(s) {
 		s.value().splice(ix-1, 1);
 	}, undefined);
 }
@@ -1291,11 +1291,11 @@ Eden.AST.Definition.prototype.generate = function(ctx) {
 	}
 };
 
-Eden.AST.Definition.prototype.execute = function(root, ctx, base, scope, agent) {
+Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	//console.log("RHS = " + rhs);
 	var source = base.getSource(this);
-	var sym = this.lvalue.getSymbol(root,ctx,base,scope);
+	var sym = this.lvalue.getSymbol(ctx,base,scope);
 
 	if (this.lvalue.hasListIndices()) {
 		var rhs = "(function(context,scope,value) { value";
@@ -1433,18 +1433,18 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 	this.compiled = eval(rhs);
 }
 
-Eden.AST.Assignment.prototype.execute = function(root, ctx, base, scope, agent) {
+Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	if (this.expression === undefined) return;
 	this.executed = 1;
 	this.compile(ctx);
 
 	try {
-		var sym = this.lvalue.getSymbol(root,ctx,base,scope);
+		var sym = this.lvalue.getSymbol(ctx,base,scope);
 		if (this.lvalue.hasListIndices()) {
-			this.value = this.compiled.call(sym,root,scope);
+			this.value = this.compiled.call(sym,eden.root,scope);
 			sym.listAssign(this.value, scope, agent, false, this.lvalue.executeCompList(ctx, scope));
 		} else {
-			this.value = this.compiled.call(sym,root,scope);
+			this.value = this.compiled.call(sym,eden.root,scope);
 			sym.assign(this.value,scope, agent);
 		}
 	} catch(e) {
@@ -1540,12 +1540,12 @@ Eden.AST.Modify.prototype.generate = function(ctx) {
 	return result;
 };
 
-Eden.AST.Modify.prototype.execute = function(root, ctx, base, scope, agent) {
+Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 	var _scopes = [];
 
 	this.executed = 1;
 	// TODO: allow this to work on list indices
-	var sym = this.lvalue.getSymbol(root,ctx,base);
+	var sym = this.lvalue.getSymbol(ctx,base);
 
 	if (this.kind == "++") {
 		sym.assign(sym.value(scope)+1, scope, agent);
@@ -1573,10 +1573,10 @@ Eden.AST.Modify.prototype.execute = function(root, ctx, base, scope, agent) {
 		console.log(rhs);*/
 
 		switch (this.kind) {
-		case "+="	: sym.assign(rt.add(sym.value(scope), eval(rhs)(root,scope)), scope, agent); break;
-		case "-="	: sym.assign(rt.subtract(sym.value(scope), eval(rhs)(root,scope)), scope, agent); break;
-		case "/="	: sym.assign(rt.divide(sym.value(scope), eval(rhs)(root,scope)), scope, agent); break;
-		case "*="	: sym.assign(rt.multiply(sym.value(scope), eval(rhs)(root,scope)), scope, agent); break;
+		case "+="	: sym.assign(rt.add(sym.value(scope), eval(rhs)(context,scope)), scope, agent); break;
+		case "-="	: sym.assign(rt.subtract(sym.value(scope), eval(rhs)(context,scope)), scope, agent); break;
+		case "/="	: sym.assign(rt.divide(sym.value(scope), eval(rhs)(context,scope)), scope, agent); break;
+		case "*="	: sym.assign(rt.multiply(sym.value(scope), eval(rhs)(context,scope)), scope, agent); break;
 		}
 	}
 }
@@ -1608,7 +1608,7 @@ Eden.AST.Subscribers.prototype.setSource = function(start, end) {
 	this.end = end;
 }
 
-Eden.AST.Subscribers.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Subscribers.prototype.execute = function(ctx, base, scope) {
 	
 }
 
@@ -1723,11 +1723,11 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, bound) {
 	return res;
 }
 
-Eden.AST.Primary.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Primary.prototype.execute = function(ctx, base, scope) {
 	var rhs = "(function(context,scope) { return ";
 	rhs += this.generate(ctx, "scope");
 	rhs += ";})";
-	return eval(rhs)(root,scope);
+	return eval(rhs)(eden.root,scope);
 }
 
 Eden.AST.Primary.prototype.error = fnEdenASTerror;
@@ -1788,7 +1788,7 @@ Eden.AST.If.prototype.generate = function(ctx) {
 	return res;
 }
 
-Eden.AST.If.prototype.execute = function(root, ctx, base, scope, agent) {
+Eden.AST.If.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	var cond = "(function(context,scope) { return ";
 	cond += this.condition.generate(ctx, "scope");
@@ -1796,12 +1796,12 @@ Eden.AST.If.prototype.execute = function(root, ctx, base, scope, agent) {
 		cond += ".value";
 	}
 	cond += ";})";
-	if (eval(cond)(root,scope)) {
-		this.statement.execute(root, ctx, base, scope, agent);
+	if (eval(cond)(eden.root,scope)) {
+		this.statement.execute(ctx, base, scope, agent);
 	} else {
 		this.executed = 2;
 		if (this.elsestatement) {
-			return this.elsestatement.execute(root, ctx, base, scope, agent);
+			return this.elsestatement.execute(ctx, base, scope, agent);
 		}
 	}
 }
@@ -1848,11 +1848,11 @@ Eden.AST.Switch.prototype.generate = function(ctx, scope) {
 	return res;
 };
 
-Eden.AST.Switch.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Switch.prototype.execute = function(ctx, base, scope) {
 	var swi = "(function(context,scope) { ";
 	swi += this.generate(ctx, "scope");
 	swi += " })";
-	eval(swi)(root, scope);
+	eval(swi)(eden.root, scope);
 };
 
 Eden.AST.Switch.prototype.error = fnEdenASTerror;
@@ -1923,12 +1923,12 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
 	}
 }
 
-Eden.AST.FunctionCall.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope) {
 	this.executed = 1;
 	var func = "(function(context,scope) { return " + this.generate(ctx, "scope") + "; })";
 
 	try {
-		return eval(func).call(ctx,root,scope);
+		return eval(func).call(ctx,eden.root,scope);
 	} catch(e) {
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e));
 		console.error("Details: " + e + "\n" + "Function: " + this.lvalue.name);
@@ -2006,10 +2006,10 @@ Eden.AST.Action.prototype.generate = function(ctx) {
 	return res;
 }
 
-Eden.AST.Action.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.Action.prototype.execute = function(ctx, base, scope) {
 	this.executed = 1;
 	var body = this.body.generate(ctx);
-	var sym = root.lookup(this.name);
+	var sym = eden.root.lookup(this.name);
 	sym.eden_definition = base.getSource(this);
 	if (this.triggers.length > 0) {
 		sym.define(eval(body), {name: "execute"}, []).observe(this.triggers);
@@ -2054,10 +2054,10 @@ Eden.AST.Function.prototype.generate = function(ctx) {
 	return res;
 }
 
-Eden.AST.Function.prototype.execute = function(root,ctx,base,scope,agent) {
+Eden.AST.Function.prototype.execute = function(ctx,base,scope,agent) {
 	this.executed = 1;
 	var body = this.body.generate(ctx);
-	var sym = root.lookup(this.name);
+	var sym = eden.root.lookup(this.name);
 	sym.eden_definition = base.getSource(this);	
 	sym.define(eval(body), agent,[]);
 }
@@ -2214,7 +2214,7 @@ Eden.AST.Do.prototype.generate = function(ctx) {
 }
 
 
-Eden.AST.Do.prototype.execute = function(root,ctx,base,scope, agent) {
+Eden.AST.Do.prototype.execute = function(ctx,base,scope, agent) {
 	this.executed = 1;
 
 	var script;
@@ -2227,9 +2227,9 @@ Eden.AST.Do.prototype.execute = function(root,ctx,base,scope, agent) {
 	if (script) {
 		var params = [];
 		for (var i=0; i<this.parameters.length; i++) {
-			params.push(this.parameters[i].execute(root,ctx,base,scope));
+			params.push(this.parameters[i].execute(ctx,base,scope));
 		}
-		script.executeReal(root,ctx,base, scope, agent, params);
+		script.executeReal(ctx,base, scope, agent, params);
 	} else {
 		this.executed = 3;
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ACTIONNAME, this, "Action '"+this.name+"' does not exist"));
@@ -2304,10 +2304,10 @@ Eden.AST.For.prototype.generate = function(ctx) {
 	return res;
 }
 
-Eden.AST.For.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.For.prototype.execute = function(ctx, base, scope) {
 	this.executed = 1;
 	if (this.sstart) {
-		this.sstart.execute(root,ctx,base,scope);
+		this.sstart.execute(ctx,base,scope);
 	}
 
 	var express = this.condition.generate(ctx, "scope");
@@ -2316,8 +2316,8 @@ Eden.AST.For.prototype.execute = function(root, ctx, base, scope) {
 	}
 	var expfunc = eval("(function(context,scope){ return " + express + "; })");
 
-	for (; expfunc(root,scope); this.inc.execute(root,ctx,base,scope)) {
-		this.statement.execute(root,ctx,base,scope);
+	for (; expfunc(eden.root,scope); this.inc.execute(ctx,base,scope)) {
+		this.statement.execute(ctx,base,scope);
 	}
 }
 
@@ -2533,6 +2533,8 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 
 Eden.AST.When = function() {
 	this.type = "when";
+	this.name = "*When";
+	this.id = undefined;
 	this.errors = [];
 	this.expression = undefined;
 	this.statement = undefined;
@@ -2618,21 +2620,29 @@ Eden.AST.When.prototype.compile = function(base) {
 	return "";
 }
 
-Eden.AST.When.prototype.execute = function(root, ctx, base, scope) {
+Eden.AST.When.prototype.execute = function(ctx, base, scope) {
 	if (this.active) return;
 	this.active = true;
 	this.executed = 1;
 	//this.compile(base);
 
-	var scope = root.scope;
+	var me = this;
+
+	var scope = eden.root.scope;
 	if (this.compScope) scope = this.compScope;
 
 	if (scope.range) {
 		scope.range = false;
 
 		while (true) {
-			if (this.compiled(root,scope)) {
-				this.statement.execute(root, ctx, base, scope, {name: "*When"});
+			if (this.compiled(eden.root,scope)) {
+				if (Eden.AST.debug) {
+					if (Eden.AST.debug_beginwhen_cb) Eden.AST.debug_beginwhen_cb({base: base, when: me});
+					if (this.statement.type == "script") this.statement.onfinish = function() {
+						if (Eden.AST.debug_endwhen_cb) Eden.AST.debug_endwhen_cb({base: base, when: me});
+					}
+				}
+				this.statement.execute(ctx, base, scope, this);
 			} else {
 				this.executed = 2;
 			}
@@ -2641,8 +2651,14 @@ Eden.AST.When.prototype.execute = function(root, ctx, base, scope) {
 
 		scope.range = true;
 	} else {
-		if (this.compiled(root,scope)) {
-			this.statement.execute(root, ctx, base, scope, {name: "*When"});
+		if (this.compiled(eden.root,scope)) {
+			if (Eden.AST.debug) {
+				if (Eden.AST.debug_beginwhen_cb) Eden.AST.debug_beginwhen_cb({base: base, when: me});
+				if (this.statement.type == "script") this.statement.onfinish = function() {
+					if (Eden.AST.debug_endwhen_cb) Eden.AST.debug_endwhen_cb({base: base, when: me});
+				}
+			}
+			this.statement.execute(ctx, base, scope, this);
 		} else {
 			this.executed = 2;
 		}
@@ -2698,6 +2714,7 @@ Eden.AST.Script = function() {
 	this.active = false;
 	this.parameters = undefined;
 	this.locals = undefined;
+	this.onfinish = undefined;
 };
 
 Eden.AST.Script.prototype.setLocals = function(locals) {
@@ -2737,30 +2754,35 @@ Eden.AST.Script.prototype.append = function (ast) {
 	}
 }
 
-Eden.AST.Script.prototype.executeReal = function(root, ctx, base, scope, agent, parameters) {
+Eden.AST.Script.prototype.executeReal = function(ctx, base, scope, agent, parameters) {
 	if (this.active) return;
 	this.active = true;
-	var gen = this.executeGenerator(root,ctx,base, scope, agent, parameters);
+	var gen = this.executeGenerator(ctx,base, scope, agent, parameters);
 	runEdenAction.call(base,this, gen);
 }
 
-Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, scope, agent, parameters) {
+Eden.AST.Script.prototype.executeGenerator = function*(ctx, base, scope, agent, parameters) {
 	this.executed = 1;
 	for (var i = 0; i < this.statements.length; i++) {
 		if (Eden.AST.debug) {
 			if (Eden.AST.debugstep || Eden.AST.debugspeed || Eden.AST.debugbreakpoint === this.statements[i]) {
-				Eden.AST.debugbase = base;
-				Eden.AST.debugscript = this;
-				Eden.AST.debugindex = i;
-				Eden.AST.debugstatement = this.statements[i];
-				yield 0;
+				var debugobj = {
+					type: "debug",
+					base: base,
+					script: this,
+					index: i,
+					statement: this.statements[i],
+					context: ctx,
+					agent: agent
+				};
+				yield debugobj;
 			}
 		}
 		if (this.statements[i].type == "wait") {
 			this.statements[i].executed = 1;
 			this.statements[i].compile(ctx);
 			if (this.statements[i].compiled_delay) {
-				yield this.statements[i].compiled_delay(root,scope);
+				yield this.statements[i].compiled_delay(eden.root,scope);
 			} else {
 				yield 0;
 			}
@@ -2770,7 +2792,7 @@ Eden.AST.Script.prototype.executeGenerator = function*(root, ctx, base, scope, a
 			this.parameters = parameters;
 			// Only execute statement if it isn't a script.
 			if (this.statements[i].type != "script")
-				this.statements[i].execute(root,this, base, scope, agent);
+				this.statements[i].execute(this, base, scope, agent);
 		}
 
 		if (this.statements[i].errors.length > 0) {
@@ -2788,17 +2810,19 @@ function runEdenAction(source, action) {
 	var delay = action.next();
 	//console.log("RunAction: " + delay.value);
 	if (delay.done == false) {
-		if (Eden.AST.debug && delay.value == 0) {
-			// Save the next step to be called later by debugger.
-			Eden.AST.debugnext = function() {runEdenAction.call(me, source, action)};
-			if (Eden.AST.debugbreakpoint === Eden.AST.debugstatement) {
-				if (Eden.AST.debugbreakpoint_cb) Eden.AST.debugbreakpoint_cb();
-			} else {
-				if (Eden.AST.debugstep_cb) Eden.AST.debugstep_cb();
-				if (Eden.AST.debugspeed) setTimeout(Eden.AST.debugnext, Eden.AST.debugspeed);
-			}
-		} else if (typeof delay.value == "object") {
-			if (delay.value.type == "import") {
+		if (typeof delay.value == "object") {
+			if (Eden.AST.debug && delay.value.type == "debug") {
+				// Save the next step to be called later by debugger.
+				var debugnext = function() {runEdenAction.call(me, source, action)};
+				delay.value.next = debugnext;
+
+				if (Eden.AST.debugbreakpoint === delay.value.statement) {
+					if (Eden.AST.debugbreakpoint_cb) Eden.AST.debugbreakpoint_cb(delay.value);
+				} else {
+					if (Eden.AST.debugstep_cb) Eden.AST.debugstep_cb(delay.value);
+					if (Eden.AST.debugspeed) setTimeout(debugnext, Eden.AST.debugspeed);
+				}
+			} else if (delay.value.type == "import") {
 				delay.value.executed = 1;
 				Eden.Agent.importAgent(delay.value.path, delay.value.tag, delay.value.options, function(ag) {
 					if (ag) {
@@ -2825,13 +2849,14 @@ function runEdenAction(source, action) {
 		}
 	} else {
 		source.active = false;
+		if (source.onfinish) source.onfinish();
 	}
 }
 
-Eden.AST.Script.prototype.execute = function(root, ctx, base, scope, agent) {
+Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
 	// Un named actions execute immediately.
 	//if (this.name === undefined) {
-		this.executeReal(root,ctx,base, scope, agent);
+		this.executeReal(ctx,base, scope, agent);
 	//} else {
 		// Add this named script to a local symbol table.
 		//base.scripts[this.name] = this;

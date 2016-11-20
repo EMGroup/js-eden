@@ -79,8 +79,8 @@ Eden.AST.prototype.generate = function() {
 
 
 
-Eden.AST.prototype.execute = function(root) {
-	this.script.execute(root, undefined, this, root.scope);
+Eden.AST.prototype.execute = function() {
+	this.script.execute(undefined, this, root.scope);
 }
 
 
@@ -167,7 +167,7 @@ Eden.AST.prototype.getBlockLines = function(lineno) {
  */
 Eden.AST.prototype.executeStatement = function(statement, line, agent) {
 	try {
-		statement.execute(eden.root,undefined, this, eden.root.scope, agent);
+		statement.execute(undefined, this, eden.root.scope, agent);
 	} catch (e) {
 		eden.error(e);
 		console.error("Details: " + e + "\nAgent: " + agent.name);
@@ -2462,6 +2462,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 		stat.setSource(start, end);
 	}
 	this.lines[curline] = stat;
+	stat.line = curline;
 	//var endline = this.stream.line;
 	for (var i=curline+1; i<endline; i++) {
 		if (this.lines[i] === undefined || stat.errors.length > 0) this.lines[i] = stat;

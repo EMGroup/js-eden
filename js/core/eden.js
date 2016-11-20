@@ -859,7 +859,7 @@ function concatAndResolveUrl(url, concat) {
 			if (success) {
 				ast.script.statements.push({errors: [], execute: success});
 			}
-			ast.script.execute(this.root,this.root.scope, ast, this.root.scope, agobj);
+			ast.script.execute(this.root.scope, ast, this.root.scope, agobj);
 		} else {
 			console.error(ast.script.errors[0].prettyPrint());
 		}

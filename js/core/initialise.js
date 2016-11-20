@@ -93,7 +93,8 @@ function Construit(options,callback) {
 		"ScriptInput",
 		"StateTimeLine",
 		"SymbolLookUpTable",
-		"SymbolViewer"
+		"SymbolViewer",
+		"Debugger"
 	];
 
 	if (pluginsStr == "") {
