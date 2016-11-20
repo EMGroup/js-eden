@@ -2234,7 +2234,7 @@ Eden.AST.Do.prototype.execute = function(ctx,base,scope, agent) {
 		for (var i=0; i<this.parameters.length; i++) {
 			params.push(this.parameters[i].execute(ctx,base,scope));
 		}
-		script.executeReal(ctx,base, scope, agent, params);
+		return script.execute(ctx,base, scope, agent, params);
 	} else {
 		this.executed = 3;
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ACTIONNAME, this, "Action '"+this.name+"' does not exist"));
@@ -2565,6 +2565,12 @@ Eden.AST.When = function() {
 	this.scopes = [];
 };
 
+Eden.AST.When.prototype.getSource = function() {
+	return this.base.getSource(this);
+}
+
+Eden.AST.When.prototype.getLine = function() { return this.line; }
+
 Eden.AST.When.prototype.setScope = function (scope) {
 	this.scope = scope;
 }
@@ -2640,7 +2646,7 @@ Eden.AST.When.prototype.execute = function(ctx, base, scope) {
 	this.executed = 1;
 	//this.compile(base);
 
-	console.log("Exec When: " + base.getSource(this));
+	//console.log("Exec When: " + base.getSource(this));
 
 	var me = this;
 
@@ -2652,12 +2658,7 @@ Eden.AST.When.prototype.execute = function(ctx, base, scope) {
 
 		while (true) {
 			if (this.compiled(eden.root,scope)) {
-				if (Eden.AST.debug) {
-					if (Eden.AST.debug_beginwhen_cb) Eden.AST.debug_beginwhen_cb({base: base, when: me});
-					if (this.statement.type == "script") this.statement.onfinish = function() {
-						if (Eden.AST.debug_endwhen_cb) Eden.AST.debug_endwhen_cb({base: base, when: me});
-					}
-				}
+				// TODO REFACTOR
 				this.statement.execute(ctx, base, scope, this);
 			} else {
 				this.executed = 2;
@@ -2668,13 +2669,7 @@ Eden.AST.When.prototype.execute = function(ctx, base, scope) {
 		scope.range = true;
 	} else {
 		if (this.compiled(eden.root,scope)) {
-			if (Eden.AST.debug) {
-				if (Eden.AST.debug_beginwhen_cb) Eden.AST.debug_beginwhen_cb({base: base, when: me});
-				if (this.statement.type == "script") this.statement.onfinish = function() {
-					if (Eden.AST.debug_endwhen_cb) Eden.AST.debug_endwhen_cb({base: base, when: me});
-				}
-			}
-			return this.statement; //.execute(ctx, base, scope, this);
+			return [this.statement]; //.execute(ctx, base, scope, this);
 		} else {
 			this.executed = 2;
 		}

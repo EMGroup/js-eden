@@ -39,8 +39,10 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 
 		var debugStepFn = function (data) {
 			//script.html("");
-			var statement = data.base.getSource(data.agent);
-			var output = agentcapture[data.agent.id];
+			var agent = data.agent;
+
+			var statement = agent.getSource();
+			var output = agentcapture[agent.id];
 
 			if (output) {
 				var ast = new Eden.AST(statement);
@@ -48,42 +50,50 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 				hl.highlight(ast, -1, -1);
 
 				// Now highlight correct line number...
-				var line = data.statement.line - data.agent.line;
+				var line = data.statement.line - agent.getLine();
 				var lineele = output.get(0).childNodes[line];
 				if (lineele) {
 					lineele.style.background = "#c67f6c";
 				} else {
 					console.error("Missing line: " + line);
 				}
+			} else {
+				console.error("Missing output");
 			}
 		};
 		Eden.AST.debugstep_cb = debugStepFn;
 
-		var debugBeginWhenFn = function(data) {
-			if (data.when.id !== undefined) {
-				debugEndWhenFn(data);
+		var debugBeginFn = function(data) {
+			var agent = data.agent;
+
+			if (agent.id !== undefined) {
+				debugEndFn(data);
 				console.log("WHEN ALREADY LOGGED");
 			}
-			data.when.id = agentid;
+			agent.id = agentid;
 			agentid++;
 			var output = $('<div></div>');
 			script.append(output);
-			agentcapture[data.when.id] = output;
+			agentcapture[agent.id] = output;
 
-			var statement = data.base.getSource(data.when);
+			var statement = agent.getSource();
 			var ast = new Eden.AST(statement);
 			var hl = new EdenUI.Highlight(output.get(0));
 			hl.highlight(ast, -1, -1);
 		}
-		Eden.AST.debug_beginwhen_cb = debugBeginWhenFn;
+		Eden.AST.debug_begin_cb = debugBeginFn;
 
-		var debugEndWhenFn = function(data) {
+		var debugEndFn = function(data) {
+			var agent = data.agent;
+
 			console.log("Finish agent");
-			agentcapture[data.when.id].remove();
-			delete agentcapture[data.when.id];
-			data.when.id = undefined;
+			agentcapture[agent.id].remove();
+			delete agentcapture[agent.id];
+			agent.id = undefined;
 		}
-		Eden.AST.debug_endwhen_cb = debugEndWhenFn;
+		Eden.AST.debug_end_cb = debugEndFn;
+
+		Eden.AST.debug = true;
 
 
 		//regenerate.click(function () {
@@ -105,6 +115,10 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			minWidth: 230,
 			dialogClass: "debugger-dialog"
 		});
+
+		return {destroy: function() {
+			Eden.AST.debug = false;
+		}};
 	};
 
 	edenUI.views["Debugger"] = {dialog: this.createDialog, title: "Debugger", category: edenUI.viewCategories.history};

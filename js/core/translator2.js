@@ -166,13 +166,15 @@ Eden.AST.prototype.getBlockLines = function(lineno) {
 Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, agent, parameters) {
 	var stack = [];
 	this.executed = 1;
+	var allowscript = true;
 	var i = 0;
-	console.log(statements);
+	//console.log(statements);
 	while (i < statements.length || stack.length > 0) {
 		if (i >= statements.length && stack.length > 0) {
 			statements = stack[stack.length-1].statements;
 			i = stack[stack.length-1].index;
 			stack.pop();
+			allowscript = true;
 			continue;
 		}
 
@@ -201,24 +203,38 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 			}
 		} else if (statements[i].type == "import") {
 			yield statements[i];
+		} else if (statements[i].type == "when") {
+			var when = statements[i];
+			if (when.active == false) {
+				when.active = true;
+				var res = when.execute(undefined, base, eden.root.scope);
+				//console.log(res);
+				if (res) {
+					base.executeStatements(res, -1, when);
+				} else {
+					when.active = false;
+				}
+				//whens[i].active = false;
+			}
 		} else {
 			this.parameters = parameters;
 			// Only execute statement if it isn't a script.
-			//if (statements[i].type != "script") {
+			if (allowscript || statements[i].type != "script") {
+				allowscript = statements[i].type != "script";
 				var res = statements[i].execute(ctx, base, scope, agent);
 				if (res && Array.isArray(res) && res.length > 0) {
 					i++;
 					stack.push({statements: statements, index: i});
 					statements = res;
-					console.log(statements);
+					//console.log(statements);
 					i = 0;
 					continue;
 				}
-			//}
+			}
 		}
 
 		if (statements[i].errors.length > 0) {
-			this.errors.push.apply(this.errors, statements[i].errors);
+			this.script.errors.push.apply(this.script.errors, statements[i].errors);
 		}
 
 		i++;
@@ -273,7 +289,7 @@ function runEdenAction(source, action, cb) {
 		}
 	} else {
 		source.active = false;
-		if (source.onfinish) source.onfinish();
+		//if (source.onfinish) source.onfinish();
 		if (cb) cb();
 	}
 }
@@ -284,12 +300,50 @@ function runEdenAction(source, action, cb) {
  * Execute the given statement and catch any errors.
  */
 Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
-	try {
+
+	if (Eden.AST.debug) {
+		if (Eden.AST.debug_begin_cb) Eden.AST.debug_begin_cb({base: this, agent: agent});
+	}
+
+	//try {
 		//statement.execute(undefined, this, eden.root.scope, agent);
 		//if (this.active) return;
 		//this.active = true;
 		var gen = this.executeGenerator([statement], undefined ,this, eden.root.scope, agent, undefined);
-		runEdenAction.call(this,statement, gen, cb);
+		runEdenAction.call(this,statement, gen, function() {
+			if (Eden.AST.debug) {
+				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
+			}
+			if (cb) cb();
+		});
+	//} catch (e) {
+	//	eden.error(e);
+	//	console.error("Details: " + e + "\nAgent: " + agent.name);
+	//	console.log(statement);
+		//throw e;
+	//}
+}
+
+/**
+ * Execute the given statement and catch any errors.
+ */
+Eden.AST.prototype.executeStatements = function(statements, line, agent, cb) {
+
+	if (Eden.AST.debug) {
+		if (Eden.AST.debug_begin_cb) Eden.AST.debug_begin_cb({base: this, agent: agent});
+	}
+
+	try {
+		//statement.execute(undefined, this, eden.root.scope, agent);
+		//if (this.active) return;
+		//this.active = true;
+		var gen = this.executeGenerator(statements, undefined ,this, eden.root.scope, agent, undefined);
+		runEdenAction.call(this,agent, gen, function() {
+			if (Eden.AST.debug) {
+				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
+			}
+			if (cb) cb();
+		});
 	} catch (e) {
 		eden.error(e);
 		console.error("Details: " + e + "\nAgent: " + agent.name);

@@ -82,7 +82,13 @@ Eden.Agent = function(parent, name, meta, options) {
 				for (var i=0; i<whens.length; i++) {
 					if (whens[i].active == false) {
 						whens[i].active = true;
-						me.ast.executeStatement(whens[i], -1, whens[i]);
+						var res = whens[i].execute(undefined, me.ast, eden.root.scope);
+						//console.log(res);
+						if (res) {
+							me.ast.executeStatements(res, -1, whens[i]);
+						} else {
+							whens[i].active = false;
+						}
 						//whens[i].active = false;
 					}
 				}
@@ -189,6 +195,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			}
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
+				//eden.root.beginAutocalcOff();
 				ag.execute((options && options.indexOf("force") >= 0), true, function() {
 					doCallbacks(ag);
 					console.log("Import exec complete for: " + path);
@@ -326,6 +333,11 @@ Eden.Agent.getActiveAgents = function(forced, all) {
 	return result;
 }
 
+
+Eden.Agent.prototype.getSource = function() {
+	return this.snapshot;
+}
+Eden.Agent.prototype.getLine = function() { return 0; }
 
 
 Eden.Agent.prototype.isSaved = function() {
@@ -805,12 +817,16 @@ Eden.Agent.prototype.executeLine = function (lineno, auto, cb) {
 
 Eden.Agent.prototype.execute = function(force, auto, cb) {
 	if (this.executed == false || force) {
+		//eden.root.beginAutocalcOff();
 		this.executeLine(-1, auto, cb);
+		//eden.root.endAutocalcOff();
 		this.executed = true;
 
 		if (!auto) {
 			Eden.Agent.emit('execute', [this, force]);
 		}
+	} else {
+		if (cb) cb();
 	}
 }
 
