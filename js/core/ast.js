@@ -122,7 +122,7 @@ Eden.AST.Literal.prototype.execute = function(ctx, base, scope) {
 						rhs += this.generate(ctx, "scope");
 						rhs += ";})";
 						return eval(rhs)(eden.root,scope);
-	case "JAVASCRIPT"	: eval(this.value);
+	case "JAVASCRIPT"	: return eval(this.value);
 	}
 }
 
@@ -1410,6 +1410,9 @@ Eden.AST.Assignment.prototype.generate = function(ctx) {
 Eden.AST.Assignment.prototype.compile = function(ctx) {
 	if (this.compiled && !this.dirty) return;
 	this.dirty = false;
+
+	if (ctx) ctx.scopes = this.scopes;
+	else ctx = this;
 
 	var rhs = "(function(context,scope) { \n";
 	var express = this.expression.generate(ctx, "scope");

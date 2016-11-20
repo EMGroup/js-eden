@@ -161,7 +161,7 @@ Eden.AST.prototype.getBlockLines = function(lineno) {
 
 
 
-Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, agent, parameters) {
+Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, agent) {
 	var stack = [];
 	this.executed = 1;
 	var allowscript = true;
@@ -215,20 +215,15 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 				//whens[i].active = false;
 			}
 		} else {
-			this.parameters = parameters;
-			// Only execute statement if it isn't a script.
-			//if (allowscript || statements[i].type != "script") {
-			//	allowscript = statements[i].type != "script";
-				var res = statements[i].execute(ctx, base, scope, agent);
-				if (res && Array.isArray(res) && res.length > 0) {
-					i++;
-					stack.push({statements: statements, index: i});
-					statements = res;
-					//console.log(statements);
-					i = 0;
-					continue;
-				}
-			//}
+			var res = statements[i].execute(ctx, base, scope, agent);
+			if (res && Array.isArray(res) && res.length > 0) {
+				i++;
+				stack.push({statements: statements, index: i});
+				statements = res;
+				//console.log(statements);
+				i = 0;
+				continue;
+			}
 		}
 
 		if (statements[i].errors.length > 0) {
@@ -249,17 +244,21 @@ function runEdenAction(source, action, cb) {
 	//console.log("RunAction: " + delay.value);
 	if (delay.done == false) {
 		if (typeof delay.value == "object") {
+			// The debugger wants to interrupt the script
 			if (Eden.AST.debug && delay.value.type == "debug") {
 				// Save the next step to be called later by debugger.
 				var debugnext = function() {runEdenAction.call(me, source, action, cb)};
 				delay.value.next = debugnext;
 
+				// Check which callback to use
 				if (Eden.AST.debugbreakpoint === delay.value.statement) {
 					if (Eden.AST.debugbreakpoint_cb) Eden.AST.debugbreakpoint_cb(delay.value);
 				} else {
 					if (Eden.AST.debugstep_cb) Eden.AST.debugstep_cb(delay.value);
+					// Auto step if debugspeed is set...
 					if (Eden.AST.debugspeed) setTimeout(debugnext, Eden.AST.debugspeed);
 				}
+			// Need to do an import and block until done.
 			} else if (delay.value.type == "import") {
 				delay.value.executed = 1;
 				Eden.Agent.importAgent(delay.value.path, delay.value.tag, delay.value.options, function(ag) {
@@ -279,6 +278,7 @@ function runEdenAction(source, action, cb) {
 					// Continue execution.
 					runEdenAction.call(me,source, action, cb);
 				});
+			// Call another action and block until done
 			} else if (delay.value.type == "do") {
 				var script = me.getActionByName(delay.value.name);
 				var stats = script.statements;
@@ -295,6 +295,7 @@ function runEdenAction(source, action, cb) {
 		} else if (delay.value == 0) {
 			runEdenAction.call(this,source, action, cb);
 		} else if (delay.value > 0) {
+			// A wait statement requested a delay.
 			setTimeout(function() {runEdenAction.call(me, source, action, cb)}, delay.value);
 		}
 	} else {
@@ -319,7 +320,7 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 		//statement.execute(undefined, this, eden.root.scope, agent);
 		//if (this.active) return;
 		//this.active = true;
-		var gen = this.executeGenerator([statement], undefined ,this, eden.root.scope, agent, undefined);
+		var gen = this.executeGenerator([statement], undefined ,this, eden.root.scope, agent);
 		runEdenAction.call(this,statement, gen, function() {
 			if (Eden.AST.debug) {
 				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
@@ -344,10 +345,7 @@ Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx
 	}
 
 	try {
-		//statement.execute(undefined, this, eden.root.scope, agent);
-		//if (this.active) return;
-		//this.active = true;
-		var gen = this.executeGenerator(statements, ctx ,this, eden.root.scope, agent, undefined);
+		var gen = this.executeGenerator(statements, ctx ,this, eden.root.scope, agent);
 		runEdenAction.call(this,agent, gen, function() {
 			if (Eden.AST.debug) {
 				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
