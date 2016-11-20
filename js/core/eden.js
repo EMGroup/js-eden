@@ -856,10 +856,11 @@ function concatAndResolveUrl(url, concat) {
 
 		var ast = new Eden.AST(code);
 		if (ast.script.errors.length == 0) {
-			if (success) {
+			/*if (success) {
 				ast.script.statements.push({errors: [], execute: success});
-			}
-			ast.script.execute(this.root.scope, ast, this.root.scope, agobj);
+			}*/
+			//ast.script.execute(this.root.scope, ast, this.root.scope, agobj);
+			ast.execute(agobj, success);
 		} else {
 			console.error(ast.script.errors[0].prettyPrint());
 		}

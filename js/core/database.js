@@ -773,6 +773,7 @@ Eden.DB.load = function(path, saveid, source, cb) {
 	function doload() {
 		// Run the project script as the *Restore agent
 		eden.execute2(source.script, "*Restore", function() {
+			console.log("Loaded: " + path);
 			if (cb) cb(source);
 		});
 	}

@@ -80,7 +80,11 @@ Eden.Agent = function(parent, name, meta, options) {
 			if (whens) {
 				//clearExecutedState();
 				for (var i=0; i<whens.length; i++) {
-					whens[i].execute(undefined, me.ast);
+					if (whens[i].active == false) {
+						whens[i].active = true;
+						me.ast.executeStatement(whens[i], -1, whens[i]);
+						//whens[i].active = false;
+					}
 				}
 				//gutter.generate(this.ast,-1);
 				//me.clearExecutedState();
@@ -185,7 +189,11 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			}
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
-				ag.execute((options && options.indexOf("force") >= 0), true);
+				ag.execute((options && options.indexOf("force") >= 0), true, function() {
+					doCallbacks(ag);
+					console.log("Import exec complete for: " + path);
+				});
+				return;
 			}
 		// There is no existing agent but create it
 		} else if (options && options.indexOf("create") >= 0) {
@@ -785,8 +793,8 @@ Eden.Agent.prototype.hasErrors = function() {
  * If the statement is part of a larger statement block then execute
  * that instead (eg. a proc).
  */
-Eden.Agent.prototype.executeLine = function (lineno, auto) {
-	this.ast.executeLine(lineno, this);
+Eden.Agent.prototype.executeLine = function (lineno, auto, cb) {
+	this.ast.executeLine(lineno, this, cb);
 
 	if (!auto) {
 		Eden.Agent.emit('executeline', [this, lineno]);
@@ -795,9 +803,9 @@ Eden.Agent.prototype.executeLine = function (lineno, auto) {
 
 
 
-Eden.Agent.prototype.execute = function(force, auto) {
+Eden.Agent.prototype.execute = function(force, auto, cb) {
 	if (this.executed == false || force) {
-		this.executeLine(-1, auto);
+		this.executeLine(-1, auto, cb);
 		this.executed = true;
 
 		if (!auto) {

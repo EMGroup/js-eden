@@ -122,7 +122,7 @@ Eden.AST.Literal.prototype.execute = function(ctx, base, scope) {
 						rhs += this.generate(ctx, "scope");
 						rhs += ";})";
 						return eval(rhs)(eden.root,scope);
-	case "JAVASCRIPT"	: return eval(this.value);
+	case "JAVASCRIPT"	: eval(this.value);
 	}
 }
 
@@ -1788,20 +1788,25 @@ Eden.AST.If.prototype.generate = function(ctx) {
 	return res;
 }
 
-Eden.AST.If.prototype.execute = function(ctx, base, scope, agent) {
-	this.executed = 1;
+Eden.AST.If.prototype.getCondition = function(ctx) {
 	var cond = "(function(context,scope) { return ";
 	cond += this.condition.generate(ctx, "scope");
 	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
 		cond += ".value";
 	}
 	cond += ";})";
-	if (eval(cond)(eden.root,scope)) {
-		this.statement.execute(ctx, base, scope, agent);
+	return eval(cond);
+}
+
+Eden.AST.If.prototype.execute = function(ctx, base, scope, agent) {
+	this.executed = 1;
+	
+	if (this.getCondition(ctx)(eden.root,scope)) {
+		return [this.statement];
 	} else {
 		this.executed = 2;
 		if (this.elsestatement) {
-			return this.elsestatement.execute(ctx, base, scope, agent);
+			return [this.elsestatement];
 		}
 	}
 }
@@ -2304,20 +2309,29 @@ Eden.AST.For.prototype.generate = function(ctx) {
 	return res;
 }
 
+Eden.AST.For.prototype.getCondition = function(ctx) {
+	if (!this.compiled) {
+		return this.compiled;
+	} else {
+		var express = this.condition.generate(ctx, "scope");
+		if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
+			express += ".value";
+		}
+		var expfunc = eval("(function(context,scope){ return " + express + "; })");
+		this.compiled = expfunc;
+		return expfunc;
+	}
+}
+
 Eden.AST.For.prototype.execute = function(ctx, base, scope) {
 	this.executed = 1;
-	if (this.sstart) {
-		this.sstart.execute(ctx,base,scope);
+
+	if (this.sstart && !this.started) {
+		return [this.sstart,this];
 	}
 
-	var express = this.condition.generate(ctx, "scope");
-	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
-		express += ".value";
-	}
-	var expfunc = eval("(function(context,scope){ return " + express + "; })");
-
-	for (; expfunc(eden.root,scope); this.inc.execute(ctx,base,scope)) {
-		this.statement.execute(ctx,base,scope);
+	if (this.getCondition(ctx)(eden.root,scope)) {
+		return [this.statement, this.inc, this];
 	}
 }
 
@@ -2621,10 +2635,12 @@ Eden.AST.When.prototype.compile = function(base) {
 }
 
 Eden.AST.When.prototype.execute = function(ctx, base, scope) {
-	if (this.active) return;
-	this.active = true;
+	//if (this.active) return;
+	//this.active = true;
 	this.executed = 1;
 	//this.compile(base);
+
+	console.log("Exec When: " + base.getSource(this));
 
 	var me = this;
 
@@ -2658,13 +2674,13 @@ Eden.AST.When.prototype.execute = function(ctx, base, scope) {
 					if (Eden.AST.debug_endwhen_cb) Eden.AST.debug_endwhen_cb({base: base, when: me});
 				}
 			}
-			this.statement.execute(ctx, base, scope, this);
+			return this.statement; //.execute(ctx, base, scope, this);
 		} else {
 			this.executed = 2;
 		}
 	}
 
-	this.active = false;
+	//this.active = false;
 }
 
 Eden.AST.When.prototype.error = fnEdenASTerror;
@@ -2754,114 +2770,8 @@ Eden.AST.Script.prototype.append = function (ast) {
 	}
 }
 
-Eden.AST.Script.prototype.executeReal = function(ctx, base, scope, agent, parameters) {
-	if (this.active) return;
-	this.active = true;
-	var gen = this.executeGenerator(ctx,base, scope, agent, parameters);
-	runEdenAction.call(base,this, gen);
-}
-
-Eden.AST.Script.prototype.executeGenerator = function*(ctx, base, scope, agent, parameters) {
-	this.executed = 1;
-	for (var i = 0; i < this.statements.length; i++) {
-		if (Eden.AST.debug) {
-			if (Eden.AST.debugstep || Eden.AST.debugspeed || Eden.AST.debugbreakpoint === this.statements[i]) {
-				var debugobj = {
-					type: "debug",
-					base: base,
-					script: this,
-					index: i,
-					statement: this.statements[i],
-					context: ctx,
-					agent: agent
-				};
-				yield debugobj;
-			}
-		}
-		if (this.statements[i].type == "wait") {
-			this.statements[i].executed = 1;
-			this.statements[i].compile(ctx);
-			if (this.statements[i].compiled_delay) {
-				yield this.statements[i].compiled_delay(eden.root,scope);
-			} else {
-				yield 0;
-			}
-		} else if (this.statements[i].type == "import") {
-			yield this.statements[i];
-		} else {
-			this.parameters = parameters;
-			// Only execute statement if it isn't a script.
-			if (this.statements[i].type != "script")
-				this.statements[i].execute(this, base, scope, agent);
-		}
-
-		if (this.statements[i].errors.length > 0) {
-			this.errors.push.apply(this.errors, this.statements[i].errors);
-		}
-	}
-}
-
-function runEdenAction(source, action) {
-	var me = this;
-
-	if (action === undefined) {
-		source.active = false;
-	}
-	var delay = action.next();
-	//console.log("RunAction: " + delay.value);
-	if (delay.done == false) {
-		if (typeof delay.value == "object") {
-			if (Eden.AST.debug && delay.value.type == "debug") {
-				// Save the next step to be called later by debugger.
-				var debugnext = function() {runEdenAction.call(me, source, action)};
-				delay.value.next = debugnext;
-
-				if (Eden.AST.debugbreakpoint === delay.value.statement) {
-					if (Eden.AST.debugbreakpoint_cb) Eden.AST.debugbreakpoint_cb(delay.value);
-				} else {
-					if (Eden.AST.debugstep_cb) Eden.AST.debugstep_cb(delay.value);
-					if (Eden.AST.debugspeed) setTimeout(debugnext, Eden.AST.debugspeed);
-				}
-			} else if (delay.value.type == "import") {
-				delay.value.executed = 1;
-				Eden.Agent.importAgent(delay.value.path, delay.value.tag, delay.value.options, function(ag) {
-					if (ag) {
-						var already = false;
-						// Check to see if already imported to local scope...
-						for (var i=0; i<me.imports.length; i++) {
-							if (me.imports[i] === ag) {
-								already = true;
-								break;
-							}
-						}
-						// If not, import it.
-						if (!already) me.imports.push(ag);
-					}
-
-					// Continue execution.
-					runEdenAction.call(me,source, action);
-				});
-			}
-		} else if (delay.value == 0) {
-			runEdenAction.call(this,source, action);
-		} else if (delay.value > 0) {
-			setTimeout(function() {runEdenAction.call(me, source, action)}, delay.value);
-		}
-	} else {
-		source.active = false;
-		if (source.onfinish) source.onfinish();
-	}
-}
-
 Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
-	// Un named actions execute immediately.
-	//if (this.name === undefined) {
-		this.executeReal(ctx,base, scope, agent);
-	//} else {
-		// Add this named script to a local symbol table.
-		//base.scripts[this.name] = this;
-		//console.log("Added script: " + this.name);
-	//}
+	return this.statements;
 }
 
 Eden.AST.Script.prototype.generate = function(ctx, scope) {
