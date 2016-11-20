@@ -2766,7 +2766,11 @@ Eden.AST.Script.prototype.append = function (ast) {
 }
 
 Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
-	return this.statements;
+	var filtered = [];
+	for (var i=0; i<this.statements.length; i++) {
+		if (this.statements[i].type != "script") filtered.push(this.statements[i]);
+	}
+	return filtered;
 }
 
 Eden.AST.Script.prototype.generate = function(ctx, scope) {
