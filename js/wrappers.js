@@ -80,7 +80,17 @@ Eden.Agent = function(parent, name, meta, options) {
 			if (whens) {
 				//clearExecutedState();
 				for (var i=0; i<whens.length; i++) {
-					whens[i].execute(eden.root, undefined, me.ast);
+					if (whens[i].active == false) {
+						whens[i].active = true;
+						var res = whens[i].execute(undefined, me.ast, eden.root.scope);
+						//console.log(res);
+						if (res) {
+							me.ast.executeStatements(res, -1, whens[i]);
+						} else {
+							whens[i].active = false;
+						}
+						//whens[i].active = false;
+					}
 				}
 				//gutter.generate(this.ast,-1);
 				//me.clearExecutedState();
@@ -185,7 +195,12 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			}
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
-				ag.execute((options && options.indexOf("force") >= 0), true);
+				//eden.root.beginAutocalcOff();
+				ag.execute((options && options.indexOf("force") >= 0), true, function() {
+					// Import only completes once execution also completes.
+					doCallbacks(ag);
+				});
+				return;
 			}
 		// There is no existing agent but create it
 		} else if (options && options.indexOf("create") >= 0) {
@@ -318,6 +333,11 @@ Eden.Agent.getActiveAgents = function(forced, all) {
 	return result;
 }
 
+
+Eden.Agent.prototype.getSource = function() {
+	return this.snapshot;
+}
+Eden.Agent.prototype.getLine = function() { return 0; }
 
 
 Eden.Agent.prototype.isSaved = function() {
@@ -785,8 +805,8 @@ Eden.Agent.prototype.hasErrors = function() {
  * If the statement is part of a larger statement block then execute
  * that instead (eg. a proc).
  */
-Eden.Agent.prototype.executeLine = function (lineno, auto) {
-	this.ast.executeLine(lineno, this);
+Eden.Agent.prototype.executeLine = function (lineno, auto, cb) {
+	this.ast.executeLine(lineno, this, cb);
 
 	if (!auto) {
 		Eden.Agent.emit('executeline', [this, lineno]);
@@ -795,14 +815,18 @@ Eden.Agent.prototype.executeLine = function (lineno, auto) {
 
 
 
-Eden.Agent.prototype.execute = function(force, auto) {
+Eden.Agent.prototype.execute = function(force, auto, cb) {
 	if (this.executed == false || force) {
-		this.executeLine(-1, auto);
+		//eden.root.beginAutocalcOff();
+		this.executeLine(-1, auto, cb);
+		//eden.root.endAutocalcOff();
 		this.executed = true;
 
 		if (!auto) {
 			Eden.Agent.emit('execute', [this, force]);
 		}
+	} else {
+		if (cb) cb();
 	}
 }
 

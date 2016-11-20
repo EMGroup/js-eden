@@ -76,7 +76,7 @@ EdenUI.plugins.PluginManager = function (edenUI, success) {
 							pluginJQ.find('.pluginlist-loaded').html(loadedHtml(pluginName));
 							pluginJQ.addClass("pluginmanager-loaded", 100);
 						}
-						edenUI.plugins.MenuBar.updateViewsMenu();
+						edenUI.menu.updateViewsMenu();
 					});
 				};
 			}(pluginName))	
