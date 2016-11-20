@@ -851,7 +851,7 @@ function concatAndResolveUrl(url, concat) {
 			agent = {name: '/execute'};
 		}*/
 
-		agobj = {name: 'execute'};
+		agobj = {name: 'execute', getSource: function() { return code; }, getLine: function() { return 0; }};
 		if (agent) agobj.name = agent;
 
 		var ast = new Eden.AST(code);

@@ -85,6 +85,8 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 
 		var debugEndFn = function(data) {
 			var agent = data.agent;
+			if (agent.id === undefined) return;
+			if (agentcapture[agent.id] === undefined) return;
 
 			console.log("Finish agent");
 			agentcapture[agent.id].remove();

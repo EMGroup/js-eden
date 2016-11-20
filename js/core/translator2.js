@@ -42,13 +42,11 @@ Eden.AST = function(code, imports) {
 Eden.AST.debug = false;
 Eden.AST.debugstep = false;
 Eden.AST.debugstep_cb = undefined;
-Eden.AST.debugspeed = 0;
+Eden.AST.debugspeed = 500;
 Eden.AST.debugbreakpoint = undefined;
 Eden.AST.debugbreakpoint_cb = undefined;
-Eden.AST.debugstatement = undefined;
-Eden.AST.debugbase = undefined;
-Eden.AST.debugindex = undefined;
-Eden.AST.debugscript = undefined;
+Eden.AST.debug_begin_cb = undefined;
+Eden.AST.debug_end_cb = undefined;
 
 
 
@@ -201,7 +199,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 			} else {
 				yield 0;
 			}
-		} else if (statements[i].type == "import") {
+		} else if (statements[i].type == "import" || statements[i].type == "do") {
 			yield statements[i];
 		} else if (statements[i].type == "when") {
 			var when = statements[i];
@@ -219,8 +217,8 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 		} else {
 			this.parameters = parameters;
 			// Only execute statement if it isn't a script.
-			if (allowscript || statements[i].type != "script") {
-				allowscript = statements[i].type != "script";
+			//if (allowscript || statements[i].type != "script") {
+			//	allowscript = statements[i].type != "script";
 				var res = statements[i].execute(ctx, base, scope, agent);
 				if (res && Array.isArray(res) && res.length > 0) {
 					i++;
@@ -230,7 +228,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 					i = 0;
 					continue;
 				}
-			}
+			//}
 		}
 
 		if (statements[i].errors.length > 0) {
@@ -281,6 +279,18 @@ function runEdenAction(source, action, cb) {
 					// Continue execution.
 					runEdenAction.call(me,source, action, cb);
 				});
+			} else if (delay.value.type == "do") {
+				var script = me.getActionByName(delay.value.name);
+				var stats = script.statements;
+				if (stats) {
+					var params = delay.value.getParameters(undefined, me, eden.root.scope);
+
+					me.executeStatements(stats, undefined, script, function() {
+						runEdenAction.call(me,source, action, cb);
+					}, {parameters: params});
+				} else {
+					console.error("Missing script");
+				}
 			}
 		} else if (delay.value == 0) {
 			runEdenAction.call(this,source, action, cb);
@@ -327,7 +337,7 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 /**
  * Execute the given statement and catch any errors.
  */
-Eden.AST.prototype.executeStatements = function(statements, line, agent, cb) {
+Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx) {
 
 	if (Eden.AST.debug) {
 		if (Eden.AST.debug_begin_cb) Eden.AST.debug_begin_cb({base: this, agent: agent});
@@ -337,7 +347,7 @@ Eden.AST.prototype.executeStatements = function(statements, line, agent, cb) {
 		//statement.execute(undefined, this, eden.root.scope, agent);
 		//if (this.active) return;
 		//this.active = true;
-		var gen = this.executeGenerator(statements, undefined ,this, eden.root.scope, agent, undefined);
+		var gen = this.executeGenerator(statements, ctx ,this, eden.root.scope, agent, undefined);
 		runEdenAction.call(this,agent, gen, function() {
 			if (Eden.AST.debug) {
 				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
@@ -2682,6 +2692,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	}
 
 	this.scripts[script.name] = script;
+	script.base = this;
 
 	return script;
 }

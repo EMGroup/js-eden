@@ -427,16 +427,17 @@ Eden.AST.Parameter.prototype.generate = function(ctx, scope) {
 		this.returnsbound = false;
 		return "0";
 	}
-	if (ctx && ctx.getParameterByNumber) {
+	//console.log(ctx);
+	if (ctx && ctx.parameters) {
 		// An action cannot be compiled if it uses action parameters...
 		ctx.dirty = true;
 		// Search the context for this parameter to determine scope binding
-		var res = ctx.getParameterByNumber(this.index);
+		var res = ctx.parameters[this.index-1];
 		if (res instanceof BoundValue) this.returnsbound = true;
 		else this.returnsbound = false;
 		//return ""+res;
 		// Generate run-time code to obtain parameters value.
-		return "ctx.getParameterByNumber("+this.index+")";
+		return "ctx.parameters["+this.index+"-1]";
 	}
 }
 
@@ -1411,7 +1412,12 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 	this.dirty = false;
 
 	var rhs = "(function(context,scope) { \n";
-	var express = this.expression.generate(this, "scope");
+	var express = this.expression.generate(ctx, "scope");
+
+	if (ctx && ctx.dirty) {
+		ctx.dirty = false;
+		this.dirty = true;
+	}
 
 	// Generate array of all scopes used in this definition (if any).
 	if (this.scopes.length > 0) {
@@ -2218,6 +2224,14 @@ Eden.AST.Do.prototype.generate = function(ctx) {
 	return "";
 }
 
+Eden.AST.Do.prototype.getParameters = function(ctx,base,scope) {
+	var params = [];
+	for (var i=0; i<this.parameters.length; i++) {
+		params.push(this.parameters[i].execute(ctx,base,scope));
+	}
+	return params;
+}
+
 
 Eden.AST.Do.prototype.execute = function(ctx,base,scope, agent) {
 	this.executed = 1;
@@ -2230,11 +2244,7 @@ Eden.AST.Do.prototype.execute = function(ctx,base,scope, agent) {
 	}
 
 	if (script) {
-		var params = [];
-		for (var i=0; i<this.parameters.length; i++) {
-			params.push(this.parameters[i].execute(ctx,base,scope));
-		}
-		return script.execute(ctx,base, scope, agent, params);
+		return script.execute(ctx,base, scope, agent);
 	} else {
 		this.executed = 3;
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ACTIONNAME, this, "Action '"+this.name+"' does not exist"));
@@ -2726,7 +2736,16 @@ Eden.AST.Script = function() {
 	this.parameters = undefined;
 	this.locals = undefined;
 	this.onfinish = undefined;
+	this.base = undefined;
 };
+
+Eden.AST.Script.prototype.getSource = function() {
+	return this.base.getSource(this);
+}
+
+Eden.AST.Script.prototype.getLine = function() {
+	return this.line;
+}
 
 Eden.AST.Script.prototype.setLocals = function(locals) {
 	this.locals = locals;
