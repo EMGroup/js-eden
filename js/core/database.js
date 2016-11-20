@@ -611,8 +611,11 @@ Eden.DB.getVersions = function(path, callback) {
 /**
  * Find agent meta data which is a combination of information from all sources.
  */
-Eden.DB.getMeta = function(path, callback) {	
-	Eden.DB.getDirectory(path, function(p) {
+Eden.DB.getMeta = function(path, callback) {
+	var subp = path.split("/");
+	subp.pop();
+	subp = subp.join("/");
+	Eden.DB.getDirectory(subp, function(p) {
 		callback(path, Eden.DB.meta[path]);
 	});
 }

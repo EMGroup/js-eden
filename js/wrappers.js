@@ -197,8 +197,8 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			if (options === undefined || options.indexOf("noexec") == -1) {
 				//eden.root.beginAutocalcOff();
 				ag.execute((options && options.indexOf("force") >= 0), true, function() {
+					// Import only completes once execution also completes.
 					doCallbacks(ag);
-					console.log("Import exec complete for: " + path);
 				});
 				return;
 			}
