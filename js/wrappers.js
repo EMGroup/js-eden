@@ -57,6 +57,7 @@ Eden.Agent = function(parent, name, meta, options) {
 	this.autosavetimer = undefined;
 	this.executed = false;
 	this.options = options;
+	this.loading = false;
 
 	if (this.snapshot) {
 		//this.setSource(this.snapshot);
@@ -201,7 +202,9 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
 				//eden.root.beginAutocalcOff();
+				ag.loading = true;
 				ag.execute((options && options.indexOf("force") >= 0), true, function() {
+					ag.loading = false;
 					// Import only completes once execution also completes.
 					doCallbacks(ag);
 				});

@@ -4,6 +4,7 @@ Eden.Peer = function(master, id) {
 
 	function processData(data) {
 		var obj = JSON.parse(data);
+		console.log(obj.cmd,obj.symbol);
 		if (obj.cmd == "assign") {
 			var sym = eden.root.lookup(obj.symbol.slice(1));
 			sym.assign(obj.value, eden.root.scope, {name: "*net"});
@@ -11,6 +12,10 @@ Eden.Peer = function(master, id) {
 			var sym = eden.root.lookup(obj.symbol.slice(1));
 			sym.eden_definition = obj.source;
 			sym.define(eval(obj.code), {name: "*net"}, obj.dependencies);
+		} else if (obj.cmd == "import") {
+			Eden.Agent.importAgent(obj.path, obj.tag, obj.options, function() {
+
+			});
 		}
 	}
 
@@ -78,4 +83,8 @@ Eden.Peer.prototype.assign = function(sym, value) {
 
 Eden.Peer.prototype.define = function(sym, source, rhs, deps) {
 	this.broadcast(JSON.stringify({cmd: "define", symbol: sym, source: source, code: rhs, dependencies: deps}));
+}
+
+Eden.Peer.prototype.imports = function(path, tag, options) {
+	this.broadcast(JSON.stringify({cmd: "import", path: path, tag: tag, options: options}));
 }
