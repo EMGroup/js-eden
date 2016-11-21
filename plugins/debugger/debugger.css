@@ -1,12 +1,14 @@
 .debugger {
-	display: flex;
+	/*display: flex;
 	box-sizing: border-box;
-	flex-direction: column;
+	flex-direction: column;*/
 	height: 100%;
 }
 
 .debugger-controls {
-	display: inline-block;
+	background: #f1f1f1;
+	box-shadow: 0 0 10px #4a6887;
+	border-bottom: 1px solid #777;
 }
 
 .debugger-controls>* {
@@ -17,7 +19,16 @@
 	margin-right: 0px;
 }
 
+div.debugger-line {
+	background-color: #f3bbac;
+}
+
 div.debugger-code {
+	/*position: absolute;
+	top: 30px;
+	left: 0;
+	right: 20%;
+	bottom: 0;*/
 	/*flex-grow: 1;*/
 	/*margin-bottom: 0px;*/
 	/*background-color: white;*/
@@ -26,13 +37,37 @@ div.debugger-code {
 	white-space: pre;
 	outline: none;
 	resize: none;
-	overflow: auto;
+	overflow: hidden;
+	width: 70%;
 	padding: 10px 20px;
 	/*border: 1px solid #e5e5e5;*/
+	background: white;
+}
+
+div.debugger-agent {
+	border-top: 1px solid #aaa;
+	border-bottom: 1px solid #aaa;
+	margin-top: 5px;
+	background: white;
+	padding: 0;
+	display: flex;
+	flex-direction: row;
+}
+
+div.debugger-inspector {
+	/*position: absolute;
+	top: 30px;
+	right: 0;
+	width: 20%;
+	bottom: 0;*/
+	width: 25%;
+	background-color: #f1f1f1;
+	border-left: 2px solid #a61414;
+	min-height: 50px;
 }
 
 div.debugger-dialog {
-	background: #f1f1f1;
+	background: #cecece;
 	border-width: 1px;
 	border-color: #777;
 	border-style: solid;
@@ -62,10 +97,24 @@ div.debugger-dialog .ui-dialog-titlebar {
 	background: #a61414;
 	color: white;
 	font-size: 14pt;
+	z-index: 2;
 }
 
 div.debugger-dialog .ui-dialog-content {
 	padding: 0;
+}
+
+button.debugger-button {
+	font-family: "FontAwesome";
+	font-size: 14pt;
+	border-radius: 3px;
+	background: #e5e5e5;
+	outline: none;
+	border: 1px solid #ddd;
+	margin:5px;
+	padding: 5px;
+	width: 30px;
+	height: 30px;
 }
 
 /*span.scriptgen-importex {

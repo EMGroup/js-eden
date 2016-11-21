@@ -919,9 +919,9 @@ Eden.Agent.prototype.setSource = function(source, net, lineno) {
 	}
 
 	if (this.ast) {
-		this.ast = new Eden.AST(source, this.ast.imports);
+		this.ast = new Eden.AST(source, this.ast.imports, this);
 	} else {
-		this.ast = new Eden.AST(source);
+		this.ast = new Eden.AST(source, undefined, this);
 	}
 
 	if (this.hasErrors() && !waserrored) {
