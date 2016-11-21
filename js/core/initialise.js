@@ -75,6 +75,8 @@ function Construit(options,callback) {
 	var imports = URLUtil.getArrayParameterByName("import");
 	var restore = URLUtil.getParameterByName("restore");
 	var tag = URLUtil.getParameterByName("tag");
+	var master = URLUtil.getParameterByName("master");
+	var myid = URLUtil.getParameterByName("id");
 
 	if (lang == "") {
 		lang = "en";
@@ -209,6 +211,10 @@ function Construit(options,callback) {
 					exec = exec + ";";
 				}
 				eden.execute2(exec, "URL", "", {name: "execute"}, function () { });
+			}
+
+			if (myid != "" || master != "") {
+				eden.peer = new Eden.Peer((master != "") ? master : undefined, (myid != "") ? myid : undefined);
 			}
 
 			if (callback) callback(loaded);

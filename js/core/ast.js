@@ -1335,6 +1335,8 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	var source = base.getSource(this);
 	var sym = this.lvalue.getSymbol(ctx,base,scope);
 
+	//if (eden.peer) eden.peer.broadcast(source);
+
 	if (this.lvalue.hasListIndices()) {
 		var rhs = "(function(context,scope,value) { value";
 		rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
@@ -1358,6 +1360,8 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 		if (agent === undefined) {
 			console.trace("UNDEF AGENT: " + source);
 		}
+
+		if (eden.peer) eden.peer.define(sym.name, source, rhs, deps);
 		sym.define(eval(rhs), agent, deps);
 	}
 		
@@ -1492,6 +1496,8 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		} else {
 			this.value = this.compiled.call(sym,eden.root,scope);
 			sym.assign(this.value,scope, agent);
+			if (eden.peer) eden.peer.assign(sym.name, this.value);
+			//if (eden.peer) eden.peer.broadcast("ASSIGN: " + this.value);
 		}
 	} catch(e) {
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
