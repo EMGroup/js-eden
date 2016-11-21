@@ -14,7 +14,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 		}
 
 		if (Eden.AST.debug) {
-			if (Eden.AST.debugstep || Eden.AST.debugspeed || Eden.AST.debugbreakpoint === this.statements[i]) {
+			if (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug())) {
 				var debugobj = {
 					type: "debug",
 					base: base,
@@ -72,7 +72,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 
 	// Debug break on finish
 	if (Eden.AST.debug) {
-		if (Eden.AST.debugstep || Eden.AST.debugspeed) {
+		if (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug())) {
 			var debugobj = {
 				type: "debug",
 				base: base,
@@ -109,7 +109,7 @@ function runEdenAction(source, action, cb) {
 				} else {
 					if (Eden.AST.debugstep_cb) setTimeout(function() {Eden.AST.debugstep_cb(delay.value)},0);
 					// Auto step if debugspeed is set...
-					if (Eden.AST.debugspeed) setTimeout(debugnext, Eden.AST.debugspeed);
+					//if (Eden.AST.debugspeed) setTimeout(debugnext, Eden.AST.debugspeed);
 				}
 			// Need to do an import and block until done.
 			} else if (delay.value.type == "import") {
@@ -165,7 +165,7 @@ function runEdenAction(source, action, cb) {
  */
 Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 
-	if (Eden.AST.debug) {
+	if (Eden.AST.debug && (Eden.AST.debugstep || ( agent && agent.doDebug && agent.doDebug()))) {
 		if (Eden.AST.debug_begin_cb) Eden.AST.debug_begin_cb({base: this, agent: agent});
 	}
 
@@ -175,7 +175,7 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 		//this.active = true;
 		var gen = this.executeGenerator([statement], undefined ,this, eden.root.scope, agent);
 		runEdenAction.call(this,statement, gen, function() {
-			if (Eden.AST.debug) {
+			if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
 				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
 			}
 			if (cb) cb();
@@ -193,14 +193,14 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
  */
 Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx) {
 
-	if (Eden.AST.debug) {
+	if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
 		if (Eden.AST.debug_begin_cb) Eden.AST.debug_begin_cb({base: this, agent: agent});
 	}
 
 	try {
 		var gen = this.executeGenerator(statements, ctx ,this, eden.root.scope, agent);
 		runEdenAction.call(this,agent, gen, function() {
-			if (Eden.AST.debug) {
+			if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
 				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
 			}
 			if (cb) cb();

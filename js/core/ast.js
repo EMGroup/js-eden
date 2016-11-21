@@ -63,6 +63,43 @@ Eden.AST.DoxyComment = function(content, start, end) {
 	this.endline = end;
 }
 
+Eden.AST.DoxyComment.prototype.getHashTags = function() {
+	if (this.tags) return this.tags;
+
+	var words = this.content.split(/[ \n\t]+/);
+	var tags = {};
+	var controls = {};
+	for (var i=0; i<words.length; i++) {
+		if (words[i].charAt(0) == "#") tags[words[i]] = true;
+		if (words[i].charAt(0) == "@") controls[words[i]] = true;
+	}
+	this.tags = tags;
+	this.controls = controls;
+	return Object.keys(tags);
+}
+
+Eden.AST.DoxyComment.prototype.hasTag = function(tag) {
+	if (this.tags === undefined) this.getHashTags();
+	return (this.tags[tag]) ? true : false;
+}
+
+Eden.AST.DoxyComment.prototype.getControls = function() {
+	if (this.controls) return this.controls;
+	this.getHashTags();
+	return this.controls;
+}
+
+Eden.AST.DoxyComment.prototype.stripped = function() {
+	var words = this.content.substring(3,this.content.length-2).split(/[ \n\t]+/);
+	var res = "";
+	for (var i=0; i<words.length; i++) {
+		if (words[i].charAt(0) != "#" && words[i].charAt(0) != "@") {
+			res += words[i]+" ";
+		}
+	}
+	return res.trim();
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -2576,6 +2613,7 @@ Eden.AST.When = function() {
 	this.compScope = undefined;
 	this.base = undefined;
 	this.scopes = [];
+	this.doxyComment = undefined;
 };
 
 Eden.AST.When.prototype.getSource = function() {
@@ -2583,6 +2621,10 @@ Eden.AST.When.prototype.getSource = function() {
 }
 
 Eden.AST.When.prototype.getLine = function() { return this.line; }
+
+Eden.AST.When.prototype.doDebug = function() {
+	return this.doxyComment && this.doxyComment.getControls()["@debug"];
+}
 
 Eden.AST.When.prototype.setScope = function (scope) {
 	this.scope = scope;

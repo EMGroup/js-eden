@@ -6,17 +6,14 @@
 }
 
 .debugger-controls {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
 	background: #f1f1f1;
 	box-shadow: 0 0 10px #4a6887;
 	border-bottom: 1px solid #777;
-}
-
-.debugger-controls>* {
-	margin-right: 20px
-}
-
-.debugger-controls>*:last-child {
-	margin-right: 0px;
+	z-index: 2;
 }
 
 div.debugger-line {
@@ -42,6 +39,15 @@ div.debugger-code {
 	padding: 10px 20px;
 	/*border: 1px solid #e5e5e5;*/
 	/*background: white;*/
+}
+
+div.debugger-agents {
+	position: absolute;
+	top: 41px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow-y: scroll;
 }
 
 div.debugger-agent {
@@ -109,7 +115,7 @@ div.debugger-dialog .ui-dialog-titlebar {
 	background: #a61414;
 	color: white;
 	font-size: 14pt;
-	z-index: 2;
+	z-index: 3;
 }
 
 div.debugger-dialog .ui-dialog-content {
@@ -123,7 +129,9 @@ button.debugger-button {
 	background: #e5e5e5;
 	outline: none;
 	border: 1px solid #ddd;
-	margin:5px;
+	margin-top:5px;
+	margin-bottom: 5px;
+	margin-right: 5px;
 	padding: 5px;
 	width: 30px;
 	height: 30px;
@@ -135,7 +143,8 @@ button.debugger-button:hover {
 }
 
 button.debugger-button.active {
-	color: green;
+	color: white;
+	background: #666;
 }
 
 /*span.scriptgen-importex {

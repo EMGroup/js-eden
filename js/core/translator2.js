@@ -2301,6 +2301,8 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	var endline = -1;
 	var stat = undefined;
 	var end = -1;
+	var doxy = this.lastDoxyComment;
+	this.lastDoxyComment = undefined;
 
 	switch (this.token) {
 	case "proc"		:	this.next(); stat = this.pACTION(); end = this.stream.position; endline = this.stream.line; this.next(); break;
@@ -2437,6 +2439,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	}
 	
 	stat.parent = this.parent;
+	stat.doxyComment = doxy;
 
 	// Update statements start and end so original source can be extracted.
 	if (end == -1) {
