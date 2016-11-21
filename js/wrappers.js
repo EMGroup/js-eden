@@ -346,6 +346,8 @@ Eden.Agent.prototype.getSource = function() {
 }
 Eden.Agent.prototype.getLine = function() { return 0; }
 
+Eden.Agent.prototype.doDebug = function() { return false; }
+
 
 Eden.Agent.prototype.isSaved = function() {
 	return this.autosavetimer === undefined;

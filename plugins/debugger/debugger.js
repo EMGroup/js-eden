@@ -11,20 +11,20 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 	this.createDialog = function (name, mtitle) {
 		var viewName = name.slice(0,-7); //remove -dialog suffix
 
-		var debug_play = true;
+		var debug_play = false;
 		var active_agent = undefined;
 		var docapture = false;
 
 		//Create elements
 		var label;
 		var content = $('<div class="debugger"></div>');
-		var controls = $('<div></div>');
-		content.append(controls);
+		//var controls = $('<div></div>');
 
-		var controlsLeft = $('<div class="debugger-controls"><button class="debugger-button debug active">&#xf188;</button><button class="debugger-button play">&#xf04c;</button><button class="debugger-button stepforward">&#xf051;</button><button class="debugger-button autostep">&#xf050;</button></div>');
-		controls.append(controlsLeft);
-		var controlsRight = $('<div class="debugger-controls" style="float: right"></div>');
-		controls.append(controlsRight);
+		var controls = $('<div class="debugger-controls"><button title="Toggle capture all agents" style="margin-left: 20px; margin-right: 20px;" class="debugger-button debug">&#xf188;</button><button class="debugger-button play" title="Auto Play">&#xf04b;</button><button class="debugger-button stepforward">&#xf051;</button><button class="debugger-button autostep">&#xf050;</button></div>');
+		//controls.append(controlsLeft);
+		//var controlsRight = $('<div class="debugger-controls" style="float: right"></div>');
+		//controls.append(controlsRight);
+		content.append(controls);
 
 		var script = $('<div class="debugger-agents"></div>');
 		content.append(script);
@@ -42,8 +42,11 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 		// Watch for state changes
 		eden.root.addGlobal(function(sym, create) {
 			if (!debug_play && docapture && active_agent) {
-				var inspect = active_agent.html.find(".debugger-inspector");
-				inspect.append('<div>'+sym.name.slice(1)+' = '+Eden.edenCodeForValue(sym.value())+';</div>');
+				if (sym.eden_definition === undefined || sym.eden_definition.startsWith("proc") == false) {
+					var inspect = active_agent.html.find(".debugger-inspector");
+					var val = Eden.edenCodeForValue(sym.value()).split("\n")[0];
+					inspect.append('<div>'+sym.name.slice(1)+' = '+val+'</div>');
+				}
 			}
 		});
 
@@ -52,7 +55,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			if (agent.type == "when" && agent.base && agent.base.origin) {
 				statement += "## " + agent.base.origin.name;
 				if (agent.line) {
-					statement += ":" + agent.line;
+					statement += ":" + (agent.line+1);
 				}
 				statement += "\n";
 			} else if (agent.name) {
@@ -73,7 +76,8 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 				var output = agentcapture[agent.id].html;
 				agentcapture[agent.id].data = data;
 
-				if (agentcapture[agent.id] === active_agent) docapture = false;
+				//if (agentcapture[agent.id] === active_agent) 
+				docapture = false;
 
 				if (output) {
 					var ast = new Eden.AST(statement);
@@ -104,6 +108,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 
 		var debugBeginFn = function(data) {
 			var agent = data.agent;
+			console.log(agent);
 
 			if (agent.id !== undefined) {
 				debugEndFn(data);
@@ -156,8 +161,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 		Eden.AST.debug_end_cb = debugEndFn;
 
 		Eden.AST.debug = true;
-		Eden.AST.debugstep = true;
-		Eden.AST.debugspeed = 0;
+		Eden.AST.debugstep = false;
 
 
 		//regenerate.click(function () {
@@ -182,14 +186,25 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 
 		controls.on("click", ".play", function(e) {
 			debug_play = !debug_play;
-			if (debug_play) e.currentTarget.innerHTML = "&#xf04c;";
-			else e.currentTarget.innerHTML = "&#xf04b;";
+			if (debug_play) {
+				e.currentTarget.innerHTML = "&#xf04c;";
+				e.currentTarget.className = "debugger-button play active";
+			} else {
+				e.currentTarget.innerHTML = "&#xf04b;";
+				e.currentTarget.className = "debugger-button play";
+			}
 		}).on("click",".stepforward", function(e) {
 			if (active_agent && active_agent.data.next) {
 				active_agent.html.find(".debugger-inspector").html("");
 				docapture = true;
 				active_agent.data.next();
+				// Prevent it being done more than once.
+				if (active_agent) active_agent.data.next = undefined;
 			}
+		}).on("click", ".debug", function(e) {
+			Eden.AST.debugstep = !Eden.AST.debugstep;
+			if (Eden.AST.debugstep) e.currentTarget.className = "debugger-button debug active";
+			else e.currentTarget.className = "debugger-button debug";
 		});
 		script.on("click",".debugger-agent", function(e) {
 			if (active_agent) active_agent.html.get(0).className = "debugger-agent";
