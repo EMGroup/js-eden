@@ -11,13 +11,16 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 	this.createDialog = function (name, mtitle) {
 		var viewName = name.slice(0,-7); //remove -dialog suffix
 
+		var debug_play = true;
+		var active_agent = undefined;
+
 		//Create elements
 		var label;
 		var content = $('<div class="debugger"></div>');
 		var controls = $('<div></div>');
 		content.append(controls);
 
-		var controlsLeft = $('<div class="debugger-controls"><button class="debugger-button debug">&#xf188;</button><button class="debugger-button play">&#xf04b;</button><button class="debugger-button stepforward">&#xf051;</button><button class="debugger-button autostep">&#xf050;</button></div>');
+		var controlsLeft = $('<div class="debugger-controls"><button class="debugger-button debug active">&#xf188;</button><button class="debugger-button play">&#xf04c;</button><button class="debugger-button stepforward">&#xf051;</button><button class="debugger-button autostep">&#xf050;</button></div>');
 		controls.append(controlsLeft);
 		var controlsRight = $('<div class="debugger-controls" style="float: right"></div>');
 		controls.append(controlsRight);
@@ -57,24 +60,32 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			var agent = data.agent;
 
 			var statement = generateSource(agent);
-			var output = agentcapture[agent.id];
 
-			if (output) {
-				var ast = new Eden.AST(statement);
-				var hl = new EdenUI.Highlight(output.get(0).childNodes[1]);
-				hl.highlight(ast, -1, -1);
+			if (agentcapture[agent.id]) {
+				var output = agentcapture[agent.id].html;
+				agentcapture[agent.id].data = data;
 
-				// Now highlight correct line number...
-				var line = data.statement.line - agent.getLine();
-				var lineele = output.get(0).childNodes[1].childNodes[line+1];
-				if (lineele) {
-					//lineele.style.background = "#c67f6c";
-					lineele.className = "eden-line debugger-line";
+				if (output) {
+					var ast = new Eden.AST(statement);
+					var hl = new EdenUI.Highlight(output.get(0).childNodes[1]);
+					hl.highlight(ast, -1, -1);
+
+					// Now highlight correct line number...
+					var line = data.statement.line - agent.getLine();
+					var lineele = output.get(0).childNodes[1].childNodes[line+1];
+					if (lineele) {
+						//lineele.style.background = "#c67f6c";
+						lineele.className = "eden-line debugger-line";
+					} else {
+						console.error("Missing line: " + line);
+					}
 				} else {
-					console.error("Missing line: " + line);
+					console.error("Missing output");
 				}
-			} else {
-				console.error("Missing output");
+			}
+
+			if (debug_play) {
+				setTimeout(data.next, 500);
 			}
 		};
 		Eden.AST.debugstep_cb = debugStepFn;
@@ -88,9 +99,14 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			}
 			agent.id = agentid;
 			agentid++;
-			var output = $('<div class="debugger-agent"><div class="debugger-agent-controls"></div><div class="debugger-code"></div><div class="debugger-inspector"></div></div>');
+			var output = $('<div class="debugger-agent" data-agent="'+agent.id+'"><div class="debugger-agent-controls"></div><div class="debugger-code"></div><div class="debugger-inspector"></div></div>');
 			script.append(output);
-			agentcapture[agent.id] = output;
+			agentcapture[agent.id] = {html: output, data: data};
+
+			if (active_agent === undefined) {
+				active_agent = agentcapture[agent.id];
+				output.get(0).className = "debugger-agent active";
+			}
 
 			var statement = generateSource(agent);
 
@@ -105,14 +121,18 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			if (agent.id === undefined) return;
 			if (agentcapture[agent.id] === undefined) return;
 
+			if (active_agent === agentcapture[agent.id]) active_agent = undefined;
+
 			console.log("Finish agent");
-			agentcapture[agent.id].remove();
+			agentcapture[agent.id].html.remove();
 			delete agentcapture[agent.id];
 			agent.id = undefined;
 		}
 		Eden.AST.debug_end_cb = debugEndFn;
 
 		Eden.AST.debug = true;
+		Eden.AST.debugstep = true;
+		Eden.AST.debugspeed = 0;
 
 
 		//regenerate.click(function () {
@@ -133,6 +153,21 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			minHeight: 120,
 			minWidth: 230,
 			dialogClass: "debugger-dialog"
+		});
+
+		controls.on("click", ".play", function(e) {
+			debug_play = !debug_play;
+			if (debug_play) e.currentTarget.innerHTML = "&#xf04c;";
+			else e.currentTarget.innerHTML = "&#xf04b;";
+		}).on("click",".stepforward", function(e) {
+			if (active_agent && active_agent.data.next) {
+				active_agent.data.next();
+			}
+		});
+		script.on("click",".debugger-agent", function(e) {
+			if (active_agent) active_agent.html.get(0).className = "debugger-agent";
+			active_agent = agentcapture[e.currentTarget.getAttribute("data-agent")];
+			active_agent.html.get(0).className = "debugger-agent active";
 		});
 
 		return {destroy: function() {
