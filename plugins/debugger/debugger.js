@@ -13,6 +13,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 
 		var debug_play = true;
 		var active_agent = undefined;
+		var docapture = false;
 
 		//Create elements
 		var label;
@@ -38,6 +39,14 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 		var agentcapture = {};
 		var agentid = 1;
 
+		// Watch for state changes
+		eden.root.addGlobal(function(sym, create) {
+			if (!debug_play && docapture && active_agent) {
+				var inspect = active_agent.html.find(".debugger-inspector");
+				inspect.append('<div>'+sym.name.slice(1)+' = '+Eden.edenCodeForValue(sym.value())+';</div>');
+			}
+		});
+
 		function generateSource(agent) {
 			var statement = "";
 			if (agent.type == "when" && agent.base && agent.base.origin) {
@@ -47,7 +56,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 				}
 				statement += "\n";
 			} else if (agent.name) {
-				statement += "## " + agent.name;
+				statement += "## " + agent.name + "\n";
 			}
 			statement += agent.getSource();
 			return statement;
@@ -56,7 +65,6 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 		//Add events
 
 		var debugStepFn = function (data) {
-			//script.html("");
 			var agent = data.agent;
 
 			var statement = generateSource(agent);
@@ -65,19 +73,23 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 				var output = agentcapture[agent.id].html;
 				agentcapture[agent.id].data = data;
 
+				if (agentcapture[agent.id] === active_agent) docapture = false;
+
 				if (output) {
 					var ast = new Eden.AST(statement);
 					var hl = new EdenUI.Highlight(output.get(0).childNodes[1]);
 					hl.highlight(ast, -1, -1);
 
-					// Now highlight correct line number...
-					var line = data.statement.line - agent.getLine();
-					var lineele = output.get(0).childNodes[1].childNodes[line+1];
-					if (lineele) {
-						//lineele.style.background = "#c67f6c";
-						lineele.className = "eden-line debugger-line";
-					} else {
-						console.error("Missing line: " + line);
+					if (data.statement) {
+						// Now highlight correct line number...
+						var line = data.statement.line - agent.getLine();
+						var lineele = output.get(0).childNodes[1].childNodes[line+1];
+						if (lineele) {
+							//lineele.style.background = "#c67f6c";
+							lineele.className = "eden-line debugger-line";
+						} else {
+							console.error("Missing line: " + line);
+						}
 					}
 				} else {
 					console.error("Missing output");
@@ -121,12 +133,25 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			if (agent.id === undefined) return;
 			if (agentcapture[agent.id] === undefined) return;
 
-			if (active_agent === agentcapture[agent.id]) active_agent = undefined;
+			if (active_agent === agentcapture[agent.id]) {
+				docapture = false;
+				active_agent = undefined;
+			}
 
-			console.log("Finish agent");
-			agentcapture[agent.id].html.remove();
-			delete agentcapture[agent.id];
-			agent.id = undefined;
+			var statement = generateSource(agent);
+			var output = agentcapture[agent.id].html;
+
+			var ast = new Eden.AST(statement);
+			var hl = new EdenUI.Highlight(output.get(0).childNodes[1]);
+			hl.highlight(ast, -1, -1);
+
+
+			//setTimeout(function() {
+				console.log("Finish agent");
+				agentcapture[agent.id].html.remove();
+				delete agentcapture[agent.id];
+				agent.id = undefined;
+			//}, 2000);
 		}
 		Eden.AST.debug_end_cb = debugEndFn;
 
@@ -161,6 +186,8 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			else e.currentTarget.innerHTML = "&#xf04b;";
 		}).on("click",".stepforward", function(e) {
 			if (active_agent && active_agent.data.next) {
+				active_agent.html.find(".debugger-inspector").html("");
+				docapture = true;
 				active_agent.data.next();
 			}
 		});

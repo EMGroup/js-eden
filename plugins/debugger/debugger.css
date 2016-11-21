@@ -72,6 +72,10 @@ div.debugger-inspector {
 	background-color: #f1f1f1;
 	border-left: 2px solid #a61414;
 	min-height: 50px;
+	padding: 5px;
+	white-space: pre;
+	word-wrap: nowrap;
+	overflow: hidden;
 }
 
 div.debugger-dialog {

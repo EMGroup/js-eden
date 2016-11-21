@@ -69,6 +69,22 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 
 		i++;
 	}
+
+	// Debug break on finish
+	if (Eden.AST.debug) {
+		if (Eden.AST.debugstep || Eden.AST.debugspeed) {
+			var debugobj = {
+				type: "debug",
+				base: base,
+				script: this,
+				index: -1,
+				statement: undefined,
+				context: ctx,
+				agent: agent
+			};
+			yield debugobj;
+		}
+	}
 }
 
 function runEdenAction(source, action, cb) {
@@ -88,10 +104,10 @@ function runEdenAction(source, action, cb) {
 				delay.value.next = debugnext;
 
 				// Check which callback to use
-				if (Eden.AST.debugbreakpoint === delay.value.statement) {
+				if (delay.value.statement && Eden.AST.debugbreakpoint === delay.value.statement) {
 					if (Eden.AST.debugbreakpoint_cb) Eden.AST.debugbreakpoint_cb(delay.value);
 				} else {
-					if (Eden.AST.debugstep_cb) Eden.AST.debugstep_cb(delay.value);
+					if (Eden.AST.debugstep_cb) setTimeout(function() {Eden.AST.debugstep_cb(delay.value)},0);
 					// Auto step if debugspeed is set...
 					if (Eden.AST.debugspeed) setTimeout(debugnext, Eden.AST.debugspeed);
 				}
