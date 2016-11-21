@@ -85,7 +85,7 @@ Eden.Agent = function(parent, name, meta, options) {
 						whens[i].active = true;
 						var res = whens[i].execute(undefined, me.ast, eden.root.scope);
 						//console.log(res);
-						if (res) {
+						if (res && (eden.peer === undefined || eden.peer.authoriseWhen(whens[i]))) {
 							me.ast.executeStatements(res, -1, whens[i]);
 						} else {
 							whens[i].active = false;

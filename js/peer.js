@@ -1,5 +1,7 @@
 Eden.Peer = function(master, id) {
 	this.connections = [];
+	this.id = id;
+	this.master = master;
 	var me = this;
 
 	function processData(data) {
@@ -75,6 +77,11 @@ Eden.Peer.prototype.broadcast = function(msg) {
 	for (var i=0; i<this.connections.length; i++) {
 		this.connections[i].send(msg);
 	}
+}
+
+Eden.Peer.prototype.authoriseWhen = function(when) {
+	if (this.id) return true;
+	return false;
 }
 
 Eden.Peer.prototype.assign = function(sym, value) {
