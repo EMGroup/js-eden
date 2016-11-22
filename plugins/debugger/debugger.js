@@ -14,13 +14,14 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 		var debug_play = false;
 		var active_agent = undefined;
 		var docapture = false;
+		var debug_speed = 500;
 
 		//Create elements
 		var label;
 		var content = $('<div class="debugger"></div>');
 		//var controls = $('<div></div>');
 
-		var controls = $('<div class="debugger-controls"><button title="Toggle capture all agents" style="margin-left: 20px; margin-right: 20px;" class="debugger-button debug">&#xf188;</button><button class="debugger-button play" title="Auto Play">&#xf04b;</button><button class="debugger-button stepforward">&#xf051;</button><button class="debugger-button autostep">&#xf050;</button></div>');
+		var controls = $('<div class="debugger-controls"><button title="Toggle capture all agents" style="margin-left: 20px; margin-right: 20px;" class="debugger-button debug">&#xf188;</button><button class="debugger-button play" title="Auto Play">&#xf04b;</button><button class="debugger-button stepforward">&#xf051;</button><button class="debugger-button autostep">&#xf050;</button><input type="range" class="debugger-speed" value="500" max="1000" min="50"></input></div>');
 		//controls.append(controlsLeft);
 		//var controlsRight = $('<div class="debugger-controls" style="float: right"></div>');
 		//controls.append(controlsRight);
@@ -101,7 +102,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			}
 
 			if (debug_play) {
-				setTimeout(data.next, 500);
+				setTimeout(data.next, debug_speed);
 			}
 		};
 		Eden.AST.debugstep_cb = debugStepFn;
@@ -205,6 +206,9 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			Eden.AST.debugstep = !Eden.AST.debugstep;
 			if (Eden.AST.debugstep) e.currentTarget.className = "debugger-button debug active";
 			else e.currentTarget.className = "debugger-button debug";
+		}).on("change", ".debugger-speed", function(e) {
+			debug_speed = e.currentTarget.value;
+			console.log("Change speed: " + debug_speed);
 		});
 		script.on("click",".debugger-agent", function(e) {
 			if (active_agent) active_agent.html.get(0).className = "debugger-agent";

@@ -147,6 +147,11 @@ button.debugger-button.active {
 	background: #666;
 }
 
+input.debugger-speed {
+	margin-left: 40px;
+	margin-top: 5px;
+}
+
 /*span.scriptgen-importex {
 	margin-right: 15px;
 	font-family: "FontAwesome";
