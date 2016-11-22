@@ -978,6 +978,7 @@ Eden.AST.Import = function() {
 	this.executed = 0;
 	this.options = [];
 	this.tag = "default";
+	this.line = undefined;
 }
 
 Eden.AST.Import.prototype.setPath = function(path) {
@@ -988,6 +989,10 @@ Eden.AST.Import.prototype.setTag = function(tag) {
 	this.tag = tag;
 }
 
+/**
+ * Checks the validity of options being added and prevents conflicting
+ * combinations.
+ */
 Eden.AST.Import.prototype.addOption = function(opt) {
 	if (opt == "local") {
 		if (this.options.indexOf("local") >= 0) return true;
@@ -1013,11 +1018,11 @@ Eden.AST.Import.prototype.addOption = function(opt) {
 	return true;
 }
 
-Eden.AST.Import.prototype.generate = function(ctx) {
+/*Eden.AST.Import.prototype.generate = function(ctx) {
 	return "Eden.Agent.importAgent(\""+this.path+"\");";
-}
+}*/
 
-Eden.AST.Import.prototype.execute = function(ctx, base, scope, agent) {
+/*Eden.AST.Import.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	var me = this;
 
@@ -1035,7 +1040,7 @@ Eden.AST.Import.prototype.execute = function(ctx, base, scope, agent) {
 			if (me.parent) me.parent.executed = 3;
 		}
 	});
-}
+}*/
 
 Eden.AST.Import.prototype.setSource = function(start, end) {
 	this.start = start;
@@ -1880,6 +1885,8 @@ Eden.AST.Switch = function() {
 	this.statement = undefined;
 	this.start = 0;
 	this.end = 0;
+	this.line = undefined;
+	this.compiled = undefined;
 };
 
 Eden.AST.Switch.prototype.setSource = function(start, end) {
@@ -1889,7 +1896,7 @@ Eden.AST.Switch.prototype.setSource = function(start, end) {
 
 Eden.AST.Switch.prototype.setExpression = function(expression) {
 	this.expression = expression;
-	this.errors.push.apply(this.errors, expression.errors);
+	if (expression) this.errors.push.apply(this.errors, expression.errors);
 };
 
 Eden.AST.Switch.prototype.setStatement = function(statement) {
@@ -1908,11 +1915,27 @@ Eden.AST.Switch.prototype.generate = function(ctx, scope) {
 	return res;
 };
 
+Eden.AST.Switch.prototype.getSelector = function(ctx) {
+	if (this.compiled) return this.compiled;
+
+	var cond = "(function(context,scope) { return ";
+	cond += this.expression.generate(ctx, "scope");
+	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+		cond += ".value";
+	}
+	cond += ";})";
+	this.compiled = eval(cond);
+	return this.compiled;
+}
+
 Eden.AST.Switch.prototype.execute = function(ctx, base, scope) {
-	var swi = "(function(context,scope) { ";
+	// TODO REWORK FOR NEW EXECUTION PROCESS
+	/*var swi = "(function(context,scope) { ";
 	swi += this.generate(ctx, "scope");
 	swi += " })";
-	eval(swi)(eden.root, scope);
+	eval(swi)(eden.root, scope);*/
+
+	this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Switch not supported here"));
 };
 
 Eden.AST.Switch.prototype.error = fnEdenASTerror;
@@ -1930,6 +1953,7 @@ Eden.AST.FunctionCall = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.line = undefined;
 };
 
 Eden.AST.FunctionCall.prototype.setSource = function(start, end) {
@@ -2038,6 +2062,7 @@ Eden.AST.Action = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.line = undefined;
 };
 
 Eden.AST.Action.prototype.setSource = function(start, end) {
@@ -2066,15 +2091,15 @@ Eden.AST.Action.prototype.generate = function(ctx) {
 	return res;
 }
 
-Eden.AST.Action.prototype.execute = function(ctx, base, scope) {
+Eden.AST.Action.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	var body = this.body.generate(ctx);
 	var sym = eden.root.lookup(this.name);
 	sym.eden_definition = base.getSource(this);
 	if (this.triggers.length > 0) {
-		sym.define(eval(body), {name: "execute"}, []).observe(this.triggers);
+		sym.define(eval(body), agent, []).observe(this.triggers);
 	} else {
-		sym.define(eval(body), {name: "execute"}, []);
+		sym.define(eval(body), agent, []);
 	}
 }
 
@@ -2161,6 +2186,10 @@ Eden.AST.Return.prototype.generate = function(ctx) {
 	}
 }
 
+Eden.AST.Return.prototype.execute = function(ctx,base,scope,agent) {
+	this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Return not supported here"));
+}
+
 
 
 //------------------------------------------------------------------------------
@@ -2173,6 +2202,8 @@ Eden.AST.While = function() {
 	this.statement = undefined;
 	this.start = 0;
 	this.end = 0;
+	this.line = undefined;
+	this.compiled = undefined;
 };
 
 Eden.AST.While.prototype.error = fnEdenASTerror;
@@ -2202,6 +2233,29 @@ Eden.AST.While.prototype.generate = function(ctx) {
 	res += ") ";
 	res += this.statement.generate(ctx) + "\n";
 	return res;
+}
+
+Eden.AST.While.prototype.getCondition = function(ctx) {
+	if (this.compiled) {
+		return this.compiled;
+	} else {
+		var express = this.condition.generate(ctx, "scope");
+		if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
+			express += ".value";
+		}
+		var expfunc = eval("(function(context,scope){ return " + express + "; })");
+		this.compiled = expfunc;
+		return expfunc;
+	}
+}
+
+Eden.AST.While.prototype.execute = function(ctx, base, scope, agent) {
+	this.executed = 1;
+
+	// A tail recursive while loop...
+	if (this.getCondition(ctx)(eden.root,scope)) {
+		return [this.statement, this];
+	}
 }
 
 
@@ -2316,6 +2370,9 @@ Eden.AST.For = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.line = undefined;
+	this.compiled = undefined;
+	this.started = false;
 };
 
 Eden.AST.For.prototype.error = fnEdenASTerror;
@@ -2369,7 +2426,7 @@ Eden.AST.For.prototype.generate = function(ctx) {
 }
 
 Eden.AST.For.prototype.getCondition = function(ctx) {
-	if (!this.compiled) {
+	if (this.compiled) {
 		return this.compiled;
 	} else {
 		var express = this.condition.generate(ctx, "scope");
@@ -2386,11 +2443,14 @@ Eden.AST.For.prototype.execute = function(ctx, base, scope) {
 	this.executed = 1;
 
 	if (this.sstart && !this.started) {
+		this.started = true;
 		return [this.sstart,this];
 	}
 
 	if (this.getCondition(ctx)(eden.root,scope)) {
 		return [this.statement, this.inc, this];
+	} else {
+		this.started = false;
 	}
 }
 
@@ -2415,6 +2475,10 @@ Eden.AST.Default.prototype.setSource = function(start, end) {
 
 Eden.AST.Default.prototype.generate = function(ctx, scope) {
 	return "default: ";
+}
+
+Eden.AST.Default.prototype.execute = function(ctx,base,scope,agent) {
+	this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Default not supported here"));
 }
 
 
@@ -2449,6 +2513,10 @@ Eden.AST.Case.prototype.generate = function(ctx, scope) {
 	}
 }
 
+Eden.AST.Case.prototype.execute = function(ctx,base,scope,agent) {
+	this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Case not supported here"));
+}
+
 Eden.AST.Case.prototype.error = fnEdenASTerror;
 
 
@@ -2474,6 +2542,10 @@ Eden.AST.Continue.prototype.generate = function(ctx, scope) {
 	return "continue; ";
 }
 
+Eden.AST.Continue.prototype.execute = function(ctx,base,scope,agent) {
+	this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Continue not supported here"));
+}
+
 
 
 //------------------------------------------------------------------------------
@@ -2495,6 +2567,10 @@ Eden.AST.Break.prototype.setSource = function(start, end) {
 
 Eden.AST.Break.prototype.generate = function(ctx, scope) {
 	return "break; ";
+}
+
+Eden.AST.Break.prototype.execute = function(ctx,base,scope,agent) {
+	this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Break not supported here"));
 }
 
 
@@ -2677,12 +2753,12 @@ Eden.AST.When.prototype.generate = function() {
 
 Eden.AST.When.prototype.compile = function(base) {
 	this.base = base;
-	var cond = "(function(context,scope) { return ";
+	var cond = "(function(context,scope) { try { return ";
 	cond += this.expression.generate(this, "scope");
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
 		cond += ".value";
 	}
-	cond += ";})";
+	cond += "; } catch(e) {} })";
 	this.compiled = eval(cond);
 
 	// Register with base to be triggered
@@ -2704,7 +2780,7 @@ Eden.AST.When.prototype.compile = function(base) {
 	return "";
 }
 
-Eden.AST.When.prototype.execute = function(ctx, base, scope) {
+Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 	//if (this.active) return;
 	//this.active = true;
 	this.executed = 1;
@@ -2719,11 +2795,11 @@ Eden.AST.When.prototype.execute = function(ctx, base, scope) {
 
 	if (scope.range) {
 		scope.range = false;
+		var sscripts = [];
 
 		while (true) {
 			if (this.compiled(eden.root,scope)) {
-				// TODO REFACTOR
-				this.statement.execute(ctx, base, scope, this);
+				sscripts.push(new Eden.AST.ScopedScript(this.statement.statements, scope.clone()));
 			} else {
 				this.executed = 2;
 			}
@@ -2731,9 +2807,14 @@ Eden.AST.When.prototype.execute = function(ctx, base, scope) {
 		}
 
 		scope.range = true;
+		return sscripts;
 	} else {
 		if (this.compiled(eden.root,scope)) {
-			return [this.statement]; //.execute(ctx, base, scope, this);
+			if (this.compScope && this.statement.type == "script") {
+				return [new Eden.AST.ScopedScript(this.statement.statements, this.compScope)];
+			} else {
+				return [this.statement];
+			}
 		} else {
 			this.executed = 2;
 		}
@@ -2742,9 +2823,25 @@ Eden.AST.When.prototype.execute = function(ctx, base, scope) {
 	//this.active = false;
 }
 
+Eden.AST.When.prototype.execute = function(ctx,base,scope,agent) {
+	if (agent && !agent.loading) this.executeReal(ctx,base,scope,agent);
+}
+
 Eden.AST.When.prototype.error = fnEdenASTerror;
 
 
+
+//------------------------------------------------------------------------------
+
+Eden.AST.ScopedScript = function(statements, scope) {
+	this.type = "scopedscript";
+	this.statements = statements;
+	this.scope = scope;
+}
+
+Eden.AST.ScopedScript.prototype.execute = function(ctx,base,scope,agent) {
+	return this.statements;
+}
 
 //------------------------------------------------------------------------------
 

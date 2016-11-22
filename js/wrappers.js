@@ -83,7 +83,7 @@ Eden.Agent = function(parent, name, meta, options) {
 				for (var i=0; i<whens.length; i++) {
 					if (whens[i].active == false) {
 						whens[i].active = true;
-						var res = whens[i].execute(undefined, me.ast, eden.root.scope);
+						var res = whens[i].executeReal(undefined, me.ast, eden.root.scope);
 						//console.log(res);
 						if (res && (eden.peer === undefined || eden.peer.authoriseWhen(whens[i]))) {
 							me.ast.executeStatements(res, -1, whens[i]);
@@ -220,7 +220,6 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			Eden.DB.addLocalMeta(path, ag.meta);
 		// There is no existing agent and we are not to create it.
 		} else if (!success) {
-			console.log(options);
 			doCallbacks(undefined, msg);
 			return;
 		}

@@ -8,6 +8,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 		if (i >= statements.length && stack.length > 0) {
 			statements = stack[stack.length-1].statements;
 			i = stack[stack.length-1].index;
+			scope = stack[stack.length-1].scope;
 			stack.pop();
 			allowscript = true;
 			continue;
@@ -54,9 +55,14 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 		} else {
 			var res = statements[i].execute(ctx, base, scope, agent);
 			if (res && Array.isArray(res) && res.length > 0) {
+				// Allow for a scope shift.
+				var nscope = scope;
+				if (statements[i].type == "scopedscript") nscope = statements[i].scope;
 				i++;
-				stack.push({statements: statements, index: i});
+				// Allow tail recursion...
+				if (i < statements.length) stack.push({statements: statements, index: i, scope: scope});
 				statements = res;
+				scope = nscope;
 				//console.log(statements);
 				i = 0;
 				continue;
