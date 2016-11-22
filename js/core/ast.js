@@ -66,12 +66,20 @@ Eden.AST.DoxyComment = function(content, start, end) {
 Eden.AST.DoxyComment.prototype.getHashTags = function() {
 	if (this.tags) return this.tags;
 
-	var words = this.content.split(/[ \n\t]+/);
+	var words = this.content.substring(3,this.content.length-2).trim().split(/[ \n\t]+/);
 	var tags = {};
 	var controls = {};
 	for (var i=0; i<words.length; i++) {
 		if (words[i].charAt(0) == "#") tags[words[i]] = true;
-		if (words[i].charAt(0) == "@") controls[words[i]] = true;
+		if (words[i].charAt(0) == "@") {
+			if (controls[words[i]] === undefined) controls[words[i]] = [];
+			if (i+1 < words.length && words[i+1] && words[i+1].charAt(0) != "@" && words[i+1].charAt(0) != "#") {
+				controls[words[i]].push(words[i+1]);
+				i++;
+			} else {
+				controls[words[i]].push(words[i]);
+			}
+		}
 	}
 	this.tags = tags;
 	this.controls = controls;
@@ -153,7 +161,7 @@ Eden.AST.Literal.prototype.execute = function(ctx, base, scope) {
 	switch(this.datatype) {
 	case "NUMBER"	:
 	case "CHARACTER":
-	case "BOOLEAN"	:	return this.value
+	case "BOOLEAN"	:	return eval(this.value);
 	case "STRING"	:	return eval("\""+this.value+"\"");
 	case "LIST"		:	var rhs = "(function(context,scope) { return ";
 						rhs += this.generate(ctx, "scope");
@@ -1369,7 +1377,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			console.trace("UNDEF AGENT: " + source);
 		}
 
-		if (eden.peer && agent && !agent.loading) eden.peer.define(sym.name, source, rhs, deps);
+		if (eden.peer) eden.peer.define(agent, sym.name, source, rhs, deps);
 		sym.define(eval(rhs), agent, deps);
 	}
 		
@@ -1500,12 +1508,13 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		var sym = this.lvalue.getSymbol(ctx,base,scope);
 		if (this.lvalue.hasListIndices()) {
 			this.value = this.compiled.call(sym,eden.root,scope);
-			sym.listAssign(this.value, scope, agent, false, this.lvalue.executeCompList(ctx, scope));
+			var complist = this.lvalue.executeCompList(ctx, scope);
+			sym.listAssign(this.value, scope, agent, false, complist);
+			if (eden.peer) eden.peer.listAssign(agent, sym.name, this.value, complist);
 		} else {
 			this.value = this.compiled.call(sym,eden.root,scope);
 			sym.assign(this.value,scope, agent);
-			if (eden.peer && agent && !agent.loading) eden.peer.assign(sym.name, this.value);
-			//if (eden.peer) eden.peer.broadcast("ASSIGN: " + this.value);
+			if (eden.peer) eden.peer.assign(agent, sym.name, this.value);
 		}
 	} catch(e) {
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
@@ -1608,9 +1617,13 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 	var sym = this.lvalue.getSymbol(ctx,base);
 
 	if (this.kind == "++") {
-		sym.assign(sym.value(scope)+1, scope, agent);
+		var newval = sym.value(scope)+1;
+		if (eden.peer) eden.peer.assign(agent, sym.name, newval);
+		sym.assign(newval, scope, agent);
 	} else if (this.kind == "--") {
-		sym.assign(sym.value(scope)-1, scope, agent);
+		var newval = sym.value(scope)-1;
+		if (eden.peer) eden.peer.assign(agent, sym.name, newval);
+		sym.assign(newval, scope, agent);
 	} else {
 		var rhs = "(function(context,scope) { return ";
 		rhs += this.expression.generate(this, "scope");
@@ -1632,12 +1645,17 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 		console.log(this.scopes);
 		console.log(rhs);*/
 
+		var newval;
+
 		switch (this.kind) {
-		case "+="	: sym.assign(rt.add(sym.value(scope), eval(rhs)(context,scope)), scope, agent); break;
-		case "-="	: sym.assign(rt.subtract(sym.value(scope), eval(rhs)(context,scope)), scope, agent); break;
-		case "/="	: sym.assign(rt.divide(sym.value(scope), eval(rhs)(context,scope)), scope, agent); break;
-		case "*="	: sym.assign(rt.multiply(sym.value(scope), eval(rhs)(context,scope)), scope, agent); break;
+		case "+="	: newval = rt.add(sym.value(scope), eval(rhs)(context,scope)); break;
+		case "-="	: newval = rt.subtract(sym.value(scope), eval(rhs)(context,scope)); break;
+		case "/="	: newval = rt.divide(sym.value(scope), eval(rhs)(context,scope)); break;
+		case "*="	: newval = rt.multiply(sym.value(scope), eval(rhs)(context,scope)); break;
 		}
+
+		if (eden.peer) eden.peer.assign(agent, sym.name, newval);
+		sym.assign(newval, scope, agent);
 	}
 }
 
@@ -2699,6 +2717,7 @@ Eden.AST.When = function() {
 	this.base = undefined;
 	this.scopes = [];
 	this.doxyComment = undefined;
+	this.local = false;
 };
 
 Eden.AST.When.prototype.getSource = function() {
@@ -2780,6 +2799,22 @@ Eden.AST.When.prototype.compile = function(base) {
 	return "";
 }
 
+Eden.AST.When.prototype.trigger = function(base) {
+	if (base === undefined) base = this.base;
+	if (this.active == false) {
+		this.active = true;
+		var res = this.executeReal(undefined, base, eden.root.scope);
+		//console.log(res);
+		if (res && (eden.peer === undefined || eden.peer.authoriseWhen(this))) {
+			base.executeStatements(res, -1, this);
+		} else {
+			this.active = false;
+		}
+	} else {
+		//this.retrigger = true;
+	}
+}
+
 Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 	//if (this.active) return;
 	//this.active = true;
@@ -2787,6 +2822,8 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 	//this.compile(base);
 
 	//console.log("Exec When: " + base.getSource(this));
+
+	if (this.doxyComment && this.doxyComment.getControls()["@local"]) this.local = true;
 
 	var me = this;
 

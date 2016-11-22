@@ -81,17 +81,7 @@ Eden.Agent = function(parent, name, meta, options) {
 			if (whens) {
 				//clearExecutedState();
 				for (var i=0; i<whens.length; i++) {
-					if (whens[i].active == false) {
-						whens[i].active = true;
-						var res = whens[i].executeReal(undefined, me.ast, eden.root.scope);
-						//console.log(res);
-						if (res && (eden.peer === undefined || eden.peer.authoriseWhen(whens[i]))) {
-							me.ast.executeStatements(res, -1, whens[i]);
-						} else {
-							whens[i].active = false;
-						}
-						//whens[i].active = false;
-					}
+					whens[i].trigger(me.ast);
 				}
 				//gutter.generate(this.ast,-1);
 				//me.clearExecutedState();
