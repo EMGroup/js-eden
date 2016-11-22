@@ -37,7 +37,10 @@ var Language = {
 		"author": "author",
 		"version": "version",
 		"param": "param",
-		"return": "return"
+		"return": "return",
+		"debug": "debug",
+		"local": "local",
+		"role": "role"
 	},
 
 	keywords: {

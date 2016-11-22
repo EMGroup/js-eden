@@ -71,7 +71,15 @@ Eden.AST.DoxyComment.prototype.getHashTags = function() {
 	var controls = {};
 	for (var i=0; i<words.length; i++) {
 		if (words[i].charAt(0) == "#") tags[words[i]] = true;
-		if (words[i].charAt(0) == "@") controls[words[i]] = true;
+		if (words[i].charAt(0) == "@") {
+			if (controls[words[i]] === undefined) controls[words[i]] = [];
+			if (words[i+1] && words[i+1].charAt(0) != "@" && words[i+1].charAt(0) != "#") {
+				controls[words[i]].push(words[i+1]);
+				i++;
+			} else {
+				controls[words[i]].push(true);
+			}
+		}
 	}
 	this.tags = tags;
 	this.controls = controls;
@@ -2699,7 +2707,7 @@ Eden.AST.When = function() {
 	this.base = undefined;
 	this.scopes = [];
 	this.doxyComment = undefined;
-	this.retrigger = false;
+	this.local = false;
 };
 
 Eden.AST.When.prototype.getSource = function() {
@@ -2804,6 +2812,8 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 	//this.compile(base);
 
 	//console.log("Exec When: " + base.getSource(this));
+
+	if (this.doxyComment && this.doxyComment.getControls()["@local"]) this.local = true;
 
 	var me = this;
 

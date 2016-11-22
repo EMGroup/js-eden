@@ -3,6 +3,8 @@ Eden.Peer = function(master, id) {
 	this.id = id;
 	this.master = master;
 	var me = this;
+	this.roles = {};
+	this.enabled = false;
 
 	function processData(data) {
 		var obj = JSON.parse(data);
@@ -30,6 +32,9 @@ Eden.Peer = function(master, id) {
 			} else {
 				peer = new Peer({key: 'w2cjkz0cpw6x0f6r'});
 			}
+
+			if (id || master) me.enabled = true;
+
 			peer.on('open', function(id) {
 				console.log("My peer id is " + id);
 
@@ -80,8 +85,23 @@ Eden.Peer.prototype.broadcast = function(msg) {
 }
 
 Eden.Peer.prototype.authoriseWhen = function(when) {
-	if (this.id) return true;
-	return false;
+	if (this.enabled) {
+		//console.log(when);
+		if (when.doxyComment) {
+			var roles = when.doxyComment.getControls()["@role"];
+			if (roles) {
+				for (var i=0; i<roles.length; i++) {
+					if (this.roles[roles[i]]) return true;
+				}
+				//console.log("DENIED WHEN: ", roles);
+				return false;
+			}
+		}
+		//if (this.id) return true;
+		return true;
+	} else {
+		return true;
+	}
 }
 
 Eden.Peer.prototype.assign = function(sym, value) {
