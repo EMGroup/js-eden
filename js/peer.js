@@ -24,11 +24,13 @@ Eden.Peer = function(master, id) {
 			});
 		} else if (obj.cmd == "listassign") {
 			var sym = eden.root.lookup(obj.symbol.slice(1));
-			sym.listAssign(obj.value, eden.root.scope, {name: "*net"}, false, obj.components);
+			var ast = new Eden.AST(obj.value, undefined, undefined, true);
+			var express = ast.pEXPRESSION();
+			sym.listAssign(express.execute({}, ast, eden.root.scope), eden.root.scope, {name: "*net"}, false, obj.components);
 		} else if (obj.cmd == "patch") {
-			Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.applyPatch(obj.patch, obj.lineno) });
+			//Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.applyPatch(obj.patch, obj.lineno) });
 		} else if (obj.cmd == "ownership") {
-			Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.setOwned(obj.owned, "net"); });
+			//Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.setOwned(obj.owned, "net"); });
 		}
 	}
 
@@ -69,7 +71,7 @@ Eden.Peer = function(master, id) {
 			});
 		}
 
-		Eden.Agent.listenTo('patch',this,function(origin,patch,lineno){
+		/*Eden.Agent.listenTo('patch',this,function(origin,patch,lineno){
 			if(origin) {
 				var data = JSON.stringify({cmd: "patch", name: origin.name, patch: patch, lineno: lineno});
 				me.broadcast(data);
@@ -78,7 +80,7 @@ Eden.Peer = function(master, id) {
 		Eden.Agent.listenTo("owned", this, function(origin, cause) {
 			if (cause == "net") return;
 			me.broadcast(JSON.stringify({cmd: "ownership", name: origin.name, owned: origin.owned}));
-		});
+		});*/
 	}
 	
 	Eden.DB.listenTo("login", this, init);
