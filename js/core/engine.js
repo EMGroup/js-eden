@@ -77,7 +77,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 	}
 
 	// Debug break on finish
-	if (Eden.AST.debug) {
+	/*if (Eden.AST.debug) {
 		if (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug())) {
 			var debugobj = {
 				type: "debug",
@@ -90,7 +90,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 			};
 			yield debugobj;
 		}
-	}
+	}*/
 }
 
 function runEdenAction(source, action, cb) {
@@ -155,11 +155,14 @@ function runEdenAction(source, action, cb) {
 		} else if (delay.value == 0) {
 			runEdenAction.call(this,source, action, cb);
 		} else if (delay.value > 0) {
+			// Clear any retriggering request
+			//source.retrigger = false;
 			// A wait statement requested a delay.
 			setTimeout(function() {runEdenAction.call(me, source, action, cb)}, delay.value);
 		}
 	} else {
 		source.active = false;
+		//if (source.retrigger) setTimeout(source.trigger,0);
 		//if (source.onfinish) source.onfinish();
 		if (cb) cb();
 	}

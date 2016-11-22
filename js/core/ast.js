@@ -2699,6 +2699,7 @@ Eden.AST.When = function() {
 	this.base = undefined;
 	this.scopes = [];
 	this.doxyComment = undefined;
+	this.retrigger = false;
 };
 
 Eden.AST.When.prototype.getSource = function() {
@@ -2778,6 +2779,22 @@ Eden.AST.When.prototype.compile = function(base) {
 	}
 
 	return "";
+}
+
+Eden.AST.When.prototype.trigger = function(base) {
+	if (base === undefined) base = this.base;
+	if (this.active == false) {
+		this.active = true;
+		var res = this.executeReal(undefined, base, eden.root.scope);
+		//console.log(res);
+		if (res && (eden.peer === undefined || eden.peer.authoriseWhen(this))) {
+			base.executeStatements(res, -1, this);
+		} else {
+			this.active = false;
+		}
+	} else {
+		//this.retrigger = true;
+	}
 }
 
 Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
