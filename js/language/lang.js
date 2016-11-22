@@ -40,7 +40,8 @@ var Language = {
 		"return": "return",
 		"debug": "debug",
 		"local": "local",
-		"role": "role"
+		"role": "role",
+		"shared": "shared"
 	},
 
 	keywords: {

@@ -120,7 +120,7 @@ function runEdenAction(source, action, cb) {
 			// Need to do an import and block until done.
 			} else if (delay.value.type == "import") {
 				delay.value.executed = 1;
-				if (eden.peer && source && !source.loading) eden.peer.imports(delay.value.path, delay.value.tag, delay.value.options);
+				if (eden.peer) eden.peer.imports(source, delay.value.path, delay.value.tag, delay.value.options);
 				Eden.Agent.importAgent(delay.value.path, delay.value.tag, delay.value.options, function(ag) {
 					if (ag) {
 						var already = false;

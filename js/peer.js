@@ -11,7 +11,9 @@ Eden.Peer = function(master, id) {
 		console.log(obj.cmd,obj.symbol);
 		if (obj.cmd == "assign") {
 			var sym = eden.root.lookup(obj.symbol.slice(1));
-			sym.assign(obj.value, eden.root.scope, {name: "*net"});
+			var ast = new Eden.AST(obj.value, undefined, undefined, true);
+			var express = ast.pEXPRESSION();
+			sym.assign(express.execute({}, ast, eden.root.scope), eden.root.scope, {name: "*net"});
 		} else if (obj.cmd == "define") {
 			var sym = eden.root.lookup(obj.symbol.slice(1));
 			sym.eden_definition = obj.source;
@@ -20,6 +22,13 @@ Eden.Peer = function(master, id) {
 			Eden.Agent.importAgent(obj.path, obj.tag, obj.options, function() {
 
 			});
+		} else if (obj.cmd == "listassign") {
+			var sym = eden.root.lookup(obj.symbol.slice(1));
+			sym.listAssign(obj.value, eden.root.scope, {name: "*net"}, false, obj.components);
+		} else if (obj.cmd == "patch") {
+			Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.applyPatch(obj.patch, obj.lineno) });
+		} else if (obj.cmd == "ownership") {
+			Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.setOwned(obj.owned, "net"); });
 		}
 	}
 
@@ -28,9 +37,9 @@ Eden.Peer = function(master, id) {
 			var myid = name.replace(/[ \!\'\-\?\&]/g, "");
 			var peer;
 			if (id) {
-				peer = new Peer(id, {key: 'w2cjkz0cpw6x0f6r'});
+				peer = new Peer(id, {key: 'w2cjkz0cpw6x0f6r', config: { iceServers: [{url:'stun:stun.l.google.com:19302'}]}});
 			} else {
-				peer = new Peer({key: 'w2cjkz0cpw6x0f6r'});
+				peer = new Peer({key: 'w2cjkz0cpw6x0f6r', config: { iceServers: [{url:'stun:stun.l.google.com:19302'}]}});
 			}
 
 			if (id || master) me.enabled = true;
@@ -52,8 +61,24 @@ Eden.Peer = function(master, id) {
 			peer.on('connection', function(conn) {
 				me.connections.push(conn);
 				conn.on('data', processData);
+				console.log("Peer connection from " + conn.peer);
+			});
+
+			peer.on('error', function(err) {
+				console.log("Peer error: ", err);
 			});
 		}
+
+		Eden.Agent.listenTo('patch',this,function(origin,patch,lineno){
+			if(origin) {
+				var data = JSON.stringify({cmd: "patch", name: origin.name, patch: patch, lineno: lineno});
+				me.broadcast(data);
+			}
+		});
+		Eden.Agent.listenTo("owned", this, function(origin, cause) {
+			if (cause == "net") return;
+			me.broadcast(JSON.stringify({cmd: "ownership", name: origin.name, owned: origin.owned}));
+		});
 	}
 	
 	Eden.DB.listenTo("login", this, init);
@@ -91,9 +116,10 @@ Eden.Peer.prototype.authoriseWhen = function(when) {
 			var roles = when.doxyComment.getControls()["@role"];
 			if (roles) {
 				for (var i=0; i<roles.length; i++) {
+					if (roles[i] == "@role" && this.id !== undefined) return true;
 					if (this.roles[roles[i]]) return true;
 				}
-				//console.log("DENIED WHEN: ", roles);
+				console.log("DENIED WHEN: ", roles);
 				return false;
 			}
 		}
@@ -104,14 +130,26 @@ Eden.Peer.prototype.authoriseWhen = function(when) {
 	}
 }
 
-Eden.Peer.prototype.assign = function(sym, value) {
-	this.broadcast(JSON.stringify({cmd: "assign", symbol: sym, value : value}));
+Eden.Peer.prototype.assign = function(agent, sym, value) {
+	if (agent && !agent.loading && !agent.local) {
+		this.broadcast(JSON.stringify({cmd: "assign", symbol: sym, value : Eden.edenCodeForValue(value)}));
+	}
 }
 
-Eden.Peer.prototype.define = function(sym, source, rhs, deps) {
-	this.broadcast(JSON.stringify({cmd: "define", symbol: sym, source: source, code: rhs, dependencies: deps}));
+Eden.Peer.prototype.define = function(agent, sym, source, rhs, deps) {
+	if (agent && !agent.loading && !agent.local) {
+		this.broadcast(JSON.stringify({cmd: "define", symbol: sym, source: source, code: rhs, dependencies: deps}));
+	}
 }
 
-Eden.Peer.prototype.imports = function(path, tag, options) {
-	this.broadcast(JSON.stringify({cmd: "import", path: path, tag: tag, options: options}));
+Eden.Peer.prototype.imports = function(agent, path, tag, options) {
+	if (agent && !agent.loading && !agent.local) {
+		this.broadcast(JSON.stringify({cmd: "import", path: path, tag: tag, options: options}));
+	}
+}
+
+Eden.Peer.prototype.listAssign = function(agent, sym, value, components) {
+	if (agent && !agent.loading && !agent.local) {
+		this.broadcast(JSON.stringify({cmd: "listassign", symbol: sym, value : Eden.edenCodeForValue(value), components: components}));
+	}
 }
