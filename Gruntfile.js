@@ -97,7 +97,8 @@ module.exports = function (grunt) {
 					'./js/core/translator2.js',
 					'./js/core/ast.js',
 					'./js/core/database.js',
-					'./js/wrappers.js'
+					'./js/wrappers.js',
+					'./js/peer.js'
 				],
 				'./js/ui/jseden-ui.min.js': [
 					'./js/ui/highlighter.js',

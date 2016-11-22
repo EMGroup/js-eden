@@ -1017,9 +1017,12 @@ Eden.AST.Import.prototype.generate = function(ctx) {
 	return "Eden.Agent.importAgent(\""+this.path+"\");";
 }
 
-Eden.AST.Import.prototype.execute = function(ctx, base, scope) {
+Eden.AST.Import.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	var me = this;
+
+	if (eden.peer && agent && !agent.loading) eden.peer.imports(this.path, this.tag, this.options);
+
 	Eden.Agent.importAgent(this.path, this.tag, this.options, function(ag, msg) {
 		if (ag) {
 			for (var i=0; i<base.imports.length; i++) {
@@ -1335,6 +1338,8 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	var source = base.getSource(this);
 	var sym = this.lvalue.getSymbol(ctx,base,scope);
 
+	//if (eden.peer) eden.peer.broadcast(source);
+
 	if (this.lvalue.hasListIndices()) {
 		var rhs = "(function(context,scope,value) { value";
 		rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
@@ -1358,6 +1363,8 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 		if (agent === undefined) {
 			console.trace("UNDEF AGENT: " + source);
 		}
+
+		if (eden.peer && agent && !agent.loading) eden.peer.define(sym.name, source, rhs, deps);
 		sym.define(eval(rhs), agent, deps);
 	}
 		
@@ -1492,6 +1499,8 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		} else {
 			this.value = this.compiled.call(sym,eden.root,scope);
 			sym.assign(this.value,scope, agent);
+			if (eden.peer && agent && !agent.loading) eden.peer.assign(sym.name, this.value);
+			//if (eden.peer) eden.peer.broadcast("ASSIGN: " + this.value);
 		}
 	} catch(e) {
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));

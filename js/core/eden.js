@@ -838,6 +838,7 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {function(*)} success
 	 */
 	Eden.prototype.execute2 = function (code, agent, success) {
+	//console.log(code);
 		/*if (arguments.length == 1) {
 			success = noop;
 			origin = 'unknown';
