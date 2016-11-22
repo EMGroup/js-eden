@@ -14,7 +14,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 			continue;
 		}
 
-		if (Eden.AST.debug) {
+		if (Eden.AST.debug && statements[i].type != "script") {
 			if (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug())) {
 				var debugobj = {
 					type: "debug",
