@@ -1700,6 +1700,13 @@ Eden.AST.prototype.pSWITCH = function() {
 		this.next();
 	}
 
+	// Force a switch to be followed by a script
+	if (this.token != "{") {
+		swi.error(new Eden.SyntaxError(this, Eden.SyntaxError.SWITCHSCRIPT));
+		this.parent = parent;
+		return swi;
+	}
+
 	swi.setStatement(this.pSTATEMENT());
 	this.parent = parent;
 	return swi;

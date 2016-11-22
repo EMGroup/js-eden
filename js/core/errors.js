@@ -96,6 +96,7 @@ Eden.SyntaxError.LITCHARCLOSE = 69;
 Eden.SyntaxError.LITSTRLINE = 70;
 Eden.SyntaxError.LITSTRCLOSE = 71;
 Eden.SyntaxError.IMPORTTAG = 72;
+Eden.SyntaxError.SWITCHSCRIPT = 73;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -498,6 +499,10 @@ Eden.SyntaxError.db = [
 /* EDEN_ERROR_IMPORTTAG */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_SWITCHSCRIPT */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
 	}
 ];
 
@@ -615,6 +620,7 @@ Eden.RuntimeError.ASSIGNEXEC = 1;
 Eden.RuntimeError.FUNCCALL = 2;
 Eden.RuntimeError.ACTIONNAME = 3;
 Eden.RuntimeError.NOAGENT = 4;
+Eden.RuntimeError.NOTSUPPORTED = 5;
 
 Eden.RuntimeError.prototype.messageText = function() {
 	switch (this.errno) {

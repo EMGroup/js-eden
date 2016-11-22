@@ -93,10 +93,12 @@ EdenUI.plugins.ScriptInput.dialogs.localChanges = function(element, callback, da
 	content
 	.on("click", ".button-ok", function() {
 		element.get(0).removeChild(obscurer.get(0));
+		EdenUI.plugins.ScriptInput.dialogs.hide = undefined;
 		callback(true);
 	})
 	.on("click", ".button-cancel", function() {
 		element.get(0).removeChild(obscurer.get(0));
+		EdenUI.plugins.ScriptInput.dialogs.hide = undefined;
 		callback(false);
 	}); 
 
