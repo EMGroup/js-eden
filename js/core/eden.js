@@ -625,7 +625,15 @@ function concatAndResolveUrl(url, concat) {
 			EdenUI.MenuBar.saveTitle(status.title);
 			eden.root.lookup("_jseden_loaded").assign(true, eden.root.scope);
 
-			if (!nohistory) window.history.pushState({project: path, tag: tag},"","?load="+path+"&tag="+tag);
+			if (!nohistory) {
+				// Process existing URL
+				var master = URLUtil.getParameterByName("master");
+				var id = URLUtil.getParameterByName("id");
+				var newurl = "?load="+path+"&tag="+tag;
+				if (id != "") newurl += "&id="+id;
+				if (master != "") newurl += "&master="+master;
+				window.history.pushState({project: path, tag: tag},"",newurl);
+			}
 
 			if (cb) cb();
 		});

@@ -704,6 +704,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * set by the UI on tab change etc.
 		 */
 		function changeAgent(sym, value) {
+			// Close any dialogs!
+			hideSubDialogs();
+
 			// A valid and imported agent is given
 			if (value && Eden.Agent.agents[value]) {
 				// Already the current tab so continue...
@@ -1544,6 +1547,10 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			if (EdenUI.plugins.ScriptInput.dialogs[name]) {
 				EdenUI.plugins.ScriptInput.dialogs[name]($dialogContents, callback, data);
 			}
+		}
+
+		function hideSubDialogs() {
+			if (EdenUI.plugins.ScriptInput.dialogs.hide) EdenUI.plugins.ScriptInput.dialogs.hide();
 		}
 
 
