@@ -610,6 +610,7 @@ Eden.Agent.prototype.merge = function(newsrc) {
 
 
 Eden.Agent.prototype.changeVersion = function(tag, callback) {
+	var me = this;
 	Eden.Agent.importAgent(this.name, tag, this.options, function(success, msg) {
 		if (success) Eden.Agent.emit("version", [me, me.meta.saveID]);
 		if (callback) callback(success,msg);

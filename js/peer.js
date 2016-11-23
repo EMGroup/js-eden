@@ -44,7 +44,12 @@ Eden.Peer = function(master, id) {
 				ag.last_exec_version = obj.saveID;
 				ag.executed = true;
 			} else {
-				console.error("Mismatch of agent version", obj.path, obj.saveID);
+				// Does not exist at all so load and fake execution
+				Eden.Agent.importAgent(obj.path, obj.saveID, ["noexec"], function() {
+					var ag = Eden.Agent.agents[obj.path];
+					ag.last_exec_version = obj.saveID;
+					ag.executed = true;
+				});
 			}
 		}
 	}
