@@ -5,6 +5,7 @@ Eden.Peer = function(master, id) {
 	var me = this;
 	this.roles = {};
 	this.enabled = false;
+	this.loading = false;
 
 	function processData(data) {
 		var obj = JSON.parse(data);
@@ -31,6 +32,12 @@ Eden.Peer = function(master, id) {
 			//Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.applyPatch(obj.patch, obj.lineno) });
 		} else if (obj.cmd == "ownership") {
 			//Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.setOwned(obj.owned, "net"); });
+		} else if (obj.cmd == "restore") {
+			//console.log("RESTORE", obj.script);
+			me.loading = true;
+			Eden.DB.load(undefined, undefined, obj, function() {
+				me.loading = false;
+			});
 		}
 	}
 
@@ -50,7 +57,7 @@ Eden.Peer = function(master, id) {
 				console.log("My peer id is " + id);
 
 				if (master) {
-					var conn = peer.connect(master);
+					var conn = peer.connect(master, {reliable: true});
 					conn.on('open',function() {
 						me.connections.push(conn);
 						conn.on('data',processData);
@@ -64,6 +71,13 @@ Eden.Peer = function(master, id) {
 				me.connections.push(conn);
 				conn.on('data', processData);
 				console.log("Peer connection from " + conn.peer);
+
+				conn.on('open', function() {
+				// Auto share state.
+				var script = Eden.Agent.save();
+				script += eden.root.save();
+				conn.send(JSON.stringify({cmd: "restore", script: script}));
+				});
 			});
 
 			peer.on('error', function(err) {
@@ -81,6 +95,16 @@ Eden.Peer = function(master, id) {
 			if (cause == "net") return;
 			me.broadcast(JSON.stringify({cmd: "ownership", name: origin.name, owned: origin.owned}));
 		});*/
+		Eden.Agent.listenTo("version", this, function(origin, saveID, ispublic) {
+			console.log("VERSION CHANGE", origin.name, saveID);
+			me.imports(origin, origin.name, saveID, ["noexec"]);
+		});
+		Eden.Agent.listenTo("execute", this, function(origin, force, saveID) {
+			if (force && origin.canUndo() == false) {
+				console.log("EXECUTE IMPORT", origin.name, saveID);
+				me.imports(origin, origin.name, saveID, ["force"]);
+			}
+		});
 	}
 	
 	Eden.DB.listenTo("login", this, init);
@@ -106,6 +130,7 @@ Eden.Peer = function(master, id) {
 }
 
 Eden.Peer.prototype.broadcast = function(msg) {
+	if (this.loading) return;
 	for (var i=0; i<this.connections.length; i++) {
 		this.connections[i].send(msg);
 	}

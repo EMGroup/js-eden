@@ -2861,6 +2861,11 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 }
 
 Eden.AST.When.prototype.execute = function(ctx,base,scope,agent) {
+	// Generate a unique name for this when
+	var srchash = hashCode(base.getSource(this));
+	var uname = agent.name+":"+srchash;
+	console.log(uname);
+	
 	if (agent && !agent.loading) this.executeReal(ctx,base,scope,agent);
 }
 

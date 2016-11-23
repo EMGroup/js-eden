@@ -300,6 +300,24 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			});
 		}
 
+		function shareAgentTab(tab) {
+			var name = tab.getAttribute("data-name");
+			shareAgent(name);
+		}
+
+		function shareAgent(name) {
+			if (!name) name = scriptagent.name;
+			Eden.Agent.agents[name].upload(undefined, true, function(success) {
+				if (!success) {
+					showSubDialog("uploadFailed", function(status) {
+						if (status) shareAgent(name);
+					});
+				} else {
+					setSubTitle("[shared]");
+				}
+			});
+		}
+
 
 		function reloadAgent(tab) {
 			var name = tab.getAttribute("data-name");
@@ -323,13 +341,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		tabcm.addItem("&#xf24d;",Language.ui.input_window.clone, false);
 		tabcm.addItem("&#xf021;",Language.ui.input_window.reload, true, reloadAgent);
 		tabcm.addItem("&#xf093;",Language.ui.input_window.upload, true, uploadAgent);
+		tabcm.addItem("&#xf1e0;",Language.ui.input_window.share, true, shareAgentTab);
 		tabcm.addItem("&#xf21b;",Language.ui.input_window.hide,true, hideTab);
 
 
 
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
 
-		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDivLeft"><!--button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button--></div><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="'+Language.ui.input_window.inspect+'">&#xf002;</button><button class="control-button rewind-input" title="'+Language.ui.input_window.rewind+'">&#xf122;</button><button class="control-button previous-input" title="'+Language.ui.input_window.undo+'">&#xf112;</button><button class="control-button next-input" title="'+Language.ui.input_window.redo+'">&#xf064;</button><button class="control-button fa-flip-horizontal fastforward-input" title="'+Language.ui.input_window.fast_forward+'">&#xf122;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
+		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDivLeft"><!--button class="control-button share control-enabled">&#xf1e0;</button--><!--button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button--></div><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="'+Language.ui.input_window.inspect+'">&#xf002;</button><button class="control-button rewind-input" title="'+Language.ui.input_window.rewind+'">&#xf122;</button><button class="control-button previous-input" title="'+Language.ui.input_window.undo+'">&#xf112;</button><button class="control-button next-input" title="'+Language.ui.input_window.redo+'">&#xf064;</button><button class="control-button fa-flip-horizontal fastforward-input" title="'+Language.ui.input_window.fast_forward+'">&#xf122;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
 		$buttonbar.appendTo($dialogContents);
 		var buttonbar = $buttonbar.get(0);
 
@@ -2279,6 +2298,10 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			gutter.endHover(line);
 		}
 
+		function onShareAgent(e) {
+			shareAgent(scriptagent.name);
+		}
+
 
 
 		// Set the event handlers
@@ -2299,6 +2322,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		.on('click', '.next-input', onNext)
 		.on('click', '.rewind-input', onRewind)
 		.on('click', '.fastforward-input', onFastForward)
+		//.on('click', '.share', onShareAgent)
 		.on('click', '.menu-input', onMenu)
 		.on('click', '.search-mode', onInspect)
 		.on('click', '.agent-tab', onTabClick)
