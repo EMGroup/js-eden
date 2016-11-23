@@ -38,6 +38,14 @@ Eden.Peer = function(master, id) {
 			Eden.DB.load(undefined, undefined, obj, function() {
 				me.loading = false;
 			});
+		} else if (obj.cmd == "execstatus") {
+			var ag = Eden.Agent.agents[obj.path];
+			if (ag && ag.meta && ag.meta.saveID == obj.saveID) {
+				ag.last_exec_version = obj.saveID;
+				ag.executed = true;
+			} else {
+				console.error("Mismatch of agent version", obj.path, obj.saveID);
+			}
 		}
 	}
 
@@ -100,10 +108,11 @@ Eden.Peer = function(master, id) {
 			me.imports(origin, origin.name, saveID, ["noexec"]);
 		});
 		Eden.Agent.listenTo("execute", this, function(origin, force, saveID) {
-			if (force && origin.canUndo() == false) {
+			/*if (force && origin.canUndo() == false) {
 				console.log("EXECUTE IMPORT", origin.name, saveID);
 				me.imports(origin, origin.name, saveID, ["force"]);
-			}
+			}*/
+			me.broadcast(JSON.stringify({cmd: "execstatus", path: origin.name, saveID: saveID}));
 		});
 	}
 	
