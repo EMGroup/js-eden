@@ -230,21 +230,25 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			if (ag.canUndo()) {
 				console.error("MERGE PROBLEM WITH IMPORT", path);
 				Eden.DB.getSourceRaw(path, tag, function(src, msg) {
-					EdenUI.Dialogs.MergeError(ag.snapshot, src, function(action) {
-						if (action == "new") {
-							ag.meta.tag = tag;
-							ag.loadSource(finish);
-							//finish(true);
-						} else if (action == "old") {
-							finish(true);
-						} else {
-							//ag.merge(src);
-							var newsrc = ag.snapshot + "\n## ============\n" + src;
-							//ag.setSnapshot(newsrc);
-							ag.setSource(newsrc);
-							finish(true);
-						}
-					});
+					if (src) {
+						EdenUI.Dialogs.MergeError(ag.snapshot, src, function(action) {
+							if (action == "new") {
+								ag.meta.tag = tag;
+								ag.loadSource(finish);
+								//finish(true);
+							} else if (action == "old") {
+								finish(true);
+							} else {
+								//ag.merge(src);
+								var newsrc = ag.snapshot + "\n## ============\n" + src;
+								//ag.setSnapshot(newsrc);
+								ag.setSource(newsrc);
+								finish(true);
+							}
+						});
+					} else {
+						finish(true);
+					}
 				});
 				return;
 			}
@@ -273,6 +277,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 				return;
 			} else {
 				meta.saveID = "origin";
+				meta.tag = "origin";
 				ag.setSnapshot("");
 				ag.setSource("");
 				// Auto rebase local only agents

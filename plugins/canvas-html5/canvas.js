@@ -1114,7 +1114,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 	this.createEmbedded = function (name, mtitle, pictureobs) {
 		var canvasName = name;
-		eden.execute("_view_" + canvasName + "_content is " + pictureobs + ";");
+		eden.execute2("_view_" + canvasName + "_content is " + pictureobs + ";");
 		var canvasdata = me.createCommon(name, mtitle);
 		var initialWidth = canvasdata.initialWidth;
 		var initialHeight = canvasdata.initialHeight;
@@ -1422,7 +1422,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 	Eden.Agent.importAgent("plugins/canvas", "default", ["enabled"], function() {
 		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
-		console.log("CANVAS LOADED");
 		if (success) success();
 	});
 };

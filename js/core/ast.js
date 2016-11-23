@@ -2030,7 +2030,7 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope) {
 		return eval(func).call(ctx,eden.root,scope);
 	} catch(e) {
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e));
-		console.error("Details: " + e + "\n" + "Function: " + this.lvalue.name);
+		//console.error("Details: " + e + "\n" + "Function: " + this.lvalue.name);
 	}
 }
 
@@ -2858,11 +2858,6 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 }
 
 Eden.AST.When.prototype.execute = function(ctx,base,scope,agent) {
-	// Generate a unique name for this when
-	var srchash = hashCode(base.getSource(this));
-	var uname = agent.name+":"+srchash;
-	console.log(uname);
-	
 	if (agent && !agent.loading) this.executeReal(ctx,base,scope,agent);
 }
 

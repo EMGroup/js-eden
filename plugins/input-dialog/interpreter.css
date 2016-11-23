@@ -377,7 +377,7 @@ div.control-bar {
 }
 
 
-.ui-tooltip {
+/*.ui-tooltip {
 	min-width: 50px;
 	padding: 5px 10px;
 	color: white;
@@ -388,7 +388,7 @@ div.control-bar {
 	text-align: center;
 	background: #204a87;
 	border: 2px solid white;
-}
+}*/
 
 .eden-drag-helper {
 	width: 10px;

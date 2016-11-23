@@ -938,7 +938,7 @@
 				this.evalResolved = true;
 			}
 		} catch (e) {
-			this.logError(e);
+			//this.logError(e);
 			cache.value = undefined;
 			cache.up_to_date = false;
 		}
@@ -1054,12 +1054,12 @@
 		this.clearObservees();
 		this.clearDependencies();
 
-		var args = [];
-		for (var i = 2; i < arguments.length; i++) {
-			args.push(arguments[i]);
-		}
+		//var args = [];
+		//for (var i = 2; i < arguments.length; i++) {
+		//	args.push(arguments[i]);
+		//}
 
-		this.subscribe(args);
+		this.subscribe(subscriptions);
 
 		// Re-add any extension dependencies.
 		if (this.extend) {
