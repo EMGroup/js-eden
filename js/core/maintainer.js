@@ -705,6 +705,7 @@
 					|| agent.name == "*Input Device"
 					|| agent.name == "*Restore"
 					|| agent.name == "*JavaScript"
+					|| agent.name == "*net"
 					|| agent.name == "*When") {
 				if (sym.eden_definition) {
 					if (sym.eden_definition.startsWith("func")) {

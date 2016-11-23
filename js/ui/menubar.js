@@ -684,6 +684,17 @@ EdenUI.MenuBar = function() {
 
 		}
 	});
+
+	eden.root.lookup("_jseden_project_title").addJSObserver("menubar", function(sym, value) {
+		$(".jseden-title").html(value);
+		try {
+			if (window.localStorage) {
+				window.localStorage.setItem("title", value);
+			}
+		} catch(e) {
+
+		}
+	});
 }
 
 EdenUI.MenuBar.reset = function() {
@@ -691,11 +702,5 @@ EdenUI.MenuBar.reset = function() {
 }
 
 EdenUI.MenuBar.saveTitle = function(title) {
-	try {
-		if (window.localStorage) {
-			window.localStorage.setItem("title", title);
-		}
-	} catch(e) {
-
-	}
+	eden.root.lookup("_jseden_project_title").assign(title, eden.root.scope, Symbol.hciAgent);
 }
