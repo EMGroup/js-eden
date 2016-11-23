@@ -546,10 +546,18 @@ See LICENSE.txt
 				lopts.css("display","none");
 				$(".loadmodal").show();
 				$(".loadmessage").html("Loading " + Eden.DB.meta[path].title + "...");
+
 				Eden.load(path,tag,function() {
+
+				});
+			});
+
+			eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {
+				if (value) {
+					lopts.css("display","none");
 					$(".loadmessage").html("Loading...");
 					$(".loadmodal").hide();
-				});
+				}
 			});
 
 			window.addEventListener("popstate", function(e) {

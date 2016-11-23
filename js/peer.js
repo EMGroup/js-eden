@@ -73,10 +73,10 @@ Eden.Peer = function(master, id) {
 				console.log("Peer connection from " + conn.peer);
 
 				conn.on('open', function() {
-				// Auto share state.
-				var script = Eden.Agent.save();
-				script += eden.root.save();
-				conn.send(JSON.stringify({cmd: "restore", script: script}));
+					// Auto share state.
+					var script = Eden.Agent.save();
+					script += eden.root.save();
+					conn.send(JSON.stringify({cmd: "restore", script: script}));
 				});
 			});
 
