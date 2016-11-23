@@ -6,7 +6,7 @@ EdenUI.MenuBar = function() {
 
 	eden.execute2("_views_number_created = 0;", "*Default");
 
-	this.element = $('<div id="menubar-main"><div id="eden-logo"></div><div contenteditable class="jseden-title">Construit!</div>'+((!mobilecheck()) ? '<div class="menubar-buttons"><button class="menubar-button enabled share" data-obs="menu_new_scriptview" title="Save or share">&#xf1e0;</button><button class="menubar-button enabled main" data-obs="views" title="Create Views">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></button><button class="menubar-button enabled main" data-obs="existing" title="Existing">&#xf24d;<div id="menubar-mainitem-existing" class="menubar-menu"></div></button><button class="menubar-button enabled main" data-obs="options" title="Options">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></button><button class="menubar-button enabled main" data-obs="help" title="Help">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></button></div>' : '<div class="menubar-mobilebuttons"><button class="scriptview-button enabled mobilemore">&#xf078;</button></div>')+'</div>');
+	this.element = $('<div id="menubar-main"><div id="eden-logo"></div><div contenteditable class="jseden-title">Construit!</div>'+((!mobilecheck()) ? '<div class="menubar-buttons"><div class="menubar-button enabled share" data-obs="menu_new_scriptview" title="Save or share">&#xf1e0;</div><div class="menubar-button enabled main" data-obs="views" title="Create Views">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="existing" title="Existing">&#xf24d;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="options" title="Options">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="help" title="Help">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div></div>' : '<div class="menubar-mobilebuttons"><button class="scriptview-button enabled mobilemore">&#xf078;</button></div>')+'</div>');
 	$(document.body).append(this.element);
 
 	// Login Button
@@ -702,5 +702,5 @@ EdenUI.MenuBar.reset = function() {
 }
 
 EdenUI.MenuBar.saveTitle = function(title) {
-	eden.root.lookup("_jseden_project_title").assign(title, eden.root.scope, Symbol.hciAgent);
+	eden.root.lookup("_jseden_project_title").assign(title, eden.root.scope, Symbol.jsAgent);
 }

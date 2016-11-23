@@ -14,11 +14,11 @@ Eden.Peer = function(master, id) {
 			var sym = eden.root.lookup(obj.symbol.slice(1));
 			var ast = new Eden.AST(obj.value, undefined, undefined, true);
 			var express = ast.pEXPRESSION();
-			sym.assign(express.execute({}, ast, eden.root.scope), eden.root.scope, {name: "*net"});
+			sym.assign(express.execute({}, ast, eden.root.scope), eden.root.scope, Symbol.netAgent);
 		} else if (obj.cmd == "define") {
 			var sym = eden.root.lookup(obj.symbol.slice(1));
 			sym.eden_definition = obj.source;
-			sym.define(eval(obj.code), {name: "*net"}, obj.dependencies);
+			sym.define(eval(obj.code), Symbol.netAgent, obj.dependencies);
 		} else if (obj.cmd == "import") {
 			Eden.Agent.importAgent(obj.path, obj.tag, obj.options, function() {
 
@@ -27,7 +27,7 @@ Eden.Peer = function(master, id) {
 			var sym = eden.root.lookup(obj.symbol.slice(1));
 			var ast = new Eden.AST(obj.value, undefined, undefined, true);
 			var express = ast.pEXPRESSION();
-			sym.listAssign(express.execute({}, ast, eden.root.scope), eden.root.scope, {name: "*net"}, false, obj.components);
+			sym.listAssign(express.execute({}, ast, eden.root.scope), eden.root.scope, Symbol.netAgent, false, obj.components);
 		} else if (obj.cmd == "patch") {
 			//Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.applyPatch(obj.patch, obj.lineno) });
 		} else if (obj.cmd == "ownership") {
@@ -144,6 +144,7 @@ Eden.Peer = function(master, id) {
 }
 
 Eden.Peer.prototype.broadcast = function(msg) {
+	//console.log(msg); return;
 	if (this.loading) return;
 	for (var i=0; i<this.connections.length; i++) {
 		this.connections[i].send(msg);

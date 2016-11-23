@@ -70,7 +70,10 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 	edenUI.views["HTMLContent"] = {dialog: this.createDialog, title: "HTML Content", category: edenUI.viewCategories.visualization, holdsContent: true};
 
 	//Load the Eden wrapper functions
-	edenUI.eden.include("plugins/html-views/html.js-e", success);
+	Eden.Agent.importAgent("plugins/html", "default", ["enabled"], function() {
+		eden.root.lookup("plugins_html_loaded").assign(true, eden.root.scope, Symbol.localJSAgent);
+		if (success) success();
+	});
 };
 
 /* Plugin meta information */

@@ -1373,12 +1373,11 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			deps.push(d);
 		}
 		sym.eden_definition = base.getSource(this);
-		if (agent === undefined) {
-			console.trace("UNDEF AGENT: " + source);
-		}
+		//if (agent === undefined) {
+		//	console.trace("UNDEF AGENT: " + source);
+		//}
 
-		if (eden.peer) eden.peer.define(agent, sym.name, source, rhs, deps);
-		sym.define(eval(rhs), agent, deps);
+		sym.define(eval(rhs), agent, deps, rhs);
 	}
 		
 }
@@ -1510,11 +1509,9 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 			this.value = this.compiled.call(sym,eden.root,scope);
 			var complist = this.lvalue.executeCompList(ctx, scope);
 			sym.listAssign(this.value, scope, agent, false, complist);
-			if (eden.peer) eden.peer.listAssign(agent, sym.name, this.value, complist);
 		} else {
 			this.value = this.compiled.call(sym,eden.root,scope);
 			sym.assign(this.value,scope, agent);
-			if (eden.peer) eden.peer.assign(agent, sym.name, this.value);
 		}
 	} catch(e) {
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
@@ -1618,11 +1615,11 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 
 	if (this.kind == "++") {
 		var newval = sym.value(scope)+1;
-		if (eden.peer) eden.peer.assign(agent, sym.name, newval);
+		//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
 		sym.assign(newval, scope, agent);
 	} else if (this.kind == "--") {
 		var newval = sym.value(scope)-1;
-		if (eden.peer) eden.peer.assign(agent, sym.name, newval);
+		//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
 		sym.assign(newval, scope, agent);
 	} else {
 		var rhs = "(function(context,scope) { return ";
@@ -1654,7 +1651,7 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 		case "*="	: newval = rt.multiply(sym.value(scope), eval(rhs)(context,scope)); break;
 		}
 
-		if (eden.peer) eden.peer.assign(agent, sym.name, newval);
+		//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
 		sym.assign(newval, scope, agent);
 	}
 }
@@ -2033,7 +2030,7 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope) {
 		return eval(func).call(ctx,eden.root,scope);
 	} catch(e) {
 		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e));
-		console.error("Details: " + e + "\n" + "Function: " + this.lvalue.name);
+		//console.error("Details: " + e + "\n" + "Function: " + this.lvalue.name);
 	}
 }
 
@@ -2861,11 +2858,6 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 }
 
 Eden.AST.When.prototype.execute = function(ctx,base,scope,agent) {
-	// Generate a unique name for this when
-	var srchash = hashCode(base.getSource(this));
-	var uname = agent.name+":"+srchash;
-	console.log(uname);
-	
 	if (agent && !agent.loading) this.executeReal(ctx,base,scope,agent);
 }
 

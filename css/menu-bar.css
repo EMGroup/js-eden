@@ -92,25 +92,23 @@ div.menubar-mobilebuttons {
 	display: inline-block;
 }
 
-button.menubar-button {
+div.menubar-button {
+	display: inline-block;
+	float: left;
 	/*text-shadow: 0px 0px 2px black;*/
 	font-family: "FontAwesome";
 	font-size: 26px;
 	background: none;
 	border: 0;
 	cursor: pointer;
-	width: 40px;
+	width: 30px;
 	outline: none;
 	margin-right: 10px;
+	padding-left: 10px;
 }
 
-button.menubar-button:hover {
-	background: #29454B;
-	color: white;
-}
-
-button.menubar-button.share {
-	color: white;
+div.menubar-button.share {
+	color: #bbb;
 	margin-right: 30px;
 }
 
@@ -143,9 +141,14 @@ button.sharebox-button.publish:before {
 	padding-right: 10px;
 }
 
-button.menubar-button.main {
-	color: white;
+div.menubar-button.main {
+	color: #bbb;
 	/*text-shadow: 0px 0px 4px silver;*/
+}
+
+div.menubar-button:hover {
+	/*background: #29454B;*/
+	color: white;
 }
 
 
