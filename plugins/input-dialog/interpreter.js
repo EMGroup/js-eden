@@ -391,7 +391,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (status) {
 					if (version != scriptagent.meta.saveID) {
 						scriptagent.changeVersion(version, function() {
-							scriptagent.rollback(index);
+							//scriptagent.rollback(index);
 							updateHistoryButtons();
 						});
 					} else {

@@ -620,6 +620,32 @@ Eden.DB.getMeta = function(path, callback) {
 	});
 }
 
+Eden.DB.getSourceRaw = function(path, tag, callback) {
+	var tagvalue = "&version="+tag;
+
+	$.ajax({
+		url: Eden.DB.remoteURL+"/agent/get?path="+path+tagvalue,
+		type: "get",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		success: function(data){
+			if (data == null || data.error) {
+				callback(undefined, "No such version");
+				console.error("No such version " + tag + " for " + path);
+				//console.log(data);
+			} else {			
+				callback(data.source);
+			}
+		},
+		error: function(a){
+			//console.error(a);
+			Eden.DB.disconnect(true);
+		}
+	});
+}
+
 Eden.DB.getSource = function(path, tag, callback) {
 	// Need to find out where to look
 	Eden.DB.getMeta(path, function(path, meta) {

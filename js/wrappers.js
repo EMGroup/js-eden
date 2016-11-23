@@ -182,7 +182,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 		if (ag) {
 			// But something went wrong loading its source
 			if (!success) {
-				doCallbacks(undefined, "No source");
+				doCallbacks(undefined, msg);
 				return;
 			}
 
@@ -225,6 +225,30 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 
 		// Force a reload? Explicit or by change of tag
 		if ((ag.meta && ag.meta.tag != tag && tag != "default") || (options && options.indexOf("reload") >= 0)) {
+
+			// Verify that there are no local changes!!!
+			if (ag.canUndo()) {
+				console.error("MERGE PROBLEM WITH IMPORT", path);
+				Eden.DB.getSourceRaw(path, tag, function(src, msg) {
+					EdenUI.Dialogs.MergeError(ag.snapshot, src, function(action) {
+						if (action == "new") {
+							ag.meta.tag = tag;
+							ag.loadSource(finish);
+							//finish(true);
+						} else if (action == "old") {
+							finish(true);
+						} else {
+							//ag.merge(src);
+							var newsrc = ag.snapshot + "\n## ============\n" + src;
+							//ag.setSnapshot(newsrc);
+							ag.setSource(newsrc);
+							finish(true);
+						}
+					});
+				});
+				return;
+			}
+
 			ag.meta.tag = tag;
 			//console.log("Tag change reload!");
 			ag.loadSource(finish);
@@ -579,9 +603,17 @@ Eden.Agent.prototype.redo = function() {
 }
 
 
+Eden.Agent.prototype.merge = function(newsrc) {
+	
+}
+
+
 
 Eden.Agent.prototype.changeVersion = function(tag, callback) {
-	Eden.Agent.importAgent(this.name, tag, this.options, callback);
+	Eden.Agent.importAgent(this.name, tag, this.options, function(success, msg) {
+		if (success) Eden.Agent.emit("version", [me, me.meta.saveID]);
+		if (callback) callback(success,msg);
+	});
 }
 
 
@@ -616,7 +648,8 @@ Eden.Agent.prototype.recovery = function() {
 
 Eden.Agent.prototype.loadSource = function(callback) {
 	var me = this;
-	this.executed = false;
+	// TODO Figure out what needs to be done about execution status...
+	//this.executed = false;
 
 	//console.log("Attempt to load source for " + me.name);
 
