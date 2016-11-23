@@ -702,5 +702,5 @@ EdenUI.MenuBar.reset = function() {
 }
 
 EdenUI.MenuBar.saveTitle = function(title) {
-	eden.root.lookup("_jseden_project_title").assign(title, eden.root.scope, Symbol.hciAgent);
+	eden.root.lookup("_jseden_project_title").assign(title, eden.root.scope, Symbol.jsAgent);
 }

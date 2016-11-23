@@ -724,7 +724,11 @@ function concatAndResolveUrl(url, concat) {
 	};
 	
 	Eden.prototype.executeEden = function (code, origin, prefix, agent, success) {
-		console.trace("DEPRECATED USE OF OLD PARSER");
+		console.error("DEPRECATED USE OF OLD PARSER", code);
+		success && success();
+		return;
+
+
 		var result;
 		var me = this;
 		this.emit('executeBegin', [origin, code]);

@@ -803,7 +803,13 @@
 		return "*Script Input";
 	}
 	
-	Symbol.hciAgent = {name: "*Input Device"};
+	// Input device agents are always local only.
+	Symbol.hciAgent = {name: "*Input Device", local: true};
+	// A JavaScript agent is not local only.
+	Symbol.jsAgent = {name: "*JavaScript", local: false};
+	Symbol.localJSAgent = {name: "*JavaScript", local: true};
+	// Network changes are always local to prevent loops.
+	Symbol.netAgent = {name: "*net", local: true};
 
 	/**
 	 * Get the value of this symbol bound with the scope the value was
@@ -1029,7 +1035,7 @@
 		//if (modifying_agent === global) {
 		//	this.last_modified_by = Symbol.getInputAgentName();
 		//} else {
-			this.last_modified_by = modifying_agent ? modifying_agent : "*JavaScript";
+			this.last_modified_by = modifying_agent ? modifying_agent : Symbol.jsAgent;
 		//}
 	};
 
@@ -1039,7 +1045,7 @@
 	 * @param {function(Folder)} definition
 	 * @param {Symbol} modifying_agent Agent modifying this Symbol.
 	 */
-	Symbol.prototype.define = function (definition, modifying_agent, subscriptions) {
+	Symbol.prototype.define = function (definition, modifying_agent, subscriptions, source) {
 		this.garbage = false;
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = definition;
@@ -1065,6 +1071,8 @@
 		if (this.context) {
 			this.context.expireSymbol(this);
 		}
+
+		if (eden.peer && source) eden.peer.define(this.last_modified_by, this.name, this.eden_definition, source, subscriptions);
 
 		return this;
 	};
@@ -1106,17 +1114,15 @@
 	 * @param {Symbol} modifying_agent
 	 * @param {boolean} pushToNetwork
 	 */
-	Symbol.prototype.assign = function (value, scope, modifying_agent, pushToNetwork) {
+	Symbol.prototype.assign = function (value, scope, modifying_agent) {
+		// This is a HACK to fix missing scopes
 		if (!(scope instanceof Scope)) {
-			pushToNetwork = modifying_agent;
 			modifying_agent = scope;
 			scope = root.scope;
 		}
 		this.garbage = false;
 		value = copy(value);
-		if (pushToNetwork) {
-			eden.emit("beforeAssign", [this, value, modifying_agent]);
-		}
+		
 		if (this.name === "/autocalc") {
 			/* JS-EDEN has a separate Boolean type so users may expect to be able to assign true and
 			 * false even though autocalc uses 1 and 0 for compatibility with tkeden. */
@@ -1147,6 +1153,9 @@
 		if (this.context) {
 			this.context.expireSymbol(this);
 		}
+
+		// Attempt send over p2p network
+		if (eden.peer) eden.peer.assign(this.last_modified_by, this.name, value);
 
 		return this;
 	};
@@ -1536,6 +1545,8 @@
 		if (this.context) {
 			this.context.expireSymbol(this);
 		}
+
+		if (eden.peer) eden.peer.listAssign(this.last_modified_by, this.name, value, indices);
 		return this;
 	}
 

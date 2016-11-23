@@ -72,6 +72,10 @@
 			"file": "models/blank.js-e",
 			"title": "Script View"
 		},
+		"plugins/html": {
+			"file": "plugins/html-views/html.js-e",
+			"title": "HTML View"
+		},
 		"plugins/canvas/contourLine": {
 			"file": "plugins/canvas-html5/contourLine.js-e",
 			"title": "Custom shapes defined algebraically"
