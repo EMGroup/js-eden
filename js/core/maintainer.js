@@ -700,6 +700,7 @@
 			if (typeof agent != "object"
 					|| (forced && forced[agent.name])
 					|| (agent.canUndo && agent.canUndo())
+					|| (agent.meta && (agent.last_exec_version != agent.meta.saveID))
 					|| (agent instanceof Symbol && agent.eden_definition && agent.eden_definition.startsWith("proc"))
 					|| agent.name == "*Input Device"
 					|| agent.name == "*Restore"

@@ -56,6 +56,7 @@ Eden.Agent = function(parent, name, meta, options) {
 	this.snapshot = ""; //edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
 	this.autosavetimer = undefined;
 	this.executed = false;
+	this.last_exec_version = undefined;
 	this.options = options;
 	this.loading = false;
 
@@ -307,7 +308,16 @@ Eden.Agent.removeAll = function () {
 Eden.Agent.save = function() {
 	var result = "";
 	for (var x in Eden.Agent.agents) {
-		result += "import " + x + "@" + Eden.Agent.agents[x].meta.saveID + ";\n"; 
+		var ag = Eden.Agent.agents[x];
+		// First import and exec last executed version
+		if (ag.last_exec_version) {
+			result += "import " + x + "@" + Eden.Agent.agents[x].last_exec_version + ";\n";
+		}
+
+		// Now make sure actual imported version is brought in (but not executed)
+		if (ag.last_exec_version != ag.meta.saveID) {
+			result += "import " + x + "@" + Eden.Agent.agents[x].meta.saveID + " noexec;\n";
+		}
 	}
 	return result;
 }
@@ -818,13 +828,19 @@ Eden.Agent.prototype.executeLine = function (lineno, auto, cb) {
 
 Eden.Agent.prototype.execute = function(force, auto, cb) {
 	if (this.executed == false || force) {
+		var wasexec = this.executed;
 		//eden.root.beginAutocalcOff();
 		this.executeLine(-1, auto, cb);
 		//eden.root.endAutocalcOff();
 		this.executed = true;
 
+		// Can only record as executed if no local changes involved
+		if (this.index == -1) {
+			this.last_exec_version = this.meta.saveID;
+		}
+
 		if (!auto) {
-			Eden.Agent.emit('execute', [this, force]);
+			Eden.Agent.emit('execute', [this, force, this.meta.saveID]);
 		}
 	} else {
 		if (cb) cb();
@@ -853,8 +869,10 @@ Eden.Agent.prototype.upload = function(tagname, ispublic, callback) {
 		Eden.DB.upload(this.name, this.meta, this.ast.stream.code, tagname, ispublic, function(success) {
 			if (me.history[me.meta.saveID] === undefined) {
 				me.history[me.meta.saveID] = [];
+				me.index = -1;
 			}
 			if (callback) callback(success);
+			if (success) Eden.Agent.emit("version", [me, me.meta.saveID, ispublic]);
 		});
 	} else {
 		if (callback) callback(false);

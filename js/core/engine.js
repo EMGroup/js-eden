@@ -43,7 +43,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 			var when = statements[i];
 			if (when.active == false) {
 				when.active = true;
-				var res = when.execute(undefined, base, eden.root.scope);
+				var res = when.execute(undefined, base, eden.root.scope, agent);
 				//console.log(res);
 				if (res) {
 					base.executeStatements(res, -1, when);

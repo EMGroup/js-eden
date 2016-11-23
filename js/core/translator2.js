@@ -2448,14 +2448,16 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	stat.parent = this.parent;
 	stat.doxyComment = doxy;
 
+	this.lines[curline] = stat;
+	stat.line = curline;
+
 	// Update statements start and end so original source can be extracted.
 	if (end == -1) {
 		stat.setSource(start, this.stream.prevposition);
 	} else {
 		stat.setSource(start, end);
 	}
-	this.lines[curline] = stat;
-	stat.line = curline;
+
 	//var endline = this.stream.line;
 	for (var i=curline+1; i<endline; i++) {
 		if (this.lines[i] === undefined || stat.errors.length > 0) this.lines[i] = stat;

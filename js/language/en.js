@@ -320,6 +320,7 @@ Language.ui = {
 		clone: "Clone",
 		reload: "Reload",
 		upload: "Upload",
+		share: "Share",
 		hide: "Hide",
 		inspect: "Inspect",
 		rewind: "Rewind",

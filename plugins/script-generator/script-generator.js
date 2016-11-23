@@ -69,6 +69,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 				var agent = data.imports[i].split(" ")[1].split("@")[0];
 				var isplit = data.imports[i].split(" ");
 				var ihtml = '<span class="eden-keyword">'+isplit[0]+'</span> <span class="eden-path">'+isplit[1]+'</span>';
+				if (isplit.length > 2) ihtml += " " + isplit[2];
 				var importele = $('<div class="eden-line"><span class="scriptgen-importex" data-agent="'+agent+'">'+((forcedinclude[agent])?'&#xf055;':'&#xf056;')+'</span><span>'+((forcedinclude[agent])?'<span class="eden-comment">## '+data.imports[i]+'</span>':ihtml)+'</span></div>');
 				script.append(importele);
 			}
