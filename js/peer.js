@@ -84,6 +84,7 @@ Eden.Peer = function(master, id) {
 				me.connections.push(conn);
 				conn.on('data', processData);
 				console.log("Peer connection from " + conn.peer);
+				Eden.Peer.emit("peer", [conn.peer]);
 
 				conn.on('open', function() {
 					// Auto share state.
@@ -95,6 +96,7 @@ Eden.Peer = function(master, id) {
 
 			peer.on('error', function(err) {
 				console.log("Peer error: ", err);
+				Eden.Peer.emit("error", [err]);
 			});
 		}
 
@@ -142,6 +144,10 @@ Eden.Peer = function(master, id) {
 	edenUI.views["Peers"] = {dialog: createDialog, title: "Connections", category: edenUI.viewCategories.environment};
 	edenUI.menu.updateViewsMenu();
 }
+
+Eden.Peer.listeners = {};
+Eden.Peer.emit = emit;
+Eden.Peer.listenTo = listenTo;
 
 Eden.Peer.prototype.broadcast = function(msg) {
 	//console.log(msg); return;

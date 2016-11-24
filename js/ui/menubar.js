@@ -45,6 +45,7 @@ EdenUI.MenuBar = function() {
 
 	Eden.DB.listenTo("disconnected", this, function() {
 		$("#menubar-login").html('<span class="icon">&#xf05e;</span>Not Connected');
+		me.notification("info", $('<div class="error-item">Disconnected</div>'));
 	});
 
 	Eden.DB.listenTo("login", this, function(name) {
@@ -54,6 +55,10 @@ EdenUI.MenuBar = function() {
 			}, 1000);
 			$("#menubar-login").html('<a href="'+Eden.DB.remoteURL+'/#" target="_blank"><span class="icon">&#xf007;</span>'+name+"</a>");
 		}
+	});
+
+	Eden.Peer.listenTo("peer", undefined, function(id) {
+		me.notification("net", $('<div class="error-item">Peer \''+id+'\' connected</div>'));
 	});
 
 	Eden.Agent.listenTo("error", undefined, function(agent,err) {
@@ -760,7 +765,7 @@ EdenUI.MenuBar = function() {
 	this.notificationContent = this.notificationPanel.find("#errors-dialog");
 
 	this.element.on("click",".notifications", function(e) {
-		me.notificationPanel.show();
+		me.notificationPanel.toggle();
 		me.notificationCountElement.hide();
 		me.notificationCount = 0;
 	});
