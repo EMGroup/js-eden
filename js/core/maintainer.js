@@ -682,6 +682,254 @@
 		this.globalNotifyIndex = 0;
 	};
 
+	Folder.prototype.forgetAll = function() {
+		var searchStr, caseSensitive, requireConfirm, includeSystemSymbols;
+		var regExp, symbol;
+		var obsToDelete = undefined;
+		var includeAgent = {name: "/include"};
+		
+		if (arguments.length > 4) {
+			eden.error(new Error("forgetAll: This function requires at most 4 arguments."), "error");
+			return [[], undefined, []];
+		}
+
+		if (arguments.length == 0) {
+			searchStr = "";
+		} else if (typeof(arguments[0]) == "string") {
+			searchStr = arguments[0];
+		} else if (Array.isArray(arguments[0])) {
+			obsToDelete = arguments[0];
+		} else if (arguments[0] === undefined) {
+			return [[], undefined, []];
+		} else {
+			eden.error(new Error("forgetAll: The first argument must be a string, not a " + typeof(arguments[0])), "error");
+			return [[], undefined, []];
+		}
+
+		if (arguments.length > 1) {
+			if (typeof(arguments[1]) != "boolean") {
+				eden.error(new Error("forgetAll: The second argument must be a boolean, not a " + typeof(arguments[1])), "error");
+				return [[], undefined, []];
+			}
+			caseSensitive = arguments[1];
+		} else {
+			caseSensitive = true;
+		}
+		
+		if (obsToDelete !== undefined && arguments.length > 2) {
+			eden.error(new Error("forgetAll: Cannot specify case sensitivity when selecting using a list."), "error");
+			return [[], undefined, []];
+		}
+		
+		if (arguments.length >= 3) {
+			if (typeof(arguments[2]) != "boolean") {
+				eden.error(new Error("forgetAll: The third argument must be a boolean, not a " + typeof(arguments[2])), "error");
+				return [[], undefined, []];
+			}
+			requireConfirm = arguments[2];
+		} else if (obsToDelete !== undefined && arguments.length == 2) {
+			requireConfirm = arguments[1];
+		} else {
+			requireConfirm = true;
+		}
+		
+		if (arguments.length > 3) {
+			if (typeof(arguments[3]) != "boolean") {
+				eden.error(new Error("forgetAll: The forth argument must be a boolean, not a " + typeof(arguments[3])), "error");
+				return [[], undefined, []];
+			}
+			includeSystemSymbols = arguments[3];
+		} else {
+			includeSystemSymbols = false;
+		}
+		
+		var references = {};
+		var unableToDelete = [];
+		var reset = {};
+
+		var initialDefinition;
+		if (obsToDelete !== undefined) {
+
+			//Observables given as a list.
+			for (var i = 0; i < obsToDelete.length; i++) {
+				var name;
+				if (obsToDelete[i] instanceof Symbol) {
+					name = obsToDelete[i].name.slice(1);
+					symbol = obsToDelete[i];
+				} else if (typeof(obsToDelete[i]) == "string") {
+					name = obsToDelete[i];
+					symbol = root.lookup(name);
+				} else if (obsToDelete === undefined) {
+					continue;
+				} else {
+					eden.error(new Error("forgetAll: All list items must be strings or pointers.  Item " + i + " is a " + typeof(obsToDelete[i])), "error");
+					return [[], undefined, []];
+				}
+
+				if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
+					unableToDelete.push(name);
+					continue;
+				}
+
+				initialDefinition = eden.initialDefinition(name);
+				if (initialDefinition) {
+					reset[name] = initialDefinition;
+				} else {
+					var referencedBy = [];
+					for (var dependency in symbol.subscribers) {
+						referencedBy.push(dependency.slice(1));
+					}
+					for (var triggeredProc in symbol.observers) {
+						referencedBy.push(triggeredProc.slice(1));
+					}
+					references[name] = referencedBy;
+				}
+			}
+
+		} else {
+
+			//Search for observables by regular expression.
+			if (caseSensitive) {
+				regExp = new RegExp(searchStr);
+			} else {
+				regExp = new RegExp(searchStr, "i");
+			}
+			var viewsRE = /^_[vV]iew(s?)_/;
+			
+			for (var name in root.symbols) {
+				if (regExp.test(name)) {
+					if (!includeSystemSymbols) {
+						if (Eden.isitSystemSymbol(name) || viewsRE.test(name)) {
+							continue;
+						}
+					}
+					
+					//initialDefinition = eden.initialDefinition(name);
+					//if (initialDefinition) {
+					//	reset[name] = initialDefinition;
+					//} else {
+						symbol = root.symbols[name];
+						var referencedBy = [];
+						for (var dependency in symbol.subscribers) {
+							referencedBy.push(dependency.slice(1));
+						}
+						for (var triggeredProc in symbol.observers) {
+							referencedBy.push(triggeredProc.slice(1));
+						}
+						references[name] = referencedBy;
+					//}
+				}
+			}
+		}
+		
+		var canForget = {};
+
+		/* Traverses the subgraph of symbols suggested for deletion and returns true if the named
+		 * symbol isn't referenced by anything outside of the subgraph.
+		 */
+		var isSafeToForget = function (name) {
+			if (name in canForget) {
+				return canForget[name];
+			}
+			if (name in reset) {
+				return true;
+			}
+			if (!(name in references)) {
+				canForget[name] = false;
+				return false;
+			}
+			var referencedBy = references[name];
+			if (referencedBy.length == 0) {
+				canForget[name] = true;
+				return true;
+			} else {
+				for (var i = 0; i < referencedBy.length; i++) {
+					var success = isSafeToForget(referencedBy[i]);
+					if (!success) {
+						canForget[name] = false;
+						return false;
+					}
+				}
+				canForget[name] = true;
+				return true;
+			}
+		};
+		
+		var namesToDelete = [];
+		for (name in references) {
+			var success = isSafeToForget(name);
+			if (success) {
+				namesToDelete.push(name);
+			} else {
+				unableToDelete.push(name);
+			}
+		}
+		
+		var confirmed;
+		var resetList = Object.keys(reset);
+		var deletePlusReset = namesToDelete.concat(resetList);
+		if (deletePlusReset.length > 0 && requireConfirm) {
+			if (deletePlusReset.length <= 50) {
+				confirmed = confirm("You are about to delete the following " + deletePlusReset.length +
+					" symbols.  Is this correct?\n\n" + deletePlusReset.join("\n"));
+			} else {
+				var numNotDisplayed = deletePlusReset.length - 50;
+				confirmed = confirm("You are about to delete " + deletePlusReset.length +
+					" symbols.  Is this correct?\n\n" + deletePlusReset.slice(0, 50).join("\n") +
+					"\n...\n(" + numNotDisplayed + " more)");
+			}
+		} else {
+			confirmed = true;
+		}
+		
+		if (confirmed) {
+			var noop = function () { };
+			var wasInInitialState = false; //eden.isInInitialState();
+			root.beginAutocalcOff();
+
+			for (name in reset) {
+				//eden.execute(reset[name], "forgetAll", "", includeAgent, noop);
+			}
+
+			for (var i = 0; i < namesToDelete.length; i++) {
+				var name = namesToDelete[i];
+				symbol = root.symbols[name];
+				if (symbol !== undefined) {
+					if ("refreshView" in symbol.jsObservers) {
+						/* Set the symbol to undefined before deleting it, so at least it is clear
+						 * that the view is no longer valid and isn't merely "hung".
+						 */
+						symbol.assign(undefined, root.scope);
+						if (edenUI.plugins.Canvas2D && edenUI.plugins.Canvas2D.destroyViews) {
+							// Close the window if it's a canvas picture observable. (JS-EDEN 1.2.2 and earlier).
+							edenUI.plugins.Canvas2D.destroyViews(name);
+						}
+					}
+					symbol.forget();
+					// Close the window if this observable defines the content for a view (e.g. canvas).
+					var match = name.match(/^_view_(.*)_content$/);
+					if (match !== null) {
+						edenUI.destroyView(match[1], true);
+					}
+				}
+			}
+			/*if (wasInInitialState) {
+				eden.captureInitialState(); //Re-assert still in initial state.		
+			}*/
+			/*
+			 * The new environment no longer seems to call this automatically at completion of execution, so call
+			 * it manually here to force a clean-up.  Hopefully nothing in the parser is holding onto a Symbol
+			 * object belonging to a forgotten observable, otherwise bad things will happen.
+			 * TODO: Verify that bad things don't happen.
+			 */
+			root.collectGarbage();
+			root.endAutocalcOff();
+			return [namesToDelete, unableToDelete, resetList];
+		} else {
+			return [[], unableToDelete, []];
+		}
+	}
+
 	Folder.prototype.save = function(forced) {
 		var result = "";
 		var functions = "## Functions\n";

@@ -243,8 +243,6 @@ EdenUI.plugins.Page = function(edenUI, success) {
 		var src = p[12];
 		var href = p[13];
 
-		console.log("Element: " + type);
-
 		var ele;
 		switch (type) {
 		case "div":
@@ -493,7 +491,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 			container = $("<div class='page-canvas'></div>");
 		}
 
-		console.log("CREATE CANVAS: " + content[1] + " width=" + content[3] + ", height=" + content[4]);
+		//console.log("CREATE CANVAS: " + content[1] + " width=" + content[3] + ", height=" + content[4]);
 
 		if (width) container.css("width", cssValue(width));
 		if (height) container.css("height", cssValue(height));

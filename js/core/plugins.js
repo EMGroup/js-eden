@@ -286,9 +286,7 @@
 				title = title + " (" + viewData.titleBarInfo + ")";
 			}
 			diag.dialog("option", "title", title);
-			if (me.plugins.MenuBar) {
-				me.plugins.MenuBar.updateViewsMenu();
-			}
+			edenUI.menu.updateViewsMenu();
 		}
 		titleSym.addJSObserver("updateTitleBar", updateTitleBar);
 		if (title === undefined) {
@@ -500,9 +498,9 @@
 			//Call clean-up handler.
 			this.viewInstances[name].destroy();
 		}
-		root.lookup("forgetAll").definition(root)("^_View_" + name + "_", true, false, true);
+		root.forgetAll("^_View_" + name + "_", true, false, true);
 		if (forgetObservables) {
-			root.lookup("forgetAll").definition(root)("^_view_" + name + "_", true, false, true);
+			root.forgetAll("^_view_" + name + "_", true, false, true);
 		}
 		var theDialog = dialog(name);
 		theDialog.dialog('destroy');
@@ -845,7 +843,6 @@
 			this.views.ErrorLog.errorWindow.html('');
 		}
 		Eden.Agent.removeAll();
-		this.eden.captureInitialState();
 	}
 
 	/**Creates a modal dialogue box that permits the user to choose from a small number of fixed
