@@ -235,7 +235,7 @@ div.jseden-title:hover {
 }
 
 .menubar-item-separator {
-	margin-top: 10px;
+	/*margin-top: 10px;*/
 	margin-bottom: 5px;
 	font-weight: bold;
 	border-top-color: #777;
@@ -246,7 +246,7 @@ div.jseden-title:hover {
 	border-bottom-color: #777;
 	border-bottom-width: 1px;
 	border-bottom-style: solid;
-	box-shadow: 0 0 10px #4a6887;
+	/*box-shadow: 0 0 10px #4a6887;*/
 	background-color: #eee;
 	/*background: -webkit-linear-gradient(#fafafa, #cccccc); 
 	background: -o-linear-gradient(#fafafa, #cccccc); 

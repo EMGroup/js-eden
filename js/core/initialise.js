@@ -68,7 +68,6 @@ function Construit(options,callback) {
 	var menuBar = URLUtil.getParameterByName("menus") != "false";
 	var pluginsStr = URLUtil.getParameterByName("plugins");
 	var views = URLUtil.getParameterByName("views");
-	var include = URLUtil.getArrayParameterByName("include");
 	var exec = URLUtil.getParameterByName("exec");
 	var load = URLUtil.getParameterByName("load");
 	var lang = URLUtil.getParameterByName("lang");
@@ -90,7 +89,6 @@ function Construit(options,callback) {
 		"HTMLContent",
 		"ObservablePalette",
 		"PluginManager",
-		"ProjectList",
 		"ScriptGenerator",
 		"ScriptInput",
 		"StateTimeLine",
@@ -116,13 +114,8 @@ function Construit(options,callback) {
 
 		if (views == "" || views == "default") {
 			plugins.push("Canvas2D");
-			plugins.push("ProjectList");
 			plugins.push("ScriptInput");
 		}
-	}
-
-	if (menuBar) {
-		//plugins.unshift("MenuBar");
 	}
 
 	$(document).ready(function () {
@@ -200,8 +193,6 @@ function Construit(options,callback) {
 		};
 		
 		doneLoading = function (loaded) {
-			eden.captureInitialState();
-
 			window.scrollTo(0, 0); //Chrome remembers position on refresh.
 			// Remove spinning loader and message
 			edenUI.finishedLoading();
@@ -213,6 +204,7 @@ function Construit(options,callback) {
 				eden.execute2(exec, "URL", "", {name: "execute"}, function () { });
 			}
 
+			// Set up P2P networking
 			if (myid != "" || master != "") {
 				eden.peer = new Eden.Peer((master != "") ? master : undefined, (myid != "") ? myid : undefined);
 			}
@@ -220,32 +212,25 @@ function Construit(options,callback) {
 			if (callback) callback(loaded);
 		}
 
-		// Load the Eden library scripts
-		var librarySource;
-		/*if (document.location.pathname.slice(-15) == "/index-dev.html") {
-			librarySource = "library/eden.jse";
-		} else {
-			librarySource = "library/jseden-lib.min.jse";
-		}*/
-
-		var bootscript = "import lib;\n";
-		for (var i=0; i<imports.length; i++) {
-			bootscript += "import " + imports[i]+";\n" 
-		}
-		bootscript += "${{ doneLoading(); }}$;\n";
-		console.log("BOOTSCRIPT: " + bootscript);
 
 		loadLanguage(lang, function() {
 			loadPlugins(plugins, function () {
-				//Eden.Agent.importAgent("lib", undefined, function() {
-				//eden.include(librarySource, {name: '/system'}, function () {
 					$.getJSON('config.json', function (config) {
 						rt.config = config;
 
 						Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex], function() {
-							//eden.execute2(bootscript);
-
-							if (load != "" && tag != "") {
+							if (imports.length > 0) {
+								function doImport(ix) {
+									Eden.Agent.importAgent(imports[ix], "default", [], function() {
+										ix++;
+										if (ix == imports.length) doneLoading(true);
+										else doImport(ix);
+									});
+								}
+								Eden.Agent.importAgent("lib","default", [], function() {
+									doImport(0);
+								});
+							} else if (load != "" && tag != "") {
 								Eden.load(load,tag,function(){ doneLoading(true); });
 							} else if (restore != "") {
 								doneLoading(Eden.restore());
@@ -255,32 +240,6 @@ function Construit(options,callback) {
 						});
 						Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
 
-
-						/*eden.captureInitialState();
-
-						if (include.length > 0) {
-							eden.include(include, doneLoading);
-						} else {
-							doneLoading();
-						}
-
-						console.log("LOADING IMPORTS");
-
-						if (imports.length > 0) {
-							function chainedImport(i) {
-								console.log("IMPORT: " + imports[i]);
-								if (i >= imports.length) {
-									doneLoading();
-									return;
-								}
-								Eden.Agent.importAgent(imports[i], undefined, function() {
-									chainedImport(i+1);
-								});
-							}
-							chainedImport(0);
-						} else {
-							doneLoading();
-						}*/
 					});
 				//});
 			});
