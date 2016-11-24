@@ -1371,33 +1371,44 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 	//if (eden.peer) eden.peer.broadcast(source);
 
-	if (this.lvalue.hasListIndices()) {
-		var rhs = "(function(context,scope,value) { value";
-		rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
-		rhs += this.expression.generate(this, "scope");
-		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-			rhs += ".value";
-		}
-		rhs += ";})";
-		var deps = [];
-		for (var d in this.dependencies) {
-			deps.push(d);
-		}
-		sym.addExtension(this.lvalue.generateIdStr(), eval(rhs), source, undefined, deps);
-	} else {
-		var rhs = "("+this.generateDef(ctx)+")";
-		var deps = [];
-		for (var d in this.dependencies) {
-			deps.push(d);
-		}
-		sym.eden_definition = base.getSource(this);
-		//if (agent === undefined) {
-		//	console.trace("UNDEF AGENT: " + source);
-		//}
+	try {
+		if (this.lvalue.hasListIndices()) {
+			var rhs = "(function(context,scope,value) { value";
+			rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
+			rhs += this.expression.generate(this, "scope");
+			if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+				rhs += ".value";
+			}
+			rhs += ";})";
+			var deps = [];
+			for (var d in this.dependencies) {
+				deps.push(d);
+			}
+			sym.addExtension(this.lvalue.generateIdStr(), eval(rhs), source, undefined, deps);
+		} else {
+			var rhs = "("+this.generateDef(ctx)+")";
+			var deps = [];
+			for (var d in this.dependencies) {
+				deps.push(d);
+			}
+			sym.eden_definition = base.getSource(this);
+			//if (agent === undefined) {
+			//	console.trace("UNDEF AGENT: " + source);
+			//}
 
-		sym.define(eval(rhs), agent, deps, rhs);
-	}
-		
+			sym.define(eval(rhs), agent, deps, rhs);
+		}
+	} catch(e) {
+		var err;
+		if (e.message == Eden.RuntimeError.EXTENDSTATIC) {
+			err = new Eden.RuntimeError(base, Eden.RuntimeError.EXTENDSTATIC, this, "Can only define list items if the list is defined");
+		} else {
+			err = new Eden.RuntimeError(base, Eden.RuntimeError.UNKNOWN, this, e);
+		}
+		this.errors.push(err);
+		err.line = this.line;
+		Eden.Agent.emit("error", [agent,this.errors[this.errors.length-1]]);
+	}	
 }
 
 Eden.AST.Definition.prototype.error = fnEdenASTerror;
@@ -1532,7 +1543,21 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 			sym.assign(this.value,scope, agent);
 		}
 	} catch(e) {
-		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
+		//this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
+		var agentobj = agent;
+		var err;
+
+		if (/[0-9][0-9]*/.test(e.message)) {
+			err = new Eden.RuntimeError(base, parseInt(e.message), this, e.message);
+		} else {
+			err = new Eden.RuntimeError(base, 0, this, e);
+		}
+
+		err.line = this.line;
+
+		this.errors.push(err);
+		if (agentobj) Eden.Agent.emit("error", [agentobj,err]);
+		else console.log(err.prettyPrint());
 	}
 };
 

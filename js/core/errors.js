@@ -613,6 +613,8 @@ Eden.RuntimeError = function(context, errno, statement, extra) {
 	this.statement = statement;
 	this.extra = extra;
 	this.errno = errno;
+	this.context = context;
+	this.lastsymbol = eden.root.lastlookup;
 }
 
 Eden.RuntimeError.UNKNOWN = 0;
@@ -621,24 +623,74 @@ Eden.RuntimeError.FUNCCALL = 2;
 Eden.RuntimeError.ACTIONNAME = 3;
 Eden.RuntimeError.NOAGENT = 4;
 Eden.RuntimeError.NOTSUPPORTED = 5;
+Eden.RuntimeError.ASSIGNTODEFINED = 6;
+Eden.RuntimeError.ASSIGNDIMENSION = 7;
+Eden.RuntimeError.EXTENDSTATIC = 8;
+Eden.RuntimeError.INFINITERANGE = 9;
+Eden.RuntimeError.NOLISTRANGE = 10;
+Eden.RuntimeError.LEFTCONCAT = 11;
+Eden.RuntimeError.RIGHTCONCAT = 12;
 
 Eden.RuntimeError.prototype.messageText = function() {
+	var msg = (this.statement.type == "definition" || this.statement.type == "assignment") ? "'" + this.statement.lvalue.name + "': " : "";
+
 	switch (this.errno) {
-	case Eden.RuntimeError.ACTIONNAME	: return this.extra;
-	case Eden.RuntimeError.NOAGENT		: return this.extra;
+	case Eden.RuntimeError.ACTIONNAME		:
+	case Eden.RuntimeError.NOAGENT			: 
+	case Eden.RuntimeError.EXTENDSTATIC		: return msg + this.extra;
+	case Eden.RuntimeError.ASSIGNTODEFINED	: return msg + "cannot assign to a defined list, use 'is'";
+	case Eden.RuntimeError.ASSIGNDIMENSION	: return msg + "list does not have this many dimensions";
+	case Eden.RuntimeError.RIGHTCONCAT		: return msg + "Concatenation: When the right hand side is a list then the left hand side must also be a list";
+	case Eden.RuntimeError.LEFTCONCAT		: return msg + "Concatenation: When the left hand side is a list then the right hand side must also be a list";
+	case Eden.RuntimeError.INFINITERANGE	: return msg + "range scope is infinite";
+	case Eden.RuntimeError.NOLISTRANGE		: return msg + "range 'in' is not a list";
 	default: break;
 	}
 
 	if (String(this.extra).search("is not a function") >= 0) {
-		return "Function does not exist";
+		return msg + "function used does not exist";
 	} else if (String(this.extra).match(/Cannot read property .* of undefined/)) {
-		return "Not a valid list";
+		return msg + "uses an undefined list";
 	}
 	return this.extra;
 }
 
+Eden.RuntimeError.prototype.edenSource = function() {
+	if (this.statement.type == "definition") {
+		var sym = eden.root.symbols[this.statement.lvalue.name];
+		if (sym && sym.definition) {
+			return sym.getSource();
+		}
+	} else if (this.context) {
+		return this.context.getSource(this.statement);
+	}
+}
+
+Eden.RuntimeError.prototype.javascriptSource = function() {
+	return this.statement.generate({scopes: [], dependencies: {}},"scope");
+}
+
+Eden.RuntimeError.prototype.details = function() {
+	var res = "";
+	if (this.statement.type == "definition" || this.statement.type == "assignment") {
+		res += "Symbol: " + this.statement.lvalue.name + "\n";
+	}
+	if (String(this.extra).search("SyntaxError") >= 0) {
+		res += "JavaScript: " + this.javascriptSource() + "\n";
+	} else {
+		res += "Source: " + this.edenSource() + "\n";
+	}
+	if (this.extra.message) res += "Original: " + this.extra.message + "\n";
+	
+	return res;
+}
+
 Eden.RuntimeError.prototype.prettyPrint = function() {
-	return "Run-time Error:\n"+this.extra.stack;
+	if (this.extra && this.extra.stack) {
+		return "Run-time Error:\n"+this.extra.stack;
+	} else {
+		return "Run-time Error:\n";
+	}
 }
 
 

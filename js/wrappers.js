@@ -976,7 +976,7 @@ Eden.Agent.prototype.setSource = function(source, net, lineno) {
 	}
 
 	if (this.hasErrors() && !waserrored) {
-		Eden.Agent.emit("error", [this]);
+		Eden.Agent.emit("error", [this,this.ast.script.errors[0]]);
 	} else if (!this.hasErrors() && waserrored) {
 		Eden.Agent.emit("fixed", [this]);
 	}

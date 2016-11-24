@@ -161,3 +161,61 @@ div.error-item {
 	border: 4px solid yellow;
 	pointer-events: none;
 }
+
+pre.error-item {
+	border-top-style: solid;
+	border-top-width: 1px;
+	border-top-color: silver;
+	padding: 4px;
+	padding-left: 15px;
+	min-width: 100%;
+	box-sizing: border-box;
+	background-color: white;
+	margin-bottom: 3px;
+	margin-top: 2px;
+	line-height: 20px;
+	vertical-align: middle;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
+
+#errors-dialog {
+	/*font-family:monospace;*/
+	max-height: 250px;
+	/*padding-top: 5px;*/
+}
+
+div.error-source {
+	display: inline-block;
+	resize: none;
+	box-sizing: border-box;
+	padding: 0;
+	padding-left: 10px;
+	/*padding: 4px;*/
+	/*margin: 5px;*/
+	outline: none;
+	font: 14px/20px Roboto Mono,monospace;
+}
+
+div.errors-box {
+	position: absolute;
+	z-index: 2147483646;
+	right: 20px;
+	width: 500px;
+	height: 250px;
+	top: 55px;
+	background-color: #f5f5f5;
+	overflow: scroll;
+	border-width: 1px;
+	border-color: #777;
+	border-style: solid;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	box-shadow: 0 0 15px #4a6887;
+}
+
+span.error-icon {
+	font-family: "FontAwesome";
+	color: red;
+	font-size: 12pt;
+}
