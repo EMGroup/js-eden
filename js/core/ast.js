@@ -55,22 +55,34 @@ function fnEdenASTleft(left) {
 /**
  * A doxygen style comment node. The content is not parsed, the entire comment
  * is stored raw.
+ * @param {String} content The string content of the comment.
+ * @param {number} start Start character location in original source.
+ * @param {number} end End character location in original source.
  */
 Eden.AST.DoxyComment = function(content, start, end) {
 	this.type = "doxycomment";
 	this.content = content;
 	this.startline = start;
 	this.endline = end;
+	this.tags = undefined;
+	this.controls = undefined;
 }
 
+/**
+ * Get an array of all the hashtags in this comment. This function caches the
+ * parsed result and also extracts "@" control tokens but does not return them.
+ * @return {Array} List of hashtags.
+ */
 Eden.AST.DoxyComment.prototype.getHashTags = function() {
 	if (this.tags) return this.tags;
 
+	// Strip beginning and end and split into words.
 	var words = this.content.substring(3,this.content.length-2).trim().split(/[ \n\t]+/);
 	var tags = {};
 	var controls = {};
 	for (var i=0; i<words.length; i++) {
 		if (words[i].charAt(0) == "#") tags[words[i]] = true;
+		// If its a control @ token then the next word may be a parameter.
 		if (words[i].charAt(0) == "@") {
 			if (controls[words[i]] === undefined) controls[words[i]] = [];
 			if (i+1 < words.length && words[i+1] && words[i+1].charAt(0) != "@" && words[i+1].charAt(0) != "#") {
@@ -86,6 +98,12 @@ Eden.AST.DoxyComment.prototype.getHashTags = function() {
 	return Object.keys(tags);
 }
 
+
+/**
+ * Check if this comment contains a specific hashtag.
+ * @param {String} tag A hashtag to look for.
+ * @return {boolean} True if the hashtag is found.
+ */
 Eden.AST.DoxyComment.prototype.hasTag = function(tag) {
 	if (this.tags === undefined) this.getHashTags();
 	return (this.tags[tag]) ? true : false;
