@@ -81,6 +81,7 @@ module.exports = function (grunt) {
 		core: {
 			files: {
 				'./js/core/jseden.min.js': [
+					'./js/util/misc.js',
 					'./js/language/lang.js',
 					'./js/core/runtime.js',
 					'./js/core/window-highlighter.js',

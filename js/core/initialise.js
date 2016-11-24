@@ -165,14 +165,19 @@ function Construit(options,callback) {
 			}
 		});
 		
+		// TODO Remove this once restore works
 		if (edenUI.getOptionValue('optConfirmUnload') != "false") {
 			window.addEventListener("beforeunload", confirmUnload);
 		}
 
+		/**
+		 * Get the correct language script from server.
+		 */
 		var loadLanguage = function(lang, callback) {
 			$.getScript("js/language/"+lang+".js", function(data) {
 				Language.language = lang;
 				eval(data);
+				// Only now can the menu bar and UI be properly created.
 				if (menuBar) {
 					edenUI.menu = new EdenUI.MenuBar();
 				}
@@ -201,7 +206,7 @@ function Construit(options,callback) {
 				if (exec.slice(-1) != ";") {
 					exec = exec + ";";
 				}
-				eden.execute2(exec, "URL", "", {name: "execute"}, function () { });
+				eden.execute2(exec);
 			}
 
 			// Set up P2P networking

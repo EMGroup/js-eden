@@ -462,6 +462,7 @@ button.button-upload:before {
 }
 
 button.button-cancel:before {
+	font-family: "FontAwesome";
 	content: "\f00d";
 }
 
