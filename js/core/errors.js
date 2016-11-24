@@ -630,13 +630,20 @@ Eden.RuntimeError.INFINITERANGE = 9;
 Eden.RuntimeError.NOLISTRANGE = 10;
 Eden.RuntimeError.LEFTCONCAT = 11;
 Eden.RuntimeError.RIGHTCONCAT = 12;
+Eden.RuntimeError.AGENTSOURCE = 13;
+Eden.RuntimeError.JSOBSERVER = 14;
+Eden.RuntimeError.PROCAGENT = 15;
 
 Eden.RuntimeError.prototype.messageText = function() {
-	var msg = (this.statement.type == "definition" || this.statement.type == "assignment") ? "'" + this.statement.lvalue.name + "': " : "";
+	var msg = (this.statement && (this.statement.type == "functioncall" || this.statement.type == "definition" || this.statement.type == "assignment")) ? "'" + this.statement.lvalue.name + "': " : "";
 
 	switch (this.errno) {
 	case Eden.RuntimeError.ACTIONNAME		:
 	case Eden.RuntimeError.NOAGENT			: 
+	case Eden.RuntimeError.NOTSUPPORTED		:
+	case Eden.RuntimeError.AGENTSOURCE		:
+	case Eden.RuntimeError.JSOBSERVER		:
+	case Eden.RuntimeError.PROCAGENT		:
 	case Eden.RuntimeError.EXTENDSTATIC		: return msg + this.extra;
 	case Eden.RuntimeError.ASSIGNTODEFINED	: return msg + "cannot assign to a defined list, use 'is'";
 	case Eden.RuntimeError.ASSIGNDIMENSION	: return msg + "list does not have this many dimensions";
@@ -649,6 +656,8 @@ Eden.RuntimeError.prototype.messageText = function() {
 
 	if (String(this.extra).search("is not a function") >= 0) {
 		return msg + "function used does not exist";
+	} else if (this.errno == Eden.RuntimeError.FUNCCALL && String(this.extra).search("Cannot read property 'call'") >= 0) {
+		return msg + "procedure does not exist";
 	} else if (String(this.extra).match(/Cannot read property .* of undefined/)) {
 		return msg + "uses an undefined list";
 	}

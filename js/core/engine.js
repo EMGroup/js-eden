@@ -141,15 +141,19 @@ function runEdenAction(source, action, cb) {
 			// Call another action and block until done
 			} else if (delay.value.type == "do") {
 				var script = me.getActionByName(delay.value.name);
-				var stats = script.statements;
-				if (stats) {
+
+				if (script) {
+					var stats = script.statements;
 					var params = delay.value.getParameters(undefined, me, eden.root.scope);
 
 					me.executeStatements(stats, undefined, script, function() {
 						runEdenAction.call(me,source, action, cb);
 					}, {parameters: params});
 				} else {
-					console.error("Missing script");
+					var err = new Eden.RuntimeError(me, Eden.RuntimeError.ACTIONNAME, delay.value, "Action '"+delay.value.name+"' does not exist");
+					err.line = delay.value.line;
+					delay.value.errors.push(err);
+					Eden.Agent.emit("error", [source,err]);
 				}
 			}
 		} else if (delay.value == 0) {
@@ -184,7 +188,7 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 		//if (this.active) return;
 		//this.active = true;
 		var gen = this.executeGenerator([statement], undefined ,this, eden.root.scope, agent);
-		runEdenAction.call(this,statement, gen, function() {
+		runEdenAction.call(this,agent, gen, function() {
 			if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
 				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
 			}

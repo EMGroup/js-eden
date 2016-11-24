@@ -1986,14 +1986,17 @@ Eden.AST.Switch.prototype.getSelector = function(ctx) {
 	return this.compiled;
 }
 
-Eden.AST.Switch.prototype.execute = function(ctx, base, scope) {
+Eden.AST.Switch.prototype.execute = function(ctx, base, scope, agent) {
 	// TODO REWORK FOR NEW EXECUTION PROCESS
 	/*var swi = "(function(context,scope) { ";
 	swi += this.generate(ctx, "scope");
 	swi += " })";
 	eval(swi)(eden.root, scope);*/
 
-	this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Switch not supported here"));
+	var err = new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Switch not supported here");
+	err.line = this.line;
+	this.errors.push(err);
+	Eden.Agent.emit("error", [agent,err]);
 };
 
 Eden.AST.Switch.prototype.error = fnEdenASTerror;
@@ -2065,15 +2068,17 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
 	}
 }
 
-Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope) {
+Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	var func = "(function(context,scope) { return " + this.generate(ctx, "scope") + "; })";
 
 	try {
 		return eval(func).call(ctx,eden.root,scope);
 	} catch(e) {
-		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e));
-		//console.error("Details: " + e + "\n" + "Function: " + this.lvalue.name);
+		var err = new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e);
+		this.errors.push(err);
+		err.line = this.line;
+		Eden.Agent.emit("error", [agent,err]);
 	}
 }
 
@@ -2245,7 +2250,10 @@ Eden.AST.Return.prototype.generate = function(ctx) {
 }
 
 Eden.AST.Return.prototype.execute = function(ctx,base,scope,agent) {
-	this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Return not supported here"));
+	var err = new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Return not supported here");
+	err.line = this.line;
+	this.errors.push(err);
+	Eden.Agent.emit("error", [agent,err]);
 }
 
 
@@ -2408,8 +2416,11 @@ Eden.AST.Do.prototype.execute = function(ctx,base,scope, agent) {
 		return script.execute(ctx,base, scope, agent);
 	} else {
 		this.executed = 3;
-		this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ACTIONNAME, this, "Action '"+this.name+"' does not exist"));
+		var err = new Eden.RuntimeError(base, Eden.RuntimeError.ACTIONNAME, this, "Action '"+this.name+"' does not exist");
 		if (this.parent) this.parent.executed = 3;
+		err.line = this.line;
+		this.errors.push(err);
+		Eden.Agent.emit("error", [agent,err]);
 	}
 }
 
@@ -2536,7 +2547,10 @@ Eden.AST.Default.prototype.generate = function(ctx, scope) {
 }
 
 Eden.AST.Default.prototype.execute = function(ctx,base,scope,agent) {
-	this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Default not supported here"));
+	var err = new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Default not supported here");
+	err.line = this.line;
+	this.errors.push(err);
+	Eden.Agent.emit("error", [agent,err]);
 }
 
 
@@ -2572,7 +2586,10 @@ Eden.AST.Case.prototype.generate = function(ctx, scope) {
 }
 
 Eden.AST.Case.prototype.execute = function(ctx,base,scope,agent) {
-	this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Case not supported here"));
+	var err = new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Case not supported here");
+	err.line = this.line;
+	this.errors.push(err);
+	Eden.Agent.emit("error", [agent,err]);
 }
 
 Eden.AST.Case.prototype.error = fnEdenASTerror;
@@ -2601,7 +2618,10 @@ Eden.AST.Continue.prototype.generate = function(ctx, scope) {
 }
 
 Eden.AST.Continue.prototype.execute = function(ctx,base,scope,agent) {
-	this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Continue not supported here"));
+	var err = new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Continue not supported here");
+	err.line = this.line;
+	this.errors.push(err);
+	Eden.Agent.emit("error", [agent,err]);
 }
 
 
@@ -2628,7 +2648,10 @@ Eden.AST.Break.prototype.generate = function(ctx, scope) {
 }
 
 Eden.AST.Break.prototype.execute = function(ctx,base,scope,agent) {
-	this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Break not supported here"));
+	var err = new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Break not supported here");
+	err.line = this.line;
+	this.errors.push(err);
+	Eden.Agent.emit("error", [agent,err]);
 }
 
 

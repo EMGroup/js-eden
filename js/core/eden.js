@@ -110,43 +110,6 @@
 			edenUI.showMessage("error", "Error: " + msg);
 		});
 
-		Eden.Agent.listenTo("error", undefined, function(agent,err) {
-			if (err) {
-				var msg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in " + agent.name + ":" + ((err.line != -1)?err.line:"") + " -> " + err.messageText();
-				var htmlmsg = ((err.type == "runtime")?"<span class='error-icon'>&#xf06a</span>" : "<span class='error-icon'>&#xf06a</span>") + " <a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?(err.line+1):"") + "</a> " + err.messageText();
-				console.error(msg);
-				if (!(agent.owned && err.type == "syntax")) {
-					//edenUI.showMessage("error", htmlmsg);
-					var formattedError = $("<pre class=\"error-item\">"+
-						htmlmsg +
-						"</pre>\n\n");
-					formattedError.on('click', function() {
-						var details = "";
-						if (err.statement.type == "definition" || err.statement.type == "assignment") {
-							details += "    <b>Symbol:</b> " + err.statement.lvalue.name + "\n";
-						}
-						if (err.lastsymbol) {
-							details += "    <b>Related Symbol:</b> " + err.lastsymbol + "\n";
-						}
-						if (String(err.extra).search("SyntaxError") >= 0) {
-							details += "    <b>JavaScript:</b> " + err.javascriptSource() + "\n";
-							formattedError.html(htmlmsg + "\n" + details);
-						} else {
-							details += "    <b>Source:</b> <div class='error-source'</div>\n";
-							formattedError.html(htmlmsg + "\n" + details);
-							var ast = new Eden.AST(err.edenSource());
-							var hl = new EdenUI.Highlight(formattedError.find(".error-source").get(0));
-							hl.highlight(ast, -1, -1);
-						}
-						//formattedError.html(htmlmsg + "\n\t" + details);
-					});
-
-					me.showErrorWindow().prepend(formattedError)
-					me.showErrorWindow().prop('scrollTop', 0);
-				}
-			}
-		});
-
 		/**
 		 * @type {Object.<string, Array.<{target: *, callback: function(...[*])}>>}
 		 * @private
@@ -155,8 +118,6 @@
 
 		this.windowHighlighter = new WindowHighlighter(this);
 		this.currentView = undefined; //Used for cycling between views.
-
-		this.errorWindow = null;
 		
 		this.viewCategories = {};
 		this.numberOfViewCategories = 0;
@@ -173,19 +134,7 @@
 		 * their own, e.g. State Listener. */
 		this.addViewCategory("extension", "Extensions");
 		/*Category of plug-ins that pertain to the management of the JS-EDEN environment itself, e.g. Plugin Listing. */
-		this.addViewCategory("environment", "Management");		
-
-		this.errorWindow = $(
-			'<div class="errors-box"><button class="control-button close-button control-enabled">&#xf00d;</button><button class="control-button clear-button control-enabled">&#xf05e;</button><div id="errors-dialog"></div></div>'
-		);
-		this.errorWindow.on('click','.close-button',function() {
-			me.errorWindow.hide();
-		})
-		.on('click','.clear-button',function() {
-			me.errorWindow.find("#errors-dialog").html("");
-		});
-		this.errorWindow.hide();
-		this.errorWindow.appendTo($("body"));
+		this.addViewCategory("environment", "Management");
 	}
 
 	/**Momentarily provides a visual cue to direct the user's gaze towards a particular view.
@@ -259,11 +208,6 @@
 	EdenUI.prototype.addViewCategory = function (name, label) {
 		this.viewCategories[name] = new ViewCategory(label, this.numberOfViewCategories);
 		this.numberOfViewCategories++;
-	};
-
-	EdenUI.prototype.showErrorWindow = function () {
-		this.errorWindow.show();
-		return $("#errors-dialog");
 	};
 
 	EdenUI.prototype.updateStatus = function(message) {

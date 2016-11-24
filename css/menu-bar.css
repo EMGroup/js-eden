@@ -79,7 +79,7 @@ span.project-tag {
 div.menubar-buttons {
 	position: absolute;
 	right: 20px;
-	top: 15px;
+	top: 17px;
 	width: 300px;
 	display: inline-block;
 }
@@ -97,19 +97,37 @@ div.menubar-button {
 	float: left;
 	/*text-shadow: 0px 0px 2px black;*/
 	font-family: "FontAwesome";
-	font-size: 26px;
+	font-size: 20px;
 	background: none;
 	border: 0;
 	cursor: pointer;
 	width: 30px;
 	outline: none;
 	margin-right: 10px;
-	padding-left: 10px;
+	/*padding-left: 10px;*/
 }
 
 div.menubar-button.share {
 	color: #bbb;
 	margin-right: 30px;
+}
+
+div.menubar-button.notifications {
+	color: #bbb;
+	margin-left: 20px;
+}
+
+span.menubar-notification-jewel {
+	font-size: 10pt;
+	color: white;
+	background: red;
+	border-radius: 3px;
+	position: relative;
+	top: -12px;
+	padding: 2px;
+	left: -9px;
+	font-weight: bold;
+	box-shadow: 0 2px 5px black;
 }
 
 button.sharebox-button {

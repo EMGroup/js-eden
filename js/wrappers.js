@@ -188,7 +188,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 
 			// Errors on load?
 			if (ag.ast && ag.ast.script.errors.length > 0) {
-				console.error("Agent: " + path + "@" + tag + "\n" + ag.ast.script.errors[0].prettyPrint());
+				//console.error("Agent: " + path + "@" + tag + "\n" + ag.ast.script.errors[0].prettyPrint());
 			}
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
@@ -211,6 +211,8 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			Eden.DB.addLocalMeta(path, ag.meta);
 		// There is no existing agent and we are not to create it.
 		} else if (!success) {
+			var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.NOAGENT, undefined, msg);
+			Eden.Agent.emit("error", [{name: path}, err]);
 			doCallbacks(undefined, msg);
 			return;
 		}
@@ -228,7 +230,8 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 
 			// Verify that there are no local changes!!!
 			if (ag.canUndo()) {
-				console.error("MERGE PROBLEM WITH IMPORT", path);
+				//console.error("MERGE PROBLEM WITH IMPORT", path);
+
 				Eden.DB.getSourceRaw(path, tag, function(src, msg) {
 					if (src) {
 						EdenUI.Dialogs.MergeError(ag.snapshot, src, function(action) {
@@ -697,7 +700,11 @@ Eden.Agent.prototype.loadSource = function(callback) {
 				Eden.Agent.emit("loaded", [me]);
 			} else {
 				if (callback) callback(false, msg);
-				else console.error("AGENT ERROR: " + me.name + " - " + msg);
+				//else console.error("AGENT ERROR: " + me.name + " - " + msg);
+				else {
+					var err = new Eden.RuntimeError(me.ast, Eden.RuntimeError.AGENTSOURCE, undefined, msg);
+					Eden.Agent.emit("error", [me,msg]);
+				}
 			}
 		}, "text");
 	}
