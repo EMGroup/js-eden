@@ -81,21 +81,6 @@ a[onclick] {
 	margin-left: 1.2pt;
 }
 
-div.error-item {
-	border-top-style: solid;
-	border-top-width: 1px;
-	border-top-color: silver;
-	padding: 4px;
-	width: 450px;
-}
-
-#errors-dialog {
-	font-family:monospace;
-	max-height: 250px;
-	white-space: pre-wrap;
-	word-wrap: break-word;
-}
-
 #tooltip {
 	position: absolute;
 	z-index: 65535;
