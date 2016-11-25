@@ -1012,6 +1012,15 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		Eden.Agent.listenTo("patch", agent, agentPatched);
 		Eden.Agent.listenTo("changed", agent, agentPatched);
 
+		Eden.Agent.listenTo("goto", agent, function(ag, line) {
+			if (!ag) return false;
+			if (agent.state[obs_tabs].indexOf(ag.name) == -1) return false;
+			agent.state[obs_agent] = ag.name;
+			scrollToLine(line);
+			// TODO implement select line
+			//gutter.selectLine(line);
+			return true;
+		});
 
 		/*edenUI.eden.root.addGlobal(function(sym, create) {
 			if (highlighter.ast) {
@@ -1977,8 +1986,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				} else if (element.className == "eden-observable") {
 					var obs = element.getAttribute("data-observable");
 					//console.log("GOTO: " + obs);
-					var sym = eden.root.symbols[obs];
-					if (sym) {
+					//var sym = eden.root.symbols[obs];
+					//if (sym) {
 						/*var a = Eden.Agent.agents[sym.last_modified_by];
 						if (a) {
 							if (a !== scriptagent) {
@@ -1990,8 +1999,9 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 							}, 100);
 							//console.log(" in " + sym.last_modified_by + "@"+lineno);
 						}*/
-						console.log(sym.last_modified_by);
-					}
+					//	console.log(sym.last_modified_by);
+					//}
+					edenUI.gotoCode("/"+obs);
 				}
 				e.preventDefault();
 			} else {

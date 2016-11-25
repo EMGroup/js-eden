@@ -952,6 +952,8 @@
 		for (var x in this.symbols) {
 			var sym = this.symbols[x];
 			var agent = sym.last_modified_by;
+			if (agent === undefined) console.log(sym);
+			if (typeof agent.name != "string") console.log(agent);
 			if (typeof agent != "object"
 					|| (forced && forced[agent.name])
 					|| (agent.canUndo && agent.canUndo())
@@ -961,7 +963,8 @@
 					|| agent.name == "*Restore"
 					|| agent.name == "*JavaScript"
 					|| agent.name == "*net"
-					|| agent.name == "*When") {
+					|| agent.name.startsWith("*When")
+					|| agent.name.startsWith("*Action")) {
 				if (sym.eden_definition) {
 					if (sym.eden_definition.startsWith("func")) {
 						functions += this.symbols[x].eden_definition + "\n";
@@ -1046,7 +1049,7 @@
 		this.observees = {};
 		this.jsObservers = {};
 
-		this.last_modified_by = undefined;
+		this.last_modified_by = {name: "*None"};
 
 		// true when the symbol ready to be garbage collected from its folder when execution of the
 		// current script finishes (if it is not subsequently referenced again).  This occurs when
@@ -1065,6 +1068,8 @@
 	Symbol.localJSAgent = {name: "*JavaScript", local: true};
 	// Network changes are always local to prevent loops.
 	Symbol.netAgent = {name: "*net", local: true};
+	// Something entirely ignored by script generator
+	Symbol.defaultAgent = {name: "*Default", local: true};
 
 	/**
 	 * Get the value of this symbol bound with the scope the value was

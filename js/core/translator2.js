@@ -2491,7 +2491,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	var script = this.pSCRIPT();
 	if (script.errors.length > 0) return script;
 
-	script.setName(name);
+	script.setName(this,name);
 
 	if (this.token != "}") {
 		script.error(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
@@ -2500,7 +2500,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 		//this.next();
 	}
 
-	this.scripts[script.name] = script;
+	this.scripts[name] = script;
 	script.base = this;
 
 	return script;

@@ -89,7 +89,7 @@ EdenUI.MenuBar = function() {
 					"</pre>\n\n");
 				formattedError.on('click', function() {
 					var details = "";
-					if (err.statement.type == "definition" || err.statement.type == "assignment") {
+					if (err.statement && (err.statement.type == "definition" || err.statement.type == "assignment")) {
 						details += "    <b>Symbol:</b> " + err.statement.lvalue.name + "\n";
 					}
 					if (err.lastsymbol) {
@@ -101,9 +101,11 @@ EdenUI.MenuBar = function() {
 					} else {
 						details += "    <b>Source:</b> <div class='error-source'</div>\n";
 						formattedError.html(htmlmsg + "\n" + details);
-						var ast = new Eden.AST(err.edenSource());
-						var hl = new EdenUI.Highlight(formattedError.find(".error-source").get(0));
-						hl.highlight(ast, -1, -1);
+						if (err.statement) {
+							var ast = new Eden.AST(err.edenSource());
+							var hl = new EdenUI.Highlight(formattedError.find(".error-source").get(0));
+							hl.highlight(ast, -1, -1);
+						}
 					}
 					//formattedError.html(htmlmsg + "\n\t" + details);
 				});

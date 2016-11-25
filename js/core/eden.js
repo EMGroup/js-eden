@@ -137,6 +137,57 @@
 		this.addViewCategory("environment", "Management");
 	}
 
+
+	/**
+	 * Parse an agent name string to attempt to find its location and display
+	 * that location to the user by opening a script view to it. If it is
+	 * already in a script view it will change to that tab and scroll to the
+	 * line if the line is known. Note that it does not always succeed.
+	 * @param {String} An agent/symbol name.
+	 * @param {number?} Optional line number if already known.
+	 */
+	EdenUI.prototype.gotoCode = function(agentname, line) {
+		// Is it a symbol name?
+		if (agentname.charAt(0) == "/") {
+			// Find, if possible, where this symbol is located currently.
+			var sym = eden.root.lookup(agentname.slice(1));
+			
+			// Attempt to get line number.
+			if (sym.eden_definition && sym.last_modified_by.name.charAt(0) != "*" && sym.last_modified_by.name.charAt(0) != "/") {
+				var ag = Eden.Agent.agents[sym.last_modified_by.name];
+				if (ag) {
+					line = ag.findDefinitionLine(sym.name.slice(1), sym.eden_definition);
+				}
+			}
+
+			this.gotoCode(sym.last_modified_by.name, line);
+		// The agent is a script name so attempt to go to an open one first
+		} else if (agentname.charAt(0) != "*" && !Eden.Agent.emit("goto", [Eden.Agent.agents[agentname], line])) {
+			this.createView("explorescript", "ScriptInput", window);
+			eden.root.lookup("_view_explorescript_agent").assign(agentname, eden.root.scope);
+			Eden.Agent.emit("goto", [Eden.Agent.agents[agentname], line]);
+		// The agent is something special, a "when" or "javascript".
+		} else if (agentname.charAt(0) == "*") {
+			if (agentname.startsWith("*Action")) {
+				var s = agentname.split(":");
+				var ag = Eden.Agent.agents[s[1]];
+				if (ag && ag.ast) {
+					var script = ag.ast.scripts[s[2]];
+					if (script) {
+						this.gotoCode(ag.name, script.line);
+					}
+				}
+			} else if (agentname.startsWith("*When")) {
+				var s = agentname.split(":");
+				var ag = Eden.Agent.agents[s[1]];
+				if (ag) {
+					this.gotoCode(ag.name, parseInt(s[2]));
+				}
+			}
+			// Nothing we can do otherwise
+		}
+	}
+
 	/**Momentarily provides a visual cue to direct the user's gaze towards a particular view.
 	 * Default implementation (in case support for displaying multiple views simultaneously isn't loaded).
 	 * @param {string} name The name of the view to draw attention to.
@@ -625,8 +676,12 @@
 	 * @param {function(*)} success
 	 */
 	Eden.prototype.execute2 = function (code, agent, success) {
-		agobj = {name: 'execute', getSource: function() { return code; }, getLine: function() { return 0; }};
-		if (agent) agobj.name = agent;
+		var agobj = agent;
+
+		if (agent === undefined || typeof agent == "string") {
+			agobj = {name: 'execute', getSource: function() { return code; }, getLine: function() { return 0; }};
+			if (agent) agobj.name = agent;
+		}
 
 		var ast = new Eden.AST(code);
 		if (ast.script.errors.length == 0) {
