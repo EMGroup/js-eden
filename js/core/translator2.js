@@ -27,6 +27,8 @@ Eden.AST = function(code, imports, origin, noparse) {
 	this.imports = (imports) ? imports : [];
 	this.origin = origin;		// The agent owner of this script
 
+	if (!origin) console.error("NO ORIGIN", code);
+
 	this.lastDoxyComment = undefined;
 	this.mainDoxyComment = undefined;
 

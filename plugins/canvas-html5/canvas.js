@@ -1205,6 +1205,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		var heightSym = canvasdata.heightSym;
 		var scaleSym = canvasdata.scaleSym;
 
+		/*if (eden.root.lookup("_view_" + canvasName + "_content").eden_definition === undefined) {
+			eden.execute2("_view_" + canvasName + "_content is " + canvasName + ";", "*Default");
+		}*/
+
 		$('<div id="'+name+'"></div>')
 		.html(code_entry)
 		.dialog({

@@ -163,7 +163,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			result += "\n\n";
 		}
 
-		var ast = new Eden.AST(result);
+		var ast = new Eden.AST(result, undefined,{name: "*Log"});
 		var hl = new EdenUI.Highlight(output);
 		hl.highlight(ast, -1, -1);
 

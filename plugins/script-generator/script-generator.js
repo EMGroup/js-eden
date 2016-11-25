@@ -83,7 +83,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 				script.append(defele);
 			}*/
 			var joined = data.definitions.join("\n") + "\n## When agents\n\n" + data.agents;
-			var ast = new Eden.AST(joined);
+			var ast = new Eden.AST(joined, undefined, {name: "*JavaScript"});
 			var hl = new EdenUI.Highlight(output.get(0));
 			hl.highlight(ast, -1, -1);
 		};

@@ -683,7 +683,7 @@
 			if (agent) agobj.name = agent;
 		}
 
-		var ast = new Eden.AST(code);
+		var ast = new Eden.AST(code, undefined, agobj);
 		if (ast.script.errors.length == 0) {
 			ast.execute(agobj, success);
 		} else {

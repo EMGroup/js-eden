@@ -550,17 +550,21 @@ See LICENSE.txt
 				});
 			});
 
-			eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {
-				if (value) {
-					lopts.css("display","none");
-					$(".loadmessage").html("Loading...");
-					$(".loadmodal").hide();
-				}
-			});
+			function setLoadObserver() {
+				eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {
+					if (value) {
+						lopts.css("display","none");
+						$(".loadmessage").html("Loading...");
+						$(".loadmodal").hide();
+					}
+				});
+			}
+			setLoadObserver();
 
 			window.addEventListener("popstate", function(e) {
 				if (!e.state) {
 					Eden.reset();
+					setLoadObserver();
 					lopts.css("display","block");
 				} else {
 					lopts.css("display","none");
