@@ -508,12 +508,8 @@ div#projectthumb {
 }
 
 .error-item {
-	border-top-style: solid;
-	border-top-width: 1px;
-	border-top-color: #ddd;
 	padding: 4px;
 	padding-left: 15px;
-	min-width: 100%;
 	box-sizing: border-box;
 	background-color: white;
 	margin-bottom: 0;
@@ -522,6 +518,19 @@ div#projectthumb {
 	vertical-align: middle;
 	white-space: pre-wrap;
 	word-wrap: break-word;
+}
+
+.notification-item {
+	border-top-style: solid;
+	border-top-width: 1px;
+	border-top-color: #ddd;
+	padding: 4px;
+	min-width: 100%;
+	box-sizing: border-box;
+	background-color: white;
+	margin-bottom: 0;
+	margin-top: 0;
+	display: flex;
 }
 
 #errors-dialog {
@@ -569,6 +578,15 @@ div.errors-box {
 	top: -9px;
 	right: 38px;
 	z-index: 2;
+}
+
+div.notification-error {
+	font-family: "FontAwesome";
+	color: red;
+	font-size: 20pt;
+	padding-left: 10px;
+	padding-right: 10px;
+	line-height: 100%;
 }
 
 span.error-icon {

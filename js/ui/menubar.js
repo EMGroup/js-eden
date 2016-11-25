@@ -57,45 +57,49 @@ EdenUI.MenuBar = function() {
 		}
 	});
 
-	Eden.Peer.listenTo("peer", undefined, function(id) {
-		me.notification("net", $('<div class="error-item">Peer \''+id+'\' connected</div>'));
+	Eden.Peer.listenTo("user", undefined, function(id,username) {
+		me.notification("net", $('<div>User \''+username+'\' connected to you</div>'));
+	});
+
+	Eden.Peer.listenTo("share", undefined, function(id,username) {
+		me.notification("net", $('<div>Your model is being shared...</div>'));
 	});
 
 	Eden.Agent.listenTo("error", undefined, function(agent,err) {
-			if (err) {
-				var msg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in " + agent.name + ":" + ((err.line != -1)?err.line:"") + " -> " + err.messageText();
-				var htmlmsg = ((err.type == "runtime")?"<span class='error-icon'>&#xf06a</span>" : "<span class='error-icon'>&#xf06a</span>") + " <a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?(err.line+1):"") + "</a> " + err.messageText();
-				console.error(msg);
-				if (!(agent.owned && err.type == "syntax")) {
-					//edenUI.showMessage("error", htmlmsg);
-					var formattedError = $("<pre class=\"error-item\">"+
-						htmlmsg +
-						"</pre>\n\n");
-					formattedError.on('click', function() {
-						var details = "";
-						if (err.statement.type == "definition" || err.statement.type == "assignment") {
-							details += "    <b>Symbol:</b> " + err.statement.lvalue.name + "\n";
-						}
-						if (err.lastsymbol) {
-							details += "    <b>Related Symbol:</b> " + err.lastsymbol + "\n";
-						}
-						if (String(err.extra).search("SyntaxError") >= 0) {
-							details += "    <b>JavaScript:</b> " + err.javascriptSource() + "\n";
-							formattedError.html(htmlmsg + "\n" + details);
-						} else {
-							details += "    <b>Source:</b> <div class='error-source'</div>\n";
-							formattedError.html(htmlmsg + "\n" + details);
-							var ast = new Eden.AST(err.edenSource());
-							var hl = new EdenUI.Highlight(formattedError.find(".error-source").get(0));
-							hl.highlight(ast, -1, -1);
-						}
-						//formattedError.html(htmlmsg + "\n\t" + details);
-					});
+		if (err) {
+			var msg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in " + agent.name + ":" + ((err.line != -1)?err.line:"") + " -> " + err.messageText();
+			var htmlmsg = "<a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?(err.line+1):"") + "</a> " + err.messageText();
+			console.error(msg);
+			if (!(agent.owned && err.type == "syntax")) {
+				//edenUI.showMessage("error", htmlmsg);
+				var formattedError = $("<pre class=\"error-item\">"+
+					htmlmsg +
+					"</pre>\n\n");
+				formattedError.on('click', function() {
+					var details = "";
+					if (err.statement.type == "definition" || err.statement.type == "assignment") {
+						details += "    <b>Symbol:</b> " + err.statement.lvalue.name + "\n";
+					}
+					if (err.lastsymbol) {
+						details += "    <b>Related Symbol:</b> " + err.lastsymbol + "\n";
+					}
+					if (String(err.extra).search("SyntaxError") >= 0) {
+						details += "    <b>JavaScript:</b> " + err.javascriptSource() + "\n";
+						formattedError.html(htmlmsg + "\n" + details);
+					} else {
+						details += "    <b>Source:</b> <div class='error-source'</div>\n";
+						formattedError.html(htmlmsg + "\n" + details);
+						var ast = new Eden.AST(err.edenSource());
+						var hl = new EdenUI.Highlight(formattedError.find(".error-source").get(0));
+						hl.highlight(ast, -1, -1);
+					}
+					//formattedError.html(htmlmsg + "\n\t" + details);
+				});
 
-					me.notification("error", formattedError);
-				}
+				me.notification("error", formattedError);
 			}
-		});
+		}
+	});
 
 
 	////////////////////////////////////////////////////////////////////////////
@@ -775,7 +779,10 @@ EdenUI.MenuBar.prototype.notification = function(type, content) {
 	this.notificationCount++;
 	this.notificationCountElement.html(this.notificationCount);
 	this.notificationCountElement.show();
-	this.notificationContent.prepend(content)
+	var nc = $('<div class="notification-item"></div>');
+	nc.append($('<div class="notification-error"><span style="vertical-align: middle;">&#xf06a</span></div>'));
+	nc.append(content);
+	this.notificationContent.prepend(nc)
 	this.notificationContent.prop('scrollTop', 0);
 }
 
