@@ -130,6 +130,8 @@ span.menubar-notification-jewel {
 	position: relative;
 	top: -12px;
 	padding: 2px;
+	padding-left: 3px;
+	padding-right: 3px;
 	left: -9px;
 	font-weight: bold;
 	box-shadow: 0 2px 5px black;

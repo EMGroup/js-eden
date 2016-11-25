@@ -321,6 +321,12 @@ Eden.Agent.remove = function(agent) {
 		previousAgent = a;
 	}
 
+	for (var x in agent.state) {
+		//console.log("CLEANUP", x);
+		var sym = eden.root.lookup(x);
+		sym.removeJSObserver(agent.name);
+	}
+
 	delete Eden.Agent.agents[agent.name];
 	Eden.Agent.emit("remove", [agent.name, previousAgent]);
 	// TODO Do cleanup here.
@@ -341,14 +347,16 @@ Eden.Agent.save = function() {
 	var result = "";
 	for (var x in Eden.Agent.agents) {
 		var ag = Eden.Agent.agents[x];
+		var docreate = "";
+		if (ag.meta.saveID == "origin" && !ag.meta.file) docreate = " create";
 		// First import and exec last executed version
 		if (ag.last_exec_version) {
-			result += "import " + x + "@" + Eden.Agent.agents[x].last_exec_version + ";\n";
+			result += "import " + x + "@" + Eden.Agent.agents[x].last_exec_version + docreate + ";\n";
 		}
 
 		// Now make sure actual imported version is brought in (but not executed)
 		if (ag.last_exec_version != ag.meta.saveID) {
-			result += "import " + x + "@" + Eden.Agent.agents[x].meta.saveID + " noexec;\n";
+			result += "import " + x + "@" + Eden.Agent.agents[x].meta.saveID + docreate + " noexec;\n";
 		}
 	}
 	return result;
@@ -742,6 +750,7 @@ Eden.Agent.prototype.setReadonly = function(ro) {
 		(function(sym, name) {
 			var me = this;
 			Object.defineProperty(this.state, name, {
+				enumerable: true,
 				get: function() { return sym.value(me.parent.scope); },
 				set: function(v) { sym.assign(v, me.scope, me); }
 			});
@@ -760,6 +769,7 @@ Eden.Agent.prototype.setWriteonly = function(wo) {
 		(function(sym, name) {
 			var me = this;
 			Object.defineProperty(this.state, name, {
+				enumerable: true,
 				get: function() { return sym.value(me.scope); },
 				set: function(v) { sym.assign(v, me.parent.scope, {name: "*JavaScript", agent: me}); }
 			});
@@ -779,6 +789,7 @@ Eden.Agent.prototype.setReadWrite = function(rw) {
 		(function(sym, name) {
 			var me = this;
 			Object.defineProperty(this.state, name, {
+				enumerable: true,
 				get: function() { return sym.value(me.parent.scope); },
 				set: function(v) { sym.assign(v, me.parent.scope, {name: "*JavaScript", agent: me}); }
 			});
@@ -793,6 +804,7 @@ Eden.Agent.prototype.declare = function(name) {
 	var me = this;
 
 	Object.defineProperty(this.state, name, {
+		enumerable: true,
 		get: function() { return sym.value(me.scope); },
 		set: function(v) { sym.assign(v, me.scope, {name: "*JavaScript", agent: me}); }
 	});

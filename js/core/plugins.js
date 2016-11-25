@@ -501,6 +501,9 @@
 		root.forgetAll("^_View_" + name + "_", true, false, true);
 		if (forgetObservables) {
 			root.forgetAll("^_view_" + name + "_", true, false, true);
+		} else {
+			// We at least need to remove javascript observers!
+			root.lookup("_view_"+name+"_title").removeJSObserver("updateTitleBar");
 		}
 		var theDialog = dialog(name);
 		theDialog.dialog('destroy');
