@@ -2827,6 +2827,7 @@ Eden.AST.When.prototype.setStatement = function (statement) {
 Eden.AST.When.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
+	this.name = "*When:"+this.base.origin.name+":"+this.line;
 }
 
 Eden.AST.When.prototype.generate = function() {
@@ -3019,8 +3020,9 @@ Eden.AST.Script.prototype.getParameterByNumber = function(index) {
 
 Eden.AST.Script.prototype.error = fnEdenASTerror;
 
-Eden.AST.Script.prototype.setName = function(name) {
-	this.name = name;
+Eden.AST.Script.prototype.setName = function(base, name) {
+	this.name = "*Action:"+base.origin.name+":"+name;
+	this.shortName = name;
 }
 
 Eden.AST.Script.prototype.setSource = function(start, end) {

@@ -441,7 +441,7 @@
 		}
 
 		// Now construct eden agents and observables for dialog control.
-		this.eden.execute2(viewEdenCode(), Symbol.localJSAgent, noop);
+		this.eden.execute2(viewEdenCode(), Symbol.defaultAgent, noop);
 		this.eden.root.endAutocalcOff();
 		this.emit('createView', [name, type]);
 		return viewData;
@@ -501,6 +501,9 @@
 		root.forgetAll("^_View_" + name + "_", true, false, true);
 		if (forgetObservables) {
 			root.forgetAll("^_view_" + name + "_", true, false, true);
+		} else {
+			// We at least need to remove javascript observers!
+			root.lookup("_view_"+name+"_title").removeJSObserver("updateTitleBar");
 		}
 		var theDialog = dialog(name);
 		theDialog.dialog('destroy');

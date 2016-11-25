@@ -34,8 +34,9 @@ function emit(eventName, eventArgs) {
 	for (i = 0; i < listenersForEvent.length; ++i) {
 		var target = listenersForEvent[i].target;
 		var callback = listenersForEvent[i].callback;
-		callback.apply(target, eventArgs);
+		if (callback.apply(target, eventArgs)) return true;
 	}
+	return false;
 }
 
 mobilecheck = function() {

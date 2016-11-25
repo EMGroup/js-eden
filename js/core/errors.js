@@ -665,13 +665,15 @@ Eden.RuntimeError.prototype.messageText = function() {
 }
 
 Eden.RuntimeError.prototype.edenSource = function() {
-	if (this.statement.type == "definition") {
-		var sym = eden.root.symbols[this.statement.lvalue.name];
-		if (sym && sym.definition) {
-			return sym.getSource();
+	if (this.statement) {
+		if (this.statement.type == "definition") {
+			var sym = eden.root.symbols[this.statement.lvalue.name];
+			if (sym && sym.definition) {
+				return sym.getSource();
+			}
+		} else if (this.context) {
+			return this.context.getSource(this.statement);
 		}
-	} else if (this.context) {
-		return this.context.getSource(this.statement);
 	}
 }
 
