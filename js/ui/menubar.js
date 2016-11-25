@@ -6,7 +6,8 @@ EdenUI.MenuBar = function() {
 
 	eden.execute2("_views_number_created = 0;", "*Default");
 
-	this.element = $('<div id="menubar-main"><div id="eden-logo"></div><div contenteditable class="jseden-title">Construit!</div>'+((!mobilecheck()) ? '<div class="menubar-buttons"><div class="menubar-button enabled share" data-obs="menu_new_scriptview" title="Save or share">&#xf1e0;</div><div class="menubar-button enabled main" data-obs="views" title="Create Views">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="existing" title="Existing">&#xf24d;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="options" title="Options">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="help" title="Help">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div></div>' : '<div class="menubar-mobilebuttons"><button class="scriptview-button enabled mobilemore">&#xf078;</button></div>')+'</div>');
+	// The menu bar, title and buttons...
+	this.element = $('<div id="menubar-main"><div id="eden-logo"></div><div contenteditable class="jseden-title">Construit!</div>'+((!mobilecheck()) ? '<div class="menubar-buttons"><div class="menubar-button enabled share" data-obs="menu_new_scriptview" title="Save or share">&#xf1e0;</div><div class="menubar-button enabled main" data-obs="views" title="Create Views">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="existing" title="Existing">&#xf24d;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="options" title="Options">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="help" title="Help">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div><div class="menubar-button enabled notifications">&#xf0f3;<span class="menubar-notification-jewel"></span></div></div>' : '<div class="menubar-mobilebuttons"><button class="scriptview-button enabled mobilemore">&#xf078;</button></div>')+'</div>');
 	$(document.body).append(this.element);
 
 	// Login Button
@@ -19,6 +20,10 @@ EdenUI.MenuBar = function() {
 			$("#menubar-login").html('<a href="'+Eden.DB.remoteURL+'/login" target="logintarget"><span class="icon">&#xf090;</span>Login</a>');
 		}); 
 	});
+
+	////////////////////////////////////////////////////////////////////////////
+	//  JS-Eden event listeners
+	////////////////////////////////////////////////////////////////////////////
 
 	edenUI.listenTo('loadPlugin', this, function (name, path) {
 		this.updateViewsMenu();
@@ -40,6 +45,7 @@ EdenUI.MenuBar = function() {
 
 	Eden.DB.listenTo("disconnected", this, function() {
 		$("#menubar-login").html('<span class="icon">&#xf05e;</span>Not Connected');
+		me.notification("info", $('<div class="error-item">Disconnected</div>'));
 	});
 
 	Eden.DB.listenTo("login", this, function(name) {
@@ -50,6 +56,54 @@ EdenUI.MenuBar = function() {
 			$("#menubar-login").html('<a href="'+Eden.DB.remoteURL+'/#" target="_blank"><span class="icon">&#xf007;</span>'+name+"</a>");
 		}
 	});
+
+	Eden.Peer.listenTo("user", undefined, function(id,username) {
+		me.notification("net", $('<div>User \''+username+'\' connected to you</div>'));
+	});
+
+	Eden.Peer.listenTo("share", undefined, function(id,username) {
+		me.notification("net", $('<div>Your model is being shared...</div>'));
+	});
+
+	Eden.Agent.listenTo("error", undefined, function(agent,err) {
+		if (err) {
+			var msg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in " + agent.name + ":" + ((err.line != -1)?err.line:"") + " -> " + err.messageText();
+			var htmlmsg = "<a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?(err.line+1):"") + "</a> " + err.messageText();
+			console.error(msg);
+			if (!(agent.owned && err.type == "syntax")) {
+				//edenUI.showMessage("error", htmlmsg);
+				var formattedError = $("<pre class=\"error-item\">"+
+					htmlmsg +
+					"</pre>\n\n");
+				formattedError.on('click', function() {
+					var details = "";
+					if (err.statement.type == "definition" || err.statement.type == "assignment") {
+						details += "    <b>Symbol:</b> " + err.statement.lvalue.name + "\n";
+					}
+					if (err.lastsymbol) {
+						details += "    <b>Related Symbol:</b> " + err.lastsymbol + "\n";
+					}
+					if (String(err.extra).search("SyntaxError") >= 0) {
+						details += "    <b>JavaScript:</b> " + err.javascriptSource() + "\n";
+						formattedError.html(htmlmsg + "\n" + details);
+					} else {
+						details += "    <b>Source:</b> <div class='error-source'</div>\n";
+						formattedError.html(htmlmsg + "\n" + details);
+						var ast = new Eden.AST(err.edenSource());
+						var hl = new EdenUI.Highlight(formattedError.find(".error-source").get(0));
+						hl.highlight(ast, -1, -1);
+					}
+					//formattedError.html(htmlmsg + "\n\t" + details);
+				});
+
+				me.notification("error", formattedError);
+			}
+		}
+	});
+
+
+	////////////////////////////////////////////////////////////////////////////
+
 
 	$("#menubar-login").click(function() {
 		if (Eden.DB.isConnected() && !Eden.DB.isLoggedIn()) {
@@ -695,6 +749,41 @@ EdenUI.MenuBar = function() {
 
 		}
 	});
+
+	// Notifications!
+
+	this.notificationCount = 0;
+	this.notificationCountElement = this.element.find(".menubar-notification-jewel");
+	this.notificationCountElement.hide();
+	this.notificationPanel = $(
+			'<div class="errors-box"><button class="control-button close-button control-enabled">&#xf00d;</button><button class="control-button clear-button control-enabled">&#xf05e;</button><div id="errors-dialog"></div></div>'
+		);
+	this.notificationPanel.on('click','.close-button',function() {
+		me.notificationPanel.hide();
+	})
+	.on('click','.clear-button',function() {
+		me.notificationPanel.find("#errors-dialog").html("");
+	});
+	this.notificationPanel.hide();
+	this.notificationPanel.appendTo($("body"));
+	this.notificationContent = this.notificationPanel.find("#errors-dialog");
+
+	this.element.on("click",".notifications", function(e) {
+		me.notificationPanel.toggle();
+		me.notificationCountElement.hide();
+		me.notificationCount = 0;
+	});
+}
+
+EdenUI.MenuBar.prototype.notification = function(type, content) {
+	this.notificationCount++;
+	this.notificationCountElement.html(this.notificationCount);
+	this.notificationCountElement.show();
+	var nc = $('<div class="notification-item"></div>');
+	nc.append($('<div class="notification-error"><span style="vertical-align: middle;">&#xf06a</span></div>'));
+	nc.append(content);
+	this.notificationContent.prepend(nc)
+	this.notificationContent.prop('scrollTop', 0);
 }
 
 EdenUI.MenuBar.reset = function() {

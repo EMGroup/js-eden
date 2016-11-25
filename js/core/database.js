@@ -220,7 +220,7 @@ Eden.DB.connect = function(url, callback) {
 
 Eden.DB.disconnect = function(retry) {
 	Eden.DB.remoteURL = undefined;
-	Eden.DB.emit("disconnected", []);
+	if (Eden.DB.connected) Eden.DB.emit("disconnected", []);
 	Eden.DB.connected = false;
 
 	if (Eden.DB.refreshint) {

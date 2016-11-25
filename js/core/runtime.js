@@ -112,17 +112,11 @@ var rt = {
 			if (Array.isArray(b)) {
 				return a.concat(b);
 			} else {
-				eden.error(new Error(
-					"Concatenation: When the left hand side is a list then the right hand side must " +
-					"also be a list, not a " + typeof(b)
-				));
+				throw new Error(Eden.RuntimeError.LEFTCONCAT);
 				return a;
 			}
 		} else if (Array.isArray(b)) {
-			eden.error(new Error(
-				"Concatenation: When the right hand side is a list then the left hand side must " +
-				"also be a list, not a " + typeof(a)
-			));
+			throw new Error(Eden.RuntimeError.RIGHTCONCAT);
 			return a + JSON.stringify(b);
 		} else {
 			return String(a) + b;

@@ -91,6 +91,7 @@
 		});*/
 
 		this.eden.listenTo('executeError', this, function (e, options) {
+			console.error("DEPRECATED ERROR REPORTING", e);
 			var errorMessageHTML = Eden.htmlEscape(e.message);
 
 			var formattedError = "<div class=\"error-item\">"+
@@ -117,8 +118,6 @@
 
 		this.windowHighlighter = new WindowHighlighter(this);
 		this.currentView = undefined; //Used for cycling between views.
-
-		this.errorWindow = null;
 		
 		this.viewCategories = {};
 		this.numberOfViewCategories = 0;
@@ -135,26 +134,7 @@
 		 * their own, e.g. State Listener. */
 		this.addViewCategory("extension", "Extensions");
 		/*Category of plug-ins that pertain to the management of the JS-EDEN environment itself, e.g. Plugin Listing. */
-		this.addViewCategory("environment", "Management");		
-
-		this.views.ErrorLog = {
-			dialog: function () {
-				if (!this.errorWindow) {
-					this.errorWindow = $(
-						'<pre id="errors-dialog"></pre>'
-					);
-				}
-
-				this.errorWindow
-					.addClass('ui-state-error')
-					.dialog({width: 500, height: 250})
-					.dialog('moveToTop');
-				me.brieflyHighlightView(this.name);
-			},
-			title: "Error Log",
-			name: "errors",
-			category: this.viewCategories.interpretation
-		};
+		this.addViewCategory("environment", "Management");
 	}
 
 	/**Momentarily provides a visual cue to direct the user's gaze towards a particular view.
@@ -228,11 +208,6 @@
 	EdenUI.prototype.addViewCategory = function (name, label) {
 		this.viewCategories[name] = new ViewCategory(label, this.numberOfViewCategories);
 		this.numberOfViewCategories++;
-	};
-
-	EdenUI.prototype.showErrorWindow = function () {
-		this.createView("errors", "ErrorLog", window);
-		return $("#errors-dialog");
 	};
 
 	EdenUI.prototype.updateStatus = function(message) {

@@ -79,7 +79,7 @@ span.project-tag {
 div.menubar-buttons {
 	position: absolute;
 	right: 20px;
-	top: 15px;
+	top: 17px;
 	width: 300px;
 	display: inline-block;
 }
@@ -97,19 +97,37 @@ div.menubar-button {
 	float: left;
 	/*text-shadow: 0px 0px 2px black;*/
 	font-family: "FontAwesome";
-	font-size: 26px;
+	font-size: 20px;
 	background: none;
 	border: 0;
 	cursor: pointer;
 	width: 30px;
 	outline: none;
 	margin-right: 10px;
-	padding-left: 10px;
+	/*padding-left: 10px;*/
 }
 
 div.menubar-button.share {
 	color: #bbb;
 	margin-right: 30px;
+}
+
+div.menubar-button.notifications {
+	color: #bbb;
+	margin-left: 20px;
+}
+
+span.menubar-notification-jewel {
+	font-size: 10pt;
+	color: white;
+	background: red;
+	border-radius: 3px;
+	position: relative;
+	top: -12px;
+	padding: 2px;
+	left: -9px;
+	font-weight: bold;
+	box-shadow: 0 2px 5px black;
 }
 
 button.sharebox-button {
@@ -196,6 +214,19 @@ div.jseden-title:hover {
 	display: none;
 	font-size: 14px;
 	font-family: 'arial';
+}
+
+.menubar-menu:before {
+	content: "";
+	width: 0; 
+  height: 0; 
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid white;
+	position: absolute;
+	top: -9px;
+	left: 212px;
+	z-index: 2;
 }
 
 #menubar-bottom {
@@ -340,17 +371,17 @@ div.jseden-title:hover {
 	position: relative;
 	font-weight: normal;
 	left: -215px;
-	margin-top: 6px;
+	margin-top: 15px;
 	padding-bottom: 6px;
 	background-color: white;
-	border-color: #777;
+	border-color: #888;
 	border-style: solid;
-	border-width: 0px 0px 1px 1px;
-	box-shadow: 4px 6px 7px 0px #222;
+	border-width: 0 1px 1px 1px;
+	box-shadow: 0 0 10px #4a6887;
 	color: black;
 	width: 250px;
 	text-align: left;
-	overflow-y: auto;
+	/*overflow-y: auto;*/
 }
 
 #menubar-mainitem-existing-views {
@@ -474,4 +505,92 @@ iframe.menubar-login-iframe {
 
 div#projectthumb {
 	margin-top: 10px;
+}
+
+.error-item {
+	padding: 4px;
+	padding-left: 15px;
+	box-sizing: border-box;
+	background-color: white;
+	margin-bottom: 0;
+	margin-top: 0;
+	line-height: 18px;
+	vertical-align: middle;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
+
+.notification-item {
+	border-top-style: solid;
+	border-top-width: 1px;
+	border-top-color: #ddd;
+	padding: 4px;
+	min-width: 100%;
+	box-sizing: border-box;
+	background-color: white;
+	margin-bottom: 0;
+	margin-top: 0;
+	display: flex;
+}
+
+#errors-dialog {
+	/*font-family:monospace;*/
+	max-height: 250px;
+	/*padding-top: 5px;*/
+	overflow-y: auto;
+}
+
+div.error-source {
+	display: inline-block;
+	resize: none;
+	box-sizing: border-box;
+	padding: 0;
+	padding-left: 10px;
+	/*padding: 4px;*/
+	/*margin: 5px;*/
+	outline: none;
+	font: 14px/20px Roboto Mono,monospace;
+}
+
+div.errors-box {
+	position: absolute;
+	z-index: 2147483646;
+	right: 20px;
+	width: 500px;
+	height: 250px;
+	top: 52px;
+	background-color: #f5f5f5;
+	/*overflow-y: auto;*/
+	border-width: 1px;
+	border-color: #888;
+	border-style: solid;
+	box-shadow: 0 0 10px #4a6887;
+}
+
+.errors-box:before {
+	content: "";
+	width: 0; 
+  height: 0; 
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid white;
+	position: absolute;
+	top: -9px;
+	right: 38px;
+	z-index: 2;
+}
+
+div.notification-error {
+	font-family: "FontAwesome";
+	color: red;
+	font-size: 20pt;
+	padding-left: 10px;
+	padding-right: 10px;
+	line-height: 100%;
+}
+
+span.error-icon {
+	font-family: "FontAwesome";
+	color: red;
+	font-size: 12pt;
 }

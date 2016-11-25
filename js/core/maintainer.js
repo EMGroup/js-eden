@@ -59,6 +59,13 @@
 		this.current = (isin) ? start[0] : start;
 		this.isin = isin;
 		this.index = 1;
+
+		// Check for valid combinations of options
+		if (this.increment == 0) {
+			throw new Error(Eden.RuntimeError.INFINITERANGE);
+		} else if (this.isin && this.end === undefined && !(this.start instanceof Array)) {
+			throw new Error(Eden.RuntimeError.NOLISTRANGE);
+		}
 	}
 
 
@@ -1511,7 +1518,9 @@
 		try {
 			this.value().call(this, this.context, this.context.scope);
 		} catch (error) {
-			this.logError("Failed while triggering: " + error);
+			//this.logError("Failed while triggering: " + error);
+			var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.PROCAGENT, undefined, "Triggered proc failed: "+error);
+			Eden.Agent.emit("error", [this,err]);
 		}
 	};
 
@@ -1538,7 +1547,9 @@
 			try {
 				this.jsObservers[jsObserverName](this, this.cache.value);
 			} catch (error) {
-				this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
+				//this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
+				var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.JSOBSERVER, undefined, "JavaScript observer '"+jsObserverName+"' failed: "+error);
+				Eden.Agent.emit("error", [this,err]);
 				var debug;
 				if (this.context) {
 					var debugOptions = this.cache.value;
@@ -1549,7 +1560,7 @@
 				if (debug) {
 					debugger;
 				}
-				throw error;
+				//throw error;
 			}
 		}
 	}
@@ -1755,21 +1766,25 @@
 	};
 
 	Symbol.prototype.addExtension = function(idstr, ext, source, modifying_agent, deps) {
-		if (this.extend === undefined) {
-			this.extend = {};
-		}
-		this.extend[idstr] = { code: ext, source: source, deps: deps };
+		if (this.definition) {	
+			if (this.extend === undefined) {
+				this.extend = {};
+			}
+			this.extend[idstr] = { code: ext, source: source, deps: deps };
 
-		this.subscribe(deps);
+			this.subscribe(deps);
 
-		if (this.context) {
-			this.context.expireSymbol(this);
+			if (this.context) {
+				this.context.expireSymbol(this);
+			}
+		} else {
+			throw new Error(Eden.RuntimeError.EXTENDSTATIC);
 		}
 	}
 
 	Symbol.prototype.listAssign = function(value, scope, modifying_agent, pushToNetwork, indices) {
 		if (this.definition) {
-			console.log("ASSIGN TO DEFINED LIST ERROR");
+			throw new Error(Eden.RuntimeError.ASSIGNTODEFINED);
 			return;
 		}
 
@@ -1786,7 +1801,7 @@
 			//}
 			list[indices[indices.length-1]] = value;
 		} else {
-			console.log("ASSIGN DIMENSION ERROR");
+			throw new Error(Eden.RuntimeError.ASSIGNDIMENSION);
 		}
 
 		this._setLastModifiedBy(modifying_agent);
