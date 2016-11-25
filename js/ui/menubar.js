@@ -7,7 +7,7 @@ EdenUI.MenuBar = function() {
 	eden.execute2("_views_number_created = 0;", "*Default");
 
 	// The menu bar, title and buttons...
-	this.element = $('<div id="menubar-main"><div id="eden-logo"></div><div contenteditable class="jseden-title">Construit!</div>'+((!mobilecheck()) ? '<div class="menubar-buttons"><div class="menubar-button enabled share" data-obs="menu_new_scriptview" title="Save or share">&#xf1e0;</div><div class="menubar-button enabled main" data-obs="views" title="Create Views">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="existing" title="Existing">&#xf24d;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="options" title="Options">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="help" title="Help">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div><div class="menubar-button enabled notifications">&#xf0f3;<span class="menubar-notification-jewel"></span></div></div>' : '<div class="menubar-mobilebuttons"><button class="scriptview-button enabled mobilemore">&#xf078;</button></div>')+'</div>');
+	this.element = $('<div id="menubar-main"><div id="eden-logo"></div><div contenteditable class="jseden-title">Construit!</div>'+((!mobilecheck()) ? '<div class="menubar-buttons"><div class="menubar-button enabled share" data-obs="menu_new_scriptview" title="Save or share">&#xf1e0;</div><div class="menubar-button enabled main" data-obs="views" title="Create Views">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="existing" title="Existing">&#xf24d;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="options" title="Options">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="help" title="Help">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div><div class="menubar-button enabled main notifications" data-obs="notifications">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div></div>' : '<div class="menubar-mobilebuttons"><button class="scriptview-button enabled mobilemore">&#xf078;</button></div>')+'</div>');
 	$(document.body).append(this.element);
 
 	// Login Button
@@ -45,7 +45,7 @@ EdenUI.MenuBar = function() {
 
 	Eden.DB.listenTo("disconnected", this, function() {
 		$("#menubar-login").html('<span class="icon">&#xf05e;</span>Not Connected');
-		me.notification("info", $('<div class="error-item">Disconnected</div>'));
+		me.notification("info", $('<div class="notification-content">Disconnected</div>'));
 	});
 
 	Eden.DB.listenTo("login", this, function(name) {
@@ -58,11 +58,23 @@ EdenUI.MenuBar = function() {
 	});
 
 	Eden.Peer.listenTo("user", undefined, function(id,username) {
-		me.notification("net", $('<div>User \''+username+'\' connected to you</div>'));
+		me.notification("net", $('<div class="notification-content">User \'<a href="javascript:eden.peer.showConnection(\''+id+'\');">'+username+'</a>\' connected to you.<br/><a href="javascript: eden.peer.requestShare(\''+id+'\');">Watch</a> <a href="javascript: eden.peer.requestObserve(\''+id+'\');">Broadcast</a> <a href="javascript: eden.peer.requestCollaborate(\''+id+'\');">Collaborate</a></div>'));
 	});
 
 	Eden.Peer.listenTo("share", undefined, function(id,username) {
-		me.notification("net", $('<div>Your model is being shared...</div>'));
+		me.notification("net", $('<div class="notification-content">Your model is being shared...</div>'));
+	});
+
+	Eden.Peer.listenTo("disconnect", undefined, function(id,username) {
+		if (username) {
+			me.notification("net", $('<div class="notification-content">User \''+username+'\' disconnected.</div>'));
+		} else {
+			me.notification("net", $('<div class="notification-content">P2P User disconnected.</div>'));
+		}
+	});
+
+	Eden.Peer.listenTo("error", undefined, function(err) {
+		me.notification("error", $('<div class="notification-content">P2P: '+err+'</div>'));
 	});
 
 	Eden.Agent.listenTo("error", undefined, function(agent,err) {
@@ -755,8 +767,9 @@ EdenUI.MenuBar = function() {
 	this.notificationCount = 0;
 	this.notificationCountElement = this.element.find(".menubar-notification-jewel");
 	this.notificationCountElement.hide();
-	this.notificationPanel = $(
-			'<div class="errors-box"><button class="control-button close-button control-enabled">&#xf00d;</button><button class="control-button clear-button control-enabled">&#xf05e;</button><div id="errors-dialog"></div></div>'
+	this.notificationPanel = this.element.find("#menubar-mainitem-notifications");
+	this.notificationPanel.html(
+			'<button class="control-button close-button control-enabled">&#xf00d;</button><button class="control-button clear-button control-enabled">&#xf05e;</button><div id="errors-dialog"></div>'
 		);
 	this.notificationPanel.on('click','.close-button',function() {
 		me.notificationPanel.hide();
@@ -765,11 +778,11 @@ EdenUI.MenuBar = function() {
 		me.notificationPanel.find("#errors-dialog").html("");
 	});
 	this.notificationPanel.hide();
-	this.notificationPanel.appendTo($("body"));
+	//this.notificationPanel.appendTo($("body"));
 	this.notificationContent = this.notificationPanel.find("#errors-dialog");
 
 	this.element.on("click",".notifications", function(e) {
-		me.notificationPanel.toggle();
+		//me.notificationPanel.toggle();
 		me.notificationCountElement.hide();
 		me.notificationCount = 0;
 	});
@@ -779,8 +792,14 @@ EdenUI.MenuBar.prototype.notification = function(type, content) {
 	this.notificationCount++;
 	this.notificationCountElement.html(this.notificationCount);
 	this.notificationCountElement.show();
-	var nc = $('<div class="notification-item"></div>');
-	nc.append($('<div class="notification-error"><span style="vertical-align: middle;">&#xf06a</span></div>'));
+	var nc;
+	if (type == "error") {
+		nc = $('<div class="notification-item error"></div>');
+		nc.append($('<div class="notification-error"><span style="vertical-align: middle;">&#xf06a;</span></div>'));
+	} else {
+		nc = $('<div class="notification-item"></div>');
+		nc.append($('<div class="notification-icon"><span style="vertical-align: middle;">&#xf0c1;</span></div>'));
+	}
 	nc.append(content);
 	this.notificationContent.prepend(nc)
 	this.notificationContent.prop('scrollTop', 0);

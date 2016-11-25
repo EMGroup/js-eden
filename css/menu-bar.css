@@ -93,6 +93,11 @@ div.menubar-mobilebuttons {
 }
 
 div.menubar-button {
+	/* prevent text highlighting */
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
 	display: inline-block;
 	float: left;
 	/*text-shadow: 0px 0px 2px black;*/
@@ -216,18 +221,7 @@ div.jseden-title:hover {
 	font-family: 'arial';
 }
 
-.menubar-menu:before {
-	content: "";
-	width: 0; 
-  height: 0; 
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 10px solid white;
-	position: absolute;
-	top: -9px;
-	left: 212px;
-	z-index: 2;
-}
+
 
 #menubar-bottom {
 	position: fixed;
@@ -368,10 +362,15 @@ div.jseden-title:hover {
 }
 
 .menubar-menu {
+	/* prevent text highlighting */
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
 	position: relative;
 	font-weight: normal;
 	left: -215px;
-	margin-top: 15px;
+	margin-top: 18px;
 	padding-bottom: 6px;
 	background-color: white;
 	border-color: #888;
@@ -382,6 +381,19 @@ div.jseden-title:hover {
 	width: 250px;
 	text-align: left;
 	/*overflow-y: auto;*/
+}
+
+.menubar-menu:before {
+	content: "";
+	width: 0; 
+  height: 0; 
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 12px solid white;
+	position: absolute;
+	top: -11px;
+	right: 16px;
+	z-index: 2;
 }
 
 #menubar-mainitem-existing-views {
@@ -511,13 +523,14 @@ div#projectthumb {
 	padding: 4px;
 	padding-left: 15px;
 	box-sizing: border-box;
-	background-color: white;
+	/*background-color: white;*/
 	margin-bottom: 0;
 	margin-top: 0;
 	line-height: 18px;
 	vertical-align: middle;
 	white-space: pre-wrap;
 	word-wrap: break-word;
+	font-size: 8pt;
 }
 
 .notification-item {
@@ -527,10 +540,19 @@ div#projectthumb {
 	padding: 4px;
 	min-width: 100%;
 	box-sizing: border-box;
-	background-color: white;
+	/*background-color: white;*/
 	margin-bottom: 0;
 	margin-top: 0;
 	display: flex;
+	align-items: center;
+}
+
+.notification-item.error {
+	background: #ffe3e3;
+}
+
+.notification-item:hover {
+	background: #eee;
 }
 
 #errors-dialog {
@@ -552,45 +574,46 @@ div.error-source {
 	font: 14px/20px Roboto Mono,monospace;
 }
 
-div.errors-box {
-	position: absolute;
-	z-index: 2147483646;
-	right: 20px;
-	width: 500px;
-	height: 250px;
-	top: 52px;
-	background-color: #f5f5f5;
-	/*overflow-y: auto;*/
-	border-width: 1px;
-	border-color: #888;
-	border-style: solid;
-	box-shadow: 0 0 10px #4a6887;
-}
 
-.errors-box:before {
-	content: "";
-	width: 0; 
-  height: 0; 
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 10px solid white;
-	position: absolute;
-	top: -9px;
-	right: 38px;
-	z-index: 2;
+#menubar-mainitem-notifications {
+	width: 500px;
+	left: -465px;
+	cursor: initial;
 }
 
 div.notification-error {
 	font-family: "FontAwesome";
 	color: red;
 	font-size: 20pt;
-	padding-left: 10px;
-	padding-right: 10px;
-	line-height: 100%;
+	padding: 10px;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+}
+
+div.notification-icon {
+	font-family: "FontAwesome";
+	color: #777;
+	font-size: 20pt;
+	padding: 10px;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
 }
 
 span.error-icon {
 	font-family: "FontAwesome";
 	color: red;
 	font-size: 12pt;
+}
+
+.notification-content {
+	padding: 4px;
+	padding-left: 15px;
+	box-sizing: border-box;
+	/*background-color: white;*/
+	margin-bottom: 0;
+	margin-top: 0;
+	line-height: 18px;
+	font-size: 10pt;
 }

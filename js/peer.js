@@ -185,8 +185,8 @@ Eden.Peer = function(master, id) {
 				Eden.Peer.emit("error", [err]);
 			});
 
-			peer.on('disconnect', function(conn) {
-				Eden.Peer.emit("disconnect", [conn.peer, me.connections[conn.peer].username]);
+			peer.on('disconnected', function(conn) {
+				Eden.Peer.emit("disconnect", [conn.peer, (me.connections[conn.peer]) ? me.connections[conn.peer].username : undefined]);
 				delete me.connections[conn.peer];
 			});
 		}
@@ -335,6 +335,8 @@ Eden.Peer.prototype.requestShare = function(id, cb) {
 
 Eden.Peer.prototype.requestUnShare = function(id, cb) {
 	var pconn = this.connections[id];
+
+	// TODO Only share one at a time unless collaborating...
 
 	if (pconn) {
 		pconn.observe = false;
