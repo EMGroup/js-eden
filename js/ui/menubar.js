@@ -45,7 +45,7 @@ EdenUI.MenuBar = function() {
 
 	Eden.DB.listenTo("disconnected", this, function() {
 		$("#menubar-login").html('<span class="icon">&#xf05e;</span>Not Connected');
-		me.notification("info", $('<div class="notification-content">Disconnected</div>'));
+		//me.notification("info", $('<div class="notification-content">Disconnected</div>'));
 	});
 
 	Eden.DB.listenTo("login", this, function(name) {

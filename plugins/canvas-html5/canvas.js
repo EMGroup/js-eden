@@ -599,7 +599,23 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			viewobs("zoom"),
 			viewobs("offset"),
 			viewobs("canvas_right"),
-			viewobs("canvas_bottom")
+			viewobs("canvas_bottom"),
+			"mousePosition",
+			"mouseButton",
+			"mouseButtons",
+			"mouseCapture",
+			"mouseCaptured",
+			"mouseDown",
+			"mouseDownView",
+			"mouseFollow",
+			"mousePressed",
+			"mouseUp",
+			"mouseWheel",
+			"mouseWheelEnabled",
+			"mouseWheelVelocity",
+			"mouseView",
+			"mouseZone",
+			"mouseVelocity"
 		];
 		canvas.setAttribute("data-observables",observables.join(","));
 
