@@ -95,7 +95,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	EdenUI.plugins.ScriptInput.description = Language.ui.input_window.description;
 
 	var me = this;
-	var inputAgent = {name: Symbol.getInputAgentName()};
+	//var inputAgent = {name: Symbol.getInputAgentName()};
 	
 
 	var closeInput = function(options) {
@@ -874,15 +874,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var obs_zoom = "_view_"+name+"_zoom";
 		var agent = new Eden.Agent(undefined,"view/script/"+name+"/config");
 		agent.declare(obs_agent);
-		agent.declare(obs_showtabs);
+		agent.declare(obs_showtabs, !embedded);
 		agent.declare(obs_script);
 		agent.declare(obs_file);
 		agent.declare(obs_override);
 		agent.declare(obs_next);
 		agent.declare(obs_prev);
-		agent.declare(obs_showbuttons);
-		agent.declare(obs_tabs);
-		agent.declare(obs_zoom);
+		agent.declare(obs_showbuttons, true);
+		agent.declare(obs_tabs, []);
+		agent.declare(obs_zoom, 0);
 
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);
@@ -892,23 +892,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.on(obs_showbuttons, toggleButtons);
 		agent.on(obs_tabs, rebuildTabs);
 		agent.on(obs_zoom, zoom);
-
-		// Initialise states
-		if (agent.state[obs_showtabs] === undefined) {
-			agent.state[obs_showtabs] = !embedded;
-		}
-		//toggleTabs(undefined, agent.state[obs_showtabs]);
-		if (agent.state[obs_showbuttons] === undefined) {
-			agent.state[obs_showbuttons] = true;
-		}
-		//toggleButtons(undefined, agent.state[obs_showbuttons]);
-		if (agent.state[obs_tabs] === undefined) {
-			agent.state[obs_tabs] = [];
-		}
-
-		if (agent.state[obs_zoom] === undefined) {
-			agent.state[obs_zoom] = 0;
-		}
 
 		// If there is explicit code, then use that
 		if (code && agent.state[obs_agent] === undefined) {

@@ -98,7 +98,8 @@ module.exports = function (grunt) {
 					'./js/core/database.js',
 					'./js/wrappers.js',
 					'./js/peer.js',
-					'./js/query.js'
+					'./js/query.js',
+					'./js/generator.js'
 				],
 				'./js/ui/jseden-ui.min.js': [
 					'./js/ui/highlighter.js',

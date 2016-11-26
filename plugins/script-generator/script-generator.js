@@ -69,7 +69,9 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 				var agent = data.imports[i].split(" ")[1].split("@")[0];
 				var isplit = data.imports[i].split(" ");
 				var ihtml = '<span class="eden-keyword">'+isplit[0]+'</span> <span class="eden-path">'+isplit[1]+'</span>';
-				if (isplit.length > 2) ihtml += " " + isplit[2];
+				if (isplit.length > 2) {
+					for (var j=2; j<isplit.length; j++) ihtml += " " + isplit[j];
+				}
 				var importele = $('<div class="eden-line"><span class="scriptgen-importex" data-agent="'+agent+'">'+((forcedinclude[agent])?'&#xf055;':'&#xf056;')+'</span><span>'+((forcedinclude[agent])?'<span class="eden-comment">## '+data.imports[i]+'</span>':ihtml)+'</span></div>');
 				script.append(importele);
 			}
@@ -138,9 +140,9 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 	this.generateScriptLines = function (forced) {
 		var result = {};
 		//var lines = [comments.header1, comments.header2, comments.header3, "", comments.homePage, "", comments.imports];
-		var imports = Eden.Agent.save().split("\n");
+		var imports = Eden.Generator.importsScript().split("\n");
 		result.imports = imports;
-		var changes = eden.root.save(forced).split("\n");
+		var changes = Eden.Generator.symbolScript(forced).split("\n");
 		result.definitions = changes;
 		var agents = Eden.Agent.getActiveAgents(forced,false);
 		result.agents = agents;

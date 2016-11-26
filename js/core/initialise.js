@@ -150,6 +150,34 @@ function Construit(options,callback) {
 		edenUI = new EdenUI(eden);
 		edenUI.scrollBarSize2 = window.innerHeight - $(window).height();
 
+		// Put JS-EDEN version number or name in top-right corner.
+		$.ajax({
+			url: "version.json",
+			dataType: "json",
+			success: function (data) {
+				var versionHtml = '';
+				if (data.tag) {
+					//versionHtml += 'Version ' + data.tag;
+					document.title = document.title + " " + data.tag;
+				}
+				var components = data.tag.slice(1).split(".");
+				var components2 = components[2].split("-");
+				eden.root.lookup("jseden_version_major").assign(parseInt(components[0]), eden.root.scope, Symbol.defaultAgent);
+				eden.root.lookup("jseden_version_minor").assign(parseInt(components[1]), eden.root.scope, Symbol.defaultAgent);
+				eden.root.lookup("jseden_version_patch").assign(parseInt(components2[0]), eden.root.scope, Symbol.defaultAgent);
+				eden.root.lookup("jseden_version_commit").assign(parseInt(components2[1]), eden.root.scope, Symbol.defaultAgent);
+				eden.root.lookup("jseden_version_name").assign(data.tag, eden.root.scope, Symbol.defaultAgent);
+				eden.root.lookup("jseden_version_sha").assign(data.sha, eden.root.scope, Symbol.defaultAgent);
+				/*if (data.sha) {
+					versionHtml = 'Version <a href="https://github.com/EMgroup/js-eden/commit/' + data.sha +'">' + data.tag + '</a>';
+				} else {
+					versionHtml = 'Version ' + data.tag;
+				}
+				$('<div id="menubar-version-number"></div>').html(versionHtml).appendTo($("#menubar-main"));*/
+			},
+			cache: false
+		});
+
 		$(document)
 		.on('keydown', null, 'ctrl+m', function () {
 			edenUI.cycleNextView();
@@ -180,6 +208,7 @@ function Construit(options,callback) {
 				// Only now can the menu bar and UI be properly created.
 				if (menuBar) {
 					edenUI.menu = new EdenUI.MenuBar();
+					eden.execute2("jseden_project_subtitle is \"Version \" // jseden_version_name;", Symbol.defaultAgent);
 				}
 				callback();
 			});

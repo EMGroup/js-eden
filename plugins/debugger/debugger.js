@@ -62,7 +62,8 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			} else if (agent.name) {
 				statement += "## " + agent.name + "\n";
 			}
-			statement += agent.getSource();
+
+			if (agent.getSource) statement += agent.getSource();
 			return statement;
 		}
 
