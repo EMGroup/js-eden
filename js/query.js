@@ -66,14 +66,23 @@ Eden.Query.treeBottomUp = function() {
 	return base;
 }
 
-Eden.Query.treeTopDown = function() {
-	var base = {};
-	for (var x in eden.root.symbols) {
-		var sym = eden.root.symbols[x];
-		if (!sym) continue;
-		if (Object.keys(sym.subscribers).length == 0) {
-			base[x] = {};
+Eden.Query.treeTopDown = function(base) {
+
+	if (base === undefined) {
+		base = {};
+		for (var x in eden.root.symbols) {
+			var sym = eden.root.symbols[x];
+			if (!sym) continue;
+			if (Object.keys(sym.subscribers).length == 0) {
+				base[x] = {};
+			}
 		}
+	} else if (Array.isArray(base)) {
+		var nbase = {};
+		for (var i=0; i<base.length; i++) {
+			nbase[base[i]] = {};
+		}
+		base = nbase;
 	}
 
 	function processSymbol(base) {

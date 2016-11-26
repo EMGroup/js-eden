@@ -135,6 +135,25 @@
 		this.addViewCategory("extension", "Extensions");
 		/*Category of plug-ins that pertain to the management of the JS-EDEN environment itself, e.g. Plugin Listing. */
 		this.addViewCategory("environment", "Management");
+
+		// Allow ctrl-click observable identification in the UI...
+		$(document).on("click", function(e) {
+			if (e.ctrlKey) {
+				var observables = [];
+				var current = e.target;
+
+				// Navigate back through DOM finding associated observables.
+				while (current.nodeName != "BODY") {
+					var data = current.getAttribute("data-observables");
+					if (data && data != "") {
+						observables.push.apply(observables, data.split(","));
+					}
+					current = current.parentNode;
+				}
+
+				console.log("Associated: ", Eden.Query.treeTopDown(observables));
+			}
+		});
 	}
 
 

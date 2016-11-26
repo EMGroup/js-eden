@@ -134,6 +134,25 @@
 				//me.minimizeObscuredViews(name);
 			}
 		});
+
+		// Add associated observables...
+		function viewobs(obs) { return "_view_"+name+"_"+obs; };
+
+		var observables = [
+			viewobs("type"),
+			viewobs("x"),
+			viewobs("y"),
+			viewobs("width"),
+			viewobs("height"),
+			viewobs("lock"),
+			viewobs("noborder"),
+			viewobs("title"),
+			viewobs("visibility")
+		];
+		diag.get(0).setAttribute("data-observables", observables.join(","));
+
+
+
 		var dialogWindow = this.getDialogWindow(name);
 		diag.dialogExtend({
 			dblclick: titleBarAction,
