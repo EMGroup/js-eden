@@ -644,3 +644,34 @@ span.error-icon {
 	font-size: 10pt;
 }
 
+input.menusearch {
+	width: 300px;
+	background: #132023;
+	color: white;
+	font-size: 10pt;
+	padding: 5px;
+	padding-left: 40px;
+	border: 2px solid #666;
+}
+
+input.menusearch:hover {
+	border-color: #bbb;
+}
+
+div.menusearch:after {
+	color: #bbb;
+	font-size: 16pt;
+	left: -285px;
+	top: 3px;
+}
+
+div.menusearch {
+	/*position: absolute;
+	left: 300px;
+	top: 7px;*/
+	margin-top: 8px;
+	float: right;
+	margin-right: 50px;
+}
+
+

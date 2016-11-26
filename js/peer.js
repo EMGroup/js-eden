@@ -71,8 +71,7 @@ Eden.Peer = function(master, id) {
 	}
 
 	function processGetSnapshot(obj) {
-		var script = Eden.Agent.save();
-		script += eden.root.save();
+		var script = Eden.Generator.getScript();
 		me.connections[obj.id].connection.send(JSON.stringify({cmd: "callback", data: script, cbid: obj.cbid}));
 	}
 
@@ -82,8 +81,7 @@ Eden.Peer = function(master, id) {
 		if (obj.value) {
 			pconn.share = true;
 			// Auto share state.
-			var script = Eden.Agent.save();
-			script += eden.root.save();
+			var script = Eden.Generator.getScript();
 			pconn.connection.send(JSON.stringify({cmd: "restore", script: script}));
 			pconn.connection.send(JSON.stringify({cmd: "callback", data: true, cbid: obj.cbid}));
 			Eden.Peer.emit("share", [obj.id]);
@@ -173,8 +171,7 @@ Eden.Peer = function(master, id) {
 				conn.on('open', function() {
 					if (me.config.share) {
 						// Auto share state.
-						var script = Eden.Agent.save();
-						script += eden.root.save();
+						var script = Eden.Generator.getScript();
 						conn.send(JSON.stringify({cmd: "restore", script: script}));
 					}
 				});
@@ -351,8 +348,7 @@ Eden.Peer.prototype.requestObserve = function(id, cb) {
 		pconn.share = true;
 		pconn.connection.send(JSON.stringify({cmd: "reqobserve", value: true, cbid: this.addCallback(cb)}));
 		// Auto share state.
-		var script = Eden.Agent.save();
-		script += eden.root.save();
+		var script = Eden.Generator.getScript();
 		pconn.connection.send(JSON.stringify({cmd: "restore", script: script}));
 	}
 }
