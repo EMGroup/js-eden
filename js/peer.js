@@ -114,7 +114,7 @@ Eden.Peer = function(master, id) {
 		var obj = JSON.parse(data);
 		obj.id = conn.peer;
 		var pconn = me.connections[obj.id];
-		console.log(obj.cmd,obj.symbol);
+		//console.log(obj.cmd,obj.symbol);
 
 		switch(obj.cmd) {
 		case "assign"		: if (pconn.observe) processAssign(obj); break;
