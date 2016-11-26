@@ -17,7 +17,7 @@ Eden.Peer = function(master, id) {
 
 	function processAssign(obj) {
 		var sym = eden.root.lookup(obj.symbol.slice(1));
-		var ast = new Eden.AST(obj.value, undefined, undefined, true);
+		var ast = new Eden.AST(obj.value, undefined, Symbol.netAgent, true);
 		var express = ast.pEXPRESSION();
 		sym.assign(express.execute({}, ast, eden.root.scope), eden.root.scope, Symbol.netAgent);
 		me.broadcastExcept(obj.id, obj);
@@ -37,7 +37,7 @@ Eden.Peer = function(master, id) {
 
 	function processListAssign(obj) {
 		var sym = eden.root.lookup(obj.symbol.slice(1));
-		var ast = new Eden.AST(obj.value, undefined, undefined, true);
+		var ast = new Eden.AST(obj.value, undefined, Symbol.netAgent, true);
 		var express = ast.pEXPRESSION();
 		sym.listAssign(express.execute({}, ast, eden.root.scope), eden.root.scope, Symbol.netAgent, false, obj.components);
 		me.broadcastExcept(obj.id, obj);
