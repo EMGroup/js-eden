@@ -683,7 +683,10 @@
 			if (agent) agobj.name = agent;
 		}
 
-		var ast = new Eden.AST(code);
+		//if (agobj.getSource === undefined) agobj.getSource = function() { return code; };
+		//if (agobj.getLine === undefined) agobj.getLine = function() { return 0; };
+
+		var ast = new Eden.AST(code, undefined, agobj);
 		if (ast.script.errors.length == 0) {
 			ast.execute(agobj, success);
 		} else {

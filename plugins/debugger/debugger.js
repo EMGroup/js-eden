@@ -62,7 +62,8 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			} else if (agent.name) {
 				statement += "## " + agent.name + "\n";
 			}
-			statement += agent.getSource();
+
+			if (agent.getSource) statement += agent.getSource();
 			return statement;
 		}
 
@@ -81,7 +82,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 				docapture = false;
 
 				if (output) {
-					var ast = new Eden.AST(statement);
+					var ast = new Eden.AST(statement, undefined, agent);
 					var hl = new EdenUI.Highlight(output.get(0).childNodes[1]);
 					hl.highlight(ast, -1, -1);
 
@@ -109,7 +110,6 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 
 		var debugBeginFn = function(data) {
 			var agent = data.agent;
-			console.log(agent);
 
 			if (agent.id !== undefined) {
 				debugEndFn(data);
@@ -128,7 +128,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 
 			var statement = generateSource(agent);
 
-			var ast = new Eden.AST(statement);
+			var ast = new Eden.AST(statement, undefined, agent);
 			var hl = new EdenUI.Highlight(output.get(0).childNodes[1]);
 			hl.highlight(ast, -1, -1);
 		}
@@ -147,13 +147,12 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			var statement = generateSource(agent);
 			var output = agentcapture[agent.id].html;
 
-			var ast = new Eden.AST(statement);
+			var ast = new Eden.AST(statement, undefined, agent);
 			var hl = new EdenUI.Highlight(output.get(0).childNodes[1]);
 			hl.highlight(ast, -1, -1);
 
 
 			//setTimeout(function() {
-				console.log("Finish agent");
 				agentcapture[agent.id].html.remove();
 				delete agentcapture[agent.id];
 				agent.id = undefined;

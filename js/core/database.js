@@ -739,7 +739,7 @@ Eden.DB.getSource = function(path, tag, callback) {
 
 Eden.DB.generateSource = function(title) {
 	return JSON.stringify({
-		script: Eden.Agent.save() + "\n" + eden.root.save(),
+		script: Eden.Generator.getScript(),
 		title: title
 	},null,"\t");
 }

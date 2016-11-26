@@ -937,65 +937,6 @@
 		}
 	}
 
-	Folder.prototype.save = function(forced) {
-		var result = "";
-		var functions = "## Functions\n";
-		var definitions = "\n## Definitions\n";
-		var restdefs = "\n## Restored Definition\n";
-		var agentdefs = "\n## Agent Definitions\n";
-		var assignments = "\n## Assignments\n";
-		var agentassigns = "\n## Agent Assignments\n";
-		var ioassigns = "\n## Input Device Assignments\n";
-		var restassign = "\n## Restored Assignments\n";
-		var procs = "\n## Procedures\n";
-
-		for (var x in this.symbols) {
-			var sym = this.symbols[x];
-			var agent = sym.last_modified_by;
-			if (agent === undefined) console.log(sym);
-			if (typeof agent.name != "string") console.log(agent);
-			if (typeof agent != "object"
-					|| (forced && forced[agent.name])
-					|| (agent.canUndo && agent.canUndo())
-					|| (agent.meta && (agent.last_exec_version != agent.meta.saveID))
-					|| (agent instanceof Symbol && agent.eden_definition && agent.eden_definition.startsWith("proc"))
-					|| agent.name == "*Input Device"
-					|| agent.name == "*Restore"
-					|| agent.name == "*JavaScript"
-					|| agent.name == "*net"
-					|| agent.name.startsWith("*When")
-					|| agent.name.startsWith("*Action")) {
-				if (sym.eden_definition) {
-					if (sym.eden_definition.startsWith("func")) {
-						functions += this.symbols[x].eden_definition + "\n";
-					} else {
-						if (agent.name == "*Restore") {
-							restdefs += this.symbols[x].eden_definition + "\n";
-						} else if (agent.name == "*When") {
-							agentdefs += this.symbols[x].eden_definition + "\n";
-						} else {
-							definitions += this.symbols[x].eden_definition + "\n";
-						}
-					}
-				} else {
-					if (sym.cache.value !== undefined) {
-						var str = x + " = " + Eden.edenCodeForValue(sym.cache.value) + ";\n";
-
-						if ((agent instanceof Symbol && agent.eden_definition && agent.eden_definition.startsWith("proc")) || agent.name == "*JavaScript" || agent.name == "*When") {
-							agentassigns += str;
-						} else if (agent.name == "*Input Device") {
-							ioassigns += str;
-						} else if (agent.name == "*Restore") {
-							restassign += str;
-						} else {
-							assignments += str;
-						}
-					}
-				}
-			}
-		}
-		return functions + definitions + restdefs + agentdefs + assignments + restassign + agentassigns + ioassigns + procs;
-	};
 
 	/**
 	 * A symbol table entry.
@@ -1057,19 +998,21 @@
 		this.garbage = false;
 	}
 
-	Symbol.getInputAgentName = function () {
-		return "*Script Input";
+	InternalAgent = function(name, local) {
+		this.name = name;
+		this.local = local;
+		this.internal = true;
 	}
 	
 	// Input device agents are always local only.
-	Symbol.hciAgent = {name: "*Input Device", local: true};
+	Symbol.hciAgent = new InternalAgent("*Input Device", true);
 	// A JavaScript agent is not local only.
-	Symbol.jsAgent = {name: "*JavaScript", local: false};
-	Symbol.localJSAgent = {name: "*JavaScript", local: true};
+	Symbol.jsAgent = new InternalAgent("*JavaScript", false);
+	Symbol.localJSAgent = new InternalAgent("*JavaScript", true);
 	// Network changes are always local to prevent loops.
-	Symbol.netAgent = {name: "*net", local: true};
+	Symbol.netAgent = new InternalAgent("*net", true);
 	// Something entirely ignored by script generator
-	Symbol.defaultAgent = {name: "*Default", local: true};
+	Symbol.defaultAgent = new InternalAgent("*Default", true);
 
 	/**
 	 * Get the value of this symbol bound with the scope the value was
@@ -1916,6 +1859,7 @@
 	global.ScopeOverride = ScopeOverride;
 	global.edenCopy = copy;
 	global.BoundValue = BoundValue;
+	global.InternalAgent = InternalAgent;
 	
 	// expose as node.js module
 	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
@@ -1924,5 +1868,6 @@
 		exports.Scope = Scope;
 		exports.ScopeOverride = ScopeOverride;
 		exports.edenCopy = copy;
+		exports.InternalAgent = InternalAgent;
 	}
 }(typeof window !== 'undefined' ? window : global));

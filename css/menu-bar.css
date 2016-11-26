@@ -3,7 +3,7 @@
 	left: 0px;
 	right: 0px;
 	top: 0px;
-	height: 55px;
+	height: 45px;
 	background-color: #132023;
 	color:	white;
 	font-size: 14px;
@@ -77,11 +77,17 @@ span.project-tag {
 }
 
 div.menubar-buttons {
-	position: absolute;
+	/*position: absolute;
 	right: 20px;
-	top: 17px;
-	width: 300px;
+	top: 13px;
+	width: 300px;*/
 	display: inline-block;
+	float: right;
+	height: 45px;
+	line-height: 45px;
+	margin-right: 20px;
+	padding-right: 15px;
+	border-right: 1px solid #bbb;
 }
 
 div.menubar-mobilebuttons {
@@ -180,26 +186,40 @@ div.menubar-button:hover {
 div#eden-logo {
 	position: absolute;
 	top: 8px;
-	left: 20px;
-	background-image: url('../images/em-logo2.png');
+	left: 40px;
+	background-image: url('../images/em-logo3.png');
 	background-repeat: no-repeat;
-	width: 250px;
-	height: 70px;
+	width: 50px;
+	height: 30px;
 }
 
 div.jseden-title {
 	font-size: 16pt;
 	font-weight: bold;
 	position: absolute;
-	top: 8px;
-	left: 110px;
+	top: 5px;
+	left: 105px;
 	color: white;
 	box-sizing: border-box;
 	border: 1px solid #132023;
+	border-radius: 3px;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 div.jseden-title:hover {
-	border: 1px solid silver;
+	border: 1px solid #aaa;
+}
+
+div.jseden-subtitle {
+	font-size: 10pt;
+	/*font-weight: bold;*/
+	position: absolute;
+	top: 28px;
+	left: 107px;
+	color: #999;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 .menubar-mainitem:hover {
@@ -372,7 +392,7 @@ div.jseden-title:hover {
 	position: relative;
 	font-weight: normal;
 	left: -215px;
-	margin-top: 18px;
+	/*margin-top: 18px;*/
 	padding-bottom: 6px;
 	background-color: white;
 	border-color: #888;
@@ -383,6 +403,7 @@ div.jseden-title:hover {
 	width: 250px;
 	text-align: left;
 	/*overflow-y: auto;*/
+	line-height: initial;
 }
 
 .menubar-menu:before {
@@ -432,14 +453,17 @@ div.jseden-title:hover {
 }
 
 #menubar-login {
-	position: absolute;
-	top: 25px;
-	left: 110px;
-	padding-top: 8px;
+	/*position: absolute;
+	top: 6px;
+	right: 370px;
+	padding-top: 8px;*/
 	color: #e0e0e0;
 	font-size: 14px;
 	font-weight: bold;
 	cursor: pointer;
+	height: 45px;
+	float: right;
+	line-height: 45px;
 }
 
 #menubar-login:hover {
@@ -619,3 +643,4 @@ span.error-icon {
 	line-height: 18px;
 	font-size: 10pt;
 }
+

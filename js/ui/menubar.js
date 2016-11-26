@@ -7,12 +7,12 @@ EdenUI.MenuBar = function() {
 	eden.execute2("_views_number_created = 0;", "*Default");
 
 	// The menu bar, title and buttons...
-	this.element = $('<div id="menubar-main"><div id="eden-logo"></div><div contenteditable class="jseden-title">Construit!</div>'+((!mobilecheck()) ? '<div class="menubar-buttons"><div class="menubar-button enabled share" data-obs="menu_new_scriptview" title="Save or share">&#xf1e0;</div><div class="menubar-button enabled main" data-obs="views" title="Create Views">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="existing" title="Existing">&#xf24d;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="options" title="Options">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="help" title="Help">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div><div class="menubar-button enabled main notifications" data-obs="notifications">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div></div>' : '<div class="menubar-mobilebuttons"><button class="scriptview-button enabled mobilemore">&#xf078;</button></div>')+'</div>');
+	this.element = $('<div id="menubar-main"><div id="eden-logo"></div><div contenteditable class="jseden-title" title="Rename project">Construit!</div>'+((!mobilecheck()) ? '<div class="jseden-subtitle">by Some Author</div><div id="menubar-login"><span class="icon">&#xf05e;</span>Not Connected</div><div class="menubar-buttons"><div class="menubar-button enabled share" data-obs="menu_new_scriptview" title="Save or share">&#xf1e0;</div><div class="menubar-button enabled main" data-obs="views" title="Create Views">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="existing" title="Existing">&#xf24d;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="options" title="Options">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div><div class="menubar-button enabled main" data-obs="help" title="Help">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div><div class="menubar-button enabled main notifications" data-obs="notifications">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div></div>' : '<div class="menubar-mobilebuttons"><button class="scriptview-button enabled mobilemore">&#xf078;</button></div>')+'</div>');
 	$(document.body).append(this.element);
 
 	// Login Button
-	var loginButton = $('<div id="menubar-login"><span class="icon">&#xf05e;</span>Not Connected</div>');
-	loginButton.appendTo(this.element);
+	var loginButton = this.element.find("#menubar-login"); //$('<div id="menubar-login"><span class="icon">&#xf05e;</span>Not Connected</div>');
+	//loginButton.appendTo(this.element);
 
 	var usercontext = new EdenUI.ContextMenu(loginButton.get(0));
 	usercontext.addItem("&#xf08b;","Log out", function() { return Eden.DB.isLoggedIn(); }, function() {
@@ -753,7 +753,7 @@ EdenUI.MenuBar = function() {
 		}
 	});
 
-	eden.root.lookup("_jseden_project_title").addJSObserver("menubar", function(sym, value) {
+	eden.root.lookup("jseden_project_title").addJSObserver("menubar", function(sym, value) {
 		$(".jseden-title").get(0).textContent = value;
 		try {
 			if (window.localStorage) {
@@ -762,6 +762,10 @@ EdenUI.MenuBar = function() {
 		} catch(e) {
 
 		}
+	});
+
+	eden.root.lookup("jseden_project_subtitle").addJSObserver("menubar", function(sym, value) {
+		$(".jseden-subtitle").get(0).textContent = value;
 	});
 
 	// Notifications!
@@ -812,5 +816,5 @@ EdenUI.MenuBar.reset = function() {
 }
 
 EdenUI.MenuBar.saveTitle = function(title) {
-	eden.root.lookup("_jseden_project_title").assign(title, eden.root.scope, Symbol.jsAgent);
+	eden.root.lookup("jseden_project_title").assign(title, eden.root.scope, Symbol.jsAgent);
 }

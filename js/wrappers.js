@@ -336,30 +336,10 @@ Eden.Agent.remove = function(agent) {
 
 Eden.Agent.removeAll = function () {
 	for (var name in Eden.Agent.agents) {
-		if (!/^(lib|view\/script)(\/|$)/.test(name)) {
+		//if (!/^(lib|view\/script)(\/|$)/.test(name)) {
 			Eden.Agent.remove(Eden.Agent.agents[name]);
-		}
+		//}
 	}
-}
-
-
-Eden.Agent.save = function() {
-	var result = "";
-	for (var x in Eden.Agent.agents) {
-		var ag = Eden.Agent.agents[x];
-		var docreate = "";
-		if (ag.meta.saveID == "origin" && !ag.meta.file) docreate = " create";
-		// First import and exec last executed version
-		if (ag.last_exec_version) {
-			result += "import " + x + "@" + Eden.Agent.agents[x].last_exec_version + docreate + ";\n";
-		}
-
-		// Now make sure actual imported version is brought in (but not executed)
-		if (ag.last_exec_version != ag.meta.saveID) {
-			result += "import " + x + "@" + Eden.Agent.agents[x].meta.saveID + docreate + " noexec;\n";
-		}
-	}
-	return result;
 }
 
 
@@ -799,7 +779,7 @@ Eden.Agent.prototype.setReadWrite = function(rw) {
 
 
 
-Eden.Agent.prototype.declare = function(name) {
+Eden.Agent.prototype.declare = function(name, def) {
 	var sym = eden.root.lookup(name);
 	var me = this;
 
@@ -808,6 +788,8 @@ Eden.Agent.prototype.declare = function(name) {
 		get: function() { return sym.value(me.scope); },
 		set: function(v) { sym.assign(v, me.scope, {name: "*JavaScript", agent: me}); }
 	});
+
+	if (def && sym.last_modified_by.name == "*None") sym.assign(def, me.scope, Symbol.defaultAgent);
 }
 
 

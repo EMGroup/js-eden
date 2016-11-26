@@ -243,7 +243,7 @@ ${{
 					chapterName = chapterNames[chapterIndex];
 				}
 				if (chapterName != chapterSym.value()) {
-					chapterSym.assign(chapterName, root.scope, agent);
+					chapterSym.assign(chapterName, root.scope, Symbol.defaultAgent);
 				}
 				if (chapterIndex < numChapters - 1) {
 					nextChapterAt = chapterMarks[chapterIndex + 1];
@@ -282,7 +282,7 @@ ${{
 				}
 			}; //end of function
 			if (chapterMarksSym.value() === undefined && chapterMarksSym.definition === undefined) {
-				chapterMarksSym.assign({}, root.scope, agent);
+				chapterMarksSym.assign({}, root.scope, Symbol.defaultAgent);
 			}
 			setChapters(chapterMarksSym, chapterMarksSym.value());
 			chapterMarksSym.addJSObserver("setChapters", setChapters);
@@ -318,7 +318,7 @@ ${{
 
 			var initialLooping = loopSym.value();
 			if (initialLooping === undefined && loopSym.definition === undefined) {
-				loopSym.assign(false, root.scope, agent);
+				loopSym.assign(false, root.scope, Symbol.defaultAgent);
 			} else if (initialLooping) {
 				mediaElement.loop = true;
 			}
@@ -358,7 +358,7 @@ ${{
 			var position = positionSym.value();
 			if (position === undefined) {
 				position = new Point(0, 0);
-				positionSym.assign(position, root.scope, agent);
+				positionSym.assign(position, root.scope, Symbol.defaultAgent);
 			}
 			positionSym.addJSObserver("reposition", function (sym, position) {
 				me.doTranslation(position);
@@ -435,7 +435,7 @@ ${{
 			if (time !== undefined) {
 				mediaElement.currentTime = parseFloat(time);
 			} else if (timeSym.definition === undefined) {
-				timeSym.assign(0, root.scope, agent);
+				timeSym.assign(0, root.scope, Symbol.defaultAgent);
 			}
 
 			function findChapter() {
@@ -519,7 +519,7 @@ ${{
 			var speedResetOnLoad;
 			var speed = speedSym.value();
 			if (speed === undefined) {
-				speedSym.assign(1, root.scope, agent);
+				speedSym.assign(1, root.scope, Symbol.defaultAgent);
 			} else if (speed > 0) {
 				mediaElement.defaultPlaybackRate = speed;
 			}
@@ -552,7 +552,7 @@ ${{
 
 			var volume = volumeSym.value();
 			if (volume === undefined) {
-				volumeSym.assign(1, root.scope, agent);
+				volumeSym.assign(1, root.scope, Symbol.defaultAgent);
 			} else if (volume == 0) {
 				mediaElement.muted = true;
 			} else {
