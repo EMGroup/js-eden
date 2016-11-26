@@ -589,6 +589,20 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			jqCanvas = code_entry.find(".canvashtml-canvas");
 		}
 
+		// Add associated observables to canvas
+		function viewobs(obs) { return "_view_"+name+"_"+obs; };
+
+		var observables = [
+			viewobs("content"),
+			viewobs("background_colour"),
+			viewobs("scale"),
+			viewobs("zoom"),
+			viewobs("offset"),
+			viewobs("canvas_right"),
+			viewobs("canvas_bottom")
+		];
+		canvas.setAttribute("data-observables",observables.join(","));
+
 		var contentSym = root.lookup("_view_" + canvasName + "_content");
 		contentSym.addJSObserver("repaintView", function(sym, picture) {
 			me.drawPicture(canvasName);

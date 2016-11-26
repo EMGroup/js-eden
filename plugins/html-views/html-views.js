@@ -18,7 +18,14 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 		//Remove -dialog name suffix.
 		var viewName = name.slice(0, -7);
 
-		var code_entry = $('<div id=\"' + name + '-content\" class=\"htmlviews-content\"></div>');
+		function viewobs(name) { return "_view_"+viewName+"_"+name; };
+
+		var observables = [
+			viewobs("background_colour"),
+			viewobs("content")
+		];
+
+		var code_entry = $('<div id=\"' + name + '-content\" class=\"htmlviews-content\" data-observables="'+observables.join(",")+'"></div>');
 		code_entry.on("mousedown", "button", function(e) {
 			var name = e.currentTarget.name;
 			eden.root.lookup(name).assign(true, eden.root.scope, Symbol.hciAgent);
