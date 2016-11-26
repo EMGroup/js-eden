@@ -88,18 +88,21 @@ EdenUI.Notifications.prototype.notification = function(type, content) {
 	var nc;
 	if (type == "error") {
 		nc = $('<div class="notification-item error"></div>');
-		nc.append($('<div class="notification-error"><span style="vertical-align: middle;">&#xf06a;</span></div>'));
+		nc.append($('<div class="notification-icon"><span style="color: red;">&#xf06a;</span></div>'));
 	} else {
 		var icon;
+		var colour = "#777";
+
 		switch(type) {
 		case "net"		: icon = "&#xf0c1;"; break;
-		case "info"		: icon = "&#xf129;"; break;
-		case "log"		: 
-		case "warning"	: icon = "&#xf071;"; break;
+		case "log"		: icon = "&#xf120;"; break;
+		case "warning"	: icon = "&#xf071;"; colour = "#f57900"; break;
+		case "info"		:
+		default			: icon = "&#xf129;"; colour = "#29454B";
 		}
 
 		nc = $('<div class="notification-item"></div>');
-		nc.append($('<div class="notification-icon"><span style="vertical-align: middle;">&#xf0c1;</span></div>'));
+		nc.append($('<div class="notification-icon"><span style="color: '+colour+'">'+icon+'</span></div>'));
 	}
 
 	if (typeof content == "string") {
