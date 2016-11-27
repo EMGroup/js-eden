@@ -155,8 +155,8 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 	// NOTE: If tag or options change, these changes may be lost.
 	if (Eden.Agent.importQueue[path]) {
 		Eden.Agent.importQueue[path].push(function(ag,msg) {
-			if (ag) callback(ag,msg);
-			else Eden.Agent.importAgent(path, tag, options, callback);
+			//if (ag) callback(ag,msg);
+			Eden.Agent.importAgent(path, tag, options, callback);
 		});
 		return;
 	}
@@ -888,21 +888,6 @@ Eden.Agent.prototype.execute = function(force, auto, cb) {
 }
 
 
-
-/*Eden.Agent.prototype.executeStatement = function(statement, line) {
-	try {
-		statement.execute(eden.root,undefined, this.ast);
-		var code = this.ast.getSource(statement);
-		//console.log("PATCH line = " + line + " code = "+code);
-		Eden.Agent.emit('execute', [this, code, line]);
-	} catch (e) {
-		eden.error(e);
-		throw e;
-	}
-}*/
-
-
-
 Eden.Agent.prototype.upload = function(tagname, ispublic, callback) {
 	var me = this;
 	if (this.ast) {
@@ -916,6 +901,49 @@ Eden.Agent.prototype.upload = function(tagname, ispublic, callback) {
 		});
 	} else {
 		if (callback) callback(false);
+	}
+}
+
+Eden.Agent.prototype.publish = function(tagname, callback) {
+	this.upload(tagname, true, callback);
+}
+
+Eden.Agent.uploadAll = function(callback) {
+	var toupload = [];
+	for (var x in Eden.Agent.agents) {
+		var ag = Eden.Agent.agents[x];
+		if (ag.canUndo()) toupload.push(x);
+	}
+
+	var count = 0;
+	function counter() {
+		count++;
+		if (count == toupload.length && callback) callback();
+	}
+
+	for (var i=0; i<toupload.length; i++) {
+		var ag = Eden.Agent.agents[x];
+		ag.upload(undefined, false, counter);
+	}
+	if (toupload.length == 0 && callback) callback();
+}
+
+Eden.Agent.publishAll = function(callback) {
+	var toupload = [];
+	for (var x in Eden.Agent.agents) {
+		var ag = Eden.Agent.agents[x];
+		if (ag.canUndo()) toupload.push(x);
+	}
+
+	var count = 0;
+	function counter() {
+		count++;
+		if (count == toupload.length && callback) callback();
+	}
+
+	for (var i=0; i<toupload.length; i++) {
+		var ag = Eden.Agent.agents[x];
+		ag.publish(undefined, counter);
 	}
 }
 

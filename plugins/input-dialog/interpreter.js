@@ -884,6 +884,19 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.declare(obs_tabs, []);
 		agent.declare(obs_zoom, 0);
 
+		function viewobs(obs) { return "_view_"+name+"_"+obs; };
+		// Associate observables with dialog
+		var observables = [
+			viewobs("script"),
+			viewobs("file"),
+			viewobs("tabs"),
+			viewobs("agent"),
+			viewobs("showtabs"),
+			viewobs("showbuttons"),
+			viewobs("zoom")
+		];
+		$dialogContents.get(0).setAttribute("data-observables", observables.join(","));
+
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);
 		agent.on(obs_file, loadFile);
@@ -900,9 +913,19 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		} else if (agent.state[obs_agent]) {
 			changeAgent(undefined, agent.state[obs_agent]);
 		} else {
-			outdiv.className = "outputcontent readonly";
+			/*outdiv.className = "outputcontent readonly";
 			outdiv.contentEditable = false;
-			outdiv.innerHTML = "";
+			outdiv.innerHTML = "";*/
+			// Need to create an agent
+			Eden.Agent.importAgent("view/script/"+name, "default", ["create","noexec"], function(ag) {
+				if (ag) {
+					changeAgent(undefined, ag.name);
+				} else {
+					outdiv.className = "outputcontent readonly";
+					outdiv.contentEditable = false;
+					outdiv.innerHTML = "";
+				}
+			});
 		}
 
 		// Set source text.
