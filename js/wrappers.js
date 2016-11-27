@@ -925,6 +925,7 @@ Eden.Agent.uploadAll = function(callback) {
 		var ag = Eden.Agent.agents[x];
 		ag.upload(undefined, false, counter);
 	}
+	if (toupload.length == 0 && callback) callback();
 }
 
 Eden.Agent.publishAll = function(callback) {

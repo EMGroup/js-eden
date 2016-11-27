@@ -611,6 +611,15 @@ div.error-source {
 	width: 500px;
 	left: -458px;
 	cursor: initial;
+	min-height: 100px;
+}
+
+#errors-dialog:empty:before {
+	display: block;
+	text-align: center;
+	margin-top: 30px;
+	content: 'No notifications';
+	color: #aaa;
 }
 
 div.notification-error {
@@ -682,4 +691,10 @@ div.menusearch {
 	margin-right: 50px;
 }
 
+#menubar-mainitem-sharebox {
+	width: 400px;
+	left: -358px;
+	cursor: initial;
+	padding-top: 5px;
+}
 
