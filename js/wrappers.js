@@ -155,8 +155,8 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 	// NOTE: If tag or options change, these changes may be lost.
 	if (Eden.Agent.importQueue[path]) {
 		Eden.Agent.importQueue[path].push(function(ag,msg) {
-			if (ag) callback(ag,msg);
-			else Eden.Agent.importAgent(path, tag, options, callback);
+			//if (ag) callback(ag,msg);
+			Eden.Agent.importAgent(path, tag, options, callback);
 		});
 		return;
 	}
