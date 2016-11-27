@@ -2340,6 +2340,7 @@ Eden.AST.Do = function() {
 	this.end = 0;
 	this.executed = 0;
 	this.parameters = [];
+	this.params = []; // The evaluated params
 };
 
 Eden.AST.Do.prototype.error = fnEdenASTerror;
@@ -2517,6 +2518,7 @@ Eden.AST.For.prototype.execute = function(ctx, base, scope) {
 	}
 
 	if (this.getCondition(ctx)(eden.root,scope)) {
+		console.log("LOOOOOP");
 		return [this.statement, this.inc, this];
 	} else {
 		this.started = false;
@@ -2827,7 +2829,7 @@ Eden.AST.When.prototype.setStatement = function (statement) {
 Eden.AST.When.prototype.setSource = function(start, end) {
 	this.start = start;
 	this.end = end;
-	this.name = "*When:"+this.base.origin.name+":"+this.line;
+	if (this.base) this.name = "*When:"+this.base.origin.name+":"+this.line;
 }
 
 Eden.AST.When.prototype.generate = function() {

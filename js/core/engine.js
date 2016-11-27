@@ -37,7 +37,10 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 			} else {
 				yield 0;
 			}
-		} else if (statements[i].type == "import" || statements[i].type == "do") {
+		} else if (statements[i].type == "import") {
+			yield statements[i];
+		} else if (statements[i].type == "do") {
+			statements[i].params = statements[i].getParameters(undefined, base, scope);
 			yield statements[i];
 		} else if (statements[i].type == "when") {
 			var when = statements[i];
@@ -145,7 +148,7 @@ function runEdenAction(source, action, cb) {
 
 				if (script) {
 					var stats = script.statements;
-					var params = delay.value.getParameters(undefined, me, eden.root.scope);
+					var params = delay.value.params;
 
 					me.executeStatements(stats, undefined, script, function() {
 						runEdenAction.call(me,source, action, cb);
@@ -184,7 +187,7 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 		if (Eden.AST.debug_begin_cb) Eden.AST.debug_begin_cb({base: this, agent: agent});
 	}
 
-	//try {
+	try {
 		//statement.execute(undefined, this, eden.root.scope, agent);
 		//if (this.active) return;
 		//this.active = true;
@@ -195,12 +198,9 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 			}
 			if (cb) cb();
 		});
-	//} catch (e) {
-	//	eden.error(e);
-	//	console.error("Details: " + e + "\nAgent: " + agent.name);
-	//	console.log(statement);
-		//throw e;
-	//}
+	} catch (e) {
+
+	}
 }
 
 /**
@@ -221,9 +221,17 @@ Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx
 			if (cb) cb();
 		});
 	} catch (e) {
-		eden.error(e);
-		console.error("Details: " + e + "\nAgent: " + agent.name);
-		console.log(statement);
-		//throw e;
+		var err;
+
+		if (/[0-9][0-9]*/.test(e.message)) {
+			err = new Eden.RuntimeError(this, parseInt(e.message), undefined, e.message);
+		} else {
+			err = new Eden.RuntimeError(this, 0, undefined, e);
+		}
+
+		err.line = this.line;
+
+		if (agent) Eden.Agent.emit("error", [agent,err]);
+		else console.log(err.prettyPrint());
 	}
 }

@@ -424,9 +424,10 @@ div.jseden-subtitle {
 	z-index: 2;
 }
 
-#menubar-mainitem-existing-views {
+#menubar-mainitem-existing {
 	width: 305px;
 	padding-top: 5px;
+	left: -263px;
 }
 
 .menubar-view {
