@@ -239,8 +239,8 @@ EdenUI.MenuBar = function() {
 		tagstr = tagstr.toLowerCase().replace(/[\!\'\-\?\&]/g, "").split(" ");
 
 		me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
-		//edenUI.plugins.Canvas2D.thumbnail(function(thumb) {
-			Eden.DB.saveSource(title, me.projectsource, function(status) {
+		Eden.Agent.uploadAll(function() {
+			Eden.DB.save(title, function(status) {
 				if (status.path) {
 					var url = "?load="+status.path+"&tag="+status.saveID;
 					me.sharebox.find(".projecturl").html(window.location.href+url);
@@ -255,7 +255,7 @@ EdenUI.MenuBar = function() {
 					me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
 				}
 			}, {thumb: thumbdata, tags: tagstr});
-		//});
+		});
 	});
 
 	this.sharebox.on("click",".publish", function(e) {
@@ -265,8 +265,8 @@ EdenUI.MenuBar = function() {
 		tagstr = tagstr.toLowerCase().replace(/[\!\'\-\?\&]/g, "").split(" ");
 
 		me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
-		//edenUI.plugins.Canvas2D.thumbnail(function(thumb) {
-			Eden.DB.saveSource(title, me.projectsource, function(status) {
+		Eden.Agent.publishAll(function() {
+			Eden.DB.save(title, function(status) {
 				if (status.path) {
 					var url = "?load="+status.path+"&tag="+status.saveID;
 					me.sharebox.find(".projecturl").html(window.location.href+url);
@@ -281,7 +281,7 @@ EdenUI.MenuBar = function() {
 					me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
 				}
 			}, {publish: true, thumb: thumbdata, tags: tagstr});
-		//});
+		});
 	});
 
 	this.element.on("click", ".menubar-button.share", function(e) {

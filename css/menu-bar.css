@@ -86,10 +86,10 @@ div.menubar-buttons {
 	height: 45px;
 	line-height: 45px;
 	margin-right: 20px;
-	padding-right: 15px;
+	padding-right: 25px;
 	border-right: 1px solid #444;
 	border-left: 1px solid #444;
-	padding-left: 35px;
+	padding-left: 25px;
 }
 
 div.menubar-mobilebuttons {
@@ -116,8 +116,10 @@ div.menubar-button {
 	cursor: pointer;
 	width: 30px;
 	outline: none;
-	margin-right: 10px;
+	margin-right: 5px;
 	/*padding-left: 10px;*/
+	margin-left: 5px;
+	text-align: center;
 }
 
 div.menubar-button.share {
@@ -393,7 +395,7 @@ div.jseden-subtitle {
 	-ms-user-select: none;
 	position: relative;
 	font-weight: normal;
-	left: -215px;
+	left: -208px;
 	/*margin-top: 18px;*/
 	padding-bottom: 6px;
 	background-color: white;
@@ -607,7 +609,7 @@ div.error-source {
 
 #menubar-mainitem-notifications {
 	width: 500px;
-	left: -465px;
+	left: -458px;
 	cursor: initial;
 }
 
