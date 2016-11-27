@@ -40,6 +40,88 @@ Eden.Query.sortByCount = sortByCount;
 Eden.Query.reduceByCount = reduceByCount;
 Eden.Query.negativeFilter = negativeFilter;
 
+Eden.Query.search = function(q) {
+	var words = q.split(/[ ]+/);
+	var inittoken = false;
+	var i = 0;
+	var rcount = words.length;
+
+	var res = {
+		views: [],
+		symbols: [],
+		whens: [],
+		projects: [],
+		scripts: []
+	};
+
+	if (words.length > 0) {
+		if (words[0].charAt(words[0].length-1) == ":") {
+			i = 1;
+			inittoken = true;
+		}
+	}
+
+	rcount -= i;
+
+	for (; i<words.length; i++) {
+		if (words[i] == "") {
+			rcount--;
+			continue;
+		}
+
+		if (words[i].startsWith("depends:")) {
+			var dep = words[i].split(":");
+			if (dep[1] == "") {
+				rcount--;
+				continue;
+			}
+
+			var regex = edenUI.regExpFromStr(dep[1], undefined, undefined, "simple");
+			res.symbols.push.apply(res.symbols, Eden.Query.searchDepends(regex));
+		} else {
+			var regex = edenUI.regExpFromStr(words[i]);
+			res.symbols.push.apply(res.symbols, Eden.Query.searchSymbols(regex));
+		}
+	}
+
+	res.symbols = reduceByCount(res.symbols, rcount);
+	return res;
+}
+
+Eden.Query.searchViews = function(q) {
+
+}
+
+Eden.Query.searchSymbols = function(q) {
+	var res = [];
+	for (var x in eden.root.symbols) {
+		if (q.test(x)) res.push(x);
+	}
+	return res;
+}
+
+Eden.Query.searchDepends = function(q) {
+	var res = [];
+	for (var x in eden.root.symbols) {
+		for (var y in eden.root.symbols[x].dependencies) {
+			if (q.test(y.slice(1))) res.push(x);
+		}
+	}
+	return res;
+}
+
+Eden.Query.searchWhens = function(q) {
+
+}
+
+Eden.Query.searchProjects = function(q) {
+
+}
+
+Eden.Query.searchScripts = function(q) {
+
+}
+
 Eden.Query.treeBottomUp = function() {
 	var base = {};
 	for (var x in eden.root.symbols) {

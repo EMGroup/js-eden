@@ -48,7 +48,7 @@ input.search {
 	box-sizing: border-box;
 }
 
-div.searchouter:after {
+div.searchouter:before {
 	color: #5555bb;
 	/*text-shadow: 0px 0px 2px black;*/
 	font-family: "FontAwesome";
@@ -56,11 +56,12 @@ div.searchouter:after {
 	/*opacity: 0.8;*/
 	content: "\f002";
 	position: relative;
-	left: -240px;
+	left: 30px;
 	background: none;
 	top: 1px;
 	margin-top: 0;
 	/*z-index: 2001;*/
+	z-index: 2;
 }
 
 button.jseden {
