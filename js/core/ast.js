@@ -1116,13 +1116,19 @@ Eden.AST.Append.prototype.generate = function(ctx) {
 	}
 }
 
-Eden.AST.Append.prototype.execute = function(ctx, base, scope) {
+Eden.AST.Append.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	var val = this.index.execute(ctx,base, scope);
 	if (val instanceof BoundValue) val = val.value;
-	eden.root.lookup(this.destination.name).mutate(scope, function(s) {
+	/*eden.root.lookup(this.destination.name).mutate(scope, function(s) {
 		s.value().push(val);
-	}, undefined);
+	}, undefined);*/
+
+	var sym = eden.root.lookup(this.destination.name);
+	var val2 = sym.value(scope);
+	val2.push(val);
+	//console.log("VALUE: ", sym.value(scope));
+	sym.assign(val2, scope, agent);
 }
 
 Eden.AST.Append.prototype.setSource = function(start, end) {
