@@ -211,7 +211,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			}
 		// There is no existing agent but create it
 		} else if (options && options.indexOf("create") >= 0) {
-			console.log("CREATE: " + path);
+			//console.log("CREATE: " + path);
 			// Auto create agents that don't exist
 			ag = new Eden.Agent(undefined, path, Eden.DB.createMeta(path), options);
 			if (tag != "default") ag.meta.tag = tag;
