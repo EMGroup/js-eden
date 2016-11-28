@@ -77,6 +77,16 @@ function Construit(options,callback) {
 	var master = URLUtil.getParameterByName("master");
 	var myid = URLUtil.getParameterByName("id");
 
+	// Add URL parameters to observables...
+	var urlparams = URLUtil.getParameters();
+	for (var x in urlparams) {
+		if (urlparams[x].length > 1) {
+			eden.root.lookup("jseden_url_"+x).assign(urlparams[x], eden.root.scope, Symbol.localJSAgent);
+		} else {
+			eden.root.lookup("jseden_url_"+x).assign(urlparams[x][0], eden.root.scope, Symbol.localJSAgent);
+		}
+	}
+
 	if (lang == "") {
 		lang = "en";
 	}

@@ -25,6 +25,22 @@ URLUtil.getParameterByName = function (name) {
 	}
 }
 
+URLUtil.getParameters = function() {
+	var url = window.location.href;
+	var params = url.split("?")[1];
+	if (!params) return {};
+	var parts = params.split("&");
+
+	var res = {};
+	for (var i=0; i<parts.length; i++) {
+		var comp = parts[i].split("=");
+
+		if (res[comp[0]] === undefined) res[comp[0]] = [];
+		if (comp.length > 1) res[comp[0]].push(decodeURIComponent(comp[1]));
+	}
+	return res;
+}
+
  /**Utility function to extract a URL query parameter that can occur more than once.
   */
 URLUtil.getArrayParameterByName = function (name) {

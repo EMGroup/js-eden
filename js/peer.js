@@ -25,6 +25,8 @@ Eden.Peer = function(master, id) {
 		eden.root.lookup("jseden_p2p_errors").assign([], eden.root.scope, Symbol.defaultAgent);
 	}
 
+	Eden.Agent.importAgent("lib/p2p","default",[],function() {});
+
 	function processAssign(obj) {
 		var sym = eden.root.lookup(obj.symbol.slice(1));
 		var ast = new Eden.AST(obj.value, undefined, Symbol.netAgent, true);
