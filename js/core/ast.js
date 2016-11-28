@@ -755,9 +755,9 @@ Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {
 		return sym;
 	}
 	if (this.express) {
-		console.log(this.express);
+		//console.log(this.express);
 		var name = this.express.execute(ctx,base,scope);
-		console.log(name);
+		//console.log(name);
 		if (name instanceof BoundValue) name = name.value;
 		return eden.root.lookup(name);
 	}

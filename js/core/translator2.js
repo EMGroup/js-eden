@@ -1906,8 +1906,58 @@ Eden.AST.prototype.pLVALUE = function() {
 		}
 		this.next();
 	} else if (this.token == "OBSERVABLE") {
-		lvalue.setObservable(this.data.value);
+		var observable = this.data.value;
 		this.next();
+
+		// Allow for {} style backticks on LHS.
+		// Allow backtick without operator
+		if (this.token == "{") {
+			var expr = new Eden.AST.Literal("STRING", observable);
+
+			while (this.token == "{") {
+				this.next();
+				// Parse the backticks expression
+				var btick = this.pEXPRESSION();
+				if (btick.errors.length > 0) {
+					//var lvalue = new Eden.AST.Primary();
+					lvalue.setExpression(btick);
+					return lvalue;
+				}	
+
+				// Closing backtick missing?
+				if (this.token != "}") {
+					//var primary = new Eden.AST.Primary();
+					lvalue.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BACKTICK));
+					return lvalue;
+				} else {
+					this.next();
+				}
+
+				var nexpr = new Eden.AST.BinaryOp('//');
+				nexpr.left(expr);
+				nexpr.setRight(btick);
+				expr = nexpr;
+			}
+
+			if (this.token == "OBSERVABLE") {
+				var nexpr = new Eden.AST.BinaryOp('//');
+				nexpr.left(expr);
+				nexpr.setRight(new Eden.AST.Literal("STRING", this.data.value));
+				expr = nexpr;
+				this.next();
+			}
+
+			// Check for '.', '[' and '('... plus 'with'
+			//primary = this.pPRIMARY_P();
+			lvalue.setExpression(expr);
+			//primary.setObservable("__BACKTICKS__");
+		} else {
+			// Check for '.', '[' and '('... plus 'with'
+			//primary = this.pPRIMARY_P();
+			lvalue.setObservable(observable);
+		}
+
+		//lvalue.setObservable(observable);
 	} else {
 		lvalue.error(new Eden.SyntaxError(this, Eden.SyntaxError.LVALUE));
 		return lvalue;
