@@ -1,3 +1,7 @@
+Eden.AST.DummyContext = {
+	subscribeDynamic: function(p,d) { return eden.root.lookup(d); }
+};
+
 Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, agent) {
 	var stack = [];
 	this.executed = 1;
@@ -191,7 +195,7 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 		//statement.execute(undefined, this, eden.root.scope, agent);
 		//if (this.active) return;
 		//this.active = true;
-		var gen = this.executeGenerator([statement], undefined ,this, eden.root.scope, agent);
+		var gen = this.executeGenerator([statement], Eden.AST.DummyContext ,this, eden.root.scope, agent);
 		runEdenAction.call(this,agent, gen, function() {
 			if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
 				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});

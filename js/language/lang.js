@@ -41,7 +41,9 @@ var Language = {
 		"debug": "debug",
 		"local": "local",
 		"role": "role",
-		"shared": "shared"
+		"shared": "shared",
+		"oracle": "oracle",
+		"handle": "handle"
 	},
 
 	keywords: {
