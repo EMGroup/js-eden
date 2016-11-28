@@ -151,7 +151,12 @@ EdenUI.Sharebox = function(element) {
 		var tagstr = tagbox.get(0).textContent;
 		tagstr = tagstr.toLowerCase().replace(/[\!\'\-\?\&]/g, "").split(" ");
 
-		me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
+		if (title == "New Project") {
+			me.sharebox.find("#projectuploadbox").html('<br/><br/>Please give your project a name by editing the "New Project" title in the top left.');
+			return;
+		} else {
+			me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
+		}
 		Eden.Agent.uploadAll(function() {
 			console.log("ALL UPLOADED");
 			Eden.DB.save(title, function(status) {
@@ -179,7 +184,12 @@ EdenUI.Sharebox = function(element) {
 		var tagstr = tagbox.get(0).textContent;
 		tagstr = tagstr.toLowerCase().replace(/[\!\'\-\?\&]/g, "").split(" ");
 
-		me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
+		if (title == "New Project") {
+			me.sharebox.find("#projectuploadbox").html('<br/><br/>Please give your project a name by editing the "New Project" title in the top left.');
+			return;
+		} else {
+			me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
+		}
 		Eden.Agent.publishAll(function() {
 			Eden.DB.save(title, function(status) {
 				if (status.path) {
