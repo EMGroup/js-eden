@@ -319,6 +319,11 @@
 			"title": "Functional Programming Library",
 			"enabled": true
 		},
+		"lib/notifications": {
+			"file": "library2/notifications.js-e",
+			"title": "Notification API",
+			"enabled": true
+		},
 		"claytontunnel/alarm/panel": {
 			"file": "models/nick/claytonTunnel/alarm.panel",
 			"title": "Alarm Panel",
