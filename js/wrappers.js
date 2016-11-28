@@ -187,12 +187,12 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			}
 
 			// Set agent observables.
-			var opath = path.replace(/[\/]/g, "_");
+			/*var opath = path.replace(/[\/]/g, "_");
 			eden.root.lookup("agent_"+opath+"_version").assign(ag.meta.saveID, eden.root.scope, Symbol.localJSAgent);
 			eden.root.lookup("agent_"+opath+"_author").assign(ag.meta.author, eden.root.scope, Symbol.localJSAgent);
 			eden.root.lookup("agent_"+opath+"_title").assign(ag.meta.title, eden.root.scope, Symbol.localJSAgent);
 			eden.root.lookup("agent_"+opath+"_date").assign(ag.meta.date, eden.root.scope, Symbol.localJSAgent);
-			eden.root.lookup("agents").assign(Object.keys(Eden.Agent.agents), eden.root.scope, Symbol.localJSAgent);
+			eden.root.lookup("agents").assign(Object.keys(Eden.Agent.agents), eden.root.scope, Symbol.localJSAgent);*/
 
 			// Errors on load?
 			if (ag.ast && ag.ast.script.errors.length > 0) {
