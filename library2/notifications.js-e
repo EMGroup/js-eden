@@ -1,0 +1,12 @@
+action notify {
+	${{ edenUI.menu.notifications.notification(ctx.parameters[0],ctx.parameters[1]); }}$;
+}
+
+jseden_notifications = [];
+when (jseden_notifications# > 0) {
+	for (i=1; i<=jseden_notifications#; i++) {
+		do notify jseden_notifications[i][1], jseden_notifications[i][2];
+	}
+	jseden_notifications = [];
+} :: i is 1;
+

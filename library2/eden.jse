@@ -9,6 +9,9 @@
 ##Debugging flags.
 debug = ${{ {jsExceptions: edenUI.getOptionValue("developer") == "true" } }}$;
 
+##Version
+jseden_version is jseden_version_major*10000000+jseden_version_minor*100000+jseden_version_patch*1000+jseden_version_commit;
+
 ##MISSING FUNCTIONS
 
 proc eager {
@@ -25,16 +28,13 @@ func time {
   }}$;
 };
 
+jseden_notifications = [];
 proc writeln {
-  ${{
-	var message = root.lookup("str").definition(root, root.scope)(arguments[0]);
-	console.log(message);
-	message = "Output: " + message;
-	root.lookup("_menubar_status").assign(message, root.scope, this);
-	if (!root.autocalc_state) {
-		edenUI.plugins.MenuBar.updateStatus(message);
-	}
-  }}$;
+	para text;
+	auto msg;
+	msg = str(text);
+	${{ console.log(msg); }}$;
+	append jseden_notifications,["log", msg];
 }
 
 ##Raises an error if fewer or greater than two arguments are given.
@@ -94,6 +94,13 @@ func forget {
 		}
 
 		symbolToDelete.forget();
+		/*
+		 * The new environment no longer seems to call this automatically at completion of execution, so call
+		 * it manually here to force a clean-up.  Hopefully nothing in the parser is holding onto a Symbol
+		 * object belonging to a forgotten observable, otherwise bad things will happen.
+		 * TODO: Verify that bad things don't happen.
+		 */
+		root.collectGarbage();
 		return 0;
 	}}$;
 };
@@ -101,7 +108,7 @@ func forget {
 ##Forgets all symbols whose names match a given regular expression or that are explicitly provided
 ##as a list.  The optional second argument determines if the search is case sensitive.  The optional
 ##third argument determines if the user will be prompted to confirm the deletions and the optional
-##forth "secret" parameter determines if system-defined symbols matching the search criteria will
+##forth parameter determines if system-defined symbols matching the search criteria will
 ##also be deleted.
 ##
 ##Returns a list.
@@ -119,17 +126,13 @@ func forget {
 ##
 func forgetAll {
 	${{
-		/* The forth parameter determines whether or not system defined symbols will also be
-		 * deleted.  This feature is for the system's own internal use and is not advertised to end
-		 * users.
-		 */
 		var searchStr, caseSensitive, requireConfirm, includeSystemSymbols;
 		var regExp, symbol;
 		var obsToDelete = undefined;
 		var includeAgent = {name: "/include"};
 		
 		if (arguments.length > 4) {
-			eden.error(new Error("forgetAll: This function requires at most 3 arguments."), "error");
+			eden.error(new Error("forgetAll: This function requires at most 4 arguments."), "error");
 			return [[], undefined, []];
 		}
 
@@ -174,8 +177,8 @@ func forgetAll {
 		}
 		
 		if (arguments.length > 3) {
-			if (arguments.length > 4 || typeof(arguments[3]) != "boolean") {
-				eden.error(new Error("forgetAll: This function requires at least 1 argument and at most 3 arguments."), "error");
+			if (typeof(arguments[3]) != "boolean") {
+				eden.error(new Error("forgetAll: The forth argument must be a boolean, not a " + typeof(arguments[3])), "error");
 				return [[], undefined, []];
 			}
 			includeSystemSymbols = arguments[3];
@@ -308,7 +311,7 @@ func forgetAll {
 		var confirmed;
 		var resetList = Object.keys(reset);
 		var deletePlusReset = namesToDelete.concat(resetList);
-		if (deletePlusReset.length >0 && requireConfirm) {
+		if (deletePlusReset.length > 0 && requireConfirm) {
 			if (deletePlusReset.length <= 50) {
 				confirmed = confirm("You are about to delete the following " + deletePlusReset.length +
 					" symbols.  Is this correct?\n\n" + deletePlusReset.join("\n"));
@@ -340,6 +343,10 @@ func forgetAll {
 						 * that the view is no longer valid and isn't merely "hung".
 						 */
 						symbol.assign(undefined, root.scope);
+						if (edenUI.plugins.Canvas2D && edenUI.plugins.Canvas2D.destroyViews) {
+							// Close the window if it's a canvas picture observable. (JS-EDEN 1.2.2 and earlier).
+							edenUI.plugins.Canvas2D.destroyViews(name);
+						}
 					}
 					symbol.forget();
 					// Close the window if this observable defines the content for a view (e.g. canvas).
@@ -352,25 +359,25 @@ func forgetAll {
 			if (wasInInitialState) {
 				eden.captureInitialState(); //Re-assert still in initial state.		
 			}
+			/*
+			 * The new environment no longer seems to call this automatically at completion of execution, so call
+			 * it manually here to force a clean-up.  Hopefully nothing in the parser is holding onto a Symbol
+			 * object belonging to a forgotten observable, otherwise bad things will happen.
+			 * TODO: Verify that bad things don't happen.
+			 */
+			root.collectGarbage();
 			root.endAutocalcOff();
 			return [namesToDelete, unableToDelete, resetList];
 		} else {
 			return [[], unableToDelete, []];
 		}
+		
 	}}$;
 }
 
 proc error {
-	${{
-		if (arguments.length > 1) {
-			eden.error(new Error("error: This procedure requires exactly 1 argument."), "error");
-		}
-		if (arguments.length == 0) {
-			eden.error(new Error("error: This procedure requires exactly 1 argument."), "error");
-		} else {
-			eden.error(new Error(arguments[0]), "error");
-		}
-	}}$;
+	para msg;
+	append jseden_notifications,["error",msg];
 }
 
 func nameof {
@@ -464,9 +471,9 @@ func doDefault {
 	}
 }
 
-/*proc arrangeWindows {
+proc arrangeWindows {
 	para windowOrder;
-	auto name, curr_x, i;
+	auto name, i, sumSym;
 
 	if (windowOrder == @) {
 		windowOrder = _views_list;
@@ -477,18 +484,25 @@ func doDefault {
 			}
 		}
 	}
-  
-	curr_x = 0;
+
+	sumSym = "curr_x" + str(randomInteger(0, 9007199254740991));
+	execute(sumSym // " = 0;");
 	for (i = 1; i <= windowOrder#; i++) {
 		name = windowOrder[i];
+		/*
 		if (`"_view_"//name//"_position"` != @) {
 			continue;
 		}
 		`"_view_"//name//"_x"` = curr_x;
 		`"_view_"//name//"_y"` = 0;
 		curr_x += `"_view_"//name//"_width"` + 27;
+		*/
+		execute("_view_" // name // "_x = " // sumSym // ";");
+		execute("_view_" // name // "_y = 0;");
+		execute(sumSym // " += _view_" // name // "_width + 27;");
 	}
-}*/
+	forget(sumSym);
+}
 
 ## Temporary: Include using the new parser.
 func include2 {
@@ -515,12 +529,17 @@ autocalc = 0;
 
 import lib/type;
 import lib/core;
+import lib/list;
 import lib/math;
 import lib/string;
 import lib/colour;
 import lib/scoping;
 
-/*import lib/list;
+when (_jseden_loaded && jseden_version > 10300016) {
+import lib/notifications;
+}
+
+/*
 import lib/algebra;
 import lib/includejs;
 import lib/dynamic;
@@ -544,23 +563,24 @@ include("library/declarevar.js-e");
 
 autocalc = 1;
 
-initialViews = ${{ URLUtil.getParameterByName("views") }}$;
+if (jseden_version < 10200002) {
+	initialViews = ${{getParameterByName("views") }}$;
+} else {
+	initialViews = ${{ URLUtil.getParameterByName("views") }}$;
+}
 if (initialViews == "" || initialViews == "default") {
-	createProjectList();
-	_view_projects_x = 0;
-	_view_projects_y = 0;
-	_view_projects_width = 210;
-	_view_projects_height = screenHeight;
 	createCanvas("picture");
-	_view_picture_x = max((screenWidth / 2 - 30) - _view_picture_width, _view_projects_width + _views_frame_width);
+	_view_picture_x = (screenWidth / 2 - 30) - _view_picture_width;
 	_view_picture_y = screenHeight / 2 - _view_picture_height / 2;
-	if ((picture == @ || picture == []) && ${{ "logo" in edenUI.branding }}$) {
+	if (${{ root.lookup("picture").definition === undefined && "logo" in edenUI.branding }}$) {
 		picture is [Image(_view_picture_width / 2 - ${{edenUI.branding.logo.width}}$ / 2, _view_picture_height / 2 - ${{edenUI.branding.logo.height}}$ / 2, ${{edenUI.branding.logo.url}}$)];
 	}
 	createView("input", "ScriptInput");
 	_view_input_agent = "view/script/input";
 	_view_input_height = _view_picture_height;
-	_view_input_x = min(screenWidth / 2 + 30, _view_picture_x + _view_picture_width + _views_frame_width + (_view_picture_x - (_view_projects_x + _view_projects_width + _views_frame_width)));
-	_view_input_y = screenHeight / 2 - _view_input_height / 2;
+	_view_input_x = screenWidth / 2 + 30;
+	_view_input_y = screenHeight / 2 - (_view_input_height / 2);
 }
 forget(&initialViews);
+
+##import help/menu;
