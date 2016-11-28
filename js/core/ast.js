@@ -1377,6 +1377,10 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 	//if (eden.peer) eden.peer.broadcast(source);
 
+	if (this.doxyComment) {
+		eden.dictionary[this.lvalue.name] = this.doxyComment;
+	}
+
 	try {
 		if (this.lvalue.hasListIndices()) {
 			var rhs = "(function(context,scope,value) { value";
@@ -1570,6 +1574,10 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	if (this.expression === undefined) return;
 	this.executed = 1;
 	this.compile(ctx);
+
+	if (this.doxyComment) {
+		eden.dictionary[this.lvalue.name] = this.doxyComment;
+	}
 
 	try {
 		var sym = this.lvalue.getSymbol(ctx,base,scope);

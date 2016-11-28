@@ -518,6 +518,7 @@
 	function Eden(root) {
 		this.root = root;
 		root.base = this;
+		this.dictionary = {};	// Used to store doxy comments for symbols.
 
 		/**
 		 * @type {number}
