@@ -82,7 +82,7 @@ Eden.Agent = function(parent, name, meta, options) {
 			if (whens) {
 				//clearExecutedState();
 				for (var i=0; i<whens.length; i++) {
-					whens[i].trigger(me.ast);
+					whens[i].statement.trigger(me.ast, whens[i].scope);
 				}
 				//gutter.generate(this.ast,-1);
 				//me.clearExecutedState();

@@ -2118,6 +2118,7 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 		this.errors.push(err);
 		err.line = this.line;
 		Eden.Agent.emit("error", [agent,err]);
+		//throw e;
 	}
 }
 
@@ -2911,6 +2912,17 @@ Eden.AST.When = function() {
 	this.local = false;
 };
 
+Eden.AST.When.prototype.addTrigger = function(base, d, scope) {
+	var trigs = base.triggers[d];
+	if (trigs) {
+		for (var i=0; i<trigs.length; i++) if (trigs[i].statement === this) return;
+		base.triggers[d].push({statement: this, scope: scope});
+	} else {
+		trigs = [{statement: this, scope: scope}];
+		base.triggers[d] = trigs;
+	}
+}
+
 Eden.AST.When.prototype.getSource = function() {
 	return this.base.getSource(this);
 }
@@ -2925,16 +2937,17 @@ Eden.AST.When.prototype.setScope = function (scope) {
 	this.scope = scope;
 }
 
-Eden.AST.When.prototype.subscribeDynamic = function(position, dependency) {
-	//console.log("Subscribe Dyn: " + dependency);
-	if (this.base.triggers[dependency]) {
+Eden.AST.When.prototype.subscribeDynamic = function(position, dependency, scope) {
+	//console.log("Subscribe Dyn: ", dependency, scope);
+	/*if (this.base.triggers[dependency]) {
 		if (this.base.triggers[dependency].indexOf(this) == -1) {
 			this.base.triggers[dependency].push(this);
 		}
 	} else {
 		var trigs = [this];
 		this.base.triggers[dependency] = trigs;
-	}
+	}*/
+	this.addTrigger(this.base, dependency, scope);
 	return eden.root.lookup(dependency);
 }
 
@@ -2972,21 +2985,9 @@ Eden.AST.When.prototype.compile = function(base) {
 	cond += "; } catch(e) {} })";
 	this.compiled = eval(cond);
 
-	// Register with base to be triggered
-	for (var d in this.dependencies) {
-		if (base.triggers[d]) {
-			if (base.triggers[d].indexOf(this) == -1) {
-				base.triggers[d].push(this);
-			}
-		} else {
-			var trigs = [this];
-			base.triggers[d] = trigs;
-		}
-	}
-
 	if (this.scope && this.compScope === undefined) {
 		try {
-			this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })").call(this, eden.root, eden.root.scope);
+			this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })");
 		} catch (e) {
 			//var err;
 
@@ -3000,18 +3001,24 @@ Eden.AST.When.prototype.compile = function(base) {
 
 			//this.errors.push(err);
 			//if (base.origin) Eden.Agent.emit("error", [base.origin,err]);
-			//else console.log(err.prettyPrint());
+			//console.error(e);
 		}
+	}
+
+	// Register with base to be triggered
+	for (var d in this.dependencies) {
+		this.addTrigger(base, d);
 	}
 
 	return "";
 }
 
-Eden.AST.When.prototype.trigger = function(base) {
+Eden.AST.When.prototype.trigger = function(base, scope) {
+	//console.trace("TRIGGER", this.name, scope);
 	if (base === undefined) base = this.base;
 	if (this.active == false) {
 		this.active = true;
-		var res = this.executeReal(this, base, eden.root.scope);
+		var res = this.executeReal(this, base, (scope) ? scope : eden.root.scope);
 		//console.log(res);
 		if (res && (eden.peer === undefined || eden.peer.authoriseWhen(this))) {
 			base.executeStatements(res, -1, this, undefined, this);
@@ -3035,28 +3042,35 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 
 	var me = this;
 
-	var scope = eden.root.scope;
-	if (this.compScope) scope = this.compScope;
+	if (scope === undefined || scope === eden.root.scope) {
+		if (this.compScope) scope = this.compScope.call(this, eden.root, eden.root.scope);
+		else scope = eden.root.scope;
+	}
 
 	if (scope.range) {
 		scope.range = false;
 		var sscripts = [];
 
-		while (true) {
-			if (this.compiled.call(this, eden.root,scope)) {
-				sscripts.push(new Eden.AST.ScopedScript(this.statement.statements, scope.clone()));
-			} else {
-				this.executed = 2;
+		//if (scope.first()) {
+			while (true) {
+				var cscope = scope.clone();
+				if (this.compiled.call(this, eden.root,cscope)) {
+					//sscripts.push(new Eden.AST.ScopedScript(this.statement.statements, cscope));
+					console.log("RANGE WHEN:", cscope);
+				} else {
+					this.executed = 2;
+				}
+				if (scope.next() == false) break;
 			}
-			if (scope.next() == false) break;
-		}
+		//}
 
 		scope.range = true;
 		return sscripts;
 	} else {
 		if (this.compiled.call(this,eden.root,scope)) {
-			if (this.compScope && this.statement.type == "script") {
-				return [new Eden.AST.ScopedScript(this.statement.statements, this.compScope)];
+			//console.log(this.name, scope);
+			if (scope !== eden.root.scope && this.statement.type == "script") {
+				return [new Eden.AST.ScopedScript(this.statement.statements, scope)];
 			} else {
 				return [this.statement];
 			}
@@ -3069,6 +3083,25 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 }
 
 Eden.AST.When.prototype.execute = function(ctx,base,scope,agent) {
+	//if (this.scope && this.compScope === undefined) {
+	//	try {
+	//		this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })").call(this, eden.root, eden.root.scope);
+	//	} catch (e) {
+			//var err;
+
+			//if (/[0-9][0-9]*/.test(e.message)) {
+			//	err = new Eden.RuntimeError(base, parseInt(e.message), this, e.message);
+			//} else {
+			//	err = new Eden.RuntimeError(base, 0, this, e);
+			//}
+
+			//err.line = this.line;
+
+			//this.errors.push(err);
+			//if (base.origin) Eden.Agent.emit("error", [base.origin,err]);
+			//else console.log(err.prettyPrint());
+	//	}
+	//}
 	if (agent && !agent.loading) this.executeReal(ctx,base,scope,agent);
 }
 
