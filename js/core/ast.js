@@ -1419,6 +1419,39 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 Eden.AST.Definition.prototype.error = fnEdenASTerror;
 
+//------------------------------------------------------------------------------
+
+
+Eden.AST.Range = function(expression) {
+	this.type = "range";
+	this.parent = undefined;
+	this.errors = (expression) ? expression.errors : [];
+	this.expression = expression;
+	this.lvalue = undefined;
+	this.start = 0;
+	this.end = 0;
+	//this.scopes = [];
+	//this.backtickCount = 0;
+	//this.executed = 0;
+	//this.compiled = undefined;
+	//this.dirty = false;
+	//this.value = undefined;
+	//this.dependencies = {};
+	//this.bound = false;
+};
+
+Eden.AST.Range.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+Eden.AST.Range.prototype.left = function(lvalue) {
+	this.lvalue = lvalue;
+	if (lvalue.errors.length > 0) {
+		this.errors.push.apply(this.errors, lvalue.errors);
+	}
+};
+
 
 
 //------------------------------------------------------------------------------
@@ -2449,6 +2482,8 @@ Eden.AST.For = function() {
 	this.line = undefined;
 	this.compiled = undefined;
 	this.started = false;
+	this.list = undefined;
+	this.index = 0;
 };
 
 Eden.AST.For.prototype.error = fnEdenASTerror;
@@ -2515,16 +2550,101 @@ Eden.AST.For.prototype.getCondition = function(ctx) {
 	}
 }
 
-Eden.AST.For.prototype.execute = function(ctx, base, scope) {
+Eden.AST.For.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 
-	if (this.sstart && !this.started) {
+	if (this.sstart && this.sstart.type == "range") {
+		if (this.list === undefined) {
+			this.list = this.sstart.expression.execute(ctx,base,scope,agent);
+			//console.log(this.list);
+			this.index = 0;
+		}
+		var sym = root.lookup(this.sstart.lvalue.name);
+		if (Array.isArray(this.list)) {
+			//for (var i=0; i<this.list.length; i++) {
+			if (this.index < this.list.length) {
+				if (this.list[this.index] instanceof BoundValue) {
+					sym.assign(this.list[this.index].value,scope);
+					var cache = scope.lookup(sym.name);
+					if (cache) cache.scope = this.list[this.index].scope;
+					//console.log(cache);
+				} else {
+					sym.assign(this.list[this.index],scope);
+				}
+				this.index++;
+				return [this.statement, this];
+				//this.statement.execute(root,ctx,base,scope);
+				//if (ctx.tobreak) {
+				//	ctx.tobreak = false;
+				//	break;
+				//}
+			//}
+			} else {
+				this.index = 0;
+				this.list = undefined;
+				return;
+			}
+		} else if (this.list instanceof BoundValue) {
+			if (this.index < this.list.value.length) {
+				if (this.list.scopes) {
+					sym.assign(this.list.value[this.index],scope);
+					var cache = scope.lookup(sym.name);
+					if (cache) cache.scope = this.list.scopes[this.index];
+				} else {
+					if (this.list.value[this.index] instanceof BoundValue) {
+						sym.assign(this.list.value[this.index].value,scope);
+						var cache = scope.lookup(sym.name);
+						if (cache) cache.scope = this.list.value[this.index].scope;
+						//console.log(cache);
+					} else {
+						sym.assign(this.list.value[this.index],scope);
+						var cache = scope.lookup(sym.name);
+						if (cache) cache.scope = this.list.scope;
+					}
+				}
+				this.index++;
+				return [this.statement, this];
+				//this.statement.execute(root,ctx,base,scope);
+				//if (ctx.tobreak) {
+				//	ctx.tobreak = false;
+				//	break;
+				//}
+			//}
+			} else {
+				this.index = 0;
+				this.list = undefined;
+				return;
+			}
+			/*for (var i=0; i<list.value.length; i++) {
+				if (list.scopes) {
+					sym.assign(list.value[i],scope);
+					var cache = scope.lookup(sym.name);
+					if (cache) cache.scope = list.scopes[i];
+				} else {
+					if (list.value[i] instanceof BoundValue) {
+						sym.assign(list.value[i].value,scope);
+						var cache = scope.lookup(sym.name);
+						if (cache) cache.scope = list.value[i].scope;
+						//console.log(cache);
+					} else {
+						sym.assign(list.value[i],scope);
+						var cache = scope.lookup(sym.name);
+						if (cache) cache.scope = list.scope;
+					}
+				}
+				this.statement.execute(root,ctx,base,scope);
+				if (ctx.tobreak) {
+					ctx.tobreak = false;
+					break;
+				}
+			}*/
+		}
+	} else if (this.sstart && !this.started) {
 		this.started = true;
 		return [this.sstart,this];
 	}
 
 	if (this.getCondition(ctx)(eden.root,scope)) {
-		console.log("LOOOOOP");
 		return [this.statement, this.inc, this];
 	} else {
 		this.started = false;

@@ -1563,42 +1563,53 @@ Eden.AST.prototype.pFOR = function() {
 			return forast;
 		}
 
-		if (this.token != ";") {
+		if (forast.sstart.type != "range" && this.token != ";") {
 			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORSTART));
 			this.parent = parent;
 			return forast;
-		} else {
+		} else if (this.token == ";") {
 			this.next();
 		}
 	}
 
-	if (this.token == ";") {
-		this.next();
-	} else {
-		forast.setCondition(this.pEXPRESSION());
-		if (forast.errors.length > 0) {
-			this.parent = parent;
-			return forast;
-		}
-
-		if (this.token != ";") {
-			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCOND));
-			this.parent = parent;
-			return forast;
-		} else {
+	
+	if (forast.sstart.type != "range") {
+		if (this.token == ";") {
 			this.next();
-		}
-	}
+		} else {
+			forast.setCondition(this.pEXPRESSION());
+			if (forast.errors.length > 0) {
+				this.parent = parent;
+				return forast;
+			}
 
-	if (this.token == ")") {
-		this.next();
+			if (this.token != ";") {
+				forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCOND));
+				this.parent = parent;
+				return forast;
+			} else {
+				this.next();
+			}
+		}
+
+		if (this.token == ")") {
+			this.next();
+		} else {
+			forast.setIncrement(this.pSTATEMENT_P());
+			if (forast.errors.length > 0) {
+				this.parent = parent;
+				return forast;
+			}
+
+			if (this.token != ")") {
+				forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCLOSE));
+				this.parent = parent;
+				return forast;
+			} else {
+				this.next();
+			}
+		}
 	} else {
-		forast.setIncrement(this.pSTATEMENT_P());
-		if (forast.errors.length > 0) {
-			this.parent = parent;
-			return forast;
-		}
-
 		if (this.token != ")") {
 			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCLOSE));
 			this.parent = parent;
@@ -1925,6 +1936,9 @@ Eden.AST.prototype.pSTATEMENT_PP = function() {
 	if (this.token == "is") {
 		this.next();
 		return new Eden.AST.Definition(this.pEXPRESSION());
+	} else if (this.token == "in") {
+		this.next();
+		return new Eden.AST.Range(this.pEXPRESSION());
 	} else if (this.token == "=") {
 		this.next();
 		return new Eden.AST.Assignment(this.pEXPRESSION());
