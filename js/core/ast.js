@@ -1542,7 +1542,7 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 	if (ctx) ctx.scopes = this.scopes;
 	else ctx = this;
 
-	var rhs = "(function(context,scope) { \n";
+	var rhs = "(function(context,scope,cache) { \n";
 	var express = this.expression.generate(ctx, "scope");
 
 	if (ctx && ctx.dirty) {
@@ -1582,11 +1582,11 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	try {
 		var sym = this.lvalue.getSymbol(ctx,base,scope);
 		if (this.lvalue.hasListIndices()) {
-			this.value = this.compiled.call(sym,eden.root,scope);
+			this.value = this.compiled.call(sym,eden.root,scope,sym.cache);
 			var complist = this.lvalue.executeCompList(ctx, scope);
 			sym.listAssign(this.value, scope, agent, false, complist);
 		} else {
-			this.value = this.compiled.call(sym,eden.root,scope);
+			this.value = this.compiled.call(sym,eden.root,scope,sym.cache);
 			sym.assign(this.value,scope, agent);
 		}
 	} catch(e) {
