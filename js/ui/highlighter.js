@@ -240,7 +240,7 @@
 		var parent = node.parentNode;
 		var next = node.nextSibling;
 		// No parent node? Abort!
-		if (!parent) { return; }
+		if (!parent) { fn.call(obj,node); return; }
 		// Detach node from DOM.
 		parent.removeChild(node);
 		// Handle case where optional `async` argument is omitted.
@@ -350,7 +350,7 @@
 		else this.mode = 0;
 
 		// Get error position information
-		if (ast.script.errors.length > 0) {
+		if (ast.script && ast.script.errors.length > 0) {
 			errstart = ast.script.errors[0].prevposition;
 			errend = ast.script.errors[0].position;
 			errmsg = ast.script.errors[0].messageText();
@@ -651,7 +651,7 @@
 			return;
 		}
 
-		if (ast.script.errors.length > 0) {
+		if (ast.script && ast.script.errors.length > 0) {
 			errstart = ast.script.errors[0].prevposition;
 			errend = ast.script.errors[0].position;
 			errmsg = ast.script.errors[0].messageText();
@@ -778,4 +778,12 @@
 			}*/
 		}
 	};
+
+	EdenUI.Highlight.html = function(str) {
+		var dummy = document.createElement("span");
+		var hlighter = new EdenUI.Highlight(dummy);
+		hlighter.ast = {stream: new EdenStream(str)};
+		hlighter.highlight(hlighter.ast,-1,-1,undefined);
+		return dummy.childNodes[0].innerHTML;
+	}
 }(typeof window !== 'undefined' ? window : global));
