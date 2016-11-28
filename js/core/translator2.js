@@ -615,11 +615,56 @@ Eden.AST.prototype.pPRIMARY = function() {
 		return primary;
 	// Plain observable
 	} else if (this.token == "OBSERVABLE") {
+		var primary;
 		var observable = this.data.value;
 		this.next();
-		// Check for '.', '[' and '('... plus 'with'
-		var primary = this.pPRIMARY_P();
-		primary.setObservable(observable);
+
+		// Allow backtick without operator
+		if (this.token == "{") {
+			var expr = new Eden.AST.Literal("STRING", observable);
+
+			while (this.token == "{") {
+				this.next();
+				// Parse the backticks expression
+				var btick = this.pEXPRESSION();
+				if (btick.errors.length > 0) {
+					var primary = new Eden.AST.Primary();
+					primary.setBackticks(btick);
+					return primary;
+				}	
+
+				// Closing backtick missing?
+				if (this.token != "}") {
+					var primary = new Eden.AST.Primary();
+					primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BACKTICK));
+					return primary;
+				} else {
+					this.next();
+				}
+
+				var nexpr = new Eden.AST.BinaryOp('//');
+				nexpr.left(expr);
+				nexpr.setRight(btick);
+				expr = nexpr;
+			}
+
+			if (this.token == "OBSERVABLE") {
+				var nexpr = new Eden.AST.BinaryOp('//');
+				nexpr.left(expr);
+				nexpr.setRight(new Eden.AST.Literal("STRING", this.data.value));
+				expr = nexpr;
+				this.next();
+			}
+
+			// Check for '.', '[' and '('... plus 'with'
+			primary = this.pPRIMARY_P();
+			primary.setBackticks(expr);
+			primary.setObservable("__BACKTICKS__");
+		} else {
+			// Check for '.', '[' and '('... plus 'with'
+			primary = this.pPRIMARY_P();
+			primary.setObservable(observable);
+		}
 		return primary;
 	// Missing primary so give an error
 	} else {
