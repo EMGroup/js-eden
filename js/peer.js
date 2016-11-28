@@ -15,6 +15,18 @@ Eden.Peer = function(master, id) {
 	this.callbacks = {};
 	this.callbackid = 0;
 
+	if (eden.root.lookup("jseden_p2p_newconnections").value() === undefined) {
+		eden.root.lookup("jseden_p2p_newconnections").assign([], eden.root.scope, Symbol.defaultAgent);
+	}
+	if (eden.root.lookup("jseden_p2p_newdisconnections").value() === undefined) {
+		eden.root.lookup("jseden_p2p_newdisconnections").assign([], eden.root.scope, Symbol.defaultAgent);
+	}
+	if (eden.root.lookup("jseden_p2p_errors").value() === undefined) {
+		eden.root.lookup("jseden_p2p_errors").assign([], eden.root.scope, Symbol.defaultAgent);
+	}
+
+	Eden.Agent.importAgent("lib/p2p","default",[],function() {});
+
 	function processAssign(obj) {
 		var sym = eden.root.lookup(obj.symbol.slice(1));
 		var ast = new Eden.AST(obj.value, undefined, Symbol.netAgent, true);
@@ -68,6 +80,7 @@ Eden.Peer = function(master, id) {
 
 	function processRegister(obj) {
 		Eden.Peer.emit("user", [obj.id,obj.username]);
+		eden.root.lookup("jseden_p2p_"+obj.id+"_name").assign(obj.username, eden.root.scope, Symbol.localJSAgent);
 	}
 
 	function processGetSnapshot(obj) {
@@ -155,6 +168,7 @@ Eden.Peer = function(master, id) {
 					conn.on('open',function() {
 						me.connections[conn.peer] = {id: conn.peer, username: undefined, connection: conn, share: false, observe: false};
 						conn.on('data',function(data) { processData(conn, data); });
+						eden.root.lookup("jseden_p2p_newconnections").append(conn.peer, eden.root.scope, Symbol.localJSAgent);
 
 						// Register
 						conn.send(JSON.stringify({cmd: "register", username: Eden.DB.username, id: id}));
@@ -167,6 +181,7 @@ Eden.Peer = function(master, id) {
 				conn.on('data', function(data) { processData(conn, data); });
 				console.log("Peer connection from " + conn.peer);
 				Eden.Peer.emit("peer", [conn.peer]);
+				eden.root.lookup("jseden_p2p_newconnections").append(conn.peer, eden.root.scope, Symbol.localJSAgent);
 
 				conn.on('open', function() {
 					if (me.config.share) {
@@ -180,11 +195,13 @@ Eden.Peer = function(master, id) {
 			peer.on('error', function(err) {
 				console.log("Peer error: ", err);
 				Eden.Peer.emit("error", [err]);
+				eden.root.lookup("jseden_p2p_errors").append(err, eden.root.scope, Symbol.localJSAgent);
 			});
 
 			peer.on('disconnected', function(conn) {
 				Eden.Peer.emit("disconnect", [conn.peer, (me.connections[conn.peer]) ? me.connections[conn.peer].username : undefined]);
 				delete me.connections[conn.peer];
+				eden.root.lookup("jseden_p2p_newdisconnections").append(conn.peer, eden.root.scope, Symbol.localJSAgent);
 			});
 		}
 

@@ -146,6 +146,7 @@ Eden.DB.logOut = function(cb) {
 							Eden.DB.getLoginName(function(name) {
 								if (name) {
 									Eden.DB.emit("login", [name]);
+									eden.root.lookup("jseden_pm_user").assign(name, eden.root.scope, Symbol.localJSAgent);
 								} else {
 									loginLoop();
 								}
@@ -190,6 +191,7 @@ Eden.DB.connect = function(url, callback) {
 				Eden.DB.getLoginName(function(name) {
 					if (name) {
 						Eden.DB.emit("login", [name]);
+						eden.root.lookup("jseden_pm_user").assign(name, eden.root.scope, Symbol.localJSAgent);
 					} else {
 						loginLoop();
 					}
@@ -208,9 +210,11 @@ Eden.DB.connect = function(url, callback) {
 				if (callback) callback(Eden.DB.isConnected());
 			});
 			Eden.DB.emit("connected", [url]);
+			eden.root.lookup("jseden_pm_connected").assign(true, eden.root.scope, Symbol.localJSAgent);
 
 			if (name) {
 				Eden.DB.emit("login", [name]);
+				eden.root.lookup("jseden_pm_user").assign(name, eden.root.scope, Symbol.localJSAgent);
 			} else {
 				loginLoop();
 			}
@@ -220,7 +224,10 @@ Eden.DB.connect = function(url, callback) {
 
 Eden.DB.disconnect = function(retry) {
 	Eden.DB.remoteURL = undefined;
-	if (Eden.DB.connected) Eden.DB.emit("disconnected", []);
+	if (Eden.DB.connected) {
+		Eden.DB.emit("disconnected", []);
+		eden.root.lookup("jseden_pm_connected").assign(false, eden.root.scope, Symbol.localJSAgent);
+	}
 	Eden.DB.connected = false;
 
 	if (Eden.DB.refreshint) {

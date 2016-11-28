@@ -1306,6 +1306,12 @@
 		this.observees[symbol_name] = undefined;
 	};
 
+	Symbol.prototype.append = function(value, scope, agent) {
+		var val = this.value(scope);
+		val.push(value);
+		this.assign(val, scope, agent);
+	}
+
 	/**
 	 * Change the current value of this symbol and notify.
 	 *
@@ -1324,7 +1330,7 @@
 			scope = root.scope;
 		}
 		this.garbage = false;
-		value = copy(value);
+		if (this.cache.value !== value) value = copy(value);
 		
 		if (this.name === "/autocalc") {
 			/* JS-EDEN has a separate Boolean type so users may expect to be able to assign true and
