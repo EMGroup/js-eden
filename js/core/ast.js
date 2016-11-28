@@ -2985,7 +2985,23 @@ Eden.AST.When.prototype.compile = function(base) {
 	}
 
 	if (this.scope && this.compScope === undefined) {
-		this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })")(eden.root, eden.root.scope);
+		try {
+			this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })")(eden.root, eden.root.scope);
+		} catch (e) {
+			//var err;
+
+			//if (/[0-9][0-9]*/.test(e.message)) {
+			//	err = new Eden.RuntimeError(base, parseInt(e.message), this, e.message);
+			//} else {
+			//	err = new Eden.RuntimeError(base, 0, this, e);
+			//}
+
+			//err.line = this.line;
+
+			//this.errors.push(err);
+			//if (base.origin) Eden.Agent.emit("error", [base.origin,err]);
+			//else console.log(err.prettyPrint());
+		}
 	}
 
 	return "";

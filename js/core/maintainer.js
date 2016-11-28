@@ -56,7 +56,7 @@
 		this.start = start;
 		this.end = end;
 		this.increment = inc;
-		this.current = (isin) ? start[0] : start;
+		this.current = (isin && start) ? start[0] : start;
 		this.isin = isin;
 		this.index = 1;
 

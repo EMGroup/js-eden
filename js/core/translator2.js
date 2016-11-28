@@ -1060,7 +1060,8 @@ Eden.AST.prototype.pSCOPE_P = function() {
 	var expression = this.pEXPRESSION();
 	if (expression.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
-		scope.addOverride(obs, expression, undefined, undefined, false);
+		//scope.addOverride(obs, expression, undefined, undefined, false);
+		scope.errors.push.apply(scope.errors, expression.errors);
 		return scope;
 	}
 
