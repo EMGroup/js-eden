@@ -755,9 +755,9 @@ Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {
 		return sym;
 	}
 	if (this.express) {
-		console.log(this.express);
+		//console.log(this.express);
 		var name = this.express.execute(ctx,base,scope);
-		console.log(name);
+		//console.log(name);
 		if (name instanceof BoundValue) name = name.value;
 		return eden.root.lookup(name);
 	}
@@ -1418,6 +1418,39 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 }
 
 Eden.AST.Definition.prototype.error = fnEdenASTerror;
+
+//------------------------------------------------------------------------------
+
+
+Eden.AST.Range = function(expression) {
+	this.type = "range";
+	this.parent = undefined;
+	this.errors = (expression) ? expression.errors : [];
+	this.expression = expression;
+	this.lvalue = undefined;
+	this.start = 0;
+	this.end = 0;
+	//this.scopes = [];
+	//this.backtickCount = 0;
+	//this.executed = 0;
+	//this.compiled = undefined;
+	//this.dirty = false;
+	//this.value = undefined;
+	//this.dependencies = {};
+	//this.bound = false;
+};
+
+Eden.AST.Range.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+Eden.AST.Range.prototype.left = function(lvalue) {
+	this.lvalue = lvalue;
+	if (lvalue.errors.length > 0) {
+		this.errors.push.apply(this.errors, lvalue.errors);
+	}
+};
 
 
 
@@ -2085,6 +2118,7 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 		this.errors.push(err);
 		err.line = this.line;
 		Eden.Agent.emit("error", [agent,err]);
+		//throw e;
 	}
 }
 
@@ -2449,6 +2483,8 @@ Eden.AST.For = function() {
 	this.line = undefined;
 	this.compiled = undefined;
 	this.started = false;
+	this.list = undefined;
+	this.index = 0;
 };
 
 Eden.AST.For.prototype.error = fnEdenASTerror;
@@ -2515,16 +2551,101 @@ Eden.AST.For.prototype.getCondition = function(ctx) {
 	}
 }
 
-Eden.AST.For.prototype.execute = function(ctx, base, scope) {
+Eden.AST.For.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 
-	if (this.sstart && !this.started) {
+	if (this.sstart && this.sstart.type == "range") {
+		if (this.list === undefined) {
+			this.list = this.sstart.expression.execute(ctx,base,scope,agent);
+			//console.log(this.list);
+			this.index = 0;
+		}
+		var sym = root.lookup(this.sstart.lvalue.name);
+		if (Array.isArray(this.list)) {
+			//for (var i=0; i<this.list.length; i++) {
+			if (this.index < this.list.length) {
+				if (this.list[this.index] instanceof BoundValue) {
+					sym.assign(this.list[this.index].value,scope);
+					var cache = scope.lookup(sym.name);
+					if (cache) cache.scope = this.list[this.index].scope;
+					//console.log(cache);
+				} else {
+					sym.assign(this.list[this.index],scope);
+				}
+				this.index++;
+				return [this.statement, this];
+				//this.statement.execute(root,ctx,base,scope);
+				//if (ctx.tobreak) {
+				//	ctx.tobreak = false;
+				//	break;
+				//}
+			//}
+			} else {
+				this.index = 0;
+				this.list = undefined;
+				return;
+			}
+		} else if (this.list instanceof BoundValue) {
+			if (this.index < this.list.value.length) {
+				if (this.list.scopes) {
+					sym.assign(this.list.value[this.index],scope);
+					var cache = scope.lookup(sym.name);
+					if (cache) cache.scope = this.list.scopes[this.index];
+				} else {
+					if (this.list.value[this.index] instanceof BoundValue) {
+						sym.assign(this.list.value[this.index].value,scope);
+						var cache = scope.lookup(sym.name);
+						if (cache) cache.scope = this.list.value[this.index].scope;
+						//console.log(cache);
+					} else {
+						sym.assign(this.list.value[this.index],scope);
+						var cache = scope.lookup(sym.name);
+						if (cache) cache.scope = this.list.scope;
+					}
+				}
+				this.index++;
+				return [this.statement, this];
+				//this.statement.execute(root,ctx,base,scope);
+				//if (ctx.tobreak) {
+				//	ctx.tobreak = false;
+				//	break;
+				//}
+			//}
+			} else {
+				this.index = 0;
+				this.list = undefined;
+				return;
+			}
+			/*for (var i=0; i<list.value.length; i++) {
+				if (list.scopes) {
+					sym.assign(list.value[i],scope);
+					var cache = scope.lookup(sym.name);
+					if (cache) cache.scope = list.scopes[i];
+				} else {
+					if (list.value[i] instanceof BoundValue) {
+						sym.assign(list.value[i].value,scope);
+						var cache = scope.lookup(sym.name);
+						if (cache) cache.scope = list.value[i].scope;
+						//console.log(cache);
+					} else {
+						sym.assign(list.value[i],scope);
+						var cache = scope.lookup(sym.name);
+						if (cache) cache.scope = list.scope;
+					}
+				}
+				this.statement.execute(root,ctx,base,scope);
+				if (ctx.tobreak) {
+					ctx.tobreak = false;
+					break;
+				}
+			}*/
+		}
+	} else if (this.sstart && !this.started) {
 		this.started = true;
 		return [this.sstart,this];
 	}
 
 	if (this.getCondition(ctx)(eden.root,scope)) {
-		console.log("LOOOOOP");
 		return [this.statement, this.inc, this];
 	} else {
 		this.started = false;
@@ -2791,6 +2912,17 @@ Eden.AST.When = function() {
 	this.local = false;
 };
 
+Eden.AST.When.prototype.addTrigger = function(base, d, scope) {
+	var trigs = base.triggers[d];
+	if (trigs) {
+		for (var i=0; i<trigs.length; i++) if (trigs[i].statement === this) return;
+		base.triggers[d].push({statement: this, scope: scope});
+	} else {
+		trigs = [{statement: this, scope: scope}];
+		base.triggers[d] = trigs;
+	}
+}
+
 Eden.AST.When.prototype.getSource = function() {
 	return this.base.getSource(this);
 }
@@ -2805,16 +2937,17 @@ Eden.AST.When.prototype.setScope = function (scope) {
 	this.scope = scope;
 }
 
-Eden.AST.When.prototype.subscribeDynamic = function(position, dependency) {
-	//console.log("Subscribe Dyn: " + dependency);
-	if (this.base.triggers[dependency]) {
+Eden.AST.When.prototype.subscribeDynamic = function(position, dependency, scope) {
+	//console.log("Subscribe Dyn: ", dependency, scope);
+	/*if (this.base.triggers[dependency]) {
 		if (this.base.triggers[dependency].indexOf(this) == -1) {
 			this.base.triggers[dependency].push(this);
 		}
 	} else {
 		var trigs = [this];
 		this.base.triggers[dependency] = trigs;
-	}
+	}*/
+	this.addTrigger(this.base, dependency, scope);
 	return eden.root.lookup(dependency);
 }
 
@@ -2852,33 +2985,43 @@ Eden.AST.When.prototype.compile = function(base) {
 	cond += "; } catch(e) {} })";
 	this.compiled = eval(cond);
 
-	// Register with base to be triggered
-	for (var d in this.dependencies) {
-		if (base.triggers[d]) {
-			if (base.triggers[d].indexOf(this) == -1) {
-				base.triggers[d].push(this);
-			}
-		} else {
-			var trigs = [this];
-			base.triggers[d] = trigs;
+	if (this.scope && this.compScope === undefined) {
+		try {
+			this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })");
+		} catch (e) {
+			//var err;
+
+			//if (/[0-9][0-9]*/.test(e.message)) {
+			//	err = new Eden.RuntimeError(base, parseInt(e.message), this, e.message);
+			//} else {
+			//	err = new Eden.RuntimeError(base, 0, this, e);
+			//}
+
+			//err.line = this.line;
+
+			//this.errors.push(err);
+			//if (base.origin) Eden.Agent.emit("error", [base.origin,err]);
+			//console.error(e);
 		}
 	}
 
-	if (this.scope && this.compScope === undefined) {
-		this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })")(eden.root, eden.root.scope);
+	// Register with base to be triggered
+	for (var d in this.dependencies) {
+		this.addTrigger(base, d);
 	}
 
 	return "";
 }
 
-Eden.AST.When.prototype.trigger = function(base) {
+Eden.AST.When.prototype.trigger = function(base, scope) {
+	//console.trace("TRIGGER", this.name, scope);
 	if (base === undefined) base = this.base;
 	if (this.active == false) {
 		this.active = true;
-		var res = this.executeReal(undefined, base, eden.root.scope);
+		var res = this.executeReal(this, base, (scope) ? scope : eden.root.scope);
 		//console.log(res);
 		if (res && (eden.peer === undefined || eden.peer.authoriseWhen(this))) {
-			base.executeStatements(res, -1, this);
+			base.executeStatements(res, -1, this, undefined, this);
 		} else {
 			this.active = false;
 		}
@@ -2899,28 +3042,35 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 
 	var me = this;
 
-	var scope = eden.root.scope;
-	if (this.compScope) scope = this.compScope;
+	if (scope === undefined || scope === eden.root.scope) {
+		if (this.compScope) scope = this.compScope.call(this, eden.root, eden.root.scope);
+		else scope = eden.root.scope;
+	}
 
 	if (scope.range) {
 		scope.range = false;
 		var sscripts = [];
 
-		while (true) {
-			if (this.compiled(eden.root,scope)) {
-				sscripts.push(new Eden.AST.ScopedScript(this.statement.statements, scope.clone()));
-			} else {
-				this.executed = 2;
+		//if (scope.first()) {
+			while (true) {
+				var cscope = scope.clone();
+				if (this.compiled.call(this, eden.root,cscope)) {
+					//sscripts.push(new Eden.AST.ScopedScript(this.statement.statements, cscope));
+					console.log("RANGE WHEN:", cscope);
+				} else {
+					this.executed = 2;
+				}
+				if (scope.next() == false) break;
 			}
-			if (scope.next() == false) break;
-		}
+		//}
 
 		scope.range = true;
 		return sscripts;
 	} else {
-		if (this.compiled(eden.root,scope)) {
-			if (this.compScope && this.statement.type == "script") {
-				return [new Eden.AST.ScopedScript(this.statement.statements, this.compScope)];
+		if (this.compiled.call(this,eden.root,scope)) {
+			//console.log(this.name, scope);
+			if (scope !== eden.root.scope && this.statement.type == "script") {
+				return [new Eden.AST.ScopedScript(this.statement.statements, scope)];
 			} else {
 				return [this.statement];
 			}
@@ -2933,6 +3083,25 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 }
 
 Eden.AST.When.prototype.execute = function(ctx,base,scope,agent) {
+	//if (this.scope && this.compScope === undefined) {
+	//	try {
+	//		this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })").call(this, eden.root, eden.root.scope);
+	//	} catch (e) {
+			//var err;
+
+			//if (/[0-9][0-9]*/.test(e.message)) {
+			//	err = new Eden.RuntimeError(base, parseInt(e.message), this, e.message);
+			//} else {
+			//	err = new Eden.RuntimeError(base, 0, this, e);
+			//}
+
+			//err.line = this.line;
+
+			//this.errors.push(err);
+			//if (base.origin) Eden.Agent.emit("error", [base.origin,err]);
+			//else console.log(err.prettyPrint());
+	//	}
+	//}
 	if (agent && !agent.loading) this.executeReal(ctx,base,scope,agent);
 }
 

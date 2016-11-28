@@ -56,7 +56,7 @@
 		this.start = start;
 		this.end = end;
 		this.increment = inc;
-		this.current = (isin) ? start[0] : start;
+		this.current = (isin && start) ? start[0] : start;
 		this.isin = isin;
 		this.index = 1;
 
@@ -279,7 +279,10 @@
 			var over = this.overrides[i];
 			if (over.end === undefined) continue;
 
-			if (over.current <= over.end) {
+			if (over.isin) {
+				var length = (isbound) ? over.start.value.length : (over.start) ? over.start.length : 0;
+				return over.index < length;
+			} else if (over.current <= over.end) {
 				return true;
 			}
 		}
@@ -293,17 +296,23 @@
 		for (var i = this.overrides.length-1; i >= 0; i--) {
 			var over = this.overrides[i];
 			if (over.end === undefined && !over.isin) continue;
+			var isbound = over.start instanceof BoundValue;
+			var length = (isbound) ? over.start.value.length : (over.start) ? over.start.length : 0;
 
 			if (over.isin) {
 				// TODO runtime check that start is a list...
-				if (over.index < over.start.length) {
-					over.current = over.start[over.index];
+				if (over.index < length) {
+					if (isbound) {
+						over.current = over.start.value[over.index];
+					} else {
+						over.current = over.start[over.index];
+					}
 					over.index++;
 					this.updateOverride(over);
 					return true;
 				} else {
 					over.index = 1;
-					over.current = over.start[0];
+					over.current = (isbound) ? over.start.value[0] : over.start[0];
 					this.updateOverride(over);
 				}
 			} else {
@@ -1187,7 +1196,9 @@
 	Symbol.prototype.subscribeDynamic = function (position, dependency, scope) {
 		// To put the dependency on the outer scoped observable is in a scoping context
 		if (scope && scope.cause) {
-			return scope.cause.subscribeDynamic(scope.causecount++, dependency);
+			return scope.cause.subscribeDynamic(scope.causecount++, dependency, scope);
+			//var basescope = scope.baseScope();
+			//return basescope.cause.subscribeDynamic(basescope.cause.causecount++, dependency, scope);
 		}
 
 		if (!(dependency in this.dependencies)) {
