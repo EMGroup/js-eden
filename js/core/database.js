@@ -664,7 +664,14 @@ Eden.DB.getSource = function(path, tag, callback) {
 
 		if (tag == "origin") {
 			meta.saveID = "origin";
-			callback("");
+			if (meta.file) {
+				$.get(meta.file, function(data) {
+					meta.updateVersion("origin", "default", meta.title, meta.name, data.date);
+					callback(data);
+				}, "text");
+			} else {
+				callback("");
+			}
 			return;
 		}
 
