@@ -815,4 +815,43 @@ div.menusearch {
 	border-bottom: none;
 }*/
 
+.doxy-search-details {
+	font-size: 8pt;
+	color: #aaa;
+	margin-left: 30px;
+	margin-right: 30px;
+	margin-top: 5px;
+}
+
+div.menubar-search-rescontrols {
+	font-family: "FontAwesome";
+	float: right;
+	margin-left: 15px;
+}
+
+div.menubar-search-rescontrols span {
+	margin-left: 3px;
+}
+
+div.doxy-parameters {
+	padding-left: 20px;
+	font-weight: bold;
+	margin-top: 5px;
+}
+
+div.doxy-parameter {
+	display: flex;
+	justify-content: flex-start;
+}
+
+div.doxy-parameter-name {
+	font-weight: bold;
+	margin-right: 15px;
+	width: 100px;
+	text-align: right;
+}
+
+div.doxy-parameter-details {
+	font-weight: normal;
+}
 

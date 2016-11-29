@@ -58,6 +58,7 @@ function fnEdenASTleft(left) {
  * @param {String} content The string content of the comment.
  * @param {number} start Start character location in original source.
  * @param {number} end End character location in original source.
+ * @see doxycomments.js
  */
 Eden.AST.DoxyComment = function(content, start, end) {
 	this.type = "doxycomment";
@@ -66,64 +67,6 @@ Eden.AST.DoxyComment = function(content, start, end) {
 	this.endline = end;
 	this.tags = undefined;
 	this.controls = undefined;
-}
-
-/**
- * Get an array of all the hashtags in this comment. This function caches the
- * parsed result and also extracts "@" control tokens but does not return them.
- * @return {Array} List of hashtags.
- */
-Eden.AST.DoxyComment.prototype.getHashTags = function() {
-	if (this.tags) return this.tags;
-
-	// Strip beginning and end and split into words.
-	var words = this.content.substring(3,this.content.length-2).trim().split(/[ \n\t]+/);
-	var tags = {};
-	var controls = {};
-	for (var i=0; i<words.length; i++) {
-		if (words[i].charAt(0) == "#") tags[words[i]] = true;
-		// If its a control @ token then the next word may be a parameter.
-		if (words[i].charAt(0) == "@") {
-			if (controls[words[i]] === undefined) controls[words[i]] = [];
-			if (i+1 < words.length && words[i+1] && words[i+1].charAt(0) != "@" && words[i+1].charAt(0) != "#") {
-				controls[words[i]].push(words[i+1]);
-				i++;
-			} else {
-				controls[words[i]].push(words[i]);
-			}
-		}
-	}
-	this.tags = tags;
-	this.controls = controls;
-	return Object.keys(tags);
-}
-
-
-/**
- * Check if this comment contains a specific hashtag.
- * @param {String} tag A hashtag to look for.
- * @return {boolean} True if the hashtag is found.
- */
-Eden.AST.DoxyComment.prototype.hasTag = function(tag) {
-	if (this.tags === undefined) this.getHashTags();
-	return (this.tags[tag]) ? true : false;
-}
-
-Eden.AST.DoxyComment.prototype.getControls = function() {
-	if (this.controls) return this.controls;
-	this.getHashTags();
-	return this.controls;
-}
-
-Eden.AST.DoxyComment.prototype.stripped = function() {
-	var words = this.content.substring(3,this.content.length-2).split(/[ \n\t]+/);
-	var res = "";
-	for (var i=0; i<words.length; i++) {
-		if (words[i].charAt(0) != "#" && words[i].charAt(0) != "@") {
-			res += words[i]+" ";
-		}
-	}
-	return res.trim();
 }
 
 
@@ -2174,6 +2117,7 @@ Eden.AST.Action = function() {
 	this.end = 0;
 	this.executed = 0;
 	this.line = undefined;
+	this.doxyComment = undefined;
 };
 
 Eden.AST.Action.prototype.setSource = function(start, end) {
@@ -2204,6 +2148,11 @@ Eden.AST.Action.prototype.generate = function(ctx) {
 
 Eden.AST.Action.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
+
+	if (this.doxyComment) {
+		eden.dictionary[this.name] = this.doxyComment;
+	}
+
 	var body = this.body.generate(ctx);
 	var sym = eden.root.lookup(this.name);
 	sym.eden_definition = base.getSource(this);
@@ -2229,6 +2178,7 @@ Eden.AST.Function = function() {
 	this.start = 0;
 	this.end = 0;
 	this.executed = 0;
+	this.doxyComment = undefined;
 };
 
 Eden.AST.Function.prototype.setSource = function(start, end) {
@@ -2252,6 +2202,11 @@ Eden.AST.Function.prototype.generate = function(ctx) {
 
 Eden.AST.Function.prototype.execute = function(ctx,base,scope,agent) {
 	this.executed = 1;
+
+	if (this.doxyComment) {
+		eden.dictionary[this.name] = this.doxyComment;
+	}
+
 	var body = this.body.generate(ctx);
 	var sym = eden.root.lookup(this.name);
 	sym.eden_definition = base.getSource(this);	
