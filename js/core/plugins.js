@@ -349,6 +349,18 @@
 			updateBorder(borderSym, borderval);
 		}
 
+		// Pin the view on top
+		var pinSym = view(name, 'pin');
+		function updatePin(symbol, state) {
+			if (state) me.pinView(name);
+			else me.unpinView(name);
+		}
+		pinSym.addJSObserver("changeState",updatePin);
+		var pinval = pinSym.value();
+		if (pinval !== undefined) {
+			updatePin(pinSym, pinval);
+		}
+
 		//Allow mouse drags that position the dialog partially outside of the browser window but not over the menu bar.
 		diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, desktopTop, Number.MAX_VALUE, Number.MAX_VALUE]);
 		diag.resizeExtend = 0;
