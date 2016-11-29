@@ -14,7 +14,7 @@ div.script-obscurer {
 input.script-subdialog-text {
 	margin-top: 4px;
 	margin-bottom: 10px;
-	width: calc(100% - 30px);
+	width: calc(100% - 40px);
 	font-size: 1.2em;
 }
 
