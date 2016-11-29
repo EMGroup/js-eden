@@ -114,6 +114,10 @@ ${{
 	});
 }}$;
 
+/**
+ * Make sure the named view is visible. It must already have been created.
+ *   @param name The name of the view.
+ */
 proc showView {
 	para name;
 	`"_view_" // name // "_visibility"` = "visible";
@@ -171,13 +175,18 @@ proc resizeView {
  */
 _views_frame_width = ${{ edenUI.dialogFrameWidth }}$;
 _views_frame_height = ${{ edenUI.dialogFrameHeight }}$;
-## The size of the grid squares that windows snap to.
+/** The size of the grid squares that windows snap to. #grid @oracle */
 _views_unit_x = ${{ edenUI.gridSizeX }}$;
+/** The size of the grid squares that windows snap to. #grid @oracle */
 _views_unit_y = ${{ edenUI.gridSizeY }}$;
 
-## The maximum width a view can be if it fits within the browser window without scrolling.
+/** The maximum width a view can be if it fits within the browser window without scrolling.
+ *  @oracle
+ */
 screenWidth = ${{ window.innerWidth }}$ - _views_frame_width;
-## The maximum height a view can be if it fits within the browser window without scrolling.
+/** The maximum height a view can be if it fits within the browser window without scrolling.
+ *  @oracle
+ */
 screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2 - (edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0)}}$;
 ${{
 	window.addEventListener("resize", function (event) {

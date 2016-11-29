@@ -497,6 +497,14 @@ See LICENSE.txt
 		if (!loaded) {
 			var q = URLUtil.getParameterByName("q");
 
+			// Initially the menu bar needs to be simple...
+			eden.root.lookup("jseden_menu_showsearch").assign(false, eden.root.scope, Symbol.defaultAgent);
+			eden.root.lookup("jseden_menu_showshare").assign(false, eden.root.scope, Symbol.defaultAgent);
+			eden.root.lookup("jseden_menu_showcreate").assign(false, eden.root.scope, Symbol.defaultAgent);
+			eden.root.lookup("jseden_menu_showexisting").assign(false, eden.root.scope, Symbol.defaultAgent);
+			eden.root.lookup("jseden_menu_showsettings").assign(false, eden.root.scope, Symbol.defaultAgent);
+			eden.root.lookup("jseden_menu_showhelp").assign(false, eden.root.scope, Symbol.defaultAgent);
+
 			var lopts = $("#loadoptions");
 			/*if (!Eden.restore()) {
 				Eden.loadFromURL("library2/NewProject.js-e");
@@ -558,6 +566,13 @@ See LICENSE.txt
 			function setLoadObserver() {
 				eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {
 					if (value) {
+						// TODO Only if now defined by something else...
+						eden.root.lookup("jseden_menu_showsearch").assign(true, eden.root.scope, Symbol.defaultAgent);
+						eden.root.lookup("jseden_menu_showshare").assign(true, eden.root.scope, Symbol.defaultAgent);
+						eden.root.lookup("jseden_menu_showcreate").assign(true, eden.root.scope, Symbol.defaultAgent);
+						eden.root.lookup("jseden_menu_showexisting").assign(true, eden.root.scope, Symbol.defaultAgent);
+						eden.root.lookup("jseden_menu_showsettings").assign(true, eden.root.scope, Symbol.defaultAgent);
+						eden.root.lookup("jseden_menu_showhelp").assign(true, eden.root.scope, Symbol.defaultAgent);
 						lopts.css("display","none");
 						$(".loadmessage").html("Loading...");
 						$(".loadmodal").hide();

@@ -25,18 +25,18 @@ EdenUI.SearchBox.prototype.makeSymbolResult = function(name) {
 
 	if (sym.eden_definition) {
 		if (sym.eden_definition.startsWith("func")) {
-			symstr = "func " + name + ((eden.dictionary[name]) ? eden.dictionary[name].getParamString() : "");
+			symstr = "func " + name;
 		} else if (sym.eden_definition.startsWith("proc")) {
 			symstr = "proc " + name;
-		} else if (sym.eden_definition.length > 100) {
-			symstr = sym.eden_definition.substr(0,100) + "...";
+		} else if (sym.eden_definition.length > 55) {
+			symstr = sym.eden_definition.substr(0,55) + "...";
 		} else {
 			symstr = sym.eden_definition;
 		}
 	} else {
 		var valstr = Eden.edenCodeForValue(sym.value());
-		if (valstr.length > 100) {
-			symstr = name + " = " + valstr.substr(0,100)+"...";
+		if (valstr.length + name.length + 3 > 55) {
+			symstr = name + " = " + valstr.substr(0,55 - name.length - 3)+"...";
 		} else {
 			symstr = name + " = " + valstr + ";";
 		}
@@ -46,7 +46,7 @@ EdenUI.SearchBox.prototype.makeSymbolResult = function(name) {
 
 	var docstr = "";
 	if (eden.dictionary[name]) {
-		var stripped = eden.dictionary[name].stripped();
+		var stripped = eden.dictionary[name].brief();
 		if (stripped && stripped.length > 0) {
 			docstr = '<div class="doxy-search-details">'+stripped+'</div>';
 		}

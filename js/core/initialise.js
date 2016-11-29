@@ -107,6 +107,8 @@ function Construit(options,callback) {
 		"Debugger"
 	];
 
+	//imports.push("lib/notifications");
+
 	if (pluginsStr == "") {
 		plugins = defaultPlugins;
 	} else {
@@ -279,6 +281,8 @@ function Construit(options,callback) {
 							} else if (restore != "") {
 								doneLoading(Eden.restore());
 							} else {
+								// Background load library...
+								Eden.Agent.importAgent("lib","default", [], function() {});
 								doneLoading(false);
 							}
 						});

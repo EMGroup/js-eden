@@ -1150,6 +1150,9 @@
 				this.evalResolved = true;
 			}
 		} catch (e) {
+			if (e instanceof Eden.RuntimeError) {
+				Eden.Agent.emit("error", [this,e]);
+			}
 			//this.logError(e);
 			cache.value = undefined;
 			cache.up_to_date = false;
