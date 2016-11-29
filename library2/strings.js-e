@@ -79,8 +79,9 @@ func edenCode {
  *  Basically you can pass to this function any list of values that you want to
  *  munge together and it will attempt to figure out what you meant.
  *
- *  concat("", string1, ..., stringN) performs the same as strcat in tkeden.
- *  concat([], list1, ..., listN) performs the same listcat in tkeden.
+ *  `concat("", string1, ..., stringN)` performs the same as strcat in tkeden.
+ *
+ *  `concat([], list1, ..., listN)` performs the same listcat in tkeden.
  *
  *  To summarize the detailed case by case behavioural descriptions that follow later:
  *
@@ -96,43 +97,43 @@ func edenCode {
  *	* For list concatenation: if the separator is a list then the items are concatenated as itemN // separator // itemM
  *	* For list concatenation: if the separator is not a list then the items are concatenated as itemN // [separator] // itemM
  *
- *  Case 1: separator + a list of strings
+ *  **Case 1:** separator + a list of strings
  *  	The strings are concatenated, separated by the separator.  If the separator
  *  	is undefined and there are two more strings then undefined is returned.  If
  *  	the separator is defined but is not a string then it is automatically
  *  	converted into a string.
  *
- *  Case 2: separator + a list of lists
+ *  **Case 2:** separator + a list of lists
  *  	The lists are concatenated, separated by the separator element or separator list.
  *
- *  Case 3: separator + a list of things that are not all lists but are all defined
+ *  **Case 3:** separator + a list of things that are not all lists but are all defined
  *  	Any list items that are not strings are converted into strings, then as Case 1.
  *
- *  Case 4: separator + a list containing the undefined value
+ *  **Case 4:** separator + a list containing the undefined value
  *  	Undefined is returned.
  *
- *  Case 5: separator + one or more further arguments that are all strings
+ *  **Case 5:** separator + one or more further arguments that are all strings
  *  	The strings are concatenated, separated by the separator.
  *
- *  Case 6: separator + two or more further arguments that are all lists
+ *  **Case 6:** separator + two or more further arguments that are all lists
  *  	The lists are concatenated, separated by the separator element or separator list.
  *
- *  Case 7: separator + one or more further arguments that are not all lists but are all defined
+ *  **Case 7:** separator + one or more further arguments that are not all lists but are all defined
  *  	Any arguments that are not strings are converted into strings, then as Case 5.
  *
- *  Case 8: separator + one or more further arguments, at least one of which is undefined
+ *  **Case 8:** separator + one or more further arguments, at least one of which is undefined
  *  	Undefined is returned.
  *
- *  Case 9: Single argument, which is a list of lists
+ *  **Case 9:** Single argument, which is a list of lists
  *  	The list is flattened by one level.
  *
- *  Case 10: Single argument, which is a list whose items are not exclusively nested lists but are all defined
+ *  **Case 10:** Single argument, which is a list whose items are not exclusively nested lists but are all defined
  *  	The list is concatenated using the empty string as the separator.
  *
- *  Case 11: Single argument, which is list that contains at least one undefined element
+ *  **Case 11:** Single argument, which is list that contains at least one undefined element
  *  	Undefined is returned.
  *
- *  Case 12: Single argument, which is not a list.
+ *  **Case 12:** Single argument, which is not a list.
  *  	The empty string is returned.
  */
 func concat {

@@ -36,15 +36,14 @@ input[type=checkbox], input[type=radio] {
 ::-webkit-input-placeholder { color: #AAAAAA; opacity: 1; font-style: italic; }
 ::-moz-placeholder { color: #AAAAAA; opacity: 1; font-style: italic; }
 
-ul li {
+/*ul li {
 	list-style-type: square;
 }
 
 h2, ul li {
 	font-family: Verdana,Arial,sans-serif;
-	/*font-weight: lighter;*/
 	color: black;
-}
+}*/
 
 a[onclick] {
 	cursor: pointer;

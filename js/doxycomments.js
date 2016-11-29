@@ -48,10 +48,15 @@ Eden.AST.DoxyComment.prototype.getControls = function() {
 Eden.AST.DoxyComment.prototype.stripped = function() {
 	var controls = {};
 	var lines = this.content.substring(3,this.content.length-2).split("\n");
+	//console.log(lines);
 	var res = "";
 
 	for (var i=0; i<lines.length; i++) {
 		lines[i] = lines[i].trim();
+		if (lines[i] == "") {
+			res += "\n";
+			continue;
+		}
 		if (lines[i].charAt(0) == "*") lines[i] = lines[i].slice(1).trim();
 		if (lines[i].charAt(0) == "@") {
 			var spaceix = lines[i].indexOf(" ");
@@ -67,13 +72,16 @@ Eden.AST.DoxyComment.prototype.stripped = function() {
 
 		var words = lines[i].split(/[ \t]+/);
 		for (var j=0; j<words.length; j++) {
-			if (words[j].charAt(0) != "#" && words[j].charAt(0) != "@") {
+			if (words[j] != "" && words[j].charAt(0) != "#" && words[j].charAt(0) != "@") {
 				res += words[j] + " ";
 			}
 		}
+		//res = res.trim();
+		res += "\n";
 	}
 
 	this.controls = controls;
+	//console.log(res);
 	return res.trim();
 }
 
@@ -86,8 +94,16 @@ Eden.AST.DoxyComment.prototype.brief = function() {
 }
 
 Eden.AST.DoxyComment.prototype.pretty = function() {
-	var res = this.stripped();
+	var s = this.stripped();
 	var paras = this.controls["@param"];
+	/*var res = "<p>";
+	for (var i=0; i<s.length; i++) {
+		if (s[i] == "") res += "</p><p>";
+		else res += s[i];
+	}
+	res += "</p>";*/
+	var sdown = new showdown.Converter();
+	var res = sdown.makeHtml(s);
 
 	if (paras && paras.length > 0) {
 		res += '<div class="doxy-parameters">Parameters:';
