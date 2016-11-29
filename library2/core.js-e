@@ -16,7 +16,8 @@ func execute {
 }
 
 /**
- * Generate a new dictionary object.
+ * Generate a new dictionary object. It can be given an even number of arguments
+ * which act as key and value pairs to set in the dictionary object returned.
  *	@return A dictionary object with the given key-value pairs.
  */
 func Object {
