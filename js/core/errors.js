@@ -633,6 +633,7 @@ Eden.RuntimeError.RIGHTCONCAT = 12;
 Eden.RuntimeError.AGENTSOURCE = 13;
 Eden.RuntimeError.JSOBSERVER = 14;
 Eden.RuntimeError.PROCAGENT = 15;
+Eden.RuntimeError.ARGUMENTS = 16;
 
 Eden.RuntimeError.prototype.messageText = function() {
 	var msg = (this.statement && (this.statement.type == "functioncall" || this.statement.type == "definition" || this.statement.type == "assignment")) ? "'" + this.statement.lvalue.name + "': " : "";
@@ -644,6 +645,7 @@ Eden.RuntimeError.prototype.messageText = function() {
 	case Eden.RuntimeError.AGENTSOURCE		:
 	case Eden.RuntimeError.JSOBSERVER		:
 	case Eden.RuntimeError.PROCAGENT		:
+	case Eden.RuntimeError.ARGUMENTS		:
 	case Eden.RuntimeError.EXTENDSTATIC		: return msg + this.extra;
 	case Eden.RuntimeError.ASSIGNTODEFINED	: return msg + "cannot assign to a defined list, use 'is'";
 	case Eden.RuntimeError.ASSIGNDIMENSION	: return msg + "list does not have this many dimensions";

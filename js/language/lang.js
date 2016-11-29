@@ -43,7 +43,9 @@ var Language = {
 		"role": "role",
 		"shared": "shared",
 		"oracle": "oracle",
-		"handle": "handle"
+		"handle": "handle",
+		"deprecated": "deprecated",
+		"see": "see"
 	},
 
 	keywords: {

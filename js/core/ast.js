@@ -1537,7 +1537,11 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		var agentobj = agent;
 		var err;
 
-		if (/[0-9][0-9]*/.test(e.message)) {
+		if (e instanceof Eden.RuntimeError) {
+			err = e;
+			err.context = base;
+			err.statement = this;
+		} else if (/[0-9][0-9]*/.test(e.message)) {
 			err = new Eden.RuntimeError(base, parseInt(e.message), this, e.message);
 		} else {
 			err = new Eden.RuntimeError(base, 0, this, e);

@@ -76,10 +76,10 @@ Eden.Query.search = function(q) {
 				continue;
 			}
 
-			var regex = edenUI.regExpFromStr("^"+dep[1], undefined, undefined, "regexp");
+			var regex = edenUI.regExpFromStr(dep[1], undefined, undefined, "regexp");
 			res.symbols.push.apply(res.symbols, Eden.Query.searchDepends(regex));
 		} else {
-			var regex = edenUI.regExpFromStr("^"+words[i], undefined, undefined, "regexp");
+			var regex = edenUI.regExpFromStr(words[i], undefined, undefined, "regexp");
 			res.symbols.push.apply(res.symbols, Eden.Query.searchSymbols(regex));
 		}
 	}

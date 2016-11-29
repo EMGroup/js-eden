@@ -79,8 +79,6 @@ EdenUI.Notifications = function(element, jewel) {
 	Eden.DB.listenTo("disconnected", this, function() {
 		me.notification("info", $('<div class="notification-content">Disconnected from project server</div>'));
 	});
-
-	//Eden.Agent.importAgent("lib/notifications", "default", [], function() {});
 }
 
 EdenUI.Notifications.prototype.notification = function(type, content) {
