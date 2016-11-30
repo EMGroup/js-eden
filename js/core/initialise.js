@@ -222,6 +222,7 @@ function Construit(options,callback) {
 					edenUI.menu = new EdenUI.MenuBar();
 					eden.execute2("jseden_project_subtitle is \"Version \" // jseden_version_name;", Symbol.defaultAgent);
 				}
+				edenUI.explorer = new EdenUI.Explorer();
 				callback();
 			});
 		}
