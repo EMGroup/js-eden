@@ -1,6 +1,7 @@
 EdenUI.Sharebox = function(element) {
 	var me = this;
 	this.title = undefined;
+	this.visible = false;
 
 	this.sharebox = element;
 	this.sharebox.html('<div class="menubar-sharebox-title"><span class="menubar-shareicon">&#xf1e0;</span>Save and Share</div><div class="menubar-sharebox-content"><div id="projectoptions"></div><div id="projectuploadbox"></div><br/><br/>Download to file: <span class="downloadurl"></span></div>');
@@ -208,6 +209,15 @@ EdenUI.Sharebox = function(element) {
 			}, {publish: true, thumb: me.thumbdata, tags: tagstr});
 		});
 	});
+}
+
+EdenUI.Sharebox.prototype.show = function() {
+	if (!this.visible) this.update();
+	this.visible = true;
+}
+
+EdenUI.Sharebox.prototype.hide = function() {
+	this.visible = false;
 }
 
 EdenUI.Sharebox.prototype.update = function() {

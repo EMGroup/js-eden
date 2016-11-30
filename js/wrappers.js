@@ -953,6 +953,7 @@ Eden.Agent.publishAll = function(callback) {
 		var ag = Eden.Agent.agents[x];
 		ag.publish(undefined, counter);
 	}
+	if (toupload.length == 0 && callback) callback();
 }
 
 
