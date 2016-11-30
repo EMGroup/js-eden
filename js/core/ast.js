@@ -1801,11 +1801,16 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, bound) {
 			id = ctx.backtickCount;
 			ctx.backtickCount++;
 		}
-		res = "this.subscribeDynamic(" + id + "," + this.backtick.generate(ctx, scope);
+		if (ctx && ctx.type == "definition") {
+			res = "this.subscribeDynamic(" + id + "," + this.backtick.generate(ctx, scope);
+		} else {
+			res = "context.lookup("+this.backtick.generate(ctx,scope);
+		}
 		if (this.backtick.doesReturnBound && this.backtick.doesReturnBound()) {
 			res += ".value";
 		}
 		res += "," + scope + ")";
+		console.log("BTICK: ",res);
 	} else {
 		if (ctx && ctx.dependencies) ctx.dependencies[this.observable] = true;
 		res = "context.lookup(\""+this.observable+"\")";

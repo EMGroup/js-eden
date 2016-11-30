@@ -47,12 +47,20 @@ EdenUI.Explorer.prototype.updateList = function() {
 
 EdenUI.Explorer.prototype.updateTree = function() {
 	var tree = Eden.Query.dependencyTree(this.watchobs);
-	console.log(tree);
+	//console.log(tree);
 
 	function makeEntry(name, children) {
 		var ele = $('<div class="explore-entry"><span>'+name+'</span></div>');
+		var count = 0;
 		for (var x in children) {
+			count++;
 			ele.append(makeEntry(x, children[x]));
+		}
+		if (count == 0) {
+			var sym = eden.root.symbols[name];
+			if (sym.last_modified_by.name != "*Input Device") {
+				ele.append($('<div class="explore-entry">'+sym.last_modified_by.name+'</div>'));
+			}
 		}
 		return ele;
 	}

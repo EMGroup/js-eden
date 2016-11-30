@@ -18,4 +18,36 @@ div.explore-symbols {
 
 div.explore-entry {
 	margin-left: 20px;
+	font-size: 10pt;
+	position: relative;
+}
+
+div.explore-entry:before {
+	display: inline-block;
+	position: absolute;
+	content: "";
+	left: -10px;
+	border-top: 1px solid #aaa;
+	top: 7px;
+	width: 6px;
+	height: 0;
+}
+
+div.explore-entry:after {
+	display: inline-block;
+	position: absolute;
+	content: "";
+	left: -10px;
+	border-left: 1px solid #aaa;
+	top: 2px;
+	width: 0px;
+	height: 100%;
+}
+
+.explore-entry > div:last-child:after {
+	height: 5px;
+}
+
+.explore-entry:last-child:after {
+	height: 5px;
 }
