@@ -151,7 +151,8 @@
 					current = current.parentNode;
 				}
 
-				console.log("Associated: ", Eden.Query.treeTopDown(observables));
+				//console.log("Associated: ",);
+				edenUI.explorer.watch(observables);
 			}
 		});
 	}
