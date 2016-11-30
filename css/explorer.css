@@ -17,6 +17,7 @@ div.explore-controls {
 	background: #eee;
 	box-shadow: 0 0 10px #4a6887;
 	border-bottom: 1px solid #888;
+	min-height: 40px;
 }
 
 div.explore-symbols {
@@ -28,9 +29,10 @@ div.explore-symbols {
 
 div.explore-console {
 	flex-grow: 1;
-	margin-top: 10px;
+	padding-top: 10px;
 	border-top: 1px solid #888;
 	min-height: 200px;
+	box-shadow: 0 0 10px #4a6887;
 }
 
 div.explore-entry {
@@ -46,38 +48,39 @@ div.explore-entry:before {
 	display: inline-block;
 	position: absolute;
 	content: "";
-	left: -10px;
+	left: -15px;
 	border-top: 1px solid #bbb;
-	top: 7px;
-	width: 6px;
+	top: 9px;
+	width: 12px;
 	height: 0;
-}
-
-div.explore-entry.active:before {
-	border-top: 2px solid red;
 }
 
 div.explore-entry:after {
 	display: inline-block;
 	position: absolute;
 	content: "";
-	left: -10px;
+	left: -15px;
 	border-left: 1px solid #bbb;
 	top: 2px;
 	width: 0px;
 	height: 100%;
 }
 
-div.explore-entry.active:after {
-	border-left: 2px solid red;
-}
-
 .explore-entry > div:last-child:after {
-	height: 5px;
+	height: 7px;
 }
 
 .explore-entry:last-child:after {
-	height: 5px;
+	height: 7px;
+}
+
+span.explore-observable {
+	cursor: pointer;
+}
+
+span.explore-observable:hover {
+	text-decoration: underline;
+	color: blue;
 }
 
 span.explore-entry-icon {

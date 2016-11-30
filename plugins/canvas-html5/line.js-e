@@ -123,17 +123,17 @@ Line.prototype.draw = function(context, scale) {
 	}
 };
 
-Line.prototype.toString = function() {
-	var s = "Line(" + Eden.edenCodeForValues(this.x1, this.y1, this.x2, this.y2) + ", ";
+Line.prototype.toString = function(p) {
+	var s = "Line(" + Eden.edenCodeForValuesP(p,this.x1, this.y1, this.x2, this.y2) + ", ";
 
 	if (this.colours.length > 1) {
-		s = s + Eden.edenCodeForValue(this.colours);
+		s = s + Eden.edenCodeForValue(this.colours, undefined, p);
 	} else {
-		s = s + Eden.edenCodeForValue(this.colours[0]);	
+		s = s + Eden.edenCodeForValue(this.colours[0], undefined, p);	
 	}
 
 	if (this.drawingOptions !== undefined) {
-		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions, undefined, p);
 	}
 	
 	s = s + ")";

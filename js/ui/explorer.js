@@ -24,6 +24,15 @@ EdenUI.Explorer = function() {
 		me.triggerUpdate();
 	});
 
+	this.results.on("click", ".explore-observable", function(e) {
+		var obs = e.currentTarget.parentNode.getAttribute("data-obs");
+		if (e.ctrlKey) {
+			console.log("GOTO",obs);
+			edenUI.gotoCode("/"+obs);
+			e.stopPropagation();
+		}
+	});
+
 	this.results.on("click", ".explore-entry-icon", function(e) {
 		//console.log(e);
 		var node = e.currentTarget.parentNode;
@@ -33,6 +42,13 @@ EdenUI.Explorer = function() {
 		if (expanded) {
 			e.currentTarget.innerHTML = "&#xf067;";
 			node.setAttribute("data-expanded","false");
+
+			var cur = node.firstChild;
+			while (cur) {
+				var next = cur.nextSibling;
+				if (cur.nodeName == "DIV" && cur.className.includes("active") == false) node.removeChild(cur);
+				cur = next;
+			}
 		} else {
 			e.currentTarget.innerHTML = "&#xf068;";
 			node.setAttribute("data-expanded","true");
@@ -50,11 +66,33 @@ EdenUI.Explorer = function() {
 				if (!existing[x.slice(1)]) {
 					//node.append(me.makeEntry(x.slice(1), {}, false));
 					var sym2 = sym.dependencies[x];
-					var value = EdenUI.Highlight.html(Eden.edenCodeForValue(sym2.value()));
+					var svalue = sym2.value();
+					var value = (Array.isArray(svalue)) ? "[...]" : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+					var type = (sym2.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
 					var name = x.slice(1);
-					var ele = $('<div class="explore-entry'+((false) ? " active":"")+'" data-obs="'+name+'"><span class="explore-entry-icon">&#xf067;</span><span>'+name+'</span> <b>=</b> '+value+'</div>');
+					var ele = $('<div class="explore-entry'+((false) ? " active":"")+'" data-obs="'+name+'"><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> '+type+' '+value+'</div>');
 					node.appendChild(ele.get(0));
 				}
+			}
+
+			var lmn = sym.last_modified_by.name;
+
+			if (lmn.startsWith("*When")) {
+				var aname = lmn.split(":");
+				var short = aname[1].split("/");
+				short = short[short.length-1];
+				aname = short + ":" + aname[2];
+
+				$(node).append($('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">when</span> <b>@</b> <span class="eden-path">'+aname+'</span></div>'));
+			} else if (lmn.startsWith("*Action")) {
+				var aname = lmn.split(":");
+				var short = aname[1].split("/");
+				short = short[short.length-1];
+				aname = short + ":" + aname[2];
+
+				$(node).append($('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">action</span> <b>@</b> <span class="eden-path">'+aname+'</span></div>'));
+			} else if (lmn.charAt(0) != "*") {
+				$(node).append($('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span>'+sym.last_modified_by.name+'</span></div>'));
 			}
 		}
 	});
@@ -82,8 +120,10 @@ EdenUI.Explorer.prototype.updateList = function() {
 
 EdenUI.Explorer.prototype.makeEntry = function(name, children, active) {
 	var sym = eden.root.symbols[name];
-	var value = EdenUI.Highlight.html(Eden.edenCodeForValue(sym.value()));
-	var ele = $('<div class="explore-entry'+((active) ? " active":"")+'" data-obs="'+name+'"><span class="explore-entry-icon">&#xf067;</span><span>'+name+'</span> <b>=</b> '+value+'</div>');
+	var svalue = sym.value();
+	var value = (Array.isArray(svalue)) ? "[...]" : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+	var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
+	var ele = $('<div class="explore-entry'+((active) ? " active":"")+'" data-obs="'+name+'"><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> '+type+' '+value+'</div>');
 	var count = 0;
 	for (var x in children) {
 		count++;
@@ -100,7 +140,12 @@ EdenUI.Explorer.prototype.makeEntry = function(name, children, active) {
 
 			ele.append($('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">when</span> <b>@</b> <span class="eden-path">'+aname+'</span></div>'));
 		} else if (lmn.startsWith("*Action")) {
-			ele.append($('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span>'+sym.last_modified_by.name+'</span></div>'));
+			var aname = lmn.split(":");
+			var short = aname[1].split("/");
+			short = short[short.length-1];
+			aname = short + ":" + aname[2];
+
+			ele.append($('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">action</span> <b>@</b> <span class="eden-path">'+aname+'</span></div>'));
 		} else if (lmn.charAt(0) != "*") {
 			ele.append($('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span>'+sym.last_modified_by.name+'</span></div>'));
 		}

@@ -736,7 +736,7 @@
 	 * @param {Array} refStack Used when the method recursively calls itself.
 	 * @returns {string} The EDEN code that produces the given value.
 	 */
-	Eden.edenCodeForValue = function (value, refStack) {
+	Eden.edenCodeForValue = function (value, refStack, precision) {
 		var type = typeof(value);
 		var code = "";
 		if (type == "undefined") {
@@ -758,17 +758,17 @@
 				refStack.push(value);
 				code = "[";
 				for (var i = 0; i < value.length - 1; i++) {
-					code = code + Eden.edenCodeForValue(value[i], refStack) + ", ";
+					code = code + Eden.edenCodeForValue(value[i], refStack, precision) + ", ";
 				}
 				if (value.length > 0) {
-					code = code + Eden.edenCodeForValue(value[value.length - 1], refStack);
+					code = code + Eden.edenCodeForValue(value[value.length - 1], refStack, precision);
 				}
 				code = code + "]";
 				refStack.pop();
 			}
 		} else if (type == "object") {
 			if ("getEdenCode" in value) {
-				code = value.getEdenCode();
+				code = value.getEdenCode(precision);
 			} else if (
 				"keys" in value &&
 				Array.isArray(value.keys) &&
@@ -803,7 +803,7 @@
 					code = "{";
 					for (var key in value) {
 						if (!(key in Object.prototype)) {
-							code = code + key + ": " + Eden.edenCodeForValue(value[key], refStack) + ", ";
+							code = code + key + ": " + Eden.edenCodeForValue(value[key], refStack, precision) + ", ";
 						}
 					}
 					if (code != "{") {
@@ -817,6 +817,8 @@
 			code = "$"+"{{\n\t" +
 					value.toString().replace(/\n/g, "\n\t") +
 				"\n}}"+"$";
+		} else if (type == "number" && precision) {
+			code = value.toFixed(precision);
 		} else {
 			code = String(value);
 		}
@@ -829,6 +831,15 @@
 			s = s + Eden.edenCodeForValue(arguments[i]) + ", ";
 		}
 		s = s + Eden.edenCodeForValue(arguments[arguments.length - 1]);
+		return s;
+	}
+
+	Eden.edenCodeForValuesP = function (p) {
+		var s = "";
+		for (var i = 1; i < arguments.length - 1; i++) {
+			s = s + Eden.edenCodeForValue(arguments[i], undefined, p) + ", ";
+		}
+		s = s + Eden.edenCodeForValue(arguments[arguments.length - 1], undefined, p);
 		return s;
 	}
 
