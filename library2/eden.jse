@@ -563,7 +563,25 @@ include("library/declarevar.js-e");
 
 autocalc = 1;
 
-if (jseden_version < 10200002) {
+when (_jseden_loaded && jseden_version >= 10300039 && jseden_project_title == "New Project") {
+	createCanvas("picture");
+	_view_picture_x = (screenWidth / 2 - 30) - _view_picture_width;
+	_view_picture_y = screenHeight / 2 - _view_picture_height / 2;
+	if (${{ root.lookup("picture").definition === undefined && "logo" in edenUI.branding }}$) {
+		picture is [Image(_view_picture_width / 2 - ${{edenUI.branding.logo.width}}$ / 2, _view_picture_height / 2 - ${{edenUI.branding.logo.height}}$ / 2, ${{edenUI.branding.logo.url}}$)];
+	}
+	createView("input", "ScriptInput");
+	_view_input_agent = "view/script/input";
+	_view_input_height = _view_picture_height;
+	_view_input_x = screenWidth / 2 + 30;
+	_view_input_y = screenHeight / 2 - (_view_input_height / 2);
+}
+
+if (jseden_version >= 10300039) {
+	initialViews = "disabled";
+	_view_picture_content is picture;
+	import lib/defaults;
+} else if (jseden_version < 10200002) {
 	initialViews = ${{getParameterByName("views") }}$;
 } else {
 	initialViews = ${{ URLUtil.getParameterByName("views") }}$;

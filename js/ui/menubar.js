@@ -112,11 +112,13 @@ EdenUI.MenuBar = function() {
 		var menu = $("#menubar-mainitem-"+name);
 		menu.show();
 		menuShowing = true;
+		if (name == "sharebox") me.sharebox.show();
 	}
 
 	$(document.body).on('mousedown', function () {
 		hideMenu();
 		//me.searchbox.element.hide();
+		if (name == "sharebox") me.sharebox.hide();
 	});
 
 
@@ -137,7 +139,7 @@ EdenUI.MenuBar = function() {
 		if (menuShowing) {
 			hideMenu();
 			showMenu(name);
-			if (name == "sharebox") me.sharebox.update();
+			//if (name == "sharebox") me.sharebox.update();
 		}
 	});
 

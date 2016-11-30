@@ -568,12 +568,12 @@ See LICENSE.txt
 				eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {
 					if (value) {
 						// TODO Only if now defined by something else...
-						eden.root.lookup("jseden_menu_showsearch").assign(true, eden.root.scope, Symbol.defaultAgent);
-						eden.root.lookup("jseden_menu_showshare").assign(true, eden.root.scope, Symbol.defaultAgent);
-						eden.root.lookup("jseden_menu_showcreate").assign(true, eden.root.scope, Symbol.defaultAgent);
-						eden.root.lookup("jseden_menu_showexisting").assign(true, eden.root.scope, Symbol.defaultAgent);
-						eden.root.lookup("jseden_menu_showsettings").assign(true, eden.root.scope, Symbol.defaultAgent);
-						eden.root.lookup("jseden_menu_showhelp").assign(true, eden.root.scope, Symbol.defaultAgent);
+						eden.root.lookup("jseden_menu_showsearch").assign(true, eden.root.scope, Symbol.localJSAgent);
+						eden.root.lookup("jseden_menu_showshare").assign(true, eden.root.scope, Symbol.localJSAgent);
+						eden.root.lookup("jseden_menu_showcreate").assign(true, eden.root.scope, Symbol.localJSAgent);
+						eden.root.lookup("jseden_menu_showexisting").assign(true, eden.root.scope, Symbol.localJSAgent);
+						eden.root.lookup("jseden_menu_showsettings").assign(true, eden.root.scope, Symbol.localJSAgent);
+						eden.root.lookup("jseden_menu_showhelp").assign(true, eden.root.scope, Symbol.localJSAgent);
 						lopts.css("display","none");
 						$(".loadmessage").html("Loading...");
 						$(".loadmodal").hide();
