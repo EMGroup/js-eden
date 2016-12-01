@@ -220,3 +220,61 @@ Eden.Query.objectHierarchy = function() {
 
 	return base;
 }
+
+Eden.Query.dependencyTree = function(base) {
+	var nbase = {};
+
+	function merge(a,b) {
+		for (var x in b) {
+			if (a[x] === undefined) a[x] = b[x];
+			else {
+				merge(a[x],b[x]);
+			}
+		}
+	}
+
+	function processBase(sym) {
+		//console.log(sym.name);
+		var name = sym.name.slice(1);
+		if (Object.keys(sym.subscribers).length == 0) {
+			if (nbase[name] === undefined) nbase[name] = {};
+			return nbase[name];
+		} else {
+			var mine = {};
+			for (var s in sym.subscribers) {
+				var p = processBase(sym.subscribers[s]);
+				if (p[name] !== undefined) {
+					// Must merge p[name] with mine...
+					merge(mine,p[name]);
+				}
+				p[name] = mine;
+			}
+			return mine;
+		}
+	}
+
+	for (var s in base) {
+		var sym = eden.root.lookup(s);
+		var p = processBase(sym);
+		//if (p[s] === undefined) p[s] = {};
+	}
+
+	//console.log(nbase);
+
+	/*function processSymbol(base) {
+		for (var x in base) {
+			var sym = eden.root.symbols[x];
+			if (!sym) continue;
+			var dest = base[x];
+			for (var y in sym.dependencies) {
+				dest[y.slice(1)] = {};
+			}
+			processSymbol(dest);
+		}
+	}
+
+	processSymbol(nbase);*/
+
+	return nbase;
+}
+

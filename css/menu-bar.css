@@ -859,3 +859,8 @@ div.doxy-parameter-details {
 	font-weight: normal;
 }
 
+div.menubar-button.maker.active {
+	color: #f57900;
+	text-shadow: 0 0 10px #f57900;
+}
+

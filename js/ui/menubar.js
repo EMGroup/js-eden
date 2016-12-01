@@ -7,7 +7,7 @@ EdenUI.MenuBar = function() {
 	eden.execute2("_views_number_created = 0;", "*Default");
 
 	// The menu bar, title and buttons...
-	this.element = $('<div id="menubar-main"><div id="eden-logo"></div><div contenteditable class="jseden-title" title="Rename project">Construit!</div>'+((!mobilecheck()) ? '<div class="jseden-subtitle">by Some Author</div><div id="menubar-login"><span class="icon">&#xf05e;</span>Not Connected</div><div class="menubar-buttons"><div class="menubar-button enabled main share" data-obs="sharebox" title="Save or share">&#xf1e0;<div id="menubar-mainitem-sharebox" class="menubar-menu"></div></div><div class="menubar-button enabled main create" data-obs="views" title="Create Views">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div><div class="menubar-button enabled main existing" data-obs="existing" title="Existing">&#xf2d2;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div><div class="menubar-button enabled main settings" data-obs="options" title="Options">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div><div class="menubar-button enabled main help" data-obs="help" title="Help">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div><div class="menubar-button enabled main notifications" data-obs="notifications">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div></div><div class="searchouter menusearch"><input type="text" class="search menusearch" placeholder="Search..." spellcheck="false"></input><div id="menubar-searchresults"></div></div>' : '<div class="menubar-mobilebuttons"><button class="scriptview-button enabled mobilemore">&#xf078;</button></div>')+'</div>');
+	this.element = $('<div id="menubar-main"><div id="eden-logo"></div><div contenteditable class="jseden-title" title="Rename project">Construit!</div>'+((!mobilecheck()) ? '<div class="jseden-subtitle">by Some Author</div><div id="menubar-login"><span class="icon">&#xf05e;</span>Not Connected</div><div class="menubar-buttons"><div class="menubar-button enabled main share" data-obs="sharebox" title="Save or share">&#xf1e0;<div id="menubar-mainitem-sharebox" class="menubar-menu"></div></div><div class="menubar-button enabled main create" data-obs="views" title="Create Views">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div><div class="menubar-button enabled main existing" data-obs="existing" title="Existing">&#xf2d2;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div><div class="menubar-button enabled main settings" data-obs="options" title="Options">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div><div class="menubar-button enabled main help" data-obs="help" title="Help">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div><div class="menubar-button enabled main notifications" data-obs="notifications" title="Notifications">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div><div class="menubar-button enabled main maker" data-obs="maker" title="Maker Mode">&#xf0ad;</div></div><div class="searchouter menusearch"><input type="text" class="search menusearch" placeholder="Search..." spellcheck="false"></input><div id="menubar-searchresults"></div></div>' : '<div class="menubar-mobilebuttons"><button class="scriptview-button enabled mobilemore">&#xf078;</button></div>')+'</div>');
 	$(document.body).append(this.element);
 
 	// Login Button
@@ -478,6 +478,11 @@ EdenUI.MenuBar = function() {
 		}
 	});
 
+	eden.root.lookup("jseden_maker").addJSObserver("menubar", function(sym, value) {
+		if (value) me.element.find(".maker").addClass("active");
+		else me.element.find(".maker").removeClass("active");
+	});
+
 	eden.root.lookup("jseden_menu_showsearch").addJSObserver("menubar", function(sym, value) {
 		if (value) me.element.find(".menusearch").show();
 		else me.element.find(".menusearch").hide();
@@ -515,6 +520,15 @@ EdenUI.MenuBar = function() {
 	this.notifications = new EdenUI.Notifications(this.element.find("#menubar-mainitem-notifications"), this.element.find(".menubar-notification-jewel"));
 	this.element.on("click",".notifications", function(e) {
 		me.notifications.clearCount();
+	});
+
+	this.element.on("click",".maker", function(e) {
+		var sym = eden.root.lookup("jseden_maker");
+		if (!sym.eden_definition) {
+			var val = sym.value();
+			if (val === undefined) val = false;
+			sym.assign(!val, eden.root.scope, Symbol.localJSAgent);
+		}
 	});
 }
 

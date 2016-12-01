@@ -3,5 +3,153 @@ div.explore-main {
 	top: 45px;
 	right: 0;
 	bottom: 0;
-	width: 300px;
+	width: 500px;
+	background: white;
+	z-index: 65533;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0 0 10px #4a6887;
+	border-left: 1px solid #888;
+}
+
+div.explore-controls {
+	height: 40px;
+	background: #eee;
+	box-shadow: 0 0 10px #4a6887;
+	border-bottom: 1px solid #888;
+	min-height: 40px;
+	padding-left: 5px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+div.explore-symbols {
+	flex-grow: 2;
+	min-height: 200px;
+	overflow-y: auto;
+	padding: 10px;
+}
+
+div.explore-console {
+	flex-grow: 1;
+	padding-top: 10px;
+	border-top: 1px solid #888;
+	min-height: 200px;
+	box-shadow: 0 0 10px #4a6887;
+}
+
+div.explore-entry {
+	margin-left: 20px;
+	font-size: 10pt;
+	position: relative;
+	padding: 2px;
+	white-space: nowrap;
+	color: black;
+}
+
+div.explore-entry:before {
+	display: inline-block;
+	position: absolute;
+	content: "";
+	left: -15px;
+	border-top: 1px solid #bbb;
+	top: 9px;
+	width: 12px;
+	height: 0;
+}
+
+div.explore-entry:after {
+	display: inline-block;
+	position: absolute;
+	content: "";
+	left: -15px;
+	border-left: 1px solid #bbb;
+	top: 2px;
+	width: 0px;
+	height: 100%;
+}
+
+.explore-entry > div:last-child:after {
+	height: 7px;
+}
+
+.explore-entry:last-child:after {
+	height: 7px;
+}
+
+span.explore-observable {
+	cursor: pointer;
+}
+
+span.explore-observable:hover {
+	text-decoration: underline;
+	color: blue;
+}
+
+span.explore-entry-icon {
+	font-family: "FontAwesome";
+	margin-right: 5px;
+	color: #666;
+	cursor: pointer;
+}
+
+span.explorer-control-icon {
+	font-family: "FontAwesome";
+	margin-right: 5px;
+}
+
+button.explorer-control {
+	/*font-family: "FontAwesome";*/
+	font-size: 10pt;
+	border-radius: 3px;
+	background: #e5e5e5;
+	outline: none;
+	border: 1px solid #ddd;
+	margin: 5px;
+	padding: 5px;
+	padding-left: 10px;
+	padding-right: 10px;
+	height: 30px;
+	cursor: pointer;
+}
+
+button.explorer-control:hover {
+	background: #ddd;
+}
+
+button.explorer-control.active {
+	color: white;
+	background: #666;
+}
+
+
+input.explorerfilter {
+	width: 200px;
+	background: white;
+	color: #222;
+	font-size: 10pt;
+	padding: 5px;
+	padding-left: 40px;
+	border: 1px solid #aaa;
+	border-radius: 5px;
+	outline: none;
+	box-sizing: border-box;
+	margin-left: 5px;
+}
+
+span.explorerfilter:before {
+	color: #bbb;
+	font-size: 12pt;
+	left: 35px;
+	position: relative;
+	content: "\f002";
+	background: none;
+	top: 1px;
+	margin-top: 0;
+	z-index: 2;
+	font-family: "FontAwesome";
+}
+
+input.explorerfilter:hover {
+	border-color: #666;
 }

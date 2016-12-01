@@ -1,4 +1,257 @@
 EdenUI.Explorer = function() {
-	this.element = $('<div class="explore-main"></div>');
+	var me = this;
+
+	this.element = $('<div class="explore-main"><div class="explore-controls"><button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button><button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button><span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span></div><div class="explore-symbols"></div><div class="explore-console"></div></div>');
 	$(document.body).append(this.element);
+	this.results = this.element.find(".explore-symbols");
+
+	this.element.resizable({handles: "w"});
+
+	this.watchobs = {};
+	this.capture = false;
+	this.delay = 100;
+	this.timeout = undefined;
+	this.mode = "tree";
+
+	eden.root.addGlobal(function(sym, create) {
+		if (!me.capture) return;
+		if (Object.keys(sym.dependencies).length > 0) return;
+		me.watchobs[sym.name.slice(1)] = {
+			elements: [],
+			lastupdate: 1
+		};
+		me.triggerUpdate();
+	});
+
+	this.element.on("click", ".clear", function(e) {
+		var clrsym = eden.root.lookup("jseden_explorer_clear");
+		if (!clrsym.eden_definition) clrsym.assign(true, eden.root.scope, Symbol.localJSAgent);
+	});
+
+	this.element.on("click", ".capture", function(e) {
+		var capsym = eden.root.lookup("jseden_explorer_capture");
+		if (!capsym.eden_definition) capsym.assign(!capsym.value(), eden.root.scope, Symbol.localJSAgent);
+	});
+
+	this.results.on("click", ".explore-observable", function(e) {
+		var obs = e.currentTarget.parentNode.getAttribute("data-obs");
+		if (e.ctrlKey) {
+			console.log("GOTO",obs);
+			edenUI.gotoCode("/"+obs);
+			e.stopPropagation();
+		}
+	});
+
+	this.results.on("click", ".explore-entry-icon", function(e) {
+		//console.log(e);
+		var node = e.currentTarget.parentNode;
+		var name = node.getAttribute("data-obs");
+		var expanded = node.getAttribute("data-expanded") == "true";
+
+		if (expanded) {
+			e.currentTarget.innerHTML = "&#xf067;";
+			node.setAttribute("data-expanded","false");
+
+			var cur = node.firstChild;
+			while (cur) {
+				var next = cur.nextSibling;
+				if (cur.nodeName == "DIV" && cur.className.includes("active") == false) node.removeChild(cur);
+				cur = next;
+			}
+		} else {
+			e.currentTarget.innerHTML = "&#xf068;";
+			node.setAttribute("data-expanded","true");
+
+			var sym = eden.root.symbols[name];
+			var existing = {};
+			var cur = node.firstChild;
+			while (cur) {
+				//console.log(cur);
+				if (cur.nodeName == "DIV") existing[cur.getAttribute("data-obs")] = true;
+				cur = cur.nextSibling;
+			}
+
+			for (var x in sym.dependencies) {
+				if (!existing[x.slice(1)]) {
+					//node.append(me.makeEntry(x.slice(1), {}, false));
+					var sym2 = sym.dependencies[x];
+					var svalue = sym2.value();
+					var value = (Array.isArray(svalue)) ? "[...]" : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+					var type = (sym2.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
+					var name = x.slice(1);
+					var ele = $('<div class="explore-entry'+((false) ? " active":"")+'" data-obs="'+name+'"><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> '+type+' '+value+'</div>');
+					node.appendChild(ele.get(0));
+				}
+			}
+
+			$(node).append(me.makeAgentEntry(sym.last_modified_by));
+		}
+	});
+
+	var expSym = eden.root.lookup("jseden_explorer_enabled");
+	var expVal = expSym.value();
+	if (!expVal) {
+		this.enabled = false;
+		this.element.hide();
+	}
+	expSym.addJSObserver("explorer", function(sym, val) {
+		me.enabled = val;
+		if (!val) {
+			me.element.hide();
+		} else if (eden.root.lookup("jseden_explorer_visible").value()) {
+			me.element.show();
+		}
+	});
+
+	var visSym = eden.root.lookup("jseden_explorer_visible");
+	var visVal = expSym.value();
+	if (!visVal) {
+		this.element.hide();
+	}
+	visSym.addJSObserver("explorer", function(sym, val) {
+		if (val && me.enabled) me.element.show();
+		else me.element.hide();
+	});
+
+	var capSym = eden.root.lookup("jseden_explorer_capture");
+	capSym.addJSObserver("explorer", function(sym, val) {
+		if (val) {
+			me.record();
+			me.element.find(".capture").addClass("active");
+		} else {
+			me.capture = false;
+			me.element.find(".capture").removeClass("active");
+		}
+	});
+	if (capSym.value()) me.record();
+
+	var clearSym = eden.root.lookup("jseden_explorer_clear");
+	clearSym.addJSObserver("explorer", function(sym, val) {
+		if (val) {
+			me.clear();
+		}
+	});
+}
+
+EdenUI.Explorer.prototype.triggerUpdate = function() {
+	if (this.timeout === undefined) {
+		var me = this;
+		this.timeout = setTimeout(function() {
+			me.timeout = undefined;
+			if (me.mode == "list") {
+				me.updateList();
+			} else if (me.mode == "tree") {
+				me.updateTree();
+			} else if (me.mode == "graph") {
+				me.updateGraph();
+			}
+		}, this.delay);
+	}
+}
+
+EdenUI.Explorer.prototype.updateList = function() {
+	
+}
+
+EdenUI.Explorer.prototype.makeAgentEntry = function(agent) {
+	var lmn = agent.name;
+
+	if (lmn.startsWith("*When")) {
+		var aname = lmn.split(":");
+		var short = aname[1].split("/");
+		short = short[short.length-1];
+		aname = short + ":" + aname[2];
+
+		return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">when</span> <b>@</b> <span class="eden-path">'+aname+'</span></div>');
+	} else if (lmn.startsWith("*Action")) {
+		var aname = lmn.split(":");
+		var short = aname[1].split("/");
+		short = short[short.length-1];
+		aname = short + ":" + aname[2];
+
+		return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">action</span> <b>@</b> <span class="eden-path">'+aname+'</span></div>');
+	} else if (lmn.charAt(0) == "/") {
+		if (agent.eden_definition && agent.eden_definition.startsWith("proc")) {
+			return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">proc</span> <span class="eden-path">'+lmn.slice(1)+'</span></div>');
+		}
+	} else if (lmn.charAt(0) != "*") {
+		return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf15c;</span><span class="eden-path">'+lmn+'</span></div>');
+	}
+}
+
+EdenUI.Explorer.prototype.makeEntry = function(name, children, active) {
+	var sym = eden.root.symbols[name];
+	var svalue = sym.value();
+	var value = (Array.isArray(svalue)) ? "[...]" : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+	var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
+	var ele = $('<div class="explore-entry'+((active) ? " active":"")+'" data-obs="'+name+'"><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> '+type+' '+value+'</div>');
+	var count = 0;
+	for (var x in children) {
+		count++;
+		ele.append(this.makeEntry(x, children[x], active));
+	}
+	if (count == 0) {
+		ele.append(this.makeAgentEntry(sym.last_modified_by));
+	}
+	return ele;
+}
+
+EdenUI.Explorer.prototype.updateTree = function() {
+	var tree = Eden.Query.dependencyTree(this.watchobs);
+	//console.log(tree);
+
+	this.results.html("");
+
+	for (var x in tree) {
+		this.results.append(this.makeEntry(x, tree[x], true));
+	}
+}
+
+EdenUI.Explorer.prototype.watch = function(observables) {
+	if (this.capture) {
+		this.capture = false;
+		this.clear();
+	}
+
+	for (var i=0; i<observables.length; i++) {
+		this.watchobs[observables[i]] = {
+			elements: [],
+			lastupdate: 1
+		};
+	}
+
+	this.triggerUpdate();
+}
+
+EdenUI.Explorer.prototype.record = function() {
+	this.clear();
+	this.capture = true;
+}
+
+EdenUI.Explorer.prototype.clear = function() {
+	this.watchobs = {};
+}
+
+EdenUI.Explorer.prototype.displayAsTree = function() {
+
+}
+
+EdenUI.Explorer.prototype.displayAsList = function() {
+
+}
+
+EdenUI.Explorer.prototype.displayAsGraph = function() {
+
+}
+
+EdenUI.Explorer.prototype.search = function(q) {
+
+}
+
+EdenUI.Explorer.prototype.showConsole = function() {
+
+}
+
+EdenUI.Explorer.prototype.hideConsole = function() {
+
 }

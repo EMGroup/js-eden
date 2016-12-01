@@ -89,8 +89,8 @@ Circle.prototype.isHit = function (context, scale, x, y) {
 	return context.isPointInPath(x,y);
 }
 
-Circle.prototype.toString = function() {
-	var s = "Circle(" + Eden.edenCodeForValues(this.x, this.y, this.radius, this.fillcolour, this.outlinecolour);
+Circle.prototype.toString = function(p) {
+	var s = "Circle(" + Eden.edenCodeForValuesP(p, this.x, this.y, this.radius, this.fillcolour, this.outlinecolour);
 	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);

@@ -10,8 +10,8 @@ Point = function(x, y) {
   this.x = x;
   this.y = y;
 }
-Point.prototype.toString = function() {
-  return "Point(" + Eden.edenCodeForValue(this.x) + ", " + Eden.edenCodeForValue(this.y) + ")";
+Point.prototype.toString = function(p) {
+  return "Point(" + Eden.edenCodeForValue(this.x, undefined, p) + ", " + Eden.edenCodeForValue(this.y, undefined, p) + ")";
 };
 Point.prototype.getEdenCode = Point.prototype.toString;
 
