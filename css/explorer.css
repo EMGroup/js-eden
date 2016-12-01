@@ -18,6 +18,9 @@ div.explore-controls {
 	box-shadow: 0 0 10px #4a6887;
 	border-bottom: 1px solid #888;
 	min-height: 40px;
+	padding-left: 5px;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 div.explore-symbols {
@@ -88,4 +91,65 @@ span.explore-entry-icon {
 	margin-right: 5px;
 	color: #666;
 	cursor: pointer;
+}
+
+span.explorer-control-icon {
+	font-family: "FontAwesome";
+	margin-right: 5px;
+}
+
+button.explorer-control {
+	/*font-family: "FontAwesome";*/
+	font-size: 10pt;
+	border-radius: 3px;
+	background: #e5e5e5;
+	outline: none;
+	border: 1px solid #ddd;
+	margin: 5px;
+	padding: 5px;
+	padding-left: 10px;
+	padding-right: 10px;
+	height: 30px;
+	cursor: pointer;
+}
+
+button.explorer-control:hover {
+	background: #ddd;
+}
+
+button.explorer-control.active {
+	color: white;
+	background: #666;
+}
+
+
+input.explorerfilter {
+	width: 200px;
+	background: white;
+	color: #222;
+	font-size: 10pt;
+	padding: 5px;
+	padding-left: 40px;
+	border: 1px solid #aaa;
+	border-radius: 5px;
+	outline: none;
+	box-sizing: border-box;
+	margin-left: 5px;
+}
+
+span.explorerfilter:before {
+	color: #bbb;
+	font-size: 12pt;
+	left: 35px;
+	position: relative;
+	content: "\f002";
+	background: none;
+	top: 1px;
+	margin-top: 0;
+	z-index: 2;
+	font-family: "FontAwesome";
+}
+
+input.explorerfilter:hover {
+	border-color: #666;
 }
