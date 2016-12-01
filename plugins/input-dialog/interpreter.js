@@ -1736,7 +1736,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				}
 
 				// If not Ctrl or Shift key then
-				if (!e.ctrlKey && e.keyCode != 17 && e.keyCode != 16) {
+				if (!(e.ctrlKey || e.metaKey) && e.keyCode != 17 && e.keyCode != 16 && e.keyCode != 91 && e.keyCode != 92) {
 					// Make TAB key insert TABs instead of changing focus
 					if (e.keyCode == 9) {
 						e.preventDefault();
@@ -1770,7 +1770,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 						refreshentire = true;
 					}
 
-				} else if (e.ctrlKey) {
+				} else if (e.ctrlKey || e.metaKey) {
 					if (e.shiftKey) {
 						if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 36 || e.keyCode == 35) {
 							// Ctrl+Shift arrow selection, move to editable div.
@@ -1791,7 +1791,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 						e.preventDefault();
 						outdiv.focus();
 						selectAll();
-					} else if (e.keyCode === 17) {
+					} else if (e.keyCode === 17 || e.keyCode == 91 || e.keyCode == 92) {
 						console.log(e.keyCode);
 						enableGotoMode();
 					}
@@ -1829,13 +1829,13 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 */
 		function onTextKeyUp(e) {
 			// Alt and AltGr for disable inspect mode.
-			if (e.keyCode == 17) {
+			if (e.keyCode == 17 || e.keyCode == 91 || e.keyCode == 92) {
 				disableGotoMode();
 			} else if (e.keyCode == 18 || (e.altKey && e.keyCode == 73)) {
 				disableInspectMode();
 				e.preventDefault();
 			} else if (!e.altKey) {
-				if (!e.ctrlKey && (	e.keyCode == 37 ||	//Arrow keys
+				if (!(e.ctrlKey || e.metaKey) && (	e.keyCode == 37 ||	//Arrow keys
 									e.keyCode == 38 ||
 									e.keyCode == 39 ||
 									e.keyCode == 40 ||
@@ -1866,7 +1866,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				enableInspectMode();
 			} else if (!e.altKey) {
 				if (outdiv.style.cursor == "pointer") outdiv.style.cursor = "initial";
-				if (e.keyCode == 16 || e.keyCode == 17 || (e.ctrlKey && e.keyCode == 67)) {
+				if (e.keyCode == 16 || e.keyCode == 17 || e.keyCode == 91 || e.keyCode == 92 || ((e.ctrlKey || e.metaKey) && e.keyCode == 67)) {
 					// Ignore Ctrl and Ctrl+C.
 				// If not shift selecting...
 				} else if (!(e.shiftKey && (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 35 || e.keyCode == 36))) {
@@ -1894,7 +1894,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			if (e.keyCode == 18 || (e.altKey && e.keyCode == 73)) {
 				disableInspectMode();
 				e.preventDefault();
-			} else if (e.keyCode == 17) {
+			} else if (e.keyCode == 17 || e.keyCode == 91 || e.keyCode == 92) {
 				disableGotoMode();
 			}
 		}
