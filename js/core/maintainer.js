@@ -479,7 +479,7 @@
 	Folder.prototype.lookup = function (name) {
 		if (this.symbols[name] === undefined) {
 			this.symbols[name] = new Symbol(this, this.name + name);
-			this.notifyGlobals(this.symbols[name], true);
+			this.notifyGlobals(this.symbols[name], 1);
 		}
 		return this.symbols[name];
 	};
@@ -572,10 +572,10 @@
 	 * @param {Symbol} symbol The symbol that changed.
 	 * @param {boolean} create 
 	 */
-	Folder.prototype.notifyGlobals = function (symbol, create) {
+	Folder.prototype.notifyGlobals = function (symbol, kind) {
 		for (var i = 0; i < this.globalobservers.length; i++) {
 			if (this.globalobservers[i] !== undefined) {
-				this.globalobservers[i].call(this, symbol, create);
+				this.globalobservers[i].call(this, symbol, kind);
 			}
 		}
 	};
@@ -639,7 +639,7 @@
 		for (var i = 0; i < this.needsExpire.length; i++) {
 			var sym = this.needsExpire[i];
 			sym.expire(symbolNamesToForce, this.expiryCount, this.needsTrigger);
-			sym.needsGlobalNotify = true;
+			//sym.needsGlobalNotify = 2;
 		}
 		var expired = this.needsExpire;
 		this.needsExpire = [];
@@ -652,7 +652,7 @@
 			// force re-eval
 			var sym = this.symbols[symbolNamesArray[i].slice(this.name.length)];
 			sym.evaluateIfDependenciesExist();
-			sym.needsGlobalNotify = true;
+			sym.needsGlobalNotify = Symbol.EXPIRED;
 			symbolsToForce.push(sym);
 		}
 		var actions_to_fire = this.needsTrigger;
@@ -689,8 +689,9 @@
 			this.globalNotifyIndex++;
 			var symbol = notifyList[index];
 			if (symbol.needsGlobalNotify) {
-				symbol.needsGlobalNotify = false;
-				this.notifyGlobals(symbol, false);
+				var kind = symbol.needsGlobalNotify;
+				symbol.needsGlobalNotify = 0;
+				this.notifyGlobals(symbol, kind);
 			}
 			index = this.globalNotifyIndex;
 		}
@@ -973,7 +974,7 @@
 		this.eden_definition = undefined;
 		this.evalResolved = true;
 		this.extend = undefined;
-		this.needsGlobalNotify = false;
+		this.needsGlobalNotify = 0;
 
 		// need to keep track of who we subscribe to so
 		// that we can unsubscribe from them when our definition changes
@@ -1022,6 +1023,12 @@
 	Symbol.netAgent = new InternalAgent("*net", true);
 	// Something entirely ignored by script generator
 	Symbol.defaultAgent = new InternalAgent("*Default", true);
+
+	Symbol.NONOTIFY = 0;
+	Symbol.CREATED = 1;
+	Symbol.EXPIRED = 2;
+	Symbol.REDEFINED = 3;
+	Symbol.ASSIGNED = 4;
 
 	/**
 	 * Get the value of this symbol bound with the scope the value was
@@ -1266,6 +1273,7 @@
 		this.garbage = false;
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = definition;
+		this.needsGlobalNotify = Symbol.REDEFINED;
 
 		// symbol no longer observes or depends on anything
 		this.clearObservees();
@@ -1361,6 +1369,7 @@
 		this.evalResolved = true;
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = undefined;
+		this.needsGlobalNotify = Symbol.ASSIGNED;
 
 		this.extend = undefined;
 
@@ -1436,6 +1445,7 @@
 		// which is allowed to refer to the cached value.
 		this.value(scope);
 		this.definition = undefined;
+		this.needsGlobalNotify = Symbol.ASSIGNED;
 
 		var args = [];
 		for (var i = 1; i < arguments.length; i++) {
@@ -1551,6 +1561,8 @@
 			symbols_to_force[this.name] = insertionIndex.value;
 			insertionIndex.value++;
 		}
+
+		this.needsGlobalNotify = Symbol.EXPIRED;
 
 		// recursively mark out of date and collect
 		for (var subscriber_name in this.subscribers) {
@@ -1741,6 +1753,7 @@
 			this.extend[idstr] = { code: ext, source: source, deps: deps };
 
 			this.subscribe(deps);
+			this.needsGlobalNotify = Symbol.REDEFINED;
 
 			if (this.context) {
 				this.context.expireSymbol(this);
@@ -1773,6 +1786,7 @@
 		}
 
 		this._setLastModifiedBy(modifying_agent);
+		this.needsGlobalNotify = Symbol.ASSIGNED;
 		if (this.context) {
 			this.context.expireSymbol(this);
 		}
