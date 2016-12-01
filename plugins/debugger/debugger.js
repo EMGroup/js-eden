@@ -41,7 +41,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 		var agentid = 1;
 
 		// Watch for state changes
-		eden.root.addGlobal(function(sym, create) {
+		/*eden.root.addGlobal(function(sym, create) {
 			if (!debug_play && docapture && active_agent) {
 				if (sym.eden_definition === undefined || sym.eden_definition.startsWith("proc") == false) {
 					var inspect = active_agent.html.find(".debugger-inspector");
@@ -49,7 +49,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 					inspect.append('<div>'+sym.name.slice(1)+' = '+val+'</div>');
 				}
 			}
-		});
+		});*/
 
 		function generateSource(agent) {
 			var statement = "";
@@ -117,7 +117,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			}
 			agent.id = agentid;
 			agentid++;
-			var output = $('<div class="debugger-agent" data-agent="'+agent.id+'"><div class="debugger-agent-controls"></div><div class="debugger-code"></div><div class="debugger-inspector"></div></div>');
+			var output = $('<div class="debugger-agent" data-agent="'+agent.id+'"><div class="debugger-agent-controls"></div><div class="debugger-code"></div></div>');
 			script.append(output);
 			agentcapture[agent.id] = {html: output, data: data};
 
@@ -177,8 +177,8 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 		.html(content)
 		.dialog({
 			title: mtitle,
-			width: 790,
-			height: 700,
+			width: 590,
+			height: 500,
 			minHeight: 120,
 			minWidth: 230,
 			dialogClass: "debugger-dialog"
@@ -195,8 +195,8 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			}
 		}).on("click",".stepforward", function(e) {
 			if (active_agent && active_agent.data.next) {
-				active_agent.html.find(".debugger-inspector").html("");
-				docapture = true;
+				//active_agent.html.find(".debugger-inspector").html("");
+				//docapture = true;
 				active_agent.data.next();
 				// Prevent it being done more than once.
 				if (active_agent) active_agent.data.next = undefined;

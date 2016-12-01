@@ -286,10 +286,10 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 * Called every time a symbol is changed or created. Then proceeds to
 	 * update all visible symbol lists.
 	 */
-	var symbolChanged = function (sym, create) {
+	var symbolChanged = function (sym, kind) {
 		var name = sym.name.substr(1);
 
-		if (create) {
+		if (kind == 1) {
 			symbol_create_queue[name] = sym;
 		} else if (name in symbol_create_queue) {
 			return;

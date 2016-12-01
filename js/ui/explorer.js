@@ -1,7 +1,7 @@
 EdenUI.Explorer = function() {
 	var me = this;
 
-	this.element = $('<div class="explore-main"><div class="explore-controls"><button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button><button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button><span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span></div><div class="explore-symbols"></div><div class="explore-console"></div></div>');
+	this.element = $('<div class="explore-main"><div class="explore-controls"><button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button><button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button><span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span></div><div class="explore-symbols"></div><div class="explore-console"><div class="explore-console-code" contenteditable="true"></div></div></div>');
 	$(document.body).append(this.element);
 	this.results = this.element.find(".explore-symbols");
 
@@ -10,17 +10,39 @@ EdenUI.Explorer = function() {
 	this.watchobs = {};
 	this.capture = false;
 	this.delay = 100;
+	this.delay2 = 20;
 	this.timeout = undefined;
+	this.timeout2 = undefined;
 	this.mode = "tree";
+	this.index = {};
+	this.todo = {};
 
-	eden.root.addGlobal(function(sym, create) {
+	eden.root.addGlobal(function(sym, kind) {
 		if (!me.capture) return;
-		if (Object.keys(sym.dependencies).length > 0) return;
-		me.watchobs[sym.name.slice(1)] = {
-			elements: [],
-			lastupdate: 1
-		};
-		me.triggerUpdate();
+		//if (Object.keys(sym.dependencies).length > 0) return;
+		var name = sym.name.slice(1);
+
+		if (kind != Symbol.EXPIRED || me.watchobs[name] === undefined) {
+			if (me.watchobs[name] === undefined) {
+				me.watchobs[sym.name.slice(1)] = 1;
+			} else {
+				me.watchobs[name].lastupdate = 1;
+			}
+
+			me.triggerUpdate();
+		} else {
+			me.todo[name] = true;
+			if (me.timeout2 === undefined) me.timeout2 = setTimeout(function() {
+				me.timeout2 = undefined;
+				// Just go through elements and update values.
+				for (var x in me.index) {
+					var sym = eden.root.symbols[x];
+					for (var i=0; i<me.index[x].length; i++) {
+						me.updateEntry(sym, me.index[x][i]);
+					}
+				}
+			}, me.delay2);
+		}
 	});
 
 	this.element.on("click", ".clear", function(e) {
@@ -58,6 +80,8 @@ EdenUI.Explorer = function() {
 				if (cur.nodeName == "DIV" && cur.className.includes("active") == false) node.removeChild(cur);
 				cur = next;
 			}
+
+			//TODO Clear Index Entry of all children!!
 		} else {
 			e.currentTarget.innerHTML = "&#xf068;";
 			node.setAttribute("data-expanded","true");
@@ -75,11 +99,12 @@ EdenUI.Explorer = function() {
 				if (!existing[x.slice(1)]) {
 					//node.append(me.makeEntry(x.slice(1), {}, false));
 					var sym2 = sym.dependencies[x];
-					var svalue = sym2.value();
-					var value = (Array.isArray(svalue)) ? "[...]" : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
-					var type = (sym2.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
 					var name = x.slice(1);
-					var ele = $('<div class="explore-entry'+((false) ? " active":"")+'" data-obs="'+name+'"><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> '+type+' '+value+'</div>');
+					var ele = $('<div class="explore-entry'+((false) ? " active":"")+'" data-obs="'+name+'"><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> <span class="symvalue"></span></div>');
+					var valele = ele.find(".symvalue").get(0);				
+					me.updateEntry(sym2, valele);	
+					if (me.index[name] === undefined) me.index[name] = [];
+					me.index[name].push(valele);				
 					node.appendChild(ele.get(0));
 				}
 			}
@@ -137,6 +162,7 @@ EdenUI.Explorer.prototype.triggerUpdate = function() {
 	if (this.timeout === undefined) {
 		var me = this;
 		this.timeout = setTimeout(function() {
+			me.index = {};
 			me.timeout = undefined;
 			if (me.mode == "list") {
 				me.updateList();
@@ -179,12 +205,24 @@ EdenUI.Explorer.prototype.makeAgentEntry = function(agent) {
 	}
 }
 
-EdenUI.Explorer.prototype.makeEntry = function(name, children, active) {
-	var sym = eden.root.symbols[name];
+EdenUI.Explorer.prototype.updateEntry = function(sym, valelement) {
 	var svalue = sym.value();
 	var value = (Array.isArray(svalue)) ? "[...]" : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
 	var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
-	var ele = $('<div class="explore-entry'+((active) ? " active":"")+'" data-obs="'+name+'"><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> '+type+' '+value+'</div>');
+	var html = type+' '+value;
+	valelement.innerHTML = html;
+}
+
+EdenUI.Explorer.prototype.makeEntry = function(name, children, active) {
+	var sym = eden.root.symbols[name];
+	//var svalue = sym.value();
+	//var value = (Array.isArray(svalue)) ? "[...]" : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+	//var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
+	var ele = $('<div class="explore-entry'+((active) ? " active":"")+'" data-obs="'+name+'"><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> <span class="symvalue"></span></div>');
+	var valele = ele.find(".symvalue").get(0);
+	this.updateEntry(sym, valele);
+	if (this.index[name] === undefined) this.index[name] = [];
+	this.index[name].push(valele);
 	var count = 0;
 	for (var x in children) {
 		count++;

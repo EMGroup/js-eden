@@ -38,6 +38,15 @@ div.explore-console {
 	box-shadow: 0 0 10px #4a6887;
 }
 
+div.explore-console-code {
+	padding: 10px;
+	font-family: monospace;
+	font-size: 12pt;
+	width: 100%;
+	box-sizing: border-box;
+	height: 100%;
+}
+
 div.explore-entry {
 	margin-left: 20px;
 	font-size: 10pt;
