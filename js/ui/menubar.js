@@ -98,6 +98,7 @@ EdenUI.MenuBar = function() {
 	});
 
 	var menuShowing = false;
+	var currentMenu = undefined;
 
 	function hideMenu() {
 		$(".menubar-menu").hide();
@@ -111,36 +112,46 @@ EdenUI.MenuBar = function() {
 	function showMenu(name) {
 		var menu = $("#menubar-mainitem-"+name);
 		menu.show();
+		currentMenu = name;
 		menuShowing = true;
 		if (name == "sharebox") me.sharebox.show();
 	}
 
 	$(document.body).on('mousedown', function () {
 		hideMenu();
-		//me.searchbox.element.hide();
-		if (name == "sharebox") me.sharebox.hide();
+		me.searchbox.element.hide();
+		//if (name == "sharebox") me.sharebox.hide();
+	});
+
+	this.element.on("mousedown", ".menubar-search-outer", function(e) {
+		e.stopPropagation();
 	});
 
 
 	this.element.on("mousedown", ".menubar-button.main", function (e) {
 		var name = e.currentTarget.getAttribute("data-obs");
+
 		if (menuShowing) {
-			if (e.target === this) {
+			if (name == currentMenu) {
 				hideMenu();
+			} else {
+				hideMenu();
+				showMenu(name);
 			}
 		} else {
-			hideMenu();
+			//hideMenu();
 			showMenu(name);
 		}
+		me.searchbox.element.hide();
 		e.stopPropagation();
 	});
 	this.element.on("mouseenter", ".menubar-button.main", function(e) {
-		var name = e.currentTarget.getAttribute("data-obs");
-		if (menuShowing) {
-			hideMenu();
-			showMenu(name);
+		//var name = e.currentTarget.getAttribute("data-obs");
+		//if (menuShowing) {
+		//	hideMenu();
+		//	showMenu(name);
 			//if (name == "sharebox") me.sharebox.update();
-		}
+		//}
 	});
 
 	function existingViewsInstructions() {
