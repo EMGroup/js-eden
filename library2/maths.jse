@@ -321,6 +321,12 @@ func abs {
   return ${{ Math.abs(arguments[0]); }}$;
 }
 
+/**
+ * Get the arccosine of x in degrees.
+ *   @param x
+ *   @return Arccosine in degrees.
+ *   #library #math
+ */
 func acos {
 	${{
 		var x = arguments[0];
@@ -333,6 +339,12 @@ func acos {
 	}}$;
 }
 
+/**
+ * Get the arcsine of x in degrees.
+ *   @param x
+ *   @return Arcsine in degrees.
+ *   #library #math
+ */
 func asin {
 	${{
 		var x = arguments[0];
@@ -345,6 +357,7 @@ func asin {
 	}}$;
 }
 
+
 func atan {
 	${{
 		var x = arguments[0];
@@ -353,6 +366,11 @@ func atan {
 	}}$;
 }
 
+/**
+ * Returns the cosine of a given angle.
+ *   @param angle Angle in degrees.
+ *   @return Cosine (between -1 and 1).
+ */
 func cos {
 	${{
 		var x = arguments[0];
@@ -464,18 +482,26 @@ func max {
 	return maxSoFar;
 }
 
-##If exactly one argument is provided and it is the empty list then undefined
-##is returned.  tkeden produces an error message.
-##
-##If two or more list type arguments are provided then they are compared
-##lexicographically, e.g. min([2], [1,2]) is [1,2].  tkeden returns the lowest
-##value from the first list in this scenario.  If exactly one argument is
-##provided and it is a list then the lowest value from that list is returned,
-##the same as in tkeden.
-##
-##min(@, 2) returns @ but min(2, @) returns 2.  This is bizarre but consistent
-##with tkeden.
-##
+/**
+ *  Find the minimum value for the given arguments (or a list).
+ *
+ *  If exactly one argument is provided and it is the empty list then undefined
+ *  is returned.  tkeden produces an error message.
+ *
+ *  If two or more list type arguments are provided then they are compared
+ *  lexicographically, e.g. min([2], [1,2]) is [1,2].  tkeden returns the lowest
+ *  value from the first list in this scenario.  If exactly one argument is
+ *  provided and it is a list then the lowest value from that list is returned,
+ *  the same as in tkeden.
+ *
+ *  min(@, 2) returns @ but min(2, @) returns 2.  This is bizarre but consistent
+ *  with tkeden.
+ *
+ *   @param p A list or number
+ *   @param [p2...] Other numbers to compare.
+ *   @return The smallest number.
+ *   #library #math
+ */
 func min {
 	para p1;
 	auto list, i, minSoFar;
@@ -518,6 +544,12 @@ func pow {
   return ${{ Math.pow(arguments[0],arguments[1]); }}$;
 }
 
+/**
+ * Return a random boolean with a given probability.
+ *   @param [probability] Optional probability, default is 0.5.
+ *   @return Random boolean.
+ *   #library #math
+ */
 func randomBoolean {
 	para probability;
 	if (probability == @) {
@@ -661,6 +693,11 @@ func random {
 	return result;
 }
 
+/**
+ * Returns the cosine of a given angle.
+ *   @param angle Angle in degrees.
+ *   @return Cosine (between -1 and 1).
+ */
 func sin {
 	${{
 		var x = arguments[0];
@@ -690,10 +727,24 @@ func sin {
 	}}$;
 }
 
+
+/**
+ * Get the square root of x.
+ *   @param x
+ *   @return Square root
+ *   #library #math
+ */
 func sqrt {
   return ${{ Math.sqrt(arguments[0]); }}$;
 }
 
+/**
+ * Add all the number in the arguments or in a list together.
+ *    @param l A number or a list.
+ *    @param [l2...] If l is not a list then add these arguments.
+ *    @return Sum of all arguments or a list.
+ *    #library #math
+ */
 func sum {
 	${{
 		var list, total, type;
@@ -719,6 +770,12 @@ func sum {
 	}}$;
 }
 
+/**
+ * Get the tangent of an angle.
+ *   @param x Angle in degrees.
+ *   @return Tangent of angle.
+ *   #library #math
+ */
 func tan {
 	${{
 		var x = arguments[0];
