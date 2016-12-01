@@ -453,6 +453,12 @@ func sublist {
 	}}$;
 }
 
+/**
+ * Returns a list with the first item removed.
+ *   @param list Source list
+ *   @return The list minus the first item.
+ *   #library
+ */
 func tail {
 	para p1;
 	auto argc;

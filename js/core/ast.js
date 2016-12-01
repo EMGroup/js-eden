@@ -1221,6 +1221,7 @@ Eden.AST.Definition = function(expression) {
 	this.backtickCount = 0;
 	this.executed = 0;
 	this.locals = undefined;
+	this.params = undefined;
 };
 
 Eden.AST.Definition.prototype.getParameterByNumber = function(index) {
@@ -1245,6 +1246,7 @@ Eden.AST.Definition.prototype.setSource = function(start, end) {
 Eden.AST.Definition.prototype.generateDef = function(ctx) {
 	var result = "function(context, scope, cache) {\n";
 	this.locals = (ctx) ? ctx.locals : undefined;
+	this.params = (ctx) ? ctx.params : undefined;
 	var express = this.expression.generate(this, "scope");
 
 	// Generate array of all scopes used in this definition (if any).

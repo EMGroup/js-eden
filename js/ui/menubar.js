@@ -96,6 +96,9 @@ EdenUI.MenuBar = function() {
 	this.element.on("keyup", ".search", function(e) {
 		me.searchbox.updateSearch(e.currentTarget.value);
 	});
+	this.element.on("focus", ".search", function(e) {
+		me.searchbox.updateSearch(e.currentTarget.value);
+	});
 
 	var menuShowing = false;
 	var currentMenu = undefined;
@@ -130,8 +133,9 @@ EdenUI.MenuBar = function() {
 
 	this.element.on("mousedown", ".menubar-button.main", function (e) {
 		var name = e.currentTarget.getAttribute("data-obs");
+		//if (e.target !== e.currentTarget) return;
 
-		if (menuShowing) {
+		if (menuShowing && e.target === this) {
 			if (name == currentMenu) {
 				hideMenu();
 			} else {
