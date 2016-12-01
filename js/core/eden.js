@@ -138,7 +138,7 @@
 
 		// Allow ctrl-click observable identification in the UI...
 		$(document).on("click", function(e) {
-			if (e.ctrlKey) {
+			if (e.ctrlKey || e.metaKey) {
 				var observables = [];
 				var current = e.target;
 
