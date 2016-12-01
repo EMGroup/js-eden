@@ -1,7 +1,7 @@
 EdenUI.Explorer = function() {
 	var me = this;
 
-	this.element = $('<div class="explore-main"><div class="explore-controls"><button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button><button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button><span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span></div><div class="explore-symbols"></div><div class="explore-console"></div></div>');
+	this.element = $('<div class="explore-main"><div class="explore-controls"><button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button><button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button><span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span></div><div class="explore-symbols"></div><div class="explore-console"><div class="explore-console-code" contenteditable="true"></div></div></div>');
 	$(document.body).append(this.element);
 	this.results = this.element.find(".explore-symbols");
 
@@ -10,9 +10,12 @@ EdenUI.Explorer = function() {
 	this.watchobs = {};
 	this.capture = false;
 	this.delay = 100;
+	this.delay2 = 20;
 	this.timeout = undefined;
+	this.timeout2 = undefined;
 	this.mode = "tree";
 	this.index = {};
+	this.todo = {};
 
 	eden.root.addGlobal(function(sym, kind) {
 		if (!me.capture) return;
@@ -28,12 +31,17 @@ EdenUI.Explorer = function() {
 
 			me.triggerUpdate();
 		} else {
-			// Just go through elements and update values.
-			if (me.index[name] ) {
-				for (var i=0; i<me.index[name].length; i++) {
-					me.updateEntry(eden.root.symbols[name], me.index[name][i]);
+			me.todo[name] = true;
+			if (me.timeout2 === undefined) me.timeout2 = setTimeout(function() {
+				me.timeout2 = undefined;
+				// Just go through elements and update values.
+				for (var x in me.index) {
+					var sym = eden.root.symbols[x];
+					for (var i=0; i<me.index[x].length; i++) {
+						me.updateEntry(sym, me.index[x][i]);
+					}
 				}
-			}
+			}, me.delay2);
 		}
 	});
 
@@ -73,7 +81,7 @@ EdenUI.Explorer = function() {
 				cur = next;
 			}
 
-			//TODO Clear Index Entry...
+			//TODO Clear Index Entry of all children!!
 		} else {
 			e.currentTarget.innerHTML = "&#xf068;";
 			node.setAttribute("data-expanded","true");

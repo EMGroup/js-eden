@@ -35,7 +35,7 @@ div.debugger-code {
 	outline: none;
 	resize: none;
 	overflow: hidden;
-	width: 70%;
+	width: 100%;
 	padding: 10px 20px;
 	/*border: 1px solid #e5e5e5;*/
 	/*background: white;*/
