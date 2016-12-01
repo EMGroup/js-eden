@@ -81,6 +81,8 @@ proc createCanvas {
 	auto titleSymName, contentSymName, addJSObserver;
 	auto argc;
 	argc = ${{ arguments.length }}$;
+	viewName = @;
+	viewTitle = @;
 
 	if (argc == 1) {
 		obsName = p1;
