@@ -57,7 +57,7 @@ EdenUI.Explorer = function() {
 
 	this.results.on("click", ".explore-observable", function(e) {
 		var obs = e.currentTarget.parentNode.getAttribute("data-obs");
-		if (e.ctrlKey) {
+		if (e.ctrlKey || e.metaKey) {
 			console.log("GOTO",obs);
 			edenUI.gotoCode("/"+obs);
 			e.stopPropagation();
