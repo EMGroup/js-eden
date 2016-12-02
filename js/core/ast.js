@@ -67,6 +67,7 @@ Eden.AST.DoxyComment = function(content, start, end) {
 	this.endline = end;
 	this.tags = undefined;
 	this.controls = undefined;
+	this.parent = undefined;
 }
 
 

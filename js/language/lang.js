@@ -45,7 +45,9 @@ var Language = {
 		"oracle": "oracle",
 		"handle": "handle",
 		"deprecated": "deprecated",
-		"see": "see"
+		"see": "see",
+		"{": "{",
+		"}": "}"
 	},
 
 	keywords: {

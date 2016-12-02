@@ -31,6 +31,7 @@ Eden.AST = function(code, imports, origin, noparse) {
 
 	this.lastDoxyComment = undefined;
 	this.mainDoxyComment = undefined;
+	this.parentDoxy = undefined;
 
 	this.stream.data = this.data;
 
@@ -252,7 +253,13 @@ Eden.AST.prototype.next = function() {
 			// Store doxy comment so next statement can use it, or if we are
 			// at the beginning of the script then its the main doxy comment.
 			if (isDoxy) {
-				this.lastDoxyComment = new Eden.AST.DoxyComment(this.stream.code.substring(start, this.stream.position), startline, this.stream.line);
+				this.lastDoxyComment = new Eden.AST.DoxyComment(this.stream.code.substring(start+3, this.stream.position-2).trim(), startline, this.stream.line);
+				this.lastDoxyComment.parent = this.parentDoxy;
+				if (this.lastDoxyComment.content.endsWith("@{")) {
+					this.parentDoxy = this.lastDoxyComment;
+				} else if (this.lastDoxyComment.content.startsWith("@}")) {
+					if (this.parentDoxy) this.parentDoxy = this.parentDoxy.parent;
+				}
 				if (startline == 1) this.mainDoxyComment = this.lastDoxyComment;
 			}
 			this.token = this.stream.readToken();
@@ -2421,7 +2428,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	var stat = undefined;
 	var end = -1;
 	var doxy = this.lastDoxyComment;
-	this.lastDoxyComment = undefined;
+	this.lastDoxyComment = this.parentDoxy;
 
 	switch (this.token) {
 	case "proc"		:	this.next(); stat = this.pACTION(); end = this.stream.position; endline = this.stream.line; this.next(); break;
