@@ -21,6 +21,18 @@ Circle = function(x, y, radius, fillcolour, outlinecolour, drawingOptions) {
 }
 }}$;
 
+/**
+ * Creates a circle
+ * 
+ * @param x x position of center of the circle
+ * @param y y position of center of the circle
+ * @param radius radius of the circle
+ * @param [fillColour]
+ * @param [outlineColour] defaults to black
+ * @param [drawingOptions] object of drawingOptions
+ * 
+ * #canvas #circle
+ */
 func Circle { ${{
 	var x = arguments[0];
 	var y = arguments[1];

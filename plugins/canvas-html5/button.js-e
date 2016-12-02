@@ -3,6 +3,21 @@
 ##
 ## See LICENSE.txt
 
+/**
+ * Creates a Button
+ * 
+ * 
+ * @param [name] Name to be used for the _click and _clicked observable
+ * @param label Label to be displayed
+ * @param [imageURL] Image to be displayed on the button
+ * @param x
+ * @param y
+ * @param [width]
+ * @param [height]
+ * @param [enabled]
+ * 
+ * #canvas #button
+ */
 func Button {
 ${{
 	var argsProcessed, arg, argType;

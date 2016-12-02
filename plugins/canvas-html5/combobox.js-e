@@ -29,6 +29,20 @@ Combobox.prototype.hash = function () {
 
 }}$;
 
+/**
+ * Creates a Combobox (drop down selection)
+ * @param [name] defaults to the observable name
+ * @param suggestions list of strings to be suggested
+ * @param x
+ * @param y
+ * @param [width]
+ * @param [placeholder] string to display before choice is made. Defaults to observable name.
+ * @param [maxlength] Maximum length allowed in input
+ * @param [enabled] defaults to true.
+ * 
+ * #canvas #combobox
+ */
+
 func Combobox { ${{
 	var argsProcessed;
 
@@ -65,6 +79,7 @@ func Combobox { ${{
 		placeholder = arg;
 		argsProcessed++;
 		arg = arguments[argsProcessed];
+		argType = typeof(arg);
 	}
 	if (arg === undefined || argType == "number") {
 		maxlength = arg;
