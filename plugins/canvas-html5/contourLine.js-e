@@ -1124,7 +1124,15 @@ ${{
 	ContourLine.prototype.getEdenCode = ContourLine.prototype.toString;
 	
 }}$;
-
+/**
+ * Creates a EuclideanSpace object
+ * @param xMin
+ * @param yMin
+ * @param [zMin]
+ * @param xMax
+ * @param yMax
+ * @param [zMax]
+ */
 func EuclideanSpace {
 	${{
 		var xMin, yMin, zMin, xMax, yMax, zMax;
@@ -1144,6 +1152,10 @@ func EuclideanSpace {
 		return new EuclideanSpace(xMin, yMin, zMin, xMax, yMax, zMax);
 	}}$;
 }
+
+/*
+ * 
+ */
 
 func ScalarField2D {
 	${{
