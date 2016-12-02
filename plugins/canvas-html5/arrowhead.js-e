@@ -172,6 +172,17 @@ ${{
 
 }}$;
 
+/**
+ * Create an Arrowhead
+ * @param start Whether to draw the arrowhead at the start
+ * @param end Whether to draw the arrowhead at the end
+ * @param length Length of the arrowhead
+ * @param width Width of the arrowhead. IF undefined, a proportional value is automatically chosen.
+ * @param [filled] Whether to fill the arrowhead or just draw an outline. Defaults to true.
+ * 
+ * #canvas #arrow #arrowhead
+ */
+
 func Arrowhead {
 	${{
 		var argsProcessed;
