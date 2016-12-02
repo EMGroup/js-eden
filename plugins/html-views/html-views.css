@@ -7,7 +7,7 @@
 }
 
 .htmlviews-content p {
-	text-align: justify;
+	/*text-align: justify;*/
 }
 
 .htmlviews-undefined {
@@ -41,7 +41,7 @@ div.htmlviews-dialog .ui-dialog-titlebar {
 	border-bottom-right-radius: 0;
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
-	box-shadow: 0 0 10px #4a6887;
+	/*box-shadow: 0 0 10px #4a6887;*/
 	background: -webkit-linear-gradient(#fafafa, #cccccc); 
 	background: -o-linear-gradient(#fafafa, #cccccc); 
 	background: -moz-linear-gradient(#fafafa, #cccccc); 

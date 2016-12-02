@@ -67,6 +67,7 @@ Eden.AST.DoxyComment = function(content, start, end) {
 	this.endline = end;
 	this.tags = undefined;
 	this.controls = undefined;
+	this.parent = undefined;
 }
 
 
@@ -1221,6 +1222,7 @@ Eden.AST.Definition = function(expression) {
 	this.backtickCount = 0;
 	this.executed = 0;
 	this.locals = undefined;
+	this.params = undefined;
 };
 
 Eden.AST.Definition.prototype.getParameterByNumber = function(index) {
@@ -1245,6 +1247,7 @@ Eden.AST.Definition.prototype.setSource = function(start, end) {
 Eden.AST.Definition.prototype.generateDef = function(ctx) {
 	var result = "function(context, scope, cache) {\n";
 	this.locals = (ctx) ? ctx.locals : undefined;
+	this.params = (ctx) ? ctx.params : undefined;
 	var express = this.expression.generate(this, "scope");
 
 	// Generate array of all scopes used in this definition (if any).
@@ -1891,16 +1894,16 @@ Eden.AST.If.prototype.setElse = function(statement) {
 	}
 };
 
-Eden.AST.If.prototype.generate = function(ctx) {
+Eden.AST.If.prototype.generate = function(ctx, scope) {
 	var res = "if (";
-	res += this.condition.generate(ctx, "scope");
+	res += this.condition.generate(ctx, scope);
 	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
 		res += ".value";
 	}
 	res += ") ";
-	res += this.statement.generate(ctx) + " ";
+	res += this.statement.generate(ctx, scope) + " ";
 	if (this.elsestatement) {
-		res += "\nelse " + this.elsestatement.generate(ctx) + "\n";
+		res += "\nelse " + this.elsestatement.generate(ctx, scope) + "\n";
 	}
 	return res;
 }

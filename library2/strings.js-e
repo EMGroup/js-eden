@@ -593,6 +593,14 @@ func substitute {
 
 ##The same issues arise as with the sublist function (in lists.js-e) and they're handled in the
 ##same way.
+/**
+ * Extract a string from another using indices.
+ *   @param source The original source string.
+ *   @param from Start index to extract from, inclusive.
+ *   @param [to] End index or end of string if missing.
+ *   @return The substring requested.
+ *   #library #string
+ */
 func substr {
 	${{
 		if (arguments.length < 2 || arguments.length > 3) {
@@ -691,6 +699,13 @@ func substringPosition {
 	}}$;
 }
 
+/**
+ * Remove white space from either end of a string.
+ *   @param string
+ *   @param [type] Default is "both", can also be "left" or "right".
+ *   @return The trimmed string.
+ *   #library #string
+ */
 func trim {
 	${{
 		if (arguments.length < 1 || arguments.length > 2) {
@@ -729,6 +744,12 @@ func trim {
 	}}$;
 }
 
+/**
+ * Convert a string to entirely uppercase.
+ *   @param string
+ *   @return String in uppercase.
+ *   #library #string
+ */
 func uppercase {
 	${{
 		if (arguments.length != 1) {
