@@ -14,6 +14,7 @@ Eden.Peer = function(master, id) {
 	};
 	this.callbacks = {};
 	this.callbackid = 0;
+	this.capturepatch = false;
 
 	if (eden.root.lookup("jseden_p2p_newconnections").value() === undefined) {
 		eden.root.lookup("jseden_p2p_newconnections").assign([], eden.root.scope, Symbol.defaultAgent);
@@ -123,6 +124,14 @@ Eden.Peer = function(master, id) {
 		delete me.callbacks[obj.cbid];
 	}
 
+	function processPatch(obj) {
+		Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.applyPatch(obj.patch, obj.lineno) });
+	}
+
+	function processOwnership(obj) {
+		Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.setOwned(obj.owned, "net"); });
+	}
+
 	function processData(conn, data) {
 		var obj = JSON.parse(data);
 		obj.id = conn.peer;
@@ -133,7 +142,7 @@ Eden.Peer = function(master, id) {
 		case "assign"		: if (pconn.observe) processAssign(obj); break;
 		case "define"		: if (pconn.observe) processDefine(obj); break;
 		case "import"		: if (pconn.observe) processImport(obj); break;
-		case "listAssign"	: if (pconn.observe) processListAssign(obj); break;
+		case "listassign"	: if (pconn.observe) processListAssign(obj); break;
 		case "restore"		: if (pconn.observe) processRestore(obj); break;
 		case "execstatus"	: if (pconn.observe) processExecStatus(obj); break;
 		case "register"		: processRegister(obj); break;
@@ -141,6 +150,8 @@ Eden.Peer = function(master, id) {
 		case "callback"		: processCallback(obj); break;
 		case "reqshare"		: processReqShare(obj); break;
 		case "reqobserve"	: processReqObserve(obj); break;
+		case "patch"		: processPatch(obj); break;
+		case "ownership"	: processOwnership(obj); break;
 		}
 
 		if (me.config.logging) {
@@ -205,16 +216,16 @@ Eden.Peer = function(master, id) {
 			});
 		}
 
-		/*Eden.Agent.listenTo('patch',this,function(origin,patch,lineno){
-			if(origin) {
-				var data = JSON.stringify({cmd: "patch", name: origin.name, patch: patch, lineno: lineno});
+		Eden.Agent.listenTo('patch',this,function(origin,patch,lineno){
+			if(origin && me.capturepatch) {
+				var data = {cmd: "patch", name: origin.name, patch: patch, lineno: lineno};
 				me.broadcast(data);
 			}
 		});
 		Eden.Agent.listenTo("owned", this, function(origin, cause) {
-			if (cause == "net") return;
-			me.broadcast(JSON.stringify({cmd: "ownership", name: origin.name, owned: origin.owned}));
-		});*/
+			if (cause == "net" || !me.capturepatch) return;
+			me.broadcast({cmd: "ownership", name: origin.name, owned: origin.owned});
+		});
 		Eden.Agent.listenTo("version", this, function(origin, saveID, ispublic) {
 			console.log("VERSION CHANGE", origin.name, saveID);
 			me.imports(origin, origin.name, saveID, ["noexec"]);
@@ -230,6 +241,22 @@ Eden.Peer = function(master, id) {
 	
 	Eden.DB.listenTo("login", this, init);
 	if (Eden.DB.isLoggedIn()) init(Eden.DB.username);
+
+	var capInSym = eden.root.lookup("jseden_p2p_captureinput");
+	capInSym.addJSObserver("p2p", function(sym, value) {
+		if (value) {
+			Symbol.hciAgent.local = false;
+			Symbol.localJSAgent.local = false;
+		} else {
+			Symbol.hciAgent.local = true;
+			Symbol.localJSAgent.local = true;
+		}
+	});
+
+	var capEdSym = eden.root.lookup("jseden_p2p_captureedits");
+	capEdSym.addJSObserver("p2p", function(sym, value) {
+		me.capturepatch = value;
+	});
 
 	function createDialog(name, title) {
 		var viewName = name.slice(0,-7); //remove -dialog suffix
@@ -291,7 +318,7 @@ Eden.Peer.prototype.authoriseWhen = function(when) {
 					if (roles[i] == "@role" && this.id !== undefined) return true;
 					if (this.roles[roles[i]]) return true;
 				}
-				console.log("DENIED WHEN: ", roles);
+				//console.log("DENIED WHEN: ", roles);
 				return false;
 			}
 		}

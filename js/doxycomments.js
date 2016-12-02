@@ -7,7 +7,7 @@ Eden.AST.DoxyComment.prototype.getHashTags = function() {
 	if (this.tags) return this.tags;
 
 	// Strip beginning and end and split into words.
-	var words = this.content.substring(3,this.content.length-2).trim().split(/[ \n\t]+/);
+	var words = this.content.split(/[ \n\t]+/);
 	var tags = {};
 	var controls = {};
 	for (var i=0; i<words.length; i++) {
@@ -47,7 +47,7 @@ Eden.AST.DoxyComment.prototype.getControls = function() {
 
 Eden.AST.DoxyComment.prototype.stripped = function() {
 	var controls = {};
-	var lines = this.content.substring(3,this.content.length-2).split("\n");
+	var lines = this.content.split("\n");
 	//console.log(lines);
 	var res = "";
 

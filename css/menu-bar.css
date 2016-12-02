@@ -744,7 +744,7 @@ div.menusearch {
 	display: flex;
 	flex-direction: column;
 	/*border: 1px solid #ddd;*/
-	margin: 10px 0;
+	/*margin: 10px 0;*/
 	background: white;
 	flex-grow: 2;
 }
@@ -824,7 +824,17 @@ div.menusearch {
 	color: #888;
 	margin-left: 30px;
 	margin-right: 30px;
-	margin-top: 5px;
+	margin-top: -5px;
+	margin-bottom: -5px;
+}
+
+div.menubar-search-more {
+	font-family: "FontAwesome";
+	color: #222;
+	text-align: center;
+	padding: 5px;
+	background: #eee;
+	cursor: pointer;
 }
 
 div.menubar-search-rescontrols {
