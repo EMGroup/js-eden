@@ -1893,16 +1893,16 @@ Eden.AST.If.prototype.setElse = function(statement) {
 	}
 };
 
-Eden.AST.If.prototype.generate = function(ctx) {
+Eden.AST.If.prototype.generate = function(ctx, scope) {
 	var res = "if (";
-	res += this.condition.generate(ctx, "scope");
+	res += this.condition.generate(ctx, scope);
 	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
 		res += ".value";
 	}
 	res += ") ";
-	res += this.statement.generate(ctx) + " ";
+	res += this.statement.generate(ctx, scope) + " ";
 	if (this.elsestatement) {
-		res += "\nelse " + this.elsestatement.generate(ctx) + "\n";
+		res += "\nelse " + this.elsestatement.generate(ctx, scope) + "\n";
 	}
 	return res;
 }
