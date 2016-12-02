@@ -48,7 +48,7 @@ EdenUI.SearchBox.prototype.makeSymbolResult = function(name) {
 	if (eden.dictionary[name]) {
 		var stripped = eden.dictionary[name].brief();
 		if (stripped && stripped.length > 0) {
-			docstr = '<div class="doxy-search-details">'+stripped+'</div>';
+			docstr = '<div class="doxy-search-details"><p>'+stripped+'</p></div>';
 		}
 	}
 
@@ -79,9 +79,35 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 		var res = Eden.Query.search(q);
 		console.log(res);
 
-		for (var i=0; i<res.symbols.length; i++) {
+		var i = 0;
+		var me = this;
+
+		for (i=0; i<res.symbols.length; i++) {
 			if (i > 6) break;
 			this.makeSymbolResult(res.symbols[i]).appendTo(symresults);
+		}
+
+		function doMore() {
+			var more = $('<div class="menubar-search-more">&#xf078;</div>');
+			symresults.append(more);
+			more.on("click", function() {
+				symresults.html("");
+				var count = 0;
+				for (; i<res.symbols.length; i++) {
+					if (count > 6) break;
+					count++;
+					me.makeSymbolResult(res.symbols[i]).appendTo(symresults);
+				}
+				// Do we need to show a more button
+				if (i < res.symbols.length) {
+					doMore();
+				}
+			});
+		}
+
+		// Do we need to show a more button
+		if (i < res.symbols.length) {
+			doMore();
 		}
 	}
 }
