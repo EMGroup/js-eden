@@ -51,7 +51,9 @@ div.explore-entry {
 	margin-left: 20px;
 	font-size: 10pt;
 	position: relative;
-	padding: 2px;
+	/*padding-left: 2px;
+	padding-top: 2px;
+	padding-bottom: 2px;*/
 	white-space: nowrap;
 	color: black;
 }
@@ -61,7 +63,7 @@ div.explore-entry:before {
 	position: absolute;
 	content: "";
 	left: -15px;
-	border-top: 1px solid #bbb;
+	border-top: 2px solid #bbb;
 	top: 9px;
 	width: 12px;
 	height: 0;
@@ -72,10 +74,18 @@ div.explore-entry:after {
 	position: absolute;
 	content: "";
 	left: -15px;
-	border-left: 1px solid #bbb;
+	border-left: 2px solid #bbb;
 	top: 2px;
 	width: 0px;
 	height: 100%;
+}
+
+div.explore-entry.active:after {
+	border-left: 2px solid #00e000;
+}
+
+div.explore-entry.active:before {
+	border-top: 2px solid #00e000;
 }
 
 .explore-entry > div:last-child:after {
@@ -162,3 +172,23 @@ span.explorerfilter:before {
 input.explorerfilter:hover {
 	border-color: #666;
 }
+
+div.explore-entry-inner {
+	/*display: inline;
+	width: 100%;*/
+	padding: 2px;
+	display: flex;
+	justify-content: space-between;
+}
+
+div.explore-entry-inner:hover {
+	background: #e5e5e5;
+}
+
+div.symvalue {
+	display: inline;
+	width: 160px;
+	float: right;
+	margin-left: 3px;
+}
+

@@ -66,7 +66,7 @@ EdenUI.Explorer = function() {
 
 	this.results.on("click", ".explore-entry-icon", function(e) {
 		//console.log(e);
-		var node = e.currentTarget.parentNode;
+		var node = e.currentTarget.parentNode.parentNode.parentNode;
 		var name = node.getAttribute("data-obs");
 		var expanded = node.getAttribute("data-expanded") == "true";
 
@@ -100,7 +100,7 @@ EdenUI.Explorer = function() {
 					//node.append(me.makeEntry(x.slice(1), {}, false));
 					var sym2 = sym.dependencies[x];
 					var name = x.slice(1);
-					var ele = $('<div class="explore-entry'+((false) ? " active":"")+'" data-obs="'+name+'"><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> <span class="symvalue"></span></div>');
+					var ele = $('<div class="explore-entry'+((false) ? " active":"")+'" data-obs="'+name+'"><div class="explore-entry-inner"><span><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> </span><div class="symvalue"></div></div></div>');
 					var valele = ele.find(".symvalue").get(0);				
 					me.updateEntry(sym2, valele);	
 					if (me.index[name] === undefined) me.index[name] = [];
@@ -188,14 +188,14 @@ EdenUI.Explorer.prototype.makeAgentEntry = function(agent) {
 		short = short[short.length-1];
 		aname = short + ":" + aname[2];
 
-		return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">when</span> <b>@</b> <span class="eden-path">'+aname+'</span></div>');
+		return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">when</span> <span class="eden-path">'+aname+'</span></div>');
 	} else if (lmn.startsWith("*Action")) {
 		var aname = lmn.split(":");
 		var short = aname[1].split("/");
 		short = short[short.length-1];
 		aname = short + ":" + aname[2];
 
-		return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">action</span> <b>@</b> <span class="eden-path">'+aname+'</span></div>');
+		return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">action</span> <span class="eden-path">'+aname+'</span></div>');
 	} else if (lmn.charAt(0) == "/") {
 		if (agent.eden_definition && agent.eden_definition.startsWith("proc")) {
 			return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">proc</span> <span class="eden-path">'+lmn.slice(1)+'</span></div>');
@@ -218,7 +218,7 @@ EdenUI.Explorer.prototype.makeEntry = function(name, children, active) {
 	//var svalue = sym.value();
 	//var value = (Array.isArray(svalue)) ? "[...]" : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
 	//var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
-	var ele = $('<div class="explore-entry'+((active) ? " active":"")+'" data-obs="'+name+'"><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> <span class="symvalue"></span></div>');
+	var ele = $('<div class="explore-entry'+((active) ? " active":"")+'" data-obs="'+name+'"><div class="explore-entry-inner"><span><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> </span><div class="symvalue"></div></div></div>');
 	var valele = ele.find(".symvalue").get(0);
 	this.updateEntry(sym, valele);
 	if (this.index[name] === undefined) this.index[name] = [];
