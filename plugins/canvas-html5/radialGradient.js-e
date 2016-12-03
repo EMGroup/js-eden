@@ -5,6 +5,21 @@
 
 ##Example:
 
+/*
+ * Creates a radial gradient that can be used to colour shapes
+ * 
+ * @param x
+ * @param y
+ * @param [r radius
+ * @param [colourStops]] List of colourStops
+ * 
+ * ```
+ * g is RadialGradient(300, 240, 230, [[0, "red"], [0.5, "orange"], [1, "cyan"]]);
+ * c is Circle(300,240,230,g);
+ * picture is [c];
+ * ```
+ */
+	
 func RadialGradient {
 	${{
 		var x1, y1, r1, x2, y2, r2, colourStops;
@@ -25,7 +40,7 @@ func RadialGradient {
 }
 
 ${{
-	function RadialGradient(x1, y1, r1, x2, y2, r2, colourStops) {
+	RadialGradient = function(x1, y1, r1, x2, y2, r2, colourStops) {
 		this.x1 = x1;
 		this.y1 = y1;
 		this.r1 = r1;
