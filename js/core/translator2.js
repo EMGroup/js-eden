@@ -13,7 +13,7 @@
  * report the errors found. To use, pass the script to the constructor.
  * @param code String containing the script.
  */
-Eden.AST = function(code, imports) {
+Eden.AST = function(code, imports, origin, noparse) {
 	this.stream = new EdenStream(code);
 	this.data = new EdenSyntaxData();
 	this.token = "INVALID";
@@ -25,9 +25,13 @@ Eden.AST = function(code, imports) {
 	this.triggers = {};			// Guarded actions
 	this.definitions = {};		// Definitions mapping
 	this.imports = (imports) ? imports : [];
+	this.origin = origin;		// The agent owner of this script
+
+	if (!origin) console.error("NO ORIGIN", code);
 
 	this.lastDoxyComment = undefined;
 	this.mainDoxyComment = undefined;
+	this.parentDoxy = undefined;
 
 	this.stream.data = this.data;
 
@@ -35,8 +39,18 @@ Eden.AST = function(code, imports) {
 	this.next();
 
 	// Start parse with SCRIPT production
-	this.script = this.pSCRIPT();
+	if (!noparse) this.script = this.pSCRIPT();
 }
+
+// Debug controls
+Eden.AST.debug = false;
+Eden.AST.debugstep = false;
+Eden.AST.debugstep_cb = undefined;
+Eden.AST.debugspeed = 500;
+Eden.AST.debugbreakpoint = undefined;
+Eden.AST.debugbreakpoint_cb = undefined;
+Eden.AST.debug_begin_cb = undefined;
+Eden.AST.debug_end_cb = undefined;
 
 
 
@@ -67,8 +81,9 @@ Eden.AST.prototype.generate = function() {
 
 
 
-Eden.AST.prototype.execute = function(root) {
-	this.script.execute(root, undefined, this);
+Eden.AST.prototype.execute = function(agent, cb) {
+	//this.script.execute(undefined, this, root.scope);
+	this.executeStatement(this.script, 0, agent, cb);
 }
 
 
@@ -92,7 +107,7 @@ Eden.AST.prototype.clearExecutedState = function() {
  * If the statement is part of a larger statement block then execute
  * that instead (eg. a proc).
  */
-Eden.AST.prototype.executeLine = function(lineno, agent) {
+Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
 	var line = lineno;
 	// Make sure we are not in the middle of a proc or func.
 	//while ((line > 0) && (this.lines[line] === undefined)) {
@@ -113,7 +128,7 @@ Eden.AST.prototype.executeLine = function(lineno, agent) {
 	statement = this.getBase(statement);
 
 	// Execute only the currently changed root statement
-	this.executeStatement(statement, line, agent);
+	this.executeStatement(statement, line, agent, cb);
 }
 
 
@@ -147,23 +162,6 @@ Eden.AST.prototype.getBlockLines = function(lineno) {
 
 	return [startline,endline];
 }
-
-
-
-/**
- * Execute the given statement and catch any errors.
- */
-Eden.AST.prototype.executeStatement = function(statement, line, agent) {
-	try {
-		statement.execute(eden.root,undefined, this, agent);
-	} catch (e) {
-		eden.error(e);
-		console.error("Details: " + e + "\nAgent: " + agent.name);
-		console.log(statement);
-		//throw e;
-	}
-}
-
 
 
 /**
@@ -255,7 +253,13 @@ Eden.AST.prototype.next = function() {
 			// Store doxy comment so next statement can use it, or if we are
 			// at the beginning of the script then its the main doxy comment.
 			if (isDoxy) {
-				this.lastDoxyComment = new Eden.AST.DoxyComment(this.stream.code.substring(start, this.stream.position), startline, this.stream.line);
+				this.lastDoxyComment = new Eden.AST.DoxyComment(this.stream.code.substring(start+3, this.stream.position-2).trim(), startline, this.stream.line);
+				this.lastDoxyComment.parent = this.parentDoxy;
+				if (this.lastDoxyComment.content.endsWith("@{")) {
+					this.parentDoxy = this.lastDoxyComment;
+				} else if (this.lastDoxyComment.content.startsWith("@}")) {
+					if (this.parentDoxy) this.parentDoxy = this.parentDoxy.parent;
+				}
 				if (startline == 1) this.mainDoxyComment = this.lastDoxyComment;
 			}
 			this.token = this.stream.readToken();
@@ -618,11 +622,56 @@ Eden.AST.prototype.pPRIMARY = function() {
 		return primary;
 	// Plain observable
 	} else if (this.token == "OBSERVABLE") {
+		var primary;
 		var observable = this.data.value;
 		this.next();
-		// Check for '.', '[' and '('... plus 'with'
-		var primary = this.pPRIMARY_P();
-		primary.setObservable(observable);
+
+		// Allow backtick without operator
+		if (this.token == "{") {
+			var expr = new Eden.AST.Literal("STRING", observable);
+
+			while (this.token == "{") {
+				this.next();
+				// Parse the backticks expression
+				var btick = this.pEXPRESSION();
+				if (btick.errors.length > 0) {
+					var primary = new Eden.AST.Primary();
+					primary.setBackticks(btick);
+					return primary;
+				}	
+
+				// Closing backtick missing?
+				if (this.token != "}") {
+					var primary = new Eden.AST.Primary();
+					primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BACKTICK));
+					return primary;
+				} else {
+					this.next();
+				}
+
+				var nexpr = new Eden.AST.BinaryOp('//');
+				nexpr.left(expr);
+				nexpr.setRight(btick);
+				expr = nexpr;
+			}
+
+			if (this.token == "OBSERVABLE") {
+				var nexpr = new Eden.AST.BinaryOp('//');
+				nexpr.left(expr);
+				nexpr.setRight(new Eden.AST.Literal("STRING", this.data.value));
+				expr = nexpr;
+				this.next();
+			}
+
+			// Check for '.', '[' and '('... plus 'with'
+			primary = this.pPRIMARY_P();
+			primary.setBackticks(expr);
+			primary.setObservable("__BACKTICKS__");
+		} else {
+			// Check for '.', '[' and '('... plus 'with'
+			primary = this.pPRIMARY_P();
+			primary.setObservable(observable);
+		}
 		return primary;
 	// Missing primary so give an error
 	} else {
@@ -963,29 +1012,63 @@ Eden.AST.prototype.pSCOPE = function() {
 
 
 
+Eden.AST.prototype.pSCOPEPATTERN = function() {
+	var sname = new Eden.AST.ScopePattern();
+	if (this.token != "OBSERVABLE") {
+		sname.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPENAME));
+		return sname;
+	}
+	sname.setObservable(this.data.value);
+	this.next();
+
+	while (true) {
+		if (this.token == "[") {
+			this.next();
+			var express = this.pEXPRESSION();
+			sname.addListIndex(express);
+			if (express.errors.length > 0) return sname;
+			if (this.token != "]") {
+				sname.error(new Eden.SyntaxError(this, Eden.SyntaxError.LISTINDEXCLOSE));
+				return sname;
+			}
+			this.next();
+		} else if (this.token == ".") {
+
+		} else {
+			break;
+		}
+	}
+
+	return sname;
+}
+
+
+
 /**
  * SCOPE Prime Production
  * SCOPE' -> observable SCOPE''
  */
 Eden.AST.prototype.pSCOPE_P = function() {
-	if (this.token != "OBSERVABLE") {
+	var obs = this.pSCOPEPATTERN();
+	var isin = false;
+	if (obs.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
-		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPENAME));
+		scope.addOverride(obs, undefined, undefined, undefined, false);
 		return scope;
 	}
-	var obs = this.data.value;
-	this.next();
 
-	if (this.token != "is") {
+	if (this.token != "is" && this.token != "=" && this.token != "in") {
 		var scope = new Eden.AST.Scope();
 		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPEEQUALS));
 		return scope;
 	}
+	if (this.token == "in") isin = true;
 	this.next();
 	var expression = this.pEXPRESSION();
 	if (expression.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
-		scope.addOverride(obs, expression, undefined);
+		//scope.addOverride(obs, expression, undefined, undefined, false);
+		scope.errors.push.apply(scope.errors, expression.errors);
 		return scope;
 	}
 
@@ -995,13 +1078,24 @@ Eden.AST.prototype.pSCOPE_P = function() {
 		exp2 = this.pEXPRESSION();
 		if (exp2.errors.length > 0) {
 			var scope = new Eden.AST.Scope();
-			scope.addOverride(obs, expression, exp2);
+			scope.addOverride(obs, expression, exp2, undefined, false);
+			return scope;
+		}
+	}
+
+	var exp3 = undefined;
+	if (this.token == "..") {
+		this.next();
+		exp3 = this.pEXPRESSION();
+		if (exp3.errors.length > 0) {
+			var scope = new Eden.AST.Scope();
+			scope.addOverride(obs, expression, exp2, exp3, false);
 			return scope;
 		}
 	}
 
 	var scope = this.pSCOPE_PP();
-	scope.addOverride(obs, expression, exp2);
+	scope.addOverride(obs, expression, exp2, exp3, isin);
 	return scope;
 }
 
@@ -1129,7 +1223,7 @@ Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
 Eden.AST.prototype.pEXPRESSION = function() {
 	var plain = this.pEXPRESSION_PLAIN();
 
-	if (this.token == "with") {
+	if (this.token == "with" || this.token == "::") {
 		this.next();
 		var scope = this.pSCOPE();
 		scope.setExpression(plain);
@@ -1221,6 +1315,13 @@ Eden.AST.prototype.pWHEN = function() {
 		when.active = true;
 		this.parent = parent;
 		return when;
+	}
+
+	if (this.token == "with" || this.token == "::") {
+		this.next();
+		var scope = this.pSCOPE();
+		when.setScope(scope);
+		if (scope.errors.length > 0) return when;
 	}
 
 	// Compile the expression and log dependencies
@@ -1470,42 +1571,53 @@ Eden.AST.prototype.pFOR = function() {
 			return forast;
 		}
 
-		if (this.token != ";") {
+		if (forast.sstart.type != "range" && this.token != ";") {
 			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORSTART));
 			this.parent = parent;
 			return forast;
-		} else {
+		} else if (this.token == ";") {
 			this.next();
 		}
 	}
 
-	if (this.token == ";") {
-		this.next();
-	} else {
-		forast.setCondition(this.pEXPRESSION());
-		if (forast.errors.length > 0) {
-			this.parent = parent;
-			return forast;
-		}
-
-		if (this.token != ";") {
-			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCOND));
-			this.parent = parent;
-			return forast;
-		} else {
+	
+	if (forast.sstart.type != "range") {
+		if (this.token == ";") {
 			this.next();
-		}
-	}
+		} else {
+			forast.setCondition(this.pEXPRESSION());
+			if (forast.errors.length > 0) {
+				this.parent = parent;
+				return forast;
+			}
 
-	if (this.token == ")") {
-		this.next();
+			if (this.token != ";") {
+				forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCOND));
+				this.parent = parent;
+				return forast;
+			} else {
+				this.next();
+			}
+		}
+
+		if (this.token == ")") {
+			this.next();
+		} else {
+			forast.setIncrement(this.pSTATEMENT_P());
+			if (forast.errors.length > 0) {
+				this.parent = parent;
+				return forast;
+			}
+
+			if (this.token != ")") {
+				forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCLOSE));
+				this.parent = parent;
+				return forast;
+			} else {
+				this.next();
+			}
+		}
 	} else {
-		forast.setIncrement(this.pSTATEMENT_P());
-		if (forast.errors.length > 0) {
-			this.parent = parent;
-			return forast;
-		}
-
 		if (this.token != ")") {
 			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCLOSE));
 			this.parent = parent;
@@ -1654,6 +1766,13 @@ Eden.AST.prototype.pSWITCH = function() {
 		this.next();
 	}
 
+	// Force a switch to be followed by a script
+	if (this.token != "{") {
+		swi.error(new Eden.SyntaxError(this, Eden.SyntaxError.SWITCHSCRIPT));
+		this.parent = parent;
+		return swi;
+	}
+
 	swi.setStatement(this.pSTATEMENT());
 	this.parent = parent;
 	return swi;
@@ -1795,8 +1914,58 @@ Eden.AST.prototype.pLVALUE = function() {
 		}
 		this.next();
 	} else if (this.token == "OBSERVABLE") {
-		lvalue.setObservable(this.data.value);
+		var observable = this.data.value;
 		this.next();
+
+		// Allow for {} style backticks on LHS.
+		// Allow backtick without operator
+		if (this.token == "{") {
+			var expr = new Eden.AST.Literal("STRING", observable);
+
+			while (this.token == "{") {
+				this.next();
+				// Parse the backticks expression
+				var btick = this.pEXPRESSION();
+				if (btick.errors.length > 0) {
+					//var lvalue = new Eden.AST.Primary();
+					lvalue.setExpression(btick);
+					return lvalue;
+				}	
+
+				// Closing backtick missing?
+				if (this.token != "}") {
+					//var primary = new Eden.AST.Primary();
+					lvalue.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BACKTICK));
+					return lvalue;
+				} else {
+					this.next();
+				}
+
+				var nexpr = new Eden.AST.BinaryOp('//');
+				nexpr.left(expr);
+				nexpr.setRight(btick);
+				expr = nexpr;
+			}
+
+			if (this.token == "OBSERVABLE") {
+				var nexpr = new Eden.AST.BinaryOp('//');
+				nexpr.left(expr);
+				nexpr.setRight(new Eden.AST.Literal("STRING", this.data.value));
+				expr = nexpr;
+				this.next();
+			}
+
+			// Check for '.', '[' and '('... plus 'with'
+			//primary = this.pPRIMARY_P();
+			lvalue.setExpression(expr);
+			//primary.setObservable("__BACKTICKS__");
+		} else {
+			// Check for '.', '[' and '('... plus 'with'
+			//primary = this.pPRIMARY_P();
+			lvalue.setObservable(observable);
+		}
+
+		//lvalue.setObservable(observable);
 	} else {
 		lvalue.error(new Eden.SyntaxError(this, Eden.SyntaxError.LVALUE));
 		return lvalue;
@@ -1825,6 +1994,9 @@ Eden.AST.prototype.pSTATEMENT_PP = function() {
 	if (this.token == "is") {
 		this.next();
 		return new Eden.AST.Definition(this.pEXPRESSION());
+	} else if (this.token == "in") {
+		this.next();
+		return new Eden.AST.Range(this.pEXPRESSION());
 	} else if (this.token == "=") {
 		this.next();
 		return new Eden.AST.Assignment(this.pEXPRESSION());
@@ -2255,6 +2427,8 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	var endline = -1;
 	var stat = undefined;
 	var end = -1;
+	var doxy = this.lastDoxyComment;
+	this.lastDoxyComment = this.parentDoxy;
 
 	switch (this.token) {
 	case "proc"		:	this.next(); stat = this.pACTION(); end = this.stream.position; endline = this.stream.line; this.next(); break;
@@ -2275,6 +2449,8 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "after"	:	this.next(); stat = this.pAFTER(); break;
 	case "include"	:	this.next(); stat = this.pINCLUDE(); break;
 	case "import"	:	this.next(); stat = this.pIMPORT(); break;
+	//case "local"	:
+	//case "auto"		:	stat = this.pLOCALS(); break;
 	case "default"	:	this.next();
 						var def = new Eden.AST.Default();
 						if (this.token != ":") {
@@ -2391,6 +2567,10 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	}
 	
 	stat.parent = this.parent;
+	stat.doxyComment = doxy;
+
+	this.lines[curline] = stat;
+	stat.line = curline;
 
 	// Update statements start and end so original source can be extracted.
 	if (end == -1) {
@@ -2398,7 +2578,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	} else {
 		stat.setSource(start, end);
 	}
-	this.lines[curline] = stat;
+
 	//var endline = this.stream.line;
 	for (var i=curline+1; i<endline; i++) {
 		if (this.lines[i] === undefined || stat.errors.length > 0) this.lines[i] = stat;
@@ -2432,7 +2612,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	var script = this.pSCRIPT();
 	if (script.errors.length > 0) return script;
 
-	script.setName(name);
+	script.setName(this,name);
 
 	if (this.token != "}") {
 		script.error(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
@@ -2441,7 +2621,8 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 		//this.next();
 	}
 
-	this.scripts[script.name] = script;
+	this.scripts[name] = script;
+	script.base = this;
 
 	return script;
 }

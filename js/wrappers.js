@@ -32,7 +32,7 @@ Eden.Agent = function(parent, name, meta, options) {
 	Eden.Agent.agents[this.name] = this;
 
 	if (meta === undefined) {
-		console.error("Meta undefined for " + name);
+		//console.error("Meta undefined for " + name);
 		meta = Eden.DB.createMeta(name);
 	}
 
@@ -45,7 +45,7 @@ Eden.Agent = function(parent, name, meta, options) {
 	this.oracles = [];
 	this.handles = [];
 	this.meta = meta;
-	this.title = (meta && meta.title) ? meta.title : "Agent";
+	this.title = (meta && meta.title) ? meta.title : "Script View";
 	this.history = JSON.parse(edenUI.getOptionValue('agent_'+this.name+'_history')) || {};
 
 	if (meta && this.history[meta.saveID] === undefined) {
@@ -56,7 +56,9 @@ Eden.Agent = function(parent, name, meta, options) {
 	this.snapshot = ""; //edenUI.getOptionValue('agent_'+this.name+'_snap') || "";
 	this.autosavetimer = undefined;
 	this.executed = false;
+	this.last_exec_version = undefined;
 	this.options = options;
+	this.loading = false;
 
 	if (this.snapshot) {
 		//this.setSource(this.snapshot);
@@ -80,7 +82,7 @@ Eden.Agent = function(parent, name, meta, options) {
 			if (whens) {
 				//clearExecutedState();
 				for (var i=0; i<whens.length; i++) {
-					whens[i].execute(eden.root, undefined, me.ast);
+					whens[i].statement.trigger(me.ast, whens[i].scope);
 				}
 				//gutter.generate(this.ast,-1);
 				//me.clearExecutedState();
@@ -150,9 +152,12 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 
 	// If multiple imports are called before completion of first, then
 	// queue the callbacks instead of attempting to import again.
-	// NOTE: If tag or options change, these changes are lost.
+	// NOTE: If tag or options change, these changes may be lost.
 	if (Eden.Agent.importQueue[path]) {
-		Eden.Agent.importQueue[path].push(callback);
+		Eden.Agent.importQueue[path].push(function(ag,msg) {
+			//if (ag) callback(ag,msg);
+			Eden.Agent.importAgent(path, tag, options, callback);
+		});
 		return;
 	}
 
@@ -164,10 +169,12 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 
 	// Process all queued callbacks...
 	function doCallbacks(ag, msg) {
-		for (var i=0; i<Eden.Agent.importQueue[path].length; i++) {
-			Eden.Agent.importQueue[path][i](ag, msg);
-		}
+		var q = Eden.Agent.importQueue[path];
 		Eden.Agent.importQueue[path] = undefined;
+
+		for (var i=0; i<q.length; i++) {
+			q[i](ag, msg);
+		}
 	}
 
 	function finish(success, msg) {
@@ -175,20 +182,38 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 		if (ag) {
 			// But something went wrong loading its source
 			if (!success) {
+				var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.NOAGENT, undefined, msg);
+				Eden.Agent.emit("error", [{name: path}, err]);
 				doCallbacks(undefined, msg);
 				return;
 			}
 
+			// Set agent observables.
+			/*var opath = path.replace(/[\/]/g, "_");
+			eden.root.lookup("agent_"+opath+"_version").assign(ag.meta.saveID, eden.root.scope, Symbol.localJSAgent);
+			eden.root.lookup("agent_"+opath+"_author").assign(ag.meta.author, eden.root.scope, Symbol.localJSAgent);
+			eden.root.lookup("agent_"+opath+"_title").assign(ag.meta.title, eden.root.scope, Symbol.localJSAgent);
+			eden.root.lookup("agent_"+opath+"_date").assign(ag.meta.date, eden.root.scope, Symbol.localJSAgent);
+			eden.root.lookup("agents").assign(Object.keys(Eden.Agent.agents), eden.root.scope, Symbol.localJSAgent);*/
+
 			// Errors on load?
 			if (ag.ast && ag.ast.script.errors.length > 0) {
-				console.error("Agent: " + path + "@" + tag + "\n" + ag.ast.script.errors[0].prettyPrint());
+				//console.error("Agent: " + path + "@" + tag + "\n" + ag.ast.script.errors[0].prettyPrint());
 			}
 			// Does it need executing?
 			if (options === undefined || options.indexOf("noexec") == -1) {
-				ag.execute((options && options.indexOf("force") >= 0), true);
+				//eden.root.beginAutocalcOff();
+				ag.loading = true;
+				ag.execute((options && options.indexOf("force") >= 0), true, function() {
+					ag.loading = false;
+					// Import only completes once execution also completes.
+					doCallbacks(ag);
+				});
+				return;
 			}
 		// There is no existing agent but create it
 		} else if (options && options.indexOf("create") >= 0) {
+			//console.log("CREATE: " + path);
 			// Auto create agents that don't exist
 			ag = new Eden.Agent(undefined, path, Eden.DB.createMeta(path), options);
 			if (tag != "default") ag.meta.tag = tag;
@@ -196,6 +221,8 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 			Eden.DB.addLocalMeta(path, ag.meta);
 		// There is no existing agent and we are not to create it.
 		} else if (!success) {
+			var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.NOAGENT, undefined, msg);
+			Eden.Agent.emit("error", [{name: path}, err]);
 			doCallbacks(undefined, msg);
 			return;
 		}
@@ -210,6 +237,35 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 
 		// Force a reload? Explicit or by change of tag
 		if ((ag.meta && ag.meta.tag != tag && tag != "default") || (options && options.indexOf("reload") >= 0)) {
+
+			// Verify that there are no local changes!!!
+			if (ag.canUndo()) {
+				//console.error("MERGE PROBLEM WITH IMPORT", path);
+
+				Eden.DB.getSourceRaw(path, tag, function(src, msg) {
+					if (src) {
+						EdenUI.Dialogs.MergeError(ag.snapshot, src, function(action) {
+							if (action == "new") {
+								ag.meta.tag = tag;
+								ag.loadSource(finish);
+								//finish(true);
+							} else if (action == "old") {
+								finish(true);
+							} else {
+								//ag.merge(src);
+								var newsrc = ag.snapshot + "\n## ============\n" + src;
+								//ag.setSnapshot(newsrc);
+								ag.setSource(newsrc);
+								finish(true);
+							}
+						});
+					} else {
+						finish(true);
+					}
+				});
+				return;
+			}
+
 			ag.meta.tag = tag;
 			//console.log("Tag change reload!");
 			ag.loadSource(finish);
@@ -234,6 +290,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 				return;
 			} else {
 				meta.saveID = "origin";
+				meta.tag = "origin";
 				ag.setSnapshot("");
 				ag.setSource("");
 				// Auto rebase local only agents
@@ -274,6 +331,12 @@ Eden.Agent.remove = function(agent) {
 		previousAgent = a;
 	}
 
+	for (var x in agent.state) {
+		//console.log("CLEANUP", x);
+		var sym = eden.root.lookup(x);
+		sym.removeJSObserver(agent.name);
+	}
+
 	delete Eden.Agent.agents[agent.name];
 	Eden.Agent.emit("remove", [agent.name, previousAgent]);
 	// TODO Do cleanup here.
@@ -283,12 +346,39 @@ Eden.Agent.remove = function(agent) {
 
 Eden.Agent.removeAll = function () {
 	for (var name in Eden.Agent.agents) {
-		if (!/^(lib|view\/script)(\/|$)/.test(name)) {
+		//if (!/^(lib|view\/script)(\/|$)/.test(name)) {
 			Eden.Agent.remove(Eden.Agent.agents[name]);
-		}
+		//}
 	}
 }
 
+
+Eden.Agent.getActiveAgents = function(forced, all) {
+	var result = "";
+	for (var x in Eden.Agent.agents) {
+		var ag = Eden.Agent.agents[x];
+		if (all || ag.canUndo() || (forced && forced[x])) {
+			if (ag.executed && ag.ast) {
+				for (var i=0; i<ag.ast.lines.length; i++) {
+					if (ag.ast.lines[i] && ag.ast.lines[i].type == "when") {
+						result += ag.ast.getSource(ag.ast.lines[i]);
+						result += "\n\n";
+					}
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+
+Eden.Agent.prototype.getSource = function() {
+	return this.snapshot;
+}
+Eden.Agent.prototype.getLine = function() { return 0; }
+
+Eden.Agent.prototype.doDebug = function() { return false; }
 
 
 Eden.Agent.prototype.isSaved = function() {
@@ -519,9 +609,18 @@ Eden.Agent.prototype.redo = function() {
 }
 
 
+Eden.Agent.prototype.merge = function(newsrc) {
+	
+}
+
+
 
 Eden.Agent.prototype.changeVersion = function(tag, callback) {
-	Eden.Agent.importAgent(this.name, tag, this.options, callback);
+	var me = this;
+	Eden.Agent.importAgent(this.name, tag, this.options, function(success, msg) {
+		if (success) Eden.Agent.emit("version", [me, me.meta.saveID]);
+		if (callback) callback(success,msg);
+	});
 }
 
 
@@ -529,7 +628,7 @@ Eden.Agent.prototype.changeVersion = function(tag, callback) {
 Eden.Agent.prototype.findDefinitionLine = function(name, source) {
 	if (this.ast) {
 		for (var i=0; i<this.ast.lines.length; i++) {
-			if (this.ast.lines[i].type != "definition" && this.ast.lines[i].lvalue.name != name) continue;
+			if (this.ast.lines[i] && this.ast.lines[i].type != "definition" && this.ast.lines[i].lvalue && this.ast.lines[i].lvalue.name != name) continue;
 			if (this.ast.lines[i] && (this.ast.getSource(this.ast.lines[i]) == source)) {
 				return i;
 			}
@@ -556,7 +655,8 @@ Eden.Agent.prototype.recovery = function() {
 
 Eden.Agent.prototype.loadSource = function(callback) {
 	var me = this;
-	this.executed = false;
+	// TODO Figure out what needs to be done about execution status...
+	//this.executed = false;
 
 	//console.log("Attempt to load source for " + me.name);
 
@@ -598,7 +698,11 @@ Eden.Agent.prototype.loadSource = function(callback) {
 				Eden.Agent.emit("loaded", [me]);
 			} else {
 				if (callback) callback(false, msg);
-				else console.error("AGENT ERROR: " + me.name + " - " + msg);
+				//else console.error("AGENT ERROR: " + me.name + " - " + msg);
+				else {
+					var err = new Eden.RuntimeError(me.ast, Eden.RuntimeError.AGENTSOURCE, undefined, msg);
+					Eden.Agent.emit("error", [me,msg]);
+				}
 			}
 		}, "text");
 	}
@@ -636,6 +740,7 @@ Eden.Agent.prototype.setReadonly = function(ro) {
 		(function(sym, name) {
 			var me = this;
 			Object.defineProperty(this.state, name, {
+				enumerable: true,
 				get: function() { return sym.value(me.parent.scope); },
 				set: function(v) { sym.assign(v, me.scope, me); }
 			});
@@ -654,8 +759,9 @@ Eden.Agent.prototype.setWriteonly = function(wo) {
 		(function(sym, name) {
 			var me = this;
 			Object.defineProperty(this.state, name, {
+				enumerable: true,
 				get: function() { return sym.value(me.scope); },
-				set: function(v) { sym.assign(v, me.parent.scope, me); }
+				set: function(v) { sym.assign(v, me.parent.scope, {name: "*JavaScript", agent: me}); }
 			});
 		}).call(this, sym, wo[i]);
 	}
@@ -673,8 +779,9 @@ Eden.Agent.prototype.setReadWrite = function(rw) {
 		(function(sym, name) {
 			var me = this;
 			Object.defineProperty(this.state, name, {
+				enumerable: true,
 				get: function() { return sym.value(me.parent.scope); },
-				set: function(v) { sym.assign(v, me.parent.scope, me); }
+				set: function(v) { sym.assign(v, me.parent.scope, {name: "*JavaScript", agent: me}); }
 			});
 		}).call(this, sym, rw[i]);
 	}
@@ -682,14 +789,17 @@ Eden.Agent.prototype.setReadWrite = function(rw) {
 
 
 
-Eden.Agent.prototype.declare = function(name) {
+Eden.Agent.prototype.declare = function(name, def) {
 	var sym = eden.root.lookup(name);
 	var me = this;
 
 	Object.defineProperty(this.state, name, {
+		enumerable: true,
 		get: function() { return sym.value(me.scope); },
-		set: function(v) { sym.assign(v, me.scope, me); }
+		set: function(v) { sym.assign(v, me.scope, {name: "*JavaScript", agent: me}); }
 	});
+
+	if (def && sym.last_modified_by.name == "*None") sym.assign(def, me.scope, Symbol.defaultAgent);
 }
 
 
@@ -756,8 +866,8 @@ Eden.Agent.prototype.hasErrors = function() {
  * If the statement is part of a larger statement block then execute
  * that instead (eg. a proc).
  */
-Eden.Agent.prototype.executeLine = function (lineno, auto) {
-	this.ast.executeLine(lineno, this);
+Eden.Agent.prototype.executeLine = function (lineno, auto, cb) {
+	this.ast.executeLine(lineno, this, cb);
 
 	if (!auto) {
 		Eden.Agent.emit('executeline', [this, lineno]);
@@ -766,31 +876,26 @@ Eden.Agent.prototype.executeLine = function (lineno, auto) {
 
 
 
-Eden.Agent.prototype.execute = function(force, auto) {
+Eden.Agent.prototype.execute = function(force, auto, cb) {
 	if (this.executed == false || force) {
-		this.executeLine(-1, auto);
+		var wasexec = this.executed;
+		//eden.root.beginAutocalcOff();
+		this.executeLine(-1, auto, cb);
+		//eden.root.endAutocalcOff();
 		this.executed = true;
 
-		if (!auto) {
-			Eden.Agent.emit('execute', [this, force]);
+		// Can only record as executed if no local changes involved
+		if (this.index == -1) {
+			this.last_exec_version = this.meta.saveID;
 		}
+
+		if (!auto) {
+			Eden.Agent.emit('execute', [this, force, this.meta.saveID]);
+		}
+	} else {
+		if (cb) cb();
 	}
 }
-
-
-
-/*Eden.Agent.prototype.executeStatement = function(statement, line) {
-	try {
-		statement.execute(eden.root,undefined, this.ast);
-		var code = this.ast.getSource(statement);
-		//console.log("PATCH line = " + line + " code = "+code);
-		Eden.Agent.emit('execute', [this, code, line]);
-	} catch (e) {
-		eden.error(e);
-		throw e;
-	}
-}*/
-
 
 
 Eden.Agent.prototype.upload = function(tagname, ispublic, callback) {
@@ -799,12 +904,58 @@ Eden.Agent.prototype.upload = function(tagname, ispublic, callback) {
 		Eden.DB.upload(this.name, this.meta, this.ast.stream.code, tagname, ispublic, function(success) {
 			if (me.history[me.meta.saveID] === undefined) {
 				me.history[me.meta.saveID] = [];
+				me.index = -1;
 			}
 			if (callback) callback(success);
+			if (success) Eden.Agent.emit("version", [me, me.meta.saveID, ispublic]);
 		});
 	} else {
 		if (callback) callback(false);
 	}
+}
+
+Eden.Agent.prototype.publish = function(tagname, callback) {
+	this.upload(tagname, true, callback);
+}
+
+Eden.Agent.uploadAll = function(callback) {
+	var toupload = [];
+	for (var x in Eden.Agent.agents) {
+		var ag = Eden.Agent.agents[x];
+		if (ag.canUndo()) toupload.push(x);
+	}
+
+	var count = 0;
+	function counter() {
+		count++;
+		if (count == toupload.length && callback) callback();
+	}
+
+	for (var i=0; i<toupload.length; i++) {
+		var ag = Eden.Agent.agents[x];
+		ag.upload(undefined, false, counter);
+	}
+	if (toupload.length == 0 && callback) callback();
+}
+
+Eden.Agent.publishAll = function(callback) {
+	var toupload = [];
+	for (var x in Eden.Agent.agents) {
+		var ag = Eden.Agent.agents[x];
+		if (ag.canUndo()) toupload.push(x);
+	}
+
+	var count = 0;
+	function counter() {
+		count++;
+		if (count == toupload.length && callback) callback();
+	}
+
+	for (var i=0; i<toupload.length; i++) {
+		var ag = Eden.Agent.agents[x];
+		ag.publish(undefined, counter);
+	}
+	if (toupload.length == 0 && callback) callback();
 }
 
 
@@ -859,13 +1010,13 @@ Eden.Agent.prototype.setSource = function(source, net, lineno) {
 	}
 
 	if (this.ast) {
-		this.ast = new Eden.AST(source, this.ast.imports);
+		this.ast = new Eden.AST(source, this.ast.imports, this);
 	} else {
-		this.ast = new Eden.AST(source);
+		this.ast = new Eden.AST(source, undefined, this);
 	}
 
 	if (this.hasErrors() && !waserrored) {
-		Eden.Agent.emit("error", [this]);
+		Eden.Agent.emit("error", [this,this.ast.script.errors[0]]);
 	} else if (!this.hasErrors() && waserrored) {
 		Eden.Agent.emit("fixed", [this]);
 	}

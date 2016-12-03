@@ -30,6 +30,19 @@ Arc = function(x, y, r, sAngle, eAngle, colour, drawingOptions) {
 }
 }}$;
 
+/**
+* Draw an Arc 
+* @param x x position
+* @param y y position
+* @param r radius
+* @param sAngle start angle in degrees
+* @param eAngle end angle in degrees
+* @param colour
+* @param drawingOptions Drawing Options object
+* #canvas #arc #drawingOptions
+*/
+
+
 func Arc { ${{
 	var x = arguments[0];
 	var y = arguments[1];

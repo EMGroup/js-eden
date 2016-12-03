@@ -95,7 +95,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	EdenUI.plugins.ScriptInput.description = Language.ui.input_window.description;
 
 	var me = this;
-	var inputAgent = {name: Symbol.getInputAgentName()};
+	//var inputAgent = {name: Symbol.getInputAgentName()};
 	
 
 	var closeInput = function(options) {
@@ -163,7 +163,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			result += "\n\n";
 		}
 
-		var ast = new Eden.AST(result);
+		var ast = new Eden.AST(result, undefined,{name: "*Log"});
 		var hl = new EdenUI.Highlight(output);
 		hl.highlight(ast, -1, -1);
 
@@ -300,6 +300,24 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			});
 		}
 
+		function shareAgentTab(tab) {
+			var name = tab.getAttribute("data-name");
+			shareAgent(name);
+		}
+
+		function shareAgent(name) {
+			if (!name) name = scriptagent.name;
+			Eden.Agent.agents[name].upload(undefined, true, function(success) {
+				if (!success) {
+					showSubDialog("uploadFailed", function(status) {
+						if (status) shareAgent(name);
+					});
+				} else {
+					setSubTitle("[shared]");
+				}
+			});
+		}
+
 
 		function reloadAgent(tab) {
 			var name = tab.getAttribute("data-name");
@@ -323,13 +341,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		tabcm.addItem("&#xf24d;",Language.ui.input_window.clone, false);
 		tabcm.addItem("&#xf021;",Language.ui.input_window.reload, true, reloadAgent);
 		tabcm.addItem("&#xf093;",Language.ui.input_window.upload, true, uploadAgent);
+		tabcm.addItem("&#xf1e0;",Language.ui.input_window.share, true, shareAgentTab);
 		tabcm.addItem("&#xf21b;",Language.ui.input_window.hide,true, hideTab);
 
 
 
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
 
-		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDivLeft"><!--button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button--></div><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="'+Language.ui.input_window.inspect+'">&#xf002;</button><button class="control-button rewind-input" title="'+Language.ui.input_window.rewind+'">&#xf122;</button><button class="control-button previous-input" title="'+Language.ui.input_window.undo+'">&#xf112;</button><button class="control-button next-input" title="'+Language.ui.input_window.redo+'">&#xf064;</button><button class="control-button fa-flip-horizontal fastforward-input" title="'+Language.ui.input_window.fast_forward+'">&#xf122;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
+		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDivLeft"><!--button class="control-button share control-enabled">&#xf1e0;</button--><!--button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button--></div><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="'+Language.ui.input_window.inspect+'">&#xf002;</button><button class="control-button rewind-input" title="'+Language.ui.input_window.rewind+'">&#xf122;</button><button class="control-button previous-input" title="'+Language.ui.input_window.undo+'">&#xf112;</button><button class="control-button next-input" title="'+Language.ui.input_window.redo+'">&#xf064;</button><button class="control-button fa-flip-horizontal fastforward-input" title="'+Language.ui.input_window.fast_forward+'">&#xf122;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
 		$buttonbar.appendTo($dialogContents);
 		var buttonbar = $buttonbar.get(0);
 
@@ -372,7 +391,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (status) {
 					if (version != scriptagent.meta.saveID) {
 						scriptagent.changeVersion(version, function() {
-							scriptagent.rollback(index);
+							//scriptagent.rollback(index);
 							updateHistoryButtons();
 						});
 					} else {
@@ -704,6 +723,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * set by the UI on tab change etc.
 		 */
 		function changeAgent(sym, value) {
+			// Close any dialogs!
+			hideSubDialogs();
+
 			// A valid and imported agent is given
 			if (value && Eden.Agent.agents[value]) {
 				// Already the current tab so continue...
@@ -852,15 +874,28 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var obs_zoom = "_view_"+name+"_zoom";
 		var agent = new Eden.Agent(undefined,"view/script/"+name+"/config");
 		agent.declare(obs_agent);
-		agent.declare(obs_showtabs);
+		agent.declare(obs_showtabs, !embedded);
 		agent.declare(obs_script);
 		agent.declare(obs_file);
 		agent.declare(obs_override);
 		agent.declare(obs_next);
 		agent.declare(obs_prev);
-		agent.declare(obs_showbuttons);
-		agent.declare(obs_tabs);
-		agent.declare(obs_zoom);
+		agent.declare(obs_showbuttons, true);
+		agent.declare(obs_tabs, []);
+		agent.declare(obs_zoom, 0);
+
+		function viewobs(obs) { return "_view_"+name+"_"+obs; };
+		// Associate observables with dialog
+		var observables = [
+			viewobs("script"),
+			viewobs("file"),
+			viewobs("tabs"),
+			viewobs("agent"),
+			viewobs("showtabs"),
+			viewobs("showbuttons"),
+			viewobs("zoom")
+		];
+		$dialogContents.get(0).setAttribute("data-observables", observables.join(","));
 
 		// Whenever _script is changed, regenerate the contents.
 		agent.on(obs_script, preloadScript);
@@ -871,23 +906,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.on(obs_tabs, rebuildTabs);
 		agent.on(obs_zoom, zoom);
 
-		// Initialise states
-		if (agent.state[obs_showtabs] === undefined) {
-			agent.state[obs_showtabs] = !embedded;
-		}
-		//toggleTabs(undefined, agent.state[obs_showtabs]);
-		if (agent.state[obs_showbuttons] === undefined) {
-			agent.state[obs_showbuttons] = true;
-		}
-		//toggleButtons(undefined, agent.state[obs_showbuttons]);
-		if (agent.state[obs_tabs] === undefined) {
-			agent.state[obs_tabs] = [];
-		}
-
-		if (agent.state[obs_zoom] === undefined) {
-			agent.state[obs_zoom] = 0;
-		}
-
 		// If there is explicit code, then use that
 		if (code && agent.state[obs_agent] === undefined) {
 			//preloadScript(undefined, code);
@@ -895,9 +913,19 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		} else if (agent.state[obs_agent]) {
 			changeAgent(undefined, agent.state[obs_agent]);
 		} else {
-			outdiv.className = "outputcontent readonly";
+			/*outdiv.className = "outputcontent readonly";
 			outdiv.contentEditable = false;
-			outdiv.innerHTML = "";
+			outdiv.innerHTML = "";*/
+			// Need to create an agent
+			Eden.Agent.importAgent("view/script/"+name, "default", ["create","noexec"], function(ag) {
+				if (ag) {
+					changeAgent(undefined, ag.name);
+				} else {
+					outdiv.className = "outputcontent readonly";
+					outdiv.contentEditable = false;
+					outdiv.innerHTML = "";
+				}
+			});
 		}
 
 		// Set source text.
@@ -990,6 +1018,15 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		Eden.Agent.listenTo("patch", agent, agentPatched);
 		Eden.Agent.listenTo("changed", agent, agentPatched);
 
+		Eden.Agent.listenTo("goto", agent, function(ag, line) {
+			if (!ag) return false;
+			if (agent.state[obs_tabs].indexOf(ag.name) == -1) return false;
+			agent.state[obs_agent] = ag.name;
+			scrollToLine(line);
+			// TODO implement select line
+			//gutter.selectLine(line);
+			return true;
+		});
 
 		/*edenUI.eden.root.addGlobal(function(sym, create) {
 			if (highlighter.ast) {
@@ -1546,6 +1583,10 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			}
 		}
 
+		function hideSubDialogs() {
+			if (EdenUI.plugins.ScriptInput.dialogs.hide) EdenUI.plugins.ScriptInput.dialogs.hide();
+		}
+
 
 
 		/**
@@ -1695,7 +1736,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				}
 
 				// If not Ctrl or Shift key then
-				if (!e.ctrlKey && e.keyCode != 17 && e.keyCode != 16) {
+				if (!(e.ctrlKey || e.metaKey) && e.keyCode != 17 && e.keyCode != 16 && e.keyCode != 91 && e.keyCode != 92) {
 					// Make TAB key insert TABs instead of changing focus
 					if (e.keyCode == 9) {
 						e.preventDefault();
@@ -1729,7 +1770,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 						refreshentire = true;
 					}
 
-				} else if (e.ctrlKey) {
+				} else if (e.ctrlKey || e.metaKey) {
 					if (e.shiftKey) {
 						if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 36 || e.keyCode == 35) {
 							// Ctrl+Shift arrow selection, move to editable div.
@@ -1750,7 +1791,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 						e.preventDefault();
 						outdiv.focus();
 						selectAll();
-					} else if (e.keyCode === 17) {
+					} else if (e.keyCode === 17 || e.keyCode == 91 || e.keyCode == 92) {
 						console.log(e.keyCode);
 						enableGotoMode();
 					}
@@ -1788,13 +1829,13 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 */
 		function onTextKeyUp(e) {
 			// Alt and AltGr for disable inspect mode.
-			if (e.keyCode == 17) {
+			if (e.keyCode == 17 || e.keyCode == 91 || e.keyCode == 92) {
 				disableGotoMode();
 			} else if (e.keyCode == 18 || (e.altKey && e.keyCode == 73)) {
 				disableInspectMode();
 				e.preventDefault();
 			} else if (!e.altKey) {
-				if (!e.ctrlKey && (	e.keyCode == 37 ||	//Arrow keys
+				if (!(e.ctrlKey || e.metaKey) && (	e.keyCode == 37 ||	//Arrow keys
 									e.keyCode == 38 ||
 									e.keyCode == 39 ||
 									e.keyCode == 40 ||
@@ -1825,7 +1866,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				enableInspectMode();
 			} else if (!e.altKey) {
 				if (outdiv.style.cursor == "pointer") outdiv.style.cursor = "initial";
-				if (e.keyCode == 16 || e.keyCode == 17 || (e.ctrlKey && e.keyCode == 67)) {
+				if (e.keyCode == 16 || e.keyCode == 17 || e.keyCode == 91 || e.keyCode == 92 || ((e.ctrlKey || e.metaKey) && e.keyCode == 67)) {
 					// Ignore Ctrl and Ctrl+C.
 				// If not shift selecting...
 				} else if (!(e.shiftKey && (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 35 || e.keyCode == 36))) {
@@ -1853,7 +1894,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			if (e.keyCode == 18 || (e.altKey && e.keyCode == 73)) {
 				disableInspectMode();
 				e.preventDefault();
-			} else if (e.keyCode == 17) {
+			} else if (e.keyCode == 17 || e.keyCode == 91 || e.keyCode == 92) {
 				disableGotoMode();
 			}
 		}
@@ -1951,9 +1992,9 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				} else if (element.className == "eden-observable") {
 					var obs = element.getAttribute("data-observable");
 					//console.log("GOTO: " + obs);
-					var sym = eden.root.symbols[obs];
-					if (sym) {
-						var a = Eden.Agent.agents[sym.last_modified_by];
+					//var sym = eden.root.symbols[obs];
+					//if (sym) {
+						/*var a = Eden.Agent.agents[sym.last_modified_by];
 						if (a) {
 							if (a !== scriptagent) {
 								agent.state[obs_agent] = sym.last_modified_by;
@@ -1963,8 +2004,10 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 								scrollToLine(lineno);
 							}, 100);
 							//console.log(" in " + sym.last_modified_by + "@"+lineno);
-						}
-					}
+						}*/
+					//	console.log(sym.last_modified_by);
+					//}
+					edenUI.gotoCode("/"+obs);
 				}
 				e.preventDefault();
 			} else {
@@ -2271,6 +2314,10 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			gutter.endHover(line);
 		}
 
+		function onShareAgent(e) {
+			shareAgent(scriptagent.name);
+		}
+
 
 
 		// Set the event handlers
@@ -2291,6 +2338,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		.on('click', '.next-input', onNext)
 		.on('click', '.rewind-input', onRewind)
 		.on('click', '.fastforward-input', onFastForward)
+		//.on('click', '.share', onShareAgent)
 		.on('click', '.menu-input', onMenu)
 		.on('click', '.search-mode', onInspect)
 		.on('click', '.agent-tab', onTabClick)

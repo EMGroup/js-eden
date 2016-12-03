@@ -3,48 +3,60 @@
 ##
 ## See LICENSE.txt
 
-##Returns a GreyPixelList drawable.  The ptrToData argument should be a pointer to a list of
-##integers.  The first element represents the grey shade of the top-left pixel (0-255) and the
-##subsequent elements represent successive pixels, first along the top row going from left to right
-##and then along the second row, etc.  The data list should contain data for an exact number of rows
-##of the specified width.  The image can be tinted in a particular colour using the optional
-##redMultiply, greenMultiply, blueMultiply, redAdd, greenAdd and blueAdd parameters.
-##
-## redOfResultingPixel = redMultiply * grayscaleValue + redAdd
-## greenOfResultingPixel = greenMultiply * grayscaleValue + redAdd
-## blueOfResultingPixel = blueMultiply * grayscaleValue + blueAdd
-##
-##The resulting red, green and blue values from the above calculations are clipped so that the final
-##values rendered all lie within the range 0 to 255.  This can be used to create effects, for
-##example, multipliers greater than 1 increase the contrast of the image.  Usage of the undefined
-##value in the list of grayscale values causes the relevant pixel to be white and uneffected by the
-##tinting process.
-##
-##The multipliers all default to 1 and the additions all default to adding nothing, i.e. a pure
-##grayscale image is created without a tint.
-##
-##Example:
-##
-/*
-	func greyMap {
-		auto data, i, j, v;
-		data = [];
-		for (j = 0; j <= 255; j++) {
-			for (i = 0; i <= 255; i++) {
-					v = sqrt((i - 128) * (i - 128) + (j - 128) * (j - 128));
-					if (v > 115) {
-						append data, @;
-					} else {
-						append data, ((i - 128) * (i - 128) + (j - 128) * (j - 128)) % 256;
-					}
-			}
-		}
+/** Returns a GreyPixelList drawable.  The ptrToData argument should be a pointer to a list of
+ * integers.  The first element represents the grey shade of the top-left pixel (0-255) and the
+ * subsequent elements represent successive pixels, first along the top row going from left to right
+ * and then along the second row, etc.  The data list should contain data for an exact number of rows
+ * of the specified width.  The image can be tinted in a particular colour using the optional
+ * redMultiply, greenMultiply, blueMultiply, redAdd, greenAdd and blueAdd parameters.
+ * redOfResultingPixel = redMultiply * grayscaleValue + redAdd
+ * greenOfResultingPixel = greenMultiply * grayscaleValue + redAdd
+ * blueOfResultingPixel = blueMultiply * grayscaleValue + blueAdd
+ *
+ * The resulting red, green and blue values from the above calculations are clipped so that the final
+ * values rendered all lie within the range 0 to 255.  This can be used to create effects, for
+ * example, multipliers greater than 1 increase the contrast of the image.  Usage of the undefined
+ * value in the list of grayscale values causes the relevant pixel to be white and uneffected by the
+ * tinting process.
+ *
+ * The multipliers all default to 1 and the additions all default to adding nothing, i.e. a pure
+ * grayscale image is created without a tint.
+ * 
+ * Example:
+ * ````
+ * func greyMap {
+ *		auto data, i, j, v;
+ *		data = [];
+ *		for (j = 0; j <= 255; j++) {
+ *			for (i = 0; i <= 255; i++) {
+ *					v = sqrt((i - 128) * (i - 128) + (j - 128) * (j - 128));
+ *					if (v > 115) {
+ *						append data, @;
+ *					} else {
+ *						append data, ((i - 128) * (i - 128) + (j - 128) * (j - 128)) % 256;
+ *					}
+ *			}
+ *		}
 		return data;
-	}
-	pixelData is greyMap();
-	pixels is GreyPixelList(&pixelData, mousePosition.x - 128, mousePosition.y - 128, 256);
-	picture is [pixels];
-*/
+ *	}
+ *	pixelData is greyMap();
+ *	pixels is GreyPixelList(&pixelData, mousePosition.x - 128, mousePosition.y - 128, 256);
+ *	picture is [pixels];
+ *  ````
+ *  @param [name]
+ *  @param ptrToData Pointer to the pixel data
+ *  @param x x-position
+ *  @param y y-position
+ *  @param width
+ *  @param [redMultiply]
+ *  @param [blueMultiply]
+ *  @param [greenMultiply]
+ *  @param [redAdd]
+ *  @param [blueAdd]
+ *  @param [greenAdd]
+ *  @return GreyPixelList drawable
+ */
+
 func GreyPixelList {
 	${{
 		var name;
@@ -86,7 +98,7 @@ func GreyPixelList {
 }
 
 ${{
-function GreyPixelList(name, ptrToData, x, y, width, redMultiply, greenMultiply, blueMultiply, redAdd, greenAdd, blueAdd) {
+GreyPixelList = function(name, ptrToData, x, y, width, redMultiply, greenMultiply, blueMultiply, redAdd, greenAdd, blueAdd) {
 	this.name = edenUI.plugins.Canvas2D.initZoneFromName(name, "GreyPixelList");
 	this.obsName = root.currentObservableName();
 	this.ptr = ptrToData;

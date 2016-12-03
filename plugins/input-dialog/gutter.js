@@ -253,7 +253,7 @@ EdenScriptGutter.prototype.setAgent = function(name) {
 
 EdenScriptGutter.prototype.executeSelected = function() {
 	if (this.agent === undefined) return;
-	console.log("Execute Selected");
+	//console.log("Execute Selected");
 
 	for (var i=0; i<this.lines.length; i++) {
 		if (this.lines[i].selected) {

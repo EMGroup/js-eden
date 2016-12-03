@@ -84,6 +84,8 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 
 
 EdenUI.plugins.ScriptInput.dialogs.localChanges = function(element, callback, data) {
+	if (EdenUI.plugins.ScriptInput.dialogs.hide) EdenUI.plugins.ScriptInput.dialogs.hide();
+
 	var obscurer = $('<div class="script-obscurer noselect"></div>');
 	var content = $('<div class="script-subdialog-uploadagent noselect"><span class="script-subdialog-text">You have local changes to '+data.name+', use these?</span><br><br><button class="button-icon-green button-ok">Yes</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">No</button></div>');
 
@@ -91,15 +93,23 @@ EdenUI.plugins.ScriptInput.dialogs.localChanges = function(element, callback, da
 	content
 	.on("click", ".button-ok", function() {
 		element.get(0).removeChild(obscurer.get(0));
+		EdenUI.plugins.ScriptInput.dialogs.hide = undefined;
 		callback(true);
 	})
 	.on("click", ".button-cancel", function() {
 		element.get(0).removeChild(obscurer.get(0));
+		EdenUI.plugins.ScriptInput.dialogs.hide = undefined;
 		callback(false);
 	}); 
 
 	obscurer.append(content);
 	element.append(obscurer);
+
+	EdenUI.plugins.ScriptInput.dialogs.hide = function() {
+		EdenUI.plugins.ScriptInput.dialogs.hide = undefined;
+		element.get(0).removeChild(obscurer.get(0));
+		callback(false);
+	}
 }
 
 
@@ -455,7 +465,7 @@ EdenUI.plugins.ScriptInput.dialogs.browseAgents = function(element, callback, da
 							}
 							
 							var titlestr = meta.title;
-							if (titlestr == "Agent" || titlestr === undefined) titlestr = "";
+							if (titlestr == "Script View" || titlestr === undefined) titlestr = "";
 							
 							content.html(name+" <span class=\"script-agents-title\">"+titlestr+"</span><span class=\"script-agents-date\">"+datestr+"</span>");
 							

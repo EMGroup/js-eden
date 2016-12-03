@@ -5,7 +5,7 @@ html {
 
 body {
 	background-color: #29454B;
-	background-image: linear-gradient(#29454B, black);
+	/*background-image: linear-gradient(#29454B, black);*/
 	margin: 0px;
 	width: 100%;
 	min-height: 100%;
@@ -36,15 +36,14 @@ input[type=checkbox], input[type=radio] {
 ::-webkit-input-placeholder { color: #AAAAAA; opacity: 1; font-style: italic; }
 ::-moz-placeholder { color: #AAAAAA; opacity: 1; font-style: italic; }
 
-ul li {
+/*ul li {
 	list-style-type: square;
 }
 
 h2, ul li {
 	font-family: Verdana,Arial,sans-serif;
-	/*font-weight: lighter;*/
 	color: black;
-}
+}*/
 
 a[onclick] {
 	cursor: pointer;
@@ -79,21 +78,6 @@ a[onclick] {
 	white-space: nowrap;
 	overflow: hidden;
 	margin-left: 1.2pt;
-}
-
-div.error-item {
-	border-top-style: solid;
-	border-top-width: 1px;
-	border-top-color: silver;
-	padding: 4px;
-	width: 450px;
-}
-
-#errors-dialog {
-	font-family:monospace;
-	max-height: 250px;
-	white-space: pre-wrap;
-	word-wrap: break-word;
 }
 
 #tooltip {
@@ -161,3 +145,4 @@ div.error-item {
 	border: 4px solid yellow;
 	pointer-events: none;
 }
+

@@ -61,17 +61,31 @@ var confirmUnload = function (event) {
  * exec: A piece of JS-EDEN code to execute after the included construal has been loaded.
  * lang: Human language to use for parser and UI. E.g. lang=en for English.
 */
-function initialiseJSEden(callback) {
+function Construit(options,callback) {
 	root = new Folder();
 	eden = new Eden(root);
 	
 	var menuBar = URLUtil.getParameterByName("menus") != "false";
 	var pluginsStr = URLUtil.getParameterByName("plugins");
 	var views = URLUtil.getParameterByName("views");
-	var include = URLUtil.getArrayParameterByName("include");
 	var exec = URLUtil.getParameterByName("exec");
+	var load = URLUtil.getParameterByName("load");
 	var lang = URLUtil.getParameterByName("lang");
 	var imports = URLUtil.getArrayParameterByName("import");
+	var restore = URLUtil.getParameterByName("restore");
+	var tag = URLUtil.getParameterByName("tag");
+	var master = URLUtil.getParameterByName("master");
+	var myid = URLUtil.getParameterByName("id");
+
+	// Add URL parameters to observables...
+	var urlparams = URLUtil.getParameters();
+	for (var x in urlparams) {
+		if (urlparams[x].length > 1) {
+			eden.root.lookup("jseden_url_"+x).assign(urlparams[x], eden.root.scope, Symbol.localJSAgent);
+		} else {
+			eden.root.lookup("jseden_url_"+x).assign(urlparams[x][0], eden.root.scope, Symbol.localJSAgent);
+		}
+	}
 
 	if (lang == "") {
 		lang = "en";
@@ -85,13 +99,15 @@ function initialiseJSEden(callback) {
 		"HTMLContent",
 		"ObservablePalette",
 		"PluginManager",
-		"ProjectList",
 		"ScriptGenerator",
 		"ScriptInput",
 		"StateTimeLine",
 		"SymbolLookUpTable",
-		"SymbolViewer"
+		"SymbolViewer",
+		"Debugger"
 	];
+
+	//imports.push("lib/notifications");
 
 	if (pluginsStr == "") {
 		plugins = defaultPlugins;
@@ -110,13 +126,8 @@ function initialiseJSEden(callback) {
 
 		if (views == "" || views == "default") {
 			plugins.push("Canvas2D");
-			plugins.push("ProjectList");
 			plugins.push("ScriptInput");
 		}
-	}
-
-	if (menuBar) {
-		plugins.unshift("MenuBar");
 	}
 
 	$(document).ready(function () {
@@ -151,6 +162,34 @@ function initialiseJSEden(callback) {
 		edenUI = new EdenUI(eden);
 		edenUI.scrollBarSize2 = window.innerHeight - $(window).height();
 
+		// Put JS-EDEN version number or name in top-right corner.
+		$.ajax({
+			url: "version.json",
+			dataType: "json",
+			success: function (data) {
+				var versionHtml = '';
+				if (data.tag) {
+					//versionHtml += 'Version ' + data.tag;
+					document.title = document.title + " " + data.tag;
+				}
+				var components = data.tag.slice(1).split(".");
+				var components2 = components[2].split("-");
+				eden.root.lookup("jseden_version_major").assign(parseInt(components[0]), eden.root.scope, Symbol.defaultAgent);
+				eden.root.lookup("jseden_version_minor").assign(parseInt(components[1]), eden.root.scope, Symbol.defaultAgent);
+				eden.root.lookup("jseden_version_patch").assign(parseInt(components2[0]), eden.root.scope, Symbol.defaultAgent);
+				eden.root.lookup("jseden_version_commit").assign(parseInt(components2[1]), eden.root.scope, Symbol.defaultAgent);
+				eden.root.lookup("jseden_version_name").assign(data.tag, eden.root.scope, Symbol.defaultAgent);
+				eden.root.lookup("jseden_version_sha").assign(data.sha, eden.root.scope, Symbol.defaultAgent);
+				/*if (data.sha) {
+					versionHtml = 'Version <a href="https://github.com/EMgroup/js-eden/commit/' + data.sha +'">' + data.tag + '</a>';
+				} else {
+					versionHtml = 'Version ' + data.tag;
+				}
+				$('<div id="menubar-version-number"></div>').html(versionHtml).appendTo($("#menubar-main"));*/
+			},
+			cache: false
+		});
+
 		$(document)
 		.on('keydown', null, 'ctrl+m', function () {
 			edenUI.cycleNextView();
@@ -166,14 +205,24 @@ function initialiseJSEden(callback) {
 			}
 		});
 		
+		// TODO Remove this once restore works
 		if (edenUI.getOptionValue('optConfirmUnload') != "false") {
 			window.addEventListener("beforeunload", confirmUnload);
 		}
 
+		/**
+		 * Get the correct language script from server.
+		 */
 		var loadLanguage = function(lang, callback) {
 			$.getScript("js/language/"+lang+".js", function(data) {
 				Language.language = lang;
 				eval(data);
+				// Only now can the menu bar and UI be properly created.
+				if (menuBar) {
+					edenUI.menu = new EdenUI.MenuBar();
+					eden.execute2("jseden_project_subtitle is \"Version \" // jseden_version_name;", Symbol.defaultAgent);
+				}
+				edenUI.explorer = new EdenUI.Explorer();
 				callback();
 			});
 		}
@@ -190,9 +239,7 @@ function initialiseJSEden(callback) {
 			loadPlugin();
 		};
 		
-		doneLoading = function () {
-			eden.captureInitialState();
-
+		doneLoading = function (loaded) {
 			window.scrollTo(0, 0); //Chrome remembers position on refresh.
 			// Remove spinning loader and message
 			edenUI.finishedLoading();
@@ -201,65 +248,47 @@ function initialiseJSEden(callback) {
 				if (exec.slice(-1) != ";") {
 					exec = exec + ";";
 				}
-				eden.execute2(exec, "URL", "", {name: "execute"}, function () { });
+				eden.execute2(exec);
 			}
 
-			if (callback) callback();
+			// Set up P2P networking
+			if (myid != "" || master != "") {
+				eden.peer = new Eden.Peer((master != "") ? master : undefined, (myid != "") ? myid : undefined);
+			}
+
+			if (callback) callback(loaded);
 		}
 
-		// Load the Eden library scripts
-		var librarySource;
-		/*if (document.location.pathname.slice(-15) == "/index-dev.html") {
-			librarySource = "library/eden.jse";
-		} else {
-			librarySource = "library/jseden-lib.min.jse";
-		}*/
-
-		var bootscript = "import lib;\n";
-		for (var i=0; i<imports.length; i++) {
-			bootscript += "import " + imports[i]+";\n" 
-		}
-		bootscript += "${{ doneLoading(); }}$;\n";
-		console.log("BOOTSCRIPT: " + bootscript);
 
 		loadLanguage(lang, function() {
 			loadPlugins(plugins, function () {
-				//Eden.Agent.importAgent("lib", undefined, function() {
-				//eden.include(librarySource, {name: '/system'}, function () {
 					$.getJSON('config.json', function (config) {
 						rt.config = config;
 
 						Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex], function() {
-							eden.execute2(bootscript);
+							if (imports.length > 0) {
+								function doImport(ix) {
+									Eden.Agent.importAgent(imports[ix], "default", [], function() {
+										ix++;
+										if (ix == imports.length) doneLoading(true);
+										else doImport(ix);
+									});
+								}
+								Eden.Agent.importAgent("lib","default", [], function() {
+									doImport(0);
+								});
+							} else if (load != "" && tag != "") {
+								Eden.load(load,tag,function(){ doneLoading(true); });
+							} else if (restore != "") {
+								doneLoading(Eden.restore());
+							} else {
+								// Background load library...
+								Eden.Agent.importAgent("lib","default", [], function() {});
+								doneLoading(false);
+							}
 						});
 						Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
 
-
-						/*eden.captureInitialState();
-
-						if (include.length > 0) {
-							eden.include(include, doneLoading);
-						} else {
-							doneLoading();
-						}
-
-						console.log("LOADING IMPORTS");
-
-						if (imports.length > 0) {
-							function chainedImport(i) {
-								console.log("IMPORT: " + imports[i]);
-								if (i >= imports.length) {
-									doneLoading();
-									return;
-								}
-								Eden.Agent.importAgent(imports[i], undefined, function() {
-									chainedImport(i+1);
-								});
-							}
-							chainedImport(0);
-						} else {
-							doneLoading();
-						}*/
 					});
 				//});
 			});

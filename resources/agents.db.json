@@ -72,6 +72,10 @@
 			"file": "models/blank.js-e",
 			"title": "Script View"
 		},
+		"plugins/html": {
+			"file": "plugins/html-views/html.js-e",
+			"title": "HTML View"
+		},
 		"plugins/canvas/contourLine": {
 			"file": "plugins/canvas-html5/contourLine.js-e",
 			"title": "Custom shapes defined algebraically"
@@ -313,6 +317,11 @@
 		"lib/functional": {
 			"file": "library2/functional_programming.js-e",
 			"title": "Functional Programming Library",
+			"enabled": true
+		},
+		"lib/notifications": {
+			"file": "library2/notifications.js-e",
+			"title": "Notification API",
 			"enabled": true
 		},
 		"claytontunnel/alarm/panel": {

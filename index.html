@@ -35,7 +35,233 @@ See LICENSE.txt
 			z-index: 10000 !important;
 		}
 	</style>
+
 	<script type="text/javascript" src="js/lib/jquery.dialogextend.min.js"></script>
+		<style type="text/css">
+		/*If we ever upgrade to jquery.ui version 1.10 or later then remove the following rule. */
+		.ui-front {
+			z-index: 10000 !important;
+		}
+
+		div.jseden-dialog-plisting {
+			box-sizing: border-box;
+			padding-top: 20px;
+			padding-bottom:30px;
+			padding-left: 80px;
+			padding-right: 80px;
+			/*border: 1px solid #eee;*/
+			width: 100%;
+			height: 100%;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			overflow-y: auto;
+		}
+
+		div.jseden-project-cat {
+			font-size: 16pt;
+			font-family: Roboto,Arial,sans-serif;
+			color: #eee;
+			font-weight: bold;
+			/*background: #416d77;*/
+			padding: 10px 30px;
+			border-bottom: 1px solid #eee;
+		}
+
+		hr.jseden-project-cat {
+			border: 1px solid #b5b5f5;
+		}
+
+		div#loadoptions {
+			position: relative;
+			top: 55px;
+		}
+
+		div.cadence-plisting-entry {
+			width: 200px;
+			height: 170px;
+			margin: 5px;
+			background-repeat: no-repeat;
+			cursor: pointer;
+			/*color: #132023;*/
+			background: #416d77;
+			border: 1px solid #777;
+			border-radius: 5px;
+			padding: 8px;
+		}
+
+		div.project-content {
+			position: relative;
+			margin: 20px auto;
+			max-width: 900px;
+			width: 80%;
+		}
+
+		div.cadence-plisting-login {
+			/*width: 200px;
+			height: 150px;*/
+			margin: 5px;
+			background: #f5f5f5;
+			cursor: pointer;
+			color: #424249;
+			font-size: 18pt;
+			font-weight: bold;
+			font-family: Roboto,Arial,sans-serif;
+			text-align: center;
+			border: 1px solid #ddd;
+			padding: 10px 30px;
+			/*text-shadow: 0 0 5px silver;*/
+		}
+
+		span.cadence-plisting-loginicon {
+			font-family: "FontAwesome";
+			margin-right: 10px;
+		}
+
+		div.cadence-plisting-entry.special {
+			height: 80px;
+			width: 120px;
+			background: transparent;
+			border: none;
+		}
+
+		div.cadence-plisting-entry.more {
+			height: 60px;
+			width: 150px;
+			background: transparent;
+			border: none;
+			margin-top: 10px;
+		}
+
+		div.cadence-plisting-icon {
+			border: 1px solid #eee;
+			font-family: "FontAwesome";
+			font-size: 60px;
+			background: #d0f0f5;
+			cursor: pointer;
+			text-align: center;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			height: 95px;
+		}
+
+		div.cadence-plisting-img {
+			border: 1px solid #eee;
+			background: white;
+			cursor: pointer;
+			text-align: center;
+			/*height: 112;*/
+			overflow: hidden;
+			display: flex;
+		}
+
+		div.cadence-plisting-icon.special {
+			background: #f5f5d0;
+			height: 40px;
+			font-size: 40px;
+			border-radius: 10px;
+		}
+
+		div.cadence-plisting-icon.more {
+			background: transparent;
+			height: 40px;
+			font-size: 40px;
+			color: #eee;
+			border: none;
+		}
+
+
+		div.cadence-plisting-title {
+			font-weight: bold;
+			font-family: Roboto,Arial,sans-serif;
+			color: white;
+			font-size: 14px;
+			line-height: 16px;
+			padding-left: 2px;
+			margin-top: 8px;
+		}
+
+		div.cadence-plisting-subtitle {
+			font-family: Roboto,Arial,sans-serif;
+			color: #eee;
+			font-size: 12px;
+			line-height: 16px;
+			padding-left: 2px;
+		}
+
+		div.cadence-plisting-entry:hover {
+			color: #29454B;
+		}
+
+		div.cadence-plisting-entry:hover .cadence-plisting-icon {
+			border-color: #222;
+			background-color: white;
+		}
+
+		div.cadence-plisting-entry.more:hover .cadence-plisting-icon {
+			color: white;
+			background: transparent;
+		}
+
+		div.cadence-plisting-entry:hover .cadence-plisting-img {
+			border-color: #222;
+			background-color: white;
+		}
+
+		div.importdialog {
+			position: absolute;
+			top: 65px;
+			right: 150px;
+			width: 400px;
+			height: 200px;
+			background: #f5f5f5;
+			border-bottom-left-radius: 6px;
+			border-bottom-right-radius: 6px;
+			box-shadow: 0 0 15px #4a6887;
+			font-size: 12pt;
+			color: black;
+		}
+
+		span.importdialog-icon {
+			font-family: "FontAwesome";
+			margin-right: 20px;
+		}
+
+		div.importdialog-title {
+			font-size: 16pt;
+			font-weight: bold;
+			margin-top: 20px;
+			margin-left: 20px;
+			color: #666;
+		}
+
+		div.importdialog-content {
+			margin: 20px;
+			color: black;
+		}
+
+		input.projectsearch {
+			width: 300px;
+			background: #132023;
+			color: white;
+			font-size: 10pt;
+			padding: 8px;
+			padding-left: 40px;
+			border: 2px solid #eee;
+		}
+
+		div.projectsearch:after {
+			color: white;
+			font-size: 16pt;
+			left: -285px;
+			top: 3px;
+		}
+
+	</style>
+
+	<script type="text/javascript" src="js/lib/jquery.dialogextend.min.js"></script>
+	<script src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
 </head>
 <body>
 <div id="eden-logo"></div>
@@ -46,19 +272,389 @@ See LICENSE.txt
 <script src="js/lib/diff_match_patch.js"></script>
 <script src="js/core/jseden.min.js"></script>
 <script src="js/ui/jseden-ui.min.js"></script>
-<script src="js/core/ast.js"></script>
+<script src="js/core/engine.js"></script>
 <script src="js/dummyconsole.js"></script>
 <script src="js/arrayCompareFix.js"></script>
 <script src="plugins/jseden-plugins.min.js"></script>
 
 <script type="text/javascript">
-	initialiseJSEden();
+	var projects;
+
+	function get_time_diff( timestamp )
+	{
+		var datetime = timestamp * 1000;
+		var now = Date.now();
+		var _date = new Date();
+		var _userOffset = _date.getTimezoneOffset()*60000;
+		datetime -= _userOffset;
+
+		if( isNaN(datetime) )
+		{
+		    return "";
+		}
+
+		if (datetime < now) {
+		    var milisec_diff = now - datetime;
+		}else{
+		    var milisec_diff = datetime - now;
+		}
+
+		var days = Math.floor(milisec_diff / 1000 / 60 / (60 * 24));
+
+		var date_diff = new Date( milisec_diff );
+
+		if (days > 5) {
+			return (new Date(datetime)).toDateString();
+		} else {
+			var result = "";
+			if (days > 0) {
+				result += days;
+				if (days > 1) {
+					result += " days ago";
+				} else {
+					result += " day ago";
+				}
+			} else {
+				if (date_diff.getUTCHours() > 0) {
+					var hours = date_diff.getUTCHours();
+					result += hours;
+					if (hours > 1) {
+						result += " hours ago";
+					} else {
+						result += " hour ago";
+					}
+				} else {
+					var mins = date_diff.getUTCMinutes();
+					if (mins > 0) {
+						result += mins;
+						if (mins > 1) {
+							result += " minutes ago";
+						} else {
+							result += " minute ago";
+						}
+					} else {
+						var secs = date_diff.getUTCSeconds();
+						result += secs;
+						if (secs > 1) {
+							result += " seconds ago";
+						} else {
+							result += " seconds ago";
+						}
+					}
+				}
+			}
+			return result;
+		}
+	}
+
+	$(".loadmodal").show();
+	Construit(undefined, function(loaded) {
+		// Place to record projects by tag.
+		Eden.projecttags = {};
+		var cachedprojects;
+		var maxres = URLUtil.getParameterByName("max");
+		maxres = (maxres && maxres != "") ? parseInt(maxres) : undefined;
+
+		function updateSearch(q) {
+			var pbrowser = $("#project-browser");
+
+			if (q != "") {
+				if (cachedprojects === undefined) {
+					cachedprojects = pbrowser.html();
+					$(".jseden-dialog-plisting").hide();
+				}
+				pbrowser.html('<div id="jseden-searched-projects" class="jseden-dialog-plisting"></div>');
+
+				// Generate project search result...
+				var results = [];
+				var qs = q.split(" ");
+				for (var i=0; i<qs.length; i++) {
+					var regex = edenUI.regExpFromStr(qs[i]);
+					for (var t in Eden.projecttags) {
+						if (regex.test(t)) {
+							results.push.apply(results, Eden.projecttags[t]);
+						}
+					}
+				}
+
+				// Count duplicates
+				var dupcount = {};
+				var unique = [];
+				for (var i=0; i<results.length; i++) {
+					if (dupcount[results[i]] === undefined) {
+						unique.push(results[i]);
+						dupcount[results[i]] = 0;
+					}
+					dupcount[results[i]]++;
+				}
+
+				// Sort by number of duplicates
+				//results = unique.sort(function(a,b) {
+				//	return dupcount[a] < dupcount[b];
+				//});
+
+				// Remove any that don't match each token
+				var fresults = [];
+				for (var i=0; i<results.length; i++) {
+					if (dupcount[results[i]] == qs.length) fresults.push(results[i]);
+				}
+
+				// Now sort by date
+				fresults.sort(function(a,b) {
+					var da = Eden.DB.meta[a].date;
+					var db = Eden.DB.meta[b].date;
+					return db.localeCompare(da);
+				});
+
+				var presults = pbrowser.find("#jseden-searched-projects");
+				displayProjects2(presults, true, fresults, (maxres) ? maxres : 9);
+
+			} else if (cachedprojects) {
+				pbrowser.html(cachedprojects);
+				cachedprojects = undefined;
+				$(".jseden-dialog-plisting").show();
+			}
+		}
+
+		$(".loadmodal").hide();
+		if (!loaded) {
+			var q = URLUtil.getParameterByName("q");
+
+			var lopts = $("#loadoptions");
+			/*if (!Eden.restore()) {
+				Eden.loadFromURL("library2/NewProject.js-e");
+			}*/
+
+			lopts.css("display","block");
+			lopts.on("click","#restoreold",function() {
+				Eden.restore();
+				lopts.css("display","none");
+			})
+			.on("click","#loadnew",function() {
+				//Eden.loadFromURL("library2/NewProject.js-e");
+				Eden.loadFromString("{\"script\": \"import lib;\", \"title\": \"New Project\"}");
+				lopts.css("display","none");
+			})
+			.on("click","#importfile",function() {
+				//Eden.loadFromURL("library2/NewProject.js-e");
+				lopts.css("display","none");
+				var importfile = $("#importdialog");
+				importfile.css("display","block");
+
+				importfile.on("click","#closeimport",function() {
+					importfile.css("display","none");
+					lopts.css("display","block");
+				})
+				.on("click","#openfile",function() {
+					var fileinput = $("#theimportfile").get(0);
+					var file = fileinput.files[0];
+					var reader = new FileReader();
+					reader.onload = function(e) {
+						Eden.loadFromString(e.target.result);
+						importfile.css("display","none");
+					};
+					reader.readAsText(file);
+				});
+			})
+			.on("click","#plist-login", function() {
+				if (Eden.DB.isConnected()) {
+					lopts.find("#jseden-private-projects").html("<div style=\"background: white; padding: 10px; border-radius: 5px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" src=\""+Eden.DB.remoteURL+"/login"+"\" name=\"logintarget\" width=\"250\" height=\"200\" class=\"menubar-login-iframe\"></iframe></div>");
+				}
+			})
+			.on("keyup",".search", function(e) {
+				var q = e.currentTarget.value;
+				updateSearch(q);
+			})
+			.on("click",".project",function(e) {
+				var path = e.currentTarget.getAttribute("data-path");
+				var tag = parseInt(e.currentTarget.getAttribute("data-tag"));
+				console.log("Load project: " + path + "@"+tag);
+				lopts.css("display","none");
+				$(".loadmodal").show();
+				$(".loadmessage").html("Loading " + Eden.DB.meta[path].title + "...");
+				Eden.load(path,tag,function() {
+					$(".loadmessage").html("Loading...");
+					$(".loadmodal").hide();
+				});
+			});
+
+			window.addEventListener("popstate", function(e) {
+				if (!e.state) {
+					Eden.reset();
+					lopts.css("display","block");
+				} else {
+					lopts.css("display","none");
+				}
+			});
+
+			function displayProjects2(output, pub, projects, count) {
+				var maxres = (count) ? count : 6;
+
+				for (var i=0; i<projects.length; i++) {
+					if (i == maxres) {
+						output.append($('<div class="cadence-plisting-entry more noselect"><div class="cadence-plisting-icon more">&#xf103;</div></div>'));
+						output.on("click",".more",function(e) {
+							output.html("");
+							displayProjects2(output, pub, projects, maxres + 6);
+						});
+						break;
+					}
+
+					var meta = Eden.DB.meta[projects[i]];
+					var t = meta.date.split(/[- :]/);
+					var title = meta.title;
+					var thumb = meta.thumb;
+					var tags = meta.tags;
+
+					var subtitle;
+					if (pub) {
+						subtitle = meta.author;
+					} else {
+						subtitle = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
+					}
+
+					//Eden.DB.getMeta(path+"/"+x,function(path,meta) {
+					if (thumb) {
+						output.append($('<div class="cadence-plisting-entry project noselect" data-path="'+(projects[i])+'" data-tag="'+meta.publicID+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
+					} else {
+						output.append($('<div class="cadence-plisting-entry project noselect" data-path="'+(projects[i])+'" data-tag="'+meta.publicID+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
+						//console.log(Eden.DB.meta[path+"/"+x]);
+					}
+					//});
+				}
+			}
+
+			function displayProjects(pub, cb) {
+				var user = (pub)?"public" : ((Eden.DB.username) ? Eden.DB.username.split(" ").join("") : "public");
+				var path = "jseden1/"+user;
+				var plist = (pub) ? lopts.find("#jseden-public-projects") : lopts.find("#jseden-private-projects");
+
+				//console.log("Load projects: " + path);
+
+				Eden.DB.getDirectory(path, function(data) {
+					var ordered = [];
+
+					for (var x in data) {
+						ordered.push(path+"/"+x);
+					}
+
+					// Sort by most recent
+					ordered.sort(function(a,b) {
+						var da = Eden.DB.meta[a].date;
+						var db = Eden.DB.meta[b].date;
+						return db.localeCompare(da);
+					});
+
+
+					displayProjects2(plist, pub, ordered);
+
+					for (var i=0; i<ordered.length; i++) {
+						var meta = Eden.DB.meta[ordered[i]];
+						var tags = meta.tags;
+						//console.log(tags);
+						if (tags) {
+							for (var j=0; j<tags.length; j++) {
+								if (Eden.projecttags[tags[j]] === undefined) Eden.projecttags[tags[j]] = [];
+								Eden.projecttags[tags[j]].push(ordered[i]);
+							}
+						}
+					}
+
+					projects = ordered;
+					if (cb) cb(ordered);
+				});
+			}
+
+			if (Eden.DB.isConnected()) {
+				if (q && q != "") {
+					updateSearch(q);
+					displayProjects(true, function() {
+						updateSearch(q);
+					});
+					lopts.find(".searchouter").remove();
+					lopts.find(".project-content").prepend($('<div class="jseden-project-cat">'+q+':</div>'));
+				} else {
+					displayProjects(true, function() {
+						if (Eden.DB.isLoggedIn()) {
+							var plist = lopts.find("#jseden-private-projects").get(0);
+							var node = plist.firstChild;
+							while (node) {
+								var next = node.nextSibling;
+								plist.removeChild(node);
+								node = next;
+							}
+							displayProjects();
+						}
+					});
+				}
+			} else {
+				$("#project-browser").html('<div class="jseden-project-cat">Offline Examples:</div><div id="jseden-public-projects" class="jseden-dialog-plisting"></div>');
+			}
+
+			Eden.DB.listenTo("login", this, function(name) {
+				var plist = lopts.find("#jseden-private-projects").get(0);
+				if (!plist) return;
+				var node = plist.firstChild;
+				while (node) {
+					var next = node.nextSibling;
+					plist.removeChild(node);
+					node = next;
+				}
+
+				displayProjects();
+			});
+
+			Eden.DB.listenTo("logout", this, function() {
+				var plist = lopts.find("#jseden-private-projects").get(0);
+				if (!plist) return;
+				var node = plist.firstChild;
+				while (node) {
+					var next = node.nextSibling;
+					plist.removeChild(node);
+					node = next;
+				}
+
+				//displayProjects(true);
+			});
+		}
+	});
 </script>
 
-<div class="loaddialog">
-<img src="images/construit_logo_2.png"/>
-<div class="mainloader">Loading...</div>
-<div class="loadmessage">Loading...</div>
+<div class="loadmodal modal" style="display: block">
+	<div class="loaddialog">
+		<div class="mainloader">Loading...</div>
+		<div class="loadmessage">Loading...</div>
+	</div>
+</div>
+
+<div id="loadoptions" class="" style="display: none;">
+	<div class="project-content" style="padding: 20px 0;">
+		<div class="searchouter projectsearch"><input type="text" class="search projectsearch" placeholder="Search..."></input></div>
+		<div class="jseden-dialog-plisting" style="padding: 10px">
+			<div id="loadnew" class="cadence-plisting-entry noselect special"><div class="cadence-plisting-icon special">&#xf067;</div><div class="cadence-plisting-title">New Project</div></div>
+			<div id="importfile" class="cadence-plisting-entry noselect special"><div class="cadence-plisting-icon special">&#xf07c;</div><div class="cadence-plisting-title">Import File</div></div>
+			<div id="restoreold" class="cadence-plisting-entry noselect special"><div class="cadence-plisting-icon special">&#xf01e;</div><div class="cadence-plisting-title">Restore Last</div></div>
+		</div>
+		<div id="project-browser">
+			<div class="jseden-project-cat">Published:</div>
+			<div id="jseden-public-projects" class="jseden-dialog-plisting">
+			</div>
+			<div class="jseden-project-cat">Your Projects:</div>
+			<div id="jseden-private-projects" class="jseden-dialog-plisting">
+				<div id="plist-login" class="cadence-plisting-login"><span class="cadence-plisting-loginicon">&#xf090;</span>Login</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="importdialog" class="modal" style="display: none">
+	<div class="modal-content" style="width: 300px;">
+		<div class="importdialog-title"><span class="importdialog-icon">&#xf07c;</span>Import File</div>
+		<div class="importdialog-content">
+		<input id="theimportfile" type="file"></input><br/><br/>
+		<div style="text-align: center; margin-top: 20px;"><button class="jseden" id="openfile">Import</button><button class="jseden" id="closeimport">Cancel</button></div>
+		</div>
+	</div>
 </div>
 
 <div id="tooltip" style="display:none"></div>

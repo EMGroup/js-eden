@@ -8,10 +8,15 @@
  * Functions that operate on strings.
  */
 
-##Fetches a URL, treats its contents are text, and assigns it to an observable.  The first argument
-##is a pointer to an observable that will hold the text.  The second argument is the url.  The
-##optional third argument is a boolean that, if true, waits for the download to finish before
-##processing the rest of the JS-EDEN script (if possible)
+/** Fetches a URL, treats its contents are text, and assigns it to an observable.  The first argument
+ *  is a pointer to an observable that will hold the text.  The second argument is the url.  The
+ *  optional third argument is a boolean that, if true, waits for the download to finish before
+ *  processing the rest of the JS-EDEN script (if possible).
+ *   @param symbol Pointer to observable to fill.
+ *   @param url The URL of the text file.
+ *   @param [sync] Wait for completion before continuing.
+ *   #library
+ */
 proc loadTextFileIntoObservable {
 	${{
 		var me = this;
@@ -49,9 +54,13 @@ proc loadTextFileIntoObservable {
 	}}$;
 }
 
-##Given a value, this function returns the string representing the simplest
-##EDEN code that evaluates as that value.  For example, edenCode applied to a
-##string is the string formed by adding quotes to the original string.
+/** Given a value, this function returns the string representing the simplest
+ *  EDEN code that evaluates as that value.  For example, edenCode applied to a
+ *  string is the string formed by adding quotes to the original string.
+ *   @param value The value to convert.
+ *   @return String representation of the value.
+ *   #library #string
+ */
 func edenCode {
 	${{
 		if (arguments.length != 1) {
@@ -63,69 +72,70 @@ func edenCode {
 	}}$;
 }
 
-##Concatenates a collection of values, separating each one by a given separator string, separator
-##element or separator list.  The values can either be provided as multiple arguments or
-##alternatively as a single list type argument.
-##
-##Basically you can pass to this function any list of values that you want to
-##munge together and it will attempt to figure out what you meant.
-##
-##concat("", string1, ..., stringN) performs the same as strcat in tkeden.
-##concat([], list1, ..., listN) performs the same listcat in tkeden.
-##
-##To summarize the detailed case by case behavioural descriptions that follow later:
-##
-##	* The items to concatenate can be specified either as a list or as separate arguments.
-##	* If the items are specified as separate arguments then a separator must be provided, otherwise it is optional.
-##
-##	* If the items to be concatenated are all lists then list concatenation is used.
-##	* If one or more items are undefined then the entire result is undefined.
-##	* Otherwise string concatenation is used, with automatic conversion of non-string items to strings.
-##
-##	* For string concatenation: the separator is intended to be a string, or another not undefined value that gets implicitly converted into a string.
-##	* For string concatenation: if the separator is undefined then the entire result is undefined if there is more than one item.
-##	* For list concatenation: if the separator is a list then the items are concatenated as itemN // separator // itemM
-##	* For list concatenation: if the separator is not a list then the items are concatenated as itemN // [separator] // itemM
-##
-##Case 1: separator + a list of strings
-##	The strings are concatenated, separated by the separator.  If the separator
-##	is undefined and there are two more strings then undefined is returned.  If
-##	the separator is defined but is not a string then it is automatically
-##	converted into a string.
-##
-##Case 2: separator + a list of lists
-##	The lists are concatenated, separated by the separator element or separator list.
-##
-##Case 3: separator + a list of things that are not all lists but are all defined
-##	Any list items that are not strings are converted into strings, then as Case 1.
-##
-##Case 4: separator + a list containing the undefined value
-##	Undefined is returned.
-##
-##Case 5: separator + one or more further arguments that are all strings
-##	The strings are concatenated, separated by the separator.
-##
-##Case 6: separator + two or more further arguments that are all lists
-##	The lists are concatenated, separated by the separator element or separator list.
-##
-##Case 7: separator + one or more further arguments that are not all lists but are all defined
-##	Any arguments that are not strings are converted into strings, then as Case 5.
-##
-##Case 8: separator + one or more further arguments, at least one of which is undefined
-##	Undefined is returned.
-##
-##Case 9: Single argument, which is a list of lists
-##	The list is flattened by one level.
-##
-##Case 10: Single argument, which is a list whose items are not exclusively nested lists but are all defined
-##	The list is concatenated using the empty string as the separator.
-##
-##Case 11: Single argument, which is list that contains at least one undefined element
-##	Undefined is returned.
-##
-##Case 12: Single argument, which is not a list.
-##	The empty string is returned.
-##
+/** Concatenates a collection of values, separating each one by a given separator string, separator
+ *  element or separator list.  The values can either be provided as multiple arguments or
+ *  alternatively as a single list type argument.
+ *
+ *  Basically you can pass to this function any list of values that you want to
+ *  munge together and it will attempt to figure out what you meant.
+ *
+ *  `concat("", string1, ..., stringN)` performs the same as strcat in tkeden.
+ *
+ *  `concat([], list1, ..., listN)` performs the same listcat in tkeden.
+ *
+ *  To summarize the detailed case by case behavioural descriptions that follow later:
+ *
+ *	* The items to concatenate can be specified either as a list or as separate arguments.
+ *	* If the items are specified as separate arguments then a separator must be provided, otherwise it is optional.
+ *
+ *	* If the items to be concatenated are all lists then list concatenation is used.
+ *	* If one or more items are undefined then the entire result is undefined.
+ *	* Otherwise string concatenation is used, with automatic conversion of non-string items to strings.
+ *
+ *	* For string concatenation: the separator is intended to be a string, or another not undefined value that gets implicitly converted into a string.
+ *	* For string concatenation: if the separator is undefined then the entire result is undefined if there is more than one item.
+ *	* For list concatenation: if the separator is a list then the items are concatenated as itemN // separator // itemM
+ *	* For list concatenation: if the separator is not a list then the items are concatenated as itemN // [separator] // itemM
+ *
+ *  **Case 1:** separator + a list of strings
+ *  	The strings are concatenated, separated by the separator.  If the separator
+ *  	is undefined and there are two more strings then undefined is returned.  If
+ *  	the separator is defined but is not a string then it is automatically
+ *  	converted into a string.
+ *
+ *  **Case 2:** separator + a list of lists
+ *  	The lists are concatenated, separated by the separator element or separator list.
+ *
+ *  **Case 3:** separator + a list of things that are not all lists but are all defined
+ *  	Any list items that are not strings are converted into strings, then as Case 1.
+ *
+ *  **Case 4:** separator + a list containing the undefined value
+ *  	Undefined is returned.
+ *
+ *  **Case 5:** separator + one or more further arguments that are all strings
+ *  	The strings are concatenated, separated by the separator.
+ *
+ *  **Case 6:** separator + two or more further arguments that are all lists
+ *  	The lists are concatenated, separated by the separator element or separator list.
+ *
+ *  **Case 7:** separator + one or more further arguments that are not all lists but are all defined
+ *  	Any arguments that are not strings are converted into strings, then as Case 5.
+ *
+ *  **Case 8:** separator + one or more further arguments, at least one of which is undefined
+ *  	Undefined is returned.
+ *
+ *  **Case 9:** Single argument, which is a list of lists
+ *  	The list is flattened by one level.
+ *
+ *  **Case 10:** Single argument, which is a list whose items are not exclusively nested lists but are all defined
+ *  	The list is concatenated using the empty string as the separator.
+ *
+ *  **Case 11:** Single argument, which is list that contains at least one undefined element
+ *  	Undefined is returned.
+ *
+ *  **Case 12:** Single argument, which is not a list.
+ *  	The empty string is returned.
+ */
 func concat {
 	para p1,p2;
 	auto separator, concatStrings, list, i, item, result;
@@ -223,10 +233,16 @@ ${{
 	  }
 
 	  return decodeHTML;
-	})(), {name: "/include"} );
+	})(), {name: "*Default"} );
 }}$;
 
 
+/**
+ * Make a string lower case only.
+ *  @param source A string.
+ *  @return The lower case version of source.
+ *  #library #string
+ */
 func lowercase {
 	${{
 		if (arguments.length != 1) {
@@ -411,9 +427,15 @@ func escapeRE {
 	}}$;
 }
 
-##Returns the string formed by replacing the first instance of the second
-##argument with the string given by the third argument in the string the string
-##given by the first argument.
+/** Returns the string formed by replacing the first instance of the second
+ *  argument with the string given by the third argument in the string the string
+ *  given by the first argument.
+ *   @param source
+ *   @param search
+ *   @param replacement
+ *   @param [start] Start position.
+ *   #library #string
+ */
 func replaceFirst {
 	${{
 		if (arguments.length < 3 || arguments.length > 4) {
@@ -571,6 +593,14 @@ func substitute {
 
 ##The same issues arise as with the sublist function (in lists.js-e) and they're handled in the
 ##same way.
+/**
+ * Extract a string from another using indices.
+ *   @param source The original source string.
+ *   @param from Start index to extract from, inclusive.
+ *   @param [to] End index or end of string if missing.
+ *   @return The substring requested.
+ *   #library #string
+ */
 func substr {
 	${{
 		if (arguments.length < 2 || arguments.length > 3) {
@@ -669,6 +699,13 @@ func substringPosition {
 	}}$;
 }
 
+/**
+ * Remove white space from either end of a string.
+ *   @param string
+ *   @param [type] Default is "both", can also be "left" or "right".
+ *   @return The trimmed string.
+ *   #library #string
+ */
 func trim {
 	${{
 		if (arguments.length < 1 || arguments.length > 2) {
@@ -707,6 +744,12 @@ func trim {
 	}}$;
 }
 
+/**
+ * Convert a string to entirely uppercase.
+ *   @param string
+ *   @return String in uppercase.
+ *   #library #string
+ */
 func uppercase {
 	${{
 		if (arguments.length != 1) {

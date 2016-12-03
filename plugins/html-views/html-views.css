@@ -7,7 +7,7 @@
 }
 
 .htmlviews-content p {
-	text-align: justify;
+	/*text-align: justify;*/
 }
 
 .htmlviews-undefined {
@@ -16,4 +16,163 @@
 	text-align: center;
 	top: 50%;
 	transform: translateY(-50%);
+}
+
+.htmlviews-dialog {
+	/*background: #f1f1f1;*/
+	/*background: none;*/
+	border-width: 1px;
+	border-color: #777;
+	border-style: solid;
+	padding: 0;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 15px #4a6887;
+}
+
+div.htmlviews-dialog .ui-dialog-titlebar {
+	border-top-width: 0;
+	border-left-width: 0;
+	border-right-width: 0;
+	border-bottom-color: #777;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	/*box-shadow: 0 0 10px #4a6887;*/
+	background: -webkit-linear-gradient(#fafafa, #cccccc); 
+	background: -o-linear-gradient(#fafafa, #cccccc); 
+	background: -moz-linear-gradient(#fafafa, #cccccc); 
+	background: linear-gradient(#fafafa, #cccccc); 
+}
+
+/* HTML VIEW TEMPLATE ELEMENTS */
+
+
+/* GREEN BUTTON */
+
+div.htmlviews-dialog button {
+	cursor: pointer;
+}
+
+div.htmlviews-dialog button.green {
+	/*line-height: 100%;*/
+	margin-right: 15px;
+	margin-left: 15px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 8px;
+	padding-right: 8px;
+	font-weight: bold;
+	font-size: 12pt;
+	color: white;
+	border-radius: 5px;
+	border: 1px solid #448b05;
+	box-shadow: 0 0 4px #777;
+	background: -webkit-linear-gradient(#63d400, #4fb300); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#63d400, #4fb300); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#63d400, #4fb300); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#63d400, #4fb300); /* Standard syntax */
+	outline: none;
+}
+
+
+/* ============================================================================================================================
+== OVAL SPEECH BUBBLE (more CSS3)
+** ============================================================================================================================ */
+
+/* ============================================================================================================================
+== BUBBLE WITH A RIGHT-ANGLED TRIANGLE
+** ============================================================================================================================ */
+
+/* THE SPEECH BUBBLE
+------------------------------------------------------------------------------------------------------------------------------- */
+
+.bubble {
+  position:relative;
+  padding:15px;
+  margin:1em 0 1em;
+  color:#fff;
+  background:#075698; /* default background for browsers without gradient support */
+  -webkit-border-radius:10px;
+  -moz-border-radius:10px;
+  border-radius:10px;
+}
+
+/* Variant : for top positioned triangle
+------------------------------------------ */
+
+.bubble.top {
+  background:#075698;
+}
+
+/* Variant : for left positioned triangle
+------------------------------------------ */
+
+.bubble.left {
+  margin-left:40px;
+  background:#075698;
+}
+
+/* Variant : for right positioned triangle
+------------------------------------------ */
+
+.bubble.right {
+  margin-right:40px;
+  background:#075698;
+}
+
+/* THE TRIANGLE
+------------------------------------------------------------------------------------------------------------------------------- */
+
+.bubble:after {
+  content:"";
+  position:absolute;
+  bottom:-20px; /* value = - border-top-width - border-bottom-width */
+  left:50px; /* controls horizontal position */
+  border-width:20px 0 0 20px; /* vary these values to change the angle of the vertex */
+  border-style:solid;
+  border-color:#075698 transparent;
+  /* reduce the damage in FF3.0 */
+  display:block;
+  width:0;
+}
+
+/* Variant : top
+------------------------------------------ */
+
+.bubble.top:after {
+  top:-20px; /* value = - border-top-width - border-bottom-width */
+  right:50px; /* controls horizontal position */
+  bottom:auto;
+  left:auto;
+  border-width:20px 20px 0 0; /* vary these values to change the angle of the vertex */
+  border-color:transparent #075698;
+}
+
+/* Variant : left
+------------------------------------------ */
+
+.bubble.left:after {
+  top:16px;
+  left:-40px; /* value = - border-left-width - border-right-width */
+  bottom:auto;
+  border-width:15px 40px 0 0; /* vary these values to change the angle of the vertex */
+  border-color:transparent #075698;
+}
+
+/* Variant : right
+------------------------------------------ */
+
+.bubble.right:after {
+  top:16px;
+  right:-40px; /* value = - border-left-width - border-right-width */
+  bottom:auto;
+  left:auto;
+  border-width:15px 0 0 40px; /* vary these values to change the angle of the vertex */
+  border-color:transparent #075698 ;
 }

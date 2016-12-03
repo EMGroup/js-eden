@@ -28,11 +28,91 @@ input.search-box {
 	padding: 2px;
 }
 
+div.searchouter {
+	/*display: inline-block;*/
+	float: left;
+	margin-left: 30px;
+	margin-right: 5px;
+	/*margin-top: 5px*/;
+	z-index: 2001;
+}
+
+input.search {
+	border: 1px solid #b5b5f5;
+	border-radius: 20px;
+	padding: 5px;
+	padding-left: 30px;
+	font-size: 10pt;
+	width: 250px;
+	outline: none;
+	box-sizing: border-box;
+}
+
+div.searchouter:before {
+	color: #5555bb;
+	/*text-shadow: 0px 0px 2px black;*/
+	font-family: "FontAwesome";
+	font-size: 10pt;
+	/*opacity: 0.8;*/
+	content: "\f002";
+	position: relative;
+	left: 30px;
+	background: none;
+	top: 1px;
+	margin-top: 0;
+	/*z-index: 2001;*/
+	z-index: 2;
+}
+
+button.jseden {
+	border: 1px solid #222;
+	color: white;
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+	background: #29454B; /* this is a light blue */
+	outline: none;
+	padding: 5px 20px;
+	margin-left: 10px;
+	margin-right: 10px;
+	cursor: pointer;
+}
+
 input.obs-watch-check {
 	position: relative;
 	left: -10px;
 	top: 0px;
 	margin: 0px;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 65533; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+    background-color: #fefefe;
+	position: relative;
+	top: 10%;
+    margin: 20px auto; /* 15% from the top and centered */
+	border: 1px solid #222;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 15px #4a6887;
+    padding: 20px;
+    border: 1px solid #888;
+    max-width: 800px; /* Could be more or less, depending on screen size */
+	width: 80%;
 }
 
 div#show-input {
@@ -248,14 +328,14 @@ div.message-infotext:before {
 }
 
 div.loaddialog {
-	width: 550px;
+	width: 350px;
 	padding: 20px;
 	/*height: 150px;*/
 	background-color: #eee;
 	color: black;
 	font: bold 12px "Helvetica Neue", Sans-Serif;
-	margin-left: calc(50% - 325px);
-	top: 20%;
+	margin-left: calc(50% - 175px);
+	top: 30%;
 	position: fixed;
 	text-align: center;
 	border-radius: 6px;

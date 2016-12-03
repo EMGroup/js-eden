@@ -18,7 +18,24 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 		//Remove -dialog name suffix.
 		var viewName = name.slice(0, -7);
 
-		var code_entry = $('<div id=\"' + name + '-content\" class=\"htmlviews-content\"></div>');
+		function viewobs(name) { return "_view_"+viewName+"_"+name; };
+
+		var observables = [
+			viewobs("background_colour"),
+			viewobs("content")
+		];
+
+		var code_entry = $('<div id=\"' + name + '-content\" class=\"htmlviews-content\" data-observables="'+observables.join(",")+'"></div>');
+		code_entry.on("mousedown", "button", function(e) {
+			var name = e.currentTarget.name;
+			eden.root.lookup(name).assign(true, eden.root.scope, Symbol.hciAgent);
+			//eden.root.lookup(name).assign(false, eden.root.scope, Symbol.hciAgent);
+		});
+		code_entry.on("mouseup", "button", function(e) {
+			var name = e.currentTarget.name;
+			eden.root.lookup(name).assign(false, eden.root.scope, Symbol.hciAgent);
+			//eden.root.lookup(name).assign(false, eden.root.scope, Symbol.hciAgent);
+		});
 
 		var contentSym = root.lookup("_view_" + viewName + "_content");
 		var updateView = function (sym, value) {
@@ -31,15 +48,28 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 		updateView(contentSym, contentSym.value());
 		contentSym.addJSObserver("repaintView", updateView);
 
-		$('<div id="' + name +'"></div>')
+		var bgSym = root.lookup("_view_"+viewName+"_background_colour");
+		function updateBG(sym, value) {
+			diag.get(0).parentNode.style.background = value;
+		}
+		bgSym.addJSObserver("changeColour", updateBG);
+
+		var diag = $('<div id="' + name +'"></div>')
 			.html(code_entry)
 			.dialog({
 				title: mtitle,
 				width: 600,
 				height: 450,
 				minHeight: 120,
-				minWidth: 230
+				minWidth: 230,
+				dialogClass: "htmlviews-dialog"
 			});
+
+		var bgcolour = bgSym.value();
+		if (bgcolour) {
+			updateBG(bgSym, bgcolour);
+		}
+
 		return {confirmClose: true};
 	}
 
@@ -47,7 +77,10 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 	edenUI.views["HTMLContent"] = {dialog: this.createDialog, title: "HTML Content", category: edenUI.viewCategories.visualization, holdsContent: true};
 
 	//Load the Eden wrapper functions
-	edenUI.eden.include("plugins/html-views/html.js-e", success);
+	Eden.Agent.importAgent("plugins/html", "default", ["enabled"], function() {
+		eden.root.lookup("plugins_html_loaded").assign(true, eden.root.scope, Symbol.localJSAgent);
+		if (success) success();
+	});
 };
 
 /* Plugin meta information */

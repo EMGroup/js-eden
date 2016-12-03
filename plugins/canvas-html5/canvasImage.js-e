@@ -41,7 +41,8 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 	this.sy = sy1;
 	this.smoothed = smoothed;
 
-	this.image = new Image();	
+	this.image = new Image();
+	//this.image.setAttribute("crossorigin","anonymous");	
 	this.canvasesToRepaint = {};
 	this.loaded = false;
 	
@@ -72,6 +73,23 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 };
 }}$;
 
+/**
+ * Creates an image element for display on the canvas together with the
+ * geometric shapes.  Taints the canvas if url is located on another domain.
+ *   @param [name]
+ *   @param x X-coordinate
+ *   @param y Y-coordinate
+ *   @param [width] Width in pixels
+ *   @param [height] Height in pixels
+ *   @param [clip_left]
+ *   @param [clip_top]
+ *   @param [clip_right]
+ *   @param [clip_bottom]
+ *   @param [smoothed]
+ *   @param url Source file for the image
+ *   #canvas
+ *   #library
+ */
 func Image {
 	${{
 		var numArgs = arguments.length;
@@ -155,7 +173,7 @@ CanvasImage.prototype.isHit = function (context, scale, x, y) {
 }
 
 CanvasImage.prototype.toString = function() {
-  return "Image(" +	Eden.edenCodeForValues(this.name, this.dx, this.dy, this.originalDWidth,
+  return "Image(" +	Eden.edenCodeForValues(this.dx, this.dy, this.originalDWidth,
 	this.originalDHeight, this.sx, this.sy, this.originalSX2, this.originalSY2, this.smoothed, this.image.src) + ")";
 };
 

@@ -292,6 +292,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_IMPORTTAG */ [
 	"Import version tag invalid"
+],
+/* EDEN_ERROR_SWITCHSCRIPT */ [
+	"Switch must have a code block { }"
 ]
 ];
 
@@ -317,6 +320,7 @@ Language.ui = {
 		clone: "Clone",
 		reload: "Reload",
 		upload: "Upload",
+		share: "Share",
 		hide: "Hide",
 		inspect: "Inspect",
 		rewind: "Rewind",

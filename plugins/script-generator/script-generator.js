@@ -15,37 +15,27 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		var label;
 		var content = $('<div class="script-generator"></div>');
 		var controls = $('<div></div>');
-		content.append(controls);
+		//content.append(controls);
 
 		var controlsLeft = $('<div class="script-generator-controls"></div>');
-		controls.append(controlsLeft);
+		//controls.append(controlsLeft);
 		var controlsRight = $('<div class="script-generator-controls" style="float: right"></div>');
-		controls.append(controlsRight);
+		//controls.append(controlsRight);
 
-		var script = $('<textarea class="script-generator-code" readonly="readonly" spellcheck="false"></textarea>');
+		var script = $('<div class="script-generator-code readonly" spellcheck="false"></div>');
 		content.append(script);
 
-		var fileChooser = $('<select></select>');
-		controlsLeft.append(fileChooser);
+		var regenerate = $('<button class="script-generator-refresh">&#xf021;</button>');
+		content.append(regenerate);
 
-		var excludeRegEx = $('<input placeholder="excluded symbols"/>');
-		controlsLeft.append(excludeRegEx);
+		var forcedinclude = {};
 
-		var unicode = $('<input type="checkbox" />');
-		label = $('<label>Unicode strings</label>');
-		label.prepend(unicode);
-		controlsRight.append(label);
-		var unicodeElem = unicode.get(0);
-		unicodeElem.checked = edenUI.getOptionValue("optUnicode") !== "false";
-
-		var includeViews = $('<input type="checkbox" />');
-		label = $('<label>Preserve screen layout</label>');
-		label.prepend(includeViews);
-		controlsRight.append(label);
-		var includeViewsElem = includeViews.get(0);
-
-		var regenerate = $('<button>Regenerate Script</button>');
-		controlsRight.append(regenerate);
+		script.on("click",".scriptgen-importex",function(e) {
+			var agent = e.currentTarget.getAttribute("data-agent");
+			if (forcedinclude[agent]) forcedinclude[agent] = false;
+			else forcedinclude[agent] = true;
+			updateScript();
+		});
 
 		//Add events
 		var updateFileChooser = function () {
@@ -71,41 +61,43 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		};
 
 		var updateScript = function () {
-			var excludeRE;
-			if (excludeRegEx[0].value != "") {
-				excludeRE = edenUI.regExpFromStr(excludeRegEx);
+			script.html("");
+			var data = me.generateScriptLines(forcedinclude);
+
+			for (var i=0; i<data.imports.length; i++) {
+				if (data.imports[i] == "") continue;
+				var agent = data.imports[i].split(" ")[1].split("@")[0];
+				var isplit = data.imports[i].split(" ");
+				var ihtml = '<span class="eden-keyword">'+isplit[0]+'</span> <span class="eden-path">'+isplit[1]+'</span>';
+				if (isplit.length > 2) {
+					for (var j=2; j<isplit.length; j++) ihtml += " " + isplit[j];
+				}
+				var importele = $('<div class="eden-line"><span class="scriptgen-importex" data-agent="'+agent+'">'+((forcedinclude[agent])?'&#xf055;':'&#xf056;')+'</span><span>'+((forcedinclude[agent])?'<span class="eden-comment">## '+data.imports[i]+'</span>':ihtml)+'</span></div>');
+				script.append(importele);
 			}
-			script.html(generateScriptHTML(excludeRE, unicodeElem.checked, includeViewsElem.checked, viewName));			
+
+			script.append($('<div class="eden-line"></div>'));
+			var output = $('<div></div>');
+			script.append(output);
+
+			/*for (var i=0; i<data.definitions.length; i++) {
+				var defele = $('<div class="eden-line"><span>'+data.definitions[i]+'</span></div>');
+				script.append(defele);
+			}*/
+			var joined = data.definitions.join("\n") + "\n## When agents\n\n" + data.agents;
+			var ast = new Eden.AST(joined, undefined, {name: "*JavaScript"});
+			var hl = new EdenUI.Highlight(output.get(0));
+			hl.highlight(ast, -1, -1);
 		};
 
-		fileChooser.on("change", function (event) {
-			var url = event.target.value;
-			if (url == "") {
-				updateScript();
-				return;
-			}
-			$.ajax({
-				url: url,
-				dataType: "text",
-				success: function (data) {
-					script.html(data);
-				}
-			});
-		});
 
-		excludeRegEx.on("keyup", updateScript);
-		unicode.on("change", function (event) {
-			edenUI.setOptionValue("optUnicode", event.target.checked)
-			updateScript(event);
-		});
-		includeViews.on("change", updateScript);
 		regenerate.click(function () {
-			updateFileChooser();
+			//updateFileChooser();
 			updateScript();
 		});
 
 		//Initialize
-		updateFileChooser();
+		//updateFileChooser();
 		updateScript();
 
 		$('<div id="' + name + '"></div>')
@@ -115,17 +107,13 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 			width: 790,
 			height: 700,
 			minHeight: 120,
-			minWidth: 230
+			minWidth: 230,
+			dialogClass: "scriptgen-dialog"
 		});
 	};
 
-	var generateScriptHTML = function (excludeRE, unicode, includeViews, viewToExclude) {
-		var lines = me.generateScriptLines(excludeRE, unicode, includeViews, viewToExclude);
-		var html = "";
-		for (var i = 0; i < lines.length; i++) {
-			html = html + Eden.htmlEscape(lines[i], true) + "\n";
-		}
-		return html;
+	var generateScriptHTML = function (forced) {
+		
 	};
 
 	function pad(str, minChars) {
@@ -140,17 +128,8 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		header2: "## JS-EDEN is an open source environment for making construuals based on research, principles and",
 		header3: "## work conducted at University of Warwick.",
 		homePage: "## Web site: https://github.com/EMGroup/js-eden",
-		include: "## Include Files:",
-		autocalcOff: "## Turn off automatic calculation until the construal is fully loaded.",
-		assignments: "## Observable Assignments:",
-		definitions: "## Observable Definitions:",
-		procedures: "## Action Definitions:",
-		functions: "## Function Definitions:",
-		picture: "## Picture Definition:",
-		views: "## View Configuration:",
-		autocalcOn: "## Turn on automatic calculation and execute any triggered actions pending.",
-		impliedByExecute: "## Definitions implied by loading the original script (execute procedure):",
-		impliedOther: "## Definitions implied by loading the original script (other):",
+		imports: "## Imported Agents:",
+		changes: "## The Model",
 		end: "## End of automatically generated script.",
 	};
 
@@ -158,267 +137,16 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 	 * @return {Array} An array where each item is a string representing a piece of EDEN code and
 	 * of the items together represent a complete script capable of rebuilding the current state.
 	 */
-	this.generateScriptLines = function (excludeRE, unicode, includeViews, viewToExclude) {
-		var viewObsPrefixToExclude = new RegExp("^_view_" + viewToExclude + "_");
-		var defaultViewNames = ["input", "picture", "projects"];
-		var definitions = [];
-		var assignments = [];
-		var procedures = [];
-		var functions = [];
-		var execute = [];
-		var implicit = [];
-		var views = [];
-
-		var autocalcOn = "autocalc = 1;"
-		var autocalcOff = "autocalc = 0;"
-		var commentColumn = 32;
-		var hciAgentName = Symbol.hciAgent.name;
-
-		var picture = root.lookup("picture").eden_definition;
-		if (picture === undefined) {
-			picture = "picture is [];"
-		} else {
-			picture = picture + ";";
-		}
-
-		if ((excludeRE === undefined || !excludeRE.test("_views_list"))) {
-			var viewsToInclude = [];
-			if (includeViews) {
-				for (var viewName in edenUI.activeDialogs) {
-					if (viewName != viewToExclude) {
-						viewsToInclude.push(viewName);
-					}
-				}
-			} else {
-				for (var viewName in edenUI.activeDialogs) {
-					if (edenUI.views[edenUI.activeDialogs[viewName]].holdsContent) {
-						viewsToInclude.push(viewName);
-					}
-				}
-			}
-			for (var i = 0; i < defaultViewNames.length; i++) {
-				var viewName = defaultViewNames[i];
-				if (viewsToInclude.indexOf(viewName) === -1) {
-					viewsToInclude.push(viewName);
-				}
-			}
-			if (viewsToInclude.length != defaultViewNames.length) {
-				views.push('_views_list = ["' + viewsToInclude.join('", "') + '"];');
-			}
-		}
-
-		for (var name in root.symbols) {
-			var exclude = false;
-
-			if (excludeRE !== undefined && excludeRE.test(name)) {
-				continue;
-			}
-		
-			var symbol = root.symbols[name];
-			var isView = false;
-
-			if (symbol.last_modified_by == "include" || symbol.last_modified_by == "system" || symbol.last_modified_by == "createView") {
-				continue;
-			}
-			if (/^(autocalc|picture|background_audio|randomIndex|randomGeneratorState|screenWidth|screenHeight)$/.test(name)) {
-				continue;
-			}
-			if (/^(mouse|touch)[A-Z]/.test(name) && symbol.last_modified_by === hciAgentName ) {
-				continue;
-			}
-			if (/_click(ed)?$/.test(name) && symbol.eden_definition === undefined) {
-				continue;
-			}
-			if (/^_(View|views)_/.test(name)) {
-			  continue;
-			}
-			if (/^_view_/.test(name)) {
-				if (viewObsPrefixToExclude.test(name)) {
-					//Exclude the script generator view
-					continue;
-				}
-				if (!includeViews) {
-					if (/_(x|y|width|height|title|zoom)$/.test(name)) {
-						//Exclude positioning information (unless defined by dependency)
-						continue;
-					}
-					exclude = true;
-					for (var i = 0; i < viewsToInclude.length; i++) {
-						var viewName = viewsToInclude[i];
-						if ((new RegExp("^_view_" + viewName + "_")).test(name)) {
-							exclude = false;
-							break;
-						}
-					}
-					if (exclude) {
-						continue;
-					}
-				}
-				isView = true;
-			}
-
-			/* Deal with symbols that are set implicitly when the construal is loaded from file.
-			 * This occurs when an execute statement is used, a triggered procedure is fired
-			 * immediately upon the construal being loaded, or if an observable is referenced but
-			 * not defined. */
-			if (name in this.baseConstrualSymbols) {
-				var asInitialized = this.baseConstrualSymbols[name];
-				if (symbol.last_modified_by == asInitialized.last_modified_by) {
-					var implicitDef = undefined;
-					if (asInitialized.eden_definition !== undefined) {
-						if (symbol.eden_definition == asInitialized.eden_definition && symbol.definition !== undefined) {
-							implicitDef = symbol.eden_definition + ";";
-						}
-					} else {
-						if (symbol.cached_value === asInitialized.cached_value) {
-							implicitDef = name + " = " + Eden.edenCodeForValue(symbol.cached_value) + ";";						
-						}
-					}
-					if (implicitDef !== undefined) {
-						if (symbol.last_modified_by == "execute") {
-							implicitDef = "  " + implicitDef.replace(/\n/g, "\n");
-							execute.push(implicitDef);
-						} else {
-							implicitDef = pad("  " + implicitDef.replace(/\n/g, "\n  "), commentColumn) + "  ## Set by " + symbol.last_modified_by + ".";
-							implicit.push(implicitDef);
-						}
-						continue;
-					}
-				}
-			}
-			
-			if (symbol.last_modified_by === undefined) {
-				implicit.push(pad("  " + name + " = @;", commentColumn) + "  ## Referenced but not defined.");
-				continue;
-			}
-
-			//Reasoning to push to the appropriate array.
-			if (isView) {
-
-				if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
-					views.push(symbol.eden_definition + ";");
-				} else {
-					views.push(name + " = " + Eden.edenCodeForValue(symbol.cached_value) + ";");
-				}
-
-			} else if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
-				
-				if (/^func\s/.test(symbol.eden_definition)) {
-					functions.push(symbol.eden_definition);
-				} else if (/^proc\s/.test(symbol.eden_definition)) {
-					procedures.push(symbol.eden_definition);
-				} else {
-					definitions.push(symbol.eden_definition + ";");
-				}
-
-			} else {
-
-				var value = symbol.cached_value;
-				var edenForValue;
-				if (!unicode && typeof(value) == "string" && /[^ -~\t\n]/.test(value)) {
-					/* Ensure that strings don't contain any special characters that might get mangled
-					 * by mistaken character set auto-recognition performed by browsers or code editors.
-					 * Stick to ASCII printable only and use XML/HTML entity syntax for the rest. */
-					var encoded = value.replace(/[^ -~\t\n]/g, function (str) {
-						return '&#' + str.charCodeAt(0) + ';';
-					});
-					edenForValue = "decodeHTML(" + Eden.edenCodeForValue(encoded) + ")";
-				} else {
-					edenForValue = Eden.edenCodeForValue(value);
-				}
-				assignments.push(name + " = " + edenForValue + ";");
-
-			}
-
-		} // end for each symbol
-		
-		if (root.lookup("randomSeed").value() !== undefined && (excludeRE === undefined || !excludeRE.test("randomIndex"))) {
-			assignments.push("randomIndex = " + root.lookup("randomIndex").value() + ";");
-		}
-
-		//Script Generation
-		var lines = [];
-			
-		lines.push(comments.header1);
-		lines.push("");
-		lines.push(comments.header2);
-		lines.push(comments.header3);
-		lines.push(comments.homePage);
-		lines.push("");		
-		var includeFiles = eden.getIncludedURLs();
-		if (includeFiles.length > 0) {
-			lines.push(comments.include);
-			for (var i = 0; i < includeFiles.length; i++) {
-				lines.push("include(\"" + includeFiles[i] + "\");");
-			}
-			lines.push("");
-		}
-		lines.push(comments.autocalcOff);
-		lines.push(autocalcOff);
-		lines.push("");
-		lines.push(comments.functions);
-		for (var i = 0; i < functions.length; i++) {
-			lines.push(functions[i]);
-			if (i !== functions.length - 1) {
-				lines.push("");
-			}
-		}
-		lines.push("");
-		lines.push(comments.assignments);
-		for (var i = 0; i < assignments.length; i++) {
-			lines.push(assignments[i]);
-		}
-		lines.push("");
-		lines.push(comments.definitions);
-		for (var i = 0; i < definitions.length; i++) {
-			lines.push(definitions[i]);
-		}
-		lines.push("");
-		lines.push(comments.procedures);
-		for (var i = 0; i < procedures.length; i++) {
-			lines.push(procedures[i]);
-			if (i !== procedures.length - 1) {
-				lines.push("");
-			}
-		}
-		lines.push("");
-		if (excludeRE === undefined || !excludeRE.test("picture")) {
-			lines.push(comments.picture);
-			lines.push(picture);
-			lines.push("");
-		}
-		if (views.length > 0) {
-			lines.push(comments.views);
-			for (var i = 0; i < views.length; i++) {
-				lines.push(views[i]);
-			}
-			lines.push("");
-		}
-		lines.push(comments.autocalcOn);
-		lines.push(autocalcOn);
-		lines.push("");
-		if (execute.length > 0 || implicit.length > 0) {
-			lines.push(comments.impliedByExecute);
-			if (execute.length > 0) {
-				lines.push("/*");
-				for (var i = 0; i < execute.length; i++) {
-					lines.push(execute[i]);
-				}
-				lines.push("*/");
-			}
-			lines.push("");
-			if (implicit.length > 0) {
-				lines.push(comments.impliedOther);
-				lines.push("/*");
-				for (var i = 0; i < implicit.length; i++) {
-					lines.push(implicit[i]);
-				}
-				lines.push("*/");
-				lines.push("");
-			}
-		}
-		lines.push(comments.end);
-		return lines;
+	this.generateScriptLines = function (forced) {
+		var result = {};
+		//var lines = [comments.header1, comments.header2, comments.header3, "", comments.homePage, "", comments.imports];
+		var imports = Eden.Generator.importsScript().split("\n");
+		result.imports = imports;
+		var changes = Eden.Generator.symbolScript(forced).split("\n");
+		result.definitions = changes;
+		var agents = Eden.Agent.getActiveAgents(forced,false);
+		result.agents = agents;
+		return result;
 	};
 
 	/**Holds information about symbols implicitly defined upon loading a construal via execute

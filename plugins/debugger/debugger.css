@@ -1,0 +1,163 @@
+.debugger {
+	/*display: flex;
+	box-sizing: border-box;
+	flex-direction: column;*/
+	height: 100%;
+}
+
+.debugger-controls {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	background: #f1f1f1;
+	box-shadow: 0 0 10px #4a6887;
+	border-bottom: 1px solid #777;
+	z-index: 2;
+}
+
+div.debugger-line {
+	background-color: #f3bbac;
+}
+
+div.debugger-code {
+	/*position: absolute;
+	top: 30px;
+	left: 0;
+	right: 20%;
+	bottom: 0;*/
+	/*flex-grow: 1;*/
+	/*margin-bottom: 0px;*/
+	/*background-color: white;*/
+	color: black;
+	font: 14px/20px Roboto Mono, monospace;
+	white-space: pre;
+	outline: none;
+	resize: none;
+	overflow: hidden;
+	width: 100%;
+	padding: 10px 20px;
+	/*border: 1px solid #e5e5e5;*/
+	/*background: white;*/
+}
+
+div.debugger-agents {
+	position: absolute;
+	top: 41px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow-y: scroll;
+}
+
+div.debugger-agent {
+	border-top: 1px solid #aaa;
+	border-bottom: 1px solid #aaa;
+	margin-top: 5px;
+	background: #f1f1f1;
+	padding: 0;
+	display: flex;
+	flex-direction: row;
+}
+
+div.debugger-agent.active {
+	background: white;
+}
+
+div.debugger-agent:hover {
+	background: white;
+}
+
+div.debugger-inspector {
+	/*position: absolute;
+	top: 30px;
+	right: 0;
+	width: 20%;
+	bottom: 0;*/
+	width: 25%;
+	background-color: #f1f1f1;
+	border-left: 2px solid #a61414;
+	min-height: 50px;
+	padding: 5px;
+	white-space: pre;
+	word-wrap: nowrap;
+	overflow: hidden;
+}
+
+div.debugger-dialog {
+	background: #cecece;
+	border-width: 1px;
+	border-color: #777;
+	border-style: solid;
+	padding: 0;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 15px #4a6887;
+}
+
+div.debugger-dialog .ui-dialog-titlebar {
+	height: 30px;
+	border-top-width: 0;
+	border-left-width: 0;
+	border-right-width: 0;
+	border-bottom-color: #777;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 10px #4a6887;
+	/*background: -webkit-linear-gradient(#fafafa, #cccccc); 
+	background: -o-linear-gradient(#fafafa, #cccccc); 
+	background: -moz-linear-gradient(#fafafa, #cccccc); 
+	background: linear-gradient(#fafafa, #cccccc);  */
+	background: #a61414;
+	color: white;
+	font-size: 14pt;
+	z-index: 3;
+}
+
+div.debugger-dialog .ui-dialog-content {
+	padding: 0;
+}
+
+button.debugger-button {
+	font-family: "FontAwesome";
+	font-size: 14pt;
+	border-radius: 3px;
+	background: #e5e5e5;
+	outline: none;
+	border: 1px solid #ddd;
+	margin-top:5px;
+	margin-bottom: 5px;
+	margin-right: 5px;
+	padding: 5px;
+	width: 30px;
+	height: 30px;
+	cursor: pointer;
+}
+
+button.debugger-button:hover {
+	background: #ddd;
+}
+
+button.debugger-button.active {
+	color: white;
+	background: #666;
+}
+
+input.debugger-speed {
+	margin-left: 40px;
+	margin-top: 5px;
+}
+
+/*span.scriptgen-importex {
+	margin-right: 15px;
+	font-family: "FontAwesome";
+	cursor: pointer;
+}
+
+span.scriptgen-importex:hover {
+	font-weight: bold;
+}*/

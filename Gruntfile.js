@@ -50,8 +50,7 @@ module.exports = function (grunt) {
 		plugins: {
 			files: {
 				'./plugins/jseden-plugins.min.css': [
-					'plugins/project-listing/project-listing.css',
-					'plugins/menu-bar/menu-bar.css',
+					'css/menu-bar.css',
 					'plugins/canvas-html5/canvas.css',
 					'plugins/page/page.css',
 					'plugins/symbol-viewer/symbol-viewer.css',
@@ -71,7 +70,8 @@ module.exports = function (grunt) {
 					'plugins/input-dialog/gutter.css',
 					'plugins/adm/adm-input.css',
 					'plugins/dbview/dbview.css',
-					'plugins/script-generator/script-generator.css'
+					'plugins/script-generator/script-generator.css',
+					'plugins/debugger/debugger.css'
 				]
 			}
 		}
@@ -81,35 +81,38 @@ module.exports = function (grunt) {
 		core: {
 			files: {
 				'./js/core/jseden.min.js': [
+					'./js/util/misc.js',
 					'./js/language/lang.js',
 					'./js/core/runtime.js',
 					'./js/core/window-highlighter.js',
 					'./js/core/maintainer.js',
 					'./js/core/polyglot.js',
-					'./js/core/translator.js',
 					'./js/core/eden.js',
 					'./js/core/plugins.js',
 					'./js/util/url.js',
 					'./js/core/initialise.js',
 					'./js/core/lex.js',
 					'./js/core/errors.js',
-					//'./js/core/ast.js',
 					'./js/core/translator2.js',
+					'./js/core/ast.js',
 					'./js/core/database.js',
-					'./js/wrappers.js'
+					'./js/wrappers.js',
+					'./js/peer.js',
+					'./js/query.js',
+					'./js/generator.js'
 				],
 				'./js/ui/jseden-ui.min.js': [
 					'./js/ui/highlighter.js',
 					'./js/ui/contextmenu.js',
+					'./js/ui/menubar.js',
+					'./js/ui/dialogs.js'
 				],
 				'./plugins/jseden-plugins.min.js': [
 					'./js/util/css.js',
 					'./plugins/input-dialog/interpreter.js',
 					'./plugins/input-dialog/subdialogs.js',
 					'./plugins/input-dialog/gutter.js',
-					'./plugins/project-listing/project-listing.js',
 					'./plugins/plugin-listing/plugin-listing.js',
-					'./plugins/menu-bar/menu-bar.js',
 					'./plugins/canvas-html5/canvas.js',
 					'./plugins/page/page.js',
 					'./plugins/symbol-viewer/symbol-viewer.js',
@@ -132,7 +135,8 @@ module.exports = function (grunt) {
 					'./plugins/dbview/dbview.js',
 					'./plugins/speech-synthesis/speech-synthesis.js',
 					'./plugins/midi/midi.js',
-					'./plugins/midi/emulation/midi.js-bridge.js'
+					'./plugins/midi/emulation/midi.js-bridge.js',
+					'./plugins/debugger/debugger.js'
 				]}
 		}
 	},

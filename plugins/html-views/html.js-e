@@ -47,7 +47,7 @@ proc html {
 ##are kept in sync with the value of a given observable at all times.  The first
 ##parameter is the name of the observable who's value provides the HTML code.  The
 ##second, optional parameter, is the text to place into the window's title bar.
-proc createHTMLView {
+/*proc createHTMLView {
 	auto obsName, viewTitle, viewName;
 	if ($# == 1) {
 		obsName = $[1];
@@ -86,4 +86,4 @@ proc createHTMLView {
 	createView(viewName, "HTMLContent");
 	execute("_view_" // viewName // "_content is " // obsName // ";");
 	`"_view_" // viewName // "_title"` = viewTitle;
-}
+}*/

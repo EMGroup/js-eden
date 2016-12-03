@@ -42,6 +42,7 @@
 		this.up_to_date = up_to_date;
 		this.value = value;
 		this.scope = scope;
+		this.scopes = undefined;
 	}
 
 	function BoundValue(value,scope) {
@@ -50,11 +51,21 @@
 	}
 
 
-	function ScopeOverride(name, start, end) {
+	function ScopeOverride(name, start, end, inc, isin) {
 		this.name = name;
 		this.start = start;
 		this.end = end;
-		this.current = start;
+		this.increment = inc;
+		this.current = (isin && start) ? start[0] : start;
+		this.isin = isin;
+		this.index = 1;
+
+		// Check for valid combinations of options
+		if (this.increment == 0) {
+			throw new Error(Eden.RuntimeError.INFINITERANGE);
+		} else if (this.isin && this.end === undefined && !(this.start instanceof Array)) {
+			throw new Error(Eden.RuntimeError.NOLISTRANGE);
+		}
 	}
 
 
@@ -152,6 +163,41 @@
 		}
 	}
 
+	Scope.prototype.cloneAt = function(index) {
+		var nover = [];
+
+		// Copy the overrides
+		for (var i = 0; i < this.overrides.length; i++) {
+			nover.push(new ScopeOverride(this.overrides[i].name, this.overrides[i].start, this.overrides[i].end));
+		}
+
+		// Make a new exact copy of this scope
+		var nscope = new Scope(this.context, this.parent, nover, this.range, this.cause);
+		// Move range to correct place. This is brute force.
+		for (var i=0; i<index; i++) {
+			nscope.next();
+		}
+
+		nscope.range = false;
+		return nscope;
+	}
+
+	Scope.prototype.clone = function() {
+		var nover = [];
+
+		// Copy the overrides
+		for (var i = 0; i < this.overrides.length; i++) {
+			var nov = new ScopeOverride(this.overrides[i].name, this.overrides[i].start, this.overrides[i].end);
+			nov.current = this.overrides[i].current;
+			nover.push(nov);
+		}
+
+		// Make a new exact copy of this scope
+		var nscope = new Scope(this.context, this.parent, nover, this.range, this.cause);
+
+		return nscope;
+	}
+
 	Scope.prototype.lookup = function(name) {
 		if (this.cache === undefined) this.rebuild();
 
@@ -233,7 +279,10 @@
 			var over = this.overrides[i];
 			if (over.end === undefined) continue;
 
-			if (over.current < over.end) {
+			if (over.isin) {
+				var length = (isbound) ? over.start.value.length : (over.start) ? over.start.length : 0;
+				return over.index < length;
+			} else if (over.current <= over.end) {
 				return true;
 			}
 		}
@@ -246,25 +295,52 @@
 		}
 		for (var i = this.overrides.length-1; i >= 0; i--) {
 			var over = this.overrides[i];
+			if (over.end === undefined && !over.isin) continue;
+			var isbound = over.start instanceof BoundValue;
+			var length = (isbound) ? over.start.value.length : (over.start) ? over.start.length : 0;
 
-			if (over.end === undefined) continue;
-
-			if (over.current < over.end) {
-				over.current++;
-				this.updateOverride(over);
-
-				// Make sure all other overrides are also up-to-date
-				for (var j=i-1; j >= 0; j--) {
-					this.updateOverride(this.overrides[j]);
+			if (over.isin) {
+				// TODO runtime check that start is a list...
+				if (over.index < length) {
+					if (isbound) {
+						over.current = over.start.value[over.index];
+					} else {
+						over.current = over.start[over.index];
+					}
+					over.index++;
+					this.updateOverride(over);
+					return true;
+				} else {
+					over.index = 1;
+					over.current = (isbound) ? over.start.value[0] : over.start[0];
+					this.updateOverride(over);
 				}
-
-				return true;
 			} else {
-				over.current = over.start;
-				this.updateOverride(over);
+				if (over.current < over.end) {
+					if (over.increment) {
+						over.current += over.increment;
+					} else {
+						over.current++;
+					}
+					this.updateOverride(over);
+
+					// Make sure all other overrides are also up-to-date
+					for (var j=i-1; j >= 0; j--) {
+						this.updateOverride(this.overrides[j]);
+					}
+					return true;
+				} else {
+					over.current = over.start;
+					this.updateOverride(over);
+				}
 			}
 		}
 		return false;
+	}
+
+	function ScopeList() {
+		this.raw = [];
+		this.caches = [];
 	}
 
 	/*Scope.prototype.toString = function() {
@@ -403,7 +479,7 @@
 	Folder.prototype.lookup = function (name) {
 		if (this.symbols[name] === undefined) {
 			this.symbols[name] = new Symbol(this, this.name + name);
-			this.notifyGlobals(this.symbols[name], true);
+			this.notifyGlobals(this.symbols[name], 1);
 		}
 		return this.symbols[name];
 	};
@@ -496,10 +572,10 @@
 	 * @param {Symbol} symbol The symbol that changed.
 	 * @param {boolean} create 
 	 */
-	Folder.prototype.notifyGlobals = function (symbol, create) {
+	Folder.prototype.notifyGlobals = function (symbol, kind) {
 		for (var i = 0; i < this.globalobservers.length; i++) {
 			if (this.globalobservers[i] !== undefined) {
-				this.globalobservers[i].call(this, symbol, create);
+				this.globalobservers[i].call(this, symbol, kind);
 			}
 		}
 	};
@@ -563,7 +639,7 @@
 		for (var i = 0; i < this.needsExpire.length; i++) {
 			var sym = this.needsExpire[i];
 			sym.expire(symbolNamesToForce, this.expiryCount, this.needsTrigger);
-			sym.needsGlobalNotify = true;
+			//sym.needsGlobalNotify = 2;
 		}
 		var expired = this.needsExpire;
 		this.needsExpire = [];
@@ -576,7 +652,7 @@
 			// force re-eval
 			var sym = this.symbols[symbolNamesArray[i].slice(this.name.length)];
 			sym.evaluateIfDependenciesExist();
-			sym.needsGlobalNotify = true;
+			sym.needsGlobalNotify = Symbol.EXPIRED;
 			symbolsToForce.push(sym);
 		}
 		var actions_to_fire = this.needsTrigger;
@@ -613,14 +689,264 @@
 			this.globalNotifyIndex++;
 			var symbol = notifyList[index];
 			if (symbol.needsGlobalNotify) {
-				symbol.needsGlobalNotify = false;
-				this.notifyGlobals(symbol, false);
+				var kind = symbol.needsGlobalNotify;
+				symbol.needsGlobalNotify = 0;
+				this.notifyGlobals(symbol, kind);
 			}
 			index = this.globalNotifyIndex;
 		}
 		this.needsGlobalNotify = [];
 		this.globalNotifyIndex = 0;
 	};
+
+	Folder.prototype.forgetAll = function() {
+		var searchStr, caseSensitive, requireConfirm, includeSystemSymbols;
+		var regExp, symbol;
+		var obsToDelete = undefined;
+		var includeAgent = {name: "/include"};
+		
+		if (arguments.length > 4) {
+			eden.error(new Error("forgetAll: This function requires at most 4 arguments."), "error");
+			return [[], undefined, []];
+		}
+
+		if (arguments.length == 0) {
+			searchStr = "";
+		} else if (typeof(arguments[0]) == "string") {
+			searchStr = arguments[0];
+		} else if (Array.isArray(arguments[0])) {
+			obsToDelete = arguments[0];
+		} else if (arguments[0] === undefined) {
+			return [[], undefined, []];
+		} else {
+			eden.error(new Error("forgetAll: The first argument must be a string, not a " + typeof(arguments[0])), "error");
+			return [[], undefined, []];
+		}
+
+		if (arguments.length > 1) {
+			if (typeof(arguments[1]) != "boolean") {
+				eden.error(new Error("forgetAll: The second argument must be a boolean, not a " + typeof(arguments[1])), "error");
+				return [[], undefined, []];
+			}
+			caseSensitive = arguments[1];
+		} else {
+			caseSensitive = true;
+		}
+		
+		if (obsToDelete !== undefined && arguments.length > 2) {
+			eden.error(new Error("forgetAll: Cannot specify case sensitivity when selecting using a list."), "error");
+			return [[], undefined, []];
+		}
+		
+		if (arguments.length >= 3) {
+			if (typeof(arguments[2]) != "boolean") {
+				eden.error(new Error("forgetAll: The third argument must be a boolean, not a " + typeof(arguments[2])), "error");
+				return [[], undefined, []];
+			}
+			requireConfirm = arguments[2];
+		} else if (obsToDelete !== undefined && arguments.length == 2) {
+			requireConfirm = arguments[1];
+		} else {
+			requireConfirm = true;
+		}
+		
+		if (arguments.length > 3) {
+			if (typeof(arguments[3]) != "boolean") {
+				eden.error(new Error("forgetAll: The forth argument must be a boolean, not a " + typeof(arguments[3])), "error");
+				return [[], undefined, []];
+			}
+			includeSystemSymbols = arguments[3];
+		} else {
+			includeSystemSymbols = false;
+		}
+		
+		var references = {};
+		var unableToDelete = [];
+		var reset = {};
+
+		var initialDefinition;
+		if (obsToDelete !== undefined) {
+
+			//Observables given as a list.
+			for (var i = 0; i < obsToDelete.length; i++) {
+				var name;
+				if (obsToDelete[i] instanceof Symbol) {
+					name = obsToDelete[i].name.slice(1);
+					symbol = obsToDelete[i];
+				} else if (typeof(obsToDelete[i]) == "string") {
+					name = obsToDelete[i];
+					symbol = root.lookup(name);
+				} else if (obsToDelete === undefined) {
+					continue;
+				} else {
+					eden.error(new Error("forgetAll: All list items must be strings or pointers.  Item " + i + " is a " + typeof(obsToDelete[i])), "error");
+					return [[], undefined, []];
+				}
+
+				if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
+					unableToDelete.push(name);
+					continue;
+				}
+
+				initialDefinition = eden.initialDefinition(name);
+				if (initialDefinition) {
+					reset[name] = initialDefinition;
+				} else {
+					var referencedBy = [];
+					for (var dependency in symbol.subscribers) {
+						referencedBy.push(dependency.slice(1));
+					}
+					for (var triggeredProc in symbol.observers) {
+						referencedBy.push(triggeredProc.slice(1));
+					}
+					references[name] = referencedBy;
+				}
+			}
+
+		} else {
+
+			//Search for observables by regular expression.
+			if (caseSensitive) {
+				regExp = new RegExp(searchStr);
+			} else {
+				regExp = new RegExp(searchStr, "i");
+			}
+			var viewsRE = /^_[vV]iew(s?)_/;
+			
+			for (var name in root.symbols) {
+				if (regExp.test(name)) {
+					if (!includeSystemSymbols) {
+						if (Eden.isitSystemSymbol(name) || viewsRE.test(name)) {
+							continue;
+						}
+					}
+					
+					//initialDefinition = eden.initialDefinition(name);
+					//if (initialDefinition) {
+					//	reset[name] = initialDefinition;
+					//} else {
+						symbol = root.symbols[name];
+						var referencedBy = [];
+						for (var dependency in symbol.subscribers) {
+							referencedBy.push(dependency.slice(1));
+						}
+						for (var triggeredProc in symbol.observers) {
+							referencedBy.push(triggeredProc.slice(1));
+						}
+						references[name] = referencedBy;
+					//}
+				}
+			}
+		}
+		
+		var canForget = {};
+
+		/* Traverses the subgraph of symbols suggested for deletion and returns true if the named
+		 * symbol isn't referenced by anything outside of the subgraph.
+		 */
+		var isSafeToForget = function (name) {
+			if (name in canForget) {
+				return canForget[name];
+			}
+			if (name in reset) {
+				return true;
+			}
+			if (!(name in references)) {
+				canForget[name] = false;
+				return false;
+			}
+			var referencedBy = references[name];
+			if (referencedBy.length == 0) {
+				canForget[name] = true;
+				return true;
+			} else {
+				for (var i = 0; i < referencedBy.length; i++) {
+					var success = isSafeToForget(referencedBy[i]);
+					if (!success) {
+						canForget[name] = false;
+						return false;
+					}
+				}
+				canForget[name] = true;
+				return true;
+			}
+		};
+		
+		var namesToDelete = [];
+		for (name in references) {
+			var success = isSafeToForget(name);
+			if (success) {
+				namesToDelete.push(name);
+			} else {
+				unableToDelete.push(name);
+			}
+		}
+		
+		var confirmed;
+		var resetList = Object.keys(reset);
+		var deletePlusReset = namesToDelete.concat(resetList);
+		if (deletePlusReset.length > 0 && requireConfirm) {
+			if (deletePlusReset.length <= 50) {
+				confirmed = confirm("You are about to delete the following " + deletePlusReset.length +
+					" symbols.  Is this correct?\n\n" + deletePlusReset.join("\n"));
+			} else {
+				var numNotDisplayed = deletePlusReset.length - 50;
+				confirmed = confirm("You are about to delete " + deletePlusReset.length +
+					" symbols.  Is this correct?\n\n" + deletePlusReset.slice(0, 50).join("\n") +
+					"\n...\n(" + numNotDisplayed + " more)");
+			}
+		} else {
+			confirmed = true;
+		}
+		
+		if (confirmed) {
+			var noop = function () { };
+			var wasInInitialState = false; //eden.isInInitialState();
+			root.beginAutocalcOff();
+
+			for (name in reset) {
+				//eden.execute(reset[name], "forgetAll", "", includeAgent, noop);
+			}
+
+			for (var i = 0; i < namesToDelete.length; i++) {
+				var name = namesToDelete[i];
+				symbol = root.symbols[name];
+				if (symbol !== undefined) {
+					if ("refreshView" in symbol.jsObservers) {
+						/* Set the symbol to undefined before deleting it, so at least it is clear
+						 * that the view is no longer valid and isn't merely "hung".
+						 */
+						symbol.assign(undefined, root.scope);
+						if (edenUI.plugins.Canvas2D && edenUI.plugins.Canvas2D.destroyViews) {
+							// Close the window if it's a canvas picture observable. (JS-EDEN 1.2.2 and earlier).
+							edenUI.plugins.Canvas2D.destroyViews(name);
+						}
+					}
+					symbol.forget();
+					// Close the window if this observable defines the content for a view (e.g. canvas).
+					var match = name.match(/^_view_(.*)_content$/);
+					if (match !== null) {
+						edenUI.destroyView(match[1], true);
+					}
+				}
+			}
+			/*if (wasInInitialState) {
+				eden.captureInitialState(); //Re-assert still in initial state.		
+			}*/
+			/*
+			 * The new environment no longer seems to call this automatically at completion of execution, so call
+			 * it manually here to force a clean-up.  Hopefully nothing in the parser is holding onto a Symbol
+			 * object belonging to a forgotten observable, otherwise bad things will happen.
+			 * TODO: Verify that bad things don't happen.
+			 */
+			root.collectGarbage();
+			root.endAutocalcOff();
+			return [namesToDelete, unableToDelete, resetList];
+		} else {
+			return [[], unableToDelete, []];
+		}
+	}
+
 
 	/**
 	 * A symbol table entry.
@@ -648,7 +974,7 @@
 		this.eden_definition = undefined;
 		this.evalResolved = true;
 		this.extend = undefined;
-		this.needsGlobalNotify = false;
+		this.needsGlobalNotify = 0;
 
 		// need to keep track of who we subscribe to so
 		// that we can unsubscribe from them when our definition changes
@@ -674,7 +1000,7 @@
 		this.observees = {};
 		this.jsObservers = {};
 
-		this.last_modified_by = undefined;
+		this.last_modified_by = {name: "*None"};
 
 		// true when the symbol ready to be garbage collected from its folder when execution of the
 		// current script finishes (if it is not subsequently referenced again).  This occurs when
@@ -682,20 +1008,42 @@
 		this.garbage = false;
 	}
 
-	Symbol.getInputAgentName = function () {
-		return "*Script Input";
+	InternalAgent = function(name, local) {
+		this.name = name;
+		this.local = local;
+		this.internal = true;
 	}
 	
-	Symbol.hciAgent = {name: "*Input Device"};
+	// Input device agents are always local only.
+	Symbol.hciAgent = new InternalAgent("*Input Device", true);
+	// A JavaScript agent is not local only.
+	Symbol.jsAgent = new InternalAgent("*JavaScript", false);
+	Symbol.localJSAgent = new InternalAgent("*JavaScript", true);
+	// Network changes are always local to prevent loops.
+	Symbol.netAgent = new InternalAgent("*net", true);
+	// Something entirely ignored by script generator
+	Symbol.defaultAgent = new InternalAgent("*Default", true);
+
+	Symbol.NONOTIFY = 0;
+	Symbol.CREATED = 1;
+	Symbol.EXPIRED = 2;
+	Symbol.REDEFINED = 3;
+	Symbol.ASSIGNED = 4;
 
 	/**
 	 * Get the value of this symbol bound with the scope the value was
 	 * generated in.
 	 */
-	Symbol.prototype.boundValue = function(scope) {
-		var cache = (this.context === undefined || scope === this.context.scope) ? this.cache : scope.lookup(this.name);
+	Symbol.prototype.boundValue = function(scope, indices) {
 		var value = this.value(scope);
-		return new BoundValue(value, cache.scope);
+		var cache = scope.lookup(this.name);
+
+		if (indices) {
+			// Generate a non range scope equivalent to a specific index.
+			return new BoundValue(value[indices[0]], cache.scopes[indices[0]]);
+		} else {
+			return new BoundValue(value, cache.scope);
+		}
 	}
 	
 	/**
@@ -739,6 +1087,10 @@
 		}
 
 		newscope.range = true;
+
+		// Must log scope in cache for ranges as well
+		var cache = (this.context === undefined || newscope === this.context.scope) ? this.cache : newscope.lookup(this.name);
+		cache.scope = newscope;
 
 		return results;
 	};
@@ -805,7 +1157,10 @@
 				this.evalResolved = true;
 			}
 		} catch (e) {
-			this.logError(e);
+			if (e instanceof Eden.RuntimeError) {
+				Eden.Agent.emit("error", [this,e]);
+			}
+			//this.logError(e);
 			cache.value = undefined;
 			cache.up_to_date = false;
 		}
@@ -851,7 +1206,9 @@
 	Symbol.prototype.subscribeDynamic = function (position, dependency, scope) {
 		// To put the dependency on the outer scoped observable is in a scoping context
 		if (scope && scope.cause) {
-			return scope.cause.subscribeDynamic(scope.causecount++, dependency);
+			return scope.cause.subscribeDynamic(scope.causecount++, dependency, scope);
+			//var basescope = scope.baseScope();
+			//return basescope.cause.subscribeDynamic(basescope.cause.causecount++, dependency, scope);
 		}
 
 		if (!(dependency in this.dependencies)) {
@@ -899,11 +1256,11 @@
 	};
 
 	Symbol.prototype._setLastModifiedBy = function (modifying_agent) {
-		if (modifying_agent === global) {
-			this.last_modified_by = Symbol.getInputAgentName();
-		} else {
-			this.last_modified_by = modifying_agent ? modifying_agent.name.replace(/^\//, '') : "*JavaScript";
-		}
+		//if (modifying_agent === global) {
+		//	this.last_modified_by = Symbol.getInputAgentName();
+		//} else {
+			this.last_modified_by = modifying_agent ? modifying_agent : Symbol.jsAgent;
+		//}
 	};
 
 	/**
@@ -912,21 +1269,22 @@
 	 * @param {function(Folder)} definition
 	 * @param {Symbol} modifying_agent Agent modifying this Symbol.
 	 */
-	Symbol.prototype.define = function (definition, modifying_agent, subscriptions) {
+	Symbol.prototype.define = function (definition, modifying_agent, subscriptions, source) {
 		this.garbage = false;
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = definition;
+		this.needsGlobalNotify = Symbol.REDEFINED;
 
 		// symbol no longer observes or depends on anything
 		this.clearObservees();
 		this.clearDependencies();
 
-		var args = [];
-		for (var i = 2; i < arguments.length; i++) {
-			args.push(arguments[i]);
-		}
+		//var args = [];
+		//for (var i = 2; i < arguments.length; i++) {
+		//	args.push(arguments[i]);
+		//}
 
-		this.subscribe(args);
+		this.subscribe(subscriptions);
 
 		// Re-add any extension dependencies.
 		if (this.extend) {
@@ -938,6 +1296,8 @@
 		if (this.context) {
 			this.context.expireSymbol(this);
 		}
+
+		if (eden.peer && source) eden.peer.define(this.last_modified_by, this.name, this.eden_definition, source, subscriptions);
 
 		return this;
 	};
@@ -968,6 +1328,12 @@
 		this.observees[symbol_name] = undefined;
 	};
 
+	Symbol.prototype.append = function(value, scope, agent) {
+		var val = this.value(scope);
+		val.push(value);
+		this.assign(val, scope, agent);
+	}
+
 	/**
 	 * Change the current value of this symbol and notify.
 	 *
@@ -979,17 +1345,15 @@
 	 * @param {Symbol} modifying_agent
 	 * @param {boolean} pushToNetwork
 	 */
-	Symbol.prototype.assign = function (value, scope, modifying_agent, pushToNetwork) {
+	Symbol.prototype.assign = function (value, scope, modifying_agent) {
+		// This is a HACK to fix missing scopes
 		if (!(scope instanceof Scope)) {
-			pushToNetwork = modifying_agent;
 			modifying_agent = scope;
 			scope = root.scope;
 		}
 		this.garbage = false;
-		value = copy(value);
-		if (pushToNetwork) {
-			eden.emit("beforeAssign", [this, value, modifying_agent]);
-		}
+		if (this.cache.value !== value) value = copy(value);
+		
 		if (this.name === "/autocalc") {
 			/* JS-EDEN has a separate Boolean type so users may expect to be able to assign true and
 			 * false even though autocalc uses 1 and 0 for compatibility with tkeden. */
@@ -1005,6 +1369,7 @@
 		this.evalResolved = true;
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = undefined;
+		this.needsGlobalNotify = Symbol.ASSIGNED;
 
 		this.extend = undefined;
 
@@ -1020,6 +1385,9 @@
 		if (this.context) {
 			this.context.expireSymbol(this);
 		}
+
+		// Attempt send over p2p network
+		if (eden.peer) eden.peer.assign(this.last_modified_by, this.name, value);
 
 		return this;
 	};
@@ -1077,6 +1445,7 @@
 		// which is allowed to refer to the cached value.
 		this.value(scope);
 		this.definition = undefined;
+		this.needsGlobalNotify = Symbol.ASSIGNED;
 
 		var args = [];
 		for (var i = 1; i < arguments.length; i++) {
@@ -1127,7 +1496,9 @@
 		try {
 			this.value().call(this, this.context, this.context.scope);
 		} catch (error) {
-			this.logError("Failed while triggering: " + error);
+			//this.logError("Failed while triggering: " + error);
+			var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.PROCAGENT, undefined, "Triggered proc failed: "+error);
+			Eden.Agent.emit("error", [this,err]);
 		}
 	};
 
@@ -1154,7 +1525,9 @@
 			try {
 				this.jsObservers[jsObserverName](this, this.cache.value);
 			} catch (error) {
-				this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
+				//this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
+				var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.JSOBSERVER, undefined, "JavaScript observer '"+jsObserverName+"' failed: "+error);
+				Eden.Agent.emit("error", [this,err]);
 				var debug;
 				if (this.context) {
 					var debugOptions = this.cache.value;
@@ -1165,7 +1538,7 @@
 				if (debug) {
 					debugger;
 				}
-				throw error;
+				//throw error;
 			}
 		}
 	}
@@ -1188,6 +1561,8 @@
 			symbols_to_force[this.name] = insertionIndex.value;
 			insertionIndex.value++;
 		}
+
+		this.needsGlobalNotify = Symbol.EXPIRED;
 
 		// recursively mark out of date and collect
 		for (var subscriber_name in this.subscribers) {
@@ -1371,21 +1746,26 @@
 	};
 
 	Symbol.prototype.addExtension = function(idstr, ext, source, modifying_agent, deps) {
-		if (this.extend === undefined) {
-			this.extend = {};
-		}
-		this.extend[idstr] = { code: ext, source: source, deps: deps };
+		if (this.definition) {	
+			if (this.extend === undefined) {
+				this.extend = {};
+			}
+			this.extend[idstr] = { code: ext, source: source, deps: deps };
 
-		this.subscribe(deps);
+			this.subscribe(deps);
+			this.needsGlobalNotify = Symbol.REDEFINED;
 
-		if (this.context) {
-			this.context.expireSymbol(this);
+			if (this.context) {
+				this.context.expireSymbol(this);
+			}
+		} else {
+			throw new Error(Eden.RuntimeError.EXTENDSTATIC);
 		}
 	}
 
 	Symbol.prototype.listAssign = function(value, scope, modifying_agent, pushToNetwork, indices) {
 		if (this.definition) {
-			console.log("ASSIGN TO DEFINED LIST ERROR");
+			throw new Error(Eden.RuntimeError.ASSIGNTODEFINED);
 			return;
 		}
 
@@ -1402,13 +1782,16 @@
 			//}
 			list[indices[indices.length-1]] = value;
 		} else {
-			console.log("ASSIGN DIMENSION ERROR");
+			throw new Error(Eden.RuntimeError.ASSIGNDIMENSION);
 		}
 
 		this._setLastModifiedBy(modifying_agent);
+		this.needsGlobalNotify = Symbol.ASSIGNED;
 		if (this.context) {
 			this.context.expireSymbol(this);
 		}
+
+		if (eden.peer) eden.peer.listAssign(this.last_modified_by, this.name, value, indices);
 		return this;
 	}
 
@@ -1510,6 +1893,7 @@
 	global.ScopeOverride = ScopeOverride;
 	global.edenCopy = copy;
 	global.BoundValue = BoundValue;
+	global.InternalAgent = InternalAgent;
 	
 	// expose as node.js module
 	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
@@ -1518,5 +1902,6 @@
 		exports.Scope = Scope;
 		exports.ScopeOverride = ScopeOverride;
 		exports.edenCopy = copy;
+		exports.InternalAgent = InternalAgent;
 	}
 }(typeof window !== 'undefined' ? window : global));

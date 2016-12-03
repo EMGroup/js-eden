@@ -37,7 +37,17 @@ var Language = {
 		"author": "author",
 		"version": "version",
 		"param": "param",
-		"return": "return"
+		"return": "return",
+		"debug": "debug",
+		"local": "local",
+		"role": "role",
+		"shared": "shared",
+		"oracle": "oracle",
+		"handle": "handle",
+		"deprecated": "deprecated",
+		"see": "see",
+		"{": "{",
+		"}": "}"
 	},
 
 	keywords: {
@@ -49,6 +59,7 @@ var Language = {
 		"local": "local",
 		"if": "if",
 		"is": "is",
+		"in": "in",
 		"else": "else",
 		"for": "for",
 		"while": "while",

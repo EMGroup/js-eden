@@ -8,8 +8,17 @@
  * Functions that operate on lists.
  */
 
-##If the first argument is undefined then the result is undefined.
-##If more than two arguments are provided then an error is raised.
+/**
+ * Generate an array of size n filled with a default value.
+ *   @param n Size of array to make.
+ *   @param [default] Fill it with this value.
+ *   @return New array of size n.
+ *   @deprecated
+ *   #library
+ * 
+ * If the first argument is undefined then the result is undefined.
+ * If more than two arguments are provided then an error is raised.
+ */
 func array {
 	${{
 		if (arguments.length == 0 || arguments.length > 2) {
@@ -36,19 +45,19 @@ func array {
 	}}$;
 }
 
-##Returns the position of first argument in the list if it is found somewhere
-##in the list given by the second argument, zero if it's not in the list or
-##undefined if the list is undefined.
-##
-##The optional third argument allows a initial portion of the list to be omitted
-##from the search.
-##
-##If the optional forth argument is true then the list is assumed to be in
-##alphabetical order, ascending numerical order or nested list lexicographic
-##order and a binary search algorithm will be used for increased efficiency,
-##otherwise a linear search will be used.
-##
-##A new JS-EDEN specific function.
+/**
+ * Returns the position of first argument in the list if it is found somewhere
+ * in the list given by the second argument, zero if it's not in the list or
+ * undefined if the list is undefined.
+ *
+ * The optional third argument allows a initial portion of the list to be omitted
+ * from the search.
+ *
+ * If the optional forth argument is true then the list is assumed to be in
+ * alphabetical order, ascending numerical order or nested list lexicographic
+ * order and a binary search algorithm will be used for increased efficiency,
+ * otherwise a linear search will be used.
+ */
 func positionInList {
 	${{
 		if (arguments.length < 2 || arguments.length > 4) {
@@ -121,7 +130,12 @@ func positionInList {
 	}}$;
 }
 
-##A new JS-EDEN specific function.
+/**
+ * Reverse a list.
+ *   @param list
+ *   @return Reverse of the list.
+ *   #library
+ */
 func reverse {
 	para list;
 	auto result, i;
@@ -146,15 +160,24 @@ func reverse {
 	return result;
 }
 
-##This function is identical to indexOf except:
-##
-##It takes an additional parameter that specifies a custom comparison function
-##to use instead of the built-in less than operator.
-##
-##If the first argument is a string then it is only possible to search for a
-##single character, not an arbitrary substring.
-##
-##A new JS-EDEN specific function.
+/**
+ * Search a string or a list.
+ *
+ * This function is identical to indexOf except:
+ *
+ * It takes an additional parameter that specifies a custom comparison function
+ * to use instead of the built-in less than operator.
+ *
+ * If the first argument is a string then it is only possible to search for a
+ * single character, not an arbitrary substring.
+ *   @param searchValue The value to search for.
+ *   @param list The list to search
+ *   @param compare A function pointer to use as comparator.
+ *   @param [lowerBound]
+ *   @param [isSorted]
+ *   @return Index of the value if found.
+ *   #library
+ */
 func search {
 	para searchValue, list, compare, lowerBound, isSorted;
 	auto low, high, middle, relativeOrder, element, i, haystackType;
@@ -219,46 +242,35 @@ func search {
 	return 0;
 }
 
-##Returns the list equal to the first argument sorted according to the
-##collation order specified by the second argument.  Valid values for the
-##second parameter are:
-## @ - Return the original list without sorting the items.
-## "ascending" - Sort the items in ascending order according to the values returned by
-##     JavaScript's less than (<) and greater than (>) operators.  Lists of
-##     strings will be sorted alphabetically, lists of numbers will be sorted
-##     numerically and lists of lists will be sorted lexicographically.
-## "descending" - Sort the items in descending order according to the values returned by
-##     JavaScript's less than (<) and greater than (>) operators.
-## a function - The function should take two parameters and return a positive
-##     value if the first argument should be appear after the second argument
-##     in the result list, a negative value if it should appear before and zero
-##     if the two arguments are equal.
-##
-##If the second parameter is omitted then the result is the same as if 1 was
-##specified.
-##
-##If one of the list items is undefined then the undefined value will remain in
-##in the same position in the output list and the two sublists formed by
-##considering the items before and after the undefined value will be sorted
-##separately.  This matches the behaviour of tkeden.
-##
-##Differences from tkeden:
-##
-##In tkeden "ascending" and "descending" were called 1 and 2.
-##
-##tkeden will "sort" a single value that is given as the first parameter that is
-##defined but is neither a list nor a string.  This implementation will raise an
-##error if the first argument is defined but is not a list or a string.  If the
-##first argument is string typed then the characters within the string will be
-##sorted and the result will be another string, the same as in tkeden.
-##
-##tkeden will return the original list without error if the second argument is
-##any value other than 1 or 2.  This function will raise an error if the second
-##argument isn't one of allowed values defined above.
-##
-##Defaulting to use "ascending" collation order and the ability to use a custom
-##comparison function are JS-EDEN specific extensions.
-##
+/**
+ * Returns the list equal to the first argument sorted according to the
+ * collation order specified by the second argument.  Valid values for the
+ * second parameter are:
+ *
+ *  * @ - Return the original list without sorting the items.
+ *  * "ascending" - Sort the items in ascending order according to the values returned by
+ *      JavaScript's less than (<) and greater than (>) operators.  Lists of
+ *      strings will be sorted alphabetically, lists of numbers will be sorted
+ *      numerically and lists of lists will be sorted lexicographically.
+ *  * "descending" - Sort the items in descending order according to the values returned by
+ *      JavaScript's less than (<) and greater than (>) operators.
+ *  * a function - The function should take two parameters and return a positive
+ *      value if the first argument should be appear after the second argument
+ *      in the result list, a negative value if it should appear before and zero
+ *      if the two arguments are equal.
+ *
+ * If the second parameter is omitted then the result is the same as if 1 was
+ * specified.
+ *
+ * If one of the list items is undefined then the undefined value will remain in
+ * in the same position in the output list and the two sublists formed by
+ * considering the items before and after the undefined value will be sorted
+ * separately.
+ *   @param list The list to be sorted.
+ *   @param [order] Change direction or sorting function.
+ *   @return Sorted list.
+ *   #library
+ */
 func sort {
 	${{ 
 		if (arguments.length == 0 || arguments.length > 2) {
@@ -349,49 +361,55 @@ func sort {
 	}}$;
 }
 
-##This function incorporates both the rules specified by the EDEN Language
-##Guide and JavaScript's rules.
-##
-##sublist(list, from, to)
-##
-##If from > to then the result is [] (from the EDEN Language Guide).
-##
-##If to is greater than the length of the list then the result is padded with
-##a required number of undefined elements (from the EDEN Language Guide).
-##
-##If list is undefined then the result is undefined, which is following what
-##I believe is a general JS-EDEN design principle.  This behaviour is
-##inconsistent with tkeden however.  Nevertheless the Language Guide doesn't
-##explicitly say that an implementation must raise an error.
-##
-##The Language Guide says that the user should not provide a from value less than 1.
-##tkeden produces an error in this case.  The Language Guide suggests that the
-##user is at fault for calling the function with an argument outside of the
-##range permitted by the specification and again the specification does not
-##explicitly demand that the interpreter produces an error message in this case.
-##If one applies a formal methods viewpoint then calling a function with an
-##unsatisfied precondition permits the function's author to handle it in any
-##way that they choose.  If from is less than zero then this implementation applies
-##the JavaScript convention that negative numbers refer to positions counted
-##backward from the end of the list, so the last element of the list can be
-##referred to using the index -1, the penultimate element as -2, etc.  If from
-##is zero and list is defined then an error is raised.  Similarly, if from is
-##negative then this implementation allows to to be negative too, with the same
-##counting back from the end of the list semantics applied to both from and to.
-##
-##If to is undefined then the end of the list is used as the limit, which is another
-##JavaScript rule.  If from is undefined then the results are the same
-##as when from is 1 except that to can be negative and have the counting back
-##from the end of the list semantics.  This is my own rule to mediate the
-##tension between JavaScript's rules and EDEN's rules.
-##
-##If to is omitted then the result is the same as when it is explicitly
-##specified as undefined.
-##
-##In conclusion this function implements EDEN's sublist function with several
-##extensions that ascribe meaningful results in cases when tkeden would baulk
-##with an error messge.
-##
+/**
+ * This function incorporates both the rules specified by the EDEN Language
+ * Guide and JavaScript's rules.
+ *
+ * sublist(list, from, to)
+ *
+ * If from > to then the result is [] (from the EDEN Language Guide).
+ *
+ * If to is greater than the length of the list then the result is padded with
+ * a required number of undefined elements (from the EDEN Language Guide).
+ *
+ * If list is undefined then the result is undefined, which is following what
+ * I believe is a general JS-EDEN design principle.  This behaviour is
+ * inconsistent with tkeden however.  Nevertheless the Language Guide doesn't
+ * explicitly say that an implementation must raise an error.
+ *
+ * The Language Guide says that the user should not provide a from value less than 1.
+ * tkeden produces an error in this case.  The Language Guide suggests that the
+ * user is at fault for calling the function with an argument outside of the
+ * range permitted by the specification and again the specification does not
+ * explicitly demand that the interpreter produces an error message in this case.
+ * If one applies a formal methods viewpoint then calling a function with an
+ * unsatisfied precondition permits the function's author to handle it in any
+ * way that they choose.  If from is less than zero then this implementation applies
+ * the JavaScript convention that negative numbers refer to positions counted
+ * backward from the end of the list, so the last element of the list can be
+ * referred to using the index -1, the penultimate element as -2, etc.  If from
+ * is zero and list is defined then an error is raised.  Similarly, if from is
+ * negative then this implementation allows to to be negative too, with the same
+ * counting back from the end of the list semantics applied to both from and to.
+ *
+ * If to is undefined then the end of the list is used as the limit, which is another
+ * JavaScript rule.  If from is undefined then the results are the same
+ * as when from is 1 except that to can be negative and have the counting back
+ * from the end of the list semantics.  This is my own rule to mediate the
+ * tension between JavaScript's rules and EDEN's rules.
+ *
+ * If to is omitted then the result is the same as when it is explicitly
+ * specified as undefined.
+ *
+ * In conclusion this function implements EDEN's sublist function with several
+ * extensions that ascribe meaningful results in cases when tkeden would baulk
+ * with an error messge.
+ *   @param list The source list.
+ *   @param from Start index (inclusive).
+ *   @param [to] Optional end, or defaults to end of list. Can be negative.
+ *   @return The sublist.
+ *   #library
+ */
 func sublist {
 	${{
 		if (arguments.length < 2 || arguments.length > 3) {
@@ -435,6 +453,12 @@ func sublist {
 	}}$;
 }
 
+/**
+ * Returns a list with the first item removed.
+ *   @param list Source list
+ *   @return The list minus the first item.
+ *   #library
+ */
 func tail {
 	para p1;
 	auto argc;

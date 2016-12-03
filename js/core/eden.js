@@ -5,58 +5,11 @@
  * See LICENSE.txt
  */
 
-function noop() {}
-
-function listenTo(eventName, target, callback) {
-	if (!this.listeners[eventName]) {
-		this.listeners[eventName] = [];
-	}
-	this.listeners[eventName].push({target: target, callback: callback});
-}
-
-function emit(eventName, eventArgs) {
-	var listenersForEvent = this.listeners[eventName];
-	if (!listenersForEvent) {
-		return;
-	}
-	var i;
-	for (i = 0; i < listenersForEvent.length; ++i) {
-		var target = listenersForEvent[i].target;
-		var callback = listenersForEvent[i].callback;
-		callback.apply(target, eventArgs);
-	}
-}
-
-// import node.js modules
-function concatAndResolveUrl(url, concat) {
-	var url1 = url.split('/');
-	var url2 = concat.split('/');
-	var url3 = [ ];
-	for (var i = 0, l = url1.length; i < l; i ++) {
-		if (url1[i] == '..') {
-			url3.pop();
-		} else if (url1[i] == '.') {
-			continue;
-		} else {
-			url3.push(url1[i]);
-		}
-	}
-	for (var i = 0, l = url2.length; i < l; i ++) {
-		if (url2[i] == '..') {
-			url3.pop();
-		} else if (url2[i] == '.') {
-			continue;
-		} else {
-			url3.push(url2[i]);
-		}
-	}
-	return url3.join('/');
-}
 
 (function (global) {
 	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 		Polyglot = require('./polyglot').Polyglot;
-		parser = require('./translator').parser;
+		//parser = require('./translator').parser;
 		rt = require('./runtime').rt;
 	}
 
@@ -138,6 +91,7 @@ function concatAndResolveUrl(url, concat) {
 		});*/
 
 		this.eden.listenTo('executeError', this, function (e, options) {
+			console.error("DEPRECATED ERROR REPORTING", e);
 			var errorMessageHTML = Eden.htmlEscape(e.message);
 
 			var formattedError = "<div class=\"error-item\">"+
@@ -164,8 +118,6 @@ function concatAndResolveUrl(url, concat) {
 
 		this.windowHighlighter = new WindowHighlighter(this);
 		this.currentView = undefined; //Used for cycling between views.
-
-		this.errorWindow = null;
 		
 		this.viewCategories = {};
 		this.numberOfViewCategories = 0;
@@ -182,26 +134,78 @@ function concatAndResolveUrl(url, concat) {
 		 * their own, e.g. State Listener. */
 		this.addViewCategory("extension", "Extensions");
 		/*Category of plug-ins that pertain to the management of the JS-EDEN environment itself, e.g. Plugin Listing. */
-		this.addViewCategory("environment", "Management");		
+		this.addViewCategory("environment", "Management");
 
-		this.views.ErrorLog = {
-			dialog: function () {
-				if (!this.errorWindow) {
-					this.errorWindow = $(
-						'<pre id="errors-dialog"></pre>'
-					);
+		// Allow ctrl-click observable identification in the UI...
+		$(document).on("click", function(e) {
+			if (e.ctrlKey || e.metaKey) {
+				var observables = [];
+				var current = e.target;
+
+				// Navigate back through DOM finding associated observables.
+				while (current.nodeName != "BODY") {
+					var data = current.getAttribute("data-observables");
+					if (data && data != "") {
+						observables.push.apply(observables, data.split(","));
+					}
+					current = current.parentNode;
 				}
 
-				this.errorWindow
-					.addClass('ui-state-error')
-					.dialog({width: 500, height: 250})
-					.dialog('moveToTop');
-				me.brieflyHighlightView(this.name);
-			},
-			title: "Error Log",
-			name: "errors",
-			category: this.viewCategories.interpretation
-		};
+				//console.log("Associated: ",);
+				edenUI.explorer.watch(observables);
+			}
+		});
+	}
+
+
+	/**
+	 * Parse an agent name string to attempt to find its location and display
+	 * that location to the user by opening a script view to it. If it is
+	 * already in a script view it will change to that tab and scroll to the
+	 * line if the line is known. Note that it does not always succeed.
+	 * @param {String} An agent/symbol name.
+	 * @param {number?} Optional line number if already known.
+	 */
+	EdenUI.prototype.gotoCode = function(agentname, line) {
+		// Is it a symbol name?
+		if (agentname.charAt(0) == "/") {
+			// Find, if possible, where this symbol is located currently.
+			var sym = eden.root.lookup(agentname.slice(1));
+			
+			// Attempt to get line number.
+			if (sym.eden_definition && sym.last_modified_by.name.charAt(0) != "*" && sym.last_modified_by.name.charAt(0) != "/") {
+				var ag = Eden.Agent.agents[sym.last_modified_by.name];
+				if (ag) {
+					line = ag.findDefinitionLine(sym.name.slice(1), sym.eden_definition);
+				}
+			}
+
+			this.gotoCode(sym.last_modified_by.name, line);
+		// The agent is a script name so attempt to go to an open one first
+		} else if (agentname.charAt(0) != "*" && !Eden.Agent.emit("goto", [Eden.Agent.agents[agentname], line])) {
+			this.createView("explorescript", "ScriptInput", window);
+			eden.root.lookup("_view_explorescript_agent").assign(agentname, eden.root.scope);
+			Eden.Agent.emit("goto", [Eden.Agent.agents[agentname], line]);
+		// The agent is something special, a "when" or "javascript".
+		} else if (agentname.charAt(0) == "*") {
+			if (agentname.startsWith("*Action")) {
+				var s = agentname.split(":");
+				var ag = Eden.Agent.agents[s[1]];
+				if (ag && ag.ast) {
+					var script = ag.ast.scripts[s[2]];
+					if (script) {
+						this.gotoCode(ag.name, script.line);
+					}
+				}
+			} else if (agentname.startsWith("*When")) {
+				var s = agentname.split(":");
+				var ag = Eden.Agent.agents[s[1]];
+				if (ag) {
+					this.gotoCode(ag.name, parseInt(s[2]));
+				}
+			}
+			// Nothing we can do otherwise
+		}
 	}
 
 	/**Momentarily provides a visual cue to direct the user's gaze towards a particular view.
@@ -277,11 +281,6 @@ function concatAndResolveUrl(url, concat) {
 		this.numberOfViewCategories++;
 	};
 
-	EdenUI.prototype.showErrorWindow = function () {
-		this.createView("errors", "ErrorLog", window);
-		return $("#errors-dialog");
-	};
-
 	EdenUI.prototype.updateStatus = function(message) {
 		// If loading, update the loader message
 		if (!this.loaded) {
@@ -309,7 +308,7 @@ function concatAndResolveUrl(url, concat) {
 	};
 
 	EdenUI.prototype.finishedLoading = function() {
-		$(".loaddialog").remove();
+		//$(".loaddialog").remove();
 		this.loaded = true;
 		//edenUI.updateStatus(Language.ui.general.finished_loading);
 	};
@@ -520,6 +519,7 @@ function concatAndResolveUrl(url, concat) {
 	function Eden(root) {
 		this.root = root;
 		root.base = this;
+		this.dictionary = {};	// Used to store doxy comments for symbols.
 
 		/**
 		 * @type {number}
@@ -527,39 +527,11 @@ function concatAndResolveUrl(url, concat) {
 		 */
 		this.errorNumber = 0;
 
-		this.polyglot = new Polyglot();
-
-		var me = this;
-		this.polyglot.setDefault('eden');
-		this.polyglot.register('eden', {
-			execute: function (code, origin, prefix, agent, success) {
-				me.executeEden(code, origin, prefix, agent, success);
-			}
-		});
-		this.polyglot.register('js', {
-			execute: function (code, origin, prefix, agent, success) {
-				var result = eval(code);
-				success && success(result);
-			}
-		});
-
 		/**
 		 * @type {Object.<string, Array.<{target: *, callback: function(...[*])}>>}
 		 * @private
 		 */
 		this.listeners = {};
-
-		/**
-		 * A record of the external files that have been loaded using the include statement.
-		 * Plugins (such as the script generator) can request a copy of this information.
-		 * @private
-		 */
-		this.topLevelIncludes = [];
-		
-		/**
-		 * Includes nested includes.
-		 */
-		this.included = {};
 
 		/**
 		 * Setting this to false temporarily prevents the error method from
@@ -571,57 +543,79 @@ function concatAndResolveUrl(url, concat) {
 		 * @public
 		*/
 		this.reportErrors = true;
-
-		/**Records whether or not the environment is in the initial state, i.e. if the system
-		 * library is loaded but no other definitions have been made.
-		 * @type {boolean}
-		 * @private
-		 */
-		var inInitialState = true;
-		
-		/**Records the values of the observables in the initial state.
-		 * @type {Object}
-		 * @private
-		 */
-		var initialDefinitions = {};
 	}
 
 	Eden.prototype.isValidIdentifier = function (name) {
 		return Boolean(name && /^[_a-zA-Z]\w*$/.test(name));
 	};
 
-	Eden.prototype.captureInitialState = function () {
-		this.initialDefinitions = {};
-		for (var i = 0; i < Eden.initiallyDefined.length; i++) {
-			var name = Eden.initiallyDefined[i];
-			if (name in this.root.symbols) {
-				var symbol = this.root.symbols[name];
-				if (symbol.eden_definition !== undefined && symbol.definition !== undefined) {
-					this.initialDefinitions[name] = symbol.eden_definition + ";";
-				} else {
-					this.initialDefinitions[name] = name + " = " + Eden.edenCodeForValue(symbol.context.scope.lookup(symbol.name).value) + ";";
-				}
+
+	/**
+	 * Load a project from a project manager path.
+	 * @param {String} path Agent path in project manager.
+	 * @param {*} tag Version number or name to load.
+	 * @param {Function} Callback function when completed.
+	 * @param {boolean} Prevent generation of new URL and history entry.
+	 * @public
+	 */
+	Eden.load = function(path, tag, cb, nohistory) {
+		console.log("Loading project: " + path + "@" + tag);
+
+		Eden.DB.load(path,tag, undefined, function(status) {
+			EdenUI.MenuBar.saveTitle(status.title);
+			eden.root.lookup("_jseden_loaded").assign(true, eden.root.scope);
+
+			if (!nohistory) {
+				// Process existing URL
+				var master = URLUtil.getParameterByName("master");
+				var id = URLUtil.getParameterByName("id");
+				var newurl = "?load="+path+"&tag="+tag;
+				if (id != "") newurl += "&id="+id;
+				if (master != "") newurl += "&master="+master;
+				window.history.pushState({project: path, tag: tag},"",newurl);
 			}
+
+			if (cb) cb();
+		});
+	}
+
+	/** Unused currently */
+	Eden.loadFromString = function(str, cb) {
+		var data = JSON.parse(str);
+		eden.execute2(data.script);
+		var menu = $(".jseden-title").get(0);
+		if (menu) {
+			menu.textContent = data.title;
 		}
-		this.included = {};
-		this.inInitialState = true;
+		EdenUI.MenuBar.saveTitle(data.title);
+		window.history.pushState(null,"","");
+		eden.root.lookup("_jseden_loaded").assign(true, eden.root.scope);
+		if (cb) cb(data);
 	}
 
-	Eden.prototype.initialDefinition = function (name) {
-		return this.initialDefinitions[name];
+
+	/**
+	 * Reset the entire environment, including the UI, symbol table and agents.
+	 * This should be used when going back in the browser and loading a new
+	 * project.
+	 * TODO Currently does not work, plugin JS observers are lost.
+	 * @public
+	 */
+	Eden.reset = function() {
+		edenUI.destroyAllViews();
+		eden.reset();
+		Eden.Agent.removeAll();
+		// Reset plugins!
 	}
 
-	Eden.prototype.isInInitialState = function () {
-		return this.inInitialState;
-	}
 
+	/**
+	 * Reset the symbol table.
+	 */
 	Eden.prototype.reset = function () {
-		this.root.lookup("forgetAll").definition(root, root.scope)("", true, false);
+		this.root.forgetAll("", true, false);
 		this.root.collectGarbage();
 		this.errorNumber = 0;
-		this.inInitialState = true;
-		this.topLevelIncludes = [];
-		this.included = {};
 		this.reportErrors = true;
 	}
 
@@ -659,20 +653,8 @@ function concatAndResolveUrl(url, concat) {
 	};
 	
 	Eden.prototype.executeEden = function (code, origin, prefix, agent, success) {
-		var result;
-		var me = this;
-		this.emit('executeBegin', [origin, code]);
-		//try {
-			var js = this.translateToJavaScript(code);
-			this.inInitialState = false;
-			eval(js).call(agent, this.root, this, this.root.scope, prefix, function () {
-				success && success();
-				me.emit('executeEnd', [origin]);
-			});
-		//} catch (e) {
-		//	this.error(e);
-			success && success();
-		//}
+		console.error("DEPRECATED USE OF OLD PARSER", code);
+		success && success();
 	};
 
 	/**
@@ -704,118 +686,38 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {function()} success Called when include has finished successfully.
 	 */
 	Eden.prototype.include = function (includePath, prefix, agent, success) {
-		console.trace("DEPRECATED: use of include for " + includePath);
-		var me = this;
-		var includePaths;
-		if (includePath instanceof Array) {
-			includePaths = includePath;
-		} else {
-			includePaths = [includePath];
-		}
-
-		if (arguments.length === 2) {
-			// path and callback
-			success = prefix;
-			agent = {name: '/include'};
-			prefix = '';
-		} else if (arguments.length === 3) {
-			success = agent;
-			agent = prefix;
-			prefix = '';
-		}
-		/* The include procedure is the agent that modifies the observables, not the agent passing
-		 * the include agent a filename.  Interesting philosophically?  Plus a practical necessity,
-		 * e.g. for the Script Generator plug-in to work properly.
-		 */
-		var originalAgent = agent;
-		agent = {name: '/include'};		
-
-		var addIncludeURL = function (url) {
-			var index = me.topLevelIncludes.indexOf(url);
-			if (index != -1) {
-				me.topLevelIncludes.splice(index, 1);
-			}
-			me.topLevelIncludes.push(url);
-		}
-		
-		var promise;
-		includePaths.forEach(function (includePath) {
-			var url;
-			if (includePath.charAt(0) === '.') {
-				url = concatAndResolveUrl(prefix, includePath);
-			} else {
-				url = includePath;
-			}
-			var match = url.match(/(.*)\/([^\/]*?)$/);
-			var newPrefix = match ? match[1] : '';
-			var previousPromise = promise;
-			promise = $.ajax({
-				url: url,
-				dataType: "text"
-			}).then(function (data) {
-				var deferred = $.Deferred();
-				if (previousPromise) {
-					return previousPromise.then(function () {
-						eden.execute(data, url, newPrefix, agent, deferred.resolve);
-						if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
-							addIncludeURL(url);
-						}
-						me.included[url] = true;
-						return deferred.promise;
-					});
-				} else {
-					eden.execute(data, url, newPrefix, agent, deferred.resolve);
-					if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
-						addIncludeURL(url);
-					}
-					me.included[url] = true;
-					return deferred.promise;
-				}
-			});
-		});
-		promise.then(function () {
-			if (success !== undefined) {
-				try {
-					success.call(agent);
-				} catch (e) {
-					me.error(e);
-				}
-			}
-		});
+		console.error("DEPRECATED USE OF INCLUDE: ", includePath);
+		success && success();
 	};
 
 	/**
 	 * @param {string} code
-	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
+	 * @param {String?} agent The name of the agent to use/
 	 * @param {string?} prefix Prefix used for relative includes.
 	 * @param {function(*)} success
 	 */
-	Eden.prototype.execute2 = function (code, origin, prefix, agent, success) {
-		if (arguments.length == 1) {
-			success = noop;
-			origin = 'unknown';
-			prefix = '';
-			agent = {name: '/execute'};
-		}
-		if (arguments.length == 2) {
-			success = origin;
-			origin = 'unknown';
-			prefix = '';
-			agent = {name: '/execute'};
+	Eden.prototype.execute2 = function (code, agent, success) {
+		var agobj = agent;
+
+		if (agent === undefined || typeof agent == "string") {
+			agobj = {name: 'execute', getSource: function() { return code; }, getLine: function() { return 0; }};
+			if (agent) agobj.name = agent;
 		}
 
-		var ast = new Eden.AST(code);
+		//if (agobj.getSource === undefined) agobj.getSource = function() { return code; };
+		//if (agobj.getLine === undefined) agobj.getLine = function() { return 0; };
+
+		var ast = new Eden.AST(code, undefined, agobj);
 		if (ast.script.errors.length == 0) {
-			ast.script.execute(this.root,this.root.scope, ast);
+			ast.execute(agobj, success);
 		} else {
 			console.error(ast.script.errors[0].prettyPrint());
+			success && success(false);
 		}
-		success && success.call();
-		//this.polyglot.execute(code, origin, prefix, agent, success);
 	};
 
 
-
+	/** Deprecated */
 	Eden.prototype.agentFromFile = function(name, url, execute) {
 		var agent;
 		if (Eden.Agent.agents[name] === undefined) {
@@ -827,103 +729,6 @@ function concatAndResolveUrl(url, concat) {
 	}
 
 
-	//Eden.prototype.execute = Eden.prototype.execute2;
-
-	/**
-	 * @param {string} includePath
-	 * @param {string?} prefix Prefix used for relative includes.
-	 * @param {function()} success Called when include has finished successfully.
-	 */
-	Eden.prototype.include2 = function (includePath, prefix, agent, success) {
-		var me = this;
-		var includePaths;
-		if (includePath instanceof Array) {
-			includePaths = includePath;
-		} else {
-			includePaths = [includePath];
-		}
-
-		if (arguments.length === 2) {
-			// path and callback
-			success = prefix;
-			agent = {name: '/include'};
-			prefix = '';
-		} else if (arguments.length === 3) {
-			success = agent;
-			agent = prefix;
-			prefix = '';
-		}
-		/* The include procedure is the agent that modifies the observables, not the agent passing
-		 * the include agent a filename.  Interesting philosophically?  Plus a practical necessity,
-		 * e.g. for the Script Generator plug-in to work properly.
-		 */
-		var originalAgent = agent;
-		agent = {name: '/include'};		
-
-		var addIncludeURL = function (url) {
-			var index = me.topLevelIncludes.indexOf(url);
-			if (index != -1) {
-				me.topLevelIncludes.splice(index, 1);
-			}
-			me.topLevelIncludes.push(url);
-		}
-		
-		var promise;
-		includePaths.forEach(function (includePath) {
-			var url;
-			if (includePath.charAt(0) === '.') {
-				url = concatAndResolveUrl(prefix, includePath);
-			} else {
-				url = includePath;
-			}
-			var match = url.match(/(.*)\/([^\/]*?)$/);
-			var newPrefix = match ? match[1] : '';
-			var previousPromise = promise;
-			promise = $.ajax({
-				url: url,
-				dataType: "text"
-			}).then(function (data) {
-				var deferred = $.Deferred();
-				if (previousPromise) {
-					return previousPromise.then(function () {
-						eden.execute2(data, url, newPrefix, agent, deferred.resolve);
-						//var nagent = new Eden.Agent();
-						//nagent.setSource(data);
-						//nagent.executeLine(-1);
-						if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
-							addIncludeURL(url);
-						}
-						me.included[url] = true;
-						return deferred.promise;
-					});
-				} else {
-					eden.execute2(data, url, newPrefix, agent, deferred.resolve);
-					//var nagent = new Eden.Agent();
-					//nagent.setSource(data);
-					//nagent.executeLine(-1);
-					if (originalAgent !== undefined && originalAgent.name == Symbol.getInputAgentName()) {
-						addIncludeURL(url);
-					}
-					me.included[url] = true;
-					return deferred.promise;
-				}
-			});
-		});
-		promise.then(function () {
-			success && success.call(agent);
-		});
-	};
-
-	Eden.prototype.getIncludedURLs = function () {
-		return this.topLevelIncludes.slice();
-	}
-
-	/**
-	 * Includes nested includes.
-	 */
-	Eden.prototype.getAllIncludedURLs = function () {
-		return Object.keys(this.included);
-	}
 
 	/**Given any JavaScript value returns a string representing the EDEN code that would be required
 	 * to obtain the same value when interpreted.
@@ -931,7 +736,7 @@ function concatAndResolveUrl(url, concat) {
 	 * @param {Array} refStack Used when the method recursively calls itself.
 	 * @returns {string} The EDEN code that produces the given value.
 	 */
-	Eden.edenCodeForValue = function (value, refStack) {
+	Eden.edenCodeForValue = function (value, refStack, precision) {
 		var type = typeof(value);
 		var code = "";
 		if (type == "undefined") {
@@ -953,17 +758,17 @@ function concatAndResolveUrl(url, concat) {
 				refStack.push(value);
 				code = "[";
 				for (var i = 0; i < value.length - 1; i++) {
-					code = code + Eden.edenCodeForValue(value[i], refStack) + ", ";
+					code = code + Eden.edenCodeForValue(value[i], refStack, precision) + ", ";
 				}
 				if (value.length > 0) {
-					code = code + Eden.edenCodeForValue(value[value.length - 1], refStack);
+					code = code + Eden.edenCodeForValue(value[value.length - 1], refStack, precision);
 				}
 				code = code + "]";
 				refStack.pop();
 			}
 		} else if (type == "object") {
 			if ("getEdenCode" in value) {
-				code = value.getEdenCode();
+				code = value.getEdenCode(precision);
 			} else if (
 				"keys" in value &&
 				Array.isArray(value.keys) &&
@@ -998,7 +803,7 @@ function concatAndResolveUrl(url, concat) {
 					code = "{";
 					for (var key in value) {
 						if (!(key in Object.prototype)) {
-							code = code + key + ": " + Eden.edenCodeForValue(value[key], refStack) + ", ";
+							code = code + key + ": " + Eden.edenCodeForValue(value[key], refStack, precision) + ", ";
 						}
 					}
 					if (code != "{") {
@@ -1012,6 +817,8 @@ function concatAndResolveUrl(url, concat) {
 			code = "$"+"{{\n\t" +
 					value.toString().replace(/\n/g, "\n\t") +
 				"\n}}"+"$";
+		} else if (type == "number" && precision) {
+			code = value.toFixed(precision);
 		} else {
 			code = String(value);
 		}
@@ -1024,6 +831,15 @@ function concatAndResolveUrl(url, concat) {
 			s = s + Eden.edenCodeForValue(arguments[i]) + ", ";
 		}
 		s = s + Eden.edenCodeForValue(arguments[arguments.length - 1]);
+		return s;
+	}
+
+	Eden.edenCodeForValuesP = function (p) {
+		var s = "";
+		for (var i = 1; i < arguments.length - 1; i++) {
+			s = s + Eden.edenCodeForValue(arguments[i], undefined, p) + ", ";
+		}
+		s = s + Eden.edenCodeForValue(arguments[arguments.length - 1], undefined, p);
 		return s;
 	}
 
@@ -1222,303 +1038,10 @@ function concatAndResolveUrl(url, concat) {
 	/** An identifier used to locate the result of the next call to eval(). */
 	Eden.prototype.nextEvalID = 0;
 
-	/**Compile-time options that alter the way that EDEN code is translated to JavaScript. Like #pragma in C.
-	 *The trackObservableRefsInFunc parsing option controls whether or not z is dependent on y for:
-	 * func f  { para x; return x + y; }
-	 * z is f(a);
-	 */
-	Eden.prototype.parsingOptions = {trackObservableRefsInFuncs: false};
-	
-	/**
-	 * This function sets up a bunch of state/functions used in the generated parser. The
-	 * `parser.yy` object is exposed as `yy` by jison. (See grammar.jison for usage)
-	 *
-	 * @param {string} source EDEN code to translate into JavaScript.
-	 * @returns {string} JavaScript code as a string.
-	 */
-	Eden.prototype.translateToJavaScript = function (source) {
-		var me = this;
+	Eden.prototype.initialDefinition = function() {
+		console.error("INIT DEF DEP");
+	}
 
-		/** @type {Object.<string,*>} */
-		parser.yy;
-
-		source = source.replace(/\r\n/g, '\n');
-
-		parser.yy.commentNesting = 0;
-		
-		parser.yy.async = function (asyncFuncExpression) {
-			var args = Array.prototype.slice.call(arguments, 1);
-			return new Code(1, asyncFuncExpression + '(' + args.concat('function () {')); 
-		};
-
-		function Code(cps, code) {
-			this.cps = cps;
-			this.code = code;
-		}
-
-		Code.prototype.valueOf = function () {
-			throw new Error("Tried to valueOf Code " + this.code);
-		};
-
-		parser.yy.sync = function (code) {
-			return new Code(0, code);
-		};
-
-		parser.yy.code = function (cps, code) {
-			return new Code(cps, code);
-		};
-
-		parser.yy.withIncludes = function (code, callbackName) {
-			var closer = '' + callbackName + '();';
-			var i;
-			for (i = 0; i < code.cps; ++i) {
-				closer += '});';
-			}
-			return code.code + closer;
-		};
-
-		/**
-		 * Extract a string from original eden source being parsed.
-		 *
-		 * @param {number} firstLine Index of the line to start extracting.
-		 * @param {number} firstColumn Position in the line to start extracting.
-		 * @param {number} lastLine Index of the line to end extracting.
-		 * @param {number} lastColumn Position in the line to end extracting.
-		 * @returns {string} Extracted source.
-		 */
-		parser.yy.extractEdenDefinition = function (firstLine, firstColumn, lastLine, lastColumn) {
-			var definitionLines = source.split('\n').slice(firstLine - 1, lastLine);
-			var definition = "";
-
-			for (var i = 0; i < definitionLines.length; ++i) {
-				var line = definitionLines[i];
-
-				var start;
-				if (i === 0) {
-					start = firstColumn;
-				} else {
-					start = 0;
-				}
-
-				var end;
-				if (i === definitionLines.length - 1) {
-					end = lastColumn;
-				} else {
-					end = line.length;
-				}
-
-				definition += line.slice(start, end);
-
-				if (i < definitionLines.length - 1) {
-					definition += "\n";
-				}
-			}
-
-			return definition;
-		};
-
-		var inDefinition = false;
-		var inEval = false;
-		var dependencies = {};
-		var nextBackticksID = 0;
-
-		/**
-		 * Maps from EDEN code contained inside an eval() invocation to an ID number that is later
-		 * used to find the result obtained from evaluating the expression written between the
-		 * parentheses.
-		 */
-		var evalIDs = {};
-
-		/**
-		 * Called in the parser when entering a definition.
-		 */
-		parser.yy.enterDefinition = function () {
-			dependencies = {};
-			evalIDs = {};
-			nextBackticksID = 0;
-			inDefinition = true;
-		};
-
-		/**
-		 * Called in the parser when exiting a definition.
-		 */
-		parser.yy.leaveDefinition = function () {
-			inDefinition = false;
-		};
-
-		/**
-		 * Called in the parser when entering an eval expression.
-		 */
-		parser.yy.enterEval = function () {
-			inEval = true;
-		}
-		
-		/**
-		 * Called in the parser when exiting an eval expression.
-		 */
-		parser.yy.leaveEval = function (eden_exp) {
-			inEval = false;
-			var id = me.nextEvalID;
-			evalIDs[eden_exp] = id;
-			me.nextEvalID++;
-			return id;
-		}
-		
-		/**
-		 * Called in the parser to set a symbol's evalIDs property so that the eden_definition
-		 * property can later be updated to replace eval() with the actual values once they are known.
-		 */
-		parser.yy.printEvalIDs = function (obsName) {
-			var obsJS = parser.yy.observable(obsName);
-			var str = obsJS + ".clearEvalIDs(); ";
-			var evalIDsJS =  obsJS + ".evalIDs";
-			for (exp in evalIDs) {
-				if (evalIDs.hasOwnProperty(exp)) {
-					str = str + evalIDsJS + "[\"" + exp + "\"] = " + evalIDs[exp] + "; ";
-				}
-			}
-			return str;
-		}
-		
-		/**
-		 * Used by the parser to test whether currently parsing a definition.
-		 *
-		 * @returns {boolean}
-		 */
-		parser.yy.inDefinition = function () {
-			return inDefinition;
-		};
-
-		/**
-		 * Used by the parser to test whether currently parsing an eval expression.
-		 *
-		 * @returns {boolean}
-		 */
-		parser.yy.inEval = function () {
-			return inEval;
-		};
-
-		/**
-		 * Used by the parser to record dependencies when parsing a definition.
-		 *
-		 * @param {string} name
-		 */
-		parser.yy.addDependency = function (name) {
-			dependencies[name] = 1;
-		};
-
-		/**
-		 * Used by the parser to generate a list of observables to observe for changes.
-		 *
-		 * @returns {Array.<string>} Array of observable names used in the current definition.
-		 */
-		parser.yy.getDependencies = function () {
-			var dependencyList = [];
-			for (var p in dependencies) {
-				dependencyList.push(p);
-			}
-			return dependencyList;
-		};
-
-		/** @type {Object.<string,number>} */
-		var observables = {};
-
-		/**
-		 * Used by the parser to track observables used in a script.
-		 *
-		 * @param {string} name Name of observable.
-		 * @returns {string} Generated code that results in the Symbol for name.
-		 */
-		parser.yy.observable = function (name) {
-			observables[name] = 1;
-			return "o_" + name;
-		};
-
-		parser.yy.backticks = function () {
-			var id = nextBackticksID;
-			nextBackticksID = id + 1;
-			return id;
-		}
-
-		/**
-		 * Used by the parser to generate 'var' declarations for the whole script.
-		 * These vars store `Symbols` for each observable.
-		 *
-		 * @returns {string} JavaScript statements defining vars for each observable.
-		 */
-		parser.yy.printObservableDeclarations = function () {
-			var javascriptDeclarations = [];
-			for (var observableName in observables) {
-				javascriptDeclarations.push(
-					"var o_" + observableName + " = context.lookup('" + observableName + "');"
-				);
-			}
-
-			return javascriptDeclarations.join("\n");
-		};
-
-		/**
-		 * Used by the parser to store the names of 'auto' and 'para' variables for
-		 * a function. These lists are pushed onto each time the parser enters a
-		 * function definition.
-		 */
-
-		/** @type {Array.<string>} */
-		parser.yy.locals = [];
-
-		/** @type {Array.<string>} */
-		parser.yy.paras = [];
-		
-		/** Tracks which observables have been references inside a function body.
-		  * E.g. for:
-		  * func f  { para x; return x + y; }
-		  * z is f(a);
-		  * f references y, and z should be recomputed when either a or y changes if the
-		  * trackObservableRefsInFunc parsing option is enabled when f is parsed.
-		  * @type {Array.<string>}
-		  */
-		parser.yy.funcBodyDependencies = [];
-
-		parser.yy.addFuncBodyDependency = function (name) {
-			if (me.parsingOptions.trackObservableRefsInFuncs) {
-				this.funcBodyDependencies[0][name] = 1;
-			}
-		}
-
-		parser.yy.getFuncBodyDependencies = function () {
-			var dependencyList = [];
-			for (var p in this.funcBodyDependencies[this.funcBodyDependencies.length - 1]) {
-				dependencyList.push(p);
-			}
-			return dependencyList;
-		};
-
-		parser.yy.setParsingOption = function (optionName, value) {
-			me.parsingOptions[optionName] = value;
-		}
-		
-		/**
-		 * Used by the parser instead of Array.prototype.map which isn't
-		 * available in some browsers.
-		 *
-		 * @param {Array.<?>} array
-		 * @param {function(*, number)} f
-		 * @returns {Array.<?>}
-		 */
-		parser.yy.map = function map (array, f) {
-			if (array.map) {
-				return array.map(function (x, i) { return f(x, i); });
-			}
-
-			var results = [];
-			for (var i = 0; i < array.length; ++i) {
-				results.push(f(array[i], i));
-			}
-			return results;
-		};
-		
-		return parser.parse(source);
-	};
 
 	/**
 	 * @param {string} name
