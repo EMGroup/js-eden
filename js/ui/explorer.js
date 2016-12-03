@@ -1,9 +1,10 @@
 EdenUI.Explorer = function() {
 	var me = this;
 
-	this.element = $('<div class="explore-main"><div class="explore-controls"><button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button><button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button><span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span></div><div class="explore-symbols"></div><div class="explore-console"><div class="explore-console-code" contenteditable="true"></div></div></div>');
+	this.element = $('<div class="explore-main"><div class="explore-controls"><button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button><button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button><span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span></div><div class="explore-symbols"></div><div class="explore-console"><div class="explore-console-code"></div></div></div>');
 	$(document.body).append(this.element);
 	this.results = this.element.find(".explore-symbols");
+	this.consoleele = this.element.find(".explore-console-code");
 
 	this.element.resizable({handles: "w"});
 
@@ -16,6 +17,9 @@ EdenUI.Explorer = function() {
 	this.mode = "tree";
 	this.index = {};
 	this.todo = {};
+
+	// Make the console...
+	this.console = new EdenUI.ScriptBox(this.consoleele.get(0), {nobuttons: true});
 
 	eden.root.addGlobal(function(sym, kind) {
 		if (!me.capture) return;
@@ -77,7 +81,7 @@ EdenUI.Explorer = function() {
 			var cur = node.firstChild;
 			while (cur) {
 				var next = cur.nextSibling;
-				if (cur.nodeName == "DIV" && cur.className.includes("active") == false) node.removeChild(cur);
+				if (cur.nodeName == "DIV" && cur.className != "explore-entry-inner" && cur.className.includes("active") == false) node.removeChild(cur);
 				cur = next;
 			}
 
@@ -207,7 +211,7 @@ EdenUI.Explorer.prototype.makeAgentEntry = function(agent) {
 
 EdenUI.Explorer.prototype.updateEntry = function(sym, valelement) {
 	var svalue = sym.value();
-	var value = (Array.isArray(svalue)) ? "[...]" : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+	var value = (Array.isArray(svalue)) ? '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]' : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
 	var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
 	var html = type+' '+value;
 	valelement.innerHTML = html;

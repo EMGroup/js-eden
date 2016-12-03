@@ -39,6 +39,7 @@ div.explore-console {
 }
 
 div.explore-console-code {
+	position: relative;
 	padding: 10px;
 	font-family: monospace;
 	font-size: 12pt;
@@ -190,5 +191,13 @@ div.symvalue {
 	width: 160px;
 	float: right;
 	margin-left: 3px;
+}
+
+span.explore-expand-value {
+	font-family: "FontAwesome";
+	color: #222;
+	margin-left: 3px;
+	margin-right: 3px;
+	cursor: pointer;
 }
 
