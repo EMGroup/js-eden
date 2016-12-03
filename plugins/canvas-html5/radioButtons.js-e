@@ -73,9 +73,11 @@ ${{
 
 RadioButtons.prototype.makeHTML = function() {
 	var build = "";
+	var disabled = this.enabled === false? ' disabled="disabled"' : '';
 
 	for (var i = 0; i < this.values.length; i++) {
-		build = build + '<label><input type="radio" name="' + this.name + '" value="' + this.values[i] + '"/> ' +
+		build = build + '<label><input type="radio" name="' + this.name +
+			'" value="' + this.values[i] + '"' + disabled + '/> ' +
 			this.labels[i] + '</label><br/>';
 	}
 

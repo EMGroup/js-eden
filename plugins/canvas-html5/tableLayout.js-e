@@ -1,0 +1,192 @@
+## Copyright (c) 2016, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+func TableLayout {
+${{
+	var x = arguments[0];
+	var y = arguments[1];
+	var width, content, drawingOptions;
+
+	var argsProcessed = 2;
+	var arg = arguments[2];
+
+	if (Array.isArray(arg)) {
+		content = arg;
+		argsProcessed++;
+	} else {
+		width = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		content = arg;
+		argsProcessed++;
+	}
+
+	arg = arguments[argsProcessed];
+
+	if (typeof(arg) == "object") {
+		drawingOptions = arg;
+	}
+
+	return new TableLayout(x, y, width, content, drawingOptions);
+}}$;
+}
+
+${{
+	TableLayout = function (x, y, width, content, drawingOptions) {
+		this.obsName = root.currentObservableName();
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.content = content;
+		this.drawingOptions = drawingOptions;
+
+		var rows = [ [] ];
+		var numRows = 1;
+		if (Array.isArray(this.content)) {
+			var maxCol = 0;
+			for (var i = 0; i < this.content.length; i++) {
+				var item = this.content[i];
+				var columnNo = item.x;
+				var rowNo = item.y;
+				if (columnNo !== undefined && rowNo !== undefined) {
+					columnNo--;
+					rowNo--;
+					if (rowNo > numRows - 1) {
+						for (var j = numRows; j <= rowNo; j++) {
+							rows[j] = [];
+						}
+						numRows = rowNo + 1;
+					}
+					var row = rows[rowNo];
+					var numColumns = row.length;
+					if (columnNo > numColumns - 1) {
+						for (var j = numColumns; j <= columnNo; j++) {
+							row[j] = [];
+						}
+						if (columnNo > maxCol) {
+							maxCol = columnNo;
+						}
+					}
+					var cell = row[columnNo];
+					cell.push(item);
+				}
+			}
+		}
+		this.rows = rows;
+		this.maxCol = maxCol;
+	}
+
+	TableLayout.prototype.hash = function () {
+		var hash = this.x + "$$" +
+			this.y + "$$" +
+			this.width + "$$";
+
+		if (Array.isArray(this.content)) {
+			for (var i = 0; i < this.content.length; i++) {
+				var item = this.content[i];
+				if (item.elements === undefined) {
+					return hash + Math.random();
+				} else {
+					hash = hash + item.hash() + "$$";
+				}
+			}
+		}
+		
+		if (this.drawingOptions !== undefined) {
+
+		}
+
+		return hash;
+	};
+
+	TableLayout.prototype.toString = function () {
+		return "TableLayout(" + Eden.edenCodeForValues(this.x, this.y, this.width, this.content,
+			this.drawingOptions) + ")";
+	};
+
+	TableLayout.prototype.draw = function (context, scale, viewName) {
+		if (this.elements === undefined && Array.isArray(this.content)) {
+			var me = this;
+
+			var tableJQ = $(
+				'<table class="canvashtml-item canvashtml-table-layout-item" ' +
+					'style="left: ' + this.x + 'px; top: ' + this.y + 'px"' +
+				'></table>'				
+			);
+
+			for (var j = 0; j < this.rows.length; j++) {
+				var rowItems = this.rows[j];
+				var rowJQ = $('<tr class="canvashtml-table-layout-row"></tr>');
+				tableJQ.append(rowJQ);
+				var rowLength = rowItems.length;
+				for (var i = 0; i < rowLength; i++) {
+					var cellJQ = $('<td class="canvashtml-table-layout-cell"></td>');
+					rowJQ.append(cellJQ);
+					var cellItems = rowItems[i];
+					var numItems = cellItems.length;
+					for (var k = 0; k < numItems; k++) {
+						var item = cellItems[k];
+						item.draw(context, scale, viewName);
+						cellJQ.append(item.elements);
+						if (k != numItems - 1) {
+							cellJQ.append('<br/>');
+						}
+					}
+				}
+				for (i = rowLength; i <= this.maxCol; i++) {
+					rowJQ.append('<td class="canvashtml-table-layout-cell">&nbsp;</td>');
+				}
+			}
+
+			this.elements = tableJQ;
+		}
+	}
+
+	TableLayout.prototype.resize = function () {
+		var scale = this.cachedScale;
+		if (scale === undefined) {
+			//Not yet added drawn onto a canvas.
+			return;
+		}
+
+		var element = this.elements[0];
+		var style = element.style;
+		var autoWidth = this.width === undefined;
+
+		var agent = root.lookup("TableLayout");
+		var widthSymName = this.obsName + "_width";
+		var heightSymName = this.obsName + "_height";
+
+		if (autoWidth || widthSymName in root.symbols) {
+			root.lookup(widthSymName).assign(element.offsetWidth / scale, agent);
+		}
+		root.lookup(heightSymName).assign(element.offsetHeight / scale, agent);	
+	}
+
+	TableLayout.prototype.scale = function (scale, zoom, origin) {
+		if (!Array.isArray(this.content)) {
+			return;
+		}
+
+		var container = this.elements;
+		var containerStyle = container[0].style;
+		if (this.width !== undefined) {
+			containerStyle.width = Math.round(this.width * scale) + "px";
+		}
+		containerStyle.left = Math.round((this.x + origin.x) * scale) + "px";
+		containerStyle.top =  Math.round((this.y + origin.y) * scale) + "px";
+
+		var children = container.children();
+		for (var i = 0; i < this.content.length; i++) {
+			var item = this.content[i];
+			item.scale(scale, zoom, origin);
+		}
+
+		this.cachedScale = scale;
+		this.resize();
+	}
+
+	TableLayout.prototype.getEdenCode = TableLayout.prototype.toString;
+}}$;
