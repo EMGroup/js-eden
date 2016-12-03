@@ -216,6 +216,10 @@
 			"file": "plugins/canvas-html5/shadow.js-e",
 			"title": "Canvas HTML5 Shadow"
 		},
+		"plugins/canvas/tablelayout": {
+			"file": "plugins/canvas-html5/tableLayout.js-e",
+			"title": "Canvas TableLayout"
+		},
 		"plugins/canvas/textbox": {
 			"file": "plugins/canvas-html5/textbox.js-e",
 			"title": "Canvas HTML5 Textbox"
