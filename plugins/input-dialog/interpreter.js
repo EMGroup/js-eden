@@ -175,6 +175,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		historydialog = $('<div id="'+name+'"></div>')
 			.html("<div class=\"history readonly\"></div>")
 			.dialog({
+				appendTo: "#jseden-views",
 				title: mtitle,
 				width: 500,
 				height: 500,
@@ -2417,6 +2418,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(viewdata.contents)
 			.dialog({
+				appendTo: "#jseden-views",
 				title: mtitle,
 				width: 500,
 				height: idealheight,

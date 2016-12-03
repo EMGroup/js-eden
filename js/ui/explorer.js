@@ -2,7 +2,7 @@ EdenUI.Explorer = function() {
 	var me = this;
 
 	this.element = $('<div class="explore-main"><div class="explore-controls"><button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button><button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button><span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span></div><div class="explore-symbols"></div><div class="explore-console"><div class="explore-console-code"></div></div></div>');
-	$(document.body).append(this.element);
+	$("#jseden-main").append(this.element);
 	this.results = this.element.find(".explore-symbols");
 	this.consoleele = this.element.find(".explore-console-code");
 
@@ -241,9 +241,16 @@ EdenUI.Explorer.prototype.removeEntry = function(name, valelement) {
 EdenUI.Explorer.prototype.updateEntry = function(sym, valelement) {
 	if (!sym) return;
 	var svalue = sym.value();
-	var value = (Array.isArray(svalue)) ? '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]' : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
-	var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
-	var html = type+' '+value;
+	var value;
+	var html;
+
+	if (sym.eden_definition && sym.eden_definition.startsWith("func")) {
+		html = '<span class="eden-keyword">func</span>';
+	} else {
+		value = (Array.isArray(svalue)) ? '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]' : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+		var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
+		html = type+' '+value;
+	}
 	valelement.innerHTML = html;
 }
 

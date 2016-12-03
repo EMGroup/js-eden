@@ -18,7 +18,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	var pagestruct = thispage.value();
 	var pagediv = $("<div class='main-page page'></div>");
 	var theme;
-	$("body").append(pagediv).addClass("page-body");
+	$("#jseden-views").append(pagediv).addClass("page-body");
 
 	var canvastodo = [];
 	var canvasdestroy = [];
