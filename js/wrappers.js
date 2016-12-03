@@ -182,6 +182,8 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 		if (ag) {
 			// But something went wrong loading its source
 			if (!success) {
+				var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.NOAGENT, undefined, msg);
+				Eden.Agent.emit("error", [{name: path}, err]);
 				doCallbacks(undefined, msg);
 				return;
 			}
