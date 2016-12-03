@@ -87,6 +87,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		$dialog = $('<div id="' + name + '"></div>')
 			.append(content)
 			.dialog({
+				appendTo: "#jseden-views",
 				title: mtitle,
 				width: 360,
 				height: 400,

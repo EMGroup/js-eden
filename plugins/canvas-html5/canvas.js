@@ -1242,6 +1242,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		$('<div id="'+name+'"></div>')
 		.html(code_entry)
 		.dialog({
+			appendTo: "#jseden-views",
 			title: mtitle,
 			width: initialWidth + edenUI.scrollBarSize,
 			height: initialHeight + edenUI.titleBarHeight,

@@ -56,7 +56,7 @@ WindowHighlighter.prototype.stopHighlight = function (dialogName, unminimize) {
 	this.lastDialog.removeClass('menubar-window-raise');
 
 	var dialogContent = edenUI.getDialogContent(dialogName);
-	dialogContent.parent().offset({left: this.lastDialogLeft, top: this.lastDialogTop});
+	dialogContent.parent().offset({left: this.lastDialogLeft, top: this.lastDialogTop + edenUI.menuBarHeight});
 	if (!unminimize) {
 		if (this.lastDialogHidden) {
 			edenUI.hideView(dialogName);

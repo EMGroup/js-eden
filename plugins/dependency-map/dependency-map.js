@@ -47,6 +47,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 		content.on("mouseenter", update);
 
 		content.dialog({
+			appendTo: "#jseden-views",
 			title: mtitle,
 			width: 600,
 			height: 450,

@@ -176,6 +176,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 		$('<div id="' + name + '"></div>')
 		.html(content)
 		.dialog({
+			appendTo: "#jseden-views",
 			title: mtitle,
 			width: 590,
 			height: 500,
