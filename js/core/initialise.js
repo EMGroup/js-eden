@@ -278,7 +278,7 @@ function Construit(options,callback) {
 									doImport(0);
 								});
 							} else if (load != "" && tag != "") {
-								Eden.load(load,tag,function(){ doneLoading(true); });
+								Eden.load(load,parseInt(tag),function(){ doneLoading(true); });
 							} else if (restore != "") {
 								doneLoading(Eden.restore());
 							} else {

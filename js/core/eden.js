@@ -800,16 +800,16 @@
 					code = code + "<<circular reference>>";
 				} else {
 					refStack.push(value);
-					code = "{";
+					code = "Object(";
 					for (var key in value) {
 						if (!(key in Object.prototype)) {
-							code = code + key + ": " + Eden.edenCodeForValue(value[key], refStack, precision) + ", ";
+							code = code + key + ", " + Eden.edenCodeForValue(value[key], refStack, precision) + ", ";
 						}
 					}
-					if (code != "{") {
+					if (code != "Object(") {
 						code = code.slice(0, -2);
 					}
-					code = code + "}";
+					code = code + ")";
 					refStack.pop();
 				}
 			}
