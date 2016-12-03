@@ -121,7 +121,7 @@
 		diag.dialog({
 			closeOnEscape: false,
 			draggable: true,
-			position: position,
+			position: {using: function() {}},
 			beforeClose: function () {
 				if (viewData.closing) {
 					viewData.closing = false;
@@ -237,23 +237,34 @@
 		} else {
 			viewListSym.assign([name], root.scope, creatingAgent);
 		}
+
+		function updateSize(sym, value) {
+			me.resizeView(name);
+		}
+		function updatePosition(sym, value) {
+			me.moveView(name);
+		}
  
 		widthSym = view(name, 'width');
+		widthSym.addJSObserver("plugins", updateSize);
 		if (widthSym.value() === undefined) {
 			widthSym.assign(diag.dialog("option", "width") - this.scrollBarSize, root.scope, agent);
 		}
 		var heightSym = view(name, 'height');
+		heightSym.addJSObserver("plugins", updateSize);
 		if (heightSym.value() === undefined) {
 			heightSym.assign(diag.dialog("option", "height") - this.titleBarHeight, root.scope, agent);
 		}
-		var topLeft = diag.closest('.ui-dialog').offset();
+		var topLeft = diag.closest('.ui-dialog').position();
 		var xSym = view(name, 'x');
+		xSym.addJSObserver("plugins", updatePosition);
 		if (xSym.value() === undefined) {
 			xSym.assign(topLeft.left, root.scope, agent);
 		}
 		var ySym = view(name, 'y');
+		ySym.addJSObserver("plugins", updatePosition);
 		if (ySym.value() === undefined) {
-			ySym.assign(topLeft.top - desktopTop, root.scope, agent);
+			ySym.assign(topLeft.top, root.scope, agent);
 		}
 		function updateVisibility(sym, state) {
 			var windowState = diag.dialogExtend("state");
@@ -455,9 +466,15 @@
 			view(name, 'y').assign(ui.position.top, eden.root.scope, Symbol.hciAgent);
 			root.endAutocalcOff();
 		});
+		diag.on("dialogdragstart", function() {
+			if (view(name, 'x').eden_definition || view(name, 'y').eden_definition) return false;
+		});
+		diag.on("dialogresizestart", function() {
+			if (view(name, 'width').eden_definition || view(name, 'height').eden_definition) return false;
+		});
 
 
-		function viewEdenCode() {
+		/*function viewEdenCode() {
 			var code = 'proc _View_'+name+'_position : _view_'+name+'_x, _view_'+name+'_y {\n' +
 					'${{ edenUI.moveView("'+name+'"); }}$;\n'+
 				'};\n' +
@@ -473,7 +490,7 @@
 		}
 
 		// Now construct eden agents and observables for dialog control.
-		this.eden.execute2(viewEdenCode(), Symbol.defaultAgent, noop);
+		this.eden.execute2(viewEdenCode(), Symbol.defaultAgent, noop);*/
 		this.eden.root.endAutocalcOff();
 		this.emit('createView', [name, type]);
 		return viewData;
@@ -752,6 +769,7 @@
 		//if (this.plugins.MenuBar) {
 			realY = realY  + this.menuBarHeight;
 		//}
+
 		diag.parent().offset({left: realX, top: realY});
 	};
 
