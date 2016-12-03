@@ -3119,11 +3119,22 @@ Eden.AST.Declarations = function() {
 	this.type = "declarations";
 	this.errors = [];
 	this.list = [];
+	this.start = 0;
+	this.end = 0;
+	this.parent = undefined;
+	this.line = undefined;
 };
 
 Eden.AST.Declarations.prototype.error = fnEdenASTerror;
 
+Eden.AST.Declarations.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
 
+Eden.AST.Declarations.prototype.execute = function(ctx, base, scope, agent) {
+	console.log(ctx);
+}
 
 //------------------------------------------------------------------------------
 
@@ -3191,6 +3202,14 @@ Eden.AST.Script.prototype.append = function (ast) {
 
 Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
 	var filtered = [];
+
+	if (this.locals && this.locals.list.length > 0) {
+		if (ctx.locals === undefined) ctx.locals = {};
+		for (var i=0; i<this.locals.list.length; i++) {
+			ctx.locals[this.locals.list[i]] = undefined;
+		}
+	}
+
 	for (var i=0; i<this.statements.length; i++) {
 		if (this.statements[i].type != "script") filtered.push(this.statements[i]);
 	}
