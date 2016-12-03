@@ -60,11 +60,20 @@ EdenUI.Explorer = function() {
 	});
 
 	this.results.on("click", ".explore-observable", function(e) {
-		var obs = e.currentTarget.parentNode.getAttribute("data-obs");
+		var obs = e.currentTarget.parentNode.parentNode.parentNode.getAttribute("data-obs");
 		if (e.ctrlKey || e.metaKey) {
 			console.log("GOTO",obs);
 			edenUI.gotoCode("/"+obs);
 			e.stopPropagation();
+		} else {
+			var sym = eden.root.symbols[obs];
+			if (sym) {
+				if (sym.eden_definition) {
+					me.console.setSource(sym.eden_definition);
+				} else {
+					me.console.setSource(obs + " = " + Eden.edenCodeForValue(sym.value()) + ";");
+				}
+			}
 		}
 	});
 
@@ -186,7 +195,9 @@ EdenUI.Explorer.prototype.updateList = function() {
 EdenUI.Explorer.prototype.makeAgentEntry = function(agent) {
 	var lmn = agent.name;
 
-	if (lmn.startsWith("*When")) {
+	if (lmn.startsWith("*Console")) {
+		return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf108;</span> <b>console</b></div>');
+	} else if (lmn.startsWith("*When")) {
 		var aname = lmn.split(":");
 		var short = aname[1].split("/");
 		short = short[short.length-1];
