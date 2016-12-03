@@ -247,25 +247,28 @@
  
 		widthSym = view(name, 'width');
 		widthSym.addJSObserver("plugins", updateSize);
-		if (widthSym.value() === undefined) {
+		if (!widthSym.eden_definition && widthSym.value() === undefined) {
 			widthSym.assign(diag.dialog("option", "width") - this.scrollBarSize, root.scope, agent);
 		}
 		var heightSym = view(name, 'height');
 		heightSym.addJSObserver("plugins", updateSize);
-		if (heightSym.value() === undefined) {
+		if (!heightSym.eden_definition && heightSym.value() === undefined) {
 			heightSym.assign(diag.dialog("option", "height") - this.titleBarHeight, root.scope, agent);
 		}
+		updateSize();
 		var topLeft = diag.closest('.ui-dialog').position();
 		var xSym = view(name, 'x');
 		xSym.addJSObserver("plugins", updatePosition);
-		if (xSym.value() === undefined) {
+		if (!xSym.eden_definition && xSym.value() === undefined) {
 			xSym.assign(topLeft.left, root.scope, agent);
 		}
 		var ySym = view(name, 'y');
 		ySym.addJSObserver("plugins", updatePosition);
-		if (ySym.value() === undefined) {
+		if (!ySym.eden_definition && ySym.value() === undefined) {
 			ySym.assign(topLeft.top, root.scope, agent);
 		}
+		updatePosition();
+
 		function updateVisibility(sym, state) {
 			var windowState = diag.dialogExtend("state");
 			if (state == "hidden") {
