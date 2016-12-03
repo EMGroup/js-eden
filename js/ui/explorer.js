@@ -229,7 +229,7 @@ EdenUI.Explorer.prototype.makeEntry = function(name, children, active) {
 		ele.append(this.makeEntry(x, children[x], active));
 	}
 	if (count == 0) {
-		ele.append(this.makeAgentEntry(sym.last_modified_by));
+		//ele.append(this.makeAgentEntry(sym.last_modified_by));
 	}
 	return ele;
 }
