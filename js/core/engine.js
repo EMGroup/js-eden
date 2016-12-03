@@ -148,7 +148,7 @@ function runEdenAction(source, action, cb) {
 				});
 			// Call another action and block until done
 			} else if (delay.value.type == "do") {
-				var script = me.getActionByName(delay.value.name);
+				var script = (delay.value.name) ? me.getActionByName(delay.value.name) : delay.value.script;
 
 				if (script) {
 					var stats = script.statements;
