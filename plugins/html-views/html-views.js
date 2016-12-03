@@ -57,6 +57,7 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 		var diag = $('<div id="' + name +'"></div>')
 			.html(code_entry)
 			.dialog({
+				appendTo: "#jseden-views",
 				title: mtitle,
 				width: 600,
 				height: 450,
