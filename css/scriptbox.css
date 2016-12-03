@@ -152,12 +152,13 @@ div.scriptbox-statement {
 	/*overflow-x: auto;
 	overflow-y: hidden;*/
 	display: flex;
+	padding-left: 10px;
 }
 
 div.scriptbox-statement:before {
 	position: relative;
 	font-family: "FontAwesome";
-	content: "\f054";
+	content: "\f105";
 	top: 4px;
 }
 
