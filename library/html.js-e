@@ -377,13 +377,13 @@ ${{
 			return undefined;
 		}
 		
-		var regExp = /^\s*(([^",]|("[^"]*"))+)(,|$)/g
+		var regExp = /(^|,)\s*(([^",]|("[^"]*"))+)(,|$)/g
 		var match, individualSelector;
 		var selectors = [];
 		var authoringMode = root.lookup("_option_global_css").value();
 		
 		while ((match = regExp.exec(selector)) !== null) {
-			individualSelector = match[1];
+			individualSelector = match[2];
 			if (/^((:not\(([^"]|("[^"]*"))*\))|[^":.#]|(\:[^n])|("[^"]*"))*[.#]/.test(individualSelector)) {
 				selectors.push(individualSelector);
 			} else if (scopeSpecified) {

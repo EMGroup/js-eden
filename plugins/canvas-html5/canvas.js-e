@@ -183,10 +183,11 @@ func canvasURL {
 }
 
 /**
-* Unused
-* @deprecated
+* Finds the topmost shape object at a given pair of canvas coordinates.
+* @param view_name_or_ptr_to_picture
+* @param point_or_xy_argument_pair (two parameters in the latter case)
+* @param [search_all] Include in the search any shapes that do not have a mouse zone name set (N.B. the default is false!)
 */
-
 func shapeOnTopAt {
 	${{
 		var target = arguments[0];
@@ -233,10 +234,11 @@ func shapeOnTopAt {
 }
 
 /**
-* Unused
-* @deprecated
+* Finds the bottommost shape object at a given pair of canvas coordinates.
+* @param view_name_or_ptr_to_picture
+* @param point_or_xy_argument_pair (two parameters in the latter case)
+* @param [search_all] Include in the search any shapes that do not have a mouse zone name set (N.B. the default is false!)
 */
-
 func shapeOnBottomAt {
 	${{
 		var target = arguments[0];
@@ -283,10 +285,10 @@ func shapeOnBottomAt {
 }
 
 /**
-* Unused
-* @deprecated
+* Finds the name of the mouse zone of the topmost shape at a given pair of canvas coordinates.
+* @param view_name_or_ptr_to_picture
+* @param point_or_xy_argument_pair (two parameters in the latter case)
 */
-
 func zoneOnTopAt {
 	auto drawable;
 	drawable = apply(shapeOnTopAt, ${{ arguments }}$);
@@ -298,8 +300,9 @@ func zoneOnTopAt {
 }
 
 /**
-* Unused
-* @deprecated
+* Finds the name of the mouse zone of the bottommost shape at a given pair of canvas coordinates.
+* @param view_name_or_ptr_to_picture
+* @param point_or_xy_argument_pair (two parameters in the latter case)
 */
 func zoneOnBottomAt {
 	auto drawable;
@@ -312,8 +315,8 @@ func zoneOnBottomAt {
 }
 
 /**
-* Unused
-* @deprecated
+* Obtains the observable name associated with a given canvas shape (if there is one).
+* @param shape
 */
 func observableForShape {
 	${{
@@ -329,8 +332,10 @@ func observableForShape {
 }
 
 /**
-* Unused
-* @deprecated
+* Finds the observable name associated with the topmost shape at a given pair of canvas coordinates (if there is one).
+* @param view_name_or_ptr_to_picture
+* @param point_or_xy_argument_pair (two parameters in the latter case)
+* @param [search_all] Include in the search any shapes that do not have a mouse zone name set (N.B. the default is false!)
 */
 func observableOnTopAt {
 	auto drawable;
@@ -339,8 +344,10 @@ func observableOnTopAt {
 }
 
 /**
-* Unused
-* @deprecated
+* Finds the observable name associated with the bottommost shape at a given pair of canvas coordinates (if there is one).
+* @param view_name_or_ptr_to_picture
+* @param point_or_xy_argument_pair (two parameters in the latter case)
+* @param [search_all] Include in the search any shapes that do not have a mouse zone name set (N.B. the default is false!)
 */
 func observableOnBottomAt {
 	auto drawable;
@@ -349,8 +356,10 @@ func observableOnBottomAt {
 }
 
 /**
-* Unused
-* @deprecated
+* Finds all of the shape objects present at a given pair of canvas coordinates and returns them as a list.
+* @param view_name_or_ptr_to_picture
+* @param point_or_xy_argument_pair (two parameters in the latter case)
+* @param [search_all] If false then only shapes which have a mouse zone name set are returned (N.B. the default is false!)
 */
 func shapesAt {
 	${{
@@ -398,8 +407,9 @@ func shapesAt {
 }
 
 /**
-* Unused
-* @deprecated
+* Finds all of the mouse zone names of the shapes intersecting at a given pair of canvas coordinates and returns them as a list.
+* @param view_name_or_ptr_to_picture
+* @param point_or_xy_argument_pair (two parameters in the latter case)
 */
 func zonesAt {
 	auto drawables, zones, i;
@@ -412,8 +422,10 @@ func zonesAt {
 }
 
 /**
-* Unused
-* @deprecated
+* Finds all of observable names associated with shapes intersecting at a given pair of canvas coordinates and returns them as a list.
+* @param view_name_or_ptr_to_picture
+* @param point_or_xy_argument_pair (two parameters in the latter case)
+* @param [search_all] If false then only shapes which have a mouse zone name set are considered (N.B. the default is false!)
 */
 func observablesAt {
 	auto drawables, obsList, obsName, i;
@@ -460,7 +472,7 @@ import plugins/canvas/roundedrectangle;
 import plugins/canvas/scaling;
 import plugins/canvas/sector;
 import plugins/canvas/shadow;
+import plugins/canvas/tablelayout;
 import plugins/canvas/textbox;
 import plugins/canvas/translation;
 import plugins/canvas/video;
-

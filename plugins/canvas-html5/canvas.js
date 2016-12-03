@@ -323,7 +323,59 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 								index++;
 							} //end of redraw loop (current list).
 						} // end of redraw loop (all nested lists).
+
+						if (root.lookup("_view_" + viewName + "_grid_visible").value() == true) {
+							//Draw grid lines.
+							var gridSpacing = root.lookup("_view_" + viewName + "_grid_spacing").value();
+							var minX = -origin.x;
+							var maxX = canvas.width / combinedScale - origin.x;
+							var minY, maxY;
+							if (invertedYAxis) {
+								minY = origin.y - canvas.height /combinedScale; 
+								maxY = origin.y;
+							} else {
+								minY = -origin.y;
+								maxY = canvas.height /combinedScale - origin.y; 
+							}
+
+							context.save();
+							//Minor grid lines.
+							context.lineWidth = 1 / combinedScale;
+							context.strokeStyle = "thistle";
+							me.drawGridLines(origin, combinedScale, gridSpacing, minX, minY, maxX, maxY, context);
+							//Major grid lines.
+							context.strokeStyle = "magenta";
+							me.drawGridLines(origin, combinedScale, gridSpacing * 3, minX, minY, maxX, maxY, context);
+
+							//Origin marker.
+							context.beginPath();
+							context.strokeStyle = "blue";
+							context.fillStyle = "blue";
+							context.arc(0, 0, 9 / combinedScale, 0, 2 * Math.PI, false);
+							context.fill();
+
+							//Axes direction arrows.
+							context.beginPath();
+							context.moveTo(3 * gridSpacing, 0);
+							context.lineTo(2 * gridSpacing, 0.4 * gridSpacing);
+							context.lineTo(2 * gridSpacing, -0.4 * gridSpacing);
+							context.moveTo(0, 3 * gridSpacing);
+							context.lineTo(0.4 * gridSpacing, 2 * gridSpacing);
+							context.lineTo(-0.4 * gridSpacing, 2 * gridSpacing);
+							context.fill();
+
+							context.beginPath();
+							context.lineWidth = 4 / combinedScale;
+							context.moveTo(2 * gridSpacing, 0);
+							context.lineTo(0, 0);
+							context.lineTo(0, 3 * gridSpacing);
+							context.stroke();
+
+							context.restore();
+						}
+
 					} else { //end if picture observable is a list.
+
 						var obsName = pictureObsName;
 						var definition = pictureSym.eden_definition;
 						if (definition) {
@@ -361,6 +413,34 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			} //end if drawing not already in progress.
 		} //end redraw only if not already queued.
 	};
+
+	this.drawGridLines = function (origin, combinedScale, gridSpacing, minX, minY, maxX, maxY, context) {
+		context.beginPath();
+		for (var x = origin.x == 0? gridSpacing : 0; x <= maxX; x = x + gridSpacing) {
+			var roundedX = (Math.round(x * combinedScale) - 0.5) / combinedScale;
+			context.moveTo(roundedX, minY);
+			context.lineTo(roundedX, maxY);
+			context.stroke();
+		}
+		for (var x = -gridSpacing; x >= minX; x = x - gridSpacing) {
+			var roundedX = (Math.round(x * combinedScale) - 0.5) / combinedScale;
+			context.moveTo(roundedX, minY);
+			context.lineTo(roundedX, maxY);
+			context.stroke();
+		}
+		for (var y = origin.y == 0? gridSpacing : 0; y <= maxY; y = y + gridSpacing) {
+			var roundedY = (Math.round(y * combinedScale) - 0.5) / combinedScale;
+			context.moveTo(minX, roundedY);
+			context.lineTo(maxX, roundedY);
+			context.stroke();
+		}
+		for (var y = -gridSpacing; y >= minY; y = y - gridSpacing) {
+			var roundedY = (Math.round(y * combinedScale) - 0.5) / combinedScale;
+			context.moveTo(minX, roundedY);
+			context.lineTo(maxX, roundedY);
+			context.stroke();
+		}
+	}
 
 	/**Configures JS-EDEN default drawing options that are different from the HTML canvas defaults.
 	 */
@@ -588,6 +668,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			code_entry = $("#" + name + "-canvascontent");
 			jqCanvas = code_entry.find(".canvashtml-canvas");
 		}
+		function redraw() {
+			me.drawPicture(canvasName);			
+		}
 
 		// Add associated observables to canvas
 		function viewobs(obs) { return "_view_"+name+"_"+obs; };
@@ -620,17 +703,13 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		canvas.setAttribute("data-observables",observables.join(","));
 
 		var contentSym = root.lookup("_view_" + canvasName + "_content");
-		contentSym.addJSObserver("repaintView", function(sym, picture) {
-			me.drawPicture(canvasName);
-		});
+		contentSym.addJSObserver("repaintView", redraw);
 
 		var backgroundColourSym = root.lookup("_view_" + canvasName + "_background_colour");
 		if (backgroundColourSym.value() === undefined) {
 		  backgroundColourSym.assign("white", root.scope, agent);
 		}
-		backgroundColourSym.addJSObserver("refreshView", function (symbol, value) {
-			me.drawPicture(canvasName);
-		});
+		backgroundColourSym.addJSObserver("refreshView", redraw);
 
 		//Events triggered by changes to the various sizing observables.
 		var scaleSym = root.lookup("_view_" + canvasName + "_scale");
@@ -752,6 +831,17 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		} else {
 			initialHeight = initialHeight * scale + offsetY;
 		}
+
+		var gridVisibleSym = root.lookup("_view_" + canvasName + "_grid_visible");
+		if (gridVisibleSym.value() === undefined) {
+			gridVisibleSym.assign(false, agent);
+		}
+		gridVisibleSym.addJSObserver("refreshView", redraw);
+		var gridSpacingSym = root.lookup("_view_" + canvasName + "_grid_spacing");
+		if (gridSpacingSym.value() === undefined) {
+			gridSpacingSym.assign(20, agent);
+		}
+		gridSpacingSym.addJSObserver("refreshView", redraw);
 
 		jqCanvas.on("mousedown", function(e) {
 			var followMouse = root.lookup("mouseFollow").value();
