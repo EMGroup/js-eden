@@ -389,6 +389,7 @@ include("plugins/canvas-html5/roundedRectangle.js-e");
 include("plugins/canvas-html5/scaling.js-e");
 include("plugins/canvas-html5/sector.js-e");
 include("plugins/canvas-html5/shadow.js-e");
+include("plugins/canvas-html5/tableLayout.js-e");
 include("plugins/canvas-html5/textbox.js-e");
 include("plugins/canvas-html5/translation.js-e");
 include("plugins/canvas-html5/video.js-e");

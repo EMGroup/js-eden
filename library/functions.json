@@ -983,7 +983,7 @@
 				"angle": "",
 				"centre_point": "",
 				"radius": "",
-				"[centre_of_rotation]": "",
+				"[centre_of_relocated_image]": "",
 				"picture_list": ""
 			},
 			"return": "",
@@ -1228,6 +1228,16 @@
 			"return": "",
 			"description": ""
 		},
+		"TableLayout": {
+			"parameters": {
+				"x": "X-coordinate",
+				"y": "Y-coordinate",
+				"[width]": "Width in pixels",
+				"picture_list": ""
+			},
+			"return": "TableLayout object",
+			"description": "Creates a HTML table for display on the canvas"
+		},
 		"Textbox": {
 			"parameters": {
 				"[name]": "Prefix for _value observable.  Default is the name of the observable being defined.",
@@ -1408,7 +1418,8 @@
 		},
 		"log": {
 			"parameters": {
-				"number": ""
+				"number": "",
+				"[base]": ""
 			},
 			"return": "Logarithm of the number",
 			"description": "Log function"

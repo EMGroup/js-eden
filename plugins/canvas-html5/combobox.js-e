@@ -65,6 +65,7 @@ func Combobox { ${{
 		placeholder = arg;
 		argsProcessed++;
 		arg = arguments[argsProcessed];
+		argType = typeof(arg);
 	}
 	if (arg === undefined || argType == "number") {
 		maxlength = arg;

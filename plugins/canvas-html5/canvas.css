@@ -32,6 +32,29 @@
 	position: relative;
 }
 
+.canvashtml-table-layout-item {
+	border-collapse: collapse;
+	pointer-events: none;
+}
+
+.canvashtml-table-layout-item .canvashtml-item {
+	pointer-events: auto;
+	position: static;
+}
+
+.canvashtml-table-layout-cell  {
+    padding: 5px 8px;
+    border-bottom: 1px solid #d9d9d9;
+}
+
+.canvashtml-table-layout-item tr:first-child .canvashtml-table-layout-cell {
+    padding-bottom: 1px;
+}
+
+.canvashtml-table-layout-cell:first-child {
+    padding-left: 3px;
+}
+
 .canvashtml-div-item {
 	box-sizing: border-box;
 	overflow: auto;

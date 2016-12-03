@@ -16,22 +16,45 @@ Div = function (html, x, y, width, height, id, classNames, style) {
 	this.style = style;
 
 	//Separate font-size from other CSS information.
-	var matcher = style.match(/(^|;)\s*font-size:\s*([^;]*)(;|$)/);
-	if (matcher !== null) {
-		var matcher2 = matcher[2].match(/^(\d+(\.\d+)?)([a-z%]+)\s*$/);
-		if (matcher2 !== null) {
-			this.fontSizeNumber = Number(matcher2[1]);
-			this.fontSizeUnits = matcher2[3];
-		}
-		this.fontSizeSpecified = true;
-	} else {
-		matcher = style.match(/(^|;)\s*font:([^\/]+\s+)?(\d+(\.\d+)?)([a-z%]+)(\/|\s|;|$)/);
-		if (matcher === null) {
-			this.fontSizeSpecified = false;
+	var styleType = typeof(style);
+	var matcher, matcher2;
+	this.fontSizeSpecified = false;
+	if (styleType == "string") {
+		matcher = style.match(/(^|;)\s*font-size:\s*([^;]*)(;|$)/);
+		if (matcher !== null) {
+			matcher2 = matcher[2].match(/^(\d+(\.\d+)?)([a-z%]+)\s*$/);
+			if (matcher2 !== null) {
+				this.fontSizeNumber = Number(matcher2[1]);
+				this.fontSizeUnits = matcher2[3];
+				this.fontSizeSpecified = true;
+			}
 		} else {
-			this.fontSizeNumber = Number(matcher[3]);
-			this.fontSizeUnits = matcher[5];
-			this.fontSizeSpecified = true;
+			matcher = style.match(/(^|;)\s*font:([^\/;]+\s+)?(\d+(\.\d+)?)([a-z%]+)(\/|\s|;|$)/);
+			if (matcher !== null) {
+				this.fontSizeNumber = Number(matcher[3]);
+				this.fontSizeUnits = matcher[5];
+				this.fontSizeSpecified = true;
+			}
+		}
+	} else if (styleType == "object") {
+		var propertyValue = style.fontSize || style["font-size"];
+		if (propertyValue) {
+			matcher2 = propertyValue.match(/^(\d+(\.\d+)?)([a-z%]+)\s*$/);
+			if (matcher2 !== null) {
+				this.fontSizeNumber = Number(matcher2[1]);
+				this.fontSizeUnits = matcher2[3];
+				this.fontSizeSpecified = true;
+			}
+		} else {
+			propertyValue = style.font;
+			if (propertyValue) {
+				matcher = style.match(/([^\/;]+\s+)?(\d+(\.\d+)?)([a-z%]+)(\/|\s|;|$)/);
+				if (matcher !== null) {
+					this.fontSizeNumber = Number(matcher[2]);
+					this.fontSizeUnits = matcher[4];
+					this.fontSizeSpecified = true;
+				}
+			}
 		}
 	}
 }
@@ -44,7 +67,7 @@ Div.prototype.hash = function () {
 		this.html+"$$"+
 		this.name+"$$"+
 		this.classNames+"$$"+
-		this.style;
+		Eden.edenCodeForValue(this.style);
 };
 }}$;
 
@@ -59,12 +82,12 @@ func Div { ${{
 	var argsProcessed = 3;
 	var argType = typeof(arguments[3]);
 	
-	if (argType == "number" || argType == "undefined" || (argType == "string" && /^\d/.test(arguments[3]))) {
+	if (argType == "number" || argType == "undefined") {
 		width = arguments[3];
 		argsProcessed++;
 		
 		argType = typeof(arguments[4]);
-		if (argType == "number" || argType == "undefined" || (argType == "string" && /^\d/.test(arguments[4]))) {
+		if (argType == "number" || argType == "undefined") {
 			height = arguments[4];
 			argsProcessed++;
 		}
@@ -123,19 +146,6 @@ Div.prototype.draw = function(context) {
 	CSSUtil.setStyle(divElement, this.style);
 	divElement.innerHTML = this.html;
 
-	if (typeof(this.x) == "string") {
-		divElement.style.left = this.x;
-	}
-	if (typeof(this.y) == "string") {
-		divElement.style.top = this.y;
-	}
-	if (typeof(this.width) == "string") {
-		divElement.style.width = this.width;
-	}
-	if (typeof(this.height) == "string") {
-		divElement.style.height = this.height;
-	}
-
 	if (this.name !== undefined) {
 		divElement.onmousedown = function (event) {
 			var mouseFollow = root.lookup("mouseFollow").value();
@@ -192,8 +202,10 @@ Div.prototype.resize = function () {
 		var scrollBarSize = element.offsetWidth - element.clientWidth;
 		if (scrollBarSize > 0) {
 			scrollBarSize = scrollBarSize + 2;
+			style.width = String(contentWidth + scrollBarSize) + "px";
+		} else {
+			style.width = "auto";
 		}
-		style.width = String(contentWidth + scrollBarSize) + "px";
 	}
 
 	if (this.name !== undefined) {
@@ -212,21 +224,18 @@ Div.prototype.resize = function () {
 
 Div.prototype.scale = function (scale, zoom , origin) {
 	var style = this.elements[0].style;
-	if (typeof(this.x) == "number") {
-		style.left = Math.round((this.x + origin.x) * scale) + "px";
-	}
-	if (typeof(this.y) == "number") {
-		style.top = Math.round((this.y + origin.y) * scale) + "px";
-	}
-	if (typeof(this.width) == "number") {
+	style.left = Math.round((this.x + origin.x) * scale) + "px";
+	style.top = Math.round((this.y + origin.y) * scale) + "px";
+
+	if (this.width !== undefined) {
 		style.width = Math.round(this.width * scale) + "px";
 	}
-	if (typeof(this.height) == "number") {
+	if (this.height !== undefined) {
 		style.height = Math.round(this.height * scale) + "px";
 	}
-	if (this.fontSizeNumber !== undefined) {
+	if (this.fontSizeSpecified) {
 		style.fontSize = String(this.fontSizeNumber * zoom) + this.fontSizeUnits;
-	} else if (!this.fontSizeSpecified) {
+	} else {
 		if (zoom == 1) {
 			style.fontSize = ""; //Could be specified by a CSS class.
 		} else {
