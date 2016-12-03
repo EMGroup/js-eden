@@ -3077,7 +3077,7 @@ Eden.AST.When.prototype.execute = function(ctx,base,scope,agent) {
 			//else console.log(err.prettyPrint());
 	//	}
 	//}
-	if (agent && !agent.loading) this.executeReal(ctx,base,scope,agent);
+	if (agent && !agent.loading) base.executeStatements(this.executeReal(ctx,base,scope,agent), -1, this, undefined, this);
 }
 
 Eden.AST.When.prototype.error = fnEdenASTerror;
