@@ -2,7 +2,7 @@ EdenUI.Explorer = function() {
 	var me = this;
 
 	this.element = $('<div class="explore-main"><div class="explore-controls"><button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button><button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button><span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span></div><div class="explore-symbols"></div><div class="explore-console"><div class="explore-console-code"></div></div></div>');
-	$(document.body).append(this.element);
+	$("#jseden-main").append(this.element);
 	this.results = this.element.find(".explore-symbols");
 	this.consoleele = this.element.find(".explore-console-code");
 
@@ -22,11 +22,11 @@ EdenUI.Explorer = function() {
 	this.console = new EdenUI.ScriptBox(this.consoleele.get(0), {nobuttons: true});
 
 	eden.root.addGlobal(function(sym, kind) {
-		if (!me.capture) return;
+		//if (!me.capture) return;
 		//if (Object.keys(sym.dependencies).length > 0) return;
 		var name = sym.name.slice(1);
 
-		if (kind != Symbol.EXPIRED || me.watchobs[name] === undefined) {
+		if (me.capture && (kind != Symbol.EXPIRED || me.watchobs[name] === undefined)) {
 			if (me.watchobs[name] === undefined) {
 				me.watchobs[sym.name.slice(1)] = 1;
 			} else {
@@ -38,11 +38,23 @@ EdenUI.Explorer = function() {
 			me.todo[name] = true;
 			if (me.timeout2 === undefined) me.timeout2 = setTimeout(function() {
 				me.timeout2 = undefined;
+				var todo = me.todo;
+				me.todo = {};
+
 				// Just go through elements and update values.
 				for (var x in me.index) {
+					if (!todo[x]) continue;
+
 					var sym = eden.root.symbols[x];
-					for (var i=0; i<me.index[x].length; i++) {
-						me.updateEntry(sym, me.index[x][i]);
+					if (sym === undefined) {
+						for (var i=0; i<me.index[x].length; i++) {
+							me.removeEntry(x, me.index[x][i]);
+						}
+						delete me.index[x];
+					} else {
+						for (var i=0; i<me.index[x].length; i++) {
+							me.updateEntry(sym, me.index[x][i]);
+						}
 					}
 				}
 			}, me.delay2);
@@ -220,11 +232,25 @@ EdenUI.Explorer.prototype.makeAgentEntry = function(agent) {
 	}
 }
 
+EdenUI.Explorer.prototype.removeEntry = function(name, valelement) {
+	valelement.innerHTML = '<span style="font-weight: bold; color: red">DELETED</span>';
+	delete this.watchobs[name];
+	this.triggerUpdate();
+}
+
 EdenUI.Explorer.prototype.updateEntry = function(sym, valelement) {
+	if (!sym) return;
 	var svalue = sym.value();
-	var value = (Array.isArray(svalue)) ? '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]' : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
-	var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
-	var html = type+' '+value;
+	var value;
+	var html;
+
+	if (sym.eden_definition && sym.eden_definition.startsWith("func")) {
+		html = '<span class="eden-keyword">func</span>';
+	} else {
+		value = (Array.isArray(svalue)) ? '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]' : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+		var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
+		html = type+' '+value;
+	}
 	valelement.innerHTML = html;
 }
 
@@ -239,30 +265,34 @@ EdenUI.Explorer.prototype.makeEntry = function(name, children, active) {
 	if (this.index[name] === undefined) this.index[name] = [];
 	this.index[name].push(valele);
 	var count = 0;
-	for (var x in children) {
-		count++;
-		ele.append(this.makeEntry(x, children[x], active));
-	}
-	if (count == 0) {
-		//ele.append(this.makeAgentEntry(sym.last_modified_by));
+
+	if (children) {
+		for (var x in children) {
+			count++;
+			ele.append(this.makeEntry(x, children[x], active));
+		}
+		if (count == 0) {
+			//ele.append(this.makeAgentEntry(sym.last_modified_by));
+		}
 	}
 	return ele;
 }
 
 EdenUI.Explorer.prototype.updateTree = function() {
-	var tree = Eden.Query.dependencyTree(this.watchobs);
+	var tree = (this.capture) ? Eden.Query.dependencyTree(this.watchobs) : this.watchobs;
 	//console.log(tree);
 
 	this.results.html("");
 
 	for (var x in tree) {
-		this.results.append(this.makeEntry(x, tree[x], true));
+		this.results.append(this.makeEntry(x, (this.capture) ? tree[x] : undefined, this.capture));
 	}
 }
 
 EdenUI.Explorer.prototype.watch = function(observables) {
 	if (this.capture) {
-		this.capture = false;
+		eden.root.lookup("jseden_explorer_capture").assign(false, eden.root.scope, Symbol.localJSAgent);
+		//eden.root.lookup("jseden_explorer_clear").assign(true, eden.root.scope, Symbol.localJSAgent);
 		this.clear();
 	}
 
@@ -283,6 +313,7 @@ EdenUI.Explorer.prototype.record = function() {
 
 EdenUI.Explorer.prototype.clear = function() {
 	this.watchobs = {};
+	this.triggerUpdate();
 }
 
 EdenUI.Explorer.prototype.displayAsTree = function() {

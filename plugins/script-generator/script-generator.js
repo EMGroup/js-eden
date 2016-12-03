@@ -103,6 +103,7 @@ EdenUI.plugins.ScriptGenerator = function (edenUI, success) {
 		$('<div id="' + name + '"></div>')
 		.html(content)
 		.dialog({
+			appendTo: "#jseden-views",
 			title: mtitle,
 			width: 790,
 			height: 700,

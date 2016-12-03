@@ -47,6 +47,8 @@ EdenUI.ScriptBox = function(element, options) {
 	this.draglast = 0;
 	//this.showstars = (options && options.nobuttons !== undefined) ? !options.nobuttons : true;
 
+	this.history = [];
+
 	//this.valuedivs = {};
 
 	var me = this;
@@ -192,12 +194,14 @@ EdenUI.ScriptBox = function(element, options) {
 	 */
 	function onTextKeyDown(e) {
 		// Alt and AltGr for inspect mode.
-		//console.log(e.keyCode);
+		console.log(e.keyCode);
 
 		if (me.ast && me.ast.script && !me.ast.hasErrors() && e.keyCode == 13 && me.ast.token == "EOF" && me.intextarea.selectionStart >= me.ast.script.end) {
 			console.log("BREAK TO NEW BOX");
 			//me.insertStatement(undefined, true);
 			me.ast.execute(EdenUI.ScriptBox.consoleAgent);
+			me.history.push(me.ast.stream.code);
+			me.histindex = me.history.length;
 			$(me.outdiv).find(".fake-caret").remove();
 			me.$codearea.append($('<div>'+me.outdiv.innerHTML+'</div>'));
 			me.setSource("");
@@ -239,6 +243,12 @@ EdenUI.ScriptBox = function(element, options) {
 						me.setCaretToFakeCaret();
 						me.outdiv.focus();
 						return;
+					} else if (e.keyCode == 38) {
+						// Up, scroll up in history
+						console.log("UP");
+					} else if (e.keyCode == 40) {
+						// Down, scoll down in history
+						console.log("DOWN");
 					}
 				
 					// Update fake caret position at key repeat rate

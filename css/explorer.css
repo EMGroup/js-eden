@@ -1,8 +1,8 @@
 div.explore-main {
-	position: fixed;
+	/*position: fixed;
 	top: 45px;
 	right: 0;
-	bottom: 0;
+	bottom: 0;*/
 	width: 415px;
 	background: white;
 	z-index: 65533;
@@ -10,6 +10,7 @@ div.explore-main {
 	flex-direction: column;
 	box-shadow: 0 0 10px #4a6887;
 	border-left: 1px solid #888;
+	left: 0 !important;
 }
 
 div.explore-controls {

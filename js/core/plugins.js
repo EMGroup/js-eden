@@ -34,7 +34,7 @@
 	}
 
 	//Dimensions of various UI components.
-	EdenUI.prototype.menuBarHeight = 50;
+	EdenUI.prototype.menuBarHeight = 45;
 	EdenUI.prototype.dialogBorderWidth = 3.133;
 	EdenUI.prototype.titleBarHeight = 34.659 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.scrollBarSize = 14 + EdenUI.prototype.dialogBorderWidth;
@@ -450,8 +450,9 @@
 		diag.on("dialogdragstop", function (event, ui) {
 			var root = me.eden.root;
 			root.beginAutocalcOff();
+			console.log(ui);
 			view(name, 'x').assign(ui.position.left, eden.root.scope, Symbol.hciAgent);
-			view(name, 'y').assign(ui.position.top - desktopTop, eden.root.scope, Symbol.hciAgent);
+			view(name, 'y').assign(ui.position.top, eden.root.scope, Symbol.hciAgent);
 			root.endAutocalcOff();
 		});
 
@@ -824,7 +825,7 @@
 		if (widthSym.last_modified_by !== Symbol.hciAgent) diag.dialog("option", "width", newWidth);
 		if (heightSym.last_modified_by !== Symbol.hciAgent) diag.dialog("option", "height", newHeight);
 		//No idea why the following line is needed but it makes things work smoother when the window is positioned more than the value of the CSS height of the body element down the page.
-		diag.parent().offset({top: top - document.body.scrollTop});
+		//diag.parent().offset({top: top - document.body.scrollTop});
 
 		//newWidth = adjustedWidth - this.scrollBarSize;
 		//newHeight = adjustedHeight - tbarheight;
