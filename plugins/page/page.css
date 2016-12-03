@@ -1,6 +1,6 @@
 div.main-page {
 	position: fixed;
-	top: 55px;
+	top: 45px;
 	width: 100%;
 	/*bottom: 0;*/
 	height: calc(100% - 25px);

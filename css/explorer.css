@@ -8,9 +8,11 @@ div.explore-main {
 	z-index: 65533;
 	display: flex;
 	flex-direction: column;
-	box-shadow: 0 0 10px #4a6887;
+	/*box-shadow: 0 0 10px #4a6887;*/
 	border-left: 1px solid #888;
 	left: 0 !important;
+	margin-left: 2px;
+	overflow: hidden;
 }
 
 div.explore-controls {
@@ -33,12 +35,26 @@ div.explore-symbols {
 
 div.explore-console {
 	flex-grow: 1;
-	padding-top: 10px;
 	border-top: 1px solid #888;
-	min-height: 200px;
-	box-shadow: 0 0 10px #4a6887;
+	min-height: 240px;
+	/*box-shadow: 0 0 10px #4a6887;*/
 	position: relative;
 	overflow-x: auto;
+}
+
+div.explore-console-buttons {
+	width: 100%;
+	height: 25px;
+	background: #eee;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ddd;
+	padding-left: 5px;
+	font-weight: bold;
+	font-size: 10pt;
+	color: #222;
+	font-family: arial;
+	padding-top: 4px;
+	box-sizing: border-box;
 }
 
 div.explore-console-code {
