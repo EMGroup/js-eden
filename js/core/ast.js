@@ -2442,6 +2442,9 @@ Eden.AST.Do = function() {
 	this.executed = 0;
 	this.parameters = [];
 	this.params = []; // The evaluated params
+	this.scope = undefined;
+	this.compScope = undefined;
+	this.nscope = undefined;
 };
 
 Eden.AST.Do.prototype.error = fnEdenASTerror;
@@ -2467,6 +2470,24 @@ Eden.AST.Do.prototype.setScript = function(script) {
 
 Eden.AST.Do.prototype.setName = function(name) {
 	this.name = name;
+}
+
+Eden.AST.Do.prototype.setScope = function(scope) {
+	this.scope = scope;
+	if (scope && scope.errors.length > 0) {
+		this.errors.push.apply(this.errors, scope.errors);
+	}
+}
+
+Eden.AST.Do.prototype.getScope = function(ctx) {
+	if (this.scope && this.compScope === undefined) {
+		try {
+			this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(ctx, "scope") + "; })");
+		} catch (e) {
+
+		}
+	}
+	return this.compScope;
 }
 
 /*Eden.AST.Do.prototype.setCondition = function(condition) {
