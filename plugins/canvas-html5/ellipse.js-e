@@ -17,6 +17,20 @@ Ellipse = function(x, y, xradius, yradius, fillcolour, outlinecolour, drawingOpt
 }
 }}$;
 
+/**
+ * Create an Ellipse
+ * 
+ * @param x Centre X-coordinate
+ * @param y Centre Y-coordinate
+ * @param x_radius Ellipse x-axis radius from centre
+ * @param y_radius Ellipse y-axis radius from centre
+ * @param [fill_colour Fill colour for the ellipse on the canvas
+ * @param [outline_colour]] Outline colour of the ellipse on the canvas
+ * @param [drawing_options] A drawingOptions object
+ * 
+ * #canvas #ellipse #drawingOptions
+ */
+
 func Ellipse { ${{
 	var x = arguments[0];
 	var y = arguments[1];

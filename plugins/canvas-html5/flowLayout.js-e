@@ -2,7 +2,23 @@
 ## All rights reserved.
 ##
 ## See LICENSE.txt
-
+/**
+ * The FlowLayout function has a picture list parameter and itself appears in the picture list.
+ * Items within its local picture list behave differently to other items. Their positions are
+ * determined automatically!
+ * FlowLayout works in the same way that words are conventionally set out in paragraphs. FlowLayout is
+ * the paragraph and its items are the words. The items are placed one after another, left to right,
+ * wrapping onto another line if necessary.
+ * At present only HTML items are supported (so use Div instead of Text, HTMLImage instead of Image).
+ * 
+ * @param x x-position
+ * @param y y-position
+ * @param [width]
+ * @param items List of items to be displayed
+ * @param [drawingOptions] List of drawing options 
+ * 
+ * #flowlayout #canvas #picture #drawingoptions
+ */
 func FlowLayout {
 ${{
 	var x = arguments[0];

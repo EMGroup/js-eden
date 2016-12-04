@@ -25,6 +25,7 @@
  * 	rect is Rectangle(x, y, width, height, gradient);
  * 	picture is [rect];
  * ```
+ * #canvas #colour #gradient #lineargradient
 */
 
 func LinearGradient {

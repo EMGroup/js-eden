@@ -11,6 +11,14 @@ Pixel = function(x, y, colour) {
 }
 }}$;
 
+/*
+ * Creates a pixel that can be displayed on a canvas
+ * 
+ * @param x x-position
+ * @param y y-position
+ * @param colour colour
+ * 
+ */
 func Pixel { ${{
   var x = arguments[0];
   var y = arguments[1];

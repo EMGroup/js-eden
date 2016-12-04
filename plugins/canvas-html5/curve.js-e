@@ -88,6 +88,26 @@ ${{
 
 }}$;
 
+/**
+ * Create a Curve
+ * 
+ * @param x1
+ * @param y1
+ * @param x2
+ * @param y2
+ * @param radius
+ * @param curviness
+ * @param [start_angle
+ * @param [end_angle
+ * @param [skew Between 0 and 1
+ * @param [overshoot]]]]
+ * @param [is_flipped]
+ * @param [colour(s)]
+ * @param [drawing_options]
+ * 
+ * #canvas #curve #drawingOptions
+ */
+
 func Curve {
 	${{
 		var x1 = arguments[0];
