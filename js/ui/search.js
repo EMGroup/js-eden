@@ -173,20 +173,30 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 				more.on("click", function() {
 					symresults.html("");
 					var count = 0;
-					for (; i<res.symbols.length; i++) {
+					for (; i<res.all.length; i++) {
 						if (count > MAXRES) break;
 						count++;
-						me.makeSymbolResult(res.symbols[i]).appendTo(symresults);
+						var ele;
+						if (typeof res.all[i] == "object") {
+							if (res.all[i].type == "when") {
+								ele = me.makeAgentResult(res.all[i])
+							}
+						} else if (res.all[i].charAt(0) == "/") {
+							ele = me.makeSymbolResult(res.all[i].slice(1))
+						} else {
+							ele = me.makeScriptResult(res.all[i]);
+						}
+						symresults.append(ele);
 					}
 					// Do we need to show a more button
-					if (i < res.symbols.length) {
+					if (i < res.all.length) {
 						doMore();
 					}
 				});
 			}
 
 			// Do we need to show a more button
-			if (i < res.symbols.length) {
+			if (i < res.all.length) {
 				doMore();
 			}
 		});
