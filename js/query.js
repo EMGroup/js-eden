@@ -35,6 +35,17 @@ function negativeFilter(arr, neg) {
 	return res;
 }
 
+function sortByLoaded(arr) {
+	var l = [];
+	var n = [];
+	for (var i=0; i<arr.length; i++) {
+		if (Eden.Agent.agents[arr[i]]) l.push(arr[i]);
+		else n.push(arr[i]);
+	}
+	l.push.apply(l,n);
+	return l;
+}
+
 Eden.Query = {};
 Eden.Query.sortByCount = sortByCount;
 Eden.Query.reduceByCount = reduceByCount;
@@ -124,10 +135,11 @@ Eden.Query.search = function(q, cb) {
 					Eden.DB.search(word, function(results) {
 						res.scripts.push.apply(res.scripts, results);
 						res.scripts = reduceByCount(res.scripts, rcount);
+						res.scripts = sortByLoaded(res.scripts);
 						Eden.Query.mergeResults(res);
 						if (cb) cb(res);
 					});
-				}, 1000);
+				}, 500);
 				})(words[i]);
 			}
 		}
