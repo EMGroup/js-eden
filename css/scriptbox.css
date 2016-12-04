@@ -1,7 +1,7 @@
 
 
 div.scriptbox-output {
-	display: inline-block;
+	/*display: inline-block;*/
 	/* width: 100%;*/
 	/*min-width: calc(100% - 23px);*/
 	/*min-height: calc(100% - 1px);*/
@@ -20,7 +20,7 @@ div.scriptbox-output {
 	cursor: text;
 	outline: none;
 	font: 12px/18px Roboto Mono,monospace;
-	white-space: pre;
+	white-space: pre-wrap;
 	/*overflow: auto;*/
 	/*background: #f5f5f5;*/
 	min-width: calc(100% - 50px);
@@ -163,6 +163,10 @@ div.scriptbox-statement:before {
 	top: 4px;
 }
 
+div.scriptbox-statement.error:before {
+	color: red;
+}
+
 
 div.scriptbox-statement.readonly {
 	/*-webkit-filter: grayscale(70%);
@@ -214,6 +218,10 @@ input.scriptbox-check {
 .hidden-textarea {
 	position: relative;
 	left: -30000px;
+}
+
+div.scriptbox-output > div.eden-line {
+	display: inline;
 }
 
 
