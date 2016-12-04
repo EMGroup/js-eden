@@ -249,6 +249,10 @@
 			"file": "plugins/input-dialog/scriptview.js-e",
 			"title": "Script View Extras"
 		},
+		"plugins/midi": {
+			"file": "plugins/midi/midi.js-e",
+			"title": "MIDI"
+		},
 		"lib": {
 			"file": "library2/eden.jse",
 			"title": "Eden Base Library",

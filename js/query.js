@@ -141,6 +141,8 @@ Eden.Query.search = function(q, cb) {
 					});
 				}, 500);
 				})(words[i]);
+			} else if (dolocalscripts) {
+				res.scripts.push.apply(res.scripts, Eden.Query.searchScripts(regex));
 			}
 		}
 	}
@@ -179,7 +181,7 @@ Eden.Query.mergeResults = function(res) {
 
 		count = 0;
 		for (var i=start; i<res.scripts.length; i++) {
-			if (count >= MAX) break;
+			if (count >= MAX-1) break;
 			count++;
 			res.all.push(res.scripts[i]);
 		}
@@ -237,7 +239,13 @@ Eden.Query.searchProjects = function(q) {
 }
 
 Eden.Query.searchScripts = function(q) {
-
+	var res = [];
+	for (var x in Eden.Agent.agents) {
+		if (q.test(x)) {
+			res.push(x);
+		}
+	}
+	return res;
 }
 
 Eden.Query.treeBottomUp = function() {

@@ -431,7 +431,8 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		symbol.addJSObserver("bind", setControl);
 	}
 
-	edenUI.eden.include("plugins/midi/midi.js-e", success);
+	//edenUI.eden.include("plugins/midi/midi.js-e", success);
+	Eden.Agent.importAgent("plugins/midi", "default", [], success);
 }
 EdenUI.plugins.MIDI.title = "MIDI";
 EdenUI.plugins.MIDI.description = "Adds musical capabilities to JS-EDEN.";
