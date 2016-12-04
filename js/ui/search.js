@@ -56,19 +56,54 @@ EdenUI.SearchBox.prototype.makeSymbolResult = function(name) {
 	return ele;
 }
 
+EdenUI.SearchBox.prototype.makeAgentResult = function(when) {
+	var symstr;
+
+	if (when.base) {
+		symstr = when.base.getSource(when).split("{")[0];
+	} else {
+		return;
+	}
+	if (symstr.length > 55) {
+		symstr = symstr.substr(0,55) + "...";
+	}
+
+	var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
+
+	var docstr = "";
+	if (when.doxyComment) {
+		var stripped = when.doxyComment.brief();
+		if (stripped && stripped.length > 0) {
+			docstr = '<div class="doxy-search-details"><p>'+stripped+'</p></div>';
+		}
+	}
+
+	var ele = $('<div class="menubar-search-result" data-agent="'+when.name+'">'+EdenUI.Highlight.html(symstr)+ctrlstr+docstr+'</div>');
+	return ele;
+}
+
+EdenUI.SearchBox.prototype.makeScriptResult = function(script) {
+	var symstr;
+
+	symstr = '<b>script</b> ' + script;
+	if (symstr.length > 55) {
+		symstr = symstr.substr(0,55) + "...";
+	}
+
+	var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
+
+	var docstr = "";
+
+	var ele = $('<div class="menubar-search-result" data-script="'+script+'">'+symstr+ctrlstr+docstr+'</div>');
+	return ele;
+}
+
 EdenUI.SearchBox.prototype.updateSearch = function(q) {
 	if (!q || q == "") {
 		this.element.hide();
 	} else {
 		this.element.show();
-
-		this.element.html("");
-		var resouter = $('<div class="menubar-search-outer"></div>');
-		/*var categories = $('<div class="menubar-search-cat"><div class="menubar-search-category symbols active">&#xf06e;</div><div class="menubar-search-category agents">&#xf007;</div><div class="menubar-search-category views">&#xf2d0;</div></div>');*/
-		var symresults = $('<div class="menubar-search-results"></div>');
-		//resouter.append(categories);
-		resouter.append(symresults);
-		this.element.append(resouter);
+		var me = this;
 
 		// Views
 		// Whens by trigger
@@ -76,39 +111,60 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 		// Scripts by hashtag and observable.
 		// Peer users
 		// Project manager
-		var res = Eden.Query.search(q);
-		console.log(res);
+		Eden.Query.search(q, function(res) {
+			me.element.html("");
+			var resouter = $('<div class="menubar-search-outer"></div>');
+			/*var categories = $('<div class="menubar-search-cat"><div class="menubar-search-category symbols active">&#xf06e;</div><div class="menubar-search-category agents">&#xf007;</div><div class="menubar-search-category views">&#xf2d0;</div></div>');*/
+			var symresults = $('<div class="menubar-search-results"></div>');
+			//resouter.append(categories);
+			resouter.append(symresults);
+			me.element.append(resouter);
 
-		var i = 0;
-		var me = this;
+			var i = 0;
+			var MAXRES = 6;
+			var count = 0;
 
-		for (i=0; i<res.symbols.length; i++) {
-			if (i > 6) break;
-			this.makeSymbolResult(res.symbols[i]).appendTo(symresults);
-		}
+			for (i=0; i<res.symbols.length; i++) {
+				if (count >= MAXRES) break;
+				count++;
+				symresults.append(me.makeSymbolResult(res.symbols[i]));
+			}
 
-		function doMore() {
-			var more = $('<div class="menubar-search-more">&#xf078;</div>');
-			symresults.append(more);
-			more.on("click", function() {
-				symresults.html("");
-				var count = 0;
-				for (; i<res.symbols.length; i++) {
-					if (count > 6) break;
-					count++;
-					me.makeSymbolResult(res.symbols[i]).appendTo(symresults);
-				}
-				// Do we need to show a more button
-				if (i < res.symbols.length) {
-					doMore();
-				}
-			});
-		}
+			for (i=0; i<res.whens.length; i++) {
+				if (count >= MAXRES) break;
+				count++;
+				symresults.append(me.makeAgentResult(res.whens[i]));
+			}
 
-		// Do we need to show a more button
-		if (i < res.symbols.length) {
-			doMore();
-		}
+			for (i=0; i<res.scripts.length; i++) {
+				if (count >= MAXRES) break;
+				count++;
+				symresults.append(me.makeScriptResult(res.scripts[i]));
+			}
+
+			function doMore() {
+				var more = $('<div class="menubar-search-more">&#xf078;</div>');
+				symresults.append(more);
+				more.on("click", function() {
+					symresults.html("");
+					var count = 0;
+					for (; i<res.symbols.length; i++) {
+						if (count > MAXRES) break;
+						count++;
+						me.makeSymbolResult(res.symbols[i]).appendTo(symresults);
+					}
+					// Do we need to show a more button
+					if (i < res.symbols.length) {
+						doMore();
+					}
+				});
+			}
+
+			// Do we need to show a more button
+			if (i < res.symbols.length) {
+				doMore();
+			}
+		});
 	}
 }
 
