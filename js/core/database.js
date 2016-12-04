@@ -836,6 +836,39 @@ Eden.DB.load = function(path, saveid, source, cb) {
 	}
 }
 
+Eden.DB.search = function(q, callback) {
+	$.ajax({
+		url: this.remoteURL+"/agent/search?path=%"+q+"%&mode=fullpathsearch",
+		type: "get",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		success: function(data){
+			if (data && data.error) {
+				console.error(data);
+				eden.error((data) ? data.description : "No response from server");
+				callback(undefined);
+				return;
+			} else if (data) {
+				var results = [];
+				for (var i=0; i<data.length; i++) {
+					results.push(data[i].path);
+				}
+
+				callback(results);
+				return;
+			} else {
+				callback(undefined);
+			}
+		},
+		error: function(a){
+			//console.error(a);
+			Eden.DB.disconnect(true);
+		}
+	});
+}
+
 Eden.DB.loadLocalMeta();
 
 // Start connection attempts.

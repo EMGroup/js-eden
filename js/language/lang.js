@@ -48,7 +48,8 @@ var Language = {
 		"see": "see",
 		"{": "{",
 		"}": "}",
-		"hidden": "hidden"
+		"hidden": "hidden",
+		"script": "script"
 	},
 
 	keywords: {

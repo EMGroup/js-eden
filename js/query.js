@@ -40,11 +40,18 @@ Eden.Query.sortByCount = sortByCount;
 Eden.Query.reduceByCount = reduceByCount;
 Eden.Query.negativeFilter = negativeFilter;
 
-Eden.Query.search = function(q) {
+Eden.Query.search = function(q, cb) {
 	var words = q.split(/[ ]+/);
 	var inittoken = false;
 	var i = 0;
 	var rcount = words.length;
+	var dosymbols = true;
+	var doagents = true;
+	var doprojects = false;
+	var dolocalscripts = true;
+	var doremotescripts = false;
+	var dohash = true;
+	var dofuncs = true;
 
 	var res = {
 		views: [],
@@ -58,6 +65,28 @@ Eden.Query.search = function(q) {
 		if (words[0].charAt(words[0].length-1) == ":") {
 			i = 1;
 			inittoken = true;
+
+			// Process the init token to control results
+			switch (words[0]) {
+			case "procs:"		:
+			case "whens:"		:
+			case "agents:"		:	doagents = true;
+									dosymbols = false;
+									doprojects = false;
+									dolocalscripts = false;
+									doremovescripts = false;
+									dohash = true;
+									dofuncs = false;
+									break;
+			case "scripts:"		:	doagents = false;
+									dosymbols = false;
+									dolocalscripts = true;
+									doremotescripts = true;
+									doprojects = false;
+									dohash = false;
+									dofuncs = false;
+									break;
+			}
 		}
 	}
 
@@ -77,15 +106,79 @@ Eden.Query.search = function(q) {
 			}
 
 			var regex = edenUI.regExpFromStr(dep[1], undefined, undefined, "regexp");
-			res.symbols.push.apply(res.symbols, Eden.Query.searchDepends(regex));
+
+			if (dosymbols) {
+				res.symbols.push.apply(res.symbols, Eden.Query.searchDepends(regex));
+			}
+			// TODO applies to agents also
 		} else {
 			var regex = edenUI.regExpFromStr(words[i], undefined, undefined, "regexp");
-			res.symbols.push.apply(res.symbols, Eden.Query.searchSymbols(regex));
+			if (dosymbols) res.symbols.push.apply(res.symbols, Eden.Query.searchSymbols(regex));
+			if (doagents) res.whens.push.apply(res.whens, Eden.Query.searchWhens(regex));
+			if (doremotescripts && words[i].length > 2) {
+				(function (word) {
+				if (Eden.Query.dbtimeout) clearTimeout(Eden.Query.dbtimeout);
+
+				Eden.Query.dbtimeout = setTimeout( function() {
+					Eden.Query.dbtimeout = undefined;
+					Eden.DB.search(word, function(results) {
+						res.scripts.push.apply(res.scripts, results);
+						res.scripts = reduceByCount(res.scripts, rcount);
+						Eden.Query.mergeResults(res);
+						if (cb) cb(res);
+					});
+				}, 1000);
+				})(words[i]);
+			}
 		}
 	}
 
 	res.symbols = reduceByCount(res.symbols, rcount);
+	//res.whens = reduceByCount(res.whens, rcount);
+
+	// Process all results into a single result...
+	Eden.Query.mergeResults(res);
+
+	if (cb) cb(res);
 	return res;
+}
+
+Eden.Query.mergeResults = function(res) {
+	res.all = [];
+	var MAXSYMS = 3;
+	var MAXAGENTS = 2;
+	var MAXSCRIPTS = 2;
+	var count = 0;
+
+	function interleave(MAX, start) {
+		count = 0;
+		for (var i=start; i<res.symbols.length; i++) {
+			if (count >= MAX) break;
+			count++;
+			res.all.push("/" + res.symbols[i]);
+		}
+
+		count = 0;
+		for (var i=start; i<res.whens.length; i++) {
+			if (count >= MAX) break;
+			count++;
+			res.all.push(res.whens[i]);
+		}
+
+		count = 0;
+		for (var i=start; i<res.scripts.length; i++) {
+			if (count >= MAX) break;
+			count++;
+			res.all.push(res.scripts[i]);
+		}
+
+		// Recursively process the results...
+		if (res.symbols.length > start+MAX || res.whens.length > start+MAX || res.scripts.length > start+MAX) {
+			interleave(2, start+MAX);
+		}
+	}
+
+	interleave(3,0);
 }
 
 Eden.Query.searchViews = function(q) {
@@ -111,7 +204,20 @@ Eden.Query.searchDepends = function(q) {
 }
 
 Eden.Query.searchWhens = function(q) {
-
+	var res = [];
+	for (var x in Eden.Agent.agents) {
+		var ag = Eden.Agent.agents[x];
+		if (!ag.ast) continue;
+		for (var y in ag.ast.triggers) {
+			if (q.test(y)) {
+				var whens = ag.ast.triggers[y];
+				for (var i=0; i<whens.length; i++) {
+					if (res.indexOf(whens[i].statement) == -1) res.push(whens[i].statement);
+				}
+			}
+		}
+	}
+	return res;
 }
 
 Eden.Query.searchProjects = function(q) {
