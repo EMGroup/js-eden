@@ -1996,7 +1996,12 @@ Eden.AST.prototype.pSTATEMENT_PP = function() {
 		return new Eden.AST.Definition(this.pEXPRESSION());
 	} else if (this.token == "in") {
 		this.next();
-		return new Eden.AST.Range(this.pEXPRESSION());
+		var range = new Eden.AST.Range(this.pEXPRESSION());
+		if (this.token == "..") {
+			this.next();
+			range.setSecond(this.pEXPRESSION());
+		}
+		return range;
 	} else if (this.token == "=") {
 		this.next();
 		return new Eden.AST.Assignment(this.pEXPRESSION());
@@ -2449,8 +2454,8 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "after"	:	this.next(); stat = this.pAFTER(); break;
 	case "include"	:	this.next(); stat = this.pINCLUDE(); break;
 	case "import"	:	this.next(); stat = this.pIMPORT(); break;
-	//case "local"	:
-	//case "auto"		:	stat = this.pLOCALS(); break;
+	case "local"	:
+	case "auto"		:	stat = this.pLOCALS(); break;
 	case "default"	:	this.next();
 						var def = new Eden.AST.Default();
 						if (this.token != ":") {

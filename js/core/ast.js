@@ -1395,6 +1395,11 @@ Eden.AST.Range.prototype.setSource = function(start, end) {
 	this.end = end;
 }
 
+Eden.AST.Range.prototype.setSecond = function(expr) {
+	this.second = expr;
+	if (expr && expr.errors) this.errors.push.apply(this.errors, expr.errors);
+}
+
 Eden.AST.Range.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
 	if (lvalue.errors.length > 0) {
@@ -1488,7 +1493,7 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 	if (ctx) ctx.scopes = this.scopes;
 	else ctx = this;
 
-	var rhs = "(function(context,scope,cache) { \n";
+	var rhs = "(function(context,scope,cache,ctx) { \n";
 	var express = this.expression.generate(ctx, "scope");
 
 	if (ctx && ctx.dirty) {
@@ -1526,14 +1531,20 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	}
 
 	try {
-		var sym = this.lvalue.getSymbol(ctx,base,scope);
-		if (this.lvalue.hasListIndices()) {
-			this.value = this.compiled.call(sym,eden.root,scope,sym.cache);
-			var complist = this.lvalue.executeCompList(ctx, scope);
-			sym.listAssign(this.value, scope, agent, false, complist);
+		if (ctx && ctx.locals && ctx.locals.hasOwnProperty(this.lvalue.name)) {
+			// TODO ALLOW LIST INDEX ASSIGNS
+			this.value = this.compiled.call(ctx,eden.root,scope,undefined,ctx);
+			ctx.locals[this.lvalue.name] = this.value;
 		} else {
-			this.value = this.compiled.call(sym,eden.root,scope,sym.cache);
-			sym.assign(this.value,scope, agent);
+			var sym = this.lvalue.getSymbol(ctx,base,scope);
+			if (this.lvalue.hasListIndices()) {
+				this.value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
+				var complist = this.lvalue.executeCompList(ctx, scope);
+				sym.listAssign(this.value, scope, agent, false, complist);
+			} else {
+				this.value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
+				sym.assign(this.value,scope, agent);
+			}
 		}
 	} catch(e) {
 		//this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
@@ -1651,48 +1662,84 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 
 	this.executed = 1;
 	// TODO: allow this to work on list indices
-	var sym = this.lvalue.getSymbol(ctx,base);
 
-	if (this.kind == "++") {
-		var newval = sym.value(scope)+1;
-		//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
-		sym.assign(newval, scope, agent);
-	} else if (this.kind == "--") {
-		var newval = sym.value(scope)-1;
-		//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
-		sym.assign(newval, scope, agent);
+	if (ctx && ctx.locals && ctx.locals.type != "declarations" && ctx.locals.hasOwnProperty(this.lvalue.name)) {
+		if (this.kind == "++") {
+			ctx.locals[this.lvalue.name]++;
+		} else if (this.kind == "--") {
+			ctx.locals[this.lvalue.name]--;
+		} else {
+			var rhs = "(function(context,scope) { return ";
+			rhs += this.expression.generate(ctx, "scope");
+			if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+				rhs += ".value";
+			}
+			rhs += ";})";
+
+			//var scope = eden.root.scope;
+			var context = eden.root;
+
+			for (var i=0; i<this.scopes.length; i++) {
+				_scopes.push(eval(this.scopes[i]));
+			}
+
+			this.scopes = [];
+
+			var newval;
+
+			switch (this.kind) {
+			case "+="	: newval = rt.add(ctx.locals[this.lvalue.name], eval(rhs)(context,scope)); break;
+			case "-="	: newval = rt.subtract(ctx.locals[this.lvalue.name], eval(rhs)(context,scope)); break;
+			case "/="	: newval = rt.divide(ctx.locals[this.lvalue.name], eval(rhs)(context,scope)); break;
+			case "*="	: newval = rt.multiply(ctx.locals[this.lvalue.name], eval(rhs)(context,scope)); break;
+			}
+
+			ctx.locals[this.lvalue.name] = newval;
+		}
 	} else {
-		var rhs = "(function(context,scope) { return ";
-		rhs += this.expression.generate(this, "scope");
-		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-			rhs += ".value";
+		var sym = this.lvalue.getSymbol(ctx,base);
+
+		if (this.kind == "++") {
+			var newval = sym.value(scope)+1;
+			//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
+			sym.assign(newval, scope, agent);
+		} else if (this.kind == "--") {
+			var newval = sym.value(scope)-1;
+			//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
+			sym.assign(newval, scope, agent);
+		} else {
+			var rhs = "(function(context,scope) { return ";
+			rhs += this.expression.generate(ctx, "scope");
+			if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
+				rhs += ".value";
+			}
+			rhs += ";})";
+
+			//var scope = eden.root.scope;
+			var context = eden.root;
+
+			for (var i=0; i<this.scopes.length; i++) {
+				_scopes.push(eval(this.scopes[i]));
+			}
+
+			this.scopes = [];
+
+			/*console.log(_scopes);
+			console.log(this.scopes);
+			console.log(rhs);*/
+
+			var newval;
+
+			switch (this.kind) {
+			case "+="	: newval = rt.add(sym.value(scope), eval(rhs)(context,scope)); break;
+			case "-="	: newval = rt.subtract(sym.value(scope), eval(rhs)(context,scope)); break;
+			case "/="	: newval = rt.divide(sym.value(scope), eval(rhs)(context,scope)); break;
+			case "*="	: newval = rt.multiply(sym.value(scope), eval(rhs)(context,scope)); break;
+			}
+
+			//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
+			sym.assign(newval, scope, agent);
 		}
-		rhs += ";})";
-
-		//var scope = eden.root.scope;
-		var context = eden.root;
-
-		for (var i=0; i<this.scopes.length; i++) {
-			_scopes.push(eval(this.scopes[i]));
-		}
-
-		this.scopes = [];
-
-		/*console.log(_scopes);
-		console.log(this.scopes);
-		console.log(rhs);*/
-
-		var newval;
-
-		switch (this.kind) {
-		case "+="	: newval = rt.add(sym.value(scope), eval(rhs)(context,scope)); break;
-		case "-="	: newval = rt.subtract(sym.value(scope), eval(rhs)(context,scope)); break;
-		case "/="	: newval = rt.divide(sym.value(scope), eval(rhs)(context,scope)); break;
-		case "*="	: newval = rt.multiply(sym.value(scope), eval(rhs)(context,scope)); break;
-		}
-
-		//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
-		sym.assign(newval, scope, agent);
 	}
 }
 
@@ -1775,13 +1822,23 @@ Eden.AST.Primary.prototype.prepend = function(extra) {
 
 Eden.AST.Primary.prototype.generate = function(ctx, scope, bound) {
 	// Check if this primary is a local variable.
-	if (ctx && ctx.locals && ctx.locals.list.indexOf(this.observable) != -1) {
-		this.returnsbound = false;
-		var res = this.observable;
-		for (var i=0; i<this.extras.length; i++) {
-			res += this.extras[i].generate(ctx, scope);
+	if (ctx && ctx.locals) {
+		if (ctx.locals.type == "declarations" && ctx.locals.list.indexOf(this.observable) != -1) {
+			this.returnsbound = false;
+			var res = this.observable;
+			for (var i=0; i<this.extras.length; i++) {
+				res += this.extras[i].generate(ctx, scope);
+			}
+			return res;
+		} else if (ctx.locals.type != "declarations" && ctx.locals.hasOwnProperty(this.observable)) {
+			this.returnsbound = false;
+			ctx.dirty = true;
+			var res = JSON.stringify(ctx.locals[this.observable]); //"ctx.locals[\""+this.observable+"\"]";
+			for (var i=0; i<this.extras.length; i++) {
+				res += this.extras[i].generate(ctx, scope);
+			}
+			return res;
 		}
-		return res;
 	}
 	// Check if this primary is a parameter.
 	if (ctx && ctx.params) {
@@ -1909,7 +1966,7 @@ Eden.AST.If.prototype.generate = function(ctx, scope) {
 }
 
 Eden.AST.If.prototype.getCondition = function(ctx) {
-	var cond = "(function(context,scope) { return ";
+	var cond = "(function(context,scope,ctx) { return ";
 	cond += this.condition.generate(ctx, "scope");
 	if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
 		cond += ".value";
@@ -1921,7 +1978,7 @@ Eden.AST.If.prototype.getCondition = function(ctx) {
 Eden.AST.If.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	
-	if (this.getCondition(ctx)(eden.root,scope)) {
+	if (this.getCondition(ctx)(eden.root,scope,ctx)) {
 		return [this.statement];
 	} else {
 		this.executed = 2;
@@ -2460,6 +2517,7 @@ Eden.AST.For = function() {
 	this.started = false;
 	this.list = undefined;
 	this.index = 0;
+	this.dirty = false;
 };
 
 Eden.AST.For.prototype.error = fnEdenASTerror;
@@ -2513,13 +2571,18 @@ Eden.AST.For.prototype.generate = function(ctx) {
 }
 
 Eden.AST.For.prototype.getCondition = function(ctx) {
-	if (this.compiled) {
+	if (this.compiled && this.dirty == false) {
 		return this.compiled;
 	} else {
 		var express = this.condition.generate(ctx, "scope");
+		if (ctx.dirty) {
+			this.dirty = true;
+			ctx.dirty = false;
+		}
 		if (this.condition.doesReturnBound && this.condition.doesReturnBound()) {
 			express += ".value";
 		}
+
 		var expfunc = eval("(function(context,scope){ return " + express + "; })");
 		this.compiled = expfunc;
 		return expfunc;
@@ -2529,7 +2592,7 @@ Eden.AST.For.prototype.getCondition = function(ctx) {
 Eden.AST.For.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 
-	if (this.sstart && this.sstart.type == "range") {
+	if (this.sstart && this.sstart.type == "range" && !this.sstart.second) {
 		if (this.list === undefined) {
 			this.list = this.sstart.expression.execute(ctx,base,scope,agent);
 			//console.log(this.list);
@@ -2591,29 +2654,7 @@ Eden.AST.For.prototype.execute = function(ctx, base, scope, agent) {
 				this.list = undefined;
 				return;
 			}
-			/*for (var i=0; i<list.value.length; i++) {
-				if (list.scopes) {
-					sym.assign(list.value[i],scope);
-					var cache = scope.lookup(sym.name);
-					if (cache) cache.scope = list.scopes[i];
-				} else {
-					if (list.value[i] instanceof BoundValue) {
-						sym.assign(list.value[i].value,scope);
-						var cache = scope.lookup(sym.name);
-						if (cache) cache.scope = list.value[i].scope;
-						//console.log(cache);
-					} else {
-						sym.assign(list.value[i],scope);
-						var cache = scope.lookup(sym.name);
-						if (cache) cache.scope = list.scope;
-					}
-				}
-				this.statement.execute(root,ctx,base,scope);
-				if (ctx.tobreak) {
-					ctx.tobreak = false;
-					break;
-				}
-			}*/
+
 		}
 	} else if (this.sstart && !this.started) {
 		this.started = true;
@@ -3133,7 +3174,12 @@ Eden.AST.Declarations.prototype.setSource = function(start, end) {
 }
 
 Eden.AST.Declarations.prototype.execute = function(ctx, base, scope, agent) {
-	console.log(ctx);
+	if (ctx) {
+		if (ctx.locals === undefined) ctx.locals = {};
+		for (var i=0; i<this.list.length; i++) {
+			ctx.locals[this.list[i]] = undefined;
+		}
+	}
 }
 
 //------------------------------------------------------------------------------

@@ -615,6 +615,8 @@ Eden.RuntimeError = function(context, errno, statement, extra) {
 	this.errno = errno;
 	this.context = context;
 	this.lastsymbol = eden.root.lastlookup;
+
+	console.error(extra);
 }
 
 Eden.RuntimeError.UNKNOWN = 0;
