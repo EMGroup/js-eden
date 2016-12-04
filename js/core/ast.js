@@ -52,6 +52,23 @@ function fnEdenASTleft(left) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+
+Eden.AST.Local = function() {
+	this.name = "/LOCALVARIABLE";
+	this.cvalue = undefined;
+}
+
+Eden.AST.Local.prototype.assign = function(value) {
+	this.cvalue = value;
+}
+
+Eden.AST.Local.prototype.value = function() {
+	return this.cvalue;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 /**
  * A doxygen style comment node. The content is not parsed, the entire comment
  * is stored raw.
@@ -646,6 +663,9 @@ Eden.AST.Length.prototype.generate = function(ctx, scope) {
 	return "rt.length(" + left + ")";
 }
 
+Eden.AST.Length.prototype.execute = function(ctx, base, scope, agent) {
+	return rt.length(this.l.execute(ctx,base,scope,agent));
+}
 
 
 //------------------------------------------------------------------------------
@@ -692,7 +712,12 @@ Eden.AST.LValue.prototype.setExpression = function(express) {
 }
 
 Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {
+	if (ctx && ctx.locals && ctx.locals.type != "declarations" && ctx.locals.hasOwnProperty(this.name)) {
+		return ctx.locals[this.name];
+	}
+
 	if (this.name) return eden.root.lookup(this.name);
+
 	if (this.primary) {
 		var sym = this.primary.execute(ctx,base,scope);
 		if (sym instanceof BoundValue) sym = sym.value;
@@ -1531,11 +1556,11 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	}
 
 	try {
-		if (ctx && ctx.locals && ctx.locals.hasOwnProperty(this.lvalue.name)) {
-			// TODO ALLOW LIST INDEX ASSIGNS
-			this.value = this.compiled.call(ctx,eden.root,scope,undefined,ctx);
-			ctx.locals[this.lvalue.name] = this.value;
-		} else {
+		//if (ctx && ctx.locals && ctx.locals.hasOwnProperty(this.lvalue.name)) {
+		//	// TODO ALLOW LIST INDEX ASSIGNS
+		//	this.value = this.compiled.call(ctx,eden.root,scope,undefined,ctx);
+		//	ctx.locals[this.lvalue.name] = this.value;
+		//} else {
 			var sym = this.lvalue.getSymbol(ctx,base,scope);
 			if (this.lvalue.hasListIndices()) {
 				this.value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
@@ -1545,7 +1570,7 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 				this.value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
 				sym.assign(this.value,scope, agent);
 			}
-		}
+		//}
 	} catch(e) {
 		//this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
 		var agentobj = agent;
@@ -1663,7 +1688,7 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	// TODO: allow this to work on list indices
 
-	if (ctx && ctx.locals && ctx.locals.type != "declarations" && ctx.locals.hasOwnProperty(this.lvalue.name)) {
+	/*if (ctx && ctx.locals && ctx.locals.type != "declarations" && ctx.locals.hasOwnProperty(this.lvalue.name)) {
 		if (this.kind == "++") {
 			ctx.locals[this.lvalue.name]++;
 		} else if (this.kind == "--") {
@@ -1696,7 +1721,7 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 
 			ctx.locals[this.lvalue.name] = newval;
 		}
-	} else {
+	} else {*/
 		var sym = this.lvalue.getSymbol(ctx,base);
 
 		if (this.kind == "++") {
@@ -1740,7 +1765,7 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 			//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
 			sym.assign(newval, scope, agent);
 		}
-	}
+	//}
 }
 
 Eden.AST.Modify.prototype.error = fnEdenASTerror;
@@ -1831,9 +1856,11 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, bound) {
 			}
 			return res;
 		} else if (ctx.locals.type != "declarations" && ctx.locals.hasOwnProperty(this.observable)) {
+			// Otherwise we need to eval the value and embed it
+			// TODO only if ctx is of type definition??
 			this.returnsbound = false;
 			ctx.dirty = true;
-			var res = JSON.stringify(ctx.locals[this.observable]); //"ctx.locals[\""+this.observable+"\"]";
+			var res = JSON.stringify(ctx.locals[this.observable].value()); //"ctx.locals[\""+this.observable+"\"]";
 			for (var i=0; i<this.extras.length; i++) {
 				res += this.extras[i].generate(ctx, scope);
 			}
@@ -2592,32 +2619,41 @@ Eden.AST.For.prototype.getCondition = function(ctx) {
 Eden.AST.For.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 
-	if (this.sstart && this.sstart.type == "range" && !this.sstart.second) {
+	if (this.sstart && this.sstart.type == "range") {
 		if (this.list === undefined) {
-			this.list = this.sstart.expression.execute(ctx,base,scope,agent);
-			//console.log(this.list);
-			this.index = 0;
+			if (this.sstart.second) {
+				this.index = this.sstart.expression.execute(ctx,base,scope,agent);
+				this.list = this.sstart.second.execute(ctx,base,scope,agent);
+			} else {
+				this.list = this.sstart.expression.execute(ctx,base,scope,agent);
+				this.index = 0;
+			}
 		}
-		var sym = root.lookup(this.sstart.lvalue.name);
-		if (Array.isArray(this.list)) {
+		var sym = this.sstart.lvalue.getSymbol(ctx,base,scope); //root.lookup(this.sstart.lvalue.getSymbol);
+
+		if (this.sstart.second) {
+			if (this.index <= this.list) {
+				sym.assign(this.index, scope, agent);
+				this.index++;
+				return [this.statement, this];
+			} else {
+				this.index = 0;
+				this.list = undefined;
+				return;
+			}
+		} else if (Array.isArray(this.list)) {
 			//for (var i=0; i<this.list.length; i++) {
 			if (this.index < this.list.length) {
 				if (this.list[this.index] instanceof BoundValue) {
-					sym.assign(this.list[this.index].value,scope);
+					sym.assign(this.list[this.index].value,scope,agent);
 					var cache = scope.lookup(sym.name);
 					if (cache) cache.scope = this.list[this.index].scope;
 					//console.log(cache);
 				} else {
-					sym.assign(this.list[this.index],scope);
+					sym.assign(this.list[this.index],scope,agent);
 				}
 				this.index++;
 				return [this.statement, this];
-				//this.statement.execute(root,ctx,base,scope);
-				//if (ctx.tobreak) {
-				//	ctx.tobreak = false;
-				//	break;
-				//}
-			//}
 			} else {
 				this.index = 0;
 				this.list = undefined;
@@ -2626,29 +2662,23 @@ Eden.AST.For.prototype.execute = function(ctx, base, scope, agent) {
 		} else if (this.list instanceof BoundValue) {
 			if (this.index < this.list.value.length) {
 				if (this.list.scopes) {
-					sym.assign(this.list.value[this.index],scope);
+					sym.assign(this.list.value[this.index],scope,agent);
 					var cache = scope.lookup(sym.name);
 					if (cache) cache.scope = this.list.scopes[this.index];
 				} else {
 					if (this.list.value[this.index] instanceof BoundValue) {
-						sym.assign(this.list.value[this.index].value,scope);
+						sym.assign(this.list.value[this.index].value,scope,agent);
 						var cache = scope.lookup(sym.name);
 						if (cache) cache.scope = this.list.value[this.index].scope;
 						//console.log(cache);
 					} else {
-						sym.assign(this.list.value[this.index],scope);
+						sym.assign(this.list.value[this.index],scope,agent);
 						var cache = scope.lookup(sym.name);
 						if (cache) cache.scope = this.list.scope;
 					}
 				}
 				this.index++;
 				return [this.statement, this];
-				//this.statement.execute(root,ctx,base,scope);
-				//if (ctx.tobreak) {
-				//	ctx.tobreak = false;
-				//	break;
-				//}
-			//}
 			} else {
 				this.index = 0;
 				this.list = undefined;
@@ -3177,7 +3207,7 @@ Eden.AST.Declarations.prototype.execute = function(ctx, base, scope, agent) {
 	if (ctx) {
 		if (ctx.locals === undefined) ctx.locals = {};
 		for (var i=0; i<this.list.length; i++) {
-			ctx.locals[this.list[i]] = undefined;
+			ctx.locals[this.list[i]] = new Eden.AST.Local(this.list[i]);
 		}
 	}
 }
@@ -3252,7 +3282,7 @@ Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
 	if (this.locals && this.locals.list.length > 0) {
 		if (ctx.locals === undefined) ctx.locals = {};
 		for (var i=0; i<this.locals.list.length; i++) {
-			ctx.locals[this.locals.list[i]] = undefined;
+			ctx.locals[this.locals.list[i]] = new Eden.AST.Local(this.locals.list[i]);
 		}
 	}
 
