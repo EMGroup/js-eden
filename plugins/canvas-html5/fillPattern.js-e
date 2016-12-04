@@ -23,6 +23,11 @@ FillPattern = function (url) {
 };
 }}$;
 
+/**
+ * Create FillPattern object based on an image
+ * @param url URL of the image
+ */
+
 func FillPattern {
 	${{
 		return new FillPattern(arguments[0]);

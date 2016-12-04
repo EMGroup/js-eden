@@ -40,7 +40,7 @@ Combobox.prototype.hash = function () {
  * @param [maxlength] Maximum length allowed in input
  * @param [enabled] defaults to true.
  * 
- * #canvas #combobox
+ * #canvas #combobox #input #select
  */
 
 func Combobox { ${{

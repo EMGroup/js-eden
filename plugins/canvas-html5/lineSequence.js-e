@@ -28,6 +28,15 @@ LineSequence = function(vertices, colours, drawingOptions) {
 }
 }}$;
 
+/**
+ * Creates a sequence of joined lines for display on the canvas from a list of Points
+ * 
+ * @param points List of coordinates in the form Point(x, y) from the top left corner of the canvas
+ * @param [colour(s)] Colour of the line as a HTML colour value, or a list of such colour values
+ * @param [drawing_options] List of drawingOptions
+ * 
+ * #canvas #line #linesequence #drawingoptions
+ */
 func LineSequence { ${{
 	var vertices = arguments[0];
 	var colours, drawingOptions;

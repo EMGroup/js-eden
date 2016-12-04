@@ -71,6 +71,20 @@ Div.prototype.hash = function () {
 };
 }}$;
 
+/**
+ * Create a Div tag to display HTML
+ * 
+ * @param html
+ * @param x X-coordinate
+ * @param y Y-coordinate
+ * @param [width Width in pixels or as a string or undefined
+ * @param [height]] Height in pixels or as a string or undefined
+ * @param [id]
+ * @param [css_class_list]
+ * @param [style] An optional CSS style string
+ * #canvas #div #html #css
+ */
+
 func Div { ${{
 	var html = arguments[0];
 	var x = arguments[1];
