@@ -686,4 +686,14 @@ func tuneFromText {
 	}}$;
 }
 
+/**
+ * Starts listening to MIDI input
+ * @param [inputNum] The input number to listen to. Defaults to all inputs.
+ */
+func startMIDIInput {
+	${{
+		edenUI.plugins.MIDI.startMIDILogging(arguments[0]);
+	}}$;
+}
+
 initializeMIDI();
