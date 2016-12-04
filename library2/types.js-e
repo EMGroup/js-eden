@@ -12,6 +12,10 @@
 ##=============================================================================
 ##Type casting functions.
 
+/**
+ * Convert some value into a character.
+ *   @param value The source value.
+ */
 func char {
 	${{
 		if (arguments.length != 1) {
@@ -31,29 +35,31 @@ func char {
 	}}$;
 }
 
-##Casts a value to an int.
-##
-##Improvements (over the previously built-in function of the same name):
-##
-##Strings that don't begin with a digit now return the character code of the
-##first and only character if the string is exactly one character long and zero
-##otherwise.  Previously NaN was returned.
-##
-##Boolean values are converted into 1 and 0.
-##
-##Values belonging to types other than numbers, strings and Booleans result in
-##undefined being returned instead of NaN.
-##
-##Continuing discrepancies with tkeden:
-##
-##Because JavaScript doesn't have a separate character type distinct from
-##strings, applying this function to a numeral returns a number in the range
-##0-9 (favouring the string interpretation) and not the ASCII character code
-##(the character interpretation).  So int('A') is 65 but int('0') is 0, not 48.
-##
-##Pointer values result in undefined being returned because there is no way to
-##get JavaScript to reveal the memory address of a variable.
-##
+/**
+ * Casts a value to an int.
+ *
+ * Improvements (over the previously built-in function of the same name):
+ *
+ * Strings that don't begin with a digit now return the character code of the
+ * first and only character if the string is exactly one character long and zero
+ * otherwise.  Previously NaN was returned.
+ *
+ * Boolean values are converted into 1 and 0.
+ *
+ * Values belonging to types other than numbers, strings and Booleans result in
+ * undefined being returned instead of NaN.
+ *
+ * Continuing discrepancies with tkeden:
+ *
+ * Because JavaScript doesn't have a separate character type distinct from
+ * strings, applying this function to a numeral returns a number in the range
+ * 0-9 (favouring the string interpretation) and not the ASCII character code
+ * (the character interpretation).  So int('A') is 65 but int('0') is 0, not 48.
+ *
+ * Pointer values result in undefined being returned because there is no way to
+ * get JavaScript to reveal the memory address of a variable.
+ *    @param value The original value.
+ */
 func int {
 	${{
 		if (arguments.length != 1) {
@@ -84,10 +90,12 @@ func int {
 	}}$;
 }
 
-##int('0') incorrectly gives 0 instead of 48.  This complementary function
-##(a JS-EDEN specific addition) always gives the Unicode character code,
-##including for numerals.  Unlike int() this function raises an error if its
-##argument is not a single character.
+/**
+ * `int('0')` incorrectly gives 0 instead of 48.  This complementary function
+ * (a JS-EDEN specific addition) always gives the Unicode character code,
+ * including for numerals.  Unlike int() this function raises an error if its
+ * argument is not a single character.
+ */
 func charCode {
 	${{
 		if (arguments.length != 1) {
@@ -110,6 +118,10 @@ func charCode {
 	}}$;
 }
 
+/**
+ * Convert a value of any type to a string.
+ *   @param value The original value to convert.
+ */
 func str {
 	para v;
 	auto argc;
@@ -132,48 +144,50 @@ func str {
 ##=============================================================================
 ##Type testing functions.
 
-##type(expr) Determines the type of an expression.
-##
-##Differences from tkeden:
-##Returns "object" if its argument is a JavaScript object or "@" if it's null.
-##
-##JavaScript doesn't make a distinction between integer and floating point
-##expressions.  JavaScript only has a single numeric type and it's a floating
-##point type.  This function will check if the value is an integer or not but
-##type(1.5 + 2.5) incorrectly returns "int".  "@" is returned for NaNs.  tkeden
-##flags expressions such as 0/0 as unrecoverable errors and thus NaNs don't
-##arise in tkeden.
-##
-##JavaScript has a dedicated Boolean type and this function will return
-##"boolean" when applied to Boolean expressions.  This is internally consistent
-##with JS-EDEN but when this function returns "boolean" tkeden would have
-##returned "int".
-##
-##Attempts to return "func" for all built-in and user-defined functions and
-##"proc" for all built-in and user-defined procs.  However, the determination
-##of whether a value is a func or a proc is based solely on whether the
-##compiled JavaScript contains a return statement that returns a value.  It is
-##not based on whether the original EDEN definition began with the keyword func
-##or the keyword proc.  Because the only information being provided to this
-##function is the value itself and not anything more substantial (such as a
-##symbol table name), we can't 100% reliably distinguish between func-s, proc-s
-##and built-ins because the values of all three are just JavaScript values that
-##look like function () {...} in JavaScript.
-##
-##Possible return values are:
-## "boolean", "float", "func", "int", "list", "object", "pointer", "proc",
-## "string" and "@".
-##
-##This function never returns "char" because JavaScript doesn't have a character
-##type, only strings of length one.  There seems no obvious reason to prefer
-##classifying such a value as a character rather than string of length one.
-##(But distinguishing integers from reals where possible has many practical
-##applications.)
-##
-##Use this function to get a string representation of the type to which a value
-##belongs.  To determine if a value belongs to one specific type then the isXXX
-##functions defined below (unavailable in tkeden) execute faster and provide a
-##more lucid form of expression than tests such as, if (type(v) == "string").
+/**
+ * `type(expr)` Determines the type of an expression.
+ *
+ * Differences from tkeden:
+ * Returns "object" if its argument is a JavaScript object or "@" if it's null.
+ *
+ * JavaScript doesn't make a distinction between integer and floating point
+ * expressions.  JavaScript only has a single numeric type and it's a floating
+ * point type.  This function will check if the value is an integer or not but
+ * type(1.5 + 2.5) incorrectly returns "int".  "@" is returned for NaNs.  tkeden
+ * flags expressions such as 0/0 as unrecoverable errors and thus NaNs don't
+ * arise in tkeden.
+ *
+ * JavaScript has a dedicated Boolean type and this function will return
+ * "boolean" when applied to Boolean expressions.  This is internally consistent
+ * with JS-EDEN but when this function returns "boolean" tkeden would have
+ * returned "int".
+ *
+ * Attempts to return "func" for all built-in and user-defined functions and
+ * "proc" for all built-in and user-defined procs.  However, the determination
+ * of whether a value is a func or a proc is based solely on whether the
+ * compiled JavaScript contains a return statement that returns a value.  It is
+ * not based on whether the original EDEN definition began with the keyword func
+ * or the keyword proc.  Because the only information being provided to this
+ * function is the value itself and not anything more substantial (such as a
+ * symbol table name), we can't 100% reliably distinguish between func-s, proc-s
+ * and built-ins because the values of all three are just JavaScript values that
+ * look like function () {...} in JavaScript.
+ *
+ * Possible return values are:
+ * "boolean", "float", "func", "int", "list", "object", "pointer", "proc",
+ * "string" and "@".
+ *
+ * This function never returns "char" because JavaScript doesn't have a character
+ * type, only strings of length one.  There seems no obvious reason to prefer
+ * classifying such a value as a character rather than string of length one.
+ * (But distinguishing integers from reals where possible has many practical
+ * applications.)
+ *
+ * Use this function to get a string representation of the type to which a value
+ * belongs.  To determine if a value belongs to one specific type then the isXXX
+ * functions defined below (unavailable in tkeden) execute faster and provide a
+ * more lucid form of expression than tests such as, if (type(v) == "string").
+ */
 func type {
 	${{
 		if (arguments.length != 1) {
@@ -228,7 +242,7 @@ func type {
 	}}$;
 }
 
-##Tests if a value is a Boolean value.
+/** Tests if a value is a Boolean value. */
 func isBoolean {
 	${{
 		if (arguments.length != 1) {
@@ -239,7 +253,7 @@ func isBoolean {
 	}}$;
 }
 
-##Tests if a value is a func or a proc.
+/** Tests if a value is a func or a proc. */
 func isCallable {
 	${{
 		if (arguments.length != 1) {
@@ -250,7 +264,7 @@ func isCallable {
 	}}$;
 }
 
-##Tests if a value is a char value (string of length 1).
+/** Tests if a value is a char value (string of length 1). */
 func isChar {
 	${{
 		if (arguments.length != 1) {
@@ -278,21 +292,23 @@ func isDefined {
 	}}$;
 }
 
-##Tests if a value is defined in the modelling sense.  To be defined a value
-##must not be:
-##	(1) The undefined value
-##		Referred to as @ in EDEN or by the word undefined in JavaScript.
-##	(2) The null object
-##		null can't have properties attached to it or accept standard method
-##		invocations like toString(), unlike all other object-typed values.
-##	(3) A NaN
-##		Although NaNs are part of the JavaScript number type that EDEN
-##		inherits, NaNs are not numbers from a modelling perspective.  An
-##		expression that evaluates to NaN, such as 0/0 has mathematical
-##		conceptions that are something akin to "undefined".  Also, expressions
-##		such as 0/0 == 0/0 evaluate to false because one NaN value is never
-##		equal to another NaN value, which is mathematically queer.
-##
+/**
+ * Tests if a value is defined in the modelling sense.  To be defined a value
+ * must not be:
+ *
+ *	1.	The undefined value
+ *		Referred to as @ in EDEN or by the word undefined in JavaScript.
+ *	2.	The null object
+ *		null can't have properties attached to it or accept standard method
+ *		invocations like toString(), unlike all other object-typed values.
+ *	3.	A NaN
+ *		Although NaNs are part of the JavaScript number type that EDEN
+ *		inherits, NaNs are not numbers from a modelling perspective.  An
+ *		expression that evaluates to NaN, such as 0/0 has mathematical
+ *		conceptions that are something akin to "undefined".  Also, expressions
+ *		such as 0/0 == 0/0 evaluate to false because one NaN value is never
+ *		equal to another NaN value, which is mathematically queer.
+ */
 func isValue {
 	${{
 		if (arguments.length != 1) {
@@ -304,7 +320,7 @@ func isValue {
 	}}$;
 }
 
-##Tests if a value is a func.
+/** Tests if a value is a func. */
 func isFunc {
 	${{
 		if (arguments.length != 1) {
@@ -316,7 +332,7 @@ func isFunc {
 	}}$;
 }
 
-##Tests if a value is an integer.
+/** Tests if a value is an integer. */
 func isInt {
 	${{
 		if (arguments.length != 1) {
@@ -328,7 +344,7 @@ func isInt {
 	}}$;
 }
 
-##Tests if a value is a list.
+/** Tests if a value is a list. */
 func isList {
 	${{
 		if (arguments.length != 1) {
@@ -339,7 +355,7 @@ func isList {
 	}}$;
 }
 
-##Tests if a value is a NaN.
+/** Tests if a value is a NaN. */
 func isNaN {
 	${{
 		if (arguments.length != 1) {
@@ -350,7 +366,7 @@ func isNaN {
 	}}$;
 }
 
-##Tests if a value is a number (float or int).
+/** Tests if a value is a number (float or int). */
 func isNumber {
 	${{
 		if (arguments.length != 1) {
@@ -361,9 +377,11 @@ func isNumber {
 	}}$;
 }
 
-##Tests if a value is an object (non-null).  Although JS-EDEN internally
-##represents pointers as JavaScript objects, pointers are a distinct type as
-##far EDEN is concerned.
+/**
+ * Tests if a value is an object (non-null).  Although JS-EDEN internally
+ * represents pointers as JavaScript objects, pointers are a distinct type as
+ * far EDEN is concerned.
+ */
 func isObject {
 	${{
 		if (arguments.length != 1) {
@@ -384,7 +402,7 @@ func isPoint {
 	}}$;
 }
 
-##Tests if a value is a pointer.
+/** Tests if a value is a pointer. */
 func isPointer {
 	${{
 		if (arguments.length != 1) {
@@ -402,7 +420,7 @@ func isPointer {
 	}}$;
 }
 
-##Tests if a value is a proc.
+/** Tests if a value is a proc. */
 func isProc {
 	${{
 		if (arguments.length != 1) {
@@ -414,7 +432,7 @@ func isProc {
 	}}$;
 }
 
-##Tests if a value is a string.
+/** Tests if a value is a string. */
 func isString {
 	${{
 		if (arguments.length != 1) {

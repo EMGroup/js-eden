@@ -203,7 +203,8 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 			if (cb) cb();
 		});
 	} catch (e) {
-
+		console.error(e);
+		if (cb) cb();
 	}
 }
 

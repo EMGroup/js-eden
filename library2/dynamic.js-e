@@ -1,12 +1,12 @@
 /**
+ * Functions and procedures that allow EDEN code to inspect, manipulate and
+ * construct parts of scripts at runtime.
+ * 
  * @title Dynamic Scripts
  * Copyright (c) 2014, Empirical Modelling Group
  * All rights reserved.
  *
  * See LICENSE.txt
- *
- * Functions and procedures that allow EDEN code to inspect, manipulate and
- * construct parts of scripts at runtime.
  */
 
 /**
@@ -22,8 +22,10 @@
  * @param original Original observable being aliased.
  *
  * To remove the alias execute:
- *	forget("_alias_aliasedName");
- *	forget("_alias_originalObservable");
+ *
+ *	`forget("_alias_aliasedName");`
+ *	`forget("_alias_originalObservable");`
+ *
  * where aliasedName and originalObservable are respectively the string values of
  * the first and second arguments the alias procedure was previously invoked with.
  */
@@ -76,11 +78,15 @@ proc alias {
 	execute(str);
 }
 
-##This function is the reverse of execute.  Given pointer or a string that names
-##an observable it returns the code used to define the observable that is named
-##or being pointed to, that is, this function returns the text of the most
-##recent assignment or "is" statement that determines the observable's current
-##value.
+/**
+ * This function is the reverse of execute. Given pointer or a string that names
+ * an observable it returns the code used to define the observable that is named
+ * or being pointed to, that is, this function returns the text of the most
+ * recent assignment or "is" statement that determines the observable's current
+ * value.
+ *   @param symbol Pointer to or name of symbol.
+ *   @return The original source.
+ */
 func definitionOf {
 	${{
 		if (arguments.length != 1) {
@@ -111,11 +117,17 @@ func definitionOf {
 	}}$;
 }
 
-##Similar to definitionOf but the result only includes the right-hand side of
-##the definition and excludes the terminating semi-colon.
-##E.g. if an observable b is defined as:
-## b is a + 3;
-##then definitionOf("b") returns "b is a + 3;" and definitionRHS("b") returns "a + 3".
+/**
+ * Similar to definitionOf but the result only includes the right-hand side of
+ * the definition and excludes the terminating semi-colon.
+ *
+ * E.g. if an observable b is defined as:
+ *
+ * `b is a + 3;`
+ *
+ * then `definitionOf("b")` returns `"b is a + 3;"` and `definitionRHS("b")` returns `"a + 3"`.
+ *   @param symbol Pointer to or name of symbol.
+ */
 func definitionRHS {
 	${{
 		if (arguments.length != 1) {
@@ -150,8 +162,12 @@ func definitionRHS {
 	}}$;
 }
 
-##Returns true if the observable named by the second argument appears in the definition of the
-##observable named by the first argument.
+/**
+ * Returns true if the observable named by the second argument appears in the definition of the
+ * observable named by the first argument.
+ *   @param a Symbol whose definition is being checked.
+ *   @param b The dependency to look for.
+ */
 func isDependent {
 	${{
 		if (arguments.length != 2) {
@@ -185,9 +201,12 @@ func isDependent {
 
 
 
-##Given a string or a pointer, returns true if the referenced observable is
-##defined through dependency or false if it's defined through assignment or not
-##defined at all.
+/**
+ * Given a string or a pointer, returns true if the referenced observable is
+ * defined through dependency or false if it's defined through assignment or not
+ * defined at all.
+ *   @param symbol Pointer to or name of symbol.
+ */
 func isDependency {
 	${{
 		if (arguments.length != 1) {
