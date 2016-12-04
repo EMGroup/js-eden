@@ -25,6 +25,17 @@ DropDownList.prototype.hash = function () {
 
 }}$;
 
+
+/**
+ * Creates a DropDown list, allowing for the selection
+ * @param [name] Prefix for _value observable. Default is the name of the observable being defined.
+ * @param values A list of options
+ * @param [labels] A list of labels to display, if not supplied, the list of values will be used
+ * @param x X-coordinate
+ * @param y Y-coordinate
+ * @param [enabled] Boolean to determine if list selection is enabled
+ * #canvas #dropdown #input #select
+ */
 func DropDownList { ${{
 	var argsProcesed;
 

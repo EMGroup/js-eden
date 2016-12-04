@@ -34,6 +34,21 @@ HTMLImage.prototype.hash = function () {
 };
 }}$;
 
+/**
+ * Create drawable image for a canvas
+ * 
+ * @param name Name for click events
+ * @param x X-coordinate
+ * @param y Y-coordinate
+ * @param [width Width in virtual pixel units
+ * @param [height] Height in virtual pixel units
+ * @param [sizeIsPercentage] Whether width and height are in pixel or percentage units
+ * @param [at_scale]] The value of _view_xxx_scale needed to make 1 virtual pixel equal 1 real pixel
+ * @param url Source file for the image
+ * @param [zones] List of two element lists. The first element of each is the name of an image area. The second is a Circle, Rectangle or Polygon object.
+ * 
+ * #canvas #image #htmlimage
+ */
 func HTMLImage { ${{
 	var numArgs = arguments.length;
 	var argsProcessedFirst, arg, argType;

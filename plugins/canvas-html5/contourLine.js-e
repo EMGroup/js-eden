@@ -1132,6 +1132,7 @@ ${{
  * @param xMax
  * @param yMax
  * @param [zMax]
+ * #euclideanspace #contour
  */
 func EuclideanSpace {
 	${{
@@ -1153,8 +1154,18 @@ func EuclideanSpace {
 	}}$;
 }
 
-/*
+/**
  * 
+ * Creates object to hold Scalar Field values
+ * For more details, please see: 
+ * <a target="_blank" href="http://jseden.dcs.warwick.ac.uk/latest-master/index-dev.html?import=plugins/canvas/contourLine/guide">Contour Line Guide</a>
+ * @param dataPtr
+ * @param space
+ * @param numX
+ * @param numY
+ * @param [tmin
+ * @param [tmax]]
+ * #scalarfield #contour
  */
 
 func ScalarField2D {
@@ -1203,6 +1214,18 @@ func ScalarField2D {
 	}}$;
 }
 
+/**
+ * 
+ * Applies a threshold and traces the outline of a shape.
+ * For more details, please see: 
+ * <a target="_blank" href="http://jseden.dcs.warwick.ac.uk/latest-master/index-dev.html?import=plugins/canvas/contourLine/guide">Contour Line Guide</a>
+ * @param scalar_field_2d ScalarField object providing the function values
+ * @param [iso_value The threshold value that determines which function values fall inside the boundary of the shape
+ * @param [time_value]] The time instant at which to evaluate the function.  May be omitted if the function is time invariant.
+ *
+ * #contour
+ */
+
 func ContourData {
 	${{
 		var field = arguments[0];
@@ -1215,6 +1238,23 @@ func ContourData {
 	}}$;
 }
 
+/**
+ * Creates a contoured shape object with size, position, colour, etc. from the mathematical description (ContourData).
+ * For more details, please see: 
+ * <a target="_blank" href="http://jseden.dcs.warwick.ac.uk/latest-master/index-dev.html?import=plugins/canvas/contourLine/guide">Contour Line Guide</a>
+ * 
+ * @param x
+ * @param y
+ * @param width
+ * @param height
+ * @param contour_data A contourData object
+ * @param [fill_colour
+ * @param [outline_colour]]
+ * @param [drawing_options] A drawingOptions object
+ * 
+ * #canvas #contour #line #drawingOptions
+ * 
+ */
 func ContourLine {
 	${{
 		var x = arguments[0];

@@ -9,7 +9,7 @@ var express = require('express')
 , session = require("express-session");
 var sqlite3 = require("sqlite3").verbose();
 var config = require("./config.js");
-var db = new sqlite3.Database('database.sqlite3');
+var db = new sqlite3.Database('pmdb.sqlite3');
 
 var insertAgentStmt;
 // API Access link for creating client ID and secret:
@@ -50,7 +50,7 @@ passport.deserializeUser(function(obj, done) {
 passport.use(new GoogleStrategy({
     clientID: config.GOOGLE_CLIENT_ID,
     clientSecret: config.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://"+config.HOSTNAME + ":" + config.PORT + "/auth/google/callback"
+callbackURL: config.BASEURL + "/auth/google/callback"
   },
   function(accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
@@ -68,7 +68,7 @@ passport.use(new GoogleStrategy({
 passport.use(new TwitterStrategy({
     consumerKey: config.TWITTER_CONSUMER_KEY,
     consumerSecret: config.TWITTER_CONSUMER_SECRET,
-    callbackURL: "http://"+config.HOSTNAME + ":" + config.PORT + "/auth/twitter/callback"
+    callbackURL: config.BASEURL + "/auth/twitter/callback"
   },
   function(token, tokenSecret, profile, done) {
 	// asynchronous verification, for effect...
@@ -93,17 +93,22 @@ var app = express();
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
   app.use(cookieParser());
-  app.use(bodyParser());
+  app.use(bodyParser.urlencoded({limit: '5mb'}));
   app.use(express.static("static"));
+  app.use(logErrors);
   
   app.use(function(req, res, next) {
 	  var allowedOrigins = ["http://localhost:8000","http://127.0.0.1:8000","http://emgroup.github.io","http://jseden.dcs.warwick.ac.uk"];
-	  if(allowedOrigins.indexOf(req.headers.origin) > -1)
-		  res.header("Access-Control-Allow-Origin", req.headers.origin);
-	  
+	  var corsOrigin = "http://localhost:8000";
+	  if(typeof(req.headers.origin) != 'undefined' && allowedOrigins.indexOf(req.headers.origin) > -1){
+		corsOrigin = req.headers.origin;
+	  }else if(typeof(req.headers["jseden-origin"]) != 'undefined'){
+	 	corsOrigin = req.headers["jseden-origin"];
+	  }
+	  res.header("Access-Control-Allow-Origin", corsOrigin);
 	  res.header("Access-Control-Allow-Credentials","true");
-	  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-	  next();
+	  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, JSEDEN-ORIGIN");
+	next();
 	});
   
   app.use(session({ secret: config.SESSION_SECRET }));
@@ -128,7 +133,7 @@ app.post('/registration', function(req,res){
 	var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?)");
 	stmt.run(req.user.oauthcode, req.body.displayName, function(err){
 		req.user.id = this.lastID;
-		res.redirect('/');
+		res.redirect(config.BASEURL);
 	});
 });
 
@@ -139,6 +144,12 @@ app.get('/account', ensureAuthenticated, function(req, res){
 app.get('/login', function(req, res){
   res.render('login', { user: req.user });
 });
+
+function logErrors(err,req,res,next){
+	console.log(err.stack);
+	res.status(500);
+	res.json({"error": "Error"});
+}
 
 function insertPath(pathParts,depth, finalTitle, finalCallback){
 	//Recursively insert paths to make sure there is an entry for each level
@@ -205,7 +216,7 @@ function doInsert(vstmt, agentID, source, tag, parent, id, permission, title, gr
 	
 app.get('/agent/list', function(req, res){
 	var stmt = db.prepare("SELECT versions.agentID, agents.title, agents.path, versions.saveID " +
-			"FROM agents, versions WHERE agents.agentID = versions.agentID AND versions.owner = ?");
+			"FROM agents, versions WHERE agents.ID = versions.agentID AND versions.owner = ?");
 	stmt.all(req.user.id, function(err,rows){
 		res.json(rows);
 	});
@@ -275,13 +286,20 @@ app.get('/agent/search', function(req, res){
 	if(typeof(req.query.depth) != "undefined"){
 		depth = req.query.depth;
 	}
-	var match = req.query.path + "/%";
-	if(typeof(req.query.path) == "undefined" || req.query.path == ""){
-		match = "%";
-	}
-	var notmatch = match;
-	for(var i = 0; i < depth; i++){
-		var notmatch = notmatch + "/%";
+	var match;
+	var notmatch;
+	if(req.query.mode == "fullpathsearch"){
+		match = req.query.path;
+		notmatch = "";
+	}else{
+		match = req.query.path + "/%";
+		if(typeof(req.query.path) == "undefined" || req.query.path == ""){
+			match = "%";
+		}
+	notmatch = match;
+		for(var i = 0; i < depth; i++){
+			var notmatch = notmatch + "/%";
+		}
 	}
 
 	var stmt = db.prepare("SELECT id, path FROM agents where path LIKE ? AND path NOT LIKE ?");
@@ -394,19 +412,19 @@ app.get('/auth/twitter', passport.authenticate('twitter'));
 app.get('/auth/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
-    res.redirect('/');
+    res.redirect(config.BASEURL);
   });
 
 app.get('/auth/twitter/callback', 
 		  passport.authenticate('twitter', { failureRedirect: '/login' }),
 		  function(req, res) {
 		    // Successful authentication, redirect home.
-		    res.redirect('/');
+		    res.redirect(config.BASEURL);
 		  });
 
 app.get('/logout', function(req, res){
   req.logout();
-  res.redirect('/');
+  res.redirect('/projectmanager');
 });
 
 app.listen(config.PORT);

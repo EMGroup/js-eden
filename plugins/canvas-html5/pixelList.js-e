@@ -3,41 +3,51 @@
 ##
 ## See LICENSE.txt
 
-##Returns a PixelList drawable.  The ptrToData argument should be a pointer to a list of
-##integers.  The first four elements of the list represent the red, green, blue and
-##alpha components of the first pixel respectively (all in the range 0-255).  The
-##next four elements represent the second pixel, going from left to right along the
-##top line of the block.  The data list should contain data for an exact number
-##of rows of the specified width.  Although cumbersome a PixelList performs far
-##faster than trying to map each pixel to an individual EDEN observable for a
-##block of any significant size.
-##
-##N.B. Unfortunately the alpha values are not true transparency.  That is, you
-##you can't see through to other objects drawn underneath on the canvas.  Alpha
-##values less than 255 just make the colours lighter.
-##
-##Example:
 /*
-	func colourMap {
-		para b;
-		auto data, i, j;
-		data = [];
-		for (j = 0; j <= 255; j++) {
-			for (i = 0; i <= 255; i++) {
-				append data, i;
-				append data, j;
-				append data, b;
-				append data, 255;
-			}
-		}
-		return data;
-	}
+ * Returns a PixelList drawable.  The ptrToData argument should be a pointer to a list of
+ * integers.  The first four elements of the list represent the red, green, blue and
+ * alpha components of the first pixel respectively (all in the range 0-255).  The
+ * next four elements represent the second pixel, going from left to right along the
+ * top line of the block.  The data list should contain data for an exact number
+ * of rows of the specified width.  Although cumbersome a PixelList performs far
+ * faster than trying to map each pixel to an individual EDEN observable for a
+ * block of any significant size.
+ * 
+ * N.B. Unfortunately the alpha values are not true transparency.  That is, you
+ * you can't see through to other objects drawn underneath on the canvas.  Alpha
+ * values less than 255 just make the colours lighter.
+ * 
+ * Example:
+ * ```
+ * 	func colourMap {
+ * 		para b;
+ * 		auto data, i, j;
+ * 		data = [];
+ * 		for (j = 0; j <= 255; j++) {
+ * 			for (i = 0; i <= 255; i++) {
+ * 			append data, i;
+ * 			append data, j;
+ * 			append data, b;
+ * 			append data, 255;
+ * 		}
+ * 		}
+ * 	return data;
+ *  }
+ *  
+ *  blue = 50;
+ *  pixelData is colourMap(blue);
+ *  pixels is PixelList(&pixelData, 20, 20, 256);
+ *  picture is [pixels];
+ *  
+ *  @param [name]
+ *  @param ptrToData pointer to list of R,G,B,Alpha values
+ *  @param x x-position
+ *  @param y y-position
+ *  @param width
+ *  
+ * #canvas #pixellist
+ */
 
-	blue = 50;
-	pixelData is colourMap(blue);
-	pixels is PixelList(&pixelData, 20, 20, 256);
-	picture is [pixels];
-*/
 
 func PixelList {
 	${{
@@ -62,7 +72,7 @@ func PixelList {
 }
 
 ${{
-function PixelList(name, ptrToData, x, y, width) {
+PixelList = function(name, ptrToData, x, y, width) {
 	this.name = edenUI.plugins.Canvas2D.initZoneFromName(name, "PixelList");
 	this.obsName = root.currentObservableName();
 	this.ptr = ptrToData;

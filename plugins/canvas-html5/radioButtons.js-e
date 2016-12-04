@@ -28,6 +28,18 @@ RadioButtons.prototype.hash = function () {
 };
 }}$;
 
+/**
+ * Generates a set of radio buttons
+ * 
+ * @param [name] Prefix for _value observable.  Default is the name of the observable being defined.
+ * @param values A list of strings providing the options
+ * @param [labels]
+ * @param x X-coordinate
+ * @param y Y-coordinate
+ * @param [width] Width in pixels
+ * @param [is_horizontal
+ * @param [enabled]] Boolean to determine if the radio buttons are enabled
+ */
 func RadioButtons { ${{
 	var argsProcessed;
 
