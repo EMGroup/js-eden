@@ -57,8 +57,11 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 	
 	// A record of the MIDI output devices available on the system.
 	var outputs = [];
+	var inputs = [];
 	var numOutputsSym = root.lookup("midiNumberOfOutputs");
 	numOutputsSym.assign(0);
+	var numInputsSym = root.lookup("midiNumberOfInputs");
+	numInputsSym.assign(0);
 
 	/* A mapping between output device number and the name of an observable that stores which
 	 * programs (instruments) have been selected for each channel of that output.
@@ -193,7 +196,11 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		programObserver(symbol, symbol.value());
 		symbol.addJSObserver("bind", programObserver);
 		programObservables[outputNum] = symbol;
-	}
+	};
+	
+	this.getInputs = function(){
+		return inputs;
+	};
 
 	var initializing = false;
 	var continuations = [];
@@ -256,7 +263,19 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 						outputs.push(output);
 						iteratedItem = iterator.next();
 					}
+					var iterator = midiAccess.inputs.values();
+					var iteratedItem = iterator.next();
+					if (iteratedItem.done) {
+						console.log("No MIDI input devices found.");
+					}
+					while (!iteratedItem.done) {
+						var input = iteratedItem.value;
+						console.log("Found MIDI input device " + input.name + ".");
+						inputs.push(input);
+						iteratedItem = iterator.next();
+					}
 					numOutputsSym.assign(outputs.length);
+					numInputsSym.assign(inputs.length);
 				}
 				initializeSoftwareDrivers(0);
 
@@ -278,6 +297,19 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 			}
 
 	};
+	
+	this.startMIDILogging = function(inpNum){
+		if(typeof(inpNum) == 'number'){
+			inputs[inpNum].onmidimessage = this.inputMessageReceived;
+		}else{
+			for(i = 0; i < inputs.length; i++)
+				inputs[i].onmidimessage = this.inputMessageReceived;
+		}
+	}
+	
+	this.inputMessageReceived = function(event){
+		  console.log(event);
+	}
 
 	this.mergeMessageLists = function (messageLists) {
 		var filteredMessageLists = [];
