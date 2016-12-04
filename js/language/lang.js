@@ -47,7 +47,8 @@ var Language = {
 		"deprecated": "deprecated",
 		"see": "see",
 		"{": "{",
-		"}": "}"
+		"}": "}",
+		"hidden": "hidden"
 	},
 
 	keywords: {

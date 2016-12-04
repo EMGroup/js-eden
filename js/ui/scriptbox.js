@@ -48,6 +48,7 @@ EdenUI.ScriptBox = function(element, options) {
 	//this.showstars = (options && options.nobuttons !== undefined) ? !options.nobuttons : true;
 
 	this.history = [];
+	this.historyindex = 0;
 
 	//this.valuedivs = {};
 
@@ -194,14 +195,14 @@ EdenUI.ScriptBox = function(element, options) {
 	 */
 	function onTextKeyDown(e) {
 		// Alt and AltGr for inspect mode.
-		console.log(e.keyCode);
+		//console.log(e.keyCode);
 
 		if (me.ast && me.ast.script && !me.ast.hasErrors() && e.keyCode == 13 && me.ast.token == "EOF" && me.intextarea.selectionStart >= me.ast.script.end) {
-			console.log("BREAK TO NEW BOX");
+			//console.log("BREAK TO NEW BOX");
 			//me.insertStatement(undefined, true);
 			me.ast.execute(EdenUI.ScriptBox.consoleAgent);
 			me.history.push(me.ast.stream.code);
-			me.histindex = me.history.length;
+			me.historyindex = me.history.length;
 			$(me.outdiv).find(".fake-caret").remove();
 			me.$codearea.append($('<div>'+me.outdiv.innerHTML+'</div>'));
 			me.setSource("");
@@ -245,10 +246,23 @@ EdenUI.ScriptBox = function(element, options) {
 						return;
 					} else if (e.keyCode == 38) {
 						// Up, scroll up in history
-						console.log("UP");
+						//console.log("UP");
+						if (me.historyindex > 0) {
+							me.historyindex--;
+							me.setSource(me.history[me.historyindex]);
+							e.preventDefault();
+						}
 					} else if (e.keyCode == 40) {
 						// Down, scoll down in history
-						console.log("DOWN");
+						//console.log("DOWN");
+						if (me.historyindex < me.history.length-1) {
+							me.historyindex++;
+							me.setSource(me.history[me.historyindex]);
+							e.preventDefault();
+						} else {
+							me.historyindex = me.history.length;
+							me.setSource("");
+						}
 					}
 				
 					// Update fake caret position at key repeat rate
@@ -603,6 +617,31 @@ EdenUI.ScriptBox.consoleAgent = {
 	name: "*Console"
 };
 
+EdenUI.ScriptBox.prototype.focus = function() {
+	// To prevent false cursor movement when dragging numbers...
+	this.outdiv.focus();
+
+	if (document.activeElement === this.outdiv) {
+		var end = getCaretCharacterOffsetWithin(this.outdiv,this.shadow);
+		var start = getStartCaretCharacterOffsetWithin(this.outdiv,this.shadow);
+		if (start != end) {
+			// Fix to overcome current line highlight bug on mouse select.
+			this.refreshentire = true;
+		} else {
+			// Move caret to clicked location
+			var curline = this.currentlineno;
+			this.intextarea.focus();
+			this.intextarea.selectionEnd = end;
+			this.intextarea.selectionStart = end;
+			if (this.ast) {		
+				this.highlighter.highlight(this.ast, curline, end);
+				this.updateLineCachedHighlight();
+			}
+			//checkScroll();
+		}
+	}
+}
+
 /**
  * Move the caret of the contenteditable div showing the highlighted
  * script to be the same location as the fake caret in the highlight
@@ -718,11 +757,11 @@ EdenUI.ScriptBox.prototype.setSource = function(src) {
 	if (this.ast.script && this.ast.script.errors.length == 0) {
 		console.log("NO ERRORS!!!");
 		//Eden.Statement.statements[this.currentstatement].setSource(src,this.ast);
-		//changeClass(this.outdiv.parentNode.childNodes[(this.showstars)?2:1],"error",false);
+		changeClass(this.outdiv.parentNode,"error",false);
 	} else if (src == "") {
-		//changeClass(this.outdiv.parentNode.childNodes[(this.showstars)?2:1],"error",false);
+		changeClass(this.outdiv.parentNode,"error",false);
 	} else {
-		//changeClass(this.outdiv.parentNode.childNodes[(this.showstars)?2:1],"error",true);
+		changeClass(this.outdiv.parentNode,"error",true);
 	}
 
 	//if (this.ast.warnings.length > 0) {
@@ -757,9 +796,9 @@ EdenUI.ScriptBox.prototype.updateLineHighlight = function() {
 	if (this.ast.script && this.ast.script.errors.length == 0) {
 		console.log("NO ERRORS!!!");
 		//Eden.Statement.statements[this.currentstatement].setSource(this.intextarea.value,this.ast);
-		//changeClass(this.outdiv.parentNode.childNodes[(this.showstars)?2:1],"error",false);
+		changeClass(this.outdiv.parentNode,"error",false);
 	} else {
-		//changeClass(this.outdiv.parentNode.childNodes[(this.showstars)?2:1],"error",true);
+		changeClass(this.outdiv.parentNode,"error",true);
 	}
 }
 
