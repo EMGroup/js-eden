@@ -7,7 +7,9 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 	this.executed = 1;
 	var allowscript = true;
 	var i = 0;
-	//console.log(statements);
+
+	if (statements === undefined) return;
+
 	while (i < statements.length || stack.length > 0) {
 		if (i >= statements.length && stack.length > 0) {
 			statements = stack[stack.length-1].statements;
@@ -203,8 +205,20 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 			if (cb) cb();
 		});
 	} catch (e) {
-		console.error(e);
 		if (cb) cb();
+		var err;
+
+		if (/[0-9][0-9]*/.test(e.message)) {
+			err = new Eden.RuntimeError(this, parseInt(e.message), undefined, e.message);
+		} else {
+			err = new Eden.RuntimeError(this, 0, undefined, e);
+		}
+
+		err.line = this.line;
+
+		if (agent) Eden.Agent.emit("error", [agent,err]);
+		else console.log(err.prettyPrint());
+		throw e;
 	}
 }
 
@@ -226,6 +240,7 @@ Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx
 			if (cb) cb();
 		});
 	} catch (e) {
+		if (cb) cb();
 		var err;
 
 		if (/[0-9][0-9]*/.test(e.message)) {
@@ -238,5 +253,6 @@ Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx
 
 		if (agent) Eden.Agent.emit("error", [agent,err]);
 		else console.log(err.prettyPrint());
+		throw e;
 	}
 }

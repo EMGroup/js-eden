@@ -42,8 +42,10 @@ EdenUI.Notifications = function(element, jewel) {
 		if (err) {
 			var msg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in " + agent.name + ":" + ((err.line != -1)?err.line:"") + " -> " + err.messageText();
 			var htmlmsg = "<a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?(err.line+1):"") + "</a> " + err.messageText();
-			console.error(msg);
+
 			if (!(agent.owned && err.type == "syntax")) {
+				console.error(msg);
+
 				//edenUI.showMessage("error", htmlmsg);
 				var formattedError = $("<pre class=\"error-item\">"+
 					htmlmsg +
