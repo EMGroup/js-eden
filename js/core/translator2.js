@@ -1565,7 +1565,7 @@ Eden.AST.prototype.pFOR = function() {
 	if (this.token == ";") {
 		this.next();
 	} else {
-		forast.setStart(this.pSTATEMENT_P());
+		forast.setStart(this.pSTATEMENT_P(true));
 		if (forast.errors.length > 0) {
 			this.parent = parent;
 			return forast;
@@ -1990,12 +1990,19 @@ Eden.AST.prototype.pLVALUE = function() {
  *	-- |
  *  ( ELIST )
  */
-Eden.AST.prototype.pSTATEMENT_PP = function() {
+Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 	if (this.token == "is") {
 		this.next();
 		return new Eden.AST.Definition(this.pEXPRESSION());
 	} else if (this.token == "in") {
 		this.next();
+
+		if (!allowrange) {
+			var range = new Eden.AST.Range();
+			range.error(new Eden.SyntaxError(this, Eden.SyntaxError.RANGEBANNED));
+			return range;
+		}
+
 		var range = new Eden.AST.Range(this.pEXPRESSION());
 		if (this.token == "..") {
 			this.next();
@@ -2077,10 +2084,10 @@ Eden.AST.prototype.pSTATEMENT_PP = function() {
  * STATEMENT Prime Production
  * STATEMENT' -> LVALUE STATEMENT''
  */
-Eden.AST.prototype.pSTATEMENT_P = function() {
+Eden.AST.prototype.pSTATEMENT_P = function(allowrange) {
 	var lvalue = this.pLVALUE();
 	if (lvalue.errors.length > 0) return lvalue;
-	var formula = this.pSTATEMENT_PP();
+	var formula = this.pSTATEMENT_PP(allowrange);
 	formula.left(lvalue);
 	if (formula.errors.length > 0) return formula;
 	return formula;

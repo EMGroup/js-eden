@@ -1432,6 +1432,8 @@ Eden.AST.Range.prototype.left = function(lvalue) {
 	}
 };
 
+Eden.AST.Range.prototype.error = fnEdenASTerror;
+
 
 
 //------------------------------------------------------------------------------

@@ -295,6 +295,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_SWITCHSCRIPT */ [
 	"Switch must have a code block { }"
+],
+/* EDEN_ERROR_RANGEBANNED */ [
+	"A range \"in\" cannot be used here"
 ]
 ];
 
