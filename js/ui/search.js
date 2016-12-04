@@ -93,6 +93,15 @@ EdenUI.SearchBox.prototype.makeScriptResult = function(script) {
 	var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
 
 	var docstr = "";
+	if (Eden.Agent.agents[script]) {
+		var ag = Eden.Agent.agents[script];
+		if (ag.ast && ag.ast.mainDoxyComment) {
+			var brief = ag.ast.mainDoxyComment.brief();
+			if (brief && brief.length > 0) {
+				docstr = '<div class="doxy-search-details"><p>'+brief+'</p></div>';
+			}
+		}
+	}
 
 	var ele = $('<div class="menubar-search-result" data-script="'+script+'">'+symstr+ctrlstr+docstr+'</div>');
 	return ele;
@@ -121,10 +130,26 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 			me.element.append(resouter);
 
 			var i = 0;
-			var MAXRES = 6;
+			var MAXRES = 8;
 			var count = 0;
 
-			for (i=0; i<res.symbols.length; i++) {
+			for (i=0; i<res.all.length; i++) {
+				if (count >= MAXRES) break;
+				count++;
+				var ele;
+				if (typeof res.all[i] == "object") {
+					if (res.all[i].type == "when") {
+						ele = me.makeAgentResult(res.all[i])
+					}
+				} else if (res.all[i].charAt(0) == "/") {
+					ele = me.makeSymbolResult(res.all[i].slice(1))
+				} else {
+					ele = me.makeScriptResult(res.all[i]);
+				}
+				symresults.append(ele);
+			}
+
+			/*for (i=0; i<res.symbols.length; i++) {
 				if (count >= MAXRES) break;
 				count++;
 				symresults.append(me.makeSymbolResult(res.symbols[i]));
@@ -140,7 +165,7 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 				if (count >= MAXRES) break;
 				count++;
 				symresults.append(me.makeScriptResult(res.scripts[i]));
-			}
+			}*/
 
 			function doMore() {
 				var more = $('<div class="menubar-search-more">&#xf078;</div>');

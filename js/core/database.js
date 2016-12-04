@@ -838,7 +838,7 @@ Eden.DB.load = function(path, saveid, source, cb) {
 
 Eden.DB.search = function(q, callback) {
 	$.ajax({
-		url: this.remoteURL+"/agent/search?path=%"+q+"%&depth=4",
+		url: this.remoteURL+"/agent/search?path=%"+q+"%&mode=fullpathsearch",
 		type: "get",
 		crossDomain: true,
 		xhrFields:{

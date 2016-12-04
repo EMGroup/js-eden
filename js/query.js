@@ -48,7 +48,8 @@ Eden.Query.search = function(q, cb) {
 	var dosymbols = true;
 	var doagents = true;
 	var doprojects = false;
-	var doscripts = true;
+	var dolocalscripts = true;
+	var doremotescripts = false;
 	var dohash = true;
 	var dofuncs = true;
 
@@ -72,13 +73,15 @@ Eden.Query.search = function(q, cb) {
 			case "agents:"		:	doagents = true;
 									dosymbols = false;
 									doprojects = false;
-									doscripts = false;
+									dolocalscripts = false;
+									doremovescripts = false;
 									dohash = true;
 									dofuncs = false;
 									break;
 			case "scripts:"		:	doagents = false;
 									dosymbols = false;
-									doscripts = true;
+									dolocalscripts = true;
+									doremotescripts = true;
 									doprojects = false;
 									dohash = false;
 									dofuncs = false;
@@ -112,7 +115,7 @@ Eden.Query.search = function(q, cb) {
 			var regex = edenUI.regExpFromStr(words[i], undefined, undefined, "regexp");
 			if (dosymbols) res.symbols.push.apply(res.symbols, Eden.Query.searchSymbols(regex));
 			if (doagents) res.whens.push.apply(res.whens, Eden.Query.searchWhens(regex));
-			if (doscripts && words[i].length > 2) {
+			if (doremotescripts && words[i].length > 2) {
 				(function (word) {
 				if (Eden.Query.dbtimeout) clearTimeout(Eden.Query.dbtimeout);
 
@@ -121,6 +124,7 @@ Eden.Query.search = function(q, cb) {
 					Eden.DB.search(word, function(results) {
 						res.scripts.push.apply(res.scripts, results);
 						res.scripts = reduceByCount(res.scripts, rcount);
+						Eden.Query.mergeResults(res);
 						if (cb) cb(res);
 					});
 				}, 1000);
@@ -131,8 +135,50 @@ Eden.Query.search = function(q, cb) {
 
 	res.symbols = reduceByCount(res.symbols, rcount);
 	//res.whens = reduceByCount(res.whens, rcount);
+
+	// Process all results into a single result...
+	Eden.Query.mergeResults(res);
+
 	if (cb) cb(res);
 	return res;
+}
+
+Eden.Query.mergeResults = function(res) {
+	res.all = [];
+	var MAXSYMS = 3;
+	var MAXAGENTS = 2;
+	var MAXSCRIPTS = 2;
+	var count = 0;
+
+	function interleave(MAX, start) {
+		count = 0;
+		for (var i=start; i<res.symbols.length; i++) {
+			if (count >= MAX) break;
+			count++;
+			res.all.push("/" + res.symbols[i]);
+		}
+
+		count = 0;
+		for (var i=start; i<res.whens.length; i++) {
+			if (count >= MAX) break;
+			count++;
+			res.all.push(res.whens[i]);
+		}
+
+		count = 0;
+		for (var i=start; i<res.scripts.length; i++) {
+			if (count >= MAX) break;
+			count++;
+			res.all.push(res.scripts[i]);
+		}
+
+		// Recursively process the results...
+		if (res.symbols.length > start+MAX || res.whens.length > start+MAX || res.scripts.length > start+MAX) {
+			interleave(2, start+MAX);
+		}
+	}
+
+	interleave(3,0);
 }
 
 Eden.Query.searchViews = function(q) {
