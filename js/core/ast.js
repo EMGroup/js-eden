@@ -777,7 +777,7 @@ Eden.AST.LValue.prototype.executeCompList = function(ctx, scope) {
 
 Eden.AST.LValue.prototype.generate = function(ctx) {
 	if (this.name) {
-		if (ctx && ctx.locals && ctx.locals.list.indexOf(this.name) != -1) {
+		if (ctx && ctx.locals && ctx.locals.type == "declarations" && ctx.locals.list.indexOf(this.name) != -1) {
 			this.islocal = true;
 			var res = this.name;
 			for (var i=0; i<this.lvaluep.length; i++) {
@@ -1431,6 +1431,8 @@ Eden.AST.Range.prototype.left = function(lvalue) {
 		this.errors.push.apply(this.errors, lvalue.errors);
 	}
 };
+
+Eden.AST.Range.prototype.error = fnEdenASTerror;
 
 
 
@@ -2956,6 +2958,8 @@ Eden.AST.When = function() {
 	this.scopes = [];
 	this.doxyComment = undefined;
 	this.local = false;
+	this.locals = undefined;
+	this.dirty = false;
 };
 
 Eden.AST.When.prototype.addTrigger = function(base, d, scope) {
@@ -3086,6 +3090,8 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 
 	if (this.doxyComment && this.doxyComment.getControls()["@local"]) this.local = true;
 
+	// Reset local variables
+	this.locals = {};
 	var me = this;
 
 	if (scope === undefined || scope === eden.root.scope) {
