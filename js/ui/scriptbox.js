@@ -47,8 +47,15 @@ EdenUI.ScriptBox = function(element, options) {
 	this.draglast = 0;
 	//this.showstars = (options && options.nobuttons !== undefined) ? !options.nobuttons : true;
 
-	this.history = [];
-	this.historyindex = 0;
+	this.history = undefined;
+
+	// Load history
+	if (window.localStorage) {
+		this.history = JSON.parse(window.localStorage.getItem('console_history')) || [];
+	} else {
+		this.history = [];
+	}
+	this.historyindex = this.history.length;
 
 	//this.valuedivs = {};
 
@@ -203,6 +210,9 @@ EdenUI.ScriptBox = function(element, options) {
 			me.ast.execute(EdenUI.ScriptBox.consoleAgent);
 			me.history.push(me.ast.stream.code);
 			me.historyindex = me.history.length;
+			if (window.localStorage) {
+				window.localStorage.setItem("console_history", JSON.stringify(me.history));
+			}
 			$(me.outdiv).find(".fake-caret").remove();
 			me.$codearea.append($('<div>'+me.outdiv.innerHTML+'</div>'));
 			// Make sure scrolled to bottom.

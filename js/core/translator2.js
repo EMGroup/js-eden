@@ -58,16 +58,25 @@ Eden.AST.debug_end_cb = undefined;
  * Recursive search of all imports for the required action code.
  */
 Eden.AST.prototype.getActionByName = function(name) {
-	var script = this.scripts[name];
+	var script;
 
-	if (script === undefined) {
-		for (var i=0; i<this.imports.length; i++) {
-			if (this.imports[i] && this.imports[i].ast) {
-				// Check this scripts actions for the one we want
-				script = this.imports[i].ast.getActionByName(name);
-				if (script) return script;
+	if (name.indexOf("/") == -1) {
+		script = this.scripts[name];
+
+		if (script === undefined) {
+			for (var i=0; i<this.imports.length; i++) {
+				if (this.imports[i] && this.imports[i].ast) {
+					// Check this scripts actions for the one we want
+					script = this.imports[i].ast.getActionByName(name);
+					if (script) return script;
+				}
 			}
 		}
+	}
+
+	var ag = Eden.Agent.agents[name];
+	if (ag && ag.ast && ag.ast.script && ag.ast.script.errors.length == 0) {
+		return ag.ast.script;
 	}
 
 	return script;
@@ -1749,8 +1758,13 @@ Eden.AST.prototype.pDO = function() {
 		this.parent = parent;
 		return w;
 	} else {
-		w.setName(this.data.value);
-		this.next();
+		var path = this.pAGENTPATH();
+		if (path == "_ERROR_") {
+			w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DONAME));
+			return w;
+		}
+		w.setName(path);
+		//this.next();
 	}
 
 	if (this.token == "with" || this.token == "::") {
@@ -2360,6 +2374,28 @@ Eden.AST.prototype.pINCLUDE = function() {
 
 
 
+Eden.AST.prototype.pAGENTPATH = function() {
+	if (this.token != "OBSERVABLE" && Language.keywords[this.token] === undefined) {
+		return "_ERROR_";
+	}
+
+	var res = this.data.value;
+	this.next();
+
+	while (this.token == "/") {
+		this.next();
+		if (this.token != "OBSERVABLE" && Language.keywords[this.token] === undefined) {
+			return "_ERROR_";
+		}
+		res += "/" + this.data.value;
+		this.next();
+	}
+
+	return res;
+}
+
+
+
 /**
  * IMPORT Production
  * IMPORT -> name IMPORT'
@@ -2371,22 +2407,10 @@ Eden.AST.prototype.pINCLUDE = function() {
 Eden.AST.prototype.pIMPORT = function() {
 	var imp = new Eden.AST.Import();
 
-	if (this.token != "OBSERVABLE" && Language.keywords[this.token] === undefined) {
+	var path = this.pAGENTPATH();
+	if (path == "_ERROR_") {
 		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTPATH));
 		return imp;
-	}
-
-	var path = this.data.value;
-	this.next();
-
-	while (this.token == "/") {
-		this.next();
-		if (this.token != "OBSERVABLE" && Language.keywords[this.token] === undefined) {
-			imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTPATH));
-			return imp;
-		}
-		path += "/" + this.data.value;
-		this.next();
 	}
 
 	// Check for a version tag

@@ -445,10 +445,18 @@
 			diag.momentum = 0;
 			diag.resizeExtend = 0;
 
+			var widthSym = view(name, 'width');
+			var heightSym = view(name, 'height');
+
+			/*if (widthSym.eden_definition || heightSym.eden_definition) {
+				
+				return;
+			}*/
+
 			var root = me.eden.root;
 			root.beginAutocalcOff();
-			view(name, 'width').assign(ui.size.width, root.scope, Symbol.hciAgent); //  - me.scrollBarSize
-			view(name, 'height').assign(ui.size.height, root.scope, Symbol.hciAgent); //  - me.titleBarHeight + 2 * me.dialogBorderWidth
+			widthSym.assign(ui.size.width, root.scope, Symbol.hciAgent); //  - me.scrollBarSize
+			heightSym.assign(ui.size.height, root.scope, Symbol.hciAgent); //  - me.titleBarHeight + 2 * me.dialogBorderWidth
 
 			/*var xSym = view(name, "x");
 			if (xSym.value() != ui.position.left) {
@@ -473,6 +481,7 @@
 			if (view(name, 'x').eden_definition || view(name, 'y').eden_definition) return false;
 		});
 		diag.on("dialogresizestart", function() {
+			// TODO This doesn't seem to work!!!
 			if (view(name, 'width').eden_definition || view(name, 'height').eden_definition) return false;
 		});
 
