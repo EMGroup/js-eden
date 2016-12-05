@@ -129,7 +129,7 @@ div.htmlviews-dialog button.green {
 /* THE TRIANGLE
 ------------------------------------------------------------------------------------------------------------------------------- */
 
-.bubble:after {
+.bubble.bottom:after {
   content:"";
   position:absolute;
   bottom:-20px; /* value = - border-top-width - border-bottom-width */
@@ -146,33 +146,48 @@ div.htmlviews-dialog button.green {
 ------------------------------------------ */
 
 .bubble.top:after {
+  content:"";
+  position:absolute;
   top:-20px; /* value = - border-top-width - border-bottom-width */
   right:50px; /* controls horizontal position */
   bottom:auto;
   left:auto;
   border-width:20px 20px 0 0; /* vary these values to change the angle of the vertex */
   border-color:transparent #075698;
+  border-style:solid;
+  display:block;
+  width:0;
 }
 
 /* Variant : left
 ------------------------------------------ */
 
 .bubble.left:after {
+  content:"";
+  position:absolute;
   top:16px;
   left:-40px; /* value = - border-left-width - border-right-width */
   bottom:auto;
   border-width:15px 40px 0 0; /* vary these values to change the angle of the vertex */
   border-color:transparent #075698;
+  border-style:solid;
+  display:block;
+  width:0;
 }
 
 /* Variant : right
 ------------------------------------------ */
 
 .bubble.right:after {
+  content:"";
+  position:absolute;
   top:16px;
   right:-40px; /* value = - border-left-width - border-right-width */
   bottom:auto;
   left:auto;
   border-width:15px 0 0 40px; /* vary these values to change the angle of the vertex */
   border-color:transparent #075698 ;
+  border-style:solid;
+  display:block;
+  width:0;
 }
