@@ -176,7 +176,10 @@ EdenUI.MenuBar = function() {
 		var viewNumber = viewNumberSym.value() + 1;
 		viewNumberSym.assign(viewNumber, root.scope, Symbol.hciAgent, true);
 		var viewType = this.view;
-		var viewName = viewType.slice(0, 1).toLowerCase() + viewType.slice(1) + viewNumber;
+		// NOTE: Why does this not just lowercase everything? 
+		// results in hTMLView!
+		//var viewName = viewType.slice(0, 1).toLowerCase() + viewType.slice(1) + viewNumber;
+		var viewName = viewType.toLowerCase() + viewNumber;
 		if (followMouse) {
 			edenUI.eden.execute('createView("' + viewName + '", "' + viewType + '");');
 		} else {
