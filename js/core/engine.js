@@ -172,11 +172,11 @@ function runEdenAction(source, action, cb) {
 						}
 
 						nscope.range = true;
-						me.executeStatements(sscripts, undefined, script, function() {
+						me.executeStatements(sscripts, undefined, source, function() {
 							runEdenAction.call(me,source, action, cb);
 						}, {parameters: params}, nscope);
 					} else {
-						me.executeStatements(stats, undefined, script, function() {
+						me.executeStatements(stats, undefined, source, function() {
 							runEdenAction.call(me,source, action, cb);
 						}, {parameters: params}, nscope);
 					}
