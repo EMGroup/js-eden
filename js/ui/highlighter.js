@@ -276,6 +276,7 @@
 		this.currentline = -1;
 		this.mode = 0;
 		this.mode_at_line = {};
+		this.heredocend = undefined;
 	}
 
 
@@ -470,7 +471,12 @@
 				} else if (token == "NUMBER") {
 					classes += "eden-number";
 				} else if (token == "<<") {
-					
+					var t = stream.readToken();
+					var obs = stream.tokenText();
+					tokentext += obs;
+					this.heredocend = obs;
+					classes += "eden-storage";
+					this.mode = 44;
 				} else if (token == "STRING") {
 					classes += "eden-string";
 				} else if (token == "CHARACTER") {
@@ -564,6 +570,13 @@
 				}
 				if (token == "}}$") {
 					this.mode = 0;
+				}
+			} else if (this.mode == 44) {
+				if (prevtoken == "INVALID" && tokentext == this.heredocend) {
+					classes += "eden-storage";
+					this.mode = 0;
+				} else {
+					classes += "eden-string";
 				}
 			}
 
