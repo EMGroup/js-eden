@@ -1,7 +1,7 @@
 EdenUI.Explorer = function() {
 	var me = this;
 
-	this.element = $('<div class="explore-main"><div class="explore-controls"><button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button><button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button><span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span></div><div class="explore-symbols"></div><div class="explore-console"><div class="explore-console-buttons">Script Input</div><div class="explore-console-code"></div></div></div>');
+	this.element = $('<div class="explore-main"><div class="explore-controls"><button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button><button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button><span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span></div><div class="explore-symbols"></div><div class="explore-console"><div class="explore-console-buttons"><div style="margin-top: 4px; float: left;">Script Input</div><button class="control-button clear-button control-enabled" style="float: right;">&#xf05e;</button></div><div class="explore-console-code"></div></div></div>');
 	$("#jseden-main").append(this.element);
 	this.results = this.element.find(".explore-symbols");
 	this.consoleele = this.element.find(".explore-console-code");
@@ -59,6 +59,10 @@ EdenUI.Explorer = function() {
 				}
 			}, me.delay2);
 		}
+	});
+
+	this.element.on("click", ".clear-button", function(e) {
+		me.console.clear();
 	});
 
 	this.element.on("click", ".clear", function(e) {

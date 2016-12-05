@@ -205,6 +205,8 @@ EdenUI.ScriptBox = function(element, options) {
 			me.historyindex = me.history.length;
 			$(me.outdiv).find(".fake-caret").remove();
 			me.$codearea.append($('<div>'+me.outdiv.innerHTML+'</div>'));
+			// Make sure scrolled to bottom.
+			me.codearea.scrollTop = me.codearea.scrollHeight;
 			me.setSource("");
 			e.preventDefault();
 			return;
@@ -962,6 +964,13 @@ EdenUI.ScriptBox.prototype.highlightContent = function(ast, lineno, position) {
 		// Following line is hack to allow click through editing...
 		}).click(function() { $(this).draggable({disabled: true}); }) .blur(function() { $(this).draggable({disabled: false}); });
 	//}
+}
+
+
+
+EdenUI.ScriptBox.prototype.clear = function() {
+	this.$codearea.html("");
+	this.setSource("");
 }
 
 
