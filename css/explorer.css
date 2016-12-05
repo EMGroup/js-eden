@@ -30,7 +30,8 @@ div.explore-symbols {
 	flex-grow: 2;
 	min-height: 200px;
 	overflow-y: auto;
-	padding: 10px;
+	padding-left: 5px;
+	padding-top: 5px;
 }
 
 div.explore-console {
@@ -54,7 +55,7 @@ div.explore-console-buttons {
 	font-size: 10pt;
 	color: #222;
 	font-family: arial;
-	padding-top: 4px;
+	/*padding-top: 4px;*/
 	box-sizing: border-box;
 }
 
@@ -126,6 +127,12 @@ span.explore-observable {
 span.explore-observable:hover {
 	text-decoration: underline;
 	color: blue;
+}
+
+div.explore-entry > span.eden-path:hover {
+	text-decoration: underline;
+	color: blue;
+	cursor: pointer;
 }
 
 span.explore-entry-icon {
@@ -210,9 +217,16 @@ div.explore-entry-inner:hover {
 
 div.symvalue {
 	display: inline;
-	width: 160px;
+	min-width: 160px;
 	float: right;
 	margin-left: 3px;
+	max-width: 160px;
+	overflow: hidden;
+}
+
+div.explore-entry-inner:hover > div.symvalue {
+	max-width: 400px;
+	white-space: pre-wrap;
 }
 
 span.explore-expand-value {

@@ -205,6 +205,8 @@ EdenUI.ScriptBox = function(element, options) {
 			me.historyindex = me.history.length;
 			$(me.outdiv).find(".fake-caret").remove();
 			me.$codearea.append($('<div>'+me.outdiv.innerHTML+'</div>'));
+			// Make sure scrolled to bottom.
+			me.codearea.scrollTop = me.codearea.scrollHeight;
 			me.setSource("");
 			e.preventDefault();
 			return;
@@ -622,12 +624,14 @@ EdenUI.ScriptBox.prototype.focus = function() {
 	this.outdiv.focus();
 
 	if (document.activeElement === this.outdiv) {
-		var end = getCaretCharacterOffsetWithin(this.outdiv,this.shadow);
+		var end = this.intextarea.value.length;
+		var start = end;
+		/*var end = getCaretCharacterOffsetWithin(this.outdiv,this.shadow);
 		var start = getStartCaretCharacterOffsetWithin(this.outdiv,this.shadow);
 		if (start != end) {
 			// Fix to overcome current line highlight bug on mouse select.
 			this.refreshentire = true;
-		} else {
+		} else {*/
 			// Move caret to clicked location
 			var curline = this.currentlineno;
 			this.intextarea.focus();
@@ -638,7 +642,7 @@ EdenUI.ScriptBox.prototype.focus = function() {
 				this.updateLineCachedHighlight();
 			}
 			//checkScroll();
-		}
+		//}
 	}
 }
 
@@ -960,6 +964,13 @@ EdenUI.ScriptBox.prototype.highlightContent = function(ast, lineno, position) {
 		// Following line is hack to allow click through editing...
 		}).click(function() { $(this).draggable({disabled: true}); }) .blur(function() { $(this).draggable({disabled: false}); });
 	//}
+}
+
+
+
+EdenUI.ScriptBox.prototype.clear = function() {
+	this.$codearea.html("");
+	this.setSource("");
 }
 
 

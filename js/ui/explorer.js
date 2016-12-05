@@ -1,7 +1,7 @@
 EdenUI.Explorer = function() {
 	var me = this;
 
-	this.element = $('<div class="explore-main"><div class="explore-controls"><button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button><button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button><span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span></div><div class="explore-symbols"></div><div class="explore-console"><div class="explore-console-buttons">Script Input</div><div class="explore-console-code"></div></div></div>');
+	this.element = $('<div class="explore-main"><div class="explore-controls"><button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button><button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button><span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span></div><div class="explore-symbols"></div><div class="explore-console"><div class="explore-console-buttons"><div style="margin-top: 4px; float: left;">Script Input</div><button class="control-button clear-button control-enabled" style="float: right;">&#xf05e;</button></div><div class="explore-console-code"></div></div></div>');
 	$("#jseden-main").append(this.element);
 	this.results = this.element.find(".explore-symbols");
 	this.consoleele = this.element.find(".explore-console-code");
@@ -61,6 +61,10 @@ EdenUI.Explorer = function() {
 		}
 	});
 
+	this.element.on("click", ".clear-button", function(e) {
+		me.console.clear();
+	});
+
 	this.element.on("click", ".clear", function(e) {
 		var clrsym = eden.root.lookup("jseden_explorer_clear");
 		if (!clrsym.eden_definition) clrsym.assign(true, eden.root.scope, Symbol.localJSAgent);
@@ -80,14 +84,25 @@ EdenUI.Explorer = function() {
 		} else {
 			var sym = eden.root.symbols[obs];
 			if (sym) {
-				me.console.focus();
 				if (sym.eden_definition) {
 					me.console.setSource(sym.eden_definition);
 				} else {
 					me.console.setSource(obs + " = " + Eden.edenCodeForValue(sym.value()) + ";");
 				}
+				me.console.focus();
 			}
 		}
+	});
+
+	this.results.on("click", ".explore-expand-value", function(e) {
+		var node = e.currentTarget.parentNode.parentNode.parentNode;
+		var obs = node.getAttribute("data-obs");
+		me.updateEntry(eden.root.lookup(obs), e.currentTarget.parentNode, true);
+	});
+
+	this.results.on("click", ".eden-path", function(e) {
+		var path = e.currentTarget.textContent;
+		edenUI.gotoCode(path,-1);
 	});
 
 	this.results.on("click", ".explore-entry-icon", function(e) {
@@ -184,6 +199,11 @@ EdenUI.Explorer = function() {
 	});
 }
 
+
+/** Strings longer than this don't get highlighted */
+EdenUI.Explorer.MAXHIGHLIGHTLENGTH = 1000;
+
+
 EdenUI.Explorer.prototype.triggerUpdate = function() {
 	if (this.timeout === undefined) {
 		var me = this;
@@ -239,7 +259,7 @@ EdenUI.Explorer.prototype.removeEntry = function(name, valelement) {
 	this.triggerUpdate();
 }
 
-EdenUI.Explorer.prototype.updateEntry = function(sym, valelement) {
+EdenUI.Explorer.prototype.updateEntry = function(sym, valelement, full) {
 	if (!sym) return;
 	var svalue = sym.value();
 	var value;
@@ -248,7 +268,17 @@ EdenUI.Explorer.prototype.updateEntry = function(sym, valelement) {
 	if (sym.eden_definition && sym.eden_definition.startsWith("func")) {
 		html = '<span class="eden-keyword">func</span>';
 	} else {
-		value = (Array.isArray(svalue)) ? '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]' : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+		if (full) {
+			var ecode = Eden.edenCodeForValue(svalue, undefined, 2);
+			value = (ecode.length < EdenUI.Explorer.MAXHIGHLIGHTLENGTH) ? EdenUI.Highlight.html(ecode) : ecode;
+		} else {
+			if (Array.isArray(svalue)) {
+				value = '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]';
+			} else {
+				var ecode = Eden.edenCodeForValue(svalue, undefined, 2);
+				value = (ecode.length < EdenUI.Explorer.MAXHIGHLIGHTLENGTH) ? EdenUI.Highlight.html(ecode) : ecode;
+			}		
+		}
 		var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
 		html = type+' '+value;
 	}

@@ -298,6 +298,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_RANGEBANNED */ [
 	"A range \"in\" cannot be used here"
+],
+/* EDEN_ERROR_HEREDOCTOKEN */ [
+	"A heredoc token must be a single word at the end of a line"
 ]
 ];
 
