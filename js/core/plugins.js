@@ -36,7 +36,7 @@
 	//Dimensions of various UI components.
 	EdenUI.prototype.menuBarHeight = 45;
 	EdenUI.prototype.dialogBorderWidth = 3.133;
-	EdenUI.prototype.titleBarHeight = 34.659 + EdenUI.prototype.dialogBorderWidth;
+	EdenUI.prototype.titleBarHeight = 27.75 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.scrollBarSize = 14 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.scrollBarSize2 = window.innerHeight-$(window).height();
 	EdenUI.prototype.dialogFrameWidth = EdenUI.prototype.scrollBarSize + 2 * EdenUI.prototype.dialogBorderWidth;
@@ -456,7 +456,7 @@
 			var root = me.eden.root;
 			root.beginAutocalcOff();
 			widthSym.assign(ui.size.width, root.scope, Symbol.hciAgent); //  - me.scrollBarSize
-			heightSym.assign(ui.size.height, root.scope, Symbol.hciAgent); //  - me.titleBarHeight + 2 * me.dialogBorderWidth
+			heightSym.assign(ui.size.height - me.titleBarHeight, root.scope, Symbol.hciAgent); //  - me.titleBarHeight + 2 * me.dialogBorderWidth
 
 			/*var xSym = view(name, "x");
 			if (xSym.value() != ui.position.left) {
@@ -803,7 +803,7 @@
 		var widthSym = view(name, 'width');
 		var newWidth = widthSym.value();
 		var heightSym = view(name, 'height');
-		var newHeight = heightSym.value();
+		var newHeight = heightSym.value() + this.titleBarHeight;
 		var locked = view(name, 'lock');
 		var tbarheight = (locked) ? 0 : this.titleBarHeight;
 		var right = left + newWidth + this.scrollBarSize + this.dialogBorderWidth;
