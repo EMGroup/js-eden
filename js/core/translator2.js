@@ -437,6 +437,7 @@ Eden.AST.prototype.pEXPRESSION_PPPPP = function() {
  *	- number |
  *	number |
  *	string |
+ *  heredoc |
  *  boolean |
  *  character
  *  JAVASCRIPT |
@@ -462,7 +463,7 @@ Eden.AST.prototype.pFACTOR = function() {
 			this.next();
 		}
 		return expression;
-	// Action parameters
+	// Action parameters (DEPRECATED!)
 	} else if (this.token == "$") {
 		this.next();
 		var index = 0;
@@ -526,8 +527,42 @@ Eden.AST.prototype.pFACTOR = function() {
 		this.next();
 		var negop = new Eden.AST.UnaryOp("-", this.pFACTOR());
 		return negop;
+	// Heredoc for multiline strings
+	} else if (this.token == "<<") {
+		this.next();
+		if (this.token != "OBSERVABLE") {
+			var lit = new Eden.AST.Literal("STRING", this.data.value);
+			lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.HEREDOCTOKEN));
+			return lit;
+		}
+
+		var endtoken = this.data.value;
+
+		// Must be at end of a line
+		if (this.stream.get() != 10) {
+			var lit = new Eden.AST.Literal("STRING", this.data.value);
+			lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.HEREDOCTOKEN));
+			return lit;
+		}
+
+		// Scan looking for endtoken
+		var res = "";
+		while (this.stream.valid()) {
+			var cachepos = this.stream.position;
+			var line = this.stream.readLine();
+			if (line.startsWith(endtoken)) {
+				this.stream.position = cachepos + 3;
+				break;
+			}
+			res += line;
+		}
+
+		this.next();
+
+		var lit = new Eden.AST.Literal("STRING", res.slice(0,-1));
+		return lit;
+		
 	// String literal
-	// TODO Multi-line strings
 	} else if (this.token == "STRING") {
 		var lit = new Eden.AST.Literal("STRING", this.data.value);
 		if (!this.data.error) this.next();

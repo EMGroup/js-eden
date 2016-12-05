@@ -98,6 +98,7 @@ Eden.SyntaxError.LITSTRCLOSE = 71;
 Eden.SyntaxError.IMPORTTAG = 72;
 Eden.SyntaxError.SWITCHSCRIPT = 73;
 Eden.SyntaxError.RANGEBANNED = 74;
+Eden.SyntaxError.HEREDOCTOKEN = 75;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -506,6 +507,10 @@ Eden.SyntaxError.db = [
 		suggestion: {expected: [], next: []}
 	},
 /* EDEN_ERROR_RANGEBANNED */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_HEREDOCTOKEN */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
 	}

@@ -199,6 +199,11 @@ EdenUI.Explorer = function() {
 	});
 }
 
+
+/** Strings longer than this don't get highlighted */
+EdenUI.Explorer.MAXHIGHLIGHTLENGTH = 1000;
+
+
 EdenUI.Explorer.prototype.triggerUpdate = function() {
 	if (this.timeout === undefined) {
 		var me = this;
@@ -264,9 +269,15 @@ EdenUI.Explorer.prototype.updateEntry = function(sym, valelement, full) {
 		html = '<span class="eden-keyword">func</span>';
 	} else {
 		if (full) {
-			value = EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+			var ecode = Eden.edenCodeForValue(svalue, undefined, 2);
+			value = (ecode.length < EdenUI.Explorer.MAXHIGHLIGHTLENGTH) ? EdenUI.Highlight.html(ecode) : ecode;
 		} else {
-			value = (Array.isArray(svalue)) ? '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]' : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+			if (Array.isArray(svalue)) {
+				value = '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]';
+			} else {
+				var ecode = Eden.edenCodeForValue(svalue, undefined, 2);
+				value = (ecode.length < EdenUI.Explorer.MAXHIGHLIGHTLENGTH) ? EdenUI.Highlight.html(ecode) : ecode;
+			}		
 		}
 		var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
 		html = type+' '+value;

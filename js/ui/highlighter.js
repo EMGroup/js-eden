@@ -469,6 +469,8 @@
 					}
 				} else if (token == "NUMBER") {
 					classes += "eden-number";
+				} else if (token == "<<") {
+					
 				} else if (token == "STRING") {
 					classes += "eden-string";
 				} else if (token == "CHARACTER") {
