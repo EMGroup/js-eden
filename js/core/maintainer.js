@@ -512,7 +512,7 @@
 	Folder.prototype.collectGarbage = function () {
 		for (var name in this.potentialGarbage) {
 			if (this.potentialGarbage[name].garbage) {
-				delete this.symbols[name.slice(this.name.length)];
+				delete this.symbols[name.slice(1)];
 			}
 		}
 		this.potentialGarbage = {};
@@ -1666,10 +1666,22 @@
 		this.definition = undefined;
 		this.cache.value = undefined;
 		this.cache.up_to_date = true;
+
+		if (this.context) {
+			this.context.expireSymbol(this);
+		}
+
 		this.clearObservees();
 		this.clearDependencies();
-		this.jsObservers = {};
 		this.garbage = true;
+
+		// Call all jsObservers with undefined value.
+		// Note: they can check the garbage property and clean up!!
+		for (var o in this.jsObservers) {
+			this.jsObservers[o].call(this, this, undefined);
+		}
+
+		this.jsObservers = {};
 		this.context.queueForGarbageCollection(this);
 	};
 

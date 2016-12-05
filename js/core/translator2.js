@@ -1698,9 +1698,15 @@ Eden.AST.prototype.pDO = function() {
 			return w;
 		}
 		this.next();
-		// TODO Allow scope here...
 		w.setScript(script);
 		this.parent = parent;
+
+		// Allow a scope here
+		if (this.token == "with" || this.token == "::") {
+			this.next();
+			w.setScope(this.pSCOPE());
+		}
+
 		return w;
 	// Must have a name otherwise, or error
 	} else if (this.token != "OBSERVABLE") {
