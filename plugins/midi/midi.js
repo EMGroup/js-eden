@@ -308,7 +308,15 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 	}
 	
 	this.inputMessageReceived = function(event){
-		  console.log(event);
+		
+		var agent = root.lookup("startMIDIInput");
+		var midiArr = [];
+		midiArr.push(event.timeStamp);
+		midiArr.push(inputs.indexOf(event.srcElement));
+		for(var i = 0; i < event.data.length; i++){
+			midiArr[i+2] = event.data[i];
+		}
+		root.lookup("midiInput").assign(midiArr,agent);
 	}
 
 	this.mergeMessageLists = function (messageLists) {
