@@ -559,7 +559,7 @@ Eden.AST.prototype.pFACTOR = function() {
 
 		this.next();
 
-		var lit = new Eden.AST.Literal("STRING", res.slice(0,-1));
+		var lit = new Eden.AST.Literal("STRING", res.slice(0,-1).replace(/\"/g, "\\\""));
 		return lit;
 		
 	// String literal
