@@ -34,6 +34,9 @@ div.scriptbox-output {
 div.scriptbox-outputbox {
 	background: none;
 	font-size: 12pt;
+	flex-shrink: 0;
+	flex-grow: 1;
+	flex-basis: 80px;
 }
 
 div.scriptbox-value {
@@ -187,6 +190,9 @@ input.scriptbox-check {
 
 .scriptbox-inputhider { 
 	overflow-y: auto;
+	flex-shrink: 1;
+	flex-grow: 1;
+	flex-basis: auto;
 }
 
 .scriptbox-codearea {

@@ -1680,13 +1680,14 @@ Eden.AST.prototype.pWHILE = function() {
 
 /**
  * Do Production
- * DO -> observable ELIST;
+ * DO -> observable ELIST SCOPE;
  */
 Eden.AST.prototype.pDO = function() {
 	var w = new Eden.AST.Do();
 	var parent = this.parent;
 	this.parent = w;
 
+	// Direct script block
 	if (this.token == "{") {
 		this.next();
 		var script = this.pSCRIPT();
@@ -1699,7 +1700,15 @@ Eden.AST.prototype.pDO = function() {
 		this.next();
 		w.setScript(script);
 		this.parent = parent;
+
+		// Allow a scope here
+		if (this.token == "with" || this.token == "::") {
+			this.next();
+			w.setScope(this.pSCOPE());
+		}
+
 		return w;
+	// Must have a name otherwise, or error
 	} else if (this.token != "OBSERVABLE") {
 		w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DONAME));
 		this.parent = parent;
@@ -1709,7 +1718,11 @@ Eden.AST.prototype.pDO = function() {
 		this.next();
 	}
 
-	if (this.token != ";") {
+	if (this.token == "with" || this.token == "::") {
+		this.next();
+		w.setScope(this.pSCOPE());
+	} else if (this.token != ";") {
+		// DEPRECATED
 		var elist = this.pELIST();
 
 		for (var i=0; i<elist.length; i++) {

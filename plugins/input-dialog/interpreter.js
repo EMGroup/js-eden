@@ -563,6 +563,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					changeAgent(undefined, undefined);
 				}
 			}
+			// Remove from tabs
+			var agents = agent.state[obs_tabs];
+			var ix = agents.indexOf(name);
+			if (ix >= 0) {
+				console.log("Remove agent:", name);
+				agents.splice(ix,1);
+				agent.state[obs_tabs] = agents;
+			}
 		}
 
 

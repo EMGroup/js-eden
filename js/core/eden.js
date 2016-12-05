@@ -637,7 +637,11 @@
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
 	 */
 	Eden.prototype.error = function (error, origin) {
-		if (origin != "error") {
+
+		Eden.Agent.emit("error", [Symbol.jsAgent, new Eden.RuntimeError(undefined, 0, undefined, error)]);
+		return;
+
+		/*if (origin != "error") {
 			//Errors that halt execution are always reported and cause error
 			//handling to be restored to the default behaviour to avoid confusion.
 			this.reportErrors = true;
@@ -649,7 +653,7 @@
 				this.emit('executeError', [error, {errorNumber: this.errorNumber}]);
 			}
 		}
-		++this.errorNumber;
+		++this.errorNumber;*/
 	};
 	
 	Eden.prototype.executeEden = function (code, origin, prefix, agent, success) {

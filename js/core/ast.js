@@ -990,23 +990,31 @@ Eden.AST.Import.prototype.setTag = function(tag) {
  */
 Eden.AST.Import.prototype.addOption = function(opt) {
 	if (opt == "local") {
+		if (this.options.indexOf("remove") >= 0) return false;
 		if (this.options.indexOf("local") >= 0) return true;
 		if (this.options.indexOf("remote") >= 0) return false;
 		if (this.options.indexOf("rebase") >= 0) return false;
 	} else if (opt == "remote") {
+		if (this.options.indexOf("remove") >= 0) return false;
 		if (this.options.indexOf("local") >= 0) return false;
 		if (this.options.indexOf("remote") >= 0) return true;
 		if (this.options.indexOf("rebase") >= 0) return false;
 	}  else if (opt == "rebase") {
+		if (this.options.indexOf("remove") >= 0) return false;
 		if (this.options.indexOf("local") >= 0) return false;
 		if (this.options.indexOf("remote") >= 0) return false;
 		if (this.options.indexOf("rebase") >= 0) return true;
 	}  else if (opt == "noexec") {
+		if (this.options.indexOf("remove") >= 0) return false;
 		if (this.options.indexOf("noexec") >= 0) return true;
 		if (this.options.indexOf("force") >= 0) return false;
 	}  else if (opt == "force") {
+		if (this.options.indexOf("remove") >= 0) return false;
 		if (this.options.indexOf("noexec") >= 0) return false;
 		if (this.options.indexOf("force") >= 0) return true;
+	} else if (opt == "remove") {
+		if (this.options.length > 0) return false;
+		//return true;
 	}
 
 	this.options.push(opt);
@@ -2442,6 +2450,9 @@ Eden.AST.Do = function() {
 	this.executed = 0;
 	this.parameters = [];
 	this.params = []; // The evaluated params
+	this.scope = undefined;
+	this.compScope = undefined;
+	this.nscope = undefined;
 };
 
 Eden.AST.Do.prototype.error = fnEdenASTerror;
@@ -2467,6 +2478,24 @@ Eden.AST.Do.prototype.setScript = function(script) {
 
 Eden.AST.Do.prototype.setName = function(name) {
 	this.name = name;
+}
+
+Eden.AST.Do.prototype.setScope = function(scope) {
+	this.scope = scope;
+	if (scope && scope.errors.length > 0) {
+		this.errors.push.apply(this.errors, scope.errors);
+	}
+}
+
+Eden.AST.Do.prototype.getScope = function(ctx) {
+	if (this.scope && this.compScope === undefined) {
+		try {
+			this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(ctx, "scope") + "; })");
+		} catch (e) {
+
+		}
+	}
+	return this.compScope;
 }
 
 /*Eden.AST.Do.prototype.setCondition = function(condition) {

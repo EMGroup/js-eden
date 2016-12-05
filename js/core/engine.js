@@ -47,6 +47,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 			yield statements[i];
 		} else if (statements[i].type == "do") {
 			statements[i].params = statements[i].getParameters(undefined, base, scope);
+			statements[i].nscope = (statements[i].scope) ? statements[i].getScope(ctx)(eden.root,scope) : scope;
 			yield statements[i];
 		} else if (statements[i].type == "when") {
 			var when = statements[i];
@@ -109,7 +110,7 @@ function runEdenAction(source, action, cb) {
 		source.active = false;
 	}
 	var delay = action.next();
-	//console.log("RunAction: " + delay.value);
+
 	if (delay.done == false) {
 		if (typeof delay.value == "object") {
 			// The debugger wants to interrupt the script
@@ -150,15 +151,35 @@ function runEdenAction(source, action, cb) {
 				});
 			// Call another action and block until done
 			} else if (delay.value.type == "do") {
+				// Note that getActionByName can return entire agents!
 				var script = (delay.value.name) ? me.getActionByName(delay.value.name) : delay.value.script;
 
 				if (script) {
 					var stats = script.statements;
+					// Params are deprecated.
 					var params = delay.value.params;
+					// Allow for execution in a different scope.
+					var nscope = delay.value.nscope;
 
-					me.executeStatements(stats, undefined, script, function() {
-						runEdenAction.call(me,source, action, cb);
-					}, {parameters: params});
+					if (nscope.range) {
+						nscope.range = false;
+						var sscripts = [];
+
+						while (true) {
+							var cscope = nscope.clone();
+							sscripts.push(new Eden.AST.ScopedScript(stats, cscope));
+							if (nscope.next() == false) break;
+						}
+
+						nscope.range = true;
+						me.executeStatements(sscripts, undefined, script, function() {
+							runEdenAction.call(me,source, action, cb);
+						}, {parameters: params}, nscope);
+					} else {
+						me.executeStatements(stats, undefined, script, function() {
+							runEdenAction.call(me,source, action, cb);
+						}, {parameters: params}, nscope);
+					}
 				} else {
 					var err = new Eden.RuntimeError(me, Eden.RuntimeError.ACTIONNAME, delay.value, "Action '"+delay.value.name+"' does not exist");
 					err.line = delay.value.line;
@@ -169,15 +190,11 @@ function runEdenAction(source, action, cb) {
 		} else if (delay.value == 0) {
 			runEdenAction.call(this,source, action, cb);
 		} else if (delay.value > 0) {
-			// Clear any retriggering request
-			//source.retrigger = false;
 			// A wait statement requested a delay.
 			setTimeout(function() {runEdenAction.call(me, source, action, cb)}, delay.value);
 		}
 	} else {
 		source.active = false;
-		//if (source.retrigger) setTimeout(source.trigger,0);
-		//if (source.onfinish) source.onfinish();
 		if (cb) cb();
 	}
 }
@@ -189,23 +206,27 @@ function runEdenAction(source, action, cb) {
  */
 Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 
+	// Debug callback to begin block
 	if (Eden.AST.debug && (Eden.AST.debugstep || ( agent && agent.doDebug && agent.doDebug()))) {
 		if (Eden.AST.debug_begin_cb) Eden.AST.debug_begin_cb({base: this, agent: agent});
 	}
 
 	try {
-		//statement.execute(undefined, this, eden.root.scope, agent);
-		//if (this.active) return;
-		//this.active = true;
 		var gen = this.executeGenerator([statement], Eden.AST.DummyContext ,this, eden.root.scope, agent);
 		runEdenAction.call(this,agent, gen, function() {
+			// Debug callback to end block
 			if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
 				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
 			}
 			if (cb) cb();
 		});
 	} catch (e) {
+		// Debug callback to end block
+		if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
+			if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
+		}
 		if (cb) cb();
+
 		var err;
 
 		if (/[0-9][0-9]*/.test(e.message)) {
@@ -218,29 +239,38 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 
 		if (agent) Eden.Agent.emit("error", [agent,err]);
 		else console.log(err.prettyPrint());
-		throw e;
+		//throw e;
 	}
 }
 
 /**
  * Execute the given statement and catch any errors.
  */
-Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx) {
+Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx, scope) {
+	if (scope === undefined) scope = eden.root.scope;
 
+	// Debug callback to begin block
 	if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
 		if (Eden.AST.debug_begin_cb) Eden.AST.debug_begin_cb({base: this, agent: agent});
 	}
 
 	try {
-		var gen = this.executeGenerator(statements, ctx ,this, eden.root.scope, agent);
+		var gen = this.executeGenerator(statements, ctx ,this, scope, agent);
 		runEdenAction.call(this,agent, gen, function() {
+			// Debug callback to end block
 			if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
 				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
 			}
 			if (cb) cb();
 		});
 	} catch (e) {
+		// Debug callback to end block
+		if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
+			if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
+		}
 		if (cb) cb();
+
+		// Now process error
 		var err;
 
 		if (/[0-9][0-9]*/.test(e.message)) {
@@ -253,6 +283,6 @@ Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx
 
 		if (agent) Eden.Agent.emit("error", [agent,err]);
 		else console.log(err.prettyPrint());
-		throw e;
+		//throw e;
 	}
 }

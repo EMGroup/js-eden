@@ -40,6 +40,7 @@ div.explore-console {
 	/*box-shadow: 0 0 10px #4a6887;*/
 	position: relative;
 	overflow-x: auto;
+	box-sizing: border-box;
 }
 
 div.explore-console-buttons {
@@ -64,7 +65,7 @@ div.explore-console-code {
 	font-size: 12pt;
 	width: 100%;
 	box-sizing: border-box;
-	max-height: 100%;
+	max-height: calc(100% - 35px);
 	display: flex;
 	flex-direction: column;
 }

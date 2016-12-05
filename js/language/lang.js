@@ -29,7 +29,8 @@ var Language = {
 		"reload": "reload",
 		"force": "force",
 		"async": "async",
-		"create": "create"
+		"create": "create",
+		"remove": "remove"
 	},
 
 	doxytags: {

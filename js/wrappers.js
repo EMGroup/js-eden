@@ -150,6 +150,14 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 		return;
 	}
 
+	if (options && options.indexOf("remove") != -1) {
+		console.log("REMOVE AGENT:", path);
+		var ag = Eden.Agent.agents[path];
+		if (ag) Eden.Agent.remove(ag);
+		callback();
+		return;
+	}
+
 	// If multiple imports are called before completion of first, then
 	// queue the callbacks instead of attempting to import again.
 	// NOTE: If tag or options change, these changes may be lost.
@@ -336,6 +344,16 @@ Eden.Agent.remove = function(agent) {
 		var sym = eden.root.lookup(x);
 		sym.removeJSObserver(agent.name);
 	}
+
+	// Remove all symbols defined by this agent.
+	for (var x in eden.root.symbols) {
+		var sym = eden.root.symbols[x];
+		if (sym.last_modified_by.name == agent.name) {
+			sym.forget();
+			if (eden.dictionary[x]) delete eden.dictionary[x];
+		}
+	}
+	eden.root.collectGarbage();
 
 	delete Eden.Agent.agents[agent.name];
 	Eden.Agent.emit("remove", [agent.name, previousAgent]);
