@@ -925,16 +925,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			/*outdiv.className = "outputcontent readonly";
 			outdiv.contentEditable = false;
 			outdiv.innerHTML = "";*/
-			// Need to create an agent
-			Eden.Agent.importAgent("view/script/"+name, "default", ["create","noexec"], function(ag) {
-				if (ag) {
-					changeAgent(undefined, ag.name);
-				} else {
-					outdiv.className = "outputcontent readonly";
-					outdiv.contentEditable = false;
-					outdiv.innerHTML = "";
+
+			// Wait to make sure no agent is being set...
+			setTimeout(function() {
+				if (scriptagent === undefined) {
+					// Need to create an agent
+					Eden.Agent.importAgent("view/script/"+name, "default", ["create","noexec"], function(ag) {
+						if (ag) {
+							changeAgent(undefined, ag.name);
+						} else {
+							outdiv.className = "outputcontent readonly";
+							outdiv.contentEditable = false;
+							outdiv.innerHTML = "";
+						}
+					});
 				}
-			});
+			}, 1000);
 		}
 
 		// Set source text.
