@@ -90,6 +90,17 @@ EdenUI.Explorer = function() {
 		}
 	});
 
+	this.results.on("click", ".explore-expand-value", function(e) {
+		var node = e.currentTarget.parentNode.parentNode.parentNode;
+		var obs = node.getAttribute("data-obs");
+		me.updateEntry(eden.root.lookup(obs), e.currentTarget.parentNode, true);
+	});
+
+	this.results.on("click", ".eden-path", function(e) {
+		var path = e.currentTarget.textContent;
+		edenUI.gotoCode(path,-1);
+	});
+
 	this.results.on("click", ".explore-entry-icon", function(e) {
 		//console.log(e);
 		var node = e.currentTarget.parentNode.parentNode.parentNode;
@@ -239,7 +250,7 @@ EdenUI.Explorer.prototype.removeEntry = function(name, valelement) {
 	this.triggerUpdate();
 }
 
-EdenUI.Explorer.prototype.updateEntry = function(sym, valelement) {
+EdenUI.Explorer.prototype.updateEntry = function(sym, valelement, full) {
 	if (!sym) return;
 	var svalue = sym.value();
 	var value;
@@ -248,7 +259,11 @@ EdenUI.Explorer.prototype.updateEntry = function(sym, valelement) {
 	if (sym.eden_definition && sym.eden_definition.startsWith("func")) {
 		html = '<span class="eden-keyword">func</span>';
 	} else {
-		value = (Array.isArray(svalue)) ? '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]' : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+		if (full) {
+			value = EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+		} else {
+			value = (Array.isArray(svalue)) ? '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]' : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
+		}
 		var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
 		html = type+' '+value;
 	}
