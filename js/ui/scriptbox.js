@@ -35,8 +35,6 @@ EdenUI.ScriptBox = function(element, options) {
 	this.ast = undefined;
 	this.refreshentire = true;
 	this.dirty = true;
-	this.inspectmode = false;
-	this.gotomode = false;
 	this.rebuildtimer = undefined;
 	this.rebuildtimeout = 10;
 	this.currentlineno = 1;
@@ -61,32 +59,6 @@ EdenUI.ScriptBox = function(element, options) {
 
 	var me = this;
 
-	eden.root.addGlobal(function(sym, create) {
-		/*var symname = sym.name.slice(1);
-		var stats = Eden.Statement.symbols[symname];
-		if (stats) {
-			for (var x in stats) {
-				//console.log(me.statements[x]);
-				if (stats[x] && me.statements[stats[x].id]) {
-					//me.statements[stats[i].id].get(0).firstChild;
-					//console.log("CHANGE TO STAT " + stats[x].id);
-					if (stats[x].id != sym.statid) {
-						changeClass(me.statements[stats[x].id].childNodes[(me.showstars)?2:1], "active", false);
-						changeClass(me.statements[stats[x].id].childNodes[(me.showstars)?2:1], "last", false);
-					} else {
-						if (sym.definition) {
-							changeClass(me.statements[stats[x].id].childNodes[(me.showstars)?2:1], "active", true);
-							changeClass(me.statements[stats[x].id].childNodes[(me.showstars)?2:1], "last", false);
-						} else {
-							changeClass(me.statements[stats[x].id].childNodes[(me.showstars)?2:1], "last", true);
-							changeClass(me.statements[stats[x].id].childNodes[(me.showstars)?2:1], "active", false);
-						}
-					}
-				}
-			}
-		}*/
-	});
-
 	/**
 	 * Event handler for input change.
 	 */
@@ -94,102 +66,6 @@ EdenUI.ScriptBox = function(element, options) {
 		me.dirty = true;
 
 		me.rebuild();
-
-			/* Suggestions Box */
-			//console.log(window.getSelection().getRangeAt(0));
-			// Is there an abstract syntax tree node for this line?
-			/*var curast = stream.ast.lines[stream.currentline-1];
-			if (curast) {
-				var pattern = stream.ast.getSource(curast).split("\n")[0];
-				//console.log("Fill: " + pattern);
-
-				// Get the current line and its screen position to
-				// position the suggestions box correctly.
-				var curlineele = $(textarea).find(".eden-currentline");
-				var pos = curlineele.position();
-				if (pos === undefined) pos = $(textarea).position();
-				pos.top += $dialogContents.get(0).scrollTop;
-				
-				if (curast.type == "definition") {
-					var rhs = pattern.split("is")[1].trim();
-					//console.log("RHS: " + rhs);
-					var sym = eden.root.lookup(curast.lvalue.observable);
-					var def = sym.eden_definition;
-					if (def) def = def.split("is")[1].trim();
-					if (def && def.substr(0,rhs.length) == rhs) {
-						//console.log("SUGGEST: " + sym.eden_definition);
-						suggestions.text(sym.eden_definition.split("is")[1].trim());
-						if (suggestions.is(":visible") == false) {
-							suggestions.css("top",""+ (pos.top + 20) +"px");
-							suggestions.show("fast");
-						}
-					} else {
-						var regExp = new RegExp("^(" + rhs + ")", "");
-						var suggest = "";
-						var count = 0;
-						var last = "";
-						for (var s in eden.root.symbols) {
-							if (regExp.test(s)) {
-								count++;
-								last = s;
-								//console.log("SUGGEST: " + s);
-								suggest += s + "<br/>";
-							}
-						}
-						if (count > 1 || (count == 1 && rhs.length < last.length)) {
-							suggestions.html(suggest);
-							if (suggestions.is(":visible") == false) {
-								suggestions.css("top",""+ (pos.top + 20) +"px");
-								suggestions.show("fast");
-							}
-						} else {
-							suggestions.hide("fast");
-						}
-					}
-				} else {
-					suggestions.hide("fast");
-				}
-			} else {
-				suggestions.hide("fast");
-			}*/
-	}
-
-
-
-	function enableInspectMode() {
-		//me.outdiv.contentEditable = false;
-		changeClass(me.outdiv, "inspect", true);
-		me.inspectmode = true;
-		// TODO Remove caret and merge those spans
-		//updateInspectButton();
-		//setSubTitle("[inspecting]");
-	}
-
-	function enableGotoMode() {
-		//me.outdiv.contentEditable = false;
-		changeClass(me.outdiv, "goto", true);
-		me.gotomode = true;
-	}
-
-	function disableGotoMode() {
-		changeClass(me.outdiv, "goto", false);
-		me.gotomode = false;
-		me.updateEntireHighlight();
-		me.intextarea.focus();
-	}
-
-	function disableInspectMode() {
-		changeClass(me.outdiv, "inspect", false);
-		me.inspectmode = false;
-		me.updateEntireHighlight();
-		me.intextarea.focus();
-		//updateInspectButton();
-		//if (readonly) {
-		//	setSubTitle("[readonly]");
-		//} else {
-		//	setSubTitle("");
-			me.outdiv.contentEditable = true;
-		//}
 	}
 
 
@@ -222,15 +98,7 @@ EdenUI.ScriptBox = function(element, options) {
 			return;
 		}
 
-		//if (e.keyCode == 18 || e.keyCode == 225) {
-		if (e.altKey && e.keyCode == 73) {
-			me.enableInspectMode();
-		} else if (!e.altKey) {
-			// Don't allow editing in inspect mode.
-			if (me.inspectmode) {
-				e.preventDefault();
-				return;
-			}
+		if (!e.altKey) {
 
 			// If not Ctrl or Shift key then
 			if (!e.ctrlKey && e.keyCode != 17 && e.keyCode != 16) {
@@ -307,9 +175,6 @@ EdenUI.ScriptBox = function(element, options) {
 					e.preventDefault();
 					me.outdiv.focus();
 					//me.selectAll();
-				} else if (e.keyCode === 17) {
-					//console.log(e.keyCode);
-					me.enableGotoMode();
 				}
 			}
 		} else {
@@ -344,13 +209,7 @@ EdenUI.ScriptBox = function(element, options) {
 	 * rebuild does happen.
 	 */
 	function onTextKeyUp(e) {
-		// Alt and AltGr for disable inspect mode.
-		if (e.keyCode == 17) {
-			me.disableGotoMode();
-		} else if (e.keyCode == 18 || (e.altKey && e.keyCode == 73)) {
-			me.disableInspectMode();
-			e.preventDefault();
-		} else if (!e.altKey) {
+		if (!e.altKey) {
 			if (!e.ctrlKey && (	e.keyCode == 37 ||	//Arrow keys
 								e.keyCode == 38 ||
 								e.keyCode == 39 ||
@@ -381,10 +240,7 @@ EdenUI.ScriptBox = function(element, options) {
 	 * text is selected that needs replacing.
 	 */
 	function onOutputKeyDown(e) {
-		// Alt and AltGr for inspect mode.
-		if (e.altKey && e.keyCode == 73) {
-			me.enableInspectMode();
-		} else if (!e.altKey) {
+		if (!e.altKey) {
 			if (me.outdiv.style.cursor == "pointer") me.outdiv.style.cursor = "initial";
 			if (e.keyCode == 16 || e.keyCode == 17 || (e.ctrlKey && e.keyCode == 67)) {
 				// Ignore Ctrl and Ctrl+C.
@@ -411,12 +267,7 @@ EdenUI.ScriptBox = function(element, options) {
 
 
 	function onOutputKeyUp(e) {
-		if (e.keyCode == 18 || (e.altKey && e.keyCode == 73)) {
-			me.disableInspectMode();
-			e.preventDefault();
-		} else if (e.keyCode == 17) {
-			me.disableGotoMode();
-		}
+		
 	}
 
 
@@ -430,7 +281,6 @@ EdenUI.ScriptBox = function(element, options) {
 		// Finally, delete the fake caret
 		$(me.outdiv).find(".fake-caret").remove();
 		me.hideInfoBox();
-		//disableInspectMode();
 	}
 
 
@@ -458,84 +308,24 @@ EdenUI.ScriptBox = function(element, options) {
 			//return;
 		}*/
 
-		if (me.inspectmode) {
-			/*var element = e.target;
-			if (element.className == "" && element.parentNode.nodeName == "SPAN") {
-				element = element.parentNode;
-			}
-			if (element.className == "eden-path") {
-				//console.log();
-				me.disableInspectMode();
-				var path = element.parentNode.textContent.split("@");
-				if (path.length == 1) {
-					//openTab(path[0]);
-				} else {
-					//openTab(path[0], path[1]);
+		// To prevent false cursor movement when dragging numbers...
+		if (document.activeElement === me.outdiv) {
+			var end = getCaretCharacterOffsetWithin(me.outdiv,me.shadow);
+			var start = getStartCaretCharacterOffsetWithin(me.outdiv,me.shadow);
+			if (start != end) {
+				// Fix to overcome current line highlight bug on mouse select.
+				me.refreshentire = true;
+			} else {
+				// Move caret to clicked location
+				var curline = me.currentlineno;
+				me.intextarea.focus();
+				me.intextarea.selectionEnd = end;
+				me.intextarea.selectionStart = end;
+				if (me.ast) {		
+					me.highlighter.highlight(me.ast, curline, end);
+					me.updateLineCachedHighlight();
 				}
-			} else if (element.className == "eden-observable") {
-				var obs = element.getAttribute("data-observable");
-				element.textContent =  Eden.edenCodeForValue(eden.root.lookup(obs).value());
-				element.className += " select";
-			} else if (element.className == "eden-observable select") {
-				var obs = element.getAttribute("data-observable");
-				element.textContent = obs;
-				element.className = "eden-observable";
-			}
-			e.preventDefault();*/
-		} else if (me.gotomode) {
-			var element = e.target;
-			if (element.className == "" && element.parentNode.nodeName == "SPAN") {
-				element = element.parentNode;
-			}
-			if (element.className == "eden-path") {
-				//console.log();
-				me.disableGotoMode();
-				var path = element.parentNode.textContent.split("@");
-				if (path.length == 1) {
-					//openTab(path[0]);
-				} else {
-					//openTab(path[0], path[1]);
-				}
-			} else if (element.className && element.className.indexOf("eden-observable") != -1) {
-				var obs = element.getAttribute("data-observable");
-
-				var stat = Eden.Statement.statements[me.currentstatement];
-				if ((stat.statement.type == "definition" || stat.statement.type == "assignment") && stat.statement.lvalue.name == obs) {
-					console.log("SHOW VALUE FOR " + obs);
-					//var sym = eden.root.symbols[obs];
-					var valdiv = $('<div class="scriptbox-value"><div class="scriptbox-valueclose">&#xf00d;</div><div class="scriptbox-valuecontent"></div></div>');
-					valdiv.find(".scriptbox-valuecontent").html("...");
-					me.outdiv.parentNode.appendChild(valdiv[0]);
-					me.valuedivs[stat.id] = valdiv;
-				} else {
-					console.log("GOTO: " + obs);
-					var sym = eden.root.symbols[obs];
-					if (sym && sym.statid) {
-						me.insertStatement(Eden.Statement.statements[sym.statid]);
-					}
-				}
-			}
-			e.preventDefault();
-		} else {
-			// To prevent false cursor movement when dragging numbers...
-			if (document.activeElement === me.outdiv) {
-				var end = getCaretCharacterOffsetWithin(me.outdiv,me.shadow);
-				var start = getStartCaretCharacterOffsetWithin(me.outdiv,me.shadow);
-				if (start != end) {
-					// Fix to overcome current line highlight bug on mouse select.
-					me.refreshentire = true;
-				} else {
-					// Move caret to clicked location
-					var curline = me.currentlineno;
-					me.intextarea.focus();
-					me.intextarea.selectionEnd = end;
-					me.intextarea.selectionStart = end;
-					if (me.ast) {		
-						me.highlighter.highlight(me.ast, curline, end);
-						me.updateLineCachedHighlight();
-					}
-					//checkScroll();
-				}
+				//checkScroll();
 			}
 		}
 	}
@@ -704,19 +494,6 @@ EdenUI.ScriptBox.prototype.hideInfoBox = function() {
 	$(this.infobox).hide("fast");
 }
 
-EdenUI.ScriptBox.prototype.enableGotoMode = function() {
-	//this.outdiv.contentEditable = false;
-	changeClass(this.outdiv, "goto", true);
-	this.gotomode = true;
-}
-
-EdenUI.ScriptBox.prototype.disableGotoMode = function() {
-	changeClass(this.outdiv, "goto", false);
-	this.gotomode = false;
-	this.updateEntireHighlight();
-	this.intextarea.focus();
-}
-
 /**
  * Displays the error/warning box.
  */
@@ -741,7 +518,7 @@ EdenUI.ScriptBox.prototype.disable = function() {
 	var valhtml = EdenUI.htmlForStatement(Eden.Statement.statements[this.currentstatement],30,30);
 	this.valuedivs[this.currentstatement].innerHTML = '<div class="eden-line">'+valhtml+'</div>';
 	//console.log(this.valuedivs);
-	this.gotomode = false;
+
 	//this.outdiv.contentEditable = false;
 	changeClass(this.outdiv.parentNode, "readonly", true);
 	if (this.ast) {
