@@ -79,24 +79,27 @@ ${{
 				}
 			});		
 		}
-		for (var i = 0; i < viewNameList.length; i++) {
-			viewName = viewNameList[i];
-			typeSym = root.lookup("_view_" + viewName + "_type");
-			viewType = typeSym.value();
 
-			if (viewType === undefined) {
-				addTypeObserver(typeSym, viewName);
-			} else if (!(viewName in edenUI.activeDialogs)) {
-				edenUI.createView(viewName, viewType);
-			}
+		if (viewNameList) {
+			for (var i = 0; i < viewNameList.length; i++) {
+				viewName = viewNameList[i];
+				typeSym = root.lookup("_view_" + viewName + "_type");
+				viewType = typeSym.value();
 
-			viewNames[viewName] = true;
+				if (viewType === undefined) {
+					addTypeObserver(typeSym, viewName);
+				} else if (!(viewName in edenUI.activeDialogs)) {
+					edenUI.createView(viewName, viewType);
+				}
 
-			var match = viewName.match(/(\d+)$/);
-			if (match !== null) {
-				var viewNumber = parseInt(match[1]);
-				if (viewNumber > maxViewNumber) {
-					maxViewNumber = viewNumber;
+				viewNames[viewName] = true;
+
+				var match = viewName.match(/(\d+)$/);
+				if (match !== null) {
+					var viewNumber = parseInt(match[1]);
+					if (viewNumber > maxViewNumber) {
+						maxViewNumber = viewNumber;
+					}
 				}
 			}
 		}
