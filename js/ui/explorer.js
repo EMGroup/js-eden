@@ -80,12 +80,12 @@ EdenUI.Explorer = function() {
 		} else {
 			var sym = eden.root.symbols[obs];
 			if (sym) {
-				me.console.focus();
 				if (sym.eden_definition) {
 					me.console.setSource(sym.eden_definition);
 				} else {
 					me.console.setSource(obs + " = " + Eden.edenCodeForValue(sym.value()) + ";");
 				}
+				me.console.focus();
 			}
 		}
 	});

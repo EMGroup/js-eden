@@ -622,12 +622,14 @@ EdenUI.ScriptBox.prototype.focus = function() {
 	this.outdiv.focus();
 
 	if (document.activeElement === this.outdiv) {
-		var end = getCaretCharacterOffsetWithin(this.outdiv,this.shadow);
+		var end = this.intextarea.value.length;
+		var start = end;
+		/*var end = getCaretCharacterOffsetWithin(this.outdiv,this.shadow);
 		var start = getStartCaretCharacterOffsetWithin(this.outdiv,this.shadow);
 		if (start != end) {
 			// Fix to overcome current line highlight bug on mouse select.
 			this.refreshentire = true;
-		} else {
+		} else {*/
 			// Move caret to clicked location
 			var curline = this.currentlineno;
 			this.intextarea.focus();
@@ -638,7 +640,7 @@ EdenUI.ScriptBox.prototype.focus = function() {
 				this.updateLineCachedHighlight();
 			}
 			//checkScroll();
-		}
+		//}
 	}
 }
 
