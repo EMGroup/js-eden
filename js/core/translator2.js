@@ -2498,6 +2498,11 @@ Eden.AST.prototype.pCODESELECTOR = function() {
 		}
 	}
 
+	// DEPRECATED, but this allows for action parameters.
+	if (this.token != ">" && this.token != ":" && this.token != "#" && this.token != "when") {
+		return expr;
+	}
+
 	var nexpr = this.pCODESELECTOR_P();
 	if (nexpr && nexpr.type == "literal" && expr.type == "literal") {
 		expr.value += nexpr.value;
