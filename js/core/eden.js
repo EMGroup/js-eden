@@ -562,7 +562,7 @@
 		console.log("Loading project: " + path + "@" + tag);
 
 		Eden.DB.load(path,tag, undefined, function(status) {
-			EdenUI.MenuBar.saveTitle(status.title);
+			if (typeof status == "object") EdenUI.MenuBar.saveTitle(status.title);
 			eden.root.lookup("_jseden_loaded").assign(true, eden.root.scope);
 
 			if (!nohistory) {
