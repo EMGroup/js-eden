@@ -1695,38 +1695,47 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 		function enableInspectMode() {
-			outdiv.contentEditable = false;
-			changeClass(outdiv, "inspect", true);
-			inspectmode = true;
-			// TODO Remove caret and merge those spans
-			updateInspectButton();
-			setSubTitle("[inspecting]");
+			if (!inspectmode) {
+				outdiv.contentEditable = false;
+				changeClass(outdiv, "inspect", true);
+				inspectmode = true;
+				// TODO Remove caret and merge those spans
+				updateInspectButton();
+				setSubTitle("[inspecting]");
+			}
 		}
 
 		function enableGotoMode() {
-			outdiv.contentEditable = false;
-			changeClass(outdiv, "goto", true);
-			gotomode = true;
+			if (!gotomode) {
+				outdiv.contentEditable = false;
+				changeClass(outdiv, "goto", true);
+				gotomode = true;
+			}
 		}
 
 		function disableGotoMode() {
-			changeClass(outdiv, "goto", false);
-			gotomode = false;
-			updateEntireHighlight();
-			intextarea.focus();
+			if (gotomode) {
+				outdiv.contentEditable = true;
+				changeClass(outdiv, "goto", false);
+				gotomode = false;
+				updateEntireHighlight();
+				intextarea.focus();
+			}
 		}
 
 		function disableInspectMode() {
-			changeClass(outdiv, "inspect", false);
-			inspectmode = false;
-			updateEntireHighlight();
-			intextarea.focus();
-			updateInspectButton();
-			if (readonly) {
-				setSubTitle("[readonly]");
-			} else {
-				setSubTitle("");
-				outdiv.contentEditable = true;
+			if (inspectmode) {
+				changeClass(outdiv, "inspect", false);
+				inspectmode = false;
+				updateEntireHighlight();
+				intextarea.focus();
+				updateInspectButton();
+				if (readonly) {
+					setSubTitle("[readonly]");
+				} else {
+					setSubTitle("");
+					outdiv.contentEditable = true;
+				}
 			}
 		}
 
@@ -1783,6 +1792,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					} else if (e.keyCode == 13 || (e.keyCode == 8 && intextarea.value.charCodeAt(intextarea.selectionStart-1) == 10)) {
 						// Adding or removing lines requires a full re-highlight at present
 						refreshentire = true;
+						console.log("ADD/REMOVE LINE REFRESH");
 					}
 
 				} else if (e.ctrlKey || e.metaKey) {
