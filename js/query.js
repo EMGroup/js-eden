@@ -428,9 +428,13 @@ Eden.Query.querySelector = function(s, ctx) {
 	var path = s.substring(0,pathix).trim();
 	var script;
 
+	// Find local action first
 	if (ctx) {
 		script = ctx.getActionByName(path);
-	} else {
+	}
+
+	// Now attempt to find agent(s)...
+	if (script === undefined) {
 		var ag = Eden.Agent.agents[path];
 		if (!ag) return;
 		script = ag.ast.script;
@@ -447,6 +451,16 @@ Eden.Query.querySelector = function(s, ctx) {
 			for (var i=0; i<statements.length; i++) {
 				if (statements[i].type == "script") {
 					nstats.push.apply(nstats,statements[i].statements);
+				} else if (statements[i].type == "for") {
+					//if (statements[i].statement
+				} else if (statements[i].type == "if") {
+
+				} else if (statements[i].type == "when") {
+
+				} else if (statements[i].type == "while") {
+
+				} else if (statements[i].type == "do") {
+
 				}
 			}
 			statements = nstats;

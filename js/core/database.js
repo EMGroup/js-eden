@@ -753,10 +753,11 @@ Eden.DB.getSource = function(path, tag, callback) {
 }
 
 Eden.DB.generateSource = function(title) {
-	return JSON.stringify({
+	return Eden.Generator.getScript();
+	/*return JSON.stringify({
 		script: Eden.Generator.getScript(),
 		title: title
-	},null,"\t");
+	},null,"\t");*/
 }
 
 Eden.DB.save = function(title, cb, options) {
@@ -817,17 +818,29 @@ Eden.DB.load = function(path, saveid, source, cb) {
 	function doload() {
 		// Run the project script as the *Restore agent
 
-		eden.execute2(source.script, "*Restore", function() {
-			console.log("Loaded: " + path);
-			if (cb) cb(source);
-		});
+		if (typeof source == "object") {
+			console.log("RESTORE:",source.script);
+			eden.execute2(source.script, "*Restore", function() {
+				console.log("Loaded: " + path);
+				if (cb) cb(source);
+			});
+		} else {
+			eden.execute2(source, "*Restore", function() {
+				console.log("Loaded: " + path);
+				if (cb) cb(source);
+			});
+		}
 	}
 
 	if (source === undefined) {
 		// Get it from server if possible...
 		Eden.DB.getSource(path, saveid, function(src) {
 			if (src && src != "") {
-				source = JSON.parse(src);
+				if (src.charAt(0) == "{") {
+					source = JSON.parse(src);
+				} else {
+					source = src;
+				}
 				doload();
 			}
 		});

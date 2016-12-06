@@ -79,10 +79,10 @@ Eden.AST.prototype.getActionByName = function(name) {
 		}
 	}
 
-	var ag = Eden.Agent.agents[name];
+	/*var ag = Eden.Agent.agents[name];
 	if (ag && ag.ast && ag.ast.script && ag.ast.script.errors.length == 0) {
 		return ag.ast.script;
-	}
+	}*/
 
 	return script;
 }
