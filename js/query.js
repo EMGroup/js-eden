@@ -69,13 +69,22 @@ Eden.Query.search = function(q, cb) {
 		symbols: [],
 		whens: [],
 		projects: [],
-		scripts: []
+		scripts: [],
+		statements: []
 	};
 
 	if (words.length > 0) {
 		if (words[0].charAt(words[0].length-1) == ":") {
 			i = 1;
 			inittoken = true;
+
+			if (words[0] == "select:") {
+				// Do a code selector query...
+				res.all = Eden.Query.querySelector(q.substring(words[0].length).trim());
+				if (res.all === undefined) res.all = [];
+				if (cb) cb(res);
+				return res;
+			}
 
 			// Process the init token to control results
 			switch (words[0]) {
@@ -184,6 +193,13 @@ Eden.Query.mergeResults = function(res) {
 			if (count >= MAX-1) break;
 			count++;
 			res.all.push(res.scripts[i]);
+		}
+
+		count = 0;
+		for (var i=start; i<res.statements.length; i++) {
+			if (count >= MAX) break;
+			count++;
+			res.all.push(res.statements[i]);
 		}
 
 		// Recursively process the results...
@@ -433,11 +449,15 @@ Eden.Query.querySelector = function(s) {
 			processNode(s.substring(1).trim());
 		} else if (s.charAt(0) == ":") {
 			var snum = parseInt(s.substring(1));
-			statements = [statements[snum]];
-			console.log(statements);
+			var stat = statements[snum];
+			if (stat === undefined) statements = undefined;
+			else statements = [stat];
+			//console.log(statements);
 		} else if (s.charAt(0) == "#") {
 			var nstats = [];
-			var tag = s.match(/#[a-zA-Z0-9_]+/)[0];
+			var tag = s.match(/#[a-zA-Z0-9_]+/);
+			if (!tag) return;
+			tag = tag[0];
 			console.log("hashtag",tag);
 			for (var i=0; i<statements.length; i++) {
 				if (statements[i].doxyComment && statements[i].doxyComment.hasTag(tag)) {

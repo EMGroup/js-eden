@@ -39,7 +39,12 @@ Eden.AST = function(code, imports, origin, noparse) {
 	this.next();
 
 	// Start parse with SCRIPT production
-	if (!noparse) this.script = this.pSCRIPT();
+	if (!noparse) {
+		this.script = this.pSCRIPT();
+		this.script.base = this;
+		this.script.setSource(0,code.length);
+		this.script.doxyComment = this.mainDoxyComment;
+	}
 }
 
 // Debug controls
