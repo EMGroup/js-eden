@@ -81,6 +81,7 @@ EdenStream.prototype.readLine = function() {
 	} else {
 		var res = this.code.substring(this.position, eolix+1);
 		this.position = eolix+1;
+		this.line++;
 		return res;
 	}
 };
