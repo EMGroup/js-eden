@@ -420,7 +420,7 @@ Eden.Query.dependencyTree = function(base) {
 	return nbase;
 }
 
-Eden.Query.querySelector = function(s, ctx) {
+Eden.Query.querySelector = function(s, o, ctx) {
 	console.log("SELECTOR",s);
 
 	var pathix = s.search(/[\.\:\#\>]/);
@@ -436,10 +436,10 @@ Eden.Query.querySelector = function(s, ctx) {
 	// Now attempt to find agent(s)...
 	if (script === undefined) {
 		var ag = Eden.Agent.agents[path];
-		if (!ag) return;
+		if (!ag) return []
 		script = ag.ast.script;
 	}
-	if (!script) return;
+	if (!script) return [];
 	var statements = [script];
 
 	function processNode(s) {
@@ -474,7 +474,7 @@ Eden.Query.querySelector = function(s, ctx) {
 		} else if (s.charAt(0) == "#") {
 			var nstats = [];
 			var tag = s.match(/#[a-zA-Z0-9_]+/);
-			if (!tag) return;
+			if (!tag) return [];
 			tag = tag[0];
 			console.log("hashtag",tag);
 			for (var i=0; i<statements.length; i++) {
@@ -487,6 +487,42 @@ Eden.Query.querySelector = function(s, ctx) {
 		}
 	}
 	processNode(s.substring(pathix).trim());
+
+	if (statements === undefined) statements = [];
+
+	// Check what kind of result we are to return
+	if (o !== undefined) {
+		var res = [];
+		if (o == "brief") {
+			for (var i=0; i<statements.length; i++) {
+				if (statements[i].doxyComment) {
+					res.push(statements[i].doxyComment.brief());
+				}
+			}
+		} else if (o.charAt(0) == "@") {
+			for (var i=0; i<statements.length; i++) {
+				if (statements[i].doxyComment) {
+					res.push(statements[i].doxyComment.getControls());
+				}
+			}
+		} else if (o == "comment") {
+			for (var i=0; i<statements.length; i++) {
+				if (statements[i].doxyComment) {
+					res.push(statements[i].doxyComment.stripped());
+				}
+			}
+		} else if (o == "source") {
+			for (var i=0; i<statements.length; i++) {
+				var stat = statements[i];
+				var p = stat;
+				while (p.parent) p = p.parent;
+				var base = p.base;
+
+				res.push(base.getSource(stat));
+			}
+		}
+		return res;
+	}
 
 	return statements;
 }
