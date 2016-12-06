@@ -548,6 +548,13 @@ EdenUI.MenuBar = function() {
 			sym.assign(!val, eden.root.scope, Symbol.localJSAgent);
 		}
 	});
+
+	this.element.on("keyup", ".jseden-title", function(e) {
+		var sym = eden.root.lookup("jseden_project_title");
+		if (!sym.eden_definition) {
+			sym.assign(e.currentTarget.textContent, eden.root.scope, Symbol.localJSAgent);
+		}
+	});
 }
 
 EdenUI.MenuBar.reset = function() {
