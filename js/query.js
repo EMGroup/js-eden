@@ -69,13 +69,22 @@ Eden.Query.search = function(q, cb) {
 		symbols: [],
 		whens: [],
 		projects: [],
-		scripts: []
+		scripts: [],
+		statements: []
 	};
 
 	if (words.length > 0) {
 		if (words[0].charAt(words[0].length-1) == ":") {
 			i = 1;
 			inittoken = true;
+
+			if (words[0] == "select:") {
+				// Do a code selector query...
+				res.all = Eden.Query.querySelector(q.substring(words[0].length).trim());
+				if (res.all === undefined) res.all = [];
+				if (cb) cb(res);
+				return res;
+			}
 
 			// Process the init token to control results
 			switch (words[0]) {
@@ -184,6 +193,13 @@ Eden.Query.mergeResults = function(res) {
 			if (count >= MAX-1) break;
 			count++;
 			res.all.push(res.scripts[i]);
+		}
+
+		count = 0;
+		for (var i=start; i<res.statements.length; i++) {
+			if (count >= MAX) break;
+			count++;
+			res.all.push(res.statements[i]);
 		}
 
 		// Recursively process the results...
@@ -402,5 +418,58 @@ Eden.Query.dependencyTree = function(base) {
 	processSymbol(nbase);*/
 
 	return nbase;
+}
+
+Eden.Query.querySelector = function(s) {
+	console.log("SELECTOR",s);
+
+	var pathix = s.search(/[\.\:\#\>]/);
+	if (pathix == -1) pathix = s.length;
+	var path = s.substring(0,pathix).trim();
+
+	var ag = Eden.Agent.agents[path];
+	if (!ag) return;
+
+	var script = ag.ast.script;
+	if (!script) return;
+	var statements = [script];
+
+	function processNode(s) {
+		console.log("NODE",s);
+
+		if (s.charAt(0) == ">") {
+			// Go into each child
+			var nstats = [];
+			for (var i=0; i<statements.length; i++) {
+				if (statements[i].type == "script") {
+					nstats.push.apply(nstats,statements[i].statements);
+				}
+			}
+			statements = nstats;
+			processNode(s.substring(1).trim());
+		} else if (s.charAt(0) == ":") {
+			var snum = parseInt(s.substring(1));
+			var stat = statements[snum];
+			if (stat === undefined) statements = undefined;
+			else statements = [stat];
+			//console.log(statements);
+		} else if (s.charAt(0) == "#") {
+			var nstats = [];
+			var tag = s.match(/#[a-zA-Z0-9_]+/);
+			if (!tag) return;
+			tag = tag[0];
+			console.log("hashtag",tag);
+			for (var i=0; i<statements.length; i++) {
+				if (statements[i].doxyComment && statements[i].doxyComment.hasTag(tag)) {
+					nstats.push(statements[i]);
+				}
+			}
+			statements = nstats;
+			processNode(s.substring(tag.length).trim());
+		}
+	}
+	processNode(s.substring(pathix).trim());
+
+	return statements;
 }
 

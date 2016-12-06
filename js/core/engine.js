@@ -46,6 +46,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 		} else if (statements[i].type == "import") {
 			yield statements[i];
 		} else if (statements[i].type == "do") {
+			statements[i].selector = (statements[i].name) ? statements[i].name.execute(ctx, base, scope, agent) : undefined;
 			statements[i].params = statements[i].getParameters(undefined, base, scope);
 			statements[i].nscope = (statements[i].scope) ? statements[i].getScope(ctx)(eden.root,scope) : scope;
 			yield statements[i];
@@ -152,10 +153,11 @@ function runEdenAction(source, action, cb) {
 			// Call another action and block until done
 			} else if (delay.value.type == "do") {
 				// Note that getActionByName can return entire agents!
-				var script = (delay.value.name) ? me.getActionByName(delay.value.name) : delay.value.script;
-
-				if (script) {
-					var stats = script.statements;
+				var stats = (delay.value.name) ? Eden.Query.querySelector(delay.value.selector) : delay.value.script.statements;
+				//var script = (delay.value.name) ? me.getActionByName(delay.value.name) : delay.value.script;
+				console.log("STATS",stats);
+				if (stats) {
+					//var stats = script.statements;
 					// Params are deprecated.
 					var params = delay.value.params;
 					// Allow for execution in a different scope.
@@ -181,7 +183,7 @@ function runEdenAction(source, action, cb) {
 						}, {parameters: params}, nscope);
 					}
 				} else {
-					var err = new Eden.RuntimeError(me, Eden.RuntimeError.ACTIONNAME, delay.value, "Action '"+delay.value.name+"' does not exist");
+					var err = new Eden.RuntimeError(me, Eden.RuntimeError.ACTIONNAME, delay.value, "Selector '"+delay.value.selector+"' has no results");
 					err.line = delay.value.line;
 					delay.value.errors.push(err);
 					Eden.Agent.emit("error", [source,err]);
