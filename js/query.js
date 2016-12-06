@@ -404,3 +404,52 @@ Eden.Query.dependencyTree = function(base) {
 	return nbase;
 }
 
+Eden.Query.querySelector = function(s) {
+	console.log("SELECTOR",s);
+
+	var pathix = s.search(/[\.\:\#\>]/);
+	if (pathix == -1) pathix = s.length;
+	var path = s.substring(0,pathix).trim();
+
+	var ag = Eden.Agent.agents[path];
+	if (!ag) return;
+
+	var script = ag.ast.script;
+	if (!script) return;
+	var statements = [script];
+
+	function processNode(s) {
+		console.log("NODE",s);
+
+		if (s.charAt(0) == ">") {
+			// Go into each child
+			var nstats = [];
+			for (var i=0; i<statements.length; i++) {
+				if (statements[i].type == "script") {
+					nstats.push.apply(nstats,statements[i].statements);
+				}
+			}
+			statements = nstats;
+			processNode(s.substring(1).trim());
+		} else if (s.charAt(0) == ":") {
+			var snum = parseInt(s.substring(1));
+			statements = [statements[snum]];
+			console.log(statements);
+		} else if (s.charAt(0) == "#") {
+			var nstats = [];
+			var tag = s.match(/#[a-zA-Z0-9_]+/)[0];
+			console.log("hashtag",tag);
+			for (var i=0; i<statements.length; i++) {
+				if (statements[i].doxyComment && statements[i].doxyComment.hasTag(tag)) {
+					nstats.push(statements[i]);
+				}
+			}
+			statements = nstats;
+			processNode(s.substring(tag.length).trim());
+		}
+	}
+	processNode(s.substring(pathix).trim());
+
+	return statements;
+}
+

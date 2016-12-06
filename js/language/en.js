@@ -301,6 +301,18 @@ Language.errors = [
 ],
 /* EDEN_ERROR_HEREDOCTOKEN */ [
 	"A heredoc token must be a single word at the end of a line"
+],
+/* EDEN_ERROR_SELECTORACTION */ [
+	"Invalid action name in code selector"
+],
+/* EDEN_ERROR_SELECTORATTRIB */ [
+	"Invalid code selector attribute"
+],
+/* EDEN_ERROR_SELECTORTAG */ [
+	"Invalid code selector hashtag"
+],
+/* EDEN_ERROR_SELECTORBTICK */ [
+	"Missing a closing } after embedded expression"
 ]
 ];
 

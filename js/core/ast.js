@@ -2453,6 +2453,7 @@ Eden.AST.Do = function() {
 	this.scope = undefined;
 	this.compScope = undefined;
 	this.nscope = undefined;
+	this.selector = undefined;
 };
 
 Eden.AST.Do.prototype.error = fnEdenASTerror;
