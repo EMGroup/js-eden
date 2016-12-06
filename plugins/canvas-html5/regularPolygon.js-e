@@ -5,6 +5,7 @@ ${{
 		this.r = r;
 		this.n = n;
 		this.star = star;
+		star = Math.floor(star);
 		this.interiorOutline = interiorOutline;
 		this.rotation = rotation;
 		this.rotationInRadians = rotation * Math.PI / root.lookup("semicircleAngle").value();
@@ -55,24 +56,17 @@ ${{
 		}
 	}
 
-	RegularPolygon.prototype.calculatePolygons = function (lineWidth) {
-		var separatePolygonsPossiblyNeeded;
-		if (this.fillcolour !== undefined && this.fillcolour != "transparent" &&
-			this.outlinecolour !== undefined &&
-			this.n / this.star != 2
-		) {
-			separatePolygonsPossiblyNeeded = true;
-		} else {
-			separatePolygonsPossiblyNeeded = false;		
-		}
-		
-		var radius = this.r - lineWidth / 2;
+	RegularPolygon.degenerateMonogramRadii = 7;
+
+	RegularPolygon.prototype.calculatePolygons = function (lineWidth, scale) {
+		var radius;
 		var rotation;
 		if (this.n % 4 == 0) {
 			rotation = -this.rotationInRadians - Math.PI * (0.5 - 1 / this.n);
 		} else {
 			rotation = -this.rotationInRadians - Math.PI * (0.5 - 2 / this.n); //Zero rotation means "pointing upwards"
 		}
+
 		var nudge;
 		if (this.drawingOptions !== undefined && this.drawingOptions.valign == "bottom") {
 			nudge = lineWidth;
@@ -80,9 +74,34 @@ ${{
 			nudge = 0;
 		}
 
-		var pointsDone = new Array(this.n);
 		var px, py;
 		var polygons = [];
+		this.outlinePolygons = [];
+		var star = Math.floor(this.star);
+		if (star % this.n == 0) {
+			var circlesRadius = RegularPolygon.degenerateMonogramRadii / scale + (this.outlinecolour === undefined? 0 : lineWidth * 2);
+			radius = this.r - circlesRadius;
+			for (var i = 0; i < this.n; i++) {
+				px = this.x + radius * Math.cos(rotation + i * this.exteriorAngle);
+				py = this.y + radius * Math.sin(rotation + i * this.exteriorAngle) + nudge;
+				polygons.push(new Circle(px, py, circlesRadius, this.fillcolour, this.outlinecolour, this.drawingOptions));
+			}
+			this.filledPolygons = polygons;
+			return;
+		}
+
+		radius = this.r - lineWidth / 2
+		var separatePolygonsPossiblyNeeded;
+		if (this.fillcolour !== undefined && this.fillcolour != "transparent" &&
+			this.outlinecolour !== undefined &&
+			this.n / star != 2
+		) {
+			separatePolygonsPossiblyNeeded = true;
+		} else {
+			separatePolygonsPossiblyNeeded = false;		
+		}
+		
+		var pointsDone = new Array(this.n);
 		var currentPolygonVertices, currentPoint;
 		for (var i = 0; i < this.n; i++) {
 			var j = i;
@@ -93,7 +112,7 @@ ${{
 				currentPoint = new Point(px, py);
 				currentPolygonVertices.push(currentPoint);
 				pointsDone[j] = true;
-				j = (j + this.star) % this.n;
+				j = (j + star) % this.n;
 			}
 			if (currentPolygonVertices.length > 0) {
 				polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, this.outlinecolour, this.drawingOptions, this.y));
@@ -116,7 +135,7 @@ ${{
 						py = this.y + smallerRadius * Math.sin(rotation + i * this.exteriorAngle);
 						currentPoint = new Point(px, py);
 						currentPolygonVertices.push(currentPoint);
-						i = (i + this.star) % this.n;
+						i = (i + star) % this.n;
 					} while (i != 0);
 					polygons.push(new Polygon(currentPolygonVertices, this.fillcolour, undefined, this.drawingOptions, this.y));
 				} else {
@@ -125,7 +144,6 @@ ${{
 					 */
 				}
 				this.filledPolygons = polygons;
-				this.outlinePolygons = [];
 			} else {
 				/* Case: multiple constituent polygons (specifically, more than 2).  Occurs when
 				 * n / star is an integer greater than 2.
@@ -134,7 +152,6 @@ ${{
 				 * first or the fill is painted first.
 				 */
 				this.filledPolygons = [];
-				this.outlinePolygons = [];
 				for (var i = 0; i < polygons.length; i++) {
 					this.filledPolygons.push(new Polygon(polygons[i].vertices, this.fillcolour, undefined, this.drawingOptions, this.y));
 				}
@@ -149,7 +166,6 @@ ${{
 			 * Solution: One set of polygons that paint either the fill or the outline (the shape doesn't have both).
 			 */
 			this.filledPolygons = polygons;
-			this.outlinePolygons = [];
 		}	
 	}
 }}$;
@@ -235,32 +251,13 @@ semicircleAngle ~> [RegularPolygon];
 
 ${{
 RegularPolygon.prototype.draw = function (context, scale) {
-	if (this.star % this.n == 0) {
-		//Degenerate case where just have points that aren't connected into a polygon.
-		for (var i = 0; i < this.n; i++) {
-			context.beginPath();
-			var vertex = this.vertices[i];
-			context.arc(vertex.x, vertex.y, 4 / scale, 0, 2 * Math.PI, false);
-			context.closePath();
-			if (this.fillcolour !== undefined) {
-				edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
-				context.fill();
-			}
-			if (this.outlinecolour !== undefined) {
-				context.strokeStyle = this.outlinecolour;
-				context.stroke();
-			}
-		}
-		return;
-	}
-
 	var lineWidth = context.lineWidth;
 	if (!this.interiorOutline) {
 		lineWidth = lineWidth * 2;
 	}
-	if (this.outlinecolour !== undefined) {
+	if (this.outlinecolour !== undefined || Math.floor(this.star) % this.n == 0) {
 		if (lineWidth !== this.cachedPolygonLineWidth) {
-			this.calculatePolygons(lineWidth);
+			this.calculatePolygons(lineWidth, scale);
 			this.cachedPolygonLineWidth = lineWidth;
 		}
 	}
@@ -286,12 +283,13 @@ RegularPolygon.prototype.draw = function (context, scale) {
 
 RegularPolygon.prototype.isHit = function (context, scale, x, y) {
 	var hit;
-	var ratio = this.n / this.star;
+	var star = Math.floor(this.star);
+	var ratio = this.n / star;
 	var limit;
 	if (this.fillcolour !== undefined && this.fillcolour != "transparent" &&
 		this.outlinecolour !== undefined &&
 		ratio != 2 &&
-		(this.star == 1 || ratio != Math.floor(ratio)) &&
+		(star == 1 || ratio != Math.floor(ratio)) &&
 		!this.interiorOutline
 	) {
 		limit = this.filledPolygons.length / 2;
