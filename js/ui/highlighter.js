@@ -523,8 +523,13 @@
 						tokentext = "-" + stream.tokenText();
 						classes += "eden-number";
 					} else if (token == "/*") {
-						this.mode = 2;
-						classes += "eden-comment";
+						if (stream.peek() == 42) {
+							this.mode = 22;
+							classes += "eden-doxycomment";
+						} else {
+							this.mode = 2;
+							classes += "eden-comment";
+						}
 					} else {
 						classes += "eden-operator";
 					}
@@ -548,23 +553,23 @@
 				} else {
 					classes += "eden-path";
 				}
-			} else if (this.mode == 2) {
+			} else if (this.mode == 2 || this.mode == 22) {
 				if (token == "*/") {
 					this.mode = 0;
-					classes += "eden-comment";
-				} else if (token == "@") {
-					this.mode = 3;
+					classes += (this.mode == 2) ? "eden-comment" : "eden-doxycomment";
+				} else if (token == "@" || token == "#") {
+					this.mode = (this.mode == 2) ? 3 : 33;
 					classes += "eden-doxytag";
 				} else {
-					classes += "eden-comment";
+					classes += (this.mode == 2) ? "eden-comment" : "eden-doxycomment";
 				}
-			} else if (this.mode == 3) {
-				this.mode = 2;
-				if (Language.doxytags[stream.data.value]) {
+			} else if (this.mode == 3 || this.mode == 33) {
+				this.mode = (this.mode == 3) ? 2 : 22;
+				//if (token == "}" || token == "{" || token == "OBSERVABLE" ) { //Language.doxytags[stream.data.value]) {
 					classes += "eden-doxytag";
-				} else {
-					classes += "eden-doxytagerror";
-				}
+				//} else {
+				//	classes += "eden-doxytagerror";
+				//}
 			} else if (this.mode == 4) {
 				if (token == "OBSERVABLE" || type == "keyword") {
 					if (jskeywords.hasOwnProperty(stream.data.value)) {
