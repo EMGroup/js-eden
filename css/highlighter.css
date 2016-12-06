@@ -44,6 +44,11 @@ span.eden-number {
 	cursor: ew-resize;
 }
 
+span.eden-selector {
+	color: #75507b;
+	font-weight: bold;
+}
+
 span.eden-string {
 	color: #cc0000;
 }
