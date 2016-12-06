@@ -277,6 +277,7 @@
 		this.mode = 0;
 		this.mode_at_line = {};
 		this.heredocend = undefined;
+		this.lastmode = 0;
 	}
 
 
@@ -363,7 +364,7 @@
 
 		while (true) {
 			if (this.mode == 6) {
-				this.mode = 0;
+				this.mode = this.lastmode;
 				line = linestack.pop();
 			}
 
@@ -467,6 +468,8 @@
 					classes += "eden-keyword";
 					if (stream.data.value == "import") {
 						this.mode = 7;
+					} else if (stream.data.value == "do") {
+						this.mode = 77;
 					}
 				} else if (token == "NUMBER") {
 					classes += "eden-number";
@@ -495,10 +498,14 @@
 					} else {
 						classes += "eden-observable";
 					}
+				} else if (this.mode == 5 && token == "}") {
+					this.mode = this.lastmode;
+					classes += "eden-operator";
 				} else if (token == "`") {
 					if (this.mode == 5) {
 						this.mode = 6;
 					} else {
+						this.lastmode = this.mode;
 						this.mode = 5;
 						linestack.push(line);
 						var nline = document.createElement("span");
@@ -577,6 +584,25 @@
 					this.mode = 0;
 				} else {
 					classes += "eden-string";
+				}
+			} else if (this.mode == 77 || this.mode == 78) {
+				if (token == "{") {
+					classes += "eden-operator";
+					if (this.mode == 77) {
+						this.mode = 0;
+					} else {
+						this.lastmode = this.mode;
+						this.mode = 5;
+					}
+				} else if (token == ";") {
+					classes += "eden-operator";
+					this.mode = 0;
+				} else if (token == "::" || token == "with") {
+					classes += "eden-keyword";
+					this.mode = 0;
+				} else {
+					this.mode = 78;
+					classes += "eden-selector";
 				}
 			}
 

@@ -153,7 +153,7 @@ function runEdenAction(source, action, cb) {
 			// Call another action and block until done
 			} else if (delay.value.type == "do") {
 				// Note that getActionByName can return entire agents!
-				var stats = (delay.value.name) ? Eden.Query.querySelector(delay.value.selector) : delay.value.script.statements;
+				var stats = (delay.value.name) ? Eden.Query.querySelector(delay.value.selector, me) : delay.value.script.statements;
 				//var script = (delay.value.name) ? me.getActionByName(delay.value.name) : delay.value.script;
 				console.log("STATS",stats);
 				if (stats) {

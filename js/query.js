@@ -420,17 +420,21 @@ Eden.Query.dependencyTree = function(base) {
 	return nbase;
 }
 
-Eden.Query.querySelector = function(s) {
+Eden.Query.querySelector = function(s, ctx) {
 	console.log("SELECTOR",s);
 
 	var pathix = s.search(/[\.\:\#\>]/);
 	if (pathix == -1) pathix = s.length;
 	var path = s.substring(0,pathix).trim();
+	var script;
 
-	var ag = Eden.Agent.agents[path];
-	if (!ag) return;
-
-	var script = ag.ast.script;
+	if (ctx) {
+		script = ctx.getActionByName(path);
+	} else {
+		var ag = Eden.Agent.agents[path];
+		if (!ag) return;
+		script = ag.ast.script;
+	}
 	if (!script) return;
 	var statements = [script];
 
@@ -449,7 +453,7 @@ Eden.Query.querySelector = function(s) {
 			processNode(s.substring(1).trim());
 		} else if (s.charAt(0) == ":") {
 			var snum = parseInt(s.substring(1));
-			var stat = statements[snum];
+			var stat = statements[snum-1];
 			if (stat === undefined) statements = undefined;
 			else statements = [stat];
 			//console.log(statements);
