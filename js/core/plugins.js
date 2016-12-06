@@ -373,6 +373,8 @@
 		var pinval = pinSym.value();
 		if (pinval !== undefined) {
 			updatePin(pinSym, pinval);
+		} else {
+			this.unpinView(name);
 		}
 
 		//Allow mouse drags that position the dialog partially outside of the browser window but not over the menu bar.
