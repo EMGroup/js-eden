@@ -2656,6 +2656,8 @@ Eden.AST.For.prototype.execute = function(ctx, base, scope, agent) {
 			if (this.sstart.second) {
 				this.index = this.sstart.expression.execute(ctx,base,scope,agent);
 				this.list = this.sstart.second.execute(ctx,base,scope,agent);
+				if (this.index instanceof BoundValue) this.index = this.index.value;
+				if (this.list instanceof BoundValue) this.list = this.list.value;
 			} else {
 				this.list = this.sstart.expression.execute(ctx,base,scope,agent);
 				this.index = 0;
