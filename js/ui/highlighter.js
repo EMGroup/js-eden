@@ -801,6 +801,25 @@
 				}
 			}
 
+			// Highlight lines if mode changed
+			while (this.mode_at_line[this.line+1] !== undefined && this.mode_at_line[this.line] != this.mode_at_line[this.line+1]) {
+				this.line++;
+				var node = this.outelement.childNodes[this.line-1];
+				if (node !== undefined) {
+					//Remove existing content
+					while (node.firstChild) node.removeChild(node.firstChild);
+
+					linestart = stream.position;
+					line = this.highlightLine(ast, position);
+					lineerror = (linestart <= errstart) && (stream.position >= errend);
+					//node.className = generateLineClass(this, stream, linestart,lineerror,position);
+					node.appendChild(line);
+					var blank = document.createTextNode("\n");
+					node.appendChild(blank);
+					stream.skip();
+				}
+			}
+
 			// Now check for dirty lines to change line class
 			/*console.log(ast.lines);
 			for (var i=0; i<this.outelement.childNodes.length; i++) {
