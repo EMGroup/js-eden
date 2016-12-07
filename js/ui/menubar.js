@@ -486,7 +486,9 @@ EdenUI.MenuBar = function() {
 	});
 
 	eden.root.lookup("jseden_project_title").addJSObserver("menubar", function(sym, value) {
-		$(".jseden-title").get(0).textContent = value;
+		if (sym.last_modified_by.name != "*JavaScript") {
+			$(".jseden-title").get(0).textContent = value;
+		}
 		try {
 			if (window.localStorage) {
 				window.localStorage.setItem("title", value);
