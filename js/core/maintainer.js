@@ -38,11 +38,12 @@
 		return value;
 	}
 
-	function ScopeCache(up_to_date, value, scope) {
+	function ScopeCache(up_to_date, value, scope, override) {
 		this.up_to_date = up_to_date;
 		this.value = value;
 		this.scope = scope;
 		this.scopes = undefined;
+		this.override = override;
 	}
 
 	function BoundValue(value,scope) {
@@ -163,6 +164,13 @@
 		}
 	}
 
+	Scope.prototype.refresh = function() {
+		/* Process the overrides */
+		for (var i = 0; i < this.overrides.length; i++) {
+			this.updateOverride(this.overrides[i]);
+		}
+	}
+
 	Scope.prototype.cloneAt = function(index) {
 		var nover = [];
 
@@ -206,33 +214,33 @@
 			return symcache;
 		} else {
 			if (this.parent) {
-				//var inherit = this.parent.lookup(name);
-				//this.cache[name] = new ScopeCache(inherit.value, inherit.up_to_date, this);
-				return this.parent.lookup(name);
+				var inherit = this.parent.lookup(name);
+				this.cache[name] = new ScopeCache(inherit.override, inherit.value, inherit.scope, inherit.override);
+				return this.cache[name];
 				//return this.cache[name];
 			} else {
 				//console.log("Symbol without cache: " + name);
-				this.cache[name] = new ScopeCache(true, undefined);
+				this.cache[name] = new ScopeCache(true, undefined, undefined, false);
 				return this.cache[name];
 			}
 		}
 	}
 
 	Scope.prototype.add = function(name) {
-		var cache = new ScopeCache( false, undefined, this);
+		var cache = new ScopeCache( false, undefined, this, false);
 		this.cache[name] = cache;
 		return cache;
 	}
 
 	Scope.prototype.addOverride = function(override) {
 		this.updateOverride(override);
-		if (this.context) {
-			var sym = this.context.lookup(override.name);
+		//if (this.context) {
+		//	var sym = this.context.lookup(override.name);
 			//console.log(sym);
-			for (var d in sym.subscribers) {
-				this.updateSubscriber(d);
-			}
-		}
+		//	for (var d in sym.subscribers) {
+		//		this.updateSubscriber(d);
+		//	}
+		//}
 	}
 
 	Scope.prototype.updateOverride = function(override) {
@@ -251,11 +259,12 @@
 		}
 
 		if (this.cache[name] === undefined) {
-			this.cache[name] = new ScopeCache( true, currentval, this );
+			this.cache[name] = new ScopeCache( true, currentval, this, true);
 		} else {
 			this.cache[name].value = currentval;
 			this.cache[name].scope = this;
 			this.cache[name].up_to_date = true;
+			this.cache[name].override = true;
 		}
 	}
 
@@ -268,10 +277,10 @@
 			this.cache[name].value = undefined;
 			this.cache[name].scope = this;
 		}
-		var sym = this.context.lookup(name.substr(1));
-		for (var d in sym.subscribers) {
-			this.updateSubscriber(d);
-		}
+		//var sym = this.context.lookup(name.substr(1));
+		//for (var d in sym.subscribers) {
+		//	this.updateSubscriber(d);
+		//}
 	}
 
 	Scope.prototype.first = function() {
@@ -291,7 +300,7 @@
 
 	Scope.prototype.next = function() {
 		for (var o in this.cache) {
-			this.cache[o].up_to_date = false;
+			this.cache[o].up_to_date = this.cache[o].override;
 		}
 		for (var i = this.overrides.length-1; i >= 0; i--) {
 			var over = this.overrides[i];
@@ -308,12 +317,16 @@
 						over.current = over.start[over.index];
 					}
 					over.index++;
-					this.updateOverride(over);
+					//this.updateOverride(over);
+					this.refresh();
+					//this.cache = undefined; // FORCE REBUILD
 					return true;
 				} else {
 					over.index = 1;
 					over.current = (isbound) ? over.start.value[0] : over.start[0];
-					this.updateOverride(over);
+					//this.updateOverride(over);
+					this.refresh();
+					//this.cache = undefined; // FORCE REBUILD
 				}
 			} else {
 				if (over.current < over.end) {
@@ -322,16 +335,20 @@
 					} else {
 						over.current++;
 					}
-					this.updateOverride(over);
+					//this.updateOverride(over);
+					this.refresh();
 
 					// Make sure all other overrides are also up-to-date
-					for (var j=i-1; j >= 0; j--) {
-						this.updateOverride(this.overrides[j]);
-					}
+					//for (var j=i-1; j >= 0; j--) {
+					//	this.updateOverride(this.overrides[j]);
+					//}
+					//this.cache = undefined; // FORCE REBUILD
 					return true;
 				} else {
 					over.current = over.start;
-					this.updateOverride(over);
+					//this.updateOverride(over);
+					this.refresh();
+					//this.cache = undefined; // FORCE REBUILD
 				}
 			}
 		}
@@ -968,7 +985,7 @@
 		 */
 		this.name = name;
 
-		this.cache = (context) ? context.scope.add(name) : new ScopeCache( true, undefined );
+		this.cache = (context) ? context.scope.add(name) : new ScopeCache( true, undefined, undefined, false);
 
 		this.definition = undefined;
 		this.eden_definition = undefined;
