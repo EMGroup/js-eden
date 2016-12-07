@@ -1394,6 +1394,13 @@
 
 		//if (this.context) {
 		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
+		// TODO Loop to base scope if not override
+		while (scope.parent && !cache.override) {
+			scope = scope.parent;
+			cache.value = value;
+			cache = scope.lookup(this.name);
+		}
+
 		cache.value = value;
 		cache.up_to_date = true;
 
