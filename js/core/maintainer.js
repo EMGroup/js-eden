@@ -1296,9 +1296,11 @@
 		this.clearObservees();
 		this.clearDependencies();
 
-		//var args = [];
-		//for (var i = 2; i < arguments.length; i++) {
-		//	args.push(arguments[i]);
+		// If a "func" or "proc" then prevent going out-of-date!
+		//if (this.eden_definition.startsWith("proc ") || this.eden_definition.startsWith("func ")) {
+		//	this.cache.override = true;
+		//	this.cache.up_to_date = false;
+		//	this.value();
 		//}
 
 		this.subscribe(subscriptions);

@@ -11,7 +11,7 @@
 	padding-left: 20px;
 	/*padding-top: 4px;*/
 	padding-right: 20px;
-	z-index: 65534;
+	z-index: 2147483647;
 	box-shadow: 0 0 15px black; /*#4a6887*/
 }
 
