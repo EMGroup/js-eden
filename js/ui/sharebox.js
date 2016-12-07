@@ -149,7 +149,7 @@ EdenUI.Sharebox = function(element) {
 		//var title = me.element.find(".jseden-title").get(0).textContent;
 		var title = me.title.textContent;
 		var tagbox = me.sharebox.find(".projecttags");
-		var tagstr = tagbox.get(0).textContent;
+		var tagstr = tagbox.get(0).textContent.replace(/\u200B/g,"");
 		tagstr = tagstr.toLowerCase().replace(/[\!\'\-\?\&]/g, "").split(" ");
 
 		if (title == "New Project") {
@@ -174,7 +174,7 @@ EdenUI.Sharebox = function(element) {
 				} else {
 					me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
 				}
-			}, {thumb: me.thumbdata, tags: tagstr});
+			}, {thumb: me.thumbdata, tags: tagstr, hidden: tagstr.indexOf("hidden") >= 0});
 		});
 	});
 
@@ -182,7 +182,7 @@ EdenUI.Sharebox = function(element) {
 		//var title = me.element.find(".jseden-title").get(0).textContent;
 		var title = me.title.textContent;
 		var tagbox = me.sharebox.find(".projecttags");
-		var tagstr = tagbox.get(0).textContent;
+		var tagstr = tagbox.get(0).textContent.replace(/\u200B/g,"");
 		tagstr = tagstr.toLowerCase().replace(/[\!\'\-\?\&]/g, "").split(" ");
 
 		if (title == "New Project") {
@@ -206,7 +206,7 @@ EdenUI.Sharebox = function(element) {
 				} else {
 					me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
 				}
-			}, {publish: true, thumb: me.thumbdata, tags: tagstr});
+			}, {publish: true, thumb: me.thumbdata, tags: tagstr, hidden: tagstr.indexOf("hidden") >= 0});
 		});
 	});
 }
