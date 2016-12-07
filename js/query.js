@@ -520,6 +520,13 @@ Eden.Query.querySelector = function(s, o, ctx) {
 
 				res.push(base.getSource(stat));
 			}
+		} else if (o == "symbol") {
+			for (var i=0; i<statements.length; i++) {
+				var stat = statements[i];
+				if (stat.lvalue && stat.lvalue.name) {
+					res.push(stat.lvalue.name);
+				}
+			}
 		}
 		return res;
 	}
