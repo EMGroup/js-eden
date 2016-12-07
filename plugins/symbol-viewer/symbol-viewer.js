@@ -347,6 +347,8 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
  * @param pattern A regular expression for symbol names.
  */
 EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (searchStr, regExp, category, subtypes) {
+	if(typeof searchStr === "undefined")
+		return;
 	this.searchStr = searchStr;
 	this.searchStrLowerCase = searchStr.toLowerCase();
 	this.regExp = regExp;
