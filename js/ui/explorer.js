@@ -182,10 +182,12 @@ EdenUI.Explorer = function() {
 	var watchSym = eden.root.lookup("jseden_explorer_watch");
 	var watchVal = watchSym.value();
 	if (Array.isArray(watchVal)) {
-		this.watch(watchVal);
+		if (!this.capture) {
+			this.watch(watchVal);
+		}
 	}
 	watchSym.addJSObserver("explorer", function(sym, val) {
-		if (Array.isArray(val)) {
+		if (Array.isArray(val) && !me.capture) {
 			me.watch(val);
 		}
 	});
