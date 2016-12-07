@@ -654,7 +654,6 @@ Eden.DB.getSourceRaw = function(path, tag, callback) {
 }
 
 Eden.DB.getSource = function(path, tag, callback) {
-	//console.log("LOAD AGENT SOURCE: ", path, tag);
 	// Need to find out where to look
 	Eden.DB.getMeta(path, function(path, meta) {
 		if (meta === undefined) {

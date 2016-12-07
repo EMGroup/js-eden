@@ -1353,6 +1353,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	//console.log("RHS = " + rhs);
 	var source = base.getSource(this);
 	var sym = this.lvalue.getSymbol(ctx,base,scope);
+	var rhs;
 
 	//if (eden.peer) eden.peer.broadcast(source);
 
@@ -1362,7 +1363,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 	try {
 		if (this.lvalue.hasListIndices()) {
-			var rhs = "(function(context,scope,value) { value";
+			rhs = "(function(context,scope,value) { value";
 			rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
 			rhs += this.expression.generate(this, "scope");
 			if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
@@ -1375,7 +1376,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			}
 			sym.addExtension(this.lvalue.generateIdStr(), eval(rhs), source, undefined, deps);
 		} else {
-			var rhs = "("+this.generateDef(ctx)+")";
+			rhs = "("+this.generateDef(ctx)+")";
 			var deps = [];
 			for (var d in this.dependencies) {
 				deps.push(d);
@@ -1389,6 +1390,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 		}
 	} catch(e) {
 		var err;
+		console.log(rhs);
 		if (e.message == Eden.RuntimeError.EXTENDSTATIC) {
 			err = new Eden.RuntimeError(base, Eden.RuntimeError.EXTENDSTATIC, this, "Can only define list items if the list is defined");
 		} else {
@@ -2400,13 +2402,13 @@ Eden.AST.While.prototype.setStatement = function(statement) {
 	}
 }
 
-Eden.AST.While.prototype.generate = function(ctx) {
-	var res = "while (" + this.condition.generate(ctx,"scope");
+Eden.AST.While.prototype.generate = function(ctx, scope) {
+	var res = "while (" + this.condition.generate(ctx,scope);
 	if (this.condition.doesReturnBound && this.doesReturnBound()) {
 		res += ".value";
 	}
 	res += ") ";
-	res += this.statement.generate(ctx) + "\n";
+	res += this.statement.generate(ctx, scope) + "\n";
 	return res;
 }
 
