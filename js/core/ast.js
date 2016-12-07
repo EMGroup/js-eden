@@ -2616,18 +2616,18 @@ Eden.AST.For.prototype.setStatement = function(statement) {
 	}
 }
 
-Eden.AST.For.prototype.generate = function(ctx) {
+Eden.AST.For.prototype.generate = function(ctx,scope) {
 	var res = "for (";
 	if (this.sstart) {
-		res += this.sstart.generate(ctx) + " ";
+		res += this.sstart.generate(ctx,scope) + " ";
 	} else res += "; ";
 	if (this.condition) {
 		res += this.condition.generate(ctx, "scope") + "; ";
 	} else res += "; ";
-	var incer = this.inc.generate(ctx);
+	var incer = this.inc.generate(ctx,scope);
 	if (incer.charAt(incer.length-2) == ";") incer = incer.slice(0,-2);
 	res += incer + ")\n";
-	res += this.statement.generate(ctx);
+	res += this.statement.generate(ctx,scope);
 	return res;
 }
 
