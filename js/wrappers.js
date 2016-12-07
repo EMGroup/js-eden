@@ -151,7 +151,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 	}
 
 	if (options && options.indexOf("remove") != -1) {
-		console.log("REMOVE AGENT:", path);
+		//console.log("REMOVE AGENT:", path);
 		var ag = Eden.Agent.agents[path];
 		if (ag) Eden.Agent.remove(ag);
 		callback();
@@ -244,8 +244,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 		ag.setOptions(options);
 
 		// Force a reload? Explicit or by change of tag
-		if ((ag.meta && ag.meta.tag != tag && tag != "default") || (options && options.indexOf("reload") >= 0)) {
-
+		if ((ag.meta && ag.meta.tag != tag && ag.meta.saveID != tag && tag != "default") || (options && options.indexOf("reload") >= 0)) {
 			// Verify that there are no local changes!!!
 			if (ag.canUndo()) {
 				//console.error("MERGE PROBLEM WITH IMPORT", path);
