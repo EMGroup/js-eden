@@ -123,6 +123,8 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 		function makeRegExp() {
 			var searchLang = searchLangSym.value();
+			if(searchBox.val().startsWith("select: "))
+				return edenUI.regExpFromStr("","",false,searchLang);
 			return edenUI.regExpFromStr(searchBox, "", false, searchLang);
 		}
 
@@ -139,9 +141,11 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		};
 		setSearchLanguage(searchLangSym, searchLangSym.value());
 		searchLangSym.addJSObserver("refreshView", setSearchLanguage);
-
+		
 		var searchStrSym = root.lookup("_view_" + edenName + "_search_string");
 		var performSearch = function (sym, searchStr) {
+			if(searchStr === undefined )
+				return;
 			if (searchStr !== searchBoxElem.value) {
 				searchBoxElem.value = searchStr;
 			}
@@ -349,28 +353,53 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
 EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (searchStr, regExp, category, subtypes) {
 	if(typeof searchStr === "undefined")
 		return;
-	this.searchStr = searchStr;
-	this.searchStrLowerCase = searchStr.toLowerCase();
-	this.regExp = regExp;
-	if (category !== undefined) {
-		this.category = category;
-		this.customCategory = (category != "user" && category != "system" && category != "all");
-	}
-	if (subtypes !== undefined) {
-		this.subtypes = subtypes;
-	}
+	if(searchStr.startsWith("select: ")){
+		var listMatching = Eden.Query.querySelector(searchStr.substr(8), "symbol");
+		console.log(listMatching);
+		this.regExp = regExp;
 
-	// Clear existing results and start again
-	EdenUI.closeTooltip();
-	this.symresults.innerHTML = "";
-	this.symbols = {};
-
-	// For every js-eden symbol
-	var name, symbol;
-	for (name in this.root.symbols) {
-		if (!edenUI.plugins.SymbolViewer.isCreationPending(name)) {
-			symbol = this.root.symbols[name];
-			this.addSymbol(symbol, name);
+		this.regExp = regExp;
+		if (category !== undefined) {
+			this.category = category;
+			this.customCategory = (category != "user" && category != "system" && category != "all");
+		}
+		if (subtypes !== undefined) {
+			this.subtypes = subtypes;
+		}
+		
+		// Clear existing results and start again
+		EdenUI.closeTooltip();
+		this.symresults.innerHTML = "";
+		this.symbols = {};
+		
+		for(var i = 0; i < listMatching.length; i++){
+			var symName = listMatching[i];
+			this.addSymbol(this.root.lookup(symName),symName);
+		}
+	}else{
+		this.searchStr = searchStr;
+		this.searchStrLowerCase = searchStr.toLowerCase();
+		this.regExp = regExp;
+		if (category !== undefined) {
+			this.category = category;
+			this.customCategory = (category != "user" && category != "system" && category != "all");
+		}
+		if (subtypes !== undefined) {
+			this.subtypes = subtypes;
+		}
+		
+		// Clear existing results and start again
+		EdenUI.closeTooltip();
+		this.symresults.innerHTML = "";
+		this.symbols = {};
+		
+		// For every js-eden symbol
+		var name, symbol;
+		for (name in this.root.symbols) {
+			if (!edenUI.plugins.SymbolViewer.isCreationPending(name)) {
+				symbol = this.root.symbols[name];
+				this.addSymbol(symbol, name);
+			}
 		}
 	}
 };
