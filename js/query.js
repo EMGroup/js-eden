@@ -420,7 +420,7 @@ Eden.Query.dependencyTree = function(base) {
 	return nbase;
 }
 
-Eden.Query.querySelector = function(s, o, ctx) {
+Eden.Query.querySelector = function(s, o, ctx, cb) {
 	console.log("SELECTOR",s);
 
 	var pathix = s.search(/[\.\:\#\>]/);
@@ -442,34 +442,75 @@ Eden.Query.querySelector = function(s, o, ctx) {
 	if (!script) return [];
 	var statements = [script];
 
+	function getChildren(statements, recurse) {
+		var nstats = [];
+		for (var i=0; i<statements.length; i++) {
+			if (statements[i].type == "script") {
+				nstats.push.apply(nstats,statements[i].statements);
+				if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statements, recurse));
+			} else if (statements[i].type == "for") {
+				//if (statements[i].statement
+			} else if (statements[i].type == "if") {
+
+			} else if (statements[i].type == "when") {
+
+			} else if (statements[i].type == "while") {
+
+			} else if (statements[i].type == "do") {
+
+			}
+		}
+		return nstats;
+	}
+
 	function processNode(s) {
 		console.log("NODE",s);
+		if (!s || s == "") return;
 
+		// Go into childrne
 		if (s.charAt(0) == ">") {
-			// Go into each child
-			var nstats = [];
-			for (var i=0; i<statements.length; i++) {
-				if (statements[i].type == "script") {
-					nstats.push.apply(nstats,statements[i].statements);
-				} else if (statements[i].type == "for") {
-					//if (statements[i].statement
-				} else if (statements[i].type == "if") {
-
-				} else if (statements[i].type == "when") {
-
-				} else if (statements[i].type == "while") {
-
-				} else if (statements[i].type == "do") {
-
-				}
+			// Go to all children recursively
+			if (s.charAt(1) == ">") {
+				statements = getChildren(statements, true);
+				processNode(s.substring(2).trim());
+			// Only go to direct children
+			} else {
+				statements = getChildren(statements, false);
+				processNode(s.substring(1).trim());
 			}
-			statements = nstats;
-			processNode(s.substring(1).trim());
 		} else if (s.charAt(0) == ":") {
-			var snum = parseInt(s.substring(1));
-			var stat = statements[snum-1];
-			if (stat === undefined) statements = undefined;
-			else statements = [stat];
+			if (s.charAt(1).match(/[0-9]+/)) {
+				var s2 = s.substring(1);
+				var snum = parseInt(s2);
+				var endix = s2.search(/[^0-9]+/);
+				if (endix == -1) endix = s2.length;
+			
+				var nstats = [];
+				for (var i=0; i<statements.length; i++) {
+					var parent = statements[i].parent;
+					if (parent) {
+						if (getChildren([parent], false)[snum-1] === statements[i]) {
+							nstats.push(statements[i]);
+						}
+					}
+				}
+				statements = nstats;
+				processNode(s2.substring(endix).trim());
+			} else if (s.startsWith(":name(")) {
+				var endix = s.indexOf(")");
+				if (endix == -1) return;
+				var name = s.substring(6,endix);
+				console.log("GET NAME", name);
+				var regex = edenUI.regExpFromStr(name);
+				var nstats = [];
+				for (var i=0; i<statements.length; i++) {
+					if (statements[i].lvalue && regex.test(statements[i].lvalue.name)) {
+						nstats.push(statements[i]);
+					}
+				}
+				statements = nstats;
+				processNode(s.substring(endix+1).trim());
+			}
 			//console.log(statements);
 		} else if (s.charAt(0) == "#") {
 			var nstats = [];
@@ -484,6 +525,18 @@ Eden.Query.querySelector = function(s, o, ctx) {
 			}
 			statements = nstats;
 			processNode(s.substring(tag.length).trim());
+		} else if (s.charAt(0).match(/[a-z]+/)) {
+			var endix = s.search(/[^a-z]+/);
+			if (endix == -1) endix = s.length;
+			var name = s.substring(0,endix);
+			var nstats = [];
+			for (var i=0; i<statements.length; i++) {
+				if (statements[i].type == name) {
+					nstats.push(statements[i]);
+				}
+			}
+			statements = nstats;
+			processNode(s.substring(endix).trim());
 		}
 	}
 	processNode(s.substring(pathix).trim());

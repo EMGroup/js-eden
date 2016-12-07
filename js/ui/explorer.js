@@ -170,13 +170,26 @@ EdenUI.Explorer = function() {
 	});
 
 	var visSym = eden.root.lookup("jseden_explorer_visible");
-	var visVal = expSym.value();
+	var visVal = visSym.value();
 	if (!visVal) {
 		this.element.hide();
 	}
 	visSym.addJSObserver("explorer", function(sym, val) {
 		if (val && me.enabled) me.element.show();
 		else me.element.hide();
+	});
+
+	var watchSym = eden.root.lookup("jseden_explorer_watch");
+	var watchVal = watchSym.value();
+	if (Array.isArray(watchVal)) {
+		if (!this.capture) {
+			this.watch(watchVal);
+		}
+	}
+	watchSym.addJSObserver("explorer", function(sym, val) {
+		if (Array.isArray(val) && !me.capture) {
+			me.watch(val);
+		}
 	});
 
 	var capSym = eden.root.lookup("jseden_explorer_capture");
