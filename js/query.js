@@ -530,7 +530,7 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 				processNode(s2.substring(endix).trim());
 			} else if (s.startsWith(":name(")) {
 				var endix = s.indexOf(")");
-				if (endix == -1) return;
+				if (endix == -1) { statements = []; return; }
 				var name = s.substring(6,endix);
 				//console.log("GET NAME", name);
 				var regex = edenUI.regExpFromStr(name);
@@ -542,6 +542,42 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 				}
 				statements = nstats;
 				processNode(s.substring(endix+1).trim());
+			} else if (s.startsWith(":depends(")) {
+				var endix = s.indexOf(")");
+				if (endix == -1) { statements = []; return; }
+				var name = s.substring(9,endix);
+				//console.log("GET NAME", name);
+				var regex = edenUI.regExpFromStr(name);
+				var nstats = [];
+				for (var i=0; i<statements.length; i++) {
+					if (statements[i].type == "definition" && statements[i].dependencies[name]) {
+						nstats.push(statements[i]);
+					}
+				}
+				statements = nstats;
+				processNode(s.substring(endix+1).trim());
+			} else if (s.startsWith(":active") && (s.length == 7 ||s.charAt(7).match(/[^a-zA-Z]/))) {
+				var nstats = [];
+				for (var i=0; i<statements.length; i++) {
+					if (statements[i].type == "definition") {
+						var sym = eden.root.symbols[statements[i].lvalue.name];
+
+						if (sym && sym.eden_definition) {
+							var p = statements[i];
+							while (p.parent) p = p.parent;
+							var base = p.base;
+							var src = base.getSource(statements[i]);
+
+							if (sym.eden_definition == src) {
+								nstats.push(statements[i]);
+							}
+						}
+					}
+				}
+				statements = nstats;
+				processNode(s.substring(7).trim());
+			} else {
+				statements = [];
 			}
 			//console.log(statements);
 		} else if (s.charAt(0) == "#") {
@@ -577,40 +613,45 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 
 	// Check what kind of result we are to return
 	if (o !== undefined) {
-		var res = [];
-		if (o == "brief") {
-			for (var i=0; i<statements.length; i++) {
-				if (statements[i].doxyComment) {
-					res.push(statements[i].doxyComment.brief());
-				}
-			}
-		} else if (o.charAt(0) == "@") {
-			for (var i=0; i<statements.length; i++) {
-				if (statements[i].doxyComment) {
-					res.push(statements[i].doxyComment.getControls());
-				}
-			}
-		} else if (o == "comment") {
-			for (var i=0; i<statements.length; i++) {
-				if (statements[i].doxyComment) {
-					res.push(statements[i].doxyComment.stripped());
-				}
-			}
-		} else if (o == "source") {
-			for (var i=0; i<statements.length; i++) {
-				var stat = statements[i];
-				var p = stat;
-				while (p.parent) p = p.parent;
-				var base = p.base;
+		var kinds = (Array.isArray(o)) ? o : o.split(",");
 
-				res.push(base.getSource(stat));
-			}
-		} else if (o == "symbol") {
-			for (var i=0; i<statements.length; i++) {
-				var stat = statements[i];
-				if (stat.lvalue && stat.lvalue.name) {
-					res.push(stat.lvalue.name);
+		var res = [];
+
+		for (var i=0; i<statements.length; i++) {
+			var stat = statements[i];
+			var ires = [];
+
+			for (var j=0; j<kinds.length; j++) {
+
+				switch(kinds[j]) {
+				case "brief"	:	if (stat.doxyComment) {
+										ires.push(stat.doxyComment.brief());
+									} break;
+				case "comment"	:	if (stat.doxyComment) {
+										ires.push(stat.doxyComment.stripped());
+									}
+				case "source"	:	var p = stat;
+									while (p.parent) p = p.parent;
+									var base = p.base;
+									ires.push(base.getSource(stat));
+									break;
+				case "symbol"	:	if (stat.lvalue && stat.lvalue.name) {
+										res.push(stat.lvalue.name);
+									} break;
+				case "depends"	:
+				case "value"	:
+				case "tags"		:
+				case "rawcomment"	:
+				case "controls" :
+				case "id"		:
+				case "unique"	: break;
 				}
+
+			}
+			if (kinds.length > 1 && ires.length > 0) {
+				res.push(ires);
+			} else if (kinds.length == 1 && ires.length > 0) {
+				res.push(ires[0]);
 			}
 		}
 		return res;
