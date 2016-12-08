@@ -4,6 +4,10 @@ EdenUI.MenuBar = function() {
 	var me = this;
 	this.itemViews = {};
 
+	var obscurer = $('<div id=\"menubar-obscurer\" class=\"login-subdialog modal\" style=\"display: block;\"></div>');
+	obscurer.html("<div class=\"modal-content\" style=\"width: 290px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" name=\"logintarget\" width=\"250\" height=\"200\" class=\"menubar-login-iframe\"></iframe><br/><button class=\"jseden button-cancel\">Cancel</button></div>");
+	obscurer.hide();
+
 	eden.execute2("_views_number_created = 0;", "*Default");
 
 	// The menu bar, title and buttons...
@@ -63,8 +67,7 @@ EdenUI.MenuBar = function() {
 
 	$("#menubar-login").click(function() {
 		if (Eden.DB.isConnected() && !Eden.DB.isLoggedIn()) {
-			var obscurer = $('<div id=\"menubar-obscurer\" class=\"login-subdialog modal\" style=\"display: block;\"></div>');
-			obscurer.html("<div class=\"modal-content\" style=\"width: 290px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" name=\"logintarget\" width=\"250\" height=\"200\" class=\"menubar-login-iframe\"></iframe><br/><button class=\"jseden button-cancel\">Cancel</button></div>");
+			obscurer.show();
 			$(document.body).append(obscurer);
 			obscurer.on("click", ".button-cancel", function() {
 				obscurer.remove();
