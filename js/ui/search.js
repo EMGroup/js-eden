@@ -85,7 +85,7 @@ EdenUI.SearchBox.prototype.makeAgentResult = function(when) {
 EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 	var symstr;
 
-	console.log("MAKE STATEMENT",stat);
+	//console.log("MAKE STATEMENT",stat);
 
 	var base = stat.base;
 	if (base === undefined) {
