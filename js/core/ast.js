@@ -1358,7 +1358,8 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	//if (eden.peer) eden.peer.broadcast(source);
 
 	if (this.doxyComment) {
-		eden.dictionary[this.lvalue.name] = this.doxyComment;
+		//eden.dictionary[this.lvalue.name] = this.doxyComment;
+		eden.updateDictionary(this.lvalue.name, this.doxyComment);
 	}
 
 	try {
@@ -1564,7 +1565,8 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	this.compile(ctx);
 
 	if (this.doxyComment) {
-		eden.dictionary[this.lvalue.name] = this.doxyComment;
+		//eden.dictionary[this.lvalue.name] = this.doxyComment;
+		eden.updateDictionary(this.lvalue.name, this.doxyComment);
 	}
 
 	try {
@@ -2258,7 +2260,8 @@ Eden.AST.Action.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 
 	if (this.doxyComment) {
-		eden.dictionary[this.name] = this.doxyComment;
+		//eden.dictionary[this.name] = this.doxyComment;
+		eden.updateDictionary(this.name, this.doxyComment);
 	}
 
 	var body = this.body.generate(ctx);
@@ -2312,7 +2315,8 @@ Eden.AST.Function.prototype.execute = function(ctx,base,scope,agent) {
 	this.executed = 1;
 
 	if (this.doxyComment) {
-		eden.dictionary[this.name] = this.doxyComment;
+		//eden.dictionary[this.name] = this.doxyComment;
+		eden.updateDictionary(this.name, this.doxyComment);
 	}
 
 	var body = this.body.generate(ctx);

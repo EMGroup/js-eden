@@ -505,7 +505,10 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 					if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statement.statements, recurse));
 				}
 			} else if (statements[i].type == "do") {
-
+				if (statements[i].script && statements[i].script.type == "script") {
+					nstats.push.apply(nstats,statements[i].script.statements);
+					if (recurse) nstats.push.apply(nstats, getChildren(statements[i].script.statements, recurse));
+				}
 			}
 		}
 		return nstats;
@@ -645,7 +648,7 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 									} break;
 				case "comment"	:	if (stat.doxyComment) {
 										ires.push(stat.doxyComment.stripped());
-									}
+									} break;
 				case "source"	:	var p = stat;
 									while (p.parent) p = p.parent;
 									var base = p.base;

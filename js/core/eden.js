@@ -545,6 +545,11 @@
 		this.reportErrors = true;
 	}
 
+	Eden.prototype.updateDictionary = function(name, comment, net) {
+		this.dictionary[name] = comment;
+		if (eden.peer && !net) eden.peer.doxy(name, comment);
+	}
+
 	Eden.prototype.isValidIdentifier = function (name) {
 		return Boolean(name && /^[_a-zA-Z]\w*$/.test(name));
 	};
