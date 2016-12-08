@@ -945,6 +945,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}, 1000);
 		}
 
+		toggleTabs(undefined, agent.state[obs_showtabs]);
+
 		// Set source text.
 		agent.setSource("## "+name+"\n\
 _view_"+name+"_script = "+Eden.edenCodeForValue(agent.state[obs_script])+";\n\

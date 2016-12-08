@@ -481,13 +481,29 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 				nstats.push.apply(nstats,statements[i].statements);
 				if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statements, recurse));
 			} else if (statements[i].type == "for") {
-				//if (statements[i].statement
+				if (statements[i].statement && statements[i].statement.type == "script") {
+					nstats.push.apply(nstats,statements[i].statement.statements);
+					if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statement.statements, recurse));
+				}
 			} else if (statements[i].type == "if") {
-
+				if (statements[i].statement && statements[i].statement.type == "script") {
+					nstats.push.apply(nstats,statements[i].statement.statements);
+					if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statement.statements, recurse));
+				}
+				if (statements[i].elsestatement && statements[i].elsestatement.type == "script") {
+					nstats.push.apply(nstats,statements[i].elsestatement.statements);
+					if (recurse) nstats.push.apply(nstats, getChildren(statements[i].elsestatement.statements, recurse));
+				}
 			} else if (statements[i].type == "when") {
-
+				if (statements[i].statement && statements[i].statement.type == "script") {
+					nstats.push.apply(nstats,statements[i].statement.statements);
+					if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statement.statements, recurse));
+				}
 			} else if (statements[i].type == "while") {
-
+				if (statements[i].statement && statements[i].statement.type == "script") {
+					nstats.push.apply(nstats,statements[i].statement.statements);
+					if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statement.statements, recurse));
+				}
 			} else if (statements[i].type == "do") {
 
 			}
