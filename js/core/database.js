@@ -19,7 +19,8 @@ Eden.DB = {
 	],
 	repoindex: 0,
 	retrycount: 0,
-	connected: false
+	connected: false,
+	searchServer: "http://jseden.dcs.warwick.ac.uk"
 }
 
 Eden.DB.listeners = {};
@@ -882,6 +883,29 @@ Eden.DB.search = function(q, callback) {
 		error: function(a){
 			//console.error(a);
 			Eden.DB.disconnect(true);
+		}
+	});
+}
+
+Eden.DB.searchSelector = function(q, kind, callback) {
+	$.ajax({
+		url: this.searchServer+"/searchserver/code/search?selector="+q+"&outtype="+kind,
+		type: "get",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		success: function(data){
+			if (data) {
+				callback(data);
+				return;
+			} else {
+				callback(undefined);
+			}
+		},
+		error: function(a){
+			console.error(a);
+			//Eden.DB.disconnect(true);
 		}
 	});
 }
