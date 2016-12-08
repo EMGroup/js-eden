@@ -3,6 +3,7 @@ var express = require('express')
   , util = require('util')
   , GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
   , TwitterStrategy = require("passport-twitter")
+  , FacebookStrategy = require("passport-facebook")
  , cookieParser = require("cookie-parser")
  , bodyParser = require("body-parser")
  , methodOverride = require("method-override")
@@ -83,6 +84,16 @@ passport.use(new TwitterStrategy({
   }
 ));
 
+passport.use(new FacebookStrategy({
+	clientID: config.FACEBOOK_CLIENTID,
+	clientSecret: config.FACEBOOK_CLIENT_SECRET,
+	callbackURL: config.BASEURL + "/auth/facebook/callback"
+}, function (token, tokenSecret, profile, done){
+	process.nextTick(function(){
+		return done(null, profile);
+	});
+}
+));
 
 
 
@@ -401,8 +412,9 @@ app.get('/user/details', function(req, res){
 //   will redirect the user back to this application at /auth/google/callback
 app.get('/auth/google', passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.email'] }));
 
-
 app.get('/auth/twitter', passport.authenticate('twitter'));
+
+app.get('/auth/facebook', passport.authenticate('facebook'));
 
 // GET /auth/google/callback
 //   Use passport.authenticate() as route middleware to authenticate the
@@ -417,6 +429,13 @@ app.get('/auth/google/callback',
 
 app.get('/auth/twitter/callback', 
 		  passport.authenticate('twitter', { failureRedirect: '/login' }),
+		  function(req, res) {
+		    // Successful authentication, redirect home.
+		    res.redirect(config.BASEURL);
+		  });
+
+app.get('/auth/facebook/callback', 
+		  passport.authenticate('facebook', { failureRedirect: '/login' }),
 		  function(req, res) {
 		    // Successful authentication, redirect home.
 		    res.redirect(config.BASEURL);
