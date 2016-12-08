@@ -330,17 +330,21 @@
 
 		// Lock a dialog
 		var lockSym = view(name, 'lock');
+		var lockval = lockSym.value();
 		function updateLock(symbol, state) {
+			lockVal = state;
 			if (state) {
 				diag.siblings('.ui-dialog-titlebar').css("display","none");
 				diag.dialog("option", "resizable", false);
+				diag.dialog("option", "height", heightSym.value());
+				//heightSym.assign(diag.dialog("option", "height") - this.titleBarHeight, root.scope, agent);
 			} else {
 				diag.siblings('.ui-dialog-titlebar').css("display","block");
 				diag.dialog("option", "resizable", true);
+				diag.dialog("option", "height", heightSym.value() - me.titleBarHeight);
 			}
 		}
 		lockSym.addJSObserver("changeState",updateLock);
-		var lockval = lockSym.value();
 		if (lockval !== undefined) {
 			updateLock(lockSym, lockval);
 		}

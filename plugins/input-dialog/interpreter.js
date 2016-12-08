@@ -1827,11 +1827,12 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				// Alt key is pressed so.....
 				if (e.keyCode == 187 || e.keyCode == 61) {
 					// Alt+Plus: Zoom in
-					agent.state[obs_zoom]++;
+					console.log("ZOOM IN");
+					agent.state[obs_zoom] = agent.state[obs_zoom] + 1;
 					e.preventDefault();
 				} else if (e.keyCode == 189 || e.keyCode == 173) {
 					// Alt+Minus: Zoom out
-					agent.state[obs_zoom]--;
+					agent.state[obs_zoom] = agent.state[obs_zoom] - 1;;
 					e.preventDefault();
 				} else if (e.keyCode == 48) {
 					//Alt+0

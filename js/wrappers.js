@@ -820,7 +820,7 @@ Eden.Agent.prototype.declare = function(name, def) {
 		set: function(v) { sym.assign(v, me.scope, {name: "*JavaScript", agent: me}); }
 	});
 
-	if (def && sym.last_modified_by.name == "*None") sym.assign(def, me.scope, Symbol.defaultAgent);
+	if (def !== undefined && sym.last_modified_by.name == "*None") sym.assign(def, me.scope, Symbol.defaultAgent);
 }
 
 
@@ -891,7 +891,7 @@ Eden.Agent.prototype.executeLine = function (lineno, auto, cb) {
 	this.ast.executeLine(lineno, this, cb);
 
 	if (!auto) {
-		eden.root.lookup(this.obsname+"_execline").assign(lineno, eden.root.scope, Symbol.localJSAgent);
+		eden.root.lookup(this.obsname+"_execline").assign(lineno+1, eden.root.scope, Symbol.localJSAgent);
 		Eden.Agent.emit('executeline', [this, lineno]);
 	}
 }
