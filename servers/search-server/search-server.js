@@ -29,18 +29,15 @@ eden.root.symbols = {};
 
 var doxy = require("../../js/doxycomments.js");
 
-var vstmt = db.prepare("SELECT path, source FROM versions, agents WHERE permission = 1 AND agentid = agents.id");
 var vstmt = db.prepare("SELECT path, source FROM (SELECT saveID,agentID, source FROM (SELECT * FROM versions where permission = 1 order by agentid,saveID) GROUP BY agentid), agents where agentID = agents.id order by path");
-//"jseden1/public/* > definition"
+
 initASTDB();
 
 function initASTDB(){
 	vstmt.all(function(err,rows){
-		//	console.log(rows[0].source);
 		for(var i = 0; i < rows.length; i++){
 			var tmpAst = new Eden.AST(rows[i].source,undefined,{});
 			console.log("Parsing row " + i);
-			//console.log("Source: " + rows[i].source);
 			allKnownAgents[rows[i].path] = tmpAst;
 		}
 	});
@@ -153,16 +150,9 @@ var app = express();
 	});
   
   app.use(session({ secret: config.SESSION_SECRET }));
-  // Initialize Passport!  Also use passport.session() middleware, to support
-  // persistent login sessions (recommended).
 
   app.get('/', function(req, res){
-	  if(typeof req.user != "undefined" && req.user.id == null){
-		  res.render('registration', { user: req.user });
-
-	  }else{
-		  res.render('index', { user: req.user });
-	  }
+	  res.json(null);
   });
 
 function logErrors(err,req,res,next){
@@ -175,38 +165,6 @@ app.get('/code/search', function(req, res){
 		var srcList = Eden.Query.querySelector(req.query.selector, req.query.outtype);
 		res.json(srcList);
 });
-
-app.get('/agent/versions', function(req, res){
-	var vstmt = db.prepare("SELECT path, saveID, tag, parentSaveID, date, name, owner, versions.title, permission FROM versions, oauthusers, agents where " +
-	"path = ? AND agents.id = versions.agentID AND owner = oauthusers.id AND (oauthusers.id = ? OR permission = 1) ORDER BY date desc LIMIT 100 OFFSET ?");
-	var tmpUser = -1;
-	if(typeof req.user != "undefined")
-		tmpUser = req.user.id;
-	
-	var offset = 0;
-	if(typeof req.query.offset != "undefined")
-		offset = req.query.offset;
-	
-	vstmt.all(req.query.path, tmpUser, offset, function(err,rows){
-		for(var i = 0; i < rows.length; i++){
-			if(rows[i]["permission"] == 1)
-				rows[i]["public"] = true;
-			else
-				rows[i]["public"] = false;
-				
-			delete rows[i]["permission"];
-			
-			if(rows[i]["owner"] == tmpUser)
-				rows[i]["mine"] = true;
-			else
-				rows[i]["mine"] = false;
-
-			delete rows[i]["owner"];
-		}
-		res.json(rows);
-	});
-});
-
 
 app.listen(config.PORT);
 
