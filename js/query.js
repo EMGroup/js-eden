@@ -218,7 +218,21 @@ Eden.Query.searchViews = function(q) {
 Eden.Query.searchSymbols = function(q) {
 	var res = [];
 	for (var x in eden.root.symbols) {
-		if (q.test(x)) res.push(x);
+		if (q.test(x)) {
+			res.push(x);
+			continue;
+		}
+		if (eden.dictionary[x]) {
+			var tags = eden.dictionary[x].getHashTags();
+			if (tags) {
+				for (var i=0; i<tags.length; i++) {
+					if (q.test(tags[i])) {
+						res.push(x);
+						break;
+					}
+				}
+			}
+		}
 	}
 	return res;
 }
