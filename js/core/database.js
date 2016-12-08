@@ -50,6 +50,7 @@ Eden.DB.Meta.prototype.updateDefault = function(id, title, author, date) {
 			this.title = decoded.title;
 			this.thumb = decoded.thumb;
 			this.tags = decoded.tags;
+			this.hidden = decoded.hidden;
 		} else {
 			this.title = title;
 		}
@@ -66,6 +67,7 @@ Eden.DB.Meta.prototype.updateLatest = function(id, title, author, date) {
 			this.title = decoded.title;
 			this.thumb = decoded.thumb;
 			this.tags = decoded.tags;
+			this.hidden = decoded.hidden;
 		} else {
 			this.title = title;
 		}
@@ -83,6 +85,7 @@ Eden.DB.Meta.prototype.updatePublicLatest = function(id, title, author, date) {
 			this.title = decoded.title;
 			this.thumb = decoded.thumb;
 			this.tags = decoded.tags;
+			this.hidden = decoded.hidden;
 		} else {
 			this.title = title;
 		}
@@ -100,6 +103,7 @@ Eden.DB.Meta.prototype.updateVersion = function(saveID, tag, title, author, date
 		this.title = decoded.title;
 		this.thumb = decoded.thumb;
 		this.tags = decoded.tags;
+		this.hidden = decoded.hidden;
 	} else {
 		this.title = title;
 	}
@@ -777,7 +781,8 @@ Eden.DB.saveSource = function(title, source, cb, options) {
 	var metatitle = {
 		title: title,
 		thumb: thumb,
-		tags: tags
+		tags: tags,
+		hidden: options.hidden
 	};
 
 	

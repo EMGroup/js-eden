@@ -420,56 +420,181 @@ Eden.Query.dependencyTree = function(base) {
 	return nbase;
 }
 
-Eden.Query.querySelector = function(s, o, ctx) {
+Eden.Query.queryScripts = function(path, ctx) {
+	//console.log("PATH",path);
+	var scripts = [];
+
+	var paths = path.split(",");
+
+	for (var i=0; i<paths.length; i++) {
+		var path = paths[i].trim();
+		if (path == "/" || path == "*") {
+			var src = Eden.Generator.symbolScript();
+			var ast = new Eden.AST(src, undefined, Symbol.jsAgent);
+			scripts.push(ast.script);
+		}
+
+		if (path != "/") {
+			if (path.includes("*")) {
+				var regexp = edenUI.regExpFromStr(path, undefined, true, "simple");
+				for (var x in Eden.Agent.agents) {
+					if (regexp.test(x)) {
+						var ag = Eden.Agent.agents[x];
+						if (ag.ast) scripts.push(ag.ast.script);
+					}
+				}
+			} else {
+				// Find local action first
+				var script;
+				if (ctx) {
+					script = ctx.getActionByName(path);
+				}
+
+				// Now attempt to find exact agent...
+				if (script === undefined) {
+					var ag = Eden.Agent.agents[path];
+					if (!ag) return []
+					script = ag.ast.script;
+				}
+				if (!script) return [];
+				scripts.push(script);
+			}
+		}
+	}
+	//console.log(scripts);
+	return scripts;
+}
+
+Eden.Query.querySelector = function(s, o, ctx, cb) {
 	console.log("SELECTOR",s);
 
 	var pathix = s.search(/[\.\:\#\>]/);
 	if (pathix == -1) pathix = s.length;
 	var path = s.substring(0,pathix).trim();
 	var script;
+	var statements = Eden.Query.queryScripts(path, ctx);
 
-	// Find local action first
-	if (ctx) {
-		script = ctx.getActionByName(path);
-	}
+	function getChildren(statements, recurse) {
+		var nstats = [];
+		for (var i=0; i<statements.length; i++) {
+			if (statements[i].type == "script") {
+				nstats.push.apply(nstats,statements[i].statements);
+				if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statements, recurse));
+			} else if (statements[i].type == "for") {
+				if (statements[i].statement && statements[i].statement.type == "script") {
+					nstats.push.apply(nstats,statements[i].statement.statements);
+					if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statement.statements, recurse));
+				}
+			} else if (statements[i].type == "if") {
+				if (statements[i].statement && statements[i].statement.type == "script") {
+					nstats.push.apply(nstats,statements[i].statement.statements);
+					if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statement.statements, recurse));
+				}
+				if (statements[i].elsestatement && statements[i].elsestatement.type == "script") {
+					nstats.push.apply(nstats,statements[i].elsestatement.statements);
+					if (recurse) nstats.push.apply(nstats, getChildren(statements[i].elsestatement.statements, recurse));
+				}
+			} else if (statements[i].type == "when") {
+				if (statements[i].statement && statements[i].statement.type == "script") {
+					nstats.push.apply(nstats,statements[i].statement.statements);
+					if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statement.statements, recurse));
+				}
+			} else if (statements[i].type == "while") {
+				if (statements[i].statement && statements[i].statement.type == "script") {
+					nstats.push.apply(nstats,statements[i].statement.statements);
+					if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statement.statements, recurse));
+				}
+			} else if (statements[i].type == "do") {
 
-	// Now attempt to find agent(s)...
-	if (script === undefined) {
-		var ag = Eden.Agent.agents[path];
-		if (!ag) return []
-		script = ag.ast.script;
+			}
+		}
+		return nstats;
 	}
-	if (!script) return [];
-	var statements = [script];
 
 	function processNode(s) {
-		console.log("NODE",s);
+		//console.log("NODE",s);
+		if (!s || s == "") return;
 
+		// Go into childrne
 		if (s.charAt(0) == ">") {
-			// Go into each child
-			var nstats = [];
-			for (var i=0; i<statements.length; i++) {
-				if (statements[i].type == "script") {
-					nstats.push.apply(nstats,statements[i].statements);
-				} else if (statements[i].type == "for") {
-					//if (statements[i].statement
-				} else if (statements[i].type == "if") {
-
-				} else if (statements[i].type == "when") {
-
-				} else if (statements[i].type == "while") {
-
-				} else if (statements[i].type == "do") {
-
-				}
+			// Go to all children recursively
+			if (s.charAt(1) == ">") {
+				statements = getChildren(statements, true);
+				processNode(s.substring(2).trim());
+			// Only go to direct children
+			} else {
+				statements = getChildren(statements, false);
+				processNode(s.substring(1).trim());
 			}
-			statements = nstats;
-			processNode(s.substring(1).trim());
 		} else if (s.charAt(0) == ":") {
-			var snum = parseInt(s.substring(1));
-			var stat = statements[snum-1];
-			if (stat === undefined) statements = undefined;
-			else statements = [stat];
+			if (s.charAt(1).match(/[0-9]+/)) {
+				var s2 = s.substring(1);
+				var snum = parseInt(s2);
+				var endix = s2.search(/[^0-9]+/);
+				if (endix == -1) endix = s2.length;
+			
+				var nstats = [];
+				for (var i=0; i<statements.length; i++) {
+					var parent = statements[i].parent;
+					if (parent) {
+						if (getChildren([parent], false)[snum-1] === statements[i]) {
+							nstats.push(statements[i]);
+						}
+					}
+				}
+				statements = nstats;
+				processNode(s2.substring(endix).trim());
+			} else if (s.startsWith(":name(")) {
+				var endix = s.indexOf(")");
+				if (endix == -1) { statements = []; return; }
+				var name = s.substring(6,endix);
+				//console.log("GET NAME", name);
+				var regex = edenUI.regExpFromStr(name);
+				var nstats = [];
+				for (var i=0; i<statements.length; i++) {
+					if (statements[i].lvalue && regex.test(statements[i].lvalue.name)) {
+						nstats.push(statements[i]);
+					}
+				}
+				statements = nstats;
+				processNode(s.substring(endix+1).trim());
+			} else if (s.startsWith(":depends(")) {
+				var endix = s.indexOf(")");
+				if (endix == -1) { statements = []; return; }
+				var name = s.substring(9,endix);
+				//console.log("GET NAME", name);
+				var regex = edenUI.regExpFromStr(name);
+				var nstats = [];
+				for (var i=0; i<statements.length; i++) {
+					if (statements[i].type == "definition" && statements[i].dependencies[name]) {
+						nstats.push(statements[i]);
+					}
+				}
+				statements = nstats;
+				processNode(s.substring(endix+1).trim());
+			} else if (s.startsWith(":active") && (s.length == 7 ||s.charAt(7).match(/[^a-zA-Z]/))) {
+				var nstats = [];
+				for (var i=0; i<statements.length; i++) {
+					if (statements[i].type == "definition") {
+						var sym = eden.root.symbols[statements[i].lvalue.name];
+
+						if (sym && sym.eden_definition) {
+							var p = statements[i];
+							while (p.parent) p = p.parent;
+							var base = p.base;
+							var src = base.getSource(statements[i]);
+
+							if (sym.eden_definition == src) {
+								nstats.push(statements[i]);
+							}
+						}
+					}
+				}
+				statements = nstats;
+				processNode(s.substring(7).trim());
+			} else {
+				statements = [];
+			}
 			//console.log(statements);
 		} else if (s.charAt(0) == "#") {
 			var nstats = [];
@@ -484,6 +609,18 @@ Eden.Query.querySelector = function(s, o, ctx) {
 			}
 			statements = nstats;
 			processNode(s.substring(tag.length).trim());
+		} else if (s.charAt(0).match(/[a-z]+/)) {
+			var endix = s.search(/[^a-z]+/);
+			if (endix == -1) endix = s.length;
+			var name = s.substring(0,endix);
+			var nstats = [];
+			for (var i=0; i<statements.length; i++) {
+				if (statements[i].type == name) {
+					nstats.push(statements[i]);
+				}
+			}
+			statements = nstats;
+			processNode(s.substring(endix).trim());
 		}
 	}
 	processNode(s.substring(pathix).trim());
@@ -492,40 +629,45 @@ Eden.Query.querySelector = function(s, o, ctx) {
 
 	// Check what kind of result we are to return
 	if (o !== undefined) {
-		var res = [];
-		if (o == "brief") {
-			for (var i=0; i<statements.length; i++) {
-				if (statements[i].doxyComment) {
-					res.push(statements[i].doxyComment.brief());
-				}
-			}
-		} else if (o.charAt(0) == "@") {
-			for (var i=0; i<statements.length; i++) {
-				if (statements[i].doxyComment) {
-					res.push(statements[i].doxyComment.getControls());
-				}
-			}
-		} else if (o == "comment") {
-			for (var i=0; i<statements.length; i++) {
-				if (statements[i].doxyComment) {
-					res.push(statements[i].doxyComment.stripped());
-				}
-			}
-		} else if (o == "source") {
-			for (var i=0; i<statements.length; i++) {
-				var stat = statements[i];
-				var p = stat;
-				while (p.parent) p = p.parent;
-				var base = p.base;
+		var kinds = (Array.isArray(o)) ? o : o.split(",");
 
-				res.push(base.getSource(stat));
-			}
-		} else if (o == "symbol") {
-			for (var i=0; i<statements.length; i++) {
-				var stat = statements[i];
-				if (stat.lvalue && stat.lvalue.name) {
-					res.push(stat.lvalue.name);
+		var res = [];
+
+		for (var i=0; i<statements.length; i++) {
+			var stat = statements[i];
+			var ires = [];
+
+			for (var j=0; j<kinds.length; j++) {
+
+				switch(kinds[j]) {
+				case "brief"	:	if (stat.doxyComment) {
+										ires.push(stat.doxyComment.brief());
+									} break;
+				case "comment"	:	if (stat.doxyComment) {
+										ires.push(stat.doxyComment.stripped());
+									}
+				case "source"	:	var p = stat;
+									while (p.parent) p = p.parent;
+									var base = p.base;
+									ires.push(base.getSource(stat));
+									break;
+				case "symbol"	:	if (stat.lvalue && stat.lvalue.name) {
+										res.push(stat.lvalue.name);
+									} break;
+				case "depends"	:
+				case "value"	:
+				case "tags"		:
+				case "rawcomment"	:
+				case "controls" :
+				case "id"		:
+				case "unique"	: break;
 				}
+
+			}
+			if (kinds.length > 1 && ires.length > 0) {
+				res.push(ires);
+			} else if (kinds.length == 1 && ires.length > 0) {
+				res.push(ires[0]);
 			}
 		}
 		return res;

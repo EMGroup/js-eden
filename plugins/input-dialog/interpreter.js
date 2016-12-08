@@ -704,6 +704,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 								res += value[i].eden_definition+"\n";
 							}
 						}
+					} else if (typeof value == "string") {
+						res = value;
 					}
 					ag.setSource(res, false, -1);
 					
@@ -942,6 +944,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 			}, 1000);
 		}
+
+		toggleTabs(undefined, agent.state[obs_showtabs]);
 
 		// Set source text.
 		agent.setSource("## "+name+"\n\
@@ -1825,11 +1829,12 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				// Alt key is pressed so.....
 				if (e.keyCode == 187 || e.keyCode == 61) {
 					// Alt+Plus: Zoom in
-					agent.state[obs_zoom]++;
+					console.log("ZOOM IN");
+					agent.state[obs_zoom] = agent.state[obs_zoom] + 1;
 					e.preventDefault();
 				} else if (e.keyCode == 189 || e.keyCode == 173) {
 					// Alt+Minus: Zoom out
-					agent.state[obs_zoom]--;
+					agent.state[obs_zoom] = agent.state[obs_zoom] - 1;;
 					e.preventDefault();
 				} else if (e.keyCode == 48) {
 					//Alt+0

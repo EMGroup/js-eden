@@ -2458,6 +2458,15 @@ Eden.AST.prototype.pCODESELECTOR_P = function() {
 	} else if (this.token == ">") {
 		expr = new Eden.AST.Literal("STRING", " > ");
 		this.next();
+	} else if (this.token == ">>") {
+		expr = new Eden.AST.Literal("STRING", " >> ");
+		this.next();
+	} else if (this.token == "(") {
+		expr = new Eden.AST.Literal("STRING", "(");
+		this.next();
+	} else if (this.token == ")") {
+		expr = new Eden.AST.Literal("STRING", ")");
+		this.next();
 	}
 
 	if (expr) {
@@ -2504,7 +2513,7 @@ Eden.AST.prototype.pCODESELECTOR = function() {
 	}
 
 	// DEPRECATED, but this allows for action parameters.
-	if (this.token != ">" && this.token != ":" && this.token != "#" && this.token != "when") {
+	if (this.token != ">>" && this.token != ">" && this.token != ":" && this.token != "#" && this.token != "when") {
 		return expr;
 	}
 

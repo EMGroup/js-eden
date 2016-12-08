@@ -615,6 +615,8 @@ See LICENSE.txt
 					var thumb = meta.thumb;
 					var tags = meta.tags;
 
+					if (meta.hidden) continue;
+
 					var subtitle;
 					if (pub) {
 						subtitle = meta.author;

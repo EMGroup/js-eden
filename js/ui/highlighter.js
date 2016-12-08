@@ -844,11 +844,15 @@
 		}
 	};
 
-	EdenUI.Highlight.html = function(str) {
-		var dummy = document.createElement("span");
+	EdenUI.Highlight.html = function(str, single) {
+		var dummy = document.createElement("div");
 		var hlighter = new EdenUI.Highlight(dummy);
 		hlighter.ast = {stream: new EdenStream(str)};
 		hlighter.highlight(hlighter.ast,-1,-1,undefined);
-		return dummy.childNodes[0].innerHTML;
+		if (single) {
+			return dummy.childNodes[0].innerHTML;
+		} else {
+			return dummy.innerHTML;
+		}
 	}
 }(typeof window !== 'undefined' ? window : global));

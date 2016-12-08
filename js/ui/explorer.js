@@ -5,6 +5,7 @@ EdenUI.Explorer = function() {
 	$("#jseden-main").append(this.element);
 	this.results = this.element.find(".explore-symbols");
 	this.consoleele = this.element.find(".explore-console-code");
+	this.searchbox = this.element.find(".explorerfilter");
 
 	this.element.resizable({handles: "w"});
 
@@ -17,6 +18,7 @@ EdenUI.Explorer = function() {
 	this.mode = "tree";
 	this.index = {};
 	this.todo = {};
+	this.filter = undefined;
 
 	// Make the console...
 	this.console = new EdenUI.ScriptBox(this.consoleele.get(0), {nobuttons: true});
@@ -26,7 +28,7 @@ EdenUI.Explorer = function() {
 		//if (Object.keys(sym.dependencies).length > 0) return;
 		var name = sym.name.slice(1);
 
-		if (me.capture && (kind != Symbol.EXPIRED || me.watchobs[name] === undefined)) {
+		if (me.capture && (kind != Symbol.EXPIRED || me.watchobs[name] === undefined) && (me.filter === undefined || me.filter[name])) {
 			if (me.watchobs[name] === undefined) {
 				me.watchobs[sym.name.slice(1)] = 1;
 			} else {
@@ -170,7 +172,7 @@ EdenUI.Explorer = function() {
 	});
 
 	var visSym = eden.root.lookup("jseden_explorer_visible");
-	var visVal = expSym.value();
+	var visVal = visSym.value();
 	if (!visVal) {
 		this.element.hide();
 	}
@@ -178,6 +180,53 @@ EdenUI.Explorer = function() {
 		if (val && me.enabled) me.element.show();
 		else me.element.hide();
 	});
+
+	var searchSym = eden.root.lookup("jseden_explorer_search");
+	var searchVal = searchSym.value();
+	if (searchVal) {
+		this.searchbox.val(searchval);
+	}
+	searchSym.addJSObserver("explorer", function(sym, val) {
+		if (val !== undefined && sym.last_modified_by.name != "*JavaScript") {
+			me.searchbox.val(val);
+		}
+	});
+
+	this.searchbox.on("keyup", function(e) {
+		if (searchSym.eden_definition === undefined) {
+			searchSym.assign(e.target.value, eden.root.scope, Symbol.localJSAgent);
+		}
+	});
+
+	var watchSym = eden.root.lookup("jseden_explorer_watch");
+	var watchVal = watchSym.value();
+	if (Array.isArray(watchVal)) {
+		//if (!this.capture) {
+			//this.filter = undefined;
+			this.clear();
+			this.watch(watchVal);
+		//}
+	}
+	watchSym.addJSObserver("explorer", function(sym, val) {
+		if (Array.isArray(val)) {
+			if (me.capture) {
+				me.filter = undefined;
+			} else {
+				me.clear();
+			}
+			me.watch(val);
+		}
+	});
+
+	var zoomSym = eden.root.lookup("jseden_explorer_zoom");
+	var zoomVal = zoomSym.value();
+	zoomSym.addJSObserver("explorer", function(sym, val) {
+		if (typeof val == "number" && val > 0) {
+			var fs = 10 * val;
+			me.results.css("font-size",""+fs+"pt");
+		}
+	});
+	if (zoomVal === undefined) zoomSym.assign(1, eden.root.scope, Symbol.defaultAgent);
 
 	var capSym = eden.root.lookup("jseden_explorer_capture");
 	capSym.addJSObserver("explorer", function(sym, val) {
@@ -270,13 +319,13 @@ EdenUI.Explorer.prototype.updateEntry = function(sym, valelement, full) {
 	} else {
 		if (full) {
 			var ecode = Eden.edenCodeForValue(svalue, undefined, 2);
-			value = (ecode.length < EdenUI.Explorer.MAXHIGHLIGHTLENGTH) ? EdenUI.Highlight.html(ecode) : ecode;
+			value = (ecode.length < EdenUI.Explorer.MAXHIGHLIGHTLENGTH) ? EdenUI.Highlight.html(ecode,true) : ecode;
 		} else {
 			if (Array.isArray(svalue)) {
 				value = '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]';
 			} else {
 				var ecode = Eden.edenCodeForValue(svalue, undefined, 2);
-				value = (ecode.length < EdenUI.Explorer.MAXHIGHLIGHTLENGTH) ? EdenUI.Highlight.html(ecode) : ecode;
+				value = (ecode.length < EdenUI.Explorer.MAXHIGHLIGHTLENGTH) ? EdenUI.Highlight.html(ecode,true) : ecode;
 			}		
 		}
 		var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
@@ -322,28 +371,36 @@ EdenUI.Explorer.prototype.updateTree = function() {
 
 EdenUI.Explorer.prototype.watch = function(observables) {
 	if (this.capture) {
-		eden.root.lookup("jseden_explorer_capture").assign(false, eden.root.scope, Symbol.localJSAgent);
+		//eden.root.lookup("jseden_explorer_capture").assign(false, eden.root.scope, Symbol.localJSAgent);
 		//eden.root.lookup("jseden_explorer_clear").assign(true, eden.root.scope, Symbol.localJSAgent);
-		this.clear();
+		//this.clear();
 	}
 
+	if (this.filter === undefined && observables.length > 0) this.filter = {}; 
+
 	for (var i=0; i<observables.length; i++) {
-		this.watchobs[observables[i]] = {
-			elements: [],
-			lastupdate: 1
-		};
+		this.filter[observables[i]] = true;
+		if (!this.capture) {
+			this.watchobs[observables[i]] = {
+				elements: [],
+				lastupdate: 1
+			};
+		}
 	}
 
 	this.triggerUpdate();
 }
 
 EdenUI.Explorer.prototype.record = function() {
-	this.clear();
+	//this.clear();
+	this.watchobs = {};
+	this.triggerUpdate();
 	this.capture = true;
 }
 
 EdenUI.Explorer.prototype.clear = function() {
 	this.watchobs = {};
+	this.filter = undefined;
 	this.triggerUpdate();
 }
 

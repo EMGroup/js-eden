@@ -155,7 +155,7 @@ function runEdenAction(source, action, cb) {
 				// Note that getActionByName can return entire agents!
 				var stats = (delay.value.name) ? Eden.Query.querySelector(delay.value.selector, undefined, me) : delay.value.script.statements;
 				//var script = (delay.value.name) ? me.getActionByName(delay.value.name) : delay.value.script;
-				console.log("STATS",stats);
+				console.log("STATS",stats, delay.value.selector);
 				if (stats && stats.length > 0) {
 					//var stats = script.statements;
 					// Params are deprecated.
