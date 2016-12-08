@@ -80,9 +80,28 @@ Eden.Query.search = function(q, cb) {
 
 			if (words[0] == "select:") {
 				// Do a code selector query...
-				res.all = Eden.Query.querySelector(q.substring(words[0].length).trim());
+				var selector = q.substring(words[0].length).trim();
+				res.all = Eden.Query.querySelector(selector);
 				if (res.all === undefined) res.all = [];
 				if (cb) cb(res);
+
+				if (cb) {
+					if (Eden.Query.dbseltimeout) clearTimeout(Eden.Query.dbseltimeout);
+
+					Eden.Query.dbseltimeout = setTimeout( function() {
+						Eden.Query.dbseltimeout = undefined;
+						Eden.DB.searchSelector(selector, "source", function(results) {
+							//res.scripts.push.apply(res.scripts, results);
+							//res.scripts = reduceByCount(res.scripts, rcount);
+							//res.scripts = sortByLoaded(res.scripts);
+							//Eden.Query.mergeResults(res);
+							//if (cb) cb(res);
+							res.all.push.apply(res.all, results);
+							cb(res);
+							//console.log(results);
+						});
+					}, 500);
+				}
 				return res;
 			}
 
@@ -272,7 +291,7 @@ Eden.Query.searchScripts = function(q) {
 	var res = [];
 	for (var x in Eden.Agent.agents) {
 		if (q.test(x)) {
-			res.push(x);
+			res.push("*script"+x);
 		}
 	}
 	return res;
