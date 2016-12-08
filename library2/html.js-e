@@ -9,8 +9,11 @@
  * correct HTML mark-up or CSS.
  */
 
-##Given an EDEN list of strings, returns a string containing HTML mark-up for formatting the given
-##items as an unordered (bullet point) list.
+/**
+ * Given an EDEN list of strings, returns a string containing HTML mark-up for formatting the given
+ * items as an unordered (bullet point) list.
+ * #library #html
+ */
 func htmlBulletList {
 	para p1;
 	auto items, item, result, i;
@@ -43,8 +46,11 @@ func htmlBulletList {
 	return result;
 }
 
-##Given an EDEN list of strings, returns a string containing HTML mark-up for
-##formatting the given items as an ordered (numbered) list.
+/**
+ * Given an EDEN list of strings, returns a string containing HTML mark-up for
+ * formatting the given items as an ordered (numbered) list.
+ * #library #html
+ */
 func htmlNumberedList {
 	para p1,p2;
 	auto items, item, result, i, numberingType, start;
@@ -121,34 +127,37 @@ func htmlNumberedList {
 
 _option_global_css = false;
 
-##This procedure binds the value of CSS property to an EDEN observable.  Any future changes to the
-##value of the observable are instantaneously reflected by corresponding changes in the styling of
-##HTML content.
-##
-##The first parameter (which is optional) specifies a CSS ID (without the initial # symbol) in which
-##to limit the scope of the styling changes.  For example, a scope of "jspe_slide" would be used to
-##apply styling to the content of JSPE slides.  The second parameter specifies a CSS selector name.
-##If the selector name contains a reference to a CSS ID (#something) or a CSS class name (.something)
-##then the scope parameter can be omitted.  Otherwise it must be specified unless the
-##_option_global_css observable has been assigned the value true.  That is, by default, global stylistic changes
-##that affect, for example, all <div> tags on the screen are not permitted because this might result in
-##unforeseen effects that make the JS-EDEN environment unusable.  Even omitting a scope and using
-##a class name selector may cause unwanted effects if the class name happens to be used internally
-##by the environment's own HTML.  Nonetheless, no attempt is currently made to prohibit such a
-##situation.  However, usage of the scope parameter is strongly encouraged except when deliberately
-##trying to craft CSS that affects multiple JS-EDEN views.  If the selector name is the empty string
-##and a scope has been specified then the styling is applied to the scoping container itself, e.g.
-## #jspe_slide
-##
-##The third parameter specifies the CSS property name to affect and the forth parameter specifies
-##the name of the EDEN observable that will contain the value of the CSS property.
-##
-##Note that for the purposes of CSS precedence rules, a single property binding results in the
-##creation of a small stylesheet.  Stylesheets are added to the document in the order that the
-##relevant bindXXX procedure invocations were called.  Each stylesheet is added such that is becomes
-##the last child of the <head> element immediately after the relevent bindXXX procedure is called.
-##Binding multiple observable names to the same combination of scope, selector and property name
-##is not advised and will have undesirable effects.
+/**
+ * This procedure binds the value of CSS property to an EDEN observable.  Any future changes to the
+ * value of the observable are instantaneously reflected by corresponding changes in the styling of
+ * HTML content.
+ *
+ * The first parameter (which is optional) specifies a CSS ID (without the initial # symbol) in which
+ * to limit the scope of the styling changes.  For example, a scope of "jspe_slide" would be used to
+ * apply styling to the content of JSPE slides.  The second parameter specifies a CSS selector name.
+ * If the selector name contains a reference to a CSS ID (#something) or a CSS class name (.something)
+ * then the scope parameter can be omitted.  Otherwise it must be specified unless the
+ * _option_global_css observable has been assigned the value true.  That is, by default, global stylistic changes
+ * that affect, for example, all <div> tags on the screen are not permitted because this might result in
+ * unforeseen effects that make the JS-EDEN environment unusable.  Even omitting a scope and using
+ * a class name selector may cause unwanted effects if the class name happens to be used internally
+ * by the environment's own HTML.  Nonetheless, no attempt is currently made to prohibit such a
+ * situation.  However, usage of the scope parameter is strongly encouraged except when deliberately
+ * trying to craft CSS that affects multiple JS-EDEN views.  If the selector name is the empty string
+ * and a scope has been specified then the styling is applied to the scoping container itself, e.g.
+ *  #jspe_slide
+ *
+ * The third parameter specifies the CSS property name to affect and the forth parameter specifies
+ * the name of the EDEN observable that will contain the value of the CSS property.
+ *
+ * Note that for the purposes of CSS precedence rules, a single property binding results in the
+ * creation of a small stylesheet.  Stylesheets are added to the document in the order that the
+ * relevant bindXXX procedure invocations were called.  Each stylesheet is added such that is becomes
+ * the last child of the <head> element immediately after the relevent bindXXX procedure is called.
+ * Binding multiple observable names to the same combination of scope, selector and property name
+ * is not advised and will have undesirable effects.
+ * #library #css #html
+ */
 proc bindCSSProperty {
 	${{
 		var scope, selector, property, obsName;
