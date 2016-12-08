@@ -420,6 +420,51 @@ Eden.Query.dependencyTree = function(base) {
 	return nbase;
 }
 
+Eden.Query.queryScripts = function(path, ctx) {
+	//console.log("PATH",path);
+	var scripts = [];
+
+	var paths = path.split(",");
+
+	for (var i=0; i<paths.length; i++) {
+		var path = paths[i].trim();
+		if (path == "/" || path == "*") {
+			var src = Eden.Generator.symbolScript();
+			var ast = new Eden.AST(src, undefined, Symbol.jsAgent);
+			scripts.push(ast.script);
+		}
+
+		if (path != "/") {
+			if (path.includes("*")) {
+				var regexp = edenUI.regExpFromStr(path, undefined, true, "simple");
+				for (var x in Eden.Agent.agents) {
+					if (regexp.test(x)) {
+						var ag = Eden.Agent.agents[x];
+						if (ag.ast) scripts.push(ag.ast.script);
+					}
+				}
+			} else {
+				// Find local action first
+				var script;
+				if (ctx) {
+					script = ctx.getActionByName(path);
+				}
+
+				// Now attempt to find exact agent...
+				if (script === undefined) {
+					var ag = Eden.Agent.agents[path];
+					if (!ag) return []
+					script = ag.ast.script;
+				}
+				if (!script) return [];
+				scripts.push(script);
+			}
+		}
+	}
+	//console.log(scripts);
+	return scripts;
+}
+
 Eden.Query.querySelector = function(s, o, ctx, cb) {
 	console.log("SELECTOR",s);
 
@@ -427,20 +472,7 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 	if (pathix == -1) pathix = s.length;
 	var path = s.substring(0,pathix).trim();
 	var script;
-
-	// Find local action first
-	if (ctx) {
-		script = ctx.getActionByName(path);
-	}
-
-	// Now attempt to find agent(s)...
-	if (script === undefined) {
-		var ag = Eden.Agent.agents[path];
-		if (!ag) return []
-		script = ag.ast.script;
-	}
-	if (!script) return [];
-	var statements = [script];
+	var statements = Eden.Query.queryScripts(path, ctx);
 
 	function getChildren(statements, recurse) {
 		var nstats = [];
@@ -464,7 +496,7 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 	}
 
 	function processNode(s) {
-		console.log("NODE",s);
+		//console.log("NODE",s);
 		if (!s || s == "") return;
 
 		// Go into childrne
@@ -500,7 +532,7 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 				var endix = s.indexOf(")");
 				if (endix == -1) return;
 				var name = s.substring(6,endix);
-				console.log("GET NAME", name);
+				//console.log("GET NAME", name);
 				var regex = edenUI.regExpFromStr(name);
 				var nstats = [];
 				for (var i=0; i<statements.length; i++) {
