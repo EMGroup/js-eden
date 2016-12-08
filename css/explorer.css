@@ -224,7 +224,7 @@ div.symvalue {
 	overflow: hidden;
 }
 
-div.explore-entry-inner:hover > div.symvalue {
+div.symvalue:hover {
 	max-width: 400px;
 	white-space: pre-wrap;
 }
