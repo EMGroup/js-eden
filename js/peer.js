@@ -132,6 +132,10 @@ Eden.Peer = function(master, id) {
 		Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.setOwned(obj.owned, "net"); });
 	}
 
+	function processDoxy(obj) {
+		eden.updateDictionary(obj.symbol, new Eden.AST.DoxyComment(obj.content,0,0), true);
+	}
+
 	function processData(conn, data) {
 		var obj = JSON.parse(data);
 		obj.id = conn.peer;
@@ -152,6 +156,7 @@ Eden.Peer = function(master, id) {
 		case "reqobserve"	: processReqObserve(obj); break;
 		case "patch"		: processPatch(obj); break;
 		case "ownership"	: processOwnership(obj); break;
+		case "doxy"			: processDoxy(obj); break;
 		}
 
 		if (me.config.logging) {
@@ -327,6 +332,10 @@ Eden.Peer.prototype.authoriseWhen = function(when) {
 	} else {
 		return true;
 	}
+}
+
+Eden.Peer.prototype.doxy = function(name, comment) {
+	//this.broadcast({cmd: "doxy", symbol: name, value: comment.content});
 }
 
 Eden.Peer.prototype.assign = function(agent, sym, value) {
