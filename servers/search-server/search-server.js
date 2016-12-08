@@ -27,7 +27,7 @@ eden = {};
 eden.root = {};
 eden.root.symbols = {};
 
-var doxy = require("../../js/doxycomments.js");
+var doxy = require(config.JSEDENPATH + "js/doxycomments.js");
 
 var vstmt = db.prepare("SELECT path, source FROM (SELECT saveID,agentID, source FROM (SELECT * FROM versions where permission = 1 order by agentid,saveID) GROUP BY agentid), agents where agentID = agents.id order by path");
 
