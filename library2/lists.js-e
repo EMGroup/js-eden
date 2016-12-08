@@ -18,6 +18,7 @@
  * 
  * If the first argument is undefined then the result is undefined.
  * If more than two arguments are provided then an error is raised.
+ * #library #list
  */
 func array {
 	${{
@@ -57,6 +58,7 @@ func array {
  * alphabetical order, ascending numerical order or nested list lexicographic
  * order and a binary search algorithm will be used for increased efficiency,
  * otherwise a linear search will be used.
+ * #library #string #list #search
  */
 func positionInList {
 	${{
@@ -134,7 +136,7 @@ func positionInList {
  * Reverse a list.
  *   @param list
  *   @return Reverse of the list.
- *   #library
+ *   #library #list
  */
 func reverse {
 	para list;
@@ -176,7 +178,7 @@ func reverse {
  *   @param [lowerBound]
  *   @param [isSorted]
  *   @return Index of the value if found.
- *   #library
+ *   #library #list #string
  */
 func search {
 	para searchValue, list, compare, lowerBound, isSorted;
@@ -269,7 +271,7 @@ func search {
  *   @param list The list to be sorted.
  *   @param [order] Change direction or sorting function.
  *   @return Sorted list.
- *   #library
+ *   #library #list
  */
 func sort {
 	${{ 
@@ -408,7 +410,7 @@ func sort {
  *   @param from Start index (inclusive).
  *   @param [to] Optional end, or defaults to end of list. Can be negative.
  *   @return The sublist.
- *   #library
+ *   #library #list #string
  */
 func sublist {
 	${{
@@ -457,7 +459,7 @@ func sublist {
  * Returns a list with the first item removed.
  *   @param list Source list
  *   @return The list minus the first item.
- *   #library
+ *   #library #list #string
  */
 func tail {
 	para p1;
