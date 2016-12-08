@@ -28,6 +28,7 @@ Eden.Agent = function(parent, name, meta, options) {
 	} else {
 		this.name = name;
 	}
+	this.obsname = "_agent_"+this.name.replace(/\//g,"_");
 
 	Eden.Agent.agents[this.name] = this;
 
@@ -430,6 +431,7 @@ Eden.Agent.prototype.autoSave = function() {
 
 	this.autosavetimer = undefined;
 
+	eden.root.lookup(this.obsname+"_autosave").assign(true, eden.root.scope, Symbol.localJSAgent);
 	Eden.Agent.emit("autosave", [this]);
 }
 
@@ -691,6 +693,7 @@ Eden.Agent.prototype.loadSource = function(callback) {
 
 		me.setSource(me.snapshot);
 		if (callback) callback(true);
+		eden.root.lookup(me.obsname+"_loaded").assign(true, eden.root.scope, Symbol.localJSAgent);
 		Eden.Agent.emit("loaded", [me]);
 	} else {
 		Eden.DB.getSource(me.name, me.meta.tag, function(data, msg) {
@@ -712,6 +715,7 @@ Eden.Agent.prototype.loadSource = function(callback) {
 
 				me.setSource(me.snapshot);
 				if (callback) callback(true);
+				eden.root.lookup(me.obsname+"_loaded").assign(true, eden.root.scope, Symbol.localJSAgent);
 				Eden.Agent.emit("loaded", [me]);
 			} else {
 				if (callback) callback(false, msg);
@@ -887,6 +891,7 @@ Eden.Agent.prototype.executeLine = function (lineno, auto, cb) {
 	this.ast.executeLine(lineno, this, cb);
 
 	if (!auto) {
+		eden.root.lookup(this.obsname+"_execline").assign(lineno, eden.root.scope, Symbol.localJSAgent);
 		Eden.Agent.emit('executeline', [this, lineno]);
 	}
 }
@@ -907,6 +912,7 @@ Eden.Agent.prototype.execute = function(force, auto, cb) {
 		}
 
 		if (!auto) {
+			eden.root.lookup(this.obsname+"_execute").assign(true, eden.root.scope, Symbol.localJSAgent);
 			Eden.Agent.emit('execute', [this, force, this.meta.saveID]);
 		}
 	} else {
@@ -1039,6 +1045,7 @@ Eden.Agent.prototype.setSource = function(source, net, lineno) {
 	}
 
 	if (haschanged) {
+		eden.root.lookup(this.obsname+"_changed").assign(true, eden.root.scope, Symbol.localJSAgent);
 		Eden.Agent.emit("changed", [this, source, lineno]);
 	}
 }

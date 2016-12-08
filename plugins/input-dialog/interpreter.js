@@ -704,6 +704,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 								res += value[i].eden_definition+"\n";
 							}
 						}
+					} else if (typeof value == "string") {
+						res = value;
 					}
 					ag.setSource(res, false, -1);
 					

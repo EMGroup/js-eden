@@ -202,14 +202,31 @@ EdenUI.Explorer = function() {
 	var watchVal = watchSym.value();
 	if (Array.isArray(watchVal)) {
 		//if (!this.capture) {
+			//this.filter = undefined;
+			this.clear();
 			this.watch(watchVal);
 		//}
 	}
 	watchSym.addJSObserver("explorer", function(sym, val) {
 		if (Array.isArray(val)) {
+			if (me.capture) {
+				me.filter = undefined;
+			} else {
+				me.clear();
+			}
 			me.watch(val);
 		}
 	});
+
+	var zoomSym = eden.root.lookup("jseden_explorer_zoom");
+	var zoomVal = zoomSym.value();
+	zoomSym.addJSObserver("explorer", function(sym, val) {
+		if (typeof val == "number" && val > 0) {
+			var fs = 10 * val;
+			me.results.css("font-size",""+fs+"pt");
+		}
+	});
+	if (zoomVal === undefined) zoomSym.assign(1, eden.root.scope, Symbol.defaultAgent);
 
 	var capSym = eden.root.lookup("jseden_explorer_capture");
 	capSym.addJSObserver("explorer", function(sym, val) {
