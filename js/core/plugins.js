@@ -36,7 +36,8 @@
 	//Dimensions of various UI components.
 	EdenUI.prototype.menuBarHeight = 45;
 	EdenUI.prototype.dialogBorderWidth = 3.133;
-	EdenUI.prototype.titleBarHeight = 27.75 + EdenUI.prototype.dialogBorderWidth;
+	EdenUI.prototype.titleBarHeight = 27.75 + EdenUI.prototype.dialogBorderWidth; //41.22 for script view
+	EdenUI.prototype.largeTitleBar = 41.22 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.scrollBarSize = 14 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.scrollBarSize2 = window.innerHeight-$(window).height();
 	EdenUI.prototype.dialogFrameWidth = EdenUI.prototype.scrollBarSize + 2 * EdenUI.prototype.dialogBorderWidth;
@@ -99,6 +100,8 @@
 			}
 			this.destroyView(name, false);
 		}
+
+		this.titleBarHeight = (currentType == "ScriptView") ? this.largeTitleBar : this.titleBarHeight;
 
 		var desktopTop = this.menuBarHeight;
 		var defaultTitle = this.views[type].title;
@@ -244,6 +247,9 @@
 		function updatePosition(sym, value) {
 			me.moveView(name);
 		}
+
+		var lockSym = view(name, 'lock');
+		var lockval = lockSym.value();
  
 		widthSym = view(name, 'width');
 		widthSym.addJSObserver("plugins", updateSize);
@@ -253,7 +259,7 @@
 		var heightSym = view(name, 'height');
 		heightSym.addJSObserver("plugins", updateSize);
 		if (!heightSym.eden_definition && heightSym.value() === undefined) {
-			heightSym.assign(diag.dialog("option", "height") - this.titleBarHeight, root.scope, agent);
+			heightSym.assign(diag.dialog("option", "height") - ((lockval) ? 0 : this.titleBarHeight), root.scope, agent);
 		}
 		updateSize();
 		var topLeft = diag.closest('.ui-dialog').position();
@@ -329,19 +335,19 @@
 		}
 
 		// Lock a dialog
-		var lockSym = view(name, 'lock');
-		var lockval = lockSym.value();
 		function updateLock(symbol, state) {
 			lockVal = state;
 			if (state) {
 				diag.siblings('.ui-dialog-titlebar').css("display","none");
 				diag.dialog("option", "resizable", false);
-				diag.dialog("option", "height", heightSym.value());
+				me.resizeView(name);
+				//diag.dialog("option", "height", heightSym.value());
 				//heightSym.assign(diag.dialog("option", "height") - this.titleBarHeight, root.scope, agent);
 			} else {
 				diag.siblings('.ui-dialog-titlebar').css("display","block");
 				diag.dialog("option", "resizable", true);
-				diag.dialog("option", "height", heightSym.value() - me.titleBarHeight);
+				//diag.dialog("option", "height", heightSym.value() - me.titleBarHeight);
+				me.resizeView(name);
 			}
 		}
 		lockSym.addJSObserver("changeState",updateLock);
@@ -810,6 +816,7 @@
 		var newWidth = widthSym.value();
 		var heightSym = view(name, 'height');
 		var newHeight = heightSym.value() + this.titleBarHeight;
+		console.log("NEW HEIGHT: ",newHeight, heightSym.value());
 		var locked = view(name, 'lock');
 		var tbarheight = (locked) ? 0 : this.titleBarHeight;
 		var right = left + newWidth + this.scrollBarSize + this.dialogBorderWidth;
