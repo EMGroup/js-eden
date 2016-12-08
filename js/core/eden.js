@@ -748,9 +748,13 @@
 		} else if (value === null) {
 			code = "$" + "{{ null }}" + "$";
 		} else if (type == "string") {
-			code = "\"" + value.replace(/\\/g,"\\\\").replace(/\"/g,"\\\"") + "\"";
+			if (value.indexOf("\n") >= 0) {
+				code = "<<END\n" + value.replace(/\n/g,"\\n") + "\nEND";
+			} else {
+				code = "\"" + value.replace(/\\/g,"\\\\").replace(/\"/g,"\\\"") + "\"";
+			}
 			// NOTE: For the new parser...
-			code = code.replace(/\n/g,"\"\n\"");
+			//code = code.replace(/\n/g,"\"\n\"");
 		} else if (Array.isArray(value)) {
 			if (refStack === undefined) {
 				refStack = [];
