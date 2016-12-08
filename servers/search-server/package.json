@@ -1,0 +1,18 @@
+{
+  "name": "search-server",
+  "main": "search-server.js",
+  "dependencies" : {
+    "express" : "~4.0.0",           
+    "ejs" : "~0.8.5",               
+    "connect-flash" : "~0.1.1",     
+    "bcrypt-nodejs" : "latest",
+    
+    "sqlite3" : ">3.0.0",
+
+    "morgan": "~1.0.0",
+    "body-parser": "~1.0.0",
+    "cookie-parser": "~1.0.0",
+    "method-override": "~1.0.0",
+    "express-session": "~1.0.0"     
+  }
+}
