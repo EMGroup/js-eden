@@ -302,13 +302,13 @@ EdenUI.Explorer.prototype.updateEntry = function(sym, valelement, full) {
 	} else {
 		if (full) {
 			var ecode = Eden.edenCodeForValue(svalue, undefined, 2);
-			value = (ecode.length < EdenUI.Explorer.MAXHIGHLIGHTLENGTH) ? EdenUI.Highlight.html(ecode) : ecode;
+			value = (ecode.length < EdenUI.Explorer.MAXHIGHLIGHTLENGTH) ? EdenUI.Highlight.html(ecode,true) : ecode;
 		} else {
 			if (Array.isArray(svalue)) {
 				value = '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]';
 			} else {
 				var ecode = Eden.edenCodeForValue(svalue, undefined, 2);
-				value = (ecode.length < EdenUI.Explorer.MAXHIGHLIGHTLENGTH) ? EdenUI.Highlight.html(ecode) : ecode;
+				value = (ecode.length < EdenUI.Explorer.MAXHIGHLIGHTLENGTH) ? EdenUI.Highlight.html(ecode,true) : ecode;
 			}		
 		}
 		var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';

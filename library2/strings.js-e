@@ -769,3 +769,28 @@ func uppercase {
 		}
 	}}$;
 }
+
+/**
+ * Generate HTML from a markdown formatted text string.
+ *    @param source The markdown string.
+ *    @return HTML.
+ */
+func markdown {
+	para s;
+	${{
+	var sdown = new showdown.Converter();
+	var res = sdown.makeHtml(s);
+	return res;
+	}}$;
+}
+
+/**
+ * Generate syntax highlighting HTML from a JS-Eden source string.
+ *   @param source JS-Eden script.
+ *   @return HTML.
+ */
+func highlightScript {
+	para s;
+	${{ return EdenUI.Highlight.html(s); }}$;
+}
+
