@@ -152,7 +152,8 @@ Eden.Query.search = function(q, cb) {
 			// TODO applies to agents also
 		} else {
 			var regex = edenUI.regExpFromStr(words[i], undefined, undefined, "regexp");
-			if (dosymbols) res.symbols.push.apply(res.symbols, Eden.Query.searchSymbols(regex));
+			var regex2 = edenUI.regExpFromStr("^"+words[i], undefined, undefined, "regexp");
+			if (dosymbols) res.symbols.push.apply(res.symbols, Eden.Query.searchSymbols(regex,regex2));
 			if (doagents) res.whens.push.apply(res.whens, Eden.Query.searchWhens(regex));
 			if (doremotescripts && words[i].length > 2) {
 				(function (word) {
@@ -211,7 +212,7 @@ Eden.Query.mergeResults = function(res) {
 		for (var i=start; i<res.scripts.length; i++) {
 			if (count >= MAX-1) break;
 			count++;
-			res.all.push(res.scripts[i]);
+			res.all.push("*script"+res.scripts[i]);
 		}
 
 		count = 0;
@@ -234,25 +235,37 @@ Eden.Query.searchViews = function(q) {
 
 }
 
-Eden.Query.searchSymbols = function(q) {
+Eden.Query.searchSymbols = function(q,q2) {
 	var res = [];
+	var ressys = [];
 	for (var x in eden.root.symbols) {
+		var sym = eden.root.symbols[x];
 		if (q.test(x)) {
-			res.push(x);
+			if (sym.last_modified_by.internal) {
+				//console.log("INTERNAL", x);
+				//ressys.push(x);
+			} else {
+				res.push(x);
+			}
 			continue;
 		}
-		if (eden.dictionary[x]) {
+		if (q2 && eden.dictionary[x]) {
 			var tags = eden.dictionary[x].getHashTags();
 			if (tags) {
 				for (var i=0; i<tags.length; i++) {
-					if (q.test(tags[i])) {
-						res.push(x);
+					if (q2.test(tags[i])) {
+						if (sym.last_modified_by.internal) {
+							//ressys.push(x);
+						} else {
+							res.push(x);
+						}
 						break;
 					}
 				}
 			}
 		}
 	}
+	//res.push.apply(res, ressys);
 	return res;
 }
 
@@ -289,9 +302,9 @@ Eden.Query.searchProjects = function(q) {
 
 Eden.Query.searchScripts = function(q) {
 	var res = [];
-	for (var x in Eden.Agent.agents) {
+	for (var x in Eden.DB.meta) {
 		if (q.test(x)) {
-			res.push("*script"+x);
+			res.push(x);
 		}
 	}
 	return res;

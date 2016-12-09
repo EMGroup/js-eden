@@ -802,7 +802,7 @@ Eden.DB.saveSource = function(title, source, cb, options) {
 
 			meta.title = JSON.stringify(metatitle);
 
-			Eden.DB.upload(path,meta,status.source,"v1",true,function() {
+			Eden.DB.upload(path,meta,status.source,(options && options.official) ? "OFFICIAL" : "v1",true,function() {
 				var url = "?load="+path+"&tag="+meta.saveID;
 				status.path = path;
 				status.saveID = meta.saveID;
@@ -870,6 +870,7 @@ Eden.DB.search = function(q, callback) {
 				return;
 			} else if (data) {
 				var results = [];
+				Eden.DB.processManifestList(data, true);
 				for (var i=0; i<data.length; i++) {
 					results.push(data[i].path);
 				}

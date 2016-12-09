@@ -206,7 +206,7 @@ EdenUI.Sharebox = function(element) {
 				} else {
 					me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
 				}
-			}, {publish: true, thumb: me.thumbdata, tags: tagstr, hidden: tagstr.indexOf("hidden") >= 0});
+			}, {publish: true, thumb: me.thumbdata, tags: tagstr, hidden: tagstr.indexOf("hidden") >= 0, official: tagstr.indexOf("OFFICIAL") >= 0});
 		});
 	});
 }

@@ -782,7 +782,7 @@ Eden.Agent.prototype.setWriteonly = function(wo) {
 			Object.defineProperty(this.state, name, {
 				enumerable: true,
 				get: function() { return sym.value(me.scope); },
-				set: function(v) { sym.assign(v, me.parent.scope, {name: "*JavaScript", agent: me}); }
+				set: function(v) { sym.assign(v, me.parent.scope, {name: "*JavaScript", internal: true, agent: me}); }
 			});
 		}).call(this, sym, wo[i]);
 	}
@@ -802,7 +802,7 @@ Eden.Agent.prototype.setReadWrite = function(rw) {
 			Object.defineProperty(this.state, name, {
 				enumerable: true,
 				get: function() { return sym.value(me.parent.scope); },
-				set: function(v) { sym.assign(v, me.parent.scope, {name: "*JavaScript", agent: me}); }
+				set: function(v) { sym.assign(v, me.parent.scope, {name: "*JavaScript", internal: true, agent: me}); }
 			});
 		}).call(this, sym, rw[i]);
 	}
@@ -817,7 +817,7 @@ Eden.Agent.prototype.declare = function(name, def) {
 	Object.defineProperty(this.state, name, {
 		enumerable: true,
 		get: function() { return sym.value(me.scope); },
-		set: function(v) { sym.assign(v, me.scope, {name: "*JavaScript", agent: me}); }
+		set: function(v) { sym.assign(v, me.scope, {name: "*JavaScript", internal: true, agent: me}); }
 	});
 
 	if (def !== undefined && sym.last_modified_by.name == "*None") sym.assign(def, me.scope, Symbol.defaultAgent);
