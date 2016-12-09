@@ -60,7 +60,7 @@ Eden.Query.search = function(q, cb) {
 	var doagents = true;
 	var doprojects = false;
 	var dolocalscripts = true;
-	var doremotescripts = false;
+	var doremotescripts = true;
 	var dohash = true;
 	var dofuncs = true;
 
@@ -241,7 +241,7 @@ Eden.Query.searchSymbols = function(q,q2) {
 	for (var x in eden.root.symbols) {
 		var sym = eden.root.symbols[x];
 		if (q.test(x)) {
-			if (sym.last_modified_by.internal) {
+			if (sym.last_modified_by.internal || x.charAt(0) == "_") {
 				//console.log("INTERNAL", x);
 				//ressys.push(x);
 			} else {
@@ -254,7 +254,7 @@ Eden.Query.searchSymbols = function(q,q2) {
 			if (tags) {
 				for (var i=0; i<tags.length; i++) {
 					if (q2.test(tags[i])) {
-						if (sym.last_modified_by.internal) {
+						if (sym.last_modified_by.internal || x.charAt(0) == "_") {
 							//ressys.push(x);
 						} else {
 							res.push(x);
