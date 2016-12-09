@@ -152,7 +152,8 @@ Eden.Query.search = function(q, cb) {
 			// TODO applies to agents also
 		} else {
 			var regex = edenUI.regExpFromStr(words[i], undefined, undefined, "regexp");
-			if (dosymbols) res.symbols.push.apply(res.symbols, Eden.Query.searchSymbols(regex));
+			var regex2 = edenUI.regExpFromStr("^"+words[i], undefined, undefined, "regexp");
+			if (dosymbols) res.symbols.push.apply(res.symbols, Eden.Query.searchSymbols(regex,regex2));
 			if (doagents) res.whens.push.apply(res.whens, Eden.Query.searchWhens(regex));
 			if (doremotescripts && words[i].length > 2) {
 				(function (word) {
@@ -234,26 +235,27 @@ Eden.Query.searchViews = function(q) {
 
 }
 
-Eden.Query.searchSymbols = function(q) {
+Eden.Query.searchSymbols = function(q,q2) {
 	var res = [];
 	var ressys = [];
 	for (var x in eden.root.symbols) {
 		var sym = eden.root.symbols[x];
 		if (q.test(x)) {
 			if (sym.last_modified_by.internal) {
-				ressys.push(x);
+				//console.log("INTERNAL", x);
+				//ressys.push(x);
 			} else {
 				res.push(x);
 			}
 			continue;
 		}
-		if (eden.dictionary[x]) {
+		if (q2 && eden.dictionary[x]) {
 			var tags = eden.dictionary[x].getHashTags();
 			if (tags) {
 				for (var i=0; i<tags.length; i++) {
-					if (q.test(tags[i])) {
+					if (q2.test(tags[i])) {
 						if (sym.last_modified_by.internal) {
-							ressys.push(x);
+							//ressys.push(x);
 						} else {
 							res.push(x);
 						}
@@ -263,7 +265,7 @@ Eden.Query.searchSymbols = function(q) {
 			}
 		}
 	}
-	res.push.apply(res, ressys);
+	//res.push.apply(res, ressys);
 	return res;
 }
 
