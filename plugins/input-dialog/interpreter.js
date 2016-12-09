@@ -1423,10 +1423,15 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			gutter.generate(ast,lineno);
 
 			// Process the scripts main doxy comment for changes.
-			if (ast.mainDoxyComment && (lineno == -1 || (lineno >= 1 && lineno <= ast.mainDoxyComment.endline))) {
+			if (ast.mainDoxyComment) { // && (lineno == -1 || (lineno >= 1 && lineno <= ast.mainDoxyComment.endline))) {
 				// Find all doc tags
 				var taglines = ast.mainDoxyComment.content.match(/@[a-z]+.*\n/ig);
-				if (taglines) {
+				var tagix = ast.mainDoxyComment.content.search("@title");
+				if (tagix >= 0) {
+					var content = ast.mainDoxyComment.content.substr(tagix+7).split("\n")[0].trim();
+					setTitle(content);
+				}
+				/*if (taglines) {
 					for (var i=0; i<taglines.length; i++) {
 						// Extract tag and content
 						var ix = taglines[i].search(/\s/);
@@ -1440,7 +1445,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 							}
 						}
 					}
-				}
+				}*/
 			}
 
 			// Make sure caret remains inactive if we don't have focus
@@ -2438,7 +2443,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		var simpleName = name.slice(0, -7);
 		var viewdata = me.createCommon(simpleName, mtitle, code, false, false);
 
-		var idealheight = 305;
+		var idealheight = 405;
 		if (code) {
 			var linecount = viewdata.contents.find("textarea").val().split("\n").length;
 			idealheight = EdenUI.plugins.ScriptInput.getRequiredHeight(linecount + 1);
@@ -2449,7 +2454,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			.dialog({
 				appendTo: "#jseden-views",
 				title: mtitle,
-				width: 500,
+				width: 600,
 				height: idealheight,
 				minHeight: 203,
 				minWidth: 300,

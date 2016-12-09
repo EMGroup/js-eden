@@ -874,3 +874,9 @@ div.menubar-button.maker.active {
 	text-shadow: 0 0 10px #f57900;
 }
 
+span.search-scriptres {
+	font-family: "FontAwesome";
+	margin-right: 10px;
+	font-size: 16pt;
+}
+
