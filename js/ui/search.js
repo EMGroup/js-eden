@@ -5,7 +5,19 @@ EdenUI.SearchBox = function(element) {
 
 	element.on("click", ".menubar-search-result", function(e) {
 		var obs = e.currentTarget.getAttribute("data-obs");
-		me.updateSymbolDetails($(e.currentTarget), obs);
+		var script = e.currentTarget.getAttribute("data-script");
+		if (obs && obs != "") {
+			me.updateSymbolDetails($(e.currentTarget), obs);
+		} else if (script && script != "") {
+			Eden.Agent.importAgent(script, "default", ["noexec"], function() {
+				edenUI.gotoCode(script, -1);
+			});
+		}
+	});
+
+	element.on('click', '.edit-result', function(e) {
+		//console.log(e);
+		edenUI.gotoCode("/"+e.target.parentNode.parentNode.getAttribute("data-obs"),-1);
 	});
 };
 
@@ -42,7 +54,7 @@ EdenUI.SearchBox.prototype.makeSymbolResult = function(name) {
 		}
 	}
 
-	var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
+	var ctrlstr = '<div class="menubar-search-rescontrols"><span class="edit-result">&#xf044;</span><span>&#xf06e;</span></div>';
 
 	var docstr = "";
 	if (eden.dictionary[name]) {
@@ -118,15 +130,47 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 	return ele;
 }
 
-EdenUI.SearchBox.prototype.makeScriptResult = function(script) {
+EdenUI.SearchBox.prototype.makeSourceResult = function(stat) {
 	var symstr;
 
-	symstr = '<b>script</b> ' + script;
+	//console.log("MAKE STATEMENT",stat);
+
+	symstr = stat;
 	if (symstr.length > 55) {
 		symstr = symstr.substr(0,55) + "...";
 	}
 
 	var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
+
+	var docstr = "";
+	/*if (stat.doxyComment) {
+		var stripped = stat.doxyComment.brief();
+		if (stripped && stripped.length > 0) {
+			docstr = '<div class="doxy-search-details"><p>'+stripped+'</p></div>';
+		}
+	}*/
+
+	var ele = $('<div class="menubar-search-result">'+EdenUI.Highlight.html(symstr)+ctrlstr+docstr+'</div>');
+	return ele;
+}
+
+EdenUI.SearchBox.prototype.makeScriptResult = function(script) {
+	var symstr;
+
+	var meta = Eden.DB.meta[script];
+
+	if (meta && meta.title && meta.title != "Script View" && meta.title != "Agent") {
+		symstr = meta.title;
+	} else {
+		symstr = script;
+	}
+	if (symstr.length > 55) {
+		symstr = symstr.substr(0,55) + "...";
+	}
+
+	symstr = '<span class="search-scriptres">&#xf15c;</span> ' + symstr;
+
+	var ctrlstr = '<div class="menubar-search-rescontrols"><span class="edit-result">&#xf044;</span><span>&#xf06e;</span></div>';
 
 	var docstr = "";
 	if (Eden.Agent.agents[script]) {
@@ -181,8 +225,10 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 					}
 				} else if (res.all[i].charAt(0) == "/") {
 					ele = me.makeSymbolResult(res.all[i].slice(1))
+				} else if (res.all[i].startsWith("*script")) {
+					ele = me.makeScriptResult(res.all[i].substring(7));
 				} else {
-					ele = me.makeScriptResult(res.all[i]);
+					ele = me.makeSourceResult(res.all[i]);
 				}
 				symresults.append(ele);
 			}
@@ -221,8 +267,10 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 							}
 						} else if (res.all[i].charAt(0) == "/") {
 							ele = me.makeSymbolResult(res.all[i].slice(1))
+						}  else if (res.all[i].startsWith("*script")) {
+							ele = me.makeScriptResult(res.all[i].substring(7));
 						} else {
-							ele = me.makeScriptResult(res.all[i]);
+							ele = me.makeSourceResult(res.all[i]);
 						}
 						symresults.append(ele);
 					}

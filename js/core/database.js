@@ -19,7 +19,8 @@ Eden.DB = {
 	],
 	repoindex: 0,
 	retrycount: 0,
-	connected: false
+	connected: false,
+	searchServer: "http://jseden.dcs.warwick.ac.uk"
 }
 
 Eden.DB.listeners = {};
@@ -801,7 +802,7 @@ Eden.DB.saveSource = function(title, source, cb, options) {
 
 			meta.title = JSON.stringify(metatitle);
 
-			Eden.DB.upload(path,meta,status.source,"v1",true,function() {
+			Eden.DB.upload(path,meta,status.source,(options && options.official) ? "OFFICIAL" : "v1",true,function() {
 				var url = "?load="+path+"&tag="+meta.saveID;
 				status.path = path;
 				status.saveID = meta.saveID;
@@ -869,6 +870,7 @@ Eden.DB.search = function(q, callback) {
 				return;
 			} else if (data) {
 				var results = [];
+				Eden.DB.processManifestList(data, true);
 				for (var i=0; i<data.length; i++) {
 					results.push(data[i].path);
 				}
@@ -882,6 +884,29 @@ Eden.DB.search = function(q, callback) {
 		error: function(a){
 			//console.error(a);
 			Eden.DB.disconnect(true);
+		}
+	});
+}
+
+Eden.DB.searchSelector = function(q, kind, callback) {
+	$.ajax({
+		url: this.searchServer+"/searchserver/code/search?selector="+q+"&outtype="+kind,
+		type: "get",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		success: function(data){
+			if (data) {
+				callback(data);
+				return;
+			} else {
+				callback(undefined);
+			}
+		},
+		error: function(a){
+			console.error(a);
+			//Eden.DB.disconnect(true);
 		}
 	});
 }

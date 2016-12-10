@@ -187,7 +187,7 @@ div.menubar-button:hover {
 }
 
 
-div#eden-logo {
+a#eden-logo {
 	position: absolute;
 	top: 8px;
 	left: 40px;
@@ -872,5 +872,11 @@ div.doxy-parameter-details {
 div.menubar-button.maker.active {
 	color: #f57900;
 	text-shadow: 0 0 10px #f57900;
+}
+
+span.search-scriptres {
+	font-family: "FontAwesome";
+	margin-right: 10px;
+	font-size: 16pt;
 }
 

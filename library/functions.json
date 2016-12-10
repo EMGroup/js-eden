@@ -1556,6 +1556,11 @@
 			"return": "",
 			"description": ""
 		},
+		"midiInputs": {
+			"parameters": { },
+			"return": "",
+			"description": ""
+		},
 		"midiOutputs": {
 			"parameters": { },
 			"return": "",
@@ -1783,7 +1788,7 @@
 		"bindMIDIControl": {
 			"parameters": {
 				"pointer_to_value": "",
-				"[[device_number]": "",
+				"[[device_number_or_name]": "",
 				"channel_number]": "",
 				"control_number_or_name": ""
 			}
@@ -1794,30 +1799,41 @@
 				"[pointer_to_note": "",
 				"pointer_to_velocity": "",
 				"[pointer_to_is_struck]]": "",
-				"[[device_number]": "",
+				"[[device_number_or_name]": "",
 				"channel_number]": ""
 			}
 		},
 		"bindMIDIPrograms": {
 			"parameters": {
 				"pointer_to_instrument_number_list": "",
-				"[device_number]": ""
+				"[device_number_or_name]": ""
 			}
+		},
+		"clearMIDIMessages": {
+			"parameters": { }
+		},
+		"fetchMIDIMessage": {
+			"parameters": { }
 		},
 		"initializeMIDI": {
 			"parameters": { }
 		},
 		"loadMIDIPrograms": {
 			"parameters": {
-				"[device_number]": "",
+				"[device_number_or_name]": "",
 				"list_of_programs_or_program1...": ""
 			}
 		},
 		"playMIDI": {
 			"parameters": {
-				"[[device_number]": "",
+				"[[device_number_or_name]": "",
 				"delay_in_milliseconds]": "",
 				"midi_message_list": ""
+			}
+		},
+		"startMIDIInput": {
+			"parameters": {
+				"[device_number_or_name]": ""
 			}
 		}
 	}

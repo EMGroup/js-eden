@@ -51,6 +51,8 @@ module.exports = function (grunt) {
 			files: {
 				'./plugins/jseden-plugins.min.css': [
 					'css/menu-bar.css',
+					'css/explorer.css',
+					'css/scriptbox.css',
 					'plugins/canvas-html5/canvas.css',
 					'plugins/page/page.css',
 					'plugins/symbol-viewer/symbol-viewer.css',
@@ -99,13 +101,19 @@ module.exports = function (grunt) {
 					'./js/wrappers.js',
 					'./js/peer.js',
 					'./js/query.js',
-					'./js/generator.js'
+					'./js/generator.js',
+					'./js/doxycomments.js'
 				],
 				'./js/ui/jseden-ui.min.js': [
 					'./js/ui/highlighter.js',
 					'./js/ui/contextmenu.js',
 					'./js/ui/menubar.js',
-					'./js/ui/dialogs.js'
+					'./js/ui/dialogs.js',
+					'./js/ui/notifications.js',
+					'./js/ui/sharebox.js',
+					'./js/ui/search.js',
+					'./js/ui/scriptbox.js',
+					'./js/ui/explorer.js'
 				],
 				'./plugins/jseden-plugins.min.js': [
 					'./js/util/css.js',
@@ -135,8 +143,9 @@ module.exports = function (grunt) {
 					'./plugins/dbview/dbview.js',
 					'./plugins/speech-synthesis/speech-synthesis.js',
 					'./plugins/midi/midi.js',
+					'./plugins/debugger/debugger.js',
 					'./plugins/midi/emulation/midi.js-bridge.js',
-					'./plugins/debugger/debugger.js'
+					'./plugins/midi/emulation/midi-file.js'
 				]}
 		}
 	},
