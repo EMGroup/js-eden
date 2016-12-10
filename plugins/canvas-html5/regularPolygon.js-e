@@ -196,7 +196,7 @@ func RegularPolygon {
 		var y = arguments[1];
 		var r = arguments[2];
 		var n = arguments[3];
-		var star, rotation, interiorOutline = true;
+		var star, rotation, interiorOutline;
 		var fillcolour, outlinecolour, drawingOptions;
 		var argsProcessed = 4;
 		if (typeof(arguments[4]) == "number") {
@@ -247,9 +247,12 @@ func RegularPolygon {
 		}
 
 		if (outlinecolour === undefined) {
-			if (fillcolour === undefined) {
+			if (fillcolour === undefined || interiorOutline) {
 				outlinecolour = "black";
 			}
+		}
+		if (interiorOutline === undefined) {
+			interiorOutline = true;
 		}
 
 		if (drawingOptions !== undefined) {
