@@ -143,8 +143,9 @@ module.exports = function (grunt) {
 					'./plugins/dbview/dbview.js',
 					'./plugins/speech-synthesis/speech-synthesis.js',
 					'./plugins/midi/midi.js',
+					'./plugins/debugger/debugger.js',
 					'./plugins/midi/emulation/midi.js-bridge.js',
-					'./plugins/debugger/debugger.js'
+					'./plugins/midi/emulation/midi-file.js'
 				]}
 		}
 	},
