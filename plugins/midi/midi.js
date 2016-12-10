@@ -98,10 +98,17 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		}
 	}
 
+	this.addSoftInput = function (input) {
+		inputs.push(input);
+		numInputsSym.assign(inputs.length);
+		console.log('Added software input "' + input.name + '".');
+	}
+
 	/*The number of the default MIDI output device to play music through when the device is not
 	 *explicitly indicated by the arguments of a procedure invocation.
 	 */
 	var defaultOutput = 0;
+	var defaultInput = 0;
 
 	Object.defineProperty(this, "outputNames", {
 		get: function () {
@@ -110,6 +117,17 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 				outputNames.push(outputs[i].name);
 			}
 			return outputNames;
+		},
+		enumerable: true
+	});
+
+	Object.defineProperty(this, "inputNames", {
+		get: function () {
+			var inputNames = [];
+			for (var i = 0; i < inputs.length; i++) {
+				inputNames.push(inputs[i].name);
+			}
+			return inputNames;
 		},
 		enumerable: true
 	});
@@ -124,12 +142,35 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 						return i;
 					}
 				}
+				throw new Error("No MIDI output device exists with device name " + outputNum);
+			} else {
+				throw new Error("The output device must be given as a positive integer.");
 			}
-			throw new Error("The output device must be given as a positive integer.");
 		} else if (outputNum < 1 || (initialized && outputNum > outputs.length)) {
 			throw new Error("No MIDI output device exists with device number " + outputNum);
 		} else {
 			return outputNum - 1;
+		}
+	}
+
+	function resolveInputNumber(inputNum) {
+		if (inputNum === undefined) {
+			return defaultInput;
+		} else if (!Number.isInteger(inputNum)) {
+			if (initialized && typeof(inputNum) == "string") {
+				for (var i = 0; i < inputs.length; i++) {
+					if (inputNum == inputs[i].name) {
+						return i;
+					}
+				}
+				throw new Error("No MIDI input device exists with device name " + inputNum);
+			} else {
+				throw new Error("The input device must be given as a positive integer.");
+			}
+		} else if (inputNum < 1 || (initialized && inputNum > inputs.length)) {
+			throw new Error("No MIDI input device exists with device number " + inputNum);
+		} else {
+			return inputNum - 1;
 		}
 	}
 
@@ -298,27 +339,6 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 
 	};
 	
-	this.startMIDILogging = function(inpNum){
-		if(typeof(inpNum) == 'number'){
-			inputs[inpNum].onmidimessage = this.inputMessageReceived;
-		}else{
-			for(i = 0; i < inputs.length; i++)
-				inputs[i].onmidimessage = this.inputMessageReceived;
-		}
-	}
-	
-	this.inputMessageReceived = function(event){
-		
-		var agent = root.lookup("startMIDIInput");
-		var midiArr = [];
-		midiArr.push(event.timeStamp);
-		midiArr.push(inputs.indexOf(event.srcElement));
-		for(var i = 0; i < event.data.length; i++){
-			midiArr[i+2] = event.data[i];
-		}
-		root.lookup("midiInput").assign(midiArr,agent);
-	}
-
 	this.mergeMessageLists = function (messageLists) {
 		var filteredMessageLists = [];
 		for (var i = 0; i < messageLists.length; i++) {
@@ -471,7 +491,95 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		symbol.addJSObserver("bind", setControl);
 	}
 
-	//edenUI.eden.include("plugins/midi/midi.js-e", success);
+	var minInputQueueLength = 16;
+	var inputEvents = new Array(minInputQueueLength);
+	var inputDeviceSym = root.lookup("midiInputDevice");
+	var inputTimestampSym = root.lookup("midiInputTimestamp");
+	var inputMessageSym = root.lookup("midiInputMessage");
+	var inputMessageCount = 0;
+	var inputMessagesRead = 0;
+	var inputMessageCountSym = root.lookup("midiInputMessageCount");
+
+	function inputMessageReceived(event) {
+		var agent = root.lookup("startMIDIInput");
+		if (inputMessageCount == inputMessagesRead) {
+			//Empty message queue, add this event as first element.
+			if (inputEvents.length > minInputQueueLength) {
+				inputEvents = new Array(minInputQueueLength);
+			}
+			inputEvents[0] = event;
+			inputMessageCount = 1;
+			inputMessagesRead = 0;
+		} else {
+			//Find where to insert the event into the queue in chronological order.
+			var i;
+			var timestamp = event.timeStamp;
+			for (i = inputMessageCount - 1; i >= inputMessagesRead; i--) {
+				if (inputEvents[i].timeStamp <= timestamp) {
+					break;
+				}
+			}
+			if (i == inputMessageCount - 1) {
+				//Add to the end of the queue.
+				inputEvents[inputMessageCount] = event;
+			} else {
+				//Insert into the middle of the queue.
+				inputEvents.splice(i + 1, 0, event);
+			}
+			inputMessageCount++;
+		}
+		inputMessageCountSym.assign(inputMessageCount - inputMessagesRead);		
+	}
+
+	this.startInput = function (inputNum) {
+		if (inputNum === undefined) {
+			for (i = 0; i < inputs.length; i++) {
+				inputs[i].onmidimessage = inputMessageReceived;
+			}
+		} else {
+			inputNum = resolveInputNumber(inputNum);
+			inputs[inputNum].onmidimessage = inputMessageReceived;
+		}
+	}
+
+	this.fetchInputMessage = function() {
+		if (inputMessagesRead == inputMessageCount) {
+			return;
+		}
+
+		var agent = root.lookup("startMIDIInput");
+		var event = inputEvents[inputMessagesRead];
+		var arrayLen = inputEvents.length;
+		inputMessagesRead++;
+		if (arrayLen >=  2 * minInputQueueLength && inputMessagesRead > 0.8 * arrayLen - 1) {
+			//Garbage collection to stop the queue growing too long.
+			inputEvents.splice(0, inputMessagesRead);
+			inputMessageCount = inputMessageCount - inputMessagesRead;
+			inputMessagesRead = 0;
+		}
+		
+		var source = event.target;
+		var inputName;
+		if (source) {
+			inputName = source.name;
+		}
+		root.beginAutocalcOff();
+		inputDeviceSym.assign(inputName, agent);
+		inputTimestampSym.assign(event.timeStamp, agent);
+		inputMessageSym.assign(event.data);
+		inputMessageCountSym.assign(inputMessageCount - inputMessagesRead);
+		root.endAutocalcOff();
+	}
+
+	this.clearInputMessages = function () {
+		if (inputEvents.length > minInputQueueLength) {
+			inputEvents = new Array(minInputQueueLength);
+		}
+		inputMessageCount = 0;
+		inputMessagesRead = 0;
+		inputMessageCountSym.assign(0);
+	}
+
 	Eden.Agent.importAgent("plugins/midi", "default", [], success);
 }
 EdenUI.plugins.MIDI.title = "MIDI";
