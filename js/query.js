@@ -701,7 +701,7 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 									ires.push(base.getSource(stat));
 									break;
 				case "symbol"	:	if (stat.lvalue && stat.lvalue.name) {
-										res.push(stat.lvalue.name);
+										ires.push(stat.lvalue.name);
 									} break;
 				case "depends"	:
 				case "value"	:
