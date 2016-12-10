@@ -520,6 +520,37 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 	var script;
 	var statements = Eden.Query.queryScripts(path, ctx);
 
+	function testType(expr) {
+		if (expr.type == "binaryop") {
+			switch(expr.op) {
+			case "+":
+			case "-":
+			case "/":
+			case "*":
+			case "%": return "number";
+			case "//": return "list";
+			case "==":
+			case "<":
+			case ">":
+			case "<=":
+			case ">=":
+			case "||":
+			case "&&":
+			case "!=": return "boolean";
+			default: return "unknown";
+			}
+		} else if (expr.type == "literal") {
+			switch(expr.datatype) {
+			case "NUMBER": return "number";
+			case "BOOLEAN": return "boolean";
+			case "STRING": return "string";
+			case "LIST": return "list";
+			default: return "unknown";
+			}
+		}
+		return "unknown";
+	}
+
 	function getChildren(statements, recurse) {
 		var nstats = [];
 		for (var i=0; i<statements.length; i++) {
@@ -602,6 +633,20 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 				var nstats = [];
 				for (var i=0; i<statements.length; i++) {
 					if (statements[i].lvalue && regex.test(statements[i].lvalue.name)) {
+						nstats.push(statements[i]);
+					}
+				}
+				statements = nstats;
+				processNode(s.substring(endix+1).trim());
+			} else if (s.startsWith(":type(")) {
+				var endix = s.indexOf(")");
+				if (endix == -1) { statements = []; return; }
+				var type = s.substring(6,endix);
+				var nstats = [];
+				for (var i=0; i<statements.length; i++) {
+					if (statements[i].expression && testType(statements[i].expression) == type) {
+						nstats.push(statements[i]);
+					} else if (statements[i].expression && statements[i].expression.type == "scope" && statements[i].expression.range && type == "list") {
 						nstats.push(statements[i]);
 					}
 				}
@@ -700,8 +745,16 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 									var base = p.base;
 									ires.push(base.getSource(stat));
 									break;
+				case "path"		:
+				case "name"		:	
 				case "symbol"	:	if (stat.lvalue && stat.lvalue.name) {
 										ires.push(stat.lvalue.name);
+									} else if (stat.name) {
+										ires.push(stat.name);
+									} else if (stat.parent === undefined && stat.base && stat.base.origin) {
+										ires.push(stat.base.origin.name);
+									} else if (stat.path !== undefined) {
+										ires.push(stat.path);
 									} break;
 				case "depends"	:
 				case "value"	:
