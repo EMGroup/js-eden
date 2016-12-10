@@ -15,7 +15,7 @@
  *   @param symbol Pointer to observable to fill.
  *   @param url The URL of the text file.
  *   @param [sync] Wait for completion before continuing.
- *   #library
+ *   #library #string
  */
 proc loadTextFileIntoObservable {
 	${{
@@ -135,6 +135,8 @@ func edenCode {
  *
  *  **Case 12:** Single argument, which is not a list.
  *  	The empty string is returned.
+ *
+ * #library #string
  */
 func concat {
 	para p1,p2;
@@ -263,6 +265,9 @@ func lowercase {
 	}}$;
 }
 
+/**
+ * #library #string
+ */
 func RE {
 	${{
 		if (arguments.length < 1 || arguments.length > 3) {
@@ -315,8 +320,11 @@ func RE {
 	}}$;
 }
 
-## positionOfRE(patternStr, caseSensitive (optional), targetStr, startOffset (optional))
-## positionOfRE(reObject, targetStr, startOffset (optional, requires g flag))
+/**
+ * * `positionOfRE(patternStr, caseSensitive (optional), targetStr, startOffset (optional))`
+ * * `positionOfRE(reObject, targetStr, startOffset (optional, requires g flag))`
+ * #library #string
+ */
 func positionOfRE {
 	${{
 		if (arguments.length < 2 || arguments.length > 4) {
@@ -408,6 +416,9 @@ func positionOfRE {
 	}}$;
 }
 
+/**
+ * #library #string
+ */
 func escapeRE {
 	${{
 		if (arguments.length != 1) {
@@ -498,12 +509,17 @@ func replaceFirst {
 	}}$;
 }
 
-##Replaces occurrences of strings like {1} and {name} in a string by values given as arguments (converted
-##to strings using str() first if necessary).
-##Examples:
-##	substitute("Hello.  My name is {1}.  I am {2} years old.", "John", 49})
-##	substitute("Hello.  My name is {1}.  I am {2} years old.", ["John", 49])
-##	substitute("Hello.  My name is {name}.  I am {age} years old.", {name: "John", age: 49})
+/**
+ * Replaces occurrences of strings like {1} and {name} in a string by values given as arguments (converted
+ * to strings using str() first if necessary).
+ *
+ * Examples:
+ * * `substitute("Hello.  My name is {1}.  I am {2} years old.", "John", 49})`
+ * * `substitute("Hello.  My name is {1}.  I am {2} years old.", ["John", 49])`
+ * * `substitute("Hello.  My name is {name}.  I am {age} years old.", {name: "John", age: 49})`
+ *
+ * #library #string
+ */
 func substitute {
 	${{
 		var placeholderRE = /(^|[^\\])\{([^}]+)\}/g;
@@ -644,14 +660,16 @@ func substr {
 	}}$;
 }
 
-##Returns the position of first argument in if it occurs somewhere as a substring
-##in the string given by the second argument, zero if it's not a substring, or
-##undefined if the substring is undefined or target string is undefined.
-##
-##The optional third argument allows a initial portion of the list to be omitted
-##from the search.
-##
-##A new JS-EDEN specific function.
+/**
+ * Returns the position of first argument in if it occurs somewhere as a substring
+ * in the string given by the second argument, zero if it's not a substring, or
+ * undefined if the substring is undefined or target string is undefined.
+ *
+ * The optional third argument allows a initial portion of the list to be omitted
+ * from the search.
+ *
+ * #library #string
+ */
 func substringPosition {
 	${{
 		if (arguments.length < 2 || arguments.length > 3) {
@@ -769,3 +787,30 @@ func uppercase {
 		}
 	}}$;
 }
+
+/**
+ * Generate HTML from a markdown formatted text string.
+ *    @param source The markdown string.
+ *    @return HTML.
+ *    #string #html #markdown #library
+ */
+func markdown {
+	para s;
+	${{
+	var sdown = new showdown.Converter();
+	var res = sdown.makeHtml(s);
+	return res;
+	}}$;
+}
+
+/**
+ * Generate syntax highlighting HTML from a JS-Eden source string.
+ *   @param source JS-Eden script.
+ *   @return HTML.
+ *   #string #library #html #syntax
+ */
+func highlightScript {
+	para s;
+	${{ return EdenUI.Highlight.html(s); }}$;
+}
+

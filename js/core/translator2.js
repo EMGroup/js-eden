@@ -79,10 +79,10 @@ Eden.AST.prototype.getActionByName = function(name) {
 		}
 	}
 
-	var ag = Eden.Agent.agents[name];
+	/*var ag = Eden.Agent.agents[name];
 	if (ag && ag.ast && ag.ast.script && ag.ast.script.errors.length == 0) {
 		return ag.ast.script;
-	}
+	}*/
 
 	return script;
 }
@@ -2458,6 +2458,15 @@ Eden.AST.prototype.pCODESELECTOR_P = function() {
 	} else if (this.token == ">") {
 		expr = new Eden.AST.Literal("STRING", " > ");
 		this.next();
+	} else if (this.token == ">>") {
+		expr = new Eden.AST.Literal("STRING", " >> ");
+		this.next();
+	} else if (this.token == "(") {
+		expr = new Eden.AST.Literal("STRING", "(");
+		this.next();
+	} else if (this.token == ")") {
+		expr = new Eden.AST.Literal("STRING", ")");
+		this.next();
 	}
 
 	if (expr) {
@@ -2504,7 +2513,7 @@ Eden.AST.prototype.pCODESELECTOR = function() {
 	}
 
 	// DEPRECATED, but this allows for action parameters.
-	if (this.token != ">" && this.token != ":" && this.token != "#" && this.token != "when") {
+	if (this.token != ">>" && this.token != ">" && this.token != ":" && this.token != "#" && this.token != "when") {
 		return expr;
 	}
 
@@ -2880,7 +2889,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 };
 
 // expose as node.js module
-if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
-	exports.Eden.AST = Eden.AST;
-}
+//if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+//	exports.Eden.AST = Eden.AST;
+//}
 

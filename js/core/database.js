@@ -19,7 +19,8 @@ Eden.DB = {
 	],
 	repoindex: 0,
 	retrycount: 0,
-	connected: false
+	connected: false,
+	searchServer: "http://jseden.dcs.warwick.ac.uk"
 }
 
 Eden.DB.listeners = {};
@@ -50,6 +51,7 @@ Eden.DB.Meta.prototype.updateDefault = function(id, title, author, date) {
 			this.title = decoded.title;
 			this.thumb = decoded.thumb;
 			this.tags = decoded.tags;
+			this.hidden = decoded.hidden;
 		} else {
 			this.title = title;
 		}
@@ -66,6 +68,7 @@ Eden.DB.Meta.prototype.updateLatest = function(id, title, author, date) {
 			this.title = decoded.title;
 			this.thumb = decoded.thumb;
 			this.tags = decoded.tags;
+			this.hidden = decoded.hidden;
 		} else {
 			this.title = title;
 		}
@@ -83,6 +86,7 @@ Eden.DB.Meta.prototype.updatePublicLatest = function(id, title, author, date) {
 			this.title = decoded.title;
 			this.thumb = decoded.thumb;
 			this.tags = decoded.tags;
+			this.hidden = decoded.hidden;
 		} else {
 			this.title = title;
 		}
@@ -100,6 +104,7 @@ Eden.DB.Meta.prototype.updateVersion = function(saveID, tag, title, author, date
 		this.title = decoded.title;
 		this.thumb = decoded.thumb;
 		this.tags = decoded.tags;
+		this.hidden = decoded.hidden;
 	} else {
 		this.title = title;
 	}
@@ -654,7 +659,6 @@ Eden.DB.getSourceRaw = function(path, tag, callback) {
 }
 
 Eden.DB.getSource = function(path, tag, callback) {
-	//console.log("LOAD AGENT SOURCE: ", path, tag);
 	// Need to find out where to look
 	Eden.DB.getMeta(path, function(path, meta) {
 		if (meta === undefined) {
@@ -753,10 +757,11 @@ Eden.DB.getSource = function(path, tag, callback) {
 }
 
 Eden.DB.generateSource = function(title) {
-	return JSON.stringify({
+	return Eden.Generator.getScript();
+	/*return JSON.stringify({
 		script: Eden.Generator.getScript(),
 		title: title
-	},null,"\t");
+	},null,"\t");*/
 }
 
 Eden.DB.save = function(title, cb, options) {
@@ -777,7 +782,8 @@ Eden.DB.saveSource = function(title, source, cb, options) {
 	var metatitle = {
 		title: title,
 		thumb: thumb,
-		tags: tags
+		tags: tags,
+		hidden: options.hidden
 	};
 
 	
@@ -796,7 +802,7 @@ Eden.DB.saveSource = function(title, source, cb, options) {
 
 			meta.title = JSON.stringify(metatitle);
 
-			Eden.DB.upload(path,meta,status.source,"v1",true,function() {
+			Eden.DB.upload(path,meta,status.source,(options && options.official) ? "OFFICIAL" : "v1",true,function() {
 				var url = "?load="+path+"&tag="+meta.saveID;
 				status.path = path;
 				status.saveID = meta.saveID;
@@ -817,17 +823,29 @@ Eden.DB.load = function(path, saveid, source, cb) {
 	function doload() {
 		// Run the project script as the *Restore agent
 
-		eden.execute2(source.script, "*Restore", function() {
-			console.log("Loaded: " + path);
-			if (cb) cb(source);
-		});
+		if (typeof source == "object") {
+			console.log("RESTORE:",source.script);
+			eden.execute2(source.script, "*Restore", function() {
+				console.log("Loaded: " + path);
+				if (cb) cb(source);
+			});
+		} else {
+			eden.execute2(source, "*Restore", function() {
+				console.log("Loaded: " + path);
+				if (cb) cb(source);
+			});
+		}
 	}
 
 	if (source === undefined) {
 		// Get it from server if possible...
 		Eden.DB.getSource(path, saveid, function(src) {
 			if (src && src != "") {
-				source = JSON.parse(src);
+				if (src.charAt(0) == "{") {
+					source = JSON.parse(src);
+				} else {
+					source = src;
+				}
 				doload();
 			}
 		});
@@ -852,6 +870,7 @@ Eden.DB.search = function(q, callback) {
 				return;
 			} else if (data) {
 				var results = [];
+				Eden.DB.processManifestList(data, true);
 				for (var i=0; i<data.length; i++) {
 					results.push(data[i].path);
 				}
@@ -865,6 +884,29 @@ Eden.DB.search = function(q, callback) {
 		error: function(a){
 			//console.error(a);
 			Eden.DB.disconnect(true);
+		}
+	});
+}
+
+Eden.DB.searchSelector = function(q, kind, callback) {
+	$.ajax({
+		url: this.searchServer+"/searchserver/code/search?selector="+q+"&outtype="+kind,
+		type: "get",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		success: function(data){
+			if (data) {
+				callback(data);
+				return;
+			} else {
+				callback(undefined);
+			}
+		},
+		error: function(a){
+			console.error(a);
+			//Eden.DB.disconnect(true);
 		}
 	});
 }

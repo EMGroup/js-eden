@@ -348,16 +348,17 @@ div.loaddialog {
 	width: 350px;
 	padding: 20px;
 	/*height: 150px;*/
-	background-color: #eee;
-	color: black;
-	font: bold 12px "Helvetica Neue", Sans-Serif;
+	background-color: none;
+	color: white;
+	font: bold 14px "Helvetica Neue", Sans-Serif;
 	margin-left: calc(50% - 175px);
 	top: 30%;
 	position: fixed;
 	text-align: center;
 	border-radius: 6px;
 	z-index: 200000;
-	box-shadow: 0 0 15px #4a6887;
+	/*box-shadow: 0 0 15px #4a6887;*/
+	text-shadow: 0 0 10px black;
 }
 
 div.loadmessage {
@@ -370,20 +371,21 @@ div.loadmessage {
   /*margin-left: 50%;
   margin-right: 50%;
   top: 20%;*/
-  font-size: 6px;
+  font-size: 10px;
   /*position: fixed;*/
 	position: relative;
 	margin: auto;
   text-indent: -9999em;
-  border-top: 1.1em solid rgba(0, 0, 0, 0.2);
-  border-right: 1.1em solid rgba(0, 0, 0, 0.2);
-  border-bottom: 1.1em solid rgba(0, 0, 0, 0.2);
-  border-left: 1.1em solid #666;
+  border-top: 1.1em solid rgba(0, 0, 50, 0.3);
+  border-right: 1.1em solid rgba(0, 0, 50, 0.3);
+  border-bottom: 1.1em solid rgba(0, 0, 50, 0.3);
+  border-left: 1.1em solid #888;
   -webkit-transform: translateZ(0);
   -ms-transform: translateZ(0);
   transform: translateZ(0);
   -webkit-animation: mainload8 1.1s infinite linear;
   animation: mainload8 1.1s infinite linear;
+  backface-visibility: hidden;
 }
 .mainloader,
 .mainloader:after {

@@ -4,7 +4,7 @@
  * @return {Array} List of hashtags.
  */
 Eden.AST.DoxyComment.prototype.getHashTags = function() {
-	if (this.tags) return this.tags;
+	if (this.tags) return Object.keys(this.tags);
 
 	// Strip beginning and end and split into words.
 	var words = this.content.split(/[ \n\t]+/);
@@ -62,7 +62,7 @@ Eden.AST.DoxyComment.prototype.stripped = function() {
 			var spaceix = lines[i].indexOf(" ");
 			var cont = lines[i].substring(0,spaceix);
 			var details = lines[i].substring(spaceix+1,lines[i].length);
-			console.log("Parsed control:",cont,details);
+			//console.log("Parsed control:",cont,details);
 
 			if (controls[cont] === undefined) controls[cont] = [];
 			controls[cont].push(details);

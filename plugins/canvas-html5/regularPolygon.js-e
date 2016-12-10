@@ -170,6 +170,22 @@ ${{
 	}
 }}$;
 
+/**
+ * Creates a polygon for display on a canvas
+ * 
+ * centre_x
+ * centre_y
+ * radius
+ * n_sides Number of sides
+ * [star_factor] 
+ * [is_interior_outlined]
+ * [rotation]
+ * [fill_colour Colour to fill the interior of the polygon with
+ * [outline_colour]]
+ * [drawing_options]
+ * 			
+ */
+
 func RegularPolygon {
 	${{
 		var maxArgs = 10;

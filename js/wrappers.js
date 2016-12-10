@@ -28,6 +28,7 @@ Eden.Agent = function(parent, name, meta, options) {
 	} else {
 		this.name = name;
 	}
+	this.obsname = "_agent_"+this.name.replace(/\//g,"_");
 
 	Eden.Agent.agents[this.name] = this;
 
@@ -151,7 +152,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 	}
 
 	if (options && options.indexOf("remove") != -1) {
-		console.log("REMOVE AGENT:", path);
+		//console.log("REMOVE AGENT:", path);
 		var ag = Eden.Agent.agents[path];
 		if (ag) Eden.Agent.remove(ag);
 		callback();
@@ -244,8 +245,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 		ag.setOptions(options);
 
 		// Force a reload? Explicit or by change of tag
-		if ((ag.meta && ag.meta.tag != tag && tag != "default") || (options && options.indexOf("reload") >= 0)) {
-
+		if ((ag.meta && ag.meta.tag != tag && ag.meta.saveID != tag && tag != "default") || (options && options.indexOf("reload") >= 0)) {
 			// Verify that there are no local changes!!!
 			if (ag.canUndo()) {
 				//console.error("MERGE PROBLEM WITH IMPORT", path);
@@ -431,6 +431,7 @@ Eden.Agent.prototype.autoSave = function() {
 
 	this.autosavetimer = undefined;
 
+	eden.root.lookup(this.obsname+"_autosave").assign(true, eden.root.scope, Symbol.localJSAgent);
 	Eden.Agent.emit("autosave", [this]);
 }
 
@@ -692,6 +693,7 @@ Eden.Agent.prototype.loadSource = function(callback) {
 
 		me.setSource(me.snapshot);
 		if (callback) callback(true);
+		eden.root.lookup(me.obsname+"_loaded").assign(true, eden.root.scope, Symbol.localJSAgent);
 		Eden.Agent.emit("loaded", [me]);
 	} else {
 		Eden.DB.getSource(me.name, me.meta.tag, function(data, msg) {
@@ -713,6 +715,7 @@ Eden.Agent.prototype.loadSource = function(callback) {
 
 				me.setSource(me.snapshot);
 				if (callback) callback(true);
+				eden.root.lookup(me.obsname+"_loaded").assign(true, eden.root.scope, Symbol.localJSAgent);
 				Eden.Agent.emit("loaded", [me]);
 			} else {
 				if (callback) callback(false, msg);
@@ -779,7 +782,7 @@ Eden.Agent.prototype.setWriteonly = function(wo) {
 			Object.defineProperty(this.state, name, {
 				enumerable: true,
 				get: function() { return sym.value(me.scope); },
-				set: function(v) { sym.assign(v, me.parent.scope, {name: "*JavaScript", agent: me}); }
+				set: function(v) { sym.assign(v, me.parent.scope, {name: "*JavaScript", internal: true, agent: me}); }
 			});
 		}).call(this, sym, wo[i]);
 	}
@@ -799,7 +802,7 @@ Eden.Agent.prototype.setReadWrite = function(rw) {
 			Object.defineProperty(this.state, name, {
 				enumerable: true,
 				get: function() { return sym.value(me.parent.scope); },
-				set: function(v) { sym.assign(v, me.parent.scope, {name: "*JavaScript", agent: me}); }
+				set: function(v) { sym.assign(v, me.parent.scope, {name: "*JavaScript", internal: true, agent: me}); }
 			});
 		}).call(this, sym, rw[i]);
 	}
@@ -814,10 +817,10 @@ Eden.Agent.prototype.declare = function(name, def) {
 	Object.defineProperty(this.state, name, {
 		enumerable: true,
 		get: function() { return sym.value(me.scope); },
-		set: function(v) { sym.assign(v, me.scope, {name: "*JavaScript", agent: me}); }
+		set: function(v) { sym.assign(v, me.scope, {name: "*JavaScript", internal: true, agent: me}); }
 	});
 
-	if (def && sym.last_modified_by.name == "*None") sym.assign(def, me.scope, Symbol.defaultAgent);
+	if (def !== undefined && sym.last_modified_by.name == "*None") sym.assign(def, me.scope, Symbol.defaultAgent);
 }
 
 
@@ -888,6 +891,7 @@ Eden.Agent.prototype.executeLine = function (lineno, auto, cb) {
 	this.ast.executeLine(lineno, this, cb);
 
 	if (!auto) {
+		eden.root.lookup(this.obsname+"_execline").assign(lineno+1, eden.root.scope, Symbol.localJSAgent);
 		Eden.Agent.emit('executeline', [this, lineno]);
 	}
 }
@@ -908,6 +912,7 @@ Eden.Agent.prototype.execute = function(force, auto, cb) {
 		}
 
 		if (!auto) {
+			eden.root.lookup(this.obsname+"_execute").assign(true, eden.root.scope, Symbol.localJSAgent);
 			Eden.Agent.emit('execute', [this, force, this.meta.saveID]);
 		}
 	} else {
@@ -1040,6 +1045,7 @@ Eden.Agent.prototype.setSource = function(source, net, lineno) {
 	}
 
 	if (haschanged) {
+		eden.root.lookup(this.obsname+"_changed").assign(true, eden.root.scope, Symbol.localJSAgent);
 		Eden.Agent.emit("changed", [this, source, lineno]);
 	}
 }

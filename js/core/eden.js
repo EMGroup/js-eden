@@ -545,6 +545,11 @@
 		this.reportErrors = true;
 	}
 
+	Eden.prototype.updateDictionary = function(name, comment, net) {
+		this.dictionary[name] = comment;
+		if (eden.peer && !net) eden.peer.doxy(name, comment);
+	}
+
 	Eden.prototype.isValidIdentifier = function (name) {
 		return Boolean(name && /^[_a-zA-Z]\w*$/.test(name));
 	};
@@ -562,7 +567,7 @@
 		console.log("Loading project: " + path + "@" + tag);
 
 		Eden.DB.load(path,tag, undefined, function(status) {
-			EdenUI.MenuBar.saveTitle(status.title);
+			if (typeof status == "object") EdenUI.MenuBar.saveTitle(status.title);
 			eden.root.lookup("_jseden_loaded").assign(true, eden.root.scope);
 
 			if (!nohistory) {
@@ -748,9 +753,13 @@
 		} else if (value === null) {
 			code = "$" + "{{ null }}" + "$";
 		} else if (type == "string") {
-			code = "\"" + value.replace(/\\/g,"\\\\").replace(/\"/g,"\\\"") + "\"";
+			if (value.indexOf("\n") >= 0) {
+				code = "<<END\n" + value.replace(/\n/g,"\\n") + "\nEND";
+			} else {
+				code = "\"" + value.replace(/\\/g,"\\\\").replace(/\"/g,"\\\"") + "\"";
+			}
 			// NOTE: For the new parser...
-			code = code.replace(/\n/g,"\"\n\"");
+			//code = code.replace(/\n/g,"\"\n\"");
 		} else if (Array.isArray(value)) {
 			if (refStack === undefined) {
 				refStack = [];

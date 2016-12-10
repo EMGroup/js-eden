@@ -523,8 +523,13 @@
 						tokentext = "-" + stream.tokenText();
 						classes += "eden-number";
 					} else if (token == "/*") {
-						this.mode = 2;
-						classes += "eden-comment";
+						if (stream.peek() == 42) {
+							this.mode = 22;
+							classes += "eden-doxycomment";
+						} else {
+							this.mode = 2;
+							classes += "eden-comment";
+						}
 					} else {
 						classes += "eden-operator";
 					}
@@ -548,23 +553,23 @@
 				} else {
 					classes += "eden-path";
 				}
-			} else if (this.mode == 2) {
+			} else if (this.mode == 2 || this.mode == 22) {
 				if (token == "*/") {
 					this.mode = 0;
-					classes += "eden-comment";
-				} else if (token == "@") {
-					this.mode = 3;
+					classes += (this.mode == 2) ? "eden-comment" : "eden-doxycomment";
+				} else if (token == "@" || token == "#") {
+					this.mode = (this.mode == 2) ? 3 : 33;
 					classes += "eden-doxytag";
 				} else {
-					classes += "eden-comment";
+					classes += (this.mode == 2) ? "eden-comment" : "eden-doxycomment";
 				}
-			} else if (this.mode == 3) {
-				this.mode = 2;
-				if (Language.doxytags[stream.data.value]) {
+			} else if (this.mode == 3 || this.mode == 33) {
+				this.mode = (this.mode == 3) ? 2 : 22;
+				//if (token == "}" || token == "{" || token == "OBSERVABLE" ) { //Language.doxytags[stream.data.value]) {
 					classes += "eden-doxytag";
-				} else {
-					classes += "eden-doxytagerror";
-				}
+				//} else {
+				//	classes += "eden-doxytagerror";
+				//}
 			} else if (this.mode == 4) {
 				if (token == "OBSERVABLE" || type == "keyword") {
 					if (jskeywords.hasOwnProperty(stream.data.value)) {
@@ -796,6 +801,25 @@
 				}
 			}
 
+			// Highlight lines if mode changed
+			while (this.mode_at_line[this.line+1] !== undefined && this.mode_at_line[this.line] != this.mode_at_line[this.line+1]) {
+				this.line++;
+				var node = this.outelement.childNodes[this.line-1];
+				if (node !== undefined) {
+					//Remove existing content
+					while (node.firstChild) node.removeChild(node.firstChild);
+
+					linestart = stream.position;
+					line = this.highlightLine(ast, position);
+					lineerror = (linestart <= errstart) && (stream.position >= errend);
+					//node.className = generateLineClass(this, stream, linestart,lineerror,position);
+					node.appendChild(line);
+					var blank = document.createTextNode("\n");
+					node.appendChild(blank);
+					stream.skip();
+				}
+			}
+
 			// Now check for dirty lines to change line class
 			/*console.log(ast.lines);
 			for (var i=0; i<this.outelement.childNodes.length; i++) {
@@ -820,11 +844,15 @@
 		}
 	};
 
-	EdenUI.Highlight.html = function(str) {
-		var dummy = document.createElement("span");
+	EdenUI.Highlight.html = function(str, single) {
+		var dummy = document.createElement("div");
 		var hlighter = new EdenUI.Highlight(dummy);
 		hlighter.ast = {stream: new EdenStream(str)};
 		hlighter.highlight(hlighter.ast,-1,-1,undefined);
-		return dummy.childNodes[0].innerHTML;
+		if (single) {
+			return dummy.childNodes[0].innerHTML;
+		} else {
+			return dummy.innerHTML;
+		}
 	}
 }(typeof window !== 'undefined' ? window : global));

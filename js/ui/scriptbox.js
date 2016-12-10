@@ -453,7 +453,7 @@ EdenUI.ScriptBox.prototype.focus = function() {
  * mechanism.
  */
 EdenUI.ScriptBox.prototype.setCaretToFakeCaret = function() {
-	var el = $(me.outdiv).find(".fake-caret").get(0);
+	var el = $(this.outdiv).find(".fake-caret").get(0);
 	var range = document.createRange();
 	var sel = window.getSelection();
 	if (el.nextSibling) el = el.nextSibling;
@@ -462,7 +462,7 @@ EdenUI.ScriptBox.prototype.setCaretToFakeCaret = function() {
 	sel.removeAllRanges();
 	sel.addRange(range);
 	// Finally, delete the fake caret
-	$(me.outdiv).remove(".fake-caret");
+	$(this.outdiv).remove(".fake-caret");
 }
 
 EdenUI.ScriptBox.prototype.setChangeCB = function(cb) {

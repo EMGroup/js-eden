@@ -704,6 +704,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 								res += value[i].eden_definition+"\n";
 							}
 						}
+					} else if (typeof value == "string") {
+						res = value;
 					}
 					ag.setSource(res, false, -1);
 					
@@ -915,6 +917,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.on(obs_tabs, rebuildTabs);
 		agent.on(obs_zoom, zoom);
 
+		if (agent.state[obs_zoom]) zoom(undefined, agent.state[obs_zoom]);
+
 		// If there is explicit code, then use that
 		if (code && agent.state[obs_agent] === undefined) {
 			//preloadScript(undefined, code);
@@ -942,6 +946,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 			}, 1000);
 		}
+
+		toggleTabs(undefined, agent.state[obs_showtabs]);
 
 		// Set source text.
 		agent.setSource("## "+name+"\n\
@@ -1419,10 +1425,15 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			gutter.generate(ast,lineno);
 
 			// Process the scripts main doxy comment for changes.
-			if (ast.mainDoxyComment && (lineno == -1 || (lineno >= 1 && lineno <= ast.mainDoxyComment.endline))) {
+			if (ast.mainDoxyComment) { // && (lineno == -1 || (lineno >= 1 && lineno <= ast.mainDoxyComment.endline))) {
 				// Find all doc tags
 				var taglines = ast.mainDoxyComment.content.match(/@[a-z]+.*\n/ig);
-				if (taglines) {
+				var tagix = ast.mainDoxyComment.content.search("@title");
+				if (tagix >= 0) {
+					var content = ast.mainDoxyComment.content.substr(tagix+7).split("\n")[0].trim();
+					setTitle(content);
+				}
+				/*if (taglines) {
 					for (var i=0; i<taglines.length; i++) {
 						// Extract tag and content
 						var ix = taglines[i].search(/\s/);
@@ -1436,7 +1447,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 							}
 						}
 					}
-				}
+				}*/
 			}
 
 			// Make sure caret remains inactive if we don't have focus
@@ -1695,38 +1706,47 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 		function enableInspectMode() {
-			outdiv.contentEditable = false;
-			changeClass(outdiv, "inspect", true);
-			inspectmode = true;
-			// TODO Remove caret and merge those spans
-			updateInspectButton();
-			setSubTitle("[inspecting]");
+			if (!inspectmode) {
+				outdiv.contentEditable = false;
+				changeClass(outdiv, "inspect", true);
+				inspectmode = true;
+				// TODO Remove caret and merge those spans
+				updateInspectButton();
+				setSubTitle("[inspecting]");
+			}
 		}
 
 		function enableGotoMode() {
-			outdiv.contentEditable = false;
-			changeClass(outdiv, "goto", true);
-			gotomode = true;
+			if (!gotomode) {
+				outdiv.contentEditable = false;
+				changeClass(outdiv, "goto", true);
+				gotomode = true;
+			}
 		}
 
 		function disableGotoMode() {
-			changeClass(outdiv, "goto", false);
-			gotomode = false;
-			updateEntireHighlight();
-			intextarea.focus();
+			if (gotomode) {
+				outdiv.contentEditable = true;
+				changeClass(outdiv, "goto", false);
+				gotomode = false;
+				updateEntireHighlight();
+				intextarea.focus();
+			}
 		}
 
 		function disableInspectMode() {
-			changeClass(outdiv, "inspect", false);
-			inspectmode = false;
-			updateEntireHighlight();
-			intextarea.focus();
-			updateInspectButton();
-			if (readonly) {
-				setSubTitle("[readonly]");
-			} else {
-				setSubTitle("");
-				outdiv.contentEditable = true;
+			if (inspectmode) {
+				changeClass(outdiv, "inspect", false);
+				inspectmode = false;
+				updateEntireHighlight();
+				intextarea.focus();
+				updateInspectButton();
+				if (readonly) {
+					setSubTitle("[readonly]");
+				} else {
+					setSubTitle("");
+					outdiv.contentEditable = true;
+				}
 			}
 		}
 
@@ -1783,6 +1803,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					} else if (e.keyCode == 13 || (e.keyCode == 8 && intextarea.value.charCodeAt(intextarea.selectionStart-1) == 10)) {
 						// Adding or removing lines requires a full re-highlight at present
 						refreshentire = true;
+						console.log("ADD/REMOVE LINE REFRESH");
 					}
 
 				} else if (e.ctrlKey || e.metaKey) {
@@ -1815,11 +1836,12 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				// Alt key is pressed so.....
 				if (e.keyCode == 187 || e.keyCode == 61) {
 					// Alt+Plus: Zoom in
-					agent.state[obs_zoom]++;
+					console.log("ZOOM IN");
+					agent.state[obs_zoom] = agent.state[obs_zoom] + 1;
 					e.preventDefault();
 				} else if (e.keyCode == 189 || e.keyCode == 173) {
 					// Alt+Minus: Zoom out
-					agent.state[obs_zoom]--;
+					agent.state[obs_zoom] = agent.state[obs_zoom] - 1;;
 					e.preventDefault();
 				} else if (e.keyCode == 48) {
 					//Alt+0
@@ -2423,7 +2445,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		var simpleName = name.slice(0, -7);
 		var viewdata = me.createCommon(simpleName, mtitle, code, false, false);
 
-		var idealheight = 305;
+		var idealheight = 405;
 		if (code) {
 			var linecount = viewdata.contents.find("textarea").val().split("\n").length;
 			idealheight = EdenUI.plugins.ScriptInput.getRequiredHeight(linecount + 1);
@@ -2434,7 +2456,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			.dialog({
 				appendTo: "#jseden-views",
 				title: mtitle,
-				width: 500,
+				width: 600,
 				height: idealheight,
 				minHeight: 203,
 				minWidth: 300,

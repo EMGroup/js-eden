@@ -1353,16 +1353,18 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	//console.log("RHS = " + rhs);
 	var source = base.getSource(this);
 	var sym = this.lvalue.getSymbol(ctx,base,scope);
+	var rhs;
 
 	//if (eden.peer) eden.peer.broadcast(source);
 
 	if (this.doxyComment) {
-		eden.dictionary[this.lvalue.name] = this.doxyComment;
+		//eden.dictionary[this.lvalue.name] = this.doxyComment;
+		eden.updateDictionary(this.lvalue.name, this.doxyComment);
 	}
 
 	try {
 		if (this.lvalue.hasListIndices()) {
-			var rhs = "(function(context,scope,value) { value";
+			rhs = "(function(context,scope,value) { value";
 			rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
 			rhs += this.expression.generate(this, "scope");
 			if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
@@ -1375,7 +1377,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			}
 			sym.addExtension(this.lvalue.generateIdStr(), eval(rhs), source, undefined, deps);
 		} else {
-			var rhs = "("+this.generateDef(ctx)+")";
+			rhs = "("+this.generateDef(ctx)+")";
 			var deps = [];
 			for (var d in this.dependencies) {
 				deps.push(d);
@@ -1389,6 +1391,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 		}
 	} catch(e) {
 		var err;
+		console.log(rhs);
 		if (e.message == Eden.RuntimeError.EXTENDSTATIC) {
 			err = new Eden.RuntimeError(base, Eden.RuntimeError.EXTENDSTATIC, this, "Can only define list items if the list is defined");
 		} else {
@@ -1562,7 +1565,8 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	this.compile(ctx);
 
 	if (this.doxyComment) {
-		eden.dictionary[this.lvalue.name] = this.doxyComment;
+		//eden.dictionary[this.lvalue.name] = this.doxyComment;
+		eden.updateDictionary(this.lvalue.name, this.doxyComment);
 	}
 
 	try {
@@ -2256,7 +2260,8 @@ Eden.AST.Action.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 
 	if (this.doxyComment) {
-		eden.dictionary[this.name] = this.doxyComment;
+		//eden.dictionary[this.name] = this.doxyComment;
+		eden.updateDictionary(this.name, this.doxyComment);
 	}
 
 	var body = this.body.generate(ctx);
@@ -2310,7 +2315,8 @@ Eden.AST.Function.prototype.execute = function(ctx,base,scope,agent) {
 	this.executed = 1;
 
 	if (this.doxyComment) {
-		eden.dictionary[this.name] = this.doxyComment;
+		//eden.dictionary[this.name] = this.doxyComment;
+		eden.updateDictionary(this.name, this.doxyComment);
 	}
 
 	var body = this.body.generate(ctx);
@@ -2400,13 +2406,13 @@ Eden.AST.While.prototype.setStatement = function(statement) {
 	}
 }
 
-Eden.AST.While.prototype.generate = function(ctx) {
-	var res = "while (" + this.condition.generate(ctx,"scope");
+Eden.AST.While.prototype.generate = function(ctx, scope) {
+	var res = "while (" + this.condition.generate(ctx,scope);
 	if (this.condition.doesReturnBound && this.doesReturnBound()) {
 		res += ".value";
 	}
 	res += ") ";
-	res += this.statement.generate(ctx) + "\n";
+	res += this.statement.generate(ctx, scope) + "\n";
 	return res;
 }
 
@@ -2614,18 +2620,18 @@ Eden.AST.For.prototype.setStatement = function(statement) {
 	}
 }
 
-Eden.AST.For.prototype.generate = function(ctx) {
+Eden.AST.For.prototype.generate = function(ctx,scope) {
 	var res = "for (";
 	if (this.sstart) {
-		res += this.sstart.generate(ctx) + " ";
+		res += this.sstart.generate(ctx,scope) + " ";
 	} else res += "; ";
 	if (this.condition) {
 		res += this.condition.generate(ctx, "scope") + "; ";
 	} else res += "; ";
-	var incer = this.inc.generate(ctx);
+	var incer = this.inc.generate(ctx,scope);
 	if (incer.charAt(incer.length-2) == ";") incer = incer.slice(0,-2);
 	res += incer + ")\n";
-	res += this.statement.generate(ctx);
+	res += this.statement.generate(ctx,scope);
 	return res;
 }
 
@@ -2656,6 +2662,8 @@ Eden.AST.For.prototype.execute = function(ctx, base, scope, agent) {
 			if (this.sstart.second) {
 				this.index = this.sstart.expression.execute(ctx,base,scope,agent);
 				this.list = this.sstart.second.execute(ctx,base,scope,agent);
+				if (this.index instanceof BoundValue) this.index = this.index.value;
+				if (this.list instanceof BoundValue) this.list = this.list.value;
 			} else {
 				this.list = this.sstart.expression.execute(ctx,base,scope,agent);
 				this.index = 0;
