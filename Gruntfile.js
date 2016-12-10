@@ -60,6 +60,7 @@ module.exports = function (grunt) {
 					'./plugins/speech-synthesis/speech-synthesis.js',
 					'./plugins/midi/midi.js',
 					'./plugins/midi/emulation/midi.js-bridge.js'
+					'./plugins/midi/emulation/midi-file.js'
 				]}
 		}
 	},

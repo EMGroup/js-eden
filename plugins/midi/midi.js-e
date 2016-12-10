@@ -67,6 +67,21 @@ func midiOutputs {
 	}}$;
 }
 
+##Retrieves a list of the names of the available MIDI devices than can provide input.
+##The MIDI system must have been previously initialized by calling one of the MIDI procs first.
+##This function does not take any arguments.
+func midiInputs {
+	${{
+		if (arguments.length != 0) {
+			eden.error(new Error("midiInputs: This function does not require any arguments."), "error");
+		}
+		if (!edenUI.plugins.MIDI.initialized) {
+			eden.error(new Error("midiInputs: The MIDI system has not been initialized.  Use initializeMIDI() to initialize the system."), "error");
+		}
+		return edenUI.plugins.MIDI.inputNames;
+	}}$;
+}
+
 ##Creates a binding between a EDEN observable and the programs selected for the channels belonging
 ##to a particular MIDI output device.  The first argument is a pointer to an observable that holds
 ##a list of MIDI program numbers (up to 16 values, one for each MIDI channel).  The second (optional)
@@ -686,13 +701,42 @@ func tuneFromText {
 	}}$;
 }
 
+midiInputMessage = [];
+midiInputMessageCount = 0;
+midiInputTimestamp = @;
+midiInputDevice = @;
+
 /**
  * Starts listening to MIDI input
  * @param [inputNum] The input number to listen to. Defaults to all inputs.
  */
-func startMIDIInput {
+proc startMIDIInput {
 	${{
-		edenUI.plugins.MIDI.startMIDILogging(arguments[0]);
+		if (!edenUI.plugins.MIDI.initialized) {
+			edenUI.plugins.MIDI.initialize(root.lookup("startMIDIInput"), arguments);
+			return;
+		}
+		edenUI.plugins.MIDI.startInput(arguments[0]);
+	}}$;
+}
+
+proc fetchMIDIMessage {
+	${{
+		if (!edenUI.plugins.MIDI.initialized) {
+			edenUI.plugins.MIDI.initialize(root.lookup("fetchMIDIMessage"), arguments);
+			return;
+		}
+		edenUI.plugins.MIDI.fetchInputMessage();
+	}}$;
+}
+
+proc clearMIDIMessages {
+	${{
+		if (!edenUI.plugins.MIDI.initialized) {
+			edenUI.plugins.MIDI.initialize(root.lookup("clearMIDIMessages"), arguments);
+			return;
+		}
+		edenUI.plugins.MIDI.clearInputMessages();
 	}}$;
 }
 
