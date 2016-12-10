@@ -177,13 +177,15 @@ ${{
  * centre_y
  * radius
  * n_sides Number of sides
- * [star_factor] 
- * [is_interior_outlined]
- * [rotation]
+ * [star_factor] Produces simple polygon if 1, if 2 it connects every other vertex, if 3 it connects every third vertex, etc.
+ * [is_interior_outlined] true or false to draw internal lines in polygon (only has effect if both fill and outline colours are set).
+ * [rotation] Rotation in degrees
  * [fill_colour Colour to fill the interior of the polygon with
- * [outline_colour]]
- * [drawing_options]
+ * [outline_colour]] Colour of the outline
+ * [drawing_options] List of drawing options
  * 			
+ * 
+ * #canvas #drawingOptions #regularPolygon #polygon #drawingOptions
  */
 
 func RegularPolygon {
