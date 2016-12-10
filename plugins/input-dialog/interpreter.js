@@ -917,6 +917,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		agent.on(obs_tabs, rebuildTabs);
 		agent.on(obs_zoom, zoom);
 
+		if (agent.state[obs_zoom]) zoom(undefined, agent.state[obs_zoom]);
+
 		// If there is explicit code, then use that
 		if (code && agent.state[obs_agent] === undefined) {
 			//preloadScript(undefined, code);
