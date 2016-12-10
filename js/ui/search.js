@@ -14,6 +14,11 @@ EdenUI.SearchBox = function(element) {
 			});
 		}
 	});
+
+	element.on('click', '.edit-result', function(e) {
+		//console.log(e);
+		edenUI.gotoCode("/"+e.target.parentNode.parentNode.getAttribute("data-obs"),-1);
+	});
 };
 
 EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
@@ -49,7 +54,7 @@ EdenUI.SearchBox.prototype.makeSymbolResult = function(name) {
 		}
 	}
 
-	var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
+	var ctrlstr = '<div class="menubar-search-rescontrols"><span class="edit-result">&#xf044;</span><span>&#xf06e;</span></div>';
 
 	var docstr = "";
 	if (eden.dictionary[name]) {
@@ -165,7 +170,7 @@ EdenUI.SearchBox.prototype.makeScriptResult = function(script) {
 
 	symstr = '<span class="search-scriptres">&#xf15c;</span> ' + symstr;
 
-	var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
+	var ctrlstr = '<div class="menubar-search-rescontrols"><span class="edit-result">&#xf044;</span><span>&#xf06e;</span></div>';
 
 	var docstr = "";
 	if (Eden.Agent.agents[script]) {
