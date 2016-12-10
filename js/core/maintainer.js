@@ -663,8 +663,7 @@
 
 		if (this.needsGlobalNotify.length == 0) {
 			//Append expired onto symbolsToForce, create a notification queue and schedule notifications.
-			expired.unshift(symbolsToForce.length, 0);
-			symbolsToForce.splice.apply(symbolsToForce, expired);
+			symbolsToForce.push.apply(symbolsToForce, expired);
 			if (symbolsToForce.length > 0) {
 				this.needsGlobalNotify = symbolsToForce;
 				var me = this;
@@ -675,10 +674,8 @@
 		} else {
 			//Append both expired and symbolsToForce onto the existing notification queue.
 			var globalNotifyList = this.needsGlobalNotify;
-			symbolsToForce.unshift(globalNotifyList.length, 0);
-			globalNotifyList.splice.apply(globalNotifyList, symbolsToForce);
-			expired.unshift(globalNotifyList.length, 0);
-			globalNotifyList.splice.apply(globalNotifyList, expired);
+			globalNotifyList.push.apply(globalNotifyList, symbolsToForce);
+			globalNotifyList.push.apply(globalNotifyList, expired);
 		}
 	};
 
