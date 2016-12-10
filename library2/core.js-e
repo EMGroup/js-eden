@@ -196,8 +196,8 @@ screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFram
 ${{
 	window.addEventListener("resize", function (event) {
 		root.beginAutocalcOff();
-		root.lookup("screenWidth").assign(window.innerWidth - edenUI.dialogFrameWidth, root.scope, Symbol.hciAgent);
-		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2 - (edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0), root.scope, Symbol.hciAgent);
+		root.lookup("screenWidth").assign(window.innerWidth - edenUI.dialogFrameWidth, root.scope, Symbol.defaultAgent);
+		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2 - (edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0), root.scope, Symbol.defaultAgent);
 		root.endAutocalcOff();
 	});
 }}$;
