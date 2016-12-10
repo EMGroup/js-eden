@@ -187,7 +187,7 @@ div.menubar-button:hover {
 }
 
 
-div#eden-logo {
+a#eden-logo {
 	position: absolute;
 	top: 8px;
 	left: 40px;
