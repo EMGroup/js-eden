@@ -36,6 +36,25 @@ Slider.prototype.hash = function () {
 };
 }}$;
 
+/**
+ * Create a slider input control
+ * 
+ * @param [name] Prefix for _value and _preview observables.  Default is the name of the observable being defined.
+ * @param min Minimum value of the slider
+ * @param max Maximum value of the slider
+ * @param [step Step interval
+ * @param [label_interval How frequently to display labels
+ * @param [tick_mark_interval How frequently to display tick marks
+ * @param [label_divisor]]]] Each label is divided by label_divisor before display 
+ * @param x X-position
+ * @param y Y-position
+ * @param size Size in pixels
+ * @param [orientation] Either "horizontal", "vertical", "up", or "down"
+ * @param [enabled] Boolean True or False
+ *
+ * #canvas #input #slider
+ * 
+ */
 func Slider { ${{
 	var argsProcessed;
 
