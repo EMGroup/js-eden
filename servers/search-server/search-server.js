@@ -29,7 +29,7 @@ eden.root.symbols = {};
 
 var doxy = require(config.JSEDENPATH + "js/doxycomments.js");
 
-var vstmt = db.prepare("SELECT path, source FROM (SELECT saveID,agentID, source FROM (SELECT * FROM versions where permission = 1 order by agentid,saveID) GROUP BY agentid), agents where agentID = agents.id order by path");
+var vstmt = db.prepare("select path,source FROM (SELECT max(saveID) as maxsaveID from versions where permission = 1 group by agentID) as maxv, versions,agents where maxsaveID = versions.saveID and agents.id = agentID;");
 
 initASTDB();
 
