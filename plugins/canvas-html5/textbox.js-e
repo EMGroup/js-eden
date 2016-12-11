@@ -28,6 +28,22 @@ Textbox.prototype.hash = function () {
 };
 }}$;
 
+/**
+ * Creates a text input box for drawing on the canvas
+ * 
+ * @param [name] Prefix for _value observable.  Default is the name of the observable being defined.
+ * @param x X-position
+ * @param y Y-position
+ * @param [width
+ * @param [height]]
+ * @param [placeholder_text] Text to be displayed by default
+ * @param [max_characters] Maximum number of characters allowed in input box
+ * @param [enabled] Boolean (true or false) to enable or disable input
+ * 
+ * #canvas #input #text #textbox
+ */
+
+	
 func Textbox { ${{
 	var argsProcesssed;
 
