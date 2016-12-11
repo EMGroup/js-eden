@@ -18,6 +18,19 @@ RoundedRectangle = function(x, y, width, height, radius, fillcolour, outlinecolo
 }
 }}$;
 
+/**
+ * Draws a rounded rectangle
+ * @param x
+ * @param y
+ * @param width
+ * @param height
+ * @param radius
+ * @param [fillColour
+ * @param [outlineColour]]
+ * @param [drawingOptions]
+ * 
+ * #canvas #roundedRectangle #rounded #rectangle #drawingOptions
+ */
 func RoundedRectangle { ${{
 	var x = arguments[0];
 	var y = arguments[1];
