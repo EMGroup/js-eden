@@ -775,7 +775,7 @@ Eden.DB.saveSource = function(title, source, cb, options) {
 	var desc = (options) ? options.description : undefined;
 	var thumb = (options) ? options.thumb : undefined;
 
-	var reducedtitle = title.replace(/[ \!\'\-\?\&]/g, "");
+	var reducedtitle = title.replace(/[^a-zA-Z]/g, "");
 
 	status.source = source;
 
@@ -789,7 +789,7 @@ Eden.DB.saveSource = function(title, source, cb, options) {
 	
 
 	if (Eden.DB.isLoggedIn()) {
-		var user = (pub) ? "public" : ((Eden.DB.username) ? Eden.DB.username.replace(/[ \!\'\-\?\&]/g, "") : "public");
+		var user = (pub) ? "public" : ((Eden.DB.username) ? Eden.DB.username.replace(/[^a-zA-Z]/g, "") : "public");
 		var path = "jseden1/"+user+"/"+reducedtitle;
 		var meta = Eden.DB.meta[path];
 		if (meta === undefined) meta = new Eden.DB.createMeta(path);
