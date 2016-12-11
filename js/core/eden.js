@@ -547,6 +547,14 @@
 
 	Eden.prototype.updateDictionary = function(name, comment, net) {
 		this.dictionary[name] = comment;
+		// Extract tags...
+		/*if (comment) {
+			var tags = comment.getHashTags();
+			for (var i=0; i<tags.length; i++) {
+				if (this.tags[tags[i]] === undefined) this.tags[tags[i]] = [];
+				this.tags[tags[i]].push(name);
+			}
+		}*/
 		if (eden.peer && !net) eden.peer.doxy(name, comment);
 	}
 
