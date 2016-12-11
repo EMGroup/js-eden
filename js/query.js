@@ -756,10 +756,15 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 									} else if (stat.path !== undefined) {
 										ires.push(stat.path);
 									} break;
+				case "line"		:	if (stat.line !== undefined) {
+										ires.push(stat.line);
+									} break; 
 				case "depends"	:
 				case "value"	:
-				case "tags"		:
-				case "rawcomment"	:
+				case "tags"		: break;
+				case "rawcomment"	: if (stat.doxyComment) {
+										ires.push(stat.doxyComment.content);
+									} break;
 				case "controls" :
 				case "id"		:
 				case "unique"	: break;
