@@ -1,10 +1,13 @@
 /*
+ * Math functions library.
  * @title Math Library
  * @author Elizabeth Hudnott and Tim Monks
  * Copyright (c) 2013, Empirical Modelling Group
  * All rights reserved.
  *
  * See LICENSE.txt
+ *
+ * #library #math
  */
 
 PI = ${{ Math.PI }}$;
@@ -183,7 +186,7 @@ func roundUp {
  *   @param number The number to round down.
  *   @param [multiple]
  *   @return The rounded number.
- *   #library #math
+ *   #library #math #round #down
 */
 func floor {
 	${{
@@ -270,7 +273,7 @@ func roundMultiple {
  *   @param number The number to round up.
  *   @param [multiple]
  *   @return The rounded number.
- *   #library #math
+ *   #library #math #round #up
 */
 func ceil {
 	${{
@@ -315,7 +318,7 @@ func ceil {
 /** Get the absolute value of a number. The removes the minus sign if there is
  *  one.
  *   @param number
- *   #library #math
+ *   #library #math #absolute #positive
  */
 func abs {
   return ${{ Math.abs(arguments[0]); }}$;
@@ -325,7 +328,7 @@ func abs {
  * Get the arccosine of x in degrees.
  *   @param x
  *   @return Arccosine in degrees.
- *   #library #math
+ *   #library #math #arc #cosine
  */
 func acos {
 	${{
@@ -343,7 +346,7 @@ func acos {
  * Get the arcsine of x in degrees.
  *   @param x
  *   @return Arcsine in degrees.
- *   #library #math
+ *   #library #math #arc #sine
  */
 func asin {
 	${{
@@ -370,6 +373,7 @@ func atan {
  * Returns the cosine of a given angle.
  *   @param angle Angle in degrees.
  *   @return Cosine (between -1 and 1).
+ * #cosine
  */
 func cos {
 	${{
@@ -403,7 +407,7 @@ func cos {
 
 /** Get the value of E to the power of x.
  *   @param x
- *   #library #math
+ *   #library #math #exponent
  */
 func exp {
   return ${{ Math.exp(arguments[0]); }}$;
@@ -411,7 +415,7 @@ func exp {
 
 /** Get the natural logarithm (base E) of x.
  *   @param x
- *   #library #math
+ *   #library #math #natural #logarithm
  */
 func ln {
   return ${{ Math.log(arguments[0]); }}$;
@@ -420,7 +424,7 @@ func ln {
 /** Get the logarithm of x base y.
  *   @param x
  *   @param [y] The base, default is 10.
- *   #library #math
+ *   #library #math #logarithm
  */
 func log {
 	${{
@@ -453,7 +457,7 @@ func log {
  * Maximum value in a list or of the arguments given.
  *   @param a A number or a list of numbers.
  *   @param [b...] If param a is not a list then use b and so on.
- *   #library #math
+ *   #library #math #maximum #largest
  */
 func max {
 	para p1;
@@ -500,7 +504,7 @@ func max {
  *   @param p A list or number
  *   @param [p2...] Other numbers to compare.
  *   @return The smallest number.
- *   #library #math
+ *   #library #math #minimum #smallest
  */
 func min {
 	para p1;
@@ -538,7 +542,7 @@ func mod {
 /** Get the value of x to the power of y.
  *   @param x
  *   @param y
- *   #library #math
+ *   #library #math #power
  */
 func pow {
   return ${{ Math.pow(arguments[0],arguments[1]); }}$;
@@ -732,7 +736,7 @@ func sin {
  * Get the square root of x.
  *   @param x
  *   @return Square root
- *   #library #math
+ *   #library #math #square
  */
 func sqrt {
   return ${{ Math.sqrt(arguments[0]); }}$;
@@ -743,7 +747,7 @@ func sqrt {
  *    @param l A number or a list.
  *    @param [l2...] If l is not a list then add these arguments.
  *    @return Sum of all arguments or a list.
- *    #library #math
+ *    #library #math #add
  */
 func sum {
 	${{
@@ -774,7 +778,7 @@ func sum {
  * Get the tangent of an angle.
  *   @param x Angle in degrees.
  *   @return Tangent of angle.
- *   #library #math
+ *   #library #math #tangent
  */
 func tan {
 	${{
