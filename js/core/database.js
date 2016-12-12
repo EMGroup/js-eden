@@ -890,7 +890,7 @@ Eden.DB.search = function(q, callback) {
 
 Eden.DB.searchSelector = function(q, kind, callback) {
 	$.ajax({
-		url: this.searchServer+"/searchserver/code/search?selector="+q+"&outtype="+kind,
+		url: this.searchServer+"/searchserver/code/search?selector="+q.replace("#","%23")+"&outtype="+kind,
 		type: "get",
 		crossDomain: true,
 		xhrFields:{

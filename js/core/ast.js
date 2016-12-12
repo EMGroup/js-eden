@@ -319,10 +319,10 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope) {
 		res += "}\n"+scopename+".range = true;\n";
 
 		if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
-			res += "if (cache) cache.scopes = scoperesults;\n return new BoundValue(results,"+scopename+");})()";
+			res += "if (cache) cache.scopes = scoperesults;\n return new BoundValue(results,"+scopename+");}).call(this)";
 			//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
 		} else {
-			res += "return results;})()";
+			res += "return results;}).call(this)";
 		}
 		return res;
 	} else {
@@ -1315,6 +1315,8 @@ Eden.AST.Definition.prototype.generateDef = function(ctx) {
 
 Eden.AST.Definition.prototype.generate = function(ctx) {
 	var result = this.lvalue.generate(ctx);
+	this.scopes = [];
+	this.dependencies = {};
 
 	if (this.lvalue.islocal) {
 		// TODO Report error, this is invalid;
@@ -1354,6 +1356,10 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	var source = base.getSource(this);
 	var sym = this.lvalue.getSymbol(ctx,base,scope);
 	var rhs;
+
+	this.scopes = [];
+	this.dependencies = {};
+	this.backtickCount = 0;
 
 	//if (eden.peer) eden.peer.broadcast(source);
 
@@ -1911,7 +1917,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, bound) {
 			res += ".value";
 		}
 		res += "," + scope + ")";
-		console.log("BTICK: ",res);
+		//console.log("BTICK: ",res);
 	} else {
 		if (ctx && ctx.dependencies) ctx.dependencies[this.observable] = true;
 		res = "context.lookup(\""+this.observable+"\")";

@@ -150,6 +150,9 @@ Eden.Query.search = function(q, cb) {
 				res.symbols.push.apply(res.symbols, Eden.Query.searchDepends(regex));
 			}
 			// TODO applies to agents also
+		} else if (words[i].charAt(0) == "#") {
+			var regex2 = edenUI.regExpFromStr("^"+words[i].substring(1), undefined, undefined, "regexp");
+			if (dosymbols) res.symbols.push.apply(res.symbols, Eden.Query.searchTags(regex2));
 		} else {
 			var regex = edenUI.regExpFromStr(words[i], undefined, undefined, "regexp");
 			var regex2 = edenUI.regExpFromStr("^"+words[i], undefined, undefined, "regexp");
@@ -253,7 +256,32 @@ Eden.Query.searchSymbols = function(q,q2) {
 			var tags = eden.dictionary[x].getHashTags();
 			if (tags) {
 				for (var i=0; i<tags.length; i++) {
-					if (q2.test(tags[i])) {
+					if (q2.test(tags[i].substring(1))) {
+						if (sym.last_modified_by.internal || x.charAt(0) == "_") {
+							//ressys.push(x);
+						} else {
+							res.push(x);
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+	//res.push.apply(res, ressys);
+	return res;
+}
+
+Eden.Query.searchTags = function(q2) {
+	var res = [];
+	var ressys = [];
+	for (var x in eden.root.symbols) {
+		var sym = eden.root.symbols[x];
+		if (q2 && eden.dictionary[x]) {
+			var tags = eden.dictionary[x].getHashTags();
+			if (tags) {
+				for (var i=0; i<tags.length; i++) {
+					if (q2.test(tags[i].substring(1))) {
 						if (sym.last_modified_by.internal || x.charAt(0) == "_") {
 							//ressys.push(x);
 						} else {
@@ -512,13 +540,40 @@ Eden.Query.queryScripts = function(path, ctx) {
 }
 
 Eden.Query.querySelector = function(s, o, ctx, cb) {
-	console.log("SELECTOR",s);
+	//console.log("SELECTOR",s);
 
 	var pathix = s.search(/[\.\:\#\>]/);
 	if (pathix == -1) pathix = s.length;
 	var path = s.substring(0,pathix).trim();
 	var script;
 	var statements = Eden.Query.queryScripts(path, ctx);
+
+	function getScriptBase(stat) {
+		var p = stat;
+		while(p.parent) { p = p.parent; }
+		return p.base.origin.name;
+	}
+
+	function getID(stat) {
+		var res;
+		var indexes = [];
+		var p = stat;
+		while(p.parent) {
+			var children = getChildren([p.parent], false);
+			for (var i=0; i<children.length; i++) {
+				if (children[i] === p) {
+					indexes.push(i);
+					break;
+				}
+			}
+			p = p.parent;
+		}
+		res = p.base.origin.name;
+		for (var i=indexes.length-1; i>=0; i--) {
+			res += " > :" + (indexes[i]+1);
+		}
+		return res;
+	}
 
 	function testType(expr) {
 		if (expr.type == "binaryop") {
@@ -527,6 +582,7 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 			case "-":
 			case "/":
 			case "*":
+			case "^":
 			case "%": return "number";
 			case "//": return "list";
 			case "==":
@@ -686,6 +742,9 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 				}
 				statements = nstats;
 				processNode(s.substring(7).trim());
+			} else if (s.startsWith(":last")) {
+			} else if (s.startsWith(":nth(")) {
+			} else if (s.startsWith(":value(")) {
 			} else {
 				statements = [];
 			}
@@ -693,7 +752,10 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 		} else if (s.charAt(0) == "#") {
 			var nstats = [];
 			var tag = s.match(/#[a-zA-Z0-9_]+/);
-			if (!tag) return [];
+			//var endix = s.search(/[^a-z]+/);
+			//if (endix == -1) endix = s.length;
+			//var tag = s.substring(0,endix);
+			if (tag === null) return [];
 			tag = tag[0];
 			console.log("hashtag",tag);
 			for (var i=0; i<statements.length; i++) {
@@ -732,43 +794,47 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 			var ires = [];
 
 			for (var j=0; j<kinds.length; j++) {
+				var val = undefined;
 
 				switch(kinds[j]) {
 				case "brief"	:	if (stat.doxyComment) {
-										ires.push(stat.doxyComment.brief());
+										val = stat.doxyComment.brief();
 									} break;
 				case "comment"	:	if (stat.doxyComment) {
-										ires.push(stat.doxyComment.stripped());
+										val = stat.doxyComment.stripped();
 									} break;
 				case "source"	:	var p = stat;
 									while (p.parent) p = p.parent;
 									var base = p.base;
-									ires.push(base.getSource(stat));
+									val = base.getSource(stat);
 									break;
 				case "path"		:
 				case "name"		:	
 				case "symbol"	:	if (stat.lvalue && stat.lvalue.name) {
-										ires.push(stat.lvalue.name);
+										val = stat.lvalue.name;
 									} else if (stat.name) {
-										ires.push(stat.name);
+										val = stat.name;
 									} else if (stat.parent === undefined && stat.base && stat.base.origin) {
-										ires.push(stat.base.origin.name);
+										val = stat.base.origin.name;
 									} else if (stat.path !== undefined) {
-										ires.push(stat.path);
+										val = stat.path;
 									} break;
 				case "line"		:	if (stat.line !== undefined) {
-										ires.push(stat.line);
+										val = stat.line;
 									} break; 
 				case "depends"	:
 				case "value"	:
 				case "tags"		: break;
 				case "rawcomment"	: if (stat.doxyComment) {
-										ires.push(stat.doxyComment.content);
+										val = stat.doxyComment.content;
 									} break;
 				case "controls" :
 				case "id"		:
-				case "unique"	: break;
+				case "unique"	: val = getID(stat); break;
+				case "script"	: val = getScriptBase(stat); break;
 				}
+
+				ires.push(val);
 
 			}
 			if (kinds.length > 1 && ires.length > 0) {

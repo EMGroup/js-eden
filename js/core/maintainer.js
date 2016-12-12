@@ -1218,11 +1218,15 @@
 	};
 
 	Symbol.prototype.subscribeDynamic = function (position, dependency, scope) {
+		//console.log("SUBDYN",dependency);
 		// To put the dependency on the outer scoped observable is in a scoping context
 		if (scope && scope.cause) {
-			return scope.cause.subscribeDynamic(scope.causecount++, dependency, scope);
+			// TODO WHY WAS THIS HERE? Nested scopes?
+			//return scope.cause.subscribeDynamic(scope.causecount++, dependency, scope);
 			//var basescope = scope.baseScope();
-			//return basescope.cause.subscribeDynamic(basescope.cause.causecount++, dependency, scope);
+			//if (basescope !== scope) {
+			//	return basescope.cause.subscribeDynamic(basescope.cause.causecount++, dependency, scope);
+			//}
 		}
 
 		if (!(dependency in this.dependencies)) {
