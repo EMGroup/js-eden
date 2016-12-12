@@ -814,3 +814,23 @@ func highlightScript {
 	${{ return EdenUI.Highlight.html(s); }}$;
 }
 
+/**
+ * Check if one string starts with another.
+ * #string #library
+ */
+func startsWith {
+	para s, c;
+	${{ return s.startsWith(c); }}$;
+}
+
+/**
+ * Split a string into an array.
+ * @param s Source string
+ * @param separator Character or string to use a separator.
+ * #library #string #list
+ */
+func splitString {
+	para s, token;
+	${{ return s.split(token); }}$;
+}
+

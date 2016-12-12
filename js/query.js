@@ -499,9 +499,11 @@ Eden.Query.queryScripts = function(path, ctx) {
 	var scripts = [];
 
 	var paths = path.split(",");
+	//console.log(paths);
 
 	for (var i=0; i<paths.length; i++) {
 		var path = paths[i].trim();
+		console.log("LOOKUP" , path);
 		if (path == "/" || path == "*") {
 			var src = Eden.Generator.symbolScript();
 			var ast = new Eden.AST(src, undefined, Symbol.jsAgent);
@@ -519,13 +521,14 @@ Eden.Query.queryScripts = function(path, ctx) {
 				}
 			} else {
 				// Find local action first
-				var script;
+				var script = undefined;
 				if (ctx) {
 					script = ctx.getActionByName(path);
 				}
 
 				// Now attempt to find exact agent...
 				if (script === undefined) {
+					console.log("LOOKUP2" , path);
 					var ag = Eden.Agent.agents[path];
 					if (!ag) return []
 					script = ag.ast.script;
