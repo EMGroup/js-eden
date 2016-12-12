@@ -793,6 +793,7 @@
 		//if (this.plugins.MenuBar) {
 			realY = realY  + this.menuBarHeight;
 		//}
+		//console.log("MOVE VIEW", realX, realY);
 
 		diag.parent().offset({left: realX, top: realY});
 	};
