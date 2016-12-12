@@ -636,7 +636,7 @@ See LICENSE.txt
 			}
 
 			function displayProjects(pub, cb) {
-				var user = (pub)?"public" : ((Eden.DB.username) ? Eden.DB.username.split(" ").join("") : "public");
+				var user = (pub)?"public" : ((Eden.DB.username) ? Eden.DB.username.replace(/[^a-zA-Z]/g, "") : "public");
 				var path = "jseden1/"+user;
 				var plist = (pub) ? lopts.find("#jseden-public-projects") : lopts.find("#jseden-private-projects");
 
