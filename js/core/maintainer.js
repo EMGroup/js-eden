@@ -1218,6 +1218,7 @@
 	};
 
 	Symbol.prototype.subscribeDynamic = function (position, dependency, scope) {
+		//console.log("SUBDYN",dependency);
 		// To put the dependency on the outer scoped observable is in a scoping context
 		if (scope && scope.cause) {
 			// TODO WHY WAS THIS HERE? Nested scopes?
