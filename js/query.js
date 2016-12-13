@@ -811,6 +811,7 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 									val = base.getSource(stat);
 									break;
 				case "title"	:	if (stat.base && stat.base.mainDoxyComment) {
+										stat.base.mainDoxyComment.stripped();
 										var controls = stat.base.mainDoxyComment.getControls();
 										if (controls && controls["@title"]) val = controls["@title"][0];
 									}
