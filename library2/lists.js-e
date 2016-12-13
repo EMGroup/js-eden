@@ -481,3 +481,29 @@ func tail {
 		return sublist(p1, 2, p1#);
 	}
 }
+
+/**
+ * Removes duplicate values from a list
+ * @param list Source list
+ * @return The list with duplicate values removed
+ * 
+ * #library #list #duplicates
+ *
+ */
+
+func unique{
+	para inList;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+	if(argc != 1){
+		error("tail: This function requires exactly 1 argument.");
+		return @;
+	}
+	${{
+		var inList = arguments[0];
+inList = inList.filter( function( item, index, inputArray ) {
+           return inputArray.indexOf(item) == index;
+    });
+		return inList;
+	}}$;
+}
