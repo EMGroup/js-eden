@@ -503,7 +503,7 @@ Eden.Query.queryScripts = function(path, ctx) {
 
 	for (var i=0; i<paths.length; i++) {
 		var path = paths[i].trim();
-		console.log("LOOKUP" , path);
+
 		if (path == "/" || path == "*") {
 			var src = Eden.Generator.symbolScript();
 			var ast = new Eden.AST(src, undefined, Symbol.jsAgent);
@@ -528,7 +528,6 @@ Eden.Query.queryScripts = function(path, ctx) {
 
 				// Now attempt to find exact agent...
 				if (script === undefined) {
-					console.log("LOOKUP2" , path);
 					var ag = Eden.Agent.agents[path];
 					if (!ag) return []
 					script = ag.ast.script;
@@ -810,6 +809,11 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 									while (p.parent) p = p.parent;
 									var base = p.base;
 									val = base.getSource(stat);
+									break;
+				case "title"	:	if (stat.base && stat.base.mainDoxyComment) {
+										var controls = stat.base.mainDoxyComment.getControls();
+										if (controls && controls["@title"]) val = controls["@title"][0];
+									}
 									break;
 				case "path"		:
 				case "name"		:	
