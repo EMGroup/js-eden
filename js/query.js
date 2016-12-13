@@ -499,9 +499,11 @@ Eden.Query.queryScripts = function(path, ctx) {
 	var scripts = [];
 
 	var paths = path.split(",");
+	//console.log(paths);
 
 	for (var i=0; i<paths.length; i++) {
 		var path = paths[i].trim();
+
 		if (path == "/" || path == "*") {
 			var src = Eden.Generator.symbolScript();
 			var ast = new Eden.AST(src, undefined, Symbol.jsAgent);
@@ -519,7 +521,7 @@ Eden.Query.queryScripts = function(path, ctx) {
 				}
 			} else {
 				// Find local action first
-				var script;
+				var script = undefined;
 				if (ctx) {
 					script = ctx.getActionByName(path);
 				}
@@ -807,6 +809,11 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 									while (p.parent) p = p.parent;
 									var base = p.base;
 									val = base.getSource(stat);
+									break;
+				case "title"	:	if (stat.base && stat.base.mainDoxyComment) {
+										var controls = stat.base.mainDoxyComment.getControls();
+										if (controls && controls["@title"]) val = controls["@title"][0];
+									}
 									break;
 				case "path"		:
 				case "name"		:	
