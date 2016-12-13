@@ -746,6 +746,12 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 				processNode(s.substring(7).trim());
 			} else if (s.startsWith(":last")) {
 			} else if (s.startsWith(":nth(")) {
+				var endix = s.indexOf(")");
+				if (endix == -1) { statements = []; return; }
+				var index = s.substring(5,endix);
+				statements = statements[index];
+				if (statements === undefined) statements = [];
+				processNode(s.substring(endix+1).trim());
 			} else if (s.startsWith(":value(")) {
 			} else {
 				statements = [];
@@ -767,6 +773,18 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 			}
 			statements = nstats;
 			processNode(s.substring(tag.length).trim());
+		} else if (s.charAt(0) == ".") {
+			var nstats = [];
+			var tag = s.match(/.[a-zA-Z0-9_]+/);
+			if (tag === null) return [];
+			tag = tag[0].substring(1);
+			for (var i=0; i<statements.length; i++) {
+				if (statements[i].base && statements[i].base.scripts[tag]) {
+					nstats.push(statements[i].base.scripts[tag]);
+				}
+			}
+			statements = nstats;
+			processNode(s.substring(tag.length+1).trim());
 		} else if (s.charAt(0).match(/[a-z]+/)) {
 			var endix = s.search(/[^a-z]+/);
 			if (endix == -1) endix = s.length;
