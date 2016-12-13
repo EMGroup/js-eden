@@ -493,7 +493,8 @@ func tail {
 
 func unique{
 	para inList;
-	auto argc = ${{ arguments.length }};
+	auto argc;
+	argc = ${{ arguments.length }}$;
 	if(argc != 1){
 		error("tail: This function requires exactly 1 argument.");
 		return @;
