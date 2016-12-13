@@ -36,6 +36,13 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 			eden.root.lookup(name).assign(false, eden.root.scope, Symbol.hciAgent);
 			//eden.root.lookup(name).assign(false, eden.root.scope, Symbol.hciAgent);
 		});
+		code_entry.on("click", function(e) {
+			var script = e.srcElement.getAttribute("data-jseden");
+			if (script && script != "") {
+				console.log(script);
+				eden.execute2(script, {name: "execute"});
+			}
+		});
 
 		var contentSym = root.lookup("_view_" + viewName + "_content");
 		var updateView = function (sym, value) {
