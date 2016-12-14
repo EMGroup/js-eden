@@ -1189,8 +1189,9 @@
 				Eden.Agent.emit("error", [this,e]);
 			}
 			//this.logError(e);
+			//console.error(e);
 			cache.value = undefined;
-			cache.up_to_date = false;
+			cache.up_to_date = true;
 		}
 		if (this.context) {
 			this.context.endEvaluation(this);
@@ -1564,7 +1565,7 @@
 	Symbol.prototype.fireJSObservers = function () {
 		for (var jsObserverName in this.jsObservers) {
 			try {
-				this.jsObservers[jsObserverName](this, this.cache.value);
+				this.jsObservers[jsObserverName](this, this.value());
 			} catch (error) {
 				//this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
 				var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.JSOBSERVER, undefined, "JavaScript observer '"+jsObserverName+"' failed: "+error);
@@ -1750,6 +1751,10 @@
 			throw new Error("Failed adding JavaScript observer " + listener);
 		}
 		this.jsObservers[name] = listener;
+		if (this.cache.up_to_date == false) {
+			//listener(this,this.value());
+			this.value();
+		}
 	}
 	
 	/**
