@@ -293,7 +293,7 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 	// remove last comma
 	res = res.slice(0,-1);
 
-	res += "], "+this.range+", this)"; //context.lookup(\""+this.primary.getObservable()+"\"))";
+	res += "], "+this.range+", this,true)"; //context.lookup(\""+this.primary.getObservable()+"\"))";
 	return res;
 }
 
@@ -1290,6 +1290,8 @@ Eden.AST.Definition.prototype.generateDef = function(ctx) {
 			result += "\t_scopes.push(" + this.scopes[i];
 			result += ");\n";
 		}
+
+		result += "if (this.def_scope) {\nfor (var i=0; i<_scopes.length; i++) {\n_scopes[i].cache = this.def_scope[i].cache;\n_scopes[i].reset();\n}\n} else {\nfor(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();\nthis.def_scope = _scopes;\n}\n";
 	}
 
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
@@ -1469,6 +1471,7 @@ Eden.AST.Assignment = function(expression) {
 	this.compiled = undefined;
 	this.dirty = false;
 	this.value = undefined;
+	//this.def_scope = undefined;
 };
 
 Eden.AST.Assignment.prototype.getParameterByNumber = function(index) {
@@ -1552,6 +1555,8 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 			rhs += "\t_scopes.push(" + this.scopes[i];
 			rhs += ");\n";
 		}
+
+		rhs += "if (this.def_scope) {\nfor (var i=0; i<_scopes.length; i++) {\n_scopes[i].cache = this.def_scope[i].cache;\n_scopes[i].reset();\n}\n} else {\nfor(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();\nthis.def_scope = _scopes;\n}\n";
 	}
 
 	rhs += "return " + express;
