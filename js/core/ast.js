@@ -3281,7 +3281,23 @@ Eden.AST.Script = function() {
 };
 
 Eden.AST.Script.prototype.getSource = function() {
+	var ast = this.base;
+	if (ast === undefined) {
+		var p = this;
+		while (p.parent) p = p.parent;
+		ast = this.base;
+	}
 	return this.base.getSource(this);
+}
+
+Eden.AST.Script.prototype.getInnerSource = function() {
+	var ast = this.base;
+	if (ast === undefined) {
+		var p = this;
+		while (p.parent) p = p.parent;
+		ast = this.base;
+	}
+	return this.base.stream.code.slice(this.statements[0].start,this.statements[this.statements.length-1].end).trim();
 }
 
 Eden.AST.Script.prototype.getLine = function() {
