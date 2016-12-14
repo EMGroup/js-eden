@@ -828,6 +828,9 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 									var base = p.base;
 									val = base.getSource(stat);
 									break;
+				case "innersource"	:	if (stat.type == "script") {
+											val = stat.getInnerSource();
+										} break;
 				case "title"	:	if (stat.base && stat.base.mainDoxyComment) {
 										stat.base.mainDoxyComment.stripped();
 										var controls = stat.base.mainDoxyComment.getControls();
