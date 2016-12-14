@@ -192,6 +192,8 @@
 	}
 
 	Scope.prototype.clone = function() {
+		// TODO, be more selective on use of clone, currently disabled.
+		return this;
 		var nover = [];
 
 		// Copy the overrides
@@ -218,7 +220,7 @@
 	}
 
 	Scope.prototype.lookup = function(name) {
-		if (this.cache === undefined) return;
+		//if (this.cache === undefined) return;
 
 		var symcache = this.cache[name];
 		if (symcache) {
@@ -244,8 +246,7 @@
 	}
 
 	Scope.prototype.addOverride = function(override) {
-		this.updateOverride(override);
-		if (this.context) {
+		if (!this.updateOverride(override) && this.context) {
 			var sym = this.context.lookup(override.name);
 			//console.log(sym);
 			for (var d in sym.subscribers) {
@@ -271,11 +272,13 @@
 
 		if (this.cache[name] === undefined) {
 			this.cache[name] = new ScopeCache( true, currentval, this, true);
+			return false;
 		} else {
 			this.cache[name].value = currentval;
 			this.cache[name].scope = this;
 			this.cache[name].up_to_date = true;
 			this.cache[name].override = true;
+			return true;
 		}
 	}
 
@@ -307,6 +310,16 @@
 			}
 		}
 		return false;
+	}
+
+	Scope.prototype.reset = function() {
+		for (var o in this.cache) {
+			//if (this.cache[o].up_to_date)
+				this.cache[o].up_to_date = this.cache[o].override;
+			//else
+			//	delete this.cache[o];
+		}
+		this.refresh();
 	}
 
 	Scope.prototype.next = function() {
@@ -669,7 +682,7 @@
 		var symbolNamesToForce = {};
 		for (var i = 0; i < this.needsExpire.length; i++) {
 			var sym = this.needsExpire[i];
-			sym.expire(symbolNamesToForce, this.expiryCount, this.needsTrigger);
+			sym.expire(symbolNamesToForce, this.expiryCount, this.needsTrigger, sym.needsGlobalNotify == Symbol.REDEFINED);
 			//sym.needsGlobalNotify = 2;
 		}
 		var expired = this.needsExpire;
@@ -1000,7 +1013,8 @@
 
 		this.definition = undefined;
 		this.eden_definition = undefined;
-		this.evalResolved = true;
+		this.def_scopes = undefined;
+		//this.evalResolved = true;
 		this.extend = undefined;
 		this.needsGlobalNotify = 0;
 
@@ -1155,7 +1169,7 @@
 				}
 			}
 
-			if (!this.evalResolved) {
+			/*if (!this.evalResolved) {
 				var replacedDef = this.eden_definition;
 				//Replace eval() in EDEN definition with the actual value.
 				var re = /\beval\(/;
@@ -1183,7 +1197,7 @@
 				}
 				this.eden_definition = replacedDef;
 				this.evalResolved = true;
-			}
+			}*/
 		} catch (e) {
 			if (e instanceof Eden.RuntimeError) {
 				Eden.Agent.emit("error", [this,e]);
@@ -1577,9 +1591,9 @@
 				} else {
 					debug = false;
 				}
-				if (debug) {
-					debugger;
-				}
+				//if (debug) {
+				//	debugger;
+				//}
 				//throw error;
 			}
 		}
@@ -1591,7 +1605,7 @@
 	 * this change
 	 * @param {Object.<string,Symbol>} actions_to_fire set to accumulate all the actions that should be notified about this expiry
 	 */
-	Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to_fire) {
+	Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to_fire, fullexpire) {
 		if (this.cache.up_to_date) {
 			for (var observer_name in this.observers) {
 				actions_to_fire[observer_name] = this.observers[observer_name];
@@ -1603,6 +1617,15 @@
 				this.cache.up_to_date = false;
 				symbols_to_force[this.name] = insertionIndex.value;
 				insertionIndex.value++;
+
+				// Need to rebuild the scope dependency path
+				if (fullexpire) {
+					console.log("FULL EXPIRE");
+					this.def_scope = undefined;
+				}
+				//else if (this.def_scope) {
+				//	for (var i=0; i<this.def_scope.length; i++) this.def_scope[i].reset();
+				//}
 			}
 
 			this.needsGlobalNotify = Symbol.EXPIRED;
@@ -1611,7 +1634,7 @@
 			for (var subscriber_name in this.subscribers) {
 				var subscriber = this.subscribers[subscriber_name];
 				if (subscriber) {
-					subscriber.expire(symbols_to_force, insertionIndex, actions_to_fire);
+					subscriber.expire(symbols_to_force, insertionIndex, actions_to_fire,fullexpire);
 				}
 			}
 		}

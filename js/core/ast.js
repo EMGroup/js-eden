@@ -293,7 +293,7 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 	// remove last comma
 	res = res.slice(0,-1);
 
-	res += "], "+this.range+", this)"; //context.lookup(\""+this.primary.getObservable()+"\"))";
+	res += "], "+this.range+", this,true)"; //context.lookup(\""+this.primary.getObservable()+"\"))";
 	return res;
 }
 
@@ -1290,6 +1290,8 @@ Eden.AST.Definition.prototype.generateDef = function(ctx) {
 			result += "\t_scopes.push(" + this.scopes[i];
 			result += ");\n";
 		}
+
+		result += "if (this.def_scope) {\nfor (var i=0; i<_scopes.length; i++) {\n_scopes[i].cache = this.def_scope[i].cache;\n_scopes[i].reset();\n}\n} else {\nfor(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();\nthis.def_scope = _scopes;\n}\n";
 	}
 
 	if (this.expression.doesReturnBound && this.expression.doesReturnBound()) {
