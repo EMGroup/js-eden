@@ -155,7 +155,7 @@ function runEdenAction(source, action, cb) {
 				// Note that getActionByName can return entire agents!
 				var stats = (delay.value.name) ? Eden.Query.querySelector(delay.value.selector, undefined, me) : delay.value.script.statements;
 				//var script = (delay.value.name) ? me.getActionByName(delay.value.name) : delay.value.script;
-				console.log("STATS",stats, delay.value.selector);
+				//console.log("STATS",stats, delay.value.selector);
 				if (stats && stats.length > 0) {
 					//var stats = script.statements;
 					// Params are deprecated.
@@ -212,6 +212,9 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 	if (Eden.AST.debug && (Eden.AST.debugstep || ( agent && agent.doDebug && agent.doDebug()))) {
 		if (Eden.AST.debug_begin_cb) Eden.AST.debug_begin_cb({base: this, agent: agent});
 	}
+
+	// Reset the dummy context;
+	Eden.AST.DummyContext.locals = undefined;
 
 	try {
 		var gen = this.executeGenerator([statement], Eden.AST.DummyContext ,this, eden.root.scope, agent);

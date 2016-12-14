@@ -868,7 +868,7 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 			}
 			if (kinds.length > 1 && ires.length > 0) {
 				res.push(ires);
-			} else if (kinds.length == 1 && ires.length > 0) {
+			} else if (kinds.length == 1 && ires.length > 0 && ires[0] !== undefined) {
 				res.push(ires[0]);
 			}
 		}
