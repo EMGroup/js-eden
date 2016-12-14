@@ -1556,7 +1556,8 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 			rhs += ");\n";
 		}
 
-		rhs += "if (this.def_scope) {\nfor (var i=0; i<_scopes.length; i++) {\n_scopes[i].cache = this.def_scope[i].cache;\n_scopes[i].reset();\n}\n} else {\nfor(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();\nthis.def_scope = _scopes;\n}\n";
+		rhs += "for(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();\n";
+		//rhs += "if (this.def_scope) {\nfor (var i=0; i<_scopes.length; i++) {\n_scopes[i].cache = this.def_scope[i].cache;\n_scopes[i].reset();\n}\n} else {\nfor(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();\nthis.def_scope = _scopes;\n}\n";
 	}
 
 	rhs += "return " + express;
@@ -3086,7 +3087,7 @@ Eden.AST.When.prototype.compile = function(base) {
 
 	if (this.scope && this.compScope === undefined) {
 		try {
-			this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })");
+			this.compScope = eval("(function (context, scope) { var s = " + this.scope.generateConstructor(this, "scope") + "; s.rebuild(); return s; })");
 		} catch (e) {
 			//var err;
 
