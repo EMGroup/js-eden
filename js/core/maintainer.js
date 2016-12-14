@@ -74,7 +74,7 @@
 	 * Store  a set of overrides and a separate cache of alternative values
 	 * for all symbols depending upon those overrides.
 	 */
-	function Scope(context, parent, overrides, range, cause) {
+	function Scope(context, parent, overrides, range, cause, nobuild) {
 		this.parent = parent;
 		this.context = context;
 		this.cache = undefined;
@@ -83,7 +83,7 @@
 		this.causecount = 0;
 		this.range = range;
 
-		this.rebuild();
+		if (!nobuild) this.rebuild();
 	}
 
 	/**
@@ -152,6 +152,7 @@
 
 	Scope.prototype.rebuild = function() {
 		if (this.cache !== undefined) return;
+		//console.log("REBUILD");
 		this.cache = {};
 
 		this.add("/cause");
@@ -201,13 +202,23 @@
 		}
 
 		// Make a new exact copy of this scope
-		var nscope = new Scope(this.context, this.parent, nover, this.range, this.cause);
+		var nscope = new Scope(this.context, this.parent, nover, this.range, this.cause, true);
+
+		// Copy the cache
+		var ncache = {};
+		for (var x in this.cache) {
+			//if (this.cache[x].up_to_date) {
+				ncache[x] = new ScopeCache(false, this.cache[x].value, nscope, this.cache[x].override);
+			//}
+		}
+		nscope.cache = ncache;
+		nscope.refresh();
 
 		return nscope;
 	}
 
 	Scope.prototype.lookup = function(name) {
-		if (this.cache === undefined) this.rebuild();
+		if (this.cache === undefined) return;
 
 		var symcache = this.cache[name];
 		if (symcache) {
@@ -215,9 +226,9 @@
 		} else {
 			if (this.parent) {
 				var inherit = this.parent.lookup(name);
-				this.cache[name] = new ScopeCache(inherit.override, inherit.value, inherit.scope, inherit.override);
-				return this.cache[name];
+				//this.cache[name] = new ScopeCache(inherit.override, inherit.value, inherit.scope, inherit.override);
 				//return this.cache[name];
+				return inherit;
 			} else {
 				//console.log("Symbol without cache: " + name);
 				this.cache[name] = new ScopeCache(true, undefined, undefined, false);
@@ -234,13 +245,13 @@
 
 	Scope.prototype.addOverride = function(override) {
 		this.updateOverride(override);
-		//if (this.context) {
-		//	var sym = this.context.lookup(override.name);
+		if (this.context) {
+			var sym = this.context.lookup(override.name);
 			//console.log(sym);
-		//	for (var d in sym.subscribers) {
-		//		this.updateSubscriber(d);
-		//	}
-		//}
+			for (var d in sym.subscribers) {
+				this.updateSubscriber(d);
+			}
+		}
 	}
 
 	Scope.prototype.updateOverride = function(override) {
@@ -272,15 +283,15 @@
 		//console.log("Adding scope subscriber...: " + name);
 		if (this.cache[name] === undefined) {
 			this.cache[name] = new ScopeCache( false, undefined, this);
+			var sym = this.context.lookup(name.substr(1));
+			for (var d in sym.subscribers) {
+				this.updateSubscriber(d);
+			}
 		} else {
 			this.cache[name].up_to_date = false;
 			this.cache[name].value = undefined;
 			this.cache[name].scope = this;
 		}
-		//var sym = this.context.lookup(name.substr(1));
-		//for (var d in sym.subscribers) {
-		//	this.updateSubscriber(d);
-		//}
 	}
 
 	Scope.prototype.first = function() {
@@ -300,7 +311,10 @@
 
 	Scope.prototype.next = function() {
 		for (var o in this.cache) {
-			this.cache[o].up_to_date = this.cache[o].override;
+			//if (this.cache[o].up_to_date)
+				this.cache[o].up_to_date = this.cache[o].override;
+			//else
+			//	delete this.cache[o];
 		}
 		for (var i = this.overrides.length-1; i >= 0; i--) {
 			var over = this.overrides[i];
@@ -1581,21 +1595,23 @@
 			for (var observer_name in this.observers) {
 				actions_to_fire[observer_name] = this.observers[observer_name];
 			}
-		}
 
-		if (this.definition) {
-			this.cache.up_to_date = false;
-			symbols_to_force[this.name] = insertionIndex.value;
-			insertionIndex.value++;
-		}
 
-		this.needsGlobalNotify = Symbol.EXPIRED;
+			if (this.definition) {
+				// TODO, Also mark all active scopes for this symbol as out-of-date.
+				this.cache.up_to_date = false;
+				symbols_to_force[this.name] = insertionIndex.value;
+				insertionIndex.value++;
+			}
 
-		// recursively mark out of date and collect
-		for (var subscriber_name in this.subscribers) {
-			var subscriber = this.subscribers[subscriber_name];
-			if (subscriber) {
-				subscriber.expire(symbols_to_force, insertionIndex, actions_to_fire);
+			this.needsGlobalNotify = Symbol.EXPIRED;
+
+			// recursively mark out of date and collect
+			for (var subscriber_name in this.subscribers) {
+				var subscriber = this.subscribers[subscriber_name];
+				if (subscriber) {
+					subscriber.expire(symbols_to_force, insertionIndex, actions_to_fire);
+				}
 			}
 		}
 	};
