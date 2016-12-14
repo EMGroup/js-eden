@@ -166,6 +166,8 @@ EdenUI.Explorer = function() {
 		me.enabled = val;
 		if (!val) {
 			me.element.hide();
+			me.capture = false;
+			me.clear();
 		} else if (eden.root.lookup("jseden_explorer_visible").value()) {
 			me.element.show();
 		}
@@ -177,8 +179,13 @@ EdenUI.Explorer = function() {
 		this.element.hide();
 	}
 	visSym.addJSObserver("explorer", function(sym, val) {
+		console.log("VISIBLE");
 		if (val && me.enabled) me.element.show();
-		else me.element.hide();
+		else {
+			me.element.hide();
+			me.capture = false;
+			me.clear();
+		}
 	});
 
 	var searchSym = eden.root.lookup("jseden_explorer_search");

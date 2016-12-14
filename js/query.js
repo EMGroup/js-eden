@@ -542,7 +542,7 @@ Eden.Query.queryScripts = function(path, ctx) {
 }
 
 Eden.Query.querySelector = function(s, o, ctx, cb) {
-	//console.log("SELECTOR",s);
+	console.log("SELECTOR",s);
 
 	var pathix = s.search(/[\.\:\#\>]/);
 	if (pathix == -1) pathix = s.length;
