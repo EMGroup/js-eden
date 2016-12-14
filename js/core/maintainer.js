@@ -1620,7 +1620,7 @@
 
 				// Need to rebuild the scope dependency path
 				if (fullexpire) {
-					console.log("FULL EXPIRE");
+					//console.log("FULL EXPIRE");
 					this.def_scope = undefined;
 				}
 				//else if (this.def_scope) {
