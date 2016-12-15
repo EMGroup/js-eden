@@ -1841,7 +1841,7 @@ Eden.AST.Primary = function() {
 	this.observable = "";
 	this.extras = [];
 	this.backtick = undefined;
-	this.returnsbound = true;
+	this.returnsbound = false;
 };
 
 Eden.AST.Primary.prototype.setBackticks = function(backtick) {
@@ -1931,23 +1931,23 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, bound) {
 
 	if (this.extras.length == 0) {
 		//if (ctx.scopes.length > 0) {
-			res += ".boundValue("+scope+")";
+			res += ".value("+scope+")";
 		//} else {
 		//	res += ".boundValue(scope)";
 		//}
 	} else {
-		this.returnsbound = (bound) ? true : false;
-		if (!bound) {
+		//this.returnsbound = (bound) ? true : false;
+		//if (!bound) {
 			res += ".value("+scope+")";
-		} else {
-			res += ".boundValue("+scope+",";
-		}
+		//} else {
+		//	res += ".boundValue("+scope+",";
+		//}
 
 		for (var i=0; i<this.extras.length; i++) {
 			res += this.extras[i].generate(ctx, scope);
 		}
 
-		if (bound) res += ")";
+		//if (bound) res += ")";
 	}
 
 	return res;
