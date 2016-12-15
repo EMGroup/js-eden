@@ -2509,7 +2509,7 @@ Eden.AST.Do.prototype.setScope = function(scope) {
 Eden.AST.Do.prototype.getScope = function(ctx) {
 	if (this.scope && this.compScope === undefined) {
 		try {
-			this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(ctx, "scope") + "; })");
+			this.compScope = eval("(function (context, scope) { var s = " + this.scope.generateConstructor(ctx, "scope") + "; s.rebuild(); return s; })");
 		} catch (e) {
 
 		}
