@@ -448,17 +448,20 @@ Eden.AST.prototype.pEXPRESSION_PPPPP = function() {
 /*
  * F ->
  *	( EXPRESSION ) |
- *	- number |
+ *	- FACTOR |
  *	number |
  *	string |
- *  heredoc |
+ *  << observable string observable |
  *  boolean |
  *  character
  *  JAVASCRIPT |
+ *  $ # |
  *	$ NUMBER |
  *	[ ELIST ] |
  *	& LVALUE |
- *	! PRIMARY |
+ *  @ |
+ *  * FACTOR |
+ *	! FACTOR |
  *	PRIMARY	
  */
 Eden.AST.prototype.pFACTOR = function() {
@@ -639,7 +642,7 @@ Eden.AST.prototype.pFACTOR = function() {
 
 /**
  * PRIMARY Production
- * PRIMARY -> observable PRIMARY' | ` EXPRESSION ` PRIMARY'
+ * PRIMARY -> observable {\{ EXPRESSION \}} PRIMARY' | ` EXPRESSION ` PRIMARY'
  */
 Eden.AST.prototype.pPRIMARY = function() {
 	// Backticks on RHS
@@ -1027,7 +1030,7 @@ Eden.AST.prototype.pPRIMARY_PPP = function() {
 
 /**
  * Primary Quad Prime Production. DEFUNCT
- * PRIMARY'''' -> with SCOPE | epsilon
+ * PRIMARY'''' -> epsilon
  */
 Eden.AST.prototype.pPRIMARY_PPPP = function() {
 	/*if (this.token == "with") {
@@ -1061,6 +1064,9 @@ Eden.AST.prototype.pSCOPE = function() {
 
 
 
+/**
+ * SCOPEPATTERN -> observable {[ EXPRESSION ]}
+ */
 Eden.AST.prototype.pSCOPEPATTERN = function() {
 	var sname = new Eden.AST.ScopePattern();
 	if (this.token != "OBSERVABLE") {
@@ -1091,11 +1097,20 @@ Eden.AST.prototype.pSCOPEPATTERN = function() {
 	return sname;
 }
 
+/**
+ * SCOPE''' ->
+ *   .. EXPRESSION SCOPE'' |
+ *   SCOPE''
+ */
+
 
 
 /**
  * SCOPE Prime Production
- * SCOPE' -> observable SCOPE''
+ * SCOPE' ->
+ *   observable is EXPRESSION SCOPE'''
+ *   observable in EXPRESSION SCOPE'''
+ *   observable = EXPRESSION SCOPE'''
  */
 Eden.AST.prototype.pSCOPE_P = function() {
 	var obs = this.pSCOPEPATTERN();
@@ -1152,7 +1167,7 @@ Eden.AST.prototype.pSCOPE_P = function() {
 
 /**
  * Scope Prime Prime Production
- * SCOPE'' -> , SCOPE | epsilon
+ * SCOPE'' -> , SCOPE' | epsilon
  */
 Eden.AST.prototype.pSCOPE_PP = function() {
 	if (this.token == ",") {
@@ -1267,7 +1282,10 @@ Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
 
 /**
  * Scoped Expression Production
- * SCOPEDEXP -> EXPRESSION { with SCOPE | epsilon }
+ * SCOPEDEXP ->
+ *   EXPRESSION with SCOPE |
+ *   EXPRESSION :: SCOPE |
+ *   EXPRESSION
  */
 Eden.AST.prototype.pEXPRESSION = function() {
 	var plain = this.pEXPRESSION_PLAIN();
@@ -1285,7 +1303,7 @@ Eden.AST.prototype.pEXPRESSION = function() {
 
 /**
  * ACTION Production
- * ACTION -> observable : OLIST ACTIONBODY
+ * ACTION -> observable : OLIST FUNCBODY
  */
 Eden.AST.prototype.pACTION = function() {
 	var action = new Eden.AST.Action();
@@ -1322,10 +1340,16 @@ Eden.AST.prototype.pACTION = function() {
 	return action;
 }
 
+/**
+ * WHEN' ->
+ *   with SCOPE |
+ *   :: SCOPE |
+ *   epsilon
+ */
 
 /**
  * WHEN Production
- * WHEN -> ( EXPRESSION ) STATEMENT
+ * WHEN -> ( EXPRESSION ) STATEMENT WHEN'
  */
 Eden.AST.prototype.pWHEN = function() {
 	var when = new Eden.AST.When();
@@ -1592,11 +1616,18 @@ Eden.AST.prototype.pIF_P = function() {
 	return undefined;
 }
 
+/**
+ * RANGE ->
+ *   EXPRESSION .. EXPRESSION |
+ *   EXPRESSION
+ */
 
 
 /**
  * FOR Production
- * FOR -> ( STATEMENT'_OPT ; EXPRESSION_OPT ; STATEMENT'_OPT ) STATEMENT
+ * FOR ->
+ *	( STATEMENT'_OPT ; EXPRESSION_OPT ; STATEMENT'_OPT ) STATEMENT
+ *  | ( observable in RANGE ) STATEMENT
  */
 Eden.AST.prototype.pFOR = function() {
 	var forast = new Eden.AST.For();
@@ -1684,7 +1715,7 @@ Eden.AST.prototype.pFOR = function() {
 
 /**
  * WHILE Production
- * WHILE -> ( EOPT ) STATEMENT
+ * WHILE -> ( EXPRESSION ) STATEMENT
  */
 Eden.AST.prototype.pWHILE = function() {
 	var w = new Eden.AST.While();
@@ -1726,10 +1757,19 @@ Eden.AST.prototype.pWHILE = function() {
 }
 
 
+/**
+ * DO' ->
+ *   with SCOPE
+ *   | :: SCOPE
+ *   | epsilon
+ */
+
 
 /**
  * Do Production
- * DO -> observable ELIST SCOPE;
+ * DO ->
+ *   CODESELECTOR ELIST DO';
+ *   \{ SCRIPT \} DO';
  */
 Eden.AST.prototype.pDO = function() {
 	var w = new Eden.AST.Do();
@@ -1804,7 +1844,7 @@ Eden.AST.prototype.pDO = function() {
 
 /**
  * SWITCH Production
- * SWITCH -> ( EXPRESSION ) STATEMENT
+ * SWITCH -> ( EXPRESSION ) SCRIPT
  */
 Eden.AST.prototype.pSWITCH = function() {
 	var swi = new Eden.AST.Switch();
@@ -1874,7 +1914,7 @@ Eden.AST.prototype.pFUNCTION = function() {
 
 /**
  * FUNCBODY Production
- * FUNCBODY -> { PARAS LOCALS SCRIPT }
+ * FUNCBODY -> \{ PARAS LOCALS SCRIPT \}
  */
 Eden.AST.prototype.pFUNCBODY = function() {
 	var codebody = new Eden.AST.CodeBlock();
@@ -1957,11 +1997,20 @@ Eden.AST.prototype.pLVALUE_P = function() {
 	return components;
 };
 
+/**
+ * LVALUE'' ->
+ *  \{ EXPRESSION \} LVALUE''
+ *  | observable LVALUE''
+ *  | LVALUE'
+ */
 
 
 /**
  * LVALUE Production
- * LVALUE -> observable LVALUE' | * PRIMARY LVALUE' | ` EXPRESSION ` LVALUE'
+ * LVALUE ->
+ *   observable LVALUE'' |
+ *   * PRIMARY LVALUE' |
+ *   ` EXPRESSION ` LVALUE'
  */
 Eden.AST.prototype.pLVALUE = function() {
 	var lvalue = new Eden.AST.LValue();
@@ -2048,11 +2097,13 @@ Eden.AST.prototype.pLVALUE = function() {
  * STATEMENT PrimePrime Production
  * STATEMENT''	->
  *	is EXPRESSION |
+ *  in EXPRESSION .. EXPRESSION |
  *	= EXPRESSION |
  *	+= EXPRESSION |
  *	-= EXPRESSION |
  *	/= EXPRESSION |
  *	*= EXPRESSION |
+ *  ~> [ OLIST ] |
  *	++ |
  *	-- |
  *  ( ELIST )
@@ -2366,19 +2417,6 @@ Eden.AST.prototype.pAFTER = function() {
 
 
 
-/**
- * INCLUDE Production
- * INCLUDE -> ( EXPRESSION ) ; INCLUDE'
- */
-Eden.AST.prototype.pINCLUDE = function() {
-	var express = this.pEXPRESSION();
-	var inc = new Eden.AST.Include();//this.pINCLUDE_P();
-	inc.prepend(express);
-	return inc;
-}
-
-
-
 Eden.AST.prototype.pAGENTPATH = function() {
 	if (this.token != "OBSERVABLE" && Language.keywords[this.token] === undefined) {
 		return "_ERROR_";
@@ -2591,6 +2629,10 @@ Eden.AST.prototype.pIMPORT = function() {
 
 
 
+/**
+ * Wait Production
+ * WAIT -> EXPRESSION ;
+ */
 Eden.AST.prototype.pWAIT = function() {
 	var wait = new Eden.AST.Wait();
 
@@ -2619,6 +2661,7 @@ Eden.AST.prototype.pWAIT = function() {
 	when WHEN |
 	proc ACTION |
 	func FUNCTION |
+	action NAMEDSCRIPT |
 	for FOR |
 	while WHILE |
 	switch SWITCH |
@@ -2628,17 +2671,18 @@ Eden.AST.prototype.pWAIT = function() {
 	return EOPT ; |
 	continue ; |
 	break ; |
-	? LVALUE ; |
+	? CODESELECTOR ; |
 	insert INSERT |
 	delete DELETE |
 	append APPEND |
 	shift SHIFT |
 	require REQUIRE |
-	await AWAIT |
 	after AFTER |
-	option OPTION |
-	include INCLUDE |
+	import IMPORT |
 	LVALUE STATEMENT'' ; |
+	local LOCALS ; |
+	auto LOCALS ; |
+	wait EXPRESSION ; |
 	epsilon
  */
 Eden.AST.prototype.pSTATEMENT = function() {
@@ -2667,7 +2711,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "shift"	:	this.next(); stat = this.pSHIFT(); break;
 	case "require"	:	this.next(); stat = this.pREQUIRE(); break;
 	case "after"	:	this.next(); stat = this.pAFTER(); break;
-	case "include"	:	this.next(); stat = this.pINCLUDE(); break;
+	//case "include"	:	this.next(); stat = this.pINCLUDE(); break;
 	case "import"	:	this.next(); stat = this.pIMPORT(); break;
 	case "local"	:
 	case "auto"		:	stat = this.pLOCALS(); break;
@@ -2808,6 +2852,10 @@ Eden.AST.prototype.pSTATEMENT = function() {
 
 
 
+/**
+ * Named Script Production
+ * NAMEDSCRIPT -> observable \{ SCRIPT \}
+ */
 Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	var name;
 
