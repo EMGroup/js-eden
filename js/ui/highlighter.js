@@ -462,7 +462,7 @@
 						comment += String.fromCharCode(stream.get());
 					}
 					tokentext = "##" + comment;
-				} else if (token == "local" || token == "auto" || token == "para") {
+				} else if (token == "local" || token == "auto" || token == "para" || token == "handle" || token == "oracle") {
 					classes += "eden-storage";
 				} else if (type == "keyword") {
 					classes += "eden-keyword";

@@ -560,7 +560,7 @@ Eden.DB.upload = function(path, meta, source, tagname, ispublic, callback) {
 				withCredentials: true
 			},
 			data:{	path: path,
-					parentSaveID: (meta.saveID == "origin") ? undefined : meta.saveID,
+					parentSaveID: (meta.saveID == -1) ? undefined : meta.saveID,
 					title: meta.title,
 					source: source,
 					tag: tagname,
@@ -592,7 +592,7 @@ Eden.DB.upload = function(path, meta, source, tagname, ispublic, callback) {
 
 Eden.DB.createMeta = function(path) {
 	Eden.DB.meta[path] = new Eden.DB.Meta();
-	Eden.DB.meta[path].saveID = "origin";
+	Eden.DB.meta[path].saveID = -1;
 	return Eden.DB.meta[path];
 }
 
@@ -667,10 +667,10 @@ Eden.DB.getSource = function(path, tag, callback) {
 		}
 
 		if (tag == "origin") {
-			meta.saveID = "origin";
+			meta.saveID = -1;
 			if (meta.file) {
 				$.get(meta.file, function(data) {
-					meta.updateVersion("origin", "default", meta.title, meta.name, data.date);
+					meta.updateVersion(-1, "default", meta.title, meta.name, data.date);
 					callback(data);
 				}, "text");
 			} else {
@@ -689,7 +689,7 @@ Eden.DB.getSource = function(path, tag, callback) {
 					tagvalue = "&version="+meta.defaultID;
 				} else if (meta.latestID >= 0) {
 					tagvalue = "&version="+meta.latestID;
-				} else if (meta.saveID == "origin") {
+				} else if (meta.saveID == -1) {
 					callback("");
 					return;
 				} else if (meta.saveID >= 0) {
@@ -745,12 +745,12 @@ Eden.DB.getSource = function(path, tag, callback) {
 		// There is a version stored in a file somewhere
 		} else if (meta.file) {
 			$.get(meta.file, function(data) {
-				meta.updateVersion("origin", "default", meta.title, meta.name, data.date);
+				meta.updateVersion(-1, "default", meta.title, meta.name, data.date);
 				callback(data);
 			}, "text");
 		} else {
 			// Assume it must be local only.
-			meta.saveID = "origin";
+			meta.saveID = -1;
 			callback("");
 		}
 	});
