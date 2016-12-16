@@ -1078,7 +1078,7 @@
 	 * generated in.
 	 */
 	Symbol.prototype.boundValue = function(scope, indices) {
-		console.log("BOUNDVALUE",this.name);
+		//console.log("BOUNDVALUE",this.name);
 		var value = this.value(scope);
 		var cache = scope.lookup(this.name);
 
