@@ -352,7 +352,7 @@
 					over.index = 1;
 					over.current = (isbound) ? over.start.value[0] : over.start[0];
 					//this.updateOverride(over);
-					this.refresh();
+					//this.refresh();
 					//this.cache = undefined; // FORCE REBUILD
 				}
 			} else {
@@ -374,7 +374,7 @@
 				} else {
 					over.current = over.start;
 					//this.updateOverride(over);
-					this.refresh();
+					//this.refresh();
 					//this.cache = undefined; // FORCE REBUILD
 				}
 			}
@@ -1013,10 +1013,11 @@
 
 		this.definition = undefined;
 		this.eden_definition = undefined;
-		this.def_scopes = undefined;
+		this.def_scope = undefined;
 		//this.evalResolved = true;
 		this.extend = undefined;
 		this.needsGlobalNotify = 0;
+		this.has_evaled = false;
 
 		// need to keep track of who we subscribe to so
 		// that we can unsubscribe from them when our definition changes
@@ -1077,6 +1078,7 @@
 	 * generated in.
 	 */
 	Symbol.prototype.boundValue = function(scope, indices) {
+		//console.log("BOUNDVALUE",this.name);
 		var value = this.value(scope);
 		var cache = scope.lookup(this.name);
 
@@ -1158,6 +1160,7 @@
 		}
 		try {
 			cache.up_to_date = true;
+			this.has_evaled = true;
 			//NOTE: Don't do copy here, be clever about it.
 			//cache.value = copy(this.definition(this.context, scope));
 			cache.value = this.definition.call(this,this.context, scope, cache);
@@ -1419,6 +1422,7 @@
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = undefined;
 		this.needsGlobalNotify = Symbol.ASSIGNED;
+		this.has_evaled = true;
 
 		this.extend = undefined;
 
@@ -1606,7 +1610,8 @@
 	 * @param {Object.<string,Symbol>} actions_to_fire set to accumulate all the actions that should be notified about this expiry
 	 */
 	Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to_fire, fullexpire) {
-		if (this.cache.up_to_date) {
+		if (this.has_evaled) {
+
 			for (var observer_name in this.observers) {
 				actions_to_fire[observer_name] = this.observers[observer_name];
 			}
@@ -1615,13 +1620,16 @@
 			if (this.definition) {
 				// TODO, Also mark all active scopes for this symbol as out-of-date.
 				this.cache.up_to_date = false;
+				this.has_evaled = false;
 				symbols_to_force[this.name] = insertionIndex.value;
 				insertionIndex.value++;
 
 				// Need to rebuild the scope dependency path
 				if (fullexpire) {
-					//console.log("FULL EXPIRE");
+					//console.log("FULL EXPIRE",this.name);
 					this.def_scope = undefined;
+				} else {
+					//console.log("NORMAL EXPIRE",this.name);
 				}
 				//else if (this.def_scope) {
 				//	for (var i=0; i<this.def_scope.length; i++) this.def_scope[i].reset();
@@ -1637,6 +1645,8 @@
 					subscriber.expire(symbols_to_force, insertionIndex, actions_to_fire,fullexpire);
 				}
 			}
+		} else {
+			//console.log("NO EXPIRE", this.name);
 		}
 	};
 
