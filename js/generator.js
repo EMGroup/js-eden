@@ -60,15 +60,17 @@ Eden.Generator.importsScript = function() {
 	for (var x in Eden.Agent.agents) {
 		var ag = Eden.Agent.agents[x];
 		var docreate = "";
-		if (ag.meta.saveID == "origin" && !ag.meta.file) docreate = " create";
+		if (ag.meta.saveID == -1 && !ag.meta.file) docreate = " create";
 		// First import and exec last executed version
 		if (ag.last_exec_version) {
-			result += "import " + x + "@" + Eden.Agent.agents[x].last_exec_version + docreate + ";\n";
+			var tag = (ag.last_exec_version == -1) ? "origin" : ag.last_exec_version;
+			result += "import " + x + "@" + tag + docreate + ";\n";
 		}
 
 		// Now make sure actual imported version is brought in (but not executed)
 		if (ag.last_exec_version != ag.meta.saveID) {
-			result += "import " + x + "@" + Eden.Agent.agents[x].meta.saveID + docreate + " noexec;\n";
+			var tag = (ag.meta.saveID == -1) ? "origin" : ag.meta.saveID;
+			result += "import " + x + "@" + tag + docreate + " noexec;\n";
 		}
 	}
 	return result;
