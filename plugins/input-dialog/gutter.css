@@ -10,7 +10,7 @@ div.eden-gutter {
 }
 
 div.eden-gutter-item {
-	width: 22px;
+	width: 28px;
 	height: 20px;
 	border-right: 1px solid transparent;
 	padding-left: 5px;
@@ -26,7 +26,7 @@ div.eden-gutter-item {
 }
 
 div.eden-gutter-item.hover {
-	background-color: #cecece;
+	background-color: #ddd;
 }
 
 div.eden-gutter-item.hover:before {
@@ -37,6 +37,34 @@ div.eden-gutter-item.hover:before {
 	height: 20px;
 	margin-top: -4px;
 	content: " ";
+}
+
+div.eden-gutter-item.current {
+	background-color: white;
+	border-top: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+}
+
+div.eden-gutter-item.current:before {
+	opacity: 0.1;
+	background-color: #aaa;
+	position: fixed;
+	width: 5000px;
+	height: 20px;
+	margin-top: -4px;
+	margin-left: 22px;
+	content: " ";
+}
+
+div.eden-gutter-item.current:after {
+	color: #00ee00;
+	text-shadow: 2px 2px 5px #ddd;
+	font-family: "FontAwesome";
+	font-size: 10pt;
+	content: "\f04b";
+	position: absolute;
+	left: 8px;
+	margin-top: -1px;
 }
 
 div.eden-gutter-item.select {
@@ -56,15 +84,14 @@ div.eden-gutter-item.select:before {
 }
 
 div.eden-gutter-item.play:after {
-	/*color: #666;*/
-	/*text-shadow: 0px 0px 2px black;*/
+	color: #00ee00;
+	text-shadow: 2px 2px 5px #ddd;
 	font-family: "FontAwesome";
 	font-size: 10pt;
-	opacity: 0.4;
 	content: "\f04b";
 	position: absolute;
-	left: 5px;
-	margin-top: 0;
+	left: 8px;
+	margin-top: -1px;
 }
 
 div.eden-gutter-item.live {
@@ -97,10 +124,6 @@ div.eden-gutter-item.live:before {
 	margin-left: -5px;
 	content: " ";
 	position: fixed;
-}
-
-div.eden-gutter-item.current {
-	border-right-color: silver;
 }
 
 div.eden-gutter-item.errorblock {

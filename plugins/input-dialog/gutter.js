@@ -42,6 +42,8 @@ function EdenScriptGutter(parent, infob) {
 	var shiftdown;
 	var infobox = infob;
 
+	this.curline = -1;
+
 	/**
 	 * Displays the error/warning box.
 	 */
@@ -231,6 +233,7 @@ function EdenScriptGutter(parent, infob) {
 EdenScriptGutter.prototype.clear = function() {
 	this.ast = undefined;
 	this.lines = [];
+	this.curline = -1;
 	while (this.gutter.firstChild) {
 		this.gutter.removeChild(this.gutter.firstChild);
 	}
@@ -262,6 +265,16 @@ EdenScriptGutter.prototype.executeSelected = function() {
 			i = sellines[1];
 		}
 	}
+}
+
+
+EdenScriptGutter.prototype.selectLine = function(lineno) {
+	if (this.curline >= 0) {
+		this.gutter.childNodes[this.curline].className = this.gutter.childNodes[this.curline].className.replace(" current","");
+	}
+	this.curline = lineno-1;
+	console.log("LINE",lineno);
+	this.gutter.childNodes[lineno-1].className += " current";
 }
 
 
