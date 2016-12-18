@@ -53,17 +53,76 @@ function fnEdenASTleft(left) {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-Eden.AST.Local = function() {
-	this.name = "/LOCALVARIABLE";
+Eden.AST.Local = function(name) {
+	console.log("MAKE LOCAL",name);
+	this.name = "/"+name;
 	this.cvalue = undefined;
+	this.definition = undefined;
 }
 
-Eden.AST.Local.prototype.assign = function(value) {
+Eden.AST.Local.prototype.assign = function(value, scope) {
+	console.log("LOCAL ASSIGN",this.name,value,scope);
 	this.cvalue = value;
 }
 
-Eden.AST.Local.prototype.value = function() {
-	return this.cvalue;
+Eden.AST.Local.prototype.define = function(def, agent, deps) {
+	console.log("LOCAL DEFINE", def);
+	this.definition = def;
+}
+
+Eden.AST.Local.prototype.value = function(scope) {
+	console.log("LOCAL SCOPE", this.name, scope, this.cvalue);
+	if (this.definition) {
+		return this.definition.call(this, scope.context, scope);
+	} else {
+		return this.cvalue;
+	}
+}
+
+//------------------------------------------------------------------------------
+
+
+Eden.AST.Handle = function(name) {
+	console.log("MAKE HANDLE",name);
+	this.name = "/"+name;
+	this.cvalue = undefined;
+	this.definition = undefined;
+}
+
+Eden.AST.Handle.prototype.assign = function(value, scope) {
+	console.log("HANDLE ASSIGN",this.name,value,scope);
+	if (scope) scope.lookup(this.name).value = value;
+	else this.cvalue = value;
+}
+
+Eden.AST.Handle.prototype.define = function(def, agent, deps) {
+	console.log("HANDLE DEFINE", def);
+	this.definition = def;
+}
+
+Eden.AST.Handle.prototype.value = function(scope) {
+	console.log("HANDLE SCOPE", this.name, scope, this.cvalue);
+	if (this.definition) {
+		return this.definition.call(this, scope.context, scope);
+	} else {
+		if (scope) return scope.lookup(this.name).value;
+		return this.cvalue;
+	}
+}
+
+//------------------------------------------------------------------------------
+
+
+Eden.AST.Context = function(parent) {
+	this.symbols = {};
+	this.parent = parent;
+}
+
+Eden.AST.Context.prototype.lookup = function(name) {
+	console.log("LOOKUP CONTEXT",name);
+	if (this.symbols[name]) return this.symbols[name];
+	this.symbols[name] = new Eden.AST.Handle(name);
+	return this.symbols[name];
 }
 
 
@@ -402,7 +461,7 @@ Eden.AST.ScopePath.prototype.generate = function(ctx, scope, options) {
 	// Add scope to list of scopes in the context
 	//console.log(ctx);
 	//ctx.scopes.push(this.path.generate(ctx, scope, true)+".scope");
-	var path = this.path.generate(ctx, scope, {bound: true})+".scope"
+	var path = this.path.generate(ctx, scope, {bound: true, scopeonly: true})
 	//this.scopestr = "_scopes[" + (ctx.scopes.length-1) + "]";
 	// And then use that scope to access the primary.
 	//return this.primary.generate(ctx, "_scopes["+(ctx.scopes.length-1)+"]");
@@ -467,13 +526,14 @@ Eden.AST.UnaryOp = function(op, right) {
 Eden.AST.UnaryOp.prototype.error = fnEdenASTerror;
 
 Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
-	var r = this.r.generate(ctx, scope, {bound: false});
+	var r = this.r.generate(ctx, scope, {bound: false, usevar: options.usevar});
 	var res;	
 
 	if (this.op == "!") {
 		res = "!("+r+")";
 	} else if (this.op == "&") {
-		res = r;
+		res = "context.lookup("+r+")";
+		console.log(res);
 	} else if (this.op == "-") {
 		res = "-("+r+")";
 	} else if (this.op == "*") {
@@ -538,7 +598,7 @@ Eden.AST.TernaryOp.prototype.left = function(pleft) {
 };
 
 Eden.AST.TernaryOp.prototype.generate = function(ctx, scope, options) {
-	var cond = this.condition.generate(ctx, scope, {bound: false});
+	var cond = this.condition.generate(ctx, scope, {bound: false, usevar: options.usevar});
 	var first = this.first.generate(ctx, scope, options);
 	var second = this.second.generate(ctx, scope, options);
 
@@ -572,7 +632,7 @@ Eden.AST.BinaryOp.prototype.setRight = function(right) {
 }
 
 Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
-	var opts = {bound: false};
+	var opts = {bound: false, usevar: options.usevar};
 	var left = this.l.generate(ctx, scope, opts);
 	var right = this.r.generate(ctx, scope, opts);
 	var opstr;
@@ -625,7 +685,7 @@ Eden.AST.Length.prototype.left = fnEdenASTleft;
 Eden.AST.Length.prototype.error = fnEdenASTerror;
 
 Eden.AST.Length.prototype.generate = function(ctx, scope, options) {
-	var left = this.l.generate(ctx, scope, {bound: false});
+	var left = this.l.generate(ctx, scope, {bound: false, usevar: options.usevar});
 
 	if (options.bound) {
 		return "new BoundValue(rt.length("+left+"), "+scope+")";
@@ -688,6 +748,7 @@ Eden.AST.LValue.prototype.setExpression = function(express) {
 
 Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {
 	if (ctx && ctx.locals && ctx.locals.type != "declarations" && ctx.locals.hasOwnProperty(this.name)) {
+		this.islocal = true;
 		return ctx.locals[this.name];
 	}
 
@@ -747,30 +808,39 @@ Eden.AST.LValue.prototype.executeCompList = function(ctx, scope) {
 	return res;
 }
 
-Eden.AST.LValue.prototype.generate = function(ctx) {
+Eden.AST.LValue.prototype.generate = function(ctx, scope) {
 	if (this.name) {
-		if (ctx && ctx.locals && ctx.locals.type == "declarations" && ctx.locals.list.indexOf(this.name) != -1) {
-			this.islocal = true;
-			var res = this.name;
-			for (var i=0; i<this.lvaluep.length; i++) {
-				res += this.lvaluep[i].generate(ctx, "scope", {bound: false});
+		if (ctx && ctx.locals) {
+			if (ctx.locals.type == "declarations" && ctx.locals.list.indexOf(this.name) != -1) {
+				this.islocal = true;
+				var res = this.name;
+				for (var i=0; i<this.lvaluep.length; i++) {
+					res += this.lvaluep[i].generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
+				}
+				return res;
+			} else if (ctx.locals.hasOwnProperty(this.name)) {
+				this.islocal = true;
+				var res = this.name;
+				for (var i=0; i<this.lvaluep.length; i++) {
+					res += this.lvaluep[i].generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
+				}
+				return res;
 			}
-			return res;
 		}
 		if (ctx && ctx.params && ctx.params.list.indexOf(this.name) != -1) {
 			this.islocal = true;
 			var res = this.name;
 			for (var i=0; i<this.lvaluep.length; i++) {
-				res += this.lvaluep[i].generate(ctx, "scope", {bound: false});
+				res += this.lvaluep[i].generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
 			}
 			return res;
 		}
 
-		return "context.lookup(\"" + this.name + "\")";
+		return "\"" + this.name + "\"";
 	}
 
-	if (this.primary) return this.primary.generate(ctx, "scope", {bound: false});
-	if (this.express) return "context.lookup("+this.express.generate(ctx, "scope", {bound: false})+")";
+	if (this.primary) return this.primary.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
+	if (this.express) return this.express.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
 
 	// TODO: Pointer dependencies currently causing huge page redraw problems.
 	//if (ctx && ctx.dependencies) {
@@ -800,9 +870,9 @@ Eden.AST.LValueComponent.prototype.property = function(pprop) {
 	//this.errors.push.apply(this.errors, pprop.errors);
 }
 
-Eden.AST.LValueComponent.prototype.generate = function(ctx) {
+Eden.AST.LValueComponent.prototype.generate = function(ctx, scope) {
 	if (this.kind == "index") {
-		return "[rt.index("+this.indexexp.generate(ctx, "scope", {bound: false})+")]";
+		return "[rt.index("+this.indexexp.generate(ctx, scope, {bound: false})+")]";
 	//} else if (this.kind == "property") {
 	//	return "[context.lookup(\""+obs+"\").value(scope)[0][1].indexOf(\""+this.observable+"\")+1]";
 	}
@@ -1052,14 +1122,14 @@ Eden.AST.Append.prototype.setIndex = function(index) {
 	}
 }
 
-Eden.AST.Append.prototype.generate = function(ctx) {
-	var express = this.index.generate(ctx, "scope", {bound: false});
+Eden.AST.Append.prototype.generate = function(ctx, scope) {
+	var express = this.index.generate(ctx, scope, {bound: false});
 	var lvalue = this.destination.generate(ctx);
 
 	if (this.destination.islocal) {
 		return lvalue + ".push("+express+");\n";
 	} else {
-		return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.push("+express+"); }, this);";
+		return scope + ".mutate("+lvalue+", function(s) { scope.lookup(s.name).value.push("+express+"); }, this);";
 	}
 }
 
@@ -1120,9 +1190,9 @@ Eden.AST.Insert.prototype.setValue = function(value) {
 	}
 }
 
-Eden.AST.Insert.prototype.generate = function(ctx) {
-	var ix = this.index.generate(ctx, "scope", {bound: false});
-	var val = this.value.generate(ctx, "scope", {bound: false});
+Eden.AST.Insert.prototype.generate = function(ctx, scope) {
+	var ix = this.index.generate(ctx, scope, {bound: false});
+	var val = this.value.generate(ctx, scope, {bound: false});
 	var lvalue = this.destination.generate(ctx);
 	if (this.destination.islocal) {
 		return lvalue + ".splice(rt.index("+ix+"), 0, ("+val+"));";
@@ -1178,8 +1248,8 @@ Eden.AST.Delete.prototype.setIndex = function(index) {
 	}
 }
 
-Eden.AST.Delete.prototype.generate = function(ctx) {
-	var ix = this.index.generate(ctx, "scope", {bound: false});
+Eden.AST.Delete.prototype.generate = function(ctx,scope) {
+	var ix = this.index.generate(ctx, scope, {bound: false});
 	var lvalue = this.destination.generate(ctx);
 	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.splice(rt.index("+ix+"), 1); }, this);";
 }
@@ -1238,12 +1308,12 @@ Eden.AST.Definition.prototype.setSource = function(start, end) {
 	this.end = end;
 }
 
-Eden.AST.Definition.prototype.generateDef = function(ctx) {
-	var dobound = this.expression.type == "primary" || this.expression.type == "scope";
+Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
+	var dobound = (this.expression.type == "primary" && this.expression.extras.length == 0) || this.expression.type == "scope";
 	var result = "function(context, scope, cache) {\n";
 	this.locals = (ctx) ? ctx.locals : undefined;
 	this.params = (ctx) ? ctx.params : undefined;
-	var express = this.expression.generate(this, "scope", {bound: dobound});
+	var express = this.expression.generate(this, "scope", {bound: dobound, indef: true});
 
 	// Generate array of all scopes used in this definition (if any).
 	if (this.scopes.length > 0) {
@@ -1279,8 +1349,8 @@ Eden.AST.Definition.prototype.generateDef = function(ctx) {
 	return result;
 }
 
-Eden.AST.Definition.prototype.generate = function(ctx) {
-	var result = this.lvalue.generate(ctx);
+Eden.AST.Definition.prototype.generate = function(ctx,scope) {
+	var result = this.lvalue.generate(ctx,scope);
 	this.scopes = [];
 	this.dependencies = {};
 
@@ -1288,7 +1358,7 @@ Eden.AST.Definition.prototype.generate = function(ctx) {
 		// TODO Report error, this is invalid;
 		return "";
 	} else if (this.lvalue.hasListIndices()) {
-		var clist = this.lvalue.generateIndexList(this, "scope");
+		var clist = this.lvalue.generateIndexList(this, scope);
 		result += ".addExtension("+this.lvalue.generateIdStr()+", function(context, scope, value) {\n\tvalue";
 		result += clist + " = ";
 		result += this.expression.generate(this, "scope", {bound: false});
@@ -1302,7 +1372,7 @@ Eden.AST.Definition.prototype.generate = function(ctx) {
 		result += ");\n";
 		return result;
 	} else {
-	 	result += ".define(" + this.generateDef(ctx);
+	 	result = scope+".define(" +result+"," + this.generateDef(ctx, scope);
 		var deps = [];
 		for (var d in this.dependencies) {
 			deps.push(d);
@@ -1351,7 +1421,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			//if (agent === undefined) {
 			//	console.trace("UNDEF AGENT: " + source);
 			//}
-
+			console.log("DEF",rhs);
 			sym.define(eval(rhs), agent, deps, rhs);
 		}
 	} catch(e) {
@@ -1452,25 +1522,25 @@ Eden.AST.Assignment.prototype.left = function(lvalue) {
 	}
 };
 
-Eden.AST.Assignment.prototype.generate = function(ctx) {
+Eden.AST.Assignment.prototype.generate = function(ctx,scope) {
 	var result = this.lvalue.generate(ctx);
 
 	if (this.lvalue.islocal) {
 		result += " = ";
-		result += this.expression.generate(ctx, "scope", {bound: false});
+		result += this.expression.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
 		result += ";\n";
 		return result;
 	} else if (this.lvalue.hasListIndices()) {
-		result += ".listAssign(";
-		result += this.expression.generate(ctx, "scope", {bound: false});
-		result += ", scope, this, false, ";
-		result += this.lvalue.generateCompList(ctx, "scope");
+		result = scope+".listAssign("+result+",";
+		result += this.expression.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
+		result += ", this, false, ";
+		result += this.lvalue.generateCompList(ctx, scope);
 		result += ");\n";
 		return result;
 	} else {
-		result += ".assign(\n\t";
-		result += this.expression.generate(ctx, "scope",{bound: false});
-		result += ", scope, this);\n"
+		result = scope+".assign("+result+",";
+		result += this.expression.generate(ctx, scope,{bound: false, usevar: ctx.type == "scriptexpr"});
+		result += ", this);\n"
 		return result;
 	}
 };
@@ -1540,7 +1610,7 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 				sym.listAssign(this.value, scope, agent, false, complist);
 			} else {
 				this.value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
-				sym.assign(this.value,scope, agent);
+				sym.assign(this.value,(this.lvalue.islocal) ? undefined : scope, agent);
 			}
 		//}
 	} catch(e) {
@@ -1604,47 +1674,35 @@ Eden.AST.Modify.prototype.left = function(lvalue) {
 	}
 };
 
-Eden.AST.Modify.prototype.generate = function(ctx) {
+Eden.AST.Modify.prototype.generate = function(ctx, scope) {
 	var lval = this.lvalue.generate(ctx);
 	var result = lval;
 
-	if (this.lvalue.islocal == false) result += ".assign(\n\t";
-	else result += " = ";
+	if (this.lvalue.islocal == false) result = scope+".assign("+lval+","+scope+".value("+lval+")";
+	else result += " = " + lval;
 
 	var express;
 	if (this.expression) {
-		express = this.expression.generate(ctx,"scope",{bound: false});
+		express = this.expression.generate(ctx,scope,{bound: false});
 	}
 
 	// TODO Convert to rt
 	if (this.kind == "+=") {
-		result += lval;
-		if (this.lvalue.islocal == false) result += ".value(scope)";
 		result += " + " + express;
 	} else if (this.kind == "-=") {
-		result += lval;
-		if (this.lvalue.islocal == false) result += ".value(scope)";
 		result += " - " + express;
 	} else if (this.kind == "/=") {
-		result += lval;
-		if (this.lvalue.islocal == false) result += ".value(scope)";
 		result += " / " + express;
 	} else if (this.kind == "*=") {
-		result += lval;
-		if (this.lvalue.islocal == false) result += ".value(scope)";
 		result += " * " + express;
 	} else if (this.kind == "++") {
-		result += lval;
-		if (this.lvalue.islocal == false) result += ".value(scope)";
 		result += "+1";
 	} else if (this.kind == "--") {
-		result += lval;
-		if (this.lvalue.islocal == false) result += ".value(scope)";
 		result += "-1";
 	}
 
 	if (this.lvalue.islocal == false) {
-		result = result + ", scope);\n";
+		result = result + ", this);\n";
 	} else {
 		result += ";\n";
 	}
@@ -1811,21 +1869,31 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 
 	// Check if this primary is a local variable.
 	if (ctx && ctx.locals) {
-		if (ctx.locals.type == "declarations" && ctx.locals.list.indexOf(this.observable) != -1) {
-			res = this.observable;
-			for (var i=0; i<this.extras.length; i++) {
-				res += this.extras[i].generate(ctx, scope, {bound: false});
+		if (ctx.locals.type == "declarations") {
+			if (ctx.locals.list.indexOf(this.observable) != -1) {
+				console.log("OUT OF DATE DECLARATIONS");
+				res = this.observable;
+				for (var i=0; i<this.extras.length; i++) {
+					res += this.extras[i].generate(ctx, scope, {bound: false});
+				}
+				if (options.bound) {
+					return "new BoundValue("+res+","+scope+")";
+				} else {
+					return res;
+				}
 			}
-			if (options.bound) {
-				return "new BoundValue("+res+","+scope+")";
-			} else {
-				return res;
-			}
-		} else if (ctx.locals.type != "declarations" && ctx.locals.hasOwnProperty(this.observable)) {
+		} else if (ctx.locals.hasOwnProperty(this.observable)) {
+			//console.log("FOUND LOCAL",this.observable);
 			// Otherwise we need to eval the value and embed it
 			// TODO only if ctx is of type definition??
 			ctx.dirty = true;
-			res = JSON.stringify(ctx.locals[this.observable].value()); //"ctx.locals[\""+this.observable+"\"]";
+			if (options.usevar) {
+				res = this.observable;
+			} else if (options.indef) {
+				res = JSON.stringify(ctx.locals[this.observable].value()); //"ctx.locals[\""+this.observable+"\"]";
+			} else {
+				res = ctx.locals[this.observable].value();
+			}
 			for (var i=0; i<this.extras.length; i++) {
 				res += this.extras[i].generate(ctx, scope, {bound: false});
 			}
@@ -1862,32 +1930,35 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			ctx.backtickCount++;
 		}
 		if (ctx && ctx.type == "definition") {
-			res = "this.subscribeDynamic(" + id + "," + this.backtick.generate(ctx, scope,{bound: false});
+			res = "this.subscribeDynamic(" + id + "," + this.backtick.generate(ctx, scope,{bound: false, usevar: options.usevar})+")";
 		} else {
-			res = "context.lookup("+this.backtick.generate(ctx,scope, {bound: false});
+			res = this.backtick.generate(ctx,scope, {bound: false, usevar: options.usevar});
 		}
-		res += "," + scope + ")";
 		//console.log("BTICK: ",res);
 	} else {
 		if (ctx && ctx.dependencies) ctx.dependencies[this.observable] = true;
-		res = "context.lookup(\""+this.observable+"\")";
+		res = "\""+this.observable+"\"";
 	}
 
 	if (this.extras.length == 0) {
 		if (!options.bound) {
-			res += ".value("+scope+")";
+			res = scope+".value("+res+")";
 		} else {
-			res += ".boundValue("+scope+")";
+			if (options.scopeonly) {
+				res = scope+".scope("+res+")";
+			} else {
+				res = scope+".boundValue("+res+")";
+			}
 		}
 	} else {
 		//if (!options.bound) {
-			res += ".value("+scope+")";
+			res = scope+".value("+res+")";
 		//} else {
 		//	res += ".boundValue("+scope+",";
 		//}
 
 		for (var i=0; i<this.extras.length; i++) {
-			res += this.extras[i].generate(ctx, scope,{bound: false});
+			res += this.extras[i].generate(ctx, scope,{bound: false, usevar: options.usevar});
 		}
 
 		//if (options.bound) res += ")";
@@ -2096,7 +2167,7 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
 		return res + ")";
 	} else {
 		var lvalstr = this.lvalue.generate(ctx);
-		var res = lvalstr + ".value(scope).call("+lvalstr;
+		var res = scope + ".value("+lvalstr+").call("+lvalstr;
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {
 				res += ",";
@@ -2153,8 +2224,8 @@ Eden.AST.DummyStatement.prototype.error = fnEdenASTerror;
 
 
 
-
 //------------------------------------------------------------------------------
+
 
 Eden.AST.Action = function() {
 	this.type = "action";
@@ -2293,9 +2364,9 @@ Eden.AST.Return.prototype.setResult = function(result) {
 	this.errors.push.apply(this.errors, result.errors);
 }
 
-Eden.AST.Return.prototype.generate = function(ctx) {
+Eden.AST.Return.prototype.generate = function(ctx,scope) {
 	if (this.result) {
-		var res = this.result.generate(ctx, "scope",{bound: false});
+		var res = this.result.generate(ctx, scope,{bound: false, usevar: ctx.type == "scriptexpr"});
 		return "return " + res + ";\n";
 	} else {
 		return "return;\n";
@@ -2558,7 +2629,7 @@ Eden.AST.For.prototype.generate = function(ctx,scope) {
 		res += this.sstart.generate(ctx,scope) + " ";
 	} else res += "; ";
 	if (this.condition) {
-		res += this.condition.generate(ctx, "scope",{bound: false}) + "; ";
+		res += this.condition.generate(ctx, "scope",{bound: false, usevar: ctx.type == "scriptexpr"}) + "; ";
 	} else res += "; ";
 	var incer = this.inc.generate(ctx,scope);
 	if (incer.charAt(incer.length-2) == ";") incer = incer.slice(0,-2);
@@ -2571,7 +2642,7 @@ Eden.AST.For.prototype.getCondition = function(ctx) {
 	if (this.compiled && this.dirty == false) {
 		return this.compiled;
 	} else {
-		var express = this.condition.generate(ctx, "scope",{bound: false});
+		var express = this.condition.generate(ctx, "scope",{bound: false, usevar: ctx.type == "scriptexpr"});
 		if (ctx.dirty) {
 			this.dirty = true;
 			ctx.dirty = false;
@@ -3161,6 +3232,7 @@ Eden.AST.Declarations = function() {
 	this.end = 0;
 	this.parent = undefined;
 	this.line = undefined;
+	this.kind = "local";
 };
 
 Eden.AST.Declarations.prototype.error = fnEdenASTerror;
@@ -3176,6 +3248,28 @@ Eden.AST.Declarations.prototype.execute = function(ctx, base, scope, agent) {
 		for (var i=0; i<this.list.length; i++) {
 			ctx.locals[this.list[i]] = new Eden.AST.Local(this.list[i]);
 		}
+	}
+}
+
+Eden.AST.Declarations.prototype.generate = function(ctx,scope,options) {
+	if (this.kind == "local") {
+		var res = "var ";
+		if (ctx.locals === undefined) ctx.locals = {};
+		for (var i=0; i<this.list.length; i++) {
+			ctx.locals[this.list[i]] = new Eden.AST.Local(this.list[i]);
+			res += this.list[i];
+			if (i < this.list.length-1) res += ",";
+		}
+		res += ";\n";
+		return res;
+	} else if (this.kind = "oracle") {
+		var res = "";
+		if (ctx.locals === undefined) ctx.locals = {};
+		for (var i=0; i<this.list.length; i++) {
+			ctx.locals[this.list[i]] = new Eden.AST.Local(this.list[i]);
+			res += "var "+this.list[i] + " = "+scope+".value(\""+this.list[i]+"\");\n";
+		}
+		return res;
 	}
 }
 
@@ -3281,6 +3375,42 @@ Eden.AST.Script.prototype.generate = function(ctx, scope) {
 		result = result + this.statements[i].generate(ctx, scope, {bound: false});
 	}
 	result = result + "}";
+	return result;
+}
+
+
+//------------------------------------------------------------------------------
+
+Eden.AST.ScriptExpr = function() {
+	this.type = "scriptexpr";
+	this.errors = [];
+	this.statements = [];
+	this.locals = {};
+	this.dependencies = {};
+};
+
+Eden.AST.ScriptExpr.prototype.error = fnEdenASTerror;
+
+Eden.AST.ScriptExpr.prototype.append = function (ast) {
+	this.statements.push(ast);
+	if (ast.errors.length > 0) {
+		this.errors.push.apply(this.errors, ast.errors);
+	}
+}
+
+Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope) {
+	var result = "(function(escope) {\nescope.isolate = true;\nif (cache) cache.scope = escope;\nvar context = new Eden.AST.Context(context);\nescope.context = context;\n";
+	for (var i = 0; i < this.statements.length; i++) {
+		// Special case for oracles.
+		if (this.statements[i].type == "declarations" && this.statements[i].kind == "oracle") {
+			for (var j=0; j<this.statements[i].list.length; j++) {
+				ctx.dependencies[this.statements[i].list[j]] = true;
+			}
+		}
+		result = result + this.statements[i].generate(this, "escope", {bound: false});
+	}
+	result = result + "}).call(this,new Scope(context,"+scope+",[],false,this,false))";
+	
 	return result;
 }
 

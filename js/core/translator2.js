@@ -705,14 +705,14 @@ Eden.AST.prototype.pPRIMARY = function() {
 				nexpr.left(expr);
 				nexpr.setRight(btick);
 				expr = nexpr;
-			}
 
-			if (this.token == "OBSERVABLE") {
-				var nexpr = new Eden.AST.BinaryOp('//');
-				nexpr.left(expr);
-				nexpr.setRight(new Eden.AST.Literal("STRING", this.data.value));
-				expr = nexpr;
-				this.next();
+				if (this.token == "OBSERVABLE") {
+					var nexpr = new Eden.AST.BinaryOp('//');
+					nexpr.left(expr);
+					nexpr.setRight(new Eden.AST.Literal("STRING", this.data.value));
+					expr = nexpr;
+					this.next();
+				}
 			}
 
 			// Check for '.', '[' and '('... plus 'with'
@@ -1288,15 +1288,28 @@ Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
  *   EXPRESSION
  */
 Eden.AST.prototype.pEXPRESSION = function() {
-	var plain = this.pEXPRESSION_PLAIN();
+	var expr;
+
+	if (this.token == "{") {
+		this.next();
+		//var expr = new Eden.AST.World(this.pSCRIPT());
+		expr = this.pSCRIPTEXPR();
+		if (this.token != "}") {
+			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
+			return expr;
+		}
+		this.next();
+	} else {
+		expr = this.pEXPRESSION_PLAIN();
+	}
 
 	if (this.token == "with" || this.token == "::") {
 		this.next();
 		var scope = this.pSCOPE();
-		scope.setExpression(plain);
+		scope.setExpression(expr);
 		return scope;
 	} else {
-		return plain;
+		return expr;
 	}
 }
 
@@ -1491,9 +1504,10 @@ Eden.AST.prototype.pACTIONBODY = function() {
  */
 Eden.AST.prototype.pPARAMS = function() {
 	var params = new Eden.AST.Declarations();
+	params.kind = "oracle";
 
 	// Get all parameter aliases.
-	while (this.token == "para") {
+	while (this.token == "para" || this.token == "oracle") {
 		this.next();
 
 		var olist = this.pOLIST();
@@ -2061,14 +2075,14 @@ Eden.AST.prototype.pLVALUE = function() {
 				nexpr.left(expr);
 				nexpr.setRight(btick);
 				expr = nexpr;
-			}
 
-			if (this.token == "OBSERVABLE") {
-				var nexpr = new Eden.AST.BinaryOp('//');
-				nexpr.left(expr);
-				nexpr.setRight(new Eden.AST.Literal("STRING", this.data.value));
-				expr = nexpr;
-				this.next();
+				if (this.token == "OBSERVABLE") {
+					var nexpr = new Eden.AST.BinaryOp('//');
+					nexpr.left(expr);
+					nexpr.setRight(new Eden.AST.Literal("STRING", this.data.value));
+					expr = nexpr;
+					this.next();
+				}
 			}
 
 			// Check for '.', '[' and '('... plus 'with'
@@ -2853,6 +2867,199 @@ Eden.AST.prototype.pSTATEMENT = function() {
 
 
 /**
+ * STATEXPR Production
+ * STATEXPR ->
+	{ SCRIPT } |
+	for FOR |
+	while WHILE |
+	switch SWITCH |
+	case CASE |
+	default : |
+	if IF |
+	return EOPT ; |
+	continue ; |
+	break ; |
+	? CODESELECTOR ; |
+	insert INSERT |
+	delete DELETE |
+	append APPEND |
+	shift SHIFT |
+	LVALUE STATEMENT'' ; |
+	local LOCALS ; |
+	auto LOCALS ; |
+	epsilon
+ */
+Eden.AST.prototype.pSTATEXPR = function() {
+	var start = this.stream.prevposition;
+	//var curline = this.stream.line - 1;
+	//var endline = -1;
+	var stat = undefined;
+	//var end = -1;
+	var doxy = this.lastDoxyComment;
+	this.lastDoxyComment = this.parentDoxy;
+
+	switch (this.token) {
+	case "proc"		:	
+	case "func"		:	
+	case "when"		:
+	case "wait"		:
+	case "do"		:
+	case "require"	:
+	case "after"	:
+	case "import"	:	
+	case "action"	:	stat = new Eden.AST.DummyStatement();
+						stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.UNKNOWN));
+						break;
+	case "for"		:	this.next(); stat = this.pFOR(); break;
+	case "while"	:	this.next(); stat = this.pWHILE(); break;
+	case "switch"	:	this.next(); stat = this.pSWITCH(); break;
+	case "case"		:	this.next(); stat = this.pCASE(); break;
+	case "insert"	:	this.next(); stat = this.pINSERT(); break;
+	case "delete"	:	this.next(); stat = this.pDELETE(); break;
+	case "append"	:	this.next(); stat = this.pAPPEND(); break;
+	case "shift"	:	this.next(); stat = this.pSHIFT(); break;
+	case "para"		:
+	case "oracle"	:	stat = this.pPARAMS(); break;
+	case "local"	:
+	case "auto"		:	stat = this.pLOCALS(); break;
+	case "default"	:	this.next();
+						var def = new Eden.AST.Default();
+						if (this.token != ":") {
+							def.error(new Eden.SyntaxError(this,
+										Eden.SyntaxError.DEFAULTCOLON));
+						} else {
+							this.next();
+						}
+						stat = def; break;
+	case "if"		:	this.next(); stat = this.pIF(); break;
+	case "return"	:	this.next();
+						var ret = new Eden.AST.Return();
+
+						if (this.token != ";") {
+							ret.setResult(this.pEXPRESSION());
+							if (ret.errors.length > 0) {
+								stat = ret;
+								break;
+							}
+						} else {
+							this.next();
+							stat = ret;
+							break;
+						}
+
+						if (this.token != ";") {
+							ret.error(new Eden.SyntaxError(this,
+										Eden.SyntaxError.SEMICOLON));
+						} else {
+							this.next();
+						}
+
+						stat = ret; break;
+	case "continue"	:	this.next();
+						var cont = new Eden.AST.Continue();
+						if (cont.errors.length > 0) {
+							stat = cont;
+							break;
+						}
+
+						if (this.token != ";") {
+							cont.error(new Eden.SyntaxError(this,
+										Eden.SyntaxError.SEMICOLON));
+						} else {
+							this.next();
+						}
+
+						stat = cont; break;
+	case "break"	:	this.next();
+						var breakk = new Eden.AST.Break();
+						if (breakk.errors.length > 0) {
+							stat = breakk;
+							break;
+						}
+
+						if (this.token != ";") {
+							breakk.error(new Eden.SyntaxError(this,
+											Eden.SyntaxError.SEMICOLON));
+						} else {
+							this.next();
+						}
+
+						stat = breakk; break;
+	case "{"		:	this.next();
+						var script = this.pSCRIPT();
+						if (this.token != "}") {
+							script.error(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
+							endline = this.stream.line;
+							stat = script;
+							break;
+						}
+						endline = this.stream.line;
+						this.next();
+						stat = script; break;
+	case "JAVASCRIPT" : curline = this.data.line-1;
+						var js = this.data.value;
+						this.next();
+						stat = new Eden.AST.Literal("JAVASCRIPT", js);
+						endline = this.stream.line;
+						break;
+	case "`"		  :
+	case "*"		  :
+	case "OBSERVABLE" :	var lvalue = this.pLVALUE();
+						if (lvalue.errors.length > 0) {
+							stat = new Eden.AST.DummyStatement;
+							stat.lvalue = lvalue;
+							stat.errors = lvalue.errors;
+							break;
+						}
+						var formula = this.pSTATEMENT_PP();
+						formula.left(lvalue);
+
+						if (formula.errors.length > 0) {
+							stat = formula;
+							// To correctly report multi-line def errors.
+							endline = this.stream.line;
+							break;
+						}
+		
+						if (this.token != ";") {
+							formula.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
+						} else {
+							// End source here to avoid bringing comments in
+							end = this.stream.position;
+							endline = this.stream.line;
+							this.next();
+						}
+
+						if (this.definitions[lvalue.name] === undefined) this.definitions[lvalue.name] = [];
+						this.definitions[lvalue.name].push(formula);
+
+						stat = formula; break;
+	default : return undefined;
+	}
+	
+	stat.parent = this.parent;
+	stat.doxyComment = doxy;
+
+	//this.lines[curline] = stat;
+	//stat.line = curline;
+
+	// Update statements start and end so original source can be extracted.
+	//if (end == -1) {
+	//	stat.setSource(start, this.stream.prevposition);
+	//} else {
+	//	stat.setSource(start, end);
+	//}
+
+	//var endline = this.stream.line;
+	//for (var i=curline+1; i<endline; i++) {
+	//	if (this.lines[i] === undefined || stat.errors.length > 0) this.lines[i] = stat;
+	//}
+	return stat;
+};
+
+
+
+/**
  * Named Script Production
  * NAMEDSCRIPT -> observable \{ SCRIPT \}
  */
@@ -2933,6 +3140,42 @@ Eden.AST.prototype.pSCRIPT = function() {
 	}
 
 	this.parent = parent;
+	return ast;
+};
+
+/**
+ * SCRIPTEXPR Production
+ * SCRIPTEXPR -> STATEXPR SCRIPTEXPR | epsilon
+ */
+Eden.AST.prototype.pSCRIPTEXPR = function() {
+	var ast = new Eden.AST.ScriptExpr();
+
+	//ast.setLocals(this.pLOCALS());
+
+	while (this.token != "EOF") {
+		var statement = this.pSTATEXPR();
+
+		if (statement !== undefined) {
+			ast.append(statement);
+			if (statement.errors.length > 0) {
+				break;
+				// Skip until colon
+				/*while (this.token != ";" && this.token != "EOF") {
+					this.next();
+				}*/
+			}
+		} else {
+			if (this.token != "}" && this.token != ";") {
+				ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
+			}
+			if (this.token == ";") {
+				this.next();
+			} else {
+				break;
+			}
+		}
+	}
+
 	return ast;
 };
 

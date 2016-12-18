@@ -82,6 +82,7 @@
 		this.cause = cause;
 		this.causecount = 0;
 		this.range = range;
+		this.isolate = false;
 
 		if (!nobuild) this.rebuild();
 	}
@@ -237,6 +238,66 @@
 				return this.cache[name];
 			}
 		}
+	}
+
+	Scope.prototype.value = function(name) {
+		var sname = "/"+name;
+		var symcache = this.cache[sname];
+		if (symcache) {
+			if (symcache.up_to_date) return symcache.value;
+		}
+		return this.context.lookup(name).value(this);
+	}
+
+	Scope.prototype.assign = function(name, value, agent) {
+		var sname = "/"+name;
+		if (this.isolate) {
+			if (this.cache[sname] === undefined) this.cache[sname] = new ScopeCache(true, value, this, true);
+			else {
+				this.cache[sname].up_to_date = true;
+				this.cache[sname].override = true;
+				this.cache[sname].value = value;
+				this.cache[sname].scope = this;
+			}
+		} else {
+			this.context.lookup(name).assign(value, this, agent);
+		}
+	}
+
+	Scope.prototype.mutate = function(name, func, agent) {
+		this.context.lookup(name).mutate(this, func, agent);
+	}
+
+	Scope.prototype.listAssign = function(name, value, agent, ptn, indices) {
+		this.context.lookup(name).listAssign(value, this, agent, false, indices);
+	}
+
+	Scope.prototype.define = function(name, def, deps, agent) {
+		this.context.lookup(name).define(def, deps, agent);
+	}
+
+	Scope.prototype.boundValue = function(name) {
+		return this.context.lookup(name).boundValue(this);
+	}
+
+	Scope.prototype.scope = function(name) {
+		var symcache = this.cache["/"+name];
+		if (symcache) {
+			if (symcache.up_to_date) return symcache.scope;
+		}
+		return this.context.lookup(name).boundValue(this).scope;
+	}
+
+	Scope.prototype.lookup2 = function(name) {
+		//if (this.cache === undefined) return;
+		if (this.isolate == false) return this.lookup(name);
+
+		var symcache = this.cache[name];
+		if (symcache === undefined) {
+			symcache = new ScopeCache(true, undefined, undefined, false);
+			this.cache[name] = symcache;
+		}
+		return symcache;
 	}
 
 	Scope.prototype.add = function(name) {
@@ -1285,7 +1346,7 @@
 			}
 		}
 		this.dynamicDependencyTable[position] = dependency;
-		return this.context.lookup(dependency);
+		return dependency; //this.context.lookup(dependency);
 	}
 
 	
@@ -1427,13 +1488,13 @@
 		this.extend = undefined;
 
 		//if (this.context) {
-		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
+		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup2(this.name);
 		// TODO Loop to base scope if not override
-		while (scope.parent && !cache.override) {
-			scope = scope.parent;
-			cache.value = value;
-			cache = scope.lookup(this.name);
-		}
+		//while (scope.parent && !cache.override) {
+		//	scope = scope.parent;
+		//	cache.value = value;
+		//	cache = scope.lookup(this.name);
+		//}
 
 		cache.value = value;
 		cache.up_to_date = true;
