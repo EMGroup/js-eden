@@ -292,7 +292,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	 * update all visible symbol lists.
 	 */
 	var symbolChanged = function (sym, kind) {
-		var name = sym.name.substr(1);
+		var name = sym.name;
 
 		if (kind == 1) {
 			symbol_create_queue[name] = sym;
