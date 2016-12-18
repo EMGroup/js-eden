@@ -448,17 +448,20 @@ Eden.AST.prototype.pEXPRESSION_PPPPP = function() {
 /*
  * F ->
  *	( EXPRESSION ) |
- *	- number |
+ *	- FACTOR |
  *	number |
  *	string |
- *  heredoc |
+ *  << observable string observable |
  *  boolean |
  *  character
  *  JAVASCRIPT |
+ *  $ # |
  *	$ NUMBER |
  *	[ ELIST ] |
  *	& LVALUE |
- *	! PRIMARY |
+ *  @ |
+ *  * FACTOR |
+ *	! FACTOR |
  *	PRIMARY	
  */
 Eden.AST.prototype.pFACTOR = function() {
@@ -639,7 +642,7 @@ Eden.AST.prototype.pFACTOR = function() {
 
 /**
  * PRIMARY Production
- * PRIMARY -> observable PRIMARY' | ` EXPRESSION ` PRIMARY'
+ * PRIMARY -> observable {\{ EXPRESSION \}} PRIMARY' | ` EXPRESSION ` PRIMARY'
  */
 Eden.AST.prototype.pPRIMARY = function() {
 	// Backticks on RHS
@@ -702,14 +705,14 @@ Eden.AST.prototype.pPRIMARY = function() {
 				nexpr.left(expr);
 				nexpr.setRight(btick);
 				expr = nexpr;
-			}
 
-			if (this.token == "OBSERVABLE") {
-				var nexpr = new Eden.AST.BinaryOp('//');
-				nexpr.left(expr);
-				nexpr.setRight(new Eden.AST.Literal("STRING", this.data.value));
-				expr = nexpr;
-				this.next();
+				if (this.token == "OBSERVABLE") {
+					var nexpr = new Eden.AST.BinaryOp('//');
+					nexpr.left(expr);
+					nexpr.setRight(new Eden.AST.Literal("STRING", this.data.value));
+					expr = nexpr;
+					this.next();
+				}
 			}
 
 			// Check for '.', '[' and '('... plus 'with'
@@ -1027,7 +1030,7 @@ Eden.AST.prototype.pPRIMARY_PPP = function() {
 
 /**
  * Primary Quad Prime Production. DEFUNCT
- * PRIMARY'''' -> with SCOPE | epsilon
+ * PRIMARY'''' -> epsilon
  */
 Eden.AST.prototype.pPRIMARY_PPPP = function() {
 	/*if (this.token == "with") {
@@ -1061,6 +1064,9 @@ Eden.AST.prototype.pSCOPE = function() {
 
 
 
+/**
+ * SCOPEPATTERN -> observable {[ EXPRESSION ]}
+ */
 Eden.AST.prototype.pSCOPEPATTERN = function() {
 	var sname = new Eden.AST.ScopePattern();
 	if (this.token != "OBSERVABLE") {
@@ -1091,11 +1097,20 @@ Eden.AST.prototype.pSCOPEPATTERN = function() {
 	return sname;
 }
 
+/**
+ * SCOPE''' ->
+ *   .. EXPRESSION SCOPE'' |
+ *   SCOPE''
+ */
+
 
 
 /**
  * SCOPE Prime Production
- * SCOPE' -> observable SCOPE''
+ * SCOPE' ->
+ *   observable is EXPRESSION SCOPE'''
+ *   observable in EXPRESSION SCOPE'''
+ *   observable = EXPRESSION SCOPE'''
  */
 Eden.AST.prototype.pSCOPE_P = function() {
 	var obs = this.pSCOPEPATTERN();
@@ -1152,7 +1167,7 @@ Eden.AST.prototype.pSCOPE_P = function() {
 
 /**
  * Scope Prime Prime Production
- * SCOPE'' -> , SCOPE | epsilon
+ * SCOPE'' -> , SCOPE' | epsilon
  */
 Eden.AST.prototype.pSCOPE_PP = function() {
 	if (this.token == ",") {
@@ -1267,25 +1282,41 @@ Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
 
 /**
  * Scoped Expression Production
- * SCOPEDEXP -> EXPRESSION { with SCOPE | epsilon }
+ * SCOPEDEXP ->
+ *   EXPRESSION with SCOPE |
+ *   EXPRESSION :: SCOPE |
+ *   EXPRESSION
  */
 Eden.AST.prototype.pEXPRESSION = function() {
-	var plain = this.pEXPRESSION_PLAIN();
+	var expr;
+
+	if (this.token == "{") {
+		this.next();
+		//var expr = new Eden.AST.World(this.pSCRIPT());
+		expr = this.pSCRIPTEXPR();
+		if (this.token != "}") {
+			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
+			return expr;
+		}
+		this.next();
+	} else {
+		expr = this.pEXPRESSION_PLAIN();
+	}
 
 	if (this.token == "with" || this.token == "::") {
 		this.next();
 		var scope = this.pSCOPE();
-		scope.setExpression(plain);
+		scope.setExpression(expr);
 		return scope;
 	} else {
-		return plain;
+		return expr;
 	}
 }
 
 
 /**
  * ACTION Production
- * ACTION -> observable : OLIST ACTIONBODY
+ * ACTION -> observable : OLIST FUNCBODY
  */
 Eden.AST.prototype.pACTION = function() {
 	var action = new Eden.AST.Action();
@@ -1322,10 +1353,16 @@ Eden.AST.prototype.pACTION = function() {
 	return action;
 }
 
+/**
+ * WHEN' ->
+ *   with SCOPE |
+ *   :: SCOPE |
+ *   epsilon
+ */
 
 /**
  * WHEN Production
- * WHEN -> ( EXPRESSION ) STATEMENT
+ * WHEN -> ( EXPRESSION ) STATEMENT WHEN'
  */
 Eden.AST.prototype.pWHEN = function() {
 	var when = new Eden.AST.When();
@@ -1467,9 +1504,10 @@ Eden.AST.prototype.pACTIONBODY = function() {
  */
 Eden.AST.prototype.pPARAMS = function() {
 	var params = new Eden.AST.Declarations();
+	params.kind = "oracle";
 
 	// Get all parameter aliases.
-	while (this.token == "para") {
+	while (this.token == "para" || this.token == "oracle") {
 		this.next();
 
 		var olist = this.pOLIST();
@@ -1592,11 +1630,18 @@ Eden.AST.prototype.pIF_P = function() {
 	return undefined;
 }
 
+/**
+ * RANGE ->
+ *   EXPRESSION .. EXPRESSION |
+ *   EXPRESSION
+ */
 
 
 /**
  * FOR Production
- * FOR -> ( STATEMENT'_OPT ; EXPRESSION_OPT ; STATEMENT'_OPT ) STATEMENT
+ * FOR ->
+ *	( STATEMENT'_OPT ; EXPRESSION_OPT ; STATEMENT'_OPT ) STATEMENT
+ *  | ( observable in RANGE ) STATEMENT
  */
 Eden.AST.prototype.pFOR = function() {
 	var forast = new Eden.AST.For();
@@ -1684,7 +1729,7 @@ Eden.AST.prototype.pFOR = function() {
 
 /**
  * WHILE Production
- * WHILE -> ( EOPT ) STATEMENT
+ * WHILE -> ( EXPRESSION ) STATEMENT
  */
 Eden.AST.prototype.pWHILE = function() {
 	var w = new Eden.AST.While();
@@ -1726,10 +1771,19 @@ Eden.AST.prototype.pWHILE = function() {
 }
 
 
+/**
+ * DO' ->
+ *   with SCOPE
+ *   | :: SCOPE
+ *   | epsilon
+ */
+
 
 /**
  * Do Production
- * DO -> observable ELIST SCOPE;
+ * DO ->
+ *   CODESELECTOR ELIST DO';
+ *   \{ SCRIPT \} DO';
  */
 Eden.AST.prototype.pDO = function() {
 	var w = new Eden.AST.Do();
@@ -1804,7 +1858,7 @@ Eden.AST.prototype.pDO = function() {
 
 /**
  * SWITCH Production
- * SWITCH -> ( EXPRESSION ) STATEMENT
+ * SWITCH -> ( EXPRESSION ) SCRIPT
  */
 Eden.AST.prototype.pSWITCH = function() {
 	var swi = new Eden.AST.Switch();
@@ -1874,7 +1928,7 @@ Eden.AST.prototype.pFUNCTION = function() {
 
 /**
  * FUNCBODY Production
- * FUNCBODY -> { PARAS LOCALS SCRIPT }
+ * FUNCBODY -> \{ PARAS LOCALS SCRIPT \}
  */
 Eden.AST.prototype.pFUNCBODY = function() {
 	var codebody = new Eden.AST.CodeBlock();
@@ -1957,11 +2011,20 @@ Eden.AST.prototype.pLVALUE_P = function() {
 	return components;
 };
 
+/**
+ * LVALUE'' ->
+ *  \{ EXPRESSION \} LVALUE''
+ *  | observable LVALUE''
+ *  | LVALUE'
+ */
 
 
 /**
  * LVALUE Production
- * LVALUE -> observable LVALUE' | * PRIMARY LVALUE' | ` EXPRESSION ` LVALUE'
+ * LVALUE ->
+ *   observable LVALUE'' |
+ *   * PRIMARY LVALUE' |
+ *   ` EXPRESSION ` LVALUE'
  */
 Eden.AST.prototype.pLVALUE = function() {
 	var lvalue = new Eden.AST.LValue();
@@ -2012,14 +2075,14 @@ Eden.AST.prototype.pLVALUE = function() {
 				nexpr.left(expr);
 				nexpr.setRight(btick);
 				expr = nexpr;
-			}
 
-			if (this.token == "OBSERVABLE") {
-				var nexpr = new Eden.AST.BinaryOp('//');
-				nexpr.left(expr);
-				nexpr.setRight(new Eden.AST.Literal("STRING", this.data.value));
-				expr = nexpr;
-				this.next();
+				if (this.token == "OBSERVABLE") {
+					var nexpr = new Eden.AST.BinaryOp('//');
+					nexpr.left(expr);
+					nexpr.setRight(new Eden.AST.Literal("STRING", this.data.value));
+					expr = nexpr;
+					this.next();
+				}
 			}
 
 			// Check for '.', '[' and '('... plus 'with'
@@ -2048,11 +2111,13 @@ Eden.AST.prototype.pLVALUE = function() {
  * STATEMENT PrimePrime Production
  * STATEMENT''	->
  *	is EXPRESSION |
+ *  in EXPRESSION .. EXPRESSION |
  *	= EXPRESSION |
  *	+= EXPRESSION |
  *	-= EXPRESSION |
  *	/= EXPRESSION |
  *	*= EXPRESSION |
+ *  ~> [ OLIST ] |
  *	++ |
  *	-- |
  *  ( ELIST )
@@ -2366,19 +2431,6 @@ Eden.AST.prototype.pAFTER = function() {
 
 
 
-/**
- * INCLUDE Production
- * INCLUDE -> ( EXPRESSION ) ; INCLUDE'
- */
-Eden.AST.prototype.pINCLUDE = function() {
-	var express = this.pEXPRESSION();
-	var inc = new Eden.AST.Include();//this.pINCLUDE_P();
-	inc.prepend(express);
-	return inc;
-}
-
-
-
 Eden.AST.prototype.pAGENTPATH = function() {
 	if (this.token != "OBSERVABLE" && Language.keywords[this.token] === undefined) {
 		return "_ERROR_";
@@ -2591,6 +2643,10 @@ Eden.AST.prototype.pIMPORT = function() {
 
 
 
+/**
+ * Wait Production
+ * WAIT -> EXPRESSION ;
+ */
 Eden.AST.prototype.pWAIT = function() {
 	var wait = new Eden.AST.Wait();
 
@@ -2619,6 +2675,7 @@ Eden.AST.prototype.pWAIT = function() {
 	when WHEN |
 	proc ACTION |
 	func FUNCTION |
+	action NAMEDSCRIPT |
 	for FOR |
 	while WHILE |
 	switch SWITCH |
@@ -2628,17 +2685,18 @@ Eden.AST.prototype.pWAIT = function() {
 	return EOPT ; |
 	continue ; |
 	break ; |
-	? LVALUE ; |
+	? CODESELECTOR ; |
 	insert INSERT |
 	delete DELETE |
 	append APPEND |
 	shift SHIFT |
 	require REQUIRE |
-	await AWAIT |
 	after AFTER |
-	option OPTION |
-	include INCLUDE |
+	import IMPORT |
 	LVALUE STATEMENT'' ; |
+	local LOCALS ; |
+	auto LOCALS ; |
+	wait EXPRESSION ; |
 	epsilon
  */
 Eden.AST.prototype.pSTATEMENT = function() {
@@ -2667,7 +2725,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "shift"	:	this.next(); stat = this.pSHIFT(); break;
 	case "require"	:	this.next(); stat = this.pREQUIRE(); break;
 	case "after"	:	this.next(); stat = this.pAFTER(); break;
-	case "include"	:	this.next(); stat = this.pINCLUDE(); break;
+	//case "include"	:	this.next(); stat = this.pINCLUDE(); break;
 	case "import"	:	this.next(); stat = this.pIMPORT(); break;
 	case "local"	:
 	case "auto"		:	stat = this.pLOCALS(); break;
@@ -2808,6 +2866,203 @@ Eden.AST.prototype.pSTATEMENT = function() {
 
 
 
+/**
+ * STATEXPR Production
+ * STATEXPR ->
+	{ SCRIPT } |
+	for FOR |
+	while WHILE |
+	switch SWITCH |
+	case CASE |
+	default : |
+	if IF |
+	return EOPT ; |
+	continue ; |
+	break ; |
+	? CODESELECTOR ; |
+	insert INSERT |
+	delete DELETE |
+	append APPEND |
+	shift SHIFT |
+	LVALUE STATEMENT'' ; |
+	local LOCALS ; |
+	auto LOCALS ; |
+	epsilon
+ */
+Eden.AST.prototype.pSTATEXPR = function() {
+	var start = this.stream.prevposition;
+	//var curline = this.stream.line - 1;
+	//var endline = -1;
+	var stat = undefined;
+	//var end = -1;
+	var doxy = this.lastDoxyComment;
+	this.lastDoxyComment = this.parentDoxy;
+
+	switch (this.token) {
+	case "proc"		:	
+	case "func"		:	
+	case "when"		:
+	case "wait"		:
+	case "do"		:
+	case "require"	:
+	case "after"	:
+	case "import"	:	
+	case "action"	:	stat = new Eden.AST.DummyStatement();
+						stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.UNKNOWN));
+						break;
+	case "for"		:	this.next(); stat = this.pFOR(); break;
+	case "while"	:	this.next(); stat = this.pWHILE(); break;
+	case "switch"	:	this.next(); stat = this.pSWITCH(); break;
+	case "case"		:	this.next(); stat = this.pCASE(); break;
+	case "insert"	:	this.next(); stat = this.pINSERT(); break;
+	case "delete"	:	this.next(); stat = this.pDELETE(); break;
+	case "append"	:	this.next(); stat = this.pAPPEND(); break;
+	case "shift"	:	this.next(); stat = this.pSHIFT(); break;
+	case "para"		:
+	case "oracle"	:	stat = this.pPARAMS(); break;
+	case "local"	:
+	case "auto"		:	stat = this.pLOCALS(); break;
+	case "default"	:	this.next();
+						var def = new Eden.AST.Default();
+						if (this.token != ":") {
+							def.error(new Eden.SyntaxError(this,
+										Eden.SyntaxError.DEFAULTCOLON));
+						} else {
+							this.next();
+						}
+						stat = def; break;
+	case "if"		:	this.next(); stat = this.pIF(); break;
+	case "return"	:	this.next();
+						var ret = new Eden.AST.Return();
+
+						if (this.token != ";") {
+							ret.setResult(this.pEXPRESSION());
+							if (ret.errors.length > 0) {
+								stat = ret;
+								break;
+							}
+						} else {
+							this.next();
+							stat = ret;
+							break;
+						}
+
+						if (this.token != ";") {
+							ret.error(new Eden.SyntaxError(this,
+										Eden.SyntaxError.SEMICOLON));
+						} else {
+							this.next();
+						}
+
+						stat = ret; break;
+	case "continue"	:	this.next();
+						var cont = new Eden.AST.Continue();
+						if (cont.errors.length > 0) {
+							stat = cont;
+							break;
+						}
+
+						if (this.token != ";") {
+							cont.error(new Eden.SyntaxError(this,
+										Eden.SyntaxError.SEMICOLON));
+						} else {
+							this.next();
+						}
+
+						stat = cont; break;
+	case "break"	:	this.next();
+						var breakk = new Eden.AST.Break();
+						if (breakk.errors.length > 0) {
+							stat = breakk;
+							break;
+						}
+
+						if (this.token != ";") {
+							breakk.error(new Eden.SyntaxError(this,
+											Eden.SyntaxError.SEMICOLON));
+						} else {
+							this.next();
+						}
+
+						stat = breakk; break;
+	case "{"		:	this.next();
+						var script = this.pSCRIPT();
+						if (this.token != "}") {
+							script.error(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
+							endline = this.stream.line;
+							stat = script;
+							break;
+						}
+						endline = this.stream.line;
+						this.next();
+						stat = script; break;
+	case "JAVASCRIPT" : curline = this.data.line-1;
+						var js = this.data.value;
+						this.next();
+						stat = new Eden.AST.Literal("JAVASCRIPT", js);
+						endline = this.stream.line;
+						break;
+	case "`"		  :
+	case "*"		  :
+	case "OBSERVABLE" :	var lvalue = this.pLVALUE();
+						if (lvalue.errors.length > 0) {
+							stat = new Eden.AST.DummyStatement;
+							stat.lvalue = lvalue;
+							stat.errors = lvalue.errors;
+							break;
+						}
+						var formula = this.pSTATEMENT_PP();
+						formula.left(lvalue);
+
+						if (formula.errors.length > 0) {
+							stat = formula;
+							// To correctly report multi-line def errors.
+							endline = this.stream.line;
+							break;
+						}
+		
+						if (this.token != ";") {
+							formula.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
+						} else {
+							// End source here to avoid bringing comments in
+							end = this.stream.position;
+							endline = this.stream.line;
+							this.next();
+						}
+
+						if (this.definitions[lvalue.name] === undefined) this.definitions[lvalue.name] = [];
+						this.definitions[lvalue.name].push(formula);
+
+						stat = formula; break;
+	default : return undefined;
+	}
+	
+	stat.parent = this.parent;
+	stat.doxyComment = doxy;
+
+	//this.lines[curline] = stat;
+	//stat.line = curline;
+
+	// Update statements start and end so original source can be extracted.
+	//if (end == -1) {
+	//	stat.setSource(start, this.stream.prevposition);
+	//} else {
+	//	stat.setSource(start, end);
+	//}
+
+	//var endline = this.stream.line;
+	//for (var i=curline+1; i<endline; i++) {
+	//	if (this.lines[i] === undefined || stat.errors.length > 0) this.lines[i] = stat;
+	//}
+	return stat;
+};
+
+
+
+/**
+ * Named Script Production
+ * NAMEDSCRIPT -> observable \{ SCRIPT \}
+ */
 Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	var name;
 
@@ -2885,6 +3140,42 @@ Eden.AST.prototype.pSCRIPT = function() {
 	}
 
 	this.parent = parent;
+	return ast;
+};
+
+/**
+ * SCRIPTEXPR Production
+ * SCRIPTEXPR -> STATEXPR SCRIPTEXPR | epsilon
+ */
+Eden.AST.prototype.pSCRIPTEXPR = function() {
+	var ast = new Eden.AST.ScriptExpr();
+
+	//ast.setLocals(this.pLOCALS());
+
+	while (this.token != "EOF") {
+		var statement = this.pSTATEXPR();
+
+		if (statement !== undefined) {
+			ast.append(statement);
+			if (statement.errors.length > 0) {
+				break;
+				// Skip until colon
+				/*while (this.token != ";" && this.token != "EOF") {
+					this.next();
+				}*/
+			}
+		} else {
+			if (this.token != "}" && this.token != ";") {
+				ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
+			}
+			if (this.token == ";") {
+				this.next();
+			} else {
+				break;
+			}
+		}
+	}
+
 	return ast;
 };
 
