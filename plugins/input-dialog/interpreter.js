@@ -2057,10 +2057,11 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 						refreshentire = true;
 					} else {
 						// Move caret to clicked location
-						var curline = currentlineno;
 						intextarea.focus();
 						intextarea.selectionEnd = end;
 						intextarea.selectionStart = end;
+						var curline = getLineNumber(intextarea);
+						gutter.selectLine(curline);
 						if (highlighter.ast) {		
 							highlighter.highlight(highlighter.ast, curline, end);
 							updateLineCachedHighlight();

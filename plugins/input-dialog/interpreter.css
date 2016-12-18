@@ -414,7 +414,7 @@ div.outputcontent {
 	min-width: calc(100% - 22px);
 	min-height: calc(100% - 1px);
 	resize: none;
-	margin-left: 22px;
+	margin-left: 28px;
 	border-left-width: 1px;
 	border-left-style: solid;
 	border-left-color: #e5e5e5;
