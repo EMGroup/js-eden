@@ -93,7 +93,7 @@
 	 */
 	Scope.prototype.hasCause = function(cause) {
 		var scope = this;
-		var causename = "/"+cause;
+		var causename = cause;
 		while (scope) {
 			if (scope.cause.name == causename) return true;
 			scope = scope.parent;
@@ -104,7 +104,7 @@
 	Scope.prototype.baseCause = function() {
 		var scope = this;
 		while(scope.parent && scope.parent.parent) scope = scope.parent;
-		return scope.cause.name.slice(1);
+		return scope.cause.name;
 	}
 
 	Scope.prototype.allCauses = function() {
@@ -133,9 +133,9 @@
 	}
 
 	Scope.prototype.primaryCause = function() {
-		if (this.cause && this.cause.name == "/null") {
+		if (this.cause && this.cause.name == "null") {
 			if (this.parent && this.parent.cause) {
-				return this.parent.cause.name.slice(1);
+				return this.parent.cause.name;
 			}
 		}
 		return "null";
@@ -156,9 +156,9 @@
 		//console.log("REBUILD");
 		this.cache = {};
 
-		this.add("/cause");
-		this.add("/has");
-		this.add("/from");
+		this.add("cause");
+		this.add("has");
+		this.add("from");
 
 		/* Process the overrides */
 		for (var i = 0; i < this.overrides.length; i++) {
@@ -241,8 +241,7 @@
 	}
 
 	Scope.prototype.value = function(name) {
-		var sname = "/"+name;
-		var symcache = this.cache[sname];
+		var symcache = this.cache[name];
 		if (symcache) {
 			if (symcache.up_to_date) return symcache.value;
 		}
@@ -250,14 +249,13 @@
 	}
 
 	Scope.prototype.assign = function(name, value, agent) {
-		var sname = "/"+name;
 		if (this.isolate) {
-			if (this.cache[sname] === undefined) this.cache[sname] = new ScopeCache(true, value, this, true);
+			if (this.cache[name] === undefined) this.cache[name] = new ScopeCache(true, value, this, true);
 			else {
-				this.cache[sname].up_to_date = true;
-				this.cache[sname].override = true;
-				this.cache[sname].value = value;
-				this.cache[sname].scope = this;
+				this.cache[name].up_to_date = true;
+				this.cache[name].override = true;
+				this.cache[name].value = value;
+				this.cache[name].scope = this;
 			}
 		} else {
 			this.context.lookup(name).assign(value, this, agent);
@@ -281,7 +279,7 @@
 	}
 
 	Scope.prototype.scope = function(name) {
-		var symcache = this.cache["/"+name];
+		var symcache = this.cache[name];
 		if (symcache) {
 			if (symcache.up_to_date) return symcache.scope;
 		}
@@ -317,7 +315,7 @@
 	}
 
 	Scope.prototype.updateOverride = function(override) {
-		var name = "/"+override.name;
+		var name = override.name;
 		var currentval;
 		var currentscope;
 
@@ -347,7 +345,7 @@
 		//console.log("Adding scope subscriber...: " + name);
 		if (this.cache[name] === undefined) {
 			this.cache[name] = new ScopeCache( false, undefined, this);
-			var sym = this.context.lookup(name.substr(1));
+			var sym = this.context.lookup(name);
 			for (var d in sym.subscribers) {
 				this.updateSubscriber(d);
 			}
@@ -583,7 +581,7 @@
 	 */
 	Folder.prototype.lookup = function (name) {
 		if (this.symbols[name] === undefined) {
-			this.symbols[name] = new Symbol(this, this.name + name);
+			this.symbols[name] = new Symbol(this, name);
 			this.notifyGlobals(this.symbols[name], 1);
 		}
 		return this.symbols[name];
@@ -593,7 +591,7 @@
 		if (this.currentObservables.length == 0) {
 			return undefined;
 		} else {
-			return this.currentObservables[this.currentObservables.length - 1].name.slice(1);
+			return this.currentObservables[this.currentObservables.length - 1].name;
 		}
 	}
 
@@ -617,7 +615,7 @@
 	Folder.prototype.collectGarbage = function () {
 		for (var name in this.potentialGarbage) {
 			if (this.potentialGarbage[name].garbage) {
-				delete this.symbols[name.slice(1)];
+				delete this.symbols[name];
 			}
 		}
 		this.potentialGarbage = {};
@@ -755,7 +753,7 @@
 		var symbolsToForce = [];
 		for (var i = 0; i < symbolNamesArray.length; i++) {
 			// force re-eval
-			var sym = this.symbols[symbolNamesArray[i].slice(this.name.length)];
+			var sym = this.symbols[symbolNamesArray[i]];
 			sym.evaluateIfDependenciesExist();
 			sym.needsGlobalNotify = Symbol.EXPIRED;
 			symbolsToForce.push(sym);
@@ -873,7 +871,7 @@
 			for (var i = 0; i < obsToDelete.length; i++) {
 				var name;
 				if (obsToDelete[i] instanceof Symbol) {
-					name = obsToDelete[i].name.slice(1);
+					name = obsToDelete[i].name;
 					symbol = obsToDelete[i];
 				} else if (typeof(obsToDelete[i]) == "string") {
 					name = obsToDelete[i];
@@ -896,10 +894,10 @@
 				} else {
 					var referencedBy = [];
 					for (var dependency in symbol.subscribers) {
-						referencedBy.push(dependency.slice(1));
+						referencedBy.push(dependency);
 					}
 					for (var triggeredProc in symbol.observers) {
-						referencedBy.push(triggeredProc.slice(1));
+						referencedBy.push(triggeredProc);
 					}
 					references[name] = referencedBy;
 				}
@@ -930,10 +928,10 @@
 						symbol = root.symbols[name];
 						var referencedBy = [];
 						for (var dependency in symbol.subscribers) {
-							referencedBy.push(dependency.slice(1));
+							referencedBy.push(dependency);
 						}
 						for (var triggeredProc in symbol.observers) {
-							referencedBy.push(triggeredProc.slice(1));
+							referencedBy.push(triggeredProc);
 						}
 						references[name] = referencedBy;
 					//}
@@ -1546,7 +1544,7 @@
 	 */
 	Symbol.prototype.assignFunction = function (f, agent) {
 		this.assign(f, this.context.scope, agent);
-		this.eden_definition = "func " + this.name.slice(1);
+		this.eden_definition = "func " + this.name;
 		this.definition = function (context, scope) { return f; }
 	}
 
@@ -1601,7 +1599,7 @@
 	 *	i.e. &name
 	 */
 	Symbol.prototype.getEdenCode = function () {
-		return "&" + this.name.slice(1);
+		return "&" + this.name;
 	}
 	
 	Symbol.prototype.trigger = function () {
@@ -1735,7 +1733,7 @@
 	Symbol.prototype.getDependencies = function() {
 		var res = [];
 		for (var d in this.dependencies) {
-			res.push(d.slice(1));
+			res.push(d);
 		}
 		console.log("Dependencies");
 		return res;
@@ -1745,10 +1743,10 @@
 		if (path === undefined) {
 			path = [];
 		}
-		path.push(this.name.slice(1));
+		path.push(this.name);
 
 		if (this.dependencies[name]) {
-			var details = path.join(" -> ") + " -> " + name.slice(1) + " -> " + path[0];
+			var details = path.join(" -> ") + " -> " + name + " -> " + path[0];
 			throw new Error("Cyclic dependency detected: " + details);
 		}
 

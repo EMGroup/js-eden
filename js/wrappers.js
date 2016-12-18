@@ -79,7 +79,7 @@ Eden.Agent = function(parent, name, meta, options) {
 	// Watch to trigger whens
 	eden.root.addGlobal(function(sym, create) {
 		if (me.ast && me.executed && me.ast.script.errors.length == 0) {
-			var whens = me.ast.triggers[sym.name.slice(1)];
+			var whens = me.ast.triggers[sym.name];
 			if (whens) {
 				//clearExecutedState();
 				for (var i=0; i<whens.length; i++) {
@@ -867,7 +867,7 @@ Eden.Agent.prototype.on = function(name, cb) {
 	this.watches.push(name);
 	eden.root.lookup(name).addJSObserver(this.name, function(sym,value) {
 		//if (sym.last_modified_by != me.name)
-		cb.call(me, sym.name.slice(1), value);
+		cb.call(me, sym.name, value);
 	});
 }
 
