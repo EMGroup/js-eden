@@ -2167,7 +2167,7 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
 		return res + ")";
 	} else {
 		var lvalstr = this.lvalue.generate(ctx);
-		var res = scope + ".value("+lvalstr+").call("+lvalstr;
+		var res = scope + ".value("+lvalstr+").call(context.lookup("+lvalstr+")";
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {
 				res += ",";

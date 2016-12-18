@@ -301,7 +301,7 @@ Eden.Query.searchDepends = function(q) {
 	var res = [];
 	for (var x in eden.root.symbols) {
 		for (var y in eden.root.symbols[x].dependencies) {
-			if (q.test(y.slice(1))) res.push(x);
+			if (q.test(y)) res.push(x);
 		}
 	}
 	return res;
@@ -353,7 +353,7 @@ Eden.Query.treeBottomUp = function() {
 			if (!sym) continue;
 			var dest = base[x];
 			for (var y in sym.subscribers) {
-				dest[y.slice(1)] = {};
+				dest[y] = {};
 			}
 			processSymbol(dest);
 		}
@@ -389,7 +389,7 @@ Eden.Query.treeTopDown = function(base) {
 			if (!sym) continue;
 			var dest = base[x];
 			for (var y in sym.dependencies) {
-				dest[y.slice(1)] = {};
+				dest[y] = {};
 			}
 			processSymbol(dest);
 		}
@@ -426,7 +426,7 @@ Eden.Query.objectHierarchy = function() {
 			if (!sym || !testSymbol(sym)) continue;
 			var dest = base[x];
 			for (var y in sym.dependencies) {
-				dest[y.slice(1)] = {};
+				dest[y] = {};
 			}
 			processSymbol(dest);
 		}
@@ -451,7 +451,7 @@ Eden.Query.dependencyTree = function(base) {
 
 	function processBase(sym) {
 		//console.log(sym.name);
-		var name = sym.name.slice(1);
+		var name = sym.name;
 		if (Object.keys(sym.subscribers).length == 0) {
 			if (nbase[name] === undefined) nbase[name] = {};
 			return nbase[name];

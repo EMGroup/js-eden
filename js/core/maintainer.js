@@ -244,8 +244,9 @@
 		var symcache = this.cache[name];
 		if (symcache) {
 			if (symcache.up_to_date) return symcache.value;
+			return this.context.lookup(name).value(this);
 		}
-		return this.context.lookup(name).value(this);
+		return this.context.lookup(name).value();
 	}
 
 	Scope.prototype.assign = function(name, value, agent) {
@@ -446,50 +447,6 @@
 		this.caches = [];
 	}
 
-	/*Scope.prototype.toString = function() {
-		var result = "{";
-		for (var a in this.cache) {
-			if (typeof this.cache[a].value != "object") {
-				result += a.slice(1) + ": " + this.context.lookup(a).value(this) + ",";
-			}
-		}
-		result += "}";
-		return result;
-	}*/
-
-	/*Scope.prototype.assign = function(name, value, modifying_agent, pushToNetwork) {
-		var data = this.lookup2("/" + name);
-
-		value = copy(value);
-
-		if (name === "autocalc") {
-			
-			if (value === true) {
-				value = 1;
-			} else if (value === false) {
-				value = 0;
-			}
-			data.context && data.context.autocalc(value === 1);
-		}
-
-		var sym = undefined;
-		if (data.context) {
-			sym = data.context.lookup(name);
-
-			if (pushToNetwork) {
-				eden.emit("beforeAssign", [sym, value, modifying_agent]);
-			}
-
-			sym.assigned(modifying_agent);
-		}
-
-		data.cache.value = value;
-		data.cache.up_to_date = true;
-
-		if (data.context) {
-			data.context.expireSymbol(sym);
-		}
-	}*/
 
 	/**
 	 * A maintainer of definitions

@@ -1068,7 +1068,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			if (scriptagent === undefined) return;
 			gutter.generate(scriptagent.ast, -1);
 			scriptagent.clearExecutedState();
-		}, 50);
+		}, 200);
 
 
 		buildMenu();

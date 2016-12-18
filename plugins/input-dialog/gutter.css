@@ -32,8 +32,8 @@ div.eden-gutter-item.hover {
 div.eden-gutter-item.hover:before {
 	opacity: 0.1;
 	background-color: #aaa;
-	position: absolute;
-	width: calc(100% - 5px);
+	position: fixed;
+	width: 5000px;
 	height: 20px;
 	margin-top: -4px;
 	content: " ";
@@ -47,8 +47,8 @@ div.eden-gutter-item.select {
 div.eden-gutter-item.select:before {
 	opacity: 0.1;
 	background-color: #3465a4;
-	position: absolute;
-	width: 100%;
+	position: fixed;
+	width: 5000px;
 	height: 20px;
 	margin-top: -4px;
 	margin-left: -5px;
@@ -91,11 +91,12 @@ div.eden-gutter-item.live:before {
 	opacity: 0.1;
 	background-color: #00ff00;
 	position: absolute;
-	width: 100%;
+	width: 5000px;
 	height: 20px;
 	margin-top: -4px;
 	margin-left: -5px;
 	content: " ";
+	position: fixed;
 }
 
 div.eden-gutter-item.current {
@@ -110,8 +111,8 @@ div.eden-gutter-item.errorblock {
 div.eden-gutter-item.executed {
 	border-right-width: 2px;
 	border-right-color: #00ff00;
-	animation: clearborder 0.4s linear;
-	animation-fill-mode: forwards;
+	/*animation: clearborder 0.4s linear;
+	animation-fill-mode: forwards;*/
 }
 
 @keyframes clearborder {
