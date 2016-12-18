@@ -55,7 +55,7 @@ function fnEdenASTleft(left) {
 
 Eden.AST.Local = function(name) {
 	console.log("MAKE LOCAL",name);
-	this.name = "/"+name;
+	this.name = name;
 	this.cvalue = undefined;
 	this.definition = undefined;
 }
@@ -84,7 +84,7 @@ Eden.AST.Local.prototype.value = function(scope) {
 
 Eden.AST.Handle = function(name) {
 	console.log("MAKE HANDLE",name);
-	this.name = "/"+name;
+	this.name = name;
 	this.cvalue = undefined;
 	this.definition = undefined;
 }
