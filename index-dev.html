@@ -522,7 +522,7 @@ See LICENSE.txt
 			})
 			.on("click","#loadnew",function() {
 				//Eden.loadFromURL("library2/NewProject.js-e");
-				Eden.loadFromString("{\"script\": \"import lib;\", \"title\": \"New Project\"}");
+				Eden.loadFromString("import lib; jseden_project_title = \"New Project\";");
 				lopts.css("display","none");
 			})
 			.on("click","#importfile",function() {
