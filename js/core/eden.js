@@ -594,14 +594,14 @@
 
 	/** Unused currently */
 	Eden.loadFromString = function(str, cb) {
-		var data = JSON.parse(str);
-		eden.execute2(data.script);
-		var menu = $(".jseden-title").get(0);
-		if (menu) {
-			menu.textContent = data.title;
-		}
-		EdenUI.MenuBar.saveTitle(data.title);
-		window.history.pushState(null,"","");
+		//var data = JSON.parse(str);
+		eden.execute2(str);
+		//var menu = $(".jseden-title").get(0);
+		//if (menu) {
+		//	menu.textContent = data.title;
+		//}
+		//EdenUI.MenuBar.saveTitle(data.title);
+		//window.history.pushState(null,"","");
 		eden.root.lookup("_jseden_loaded").assign(true, eden.root.scope);
 		if (cb) cb(data);
 	}
