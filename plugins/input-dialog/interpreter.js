@@ -1884,6 +1884,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 									e.keyCode == 35)) {	// End key
 
 					updateLineCachedHighlight();
+					gutter.selectLine(currentlineno);
 
 					// Force a scroll for home and end AFTER key press...
 					if (e.keyCode == 36 || e.keyCode == 35) {
