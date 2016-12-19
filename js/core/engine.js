@@ -46,6 +46,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 		} else if (statements[i].type == "import") {
 			yield statements[i];
 		} else if (statements[i].type == "do") {
+			statements[i].executed = 1;
 			statements[i].selector = (statements[i].name) ? statements[i].name.execute(ctx, base, scope, agent) : undefined;
 			statements[i].params = statements[i].getParameters(undefined, base, scope);
 			statements[i].nscope = (statements[i].scope) ? statements[i].getScope(ctx)(eden.root,scope) : scope;

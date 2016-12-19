@@ -1421,7 +1421,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			//if (agent === undefined) {
 			//	console.trace("UNDEF AGENT: " + source);
 			//}
-			console.log("DEF",rhs);
+			//console.log("DEF",rhs);
 			sym.define(eval(rhs), agent, deps, rhs);
 		}
 	} catch(e) {
@@ -2463,6 +2463,7 @@ Eden.AST.Do = function() {
 	this.compScope = undefined;
 	this.nscope = undefined;
 	this.selector = undefined;
+	this.executed = 0;
 };
 
 Eden.AST.Do.prototype.error = fnEdenASTerror;

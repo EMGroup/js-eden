@@ -1794,6 +1794,7 @@ Eden.AST.prototype.pDO = function() {
 	if (this.token == "{") {
 		this.next();
 		var script = this.pSCRIPT();
+		script.parent = w;
 		if (this.token != "}") {
 			w.setScript(script);
 			w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
@@ -2715,7 +2716,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "action"	:	this.next(); stat = this.pNAMEDSCRIPT(); end = this.stream.position; endline = this.stream.line; this.next(); break;
 	case "for"		:	this.next(); stat = this.pFOR(); break;
 	case "while"	:	this.next(); stat = this.pWHILE(); break;
-	case "do"		:	this.next(); stat = this.pDO(); break;
+	case "do"		:	this.next(); stat = this.pDO(); end = this.stream.prevposition; endline = this.stream.prevline; break;
 	case "wait"		:	this.next(); stat = this.pWAIT(); break;
 	case "switch"	:	this.next(); stat = this.pSWITCH(); break;
 	case "case"		:	this.next(); stat = this.pCASE(); break;
