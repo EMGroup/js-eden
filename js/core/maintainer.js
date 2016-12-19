@@ -246,7 +246,7 @@
 			if (symcache.up_to_date) return symcache.value;
 			return this.context.lookup(name).value(this);
 		}
-		return this.context.lookup(name).value();
+		return this.context.lookup(name).value(this.parent);
 	}
 
 	Scope.prototype.assign = function(name, value, agent) {

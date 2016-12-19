@@ -17,6 +17,7 @@ function changeClassString(str, c, add) {
 }
 
 function changeClass(ele, c, add) {
+	if (!ele) return;
 	var res = changeClassString(ele.className, c, add);
 	if (res != ele.className) {
 		ele.className = res;
@@ -73,7 +74,7 @@ function EdenScriptGutter(parent, infob) {
 		}
 	}
 
-	function startHover(line) {
+	function startHover(line, shiftdown) {
 		if (shiftdown && dragselect) {
 			if (me.ast.lines[line]) {
 				var lines = me.ast.getBlockLines(line);
@@ -103,7 +104,7 @@ function EdenScriptGutter(parent, infob) {
 	}
 	me.startHover = startHover;
 
-	function endHover(line) {
+	function endHover(line, shiftdown) {
 		if (dragselect && !shiftdown) {
 			me.lines[line].selected = !alreadyselected;
 			changeClass(me.gutter.childNodes[line], "select", !alreadyselected);
@@ -136,8 +137,9 @@ function EdenScriptGutter(parent, infob) {
 		shiftdown = e.shiftKey;
 		downline = line;
 		alreadyselected = (me.lines[line]) ? me.lines[line].selected : false;
-		dragselect = true;
+		dragselect = e.shiftKey;
 		alreadylive = me.lines[line] && me.lines[line].live;
+		//if (e.shiftKey) return;
 
 		// There is a statement on this line.
 		if (me.ast.lines[line]) {
@@ -220,11 +222,11 @@ function EdenScriptGutter(parent, infob) {
 		if (me.ast.hasErrors()) return;
 
 		var line = parseInt(e.target.getAttribute("data-line"));
-		startHover(line);
+		startHover(line, e.shiftKey && dragselect);
 	})
 	.on('mouseleave', '.eden-gutter-item', function(e) {
 		var line = parseInt(e.target.getAttribute("data-line"));
-		endHover(line);
+		endHover(line, e.shiftKey && dragselect);
 	});
 }
 
