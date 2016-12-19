@@ -270,11 +270,22 @@ EdenScriptGutter.prototype.executeSelected = function() {
 
 EdenScriptGutter.prototype.selectLine = function(lineno) {
 	if (this.curline >= 0) {
-		this.gutter.childNodes[this.curline].className = this.gutter.childNodes[this.curline].className.replace(" current","");
+		var sellines = this.ast.getBlockLines(this.curline);
+		changeClass(this.gutter.childNodes[sellines[0]],"first",false);
+		changeClass(this.gutter.childNodes[sellines[1]],"last",false);
+		for (var i=sellines[0]; i<=sellines[1]; i++) {
+			changeClass(this.gutter.childNodes[i],"current",false);
+			changeClass(this.gutter.childNodes[i],"play",false);
+		}
 	}
 	this.curline = lineno-1;
-	console.log("LINE",lineno);
-	this.gutter.childNodes[lineno-1].className += " current";
+	var sellines = this.ast.getBlockLines(lineno-1);
+	changeClass(this.gutter.childNodes[sellines[0]],"first",true);
+	changeClass(this.gutter.childNodes[sellines[1]],"last",true);
+	for (var i=sellines[0]; i<=sellines[1]; i++) {
+		changeClass(this.gutter.childNodes[i],"current",true);
+		if (i == this.curline && this.ast.lines[i]) changeClass(this.gutter.childNodes[i],"play",true);
+	}
 }
 
 
