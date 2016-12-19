@@ -29,6 +29,7 @@ EdenUI.ContextMenu = function(origin) {
 
 	this.origin.oncontextmenu = function(e) {
 		me.target = e.target;
+		if (me.target.nodeName == "SPAN") me.target = me.target.parentNode;
 		var nx = document.body.scrollLeft+e.clientX;
 		if (nx + 150 >= screen.width) nx -= ((nx + 150) - screen.width);
 		me.element.css("top", ""+(document.body.scrollTop+e.clientY+10)+"px");
@@ -37,7 +38,7 @@ EdenUI.ContextMenu = function(origin) {
 		for (var i=0; i<me.items.length; i++) {
 			var status;
 			if (typeof me.items[i].status == "function") {
-				status = me.items[i].status(e.target);
+				status = me.items[i].status(me.target);
 			} else {
 				status = me.items[i].status;
 			} 

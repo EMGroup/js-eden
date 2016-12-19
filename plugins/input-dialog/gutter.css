@@ -98,7 +98,8 @@ div.eden-gutter-item.play:after {
 	content: "\f04b";
 	position: absolute;
 	left: 5px;
-	margin-top: -9px;
+	margin-top: -5px;
+	line-height: 24px;
 }
 
 
@@ -110,7 +111,8 @@ div.eden-gutter-item.select:after {
 	content: "\f00c";
 	position: absolute;
 	left: 8px;
-	margin-top: -1px;
+	margin-top: -5px;
+	line-height: 24px;
 }
 
 div.eden-gutter-item.live {
@@ -123,9 +125,10 @@ div.eden-gutter-item.live:after {
 	font-family: "FontAwesome";
 	font-size: 12pt;
 	content: "\f0e7";
-	position: relative;
-	left: 5px;
-	top: -1px;
+	position: absolute;
+	left: 8px;
+	margin-top: -5px;
+	line-height: 24px;
 }
 
 div.eden-gutter-item.live:hover {

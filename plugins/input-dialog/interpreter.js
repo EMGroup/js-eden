@@ -340,10 +340,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			return Eden.Agent.agents[name] && Eden.Agent.agents[name].executed;
 		}, stopTab);
 		tabcm.addSeparator();
-		tabcm.addItem("&#xf24d;",Language.ui.input_window.clone, false);
+		//tabcm.addItem("&#xf24d;",Language.ui.input_window.clone, false);
 		tabcm.addItem("&#xf021;",Language.ui.input_window.reload, true, reloadAgent);
-		tabcm.addItem("&#xf093;",Language.ui.input_window.upload, true, uploadAgent);
-		tabcm.addItem("&#xf1e0;",Language.ui.input_window.share, true, shareAgentTab);
+		tabcm.addItem("&#xf093;",Language.ui.input_window.upload, function() { return Eden.DB.isLoggedIn(); }, uploadAgent);
+		tabcm.addItem("&#xf1e0;",Language.ui.input_window.share, function() { return Eden.DB.isLoggedIn(); }, shareAgentTab);
 		tabcm.addItem("&#xf21b;",Language.ui.input_window.hide,true, hideTab);
 
 
@@ -1807,7 +1807,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					} else if (e.keyCode == 13 || (e.keyCode == 8 && intextarea.value.charCodeAt(intextarea.selectionStart-1) == 10)) {
 						// Adding or removing lines requires a full re-highlight at present
 						refreshentire = true;
-						console.log("ADD/REMOVE LINE REFRESH");
+						//console.log("ADD/REMOVE LINE REFRESH");
 					}
 
 				} else if (e.ctrlKey || e.metaKey) {
@@ -2019,8 +2019,6 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			hideInfoBox();
 			hideMenu();
 
-			console.log("MOUSE UP ON OUTDIV");
-
 			if (inspectmode) {
 				var element = e.target;
 				if (element.className == "" && element.parentNode.nodeName == "SPAN") {
@@ -2088,10 +2086,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					if (start != end) {
 						// Fix to overcome current line highlight bug on mouse select.
 						refreshentire = true;
-						console.log("ODIV SELECT");
 					} else {
 						// Move caret to clicked location
-						console.log("TA FOCUS");
 						intextarea.focus();
 						intextarea.selectionEnd = end;
 						intextarea.selectionStart = end;
@@ -2104,7 +2100,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 						//checkScroll();
 					}
 				} else {
-					console.log("TA IS ACTIVE?");
+
 				}
 			}
 		}

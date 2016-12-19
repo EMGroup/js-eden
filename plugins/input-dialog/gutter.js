@@ -93,7 +93,7 @@ function EdenScriptGutter(parent, infob) {
 					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-stop'>&#xf069;</span";
 				} else {
 					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-play'>&#xf04b;</span";
-					changeClass(me.gutter.childNodes[line], "play", true);
+					if (!shiftdown) changeClass(me.gutter.childNodes[line], "play", true);
 				}
 				var lines = me.ast.getBlockLines(line);
 				for (var i=lines[0]; i<=lines[1]; i++) {
@@ -222,11 +222,11 @@ function EdenScriptGutter(parent, infob) {
 		if (me.ast.hasErrors()) return;
 
 		var line = parseInt(e.target.getAttribute("data-line"));
-		startHover(line, e.shiftKey && dragselect);
+		startHover(line, e.shiftKey);
 	})
 	.on('mouseleave', '.eden-gutter-item', function(e) {
 		var line = parseInt(e.target.getAttribute("data-line"));
-		endHover(line, e.shiftKey && dragselect);
+		endHover(line, e.shiftKey);
 	});
 }
 
