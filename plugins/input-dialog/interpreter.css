@@ -241,10 +241,10 @@ div.agent-tab-current:hover {
 	font-style: normal;
 }
 
-/*@keyframes blinking {
+@keyframes blinking {
 	from, to { background-color: black }
 	50% { background-color: transparent }
-}*/
+}
 
 span.fake-caret {
 	position: absolute;
@@ -254,10 +254,12 @@ span.fake-caret {
 	background: #777;
 	margin: 0;
 	padding: 0;
-	/*animation-name: blinking;
+	animation-name: blinking;
 	animation-duration: 1s;
 	animation-iteration-count: infinite;
-	transform: translateZ(0);*/
+	animation-timing-function: step-end;
+	/*transform: translateZ(0);
+	animation: 1s blink step-end infinite;*/
 }
 
 span.fake-blur-caret {
