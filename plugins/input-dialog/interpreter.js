@@ -829,7 +829,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function toggleTabs(sym, value) {
 			if (value) {
-				codearea.style.top = "35px";
+				codearea.style.top = "30px";
 			} else {
 				codearea.style.top = "0";
 			}
@@ -1979,6 +1979,32 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 
+		function onOutputMouseDown(e) {
+			setTimeout(function() {
+				// To prevent false cursor movement when dragging numbers...
+				if (document.activeElement === outdiv) {
+					var end = getCaretCharacterOffsetWithin(outdiv);
+					var start = getStartCaretCharacterOffsetWithin(outdiv);
+					//if (start != end) {
+						// Fix to overcome current line highlight bug on mouse select.
+					//	refreshentire = true;
+					//} else {
+						// Move caret to clicked location
+					//	intextarea.focus();
+						intextarea.selectionEnd = end;
+						intextarea.selectionStart = end;
+						var curline = getLineNumber(intextarea);
+						gutter.selectLine(curline);
+					//	if (highlighter.ast) {		
+					//		highlighter.highlight(highlighter.ast, curline, end);
+					//		updateLineCachedHighlight();
+					//	}
+						//checkScroll();
+					//}
+				}
+			},0);
+		}
+
 		/**
 		 * Clicking on the highlighted script needs to move the cursor position.
 		 * Unless a selection is being made, in which case keep the focus on
@@ -2369,7 +2395,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		.on('paste', '.outputcontent', onOutputPaste)
 		.on('blur', '.hidden-textarea', onTextBlur)
 		.on('focus', '.hidden-textarea', onTextFocus)
-		.on('mouseup', '.outputcontent', onOutputMouseUp)
+		.on('mousedown', '.outputcontent', onOutputMouseDown)
 		//.on('mouseenter','.eden-line', onEnterLine)
 		//.on('mouseleave','.eden-line', onLeaveLine)
 		.on('click', '.previous-input', onPrevious)

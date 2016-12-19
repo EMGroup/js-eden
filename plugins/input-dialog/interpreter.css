@@ -4,7 +4,7 @@
 	tab-size: 4;
 	/*margin: 5px;*/
 	position: absolute;
-	top: 35px;
+	top: 30px;
 	bottom: 30px;
 	left: 0;
 	right: 0;
@@ -76,7 +76,7 @@ div.agent-tabs {
 	top: 0;
 	left: 0;
 	right: 0;
-	height: 35px;
+	height: 30px;
 	background-color: #cecece;
 	box-sizing: border-box;
 	border-bottom: 1px solid #719ECE;
@@ -112,7 +112,7 @@ div.agent-tab-container {
 	left: 30px;
 	right: 30px;
 	top: 0;
-	height: 35px;
+	height: 30px;
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
@@ -123,8 +123,8 @@ div.agent-tableft {
 	left: 10px;
 	top: 0px;
 	width: 20px;
-	line-height: 35px;
-	height: 35px;
+	line-height: 30px;
+	height: 30px;
 	cursor: pointer;
 }
 
@@ -144,8 +144,8 @@ div.agent-tabright {
 	right: 10px;
 	top: 0px;
 	width: 20px;
-	line-height: 35px;
-	height: 35px;
+	line-height: 30px;
+	height: 30px;
 	cursor: pointer;
 	text-align: right;
 }
@@ -165,8 +165,8 @@ div.agent-newtab {
 	margin-left: 20px;
 	margin-right: 10px;
 	width: 20px;
-	line-height: 35px;
-	height: 35px;
+	line-height: 30px;
+	height: 30px;
 	cursor: pointer;
 	color: #666;
 }
@@ -197,7 +197,7 @@ div.agent-tab {
 	opacity: 0.70;
 	text-align: center;
 	font-weight: bold;
-	line-height: 35px;
+	line-height: 30px;
 	border-left: 1px solid transparent;
 	border-right: 1px solid transparent;
 	-webkit-font-smoothing: antialiased;

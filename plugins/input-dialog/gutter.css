@@ -41,7 +41,15 @@ div.eden-gutter-item.hover:before {
 
 div.eden-gutter-item.current {
 	background-color: white;
+	/*border-top: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;*/
+}
+
+div.eden-gutter-item.current.first {
 	border-top: 1px solid #ddd;
+}
+
+div.eden-gutter-item.current.last {
 	border-bottom: 1px solid #ddd;
 }
 
@@ -56,7 +64,7 @@ div.eden-gutter-item.current:before {
 	content: " ";
 }
 
-div.eden-gutter-item.current:after {
+/*div.eden-gutter-item.current:after {
 	color: #00ee00;
 	text-shadow: 2px 2px 5px #ddd;
 	font-family: "FontAwesome";
@@ -65,7 +73,7 @@ div.eden-gutter-item.current:after {
 	position: absolute;
 	left: 8px;
 	margin-top: -1px;
-}
+}*/
 
 div.eden-gutter-item.select {
 	/*opacity: 0.5;*/
@@ -95,19 +103,17 @@ div.eden-gutter-item.play:after {
 }
 
 div.eden-gutter-item.live {
-	color: #666;
+	background: #66ee66;
 }
 
 div.eden-gutter-item.live:after {
-	/*color: #666;*/
-	/*text-shadow: 0px 0px 2px black;*/
+	color: #eeee00;
+	text-shadow: 0px 0px 5px #222;
 	font-family: "FontAwesome";
 	font-size: 10pt;
-	opacity: 0.4;
-	content: "\f069";
+	content: "\f0e7";
 	position: absolute;
-	left: 5px;
-	margin-top: 0;
+	left: 10px;
 }
 
 div.eden-gutter-item.live:hover {
@@ -121,7 +127,7 @@ div.eden-gutter-item.live:before {
 	width: 5000px;
 	height: 20px;
 	margin-top: -4px;
-	margin-left: -5px;
+	margin-left: 22px;
 	content: " ";
 	position: fixed;
 }
