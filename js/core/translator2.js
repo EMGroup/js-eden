@@ -1722,6 +1722,8 @@ Eden.AST.prototype.pFOR = function() {
 	}
 
 	forast.setStatement(this.pSTATEMENT());
+	forast.statement.parent = forast;
+	forast.parent = parent;
 	this.parent = parent;
 	return forast;
 }
@@ -2126,7 +2128,14 @@ Eden.AST.prototype.pLVALUE = function() {
 Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 	if (this.token == "is") {
 		this.next();
-		return new Eden.AST.Definition(this.pEXPRESSION());
+		var def = new Eden.AST.Definition();
+		var parent = this.parent;
+		this.parent = def;
+		var expr = this.pEXPRESSION();
+		def.expression = expr;
+		def.errors = expr.errors;
+		this.parent = parent;
+		return def; //new Eden.AST.Definition(this.pEXPRESSION(), this.parent);
 	} else if (this.token == "in") {
 		this.next();
 
@@ -3150,6 +3159,9 @@ Eden.AST.prototype.pSCRIPT = function() {
  */
 Eden.AST.prototype.pSCRIPTEXPR = function() {
 	var ast = new Eden.AST.ScriptExpr();
+	ast.parent = this.parent;
+	var parent = this.parent;
+	//this.parent = ast;
 
 	//ast.setLocals(this.pLOCALS());
 
@@ -3177,6 +3189,7 @@ Eden.AST.prototype.pSCRIPTEXPR = function() {
 		}
 	}
 
+	//this.parent = parent;
 	return ast;
 };
 

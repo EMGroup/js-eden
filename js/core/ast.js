@@ -1273,11 +1273,11 @@ Eden.AST.Delete.prototype.error = fnEdenASTerror;
 
 //------------------------------------------------------------------------------
 
-Eden.AST.Definition = function(expression) {
+Eden.AST.Definition = function() {
 	this.type = "definition";
 	this.parent = undefined;
-	this.errors = expression.errors;
-	this.expression = expression;
+	this.errors = [];
+	this.expression = undefined;
 	this.lvalue = undefined;
 	this.start = 0;
 	this.end = 0;
@@ -1421,7 +1421,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			//if (agent === undefined) {
 			//	console.trace("UNDEF AGENT: " + source);
 			//}
-			//console.log("DEF",rhs);
+			console.log("DEF",rhs);
 			sym.define(eval(rhs), agent, deps, rhs);
 		}
 	} catch(e) {
@@ -1683,7 +1683,7 @@ Eden.AST.Modify.prototype.generate = function(ctx, scope) {
 
 	var express;
 	if (this.expression) {
-		express = this.expression.generate(ctx,scope,{bound: false});
+		express = this.expression.generate(ctx,scope,{bound: false, usevar: ctx.type == "scriptexpr"});
 	}
 
 	// TODO Convert to rt
