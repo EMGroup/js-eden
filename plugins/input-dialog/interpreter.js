@@ -525,9 +525,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				iconclass = "tab-icon noagent";
 			}
 
+			var icon = (name == "view/script/input") ? "&#xf0c3;" : "&#xf1ae;";
+
 
 			tab.className = classname;
-			tab.innerHTML = "<span class='"+iconclass+"'>&#xf007;</span>"+tabname;
+			tab.innerHTML = "<span class='"+iconclass+"'>"+icon+"</span>"+tabname;
 			tab.draggable = true;
 			tab.setAttribute("data-name", name);
 			/*if (tabs.childNodes.length < tabscrollix) {

@@ -86,7 +86,7 @@ div.agent-tabs {
 
 span.tab-icon {
 	font-family: "FontAwesome";
-	font-size: 10pt;
+	font-size: 12pt;
 	margin-right: 10px;
 	font-weight: normal;
 }
@@ -108,7 +108,7 @@ span.tab-icon.noagent {
 div.agent-tab-container {
 	position: absolute;
 	display: flex;
-	flex-wrap: wrap;
+	/*flex-wrap: wrap;*/
 	left: 30px;
 	right: 30px;
 	top: 0;
@@ -172,7 +172,7 @@ div.agent-newtab {
 }
 
 div.agent-newtab:after {
-	content: "\f234";
+	content: "\f067";
 	font-family: "FontAwesome";
 	font-size: 14pt;
 	font-weight: normal;
@@ -184,10 +184,10 @@ div.agent-newtab:hover {
 
 div.agent-tab {
 	/*float: left;*/
-	flex-grow: 1;
+	flex-shrink: 0;
 	/*width: 150px;*/
-	padding-left: 15px;
-	padding-right: 15px;
+	padding-left: 25px;
+	padding-right: 25px;
 	height: 100%;
 	margin-left: 10px;
 	font-family: Verdana,Arial,sans-serif;
@@ -200,10 +200,14 @@ div.agent-tab {
 	line-height: 30px;
 	border-left: 1px solid transparent;
 	border-right: 1px solid transparent;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
 	-webkit-font-smoothing: antialiased;
 	font-smoothing: antialiased;
 	cursor: pointer;
 	overflow: hidden;
+	display: flex;
+	line-height: 30px;
 }
 
 div.agent-tab-notcurrent:hover {
@@ -216,7 +220,7 @@ div.agent-tab-notcurrent:hover {
 }
 
 div.agent-tab-current {
-	background-color: #dbdbdb;
+	background-color: white;
 	box-sizing: border-box;
 	border-bottom: 3px solid #719ECE;
 	border-left: 1px solid #aaa;
@@ -482,8 +486,8 @@ div.inputhider {
 }
 
 div.input-dialog .ui-dialog-titlebar {
-	height: 30px;
-	text-align: center;
+	/*height: 30px;
+	text-align: center;*/
 	border-top-width: 0;
 	border-left-width: 0;
 	border-right-width: 0;
@@ -493,34 +497,39 @@ div.input-dialog .ui-dialog-titlebar {
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
 	box-shadow: 0 0 10px #4a6887;
-	background: -webkit-linear-gradient(#fafafa, #cccccc);
+	/*background: -webkit-linear-gradient(#fafafa, #cccccc);
 	background: -o-linear-gradient(#fafafa, #cccccc);
 	background: -moz-linear-gradient(#fafafa, #cccccc); 
-	background: linear-gradient(#fafafa, #cccccc);
+	background: linear-gradient(#fafafa, #cccccc);*/
 	z-index: 6;
 	/*background: #416d77;*/
+	padding: 0;
+	line-height: 30px;
+	padding-left: 20px;
 
 }
 
 div.input-dialog .ui-dialog-title {
-	float: none;
+	/*float: left;*/
 	-webkit-font-smoothing: antialiased;
 	font-smoothing: antialiased;
-	margin-left: auto;
+	/*margin-left: auto;
 	margin-right: auto;
 	margin-top: 5px;
-	display: table;
+	display: table;*/
 	/*color: white;*/
+	width: initial;
+	margin-right: 10px;
 }
 
 div.input-dialog .ui-dialog-subtitle {
-	float: none;
+	float: left;
 	-webkit-font-smoothing: antialiased;
 	font-smoothing: antialiased;
-	margin-left: auto;
+	/*margin-left: auto;
 	margin-right: auto;
 	margin-top: 0;
-	display: table;
+	display: table;*/
 	font-weight: normal;
 	color: #777;
 }
