@@ -1,17 +1,11 @@
 Eden.AST.Break = function() {
 	this.type = "break";
-	this.parent = undefined;
-	this.errors = [];
-	this.start = 0;
-	this.end = 0;
+	Eden.AST.BaseStatement.apply(this);
 };
 
 Eden.AST.Break.prototype.error = fnEdenASTerror;
 
-Eden.AST.Break.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Break.prototype.setSource = Eden.AST.BaseStatement.setSource();
 
 Eden.AST.Break.prototype.generate = function(ctx, scope) {
 	return "break; ";

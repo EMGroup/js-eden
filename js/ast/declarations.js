@@ -1,20 +1,15 @@
 Eden.AST.Declarations = function() {
 	this.type = "declarations";
-	this.errors = [];
+	Eden.AST.BaseStatement.apply(this);
+
 	this.list = [];
-	this.start = 0;
-	this.end = 0;
-	this.parent = undefined;
-	this.line = undefined;
 	this.kind = "local";
 };
 
 Eden.AST.Declarations.prototype.error = fnEdenASTerror;
 
-Eden.AST.Declarations.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Declarations.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Declarations.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Declarations.prototype.execute = function(ctx, base, scope, agent) {
 	if (ctx) {

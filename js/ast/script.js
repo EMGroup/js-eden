@@ -1,19 +1,10 @@
 Eden.AST.Script = function() {
 	this.type = "script";
+	Eden.AST.BaseScript.apply(this);
 	this.name = undefined;
-	this.parent = undefined;
-	this.errors = [];
-	this.statements = [];
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
 	this.active = false;
-	this.parameters = undefined;
-	this.locals = undefined;
-	this.onfinish = undefined;
 	this.base = undefined;
-	this.oldstats = undefined;
-	this.patch = undefined;
+	
 };
 
 Eden.AST.Script.prototype.getSource = function() {

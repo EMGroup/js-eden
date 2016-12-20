@@ -1,11 +1,8 @@
 Eden.AST.Case = function() {
 	this.type = "case";
-	this.parent = undefined;
+	Eden.AST.BaseStatement.apply(this);
 	this.datatype = "";
 	this.literal = undefined;
-	this.errors = [];
-	this.start = 0;
-	this.end = 0;
 };
 
 Eden.AST.Case.prototype.setLiteral = function(datatype, literal) {
@@ -13,10 +10,7 @@ Eden.AST.Case.prototype.setLiteral = function(datatype, literal) {
 	this.literal = literal;
 }
 
-Eden.AST.Case.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Case.prototype.setSource = Eden.AST.BaseStatement.setSource;
 
 Eden.AST.Case.prototype.generate = function(ctx, scope) {
 	if (typeof this.literal == "string") {

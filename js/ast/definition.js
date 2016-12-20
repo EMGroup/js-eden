@@ -1,17 +1,9 @@
 Eden.AST.Definition = function() {
 	this.type = "definition";
-	this.parent = undefined;
-	this.errors = [];
+	Eden.AST.BaseContext.apply(this);
+
 	this.expression = undefined;
 	this.lvalue = undefined;
-	this.start = 0;
-	this.end = 0;
-	this.dependencies = {};
-	this.scopes = [];
-	this.backtickCount = 0;
-	this.executed = 0;
-	this.locals = undefined;
-	this.params = undefined;
 };
 
 Eden.AST.Definition.prototype.getParameterByNumber = function(index) {
@@ -28,10 +20,8 @@ Eden.AST.Definition.prototype.left = function(lvalue) {
 	}
 };
 
-Eden.AST.Definition.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Definition.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Definition.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 	var dobound = (this.expression.type == "primary" && this.expression.extras.length == 0) || this.expression.type == "scope";

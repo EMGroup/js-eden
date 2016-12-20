@@ -1,29 +1,20 @@
 Eden.AST.Do = function() {
 	this.type = "do";
-	this.parent = undefined;
-	this.errors = [];
-	/*this.condition = undefined;
-	this.statement = undefined;*/
+	Eden.AST.BaseStatement.apply(this);
+
 	this.name = undefined;
 	this.script = undefined;
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
 	this.parameters = [];
 	this.params = []; // The evaluated params
 	this.scope = undefined;
 	this.compScope = undefined;
 	this.nscope = undefined;
 	this.selector = undefined;
-	this.executed = 0;
 };
 
 Eden.AST.Do.prototype.error = fnEdenASTerror;
-
-Eden.AST.Do.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Do.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Do.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Do.prototype.addParameter = function(express) {
 	this.parameters.push(express);

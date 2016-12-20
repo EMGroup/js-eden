@@ -1,18 +1,13 @@
 Eden.AST.Assignment = function(expression) {
 	this.type = "assignment";
-	this.parent = undefined;
+	Eden.AST.BaseContext.apply(this);
+
 	this.errors = (expression) ? expression.errors : [];
 	this.expression = expression;
 	this.lvalue = undefined;
-	this.start = 0;
-	this.end = 0;
-	this.scopes = [];
-	this.backtickCount = 0;
-	this.executed = 0;
 	this.compiled = undefined;
 	this.dirty = false;
 	this.value = undefined;
-	//this.def_scope = undefined;
 };
 
 Eden.AST.Assignment.prototype.getParameterByNumber = function(index) {
@@ -24,10 +19,8 @@ Eden.AST.Assignment.prototype.getParameterByNumber = function(index) {
 	return undefined;
 }
 
-Eden.AST.Assignment.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Assignment.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Assignment.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Assignment.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;

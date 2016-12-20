@@ -1,11 +1,11 @@
+/**
+ * "after" statement. This is deprecated/
+ */
 Eden.AST.After = function () {
 	this.type = "after";
-	this.errors = [];
+	Eden.AST.BaseStatement.apply(this);
 	this.expression = undefined;
 	this.statement = undefined;
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
 
 	console.error("DEPRECATED USE OF AFTER");
 }

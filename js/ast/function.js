@@ -1,19 +1,13 @@
 Eden.AST.Function = function() {
 	this.type = "function";
-	this.parent = undefined;
-	this.errors = [];
+	Eden.AST.BaseStatement.apply(this);
+
 	this.body = undefined;
 	this.name = "";
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
-	this.doxyComment = undefined;
 };
 
-Eden.AST.Function.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Function.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Function.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Function.prototype.setBody = function(body) {
 	this.body = body;

@@ -1,17 +1,12 @@
 Eden.AST.Continue = function() {
 	this.type = "continue";
-	this.parent = undefined;
-	this.errors = [];
-	this.start = 0;
-	this.end = 0;
+	Eden.AST.BaseStatement.apply(this);
 };
 
 Eden.AST.Continue.prototype.error = fnEdenASTerror;
 
-Eden.AST.Continue.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Continue.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Declarations.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Continue.prototype.generate = function(ctx, scope) {
 	return "continue; ";

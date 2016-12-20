@@ -1,17 +1,12 @@
 Eden.AST.Default = function() {
 	this.type = "default";
-	this.parent = undefined;
-	this.errors = [];
-	this.start = 0;
-	this.end = 0;
+	Eden.AST.BaseStatement.apply(this);
 };
 
 Eden.AST.Default.prototype.error = fnEdenASTerror;
 
-Eden.AST.Default.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Default.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Default.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Default.prototype.generate = function(ctx, scope) {
 	return "default: ";

@@ -1,14 +1,19 @@
+/**
+ * Append statement. Adds an item to the end of an existing list. It takes a
+ * destination lvalue, an expression index and an expression value to be
+ * appended.
+ */
 Eden.AST.Append = function() {
 	this.type = "append";
+	Eden.AST.BaseStatement.apply(this);
+
 	this.destination = undefined;
 	this.index = undefined;
-	this.errors = [];
-	this.start = 0;
-	this.end = 0;
 }
 
 Eden.AST.Append.prototype.setDest = function(dest) {
 	this.destination = dest;
+	// Pass errors up the tree.
 	if (dest.errors.length > 0) {
 		this.errors.push.apply(this.errors, dest.errors);
 	}
@@ -16,14 +21,15 @@ Eden.AST.Append.prototype.setDest = function(dest) {
 
 Eden.AST.Append.prototype.setIndex = function(index) {
 	this.index = index;
+	// Pass errors up the tree.
 	if (index.errors.length > 0) {
 		this.errors.push.apply(this.errors, index.errors);
 	}
 }
 
 Eden.AST.Append.prototype.generate = function(ctx, scope) {
-	var express = this.index.generate(ctx, scope, {bound: false});
-	var lvalue = this.destination.generate(ctx);
+	var express = this.index.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
+	var lvalue = this.destination.generate(ctx, scope);
 
 	if (this.destination.islocal) {
 		return lvalue + ".push("+express+");\n";
@@ -47,10 +53,6 @@ Eden.AST.Append.prototype.execute = function(ctx, base, scope, agent) {
 	sym.assign(val2, scope, agent);
 }
 
-Eden.AST.Append.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
-
+Eden.AST.Append.prototype.Eden.AST.BaseStatement.setSource;
 Eden.AST.Append.prototype.error = fnEdenASTerror;
 

@@ -1,15 +1,11 @@
 Eden.AST.For = function() {
 	this.type = "for";
-	this.parent = undefined;
-	this.errors = [];
+	Eden.AST.BaseStatement.apply(this);
+
 	this.sstart = undefined;
 	this.condition = undefined;
 	this.inc = undefined;
 	this.statement = undefined;
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
-	this.line = undefined;
 	this.compiled = undefined;
 	this.started = false;
 	this.list = undefined;
@@ -18,11 +14,8 @@ Eden.AST.For = function() {
 };
 
 Eden.AST.For.prototype.error = fnEdenASTerror;
-
-Eden.AST.For.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.For.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.For.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.For.prototype.setStart = function(start) {
 	this.sstart = start;

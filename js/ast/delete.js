@@ -1,11 +1,9 @@
 Eden.AST.Delete = function() {
 	this.type = "delete";
+	Eden.AST.BaseStatement.apply(this);
+
 	this.destination = undefined;
 	this.index = undefined;
-	this.errors = [];
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
 }
 
 Eden.AST.Delete.prototype.setDest = function(dest) {
@@ -37,10 +35,7 @@ Eden.AST.Delete.prototype.execute = function(ctx, base, scope) {
 	}, undefined);
 }
 
-Eden.AST.Delete.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
-
+Eden.AST.Delete.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Delete.prototype.getSource = Eden.AST.BaseStatement.getSource;
 Eden.AST.Delete.prototype.error = fnEdenASTerror;
 

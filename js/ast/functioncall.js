@@ -1,19 +1,13 @@
 Eden.AST.FunctionCall = function() {
 	this.type = "functioncall";
-	this.parent = undefined;
-	this.errors = [];
+	Eden.AST.BaseStatement.apply(this);
+
 	this.lvalue = undefined;
 	this.params = undefined;
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
-	this.line = undefined;
 };
 
-Eden.AST.FunctionCall.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.FunctionCall.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.FunctionCall.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.FunctionCall.prototype.setParams = function(params) {
 	this.params = params;
