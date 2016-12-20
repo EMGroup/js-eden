@@ -508,9 +508,11 @@ Eden.Query.queryScripts = function(path, ctx) {
 			var src = Eden.Generator.symbolScript();
 			var ast = new Eden.AST(src, undefined, Symbol.jsAgent);
 			scripts.push(ast.script);
+		} else if (path == "") {
+			if (eden.project) scripts.push(eden.project.ast.script);
 		}
 
-		if (path != "/") {
+		if (path.startsWith("/")) {
 			if (path.includes("*")) {
 				var regexp = edenUI.regExpFromStr(path, undefined, true, "simple");
 				for (var x in Eden.Agent.agents) {
@@ -534,6 +536,16 @@ Eden.Query.queryScripts = function(path, ctx) {
 				}
 				if (!script) return [];
 				scripts.push(script);
+			}
+		} else {
+			// Look in project ast
+			if (path.includes("*")) {
+
+			} else {
+				var script = undefined;
+				if (eden.project) {
+					script = eden.project.ast.getActionByName(path);
+				}
 			}
 		}
 	}

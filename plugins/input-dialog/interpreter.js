@@ -231,6 +231,66 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		suggestions.hide();
 		$(infobox).hide();
 
+		var curtab = -1;
+		var tab_queries = [];
+		var tab_frags = [];
+
+		var obs_tabix = "_view_"+name+"_current";
+		var obs_showtabs = "_view_"+name+"_showtabs";
+		var obs_showbuttons = "_view_"+name+"_showbuttons";
+		var obs_tabs = "_view_"+name+"_tabs";
+		var obs_zoom = "_view_"+name+"_zoom";
+
+		var tabsSym = eden.root.lookup(obs_tabs);
+		var zoomSym = eden.root.lookup(obs_zoom);
+		var curSym = eden.root.lookup(obs_tabix);
+		var showTabsSym = eden.root.lookup(obs_showtabs);
+		var showButtonsSym = eden.root.lookup(obs_showbuttons);
+
+		var origin = { name: name };
+
+		function curChanged(sym, value) {
+			if (typeof value == "number" && value >= 0 && value < tab_frags.length) {
+				curtab = value;
+				
+				// Find base of ast
+				//var p = tab_asts[curtab];
+				//while (p && p.parent) p = p.parent;
+				//var base = p.base;
+
+				intextarea.value = tab_frags[curtab].getSource();
+				scriptast = tab_frags[curtab].ast;
+				highlightContent(scriptast, -1, 0);
+				intextarea.focus();
+				checkScroll();
+
+				rebuildTabs();
+			}
+		}
+
+		function tabsChanged(sym, value) {
+			if (Array.isArray(value)) {
+				tab_queries = value;
+				tab_frags = [];
+				for (var i=0; i<value.length; i++) {
+					tab_frags.push(new Eden.Fragment(value[i]));
+				}
+
+				curChanged(curSym, curSym.value());
+			}
+		}
+
+		curSym.addJSObserver("scriptview", curChanged);
+		//curChanged(curSym, curSym.value());
+		tabsSym.addJSObserver("scriptview", tabsChanged);
+		tabsChanged(tabsSym, tabsSym.value());
+
+
+		Eden.Fragment.listenTo("changed", this, function(frag) {
+			if (frag === tab_frags[curtab]) {
+				curChanged(curSym, curSym.value());
+			}
+		});
 
 
 		/**
@@ -238,9 +298,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 *   @param tab A DOM tab element.
 		 */
 		function executeTab(tab) {
-			var name = tab.getAttribute("data-name");
-			if (Eden.Agent.agents[name]) {
-				Eden.Agent.agents[name].execute(true);
+			var id = parseInt(tab.getAttribute("data-tabid"));
+			if (tab_asts[id]) {
+				tab_asts[id].execute(true);
 				rebuildTabs();
 			}
 		}
@@ -252,11 +312,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 *   @param tab A DOM tab element.
 		 */
 		function stopTab(tab) {
-			var name = tab.getAttribute("data-name");
-			if (Eden.Agent.agents[name]) {
-				Eden.Agent.agents[name].executed = false;
-				rebuildTabs();
-			}
+			//var name = tab.getAttribute("data-name");
+			//if (Eden.Agent.agents[name]) {
+			//	Eden.Agent.agents[name].executed = false;
+			//	rebuildTabs();
+			//}
 		}
 
 
@@ -266,7 +326,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 *   @param tab A DOM tab element.
 		 */
 		function hideTab(tab) {
-			var name = tab.getAttribute("data-name");
+			/*var name = tab.getAttribute("data-name");
 			var tabs = agent.state[obs_tabs];
 
 			// Remove from tab list.
@@ -282,12 +342,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				agent.state[obs_tabs] = tabs;
 			}
 			// No agents left in tabs so clear current agent
-			if (tabs.length == 0) agent.state[obs_agent] = undefined;
+			if (tabs.length == 0) agent.state[obs_agent] = undefined;*/
 		}
 
 
 		function uploadAgent(tab) {
-			var name = tab.getAttribute("data-name");
+			/*var name = tab.getAttribute("data-name");
 			showSubDialog("uploadAgent", function(status, tag, ispublic) {
 				if (Eden.Agent.agents[name] && status) {
 					if (tag == "") tag = undefined;
@@ -299,15 +359,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						}
 					});
 				}
-			});
+			});*/
 		}
 
 		function shareAgentTab(tab) {
-			var name = tab.getAttribute("data-name");
-			shareAgent(name);
+			//var name = tab.getAttribute("data-name");
+			//shareAgent(name);
 		}
 
-		function shareAgent(name) {
+		/*function shareAgent(name) {
 			if (!name) name = scriptagent.name;
 			Eden.Agent.agents[name].upload(undefined, true, function(success) {
 				if (!success) {
@@ -318,33 +378,33 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					setSubTitle("[shared]");
 				}
 			});
-		}
+		}*/
 
 
 		function reloadAgent(tab) {
-			var name = tab.getAttribute("data-name");
+			/*var name = tab.getAttribute("data-name");
 			if (name) {
 				Eden.Agent.importAgent(name, "default", ["reload"], function(){
 
 				}); 
-			}
+			}*/
 		}
 
 
 
 		/* Build the context menu for the tab bar. */
-		var tabcm = new EdenUI.ContextMenu(tabs);
-		tabcm.addItem("&#xf04b;",Language.ui.input_window.run, true, executeTab);
-		tabcm.addItem("&#xf04d;",Language.ui.input_window.stop,function(tab){
-			var name = tab.getAttribute("data-name");
-			return Eden.Agent.agents[name] && Eden.Agent.agents[name].executed;
-		}, stopTab);
-		tabcm.addSeparator();
+		//var tabcm = new EdenUI.ContextMenu(tabs);
+		//tabcm.addItem("&#xf04b;",Language.ui.input_window.run, true, executeTab);
+		//tabcm.addItem("&#xf04d;",Language.ui.input_window.stop,function(tab){
+		//	var name = tab.getAttribute("data-name");
+		//	return Eden.Agent.agents[name] && Eden.Agent.agents[name].executed;
+		//}, stopTab);
+		//tabcm.addSeparator();
 		//tabcm.addItem("&#xf24d;",Language.ui.input_window.clone, false);
-		tabcm.addItem("&#xf021;",Language.ui.input_window.reload, true, reloadAgent);
-		tabcm.addItem("&#xf093;",Language.ui.input_window.upload, function() { return Eden.DB.isLoggedIn(); }, uploadAgent);
-		tabcm.addItem("&#xf1e0;",Language.ui.input_window.share, function() { return Eden.DB.isLoggedIn(); }, shareAgentTab);
-		tabcm.addItem("&#xf21b;",Language.ui.input_window.hide,true, hideTab);
+		//tabcm.addItem("&#xf021;",Language.ui.input_window.reload, true, reloadAgent);
+		//tabcm.addItem("&#xf093;",Language.ui.input_window.upload, function() { return Eden.DB.isLoggedIn(); }, uploadAgent);
+		//tabcm.addItem("&#xf1e0;",Language.ui.input_window.share, function() { return Eden.DB.isLoggedIn(); }, shareAgentTab);
+		//tabcm.addItem("&#xf21b;",Language.ui.input_window.hide,true, hideTab);
 
 
 
@@ -371,8 +431,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function buildMenu() {
 			while (optionsmenu.firstChild) optionsmenu.removeChild(optionsmenu.firstChild);
 
-			createMenuItem((agent.state[obs_showtabs]) ? "&#xf00c;" : "&#xf00d;", Language.ui.input_window.show_tabs, function(e) { agent.state[obs_showtabs] = !agent.state[obs_showtabs]; buildMenu(); });
-			createMenuItem((agent.state[obs_showbuttons]) ? "&#xf00c;" : "&#xf00d;", Language.ui.input_window.show_controls, function(e) { agent.state[obs_showbuttons] = !agent.state[obs_showbuttons]; buildMenu(); });
+			createMenuItem((showTabsSym.value()) ? "&#xf00c;" : "&#xf00d;", Language.ui.input_window.show_tabs, function(e) { agent.state[obs_showtabs] = !agent.state[obs_showtabs]; buildMenu(); });
+			createMenuItem((showButtonsSym.value()) ? "&#xf00c;" : "&#xf00d;", Language.ui.input_window.show_controls, function(e) { agent.state[obs_showbuttons] = !agent.state[obs_showbuttons]; buildMenu(); });
 			createMenuItem("&#xf0c0;", Language.ui.input_window.browse_agents, function(e) { showBrowseDialog(); hideMenu(); });
 			createMenuItem("&#xf21b;", Language.ui.input_window.hide_agent, function(e) {
 				var tabs = agent.state[obs_tabs];
@@ -426,13 +486,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var maxtabs = 3;
 		var tabpositions = {};
 
-		var scriptagent;
+		var scriptast;
 		var browseDialog = undefined;
 
 
 
 		function showBrowseDialog() {
-			if (browseDialog === undefined) {
+			/*if (browseDialog === undefined) {
 				if (EdenUI.plugins.ScriptInput.dialogs["browseAgents"]) {
 					browseDialog = EdenUI.plugins.ScriptInput.dialogs["browseAgents"]($dialogContents, function(valid, selected){
 						if (valid ) {
@@ -453,24 +513,24 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				}
 			}
 
-			browseDialog.show();
+			browseDialog.show();*/
 		}
 
 
 
 		function updateInspectButton() {
-			var inspectbut = $buttonbar.find(".search-mode");
+			/*var inspectbut = $buttonbar.find(".search-mode");
 			if (inspectmode) {
 				changeClass(inspectbut.get(0), "active", true);
 			} else {
 				changeClass(inspectbut.get(0), "active", false);
-			}
+			}*/
 		}
 
 
 
 		function updateHistoryButtons() {
-			var nextbut = $buttonbar.find(".next-input");
+			/*var nextbut = $buttonbar.find(".next-input");
 			var fastbut = $buttonbar.find(".fastforward-input");
 			var rewibut = $buttonbar.find(".rewind-input");
 			var prevbut = $buttonbar.find(".previous-input");
@@ -489,14 +549,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			} else {
 				prevbut.addClass("control-enabled");
 				rewibut.addClass("control-enabled");
-			}
+			}*/
 		}
 
 		updateHistoryButtons();
 
 
 		
-		function addTab(tabs, name, title, current, ix) {
+		function addTab(tabs, id, title, current, ix) {
 			var tab = document.createElement("div");
 			tab.style.left = ""+(ix*160)+"px";
 			var classname = "agent-tab noselect";
@@ -506,17 +566,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				classname += " agent-tab-notcurrent";
 			}
 
-			var tabname = name.split("/").pop();
-
+			var tabname = tab_frags[id].getTitle();
 			if (tabname.length > 18) {
 				tabname = "..."+tabname.slice(-15);
 			}
 
 			var iconclass;
-			if (Eden.Agent.agents[name]) {
-				if (Eden.Agent.agents[name].hasErrors()) {
+			if (tab_frags[id] && tab_frags[id].ast) {
+				if (tab_frags[id].ast.errors && tab_frags[id].ast.errors.length > 0) {
 					iconclass = "tab-icon errored";
-				} else if (Eden.Agent.agents[name].executed) {
+				} else if (tab_frags[id].ast.executed) {
 					iconclass = "tab-icon executed";
 				} else {
 					iconclass = "tab-icon";
@@ -531,7 +590,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			tab.className = classname;
 			tab.innerHTML = "<span class='"+iconclass+"'>"+icon+"</span>"+tabname;
 			tab.draggable = true;
-			tab.setAttribute("data-name", name);
+			tab.setAttribute("data-index", id);
 			/*if (tabs.childNodes.length < tabscrollix) {
 				tab.style.display = "none";
 			}*/
@@ -545,16 +604,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * buttons.
 		 */
 		function autoSaved(ag) {
-			if (ag === scriptagent) {
-				setSubTitle("[saved]");
-				updateHistoryButtons();
-			}
+			//if (ag === scriptagent) {
+			//	setSubTitle("[saved]");
+			//	updateHistoryButtons();
+			//}
 		}
 
 
 
 		function removedAgent(name,prev) {
-			if (scriptagent && scriptagent.name == name) {
+			/*if (scriptagent && scriptagent.name == name) {
 				if (tabscrollix > 0) tabscrollix--;
 				if (prev) {
 					changeAgent(undefined, prev);
@@ -573,7 +632,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				console.log("Remove agent:", name);
 				agents.splice(ix,1);
 				agent.state[obs_tabs] = agents;
-			}
+			}*/
 		}
 
 
@@ -595,33 +654,38 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			tabcontainer.className = "agent-tab-container";
 			tabs.appendChild(tabcontainer);
 			
-			var agents = agent.state[obs_tabs];
-			if (agents && agents instanceof Array) {
-				var curix = -1;
+			//var agents = tabsSym.value();
+			//if (nstanceof Array) {
+				var curix = curSym.value();
+				//tab_asts = [];
 
-				if (scriptagent) {
-					// Find index of current tab
-					curix = agents.indexOf(scriptagent.name);
-				}
+				// For each entry, do a query to get the AST
+				//for (var i=0; i<agents.length; i++) {
+				//	var qres = Eden.Query.querySelector(agents[i]);
+				//	if (qres && qres.length > 0) {
+				//		tab_asts.push(qres[0]);
+				//		if (qres[0] === scriptast) curix = tab_asts.length-1;
+				//	}
+				//}
 
 				if (curix > tabscrollix+(maxtabs-1)) tabscrollix = curix-(maxtabs-1);
 				if (curix < tabscrollix) tabscrollix = curix;
 
-				for (var i=0; i<agents.length; i++) {
-					var title = agents[i];
-					if (Eden.Agent.agents[agents[i]]) {
-						title = Eden.Agent.agents[agents[i]].title;
-					}
+				for (var i=0; i<tab_frags.length; i++) {
+					var title = tab_frags[i].getTitle();
+					//if (Eden.Agent.agents[agents[i]]) {
+					//	title = Eden.Agent.agents[agents[i]].title;
+					//}
 					if (tabscrollix <= i) {
-						addTab(tabcontainer, agents[i], title, (scriptagent && agents[i] == scriptagent.name), i);
+						addTab(tabcontainer, i, title, i == curix, i);
 					}
 				}
-			}
+			//}
 
 			// Add new tab button
 			var newtab = document.createElement("div");
 			newtab.className = "agent-newtab noselect";
-			newtab.style.left = ""+(agents.length*160 + 20)+"px";
+			newtab.style.left = ""+(tab_frags.length*160 + 20)+"px";
 			tabcontainer.appendChild(newtab);
 
 			// Add scroll right
@@ -636,10 +700,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * If the input window is a dialog then set its title.
 		 */
 		function setTitle(title) {
-			if (scriptagent) {
+			/*if (scriptagent) {
 				scriptagent.setTitle(title);
 				rebuildTabs();
-			}
+			}*/
 
 			var p = $dialogContents.get(0).parentNode;
 			if (p) {
@@ -665,8 +729,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						$(p).find(".ui-dialog-title").get(0).parentNode.appendChild(title);
 					}
 
-					if (scriptagent) {
-						title.textContent = scriptagent.name + " " + text;
+					if (scriptast) {
+						title.textContent = scriptast.name + " " + text;
 					} else {
 						title.textContent = text;
 					}
@@ -676,7 +740,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 		// Initialise sub title after dialog creation
-		setTimeout(function() { if (scriptagent === undefined) setSubTitle("[No Agents]"); }, 0);
+		setTimeout(function() { if (scriptast === undefined) setSubTitle("[No Scripts]"); }, 0);
 
 
 
@@ -686,13 +750,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * Used on load and when _script changes.
 		 */
 		function preloadScript(sym, value) {
-			var res = "";
+			/*var res = "";
 			if (value) {
-				/*if (Eden.Agent.agents["view/script/"+name] === undefined) {
-					scriptagent = new Eden.Agent(undefined, "view/script/"+name, ["noexec"]);
-				} else {
-					scriptagent = Eden.Agent.agents["view/script/"+name];
-				}*/
 
 				Eden.Agent.importAgent("view/script/"+name, "default", ["noexec","create"], function(ag,msg) {
 					if (ag === undefined) {
@@ -714,7 +773,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					
 					agent.state[obs_agent] = "view/script/"+name;
 				});
-			}
+			}*/
 		}
 
 
@@ -723,10 +782,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * Load a file from the server as the script.
 		 */
 		function loadFile(sym, value) {
-			$.get(value, function(data) {
+			/*$.get(value, function(data) {
 				intextarea.value = data;
 				updateEntireHighlight(scriptagent.executed);
-			}, "text");
+			}, "text");*/
 		}
 
 
@@ -876,27 +935,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 		// Use the agent wrapper for dealing with view interaction via symbols.
-		var obs_script = "_view_"+name+"_script";
-		var obs_next = "_view_"+name+"_next";
-		var obs_prev = "_view_"+name+"_prev";
-		var obs_override = "_view_"+name+"_override";
-		var obs_file = "_view_"+name+"_file";
-		var obs_agent = "_view_"+name+"_agent";
-		var obs_showtabs = "_view_"+name+"_showtabs";
-		var obs_showbuttons = "_view_"+name+"_showbuttons";
-		var obs_tabs = "_view_"+name+"_tabs";
-		var obs_zoom = "_view_"+name+"_zoom";
-		var agent = new Eden.Agent(undefined,"view/script/"+name+"/config");
-		agent.declare(obs_agent);
-		agent.declare(obs_showtabs, !embedded);
-		agent.declare(obs_script);
-		agent.declare(obs_file);
-		agent.declare(obs_override);
-		agent.declare(obs_next);
-		agent.declare(obs_prev);
-		agent.declare(obs_showbuttons, true);
-		agent.declare(obs_tabs, []);
-		agent.declare(obs_zoom, 0);
 
 		function viewobs(obs) { return "_view_"+name+"_"+obs; };
 		// Associate observables with dialog
@@ -911,63 +949,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		];
 		$dialogContents.get(0).setAttribute("data-observables", observables.join(","));
 
-		// Whenever _script is changed, regenerate the contents.
-		agent.on(obs_script, preloadScript);
-		agent.on(obs_file, loadFile);
-		agent.on(obs_agent, changeAgent);
-		agent.on(obs_showtabs, toggleTabs);
-		agent.on(obs_showbuttons, toggleButtons);
-		agent.on(obs_tabs, rebuildTabs);
-		agent.on(obs_zoom, zoom);
-
-		if (agent.state[obs_zoom]) zoom(undefined, agent.state[obs_zoom]);
-
-		// If there is explicit code, then use that
-		if (code && agent.state[obs_agent] === undefined) {
-			//preloadScript(undefined, code);
-			agent.state[obs_script] = code;
-		} else if (agent.state[obs_agent]) {
-			changeAgent(undefined, agent.state[obs_agent]);
-		} else {
-			/*outdiv.className = "outputcontent readonly";
-			outdiv.contentEditable = false;
-			outdiv.innerHTML = "";*/
-
-			// Wait to make sure no agent is being set...
-			setTimeout(function() {
-				if (scriptagent === undefined) {
-					// Need to create an agent
-					Eden.Agent.importAgent("view/script/"+name, "default", ["create","noexec"], function(ag) {
-						if (ag) {
-							changeAgent(undefined, ag.name);
-						} else {
-							outdiv.className = "outputcontent readonly";
-							outdiv.contentEditable = false;
-							outdiv.innerHTML = "";
-						}
-					});
-				}
-			}, 1000);
-		}
-
-		toggleTabs(undefined, agent.state[obs_showtabs]);
-
-		// Set source text.
-		agent.setSource("## "+name+"\n\
-_view_"+name+"_script = "+Eden.edenCodeForValue(agent.state[obs_script])+";\n\
-_view_"+name+"_next = "+Eden.edenCodeForValue(agent.state[obs_next])+";\n\
-_view_"+name+"_prev = "+Eden.edenCodeForValue(agent.state[obs_prev])+";\n\
-_view_"+name+"_override = "+Eden.edenCodeForValue(agent.state[obs_override])+";\n\
-_view_"+name+"_agent = "+Eden.edenCodeForValue(agent.state[obs_agent])+";\n\
-_view_"+name+"_showtabs = "+Eden.edenCodeForValue(agent.state[obs_showtabs])+";\n\
-_view_"+name+"_showbuttons = "+Eden.edenCodeForValue(agent.state[obs_showbuttons])+";\n\
-_view_"+name+"_tabs = "+Eden.edenCodeForValue(agent.state[obs_tabs])+";\n\
-_view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
-", false, -1);
-
+	
+		
 
 		function changeOwnership(ag, cause) {
-			if (scriptagent && scriptagent.name == ag.name && cause == "net") {
+			/*if (scriptagent && scriptagent.name == ag.name && cause == "net") {
 				if (!ag.owned) {
 					ag.setOwned(true);
 					readonly = false;
@@ -981,101 +967,39 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					changeClass(outdiv, "readonly", true);
 					outdiv.contentEditable = false;
 				}
-			}
+			}*/
 		}
-		function agentCreated(ag) {
-			if (agent && agent.state[obs_agent] !== undefined) {
-				if (ag.name == agent.state[obs_agent] && (scriptagent === undefined || ag.name != scriptagent.name)) {
-					changeAgent(undefined, ag.name);
-				}
-			}
-		}
-		function agentLoaded(ag) {
-			if (agent && agent.state[obs_agent] !== undefined) {
-				if (ag.name == agent.state[obs_agent] && (scriptagent === undefined || ag.name != scriptagent.name)) {
-					changeAgent(undefined, ag.name);
-				} else if (scriptagent && ag.name == scriptagent.name) {
-					intextarea.value = ag.getSource();
-					highlightContent(scriptagent.ast, -1, 0);
-					updateHistoryButtons();
-
-					if (scriptagent.canRedo()) {
-						showSubDialog("localChanges", function(status) {
-							if (status) onFastForward();
-						}, scriptagent);
-					}
-				}
-			}
-		}
-		function agentRollback(ag) {
-			if (ag === scriptagent) {
-				//console.log("ROLLBACK");
-				intextarea.value = scriptagent.snapshot;
-				updateEntireHighlight(true);
-				updateHistoryButtons();
-			}
-		}
+		
+		
+		
 
 		function agentPatched(ag, patch, lineno) {
-			if (ag && scriptagent && ag.name === scriptagent.name && readonly) {
+			/*if (ag && scriptagent && ag.name === scriptagent.name && readonly) {
 				console.log(ag.snapshot);
 				intextarea.value = ag.snapshot;
 				highlighter.ast = scriptagent.ast;
 				highlightContent(highlighter.ast, lineno, -1);
-			}
+			}*/
 		}
 
-
-
-		Eden.Agent.listenTo("create", agent, agentCreated);
-		Eden.Agent.listenTo("loaded", agent, agentLoaded);
-		Eden.Agent.listenTo("rollback", agent, agentRollback);
-		Eden.Agent.listenTo("owned", agent, changeOwnership);
-
-		// Need to rebuild tabs when new agents are created or titles change.
-		Eden.Agent.listenTo("remove", agent, removedAgent);
-		Eden.Agent.listenTo("autosave", agent, autoSaved);
-		Eden.Agent.listenTo("execute", agent, rebuildTabs);
-		Eden.Agent.listenTo("error", agent, rebuildTabs);
-		Eden.Agent.listenTo("fixed", agent, rebuildTabs);
-		Eden.Agent.listenTo("patched", agent, agentPatched);
-		Eden.Agent.listenTo("patch", agent, agentPatched);
-		Eden.Agent.listenTo("changed", agent, agentPatched);
-
-		Eden.Agent.listenTo("goto", agent, function(ag, line) {
-			if (!ag) return false;
-			if (agent.state[obs_tabs].indexOf(ag.name) == -1) return false;
-			agent.state[obs_agent] = ag.name;
-			scrollToLine(line);
-			// TODO implement select line
-			//gutter.selectLine(line);
-			return true;
-		});
-
-		/*edenUI.eden.root.addGlobal(function(sym, create) {
-			if (highlighter.ast) {
-				var whens = highlighter.ast.triggers[sym.name.slice(1)];
-				if (whens) {
-					//clearExecutedState();
-					for (var i=0; i<whens.length; i++) {
-						whens[i].execute(eden.root, undefined, highlighter.ast);
-					}
-					gutter.generate(highlighter.ast,-1);
-					clearExecutedState();
-				}
-			}
-		});*/
-
-
 		var gutterinterval = setInterval(function() {
-			if (scriptagent === undefined) return;
-			gutter.generate(scriptagent.ast, -1);
-			scriptagent.clearExecutedState();
+			if (scriptast === undefined) return;
+			gutter.generate(scriptast, -1);
+			scriptast.clearExecutedState();
 		}, 200);
 
 
 		buildMenu();
 
+
+		function updateSource(src, line) {
+			//var newast = new Eden.AST(src, undefined, eden.project);
+			tab_frags[curtab].setSource(src);
+			highlighter.ast = tab_frags[curtab].ast;
+			//eden.project.patch(scriptast, newast);
+			scriptast = highlighter.ast;
+			//tab_asts[curtab] = scriptast;
+		}
 
 
 		/**
@@ -1090,12 +1014,12 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				lineno = getLineNumber(intextarea);
 			}
 
-			scriptagent.setSource(intextarea.value, false, lineno);
-			highlighter.ast = scriptagent.ast;
+			//scriptagent.setSource(intextarea.value, false, lineno);
+			updateSource(intextarea.value, lineno);
 
 			runScript(lineno);
 
-			highlightContent(scriptagent.ast, lineno, pos);
+			highlightContent(scriptast, lineno, pos);
 			//rebuildNotifications();
 		}
 
@@ -1125,9 +1049,12 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 * could be such changes), for example when pasting.
 		 */
 		function updateEntireHighlight(rerun) {
-			if (scriptagent === undefined) return;
-			scriptagent.setSource(intextarea.value, false, -1);
-			highlighter.ast = scriptagent.ast;
+			if (scriptast === undefined) return;
+			//scriptagent.setSource(intextarea.value, false, -1);
+			//highlighter.ast = scriptagent.ast;
+
+			updateSource(intextarea.value, -1);
+
 			var pos = -1;
 			if (document.activeElement === intextarea) {
 				pos = intextarea.selectionEnd;
@@ -1137,7 +1064,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				runScript(0);
 			}
 
-			highlightContent(scriptagent.ast, -1, pos);
+			highlightContent(scriptast, -1, pos);
 		}
 
 
@@ -1488,17 +1415,19 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 							}
 							replaceLine(dragline, content);
 
-							scriptagent.setSource(intextarea.value, false, dragline);
-							highlighter.ast = scriptagent.ast;
+							updateSource(intextarea.value, dragline);
+
+							//scriptagent.setSource(intextarea.value, false, dragline);
+							//highlighter.ast = scriptagent.ast;
 
 							//console.log("Dragline: " + dragline);
 
 							// Execute if no errors!
-							if (gutter.lines[dragline] && gutter.lines[dragline].live && !scriptagent.hasErrors()) {
-								scriptagent.executeLine(dragline);
+							if (gutter.lines[dragline] && gutter.lines[dragline].live && !scriptast.hasErrors()) {
+								scriptast.executeLine(dragline);
 							}
 
-							highlightContent(scriptagent.ast, dragline, -1);
+							highlightContent(scriptast, dragline, -1);
 						}
 					},
 					start: function(e,u) {
@@ -1602,8 +1531,8 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 		function runScript(line) {
 			// If we should run the statement (there are no errors)
-			if (gutter.lines[line-1] && gutter.lines[line-1].live && !scriptagent.hasErrors()) {
-				scriptagent.executeLine(line-1);
+			if (gutter.lines[line-1] && gutter.lines[line-1].live && !scriptast.hasErrors()) {
+				scriptast.executeLine(line-1);
 			}
 		}
 
@@ -1630,9 +1559,9 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			edited = true;
 
 			// Check saved status
-			if (scriptagent && scriptagent.isSaved()) {
-				setSubTitle("");
-			}
+			//if (scriptagent && scriptagent.isSaved()) {
+			//	setSubTitle("");
+			//}
 
 			// Using a timer to make rebuild async. Allows input and keyup to
 			// trigger a single rebuild which overcomes Chrome input event bug.
@@ -2114,7 +2043,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 * previous/next functionality.
 		 */
 		function onPrevious() {
-			if (agent[obs_override] == true) {
+			/*if (agent[obs_override] == true) {
 				agent[obs_prev] = true;
 				agent[obs_prev] = false;
 			} else if (!readonly && scriptagent.canUndo()) {
@@ -2122,7 +2051,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				intextarea.value = scriptagent.snapshot;
 				updateEntireHighlight(true);
 				updateHistoryButtons();
-			}
+			}*/
 		}
 
 
@@ -2132,7 +2061,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 * previous/next functionality.
 		 */
 		function onNext() {
-			if (agent[obs_override] == true) {
+			/*if (agent[obs_override] == true) {
 				agent[obs_next] = true;
 				agent[obs_next] = false;
 			} else if (!readonly && scriptagent.canRedo()) {
@@ -2140,7 +2069,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				intextarea.value = scriptagent.snapshot;
 				updateEntireHighlight(true);
 				updateHistoryButtons();
-			}
+			}*/
 		}
 
 
@@ -2150,7 +2079,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 * previous/next functionality.
 		 */
 		function onFastForward() {
-			if (agent[obs_override] == true) {
+			/*if (agent[obs_override] == true) {
 				//agent[obs_] = true;
 				//agent[obs_next] = false;
 			} else if (!readonly && scriptagent.canRedo()) {
@@ -2158,7 +2087,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				intextarea.value = scriptagent.snapshot;
 				updateEntireHighlight(true);
 				updateHistoryButtons();
-			}
+			}*/
 		}
 
 
@@ -2168,7 +2097,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 * previous/next functionality.
 		 */
 		function onRewind() {
-			if (agent[obs_override] == true) {
+			/*if (agent[obs_override] == true) {
 				//agent[obs_] = true;
 				//agent[obs_next] = false;
 			} else if (!readonly && scriptagent.canUndo()) {
@@ -2176,38 +2105,42 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				intextarea.value = scriptagent.snapshot;
 				updateEntireHighlight(true);
 				updateHistoryButtons();
-			}
+			}*/
 		}
 
 
 
 		function onTabClick(e) {
-			var name = e.currentTarget.getAttribute("data-name");
+			var name = e.currentTarget.getAttribute("data-index");
 			console.log(name);
-			agent.state[obs_agent] = name;
+			//agent.state[obs_agent] = name;
+			curSym.assign(parseInt(name), eden.root.scope, Symbol.hciAgent);
 			intextarea.focus();
-			updateHistoryButtons();
+			//updateHistoryButtons();
 		}
 
 
 
 		function onTabLeft() {
-			if (scriptagent === undefined) return;
-			var tabs = agent.state[obs_tabs];
-			var ix = tabs.indexOf(scriptagent.name);
+			//if (scriptast === undefined) return;
+			//var tab_asts = agent.state[obs_tabs];
+			var ix = curtab;
 			ix--;
 			if (ix >= 0) {
-				agent.state[obs_agent] = tabs[ix];
+				curtab = ix;
+				scriptast = tab_asts[curtab]
+				//agent.state[obs_agent] = tabs[ix];
 			}
 		}
 
 		function onTabRight() {
-			if (scriptagent === undefined) return;
-			var tabs = agent.state[obs_tabs];
-			var ix = tabs.indexOf(scriptagent.name);
+			//if (scriptagent === undefined) return;
+			//var tabs = agent.state[obs_tabs];
+			var ix = curtab; // tabs.indexOf(scriptagent.name);
 			ix++;
 			if (ix < tabs.length) {
 				agent.state[obs_agent] = tabs[ix];
+				scriptast = tab_asts[curtab];
 			}
 		}
 
