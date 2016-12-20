@@ -1,14 +1,11 @@
 Eden.AST.Modify = function(kind, expression) {
 	this.type = "modify";
-	this.parent = undefined;
+	Eden.AST.BaseStatement.apply(this);
+
 	this.errors = (expression) ? expression.errors : [];
 	this.kind = kind;
 	this.expression = expression;
 	this.lvalue = undefined;
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
-	this.scopes = [];
 };
 
 Eden.AST.Modify.prototype.getParameterByNumber = function(index) {
@@ -18,10 +15,8 @@ Eden.AST.Modify.prototype.getParameterByNumber = function(index) {
 	return undefined;
 }
 
-Eden.AST.Modify.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Modify.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Modify.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Modify.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;

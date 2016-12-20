@@ -1,19 +1,14 @@
 Eden.AST.If = function() {
 	this.type = "if";
-	this.parent = undefined;
-	this.errors = [];
+	Eden.AST.BaseStatement.apply(this);
+
 	this.condition = "";
 	this.statement = undefined;
 	this.elsestatement = undefined;
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
 };
 
-Eden.AST.If.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.If.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.If.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.If.prototype.setCondition = function(condition) {
 	this.condition = condition;

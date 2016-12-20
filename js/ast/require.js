@@ -1,10 +1,8 @@
 Eden.AST.Require = function() {
 	this.type = "require";
-	this.errors = [];
+	Eden.AST.BaseStatement.apply(this);
+
 	this.expression = undefined;
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
 }
 
 Eden.AST.Require.prototype.setExpression = function(express) {
@@ -23,10 +21,7 @@ Eden.AST.Require.prototype.execute = function(ctx, base, scope) {
 	edenUI.loadPlugin(this.expression.execute(ctx, base, scope));
 }
 
-Eden.AST.Require.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
-
+Eden.AST.Require.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Require.prototype.getSource = Eden.AST.BaseStatement.getSource;
 Eden.AST.Require.prototype.error = fnEdenASTerror;
 

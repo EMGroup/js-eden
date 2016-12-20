@@ -1,19 +1,14 @@
 Eden.AST.Switch = function() {
 	this.type = "switch";
-	this.parent = undefined;
-	this.errors = [];
+	Eden.AST.BaseStatement.apply(this);
+
 	this.expression = "";
 	this.statement = undefined;
-	this.start = 0;
-	this.end = 0;
-	this.line = undefined;
 	this.compiled = undefined;
 };
 
-Eden.AST.Switch.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Switch.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Switch.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Switch.prototype.setExpression = function(expression) {
 	this.expression = expression;

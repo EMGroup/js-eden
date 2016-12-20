@@ -6,6 +6,7 @@ Eden.Fragment = function(selector) {
 	this.origin = undefined;
 	this.source = undefined;
 	this.ast = undefined;
+	this.locked = false;
 
 	if (this.results && this.results.length > 0 && this.results[0].type == "script") {
 		this.originast = this.results[0];
@@ -17,6 +18,11 @@ Eden.Fragment = function(selector) {
 		var p = this.originast;
 		while (p && p.parent) p = p.parent;
 		this.origin = p.base.origin;
+		this.locked = this.originast.lock > 0;
+
+		if (this.locked) {
+			Eden.Fragment.emit("locked", [this]);
+		}
 	}
 
 	var me = this;
@@ -28,6 +34,16 @@ Eden.Fragment = function(selector) {
 			Eden.Fragment.emit("changed", [me]);
 		}
 	});
+
+	Eden.Fragment.listenTo("lock", this, function(frag, ast) {
+		if (ast === me.originast) {
+			console.log("IVE BECOME LOCKED", me.name);
+			me.locked = true;
+			Eden.Fragment.emit("locked", [me]);
+		}
+	});
+
+	this.lock();
 }
 
 Eden.Fragment.listenTo = listenTo;
@@ -41,6 +57,7 @@ Eden.Fragment.prototype.getSource = function() {
 
 Eden.Fragment.prototype.setSource = function(src) {
 	//var oldast = this.ast;
+	this.source = src;
 
 	// Build a new AST
 	this.ast = new Eden.AST(src, undefined, this);
@@ -56,7 +73,7 @@ Eden.Fragment.prototype.setSource = function(src) {
 		//o.statements = this.ast.script.statements;
 		// Do NOT set parent, allows correct source to be extracted later...
 		//this.ast.parent = parent;
-		console.log(this.originast);
+		//console.log(this.originast);
 		this.originast.patchScript(this.ast);
 
 		// Notify all parent fragments of patch
@@ -68,8 +85,8 @@ Eden.Fragment.prototype.setSource = function(src) {
 
 		//this.originast = this.origin.patch(this.originast, this.ast);
 		// TODO Need to notify any parent fragments of change!!
-		console.log("origin:",this.originast.getInnerSource());
-		console.log("new:",this.ast.script.getInnerSource());
+		//console.log("origin:",this.originast.getInnerSource());
+		//console.log("new:",this.ast.script.getInnerSource());
 	} else {
 		// Oops, errors.
 	}

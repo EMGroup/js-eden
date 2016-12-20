@@ -1,21 +1,16 @@
 Eden.AST.While = function() {
 	this.type = "while";
-	this.parent = undefined;
-	this.errors = [];
+	Eden.AST.BaseStatement.apply(this);
+
 	this.condition = undefined;
 	this.statement = undefined;
-	this.start = 0;
-	this.end = 0;
-	this.line = undefined;
 	this.compiled = undefined;
 };
 
 Eden.AST.While.prototype.error = fnEdenASTerror;
 
-Eden.AST.While.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.While.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.While.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.While.prototype.setCondition = function(condition) {
 	this.condition = condition;

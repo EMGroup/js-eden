@@ -1,22 +1,15 @@
 Eden.AST.Action = function() {
 	this.type = "action";
-	this.parent = undefined;
+	Eden.AST.BaseStatement.apply(this);
+
 	this.kindofaction = "touch";
-	this.errors = [];
 	this.triggers = [];
 	this.body = undefined;
 	this.name = "";
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
-	this.line = undefined;
-	this.doxyComment = undefined;
 };
 
-Eden.AST.Action.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Action.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Action.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Action.prototype.kind = function(k) {
 	this.kindofaction = k;

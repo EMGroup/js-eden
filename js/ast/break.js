@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+/**
+ * Break statement. This doesn't really do anything but a direct translation
+ * to javascript. Not supported in execution only mode.
+ */
 Eden.AST.Break = function() {
 	this.type = "break";
 	Eden.AST.BaseStatement.apply(this);
@@ -5,7 +16,8 @@ Eden.AST.Break = function() {
 
 Eden.AST.Break.prototype.error = fnEdenASTerror;
 
-Eden.AST.Break.prototype.setSource = Eden.AST.BaseStatement.setSource();
+Eden.AST.Break.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Break.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Break.prototype.generate = function(ctx, scope) {
 	return "break; ";

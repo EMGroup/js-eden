@@ -1,16 +1,12 @@
 Eden.AST.Return = function() {
 	this.type = "return";
-	this.parent = undefined;
-	this.errors = [];
+	Eden.AST.BaseStatement.apply(this);
+
 	this.result = undefined;
-	this.start = 0;
-	this.end = 0;
 };
 
-Eden.AST.Return.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Return.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Return.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Return.prototype.error = fnEdenASTerror;
 

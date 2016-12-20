@@ -1,12 +1,10 @@
 Eden.AST.Insert = function() {
 	this.type = "insert";
+	Eden.AST.BaseStatement.apply(this);
+
 	this.destination = undefined;
 	this.index = undefined;
 	this.value = undefined;
-	this.errors = [];
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
 }
 
 Eden.AST.Insert.prototype.setDest = function(dest) {
@@ -52,10 +50,8 @@ Eden.AST.Insert.prototype.execute = function(ctx, base, scope) {
 	}, undefined);
 }
 
-Eden.AST.Insert.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Insert.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Insert.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Insert.prototype.error = fnEdenASTerror;
 

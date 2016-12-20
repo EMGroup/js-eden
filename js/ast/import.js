@@ -1,13 +1,10 @@
 Eden.AST.Import = function() {
 	this.type = "import";
-	this.errors = [];
+	Eden.AST.BaseStatement.apply(this);
+
 	this.path = "";
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
 	this.options = [];
 	this.tag = "default";
-	this.line = undefined;
 }
 
 Eden.AST.Import.prototype.setPath = function(path) {
@@ -79,10 +76,8 @@ Eden.AST.Import.prototype.addOption = function(opt) {
 	});
 }*/
 
-Eden.AST.Import.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Import.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Import.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Import.prototype.error = fnEdenASTerror;
 

@@ -1,12 +1,22 @@
+/*
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+/**
+ * Condition statement. Directly converts to javascript and cannot be used when
+ * directly executing (generates a runtime error).
+ */
 Eden.AST.Continue = function() {
 	this.type = "continue";
 	Eden.AST.BaseStatement.apply(this);
 };
 
 Eden.AST.Continue.prototype.error = fnEdenASTerror;
-
 Eden.AST.Continue.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Declarations.prototype.getSource = Eden.AST.BaseStatement.getSource;
+Eden.AST.Continue.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Continue.prototype.generate = function(ctx, scope) {
 	return "continue; ";

@@ -1,20 +1,15 @@
 Eden.AST.Wait = function() {
 	this.type = "wait";
-	this.parent = undefined;
-	this.errors = [];
-	this.start = 0;
-	this.end = 0;
+	Eden.AST.BaseStatement.apply(this);
+
 	this.delay = undefined;
-	this.executed = 0;
 	this.compiled_delay = undefined;
 };
 
 Eden.AST.Wait.prototype.error = fnEdenASTerror;
 
-Eden.AST.Wait.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Wait.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Wait.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Wait.prototype.setDelay = function(delay) {
 	this.delay = delay;

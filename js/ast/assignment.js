@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+/**
+ * Assignment statement. Has an lvalue and an expression used to modify a symbol.
+ * The executed version has its expression compiled. Note, constructor should
+ * not take arguments.
+ */
 Eden.AST.Assignment = function(expression) {
 	this.type = "assignment";
 	Eden.AST.BaseContext.apply(this);
@@ -10,14 +22,14 @@ Eden.AST.Assignment = function(expression) {
 	this.value = undefined;
 };
 
-Eden.AST.Assignment.prototype.getParameterByNumber = function(index) {
+/*Eden.AST.Assignment.prototype.getParameterByNumber = function(index) {
 	if (this.parent && this.parent.getParameterByNumber) {
 		var p = this.parent.getParameterByNumber(index);
 		//console.log("Param "+index+" = " + p);
 		return p;
 	}
 	return undefined;
-}
+}*/
 
 Eden.AST.Assignment.prototype.setSource = Eden.AST.BaseStatement.setSource;
 Eden.AST.Assignment.prototype.getSource = Eden.AST.BaseStatement.getSource;
@@ -30,7 +42,7 @@ Eden.AST.Assignment.prototype.left = function(lvalue) {
 };
 
 Eden.AST.Assignment.prototype.generate = function(ctx,scope) {
-	var result = this.lvalue.generate(ctx);
+	var result = this.lvalue.generate(ctx, scope);
 
 	if (this.lvalue.islocal) {
 		result += " = ";

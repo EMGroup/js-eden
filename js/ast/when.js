@@ -1,24 +1,16 @@
 Eden.AST.When = function() {
 	this.type = "when";
+	Eden.AST.BaseContext.apply(this);
+
 	this.name = "*When";
 	this.id = undefined;
-	this.errors = [];
 	this.expression = undefined;
-	this.statement = undefined;
-	this.start = 0;
-	this.end = 0;
-	this.executed = 0;
-	this.parent = undefined;
-	this.dependencies = {};
 	this.active = false;
 	this.compiled = undefined;
 	this.scope = undefined;
 	this.compScope = undefined;
 	this.base = undefined;
-	this.scopes = [];
-	this.doxyComment = undefined;
 	this.local = false;
-	this.locals = undefined;
 	this.dirty = false;
 };
 
