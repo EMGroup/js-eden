@@ -1,4 +1,22 @@
 /**
+ * A doxygen style comment node. The content is not parsed, the entire comment
+ * is stored raw.
+ * @param {String} content The string content of the comment.
+ * @param {number} start Start character location in original source.
+ * @param {number} end End character location in original source.
+ * @see doxycomments.js
+ */
+Eden.AST.DoxyComment = function(content, start, end) {
+	this.type = "doxycomment";
+	this.content = content;
+	this.startline = start;
+	this.endline = end;
+	this.tags = undefined;
+	this.controls = undefined;
+	this.parent = undefined;
+}
+
+/**
  * Get an array of all the hashtags in this comment. This function caches the
  * parsed result and also extracts "@" control tokens but does not return them.
  * @return {Array} List of hashtags.

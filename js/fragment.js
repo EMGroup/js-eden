@@ -77,9 +77,11 @@ Eden.Fragment.prototype.setSource = function(src) {
 
 Eden.Fragment.prototype.lock = function() {
 	// Recursively lock parents...
-	var p = this.originast;
+	var p = this.originast.parent;
+	this.originast.lock++;
 	while (p) {
 		p.lock++;
+		Eden.Fragment.emit("lock", [this, p]);
 		p = p.parent;
 	}
 	// TODO Notify parent fragments of lock

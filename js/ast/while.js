@@ -1,0 +1,58 @@
+Eden.AST.While = function() {
+	this.type = "while";
+	this.parent = undefined;
+	this.errors = [];
+	this.condition = undefined;
+	this.statement = undefined;
+	this.start = 0;
+	this.end = 0;
+	this.line = undefined;
+	this.compiled = undefined;
+};
+
+Eden.AST.While.prototype.error = fnEdenASTerror;
+
+Eden.AST.While.prototype.setSource = function(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+Eden.AST.While.prototype.setCondition = function(condition) {
+	this.condition = condition;
+	this.errors.push.apply(this.errors, condition.errors);
+}
+
+Eden.AST.While.prototype.setStatement = function(statement) {
+	this.statement = statement;
+	if (statement) {
+		this.errors.push.apply(this.errors, statement.errors);
+	}
+}
+
+Eden.AST.While.prototype.generate = function(ctx, scope) {
+	var res = "while (" + this.condition.generate(ctx,scope,{bound: false});
+	res += ") ";
+	res += this.statement.generate(ctx, scope) + "\n";
+	return res;
+}
+
+Eden.AST.While.prototype.getCondition = function(ctx) {
+	if (this.compiled) {
+		return this.compiled;
+	} else {
+		var express = this.condition.generate(ctx, "scope", {bound: false});
+		var expfunc = eval("(function(context,scope){ return " + express + "; })");
+		this.compiled = expfunc;
+		return expfunc;
+	}
+}
+
+Eden.AST.While.prototype.execute = function(ctx, base, scope, agent) {
+	this.executed = 1;
+
+	// A tail recursive while loop...
+	if (this.getCondition(ctx)(eden.root,scope)) {
+		return [this.statement, this];
+	}
+}
+
