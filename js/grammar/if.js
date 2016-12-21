@@ -4,6 +4,7 @@
  */
 Eden.AST.prototype.pIF = function() {
 	var ifast = new Eden.AST.If();
+	ifast.parent = this.parent;
 	var parent = this.parent;
 	this.parent = ifast;
 

@@ -1,16 +1,34 @@
-Eden.Project = function(id, title, author, tags, source) {
-	this.title = title;
-	this.name = title.replace(/[^a-bA-B0-9]/g, "");
-	this.author = author;
-	this.tags = tags;
+Eden.Project = function(id, name, source) {
+	this.title = undefined;
+	this.name = name.replace(/[^a-bA-B0-9]/g, "");
+	this.author = undefined;
+	this.tags = undefined;
 	this.src = source;
 	this.ast = new Eden.AST(source, undefined, this);
+	this.id = id;
+
+	if (this.ast && this.ast.script.errors.length == 0) {
+		if (this.ast.mainDoxyComment) {
+			var controls = this.ast.mainDoxyComment.getControls();
+			if (controls["@title"]) this.title = controls["@title"][0];
+			if (controls["@author"]) this.author = controls["@author"][0];
+			this.tags = this.ast.mainDoxyComment.getHashTags();
+		}
+	}
 }
 
 Eden.Project.fromOldPath = function(path, tag, cb) {
 	Eden.Agent.importAgent(path, tag, ["noexec"], function(ag) {
 		var src = ag.getSource();
-		eden.project = new Eden.Project(ag.meta.saveID, path, ag.meta.author, [], src);
+		eden.project = new Eden.Project(ag.meta.saveID, path, src);
+		if (cb) cb(eden.project);
+	});
+}
+
+Eden.Project.newFromExisting = function(name, cb) {
+	Eden.Agent.importAgent(name, undefined, ["noexec"], function(ag) {
+		var src = ag.getSource();
+		eden.project = new Eden.Project(undefined, name, src);
 		if (cb) cb(eden.project);
 	});
 }
@@ -18,6 +36,10 @@ Eden.Project.fromOldPath = function(path, tag, cb) {
 Eden.Project.prototype.load = function() {
 	// Get patches from local storage... but don't apply
 	this.ast.execute(this);
+}
+
+Eden.Project.prototype.save = function() {
+	// Generate and upload to pm.
 }
 
 Eden.Project.prototype.restore = function() {

@@ -72,3 +72,30 @@ function concatAndResolveUrl(url, concat) {
 	}
 	return url3.join('/');
 }
+
+Utils = {
+	flatten: function (array) {
+		var flat = [];
+		for (var i = 0, l = array.length; i < l; ++i){
+			flat = flat.concat(array[i] instanceof Array ? this.flatten(array[i]) : array[i]);
+		}
+		return flat;
+	},
+
+	construct: (function () {
+		/** @constructor */
+		var temp_ctor = function () {};
+
+		return function (ctor) {
+			temp_ctor.prototype = ctor.prototype;
+			var instance = new temp_ctor();
+			var args = [];
+			for (var i = 1; i < arguments.length; i++) {
+				args.push(arguments[i]);
+			}
+			ctor.apply(instance, args);
+			return instance;
+		};
+	})()
+};
+

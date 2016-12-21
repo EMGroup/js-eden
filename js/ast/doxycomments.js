@@ -23,27 +23,12 @@ Eden.AST.DoxyComment = function(content, start, end) {
  */
 Eden.AST.DoxyComment.prototype.getHashTags = function() {
 	if (this.tags) return Object.keys(this.tags);
-
-	// Strip beginning and end and split into words.
-	var words = this.content.split(/[ \n\t]+/);
-	var tags = {};
-	var controls = {};
-	for (var i=0; i<words.length; i++) {
-		if (words[i].charAt(0) == "#") tags[words[i]] = true;
-		// If its a control @ token then the next word may be a parameter.
-		if (words[i].charAt(0) == "@") {
-			if (controls[words[i]] === undefined) controls[words[i]] = [];
-			if (i+1 < words.length && words[i+1] && words[i+1].charAt(0) != "@" && words[i+1].charAt(0) != "#") {
-				controls[words[i]].push(words[i+1]);
-				i++;
-			} else {
-				controls[words[i]].push(words[i]);
-			}
-		}
+	this.stripped();
+	if (this.tags) {
+		return Object.keys(this.tags);
+	} else {
+		return [];
 	}
-	this.tags = tags;
-	this.controls = controls;
-	return Object.keys(tags);
 }
 
 
@@ -59,7 +44,8 @@ Eden.AST.DoxyComment.prototype.hasTag = function(tag) {
 
 Eden.AST.DoxyComment.prototype.getControls = function() {
 	if (this.controls) return this.controls;
-	this.getHashTags();
+	//this.getHashTags();
+	this.stripped();
 	return this.controls;
 }
 

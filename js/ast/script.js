@@ -173,6 +173,23 @@ Eden.AST.Script.prototype.append = function (ast) {
 	}
 }
 
+Eden.AST.Script.prototype.insertBefore = function(before, ast) {
+	var ix;
+	for (ix = 0; ix<this.statements.length; ix++) {
+		if (this.statements[ix] === before) break;
+	}
+	if (ix < this.statements.length) {
+		this.statements.splice(ix, 0, ast);
+	} else {
+		// Should this error?
+		this.statements.push(ast);
+	}
+
+	if (ast.errors.length > 0) {
+		this.errors.push.apply(this.errors, ast.errors);
+	}
+}
+
 Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
 	var filtered = [];
 	this.executed = 1;

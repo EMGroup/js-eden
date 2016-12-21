@@ -49,6 +49,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
  */
 Eden.AST.prototype.pSCRIPT = function() {
 	var ast = new Eden.AST.Script();
+	ast.base = this;
 	var parent = this.parent;
 	this.parent = ast;
 
