@@ -227,6 +227,7 @@ div.agent-tab-current {
 	border-right: 1px solid #aaa;
 	color: #222;
 	opacity: 1.0;
+	z-index: 10;
 }
 
 div.agent-tab-current:hover {
@@ -483,6 +484,7 @@ div.inputhider {
 	top: 30px;
 	bottom: 30px;
 	background: #e5e5e5;
+	box-shadow: 0 0 8px #888;
 }
 
 div.input-dialog .ui-dialog-titlebar {
