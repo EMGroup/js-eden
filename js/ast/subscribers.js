@@ -1,10 +1,9 @@
 Eden.AST.Subscribers = function() {
 	this.type = "subscribers";
-	this.errors = [];
+	Eden.AST.BaseStatement.apply(this);
+
 	this.list = [];
 	this.lvalue = undefined;
-	this.start = undefined;
-	this.end = undefined;
 };
 
 Eden.AST.Subscribers.prototype.left = function(lvalue) {
@@ -14,10 +13,8 @@ Eden.AST.Subscribers.prototype.left = function(lvalue) {
 	}
 };
 
-Eden.AST.Subscribers.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Subscribers.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Subscribers.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Subscribers.prototype.execute = function(ctx, base, scope) {
 	

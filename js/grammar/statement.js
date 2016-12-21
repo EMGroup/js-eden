@@ -307,9 +307,9 @@ Eden.AST.prototype.pSTATEMENT = function() {
 
 	// Update statements start and end so original source can be extracted.
 	if (end == -1) {
-		stat.setSource(start, this.stream.prevposition);
+		stat.setSource(start, this.stream.prevposition, this.stream.code.substring(start,this.stream.prevposition));
 	} else {
-		stat.setSource(start, end);
+		stat.setSource(start, end,this.stream.code.substring(start,end));
 	}
 
 	//var endline = this.stream.line;

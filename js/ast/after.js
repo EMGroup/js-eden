@@ -36,10 +36,8 @@ Eden.AST.After.prototype.execute = function(ctx, base, scope) {
 	setTimeout(eval(statement),this.expression.execute(ctx,base,scope));
 }
 
-Eden.AST.After.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.After.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.After.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.After.prototype.error = fnEdenASTerror;
 

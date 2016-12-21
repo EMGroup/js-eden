@@ -10,16 +10,10 @@ Eden.AST.BaseStatement = function() {
 	this.source = undefined;
 }
 
-Eden.AST.BaseStatement.setSource = function(start, end) {
+Eden.AST.BaseStatement.setSource = function(start, end, src) {
 	this.start = start;
 	this.end = end;
-	var p = this;
-	while (p.parent) p = p.parent;
-	if (p.base) {
-		this.source = p.base.getSource(this);
-	} else {
-		console.error("NO BASE", this, p.type);
-	}
+	this.source = src;
 }
 
 Eden.AST.BaseStatement.getSource = function() {

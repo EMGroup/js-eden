@@ -12,6 +12,7 @@ Eden.AST.When = function() {
 	this.base = undefined;
 	this.local = false;
 	this.dirty = false;
+	this.statement = undefined;
 };
 
 Eden.AST.When.prototype.addTrigger = function(base, d, scope) {
@@ -26,7 +27,17 @@ Eden.AST.When.prototype.addTrigger = function(base, d, scope) {
 }
 
 Eden.AST.When.prototype.getSource = function() {
-	return this.base.getSource(this);
+	return this.prefix + this.statement.getSource() + this.postfix;
+}
+
+Eden.AST.When.prototype.setSource = function(start, end, src) {
+	this.start = start;
+	this.end = end;
+
+	if (!src) return;
+
+	this.prefix = src.substring(0, this.statement.start-start);
+	this.postfix = src.substring(this.statement.end-start);
 }
 
 Eden.AST.When.prototype.getLine = function() { return this.line; }
@@ -65,12 +76,6 @@ Eden.AST.When.prototype.setStatement = function (statement) {
 	if (statement) {
 		this.errors.push.apply(this.errors, statement.errors);
 	}
-}
-
-Eden.AST.When.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-	if (this.base) this.name = "*When:"+this.base.origin.name+":"+this.line;
 }
 
 Eden.AST.When.prototype.generate = function() {

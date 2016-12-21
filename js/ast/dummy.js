@@ -1,14 +1,10 @@
 Eden.AST.DummyStatement = function() {
 	this.type = "dummy";
-	this.parent = undefined;
-	this.errors = [];
-	
+	Eden.AST.BaseStatement.apply(this);
 }
 
-Eden.AST.DummyStatement.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.DummyStatement.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.DummyStatement.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.DummyStatement.prototype.generate = function() {
 	return "";

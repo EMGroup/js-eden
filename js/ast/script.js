@@ -4,110 +4,21 @@ Eden.AST.Script = function() {
 	this.name = undefined;
 	this.active = false;
 	this.base = undefined;
-	
+	this.prefix = "";
+	this.postfix = "";
 };
 
 Eden.AST.Script.prototype.getSource = function() {
-	if (this.patched && !this.patch) {
-		//if (ast.patch) {
-		//	res += ast.getSource();
-		//	return;
-		//}
-
-		// Get outer start source
-		var res = "";
-		var start = this.start;
-		var end = this.statements[0].start;
-		var p = this;
-		while (p.parent) p = p.parent;
-		var base = p.base;
-
-		//res += base.stream.code.substring(start,end);
-
-		for (var i=0; i<this.statements.length; i++) {
-			if (this.statements[i].patched) {
-				console.log("PATCHED",this.statements[i]);
-				end = this.statements[i].start;
-				res += base.stream.code.substring(start,end);
-				res += this.statements[i].getSource();
-				start = this.statements[i].end;
-				end = this.statements[i].end;
-				//getSource(ast.statements[i]);
-			} else {
-				end = this.statements[i].end;
-			}
-		}
-
-		//start = ast.statements[ast.statements.length-1].end;
-		end = this.end;
-
-		res += base.stream.code.substring(start,end);
-		return res;
-	} else {
-		var ast = this.base;
-		if (ast === undefined) {
-			var p = this;
-			while (p.parent) p = p.parent;
-			ast = this.base;
-		}
-
-		if (this.patch) {
-			var prefix = ast.stream.code.slice(this.start, this.oldstats[0].start);
-			var postfix = ast.stream.code.slice(this.oldstats[this.oldstats.length-1].end, this.end);
-			return prefix + this.patch.script.getSource() + postfix;
-		} else {
-			return ast.getSource(this);
-		}
-	}
+	return this.prefix + this.getInnerSource() + this.postfix;
 }
 
 Eden.AST.Script.prototype.getInnerSource = function() {
-	if (this.patch) return this.patch.script.getSource();
-
-	if (this.patched) {
-		//if (ast.patch) {
-		//	res += ast.getSource();
-		//	return;
-		//}
-
-		// Get outer start source
-		var res = "";
-		var start = this.statements[0].start;
-		var end = this.statements[0].start;
-		var p = this;
-		while (p.parent) p = p.parent;
-		var base = p.base;
-
-		//res += base.stream.code.substring(start,end);
-
-		for (var i=0; i<this.statements.length; i++) {
-			if (this.statements[i].patched) {
-				console.log("PATCHED",this.statements[i]);
-				end = this.statements[i].start;
-				res += base.stream.code.substring(start,end);
-				res += this.statements[i].getSource();
-				start = this.statements[i].end;
-				end = this.statements[i].end;
-				//getSource(ast.statements[i]);
-			} else {
-				end = this.statements[i].end;
-			}
-		}
-
-		//start = ast.statements[ast.statements.length-1].end;
-		//end = this.end;
-
-		res += base.stream.code.substring(start,end);
-		return res;
-	} else {
-		var ast = this.base;
-		if (ast === undefined) {
-			var p = this;
-			while (p.parent) p = p.parent;
-			ast = this.base;
-		}
-		return ast.stream.code.slice(this.statements[0].start,this.statements[this.statements.length-1].end).trim();
+	var res = "";
+	for (var i=0; i<this.statements.length; i++) {
+		if (typeof this.statements[i].getSource != "function") console.error("NO GET SOURCE", this.statements[i].type);
+		res += this.statements[i].getSource();
 	}
+	return res;
 }
 
 Eden.AST.Script.prototype.patchScript = function(ast) {
@@ -117,9 +28,6 @@ Eden.AST.Script.prototype.patchScript = function(ast) {
 		p.patched = true;
 		p = p.parent;
 	}
-	if (!this.patch) this.oldstats = this.statements;
-
-	this.patch = ast;
 	this.statements = ast.script.statements;
 
 	// Extract outer source prefix
@@ -161,9 +69,18 @@ Eden.AST.Script.prototype.setName = function(base, name) {
 	this.shortName = name;
 }
 
-Eden.AST.Script.prototype.setSource = function(start, end) {
+Eden.AST.Script.prototype.setSource = function(start, end, src) {
 	this.start = start;
 	this.end = end;
+
+	if (!src) return;
+
+	if (this.statements.length == 0) {
+		
+	} else {
+		this.prefix = src.substring(0, this.statements[0].start-start);
+		this.postfix = src.substring(this.statements[this.statements.length-1].end-start);
+	}
 }
 
 Eden.AST.Script.prototype.append = function (ast) {

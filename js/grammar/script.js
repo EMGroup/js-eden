@@ -50,8 +50,10 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 Eden.AST.prototype.pSCRIPT = function() {
 	var ast = new Eden.AST.Script();
 	ast.base = this;
+	ast.parent = this.parent;
 	var parent = this.parent;
 	this.parent = ast;
+	var epos = this.stream.prevposition;
 
 	//ast.setLocals(this.pLOCALS());
 
@@ -59,6 +61,8 @@ Eden.AST.prototype.pSCRIPT = function() {
 		var statement = this.pSTATEMENT();
 
 		if (statement !== undefined) {
+			//console.log("WS: ", this.stream.code.substring(statement.end, this.stream.prevposition));
+
 			ast.append(statement);
 			if (statement.errors.length > 0) {
 				break;
@@ -66,6 +70,13 @@ Eden.AST.prototype.pSCRIPT = function() {
 				/*while (this.token != ";" && this.token != "EOF") {
 					this.next();
 				}*/
+			}
+
+			var ws = this.stream.code.substring(statement.end, this.stream.prevposition);
+			if (ws.length > 0) {
+				var dummy = new Eden.AST.DummyStatement();
+				dummy.setSource(statement.end, this.stream.prevposition, ws);
+				ast.append(dummy);
 			}
 		} else {
 			if (this.token != "}" && this.token != ";") {

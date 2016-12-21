@@ -132,7 +132,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			for (var d in this.dependencies) {
 				deps.push(d);
 			}
-			sym.eden_definition = base.getSource(this);
+			sym.eden_definition = this.getSource();
 			//if (agent === undefined) {
 			//	console.trace("UNDEF AGENT: " + source);
 			//}

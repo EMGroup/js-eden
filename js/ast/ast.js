@@ -85,7 +85,7 @@ Eden.AST = function(code, imports, origin, noparse) {
 	if (!noparse) {
 		this.script = this.pSCRIPT();
 		this.script.base = this;
-		this.script.setSource(0,code.length);
+		this.script.setSource(0,code.length, code);
 		this.script.doxyComment = this.mainDoxyComment;
 	}
 }
@@ -225,7 +225,8 @@ Eden.AST.prototype.getBlockLines = function(lineno) {
  * Get the js-eden source code for a specific statement.
  */
 Eden.AST.prototype.getSource = function(ast) {
-	return this.stream.code.slice(ast.start,ast.end).trim();
+	//return this.stream.code.slice(ast.start,ast.end).trim();
+	return this.script.getSource();
 }
 
 

@@ -14,6 +14,8 @@ Eden.Project = function(id, name, source) {
 			if (controls["@author"]) this.author = controls["@author"][0];
 			this.tags = this.ast.mainDoxyComment.getHashTags();
 		}
+
+		this.ast.script.append(eden.root);
 	}
 }
 

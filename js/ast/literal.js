@@ -4,19 +4,15 @@
  */
 Eden.AST.Literal = function(type, literal) {
 	this.type = "literal";
-	this.parent = undefined;
+	Eden.AST.BaseStatement.apply(this);
+
 	this.datatype = type;
 	this.value = literal;
-	this.errors = [];
-	this.start = 0;
-	this.end = 0;
 }
 Eden.AST.Literal.prototype.error = fnEdenASTerror;
 
-Eden.AST.Literal.prototype.setSource = function(start, end) {
-	this.start = start;
-	this.end = end;
-}
+Eden.AST.Literal.prototype.setSource = Eden.AST.BaseStatement.setSource;
+Eden.AST.Literal.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 	var res;
