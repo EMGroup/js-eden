@@ -1,6 +1,6 @@
 Eden.AST.Modify = function(kind, expression) {
 	this.type = "modify";
-	Eden.AST.BaseStatement.apply(this);
+	Eden.AST.BaseContext.apply(this);
 
 	this.errors = (expression) ? expression.errors : [];
 	this.kind = kind;

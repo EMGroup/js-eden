@@ -175,6 +175,7 @@ Eden.AST.Script.prototype.append = function (ast) {
 
 Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
 	var filtered = [];
+	this.executed = 1;
 
 	if (this.locals && this.locals.list.length > 0) {
 		if (ctx.locals === undefined) ctx.locals = {};

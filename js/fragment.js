@@ -1,7 +1,7 @@
 Eden.Fragment = function(selector) {
 	this.name = "*Fragment:"+selector;
 	this.selector = selector;
-	this.results = Eden.Query.querySelector(selector);
+	this.results = Eden.Selectors.query(selector, undefined, undefined, true);
 	this.originast = undefined;
 	this.origin = undefined;
 	this.source = undefined;

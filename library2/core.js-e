@@ -316,7 +316,7 @@ func querySelector {
 	para q,o;
 	if (o == @) o = "id";
 	${{
-		return Eden.Query.querySelector(q,o);
+		return Eden.Selectors.query(q,o);
 	}}$;
 }
 

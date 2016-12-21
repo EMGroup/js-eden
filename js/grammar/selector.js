@@ -86,6 +86,9 @@ Eden.AST.prototype.pCODESELECTOR_P = function() {
 	} else if (this.token == ")") {
 		expr = new Eden.AST.Literal("STRING", ")");
 		this.next();
+	} else if (this.token == ".") {
+		expr = new Eden.AST.Literal("STRING", ".");
+		this.next();
 	}
 
 	if (expr) {
