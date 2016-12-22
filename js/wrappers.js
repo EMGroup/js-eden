@@ -297,7 +297,7 @@ Eden.Agent.importAgent = function(path, tag, options, callback) {
 				ag.loadSource(finish);
 				return;
 			} else {
-				meta.saveID = "origin";
+				meta.saveID = -1;
 				meta.tag = "origin";
 				ag.setSnapshot("");
 				ag.setSource("");
