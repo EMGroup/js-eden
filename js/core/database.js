@@ -633,7 +633,13 @@ Eden.DB.getMeta = function(path, callback) {
 }
 
 Eden.DB.getSourceRaw = function(path, tag, callback) {
-	var tagvalue = "&version="+tag;
+	var tagvalue; // = "&version="+tag;
+
+	if (typeof tag == "string") {
+		tagvalue = "&tag="+tag;
+	} else {
+		tagvalue = "&version="+tag;
+	}
 
 	$.ajax({
 		url: Eden.DB.remoteURL+"/agent/get?path="+path+tagvalue,

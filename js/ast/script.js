@@ -65,7 +65,7 @@ Eden.AST.Script.prototype.getParameterByNumber = function(index) {
 Eden.AST.Script.prototype.error = fnEdenASTerror;
 
 Eden.AST.Script.prototype.setName = function(base, name) {
-	this.name = "*Action:"+base.origin.name+":"+name;
+	this.name = name;
 	this.shortName = name;
 }
 

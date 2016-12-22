@@ -408,7 +408,7 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 			if (o === undefined && stats.length > 0) {
 				// Need to generate an AST for each result, or first only if single
 				if (single) {
-					var res = [(new Eden.AST(stats[0], undefined, {name: s})).script];
+					var res = [(new Eden.AST(stats[0], undefined, {name: s, remote: true})).script];
 					Eden.Selectors.cache[s] = res[0];
 					cb(res);
 					return;

@@ -234,6 +234,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var curtab = -1;
 		var tab_queries = [];
 		var tab_frags = [];
+		var readonly = false;
 
 		var obs_tabix = "_view_"+name+"_current";
 		var obs_showtabs = "_view_"+name+"_showtabs";
@@ -259,10 +260,28 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				//var base = p.base;
 
 				intextarea.value = tab_frags[curtab].getSource();
-				scriptast = tab_frags[curtab].ast;
-				highlightContent(scriptast, -1, 0);
-				intextarea.focus();
-				checkScroll();
+				if (tab_frags[curtab].ast) {
+					scriptast = tab_frags[curtab].ast;
+					highlightContent(scriptast, -1, 0);
+					intextarea.focus();
+					checkScroll();
+
+					gutter.setAgent(tab_frags[curtab]);
+				}
+
+				if (tab_frags[curtab].locked) {
+					readonly = true;
+					setSubTitle("[readonly]");
+					// The readonly class changes colour scheme
+					changeClass(outdiv, "readonly", true);
+					outdiv.contentEditable = false;
+				} else {
+					readonly = false;
+					setSubTitle("");
+					// The readonly class changes colour scheme
+					changeClass(outdiv, "readonly", false);
+					outdiv.contentEditable = true;
+				}
 
 				rebuildTabs();
 			} else {
@@ -272,10 +291,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function tabsChanged(sym, value) {
 			if (Array.isArray(value)) {
+				//for (var i=0; i<tab_frags.length; i++) {
+				//	tab_frags[i].unlock();
+				//}
 				tab_queries = value;
+				// TODO Reuse existing fragments.
 				tab_frags = [];
 				for (var i=0; i<value.length; i++) {
-					tab_frags.push(new Eden.Fragment(value[i]));
+					tab_frags.push(Eden.Fragment.fromSelector(value[i]));
 				}
 
 				curChanged(curSym, curSym.value());
@@ -302,119 +325,24 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		});
 
+		Eden.Fragment.listenTo("locked", this, function(frag) {
+			if (frag === tab_frags[curtab]) {
+				console.log("LOCKED",frag);
+				curChanged(curSym, curSym.value());
+			}
+		});
 
-		/**
-		 * Extract tab name and force execute the agent.
-		 *   @param tab A DOM tab element.
-		 */
-		function executeTab(tab) {
-			var id = parseInt(tab.getAttribute("data-tabid"));
-			if (tab_asts[id]) {
-				tab_asts[id].execute(true);
+		Eden.Fragment.listenTo("unlocked", this, function(frag) {
+			if (frag === tab_frags[curtab]) {
+				curChanged(curSym, curSym.value());
+			}
+		});
+
+		Eden.Fragment.listenTo("errored", this, function(frag) {
+			//if (frag === tab_frags[curtab]) {
 				rebuildTabs();
-			}
-		}
-
-
-
-		/**
-		 * Extract tab name and cancel any execution status for that agent.
-		 *   @param tab A DOM tab element.
-		 */
-		function stopTab(tab) {
-			//var name = tab.getAttribute("data-name");
-			//if (Eden.Agent.agents[name]) {
-			//	Eden.Agent.agents[name].executed = false;
-			//	rebuildTabs();
 			//}
-		}
-
-
-
-		/**
-		 * Hide a tab, removing it from the symbol table tab list.
-		 *   @param tab A DOM tab element.
-		 */
-		function hideTab(tab) {
-			/*var name = tab.getAttribute("data-name");
-			var tabs = agent.state[obs_tabs];
-
-			// Remove from tab list.
-			var ix = tabs.indexOf(name);
-			if (ix >= 0) {
-				tabs.splice(ix,1);
-				ix--;
-				if (ix < 0) ix = 0;
-				if (ix < tabs.length) {
-					// Change to previous agent...
-					agent.state[obs_agent] = tabs[ix];
-				}
-				agent.state[obs_tabs] = tabs;
-			}
-			// No agents left in tabs so clear current agent
-			if (tabs.length == 0) agent.state[obs_agent] = undefined;*/
-		}
-
-
-		function uploadAgent(tab) {
-			/*var name = tab.getAttribute("data-name");
-			showSubDialog("uploadAgent", function(status, tag, ispublic) {
-				if (Eden.Agent.agents[name] && status) {
-					if (tag == "") tag = undefined;
-					Eden.Agent.agents[name].upload(tag, ispublic, function(success) {
-						if (!success) {
-							showSubDialog("uploadFailed", function(status) {
-								if (status) uploadAgent(tab);
-							});
-						}
-					});
-				}
-			});*/
-		}
-
-		function shareAgentTab(tab) {
-			//var name = tab.getAttribute("data-name");
-			//shareAgent(name);
-		}
-
-		/*function shareAgent(name) {
-			if (!name) name = scriptagent.name;
-			Eden.Agent.agents[name].upload(undefined, true, function(success) {
-				if (!success) {
-					showSubDialog("uploadFailed", function(status) {
-						if (status) shareAgent(name);
-					});
-				} else {
-					setSubTitle("[shared]");
-				}
-			});
-		}*/
-
-
-		function reloadAgent(tab) {
-			/*var name = tab.getAttribute("data-name");
-			if (name) {
-				Eden.Agent.importAgent(name, "default", ["reload"], function(){
-
-				}); 
-			}*/
-		}
-
-
-
-		/* Build the context menu for the tab bar. */
-		//var tabcm = new EdenUI.ContextMenu(tabs);
-		//tabcm.addItem("&#xf04b;",Language.ui.input_window.run, true, executeTab);
-		//tabcm.addItem("&#xf04d;",Language.ui.input_window.stop,function(tab){
-		//	var name = tab.getAttribute("data-name");
-		//	return Eden.Agent.agents[name] && Eden.Agent.agents[name].executed;
-		//}, stopTab);
-		//tabcm.addSeparator();
-		//tabcm.addItem("&#xf24d;",Language.ui.input_window.clone, false);
-		//tabcm.addItem("&#xf021;",Language.ui.input_window.reload, true, reloadAgent);
-		//tabcm.addItem("&#xf093;",Language.ui.input_window.upload, function() { return Eden.DB.isLoggedIn(); }, uploadAgent);
-		//tabcm.addItem("&#xf1e0;",Language.ui.input_window.share, function() { return Eden.DB.isLoggedIn(); }, shareAgentTab);
-		//tabcm.addItem("&#xf21b;",Language.ui.input_window.hide,true, hideTab);
+		});
 
 
 
@@ -489,7 +417,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var edited = false;
 		var dirty = false;
 		var tabscrollix = 0;
-		var readonly = true;
 		var showhidden = false;
 		var inspectmode = false;
 		var gotomode = false;
@@ -498,44 +425,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var scriptast;
 		var browseDialog = undefined;
-
-
-
-		function showBrowseDialog() {
-			/*if (browseDialog === undefined) {
-				if (EdenUI.plugins.ScriptInput.dialogs["browseAgents"]) {
-					browseDialog = EdenUI.plugins.ScriptInput.dialogs["browseAgents"]($dialogContents, function(valid, selected){
-						if (valid ) {
-							var tabs = agent.state[obs_tabs];
-							var lasttab = (scriptagent) ? scriptagent.name : undefined;
-							for (var a in selected) {
-								if (selected[a]) {
-									lasttab = a;
-									if (tabs.indexOf(a) == -1) {
-										tabs.push(a);
-									}
-								}
-							}
-							agent.state[obs_tabs] = tabs;
-							agent.state[obs_agent] = lasttab;
-						}
-					}, agent.state[obs_tabs]);
-				}
-			}
-
-			browseDialog.show();*/
-		}
-
-
-
-		function updateInspectButton() {
-			/*var inspectbut = $buttonbar.find(".search-mode");
-			if (inspectmode) {
-				changeClass(inspectbut.get(0), "active", true);
-			} else {
-				changeClass(inspectbut.get(0), "active", false);
-			}*/
-		}
 
 
 
@@ -594,7 +483,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				iconclass = "tab-icon noagent";
 			}
 
-			var icon = (name == "view/script/input") ? "&#xf0c3;" : "&#xf1ae;";
+			var icon = "&#xf1ae;";
+			if (tab_frags[id].remote) icon = "&#xf08e;";
+			else if (tab_frags[id].origin === undefined) icon = "&#xf0c3;";
+			else if (tab_frags[id].locked) icon = "&#xf023;";
 
 
 			tab.className = classname;
@@ -605,44 +497,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				tab.style.display = "none";
 			}*/
 			tabs.appendChild(tab);
-		}
-
-
-
-		/**
-		 * Autosave event handler. When saved update status and history
-		 * buttons.
-		 */
-		function autoSaved(ag) {
-			//if (ag === scriptagent) {
-			//	setSubTitle("[saved]");
-			//	updateHistoryButtons();
-			//}
-		}
-
-
-
-		function removedAgent(name,prev) {
-			/*if (scriptagent && scriptagent.name == name) {
-				if (tabscrollix > 0) tabscrollix--;
-				if (prev) {
-					changeAgent(undefined, prev);
-				} else {
-					for (var a in Eden.Agent.agents) {
-						changeAgent(undefined, a);
-						return
-					}
-					changeAgent(undefined, undefined);
-				}
-			}
-			// Remove from tabs
-			var agents = agent.state[obs_tabs];
-			var ix = agents.indexOf(name);
-			if (ix >= 0) {
-				console.log("Remove agent:", name);
-				agents.splice(ix,1);
-				agent.state[obs_tabs] = agents;
-			}*/
 		}
 
 
@@ -740,7 +594,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 
 					if (scriptast) {
-						title.textContent = scriptast.name + " " + text;
+						title.textContent = tab_frags[curtab].name + " " + text;
 					} else {
 						title.textContent = text;
 					}
@@ -751,151 +605,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		// Initialise sub title after dialog creation
 		setTimeout(function() { if (scriptast === undefined) setSubTitle("[No Scripts]"); }, 0);
-
-
-
-		/**
-		 * Generate the script text from a list. The list can contain strings
-		 * for each line, or a symbol reference to get the current definition.
-		 * Used on load and when _script changes.
-		 */
-		function preloadScript(sym, value) {
-			/*var res = "";
-			if (value) {
-
-				Eden.Agent.importAgent("view/script/"+name, "default", ["noexec","create"], function(ag,msg) {
-					if (ag === undefined) {
-						console.error("Could not create agent: view/script/"+name+"@default: "+msg);
-						return;
-					}
-					if (value instanceof Array) {
-						for (var i=0; i < value.length; i++) {
-							if (typeof value[i] == "string") {
-								res += value[i] + "\n";
-							} else if (typeof value[i] == "object") {
-								res += value[i].eden_definition+"\n";
-							}
-						}
-					} else if (typeof value == "string") {
-						res = value;
-					}
-					ag.setSource(res, false, -1);
-					
-					agent.state[obs_agent] = "view/script/"+name;
-				});
-			}*/
-		}
-
-
-
-		/**
-		 * Load a file from the server as the script.
-		 */
-		function loadFile(sym, value) {
-			/*$.get(value, function(data) {
-				intextarea.value = data;
-				updateEntireHighlight(scriptagent.executed);
-			}, "text");*/
-		}
-
-
-
-		/**
-		 * Respond to requests to change the current tab to a particular agent.
-		 * This is triggered from the observable _view_[name]_agent which is
-		 * set by the UI on tab change etc.
-		 */
-		function changeAgent(sym, value) {
-			// Close any dialogs!
-			hideSubDialogs();
-
-			// A valid and imported agent is given
-			if (value && Eden.Agent.agents[value]) {
-				// Already the current tab so continue...
-				//if (scriptagent && value == scriptagent.name) return;
-				// Record tab cursor position
-				if (scriptagent) tabpositions[scriptagent.name] = intextarea.selectionStart;
-				// Release ownership of current tab
-				if (scriptagent && readonly == false) scriptagent.setOwned(false);
-				// Switch to new tab.
-				scriptagent = Eden.Agent.agents[value];
-				setTitle(scriptagent.title);
-
-				// Not already owned so we can take ownership
-				if (Eden.Agent.agents[value].owned == false) {
-					scriptagent.setOwned(true);
-					readonly = false;
-					setSubTitle("");
-					changeClass(outdiv, "readonly", false);
-					outdiv.contentEditable = true;
-				// Otherwise it needs to be readonly
-				} else {
-					readonly = true;
-					setSubTitle("[readonly]");
-					// The readonly class changes colour scheme
-					changeClass(outdiv, "readonly", true);
-					outdiv.contentEditable = false;
-				}
-
-				// We have a parsed source so update contents of script view.
-				if (scriptagent.ast) {
-					intextarea.value = scriptagent.ast.stream.code;
-					if (tabpositions[scriptagent.name]) {
-						intextarea.selectionStart = tabpositions[scriptagent.name];
-						intextarea.selectionEnd = tabpositions[scriptagent.name];
-					}
-					highlightContent(scriptagent.ast, -1, (tabpositions[scriptagent.name]) ? tabpositions[scriptagent.name] : 0);
-					intextarea.focus();
-					checkScroll();
-				} else {
-					intextarea.value = "";
-					intextarea.focus();
-					updateEntireHighlight();
-				}
-
-				disableInspectMode();
-				updateHistoryButtons();
-
-				gutter.setAgent(value);
-
-				// Make sure tab exists
-				var tabs = agent.state[obs_tabs];
-				if (tabs.indexOf(value) == -1) {
-					tabs.push(value);
-					agent.state[obs_tabs] = tabs;
-				} else {
-					rebuildTabs();
-				}
-
-			// Otherwise, no valid agent so try and resolve
-			} else {
-				// Release ownership of any current tab
-				if (scriptagent && readonly == false) scriptagent.setOwned(false);
-				// Clear and disable the script view
-				intextarea.value = "";
-				readonly = true;
-				outdiv.className = "outputcontent readonly";
-				outdiv.contentEditable = false;
-				outdiv.innerHTML = "";
-				scriptagent = undefined;
-				setTitle(Language.ui.input_window.title);
-				setSubTitle("[No Agents]");
-
-				gutter.clear();
-
-				// Attempt to import the agent without execution and then
-				// update the script view if successful.
-				if (value) {
-					if (Eden.Agent.agents[value] === undefined) {
-						Eden.Agent.importAgent(value, "default", ["noexec"], function(ag) {
-							if (ag) {
-								changeAgent(undefined, value);
-							}
-						});
-					}
-				}
-			}
-		}
 
 
 
@@ -960,42 +669,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		$dialogContents.get(0).setAttribute("data-observables", observables.join(","));
 
 	
-		
-
-		function changeOwnership(ag, cause) {
-			/*if (scriptagent && scriptagent.name == ag.name && cause == "net") {
-				if (!ag.owned) {
-					ag.setOwned(true);
-					readonly = false;
-					changeClass(outdiv, "readonly", false);
-					outdiv.contentEditable = true;
-					setSubTitle("");
-				} else {
-					readonly = true;
-					setSubTitle("[readonly]");
-					//outdiv.className = "outputcontent readonly";
-					changeClass(outdiv, "readonly", true);
-					outdiv.contentEditable = false;
-				}
-			}*/
-		}
-		
-		
-		
-
-		function agentPatched(ag, patch, lineno) {
-			/*if (ag && scriptagent && ag.name === scriptagent.name && readonly) {
-				console.log(ag.snapshot);
-				intextarea.value = ag.snapshot;
-				highlighter.ast = scriptagent.ast;
-				highlightContent(highlighter.ast, lineno, -1);
-			}*/
-		}
+	
 
 		var gutterinterval = setInterval(function() {
 			if (scriptast === undefined) return;
 			gutter.generate(scriptast, -1);
-			scriptast.clearExecutedState();
+			//scriptast.clearExecutedState();
 		}, 200);
 
 
@@ -1079,36 +758,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
-		/**
-		 * Check if any of the listed symbols are undefined. Used in generating
-		 * warnings about use of undefined observables.
-		 */
-		function checkUndefined(dependencies) {
-			var res = [];
-			for (var d in dependencies) {
-				if (eden.root.lookup(d).value() === undefined) {
-					res.push(d);
-				}
-			}
-			return res;
-		}
-
-
-
 		function hideInfoBox() {
 			$(infobox).hide("fast");
-		}
-
-
-
-		/* UNUSED DUE TO PERFORMANCE BUG */
-		function rebuildNotifications() {
-			for (var i=0; i<highlighter.ast.lines.length; i++) {
-				if (highlighter.ast.lines[i] &&
-						highlighter.ast.lines[i].lvalue) {
-					eden.root.lookup(highlighter.ast.lines[i].lvalue.observable).addJSObserver(name+"_scriptLines", notifyOutOfDate);
-				}
-			}
 		}
 
 
@@ -1133,135 +784,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var $line = $(outdiv.childNodes[lineno-1]);
 			$line.addClass("eden-extendedline");
 		}
-
-
-
-		/**
-		 * Add a link icon to the left of the specified line
-		 */
-		function addParentLine(lineno) {
-			var $line = $(outdiv.childNodes[lineno-1]);
-			$line.addClass("eden-parentline");
-		}
-
-
-
-		/**
-		 * Add an error icon to the left of the specified line
-		 */
-		function addErrorLine(lineno) {
-			var $line = $(outdiv.childNodes[lineno-1]);
-			$line.addClass("eden-errorline");
-		}
-
-
-
-		/* UNUSED */
-		function notifyOutOfDate(symbol, value) {
-
-			// Find the symbol in the ast lines and highlight that line
-			var count = 0;
-			var name = symbol.name.slice(1);
-			for (var i=0; i<highlighter.ast.lines.length; i++) {
-				var curast = highlighter.ast.lines[i];
-
-				// Ignore number dragging line
-				if (i == dragline) continue;
-
-				if (curast && curast.lvalue &&
-						curast.lvalue.observable == name) {
-
-					// Any statement with a parent should be ignored
-					// TODO: check if statements
-					if (curast.parent) continue;
-
-					if (curast.type == "definition") {
-						// Compare eden definitions
-						if (symbol.eden_definition != highlighter.ast.getSource(curast)) {
-							//addWarningLine(i+1, "Definition has been changed elsewhere.");
-							commentOutLine(i+1);
-						}
-					} else if (curast.type == "assignment") {
-						var myval = curast.expression.execute(eden.root,undefined);
-						// TODO compare eden value string?
-						if (!rt.equal(myval,value)) {
-							//addWarningLine(i+1, "This line says '"+name+"' = '" + myval + "', but somewhere else it changed to '"+value+"'. Please choose a resolution.");
-							commentOutLine(i+1);
-						}
-					}
-					count++;
-				}
-			}
-			if (count > 0) {
-				updateEntireHighlight();
-			}
-		}
-
-
-
-		/**
-		 * Called by a timeout after a period of inactivity. Displays any
-		 * error and warning messages.
-		 */
-		/*function doneTyping() {
-			amtyping = false;
-
-			if (autoexec && highlighter.ast.script.errors.length == 0) {
-				// Get current line number
-				var lineno = getLineNumber(intextarea)-1;
-
-				// If the current line has a statement
-				if (highlighter.ast.lines[lineno]) {
-					var ast = highlighter.ast.lines[lineno];
-
-					// If the statement is a definition or assignment
-					if (ast.type == "definition" || ast.type == "assignment") {
-						var observable = highlighter.ast.lines[lineno].lvalue.observable;
-						var sym = eden.root.lookup(observable);
-						var val = sym.value();
-
-						// Show a warning if it evaluates to undefined
-						// TODO: use _option_showundefined
-						if (val === undefined) {
-							// Find why it is undefined...
-							var undef = checkUndefined(ast.dependencies);
-
-							// One of its dependencies is undefined...
-							if (undef.length > 0) {
-								var undefstr = "";
-								for (var i=0; i<undef.length; i++) {
-									undefstr += "<b>"+undef[i]+"</b>";
-									if (i != undef.length - 1) undefstr += ",";
-								}
-								if (undef.length == 1) {
-									addWarningLine(currentlineno);
-									//showInfoBox("warning", "<b>" + observable + "</b> "+ Language.ui.input_window.is_undef_because +" "+undefstr+" " + Language.ui.input_window.is_undef);
-								} else {
-									addWarningLine(currentlineno);
-									//showInfoBox("warning", "<b>" + observable + "</b> "+ Language.ui.input_window.is_undef_because +" "+undefstr+" " + Language.ui.input_window.are_undef);
-								}
-							// Its undefined but we don't know why
-							} else {
-								addWarningLine(currentlineno);
-								//showInfoBox("warning", observable + " " + Language.ui.input_window.is_undef);
-							}
-						// Not undefined
-						} else {
-							//hideInfoBox();
-						}
-					} else {
-						//hideInfoBox();
-					}
-				} else {
-					//hideInfoBox();
-				}
-			} else if (highlighter.ast.script.errors.length != 0) {
-				//showInfoBox("error", highlighter.ast.script.errors[0].messageText());
-				//addErrorLine(highlighter.ast.script.errors[0].line, highlighter.ast.script.errors[0].messageText());
-			} else {
-				//hideInfoBox();
-			}
-		}*/
 
 
 
@@ -1844,6 +1366,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * text is selected that needs replacing.
 		 */
 		function onOutputKeyDown(e) {
+			if (readonly) return;
 			// Alt and AltGr for inspect mode.
 			if (e.altKey && e.keyCode == 73) {
 				enableInspectMode();
@@ -1907,25 +1430,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
-		function openTab(path, tag) {
-			if (tag === undefined) tag = "default";
-			Eden.Agent.importAgent(path, tag, ["noexec", "create"], function(ag) {
-				/*if (ag === undefined) {
-					ag = new Eden.Agent(undefined, path, undefined, undefined);
-				}*/
-				var tabs = agent.state[obs_tabs];
-				if (tabs.indexOf(path) == -1) {
-					tabs.push(path);
-					agent.state[obs_tabs] = tabs;
-				}
-				agent.state[obs_agent] = path;
-				intextarea.focus();
-			});
-		}
-
-
-
 		function onOutputMouseDown(e) {
+			if (readonly) return;
+
 			setTimeout(function() {
 				// To prevent false cursor movement when dragging numbers...
 				if (document.activeElement === outdiv) {
@@ -1959,6 +1466,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function onOutputMouseUp(e) {
 			hideInfoBox();
 			hideMenu();
+
+			if (readonly) return;
 
 			if (inspectmode) {
 				var element = e.target;
@@ -2137,8 +1646,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var ix = curtab;
 			ix--;
 			if (ix >= 0) {
-				curtab = ix;
-				scriptast = tab_asts[curtab]
+				//curtab = ix;
+				curSym.assign(ix, eden.root.scope, Symbol.hciAgent);
 				//agent.state[obs_agent] = tabs[ix];
 			}
 		}
@@ -2148,9 +1657,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			//var tabs = agent.state[obs_tabs];
 			var ix = curtab; // tabs.indexOf(scriptagent.name);
 			ix++;
-			if (ix < tabs.length) {
-				agent.state[obs_agent] = tabs[ix];
-				scriptast = tab_asts[curtab];
+			if (ix < tab_frags.length) {
+				curSym.assign(ix, eden.root.scope, Symbol.hciAgent);
 			}
 		}
 

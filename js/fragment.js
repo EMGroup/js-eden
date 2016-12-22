@@ -1,31 +1,19 @@
 Eden.Fragment = function(selector) {
 	this.name = "*Fragment:"+selector;
 	this.selector = selector;
-	this.results = Eden.Selectors.query(selector, undefined, undefined, true);
 	this.originast = undefined;
 	this.origin = undefined;
 	this.source = undefined;
 	this.ast = undefined;
-	this.locked = false;
+	this.locked = true;
+	this.remote = false;
+	this.results = [];
 
-	if (this.results && this.results.length > 0 && this.results[0].type == "script") {
-		this.originast = this.results[0];
-	}
+	//console.error("FRAGMENT");
 
-	if (this.originast) {
-		this.source = this.originast.getInnerSource();
-		this.ast = new Eden.AST(this.source, undefined, this);
-		var p = this.originast;
-		while (p && p.parent) p = p.parent;
-		this.origin = p.base.origin;
-		this.locked = this.originast.lock > 0;
-
-		if (this.locked) {
-			Eden.Fragment.emit("locked", [this]);
-		}
-	}
-
+	this.reset();
 	var me = this;
+
 	Eden.Fragment.listenTo("patch", this, function(frag, ast) {
 		if (ast === me.originast) {
 			console.log("I AM OUT OF DATE",me.name);
@@ -43,12 +31,62 @@ Eden.Fragment = function(selector) {
 		}
 	});
 
-	this.lock();
+	Eden.Fragment.listenTo("unlock", this, function(frag, ast) {
+		if (ast === me.originast) {
+			//console.log("IVE BECOME LOCKED", me.name);
+			me.locked = false;
+			Eden.Fragment.emit("unlocked", [me]);
+		}
+	});
 }
 
 Eden.Fragment.listenTo = listenTo;
 Eden.Fragment.emit = emit;
 Eden.Fragment.listeners = {};
+Eden.Fragment.cache = {};
+
+Eden.Fragment.fromSelector = function(selector) {
+	if (Eden.Fragment.cache[selector]) {
+		var frag = Eden.Fragment.cache[selector];
+		frag.reset();
+		return frag;
+	} else {
+		var frag = new Eden.Fragment(selector);
+		Eden.Fragment.cache[selector] = frag;
+		return frag;
+	}
+}
+
+Eden.Fragment.prototype.reset = function() {
+	var me = this;
+
+	Eden.Selectors.query(this.selector, undefined, undefined, true, function(res) {
+		console.log("SELECTOR");
+		me.results = res;
+
+		if (me.results && me.results.length > 0 && me.results[0].type == "script") {
+			me.originast = me.results[0];
+		}
+
+		if (me.originast) {
+			me.source = me.originast.getInnerSource();
+			me.ast = new Eden.AST(me.source, undefined, me);
+			var p = me.originast;
+			while (p && p.parent) p = p.parent;
+			me.origin = p.base.origin;
+			me.remote = me.origin.remote;
+			me.locked = me.originast.lock > 0 || me.remote;
+
+			Eden.Fragment.emit("changed", [me]);
+			//Eden.Fragment.emit("status", [me]);
+
+			if (me.locked) {
+				Eden.Fragment.emit("locked", [me]);
+			}
+		}
+		me.lock();
+	});
+}
 
 Eden.Fragment.prototype.getSource = function() {
 	if (this.source) return this.source;
@@ -65,9 +103,10 @@ Eden.Fragment.prototype.setSource = function(src) {
 	if (this.ast.script.errors.length == 0) {
 		// Patch the origin...
 		var parent = this.originast.parent;
-		var ix = 0;
-		for (; ix < parent.statements.length; ix++)
-			if (parent.statements[ix] === this.originast) break;
+		//var ix = 0;
+
+		//for (; ix < parent.statements.length; ix++)
+		//	if (parent.statements[ix] === this.originast) break;
 
 		//var o = this.originast; //parent.statements[ix];
 		//o.statements = this.ast.script.statements;
@@ -89,10 +128,12 @@ Eden.Fragment.prototype.setSource = function(src) {
 		//console.log("new:",this.ast.script.getInnerSource());
 	} else {
 		// Oops, errors.
+		Eden.Fragment.emit("errored", [this]);
 	}
 }
 
 Eden.Fragment.prototype.lock = function() {
+	console.log("LOCK",this);
 	// Recursively lock parents...
 	var p = this.originast.parent;
 	this.originast.lock++;
@@ -105,7 +146,15 @@ Eden.Fragment.prototype.lock = function() {
 }
 
 Eden.Fragment.prototype.unlock = function() {
-
+	if (this.originast.lock == 0) return;
+	// Recursively lock parents...
+	var p = this.originast.parent;
+	this.originast.lock--;
+	while (p) {
+		p.lock--;
+		if (p.lock == 0) Eden.Fragment.emit("unlock", [this, p]);
+		p = p.parent;
+	}
 }
 
 Eden.Fragment.prototype.getTitle = function() {

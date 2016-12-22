@@ -14,8 +14,6 @@ Eden.Project = function(id, name, source) {
 			if (controls["@author"]) this.author = controls["@author"][0];
 			this.tags = this.ast.mainDoxyComment.getHashTags();
 		}
-
-		this.ast.script.append(eden.root);
 	}
 }
 
@@ -35,13 +33,76 @@ Eden.Project.newFromExisting = function(name, cb) {
 	});
 }
 
-Eden.Project.prototype.load = function() {
-	// Get patches from local storage... but don't apply
-	this.ast.execute(this);
+Eden.Project.search = function(q, cb) {
+
 }
 
-Eden.Project.prototype.save = function() {
+Eden.Project.list = function(count, cb) {
+
+}
+
+Eden.Project.load = function(name, cb) {
+	Eden.DB.getSourceRaw("nick/projects/p"+name, "v1", function(src) {
+		if (src) {
+			eden.project = new Eden.Project(undefined, name, src);
+			eden.project.start();
+		}
+		if (cb) cb(eden.project);
+	});
+}
+
+Eden.Project.prototype.start = function() {
+	// Get patches from local storage... but don't apply
+	this.ast.execute(this);
+
+	if (this.ast.scripts["ACTIVE"]) {
+		// Find the active action and replace
+		for (var i=0; i<this.ast.script.statements.length; i++) {
+			if (this.ast.script.statements[i] === this.ast.scripts["ACTIVE"]) {
+				this.ast.script.statements[i] = eden.root;
+				break;
+			}
+		}
+	} else {
+		this.ast.scripts["ACTIVE"] = eden.root;
+		this.ast.script.append(eden.root);
+	}
+}
+
+Eden.Project.prototype.save = function(pub, callback) {
+	var me = this;
 	// Generate and upload to pm.
+	$.ajax({
+		url: Eden.DB.remoteURL+"/agent/add",
+		type: "post",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		data:{	path: "nick/projects/p"+this.name,
+				parentSaveID: undefined,
+				title: this.title,
+				source: this.generate(),
+				tag: "v1",
+				permission: (pub) ? "public" : undefined
+		},
+		success: function(data){
+			if (data == null || data.error) {
+				console.error(data);
+				eden.error((data) ? data.description : "No response from server");
+				if (callback) callback(false);
+			} else {
+				me.id = data.saveID;
+				if (callback) callback(true);
+			}
+		},
+		error: function(a){
+			//console.error(a);
+			//eden.error(a);
+			Eden.DB.disconnect(true);
+			if (callback) callback(false);
+		}
+	});
 }
 
 Eden.Project.prototype.restore = function() {
@@ -52,49 +113,17 @@ Eden.Project.prototype.patch = function(oldast, newast) {
 	
 }
 
+Eden.Project.prototype.addAction = function(name) {
+	var script = new Eden.AST.Script();
+	script.name = name;
+	script.prefix = "action "+name+"{\n";
+	script.postfix = "\n}";
+	script.parent = this.ast.script;
+	this.ast.script.append(script);
+	this.ast.scripts[name] = script;
+}
+
 Eden.Project.prototype.generate = function() {
-	var res = "";
-
-	// Recursively extract source of children?
-	function getSource(ast) {
-		if (ast.patch) {
-			res += ast.getSource();
-			return;
-		}
-
-		// Get outer start source
-		var start = ast.start;
-		var end = ast.statements[0].start;
-		var p = ast;
-		while (p.parent) p = p.parent;
-		var base = p.base;
-
-		//res += base.stream.code.substring(start,end);
-
-		for (var i=0; i<ast.statements.length; i++) {
-			if (ast.statements[i].patched) {
-				console.log("PATCHED",ast.statements[i]);
-				end = ast.statements[i].start;
-				res += base.stream.code.substring(start,end);
-				getSource(ast.statements[i]);
-				start = ast.statements[i].end;
-				end = ast.statements[i].end;
-				//getSource(ast.statements[i]);
-			} else {
-				end = ast.statements[i].end;
-			}
-		}
-
-		//start = ast.statements[ast.statements.length-1].end;
-		end = ast.end;
-
-		res += base.stream.code.substring(start,end);
-
-		// For each child statement get source
-		// Add outer end source.
-	}
-
-	getSource(this.ast.script);
-	return res;
+	return this.ast.getSource();
 }
 

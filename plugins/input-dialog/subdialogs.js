@@ -14,14 +14,15 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 <div class="script-subdialog-panel">\
 <button>Scratch</button></div>\
 <div class="script-subdialog-panel">\
-<input type="text" spellcheck="false" placeholder=\"New Tab\"></input>\
-<button>New</button></div>\
+<input class=\"namebox\" type="text" spellcheck="false" placeholder=\"New Tab\"></input>\
+<button class=\"button-new\">New</button></div>\
 <div class="script-subdialog-panel">\
 <input type="text" class=\"searchbox\" spellcheck="false" placeholder=\"Search\"></input>\
 <button class=\"button-search\">Load</button><br/>\
 </div>\
 </div>');
 	var searchbox = content.find(".searchbox").get(0);
+	var namebox = content.find(".namebox").get(0);
 	
 	content.on("click", ".button-cancel", function() {
 		element.get(0).removeChild(obscurer.get(0));
@@ -31,6 +32,12 @@ EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 	content.on("click", ".button-search", function() {
 		element.get(0).removeChild(obscurer.get(0));
 		callback(true, searchbox.value);
+	});
+
+	content.on("click", ".button-new", function() {
+		eden.project.addAction(namebox.value);
+		element.get(0).removeChild(obscurer.get(0));
+		callback(true, "."+namebox.value);
 	});
 
 	obscurer.append(content);
