@@ -2435,7 +2435,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				resizeStop: viewdata.resize
 			});
 
-		viewdata.confirmClose = !("MenuBar" in edenUI.plugins);
+		viewdata.confirmClose = false;
 
 		return viewdata;
 	};
