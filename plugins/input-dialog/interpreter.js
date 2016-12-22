@@ -265,6 +265,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				checkScroll();
 
 				rebuildTabs();
+			} else {
+				rebuildTabs();
 			}
 		}
 
@@ -284,6 +286,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		//curChanged(curSym, curSym.value());
 		tabsSym.addJSObserver("scriptview", tabsChanged);
 		tabsChanged(tabsSym, tabsSym.value());
+
+		if (tabsSym.value() === undefined && tabsSym.definition === undefined) {
+			tabsSym.assign([], eden.root.scope, Symbol.defaultAgent);
+		}
+
+		if (curSym.value() === undefined && curSym.definition === undefined) {
+			curSym.assign(0, eden.root.scope, Symbol.defaultAgent);
+		}
 
 
 		Eden.Fragment.listenTo("changed", this, function(frag) {
@@ -2155,11 +2165,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function onNewTab() {
 			showSubDialog("newAgent", function(status, value) {
 				if (status) {
-					Eden.Agent.importAgent(value, "default", ["noexec","create"], function(ag) {
-						agent.state[obs_agent] = value;
-					});
+					//Eden.Agent.importAgent(value, "default", ["noexec","create"], function(ag) {
+					//	agent.state[obs_agent] = value;
+					//});
+					var tabs = tabsSym.value();
+					tabs.push(value);
+					tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
 				} else if (value) {
-					showBrowseDialog();
+					//showBrowseDialog();
 				}
 			});
 		}

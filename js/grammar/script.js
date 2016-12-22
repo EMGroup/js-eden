@@ -53,9 +53,13 @@ Eden.AST.prototype.pSCRIPT = function() {
 	ast.parent = this.parent;
 	var parent = this.parent;
 	this.parent = ast;
-	var epos = this.stream.prevposition;
+	//var epos = this.stream.prevposition;
 
 	//ast.setLocals(this.pLOCALS());
+
+	var dummy = new Eden.AST.DummyStatement();
+	dummy.setSource(this.prevprevpos, this.stream.prevposition, this.stream.code.substring(this.prevprevpos, this.stream.prevposition));
+	ast.append(dummy);
 
 	while (this.token != "EOF") {
 		var statement = this.pSTATEMENT();

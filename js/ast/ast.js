@@ -69,6 +69,7 @@ Eden.AST = function(code, imports, origin, noparse) {
 	this.definitions = {};		// Definitions mapping
 	this.imports = (imports) ? imports : [];
 	this.origin = origin;		// The agent owner of this script
+	this.prevprevpos = 0;
 
 	if (!origin) console.error("NO ORIGIN", code);
 
@@ -280,6 +281,7 @@ Eden.AST.prototype.prettyPrint = function() {
  */
 Eden.AST.prototype.next = function() {
 	this.previous = this.token;
+	this.prevprevpos = this.stream.position;
 	this.token = this.stream.readToken();
 
 	//Cache prev line so it isn't affected by comments
